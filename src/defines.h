@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:00 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/08 11:07:25 $ */
 /* File: defines.h */
 
 /* Purpose: global constants and macro definitions */
@@ -40,7 +40,7 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-#define SAVEFILE_VERSION 3
+#define SAVEFILE_VERSION 5
 
 /* Added for ZAngband */
 #ifdef USE_SCRIPT
@@ -51,8 +51,8 @@
 #else /* USE_SCRIPT */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
-#define FAKE_VER_MINOR 2
-#define FAKE_VER_PATCH 8
+#define FAKE_VER_MINOR 4
+#define FAKE_VER_PATCH 0
 #endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
@@ -328,10 +328,10 @@
 #define MUT3_ESP                        0x02000000L
 #define MUT3_LIMBER                     0x04000000L
 #define MUT3_ARTHRITIS                  0x08000000L
-#define MUT3_RES_TIME                   0x10000000L
+#define MUT3_BAD_LUCK                   0x10000000L
 #define MUT3_VULN_ELEM                  0x20000000L
 #define MUT3_MOTION                     0x40000000L
-#define MUT3_SUS_STATS                  0x80000000L
+#define MUT3_GOOD_LUCK                  0x80000000L
 
 
 /* Monk martial arts... */
@@ -342,6 +342,8 @@
 /* Mindcraft */
 #define MAX_MINDCRAFT_POWERS  12
 
+/* Hallucination stuff */
+#define MAX_SILLY_ATTACK 28
 
 /* A hack for cave.c */
 #define BMP_FIRST_PC_CLASS 164
@@ -392,7 +394,7 @@
  * must also be large enough to allow "good enough" use as a circular queue,
  * to calculate monster flow, but note that the flow code is "paranoid".
  */
-#define TEMP_MAX 1536
+#define TEMP_MAX 4096
 
 
 /*
@@ -468,7 +470,7 @@
 #define TOWN_DAWN               10000   /* Number of turns from dawn to dawn XXX */
 #define BREAK_GLYPH             550             /* Rune of protection resistance */
 #define BREAK_MINOR_GLYPH       99             /* For explosive runes */
-#define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */
+#define BTH_PLUS_ADJ    1               /* Adjust BTH per plus-to-hit */
 #define MON_MULT_ADJ    8               /* High value slows multiplication */
 #define MON_SUMMON_ADJ  2               /* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE  2               /* Percent of player exp drained per hit */
@@ -698,6 +700,12 @@
 #define A_CHR   5
 
 /*
+ * Total number of stats.
+ */
+#define A_MAX	6
+
+
+/*
  * Player sex constants (hard-coded by save-files, arrays, etc)
  */
 #define SEX_FEMALE              0
@@ -809,6 +817,9 @@
 #define ROW_INFO                20
 #define COL_INFO                0       /* "xxxxxxxxxxxx" */
 
+#define ROW_MAP						0
+#define COL_MAP                  12
+
 #define ROW_CUT                 21
 #define COL_CUT                 0       /* <cut> */
 
@@ -842,6 +853,11 @@
 #define ROW_DEPTH               23
 #define COL_DEPTH               70      /* "Lev NNN" / "NNNN ft" */
 
+
+#define ROW_STATBAR             14
+#define COL_STATBAR             0       /* "Status bar" */
+
+#define MAX_EFFECTS		30	/* Max #of player timed effects*/
 
 
 /*** Terrain Feature Indexes (see "lib/edit/f_info.txt") ***/
@@ -938,6 +954,8 @@
 #define FEAT_GRASS              0x59
 
 #define FEAT_TRAP_TRAPS         0x5A
+
+#define FEAT_WALL_INVIS			  0x5B
 
 /* Feature 0x5A - 0x5F unused */
 
@@ -1381,7 +1399,7 @@
 #define TV_CHEST         7      /* Chests ('~') */
 #define TV_FIGURINE      8      /* Magical figurines */
 #define TV_STATUE        9      /* Statue, what a silly object... */
-#define TV_CORPSE			10      /* Corpses and Skeletons, specific */
+#define TV_CORPSE       10      /* Corpses and Skeletons, specific */
 #define TV_SHOT         16      /* Ammo for slings */
 #define TV_ARROW        17      /* Ammo for bows */
 #define TV_BOLT         18      /* Ammo for x-bows */
@@ -1441,16 +1459,16 @@
 #define SV_CORPSE					1
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
-#define SV_AMMO_LIGHT                    0	/* pebbles */
+#define SV_AMMO_LIGHT                    0	/* pebbles, flight arrows */
 #define SV_AMMO_NORMAL                   1	/* shots, arrows, bolts */
-#define SV_AMMO_HEAVY                    2	/* seeker arrows and bolts, mithril shots */
+#define SV_AMMO_HEAVY                    2	/* sheaf + seeker arrows and bolts, mithril shots */
 
 /* The "sval" codes for TV_BOW (note information in "sval") */
 #define SV_SLING                         2	/* (x2) */
 #define SV_SHORT_BOW                    12	/* (x2) */
-#define SV_LONG_BOW                     13	/* (x3) */
-#define SV_LIGHT_XBOW                   23	/* (x3) */
-#define SV_HEAVY_XBOW                   24	/* (x4) */
+#define SV_LONG_BOW                     13	/* (x3 or x2) */
+#define SV_LIGHT_XBOW                   23	/* (x4) */
+#define SV_HEAVY_XBOW                   24	/* (x5) */
 
 /* The "sval" codes for TV_DIGGING */
 #define SV_SHOVEL                        1
@@ -2008,16 +2026,17 @@
  *   ITEM: Affect each object in the "blast area" in some way
  *   KILL: Affect each monster in the "blast area" in some way
  *   HIDE: Hack -- disable "visual" feedback from projection
+ *   FRND: Stop if hit a friendly monster / player.
  */
-#define PROJECT_JUMP    0x01
-#define PROJECT_BEAM    0x02
-#define PROJECT_THRU    0x04
-#define PROJECT_STOP    0x08
-#define PROJECT_GRID    0x10
-#define PROJECT_ITEM    0x20
-#define PROJECT_KILL    0x40
-#define PROJECT_HIDE    0x80
-
+#define PROJECT_JUMP    0x0001
+#define PROJECT_BEAM    0x0002
+#define PROJECT_THRU    0x0004
+#define PROJECT_STOP    0x0008
+#define PROJECT_GRID    0x0010
+#define PROJECT_ITEM    0x0020
+#define PROJECT_KILL    0x0040
+#define PROJECT_HIDE    0x0080
+#define PROJECT_FRND	0x0100
 /*
  * Bit flags for the "enchant()" function
  */
@@ -2029,16 +2048,17 @@
 /*
  * Bit flags for the "target_set" function XXX XXX XXX
  *
- *      KILL: Target monsters
- *      LOOK: Describe grid fully
- *      XTRA: Currently unused flag
- *      GRID: Select from all grids
+ *	KILL: Target monsters
+ *	LOOK: Describe grid fully
+ *  XTRA: Currently unused flag
+ *  GRID: Select from all grids
+ *	HOST: Select hostile creatures only.
  */
-#define TARGET_KILL             0x01
-#define TARGET_LOOK             0x02
-#define TARGET_XTRA             0x04
-#define TARGET_GRID             0x08
-
+#define TARGET_KILL		0x01
+#define TARGET_LOOK		0x02
+#define TARGET_XTRA		0x04
+#define TARGET_GRID		0x08
+#define TARGET_HOST		0x10
 
 /*
  * Some bit-flags for the "smart" field
@@ -2135,7 +2155,7 @@
 #define PR_CUT          0x00001000L     /* Display Extra (Cut) */
 #define PR_STUN         0x00002000L     /* Display Extra (Stun) */
 #define PR_HUNGER       0x00004000L     /* Display Extra (Hunger) */
-/* xxx */
+#define PR_STATUS       0x00008000L     /* Display Status Bar */
 #define PR_BLIND        0x00010000L     /* Display Extra (Blind) */
 #define PR_CONFUSED     0x00020000L     /* Display Extra (Confused) */
 #define PR_AFRAID       0x00040000L     /* Display Extra (Afraid) */
@@ -2465,7 +2485,7 @@
 #define TR2_IM_ELEC             0x00000200L
 #define TR2_IM_FIRE             0x00000400L
 #define TR2_IM_COLD             0x00000800L
-#define TR2_XXX3                0x00001000L     /* Later */
+#define TR2_THROW               0x00001000L     /* Throwing items */
 #define TR2_REFLECT             0x00002000L     /* Reflect 'bolts' */
 #define TR2_FREE_ACT            0x00004000L     /* Free Action */
 #define TR2_HOLD_LIFE           0x00008000L     /* Hold Life */
@@ -2863,7 +2883,7 @@
   (RF5_HOLD | RF5_SLOW | RF5_CONF | RF5_BLIND | RF5_SCARE)
 
 #define RF6_INT_MASK \
-   (RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
+   (RF6_BLINK | RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
     RF6_HEAL | RF6_INVULNER | RF6_HASTE | RF6_TRAPS | \
     RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
@@ -2875,7 +2895,7 @@
  * Hack -- "bolt" spells that may hurt fellow monsters
  */
 #define RF4_BOLT_MASK \
-  (RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+  (RF4_ROCKET | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
 
 #define RF5_BOLT_MASK \
    (RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
@@ -2884,6 +2904,63 @@
 
 #define RF6_BOLT_MASK \
    0L
+
+/*
+ * Spells that hurt the player directly
+ */
+#define RF4_ATTACK_MASK \
+	(RF4_ROCKET | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | \
+	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
+	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
+	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
+	 RF4_BA_NUKE | RF4_BR_NUKE | RF4_BA_CHAO | RF4_BR_DISI)
+
+#define RF5_ATTACK_MASK \
+	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | RF5_BA_POIS | \
+	 RF5_BA_NETH | RF5_BA_WATE | RF5_BA_MANA | RF5_BA_DARK | \
+	 RF5_MIND_BLAST | RF5_BRAIN_SMASH | RF5_CAUSE_1 | RF5_CAUSE_2 | \
+	 RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | \
+	 RF5_BO_COLD | RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+	 RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_ATTACK_MASK \
+	(RF6_HAND_DOOM)
+
+
+
+/*
+ * Spells that allow the caster to escape
+ */
+#define RF4_ESCAPE_MASK \
+	(0L)
+
+#define RF5_ESCAPE_MASK \
+	(0L)
+
+#define RF6_ESCAPE_MASK \
+	(RF6_BLINK | RF6_TPORT | RF6_TELE_AWAY | RF6_TELE_LEVEL)
+
+
+
+/*
+ * Hack -- 'ball' spells that may hurt friends
+ */
+#define RF4_BALL_MASK \
+	(RF4_ROCKET | RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | \
+	RF4_BR_COLD | RF4_BR_POIS | RF4_BR_NETH | RF4_BR_LITE | \
+	RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | RF4_BR_CHAO | \
+	RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_SHAR | \
+	RF4_BR_SOUN | RF4_BR_TIME | RF4_BR_INER | RF4_BR_GRAV | \
+	RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | RF4_BA_NUKE | \
+	RF4_BR_NUKE | RF4_BA_CHAO | RF4_BR_DISI)
+
+#define RF5_BALL_MASK \
+	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | \
+	RF5_BA_NETH | RF5_BA_DARK | RF5_BA_WATE | RF5_BA_MANA)
+
+#define RF6_BALL_MASK \
+	0L
 
 
 /* Hack -- summon spells */
@@ -2899,6 +2976,89 @@
      RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
      RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
      RF6_S_AMBERITES | RF6_S_UNIQUE)
+
+
+/*
+ * Spells that improve the caster's tactical position
+ */
+#define RF4_TACTIC_MASK \
+	(0L)
+
+#define RF5_TACTIC_MASK \
+	(0L)
+
+#define RF6_TACTIC_MASK \
+	(RF6_BLINK)
+
+
+/*
+ * Annoying spells
+ */
+#define RF4_ANNOY_MASK \
+	(RF4_SHRIEK)
+
+#define RF5_ANNOY_MASK \
+	(RF5_DRAIN_MANA | RF5_MIND_BLAST | RF5_BRAIN_SMASH | \
+	RF5_CAUSE_1 | RF5_CAUSE_2 | RF5_CAUSE_3 | RF5_CAUSE_4 | \
+	RF5_SCARE | RF5_BLIND | RF5_CONF | RF5_SLOW | RF5_HOLD)
+
+#define RF6_ANNOY_MASK \
+	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_FORGET)
+
+
+/*
+ * Spells that increase the caster's relative speed
+ */
+#define RF4_HASTE_MASK \
+	(0L)
+
+#define RF5_HASTE_MASK \
+	(RF5_SLOW | RF5_HOLD)
+
+#define RF6_HASTE_MASK \
+	(RF6_HASTE)
+
+/*
+ * Spells that give invulnerability
+ */
+#define RF4_INVULN_MASK \
+	(0L)
+
+#define RF5_INVULN_MASK \
+	(0L)
+
+#define RF6_INVULN_MASK \
+	(RF6_INVULNER)
+
+/*
+ * Healing spells
+ */
+#define RF4_HEAL_MASK \
+	(0L)
+
+#define RF5_HEAL_MASK \
+	(0L)
+
+#define RF6_HEAL_MASK \
+	(RF6_HEAL)
+
+
+/*
+ * Innate spell-like effects
+ */
+#define RF4_INNATE_MASK \
+	(RF4_SHRIEK | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | \
+	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
+	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
+	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
+	 RF4_BR_NUKE | RF4_BR_DISI)
+
+#define RF5_INNATE_MASK \
+	(0L)
+
+#define RF6_INNATE_MASK \
+	(0L)
 
 
 /*** Macro Definitions ***/
@@ -3116,6 +3276,13 @@
 
 
 /*
+ * Used to see if square is transparent.
+ * Trees now block sight only half the time.
+ */
+#define cave_half_bold(Y,X) \
+	((cave[Y][X].feat == FEAT_TREES) && (quick_rand()))
+
+/*
  * Determine if a "legal" grid is a "clean" floor grid
  *
  * Line 1 -- forbid non-floors
@@ -3127,6 +3294,22 @@
 	(((cave[Y][X].feat == FEAT_FLOOR) || \
 	  (cave[Y][X].feat == FEAT_SHAL_WATER) || \
 	  (cave[Y][X].feat == FEAT_SHAL_LAVA) || \
+	  (cave[Y][X].feat == FEAT_GRASS) || \
+	  (cave[Y][X].feat == FEAT_DIRT)) && \
+	  (cave[Y][X].o_idx == 0))
+
+/*
+ * Determine if a "legal" grid is a "gen" floor grid
+ *
+ * Line 1 -- forbid non-floors
+ * Line 2 -- forbid water -KMW-
+ * Line 3 -- forbid lava -KMW-
+ * Line 4 -- forbid normal objects
+ *  This function describes grids that can hold any object.
+ *  Note: The *_SHAL_* possibilities are removed.
+ */
+#define cave_gen_bold(Y,X) \
+	(((cave[Y][X].feat == FEAT_FLOOR) || \
 	  (cave[Y][X].feat == FEAT_GRASS) || \
 	  (cave[Y][X].feat == FEAT_DIRT)) && \
 	  (cave[Y][X].o_idx == 0))
@@ -3187,6 +3370,12 @@
 #define cave_floor_grid(C) \
     (!((C)->feat & 0x20))
 
+/*
+ * True half the time for trees. (Block line of sight half the time.)
+ */
+#define cave_half_grid(C) \
+    (((C)->feat == FEAT_TREES) && (quick_rand()))
+
 
 /*
  * Grid based version of "cave_clean_bold()"
@@ -3241,6 +3430,25 @@
 #define player_has_los_bold(Y,X) \
     ((cave[Y][X].info & (CAVE_VIEW)) != 0)
 
+
+/*
+ * Is the monster a pet of the player?
+ */
+#define is_pet(T) \
+	 ((bool)(((T)->smart & SM_PET) != 0))
+
+/*
+ * Is the monster friendly toward the player?
+ */
+#define is_friendly(T) \
+	 ((bool)(((T)->smart & SM_FRIENDLY) != 0))
+
+
+/*
+ * Is the monster hostile toward the player?
+ */
+#define is_hostile(T) \
+	 ((bool)(!(is_pet(T) || is_friendly(T))))
 
 
 
@@ -3361,9 +3569,33 @@ extern int PlayerUID;
 #define SOUND_MAX 65
 
 
+#define V_COMPASSION	    1
+#define V_HONOUR	    2
+#define V_JUSTICE	    3
+#define V_SACRIFICE	    4
+#define V_KNOWLEDGE	    5
+#define V_FAITH 	    6
+#define V_ENLIGHTEN	    7
+#define V_ENCHANT	    8
+#define V_CHANCE	    9
+#define V_NATURE	   10
+#define V_HARMONY	   11
+#define V_VITALITY	   12
+#define V_UNLIFE	   13
+#define V_PATIENCE	   14
+#define V_TEMPERANCE	   15
+#define V_DILIGENCE	   16
+#define V_VALOUR	   17
+#define V_INDIVIDUALISM    18
 
-/*** Hack ***/
+#define MAX_VIRTUE 18
 
+/*
+ * Number of virtues the player can have
+ * ToDo: Check if changing this value breaks anything
+ * (apart from savefile compatibility).
+ */
+#define MAX_PLAYER_VIRTUES 8
 
 /*
  * Hack -- attempt to reduce various values
@@ -3503,3 +3735,21 @@ extern int PlayerUID;
 #define PARSE_ERROR_OUT_OF_BOUNDS            8
 #define PARSE_ERROR_TOO_FEW_ARGUMENTS        9
 #define PARSE_ERROR_MAX                     10
+
+
+/*
+ * Automatic note taking types
+ */
+#define NOTE_BIRTH          1
+#define NOTE_WINNER         2
+#define NOTE_SAVE_GAME      3
+#define NOTE_ENTER_DUNGEON  4
+
+/*
+ * Player displays
+ */
+#define DISPLAY_PLAYER_STANDARD		0	/* standard display */
+#define DISPLAY_PLAYER_HISTORY		1	/* standard display with history */
+#define DISPLAY_PLAYER_SUMMARY		2	/* summary of various things */
+
+#define DISPLAY_PLAYER_MAX		3

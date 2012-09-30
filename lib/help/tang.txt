@@ -1,36 +1,36 @@
-=== The ZAngband Newbie Guide ===
+=== The Zangband Newbie Guide ===
 
 
 Note: This guide has been adapted from The Angband Newbie Guide by
 Chris Weisiger and has undergone certain revisions to conform more
-closely to ZAngband.
+closely to Zangband.
 
  
 === Basic Training ===
  
 When you load the game, select "Start a new character." Go through the
 step-by-step instructions for picking a gender, race, and class. For
-your first time, we recommend choosing either a Golem Warrior. Avoid
-the magely/priestly types; they're much more difficult to play. If you
-want basic information about races and classes, go to the on-line help
-(type "?") and read "Creating a Character". You should probably read
+your first time, we recommend choosing a Golem Warrior. Avoid the
+spellcaster types; they're much more difficult to play. If you want
+basic information about races and classes, go to the on-line help
+(type "?") and read "Character Attributes". You should probably read
 most of the help files here; the commands list is especially important
-to someone new to ZAngband.
+to someone new to Zangband.
 
 After naming your character, you'll start in the town. The various
 numbers represent stores, where you can buy new equipment and sell
 stuff you've found in the dungeon. The little ">" is a staircase, the
 entrance to the dungeon. If you want to know what a specific symbol
-stands for, type /, and then the symbol. For instance, if you're
-wondering what all the t's are, type /t, and the game will tell you
-that these are townspeople. You can also (l)ook at an item, feature, or
+stands for, type "/", and then the symbol. For instance, if you're
+wondering what all the t's are, type "/t", and the game will tell you
+that these are townspeople. You can also "l"ook at an item, feature, or
 monster. While looking, pressing space or enter will cycle through the
 different "interesting" things in view. There is also a full map
-function: type "M." It will bring up a map of the entire area (just a
+function: type "M". It will bring up a map of the entire area (just a
 single screen in the case of the town, but useful later on in the
-dungeon). Finally, if you type "L," you can scroll the (full-zoom) map
-around the dungeon. In general, you can use M to find areas that look
-interesting and L to look at them in detail.
+dungeon). Finally, if you type "L", you can scroll the (full-zoom) map
+around the dungeon. In general, you can use "M" to find areas that look
+interesting and "L" to look at them in detail.
 
 Take a look around the town, but avoid the Mean-Looking Mercenaries and
 Battle-Scarred Veterans; they can kill you fairly easily. A note on
@@ -40,9 +40,9 @@ an absolutely ridiculous price. Any good item can show up in this store
 show up in other stores.
 
 
-Be sure to visit shops #1 and #2, the General Store and Armoury,
+Be sure to visit shops #1 and #2, the General Store and Armory,
 respectively. At the General Store, buy a cloak and a Brass Lantern,
-and a flask of oil or two. Sell your torches. At the Armoury, buy some
+and a flask of oil or two. Sell your torches. At the Armory, buy some
 of the light armor. Suggested: Hard Leather Boots, a Leather Cap,
 Leather Gloves. If a Small Leather Shield is on sale and you can afford
 it, buy it.
@@ -69,24 +69,15 @@ you're sick and tired of dying, read ahead.
  
 === On weapons and multiple blows ===
 
-When you start a new character that is a fighter type, you have the
-possibility of getting more than one attack with your weapon. Whether
-or not you get multiple blows is determined by your weapon weight, your
-Strength, and your Dexterity. If you can get a high enough Strength and
-Dexterity (both over 18; use the autoroller), then buy a light weapon,
-like a Whip or a Dagger. Check your Character display (type "C").
-Somewhere on this page, there is a number that is your number of
-blows/round. Hopefully, this will be above 1. If it is, you can sell
-your original weapon.
+Most characters will start the game being able to get two blows per
+round with their weapon when attacking.  Whether or not you get more
+blows than this later in the game will be determined by your class, 
+your weapon weight, your Strength, and your Dexterity. Check your
+Character display (type "C"). Somewhere on this page, there is a number
+that is your number of blows/round.
 
-Multiple blows become very important later in the dungeon. The more
-times you hit, the more damage your weapon does (obviously). What is
-not so obvious is the fact that at multiple blows, your magical
-enchantments to damage kick in many more times than with just one blow
-(see the section on the meaning of the numbers in your equipment). If
-you have 4 attacks with a Whip (not impossible), you get 4*1d6 damage
-from the damage dice. However, if the Whip has, say, +3 to damage, you
-also get 4*3 extra damage on top of the damage dice.
+Multiple blows become very important later in the dungeon since the
+more times you hit, the more damage your weapon does (obviously).
 
  
 === On important magical items ===
@@ -121,7 +112,7 @@ Teleport Level
 *Destruction*
      this powerful spell removes everything except artifacts from the
      area around you, blasting the surroundings and causing rock to
-     fall from the cieling. If you're ever in deep trouble, this is the
+     fall from the ceiling. If you're ever in deep trouble, this is the
      safest way to escape.
 
 --- Healing Items ---
@@ -138,7 +129,7 @@ Cure Light/Serious/Critical Wounds
 
 Healing
      restores 200 hitpoints and removes all temporary bad effects with
-     the exceptionn of fear and cures all wounds.
+     the exception of fear and cures all wounds.
 
 *Healing*
      restores 1000 hitpoints and removes all temporary bad effects and
@@ -150,7 +141,7 @@ Potions of Life
      bad effects except hunger. These are very rare; save them in your
      home for a dangerous fight.
 
---- Items for Idntifying Objects ---
+--- Items for Identifying Objects ---
 
 There are various methods of Identify which you *need*. Identify comes
 in the form of scrolls, Staffs of Perception, Rods of Perception, the
@@ -180,7 +171,7 @@ discovered by this method.
 Notes on lighting: You can't do much without light. You won't be able
 to see most monsters, cast spells or read scrolls, or, in general, see
 the dungeon. You should carry a light source of which torches and brass
-lanterns are the mmost common and this will light up the area which is
+lanterns are the most common and this will light up the area which is
 immediately around you. There are items which will light up the
 dungeon, but only parts of it. Any item/spell of Light or Illumination
 will light up the room you are standing it (or part of the corridor). A
@@ -227,7 +218,7 @@ same resist! Double resistance is having both a permanent source and a
 temporary source. Multiple permanent sources do nothing for you.
 Resistances are vital to survival in the dungeon. For instance, the
 most powerful of fire dragons, the Great Hell Wyrm, can breath fire
-(big suprise). Unresisted, the damage caused is 1600 HPs worth; more
+(big surprise). Unresisted, the damage caused is 1600 HPs worth; more
 than enough to kill the mightiest of warriors (if he's lucky, a warrior
 might top out at about 1200 HPs at level 50). However, if you have fire
 resistance, this is chopped to 1/3-533 damage. If you doubly resist the
@@ -316,7 +307,7 @@ Maximize mode: with Maximize mode off, your statistics max out at
 Maximize mode is on, where your stats max out at is determined by your
 race and class. For instance, any Mage has -5 to Strength. A Human
 Mage's strength (Humans have no racial stat differences), therefore,
-eould max out at 18/50, instead of 18/100. However, Mages also have +3
+could max out at 18/50, instead of 18/100. However, Mages also have +3
 to Intelligence. A Human Mage's Intelligence would max out at 18/130.
 When Maximize mode is off, it is possible to achieve higher starting
 stats for characters; a Gnomish Mage might be able to start with 18/80
@@ -326,12 +317,12 @@ the end game is harder than with Maximize mode on.
 Preserve mode: with Preserve mode off, if a level is created with an
 artifact on it, and you don't get that artifact, it is gone forever.
 When Preserve mode is on, you always can find the artifact again unless
-you have laready identified it and then leave it behind. However, in
+you have already identified it and then leave it behind. However, in
 preserve mode you lose the "special" level feeling (more below). 
  
 === On Level Feelings ===
 
-When you enter a level, you recieve a feeling giving you a vague idea
+When you enter a level, you receive a feeling giving you a vague idea
 how good the level is. In general, the more scary the feeling sounds,
 the better the items on the level, and the more difficult the monsters.
 Each unusual item or monster bumps up the rating of the level a bit. An
@@ -370,19 +361,18 @@ Weapons will show this:
  
 XdY
  
-(+x, +y). This is the item's magical bonuses to hit and to damage,
-respectively. These are added to whatever other bonuses you have when
-you attack. Some armors have bonuses to hit or to damage, but they are
-mostly artifacts, the exceptions being Gloves/Gauntlets/Cestii of
-Slaying and Power. Many body armors have a small negative number
-before the base armor bonus (see below); this is a penalty to hit (the
-armor is so heavy that you have trouble moving around in it). However,
-this penalty is small enough for all but the youngest of characters to
-ignore. 
+(+x, +y). This is the item's magical bonuses to your skill and your
+deadliness respectively. These are added to whatever other bonuses you
+have when you attack. Some armors have similar bonuses to your skill
+and deadliness, but they are mostly artifacts, the exceptions being
+Gloves/Gauntlets/Cesti of Slaying and Power. Many body armors have a
+small negative number before the base armor bonus (see below); this is
+a penalty to your skill (the armor is so heavy that you have trouble
+moving around in it). However, this penalty is small enough for all but
+the youngest of characters to ignore. 
 
-Rings of Damage or Accuracy have a single (+y) or (+x). When worn, they
-affect your damage done/chance to hit in melee battle. They do not
-affect missile combat. 
+Rings of Combat or Skill have a single (+y) or (+x). When worn, they
+affect your deadliness and skill in melee battle respectively.
 
 [a, +b]. This is the item's base armor class and magical bonus to
 armor. The higher, the better. While theoretically, a weapon could
@@ -395,14 +385,13 @@ certainly better off being used for something else.
 
 (+c). This is the item's magical bonus to other statistics: Strength,
 Intelligence, Wisdom, Constitution, Dexterity, Charisma, Speed,
-Searching, Infravision, Might (Extra Might adds to the multiplier on a
-bow, crossbow, or sling), Shots, Attacks, and Tunneling. Not on every
+Stealth, Searching, Infravision, Attacks, and Tunneling. Not on every
 item, it is generally a good reason to choose the item. [Note that it
 does not affect every stat in this list! Most items that have a +c only
 affect one or two of these stats. Some items affect more (A Weapon of
 Westernesse affects Strength, Dexterity, and Constitution)].
  
-As a side note for the above: Angband follows the parenthesis for any
+As a side note for the above: Zangband follows the parenthesis for any
 item. If you see a number in brackets, like this: [b], it is a bonus to
 AC. If it is in parenthesis, like this: (+x), it is either a bonus to a
 stat or to hit/damage (and which should normally be obvious by the name
@@ -411,16 +400,29 @@ like this:
  
 A Mace (Holy Avenger) (2d4) (+7, +5) [+4] (+1)
  
-Thus, it rolls 2 four-sided dice when attacking, has +7 to hit and +5
-to damage, increases your AC by 4, and increases a stat (In this case
-Wisdom) by 1.
+Thus, it rolls 2 four-sided dice when attacking, has +7 bonus to your
+skill and +5 bonus to your deadliness, increases your AC by 4, and
+increases a stat (In this case Wisdom) by 1.
  
 XdY. This is the weapon's base damage. When you successfully hit a
 monster, X number of Y-sided dice are rolled. This number represents
-the amount of damage you do to the monster before magical bonuses. A
-Longsword, for example, rolls 2 five-sided dice (2d5) when you hit a
-monster.
- 
+the amount of damage you do to the monster before magical bonuses, 
+slays, brands, criticals, etc are applied. A Longsword, for example,
+rolls 2 five-sided dice (2d5) when you hit a monster.
+
+Ammunition, as well as having the normal weapon information, also 
+shows how much damage they will do per shot and per round.  This
+information will only be displayed if you have the proper shooting
+weapon.  (Your melee weapon's average damage is displayed on the info-
+screen.)  The format of this is:
+
+An arrow (3d5) (+0, +0) (26/26)
+
+The first number is the average damage per shot, and the second is
+average damage per round.  The two numbers can differ because the
+shooting weapons have differing energy requirements per shot (unlike
+melee weapons.)
+
 === On Slays ===
 
 Many weapons you find in the dungeon are considered to be particularly
@@ -432,14 +434,12 @@ you find a weapon of Slay Orc), in the later part of the game, where
 magical bonuses to damage all but take over combat, slays play a very
 minor role. The rundown on slays:
 
-     Slay (or *Slay*) Evil: x2 damage dice agains evil monsters
-     Slay (or *Slay*) Animal, Undead, Demon, Giant: x3 damage dice
-       against the relevant monster type
-     Slay Dragon: x3 damage dice against dragons
-     *Slay* Dragon: x5 damage dice against dragons
+     Slay (or *Slay*) Evil: x1.7 damage dice against evil monsters
+     Slay (or *Slay*) Animal, Undead, Demon, Giant, Dragon: x2 damage
+       dice against the relevant monster type
 
 The brands ("of Melting", "of Burning", "of Freezing", "of Shocking",
-and "of Poisoning") all do x3 damage dice to those monsters not
+and "of Poisoning") all do x2 damage dice to those monsters not
 resistant to the relevant element. There is also a "(Vampiric)" brand
 which will suck life from your foes and heal you at the same time and
 a "(Chaotic)" brand which can cause some unexpected results when using
@@ -449,7 +449,7 @@ it!
 === On the Monster Memory ===
 
 In many other games, you are required to take notes on monster's
-weaknesses, strengths, spells, et cetera. Angband takes care of this
+weaknesses, strengths, spells, et cetera. Zangband takes care of this
 for you, with the handy Monster Memory. Every time you find out
 something new about a monster, like that it can breathe fire, this is
 added to your knowledge of the monster. To look over this knowledge,
@@ -459,11 +459,11 @@ can set a window to display the monster memory at the preferences
 screen (see below). This window will then automatically update as you
 fight monsters].
 
-In the unpleasant event of your character’s death, you can create a new
-character using your old character’s file (instead of simply creating a
-new character, open the dead character’s savefile, and the Creating a
+In the unpleasant event of your character's death, you can create a new
+character using your old character's file (instead of simply creating a
+new character, open the dead character's savefile, and the Creating a
 Character section will come up). This new character will have all of
-the old one’s monster memories, and some special text for the monster
+the old one's monster memories, and some special text for the monster
 that killed him.
 
  
@@ -482,7 +482,7 @@ can cause weakness.
 === On the Preferences ===
 
 The preferences screen is reached by typing "=". It contains many
-different preferences that make Angband more enjoyable. There are a few
+different preferences that make Zangband more enjoyable. There are a few
 that I would recommend. Turn both stacking options ON. This maximizes
 your treasure collection. Turn the Low Hitpoint Warning ON, and place
 the warning percent at about 50%. You'll see the effects of this
@@ -508,12 +508,12 @@ at lower depths.
  
 === On Death ===
 
-Death in ZAngband is permanent. Saving in ZAngband is meant only to let
+Death in Zangband is permanent. Saving in Zangband is meant only to let
 you pick up where you left off; if you die, your savefile is marked.
 The next time you try to use the savefile, you will get the new
 character dialogue. Ancestors of dead characters will retain their
 monster memory and preferences. Many people here have characters like
-"Yuppy XIV"; people die very often in ZAngband.
+"Yuppy XIV"; people die very often in Zangband.
 
 Some people make backup savefiles; if their character dies, they simply
 load the older character, and pick up where they left off. They lose
@@ -531,28 +531,28 @@ everyone knows what a scumbag you are.
  
 === On ZAngband Time ===
 
-If there is one feature of Angband that tends to confuse people
-(especially veterans of other roguelikes), it’s how the speed system in
-ZAngband works. Most other roguelikes have a simple incremental system,
+If there is one feature of Zangband that tends to confuse people
+(especially veterans of other roguelikes), it's how the speed system in
+Zangband works. Most other roguelikes have a simple incremental system,
 where +1 to speed means you move twice as fast as normal-speed
 monsters, +2 is three times as fast (or twice as fast as fast
-monsters), and so on. ZAngband has a decimalized version. +10 is the
+monsters), and so on. Zangband has a decimalized version. +10 is the
 old +1 to speed, and +20 is the old +2. This allows for characters to
 be "half again as fast" as a monster, with the in-game effect that the
 character occasionally gets a free turn.
 
-However, problems start to arise when one’s speed gets much higher than
+However, problems start to arise when one's speed gets much higher than
 about +28. After this, each point of extra speed contributes slightly
 less than a full point of speed (i.e. the points are worth less). There
 is little point in trying for speed higher than +35 or so.
 
-It might help to understand this if an explanation of Angband time were
-give. In ZAngband, every game turn, the player and monsters gain a
+It might help to understand this if an explanation of Zangband time were
+given. In Zangband, every game turn, the player and monsters gain a
 certain amount of "energy". At normal speed, you gain 10 points of
 energy every game turn. Once you have 100 energy points, you get to
 take an action. Most actions cost 100 energy units (the major exception
 being shooting an arrow or bolt with a bow of Extra Shots. This divides
-the energy cost by two or, if it’s a bow of Extra Shots +2, by three,
+the energy cost by two or, if it's a bow of Extra Shots +2, by three,
 thus allowing you to shoot several times before a monster gets an
 action).
 
@@ -564,7 +564,7 @@ move twice as fast as they do.
 
 The slowing of gains from speed that occurs at about +28 or so to speed
 is then translated to each point of speed not giving a complete point
-of energy each game turn. It’s the same effect, subjectively.
+of energy each game turn. It's the same effect, subjectively.
 
 
 === Advanced techniques for killing monsters ===
@@ -572,11 +572,11 @@ of energy each game turn. It’s the same effect, subjectively.
 Pillardancing.
      Requires that you be at least twice as fast as the monster you are
      fighting. Find a single block of wall, freestanding, and lure your
-     enemy to it. When both you and your eneny are standing next to the
+     enemy to it. When both you and your enemy are standing next to the
      pillar, hit him, and then move so that you are opposite the pillar
      from him. He will use his turn to move so that he's standing next
      to you. Hit him again, and then move again. Repeat until he's
-     dead. Note that some monsters move eratically, and cannot be
+     dead. Note that some monsters move erratically, and cannot be
      relied upon to move in the method expected. Also, some monsters
      (mostly Ghosts) can move through walls, and a small number of
      monsters can chew through walls.
@@ -618,4 +618,4 @@ The Anti-Summoning Corridor.
 --
 Original   : Chris Weisiger (TANG version 1.6.2)
 Updated    : Zangband DevTeam
-Last Update: December 8, 1999
+Last Update: January 13, 2000

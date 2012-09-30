@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:06 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:27 $ */
 /* File: effects.c */
 
 /* Purpose: effects of various "objects" */
@@ -35,6 +35,8 @@ bool set_blind(int v)
 		{
 			msg_print("You are blind!");
 			notice = TRUE;
+
+			chg_virtue(V_ENLIGHTEN, -1);
 		}
 	}
 
@@ -50,6 +52,9 @@ bool set_blind(int v)
 
 	/* Use the value */
 	p_ptr->blind = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |=  (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -94,6 +99,8 @@ bool set_confused(int v)
 		{
 			msg_print("You are confused!");
 			notice = TRUE;
+
+			chg_virtue(V_HARMONY, -1);
 		}
 	}
 
@@ -109,6 +116,9 @@ bool set_confused(int v)
 
 	/* Use the value */
 	p_ptr->confused = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -194,6 +204,8 @@ bool set_afraid(int v)
 		{
 			msg_print("You are terrified!");
 			notice = TRUE;
+
+			chg_virtue(V_VALOUR, -1);
 		}
 	}
 
@@ -260,6 +272,9 @@ bool set_paralyzed(int v)
 	/* Use the value */
 	p_ptr->paralyzed = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -312,6 +327,9 @@ bool set_image(int v)
 	/* Use the value */
 	p_ptr->image = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -352,6 +370,9 @@ bool set_fast(int v)
 		{
 			msg_print("You feel yourself moving faster!");
 			notice = TRUE;
+
+			chg_virtue(V_PATIENCE, -1);
+			chg_virtue(V_DILIGENCE, 1);
 		}
 	}
 
@@ -367,6 +388,9 @@ bool set_fast(int v)
 
 	/* Use the value */
 	p_ptr->fast = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -418,6 +442,9 @@ bool set_slow(int v)
 	/* Use the value */
 	p_ptr->slow = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -467,6 +494,9 @@ bool set_shield(int v)
 
 	/* Use the value */
 	p_ptr->shield = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -519,6 +549,9 @@ bool set_blessed(int v)
 	/* Use the value */
 	p_ptr->blessed = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -568,6 +601,9 @@ bool set_hero(int v)
 
 	/* Use the value */
 	p_ptr->hero = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -622,6 +658,9 @@ bool set_shero(int v)
 	/* Use the value */
 	p_ptr->shero = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -674,6 +713,9 @@ bool set_protevil(int v)
 
 	/* Use the value */
 	p_ptr->protevil = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -739,6 +781,9 @@ bool set_wraith_form(int v)
 	/* Use the value */
 	p_ptr->wraith_form = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -747,9 +792,6 @@ bool set_wraith_form(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
-
-
-
 
 	/* Handle stuff */
 	handle_stuff();
@@ -777,6 +819,11 @@ bool set_invuln(int v)
 		{
 			msg_print("Invulnerability!");
 			notice = TRUE;
+
+			chg_virtue(V_TEMPERANCE, -5);
+			chg_virtue(V_HONOUR, -5);
+			chg_virtue(V_SACRIFICE, -5);
+			chg_virtue(V_VALOUR, -10);
 
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
@@ -810,6 +857,9 @@ bool set_invuln(int v)
 
 	/* Use the value */
 	p_ptr->invuln = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -860,6 +910,9 @@ bool set_tim_esp(int v)
 
 	/* Use the value */
 	p_ptr->tim_esp = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -914,6 +967,9 @@ bool set_tim_invis(int v)
 	/* Use the value */
 	p_ptr->tim_invis = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -966,6 +1022,9 @@ bool set_tim_infra(int v)
 
 	/* Use the value */
 	p_ptr->tim_infra = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1020,6 +1079,9 @@ bool set_oppose_acid(int v)
 	/* Use the value */
 	p_ptr->oppose_acid = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -1066,6 +1128,9 @@ bool set_oppose_elec(int v)
 
 	/* Use the value */
 	p_ptr->oppose_elec = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1114,6 +1179,9 @@ bool set_oppose_fire(int v)
 	/* Use the value */
 	p_ptr->oppose_fire = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -1160,6 +1228,9 @@ bool set_oppose_cold(int v)
 
 	/* Use the value */
 	p_ptr->oppose_cold = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1208,6 +1279,9 @@ bool set_oppose_pois(int v)
 	/* Use the value */
 	p_ptr->oppose_pois = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -1236,7 +1310,18 @@ bool set_stun(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	if (p_ptr->prace == RACE_GOLEM) v = 0;
+	/*
+	 * Golems cannot be stunned when they are being used as a
+	 * "training" class.  However, when they are being used in
+	 * a hard game - they lose this advantage.  (Golems are
+	 * designed for newbies - not scummers.)
+	 */
+	if ((p_ptr->prace == RACE_GOLEM) &&
+	    !(ironman_shops || ironman_downward || ironman_hard_quests ||
+	      ironman_empty_levels || ironman_rooms || ironman_nightmare))
+	{
+		v = 0;
+	}
 
 	/* Knocked out */
 	if (p_ptr->stun > 100)
@@ -1308,7 +1393,18 @@ bool set_stun(int v)
 			break;
 		}
 
-		if (randint(1000) < v || randint(16) == 1)
+		/* 
+		 * XXX XXX Hack -
+		 * Mindcrafters cannot get this effect when
+		 * casting a spell.  It really doesn't make sense.
+		 * Unfortunately, there is no way to know if this is
+		 * the case... so it is disabled in all circumstances
+		 * if you are a Mindcrafter.  (Perhaps it can be
+		 * explained away by their "superior mental skills" or
+		 * something...
+		 */
+		if ((randint(1000) < v || randint(16) == 1) && 
+		 (!(p_ptr->pclass == CLASS_MINDCRAFTER)))
 		{
 			msg_print("A vicious blow hits your head.");
 			if (randint(3) == 1)
@@ -1685,6 +1781,15 @@ bool set_food(int v)
 		new_aux = 5;
 	}
 
+	if (old_aux < 1 && new_aux > 0)
+		chg_virtue(V_PATIENCE, 2);
+	else if (old_aux < 3 && (old_aux != new_aux))
+		chg_virtue(V_PATIENCE, 1);
+	if (old_aux == 2)
+		chg_virtue(V_TEMPERANCE, 1);
+	if (old_aux == 0)
+		chg_virtue(V_TEMPERANCE, -1);
+
 	/* Food increase */
 	if (new_aux > old_aux)
 	{
@@ -1714,6 +1819,10 @@ bool set_food(int v)
 			/* Bloated */
 			case 5:
 			msg_print("You have gorged yourself!");
+
+			chg_virtue(V_HARMONY, -1);
+			chg_virtue(V_PATIENCE, -1);
+			chg_virtue(V_TEMPERANCE, -2);
 			break;
 		}
 
@@ -1916,6 +2025,10 @@ bool dec_stat(int stat, int amount, int permanent)
 	/* Damage "max" value */
 	if (permanent && (max > 3))
 	{
+		chg_virtue(V_SACRIFICE, 1);
+		if (stat == A_WIS || stat == A_INT)
+			chg_virtue(V_ENLIGHTEN, -2);
+
 		/* Handle "low" values */
 		if (max <= 18)
 		{
@@ -1996,6 +2109,10 @@ bool hp_player(int num)
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
+		chg_virtue(V_CHANCE, -1);
+		if ((num > 0) && (p_ptr->chp < (p_ptr->mhp/3)))
+			chg_virtue(V_TEMPERANCE, 1);
+
 		/* Gain hitpoints */
 		p_ptr->chp += num;
 
@@ -2150,6 +2267,19 @@ bool do_inc_stat(int stat)
 	/* Attempt to increase */
 	if (inc_stat(stat))
 	{
+		if (stat == A_WIS)
+		{
+			chg_virtue(V_ENLIGHTEN, 1);
+			chg_virtue(V_FAITH, 1);
+		}
+		else if (stat == A_INT)
+		{
+			chg_virtue(V_KNOWLEDGE, 1);
+			chg_virtue(V_ENLIGHTEN, 1);
+		}
+		else if (stat == A_CON)
+			chg_virtue(V_VITALITY, 1);
+
 		/* Message */
 		msg_format("Wow!  You feel very %s!", desc_stat_pos[stat]);
 
@@ -2204,6 +2334,9 @@ bool restore_level(void)
 bool lose_all_info(void)
 {
 	int i;
+
+	chg_virtue(V_KNOWLEDGE, -5);
+	chg_virtue(V_ENLIGHTEN, -5);
 
 	/* Forget info about objects */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -2277,6 +2410,8 @@ void do_poly_self(void)
 
 	msg_print("You feel a change coming over you...");
 
+	chg_virtue(V_CHANCE, 1);
+
 	if ((power > rand_int(20)) && (rand_int(3) == 1))
 	{
 		char effect_msg[80] = "";
@@ -2327,8 +2462,8 @@ void do_poly_self(void)
 			if (effect_msg[0])
 			{
 				char tmp_msg[10];
-				sprintf(tmp_msg,"%s ",effect_msg);
-				sprintf(effect_msg,"deformed %s ",tmp_msg);
+				sprintf(tmp_msg, "%s ", effect_msg);
+				sprintf(effect_msg, "deformed %s ", tmp_msg);
 			}
 			else
 			{
@@ -2363,16 +2498,22 @@ void do_poly_self(void)
 
 		if (effect_msg[0])
 		{
+
 			msg_format("You turn into a%s %s!",
-				((new_race == RACE_AMBERITE || new_race == RACE_ELF
-				|| new_race == RACE_IMP) ? "n" : ""),
+			    (((new_race == RACE_AMBERITE) ||
+			      (new_race == RACE_ELF) ||
+			      (new_race == RACE_IMP)) ? "n" : ""),
 				race_info[new_race].title);
 		}
 		else
 		{
+
+
 			msg_format("You turn into a %s%s!", effect_msg,
 				race_info[new_race].title);
 		}
+
+		chg_virtue(V_CHANCE, 2);
 
 		p_ptr->prace = new_race;
 		rp_ptr = &race_info[p_ptr->prace];
@@ -2511,11 +2652,22 @@ void take_hit(int damage, cptr hit_from)
 	if (pen_invuln)
 		msg_print("The attack penetrates your shield of invulnerability!");
 
+	if (!(p_ptr->invuln) || (pen_invuln))
+	{
+		if (p_ptr->chp == 0)
+		{
+			chg_virtue(V_SACRIFICE, 1);
+			chg_virtue(V_CHANCE, 2);
+		}
+	}
+
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
 		/* Sound */
 		sound(SOUND_DEATH);
+
+		chg_virtue(V_SACRIFICE, 10);
 
 		/* Hack -- Note death */
 		if (!last_words)

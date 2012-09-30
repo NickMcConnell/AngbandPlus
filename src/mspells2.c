@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:24 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/21 11:27:16 $ */
 /* File: mspells2.c */
 
 /* Purpose: Monster spells (attack monster) */
@@ -21,7 +21,7 @@
  */
 static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int rad, bool breath)
 {
-	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -43,7 +43,7 @@ static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int
  */
 static void monst_bolt_monst(int m_idx, int y, int x, int typ, int dam_hp)
 {
-	int flg = PROJECT_STOP | PROJECT_KILL;
+	u16b flg = PROJECT_STOP | PROJECT_KILL;
 
 	(void)project(m_idx, 0, y, x, dam_hp, typ, flg);
 }
@@ -76,6 +76,9 @@ bool monst_spell_monst(int m_idx)
 	monster_race *tr_ptr;
 
 	u32b f4, f5, f6;
+
+	/* Expected ball spell radius */
+	int rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
 
 	bool wake_up = FALSE;
 	bool fear = FALSE;
@@ -120,14 +123,7 @@ bool monst_spell_monst(int m_idx)
 		if (!are_enemies(m_ptr, t_ptr)) continue;
 
 		/* Monster must be projectable */
-		if (stupid_monsters)
-		{
-			if (!projectable(t_ptr->fy, t_ptr->fx, m_ptr->fy, m_ptr->fx)) continue;
-		}
-		else
-		{
-			if (!clean_shot(t_ptr->fy, t_ptr->fx, m_ptr->fy, m_ptr->fx, is_pet(m_ptr))) continue;
-		}
+		if (!projectable(t_ptr->fy, t_ptr->fx, m_ptr->fy, m_ptr->fx)) continue;
 
 		/* OK -- we've got a target */
 		y = t_ptr->fy;
@@ -140,6 +136,46 @@ bool monst_spell_monst(int m_idx)
 		f4 = r_ptr->flags4;
 		f5 = r_ptr->flags5;
 		f6 = r_ptr->flags6;
+
+		/* Disallow blink unless close */
+		if ((distance(m_ptr->fy, m_ptr->fx, y, x) > 1) || !rand_int(3)) f6 &= ~(RF6_BLINK);
+
+		/* Disallow teleport unless wounded */
+		if (m_ptr->hp > m_ptr->maxhp / 2) f6 &= ~(RF6_TPORT);
+
+		/* Disallow teleport away unless a friend is wounded */
+		if (friendly && (p_ptr->chp > p_ptr->mhp / 4)) f6 &= ~(RF6_TELE_AWAY);
+
+		/* Remove some spells if necessary */
+		if (!stupid_monsters &&
+			 ((f4 & RF4_BOLT_MASK) ||
+			  (f5 & RF5_BOLT_MASK) ||
+			  (f6 & RF6_BOLT_MASK)) &&
+			 !(r_ptr->flags2 & RF2_STUPID) &&
+			 !clean_shot(t_ptr->fy, t_ptr->fx, m_ptr->fy, m_ptr->fx, is_pet(m_ptr)))
+		{
+			f4 &= ~(RF4_BOLT_MASK);
+			f5 &= ~(RF5_BOLT_MASK);
+			f6 &= ~(RF6_BOLT_MASK);
+		}
+
+		/* Prevent collateral damage */
+		if (friendly && (distance(py, px, y, x) <= rad))
+		{
+			f4 &= ~(RF4_BALL_MASK);
+			f5 &= ~(RF5_BALL_MASK);
+			f6 &= ~(RF6_BALL_MASK);
+		}
+
+		/* Find another target if no spells available */
+		if (!f4 && !f5 && !f6)
+		{
+			f4 = r_ptr->flags4;
+			f5 = r_ptr->flags5;
+			f6 = r_ptr->flags6;
+
+			continue;
+		}
 
 		/* Hack -- allow "desperate" spells */
 		if ((r_ptr->flags2 & RF2_SMART) &&
@@ -217,7 +253,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s shrieks.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -258,12 +294,12 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_print("You hear an explosion!");
+						mon_fight = TRUE;
 					}
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_ROCKET,
-					((m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4)), 2, FALSE);
+					((m_ptr->hp / 4) > 600 ? 600 : (m_ptr->hp / 4)), 2, FALSE);
 
 				break;
 			}
@@ -286,7 +322,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s makes a strange noise.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_SHOOT);
@@ -315,7 +351,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s makes a strange noise.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_SHOOT);
@@ -344,7 +380,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s makes a strange noise.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_SHOOT);
@@ -373,7 +409,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s makes a strange noise.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_SHOOT);
@@ -404,14 +440,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_ACID,
-					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
 
 				break;
 			}
@@ -436,14 +472,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_ELEC,
-					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
 
 				break;
 			}
@@ -468,14 +504,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_FIRE,
-					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
 
 				break;
 			}
@@ -500,14 +536,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_COLD,
-					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
 				break;
 			}
 
@@ -531,14 +567,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_POIS,
-					((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 3) > 600 ? 600 : (m_ptr->hp / 3)), 0, TRUE);
 
 				break;
 			}
@@ -563,14 +599,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_NETHER,
-					((m_ptr->hp / 6) > 550 ? 550 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 6) > 450 ? 450 : (m_ptr->hp / 6)), 0, TRUE);
 
 				break;
 			}
@@ -595,14 +631,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_LITE,
-					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -627,14 +663,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_DARK,
-					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -659,14 +695,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_CONFUSION,
-					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -691,14 +727,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_SOUND,
-					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -723,14 +759,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_CHAOS,
-					((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 4) > 500 ? 500 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -755,14 +791,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_DISENCHANT,
-					((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 4) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -787,14 +823,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_NEXUS,
-					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)), 0, TRUE);
 
 				break;
 			}
@@ -819,14 +855,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_TIME,
-					((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3)), 0, TRUE);
 
 				break;
 			}
@@ -851,14 +887,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_INERTIA,
-					((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 4) > 200 ? 200 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -883,14 +919,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_GRAVITY,
-					((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3)), 0, TRUE);
 
 				break;
 			}
@@ -915,14 +951,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_SHARDS,
-					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 4) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -947,14 +983,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_PLASMA,
-					((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 4) > 150 ? 150 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -979,14 +1015,15 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_FORCE,
-					((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)),0, TRUE);
+					((m_ptr->hp / 4) > 200 ? 200 : (m_ptr->hp / 4)), 0, TRUE);
+
 				break;
 			}
 
@@ -1010,14 +1047,14 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_MANA,
-					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)), 0, TRUE);
 
 				break;
 			}
@@ -1042,7 +1079,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1072,14 +1109,15 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_NUKE,
-					((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 2) > 600 ? 600 : (m_ptr->hp / 2)), 0, TRUE);
+
 				break;
 			}
 
@@ -1103,7 +1141,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles frighteningly.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1133,14 +1171,15 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s breathes.", m_name);
+						mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_DISINTEGRATE,
-					((m_ptr->hp / 3) > 300 ? 300 : (m_ptr->hp / 3)),0, TRUE);
+					((m_ptr->hp / 3) > 300 ? 300 : (m_ptr->hp / 3)), 0, TRUE);
+
 				break;
 			}
 
@@ -1164,7 +1203,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1193,7 +1232,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1222,7 +1261,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1251,7 +1290,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1280,7 +1319,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1309,7 +1348,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1339,7 +1378,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1368,11 +1407,11 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles powerfully.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_MANA, (rlev * 5) + damroll(10, 10), 4, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_MANA, (rlev * 4) + damroll(10, 10), 4, FALSE);
 
 				break;
 			}
@@ -1397,11 +1436,11 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles powerfully.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_DARK, (rlev * 5) + damroll(10, 10), 4, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_DARK, (rlev * 4) + damroll(10, 10), 4, FALSE);
 
 				break;
 			}
@@ -1547,7 +1586,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1576,7 +1615,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1605,7 +1644,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles loudly.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1634,7 +1673,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s screams the word 'DIE!'", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1663,7 +1702,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1684,7 +1723,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1705,7 +1744,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1726,7 +1765,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1754,7 +1793,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1775,7 +1814,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1796,7 +1835,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1817,7 +1856,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1838,7 +1877,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1859,7 +1898,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1880,7 +1919,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles, and you hear scary noises.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1916,7 +1955,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1952,7 +1991,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -1988,7 +2027,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -2023,7 +2062,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -2060,7 +2099,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -2094,7 +2133,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s invokes the Hand of Doom!", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -2134,7 +2173,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -2155,7 +2194,7 @@ bool monst_spell_monst(int m_idx)
 						}
 						else
 						{
-							msg_format("%^s sounds completely healed!", m_name);
+							mon_fight = TRUE;
 						}
 					}
 				}
@@ -2169,7 +2208,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s sounds healthier.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -2201,7 +2240,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles powerfully.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -2268,7 +2307,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -2333,7 +2372,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -2378,7 +2417,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
@@ -2386,12 +2425,12 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_KIN, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_KIN, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear many things appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2410,22 +2449,15 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
-				if (friendly)
-				{
-					count += summon_specific(y, x, rlev, SUMMON_CYBER, TRUE, TRUE, pet);
-				}
-				else
-				{
-					count += summon_cyber();
-				}
+				count += summon_cyber(m_idx, y, x);
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear heavy steps.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2446,15 +2478,15 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
-				count += summon_specific(y, x, rlev, type, FALSE, friendly, pet);
+				count += summon_specific(m_idx, y, x, rlev, type, FALSE, friendly, pet);
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear something appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2475,18 +2507,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, type, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, type, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear many things appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2505,18 +2537,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_ANT, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_ANT, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear many things appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2535,18 +2567,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_SPIDER, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_SPIDER, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear many things appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2565,18 +2597,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_HOUND, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_HOUND, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear many things appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2595,18 +2627,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_HYDRA, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_HYDRA, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear many things appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2625,18 +2657,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_ANGEL, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_ANGEL, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear something appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2655,18 +2687,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_DEMON, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_DEMON, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear something appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2685,18 +2717,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_UNDEAD, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNDEAD, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear something appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2715,18 +2747,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_DRAGON, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_DRAGON, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear something appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2747,18 +2779,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, type, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, type, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear many creepy things appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2779,18 +2811,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, type, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, type, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear many powerful things appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2809,18 +2841,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear immortal beings appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;
@@ -2839,18 +2871,18 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						msg_format("%^s mumbles.", m_name);
+						mon_fight = TRUE;
 					}
 				}
 
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
 				}
 
 				if (known && !see_t && count)
 				{
-					msg_print("You hear many powerful things appear nearby.");
+					mon_fight = TRUE;
 				}
 
 				break;

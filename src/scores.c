@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:59 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:53 $ */
 /* File: scores.c */
 
 /* Purpose: Highscores handling */
@@ -223,6 +223,14 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			for (gold = the_score.gold; isspace(*gold); gold++) /* loop */;
 			for (aged = the_score.turns; isspace(*aged); aged++) /* loop */;
 
+			/* Clean up standard encoded form of "when" */
+			if ((*when == '@') && strlen(when) == 9)
+			{
+				sprintf(tmp_val, "%.4s-%.2s-%.2s",
+				        when + 1, when + 5, when + 7);
+				when = tmp_val;
+			}
+
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
 			        place, the_score.pts, the_score.who,
@@ -327,6 +335,10 @@ errr top_twenty(void)
 
 	high_score   the_score;
 
+#ifndef HIGHSCORE_DATE_HACK
+	char long_day[12];
+#endif
+	
 	time_t ct = time((time_t*)0);
 
 
@@ -394,7 +406,7 @@ errr top_twenty(void)
 
 
 	/* Clear the record */
-	WIPE(&the_score, high_score);
+	(void) WIPE(&the_score, high_score);
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
@@ -415,10 +427,24 @@ errr top_twenty(void)
 #ifdef HIGHSCORE_DATE_HACK
 	/* Save the date in a hacked up form (9 chars) */
 	(void)sprintf(the_score.day, "%-.6s %-.2s", ctime(&ct) + 4, ctime(&ct) + 22);
-#else
+#else /* HIGHSCORE_DATE_HACK */
+	/* Get the date with a 4-digit year */
+	(void)strftime(long_day, 11, "%m/%d/%Y", localtime(&ct));
+
+	/* Remove the century */
+	j = 7;
+	while (1)
+	{
+		j++;
+		long_day[j-2] = long_day[j];
+
+		/* Exit if get a zero */
+		if (long_day[j]) break;
+	}
+
 	/* Save the date in standard form (8 chars) */
-	(void)strftime(the_score.day, 9, "%m/%d/%y", localtime(&ct));
-#endif
+	(void)strnfmt(the_score.day, 9, "%s", long_day);
+#endif /* HIGHSCORE_DATE_HACK */
 
 	/* Save the player name (15 chars) */
 	sprintf(the_score.who, "%-.15s", player_name);

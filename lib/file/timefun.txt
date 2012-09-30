@@ -7,10 +7,10 @@ E:0259
 D:There may be Vampires around!
 
 S:0200 
-E:0459
+E:0359
 D:Only Zangband players are up now!
 
-S:0100 
+S:0400 
 E:0459
 D:It's really *very* late!
 

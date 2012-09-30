@@ -19,7 +19,7 @@ queue, including any macros in progress), "fresh" (dump any pending
 output to the screen).
 
 
-***** <A>
+***** <UserInterface>
 === Option Set 1 -- User Interface ===
 
 Rogue-like commands    [rogue_like_commands]
@@ -113,7 +113,7 @@ Use color if possible (slow)    [use_color]
     are using a machine which is not capable of using color.
 
 
-***** <B>
+***** <Disturbance>
 === Option Set 2 -- Disturbance ===
 
 Run past stairs    [find_ignore_stairs]
@@ -166,7 +166,7 @@ Alert user to various failures    [alert_failure]
     "failures" occur, as described above.
 
 
-***** <C>
+***** <GamePlay>
 === Option Set 3 -- Game-play ===
 
 Auto-haggle in stores    [auto_haggle]
@@ -263,7 +263,7 @@ Monsters exploit players weaknesses    [smart_cheat]
     and to use this information to choose the best attacks.
 
 
-***** <D>
+***** <Efficiency>
 === Option Set 4 -- Efficiency ===
 
 Reduce lite-radius when running    [view_reduce_lite]
@@ -395,7 +395,7 @@ Use special colors for floor grids (slow)    [view_special_lite]
     this option off will probably increase the speed of the game.
 
 
-***** <E>
+***** <Zangband>
 === Zangband Options ===
 
 All features which are typical to Zangband (i.e. which are not in
@@ -531,7 +531,7 @@ Allow unified use command   [use_command]
     still available, but can be used for macros.
 
 
-***** <F>
+***** <Stacking>
 === Stacking Options ===
 
 Allow objects to stack on the floor   [testing_stack]
@@ -544,7 +544,7 @@ Allow monsters to carry objects    [testing_carry]
     monsters which "crush" objects are not affected by this option.
 
 
-***** <G>
+***** <BaseDealy>
 === Base Delay Factor ===
 
 The "delay_factor" value, if non-zero, is used to "slow down" the game,
@@ -553,7 +553,7 @@ beam, and ball attacks. The actual delay is equal to "delay_factor"
 cubed, in milliseconds.
 
 
-***** <H>
+***** <Hitpoint>
 === Hitpoint Warning ===
 
 The "hitpoint_warn" value, if non-zero, is the percentage of maximal
@@ -561,7 +561,7 @@ hitpoints at which the player is warned that he may die. It is also
 used as the cut-off for using red to display both hitpoints and mana.
 
 
-***** <I>
+***** <Autosave>
 === Autosave Options ===
 
 Ideally, the game should be so stable that these options are not needed
@@ -587,13 +587,13 @@ Timed autosave    [autosave_t]
         to take place.
 
 
-***** <J>
+***** <Window>
 === Window Flags ===
 
 Selects what kind of information is displayed in which window.
 
 
-***** <K>
+***** <Cheating>
 === Cheating Options ===
 
 Using the cheating options marks your character as "Cheater" and
@@ -620,11 +620,11 @@ Allow player to avoid death    [cheat_live]
     Cheaters never win.  But they can cheat death.
 
 
-***** <L>
+***** <StartUp>
 === Startup Options ===
 
 While cheating makes the game easier, the following options can make
-ZAngband harder. So if you think the game is too easy, or if you want
+Zangband harder. So if you think the game is too easy, or if you want
 to impress your friends, then switch on the following options. The
 startup-options can only be accessed while creating a new character
 (press '=' while creating the character). There is no way to turn them
@@ -632,8 +632,8 @@ off after the creation is finished!
 
 Use 'vanilla' town without quests and wilderness   [vanilla_town]
     Uses the basic town known from the standard Angband and older
-    versions of ZAngband. This town is only one screen in size and
-    contains only the 8 ZAngband stores, your home, and the stairs to
+    versions of Zangband. This town is only one screen in size and
+    contains only the 8 Zangband stores, your home, and the stairs to
     the dungeon. If you use the 'vanilla' town, then there is no
     wilderness, no special buildings and no set quests (but you can
     still use the random quests). This also speeds up the game on
@@ -656,8 +656,8 @@ Always create unusually small dungeon levels   [ironman_small_levels]
 
 Don't allow climbing upwards/recalling    [ironman_downward]
     You are not allowed to climb upwards, or recall to town. All stairs
-    are downstairs and everytime you teleport level, you'll teleport to
-    a deeper level.  This option may be dangerous in combination with
+    are downstairs and every time you teleport level, you'll teleport
+    to a deeper level. This option may be dangerous in combination with
     the 'small_levels' options, since the creation of quest-monsters
     may fail on very cramped levels, trapping you on the level with no
     stairs up or down.
@@ -666,7 +666,7 @@ Permanently enable the autoscummer   [ironman_autoscum]
     This option switches the "autoscummer" permanently on, so that only
     "good" levels are created.  This can mean, that there are good
     items on this level, or that the level is protected by especially
-    powerful monsters. In ZAngband it often is the later, so use this
+    powerful monsters. In Zangband it often is the later, so use this
     option with care.
 
 Quest monsters get reinforcements   [ironman_hard_quests]
@@ -696,4 +696,4 @@ Original   : Ben Harrison
 Updated    : Zangband 2.1.* by Topi Ylinen
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Last update: November 30, 1999
+Last update: January 13, 2000

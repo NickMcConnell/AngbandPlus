@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/15 14:06:06 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:28:53 $ */
 /* File: cmd3.c */
 
 /* Purpose: Inventory commands */
@@ -273,6 +273,12 @@ void do_cmd_wield(void)
 	/* Wear the new stuff */
 	object_copy(o_ptr, q_ptr);
 
+	/* Forget stack */
+	o_ptr->next_o_idx = 0;
+	
+	/* Forget location */
+	o_ptr->iy = o_ptr->ix = 0;
+
 	/* Increase the weight */
 	p_ptr->total_weight += q_ptr->weight;
 
@@ -308,6 +314,8 @@ void do_cmd_wield(void)
 	{
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
+
+		chg_virtue(V_HARMONY, -1);
 
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -537,32 +545,14 @@ void do_cmd_destroy(void)
 	/* Take a turn */
 	energy_use = 100;
 
-	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	/* Can the player destroy the object? */
+	if (!can_player_destroy_object(o_ptr))
 	{
-		byte feel = FEEL_SPECIAL;
-
+		/* Don't take a turn */
 		energy_use = 0;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
-
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = FEEL_TERRIBLE;
-
-		/* Hack -- inscribe the artifact */
-		o_ptr->feeling = feel;
-
-		/* We have "felt" it (again) */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		p_ptr->redraw |= (PR_EQUIPPY);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
 		return;
@@ -597,12 +587,35 @@ void do_cmd_destroy(void)
 			s32b tester_exp = p_ptr->max_exp / 20;
 			if (tester_exp > 10000) tester_exp = 10000;
 			if (o_ptr->sval < 3) tester_exp /= 4;
-			if (tester_exp<1) tester_exp = 1;
+			if (tester_exp < 1) tester_exp = 1;
 
 			msg_print("You feel more experienced.");
 			gain_exp(tester_exp * amt);
 		}
+
+		if (high_level_book(o_ptr) && o_ptr->tval == TV_LIFE_BOOK)
+		{
+			chg_virtue(V_UNLIFE, 1);
+			chg_virtue(V_VITALITY, -1);
+		}
+		else if (high_level_book(o_ptr) && o_ptr->tval == TV_DEATH_BOOK)
+		{
+			chg_virtue(V_UNLIFE, -1);
+			chg_virtue(V_VITALITY, 1);
+		}
+
+		if (o_ptr->to_a || o_ptr->to_h || o_ptr->to_d)
+			chg_virtue(V_ENCHANT, -1);
+
+		if (object_value_real(o_ptr) > 30000)
+			chg_virtue(V_SACRIFICE, 2);
+
+		else if (object_value_real(o_ptr) > 10000)
+			chg_virtue(V_SACRIFICE, 1);
 	}
+
+	if (o_ptr->to_a != 0 || o_ptr->to_d != 0 || o_ptr->to_h != 0)
+		chg_virtue(V_HARMONY, 1);
 
 	/* Reduce the charges of rods/wands */
 	reduce_charges(o_ptr, amt);
@@ -801,7 +814,8 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 
 	/* Laterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN)) return (TRUE);
+	    (o_ptr->sval == SV_LITE_LANTERN) &&
+	    (o_ptr->pval > 0)) return (TRUE);
 
 	/* Assume not okay */
 	return (FALSE);
@@ -825,8 +839,8 @@ static void do_cmd_refill_lamp(void)
 	item_tester_hook = item_tester_refill_lantern;
 
 	/* Get an item */
-	q = "Refill with which flask? ";
-	s = "You have no flasks of oil.";
+	q = "Refill with which source of oil? ";
+	s = "You have no sources of oil.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -1243,7 +1257,7 @@ static cptr ident_info[] =
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1318,7 +1332,7 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
+void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1410,8 +1424,6 @@ void do_cmd_query_symbol(void)
 	u16b	why = 0;
 	u16b	*who;
 
-	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, u16b);
 
 	/* Get a character, or abort */
 	if (!get_com("Enter character to be identified: ", &sym)) return;
@@ -1450,6 +1462,8 @@ void do_cmd_query_symbol(void)
 	/* Display the result */
 	prt(buf, 0, 0);
 
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
 
 	/* Collect matching monsters */
 	for (n = 0, i = 1; i < max_r_idx; i++)
@@ -1469,12 +1483,16 @@ void do_cmd_query_symbol(void)
 		if (all || (r_ptr->d_char == sym)) who[n++] = i;
 	}
 
-	/* Nothing to recall */
-	if (!n) return;
+	if (!n)
+	{
+		/* XXX XXX Free the "who" array */
+		C_KILL(who, max_r_idx, u16b);
 
+		return;
+	}
 
 	/* Prompt XXX XXX XXX */
-	put_str("Recall details? (k/p/y/n): ", 0, 40);
+	put_str("Recall details? (k/y/n): ", 0, 40);
 
 	/* Query */
 	query = inkey();
@@ -1482,6 +1500,14 @@ void do_cmd_query_symbol(void)
 	/* Restore */
 	prt(buf, 0, 0);
 
+	why = 2;
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array */
+	ang_sort(who, &why, n);
 
 	/* Sort by kills (and level) */
 	if (query == 'k')
@@ -1490,19 +1516,17 @@ void do_cmd_query_symbol(void)
 		query = 'y';
 	}
 
-	/* Sort by level */
-	if (query == 'p')
+	/* Catch "escape" */
+	if (query != 'y')
 	{
-		why = 2;
-		query = 'y';
+		/* XXX XXX Free the "who" array */
+		C_KILL(who, max_r_idx, u16b);
+
+		return;
 	}
 
-	/* Catch "escape" */
-	if (query != 'y') return;
-
-
 	/* Sort if needed */
-	if (why)
+	if (why == 4)
 	{
 		/* Select the sort method */
 		ang_sort_comp = ang_sort_comp_hook;
@@ -1590,6 +1614,9 @@ void do_cmd_query_symbol(void)
 			}
 		}
 	}
+
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, u16b);
 
 	/* Re-display the identity */
 	prt(buf, 0, 0);

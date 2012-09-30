@@ -65,11 +65,11 @@ OBJS = \
   xtra1.o xtra2.o spells1.o spells2.o spells3.o \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load.o \
+  store.o birth.o load.o notes.o \
   wizard1.o wizard2.o streams.o grid.o rooms.o \
   generate.o dungeon.o init1.o init2.o \
   bldg.o obj_kind.o effects.o mutation.o mspells1.o mspells2.o racial.o mind.o \
-  artifact.o flavor.o scores.o
+  artifact.o avatar.o flavor.o scores.o
 
 .c.o:
 	$(NICE) $(CC) $(CFLAGS) -c $*.c

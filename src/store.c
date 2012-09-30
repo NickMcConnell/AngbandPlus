@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/15 16:13:38 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:29:24 $ */
 /* File: store.c */
 
 /* Purpose: Store commands */
@@ -285,6 +285,9 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		/* Comment */
 		msg_print(comment_7a[rand_int(MAX_COMMENT_7A)]);
 
+		chg_virtue(V_HONOUR, -1);
+		chg_virtue(V_JUSTICE, -1);
+
 		/* Sound */
 		sound(SOUND_STORE1);
 	}
@@ -294,6 +297,10 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	{
 		/* Comment */
 		msg_print(comment_7b[rand_int(MAX_COMMENT_7B)]);
+
+		chg_virtue(V_JUSTICE, -1);
+		if (randint(4)==1)
+			chg_virtue(V_HONOUR, -1);
 
 		/* Sound */
 		sound(SOUND_STORE2);
@@ -305,6 +312,11 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		/* Comment */
 		msg_print(comment_7c[rand_int(MAX_COMMENT_7C)]);
 
+		if (randint(4)==1)
+			chg_virtue(V_HONOUR, -1);
+		else if (randint(4)==1)
+			chg_virtue(V_HONOUR, 1);
+
 		/* Sound */
 		sound(SOUND_STORE3);
 	}
@@ -314,6 +326,14 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	{
 		/* Comment */
 		msg_print(comment_7d[rand_int(MAX_COMMENT_7D)]);
+
+		if (randint(2)==1)
+			chg_virtue(V_HONOUR, -1);
+		if (randint(4)==1)
+			chg_virtue(V_HONOUR, 1);
+
+		if (10 * price < value)
+			chg_virtue(V_SACRIFICE, 1);
 
 		/* Sound */
 		sound(SOUND_STORE4);
@@ -1174,6 +1194,8 @@ static int home_carry(object_type *o_ptr)
 	/* Insert the new item */
 	st_ptr->stock[slot] = *o_ptr;
 
+	chg_virtue(V_SACRIFICE, -1);
+
 	/* Return the location */
 	return (slot);
 }
@@ -1467,7 +1489,7 @@ static void store_create(void)
 		object_prep(q_ptr, i);
 
 		/* Apply some "low-level" magic (no artifacts) */
-		apply_magic(q_ptr, level, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, level, FALSE, FALSE, FALSE, FALSE);
 
 		/* Require valid object */
 		if (!store_will_buy(q_ptr)) continue;
@@ -2546,11 +2568,8 @@ static void store_purchase(void)
 	/* Get a copy of the object */
 	object_copy(j_ptr, o_ptr);
 
-	/*
-	 * If a rod or wand, allocate total maximum timeouts or charges
-	 * between those purchased and left on the shelf.
-	 */
-	reduce_charges(j_ptr, amt);
+	/* Recalculate charges for a single wand/rod */
+	reduce_charges(j_ptr, j_ptr->number - 1);
 
 	/* Modify quantity */
 	j_ptr->number = amt;
@@ -2592,7 +2611,7 @@ static void store_purchase(void)
 	 * If a rod or wand, allocate total maximum timeouts or charges
 	 * between those purchased and left on the shelf.
 	 */
-	reduce_charges(j_ptr, amt);
+	reduce_charges(j_ptr, j_ptr->number - amt);
 
 	/* Modify quantity */
 	j_ptr->number = amt;
@@ -2646,6 +2665,11 @@ static void store_purchase(void)
 			{
 				/* Say "okay" */
 				say_comment_1();
+
+				if (cur_store_num == STORE_BLACK) /* The black market is illegal! */
+					chg_virtue(V_JUSTICE, -1);
+				if((o_ptr->tval == TV_BOTTLE) && (cur_store_num != STORE_HOME))
+					chg_virtue(V_NATURE, -1);
 
 				/* Make a sound */
 				sound(SOUND_BUY);
@@ -2806,6 +2830,8 @@ static void store_purchase(void)
 
 			/* Redraw everything */
 			display_inventory();
+
+			chg_virtue(V_SACRIFICE, 1);
 		}
 	}
 
@@ -2945,6 +2971,12 @@ static void store_sell(void)
 
 			/* Make a sound */
 			sound(SOUND_SELL);
+
+			if (cur_store_num == STORE_BLACK) /* The black market is illegal! */
+				chg_virtue(V_JUSTICE, -1);
+
+			if((o_ptr->tval == TV_BOTTLE) && (cur_store_num != STORE_HOME))
+				chg_virtue(V_NATURE, 1);
 
 			/* Be happy */
 			decrease_insults();
@@ -3322,7 +3354,7 @@ static void store_process_command(void)
 		/* Character description */
 		case 'C':
 		{
-			do_cmd_change_name();
+			do_cmd_character();
 			display_store();
 			break;
 		}

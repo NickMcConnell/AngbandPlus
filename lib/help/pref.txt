@@ -47,7 +47,7 @@ intuitive way than the user pref commands allow. The commands include
 with colors" (&), described below.
 
 
-***** <A>
+***** <Commands>
 --- User pref file commands ---
 
 Interact with options (=)
@@ -80,7 +80,7 @@ Interact with the system (!)
      This command is currently unused.
 
 
-***** <B>
+***** <Macros>
 --- User Pref Files (Macros) ---
 
 The "Interact with macros" command allows you to define or remove
@@ -118,7 +118,7 @@ the form "A:<str>", which defines the encoded macro action, and one of
 the form "P:<str>", which defines the encoded macro trigger.
 
 
-***** <C>
+***** <KeyMaps>
 --- User Pref Files (Keymaps) ---
 
 The "Interact with macros" command also allows you to define "keymaps",
@@ -135,13 +135,13 @@ various things. See "command.txt" for the full set of underlying
 commands. Some uses for keymaps include the ability to "disable" a
 command by mapping it to "\x00".
 
-Keymaps can be specified in user pref files as line of the form
+Keymaps can be specified in user pref files as lines of the form
 "M:<T> <key> <str>", where <T> is the keyset (0 for original and 1 for
 roguelike), <key> is the encoded trigger key, and <str> is the encoded
 keymap action.
 
 
-***** <D>
+***** <Visuals>
 --- User Pref Files (Visuals) ---
 
 You can use the "Interact with visuals" command to change various
@@ -169,7 +169,7 @@ Keymaps can be specified in user pref files as lines of the form
 "U:<N>:<A>/<C>".
 
 
-***** <E>
+***** <Colors>
 --- User Pref Files (Colors) ---
 
 The "Interact with colors" command allows you to change the actual
@@ -179,11 +179,11 @@ change the actual RGB values used to represent each of the 16 colors
 used by Zangband, and perhaps even allow you to define new colors which
 are not currently used by Zangband.
 
-Coors can be specified in user pref files as line of the form
+Colors can be specified in user pref files as lines of the form
 "V:<N>:<V>:<R>:<G>:<B>".
 
 
-***** <F>
+***** <Options>
 --- User Pref Files (Options) ---
 
 The "Interact with options" command allows you to turn options on or
@@ -197,4 +197,4 @@ Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
 Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Last update: November 26th, 1999
+Last update: January 13, 2000

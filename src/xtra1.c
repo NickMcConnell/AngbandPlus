@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:52:05 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:45 $ */
 /* File: misc.c */
 
 /* Purpose: misc code */
@@ -144,7 +144,267 @@ static void prt_stat(int stat)
 	}
 }
 
+static int bar_count = 0;
 
+static void clear_status_bar(void)
+{
+	Term_putstr(COL_STATBAR, ROW_STATBAR, 12, TERM_WHITE, "            ");
+}
+
+
+static void show_status_bar(cptr letter, byte *colour, int num)
+{
+	int i;
+
+	if (num <= 12)
+	{
+		/* Reset everything */
+		bar_count = 0;
+		clear_status_bar();
+
+		/* Display the flags */
+		for (i = 0; i < num; i++)
+		{
+			Term_putch(COL_STATBAR + i, ROW_STATBAR, colour[i], letter[i]);
+		}
+	}
+	else
+	{
+		/* increment the count (scroll the flags) */
+		bar_count++;
+
+		if (bar_count >= num) bar_count = 0;
+
+		if (bar_count + 12 < num)
+		{
+			/* Simple case - all in a row */
+			for (i = 0; i < 12; i++)
+			{
+				Term_putch(COL_STATBAR + i, ROW_STATBAR,
+				           colour[i + bar_count], letter[i + bar_count]);
+			}
+		}
+		else
+		{
+			/* Split over boundary */
+			for (i = 0; i < num - bar_count; i++)
+			{
+				Term_putch(COL_STATBAR + i, ROW_STATBAR,
+				           colour[i + bar_count], letter[i + bar_count]);
+			}
+			for (i = 0; i < 12 + bar_count - num; i++)
+			{
+				Term_putch(COL_STATBAR + i + num - bar_count, ROW_STATBAR,
+					colour[i], letter[i]);
+			}
+		}
+	}
+}
+
+
+
+
+/* Show status bar */
+
+static void prt_status(void)
+{
+	int num = 0;
+	char letter[30];
+	byte colour[30];
+
+	/* Collate active flags */
+
+	/* Hack -- Hallucinating */
+	if (p_ptr->image)
+	{
+		letter[num] = 'H';
+		colour[num] = TERM_VIOLET;
+		num++;
+	}
+
+	/* Blindness */
+	if (p_ptr->blind)
+	{
+		letter[num] = 'B';
+		colour[num] = TERM_L_DARK;
+		num++;
+	}
+
+	/* Times see-invisible */
+	if (p_ptr->tim_invis)
+	{
+		letter[num] = 'I';
+		colour[num] = TERM_L_BLUE;
+		num++;
+	}
+
+	/* Timed esp */
+	if (p_ptr->tim_esp)
+	{
+		letter[num] = 'E';
+		colour[num] = TERM_ORANGE;
+		num++;
+	}
+
+	/* Timed infra-vision */
+	if (p_ptr->tim_infra)
+	{
+		letter[num] = 'I';
+		colour[num] = TERM_L_RED;
+		num++;
+	}
+
+	/* Paralysis */
+	if (p_ptr->paralyzed)
+	{
+		letter[num] = 'P';
+		colour[num] = TERM_RED;
+		num++;
+	}
+
+	/* Confusion */
+	if (p_ptr->confused)
+	{
+		letter[num] = 'C';
+		colour[num] = TERM_VIOLET;
+		num++;
+	}
+
+	/* Fast */
+	if (p_ptr->fast)
+	{
+		letter[num] = 'S';
+		colour[num] = TERM_GREEN;
+		num++;
+	}
+
+	/* Slow */
+	if (p_ptr->slow)
+	{
+		letter[num] = 'S';
+		colour[num] = TERM_RED;
+		num++;
+	}
+
+	/* Protection from evil */
+	if (p_ptr->protevil)
+	{
+		letter[num] = 'E';
+		colour[num] = TERM_L_DARK;
+		num++;
+	}
+
+	/* Invulnerability */
+	if (p_ptr->invuln)
+	{
+		letter[num] = 'I';
+		colour[num] = TERM_YELLOW;
+		num++;
+	}
+
+	/* Wraith form */
+	if (p_ptr->wraith_form)
+	{
+		letter[num] = 'W';
+		colour[num] = TERM_L_DARK;
+		num++;
+	}
+
+	/* Heroism */
+	if (p_ptr->hero)
+	{
+		letter[num] = 'H';
+		colour[num] = TERM_WHITE;
+		num++;
+	}
+
+	/* Super Heroism / berserk */
+	if (p_ptr->shero)
+	{
+		letter[num] = 'B';
+		colour[num] = TERM_RED;
+		num++;
+	}
+
+	/* Blessed */
+	if (p_ptr->blessed)
+	{
+		letter[num] = 'B';
+		colour[num] = TERM_WHITE;
+		num++;
+	}
+
+	/* Shield */
+	if (p_ptr->shield)
+	{
+		letter[num] = 'S';
+		colour[num] = TERM_WHITE;
+		num++;
+	}
+
+	/* Oppose Acid */
+	if (p_ptr->oppose_acid)
+	{
+		letter[num] = 'A';
+		colour[num] = TERM_GREEN;
+		num++;
+	}
+
+	/* Oppose Lightning */
+	if (p_ptr->oppose_elec)
+	{
+		letter[num] = 'E';
+		colour[num] = TERM_BLUE;
+		num++;
+	}
+
+	/* Oppose Fire */
+	if (p_ptr->oppose_fire)
+	{
+		letter[num] = 'F';
+		colour[num] = TERM_RED;
+		num++;
+	}
+
+	/* Oppose Cold */
+	if (p_ptr->oppose_cold)
+	{
+		letter[num] = 'C';
+		colour[num] = TERM_WHITE;
+		num++;
+	}
+
+	/* Oppose Poison */
+	if (p_ptr->oppose_pois)
+	{
+		letter[num] = 'P';
+		colour[num] = TERM_GREEN;
+		num++;
+	}
+
+	/* Word of Recall */
+	if (p_ptr->word_recall)
+	{
+		letter[num] = 'W';
+		colour[num] = TERM_WHITE;
+		num++;
+	}
+
+	/* Confusing Hands */
+	if (p_ptr->confusing)
+	{
+		letter[num] = 'C';
+		colour[num] = TERM_RED;
+		num++;
+	}
+
+	if (num)
+	{
+		/* Display the status bar if there are flags set */
+		show_status_bar(letter, colour, num);
+	}
+	else clear_status_bar();
+}
 
 
 /*
@@ -816,6 +1076,9 @@ static void prt_frame_basic(void)
 	/* All Stats */
 	for (i = 0; i < 6; i++) prt_stat(i);
 
+	/* Status Bar */
+	prt_status();
+
 	/* Armor */
 	prt_ac();
 
@@ -1031,7 +1294,7 @@ static void fix_message(void)
 		for (i = 0; i < h; i++)
 		{
 			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str((s16b)i));
+			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str(i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
@@ -1272,26 +1535,16 @@ static void calc_spells(void)
 		    (spell_learned1 & (1L << j)) :
 		    (spell_learned2 & (1L << (j - 32))))
 		{
-			/* Mark as forgotten */
+			/* Mark as forgotten - no longer known */
 			if (j < 32)
 			{
 				spell_forgotten1 |= (1L << j);
-				which = use_realm1;
-			}
-			else
-			{
-				spell_forgotten2 |= (1L << (j - 32));
-				which = use_realm2;
-			}
-
-			/* No longer known */
-			if (j < 32)
-			{
 				spell_learned1 &= ~(1L << j);
 				which = use_realm1;
 			}
 			else
 			{
+				spell_forgotten2 |= (1L << (j - 32));
 				spell_learned2 &= ~(1L << (j - 32));
 				which = use_realm2;
 			}
@@ -1326,26 +1579,16 @@ static void calc_spells(void)
 		    (spell_learned1 & (1L << j)) :
 		    (spell_learned2 & (1L << (j - 32))))
 		{
-			/* Mark as forgotten */
+			/* Mark as forgotten - no longer known */
 			if (j < 32)
 			{
 				spell_forgotten1 |= (1L << j);
-				which = use_realm1;
-			}
-			else
-			{
-				spell_forgotten2 |= (1L << (j - 32));
-				which = use_realm2;
-			}
-
-			/* No longer known */
-			if (j < 32)
-			{
 				spell_learned1 &= ~(1L << j);
 				which = use_realm1;
 			}
 			else
 			{
+				spell_forgotten2 |= (1L << (j - 32));
 				spell_learned2 &= ~(1L << (j - 32));
 				which = use_realm2;
 			}
@@ -1376,10 +1619,10 @@ static void calc_spells(void)
 		if (j >= 99) break;
 
 		/* Access the spell */
-		if (j<32)
+		if (j < 32)
 			s_ptr = &mp_ptr->info[use_realm1][j];
 		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
+			s_ptr = &mp_ptr->info[use_realm2][j % 32];
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
@@ -1389,26 +1632,16 @@ static void calc_spells(void)
 		    (spell_forgotten1 & (1L << j)) :
 		    (spell_forgotten2 & (1L << (j - 32))))
 		{
-			/* No longer forgotten */
+			/* No longer forgotten - known once more */
 			if (j < 32)
 			{
 				spell_forgotten1 &= ~(1L << j);
-				which = use_realm1;
-			}
-			else
-			{
-				spell_forgotten2 &= ~(1L << (j - 32));
-				which = use_realm2;
-			}
-
-			/* Known once more */
-			if (j < 32)
-			{
 				spell_learned1 |= (1L << j);
 				which = use_realm1;
 			}
 			else
 			{
+				spell_forgotten2 &= ~(1L << (j - 32));
 				spell_learned2 |= (1L << (j - 32));
 				which = use_realm2;
 			}
@@ -1427,13 +1660,13 @@ static void calc_spells(void)
 	k = 0;
 
 	/* Count spells that can be learned */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < (p_ptr->realm2 != REALM_NONE ? 64 : 32); j++)
 	{
 		/* Access the spell */
-		if (j<32)
+		if (j < 32)
 			s_ptr = &mp_ptr->info[use_realm1][j];
 		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
+			s_ptr = &mp_ptr->info[use_realm2][j % 32];
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
@@ -1448,15 +1681,6 @@ static void calc_spells(void)
 
 		/* Count it */
 		k++;
-	}
-
-	if (p_ptr->realm2 == REALM_NONE)
-	{
-		if (k>32) k = 32;
-	}
-	else
-	{
-		if (k>64) k = 64;
 	}
 
 	/* Cannot learn more spells than exist */
@@ -1516,6 +1740,27 @@ static void calc_mana(void)
 	/* Extract total mana */
 	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2;
 
+	/* Hack - the weak spellcasters get half as much mana (rounded up) in Oangband. */
+	/* But this is not Oangband... */
+#if 0
+	switch (p_ptr->pclass)
+	{
+		case CLASS_ROGUE:
+		case CLASS_RANGER:
+		case CLASS_PALADIN:
+		case CLASS_MONK:
+		case CLASS_CHAOS_WARRIOR:
+		{
+			msp = (msp + 1) / 2;
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+#endif
+
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
@@ -1539,8 +1784,8 @@ static void calc_mana(void)
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
-		    !(f2 & (TR2_FREE_ACT)) &&
-		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
+			 !(f2 & (TR2_FREE_ACT)) &&
+			 !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
 		{
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
@@ -1566,14 +1811,57 @@ static void calc_mana(void)
 	/* Determine the weight allowance */
 	max_wgt = mp_ptr->spell_weight;
 
-	/* Heavy armor penalizes mana */
+	/* Heavy armor penalizes mana by a percentage.  -LM- */
 	if (((cur_wgt - max_wgt) / 10) > 0)
 	{
 		/* Encumbered */
 		p_ptr->cumber_armor = TRUE;
 
-		/* Reduce mana */
-		msp -= ((cur_wgt - max_wgt) / 10);
+		/* Subtract a percentage of maximum mana. */
+		switch (p_ptr->pclass)
+		{
+			/* For these classes, mana is halved if armour
+			 * is 30 pounds over their weight limit. */
+			case CLASS_MAGE:
+			case CLASS_HIGH_MAGE:
+			{
+				msp -= msp * (cur_wgt - max_wgt) / 600;
+				break;
+			}
+
+			/* Mana halved if armour is 40 pounds over weight limit. */
+			case CLASS_PRIEST:
+			case CLASS_MINDCRAFTER:
+			{
+				msp -= msp * (cur_wgt - max_wgt) / 800;
+				break;
+			}
+
+			/* Mana halved if armour is 50 pounds over weight limit. */
+			case CLASS_ROGUE:
+			case CLASS_RANGER:
+			case CLASS_MONK:
+			{
+				msp -= msp * (cur_wgt - max_wgt) / 1000;
+				break;
+			}
+
+			/* Mana halved if armour is 60 pounds over weight limit. */
+			case CLASS_PALADIN:
+			case CLASS_CHAOS_WARRIOR:
+			case CLASS_WARRIOR_MAGE:
+			{
+				msp -= msp * (cur_wgt - max_wgt) / 1200;
+				break;
+			}
+
+			/* For new classes created, but not yet added to this formula. */
+			default:
+			{
+				msp -= msp * (cur_wgt - max_wgt) / 800;
+				break;
+			}
+		}
 	}
 
 
@@ -1795,6 +2083,160 @@ static int weight_limit(void)
 	return (i);
 }
 
+/* Calculate all class-based bonuses and penalties to melee Skill.  Oangband
+ * recognizes that it takes a great deal of training to get critical hits with
+ * a large, heavy weapon - training that many classes simply do not have the
+ * time or inclination for.  -LM-
+ */
+static sint add_special_melee_skill(byte pclass, s16b weight, object_type *o_ptr)
+{
+	int add_skill = 0;
+
+	switch (pclass)
+	{
+		/* Warrior.  Can use 15 lb weapons without penalty at level 1, and 45 lb weapons without penalty at 50th level. */
+		case CLASS_WARRIOR:
+		{
+			add_skill = 25 + p_ptr->lev - (weight / 6);
+			if (add_skill > 0) add_skill = 0;
+			if (add_skill < -10) add_skill = -10;
+			break;
+		}
+
+		/* Mage/High Mage.  Can use 6 lb weapons without penalty at level 1, and 16 lb weapons without penalty at 50th level. */
+		case CLASS_MAGE:
+		case CLASS_HIGH_MAGE:
+		{
+			add_skill = 20 + (2 * p_ptr->lev / 3) - (weight / 3);
+			if (add_skill > 0) add_skill = 0;
+			if (add_skill < -30) add_skill = -30;
+			break;
+		}
+
+		/* Priest.  Can use 12 lb weapons without penalty at level 1, and 22 lb weapons without penalty at 50th level. */
+		case CLASS_PRIEST:
+		{
+			add_skill = 30 + (1 * p_ptr->lev / 2) - (weight / 4);
+			if (add_skill > 0) add_skill = 0;
+			if (add_skill < -25) add_skill = -25;
+			break;
+		}
+
+		/* Rogue.  Can use 10 lb weapons without penalty at level 1, and 20 lb
+		* weapons without penalty at 50th level. Can get a bonus for using light
+		* weapons.  */
+		case CLASS_ROGUE:
+		{
+			if (!o_ptr->k_idx) add_skill = 0;
+
+			else
+			{
+				add_skill = 33 + (2 * p_ptr->lev / 3) - (weight / 3);
+				if (add_skill > 0) add_skill = add_skill / 2;
+				if (add_skill > 15) add_skill = 15;
+				if (add_skill < -25) add_skill = -25;
+			}
+			break;
+		}
+
+		/* Ranger.  Can use 12 lb weapons without penalty at level 1, and 25 lb
+		*weapons without penalty at 50th level. */
+		case CLASS_RANGER:
+		{
+			add_skill = 25 + (1 * p_ptr->lev / 2) - (weight / 5);
+			if (add_skill > 0) add_skill = 0;
+			if (add_skill < -20) add_skill = -20;
+			break;
+		}
+
+		/* Paladin/Chaos warrior/Warrior mage.  Can use 15 lb weapons without
+		* penalty at level 1, and 45 lb weapons without penalty at 50th level. */
+		case CLASS_PALADIN:
+		case CLASS_CHAOS_WARRIOR:
+		case CLASS_WARRIOR_MAGE:
+		{
+			add_skill = 25 + p_ptr->lev - (weight / 6);
+			if (add_skill > 0) add_skill = 0;
+			if (add_skill < -10) add_skill = -10;
+			break;
+		}
+
+		/* Monk.  Can use 5 lb weapons without penalty at level 1, and
+		 * slightly over 12 lb weapons without penalty at 50th level. Much
+		 * prefers to use hands and feet.
+		 */
+		case CLASS_MONK:
+		{
+			if (!o_ptr->k_idx) add_skill = 14 + (p_ptr->lev);
+			else
+			{
+				add_skill = 16 + (p_ptr->lev / 2) - (weight / 3);
+				if (add_skill > 0) add_skill = 0;
+				if (add_skill < -30) add_skill = -30;
+			}
+			break;
+		}
+
+		/*
+		* MindCrafter.  Can use 6 lb weapons without penalty at level 1,
+		* and 16 lb weapons without penalty at 50th level.
+		*/
+		case CLASS_MINDCRAFTER:
+		{
+			add_skill = 20 + (2 * p_ptr->lev / 3) - (weight / 3);
+			if (add_skill > 0) add_skill = 0;
+			if (add_skill < -30) add_skill = -30;
+			break;
+		}
+	}
+
+	return (add_skill);
+}
+
+/* Calculate all class and race-based bonuses and penalties to missile Skill -LM- */
+static sint add_special_missile_skill(byte pclass, s16b weight, object_type *o_ptr)
+{
+	int add_skill = 0;
+
+	switch (pclass)
+	{
+
+		/* Rogues are good with slings. */
+		case CLASS_ROGUE:
+		{
+			if (p_ptr->tval_ammo == TV_SHOT)
+			{
+				add_skill = 3 + p_ptr->lev / 4;
+			}
+			break;
+		}
+
+		/* Rangers have a high missile skill, but they are not supposed to
+		* be great with xbows and slings. */
+		case CLASS_RANGER:
+		{
+			if (p_ptr->tval_ammo == TV_SHOT)
+			{
+				add_skill = 0 - p_ptr->lev / 7;
+			}
+			if (p_ptr->tval_ammo == TV_BOLT)
+			{
+				add_skill = 0 - p_ptr->lev / 7;
+			}
+			break;
+		}
+
+		/* Monks get a small bonus with slings. */
+		case CLASS_MONK:
+		{
+			if (p_ptr->tval_ammo == TV_SHOT)
+			{
+				add_skill = p_ptr->lev / 7;
+			}
+		}
+	}
+	return (add_skill);
+}
 
 /*
  * Calculate the players current "state", taking into account
@@ -1922,7 +2364,6 @@ void calc_bonuses(void)
 	p_ptr->immune_cold = FALSE;
 
 
-
 	/* Base infravision (purely racial) */
 	p_ptr->see_infra = rp_ptr->infra;
 
@@ -1996,164 +2437,161 @@ void calc_bonuses(void)
 					p_ptr->free_act = TRUE;
 				break;
 		}
-	}
 
-	/***** Races ****/
-	switch (p_ptr->prace)
-	{
-		case RACE_ELF:
-			p_ptr->resist_lite = TRUE;
-			break;
-		case RACE_HOBBIT:
-			p_ptr->sustain_dex = TRUE;
-			break;
-		case RACE_GNOME:
-			p_ptr->free_act = TRUE;
-			break;
-		case RACE_DWARF:
-			p_ptr->resist_blind = TRUE;
-			break;
-		case RACE_HALF_ORC:
-			p_ptr->resist_dark = TRUE;
-			break;
-		case RACE_HALF_TROLL:
-			p_ptr->sustain_str = TRUE;
+		/***** Races ****/
+		switch (p_ptr->prace)
+		{
+			case RACE_ELF:
+				p_ptr->resist_lite = TRUE;
+				break;
+			case RACE_HOBBIT:
+				p_ptr->sustain_dex = TRUE;
+				break;
+			case RACE_GNOME:
+				p_ptr->free_act = TRUE;
+				break;
+			case RACE_DWARF:
+				p_ptr->resist_blind = TRUE;
+				break;
+			case RACE_HALF_ORC:
+				p_ptr->resist_dark = TRUE;
+				break;
+			case RACE_HALF_TROLL:
+				p_ptr->sustain_str = TRUE;
 
-			if (p_ptr->lev > 14)
-			{
-				/* High level trolls heal fast... */
-				p_ptr->regenerate = TRUE;
-
-				if (p_ptr->pclass == CLASS_WARRIOR)
+				if (p_ptr->lev > 14)
 				{
-					p_ptr->slow_digest = TRUE;
-					/* Let's not make Regeneration
-					 * a disadvantage for the poor warriors who can
-					 * never learn a spell that satisfies hunger (actually
-					 * neither can rogues, but half-trolls are not
-					 * supposed to play rogues) */
+					/* High level trolls heal fast... */
+					p_ptr->regenerate = TRUE;
+
+					if (p_ptr->pclass == CLASS_WARRIOR)
+					{
+						p_ptr->slow_digest = TRUE;
+						/* Let's not make Regeneration
+						 * a disadvantage for the poor warriors who can
+						 * never learn a spell that satisfies hunger (actually
+						 * neither can rogues, but half-trolls are not
+						 * supposed to play rogues) */
+					}
 				}
-			}
-			break;
-		case RACE_AMBERITE:
-			p_ptr->sustain_con = TRUE;
-			p_ptr->regenerate = TRUE;  /* Amberites heal fast... */
-			break;
-		case RACE_HIGH_ELF:
-			p_ptr->resist_lite = TRUE;
-			p_ptr->see_inv = TRUE;
-			break;
-		case RACE_BARBARIAN:
-			p_ptr->resist_fear = TRUE;
-			break;
-		case RACE_HALF_OGRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->sustain_str = TRUE;
-			break;
-		case RACE_HALF_GIANT:
-			p_ptr->sustain_str = TRUE;
-			p_ptr->resist_shard = TRUE;
-			break;
-		case RACE_HALF_TITAN:
-			p_ptr->resist_chaos = TRUE;
-			break;
-		case RACE_CYCLOPS:
-			p_ptr->resist_sound = TRUE;
-			break;
-		case RACE_YEEK:
-			p_ptr->resist_acid = TRUE;
-			if (p_ptr->lev > 19) p_ptr->immune_acid = TRUE;
-			break;
-		case RACE_KLACKON:
-			p_ptr->resist_conf = TRUE;
-			p_ptr->resist_acid = TRUE;
+				break;
+			case RACE_AMBERITE:
+				p_ptr->sustain_con = TRUE;
+				p_ptr->regenerate = TRUE;  /* Amberites heal fast... */
+				break;
+			case RACE_HIGH_ELF:
+				p_ptr->resist_lite = TRUE;
+				p_ptr->see_inv = TRUE;
+				break;
+			case RACE_BARBARIAN:
+				p_ptr->resist_fear = TRUE;
+				break;
+			case RACE_HALF_OGRE:
+				p_ptr->resist_dark = TRUE;
+				p_ptr->sustain_str = TRUE;
+				break;
+			case RACE_HALF_GIANT:
+				p_ptr->sustain_str = TRUE;
+				p_ptr->resist_shard = TRUE;
+				break;
+			case RACE_HALF_TITAN:
+				p_ptr->resist_chaos = TRUE;
+				break;
+			case RACE_CYCLOPS:
+				p_ptr->resist_sound = TRUE;
+				break;
+			case RACE_YEEK:
+				p_ptr->resist_acid = TRUE;
+				if (p_ptr->lev > 19) p_ptr->immune_acid = TRUE;
+				break;
+			case RACE_KLACKON:
+				p_ptr->resist_conf = TRUE;
+				p_ptr->resist_acid = TRUE;
 
-			/* Klackons become faster */
-			p_ptr->pspeed += (p_ptr->lev) / 10;
-			break;
-		case RACE_KOBOLD:
-			p_ptr->resist_pois = TRUE;
-			break;
-		case RACE_NIBELUNG:
-			p_ptr->resist_disen = TRUE;
-			p_ptr->resist_dark = TRUE;
-			break;
-		case RACE_DARK_ELF:
-			p_ptr->resist_dark = TRUE;
-			if (p_ptr->lev > 19) p_ptr->see_inv = TRUE;
-			break;
-		case RACE_DRACONIAN:
-			p_ptr->ffall = TRUE;
-			if (p_ptr->lev >  4) p_ptr->resist_fire = TRUE;
-			if (p_ptr->lev >  9) p_ptr->resist_cold = TRUE;
-			if (p_ptr->lev > 14) p_ptr->resist_acid = TRUE;
-			if (p_ptr->lev > 19) p_ptr->resist_elec = TRUE;
-			if (p_ptr->lev > 34) p_ptr->resist_pois = TRUE;
-			break;
-		case RACE_MIND_FLAYER:
-			p_ptr->sustain_int = TRUE;
-			p_ptr->sustain_wis = TRUE;
-			if (p_ptr->lev > 14) p_ptr->see_inv = TRUE;
-			if (p_ptr->lev > 29) p_ptr->telepathy = TRUE;
-			break;
-		case RACE_IMP:
-			p_ptr->resist_fire = TRUE;
-			if (p_ptr->lev > 9) p_ptr->see_inv = TRUE;
-			break;
-		case RACE_GOLEM:
-			p_ptr->slow_digest = TRUE;
-			p_ptr->free_act = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			if (p_ptr->lev > 34) p_ptr->hold_life = TRUE;
-			break;
-		case RACE_SKELETON:
-			p_ptr->resist_shard = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
-			break;
-		case RACE_ZOMBIE:
-			p_ptr->resist_neth = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			if (p_ptr->lev > 4) p_ptr->resist_cold = TRUE;
-			break;
-		case RACE_VAMPIRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->resist_cold = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->lite = TRUE;
-			break;
-		case RACE_SPECTRE:
-			p_ptr->resist_neth = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			p_ptr->resist_cold = TRUE;
-			p_ptr->pass_wall = TRUE;
-			if (p_ptr->lev > 34) p_ptr->telepathy = TRUE;
-			break;
-		case RACE_SPRITE:
-			p_ptr->ffall = TRUE;
-			p_ptr->resist_lite = TRUE;
+				/* Klackons become faster */
+				p_ptr->pspeed += (p_ptr->lev) / 10;
+				break;
+			case RACE_KOBOLD:
+				p_ptr->resist_pois = TRUE;
+				break;
+			case RACE_NIBELUNG:
+				p_ptr->resist_disen = TRUE;
+				p_ptr->resist_dark = TRUE;
+				break;
+			case RACE_DARK_ELF:
+				p_ptr->resist_dark = TRUE;
+				if (p_ptr->lev > 19) p_ptr->see_inv = TRUE;
+				break;
+			case RACE_DRACONIAN:
+				p_ptr->ffall = TRUE;
+				if (p_ptr->lev >  4) p_ptr->resist_fire = TRUE;
+				if (p_ptr->lev >  9) p_ptr->resist_cold = TRUE;
+				if (p_ptr->lev > 14) p_ptr->resist_acid = TRUE;
+				if (p_ptr->lev > 19) p_ptr->resist_elec = TRUE;
+				if (p_ptr->lev > 34) p_ptr->resist_pois = TRUE;
+				break;
+			case RACE_MIND_FLAYER:
+				p_ptr->sustain_int = TRUE;
+				p_ptr->sustain_wis = TRUE;
+				if (p_ptr->lev > 14) p_ptr->see_inv = TRUE;
+				if (p_ptr->lev > 29) p_ptr->telepathy = TRUE;
+				break;
+			case RACE_IMP:
+				p_ptr->resist_fire = TRUE;
+				if (p_ptr->lev > 9) p_ptr->see_inv = TRUE;
+				break;
+			case RACE_GOLEM:
+				p_ptr->slow_digest = TRUE;
+				p_ptr->free_act = TRUE;
+				p_ptr->see_inv = TRUE;
+				p_ptr->resist_pois = TRUE;
+				if (p_ptr->lev > 34) p_ptr->hold_life = TRUE;
+				break;
+			case RACE_SKELETON:
+				p_ptr->resist_shard = TRUE;
+				p_ptr->hold_life = TRUE;
+				p_ptr->see_inv = TRUE;
+				p_ptr->resist_pois = TRUE;
+				if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
+				break;
+			case RACE_ZOMBIE:
+				p_ptr->resist_neth = TRUE;
+				p_ptr->hold_life = TRUE;
+				p_ptr->see_inv = TRUE;
+				p_ptr->resist_pois = TRUE;
+				p_ptr->slow_digest = TRUE;
+				if (p_ptr->lev > 4) p_ptr->resist_cold = TRUE;
+				break;
+			case RACE_VAMPIRE:
+				p_ptr->resist_dark = TRUE;
+				p_ptr->hold_life = TRUE;
+				p_ptr->resist_neth = TRUE;
+				p_ptr->resist_cold = TRUE;
+				p_ptr->resist_pois = TRUE;
+				p_ptr->lite = TRUE;
+				break;
+			case RACE_SPECTRE:
+				p_ptr->resist_neth = TRUE;
+				p_ptr->hold_life = TRUE;
+				p_ptr->see_inv = TRUE;
+				p_ptr->resist_pois = TRUE;
+				p_ptr->slow_digest = TRUE;
+				p_ptr->resist_cold = TRUE;
+				p_ptr->pass_wall = TRUE;
+				if (p_ptr->lev > 34) p_ptr->telepathy = TRUE;
+				break;
+			case RACE_SPRITE:
+				p_ptr->ffall = TRUE;
+				p_ptr->resist_lite = TRUE;
 
-			/* Sprites become faster */
-			p_ptr->pspeed += (p_ptr->lev) / 10;
-			break;
-		case RACE_BEASTMAN:
-			p_ptr->resist_conf  = TRUE;
-			p_ptr->resist_sound = TRUE;
-			break;
-		default:
-			/* Do nothing */
-			;
+				/* Sprites become faster */
+				p_ptr->pspeed += p_ptr->lev / 10;
+				break;
+			case RACE_BEASTMAN:
+				p_ptr->resist_conf = TRUE;
+				p_ptr->resist_sound = TRUE;
+				break;
+		}
 	}
 
 	/* Hack -- apply racial/class stat maxes */
@@ -2330,6 +2768,7 @@ void calc_bonuses(void)
 			p_ptr->skill_stl += 1;
 		}
 
+#ifdef MUT3_SUS_STATS
 		if (p_ptr->muta3 & MUT3_SUS_STATS)
 		{
 			p_ptr->sustain_con = TRUE;
@@ -2344,6 +2783,7 @@ void calc_bonuses(void)
 			if (p_ptr->lev > 49)
 				p_ptr->sustain_chr = TRUE;
 		}
+#endif /* MUT3_SUS_STATS */
 
 		if (p_ptr->muta3 & MUT3_ILL_NORM)
 		{
@@ -2754,13 +3194,11 @@ void calc_bonuses(void)
 	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
 
 	/* Redraw armor (if needed) */
@@ -2785,7 +3223,7 @@ void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
 
-	/* It is hard to carholdry a heavy bow */
+	/* It is hard to carry a heavy bow */
 	if (hold < o_ptr->weight / 10)
 	{
 		/* Hard to wield a heavy bow */
@@ -2841,6 +3279,25 @@ void calc_bonuses(void)
 				if (p_ptr->lev >= 40) p_ptr->num_fire++;
 			}
 
+			/* Hack -- Rangers can use XBows as well*/
+			if ((p_ptr->pclass == CLASS_RANGER) &&
+			    (p_ptr->tval_ammo == TV_BOLT))
+			{
+				/* Extra shot at level 20 */
+				if (p_ptr->lev >= 30) p_ptr->num_fire++;
+			}
+
+			/* Hack -- Rogues love Slings */
+			if ((p_ptr->pclass == CLASS_ROGUE) &&
+			    (p_ptr->tval_ammo == TV_SHOT))
+			{
+				/* Extra shot at level 20 */
+				if (p_ptr->lev >= 20) p_ptr->num_fire++;
+
+				/* Extra shot at level 40 */
+				if (p_ptr->lev >= 40) p_ptr->num_fire++;
+			}
+
 			/*
 			 * Addendum -- also "Reward" high level warriors,
 			 * with _any_ missile weapon -- TY
@@ -2849,14 +3306,15 @@ void calc_bonuses(void)
 			   (p_ptr->tval_ammo <= TV_BOLT) &&
 			   (p_ptr->tval_ammo >= TV_SHOT))
 			{
-				/* Extra shot at level 25 */
-				if (p_ptr->lev >= 25) p_ptr->num_fire++;
+				/* Extra shot at level 40 */
+				if (p_ptr->lev >= 40) p_ptr->num_fire++;
 
-				/* Extra shot at level 50 */
-				if (p_ptr->lev >= 50) p_ptr->num_fire++;
 			}
 		}
 	}
+	/* Add all class and race-specific adjustments to missile Skill. -LM- */
+	p_ptr->skill_thb += add_special_missile_skill (p_ptr->pclass, o_ptr->weight,
+	 o_ptr);
 
 
 	/* Examine the "main weapon" */
@@ -2874,6 +3332,9 @@ void calc_bonuses(void)
 
 		/* Heavy weapon */
 		p_ptr->heavy_wield = TRUE;
+
+		/* The player gets to swing a heavy weapon only once. -LM- */
+		p_ptr->num_blow = 1;
 	}
 
 
@@ -2889,41 +3350,41 @@ void calc_bonuses(void)
 		{
 			/* Warrior */
 			case CLASS_WARRIOR:
-				num = 6; wgt = 30; mul = 5; break;
+				num = 5; wgt = 30; mul = 5; break;
 
 			/* Mage */
 			case CLASS_MAGE:
 			case CLASS_HIGH_MAGE:
-				num = 4; wgt = 40; mul = 2; break;
+				num = 2; wgt = 40; mul = 2; break;
 
 			/* Priest, Mindcrafter */
 			case CLASS_PRIEST:
 			case CLASS_MINDCRAFTER:
-				num = 5; wgt = 35; mul = 3; break;
+				num = 4; wgt = 35; mul = 3; break;
 
 			/* Rogue */
 			case CLASS_ROGUE:
-				num = 5; wgt = 30; mul = 3; break;
+				num = 4; wgt = 30; mul = 3; break;
 
 			/* Ranger */
 			case CLASS_RANGER:
-				num = 5; wgt = 35; mul = 4; break;
+				num = 4; wgt = 35; mul = 4; break;
 
 			/* Paladin */
 			case CLASS_PALADIN:
-				num = 5; wgt = 30; mul = 4; break;
+				num = 4; wgt = 30; mul = 4; break;
 
 			/* Warrior-Mage */
 			case CLASS_WARRIOR_MAGE:
-				num = 5; wgt = 35; mul = 3; break;
+				num = 4; wgt = 35; mul = 3; break;
 
 			/* Chaos Warrior */
 			case CLASS_CHAOS_WARRIOR:
-				num = 5; wgt = 30; mul = 4; break;
+				num = 4; wgt = 30; mul = 4; break;
 
 			/* Monk */
 			case CLASS_MONK:
-				num = (p_ptr->lev<40?3:4); wgt = 40; mul = 4; break;
+				num = ((p_ptr->lev < 40) ? 2 : 3); wgt = 40; mul = 4; break;
 		}
 
 		/* Enforce a minimum "weight" (tenth pounds) */
@@ -2950,9 +3411,6 @@ void calc_bonuses(void)
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
 
-		/* Level bonus for warriors (1-3) */
-		if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->num_blow += (p_ptr->lev) / 15;
-
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
 
@@ -2964,19 +3422,18 @@ void calc_bonuses(void)
 	/* Different calculation for monks with empty hands */
 	else if (p_ptr->pclass == CLASS_MONK && monk_empty_hands())
 	{
-		p_ptr->num_blow = 0;
+		p_ptr->num_blow = 2;
 
-		if (p_ptr->lev >  9) p_ptr->num_blow++;
-		if (p_ptr->lev > 19) p_ptr->num_blow++;
-		if (p_ptr->lev > 29) p_ptr->num_blow++;
+		if (p_ptr->lev > 9) p_ptr->num_blow++;
+		if (p_ptr->lev > 14) p_ptr->num_blow++;
+		if (p_ptr->lev > 24) p_ptr->num_blow++;
 		if (p_ptr->lev > 34) p_ptr->num_blow++;
-		if (p_ptr->lev > 39) p_ptr->num_blow++;
 		if (p_ptr->lev > 44) p_ptr->num_blow++;
 		if (p_ptr->lev > 49) p_ptr->num_blow++;
 
 		if (monk_heavy_armor()) p_ptr->num_blow /= 2;
 
-		p_ptr->num_blow += 1 + extra_blows;
+		p_ptr->num_blow += extra_blows;
 
 		if (!monk_heavy_armor())
 		{
@@ -2987,6 +3444,11 @@ void calc_bonuses(void)
 			p_ptr->dis_to_d += (p_ptr->lev / 3);
 		}
 	}
+	/* Everyone gets two blows if not wielding a weapon. -LM- */
+	else if (!o_ptr->k_idx) p_ptr->num_blow = 2;
+
+	/* Add all other class-specific adjustments to melee Skill. -LM- */
+	p_ptr->skill_thn += add_special_melee_skill(p_ptr->pclass, o_ptr->weight, o_ptr);
 
 	/* Assume okay */
 	p_ptr->icky_wield = FALSE;
@@ -3004,7 +3466,7 @@ void calc_bonuses(void)
 
 	/* Priest weapon penalty for non-blessed edged weapons */
 	if ((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
-	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
+		 ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
 	{
 		/* Reduce the real bonuses */
 		p_ptr->to_h -= 2;
@@ -3059,13 +3521,13 @@ void calc_bonuses(void)
 	p_ptr->skill_fos += (cp_ptr->x_fos * p_ptr->lev / 10);
 
 	/* Affect Skill -- combat (normal) (Level, by Class) */
-	p_ptr->skill_thn += (cp_ptr->x_thn * p_ptr->lev / 10);
+	p_ptr->skill_thn += (cp_ptr->x_thn * p_ptr->lev / 50);
 
 	/* Affect Skill -- combat (shooting) (Level, by Class) */
-	p_ptr->skill_thb += (cp_ptr->x_thb * p_ptr->lev / 10);
+	p_ptr->skill_thb += (cp_ptr->x_thb * p_ptr->lev / 50);
 
 	/* Affect Skill -- combat (throwing) (Level, by Class) */
-	p_ptr->skill_tht += (cp_ptr->x_thb * p_ptr->lev / 10);
+	p_ptr->skill_tht += (cp_ptr->x_thb * p_ptr->lev / 50);
 
 
 	/* Limit Skill -- stealth from 0 to 30 */
@@ -3131,6 +3593,9 @@ void calc_bonuses(void)
 		if (p_ptr->icky_wield)
 		{
 			msg_print("You do not feel comfortable with your weapon.");
+
+			if (hack_mind)
+				chg_virtue(V_FAITH, -1);
 		}
 		else if (inventory[INVEN_WIELD].k_idx)
 		{
@@ -3148,11 +3613,21 @@ void calc_bonuses(void)
 	if (p_ptr->pclass == CLASS_MONK && (monk_armour_aux != monk_notify_aux))
 	{
 		if (monk_heavy_armor())
+		{
 			msg_print("The weight of your armor disrupts your balance.");
+
+			if (hack_mind)
+			{
+				chg_virtue(V_HARMONY, -1);
+			}
+		}
 		else
 			msg_print("You regain your balance.");
+
 		monk_notify_aux = monk_armour_aux;
 	}
+
+	p_ptr->align = friend_align;
 }
 
 
@@ -3315,7 +3790,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_BASIC))
 	{
 		p_ptr->redraw &= ~(PR_BASIC);
-		p_ptr->redraw &= ~(PR_MISC | PR_TITLE | PR_STATS);
+		p_ptr->redraw &= ~(PR_MISC | PR_TITLE | PR_STATS | PR_STATUS);
 		p_ptr->redraw &= ~(PR_LEV | PR_EXP | PR_GOLD);
 		p_ptr->redraw &= ~(PR_ARMOR | PR_HP | PR_MANA);
 		p_ptr->redraw &= ~(PR_DEPTH | PR_HEALTH);
@@ -3362,6 +3837,12 @@ void redraw_stuff(void)
 		prt_stat(A_DEX);
 		prt_stat(A_CON);
 		prt_stat(A_CHR);
+	}
+
+	if (p_ptr->redraw & (PR_STATUS))
+	{
+		p_ptr->redraw &= ~(PR_STATUS);
+		prt_status();
 	}
 
 	if (p_ptr->redraw & (PR_ARMOR))
@@ -3606,3 +4087,25 @@ bool monk_heavy_armor(void)
 
 	return (monk_arm_wgt > (100 + (p_ptr->lev * 4)));
 }
+
+/* Count the number of random quests chosen */
+int number_of_quests(void)
+{
+	int i, j;
+
+	/* Clear the counter */
+	i = 0;
+
+	for (j = MIN_RANDOM_QUEST; j < MAX_RANDOM_QUEST; j++)
+	{
+		if (quest[j].status != QUEST_STATUS_UNTAKEN)
+		{
+			/* Increment count of quests taken. */
+			i++;
+		}
+	}
+
+	/* Return the number of quests taken */
+	return (i);
+}
+

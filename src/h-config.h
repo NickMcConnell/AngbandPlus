@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:01 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:40 $ */
 /* File: h-config.h */
 
 #ifndef INCLUDED_H_CONFIG_H
@@ -33,23 +33,17 @@
 /* #define WINDOWS */
 #endif
 
+
 #ifdef USE_IBM
 
-  /*
-   * OPTION: Compile on an IBM (automatic)
-   */
-  #ifndef MSDOS
-    #define MSDOS
-  #endif
+/*
+* OPTION: Compile on an IBM (automatic)
+*/
+#ifndef MSDOS
+	#define MSDOS
+#endif /* MSDOS */
 
-
-  /* Use the new SVGA code */
-  #ifndef USE_IBM_SVGA
-    #define USE_IBM_SVGA
-  #endif
-
-
-#endif
+#endif /* USE_IBM */
 
 /*
  * OPTION: Compile on a SYS III version of UNIX

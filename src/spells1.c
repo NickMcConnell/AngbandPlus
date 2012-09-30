@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:32 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:54 $ */
 /* File: spells1.c */
 
 /* Purpose: Spell projection */
@@ -214,7 +214,7 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
  * This algorithm is similar to, but slightly different from, the one used
  * by "update_view_los()", and very different from the one used by "los()".
  */
-sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
+sint project_path(coord *gp, int range, int y1, int x1, int y2, int x2, u16b flg)
 {
 	int y, x;
 
@@ -290,7 +290,9 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 		while (1)
 		{
 			/* Save grid */
-			gp[n++] = GRID(y, x);
+			gp[n].x = x;
+			gp[n].y = y;
+			n++;
 
 			/* Hack -- Check maximum range */
 			if ((n + (k >> 1)) >= range) break;
@@ -305,10 +307,11 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			if ((n > 0) && !cave_floor_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
-			if (flg & (PROJECT_STOP))
-			{
-				if ((n > 0) && (cave[y][x].m_idx != 0)) break;
-			}
+			if ((cave[y][x].m_idx != 0) && (n > 0))
+ 			{
+				if (flg & (PROJECT_STOP)) break;
+				if ((flg & (PROJECT_FRND)) && is_pet(&m_list[cave[y][x].m_idx])) break;		
+ 			}
 
 			/* Slant */
 			if (m)
@@ -352,7 +355,9 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 		while (1)
 		{
 			/* Save grid */
-			gp[n++] = GRID(y, x);
+			gp[n].x = x;
+			gp[n].y = y;
+			n++;
 
 			/* Hack -- Check maximum range */
 			if ((n + (k >> 1)) >= range) break;
@@ -367,11 +372,12 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			if ((n > 0) && !cave_floor_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
-			if (flg & (PROJECT_STOP))
-			{
-				if ((n > 0) && (cave[y][x].m_idx != 0)) break;
+			if ((cave[y][x].m_idx != 0) && (n > 0))
+ 			{
+				if (flg & (PROJECT_STOP)) break;
+				if ((flg & (PROJECT_FRND)) && is_pet(&m_list[cave[y][x].m_idx])) break;		
 			}
-
+			
 			/* Slant */
 			if (m)
 			{
@@ -408,7 +414,9 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 		while (1)
 		{
 			/* Save grid */
-			gp[n++] = GRID(y, x);
+			gp[n].x = x;
+			gp[n].y = y;
+			n++;
 
 			/* Hack -- Check maximum range */
 			if ((n + (n >> 1)) >= range) break;
@@ -423,9 +431,10 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			if ((n > 0) && !cave_floor_bold(y, x)) break;
 
 			/* Sometimes stop at non-initial monsters/players */
-			if (flg & (PROJECT_STOP))
-			{
-				if ((n > 0) && (cave[y][x].m_idx != 0)) break;
+			if ((cave[y][x].m_idx != 0) && (n > 0))
+ 			{
+				if (flg & (PROJECT_STOP)) break;
+				if ((flg & (PROJECT_FRND)) && is_pet(&m_list[cave[y][x].m_idx])) break;		
 			}
 
 			/* Advance (Y) */
@@ -473,7 +482,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 	cave_type       *c_ptr = &cave[y][x];
 
 	bool obvious = FALSE;
-	bool known = player_has_los_bold(y, x);
+	bool known = player_can_see_bold(y, x);
 
 
 	/* XXX XXX XXX */
@@ -834,7 +843,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			c_ptr->info &= ~(CAVE_GLOW);
 
 			/* Hack -- Forget "boring" grids */
-			if (c_ptr->feat <= FEAT_INVIS)
+			if ((c_ptr->feat <= FEAT_INVIS) || (c_ptr->feat == FEAT_WALL_INVIS))
 			{
 				/* Forget */
 				c_ptr->info &= ~(CAVE_MARK);
@@ -884,7 +893,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 	s16b this_o_idx, next_o_idx = 0;
 
 	bool obvious = FALSE;
-	bool known = player_has_los_bold(y, x);
+	bool known = player_can_see_bold(y, x);
 
 	u32b f1, f2, f3;
 
@@ -1213,7 +1222,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	char killer [80];
+	char killer[80];
 
 	cptr name = (r_name + r_ptr->name);
 
@@ -1225,6 +1234,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* Can the player know about this effect? */
 	bool known = (m_ptr->cdis <= MAX_SIGHT);
+
+	/* Can the player see the source of this effect? */
+	bool see_s = ((who <= 0) || m_list[who].ml);
 
 	/* Were the effects "irrelevant"? */
 	bool skipped = FALSE;
@@ -1250,6 +1262,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Fear amount (amount to fear) */
 	int do_fear = 0;
 
+	bool heal_leper = FALSE;
 
 	/* Hold the monster name */
 	char m_name[80];
@@ -1741,6 +1754,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam = 0;
 				note = " is immune!";
+
+				/* Memorize a flag */
+				if (seen) r_ptr->r_flags2 |= (RF2_EMPTY_MIND);
 			}
 			else if ((r_ptr->flags2 & RF2_STUPID) ||
 						(r_ptr->flags2 & RF2_WEIRD_MIND) ||
@@ -1832,6 +1848,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam = 0;
 				note = " is immune!";
+
+				/* Memorize a flag */
+				if (seen) r_ptr->r_flags2 |= (RF2_EMPTY_MIND);
 			}
 			else if ((r_ptr->flags2 & RF2_STUPID) ||
 			         (r_ptr->flags2 & RF2_WEIRD_MIND) ||
@@ -1919,6 +1938,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & RF1_UNIQUE) ||
+			    (r_ptr->flags1 & RF1_QUESTOR) ||
 			    (r_ptr->flags3 & RF3_NO_CONF) ||
 			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
@@ -2146,6 +2166,30 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* No overflow */
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
+			chg_virtue(V_VITALITY, 1);
+
+			if (r_ptr->flags1 & RF1_UNIQUE)
+				chg_virtue(V_INDIVIDUALISM, 1);
+
+			if (is_friendly(m_ptr))
+				chg_virtue(V_HONOUR, 1);
+			else if (!(r_ptr->flags3 & RF3_EVIL))
+			{
+				if (r_ptr->flags3 & RF3_GOOD)
+					chg_virtue(V_COMPASSION, 2);
+				else
+					chg_virtue(V_COMPASSION, 1);
+			}
+
+			if (strstr((r_name + r_ptr->name),"leper"))
+			{
+				heal_leper = TRUE;
+				chg_virtue(V_COMPASSION, 5);
+			}
+
+			if (r_ptr->flags3 & RF3_ANIMAL)
+				chg_virtue(V_NATURE, 1);
+
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == c_ptr->m_idx) p_ptr->redraw |= (PR_HEALTH);
 
@@ -2166,6 +2210,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Speed up */
 			if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
 			note = " starts moving faster.";
+
+			if (r_ptr->flags1 & RF1_UNIQUE)
+				chg_virtue(V_INDIVIDUALISM, 1);
+			if (is_friendly(m_ptr))
+				chg_virtue(V_HONOUR, 1);
 
 			/* No "real" damage */
 			dam = 0;
@@ -2288,6 +2337,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " suddenly seems friendly!";
 				set_pet(m_ptr);
+
+				chg_virtue(V_INDIVIDUALISM, -1);
+				if (r_ptr->flags3 & RF3_ANIMAL)
+					chg_virtue(V_NATURE, 1);
 			}
 
 			/* No "real" damage */
@@ -2356,6 +2409,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " is tamed!";
 				set_pet(m_ptr);
+
+				if (r_ptr->flags3 & RF3_ANIMAL)
+					chg_virtue(V_NATURE, 1);
 			}
 
 			/* No "real" damage */
@@ -2457,7 +2513,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags4 & (RF4_BR_LITE))
 			{
 				note = " resists.";
-				dam *= 2; dam /= (randint(6)+6);
+				dam *= 2; dam /= (randint(6) + 6);
 			}
 			else if (r_ptr->flags3 & (RF3_HURT_LITE))
 			{
@@ -2481,7 +2537,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			    (r_ptr->flags3 & RF3_HURT_LITE))
 			{
 				note = " resists.";
-				dam *= 2; dam /= (randint(6)+6);
+				dam *= 2; dam /= (randint(6) + 6);
 			}
 			break;
 		}
@@ -2919,6 +2975,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	}
 
 
+
 	/* Absolutely no effect */
 	if (skipped) return (FALSE);
 
@@ -2930,7 +2987,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	if (r_ptr->flags1 & RF1_QUESTOR) do_poly = FALSE;
 
 	/* "Unique" and "quest" monsters can only be "killed" by the player. */
-	if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags1 & RF1_QUESTOR))
+	if ((r_ptr->flags1 & RF1_UNIQUE) ||
+	    (r_ptr->flags3 & RF3_UNIQUE_7) ||
+	    (r_ptr->flags1 & RF1_QUESTOR))
 	{
 		if (who && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
@@ -2980,6 +3039,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 		/* Message */
 		note = " disappears!";
+
+		chg_virtue(V_VALOUR, -1);
 
 		/* Teleport */
 		teleport_away(c_ptr->m_idx, do_dist);
@@ -3091,7 +3152,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			delete_monster_idx(c_ptr->m_idx);
 
 			/* Give detailed messages if destroyed */
-			if (known && note) msg_format("%^s%s", m_name, note);
+			if (known && note)
+			{
+				if (see_s)
+				{
+					msg_format("%^s%s", m_name, note);
+				}
+				else
+				{
+					mon_fight = TRUE;
+				}
+			}
 
 			if (sad)
 			{
@@ -3103,16 +3174,27 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		else
 		{
 			/* Give detailed messages if visible or destroyed */
-			if (note && seen) msg_format("%^s%s", m_name, note);
-
+			if (note && seen)
+			{
+				msg_format("%^s%s", m_name, note);
+			}
 			/* Hack -- Pain message */
-			else message_pain(c_ptr->m_idx, dam);
+			else if (see_s)
+			{
+				message_pain(c_ptr->m_idx, dam);
+			}
 
 			/* Hack -- handle sleep */
 			if (do_sleep) m_ptr->csleep = do_sleep;
 		}
 	}
 
+
+	else if (heal_leper)
+	{
+		msg_format("%^s is healed!", m_name);
+		delete_monster_idx(c_ptr->m_idx);
+	}
 	/* If the player did it, give him experience, check fear */
 	else
 	{
@@ -3132,12 +3214,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Give detailed messages if visible or destroyed */
 			if (note && seen)
+			{
 				msg_format("%^s%s", m_name, note);
-
+			}
 			/* Hack -- Pain message */
-			else if (known)
+			else if (see_s)
 			{
 				message_pain(c_ptr->m_idx, dam);
+			}
+			else
+			{
+				mon_fight = TRUE;
 			}
 
 			/* Anger monsters */
@@ -3242,7 +3329,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 
 	if (p_ptr->reflect && !a_rad && (randint(10) != 1))
 	{
-		byte t_y, t_x;
+		int t_y, t_x;
 		int max_attempts = 10;
 
 		if (blind) msg_print("Something bounces!");
@@ -3264,7 +3351,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			t_x = m_list[who].fx;
 		}
 
-		project(0, 0, t_y, t_x, dam, typ, (PROJECT_STOP|PROJECT_KILL));
+		project(0, 0, t_y, t_x, dam, typ, (PROJECT_STOP | PROJECT_KILL));
 
 		disturb(1, 0);
 		return TRUE;
@@ -3668,10 +3755,10 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			else
 			{
-				(void)set_cut(p_ptr->  cut + ( dam / 2));
+				(void)set_cut(p_ptr->cut + (dam / 2));
 			}
 
-			if ((!p_ptr->resist_shard) || (randint(12) == 1))
+			if (!p_ptr->resist_shard || (randint(12) == 1))
 			{
 				inven_damage(set_cold_destroy, 3);
 			}
@@ -3746,6 +3833,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		{
 			if (fuzzy) msg_print("You are hit by a blast from the past!");
 
+#ifdef MUT3_RES_TIME
 			if (p_ptr->muta3 & MUT3_RES_TIME)
 			{
 				dam *= 4;
@@ -3754,6 +3842,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			else
 			{
+#endif /* MUT3_RES_TIME */
 				switch (randint(10))
 				{
 					case 1: case 2: case 3: case 4: case 5:
@@ -3796,8 +3885,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 						break;
 					}
 				}
+#ifdef MUT3_RES_TIME
 			}
-
+#endif
 			take_hit(dam, killer);
 			break;
 		}
@@ -3862,7 +3952,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 
 		case GF_OLD_SLEEP:
 		{
-			if (p_ptr->free_act)  break;
+			if (p_ptr->free_act) break;
 			if (fuzzy) msg_print("You fall asleep!");
 
 			if (ironman_nightmare)
@@ -3990,16 +4080,256 @@ int dist_to_line(int y, int x, int y1, int x1, int y2, int x2)
 	int ny = x2 - x1;
 	int nx = y1 - y2;
 
-   /* Length of N */
+	/* Length of N */
 	int d = distance(y1, x1, y2, x2);
 
 	/* Component of P on N */
 	d = ((d) ? ((py * ny + px * nx) / d) : 0);
 
-   /* Absolute value */
-   return((d >= 0) ? d : 0 - d);
+	/* Absolute value */
+	return ((d >= 0) ? d : 0 - d);
 }
 
+
+/*
+ * Does the grid stop disintegration?
+ */
+#define cave_stop_disintegration(Y,X) \
+	(((cave[Y][X].feat >= FEAT_PERM_EXTRA) && \
+	  (cave[Y][X].feat <= FEAT_PERM_SOLID)) || \
+	  (cave[Y][X].feat == FEAT_MOUNTAIN) || \
+	 ((cave[Y][X].feat >= FEAT_SHOP_HEAD) && \
+	  (cave[Y][X].feat <= FEAT_SHOP_TAIL)) || \
+	 ((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
+	  (cave[Y][X].feat <= FEAT_BLDG_TAIL)))
+
+
+/*
+ * XXX XXX XXX
+ * Modified version of los() for calculation of disintegration balls.
+ * Disintegration effects are stopped by permanent walls.
+ */
+static bool in_disintegration_range(int y1, int x1, int y2, int x2)
+{
+	/* Delta */
+	int dx, dy;
+
+	/* Absolute */
+	int ax, ay;
+
+	/* Signs */
+	int sx, sy;
+
+	/* Fractions */
+	int qx, qy;
+
+	/* Scanners */
+	int tx, ty;
+
+	/* Scale factors */
+	int f1, f2;
+
+	/* Slope, or 1/Slope, of LOS */
+	int m;
+
+
+	/* Extract the offset */
+	dy = y2 - y1;
+	dx = x2 - x1;
+
+	/* Extract the absolute offset */
+	ay = ABS(dy);
+	ax = ABS(dx);
+
+
+	/* Handle adjacent (or identical) grids */
+	if ((ax < 2) && (ay < 2)) return (TRUE);
+
+
+	/* Paranoia -- require "safe" origin */
+	/* if (!in_bounds(y1, x1)) return (FALSE); */
+
+
+	/* Directly South/North */
+	if (!dx)
+	{
+		/* South -- check for walls */
+		if (dy > 0)
+		{
+			for (ty = y1 + 1; ty < y2; ty++)
+			{
+				if (cave_stop_disintegration(ty, x1)) return (FALSE);
+			}
+		}
+
+		/* North -- check for walls */
+		else
+		{
+			for (ty = y1 - 1; ty > y2; ty--)
+			{
+				if (cave_stop_disintegration(ty, x1)) return (FALSE);
+			}
+		}
+
+		/* Assume los */
+		return (TRUE);
+	}
+
+	/* Directly East/West */
+	if (!dy)
+	{
+		/* East -- check for walls */
+		if (dx > 0)
+		{
+			for (tx = x1 + 1; tx < x2; tx++)
+			{
+				if (cave_stop_disintegration(y1, tx)) return (FALSE);
+			}
+		}
+
+		/* West -- check for walls */
+		else
+		{
+			for (tx = x1 - 1; tx > x2; tx--)
+			{
+				if (cave_stop_disintegration(y1, tx)) return (FALSE);
+			}
+		}
+
+		/* Assume los */
+		return (TRUE);
+	}
+
+
+	/* Extract some signs */
+	sx = (dx < 0) ? -1 : 1;
+	sy = (dy < 0) ? -1 : 1;
+
+
+	/* Vertical "knights" */
+	if (ax == 1)
+	{
+		if (ay == 2)
+		{
+			if (!cave_stop_disintegration(y1 + sy, x1)) return (TRUE);
+		}
+	}
+
+	/* Horizontal "knights" */
+	else if (ay == 1)
+	{
+		if (ax == 2)
+		{
+			if (!cave_stop_disintegration(y1, x1 + sx)) return (TRUE);
+		}
+	}
+
+
+	/* Calculate scale factor div 2 */
+	f2 = (ax * ay);
+
+	/* Calculate scale factor */
+	f1 = f2 << 1;
+
+
+	/* Travel horizontally */
+	if (ax >= ay)
+	{
+		/* Let m = dy / dx * 2 * (dy * dx) = 2 * dy * dy */
+		qy = ay * ay;
+		m = qy << 1;
+
+		tx = x1 + sx;
+
+		/* Consider the special case where slope == 1. */
+		if (qy == f2)
+		{
+			ty = y1 + sy;
+			qy -= f1;
+		}
+		else
+		{
+			ty = y1;
+		}
+
+		/* Note (below) the case (qy == f2), where */
+		/* the LOS exactly meets the corner of a tile. */
+		while (x2 - tx)
+		{
+			if (cave_stop_disintegration(ty, tx)) return (FALSE);
+
+			qy += m;
+
+			if (qy < f2)
+			{
+				tx += sx;
+			}
+			else if (qy > f2)
+			{
+				ty += sy;
+				if (cave_stop_disintegration(ty, tx)) return (FALSE);
+				qy -= f1;
+				tx += sx;
+			}
+			else
+			{
+				ty += sy;
+				qy -= f1;
+				tx += sx;
+			}
+		}
+	}
+
+	/* Travel vertically */
+	else
+	{
+		/* Let m = dx / dy * 2 * (dx * dy) = 2 * dx * dx */
+		qx = ax * ax;
+		m = qx << 1;
+
+		ty = y1 + sy;
+
+		if (qx == f2)
+		{
+			tx = x1 + sx;
+			qx -= f1;
+		}
+		else
+		{
+			tx = x1;
+		}
+
+		/* Note (below) the case (qx == f2), where */
+		/* the LOS exactly meets the corner of a tile. */
+		while (y2 - ty)
+		{
+			if (cave_stop_disintegration(ty, tx)) return (FALSE);
+
+			qx += m;
+
+			if (qx < f2)
+			{
+				ty += sy;
+			}
+			else if (qx > f2)
+			{
+				tx += sx;
+				if (cave_stop_disintegration(ty, tx)) return (FALSE);
+				qx -= f1;
+				ty += sy;
+			}
+			else
+			{
+				tx += sx;
+				qx -= f1;
+				ty += sy;
+			}
+		}
+	}
+
+	/* Assume los */
+	return (TRUE);
+}
 
 
 /*
@@ -4043,7 +4373,7 @@ int dist_to_line(int y, int x, int y1, int x1, int y2, int x2)
  * The player will only get "experience" for monsters killed by himself
  * Unique monsters can only be destroyed by attacks from the player
  *
- * Only 256 grids can be affected per projection, limiting the effective
+ * Only 1024 grids can be affected per projection, limiting the effective
  * "radius" of standard ball attacks to nine units (diameter nineteen).
  *
  * One can project in a given "direction" by combining PROJECT_THRU with small
@@ -4144,7 +4474,7 @@ int dist_to_line(int y, int x, int y1, int x1, int y2, int x2)
  * in the blast radius, in case the "illumination" of the grid was changed,
  * and "update_view()" and "update_monsters()" need to be called.
  */
-bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
+bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg)
 {
 	int i, t, dist;
 
@@ -4176,13 +4506,13 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	int path_n = 0;
 
 	/* Actual grids in the "path" */
-	u16b path_g[512];
+	coord path_g[512];
 
 	/* Number of grids in the "blast area" (including the "beam" path) */
 	int grids = 0;
 
 	/* Coordinates of the affected grids */
-	byte gx[256], gy[256];
+	byte gx[1024], gy[1024];
 
 	/* Encoded "radius" info (see above) */
 	byte gm[32];
@@ -4192,6 +4522,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 	bool jump = FALSE;
 
+	/* Hack -- some weapons always stop at monsters */
+	if (typ == GF_ROCKET) flg |= PROJECT_STOP;
 
 	/* Hack -- Jump to target */
 	if (flg & (PROJECT_JUMP))
@@ -4283,8 +4615,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		int oy = y;
 		int ox = x;
 
-		int ny = GRID_Y(path_g[i]);
-		int nx = GRID_X(path_g[i]);
+		int ny = path_g[i].y;
+		int nx = path_g[i].x;
 
 		/* Hack -- Balls explode before reaching walls */
 		if (!cave_floor_bold(ny, nx) && (rad > 0)) break;
@@ -4366,7 +4698,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	gm[1] = grids;
 
 	dist_hack = dist;
-   dist = path_n;
+	dist = path_n;
 
 	/* If we found a "target", explode there */
 	if (dist <= MAX_RANGE)
@@ -4473,6 +4805,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 						if (typ == GF_DISINTEGRATE)
 						{
+							/* Disintegration balls explosions are stopped by perma-walls */
+							if (!in_disintegration_range(y2, x2, y, x)) continue;
+
 							if (cave_valid_bold(y, x) &&
 								(cave[y][x].feat < FEAT_PATTERN_START ||
 								 cave[y][x].feat > FEAT_PATTERN_XTRA2) &&
@@ -4697,10 +5032,10 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			{
 				monster_race *ref_ptr = &r_info[m_list[cave[y][x].m_idx].r_idx];
 
-				if ((ref_ptr->flags2 & RF2_REFLECTING) && (randint(10) != 1)
-					 && (dist_hack > 1))
+				if ((ref_ptr->flags2 & RF2_REFLECTING) &&
+				    (randint(10) != 1) && (dist_hack > 1))
 				{
-					byte t_y, t_x;
+					int t_y, t_x;
 					int max_attempts = 10;
 
 					/* Choose 'new' target */

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:17:57 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:48:59 $ */
 /* File: cmd2.c */
 
 /* Purpose: Movement commands (part 2) */
@@ -511,10 +511,10 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 		for (i = 0; i < num; i++)
 		{
-			if (randint(100)<dun_level)
-				activate_hi_summon();
+			if (randint(100) < dun_level)
+				(void)activate_hi_summon();
 			else
-				(void)summon_specific(y, x, dun_level, 0, TRUE, FALSE, FALSE);
+				(void)summon_specific(0, y, x, dun_level, 0, TRUE, FALSE, FALSE);
 		}
 	}
 
@@ -614,22 +614,32 @@ static bool is_open(int feat)
 }
 
 /*
+ * Return TRUE if the given feature is a closed door
+ */
+static bool is_closed(int feat)
+{
+	return ((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL));
+}
+
+/*
  * Return the number of features around (or under) the character.
  * Usually look for doors and floor traps.
  */
-static int count_dt(int *y, int *x, bool (*test)(int feat))
+static int count_dt(int *y, int *x, bool (*test)(int feat), bool under)
 {
-	int d, count;
-
-	/* Count how many matches */
-	count = 0;
+	int d;
+	int xx, yy;
+	int count = 0; /* Count how many matches */
 
 	/* Check around (and under) the character */
 	for (d = 0; d < 9; d++)
 	{
+		/* if not searching under player continue */
+		if ((d == 8) && !under) continue;
+
 		/* Extract adjacent (legal) location */
-		int yy = py + ddy_ddd[d];
-		int xx = px + ddx_ddd[d];
+		yy = py + ddy_ddd[d];
+		xx = px + ddx_ddd[d];
 
 		/* Must have knowledge */
 		if (!(cave[yy][xx].info & (CAVE_MARK))) continue;
@@ -725,7 +735,7 @@ static int coords_to_dir(int y, int x)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_open_aux(int y, int x, int dir)
+static bool do_cmd_open_aux(int y, int x)
 {
 	int i, j;
 
@@ -840,18 +850,16 @@ void do_cmd_open(void)
 	{
 		int num_doors, num_chests;
 
-		/* Count closed doors (locked or jammed) */
-		num_doors = count_dt(&y, &x, is_trap);
+		/* Count closed doors*/
+		num_doors = count_dt(&y, &x, is_closed, FALSE);
 
 		/* Count chests (locked) */
 		num_chests = count_chests(&y, &x, FALSE);
 
 		/* See if only one target */
-		if (num_doors || num_chests)
+		if ((num_doors + num_chests) == 1)
 		{
-			bool too_many = (num_doors && num_chests) || (num_doors > 1) ||
-			    (num_chests > 1);
-			if (!too_many) command_dir = coords_to_dir(y, x);
+			command_dir = coords_to_dir(y, x);
 		}
 	}
 
@@ -925,7 +933,7 @@ void do_cmd_open(void)
 		else
 		{
 			/* Open the door */
-			more = do_cmd_open_aux(y, x, dir);
+			more = do_cmd_open_aux(y, x);
 		}
 	}
 
@@ -944,7 +952,7 @@ void do_cmd_open(void)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_close_aux(int y, int x, int dir)
+static bool do_cmd_close_aux(int y, int x)
 {
 	cave_type	*c_ptr;
 
@@ -999,7 +1007,7 @@ void do_cmd_close(void)
 	if (easy_open)
 	{
 		/* Count open doors */
-		if (count_dt(&y, &x, is_open) == 1)
+		if (count_dt(&y, &x, is_open, FALSE) == 1)
 		{
 			command_dir = coords_to_dir(y, x);
 		}
@@ -1054,7 +1062,7 @@ void do_cmd_close(void)
 		else
 		{
 			/* Close the door */
-			more = do_cmd_close_aux(y, x, dir);
+			more = do_cmd_close_aux(y, x);
 		}
 	}
 
@@ -1135,7 +1143,7 @@ static bool twall(int y, int x, byte feat)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_tunnel_aux(int y, int x, int dir)
+static bool do_cmd_tunnel_aux(int y, int x)
 {
 	cave_type *c_ptr;
 
@@ -1172,6 +1180,9 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 		if ((p_ptr->skill_dig > 10 + rand_int(400)) && twall(y, x, FEAT_GRASS))
 		{
 			msg_print("You have cleared away the trees.");
+
+			chg_virtue(V_DILIGENCE, 1);
+			chg_virtue(V_NATURE, -1);
 		}
 
 		/* Keep trying */
@@ -1195,6 +1206,9 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 		if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x, FEAT_FLOOR))
 		{
 			msg_print("You have finished the tunnel.");
+
+			chg_virtue(V_DILIGENCE, 1);
+			chg_virtue(V_NATURE, -1);
 		}
 
 		/* Keep trying */
@@ -1251,6 +1265,9 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 			{
 				/* Message */
 				msg_print("You have finished the tunnel.");
+
+				chg_virtue(V_DILIGENCE, 1);
+				chg_virtue(V_NATURE, -1);
 			}
 		}
 
@@ -1434,7 +1451,7 @@ void do_cmd_tunnel(void)
 		else
 		{
 			/* Tunnel through walls */
-			more = do_cmd_tunnel_aux(y, x, dir);
+			more = do_cmd_tunnel_aux(y, x);
 		}
 	}
 
@@ -1768,7 +1785,7 @@ void do_cmd_disarm(void)
 		int num_traps, num_chests;
 
 		/* Count visible traps */
-		num_traps = count_dt(&y, &x, is_trap);
+		num_traps = count_dt(&y, &x, is_trap, TRUE);
 
 		/* Count chests (trapped) */
 		num_chests = count_chests(&y, &x, TRUE);
@@ -2081,7 +2098,7 @@ void do_cmd_alter(void)
 		          (c_ptr->feat == FEAT_MOUNTAIN)))
 		{
 			/* Tunnel */
-			more = do_cmd_tunnel_aux(y, x, dir);
+			more = do_cmd_tunnel_aux(y, x);
 		}
 
 		/* Bash jammed doors */
@@ -2097,7 +2114,7 @@ void do_cmd_alter(void)
 		         (c_ptr->feat < FEAT_MINOR_GLYPH))
 		{
 			/* Tunnel */
-			more = do_cmd_open_aux(y, x, dir);
+			more = do_cmd_open_aux(y, x);
 		}
 
 		/* Close open doors */
@@ -2105,7 +2122,7 @@ void do_cmd_alter(void)
 		         (c_ptr->feat == FEAT_BROKEN))
 		{
 			/* Tunnel */
-			more = do_cmd_close_aux(y, x, dir);
+			more = do_cmd_close_aux(y, x);
 		}
 
 		/* Disarm traps */
@@ -2446,6 +2463,19 @@ void do_cmd_rest(void)
 	/* Paranoia */
 	if (command_arg > 9999) command_arg = 9999;
 
+	/* The sin of sloth */
+	if (command_arg > 100)
+		chg_virtue(V_DILIGENCE, -1);
+
+	/* Why are you sleeping when there's no need?  WAKE UP!*/
+	if ((p_ptr->chp == p_ptr->mhp) &&
+		(p_ptr->csp == p_ptr->msp) &&
+		!p_ptr->blind && !p_ptr->confused &&
+		!p_ptr->poisoned && !p_ptr->afraid &&
+		!p_ptr->stun && !p_ptr->cut &&
+		!p_ptr->slow && !p_ptr->paralyzed &&
+		!p_ptr->image && !p_ptr->word_recall)
+			chg_virtue(V_DILIGENCE, -1);
 
 	/* Take a turn XXX XXX XXX (?) */
 	energy_use = 100;
@@ -2510,6 +2540,95 @@ static int breakage_chance(object_type *o_ptr)
 
 
 /*
+ * Calculation of critical hits for objects fired or thrown by the player. -LM-
+ */
+static sint critical_shot(int chance, int sleeping_bonus,
+	char o_name[], char m_name[], int visible)
+{
+	int i, k;
+	int mult_a_crit;
+
+	if (!visible)
+	{
+		msg_format("The %s finds a mark.", o_name);
+	}
+
+	/* Extract missile power.  */
+	i = (chance + sleeping_bonus);
+
+	/* Test for critical hit. */
+	if (randint(i + 200) <= i)
+	{
+		/* Encourage the player to throw weapons at sleeping
+		 * monsters. -LM-
+		 */
+		if (sleeping_bonus && visible)
+		{
+			msg_print("You rudely awaken the monster!");
+		}
+
+		/* Determine level of critical hit */
+		k = randint(i) + randint(100);
+
+		/* This portion of the function determines the level of critical hit,
+		 * then adjusts the damage dice multiplier and displays an appropriate
+		 * combat message.
+		 * A distinction is made between visible and invisible monsters.
+		 */
+		if (k < 125)
+		{
+			if (visible)
+			{
+				msg_format("The %s strikes %s.", o_name, m_name);
+			}
+
+			mult_a_crit = 15;
+		}
+		else if (k < 215)
+		{
+			if (visible)
+			{
+				msg_format("The %s penetrates %s.", o_name, m_name);
+			}
+
+			mult_a_crit = 21;
+		}
+		else if (k < 275)
+		{
+			if (visible)
+			{
+				msg_format("The %s drives into %s!", o_name, m_name);
+			}
+
+			mult_a_crit = 28;
+		}
+		else
+		{
+			if (visible)
+			{
+				msg_format("The %s transpierces %s!", o_name, m_name);
+			}
+
+			mult_a_crit = 35;
+		}
+	}
+	/* If the shot is not a critical hit, then the default message is shown. */
+	else
+	{
+		if (visible)
+		{
+			msg_format("The %s hits %s.", o_name, m_name);
+		}
+
+		mult_a_crit = 10;
+	}
+
+	return (mult_a_crit);
+}
+
+
+
+/*
  * Fire an object from the pack or floor.
  *
  * You may only fire items that "match" your missile launcher.
@@ -2541,20 +2660,54 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 {
 	int dir;
 	int j, y, x, ny, nx, ty, tx;
-	int tdam, tdis, thits, tmul;
-	int bonus, chance;
-	int cur_dis, visible;
 
-	object_type forge;
-	object_type *q_ptr;
+	int armour, bonus, chance, total_deadliness;
+
+	int sleeping_bonus = 0;
+	int terrain_bonus = 0;
+
+	long tdam;
+	int tdam_remainder, tdam_whole;
+
+	/* Assume no weapon of velocity or accuracy bonus. */
+	int special_dam = 0;
+	int special_hit = 0;
 
 	object_type *o_ptr;
+
+	int tdis, thits, tmul;
+	int cur_dis, visible;
+
+	int chance2;
+
+	object_type *i_ptr;
+	object_type object_type_body;
 
 	bool hit_body = FALSE;
 
 	char o_name[80];
+	char m_name[80];
 
 	int msec = delay_factor * delay_factor * delay_factor;
+
+	cave_type *c_ptr;
+	
+	/* Missile launchers of Velocity and Accuracy sometimes "supercharge" */
+	if ((j_ptr->name2 == EGO_VELOCITY) || (j_ptr->name2 == EGO_ACCURACY))
+	{
+		/* Occasional boost to shot. */
+		if (randint(16) == 1)
+		{
+			if (j_ptr->name2 == EGO_VELOCITY) special_dam = TRUE;
+			else if (j_ptr->name2 == EGO_ACCURACY) special_hit = TRUE;
+
+			/* Describe the object */
+			object_desc(o_name, j_ptr, FALSE, 0);
+
+			/* Let player know that weapon is activated. */
+			msg_format("You feel your %s tremble in your hand.", o_name);
+		}
+	}
 
 	/* Access the item (if in the pack) */
 	if (item >= 0)
@@ -2566,19 +2719,20 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
-
 	/* Get local object */
-	q_ptr = &forge;
+	i_ptr = &object_type_body;
 
 	/* Obtain a local object */
-	object_copy(q_ptr, o_ptr);
+	object_copy(i_ptr, o_ptr);
+
+	/* sum all the applicable additions to Deadliness. */
+	total_deadliness = p_ptr->to_d + i_ptr->to_d + j_ptr->to_d;
 
 	/* Single object */
-	q_ptr->number = 1;
+	i_ptr->number = 1;
 
 	/* Reduce and describe inventory */
 	if (item >= 0)
@@ -2595,26 +2749,17 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		floor_item_optimize(0 - item);
 	}
 
-
 	/* Sound */
 	sound(SOUND_SHOOT);
 
-
 	/* Describe the object */
-	object_desc(o_name, q_ptr, FALSE, 3);
-
+	object_desc(o_name, i_ptr, FALSE, 3);
 
 	/* Use the proper number of shots */
 	thits = p_ptr->num_fire;
 
-	/* Use a base distance */
-	tdis = 10;
-
-	/* Base damage from thrown object plus launcher bonus */
-	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d + j_ptr->to_d;
-
-	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
+	/* Actually "fire" the object. */
+	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
 	/* Assume a base multiplier */
@@ -2627,6 +2772,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		case SV_SLING:
 		{
 			tmul = 2;
+			energy_use = 50;
 			break;
 		}
 
@@ -2634,27 +2780,47 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		case SV_SHORT_BOW:
 		{
 			tmul = 2;
+			energy_use = 100;
 			break;
 		}
 
 		/* Long Bow and Arrow */
 		case SV_LONG_BOW:
 		{
-			tmul = 3;
+			if (p_ptr->stat_use[A_STR] >= 16)
+			{
+				tmul = 3;
+			}
+			else
+			{
+				/* weak players cannot use a longbow well */
+				tmul = 2;
+			}
+			energy_use = 100;
 			break;
 		}
 
 		/* Light Crossbow and Bolt */
 		case SV_LIGHT_XBOW:
 		{
-			tmul = 3;
+			tmul = 4;
+			energy_use = 120;
 			break;
 		}
 
 		/* Heavy Crossbow and Bolt */
 		case SV_HEAVY_XBOW:
 		{
-			tmul = 4;
+			tmul = 5;
+			if (p_ptr->stat_use[A_DEX] >= 16)
+			{
+				energy_use = 150;
+			}
+			else
+			{
+				/* players with low dex will take longer to load */
+				energy_use = 200;
+			}
 			break;
 		}
 	}
@@ -2662,24 +2828,36 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	/* Get extra "power" from "extra might" */
 	if (p_ptr->xtra_might) tmul++;
 
-	/* Boost the damage */
-	tdam *= tmul;
-
 	/* Base range */
-	tdis = 10 + 5 * tmul;
-
+	tdis = 5 + 5 * tmul;
 
 	/* Take a (partial) turn */
-	energy_use = (100 / thits);
+	energy_use = (energy_use / thits);
 
+	/* Fire ammo of backbiting, and it will turn on you. -LM- */
+	if (i_ptr->name2 == EGO_BACKBITING)
+	{
+		/* Message. */
+		msg_print("Your missile turns in midair and strikes you!");
+
+		/* Calculate damage. */
+		tdam = damroll(tmul * 4, i_ptr->ds);
+
+		/* Inflict both normal and wound damage. */
+		take_hit(tdam, "ammo of backbiting.");
+		set_cut(randint(tdam * 3));
+
+		/* That ends that shot! */
+		return;
+	}
 
 	/* Start at the player */
 	y = py;
 	x = px;
 
 	/* Predict the "target" location */
-	tx = px + 99 * ddx[dir];
 	ty = py + 99 * ddy[dir];
+	tx = px + 99 * ddx[dir];
 
 	/* Check for "target request" */
 	if ((dir == 5) && target_okay())
@@ -2704,8 +2882,12 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		nx = x;
 		mmove2(&ny, &nx, py, px, ty, tx);
 
+		/* Stopped by wilderness boundary */
+		if (!in_bounds2(ny, nx)) break;
+		
 		/* Stopped by walls/doors */
-		if (!cave_floor_bold(ny, nx)) break;
+		c_ptr = &cave[ny][nx];
+		if (!cave_floor_grid(c_ptr)) break;
 
 		/* Advance the distance */
 		cur_dis++;
@@ -2714,8 +2896,8 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		/* The player can see the (on screen) missile */
 		if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
 		{
-			char c = object_char(q_ptr);
-			byte a = object_attr(q_ptr);
+			char c = object_char(i_ptr);
+			byte a = object_attr(i_ptr);
 
 			/* Draw, Hilite, Fresh, Pause, Erase */
 			print_rel(c, a, ny, nx);
@@ -2739,21 +2921,51 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 
 		/* Monster here, Try to hit it */
-		if (cave[y][x].m_idx)
+		if (c_ptr->m_idx)
 		{
-			cave_type *c_ptr = &cave[y][x];
-
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Check the visibility */
 			visible = m_ptr->ml;
 
+			chance2 = chance - cur_dis;
+
 			/* Note the collision */
 			hit_body = TRUE;
 
+			/* Sleeping, visible monsters are easier to hit. -LM- */
+			if ((m_ptr->csleep) && (visible))
+				sleeping_bonus = 5 + p_ptr->lev / 5;
+
+			/* Monsters in rubble can take advantage of cover. -LM- */
+			if (c_ptr->feat == FEAT_RUBBLE)
+			{
+				terrain_bonus = r_ptr->ac / 5 + 5;
+			}
+			/*
+			 * Monsters in trees can take advantage of cover,
+			 * except from rangers.
+			 */
+			else if ((c_ptr->feat == FEAT_TREES) && 
+					 (p_ptr->pclass == CLASS_RANGER))
+			{
+				terrain_bonus = r_ptr->ac / 5 + 5;
+			}
+			/* Monsters in water are vulnerable. -LM- */
+			else if (c_ptr->feat == FEAT_DEEP_WATER)
+			{
+				terrain_bonus -= r_ptr->ac / 4;
+			}
+
+			/* Get effective armour class of monster. */
+			armour = r_ptr->ac + terrain_bonus;
+
+			/* Weapons of velocity sometimes almost negate monster armour. */
+			if (special_hit) armour /= 3;
+
 			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+			if (test_hit_fire(chance2 + sleeping_bonus, armour, m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -2767,24 +2979,11 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 					note_dies = " is destroyed.";
 				}
 
-				/* Handle unseen monster */
-				if (!visible)
+				/* Get "the monster" or "it" */
+				monster_desc(m_name, m_ptr, 0);
+
+				if (visible)
 				{
-					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
-				}
-
-				/* Handle visible monster */
-				else
-				{
-					char m_name[80];
-
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
-
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
@@ -2792,9 +2991,55 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 					if (m_ptr->ml) health_track(c_ptr->m_idx);
 				}
 
-				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
-				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+				/* The basic damage-determination formula is the same in
+				 * archery as it is in melee (apart from the launcher mul-
+				 * tiplier).  See formula "py_attack" in "cmd1.c" for more
+				 * details. -LM-
+				 */
+
+				/* Base damage dice. */
+				tdam = i_ptr->dd;
+
+				/* Multiply by the missile weapon multiplier. */
+				tdam *= tmul;
+
+
+				/* multiply by slays or brands. (10x inflation) */
+				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
+
+				/* multiply by critical shot. (10x inflation) + level damage bonus*/
+				tdam *= critical_shot(chance2, sleeping_bonus,
+					o_name, m_name, visible);
+
+				/* Convert total Deadliness into a percentage, and apply
+				 * it as a bonus or penalty. (100x inflation)
+				 */
+				if (total_deadliness > 0)
+					tdam *= (100 +
+					deadliness_conversion[total_deadliness]);
+				else if (total_deadliness > -31)
+					tdam *= (100 -
+					deadliness_conversion[ABS(total_deadliness)]);
+				else
+					tdam = 0;
+
+				/* Get the whole number of dice by deflating the result. */
+				tdam_whole = tdam / 10000;
+
+				/* Calculate the remainder (the fractional die, x10000). */
+				tdam_remainder = tdam % 10000;
+
+				/* Calculate and combine the damages of the whole and
+				 * fractional dice.
+				 */
+				tdam = damroll(tdam_whole, o_ptr->ds) +
+					(tdam_remainder * damroll(1, o_ptr->ds) / 10000);
+
+				/* If a weapon of velocity activates, increase damage. */
+				if (special_dam)
+				{
+					tdam += 15;
+				}
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -2847,10 +3092,10 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	}
 
 	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(q_ptr) : 0);
+	j = (hit_body ? breakage_chance(i_ptr) : 0);
 
 	/* Drop (or break) near that location */
-	(void)drop_near(q_ptr, j, y, x);
+	(void)drop_near(i_ptr, j, y, x);
 }
 
 
@@ -2897,9 +3142,16 @@ void do_cmd_throw_aux(int mult)
 {
 	int dir, item;
 	int j, y, x, ny, nx, ty, tx;
-	int chance, tdam, tdis;
+	int chance, chance2, tdis;
 	int mul, div;
 	int cur_dis, visible;
+
+	long tdam;
+	int tdam_remainder, tdam_whole;
+
+	int total_deadliness;
+	int sleeping_bonus = 0;
+	int terrain_bonus = 0;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -2910,16 +3162,20 @@ void do_cmd_throw_aux(int mult)
 	bool hit_wall = FALSE;
 
 	char o_name[80];
+	char m_name[80];
 
 	int msec = delay_factor * delay_factor * delay_factor;
 
+	u32b f1, f2, f3;
 	cptr q, s;
+	
+	cave_type *c_ptr;
 
 
 	/* Get an item */
 	q = "Throw which item? ";
 	s = "You have nothing to throw.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Access the item (if in the pack) */
 	if (item >= 0)
@@ -2930,7 +3186,16 @@ void do_cmd_throw_aux(int mult)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+	
+	/* Hack -- Cannot remove cursed items */
+	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	{
+		/* Oops */
+		msg_print("Hmmm, it seems to be cursed.");
 
+		/* Nope */
+		return;
+	}
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
@@ -2941,6 +3206,9 @@ void do_cmd_throw_aux(int mult)
 
 	/* Obtain a local object */
 	object_copy(q_ptr, o_ptr);
+
+	/* Extract the thrown object's flags. */
+	object_flags(q_ptr, &f1, &f2, &f3);
 
 	/* Distribute the charges of rods/wands between the stacks */
 	distribute_charges(o_ptr, q_ptr, 1);
@@ -2980,12 +3248,14 @@ void do_cmd_throw_aux(int mult)
 	/* Max distance of 10-18 */
 	if (tdis > mul) tdis = mul;
 
-	/* Hack -- Base damage from thrown object */
-	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d;
-	tdam *= mult;
-
-	/* Chance of hitting */
-	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
+	/* Chance of hitting.  Other thrown objects are easier to use, but
+	 * only throwing weapons take advantage of bonuses to Skill from
+	 * other items. -LM-
+	 */
+	if (f2 & (TR2_THROW)) chance = ((p_ptr->skill_tht) +
+		((p_ptr->to_h + q_ptr->to_h) * BTH_PLUS_ADJ));
+	else chance = ((3 * p_ptr->skill_tht / 2) +
+		(q_ptr->to_h * BTH_PLUS_ADJ));
 
 
 	/* Take a turn */
@@ -3023,8 +3293,16 @@ void do_cmd_throw_aux(int mult)
 		nx = x;
 		mmove2(&ny, &nx, py, px, ty, tx);
 
+		/* Stopped by wilderness boundary */
+		if (!in_bounds2(ny, nx))
+		{
+			hit_wall = TRUE;
+			break;
+		}		
+		
 		/* Stopped by walls/doors */
-		if (!cave_floor_bold(ny, nx))
+		c_ptr = &cave[ny][nx];
+		if (!cave_floor_grid(c_ptr))
 		{
 			hit_wall = TRUE;
 			break;
@@ -3061,21 +3339,42 @@ void do_cmd_throw_aux(int mult)
 
 
 		/* Monster here, Try to hit it */
-		if (cave[y][x].m_idx)
+		if (c_ptr->m_idx)
 		{
-			cave_type *c_ptr = &cave[y][x];
-
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Check the visibility */
 			visible = m_ptr->ml;
 
+			/* Calculate the projectile accuracy, modified by distance. */
+			chance2 = chance - distance(py, px, y, x);
+
+			/* Monsters in rubble can take advantage of cover. -LM- */
+			if (c_ptr->feat == FEAT_RUBBLE)
+			{
+				terrain_bonus = r_ptr->ac / 5 + 5;
+			}
+			/*
+			 * Monsters in trees can take advantage of cover,
+			 * except from rangers.
+			 */
+			else if ((c_ptr->feat == FEAT_TREES) && 
+			         (p_ptr->pclass == CLASS_RANGER))
+			{
+				terrain_bonus = r_ptr->ac / 5 + 5;
+			}
+			/* Monsters in water are vulnerable. -LM- */
+			else if (c_ptr->feat == FEAT_DEEP_WATER)
+			{
+				terrain_bonus -= r_ptr->ac / 4;
+			}
+
 			/* Note the collision */
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+			if (test_hit_fire(chance - cur_dis, r_ptr->ac + terrain_bonus, m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -3089,25 +3388,12 @@ void do_cmd_throw_aux(int mult)
 					note_dies = " is destroyed.";
 				}
 
-
-				/* Handle unseen monster */
-				if (!visible)
-				{
-					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
-				}
+				/* Get "the monster" or "it" */
+				monster_desc(m_name, m_ptr, 0);
 
 				/* Handle visible monster */
-				else
+				if (visible)
 				{
-					char m_name[80];
-
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
-
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
@@ -3115,9 +3401,79 @@ void do_cmd_throw_aux(int mult)
 					if (m_ptr->ml) health_track(c_ptr->m_idx);
 				}
 
-				/* Apply special damage XXX XXX XXX */
+				/* sum all the applicable additions to Deadliness. */
+				total_deadliness = p_ptr->to_d + q_ptr->to_d;
+
+
+				/* The basic damage-determination formula is the same in
+				 * throwing as it is in melee (apart from the thrown weapon
+				 * multiplier, and the ignoring of non-object bonuses to
+				 * Deadliness for objects that are not thrown weapons).  See
+				 * formula "py_attack" in "cmd1.c" for more details. -LM-
+				 */
+
+				tdam = q_ptr->dd;
+
+				/* Multiply the number of damage dice by the throwing weapon
+				 * multiplier, if applicable.  This is not the prettiest
+				 * equation, but it does at least try to keep throwing
+				 * weapons competitive.
+				 */
+				if (f2 & (TR2_THROW))
+				{
+					tdam *= 4 + p_ptr->lev / 6;
+				}
+
+				/* multiply by slays or brands. (10x inflation) */
 				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
-				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+
+				/* Only allow critical hits if the object is a throwing
+				 * weapon.  Otherwise, grant the default multiplier.
+				 * (10x inflation)
+				 */
+				if (f2 & (TR2_THROW)) tdam *= critical_shot
+					(chance2, sleeping_bonus, o_name, m_name, visible);
+				else tdam *= 10;
+
+				/* Convert total or object-only Deadliness into a percen-
+				 * tage, and apply it as a bonus or penalty (100x inflation)
+				 */
+				if (f2 & (TR2_THROW))
+				{
+					if (total_deadliness > 0)
+						tdam *= (100 +
+						    deadliness_conversion[total_deadliness]);
+					else if (total_deadliness > -31)
+						tdam *= (100 -
+						    deadliness_conversion[ABS(total_deadliness)]);
+					else
+						tdam = 0;
+				}
+
+				else
+				{
+					if (q_ptr->to_d > 0)
+						tdam *= (100 +
+						    deadliness_conversion[q_ptr->to_d]);
+					else if (q_ptr->to_d > -31)
+						tdam *= (100 -
+						     deadliness_conversion[ABS(q_ptr->to_d)]);
+					else
+						tdam = 0;
+				}
+
+				/* Get the whole number of dice by deflating the result. */
+				tdam_whole = tdam / 10000;
+
+				/* Calculate the remainder (the fractional die, x10000). */
+				tdam_remainder = tdam % 10000;
+
+
+				/* Calculate and combine the damages of the whole and
+				 * fractional dice.
+				 */
+				tdam = damroll(tdam_whole, q_ptr->ds) +
+					(tdam_remainder * damroll(1, q_ptr->ds) / 10000);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -3179,12 +3535,11 @@ void do_cmd_throw_aux(int mult)
 		j = 100;
 
 		if (!(summon_named_creature(y, x, q_ptr->pval, FALSE, FALSE,
-		      (bool)!(q_ptr->ident & IDENT_CURSED))))
+				(bool)!(q_ptr->ident & IDENT_CURSED))))
 			msg_print("The Figurine writhes and then shatters.");
 		else if (q_ptr->ident & IDENT_CURSED)
 			msg_print("You have a bad feeling about this.");
 	}
-
 
 	/* Potions smash open */
 	if (object_is_potion(q_ptr))
@@ -3220,6 +3575,8 @@ void do_cmd_throw_aux(int mult)
 
 	/* Drop (or break) near that location */
 	(void)drop_near(q_ptr, j, y, x);
+	
+	p_ptr->redraw |= (PR_EQUIPPY);
 }
 
 

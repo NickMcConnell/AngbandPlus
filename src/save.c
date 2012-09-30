@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/13 04:36:39 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/06 09:19:47 $ */
 /* File: save.c */
 
 /* Purpose: interact with savefiles */
@@ -1024,6 +1024,16 @@ static void wr_extra(void)
 	wr_u32b(p_ptr->muta2);
 	wr_u32b(p_ptr->muta3);
 
+	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+	{
+		wr_s16b(p_ptr->virtues[i]);
+	}
+
+	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+	{
+		wr_s16b(p_ptr->vir_types[i]);
+	}
+
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);     /* oops */
 	wr_byte(0);     /* oops */
@@ -1389,7 +1399,7 @@ static bool wr_savefile_new(void)
 	/* Dump the messages (oldest first!) */
 	for (i = tmp16u - 1; i >= 0; i--)
 	{
-		wr_string(message_str((s16b)i));
+		wr_string(message_str(i));
 	}
 
 

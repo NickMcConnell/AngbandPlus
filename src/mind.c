@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:21 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:29 $ */
 /* File: mind.c */
 
 /* Purpose: Mindcrafter code */
@@ -278,9 +278,9 @@ static int get_mindcraft_power(int *sn)
  */
 static bool cast_mindcrafter_spell(int spell)
 {
-	int             b = 0;
-	int             dir;
-	int             plev = p_ptr->lev;
+	int b = 0;
+	int dir;
+	int plev = p_ptr->lev;
 
 
 	/* spell code */
@@ -296,7 +296,8 @@ static bool cast_mindcrafter_spell(int spell)
 		{
 			b = detect_monsters_normal();
 			if (plev > 14) b |= detect_monsters_invis();
-			if (plev > 4)  {
+			if (plev > 4)
+			{
 				b |= detect_traps();
 				b |= detect_doors();
 			}
@@ -443,7 +444,7 @@ static bool cast_mindcrafter_spell(int spell)
  */
 void do_cmd_mindcraft(void)
 {
-	int             n = 0,  b = 0;
+	int             n = 0;
 	int             chance;
 	int             minfail = 0;
 	int             plev = p_ptr->lev;
@@ -512,7 +513,7 @@ void do_cmd_mindcraft(void)
 		if (randint(100) < (chance / 2))
 		{
 			/* Backfire */
-			b = randint(100);
+			int b = randint(100);
 			if (b < 5)
 			{
 				msg_print("Oh, no! Your mind has gone blank!");
@@ -568,7 +569,7 @@ void do_cmd_mindcraft(void)
 	/* Over-exert the player */
 	else
 	{
-		int oops = spell.mana_cost - p_ptr->csp;
+		int oops = spell.mana_cost - old_csp;
 
 		/* No mana left */
 		p_ptr->csp = 0;

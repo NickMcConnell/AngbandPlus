@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:50 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:28:53 $ */
 /* File: cmd5.c */
 
 /* Purpose: Spell/Prayer commands */
@@ -413,8 +413,8 @@ void do_cmd_study(void)
 	if (mp_ptr->spell_book != TV_LIFE_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "study", sval, FALSE, (bool)(increment ? TRUE : FALSE))
-			&& (spell == -1)) return;
+		if (!get_spell(&spell, "study", sval, FALSE,
+		    (bool)(increment ? TRUE : FALSE)) && (spell == -1)) return;
 	}
 
 	/* Priest -- Learn a random prayer */
@@ -487,6 +487,11 @@ void do_cmd_study(void)
 		p, spell_names
 		[(increment ? p_ptr->realm2 - 1 : p_ptr->realm1 - 1)][spell % 32]);
 
+	if (mp_ptr->spell_book == TV_LIFE_BOOK)
+		chg_virtue(V_FAITH, 1);
+	else
+		chg_virtue(V_KNOWLEDGE, 1);
+
 	/* Sound */
 	sound(SOUND_STUDY);
 
@@ -510,96 +515,155 @@ void do_cmd_study(void)
 }
 
 
-void wild_magic(int spell)
+#define MAX_BIZARRE		6
+
+
+static int bizarre_num[MAX_BIZARRE] =
 {
-	int counter = 0;
-	int type = SUMMON_BIZARRE1 + rand_int(6);
+	SUMMON_BIZARRE1,
+	SUMMON_BIZARRE2,
+	SUMMON_BIZARRE3,
+	SUMMON_BIZARRE4,
+	SUMMON_BIZARRE5,
+	SUMMON_BIZARRE6,
+};
 
-	if (type < SUMMON_BIZARRE1) type = SUMMON_BIZARRE1;
-	else if (type > SUMMON_BIZARRE6) type = SUMMON_BIZARRE6;
 
+static void wild_magic(int spell)
+{
 	switch (randint(spell) + randint(8) + 1)
 	{
-	case 1:
-	case 2:
-	case 3:
-		teleport_player(10);
-		break;
-	case 4:
-	case 5:
-	case 6:
-		teleport_player(100);
-		break;
-	case 7:
-	case 8:
-		teleport_player(200);
-		break;
-	case 9:
-	case 10:
-	case 11:
-		unlite_area(10, 3);
-		break;
-	case 12:
-	case 13:
-	case 14:
-		lite_area(damroll(2, 3), 2);
-		break;
-	case 15:
-		destroy_doors_touch();
-		break;
-	case 16: case 17:
-		wall_breaker();
-	case 18:
-		sleep_monsters_touch();
-		break;
-	case 19:
-	case 20:
-		trap_creation();
-		break;
-	case 21:
-	case 22:
-		door_creation();
-		break;
-	case 23:
-	case 24:
-	case 25:
-		aggravate_monsters(1);
-		break;
-	case 26:
-		earthquake(py, px, 5);
-		break;
-	case 27:
-	case 28:
-		(void)gain_random_mutation(0);
-		break;
-	case 29:
-	case 30:
-		apply_disenchant(0);
-		break;
-	case 31:
-		lose_all_info();
-		break;
-	case 32:
-		fire_ball(GF_CHAOS, 0, spell + 5, 1 + (spell / 10));
-		break;
-	case 33:
-		wall_stone();
-		break;
-	case 34:
-	case 35:
-		while (counter++ < 8)
+		case 1:
+		case 2:
+		case 3:
 		{
-			(void)summon_specific(py, px, (dun_level * 3) / 2, type, TRUE, FALSE, FALSE);
+			teleport_player(10);
+			break;
 		}
-		break;
-	case 36:
-	case 37:
-		activate_hi_summon();
-		break;
-	case 38:
-		summon_cyber();
-	default:
-		(void)activate_ty_curse(FALSE);
+		case 4:
+		case 5:
+		case 6:
+		{
+			teleport_player(100);
+			break;
+		}
+		case 7:
+		case 8:
+		{
+			teleport_player(200);
+			break;
+		}
+		case 9:
+		case 10:
+		case 11:
+		{
+			unlite_area(10, 3);
+			break;
+		}
+		case 12:
+		case 13:
+		case 14:
+		{
+			lite_area(damroll(2, 3), 2);
+			break;
+		}
+		case 15:
+		{
+			destroy_doors_touch();
+			break;
+		}
+		case 16: case 17:
+		{
+			wall_breaker();
+			break;
+		}
+		case 18:
+		{
+			sleep_monsters_touch();
+			break;
+		}
+		case 19:
+		case 20:
+		{
+			trap_creation();
+			break;
+		}
+		case 21:
+		case 22:
+		{
+			door_creation();
+			break;
+		}
+		case 23:
+		case 24:
+		case 25:
+		{
+			aggravate_monsters(0);
+			break;
+		}
+		case 26:
+		{
+			earthquake(py, px, 5);
+			break;
+		}
+		case 27:
+		case 28:
+		{
+			(void)gain_random_mutation(0);
+			break;
+		}
+		case 29:
+		case 30:
+		{
+			apply_disenchant(0);
+			break;
+		}
+		case 31:
+		{
+			lose_all_info();
+			break;
+		}
+		case 32:
+		{
+			fire_ball(GF_CHAOS, 0, spell + 5, 1 + (spell / 10));
+			break;
+		}
+		case 33:
+		{
+			wall_stone();
+			break;
+		}
+		case 34:
+		case 35:
+		{
+			int i;
+			int type = bizarre_num[rand_int(6)];
+
+			for (i = 0; i < 8; i++)
+			{
+				(void)summon_specific(0, py, px, (dun_level * 3) / 2, type, TRUE, FALSE, FALSE);
+			}
+			break;
+		}
+		case 36:
+		case 37:
+		{
+			(void)activate_hi_summon();
+			break;
+		}
+		case 38:
+		{
+			(void)summon_cyber(-1, py, px);
+			break;
+		}
+		default:
+		{
+			int count = 0;
+
+			(void)activate_ty_curse(FALSE, &count);
+
+			break;
+		}
 	}
 
 	return;
@@ -746,7 +810,7 @@ static bool cast_life_spell(int spell)
 		confuse_monsters(plev * 4);
 		turn_monsters(plev * 4);
 		stasis_monsters(plev * 4);
-		summon_specific(py, px, plev, SUMMON_ANGEL, TRUE, TRUE, TRUE);
+		summon_specific(-1, py, px, plev, SUMMON_ANGEL, TRUE, TRUE, TRUE);
 		(void)set_shero(p_ptr->shero + randint(25) + 25);
 		(void)hp_player(300);
 		if (!p_ptr->fast)
@@ -989,7 +1053,7 @@ static bool cast_nature_spell(int spell)
 		slow_monsters();
 		break;
 	case 14: /* Summon Animals */
-		if (!(summon_specific(py, px, plev, SUMMON_ANIMAL_RANGER, TRUE, TRUE, TRUE)))
+		if (!(summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, TRUE, TRUE, TRUE)))
 			no_trump = TRUE;
 		break;
 	case 15: /* Herbal Healing */
@@ -1119,16 +1183,17 @@ static bool cast_chaos_spell(int spell)
 		{
 			msg_print("Your hands start glowing.");
 			p_ptr->confusing = TRUE;
+			p_ptr->redraw |= (PR_STATUS);
 		}
 		break;
 	case 4: /* Manaburst */
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		fire_ball(GF_MISSILE, dir,
-			(damroll(3, 5) + plev +
-			(plev / (((p_ptr->pclass == CLASS_MAGE)
-			|| (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))),
-			((plev < 30) ? 2 : 3));
+		    (damroll(3, 5) + plev +
+		    (plev / (((p_ptr->pclass == CLASS_MAGE) ||
+		    (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))),
+		    ((plev < 30) ? 2 : 3));
 			/* Shouldn't actually use GF_MANA, as it will destroy all
 			 * items on the floor */
 		break;
@@ -1158,6 +1223,9 @@ static bool cast_chaos_spell(int spell)
 
 			int die = randint(100) + plev / 5;
 
+			if (die < 26)
+				chg_virtue(V_CHANCE, 1);
+
 			if (!get_aim_dir(&dir)) return FALSE;
 			if (die > 100)
 				msg_print("You feel a surge of power!");
@@ -1182,7 +1250,7 @@ static bool cast_chaos_spell(int spell)
 				    damroll(6 + ((plev - 5) / 4), 8));
 			else if (die < 71)
 				fire_bolt_or_beam(beam, GF_FIRE, dir,
-				    damroll(8 + ((plev - 5) / 4), 8));
+					 damroll(8 + ((plev - 5) / 4), 8));
 			else if (die < 76) drain_life(dir, 75);
 			else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
 			else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
@@ -1211,7 +1279,6 @@ static bool cast_chaos_spell(int spell)
 			}
 			break;
 		}
-		break;
 	case 9: /* Chaos Bolt */
 		if (!get_aim_dir(&dir)) return FALSE;
 
@@ -1276,7 +1343,7 @@ static bool cast_chaos_spell(int spell)
 			bool pet = (randint(3) == 1);
 			bool group = !(pet && (plev < 50));
 
-			if (summon_specific(py, px, (plev * 3) / 2, SUMMON_DEMON, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_DEMON, group, FALSE, pet))
 			{
 				msg_print("The area fills with a stench of sulphur and brimstone.");
 
@@ -1446,6 +1513,9 @@ static bool cast_death_spell(int spell)
 		dummy = plev + randint(plev) * MAX(1, plev/10);   /* Dmg */
 		if (drain_life(dir, dummy))
 		{
+			chg_virtue(V_SACRIFICE, -1);
+			chg_virtue(V_VITALITY, -1);
+
 			(void)hp_player(dummy);
 			/* Gain nutritional sustenance: 150/hp drained */
 			/* A Food ration gives 5000 food points (by contrast) */
@@ -1479,13 +1549,19 @@ static bool cast_death_spell(int spell)
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			msg_print("You call on the power of the dead...");
+
+			if (die < 26)
+				chg_virtue(V_CHANCE, 1);
+
 			if (die > 100)
 				msg_print("You feel a surge of eldritch force!");
 
 			if (die < 8)
 			{
 				msg_print("Oh no! Mouldering forms rise from the earth around you!");
-				(void)summon_specific(py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+				(void)summon_specific(0, py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+
+				chg_virtue(V_UNLIFE, 1);
 			}
 			else if (die < 14)
 			{
@@ -1521,22 +1597,22 @@ static bool cast_death_spell(int spell)
 			else if (die < 56)
 			{
 				fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
-					damroll(3+((plev-5)/4),8));
+					damroll(3 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 61)
 			{
 				fire_bolt_or_beam(beam - 10, GF_COLD, dir,
-					damroll(5+((plev-5)/4),8));
+					damroll(5 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 66)
 			{
 				fire_bolt_or_beam(beam, GF_ACID, dir,
-					damroll(6+((plev-5)/4),8));
+					damroll(6 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 71)
 			{
 				fire_bolt_or_beam(beam, GF_FIRE, dir,
-					damroll(8+((plev-5)/4),8));
+					damroll(8 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 76)
 			{
@@ -1612,6 +1688,9 @@ static bool cast_death_spell(int spell)
 	case 20: /* Vampirism True */
 		if (!get_aim_dir(&dir)) return FALSE;
 
+		chg_virtue(V_SACRIFICE, -1);
+		chg_virtue(V_VITALITY, -1);
+
 		for (dummy = 0; dummy < 3; dummy++)
 		{
 			if (drain_life(dir, 100))
@@ -1651,7 +1730,7 @@ static bool cast_death_spell(int spell)
 				group = TRUE;
 			}
 
-			if (summon_specific(py, px, (plev * 3) / 2, type, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, group, FALSE, pet))
 			{
 				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 
@@ -1659,6 +1738,8 @@ static bool cast_death_spell(int spell)
 					msg_print("Ancient, long-dead forms arise from the ground to serve you!");
 				else
 					msg_print("'The dead arise... to punish you for disturbing them!'");
+
+				chg_virtue(V_UNLIFE, 1);
 			}
 
 			break;
@@ -1793,6 +1874,9 @@ static bool cast_trump_spell(int spell, bool success)
 
 				msg_print("You shuffle the deck and draw a card...");
 
+				if (die < 30)
+					chg_virtue(V_CHANCE, 1);
+
 				if (die < 7)
 				{
 					msg_print("Oh no! It's Death!");
@@ -1802,17 +1886,19 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 14)
 				{
 					msg_print("Oh no! It's the Devil!");
-					(void)summon_specific(py, px, dun_level, SUMMON_DEMON, TRUE, FALSE, FALSE);
+					(void)summon_specific(0, py, px, dun_level, SUMMON_DEMON, TRUE, FALSE, FALSE);
 				}
 				else if (die < 18)
 				{
+					int count = 0;
+
 					msg_print("Oh no! It's the Hanged Man.");
-					(void)activate_ty_curse(FALSE);
+					(void)activate_ty_curse(FALSE, &count);
 				}
 				else if (die < 22)
 				{
 					msg_print("It's the swords of discord.");
-					aggravate_monsters(1);
+					aggravate_monsters(0);
 				}
 				else if (die < 26)
 				{
@@ -1823,7 +1909,7 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 30)
 				{
 					msg_print("It's the picture of a strange monster.");
-					if (!(summon_specific(py, px, (dun_level * 3) / 2, 32 + randint(6), TRUE, FALSE, FALSE)))
+					if (!(summon_specific(0, py, px, (dun_level * 3) / 2, 32 + randint(6), TRUE, FALSE, FALSE)))
 						no_trump = TRUE;
 				}
 				else if (die < 33)
@@ -1874,25 +1960,25 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 82)
 				{
 					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE1, FALSE, TRUE, TRUE)))
+					if (!(summon_specific(-1, py, px, (dun_level * 3) / 2, SUMMON_BIZARRE1, FALSE, TRUE, TRUE)))
 						no_trump = TRUE;
 				}
 				else if (die < 84)
 				{
 					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE2, FALSE, TRUE, TRUE)))
+					if (!(summon_specific(-1, py, px, (dun_level * 3) / 2, SUMMON_BIZARRE2, FALSE, TRUE, TRUE)))
 						no_trump = TRUE;
 				}
 				else if (die < 86)
 				{
 					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE4, FALSE, TRUE, TRUE)))
+					if (!(summon_specific(-1, py, px, (dun_level * 3) / 2, SUMMON_BIZARRE4, FALSE, TRUE, TRUE)))
 						no_trump = TRUE;
 				}
 				else if (die < 88)
 				{
 					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE5, FALSE, TRUE, TRUE)))
+					if (!(summon_specific(-1, py, px, (dun_level * 3) / 2, SUMMON_BIZARRE5, FALSE, TRUE, TRUE)))
 						no_trump = TRUE;
 				}
 				else if (die < 96)
@@ -2009,7 +2095,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of an animal...");
 
-			if (summon_specific(py, px, plev, type, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, type, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned animal gets angry!");
@@ -2024,7 +2110,7 @@ static bool cast_trump_spell(int spell, bool success)
 		case 10: /* Phantasmal Servant */
 			if (success)
 			{
-				if (summon_specific(py, px, (plev * 3) / 2, SUMMON_PHANTOM, FALSE, TRUE, TRUE))
+				if (summon_specific(-1, py, px, (plev * 3) / 2, SUMMON_PHANTOM, FALSE, TRUE, TRUE))
 				{
 					msg_print("'Your wish, master?'");
 				}
@@ -2042,7 +2128,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of a monster...");
 
-			if (summon_specific(py, px, plev, type, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, type, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned creature gets angry!");
@@ -2061,7 +2147,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of a monster...");
 
-			if (summon_specific(py, px, plev, SUMMON_ELEMENTAL, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_ELEMENTAL, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("You fail to control the elemental creature!");
@@ -2106,7 +2192,7 @@ static bool cast_trump_spell(int spell, bool success)
 				case 4: dummy = SUMMON_BIZARRE5; break;
 			}
 
-			if (summon_specific(py, px, plev, dummy, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, dummy, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned creature gets angry!");
@@ -2124,7 +2210,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of a spider...");
 
-			if (summon_specific(py, px, plev, SUMMON_SPIDER, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_SPIDER, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned spiders get angry!");
@@ -2142,7 +2228,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of a reptile...");
 
-			if (summon_specific(py, px, plev, SUMMON_HYDRA, TRUE, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_HYDRA, TRUE, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned reptile gets angry!");
@@ -2160,7 +2246,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of a hound...");
 
-			if (summon_specific(py, px, plev, SUMMON_HOUND, TRUE, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_HOUND, TRUE, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned hounds get angry!");
@@ -2204,7 +2290,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of a Cyberdemon...");
 
-			if (summon_specific(py, px, plev, SUMMON_CYBER, FALSE, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, SUMMON_CYBER, FALSE, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned Cyberdemon gets angry!");
@@ -2235,7 +2321,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of an undead creature...");
 
-			if (summon_specific(py, px, plev, SUMMON_UNDEAD, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_UNDEAD, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned undead creature gets angry!");
@@ -2254,7 +2340,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of a dragon...");
 
-			if (summon_specific(py, px, plev, SUMMON_DRAGON, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_DRAGON, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned dragon gets angry!");
@@ -2278,7 +2364,7 @@ static bool cast_trump_spell(int spell, bool success)
 				bool group = (pet ? FALSE : TRUE);
 				int type = (pet ? SUMMON_NO_UNIQUES : 0);
 
-				if (summon_specific(py, px, plev, type, group, FALSE, pet))
+				if (summon_specific((pet ? -1 : 0), py, px, plev, type, group, FALSE, pet))
 				{
 					if (!pet)
 						msg_print("The summoned creatures get angry!");
@@ -2294,7 +2380,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of a demon...");
 
-			if (summon_specific(py, px, plev, SUMMON_DEMON, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_DEMON, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned demon gets angry!");
@@ -2314,7 +2400,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of an ancient dragon...");
 
-			if (summon_specific(py, px, plev, type, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, type, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned ancient dragon gets angry!");
@@ -2334,7 +2420,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of a greater undead being...");
 
-			if (summon_specific(py, px, plev, type, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev, type, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned greater undead creature gets angry!");
@@ -2479,10 +2565,10 @@ static bool cast_arcane_spell(int spell)
 
 		switch (randint(4))
 		{
-			case 1:  dummy = GF_FIRE;
-			case 2:  dummy = GF_ELEC;
-			case 3:  dummy = GF_COLD;
-			default: dummy = GF_ACID;
+			case 1:  dummy = GF_FIRE; break;
+			case 2:  dummy = GF_ELEC; break;
+			case 3:  dummy = GF_COLD; break;
+			default: dummy = GF_ACID; break;
 		}
 		fire_ball(dummy, dir, 75 + (plev), 2);
 		break;
@@ -2630,6 +2716,12 @@ void do_cmd_cast(void)
 		msg_format("You failed to get the %s off!", prayer);
 		sound(SOUND_FAIL);
 
+		if ((randint(100) < chance) && (mp_ptr->spell_book == TV_LIFE_BOOK))
+			chg_virtue(V_FAITH, -1);
+		else if (randint(100) < chance)
+			chg_virtue(V_KNOWLEDGE, -1);
+
+
 		if (realm == REALM_TRUMP)
 		{
 			cast_trump_spell(spell, FALSE);
@@ -2658,6 +2750,14 @@ void do_cmd_cast(void)
 	/* Process spell */
 	else
 	{
+		if ((randint(100) < chance) && (chance < 50))
+		{
+			if (mp_ptr->spell_book == TV_LIFE_BOOK)
+				chg_virtue(V_FAITH, 1);
+			else
+				chg_virtue(V_KNOWLEDGE, 1);
+		}
+
 		/* Spells.  */
 		switch (realm)
 		{
@@ -2710,6 +2810,11 @@ void do_cmd_cast(void)
 
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
+
+			if (mp_ptr->spell_book == TV_LIFE_BOOK)
+				chg_virtue(V_FAITH, 1);
+			else
+				chg_virtue(V_KNOWLEDGE, 1);
 		}
 	}
 
@@ -2737,6 +2842,11 @@ void do_cmd_cast(void)
 
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+
+		if (mp_ptr->spell_book == TV_LIFE_BOOK)
+			chg_virtue(V_FAITH, -10);
+		else
+			chg_virtue(V_KNOWLEDGE, -10);
 
 		/* Damage CON (possibly permanently) */
 		if (rand_int(100) < 50)

@@ -8,7 +8,7 @@ Return : Advance one line (wraps to the start at the end of the file).
 (-)    : Back-up half a page.
 (#)    : Jump to a specific line (defaults to line zero).
 (%)    : Jump to a specific file (defaults to "help.hlp").
-(=)    : Hilite lines containing a string (case sensitive).
+(=)    : Highlight lines containing a string (case sensitive).
 (/)    : Search for a string (use '/' + Return to continue a search).
          (Use '#' + '0' + Return + '/' + Return to restart a search.)
 (|)    : Save the current document to a file.
@@ -18,4 +18,4 @@ Return : Advance one line (wraps to the start at the end of the file).
 --
 Original   : (??)
 Updated    : Zangband DevTeam
-Last update: November 29, 1999
+Last update: January 13, 2000

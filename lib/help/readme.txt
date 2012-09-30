@@ -7,7 +7,7 @@ documentation package produced by the Zangband DevTeam.
 --- Documentation Packages ---
 
 There are currently two documentation packages planned. The basic
-package will include non-spolier information necessary for a new player
+package will include non-spoiler information necessary for a new player
 to learn all he needs to know about playing Zangband and will be
 included in all official Zangband source and binary releases. The
 extended package will included additional spoiler files and will be
@@ -30,7 +30,7 @@ nice features.
 --- Reporting Errors / Suggestions for Improvement ---
 
 While every effort will be taken to ensure that the documentation
-packages are accurate and up to date, it is innevitable that some
+packages are accurate and up to date, it is inevitable that some
 errors will be made. If you find an error or have a suggestion to
 improve documentation, please post your report or idea to the Zangband
 Development list by mailing to zangband@onelist.com. Alternatively, you
@@ -48,7 +48,7 @@ original author.
 
 1.  All documents should be named using the standard 8.3 format since
     Zangband is played on systems which do not support long filenames.
-2.  Menus files should be named *.hlp, non-spoiler help files *.txt and
+2.  Menu files should be named *.hlp, non-spoiler help files *.txt and
     spoiler helpfiles *.spo.
 3.  All documents should be in a fixed font, plain text format.
 4.  Line length should be between 70 and 75 characters.
@@ -61,7 +61,7 @@ original author.
 10. Sub-section headings are denoted by '--- Sub-section Heading ---'.
 11. Information on document authors and editors and revisions should
     be included at the end of each document.
-12. Indenting increments by 5 spaces each time.
+12. Indenting increments by 4 or 5 spaces each time.
 
 
 === Hyperlinks ===
@@ -82,8 +82,8 @@ target file. Opening the new file will flush the previous links so
 
 Note: because various operating systems use different conventions to
 denote directory structures, Zangband does not support target file
-names like './spoiler/races/races.spo'. This forces means that all
-help files should be kept in the lib/help directory.
+names like './spoiler/races/races.spo'. This means that all help files
+should be kept in the lib/help or lib/info directory.
 
 We are currently testing methods of linking to a particular section
 in a document and may also implement histories to allow 'back' and
@@ -94,18 +94,19 @@ in a document and may also implement histories to allow 'back' and
 A "tag" is something like a bookmark, it marks a line for reference by
 a hyperlink.  A tag is specified with:
 
-	***** <x>
+	***** <tag_name>
 
-(where x is a single lower/uppercase letter or digit).
+(the name of the tag can not be longer than 15 characters).
 
 You can then jump to the line marked with the tag with:
 
-	***** [1] target_filename#x
+	***** [1] target_filename#tag_name
 
-This command jumps to the line with the tag 'x' in the file target_file.
-You can jump inside the current file too (just use the filename of
-the current file in the link).
+This command jumps to the line with the tag "tag_name" in the file
+target_file.  You can jump inside the current file too (just use the
+filename of the current file in the link).
 
 -- 
 Original    : Zangband DevTeam
-Last update : November 26, 1999
+Last update : January 13, 2000
+

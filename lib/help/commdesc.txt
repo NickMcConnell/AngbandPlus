@@ -15,7 +15,7 @@ command several times, while others use the "repeat count" as an
 "letters" into the maximal legal value.
 
 
-***** <A>
+***** <Inventory>
 ---  Inventory Commands ---
 
 Inventory list (i)
@@ -71,7 +71,7 @@ Take off equipment (t) or Take off equipment (T)
      and you will drop the item after taking it off.
 
 
-***** <B>
+***** <Movement>
 ---  Movement Commands ---
 
 Walk (with pickup) (;)
@@ -123,7 +123,7 @@ Go down staircase (>)
      to a new dungeon level. See "Go Up Staircase" for more info.
 
 
-***** <C>
+***** <Resting>
 --- Resting Commands ---
 
 Stay still (with pickup) (,) or Stay still (with pickup) (.)
@@ -152,7 +152,7 @@ Rest (R)
      rest.
 
 
-***** <D>
+***** <Searching>
 --- Searching Commands ---
 
 Search (s)
@@ -175,7 +175,7 @@ Toggle search mode (S) or Toggle search mode (#)
      Search Mode command again.
 
 
-***** <E>
+***** <Alter>
 ---  Alter Commands ---
 
 Tunnel (T) or Tunnel (^T)
@@ -246,7 +246,7 @@ Alter (+)
      "always_repeat" option.
 
 
-***** <F>
+***** <SpellPrayer>
 ---  Spell and Prayer Commands ---
 
 Browse a book (b) or Peruse a book (P)
@@ -290,7 +290,7 @@ Cast a spell / Pray a prayer (m)
      or confused while praying, and there must be some light present.
 
 
-***** <G>
+***** <ObjectManip>
 ---  Object Manipulation Commands ---
 
 Eat some food (E)
@@ -348,7 +348,7 @@ Uninscribe an object (})
      itself.
 
 
-***** <H>
+***** <MagicalObject>
 ---  Magical Object Commands ---
 
 Activate an artifact (A)
@@ -386,7 +386,7 @@ Zap a rod (z) or Activate a rod (a)
      rod, and whether you are aware of its type) and can use a target.
 
 
-***** <I>
+***** <ThrowFire>
 ---  Throwing and Missile Weapons ---
 
 Fire an item (f) or Fire an item (t)
@@ -457,7 +457,7 @@ Targeting Mode (*)
      launched at a target. This command takes no time.
 
 
-***** <J>        
+***** <Looking>        
 ---  Looking Commands ---
 
 Full screen map (M)
@@ -500,7 +500,7 @@ Observe an item (I)
      Currently, it only makes sense for artifacts and ego-items.
 
 
-***** <K>
+***** <Message>
 --- Message Commands ---
 
 Repeat level feeling (^F)
@@ -517,7 +517,7 @@ Take notes (:)
      no time.
 
 
-***** <L>
+***** <GameStatus>
 --- Game Status Commands ---
 
 Character Description (C)
@@ -550,7 +550,7 @@ Display known objects
      potions, etc.) which you have identified.
 
 
-***** <M>
+***** <SaveExit>
 --- Saving and Exiting Commands ---
 
 Save and Quit (Ctrl-X)
@@ -570,14 +570,14 @@ Quit (commit suicide) (Q)
      that choice. Note that dead characters are dead forever.
 
 
-***** <N>
+***** <UserPref>
 --- User pref file commands ---
 
 See the file pref.hlp for a description of the user preference commands
 together with a detailed description of this function.
 
 
-***** <O> 
+***** <Help> 
 --- Help ---
 
 Help (?)
@@ -616,7 +616,7 @@ Game Version (V)
      For more information, see the "version.txt" help file.
 
 
-***** <P>
+***** <Extra>
 --- Extra Commands ---
 
 Toggle Choice Window (^E) 
@@ -652,4 +652,4 @@ Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
 Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Last update: November 26th, 1999
+Last update: January 13, 2000

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:12 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/11 10:23:30 $ */
 /* File: load.c */
 
 /* Purpose: support for loading savefiles -BEN- */
@@ -161,6 +161,32 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
+		{
+			return (TRUE);
+		}
+	}
+
+	/* Nope */
+	return (FALSE);
+}
+
+
+/*
+ * Hack -- determine if an item is a "weapon" (or a missile)
+ */
+static bool is_weapon(object_type *o_ptr)
+{
+	/* Valid "tval" codes */
+	switch (o_ptr->tval)
+	{
+		case TV_SHOT:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_BOW:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
 		{
 			return (TRUE);
 		}
@@ -795,6 +821,18 @@ static void rd_item(object_type *o_ptr)
 		}
 	}
 
+	/*
+	 *  Hack - reduce number of attacks from old objects
+	 *  This changed with the addition of oangband combat.
+	 */
+	if (z_older_than(2, 3, 4))
+	{
+		if ((f1 & (TR1_BLOWS)) && (o_ptr->pval > 2))
+		{
+			o_ptr->pval = 2;
+		}
+	}
+
 	/* Hack -- the "searching" bonuses changed in 2.7.6 */
 	if (older_than(2, 7, 6))
 	{
@@ -911,6 +949,13 @@ static void rd_item(object_type *o_ptr)
 
 		/* Hack -- apply "uncursed" incription */
 		if (streq(buf, "uncursed")) o_ptr->ident &= ~(IDENT_CURSED);
+	}
+
+	/* Change shattered weapons from 0d0 to 1d1 */
+	if (is_weapon(o_ptr))
+	{
+		if (o_ptr->dd == 0) o_ptr->dd = 1;
+		if (o_ptr->ds == 0) o_ptr->ds = 1;
 	}
 }
 
@@ -1192,7 +1237,7 @@ static void rd_options(void)
 	/* Pre-2.8.0 savefiles are done */
 	if (older_than(2, 8, 0)) return;
 
-	if (z_older_than(2,1,0))
+	if (z_older_than(2, 1, 0))
 	{
 		autosave_t = autosave_l = 0;
 		autosave_freq = 0;
@@ -1505,6 +1550,8 @@ static void rd_extra(void)
 		p_ptr->muta1 = 0;
 		p_ptr->muta2 = 0;
 		p_ptr->muta3 = 0;
+
+		get_virtues();
 	}
 	else
 	{
@@ -1523,6 +1570,23 @@ static void rd_extra(void)
 		rd_u32b(&p_ptr->muta1);
 		rd_u32b(&p_ptr->muta2);
 		rd_u32b(&p_ptr->muta3);
+
+		if (sf_version < 5)
+		{
+			get_virtues();
+		}
+		else
+		{
+			for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+			{
+				rd_s16b(&p_ptr->virtues[i]);
+			}
+
+			for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+			{
+				rd_s16b(&p_ptr->vir_types[i]);
+			}
+		}
 	}
 
 	/* Calc the regeneration modifier for mutations */
@@ -2322,7 +2386,7 @@ static errr rd_dungeon_aux(void)
 		q_ptr = &forge;
 
 		/* Clear the monster */
-		WIPE(q_ptr, monster_type);
+		(void) WIPE(q_ptr, monster_type);
 
 		/* Read the monster */
 		rd_monster(q_ptr);
@@ -2690,11 +2754,16 @@ static errr rd_dungeon(void)
 
 	/*** Success ***/
 
-	/* The dungeon is ready */
-	if (z_older_than(2, 1, 3))
+	/* Regenerate the dungeon for old savefiles and corrupted panic-saves */
+	if (z_older_than(2, 1, 3) || (py == 0) || (px == 0))
+	{
 		character_dungeon = FALSE;
+	}
 	else
+	{
+		/* The dungeon is ready */
 		character_dungeon = TRUE;
+	}
 
 	/* Success */
 	return (0);
@@ -3198,31 +3267,19 @@ static errr rd_savefile_new_aux(void)
 		for (i = MIN_RANDOM_QUEST + v - 1; i >= MIN_RANDOM_QUEST; i--)
 		{
 			quest_type *q_ptr = &quest[i];
-
-			monster_race *r_ptr;
+			monster_race *r_ptr = NULL;
 
 			q_ptr->status = QUEST_STATUS_TAKEN;
 
 			for (j = 0; j < MAX_TRIES; j++)
 			{
-				/*
-				 * Random monster 5 - 10 levels out of depth
-				 * (depending on level)
-				 */
-				int r_idx = get_mon_num(q_ptr->level + 4 + randint(q_ptr->level / 10));
-				r_ptr = &r_info[r_idx];
+				/* Random monster 5 - 10 levels out of depth */
+				q_ptr->r_idx = get_mon_num(q_ptr->level + 4 + randint(6));
 
-				/* Save the index if the monster is deeper than out current monster */
-				if (!q_ptr->r_idx || (r_info[r_idx].level > r_info[q_ptr->r_idx].level))
-				{
-					q_ptr->r_idx = r_idx;
-				}
+				r_ptr = &r_info[q_ptr->r_idx];
 
-				/*
-				 * Accept monsters that are 2 - 6 levels
-				 * out of depth depending on the quest level
-				 */
-				if (r_ptr->level > (q_ptr->level + (q_ptr->level / 20) + 1)) break;
+				/* Accept only monsters that are out of depth */
+				if (r_ptr->level > q_ptr->level) break;
 			}
 
 			/* Get the number of monsters */

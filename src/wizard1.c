@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:52:04 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:41 $ */
 /* File: wizard1.c */
 
 /* Purpose: Spoiler generation -BEN- */
@@ -553,6 +553,7 @@ static const flag_desc sustain_flags_desc[] =
 
 static const flag_desc misc_flags2_desc[] =
 {
+	{ TR2_THROW,      "Throwing" },
 	{ TR2_REFLECT,    "Reflection" },
 	{ TR2_FREE_ACT,   "Free Action" },
 	{ TR2_HOLD_LIFE,  "Hold Life" },
@@ -1086,8 +1087,8 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 			 * Don't print a trailing list separator but do print a trailing
 			 * item separator.
 			 */
-			if (line_len > 1 && line[line_len - 1] == ' '
-			    && line[line_len - 2] == LIST_SEP)
+			if ((line_len > 1) && (line[line_len - 1] == ' ') &&
+			    (line[line_len - 2] == LIST_SEP))
 			{
 				/* Ignore space and separator */
 				line[line_len - 2] = '\0';
@@ -1297,6 +1298,7 @@ static void spoil_mon_desc(cptr fname)
 {
 	int i, n = 0;
 
+	u16b why = 2;
 	s16b *who;
 
 	char buf[1024];
@@ -1309,8 +1311,6 @@ static void spoil_mon_desc(cptr fname)
 	char hp[80];
 	char exp[80];
 
-	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, s16b);
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -1347,6 +1347,9 @@ static void spoil_mon_desc(cptr fname)
 		"----", "---", "---", "---", "--", "--", "-----------");
 
 
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, s16b);
+
 	/* Scan the monsters */
 	for (i = 1; i < max_r_idx; i++)
 	{
@@ -1355,6 +1358,13 @@ static void spoil_mon_desc(cptr fname)
 		/* Use that monster */
 		if (r_ptr->name) who[n++] = i;
 	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 
 	/* Scan again */
@@ -1419,6 +1429,9 @@ static void spoil_mon_desc(cptr fname)
 		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
 			nam, lev, rar, spd, hp, ac, exp);
 	}
+
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, s16b);
 
 	/* End it */
 	fprintf(fff, "\n");
@@ -1528,11 +1541,14 @@ static void spoil_out(cptr str)
 static void spoil_mon_info(cptr fname)
 {
 	char buf[1024];
-	int msex, vn, i, j, k, n;
+	int msex, vn, i, j, k, n, count = 0;
 	bool breath, magic, sin;
 	cptr p, q;
 	cptr vp[64];
 	u32b flags1, flags2, flags3, flags4, flags5, flags6;
+
+	u16b why = 2;
+	s16b *who;
 
 
 	/* Build the filename */
@@ -1564,12 +1580,30 @@ static void spoil_mon_info(cptr fname)
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
-	/*
-	 * List all monsters in order
-	 */
-	for (n = 1; n < max_r_idx; n++)
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, s16b);
+
+	/* Scan the monsters */
+	for (i = 1; i < max_r_idx; i++)
 	{
-		monster_race *r_ptr = &r_info[n];
+		monster_race *r_ptr = &r_info[i];
+
+		/* Use that monster */
+		if (r_ptr->name) who[count++] = i;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, count);
+
+
+	/* Scan again */
+	for (n = 0; n < count; n++)
+	{
+		monster_race *r_ptr = &r_info[who[n]];
 
 		/* Extract the flags */
 		flags1 = r_ptr->flags1;
@@ -1618,7 +1652,7 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Number */
-		sprintf(buf, "Num:%d  ", n);
+		sprintf(buf, "Num:%d  ", who[n]);
 		spoil_out(buf);
 
 		/* Level */
@@ -2277,6 +2311,9 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out(NULL);
 	}
+
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, s16b);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))

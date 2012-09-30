@@ -57,7 +57,7 @@ only need to carry a maximum of 4 spellbooks. All realms have 32
 spells, and each book contains 8 spells.
 
 
-***** <A>
+***** <ClassSpellAbil>
 === Class Spell Ability ===
 
 Warriors
@@ -166,7 +166,7 @@ High Mage
      failure rates in the spells of the realm of their specialty.
   
 
-***** <B>
+***** <MagicRealms>
 === The Realms of Magic ===
 
 Life
@@ -239,7 +239,7 @@ Chaos
      control than Chaos magic. Chaos is the very element of unmaking,
      and the Chaos spells are the most terrible weapons of destruction
      imaginable. From Magic Missile and Acid Bolt to the medium level
-     Fire Ball and and Doom Bolt, and finally to the awesome spells of
+     Fire Ball and Doom Bolt, and finally to the awesome spells of
      Invoke Logrus, Mana Storm and Call the Void, Chaos offers an
      unsurpassable arsenal of attack spells. The caster can also call
      on the primal forces of Chaos to induce mutations in his/her
@@ -263,33 +263,11 @@ Death
      accursed tome have retained their sanity.
 
 
-***** <C>
-=== Class/Realm Restrictions ===
-
-In the table below, '1st' indicates that the realm may only be the
-first choice, '2nd' indicates that the realm may only be the second
-choice and '1st/2nd' indicates that it can be either. Classes that
-only have '1st' options do not get a second realm. Classes with
-only one '1st' option must choose this option as their first realm.
-
-Class          Life    Arcane  Sorcery Nature  Trump   Chaos   Death
-----------------------------------------------------------------------
-Mage           1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd
-Priest         1st     2nd     2nd     2nd     2nd     2nd     1st
-Rogue                  1st     1st             1st             1st
-Ranger                 2nd     2nd     1st     2nd     2nd     2nd
-Paladin        1st                                             1st
-Warrior-Mage   2nd     1st     2nd     2nd     2nd     2nd     2nd
-Chaos Warrior                                          1st
-Monk           1st                     1st                     1st
-High Mage      1st     1st     1st     1st     1st     1st     1st
-
-
-***** <D>
+***** <CastingSpells>
 === On Casting Spells ... ===
 
 Players who select spellcasting characters may notice a few unusual
-phenomona during the course of the game. Here's a few helps and
+phenomena during the course of the game. Here's a few helps and
 hints on what may be happening.
 
 --- Armor and Spell Casting ---
@@ -315,7 +293,7 @@ priest-type classes (priest, paladin and monk) do not have the same
 restrictions as they are viewed as invoking the power of their
 deity directly through prayer.
 
---- Casting Spells With Insufficent Mana ---
+--- Casting Spells With Insufficient Mana ---
 
 Occasionally, you may try (either by accident or in desperation) to
 cast a spell when you have insufficient mana to do so. In these
@@ -323,7 +301,7 @@ circumstances you will be told by the game that you do not have
 enough mana to cast the spell and then asked if you want to anyway.
 Casting the spell under these conditions has a drastically reduced
 chance of success and may also result in your constitution being
-damaged. It may also casue you to faint from the effort which will
+damaged. It may also cause you to faint from the effort which will
 effectively paralyze you for several turns (even with free action).
 The CON drain and the paralyzation may happen regardless of whether
 the casting was successful or not.
@@ -339,7 +317,7 @@ duration of 20 turns three times will not result in a duration of
 amount to the total duration.
 
 
-***** <E>
+***** <SpellTypes>
 === Spell Types ===
 
 --- Bolts and Beams ---
@@ -366,7 +344,7 @@ around the target in addition to the target itself.
 --- Line-of-Sight ---
 
 Line-of-sight spells affect all monsters that that are currently
-in sight of your character. This inlcudes monsters that may not
+in sight of your character. This includes monsters that may not
 currently be visible due to darkness but would be if it was light.
 
 --- Area ---
@@ -376,7 +354,7 @@ can vary considerably. For example, Light Area lights a single room
 while Detect Traps affects a map panel and Genocide the entire
 level.
 
-***** <F>
+***** <Pets>
 === Summoned/Charmed Creatures ===
 
 A friendly creature can be a mixed blessing. At first sight, one
@@ -398,7 +376,7 @@ brandishes its rocket launcher! Pets are also rather easily
 irritable.
 
 Once you do something which causes the slightest discomfort to
-them, they will revert to their normal behaviour and consider you
+them, they will revert to their normal behavior and consider you
 their main target. This is something to think about before lighting
 up a room if you have pet orcs. Needless to say, nobody wants to be
 your friend if you are aggravating them.
@@ -411,7 +389,7 @@ pets the less mana you will be able to regain. Keep this in mind if
 you have a pet which can summon or otherwise produce more pets...
 
 
-***** <G>
+***** <Hints>
 === Hints and Tips ===
 
 If you miss the `old` magic user, try picking Sorcery and Chaos magic
@@ -429,13 +407,11 @@ spells.
 If you pick the realms always in the same order (e.g. nature as your
 first realm and chaos as your second realm, not the other way around)
 you will be less confused when trying to pick the correct spellbook to
-use in the game.
-
-If you still get confused trying to select the correct spellbook, try
-using macros (either the 'full' macros or inscriptions).
+use in the game. If you still get confused trying to select the correct
+spellbook, try using macros (either the 'full' macros or inscriptions).
 
 
-***** <H>
+***** <SpellLists>
 === Spell Lists ===
 
 
@@ -689,7 +665,7 @@ Necronomicon
      The legendary tome of unholy visions, death and destruction.
 
 --
-Original : (??)
-Updated : (??)
-Updated : Zangband DevTeam
-Last update: December 5, 1999
+Original   : (??)
+Updated    : (??)
+Updated    : Zangband DevTeam
+Last update: January 13, 2000

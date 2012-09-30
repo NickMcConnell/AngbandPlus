@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:37 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/28 12:10:37 $ */
 /* File: spells3.c */
 
 /* Purpose: Spell code (part 3) */
@@ -29,9 +29,8 @@
  */
 bool teleport_away(int m_idx, int dis)
 {
-	int oy, ox, d, i, min;
+	int ny=0, nx=0, oy, ox, d, i, min;
 	int tries = 0;
-	int ny = 0, nx = 0;
 
 	bool look = TRUE;
 
@@ -47,6 +46,12 @@ bool teleport_away(int m_idx, int dis)
 
 	/* Minimum distance */
 	min = dis / 2;
+
+	if ((((p_ptr->chp * 10) / p_ptr->mhp) < 5) &&
+		(randint(5) > ((p_ptr->chp * 10) / p_ptr->mhp)))
+	{
+		chg_virtue(V_VALOUR, -1);
+	}
 
 	/* Look until done */
 	while (look)
@@ -555,11 +560,13 @@ void recall_player(int turns)
 	{
 		p_ptr->word_recall = turns;
 		msg_print("The air about you becomes charged...");
+		p_ptr->redraw |= (PR_STATUS);
 	}
 	else
 	{
 		p_ptr->word_recall = 0;
 		msg_print("A tension leaves the air around you...");
+		p_ptr->redraw |= (PR_STATUS);
 	}
 }
 
@@ -584,10 +591,6 @@ bool apply_disenchant(int mode)
 	int             t = 0;
 	object_type     *o_ptr;
 	char            o_name[80];
-
-
-	/* Unused */
-	mode = mode;
 
 
 	/* Pick a random slot */
@@ -651,6 +654,9 @@ bool apply_disenchant(int mode)
 	msg_format("Your %s (%c) %s disenchanted!",
 		   o_name, index_to_label(t),
 		   ((o_ptr->number != 1) ? "were" : "was"));
+
+	chg_virtue(V_HARMONY, 1);
+	chg_virtue(V_ENCHANT, -2);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -738,8 +744,8 @@ void apply_nexus(monster_type *m_ptr)
  */
 void phlogiston(void)
 {
-	int max_flog = 0;
-	object_type * o_ptr = &inventory[INVEN_LITE];
+	int max_flog;
+	object_type *o_ptr = &inventory[INVEN_LITE];
 
 	/* It's a lamp */
 	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
@@ -799,7 +805,7 @@ void brand_weapon(int brand_type)
 	if (o_ptr->k_idx && !artifact_p(o_ptr) && !ego_item_p(o_ptr) &&
 	    !o_ptr->art_name && !cursed_p(o_ptr))
 	{
-		cptr act = NULL;
+		cptr act;
 
 		/* Let's get the name before it is changed... */
 		char o_name[80];
@@ -846,6 +852,8 @@ void brand_weapon(int brand_type)
 		if (flush_failure) flush();
 
 		msg_print("The Branding failed.");
+
+		chg_virtue(V_ENCHANT, -2);
 	}
 }
 
@@ -1229,28 +1237,11 @@ bool alchemy(void)
 		}
 	}
 
-	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	/* Check for artifacts */
+	if (!can_player_destroy_object(o_ptr))
 	{
-		byte feel = FEEL_SPECIAL;
-
 		/* Message */
 		msg_format("You fail to turn %s to gold!", o_name);
-
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = FEEL_TERRIBLE;
-
-		/* Hack -- inscribe the artifact */
-		o_ptr->feeling = feel;
-
-		/* We have "felt" it (again) */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
 		return FALSE;
@@ -1601,7 +1592,11 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 		/* Message */
 		msg_print("The enchantment failed.");
+
+		if (randint(3) == 1) chg_virtue(V_ENCHANT, -1);
 	}
+	else
+		chg_virtue(V_ENCHANT, 1);
 
 	/* Something happened */
 	return (TRUE);
@@ -1611,7 +1606,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 bool artifact_scroll(void)
 {
 	int             item;
-	bool            okay = FALSE;
+	bool            okay;
 	object_type     *o_ptr;
 	char            o_name[80];
 	cptr            q, s;
@@ -1677,7 +1672,8 @@ bool artifact_scroll(void)
 		if (o_ptr->number > 1)
 		{
 			msg_print("Not enough enough energy to enchant more than one object!");
-			msg_format("%d of your %s %s destroyed!",(o_ptr->number)-1, o_name, (o_ptr->number>2?"were":"was"));
+			msg_format("%d of your %s %s destroyed!", (o_ptr->number) - 1,
+			           o_name, ((o_ptr->number > 2) ? "were" : "was"));
 			o_ptr->number = 1;
 		}
 		okay = create_artifact(o_ptr, TRUE);
@@ -1691,10 +1687,110 @@ bool artifact_scroll(void)
 
 		/* Message */
 		msg_print("The enchantment failed.");
+		if (randint(3) == 1) chg_virtue(V_ENCHANT, -1);
 	}
+	else
+		chg_virtue(V_ENCHANT, 1);
 
 	/* Something happened */
 	return (TRUE);
+}
+
+
+/*
+ * Apply good luck to an object
+ */
+static void good_luck(object_type *o_ptr)
+{
+	/* Objects become better sometimes */
+	if (!rand_int(13))
+	{
+		int number = o_ptr->number;
+
+		bool great = ego_item_p(o_ptr);
+
+		/* Prepare it */
+		object_prep(o_ptr, o_ptr->k_idx);
+
+		/* Restore the number */
+		o_ptr->number = number;
+
+		/* Apply good magic (allow artifacts, good, great if an ego-item, no curse) */
+		apply_magic(o_ptr, dun_level, TRUE, TRUE, great, FALSE);
+	}
+
+	/* Objects duplicate sometimes */
+	if (!rand_int(777) && (o_ptr->number < 99))
+	{
+		o_ptr->number++;
+	}
+}
+
+
+/*
+ * Apply bad luck to an object
+ */
+static void bad_luck(object_type *o_ptr)
+{
+	bool is_art = artifact_p(o_ptr) || o_ptr->art_name;
+
+	/* Objects become worse sometimes */
+	if (!rand_int(13))
+	{
+		int number = o_ptr->number;
+
+		bool great = ego_item_p(o_ptr);
+
+		/* Non-artifacts get rerolled */
+		if (!is_art)
+		{
+			o_ptr->ident |= IDENT_CURSED;
+
+			/* Prepare it */
+			object_prep(o_ptr, o_ptr->k_idx);
+
+			/* Restore the number */
+			o_ptr->number = number;
+
+			/* Apply bad magic (disallow artifacts, good, great if an ego-item, cursed) */
+			apply_magic(o_ptr, dun_level, FALSE, TRUE, great, TRUE);
+		}
+
+		/* Now curse it */
+		o_ptr->ident |= IDENT_CURSED;
+	}
+
+	/* Objects are blasted sometimes */
+	if (!rand_int(666) && (!is_art || !rand_int(3)))
+	{
+		/* Blast it */
+		o_ptr->name1 = 0;
+		o_ptr->name2 = EGO_BLASTED;
+		if (o_ptr->to_a) o_ptr->to_a = 0 - randint(5) - randint(5);
+		if (o_ptr->to_h) o_ptr->to_h = 0 - randint(5) - randint(5);
+		if (o_ptr->to_d) o_ptr->to_d = 0 - randint(5) - randint(5);
+		o_ptr->ac = 0;
+		o_ptr->dd = 1;
+		o_ptr->ds = 1;
+		o_ptr->art_flags1 = 0;
+		o_ptr->art_flags2 = 0;
+		o_ptr->art_flags3 = 0;
+
+		/* Curse it */
+		o_ptr->ident |= (IDENT_CURSED);
+
+		/* Break it */
+		o_ptr->ident |= (IDENT_BROKEN);
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Recalculate mana */
+		p_ptr->update |= (PU_MANA);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	}
 }
 
 
@@ -1703,6 +1799,25 @@ bool artifact_scroll(void)
  */
 void identify_item(object_type *o_ptr)
 {
+	if ((p_ptr->muta3 & MUT3_GOOD_LUCK) &&
+		 !artifact_p(o_ptr) && !o_ptr->art_name && !object_known_p(o_ptr))
+	{
+		good_luck(o_ptr);
+	}
+
+	if (p_ptr->muta3 & MUT3_BAD_LUCK)
+	{
+		bad_luck(o_ptr);
+	}
+
+	if (!(o_ptr->ident & (IDENT_MENTAL)))
+	{
+		if ((o_ptr->art_name) || (artifact_p(o_ptr)))
+			chg_virtue(V_KNOWLEDGE, 3);
+		else
+			chg_virtue(V_KNOWLEDGE, 1);
+	}
+
 	/* Identify it fully */
 	object_aware(o_ptr);
 	object_known(o_ptr);
@@ -1772,6 +1887,25 @@ bool ident_spell(void)
 			   o_name);
 	}
 
+	/*
+	 * If the item was an artifact, and if the
+	 * auto-note is selected, write a message.
+	 */
+	if (auto_notes && take_notes && (artifact_p(o_ptr) || o_ptr->art_name) && a_info[o_ptr->name1].cur_num != 2)
+	{
+		char note[80];
+		char item_name[80];
+		object_desc(item_name, o_ptr, FALSE, 0);
+
+		/* Build note and write */
+		sprintf(note, "Found The %s", item_name);
+
+		add_note(note, 'A');
+
+		/* Mark item as found */
+		a_info[o_ptr->name1].cur_num = 2;
+	}
+
 	/* Something happened */
 	return (TRUE);
 }
@@ -1786,6 +1920,7 @@ bool mundane_spell(void)
 {
 	int             item;
 	object_type     *o_ptr;
+	object_kind     *k_ptr;
 	cptr            q, s;
 
 
@@ -1806,11 +1941,67 @@ bool mundane_spell(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	k_ptr = &k_info[o_ptr->k_idx];
+
 	/* Oops */
 	msg_print("There is a bright flash of light!");
 
-	/* Wipe it clean */
-	object_prep(o_ptr, o_ptr->k_idx);
+	/* No discount */
+	o_ptr->discount = 0;
+
+	/* No extra info */
+	o_ptr->xtra1 = 0;
+	o_ptr->xtra2 = 0;
+
+	/* No artifact name (random artifacts) */
+	o_ptr->art_name = 0;
+
+	/* Not identified yet */
+	o_ptr->ident = 0;
+
+	/* Erase the inscription */
+	o_ptr->inscription = 0;
+
+	/* Erase the "feeling" */
+	o_ptr->feeling = FEEL_NONE;
+
+	/* Default "pval" */
+	o_ptr->pval = k_ptr->pval;
+
+	/* Default weight */
+	o_ptr->weight = k_ptr->weight;
+
+	/* Default magic */
+	o_ptr->to_h = k_ptr->to_h;
+	o_ptr->to_d = k_ptr->to_d;
+	o_ptr->to_a = k_ptr->to_a;
+
+	/* No longer artifact / ego item */
+	o_ptr->name1 = 0;
+	o_ptr->name2 = 0;
+
+	/* Default power */
+	o_ptr->ac = k_ptr->ac;
+	o_ptr->dd = k_ptr->dd;
+	o_ptr->ds = k_ptr->ds;
+
+	/* No artifact powers */
+	o_ptr->art_flags1 = 0;
+	o_ptr->art_flags2 = 0;
+	o_ptr->art_flags3 = 0;
+
+	/* For rod-stacking */
+	if (o_ptr->tval == TV_ROD)
+	{
+		o_ptr->timeout = o_ptr->pval * o_ptr->number;
+		o_ptr->pval = k_ptr->pval * o_ptr->number;
+	}
+
+	/* Hack -- worthless items are always "broken" */
+	if (get_object_cost(o_ptr) <= 0) o_ptr->ident |= (IDENT_BROKEN);
+
+	/* Hack -- cursed items are always "cursed" */
+	if (k_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
 
 	/* Something happened */
 	return (TRUE);
@@ -1874,6 +2065,25 @@ bool identify_fully(void)
 	{
 		msg_format("On the ground: %s.",
 			   o_name);
+	}
+
+	/*
+	 * If the item was an artifact, and if the
+	 * auto-note is selected, write a message (if not written before).
+	 */
+	if (auto_notes && take_notes && (artifact_p(o_ptr) || o_ptr->art_name) && a_info[o_ptr->name1].cur_num != 2)
+	{
+		char note[80];
+		char item_name[80];
+		object_desc(item_name, o_ptr, FALSE, 0);
+
+		/* Build note and write */
+		sprintf(note, "Found The %s", item_name);
+
+		add_note(note, 'A');
+
+		/* Mark item as found */
+		a_info[o_ptr->name1].cur_num = 2;
 	}
 
 	/* Describe it fully */
@@ -2515,7 +2725,13 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 	(void)project(who, radius, y, x, dam, dt,
 	    (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
 
-	/* XXX  those potions that explode need to become "known" */
+	/* An identification was made */
+	if (ident && !(k_ptr->aware))
+	{
+		k_ptr->aware = TRUE;
+		gain_exp((k_ptr->level + (p_ptr->lev >> 1)) / p_ptr->lev);
+	}
+
 	return angry;
 }
 
@@ -2551,9 +2767,9 @@ void display_spell_list(void)
 		int             i;
 		int             y = 1;
 		int             x = 1;
-		int             minfail = 0;
+		int             minfail;
 		int             plev = p_ptr->lev;
-		int             chance = 0;
+		int             chance;
 		mindcraft_power spell;
 		char            comment[80];
 		char            psi_desc[80];
@@ -2970,7 +3186,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 23: strcpy (p, " dur 24+d24"); break;
 					case 28: sprintf(p, " dam %d", 75 + plev); break;
 					case 30: strcpy (p, " delay 15+d21"); break;
-					case 31: strcpy (p, " dur 25+30"); break;
+					case 31: strcpy (p, " dur 25+d30"); break;
 				}
 				break;
 
@@ -3615,6 +3831,8 @@ bool curse_armor(void)
 		/* Oops */
 		msg_format("A terrible black aura blasts your %s!", o_name);
 
+		chg_virtue(V_ENCHANT, -5);
+
 		/* Blast the armor */
 		o_ptr->name1 = 0;
 		o_ptr->name2 = EGO_BLASTED;
@@ -3622,8 +3840,8 @@ bool curse_armor(void)
 		o_ptr->to_h = 0;
 		o_ptr->to_d = 0;
 		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
+		o_ptr->dd = 1;
+		o_ptr->ds = 1;
 		o_ptr->art_flags1 = 0;
 		o_ptr->art_flags2 = 0;
 		o_ptr->art_flags3 = 0;
@@ -3673,7 +3891,7 @@ bool curse_weapon(void)
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
-		           "terrible black aura", "surround your weapon", o_name);
+					  "terrible black aura", "surround your weapon", o_name);
 	}
 
 	/* not artifact or failed save... */
@@ -3682,6 +3900,8 @@ bool curse_weapon(void)
 		/* Oops */
 		msg_format("A terrible black aura blasts your %s!", o_name);
 
+		chg_virtue(V_ENCHANT, -5);
+
 		/* Shatter the weapon */
 		o_ptr->name1 = 0;
 		o_ptr->name2 = EGO_SHATTERED;
@@ -3689,8 +3909,8 @@ bool curse_weapon(void)
 		o_ptr->to_d = 0 - randint(5) - randint(5);
 		o_ptr->to_a = 0;
 		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
+		o_ptr->dd = 1;
+		o_ptr->ds = 1;
 		o_ptr->art_flags1 = 0;
 		o_ptr->art_flags2 = 0;
 		o_ptr->art_flags3 = 0;

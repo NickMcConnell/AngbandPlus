@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:03 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/04 11:01:58 $ */
 /* File: dungeon.c */
 
 /* Purpose: Angband game engine */
@@ -299,11 +299,60 @@ static void sense_inventory(void)
 		/* Occasional failure on inventory items */
 		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
 
+		/* Good luck */
+		if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && !rand_int(13))
+		{
+			heavy = TRUE;
+		}
+
 		/* Check for a feeling */
 		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 
 		/* Skip non-feelings */
 		if (!feel) continue;
+
+		/* Bad luck */
+		if ((p_ptr->muta3 & MUT3_BAD_LUCK) && !rand_int(13))
+		{
+			switch (feel)
+			{
+				case FEEL_TERRIBLE:
+				{
+					feel = FEEL_SPECIAL;
+					break;
+				}
+				case FEEL_WORTHLESS:
+				{
+					feel = FEEL_EXCELLENT;
+					break;
+				}
+				case FEEL_CURSED:
+				{
+					feel = rand_int(3) ? FEEL_GOOD : FEEL_AVERAGE;
+					break;
+				}
+				case FEEL_AVERAGE:
+				{
+					feel = rand_int(2) ? FEEL_CURSED : FEEL_GOOD;
+					break;
+				}
+				case FEEL_GOOD:
+				{
+					feel = rand_int(3) ? FEEL_CURSED : FEEL_AVERAGE;
+					break;
+				}
+				case FEEL_EXCELLENT:
+				{
+					feel = FEEL_WORTHLESS;
+					break;
+				}
+				case FEEL_SPECIAL:
+				{
+					feel = FEEL_TERRIBLE;
+					break;
+				}
+			}
+		}
 
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
@@ -315,9 +364,9 @@ static void sense_inventory(void)
 		if (i >= INVEN_WIELD)
 		{
 			msg_format("You feel the %s (%c) you are %s %s %s...",
-			           o_name, index_to_label(i), describe_use(i),
-			           ((o_ptr->number == 1) ? "is" : "are"),
-					   game_inscriptions[feel]);
+						  o_name, index_to_label(i), describe_use(i),
+						  ((o_ptr->number == 1) ? "is" : "are"),
+						game_inscriptions[feel]);
 		}
 
 		/* Message (inventory) */
@@ -411,7 +460,7 @@ static void pattern_teleport(void)
 
 static void wreck_the_pattern(void)
 {
-	int to_ruin = 0, r_y, r_x;
+	int to_ruin, r_y, r_x;
 
 	if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
 	{
@@ -813,7 +862,7 @@ static void recharged_notice(object_type *o_ptr)
 static void process_world(void)
 {
 	int x, y, i, j;
-	int regen_amount;
+	s32b regen_amount;
 	bool cave_no_regen = FALSE;
 	int upkeep_factor = 0;
 	cave_type *c_ptr;
@@ -821,6 +870,10 @@ static void process_world(void)
 	u32b f1 = 0 , f2 = 0 , f3 = 0;
 	int temp;
 	object_kind *k_ptr;
+
+	/* Announce the level feeling */
+	if ((turn - old_turn == 1000) && (dun_level)) do_cmd_feeling();
+
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -869,6 +922,10 @@ static void process_world(void)
 			do_cmd_save_game(TRUE);
 	}
 
+	if (mon_fight)
+	{
+		msg_print("You hear noise.");
+	}
 
 	/*** Handle the wilderness/town (sunshine) ***/
 
@@ -1010,8 +1067,8 @@ static void process_world(void)
 		    !p_ptr->resist_lite)
 		{
 			object_type * o_ptr = &inventory[INVEN_LITE];
-			char o_name [80];
-			char ouch [80];
+			char o_name[80];
+			char ouch[80];
 
 			/* Get an object description */
 			object_desc(o_name, o_ptr, FALSE, 0);
@@ -1172,10 +1229,12 @@ static void process_world(void)
 			/* TY_CURSE activates at mignight! */
 			if (!hour && !min)
 			{
+				int count = 0;
+
 				disturb(1, 0);
 				msg_print("A distant bell tolls many times, fading into an deathly silence.");
-		activate_ty_curse(FALSE);
-	}
+				activate_ty_curse(FALSE, &count);
+			}
 		}
 	}
 
@@ -1214,7 +1273,11 @@ static void process_world(void)
 		if (!(turn % 100))
 		{
 			/* Basic digestion rate based on speed */
-			i = extract_energy[p_ptr->pspeed] * 2;
+			if (p_ptr->pspeed > 199) i = 49;
+			else if (p_ptr->pspeed < 0) i = 1;
+			else i = extract_energy[p_ptr->pspeed];
+
+			i *= 2;
 
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
@@ -1316,8 +1379,8 @@ static void process_world(void)
 		{
 			upkeep_factor = total_friend_levels;
 
-			if (upkeep_factor > 100) upkeep_factor = 100;
-			else if (upkeep_factor < 10) upkeep_factor = 10;
+			if (upkeep_factor > 95) upkeep_factor = 95;
+			else if (upkeep_factor < 5) upkeep_factor = 5;
 
 #ifdef TRACK_FRIENDS
 			if (wizard)
@@ -1359,17 +1422,9 @@ static void process_world(void)
 	regen_amount = (regen_amount * mutant_regenerate_mod) / 100;
 
 	/* Regenerate Hit Points if needed */
-	if ((p_ptr->chp < p_ptr->mhp) && !cave_no_regen)
+	if (p_ptr->chp < p_ptr->mhp)
 	{
-		if ((cave[py][px].feat < FEAT_PATTERN_END) &&
-		    (cave[py][px].feat >= FEAT_PATTERN_START))
-		{
-			regenhp(regen_amount / 5); /* Hmmm. this should never happen? */
-		}
-		else
-		{
-			regenhp(regen_amount);
-		}
+		regenhp(regen_amount);
 	}
 
 
@@ -1504,6 +1559,7 @@ static void process_world(void)
 	if (p_ptr->oppose_cold)
 	{
 		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
+
 	}
 
 	/* Oppose Poison */
@@ -1544,7 +1600,6 @@ static void process_world(void)
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
 	}
-
 
 
 	/*** Process Light ***/
@@ -1678,8 +1733,8 @@ static void process_world(void)
 		{
 			bool pet = (randint(6) == 1);
 
-			if (summon_specific(py, px,
-				    dun_level, SUMMON_DEMON, TRUE, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px,
+					 dun_level, SUMMON_DEMON, TRUE, FALSE, pet))
 			{
 				msg_print("You have attracted a demon!");
 				disturb(0, 0);
@@ -1774,8 +1829,8 @@ static void process_world(void)
 		{
 			bool pet = (randint(3) == 1);
 
-			if (summon_specific(py, px, dun_level, SUMMON_ANIMAL,
-			    TRUE, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL,
+				 TRUE, FALSE, pet))
 			{
 				msg_print("You have attracted an animal!");
 				disturb(0, 0);
@@ -1849,8 +1904,8 @@ static void process_world(void)
 		{
 			bool pet = (randint(5) == 1);
 
-			if (summon_specific(py, px, dun_level, SUMMON_DRAGON,
-			    TRUE, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON,
+				 TRUE, FALSE, pet))
 			{
 				msg_print("You have attracted a dragon!");
 				disturb(0, 0);
@@ -2009,13 +2064,18 @@ static void process_world(void)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
+		
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
 
 		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* TY Curse */
 		if ((f3 & TR3_TY_CURSE) && (randint(TY_CURSE_CHANCE) == 1))
 		{
-			(void)activate_ty_curse(FALSE);
+			int count = 0;
+
+			(void)activate_ty_curse(FALSE, &count);
 		}
 
 		/* Make a chainsword noise */
@@ -2055,10 +2115,6 @@ static void process_world(void)
 				}
 			}
 		}
-
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
 
 		/* Recharge activatable objects */
 		if (o_ptr->timeout > 0)
@@ -2153,6 +2209,13 @@ static void process_world(void)
 		}
 	}
 
+	/*
+	* Cycle ultra-quick R"bool"G to prevent periodic patterns
+	* in the illumination in a forest after dark.
+	*/
+
+	quick_rand_add();
+
 
 	/*** Involuntary Movement ***/
 
@@ -2170,11 +2233,13 @@ static void process_world(void)
 		/* Count down towards recall */
 		p_ptr->word_recall--;
 
+		p_ptr->redraw |= (PR_STATUS);
+
 		/* Activate the recall */
 		if (!p_ptr->word_recall)
 		{
 			/* Disturbing! */
-  			disturb(0, 0);
+			disturb(0, 0);
 
 			/* Determine the level */
 			if (dun_level || p_ptr->inside_quest)
@@ -2202,6 +2267,7 @@ static void process_world(void)
 
 				/* New depth */
 				dun_level = p_ptr->max_dlv;
+
 				if (dun_level < 1) dun_level = 1;
 
 				/* Nightmare mode makes recall more dangerous */
@@ -2934,7 +3000,7 @@ static void process_command(void)
 		/* Character description */
 		case 'C':
 		{
-			do_cmd_change_name();
+			do_cmd_character();
 			break;
 		}
 
@@ -3120,21 +3186,12 @@ static void process_player(void)
 {
 	int i;
 
-	/*** Apply energy ***/
-
 	if (hack_mutation)
 	{
 		msg_print("You feel different!");
 		(void)gain_random_mutation(0);
 		hack_mutation = FALSE;
 	}
-
-	/* Give the player some energy */
-	p_ptr->energy += extract_energy[p_ptr->pspeed];
-
-	/* No turn yet */
-	if (p_ptr->energy < 100) return;
-
 
 	/*** Check for interupts ***/
 
@@ -3196,8 +3253,8 @@ static void process_player(void)
 
 	/*** Handle actual user input ***/
 
-	/* Repeat until out of energy */
-	while (p_ptr->energy >= 100)
+	/* Repeat until energy is reduced */
+	while (TRUE)
 	{
 		/* Notice stuff (if needed) */
 		if (p_ptr->notice) notice_stuff();
@@ -3451,6 +3508,64 @@ static void process_player(void)
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
+		
+		/* Used up energy for this turn */
+		if (energy_use) break;
+	}
+}
+
+/*
+ * Add energy to player and monsters.
+ * Those with the most energy move first.
+ * (This prevents monsters like Morgoth getting double moves
+ * when he is at a lower speed than the player.)
+ */
+static void process_energy(void)
+{
+	int i, speed, e;
+	monster_type *m_ptr;
+
+	/*** Apply energy to player ***/
+	if (p_ptr->pspeed > 199) i = 49;
+	else if (p_ptr->pspeed < 0) i = 1;
+	else i = extract_energy[p_ptr->pspeed];
+
+	p_ptr->energy += i;
+
+	/* Give energy to all monsters */
+	for (i = m_max - 1; i >= 1; i--)
+	{
+		/* Access the monster */
+		m_ptr = &m_list[i];
+
+		/* Ignore "dead" monsters */
+		if (!m_ptr->r_idx) continue;
+
+		speed = m_ptr->mspeed;
+
+		/* Monsters move quickly in Nightmare mode */
+		if (ironman_nightmare)
+		{
+			speed = MIN(199, m_ptr->mspeed + 5);
+		}
+
+		e = extract_energy[speed];
+
+		/* Give this monster some energy */
+		m_ptr->energy += e;
+	}
+
+	/* Can the player move? */
+	while (p_ptr->energy >= 100 && !p_ptr->leaving)
+	{
+		/* process monster with even more energy first */
+		process_monsters(p_ptr->energy + 1);
+
+		/* Process the player while still alive */
+		if (!p_ptr->leaving)
+		{
+			process_player();
+		}
 	}
 }
 
@@ -3463,7 +3578,7 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
-	int quest_num = 0;
+	int quest_num;
 
 	/* Set the base level */
 	base_level = dun_level;
@@ -3587,7 +3702,7 @@ static void dungeon(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_MONSTER | PW_MESSAGE);
 
 	/* Redraw dungeon */
 	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
@@ -3646,11 +3761,6 @@ static void dungeon(void)
 	/* Refresh */
 	Term_fresh();
 
-
-	/* Announce (or repeat) the feeling */
-	if (dun_level) do_cmd_feeling();
-
-
 	/* Hack -- notice death or departure */
 	if (!alive || death) return;
 
@@ -3671,7 +3781,7 @@ static void dungeon(void)
 	/* Main loop */
 	while (TRUE)
 	{
-		int i, correct_inven_cnt = 0;
+		int i;
 
 		/* Hack -- Compact the monster list occasionally */
 		if (m_cnt + 32 > max_m_idx) compact_monsters(64);
@@ -3687,8 +3797,11 @@ static void dungeon(void)
 		if (o_cnt + 32 < o_max) compact_objects(0);
 
 
-		/* Process the player */
-		process_player();
+		/*
+		 * Add energy to player and monsters.
+		 * Those with the most energy move first.
+		 */
+		process_energy();
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -3700,8 +3813,6 @@ static void dungeon(void)
 
 			/* Skip non-objects */
 			if (!j_ptr->k_idx) continue;
-
-			correct_inven_cnt++;
 		}
 
 		/* Update stuff */
@@ -3722,11 +3833,8 @@ static void dungeon(void)
 		/* Hack -- Notice death or departure */
 		if (!alive || death) break;
 
-		total_friends = 0;
-		total_friend_levels = 0;
-
 		/* Process all of the monsters */
-		process_monsters();
+		process_monsters(100);
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -3749,6 +3857,8 @@ static void dungeon(void)
 		/* Hack -- Notice death or departure */
 		if (!alive || death) break;
 
+		/* Handle "leaving" */
+		if (p_ptr->leaving) break;
 
 		/* Process the world */
 		process_world();
@@ -3856,7 +3966,26 @@ void play_game(bool new_game)
 	character_icky = TRUE;
 
 
-	/* Hack -- turn off the cursor */
+	/* Verify main term */
+	if (!angband_term[0])
+	{
+		quit("main window does not exist");
+	}
+
+	/* Make sure main term is active */
+	Term_activate(angband_term[0]);
+
+	/* Verify minimum size */
+	if ((Term->hgt < 24) || (Term->wid < 80))
+	{
+		quit("main window is too small");
+	}
+
+	/* Forbid resizing */
+	Term->fixed_shape = TRUE;
+
+
+	/* Hack -- Turn off the cursor */
 	(void)Term_set_cursor(0);
 
 
@@ -3877,11 +4006,10 @@ void play_game(bool new_game)
 		character_dungeon = FALSE;
 	}
 
-	/* Process old character */
-	if (!new_game)
+	/* Hack -- Default base_name */
+	if (!player_base[0])
 	{
-		/* Process the player name */
-		process_player_name(FALSE);
+		strcpy(player_base, "PLAYER");
 	}
 
 	/* Init the RNG */
@@ -3966,17 +4094,23 @@ void play_game(bool new_game)
 		}
 	}
 
-	/* Hack -- munchkin_rings allows multiply rings */
-	if (munchkin_rings)
+
+	/* Normal machine (process player name) */
+	if (savefile[0])
 	{
-		for (i = 1; i < max_r_idx; i++)
-		{
-			monster_race *r_ptr = &r_info[i];
-			if ((r_ptr->d_char == '=') && !(r_ptr->flags1 & (RF1_UNIQUE)))
-			{
-				r_ptr->flags2 |= RF2_MULTIPLY;
-			}
-		}
+		process_player_name(FALSE);
+	}
+
+	/* Weird machine (process player name, pick savefile name) */
+	else
+	{
+		process_player_name(TRUE);
+	}
+
+	/* Hack - if note file exists, load it */
+	if (!new_game && take_notes)
+	{
+		add_note_type(NOTE_ENTER_DUNGEON);
 	}
 
 	/* Flash a message */
@@ -4161,6 +4295,7 @@ void play_game(bool new_game)
 
 					/* Hack -- Prevent recall */
 					p_ptr->word_recall = 0;
+					p_ptr->redraw |= (PR_STATUS);
 				}
 
 				/* Note cause of death XXX XXX XXX */

@@ -1,22 +1,81 @@
 === General Information ===
 
+This document gives a brief introduction to Zangband. You will probably
+want to browse through all the "help files", especially the sections on
+available commands (see command.txt [1] and commdesc.txt [2]), before
+beginning any serious adventuring...
+
+
+***** <Overview>
+=== An Overview ===
+
 The game of Zangband is a single player dungeon simulation. A player
-may choose from a number of races and classes when creating a
-character, and then "run" that character over a period of days, weeks,
-even months, attempting to win the game by defeating the Great Serpent
-of Chaos, who lurks somewhere in the depths of the dungeon.
+may choose from a number of races, classes and magic realms when
+creating a character (see charattr.txt [3]), and then "run" that
+character over a period of days, weeks, even months. Deep down inside,
+the real objective of the game is to increase your experience, and
+certain other characteristics, and also to collect useful items, to
+give you a decent chance against the great Serpent of Chaos, who lurks
+somewhere in the depths of the dungeon.
 
 The player will begin his adventure on the town level where he may
 acquire supplies, weapons, armor, and magical devices by bartering with
 various shop owners. After preparing for his adventure, the player can
 descend into the dungeon where fantastic adventures await his coming!
+
+
+***** <Winning>
+--- Winning The Game ---
+
+Once your character has killed Oberon, who lives on level 99 (4950') in
+the dungeon, a magical staircase will appear that will finally allow
+you to reach level 100. The Serpent of Chaos lurks on this level of his
+dungeon, and you will not be able to go below his level until you have
+killed him. Try to avoid wandering around on level 100 unless you are
+ready for him, since it has a habit of coming at you across the
+dungeon, to slay you for your impudence.
+
+The Serpent of Chaos cannot be killed by some of the easier methods
+used on normal creatures. The Serpent of Chaos, like all other "Unique"
+monsters, will simply teleport away to another region of the level if
+you attempt to use a spell such as destruction is upon it. The Serpent
+of Chaos, like some other monsters, cannot be polymorphed, slept,
+charmed, or genocided. Magical spells like Mana Storm and Orb of
+Draining are effective against it, as are some of the more powerful
+weapons, but it is difficult to kill and if allowed to escape for a
+time it will heal itself rapidly.
+
+If you should actually survive the attempt of killing the Serpent of
+Chaos, you will receive the status of WINNER. You may continue to
+explore, and may even save the game and play more later, but since you
+have defeated the toughest creature alive, there is really not much
+point. Unless you wish to listen to the rumors of a powerful ring
+buried somewhere in the dungeon...
+
+When you are ready to retire, simply "commit suicide" ("^K") to have
+your character entered into the high score list as a winner. Note that
+until you retire, you can still be killed, so you may want to retire
+before wandering into a hoard of Cyberdemons...
+
+
+***** <UponDeath>
+--- Upon Death and Dying ---
+
+If your character falls below 0 hit points, he has died and cannot be
+restored. A tombstone showing information about your character will be
+displayed. You are also permitted to get a record of your character,
+and all your equipment (identified) either on the screen or in a file.
+
+Whether your character is killed or you retire victorious, it will
+leave behind a reduced save file, which contains only the monster
+memory (see attack.txt#MonsterMemory [4]) and your option choices. It
+may be restored, in which case the new character is generated exactly
+as if the file was not there, but the new player will find his monster
+memory containing all the experience of past incarnations.
+
+
  
-You will probably want to browse through the "help files", especially
-the sections on available commands, before beginning any serious
-adventuring...
-
-
-***** <A>
+***** <DevTeam>
 === The Zangband DevTeam ===
 
 Zangband is currently maintained by a small development team which
@@ -31,7 +90,7 @@ their devious and contrary natures. The DevTeam neither confirms nor
 denies its intention to live up to this perception.
 
 
-***** <B>
+***** <Web>
 === Zangband on the Web ===
 
 
@@ -115,7 +174,7 @@ Most of the DevTeam are regulars and sometimes we're even talking about
 Zangband!!
 
 
-***** <C>
+***** <VersionNumber>
 === Version Numbering System ===
 
 Zangband uses a version numbering system similar to that of Linux. Odd
@@ -129,4 +188,12 @@ likely to contain bugs of varying significance.
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: December 3, 1999
+Last update: January 13, 2000
+
+
+***** Begin Hyperlinks
+***** [1] command.txt
+***** [2] commdesc.txt
+***** [3] charattr.txt
+***** [4] attack.txt#MonsterMemory
+

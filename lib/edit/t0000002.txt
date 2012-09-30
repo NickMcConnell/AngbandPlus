@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/10/24 21:39:10 $
+# CVS: Last edit by $Author: rr9 $ on $Date: 2000/01/03 22:43:24 $
 # File: t0000002.txt
 
 # Telmora
@@ -272,7 +272,7 @@ B:4:N:Inn:Owen:Human
 B:4:A:0:Rest for the night:20:20:r:17:0
 B:4:A:1:Buy food and drink:1:1:f:18:1
 B:4:A:2:Listen for rumors:10:10:u:19:0
-B:4:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:0:1
+B:4:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1:1
 
 B:5:N:Beastmaster:Lorien:Elf
 B:5:A:0:Research monster:10000:10000:r:20:0

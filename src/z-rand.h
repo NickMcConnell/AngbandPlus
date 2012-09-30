@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/13 20:25:18 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 1999/12/13 10:32:12 $ */
 /* File: z-rand.h */
 
 #ifndef INCLUDED_Z_RAND_H
@@ -79,6 +79,7 @@ extern bool Rand_quick;
 extern u32b Rand_value;
 extern u16b Rand_place;
 extern u32b Rand_state[RAND_DEG];
+extern byte quick_rand_place;
 
 
 /**** Available Functions ****/
@@ -89,8 +90,8 @@ extern s32b Rand_div(u32b m);
 extern s16b randnor(int mean, int stand);
 extern s16b damroll(int num, int sides);
 extern s16b maxroll(int num, int sides);
-
-
+extern bool quick_rand(void);
+extern void quick_rand_add(void);
 #endif
 
 

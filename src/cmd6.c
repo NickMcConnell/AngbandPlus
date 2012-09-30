@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:52 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:09 $ */
 /* File: cmd6.c */
 
 /* Purpose: Object commands */
@@ -168,7 +168,7 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_WEAKNESS:
 			{
-				take_hit(damroll(6, 6), "poisonous food.");
+				take_hit(damroll(6, 6), "poisonous food");
 				(void)do_dec_stat(A_STR);
 				ident = TRUE;
 				break;
@@ -176,7 +176,7 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_SICKNESS:
 			{
-				take_hit(damroll(6, 6), "poisonous food.");
+				take_hit(damroll(6, 6), "poisonous food");
 				(void)do_dec_stat(A_CON);
 				ident = TRUE;
 				break;
@@ -184,7 +184,7 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_STUPIDITY:
 			{
-				take_hit(damroll(8, 8), "poisonous food.");
+				take_hit(damroll(8, 8), "poisonous food");
 				(void)do_dec_stat(A_INT);
 				ident = TRUE;
 				break;
@@ -192,7 +192,7 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_NAIVETY:
 			{
-				take_hit(damroll(8, 8), "poisonous food.");
+				take_hit(damroll(8, 8), "poisonous food");
 				(void)do_dec_stat(A_WIS);
 				ident = TRUE;
 				break;
@@ -200,7 +200,7 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_UNHEALTH:
 			{
-				take_hit(damroll(10, 10), "poisonous food.");
+				take_hit(damroll(10, 10), "poisonous food");
 				(void)do_dec_stat(A_CON);
 				ident = TRUE;
 				break;
@@ -208,7 +208,7 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_DISEASE:
 			{
-				take_hit(damroll(10, 10), "poisonous food.");
+				take_hit(damroll(10, 10), "poisonous food");
 				(void)do_dec_stat(A_STR);
 				ident = TRUE;
 				break;
@@ -299,6 +299,12 @@ static void do_cmd_eat_food_aux(int item)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	if (!(object_aware_p(o_ptr)))
+	{
+		chg_virtue(V_PATIENCE, -1);
+		chg_virtue(V_CHANCE, 1);
+	}
 
 	/* We have tried it */
 	object_tried(o_ptr);
@@ -515,6 +521,8 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_CONFUSION: /* Booze */
 		{
+			chg_virtue(V_HARMONY, -1);
+
 			if (!p_ptr->resist_conf)
 			{
 				if (set_confused(p_ptr->confused + rand_int(20) + 15))
@@ -550,7 +558,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		{
 			if (!p_ptr->free_act)
 			{
-         	msg_print("You fall asleep.");
+				msg_print("You fall asleep.");
 
 				if (ironman_nightmare)
 				{
@@ -578,6 +586,9 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (!p_ptr->hold_life && (p_ptr->exp > 0))
 			{
 				msg_print("You feel your memories fade.");
+
+				chg_virtue(V_KNOWLEDGE, -5);
+
 				lose_exp(p_ptr->exp / 4);
 				ident = TRUE;
 			}
@@ -646,6 +657,9 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_DEATH:
 		{
+			chg_virtue(V_VITALITY, -1);
+			chg_virtue(V_UNLIFE, 5);
+
 			msg_print("A feeling of Death flows through your body.");
 			take_hit(5000, "a potion of Death");
 			ident = TRUE;
@@ -787,6 +801,9 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_LIFE:
 		{
+			chg_virtue(V_VITALITY, 1);
+			chg_virtue(V_UNLIFE, -5);
+
 			msg_print("You feel life flow through your body!");
 			restore_level();
 			hp_player(5000);
@@ -912,6 +929,8 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_ENLIGHTENMENT:
 		{
+			chg_virtue(V_ENLIGHTEN, 1);
+
 			msg_print("An image of your surroundings forms in your mind...");
 			wiz_lite();
 			ident = TRUE;
@@ -948,6 +967,8 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_EXPERIENCE:
 		{
+			chg_virtue(V_ENLIGHTEN, 1);
+
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
 				s32b ee = (p_ptr->exp / 2) + 10;
@@ -994,6 +1015,8 @@ static void do_cmd_quaff_potion_aux(int item)
 			do_cmd_rerate();
 			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 			{
+				chg_virtue(V_CHANCE, -5);
+
 				msg_print("You are cured of all mutations.");
 				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
 				p_ptr->update |= PU_BONUS;
@@ -1012,6 +1035,12 @@ static void do_cmd_quaff_potion_aux(int item)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	if (!(object_aware_p(o_ptr)))
+	{
+		chg_virtue(V_PATIENCE, -1);
+		chg_virtue(V_CHANCE, 1);
+	}
 
 	/* The item has been tried */
 	object_tried(q_ptr);
@@ -1122,7 +1151,7 @@ static void do_cmd_read_scroll_aux(int item)
 		case SV_SCROLL_AGGRAVATE_MONSTER:
 		{
 			msg_print("There is a high pitched humming noise.");
-			aggravate_monsters(1);
+			aggravate_monsters(0);
 			ident = TRUE;
 			break;
 		}
@@ -1143,7 +1172,7 @@ static void do_cmd_read_scroll_aux(int item)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE))
+				if (summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -1155,7 +1184,7 @@ static void do_cmd_read_scroll_aux(int item)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE))
+				if (summon_specific(0, py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -1353,6 +1382,7 @@ static void do_cmd_read_scroll_aux(int item)
 				msg_print("Your hands begin to glow.");
 				p_ptr->confusing = TRUE;
 				ident = TRUE;
+				p_ptr->redraw |= (PR_STATUS);
 			}
 			break;
 		}
@@ -1496,6 +1526,12 @@ static void do_cmd_read_scroll_aux(int item)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	if (!(object_aware_p(o_ptr)))
+	{
+		chg_virtue(V_PATIENCE, -1);
+		chg_virtue(V_CHANCE, 1);
+	}
 
 	/* The item was tried */
 	object_tried(o_ptr);
@@ -1656,6 +1692,10 @@ static void do_cmd_use_staff_aux(int item)
 		if (flush_failure) flush();
 		msg_print("The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
 		return;
 	}
 
@@ -1693,7 +1733,7 @@ static void do_cmd_use_staff_aux(int item)
 		{
 			for (k = 0; k < randint(4); k++)
 			{
-				if (summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE))
+				if (summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -1740,9 +1780,9 @@ static void do_cmd_use_staff_aux(int item)
 			}
 			for (k = 0; k < num; k++)
 			{
-         	attempts = 1000;
+				attempts = 1000;
 
-				while(attempts--)
+				while (attempts--)
 				{
 					scatter(&y, &x, py, px, 4, 0);
 
@@ -1933,6 +1973,11 @@ static void do_cmd_use_staff_aux(int item)
 		}
 	}
 
+	if (!(object_aware_p(o_ptr)))
+	{
+		chg_virtue(V_PATIENCE, -1);
+		chg_virtue(V_CHANCE, 1);
+	}
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2105,6 +2150,10 @@ static void do_cmd_aim_wand_aux(int item)
 		if (flush_failure) flush();
 		msg_print("The wand has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
 		return;
 	}
 
@@ -2117,7 +2166,12 @@ static void do_cmd_aim_wand_aux(int item)
 	sval = o_ptr->sval;
 
 	/* XXX Hack -- Wand of wonder can do anything before it */
-	if (sval == SV_WAND_WONDER) sval = rand_int(SV_WAND_WONDER);
+	if (sval == SV_WAND_WONDER)
+	{
+		sval = rand_int(SV_WAND_WONDER);
+		if (sval < SV_WAND_TELEPORT_AWAY)
+			chg_virtue(V_CHANCE, 1);
+	}
 
 	/* Analyze the wand */
 	switch (sval)
@@ -2339,14 +2393,15 @@ static void do_cmd_aim_wand_aux(int item)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 125)) ident = TRUE;
+			fire_ball(GF_DISINTEGRATE, dir, 125 + randint(100), 2);
+			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ROCKETS:
 		{
 			msg_print("You launch a rocket!");
-			fire_ball(GF_ROCKET, dir, 75 + (randint(50)), 2);
+			fire_ball(GF_ROCKET, dir, 250, 2);
 			ident = TRUE;
 			break;
 		}
@@ -2355,6 +2410,12 @@ static void do_cmd_aim_wand_aux(int item)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	if (!(object_aware_p(o_ptr)))
+	{
+		chg_virtue(V_PATIENCE, -1);
+		chg_virtue(V_CHANCE, 1);
+	}
 
 	/* Mark it as tried */
 	object_tried(o_ptr);
@@ -2731,6 +2792,12 @@ static void do_cmd_zap_rod_aux(int item)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
+	if (!(object_aware_p(o_ptr)))
+	{
+		chg_virtue(V_PATIENCE, -1);
+		chg_virtue(V_CHANCE, 1);
+	}
+
 	/* Tried the object */
 	object_tried(o_ptr);
 
@@ -2778,6 +2845,9 @@ static bool item_tester_hook_activate(object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
+	/* Ignore dungeon objects */
+	if (o_ptr->iy || o_ptr->ix) return (FALSE);
+	
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
 
@@ -2899,7 +2969,10 @@ static void do_cmd_activate_aux(int item)
 	chance = p_ptr->skill_dev;
 
 	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
+	if (p_ptr->confused) chance /= 2;
+
+	/* Cursed items are difficult to activate */
+	if (o_ptr->ident & IDENT_CURSED) chance /= 3;
 
 	/* Hight level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
@@ -3074,9 +3147,9 @@ static void do_cmd_activate_aux(int item)
 
 				for (k = 0; k < num; k++)
 				{
-            	attempts = 1000;
+					attempts = 1000;
 
-					while(attempts--)
+					while (attempts--)
 					{
 						scatter(&y, &x, py, px, 4, 0);
 
@@ -3155,13 +3228,8 @@ static void do_cmd_activate_aux(int item)
 			case ART_DOR:
 			case ART_TERROR:
 			{
-#if 0
-				for (i = 0; i < 8; i++) fear_monster(ddd[i], (p_ptr->lev)+10);
-#else
 				turn_monsters(40 + p_ptr->lev);
-#endif
 				o_ptr->timeout = 3 * (p_ptr->lev + 10);
-
 				break;
 			}
 
@@ -3389,7 +3457,7 @@ static void do_cmd_activate_aux(int item)
 			case ART_DAWN:
 			{
 				msg_print("You summon the Legion of the Dawn.");
-				(void)summon_specific(py, px, dun_level, SUMMON_DAWN, TRUE, TRUE, TRUE);
+				(void)summon_specific(-1, py, px, dun_level, SUMMON_DAWN, TRUE, TRUE, TRUE);
 				o_ptr->timeout = 500 + randint(500);
 				break;
 			}
@@ -3469,11 +3537,13 @@ static void do_cmd_activate_aux(int item)
 				{
 					p_ptr->word_recall = randint(20) + 15;
 					msg_print("The air about you becomes charged...");
+					p_ptr->redraw |= (PR_STATUS);
 				}
 				else
 				{
 					p_ptr->word_recall = 0;
 					msg_print("A tension leaves the air around you...");
+					p_ptr->redraw |= (PR_STATUS);
 				}
 				o_ptr->timeout = 200;
 				break;

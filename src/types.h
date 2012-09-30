@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/13 04:40:11 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:17 $ */
 /* File: types.h */
 
 /* Purpose: global type declarations */
@@ -472,6 +472,16 @@ struct cave_type
 #endif /* MONSTER_FLOW */
 };
 
+/*
+ * Simple structure to hold a map location
+ */
+typedef struct coord coord;
+
+struct coord
+{
+	u16b y;
+	u16b x;
+};
 
 
 /*
@@ -1041,6 +1051,9 @@ struct player_type
 	u32b muta2;
 	u32b muta3;
 
+	s16b virtues[MAX_PLAYER_VIRTUES];
+	s16b vir_types[MAX_PLAYER_VIRTUES];
+
 	s16b word_recall;	/* Word of recall counter */
 
 	s16b energy;		/* Current energy */
@@ -1185,8 +1198,8 @@ struct player_type
 
 	/*** Pet commands ***/
 	s16b pet_follow_distance; /* Length of the imaginary "leash" for pets */
-	bool pet_open_doors;      /* flag - allow pets to open doors */
-	bool pet_pickup_items;    /* flag - allow pets to pickup items */
+	byte pet_open_doors;      /* flag - allow pets to open doors */
+	byte pet_pickup_items;    /* flag - allow pets to pickup items */
 
 	/*** Temporary fields ***/
 	byte exit_bldg;			/* Goal obtained in arena? -KMW- */
@@ -1194,6 +1207,8 @@ struct player_type
 	bool leaving;			/* True if player is leaving */
 
 	bool leaving_dungeon;	/* True if player is leaving the dungeon */
+
+	s32b align;				/* Good/evil/neutral */
 };
 
 

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: ebock $ on $Date: 1999/11/17 19:53:30 $
+# CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:28:37 $
 # File: misc.txt
 
 # Maximum number of towns
@@ -14,13 +14,13 @@ M:WX:10
 M:WY:10
 
 # Maximum number of monsters in r_info.txt
-M:R:872
+M:R:885
 
 # Maximum number of items in k_info.txt
-M:K:581
+M:K:582
 
 # Maximum number of vaults in v_info.txt
-M:V:115
+M:V:126
 
 # Maximum number of terrain features in f_info.txt
 M:F:160
@@ -32,8 +32,10 @@ M:A:128
 M:E:128
 
 # Maximum size for "o_list[]"
+# Increase this if you get lots of 'Generation restarted (too many objects)' messages.
 M:O:512
 
 # Maximum size for "m_list[]"
+# Increase this if you get lots of 'Generation restarted (too many monsters)' messages.
 M:M:1024
 

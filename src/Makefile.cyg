@@ -1,0 +1,393 @@
+# This is a makefile for the Cygwin 2.01 Beta release which may
+# be downloaded by following the links from the url:
+# http://sourceware.cygnus.com/cygwin/download.html. The file
+# you want is full.exe which is roughly 14 Mb in size.
+#
+# In order for the makefile to work you must install Cygwin
+# into your chosen directory and make sure your path points to
+# the directory in which gcc.exe is located. This will usually
+# be: c:\cygnus\cygwin-b20\h-i586-cygwin32\bin.
+
+
+#
+# File locations - change these as appropriate
+#
+CYGDIR	=	c:/Programme/cygnus/cygwin-b20/h-i586-cygwin32
+TGTDIR = C:/ZAngband/
+
+#
+# Standard defines
+#
+
+CC		=	gcc
+WRES		=	windres
+LIBDIRS	=	-L$(CYGDIR)/lib
+INCDIRS	=	-I$(CYGDIR)/i586-cygwin32/include/mingw32
+LIBS		=	-s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
+CFLAGS	=	-Wall -O2 -fno-strength-reduce -DUSE_TRANSPARENCY
+
+
+SRCS		= \
+	angband.rc \
+	artifact.c \
+	avatar.c \
+	birth.c \
+	bldg.c \
+	cave.c \
+	cmd1.c \
+	cmd2.c \
+	cmd3.c \
+	cmd4.c \
+	cmd5.c \
+	cmd6.c \
+	dungeon.c \
+	effects.c \
+	files.c \
+	flavor.c \
+	generate.c \
+	grid.c \
+	init1.c \
+	init2.c \
+	load.c \
+	main.c \
+	main-win.c \
+	melee1.c \
+	melee2.c \
+	mind.c \
+	monster1.c \
+	monster2.c \
+	mspells1.c \
+	mspells2.c \
+	mutation.c \
+	notes.c \
+	obj_kind.c \
+	object1.c \
+	object2.c \
+	racial.c \
+	readdib.c \
+	rooms.c \
+	save.c \
+	scores.c \
+	spells1.c \
+	spells2.c \
+	spells3.c \
+	store.c \
+	streams.c \
+	tables.c \
+	util.c \
+	variable.c \
+	wild.c \
+	wizard1.c \
+	wizard2.c \
+	xtra1.c \
+	xtra2.c \
+	z-form.c \
+	z-rand.c \
+	z-term.c \
+	z-util.c \
+	z-virt.c 
+
+
+EXOBJS	= \
+	angband.res \
+	artifact.o \
+	avatar.o \
+	birth.o \
+	bldg.o \
+	cave.o \
+	cmd1.o \
+	cmd2.o \
+	cmd3.o \
+	cmd4.o \
+	cmd5.o \
+	cmd6.o \
+	dungeon.o \
+	effects.o \
+	files.o \
+	flavor.o \
+	generate.o \
+	grid.o \
+	init1.o \
+	init2.o \
+	load.o \
+	main.o \
+	main-win.o \
+	melee1.o \
+	melee2.o \
+	mind.o \
+	monster1.o \
+	monster2.o \
+	mspells1.o \
+	mspells2.o \
+	mutation.o \
+	notes.o \
+	obj_kind.o \
+	object1.o \
+	object2.o \
+	racial.o \
+	readdib.o \
+	rooms.o \
+	save.o \
+	scores.o \
+	spells1.o \
+	spells2.o \
+	spells3.o \
+	store.o \
+	streams.o \
+	tables.o \
+	util.o \
+	variable.o \
+	wild.o \
+	wizard1.o \
+	wizard2.o \
+	xtra1.o \
+	xtra2.o \
+	z-form.o \
+	z-rand.o \
+	z-term.o \
+	z-util.o \
+	z-virt.o 
+
+
+HDRS		= \
+	h-basic.h \
+	h-define.h h-type.h \
+	h-system.h h-config.h
+
+
+INCS		= \
+	angband.h \
+	z-config.h defines.h \
+	types.h externs.h \
+	z-term.h z-rand.h \
+	z-util.h z-virt.h \
+	z-form.h $(HDRS)
+
+
+#
+# Targets
+#
+
+
+default:	zangband
+
+install:	zangband movebin cleanobjs
+
+# movebin:
+#		copy zangband.exe ..
+#		del zangband.exe
+
+movebin:
+		mv -f zangband.exe $(TGTDIR)/zangband.exe
+
+cleanobjs:
+		rm -f $(EXOBJS)
+
+cleanbin:
+		rm -f zangband
+
+clean:	cleanobjs cleanbin
+
+
+#
+# Dependency rules
+#
+
+zangband: $(EXOBJS)
+	$(CC) -o zangband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
+
+
+#
+# Compiling angband.rc
+#
+# Note: this format seems to work but the alternative actually used
+# is the one recommended by Cygnus
+#
+# angband.res : angband.rc
+#       $(WRES) angband.rc angband.res
+#
+
+angband.res : angband.rc
+	$(WRES) $< -O coff -o $@
+
+
+#
+# Compiling objects
+#
+
+artifact.o: artifact.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+avatar.o: avatar.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+bldg.o: bldg.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+birth.o: birth.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+cave.o: cave.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+cmd1.o: cmd1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+cmd2.o: cmd2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+cmd3.o: cmd3.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+cmd4.o: cmd4.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+cmd5.o: cmd5.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+cmd6.o: cmd6.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+dungeon.o: dungeon.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+effects.o: effects.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+files.o: files.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+flavor.o: flavor.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+generate.o: generate.c $(INCS) generate.h grid.h rooms.h streams.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+grid.o: grid.c $(INCS) grid.h generate.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+init1.o: init1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+init2.o: init2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+load.o: load.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+main.o: main.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+melee1.o: melee1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+main-win.o: main-win.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+melee2.o: melee2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+mind.o: mind.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+monster1.o: monster1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+monster2.o: monster2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+mspells1.o: mspells1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+mspells2.o: mspells2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+mutation.o: mutation.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+notes.o: notes.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+object1.o: object1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+object2.o: object2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+obj_kind.o: obj_kind.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+racial.o: racial.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+#
+# Note the additional -DNEAR= flag to cope with the 'NEAR'
+# keyword used in readdib.c
+#
+
+readdib.o: readdib.c $(INCS) readdib.h
+	$(CC) $(CFLAGS) -DNEAR= $(INCDIRS) -c -o $@ $<
+
+rooms.o: rooms.c $(INCS) grid.h rooms.h generate.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+save.o: save.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+scores.o: scores.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+spells1.o: spells1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+spells2.o: spells2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+spells3.o: spells3.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+store.o: store.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+streams.o: streams.c $(INCS) grid.h generate.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+tables.o: tables.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+util.o: util.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+variable.o: variable.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+wild.o: wild.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+wizard1.o: wizard1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+wizard2.o: wizard2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+xtra1.o: xtra1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+xtra2.o: xtra2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+z-rand.o: z-rand.c $(HDRS) z-rand.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+z-term.o: z-term.c $(HDRS) z-term.h z-virt.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+z-util.o: z-util.c $(HDRS) z-util.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+

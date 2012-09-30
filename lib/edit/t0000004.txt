@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:50 $
+# CVS: Last edit by $Author: rr9 $ on $Date: 2000/01/03 22:43:24 $
 # Town Name: Angwil
 # Note: this is a mainly elven town, as you'll notice by the guild
 # leaders etc.
@@ -149,7 +149,7 @@ B:4:N:Inn:Dorchel:Elf
 B:4:A:0:Rest for the night:25:25:r:17:0
 B:4:A:1:Buy food and drink:3:3:f:18:1
 B:4:A:2:Listen for rumors:10:10:u:19:0
-B:4:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:0:1
+B:4:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1:1
 
 B:5:N:Beastmaster:Aradreth:Elf
 B:5:A:0:Research monster:1500:1500:r:20:0

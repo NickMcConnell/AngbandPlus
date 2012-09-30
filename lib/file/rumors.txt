@@ -1,5 +1,5 @@
 N:*:Default
-648
+647
 They say that you can't trust rumors.
 You have no more Black Potions of Death.
 They say that smart guys hang around at 1600'.
@@ -25,7 +25,6 @@ There are Black Market stores hidden deep in the dungeon, with COOL stuff!
 Have you ever seen a Rod of Havoc inscribed {BFG9000}?
 What a pity, you cannot read it!
 You will encounter a dark, tall stranger...
-Brand has caused the disaster: kill him and it will go away.
 A Mithril mail will not rust.
 An Adamantite mail will not rust.
 A Rusty Chain Mail cannot rust any further.

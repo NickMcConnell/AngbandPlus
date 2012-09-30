@@ -4,7 +4,7 @@
 Zangband commands are entered as an "underlying command" (a single key)
 plus a variety of optional or required arguments. You may choose how
 the "keyboard keys" are mapped to the "underlying commands" by choosing
-one of two standard "keysets", the "original" keyset or the "roguelike"
+one of two standard "keynotes", the "original" keyset or the "roguelike"
 keyset.
 
 The original keyset is very similar to the "underlying" command set,
@@ -86,7 +86,7 @@ any keymap definitions, by using the fact that you can always, for
 example, use "\" + "." + "6", to specify "run east". 
 
 
-***** <A>
+***** <OriginalKeyset>
 === Original Keyset ===
 
      Original Keyset Directions
@@ -152,7 +152,7 @@ example, use "\" + "." + "6", to specify "run east".
  /  Identify symbol                      ?  Help
 
 
-***** <B>
+***** <RogueKeyset>
 ===  Roguelike Keyset ===
 
      Roguelike Keyset Directions
@@ -218,7 +218,7 @@ example, use "\" + "." + "6", to specify "run east".
  /  Identify symbol                      ?  Help
 
 
-***** <C>
+***** <SpecialKeys>
 === Special Keys ===
  
 Certain special keys may be intercepted by the operating system or
@@ -264,7 +264,7 @@ LINEFEED, or by any keypress, if the "quick_messages" option is turned
 on.
  
 
-***** <D>
+***** <CommandCounts>
 ===  Command Counts ===
  
 Some commands can be executed a fixed number of times by preceding
@@ -292,7 +292,7 @@ commands you normally want to repeat (open, disarm, tunnel, bash,
 alter, etc) by setting the "always_repeat" option.
  
 
-***** <E>
+***** <ObjectSelection>
 ===  Selection of Objects ===
  
 Many commands will also prompt for a particular object to be used. For
@@ -351,4 +351,4 @@ Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
 Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Last update: December 3, 1999
+Last update: January 13, 2000

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:49 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:05 $ */
 /* File: cmd4.c */
 
 /* Purpose: Interface commands */
@@ -35,10 +35,8 @@ void do_cmd_redraw(void)
 	/* Hack -- react to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
-
 	/* Combine and Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 
 	/* Update torch */
 	p_ptr->update |= (PU_TORCH);
@@ -86,88 +84,6 @@ void do_cmd_redraw(void)
 		/* Restore */
 		Term_activate(old);
 	}
-}
-
-
-/*
- * Hack -- change name
- */
-void do_cmd_change_name(void)
-{
-	char	c;
-
-	int		mode = 0;
-
-	char	tmp[160];
-
-
-	/* Save the screen */
-	screen_save();
-
-	/* Forever */
-	while (1)
-	{
-		/* Display the player */
-		display_player(mode);
-
-		if (mode == 6)
-		{
-			mode = 0;
-			display_player(mode);
-		}
-
-		/* Prompt */
-		Term_putstr(2, 23, -1, TERM_WHITE,
-			"['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
-
-		/* Query */
-		c = inkey();
-
-		/* Exit */
-		if (c == ESCAPE) break;
-
-		/* Change name */
-		if (c == 'c')
-		{
-			get_name();
-		}
-
-		/* File dump */
-		else if (c == 'f')
-		{
-			sprintf(tmp, "%s.txt", player_base);
-			if (get_string("File name: ", tmp, 80))
-			{
-				if (tmp[0] && (tmp[0] != ' '))
-				{
-					file_character(tmp, TRUE);
-				}
-			}
-		}
-
-		/* Toggle mode */
-		else if (c == 'h')
-		{
-			mode++;
-		}
-
-		/* Oops */
-		else
-		{
-			bell();
-		}
-
-		/* Flush messages */
-		msg_print(NULL);
-	}
-
-	/* Restore the screen */
-	screen_load();
-
-	/* Redraw everything */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-	handle_stuff();
 }
 
 
@@ -239,7 +155,7 @@ void do_cmd_messages(void)
 			msg = (strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-			Term_putstr(0, 21-j, -1, TERM_WHITE, msg);
+			Term_putstr(0, 21 - j, -1, TERM_WHITE, msg);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -252,7 +168,7 @@ void do_cmd_messages(void)
 					int len = strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-msg, 21-j, len, TERM_YELLOW, shower);
+					Term_putstr(str - msg, 21 - j, len, TERM_YELLOW, shower);
 
 					/* Advance */
 					str += len;
@@ -262,7 +178,7 @@ void do_cmd_messages(void)
 
 		/* Display header XXX XXX XXX */
 		prt(format("Message Recall (%d-%d of %d), Offset %d",
-		    i, i+j-1, n, q), 0, 0);
+		    i, i + j - 1, n, q), 0, 0);
 
 		/* Display prompt (not very informative) */
 		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", 23, 0);
@@ -421,6 +337,7 @@ static option_type cheat_info[CHEAT_MAX] =
 	"cheat_live",		"Allow player to avoid death" }
 };
 
+
 /*
  * Interact with some options for cheating
  */
@@ -520,11 +437,11 @@ static void do_cmd_options_cheat(cptr info)
 
 static option_type autosave_info[2] =
 {
-	{ &autosave_l,      FALSE, 255, 0x01, 0x00,
-	    "autosave_l",    "Autosave when entering new levels" },
+	{ (bool *)(&autosave_l), FALSE, 255, 0x01, 0x00,
+	  "autosave_l", "Autosave when entering new levels" },
 
-	{ &autosave_t,      FALSE, 255, 0x02, 0x00,
-	    "autosave_t",   "Timed autosave" },
+	{ (bool *)(&autosave_t), FALSE, 255, 0x02, 0x00,
+	  "autosave_t", "Timed autosave" },
 };
 
 
@@ -640,6 +557,7 @@ static void do_cmd_options_autosave(cptr info)
 				autosave_freq = toggle_frequency(autosave_freq);
 				prt(format("Timed autosave frequency: every %d turns",
 				    autosave_freq), 5, 0);
+				break;
 			}
 
 			default:
@@ -961,18 +879,19 @@ void do_cmd_options(void)
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
+		prt("(Z/5) Zangband Options", 8, 5);
+		prt("(6) Object auto-destruction Options", 9, 5);
 
-		prt("(Z/5) Zangband Options", 9, 5);
 		/* Testing */
-		prt("(S) Stacking Options", 10, 5);
+		prt("(S) Stacking Options", 11, 5);
 		/* Special choices */
-		prt("(D) Base Delay Factor", 11, 5);
-		prt("(H) Hitpoint Warning", 12, 5);
-		prt("(A) Autosave Options", 13, 5);
+		prt("(D) Base Delay Factor", 12, 5);
+		prt("(H) Hitpoint Warning", 13, 5);
+		prt("(A) Autosave Options", 14, 5);
 
 
 		/* Window flags */
-		prt("(W) Window Flags", 14, 5);
+		prt("(W) Window Flags", 15, 5);
 
 		/* Cheating */
 		prt("(C) Cheating Options", 16, 5);
@@ -1025,6 +944,14 @@ void do_cmd_options(void)
 			case 'Z': case 'z': case '5':
 			{
 				do_cmd_options_aux(5, "Zangband Options");
+				break;
+			}
+
+			/* Object auto-destruction Options */
+			case '6':
+			{
+				/* Spawn */
+				do_cmd_options_aux(7, "Object auto-destruction Options");
 				break;
 			}
 
@@ -1107,6 +1034,50 @@ void do_cmd_options(void)
 					if (isdigit(k)) hitpoint_warn = D2I(k);
 					else bell();
 				}
+
+				break;
+			}
+
+			/* Dump the current options to file */
+			case '|':
+			{
+				int i;
+				FILE    *fff;
+				char    buf[1024];
+
+				/* Build the filename */
+				path_build(buf, 1024, ANGBAND_DIR_USER, "pref-opt.prf");
+
+				/* Drop priv's */
+				safe_setuid_drop();
+
+				/* Open the file */
+				fff = my_fopen(buf, "w");
+
+				/* Grab priv's */
+				safe_setuid_grab();
+
+				/* Failed */
+				if (!fff) break;
+
+				/* Header */
+				fprintf(fff, "# File: pref-opt.prf\n\n");
+				fprintf(fff, "# Allow user specification of various options\n\n");
+
+				/* Scan the options */
+				for (i = 0; option_info[i].o_desc; i++)
+				{
+					/* Dump the option */
+					fprintf(fff, "%c:%s\n",
+					        (*option_info[i].o_var ? 'Y' : 'X'),
+					        option_info[i].o_text);
+				}
+
+				/* Close the file */
+				my_fclose(fff);
+
+				/* Success message */
+				msg_print("Saved default options.");
 
 				break;
 			}
@@ -2399,7 +2370,7 @@ void do_cmd_colors(void)
 				for (j = 0; j < 16; j++)
 				{
 					/* Exhibit this color */
-					Term_putstr(j*4, 20, -1, a, "###");
+					Term_putstr(j * 4, 20, -1, a, "###");
 
 					/* Exhibit all colors */
 					Term_putstr(j*4, 22, -1, j, format("%3d", j));
@@ -2469,7 +2440,7 @@ void do_cmd_colors(void)
 
 
 /*
- * Note something in the message recall
+ * Take notes.
  */
 void do_cmd_note(void)
 {
@@ -2484,8 +2455,16 @@ void do_cmd_note(void)
 	/* Ignore empty notes */
 	if (!buf[0] || (buf[0] == ' ')) return;
 
-	/* Add the note to the message recall */
-	msg_format("Note: %s", buf);
+	if (take_notes)
+	{
+		/* Add note to file */
+		add_note(buf, ' ');
+	}
+	else
+	{
+		/* Add note to message recall */
+		msg_format("Note: %s", buf);
+	}
 }
 
 
@@ -2562,7 +2541,14 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-	msg_print(do_cmd_feeling_text[feeling]);
+	if (turn - old_turn >= 1000)
+	{
+		msg_print(do_cmd_feeling_text[feeling]);
+	}
+	else
+	{
+		msg_print(do_cmd_feeling_text[0]);
+	}
 }
 
 
@@ -2799,7 +2785,7 @@ void do_cmd_save_screen(void)
 /*
  * Check the status of "artifacts"
  */
-void do_cmd_knowledge_artifacts(void)
+static void do_cmd_knowledge_artifacts(void)
 {
 	int i, k, z, x, y;
 
@@ -2941,12 +2927,48 @@ void do_cmd_knowledge_artifacts(void)
  */
 static void do_cmd_knowledge_uniques(void)
 {
-	int k;
-
 	FILE *fff;
 
 	char file_name[1024];
 
+	int i, n;
+
+	u16b	why = 2;
+	u16b	*who;
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
+
+	/* Collect matching monsters */
+	for (n = 0, i = 1; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* Nothing to recall */
+		if (!cheat_know && !r_ptr->r_sights) continue;
+
+		/* Require unique monsters if needed */
+		if (!(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+		/* Collect "appropriate" monsters */
+		who[n++] = i;
+	}
+
+	/* Nothing to recall */
+	if (!n)
+	{
+		/* No monsters to recall */
+		msg_print("No known uniques.");
+		msg_print(NULL);
+		return;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -2955,24 +2977,14 @@ static void do_cmd_knowledge_uniques(void)
 	fff = my_fopen(file_name, "w");
 
 	/* Scan the monster races */
-	for (k = 1; k < max_r_idx; k++)
+	for (i = 0; i < n; i++)
 	{
-		monster_race *r_ptr = &r_info[k];
+		monster_race *r_ptr = &r_info[who[i]];
+		bool dead = (r_ptr->max_num == 0);
 
-		/* Only print Uniques */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
-		{
-			bool dead = (r_ptr->max_num == 0);
-
-			/* Only display "known" uniques */
-			if (dead || cheat_know || r_ptr->r_sights)
-			{
-				/* Print a message */
-				fprintf(fff, "     %s is %s\n",
-				        (r_name + r_ptr->name),
-				        (dead ? "dead" : "alive"));
-			}
-		}
+		/* Print a message */
+		fprintf(fff, "     %s is %s\n",(r_name + r_ptr->name),
+			(dead ? "dead" : "alive"));
 	}
 
 	/* Close the file */
@@ -3109,6 +3121,7 @@ void plural_aux(char *Name)
 	}
 }
 
+
 /*
  * Display current pets
  */
@@ -3153,8 +3166,8 @@ static void do_cmd_knowledge_pets(void)
 	{
 		show_upkeep = t_levels;
 
-		if (show_upkeep > 100) show_upkeep = 100;
-		else if (show_upkeep < 10) show_upkeep = 10;
+		if (show_upkeep > 95) show_upkeep = 95;
+		else if (show_upkeep < 5) show_upkeep = 5;
 	}
 
 
@@ -3182,14 +3195,47 @@ static void do_cmd_knowledge_pets(void)
  */
 static void do_cmd_knowledge_kill_count(void)
 {
-	int k;
-
 	FILE *fff;
 
 	char file_name[1024];
 
 	s32b Total = 0;
 
+	int i, n;
+
+	u16b	why = 2;
+	u16b	*who;
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
+
+	/* Collect matching monsters */
+	for (n = 0, i = 1; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* Nothing to recall */
+		if (!cheat_know && !r_ptr->r_sights) continue;
+
+		/* Collect "appropriate" monsters */
+		who[n++] = i;
+	}
+
+	/* Nothing to recall */
+	if (!n)
+	{
+		/* No monsters to recall */
+		msg_print("No known monsters!");
+		msg_print(NULL);
+		return;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -3236,9 +3282,9 @@ static void do_cmd_knowledge_kill_count(void)
 	Total = 0;
 
 	/* Scan the monster races */
-	for (k = 1; k < max_r_idx; k++)
+	for (i = 0; i < n; i++)
 	{
-		monster_race *r_ptr = &r_info[k];
+		monster_race *r_ptr = &r_info[who[i]];
 
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
@@ -3350,6 +3396,35 @@ static void do_cmd_knowledge_objects(void)
 
 	/* Display the file contents */
 	show_file(file_name, "Known Objects", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
+/*
+ * List virtues & status
+ */
+static void do_cmd_knowledge_virtues(void)
+{
+	FILE *fff;
+
+	char file_name[1024];
+
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+	if (fff) dump_virtues(fff);
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Virtues", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -3471,6 +3546,18 @@ static void do_cmd_knowledge_quests(void)
 }
 
 
+/*
+ * Print notes file
+ */
+void do_cmd_knowledge_notes(void)
+{
+	char fname[80];
+
+	strcpy(fname, notes_file());
+
+	show_file(fname, "Notes", 0, 0);
+}
+
 
 /*
  * Interact with "knowledge"
@@ -3502,9 +3589,12 @@ void do_cmd_knowledge(void)
 		prt("(5) Display mutations", 8, 5);
 		prt("(6) Display current pets", 9, 5);
 		prt("(7) Display current quests", 10, 5);
+		prt("(8) Display virtues", 11, 5);
+		if (take_notes)
+			prt("(9) Display notes", 12, 5);
 
 		/* Prompt */
-		prt("Command: ", 12, 0);
+		prt("Command: ", 14, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -3523,7 +3613,7 @@ void do_cmd_knowledge(void)
 		case '3': /* Objects */
 			do_cmd_knowledge_objects();
 			break;
-		case '4': /* Kill count  */
+		case '4': /* Kill count */
 			do_cmd_knowledge_kill_count();
 			break;
 		case '5': /* Mutations */
@@ -3534,6 +3624,15 @@ void do_cmd_knowledge(void)
 			break;
 		case '7': /* Quests */
 			do_cmd_knowledge_quests();
+			break;
+		case '8': /* Virtues */
+			do_cmd_knowledge_virtues();
+			break;
+		case '9': /* Notes */
+			if (take_notes)
+				do_cmd_knowledge_notes();
+			else
+				bell();
 			break;
 		default: /* Unknown option */
 			bell();
@@ -3668,4 +3767,3 @@ void do_cmd_time(void)
 	/* Close the file */
 	my_fclose(fff);
 }
-

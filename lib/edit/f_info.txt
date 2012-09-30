@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:16:49 $
+# CVS: Last edit by $Author: ebock $ on $Date: 2000/01/31 04:19:13 $
 # File: f_info.txt
 
 
@@ -459,6 +459,10 @@ G:.:g
 
 N:90:compact rune
 G:^:D
+
+N:91:invisible wall
+G:.:w
+M:1
 
 N:96:tree
 G:#:G

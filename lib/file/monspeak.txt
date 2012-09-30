@@ -149,7 +149,6 @@ hisses, 'My dear tender little fools.'
 says, 'Well, my little ones!  Enjoying your nice rest?'
 snarls, 'Have you got it -- either of you?'
 
-
 N:215:Golfimbul, the Hill Orc Chief
 N:260:Ufthak of Cirith Ungol
 N:285:Orc captain
@@ -182,13 +181,44 @@ says, 'Heh-heh, heh-heh, killing people is cool.'
 curses at you in Orcish.
 
 N:382:Mime, the Nibelung
+6
+says, 'Get away! This spot is mine!'
+says, 'I will soon close your eyes in eternal sleep.'
+says, 'I'll mess up all your stuff!'
+cries, 'You must pay me... with your life!'
+grins.
+says, 'Maybe I will just hack your head off.'
+
 N:383:Hagen, son of Alberich
+10
+says, 'Did you hear what the ravens said? Revenge, that is what they cry!'
+shouts, 'Hoiho! Hoiho! To arms! To arms!'
+grumbles, 'I hate the happy, and I am never glad.'
+cries, 'Keep away from the Ring!'
+boasts, 'My spear will certainly cut down the wrongful one.'
+cries, 'There! There shall my spear strike!'
+grins, 'You will die soon, handsome hero!'
+states, 'I am but avenging perjury.'
+shouts, 'Give the Ring here!'
+shouts, 'Hoiho! Hoiho-hoho!'
+
 N:419:Alberich the Nibelung King
-4
-says, 'Wagner misrepresented us!'
+16
 says, 'I'll mess up all your stuff!'
 says, 'Give me the Rheingold, or die!'
-hums 'Ride of the Valkyries.'
+states, 'As I have renounced love, all who live shall soon renounce it!'
+laughs insanely.
+asks, 'Did you hear it? The nibelung hordes are rising from the depths!'
+laughs, 'Ha ha ha ha! Beware!'
+says, 'Beware, fool! Beware!'
+says, 'Envy led you here, pitiful rogue!'
+boasts, 'I dauntlessly defy everyone, everyone!'
+yells, 'Tremble, on your knees before the master of the Ring.'
+yells, 'Tremble with terror, abject throng!'
+says, 'I am watching you everywhere, expect me where you do not perceive me!'
+says, 'Feel my wrath, idle rascal!'
+says, 'I have discovered you, you stupid thief!'
+says, 'Are you still not afraid? You should be!'
 
 #N:392:Sangahyando of Umbar
 #N:380:Angamaite of Umbar
@@ -196,19 +226,22 @@ hums 'Ride of the Valkyries.'
 #This next may be unnecessarily evil... :-]
 
 N:393:It
-11
+9
 says, 'Nyah, nyah, betcha can't find me!'
 says, 'Come get some!'
+magically summons mighty undead opponents!
 chuckles evilly.
-blinks away.
-casts a spell and cackles evilly.
-commands you to return.
-magically summons its kin!
 magically summons Cyberdemons!
-magically summons greater undead!
-magically summons special opponents!
+summons special opponents!
+concentrates on its body. It starts moving faster.
+concentrates on its wounds.
+teleports away.
 
-#N:409:Kharis the Powerslave
+N:409:Kharis the Powerslave
+2
+says, 'Open the gates of my hell, I will strike from the grave!'
+curses you.
+
 #N:413:Ulwarth, Son of Ulfang
 #N:431:Grendel
 
@@ -223,15 +256,25 @@ simpers disgustingly.
 chews up a 'Tinky Winky' doll.
 
 #N:489:Bokrug
-#N:493:Bert the Stone Troll
-#N:494:Bill the Stone Troll
-#N:495:Tom the Stone Troll
+N:493:Bert the Stone Troll
+N:494:Bill the Stone Troll
+N:495:Tom the Stone Troll
+4
+complains, 'What's a burrahobbit got to do with my pocket, anyways?'
+rejoices, 'No more roast mutton! Roast adventurer today!'
+says, 'That'll teach yer!'
+says, 'I won't take that from you!'
 
 N:505:Groo the Wanderer
 1
 says: 'A fray! A fray!'
 
-#N:506:Fasolt the Giant
+N:506:Fasolt the Giant
+3
+grumbles: 'Stop, greedy one! Leave something for me!'
+shouts: 'Back, over-bold one!'
+whines: 'You swindler, do you seek to vilify me?'
+
 #N:517:Jurt the Living Trump
 #N:551:Rogrog the Black Troll
 #N:573:Lord Borel of Hendrake
@@ -244,11 +287,19 @@ says: 'A fray! A fray!'
 #N:628:Malekith the Accursed
 #N:642:Jasra, Brand's Mistress
 #N:651:Strygalldwir
-#N:654:Judge Fire
-#N:656:Judge Mortis
+
+N:654:Judge Fire
+N:656:Judge Mortis
+N:674:Judge Fear
+N:686:Judge Death
+4
+hisses, 'Thisssss dungeon issss guilty.'
+hisses, 'Your crime isssss life.'
+hisses, 'The sssentencce isss death!'
+hisses, 'Your crime issss life. The sssentencce isss death.'
+
 #N:660:Rinaldo, son of Brand
 #N:670:Jack of Shadows
-#N:674:Judge Fear
 #N:681:Chaugnar Faugn, Horror from the Hills
 
 N:685:Shoggoth
@@ -256,10 +307,27 @@ N:685:Shoggoth
 barrels towards you horrifyingly.
 wails, 'Tekeli-li!  Tekeli-li!'
 
-#N:686:Judge Death
 #N:687:Ariel, Queen of Air
-#N:697:Smaug the Golden
-#N:712:Fafner the Dragon
+
+N:697:Smaug the Golden
+8
+speaks, 'I smell you and I feel your air. I hear your breath. Come along!'
+says, 'If you get off alive, you will be lucky.'
+grimaces.
+laughs with a devastating sound which shakes the ground.
+asks, 'Where are those who dare approach me?'
+gloats, 'I am old and strong, strong, strong.'
+boasts, 'My armour is like tenfold shields, no blade can pierce me.'
+boasts, 'My teeth are swords, my claws are spears, my breath is death.'
+
+N:712:Fafner the Dragon
+5
+says: 'You will make a fine meal.'
+says: 'I wanted a drink, now I have also found food.'
+says: 'My fangs are not for chattering, soon you will feel them.'
+says: 'My throat is well made to gulp you down.'
+growls: 'Come here, young braggart.'
+
 #N:713:Fangorn the Treebeard
 #N:715:Glaurung, Father of the Dragons
 #N:729:Ulik the Troll
@@ -390,10 +458,18 @@ lifts his leg at the nearest wall.
 says, 'Bad adventurer! No more living for you!'
 snarls and howls.
 
+N:819:Klingsor, Evil Master of Magic
+6
+states, 'The time has come.'
+bellows, 'Your master calls! Obey!'
+grunts, 'Beware!'
+states, 'You will fall into my power, you will remain my slave!'
+cries, 'Halt! I have the right weapon to fell you!'
+yells, 'I will cut you down with your master's spear!'
+
 N:830:Cantoras, the Skeletal Lord
 N:831:Mephistopheles, Lord of Hell
 N:818:The Mouth of Sauron
-N:819:Klingsor, Evil Master of Magic
 N:804:Vecna, the Emperor Lich
 N:844:Kaschei the Immortal
 N:856:Gothmog, the High Captain of Balrogs

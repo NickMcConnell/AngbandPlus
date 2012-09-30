@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/14 03:39:32 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:30 $ */
 /* File: monster1.c */
 
 /* Purpose: describe monsters (using monster memory) */
@@ -91,67 +91,24 @@ static bool know_damage(int r_idx, int i)
 	return (FALSE);
 }
 
-
-/*
- * Hack -- display monster information using "roff()"
- *
- * Note that there is now a compiler option to only read the monster
- * descriptions from the raw file when they are actually needed, which
- * saves about 60K of memory at the cost of disk access during monster
- * recall, which is optional to the user.
- *
- * This function should only be called with the cursor placed at the
- * left edge of the screen, on a cleared line, in which the recall is
- * to take place.  One extra blank line is left after the recall.
- */
 static void roff_aux(int r_idx, int remem)
 {
 	monster_race    *r_ptr = &r_info[r_idx];
-
 	bool            old = FALSE;
 	bool            sin = FALSE;
-
 	int             m, n, r;
-
 	cptr            p, q;
-
 	int             msex = 0;
-
-	int speed = (ironman_nightmare) ? r_ptr->speed + 5 : r_ptr->speed;
-
+	int             speed = (ironman_nightmare) ? r_ptr->speed + 5 : r_ptr->speed;
 	bool            breath = FALSE;
 	bool            magic = FALSE;
-
-	u32b		flags1;
-	u32b		flags2;
-	u32b		flags3;
-	u32b		flags4;
-	u32b		flags5;
-	u32b		flags6;
-
-	int		vn = 0;
-	cptr		vp[64];
-
+	u32b            flags1, flags2, flags3, flags4, flags5, flags6;
+	int             vn = 0;
+	cptr            vp[64];
 	monster_race    save_mem;
 
-
-
-#if 0
-
-	/* Nothing erased */
-	roff_old = 0;
-
-	/* Reset the row */
-	roff_row = 1;
-
-	/* Reset the pointer */
-	roff_p = roff_buf;
-
-	/* No spaces yet */
-	roff_s = NULL;
-
-#endif
-
+	/* Descriptions */
+	char buf[2048];
 
 	/* Cheat -- Know everything */
 	if (cheat_know)
@@ -254,15 +211,8 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->flags1 & RF1_FORCE_MAXHP) flags1 |= (RF1_FORCE_MAXHP);
 	}
 
-
-	/* Require a flag to show kills */
-	if (!show_details)
-	{
-		/* nothing */
-	}
-
 	/* Treat uniques differently */
-	else if (flags1 & RF1_UNIQUE)
+	if (flags1 & RF1_UNIQUE)
 	{
 		/* Hack -- Determine if the unique is "dead" */
 		bool dead = (r_ptr->max_num == 0) ? TRUE : FALSE;
@@ -350,79 +300,51 @@ static void roff_aux(int r_idx, int remem)
 	}
 
 
-	/* Descriptions */
-	if (show_details)
-	{
-		char buf[2048];
+
 
 #ifdef DELAY_LOAD_R_TEXT
 
-		int fd;
+	int fd;
 
-		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
 
-		/* Open the "raw" file */
-		fd = fd_open(buf, O_RDONLY);
+	/* Open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
 
-		/* Use file */
-		if (fd >= 0)
-		{
-			huge pos;
+	/* Use file */
+	if (fd >= 0)
+	{
+		huge pos;
 
-			/* Starting position */
-			pos = r_ptr->text;
+		/* Starting position */
+		pos = r_ptr->text;
 
-			/* Additional offsets */
-			pos += r_head->head_size;
-			pos += r_head->info_size;
-			pos += r_head->name_size;
+		/* Additional offsets */
+		pos += r_head->head_size;
+		pos += r_head->info_size;
+		pos += r_head->name_size;
 
-#if 0
+		/* Seek */
+		(void)fd_seek(fd, pos);
 
-			/* Maximal length */
-			len = r_head->text_size - r_ptr->text;
+		/* Read a chunk of data */
+		(void)fd_read(fd, buf, 2048);
 
-			/* Actual length */
-			for (i = r_idx+1; i < max_r_idx; i++)
-			{
-				/* Actual length */
-				if (r_info[i].text > r_ptr->text)
-				{
-					/* Extract length */
-					len = r_info[i].text - r_ptr->text;
-
-					/* Done */
-					break;
-				}
-			}
-
-			/* Maximal length */
-			if (len > 2048) len = 2048;
-
-#endif
-
-			/* Seek */
-			(void)fd_seek(fd, pos);
-
-			/* Read a chunk of data */
-			(void)fd_read(fd, buf, 2048);
-
-			/* Close it */
-			(void)fd_close(fd);
-		}
+		/* Close it */
+		(void)fd_close(fd);
+	}
 
 #else
 
-		/* Simple method */
-		strcpy(buf, r_text + r_ptr->text);
+	/* Simple method */
+	strcpy(buf, r_text + r_ptr->text);
 
 #endif
 
-		/* Dump it */
-		roff(buf);
-		roff("  ");
-	}
+	/* Dump it */
+	roff(buf);
+	roff("  ");
 
 
 	/* Nothing yet */
@@ -571,12 +493,13 @@ static void roff_aux(int r_idx, int remem)
 
 			/* calculate the integer exp part */
 			i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
-
+			
 			/* calculate the fractional exp part scaled by 100, */
 			/* must use long arithmetic to avoid overflow  */
+			
 			j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
 			       (long)1000 / p_ptr->lev + 5) / 10);
-
+ 			
 			/* Mention the experience */
 			roff(format(" is worth %ld.%02ld point%s",
 			            (long)i, (long)j,
@@ -643,7 +566,6 @@ static void roff_aux(int r_idx, int remem)
 
 
 	/* Collect inate attacks */
-	vn = 0;
 	if (flags4 & RF4_SHRIEK)  vp[vn++] = "shriek for help";
 	if (flags4 & RF4_XXX3)    vp[vn++] = "do something";
 	if (flags4 & RF4_ROCKET)  vp[vn++] = "shoot a rocket";
@@ -1674,29 +1596,29 @@ monster_hook_type get_monster_hook(void)
 		switch (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].terrain)
 		{
 		case TERRAIN_TOWN:
-			return monster_town;
+			return &(monster_town);
 		case TERRAIN_DEEP_WATER:
-			return monster_ocean;
+			return &(monster_ocean);
 		case TERRAIN_SHALLOW_WATER:
-			return monster_shore;
+			return &(monster_shore);
 		case TERRAIN_DIRT:
-			return monster_waste;
+			return &(monster_waste);
 		case TERRAIN_GRASS:
-			return monster_grass;
+			return &(monster_grass);
 		case TERRAIN_TREES:
-			return monster_wood;
+			return &(monster_wood);
 		case TERRAIN_SHALLOW_LAVA:
 		case TERRAIN_DEEP_LAVA:
-			return monster_volcano;
+			return &(monster_volcano);
 		case TERRAIN_MOUNTAIN:
-			return monster_mountain;
+			return &(monster_mountain);
 		default:
-			return monster_dungeon;
+			return &(monster_dungeon);
 		}
 	}
 	else
 	{
-		return monster_dungeon;
+		return &(monster_dungeon);
 	}
 }
 
@@ -1707,54 +1629,27 @@ monster_hook_type get_monster_hook2(int y, int x)
 	switch (cave[y][x].feat)
 	{
 	case FEAT_SHAL_WATER:
-		return monster_shallow_water;
+		return &(monster_shallow_water);
 	case FEAT_DEEP_WATER:
-		return monster_deep_water;
+		return &(monster_deep_water);
 	case FEAT_DEEP_LAVA:
 	case FEAT_SHAL_LAVA:
-		return monster_lava;
+		return &(monster_lava);
 	default:
 		return NULL;
 	}
 }
 
 
-bool is_friendly(monster_type *m_ptr)
-{
-	if (m_ptr->smart & SM_FRIENDLY)
-		return (TRUE);
-	else
-		return (FALSE);
-}
-
 void set_friendly(monster_type *m_ptr)
 {
 	m_ptr->smart |= SM_FRIENDLY;
-}
-
-bool is_pet(monster_type *m_ptr)
-{
-	if (m_ptr->smart & SM_PET)
-		return (TRUE);
-	else
-		return (FALSE);
 }
 
 
 void set_pet(monster_type *m_ptr)
 {
 	m_ptr->smart |= SM_PET;
-}
-
-/*
- * Is the monster friendly or a pet?
- */
-bool is_hostile(monster_type *m_ptr)
-{
-	if (is_friendly(m_ptr) || is_pet(m_ptr))
-		return (FALSE);
-	else
-		return (TRUE);
 }
 
 
@@ -1780,6 +1675,11 @@ void anger_monster(monster_type *m_ptr)
 		monster_desc(m_name, m_ptr, 0);
 		msg_format("%^s gets angry!", m_name);
 		set_hostile(m_ptr);
+
+		chg_virtue(V_INDIVIDUALISM, 1);
+		chg_virtue(V_HONOUR, -1);
+		chg_virtue(V_JUSTICE, -1);
+		chg_virtue(V_COMPASSION, -1);
 	}
 }
 

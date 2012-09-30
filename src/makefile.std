@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:18 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/20 09:37:13 $
 # File: Makefile
 
 # This is not a very "nice" Makefile, but it usually works.
@@ -57,7 +57,7 @@ SRCS = \
 	effects.c racial.c \
 	artifact.c mutation.c flavor.c spells3.c \
 	mspells1.c mspells2.c scores.c mind.c \
-	bldg.c obj_kind.c wild.c \
+	bldg.c obj_kind.c wild.c avatar.c notes.c\
 	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
 
 OBJS = \
@@ -73,7 +73,7 @@ OBJS = \
 	effects.o racial.o \
 	artifact.o mutation.o flavor.o spells3.o \
 	mspells1.o mspells2.o scores.o mind.o \
-	bldg.o obj_kind.o wild.o \
+	bldg.o obj_kind.o wild.o avatar.o notes.o\
 	main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
 
 
@@ -124,17 +124,25 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "z-config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
-#LIBS = -lX11 -lcurses -ltermcap
 
-CFLAGS = -Wall -O2 -m486 -pipe -g -D"USE_XAW" -D"USE_GCU"
-LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lcurses
+##
+## Graphics under X11 in linux.  (Run with the -g option)
+## Note: Get the 16x16.bmp file, and put in Zdirectory/lib/xtra/graf
+##       to get 256 colours.
+##
+CFLAGS = -Wall -O2 -fno-strength-reduce -m486 -pipe -g \
+         -D"USE_X11" -D"USE_GCU" -D"USE_TRANSPARENCY"
+LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
+
+#CFLAGS = -Wall -O2 -fno-strength-reduce -m486 -pipe -g \
+#          -D"USE_XAW" -D"USE_GCU" -D"USE_TRANSPARENCY"
+#LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lcurses
 
 
 ##
 ## Variation -- Compile for Linux
 ##
-#CFLAGS = -Wall -O2 -m486 -pipe -g -D"USE_XAW" -D"USE_GCU"
+#CFLAGS = -Wall -O2 -fno-strength-reduce -m486 -pipe -g -D"USE_XAW" -D"USE_GCU"
 #LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt \
 #	-lX11 -lcurses
 
@@ -177,7 +185,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lcurses
 ## Variation -- this might work for Linux 1.1.93 using ncurses-1.8.7.
 ##
 #CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses \
-#         -Wall -O2 -fomit-frame-pointer -m486 \
+#         -Wall -O2 -fno-strength-reduce -fomit-frame-pointer -m486 \
 #         -D"USE_X11" -D"USE_GCU"
 #LIBS = -L/usr/X11R6/lib -lX11 -lncurses -ltermcap
 
@@ -185,7 +193,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lcurses
 ## Variation -- this might work better than the suggestion above
 ##
 #CFLAGS = -I/usr/include/ncurses \
-#         -Wall -O2 -fomit-frame-pointer \
+#         -Wall -O2 -fno-strength-reduce -fomit-frame-pointer \
 #         -D"USE_X11" -D"USE_GCU" \
 #         -D"USE_TPOSIX" -D"USE_CURS_SET"
 #LIBS = -lX11 -lncurses
@@ -278,6 +286,7 @@ INCS = \
 
 
 artifact.o: artifact.c $(INCS)
+avatar.o: avatar.c $(INCS)
 bldg.o: bldg.c $(INCS)
 birth.o: birth.c $(INCS)
 cave.o: cave.c $(INCS)
@@ -311,6 +320,7 @@ monster2.o: monster2.c $(INCS)
 mspells1.o: mspells1.c $(INCS)
 mspells2.o: mspells2.c $(INCS)
 mutation.o: mutation.c $(INCS)
+notes.o: notes.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 obj_kind.o: obj_kind.c $(INCS)

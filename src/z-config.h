@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/25 13:58:41 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:55 $ */
 /* File: z-config.h */
 
 /* Purpose: Angband specific configuration stuff */
@@ -490,12 +490,20 @@
 /*
  * OPTION: Default fonts (when using X11)
  */
-#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_0		"10x20"
+#define DEFAULT_X11_FONT_1		"9x15"
+#define DEFAULT_X11_FONT_2		"9x15"
+#define DEFAULT_X11_FONT_3		"5x8"
+#define DEFAULT_X11_FONT_4		"5x8"
+#define DEFAULT_X11_FONT_5		"5x8"
+#define DEFAULT_X11_FONT_6		"5x8"
+#define DEFAULT_X11_FONT_7		"5x8"
 
-
+/*
+ * OPTION: Gamma correct X11 colours.
+ */
+ 
+#define SUPPORT_GAMMA
 
 /*
  * Hack -- Special "ancient machine" versions
@@ -557,7 +565,7 @@
 #endif
 
 /* Should the player know his / her starting life rate? */
-# define SHOW_LIFE_RATE
+/* # define SHOW_LIFE_RATE */
 
 /* Do we want different characters for different races? */
 # define VARIABLE_PLAYER_GRAPH
@@ -630,3 +638,8 @@
  * Monsters can drop corpses when killed
  */
 /* #define USE_CORPSES */
+
+/*
+ * Add caverns and lakes to the dungeon (buggy)
+ */
+#define ALLOW_CAVERNS_AND_LAKES

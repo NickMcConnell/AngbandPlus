@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:16:52 $
+# CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 10:28:00 $
 # q0thief2.txt
 # Thieves Quest 2
 # By Shayne Steele (steele@cs.fsu.edu)

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/25 13:58:39 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:21 $ */
 /* File: variable.c */
 
 /* Purpose: Angband variables */
@@ -112,6 +112,9 @@ s16b cur_hgt;			/* Current dungeon height */
 s16b cur_wid;			/* Current dungeon width */
 s16b dun_level;			/* Current dungeon level */
 s16b num_repro;			/* Current reproducer count */
+
+bool mon_fight;			/* Monster fighting indicator */
+
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 s16b base_level;        /* Base dungeon level */
@@ -167,6 +170,7 @@ char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
 int total_friends = 0;
 s32b total_friend_levels = 0;
+s32b friend_align = 0;
 
 int leaving_quest = 0;
 
@@ -264,6 +268,11 @@ bool track_target;			/* Monsters target the player */
 bool smart_learn;			/* Monsters learn from their mistakes */
 bool smart_cheat;			/* Monsters exploit player weaknesses */
 
+bool take_notes;                        /* Allow notes to be added to a file */
+bool auto_notes;                        /* Automatically take notes */
+
+bool point_based;                       /* Point-based generation */
+
 
 /* Option Set 4 -- Efficiency */
 
@@ -314,8 +323,8 @@ byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
 byte delay_factor;		/* Delay factor (0 to 9) */
 
-bool autosave_l;        /* Autosave before entering new levels */
-bool autosave_t;        /* Timed autosave */
+byte autosave_l;        /* Autosave before entering new levels */
+byte autosave_t;        /* Timed autosave */
 s16b autosave_freq;     /* Autosave frequency */
 
 
@@ -399,15 +408,15 @@ s16b lite_x[LITE_MAX];
  * Array of grids viewable to the player (see "cave.c")
  */
 s16b view_n;
-byte view_y[VIEW_MAX];
-byte view_x[VIEW_MAX];
+s16b view_y[VIEW_MAX];
+s16b view_x[VIEW_MAX];
 
 /*
  * Array of grids for use by various functions (see "cave.c")
  */
 s16b temp_n;
-byte temp_y[TEMP_MAX];
-byte temp_x[TEMP_MAX];
+s16b temp_y[TEMP_MAX];
+s16b temp_x[TEMP_MAX];
 
 
 /*
@@ -936,8 +945,10 @@ bool easy_floor;
 bool use_command;
 bool center_player;
 bool avoid_center;
+bool pillar_tunnels;
 
-
+/* Auto-destruction options */
+bool destroy_worthless;
 
 /*
  * Wilderness
@@ -1053,12 +1064,12 @@ bool lite_town;               /* Use "lite" town without wilderness */
 bool ironman_empty_levels;    /* Always create empty 'arena' levels */
 bool terrain_streams;         /* Create terrain 'streamers' in the dungeon */
 bool munchkin_death;          /* Ask for saving death */
-bool munchkin_rings;				/* Allow multiple rings */
 bool ironman_rooms;           /* Always generate very unusual rooms */
 bool ironman_nightmare;			/* Play the game in Nightmare mode */
 bool maximize_mode;
 bool preserve_mode;
 bool autoroller;
+bool fast_autoroller;
 
 
 bool use_transparency = FALSE; /* Use transparent tiles */

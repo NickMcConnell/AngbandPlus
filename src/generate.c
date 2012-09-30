@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:56 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/02 11:47:07 $ */
 /* File: generate.c */
 
 /* Purpose: Dungeon generation */
@@ -122,7 +122,7 @@ dun_data *dun;
 /*
  * Places some staircases near walls
  */
-static void alloc_stairs(int feat, int num, int walls)
+static bool alloc_stairs(int feat, int num, int walls)
 {
 	int         y, x, i, j, flag;
 	cave_type   *c_ptr;
@@ -130,15 +130,15 @@ static void alloc_stairs(int feat, int num, int walls)
 	if (feat == FEAT_LESS)
 	{
 		/* No up stairs in town or in ironman mode */
-		if (ironman_downward || !dun_level) return;
+		if (ironman_downward || !dun_level) return TRUE;
 	}
 	else if (feat == FEAT_MORE)
 	{
 		/* No downstairs on quest levels */
-		if ((dun_level > 1) && quest_number(dun_level)) return;
+		if ((dun_level > 1) && quest_number(dun_level)) return TRUE;
 
 		/* No downstairs at the bottom */
-		if (dun_level >= MAX_DEPTH - 1) return;
+		if (dun_level >= MAX_DEPTH - 1) return TRUE;
 	}
 
 	/* Place "num" stairs */
@@ -148,7 +148,7 @@ static void alloc_stairs(int feat, int num, int walls)
 		for (flag = FALSE; !flag; )
 		{
 			/* Try several times, then decrease "walls" */
-			for (j = 0; !flag && j <= 3000; j++)
+			for (j = 0; !flag && j <= 10000; j++)
 			{
 				/* Pick a random grid */
 				y = rand_int(cur_hgt);
@@ -172,11 +172,24 @@ static void alloc_stairs(int feat, int num, int walls)
 				/* All done */
 				flag = TRUE;
 			}
-
-			/* Require fewer walls */
-			if (walls) walls--;
+			
+			/* If cannot find a blank spot - exit */
+			if (!walls)
+			{
+				/* Placed at least one. */
+				if (i > 0) return TRUE;
+				
+				/* Couldn't place any stairs */
+				return FALSE;
+			}
+			
+ 			/* Require fewer walls */
+			walls--;
 		}
 	}
+	
+	/* Done */
+	return TRUE;
 }
 
 
@@ -255,6 +268,12 @@ static void alloc_object(int set, int typ, int num)
 				place_object(y, x, FALSE, FALSE);
 				break;
 			}
+
+			case ALLOC_TYP_INVIS:
+			{
+				place_invis_wall(y, x);
+				break;
+			}
 		}
 	}
 }
@@ -307,7 +326,7 @@ static int next_to_corr(int y1, int x1)
  * Determine if the given location is "between" two walls,
  * and "next to" two corridor spaces.  XXX XXX XXX
  *
- * Assumes "in_bounds(y,x)"
+ * Assumes "in_bounds(y, x)"
  */
 static bool possible_doorway(int y, int x)
 {
@@ -358,8 +377,6 @@ static void try_door(int y, int x)
 
 
 
-
-
 /*
  * Generate a new dungeon level
  *
@@ -371,8 +388,15 @@ static bool cave_gen(void)
 
 	int max_vault_ok = 2;
 
+	int feat1, feat2;
+
+	cave_type *c_ptr;
+
 	bool destroyed = FALSE;
 	bool empty_level = FALSE;
+	bool cavern = FALSE;
+	int laketype = 0;
+
 
 	dun_data dun_body;
 
@@ -402,23 +426,65 @@ static bool cave_gen(void)
 			msg_print("Arena level.");
 	}
 
+
 	/* Hack -- Start with basic granite */
 	for (y = 0; y < cur_hgt; y++)
 	{
 		for (x = 0; x < cur_wid; x++)
 		{
+			cave_type *c_ptr = &cave[y][x];
+
 			if (empty_level)
-			  set_cave_feat(y, x, FEAT_FLOOR);
+				c_ptr->feat = FEAT_FLOOR;
 			else
 			  /* Create granite wall */
-			  set_cave_feat(y, x, FEAT_WALL_EXTRA);
+				c_ptr->feat = FEAT_WALL_EXTRA;
 		}
 	}
 
+#ifdef ALLOW_CAVERNS_AND_LAKES
 	/* Possible "destroyed" level */
-	if ((dun_level > 10) && (rand_int(DUN_DEST) == 0) && (small_levels)
-		&& (!quest_number(dun_level)))
+	if ((dun_level > 10) && (rand_int(DUN_DEST) == 0) && (small_levels))
+	{
 		destroyed = TRUE;
+
+		/* extra rubble around the place looks cool */
+		build_lake(3);
+	}
+
+	/* Make a lake some of the time */
+	if ((rand_int(LAKE_LEVEL) == 0) && !empty_level && !destroyed && terrain_streams)
+	{
+		/* Lake of Water */
+		if (dun_level > 30) laketype = 2;
+
+		/* Lake of Lava */
+		if (dun_level > 60) laketype = 1;
+
+		if (laketype != 0)
+		{
+			if (cheat_room)
+				msg_print("Lake on the level.");
+			build_lake(laketype);
+		}
+	}
+
+	if ((rand_int(DUN_CAV1/(dun_level + DUN_CAV2)) == 0) && !empty_level &&
+	    (laketype == 0) && !destroyed && (dun_level >= MIN_CAVERN))
+	{
+		cavern = TRUE;
+
+		/* make a large fractal cave in the middle of the dungeon */
+
+		if (cheat_room)
+			msg_print("Cavern on level.");
+
+		build_cavern();
+	}
+#endif /* ALLOW_CAVERNS_AND_LAKES */
+
+	/* Hack -- No destroyed "quest" levels */
+	if (quest_number(dun_level)) destroyed = FALSE;
 
 	/* Actual maximum number of rooms on this level */
 	dun->row_rooms = cur_hgt / BLOCK_HGT;
@@ -433,8 +499,10 @@ static bool cave_gen(void)
 		}
 	}
 
+
 	/* No "crowded" rooms yet */
-	dun->crowded = FALSE;
+	dun->crowded = 0;
+
 
 	/* No rooms yet */
 	dun->cent_n = 0;
@@ -460,13 +528,17 @@ static bool cave_gen(void)
 		if (ironman_rooms || (rand_int(DUN_UNUSUAL) < dun_level))
 		{
 			/* Roll for room type */
-			k = (ironman_rooms ? 0 : rand_int(100));
+			k = rand_int(100);
 
 			/* Attempt a very unusual room */
-			if (ironman_rooms || (rand_int(DUN_UNUSUAL) < dun_level))
+			if ((ironman_rooms && (rand_int(DUN_UNUSUAL) < dun_level * 2))
+				 || (rand_int(DUN_UNUSUAL) < dun_level))
 			{
-				/* Type 8 -- Greater vault (10%) */
-				if (k < 10)
+#ifdef FORCE_V_IDX
+				if (room_build(y, x, 8)) continue;
+#else
+				/* Type 8 -- Greater vault (4%) */
+				if (k < 4)
 				{
 					if (max_vault_ok > 1)
 					{
@@ -478,8 +550,8 @@ static bool cave_gen(void)
 					}
 				}
 
-				/* Type 7 -- Lesser vault (15%) */
-				if (k < 25)
+				/* Type 7 -- Lesser vault (6%) */
+				if (k < 10)
 				{
 					if (max_vault_ok > 0)
 					{
@@ -492,33 +564,85 @@ static bool cave_gen(void)
 				}
 
 
-				/* Type 5 -- Monster nest (15%) */
-				if ((k < 40) && room_build(y, x, 5)) continue;
+				/* Type 5 -- Monster nest (8%) */
+				if ((k < 18) && room_build(y, x, 5)) continue;
 
-				/* Type 6 -- Monster pit (15%) */
-				if ((k < 55) && room_build(y, x, 6)) continue;
+				/* Type 6 -- Monster pit (10%) */
+				if ((k < 28) && room_build(y, x, 6)) continue;
+
+				/* Type 10 -- Random vault (8%) */
+				if ((k < 32) && room_build(y, x, 10)) continue;
+#endif
+
 			}
 
-			/* Type 4 -- Large room (20%) */
-			if ((k < 20) && room_build(y, x, 4)) continue;
+			/* Type 4 -- Large room (25%) */
+			if ((k < 25) && room_build(y, x, 4)) continue;
 
-			/* Type 3 -- Cross room (20%) */
-			if ((k < 40) && room_build(y, x, 3)) continue;
+			/* Type 3 -- Cross room (25%) */
+			if ((k < 50) && room_build(y, x, 3)) continue;
 
-			/* Type 2 -- Overlapping (20%) */
-			if ((k < 60) && room_build(y, x, 2)) continue;
+			/* Type 2 -- Overlapping (25%) */
+			if ((k < 75) && room_build(y, x, 2)) continue;
 
-			/* Type 10 -- Labyrinthine (20%)*/
-			if ((k < 80) && room_build(y, x, 10)) continue;
+			/* Type 11 -- Circular (10%) */
+			if ((k < 85) && room_build(y, x, 11)) continue;
 
-			/* Type 9 -- Circular (20%) */
-			if ((k < 100) && room_build(y, x, 9)) continue;
+			/* Type 12 -- Crypt (15%) */
+			if ((k < 100) && room_build(y, x, 12)) continue;
 		}
 
-		/* Attempt a trivial room */
+		/* The deeper you are, the more cavelike the rooms are */
+		k = randint(100);
+
+		/* No caves when a cavern exists: they look bad */
+		if ((k < dun_level) && (!cavern) && (!empty_level) && (laketype == 0))
+		{
+			/* Type 9 -- Fractal cave */
+			if (room_build(y, x, 9)) continue;
+		}
+		else
+			/* Attempt a "trivial" room */
 		if (room_build(y, x, 1)) continue;
+		continue;
 	}
 
+	/* Make a hole in the dungeon roof sometimes at level 1 */
+	if ((dun_level == 1) && terrain_streams)
+	{
+		while (randint(DUN_MOS_DEN) == 1)
+		{
+			place_trees(randint(cur_wid - 2), randint(cur_hgt - 2));
+		}
+	}
+
+	/* Destroy the level if necessary */
+	if (destroyed) destroy_level();
+
+	/* Hack -- Add some rivers */
+	if ((randint(3) == 1) && (randint(dun_level) > 5) && terrain_streams)
+	{
+	 	/* Choose water or lava */
+		if (randint(MAX_DEPTH) - 1 > dun_level)
+		{
+			feat1 = FEAT_DEEP_WATER;
+			feat2 = FEAT_SHAL_WATER;
+		}
+		else
+		{
+			feat1 = FEAT_DEEP_LAVA;
+			feat2 = FEAT_SHAL_LAVA;
+		}
+
+
+	 	/* Only add river if matches lake type or if have no lake at all */
+	 	if (((laketype == 1) && (feat1 == FEAT_DEEP_LAVA)) ||
+	 	    ((laketype == 2) && (feat1 == FEAT_DEEP_WATER)) ||
+		     (laketype == 0))
+	 	{
+			add_river(feat1, feat2);
+		}
+	}
 
 	/* Special boundary walls -- Top */
 	for (x = 0; x < cur_wid; x++)
@@ -580,8 +704,66 @@ static bool cave_gen(void)
 	/* Connect all the rooms together */
 	for (i = 0; i < dun->cent_n; i++)
 	{
+
+		/* Reset the arrays */
+		dun->tunn_n = 0;
+		dun->wall_n = 0;
+
 		/* Connect the room to the previous room */
-		build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x);
+		if (pillar_tunnels && (randint(20) > dun_level) && (randint(100) < 25))
+		{
+			/* make catacomb-like tunnel */
+			build_tunnel2(dun->cent[i].x, dun->cent[i].y, x, y, 3, 30);
+		}
+		else if (randint(dun_level) > 25)
+		{
+			/* make cave-like tunnel */
+			build_tunnel2(dun->cent[i].x, dun->cent[i].y, x, y, 2, 2);
+		}
+		else
+		{
+			/* make normal tunnel */
+			build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x);
+		}
+
+		/* Turn the tunnel into corridor */
+		for (j = 0; j < dun->tunn_n; j++)
+		{
+			/* Access the grid */
+			y = dun->tunn[j].y;
+			x = dun->tunn[j].x;
+
+			/* Access the grid */
+			c_ptr = &cave[y][x];
+
+			/* Clear previous contents (if not a lake), add a floor */
+			if ((c_ptr->feat < FEAT_DEEP_WATER) ||
+			    (c_ptr->feat > FEAT_SHAL_LAVA))
+			{
+				c_ptr->feat = FEAT_FLOOR;
+			}
+		}
+
+		/* Apply the piercings that we found */
+		for (j = 0; j < dun->wall_n; j++)
+		{
+			/* Access the grid */
+			y = dun->wall[j].y;
+			x = dun->wall[j].x;
+
+			/* Access the grid */
+			c_ptr = &cave[y][x];
+
+			/* Clear previous contents, add up floor */
+			c_ptr->feat = FEAT_FLOOR;
+
+			/* Occasional doorway */
+			if (rand_int(100) < dun_tun_pen)
+			{
+				/* Place a random door */
+				place_random_door(y, x);
+			}
+		}
 
 		/* Remember the "previous" room */
 		y = dun->cent[i].y;
@@ -615,45 +797,12 @@ static bool cave_gen(void)
 		build_streamer(FEAT_QUARTZ, DUN_STR_QC);
 	}
 
-	/* Add other terrain types */
-	if (terrain_streams)
-	{
-		int feat1, feat2;
-
-		/* Add streamers of trees, water, or lava */
-		if ((dun_level == 1) && (randint(20) > 10))
-			for (i = 0; i < randint(DUN_STR_QUA); i++)
-				build_streamer2(FEAT_TREES, FALSE, TRUE);
-
-		/* Choose water or lava */
-		if (rand_int(MAX_DEPTH) > dun_level)
-		{
-			feat1 = FEAT_DEEP_WATER;
-			feat2 = FEAT_SHAL_WATER;
-		}
-		else
-		{
-			feat1 = FEAT_DEEP_LAVA;
-			feat2 = FEAT_SHAL_LAVA;
-		}
-
-		/* Hack -- Add some rivers */
-		while(!rand_int(3)) add_river(feat1, feat2, randnor(40, 15));
-	}
-
-	/* Destroy the level if necessary */
-	if (destroyed) destroy_level();
-
 	/* Place 3 or 4 down stairs near some walls */
-	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
+	if (!alloc_stairs(FEAT_MORE, rand_range(3, 4), 3)) return FALSE;
 
 	/* Place 1 or 2 up stairs near some walls */
-	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
+	if (!alloc_stairs(FEAT_LESS, rand_range(1, 2), 3)) return FALSE;
 
-
-	/* Determine the character location */
-	if (!new_player_spot())
-		return FALSE;
 
 	/* Handle the quest monster placements */
 	for (i = 0; i < max_quests; i++)
@@ -693,10 +842,6 @@ static bool cave_gen(void)
 							y = rand_int(cur_hgt);
 							x = rand_int(cur_wid);
 							if (!cave_naked_bold(y, x)) continue;
-
-							/* No random quests for aquatic monsters */
-							if (cave[y][x].feat != FEAT_FLOOR) continue;
-
 							if (distance(y, x, py, px) < 10) continue;
 							else break;
 						}
@@ -769,6 +914,12 @@ static bool cave_gen(void)
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ITEM, 3));
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, randnor(DUN_AMT_GOLD, 3));
 
+	/* Put some invisible walls in the dungeon for nightmare mode */
+	if (ironman_nightmare)
+	{
+		alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_INVIS, randnor(DUN_AMT_INVIS, 3));
+	}
+
 	if (empty_level && ((randint(DARK_EMPTY) != 1) || (randint(100) > dun_level)))
 	{
 		/* Lite the cave */
@@ -780,6 +931,10 @@ static bool cave_gen(void)
 			}
 		}
 	}
+
+	/* Determine the character location */
+	if (!new_player_spot())
+		return FALSE;
 
 	return TRUE;
 }
@@ -992,9 +1147,6 @@ static bool level_gen(cptr *why)
 
 static byte extract_feeling(void)
 {
-	/* It takes 1000 game turns for "feelings" to recharge */
-	if ((turn - old_turn) < 1000) return 0;
-
 	/* Hack -- no feeling in the town */
 	if (!dun_level) return 0;
 
@@ -1009,6 +1161,9 @@ static byte extract_feeling(void)
 	if (rating > 20) return 7;
 	if (rating > 10) return 8;
 	if (rating > 0) return 9;
+
+	if ((turn - old_turn) > 50000L)
+		chg_virtue(V_PATIENCE, 1);
 
 	return 10;
 }

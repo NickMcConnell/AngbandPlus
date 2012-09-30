@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:56 $
+/* CVS: Last edit by $Author: ebock $ on $Date: 2000/01/31 04:18:05 $
  *
  * File: grid.c
  * Purpose: low-level dungeon creation primitives
@@ -53,6 +53,7 @@ bool new_player_spot(void)
 	return TRUE;
 }
 
+
 /*
  * Place an up/down staircase at given location
  */
@@ -97,12 +98,21 @@ void place_random_stairs(int y, int x)
 		place_down_stairs(y, x);
 }
 
+
 /*
  * Place a random type of door at the given location
  */
 void place_random_door(int y, int x)
 {
 	int tmp;
+
+	/* Invisible wall */
+	if (ironman_nightmare && !rand_int(666))
+	{
+		/* Create invisible wall */
+		cave_set_feat(y, x, FEAT_WALL_INVIS);
+		return;
+	}
 
 	/* Choose an object */
 	tmp = rand_int(1000);
@@ -139,6 +149,14 @@ void place_random_door(int y, int x)
 void place_closed_door(int y, int x)
 {
 	int tmp;
+
+	/* Invisible wall */
+	if (ironman_nightmare && !rand_int(666))
+	{
+		/* Create invisible wall */
+		cave_set_feat(y, x, FEAT_WALL_INVIS);
+		return;
+	}
 
 	/* Choose an object */
 	tmp = rand_int(400);
@@ -296,7 +314,6 @@ void vault_trap_aux(int y, int x, int yd, int xd)
 			}
 		}
 
-
 		/* Require "naked" floor grids */
 		if (!cave_naked_bold(y1, x1)) continue;
 
@@ -364,10 +381,10 @@ int next_to_walls(int y, int x)
 {
 	int	k = 0;
 
-	if (cave_floor_bold(y+1, x)) k++;
-	if (cave_floor_bold(y-1, x)) k++;
-	if (cave_floor_bold(y, x+1)) k++;
-	if (cave_floor_bold(y, x-1)) k++;
+	if (cave_floor_bold(y + 1, x)) k++;
+	if (cave_floor_bold(y - 1, x)) k++;
+	if (cave_floor_bold(y, x + 1)) k++;
+	if (cave_floor_bold(y, x - 1)) k++;
 
 	return (k);
 }
@@ -386,13 +403,9 @@ void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
 	if (*rdir && *cdir)
 	{
 		if (rand_int(100) < 50)
-		{
 			*rdir = 0;
-		}
 		else
-		{
 			*cdir = 0;
-		}
 	}
 }
 
@@ -410,6 +423,44 @@ void rand_dir(int *rdir, int *cdir)
 	*rdir = ddy_ddd[i];
 	*cdir = ddx_ddd[i];
 }
+
+
+/* Function that sees if a square is a floor.  (Includes range checking.) */
+bool get_is_floor(int x, int y)
+{
+	if (!in_bounds(y, x))
+	{
+		/* Out of bounds */
+		return (FALSE);
+	}
+
+	/* Do the real check */
+	if (cave[y][x].feat == FEAT_FLOOR) return (TRUE);
+
+	return (FALSE);
+}
+
+
+/* Set a square to be floor.  (Includes range checking.) */
+void set_floor(int x, int y)
+{
+	if (!in_bounds(y, x))
+	{
+		/* Out of bounds */
+		return;
+	}
+
+	if (cave[y][x].info & CAVE_ROOM)
+	{
+		/* A room border don't touch. */
+		return;
+	}
+
+	/* Set to be floor if is a wall (don't touch lakes). */
+	if (cave[y][x].feat == FEAT_WALL_EXTRA)
+		cave[y][x].feat = FEAT_FLOOR;
+}
+
 
 
 /*
@@ -448,7 +499,7 @@ void rand_dir(int *rdir, int *cdir)
  */
 void build_tunnel(int row1, int col1, int row2, int col2)
 {
-	int i, y, x;
+	int y, x;
 	int tmp_row, tmp_col;
 	int row_dir, col_dir;
 	int start_row, start_col;
@@ -457,11 +508,6 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 	bool door_flag = FALSE;
 
 	cave_type *c_ptr;
-
-
-	/* Reset the arrays */
-	dun->tunn_n = 0;
-	dun->wall_n = 0;
 
 	/* Save the starting location */
 	start_row = row1;
@@ -632,43 +678,431 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 			}
 		}
 	}
+}
 
 
-	/* Turn the tunnel into corridor */
-	for (i = 0; i < dun->tunn_n; i++)
+/*
+ * This routine adds the square to the tunnel
+ * It also checks for SOLID walls - and returns a nearby
+ * non-SOLID square in (x,y) so that a simple avoiding
+ * routine can be used. The returned boolean value reflects
+ * whether or not this routine hit a SOLID wall.
+ *
+ * "affectwall" toggles whether or not this new square affects
+ * the boundaries of rooms. - This is used by the catacomb
+ * routine.
+ */
+static bool set_tunnel(int *x, int *y, bool affectwall)
+{
+	int feat, i, j, dx, dy;
+
+
+	if (!in_bounds(*y, *x)) return TRUE;
+
+	feat = cave[*y][*x].feat;
+
+	if ((feat == FEAT_PERM_OUTER) ||
+	    (feat == FEAT_PERM_INNER) ||
+	    (feat == FEAT_WALL_INNER))
 	{
-		/* Access the grid */
-		y = dun->tunn[i].y;
-		x = dun->tunn[i].x;
-
-		/* Access the grid */
-		c_ptr = &cave[y][x];
-
-		/* Clear previous contents, add a floor */
-		c_ptr->feat = FEAT_FLOOR;
+		/*
+		 * Ignore permanent walls - sometimes cannot tunnel around them anyway
+		 * so don't try - it just complicates things unnecessarily.
+		 */
+		return TRUE;
 	}
 
-
-	/* Apply the piercings that we found */
-	for (i = 0; i < dun->wall_n; i++)
+	if (feat == FEAT_WALL_EXTRA)
 	{
-		/* Access the grid */
-		y = dun->wall[i].y;
-		x = dun->wall[i].x;
-
-		/* Access the grid */
-		c_ptr = &cave[y][x];
-
-		/* Clear previous contents, add up floor */
-		c_ptr->feat = FEAT_FLOOR;
-
-		/* Occasional doorway */
-		if (rand_int(100) < dun_tun_pen)
+		/* Save the tunnel location */
+		if (dun->tunn_n < TUNN_MAX)
 		{
-			/* Place a random door */
-			place_random_door(y, x);
+				dun->tunn[dun->tunn_n].y = *y;
+				dun->tunn[dun->tunn_n].x = *x;
+				dun->tunn_n++;
+		}
+
+		return TRUE;
+	}
+
+	if (feat == FEAT_FLOOR)
+	{
+		/* Don't do anything */
+		return TRUE;
+	}
+
+	if ((feat == FEAT_WALL_OUTER) && affectwall)
+	{
+		/* Save the wall location */
+		if (dun->wall_n < WALL_MAX)
+		{
+			dun->wall[dun->wall_n].y = *y;
+			dun->wall[dun->wall_n].x = *x;
+			dun->wall_n++;
+		}
+
+		/* Forbid re-entry near this piercing */
+		for (j = *y - 1; j <= *y + 1; j++)
+		{
+			for (i = *x - 1; i <= *x + 1; i++)
+			{
+				/* Convert adjacent "outer" walls as "solid" walls */
+				if (cave[j][i].feat == FEAT_WALL_OUTER)
+				{
+					/* Change the wall to a "solid" wall */
+					cave_set_feat(j, i, FEAT_WALL_SOLID);
+				}
+			}
+		}
+		cave_set_feat(*y, *x, FEAT_FLOOR);
+
+		return TRUE;
+	}
+
+	if ((feat == FEAT_WALL_SOLID) && affectwall)
+	{
+		/* cannot place tunnel here - use a square to the side */
+
+		/* find usable square and return value in (x,y) */
+
+		i = 50;
+
+		dy = 0;
+		dx = 0;
+		while ((i > 0) && (cave[*y + dy][*x + dx].feat == FEAT_WALL_SOLID))
+		{
+			dy = rand_int(3) - 1;
+			dx = rand_int(3) - 1;
+
+			if (!in_bounds(*y + dy, *x + dx))
+			{
+				dx = 0;
+				dy = 0;
+			}
+
+			i--;
+		}
+
+		if (i == 0)
+		{
+			/* Failed for some reason: hack - ignore the solidness*/
+			cave[*y][*x].feat = FEAT_WALL_OUTER;
+			dx = 0;
+			dy = 0;
+		}
+
+		/* Give new, acceptable coordinate. */
+		*x = *x + dx;
+		*y = *y + dy;
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+/*
+ * This routine creates the catacomb-like tunnels by removing extra rock.
+ * Note that this routine is only called on "even" squares - so it gives
+ * a natural checkerboard pattern.
+ */
+static void create_cata_tunnel(int x, int y)
+{
+	int x1, y1;
+
+	/* Build tunnel */
+	x1 = x - 1;
+	y1 = y;
+	set_tunnel(&x1, &y1, FALSE);
+
+	x1 = x + 1;
+	y1 = y;
+	set_tunnel(&x1, &y1, FALSE);
+
+	x1 = x;
+	y1 = y - 1;
+	set_tunnel(&x1, &y1, FALSE);
+
+	x1 = x;
+	y1 = y + 1;
+	set_tunnel(&x1, &y1, FALSE);
+}
+
+
+/*
+ * This routine does the bulk of the work in creating the new types of tunnels.
+ * It is designed to use very simple algorithms to go from (x1,y1) to (x2,y2)
+ * It doesn't need to add any complexity - straight lines are fine.
+ * The SOLID walls are avoided by a recursive algorithm which tries random ways
+ * around the obstical until it works.  The number of itterations is counted, and it
+ * this gets too large the routine exits. This should stop any crashes - but may leave
+ * small gaps in the tunnel where there are too many SOLID walls.
+ *
+ * Type 1 tunnels are extremely simple - straight line from A to B.  This is only used
+ * as a part of the dodge SOLID walls algorithm.
+ *
+ * Type 2 tunnels are made of two straight lines at right angles. When this is used with
+ * short line segments it gives the "cavelike" tunnels seen deeper in the dungeon.
+ *
+ * Type 3 tunnels are made of two straight lines like type 2, but with extra rock removed.
+ * This, when used with longer line segments gives the "catacomb-like" tunnels seen near
+ * the surface.
+ */
+static void short_seg_hack(int x1, int y1, int x2, int y2, int type, int count, bool *fail)
+{
+	int i, x, y;
+	int length;
+
+	/* Check for early exit */
+	if (!(*fail)) return;
+
+	length = distance(x1, y1, x2, y2);
+
+	count++;
+
+	if ((type == 1) && (length != 0))
+	{
+
+		for (i = 0; i <= length; i++)
+		{
+			x = x1 + i * (x2 - x1) / length;
+			y = y1 + i * (y2 - y1) / length;
+			if (!set_tunnel(&x, &y, TRUE))
+			{
+				if (count > 50)
+				{
+					/* This isn't working - probably have an infinite loop */
+					*fail = FALSE;
+					return;
+				}
+
+				/* solid wall - so try to go around */
+				short_seg_hack(x, y, x1 + (i - 1) * (x2 - x1) / length, y1 + (i - 1) * (y2 - y1) / length, 1, count, fail);
+				short_seg_hack(x, y, x1 + (i + 1) * (x2 - x1) / length, y1 + (i + 1) * (y2 - y1) / length, 1, count, fail);
+			}
+		}
+	}
+	else if ((type == 2) || (type == 3))
+	{
+		if (x1 < x2)
+		{
+			for (i = x1; i <= x2; i++)
+			{
+				x = i;
+				y = y1;
+				if (!set_tunnel(&x, &y, TRUE))
+				{
+					/* solid wall - so try to go around */
+					short_seg_hack(x, y, i - 1, y1, 1, count, fail);
+					short_seg_hack(x, y, i + 1, y1, 1, count, fail);
+				}
+				if ((type == 3) && ((x + y) % 2))
+				{
+					create_cata_tunnel(i, y1);
+				}
+			}
+		}
+		else
+		{
+			for (i = x2; i <= x1; i++)
+			{
+				x = i;
+				y = y1;
+				if (!set_tunnel(&x, &y, TRUE))
+				{
+					/* solid wall - so try to go around */
+					short_seg_hack(x, y, i - 1, y1, 1, count, fail);
+					short_seg_hack(x, y, i + 1, y1, 1, count, fail);
+				}
+				if ((type == 3) && ((x + y) % 2))
+				{
+					create_cata_tunnel(i, y1);
+				}
+			}
+
+		}
+		if (y1 < y2)
+		{
+			for (i = y1; i <= y2; i++)
+			{
+				x = x2;
+				y = i;
+				if (!set_tunnel(&x, &y, TRUE))
+				{
+					/* solid wall - so try to go around */
+					short_seg_hack(x, y, x2, i - 1, 1, count, fail);
+					short_seg_hack(x, y, x2, i + 1, 1, count, fail);
+				}
+				if ((type == 3) && ((x + y) % 2))
+				{
+					create_cata_tunnel(x2, i);
+				}
+			}
+		}
+		else
+		{
+			for (i = y2; i <= y1; i++)
+			{
+				x = x2;
+				y = i;
+				if (!set_tunnel(&x, &y, TRUE))
+				{
+					/* solid wall - so try to go around */
+					short_seg_hack(x, y, x2, i - 1, 1, count, fail);
+					short_seg_hack(x, y, x2, i + 1, 1, count, fail);
+				}
+				if ((type == 3) && ((x + y) % 2))
+				{
+					create_cata_tunnel(x2, i);
+				}
+			}
 		}
 	}
 }
 
 
+/*
+ * This routine maps a path from (x1, y1) to (x2, y2) avoiding SOLID walls.
+ * Permanent rock is ignored in this path finding- sometimes there is no
+ * path around anyway -so there will be a crash if we try to find one.
+ * This routine is much like the river creation routine in Zangband.
+ * It works by dividing a line segment into two.  The segments are divided
+ * until they are less than "cutoff" - when the corresponding routine from
+ * "short_seg_hack" is called.
+ * Note it is VERY important that the "stop if hit another passage" logic
+ * stays as is.  Without this the dungeon turns into Swiss Cheese...
+ */
+bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
+{
+	int x3, y3, dx, dy;
+	int changex, changey;
+	int midval;
+	int length;
+	int i;
+	bool retval, firstsuccede;
+
+	length = distance(x1, y1, x2, y2);
+
+	if (length > cutoff)
+	{
+		/*
+		* Divide path in half and call routine twice.
+		*/
+		dx = (x2 - x1) / 2;
+		dy = (y2 - y1) / 2;
+
+		/* perturbation perpendicular to path */
+		changex = (rand_int(abs(dy) + 2) * 2 - abs(dy) - 1) / 2;
+
+		/* perturbation perpendicular to path */
+		changey = (rand_int(abs(dx) + 2) * 2 - abs(dx) - 1) / 2;
+
+		/* Work out "mid" ponit */
+		x3 = x1 + dx + changex;
+		y3 = y1 + dy + changey;
+
+		/* See if in bounds - if not - do not perturb point*/
+		if (!in_bounds(y3, x3))
+		{
+			x3 = (x1 + x2) / 2;
+			y3 = (y1 + y2) / 2;
+		}
+		/* cache midvalue */
+		midval = cave[y3][x3].feat;
+		if (midval == FEAT_WALL_SOLID)
+		{
+			/* move midpoint a bit to avoid problem. */
+
+			i = 50;
+
+			dy = 0;
+			dx = 0;
+			while ((i > 0) && (cave[y3 + dy][x3 + dx].feat == FEAT_WALL_SOLID))
+			{
+				dy = rand_int(3) - 1;
+				dx = rand_int(3) - 1;
+				if (!in_bounds(y3 + dy, x3 + dx))
+				{
+					dx = 0;
+					dy = 0;
+				}
+				i--;
+			}
+
+			if (i == 0)
+			{
+				/* Failed for some reason: hack - ignore the solidness*/
+				cave[y3][x3].feat = FEAT_WALL_OUTER;
+				dx = 0;
+				dy = 0;
+			}
+			y3 += dy;
+			x3 += dx;
+			midval = cave[y3][x3].feat;
+		}
+
+		if (midval == FEAT_FLOOR)
+		{
+			if (build_tunnel2(x1, y1, x3, y3, type, cutoff))
+			{
+				if ((cave[y3][x3].info & CAVE_ROOM) || (randint(100) > 95))
+				{
+					/* do second half only if works + if have hit a room */
+					retval = build_tunnel2(x3, y3, x2, y2, type, cutoff);
+				}
+				else
+				{
+					/* have hit another tunnel - make a set of doors here */
+					retval = FALSE;
+
+					/* Save the door location */
+					if (dun->door_n < DOOR_MAX)
+					{
+						dun->door[dun->door_n].y = y3;
+						dun->door[dun->door_n].x = x3;
+						dun->door_n++;
+					}
+				}
+				firstsuccede = TRUE;
+			}
+			else
+			{
+				/* false- didn't work all the way */
+				retval = FALSE;
+				firstsuccede = FALSE;
+			}
+		}
+		else
+		{
+			/* tunnel through walls */
+			if (build_tunnel2(x1, y1, x3, y3, type, cutoff))
+			{
+				retval = build_tunnel2(x3, y3, x2, y2, type, cutoff);
+				firstsuccede = TRUE;
+			}
+			else
+			{
+				/* false- didn't work all the way */
+				retval = FALSE;
+				firstsuccede = FALSE;
+			}
+		}
+		if (firstsuccede)
+		{
+			/* only do this if the first half has worked */
+			set_tunnel(&x3, &y3, TRUE);
+		}
+		/* return value calculated above */
+		return retval;
+	}
+	else
+	{
+		/* Do a short segment */
+		retval = TRUE;
+		short_seg_hack(x1, y1, x2, y2, type, 0, &retval);
+
+		/* Hack - ignore return value so avoid infinite loops */
+		return TRUE;
+	}
+}

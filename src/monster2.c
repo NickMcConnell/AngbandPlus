@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:58 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:32 $ */
 /* File: monster2.c */
 
 /* Purpose: misc code for monsters */
@@ -151,7 +151,7 @@ void delete_monster_idx(int i)
 
 
 	/* Wipe the Monster */
-	WIPE(m_ptr, monster_type);
+	(void) WIPE(m_ptr, monster_type);
 
 	/* Count monsters */
 	m_cnt--;
@@ -239,7 +239,7 @@ static void compact_monsters_aux(int i1, int i2)
 	COPY(&m_list[i2], &m_list[i1], monster_type);
 
 	/* Wipe the hole */
-	WIPE(&m_list[i1], monster_type);
+	(void) WIPE(&m_list[i1], monster_type);
 
 #ifdef USE_SCRIPT
 	copy_monster_callback(i1, i2);
@@ -363,7 +363,7 @@ void wipe_m_list(void)
 		cave[m_ptr->fy][m_ptr->fx].m_idx = 0;
 
 		/* Wipe the Monster */
-		WIPE(m_ptr, monster_type);
+		(void) WIPE(m_ptr, monster_type);
 
 #ifdef USE_SCRIPT
 		delete_monster_callback(i);
@@ -998,8 +998,10 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 		if (p_ptr->prace == RACE_IMP) return;
 
 		/* Undead characters are 50% likely to be unaffected */
-		if ((p_ptr->prace == RACE_SKELETON) || (p_ptr->prace == RACE_ZOMBIE)
-			|| (p_ptr->prace == RACE_VAMPIRE) || (p_ptr->prace == RACE_SPECTRE))
+		if ((p_ptr->prace == RACE_SKELETON) ||
+		    (p_ptr->prace == RACE_ZOMBIE) ||
+		    (p_ptr->prace == RACE_VAMPIRE) ||
+		    (p_ptr->prace == RACE_SPECTRE))
 		{
 			if (saving_throw(25 + p_ptr->lev)) return;
 		}
@@ -1219,7 +1221,7 @@ void update_mon(int m_idx, bool full)
 		int dx = (px > fx) ? (px - fx) : (fx - px);
 
 		/* Approximate distance */
-		d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+		d = (dy > dx) ? (dy + (dx >> 1)) : (dx + (dy >> 1));
 
 		/* Restrict distance */
 		if (d > 255) d = 255;
@@ -1507,9 +1509,12 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return (FALSE);
 
 	/* Nor on the Pattern */
-	if ((cave[y][x].feat >= FEAT_PATTERN_START)
-	 && (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
+	if ((cave[y][x].feat >= FEAT_PATTERN_START) &&
+	    (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
 		return (FALSE);
+
+	/* Nor on invisible walls */
+	if (cave[y][x].feat == FEAT_WALL_INVIS) return (FALSE);
 
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
@@ -1732,8 +1737,8 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool friendly
 
 	int hack_n = 0;
 
-	byte hack_y[GROUP_MAX];
-	byte hack_x[GROUP_MAX];
+	int hack_y[GROUP_MAX];
+	int hack_x[GROUP_MAX];
 
 
 	/* Pick a group size */
@@ -1839,6 +1844,21 @@ static bool place_monster_okay(int r_idx)
 
 	/* Paranoia -- Skip identical monsters */
 	if (place_monster_idx == r_idx) return (FALSE);
+
+	/* Good vs. evil */
+	if (((r_ptr->flags3 & RF3_EVIL) &&
+		  (z_ptr->flags3 & RF3_GOOD)) ||
+		 ((r_ptr->flags3 & RF3_GOOD) &&
+		  (z_ptr->flags3 & RF3_EVIL)))
+	{
+		return FALSE;
+	}
+
+	/* Hostile vs. non-hostile */
+	if ((r_ptr->flags7 & RF7_FRIENDLY) != (z_ptr->flags7 & RF7_FRIENDLY))
+	{
+		return FALSE;
+	}
 
 	/* Okay */
 	return (TRUE);
@@ -1959,8 +1979,11 @@ bool place_monster(int y, int x, bool slp, bool grp)
 
 bool alloc_horde(int y, int x)
 {
-	int r_idx;
 	monster_race *r_ptr;
+
+	int r_idx;
+	int m_idx;
+
 	int attempts = 1000;
 	int cy = y;
 	int cx = x;
@@ -1993,13 +2016,15 @@ bool alloc_horde(int y, int x)
 
 	if (attempts < 1) return FALSE;
 
+	m_idx = cave[y][x].m_idx;
+
 	summon_kin_type = r_ptr->d_char;
 
 	for (attempts = randint(10) + 5; attempts; attempts--)
 	{
 		scatter(&cy, &cx, y, x, 5, 0);
 
-		(void)summon_specific(cy, cx, dun_level + 5, SUMMON_KIN, TRUE, FALSE, FALSE);
+		(void)summon_specific(m_idx, cy, cx, dun_level + 5, SUMMON_KIN, TRUE, FALSE, FALSE);
 
 		y = cy;
 		x = cx;
@@ -2085,6 +2110,18 @@ static int summon_specific_type = 0;
 
 
 /*
+ * Hack -- the index of the summoning monster
+ */
+static int summon_specific_who = -1;
+
+
+/*
+ * Hack -- the hostility of the summoned monster
+ */
+static int summon_specific_hostile = TRUE;
+
+
+/*
  * Hack -- help decide if a monster race is "okay" to summon
  */
 static bool summon_specific_okay(int r_idx)
@@ -2096,6 +2133,40 @@ static bool summon_specific_okay(int r_idx)
 	/* Hack - Only summon dungeon monsters */
 	if (!monster_dungeon(r_idx)) return (FALSE);
 
+	/* Hack -- identify the summoning monster */
+	if (summon_specific_who > 0)
+	{
+		monster_type *m_ptr = &m_list[summon_specific_who];
+		monster_race *s_ptr = &r_info[m_ptr->r_idx];
+
+		/* Do not summon enemies */
+
+		/* Good vs. evil */
+		if (((r_ptr->flags3 & RF3_EVIL) &&
+			  (s_ptr->flags3 & RF3_GOOD)) ||
+			 ((r_ptr->flags3 & RF3_GOOD) &&
+			  (s_ptr->flags3 & RF3_EVIL)))
+		{
+			return FALSE;
+		}
+
+		/* Hostile vs. non-hostile */
+		if (is_hostile(m_ptr) != summon_specific_hostile)
+		{
+			return FALSE;
+		}
+	}
+	/* Use the player's alignment */
+	else if (summon_specific_who < 0)
+	{
+		/* Do not summon enemies of the pets */
+		if (((p_ptr->align < 0) && (r_ptr->flags3 & RF3_GOOD)) ||
+			 ((p_ptr->align > 0) && (r_ptr->flags3 & RF3_EVIL)))
+		{
+			return FALSE;
+		}
+	}
+
 	/* Hack -- no specific type specified */
 	if (!summon_specific_type) return (TRUE);
 
@@ -2105,7 +2176,7 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_ANT:
 		{
 			okay = ((r_ptr->d_char == 'a') &&
-			        !(r_ptr->flags1 & RF1_UNIQUE));
+					  !(r_ptr->flags1 & RF1_UNIQUE));
 			break;
 		}
 
@@ -2119,7 +2190,7 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_HOUND:
 		{
 			okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z')) &&
-			        !(r_ptr->flags1 & RF1_UNIQUE));
+					  !(r_ptr->flags1 & RF1_UNIQUE));
 			break;
 		}
 
@@ -2140,7 +2211,7 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_DEMON:
 		{
 			okay = ((r_ptr->flags3 & RF3_DEMON) &&
-			        !(r_ptr->flags1 & RF1_UNIQUE));
+					  !(r_ptr->flags1 & RF1_UNIQUE));
 			break;
 		}
 
@@ -2154,7 +2225,7 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_DRAGON:
 		{
 			okay = ((r_ptr->flags3 & RF3_DRAGON) &&
-			        !(r_ptr->flags1 & RF1_UNIQUE));
+					  !(r_ptr->flags1 & RF1_UNIQUE));
 			break;
 		}
 
@@ -2206,7 +2277,7 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_BIZARRE4:
 		{
 			okay = ((r_ptr->d_char == 'v') &&
-			       !(r_ptr->flags1 & RF1_UNIQUE));
+					 !(r_ptr->flags1 & RF1_UNIQUE));
 			break;
 		}
 
@@ -2231,7 +2302,7 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_CYBER:
 		{
 			okay = ((r_ptr->d_char == 'U') &&
-			        (r_ptr->flags4 & RF4_ROCKET) &&
+					  (r_ptr->flags4 & RF4_ROCKET) &&
 			       !(r_ptr->flags1 & RF1_UNIQUE));
 			break;
 		}
@@ -2264,7 +2335,7 @@ static bool summon_specific_okay(int r_idx)
 			       (strchr("abcflqrwBCIJKMRS", r_ptr->d_char)) &&
 			       !(r_ptr->flags3 & (RF3_DRAGON)) &&
 			       !(r_ptr->flags3 & (RF3_EVIL)) &&
-			       !(r_ptr->flags3 & (RF3_UNDEAD)) &&
+					 !(r_ptr->flags3 & (RF3_UNDEAD)) &&
 			       !(r_ptr->flags3 & (RF3_DEMON)) &&
 			       !(r_ptr->flags4 || r_ptr->flags5 || r_ptr->flags6) &&
 			       !(r_ptr->flags1 & (RF1_UNIQUE)));
@@ -2344,7 +2415,7 @@ static bool summon_specific_okay(int r_idx)
  *
  * Note that this function may not succeed, though this is very rare.
  */
-bool summon_specific(int y1, int x1, int lev, int type, bool group, bool friendly, bool pet)
+bool summon_specific(int who, int y1, int x1, int lev, int type, bool group, bool friendly, bool pet)
 {
 	int i, x, y, r_idx;
 
@@ -2366,7 +2437,7 @@ bool summon_specific(int y1, int x1, int lev, int type, bool group, bool friendl
 
 		/* ... nor on the Pattern */
 		if ((cave[y][x].feat >= FEAT_PATTERN_START) &&
-		    (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
+			 (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
 			continue;
 
 		/* Okay */
@@ -2376,9 +2447,14 @@ bool summon_specific(int y1, int x1, int lev, int type, bool group, bool friendl
 	/* Failure */
 	if (i == 20) return (FALSE);
 
+	/* Save the summoner */
+	summon_specific_who = who;
 
 	/* Save the "summon" type */
 	summon_specific_type = type;
+
+	/* Save the hostility */
+	summon_specific_hostile = (!friendly && !pet);
 
 	/* Prepare allocation table */
 	get_mon_num_prep(summon_specific_okay, get_monster_hook2(y, x));
@@ -2397,7 +2473,7 @@ bool summon_specific(int y1, int x1, int lev, int type, bool group, bool friendl
 }
 
 /* A "dangerous" function, creates a pet of the specified type */
-bool summon_named_creature (int oy, int ox, int r_idx, bool slp, bool group_ok, bool pet)
+bool summon_named_creature(int oy, int ox, int r_idx, bool slp, bool group_ok, bool pet)
 {
 	int i, x, y;
 	bool success = FALSE;

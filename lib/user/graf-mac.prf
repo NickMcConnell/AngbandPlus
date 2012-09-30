@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:48 $
+# CVS: Last edit by $Author: rr9 $ on $Date: 2000/01/27 16:39:07 $
 # File: graf-mac.prf
 
 #
@@ -9,6 +9,10 @@
 
 
 # Standard file
+?:[EQU $GRAF old]
 %:graf-xxx.prf
 
+# New tiles
+?:[EQU $GRAF new]
+%:graf-new.prf
 

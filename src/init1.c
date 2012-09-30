@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/11 21:00:03 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/02 11:47:09 $ */
 /* File: init1.c */
 
 /* Purpose: Initialization (part 1) -BEN- */
@@ -526,7 +526,7 @@ static cptr k_info_flags2[] =
 	"IM_ELEC",
 	"IM_FIRE",
 	"IM_COLD",
-	"XXX3",
+	"THROW",
 	"REFLECT",
 	"FREE_ACT",
 	"HOLD_LIFE",
@@ -1315,7 +1315,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr->ds = hd2;
 			k_ptr->to_h = th;
 			k_ptr->to_d = td;
-			k_ptr->to_a =  ta;
+			k_ptr->to_a = ta;
 
 			/* Next... */
 			continue;
@@ -1610,7 +1610,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			a_ptr->ds = hd2;
 			a_ptr->to_h = th;
 			a_ptr->to_d = td;
-			a_ptr->to_a =  ta;
+			a_ptr->to_a = ta;
 
 			/* Next... */
 			continue;
@@ -2932,7 +2932,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				}
 
 				/* Apply magic (no messages, no artifacts) */
-				apply_magic(o_ptr, base_level, FALSE, TRUE, FALSE);
+				apply_magic(o_ptr, base_level, FALSE, TRUE, FALSE, FALSE);
 
 #ifdef USE_SCRIPT
 				o_ptr->python = object_create_callback(o_ptr);
@@ -2990,7 +2990,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				q_ptr->k_idx   = atoi(zz[8]);
 
 				if (num > 9)
-					q_ptr->flags  = atoi(zz[9]);
+					q_ptr->flags = atoi(zz[9]);
 
 				r_ptr = &r_info[q_ptr->r_idx];
 				if (r_ptr->flags1 & RF1_UNIQUE)
@@ -3253,7 +3253,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			while (*s && (f != b2))
 			{
 				t = process_dungeon_file_expr(&s, &f);
-				if (*t && streq(t, "1")) v = "0";
+				if (*t && !streq(t, "0")) v = "0";
 			}
 		}
 
@@ -3660,7 +3660,7 @@ void write_r_info_txt(void)
 		fprintf(fff, "W:%d:%d:%d:%ld\n", r_ptr->level, r_ptr->rarity, r_ptr->extra, r_ptr->mexp);
 
 		/* Write Blows */
-		for(j = 0; j < 4; j++)
+		for (j = 0; j < 4; j++)
 		{
 			b_ptr = &(r_ptr->blow[j]);
 

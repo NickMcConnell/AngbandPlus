@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/10/24 19:22:59 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:07 $ */
 /* File: main-gcu.c */
 
 /*
@@ -244,6 +244,8 @@ static int colortable[16];
 #endif
 
 
+
+static bool use_blocks = FALSE;
 
 /*
  * Place the "keymap" into its "normal" state
@@ -841,11 +843,11 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 	for (i = 0; i < n; i++)
 	{
 #ifdef USE_GRAPHICS
-		/* Special character */
-		if (use_graphics && (s[i] & 0x80))
+		/* Special characters? */
+		if (use_blocks)
 		{
 			/* Determine picture to use */
-			switch (s[i] & 0x7F)
+			switch (s[i])
 			{
 				/* Wall */
 				case '#':
@@ -859,7 +861,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 
 				/* XXX */
 				default:
-					pic = '?';
+					pic = s[i];
 					break;
 			}
 
@@ -963,7 +965,10 @@ errr init_gcu(int argc, char *argv[])
 
 #ifdef USE_GRAPHICS
 	/* Set graphics flag */
-	use_graphics = arg_graphics;
+	use_graphics = FALSE;
+	
+	/* Use the graphical wall tiles? */
+	use_blocks = arg_graphics;
 #endif
 
 #ifdef A_COLOR

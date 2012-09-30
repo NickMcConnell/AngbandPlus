@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:01 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:29:33 $ */
 /* File: z-util.c */
 
 /* Purpose: Low level utilities -BEN- */
@@ -124,7 +124,7 @@ bool func_false(void)
 
 
 /*
- * Determine if string "t" is equal to string "t"
+ * Determine if string "a" is equal to string "b"
  */
 bool streq(cptr a, cptr b)
 {

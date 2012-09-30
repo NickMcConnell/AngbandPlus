@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:52 $
+# CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:28:37 $
 # q0000027.txt
 # The Old Castle
 # By Shayne Steele (steele@cs.fsu.edu)
@@ -180,10 +180,10 @@ F:Q:1:12:0:*7
 F:v:39:12
 
 # Dungeon layout
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XxxWWWWWWxX%sTTTTTT%XX%XXX%X%X,B,X%XTT  sM      M%%%TThTTXXX%XXX%%%%hTX
 D:XWWWWWWWWXXR%%%%%%%sXX%%%%XX%X,,,X%XT  XXXX    XXX%%T   TXXX%XXX%%T  TX
-D:XxxX  XXXXR%      %R%XXX%XX%XX]]]X%XjThXM        %%%%%D%%%%X%X% D    TX 
+D:XxxX  XXXXR%      %R%XXX%XX%XX]]]X%XjThXM        %%%%%D%%%%X%X% D    TX
 D:XxXX  %%%%%   w w  %%XX%%%%XXX,P,X%XXXXXXX              %%%X%X  %%  hTX
 D:XXX     s D    w   %%XX%XXX%%XDDDX%Xh sM           %%%% O %% O %%%C%%%X
 D:XXX   %%%%%   w w  %%XX%%%XX%g   g%XXXXXX         %%  %%%    %X%%h   TX

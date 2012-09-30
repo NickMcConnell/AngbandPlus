@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/11 05:23:15 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/01/04 17:42:30 $ */
 /* File: racial.c */
 
 /* Purpose: Racial powers (and mutations) */
@@ -326,7 +326,7 @@ static void cmd_racial_power_aux(s32b command)
 		case RACE_KOBOLD:
 			if (racial_aux(12, 8, A_DEX, 14))
 			{
-				if(!get_aim_dir(&dir)) break;
+				if (!get_aim_dir(&dir)) break;
 				msg_print("You throw a dart of poison.");
 				fire_bolt(GF_POIS, dir, plev);
 			}

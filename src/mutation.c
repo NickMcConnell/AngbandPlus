@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/13 15:24:31 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:40 $ */
 /* File: mutation.c */
 
 /* Purpose: Mutation effects (and racial powers) */
@@ -26,7 +26,7 @@ bool gain_random_mutation(int choose_mut)
 
 	while (attempts_left--)
 	{
-		switch (choose_mut ? choose_mut : randint(194))
+		switch (choose_mut ? choose_mut : randint(193))
 		{
 		case 1: case 2: case 3: case 4:
 			muta_class = &(p_ptr->muta1);
@@ -494,8 +494,12 @@ bool gain_random_mutation(int choose_mut)
 			break;
 		case 188:
 			muta_class = &(p_ptr->muta3);
+#ifdef MUT3_RES_TIME
 			muta_which = MUT3_RES_TIME;
 			muta_desc = "You feel immortal.";
+#endif /* MUT3_RES_TIME */
+			muta_which = MUT3_BAD_LUCK;
+			muta_desc = "There is a malignant black aura surrounding you...";
 			break;
 		case 189:
 			muta_class = &(p_ptr->muta3);
@@ -507,10 +511,14 @@ bool gain_random_mutation(int choose_mut)
 			muta_which = MUT3_MOTION;
 			muta_desc = "You move with new assurance.";
 			break;
-		case 193: case 194:
+		case 193:
 			muta_class = &(p_ptr->muta3);
+#ifdef MUT3_SUS_STATS
 			muta_which = MUT3_SUS_STATS;
 			muta_desc = "You feel like you can recover from anything.";
+#endif /* MUT3_SUS_STATS */
+			muta_which = MUT3_GOOD_LUCK;
+			muta_desc = "There is a benevolent white aura surrounding you...";
 			break;
 		default:
 			muta_class = NULL;
@@ -524,7 +532,7 @@ bool gain_random_mutation(int choose_mut)
 				muta_chosen = TRUE;
 			}
 		}
-		if (muta_chosen == TRUE) break;
+		if (muta_chosen) break;
 	}
 
 	if (!muta_chosen)
@@ -534,6 +542,8 @@ bool gain_random_mutation(int choose_mut)
 	}
 	else
 	{
+		chg_virtue(V_CHANCE, 1);
+
 		if (p_ptr->prace == RACE_VAMPIRE &&
 		  !(p_ptr->muta1 & MUT1_HYPN_GAZE) &&
 		   (randint(10) < 7))
@@ -635,8 +645,9 @@ bool gain_random_mutation(int choose_mut)
 					p_ptr->muta3 &= ~(MUT3_WART_SKIN);
 				}
 			}
-			else if (muta_which == MUT3_WART_SKIN || muta_which == MUT3_SCALES
-				|| muta_which == MUT3_FLESH_ROT)
+			else if ((muta_which == MUT3_WART_SKIN) ||
+			         (muta_which == MUT3_SCALES) ||
+			         (muta_which == MUT3_FLESH_ROT))
 			{
 				if (p_ptr->muta3 & MUT3_IRON_SKIN)
 				{
@@ -1197,8 +1208,12 @@ bool lose_mutation(int choose_mut)
 			break;
 		case 188:
 			muta_class = &(p_ptr->muta3);
+#ifdef MUT3_RES_TIME
 			muta_which = MUT3_RES_TIME;
 			muta_desc = "You feel all too mortal.";
+#endif /* MUT3_RES_TIME */
+			muta_which = MUT3_BAD_LUCK;
+			muta_desc = "Your black aura swirls and fades.";
 			break;
 		case 189:
 			muta_class = &(p_ptr->muta3);
@@ -1212,8 +1227,12 @@ bool lose_mutation(int choose_mut)
 			break;
 		case 193: case 194:
 			muta_class = &(p_ptr->muta3);
+#ifdef MUT3_SUS_STATS
 			muta_which = MUT3_SUS_STATS;
 			muta_desc = "You no longer feel like you can recover from anything.";
+#endif /* MUT3_SUS_STATS */
+			muta_which = MUT3_GOOD_LUCK;
+			muta_desc = "Your white aura shimmers and fades.";
 			break;
 		default:
 			muta_class = NULL;
@@ -1227,7 +1246,7 @@ bool lose_mutation(int choose_mut)
 				muta_chosen = TRUE;
 			}
 		}
-		if (muta_chosen == TRUE) break;
+		if (muta_chosen) break;
 	}
 
 	if (!muta_chosen)
@@ -1629,10 +1648,12 @@ void dump_mutations(FILE *OutFile)
 		{
 			fprintf(OutFile, " Your joints ache constantly (-3 DEX).\n");
 		}
+#ifdef MUT3_RES_TIME
 		if (p_ptr->muta3 & MUT3_RES_TIME)
 		{
 			fprintf(OutFile, " You are protected from the ravages of time.\n");
 		}
+#endif /* MUT3_RES_TIME */
 		if (p_ptr->muta3 & MUT3_VULN_ELEM)
 		{
 			fprintf(OutFile, " You are susceptible to damage from the elements.\n");
@@ -1641,10 +1662,21 @@ void dump_mutations(FILE *OutFile)
 		{
 			fprintf(OutFile, " Your movements are precise and forceful (+1 STL).\n");
 		}
+#ifdef MUT3_SUS_STATS
 		if (p_ptr->muta3 & MUT3_SUS_STATS)
 		{
 			fprintf(OutFile, " Your body resists serious damage.\n");
 		}
+#endif /* MUT3_SUS_STATS */
+		if (p_ptr->muta3 & MUT3_GOOD_LUCK)
+		{
+			fprintf(OutFile, " There is a white aura surrounding you.\n");
+		}
+		if (p_ptr->muta3 & MUT3_BAD_LUCK)
+		{
+			fprintf(OutFile, " There is a black aura surrounding you.\n");
+		}
+
 	}
 }
 
@@ -1685,7 +1717,7 @@ static int count_bits(u32b x)
 	{
 		n++;
 	}
-	while (0 != (x = x&(x-1)));
+	while (0 != (x = x & (x - 1)));
 
 	return (n);
 }
@@ -1806,6 +1838,14 @@ void mutation_power_aux(u32b power)
 			{
 				int x, y, dummy;
 				cave_type *c_ptr;
+				
+				/* Handle player fear */
+				if (p_ptr->afraid)
+				{
+					/* Message */
+					msg_print("You are too afraid!");
+					return;
+				}
 
 				/* Only works on adjacent monsters */
 				if (!get_rep_dir(&dir)) break;
@@ -2003,7 +2043,7 @@ void mutation_power_aux(u32b power)
 				int i;
 				for (i = 0; i < 8; i++)
 				{
-					summon_specific(py, px, lvl, SUMMON_BIZARRE1, FALSE, TRUE, TRUE);
+					summon_specific(-1, py, px, lvl, SUMMON_BIZARRE1, FALSE, TRUE, TRUE);
 				}
 			}
 			break;
@@ -2167,20 +2207,29 @@ void mutation_power_aux(u32b power)
 		case MUT1_RECALL:
 			if (racial_aux(17, 50, A_INT, 16))
 			{
-				if (dun_level && (p_ptr->max_dlv > dun_level))
+				if (ironman_downward)
 				{
-					if (get_check("Reset recall depth? "))
-						p_ptr->max_dlv = dun_level;
-				}
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(21) + 15;
-					msg_print("The air about you becomes charged...");
+					msg_print("Your skill fails.");
 				}
 				else
 				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
+					if (dun_level && (p_ptr->max_dlv > dun_level))
+					{
+						if (get_check("Reset recall depth? "))
+							p_ptr->max_dlv = dun_level;
+					}
+					if (!p_ptr->word_recall)
+					{
+						p_ptr->word_recall = rand_int(21) + 15;
+						msg_print("The air about you becomes charged...");
+						p_ptr->redraw |= (PR_STATUS);
+					}
+					else
+					{
+						p_ptr->word_recall = 0;
+						msg_print("A tension leaves the air around you...");
+						p_ptr->redraw |= (PR_STATUS);
+					}
 				}
 			}
 			break;
@@ -2247,7 +2296,7 @@ void mutation_power_aux(u32b power)
 			if (racial_aux(1, lvl, A_STR, 6))
 			{
 				/* Gives a multiplier of 2 at first, up to 5 at 48th */
-				do_cmd_throw_aux(2 + lvl / 16);
+				do_cmd_throw_aux(2 + lvl / 30);
 			}
 			break;
 

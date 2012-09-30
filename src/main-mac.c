@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:01 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/02/02 15:50:20 $ */
 /* File: main-mac.c */
 
 /* Purpose: Simple support for MACINTOSH Angband */
@@ -4194,7 +4194,7 @@ static void init_stuff(void)
 /*
  * Macintosh Main loop
  */
-void main(void)
+int main(void)
 {
 	EventRecord tempEvent;
 	int numberOfMasters = 10;

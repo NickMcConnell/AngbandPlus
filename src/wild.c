@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:52:04 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:22 $ */
 /* File: wild.c */
 
 /* Purpose: Wilderness generation */
@@ -425,7 +425,6 @@ static int terrain_table[MAX_WILDERNESS][18] =
 			FEAT_MOUNTAIN,
 			FEAT_MOUNTAIN,
 	},
-
 };
 
 
@@ -611,8 +610,22 @@ static void generate_area(int y, int x, bool border, bool corner)
 /*
  * Border of the wilderness area
  */
+
 static border_type border;
 
+
+typedef struct road_type road_type;
+struct road_type
+{
+	/* location of point */
+	s16b x;
+	s16b y;
+	
+	/* Number of connections */
+	byte connect;
+	
+	coord con_pts[4];
+};
 
 /*
  * Build the wilderness area outside of the town.
@@ -623,7 +636,8 @@ void wilderness_gen(void)
 	bool daytime;
 	cave_type *c_ptr;
 
-   	/* Big town */
+
+	/* Big town */
 	cur_hgt = MAX_HGT;
 	cur_wid = MAX_WID;
 
@@ -671,6 +685,7 @@ void wilderness_gen(void)
 	/* East border */
 	generate_area(y, x + 1, TRUE, FALSE);
 
+
 	for (i = 1; i < MAX_HGT - 1; i++)
 	{
 		border.east[i] = cave[i][1].feat;
@@ -702,9 +717,9 @@ void wilderness_gen(void)
 	}
 
 
+
 	/* Create terrain of the current area */
 	generate_area(y, x, FALSE, FALSE);
-
 
 	/* Special boundary walls -- North */
 	for (i = 0; i < MAX_WID; i++)
@@ -805,6 +820,8 @@ void wilderness_gen(void)
 
 typedef struct wilderness_grid wilderness_grid;
 
+	/* Fix location of grid */
+
 struct wilderness_grid
 {
 	int		terrain;    /* Terrain type */
@@ -815,28 +832,30 @@ struct wilderness_grid
 };
 
 
-static wilderness_grid w_letter[255];
 
+static wilderness_grid w_letter[255];
 
 /*
  * Parse a sub-file of the "extra info"
  */
 errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, int *y, int *x)
 {
+
 	int i, num;
 	char *zz[33];
-
 
 	/* Paranoia */
 	if (!(buf[0] == 'W')) return (PARSE_ERROR_GENERIC);
 
 	switch (buf[2])
+
 	{
 		/* Process "W:F:<letter>:<terrain>:<town>:<road>:<name> */
 		case 'F':
 		{
 			if ((num = tokenize(buf+4, 6, zz, 0)) > 1)
 			{
+
 				int index = zz[0][0];
 
 				if (num > 1)

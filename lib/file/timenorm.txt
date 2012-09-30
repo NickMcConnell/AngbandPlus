@@ -3,11 +3,11 @@ E:0000
 D:It is midnight.
 
 S:0001
-E:0200
+E:0259
 D:It is deep night.
 
 S:0300 
-E:0400
+E:0459
 D:It is early morning, but still dark.
 
 S:0500 
@@ -75,9 +75,9 @@ E:2059
 D:It is early night.
 
 S:2100 
-E:2358
+E:2357
 D:It is late night.
 
-S:2359
-E:2358
+S:2358
+E:2359
 D:It is almost midnight.

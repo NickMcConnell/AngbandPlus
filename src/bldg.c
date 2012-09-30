@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:17:55 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:48:40 $ */
 /* File: bldg.c */
 
 /*
@@ -13,6 +13,336 @@
  */
 
 #include "angband.h"
+
+
+void have_nightmare(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	char m_name[80];
+	bool happened = FALSE;
+	int power = r_ptr->level + 10;
+	cptr desc = r_name + r_ptr->name;
+
+
+	if (!(r_ptr->flags1 & RF1_UNIQUE))
+	{
+		/* Describe it */
+		sprintf(m_name, "%s %s", (is_a_vowel(desc[0]) ? "an" : "a"), desc);
+
+		if (r_ptr->flags1 & RF1_FRIENDS)
+		{
+			power /= 2;
+		}
+	}
+	else
+	{
+		/* Describe it */
+		sprintf(m_name, "%s", desc);
+
+		power *= 2;
+	}
+
+	if (saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		msg_format("%^s chases you through your dreams.", m_name);
+
+		/* Safe */
+		return;
+	}
+
+	if (p_ptr->image)
+	{
+		/* Something silly happens... */
+		msg_format("You behold the %s visage of %s!",
+					  funny_desc[rand_int(MAX_SAN_FUNNY)], m_name);
+
+		if (one_in_(3))
+		{
+			msg_print(funny_comments[rand_int(MAX_SAN_COMMENT)]);
+			p_ptr->image = p_ptr->image + randint(r_ptr->level);
+		}
+
+		/* Never mind; we can't see it clearly enough */
+		return;
+	}
+
+	/* Something frightening happens... */
+	msg_format("You behold the %s visage of %s!",
+				  horror_desc[rand_int(MAX_SAN_HORROR)], desc);
+
+	r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
+
+	switch(p_ptr->prace)
+	{
+		/* Imps may make a saving throw */
+		case RACE_IMP:
+		{
+			if (saving_throw(20 + p_ptr->lev)) return;
+
+			break;
+		}
+		/* Undead may make a saving throw */
+		case RACE_SKELETON:
+		case RACE_ZOMBIE:
+		case RACE_SPECTRE:
+		case RACE_VAMPIRE:
+		{
+			if (saving_throw(10 + p_ptr->lev)) return;
+
+			break;
+		}
+	}
+
+	/* Mind blast */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		if (!p_ptr->resist_conf)
+		{
+			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+		}
+		if (!p_ptr->resist_chaos && one_in_(3))
+		{
+			(void)set_image(p_ptr->image + rand_int(250) + 150);
+		}
+		return;
+	}
+
+	/* Lose int & wis */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		do_dec_stat(A_INT);
+		do_dec_stat(A_WIS);
+		return;
+	}
+
+	/* Brain smash */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		if (!p_ptr->resist_conf)
+		{
+			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+		}
+		if (!p_ptr->free_act)
+		{
+			(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
+		}
+		while (!saving_throw(p_ptr->skill_sav))
+		{
+			(void)do_dec_stat(A_INT);
+		}
+		while (!saving_throw(p_ptr->skill_sav))
+		{
+			(void)do_dec_stat(A_WIS);
+		}
+		if (!p_ptr->resist_chaos)
+		{
+			(void)set_image(p_ptr->image + rand_int(250) + 150);
+		}
+		return;
+	}
+
+	/* Permanent lose int & wis */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
+		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
+		if (happened)
+		{
+			msg_print("You feel much less sane than before.");
+		}
+		return;
+	}
+
+	/* Amnesia */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		if (lose_all_info())
+		{
+			msg_print("You forget everything in your utmost terror!");
+		}
+		return;
+	}
+
+	/* Else gain permanent insanity */
+	if ((p_ptr->muta3 & MUT3_MORONIC) && (p_ptr->muta2 & MUT2_BERS_RAGE) &&
+		((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
+		((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
+	{
+		/* The poor bastard already has all possible insanities! */
+		return;
+	}
+
+	while (!happened)
+	{
+		switch (randint(4))
+		{
+			case 1:
+			{
+				if (!(p_ptr->muta3 & MUT3_MORONIC))
+				{
+					msg_print("You turn into an utter moron!");
+					if (p_ptr->muta3 & MUT3_HYPER_INT)
+					{
+						msg_print("Your brain is no longer a living computer.");
+						p_ptr->muta3 &= ~(MUT3_HYPER_INT);
+					}
+					p_ptr->muta3 |= MUT3_MORONIC;
+					happened = TRUE;
+				}
+				break;
+			}
+			case 2:
+			{
+				if (!(p_ptr->muta2 & MUT2_COWARDICE) && !p_ptr->resist_fear)
+				{
+					msg_print("You become paranoid!");
+
+					/* Duh, the following should never happen, but anyway... */
+					if (p_ptr->muta3 & MUT3_FEARLESS)
+					{
+						msg_print("You are no longer fearless.");
+						p_ptr->muta3 &= ~(MUT3_FEARLESS);
+					}
+
+					p_ptr->muta2 |= MUT2_COWARDICE;
+					happened = TRUE;
+				}
+				break;
+			}
+			case 3:
+			{
+				if (!(p_ptr->muta2 & MUT2_HALLU) && !p_ptr->resist_chaos)
+				{
+					msg_print("You are afflicted by a hallucinatory insanity!");
+					p_ptr->muta2 |= MUT2_HALLU;
+					happened = TRUE;
+				}
+				break;
+			}
+			default:
+			{
+				if (!(p_ptr->muta2 & MUT2_BERS_RAGE))
+				{
+					msg_print("You become subject to fits of berserk rage!");
+					p_ptr->muta2 |= MUT2_BERS_RAGE;
+					happened = TRUE;
+				}
+				break;
+			}
+		}
+	}
+
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+}
+
+
+bool get_nightmare(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Require eldritch horrors */
+	if (!(r_ptr->flags2 & (RF2_ELDRITCH_HORROR))) return (FALSE);
+
+	/* Require high level */
+	if (r_ptr->level <= p_ptr->lev) return (FALSE);
+
+	/* Accept this monster */
+	return (TRUE);
+}
+
+
+/* Array of places to find an inscription */
+static cptr find_quest[] =
+{
+	"You find the following inscription in the floor",
+	"You see a message inscribed in the wall",
+	"There is a sign saying",
+	"Something is written on the staircase",
+	"You find a scroll with the following message",
+};
+
+
+/*
+ * Discover quest
+ */
+void quest_discovery(int q_idx)
+{
+	quest_type      *q_ptr = &quest[q_idx];
+	monster_race    *r_ptr = &r_info[q_ptr->r_idx];
+	int             q_num = q_ptr->max_num;
+	char            name[80];
+
+	/* No quest index */
+	if (!q_idx) return;
+
+	strcpy(name, (r_name + r_ptr->name));
+
+	msg_print(find_quest[rand_range(0, 4)]);
+	msg_print(NULL);
+
+	if (q_num == 1)
+	{
+		/* Unique */
+		msg_format("Beware, this level is protected by %s!", name);
+	}
+	else
+	{
+		/* Normal monsters */
+		plural_aux(name);
+		msg_format("Be warned, this level is guarded by %d %s!", q_num, name);
+	}
+}
+
+
+/*
+ * Hack -- Check if a level is a "quest" level
+ */
+int quest_number(int level)
+{
+	int i;
+
+	/* Check quests */
+	if (p_ptr->inside_quest)
+		return (p_ptr->inside_quest);
+
+	for (i = 0; i < max_quests; i++)
+	{
+		if (quest[i].status != QUEST_STATUS_TAKEN) continue;
+
+		if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
+			!(quest[i].flags & QUEST_FLAG_PRESET) &&
+		    (quest[i].level == level))
+			return (i);
+	}
+
+	/* Check for random quest */
+	return (random_quest_number(level));
+}
+
+
+/*
+ * Return the index of the random quest on this level
+ * (or zero)
+ */
+int random_quest_number(int level)
+{
+	int i;
+
+	for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
+	{
+		if ((quest[i].type == QUEST_TYPE_RANDOM) &&
+		    (quest[i].status == QUEST_STATUS_TAKEN) &&
+		    (quest[i].level == level))
+		{
+			return i;
+		}
+	}
+
+	/* Nope */
+	return 0;
+}
+
 
 /* hack as in leave_store in store.c */
 static bool leave_bldg = FALSE;
@@ -472,7 +802,7 @@ static bool gamble_comm(int cmd)
 					odds = 1;
 					roll1 = randint(6);
 					roll2 = randint(6);
-					roll3 = roll1 +  roll2;
+					roll3 = roll1 + roll2;
 					choice = roll3;
 					sprintf(tmp_str, "First roll: %d %d    Total: %d", roll1,
 						 roll2, roll3);
@@ -488,7 +818,7 @@ static bool gamble_comm(int cmd)
 							msg_print(NULL);
 							roll1 = randint(6);
 							roll2 = randint(6);
-							roll3 = roll1 +  roll2;
+							roll3 = roll1 + roll2;
 
 							sprintf(tmp_str, "Roll result: %d %d   Total:     %d",
 								 roll1, roll2, roll3);
@@ -502,7 +832,7 @@ static bool gamble_comm(int cmd)
 
 				case BACT_SPIN_WHEEL:  /* Spin the Wheel Game */
 					win = FALSE;
-					odds = 10;
+					odds = 8;
 					c_put_str(TERM_GREEN, "Wheel", 5, 2);
 					prt("0  1  2  3  4  5  6  7  8  9", 7, 5);
 					prt("--------------------------------", 8, 3);
@@ -607,243 +937,6 @@ static bool gamble_comm(int cmd)
 }
 
 
-bool get_nightmare(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Require eldritch horrors */
-	if (!(r_ptr->flags2 & (RF2_ELDRITCH_HORROR))) return (FALSE);
-
-	/* Require high level */
-	if (r_ptr->level <= p_ptr->lev) return (FALSE);
-
-	/* Accept this monster */
-	return (TRUE);
-}
-
-
-void have_nightmare(int r_idx)
-{
-	bool happened = FALSE;
-
-	int power = 100;
-
-	monster_race *r_ptr = &r_info[r_idx];
-
-	char m_name[80];
-	cptr desc = r_name + r_ptr->name;
-
-	power = r_ptr->level + 10;
-
-	if (!(r_ptr->flags1 & RF1_UNIQUE))
-	{
-		/* Describe it */
-		sprintf(m_name, "%s %s", (is_a_vowel(desc[0]) ? "an" : "a"), desc);
-
-		if (r_ptr->flags1 & RF1_FRIENDS)
-		{
-			power /= 2;
-		}
-	}
-	else
-	{
-		/* Describe it */
-		sprintf(m_name, "%s", desc);
-
-		power *= 2;
-	}
-
-	if (saving_throw(p_ptr->skill_sav * 100 / power))
-	{
-   	msg_format("%^s chases you through your dreams.", m_name);
-
-		/* Safe */
-		return;
-	}
-
-	if (p_ptr->image)
-	{
-		/* Something silly happens... */
-		msg_format("You behold the %s visage of %s!",
-					  funny_desc[rand_int(MAX_SAN_FUNNY)], m_name);
-
-		if (one_in_(3))
-		{
-			msg_print(funny_comments[rand_int(MAX_SAN_COMMENT)]);
-			p_ptr->image = p_ptr->image + randint(r_ptr->level);
-		}
-
-		/* Never mind; we can't see it clearly enough */
-		return;
-	}
-
-	/* Something frightening happens... */
-	msg_format("You behold the %s visage of %s!",
-				  horror_desc[rand_int(MAX_SAN_HORROR)], desc);
-
-	r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
-
-	switch(p_ptr->prace)
-	{
-		/* Imps may make a saving throw */
-		case RACE_IMP:
-		{
-			if (saving_throw(20 + p_ptr->lev)) return;
-		}
-		/* Undead may make a saving throw */
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-		case RACE_SPECTRE:
-		case RACE_VAMPIRE:
-		{
-			if (saving_throw(10 + p_ptr->lev)) return;
-		}
-	}
-
-	/* Mind blast */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
-	{
-		if (!p_ptr->resist_conf)
-		{
-			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
-		}
-		if (!p_ptr->resist_chaos && one_in_(3))
-		{
-			(void)set_image(p_ptr->image + rand_int(250) + 150);
-		}
-		return;
-	}
-
-	/* Lose int & wis */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
-	{
-		do_dec_stat(A_INT);
-		do_dec_stat(A_WIS);
-		return;
-	}
-
-	/* Brain smash */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
-	{
-		if (!p_ptr->resist_conf)
-		{
-			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
-		}
-		if (!p_ptr->free_act)
-		{
-			(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
-		}
-		while (!saving_throw(p_ptr->skill_sav))
-		{
-			(void)do_dec_stat(A_INT);
-		}
-		while (!saving_throw(p_ptr->skill_sav))
-		{
-			(void)do_dec_stat(A_WIS);
-		}
-		if (!p_ptr->resist_chaos)
-		{
-			(void)set_image(p_ptr->image + rand_int(250) + 150);
-		}
-		return;
-	}
-
-	/* Permanent lose int & wis */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
-	{
-		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
-		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
-		if (happened)
-		{
-			msg_print("You feel much less sane than before.");
-		}
-		return;
-	}
-
-	/* Amnesia */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
-	{
-		if (lose_all_info())
-		{
-			msg_print("You forget everything in your utmost terror!");
-		}
-		return;
-	}
-
-	/* Else gain permanent insanity */
-	if ((p_ptr->muta3 & MUT3_MORONIC) && (p_ptr->muta2 & MUT2_BERS_RAGE) &&
-		((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
-		((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
-	{
-		/* The poor bastard already has all possible insanities! */
-		return;
-	}
-
-	while (!happened)
-	{
-		switch (randint(4))
-		{
-			case 1:
-			{
-				if (!(p_ptr->muta3 & MUT3_MORONIC))
-				{
-					msg_print("You turn into an utter moron!");
-					if (p_ptr->muta3 & MUT3_HYPER_INT)
-					{
-						msg_print("Your brain is no longer a living computer.");
-						p_ptr->muta3 &= ~(MUT3_HYPER_INT);
-					}
-					p_ptr->muta3 |= MUT3_MORONIC;
-					happened = TRUE;
-				}
-				break;
-			}
-			case 2:
-			{
-				if (!(p_ptr->muta2 & MUT2_COWARDICE) && !p_ptr->resist_fear)
-				{
-					msg_print("You become paranoid!");
-
-					/* Duh, the following should never happen, but anyway... */
-					if (p_ptr->muta3 & MUT3_FEARLESS)
-					{
-						msg_print("You are no longer fearless.");
-						p_ptr->muta3 &= ~(MUT3_FEARLESS);
-					}
-
-					p_ptr->muta2 |= MUT2_COWARDICE;
-					happened = TRUE;
-				}
-				break;
-			}
-			case 3:
-			{
-				if (!(p_ptr->muta2 & MUT2_HALLU) && !p_ptr->resist_chaos)
-				{
-					msg_print("You are afflicted by a hallucinatory insanity!");
-					p_ptr->muta2 |= MUT2_HALLU;
-					happened = TRUE;
-				}
-				break;
-			}
-			default:
-			{
-				if (!(p_ptr->muta2 & MUT2_BERS_RAGE))
-				{
-					msg_print("You become subject to fits of berserk rage!");
-					p_ptr->muta2 |= MUT2_BERS_RAGE;
-					happened = TRUE;
-				}
-				break;
-			}
-		}
-	}
-
-	p_ptr->update |= PU_BONUS;
-	handle_stuff();
-}
-
-
 /*
  * inn commands
  * Note that resting for the night was a perfect way to avoid player
@@ -855,7 +948,7 @@ void have_nightmare(int r_idx)
  */
 static bool inn_comm(int cmd)
 {
-	int dawnval;
+	s32b dawnval;
 
 	switch (cmd)
 	{
@@ -889,7 +982,7 @@ static bool inn_comm(int cmd)
 						get_mon_num_prep(get_nightmare, NULL);
 
 						/* Have some nightmares */
-						while(1)
+						while (1)
 						{
 							have_nightmare(get_mon_num(MAX_DEPTH));
 
@@ -1114,18 +1207,40 @@ static void town_history(void)
  * the current +dam of the player.
  */
 static void compare_weapon_aux2(object_type *o_ptr, int numblows,
-                                int r, int c, int mult, char attr[80],
-                                u32b f1, u32b f2, u32b f3, byte color)
+                                int r, int c, cptr attr, byte color)
 {
 	char tmp_str[80];
+	long maxdam, mindam;
+	int dambonus;
+
+	int intmaxdam, intmindam;
+
+	dambonus = o_ptr->to_d + p_ptr->to_d;
+
+	if (dambonus > 0)
+		mindam = (100 + deadliness_conversion[dambonus]);
+	else if (dambonus > -31)
+		mindam = (100 - deadliness_conversion[ABS(dambonus)]);
+	else
+		mindam = 0;
+
+	/* Effect of damage dice */
+	maxdam = mindam * (o_ptr->ds * o_ptr->dd);
+	mindam *= o_ptr->dd;
+
+	/* number of blows */
+	maxdam *= numblows;
+	mindam *= numblows;
+
+	/* rescale */
+	intmaxdam = maxdam / 100;
+	intmindam = mindam / 100;
 
 	/* Print the intro text */
 	c_put_str(color, attr, r, c);
 
 	/* Calculate the min and max damage figures */
-	sprintf(tmp_str, "Attack: %d-%d damage",
-	    (numblows * (mult * o_ptr->dd + o_ptr->to_d + p_ptr->to_d)),
-	    (numblows * (mult * o_ptr->ds * o_ptr->dd + o_ptr->to_d + p_ptr->to_d)));
+	sprintf(tmp_str, "Attack: %d-%d damage", intmindam, intmaxdam);
 
 	/* Print the damage */
 	put_str(tmp_str, r, c + 8);
@@ -1146,20 +1261,20 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Print the relevant lines */
-	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Animals:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Evil:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Undead:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Demons:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Orcs:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Trolls:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Giants:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Dragons:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 5, "Dragons:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Acid:", f1, f2, f3, TERM_RED);
-	if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Elec:", f1, f2, f3, TERM_RED);
-	if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Fire:", f1, f2, f3, TERM_RED);
-	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Cold:", f1, f2, f3, TERM_RED);
-	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Poison:", f1, f2, f3, TERM_RED);
+	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Animals:", TERM_YELLOW);
+	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Evil:", TERM_YELLOW);
+	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Undead:", TERM_YELLOW);
+	if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Demons:", TERM_YELLOW);
+	if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Orcs:", TERM_YELLOW);
+	if (f1 & TR1_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Trolls:", TERM_YELLOW);
+	if (f1 & TR1_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Giants:", TERM_YELLOW);
+	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Dragons:", TERM_YELLOW);
+	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Dragons:", TERM_YELLOW);
+	if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Acid:", TERM_RED);
+	if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Elec:", TERM_RED);
+	if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Fire:", TERM_RED);
+	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Cold:", TERM_RED);
+	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Poison:", TERM_RED);
 }
 
 
@@ -1174,12 +1289,17 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 	char o_name[80];
 	char tmp_str[80];
 
+	long maxdam, mindam;
+	int dambonus;
+
+	int intmaxdam, intmindam;
+
 	/* Print the weapon name */
 	object_desc(o_name, o_ptr, TRUE, 0);
 	c_put_str(TERM_YELLOW, o_name, row, col);
 
 	/* Print to_hit and to_dam of the weapon */
-	sprintf(tmp_str, "To Hit: %d   To Damage: %d", o_ptr->to_h, o_ptr->to_d);
+	sprintf(tmp_str, "To Hit: %d  Deadliness: %d", o_ptr->to_h, o_ptr->to_d);
 	put_str(tmp_str, row+1, col);
 
 	/* Print the weapons base damage dice */
@@ -1192,16 +1312,33 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 
 	c_put_str(TERM_YELLOW, "Possible Damage:", row+5, col);
 
+	dambonus = o_ptr->to_d + p_ptr->to_d;
+
+	if (dambonus > 0)
+		mindam = (100 + deadliness_conversion[dambonus]);
+	else if (dambonus > -31)
+		mindam = (100 - deadliness_conversion[ABS(dambonus)]);
+	else
+		mindam = 0;
+
+	/* Effect of damage dice */
+	maxdam = mindam * (o_ptr->ds * o_ptr->dd);
+	mindam *= o_ptr->ds;
+
+	/* rescale */
+	intmaxdam = maxdam / 100;
+	intmindam = mindam / 100;
+
 	/* Damage for one blow (if it hits) */
-	sprintf(tmp_str, "One Strike: %d-%d damage",
-	    o_ptr->dd + o_ptr->to_d + p_ptr->to_d,
-	    o_ptr->ds * o_ptr->dd + o_ptr->to_d + p_ptr->to_d);
+	sprintf(tmp_str, "One Strike: %d-%d damage", intmindam, intmaxdam);
 	put_str(tmp_str, row+6, col+1);
 
+	/* rescale */
+	intmaxdam = (maxdam * p_ptr->num_blow) / 100;
+	intmindam = (mindam * p_ptr->num_blow) / 100;
+
 	/* Damage for the complete attack (if all blows hit) */
-	sprintf(tmp_str, "One Attack: %d-%d damage",
-	    p_ptr->num_blow * (o_ptr->dd + o_ptr->to_d + p_ptr->to_d),
-	    p_ptr->num_blow * (o_ptr->ds * o_ptr->dd + o_ptr->to_d + p_ptr->to_d));
+	sprintf(tmp_str, "One Attack: %d-%d damage", intmindam, intmaxdam);
 	put_str(tmp_str, row+7, col+1);
 }
 
@@ -1522,7 +1659,6 @@ static void building_recharge(void)
 		else
 		{
 			/* No recharge necessary */
-			price = 0;
 			msg_format("That doesn't need to be recharged.");
 			msg_print(NULL);
 			return;
@@ -1635,7 +1771,6 @@ static void bldg_process_command(building_type *bldg, int i)
 	int bact = bldg->actions[i];
 	int bcost;
 	bool paid = FALSE;
-	bool set_reward = FALSE;
 	int amt;
 
 	if (is_owner(bldg))
@@ -1662,17 +1797,13 @@ static void bldg_process_command(building_type *bldg, int i)
 		return;
 	}
 
-	if (!bcost) set_reward = TRUE;
-
 #ifdef USE_SCRIPT
-
-	if (building_command_callback(cave[py][px].feat - FEAT_BLDG_HEAD, i))
+	if (building_command_callback(area(py,px)->feat - FEAT_BLDG_HEAD, i))
 	{
 		/* Script paid the price */
 		paid = TRUE;
 	}
 	else
-
 #endif /* USE_SCRIPT */
 
 	{
@@ -1734,6 +1865,10 @@ static void bldg_process_command(building_type *bldg, int i)
 				break;
 			case BACT_IDENTS: /* needs work */
 				identify_pack();
+
+				/* Combine / Reorder the pack (later) */
+				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
 				msg_print("Your posessions have been identified.");
 				msg_print(NULL);
 				paid = TRUE;
@@ -1782,6 +1917,7 @@ static void bldg_process_command(building_type *bldg, int i)
 				p_ptr->word_recall = 1;
 				msg_print("The air about you becomes charged...");
 				paid = TRUE;
+				p_ptr->redraw |= (PR_STATUS);
 				break;
 			case BACT_TELEPORT_LEVEL:
 				amt = get_quantity("Teleport to which level? ", 98);
@@ -1791,6 +1927,7 @@ static void bldg_process_command(building_type *bldg, int i)
 					p_ptr->max_dlv = amt;
 					msg_print("The air about you becomes charged...");
 					paid = TRUE;
+					p_ptr->redraw |= (PR_STATUS);
 				}
 				break;
 			case BACT_LOSE_MUTATION:
@@ -1853,7 +1990,6 @@ void do_cmd_bldg(void)
 	char            command;
 	bool            validcmd;
 	building_type   *bldg;
-
 
 	if (!((cave[py][px].feat >= FEAT_BLDG_HEAD) &&
 		  (cave[py][px].feat <= FEAT_BLDG_TAIL)))
@@ -1954,7 +2090,7 @@ void do_cmd_bldg(void)
 	Term_clear();
 
 	/* Update the visuals */
-	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_BONUS);
+	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_BONUS | PU_LITE);
 
 	/* Redraw entire screen */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_EQUIPPY | PR_MAP);
@@ -1963,94 +2099,3 @@ void do_cmd_bldg(void)
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 }
 
-
-/* Array of places to find an inscription */
-static cptr find_quest[] =
-{
-	"You find the following inscription in the floor",
-	"You see a message inscribed in the wall",
-	"There is a sign saying",
-	"Something is written on the staircase",
-	"You find a scroll with the following message",
-};
-
-
-/*
- * Discover quest
- */
-void quest_discovery(int q_idx)
-{
-	quest_type      *q_ptr = &quest[q_idx];
-	monster_race    *r_ptr = &r_info[q_ptr->r_idx];
-	int             q_num = q_ptr->max_num;
-	char            name[80];
-
-	/* No quest index */
-	if (!q_idx) return;
-
-	strcpy(name, (r_name + r_ptr->name));
-
-	msg_print(find_quest[rand_range(0, 4)]);
-	msg_print(NULL);
-
-	if (q_num == 1)
-	{
-		/* Unique */
-		msg_format("Beware, this level is protected by %s!", name);
-	}
-	else
-	{
-		/* Normal monsters */
-		plural_aux(name);
-		msg_format("Be warned, this level is guarded by %d %s!", q_num, name);
-	}
-}
-
-
-/*
- * Hack -- Check if a level is a "quest" level
- */
-int quest_number(int level)
-{
-	int i;
-
-	/* Check quests */
-	if (p_ptr->inside_quest)
-		return (p_ptr->inside_quest);
-
-	for (i = 0; i < max_quests; i++)
-	{
-		if (quest[i].status != QUEST_STATUS_TAKEN) continue;
-
-		if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
-			!(quest[i].flags & QUEST_FLAG_PRESET) &&
-		    (quest[i].level == level))
-			return (i);
-	}
-
-	/* Check for random quest */
-	return (random_quest_number(level));
-}
-
-
-/*
- * Return the index of the random quest on this level
- * (or zero)
- */
-int random_quest_number(int level)
-{
-	int i;
-
-	for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_RANDOM) &&
-		    (quest[i].status == QUEST_STATUS_TAKEN) &&
-		    (quest[i].level == level))
-		{
-			return i;
-		}
-	}
-
-	/* Nope */
-	return 0;
-}

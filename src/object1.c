@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/15 13:58:14 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:29:11 $ */
 /* File: object1.c */
 
 /* Purpose: Object code, part 1 */
@@ -225,6 +225,10 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f2) |= e_ptr->flags2;
 		(*f3) |= e_ptr->flags3;
 	}
+
+	/* Show modifications to stats */
+	(*f1) |= (o_ptr->art_flags1 &
+		(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR ));
 
 
 #ifdef SPOIL_ARTIFACTS
@@ -1235,6 +1239,11 @@ bool identify_fully_aux(object_type *o_ptr)
 		info[i++] = "It provides immunity to cold.";
 	}
 
+	if (f2 & (TR2_THROW))
+	{
+		info[i++] = "It is perfectly balanced for throwing.";
+	}
+
 	if (f2 & (TR2_FREE_ACT))
 	{
 		info[i++] = "It provides immunity to paralysis.";
@@ -1761,7 +1770,7 @@ void display_inven(void)
 {
 	register        int i, n, z = 0;
 	object_type     *o_ptr;
-	byte            attr = TERM_WHITE;
+	byte            attr;
 	char            tmp_val[80];
 	char            o_name[80];
 
@@ -1850,7 +1859,7 @@ void display_equip(void)
 {
 	register        int i, n;
 	object_type     *o_ptr;
-	byte            attr = TERM_WHITE;
+	byte            attr;
 	char            tmp_val[80];
 	char            o_name[80];
 
@@ -3325,8 +3334,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	else
 	{
 		/* Hack -- Start on equipment if requested */
-		if (command_see && (command_wrk == (USE_EQUIP))
-			&& allow_equip)
+		if (command_see && (command_wrk == (USE_EQUIP)) && allow_equip)
 		{
 			command_wrk = (USE_EQUIP);
 		}
@@ -3875,12 +3883,10 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
  */
 void py_pickup_floor(int pickup)
 {
-	s16b this_o_idx, next_o_idx = 0;
+	s16b this_o_idx, next_o_idx;
 
 	char o_name[80];
 	object_type *o_ptr;
-
-	int i, slot;
 
 	int floor_num = 0, floor_list[23], floor_o_idx = 0;
 
@@ -3923,6 +3929,16 @@ void py_pickup_floor(int pickup)
 
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
+
+			/* Check the next object */
+			continue;
+		}
+
+		/* Test for auto-pickup */
+		if (auto_pickup_okay(o_ptr))
+		{
+			/* Pick up the object */
+			py_pickup_aux(this_o_idx);
 
 			/* Check the next object */
 			continue;
@@ -4124,33 +4140,8 @@ void py_pickup_floor(int pickup)
 
 #endif /* ALLOW_EASY_SENSE */
 
-	/* Carry the object */
-	slot = inven_carry(o_ptr);
-
-	/* Get the object again */
-	o_ptr = &inventory[slot];
-
-	/* Describe the object */
-	object_desc(o_name, o_ptr, TRUE, 3);
-
-	/* Message */
-	msg_format("You have %s (%c).", o_name, index_to_label(slot));
-
-	/* Check if completed a quest */
-	for (i = 0; i < max_quests; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_FIND_ARTIFACT) &&
-			(quest[i].status == QUEST_STATUS_TAKEN) &&
-			(quest[i].k_idx == o_ptr->name1))
-		{
-			quest[i].status = QUEST_STATUS_COMPLETED;
-			msg_print("You completed your quest!");
-			msg_print(NULL);
-		}
-	}
-
-	/* Delete the object */
-	delete_object_idx(this_o_idx);
+	/* Pick up the object */
+	py_pickup_aux(this_o_idx);
 }
 
 #endif /* ALLOW_EASY_FLOOR */

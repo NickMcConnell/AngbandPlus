@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/19 06:47:26 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:40 $ */
 /* File: init2.c */
 
 /* Purpose: Initialization (part 2) -BEN- */
@@ -7,8 +7,12 @@
 
 
 #ifdef CHECK_MODIFICATION_TIME
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifdef MACINTOSH
+	#include <stat.h>
+#else
+	#include <sys/types.h>
+	#include <sys/stat.h>
+#endif /* MACINTOSH */
 #endif /* CHECK_MODIFICATION_TIME */
 
 
@@ -1711,12 +1715,8 @@ errr init_v_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
 
-#if 0
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
-#else
-	fd = -1;
-#endif
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -1912,8 +1912,8 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SPIKE, 0 },
 
 		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
+		{ TV_ARROW, SV_AMMO_LIGHT },
+		{ TV_BOLT, SV_AMMO_LIGHT },
 		{ TV_DIGGING, SV_SHOVEL },
 
 		{ TV_DIGGING, SV_PICK },
@@ -1937,9 +1937,9 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 		{ TV_FIGURINE, 0 },
 
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
+		{ TV_SHOT, SV_AMMO_LIGHT },
+		{ TV_ARROW, SV_AMMO_LIGHT },
+		{ TV_BOLT, SV_AMMO_LIGHT },
 		{ TV_DIGGING, SV_SHOVEL }
 	},
 
@@ -2045,18 +2045,18 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_SHOT, SV_AMMO_NORMAL },
 
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
+		{ TV_ARROW, SV_AMMO_LIGHT },
+		{ TV_ARROW, SV_AMMO_LIGHT },
+		{ TV_BOLT, SV_AMMO_LIGHT },
+		{ TV_BOLT, SV_AMMO_LIGHT },
 
 		{ TV_BOW, SV_LONG_BOW },
 		{ TV_BOW, SV_LIGHT_XBOW },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
+		{ TV_ARROW, SV_AMMO_LIGHT },
+		{ TV_ARROW, SV_AMMO_LIGHT },
 
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
+		{ TV_BOLT, SV_AMMO_LIGHT },
+		{ TV_BOLT, SV_AMMO_LIGHT },
 		{ TV_BOW, SV_SHORT_BOW },
 		{ TV_SWORD, SV_DAGGER },
 

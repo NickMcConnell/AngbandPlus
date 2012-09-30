@@ -4,7 +4,7 @@
                      by Robert Ruehlmann
                        rr9@angband.org
 
-                       June 5th, 1999
+                       March 10th, 2000
 
 
 ==========================================================================
@@ -53,6 +53,11 @@ questions and answers.
   4.2 Monsters
     4.2.1 I've found a 'Greater Hell Beast' that never does any damage to
           me, and that seems to be immune to my attacks.  What is it?
+  4.3 Objects
+    4.3.1 What does a 'magical figurine' do?
+    4.3.2 What does a 'statue' do?
+  4.4 Miscellaneous
+    4.4.1 What is an "anti-magic shell"?
 
 5. Other questions
   5.1 Interface
@@ -223,6 +228,39 @@ very early and can't hurt you directly, but it's very annoying.
 The huge amount of hitpoints and the big armor-class make it nearly
 invincible and even if you manage to kill it, it's not worth the
 efforts.
+
+--------------------------------------------------------------------------
+4.3 Objects
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+4.3.1 What does a 'magical figurine' do?
+--------------------------------------------------------------------------
+
+A figurine is a small magical replica of a monster from the dungeon.
+When a figurine is thrown, a pet of the figurine's monster type will be
+generated.
+
+--------------------------------------------------------------------------
+4.3.2 What does a 'statue' do?
+--------------------------------------------------------------------------
+
+Statues made of various materials can be found throughout the dungeon.
+Unlike figurines, they have no magical attributes but may be worth
+selling depending upon the material from which they are made.
+
+--------------------------------------------------------------------------
+4.4 Miscellaneous
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+4.4.1 What is an "anti-magic shell"?
+--------------------------------------------------------------------------
+
+An anti-magic shell around you prevents you from casting any spells and
+using mindcrafter powers.  It also increases your saving throw vs. spells
+to 95%, prevents the activation of some mutations, and helps against the
+draining effects of the Jewel of Judgement.
 
 
 ==========================================================================

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:00 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:06 $ */
 /* File: main-dos.c */
 
 /*
@@ -900,7 +900,7 @@ static errr Term_user_dos(int n)
 				break;
 			}
 
-#endif /*USE_SOUND */
+#endif /* USE_SOUND */
 
 #ifdef USE_GRAPHICS
 
@@ -977,7 +977,7 @@ static errr Term_user_dos(int n)
 				}
 
 				/* Get a new resolution */
-				prt(format("Screen Resolution : %d",resolution), 20, 0);
+				prt(format("Screen Resolution : %d", resolution), 20, 0);
 				k = inkey();
 				if (k == ESCAPE) break;
 				if (isdigit(k)) resolution = D2I(k);

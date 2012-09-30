@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:48 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:28:44 $ */
 /* File: artifact.c */
 
 /* Purpose: Artifact code */
@@ -288,7 +288,7 @@ void random_resistance(object_type * o_ptr, bool is_scroll, int specific)
 			if ((o_ptr->tval >= TV_CLOAK) && (o_ptr->tval <= TV_HARD_ARMOR) &&
 			   !(o_ptr->art_flags3 & TR3_SH_ELEC))
 			{
-				o_ptr->art_flags2 |= TR3_SH_ELEC;
+				o_ptr->art_flags3 |= TR3_SH_ELEC;
 				if (randint(2) == 1) return;
 			}
 			if (randint(BIAS_LUCK) == 1 && !(o_ptr->art_flags2 & TR2_IM_ELEC))
@@ -308,7 +308,7 @@ void random_resistance(object_type * o_ptr, bool is_scroll, int specific)
 			    (o_ptr->tval <= TV_HARD_ARMOR) &&
 			    !(o_ptr->art_flags3 & TR3_SH_FIRE))
 			{
-				o_ptr->art_flags2 |= TR3_SH_FIRE;
+				o_ptr->art_flags3 |= TR3_SH_FIRE;
 				if (randint(2) == 1) return;
 			}
 			if ((randint(BIAS_LUCK) == 1) &&
@@ -802,7 +802,14 @@ static void random_slay(object_type *o_ptr, bool is_scroll)
 
 	else if (artifact_bias == BIAS_ROGUE && (o_ptr->tval != TV_BOW))
 	{
-		if (!(o_ptr->art_flags1 & TR1_BRAND_POIS))
+		if ((((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DAGGER)) ||
+		     ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_SPEAR))) &&
+			 !(o_ptr->art_flags2 & TR2_THROW))
+		{
+			/* Free power for rogues... */
+			o_ptr->art_flags2 |= TR2_THROW;
+		}
+		if ((!(o_ptr->art_flags1 & TR1_BRAND_POIS)) && (randint(2) == 1))
 		{
 			o_ptr->art_flags1 |= TR1_BRAND_POIS;
 			if (randint(2) == 1) return;
@@ -1299,9 +1306,11 @@ static void give_activation_power(object_type *o_ptr)
 }
 
 
-static void get_random_name(char *return_name, bool armour, int power)
+static void get_random_name(char *return_name, byte tval, int power)
 {
-	if (randint(100) <= TABLE_NAME)
+	if ((randint(100) <= TABLE_NAME) ||
+	    (tval == TV_AMULET) ||
+	    (tval == TV_RING))
 	{
 		get_table_name(return_name);
 	}
@@ -1309,7 +1318,7 @@ static void get_random_name(char *return_name, bool armour, int power)
 	{
 		cptr filename;
 
-		switch (armour)
+		switch ((bool)(tval >= TV_BOOTS))
 		{
 			case 1:
 				switch (power)
@@ -1461,7 +1470,16 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 #endif
 
 		if (o_ptr->art_flags1 & TR1_BLOWS)
-		    o_ptr->pval = randint(1) + 1;
+		{
+			if (randint(100) == 1)
+			{
+				o_ptr->pval = 2;
+			}
+			else
+			{
+				o_ptr->pval = 1;
+			}
+		}
 		else
 		{
 			do
@@ -1525,7 +1543,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
 		if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
 		{
-			get_random_name(new_name, (bool)(o_ptr->tval >= TV_BOOTS), power_level);
+			get_random_name(new_name, o_ptr->tval, power_level);
 		}
 		else
 		{
@@ -1542,7 +1560,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	}
 	else
 	{
-		get_random_name(new_name, (bool)(o_ptr->tval >= TV_BOOTS), power_level);
+		get_random_name(new_name, o_ptr->tval, power_level);
 	}
 
 	if (cheat_xtra)
@@ -1552,6 +1570,9 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		else
 			msg_print("No bias in artifact.");
 	}
+
+	chg_virtue(V_INDIVIDUALISM, 2);
+	chg_virtue(V_ENCHANT, 5);
 
 	/* Save the inscription */
 	o_ptr->art_name = quark_add(new_name);
@@ -1566,7 +1587,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 bool activate_random_artifact(object_type * o_ptr)
 {
 	int plev = p_ptr->lev;
-	int k, dir, dummy = 0;
+	int k, dir, dummy;
 
 	if (!o_ptr->art_name) return FALSE; /* oops? */
 
@@ -1741,7 +1762,7 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_WHIRLWIND:
 		{
 			{
-				int y = 0, x = 0;
+				int y, x;
 				cave_type       *c_ptr;
 				monster_type    *m_ptr;
 
@@ -1928,7 +1949,7 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_SUMMON_ANIMAL:
 		{
-			(void)summon_specific(py, px, plev, SUMMON_ANIMAL_RANGER, TRUE, TRUE, TRUE);
+			(void)summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, TRUE, TRUE, TRUE);
 			o_ptr->timeout = 200 + randint(300);
 			break;
 		}
@@ -1936,7 +1957,7 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_SUMMON_PHANTOM:
 		{
 			msg_print("You summon a phantasmal servant.");
-			(void)summon_specific(py, px, dun_level, SUMMON_PHANTOM, TRUE, TRUE, TRUE);
+			(void)summon_specific(-1, py, px, dun_level, SUMMON_PHANTOM, TRUE, TRUE, TRUE);
 			o_ptr->timeout = 200 + randint(200);
 			break;
 		}
@@ -1946,7 +1967,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			bool pet = (randint(3) == 1);
 			bool group = !(pet && (plev < 50));
 
-			if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_ELEMENTAL, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_ELEMENTAL, group, FALSE, pet))
 			{
 				msg_print("An elemental materializes...");
 
@@ -1965,7 +1986,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			bool pet = (randint(3) == 1);
 			bool group = !(pet && (plev < 50));
 
-			if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_DEMON, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_DEMON, group, FALSE, pet))
 			{
 				msg_print("The area fills with a stench of sulphur and brimstone.");
 				if (pet)
@@ -1995,7 +2016,7 @@ bool activate_random_artifact(object_type * o_ptr)
 				group = TRUE;
 			}
 
-			if (summon_specific(py, px, ((plev * 3) / 2), type,
+			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), type,
 				                group, FALSE, pet))
 			{
 				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
@@ -2288,26 +2309,38 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_RECALL:
 		{
-			if (dun_level && (p_ptr->max_dlv > dun_level))
+			if (ironman_downward)
 			{
-				if (get_check("Reset recall depth? "))
-				p_ptr->max_dlv = dun_level;
-			}
-
-			msg_print("It glows soft white...");
-			if (!p_ptr->word_recall)
-			{
-				p_ptr->word_recall = randint(20) + 15;
-				msg_print("The air about you becomes charged...");
+				msg_print("It glows and then fades.");
 			}
 			else
 			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
+				if (dun_level && (p_ptr->max_dlv > dun_level))
+				{
+					if (get_check("Reset recall depth? "))
+					p_ptr->max_dlv = dun_level;
+				}
+
+				msg_print("It glows soft white...");
+
+				p_ptr->redraw |= (PR_STATUS);
+
+				if (!p_ptr->word_recall)
+				{
+					p_ptr->word_recall = randint(20) + 15;
+					msg_print("The air about you becomes charged...");
+				}
+				else
+				{
+					p_ptr->word_recall = 0;
+					msg_print("A tension leaves the air around you...");
+				}
 			}
+			
 			o_ptr->timeout = 200;
 			break;
 		}
+
 
 		default:
 		{
