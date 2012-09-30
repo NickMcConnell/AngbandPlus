@@ -1,0 +1,16 @@
+subdir = ./lib/file/
+
+## makefile.zb
+
+srcfiles += lib/file/makefile.zb
+
+files += \
+  lib/file/a_low.txt lib/file/crime.txt lib/file/elvish.txt \
+  lib/file/monfear.txt lib/file/news.txt lib/file/sample.txt \
+  lib/file/timenorm.txt lib/file/w_low.txt lib/file/a_cursed.txt \
+  lib/file/a_med.txt lib/file/dead.txt lib/file/error.txt \
+  lib/file/monfrien.txt lib/file/readme.txt lib/file/silly.txt \
+  lib/file/w_cursed.txt lib/file/w_med.txt lib/file/a_high.txt \
+  lib/file/chainswd.txt lib/file/death.txt lib/file/mondeath.txt \
+  lib/file/monspeak.txt lib/file/rumors.txt lib/file/timefun.txt \
+  lib/file/w_high.txt

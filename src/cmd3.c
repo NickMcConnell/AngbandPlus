@@ -35,19 +35,19 @@ void do_cmd_inven(void)
 	prtf(0, 0, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
 			p_ptr->total_weight / 10, p_ptr->total_weight % 10,
 			(p_ptr->total_weight * 100) /
-			((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+			((adj_str_wgt[p_ptr->stat[A_STR].ind] * 100) / 2));
 
 	/* Get a new command */
-	p_ptr->command_new = inkey();
+	p_ptr->cmd.new = inkey();
 
 	/* Load screen */
 	screen_load();
 
 	/* Process "Escape" */
-	if (p_ptr->command_new == ESCAPE)
+	if (p_ptr->cmd.new == ESCAPE)
 	{
 		/* Reset stuff */
-		p_ptr->command_new = 0;
+		p_ptr->cmd.new = 0;
 	}
 }
 
@@ -73,19 +73,19 @@ void do_cmd_equip(void)
 	prtf(0, 0, "Equipment: carrying %d.%d pounds (%d%% of capacity). Command: ",
 			p_ptr->total_weight / 10, p_ptr->total_weight % 10,
 			(p_ptr->total_weight * 100) /
-			((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+			((adj_str_wgt[p_ptr->stat[A_STR].ind] * 100) / 2));
 
 	/* Get a new command */
-	p_ptr->command_new = inkey();
+	p_ptr->cmd.new = inkey();
 
 	/* Restore the screen */
 	screen_load();
 
 	/* Process "Escape" */
-	if (p_ptr->command_new == ESCAPE)
+	if (p_ptr->cmd.new == ESCAPE)
 	{
 		/* Reset stuff */
-		p_ptr->command_new = 0;
+		p_ptr->cmd.new = 0;
 	}
 }
 
@@ -370,13 +370,13 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 
 	if (high_level_book(o_ptr))
 	{
-		if (p_ptr->pclass == CLASS_WARRIOR)
+		if (p_ptr->rp.pclass == CLASS_WARRIOR)
 		{
 			gain_expr = TRUE;
 		}
-		else if (p_ptr->pclass == CLASS_PALADIN)
+		else if (p_ptr->rp.pclass == CLASS_PALADIN)
 		{
-			if (p_ptr->realm1 == REALM_LIFE)
+			if (p_ptr->spell.r[0].realm == REALM_LIFE)
 			{
 				if (o_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
 			}
@@ -443,7 +443,7 @@ void do_cmd_destroy(void)
 	cptr q, s;
 
 	/* Hack -- force destruction */
-	if (p_ptr->command_arg > 0) force = TRUE;
+	if (p_ptr->cmd.arg > 0) force = TRUE;
 
 
 	/* Get an item */
@@ -1167,7 +1167,6 @@ void do_cmd_query_symbol(void)
 {
 	int i, n, r_idx;
 	char sym, query;
-	char buf[128];
 
 	bool all = FALSE;
 	bool uniq = FALSE;
@@ -1304,9 +1303,9 @@ void do_cmd_query_symbol(void)
 
 	/* Query */
 	query = inkey();
-
-	/* Restore */
-	prtf(0, 0, buf);
+	
+	/* Clear top line */
+	clear_msg();
 
 	why = 2;
 
@@ -1426,9 +1425,9 @@ void do_cmd_query_symbol(void)
 
 	/* Free the "who" array */
 	KILL(who);
-
-	/* Re-display the identity */
-	prtf(0, 0, buf);
+	
+	/* Clear top line */
+	clear_msg();
 }
 
 

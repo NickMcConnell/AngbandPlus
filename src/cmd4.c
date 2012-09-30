@@ -451,6 +451,18 @@ void init_options(byte flags)
 			player_counter++;
 		}
 	}
+
+	/*
+	 * XXX XXX XXX This is an absolutely evil hack.
+	 * If ironman_downward is set - set vanilla town as well
+	 */
+	if (ironman_downward)
+	{
+		vanilla_town = TRUE;
+	
+		/* And here is the bit that shouldn't see the light of day. */
+		option_info[192].o_val = TRUE;
+	}
 }
 
 
@@ -510,7 +522,7 @@ static bool do_cmd_options_cheat_aux(int option)
 	if (*cheat_info[option].o_var)
 	{
 		/* Turn on the cheating flag */
-		p_ptr->noscore |= cheat_info[option].o_word;
+		p_ptr->state.noscore |= cheat_info[option].o_word;
 	}
 	
 	/* Change the option text */
@@ -923,7 +935,7 @@ static bool do_cmd_options_win(int dummy)
 				a = TERM_WHITE;
 
 				/* Use color */
-				if (use_color && (i == y) && (j == x) && !ironman_moria)
+				if (use_color && (i == y) && (j == x))
 				{
 					a = TERM_L_BLUE;
 				}
@@ -1135,9 +1147,8 @@ static bool do_cmd_options_dump(int dummy)
 	if (!fff) return (FALSE);
 
 	/* Header */
-	fprintf(fff, "# File: pref-opt.prf\n\n");
-	fprintf(fff,
-			"# Allow user specification of various options\n\n");
+	froff(fff, "# File: pref-opt.prf\n\n");
+	froff(fff, "# Allow user specification of various options\n\n");
 
 	/* Scan the options */
 	for (i = 0; i < OPT_MAX; i++)
@@ -1146,8 +1157,7 @@ static bool do_cmd_options_dump(int dummy)
 			(option_info[i].o_page != OPT_BIRTH_PAGE))
 		{
 			/* Dump the option */
-			fprintf(fff, "%c:%s\n",
-					(option_info[i].o_val ? 'Y' : 'X'),
+			froff(fff, "%c:%s\n", (option_info[i].o_val ? 'Y' : 'X'),
 					option_info[i].o_text);
 		}
 	}
@@ -1261,35 +1271,35 @@ errr macro_dump(cptr fname)
 
 
 	/* Skip space */
-	fprintf(fff, "\n\n");
+	froff(fff, "\n\n");
 
 	/* Start dumping */
-	fprintf(fff, "# Automatic macro dump\n\n");
+	froff(fff, "# Automatic macro dump\n\n");
 
 	/* Dump them */
 	for (i = 0; i < macro__num; i++)
 	{
 		/* Start the macro */
-		fprintf(fff, "# Macro '%d'\n\n", i);
+		froff(fff, "# Macro '%d'\n\n", i);
 
 		/* Extract the action */
 		ascii_to_text(buf, macro__act[i]);
 
 		/* Dump the macro */
-		fprintf(fff, "A:%s\n", buf);
+		froff(fff, "A:%s\n", buf);
 
 		/* Extract the action */
 		ascii_to_text(buf, macro__pat[i]);
 
 		/* Dump normal macros */
-		fprintf(fff, "P:%s\n", buf);
+		froff(fff, "P:%s\n", buf);
 
 		/* End the macro */
-		fprintf(fff, "\n\n");
+		froff(fff, "\n\n");
 	}
 
 	/* Start dumping */
-	fprintf(fff, "\n\n\n\n");
+	froff(fff, "\n\n\n\n");
 
 
 	/* Close */
@@ -1318,7 +1328,7 @@ static void do_cmd_macro_aux(char *buf)
 	flush();
 
 	/* Do not process macros */
-	p_ptr->inkey_base = TRUE;
+	p_ptr->cmd.inkey_base = TRUE;
 
 	/* First key */
 	i = inkey();
@@ -1330,10 +1340,10 @@ static void do_cmd_macro_aux(char *buf)
 		buf[n++] = i;
 
 		/* Do not process macros */
-		p_ptr->inkey_base = TRUE;
+		p_ptr->cmd.inkey_base = TRUE;
 
 		/* Do not wait for keys */
-		p_ptr->inkey_scan = TRUE;
+		p_ptr->cmd.inkey_scan = TRUE;
 
 		/* Attempt to read a key */
 		i = inkey();
@@ -1426,10 +1436,10 @@ errr keymap_dump(cptr fname)
 
 
 	/* Skip space */
-	fprintf(fff, "\n\n");
+	froff(fff, "\n\n");
 
 	/* Start dumping */
-	fprintf(fff, "# Automatic keymap dump\n\n");
+	froff(fff, "# Automatic keymap dump\n\n");
 
 	/* Dump them */
 	for (i = 0; i < 256; i++)
@@ -1451,12 +1461,12 @@ errr keymap_dump(cptr fname)
 		ascii_to_text(buf, act);
 
 		/* Dump the macro */
-		fprintf(fff, "A:%s\n", buf);
-		fprintf(fff, "C:%d:%s\n", mode, key);
+		froff(fff, "A:%s\n", buf);
+		froff(fff, "C:%d:%s\n", mode, key);
 	}
 
 	/* Start dumping */
-	fprintf(fff, "\n\n\n");
+	froff(fff, "\n\n\n");
 
 
 	/* Close */
@@ -2032,8 +2042,8 @@ static bool do_cmd_dump_monster(int dummy)
 	}
 	
 	/* Start dumping */
-	fprintf(fff, "\n\n");
-	fprintf(fff, "# Monster attr/char definitions\n\n");
+	froff(fff, "\n\n");
+	froff(fff, "# Monster attr/char definitions\n\n");
 
 	/* Dump monsters */
 	for (i = 0; i < z_info->r_max; i++)
@@ -2044,15 +2054,15 @@ static bool do_cmd_dump_monster(int dummy)
 		if (!r_ptr->name) continue;
 
 		/* Dump a comment */
-		fprintf(fff, "# %s\n", (r_name + r_ptr->name));
+		froff(fff, "# %s\n", (r_name + r_ptr->name));
 
 		/* Dump the monster attr/char info */
-		fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
+		froff(fff, "R:%d:0x%02X:0x%02X\n\n", i,
 				(byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
 	}
 
 	/* All done */
-	fprintf(fff, "\n\n\n\n");
+	froff(fff, "\n\n\n\n");
 
 	/* Close */
 	my_fclose(fff);
@@ -2106,8 +2116,8 @@ static bool do_cmd_dump_object(int dummy)
 	}
 	
 	/* Start dumping */
-	fprintf(fff, "\n\n");
-	fprintf(fff, "# Object attr/char definitions\n\n");
+	froff(fff, "\n\n");
+	froff(fff, "# Object attr/char definitions\n\n");
 
 	/* Dump objects */
 	for (i = 0; i < z_info->k_max; i++)
@@ -2118,15 +2128,15 @@ static bool do_cmd_dump_object(int dummy)
 		if (!k_ptr->name) continue;
 
 		/* Dump a comment */
-		fprintf(fff, "# %s\n", (k_name + k_ptr->name));
+		froff(fff, "# %s\n", (k_name + k_ptr->name));
 
 		/* Dump the object attr/char info */
-		fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
+		froff(fff, "K:%d:0x%02X:0x%02X\n\n", i,
 				(byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
 	}
 
 	/* All done */
-	fprintf(fff, "\n\n\n\n");
+	froff(fff, "\n\n\n\n");
 
 	/* Close */
 	my_fclose(fff);
@@ -2181,8 +2191,8 @@ static bool do_cmd_dump_feature(int dummy)
 	}
 	
 	/* Start dumping */
-	fprintf(fff, "\n\n");
-	fprintf(fff, "# Feature attr/char definitions\n\n");
+	froff(fff, "\n\n");
+	froff(fff, "# Feature attr/char definitions\n\n");
 
 	/* Dump features */
 	for (i = 0; i < z_info->f_max; i++)
@@ -2193,15 +2203,15 @@ static bool do_cmd_dump_feature(int dummy)
 		if (!f_ptr->name) continue;
 
 		/* Dump a comment */
-		fprintf(fff, "# %s\n", (f_name + f_ptr->name));
+		froff(fff, "# %s\n", (f_name + f_ptr->name));
 
 		/* Dump the feature attr/char info */
-		fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
+		froff(fff, "F:%d:0x%02X:0x%02X\n\n", i,
 				(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
 	}
 
 	/* All done */
-	fprintf(fff, "\n\n\n\n");
+	froff(fff, "\n\n\n\n");
 
 	/* Close */
 	my_fclose(fff);
@@ -2256,8 +2266,8 @@ static bool do_cmd_dump_field(int dummy)
 	}
 	
 	/* Start dumping */
-	fprintf(fff, "\n\n");
-	fprintf(fff, "# Field attr/char definitions\n\n");
+	froff(fff, "\n\n");
+	froff(fff, "# Field attr/char definitions\n\n");
 
 	/* Dump features */
 	for (i = 0; i < z_info->t_max; i++)
@@ -2268,15 +2278,15 @@ static bool do_cmd_dump_field(int dummy)
 		if (!t_ptr->name) continue;
 
 		/* Dump a comment */
-		fprintf(fff, "# %s\n", t_ptr->name);
+		froff(fff, "# %s\n", t_ptr->name);
 
 		/* Dump the field attr/char info */
-		fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
+		froff(fff, "F:%d:0x%02X:0x%02X\n\n", i,
 				(byte)(t_ptr->f_attr), (byte)(t_ptr->f_char));
 	}
 
 	/* All done */
-	fprintf(fff, "\n\n\n\n");
+	froff(fff, "\n\n\n\n");
 
 	/* Close */
 	my_fclose(fff);
@@ -2690,8 +2700,8 @@ static bool do_cmd_dump_colour(int dummy)
 	}
 
 	/* Start dumping */
-	fprintf(fff, "\n\n");
-	fprintf(fff, "# Color redefinitions\n\n");
+	froff(fff, "\n\n");
+	froff(fff, "# Color redefinitions\n\n");
 
 	/* Dump colors */
 	for (i = 0; i < 256; i++)
@@ -2710,15 +2720,15 @@ static bool do_cmd_dump_colour(int dummy)
 		if (i < 16) name = color_names[i];
 
 		/* Dump a comment */
-		fprintf(fff, "# Color '%s'\n", name);
+		froff(fff, "# Color '%s'\n", name);
 
 		/* Dump the monster attr/char info */
-		fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n",
+		froff(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n",
 				i, (uint)kv, (uint)rv, (uint)gv, (uint)bv);
 	}
 
 	/* All done */
-	fprintf(fff, "\n\n\n\n");
+	froff(fff, "\n\n\n\n");
 
 	/* Close */
 	my_fclose(fff);
@@ -2775,8 +2785,8 @@ static bool do_cmd_dump_message(int dummy)
 	}
 
 	/* Start dumping */
-	fprintf(fff, "\n\n");
-	fprintf(fff, "# Message color definitions\n\n");
+	froff(fff, "\n\n");
+	froff(fff, "# Message color definitions\n\n");
 
 	/* Dump message colors */
 	for (i = 0; i < MSG_MAX; i++)
@@ -2789,14 +2799,14 @@ static bool do_cmd_dump_message(int dummy)
 		name = msg_names[i];
 
 		/* Dump a comment */
-		fprintf(fff, "# Message type: %s\n", name);
+		froff(fff, "# Message type: %s\n", name);
 
 		/* Dump the message color */
-		fprintf(fff, "M:%d:%c\n\n", i, color_char[color]);
+		froff(fff, "M:%d:%c\n\n", i, color_char[color]);
 	}
 
 	/* All done */
-	fprintf(fff, "\n\n\n\n");
+	froff(fff, "\n\n\n\n");
 
 	/* Close */
 	my_fclose(fff);
@@ -3052,7 +3062,7 @@ static cptr do_cmd_feeling_text[11] =
 void do_cmd_feeling(void)
 {
 	/* Verify the feeling */
-	if (dun_ptr->feeling > 10) dun_ptr->feeling = 10;
+	if (p_ptr->state.feeling > 10) p_ptr->state.feeling = 10;
 
 	if (p_ptr->place_num && !p_ptr->depth)
 	{
@@ -3077,17 +3087,10 @@ void do_cmd_feeling(void)
 		return;
 	}
 
-	/* No useful feeling in quests */
-	if (is_quest_level(p_ptr->depth))
-	{
-		msgf("Looks like a typical quest level.");
-		return;
-	}
-
 	/* Display the feeling */
 	if (turn - old_turn >= 1000)
 	{
-		msgf(do_cmd_feeling_text[dun_ptr->feeling]);
+		msgf(do_cmd_feeling_text[p_ptr->state.feeling]);
 	}
 	else
 	{
@@ -3168,7 +3171,7 @@ void do_cmd_load_screen(void)
 			}
 
 			/* Hack -- fake monochrome */
-			if (!use_color || ironman_moria) a = TERM_WHITE;
+			if (!use_color) a = TERM_WHITE;
 
 			/* Put the attr/char */
 			Term_draw(x, y, a, c);
@@ -3257,11 +3260,11 @@ void do_cmd_save_screen(void)
 			buf[x] = '\0';
 
 			/* End the row */
-			fprintf(fff, "%s\n", buf);
+			froff(fff, "%s\n", buf);
 		}
 
 		/* Skip a line */
-		fprintf(fff, "\n");
+		froff(fff, "\n");
 
 
 		/* Dump the screen */
@@ -3281,11 +3284,11 @@ void do_cmd_save_screen(void)
 			buf[x] = '\0';
 
 			/* End the row */
-			fprintf(fff, "%s\n", buf);
+			froff(fff, "%s\n", buf);
 		}
 
 		/* Skip a line */
-		fprintf(fff, "\n");
+		froff(fff, "\n");
 
 
 		/* Close it */
@@ -3374,7 +3377,7 @@ static bool do_cmd_knowledge_uniques(int dummy)
 		bool dead = (r_ptr->max_num == 0);
 
 		/* Print a message */
-		fprintf(fff, "     %-45s is %s\n", (r_name + r_ptr->name),
+		froff(fff, "     %-45s is %s\n", (r_name + r_ptr->name),
 				(dead ? "dead" : "alive"));
 	}
 
@@ -3483,7 +3486,7 @@ void plural_aux(char *name)
 /*
  * Display current pets
  */
-static bool do_cmd_knowledge_pets(int dummy)
+bool do_cmd_knowledge_pets(int dummy)
 {
 	int i;
 	FILE *fff;
@@ -3514,11 +3517,9 @@ static bool do_cmd_knowledge_pets(int dummy)
 		/* Calculate "upkeep" for pets */
 		if (is_pet(m_ptr))
 		{
-			char pet_name[80];
 			t_friends++;
 			t_levels += r_info[m_ptr->r_idx].level;
-			monster_desc(pet_name, m_ptr, 0x88, 80);
-			fprintf(fff, "%s (%s)\n", pet_name, look_mon_desc(i));
+			froff(fff, "%v (%s)\n", MONSTER_FMT(m_ptr, 0x88), look_mon_desc(i));
 		}
 	}
 
@@ -3531,10 +3532,10 @@ static bool do_cmd_knowledge_pets(int dummy)
 	}
 
 
-	fprintf(fff, "----------------------------------------------\n");
-	fprintf(fff, "   Total: %d pet%s.\n",
+	froff(fff, "----------------------------------------------\n");
+	froff(fff, "   Total: %d pet%s.\n",
 			t_friends, (t_friends == 1 ? "" : "s"));
-	fprintf(fff, "   Upkeep: %d%% mana.\n", show_upkeep);
+	froff(fff, "   Upkeep: %d%% mana.\n", show_upkeep);
 
 
 	/* Close the file */
@@ -3645,11 +3646,11 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 	}
 
 	if (Total < 1)
-		fprintf(fff, "You have defeated no enemies yet.\n\n");
+		froff(fff, "You have defeated no enemies yet.\n\n");
 	else if (Total == 1)
-		fprintf(fff, "You have defeated one enemy.\n\n");
+		froff(fff, "You have defeated one enemy.\n\n");
 	else
-		fprintf(fff, "You have defeated %lu enemies.\n\n", Total);
+		froff(fff, "You have defeated %lu enemies.\n\n", Total);
 
 	/* Save total kills for later */
 	temp = Total;
@@ -3669,7 +3670,7 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 			if (dead)
 			{
 				/* Print a message */
-				fprintf(fff, "%c     %s\n", r_ptr->x_char,
+				froff(fff, "%c     %s\n", r_ptr->x_char,
 						(r_name + r_ptr->name));
 				Total++;
 			}
@@ -3684,12 +3685,12 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 				{
 					if (strstr(r_name + r_ptr->name, "coins"))
 					{
-						fprintf(fff, "%c     1 pile of %s\n", r_ptr->x_char,
+						froff(fff, "%c     1 pile of %s\n", r_ptr->x_char,
 								(r_name + r_ptr->name));
 					}
 					else
 					{
-						fprintf(fff, "%c     1 %s\n", r_ptr->x_char,
+						froff(fff, "%c     1 %s\n", r_ptr->x_char,
 								(r_name + r_ptr->name));
 					}
 				}
@@ -3698,7 +3699,7 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 					char ToPlural[80];
 					strcpy(ToPlural, (r_name + r_ptr->name));
 					plural_aux(ToPlural);
-					fprintf(fff, "%c     %d %s\n", r_ptr->x_char, This,
+					froff(fff, "%c     %d %s\n", r_ptr->x_char, This,
 							ToPlural);
 				}
 
@@ -3707,8 +3708,8 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 		}
 	}
 
-	fprintf(fff, "----------------------------------------------\n");
-	fprintf(fff, "   Total: %lu creature%s killed.\n",
+	froff(fff, "----------------------------------------------\n");
+	froff(fff, "   Total: %lu creature%s killed.\n",
 			Total, (Total == 1 ? "" : "s"));
 
 	/* Subtract off monsters you know you have killed */
@@ -3717,8 +3718,8 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 	/* Have we killed any monsters we did not see? */
 	if (temp)
 	{
-		fprintf(fff, "\n");
-		fprintf(fff, " Unseen: %lu creature%s killed.\n",
+		froff(fff, "\n");
+		froff(fff, " Unseen: %lu creature%s killed.\n",
 				temp, (temp == 1 ? "" : "s"));
 	}
 
@@ -3780,7 +3781,7 @@ static bool do_cmd_knowledge_objects(int dummy)
 			object_desc_store(o_name, o_ptr, FALSE, 0, 256);
 
 			/* Print a message */
-			fprintf(fff, "     %s\n", o_name);
+			froff(fff, "     %s\n", o_name);
 		}
 	}
 
@@ -3847,24 +3848,86 @@ static bool do_cmd_knowledge_notes(int dummy)
 	return (FALSE);
 }
 
+
+/*
+ * Dump info about a town to the given file
+ */
+void dump_town_info(FILE *fff, int town)
+{
+	int j;
+
+	char stores_info[2048];
+	
+	cptr build_name;
+
+	bool visited = FALSE;
+
+	place_type *pl_ptr = &place[town];
+
+	/* Is it a town? */
+	if (!pl_ptr->quest_num)
+	{
+		/* Hack-- determine the town has been visited */
+		visited = FALSE;
+
+		for (j = 0; j < pl_ptr->numstores; j++)
+		{
+			/* Stores are not given coordinates until you visit a town */
+			if ((pl_ptr->store[j].x != 0) && (pl_ptr->store[j].y != 0))
+			{
+				visited = TRUE;
+				break;
+			}
+		}
+
+		/* Build a buffer with the information (If visited, and if it is a town) */
+		if (visited)
+		{
+			/* Clear stores and place information */
+			stores_info[0] = '\0';
+
+			/* Built stores information */
+			for (j = 0; j < pl_ptr->numstores;j++)
+			{
+				build_name = building_name(pl_ptr->store[j].type);
+
+				/* Make a string, but only if this is a real building */
+				if (!streq(build_name, "Nothing"))
+				{
+					/* Append information about store */
+					strnfmt(stores_info, 2048, "%s     %s\n",
+							stores_info, build_name);
+				}
+			}
+
+			/* write stairs information to file */
+			if (pl_ptr->dungeon)
+			{
+				froff(fff, "%s -- Stairs\n", pl_ptr->name);
+			}
+			else
+			{
+				froff(fff, "%s\n", pl_ptr->name);
+			}
+
+			/* Write to file */
+			froff(fff, stores_info);
+			froff(fff, "\n");
+		}
+	}
+}
+
+
 /*
  * Display information about wilderness areas
  */
 static bool do_cmd_knowledge_wild(int dummy)
 {
-	int k, j;
+	int k;
 
 	FILE *fff;
 
-	char stores_info[2048];
-
 	char file_name[1024];
-	
-	cptr build_name;
-
-	bool stairs_exist = FALSE;
-
-	bool visited = FALSE;
 	
 	/* Hack - ignore parameter */
 	(void) dummy;
@@ -3878,64 +3941,7 @@ static bool do_cmd_knowledge_wild(int dummy)
 	/* Cycle through the places */
 	for (k = 1; k < place_count; k++)
 	{
-		/* Is this a town? */
-		if (!place[k].quest_num)
-		{
-			/* Hack -- determine the town has been visited */
-			visited = FALSE;
-
-			for (j = 0; j < place[k].numstores; j++)
-			{
-				/* Stores are not given coordinates until you visit a town */
-				if (place[k].store[j].x != 0 && place[k].store[j].y != 0)
-				{
-					visited = TRUE;
-					break;
-				}
-			}
-
-			/* Build a buffer with information (if visited, and if it is a town) */
-			if (visited)
-			{
-				/* Clear stores and place information */
-				stores_info[0] = '\0';
-				stairs_exist = FALSE;
-
-				/* Build stores information */
-				for (j = 0; j < place[k].numstores; j++)
-				{
-					build_name = building_name(place[k].store[j].type);
-				
-					/* Make a string, but only if this is a real building */
-					if (!streq(build_name, "Nothing"))
-					{
-						/* Append information about store */
-						strnfmt(stores_info, 2048, "%s     %s\n",
-								stores_info, build_name);
-					}
-
-					/* Note if there are stairs in this town */
-					if (place[k].store[j].type == BUILD_STAIRS)
-					{
-						stairs_exist = TRUE;
-					}
-				}
-				
-				/* Write stairs information to file */
-				if (stairs_exist)
-				{
-					fprintf(fff, "%s -- Stairs\n", place[k].name);
-				}
-				else
-				{
-					fprintf(fff, "%s\n", place[k].name);
-				}
-
-				/* Write to file */
-				fprintf(fff, stores_info);
-				fprintf(fff, "\n");
-			}
-		}
+		dump_town_info(fff, k);
 	}
 
 	/* Close the file */
@@ -4054,7 +4060,7 @@ void do_cmd_time(void)
 			   min, (hour < 12) ? "AM" : "PM");
 
 	/* Find the path */
-	if (one_in_(10) || p_ptr->image)
+	if (one_in_(10) || p_ptr->tim.image)
 	{
 		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun.txt");
 	}

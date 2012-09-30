@@ -18,7 +18,7 @@ function eat_food(object)
 		ident = TRUE
 	elseif object.sval == SV_FOOD_WAYBREAD then
 		msgf("That tastes good.")
-		set_poisoned(0)
+		clear_poisoned()
 		hp_player(damroll(4, 8))
 		ident = TRUE
 	elseif object.sval == SV_FOOD_RESTORING then
@@ -35,13 +35,13 @@ function eat_food(object)
 	elseif object.sval == SV_FOOD_CURE_SERIOUS then
 		if hp_player(damroll(4, 8)) then ident = TRUE end
 	elseif object.sval == SV_FOOD_CURE_CONFUSION then
-		if set_confused(0) then ident = TRUE end
+		if clear_confused() then ident = TRUE end
 	elseif object.sval == SV_FOOD_CURE_PARANOIA then
-		if set_afraid(0) then ident = TRUE end
+		if clear_afraid() then ident = TRUE end
 	elseif object.sval == SV_FOOD_CURE_BLINDNESS then
-		if set_blind(0) then ident = TRUE end
+		if clear_blind() then ident = TRUE end
 	elseif object.sval == SV_FOOD_CURE_POISON then
-		if set_poisoned(0) then ident = TRUE end
+		if clear_poisoned() then ident = TRUE end
 	elseif object.sval == SV_FOOD_DISEASE then
 		take_hit(damroll(10, 10), "poisonous food")
 		do_dec_stat(A_STR)
@@ -67,38 +67,38 @@ function eat_food(object)
 		do_dec_stat(A_STR)
 		ident = TRUE
 	elseif object.sval == SV_FOOD_PARALYSIS then
-		if not player.free_act then
-			if set_paralyzed(player.paralyzed + rand_int(10) + 10) then
+		if not player_res(TR2_FREE_ACT) then
+			if inc_paralyzed(rand_range(10, 20)) then
 				ident = TRUE
 			end
 		end
 	elseif object.sval == SV_FOOD_HALLUCINATION then
-		if not player.resist_chaos then
-			if set_image(player.image + rand_int(250) + 250) then
+		if not player_res(TR2_RES_CHAOS) then
+			if inc_image(rand_range(250, 500)) then
 				ident = TRUE
 			end
 		end
 	elseif object.sval == SV_FOOD_CONFUSION then
-		if  not player.resist_confu then
-			if set_confused(player.confused + rand_int(10) + 10) then
+		if  not player_res(TR2_RES_CONF) then
+			if inc_confused(rand_range(10, 20)) then
 				ident = TRUE
 			end
 		end
 	elseif object.sval == SV_FOOD_PARANOIA then
-		if not player.resist_fear then
-			if set_afraid(player.afraid + rand_int(10) + 10) then
+		if not player_res(TR2_RES_FEAR) then
+			if inc_afraid(rand_range(10, 20)) then
 				ident = TRUE
 			end
 		end
 	elseif object.sval == SV_FOOD_POISON then
-		if not (player.resist_pois or (player.oppose_pois > 0)) then
-			if set_poisoned(player.poisoned + rand_int(10) + 10) then
+		if (res_pois_lvl() ~= 0) then
+			if inc_poisoned(rand_range(10, 20)) then
 				ident = TRUE
 			end
 		end
 	elseif object.sval == SV_FOOD_BLINDNESS then
-		if not player.resist_blind then
-			if set_blind(player.blind + rand_int(200) + 200) then
+		if not player_res(TR2_RES_BLIND) then
+			if inc_blind(rand_range(200, 400)) then
 				ident = TRUE
 			end
 		end
@@ -117,38 +117,38 @@ function quaff_potion(object)
 		msgf("You feel less thirsty.")
 		ident = TRUE
 	elseif object.sval == SV_POTION_SLOWNESS then
-		if set_slow(player.slow + rand_range(15, 40)) then ident = TRUE end
+		if inc_slow(rand_range(15, 40)) then ident = TRUE end
 	elseif object.sval == SV_POTION_SALT_WATER then
 		msgf("The potion makes you vomit!")
 		if player.food > PY_FOOD_STARVE - 1 then
 			set_food(PY_FOOD_STARVE - 1)
 		end
-		set_poisoned(0)
-		set_paralyzed(player.paralyzed + 4)
+		clear_poisoned()
+		inc_paralyzed(4)
 		ident = TRUE
 	elseif object.sval == SV_POTION_POISON then
-		if not (player.resist_pois or (player.oppose_pois > 0)) then
-			if set_poisoned(player.poisoned + rand_range(10, 25)) then
+		if (res_pois_lvl() ~= 0) then
+			if inc_poisoned(rand_range(10, 25)) then
 				ident = TRUE
 			end
 		end
 	elseif object.sval == SV_POTION_BLINDNESS then
-		if not player.resist_blind then
-			if set_blind(player.blind + rand_range(100, 200)) then
+		if not player_res(TR2_RES_BLIND) then
+			if inc_blind(rand_range(100, 200)) then
 				ident = TRUE
 			end
 		end
 	-- Booze
 	elseif object.sval == SV_POTION_CONFUSION then
-		if not player.resist_confu then
-			if set_confused(player.confused + rand_range(15, 35)) then
+		if not player_res(TR2_RES_CONF) then
+			if inc_confused(rand_range(15, 35)) then
 				ident = TRUE
 			end
 		end
 
-		if not player.resist_chaos then
+		if not player_res(TR2_RES_CHAOS) then
 			if one_in_(2) then
-				if set_image(player.image + rand_range(150, 300)) then
+				if inc_image(rand_range(150, 300)) then
 					ident = TRUE
 				end
 			end
@@ -166,7 +166,7 @@ function quaff_potion(object)
 			end
 		end
 	elseif object.sval == SV_POTION_SLEEP then
-		if not player.free_act then
+		if not player_res(TR2_FREE_ACT) then
 			msgf("You fall asleep.")
 
 			if ironman_nightmare then
@@ -182,12 +182,12 @@ function quaff_potion(object)
 				get_mon_num_prep(NULL, NULL)
 			end
 
-			if set_paralyzed(player.paralyzed + rand_range(4, 8)) then
+			if inc_paralyzed(rand_range(4, 8)) then
 				ident = TRUE
 			end
 		end
 	elseif object.sval == SV_POTION_LOSE_MEMORIES then
-		if not player.hold_life and (player.exp > 0) then
+		if not player_res(TR2_HOLD_LIFE) and (player.exp > 0) then
 			msgf("You feel your memories fade.")
 
 			lose_exp(player.exp / 4)
@@ -218,88 +218,80 @@ function quaff_potion(object)
 	elseif object.sval == SV_POTION_DETONATIONS then
 		msgf("Massive explosions rupture your body!")
 		take_hit(damroll(50, 20), "a potion of Detonation")
-		set_stun(player.stun + 75)
-		set_cut(player.cut + 5000)
+		inc_stun(75)
+		inc_cut(5000)
 		ident = TRUE
 	elseif object.sval == SV_POTION_DEATH then
 		msgf("A feeling of Death flows through your body.")
 		take_hit(5000, "a potion of Death")
 		ident = TRUE
 	elseif object.sval == SV_POTION_INFRAVISION then
-		if set_tim_infra(player.tim_infra + rand_range(100, 200)) then
-			ident = TRUE
-		end
+		if inc_tim_infra(rand_range(100, 200)) then ident = TRUE end
 	elseif object.sval == SV_POTION_DETECT_INVIS then
-		if set_tim_invis(player.tim_invis + rand_range(12, 24)) then
-			ident = TRUE
-		end
+		if inc_tim_invis(rand_range(12, 24)) then ident = TRUE end
 	elseif object.sval == SV_POTION_SLOW_POISON then
-		if set_poisoned(player.poisoned / 2) then ident = TRUE end
+		if inc_poisoned(-player.tim.poisoned / 2) then ident = TRUE end
 	elseif object.sval == SV_POTION_CURE_POISON then
-		if set_poisoned(0) then ident = TRUE end
+		if clear_poisoned() then ident = TRUE end
 	elseif object.sval == SV_POTION_BOLDNESS then
-		if set_afraid(0) then ident = TRUE end
+		if clear_afraid() then ident = TRUE end
 	elseif object.sval == SV_POTION_SPEED then
-		if player.fast == 0 then
-			if set_fast(rand_range(15, 40)) then ident = TRUE end
-		else
-			set_fast(player.fast + 5)
-		end
+		if inc_fast(rand_range(15, 40)) then ident = TRUE end
 	elseif object.sval == SV_POTION_RESIST_HEAT then
-		if set_oppose_fire(player.oppose_fire + rand_range(10, 20)) then
+		if inc_oppose_fire(rand_range(10, 20)) then
 			ident = TRUE
 		end
 	elseif object.sval == SV_POTION_RESIST_COLD then
-		if set_oppose_cold(player.oppose_cold + rand_range(10, 20)) then
+		if inc_oppose_cold(rand_range(10, 20)) then
 			ident = TRUE
 		end
 	elseif object.sval == SV_POTION_HEROISM then
-		if set_afraid(0) then ident = TRUE end
-		if set_hero(player.hero + rand_range(25, 50)) then ident = TRUE end
-		if hp_player(10)then ident = TRUE end
+		if clear_afraid() then ident = TRUE end
+		if inc_hero(rand_range(25, 50)) then ident = TRUE end
+		if hp_player(10) then ident = TRUE end
 	elseif object.sval == SV_POTION_BERSERK_STRENGTH then
-		if set_afraid(0) then ident = TRUE end
-		if set_shero(player.shero + rand_range(25, 50)) then ident = TRUE end
+		if clear_afraid() then ident = TRUE end
+		if inc_shero(rand_range(25, 50)) then ident = TRUE end
 		if hp_player(30) then ident = TRUE end
 	elseif object.sval == SV_POTION_CURE_LIGHT then
 		if hp_player(38) then ident = TRUE end
-		if set_blind(0) then ident = TRUE end
-		if set_cut(player.cut - 10) then ident = TRUE end
+		if clear_blind() then ident = TRUE end
+		if inc_cut(-10) then ident = TRUE end
 	elseif object.sval == SV_POTION_CURE_SERIOUS then
 		if hp_player(75) then ident = TRUE end
-		if set_blind(0) then ident = TRUE end
-		if set_confused(0) then ident = TRUE end
-		if set_cut((player.cut / 2) - 50) then ident = TRUE end
+		if clear_blind() then ident = TRUE end
+		if clear_confused() then ident = TRUE end
+		if inc_cut(-50) then ident = TRUE end
 	elseif object.sval == SV_POTION_CURE_CRITICAL then
 		if hp_player(150) then ident = TRUE end
-		if set_blind(0) then ident = TRUE end
-		if set_confused(0) then ident = TRUE end
-		if set_poisoned(0) then ident = TRUE end
-		if set_stun(0) then ident = TRUE end
-		if set_cut(0) then ident = TRUE end
+		if clear_blind() then ident = TRUE end
+		if clear_confused() then ident = TRUE end
+		if clear_poisoned() then ident = TRUE end
+		if clear_stun() then ident = TRUE end
+		if clear_cut() then ident = TRUE end
 	elseif object.sval == SV_POTION_HEALING then
 		if hp_player(300) then ident = TRUE end
-		if set_blind(0) then ident = TRUE end
-		if set_confused(0) then ident = TRUE end
-		if set_poisoned(0) then ident = TRUE end
-		if set_stun(0) then ident = TRUE end
-		if set_cut(0) then ident = TRUE end
+		if clear_blind() then ident = TRUE end
+		if clear_confused() then ident = TRUE end
+		if clear_poisoned() then ident = TRUE end
+		if clear_stun() then ident = TRUE end
+		if clear_cut() then ident = TRUE end
 	elseif object.sval == SV_POTION_STAR_HEALING then
 		if hp_player(1200) then ident = TRUE end
-		if set_blind(0) then ident = TRUE end
-		if set_confused(0) then ident = TRUE end
-		if set_poisoned(0) then ident = TRUE end
-		if set_stun(0) then ident = TRUE end
-		if set_cut(0) then ident = TRUE end
+		if clear_blind() then ident = TRUE end
+		if clear_confused() then ident = TRUE end
+		if clear_poisoned() then ident = TRUE end
+		if clear_stun() then ident = TRUE end
+		if clear_cut() then ident = TRUE end
 	elseif object.sval == SV_POTION_LIFE then
 		msgf("You feel life flow through your body!")
 		restore_level()
-		set_poisoned(0)
-		set_blind(0)
-		set_confused(0)
-		set_image(0)
-		set_stun(0)
-		set_cut(0)
+		clear_poisoned()
+		clear_blind()
+		clear_confused()
+		clear_image()
+		clear_stun()
+		clear_cut()
 		do_res_stat(A_STR)
 		do_res_stat(A_CON)
 		do_res_stat(A_DEX)
@@ -388,22 +380,22 @@ function quaff_potion(object)
 			ident = TRUE
 		end
 	elseif object.sval == SV_POTION_RESISTANCE then
-		set_oppose_acid(player.oppose_acid + rand_range(20, 40))
-		set_oppose_elec(player.oppose_elec + rand_range(20, 40))
-		set_oppose_fire(player.oppose_fire + rand_range(20, 40))
-		set_oppose_cold(player.oppose_cold + rand_range(20, 40))
-		set_oppose_pois(player.oppose_pois + rand_range(20, 40))
+		inc_oppose_acid(rand_range(20, 40))
+		inc_oppose_elec(rand_range(20, 40))
+		inc_oppose_fire(rand_range(20, 40))
+		inc_oppose_cold(rand_range(20, 40))
+		inc_oppose_pois(rand_range(20, 40))
 		ident = TRUE
 	elseif object.sval == SV_POTION_CURING then
 		if hp_player(150) then ident = TRUE end
-		if set_blind(0) then ident = TRUE end
-		if set_poisoned(0) then ident = TRUE end
-		if set_confused(0) then ident = TRUE end
-		if set_stun(0) then ident = TRUE end
-		if set_cut(0) then ident = TRUE end
-		if set_image(0) then ident = TRUE end
+		if clear_blind() then ident = TRUE end
+		if clear_poisoned() then ident = TRUE end
+		if clear_confused() then ident = TRUE end
+		if clear_stun() then ident = TRUE end
+		if clear_cut() then ident = TRUE end
+		if clear_image() then ident = TRUE end
 	elseif object.sval == SV_POTION_INVULNERABILITY then
-		set_invuln(player.invuln + rand_range(7, 14))
+		inc_invuln(rand_range(7, 14))
 		ident = TRUE
 	elseif object.sval == SV_POTION_NEW_LIFE then
 		do_cmd_rerate()
@@ -427,8 +419,8 @@ function read_scroll(object)
 	local used_up = TRUE
 
 	if object.sval == SV_SCROLL_DARKNESS then
-		if not player.resist_blind and not player.resist_dark then
-			set_blind(player.blind + rand_range(3, 8))
+		if not player_res(TR2_RES_BLIND) and not player_res(TR2_RES_DARK) then
+			inc_blind(rand_range(3, 8))
 		end
 		if unlite_area(10, 3) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_AGGRAVATE_MONSTER then
@@ -520,21 +512,21 @@ function read_scroll(object)
 	elseif object.sval == SV_SCROLL_SATISFY_HUNGER then
 		if set_food(PY_FOOD_MAX - 1) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_BLESSING then
-		if set_blessed(player.blessed + rand_range(6, 18)) then ident = TRUE end
+		if inc_blessed(rand_range(6, 18)) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_HOLY_CHANT then
-		if set_blessed(player.blessed + rand_range(12, 36)) then ident = TRUE end
+		if inc_blessed(rand_range(12, 36)) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_HOLY_PRAYER then
-		if set_blessed(player.blessed + rand_range(24, 72)) then ident = TRUE end
+		if inc_blessed(rand_range(24, 72)) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_MONSTER_CONFUSION then
-		if player.confusing == 0 then
+		if player.state.confusing == 0 then
 			msgf("Your hands begin to glow.")
-			player.confusing = TRUE
+			player.state.confusing = TRUE
 			ident = TRUE
 			player.redraw = bOr(player.redraw, PR_STATUS)
 		end
 	elseif object.sval == SV_SCROLL_PROTECTION_FROM_EVIL then
 		k = 3 * player.lev
-		if set_protevil(player.protevil + randint1(25) + k) then ident = TRUE end
+		if inc_protevil(randint1(25) + k) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_RUNE_OF_PROTECTION then
 		if not warding_glyph() then used_up = FALSE end
 		ident = TRUE
@@ -563,19 +555,19 @@ function read_scroll(object)
 	elseif object.sval == SV_SCROLL_FIRE then
 		fire_ball(GF_FIRE, 0, 300, 4)
 		-- Note: "Double" damage since it is centered on the player ...
-		if not ((player.oppose_fire > 0) or player.resist_fire or player.immune_fire) then
+		if (res_fire_lvl() > 3) then
 			take_hit(rand_range(50, 100), "a Scroll of Fire")
 		end
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_ICE then
 		fire_ball(GF_ICE, 0, 350, 4)
-		if not ((player.oppose_cold > 0) or player.resist_cold or player.immune_cold) then
+		if (res_cold_lvl() > 3) then
 			take_hit(rand_range(100, 200), "a Scroll of Ice")
 		end
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_CHAOS then
 		fire_ball(GF_CHAOS, 0, 400, 4)
-		if not player.resist_chaos then
+		if not player_res(TR2_RES_CHAOS) then
 			take_hit(rand_range(150, 300), "a Scroll of Logrus")
 		end
 		ident = TRUE
@@ -602,12 +594,12 @@ function use_staff(object)
 	local sval = object.sval
 
 	if sval == SV_STAFF_DARKNESS then
-		if not player.resist_blind and not player.resist_dark then
-			if set_blind(player.blind + rand_range(4, 8)) then ident = TRUE end
+		if not player_res(TR2_RES_BLIND) and not player_res(TR2_RES_DARK) then
+			if inc_blind(rand_range(4, 8)) then ident = TRUE end
 		end
 		if unlite_area(10, 3) then ident = TRUE end
 	elseif sval == SV_STAFF_SLOWNESS then
-		if set_slow(player.slow + rand_range(15, 45)) then ident = TRUE end
+		if inc_slow(rand_range(15, 45)) then ident = TRUE end
 	elseif sval == SV_STAFF_HASTE_MONSTERS then
 		if speed_monsters() then ident = TRUE end
 	elseif sval == SV_STAFF_SUMMONING then
@@ -624,13 +616,13 @@ function use_staff(object)
 		ident = TRUE
 	elseif sval == SV_STAFF_REMOVE_CURSE then
 		if remove_curse() then
-			if player.blind == 0 then
+			if player.tim.blind == 0 then
 				msgf("The staff glows blue for a moment...")
 			end
 			ident = TRUE
 		end
 	elseif sval == SV_STAFF_STARLITE then
-		if player.blind == 0 then
+		if player.tim.blind == 0 then
 			msgf("The end of the staff glows brightly...")
 		end
 		starlite()
@@ -658,16 +650,16 @@ function use_staff(object)
 		if hp_player(50) then ident = TRUE end
 	elseif sval == SV_STAFF_CURING then
 		if hp_player(150) then ident = TRUE end
-		if set_blind(0) then ident = TRUE end
-		if set_poisoned(0) then ident = TRUE end
-		if set_confused(0) then ident = TRUE end
-		if set_stun(0) then ident = TRUE end
-		if set_cut(0) then ident = TRUE end
-		if set_image(0) then ident = TRUE end
+		if clear_blind() then ident = TRUE end
+		if clear_poisoned() then ident = TRUE end
+		if clear_confused() then ident = TRUE end
+		if clear_stun() then ident = TRUE end
+		if clear_cut() then ident = TRUE end
+		if clear_image() then ident = TRUE end
 	elseif sval == SV_STAFF_HEALING then
 		if hp_player(300) then ident = TRUE end
-		if set_stun(0) then ident = TRUE end
-		if set_cut(0) then ident = TRUE end
+		if clear_stun() then ident = TRUE end
+		if clear_cut() then ident = TRUE end
 	elseif sval == SV_STAFF_THE_MAGI then
 		if do_res_stat(A_INT) then ident = TRUE end
 		if player.csp < player.msp then
@@ -684,11 +676,7 @@ function use_staff(object)
 	elseif sval == SV_STAFF_SLOW_MONSTERS then
 		if slow_monsters() then ident = TRUE end
 	elseif sval == SV_STAFF_SPEED then
-		if player.fast == 0 then
-			if set_fast(rand_range(15, 45)) then ident = TRUE end
-		else
-			set_fast(player.fast + 5)
-		end
+		if inc_fast(rand_range(15, 45)) then ident = TRUE end
 	elseif sval == SV_STAFF_PROBING then
 		probing()
 		ident = TRUE
@@ -699,12 +687,12 @@ function use_staff(object)
 	elseif sval == SV_STAFF_HOLINESS then
 		if dispel_evil(300) then ident = TRUE end
 		local k = 3 * player.lev
-		if set_protevil(player.protevil + randint1(25) + k) then ident = TRUE end
-		if set_poisoned(0) then ident = TRUE end
-		if set_afraid(0) then ident = TRUE end
+		if inc_protevil(randint1(25) + k) then ident = TRUE end
+		if clear_poisoned() then ident = TRUE end
+		if clear_afraid() then ident = TRUE end
 		if hp_player(50) then ident = TRUE end
-		if set_stun(0) then ident = TRUE end
-		if set_cut(0) then ident = TRUE end
+		if clear_stun() then ident = TRUE end
+		if clear_cut() then ident = TRUE end
 	elseif sval == SV_STAFF_GENOCIDE then
 		genocide(TRUE)
 		ident = TRUE
@@ -731,7 +719,7 @@ function aim_wand(object)
 	if not success then return FALSE, FALSE end
 
 	-- Take a turn
-	player.energy_use = min(75, 200 - 5 * player.skill_dev / 8)
+	player.energy_use = min(75, 200 - 5 * player.skill.dev / 8)
 
 	-- Not identified yet
 	local ident = FALSE
@@ -740,10 +728,10 @@ function aim_wand(object)
 	local lev = k_info[object.k_idx].level
 
 	-- Base chance of success
-	local chance = player.skill_dev
+	local chance = player.skill.dev
 
 	-- Confusion hurts skill
-	if (player.confused ~= 0) then chance = chance / 2 end
+	if (player.tim.confused ~= 0) then chance = chance / 2 end
 
 	-- High level objects are harder
 	chance = chance - lev / 2

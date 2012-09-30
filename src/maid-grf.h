@@ -10,7 +10,6 @@
  * included in all such copies.
  */
 
-#ifdef TERM_USE_CALLBACKS
 
 /*
  * List of callback types
@@ -42,8 +41,6 @@ struct callback_list
 extern void set_callback(callback_type call_func, int number, vptr data);
 extern void del_callback(int number, vptr data);
 
-#endif /* TERM_USE_CALLBACKS */
-
 
 /*
  * Number of blocks in the overhead map cache.
@@ -53,11 +50,6 @@ extern void del_callback(int number, vptr data);
  */
 #define MAP_CACHE	(WILD_VIEW * WILD_VIEW * 2)
 
-/*
- * This is used by the Borg and by ports that like to
- * draw a "graphical" small-scale map
- */
-#ifdef TERM_USE_MAP
 
 /*
  * Constants used to pass information to users
@@ -142,12 +134,14 @@ struct term_map
 	/* Rough measure of monster hp */
 	byte m_hp;
 	
-#ifdef TERM_MAP_INFO
+	/* Priority for overhead mini map */
+	byte priority;
+	
+	/* Map information about square */
 	byte a;
 	char c;
 	byte ta;
 	char tc;
-#endif /* TERM_MAP_INFO */
 };
 
 typedef struct map_block map_block;
@@ -155,14 +149,11 @@ typedef struct map_block map_block;
 struct map_block
 {
 	/* Save what it looks like */
-
-#ifdef TERM_MAP_GLYPH
 	byte a;
 	char c;
 	
 	byte ta;
 	char tc;
-#endif /* TERM_MAP_GLYPH */
 
 	/* Save the cave info itself - used by the borg */
 #ifdef TERM_CAVE_MAP
@@ -187,7 +178,9 @@ struct map_block
 
 	u16b kill;	/* Entry into "kill" list */
 	u16b take;	/* Entry into "take" list */
-
+	u16b trap;	/* MT - Entry into "trap" list */
+	u16b m_effect;  /* MT - Magic Effect, like glyphs */
+	
 	byte feat;	/* Terrain feature */
 	byte info;	/* info flags */
 
@@ -200,6 +193,9 @@ struct map_block
 
 	/* We need to save the flags to get the refcounting right. */
 	byte flags;
+	
+	/* Priority of tile (For overhead map display) */
+	byte priority;
 };
 
 typedef map_block *map_blk_ptr;
@@ -208,8 +204,6 @@ typedef map_block **map_blk_ptr_ptr;
 typedef void (*map_info_hook_type) (map_block *mb_ptr, term_map *map, vptr data);
 typedef void (*map_erase_hook_type) (vptr data);
 typedef void (*player_move_hook_type) (int x, int y, vptr data);
-
-#endif /* TERM_USE_MAP */
 
 
 /*
@@ -231,6 +225,7 @@ struct term_list
 	u32b kn_flags1;	/* Known Flags, set 1 */
 	u32b kn_flags2;	/* Known Flags, set 2 */
 	u32b kn_flags3;	/* Known Flags, set 3 */
+	u32b kn_flags4; /* Known Flags, set 4 */
 
 	s32b cost;	/* Object "base cost" */
 
@@ -265,6 +260,7 @@ struct list_item
 	u32b kn_flags1;	/* Known Flags, set 1 */
 	u32b kn_flags2;	/* Known Flags, set 2 */
 	u32b kn_flags3;	/* Known Flags, set 3 */
+	u32b kn_flags4; /* Known Flags, set 4 */
 
 	s32b cost;	/* Object "base cost" */
 
@@ -303,14 +299,11 @@ typedef void (*list_notice_hook_type) (byte, vptr data);
 
 /* Extern Variables */
 extern byte gamma_table[256];
-
-#ifdef TERM_USE_MAP
 extern map_blk_ptr_ptr *map_cache;
 extern s16b *map_cache_refcount;
 extern int *map_cache_x;
 extern int *map_cache_y;
 extern int **map_grid;
-#endif /* TERM_USE_MAP */
 
 #ifdef TERM_USE_LIST
 extern list_item *equipment;
@@ -325,11 +318,6 @@ extern int cur_num;
 extern void build_gamma_table(int gamma);
 extern cptr get_default_font(int term_num);
 extern bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename);
-
-#ifdef TERM_USE_MAP
 extern void map_get_player(int *x, int *y);
-extern void init_overhead_map(void);
-extern void del_overhead_map(void);
 extern bool map_in_bounds(int x, int y);
 extern map_block *map_loc(int dx, int dy);
-#endif /* TERM_USE_MAP */

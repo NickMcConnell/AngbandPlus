@@ -2,41 +2,41 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl Initialize autoconf - look for the existance of a file to make sure
 dnl the source distribution is installed correctly.
-AC_INIT(src/main.c)
+AC_INIT
+AC_CONFIG_SRCDIR([src/main.c])
 
 dnl write the resulting #defines into a header file
-AM_CONFIG_HEADER(src/autoconf.h)
+AC_CONFIG_HEADERS([src/autoconf.h])
 
-AM_INIT_AUTOMAKE(zangband, 2.7.2cvs)
+dnl default option
+GAMEGROUP="games"
 
 AC_ARG_WITH(setgid,
 [  --with-setgid=NAME      setgid usage: install angband as group NAME],
 [case "${withval}" in
-  no) GAMEGROUP="";;
+  no) GAMEGROUP="games";;
   yes) AC_MSG_ERROR(missing argument for --with-setgid);;
   *) GAMEGROUP="$withval";;
 esac])
 AC_SUBST(GAMEGROUP)
-AM_CONDITIONAL(SET_GID, test "$GAMEGROUP" != "")
 
-AC_LANG_C
 
-basedir=`pwd`
+AC_ARG_WITH(tcltk,
+[  --with-tcltk=DIR        Use DIR/include and DIR/lib for tcl and tk])
 
-dnl generate the installation path for the ./lib/ folder
-if test "$GAMEGROUP" != ""; then
-  game_datadir="$datadir/games/$PACKAGE/lib/"
-else
-  game_datadir="$basedir/lib/"
-  bindir="$basedir"
-fi
-AC_DEFINE_UNQUOTED(DEFAULT_PATH, "$game_datadir")
-DEFAULT_PATH="$game_datadir"
-AC_SUBST(DEFAULT_PATH)
+AC_ARG_WITH(tkdir,
+[  --with-tkdir=TKDIR      Use TKDIR/include and TKDIR/lib for tk if
+                          is in a different place from tcl directory
+						  and is not auto-detected properly])
+
+AC_ARG_WITH(gtk,
+[  --with-gtk=yes          Use gtk support (you'll need to turn of sgid flag)])
+
+AC_LANG([C])
 
 dnl Checks for programs.
-AC_PROG_CC
-AC_CHECK_TOOL(RANLIB, ranlib)
+AC_PROG_CC(gcc cc egcs)
+
 
 dnl -fno-strength-reduce prevents a bug in some versions of gcc
 if test "$GCC" = yes; then
@@ -44,52 +44,198 @@ if test "$GCC" = yes; then
 fi
 
 
-dnl Checks for libraries.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h limits.h strings.h sys/file.h sys/ioctl.h \
+sys/time.h termio.h unistd.h)
 
-AC_CYGWIN
-AC_MINGW32
-AC_EXEEXT
-
-AM_CONDITIONAL(CYGWIN, test "$CYGWIN" = "yes")
+dnl Detect cygwin
+case `(uname -s) 2>/dev/null` in
+  *cygwin* ) CYGWIN=yes;;
+  *CYGWIN* ) CYGWIN=yes;;
+         * ) CYGWIN=no;;
+esac
 
 if test "$CYGWIN" = "yes"; then
-  AC_DEFINE(WINDOWS)
+  AC_DEFINE(WINDOWS, 1, [WIN32 port])
   LIBS="$LIBS -lwinmm"
   LDFLAGS="$LDFLAGS -s -mwindows -e _mainCRTStartup"
-  ANGBAND_OBJS="readdib.o angband.res"
-  AC_SUBST(ANGBAND_OBJS)
+  cygwin="y"
+  AC_SUBST(cygwin)
 else
   dnl Check for ncurses, curses, or termcap
-  AC_CHECK_LIB(ncurses, initscr, [AC_DEFINE(USE_GCU) AC_DEFINE(USE_NCURSES) LIBS="$LIBS -lncurses"])
+  AC_CHECK_LIB(ncurses, initscr, [AC_DEFINE(USE_GCU, 1, [GCU port]) AC_DEFINE(USE_NCURSES, 1, [Using ncurses]) LIBS="$LIBS -lncurses"])
   if test "$ac_cv_lib_ncurses_initscr" != yes; then
-    AC_CHECK_LIB(curses, initscr, [AC_DEFINE(USE_GCU) LIBS="$LIBS -lcurses"])
+    AC_CHECK_LIB(curses, initscr, [AC_DEFINE(USE_GCU, 1) LIBS="$LIBS -lcurses"])
     if test "$ac_cv_lib_curses_initscr" != yes; then
-      AC_CHECK_LIB(termcap, tgetent, [AC_DEFINE(USE_CAP) LIBS="$LIBS -ltermcap"])
+      AC_CHECK_LIB(termcap, tgetent, [AC_DEFINE(USE_CAP, 1, [CAP port]) LIBS="$LIBS -ltermcap"])
     fi
   fi
 
   dnl Checks for header files.
   AC_PATH_XTRA
-
-  if test "$no_x" != "yes"; then
-    LIBS="$LIBS -lX11"
-    AC_DEFINE(USE_X11)
-    AC_DEFINE(USE_XPJ)
-    ANGBAND_OBJS="maid-x11.o"
-    AC_SUBST(ANGBAND_OBJS)
+  
+  dnl Braindead macro above doesn't add CPP flags for X11.
+  if test -n "$x_includes"; then
+    CPPFLAGS="$CPPFLAGS -I$x_includes"
   fi
 
   LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS $LIBS"
   CFLAGS="$X_CFLAGS $CFLAGS"
   LDFLAGS="$X_LIBS $LDFLAGS"
+  
+  if test "$no_x" != "yes"; then
+    LIBS="$LIBS -lX11"
+    AC_DEFINE(USE_X11, 1, [X11 port])
+    AC_DEFINE(USE_XPJ, 1, [XPJ port])
+  fi
 
   dnl Check for the Athena widget set
-  AC_CHECK_LIB(Xaw, XawInitializeWidgetSet, [AC_DEFINE(USE_XAW) LIBS="$LIBS -lXaw"])
+  AC_CHECK_LIB(Xaw, XawInitializeWidgetSet, [AC_DEFINE(USE_XAW, 1, [XAW port]) LIBS="$LIBS -lXaw"])
+  
+  if test "$with_gtk" != "no"; then
+  
+     dnl Check for the gtk widget set
+     AC_CHECK_PROG(GTK_OLD, pkg-config, "true", "false")
+  
+     if test "$GTK_NEW" != "false"; then
+        CFLAGS="$CFLAGS `pkg-config --cflags gtk+`"
+        LIBS="$LIBS `pkg-config --libs gtk+`"
+	    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "gtk/gtk.h"]], [[GtkWidget x;]])],[
+	      AC_DEFINE(USE_GTK, 1, [Gtk port])
+        ],[])
+     else
+        AC_CHECK_PROG(GTK_OLD, gtk-config, "true", "false")
+  
+        if test "$GTK_OLD" != "false"; then
+           CFLAGS="$CFLAGS `gtk-config --cflags`"
+           LIBS="$LIBS `gtk-config --libs`"
+   	         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "gtk/gtk.h"]], [[GtkWidget x;]])],[
+              AC_DEFINE(USE_GTK, 1, [Gtk port])
+           ],[])
+	    fi
+     fi
+  fi
+  
+  if test "$with_tcltk" != "no"; then
+  
+    dnl We need to check in lots of places for the tk port. :-/
+    if test -z "$with_tcltk" || test "$with_tcltk" = yes; then
+      AC_CHECK_HEADER(/usr/local/include/tcl.h,
+	  [BASE_TCL_DIR="/usr/local/include"],
+  	  [AC_CHECK_HEADER(/usr/local/include/tcl/tcl.h,
+	    [BASE_TCL_DIR="/usr/local/include/tcl"],
+	    [AC_CHECK_HEADER(/usr/include/tcl.h,
+	      [BASE_TCL_DIR="/usr/include"],
+	      [AC_CHECK_HEADER(/usr/include/tcl8.4/tcl.h,
+	        [BASE_TCL_DIR="/usr/include/tcl8.4"],
+	        [AC_CHECK_HEADER(/usr/local/include/tcl8.4/tcl.h,
+	          [BASE_TCL_DIR="/usr/local/include/tcl8.4"],
+	        [])
+	      ])
+	    ])
+	  ])
+	])
+	
+	BASE_TK_DIR=$BASE_TCL_DIR
+	
+	if test "$BASE_TCL_DIR" != "/usr/include"; then
+	  CPPFLAGS="-I$BASE_TCL_DIR $CPPFLAGS"
+	fi
+	
+	AC_CHECK_HEADER(/usr/local/include/tk.h,
+	  [BASE_TK_DIR="/usr/local/include"],
+  	  [AC_CHECK_HEADER(/usr/local/include/tcl/tk.h,
+	    [BASE_TK_DIR="/usr/local/include/tk"],
+	    [AC_CHECK_HEADER(/usr/include/tk.h,
+	      [BASE_TK_DIR="/usr/include"],
+	      [AC_CHECK_HEADER(/usr/include/tk8.4/tk.h,
+	        [BASE_TK_DIR="/usr/include/tk8.4"],
+	        [AC_CHECK_HEADER(/usr/local/include/tk8.4/tk.h,
+	          [BASE_TK_DIR="/usr/local/include/tk8.4"],
+	        [])
+	      ])
+	    ])
+	  ])
+	])
+	
+      test -d /usr/local/lib && CFLAGS="-L/usr/local/lib $CFLAGS"
+    else
+      BASE_TCL_DIR="$with_tcltk/include"
+      CFLAGS="-L$with_tcltk/lib $CFLAGS"
+	
+	if test "$BASE_TCL_DIR" != "/usr/include"; then
+	  CPPFLAGS="-I$BASE_TCL_DIR $CPPFLAGS"
+	fi
+    fi
+
+    if test -n "$with_tkdir"; then
+      BASE_TK_DIR="$CPPFLAGS -I$with_tkdir/include"
+      CFLAGS="-L$with_tkdir/lib $CFLAGS"
+    fi
+  
+    if test "$BASE_TK_DIR" != "/usr/include"; then
+      CPPFLAGS="-I$BASE_TK_DIR $CPPFLAGS"
+    fi
+  
+    dnl Checks for libraries.
+    AC_CHECK_HEADER(tcl.h,,[AC_MSG_WARN(Can't find tcl.h)])
+    AC_CHECK_HEADER(tk.h,,[AC_MSG_WARN(Can't find tk.h)])
+  
+    AC_SEARCH_LIBS(Tcl_CreateInterp, tcl8.4 tcl84,[],[],[])
+    AC_SEARCH_LIBS(Tk_Init, tk8.4 tk84,[],[],[])
+  
+    dnl FreeBSD locations of headers
+    AC_CHECK_HEADER($BASE_TCL_DIR/generic/tclInt.h,
+      [CPPFLAGS="$CPPFLAGS -I$BASE_TCL_DIR/generic"],
+  	[])
+    AC_CHECK_HEADER($BASE_TCL_DIR/unix/tclUnixPort.h,
+      [CPPFLAGS="$CPPFLAGS -I$BASE_TCL_DIR/unix"],
+  	[])
+    AC_CHECK_HEADER($BASE_TK_DIR/generic/tkPort.h,
+      [CPPFLAGS="$CPPFLAGS -I$BASE_TK_DIR/generic"],
+  	[])
+    AC_CHECK_HEADER($BASE_TK_DIR/generic/tkInt.h,
+      [CPPFLAGS="$CPPFLAGS -I$BASE_TK_DIR/generic"],
+  	[])
+  
+    dnl Debian location of headers
+  
+    AC_CHECK_HEADER($BASE_TCL_DIR/tcl-private/generic/tclInt.h,
+      [CPPFLAGS="-I$BASE_TCL_DIR/tcl-private/generic $CPPFLAGS"],
+  	[])
+    AC_CHECK_HEADER($BASE_TCL_DIR/tcl-private/unix/tclUnixPort.h,
+      [CPPFLAGS="-I$BASE_TCL_DIR/tcl-private/unix $CPPFLAGS"],
+  	[])
+    AC_CHECK_HEADER($BASE_TK_DIR/tk-private/generic/tkPort.h,
+      [CPPFLAGS="-I$BASE_TK_DIR/tk-private/generic $CPPFLAGS"],
+  	[])
+    AC_CHECK_HEADER($BASE_TK_DIR/tk-private/generic/tkInt.h,
+      [CPPFLAGS="-I$BASE_TK_DIR/tk-private/generic $CPPFLAGS"],
+  	[])
+  
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "tcl.h"]], [[Tcl_Obj x;]])],[
+    dnl Check a couple of headers, and if they exist enable the tk port.
+	AC_CHECK_HEADER(tkInt.h,
+		[AC_CHECK_HEADER(tkCanvas.h,
+			TK_PORT="y"
+			AC_SUBST(TK_PORT)
+			AC_DEFINE(USE_TNB, 1, [Tk port])
+			AC_DEFINE(PLATFORM_X11, 1, [Force use of X11 version of tk port])
+		
+			,[AC_MSG_WARN(Can't find tkCanvas.h)])]
+		,[AC_MSG_WARN(Can't find tkInt.h)])]
+	,[AC_MSG_WARN(Can't compile tk port)])
+  fi
 fi
 
-AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h limits.h strings.h sys/file.h sys/ioctl.h \
-sys/time.h termio.h unistd.h)
+dnl Virtual Console port support.
+AC_CHECK_HEADER(sys/ioctl.h,
+  [AC_CHECK_HEADER(termios.h,
+    [
+	   AC_DEFINE(USE_VCS, 1, [VCS port])
+	])
+  ])
+
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -105,4 +251,44 @@ AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(gethostname mkdir select strstr strtol usleep mkstemp)
 
-AC_OUTPUT(Makefile src/makefile src/lua/makefile lib/Makefile lib/apex/Makefile lib/bone/Makefile lib/data/Makefile lib/edit/Makefile lib/file/Makefile lib/help/Makefile lib/info/Makefile lib/pref/Makefile lib/save/Makefile lib/script/Makefile lib/user/Makefile lib/xtra/Makefile)
+dnl A nice function to test compiler options (like warnings)
+AC_DEFUN(AC_CHECK_CC_OPT,
+[AC_MSG_CHECKING(whether ${CC-cc} accepts [$1])
+echo 'void f(void); void f(){}' > conftest.c
+if test -z "`${CC-cc} -c ${CFLAGS} $1 conftest.c 2>&1`"; then
+  CFLAGS="$1 $CFLAGS"
+  AC_MSG_RESULT($1)
+else
+  AC_MSG_RESULT(no $1)
+fi
+rm -f conftest*
+])
+
+dnl Check for lots of extra warning options
+AC_CHECK_CC_OPT(-pedantic)
+AC_CHECK_CC_OPT(-W)
+AC_CHECK_CC_OPT(-Wall)
+AC_CHECK_CC_OPT(-Wmissing-prototypes)
+AC_CHECK_CC_OPT(-Wmissing-declarations)
+AC_CHECK_CC_OPT(-Wno-long-long)
+AC_CHECK_CC_OPT(-Wwrite-strings)
+AC_CHECK_CC_OPT(-Wpointer-arith)
+AC_CHECK_CC_OPT(-Wbad-function-cast)
+AC_CHECK_CC_OPT(-Waggregate-return)
+AC_CHECK_CC_OPT(-Wstrict-prototypes)
+AC_CHECK_CC_OPT(-Wredundant-decls)
+dnl AC_CHECK_CC_OPT(-Wunreachable-code)
+AC_CHECK_CC_OPT(-Wchar-subscripts)
+AC_CHECK_CC_OPT(-Wimplicit)
+AC_CHECK_CC_OPT(-Wparenthesis)
+AC_CHECK_CC_OPT(-Wsequence-point)
+AC_CHECK_CC_OPT(-Wreturn-type)
+AC_CHECK_CC_OPT(-Wswitch)
+AC_CHECK_CC_OPT(-Wunused)
+AC_CHECK_CC_OPT(-Wuninitialized)
+AC_CHECK_CC_OPT(-Wundef)
+AC_CHECK_CC_OPT(-Wnested-externs)
+
+
+AC_CONFIG_FILES([makefile])
+AC_OUTPUT

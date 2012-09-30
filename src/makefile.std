@@ -100,7 +100,7 @@ ANGOBJS := $(LUAWOBJS) \
 	bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\
 	main-cap.o main-gcu.o main-x11.o main-xaw.o main-xpj.o\
 	main-lsl.o main-vcs.o main-gtk.o main-win.o main.o \
-	maid-grf.o main-dos.o main-ibm.o main-acn.o main-emx.o \
+	maid-grf.o main-dos.o main-ibm.o main-emx.o \
 	main-ami.o main-tnb.o
 
 ##
@@ -122,7 +122,7 @@ BORGOBJS := \
 ## The Tk port files
 ##
 TKOBJS := \
-	tk/canv.o tk/cmdinfo.o tk/icon.o \
+	tk/cmdinfo.o tk/icon.o \
 	tk/describe.o tk/interp.o tk/plat.o \
 	tk/widget.o tk/tk-util.o tk/tcltk.o
 
@@ -574,7 +574,7 @@ INCS := \
 
 $(ANGOBJS): $(INCS)
 $(ZUTILOBJS): $(HDRS)
-$(BORGOBJS): $(HDRS)
+$(BORGOBJS): $(INCS)
 
 ##
 ## Extra dependancies
@@ -590,7 +590,6 @@ streams.o: grid.h generate.h
 main-ami.o: maid-grf.h
 maid-grf.o: maid-grf.h
 maid-x11.o: maid-grf.h
-main-acn.o: maid-grf.h
 main-gtk.o: maid-grf.h
 main-tnb.o: maid-grf.h
 main-win.o: maid-grf.h
@@ -652,7 +651,7 @@ $(TKOBJS): $(INCS) tk/tnb.h
 main-tnb.o: tk/tnb.h
 
 TKICONOBJS := \
-	tk/canv.o tk/icon.o tk/interp.o
+	tk/icon.o tk/interp.o
 
 $(TKICONOBJS): tk/icon.h
 

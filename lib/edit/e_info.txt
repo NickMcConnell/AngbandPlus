@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: antimatter $ on $Date: 2002/03/16 12:23:31 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/03/29 15:57:38 $
 # File: e_info.txt
 
 
@@ -49,7 +49,7 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:2.7.3
 
 
 ### Body Armor ###
@@ -350,7 +350,11 @@ W:20:4:0:1000
 C:5:5:0:5
 F:STR | SHOW_MODS | HIDE_TYPE
 
-# 52 (unused)
+N:52:(Ghoul Touch)
+X:34:22
+W:40:4:0:2000
+C:6:6:0:0
+F:GHOUL_TOUCH | SHOW_MODS
 
 # 53 (unused)
 
@@ -495,7 +499,7 @@ F:BRAND_POIS | RES_POIS
 N:77:(Chaotic)
 X:24:28
 W:0:6:0:1500
-F:CHAOTIC | RES_CHAOS | IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE
+F:CHAOTIC | RES_CHAOS | PATRON | IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE
 
 N:78:of Sharpness
 X:24:20
@@ -691,9 +695,15 @@ F:SLAY_EVIL
 
 # 116 (unused)
 
-# 117 (unused)
+N:117:of Returning
+X:23:5
+F:RETURN
+W:0:1:0:10
 
-# 118 (unused)
+N:118:of Explosion
+X:23:10
+F:EXPLODE
+W:30:1:0:50
 
 N:119:of Hurt Dragon
 X:23:10

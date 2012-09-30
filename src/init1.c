@@ -61,7 +61,7 @@ static cptr f_info_flags[] =
 	"PERM",
 	"OBJECT",
 	"PATTERN",
-	"DUMMY5"
+	"MARK"
 };
 
 
@@ -427,30 +427,30 @@ static cptr r_info_flags8[] =
 	"WILD_WASTE2",
 	"WILD_SWAMP1",
 	"WILD_SWAMP2",
-	"NOT_FOREST1",
-	"NOT_FOREST2",
-	"NOT_MOUNT1",
-	"NOT_MOUNT1",
-	"NOT_WASTE1",
-	"NOT_WASTE2",
-	"NOT_SWAMP1",
-	"NOT_SWAMP2",
 	"WILD_SHORE",
 	"WILD_OCEAN",
 	"WILD_GRASS",
 	"WILD_TOWN",
-	"WILD_DUNGEON_01",
-	"WILD_DUNGEON_02",
-	"WILD_DUNGEON_03",
-	"WILD_DUNGEON_04",
-	"WILD_DUNGEON_05",
-	"WILD_DUNGEON_06",
-	"WILD_DUNGEON_07",
-	"WILD_DUNGEON_08",
-	"WILD_DUNGEON_09",
-	"WILD_DUNGEON_10",
-	"WILD_DUNGEON_11",
-	"WILD_DUNGEON_12",
+	"DUN_DARKWATER",
+	"DUN_LAIR",
+	"DUN_TEMPLE",
+	"DUN_TOWER",
+	"DUN_RUIN",
+	"DUN_GRAVE",
+	"DUN_CAVERN",
+	"DUN_PLANAR",
+	"DUN_HELL",
+	"DUN_HORROR",
+	"DUN_MINE",
+	"DUN_CITY",
+	"DUN_XTRA1",
+	"DUN_XTRA2",
+	"DUN_XTRA3",
+	"DUN_XTRA4",
+	"DUN_XTRA5",
+	"DUN_XTRA6",
+	"DUN_XTRA7",
+	"DUN_XTRA8"
 };
 
 
@@ -609,6 +609,42 @@ static cptr k_info_flags3[] =
 	"CURSED",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
+};
+
+static cptr k_info_flags4[] =
+{
+	"XXX1",
+	"XXX2",
+	"XXX3",
+	"XXX4",
+	"XXX5",
+	"XXX6",
+	"XXX7",
+	"XXX8",
+	"IM_LITE",
+	"IM_DARK",
+	"SH_ACID",
+	"SH_COLD",
+	"MUTATE",
+	"PATRON",
+	"STRANGE_LUCK",
+	"PASS_WALL",
+	"GHOUL_TOUCH",
+	"PSI_CRIT",
+	"RETURN",
+	"EXPLODE",
+	"HURT_ACID",
+	"HURT_ELEC",
+	"HURT_FIRE",
+	"HURT_COLD",
+	"HURT_LITE",
+	"HURT_DARK",
+	"XXX27",
+	"XXX28",
+	"AUTO_CURSE",
+	"DRAIN_STATS",
+	"CANT_EAT",
+	"SLOW_HEAL"
 };
 
 /*
@@ -1285,6 +1321,9 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 	if (grab_one_flag(&k_ptr->flags3, k_info_flags3, what) == 0)
 		return (0);
 
+	if (grab_one_flag(&k_ptr->flags4, k_info_flags4, what) == 0)
+		return (0);
+
 	/* Oops */
 	msgf("Unknown object flag '%s'.", what);
 
@@ -1494,6 +1533,25 @@ errr parse_k_info(char *buf, header *head)
 			s = t;
 		}
 	}
+
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current k_ptr */
+		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf + 2;
+
+		/* Store the text */
+		if (!add_text(&(k_ptr->text), head, s))
+		{
+			msgf("Icky Description!!");
+			message_flush();
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		}
+	}
+
 	else
 	{
 		/* Oops */
@@ -1517,6 +1575,9 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 		return (0);
 
 	if (grab_one_flag(&a_ptr->flags3, k_info_flags3, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&a_ptr->flags4, k_info_flags4, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -1690,6 +1751,9 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 		return (0);
 
 	if (grab_one_flag(&e_ptr->flags3, k_info_flags3, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&e_ptr->flags4, k_info_flags4, what) == 0)
 		return (0);
 
 	/* Oops */

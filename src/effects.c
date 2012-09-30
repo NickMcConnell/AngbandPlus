@@ -15,7 +15,7 @@
 /*
  * Set "p_ptr->blind", notice observable changes
  */
-bool set_blind(int v)
+static bool set_blind(int v)
 {
 	bool notice = FALSE;
 
@@ -25,7 +25,7 @@ bool set_blind(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->blind)
+		if (!p_ptr->tim.blind)
 		{
 			msgf("You are blind!");
 			notice = TRUE;
@@ -37,7 +37,7 @@ bool set_blind(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->blind)
+		if (p_ptr->tim.blind)
 		{
 			msgf("You can see again.");
 			notice = TRUE;
@@ -45,7 +45,7 @@ bool set_blind(int v)
 	}
 
 	/* Use the value */
-	p_ptr->blind = v;
+	p_ptr->tim.blind = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -75,11 +75,27 @@ bool set_blind(int v)
 	return (TRUE);
 }
 
+/*
+ * Increase the blind counter
+ */
+bool inc_blind(int v)
+{
+	return(set_blind(p_ptr->tim.blind + v));
+}
+
+/*
+ * No more blindness
+ */
+bool clear_blind(void)
+{
+	return(set_blind(0));
+}
+
 
 /*
  * Set "p_ptr->confused", notice observable changes
  */
-bool set_confused(int v)
+static bool set_confused(int v)
 {
 	bool notice = FALSE;
 
@@ -89,7 +105,7 @@ bool set_confused(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->confused)
+		if (!p_ptr->tim.confused)
 		{
 			msgf("You are confused!");
 			notice = TRUE;
@@ -101,7 +117,7 @@ bool set_confused(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->confused)
+		if (p_ptr->tim.confused)
 		{
 			msgf("You feel less confused now.");
 			notice = TRUE;
@@ -109,7 +125,7 @@ bool set_confused(int v)
 	}
 
 	/* Use the value */
-	p_ptr->confused = v;
+	p_ptr->tim.confused = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -132,9 +148,27 @@ bool set_confused(int v)
 
 
 /*
+ * Increase the confusion counter
+ */
+bool inc_confused(int v)
+{
+	return(set_confused(p_ptr->tim.confused + v));
+}
+
+
+/*
+ * No more confusion
+ */
+bool clear_confused(void)
+{
+	return(set_confused(0));
+}
+
+
+/*
  * Set "p_ptr->poisoned", notice observable changes
  */
-bool set_poisoned(int v)
+static bool set_poisoned(int v)
 {
 	bool notice = FALSE;
 
@@ -144,7 +178,7 @@ bool set_poisoned(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->poisoned)
+		if (!p_ptr->tim.poisoned)
 		{
 			msgf("You are poisoned!");
 			notice = TRUE;
@@ -154,7 +188,7 @@ bool set_poisoned(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->poisoned)
+		if (p_ptr->tim.poisoned)
 		{
 			msgf("You are no longer poisoned.");
 			notice = TRUE;
@@ -162,7 +196,7 @@ bool set_poisoned(int v)
 	}
 
 	/* Use the value */
-	p_ptr->poisoned = v;
+	p_ptr->tim.poisoned = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -180,11 +214,28 @@ bool set_poisoned(int v)
 	return (TRUE);
 }
 
+/*
+ * Increase the poison counter
+ */
+bool inc_poisoned(int v)
+{
+	return(set_poisoned(p_ptr->tim.poisoned + v));
+}
+
+
+/*
+ * No more poison
+ */
+bool clear_poisoned(void)
+{
+	return(set_poisoned(0));
+}
+
 
 /*
  * Set "p_ptr->afraid", notice observable changes
  */
-bool set_afraid(int v)
+static bool set_afraid(int v)
 {
 	bool notice = FALSE;
 
@@ -194,7 +245,7 @@ bool set_afraid(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->afraid)
+		if (!p_ptr->tim.afraid)
 		{
 			msgf("You are terrified!");
 			notice = TRUE;
@@ -206,7 +257,7 @@ bool set_afraid(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->afraid)
+		if (p_ptr->tim.afraid)
 		{
 			msgf("You feel bolder now.");
 			notice = TRUE;
@@ -214,7 +265,7 @@ bool set_afraid(int v)
 	}
 
 	/* Use the value */
-	p_ptr->afraid = v;
+	p_ptr->tim.afraid = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -234,9 +285,26 @@ bool set_afraid(int v)
 
 
 /*
+ * Increase the afraid counter
+ */
+bool inc_afraid(int v)
+{
+	return(set_afraid(p_ptr->tim.afraid + v));
+}
+
+
+/*
+ * No more fear
+ */
+bool clear_afraid(void)
+{
+	return(set_afraid(0));
+}
+
+/*
  * Set "p_ptr->paralyzed", notice observable changes
  */
-bool set_paralyzed(int v)
+static bool set_paralyzed(int v)
 {
 	bool notice = FALSE;
 
@@ -246,7 +314,7 @@ bool set_paralyzed(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->paralyzed)
+		if (!p_ptr->tim.paralyzed)
 		{
 			msgf("You are paralyzed!");
 			notice = TRUE;
@@ -256,7 +324,7 @@ bool set_paralyzed(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->paralyzed)
+		if (p_ptr->tim.paralyzed)
 		{
 			msgf("You can move again.");
 			notice = TRUE;
@@ -264,7 +332,7 @@ bool set_paralyzed(int v)
 	}
 
 	/* Use the value */
-	p_ptr->paralyzed = v;
+	p_ptr->tim.paralyzed = v;
 
 	/* Redraw status bar + message*/
 	p_ptr->redraw |= (PR_STATUS);
@@ -287,11 +355,29 @@ bool set_paralyzed(int v)
 
 
 /*
+ * Increase the paralyzed counter
+ */
+bool inc_paralyzed(int v)
+{
+	return(set_paralyzed(p_ptr->tim.paralyzed + v));
+}
+
+
+/*
+ * No more paralyzation
+ */
+bool clear_paralyzed(void)
+{
+	return(set_paralyzed(0));
+}
+
+
+/*
  * Set "p_ptr->image", notice observable changes
  *
  * Note that we must redraw the map when hallucination changes.
  */
-bool set_image(int v)
+static bool set_image(int v)
 {
 	bool notice = FALSE;
 
@@ -301,7 +387,7 @@ bool set_image(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->image)
+		if (!p_ptr->tim.image)
 		{
 			msgf("Oh, wow! Everything looks so cosmic now!");
 			notice = TRUE;
@@ -314,7 +400,7 @@ bool set_image(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->image)
+		if (p_ptr->tim.image)
 		{
 			msgf("You can see clearly again.");
 			notice = TRUE;
@@ -325,7 +411,7 @@ bool set_image(int v)
 	}
 
 	/* Use the value */
-	p_ptr->image = v;
+	p_ptr->tim.image = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -352,11 +438,28 @@ bool set_image(int v)
 	return (TRUE);
 }
 
+/*
+ * Increase the image counter
+ */
+bool inc_image(int v)
+{
+	return(set_image(p_ptr->tim.image + v));
+}
+
+
+/*
+ * No more hallucination
+ */
+bool clear_image(void)
+{
+	return(set_image(0));
+}
+
 
 /*
  * Set "p_ptr->fast", notice observable changes
  */
-bool set_fast(int v)
+static bool set_fast(int v)
 {
 	bool notice = FALSE;
 
@@ -366,7 +469,7 @@ bool set_fast(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->fast)
+		if (!p_ptr->tim.fast)
 		{
 			msgf("You feel yourself moving faster!");
 			notice = TRUE;
@@ -379,7 +482,7 @@ bool set_fast(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->fast)
+		if (p_ptr->tim.fast)
 		{
 			msgf("You feel yourself slow down.");
 			notice = TRUE;
@@ -387,7 +490,7 @@ bool set_fast(int v)
 	}
 
 	/* Use the value */
-	p_ptr->fast = v;
+	p_ptr->tim.fast = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -410,9 +513,37 @@ bool set_fast(int v)
 
 
 /*
+ * Increase the "fast" counter.
+ *
+ * Hack - only increase speed a little bit if already hasted.
+ */
+bool inc_fast(int v)
+{
+	/* Haste */
+	if ((!p_ptr->tim.fast) || (v < 0))
+	{
+		 return (set_fast(p_ptr->tim.fast + v));
+	}
+	else
+	{
+		return (set_fast(p_ptr->tim.fast + randint1(5)));
+	}
+}
+
+
+/*
+ * No more increased speed
+ */
+bool clear_fast(void)
+{
+	return(set_fast(0));
+}
+
+
+/*
  * Set "p_ptr->slow", notice observable changes
  */
-bool set_slow(int v)
+static bool set_slow(int v)
 {
 	bool notice = FALSE;
 
@@ -422,7 +553,7 @@ bool set_slow(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->slow)
+		if (!p_ptr->tim.slow)
 		{
 			msgf("You feel yourself moving slower!");
 			notice = TRUE;
@@ -432,7 +563,7 @@ bool set_slow(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->slow)
+		if (p_ptr->tim.slow)
 		{
 			msgf("You feel yourself speed up.");
 			notice = TRUE;
@@ -440,7 +571,7 @@ bool set_slow(int v)
 	}
 
 	/* Use the value */
-	p_ptr->slow = v;
+	p_ptr->tim.slow = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -463,11 +594,31 @@ bool set_slow(int v)
 
 
 /*
- * Set "p_ptr->shield", notice observable changes
+ * Increase the "slow" counter
  */
-bool set_shield(int v)
+bool inc_slow(int v)
+{
+	return(set_slow(p_ptr->tim.slow + v));
+}
+
+
+/*
+ * No more "slowness"
+ */
+bool clear_slow(void)
+{
+	return(set_slow(0));
+}
+
+/*
+ * Increment "p_ptr->shield", notice observable changes
+ */
+bool inc_shield(int v)
 {
 	bool notice = FALSE;
+	
+	/* What will the new value be? */
+	v = v + p_ptr->tim.shield;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -475,7 +626,7 @@ bool set_shield(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->shield)
+		if (!p_ptr->tim.shield)
 		{
 			msgf("Your skin turns to stone.");
 			notice = TRUE;
@@ -485,7 +636,7 @@ bool set_shield(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->shield)
+		if (p_ptr->tim.shield)
 		{
 			msgf("Your skin returns to normal.");
 			notice = TRUE;
@@ -493,7 +644,7 @@ bool set_shield(int v)
 	}
 
 	/* Use the value */
-	p_ptr->shield = v;
+	p_ptr->tim.shield = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -517,11 +668,14 @@ bool set_shield(int v)
 
 
 /*
- * Set "p_ptr->blessed", notice observable changes
+ * Increment "p_ptr->blessed", notice observable changes
  */
-bool set_blessed(int v)
+bool inc_blessed(int v)
 {
 	bool notice = FALSE;
+	
+	/* What will the new value be? */
+	v = v + p_ptr->tim.blessed;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -529,7 +683,7 @@ bool set_blessed(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->blessed)
+		if (!p_ptr->tim.blessed)
 		{
 			msgf("You feel righteous!");
 			notice = TRUE;
@@ -539,7 +693,7 @@ bool set_blessed(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->blessed)
+		if (p_ptr->tim.blessed)
 		{
 			msgf("The prayer has expired.");
 			notice = TRUE;
@@ -547,7 +701,7 @@ bool set_blessed(int v)
 	}
 
 	/* Use the value */
-	p_ptr->blessed = v;
+	p_ptr->tim.blessed = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -570,11 +724,14 @@ bool set_blessed(int v)
 
 
 /*
- * Set "p_ptr->hero", notice observable changes
+ * Increment "p_ptr->hero", notice observable changes
  */
-bool set_hero(int v)
+bool inc_hero(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.hero;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -582,7 +739,7 @@ bool set_hero(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->hero)
+		if (!p_ptr->tim.hero)
 		{
 			msgf("You feel like a hero!");
 			notice = TRUE;
@@ -592,7 +749,7 @@ bool set_hero(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->hero)
+		if (p_ptr->tim.hero)
 		{
 			msgf("The heroism wears off.");
 			notice = TRUE;
@@ -600,7 +757,7 @@ bool set_hero(int v)
 	}
 
 	/* Use the value */
-	p_ptr->hero = v;
+	p_ptr->tim.hero = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -626,11 +783,14 @@ bool set_hero(int v)
 
 
 /*
- * Set "p_ptr->shero", notice observable changes
+ * Increment "p_ptr->shero", notice observable changes
  */
-bool set_shero(int v)
+bool inc_shero(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.shero;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -638,7 +798,7 @@ bool set_shero(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->shero)
+		if (!p_ptr->tim.shero)
 		{
 			msgf("You feel like a killing machine!");
 			notice = TRUE;
@@ -648,7 +808,7 @@ bool set_shero(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->shero)
+		if (p_ptr->tim.shero)
 		{
 			msgf("You feel less Berserk.");
 			notice = TRUE;
@@ -656,7 +816,7 @@ bool set_shero(int v)
 	}
 
 	/* Use the value */
-	p_ptr->shero = v;
+	p_ptr->tim.shero = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -682,11 +842,14 @@ bool set_shero(int v)
 
 
 /*
- * Set "p_ptr->protevil", notice observable changes
+ * Increment "p_ptr->protevil", notice observable changes
  */
-bool set_protevil(int v)
+bool inc_protevil(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.protevil;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -694,7 +857,7 @@ bool set_protevil(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->protevil)
+		if (!p_ptr->tim.protevil)
 		{
 			msgf("You feel safe from evil!");
 			notice = TRUE;
@@ -704,7 +867,7 @@ bool set_protevil(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->protevil)
+		if (p_ptr->tim.protevil)
 		{
 			msgf("You no longer feel safe from evil.");
 			notice = TRUE;
@@ -712,7 +875,7 @@ bool set_protevil(int v)
 	}
 
 	/* Use the value */
-	p_ptr->protevil = v;
+	p_ptr->tim.protevil = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -731,11 +894,14 @@ bool set_protevil(int v)
 }
 
 /*
- * Set "p_ptr->wraith_form", notice observable changes
+ * Increment "p_ptr->wraith_form", notice observable changes
  */
-bool set_wraith_form(int v)
+bool inc_wraith_form(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.wraith_form;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -743,7 +909,7 @@ bool set_wraith_form(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->wraith_form)
+		if (!p_ptr->tim.wraith_form)
 		{
 			msgf
 				("You leave the physical world and turn into a wraith-being!");
@@ -763,7 +929,7 @@ bool set_wraith_form(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->wraith_form)
+		if (p_ptr->tim.wraith_form)
 		{
 			msgf("You feel opaque.");
 			notice = TRUE;
@@ -780,7 +946,7 @@ bool set_wraith_form(int v)
 	}
 
 	/* Use the value */
-	p_ptr->wraith_form = v;
+	p_ptr->tim.wraith_form = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -804,11 +970,14 @@ bool set_wraith_form(int v)
 
 
 /*
- * Set "p_ptr->invuln", notice observable changes
+ * Increment "p_ptr->invuln", notice observable changes
  */
-bool set_invuln(int v)
+bool inc_invuln(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.invuln;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -816,7 +985,7 @@ bool set_invuln(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->invuln)
+		if (!p_ptr->tim.invuln)
 		{
 			msgf("Invulnerability!");
 			notice = TRUE;
@@ -840,7 +1009,7 @@ bool set_invuln(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->invuln)
+		if (p_ptr->tim.invuln)
 		{
 			msgf("The invulnerability wears off.");
 			notice = TRUE;
@@ -857,7 +1026,7 @@ bool set_invuln(int v)
 	}
 
 	/* Use the value */
-	p_ptr->invuln = v;
+	p_ptr->tim.invuln = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -880,37 +1049,41 @@ bool set_invuln(int v)
 
 
 /*
- * Set "p_ptr->tim_esp", notice observable changes
+ * Set "p_ptr->tim.esp", notice observable changes
  */
-bool set_tim_esp(int v)
+static bool set_tim_esp(int v)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	/* Open */
-	if (v)
+	/* Don't notice if we have permanent telepathy */
+	if (!(p_ptr->flags3 & TR3_TELEPATHY))
 	{
-		if (!p_ptr->tim_esp)
+		/* Open */
+		if (v)
 		{
-			msgf("You feel your consciousness expand!");
-			notice = TRUE;
+			if (!p_ptr->tim.esp)
+			{
+				msgf("You feel your consciousness expand!");
+				notice = TRUE;
+			}
 		}
-	}
 
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_esp)
+		/* Shut */
+		else
 		{
-			msgf("Your consciousness contracts again.");
-			notice = TRUE;
+			if (p_ptr->tim.esp)
+			{
+				msgf("Your consciousness contracts again.");
+				notice = TRUE;
+			}
 		}
 	}
 
 	/* Use the value */
-	p_ptr->tim_esp = v;
+	p_ptr->tim.esp = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -934,13 +1107,33 @@ bool set_tim_esp(int v)
 	return (TRUE);
 }
 
+/*
+ * Increase the "esp" counter
+ */
+bool inc_tim_esp(int v)
+{
+	return(set_tim_esp(p_ptr->tim.esp + v));
+}
+
 
 /*
- * Set "p_ptr->tim_invis", notice observable changes
+ * No more "esp"
  */
-bool set_tim_invis(int v)
+bool clear_tim_esp(void)
+{
+	return(set_tim_esp(0));
+}
+
+
+/*
+ * Increment "p_ptr->tim_invis", notice observable changes
+ */
+bool inc_tim_invis(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.invis;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -948,7 +1141,7 @@ bool set_tim_invis(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->tim_invis)
+		if (!p_ptr->tim.invis)
 		{
 			msgf("Your eyes feel very sensitive!");
 			notice = TRUE;
@@ -958,7 +1151,7 @@ bool set_tim_invis(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_invis)
+		if (p_ptr->tim.invis)
 		{
 			msgf("Your eyes feel less sensitive.");
 			notice = TRUE;
@@ -966,7 +1159,7 @@ bool set_tim_invis(int v)
 	}
 
 	/* Use the value */
-	p_ptr->tim_invis = v;
+	p_ptr->tim.invis = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -992,11 +1185,14 @@ bool set_tim_invis(int v)
 
 
 /*
- * Set "p_ptr->tim_infra", notice observable changes
+ * Increment "p_ptr->tim_infra", notice observable changes
  */
-bool set_tim_infra(int v)
+bool inc_tim_infra(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.invuln;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1004,7 +1200,7 @@ bool set_tim_infra(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->tim_infra)
+		if (!p_ptr->tim.infra)
 		{
 			msgf("Your eyes begin to tingle!");
 			notice = TRUE;
@@ -1014,7 +1210,7 @@ bool set_tim_infra(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_infra)
+		if (p_ptr->tim.infra)
 		{
 			msgf("Your eyes stop tingling.");
 			notice = TRUE;
@@ -1022,7 +1218,7 @@ bool set_tim_infra(int v)
 	}
 
 	/* Use the value */
-	p_ptr->tim_infra = v;
+	p_ptr->tim.infra = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -1048,11 +1244,14 @@ bool set_tim_infra(int v)
 
 
 /*
- * Set "p_ptr->oppose_acid", notice observable changes
+ * Increment "p_ptr->oppose_acid", notice observable changes
  */
-bool set_oppose_acid(int v)
+bool inc_oppose_acid(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.oppose_acid;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1060,7 +1259,7 @@ bool set_oppose_acid(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_acid)
+		if (!p_ptr->tim.oppose_acid)
 		{
 			msgf("You feel resistant to acid!");
 			notice = TRUE;
@@ -1070,7 +1269,7 @@ bool set_oppose_acid(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_acid)
+		if (p_ptr->tim.oppose_acid)
 		{
 			msgf("You feel less resistant to acid.");
 			notice = TRUE;
@@ -1078,7 +1277,7 @@ bool set_oppose_acid(int v)
 	}
 
 	/* Use the value */
-	p_ptr->oppose_acid = v;
+	p_ptr->tim.oppose_acid = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -1098,11 +1297,14 @@ bool set_oppose_acid(int v)
 
 
 /*
- * Set "p_ptr->oppose_elec", notice observable changes
+ * Increment "p_ptr->oppose_elec", notice observable changes
  */
-bool set_oppose_elec(int v)
+bool inc_oppose_elec(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.oppose_elec;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1110,7 +1312,7 @@ bool set_oppose_elec(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_elec)
+		if (!p_ptr->tim.oppose_elec)
 		{
 			msgf("You feel resistant to electricity!");
 			notice = TRUE;
@@ -1120,7 +1322,7 @@ bool set_oppose_elec(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_elec)
+		if (p_ptr->tim.oppose_elec)
 		{
 			msgf("You feel less resistant to electricity.");
 			notice = TRUE;
@@ -1128,7 +1330,7 @@ bool set_oppose_elec(int v)
 	}
 
 	/* Use the value */
-	p_ptr->oppose_elec = v;
+	p_ptr->tim.oppose_elec = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -1148,11 +1350,14 @@ bool set_oppose_elec(int v)
 
 
 /*
- * Set "p_ptr->oppose_fire", notice observable changes
+ * Increment "p_ptr->oppose_fire", notice observable changes
  */
-bool set_oppose_fire(int v)
+bool inc_oppose_fire(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.oppose_fire;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1160,7 +1365,7 @@ bool set_oppose_fire(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_fire)
+		if (!p_ptr->tim.oppose_fire)
 		{
 			msgf("You feel resistant to fire!");
 			notice = TRUE;
@@ -1170,7 +1375,7 @@ bool set_oppose_fire(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_fire)
+		if (p_ptr->tim.oppose_fire)
 		{
 			msgf("You feel less resistant to fire.");
 			notice = TRUE;
@@ -1178,7 +1383,7 @@ bool set_oppose_fire(int v)
 	}
 
 	/* Use the value */
-	p_ptr->oppose_fire = v;
+	p_ptr->tim.oppose_fire = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -1198,11 +1403,14 @@ bool set_oppose_fire(int v)
 
 
 /*
- * Set "p_ptr->oppose_cold", notice observable changes
+ * Increment "p_ptr->oppose_cold", notice observable changes
  */
-bool set_oppose_cold(int v)
+bool inc_oppose_cold(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.oppose_cold;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1210,7 +1418,7 @@ bool set_oppose_cold(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_cold)
+		if (!p_ptr->tim.oppose_cold)
 		{
 			msgf("You feel resistant to cold!");
 			notice = TRUE;
@@ -1220,7 +1428,7 @@ bool set_oppose_cold(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_cold)
+		if (p_ptr->tim.oppose_cold)
 		{
 			msgf("You feel less resistant to cold.");
 			notice = TRUE;
@@ -1228,7 +1436,7 @@ bool set_oppose_cold(int v)
 	}
 
 	/* Use the value */
-	p_ptr->oppose_cold = v;
+	p_ptr->tim.oppose_cold = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -1248,11 +1456,14 @@ bool set_oppose_cold(int v)
 
 
 /*
- * Set "p_ptr->oppose_pois", notice observable changes
+ * Increment "p_ptr->oppose_pois", notice observable changes
  */
-bool set_oppose_pois(int v)
+bool inc_oppose_pois(int v)
 {
 	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.oppose_pois;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1260,7 +1471,7 @@ bool set_oppose_pois(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_pois)
+		if (!p_ptr->tim.oppose_pois)
 		{
 			msgf("You feel resistant to poison!");
 			notice = TRUE;
@@ -1270,7 +1481,7 @@ bool set_oppose_pois(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_pois)
+		if (p_ptr->tim.oppose_pois)
 		{
 			msgf("You feel less resistant to poison.");
 			notice = TRUE;
@@ -1278,7 +1489,7 @@ bool set_oppose_pois(int v)
 	}
 
 	/* Use the value */
-	p_ptr->oppose_pois = v;
+	p_ptr->tim.oppose_pois = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -1298,11 +1509,307 @@ bool set_oppose_pois(int v)
 
 
 /*
+ * Helper functions to test resistance status for the various elements
+ *
+ *
+ * These return a value from 0 to 18 standing for how much damage
+ * you will receive.
+ *
+ * 0 is immunity.
+ * 1 is double resistance.
+ * 3 is normal resistance.
+ * 9 is no resistance.
+ * 18 is succeptibility to.
+ *
+ * Other combinations such as 2 and 6 are also possible.
+ *
+ * XXX XXX Should these "magic numbers" have #defines?
+ */
+
+/*
+ * Acid resist level
+ */
+byte res_acid_lvl(void)
+{
+	byte level = 9;
+	
+	if (p_ptr->tim.invuln) return (0);
+	if (p_ptr->flags2 & TR2_IM_ACID) return (0);
+	if (p_ptr->flags2 & TR2_RES_ACID) level /= 3;
+	if (p_ptr->tim.oppose_acid) level /= 3;
+	if (p_ptr->flags4 & TR4_HURT_ACID) level *= 2;
+
+	return (level);
+}
+
+/*
+ * Electricity resist level
+ */
+byte res_elec_lvl(void)
+{
+	byte level = 9;
+	
+	if (p_ptr->tim.invuln) return (0);
+	if (p_ptr->flags2 & TR2_IM_ELEC) return (0);
+	if (p_ptr->flags2 & TR2_RES_ELEC) level /= 3;
+	if (p_ptr->tim.oppose_elec) level /= 3;
+	if (p_ptr->flags4 & TR4_HURT_ELEC) level *= 2;
+
+	return (level);
+}
+
+/*
+ * Fire resist level
+ */
+byte res_fire_lvl(void)
+{
+	byte level = 9;
+	
+	if (p_ptr->tim.invuln) return (0);
+	if (p_ptr->flags2 & TR2_IM_FIRE) return (0);
+	if (p_ptr->flags2 & TR2_RES_FIRE) level /= 3;
+	if (p_ptr->tim.oppose_fire) level /= 3;
+	if (p_ptr->flags4 & TR4_HURT_FIRE) level *= 2;
+
+	return (level);
+}
+
+/*
+ * Cold resist level
+ */
+byte res_cold_lvl(void)
+{
+	byte level = 9;
+	
+	if (p_ptr->tim.invuln) return (0);
+	if (p_ptr->flags2 & TR2_IM_COLD) return (0);
+	if (p_ptr->flags2 & TR2_RES_COLD) level /= 3;
+	if (p_ptr->tim.oppose_cold) level /= 3;
+	if (p_ptr->flags4 & TR4_HURT_COLD) level *= 2;
+
+	return (level);
+}
+
+/*
+ * Poison resist level
+ */
+byte res_pois_lvl(void)
+{
+	byte level = 9;
+	
+	if (p_ptr->tim.invuln) return (0);
+	if (p_ptr->flags2 & TR2_RES_POIS) return(0);
+	if (p_ptr->tim.oppose_pois) return(0);
+
+	return (level);
+}
+
+/*
+ * Apply resistance to damage
+ */
+int resist(int dam, byte (*f_func) (void))
+{
+	/* Use the function we were passed, and round up the damage */
+	return ((dam * f_func() + 8) / 9);
+}
+
+
+/*
+ * Acid has hit the player, attempt to affect some armor.
+ *
+ * Note that the "base armor" of an object never changes.
+ *
+ * If any armor is damaged (or resists), the player takes less damage.
+ */
+static int minus_ac(void)
+{
+	object_type *o_ptr = NULL;
+	char o_name[256];
+
+
+	/* Pick a (possibly empty) inventory slot */
+	switch (randint1(6))
+	{
+		case 1:
+		{
+			o_ptr = &p_ptr->equipment[EQUIP_BODY];
+			break;
+		}
+		case 2:
+		{
+			o_ptr = &p_ptr->equipment[EQUIP_ARM];
+			break;
+		}
+		case 3:
+		{
+			o_ptr = &p_ptr->equipment[EQUIP_OUTER];
+			break;
+		}
+		case 4:
+		{
+			o_ptr = &p_ptr->equipment[EQUIP_HANDS];
+			break;
+		}
+		case 5:
+		{
+			o_ptr = &p_ptr->equipment[EQUIP_HEAD];
+			break;
+		}
+		case 6:
+		{
+			o_ptr = &p_ptr->equipment[EQUIP_FEET];
+			break;
+		}
+	}
+
+	/* Nothing to damage */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	/* No damage left to be done */
+	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
+
+
+	/* Describe */
+	object_desc(o_name, o_ptr, FALSE, 0, 256);
+
+	/* Object resists */
+	if (o_ptr->flags3 & TR3_IGNORE_ACID)
+	{
+		msgf("Your %s is unaffected!", o_name);
+
+		return (TRUE);
+	}
+
+	/* Message */
+	msgf("Your %s is damaged!", o_name);
+
+	/* Damage the item */
+	o_ptr->to_a--;
+
+	/* Calculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+
+	/* Item was damaged */
+	return (TRUE);
+}
+
+
+/*
+ * Hurt the player with Acid
+ */
+void acid_dam(int dam, cptr kb_str)
+{
+	int inv;
+	
+	dam = resist(dam, res_acid_lvl);
+
+	/* Total Immunity? */
+	if (dam <= 0) return;
+
+	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+
+	if ((res_acid_lvl() > 3) && one_in_(HURT_CHANCE))
+		(void)do_dec_stat(A_CHR);
+
+	/* If any armor gets hit, defend the player */
+	if (minus_ac()) dam = (dam + 1) / 2;
+
+	/* Take damage */
+	take_hit(dam, kb_str);
+
+	/* Inventory damage */
+	if (res_acid_lvl() > 3)
+		(void)inven_damage(set_acid_destroy, inv);
+}
+
+
+/*
+ * Hurt the player with electricity
+ */
+void elec_dam(int dam, cptr kb_str)
+{
+	int inv;
+	
+	dam = resist(dam, res_elec_lvl);
+
+	/* Total immunity */
+	if (dam <= 0) return;
+
+	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+
+	if ((res_elec_lvl() > 3) && one_in_(HURT_CHANCE))
+		(void)do_dec_stat(A_DEX);
+
+	/* Take damage */
+	take_hit(dam, kb_str);
+
+	/* Inventory damage */
+	if (res_acid_lvl() > 3)
+		(void)inven_damage(set_elec_destroy, inv);
+}
+
+
+/*
+ * Hurt the player with Fire
+ */
+void fire_dam(int dam, cptr kb_str)
+{
+	int inv;
+	
+	dam = resist(dam, res_fire_lvl);
+
+	/* Totally immune? */
+	if (dam <= 0) return;
+
+	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+
+	if ((res_fire_lvl() > 3) && one_in_(HURT_CHANCE))
+		(void)do_dec_stat(A_STR);
+
+	/* Take damage */
+	take_hit(dam, kb_str);
+
+	/* Inventory damage */
+	if (res_fire_lvl() > 3)
+		(void)inven_damage(set_fire_destroy, inv);
+}
+
+
+/*
+ * Hurt the player with Cold
+ */
+void cold_dam(int dam, cptr kb_str)
+{
+	int inv;
+	
+	dam = resist(dam, res_cold_lvl);
+
+	/* Total immunity? */
+	if (dam <= 0) return;
+
+	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+
+	if ((res_cold_lvl() > 3) && one_in_(HURT_CHANCE))
+		(void)do_dec_stat(A_STR);
+
+	/* Take damage */
+	take_hit(dam, kb_str);
+
+	/* Inventory damage */
+	if (res_cold_lvl() > 3)
+		(void)inven_damage(set_cold_destroy, inv);
+}
+
+
+/*
  * Set "p_ptr->stun", notice observable changes
  *
  * Note the special code to only notice "range" changes.
  */
-bool set_stun(int v)
+static bool set_stun(int v)
 {
 	int old_aux, new_aux;
 	bool notice = FALSE;
@@ -1317,28 +1824,28 @@ bool set_stun(int v)
 	 * a hard game - they lose this advantage.  (Golems are
 	 * designed for newbies - not scummers.)
 	 */
-	if ((p_ptr->prace == RACE_GOLEM) &&
+	if ((p_ptr->rp.prace == RACE_GOLEM) &&
 		!(ironman_shops || ironman_downward || ironman_hard_quests ||
-		  ironman_empty_levels || ironman_rooms || ironman_nightmare ||
+		  ironman_empty_levels || ironman_nightmare ||
 		  ironman_deep_quests))
 	{
 		v = 0;
 	}
 
 	/* Knocked out */
-	if (p_ptr->stun > 100)
+	if (p_ptr->tim.stun > 100)
 	{
 		old_aux = 3;
 	}
 
 	/* Heavy stun */
-	else if (p_ptr->stun > 50)
+	else if (p_ptr->tim.stun > 50)
 	{
 		old_aux = 2;
 	}
 
 	/* Stun */
-	else if (p_ptr->stun > 0)
+	else if (p_ptr->tim.stun > 0)
 	{
 		old_aux = 1;
 	}
@@ -1412,21 +1919,21 @@ bool set_stun(int v)
 		 * something...
 		 */
 		if ((randint1(1000) < v || one_in_(16)) &&
-			(!(p_ptr->pclass == CLASS_MINDCRAFTER)))
+			(!(p_ptr->rp.pclass == CLASS_MINDCRAFTER)))
 		{
 			msgf("A vicious blow hits your head.");
 			if (one_in_(3))
 			{
-				if (!p_ptr->sustain_int) (void)do_dec_stat(A_INT);
-				if (!p_ptr->sustain_wis) (void)do_dec_stat(A_WIS);
+				if (!(p_ptr->flags2 & (TR2_SUST_INT))) (void)do_dec_stat(A_INT);
+				if (!(p_ptr->flags2 & (TR2_SUST_WIS))) (void)do_dec_stat(A_WIS);
 			}
 			else if (one_in_(2))
 			{
-				if (!p_ptr->sustain_int) (void)do_dec_stat(A_INT);
+				if (!(p_ptr->flags2 & (TR2_SUST_INT))) (void)do_dec_stat(A_INT);
 			}
 			else
 			{
-				if (!p_ptr->sustain_wis) (void)do_dec_stat(A_WIS);
+				if (!(p_ptr->flags2 & (TR2_SUST_WIS))) (void)do_dec_stat(A_WIS);
 			}
 		}
 
@@ -1454,7 +1961,7 @@ bool set_stun(int v)
 	}
 
 	/* Use the value */
-	p_ptr->stun = v;
+	p_ptr->tim.stun = v;
 
 	/* No change */
 	if (!notice) return (FALSE);
@@ -1477,11 +1984,29 @@ bool set_stun(int v)
 
 
 /*
+ * Increase the "stun" counter
+ */
+bool inc_stun(int v)
+{
+	return(set_stun(p_ptr->tim.stun + v));
+}
+
+
+/*
+ * No more "stun"
+ */
+bool clear_stun(void)
+{
+	return(set_stun(0));
+}
+
+
+/*
  * Set "p_ptr->cut", notice observable changes
  *
  * Note the special code to only notice "range" changes.
  */
-bool set_cut(int v)
+static bool set_cut(int v)
 {
 	int old_aux, new_aux;
 
@@ -1490,50 +2015,50 @@ bool set_cut(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	if (p_ptr->prace == RACE_GOLEM ||
-		p_ptr->prace == RACE_SKELETON ||
-		p_ptr->prace == RACE_SPECTRE ||
-		(p_ptr->prace == RACE_ZOMBIE && p_ptr->lev > 11))
+	if (p_ptr->rp.prace == RACE_GOLEM ||
+		p_ptr->rp.prace == RACE_SKELETON ||
+		p_ptr->rp.prace == RACE_SPECTRE ||
+		(p_ptr->rp.prace == RACE_ZOMBIE && p_ptr->lev > 11))
 		v = 0;
 
 	/* Mortal wound */
-	if (p_ptr->cut > 1000)
+	if (p_ptr->tim.cut > 1000)
 	{
 		old_aux = 7;
 	}
 
 	/* Deep gash */
-	else if (p_ptr->cut > 200)
+	else if (p_ptr->tim.cut > 200)
 	{
 		old_aux = 6;
 	}
 
 	/* Severe cut */
-	else if (p_ptr->cut > 100)
+	else if (p_ptr->tim.cut > 100)
 	{
 		old_aux = 5;
 	}
 
 	/* Nasty cut */
-	else if (p_ptr->cut > 50)
+	else if (p_ptr->tim.cut > 50)
 	{
 		old_aux = 4;
 	}
 
 	/* Bad cut */
-	else if (p_ptr->cut > 25)
+	else if (p_ptr->tim.cut > 25)
 	{
 		old_aux = 3;
 	}
 
 	/* Light cut */
-	else if (p_ptr->cut > 10)
+	else if (p_ptr->tim.cut > 10)
 	{
 		old_aux = 2;
 	}
 
 	/* Graze */
-	else if (p_ptr->cut > 0)
+	else if (p_ptr->tim.cut > 0)
 	{
 		old_aux = 1;
 	}
@@ -1653,7 +2178,7 @@ bool set_cut(int v)
 
 		if (randint1(1000) < v || one_in_(16))
 		{
-			if (!p_ptr->sustain_chr)
+			if (!(p_ptr->flags2 & (TR2_SUST_CHR)))
 			{
 				msgf("You have been horribly scarred.");
 
@@ -1682,7 +2207,7 @@ bool set_cut(int v)
 	}
 
 	/* Use the value */
-	p_ptr->cut = v;
+	p_ptr->tim.cut = v;
 
 	/* No change */
 	if (!notice) return (FALSE);
@@ -1701,6 +2226,24 @@ bool set_cut(int v)
 
 	/* Result */
 	return (TRUE);
+}
+
+
+/*
+ * Increase the "cut" counter
+ */
+bool inc_cut(int v)
+{
+	return(set_cut(p_ptr->tim.cut + v));
+}
+
+
+/*
+ * No more "cuts"
+ */
+bool clear_cut(void)
+{
+	return(set_cut(0));
 }
 
 
@@ -1948,7 +2491,7 @@ bool inc_stat(int stat)
 	int cap = stat_cap(stat);
 
 	/* Then augment the current/max stat */
-	value = p_ptr->stat_cur[stat];
+	value = p_ptr->stat[stat].cur;
 
 	/* Cannot go above limit */
 	if (value < cap)
@@ -1965,12 +2508,12 @@ bool inc_stat(int stat)
         value += gain;
 
         /* Save the new value */
-		p_ptr->stat_cur[stat] = value;
+		p_ptr->stat[stat].cur = value;
 
 		/* Bring up the maximum too */
-		if (value > p_ptr->stat_max[stat])
+		if (value > p_ptr->stat[stat].max)
 		{
-			p_ptr->stat_max[stat] = value;
+			p_ptr->stat[stat].max = value;
 		}
 
 		/* Recalculate bonuses */
@@ -2000,12 +2543,12 @@ bool inc_stat(int stat)
  */
 bool dec_stat(int stat, int amount, int permanent)
 {
-	int cur, max, loss, same, res = FALSE;
+	int cur, max, same, res = FALSE;
 
 
 	/* Acquire current value */
-	cur = p_ptr->stat_cur[stat];
-	max = p_ptr->stat_max[stat];
+	cur = p_ptr->stat[stat].cur;
+	max = p_ptr->stat[stat].max;
 
 	/* Note when the values are identical */
 	same = (cur == max);
@@ -2013,44 +2556,16 @@ bool dec_stat(int stat, int amount, int permanent)
 	/* Damage "current" value */
 	if (cur > 30)
 	{
-		/* Handle "low" values */
-		if (cur <= 180)
-		{
-			if (amount > 90) cur -= 10;
-			if (amount > 50) cur -= 10;
-			if (amount > 20) cur -= 10;
-			cur -= 10;
-		}
-
-		/* Handle "high" values */
-		else
-		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((cur - 180) / 2 + 1) / 2 + 1);
-
-			/* Paranoia */
-			if (loss < 1) loss = 1;
-
-			/* Randomize the loss */
-			loss = (rand_range(loss, loss * 2) * amount) / 100;
-
-			/* Maximal loss */
-			if (loss < amount / 2) loss = amount / 2;
-
-			/* Lose some points */
-			cur = cur - loss;
-
-			/* Hack -- Only reduce stat to 17 sometimes */
-			if (cur < 180) cur = (amount <= 20) ? 180 : 170;
-		}
+		if (cur > 30 && amount > 90) cur -= rand_range(3, cur / 10);
+		if (cur > 30 && amount > 50) cur -= rand_range(3, cur / 10);
+		if (cur > 30 && amount > 20) cur -= rand_range(3, cur / 10);
+		if (cur > 30) cur -= rand_range(3, cur / 10);
 
 		/* Prevent illegal values */
 		if (cur < 30) cur = 30;
 
 		/* Something happened */
-		if (cur != p_ptr->stat_cur[stat]) res = TRUE;
+		if (cur != p_ptr->stat[stat].cur) res = TRUE;
 	}
 
 	/* Damage "max" value */
@@ -2060,45 +2575,24 @@ bool dec_stat(int stat, int amount, int permanent)
 		if (stat == A_WIS || stat == A_INT)
 			chg_virtue(V_ENLIGHTEN, -2);
 
-		/* Handle "low" values */
-		if (max <= 180)
-		{
-			if (amount > 90) max -= 10;
-			if (amount > 50) max -= 10;
-			if (amount > 20) max -= 10;
-			max -= 10;
-		}
-
-		/* Handle "high" values */
-		else
-		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((max - 180) / 2 + 1) / 2 + 1);
-			loss = (rand_range(loss, loss * 2) * amount) / 100;
-			if (loss < amount / 2) loss = amount / 2;
-
-			/* Lose some points */
-			max = max - loss;
-
-			/* Hack -- Only reduce stat to 17 sometimes */
-			if (max < 180) max = (amount <= 20) ? 180 : 170;
-		}
+		if (max > 30 && amount > 90) max -= rand_range(3, max / 10);
+		if (max > 30 && amount > 50) max -= rand_range(3, max / 10);
+		if (max > 30 && amount > 20) max -= rand_range(3, max / 10);
+		if (max > 30) max -= rand_range(3, max / 10);
 
 		/* Hack -- keep it clean */
 		if (same || (max < cur)) max = cur;
 
 		/* Something happened */
-		if (max != p_ptr->stat_max[stat]) res = TRUE;
+		if (max != p_ptr->stat[stat].max) res = TRUE;
 	}
 
 	/* Apply changes */
 	if (res)
 	{
 		/* Actually set the stat to its new value. */
-		p_ptr->stat_cur[stat] = cur;
-		p_ptr->stat_max[stat] = max;
+		p_ptr->stat[stat].cur = cur;
+		p_ptr->stat[stat].max = max;
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -2115,10 +2609,10 @@ bool dec_stat(int stat, int amount, int permanent)
 bool res_stat(int stat)
 {
 	/* Restore if needed */
-	if (p_ptr->stat_cur[stat] != p_ptr->stat_max[stat])
+	if (p_ptr->stat[stat].cur != p_ptr->stat[stat].max)
 	{
 		/* Restore */
-		p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
+		p_ptr->stat[stat].cur = p_ptr->stat[stat].max;
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -2233,32 +2727,32 @@ bool do_dec_stat(int stat)
 	{
 		case A_STR:
 		{
-			if (p_ptr->sustain_str) sust = TRUE;
+			if (p_ptr->flags2 & (TR2_SUST_STR)) sust = TRUE;
 			break;
 		}
 		case A_INT:
 		{
-			if (p_ptr->sustain_int) sust = TRUE;
+			if (p_ptr->flags2 & (TR2_SUST_INT)) sust = TRUE;
 			break;
 		}
 		case A_WIS:
 		{
-			if (p_ptr->sustain_wis) sust = TRUE;
+			if (p_ptr->flags2 & (TR2_SUST_WIS)) sust = TRUE;
 			break;
 		}
 		case A_DEX:
 		{
-			if (p_ptr->sustain_dex) sust = TRUE;
+			if (p_ptr->flags2 & (TR2_SUST_DEX)) sust = TRUE;
 			break;
 		}
 		case A_CON:
 		{
-			if (p_ptr->sustain_con) sust = TRUE;
+			if (p_ptr->flags2 & (TR2_SUST_CON)) sust = TRUE;
 			break;
 		}
 		case A_CHR:
 		{
-			if (p_ptr->sustain_chr) sust = TRUE;
+			if (p_ptr->flags2 & (TR2_SUST_CHR)) sust = TRUE;
 			break;
 		}
 	}
@@ -2447,7 +2941,7 @@ bool lose_all_info(void)
 		object_kind *k_ptr = &k_info[k];
 
 		/* Forget flavored items, with saving throw */
-		if (k_ptr->flavor && one_in_(p_ptr->skill_sav))
+		if (k_ptr->flavor && one_in_(p_ptr->skill.sav))
 		{
 			/* Forget knowledge */
 			k_ptr->aware = FALSE;
@@ -2475,7 +2969,7 @@ bool lose_all_info(void)
 void do_poly_wounds(void)
 {
 	/* Changed to always provide at least _some_ healing */
-	s16b wounds = p_ptr->cut;
+	s16b wounds = p_ptr->tim.cut;
 	s16b hit_p = (p_ptr->mhp - p_ptr->chp);
 	s16b change = damroll(p_ptr->lev, 5);
 	bool Nasty_effect = (one_in_(5));
@@ -2492,7 +2986,7 @@ void do_poly_wounds(void)
 	}
 	else
 	{
-		(void)set_cut(p_ptr->cut - (change / 2));
+		(void)set_cut(p_ptr->tim.cut - (change / 2));
 	}
 }
 
@@ -2519,16 +3013,16 @@ void do_poly_self(void)
 			/* sex change */
 			power -= 2;
 
-			if (p_ptr->psex == SEX_MALE)
+			if (p_ptr->rp.psex == SEX_MALE)
 			{
-				p_ptr->psex = SEX_FEMALE;
-				sp_ptr = &sex_info[p_ptr->psex];
+				p_ptr->rp.psex = SEX_FEMALE;
+				sp_ptr = &sex_info[p_ptr->rp.psex];
 				strnfmt(effect_msg, 80, "female ");
 			}
 			else
 			{
-				p_ptr->psex = SEX_MALE;
-				sp_ptr = &sex_info[p_ptr->psex];
+				p_ptr->rp.psex = SEX_MALE;
+				sp_ptr = &sex_info[p_ptr->rp.psex];
 				strnfmt(effect_msg, 80, "male ");
 			}
 		}
@@ -2586,7 +3080,7 @@ void do_poly_self(void)
 			new_race = randint0(MAX_RACES);
 			expfact = race_info[new_race].r_exp;
 		}
-		while ((new_race == p_ptr->prace) && (expfact > goalexpfact));
+		while ((new_race == p_ptr->rp.prace) && (expfact > goalexpfact));
 
 		if (!effect_msg[0])
 		{
@@ -2604,9 +3098,9 @@ void do_poly_self(void)
 
 		chg_virtue(V_CHANCE, 2);
 
-		old_race = p_ptr->prace;
-		p_ptr->prace = new_race;
-		rp_ptr = &race_info[p_ptr->prace];
+		old_race = p_ptr->rp.prace;
+		p_ptr->rp.prace = new_race;
+		rp_ptr = &race_info[p_ptr->rp.prace];
 
 		/* Adjust the stats */
 		for (i = 0; i < A_MAX; i++)
@@ -2617,27 +3111,27 @@ void do_poly_self(void)
 			change = rp_ptr->r_adj[i] - race_info[old_race].r_adj[i];
 
 			/* Adjust current stat */
-			p_ptr->stat_cur[i] = adjust_stat(i, p_ptr->stat_cur[i], change);
+			p_ptr->stat[i].cur = adjust_stat(i, p_ptr->stat[i].cur, change);
 
 			/* Adjust maximum stat */
-			p_ptr->stat_max[i] = adjust_stat(i, p_ptr->stat_max[i], change);
+			p_ptr->stat[i].max = adjust_stat(i, p_ptr->stat[i].max, change);
 		}
 
 		/* Experience factor */
 		p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
 		/* Calculate the height/weight for males */
-		if (p_ptr->psex == SEX_MALE)
+		if (p_ptr->rp.psex == SEX_MALE)
 		{
-			p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-			p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+			p_ptr->rp.ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+			p_ptr->rp.wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
 		}
 
 		/* Calculate the height/weight for females */
-		else if (p_ptr->psex == SEX_FEMALE)
+		else if (p_ptr->rp.psex == SEX_FEMALE)
 		{
-			p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-			p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+			p_ptr->rp.ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+			p_ptr->rp.wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
 		}
 
 		check_experience();
@@ -2724,13 +3218,13 @@ void take_hit(int damage, cptr hit_from)
 
 
 	/* Paranoia */
-	if (p_ptr->is_dead) return;
+	if (p_ptr->state.is_dead) return;
 
 	/* Disturb */
 	disturb(TRUE);
 
 	/* Mega-Hack -- Apply "invulnerability" */
-	if (p_ptr->invuln && (damage < 9000))
+	if (p_ptr->tim.invuln && (damage < 9000))
 	{
 		if (one_in_(PENETRATE_INVULNERABILITY))
 		{
@@ -2742,7 +3236,7 @@ void take_hit(int damage, cptr hit_from)
 		}
 	}
 
-	if (p_ptr->wraith_form)
+	if (p_ptr->tim.wraith_form)
 	{
 		damage /= 10;
 		if ((damage == 0) && one_in_(10)) damage = 1;
@@ -2763,7 +3257,7 @@ void take_hit(int damage, cptr hit_from)
 	if (pen_invuln)
 		msgf("The attack penetrates your shield of invulnerability!");
 
-	if (!(p_ptr->invuln) || (pen_invuln))
+	if (!(p_ptr->tim.invuln) || (pen_invuln))
 	{
 		if (p_ptr->chp == 0)
 		{
@@ -2795,18 +3289,18 @@ void take_hit(int damage, cptr hit_from)
 		}
 
 		/* Note cause of death */
-		len = strnfmt(p_ptr->died_from, 80, hit_from);
+		len = strnfmt(p_ptr->state.died_from, 80, hit_from);
 
-		if (p_ptr->image) strnfcat(p_ptr->died_from, 80, &len, "(?)");
+		if (p_ptr->tim.image) strnfcat(p_ptr->state.died_from, 80, &len, "(?)");
 
 		/* No longer a winner */
-		p_ptr->total_winner = FALSE;
+		p_ptr->state.total_winner = FALSE;
 
 		/* Leaving */
-		p_ptr->leaving = TRUE;
+		p_ptr->state.leaving = TRUE;
 
 		/* Note death */
-		p_ptr->is_dead = TRUE;
+		p_ptr->state.is_dead = TRUE;
 
 		if (get_check("Dump the screen? "))
 		{
@@ -2889,3 +3383,64 @@ void make_noise(byte amount)
 	/* Save the new noise level */
 	p_ptr->noise_level = (byte)total;
 }
+
+
+/*
+ * Something has happened to disturb the player.
+ *
+ * The arg indicates a major disturbance, which affects search.
+ *
+ * All disturbance cancels repeated commands, resting, and running.
+ */
+void disturb(bool stop_search)
+{
+	/* Cancel repeated commands */
+	if (p_ptr->cmd.rep)
+	{
+		/* Cancel */
+		p_ptr->cmd.rep = 0;
+
+		/* Redraw the state (later) */
+		p_ptr->redraw |= (PR_STATE);
+	}
+
+	/* Cancel Resting */
+	if (p_ptr->state.resting)
+	{
+		/* Cancel */
+		p_ptr->state.resting = 0;
+
+		/* Redraw the state (later) */
+		p_ptr->redraw |= (PR_STATE);
+	}
+
+	/* Cancel running */
+	if (p_ptr->state.running)
+	{
+		/* Cancel */
+		p_ptr->state.running = 0;
+
+		/* Check for new panel if appropriate */
+		if (center_player && avoid_center) verify_panel();
+
+		/* Calculate torch radius */
+		p_ptr->update |= (PU_TORCH);
+	}
+
+	/* Cancel searching if requested */
+	if (stop_search && p_ptr->state.searching)
+	{
+		/* Cancel */
+		p_ptr->state.searching = FALSE;
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATE);
+	}
+
+	/* Flush the input if requested */
+	if (flush_disturb) flush();
+}
+

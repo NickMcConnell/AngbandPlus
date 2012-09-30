@@ -97,7 +97,7 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 
 
 	/* Food can feed the player */
-	if (p_ptr->prace == RACE_VAMPIRE)
+	if (p_ptr->rp.prace == RACE_VAMPIRE)
 	{
 		/* Reduced nutritional benefit */
 		(void)set_food(p_ptr->food + (o_ptr->pval / 10));
@@ -106,32 +106,40 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 		if (p_ptr->food < PY_FOOD_ALERT)	/* Hungry */
 			msgf("Your hunger can only be satisfied with fresh blood!");
 	}
-	else if (p_ptr->prace == RACE_SKELETON)
+	else if (p_ptr->flags4 & (TR4_CANT_EAT))
 	{
-		if (!((o_ptr->sval == SV_FOOD_WAYBREAD) ||
-			  (o_ptr->sval < SV_FOOD_BISCUIT)))
+		if (p_ptr->rp.prace == RACE_SKELETON)
 		{
-			object_type *q_ptr;
+			if (!((o_ptr->sval == SV_FOOD_WAYBREAD) ||
+				  (o_ptr->sval < SV_FOOD_BISCUIT)))
+			{
+				object_type *q_ptr;
+	
+				msgf("The food falls through your jaws!");
 
-			msgf("The food falls through your jaws!");
+				/* Create the item */
+				q_ptr = object_prep(lookup_kind(o_ptr->tval, o_ptr->sval));
 
-			/* Create the item */
-			q_ptr = object_prep(lookup_kind(o_ptr->tval, o_ptr->sval));
-
-			/* Drop the object from heaven */
-			drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
+				/* Drop the object from heaven */
+				drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
+			}
+			else
+			{
+				msgf("The food falls through your jaws and vanishes!");
+			}
+		}
+		else if ((p_ptr->rp.prace == RACE_GOLEM) ||
+				 (p_ptr->rp.prace == RACE_ZOMBIE) ||
+				 (p_ptr->rp.prace == RACE_SPECTRE) || (p_ptr->rp.prace == RACE_GHOUL))
+		{
+			msgf("The food of mortals is poor sustenance for you.");
+			(void)set_food(p_ptr->food + ((o_ptr->pval) / 20));
 		}
 		else
 		{
-			msgf("The food falls through your jaws and vanishes!");
+			msgf("This food is poor sustenance for you.");
+			set_food(p_ptr->food + ((o_ptr->pval) / 20));
 		}
-	}
-	else if ((p_ptr->prace == RACE_GOLEM) ||
-			 (p_ptr->prace == RACE_ZOMBIE) ||
-			 (p_ptr->prace == RACE_SPECTRE) || (p_ptr->prace == RACE_GHOUL))
-	{
-		msgf("The food of mortals is poor sustenance for you.");
-		(void)set_food(p_ptr->food + ((o_ptr->pval) / 20));
 	}
 	else
 	{
@@ -190,7 +198,7 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 	/* Quaff the potion */
 	(void)use_object(o_ptr, &ident);
 
-	if (p_ptr->prace == RACE_SKELETON)
+	if (p_ptr->rp.prace == RACE_SKELETON)
 	{
 		msgf("Some of the fluid falls through your jaws!");
 		(void)potion_smash_effect(0, p_ptr->px, p_ptr->py, o_ptr->k_idx);
@@ -222,7 +230,7 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
 	/* Potions can feed the player */
-	switch (p_ptr->prace)
+	switch (p_ptr->rp.prace)
 	{
 		case RACE_VAMPIRE:
 			(void)set_food(p_ptr->food + (o_ptr->pval / 10));
@@ -337,7 +345,7 @@ void do_cmd_read_scroll(void)
 	cptr q, s;
 
 	/* Check some conditions */
-	if (p_ptr->blind)
+	if (p_ptr->tim.blind)
 	{
 		msgf("You can't see anything.");
 		return;
@@ -347,7 +355,7 @@ void do_cmd_read_scroll(void)
 		msgf("You have no light to read by.");
 		return;
 	}
-	if (p_ptr->confused)
+	if (p_ptr->tim.confused)
 	{
 		msgf("You are too confused!");
 		return;
@@ -400,10 +408,10 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 	lev = get_object_level(o_ptr);
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skill.dev;
 
 	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
+	if (p_ptr->tim.confused) chance = chance / 2;
 
 	/* Hight level objects are harder */
 	chance = chance - lev / 2;
@@ -701,7 +709,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = MIN(75, 200 - 5 * p_ptr->skill_dev / 8);
+	p_ptr->energy_use = MIN(75, 200 - 5 * p_ptr->skill.dev / 8);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -710,10 +718,10 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 	lev = get_object_level(o_ptr);
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skill.dev;
 
 	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
+	if (p_ptr->tim.confused) chance = chance / 2;
 
 	/* Hight level objects are harder */
 	chance = chance - lev / 2;
@@ -797,20 +805,20 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 		case SV_ROD_CURING:
 		{
 			if (hp_player(200)) ident = TRUE;
-			if (set_blind(0)) ident = TRUE;
-			if (set_poisoned(0)) ident = TRUE;
-			if (set_confused(0)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
-			if (set_image(0)) ident = TRUE;
+			if (clear_blind()) ident = TRUE;
+			if (clear_poisoned()) ident = TRUE;
+			if (clear_confused()) ident = TRUE;
+			if (clear_stun()) ident = TRUE;
+			if (clear_cut()) ident = TRUE;
+			if (clear_image()) ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_HEALING:
 		{
 			if (hp_player(500)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
+			if (clear_stun()) ident = TRUE;
+			if (clear_cut()) ident = TRUE;
 			break;
 		}
 
@@ -828,14 +836,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 
 		case SV_ROD_SPEED:
 		{
-			if (!p_ptr->fast)
-			{
-				if (set_fast(rand_range(15, 45))) ident = TRUE;
-			}
-			else
-			{
-				(void)set_fast(p_ptr->fast + 5);
-			}
+			if (inc_fast(rand_range(15, 45))) ident = TRUE;
 			break;
 		}
 
@@ -1006,8 +1007,6 @@ void do_cmd_zap_rod(void)
  */
 static bool item_tester_hook_activate(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
-
 	/* Check statues */
 	if (o_ptr->tval == TV_STATUE) return (TRUE);
 
@@ -1017,11 +1016,8 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
 
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
 	/* Check activation flag */
-	if (f3 & (TR3_ACTIVATE)) return (TRUE);
+	if (o_ptr->flags3 & (TR3_ACTIVATE)) return (TRUE);
 
 	/* Assume not */
 	return (FALSE);
@@ -1103,16 +1099,16 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 	int dir, lev, chance;
 
 	/* Take a turn */
-	p_ptr->energy_use = MIN(75, 200 - 5 * p_ptr->skill_dev / 8);
+	p_ptr->energy_use = MIN(75, 200 - 5 * p_ptr->skill.dev / 8);
 
 	/* Extract the item level */
 	lev = get_object_level(o_ptr);
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skill.dev;
 
 	/* Confusion hurts skill */
-	if (p_ptr->confused) chance /= 2;
+	if (p_ptr->tim.confused) chance /= 2;
 
 	/* Cursed items are difficult to activate */
 	if (cursed_p(o_ptr)) chance /= 3;
@@ -1319,7 +1315,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 			case SV_RING_ACID:
 			{
 				(void)fire_ball(GF_ACID, dir, 100, 2);
-				(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(20, 40));
+				(void)inc_oppose_acid(rand_range(20, 40));
 				o_ptr->timeout = (s16b)rand_range(25, 50);
 				break;
 			}
@@ -1327,7 +1323,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 			case SV_RING_ICE:
 			{
 				(void)fire_ball(GF_COLD, dir, 100, 2);
-				(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(20, 40));
+				(void)inc_oppose_cold(rand_range(20, 40));
 				o_ptr->timeout = (s16b)rand_range(25, 50);
 				break;
 			}
@@ -1335,7 +1331,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 			case SV_RING_FLAMES:
 			{
 				(void)fire_ball(GF_FIRE, dir, 100, 2);
-				(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(20, 40));
+				(void)inc_oppose_fire(rand_range(20, 40));
 				o_ptr->timeout = (s16b)rand_range(25, 50);
 				break;
 			}

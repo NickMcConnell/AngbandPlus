@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: antimatter $ on $Date: 2002/11/01 10:09:25 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/03/29 15:57:38 $
 # File: misc.txt
 
 # This file is used to initialize the "lib/data/z_info.raw" file, which is
@@ -11,13 +11,13 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:2.7.3
 
 # Maximum number of feature types
 M:F:160
 
 # Maximum number of object kinds
-M:K:592
+M:K:594
 
 # Maximum number of artifacts
 M:A:128
@@ -26,7 +26,7 @@ M:A:128
 M:E:128
 
 # Maximum number of monster races
-M:R:889
+M:R:892
 
 # Maximum number of vaults
 M:V:126
@@ -47,7 +47,7 @@ M:W:N:250
 M:W:T:300
 
 # Maximum number of "places" in the wilderness (towns + quests)
-M:W:P:40
+M:W:P:60
 
 # Maximum number of active "regions" in dungeon / wilderness
 M:G:10

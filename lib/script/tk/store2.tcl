@@ -2443,6 +2443,8 @@ proc NSStore2::MakeBox {oop canvas where index {rgb1 ""} {rgb2 ""}} {
 	Info $oop color,$where,$index $rgb2
 	Info $oop color2,$where,$index ""
 
+if 0 {
+
 	# Widget
 	$canvas create widget [expr {$width / 2}] \
 		[expr {$height / 2}] -assign {icon none 0} \
@@ -2459,6 +2461,7 @@ proc NSStore2::MakeBox {oop canvas where index {rgb1 ""} {rgb2 ""}} {
 		"NSStore2::Select $oop $where $index"
 	$canvas bind icon,$where,$index <Double-ButtonPress-1> \
 		"NSStore2::Invoke $oop $where $index"
+}
 
 	return
 }

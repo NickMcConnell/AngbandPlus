@@ -60,6 +60,8 @@ questions and answers.
   4.3 Objects
     4.3.1 What does a 'magical figurine' do?
     4.3.2 What does a 'statue' do?
+	4.3.3 Why do I have a 'lantern of everburning' with a light radius
+	      of one square?
   4.4 Miscellaneous
     4.4.1 What is an "anti-magic shell"?
     4.4.2 What are virtues, and how can I affect them?
@@ -291,6 +293,15 @@ generated.
 Statues made of various materials can be found throughout the dungeon.
 Unlike figurines, they have no magical attributes but may be worth
 selling depending upon the material from which they are made.
+
+--------------------------------------------------------------------------
+
+4.3.3 Why do I have a 'lantern of everburning' with a light radius
+	  of one square?
+--------------------------------------------------------------------------
+
+Your lantern was zapped by a trap of darkness.  You can refuel it to
+make it glow at the normal rate again.
 
 --------------------------------------------------------------------------
 4.4 Miscellaneous

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2000/09/14 13:14:22 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/03/29 15:57:38 $
 # File: v_info.txt
 
 
@@ -51,7 +51,7 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:2.7.3
 
 
 ### Lesser vaults (type 7) -- maximum size 33x22 ###

@@ -1,0 +1,11 @@
+subdir = ./lib/xtra/font/
+
+## makefile.zb
+
+srcfiles += lib/xtra/font/makefile.zb
+
+files += $(addprefix lib/xtra/font/,\
+	10X20.FON 16x16.txt 6X10.FON 6X13.FON 6X9.FON 7X13B.FON 8X13B.FON \
+	9X15B.FON 12X24.FON 5X8.FON 6X12.FON 6X13B.FON 7X13.FON 8X13.FON \
+	9X15.FON xm8x16b.fnt \
+	)

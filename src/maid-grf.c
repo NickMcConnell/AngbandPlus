@@ -283,7 +283,6 @@ bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
 }
 #endif /* USE_GRAPHICS */
 
-#ifdef TERM_USE_CALLBACKS
 
 /*
  * The callbacks
@@ -367,31 +366,16 @@ void del_callback(int number, vptr data)
 	quit("Callback does not exist");
 }
 
-#else  /* TERM_USE_CALLBACKS */
-
 /*
- * Initialise the callbacks
+ * Code for the overhead mini-map
+ *
+ * This is used by the borg to store the map information.
+ * It is used by some ports to display a mini-map.  It
+ * is used by the tk port to display nearly everything.
+ *
+ * It is also used by the "overhead map" term type.
  */
-void init_term_callbacks(void)
-{
-	/* Do nothing */
-}
 
-/*
- * Free the callbacks
- */
-void free_term_callbacks(void)
-{
-	/* Do nothing */
-}
-
-
-#endif /* TERM_USE_CALLBACKS */
-
-
-#ifdef TERM_USE_MAP
-
-static bool map_init = FALSE;
 
 /* List of 16x16 blocks for the overhead map */
 map_blk_ptr_ptr *map_cache;
@@ -453,9 +437,6 @@ void init_overhead_map(void)
 {
 	int i, j;
 
-	/* Do not initialize twice */
-	if (map_init) return;
-
 	/* Make the list of pointers to blocks */
 	C_MAKE(map_cache, MAP_CACHE, map_blk_ptr_ptr);
 
@@ -488,9 +469,6 @@ void init_overhead_map(void)
 		C_MAKE(map_grid[i], WILD_SIZE, int);
 	}
 
-	/* The map exists */
-	map_init = TRUE;
-
 	/* Initialize */
 	clear_map();
 }
@@ -502,9 +480,6 @@ void del_overhead_map(void)
 {
 	int i, j;
 
-	/* Do not remove twice */
-	if (!map_init) return;
-
 	/* Free refcount for cache blocks */
 	FREE(map_cache_refcount);
 
@@ -515,7 +490,7 @@ void del_overhead_map(void)
 	/* Delete each block */
 	for (i = 0; i < MAP_CACHE; i++)
 	{
-		/* Allocate rows of a block */
+		/* Deallocate rows of a block */
 		for (j = 0; j < WILD_BLOCK_SIZE; j++)
 		{
 			FREE(map_cache[i][j]);
@@ -536,9 +511,6 @@ void del_overhead_map(void)
 
 	/* Free the overhead map itself */
 	FREE(map_grid);
-
-	/* The map no longer exists */
-	map_init = FALSE;
 }
 
 
@@ -694,6 +666,12 @@ static void save_map_location(int x, int y, term_map *map)
 			map_cache_refcount[block_num]--;
 		}
 	}
+	
+	/* Save the tile data */
+	mb_ptr->a = map->a;
+	mb_ptr->c = map->c;
+	mb_ptr->ta = map->ta;
+	mb_ptr->tc = map->tc;
 
 	for (callback = callbacks[CALL_MAP_INFO]; callback; callback = callback->next)
 	{
@@ -703,6 +681,9 @@ static void save_map_location(int x, int y, term_map *map)
 
 	/* Save the flags */
 	mb_ptr->flags = map->flags;
+
+	/* Save the priority */
+	mb_ptr->priority = map->priority;
 
 #ifdef TERM_CAVE_MAP
 
@@ -748,163 +729,1268 @@ map_block *map_loc(int x, int y)
 			[y & 15][x & 15]);
 }
 
+/*
+ * Display info about one town -- used with the map function
+ *
+ * Basically a rip of do_cmd_knowledge_wild from cmd4.c -MT
+ */
+static void single_town_info(int place)
+{
+	FILE *fff;
+
+	char file_name[1024];
+
+	/* Opet temporary file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	/* Failure */
+	if (!fff) return;
+	
+	dump_town_info(fff, place);
+
+	/* Close the file */
+	my_fclose(fff);
+	
+	/* Display the file contents */
+	(void)show_file(file_name, "Town Info", 0, 0);
+
+	/* Remove the file */
+	(void)fd_kill(file_name);
+}
 
 /*
- * Angband-specific code designed to allow the map to be sent
- * to the port as required.  This allows the main-???.c file
- * not to access internal game data, which may or may not
- * be accessable.
+ * Display a "small-scale" map of the dungeon for the player
+ *
+ * Currently, the "player" is displayed on the map.  XXX XXX XXX
  */
-void Term_write_map(int x, int y, cave_type *c_ptr, pcave_type *pc_ptr)
+void do_cmd_view_map(void)
 {
-	term_map map;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
-	int fld_idx, next_f_idx;
+	int cy, cx;
+	int wid, hgt;
 
-	monster_type *m_ptr;
-	object_type *o_ptr;
-	field_type *fld_ptr;
+	/* No overhead map in vanilla town mode. */
+	if (!p_ptr->depth && vanilla_town) return;
 
-	monster_race *r_ptr;
-	object_kind *k_ptr;
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
-	bool visible = pc_ptr->player & GRID_SEEN;
-	bool glow = c_ptr->info & CAVE_GLOW;
-	bool lite = (c_ptr->info & CAVE_MNLT) || (pc_ptr->player & GRID_LITE);
+	/* Save the screen */
+	screen_save();
 
-	/* Paranoia */
-	if (!map_init) return;
+	/* Note */
+	prtf(0, 0, "Please wait...");
 
-	/* clear map info */
-	(void)WIPE(&map, term_map);
+	/* Flush */
+	Term_fresh();
 
-	/* Save known data */
-	map.terrain = pc_ptr->feat;
+	/* Clear the screen */
+	Term_clear();
 
-	/* Visible, and not hallucinating */
-	if (visible && !p_ptr->image)
+	if (p_ptr->depth)
 	{
-		map.flags = MAP_SEEN | MAP_ONCE;
+		/* In the dungeon - All we have to do is display the map */
 
-		if (glow) map.flags |= MAP_GLOW;
-		if (lite) map.flags |= MAP_LITE;
-	}
+		/* No offset from player */
+		cx = 0;
+		cy = 0;
 
-	/* Not hallucinating */
-	if (!p_ptr->image)
-	{
-		/* Save known monsters */
-		if (c_ptr->m_idx)
-		{
-			m_ptr = &m_list[c_ptr->m_idx];
+		/* Display the map */
+		display_map(&cx, &cy);
 
-			/* Visible monster */
-			if (m_ptr->ml)
-			{
-				map.monster = m_ptr->r_idx;
+		/* Wait for it */
+		put_fstr((wid - COL_MAP) / 2, hgt - 1, "Hit any key to continue");
 
-				/* Keep this grid */
-				map.flags |= MAP_ONCE;
+		/* Hilite the player */
+		Term_gotoxy(cx, cy);
 
-				/* Get monster information */
-				if (m_ptr->csleep) map.m_flags |= MONST_ASLEEP;
-				if (is_friendly(m_ptr)) map.m_flags |= MONST_FRIEND;
-				if (is_pet(m_ptr)) map.m_flags |= MONST_PET;
-				if (m_ptr->confused) map.m_flags |= MONST_CONFUSED;
-				if (m_ptr->monfear) map.m_flags |= MONST_FEAR;
-				if (m_ptr->stunned) map.m_flags |= MONST_STUN;
-				if (m_ptr->invulner) map.m_flags |= MONST_INVULN;
-
-				/* Get scaled monster hp */
-				map.m_hp = m_ptr->hp * 10 / m_ptr->maxhp;
-			}
-
-			/* Mimic in los? */
-			else if (visible)
-			{
-				r_ptr = &r_info[m_ptr->r_idx];
-
-				if (r_ptr->flags1 & RF1_CHAR_MIMIC)
-				{
-					/* Keep this grid */
-					map.flags |= MAP_ONCE;
-
-					/* Save mimic character */
-					map.unknown = r_ptr->d_char;
-				}
-			}
-		}
-
-		/* Fields */
-		for (fld_idx = c_ptr->fld_idx; fld_idx; fld_idx = next_f_idx)
-		{
-			/* Acquire field */
-			fld_ptr = &fld_list[fld_idx];
-
-			/* Acquire next field */
-			next_f_idx = fld_ptr->next_f_idx;
-
-			/* Memorized, visible fields */
-			if ((fld_ptr->info & (FIELD_INFO_MARK | FIELD_INFO_VIS)) ==
-				(FIELD_INFO_MARK | FIELD_INFO_VIS))
-			{
-				map.field = fld_ptr->t_idx;
-
-				/* Keep this grid */
-				map.flags |= MAP_ONCE;
-
-				/* Stop looking */
-				break;
-			}
-		}
-
-		OBJ_ITT_START (c_ptr->o_idx, o_ptr)
-		{
-			/* Memorized objects */
-			if (o_ptr->info & (OB_SEEN))
-			{
-				k_ptr = &k_info[o_ptr->k_idx];
-
-				/* Flavoured object */
-				if (k_ptr->flavor)
-				{
-					/* Save flavor character */
-					map.unknown = k_ptr->d_char;
-				}
-				else
-				{
-					/* Save object */
-					map.object = o_ptr->k_idx;
-				}
-
-				/* Keep this grid */
-				map.flags |= MAP_ONCE;
-
-				/* Stop looking */
-				break;
-			}
-		}
-		OBJ_ITT_END;
+		/* Get any key */
+		(void)inkey();
 	}
 	else
 	{
-		map.flags = glow ? MAP_GLOW : 0;
+		/* Offset from player */
+		int x, y;
+
+		/* Direction */
+		int d;
+		
+		wild_done_type *w_ptr;
+		
+		cptr town_name;
+		int town_name_len;
+
+		/* No offset yet */
+		x = 0;
+		y = 0;
+
+		/* In the wilderness - Display the map + move it around */
+
+		while (TRUE)
+		{
+			/* Reset offset of map */
+			cx = x;
+			cy = y;
+
+			display_map(&cx, &cy);
+
+			w_ptr = &wild[y + py / WILD_BLOCK_SIZE][x + px / WILD_BLOCK_SIZE].done;
+
+			/* Show the town name, if it exists */
+			if (w_ptr->place && (w_ptr->info & WILD_INFO_SEEN))
+			{
+				town_name = place[w_ptr->place].name;
+				town_name_len = strlen(town_name);
+			
+				/* Display it */
+				put_fstr(COL_MAP + (wid - COL_MAP - town_name_len) / 2, 0, town_name);
+
+				/* Display different prompt -MT */
+				put_fstr(COL_MAP - 36 + (wid - COL_MAP) / 2, hgt - 1,
+						"Move around, press * for town info, or hit any other key to continue.");
+			}
+			else
+			{
+				/* Display standard prompt -MT */
+				put_fstr(COL_MAP - 23 + (wid - COL_MAP) / 2, hgt - 1,
+						"Move around, or hit any other key to continue.");
+			}
+
+			/* Show the cursor */
+			Term_gotoxy(cx, cy);
+
+			/* Draw it */
+			Term_fresh();
+
+			/* Get a response */
+			d = inkey();
+
+			/* On a town?  -- MT */
+			if (w_ptr->place)
+			{
+				/* Accept '*' or a direction -- MT */
+				if (d == '*')
+				{
+					/* Display info for this town -- MT */
+					single_town_info(w_ptr->place);
+					continue;
+				}
+			}
+			
+			/* Done if not a direction */
+			d = get_keymap_dir(d);
+			if (!d) break;
+
+			x += ddx[d];
+			y += ddy[d];
+
+			/* Bounds checking */
+			if (x + px / WILD_BLOCK_SIZE < 0)
+			{
+				x = -px / WILD_BLOCK_SIZE;
+			}
+			if (y + py / WILD_BLOCK_SIZE < 0)
+			{
+				y = -py / WILD_BLOCK_SIZE;
+			}
+			if (x + px / WILD_BLOCK_SIZE > max_wild - 2)
+			{
+				x = max_wild - px / WILD_BLOCK_SIZE - 2;
+			}
+			if (y + py / WILD_BLOCK_SIZE > max_wild - 2)
+			{
+				y = max_wild - py / WILD_BLOCK_SIZE - 2;
+			}
+		}
 	}
 
+	/* Restore the screen */
+	screen_load();
+}
+
+
+
+/*
+ * Two arrays listing the effects of "brightness"
+ * and "darkness" on various "base" colours.
+ *
+ * This is used to do dynamic lighting effects in ascii :-)
+ */
+
+static const byte lighting_colours[16] =
+{
+	/* TERM_DARK */
+	TERM_L_DARK,
+
+	/* TERM_WHITE */
+	TERM_YELLOW,
+
+	/* TERM_SLATE */
+	TERM_WHITE,
+
+	/* TERM_ORANGE */
+	TERM_YELLOW,
+
+	/* TERM_RED */
+	TERM_RED,
+
+	/* TERM_GREEN */
+	TERM_L_GREEN,
+
+	/* TERM_BLUE */
+	TERM_BLUE,
+
+	/* TERM_UMBER */
+	TERM_L_UMBER,
+
+	/* TERM_L_DARK */
+	TERM_SLATE,
+
+	/* TERM_L_WHITE */
+	TERM_WHITE,
+
+	/* TERM_VIOLET */
+	TERM_L_RED,
+
+	/* TERM_YELLOW */
+	TERM_YELLOW,
+
+	/* TERM_L_RED */
+	TERM_L_RED,
+
+	/* TERM_L_GREEN */
+	TERM_YELLOW,
+
+	/* TERM_L_BLUE */
+	TERM_L_BLUE,
+
+	/* TERM_L_UMBER */
+	TERM_L_UMBER,
+};
+
+static const byte darking_colours[16] =
+{
+	/* TERM_DARK */
+	TERM_DARK,
+
+	/* TERM_WHITE */
+	TERM_SLATE,
+
+	/* TERM_SLATE */
+	TERM_L_DARK,
+
+	/* TERM_ORANGE */
+	TERM_UMBER,
+
+	/* TERM_RED */
+	TERM_RED,
+
+	/* TERM_GREEN */
+	TERM_GREEN,
+
+	/* TERM_BLUE */
+	TERM_BLUE,
+
+	/* TERM_UMBER */
+	TERM_RED,
+
+	/* TERM_L_DARK */
+	TERM_L_DARK,
+
+	/* TERM_L_WHITE */
+	TERM_SLATE,
+
+	/* TERM_VIOLET */
+	TERM_BLUE,
+
+	/* TERM_YELLOW */
+	TERM_ORANGE,
+
+	/* TERM_L_RED */
+	TERM_L_RED,
+
+	/* TERM_L_GREEN */
+	TERM_GREEN,
+
+	/* TERM_L_BLUE */
+	TERM_L_BLUE,
+
+	/* TERM_L_UMBER */
+	TERM_UMBER
+};
+
+
+
+#ifdef VARIABLE_PLAYER_GRAPH
+
+/* Magic numbers */
+#define BMP_FIRST_PC_CLASS		164
+#define BMP_FIRST_PC_RACE		128
+
+static void variable_player_graph(byte *a, char *c)
+{
+	if (use_graphics != GRAPHICS_ADAM_BOLT)
+	{
+		if (!streq(ANGBAND_SYS, "ibm"))
+		{
+			if (use_graphics)
+			{
+				*a = BMP_FIRST_PC_CLASS + p_ptr->pclass;
+				*c = BMP_FIRST_PC_RACE + p_ptr->prace;
+			}
+		}
+		else
+		{
+			if (use_graphics)
+			{
+				if (p_ptr->psex == SEX_FEMALE) *c = (char)242;
+				switch (p_ptr->pclass)
+				{
+					case CLASS_PALADIN:
+					{
+						if (p_ptr->lev < 20)
+							*a = TERM_L_WHITE;
+						else
+							*a = TERM_WHITE;
+						*c = 253;
+						break;
+					}
+					case CLASS_WARRIOR_MAGE:
+					{
+						if (p_ptr->lev < 20)
+							*a = TERM_L_RED;
+						else
+							*a = TERM_VIOLET;
+						break;
+					}
+					case CLASS_CHAOS_WARRIOR:
+					{
+						*a = randint1(14);
+						break;
+					}
+					case CLASS_MAGE:
+					case CLASS_HIGH_MAGE:
+					{
+						if (p_ptr->lev < 20)
+							*a = TERM_L_RED;
+						else
+							*a = TERM_RED;
+						*c = 248;
+						break;
+					}
+					case CLASS_PRIEST:
+					{
+						if (p_ptr->lev < 20)
+							*a = TERM_L_BLUE;
+						else
+							*a = TERM_BLUE;
+						*c = 248;
+						break;
+					}
+					case CLASS_RANGER:
+					{
+						if (p_ptr->lev < 20)
+							*a = TERM_L_GREEN;
+						else
+							*a = TERM_GREEN;
+						break;
+					}
+					case CLASS_ROGUE:
+					{
+						if (p_ptr->lev < 20)
+							*a = TERM_SLATE;
+						else
+							*a = TERM_L_DARK;
+						break;
+					}
+					case CLASS_WARRIOR:
+					{
+						if (p_ptr->lev < 20)
+							*a = TERM_L_UMBER;
+						else
+							*a = TERM_UMBER;
+						break;
+					}
+					case CLASS_MONK:
+					case CLASS_MINDCRAFTER:
+					{
+						if (p_ptr->lev < 20)
+							*a = TERM_L_UMBER;
+						else
+							*a = TERM_UMBER;
+						*c = 248;
+						break;
+					}
+					default:
+					{
+						/* Unknown */
+						*a = TERM_WHITE;
+					}
+				}
+
+				switch (p_ptr->prace)
+				{
+					case RACE_GNOME:
+					case RACE_HOBBIT:
+					{
+						*c = 144;
+						break;
+					}
+					case RACE_DWARF:
+					{
+						*c = 236;
+						break;
+					}
+					case RACE_HALF_ORC:
+					{
+						*c = 243;
+						break;
+					}
+					case RACE_HALF_TROLL:
+					{
+						*c = 184;
+						break;
+					}
+					case RACE_ELF:
+					case RACE_HALF_ELF:
+					case RACE_HIGH_ELF:
+					{
+						*c = 223;
+						break;
+					}
+					case RACE_HALF_OGRE:
+					{
+						*c = 168;
+						break;
+					}
+					case RACE_HALF_GIANT:
+					case RACE_HALF_TITAN:
+					case RACE_CYCLOPS:
+					{
+						*c = 145;
+						break;
+					}
+					case RACE_YEEK:
+					{
+						*c = 209;
+						break;
+					}
+					case RACE_KLACKON:
+					{
+						*c = 229;
+						break;
+					}
+					case RACE_KOBOLD:
+					{
+						*c = 204;
+						break;
+					}
+					case RACE_NIBELUNG:
+					{
+						*c = 144;
+						break;
+					}
+					case RACE_DARK_ELF:
+					{
+						*c = 223;
+						break;
+					}
+					case RACE_DRACONIAN:
+					{
+						if (p_ptr->lev < 20)
+							*c = 240;
+						else if (p_ptr->lev < 40)
+							*c = 22;
+						else
+							*c = 137;
+						break;
+					}
+					case RACE_MIND_FLAYER:
+					{
+						*c = 236;
+						break;
+					}
+					case RACE_IMP:
+					{
+						*c = 142;
+						break;
+					}
+					case RACE_GOLEM:
+					{
+						*c = 6;
+						break;
+					}
+					case RACE_SKELETON:
+					{
+						if (p_ptr->pclass == CLASS_MAGE ||
+							p_ptr->pclass == CLASS_PRIEST ||
+							p_ptr->pclass == CLASS_HIGH_MAGE ||
+							p_ptr->pclass == CLASS_MONK ||
+							p_ptr->pclass == CLASS_MINDCRAFTER)
+							*c = 159;
+						else
+							*c = 181;
+						break;
+					}
+					case RACE_ZOMBIE:
+					case RACE_GHOUL:
+					{
+						*c = 221;
+						break;
+					}
+					case RACE_VAMPIRE:
+					{
+						*c = 217;
+						break;
+					}
+					case RACE_SPECTRE:
+					{
+						*c = 241;
+						break;
+					}
+					case RACE_SPRITE:
+					{
+						*c = 244;
+						break;
+					}
+					case RACE_BEASTMAN:
+					{
+						*c = 154;
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+#endif /* VARIABLE_PLAYER_GRAPH */
+
+
+/*
+ * Hack -- Legal monster codes
+ */
+static cptr image_monster_hack =
+	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+
+/*
+ * Mega-Hack -- Hallucinatory monster
+ */
+static void image_monster(byte *ap, char *cp)
+{
+	int n = strlen(image_monster_hack);
+
+	/* Random symbol from set above */
+	if (use_graphics)
+	{
+		(*cp) = r_info[randint1(z_info->r_max - 1)].x_char;
+		(*ap) = r_info[randint1(z_info->r_max - 1)].x_attr;
+	}
+	else
+		/* Text mode */
+	{
+		(*cp) = (image_monster_hack[randint0(n)]);
+
+		/* Random color */
+		(*ap) = randint1(15);
+	}
+}
+
+
+/*
+ * Hack -- Legal object codes
+ */
+static cptr image_object_hack = "?/|\\\"!$()_-=[]{},~";
+
+
+/*
+ * Mega-Hack -- Hallucinatory object
+ */
+static void image_object(byte *ap, char *cp)
+{
+	int n = strlen(image_object_hack);
+
+	if (use_graphics)
+	{
+		(*cp) = k_info[randint1(z_info->k_max - 1)].x_char;
+		(*ap) = k_info[randint1(z_info->k_max - 1)].x_attr;
+	}
+	else
+	{
+		(*cp) = (image_object_hack[randint0(n)]);
+
+		/* Random color */
+		(*ap) = randint1(15);
+	}
+}
+
+
+/*
+ * Hack -- Random hallucination
+ */
+static void image_random(byte *ap, char *cp)
+{
+	/* Normally, assume monsters */
+	if (randint0(100) < 75)
+	{
+		image_monster(ap, cp);
+	}
+
+	/* Otherwise, assume objects */
+	else
+	{
+		image_object(ap, cp);
+	}
+}
+
+/*
+ * Table of the GF type for each breath
+ */
+static int breath_gf[32] =
+{
+	GF_NONE,	/* RF4_SHRIEK */
+	GF_NONE,	/* RF4_ELDRITCH_HORROR */
+	GF_NONE,	/* RF4_XXX3X4 */
+	GF_NONE,	/* RF4_ROCKET */
+	GF_NONE,	/* RF4_ARROW_1 */
+	GF_NONE,	/* RF4_ARROW_2 */
+	GF_NONE,	/* RF4_ARROW_3 */
+	GF_NONE,	/* RF4_ARROW_4 */
+	GF_ACID,	/* RF4_BR_ACID */
+	GF_ELEC,	/* RF4_BR_ELEC */
+	GF_FIRE,	/* RF4_BR_FIRE */
+	GF_COLD,	/* RF4_BR_COLD */
+	GF_POIS,	/* RF4_BR_POIS */
+	GF_NETHER,	/* RF4_BR_NETH */
+	GF_LITE,	/* RF4_BR_LITE */
+	GF_DARK,	/* RF4_BR_DARK */
+	GF_CONFUSION,	/* RF4_BR_CONF */
+	GF_SOUND,	/* RF4_BR_SOUN */
+	GF_CHAOS,	/* RF4_BR_CHAO */
+	GF_DISENCHANT,	/* RF4_BR_DISE */
+	GF_NEXUS,	/* RF4_BR_NEXU */
+	GF_TIME,	/* RF4_BR_TIME */
+	GF_INERTIA,	/* RF4_BR_INER */
+	GF_GRAVITY,	/* RF4_BR_GRAV */
+	GF_SHARDS,	/* RF4_BR_SHAR */
+	GF_PLASMA,	/* RF4_BR_PLAS */
+	GF_FORCE,	/* RF4_BR_WALL */
+	GF_MANA,	/* RF4_BR_MANA */
+	GF_NONE,	/* RF4_BA_NUKE */
+	GF_NUKE,	/* RF4_BR_NUKE */
+	GF_NONE,	/* RF4_BA_CHAO */
+	GF_DISINTEGRATE	/* RF4_BR_DISI */
+};
+
+
+/*
+ * Hack -- Get colour based on breaths of monster
+ *
+ * (This may be a little slow....
+ */
+static byte breath_attr(const monster_race *r_ptr)
+{
+	/* Mask out the breath flags */
+	u32b flags = r_ptr->flags4 & RF4_BREATHS;
+	u32b mask;
+
+	/* See if we breathe anything at all */
+	if (flags)
+	{
+		byte a;
+		char c;
+
+		cptr s;
+
+		int i;
+		int prob = 1;
+		int choice = 0;
+
+		/* Pick breath */
+		for (i = 8, mask = 256; i < 32; i++, mask += mask)
+		{
+			if (flags & mask)
+			{
+				/* See if we choose this spell */
+				if (one_in_(prob)) choice = i;
+
+				/* Decrease probability of picking next 'spell' */
+				prob++;
+			}
+		}
+
+		/* Paranoia */
+		if (choice)
+		{
+			/* Lookup the default colors for this type */
+			s = gf_color[breath_gf[choice]];
+
+			/* Oops */
+			if (!s) return (TERM_WHITE);
+
+			/* Pick a random color */
+			c = s[randint0(strlen(s))];
+
+			/* Lookup this color */
+			a = strchr(color_char, c) - color_char;
+
+			/*
+			 * Invalid color (note check for < 0 removed, gave a silly
+			 * warning because bytes are always >= 0 -- RG)
+			 */
+			if (a > 15) return (TERM_WHITE);
+
+			/* Use this color */
+			return (a);
+		}
+	}
+
+	/* Just do any of 7 colours */
+	switch (randint1(7))
+	{
+		case 1: return (TERM_RED);
+		case 2: return (TERM_L_RED);
+		case 3: return (TERM_WHITE);
+		case 4: return (TERM_L_GREEN);
+		case 5: return (TERM_BLUE);
+		case 6: return (TERM_L_DARK);
+		case 7: return (TERM_GREEN);
+	}
+
+	/* For the compilers... */
+	return (TERM_WHITE);
+}
+
+
+/*
+ * Extract tile info for monster.
+ *
+ * Note how we manually alter the tile type to simulate effects
+ * in ascii mode.  We must make sure not to break the images
+ * when in (semi) graphics mode, where either the monster
+ * or the floor it is standing on is non-ascii.
+ */
+static void map_mon_info(monster_type *m_ptr, monster_race *r_ptr, byte *a, char *c,
+						term_map *map)
+{
+	byte feat_not_ascii;
+
+	byte ma = *a;
+	char mc = *c;
+
+	/* Visible monster */
+	if (m_ptr->ml)
+	{
+		/* Visible monster */
+		map->monster = m_ptr->r_idx;
+
+		/* Keep this grid */
+		map->flags |= MAP_ONCE;
+
+		/* Get monster information */
+		if (m_ptr->csleep) map->m_flags |= MONST_ASLEEP;
+		if (is_friendly(m_ptr)) map->m_flags |= MONST_FRIEND;
+		if (is_pet(m_ptr)) map->m_flags |= MONST_PET;
+		if (m_ptr->confused) map->m_flags |= MONST_CONFUSED;
+		if (m_ptr->monfear) map->m_flags |= MONST_FEAR;
+		if (m_ptr->stunned) map->m_flags |= MONST_STUN;
+		if (m_ptr->invulner) map->m_flags |= MONST_INVULN;
+
+		/* Get scaled monster hp */
+		map->m_hp = m_ptr->hp * 10 / m_ptr->maxhp;
+			
+		/* Hack -- hallucination */
+		if (p_ptr->tim.image)
+		{
+			/* Hallucinatory monster */
+			image_monster(a, c);
+			return;
+		}
+		else
+		{		
+			feat_not_ascii = ((*a) & 0x80);
+
+			/* Desired attr */
+			if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR)) || feat_not_ascii)
+			{
+				ma = r_ptr->x_attr;
+			}
+
+			/* Desired char */
+			if (!(r_ptr->flags1 & (RF1_CHAR_CLEAR)) || feat_not_ascii)
+			{
+				mc = r_ptr->x_char;
+			}
+
+			/* Ignore weird codes + graphics */
+			if (!(ma & 0x80))
+			{
+				/* Multi-hued monster */
+				if (r_ptr->flags1 & (RF1_ATTR_MULTI))
+				{
+					/* Is it a shapechanger? */
+					if (r_ptr->flags2 & (RF2_SHAPECHANGER))
+					{
+						if (use_graphics)
+						{
+							mc = r_info[randint1(z_info->r_max - 1)].x_char;
+							ma = r_info[randint1(z_info->r_max - 1)].x_attr;
+						}
+						else
+						{
+							mc = (one_in_(25) ?
+								 image_object_hack[randint0
+											   (strlen(image_object_hack))] :
+								 image_monster_hack[randint0
+												(strlen(image_monster_hack))]);
+						}
+					}
+
+					/* Multi-hued attr */
+					if (r_ptr->flags2 & RF2_ATTR_ANY)
+						ma = randint1(15);
+					else
+					{
+						/* Pick colour based on breaths */
+						ma = breath_attr(r_ptr);
+					}
+				}
+				/* Mimics' colors vary */
+				else if (((mc == '\"') || (mc == '!') || (mc == '='))
+						 && !(r_ptr->flags1 & RF1_UNIQUE))
+				{
+					/* Use char */ ;
+
+					/* Use semi-random attr */
+					ma = GET_ARRAY_INDEX(m_list, m_ptr) % 15 + 1;
+				}
+			}
+		}
+	}
+	
+	/* Save results */
+	*a = ma;
+	*c = mc;
+}
+
+
+/*
+ * Extract the attr/char to display at the given (legal) map location
+ *
+ * Basically, we "paint" the chosen attr/char in several passes, starting
+ * with any known "terrain features" (defaulting to darkness), then adding
+ * any known "objects", and finally, adding any known "monsters".  This
+ * is not the fastest method but since most of the calls to this function
+ * are made for grids with no monsters or objects, it is fast enough.
+ *
+ * Note that the "zero" entry in the feature/object/monster arrays are
+ * used to provide "special" attr/char codes, with "monster zero" being
+ * used for the player attr/char, "object zero" being used for the "stack"
+ * attr/char, and "feature zero" being used for the "nothing" attr/char,
+ * though this function makes use of only "feature zero".
+ *
+ * Note that monsters can have some "special" flags, including "ATTR_MULTI",
+ * which means their color changes, and "ATTR_CLEAR", which means they take
+ * the color of whatever is under them, and "CHAR_CLEAR", which means that
+ * they take the symbol of whatever is under them.  Technically, the flag
+ * "CHAR_MIMIC" is supposed to indicate that a monster looks strange when
+ * examined, but this flag is currently ignored.
+ *
+ * Note the effects of hallucination.  Objects always appear as random
+ * "objects", monsters as random "monsters", and normal grids occasionally
+ * appear as random "monsters" or "objects", but note that these random
+ * "monsters" and "objects" are really just "colored ascii symbols".
+ *
+ * Note the use of the new "terrain feature" information.  Note that the
+ * assumption that all interesting "objects" and "terrain features" are
+ * memorized allows extremely optimized processing below.  Note the use
+ * of separate flags on objects to mark them as memorized allows a grid
+ * to have memorized "terrain" without granting knowledge of any object
+ * which may appear in that grid.
+ *
+ * We use the players memorised information to pick the terrain feature
+ * to use.  This allows massive simplification - getting rid of all the
+ * checks to tha old CAVE_MARK flag, and allowing the player is blind case
+ * to be merged into the main line code.  The section picking the terrain
+ * attr/feat is now less than a page long - which is important because
+ * this routine is a major bottleneck.
+ *
+ * Note the "special lighting effects" which can be activated for floor
+ * grids using the "view_special_lite" option causing certain grids to be
+ * displayed using special colors.
+ *
+ * Note the "special lighting effects" which can be activated for wall
+ * grids using the "view_granite_lite" option causing certain grids to be
+ * displayed using special colors.
+ *
+ * The lighting and darkening of colours is handled by two arrays.  We can
+ * also lighten and darken some terrains in the 16x16 tileset.
+ *
+ * Note that bizarre things must be done when the "attr" and/or "char"
+ * codes have the "high-bit" set, since these values are used to encode
+ * various "special" pictures in some versions, and certain situations,
+ * such as "multi-hued" or "clear" monsters, cause the attr/char codes
+ * to be "scrambled" in various ways.
+ *
+ *
+ * Save data into the term_map struct so we can pass it to the ports
+ * hooking the overhead map code.  The status of the square (x, y) has
+ * probably changed.  This allows the main-???.c files to not access
+ * internal game data, which may or may not be accessable.
+ */
+
+static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
+{
+	feature_type *f_ptr;
+
+	object_type *o_ptr;
+	object_kind *k_ptr;
+
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+
+	field_type *fld_ptr;
+
+	s16b this_f_idx, next_f_idx;
+
+	/* Get location */
+	cave_type *c_ptr = area(x, y);
+	pcave_type *pc_ptr = parea(x, y);
+	
+	/* Get the memorized feature */
+	byte feat = pc_ptr->feat;
+	
+	/* Info flags */
+	byte player = pc_ptr->player;
+
+	byte a;
+	char c;
+
+	s16b halluc = p_ptr->tim.image;
+	bool visible = player & GRID_SEEN;
+	bool glow = c_ptr->info & CAVE_GLOW;
+	bool lite = (c_ptr->info & CAVE_MNLT) || (player & GRID_LITE);
+	
+	bool float_field = FALSE;
+	
+	term_map map;
+	
+	/* Clear map info */
+	(void)WIPE(&map, term_map);
+	
+	/* Save known data */
+	map.terrain = feat;
+	
 	/* Save location */
 	map.x = x;
 	map.y = y;
 	
-#ifdef TERM_MAP_INFO
-
-	/* Hack - the tk port wants the map_info() information */
-	map_info(c_ptr, pc_ptr, &map.a, &map.c, &map.ta, &map.tc);
+	/* Default priority */
+	map.priority = 0;
 	
-#endif /* TERM_MAP_INFO */
+	/* Pointer to the feature */
+	f_ptr = &f_info[feat];
+		
+	/* Hack -- rare random hallucination, except on outer dungeon walls */
+	if (halluc && !p_ptr->tim.blind && (feat != FEAT_PERM_SOLID) && one_in_(256))
+	{
+		/* Hallucinate */
+		image_random(&a, &c);
 
+		if (glow)
+		{
+			map.flags = MAP_GLOW;
+		}
+		
+		(*tap) = a;
+		(*tcp) = c;
+	}
+	else
+	{
+		/* Visible */
+		if (visible)
+		{
+			map.flags = MAP_SEEN | MAP_ONCE;
+
+			if (glow) map.flags |= MAP_GLOW;
+			if (lite) map.flags |= MAP_LITE;
+		}
+	
+		/* The feats attr */
+		a = f_ptr->x_attr;
+
+		/* The feats char */
+		c = f_ptr->x_char;
+
+		/*
+		 * Look for lighting effects.
+		 *
+		 * Need to have lighting on and the player is not blind.
+		 * We then need to have a grid that is allowed to be lit.
+		 */
+		if (view_bright_lite && !p_ptr->tim.blind
+			&& (!(f_ptr->flags & FF_BLOCK)
+				|| (view_granite_lite && !view_torch_grids)))
+		{
+			/* It's not in view or no lighting effects? */
+			if (((!(player & (GRID_VIEW))) && view_special_lite)
+				|| !visible)
+			{
+				/* If is ascii graphics */
+				if (a < 16)
+				{
+					/* Use darkened colour */
+					a = darking_colours[a];
+				}
+				else if ((use_graphics == GRAPHICS_ADAM_BOLT)
+						 && (f_ptr->flags & FF_USE_TRANS))
+				{
+					/* Use a dark tile */
+					c++;
+				}
+			}
+			else if (lite && view_yellow_lite)
+			{
+				/* Use the torch effect */
+				if (a < 16)
+				{
+					/* Use bright colour */
+					a = lighting_colours[a];
+				}
+				else if ((use_graphics == GRAPHICS_ADAM_BOLT)
+						 && (f_ptr->flags & FF_USE_TRANS))
+				{
+					/* Use a light tile */
+					c += 2;
+				}
+			}
+		}
+		
+		/* Save the terrain info for the transparency effects */
+
+		/* Does the feature have "extended terrain" information? */
+		if (f_ptr->w_attr)
+		{
+			/*
+			 * Store extended terrain information. 
+			 * Note hack to get lighting right.
+			 */
+			(*tap) = f_ptr->w_attr + a - f_ptr->x_attr;
+			(*tcp) = f_ptr->w_char + c - f_ptr->x_char;
+		}
+		else
+		{
+			(*tap) = a;
+			(*tcp) = c;
+		}
+	}
+
+
+	/* Fields */
+	for (this_f_idx = c_ptr->fld_idx; this_f_idx; this_f_idx = next_f_idx)
+	{
+		/* Acquire field */
+		fld_ptr = &fld_list[this_f_idx];
+
+		/* Acquire next field */
+		next_f_idx = fld_ptr->next_f_idx;
+
+		/* Memorized, visible fields */
+		if ((fld_ptr->info & (FIELD_INFO_MARK | FIELD_INFO_VIS)) ==
+			(FIELD_INFO_MARK | FIELD_INFO_VIS))
+		{
+			/* Remember field type */
+			map.field = fld_ptr->t_idx;
+
+			/* Keep this grid */
+			map.flags |= MAP_ONCE;
+			
+			/* High priority tile */
+			map.priority = 20;
+		
+			/* Which display level to use? */
+			if (fld_ptr->info & FIELD_INFO_FEAT)
+			{
+				/* Terrain level */
+				if ((use_graphics == GRAPHICS_ADAM_BOLT)
+					&& (fld_ptr->info & (FIELD_INFO_TRANS)))
+				{
+					/* Take into account dynamic lighting. */
+					c += fld_ptr->f_char - f_ptr->x_char;
+				}
+				else
+				{
+					/* Normal char */
+					c = fld_ptr->f_char;
+				}
+
+				/* Normal attr */
+				a = fld_ptr->f_attr;
+
+				/* Save the terrain info for the transparency effects */
+				(*tap) = a;
+				(*tcp) = c;
+			}
+			else
+			{
+				/* Tile */
+				c = fld_ptr->f_char;
+				a = fld_ptr->f_attr;
+			
+				/* Do we need to look at objects? */
+				if (!(fld_ptr->info & (FIELD_INFO_IGNORE)))
+				{
+					/* Above objects */
+					float_field = TRUE;
+				}
+			}
+
+			/* Done */
+			break;
+		}
+	}
+	
+	/* Objects */
+	OBJ_ITT_START (c_ptr->o_idx, o_ptr)
+	{
+		/* Memorized objects */
+		if (o_ptr->info & (OB_SEEN))
+		{
+			k_ptr = &k_info[o_ptr->k_idx];
+
+			/* Flavoured object */
+			if (k_ptr->flavor)
+			{
+				/* Save flavor character */
+				map.unknown = k_ptr->d_char;
+			}
+			else
+			{
+				/* Save object */
+				map.object = o_ptr->k_idx;
+			}
+
+			/* Keep this grid */
+			map.flags |= MAP_ONCE;
+			
+			/* High priority tile */
+			map.priority = 20;
+		
+			/* A field is obscuring the view to the object */
+			if (float_field) break;
+			
+			/* Hack -- hallucination */
+			if (halluc)
+			{
+				image_object(&a, &c);
+			}
+			else
+			{
+				/* Normal char */
+				c = object_char(o_ptr);
+
+				/* Normal attr */
+				a = object_attr(o_ptr);
+			}
+
+			/* Done */
+			break;
+		}
+	}
+	OBJ_ITT_END;
+		
+	
+	/* Handle monsters */
+	if (c_ptr->m_idx)
+	{
+		m_ptr = &m_list[c_ptr->m_idx];
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Get monster tile info */
+		map_mon_info(m_ptr, r_ptr, &a, &c, &map);
+		
+		/* Not hallucinating and Mimic in los? */
+		if (!halluc && visible && !m_ptr->ml && (r_ptr->flags1 & RF1_CHAR_MIMIC))
+		{
+			/* Keep this grid */
+			map.flags |= MAP_ONCE;
+
+			/* Save mimic character */
+			map.unknown = r_ptr->d_char;
+		}
+		
+		/* High priority tile */
+		map.priority = 24;
+	}
+
+	/* Hack -- fake monochrome */
+	if (fake_monochrome)
+	{
+		if (p_ptr->tim.invuln || !use_color) a = TERM_WHITE;
+		else if (p_ptr->tim.wraith_form) a = TERM_L_DARK;
+	}
+	
+	/* Handle "player" */
+	if ((x == p_ptr->px) && (y == p_ptr->py))
+	{
+		monster_race *r_ptr = &r_info[0];
+
+		/* Get the "player" attr */
+		a = r_ptr->x_attr;
+
+		/* Get the "player" char */
+		c = r_ptr->x_char;
+#ifdef VARIABLE_PLAYER_GRAPH
+
+		variable_player_graph(&a, &c)
+#endif /* VARIABLE_PLAYER_GRAPH */
+
+		/* High priority tile */
+		map.priority = 50;
+	}
+	
+	/* Save the info */
+	(*ap) = a;
+	(*cp) = c;
+	
+	/* Save tile information */
+	map.a = a;
+	map.c = c;
+	map.ta = (*tap);
+	map.tc = (*tcp);
+	
 	/* Save information in map */
 	save_map_location(x, y, &map);
 }
+
+
+/*
+ * Update the overhead map (used when the visuals change)
+ */
+void update_overhead_map(void)
+{
+	map_block *mb_ptr;
+
+	byte a, ta;
+	char c, tc;
+
+	int x, y;
+
+	MAP_ITT_START (mb_ptr)
+	{
+		MAP_GET_LOC(x, y);
+		
+		if (in_boundsp(x, y))
+		{
+			/* Update the known tile at the location */
+			map_info(x, y, &a, &c, &ta, &tc);
+		}
+	}
+	MAP_ITT_END;
+}
+
 
 /*
  * Erase the map
@@ -912,9 +1998,6 @@ void Term_write_map(int x, int y, cave_type *c_ptr, pcave_type *pc_ptr)
 void Term_erase_map(void)
 {
 	callback_list *callback;
-
-	/* Paranoia */
-	if (!map_init) return;
 
 	/* Notify erasure of the map */
 	for (callback = callbacks[CALL_MAP_ERASE]; callback; callback = callback->next)
@@ -927,6 +2010,730 @@ void Term_erase_map(void)
 	clear_map();
 }
 
+
+/*
+ * Prints the map of the dungeon
+ *
+ * Note that, for efficiency, we contain an "optimized" version
+ * of both "lite_spot()" and "print_rel()", and that we use the
+ * "lite_spot()" function to display the player grid, if needed.
+ *
+ * This function may be called when the cache is wrong.
+ */
+void prt_map(void)
+{
+	int x, y;
+	int v;
+
+	/* map bounds */
+	s16b xmin, xmax, ymin, ymax;
+
+	int wid, hgt;
+
+	/* Temp variables to speed up deletion loops */
+	s16b l1, l2, l3;
+
+	byte *pa;
+	char *pc;
+
+	byte *pta;
+	char *ptc;
+	
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	/* Remove map offset */
+	wid -= COL_MAP + 1;
+	hgt -= ROW_MAP + 1;
+
+	/* Access the cursor state */
+	(void)Term_get_cursor(&v);
+
+	/* Hide the cursor */
+	(void)Term_set_cursor(0);
+
+
+	/* Get bounds */
+	xmin = (p_ptr->min_wid < panel_col_min) ? panel_col_min : p_ptr->min_wid;
+	xmax = (p_ptr->max_wid - 1 > panel_col_max) ?
+		panel_col_max : p_ptr->max_wid - 1;
+	ymin = (p_ptr->min_hgt < panel_row_min) ? panel_row_min : p_ptr->min_hgt;
+	ymax = (p_ptr->max_hgt - 1 > panel_row_max) ?
+		panel_row_max : p_ptr->max_hgt - 1;
+
+	/* Top section of screen */
+    clear_region(COL_MAP, 1, ymin - panel_row_prt);
+
+	/* Bottom section of screen */
+    clear_region(COL_MAP, ymax - panel_row_prt, hgt);
+
+	/* Sides of screen */
+	/* Left side */
+	l1 = xmin - panel_col_min;
+
+	/* Right side */
+	l2 = xmax - panel_col_prt;
+	l3 = Term->wid - l2;
+
+	for (y = ymin - panel_row_prt; y <= ymax - panel_row_prt; y++)
+	{
+		/* Erase the sections */
+		Term_erase(COL_MAP, y, l1);
+		Term_erase(l2, y, l3);
+	}
+
+	/* Pointers to current position in the string */
+	pa = mp_a;
+	pc = mp_c;
+
+	pta = mp_ta;
+	ptc = mp_tc;
+
+	/* Dump the map */
+	for (y = ymin; y <= ymax; y++)
+	{
+		/* Scan the columns of row "y" */
+		for (x = xmin; x <= xmax; x++)
+		{
+			/* Get map info */
+			map_info(x, y, pa++, pc++, pta++, ptc++);
+		}
+
+
+		/* Point to start of line */
+		pa = mp_a;
+		pc = mp_c;
+		pta = mp_ta;
+		ptc = mp_tc;
+
+		/* Efficiency -- Redraw that row of the map */
+		Term_queue_line(xmin - panel_col_prt, y - panel_row_prt,
+						xmax - xmin + 1, pa, pc, pta, ptc);
+	}
+
+	/* Restore the cursor */
+	(void)Term_set_cursor(v);
+}
+
+
+void display_dungeon(void)
+{
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
+	int x, y;
+	byte a;
+	char c;
+
+	int wid = Term->wid / 2, hgt = Term->hgt / 2;
+
+	byte ta;
+	char tc;
+
+	for (x = px - wid + 1; x <= px + wid; x++)
+	{
+		for (y = py - hgt + 1; y <= py + hgt; y++)
+		{
+			if (in_boundsp(x, y))
+			{
+				/* Update this square */
+				map_info(x, y, &a, &c, &ta, &tc);
+
+				/* Hack -- Queue it */
+				Term_queue_char(x - px + wid - 1, y - py + hgt - 1, a, c, ta,
+								tc);
+			}
+			else
+			{
+				/* Clear out-of-bound tiles */
+
+				/* Access darkness */
+				feature_type *f_ptr = &f_info[FEAT_NONE];
+
+				/* Normal attr */
+				a = f_ptr->x_attr;
+
+				/* Normal char */
+				c = f_ptr->x_char;
+
+				/* Hack -- Queue it */
+				Term_queue_char(x - px + wid - 1, y - py + hgt - 1, a, c, a, c);
+			}
+		}
+	}
+}
+
+
+/*
+ * Hack -- priority array (see below)
+ *
+ * Note that all "walls" always look like "secret doors" (see "map_info()").
+ *
+ * This really needs to be done a better way.
+ */
+static const byte priority_table[][2] =
+{
+	/* Dark */
+	{FEAT_NONE, 2},
+
+	/* Floors */
+	{FEAT_FLOOR, 5},
+
+	/* Walls */
+	{FEAT_SECRET, 10},
+	{FEAT_WALL_EXTRA, 10},
+	{FEAT_WALL_INNER, 10},
+	{FEAT_WALL_OUTER, 10},
+	{FEAT_WALL_SOLID, 10},
+
+
+	/* Perm Walls */
+	{FEAT_PERM_EXTRA, 10},
+	{FEAT_PERM_INNER, 10},
+	{FEAT_PERM_OUTER, 10},
+	{FEAT_PERM_SOLID, 10},
+
+	/* Quartz */
+	{FEAT_QUARTZ, 11},
+
+	/* Magma */
+	{FEAT_MAGMA, 12},
+
+	/* Rubble */
+	{FEAT_RUBBLE, 13},
+
+	/* Open doors */
+	{FEAT_OPEN, 15},
+	{FEAT_BROKEN, 15},
+
+	/* Closed doors */
+	{FEAT_CLOSED, 17},
+
+	/* Hidden gold */
+	{FEAT_QUARTZ_K, 19},
+	{FEAT_MAGMA_K, 19},
+
+	/* water, lava, & trees */
+	{FEAT_DEEP_WATER, 20},
+	{FEAT_SHAL_WATER, 20},
+	{FEAT_DEEP_LAVA, 20},
+	{FEAT_SHAL_LAVA, 20},
+	{FEAT_DIRT, 6},
+	{FEAT_GRASS, 6},
+	{FEAT_TREES, 6},
+	{FEAT_MOUNTAIN, 20},
+
+	/* Stairs */
+	{FEAT_LESS, 25},
+	{FEAT_MORE, 25},
+
+	/* End */
+	{0, 0}
+};
+
+
+/*
+ * Hack -- a priority function (see below)
+ */
+static byte priority(byte feat)
+{
+	int i = 0;
+
+	/* Scan the table */
+	while (priority_table[i][1])
+	{
+		/* Does the feature match? */
+		if (priority_table[i][0] == feat)
+		{
+			return (priority_table[i][1]);
+		}
+
+		/* Next entry */
+		i++;
+	}
+
+	/* Default - assume floor */
+	return (5);
+}
+
+
+/*
+ * Equivalent function to map_info, but for displaying
+ * the reduced-size dungeon map.
+ *
+ * We need to calculate priority as well as the symbols to display.
+ *
+ * We cheat by getting the symbol recorded previously.
+ */
+static int display_map_info(int x, int y, char *c, byte *a, char *tc, byte *ta)
+{
+	int tp;
+
+	byte feat;
+
+	map_block *mb_ptr;
+	
+	if (!map_in_bounds(x, y))
+	{
+		/*
+		 * Out of bounds 
+		 * XXX Hack try anyway. 
+		 *
+		 * map_info() should bring the square in bounds.
+		 */
+		map_info(x, y, a, c, ta, tc);
+	}
+	
+	
+	/* Get overhead map square */
+	mb_ptr = map_loc(x, y);
+
+	/* Default to precalculated priority */
+	tp = mb_ptr->priority;
+	
+	if (!tp)
+	{
+		/* Get terrain feature */
+		feat = parea(x, y)->feat;
+
+		/* Extract the priority of that attr/char */
+		tp = priority(feat);
+	}
+	
+	/* Get tile */
+	if (mb_ptr->a)
+	{
+		/* Get attributes from overhead map */
+		*a = mb_ptr->a;
+		*c = mb_ptr->c;
+		*ta = mb_ptr->ta;
+		*tc = mb_ptr->tc;
+	}
+	else
+	{
+		map_info(x, y, a, c, ta, tc);
+	}
+	
+	/* Return priority */
+	return (tp);
+}
+
+
+/*
+ * Display a "small-scale" map of the dungeon in the active Term
+ *
+ * Note that the "map_info()" function must return fully colorized
+ * data or this function will not work correctly.
+ *
+ * Note that this function must "disable" the special lighting
+ * effects so that the "priority" function will work.
+ *
+ * Note the use of a specialized "priority" function to allow this
+ * function to work with any graphic attr/char mappings, and the
+ * attempts to optimize this function where possible.
+ *
+ * cx and cy are offsets from the position of the player.  This
+ * allows the map to be shifted around - but only works in the
+ * wilderness.  cx and cy return the position of the player on the
+ * possibly shifted map.
+ */
+void display_map(int *cx, int *cy)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int i, j, x, y;
+
+	byte feat;
+
+	byte ta;
+	char tc;
+
+	byte tta;
+	char ttc;
+
+	byte tp;
+
+	bool road;
+
+	u16b w_type, w_info, twn;
+
+	byte **ma;
+	char **mc;
+
+	byte **mp;
+
+	byte **mta;
+	char **mtc;
+
+	int hgt, wid, yrat, xrat, xfactor, yfactor;
+	
+	place_type *pl_ptr;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+	hgt -= 2;
+	wid -= 14;
+
+	/* Paranoia */
+	if ((hgt < 3) || (wid < 3))
+	{
+		/*
+		 * Need to place the player...
+		 * This is wrong, but the map is too small anyway.
+		 */
+		(*cy) = ROW_MAP;
+		(*cx) = COL_MAP;
+		return;
+	}
+
+	/* Allocate the maps */
+	C_MAKE(ma, (hgt + 2), byte *);
+	C_MAKE(mc, (hgt + 2), char *);
+	C_MAKE(mp, (hgt + 2), byte *);
+
+	C_MAKE(mta, (hgt + 2), byte *);
+	C_MAKE(mtc, (hgt + 2), char *);
+
+	/* Allocate and wipe each line map */
+	for (i = 0; i < (hgt + 2); i++)
+	{
+		/* Allocate one row each array */
+		C_MAKE(ma[i], (wid + 2), byte);
+		C_MAKE(mc[i], (wid + 2), char);
+		C_MAKE(mp[i], (wid + 2), byte);
+
+		C_MAKE(mta[i], (wid + 2), byte);
+		C_MAKE(mtc[i], (wid + 2), char);
+	}
+
+	/* Clear the chars and attributes */
+	for (y = 0; y < hgt + 2; ++y)
+	{
+		for (x = 0; x < wid + 2; ++x)
+		{
+			/* Nothing here */
+			ma[y][x] = TERM_WHITE;
+			mc[y][x] = ' ';
+
+			mta[y][x] = TERM_WHITE;
+			mtc[y][x] = ' ';
+
+			/* No priority */
+			mp[y][x] = 0;
+		}
+	}
+
+	if (!p_ptr->depth)
+	{
+		/* Plot wilderness */
+
+		/* work out coords of player in wilderness */
+		x = px / 16 + *cx;
+		y = py / 16 + *cy;
+
+		/* recenter */
+		x = x - wid / 2;
+		if (x + wid >= max_wild) x = max_wild - wid - 1;
+		if (x < 0) x = 0;
+
+		y = y - hgt / 2;
+		if (y + hgt >= max_wild) y = max_wild - hgt - 1;
+		if (y < 0) y = 0;
+
+		/* Player location in wilderness */
+		(*cy) += py / 16 - y + ROW_MAP;
+		(*cx) += px / 16 - x + COL_MAP;
+
+		/* Fill in the map */
+		for (i = 0; i < wid; ++i)
+		{
+			for (j = 0; j < hgt; ++j)
+			{
+				/* Only draw blocks inside map */
+				if (((x + i + 1) >= max_wild)
+					|| ((y + j + 1) >= max_wild)) continue;
+
+				/* Only draw blocks that have been seen */
+				if (!(wild[j + y][i + x].done.info & WILD_INFO_SEEN)) continue;
+
+				w_type = wild[j + y][i + x].done.wild;
+				w_info = wild[j + y][i + x].done.info;
+
+				if (w_type < WILD_SEA)
+				{
+					/* Normal terrain */
+					feat = wild_gen_data[w_type].feat;
+
+					/* Allow roads to be drawn */
+					road = TRUE;
+				}
+				else
+				{
+					feat = FEAT_DEEP_WATER;
+
+					/* No roads please */
+					road = FALSE;
+				}
+
+				/* Add in effect of other specials */
+				if (w_info & (WILD_INFO_WATER))
+				{
+					feat = FEAT_DEEP_WATER;
+				}
+				else if (w_info & (WILD_INFO_ACID))
+				{
+					feat = FEAT_DEEP_ACID;
+				}
+				else if (w_info & (WILD_INFO_LAVA))
+				{
+					feat = FEAT_DEEP_LAVA;
+				}
+
+				/* This is a nasty hack */
+
+				/* Add in effects of roads */
+				if ((w_info & (WILD_INFO_ROAD)) && road)
+				{
+					ma[j + 1][i + 1] = TERM_UMBER;
+					mc[j + 1][i + 1] = '+';
+					feat = FEAT_NONE;
+				}
+				else if ((w_info & (WILD_INFO_TRACK)) && road)
+				{
+					ma[j + 1][i + 1] = TERM_L_UMBER;
+					mc[j + 1][i + 1] = '+';
+					feat = FEAT_NONE;
+				}
+
+				/* Hack - draw places */
+				/* Eventually will get attr,char from place data structure. */
+
+				twn = wild[j + y][i + x].done.place;
+
+				/* If there is a place... */
+				if (twn)
+				{
+					pl_ptr = &place[twn];
+				
+					switch (place[twn].type)
+					{
+						case TOWN_QUEST:
+						{
+							/* Hack make a char / attr from depth */
+							wild_type *w_ptr = &wild[pl_ptr->y][pl_ptr->x];
+
+							int depth = (w_ptr->done.mon_gen + 9) / 10;
+
+							if (depth > 9) depth = 9;
+							
+							/* We haven't been here? */
+							if (!(w_info & WILD_INFO_DONE))
+							{
+								/* Quests are red */
+								ma[j + 1][i + 1] = TERM_RED;
+								mc[j + 1][i + 1] = '0' + depth;
+								feat = FEAT_NONE;
+							}
+							
+							break;
+						}
+						
+						case TOWN_DUNGEON:
+						{
+							/* Hack make a char / attr from depth */
+							int depth = (pl_ptr->dungeon->min_level + 9) / 10;
+							
+							if (depth > 9) depth = 9;
+
+							/* Dungeons are blue */
+							ma[j + 1][i + 1] = TERM_L_BLUE;
+							mc[j + 1][i + 1] = '0' + depth;
+							feat = FEAT_NONE;
+							
+							break;
+						}
+						
+						default:
+						{
+							/* Towns are white */
+							ma[j + 1][i + 1] = TERM_WHITE;
+							mc[j + 1][i + 1] = pl_ptr->name[0];
+							feat = FEAT_NONE;
+						
+							break;
+						}
+					}
+				}
+
+				/* Finally show position of player */
+				if ((i + x == px / 16) && (j + y == py / 16))
+				{
+					ma[j + 1][i + 1] = TERM_WHITE;
+					mc[j + 1][i + 1] = '@';
+					feat = FEAT_NONE;
+				}
+
+				if (feat)
+				{
+					/* Get attr / char pair for wilderness block type */
+					ma[j + 1][i + 1] = f_info[feat].x_attr;
+					mc[j + 1][i + 1] = f_info[feat].x_char;
+
+					if (f_info[feat].w_attr)
+					{
+						mta[j + 1][i + 1] = f_info[feat].w_attr;
+						mtc[j + 1][i + 1] = f_info[feat].w_char;
+					}
+					else
+					{
+						mta[j + 1][i + 1] = ma[j + 1][i + 1];
+						mtc[j + 1][i + 1] = mc[j + 1][i + 1];
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		yrat = p_ptr->max_hgt - p_ptr->min_hgt;
+		xrat = p_ptr->max_wid - p_ptr->min_wid;
+
+		/* Get scaling factors */
+		yfactor = ((yrat / hgt < 4) && (yrat > hgt)) ? 10 : 1;
+		xfactor = ((xrat / wid < 4) && (xrat > wid)) ? 10 : 1;
+
+		yrat = (yrat * yfactor + hgt - 1) / hgt;
+		xrat = (xrat * xfactor + wid - 1) / wid;
+
+		/* Player location in dungeon */
+		(*cy) = py * yfactor / yrat + ROW_MAP;
+		(*cx) = px * xfactor / xrat + COL_MAP;
+
+		/* Fill in the map of dungeon */
+		for (i = p_ptr->min_wid; i < p_ptr->max_wid; ++i)
+		{
+			for (j = p_ptr->min_hgt; j < p_ptr->max_hgt; ++j)
+			{
+				/* Location */
+				x = i * xfactor / xrat + 1;
+				y = j * yfactor / yrat + 1;
+
+				/* Get priority and symbol */
+				tp = display_map_info(i, j, &tc, &ta, &ttc, &tta);
+
+				/* Save "best" */
+				if (mp[y][x] < tp)
+				{
+					/* Save the char */
+					mc[y][x] = tc;
+
+					/* Save the attr */
+					ma[y][x] = ta;
+
+					/* Save the transparency graphic */
+					mtc[y][x] = ttc;
+					mta[y][x] = tta;
+
+					/* Save priority */
+					mp[y][x] = tp;
+				}
+			}
+		}
+	}
+
+	/* Corners */
+	i = wid + 1;
+	j = hgt + 1;
+
+	/* Draw the corners */
+	mc[0][0] = '+';
+	mc[0][i] = '+';
+	mc[j][0] = '+';
+	mc[j][i] = '+';
+
+	/* Draw the horizontal edges */
+	for (i = 1; i <= wid; i++)
+	{
+		mc[0][i] = '-';
+		mc[j][i] = '-';
+	}
+
+	/* Draw the vertical edges */
+	for (j = 1; j <= hgt; j++)
+	{
+		mc[j][0] = '|';
+		mc[j][i] = '|';
+	}
+
+	/* Display each map line in order */
+	for (j = 0; j < hgt + 2; ++j)
+	{
+		/* Display the line */
+		for (i = 0; i < wid + 2; ++i)
+		{
+			ta = ma[j][i];
+			tc = mc[j][i];
+
+			tta = mta[j][i];
+			ttc = mtc[j][i];
+
+			/* Hack -- Queue it */
+			Term_queue_char(COL_MAP + i - 1, j, ta, tc, tta, ttc);
+		}
+	}
+
+	/* Free each line map */
+	for (i = 0; i < (hgt + 2); i++)
+	{
+		/* Free one row each array */
+		FREE(ma[i]);
+		FREE(mc[i]);
+		FREE(mta[i]);
+		FREE(mtc[i]);
+		FREE(mp[i]);
+	}
+
+	/* Free the maps */
+	FREE(ma);
+	FREE(mc);
+	FREE(mta);
+	FREE(mtc);
+	FREE(mp);
+}
+
+
+/*
+ * Redraw (on the screen) a given MAP location
+ *
+ * This function should only be called on "legal" grids
+ */
+void lite_spot(int x, int y)
+{
+	byte a;
+	char c;
+
+	byte ta;
+	char tc;
+
+	/* Paranoia */
+	if (!character_dungeon) return;
+
+	if (in_boundsp(x, y))
+	{
+		/* Update this square */
+		map_info(x, y, &a, &c, &ta, &tc);
+
+		/* Redraw if on screen */
+		if (panel_contains(x, y))
+		{
+			/* Hack -- Queue it */
+			Term_queue_char(x - panel_col_prt, y - panel_row_prt, a, c, ta, tc);
+		}
+	}
+}
+
+
 /*
  * The player has moved
  */
@@ -935,33 +2742,6 @@ void Term_move_player(void)
 	set_player_location(p_ptr->px, p_ptr->py);
 }
 
-#else  /* TERM_USE_MAP */
-
-/*** Make generic do-nothing functions ***/
-
-
-void Term_write_map(int x, int y, cave_type *c_ptr, pcave_type *pc_ptr)
-{
-	/* Ignore all parameters */
-	(void)x;
-	(void)y;
-	(void)c_ptr;
-	(void)pc_ptr;
-
-	/* Do nothing */
-}
-
-void Term_erase_map(void)
-{
-	/* Do nothing */
-}
-
-void Term_move_player(void)
-{
-	/* Do nothing */
-}
-
-#endif /* TERM_USE_MAP */
 
 
 #ifdef TERM_USE_LIST
@@ -1042,6 +2822,7 @@ static void copy_list(term_list *t_ptr, int num1, list_item **l_ptr_ptr,
 		l_ptr->kn_flags1 = tl_ptr->kn_flags1;
 		l_ptr->kn_flags2 = tl_ptr->kn_flags2;
 		l_ptr->kn_flags3 = tl_ptr->kn_flags3;
+		l_ptr->kn_flags4 = tl_ptr->kn_flags4;
 
 		/* Duplicate cost */
 		l_ptr->cost = tl_ptr->cost;
@@ -1128,7 +2909,8 @@ static void set_basic_flags(term_list *l_ptr, object_type *o_ptr, bool in_store)
 {
 	/* Known flags */
 	object_flags_known(o_ptr, &l_ptr->kn_flags1,
-					   &l_ptr->kn_flags2, &l_ptr->kn_flags3);
+					   &l_ptr->kn_flags2, &l_ptr->kn_flags3,
+					   &l_ptr->kn_flags4);
 
 	/* Type of object */
 	if (object_aware_p(o_ptr) || in_store)

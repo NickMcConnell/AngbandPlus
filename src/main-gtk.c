@@ -42,22 +42,10 @@ cptr help_gtk[] =
 #undef double
 
 /* Ansi C please */
-#define __STRICT_ANSI__
-
-/* No GCC-specific includes */
-#undef __GNUC__
+#define __STRICT_ANSI__ 
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
-
-/*
- * Mega Hack - reference fake functions in header to prevent warnings.
- *
- * They really need to clean up their code.
- */
-static void *glib_hack1 = (void *) g_error;
-static void *glib_hack2 = (void *) g_message;
-static void *glib_hack3 = (void *) g_warning;
 
 /* Mega-hack redefine them again */
 #undef float
@@ -693,21 +681,21 @@ static GdkImage *resize_tiles(int tile_wid, int tile_hgt)
 			offset++;
 		}
 	}
-	
+
 	/* Initialize copy routine */
-	switch(tiles_norm->depth)
+	switch (new_image->bpp)
 	{
-		case 8: copy_pixels = copy_pixels8; break;
-		case 16: copy_pixels = copy_pixels16; break;
-		case 24: copy_pixels = copy_pixels24; break;
-		case 32: copy_pixels = copy_pixels32; break;
+		case 1: copy_pixels = copy_pixels8; break;
+		case 2: copy_pixels = copy_pixels16; break;
+		case 3: copy_pixels = copy_pixels24; break;
+		case 4: copy_pixels = copy_pixels32; break;
  		default:
 		{
 			quit_fmt("Invalid bits per pixel of image: %d", new_image->bpp);
 			break;
 		}
 	}
-	
+
 	/* Scan each row */
 	
 	/* Initialize line parameters */
@@ -1015,7 +1003,7 @@ static errr Term_xtra_gtk(int n, int v)
 		case TERM_XTRA_DELAY:
 		{
 			/* Delay */
-			usleep(1000 * v);
+			if (v > 0) usleep(1000 * v);
 			
 			return (0);
 		}
@@ -1962,7 +1950,7 @@ static void file_menu_update_handler(GtkWidget *widget, gpointer user_data)
 	}
 	else
 	{
-		if (p_ptr->inkey_flag && game_in_progress && character_generated)
+		if (p_ptr->cmd.inkey_flag && game_in_progress && character_generated)
 		{
 			save_ok = TRUE;
 			quit_ok = TRUE;
@@ -2136,7 +2124,7 @@ static void save_game_gtk(void)
 {
 	if (game_in_progress && character_generated)
 	{
-		if (!p_ptr->inkey_flag)
+		if (!p_ptr->cmd.inkey_flag)
 		{
 			plog("You may not do that right now.");
 			return;
@@ -2673,11 +2661,6 @@ errr init_gtk(int argc, char **argv, unsigned char *new_game)
 #ifdef USE_GRAPHICS
 	int graphmode = GRAPHICS_ANY;
 #endif /* USE_GRAPHICS */
-
-	/* Mega Hack - ignore crappy glib header file problems */
-	(void) glib_hack1;
-	(void) glib_hack2;
-	(void) glib_hack3;
 	
 	/* See if gtk exists and works */
 	if (!gtk_init_check(&argc, &argv)) return (1);

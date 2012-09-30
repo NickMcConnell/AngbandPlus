@@ -43,7 +43,7 @@
 ?:[EQU $SYS mac]
 %:pref-mac.prf
 
-?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
+?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm] [EQU $SYS w2k]]
 %:pref-win.prf
 
 ?:[EQU $SYS emx]

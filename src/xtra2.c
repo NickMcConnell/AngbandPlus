@@ -92,7 +92,7 @@ void check_experience(void)
 			for (vir = 0; vir < MAX_PLAYER_VIRTUES; vir++)
 				p_ptr->virtues[vir] = p_ptr->virtues[vir] + 1;
 
-			if (p_ptr->prace == RACE_BEASTMAN)
+			if (p_ptr->flags4 & (TR4_MUTATE))
 			{
 				/*
 				 * Chance for a mutation is increased
@@ -106,8 +106,7 @@ void check_experience(void)
 
 			p_ptr->max_lev = p_ptr->lev;
 
-			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
-				(p_ptr->muta2 & MUT2_CHAOS_GIFT))
+			if (p_ptr->flags4 & (TR4_PATRON))
 			{
 				level_reward = TRUE;
 			}
@@ -226,6 +225,8 @@ bool monster_death(int m_idx, bool explode)
 	int force_coin = get_coin_type(r_ptr);
 
 	object_type *q_ptr;
+
+	int level;
 
 	/* Notice changes in view */
 	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
@@ -435,9 +436,6 @@ bool monster_death(int m_idx, bool explode)
 	}
 
 
-#ifdef USE_CORPSES
-	/* Drop a dead corpse? */
-
 	/* Hack: Do not drop a corpse in a random quest.  */
 	if ((one_in_(r_ptr->flags1 & RF1_UNIQUE ? 1 : 2) &&
 		 ((r_ptr->flags9 & RF9_DROP_CORPSE) ||
@@ -496,7 +494,6 @@ bool monster_death(int m_idx, bool explode)
 			dropped_corpse = TRUE;
 		}
 	}
-#endif /* USE_CORPSES */
 
 	/* Drop objects being carried */
 	drop_object_list(&m_ptr->hold_o_idx, m_ptr->fx, m_ptr->fy);
@@ -602,7 +599,7 @@ bool monster_death(int m_idx, bool explode)
 		/* Prepare to make a Blade of Chaos */
 		q_ptr = object_prep(lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
 
-		apply_magic(q_ptr, object_level, 0, 0);
+		apply_magic(q_ptr, base_level(), 0, 0);
 
 		/* Drop it in the dungeon */
 		drop_near(q_ptr, -1, x, y);
@@ -728,7 +725,7 @@ bool monster_death(int m_idx, bool explode)
 				chance = 50;
 			}
 
-			if ((a_idx > 0) && ((randint1(99) < chance) || (p_ptr->wizard)))
+			if ((a_idx > 0) && ((randint1(99) < chance) || (p_ptr->state.wizard)))
 			{
 				if (a_info[a_idx].cur_num == 0)
 				{
@@ -754,9 +751,9 @@ bool monster_death(int m_idx, bool explode)
 
 	/* Average dungeon and monster levels */
 	if (p_ptr->depth)
-		object_level = (p_ptr->depth + r_ptr->level) / 2;
+		level = (p_ptr->depth + r_ptr->level) / 2;
 	else
-		object_level = r_ptr->level;
+		level = r_ptr->level;
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
@@ -765,7 +762,7 @@ bool monster_death(int m_idx, bool explode)
 		if (do_gold && (!do_item || one_in_(2)))
 		{
 			/* Make some gold */
-			q_ptr = make_gold(force_coin);
+			q_ptr = make_gold(level, force_coin);
 
 			/* XXX XXX XXX */
 			dump_gold++;
@@ -779,7 +776,7 @@ bool monster_death(int m_idx, bool explode)
             for (i = 0; i < 1000; i++)
             {
                 /* Make an object */
-                q_ptr = make_object(delta_level, r_ptr->obj_drop);
+                q_ptr = make_object(level, delta_level, &r_ptr->obj_drop);
 
                 if (!q_ptr) continue;
 
@@ -810,10 +807,6 @@ bool monster_death(int m_idx, bool explode)
 		/* Take notes on treasure */
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
-
-
-	/* Reset the object level */
-	object_level = base_level;
 
 	/* Return TRUE if we dropped a corpse for the player to see */
 	return (dropped_corpse);
@@ -980,13 +973,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			chg_virtue(V_COMPASSION, -1);
 		}
 
-		if ((r_ptr->flags1 & RF3_GOOD) &&
+		if ((r_ptr->flags3 & RF3_GOOD) &&
 			((r_ptr->level) / 10 + (3 * p_ptr->depth) >= randint1(100)))
 
 			chg_virtue(V_UNLIFE, 1);
 
 		/* "Good" angels */
-		if ((r_ptr->d_char == 'A') && !(r_ptr->flags1 & RF3_EVIL))
+		if ((r_ptr->d_char == 'A') && !(r_ptr->flags3 & RF3_EVIL))
 		{
 			if (r_ptr->flags1 & RF1_UNIQUE)
 				chg_virtue(V_FAITH, -2);
@@ -1334,7 +1327,7 @@ void verify_panel(void)
 	if (max_pcol_min < 0) max_pcol_min = 0;
 
 	/* Center on player */
-	if (center_player && (!avoid_center || !p_ptr->running))
+	if (center_player && (!avoid_center || !p_ptr->state.running))
 	{
 		/* Center vertically */
 		prow_min = y - hgt / 2;
@@ -1527,7 +1520,6 @@ cptr look_mon_desc(int m_idx)
 }
 
 
-
 /*
  * Angband sorting algorithm -- quick sort in place
  *
@@ -1592,8 +1584,46 @@ void ang_sort(vptr u, vptr v, int n)
 }
 
 
-
 /*** Targeting Code ***/
+
+/*
+ * Track a new monster
+ */
+void health_track(int m_idx)
+{
+	/* Track a new guy */
+	p_ptr->health_who = m_idx;
+
+	/* Redraw (later) */
+	p_ptr->redraw |= (PR_HEALTH);
+}
+
+
+/*
+ * Hack -- track the given monster race
+ */
+void monster_race_track(int r_idx)
+{
+	/* Save this monster ID */
+	p_ptr->monster_race_idx = r_idx;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MONSTER);
+}
+
+
+
+/*
+ * Hack -- track the given object kind
+ */
+void object_kind_track(int k_idx)
+{
+	/* Save this monster ID */
+	p_ptr->object_kind_idx = k_idx;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OBJECT);
+}
 
 
 /*
@@ -1627,7 +1657,7 @@ bool target_able(int m_idx)
 	if (!projectable(px, py, m_ptr->fx, m_ptr->fy)) return (FALSE);
 
 	/* Hack -- no targeting hallucinations */
-	if (p_ptr->image) return (FALSE);
+	if (p_ptr->tim.image) return (FALSE);
 
 	/* Assume okay */
 	return (TRUE);
@@ -1904,7 +1934,7 @@ static bool target_set_accept(int x, int y)
 
 
 	/* Handle hallucination */
-	if (p_ptr->image) return (FALSE);
+	if (p_ptr->tim.image) return (FALSE);
 
 	/* paranoia */
 	if (!in_boundsp(x, y)) return (FALSE);
@@ -2097,7 +2127,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 
 
 		/* Hack -- hallucination */
-		if (p_ptr->image)
+		if (p_ptr->tim.image)
 		{
 			cptr name = "something strange";
 
@@ -2492,7 +2522,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 			}
 
 			/* Display a message */
-			if (p_ptr->wizard)
+			if (p_ptr->state.wizard)
 				prtf(0, 0, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name,
 						info, y, x);
 			else
@@ -3031,10 +3061,10 @@ bool get_aim_dir(int *dp)
 	*dp = 0;
 
 	/* Global direction */
-	dir = p_ptr->command_dir;
+	dir = p_ptr->cmd.dir;
 
 	/* Hack -- auto-target if requested */
-	if (use_old_target && !ironman_moria && target_okay()) dir = 5;
+	if (use_old_target && target_okay()) dir = 5;
 
 	if (repeat_pull(dp))
 	{
@@ -3110,17 +3140,17 @@ bool get_aim_dir(int *dp)
 	if (!dir) return (FALSE);
 
 	/* Save the direction */
-	p_ptr->command_dir = dir;
+	p_ptr->cmd.dir = dir;
 
 	/* Check for confusion */
-	if (p_ptr->confused)
+	if (p_ptr->tim.confused)
 	{
 		/* Random direction */
 		dir = ddd[randint0(8)];
 	}
 
 	/* Notice confusion */
-	if (p_ptr->command_dir != dir)
+	if (p_ptr->cmd.dir != dir)
 	{
 		/* Warn the user */
 		msgf("You are confused.");
@@ -3129,7 +3159,7 @@ bool get_aim_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
-	repeat_push(p_ptr->command_dir);
+	repeat_push(p_ptr->cmd.dir);
 
 	/* A "valid" direction was entered */
 	return (TRUE);
@@ -3139,7 +3169,7 @@ bool get_aim_dir(int *dp)
 
 /*
  * Request a "movement" direction (1,2,3,4,6,7,8,9) from the user,
- * and place it into "command_dir", unless we already have one.
+ * and place it into "cmd.dir", unless we already have one.
  *
  * This function should be used for all "repeatable" commands, such as
  * run, walk, open, close, bash, disarm, spike, tunnel, etc, as well
@@ -3166,7 +3196,7 @@ bool get_rep_dir(int *dp)
 	(*dp) = 0;
 
 	/* Global direction */
-	dir = p_ptr->command_dir;
+	dir = p_ptr->cmd.dir;
 
 	/* Get a direction */
 	while (!dir)
@@ -3187,10 +3217,10 @@ bool get_rep_dir(int *dp)
 	if (!dir) return (FALSE);
 
 	/* Save desired direction */
-	p_ptr->command_dir = dir;
+	p_ptr->cmd.dir = dir;
 
 	/* Apply "confusion" */
-	if (p_ptr->confused)
+	if (p_ptr->tim.confused)
 	{
 		/* Standard confusion */
 		if (randint0(100) < 75)
@@ -3201,7 +3231,7 @@ bool get_rep_dir(int *dp)
 	}
 
 	/* Notice confusion */
-	if (p_ptr->command_dir != dir)
+	if (p_ptr->cmd.dir != dir)
 	{
 		/* Warn the user */
 		msgf("You are confused.");
@@ -3219,7 +3249,7 @@ bool get_rep_dir(int *dp)
 
 int get_chaos_patron(void)
 {
-	return ((p_ptr->age + p_ptr->sc) % MAX_PATRON);
+	return ((p_ptr->rp.age + p_ptr->rp.sc) % MAX_PATRON);
 }
 
 
@@ -3412,7 +3442,7 @@ void gain_level_reward(int chosen_reward)
 			q_ptr->to_h = 3 + randint1(p_ptr->depth) % 10;
 			q_ptr->to_d = 3 + randint1(p_ptr->depth) % 10;
 
-			(void)random_resistance(q_ptr, rand_range(5, 38), 0);
+			random_resistance(q_ptr, rand_range(5, 38));
 
 			add_ego_flags(q_ptr, EGO_CHAOTIC);
 
@@ -3539,12 +3569,12 @@ void gain_level_reward(int chosen_reward)
 					   chaos_patrons[p_ptr->chaos_patron]);
 			msgf("'Rise, my servant!'");
 			(void)restore_level();
-			(void)set_poisoned(0);
-			(void)set_blind(0);
-			(void)set_confused(0);
-			(void)set_image(0);
-			(void)set_stun(0);
-			(void)set_cut(0);
+			(void)clear_poisoned();
+			(void)clear_blind();
+			(void)clear_confused();
+			(void)clear_image();
+			(void)clear_stun();
+			(void)clear_cut();
 			for (i = 0; i < A_MAX; i++)
 			{
 				(void)do_res_stat(i);
@@ -3847,10 +3877,10 @@ bool get_hack_dir(int *dp)
 	if (!dir) return (FALSE);
 
 	/* Save the direction */
-	p_ptr->command_dir = dir;
+	p_ptr->cmd.dir = dir;
 
 	/* Check for confusion */
-	if (p_ptr->confused)
+	if (p_ptr->tim.confused)
 	{
 		/* XXX XXX XXX */
 		/* Random direction */
@@ -3858,7 +3888,7 @@ bool get_hack_dir(int *dp)
 	}
 
 	/* Notice confusion */
-	if (p_ptr->command_dir != dir)
+	if (p_ptr->cmd.dir != dir)
 	{
 		/* Warn the user */
 		msgf("You are confused.");

@@ -177,12 +177,14 @@ proc NSRecall::InitWindow {oop} {
 	canvas $canvas \
 		-borderwidth 0 -width $iconSize -height $iconSize -background Black \
 		-highlightthickness 0
+if 0 {
 	$canvas create widget \
 		6 6 -tags icon
+}
 	$canvas create rectangle \
 		4 4 [expr {6 + [icon size] + 1}] [expr {6 + [icon size] + 1}] \
 		-outline Black -tags focus
-
+if 0 {
 # Problems with highlight when Knowledge window appears, so skip it
 	$canvas bind icon <Enter> {
 #		%W itemconfigure focus -outline gray60
@@ -209,7 +211,7 @@ proc NSRecall::InitWindow {oop} {
 			NSRecall::DisplayKnowledge $oop
 		}
 	"
-
+}
 	# Create an arrow which appears when there is content out of site
 	set x [expr {$iconSize / 2}]
 	$canvas create polygon [expr {$x - 3}] 46 [expr {$x + 3}] 46 \

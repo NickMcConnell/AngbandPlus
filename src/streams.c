@@ -351,94 +351,6 @@ void place_trees(int x, int y)
 
 
 /*
- * Build a destroyed level
- */
-void destroy_level(void)
-{
-	int y1, x1, y, x, k, t, n;
-
-	cave_type *c_ptr;
-
-	/* Note destroyed levels */
-	if (cheat_room) msgf("Destroyed Level");
-
-	/* Drop a few epi-centers (usually about two) */
-	for (n = 0; n < randint1(5); n++)
-	{
-		/* Pick an epi-center */
-		x1 = rand_range(p_ptr->min_wid + 5, p_ptr->max_wid - 1 - 5);
-		y1 = rand_range(p_ptr->min_hgt + 5, p_ptr->max_hgt - 1 - 5);
-
-		/* Big area of affect */
-		for (y = (y1 - 15); y <= (y1 + 15); y++)
-		{
-			for (x = (x1 - 15); x <= (x1 + 15); x++)
-			{
-				/* Skip illegal grids */
-				if (!in_bounds(x, y)) continue;
-
-				/* Extract the distance */
-				k = distance(x1, y1, x, y);
-
-				/* Stay in the circle of death */
-				if (k >= 16) continue;
-
-				/* Access the grid */
-				c_ptr = cave_p(x, y);
-
-				/* Destroy valid grids */
-				if (cave_valid_grid(c_ptr))
-				{
-					/* Delete objects */
-					delete_object(x, y);
-
-					/* Delete all fields */
-					delete_field_location(c_ptr);
-
-					/* Wall (or floor) type */
-					t = randint0(200);
-
-					/* Granite */
-					if (t < 20)
-					{
-						/* Create granite wall */
-						set_feat_grid(c_ptr, FEAT_WALL_EXTRA);
-					}
-
-					/* Quartz */
-					else if (t < 70)
-					{
-						/* Create quartz vein */
-						set_feat_grid(c_ptr, FEAT_QUARTZ);
-					}
-
-					/* Magma */
-					else if (t < 100)
-					{
-						/* Create magma vein */
-						set_feat_grid(c_ptr, FEAT_MAGMA);
-					}
-
-					/* Floor */
-					else
-					{
-						/* Create floor */
-						set_feat_grid(c_ptr, FEAT_FLOOR);
-					}
-
-					/* No longer part of a room or vault */
-					c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
-
-					/* No longer illuminated */
-					c_ptr->info &= ~(CAVE_GLOW);
-				}
-			}
-		}
-	}
-}
-
-
-/*
  * Builds a cave system in the center of the dungeon.
  */
 void build_cavern(void)
@@ -474,25 +386,19 @@ void build_cavern(void)
 
 		/* Convert to normal format+ clean up */
 		done = generate_lake(x0 + 1, y0 + 1, xsize, ysize,
-							 cutoff, cutoff, cutoff, LAKE_CAVERN);
+							 cutoff, cutoff, cutoff,
+							 dun->feat_floor, dun->feat_floor, dun->feat_floor);
 	}
 }
 
 /*
  * makes a lake/collapsed cave system in the center of the dungeon
  */
-void build_lake(int type)
+void build_lake(byte f1, byte f2, byte f3)
 {
 	int grd, roug, xsize, ysize, x0, y0;
 	bool done = FALSE;
 	int c1, c2, c3;
-
-	/* paranoia - exit if lake type out of range. */
-	if ((type < 1) || (type > 7))
-	{
-		msgf("Invalid lake type (%d)", type);
-		return;
-	}
 
 	/* Make the size of the dungeon */
 	xsize = p_ptr->max_wid - 2;
@@ -526,6 +432,6 @@ void build_lake(int type)
 		generate_hmap(x0 + 1, y0 + 1, xsize, ysize, grd, roug, c3);
 
 		/* Convert to normal format+ clean up */
-		done = generate_lake(x0 + 1, y0 + 1, xsize, ysize, c1, c2, c3, type);
+		done = generate_lake(x0 + 1, y0 + 1, xsize, ysize, c1, c2, c3, f1, f2, f3);
 	}
 }

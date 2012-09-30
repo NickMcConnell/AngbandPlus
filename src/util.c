@@ -446,7 +446,7 @@ errr my_fputs(FILE *fff, cptr buf, huge n)
 	(void)n;
 
 	/* Dump, ignore errors */
-	(void)fprintf(fff, "%s\n", buf);
+	froff(fff, "%s\n", buf);
 
 	/* Success */
 	return (0);
@@ -808,6 +808,23 @@ errr fd_close(int fd)
 
 #endif /* ACORN */
 
+
+/* This works by masking off the lowest order set bits one at a time */
+int count_bits(u32b x)
+{
+	int n = 0;
+
+	if (x)
+	{
+		do
+		{
+			n++;
+		}
+		while (0 != (x = x & (x - 1)));
+	}
+
+	return (n);
+}
 
 
 /*
@@ -1238,7 +1255,7 @@ static bool parse_under = FALSE;
 void flush(void)
 {
 	/* Do it later */
-	p_ptr->inkey_xtra = TRUE;
+	p_ptr->cmd.inkey_xtra = TRUE;
 }
 
 
@@ -1491,16 +1508,16 @@ char inkey(void)
 	term *old = Term;
 
 	/* Hack -- Use the "inkey_next" pointer */
-	if (inkey_next && *inkey_next && !p_ptr->inkey_xtra)
+	if (inkey_next && *inkey_next && !p_ptr->cmd.inkey_xtra)
 	{
 		/* Get next character, and advance */
 		ch = *inkey_next++;
 
 		/* Cancel the various "global parameters" */
-		p_ptr->inkey_base = FALSE;
-		p_ptr->inkey_xtra = FALSE;
-		p_ptr->inkey_flag = FALSE;
-		p_ptr->inkey_scan = FALSE;
+		p_ptr->cmd.inkey_base = FALSE;
+		p_ptr->cmd.inkey_xtra = FALSE;
+		p_ptr->cmd.inkey_flag = FALSE;
+		p_ptr->cmd.inkey_scan = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -1513,13 +1530,13 @@ char inkey(void)
 #ifdef ALLOW_BORG
 
 	/* Mega-Hack -- Use the special hook */
-	if (inkey_hack && ((ch = (*inkey_hack) (p_ptr->inkey_xtra)) != 0))
+	if (inkey_hack && ((ch = (*inkey_hack) (p_ptr->cmd.inkey_xtra)) != 0))
 	{
 		/* Cancel the various "global parameters" */
-		p_ptr->inkey_base = FALSE;
-		p_ptr->inkey_xtra = FALSE;
-		p_ptr->inkey_flag = FALSE;
-		p_ptr->inkey_scan = FALSE;
+		p_ptr->cmd.inkey_base = FALSE;
+		p_ptr->cmd.inkey_xtra = FALSE;
+		p_ptr->cmd.inkey_flag = FALSE;
+		p_ptr->cmd.inkey_scan = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -1528,7 +1545,7 @@ char inkey(void)
 #endif /* ALLOW_BORG */
 
 	/* Hack -- handle delayed "flush()" */
-	if (p_ptr->inkey_xtra)
+	if (p_ptr->cmd.inkey_xtra)
 	{
 		/* End "macro action" */
 		parse_macro = FALSE;
@@ -1545,8 +1562,8 @@ char inkey(void)
 	(void)Term_get_cursor(&v);
 
 	/* Show the cursor if waiting, except sometimes in "command" mode */
-	if (!p_ptr->inkey_scan &&
-		(!p_ptr->inkey_flag || hilite_player || character_icky))
+	if (!p_ptr->cmd.inkey_scan &&
+		(!p_ptr->cmd.inkey_flag || hilite_player || character_icky))
 	{
 		/* Show the cursor */
 		(void)Term_set_cursor(1);
@@ -1561,7 +1578,7 @@ char inkey(void)
 	while (!ch)
 	{
 		/* Hack -- Handle "inkey_scan" */
-		if (!p_ptr->inkey_base && p_ptr->inkey_scan &&
+		if (!p_ptr->cmd.inkey_base && p_ptr->cmd.inkey_scan &&
 			(0 != Term_inkey(&kk, FALSE, FALSE)))
 		{
 			break;
@@ -1592,12 +1609,12 @@ char inkey(void)
 
 
 		/* Hack -- Handle "inkey_base" */
-		if (p_ptr->inkey_base)
+		if (p_ptr->cmd.inkey_base)
 		{
 			int w = 0;
 
 			/* Wait forever */
-			if (!p_ptr->inkey_scan)
+			if (!p_ptr->cmd.inkey_scan)
 			{
 				/* Wait for (and remove) a pending key */
 				if (0 == Term_inkey(&ch, TRUE, TRUE))
@@ -1704,10 +1721,10 @@ char inkey(void)
 
 
 	/* Cancel the various "global parameters" */
-	p_ptr->inkey_base = FALSE;
-	p_ptr->inkey_xtra = FALSE;
-	p_ptr->inkey_flag = FALSE;
-	p_ptr->inkey_scan = FALSE;
+	p_ptr->cmd.inkey_base = FALSE;
+	p_ptr->cmd.inkey_xtra = FALSE;
+	p_ptr->cmd.inkey_flag = FALSE;
+	p_ptr->cmd.inkey_scan = FALSE;
 
 	/* Return the keypress */
 	return (ch);
@@ -2448,7 +2465,7 @@ static void msg_print_aux(u16b type, cptr msg)
 
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) type = MSG_GENERIC;
+	if (!use_color) type = MSG_GENERIC;
 
 	/* Hack -- Reset */
 	if (!msg_flag) message_column = 0;
@@ -2478,7 +2495,7 @@ static void msg_print_aux(u16b type, cptr msg)
 
 
 	/* Memorize the message (if legal) */
-	if (character_generated && !(p_ptr->is_dead))
+	if (character_generated && !(p_ptr->state.is_dead))
 		message_add(msg, type);
 
 	/* Window stuff */
@@ -2673,8 +2690,8 @@ static char request_command_buffer[256];
 /*
  * Request a command from the user.
  *
- * Sets p_ptr->command_cmd, p_ptr->command_dir, p_ptr->command_rep,
- * p_ptr->command_arg.  May modify p_ptr->command_new.
+ * Sets p_ptr->cmd.cmd, p_ptr->cmd.dir, p_ptr->cmd.rep,
+ * p_ptr->cmd.arg.  May modify p_ptr->cmd.new.
  *
  * Note that "caret" ("^") is treated specially, and is used to
  * allow manual input of control characters.  This can be used
@@ -2687,7 +2704,7 @@ static char request_command_buffer[256];
  * Note that this command is used both in the dungeon and in
  * stores, and must be careful to work in both situations.
  *
- * Note that "p_ptr->command_new" may not work any more.  XXX XXX XXX
+ * Note that "p_ptr->cmd.new" may not work any more.  XXX XXX XXX
  */
 void request_command(int shopping)
 {
@@ -2714,29 +2731,29 @@ void request_command(int shopping)
 
 
 	/* No command yet */
-	p_ptr->command_cmd = 0;
+	p_ptr->cmd.cmd = 0;
 
 	/* No "argument" yet */
-	p_ptr->command_arg = 0;
+	p_ptr->cmd.arg = 0;
 
 	/* No "direction" yet */
-	p_ptr->command_dir = 0;
+	p_ptr->cmd.dir = 0;
 
 
 	/* Get command */
 	while (1)
 	{
 		/* Hack -- auto-commands */
-		if (p_ptr->command_new)
+		if (p_ptr->cmd.new)
 		{
 			/* Flush messages */
 			message_flush();
 
 			/* Use auto-command */
-			cmd = (char)p_ptr->command_new;
+			cmd = (char)p_ptr->cmd.new;
 
 			/* Forget it */
-			p_ptr->command_new = 0;
+			p_ptr->cmd.new = 0;
 		}
 
 		/* Get a keypress in "command" mode */
@@ -2749,7 +2766,7 @@ void request_command(int shopping)
 			p_ptr->skip_more = FALSE;
 
 			/* Activate "command mode" */
-			p_ptr->inkey_flag = TRUE;
+			p_ptr->cmd.inkey_flag = TRUE;
 
 			/* Get a command */
 			cmd = inkey();
@@ -2762,10 +2779,10 @@ void request_command(int shopping)
 		/* Command Count */
 		if (cmd == '0')
 		{
-			int old_arg = p_ptr->command_arg;
+			int old_arg = p_ptr->cmd.arg;
 
 			/* Reset */
-			p_ptr->command_arg = 0;
+			p_ptr->cmd.arg = 0;
 
 			/* Begin the input */
 			prtf(0, 0, "Count: ");
@@ -2780,34 +2797,34 @@ void request_command(int shopping)
 				if ((cmd == 0x7F) || (cmd == KTRL('H')))
 				{
 					/* Delete a digit */
-					p_ptr->command_arg = p_ptr->command_arg / 10;
+					p_ptr->cmd.arg = p_ptr->cmd.arg / 10;
 
 					/* Show current count */
-					prtf(0, 0, "Count: %d", p_ptr->command_arg);
+					prtf(0, 0, "Count: %d", p_ptr->cmd.arg);
 				}
 
 				/* Actual numeric data */
 				else if (cmd >= '0' && cmd <= '9')
 				{
 					/* Stop count at 9999 */
-					if (p_ptr->command_arg >= 10000)
+					if (p_ptr->cmd.arg >= 10000)
 					{
 						/* Warn */
 						bell("Invalid repeat count!");
 
 						/* Limit */
-						p_ptr->command_arg = 9999;
+						p_ptr->cmd.arg = 9999;
 					}
 
 					/* Increase count */
 					else
 					{
 						/* Incorporate that digit */
-						p_ptr->command_arg = p_ptr->command_arg * 10 + D2I(cmd);
+						p_ptr->cmd.arg = p_ptr->cmd.arg * 10 + D2I(cmd);
 					}
 
 					/* Show current count */
-					prtf(0, 0, "Count: %d", p_ptr->command_arg);
+					prtf(0, 0, "Count: %d", p_ptr->cmd.arg);
 				}
 
 				/* Exit on "unusable" input */
@@ -2818,23 +2835,23 @@ void request_command(int shopping)
 			}
 
 			/* Hack -- Handle "zero" */
-			if (p_ptr->command_arg == 0)
+			if (p_ptr->cmd.arg == 0)
 			{
 				/* Default to 99 */
-				p_ptr->command_arg = 99;
+				p_ptr->cmd.arg = 99;
 
 				/* Show current count */
-				prtf(0, 0, "Count: %d", p_ptr->command_arg);
+				prtf(0, 0, "Count: %d", p_ptr->cmd.arg);
 			}
 
 			/* Hack -- Handle "old_arg" */
 			if (old_arg != 0)
 			{
 				/* Restore old_arg */
-				p_ptr->command_arg = old_arg;
+				p_ptr->cmd.arg = old_arg;
 
 				/* Show current count */
-				prtf(0, 0, "Count: %d", p_ptr->command_arg);
+				prtf(0, 0, "Count: %d", p_ptr->cmd.arg);
 			}
 
 			/* Hack -- white-space means "enter command now" */
@@ -2844,7 +2861,7 @@ void request_command(int shopping)
 				if (!get_com("Command: ", &cmd))
 				{
 					/* Clear count */
-					p_ptr->command_arg = 0;
+					p_ptr->cmd.arg = 0;
 
 					/* Continue */
 					continue;
@@ -2894,20 +2911,20 @@ void request_command(int shopping)
 
 
 		/* Use command */
-		p_ptr->command_cmd = cmd;
+		p_ptr->cmd.cmd = cmd;
 
 		/* Done */
 		break;
 	}
 
 	/* Hack -- Auto-repeat certain commands */
-	if (always_repeat && (p_ptr->command_arg <= 0))
+	if (always_repeat && (p_ptr->cmd.arg <= 0))
 	{
 		/* Hack -- auto repeat certain commands */
-		if (strchr("TBDoc+", p_ptr->command_cmd))
+		if (strchr("TBDoc+", p_ptr->cmd.cmd))
 		{
 			/* Repeat 99 times */
-			p_ptr->command_arg = 99;
+			p_ptr->cmd.arg = 99;
 		}
 	}
 
@@ -2915,18 +2932,18 @@ void request_command(int shopping)
 	if (shopping == 1)
 	{
 		/* Convert */
-		switch (p_ptr->command_cmd)
+		switch (p_ptr->cmd.cmd)
 		{
 				/* Command "p" -> "purchase" (get) */
-			case 'p': p_ptr->command_cmd = 'g';
+			case 'p': p_ptr->cmd.cmd = 'g';
 				break;
 
 				/* Command "m" -> "purchase" (get) */
-			case 'm': p_ptr->command_cmd = 'g';
+			case 'm': p_ptr->cmd.cmd = 'g';
 				break;
 
 				/* Command "s" -> "sell" (drop) */
-			case 's': p_ptr->command_cmd = 'd';
+			case 's': p_ptr->cmd.cmd = 'd';
 				break;
 		}
 	}
@@ -2954,13 +2971,13 @@ void request_command(int shopping)
 		while (s)
 		{
 			/* Check the "restriction" character */
-			if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
+			if ((s[1] == p_ptr->cmd.cmd) || (s[1] == '*'))
 			{
 				/* Hack -- Verify command */
 				if (!get_check("Are you sure? "))
 				{
 					/* Hack -- Use space */
-					p_ptr->command_cmd = ' ';
+					p_ptr->cmd.cmd = ' ';
 				}
 			}
 
@@ -3030,13 +3047,13 @@ void repeat_check(void)
 	int what;
 
 	/* Ignore some commands */
-	if (p_ptr->command_cmd == ESCAPE) return;
-	if (p_ptr->command_cmd == ' ') return;
-	if (p_ptr->command_cmd == '\r') return;
-	if (p_ptr->command_cmd == '\n') return;
+	if (p_ptr->cmd.cmd == ESCAPE) return;
+	if (p_ptr->cmd.cmd == ' ') return;
+	if (p_ptr->cmd.cmd == '\r') return;
+	if (p_ptr->cmd.cmd == '\n') return;
 
 	/* Repeat Last Command */
-	if (p_ptr->command_cmd == 'n')
+	if (p_ptr->cmd.cmd == 'n')
 	{
 		/* Reset */
 		repeat__idx = 0;
@@ -3045,7 +3062,7 @@ void repeat_check(void)
 		if (repeat_pull(&what))
 		{
 			/* Save the command */
-			p_ptr->command_cmd = what;
+			p_ptr->cmd.cmd = what;
 		}
 	}
 
@@ -3056,7 +3073,7 @@ void repeat_check(void)
 		repeat__cnt = 0;
 		repeat__idx = 0;
 
-		what = p_ptr->command_cmd;
+		what = p_ptr->cmd.cmd;
 
 		/* Save this command */
 		repeat_push(what);

@@ -198,18 +198,15 @@ static s32b price_item(object_type *o_ptr, bool flip)
 	if (price <= 0) return (0L);
 
 
-	/* Compute the racial factor */
-	factor = rgold_adj[ot_ptr->owner_race][p_ptr->prace];
-
-	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	/* The charisma factor */
+	factor = adj_chr_gold[p_ptr->stat[A_CHR].ind];
 
 
 	/* Shop is buying */
 	if (flip)
 	{
 		/* Adjust for greed */
-		adjust = 100 + (300 - (greed + factor));
+		adjust = 100 + (200 - (greed + factor));
 
 		/* Never get "silly" */
 		if (adjust > 100) adjust = 100;
@@ -225,7 +222,7 @@ static s32b price_item(object_type *o_ptr, bool flip)
 	else
 	{
 		/* Adjust for greed */
-		adjust = 100 + ((greed + factor) - 300);
+		adjust = 100 + ((greed + factor) - 200);
 
 		/* Never get "silly" */
 		if (adjust < 100) adjust = 100;
@@ -434,7 +431,9 @@ static bool store_object_similar(const object_type *o_ptr,
 
 	/* Hack -- Identical flags! */
 	if ((o_ptr->flags1 != j_ptr->flags1) ||
-		(o_ptr->flags2 != j_ptr->flags2) || (o_ptr->flags3 != j_ptr->flags3))
+		(o_ptr->flags2 != j_ptr->flags2) || 
+		(o_ptr->flags3 != j_ptr->flags3) ||
+		(o_ptr->flags4 != j_ptr->flags4))
 		return (FALSE);
 
 	/* Require identical recharge times / fuel level */
@@ -730,6 +729,7 @@ static object_type *store_carry(object_type *o_ptr)
 	o_ptr->kn_flags1 = o_ptr->flags1;
 	o_ptr->kn_flags2 = o_ptr->flags2;
 	o_ptr->kn_flags3 = o_ptr->flags3;
+	o_ptr->kn_flags4 = o_ptr->flags4;
 
     /* Erase the inscription */
     quark_remove(&o_ptr->inscription);
@@ -842,11 +842,8 @@ static void store_create(void)
 	/* Select items based on "theme" */
 	init_match_theme(theme);
 
-	/* Activate restriction */
-	get_obj_num_hook = kind_is_theme;
-
 	/* Prepare allocation table */
-	get_obj_num_prep();
+	get_obj_num_prep(kind_is_theme);
 
 	/* Limit table with store-only items */
 	get_obj_store_prep();
@@ -922,9 +919,6 @@ static void store_create(void)
 		/* Definitely done */
 		break;
 	}
-
-	/* Clear restriction */
-	get_obj_num_hook = NULL;
 }
 
 /*
@@ -960,7 +954,7 @@ static void display_entry(int pos)
 	c = object_char(o_ptr);
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria)
+	if (!use_color)
     {
     	a = TERM_WHITE;
     	c = ' ';
@@ -1137,8 +1131,6 @@ static void store_maint(void)
 {
 	int i = 0, j;
 
-	int old_rating = dun_ptr->rating;
-
 	/* Ignore home + locker */
 	if (st_ptr->type == BUILD_STORE_HOME) return;
 
@@ -1211,10 +1203,6 @@ static void store_maint(void)
 		/* Try to allocate some items */
 		store_create();
 	}
-
-
-	/* Hack -- Restore the rating */
-	dun_ptr->rating = old_rating;
 }
 
 
@@ -1423,15 +1411,25 @@ static void store_purchase(int *store_top)
 
 	/* Determine the "best" price (per item) */
 	best = price_item(j_ptr, FALSE);
-
-	/* Find out how many the player wants */
-	if (o_ptr->number > 1)
+	
+	/*
+	 * Paranoia - you can only buy one weapon / armour item at a time
+	 *
+	 * This prevents the player getting stacks of weapons etc. in
+	 * his pack.  I suppose we could make an extension to
+	 * inven_carry_okay() to do this properly.
+	 */
+	if ((j_ptr->tval < TV_BOW) || (j_ptr->tval > TV_DRAG_ARMOR))
 	{
-		/* Get a quantity */
-		amt = get_quantity(NULL, o_ptr->number);
+		/* Find out how many the player wants */
+		if (o_ptr->number > 1)
+		{
+			/* Get a quantity */
+			amt = get_quantity(NULL, o_ptr->number);
 
-		/* Allow user abort */
-		if (amt <= 0) return;
+			/* Allow user abort */
+			if (amt <= 0) return;
+		}
 	}
 
 	/* Get desired object */
@@ -1698,7 +1696,7 @@ static void store_sell(int *store_top)
 	/* Assume one item */
 	amt = 1;
 
-	/* Find out how many the player wants (letter means "all") */
+	/* Find out how many the player wants to sell */
 	if (o_ptr->number > 1)
 	{
 		/* Get a quantity */
@@ -1782,12 +1780,11 @@ static void store_sell(int *store_top)
 			/* Duplicate the object */
 			q_ptr = object_dup(o_ptr);
 			
-			if (o_ptr->tval == TV_WAND)
-			{
-				/* Identify sold item - this will cause awareness of pack item */
-				identify_item(q_ptr);
-			}
-			else
+			/* Identify sold item */
+			identify_item(q_ptr);
+			
+			/* Don't want to let out how many charges on wands */
+			if (o_ptr->tval != TV_WAND)
 			{
 				/* Identify pack item */
 				identify_item(o_ptr);
@@ -1953,13 +1950,13 @@ static void store_process_command(int *store_top)
 	/* Handle repeating the last command */
 	repeat_check();
 
-	if (rogue_like_commands && p_ptr->command_cmd == 'l')
+	if (rogue_like_commands && p_ptr->cmd.cmd == 'l')
 	{
-		p_ptr->command_cmd = 'x';	/* hack! */
+		p_ptr->cmd.cmd = 'x';	/* hack! */
 	}
 
 	/* Parse the command */
-	switch (p_ptr->command_cmd)
+	switch (p_ptr->cmd.cmd)
 	{
 		case '\r':
 		{
@@ -2373,7 +2370,7 @@ store_type *get_current_store(void)
  * Enter a store, and interact with it.
  *
  * Note that we use the standard "request_command()" function
- * to get a command, allowing us to use "command_arg" and all
+ * to get a command, allowing us to use "cmd.arg" and all
  * command macros and other nifty stuff, but we use the special
  * "shopping" argument, to force certain commands to be converted
  * into other commands, normally, we convert "p" (pray) and "m"
@@ -2453,13 +2450,13 @@ void do_cmd_store(const field_type *f1_ptr)
 
 
 	/* No command argument */
-	p_ptr->command_arg = 0;
+	p_ptr->cmd.arg = 0;
 
 	/* No repeated command */
-	p_ptr->command_rep = 0;
+	p_ptr->cmd.rep = 0;
 
 	/* No automatic command */
-	p_ptr->command_new = 0;
+	p_ptr->cmd.new = 0;
 
 	/* Start at the beginning */
 	store_top = 0;
@@ -2477,7 +2474,7 @@ void do_cmd_store(const field_type *f1_ptr)
 		clear_region(0, 1, 2);
 
 		/* Hack -- Check the charisma */
-		tmp_chr = p_ptr->stat_use[A_CHR];
+		tmp_chr = p_ptr->stat[A_CHR].use;
 
 		/* Clear */
 		clear_from(21);
@@ -2608,7 +2605,7 @@ void do_cmd_store(const field_type *f1_ptr)
 		}
 
 		/* Hack -- Redisplay store prices if charisma changes */
-		if (tmp_chr != p_ptr->stat_use[A_CHR])
+		if (tmp_chr != p_ptr->stat[A_CHR].use)
 		{
 			display_inventory(store_top);
 		}
@@ -2623,7 +2620,7 @@ void do_cmd_store(const field_type *f1_ptr)
 	character_icky = FALSE;
 
 	/* Hack -- Cancel automatic command */
-	p_ptr->command_new = 0;
+	p_ptr->cmd.new = 0;
 
 	/* Flush messages XXX XXX XXX */
 	message_flush();
@@ -2651,7 +2648,7 @@ void do_cmd_store(const field_type *f1_ptr)
 /*
  * Initialize a store
  */
-void store_init(int town_num, int store_num, byte store_type)
+void store_init(int town_num, int store_num, byte store)
 {
 	/* Activate that store */
 	st_ptr = &place[town_num].store[store_num];
@@ -2663,7 +2660,7 @@ void store_init(int town_num, int store_num, byte store_type)
 	st_ptr->stock = 0;
 
 	/* Set the store type */
-	st_ptr->type = store_type;
+	st_ptr->type = store;
 
 	/* Initialize the store */
 	st_ptr->data = 0;

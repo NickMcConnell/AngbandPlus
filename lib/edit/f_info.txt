@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2002/04/17 16:30:04 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/04/02 19:24:03 $
 # File: f_info.txt
 
 
@@ -39,7 +39,7 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:2.7.3
 
 
 # 0x00 --> nothing
@@ -70,25 +70,25 @@ F:USE_TRANS
 
 N:4:open door
 G:':U
-F:ICKY | OBJECT
+F:ICKY | OBJECT | MARK
 
 # 0x05 --> broken door
 
 N:5:broken door
 G:':u
-F:ICKY | OBJECT
+F:ICKY | OBJECT | MARK
 
 # 0x06 --> up stairs
 
 N:6:up staircase
 G:<:w
-F:USE_TRANS | ICKY | PERM | OBJECT
+F:USE_TRANS | ICKY | PERM | OBJECT | MARK
 
 # 0x07 --> down stairs
 
 N:7:down staircase
 G:>:w
-F:USE_TRANS | ICKY | PERM | OBJECT
+F:USE_TRANS | ICKY | PERM | OBJECT | MARK
 
 N:8:sand
 G:.:y
@@ -130,171 +130,171 @@ F:USE_TRANS
 
 N:32:door
 G:+:U
-F:BLOCK | ICKY | OBJECT
+F:BLOCK | ICKY | OBJECT | MARK
 
 # Pillar
 N:33:pillar
 G:#:D
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 
 # 0x30 --> secret door
 
 N:48:granite wall
 G:#:w
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x31 --> rubble
 
 N:49:pile of rubble
 G:::w
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x32 --> magma vein
 
 N:50:magma vein
 G:#:s
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x33 --> quartz vein
 
 N:51:quartz vein
 G:#:W
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x34 --> magma vein + treasure
 # This terrain type may not actually be needed...
 N:52:magma vein
 G:#:s
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x35 --> quartz vein + treasure
 # This terrain type may not actually be needed...
 N:53:quartz vein
 G:#:W
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x36 --> magma vein + known treasure
 
 N:54:magma vein with treasure
 G:*:o
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x37 --> quartz vein + known treasure
 
 N:55:quartz vein with treasure
 G:*:o
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x38 --> granite wall -- basic
 
 N:56:granite wall
 G:#:w
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x39 --> granite wall -- inner
 
 N:57:granite wall
 G:#:w
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x3A --> granite wall -- outer
 
 N:58:granite wall
 G:#:w
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x3B --> granite wall -- solid
 
 N:59:granite wall
 G:#:w
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 # 0x3C --> permanent wall -- basic
 
 N:60:permanent wall
 G:#:w
-F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT
+F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT | MARK
 
 # 0x3D --> permanent wall -- inner
 
 N:61:permanent wall
 G:#:w
-F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT
+F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT | MARK
 
 # 0x3E --> permanent wall -- outer
 
 N:62:permanent wall
 G:#:w
-F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT
+F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT | MARK
 
 # 0x3F --> permanent wall -- solid
 
 N:63:permanent wall
 G:#:w
-F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT
+F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT | MARK
 
 N:64:explosive rune
 G:*:R
-F:USE_TRANS | OBJECT
+F:USE_TRANS | OBJECT | MARK
 
 N:65:Pattern startpoint
 G:*:w
-F:PERM | OBJECT | PATTERN
+F:PERM | OBJECT | PATTERN | MARK
 
 N:66:section of the Pattern
 G:*:B
-F:PERM | OBJECT | PATTERN
+F:PERM | OBJECT | PATTERN | MARK
 
 N:67:section of the Pattern
 G:*:b
-F:PERM | OBJECT | PATTERN
+F:PERM | OBJECT | PATTERN | MARK
 
 N:68:section of the Pattern
 G:*:B
-F:PERM | OBJECT | PATTERN
+F:PERM | OBJECT | PATTERN | MARK
 
 N:69:section of the Pattern
 G:*:b
-F:PERM | OBJECT | PATTERN
+F:PERM | OBJECT | PATTERN | MARK
 
 N:70:section of the Pattern
 G:*:W
-F:PERM | OBJECT | PATTERN
+F:PERM | OBJECT | PATTERN | MARK
 
 N:71:section of the Pattern (discharged)
 G:*:W
-F:PERM | OBJECT | PATTERN
+F:PERM | OBJECT | PATTERN | MARK
 
 N:72:Pattern exit
 G:*:w
-F:PERM | OBJECT | PATTERN
+F:PERM | OBJECT | PATTERN | MARK
 
 N:73:corrupted section of the Pattern
 G:*:D
-F:PERM | OBJECT | PATTERN
+F:PERM | OBJECT | PATTERN | MARK
 
 # 0x53 --> terrain -- deep water
 
 N:83:deep water
 G:~:b
-F:USE_TRANS | ICKY
+F:USE_TRANS | ICKY | MARK
 
 N:84:shallow water
 G:~:B
-F:USE_TRANS
+F:USE_TRANS | MARK
 
 N:85:deep lava
 G:~:R
-F:USE_TRANS | ICKY
+F:USE_TRANS | ICKY | MARK
 
 N:86:shallow lava
 G:~:r
-F:USE_TRANS
+F:USE_TRANS | MARK
 
 N:87:dark pit
 G:#:D
-F:USE_TRANS | ICKY | OBJECT
+F:USE_TRANS | ICKY | OBJECT | MARK
 
 N:88:dirt
 G:.:u
@@ -314,15 +314,15 @@ F:USE_TRANS | ICKY
 
 N:92:very deep water
 G:~:D
-F:USE_TRANS | ICKY
+F:USE_TRANS | ICKY | MARK
 
 N:93:deep acid
 G:~:g
-F:USE_TRANS | ICKY
+F:USE_TRANS | ICKY | MARK
 
 N:94:shallow acid
 G:~:G
-F:USE_TRANS
+F:USE_TRANS | MARK
 
 N:95:submerged tree
 G:%:b
@@ -354,27 +354,27 @@ F:HALF_LOS | USE_TRANS | ICKY | OBJECT
 
 N:102:obelisk
 G:;:b
-F:HALF_LOS | USE_TRANS | ICKY | OBJECT
+F:HALF_LOS | USE_TRANS | ICKY | OBJECT | MARK
 
 N:103:pillar
 G:#:w
-F:HALF_LOS | USE_TRANS | ICKY | OBJECT
+F:HALF_LOS | USE_TRANS | ICKY | OBJECT | MARK
 
 N:112:stone fence
 G:::b
-F:HALF_LOS | USE_TRANS | ICKY | PERM | OBJECT
+F:HALF_LOS | USE_TRANS | ICKY | PERM | OBJECT | MARK
 
 N:113:well
 G:~:v
-F:HALF_LOS | USE_TRANS | ICKY | PERM | OBJECT
+F:HALF_LOS | USE_TRANS | ICKY | PERM | OBJECT | MARK
 
 N:114:fountain
 G:~:U
-F:HALF_LOS | USE_TRANS | ICKY | PERM | OBJECT
+F:HALF_LOS | USE_TRANS | ICKY | PERM | OBJECT | MARK
 
 N:115:jungle
 G:%:D
-F:BLOCK | USE_TRANS | ICKY | OBJECT
+F:BLOCK | USE_TRANS | ICKY | OBJECT | MARK
 
 
 
@@ -421,8 +421,8 @@ F:USE_TRANS
 
 N:136:thick swamp
 G:;:g
-F:USE_TRANS
+F:USE_TRANS | ICKY | MARK
 
 N:137:swamp
 G:;:G
-F:USE_TRANS
+F:USE_TRANS | MARK

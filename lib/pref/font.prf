@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/07/07 12:55:49 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/03/08 14:38:44 $
 # File: font.prf
 
 #
@@ -73,6 +73,9 @@ T:42:0x03:0x39
 
 ?:[EQU $SYS win]
 %:font-win.prf
+
+?:[EQU $SYS w2k]
+%:font-w2k.prf
 
 ?:[EQU $SYS dos]
 %:font-dos.prf

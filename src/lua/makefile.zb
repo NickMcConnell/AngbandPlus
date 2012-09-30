@@ -1,0 +1,32 @@
+subdir = ./src/lua
+
+##
+## Lua
+##
+
+##
+## Lua Object Files
+##
+
+LUAOBJS := $(addprefix src/lua/,\
+  lapi.o ldebug.o lmem.o lstrlib.o lvm.o \
+  tolua_lb.o lauxlib.o ldo.o lobject.o ltable.o \
+  lzio.o tolua_rg.o lbaselib.o lfunc.o lparser.o \
+  ltests.o tolua_bd.o tolua_tm.o lcode.o lgc.o \
+  lstate.o ltm.o tolua_eh.o tolua_tt.o ldblib.o \
+  llex.o lstring.o lundump.o tolua_gp.o)
+
+objs-y += $(LUAOBJS)
+
+##
+## tolua
+##
+
+TOLUAOBJS := $(addprefix src/lua/,tolua.o tolualua.o liolib.o) $(LUAOBJS)
+
+src/lua/tolua: $(TOLUAOBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
+
+srcdirlist += src/lua
+srcfiles += src/lua/*.c src/lua/*.h src/lua/*.lua src/lua/*.pkg src/lua/makefile.zb
+clean-files += src/lua/*.bak src/lua/*.o src/lua/tolua

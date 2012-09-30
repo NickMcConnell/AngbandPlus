@@ -2633,64 +2633,6 @@ void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
 			/* Done */
 			break;
 		}
-
-#if 0							/* Need to use fields */
-			/* Traps */
-		case FEAT_TRAP_TRAPDOOR:
-		case FEAT_TRAP_PIT:
-		case FEAT_TRAP_SPIKED_PIT:
-		case FEAT_TRAP_POISON_PIT:
-		case FEAT_TRAP_TY_CURSE:
-		case FEAT_TRAP_TELEPORT:
-		case FEAT_TRAP_FIRE:
-		case FEAT_TRAP_ACID:
-		case FEAT_TRAP_SLOW:
-		case FEAT_TRAP_LOSE_STR:
-		case FEAT_TRAP_LOSE_DEX:
-		case FEAT_TRAP_LOSE_CON:
-		case FEAT_TRAP_BLIND:
-		case FEAT_TRAP_CONFUSE:
-		case FEAT_TRAP_POISON:
-		case FEAT_TRAP_SLEEP:
-		case FEAT_TRAP_TRAPS:
-		{
-
-			/* Assume trap door */
-			ag->feat = FEAT_TRAP_TRAPDOOR;
-
-			/* Done */
-			break;
-		}
-#endif /* 0 */
-
-
-
-#if 0							/* Need to parse fields */
-			/* glyph of warding stuff here */
-		case FEAT_MINOR_GLYPH:
-		case FEAT_GLYPH:
-		{
-			ag->feat = FEAT_GLYPH;
-
-			/* Check for an existing glyph */
-			for (i = 0; i < track_glyph_num; i++)
-			{
-				/* Stop if we already new about this glyph */
-				if ((track_glyph_x[i] == x) && (track_glyph_y[i] == y)) break;
-			}
-
-			/* Track the newly discovered glyph */
-			if ((i == track_glyph_num) && (i < track_glyph_size))
-			{
-				track_glyph_x[i] = x;
-				track_glyph_y[i] = y;
-				track_glyph_num++;
-			}
-
-			/* done */
-			break;
-		}
-#endif /* 0 */
 	}
 
 	if (map->field)
@@ -2742,6 +2684,17 @@ void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
 				/* One more shop */
 				track_shop_num++;
 			}
+		}
+		
+		/* MT - Handle adding of traps to the borg_traps array */
+		else if(t_ptr->type == FTYPE_TRAP)
+		{
+			mb_ptr->trap = map->field;
+		}
+		/* MT - Handle Glyphs */
+		else if(t_ptr->type == FTYPE_FIELD)
+		{
+			mb_ptr->m_effect = map->field;
 		}
 	}
 

@@ -1,0 +1,197 @@
+subdir = ./src/
+
+##
+## Actually build the source to make the game
+##
+
+##
+## ##### Zangband Files to compile #####
+##
+
+
+##
+## The Zangband source files
+##
+
+ANGOBJS := $(addprefix src/,\
+	variable.o tables.o util.o cave.o \
+	object1.o object2.o monster1.o monster2.o \
+	xtra1.o xtra2.o spells1.o spells2.o \
+	melee1.o melee2.o save.o files.o fields.o\
+	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+	store.o birth.o load.o ui.o\
+	wizard1.o wizard2.o grid.o streams.o rooms.o \
+	generate.o dungeon.o init1.o init2.o \
+	effects.o quest.o racial.o script.o \
+	artifact.o mutation.o flavor.o spells3.o \
+	mspells1.o mspells2.o scores.o mind.o maid-x11.o\
+	bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\
+	main-cap.o main-gcu.o main-x11.o main-xaw.o main-xpj.o\
+	main-lsl.o main-vcs.o main-gtk.o main-win.o main.o \
+	maid-grf.o main-dos.o main-ibm.o main-emx.o \
+	main-ami.o main-tnb.o)
+
+##
+## The wrapper auto-generated files
+##
+
+LUAWOBJS := $(addprefix src/,\
+	l-monst.o l-object.o l-player.o l-random.o l-ui.o \
+	l-misc.o l-spell.o)
+
+##
+## The "Utility" files
+##
+
+ZUTILOBJS := $(addprefix src/,\
+	z-util.o z-virt.o z-form.o z-rand.o z-term.o)
+	
+##
+## The Borg files
+##
+
+BORGOBJS := $(addprefix src/,\
+	zborg1.o zborg2.o zborg3.o zborg4.o zborg5.o \
+	zborg6.o zborg7.o zborg8.o zborg9.o)
+
+
+##
+## Normal list of object files.
+##
+objs-y += $(ANGOBJS) $(LUAWOBJS) $(ZUTILOBJS) $(BORGOBJS)
+
+##
+## Extra object files depending on the ports
+##
+
+objs-$(amiga) += src/sound-ami.o
+
+objs-$(cygwin) += src/angband.res src/readdib.o
+ifeq ($(cygwin),y)
+src/angband.res : src/angband.rc
+	windres $< -O coff -o $@
+endif
+
+objs-$(lcc) += src/angband.res src/readdib.o
+ifeq ($(lcc),y)
+src/angband.res : src/angband.rc
+	$(LCC_PATH)\bin\lrc.exe -I$(LCC_PATH)\include $^
+endif
+
+objs-$(emx) += src/main-epm.o src/zangband.a
+
+ifeq ($(emx),y)
+
+INSTALL += \
+		emxbind -s $(bindir)zangband.exe\
+		copy src\aclient.exe $(bindir)\
+		emxbind -s $(bindir)aclient.exe\
+
+AR := ar
+
+src/aclient.exe: src/main-emx.c
+	$(CC) $(CFLAGS) -D__EMX__CLIENT__ -o $@ $< $(LDFLAGS)
+
+src/main-epm.o: src/main-emx.c
+	$(CC) $(CFLAGS) -DEMXPM -c -o $@ $<
+
+src/zangband.a: $(OBJS)
+	$(AR) r $@ $(OBJS)
+
+endif
+
+##
+## Low-level Headers
+##
+
+HDRS := makefile $(addprefix src/,\
+	autoconf.h h-basic.h h-define.h h-type.h h-system.h h-config.h)
+
+##
+## Angband includes
+##
+
+INCS := $(addprefix src/,\
+	angband.h \
+	z-config.h defines.h types.h externs.h \
+	z-term.h z-rand.h z-util.h z-virt.h z-form.h) $(HDRS)
+
+##
+## Generic dependancy information
+##
+
+$(ANGOBJS): $(INCS)
+$(ZUTILOBJS): $(HDRS)
+$(BORGOBJS): $(INCS)
+$(LUAWOBJS): $(INCS)
+
+
+##
+## Extra dependancies
+##
+
+GRAF_PORTS = $(addprefix src/,\
+		main-ami.o maid-grf.o maid-x11.o \
+		main-gtk.o main-tnb.o main-win.o main-x11.o \
+		main-xaw.o main-xpj.o)
+
+src/cmd6.o: src/script.h
+src/init1.c: src/init.h
+src/init2.c: src/init.h src/script.h
+src/generate.o: src/grid.h src/generate.h src/rooms.h src/streams.h
+src/grid.o: src/grid.h src/generate.h
+src/rooms.o: src/grid.h src/generate.h src/rooms.h
+src/streams.o: src/grid.h src/generate.h
+$(GRAFPORTS): src/maid-grf.h
+src/main-x11.o: src/maid-x11.h
+src/main-xaw.o: src/maid-x11.h
+src/main-xpj.o: src/maid-x11.h
+src/script.o: src/script.h
+src/quest.o: src/wild.h src/grid.h
+src/readdib.o: src/readdib.h
+src/wild1.o: src/wild.h src/grid.h
+src/wild2.o: src/wild.h src/grid.h
+src/wizard2.o: src/script.h
+src/z-form.o: src/z-form.h src/z-util.h src/z-virt.h
+src/z-rand.o: src/z-rand.h
+src/z-term.o: src/z-term.h src/z-virt.h
+src/z-util.o: src/z-util.h
+src/z-virt.o: src/z-virt.h src/z-util.h
+
+## Each borg file depends on the ones before it.
+## Hack - the dependance on the .o files encodes this.
+
+src/zborg1.o: src/zborg1.h src/maid-grf.h
+src/zborg2.o: src/zborg2.h src/zborg1.o
+src/zborg3.o: src/zborg3.h src/zborg2.o
+src/zborg4.o: src/zborg4.h src/zborg3.o
+src/zborg5.o: src/zborg5.h src/zborg4.o
+src/zborg6.o: src/zborg6.h src/zborg5.o
+src/zborg7.o: src/zborg7.h src/zborg6.o
+src/zborg8.o: src/zborg8.h src/zborg7.o
+src/zborg9.o: src/zborg9.h src/zborg8.o
+
+##
+## Build wrappers
+##
+## $(subst l-,,$(notdir $*)) removes the leading "l-", and
+## trailing ".c" and returns a filename with no directory
+## attached to it.
+##
+
+LUAWSRCS := $(LUAWOBJS:.o=.c)
+
+$(LUAWSRCS): %.c: %.pkg src/lua/tolua
+	src/lua/tolua -n $(subst l-,,$(notdir $*)) -o $@ $<
+
+clean-files += src/*.bak src/*.o src/l-*.c
+
+srcdirlist += src
+srcfiles += src/*.c src/*.h src/angband.rc src/angband.ico \
+		 src/angband.xpm src/zangband.icns src/makefile* src/l-*.pkg
+
+# scan other source directories
+dirs := lua tk
+include $(scandir)
+
+

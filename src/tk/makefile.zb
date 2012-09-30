@@ -1,0 +1,24 @@
+subdir = ./src/tk
+
+##
+## The tk port
+##
+
+TKOBJS = $(addprefix src/tk/,\
+			cmdinfo.o icon.o \
+			describe.o interp.o plat.o \
+			widget.o tk-util.o tcltk.o)
+
+objs-$(TK_PORT) += $(TKOBJS)
+
+##
+## Extra dependancies for the tk port
+##
+$(TKOBJS): $(INCS) src/tk/tnb.h
+src/main-tnb.o: src/tk/tnb.h
+
+src/tk/icon.o src/tk/interp.o: src/tk/icon.h
+
+srcdirlist += src/tk
+srcfiles += src/tk/*.c src/tk/*.h src/tk/makefile.zb
+clean-files += src/tk/*.bak src/tk/*.o

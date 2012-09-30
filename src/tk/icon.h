@@ -53,16 +53,7 @@ extern int g_icon_data_count; /* Number of icon types */
 
 extern void PixelSet_RGB(IconPtr dst, int r, int g, int b, int bypp);
 
-extern int Image2Bits(Tcl_Interp *interp, t_icon_data *iconDataPtr,
-	Tk_PhotoHandle photoH, int imageW, int imageH, XColor *xColorPtr);
-
 extern int Icon_Init(Tcl_Interp *interp, int size, int depth);
-extern int Icon_FindTypeByName(Tcl_Interp *interp, int *typeIndexPtr,
-	char *typeName);
-extern int Icon_GetTypeFromObj(Tcl_Interp *interp,
-	t_icon_data **typePtrPtr, Tcl_Obj *objPtr);
-extern int Icon_GetIndexFromObj(Tcl_Interp *interp,
-	int *indexPtr, Tcl_Obj *objPtr, t_icon_data *iconDataPtr);
 
 
 /*
@@ -94,9 +85,5 @@ typedef struct t_assign_group {
 
 
 extern byte *g_palette_rgb;
-
-extern void FinalIcon(IconSpec *iconOut, t_assign_icon *assignPtr);
-extern int assign_parse(Tcl_Interp *interp, t_assign_icon *assignPtr, cptr desc);
-extern char *AssignToString_Icon(char *buf, t_assign_icon *assign);
 
 #endif /* _INCLUDE_ICON_H_ */

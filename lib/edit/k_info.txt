@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: antimatter $ on $Date: 2002/10/15 21:20:47 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/03/29 15:57:38 $
 # File: k_info.txt
 
 
@@ -68,7 +68,7 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:2.7.3
 
 
 ##### Something special #####
@@ -253,6 +253,7 @@ I:80:36:3000
 W:1:0:5:2
 A:1/1
 F:EASY_KNOW
+D:A green, slimy... something.
 
 N:25:& Piece~ of Elvish Waybread
 G:,:B
@@ -405,7 +406,7 @@ I:23:4:0
 W:0:0:12:10
 A:1/1:9/2
 P:0:1d4:0:0:0
-F:SHOW_MODS
+F:THROW | SHOW_MODS
 
 N:44:& Rapier~
 G:|:W
@@ -792,6 +793,7 @@ A:52/4:95/1
 P:4:0d0:0:0:4
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 F:STEALTH | SENSE
+D:This finely woven cloak seems to blend in with any background.
 
 N:91:& Pair~ of Soft Leather Boots
 G:]:U
@@ -878,6 +880,7 @@ I:36:1:0
 W:0:0:20:1
 A:0/1
 P:1:0d0:0:0:-1
+D:This looks like it was once a fine robe, but now it's ripped and tattered.
 
 N:103:Soft Leather Armour~
 G:(:U
@@ -1043,6 +1046,7 @@ W:100:0:5:7500
 A:100/1
 P:6:0d0:0:0:4
 F:RES_DARK | RES_LITE
+D:A cloak that appears to be woven out of strands of pure darkness.
 
 
 ### The Gloves ###
@@ -1136,6 +1140,7 @@ I:45:31:10
 W:100:0:2:10000
 A:100/1
 F:SPEED | HIDE_TYPE
+D:This ring almost vibrates with power.
 
 N:137:Sensing
 G:=:d
@@ -1207,6 +1212,7 @@ W:75:0:2:1500
 A:75/1
 P:0:0d0:0:0:15
 F:RES_FIRE | IGNORE_FIRE | ACTIVATE
+D:It feels warm to the touch.
 
 N:147:Acid
 G:=:d
@@ -1215,6 +1221,7 @@ W:75:0:2:1500
 A:75/1
 P:0:0d0:0:0:15
 F:RES_ACID | IGNORE_ACID | ACTIVATE
+D:It is covered with a strange sheen.
 
 N:148:Ice
 G:=:d
@@ -1223,6 +1230,7 @@ W:75:0:2:1500
 A:75/1
 P:0:0d0:0:0:15
 F:RES_COLD | IGNORE_COLD | ACTIVATE
+D:It feels cool to the touch.
 
 N:149:Woe
 G:=:d
@@ -1369,6 +1377,7 @@ I:40:2:0
 W:33:0:3:50
 A:33/3
 F:AGGRAVATE
+D:This amulet seems to growl silently as you touch it.
 
 ##### Extra armor #####
 
@@ -1451,6 +1460,7 @@ W:80:0:5:1000
 A:80/1
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC
 F:EASY_KNOW
+D:The chaotic runes on this scroll look very dangerous.
 
 N:180:Remove Curse
 G:?:d
@@ -1604,6 +1614,7 @@ I:70:45:0
 W:75:0:5:5000
 A:75/4:85/4
 F:EASY_KNOW
+D:The evil runes on this scroll make you tremble.
 
 N:201:Detect Invisible
 G:?:d
@@ -1653,6 +1664,7 @@ I:70:44:0
 W:65:0:5:1000
 A:65/1
 F:EASY_KNOW
+D:The evil runes on this scroll make you shiver.
 
 N:208:Darkness
 G:?:d
@@ -1761,6 +1773,7 @@ W:0:0:4:2
 A:0/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
+D:A green liquid that tries to climb out of the bottle.
 
 N:223:Apple Juice
 G:!:d
@@ -1963,6 +1976,7 @@ W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
+D:A drunken alchemist accidentally poured ale into a potion mix.
 
 N:248:Poison
 G:!:d
@@ -2115,6 +2129,7 @@ W:43:0:4:350
 A:43/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
+D:The liquid in this bottle sparks with flashes of energy.
 
 N:267:Infra-vision
 G:!:d
@@ -2702,6 +2717,7 @@ G:&:u
 I:7:0:0
 W:30:0:250:0
 A:30/10:90/1
+D:A small chest of rotted wood. Whatever it once held has already been taken.
 
 
 ##### Various Stuff #####
@@ -2713,6 +2729,7 @@ W:1:0:2:1
 A:1/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
+D:A small metal spike, useful for jamming doors.
 
 N:346:& Wooden Torch~
 G:~:u
@@ -3125,6 +3142,7 @@ W:9:0:60:0
 A:9/1
 P:0:1d2:0:0:0
 F:EASY_KNOW
+D:The remains of an earlier adventurer, perhaps?
 
 N:396:& Dwarf Skeleton~
 G:~:w
@@ -3133,6 +3151,7 @@ W:9:0:50:0
 A:9/1
 P:0:1d2:0:0:0
 F:EASY_KNOW
+D:The remains of an earlier adventurer, perhaps?
 
 N:397:& Elf Skeleton~
 G:~:w
@@ -3141,6 +3160,7 @@ W:9:0:40:0
 A:9/1
 P:0:1d2:0:0:0
 F:EASY_KNOW
+D:The remains of an earlier adventurer, perhaps?
 
 N:398:& Gnome Skeleton~
 G:~:w
@@ -3149,6 +3169,7 @@ W:9:0:30:0
 A:9/1
 P:0:1d2:0:0:0
 F:EASY_KNOW
+D:The remains of an earlier adventurer, perhaps?
 
 ##### Additional weapon #####
 
@@ -3324,6 +3345,7 @@ W:90:0:4:10000
 A:90/8
 P:0:25d25:0:0:0
 F:EASY_KNOW
+D:The bottle this potion is in looks very fragile.
 
 N:418:Augmentation
 G:!:d
@@ -3640,34 +3662,34 @@ F:INSTA_ART
 N:500:& Phial~
 G:!:y
 I:39:4:0
-W:1:0:10:10000
+W:5:20:10:10000
 P:0:1d1:0:0:0
-F:INSTA_ART
+F:INSTA_ART | LITE
 
 # The Star of Elendil -- see artifact list
 
 N:501:& Star~
 G:*:y
 I:39:5:0
-W:30:0:5:25000
+W:20:30:5:25000
 P:0:1d1:0:0:0
-F:INSTA_ART
+F:INSTA_ART | LITE
 
 # The Arkenstone of Thrain -- replaced with Jewel of Judgement
 
 N:502:& Jewel~
 G:*:R
 I:39:6:0
-W:60:0:5:60000
+W:50:50:5:60000
 P:0:1d1:0:0:0
-F:INSTA_ART
+F:INSTA_ART | LITE
 
 # The Amulet of Carlammas -- see artifact list
 
 N:503:& Amulet~
 G:":d
 I:40:10:0
-W:50:0:3:60000
+W:10:30:3:60000
 F:INSTA_ART
 
 # The Amulet of Ingwe -- see artifact list
@@ -3675,7 +3697,7 @@ F:INSTA_ART
 N:504:& Amulet~
 G:":d
 I:40:11:0
-W:60:0:3:90000
+W:30:30:3:90000
 F:INSTA_ART
 
 # The Necklace of the Dwarves -- see artifact list
@@ -3683,7 +3705,7 @@ F:INSTA_ART
 N:505:& Necklace~
 G:":d
 I:40:12:0
-W:70:0:3:75000
+W:50:20:3:75000
 F:INSTA_ART
 
 # The Ring of Barahir -- see artifact list
@@ -3691,7 +3713,7 @@ F:INSTA_ART
 N:506:& Ring~
 G:=:d
 I:45:32:0
-W:50:0:2:65000
+W:10:30:2:65000
 F:INSTA_ART
 
 # The Ring of Tulkas -- see artifact list
@@ -3699,7 +3721,7 @@ F:INSTA_ART
 N:507:& Ring~
 G:=:d
 I:45:33:0
-W:90:0:2:150000
+W:30:30:2:150000
 F:INSTA_ART
 
 # The Ring of Power (Narya) -- see artifact list
@@ -3707,7 +3729,7 @@ F:INSTA_ART
 N:508:& Ring~
 G:=:d
 I:45:34:0
-W:80:0:2:100000
+W:50:30:2:100000
 F:INSTA_ART
 
 # The Ring of Power (Nenya) -- see artifact list
@@ -3715,7 +3737,7 @@ F:INSTA_ART
 N:509:& Ring~
 G:=:d
 I:45:35:0
-W:90:0:2:200000
+W:70:30:2:200000
 F:INSTA_ART
 
 # The Ring of Power (Vilya) -- see artifact list
@@ -3723,7 +3745,7 @@ F:INSTA_ART
 N:510:& Ring~
 G:=:d
 I:45:36:0
-W:100:0:2:300000
+W:90:30:2:300000
 F:INSTA_ART
 
 # The Ring of Power (The One Ring) -- see artifact list
@@ -4110,6 +4132,7 @@ I:36:3:0
 W:9:0:30:50
 A:9/3
 P:4:1d1:0:0:0
+D:This unusual armor is made from many layers of paper glued together.
 
 N:559:& Padded Armour~
 G:(:y
@@ -4149,7 +4172,7 @@ P:17:1d4:-2:0:0
 N:564:& Incandescent Globe~
 G:!:y
 I:39:3:0
-W:20:10:5:20000
+W:30:50:5:20000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
@@ -4284,7 +4307,7 @@ F:SHOW_MODS
 N:582:& Ring~
 G:=:d
 I:45:50:0
-W:100:0:2:300000
+W:100:20:2:300000
 F:INSTA_ART
 
 ##### New rings #####
@@ -4303,7 +4326,32 @@ W:13:0:2:150
 A:13/2
 F:STEALTH | INFRA
 
-# 585-589 are unused
+N:585:Fate
+G:=:d
+I:45:53:0
+W:15:0:2:200
+A:15/5:30/5
+F:STRANGE_LUCK
+
+# 586 are unused
+
+##### New amulets #####
+
+N:587:Protection from Evil
+G:":d
+I:40:16:0
+W:35:0:3:500
+A:35/2
+F:SLAY_EVIL | EASY_KNOW
+
+N:588:Protection from Undead
+G:":d
+I:40:17:4
+W:35:0:3:500
+A:35/2
+F:SLAY_UNDEAD | WIS
+
+# 589 is unused
 
 ##### New weapon types #####
 N:590:& Elfblade~
@@ -4316,8 +4364,26 @@ P:0:4d4:0:0:0
 N:591:& Whip~ of Entanglement
 G:\:D
 I:21:21:0
-W:5:0:30:350
+W:20:0:30:350
 A:20/5
 P:0:1d6:0:0:0
 F:SLAY_ANIMAL | SHOW_MODS
+
+N:592:& Psiblade~
+G:|:B
+I:23:33:0
+W:50:0:120:1400
+A:50/4
+P:0:3d4:0:0:0
+F:PSI_CRIT | LITE | SHOW_MODS
+D:The blade of this sword is made of pure magic.
+
+N:593:& Hammer~ of Returning
+G:\:D
+I:21:22:0
+W:9:0:85:675
+A:31/4
+P:0:3d4:0:0:0
+F:THROW | RETURN | SHOW_MODS
+D:An ornate metal hammer with runes inscribed on the haft and head.
 

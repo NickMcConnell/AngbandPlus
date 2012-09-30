@@ -372,23 +372,6 @@
 
 
 /*
- * OPTION: Create and use a hidden directory in the users home directory
- * for storing pref-files and character-dumps.
- */
-#ifdef SET_UID
-#define PRIVATE_USER_PATH "~/.angband"
-#endif /* SET_UID */
-
-
-/*
- * On multiuser systems, add the "uid" to savefile names
- */
-#ifdef SET_UID
-# define SAVEFILE_USE_UID
-#endif /* SET_UID */
-
-
-/*
  * OPTION: Check the "time" against "lib/file/hours.txt"
  */
 /* #define CHECK_TIME */
@@ -510,16 +493,6 @@
 #endif
 
 
-/*
- * Allow the Borg to use graphics.
- */
-#ifdef ALLOW_BORG
-# ifdef USE_GRAPHICS
-#  define ALLOW_BORG_GRAPHICS
-# endif	/* USE_GRAPHICS */
-#endif /* ALLOW_BORG */
-
-
 /* Do we want different characters for different races? */
 /*
  * Too slow for general use - note that the 16x16 tiles use a
@@ -542,16 +515,6 @@
 /* #define MONK_HACK */
 
 /*
- * Use a scripting language (required)
- */
-#define USE_SCRIPT
-
-/*
- * Monsters can drop corpses when killed
- */
-#define USE_CORPSES
-
-/*
  * Add caverns and lakes to the dungeon
  */
 #define ALLOW_CAVERNS_AND_LAKES
@@ -566,29 +529,3 @@
  */
 /* #define USE_64B */
 
-/* Include maid-grf.c stuff */
-#ifdef ALLOW_BORG
-#define TERM_USE_MAP
-#define TERM_CAVE_MAP
-#define TERM_USE_LIST
-#endif /* ALLOW_BORG */
-
-#ifdef USE_AMI
-#define TERM_USE_MAP
-#define TERM_MAP_GLYPH
-#endif /* USE_AMI */
-
-#ifdef USE_TNB
-#define TERM_USE_MAP
-#define TERM_MAP_GLYPH
-#define TERM_CAVE_MAP
-#define TERM_MAP_INFO
-#endif /* USE_TNB */
-
-/*
- * Defining parts of the new term interface requires
- * the callbacks api
- */
-#if defined TERM_USE_MAP || defined TERM_USE_LIST
-#define TERM_USE_CALLBACKS
-#endif /* TERM_USE_MAP || TERM_USE_LIST */

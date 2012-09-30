@@ -635,6 +635,7 @@ proc NSPets::NewItemCmd {oop canvistId y iconSpec name numObjects status {color 
 	set fh [font metrics $font -linespace]
 	set diff [expr {int([expr {($lineHeight - $fh) / 2}])}]
 
+if 0 {
 	# Image
 	if {[string length $iconSpec]} {
 		set iw [icon size]
@@ -645,7 +646,7 @@ proc NSPets::NewItemCmd {oop canvistId y iconSpec name numObjects status {color 
 		lappend itemIdList [$c create widget $xdiff [expr {$y + $ydiff}] \
 			-assign $iconSpec]
 	}
-
+}
 	# Name
 	lappend itemIdList [$c create text 0 [expr {$y + $diff}] \
 		-text $name -anchor nw -font $font -fill $color -tags name]

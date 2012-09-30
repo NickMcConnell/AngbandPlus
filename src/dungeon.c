@@ -282,10 +282,10 @@ static void sense_inventory(void)
 	/*** Check for "sensing" ***/
 
 	/* No sensing when confused */
-	if (p_ptr->confused) return;
+	if (p_ptr->tim.confused) return;
 	
 	/* Analyze the class */
-	switch (p_ptr->pclass)
+	switch (p_ptr->rp.pclass)
 	{
 		case CLASS_WARRIOR:
 		{
@@ -390,7 +390,7 @@ static void sense_inventory(void)
 	 * Scale difficulty depending on sensing ability 
 	 * This can be affected by objects.
 	 */
-	difficulty /= (p_ptr->skill_sns > 0 ? p_ptr->skill_sns : 1);
+	difficulty /= (p_ptr->skill.sns > 0 ? p_ptr->skill.sns : 1);
 
 	/* Rescale larger by a facter of 25 */
 	difficulty *= 25;
@@ -402,7 +402,7 @@ static void sense_inventory(void)
 	if (!(one_in_(difficulty))) return;
 	
 	/* Heavy sensing? */
-	heavy = class_info[p_ptr->pclass].heavy_sense;
+	heavy = class_info[p_ptr->rp.pclass].heavy_sense;
 
 	/*** Sense everything ***/
 
@@ -445,7 +445,7 @@ static void pattern_teleport(void)
 
 		/* Maximum level */
 		if (p_ptr->depth > 100)
-			max_level = MAX_DEPTH - 1;
+			max_level = max_dun_level();
 		else if (p_ptr->depth == 100)
 			max_level = 100;
 
@@ -457,7 +457,7 @@ static void pattern_teleport(void)
 						min_level, max_level)) return;
 
 		/* Extract request */
-		p_ptr->command_arg = atoi(tmp_val);
+		p_ptr->cmd.arg = atoi(tmp_val);
 	}
 	else if (get_check("Normal teleport? "))
 	{
@@ -470,21 +470,21 @@ static void pattern_teleport(void)
 	}
 
 	/* Paranoia */
-	if (p_ptr->command_arg < min_level) p_ptr->command_arg = min_level;
+	if (p_ptr->cmd.arg < min_level) p_ptr->cmd.arg = min_level;
 
 	/* Paranoia */
-	if (p_ptr->command_arg > max_level) p_ptr->command_arg = max_level;
+	if (p_ptr->cmd.arg > max_level) p_ptr->cmd.arg = max_level;
 
 	/* Accept request */
-	msgf("You teleport to dungeon level %d.", p_ptr->command_arg);
+	msgf("You teleport to dungeon level %d.", p_ptr->cmd.arg);
 
 	if (autosave_l) do_cmd_save_game(TRUE);
 
 	/* Change level */
-	p_ptr->depth = p_ptr->command_arg;
+	p_ptr->depth = p_ptr->cmd.arg;
 
 	/* Leaving */
-	p_ptr->leaving = TRUE;
+	p_ptr->state.leaving = TRUE;
 }
 
 
@@ -504,7 +504,7 @@ static void wreck_the_pattern(void)
 	msgf("You bleed on the Pattern!");
 	msgf("Something terrible happens!");
 
-	if (!p_ptr->invuln)
+	if (!p_ptr->tim.invuln)
 		take_hit(damroll(10, 8), "corrupting the Pattern");
 
 	to_ruin = rand_range(35, 80);
@@ -535,19 +535,19 @@ static bool pattern_effect(void)
 		(c_ptr->feat > FEAT_PATTERN_XTRA2))
 		return FALSE;
 
-	if ((p_ptr->prace == RACE_AMBERITE) && (p_ptr->cut > 0) && one_in_(10))
+	if ((p_ptr->rp.prace == RACE_AMBERITE) && (p_ptr->tim.cut > 0) && one_in_(10))
 	{
 		wreck_the_pattern();
 	}
 
 	if (c_ptr->feat == FEAT_PATTERN_END)
 	{
-		(void)set_poisoned(0);
-		(void)set_image(0);
-		(void)set_stun(0);
-		(void)set_cut(0);
-		(void)set_blind(0);
-		(void)set_afraid(0);
+		(void)clear_poisoned();
+		(void)clear_image();
+		(void)clear_stun();
+		(void)clear_cut();
+		(void)clear_blind();
+		(void)clear_afraid();
 		(void)do_res_stat(A_STR);
 		(void)do_res_stat(A_INT);
 		(void)do_res_stat(A_WIS);
@@ -578,14 +578,14 @@ static bool pattern_effect(void)
 	}
 	else if (c_ptr->feat == FEAT_PATTERN_XTRA2)
 	{
-		if (!p_ptr->invuln)
+		if (!p_ptr->tim.invuln)
 			take_hit(200, "walking the corrupted Pattern");
 	}
 	else
 	{
-		if ((p_ptr->prace == RACE_AMBERITE) && one_in_(2))
+		if ((p_ptr->rp.prace == RACE_AMBERITE) && one_in_(2))
 			return TRUE;
-		else if (!p_ptr->invuln)
+		else if (!p_ptr->tim.invuln)
 			take_hit(damroll(1, 3), "walking the Pattern");
 	}
 
@@ -744,7 +744,7 @@ void notice_lite_change(object_type *o_ptr)
 	}
 
 	/* Hack -- Special treatment when blind */
-	if (p_ptr->blind)
+	if (p_ptr->tim.blind)
 	{
 		/* Hack -- save some light for later */
 		if (o_ptr->timeout == 0) o_ptr->timeout++;
@@ -884,7 +884,6 @@ static void process_world(void)
 	u16b x, y;
 
 	object_type *o_ptr;
-	u32b f1 = 0, f2 = 0, f3 = 0;
 	int temp;
 	object_kind *k_ptr;
 	cave_type *c_ptr = area(p_ptr->px, p_ptr->py);
@@ -925,10 +924,10 @@ static void process_world(void)
 				msgf("The gates to ANGBAND are now closed.");
 
 				/* Stop playing */
-				p_ptr->playing = FALSE;
+				p_ptr->state.playing = FALSE;
 
 				/* Leaving */
-				p_ptr->leaving = TRUE;
+				p_ptr->state.leaving = TRUE;
 			}
 		}
 	}
@@ -997,7 +996,7 @@ static void process_world(void)
 	if (one_in_(MAX_M_ALLOC_CHANCE))
 	{
 		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
+		(void)alloc_monster(MAX_SIGHT + 5, FALSE, 0);
 	}
 
 	/* Hack -- Check for creature regeneration */
@@ -1007,7 +1006,7 @@ static void process_world(void)
 	/*** Damage over Time ***/
 
 	/* Take damage from poison */
-	if (p_ptr->poisoned && !p_ptr->invuln)
+	if (p_ptr->tim.poisoned && !p_ptr->tim.invuln)
 	{
 		/* Take damage */
 		take_hit(1, "poison");
@@ -1015,15 +1014,17 @@ static void process_world(void)
 
 
 	/* (Vampires) Take damage from sunlight */
-	if (p_ptr->prace == RACE_VAMPIRE)
+	if (p_ptr->flags4 & (TR4_HURT_LITE))
 	{
-		if (!p_ptr->depth && !p_ptr->resist_lite && !p_ptr->invuln &&
+		if (!p_ptr->depth && !(p_ptr->flags2 & (TR2_RES_LITE)) &&
+			!(p_ptr->flags4 & (TR4_IM_LITE)) &&
+			!p_ptr->tim.invuln &&
 			(!((turn / ((10L * TOWN_DAWN) / 2)) % 2)))
 		{
 			if (c_ptr->info & CAVE_GLOW)
 			{
 				/* Take damage */
-				msgf("The sun's rays scorch your undead flesh!");
+				msgf("The sun's rays scorch your flesh!");
 				take_hit(1, "sunlight");
 				cave_no_regen = TRUE;
 			}
@@ -1033,7 +1034,9 @@ static void process_world(void)
 
 		if (o_ptr->tval &&
 			(o_ptr->sval >= SV_LITE_GALADRIEL) &&
-			(o_ptr->sval < SV_LITE_THRAIN) && !p_ptr->resist_lite)
+			(o_ptr->sval < SV_LITE_THRAIN) && 
+			!(p_ptr->flags2 & (TR2_RES_LITE)) &&
+			!(p_ptr->flags4 & (TR4_IM_LITE)))
 		{
 			char o_name[256];
 			char ouch[280];
@@ -1049,17 +1052,13 @@ static void process_world(void)
 			object_desc(o_name, o_ptr, TRUE, 0, 256);
 
 			strnfmt(ouch, 280, "wielding %s", o_name);
-			if (!p_ptr->invuln) take_hit(1, ouch);
+			if (!p_ptr->tim.invuln) take_hit(1, ouch);
 		}
 	}
 
-	if ((c_ptr->feat == FEAT_SHAL_LAVA) &&
-		!p_ptr->invuln && !p_ptr->immune_fire && !p_ptr->ffall)
+	if ((c_ptr->feat == FEAT_SHAL_LAVA) && !(p_ptr->flags3 & (TR3_FEATHER)))
 	{
-		int damage = p_ptr->lev;
-
-		if (p_ptr->resist_fire) damage = damage / 3;
-		if (p_ptr->oppose_fire) damage = damage / 3;
+		int damage = resist(p_ptr->lev, res_fire_lvl);
 
 		if (damage)
 		{
@@ -1070,17 +1069,13 @@ static void process_world(void)
 		}
 	}
 
-	else if ((c_ptr->feat == FEAT_DEEP_LAVA) &&
-			 !p_ptr->invuln && !p_ptr->immune_fire)
+	else if (c_ptr->feat == FEAT_DEEP_LAVA)
 	{
-		int damage = p_ptr->lev * 2;
+		int damage = resist(p_ptr->lev * 2, res_fire_lvl);
 		cptr message;
 		cptr hit_from;
 
-		if (p_ptr->resist_fire) damage = damage / 3;
-		if (p_ptr->oppose_fire) damage = damage / 3;
-
-		if (p_ptr->ffall)
+		if (p_ptr->flags3 & (TR3_FEATHER))
 		{
 			damage = damage / 5;
 
@@ -1103,13 +1098,9 @@ static void process_world(void)
 		}
 	}
 
-	if ((c_ptr->feat == FEAT_SHAL_ACID) &&
-		!p_ptr->invuln && !p_ptr->immune_acid && !p_ptr->ffall)
+	if ((c_ptr->feat == FEAT_SHAL_ACID) && !(p_ptr->flags3 & (TR3_FEATHER)))
 	{
-		int damage = p_ptr->lev;
-
-		if (p_ptr->resist_acid) damage = damage / 3;
-		if (p_ptr->oppose_acid) damage = damage / 3;
+		int damage = resist(p_ptr->lev, res_acid_lvl);
 
 		if (damage)
 		{
@@ -1120,17 +1111,13 @@ static void process_world(void)
 		}
 	}
 
-	else if ((c_ptr->feat == FEAT_DEEP_ACID) &&
-			 !p_ptr->invuln && !p_ptr->immune_acid)
+	else if (c_ptr->feat == FEAT_DEEP_ACID)
 	{
-		int damage = p_ptr->lev * 2;
+		int damage = resist(p_ptr->lev * 2, res_acid_lvl);
 		cptr message;
 		cptr hit_from;
 
-		if (p_ptr->resist_acid) damage = damage / 3;
-		if (p_ptr->oppose_acid) damage = damage / 3;
-
-		if (p_ptr->ffall)
+		if (p_ptr->flags3 & (TR3_FEATHER))
 		{
 			damage = damage / 5;
 
@@ -1153,12 +1140,9 @@ static void process_world(void)
 		}
 	}
 
-	if ((c_ptr->feat == FEAT_SHAL_SWAMP) &&
-		!p_ptr->invuln && !p_ptr->resist_pois && !p_ptr->ffall)
+	if ((c_ptr->feat == FEAT_SHAL_SWAMP) &&	!(p_ptr->flags3 & (TR3_FEATHER)))
 	{
-		int damage = p_ptr->lev;
-
-		if (p_ptr->oppose_pois) damage = damage / 3;
+		int damage = resist(p_ptr->lev, res_pois_lvl);
 
 		if (damage)
 		{
@@ -1169,16 +1153,13 @@ static void process_world(void)
 		}
 	}
 
-	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) && !p_ptr->invuln)
+	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) && !p_ptr->tim.invuln)
 	{
-		int damage = p_ptr->lev * 2;
+		int damage = resist(p_ptr->lev * 2, res_pois_lvl);
 		cptr message;
 		cptr hit_from;
 
-		if (p_ptr->resist_pois) damage = damage / 3;
-		if (p_ptr->oppose_pois) damage = damage / 3;
-
-		if (p_ptr->ffall)
+		if (p_ptr->flags3 & (TR3_FEATHER))
 		{
 			damage = damage / 5;
 
@@ -1202,10 +1183,11 @@ static void process_world(void)
 	}
 
 	else if (((c_ptr->feat == FEAT_DEEP_WATER) ||
-			  (c_ptr->feat == FEAT_OCEAN_WATER)) && !p_ptr->ffall)
+			  (c_ptr->feat == FEAT_OCEAN_WATER)) &&
+			  !(p_ptr->flags3 & (TR3_FEATHER)))
 	{
 		if (p_ptr->total_weight >
-			((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
+			((adj_str_wgt[p_ptr->stat[A_STR].ind] * 100) / 2))
 		{
 			/* Take damage */
 			msgf("You are drowning!");
@@ -1223,14 +1205,15 @@ static void process_world(void)
 	 */
 	if (cave_wall_grid(c_ptr))
 	{
-		if (!p_ptr->invuln && !p_ptr->wraith_form &&
-			((p_ptr->chp > (p_ptr->lev / 5)) || !p_ptr->pass_wall))
+		if (!p_ptr->tim.invuln && !p_ptr->tim.wraith_form &&
+			((p_ptr->chp > (p_ptr->lev / 5)) || 
+			 !(p_ptr->flags4 & (TR4_PASS_WALL))))
 		{
 			cptr dam_desc;
 
 			cave_no_regen = TRUE;
 
-			if (p_ptr->pass_wall)
+			if (p_ptr->flags4 & (TR4_PASS_WALL))
 			{
 				msgf("Your molecules feel disrupted!");
 				dam_desc = "density";
@@ -1308,16 +1291,16 @@ static void process_world(void)
 	}
 
 	/* Take damage from cuts */
-	if (p_ptr->cut && !p_ptr->invuln)
+	if (p_ptr->tim.cut && !p_ptr->tim.invuln)
 	{
 		/* Mortal wound or Deep Gash */
-		if (p_ptr->cut > 200)
+		if (p_ptr->tim.cut > 200)
 		{
 			i = 3;
 		}
 
 		/* Severe cut */
-		else if (p_ptr->cut > 100)
+		else if (p_ptr->tim.cut > 100)
 		{
 			i = 2;
 		}
@@ -1350,10 +1333,20 @@ static void process_world(void)
 			i *= 2;
 
 			/* Regeneration takes more food */
-			if (p_ptr->regenerate) i += 30;
+			if (p_ptr->flags3 & (TR3_REGEN)) i += 30;
+
+			/* Some specific mutations increase food requirement */
+			if (p_ptr->muta3 & (MUT3_RESILIENT)) i += 20;
+			if (p_ptr->muta1 & (MUT1_EAT_ROCK)) i += 20;
 
 			/* Slow digestion takes less food */
-			if (p_ptr->slow_digest) i -= 10;
+			if (p_ptr->flags3 & (TR3_SLOW_DIGEST)) i -= 10;
+
+			/* Slow healing gives some benefit... */
+			if (p_ptr->flags4 & (TR4_SLOW_HEAL)) i -= 5;
+
+			/* Wasting disease - almost no digestion */
+			if (p_ptr->muta2 & MUT2_WASTING) i -= 50;
 
 			/* Minimal digestion */
 			if (i < 1) i = 1;
@@ -1377,7 +1370,7 @@ static void process_world(void)
 		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
 
 		/* Take damage */
-		if (!p_ptr->invuln) take_hit(i, "starvation");
+		if (!p_ptr->tim.invuln) take_hit(i, "starvation");
 	}
 
 	/* Default regeneration */
@@ -1404,14 +1397,14 @@ static void process_world(void)
 		if (p_ptr->food < PY_FOOD_FAINT)
 		{
 			/* Faint occasionally */
-			if (!p_ptr->paralyzed && (randint0(100) < 10))
+			if (!p_ptr->tim.paralyzed && (randint0(100) < 10))
 			{
 				/* Message */
 				msgf("You faint from the lack of food.");
 				disturb(TRUE);
 
 				/* Hack -- faint (bypass free action) */
-				(void)set_paralyzed(p_ptr->paralyzed + randint1(5));
+				(void)inc_paralyzed(randint1(5));
 			}
 		}
 	}
@@ -1425,15 +1418,21 @@ static void process_world(void)
 	else
 	{
 		/* Regeneration ability */
-		if (p_ptr->regenerate)
+		if (p_ptr->flags3 & (TR3_REGEN))
 		{
 			regen_amount = regen_amount * 2;
 		}
+	
+		if (p_ptr->flags4 & (TR4_SLOW_HEAL))
+		{
+			regen_amount = regen_amount / 4;
+		}
+
 	}
 
 
 	/* Searching or Resting */
-	if (p_ptr->searching || p_ptr->resting)
+	if (p_ptr->state.searching || p_ptr->state.resting)
 	{
 		regen_amount = regen_amount * 2;
 	}
@@ -1465,13 +1464,11 @@ static void process_world(void)
 	}
 
 	/* Poisoned or cut yields no healing */
-	if (p_ptr->poisoned) regen_amount = 0;
-	if (p_ptr->cut) regen_amount = 0;
+	if (p_ptr->tim.poisoned) regen_amount = 0;
+	if (p_ptr->tim.cut) regen_amount = 0;
 
 	/* Special floor -- Pattern, in a wall -- yields no healing */
 	if (cave_no_regen) regen_amount = 0;
-
-	regen_amount = (regen_amount * mutant_regenerate_mod) / 100;
 
 	/* Regenerate Hit Points */
 	if (p_ptr->chp < p_ptr->mhp)
@@ -1481,60 +1478,63 @@ static void process_world(void)
 
 
 	/*** Timeout Various Things ***/
-	if (p_ptr->image) (void)set_image(p_ptr->image - 1);
-	if (p_ptr->blind) (void)set_blind(p_ptr->blind - 1);
-	if (p_ptr->tim_invis) (void)set_tim_invis(p_ptr->tim_invis - 1);
-	if (p_ptr->tim_esp) (void)set_tim_esp(p_ptr->tim_esp - 1);
-	if (p_ptr->tim_infra) (void)set_tim_infra(p_ptr->tim_infra - 1);
-	if (p_ptr->paralyzed) (void)set_paralyzed(p_ptr->paralyzed - 1);
-	if (p_ptr->confused) (void)set_confused(p_ptr->confused - 1);
-	if (p_ptr->afraid) (void)set_afraid(p_ptr->afraid - 1);
-	if (p_ptr->fast) (void)set_fast(p_ptr->fast - 1);
-	if (p_ptr->slow) (void)set_slow(p_ptr->slow - 1);
-	if (p_ptr->protevil) (void)set_protevil(p_ptr->protevil - 1);
-	if (p_ptr->invuln) (void)set_invuln(p_ptr->invuln - 1);
-	if (p_ptr->wraith_form) (void)set_wraith_form(p_ptr->wraith_form - 1);
-	if (p_ptr->hero) (void)set_hero(p_ptr->hero - 1);
-	if (p_ptr->shero) (void)set_shero(p_ptr->shero - 1);
-	if (p_ptr->blessed) (void)set_blessed(p_ptr->blessed - 1);
-	if (p_ptr->shield) (void)set_shield(p_ptr->shield - 1);
-	if (p_ptr->oppose_acid) (void)set_oppose_acid(p_ptr->oppose_acid - 1);
-	if (p_ptr->oppose_elec) (void)set_oppose_elec(p_ptr->oppose_elec - 1);
-	if (p_ptr->oppose_fire) (void)set_oppose_fire(p_ptr->oppose_fire - 1);
-	if (p_ptr->oppose_cold) (void)set_oppose_cold(p_ptr->oppose_cold - 1);
-	if (p_ptr->oppose_pois) (void)set_oppose_pois(p_ptr->oppose_pois - 1);
+	if (p_ptr->tim.image) (void)inc_image(-1);
+	if (p_ptr->tim.blind) (void)inc_blind(-1);
+	if (p_ptr->tim.invis) (void)inc_tim_invis(-1);
+	if (p_ptr->tim.esp) (void)inc_tim_esp(-1);
+	if (p_ptr->tim.infra) (void)inc_tim_infra(-1);
+	if (p_ptr->tim.paralyzed) (void)inc_paralyzed(-1);
+	if (p_ptr->tim.confused) (void)inc_confused(-1);
+	if (p_ptr->tim.afraid) (void)inc_afraid(-1);
+	if (p_ptr->tim.fast) (void)inc_fast(-1);
+	if (p_ptr->tim.slow) (void)inc_slow(-1);
+	if (p_ptr->tim.protevil) (void)inc_protevil(-1);
+	if (p_ptr->tim.invuln) (void)inc_invuln(-1);
+	if (p_ptr->tim.wraith_form) (void)inc_wraith_form(-1);
+	if (p_ptr->tim.hero) (void)inc_hero(-1);
+	if (p_ptr->tim.shero) (void)inc_shero(-1);
+	if (p_ptr->tim.blessed) (void)inc_blessed(-1);
+	if (p_ptr->tim.shield) (void)inc_shield(-1);
+	if (p_ptr->tim.oppose_acid) (void)inc_oppose_acid(-1);
+	if (p_ptr->tim.oppose_elec) (void)inc_oppose_elec(-1);
+	if (p_ptr->tim.oppose_fire) (void)inc_oppose_fire(-1);
+	if (p_ptr->tim.oppose_cold) (void)inc_oppose_cold(-1);
+	if (p_ptr->tim.oppose_pois) (void)inc_oppose_pois(-1);
 
 
 	/*** Poison and Stun and Cut ***/
 
 	/* Poison */
-	if (p_ptr->poisoned)
+	if (p_ptr->tim.poisoned)
 	{
-		int adjust = adj_con_fix[p_ptr->stat_ind[A_CON]] + 1;
+		int adjust = adj_con_fix[p_ptr->stat[A_CON].ind] + 1;
 
 		/* Apply some healing */
-		(void)set_poisoned(p_ptr->poisoned - adjust);
+		(void)inc_poisoned(-adjust);
 	}
 
 	/* Stun */
-	if (p_ptr->stun)
+	if (p_ptr->tim.stun)
 	{
-		int adjust = adj_con_fix[p_ptr->stat_ind[A_CON]] + 1;
+		int adjust = adj_con_fix[p_ptr->stat[A_CON].ind] + 1;
 
 		/* Apply some healing */
-		(void)set_stun(p_ptr->stun - adjust);
+		(void)inc_stun(-adjust);
 	}
 
 	/* Cut */
-	if (p_ptr->cut)
+	if (p_ptr->tim.cut)
 	{
-		int adjust = adj_con_fix[p_ptr->stat_ind[A_CON]] + 1;
+		int adjust = adj_con_fix[p_ptr->stat[A_CON].ind] + 1;
+
+		if (p_ptr->flags4 & (TR4_SLOW_HEAL))
+			adjust /= 2;
 
 		/* Hack -- Truly "mortal" wound */
-		if (p_ptr->cut > 1000) adjust = 0;
+		if (p_ptr->tim.cut > 1000) adjust = 0;
 
 		/* Apply some healing */
-		(void)set_cut(p_ptr->cut - adjust);
+		(void)inc_cut(-adjust);
 	}
 
 	/*** Process mutation effects ***/
@@ -1556,7 +1556,7 @@ static void process_world(void)
 	/*** Process Inventory ***/
 
 	/* Handle experience draining */
-	if (p_ptr->exp_drain)
+	if (p_ptr->flags3 & (TR3_DRAIN_EXP))
 	{
 		if ((randint0(100) < 10) && (p_ptr->exp > 0))
 		{
@@ -1566,10 +1566,25 @@ static void process_world(void)
 		}
 	}
 
-	/* Rarely, take damage from the Jewel of Judgement */
-	if (one_in_(999) && !p_ptr->anti_magic)
+	/* Handle stat draining */
+	if (p_ptr->flags4 & (TR4_DRAIN_STATS))
 	{
-		if ((p_ptr->equipment[EQUIP_LITE].tval) && !p_ptr->invuln &&
+		if (one_in_(250))
+		{
+			int stat = randint0(6);
+
+			if (p_ptr->stat[stat].cur > 30)
+			{
+				p_ptr->stat[stat].cur--;
+				p_ptr->update |= (PU_BONUS);
+			}
+		}
+	}
+
+	/* Rarely, take damage from the Jewel of Judgement */
+	if (one_in_(999) && !(p_ptr->flags3 & (TR3_NO_MAGIC)))
+	{
+		if ((p_ptr->equipment[EQUIP_LITE].tval) && !p_ptr->tim.invuln &&
 			(p_ptr->equipment[EQUIP_LITE].sval == SV_LITE_THRAIN))
 		{
 			msgf("The Jewel of Judgement drains life from you!");
@@ -1587,14 +1602,21 @@ static void process_world(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		object_flags(o_ptr, &f1, &f2, &f3);
-
 		/* TY Curse */
-		if ((f3 & TR3_TY_CURSE) && one_in_(TY_CURSE_CHANCE))
+		if ((o_ptr->flags3 & TR3_TY_CURSE) && one_in_(TY_CURSE_CHANCE))
 		{
 			int count = 0;
 
 			(void)activate_ty_curse(FALSE, &count);
+		}
+
+		/* Auto-curse */
+		if ((o_ptr->flags4 & TR4_AUTO_CURSE) && 
+				!(o_ptr->flags3 & TR3_CURSED) && one_in_(1000))
+		{
+			msgf("There is a malignant black aura surrounding you...");;
+			o_ptr->flags3 |= TR3_CURSED;
+			o_ptr->feeling = FEEL_NONE;
 		}
 
 		/* Make a chainsword noise */
@@ -1611,9 +1633,9 @@ static void process_world(void)
 		 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
 		 * can actually be useful!
 		 */
-		if ((f3 & TR3_TELEPORT) && one_in_(100))
+		if ((o_ptr->flags3 & TR3_TELEPORT) && one_in_(100))
 		{
-			if (cursed_p(o_ptr) && !p_ptr->anti_tele)
+			if (cursed_p(o_ptr) && !(p_ptr->flags3 & (TR3_NO_TELE)))
 			{
 				disturb(FALSE);
 
@@ -1769,29 +1791,32 @@ static void process_world(void)
 	/*** Involuntary Movement ***/
 
 	/* Delayed Word-of-Recall */
-	if (p_ptr->word_recall)
+	if (p_ptr->tim.word_recall)
 	{
 		/*
 		 * HACK: Autosave BEFORE resetting the recall counter (rr9)
 		 * The player is yanked up/down as soon as
 		 * he loads the autosaved game.
 		 */
-		if (autosave_l && (p_ptr->word_recall == 1))
+		if (autosave_l && (p_ptr->tim.word_recall == 1))
 			do_cmd_save_game(TRUE);
 
 		/* Count down towards recall */
-		p_ptr->word_recall--;
+		p_ptr->tim.word_recall--;
 
 		p_ptr->redraw |= (PR_STATUS);
+		
+		/* Hack - no recalling in the middle of the wilderness */
+		if ((!p_ptr->depth) && (!p_ptr->place_num)) return;
 
 		/* Activate the recall */
-		if (!p_ptr->word_recall)
+		if (!p_ptr->tim.word_recall)
 		{
 			/* Disturbing! */
 			disturb(FALSE);
 
 			/* Leaving */
-			p_ptr->leaving = TRUE;
+			p_ptr->state.leaving = TRUE;
 
 			/* Determine the level */
 			if (p_ptr->depth)
@@ -1804,8 +1829,11 @@ static void process_world(void)
 			{
 				msgf("You feel yourself yanked downwards!");
 
-				/* New depth */
-				p_ptr->depth = p_ptr->max_depth;
+				/* Not lower than bottom of dungeon */
+				p_ptr->depth = max_dun_level();
+				
+				/* Not further than we have already gone. */
+				if (p_ptr->depth > p_ptr->max_depth) p_ptr->depth = p_ptr->max_depth;
 
 				if (p_ptr->depth < 1) p_ptr->depth = 1;
 
@@ -1823,6 +1851,11 @@ static void process_world(void)
 					else if (p_ptr->depth > 100)
 					{
 						p_ptr->depth = MAX_DEPTH - 1;
+					}
+					
+					if (p_ptr->depth > max_dun_level())
+					{
+						p_ptr->depth = max_dun_level();
 					}
 				}
 			}
@@ -1842,9 +1875,9 @@ static bool enter_wizard_mode(void)
 {
 	/* Ask first time */
 #if 0
-	if (!(p_ptr->noscore & 0x0002))
+	if (!(p_ptr->state.noscore & 0x0002))
 #else
-	if (!p_ptr->noscore)
+	if (!p_ptr->state.noscore)
 #endif
 	{
 		/* Mention effects */
@@ -1859,7 +1892,7 @@ static bool enter_wizard_mode(void)
 		}
 
 		/* Mark savefile */
-		p_ptr->noscore |= 0x0002;
+		p_ptr->state.noscore |= 0x0002;
 	}
 
 	/* Success */
@@ -1876,9 +1909,9 @@ static bool enter_debug_mode(void)
 {
 	/* Ask first time */
 #if 0
-	if (!(p_ptr->noscore & 0x0008))
+	if (!(p_ptr->state.noscore & 0x0008))
 #else
-	if (!p_ptr->noscore)
+	if (!p_ptr->state.noscore)
 #endif
 	{
 		/* Mention effects */
@@ -1893,7 +1926,7 @@ static bool enter_debug_mode(void)
 		}
 
 		/* Mark savefile */
-		p_ptr->noscore |= 0x0008;
+		p_ptr->state.noscore |= 0x0008;
 	}
 
 	/* Success */
@@ -1916,7 +1949,7 @@ extern void do_cmd_debug(void);
 static bool enter_borg_mode(void)
 {
 	/* Ask first time */
-	if (!(p_ptr->noscore & 0x0040))
+	if (!(p_ptr->state.noscore & 0x0040))
 	{
 		/* Mention effects */
 		msgf("The borg commands are for debugging and experimenting.");
@@ -1930,7 +1963,7 @@ static bool enter_borg_mode(void)
 		}
 
 		/* Mark savefile */
-		p_ptr->noscore |= 0x0040;
+		p_ptr->state.noscore |= 0x0040;
 	}
 
 	/* Success */
@@ -1953,7 +1986,7 @@ static void process_command(void)
 	repeat_check();
 
 	/* Parse the command */
-	switch (p_ptr->command_cmd)
+	switch (p_ptr->cmd.cmd)
 	{
 		case ESCAPE:
 		case ' ':
@@ -1973,14 +2006,14 @@ static void process_command(void)
 		case KTRL('W'):
 		{
 			/* Toggle Wizard Mode */
-			if (p_ptr->wizard)
+			if (p_ptr->state.wizard)
 			{
-				p_ptr->wizard = FALSE;
+				p_ptr->state.wizard = FALSE;
 				msgf("Wizard mode off.");
 			}
 			else if (enter_wizard_mode())
 			{
-				p_ptr->wizard = TRUE;
+				p_ptr->state.wizard = TRUE;
 				msgf("Wizard mode on.");
 			}
 
@@ -2228,10 +2261,10 @@ static void process_command(void)
 		case 'm':
 		{
 			/* Cast a spell */
-			if (p_ptr->anti_magic)
+			if (p_ptr->flags3 & (TR3_NO_MAGIC))
 			{
 				cptr which_power = "magic";
-				if (p_ptr->pclass == CLASS_MINDCRAFTER)
+				if (p_ptr->rp.pclass == CLASS_MINDCRAFTER)
 					which_power = "psionic powers";
 				else if (mp_ptr->spell_book == TV_LIFE_BOOK)
 					which_power = "prayer";
@@ -2243,7 +2276,7 @@ static void process_command(void)
 			}
 			else
 			{
-				if (p_ptr->pclass == CLASS_MINDCRAFTER)
+				if (p_ptr->rp.pclass == CLASS_MINDCRAFTER)
 					do_cmd_mindcraft();
 				else
 					do_cmd_cast();
@@ -2594,10 +2627,10 @@ static void process_player(void)
 	/*** Check for interupts ***/
 
 	/* Complete resting */
-	if (p_ptr->resting < 0)
+	if (p_ptr->state.resting < 0)
 	{
 		/* Basic resting */
-		if (p_ptr->resting == -1)
+		if (p_ptr->state.resting == -1)
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) && (p_ptr->csp >= p_ptr->msp))
@@ -2607,16 +2640,16 @@ static void process_player(void)
 		}
 
 		/* Complete resting */
-		else if (p_ptr->resting == -2)
+		else if (p_ptr->state.resting == -2)
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
 				(p_ptr->csp == p_ptr->msp) &&
-				!p_ptr->blind && !p_ptr->confused &&
-				!p_ptr->poisoned && !p_ptr->afraid &&
-				!p_ptr->stun && !p_ptr->cut &&
-				!p_ptr->slow && !p_ptr->paralyzed &&
-				!p_ptr->image && !p_ptr->word_recall)
+				!p_ptr->tim.blind && !p_ptr->tim.confused &&
+				!p_ptr->tim.poisoned && !p_ptr->tim.afraid &&
+				!p_ptr->tim.stun && !p_ptr->tim.cut &&
+				!p_ptr->tim.slow && !p_ptr->tim.paralyzed &&
+				!p_ptr->tim.image && !p_ptr->tim.word_recall)
 			{
 				disturb(FALSE);
 			}
@@ -2626,10 +2659,10 @@ static void process_player(void)
 	/*** Handle "abort" ***/
 
 	/* Check for "player abort" */
-	if (p_ptr->running || p_ptr->command_rep || p_ptr->resting)
+	if (p_ptr->state.running || p_ptr->cmd.rep || p_ptr->state.resting)
 	{
 		/* Do not wait */
-		p_ptr->inkey_scan = TRUE;
+		p_ptr->cmd.inkey_scan = TRUE;
 
 		/* Check for a key */
 		if (inkey())
@@ -2704,20 +2737,20 @@ static void process_player(void)
 
 
 		/* Paralyzed or Knocked Out */
-		if (p_ptr->paralyzed || (p_ptr->stun >= 100))
+		if (p_ptr->tim.paralyzed || (p_ptr->tim.stun >= 100))
 		{
 			/* Take a turn */
 			p_ptr->energy_use = 100;
 		}
 
 		/* Resting */
-		else if (p_ptr->resting)
+		else if (p_ptr->state.resting)
 		{
 			/* Timed rest */
-			if (p_ptr->resting > 0)
+			if (p_ptr->state.resting > 0)
 			{
 				/* Reduce rest count */
-				p_ptr->resting--;
+				p_ptr->state.resting--;
 
 				/* Redraw the state */
 				p_ptr->redraw |= (PR_STATE);
@@ -2728,17 +2761,17 @@ static void process_player(void)
 		}
 
 		/* Running */
-		else if (p_ptr->running)
+		else if (p_ptr->state.running)
 		{
 			/* Take a step */
 			run_step(0);
 		}
 
 		/* Repeated command */
-		else if (p_ptr->command_rep)
+		else if (p_ptr->cmd.rep)
 		{
 			/* Count this execution */
-			p_ptr->command_rep--;
+			p_ptr->cmd.rep--;
 
 			/* Redraw the state */
 			p_ptr->redraw |= (PR_STATE);
@@ -2780,7 +2813,7 @@ static void process_player(void)
 
 
 			/* Hack -- constant hallucination */
-			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
+			if (p_ptr->tim.image) p_ptr->redraw |= (PR_MAP);
 
 
 			/* Shimmer monsters if needed */
@@ -2865,10 +2898,10 @@ static void process_player(void)
 
 
 		/* Hack -- notice death */
-		if (!p_ptr->playing || p_ptr->is_dead) break;
+		if (!p_ptr->state.playing || p_ptr->state.is_dead) break;
 
 		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
+		if (p_ptr->state.leaving) break;
 
 		/* Used up energy for this turn */
 		if (p_ptr->energy_use) break;
@@ -2919,13 +2952,13 @@ static void process_energy(void)
 	}
 
 	/* Can the player move? */
-	while (p_ptr->energy >= 100 && !p_ptr->leaving)
+	while (p_ptr->energy >= 100 && !p_ptr->state.leaving)
 	{
 		/* process monster with even more energy first */
 		process_monsters(p_ptr->energy + 1);
 
 		/* Process the player while still alive */
-		if (!p_ptr->leaving)
+		if (!p_ptr->state.leaving)
 		{
 			process_player();
 		}
@@ -2946,18 +2979,15 @@ static void dungeon(void)
 {
 	cave_type *c_ptr;
 
-	/* Set the base level */
-	base_level = p_ptr->depth;
-
 	/* Not leaving */
-	p_ptr->leaving = FALSE;
+	p_ptr->state.leaving = FALSE;
 
 	/* Reset the "command" vars */
-	p_ptr->command_cmd = 0;
-	p_ptr->command_new = 0;
-	p_ptr->command_rep = 0;
-	p_ptr->command_arg = 0;
-	p_ptr->command_dir = 0;
+	p_ptr->cmd.cmd = 0;
+	p_ptr->cmd.new = 0;
+	p_ptr->cmd.rep = 0;
+	p_ptr->cmd.arg = 0;
+	p_ptr->cmd.dir = 0;
 
 
 	/* Cancel the target */
@@ -2989,28 +3019,23 @@ static void dungeon(void)
 	/* No stairs down from Quest */
 	if (is_quest_level(p_ptr->depth))
 	{
-		p_ptr->create_down_stair = FALSE;
+		p_ptr->state.create_down_stair = FALSE;
 	}
 
 	/* Paranoia -- no stairs from town or wilderness */
-	if (!p_ptr->depth) p_ptr->create_down_stair = p_ptr->create_up_stair =
-			FALSE;
+	if (!p_ptr->depth) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
 
 	/* Option -- no connected stairs */
-	if (!dungeon_stair ||
-		ironman_moria) p_ptr->create_down_stair = p_ptr->create_up_stair =
-FALSE;
+	if (!dungeon_stair) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
 
 	/* Nightmare mode is no fun... */
-	if (ironman_nightmare) p_ptr->create_down_stair = p_ptr->create_up_stair =
-			FALSE;
+	if (ironman_nightmare) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
 
 	/* Option -- no up stairs */
-	if (ironman_downward) p_ptr->create_down_stair = p_ptr->create_up_stair =
-			FALSE;
+	if (ironman_downward) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
 
 	/* Make a stairway. */
-	if (p_ptr->create_up_stair || p_ptr->create_down_stair)
+	if (p_ptr->state.create_up_stair || p_ptr->state.create_down_stair)
 	{
 		/* Place a stairway */
 		c_ptr = area(p_ptr->px, p_ptr->py);
@@ -3020,7 +3045,7 @@ FALSE;
 			delete_object(p_ptr->px, p_ptr->py);
 
 			/* Make stairs */
-			if (p_ptr->create_down_stair)
+			if (p_ptr->state.create_down_stair)
 			{
 				cave_set_feat(p_ptr->px, p_ptr->py, FEAT_MORE);
 			}
@@ -3031,7 +3056,7 @@ FALSE;
 		}
 
 		/* Cancel the stair request */
-		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
+		p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
 	}
 
 
@@ -3094,18 +3119,12 @@ FALSE;
 	Term_fresh();
 
 	/* Hack -- notice death or departure */
-	if (!p_ptr->playing || p_ptr->is_dead) return;
+	if (!p_ptr->state.playing || p_ptr->state.is_dead) return;
 
 	/* Print quest message if appropriate */
 	quest_discovery();
 
 	/*** Process this dungeon level ***/
-
-	/* Reset the monster generation level */
-	monster_level = base_level;
-
-	/* Reset the object generation level */
-	object_level = base_level;
 
 	/* Main loop */
 	while (TRUE)
@@ -3149,7 +3168,7 @@ FALSE;
 		if (fresh_after) Term_fresh();
 
 		/* Hack -- Notice death or departure */
-		if (!p_ptr->playing || p_ptr->is_dead) break;
+		if (!p_ptr->state.playing || p_ptr->state.is_dead) break;
 
 		/* Process all of the monsters */
 		process_monsters(100);
@@ -3170,19 +3189,19 @@ FALSE;
 		if (fresh_after) Term_fresh();
 
 		/* Hack -- Notice death or departure */
-		if (!p_ptr->playing || p_ptr->is_dead) break;
+		if (!p_ptr->state.playing || p_ptr->state.is_dead) break;
 
 		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
+		if (p_ptr->state.leaving) break;
 
 		/* Process the world */
 		process_world();
 
 		/* Hack -- Notice death or departure */
-		if (!p_ptr->playing || p_ptr->is_dead) break;
+		if (!p_ptr->state.playing || p_ptr->state.is_dead) break;
 
 		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
+		if (p_ptr->state.leaving) break;
 
 		/* Notice */
 		notice_stuff();
@@ -3197,10 +3216,10 @@ FALSE;
 		if (fresh_after) Term_fresh();
 
 		/* Hack -- Notice death or departure */
-		if (!p_ptr->playing || p_ptr->is_dead) break;
+		if (!p_ptr->state.playing || p_ptr->state.is_dead) break;
 
 		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
+		if (p_ptr->state.leaving) break;
 
 
 		/* Count game turns */
@@ -3233,17 +3252,17 @@ static void load_all_pref_files(void)
 	(void)process_pref_file("%s.prf", player_base);
 
 	/* Access the "realm 1" pref file */
-	if (p_ptr->realm1 != REALM_NONE)
+	if (p_ptr->spell.r[0].realm != REALM_NONE)
 	{
 		/* Process that file */
-		(void)process_pref_file("%s.prf", realm_names[p_ptr->realm1]);
+		(void)process_pref_file("%s.prf", realm_names[p_ptr->spell.r[0].realm]);
 	}
 
 	/* Access the "realm 2" pref file */
-	if (p_ptr->realm2 != REALM_NONE)
+	if (p_ptr->spell.r[1].realm != REALM_NONE)
 	{
 		/* Process that file */
-		(void)process_pref_file("%s.prf", realm_names[p_ptr->realm2]);
+		(void)process_pref_file("%s.prf", realm_names[p_ptr->spell.r[1].realm]);
 	}
 }
 
@@ -3366,10 +3385,11 @@ void play_game(bool new_game)
 		player_birth();
 
 		/* Hack -- enter the world */
-		if ((p_ptr->prace == RACE_VAMPIRE) ||
-			(p_ptr->prace == RACE_SKELETON) ||
-			(p_ptr->prace == RACE_ZOMBIE) ||
-			(p_ptr->prace == RACE_SPECTRE) || (p_ptr->prace == RACE_GHOUL))
+		if ((p_ptr->rp.prace == RACE_VAMPIRE) ||
+			(p_ptr->rp.prace == RACE_SKELETON) ||
+			(p_ptr->rp.prace == RACE_ZOMBIE) ||
+			(p_ptr->rp.prace == RACE_SPECTRE) ||
+			(p_ptr->rp.prace == RACE_GHOUL))
 		{
 			/* Undead start just after midnight */
 			turn = (30L * TOWN_DAWN) / 4 + 1;
@@ -3378,7 +3398,7 @@ void play_game(bool new_game)
 		{
 			turn = 1;
 		}
-
+		
 		/* Create a new wilderness for the player */
 		create_wilderness();
 
@@ -3418,7 +3438,7 @@ void play_game(bool new_game)
 
 
 	/* Hack -- Enter wizard mode */
-	if (arg_wizard && enter_wizard_mode()) p_ptr->wizard = TRUE;
+	if (arg_wizard && enter_wizard_mode()) p_ptr->state.wizard = TRUE;
 
 	/* Flavor the objects */
 	flavor_init();
@@ -3449,10 +3469,10 @@ void play_game(bool new_game)
 
 
 	/* Start game */
-	p_ptr->playing = TRUE;
+	p_ptr->state.playing = TRUE;
 
 	/* Hack -- Enforce "delayed death" */
-	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
+	if (p_ptr->chp < 0) p_ptr->state.is_dead = TRUE;
 
 	/* Resize / init the map */
 	map_panel_size();
@@ -3510,7 +3530,7 @@ void play_game(bool new_game)
 		forget_view();
 
 		/* Handle "quit and save" */
-		if (!p_ptr->playing && !p_ptr->is_dead) break;
+		if (!p_ptr->state.playing && !p_ptr->state.is_dead) break;
 
 		/* Go to the new level */
 		change_level(p_ptr->depth);
@@ -3519,19 +3539,19 @@ void play_game(bool new_game)
 		message_flush();
 
 		/* Accidental Death */
-		if (p_ptr->playing && p_ptr->is_dead)
+		if (p_ptr->state.playing && p_ptr->state.is_dead)
 		{
 			/* Mega-Hack -- Allow player to cheat death */
-			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
+			if ((p_ptr->state.wizard || cheat_live) && !get_check("Die? "))
 			{
 				/* Mark social class, reset age, if needed */
-				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
+				if (p_ptr->rp.sc) p_ptr->rp.sc = p_ptr->rp.age = 0;
 
 				/* Increase age */
-				p_ptr->age++;
+				p_ptr->rp.age++;
 
 				/* Mark savefile */
-				p_ptr->noscore |= 0x0001;
+				p_ptr->state.noscore |= 0x0001;
 
 				/* Message */
 				msgf("You invoke wizard mode and cheat death.");
@@ -3546,46 +3566,46 @@ void play_game(bool new_game)
 				p_ptr->csp_frac = 0;
 
 				/* Hack -- Healing */
-				(void)set_blind(0);
-				(void)set_confused(0);
-				(void)set_poisoned(0);
-				(void)set_afraid(0);
-				(void)set_paralyzed(0);
-				(void)set_image(0);
-				(void)set_stun(0);
-				(void)set_cut(0);
+				(void)clear_blind();
+				(void)clear_confused();
+				(void)clear_poisoned();
+				(void)clear_afraid();
+				(void)clear_paralyzed();
+				(void)clear_image();
+				(void)clear_stun();
+				(void)clear_cut();
 
 				/* Hack"-- Prevent starvation */
 				(void)set_food(PY_FOOD_MAX - 1);
 
 				/* Hack -- cancel recall */
-				if (p_ptr->word_recall)
+				if (p_ptr->tim.word_recall)
 				{
 					/* Message */
 					msgf("A tension leaves the air around you...");
 					message_flush();
 
 					/* Hack -- Prevent recall */
-					p_ptr->word_recall = 0;
+					p_ptr->tim.word_recall = 0;
 					p_ptr->redraw |= (PR_STATUS);
 				}
 
 				/* Note cause of death XXX XXX XXX */
-				(void)strcpy(p_ptr->died_from, "Cheating death");
+				(void)strcpy(p_ptr->state.died_from, "Cheating death");
 
 				/* Do not die */
-				p_ptr->is_dead = FALSE;
+				p_ptr->state.is_dead = FALSE;
 
 				p_ptr->depth = 0;
 				change_level(p_ptr->depth);
 
 				/* Leaving */
-				p_ptr->leaving = TRUE;
+				p_ptr->state.leaving = TRUE;
 			}
 		}
 
 		/* Handle "death" */
-		if (p_ptr->is_dead) break;
+		if (p_ptr->state.is_dead) break;
 
 		/* Make a new level */
 		generate_cave();

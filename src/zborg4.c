@@ -289,7 +289,7 @@ void borg_list_info(byte list_type, vptr dummy)
  */
 static void borg_notice_player(void)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Recalc some Variables */
 	bp_ptr->ac = 0;
@@ -331,11 +331,12 @@ static void borg_notice_player(void)
 	/* Racial Skills */
 
 	/* Extract the player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, &f4);
 
 	bp_ptr->flags1 |= f1;
 	bp_ptr->flags2 |= f2;
 	bp_ptr->flags3 |= f3;
+	/* XXX XXX XXX Don't handle flags4 yet */
 
 	/* Sustain flags */
 	if (f2 & (TR2_SUST_STR)) bp_ptr->sust[A_STR] = TRUE;
@@ -556,7 +557,7 @@ static void borg_notice_stats(void)
 		if (ind > 37)
 			my_stat_ind[i] = 37;
 		else
-			my_stat_ind[i] = p_ptr->stat_ind[i];
+			my_stat_ind[i] = p_ptr->stat[i].ind;
 	}
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
@@ -2417,7 +2418,7 @@ void borg_update_frame(void)
 	bp_ptr->max_lev = p_ptr->max_lev;
 
 	/* Note "Winner" */
-	bp_ptr->winner = p_ptr->total_winner;
+	bp_ptr->winner = p_ptr->state.total_winner;
 
 	/* Assume experience is fine */
 	bp_ptr->status.fixexp = FALSE;
@@ -2489,41 +2490,41 @@ void borg_update_frame(void)
 	}
 
 	/* Check for "Blind" */
-	if (p_ptr->blind) bp_ptr->status.blind = TRUE;
+	if (p_ptr->tim.blind) bp_ptr->status.blind = TRUE;
 
 	/* Check for "Confused" */
-	if (p_ptr->confused) bp_ptr->status.confused = TRUE;
+	if (p_ptr->tim.confused) bp_ptr->status.confused = TRUE;
 
 	/* Check for "Afraid" */
-	if (p_ptr->afraid) bp_ptr->status.afraid = TRUE;
+	if (p_ptr->tim.afraid) bp_ptr->status.afraid = TRUE;
 
 	/* Check for "Poisoned" */
-	if (p_ptr->poisoned) bp_ptr->status.poisoned = TRUE;
+	if (p_ptr->tim.poisoned) bp_ptr->status.poisoned = TRUE;
 
 	/* Check for any text */
-	if (p_ptr->cut) bp_ptr->status.cut = TRUE;
+	if (p_ptr->tim.cut) bp_ptr->status.cut = TRUE;
 
 	/* Check for Stun */
-	if (p_ptr->stun && (p_ptr->stun <= 50)) bp_ptr->status.stun = TRUE;
+	if (p_ptr->tim.stun && (p_ptr->tim.stun <= 50)) bp_ptr->status.stun = TRUE;
 
 	/* Check for Heavy Stun */
-	if (p_ptr->stun > 50) bp_ptr->status.heavy_stun = TRUE;
+	if (p_ptr->tim.stun > 50) bp_ptr->status.heavy_stun = TRUE;
 
 	/* XXX XXX XXX Parse "State" */
-	if (p_ptr->searching) bp_ptr->status.search = TRUE;
+	if (p_ptr->state.searching) bp_ptr->status.search = TRUE;
 
 	/* Check for "Study" */
 	if (p_ptr->new_spells) bp_ptr->status.study = TRUE;
 
 	/* Check for hallucination */
-	if (p_ptr->image) bp_ptr->status.image = TRUE;
+	if (p_ptr->tim.image) bp_ptr->status.image = TRUE;
 
 	/* Parse stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		bp_ptr->status.fixstat[i] = (p_ptr->stat_cur[i] < p_ptr->stat_max[i]);
+		bp_ptr->status.fixstat[i] = (p_ptr->stat[i].cur < p_ptr->stat[i].max);
 
-		borg_stat[i] = p_ptr->stat_cur[i];
+		borg_stat[i] = p_ptr->stat[i].cur;
 	}
 
 	/* Hack -- Access depth */
@@ -2533,8 +2534,8 @@ void borg_update_frame(void)
 	bp_ptr->max_depth = p_ptr->max_depth;
 
 	/* Hack -- Realms */
-	bp_ptr->realm1 = p_ptr->realm1;
-	bp_ptr->realm2 = p_ptr->realm2;
+	bp_ptr->realm1 = p_ptr->spell.r[0].realm;
+	bp_ptr->realm2 = p_ptr->spell.r[1].realm;
 
 	/* Hack -- Mana increases */
 	switch (borg_class)
@@ -3324,7 +3325,7 @@ static void borg_notice_home_spells(void)
  */
 static void borg_notice_home_player(void)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	int i;
 
@@ -3335,7 +3336,7 @@ static void borg_notice_home_player(void)
 	}
 
 	/* Extract the player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, &f4);
 
 	/* Good flags */
 	if (f3 & (TR3_SLOW_DIGEST)) num_slow_digest = TRUE;

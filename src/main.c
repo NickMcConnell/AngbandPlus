@@ -214,6 +214,36 @@ static void init_stuff(void)
 
 #endif /* AMIGA / VM */
 
+#ifdef HAVE_CONFIG_H
+	{
+		/*
+		 * XXX XXX Hack - fall back to './lib/' if DEFAULT_PATH doesn't work.
+		 * Autoconf sets the default installation directory to be in
+		 * /usr/local/share/games/zangband/lib/ however, for development, that sucks.
+		 */
+		
+		char buf[1024];
+		
+		int fd = -1;
+		
+		/* Look for "news" file - see init2.c */
+		path_build(buf, 1024, path, "file/news.txt");
+		
+		fd = fd_open(buf, O_RDONLY);
+
+		/* Failure */
+		if (fd < 0)
+		{
+			/* plog_fmt("Cannot access the '%s' file!", buf); */
+		
+			/* Reset to be "./lib/" */
+			strcpy(path, "./lib/");	
+		}
+		
+		fd_close(fd);
+	}
+#endif /* HAVE_CONFIG_H */
+
 	/* Initialize */
 	init_file_paths(path);
 }

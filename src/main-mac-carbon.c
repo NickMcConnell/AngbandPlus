@@ -3115,10 +3115,10 @@ static void save_prefs(void)
 	term_data *td;
 	
 	/*** The current version ***/
-	putshort(VERSION_MAJOR);
-	putshort(VERSION_MINOR);
-	putshort(VERSION_PATCH);
-	putshort(VERSION_EXTRA);
+	putshort(VER_MAJOR);
+	putshort(VER_MINOR);
+	putshort(VER_PATCH);
+	putshort(VER_EXTRA);
 
 	/* Dump */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -3168,10 +3168,10 @@ static void load_prefs(void)
 	old_extra = getshort();
 
 	/* Hack -- Verify or ignore */
-	if ((old_major != VERSION_MAJOR) ||
-	    (old_minor != VERSION_MINOR) ||
-	    (old_patch != VERSION_PATCH) ||
-	    (old_extra != VERSION_EXTRA))
+	if ((old_major != VER_MAJOR) ||
+	    (old_minor != VER_MINOR) ||
+	    (old_patch != VER_PATCH) ||
+	    (old_extra != VER_EXTRA))
 	{
 		/* Message */
 		mac_warning("Ignoring old preferences.");
@@ -3363,13 +3363,13 @@ static void save_prefs_carbon( void )
 		CFNumberRef		prefVersionPatchValue;
 		CFNumberRef		prefVersionExtraValue;
 		
-		theShortValue = VERSION_MAJOR; 
+		theShortValue = VER_MAJOR; 
 		prefVersionMajorValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
-		theShortValue = VERSION_MINOR; 
+		theShortValue = VER_MINOR; 
 		prefVersionMinorValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
-		theShortValue = VERSION_PATCH; 
+		theShortValue = VER_PATCH; 
 		prefVersionPatchValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
-		theShortValue = VERSION_EXTRA; 
+		theShortValue = VER_EXTRA; 
 		prefVersionExtraValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
 	
 		CFPreferencesSetAppValue( prefVersionMajorKey, prefVersionMajorValue, kCFPreferencesCurrentApplication );
@@ -3530,10 +3530,10 @@ static void load_prefs_carbon( void )
 	CFNumberGetValue( prefVersionExtraValue, kCFNumberShortType, &old_extra );
 	
 	/* Hack -- Verify or ignore */
-	if ((old_major != VERSION_MAJOR) ||
-	    (old_minor != VERSION_MINOR) ||
-	    (old_patch != VERSION_PATCH) ||
-	    (old_extra != VERSION_EXTRA))
+	if ((old_major != VER_MAJOR) ||
+	    (old_minor != VER_MINOR) ||
+	    (old_patch != VER_PATCH) ||
+	    (old_extra != VER_EXTRA))
 	{
 		/* Message */
 		mac_warning("Ignoring old preferences.");

@@ -380,6 +380,10 @@ static void rd_item(object_type *o_ptr)
 	rd_u32b(&o_ptr->flags1);
 	rd_u32b(&o_ptr->flags2);
 	rd_u32b(&o_ptr->flags3);
+	if (sf_version < 41)
+		o_ptr->flags4 = 0;
+	else
+		rd_u32b(&o_ptr->flags4);
 
 	/* Lites changed in [Z] 2.6.0 */
 	if ((sf_version < 25) && (o_ptr->tval == TV_LITE))
@@ -503,6 +507,10 @@ static void rd_item(object_type *o_ptr)
 		rd_u32b(&o_ptr->kn_flags1);
 		rd_u32b(&o_ptr->kn_flags2);
 		rd_u32b(&o_ptr->kn_flags3);
+		if (sf_version < 41)
+			o_ptr->kn_flags4 = 0;
+		else
+			rd_u32b(&o_ptr->kn_flags4);
 
 		/* 
 		 * XXX Some older buggy versions set TR3_PERMA_CURSE
@@ -544,6 +552,7 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->flags1 = k_ptr->flags1;
 		o_ptr->flags2 = k_ptr->flags2;
 		o_ptr->flags3 = k_ptr->flags3;
+		o_ptr->flags4 = k_ptr->flags4;
 
 		/* All done */
 		return;
@@ -613,6 +622,7 @@ static void rd_item(object_type *o_ptr)
 			o_ptr->flags1 |= a_ptr->flags1;
 			o_ptr->flags2 |= a_ptr->flags2;
 			o_ptr->flags3 |= a_ptr->flags3;
+			o_ptr->flags4 |= a_ptr->flags4;
 
 			/* Mega-Hack -- set activation */
 			o_ptr->activate = name1 + 128;
@@ -657,6 +667,7 @@ static void rd_item(object_type *o_ptr)
 			o_ptr->kn_flags1 = o_ptr->flags1;
 			o_ptr->kn_flags2 = o_ptr->flags2;
 			o_ptr->kn_flags3 = o_ptr->flags3;
+			o_ptr->kn_flags4 = o_ptr->flags4;
 		}
 	}
 
@@ -1022,7 +1033,7 @@ static void rd_options(void)
 
 	rd_u16b(&c);
 
-	if (c & 0x0002) p_ptr->wizard = TRUE;
+	if (c & 0x0002) p_ptr->state.wizard = TRUE;
 
 	cheat_peek = (c & 0x0100) ? TRUE : FALSE;
 	cheat_hear = (c & 0x0200) ? TRUE : FALSE;
@@ -1149,68 +1160,71 @@ static void rd_extra(void)
 	byte tmp8u;
 	s16b tmp16s;
 	s16b dummy;
+	
+	char old_history[60];
 
 	rd_string(player_name, 32);
 
-	rd_string(p_ptr->died_from, 80);
+	rd_string(p_ptr->state.died_from, 80);
 
+	/* Read and ignore old history data */
 	for (i = 0; i < 4; i++)
 	{
-		rd_string(p_ptr->history[i], 60);
+		rd_string(old_history, 60);
 	}
 
 	/* Class/Race/Gender/Spells */
-	rd_byte(&p_ptr->prace);
-	rd_byte(&p_ptr->pclass);
-	rd_byte(&p_ptr->psex);
-	rd_byte(&p_ptr->realm1);
-	rd_byte(&p_ptr->realm2);
+	rd_byte(&p_ptr->rp.prace);
+	rd_byte(&p_ptr->rp.pclass);
+	rd_byte(&p_ptr->rp.psex);
+	rd_byte(&p_ptr->spell.r[0].realm);
+	rd_byte(&p_ptr->spell.r[1].realm);
 	rd_byte(&tmp8u);			/* oops */
 
 	/* Special Race/Class info */
-	rd_byte(&p_ptr->hitdie);
+	rd_byte(&p_ptr->rp.hitdie);
 	rd_u16b(&p_ptr->expfact);
 
 	/* Age/Height/Weight */
-	rd_s16b(&p_ptr->age);
-	rd_s16b(&p_ptr->ht);
-	rd_s16b(&p_ptr->wt);
+	rd_s16b(&p_ptr->rp.age);
+	rd_s16b(&p_ptr->rp.ht);
+	rd_s16b(&p_ptr->rp.wt);
 
 	/* Read the stat info */
-	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_max[i]);
-	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_cur[i]);
+	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat[i].max);
+	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat[i].cur);
 
 	/* Fix up stats for old savefiles */
 	if (sf_version < 39)
 	{
 		/* This will be initialized again later, but we need it now for adjust_stat to work */
-		rp_ptr = &race_info[p_ptr->prace];
-		cp_ptr = &class_info[p_ptr->pclass];
+		rp_ptr = &race_info[p_ptr->rp.prace];
+		cp_ptr = &class_info[p_ptr->rp.pclass];
 
 		for (i = 0; i < 6; i++)
 		{
-			int bonus = race_info[p_ptr->prace].r_adj[i] +
-				class_info[p_ptr->pclass].c_adj[i];
+			int bonus = race_info[p_ptr->rp.prace].r_adj[i] +
+				class_info[p_ptr->rp.pclass].c_adj[i];
 
-			p_ptr->stat_max[i] = adjust_stat(i, p_ptr->stat_max[i], bonus);
+			p_ptr->stat[i].max = adjust_stat(i, p_ptr->stat[i].max, bonus);
 			/* Hack - Restore all stats... */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
+			p_ptr->stat[i].cur = p_ptr->stat[i].max;
 		}
-        }
-        if (sf_version < 40)
-        {
-            for (i = 0; i < 6; i++)
-            {
-                if (p_ptr->stat_max[i] < 18)
-                    p_ptr->stat_max[i] *= 10;
-                else
-                    p_ptr->stat_max[i] += 180-18;
-                if (p_ptr->stat_cur[i] < 18)
-                    p_ptr->stat_cur[i] *= 10;
-                else
-                    p_ptr->stat_cur[i] += 180-18;
-            }
-        }
+    }
+    if (sf_version < 40)
+    {
+    	for (i = 0; i < 6; i++)
+    	{
+    		if (p_ptr->stat[i].max < 18)
+    			p_ptr->stat[i].max *= 10;
+    		else
+    			p_ptr->stat[i].max += 180-18;
+    		if (p_ptr->stat[i].cur < 18)
+    			p_ptr->stat[i].cur *= 10;
+    		else
+    			p_ptr->stat[i].cur += 180-18;
+    	}
+    }
 
 	strip_bytes(24);			/* oops */
 
@@ -1249,46 +1263,46 @@ static void rd_extra(void)
 
 	/* More info */
 	strip_bytes(8);
-	rd_s16b(&p_ptr->sc);
+	rd_s16b(&p_ptr->rp.sc);
 	strip_bytes(2);
 
 	/* Read the flags */
 	strip_bytes(2);				/* Old "rest" */
-	rd_s16b(&p_ptr->blind);
-	rd_s16b(&p_ptr->paralyzed);
-	rd_s16b(&p_ptr->confused);
+	rd_s16b(&p_ptr->tim.blind);
+	rd_s16b(&p_ptr->tim.paralyzed);
+	rd_s16b(&p_ptr->tim.confused);
 	rd_s16b(&p_ptr->food);
 	strip_bytes(4);				/* Old "food_digested" / "protection" */
 	rd_s16b(&p_ptr->energy);
-	rd_s16b(&p_ptr->fast);
-	rd_s16b(&p_ptr->slow);
-	rd_s16b(&p_ptr->afraid);
-	rd_s16b(&p_ptr->cut);
-	rd_s16b(&p_ptr->stun);
-	rd_s16b(&p_ptr->poisoned);
-	rd_s16b(&p_ptr->image);
-	rd_s16b(&p_ptr->protevil);
-	rd_s16b(&p_ptr->invuln);
-	rd_s16b(&p_ptr->hero);
-	rd_s16b(&p_ptr->shero);
-	rd_s16b(&p_ptr->shield);
-	rd_s16b(&p_ptr->blessed);
-	rd_s16b(&p_ptr->tim_invis);
-	rd_s16b(&p_ptr->word_recall);
+	rd_s16b(&p_ptr->tim.fast);
+	rd_s16b(&p_ptr->tim.slow);
+	rd_s16b(&p_ptr->tim.afraid);
+	rd_s16b(&p_ptr->tim.cut);
+	rd_s16b(&p_ptr->tim.stun);
+	rd_s16b(&p_ptr->tim.poisoned);
+	rd_s16b(&p_ptr->tim.image);
+	rd_s16b(&p_ptr->tim.protevil);
+	rd_s16b(&p_ptr->tim.invuln);
+	rd_s16b(&p_ptr->tim.hero);
+	rd_s16b(&p_ptr->tim.shero);
+	rd_s16b(&p_ptr->tim.shield);
+	rd_s16b(&p_ptr->tim.blessed);
+	rd_s16b(&p_ptr->tim.invis);
+	rd_s16b(&p_ptr->tim.word_recall);
 	rd_s16b(&p_ptr->see_infra);
-	rd_s16b(&p_ptr->tim_infra);
-	rd_s16b(&p_ptr->oppose_fire);
-	rd_s16b(&p_ptr->oppose_cold);
-	rd_s16b(&p_ptr->oppose_acid);
-	rd_s16b(&p_ptr->oppose_elec);
-	rd_s16b(&p_ptr->oppose_pois);
+	rd_s16b(&p_ptr->tim.infra);
+	rd_s16b(&p_ptr->tim.oppose_fire);
+	rd_s16b(&p_ptr->tim.oppose_cold);
+	rd_s16b(&p_ptr->tim.oppose_acid);
+	rd_s16b(&p_ptr->tim.oppose_elec);
+	rd_s16b(&p_ptr->tim.oppose_pois);
 
 	/* Old savefiles do not have the following fields... */
 	if ((z_major == 2) && (z_minor == 0) && (z_patch == 6))
 	{
-		p_ptr->tim_esp = 0;
-		p_ptr->wraith_form = 0;
-		p_ptr->resist_magic = 0;
+		p_ptr->tim.esp = 0;
+		p_ptr->tim.wraith_form = 0;
+		p_ptr->tim.resist_magic = 0;
 		p_ptr->chaos_patron = get_chaos_patron();
 		p_ptr->muta1 = 0;
 		p_ptr->muta2 = 0;
@@ -1298,9 +1312,9 @@ static void rd_extra(void)
 	}
 	else
 	{
-		rd_s16b(&p_ptr->tim_esp);
-		rd_s16b(&p_ptr->wraith_form);
-		rd_s16b(&p_ptr->resist_magic);
+		rd_s16b(&p_ptr->tim.esp);
+		rd_s16b(&p_ptr->tim.wraith_form);
+		rd_s16b(&p_ptr->tim.resist_magic);
 		if (sf_version < 32)
 		{
 			/* Ignore unused counters */
@@ -1329,14 +1343,11 @@ static void rd_extra(void)
 		}
 	}
 
-	/* Calc the regeneration modifier for mutations */
-	mutant_regenerate_mod = calc_mutant_regenerate_mod();
-
-	rd_byte(&p_ptr->confusing);
+	rd_byte(&p_ptr->state.confusing);
 	rd_byte(&tmp8u);			/* oops */
 	rd_byte(&tmp8u);			/* oops */
 	rd_byte(&tmp8u);			/* oops */
-	rd_byte((byte *)&p_ptr->searching);
+	rd_byte((byte *)&p_ptr->state.searching);
 	rd_byte(&tmp8u);
 	rd_byte(&tmp8u);
 	rd_byte(&tmp8u);
@@ -1358,19 +1369,18 @@ static void rd_extra(void)
 	}
 
 	/* Special stuff */
-	rd_u16b(&p_ptr->panic_save);
-	rd_u16b(&p_ptr->total_winner);
-	rd_u16b(&p_ptr->noscore);
+	rd_u16b(&p_ptr->state.panic_save);
+	rd_u16b(&p_ptr->state.total_winner);
+	rd_u16b(&p_ptr->state.noscore);
 
 
 	/* Read "death" */
 	rd_byte(&tmp8u);
-	p_ptr->is_dead = tmp8u;
+	p_ptr->state.is_dead = tmp8u;
 
 	/* Read "feeling" */
-	rd_byte(&tmp8u);
-	dun_ptr->feeling = tmp8u;
-
+	rd_byte(&p_ptr->state.feeling);
+	
 	/* Turn of last "feeling" */
 	rd_s32b(&old_turn);
 
@@ -2039,7 +2049,7 @@ static void load_wild_data(void)
 }
 
 /* The version when the format of the wilderness last changed */
-#define VERSION_CHANGE_WILD		38
+#define VERSION_CHANGE_WILD		43
 
 
 /*
@@ -2058,14 +2068,10 @@ static errr rd_dungeon(void)
 	u16b dun_level_backup, px_back, py_back;
 
 	bool ignore_stuff = FALSE;
+	
+	dun_type *dundata = place[p_ptr->place_num].dungeon; 
 
 	s16b cur_wid, cur_hgt;
-
-	/* Hack - Reset the object theme */
-	dun_theme.treasure = 20;
-	dun_theme.combat = 20;
-	dun_theme.magic = 20;
-	dun_theme.tools = 20;
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
@@ -2075,13 +2081,10 @@ static errr rd_dungeon(void)
 	/* Header info */
 	rd_s16b(&p_ptr->depth);
 
-	/* Set the base level for old versions */
-	base_level = p_ptr->depth;
-
 	/* Read the base level */
 	if (!z_older_than(2, 2, 2))
 	{
-		rd_s16b(&base_level);
+		strip_bytes(2);
 	}
 
 	rd_s16b(&num_repro);
@@ -2136,7 +2139,7 @@ static errr rd_dungeon(void)
 		change_level(1);
 
 		/* Get the new region */
-		dun_ptr->region = (s16b)create_region(cur_wid, cur_hgt, REGION_CAVE);
+		dundata->region = (s16b)create_region(cur_wid, cur_hgt, REGION_CAVE);
 		incref_region(cur_region);
 
 		/* Load dungeon map */
@@ -2171,8 +2174,7 @@ static errr rd_dungeon(void)
 			change_level(p_ptr->depth);
 
 			/* Get the new region */
-			dun_ptr->region = (s16b)create_region(cur_wid, cur_hgt,
-												  REGION_CAVE);
+			dundata->region = (s16b)create_region(cur_wid, cur_hgt, REGION_CAVE);
 			incref_region(cur_region);
 
 			/* Load dungeon map */
@@ -2230,8 +2232,7 @@ static errr rd_dungeon(void)
 			change_level(p_ptr->depth);
 
 			/* Get the new region */
-			dun_ptr->region = (s16b)create_region(cur_wid, cur_hgt,
-												  REGION_CAVE);
+			dundata->region = (s16b)create_region(cur_wid, cur_hgt, REGION_CAVE);
 			incref_region(cur_region);
 
 			/* Load dungeon map */
@@ -2272,8 +2273,7 @@ static errr rd_dungeon(void)
 		if (p_ptr->depth)
 		{
 			/* Get the new region */
-			dun_ptr->region = (s16b)create_region(cur_wid, cur_hgt,
-												  REGION_CAVE);
+			dundata->region = (s16b)create_region(cur_wid, cur_hgt, REGION_CAVE);
 			incref_region(cur_region);
 
 			/* Load dungeon map */
@@ -2312,7 +2312,12 @@ static errr rd_dungeon(void)
 	 * because monsters carry them.
 	 */
 	wipe_objects(cur_region);
-	wipe_fields(cur_region);
+	
+	/*
+	 * The following line wrecks stores made in create_wilderness()
+	 * above.  (Do we need this line at all?) -SF- 2.7.3
+	 */
+	/* wipe_fields(cur_region); */
 
 	/*** Objects ***/
 
@@ -2348,11 +2353,18 @@ static errr rd_dungeon(void)
 		/* Real item? */
 		if (o_ptr->k_idx)
 		{
+			/* Hack - ignore items */
+			if (ignore_stuff && (o_ptr->ix || o_ptr->iy))
+			{
+				object_wipe(o_ptr);
+				continue;
+			}
+		
 			/* Count objects */
 			o_cnt++;
 
 			/* Dungeon items */
-			if (!ignore_stuff && (o_ptr->ix || o_ptr->iy))
+			if (o_ptr->ix || o_ptr->iy)
 			{
 				if (!in_bounds2(o_ptr->ix, o_ptr->iy))
 				{
@@ -2380,9 +2392,6 @@ static errr rd_dungeon(void)
 			}
 		}
 	}
-
-	/* Expand object array */
-	o_max++;
 
 	/* Repair inventory information */
 	if (sf_version < 37)
@@ -2423,7 +2432,6 @@ static errr rd_dungeon(void)
 
 		monster_race *r_ptr;
 
-
 		/* Get a new record */
 		m_idx = m_pop();
 
@@ -2456,13 +2464,26 @@ static errr rd_dungeon(void)
 
 			/* Mark the location */
 			c_ptr->m_idx = m_idx;
+			
+			/* Access race */
+			r_ptr = &r_info[m_ptr->r_idx];
+	
+			/* Count XXX XXX XXX */
+			r_ptr->cur_num++;
+			
+			
 		}
-
-		/* Access race */
-		r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Count XXX XXX XXX */
-		r_ptr->cur_num++;
+		else
+		{
+			/* Delete objects */
+			delete_object_list(&m_ptr->hold_o_idx);
+		
+			/* Hack - just delete the monster */
+			(void)WIPE(m_ptr, monster_type);
+			
+			/* Count monsters */
+			m_cnt--;
+		}
 	}
 
 	if (sf_version > 11)
@@ -2793,7 +2814,7 @@ static errr rd_savefile_new_aux(void)
 	if (munchkin_death)
 	{
 		/* Mark savefile */
-		p_ptr->noscore |= 0x0001;
+		p_ptr->state.noscore |= 0x0001;
 	}
 
 	/* Then the "messages" */
@@ -3016,27 +3037,27 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Important -- Initialize the sex */
-	sp_ptr = &sex_info[p_ptr->psex];
+	sp_ptr = &sex_info[p_ptr->rp.psex];
 
 	/* Important -- Initialize the race/class */
-	rp_ptr = &race_info[p_ptr->prace];
-	cp_ptr = &class_info[p_ptr->pclass];
+	rp_ptr = &race_info[p_ptr->rp.prace];
+	cp_ptr = &class_info[p_ptr->rp.pclass];
 
 	/* Important -- Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
+	mp_ptr = &magic_info[p_ptr->rp.pclass];
 
 
 	/* Read spell info */
-	rd_u32b(&p_ptr->spell_learned1);
-	rd_u32b(&p_ptr->spell_learned2);
-	rd_u32b(&p_ptr->spell_worked1);
-	rd_u32b(&p_ptr->spell_worked2);
-	rd_u32b(&p_ptr->spell_forgotten1);
-	rd_u32b(&p_ptr->spell_forgotten2);
+	rd_u32b(&p_ptr->spell.r[0].learned);
+	rd_u32b(&p_ptr->spell.r[1].learned);
+	rd_u32b(&p_ptr->spell.r[0].worked);
+	rd_u32b(&p_ptr->spell.r[1].worked);
+	rd_u32b(&p_ptr->spell.r[0].forgotten);
+	rd_u32b(&p_ptr->spell.r[1].forgotten);
 
 	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
-		rd_byte(&p_ptr->spell_order[i]);
+		rd_byte(&p_ptr->spell.order[i]);
 	}
 
 
@@ -3089,6 +3110,9 @@ static errr rd_savefile_new_aux(void)
 					rd_store(i, j);
 				}
 			}
+			
+			/* Assume we have a dungeon here */
+			MAKE(place[i].dungeon, dun_type);
 		}
 	}
 	else
@@ -3170,7 +3194,55 @@ static errr rd_savefile_new_aux(void)
 			{
 				rd_string(pl_ptr->name, T_NAME_LEN);
 			}
-
+			
+			if (sf_version < 42)
+			{
+				/* Assume we have a dungeon here */
+				MAKE(place[i].dungeon, dun_type);
+			}
+			else
+			{
+				byte dungeon;
+			
+				rd_byte(&dungeon);
+				
+				if (dungeon)
+				{
+					dun_type *dun_ptr;
+				
+					/* Create a dungeon here */
+					MAKE(place[i].dungeon, dun_type);
+				
+					dun_ptr = place[i].dungeon;
+				
+					/* Object theme */
+					rd_byte(&dun_ptr->theme.treasure);
+					rd_byte(&dun_ptr->theme.combat);
+					rd_byte(&dun_ptr->theme.magic);
+					rd_byte(&dun_ptr->theme.tools);
+					
+					/* Habitat */
+					rd_u32b(&dun_ptr->habitat);
+					
+					/* Levels in dungeon */
+					rd_byte(&dun_ptr->min_level);
+					rd_byte(&dun_ptr->max_level);
+					
+					/* Rating */
+					rd_s16b(&dun_ptr->rating);
+					
+					
+					/* Extra dungeon info */
+					if (sf_version > 43)
+					{
+						rd_u16b(&dun_ptr->rooms);
+						rd_byte(&dun_ptr->floor);
+						rd_byte(&dun_ptr->liquid);
+						rd_byte(&dun_ptr->flags);
+					}
+				}
+			}
+			
 			/* Allocate the stores */
 			C_MAKE(pl_ptr->store, pl_ptr->numstores, store_type);
 
@@ -3207,7 +3279,7 @@ static errr rd_savefile_new_aux(void)
 	}
 
 	/* I'm not dead yet... */
-	if (!p_ptr->is_dead)
+	if (!p_ptr->state.is_dead)
 	{
 		/* Dead players have no dungeon */
 		note("Restoring Dungeon...");

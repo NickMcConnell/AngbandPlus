@@ -2006,10 +2006,10 @@ static void save_prefs(void)
 
 	/*** The current version ***/
 
-	putshort(VERSION_MAJOR);
-	putshort(VERSION_MINOR);
-	putshort(VERSION_PATCH);
-	putshort(VERSION_EXTRA);
+	putshort(VER_MAJOR);
+	putshort(VER_MINOR);
+	putshort(VER_PATCH);
+	putshort(VER_EXTRA);
 
 	putshort(arg_sound);
 	putshort(arg_graphics);
@@ -2059,10 +2059,10 @@ static void load_prefs(void)
 	old_extra = getshort();
 
 	/* Hack -- Verify or ignore */
-	if ((old_major != VERSION_MAJOR) ||
-	    (old_minor != VERSION_MINOR) ||
-	    (old_patch != VERSION_PATCH) ||
-	    (old_extra != VERSION_EXTRA))
+	if ((old_major != VER_MAJOR) ||
+	    (old_minor != VER_MINOR) ||
+	    (old_patch != VER_PATCH) ||
+	    (old_extra != VER_EXTRA))
 	{
 		/* Message */
 		mac_warning("Ignoring old preferences.");

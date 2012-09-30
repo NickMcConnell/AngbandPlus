@@ -22,7 +22,7 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 	int i;
 	int val;
 	int sum = 0;
-    int stat = p_ptr->stat_cur[use_stat];
+    int stat = p_ptr->stat[use_stat].cur;
 
     if (stat <= 180)
         stat /= 10;
@@ -30,15 +30,15 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
         stat += 18-180;
 
 	/* No chance for success */
-	if ((p_ptr->lev < min_level) || p_ptr->confused)
+	if ((p_ptr->lev < min_level) || p_ptr->tim.confused)
 	{
 		return (0);
 	}
 
 	/* Calculate difficulty */
-	if (p_ptr->stun)
+	if (p_ptr->tim.stun)
 	{
-		difficulty += p_ptr->stun;
+		difficulty += p_ptr->tim.stun;
 	}
 	else if (p_ptr->lev > min_level)
 	{
@@ -129,7 +129,7 @@ static void eat_corpse(void)
 bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 {
     bool use_hp = FALSE;
-    int stat = p_ptr->stat_cur[use_stat];
+    int stat = p_ptr->stat[use_stat].cur;
 
     if (stat <= 180)
         stat /= 10;
@@ -148,7 +148,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	}
 
 	/* Too confused */
-	else if (p_ptr->confused)
+	else if (p_ptr->tim.confused)
 	{
 		msgf("You are too confused to use this power.");
 		p_ptr->energy_use = 0;
@@ -167,9 +167,9 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 
 	/* Else attempt to do it! */
 
-	if (p_ptr->stun)
+	if (p_ptr->tim.stun)
 	{
-		difficulty += p_ptr->stun;
+		difficulty += p_ptr->tim.stun;
 	}
 	else if (p_ptr->lev > min_level)
 	{
@@ -218,7 +218,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 	if (racial_aux(mut_ptr->level, mut_ptr->cost, mut_ptr->stat, mut_ptr->diff))
 	{
-		switch (p_ptr->prace)
+		switch (p_ptr->rp.prace)
 		{
 			case RACE_DWARF:
 			{
@@ -253,19 +253,19 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_HALF_ORC:
 			{
 				msgf("You play tough.");
-				(void)set_afraid(0);
+				(void)clear_afraid();
 				break;
 			}
 
 			case RACE_HALF_TROLL:
 			{
 				msgf("RAAAGH!");
-				if (!p_ptr->shero)
+				if (!p_ptr->tim.shero)
 				{
 					(void)hp_player(30);
 				}
-				(void)set_afraid(0);
-				(void)set_shero(p_ptr->shero + 10 + randint1(plev));
+				(void)clear_afraid();
+				(void)inc_shero(10 + randint1(plev));
 
 				break;
 			}
@@ -277,12 +277,12 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				{
 					msgf
 						("You picture the Pattern in your mind and walk it...");
-					(void)set_poisoned(0);
-					(void)set_image(0);
-					(void)set_stun(0);
-					(void)set_cut(0);
-					(void)set_blind(0);
-					(void)set_afraid(0);
+					(void)clear_poisoned();
+					(void)clear_image();
+					(void)clear_stun();
+					(void)clear_cut();
+					(void)clear_blind();
+					(void)clear_afraid();
 					(void)do_res_stat(A_STR);
 					(void)do_res_stat(A_INT);
 					(void)do_res_stat(A_WIS);
@@ -307,7 +307,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 						if (autosave_l) do_cmd_save_game(TRUE);
 
 						/* Leaving */
-						p_ptr->leaving = TRUE;
+						p_ptr->state.leaving = TRUE;
 					}
 				}
 				break;
@@ -316,13 +316,13 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_BARBARIAN:
 			{
 				msgf("Raaagh!");
-				if (!p_ptr->shero)
+				if (!p_ptr->tim.shero)
 				{
 					(void)hp_player(30);
 				}
 
-				(void)set_afraid(0);
-				(void)set_shero(p_ptr->shero + 10 + randint1(plev));
+				(void)clear_afraid();
+				(void)inc_shero(10 + randint1(plev));
 				break;
 			}
 
@@ -408,7 +408,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 				if (randint1(100) < plev)
 				{
-					switch (p_ptr->pclass)
+					switch (p_ptr->rp.pclass)
 					{
 						case CLASS_WARRIOR:
 						case CLASS_RANGER:
@@ -537,7 +537,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 			case RACE_GOLEM:
 			{
-				(void)set_shield(p_ptr->shield + rand_range(30, 50));
+				(void)inc_shield(rand_range(30, 50));
 				break;
 			}
 
@@ -698,7 +698,7 @@ void do_cmd_racial_power(void)
 	const mutation_type *mut_ptr;
 
 	/* Not when we're confused */
-	if (p_ptr->confused)
+	if (p_ptr->tim.confused)
 	{
 		msgf("You are too confused to use any powers!");
 		p_ptr->energy_use = 0;
@@ -710,7 +710,7 @@ void do_cmd_racial_power(void)
 	{
 		mut_ptr = &race_powers[i];
 
-		if (mut_ptr->which == p_ptr->prace)
+		if (mut_ptr->which == p_ptr->rp.prace)
 		{
 			power_desc[num].name = mut_ptr->name;
 			power_desc[num].level = mut_ptr->level;

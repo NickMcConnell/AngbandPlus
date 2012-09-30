@@ -22,13 +22,13 @@ void do_cmd_rerate(void)
 {
 	int min_value, max_value, i, j, percent;
 
-	min_value = (PY_MAX_LEVEL * 3 * (p_ptr->hitdie - 1)) / 8;
+	min_value = (PY_MAX_LEVEL * 3 * (p_ptr->rp.hitdie - 1)) / 8;
 	min_value += PY_MAX_LEVEL;
 
-	max_value = (PY_MAX_LEVEL * 5 * (p_ptr->hitdie - 1)) / 8;
+	max_value = (PY_MAX_LEVEL * 5 * (p_ptr->rp.hitdie - 1)) / 8;
 	max_value += PY_MAX_LEVEL;
 
-	p_ptr->player_hp[0] = p_ptr->hitdie;
+	p_ptr->player_hp[0] = p_ptr->rp.hitdie;
 
 	/* Rerate */
 	while (1)
@@ -53,8 +53,8 @@ void do_cmd_rerate(void)
 	}
 
 	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-					(2 * p_ptr->hitdie +
-					 ((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
+					(2 * p_ptr->rp.hitdie +
+					 ((PY_MAX_LEVEL - 1) * (p_ptr->rp.hitdie + 1))));
 
 
 	/* Update and redraw hitpoints */
@@ -136,7 +136,7 @@ static void do_cmd_summon_horde(void)
 #endif /* MONSTER_HORDES */
 
 
-#if USE_64B
+#ifdef USE_64B
 typedef u64b ufix40_24;	/* Fixed point: 40 bits integer 24 bits fractional */
 
 static ufix40_24 pow4(ufix40_24 n)
@@ -377,7 +377,7 @@ static void do_cmd_wiz_change_aux(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Default */
-		strnfmt(tmp_val, 160, "%d", p_ptr->stat_max[i]);
+		strnfmt(tmp_val, 160, "%d", p_ptr->stat[i].max);
 
 		/* Query */
 		if (!get_string(tmp_val, 4, "%s (3-118): ", stat_names[i])) return;
@@ -390,7 +390,7 @@ static void do_cmd_wiz_change_aux(void)
 		else if (tmp_int < 3) tmp_int = 3;
 
 		/* Save it */
-		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = tmp_int;
+		p_ptr->stat[i].cur = p_ptr->stat[i].max = tmp_int;
 	}
 
 
@@ -581,10 +581,6 @@ static void learn_map(void)
 static void wiz_display_item(const object_type *o_ptr)
 {
 	int j = 13;
-	u32b f1, f2, f3;
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Clear the screen */
     clear_region(13 - 2, 1, 23);
@@ -604,37 +600,43 @@ static void wiz_display_item(const object_type *o_ptr)
 			   o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d);
 
 	prtf(j, 7, "activate = %-4d  cost = %ld",
-			   o_ptr->activate, (long)object_value(o_ptr));
+			   o_ptr->activate, (long)object_value_real(o_ptr));
 
 	prtf(j, 8, "info = %04x  timeout = %-d",
 			   o_ptr->info, o_ptr->timeout);
 
 	prtf(j, 10, "+------------FLAGS1------------+\n"
-				"AFFECT........SLAY........BRAND.\n"
+	    		"AFFECT........SLAY........BRAND.\n"
 	    		"              cvae      xsqpaefc\n"
 	    		"siwdcc  ssidsahanvudotgddhuoclio\n"
 	    		"tnieoh  trnipttmiinmrrnrrraiierl\n"
 	    		"rtsxna..lcfgdkcpmldncltggpksdced\n"
-                "%v", binary_fmt, f1);
+                "%v", binary_fmt, o_ptr->flags1);
 
 	prtf(j, 17, "+------------FLAGS2------------+\n"
-				"SUST...IMMUN..RESIST............\n"
+	    		"SUST...IMMUN..RESIST............\n"
 	    		"        aefctrpsaefcpfldbc sn   \n"
 	    		"siwdcc  clioheatcliooeialoshtncd\n"
 	    		"tnieoh  ierlrfraierliatrnnnrhehi\n"
 	    		"rtsxna..dcedwlatdcedsrekdfddrxss\n"
-                "%v", binary_fmt, f2);
+                "%v", binary_fmt, o_ptr->flags2);
 
 	prtf(j + 32, 10,"+------------FLAGS3------------+\n"
-					"fe      ehsi  st    iiiiadta  hp\n"
-				    "il   n taihnf ee    ggggcregb vr\n"
-				    "re  no ysdose eld   nnnntalrl ym\n"
-				    "ec  om cyewta ieirmsrrrriieaeccc\n"
-				    "aa  ta uktmatlnpgeihaefcvnpvsuuu\n"
-				    "uu  eg rnyoahivaeggoclioaeoasrrr\n"
-				    "rr  li sopdretitsehtierltxrtesss\n"
-				    "aa  ec ewestreshtntsdcedeptedeee\n"
-                    "%v", binary_fmt, f3);
+			"SH  NO tehsif itdrmsIGNRadtabchp\n"
+			"fe  tm yzdhnelneieihaefccrpgluvr\n"
+			"il  ea cktmativlgggocliotnorercm\n"
+			"re  lg rnyorhtiesehtierlvxrvssuc\n"
+			"ec  ec swpdtresptntsdcedtpttsers\n"
+                    "%v", binary_fmt, o_ptr->flags3);
+
+	prtf(j + 32, 17,"+------------FLAGS4-------------\n"
+			"        IMSH p pt reHURT..  CURS\n"
+			"        ldac alao exaefcld  as h\n"
+			"        iacomtusuptpclioia  utee\n"
+			"        trilurcscsrlierltr  taaa\n"
+			"        ekddtnkwhinodcedek  ottl\n"
+		    "%v", binary_fmt, o_ptr->flags4);
+
 }
 
 
@@ -978,7 +980,7 @@ static object_type *wiz_reroll_item(object_type *o_ptr)
 				o_ptr = object_prep(o_ptr->k_idx);
 
 				/* Make a random artifact */
-				(void)create_artifact(o_ptr, FALSE);
+				(void)create_artifact(o_ptr, p_ptr->depth, FALSE);
 				break;
 			}
 		}
@@ -998,7 +1000,7 @@ static object_type *wiz_reroll_item(object_type *o_ptr)
 }
 
 
-#if USE_64B
+#ifdef USE_64B
 
 /*
  * Redraw the rarity graph with a different number of rolls
@@ -1140,7 +1142,7 @@ static void do_cmd_wiz_play(void)
 			break;
 		}
 
-#if USE_64B
+#ifdef USE_64B
 		if (ch == 's' || ch == 'S')
 		{
 			wiz_statistics(o_ptr);
@@ -1235,15 +1237,15 @@ static void do_cmd_wiz_cure_all(void)
 	p_ptr->csp_frac = 0;
 
 	/* Cure stuff */
-	(void)set_blind(0);
-	(void)set_confused(0);
-	(void)set_poisoned(0);
-	(void)set_afraid(0);
-	(void)set_paralyzed(0);
-	(void)set_image(0);
-	(void)set_stun(0);
-	(void)set_cut(0);
-	(void)set_slow(0);
+	(void)clear_blind();
+	(void)clear_confused();
+	(void)clear_poisoned();
+	(void)clear_afraid();
+	(void)clear_paralyzed();
+	(void)clear_image();
+	(void)clear_stun();
+	(void)clear_cut();
+	(void)clear_slow();
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);
@@ -1258,8 +1260,11 @@ static void do_cmd_wiz_cure_all(void)
  */
 static void do_cmd_wiz_jump(void)
 {
+	/* In the wilderness and no dungeon? */
+	if (!check_down_wild()) return;
+
 	/* Ask for level */
-	if (p_ptr->command_arg <= 0)
+	if (p_ptr->cmd.arg <= 0)
 	{
 		char tmp_val[160];
 
@@ -1268,28 +1273,28 @@ static void do_cmd_wiz_jump(void)
 
 		/* Ask for a level */
 		if (!get_string(tmp_val, 11, "Jump to level (0-%d): ",
-						MAX_DEPTH - 1)) return;
+						max_dun_level())) return;
 
 		/* Extract request */
-		p_ptr->command_arg = atoi(tmp_val);
+		p_ptr->cmd.arg = atoi(tmp_val);
 	}
 
 	/* Paranoia */
-	if (p_ptr->command_arg < 0) p_ptr->command_arg = 0;
+	if (p_ptr->cmd.arg < 0) p_ptr->cmd.arg = 0;
 
 	/* Paranoia */
-	if (p_ptr->command_arg > MAX_DEPTH - 1) p_ptr->command_arg = MAX_DEPTH - 1;
+	if (p_ptr->cmd.arg > max_dun_level()) p_ptr->cmd.arg = max_dun_level();
 
 	/* Accept request */
-	msgf("You jump to dungeon level %d.", p_ptr->command_arg);
+	msgf("You jump to dungeon level %d.", p_ptr->cmd.arg);
 
 	if (autosave_l) do_cmd_save_game(TRUE);
 
 	/* Change level */
-	p_ptr->depth = p_ptr->command_arg;
+	p_ptr->depth = p_ptr->cmd.arg;
 
 	/* Leaving */
-	p_ptr->leaving = TRUE;
+	p_ptr->state.leaving = TRUE;
 }
 
 
@@ -1308,7 +1313,7 @@ static void do_cmd_wiz_learn(void)
 		object_kind *k_ptr = &k_info[i];
 
 		/* Induce awareness */
-		if (k_ptr->level <= p_ptr->command_arg)
+		if (k_ptr->level <= p_ptr->cmd.arg)
 		{
 			/* Prepare object */
 			q_ptr = object_prep(i);
@@ -1376,7 +1381,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		if ((x == px) && (y == py)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(x, y, r_idx, slp, TRUE, FALSE, FALSE)) break;
+		if (place_monster_aux(x, y, r_idx, slp, TRUE, FALSE, FALSE, TRUE)) break;
 	}
 }
 
@@ -1459,7 +1464,7 @@ extern void do_cmd_debug(void);
 
 /*
  * Ask for and parse a "debug command"
- * The "command_arg" may have been set.
+ * The "cmd.arg" may have been set.
  */
 void do_cmd_debug(void)
 {
@@ -1532,7 +1537,7 @@ void do_cmd_debug(void)
 		case 'C':
 		{
 			/* Create a named artifact */
-			wiz_create_named_art(p_ptr->command_arg);
+			wiz_create_named_art(p_ptr->cmd.arg);
 			break;
 		}
 
@@ -1560,15 +1565,15 @@ void do_cmd_debug(void)
 		case 'F':
 		{
 			/* Create feature */
-			if (p_ptr->command_arg > 0) do_cmd_wiz_feature(p_ptr->command_arg);
+			if (p_ptr->cmd.arg > 0) do_cmd_wiz_feature(p_ptr->cmd.arg);
 			break;
 		}
 
 		case 'g':
 		{
 			/* Good Objects */
-			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(px, py, p_ptr->command_arg, FALSE, TRUE);
+			if (p_ptr->cmd.arg <= 0) p_ptr->cmd.arg = 1;
+			acquirement(px, py, p_ptr->cmd.arg, FALSE, TRUE);
 			break;
 		}
 
@@ -1632,7 +1637,7 @@ void do_cmd_debug(void)
 		case 'L':
 		{
 			/* Lose Mutation */
-			(void)lose_mutation(p_ptr->command_arg);
+			(void)lose_mutation(p_ptr->cmd.arg);
 			break;
 		}
 
@@ -1646,28 +1651,28 @@ void do_cmd_debug(void)
 		case 'M':
 		{
 			/* Gain Mutation */
-			(void)gain_mutation(p_ptr->command_arg);
+			(void)gain_mutation(p_ptr->cmd.arg);
 			break;
 		}
 
 		case 'r':
 		{
 			/* Specific reward */
-			(void)gain_level_reward(p_ptr->command_arg);
+			(void)gain_level_reward(p_ptr->cmd.arg);
 			break;
 		}
 
 		case 'N':
 		{
 			/* Summon _friendly_ named monster */
-			do_cmd_wiz_named_friendly(p_ptr->command_arg, TRUE);
+			do_cmd_wiz_named_friendly(p_ptr->cmd.arg, TRUE);
 			break;
 		}
 
 		case 'n':
 		{
 			/* Summon Named Monster */
-			do_cmd_wiz_named(p_ptr->command_arg, TRUE);
+			do_cmd_wiz_named(p_ptr->cmd.arg, TRUE);
 			break;
 		}
 
@@ -1711,8 +1716,8 @@ void do_cmd_debug(void)
 		case 's':
 		{
 			/* Summon Random Monster(s) */
-			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			do_cmd_wiz_summon(p_ptr->command_arg);
+			if (p_ptr->cmd.arg <= 0) p_ptr->cmd.arg = 1;
+			do_cmd_wiz_summon(p_ptr->cmd.arg);
 			break;
 		}
 
@@ -1751,8 +1756,8 @@ void do_cmd_debug(void)
 		case 'v':
 		{
 			/* Very Good Objects */
-			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(px, py, p_ptr->command_arg, TRUE, TRUE);
+			if (p_ptr->cmd.arg <= 0) p_ptr->cmd.arg = 1;
+			acquirement(px, py, p_ptr->cmd.arg, TRUE, TRUE);
 			break;
 		}
 
@@ -1781,9 +1786,9 @@ void do_cmd_debug(void)
 		case 'x':
 		{
 			/* Increase Experience */
-			if (p_ptr->command_arg)
+			if (p_ptr->cmd.arg)
 			{
-				gain_exp(p_ptr->command_arg);
+				gain_exp(p_ptr->cmd.arg);
 			}
 			else
 			{

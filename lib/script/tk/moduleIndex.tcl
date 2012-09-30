@@ -23,5 +23,4 @@ IndexOne NSRecall recall.tcl
 IndexOne NSStore store.tcl
 IndexOne NSStore2 store2.tcl
 IndexOne NSTips tips.tcl
-IndexOne NSTomb tomb.tcl
 IndexOne NSWidget widget.tcl

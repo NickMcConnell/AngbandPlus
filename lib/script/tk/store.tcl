@@ -1557,6 +1557,8 @@ proc NSStore::NewItemCmd {oop canvistId y char number text weight tval icon pric
 
 	set offset [expr {[icon size] + 8}]
 
+if 0 {
+
 	# Image
 	if {[string length $icon]} {
 		set iw [icon size]
@@ -1567,6 +1569,7 @@ proc NSStore::NewItemCmd {oop canvistId y char number text weight tval icon pric
 		lappend itemIdList [$canvas create widget $xdiff [expr {$y + $ydiff}] \
 			-assign $icon]
 	}
+}
 
 	# Char
 	lappend itemIdList [$canvas create text $offset [expr {$y + $diff}] \

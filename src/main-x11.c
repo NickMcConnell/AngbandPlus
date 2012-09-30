@@ -1917,7 +1917,9 @@ static errr Term_xtra_x11(int n, int v)
 		case TERM_XTRA_CLEAR: Infowin_wipe(); return (0);
 
 		/* Delay for some milliseconds */
-		case TERM_XTRA_DELAY: usleep(1000 * v); return (0);
+		case TERM_XTRA_DELAY:
+			if (v > 0) usleep(1000 * v);
+			return (0);
 
 		/* React to changes */
 		case TERM_XTRA_REACT: return (Term_xtra_x11_react());
@@ -2012,14 +2014,14 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, c
 		c = *cp++;
 
 		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * td->fnt->wid;
+		x1 = (c&0x3F) * td->fnt->wid;
 		y1 = (a&0x7F) * td->fnt->hgt;
 
 		ta = *tap++;
 		tc = *tcp++;
 
 		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * td->fnt->wid;
+		x2 = (tc&0x3F) * td->fnt->wid;
 		y2 = (ta&0x7F) * td->fnt->hgt;
 
 		/* Optimise the common case */
@@ -2456,7 +2458,11 @@ errr init_x11(int argc, char *argv[])
 			ii = 1;
 			jj = (depth - 1) >> 2;
 			while (jj >>= 1) ii <<= 1;
-			total = td->fnt->wid * td->fnt->hgt * ii;
+
+			/* Pad the scanline to a multiple of 4 bytes */
+			total = td->fnt->wid * ii;
+			total = (total + 3) & ~3;
+			total *= td->fnt->hgt;
 
 
 			TmpData = (char *)malloc(total);
@@ -2464,7 +2470,6 @@ errr init_x11(int argc, char *argv[])
 			td->TmpImage = XCreateImage(dpy,visual,depth,
 				ZPixmap, 0, TmpData,
 				td->fnt->wid, td->fnt->hgt, 32, 0);
-
 		}
 
 		/* Free tiles_raw? XXX XXX */

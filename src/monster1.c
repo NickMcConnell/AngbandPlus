@@ -1477,7 +1477,7 @@ void roff_top(int r_idx)
 	a2 = r_ptr->x_attr;
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria)
+	if (!use_color)
 	{
 		a1 = TERM_WHITE;
 		a2 = TERM_WHITE;
@@ -1510,7 +1510,7 @@ void roff_top(int r_idx)
 	roff("'):");
 
 	/* Wizards get extra info */
-	if (p_ptr->wizard)
+	if (p_ptr->state.wizard)
 	{
 		roff(" (" CLR_L_BLUE "%d)", r_idx);
 	}
@@ -1572,7 +1572,7 @@ void display_visible(void)
     clear_from(0);
 
 	/* Are we hallucinating? */
-	if (p_ptr->image)
+	if (p_ptr->tim.image)
 	{
 		put_fstr(0, 10, CLR_VIOLET "Hallucinations");
 
@@ -1604,7 +1604,7 @@ void display_visible(void)
 		a2 = r_ptr->x_attr;
 
 		/* Hack -- fake monochrome */
-		if (!use_color || ironman_moria)
+		if (!use_color)
 		{
 			a1 = TERM_WHITE;
 			a2 = TERM_WHITE;
@@ -1615,9 +1615,13 @@ void display_visible(void)
 		{
 			roff(CLR_L_BLUE "%s", (r_name + r_ptr->name));
 		}
+		else if (r_ptr->flags1 & RF1_QUESTOR)
+		{
+			roff(CLR_L_RED "%s", (r_name + r_ptr->name));
+		}
 		else
 		{
-			roff(r_name + r_ptr->name);
+			roff("%s", r_name + r_ptr->name);
 		}
 
 		/* Append the "standard" attr/char info */
@@ -1631,7 +1635,7 @@ void display_visible(void)
 		roff("'):");
 
 		/* Wizards get extra info */
-		if (p_ptr->wizard)
+		if (p_ptr->state.wizard)
 		{
 			roff(" (" CLR_L_BLUE "%d)", i);
 		}
@@ -1648,375 +1652,6 @@ void display_visible(void)
 			{
 				break;
 			}
-		}
-	}
-}
-
-
-
-static byte mon_wild;
-static monster_hook_type wild_mon_hook;
-
-static bool validate_mon_wild(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Want first 8 flags, do not want next 8. */
-	return ((r_ptr->flags8 & 0x000000FF) && (!(r_ptr->flags8 & 0x0000FF00)));
-}
-
-bool monster_quest(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Random quests are in the dungeon */
-	if (!(r_ptr->flags8 & RF8_DUNGEON)) return FALSE;
-
-	/* No random quests for aquatic monsters */
-	if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
-
-	/* No random quests for multiplying monsters */
-	if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
-
-	/* No quests to kill friendly monsters */
-	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
-
-	return TRUE;
-}
-
-
-bool monster_dungeon(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (r_ptr->flags8 & RF8_DUNGEON)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-
-bool monster_ocean(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (r_ptr->flags8 & RF8_WILD_OCEAN)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-
-bool monster_shore(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (r_ptr->flags8 & RF8_WILD_SHORE)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-bool monster_town(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (r_ptr->flags8 & RF8_WILD_TOWN)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-bool monster_grass(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (r_ptr->flags8 & RF8_WILD_GRASS)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-bool monster_deep_water_dun(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (!monster_dungeon(r_idx)) return FALSE;
-
-	if (r_ptr->flags7 & RF7_AQUATIC)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-
-bool monster_shallow_water_dun(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (!monster_dungeon(r_idx)) return FALSE;
-
-	if (r_ptr->flags2 & RF2_AURA_FIRE)
-		return FALSE;
-	else
-		return TRUE;
-}
-
-
-bool monster_lava_dun(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (!monster_dungeon(r_idx)) return FALSE;
-
-	if (((r_ptr->flags3 & RF3_IM_FIRE) ||
-		 (r_ptr->flags7 & RF7_CAN_FLY)) && !(r_ptr->flags3 & RF3_AURA_COLD))
-		return TRUE;
-	else
-		return FALSE;
-}
-
-bool monster_acid_dun(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (!monster_dungeon(r_idx)) return FALSE;
-
-	if (((r_ptr->flags3 & RF3_IM_ACID) || (r_ptr->flags7 & RF7_CAN_FLY)))
-		return TRUE;
-	else
-		return FALSE;
-}
-
-bool monster_swamp_dun(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (!monster_dungeon(r_idx)) return FALSE;
-
-	if (((r_ptr->flags3 & RF3_IM_POIS) || (r_ptr->flags7 & RF7_CAN_FLY)))
-		return TRUE;
-	else
-		return FALSE;
-}
-
-bool monster_deep_water_wild(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Check wilderness flags */
-	if (!wild_mon_hook(r_idx)) return FALSE;
-
-	if (r_ptr->flags7 & RF7_AQUATIC)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-
-bool monster_shallow_water_wild(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Check wilderness flags */
-	if (!wild_mon_hook(r_idx)) return FALSE;
-
-	if (r_ptr->flags2 & RF2_AURA_FIRE)
-		return FALSE;
-	else
-		return TRUE;
-}
-
-
-bool monster_lava_wild(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-	
-	if ((wild_mon_hook) && (wild_mon_hook != monster_lava_wild))
-	{
-		/* Check wilderness flags */
-		if (!wild_mon_hook(r_idx)) return FALSE;
-	}
-
-	if (((r_ptr->flags3 & RF3_IM_FIRE) ||
-		 (r_ptr->flags7 & RF7_CAN_FLY)) && !(r_ptr->flags3 & RF3_AURA_COLD))
-		return TRUE;
-	else
-		return FALSE;
-}
-
-bool monster_acid_wild(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if ((wild_mon_hook) && (wild_mon_hook != monster_acid_wild))
-	{
-		/* Check wilderness flags */
-		if (!wild_mon_hook(r_idx)) return FALSE;
-	}
-
-	if (((r_ptr->flags3 & RF3_IM_ACID) || (r_ptr->flags7 & RF7_CAN_FLY)))
-		return TRUE;
-	else
-		return FALSE;
-}
-
-bool monster_swamp_wild(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Check wilderness flags */
-	if (!wild_mon_hook(r_idx)) return FALSE;
-
-	if (((r_ptr->flags3 & RF3_IM_POIS) || (r_ptr->flags7 & RF7_CAN_FLY)))
-		return TRUE;
-	else
-		return FALSE;
-}
-
-
-monster_hook_type get_monster_hook(void)
-{
-	if (p_ptr->depth)
-	{
-		/* In dungeon */
-		return &(monster_dungeon);
-	}
-
-	/* Not in dungeon */
-	return NULL;
-}
-
-
-monster_hook_type get_monster_hook2(int x, int y)
-{
-	wild_done_type *w_ptr;
-
-	/* In dungeon */
-	if (p_ptr->depth)
-	{
-		/* Set the monster list */
-		switch (area(x, y)->feat)
-		{
-			case FEAT_SHAL_WATER:
-			{
-				return &(monster_shallow_water_dun);
-			}
-			case FEAT_DEEP_WATER:
-			{
-				return &(monster_deep_water_dun);
-			}
-			case FEAT_DEEP_LAVA:
-			case FEAT_SHAL_LAVA:
-			{
-				return &(monster_lava_dun);
-			}
-			case FEAT_DEEP_ACID:
-			case FEAT_SHAL_ACID:
-			{
-				return &(monster_acid_dun);
-			}
-			case FEAT_DEEP_SWAMP:
-			case FEAT_SHAL_SWAMP:
-			{
-				return &(monster_swamp_dun);
-			}
-			default:
-			{
-				return NULL;
-			}
-		}
-	}
-
-	/* Point to wilderness block info */
-	w_ptr = &wild[y / 16][x / 16].done;
-
-
-	/* Mega Hack XXX XXX- Set level of monster */
-	/* This breaks summoning level changes. */
-	monster_level = w_ptr->mon_gen;
-
-
-	if (w_ptr->wild > WILD_SEA)
-	{
-		/* Ocean */
-		wild_mon_hook = &monster_ocean;
-	}
-	else if (w_ptr->info & WILD_INFO_WATER)
-	{
-		/* Shore */
-		wild_mon_hook = &monster_shore;
-	}
-	else if (w_ptr->info & WILD_INFO_ACID)
-	{
-		/* Acid */
-		wild_mon_hook = &monster_acid_wild;
-	}
-	else if (w_ptr->info & WILD_INFO_LAVA)
-	{
-		/* Lava */
-		wild_mon_hook = &monster_lava_wild;
-	}
-	else
-	{
-		/*
-		 * Get wilderness type flags and store
-		 * into static variable above.
-		 */
-		mon_wild = wild_gen_data[w_ptr->wild].rough_type;
-
-		/* Set wilderness hook */
-		if (mon_wild == 0)
-		{
-			/* No other terrain - use grass */
-			wild_mon_hook = &monster_grass;
-		}
-		else
-		{
-			/* Normal wilderness terrain */
-			wild_mon_hook = &validate_mon_wild;
-		}
-	}
-
-	if (w_ptr->place)
-	{
-		/* Have a place. Hack - use town hook. */
-		wild_mon_hook = &monster_town;
-	}
-
-	/* Set the monster list */
-	switch (area(x, y)->feat)
-	{
-		case FEAT_SHAL_WATER:
-		{
-			return &(monster_shallow_water_wild);
-		}
-		case FEAT_DEEP_WATER:
-		{
-			return &(monster_deep_water_wild);
-		}
-		case FEAT_OCEAN_WATER:
-		{
-			return (wild_mon_hook);
-		}
-		case FEAT_DEEP_LAVA:
-		case FEAT_SHAL_LAVA:
-		{
-			return &(monster_lava_wild);
-		}
-		case FEAT_DEEP_ACID:
-		case FEAT_SHAL_ACID:
-		{
-			return &(monster_acid_wild);
-		}
-		case FEAT_DEEP_SWAMP:
-		case FEAT_SHAL_SWAMP:
-		{
-			return &(monster_swamp_wild);
-		}
-		default:
-		{
-			return (wild_mon_hook);
 		}
 	}
 }
@@ -2059,76 +1694,6 @@ void anger_monster(monster_type *m_ptr)
 		chg_virtue(V_JUSTICE, -1);
 		chg_virtue(V_COMPASSION, -1);
 	}
-}
-
-
-/*
- * Check if monster can cross terrain
- */
-bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
-{
-	/* Ocean */
-	if (feat == FEAT_OCEAN_WATER)
-	{
-		if (r_ptr->flags8 & RF8_WILD_OCEAN)
-			return TRUE;
-		else
-			return FALSE;
-	}
-
-	/* Deep water */
-	if (feat == FEAT_DEEP_WATER)
-	{
-		if ((r_ptr->flags7 & RF7_AQUATIC) ||
-			(r_ptr->flags7 & RF7_CAN_FLY) || (r_ptr->flags7 & RF7_CAN_SWIM))
-			return TRUE;
-		else
-			return FALSE;
-	}
-
-	/* Shallow water */
-	if (feat == FEAT_SHAL_WATER)
-	{
-		if (r_ptr->flags2 & RF2_AURA_FIRE)
-			return FALSE;
-		else
-			return TRUE;
-	}
-
-	/* Aquatic monster */
-	if ((r_ptr->flags7 & RF7_AQUATIC) && !(r_ptr->flags7 & RF7_CAN_FLY))
-	{
-		return FALSE;
-	}
-
-	/* Lava */
-	if ((feat == FEAT_SHAL_LAVA) || (feat == FEAT_DEEP_LAVA))
-	{
-		if ((r_ptr->flags3 & RF3_IM_FIRE) || (r_ptr->flags7 & RF7_CAN_FLY))
-			return TRUE;
-		else
-			return FALSE;
-	}
-
-	/* Acid */
-	if ((feat == FEAT_SHAL_ACID) || (feat == FEAT_DEEP_ACID))
-	{
-		if ((r_ptr->flags3 & RF3_IM_ACID) || (r_ptr->flags7 & RF7_CAN_FLY))
-			return TRUE;
-		else
-			return FALSE;
-	}
-
-	/* Swamp */
-	if ((feat == FEAT_SHAL_SWAMP) || (feat == FEAT_DEEP_SWAMP))
-	{
-		if ((r_ptr->flags3 & RF3_IM_POIS) || (r_ptr->flags7 & RF7_CAN_FLY))
-			return TRUE;
-		else
-			return FALSE;
-	}
-
-	return TRUE;
 }
 
 

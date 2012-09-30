@@ -75,8 +75,6 @@ static void roll_em(cptr *vp, int vn, cptr joiner, cptr finish)
  */
 long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 {
-    u32b f1, f2, f3;
-
 	cptr vp[128];
 	int vn;
 
@@ -90,14 +88,11 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	/* Null-terminate it anyhow */
 	s_buffer[0] = '\0';
 
-    /* Extract the (known) flags */
-    object_flags_known(o_ptr, &f1, &f2, &f3);
-
 	/* See if the object is "known" */
 	if (object_known_p(o_ptr)) known = TRUE;
 
 	/* Mega-Hack -- describe activation */
-	if (f3 & (TR3_ACTIVATE))
+	if (o_ptr->flags3 & (TR3_ACTIVATE))
 	{
 		roll_off("It can be activated for ", k);
 		roll_off(item_activation(o_ptr), FALSE);
@@ -118,20 +113,20 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	
 	hack = FALSE;
 
-	if (f3 & TR3_TY_CURSE) vp[vn++] = "carries an ancient foul curse";
+	if (o_ptr->flags3 & TR3_TY_CURSE) vp[vn++] = "carries an ancient foul curse";
 
 	if (cursed_p(o_ptr))
 	{
-		if (f3 & TR3_PERMA_CURSE)		vp[vn++] = "is permanently cursed";
-		else if (f3 & TR3_HEAVY_CURSE) 	vp[vn++] = "is heavily cursed";
+		if (o_ptr->flags3 & TR3_PERMA_CURSE)		vp[vn++] = "is permanently cursed";
+		else if (o_ptr->flags3 & TR3_HEAVY_CURSE) 	vp[vn++] = "is heavily cursed";
 		else if (known || (o_ptr->info & OB_SENSE)) vp[vn++] = "is cursed";
 	}
 	
-	if (f3 & TR3_DRAIN_EXP)			vp[vn++] = "drains experience";
-	if (f3 & TR3_TELEPORT) 			vp[vn++] = "teleports randomly";
-	if (f3 & TR3_AGGRAVATE)			vp[vn++] = "aggravates monsters";
-	if (f3 & TR3_NO_MAGIC)    vp[vn++] = "disrupts magic";
-	if (f3 & TR3_NO_TELE)     vp[vn++] = "inhibits teleportation";
+	if (o_ptr->flags3 & TR3_DRAIN_EXP)			vp[vn++] = "drains experience";
+	if (o_ptr->flags3 & TR3_TELEPORT) 			vp[vn++] = "teleports randomly";
+	if (o_ptr->flags3 & TR3_AGGRAVATE)			vp[vn++] = "aggravates monsters";
+	if (o_ptr->flags3 & TR3_NO_MAGIC)    vp[vn++] = "disrupts magic";
+	if (o_ptr->flags3 & TR3_NO_TELE)     vp[vn++] = "inhibits teleportation";
 	
 	if (vn)
 	{
@@ -142,7 +137,7 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 		hack = TRUE;
 	}
 
-	if ((f1 & TR1_STAT_MASK) && o_ptr->pval)
+	if ((o_ptr->flags1 & TR1_STAT_MASK) && o_ptr->pval)
 	{
 		if (hack && (o_ptr->pval < 0))
 		{
@@ -159,12 +154,12 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 		
 		vn = 0;
 		
-		if (f1 & TR1_STR) vp[vn++] = "Strength";
-		if (f1 & TR1_INT) vp[vn++] = "Intelligence";
-		if (f1 & TR1_WIS) vp[vn++] = "Wisdom";
-		if (f1 & TR1_DEX) vp[vn++] = "Dexterity";
-		if (f1 & TR1_CON) vp[vn++] = "Constitution";
-		if (f1 & TR1_CHR) vp[vn++] = "Charisma";
+		if (o_ptr->flags1 & TR1_STR) vp[vn++] = "Strength";
+		if (o_ptr->flags1 & TR1_INT) vp[vn++] = "Intelligence";
+		if (o_ptr->flags1 & TR1_WIS) vp[vn++] = "Wisdom";
+		if (o_ptr->flags1 & TR1_DEX) vp[vn++] = "Dexterity";
+		if (o_ptr->flags1 & TR1_CON) vp[vn++] = "Constitution";
+		if (o_ptr->flags1 & TR1_CHR) vp[vn++] = "Charisma";
 
 		if (vn == 6)
 		{
@@ -181,11 +176,11 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	{
 		vn = 0;
 	
-		if (f1 & TR1_STEALTH)	vp[vn++] = "Stealth";
-		if (f1 & TR1_SEARCH) 	vp[vn++] = "Searching";
-		if (f1 & TR1_INFRA) 	vp[vn++] = "Infra-vision";
-		if (f1 & TR1_BLOWS) 	vp[vn++] = "number of attacks";
-		if (f1 & TR1_SPEED) 	vp[vn++] = "speed";
+		if (o_ptr->flags1 & TR1_STEALTH)	vp[vn++] = "Stealth";
+		if (o_ptr->flags1 & TR1_SEARCH) 	vp[vn++] = "Searching";
+		if (o_ptr->flags1 & TR1_INFRA) 	vp[vn++] = "Infra-vision";
+		if (o_ptr->flags1 & TR1_BLOWS) 	vp[vn++] = "number of attacks";
+		if (o_ptr->flags1 & TR1_SPEED) 	vp[vn++] = "speed";
 	
 		if (vn)
 		{
@@ -200,11 +195,11 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	
 	hack = FALSE;
 	
-	if (f1 & TR1_BRAND_ACID) 	vp[vn++] = "acid";
-	if (f1 & TR1_BRAND_ELEC)	vp[vn++] = "electricity";
-	if (f1 & TR1_BRAND_FIRE) 	vp[vn++] = "fire";
-	if (f1 & TR1_BRAND_COLD)	vp[vn++] = "frost";
-	if (f1 & TR1_BRAND_POIS)	vp[vn++] = "poison";
+	if (o_ptr->flags1 & TR1_BRAND_ACID) 	vp[vn++] = "acid";
+	if (o_ptr->flags1 & TR1_BRAND_ELEC)	vp[vn++] = "electricity";
+	if (o_ptr->flags1 & TR1_BRAND_FIRE) 	vp[vn++] = "fire";
+	if (o_ptr->flags1 & TR1_BRAND_COLD)	vp[vn++] = "frost";
+	if (o_ptr->flags1 & TR1_BRAND_POIS)	vp[vn++] = "poison";
 
 	if (vn)
 	{
@@ -215,7 +210,7 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 		hack = TRUE;
 	}
 
-	if (f2 & TR2_THROW)
+	if (o_ptr->flags2 & TR2_THROW)
 	{
 		if (k) roll_off("  ", FALSE);
 		roll_off("It is perfectly balanced for throwing.", FALSE);
@@ -227,10 +222,10 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	/* Misc nastiness */
 	vn = 0;
 
-	if (f1 & TR1_CHAOTIC) vp[vn++] = "produces chaotic effects";
-	if (f1 & TR1_VAMPIRIC) vp[vn++] = "drains life from your foes";
-	if (f1 & TR1_IMPACT) vp[vn++] = "causes earthquakes";
-	if (f1 & TR1_VORPAL) vp[vn++] = "cuts with supernatural sharpness";
+	if (o_ptr->flags1 & TR1_CHAOTIC) vp[vn++] = "produces chaotic effects";
+	if (o_ptr->flags1 & TR1_VAMPIRIC) vp[vn++] = "drains life from your foes";
+	if (o_ptr->flags1 & TR1_IMPACT) vp[vn++] = "causes earthquakes";
+	if (o_ptr->flags1 & TR1_VORPAL) vp[vn++] = "cuts with supernatural sharpness";
 
 	if (vn)
 	{
@@ -244,14 +239,14 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	/* What does it slay? */
 	vn = 0;
 	
-	if (f1 & (TR1_KILL_DRAGON | TR1_SLAY_DRAGON)) 	vp[vn++] = "dragons";
-	if (f1 & TR1_SLAY_ORC)   	vp[vn++] = "orcs";
-	if (f1 & TR1_SLAY_TROLL) 	vp[vn++] = "trolls";
-	if (f1 & TR1_SLAY_GIANT) 	vp[vn++] = "giants";
-	if (f1 & TR1_SLAY_DEMON) 	vp[vn++] = "demons";
-	if (f1 & TR1_SLAY_UNDEAD) 	vp[vn++] = "undead";
-	if (f1 & TR1_SLAY_ANIMAL) 	vp[vn++] = "animals";
-	if (f1 & TR1_SLAY_EVIL) 	vp[vn++] = "evil";
+	if (o_ptr->flags1 & (TR1_KILL_DRAGON | TR1_SLAY_DRAGON)) 	vp[vn++] = "dragons";
+	if (o_ptr->flags1 & TR1_SLAY_ORC)   	vp[vn++] = "orcs";
+	if (o_ptr->flags1 & TR1_SLAY_TROLL) 	vp[vn++] = "trolls";
+	if (o_ptr->flags1 & TR1_SLAY_GIANT) 	vp[vn++] = "giants";
+	if (o_ptr->flags1 & TR1_SLAY_DEMON) 	vp[vn++] = "demons";
+	if (o_ptr->flags1 & TR1_SLAY_UNDEAD) 	vp[vn++] = "undead";
+	if (o_ptr->flags1 & TR1_SLAY_ANIMAL) 	vp[vn++] = "animals";
+	if (o_ptr->flags1 & TR1_SLAY_EVIL) 	vp[vn++] = "evil";
 
 	if (vn)
 	{
@@ -261,18 +256,18 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	}
 
 	/* Sustain stats? */
-	if (f2 & TR2_SUST_MASK)
+	if (o_ptr->flags2 & TR2_SUST_MASK)
 	{
 		roll_off("Sustains ", k);
 				
 		vn = 0;
 		
-		if (f2 & TR2_SUST_STR) vp[vn++] = "Strength";
-		if (f2 & TR2_SUST_INT) vp[vn++] = "Intelligence";
-		if (f2 & TR2_SUST_WIS) vp[vn++] = "Wisdom";
-		if (f2 & TR2_SUST_DEX) vp[vn++] = "Dexterity";
-		if (f2 & TR2_SUST_CON) vp[vn++] = "Constitution";
-		if (f2 & TR2_SUST_CHR) vp[vn++] = "Charisma";
+		if (o_ptr->flags2 & TR2_SUST_STR) vp[vn++] = "Strength";
+		if (o_ptr->flags2 & TR2_SUST_INT) vp[vn++] = "Intelligence";
+		if (o_ptr->flags2 & TR2_SUST_WIS) vp[vn++] = "Wisdom";
+		if (o_ptr->flags2 & TR2_SUST_DEX) vp[vn++] = "Dexterity";
+		if (o_ptr->flags2 & TR2_SUST_CON) vp[vn++] = "Constitution";
+		if (o_ptr->flags2 & TR2_SUST_CHR) vp[vn++] = "Charisma";
 
 		if (vn == 6)
 		{
@@ -289,13 +284,13 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	/* Immunities */
 	vn = 0;
 	
-	if (f2 & TR2_IM_ACID) 		vp[vn++] = "acid";
-	if (f2 & TR2_IM_ELEC) 		vp[vn++] = "electricity";
-	if (f2 & TR2_IM_FIRE) 		vp[vn++] = "fire";
-	if (f2 & TR2_IM_COLD) 		vp[vn++] = "cold";
-	if (f2 & TR2_RES_BLIND) 	vp[vn++] = "blindness";
-	if (f2 & TR2_FREE_ACT)		vp[vn++] = "paralysis";
-	if (f2 & TR2_RES_FEAR)		vp[vn++] = "fear";
+	if (o_ptr->flags2 & TR2_IM_ACID) 		vp[vn++] = "acid";
+	if (o_ptr->flags2 & TR2_IM_ELEC) 		vp[vn++] = "electricity";
+	if (o_ptr->flags2 & TR2_IM_FIRE) 		vp[vn++] = "fire";
+	if (o_ptr->flags2 & TR2_IM_COLD) 		vp[vn++] = "cold";
+	if (o_ptr->flags2 & TR2_RES_BLIND) 	vp[vn++] = "blindness";
+	if (o_ptr->flags2 & TR2_FREE_ACT)		vp[vn++] = "paralysis";
+	if (o_ptr->flags2 & TR2_RES_FEAR)		vp[vn++] = "fear";
 
 	if (vn)
 	{
@@ -308,24 +303,24 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	/* Resistances */
 	vn = 0;
 
-	if (f2 & TR2_RES_ACID) 		vp[vn++] = "acid";
-	if (f2 & TR2_RES_ELEC) 		vp[vn++] = "electricity";
-	if (f2 & TR2_RES_FIRE) 		vp[vn++] = "fire";
-	if (f2 & TR2_RES_COLD) 		vp[vn++] = "cold";
-	if (f2 & TR2_RES_POIS) 		vp[vn++] = "poison";
+	if (o_ptr->flags2 & TR2_RES_ACID) 		vp[vn++] = "acid";
+	if (o_ptr->flags2 & TR2_RES_ELEC) 		vp[vn++] = "electricity";
+	if (o_ptr->flags2 & TR2_RES_FIRE) 		vp[vn++] = "fire";
+	if (o_ptr->flags2 & TR2_RES_COLD) 		vp[vn++] = "cold";
+	if (o_ptr->flags2 & TR2_RES_POIS) 		vp[vn++] = "poison";
 
-	if (f2 & TR2_RES_LITE) 		vp[vn++] = "light";
-	if (f2 & TR2_RES_DARK)		vp[vn++] = "dark";
+	if (o_ptr->flags2 & TR2_RES_LITE) 		vp[vn++] = "light";
+	if (o_ptr->flags2 & TR2_RES_DARK)		vp[vn++] = "dark";
 	
-	if (f2 & TR2_RES_CONF) 		vp[vn++] = "confusion";
-	if (f2 & TR2_RES_SOUND) 	vp[vn++] = "sound";
-	if (f2 & TR2_RES_SHARDS) 	vp[vn++] = "shards";
+	if (o_ptr->flags2 & TR2_RES_CONF) 		vp[vn++] = "confusion";
+	if (o_ptr->flags2 & TR2_RES_SOUND) 	vp[vn++] = "sound";
+	if (o_ptr->flags2 & TR2_RES_SHARDS) 	vp[vn++] = "shards";
 
-	if (f2 & TR2_RES_NETHER) 	vp[vn++] = "nether";
-	if (f2 & TR2_RES_NEXUS) 	vp[vn++] = "nexus";
-	if (f2 & TR2_RES_CHAOS) 	vp[vn++] = "chaos";
-	if (f2 & TR2_RES_DISEN)		vp[vn++] = "disenchantment";
-	if (f2 & TR2_HOLD_LIFE)		vp[vn++] = "life draining";
+	if (o_ptr->flags2 & TR2_RES_NETHER) 	vp[vn++] = "nether";
+	if (o_ptr->flags2 & TR2_RES_NEXUS) 	vp[vn++] = "nexus";
+	if (o_ptr->flags2 & TR2_RES_CHAOS) 	vp[vn++] = "chaos";
+	if (o_ptr->flags2 & TR2_RES_DISEN)		vp[vn++] = "disenchantment";
+	if (o_ptr->flags2 & TR2_HOLD_LIFE)		vp[vn++] = "life draining";
 
 	if (vn)
 	{
@@ -337,11 +332,11 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	/* What's cool? */
 	vn = 0;
 	
-	if (f3 & TR3_FEATHER) 		vp[vn++] = "feather falling";
-	if (f3 & TR3_SEE_INVIS) 	vp[vn++] = "see invisible";
-	if (f3 & TR3_TELEPATHY) 	vp[vn++] = "telepathy";
-	if (f3 & TR3_SLOW_DIGEST) 	vp[vn++] = "slow digestion";
-	if (f3 & TR3_REGEN) 		vp[vn++] = "regeneration";
+	if (o_ptr->flags3 & TR3_FEATHER) 		vp[vn++] = "feather falling";
+	if (o_ptr->flags3 & TR3_SEE_INVIS) 	vp[vn++] = "see invisible";
+	if (o_ptr->flags3 & TR3_TELEPATHY) 	vp[vn++] = "telepathy";
+	if (o_ptr->flags3 & TR3_SLOW_DIGEST) 	vp[vn++] = "slow digestion";
+	if (o_ptr->flags3 & TR3_REGEN) 		vp[vn++] = "regeneration";
 
 	if (vn)
 	{
@@ -353,9 +348,9 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	/* Cool too */
 	vn = 0;
 
-	if (f2 & TR2_REFLECT) vp[vn++] = "reflects missiles";
-	if (f3 & TR3_SH_FIRE) vp[vn++] = "radiates fire";
-	if (f3 & TR3_SH_ELEC) vp[vn++] = "radiates electricity";
+	if (o_ptr->flags2 & TR2_REFLECT) vp[vn++] = "reflects missiles";
+	if (o_ptr->flags3 & TR3_SH_FIRE) vp[vn++] = "radiates fire";
+	if (o_ptr->flags3 & TR3_SH_ELEC) vp[vn++] = "radiates electricity";
 
 	if (vn)
 	{
@@ -363,12 +358,12 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 		roll_em(vp, vn, NULL, NULL);
 		k = TRUE;
 	}
-#
+
 	/* Powerful bows */
 	vn = 0;
 	
-	if (f3 & TR3_XTRA_MIGHT) 	vp[vn++] = "with extra might";
-	if (f3 & TR3_XTRA_SHOTS) 	vp[vn++] = "excessively fast";
+	if (o_ptr->flags3 & TR3_XTRA_MIGHT) 	vp[vn++] = "with extra might";
+	if (o_ptr->flags3 & TR3_XTRA_SHOTS) 	vp[vn++] = "excessively fast";
 
 	if (vn)
 	{
@@ -378,7 +373,7 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	}
 
 	/* Misc */
-	if (f3 & TR3_BLESSED)
+	if (o_ptr->flags3 & TR3_BLESSED)
 	{
 		roll_off("It has been blessed by the gods.", k);
 		k = TRUE;
@@ -404,13 +399,13 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	}
 
 	/* Permanent light source */
-	if (f3 & TR3_LITE)
+	if (o_ptr->flags3 & TR3_LITE)
 	{
 		roll_off("It provides light (radius 1) forever.", k);
 		k = TRUE;
 	}
 
-	if (f1 & TR1_TUNNEL)
+	if (o_ptr->flags1 & TR1_TUNNEL)
 	{
 		roll_off("It is ", k);
 		roll_off((o_ptr->pval >= 0) ? "an effective" : "a useless", FALSE);
@@ -421,10 +416,10 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	/* What does the object resist? */
 	vn = 0;
 	
-	if (f3 & TR3_IGNORE_ACID) 	vp[vn++] = "acid";
-	if (f3 & TR3_IGNORE_ELEC) 	vp[vn++] = "electricity";
-	if (f3 & TR3_IGNORE_FIRE) 	vp[vn++] = "fire";
-	if (f3 & TR3_IGNORE_COLD) 	vp[vn++] = "cold";
+	if (o_ptr->flags3 & TR3_IGNORE_ACID) 	vp[vn++] = "acid";
+	if (o_ptr->flags3 & TR3_IGNORE_ELEC) 	vp[vn++] = "electricity";
+	if (o_ptr->flags3 & TR3_IGNORE_FIRE) 	vp[vn++] = "fire";
+	if (o_ptr->flags3 & TR3_IGNORE_COLD) 	vp[vn++] = "cold";
 
 	if (vn)
 	{
@@ -502,11 +497,7 @@ int SetArrayValueString(cptr varName, cptr field, cptr value)
 static int DumpObjectInfo(object_type *o_ptr, char *varName)
 {
 	int known;
-	u32b f1, f2, f3;
 	cptr note;
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Known? */
 	known = object_known_p(o_ptr) ? 1 : 0;
@@ -520,7 +511,7 @@ static int DumpObjectInfo(object_type *o_ptr, char *varName)
 	if (known)
 	{
 		if (SetArrayValueLong(varName, "activate",
-			(f3 & (TR3_ACTIVATE)) != 0) != TCL_OK)
+			(o_ptr->flags3 & (TR3_ACTIVATE)) != 0) != TCL_OK)
 		{
 			return TCL_ERROR;
 		}

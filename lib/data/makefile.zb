@@ -1,0 +1,16 @@
+subdir = ./lib/data/
+
+srcfiles += lib/data/makefile.zb
+
+## makefile.zb
+
+INSTALL += \
+		touch "$(DESTDIR)/lib/data/a_info.raw";\
+		touch "$(DESTDIR)/lib/data/e_info.raw";\
+		touch "$(DESTDIR)/lib/data/f_info.raw";\
+		touch "$(DESTDIR)/lib/data/k_info.raw";\
+		touch "$(DESTDIR)/lib/data/r_info.raw";\
+		touch "$(DESTDIR)/lib/data/v_info.raw";\
+		touch "$(DESTDIR)/lib/data/misc.raw";\
+		chown -R root.$(GAMEGROUP) "$(DESTDIR)/lib/data";\
+		chmod -R g+w "$(DESTDIR)/lib/data";

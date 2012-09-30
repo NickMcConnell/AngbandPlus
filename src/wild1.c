@@ -1571,11 +1571,41 @@ static bool is_road_place(u16b place_num)
 {
 	place_type *pl_ptr = &place[place_num];
 
-	/* No roads to wilderness quests */
-	if (pl_ptr->quest_num) return (FALSE);
+	switch (pl_ptr->type)
+	{
+		case TOWN_QUEST:
+		{
+			/* No roads to wilderness quests */
+			return (FALSE);
+		}
+		
+		case TOWN_DUNGEON:
+		{
+			dun_type *d_ptr = pl_ptr->dungeon;
+			
+			wild_gen2_type *w_ptr = &wild[pl_ptr->y][pl_ptr->x].trans;
 
-	/* Default to true otherwise */
-	return (TRUE);
+			if (w_ptr->law_map + w_ptr->pop_map < 256)
+			{
+				/* Can we connect a track? */
+				if (d_ptr->flags & DF_TRACK) return (TRUE);
+			}
+			else
+			{
+				/* Can we connect a road? */
+				if (d_ptr->flags & (DF_ROAD)) return (TRUE);
+			}
+			
+			/* No roads here */
+			return (FALSE);
+		}
+		
+		default:
+		{
+			/* Default to true otherwise */
+			return (TRUE);
+		}
+	}
 }
 
 
@@ -1847,8 +1877,8 @@ static void create_roads(void)
 		/* No third town yet */
 		place3 = -1;
 
-		/* Max distance is 2x the dist between the two places */
-		max_dist += max_dist;
+		/* Reset max distance so we can find another town */
+		max_dist = ROAD_DIST;
 
 		/*
 		 * Compare the connections for the two places to see
@@ -1858,6 +1888,9 @@ static void create_roads(void)
 		 */
 		for (i = 0; i < places; i++)
 		{
+			/* Want a new town */
+			if ((i == place1) || (i == place2)) continue;
+		
 			/* Distance from place1 to the new place */
 			dist = link_list[place1][i];
 
@@ -1925,7 +1958,7 @@ static void create_roads(void)
 
 			/* Connect the three places to the midpoint */
 			x1 = x2;
-			x1 = y2;
+			y1 = y2;
 
 			/* Get connection square for place1 */
 			road_connect(&x1, &y1, place1);
@@ -1934,7 +1967,7 @@ static void create_roads(void)
 			road_link(x1, y1, x2, y2);
 
 			x1 = x2;
-			x1 = y2;
+			y1 = y2;
 
 			/* Get connection square for place2 */
 			road_connect(&x1, &y1, place2);
@@ -1943,7 +1976,7 @@ static void create_roads(void)
 			road_link(x1, y1, x2, y2);
 
 			x1 = x2;
-			x1 = y2;
+			y1 = y2;
 
 			/* Get connection square for place3 */
 			road_connect(&x1, &y1, place3);
@@ -1962,7 +1995,7 @@ static void create_roads(void)
 
 			/* Decrement link total */
 			links -= 2;
-
+;
 			/* Hack - save the place number in link_list */
 			place3 = place1;
 			place4 = place2;
@@ -3135,6 +3168,12 @@ static void wipe_wilderness(void)
 			/* Free the stores */
 			FREE(pl_ptr->store);
 		}
+		
+		/* Free the dungeon data */
+		if (pl_ptr->dungeon)
+		{
+			FREE(pl_ptr->dungeon);
+		}
 
 		/* Wipe the place */
 		(void)WIPE(pl_ptr, place_type);
@@ -3464,6 +3503,17 @@ void create_wilderness(void)
 	
 	/* Invalidate the player while we make everything */
 	character_dungeon = FALSE;
+
+	/*
+	 * XXX XXX Hack  Pretend we have a loaded player.
+	 * (Must make sure the object, monsters and fields created
+	 * now do not break the savefile, if we are half-way through
+	 * loading it.)
+	 *
+	 * We also must make sure we create the objects, monsters and fields
+	 * if we are just starting the game.
+	 */
+	character_loaded = TRUE;
 
 	/* Delete everything */
 	wipe_rg_list();

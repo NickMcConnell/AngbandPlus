@@ -2399,8 +2399,8 @@ void borg_cheat_spell(int realm)
 
 			/* Note "forgotten" spells */
 			if ((realm == bp_ptr->realm1) ?
-				((p_ptr->spell_forgotten1 & (1L << j))) :
-				((p_ptr->spell_forgotten2 & (1L << j))))
+				((p_ptr->spell.r[0].forgotten & (1L << j))) :
+				((p_ptr->spell.r[1].forgotten & (1L << j))))
 			{
 				/* Forgotten */
 				as->status = BORG_MAGIC_LOST;
@@ -2415,8 +2415,8 @@ void borg_cheat_spell(int realm)
 
 			/* Note "unknown" spells */
 			else if (!((realm == bp_ptr->realm1) ?
-					   (p_ptr->spell_learned1 & (1L << j)) :
-					   (p_ptr->spell_learned2 & (1L << j))))
+					   (p_ptr->spell.r[0].learned & (1L << j)) :
+					   (p_ptr->spell.r[1].learned & (1L << j))))
 			{
 				/* Unknown */
 				as->status = BORG_MAGIC_OKAY;
@@ -2424,8 +2424,8 @@ void borg_cheat_spell(int realm)
 
 			/* Note "untried" spells */
 			else if (!((realm == bp_ptr->realm1) ?
-					   (p_ptr->spell_learned1 & (1L << j)) :
-					   (p_ptr->spell_learned2 & (1L << j))))
+					   (p_ptr->spell.r[0].learned & (1L << j)) :
+					   (p_ptr->spell.r[1].learned & (1L << j))))
 			{
 				/* Untried */
 				as->status = BORG_MAGIC_TEST;
@@ -2579,8 +2579,8 @@ void prepare_race_class_info(void)
 	int book;
 
 	/* Hack -- Realms */
-	bp_ptr->realm1 = p_ptr->realm1;
-	bp_ptr->realm2 = p_ptr->realm2;
+	bp_ptr->realm1 = p_ptr->spell.r[0].realm;
+	bp_ptr->realm2 = p_ptr->spell.r[1].realm;
 
 	/* Initialize the various spell arrays by book */
 	for (book = 0; book < 4; book++)

@@ -1,0 +1,5 @@
+subdir = ./lib/xtra/music/
+
+## makefile.zb
+
+srcfiles += lib/xtra/music/makefile.zb

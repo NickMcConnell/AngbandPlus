@@ -1559,7 +1559,8 @@ bool borg_crush_junk(void)
 			if (!borg_obj_known_p(l_ptr) &&
 				!(strstr(l_ptr->o_name, "{average") ||
 				  strstr(l_ptr->o_name, "{cursed") ||
-				  strstr(l_ptr->o_name, "{bad"))) continue;
+				  strstr(l_ptr->o_name, "{bad") ||
+				  strstr(l_ptr->o_name, "{worthless"))) continue;
 
 			/* Pretend pile isn't there */
 			l_ptr->treat_as = TREAT_AS_GONE;

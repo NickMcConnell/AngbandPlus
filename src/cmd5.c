@@ -34,7 +34,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	char choice;
 	const magic_type *s_ptr;
 	char out_val[160];
-	int use_realm = (realm_2 ? p_ptr->realm2 : p_ptr->realm1);
+	int use_realm = p_ptr->spell.r[realm_2 ? 1 : 0].realm;
 	cptr p = ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell");
 
 	/* Get the spell, if available */
@@ -243,7 +243,7 @@ void do_cmd_browse(void)
 	cptr q, s;
 
 	/* Warriors are illiterate */
-	if (!(p_ptr->realm1 || p_ptr->realm2))
+	if (!(p_ptr->spell.r[0].realm || p_ptr->spell.r[1].realm))
 	{
 		msgf("You cannot read books!");
 		return;
@@ -274,7 +274,7 @@ void do_cmd_study(void)
 	int i, sval;
 	int increment = 0;
 
-	/* Spells of realm2 will have an increment of +32 */
+	/* Spells of r[1].realm will have an increment of +32 */
 	int spell = -1;
 
 	cptr p = ((mp_ptr->spell_book == TV_SORCERY_BOOK) ? "spell" : "prayer");
@@ -283,19 +283,19 @@ void do_cmd_study(void)
 
 	cptr q, s;
 
-	if (!p_ptr->realm1)
+	if (!p_ptr->spell.r[0].realm)
 	{
 		msgf("You cannot read books!");
 		return;
 	}
 
-	if (p_ptr->blind || no_lite())
+	if (p_ptr->tim.blind || no_lite())
 	{
 		msgf("You cannot see!");
 		return;
 	}
 
-	if (p_ptr->confused)
+	if (p_ptr->tim.confused)
 	{
 		msgf("You are too confused!");
 		return;
@@ -358,8 +358,7 @@ void do_cmd_study(void)
 			{
 				/* Skip non "okay" prayers */
 				if (!spell_okay(spell, FALSE,
-								(increment ? p_ptr->realm2 - 1 : p_ptr->realm1 -
-								 1)))
+								p_ptr->spell.r[increment / 32].realm - 1))
 					continue;
 
 				/* Hack -- Prepare the randomizer */
@@ -391,30 +390,22 @@ void do_cmd_study(void)
 	if (increment) spell += increment;
 
 	/* Learn the spell */
-	if (spell < 32)
-	{
-		p_ptr->spell_learned1 |= (1L << spell);
-	}
-	else
-	{
-		p_ptr->spell_learned2 |= (1L << (spell - 32));
-	}
+	p_ptr->spell.r[spell / 32].learned |= (1L << (spell % 32));
 
-	/* Find the next open entry in "spell_order[]" */
+	/* Find the next open entry in "spell.order[]" */
 	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		/* Stop at the first empty space */
-		if (p_ptr->spell_order[i] == 99) break;
+		if (p_ptr->spell.order[i] == 99) break;
 	}
 
 	/* Add the spell to the known list */
-	p_ptr->spell_order[i++] = spell;
+	p_ptr->spell.order[i++] = spell;
 
 	/* Mention the result */
 	msgf(MSGT_STUDY, "You have learned the %s of %s.",
 				   p, spell_names
-				   [(increment ? p_ptr->realm2 - 1 : p_ptr->realm1 -
-					 1)][spell % 32]);
+				   [p_ptr->spell.r[increment / 32].realm - 1][spell % 32]);
 
 	if (mp_ptr->spell_book == TV_LIFE_BOOK)
 		chg_virtue(V_FAITH, 1);
@@ -617,13 +608,13 @@ static bool cast_life_spell(int spell)
 			break;
 		case 1:				/* Cure Light Wounds */
 			(void)hp_player(damroll(2, 10));
-			(void)set_cut(p_ptr->cut - 10);
+			(void)inc_cut(-10);
 			break;
 		case 2:				/* Bless */
-			(void)set_blessed(p_ptr->blessed + rand_range(12, 24));
+			(void)inc_blessed(rand_range(12, 24));
 			break;
 		case 3:				/* Remove Fear */
-			(void)set_afraid(0);
+			(void)clear_afraid();
 			break;
 		case 4:				/* Call Light */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
@@ -635,7 +626,7 @@ static bool cast_life_spell(int spell)
 			break;
 		case 6:				/* Cure Medium Wounds */
 			(void)hp_player(damroll(4, 10));
-			(void)set_cut((p_ptr->cut / 2) - 20);
+			(void)inc_cut(-40);
 			break;
 		case 7:				/* Satisfy Hunger */
 			(void)set_food(PY_FOOD_MAX - 1);
@@ -644,34 +635,34 @@ static bool cast_life_spell(int spell)
 			(void)remove_curse();
 			break;
 		case 9:				/* Cure Poison */
-			(void)set_poisoned(0);
+			(void)clear_poisoned();
 			break;
 		case 10:				/* Cure Critical Wounds */
 			(void)hp_player(damroll(8, 10));
-			(void)set_stun(0);
-			(void)set_cut(0);
+			(void)clear_stun();
+			(void)clear_cut();
 			break;
 		case 11:				/* Sense Unseen */
-			(void)set_tim_invis(p_ptr->tim_invis + rand_range(24, 48));
+			(void)inc_tim_invis(rand_range(24, 48));
 			break;
 		case 12:				/* Orb or Draining */
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			(void)fire_ball(GF_HOLY_FIRE, dir,
 							(damroll(3, 6) + plev +
-							 (plev / ((p_ptr->pclass == CLASS_PRIEST ||
-									   p_ptr->pclass ==
+							 (plev / ((p_ptr->rp.pclass == CLASS_PRIEST ||
+									   p_ptr->rp.pclass ==
 									   CLASS_HIGH_MAGE) ? 2 : 4))),
 							((plev < 30) ? 2 : 3));
 
 			break;
 		case 13:				/* Protection from Evil */
-			(void)set_protevil(p_ptr->protevil + randint1(25) + 3 * p_ptr->lev);
+			(void)inc_protevil(randint1(25) + 3 * p_ptr->lev);
 			break;
 		case 14:				/* Healing */
 			(void)hp_player(300);
-			(void)set_stun(0);
-			(void)set_cut(0);
+			(void)clear_stun();
+			(void)clear_cut();
 			break;
 		case 15:				/* Glyph of Warding */
 			(void)warding_glyph();
@@ -703,22 +694,22 @@ static bool cast_life_spell(int spell)
 		case 22:				/* Holy Word */
 			(void)dispel_evil(plev * 4);
 			(void)hp_player(1000);
-			(void)set_afraid(0);
-			(void)set_poisoned(0);
-			(void)set_stun(0);
-			(void)set_cut(0);
+			(void)clear_afraid();
+			(void)clear_poisoned();
+			(void)clear_stun();
+			(void)clear_cut();
 			break;
 		case 23:				/* Warding True */
 			(void)warding_glyph();
 			(void)glyph_creation();
 			break;
 		case 24:				/* Heroism */
-			(void)set_hero(p_ptr->hero + rand_range(25, 50));
+			(void)inc_hero(rand_range(25, 50));
 			(void)hp_player(10);
-			(void)set_afraid(0);
+			(void)clear_afraid();
 			break;
 		case 25:				/* Prayer */
-			(void)set_blessed(p_ptr->blessed + rand_range(50, 100));
+			(void)inc_blessed(rand_range(50, 100));
 			break;
 		case 26:
 			return bless_weapon();
@@ -733,8 +724,8 @@ static bool cast_life_spell(int spell)
 			break;
 		case 28:				/* Healing True */
 			(void)hp_player(2000);
-			(void)set_stun(0);
-			(void)set_cut(0);
+			(void)clear_stun();
+			(void)clear_cut();
 			break;
 		case 29:				/* Holy Vision */
 			return identify_fully();
@@ -748,23 +739,16 @@ static bool cast_life_spell(int spell)
 			(void)stasis_monsters(plev * 4);
 			(void)summon_specific(-1, px, py, plev, SUMMON_ANGEL, TRUE, TRUE,
 								  TRUE);
-			(void)set_shero(p_ptr->shero + rand_range(25, 50));
+			(void)inc_shero(rand_range(25, 50));
 			(void)hp_player(300);
 
 			/* Haste */
-			if (!p_ptr->fast)
-			{
-				(void)set_fast(randint1(20 + plev) + plev);
-			}
-			else
-			{
-				(void)set_fast(p_ptr->fast + randint1(5));
-			}
+			(void)inc_fast(randint1(20 + plev) + plev);
 
-			(void)set_afraid(0);
+			(void)clear_afraid();
 			break;
 		case 31:				/* Holy Invulnerability */
-			(void)set_invuln(p_ptr->invuln + rand_range(7, 14));
+			(void)inc_invuln(rand_range(7, 14));
 			break;
 		default:
 			msgf("You cast an unknown Life spell: %d.", spell);
@@ -833,14 +817,7 @@ static bool cast_sorcery_spell(int spell)
 			(void)fire_beam(GF_AWAY_ALL, dir, plev);
 			break;
 		case 13:				/* Haste Self */
-			if (!p_ptr->fast)
-			{
-				(void)set_fast(randint1(20 + plev) + plev);
-			}
-			else
-			{
-				(void)set_fast(p_ptr->fast + randint1(5));
-			}
+			(void)inc_fast(randint1(20 + plev) + plev);
 			break;
 		case 14:				/* Detection True */
 			(void)detect_all();
@@ -864,7 +841,7 @@ static bool cast_sorcery_spell(int spell)
 			msgf("You open a dimensional gate. Choose a destination.");
 			return dimension_door();
 		case 20:				/* Sense Minds */
-			(void)set_tim_esp(p_ptr->tim_esp + rand_range(25, 55));
+			(void)inc_tim_esp(rand_range(25, 55));
 			break;
 		case 21:				/* Self knowledge */
 			(void)self_knowledge();
@@ -890,9 +867,9 @@ static bool cast_sorcery_spell(int spell)
 			break;
 		case 27:				/* Clairvoyance */
 			wiz_lite();
-			if (!(p_ptr->telepathy))
+			if (!(p_ptr->flags3 & (TR3_TELEPATHY)))
 			{
-				(void)set_tim_esp(p_ptr->tim_esp + rand_range(25, 55));
+				(void)inc_tim_esp(rand_range(25, 55));
 			}
 			break;
 		case 28:				/* Enchant Weapon */
@@ -902,7 +879,7 @@ static bool cast_sorcery_spell(int spell)
 		case 30:				/* Alchemy */
 			return alchemy();
 		case 31:				/* Globe of Invulnerability */
-			(void)set_invuln(p_ptr->invuln + rand_range(8, 16));
+			(void)inc_invuln(rand_range(8, 16));
 			break;
 		default:
 			msgf("You cast an unknown Sorcery spell: %d.", spell);
@@ -925,8 +902,8 @@ static bool cast_nature_spell(int spell)
 	int plev = p_ptr->lev;
 	bool no_trump = FALSE;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+	if (p_ptr->rp.pclass == CLASS_MAGE) beam = plev;
+	else if (p_ptr->rp.pclass == CLASS_HIGH_MAGE) beam = plev + 10;
 	else
 		beam = plev / 2;
 
@@ -937,7 +914,7 @@ static bool cast_nature_spell(int spell)
 			break;
 		case 1:				/* First Aid */
 			(void)hp_player(damroll(2, 8));
-			(void)set_cut(p_ptr->cut - 15);
+			(void)inc_cut(-15);
 			break;
 		case 2:				/* Detect Doors + Traps */
 			(void)detect_traps();
@@ -949,7 +926,9 @@ static bool cast_nature_spell(int spell)
 			break;
 		case 4:				/* Daylight */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-			if ((p_ptr->prace == RACE_VAMPIRE) && !p_ptr->resist_lite)
+			if ((p_ptr->flags4 & (TR4_HURT_LITE)) &&
+				!(p_ptr->flags2 & (TR2_RES_LITE)) &&
+				!(p_ptr->flags4 & (TR4_IM_LITE)))
 			{
 				msgf("The daylight scorches your flesh!");
 				take_hit(damroll(2, 2), "daylight");
@@ -961,13 +940,13 @@ static bool cast_nature_spell(int spell)
 			(void)charm_animal(dir, plev);
 			break;
 		case 6:				/* Resist Environment */
-			(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(20, 40));
-			(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(20, 40));
-			(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(20, 40));
+			(void)inc_oppose_cold(rand_range(20, 40));
+			(void)inc_oppose_fire(rand_range(20, 40));
+			(void)inc_oppose_elec(rand_range(20, 40));
 			break;
 		case 7:				/* Cure Wounds + Poison */
-			(void)set_cut(0);
-			(void)set_poisoned(0);
+			(void)clear_cut();
+			(void)clear_poisoned();
 			break;
 		case 8:				/* Stone to Mud */
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -1008,9 +987,9 @@ static bool cast_nature_spell(int spell)
 			break;
 		case 15:				/* Herbal Healing */
 			(void)hp_player(1000);
-			(void)set_stun(0);
-			(void)set_cut(0);
-			(void)set_poisoned(0);
+			(void)clear_stun();
+			(void)clear_cut();
+			(void)clear_poisoned();
 			break;
 		case 16:				/* Door Building */
 			(void)door_creation();
@@ -1019,14 +998,14 @@ static bool cast_nature_spell(int spell)
 			(void)stair_creation();
 			break;
 		case 18:				/* Stone Skin */
-			(void)set_shield(p_ptr->shield + rand_range(30, 50));
+			(void)inc_shield(rand_range(30, 50));
 			break;
 		case 19:				/* Resistance True */
-			(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(20, 40));
-			(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(20, 40));
-			(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(20, 40));
-			(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(20, 40));
-			(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(20, 40));
+			(void)inc_oppose_acid(rand_range(20, 40));
+			(void)inc_oppose_elec(rand_range(20, 40));
+			(void)inc_oppose_fire(rand_range(20, 40));
+			(void)inc_oppose_cold(rand_range(20, 40));
+			(void)inc_oppose_pois(rand_range(20, 40));
 			break;
 		case 20:				/* Animal Friendship */
 			(void)charm_animals(plev * 2);
@@ -1081,7 +1060,9 @@ static bool cast_nature_spell(int spell)
 		case 29:				/* Call Sunlight */
 			(void)fire_ball(GF_LITE, 0, 150, 8);
 			wiz_lite();
-			if ((p_ptr->prace == RACE_VAMPIRE) && !p_ptr->resist_lite)
+			if ((p_ptr->flags4 & (TR4_HURT_LITE)) &&
+				!(p_ptr->flags2 & (TR2_RES_LITE)) &&
+				!(p_ptr->flags4 & (TR4_IM_LITE)))
 			{
 				msgf("The sunlight scorches your flesh!");
 				take_hit(50, "sunlight");
@@ -1119,8 +1100,8 @@ static bool cast_chaos_spell(int spell)
 	int dir, i, beam;
 	int plev = p_ptr->lev;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+	if (p_ptr->rp.pclass == CLASS_MAGE) beam = plev;
+	else if (p_ptr->rp.pclass == CLASS_HIGH_MAGE) beam = plev + 10;
 	else
 		beam = plev / 2;
 
@@ -1139,10 +1120,10 @@ static bool cast_chaos_spell(int spell)
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 			break;
 		case 3:				/* Touch of Confusion */
-			if (!p_ptr->confusing)
+			if (!p_ptr->state.confusing)
 			{
 				msgf("Your hands start glowing.");
-				p_ptr->confusing = TRUE;
+				p_ptr->state.confusing = TRUE;
 				p_ptr->redraw |= (PR_STATUS);
 			}
 			break;
@@ -1151,8 +1132,8 @@ static bool cast_chaos_spell(int spell)
 
 			(void)fire_ball(GF_MISSILE, dir,
 							(damroll(3, 5) + plev +
-							 (plev / (((p_ptr->pclass == CLASS_MAGE) ||
-									   (p_ptr->pclass ==
+							 (plev / (((p_ptr->rp.pclass == CLASS_MAGE) ||
+									   (p_ptr->rp.pclass ==
 										CLASS_HIGH_MAGE)) ? 2 : 4))),
 							((plev < 30) ? 2 : 3));
 			/* Shouldn't actually use GF_MANA, as it will destroy all
@@ -1405,8 +1386,8 @@ static bool cast_death_spell(int spell)
 	int dummy = 0;
 	int i;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+	if (p_ptr->rp.pclass == CLASS_MAGE) beam = plev;
+	else if (p_ptr->rp.pclass == CLASS_HIGH_MAGE) beam = plev + 10;
 	else
 		beam = plev / 2;
 
@@ -1453,7 +1434,7 @@ static bool cast_death_spell(int spell)
 			(void)sleep_monster(dir);
 			break;
 		case 5:				/* Resist Poison */
-			(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(20, 40));
+			(void)inc_oppose_pois(rand_range(20, 40));
 			break;
 		case 6:				/* Horrify */
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -1471,8 +1452,8 @@ static bool cast_death_spell(int spell)
 
 			(void)fire_ball(GF_OLD_DRAIN, dir,
 							(damroll(3, 6) + plev +
-							 (plev / (((p_ptr->pclass == CLASS_MAGE) ||
-									   (p_ptr->pclass ==
+							 (plev / (((p_ptr->rp.pclass == CLASS_MAGE) ||
+									   (p_ptr->rp.pclass ==
 										CLASS_HIGH_MAGE)) ? 2 : 4))),
 							((plev < 30) ? 2 : 3));
 			break;
@@ -1521,9 +1502,9 @@ static bool cast_death_spell(int spell)
 			(void)restore_level();
 			break;
 		case 16:				/* Berserk */
-			(void)set_shero(p_ptr->shero + rand_range(25, 50));
+			(void)inc_shero(rand_range(25, 50));
 			(void)hp_player(30);
-			(void)set_afraid(0);
+			(void)clear_afraid();
 			break;
 		case 17:				/* Invoke Spirits */
 		{
@@ -1550,13 +1531,13 @@ static bool cast_death_spell(int spell)
 			else if (die < 14)
 			{
 				msgf("An unnamable evil brushes against your mind...");
-				(void)set_afraid(p_ptr->afraid + rand_range(4, 8));
+				(void)inc_afraid(rand_range(4, 8));
 			}
 			else if (die < 26)
 			{
 				msgf
 					("Your head is invaded by a horde of gibbering spectral voices...");
-				(void)set_confused(p_ptr->confused + rand_range(4, 8));
+				(void)inc_confused(rand_range(4, 8));
 			}
 			else if (die < 31)
 			{
@@ -1659,17 +1640,10 @@ static bool cast_death_spell(int spell)
 									damroll(4 + ((plev - 5) / 4), 8));
 			break;
 		case 19:				/* Battle Frenzy */
-			(void)set_shero(p_ptr->shero + rand_range(25, 50));
+			(void)inc_shero(rand_range(25, 50));
 			(void)hp_player(30);
-			(void)set_afraid(0);
-			if (!p_ptr->fast)
-			{
-				(void)set_fast(rand_range(plev / 2, 20 + plev));
-			}
-			else
-			{
-				(void)set_fast(p_ptr->fast + randint1(5));
-			}
+			(void)clear_afraid();
+			(void)inc_fast(rand_range(plev / 2, 20 + plev));
 			break;
 		case 20:				/* Vampirism True */
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -1799,8 +1773,7 @@ static bool cast_death_spell(int spell)
 
 			break;
 		case 31:				/* Wraithform */
-			(void)set_wraith_form(p_ptr->wraith_form +
-								  rand_range(plev / 2, plev));
+			(void)inc_wraith_form(rand_range(plev / 2, plev));
 			break;
 		default:
 			msgf("You cast an unknown Death spell: %d.", spell);
@@ -1826,8 +1799,8 @@ static bool cast_trump_spell(int spell, bool success)
 	char tmp_val[160];
 
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+	if (p_ptr->rp.pclass == CLASS_MAGE) beam = plev;
+	else if (p_ptr->rp.pclass == CLASS_HIGH_MAGE) beam = plev + 10;
 	else
 		beam = plev / 2;
 
@@ -1853,8 +1826,8 @@ static bool cast_trump_spell(int spell, bool success)
 				/* A limited power 'wonder' spell */
 				int die = randint1(120);
 
-				if ((p_ptr->pclass == CLASS_ROGUE) ||
-					(p_ptr->pclass == CLASS_HIGH_MAGE))
+				if ((p_ptr->rp.pclass == CLASS_ROGUE) ||
+					(p_ptr->rp.pclass == CLASS_HIGH_MAGE))
 					die = (randint1(110)) + plev / 5;
 				/* Card sharks and high mages get a level bonus */
 
@@ -1920,7 +1893,7 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 42)
 				{
 					msgf("It's Justice.");
-					(void)set_blessed(p_ptr->blessed + p_ptr->lev);
+					(void)inc_blessed(p_ptr->lev);
 				}
 				else if (die < 47)
 				{
@@ -2071,7 +2044,7 @@ static bool cast_trump_spell(int spell, bool success)
 		case 6:				/* Trump Spying */
 			if (success)
 			{
-				(void)set_tim_esp(p_ptr->tim_esp + rand_range(25, 55));
+				(void)inc_tim_esp(rand_range(25, 55));
 			}
 			break;
 		case 7:				/* Teleport Away */
@@ -2505,8 +2478,8 @@ static bool cast_arcane_spell(int spell)
 	int plev = p_ptr->lev;
 	int dummy = 0;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+	if (p_ptr->rp.pclass == CLASS_MAGE) beam = plev;
+	else if (p_ptr->rp.pclass == CLASS_HIGH_MAGE) beam = plev + 10;
 	else
 		beam = plev / 2;
 
@@ -2542,7 +2515,7 @@ static bool cast_arcane_spell(int spell)
 			break;
 		case 7:				/* Cure Light Wounds */
 			(void)hp_player(damroll(2, 8));
-			(void)set_cut(p_ptr->cut - 10);
+			(void)inc_cut(-10);
 			break;
 		case 8:				/* Detect Doors & Traps */
 			(void)detect_traps();
@@ -2563,23 +2536,23 @@ static bool cast_arcane_spell(int spell)
 			(void)detect_objects_normal();
 			break;
 		case 13:				/* Cure Poison */
-			(void)set_poisoned(0);
+			(void)clear_poisoned();
 			break;
 		case 14:				/* Resist Cold */
-			(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(20, 40));
+			(void)inc_oppose_cold(rand_range(20, 40));
 			break;
 		case 15:				/* Resist Fire */
-			(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(20, 40));
+			(void)inc_oppose_fire(rand_range(20, 40));
 			break;
 		case 16:				/* Resist Lightning */
-			(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(20, 40));
+			(void)inc_oppose_elec(rand_range(20, 40));
 			break;
 		case 17:				/* Resist Acid */
-			(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(20, 40));
+			(void)inc_oppose_acid(rand_range(20, 40));
 			break;
 		case 18:				/* Cure Medium Wounds */
 			(void)hp_player(damroll(4, 8));
-			(void)set_cut((p_ptr->cut / 2) - 50);
+			(void)inc_cut(-50);
 			break;
 		case 19:				/* Teleport */
 			teleport_player(plev * 5);
@@ -2599,7 +2572,7 @@ static bool cast_arcane_spell(int spell)
 			(void)set_food(PY_FOOD_MAX - 1);
 			break;
 		case 23:				/* See Invisible */
-			(void)set_tim_invis(p_ptr->tim_invis + rand_range(24, 48));
+			(void)inc_tim_invis(rand_range(24, 48));
 			break;
 		case 24:				/* Recharging */
 			return recharge(plev * 4);
@@ -2637,9 +2610,9 @@ static bool cast_arcane_spell(int spell)
 			break;
 		case 31:				/* Clairvoyance */
 			wiz_lite();
-			if (!p_ptr->telepathy)
+			if (!(p_ptr->flags3 & (TR3_TELEPATHY)))
 			{
-				(void)set_tim_esp(p_ptr->tim_esp + rand_range(25, 55));
+				(void)inc_tim_esp(rand_range(25, 55));
 			}
 			break;
 		default:
@@ -2674,21 +2647,21 @@ void do_cmd_cast(void)
 	cptr q, s;
 
 	/* Require spell ability */
-	if (!p_ptr->realm1)
+	if (!p_ptr->spell.r[0].realm)
 	{
 		msgf("You cannot cast spells!");
 		return;
 	}
 
 	/* Require lite */
-	if (p_ptr->blind || no_lite())
+	if (p_ptr->tim.blind || no_lite())
 	{
 		msgf("You cannot see!");
 		return;
 	}
 
 	/* Not when confused */
-	if (p_ptr->confused)
+	if (p_ptr->tim.confused)
 	{
 		msgf("You are too confused!");
 		return;
@@ -2718,9 +2691,7 @@ void do_cmd_cast(void)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-	if (increment) realm = p_ptr->realm2;
-	else
-		realm = p_ptr->realm1;
+	realm = p_ptr->spell.r[increment / 32].realm;
 
 	/* Ask for a spell */
 	if (!get_spell
@@ -2734,7 +2705,7 @@ void do_cmd_cast(void)
 
 
 	/* Access the spell */
-	use_realm = (increment ? p_ptr->realm2 : p_ptr->realm1);
+	use_realm = p_ptr->spell.r[increment / 32].realm;
 
 	s_ptr = &mp_ptr->info[use_realm - 1][spell];
 
@@ -2785,20 +2756,20 @@ void do_cmd_cast(void)
 				msgf("Your sanity is shaken by reading the Necronomicon!");
 
 				/* Mind blast */
-				if (!saving_throw(p_ptr->skill_sav))
+				if (!saving_throw(p_ptr->skill.sav))
 				{
-					if (!p_ptr->resist_confu)
+					if (!(p_ptr->flags2 & (TR2_RES_CONF)))
 					{
-						(void)set_confused(p_ptr->confused + rand_range(4, 8));
+						(void)inc_confused(rand_range(4, 8));
 					}
-					if (!p_ptr->resist_chaos && one_in_(3))
+					if (!(p_ptr->flags2 & (TR2_RES_CHAOS)) && one_in_(3))
 					{
-						(void)set_image(p_ptr->image + rand_range(150, 400));
+						(void)inc_image(rand_range(150, 400));
 					}
 				}
 
 				/* Lose int & wis */
-				else if (!saving_throw(p_ptr->skill_sav))
+				else if (!saving_throw(p_ptr->skill.sav))
 				{
 					(void)do_dec_stat(A_INT);
 					(void)do_dec_stat(A_WIS);
@@ -2808,7 +2779,8 @@ void do_cmd_cast(void)
 			{
 				msgf("It hurts!");
 				take_hit(damroll(o_ptr->sval + 1, 6), "a miscast Death spell");
-				if ((spell > 15) && one_in_(6) && !p_ptr->hold_life)
+				if ((spell > 15) && one_in_(6) &&
+					 !(p_ptr->flags2 & (TR2_HOLD_LIFE)))
 					lose_exp(spell * 250);
 			}
 		}
@@ -2860,20 +2832,18 @@ void do_cmd_cast(void)
 		if (!cast) return;
 
 		/* A spell was cast */
-		if (!(increment ?
-			  (p_ptr->spell_worked2 & (1L << spell)) :
-			  (p_ptr->spell_worked1 & (1L << spell))))
+		if (!(p_ptr->spell.r[increment / 32].worked & (1L << spell)))
 		{
 			int e = s_ptr->sexp;
 
 			/* The spell worked */
-			if (realm == p_ptr->realm1)
+			if (realm == p_ptr->spell.r[0].realm)
 			{
-				p_ptr->spell_worked1 |= (1L << spell);
+				p_ptr->spell.r[0].worked |= (1L << spell);
 			}
 			else
 			{
-				p_ptr->spell_worked2 |= (1L << spell);
+				p_ptr->spell.r[1].worked |= (1L << spell);
 			}
 
 			/* Gain experience */
@@ -2909,7 +2879,7 @@ void do_cmd_cast(void)
 		msgf("You faint from the effort!");
 
 		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
+		(void)inc_paralyzed(randint1(5 * oops + 1));
 
 		if (mp_ptr->spell_book == TV_LIFE_BOOK)
 			chg_virtue(V_FAITH, -10);
@@ -3163,14 +3133,15 @@ static bool cmd_pets_items(int dummy)
 /* The menu used to interact with pets */
 menu_type pet_menu[PET_CHOICE_MAX + 1] =
 {
-	{"dismiss pets", NULL, cmd_pets_dismiss, MN_ACTIVE},
-	{"stay close", NULL, cmd_pets_close, MN_ACTIVE | MN_SELECT},
-	{"follow me", NULL, cmd_pets_follow, MN_ACTIVE | MN_SELECT},
-	{"seek and destroy", NULL, cmd_pets_destroy, MN_ACTIVE | MN_SELECT},
-	{"give me space", NULL, cmd_pets_space, MN_ACTIVE | MN_SELECT},
-	{"stay away", NULL, cmd_pets_away, MN_ACTIVE | MN_SELECT},
+	{"Stay close", NULL, cmd_pets_close, MN_ACTIVE | MN_SELECT},
+	{"Follow me", NULL, cmd_pets_follow, MN_ACTIVE | MN_SELECT},
+	{"Seek and destroy", NULL, cmd_pets_destroy, MN_ACTIVE | MN_SELECT},
+	{"Give me space", NULL, cmd_pets_space, MN_ACTIVE | MN_SELECT},
+	{"Stay away", NULL, cmd_pets_away, MN_ACTIVE | MN_SELECT},
 	{NULL, NULL, cmd_pets_doors, MN_ACTIVE},
 	{NULL, NULL, cmd_pets_items, MN_ACTIVE},
+	{"Display current pets", NULL, do_cmd_knowledge_pets, MN_ACTIVE | MN_CLEAR},
+	{"Dismiss pets", NULL, cmd_pets_dismiss, MN_ACTIVE | MN_CLEAR},
 	MENU_END
 };
 

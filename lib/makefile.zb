@@ -1,0 +1,10 @@
+subdir = ./lib/
+
+## makefile.zb
+
+srcfiles += lib/makefile.zb
+
+dirs := apex bone data edit file help info pref save script user xtra
+
+dirlist := $(dirlist) $(addprefix $(subdir),$(dirs))
+include $(scandir)

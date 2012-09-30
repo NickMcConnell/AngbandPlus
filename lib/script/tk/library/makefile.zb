@@ -1,0 +1,6 @@
+subdir = ./lib/script/tk/library/
+
+## makefile.zb
+
+srcfiles += lib/script/tk/library/makefile.zb
+files += lib/script/tk/library/*.tcl

@@ -298,6 +298,8 @@ proc NSCharFlagsCanvas::InitLayout {oop} {
 	set width [expr {$labelWidth + (32 + 2) * ([llength $Priv(slots)] + 1)}]
 	$canvas configure -width [expr {$width + 16}]
 
+if 0 {
+
 	# One icon per equipment slot
 	set x [expr {$labelWidth + 16}]
 	set y 20
@@ -325,7 +327,7 @@ if 0 {
 	$canvas create widget $x $y -anchor center -tags py
 	$canvas bind py <Leave> \
 		"\[NSCharFlagsCanvas::Info $oop statusBar] itemconfigure t1 -text {}"
-
+}
 	NSBalloon::Delay $canvas 10
 
 	set canvas [Info $oop canvas]

@@ -201,8 +201,6 @@ s16b track_shop_size;
  */
 s16b shop_num = -1;
 
-
-
 /*
  * Location variables
  */
@@ -385,7 +383,6 @@ borg_take *borg_takes;
 s16b borg_kills_cnt;
 s16b borg_kills_nxt;
 borg_kill *borg_kills;
-
 
 /*
  * Maintain a set of grids marked as "BORG_VIEW"
@@ -578,7 +575,7 @@ void borg_note(cptr what)
 	message_add(what, MSG_GENERIC);
 
 	/* Log the message */
-	if (borg_fff) fprintf(borg_fff, "%s\n", what);
+	if (borg_fff) froff(borg_fff, "%s\n", what);
 
 	/* Mega-Hack -- Check against the search string */
 	if (borg_match[0] && strstr(what, borg_match))
@@ -779,7 +776,7 @@ errr borg_keypress(char k)
 	(void)strnfmt(buf, 10, "& Key <%c>", k);
 
 	/* Hack -- note the keypress */
-	if (borg_fff) fprintf(borg_fff, "%s\n", buf);
+	if (borg_fff) froff(borg_fff, "%s\n", buf);
 
 	/* Store the char, advance the queue */
 	borg_key_queue[borg_key_head++] = k;

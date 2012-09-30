@@ -335,8 +335,6 @@ proc angband_initialized {} {
 	Source library buttonlabel.tcl
 	angband_startup "    canvist.tcl"
 	Source library canvist.tcl
-	angband_startup "    canvist2.tcl"
-	Source library canvist2.tcl
 	angband_startup "    menu.tcl"
 	Source library menu.tcl
 	angband_startup "    module.tcl"
@@ -376,37 +374,6 @@ proc angband_display {args} {
 }
 
 
-# angband_birth --
-#
-#	Called by Angband to kick off character creation.
-#
-# Arguments:
-#	arg1					about arg1
-#
-# Results:
-#	What happened.
-
-proc angband_birth {action} {
-
-	global Angband
-
-	if {[catch {
-
-		switch -- $action {
-	
-			setup {
-				NSModule::AddModule NSBirth [PathTk birth.tcl]
-				NSModule::LoadIfNeeded NSBirth
-			}
-		}
-
-	} result]} {
-		HandleError $result
-	}
-
-	return
-}
-
 # InitLoadWindow --
 #
 #	Creates and displays the Load Window, which is used to display
@@ -423,8 +390,6 @@ proc InitLoadWindow {} {
 	global Angband
 	global AngbandPriv
 
-	# Hack -- NSBirth may call "angband_load init" to prevent there
-	# being no front windows, so we allow this to get called twice.
 	# If there are no front windows, the application is swapped
 	# into the background.
 	if {[winfo exists .load]} return

@@ -417,11 +417,10 @@ static void borg_flow_spread(int depth, bool optimize, bool avoid,
 			/* Avoid Monsters if Desprerate */
 			if (borg_desperate && (mb_ptr->monster)) continue;
 
-#if 0
+
 			/* Avoid Traps if low level-- unless brave or scaryguy. */
-			if (mb_ptr->feat >= FEAT_TRAP_TRAPDOOR &&
-				mb_ptr->feat <= FEAT_TRAP_SLEEP &&
-				avoidance <= bp_ptr->chp && !scaryguy_on_level)
+			if (mb_ptr->trap && avoidance <= bp_ptr->chp && 
+				!scaryguy_on_level)
 			{
 				/* Do not disarm when you could end up dead */
 				if (bp_ptr->chp < 60) continue;
@@ -430,7 +429,6 @@ static void borg_flow_spread(int depth, bool optimize, bool avoid,
 				if ((bp_ptr->skill_dis < 30) && (bp_ptr->lev < 20)) continue;
 				if ((bp_ptr->skill_dis < 45) && (bp_ptr->lev < 10)) continue;
 			}
-#endif /* 0 */
 
 
 			/* Ignore "icky" grids */
@@ -769,15 +767,9 @@ static bool borg_surrounded(void)
 
 		/* Skip monster grids */
 		if (mb_ptr->monster) non_safe_grids++;
-#if 0
-		/* Mega-Hack -- skip stores XXX XXX XXX */
-		if ((mb_ptr->feat >= FEAT_SHOP_HEAD) &&
-			(mb_ptr->feat <= FEAT_SHOP_TAIL)) non_safe_grids++;
 
-		/* Mega-Hack -- skip traps XXX XXX XXX */
-		if ((mb_ptr->feat >= FEAT_TRAP_TRAPDOOR) &&
-			(mb_ptr->feat <= FEAT_TRAP_SLEEP)) non_safe_grids++;
-#endif /* 0 */
+		/* MT - Skip trap grids */
+		if (mb_ptr->trap) non_safe_grids++;
 	}
 
 	/* Safe grids are decreased */
@@ -889,10 +881,9 @@ static bool borg_happy_grid_bold(int x, int y)
 	/* Accept stairs */
 	if (mb_ptr->feat == FEAT_LESS) return (TRUE);
 	if (mb_ptr->feat == FEAT_MORE) return (TRUE);
-#if 0
-	if (mb_ptr->feat == FEAT_MINOR_GLYPH) return (TRUE);
-	if (mb_ptr->feat == FEAT_GLYPH) return (TRUE);
-#endif /* 0 */
+
+	/* Accept Glyphs */
+	if (mb_ptr->m_effect) return (TRUE);
 
 	/* Hack -- weak/dark is very unhappy */
 	if (bp_ptr->status.weak || !bp_ptr->cur_lite) return (FALSE);
@@ -2747,7 +2738,7 @@ bool borg_caution(void)
 		{
 			borg_note_fmt
 				("# Protected by GOI (borg turns:%d; game turns:%d)",
-				 borg_goi / borg_game_ratio, p_ptr->invuln);
+				 borg_goi / borg_game_ratio, p_ptr->tim.invuln);
 		}
 		if (borg_shield)
 		{
@@ -3336,11 +3327,10 @@ bool borg_caution(void)
 
 				/* Skip monsters */
 				if (mb_ptr->monster) break;
-#if 0
+
 				/* Skip traps */
-				if ((mb_ptr->feat >= FEAT_TRAP_TRAPDOOR) &&
-					(mb_ptr->feat <= FEAT_TRAP_SLEEP)) break;
-#endif /* 0 */
+				if (mb_ptr->trap) break;
+				
 				/* Safe arrival */
 				if ((x1 == x2) && (y1 == y2))
 				{
@@ -3434,15 +3424,9 @@ bool borg_caution(void)
 
 			/* Skip monster grids */
 			if (mb_ptr->monster) continue;
-#if 0
-			/* Mega-Hack -- skip stores XXX XXX XXX */
-			if ((mb_ptr->feat >= FEAT_SHOP_HEAD) &&
-				(mb_ptr->feat <= FEAT_SHOP_TAIL)) continue;
 
-			/* Mega-Hack -- skip traps XXX XXX XXX */
-			if ((mb_ptr->feat >= FEAT_TRAP_TRAPDOOR) &&
-				(mb_ptr->feat <= FEAT_TRAP_SLEEP)) continue;
-#endif /* 0 */
+			/* MT - skip traps */
+			if (mb_ptr->trap) continue;
 
 			/* Extract the danger there */
 			k = borg_danger(x, y, 2, TRUE);
@@ -9415,11 +9399,7 @@ static int borg_defend_aux_glyph(int p1)
 	 * broken doors, so he won't loop.
 	 */
 
-	if ((mb_ptr->object)		/* ||
-								   (mb_ptr->feat == FEAT_MINOR_GLYPH) ||
-								   (mb_ptr->feat == FEAT_GLYPH) ||
-								   ((mb_ptr->feat >= FEAT_TRAP_TRAPDOOR) && (mb_ptr->feat <= FEAT_TRAP_SLEEP)) */
-		||
+	if ((mb_ptr->object) || (mb_ptr->m_effect) || (mb_ptr->trap) ||
 		(mb_ptr->feat == FEAT_CLOSED) || (mb_ptr->feat == FEAT_LESS) ||
 		(mb_ptr->feat == FEAT_MORE) || (mb_ptr->feat == FEAT_OPEN) ||
 		(mb_ptr->feat == FEAT_BROKEN))
@@ -10696,7 +10676,7 @@ bool borg_defend(int p1)
 			{
 				borg_note_fmt
 					("# refreshing GOI.  borg_goi=%d, p_ptr->invuln=%d, (ratio=%d)",
-					 borg_goi, p_ptr->invuln, borg_game_ratio);
+					 borg_goi, p_ptr->tim.invuln, borg_game_ratio);
 				return (TRUE);
 			}
 		}
@@ -12324,12 +12304,11 @@ static bool borg_play_step(int y2, int x2)
 		return (TRUE);
 	}
 
-#if 0
+
 	/* Traps -- disarm -- */
 	if (bp_ptr->cur_lite && !bp_ptr->status.blind &&
 		!bp_ptr->status.confused && !scaryguy_on_level &&
-		(mb_ptr->feat >= FEAT_TRAP_TRAPDOOR) &&
-		(mb_ptr->feat <= FEAT_TRAP_SLEEP))
+		mb_ptr->trap)
 	{
 
 		/*
@@ -12358,10 +12337,9 @@ static bool borg_play_step(int y2, int x2)
 		borg_keypress(I2D(dir));
 
 		/* We are not sure if the trap will get 'untrapped'. pretend it will */
-		mb_ptr->feat = FEAT_NONE;
+		mb_ptr->trap = FT_NONE;
 		return (TRUE);
 	}
-#endif /* 0 */
 
 	/* Closed Doors -- Open */
 	if (mb_ptr->feat == FEAT_CLOSED)
@@ -13786,10 +13764,8 @@ static bool borg_flow_dark_interesting(int x, int y, int b_stair)
 		return (TRUE);
 	}
 
-#if 0
 	/* Explore "visible traps" */
-	if ((mb_ptr->feat >= FEAT_TRAP_TRAPDOOR) &&
-		(mb_ptr->feat <= FEAT_TRAP_SLEEP))
+	if (mb_ptr->trap)
 	{
 		/* Do not disarm when blind */
 		if (bp_ptr->status.blind) return (FALSE);
@@ -13805,7 +13781,7 @@ static bool borg_flow_dark_interesting(int x, int y, int b_stair)
 
 		/* Do not disarm trap doors on level 99 */
 		if (bp_ptr->depth == 99 &&
-			mb_ptr->feat == FEAT_TRAP_TRAPDOOR) return (FALSE);
+			mb_ptr->trap == FT_TRAP_DOOR) return (FALSE);
 
 		/* Do not disarm when you could end up dead */
 		if (bp_ptr->chp < 60) return (FALSE);
@@ -13823,7 +13799,6 @@ static bool borg_flow_dark_interesting(int x, int y, int b_stair)
 		/* Okay */
 		return (TRUE);
 	}
-#endif /* 0 */
 
 	/* Ignore other grids */
 	return (FALSE);

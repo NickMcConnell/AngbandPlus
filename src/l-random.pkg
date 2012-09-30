@@ -12,8 +12,6 @@ extern bool Rand_quick;
 
 /***** Functions *****/
 
-extern s32b rand_int(u32b m);
-extern s32b randint(u32b m);
 extern s32b randint0(u32b m);
 extern s32b randint1(u32b m);
 extern s32b rand_range(u32b A, u32b B);

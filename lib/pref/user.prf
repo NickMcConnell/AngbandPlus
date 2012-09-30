@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2001/05/23 11:30:34 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/03/08 14:38:44 $
 # File: user.prf
 
 #
@@ -31,7 +31,7 @@
 ?:[EQU $SYS mac]
 %:user-mac.prf
 
-?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
+?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm] [EQU $SYS w2k]]
 %:user-win.prf
 
 ?:[EQU $SYS emx]

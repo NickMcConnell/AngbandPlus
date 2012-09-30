@@ -121,7 +121,7 @@ void get_virtues(void)
 
 	/* Get pre-defined types */
 	/* One or more virtues based on class */
-	switch (p_ptr->pclass)
+	switch (p_ptr->rp.pclass)
 	{
 		case CLASS_WARRIOR:
 			p_ptr->vir_types[i++] = V_VALOUR;
@@ -176,7 +176,7 @@ void get_virtues(void)
 
 
 	/* Get one virtue based on race */
-	switch (p_ptr->prace)
+	switch (p_ptr->rp.prace)
 	{
 		case RACE_HUMAN:  case RACE_HALF_ELF:
 			p_ptr->vir_types[i++] = V_INDIVIDUALISM;
@@ -232,10 +232,10 @@ void get_virtues(void)
 			break;
 	}
 
-	/* Get a virtue for realm1 */
-	if (p_ptr->realm1)
+	/* Get a virtue for r[0].realm */
+	if (p_ptr->spell.r[0].realm)
 	{
-		switch (p_ptr->realm1)
+		switch (p_ptr->spell.r[0].realm)
 		{
 			case 1:
 				if (exist_virtue(V_VITALITY))
@@ -272,10 +272,10 @@ void get_virtues(void)
 		};
 	}
 
-	/* Get a virtue for realm2 */
-	if (p_ptr->realm2)
+	/* Get a virtue for r[1].realm */
+	if (p_ptr->spell.r[1].realm)
 	{
-		switch (p_ptr->realm2)
+		switch (p_ptr->spell.r[1].realm)
 		{
 			case 1:
 				if (exist_virtue(V_VITALITY))
@@ -375,38 +375,38 @@ void dump_virtues(FILE *OutFile)
 
 		if ((p_ptr->vir_types[v_nr] == 0) ||
 			(p_ptr->vir_types[v_nr] > MAX_VIRTUE))
-			fprintf(OutFile, "Oops. No info about %s.", virt_name);
+			froff(OutFile, "Oops. No info about %s.", virt_name);
 		else if (tester < -100)
-			fprintf(OutFile, "You are the polar opposite of %s.", virt_name);
+			froff(OutFile, "You are the polar opposite of %s.", virt_name);
 		else if (tester < -80)
-			fprintf(OutFile, "You are an arch-enemy of %s.", virt_name);
+			froff(OutFile, "You are an arch-enemy of %s.", virt_name);
 		else if (tester < -60)
-			fprintf(OutFile, "You are a bitter enemy of %s.", virt_name);
+			froff(OutFile, "You are a bitter enemy of %s.", virt_name);
 		else if (tester < -40)
-			fprintf(OutFile, "You are an enemy of %s.", virt_name);
+			froff(OutFile, "You are an enemy of %s.", virt_name);
 		else if (tester < -20)
-			fprintf(OutFile, "You have sinned against %s.", virt_name);
+			froff(OutFile, "You have sinned against %s.", virt_name);
 		else if (tester < 0)
-			fprintf(OutFile, "You have strayed from the path of %s.",
+			froff(OutFile, "You have strayed from the path of %s.",
 					virt_name);
 		else if (tester == 0)
-			fprintf(OutFile, "You are neutral to %s.", virt_name);
+			froff(OutFile, "You are neutral to %s.", virt_name);
 		else if (tester < 20)
-			fprintf(OutFile, "You are somewhat virtuous in %s.", virt_name);
+			froff(OutFile, "You are somewhat virtuous in %s.", virt_name);
 		else if (tester < 40)
-			fprintf(OutFile, "You are virtuous in %s.", virt_name);
+			froff(OutFile, "You are virtuous in %s.", virt_name);
 		else if (tester < 60)
-			fprintf(OutFile, "You are very virtuous in %s.", virt_name);
+			froff(OutFile, "You are very virtuous in %s.", virt_name);
 		else if (tester < 80)
-			fprintf(OutFile, "You are a champion of %s.", virt_name);
+			froff(OutFile, "You are a champion of %s.", virt_name);
 		else if (tester < 100)
-			fprintf(OutFile, "You are a great champion of %s.", virt_name);
+			froff(OutFile, "You are a great champion of %s.", virt_name);
 		else
-			fprintf(OutFile, "You are the living embodiment of %s.", virt_name);
+			froff(OutFile, "You are the living embodiment of %s.", virt_name);
 
-		fprintf(OutFile, "\n");
+		froff(OutFile, "\n");
 	}
 
-	if (p_ptr->wizard)
-		fprintf(OutFile, "Your overall alignment is %ld.\n", p_ptr->align);
+	if (p_ptr->state.wizard)
+		froff(OutFile, "Your overall alignment is %ld.\n", p_ptr->align);
 }

@@ -6184,7 +6184,7 @@ option_type option_info[OPT_MAX] =
 	{TRUE,  1, "stack_allow_wands",		"Allow wands/staffs/rods to stack" },
 	{TRUE,  0, NULL,					"Number 36" },
 	{TRUE,  1, "expand_list",			"Expand the power of the list commands" },
-	{TRUE,  3, "view_perma_grids",		"Map remembers all perma-lit grids" },
+	{TRUE,  0, NULL,					"Number 38" },
 	{FALSE, 3, "view_torch_grids",		"Map remembers all torch-lit grids" },
 	{TRUE,  0, NULL,					"Number 40" },
 	{TRUE,  3, "dungeon_stair",			"Generate dungeons with connected stairs" },
@@ -6348,14 +6348,14 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 6, "ironman_shops",			"Stores are permanently closed" },
 	{FALSE, 6, "ironman_small_levels",	"Always create unusually small dungeon levels" },
 	{FALSE, 6, "ironman_downward",		"Don't allow climbing upwards/recalling" },
-	{FALSE, 6, "ironman_autoscum",		"Permanently enable the autoscummer" },
+	{TRUE,	0, NULL,					"Number 197" },
 	{FALSE, 6, "ironman_hard_quests",	"Quest monsters get reinforcements" },
-	{TRUE,	0, NULL,						"Number 199" },
+	{TRUE,	0, NULL,					"Number 199" },
 	{FALSE, 6, "ironman_empty_levels",	"Always create empty 'arena' levels" },
 	{TRUE,  6, "terrain_streams",		"Create terrain 'streamers' in the dungeon" },
-	{FALSE, 6, "ironman_moria",			"The good old days..." },
+	{TRUE, 0, NULL,						"Number 202" },
 	{FALSE, 6, "munchkin_death",		"Ask for saving death" },
-	{FALSE, 6, "ironman_rooms",			"Always generate very unusual rooms" },
+	{TRUE,  0, NULL,					"Number 204" },
 	{TRUE,  0, NULL,					"Number 205" },
 	{TRUE,  6, "preserve_mode",			"Preserve artifacts" },
 	{TRUE,  6, "autoroller",			"Specify stat weightings" },
@@ -7168,7 +7168,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 		MUT1_HYPN_GAZE,
-		"Your gaze is hypnotic.",
+		"Your gaze is hypnotic (-1 WIS).",
 		"Your eyes look mesmerizing...",
 		"Your eyes look uninteresting.",
 		"Hypnotic gaze",
@@ -7178,7 +7178,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 		MUT1_TELEKINES,
-		"You are telekinetic.",
+		"You are telekinetic (-1 CON).",
 		"You gain the ability to move objects telekinetically.",
 		"You lose the ability to move objects telekinetically.",
 		"Telekinesis",
@@ -7198,7 +7198,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 		MUT1_MIND_BLST,
-		"You can Mind Blast your enemies.",
+		"You can Mind Blast your enemies (-1 STR).",
 		"You gain the power of Mind Blast.",
 		"You lose the power of Mind Blast.",
 		"Mind blast",
@@ -7208,7 +7208,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 		MUT1_RADIATION,
-		"You can emit hard radiation at will.",
+		"You can emit hard radiation at will (-1 CON).",
 		"You start emitting hard radiation.",
 		"You stop emitting hard radiation.",
 		"Emit radiation",
@@ -7278,7 +7278,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 		MUT1_SHRIEK,
-	    "You can emit a horrible shriek.",
+	    "You can emit a horrible shriek. (-1 CHR)",
 	    "Your vocal cords get much tougher.",
 	    "Your vocal cords get much weaker.",
 	    "Shriek",
@@ -7288,7 +7288,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT1_ILLUMINE,
-	    "You can emit bright light.",
+	    "You can emit bright light (-2 stealth).",
 	    "You can light up rooms with your presence.",
 	    "You can no longer light up rooms with your presence.",
 	    "Illuminate area",
@@ -7308,7 +7308,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT1_BERSERK,
-	    "You can drive yourself into a berserk frenzy.",
+	    "You can drive yourself into a berserk frenzy (-1 WIS).",
 	    "You feel a controlled rage.",
 	    "You no longer feel a controlled rage.",
 	    "Berserk",
@@ -7328,7 +7328,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT1_MIDAS_TCH,
-	    "You can turn ordinary items to gold.",
+	    "You can turn ordinary items to gold (-1 WIS, -1 CHR).",
 	    "You gain the Midas touch.",
 	    "You lose the Midas touch.",
 	    "Midas touch",
@@ -7358,7 +7358,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT1_EARTHQUAKE,
-	    "You can bring down the dungeon around your ears.",
+	    "You can bring down the dungeon around your ears (-1 WIS).",
 	    "You gain the ability to wreck the dungeon.",
 	    "You lose the ability to wreck the dungeon.",
 	    "Earthquake",
@@ -7388,7 +7388,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT1_STERILITY,
-	    "You can cause mass impotence.",
+	    "You can cause mass impotence (-1 INT).",
 	    "You can give everything around you a headache.",
 	    "You hear a massed sigh of relief.",
 	    "Sterilize",
@@ -7408,7 +7408,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT1_DAZZLE,
-		"You can emit confusing, blinding radiation.",
+		"You can emit confusing, blinding radiation (-1 stealth).",
 		"You gain the ability to emit dazzling lights.",
 		"You lose the ability to emit dazzling lights.",
 	    "Dazzle",
@@ -7418,7 +7418,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT1_LASER_EYE,
-	    "Your eyes can fire laser beams.",
+	    "Your eyes can fire laser beams (-2 sensing).",
 	    "Your eyes burn for a moment.",
 	    "Your eyes burn for a moment, then feel soothed.",
 	    "Laser eye",
@@ -7448,7 +7448,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT1_COLD_TOUCH,
-	    "You can freeze things with a touch.",
+	    "You can freeze things with a touch (-1 DEX).",
 	    "Your hands get very cold.",
 	    "Your hands warm up.",
 	    "Cold touch",
@@ -7458,7 +7458,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT1_LAUNCHER,
-	    "You can hurl objects with great force.",
+	    "You can hurl objects with great force (-1 DEX).",
 	    "Your throwing arm feels much stronger.",
 	    "Your throwing arm feels much weaker.",
 	    "Throw object",
@@ -7529,7 +7529,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT2_SCOR_TAIL,
-	    "You have a scorpion tail (poison, 3d7).",
+	    "You have a scorpion tail (poison, 3d7, -3 CHR).",
 	    "You grow a scorpion tail!",
 	    "You lose your scorpion tail!",
 	    "(nothing)",
@@ -7609,7 +7609,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT2_TRUNK,
-	    "You have an elephantine trunk (dam 1d4).",
+	    "You have an elephantine trunk (dam 1d4, -1 CHR).",
 	    "Your nose grows into an elephant-like trunk.",
 	    "Your nose returns to a normal length.",
 	    "(nothing)",
@@ -7629,7 +7629,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT2_TENTACLES,
-	    "You have evil looking tentacles (dam 2d5).",
+	    "You have evil looking tentacles (dam 2d5, +1 DEX, -2 CHR).",
 	    "Evil-looking tentacles sprout from your sides.",
 	    "Your tentacles vanish from your sides.",
 	    "(nothing)",
@@ -7659,7 +7659,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT2_WRAITH,
-	    "You fade in and out of physical reality.",
+	    "You fade in and out of physical reality (-3 CON).",
 	    "You start to fade in and out of the physical world.",
 	    "You are firmly in the physical world.",
 	    "(nothing)",
@@ -7749,7 +7749,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT2_INVULN,
-	    "You occasionally feel invincible.",
+	    "You occasionally feel invincible (-2 WIS).",
 	    "You are blessed with fits of invulnerability.",
 	    "You are no longer blessed with fits of invulnerability.",
 	    "(nothing)",
@@ -7790,7 +7790,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 	/* Other Mutations */
   	{
 		MUT3_HYPER_STR,
-	    "You are superhumanly strong (+4 STR).",
+	    "You are superhumanly strong (+4 STR, -1 INT, -1 WIS).",
 	    "You turn into a superhuman he-man!",
 	    "Your muscles revert to normal.",
 	    "(nothing)",
@@ -7800,7 +7800,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_PUNY,
-	    "You are puny (-4 STR).",
+	    "You are puny (+2 DEX, -4 STR).",
 	    "Your muscles wither away...",
 	    "Your muscles revert to normal.",
 	    "(nothing)",
@@ -7900,7 +7900,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_XTRA_EYES,
-	    "You have an extra pair of eyes (+15 search).",
+	    "You have an extra pair of eyes (+3 sensing, -1 CHR).",
 	    "You grow an extra pair of eyes!",
 	    "Your extra eyes vanish!",
 	    "(nothing)",
@@ -7940,7 +7940,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_XTRA_LEGS,
-	    "You have an extra pair of legs (+3 speed).",
+	    "You have an extra pair of legs (+3 speed, -1 DEX).",
 	    "You grow an extra pair of legs!",
 	    "Your extra legs disappear!",
 	    "(nothing)",
@@ -7950,7 +7950,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_SHORT_LEG,
-	    "Your legs are short stubs (-3 speed).",
+	    "Your legs are short stubs (+1 CON, -3 speed).",
 	    "Your legs turn into short stubs!",
 	    "Your legs lengthen to normal.",
 	    "(nothing)",
@@ -7960,7 +7960,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_ELEC_TOUC,
-	    "Electricity is running through your veins.",
+	    "Electricity is running through your veins (-1 CON).",
 	    "Electricity starts running through you!",
 	    "Electricity stops running through you.",
 	    "(nothing)",
@@ -7970,7 +7970,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_FIRE_BODY,
-	    "Your body is enveloped in flames.",
+	    "Your body is enveloped in flames (-1 DEX).",
 	    "Your body is enveloped in flames!",
 	    "Your body is no longer enveloped in flames.",
 	    "(nothing)",
@@ -8000,7 +8000,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_IRON_SKIN,
-	    "Your skin is made of steel (-1 DEX, +25 AC).",
+	    "Your skin is made of steel (-3 DEX, +25 AC).",
 	    "Your skin turns to steel!",
 	    "Your skin reverts to flesh!",
 	    "(nothing)",
@@ -8010,7 +8010,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_WINGS,
-	    "You have wings.",
+	    "You have wings (+3 CHR, -1 CON).",
 	    "You grow a pair of wings.",
 	    "Your wings fall off.",
 	    "(nothing)",
@@ -8040,7 +8040,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_ESP,
-	    "You are telepathic.",
+	    "You are telepathic (-1 CON).",
 	    "You develop a telepathic ability!",
 	    "You lose your telepathic ability!",
 	    "(nothing)",
@@ -8050,7 +8050,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_LIMBER,
-	    "Your body is very limber (+3 DEX).",
+	    "Your body is very limber (+3 DEX, -1 STR).",
 	    "Your muscles become limber.",
 	    "Your muscles stiffen.",
 	    "(nothing)",
@@ -8090,7 +8090,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT3_MOTION,
-	    "Your movements are precise and forceful (+1 STL).",
+	    "Your movements are precise and forceful (+1 stealth).",
 	    "You move with new assurance.",
 	    "You move with less assurance.",
 	    "(nothing)",

@@ -33,9 +33,12 @@
 #endif /* PLATFORM_WIN */
 
 #ifdef PLATFORM_X11
-#	define HAVE_LIMITS_H
-#	define HAVE_UNISTD_H
 
+/* Hack for makefile.std */
+#   ifndef HAVE_LIMITS_H
+#      define HAVE_LIMITS_H
+#      define HAVE_UNISTD_H
+#   endif
 /*
  * Hack - prevent a huge number of compiler warnings when <tclInt.h>
  * is included indirectly below.

@@ -39,7 +39,7 @@
 
 
 /* What variant is this? Used in the highscore dump */
-#define VARIANT "Zangband 2.7.1"
+#define VARIANT "Zangband 2.7.2"
 
 /* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
 #define VERPATH "Zangband:"
@@ -53,6 +53,12 @@
 #include "angband.h"
 
 #ifdef USE_AMI
+
+cptr help_ami[] = 
+{
+	"Amiga module with graphics and sound",
+	NULL
+};
 
 #ifndef __CEXTRACT__
 
@@ -124,6 +130,8 @@
 #endif
 
 #endif
+
+#include "maid-grf.h"
 
 #define MAX_TERM_DATA 8
 
@@ -504,7 +512,6 @@ struct NewMenu window_menu[] =
 /* Menu array */
 static struct NewMenu newmenu[ MENUMAX ];
 
-extern void center_string( char *buf, cptr str );
 extern void amiga_gfxmap(void);
 
 static errr amiga_pict( int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp );
@@ -1037,7 +1044,7 @@ errr init_ami( void )
 			 WA_DragBar, !backdrop && !ts->notitle,
 			 WA_DepthGadget, !backdrop && !ts->notitle,
 			 WA_NewLookMenus, TRUE,
-			 backdrop ? TAG_IGNORE : WA_ScreenTitle, VERIANT,
+			 backdrop ? TAG_IGNORE : WA_ScreenTitle, VARIANT,
 			 ( backdrop || ts->notitle ) ? TAG_IGNORE : WA_Title, ts->name,
 			 WA_Activate, TRUE,
 			 WA_RMBTrap, !use_menus,
@@ -1154,9 +1161,6 @@ errr init_ami( void )
 		sound_name_desc = malloc(8000); /* Ugh :( */
 		init_sound();
 	}
-
-	/* Initialise the overhead map */
-    init_overhead_map();
     
     /* Save the ami hooks into the overhead map */
     set_callback((callback_type) ami_map_info, CALL_MAP_INFO, NULL);
@@ -2378,10 +2382,14 @@ static void process_gfx(char *param)
 	use_graphics = GRAPHICS_NONE;
 	if (*param == 'Y' || *param == 'y' || *param == '1' ||
 		 *param == 'T' || *param == 't')
+	{
 		use_graphics = GRAPHICS_ORIGINAL;
+		arg_graphics = use_graphics;
+	}
 	if (*param == 'E' || *param == 'e')
 	{
 		use_graphics = GRAPHICS_ORIGINAL;
+		arg_graphics = use_graphics;
 		screen_enhanced = TRUE;
 	}
 }
@@ -2644,6 +2652,7 @@ static errr amiga_xtra( int n, int v )
 			return( 0 );
 
 		case TERM_XTRA_DELAY:
+			if (v <= 0) return (0);
 
 			v *= 1000;
 
@@ -4127,7 +4136,7 @@ static void amiga_map( void )
 		for ( j = 0; j < MAX_HGT; j++ )
 		{
 			/* Get frame tile */
-			if ( (i == 0) || (i == max_wid - 1) || (j == 0) || (j == max_hgt - 1) )
+			if ( (i == 0) || (i == MAX_WID - 1) || (j == 0) || (j == MAX_HGT - 1) )
 			{
 				ta = f_info[63].x_attr;
 				tc = f_info[63].x_char;
@@ -4139,8 +4148,8 @@ static void amiga_map( void )
 			/* Get tile from cave table */
 			else
 			{
-            	int x = i - MAX_WID / 2 + player_x;
-                int y = j - MAX_HGT / 2 + player_y;
+            	int x = player_x + i - MAX_WID / 2;
+                int y = player_y + j - MAX_HGT / 2;
                 
                 if (!map_in_bounds(x, y)) continue;
             	
@@ -4168,7 +4177,6 @@ static void amiga_map( void )
 						/* Put the graphics to the screen */
 						put_gfx_map( td, i, j, tc, ta );
 					}
-				
 				}
             }
 		}

@@ -1826,7 +1826,9 @@ static errr Term_xtra_xpj(int n, int v)
 		case TERM_XTRA_CLEAR: Infowin_wipe(); return (0);
 
 		/* Delay for some milliseconds */
-		case TERM_XTRA_DELAY: usleep(1000 * v); return (0);
+		case TERM_XTRA_DELAY:
+			if (v > 0) usleep(1000 * v);
+			return (0);
 
 		/* React to changes */
 		case TERM_XTRA_REACT: return (Term_xtra_xpj_react());
@@ -2702,14 +2704,14 @@ static errr Term_pict_xpj(int x, int y, int n, const byte *ap, const char *cp, c
 		c = *cp++;
 
 		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * wid;
+		x1 = (c&0x3F) * wid;
 		y1 = (a&0x7F) * hgt;
 
 		ta = *tap++;
 		tc = *tcp++;
 
 		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * wid;
+		x2 = (tc&0x3F) * wid;
 		y2 = (ta&0x7F) * hgt;
 		
 		/* Optimise the common case */
@@ -3356,14 +3358,21 @@ errr init_xpj(int argc, char *argv[])
 		ii = 1;
 		jj = (depth - 1) >> 2;
 		while (jj >>= 1) ii <<= 1;
-			
+		
+		/* Pad the scanline to a multiple of 4 bytes */
 		if (i == 0)
 		{
-			total = P_TILE_SIZE * P_TILE_SIZE * ii;
+			/* Main screen */
+			total = P_TILE_SIZE * ii;
+			total = (total + 3) & ~3;
+			total *= P_TILE_SIZE;
 		}
 		else
 		{
-			total = td->fnt->wid * td->fnt->hgt * ii;
+			/* Other terms */
+			total = td->fnt->wid * ii;
+			total = (total + 3) & ~3;
+			total *= td->fnt->hgt;
 		}
 			
 		/* Save number of bytes per pixel */

@@ -444,18 +444,22 @@ static void breath(int m_idx, int typ, int dam_hp, int rad, bool breath)
 void curse_equipment(int chance, int heavy_chance)
 {
 	bool changed = FALSE;
-	u32b o1, o2, o3;
+
 	object_type *o_ptr = &p_ptr->equipment[randint0(EQUIP_MAX)];
+
+	/* Ow! */
+	if (p_ptr->flags4 & (TR4_STRANGE_LUCK))
+	{
+		chance = chance * 2;
+		heavy_chance = heavy_chance * 2;
+	}
 
 	if (randint1(100) > chance) return;
 
 	if (!o_ptr->k_idx) return;
 
-	object_flags(o_ptr, &o1, &o2, &o3);
-
-
 	/* Extra, biased saving throw for blessed items */
-	if ((o3 & TR3_BLESSED) && (randint1(888) > chance))
+	if ((o_ptr->flags3 & TR3_BLESSED) && (randint1(888) > chance))
 	{
 		msgf("Your %v resists cursing!", OBJECT_FMT(o_ptr, FALSE, 0));
 		return;
@@ -463,7 +467,7 @@ void curse_equipment(int chance, int heavy_chance)
 
 	if ((randint1(100) <= heavy_chance) && o_ptr->xtra_name)
 	{
-		if (!(o3 & TR3_HEAVY_CURSE))
+		if (!(o_ptr->flags3 & TR3_HEAVY_CURSE))
 		{
 			changed = TRUE;
 		}
@@ -746,7 +750,7 @@ bool make_attack_spell(int m_idx)
 	int count = 0;
 
 	/* Extract the blind-ness */
-	bool blind = (p_ptr->blind ? TRUE : FALSE);
+	bool blind = (p_ptr->tim.blind ? TRUE : FALSE);
 
 	/* Extract the "see-able-ness" */
 	bool seen = (!blind && m_ptr->ml);
@@ -771,10 +775,10 @@ bool make_attack_spell(int m_idx)
 	if (!chance) return (FALSE);
 
 	/* Stop if player is dead or gone */
-	if (!p_ptr->playing || p_ptr->is_dead) return (FALSE);
+	if (!p_ptr->state.playing || p_ptr->state.is_dead) return (FALSE);
 
 	/* Stop if player is leaving */
-	if (p_ptr->leaving) return (FALSE);
+	if (p_ptr->state.leaving) return (FALSE);
 
 	/* Only do spells occasionally */
 	if (randint0(100) >= chance) return (FALSE);
@@ -896,6 +900,11 @@ bool make_attack_spell(int m_idx)
 		{
 			/* RF4_ELDRITCH_HORROR */
 			if (!direct || !seen) break;
+
+			/* What's another gibbering monstrosity or two? */
+			if (p_ptr->muta2 & MUT2_HALLU)
+				break;
+
 			disturb(TRUE);
 			sanity_blast(m_ptr);
 			break;
@@ -1454,7 +1463,7 @@ bool make_attack_spell(int m_idx)
 				msgf("%^s gazes deep into your eyes.", m_name);
 			}
 
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
@@ -1462,14 +1471,14 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("Your mind is blasted by psionic energy.");
 
-				if (!p_ptr->resist_confu)
+				if (!(p_ptr->flags2 & (TR2_RES_CONF)))
 				{
-					(void)set_confused(p_ptr->confused + rand_range(4, 8));
+					(void)inc_confused(rand_range(4, 8));
 				}
 
-				if (!p_ptr->resist_chaos && one_in_(3))
+				if (!(p_ptr->flags2 & (TR2_RES_CHAOS)) && one_in_(3))
 				{
-					(void)set_image(p_ptr->image + rand_range(150, 400));
+					(void)inc_image(rand_range(150, 400));
 				}
 
 				take_hit(damroll(8, 8), ddesc);
@@ -1491,7 +1500,7 @@ bool make_attack_spell(int m_idx)
 				msgf("%^s looks deep into your eyes.", m_name);
 			}
 
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
@@ -1499,28 +1508,28 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("Your mind is blasted by psionic energy.");
 				take_hit(damroll(12, 15), ddesc);
-				if (!p_ptr->resist_blind)
+				if (!(p_ptr->flags2 & (TR2_RES_BLIND)))
 				{
-					(void)set_blind(p_ptr->blind + rand_range(8, 16));
+					(void)inc_blind(rand_range(8, 16));
 				}
-				if (!p_ptr->resist_confu)
+				if (!(p_ptr->flags2 & (TR2_RES_CONF)))
 				{
-					(void)set_confused(p_ptr->confused + rand_range(4, 8));
+					(void)inc_confused(rand_range(4, 8));
 				}
-				if (!p_ptr->free_act)
+				if (!(p_ptr->flags2 & (TR2_FREE_ACT)))
 				{
-					(void)set_paralyzed(p_ptr->paralyzed + rand_range(4, 8));
+					(void)inc_paralyzed(rand_range(4, 8));
 				}
-				(void)set_slow(p_ptr->slow + rand_range(4, 8));
+				(void)inc_slow(rand_range(4, 8));
 
-				while (randint0(100) > p_ptr->skill_sav)
+				while (randint0(100) > p_ptr->skill.sav)
 					(void)do_dec_stat(A_INT);
-				while (randint0(100) > p_ptr->skill_sav)
+				while (randint0(100) > p_ptr->skill.sav)
 					(void)do_dec_stat(A_WIS);
 
-				if (!p_ptr->resist_chaos)
+				if (!(p_ptr->flags2 & (TR2_RES_CHAOS)))
 				{
-					(void)set_image(p_ptr->image + rand_range(150, 400));
+					(void)inc_image(rand_range(150, 400));
 				}
 			}
 			break;
@@ -1534,7 +1543,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s points at you and curses.", m_name);
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
@@ -1554,7 +1563,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s points at you and curses horribly.", m_name);
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
@@ -1574,7 +1583,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles loudly.", m_name);
 			else
 				msgf("%^s points at you, incanting terribly!", m_name);
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
@@ -1595,14 +1604,14 @@ bool make_attack_spell(int m_idx)
 			else
 				msgf("%^s points at you, screaming the word DIE!",
 						   m_name);
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
 			else
 			{
 				take_hit(damroll(15, 15), ddesc);
-				(void)set_cut(p_ptr->cut + damroll(10, 10));
+				(void)inc_cut(damroll(10, 10));
 			}
 			break;
 		}
@@ -1749,17 +1758,17 @@ bool make_attack_spell(int m_idx)
 								  m_name);
 			else
 				msgf("%^s casts a fearful illusion.", m_name);
-			if (p_ptr->resist_fear)
+			if (p_ptr->flags2 & (TR2_RES_FEAR))
 			{
 				msgf("You refuse to be frightened.");
 			}
-			else if (randint0(100) < p_ptr->skill_sav)
+			else if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You refuse to be frightened.");
 			}
 			else
 			{
-				(void)set_afraid(p_ptr->afraid + rand_range(4, 8));
+				(void)inc_afraid(rand_range(4, 8));
 			}
 			update_smart_learn(m_idx, DRS_FEAR);
 			break;
@@ -1773,17 +1782,17 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a spell, burning your eyes!", m_name);
-			if (p_ptr->resist_blind)
+			if (p_ptr->flags2 & (TR2_RES_BLIND))
 			{
 				msgf("You are unaffected!");
 			}
-			else if (randint0(100) < p_ptr->skill_sav)
+			else if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
 			else
 			{
-				(void)set_blind(rand_range(12, 16));
+				(void)inc_blind(rand_range(12, 16));
 			}
 			update_smart_learn(m_idx, DRS_BLIND);
 			break;
@@ -1798,17 +1807,17 @@ bool make_attack_spell(int m_idx)
 								  m_name);
 			else
 				msgf("%^s creates a mesmerising illusion.", m_name);
-			if (p_ptr->resist_confu)
+			if (p_ptr->flags2 & (TR2_RES_CONF))
 			{
 				msgf("You disbelieve the feeble spell.");
 			}
-			else if (randint0(100) < p_ptr->skill_sav)
+			else if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You disbelieve the feeble spell.");
 			}
 			else
 			{
-				(void)set_confused(p_ptr->confused + rand_range(4, 8));
+				(void)inc_confused(rand_range(4, 8));
 			}
 			update_smart_learn(m_idx, DRS_CONF);
 			break;
@@ -1820,17 +1829,17 @@ bool make_attack_spell(int m_idx)
 			if (!direct) break;
 			disturb(TRUE);
 			msgf("%^s drains power from your muscles!", m_name);
-			if (p_ptr->free_act)
+			if (p_ptr->flags2 & (TR2_FREE_ACT))
 			{
 				msgf("You are unaffected!");
 			}
-			else if (randint0(100) < p_ptr->skill_sav)
+			else if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
 			else
 			{
-				(void)set_slow(p_ptr->slow + rand_range(4, 8));
+				(void)inc_slow(rand_range(4, 8));
 			}
 			update_smart_learn(m_idx, DRS_FREE);
 			break;
@@ -1844,17 +1853,17 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s stares deep into your eyes!", m_name);
-			if (p_ptr->free_act)
+			if (p_ptr->flags2 & (TR2_FREE_ACT))
 			{
 				msgf("You are unaffected!");
 			}
-			else if (randint0(100) < p_ptr->skill_sav)
+			else if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
 			else
 			{
-				(void)set_paralyzed(p_ptr->paralyzed + rand_range(4, 8));
+				(void)inc_paralyzed(rand_range(4, 8));
 			}
 			update_smart_learn(m_idx, DRS_FREE);
 			break;
@@ -1895,7 +1904,7 @@ bool make_attack_spell(int m_idx)
 			/* RF6_HAND_DOOM */
 			disturb(TRUE);
 			msgf("%^s invokes the Hand of Doom!", m_name);
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
@@ -2054,11 +2063,11 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles strangely.", m_name);
 			else
 				msgf("%^s gestures at your feet.", m_name);
-			if (p_ptr->resist_nexus)
+			if (p_ptr->flags2 & (TR2_RES_NEXUS))
 			{
 				msgf("You are unaffected!");
 			}
-			else if (randint0(100) < p_ptr->skill_sav)
+			else if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
@@ -2108,7 +2117,7 @@ bool make_attack_spell(int m_idx)
 			disturb(TRUE);
 			msgf("%^s tries to blank your mind.", m_name);
 
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 			}
@@ -2469,7 +2478,7 @@ bool make_attack_spell(int m_idx)
 
 
 	/* Always take note of monsters that kill you */
-	if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT))
+	if (p_ptr->state.is_dead && (r_ptr->r_deaths < MAX_SHORT))
 	{
 		r_ptr->r_deaths++;
 	}

@@ -3,7 +3,7 @@
 ** Written by Waldemar Celes
 ** TeCGraf/PUC-Rio
 ** Jul 1998
-** $Id: tolua_lb.c,v 1.2 2002/04/01 11:54:31 sfuerst Exp $
+** $Id: tolua_lb.c,v 1.3 2002/12/29 19:28:39 sfuerst Exp $
 */
 
 /* This code is free software; you can redistribute it and/or modify it. 
@@ -17,10 +17,10 @@
 #include "tolua_tm.h"
 #include "tolua_tt.h"
 
+int tolua_tolua_open (lua_State* L);
 
 int tolua_open (lua_State* L)
 {
- int tolua_tolua_open (lua_State* L);
  /* check if alread opened */
  toluaI_getregistry(L,"TOLUA");
  if (lua_isnil(L,-1))

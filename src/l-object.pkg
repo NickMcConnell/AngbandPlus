@@ -7,316 +7,6 @@ typedef int sint;
 
 /***** Constants *****/
 
-/*** Artifact indexes (see "lib/edit/a_info.txt") ***/
-
-/* Lites */
-#define ART_GALADRIEL            1
-#define ART_ELENDIL              2
-#define ART_THRAIN               3
-
-/* Amulets */
-#define ART_CARLAMMAS            4
-#define ART_INGWE                5
-#define ART_DWARVES              6
-
-/* Rings */
-#define ART_BARAHIR              8
-#define ART_TULKAS               9
-#define ART_NARYA               10
-#define ART_NENYA               11
-#define ART_VILYA               12
-#define ART_POWER               13
-#define ART_ELEMENTS			14
-
-/* Dragon Scale */
-#define ART_RAZORBACK           16
-#define ART_BLADETURNER         17
-
-/* Robe */
-#define ART_THAUMATURGIST		18
-
-/* Hard Armour */
-#define ART_SOULKEEPER          19
-#define ART_ISILDUR             20
-#define ART_ROHIRRIM            21
-#define ART_BELEGENNON          22
-#define ART_CELEBORN            23
-#define ART_ARVEDUI             24
-#define ART_CASPANION           25
-
-/* Soft Armour */
-#define ART_HITHLOMIR           27
-#define ART_THALKETTOTH         28
-
-/* Shields */
-#define ART_THORIN              30
-#define ART_CELEGORM            31
-#define ART_ANARION             32
-
-/* Helms and Crowns */
-#define ART_MORGOTH             34
-#define ART_BERUTHIEL           35
-#define ART_THRANDUIL           36
-#define ART_THENGEL             37
-#define ART_HAMMERHAND          38
-#define ART_DOR                 39
-#define ART_HOLHENNETH          40
-#define ART_TERROR              41
-#define ART_GONDOR              42
-
-/* Cloaks */
-#define ART_COLLUIN             44
-#define ART_HOLCOLLETH          45
-#define ART_THINGOL             46
-#define ART_THORONGIL           47
-#define ART_COLANNON            48
-#define ART_LUTHIEN             49
-#define ART_TUOR                50
-
-/* Gloves */
-#define ART_CAMBELEG            52
-#define ART_CAMMITHRIM          53
-#define ART_PAURHACH            54
-#define ART_CORWIN              55
-#define ART_PAURAEGEN           56
-#define ART_PAURNEN             57
-#define ART_CAMLOST             58
-#define ART_FINGOLFIN           59
-
-/* Boots */
-#define ART_FEANOR              60
-#define ART_DAL                 61
-#define ART_THROR               62
-
-/* Swords */
-#define ART_MAEDHROS            64
-#define ART_ANGRIST             65
-#define ART_NARTHANC            66
-#define ART_NIMTHANC            67
-#define ART_DETHANC             68
-#define ART_RILIA               69
-#define ART_BELANGIL            70
-#define ART_CALRIS              71
-#define ART_GRAYSWANDIR         72
-#define ART_GLAMDRING           73
-#define ART_AEGLIN              74
-#define ART_ORCRIST             75
-#define ART_GURTHANG            76
-#define ART_ZARCUTHRA           77
-#define ART_MORMEGIL            78
-#define ART_GONDRICAM           79
-#define ART_CRISDURIAN          80
-#define ART_GROO                81
-#define ART_RINGIL              82
-#define ART_ANDURIL             83
-#define ART_ANGUIREL            84
-#define ART_CHAINSWORD          85
-#define ART_FORASGIL            86
-#define ART_CARETH              87
-#define ART_STING               88
-#define ART_HARADEKKET          89
-#define ART_GILETTAR            90
-#define ART_DOOMCALLER          91
-#define ART_VORPAL_BLADE        92
-
-/* Polearms */
-#define ART_THEODEN             93
-#define ART_PAIN                94
-#define ART_OSONDIR             95
-#define ART_TIL                 96
-#define ART_AEGLOS              97
-#define ART_OROME               98
-#define ART_NIMLOTH             99
-#define ART_SOULSUCKER          100
-#define ART_DURIN               101
-#define ART_EONWE               102
-#define ART_BALLI               103
-#define ART_LOTHARANG           104
-#define ART_MUNDWINE            105
-#define ART_BARUKKHELED         106
-#define ART_WRATH               107
-#define ART_ULMO                108
-#define ART_AVAVIR              109
-
-/* The sword of the Dawn */
-#define ART_DAWN                110
-
-/* Hafted */
-#define ART_GROND               111
-#define ART_TOTILA              112
-#define ART_THUNDERFIST         113
-#define ART_WHIRLWIND           114
-#define ART_FIRESTAR            115
-#define ART_ENERGY              116
-#define ART_AULE                117
-#define ART_NAR                 118
-#define ART_ERIRIL              119
-#define ART_OLORIN              120
-#define ART_DEATHWREAKER        121
-#define ART_TURMIL              122
-
-/* Sling */
-#define ART_CATAPULT			123
-
-/* Bows */
-#define ART_BELTHRONDING        124
-#define ART_BARD                125
-#define ART_BRAND               126
-#define ART_MARKSMAN			127
-
-
-/*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
-
-
-/* Nothing */
-/* xxx */
-/* xxx */
-/* xxx */
-
-/* Body Armor */
-#define EGO_RESIST_ACID         4
-#define EGO_RESIST_ELEC         5
-#define EGO_RESIST_FIRE         6
-#define EGO_RESIST_COLD         7
-#define EGO_RESISTANCE          8
-#define EGO_ELVENKIND           9
-/* xxx */
-#define EGO_PERMANENCE          11
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-
-/* Shields */
-#define EGO_ENDURE_ACID         16
-#define EGO_ENDURE_ELEC         17
-#define EGO_ENDURE_FIRE         18
-#define EGO_ENDURE_COLD         19
-#define EGO_ENDURANCE           20
-#define EGO_REFLECTION          21
-/* xxx */
-/* xxx */
-
-/* Crowns and Helms */
-#define EGO_INTELLIGENCE        24
-#define EGO_WISDOM              25
-#define EGO_BEAUTY              26
-#define EGO_MAGI                27
-#define EGO_MIGHT               28
-#define EGO_LORDLINESS          29
-#define EGO_SEEING              30
-#define EGO_INFRAVISION         31
-#define EGO_LITE                32
-#define EGO_TELEPATHY           33
-#define EGO_REGENERATION        34
-#define EGO_TELEPORTATION       35
-#define EGO_STUPIDITY           36
-#define EGO_NAIVETY             37
-#define EGO_UGLINESS            38
-#define EGO_SICKLINESS          39
-
-/* Cloaks */
-#define EGO_PROTECTION          40
-#define EGO_STEALTH             41
-#define EGO_AMAN                42
-#define EGO_AURA_FIRE           43
-#define EGO_ENVELOPING          44
-#define EGO_VULNERABILITY       45
-#define EGO_IRRITATION          46
-#define EGO_AURA_ELEC           47
-
-/* Gloves */
-#define EGO_FREE_ACTION         48
-#define EGO_SLAYING             49
-#define EGO_AGILITY             50
-#define EGO_POWER               51
-/* xxx */
-/* xxx */
-#define EGO_WEAKNESS            54
-#define EGO_CLUMSINESS          55
-
-/* Boots */
-#define EGO_SLOW_DESCENT        56
-#define EGO_QUIET               57
-#define EGO_MOTION              58
-#define EGO_SPEED               59
-/* xxx */
-#define EGO_NOISE               61
-#define EGO_SLOWNESS            62
-#define EGO_ANNOYANCE           63
-
-/* Weapons */
-#define EGO_HA                  64
-#define EGO_DF                  65
-#define EGO_BLESS_BLADE         66
-/* xxx */
-#define EGO_WEST                68
-#define EGO_ATTACKS             69
-#define EGO_SLAYING_WEAPON      70
-/* xxx */
-#define EGO_BRAND_ACID          72
-#define EGO_BRAND_ELEC          73
-#define EGO_BRAND_FIRE          74
-#define EGO_BRAND_COLD          75
-#define EGO_BRAND_POIS          76
-#define EGO_CHAOTIC             77
-#define EGO_SHARPNESS           78
-#define EGO_EARTHQUAKES         79
-#define EGO_SLAY_ANIMAL         80
-#define EGO_SLAY_EVIL           81
-#define EGO_SLAY_UNDEAD         82
-#define EGO_SLAY_DEMON          83
-#define EGO_SLAY_ORC            84
-#define EGO_SLAY_TROLL          85
-#define EGO_SLAY_GIANT          86
-#define EGO_SLAY_DRAGON         87
-#define EGO_KILL_ANIMAL         88
-#define EGO_KILL_EVIL           89
-#define EGO_KILL_UNDEAD         90
-#define EGO_KILL_DEMON          91
-#define EGO_KILL_ORC            92
-#define EGO_KILL_TROLL          93
-#define EGO_KILL_GIANT          94
-#define EGO_KILL_DRAGON         95
-#define EGO_VAMPIRIC            96
-/* xxx */
-/* xxx */
-#define EGO_TRUMP               98
-#define EGO_PATTERN             99
-#define EGO_DIGGING             100
-/* xxx */
-#define EGO_MORGUL              102
-/* xxx */
-
-/* Bows */
-#define EGO_ACCURACY            104
-#define EGO_VELOCITY            105
-/* xxx */
-/* xxx */
-#define EGO_EXTRA_MIGHT         108
-#define EGO_EXTRA_SHOTS         109
-/* xxx */
-/* xxx */
-
-/* Ammo */
-#define EGO_HURT_ANIMAL         112
-#define EGO_HURT_EVIL           113
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-#define EGO_HURT_DRAGON         119
-#define EGO_SLAYING_BOLT        120
-#define EGO_LIGHTNING_BOLT      121
-#define EGO_FLAME               122
-#define EGO_FROST               123
-#define EGO_WOUNDING            124
-#define EGO_BACKBITING          125
-#define EGO_SHATTERED           126
-#define EGO_BLASTED             127
-
-
 /* Activation effects for random artifacts */
 #define ACT_SUNLIGHT            1
 #define ACT_BO_MISS_1           2
@@ -1034,62 +724,6 @@ typedef int sint;
 #define OC_FORCE_BAD	0x02
 #define OC_FORCE_GOOD	0x04
 
-#define FEEL_NONE              0
-#define FEEL_BROKEN            1
-#define FEEL_TERRIBLE          2
-#define FEEL_WORTHLESS         3
-#define FEEL_CURSED            4
-#define FEEL_UNCURSED          5
-#define FEEL_AVERAGE           6
-#define FEEL_GOOD              7
-#define FEEL_EXCELLENT         8
-#define FEEL_SPECIAL           9
-#define FEEL_BAD			   10
-#define FEEL_DUBIOUS		   11
-#define FEEL_TAINTED		   12
-
-#define FEEL_MAX               13
-
-/*
- * Hack -- special "xtra" object powers for ego items and some artifacts
- */
-
-/* Sustain one stat */
-#define EGO_XTRA_SUSTAIN        1
-
-/* High resist */
-#define EGO_XTRA_POWER          2
-
-/* Special ability */
-#define EGO_XTRA_ABILITY        3
-
-
-/*** Object flag values ***/
-
-
-/*
- * Chest trap flags (see "tables.c")
- */
-#define CHEST_LOSE_STR          0x01
-#define CHEST_LOSE_CON          0x02
-#define CHEST_POISON            0x04
-#define CHEST_PARALYZE          0x08
-#define CHEST_EXPLODE           0x10
-#define CHEST_SUMMON            0x20
-
-
-
-/*
- * Special Object Flags
- */
-#define OB_SENSE     0x01    /* Item has been "sensed" */
-#define OB_SEEN      0x02	 /* Item is seen */
-#define OB_EMPTY     0x04    /* Item charges are known */
-#define OB_KNOWN     0x08    /* Item abilities are known */
-#define OB_STOREB    0x10    /* Item is storebought !!!! */
-#define OB_MENTAL    0x20	 /* Item is *id*'ed */
-#define OB_DUMMY3    0x40
-#define OB_DUMMY4    0x80
 
 
 
@@ -1349,8 +983,6 @@ extern char *a_text;
 /***** Functions *****/
 
 extern void reset_visuals(void);
-extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
-extern void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern bool identify_fully_aux(const object_type *o_ptr);
 extern s16b wield_slot(const object_type *o_ptr);
 extern cptr mention_use(int i);
@@ -1393,10 +1025,6 @@ extern void delete_dungeon_object(object_type *o_ptr);
 extern void delete_object(int x, int y);
 extern void delete_object_list(s16b *o_idx_ptr);
 extern void drop_object_list(s16b *o_idx_ptr, int x, int y);
-extern void compact_objects(int size);
-extern void get_obj_num_prep(void);
-extern errr get_obj_store_prep(void);
-extern s16b get_obj_num(int level, int min_level);
 extern void object_known(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
 extern void object_tried(object_type *o_ptr);
@@ -1418,9 +1046,9 @@ extern void init_match_hook(byte tval, byte sval);
 extern byte kind_is_match(int k_idx);
 extern void init_match_theme(obj_theme theme);
 extern byte kind_is_theme(int k_idx);
-extern object_type *make_object(u16b delta_level, obj_theme theme);
-extern void place_object(int x, int y, bool good, bool great);
-extern object_type *make_gold(int coin_type);
+extern object_type *make_object(int level, int delta_level, obj_theme *theme);
+extern void place_object(int x, int y, bool good, bool great, int delta_level);
+extern object_type *make_gold(int level, int coin_type);
 extern void place_gold(int x, int y);
 extern void drop_near(object_type *o_ptr, int chance, int x, int y);
 extern void acquirement(int x1, int y1, int num, bool great, bool known);
@@ -1429,8 +1057,8 @@ extern bool can_player_destroy_object(object_type *o_ptr);
 extern void display_koff(int k_idx);
 
 /* artifact.c */
-extern bool create_artifact(object_type *o_ptr, bool a_scroll);
-extern int random_resistance(object_type *o_ptr, int specific, int artifact_bias);
+extern bool create_artifact(object_type *o_ptr, int level, bool a_scroll);
+extern void random_resistance(object_type *o_ptr, int specific);
 extern bool activate_effect(object_type *o_ptr);
 extern void random_artifact_resistance(object_type *o_ptr);
 extern void create_named_art(int a_idx, int x, int y);

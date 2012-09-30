@@ -230,10 +230,10 @@ static errr wr_savefile(void)
 	data_fd = -1;
 
 	/* Dump the version */
-	fake[0] = (byte)(FAKE_VER_MAJOR);
-	fake[1] = (byte)(FAKE_VER_MINOR);
-	fake[2] = (byte)(FAKE_VER_PATCH);
-	fake[3] = (byte)(VERSION_EXTRA);
+	fake[0] = (byte)(VER_MAJOR);
+	fake[1] = (byte)(VER_MINOR);
+	fake[2] = (byte)(VER_PATCH);
+	fake[3] = (byte)(VER_EXTRA);
 
 
 	/* Dump the data */
@@ -553,6 +553,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_u32b(o_ptr->flags1);
 	wr_u32b(o_ptr->flags2);
 	wr_u32b(o_ptr->flags3);
+	wr_u32b(o_ptr->flags4);
 
 	/* Next object in list */
 	wr_s16b(o_ptr->next_o_idx);
@@ -594,6 +595,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_u32b(o_ptr->kn_flags1);
 	wr_u32b(o_ptr->kn_flags2);
 	wr_u32b(o_ptr->kn_flags3);
+	wr_u32b(o_ptr->kn_flags4);
 }
 
 
@@ -798,7 +800,7 @@ static void wr_options(void)
 
 	c = 0;
 
-	if (p_ptr->wizard) c |= 0x0002;
+	if (p_ptr->state.wizard) c |= 0x0002;
 
 	if (cheat_peek) c |= 0x0100;
 	if (cheat_hear) c |= 0x0200;
@@ -876,31 +878,32 @@ static void wr_extra(void)
 
 	wr_string(player_name);
 
-	wr_string(p_ptr->died_from);
+	wr_string(p_ptr->state.died_from);
 
+	/* Old history-dumping code */
 	for (i = 0; i < 4; i++)
 	{
-		wr_string(p_ptr->history[i]);
+		wr_string("");
 	}
 
 	/* Race/Class/Gender/Spells */
-	wr_byte(p_ptr->prace);
-	wr_byte(p_ptr->pclass);
-	wr_byte(p_ptr->psex);
-	wr_byte(p_ptr->realm1);
-	wr_byte(p_ptr->realm2);
+	wr_byte(p_ptr->rp.prace);
+	wr_byte(p_ptr->rp.pclass);
+	wr_byte(p_ptr->rp.psex);
+	wr_byte(p_ptr->spell.r[0].realm);
+	wr_byte(p_ptr->spell.r[1].realm);
 	wr_byte(0);					/* oops */
 
-	wr_byte(p_ptr->hitdie);
+	wr_byte(p_ptr->rp.hitdie);
 	wr_u16b(p_ptr->expfact);
 
-	wr_s16b(p_ptr->age);
-	wr_s16b(p_ptr->ht);
-	wr_s16b(p_ptr->wt);
+	wr_s16b(p_ptr->rp.age);
+	wr_s16b(p_ptr->rp.ht);
+	wr_s16b(p_ptr->rp.wt);
 
 	/* Dump the stats (maximum and current) */
-	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
-	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat[i].max);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat[i].cur);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
@@ -945,42 +948,42 @@ static void wr_extra(void)
 	wr_s16b(0);					/* oops */
 	wr_s16b(0);					/* oops */
 	wr_s16b(0);					/* oops */
-	wr_s16b(p_ptr->sc);
+	wr_s16b(p_ptr->rp.sc);
 	wr_s16b(0);					/* oops */
 
 	wr_s16b(0);					/* old "rest" */
-	wr_s16b(p_ptr->blind);
-	wr_s16b(p_ptr->paralyzed);
-	wr_s16b(p_ptr->confused);
+	wr_s16b(p_ptr->tim.blind);
+	wr_s16b(p_ptr->tim.paralyzed);
+	wr_s16b(p_ptr->tim.confused);
 	wr_s16b(p_ptr->food);
 	wr_s16b(0);					/* old "food_digested" */
 	wr_s16b(0);					/* old "protection" */
 	wr_s16b(p_ptr->energy);
-	wr_s16b(p_ptr->fast);
-	wr_s16b(p_ptr->slow);
-	wr_s16b(p_ptr->afraid);
-	wr_s16b(p_ptr->cut);
-	wr_s16b(p_ptr->stun);
-	wr_s16b(p_ptr->poisoned);
-	wr_s16b(p_ptr->image);
-	wr_s16b(p_ptr->protevil);
-	wr_s16b(p_ptr->invuln);
-	wr_s16b(p_ptr->hero);
-	wr_s16b(p_ptr->shero);
-	wr_s16b(p_ptr->shield);
-	wr_s16b(p_ptr->blessed);
-	wr_s16b(p_ptr->tim_invis);
-	wr_s16b(p_ptr->word_recall);
+	wr_s16b(p_ptr->tim.fast);
+	wr_s16b(p_ptr->tim.slow);
+	wr_s16b(p_ptr->tim.afraid);
+	wr_s16b(p_ptr->tim.cut);
+	wr_s16b(p_ptr->tim.stun);
+	wr_s16b(p_ptr->tim.poisoned);
+	wr_s16b(p_ptr->tim.image);
+	wr_s16b(p_ptr->tim.protevil);
+	wr_s16b(p_ptr->tim.invuln);
+	wr_s16b(p_ptr->tim.hero);
+	wr_s16b(p_ptr->tim.shero);
+	wr_s16b(p_ptr->tim.shield);
+	wr_s16b(p_ptr->tim.blessed);
+	wr_s16b(p_ptr->tim.invis);
+	wr_s16b(p_ptr->tim.word_recall);
 	wr_s16b(p_ptr->see_infra);
-	wr_s16b(p_ptr->tim_infra);
-	wr_s16b(p_ptr->oppose_fire);
-	wr_s16b(p_ptr->oppose_cold);
-	wr_s16b(p_ptr->oppose_acid);
-	wr_s16b(p_ptr->oppose_elec);
-	wr_s16b(p_ptr->oppose_pois);
-	wr_s16b(p_ptr->tim_esp);
-	wr_s16b(p_ptr->wraith_form);
-	wr_s16b(p_ptr->resist_magic);
+	wr_s16b(p_ptr->tim.infra);
+	wr_s16b(p_ptr->tim.oppose_fire);
+	wr_s16b(p_ptr->tim.oppose_cold);
+	wr_s16b(p_ptr->tim.oppose_acid);
+	wr_s16b(p_ptr->tim.oppose_elec);
+	wr_s16b(p_ptr->tim.oppose_pois);
+	wr_s16b(p_ptr->tim.esp);
+	wr_s16b(p_ptr->tim.wraith_form);
+	wr_s16b(p_ptr->tim.resist_magic);
 
 	wr_s16b(p_ptr->chaos_patron);
 	wr_u32b(p_ptr->muta1);
@@ -997,11 +1000,11 @@ static void wr_extra(void)
 		wr_s16b(p_ptr->vir_types[i]);
 	}
 
-	wr_byte(p_ptr->confusing);
+	wr_byte(p_ptr->state.confusing);
 	wr_byte(0);					/* oops */
 	wr_byte(0);					/* oops */
 	wr_byte(0);					/* oops */
-	wr_byte(p_ptr->searching);
+	wr_byte(p_ptr->state.searching);
 	wr_byte(0);					/* oops */
 	wr_byte(0);					/* oops */
 	wr_byte(0);					/* oops */
@@ -1020,16 +1023,16 @@ static void wr_extra(void)
 
 
 	/* Special stuff */
-	wr_u16b(p_ptr->panic_save);
-	wr_u16b(p_ptr->total_winner);
-	wr_u16b(p_ptr->noscore);
+	wr_u16b(p_ptr->state.panic_save);
+	wr_u16b(p_ptr->state.total_winner);
+	wr_u16b(p_ptr->state.noscore);
 
 
 	/* Write death */
-	wr_byte(p_ptr->is_dead);
+	wr_byte(p_ptr->state.is_dead);
 
-	/* Write feeling */
-	wr_byte(dun_ptr->feeling);
+	/* Write "feeling" */
+	wr_byte(p_ptr->state.feeling);
 
 	/* Turn of last "feeling" */
 	wr_s32b(old_turn);
@@ -1269,7 +1272,7 @@ static void wr_dungeon(void)
 
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
-	wr_u16b(base_level);
+	wr_u16b(base_level());
 	wr_u16b(num_repro);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
@@ -1397,11 +1400,11 @@ static bool wr_savefile_new(void)
 
 	/* Dump the file header */
 	xor_byte = 0;
-	wr_byte(FAKE_VER_MAJOR);
+	wr_byte(VER_MAJOR);
 	xor_byte = 0;
-	wr_byte(FAKE_VER_MINOR);
+	wr_byte(VER_MINOR);
 	xor_byte = 0;
-	wr_byte(FAKE_VER_PATCH);
+	wr_byte(VER_PATCH);
 	xor_byte = 0;
 
 	tmp8u = (byte)randint0(256);
@@ -1565,17 +1568,17 @@ static bool wr_savefile_new(void)
 
 
 	/* Write spell data */
-	wr_u32b(p_ptr->spell_learned1);
-	wr_u32b(p_ptr->spell_learned2);
-	wr_u32b(p_ptr->spell_worked1);
-	wr_u32b(p_ptr->spell_worked2);
-	wr_u32b(p_ptr->spell_forgotten1);
-	wr_u32b(p_ptr->spell_forgotten2);
+	wr_u32b(p_ptr->spell.r[0].learned);
+	wr_u32b(p_ptr->spell.r[1].learned);
+	wr_u32b(p_ptr->spell.r[0].worked);
+	wr_u32b(p_ptr->spell.r[1].worked);
+	wr_u32b(p_ptr->spell.r[0].forgotten);
+	wr_u32b(p_ptr->spell.r[1].forgotten);
 
 	/* Dump the ordered spells */
 	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
-		wr_byte(p_ptr->spell_order[i]);
+		wr_byte(p_ptr->spell.order[i]);
 	}
 
 
@@ -1641,6 +1644,43 @@ static bool wr_savefile_new(void)
 		/* Name */
 		wr_string(pl_ptr->name);
 
+		if (pl_ptr->dungeon)
+		{
+			dun_type *dun_ptr;
+		
+			/* Is dungeon here */
+			wr_byte(TRUE);
+			
+			dun_ptr = pl_ptr->dungeon;
+			
+			/* Object theme */
+			wr_byte(dun_ptr->theme.treasure);
+			wr_byte(dun_ptr->theme.combat);
+			wr_byte(dun_ptr->theme.magic);
+			wr_byte(dun_ptr->theme.tools);
+					
+			/* Habitat */
+			wr_u32b(dun_ptr->habitat);
+					
+			/* Levels in dungeon */
+			wr_byte(dun_ptr->min_level);
+			wr_byte(dun_ptr->max_level);
+					
+			/* Rating + feeling */
+			wr_s16b(dun_ptr->rating);
+			
+			/* Extra info */
+			wr_u16b(dun_ptr->rooms);
+			wr_byte(dun_ptr->floor);
+			wr_byte(dun_ptr->liquid);
+			wr_byte(dun_ptr->flags);
+		}
+		else
+		{
+			/* No dungeon here */
+			wr_byte(FALSE);
+		}
+
 		/* Dump the stores of all towns */
 		for (j = 0; j < pl_ptr->numstores; j++)
 		{
@@ -1654,7 +1694,7 @@ static bool wr_savefile_new(void)
 	wr_byte(p_ptr->pet_pickup_items);
 
 	/* Player is not dead, write the dungeon */
-	if (!p_ptr->is_dead)
+	if (!p_ptr->state.is_dead)
 	{
 		/* Dump the dungeon */
 		wr_dungeon();
@@ -1905,7 +1945,7 @@ bool load_player(void)
 	turn = 0;
 
 	/* Paranoia */
-	p_ptr->is_dead = FALSE;
+	p_ptr->state.is_dead = FALSE;
 
 
 	/* Allow empty savefile name */
@@ -1980,7 +2020,7 @@ bool load_player(void)
 		safe_setuid_drop();
 
 		/* Dump a line of info */
-		fprintf(fkk, "Lock file for savefile '%s'\n", savefile);
+		froff(fkk, "Lock file for savefile '%s'\n", savefile);
 
 		/* Close the lock file */
 		my_fclose(fkk);
@@ -2043,49 +2083,14 @@ bool load_player(void)
 		z_minor = vvv[1];
 		z_patch = vvv[2];
 		sf_extra = vvv[3];
-		sf_major = 2;
-		sf_minor = 8;
-		sf_patch = 1;
-
-
-		/* Pre-2.1.0: Assume 2.0.6 (same as 2.0.0 - 2.0.5) */
-		if ((z_major == sf_major) &&
-			(z_minor == sf_minor) && (z_patch == sf_patch))
-		{
-			z_major = 2;
-			z_minor = 0;
-			z_patch = 6;
-		}
-
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
 
 		/* Clear screen */
 		Term_clear();
 
 		/* Parse "new" savefiles */
-		if ((sf_major == 2) && (sf_minor >= 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_new();
-		}
 
-		/* Parse "future" savefiles */
-		else
-		{
-			/* Error XXX XXX XXX */
-			err = -1;
-		}
+		/* Attempt to load */
+		err = rd_savefile_new();
 
 		/* Message (below) */
 		if (err) what = "Cannot parse savefile";
@@ -2123,27 +2128,21 @@ bool load_player(void)
 	if (!err)
 	{
 		/* Give a conversion warning */
-		if ((FAKE_VER_MAJOR != z_major) ||
-			(FAKE_VER_MINOR != z_minor) || (FAKE_VER_PATCH != z_patch))
+		if ((VER_MAJOR != z_major) ||
+			(VER_MINOR != z_minor) || (VER_PATCH != z_patch))
 		{
-			if (z_major == 2 && z_minor == 0 && z_patch == 6)
-			{
-				msgf("Converted a 2.0.* savefile.");
-			}
-			else
-			{
-				/* Message */
-				msgf("Converted a %d.%d.%d savefile.",
-						   z_major, z_minor, z_patch);
-			}
+			/* Message */
+			msgf("Converted a %d.%d.%d savefile.",
+					 z_major, z_minor, z_patch);
+
 			message_flush();
 		}
 
 		/* Player is dead */
-		if (p_ptr->is_dead)
+		if (p_ptr->state.is_dead)
 		{
 			/* Player is no longer "dead" */
-			p_ptr->is_dead = FALSE;
+			p_ptr->state.is_dead = FALSE;
 
 			/* Cheat death */
 			if (arg_wizard)
@@ -2179,7 +2178,7 @@ bool load_player(void)
 		if (p_ptr->chp >= 0)
 		{
 			/* Reset cause of death */
-			(void)strcpy(p_ptr->died_from, "(alive and well)");
+			(void)strcpy(p_ptr->state.died_from, "(alive and well)");
 		}
 
 		/* Success */

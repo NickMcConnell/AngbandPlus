@@ -1,3 +1,17 @@
+/* File: wild1.h */
+
+/* Purpose: Dungeon generation header file */
+
+/*
+ * Copyright (c) 1989, 1999 James E. Wilson, Robert A. Koeneke,
+ * Robert Ruehlmann
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ */
+
+
 
 #define SAFE_MAX_ATTEMPTS 5000
 
@@ -146,6 +160,19 @@ struct dun_data
 
 	/* Hack -- there is a pit/nest on this level */
 	int crowded;
+	
+	/* Room types allowed */
+	u16b room_types;
+	
+	/* Liquid type for lakes/ rivers etc. */
+	byte feat_shal_liquid;
+	byte feat_deep_liquid;
+	
+	/* Floor terrain */
+	byte feat_floor;
 };
 
 extern dun_data *dun;
+
+
+

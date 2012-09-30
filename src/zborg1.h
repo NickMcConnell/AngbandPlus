@@ -125,8 +125,6 @@
 #define BORG_TAKES_MAX	1024
 #define BORG_KILLS_MAX	1024
 
-
-
 /*
  * Object information
  */
@@ -142,7 +140,6 @@ struct borg_take
 
 	char unknown;	/* Unknown type */
 };
-
 
 /*
  * Monster information
@@ -489,7 +486,6 @@ extern borg_shop *borg_shops;
  */
 extern s16b track_shop_num;
 extern s16b track_shop_size;
-
 
 /*
  * Other variables

@@ -14,14 +14,21 @@
 #define INCLUDED_ANGBAND_H
 
 /*
- * Include the low-level includes.
+ * Configuration via autoconf
  */
-#include "h-basic.h"
+#ifdef HAVE_CONFIG_H
+#include "autoconf.h"
+#endif /* HAVE_CONFIG_H */
 
 /*
  * Configuration
  */
 #include "z-config.h"
+
+/*
+ * Include the low-level includes.
+ */
+#include "h-basic.h"
 
 /*
  * Include the mid-level includes.

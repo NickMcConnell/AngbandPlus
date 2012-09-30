@@ -244,13 +244,13 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (%s %s)\n\n\n",
+	froff(fff, "Spoiler File -- Basic Items (%s %s)\n\n\n",
 			VERSION_NAME, VERSION_STRING);
 
 	/* More Header */
-	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
+	froff(fff, "%-45s     %8s%7s%5s%9s\n",
 			"Description", "Dam/AC", "Wgt", "Lev", "Cost");
-	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
+	froff(fff, "%-45s     %8s%7s%5s%9s\n",
 			"----------------------------------------",
 			"------", "---", "---", "----");
 
@@ -296,7 +296,7 @@ static void spoil_obj_desc(cptr fname)
 				kind_info(buf, dam, wgt, &e, &v, who[s]);
 
 				/* Dump it */
-				fprintf(fff, "     %-45s%8s%7s%5d%9ld\n",
+				froff(fff, "     %-45s%8s%7s%5d%9ld\n",
 						buf, dam, wgt, e, (long)(v));
 			}
 
@@ -307,7 +307,7 @@ static void spoil_obj_desc(cptr fname)
 			if (!group_item[i].tval) break;
 
 			/* Start a new set */
-			fprintf(fff, "\n\n%s\n\n", group_item[i].name);
+			froff(fff, "\n\n%s\n\n", group_item[i].name);
 		}
 
 		/* Acquire legal item types */
@@ -525,6 +525,7 @@ static const flag_desc immune_flags_desc[] =
 	{TR2_IM_ELEC, "Lightning"},
 	{TR2_IM_FIRE, "Fire"},
 	{TR2_IM_COLD, "Cold"},
+	/* XXX IM_LITE, IM_DARK */
 };
 
 /*
@@ -676,9 +677,9 @@ static void spoiler_blanklines(int n)
  */
 static void spoiler_underline(cptr str)
 {
-	fprintf(fff, "%s\n", str);
+	froff(fff, "%s\n", str);
 	spoiler_out_n_chars(strlen(str), '-');
-	fprintf(fff, "\n");
+	froff(fff, "\n");
 }
 
 
@@ -728,8 +729,6 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
 							TR1_DEX | TR1_CON | TR1_CHR);
 
-	u32b f1, f2, f3;
-
 	cptr *affects_list;
 
 	/* If pval == 0, there is nothing to do. */
@@ -740,30 +739,27 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 		return;
 	}
 
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
 	affects_list = p_ptr->pval_affects;
 
 	/* Create the "+N" string */
 	strnfmt(p_ptr->pval_desc, 12, "%s%d", POSITIZE(o_ptr->pval), o_ptr->pval);
 
 	/* First, check to see if the pval affects all stats */
-	if ((f1 & all_stats) == all_stats)
+	if ((o_ptr->flags1 & all_stats) == all_stats)
 	{
 		*affects_list++ = "All stats";
 	}
 
 	/* Are any stats affected? */
-	else if (f1 & all_stats)
+	else if (o_ptr->flags1 & all_stats)
 	{
-		affects_list = spoiler_flag_aux(f1, stat_flags_desc,
+		affects_list = spoiler_flag_aux(o_ptr->flags1, stat_flags_desc,
 										affects_list,
 										N_ELEMENTS(stat_flags_desc));
 	}
 
 	/* And now the "rest" */
-	affects_list = spoiler_flag_aux(f1, pval_flags1_desc,
+	affects_list = spoiler_flag_aux(o_ptr->flags1, pval_flags1_desc,
 									affects_list, N_ELEMENTS(pval_flags1_desc));
 
 	/* Terminate the description list */
@@ -774,11 +770,7 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 /* Note the slaying specialties of a weapon */
 static void analyze_slay(const object_type *o_ptr, cptr *slay_list)
 {
-	u32b f1, f2, f3;
-
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	slay_list = spoiler_flag_aux(f1, slay_flags_desc, slay_list,
+	slay_list = spoiler_flag_aux(o_ptr->flags1, slay_flags_desc, slay_list,
 								 N_ELEMENTS(slay_flags_desc));
 
 	/* Terminate the description list */
@@ -788,11 +780,7 @@ static void analyze_slay(const object_type *o_ptr, cptr *slay_list)
 /* Note an object's elemental brands */
 static void analyze_brand(const object_type *o_ptr, cptr *brand_list)
 {
-	u32b f1, f2, f3;
-
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	brand_list = spoiler_flag_aux(f1, brand_flags_desc, brand_list,
+	brand_list = spoiler_flag_aux(o_ptr->flags1, brand_flags_desc, brand_list,
 								  N_ELEMENTS(brand_flags_desc));
 
 	/* Terminate the description list */
@@ -803,11 +791,7 @@ static void analyze_brand(const object_type *o_ptr, cptr *brand_list)
 /* Note the resistances granted by an object */
 static void analyze_resist(const object_type *o_ptr, cptr *resist_list)
 {
-	u32b f1, f2, f3;
-
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	resist_list = spoiler_flag_aux(f2, resist_flags_desc,
+	resist_list = spoiler_flag_aux(o_ptr->flags2, resist_flags_desc,
 								   resist_list, N_ELEMENTS(resist_flags_desc));
 
 	/* Terminate the description list */
@@ -818,11 +802,7 @@ static void analyze_resist(const object_type *o_ptr, cptr *resist_list)
 /* Note the immunities granted by an object */
 static void analyze_immune(const object_type *o_ptr, cptr *immune_list)
 {
-	u32b f1, f2, f3;
-
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	immune_list = spoiler_flag_aux(f2, immune_flags_desc,
+	immune_list = spoiler_flag_aux(o_ptr->flags2, immune_flags_desc,
 								   immune_list, N_ELEMENTS(immune_flags_desc));
 
 	/* Terminate the description list */
@@ -836,20 +816,16 @@ static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
 	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
 							   TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
 
-	u32b f1, f2, f3;
-
-	object_flags(o_ptr, &f1, &f2, &f3);
-
 	/* Simplify things if an item sustains all stats */
-	if ((f2 & all_sustains) == all_sustains)
+	if ((o_ptr->flags2 & all_sustains) == all_sustains)
 	{
 		*sustain_list++ = "All stats";
 	}
 
 	/* Should we bother? */
-	else if ((f2 & all_sustains))
+	else if ((o_ptr->flags2 & all_sustains))
 	{
-		sustain_list = spoiler_flag_aux(f2, sustain_flags_desc,
+		sustain_list = spoiler_flag_aux(o_ptr->flags2, sustain_flags_desc,
 										sustain_list,
 										N_ELEMENTS(sustain_flags_desc));
 	}
@@ -865,14 +841,10 @@ static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
  */
 static void analyze_misc_magic(const object_type *o_ptr, cptr *misc_list)
 {
-	u32b f1, f2, f3;
-
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	misc_list = spoiler_flag_aux(f2, misc_flags2_desc, misc_list,
+	misc_list = spoiler_flag_aux(o_ptr->flags2, misc_flags2_desc, misc_list,
 								 N_ELEMENTS(misc_flags2_desc));
 
-	misc_list = spoiler_flag_aux(f3, misc_flags3_desc, misc_list,
+	misc_list = spoiler_flag_aux(o_ptr->flags3, misc_flags3_desc, misc_list,
 								 N_ELEMENTS(misc_flags3_desc));
 
 	/*
@@ -886,7 +858,7 @@ static void analyze_misc_magic(const object_type *o_ptr, cptr *misc_list)
 	/*
 	 * Glowing artifacts -- small radius light.
 	 */
-	else if (f3 & (TR3_LITE))
+	else if (o_ptr->flags3 & (TR3_LITE))
 	{
 		*misc_list++ = "Permanent Light(1)";
 	}
@@ -899,15 +871,15 @@ static void analyze_misc_magic(const object_type *o_ptr, cptr *misc_list)
 
 	if (cursed_p(o_ptr))
 	{
-		if (f3 & TR3_TY_CURSE)
+		if (o_ptr->flags3 & TR3_TY_CURSE)
 		{
 			*misc_list++ = "Ancient Curse";
 		}
-		if (f3 & TR3_PERMA_CURSE)
+		if (o_ptr->flags3 & TR3_PERMA_CURSE)
 		{
 			*misc_list++ = "Permanently Cursed";
 		}
-		else if (f3 & TR3_HEAVY_CURSE)
+		else if (o_ptr->flags3 & TR3_HEAVY_CURSE)
 		{
 			*misc_list++ = "Heavily Cursed";
 		}
@@ -1084,7 +1056,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 				line[line_len - 2] = '\0';
 
 				/* Write to spoiler file */
-				fprintf(fff, "%s\n", line);
+				froff(fff, "%s\n", line);
 
 				/* Begin new line at primary indention level */
 				strnfmt(line, MAX_LINE_LEN + 1, "%s%s", INDENT1, buf);
@@ -1093,7 +1065,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 			else
 			{
 				/* Write to spoiler file */
-				fprintf(fff, "%s\n", line);
+				froff(fff, "%s\n", line);
 
 				/* Begin new line at secondary indention level */
 				strnfmt(line, MAX_LINE_LEN + 1, "%s%s", INDENT2, buf);
@@ -1107,7 +1079,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	}
 
 	/* Write what's left to the spoiler file */
-	fprintf(fff, "%s\n", line);
+	froff(fff, "%s\n", line);
 }
 
 
@@ -1121,7 +1093,7 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	char buf[80];
 
 	/* Don't indent the first line */
-	fprintf(fff, "%s\n", art_ptr->description);
+	froff(fff, "%s\n", art_ptr->description);
 
 	/* An "empty" pval description indicates that the pval affects nothing */
 	if (pval_ptr->pval_desc[0])
@@ -1149,11 +1121,11 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	/* Write out the possible activation at the primary indention level */
 	if (art_ptr->activation)
 	{
-		fprintf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
+		froff(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
 	}
 
 	/* End with the miscellaneous facts */
-	fprintf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
+	froff(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
 }
 
 
@@ -1184,6 +1156,7 @@ static object_type *make_fake_artifact(int a_idx)
 	o_ptr->flags1 |= a_ptr->flags1;
 	o_ptr->flags2 |= a_ptr->flags2;
 	o_ptr->flags3 |= a_ptr->flags3;
+	o_ptr->flags4 |= a_ptr->flags4;
 
 	/* Set the fields */
 	o_ptr->pval = a_ptr->pval;
@@ -1333,12 +1306,12 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for %s Version %s\n",
+	froff(fff, "Monster Spoilers for %s Version %s\n",
 			VERSION_NAME, VERSION_STRING);
-	fprintf(fff, "-------------------------------------------\n\n");
-	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
+	froff(fff, "-------------------------------------------\n\n");
+	froff(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
 			"Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
-	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
+	froff(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
 			"----", "---", "---", "---", "--", "--", "-----------");
 
 
@@ -1421,7 +1394,7 @@ static void spoil_mon_desc(cptr fname)
 		strnfmt(vis, 80, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
 
 		/* Dump the info */
-		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s %s\n",
+		froff(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s %s\n",
 				nam, lev, rar, spd, hp, ac, exp, vis);
 	}
 
@@ -1429,7 +1402,7 @@ static void spoil_mon_desc(cptr fname)
 	KILL(who);
 
 	/* End it */
-	fprintf(fff, "\n");
+	froff(fff, "\n");
 
 	/* Check for errors */
 	if (ferror(fff))
@@ -1491,11 +1464,11 @@ static void spoil_out(cptr fmt, ...)
 	{
 		if (roff_p != roff_buf) roff_p--;
 		while (*roff_p == ' ' && roff_p != roff_buf) roff_p--;
-		if (roff_p == roff_buf) fprintf(fff, "\n");
+		if (roff_p == roff_buf) froff(fff, "\n");
 		else
 		{
 			*(roff_p + 1) = '\0';
-			fprintf(fff, "%s\n\n", roff_buf);
+			froff(fff, "%s\n\n", roff_buf);
 		}
 		roff_p = roff_buf;
 		roff_s = NULL;
@@ -1535,7 +1508,7 @@ static void spoil_out(cptr fmt, ...)
 				*roff_s = '\0';
 				r = roff_s + 1;
 			}
-			fprintf(fff, "%s\n", roff_buf);
+			froff(fff, "%s\n", roff_buf);
 			roff_s = NULL;
 			roff_p = roff_buf;
 			while (*r) *roff_p++ = *r++;

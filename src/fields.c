@@ -32,8 +32,7 @@ static s16b *field_find(s16b fld_idx)
 	f_ptr = &fld_list[fld_idx];
 
 	/* Paranoia */
-	if (f_ptr->region !=
-		dun_ptr->region) quit("Trying to find unregioned field");
+	if (f_ptr->region != cur_region) quit("Trying to find unregioned field");
 
 	location = &(area(f_ptr->fx, f_ptr->fy)->fld_idx);
 
@@ -1160,9 +1159,6 @@ void field_hook(s16b *field_ptr, int action, ...)
 	
 	field_type *f_ptr;
 	field_thaum *t_ptr;
-    
-    /* Begin the Varargs Stuff */
-	va_start(vp, action);
 
 	while (*field_ptr)
 	{
@@ -1173,6 +1169,9 @@ void field_hook(s16b *field_ptr, int action, ...)
 		/* Paranoia - Is there a function to call? */
 		if (t_ptr->action[action])
 		{
+			/* Begin the Varargs Stuff */
+			va_start(vp, action);
+		
 			/* Call the action function */
 			if (t_ptr->action[action] (f_ptr, vp))
 			{
@@ -1184,6 +1183,9 @@ void field_hook(s16b *field_ptr, int action, ...)
 				/* Get next field in the list */
 				field_ptr = &f_ptr->next_f_idx;
 			}
+			
+			/* End the Varargs Stuff */
+			va_end(vp);
 		}
 		else
 		{
@@ -1191,9 +1193,6 @@ void field_hook(s16b *field_ptr, int action, ...)
 			field_ptr = &f_ptr->next_f_idx;
 		}
 	}
-    
-    /* End the Varargs Stuff */
-	va_end(vp);
 }
 
 
@@ -1979,7 +1978,7 @@ static bool check_save(int power)
 	if (power <= 0) return (FALSE);
 
 	/* Power competes against saving throw */
-	if (randint1(power) > randint1(p_ptr->skill_sav)) return (TRUE);
+	if (randint1(power) > randint1(p_ptr->skill.sav)) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -2097,7 +2096,7 @@ void place_trap(int x, int y)
 		if (is_quest_level(p_ptr->depth)) continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if (p_ptr->depth >= MAX_DEPTH - 1) continue;
+		if (p_ptr->depth >= max_dun_level()) continue;
 
 		/* Probably should prevent trap doors in the wilderness */
 		if (!p_ptr->depth) continue;
@@ -2264,13 +2263,13 @@ bool field_action_hit_trap_door(field_type *f_ptr, va_list vp)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 
-	if (p_ptr->ffall)
+	if (p_ptr->flags3 & (TR3_FEATHER))
 	{
 		msgf("You fly over a trap door.");
 	}
 	else
 	{
-		if (!p_ptr->leaving)
+		if (!p_ptr->state.leaving)
 		{
 			msgf("You have fallen through a trap door!");
 			sound(SOUND_FALL);
@@ -2285,7 +2284,7 @@ bool field_action_hit_trap_door(field_type *f_ptr, va_list vp)
 			p_ptr->depth++;
 
 			/* Leaving */
-			p_ptr->leaving = TRUE;
+			p_ptr->state.leaving = TRUE;
 		}
 	}
 
@@ -2307,7 +2306,7 @@ bool field_action_hit_trap_pit(field_type *f_ptr, va_list vp)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 
-	if (p_ptr->ffall)
+	if (p_ptr->flags3 & (TR3_FEATHER))
 	{
 		msgf("You fly over a pit trap.");
 	}
@@ -2336,7 +2335,7 @@ bool field_action_hit_trap_spike(field_type *f_ptr, va_list vp)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 
-	if (p_ptr->ffall)
+	if (p_ptr->flags3 & (TR3_FEATHER))
 	{
 		msgf("You fly over a spiked pit.");
 	}
@@ -2355,7 +2354,7 @@ bool field_action_hit_trap_spike(field_type *f_ptr, va_list vp)
 
 			name = "a spiked pit";
 			dam *= 2;
-			(void)set_cut(p_ptr->cut + randint1(dam));
+			(void)inc_cut(randint1(dam));
 		}
 
 		/* Take the damage */
@@ -2379,7 +2378,7 @@ bool field_action_hit_trap_poison_pit(field_type *f_ptr, va_list vp)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 
-	if (p_ptr->ffall)
+	if (p_ptr->flags3 & (TR3_FEATHER))
 	{
 		msgf("You fly over a spiked pit.");
 	}
@@ -2400,16 +2399,16 @@ bool field_action_hit_trap_poison_pit(field_type *f_ptr, va_list vp)
 			name = "a spiked pit";
 
 			dam *= 2;
-			(void)set_cut(p_ptr->cut + randint1(dam));
+			(void)inc_cut(randint1(dam));
 
-			if (p_ptr->resist_pois || p_ptr->oppose_pois)
+			if ((p_ptr->flags2 & (TR2_RES_POIS)) || p_ptr->tim.oppose_pois)
 			{
 				msgf("The poison does not affect you!");
 			}
 			else
 			{
 				dam *= 2;
-				(void)set_poisoned(p_ptr->poisoned + randint1(dam));
+				(void)inc_poisoned(randint1(dam));
 			}
 		}
 
@@ -2519,9 +2518,9 @@ bool field_action_hit_trap_element(field_type *f_ptr, va_list vp)
 		case 2:
 		{
 			msgf("A pungent green gas surrounds you!");
-			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
+			if (!(p_ptr->flags2 & (TR2_RES_POIS)) && !p_ptr->tim.oppose_pois)
 			{
-				(void)set_poisoned(p_ptr->poisoned + rand_range(10, 30));
+				(void)inc_poisoned(rand_range(10, 30));
 			}
 			break;
 		}
@@ -2582,9 +2581,9 @@ bool field_action_hit_trap_ba_element(field_type *f_ptr, va_list vp)
 			msgf("A pungent grey gas surrounds you!");
 			(void)fire_ball(GF_POIS, 0, 350, 4);
 
-			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
+			if (!(p_ptr->flags2 & (TR2_RES_POIS)) && !p_ptr->tim.oppose_pois)
 			{
-				(void)set_poisoned(p_ptr->poisoned + rand_range(100, 150));
+				(void)inc_poisoned(rand_range(100, 150));
 			}
 			break;
 		}
@@ -2627,16 +2626,16 @@ bool field_action_hit_trap_gas(field_type *f_ptr, va_list vp)
 		case 0:
 		{
 			msgf("A blue gas surrounds you!");
-			(void)set_slow(p_ptr->slow + rand_range(20, 40));
+			(void)inc_slow(rand_range(20, 40));
 			break;
 		}
 
 		case 1:
 		{
 			msgf("A black gas surrounds you!");
-			if (!p_ptr->resist_blind)
+			if (!(p_ptr->flags2 & (TR2_RES_BLIND)))
 			{
-				(void)set_blind(p_ptr->blind + rand_range(25, 75));
+				(void)inc_blind(rand_range(25, 75));
 			}
 			break;
 		}
@@ -2644,9 +2643,9 @@ bool field_action_hit_trap_gas(field_type *f_ptr, va_list vp)
 		case 2:
 		{
 			msgf("A gas of scintillating colors surrounds you!");
-			if (!p_ptr->resist_confu)
+			if (!(p_ptr->flags2 & (TR2_RES_CONF)))
 			{
-				(void)set_confused(p_ptr->confused + rand_range(10, 30));
+				(void)inc_confused(rand_range(10, 30));
 			}
 			break;
 		}
@@ -2654,7 +2653,7 @@ bool field_action_hit_trap_gas(field_type *f_ptr, va_list vp)
 		case 3:
 		{
 			msgf("A strange white mist surrounds you!");
-			if (!p_ptr->free_act)
+			if (!(p_ptr->flags2 & (TR2_FREE_ACT)))
 			{
 				msgf("You fall asleep.");
 
@@ -2662,16 +2661,10 @@ bool field_action_hit_trap_gas(field_type *f_ptr, va_list vp)
 				{
 					msgf("A horrible vision enters your mind.");
 
-					/* Pick a nightmare */
-					get_mon_num_prep(get_nightmare, NULL);
-
 					/* Have some nightmares */
-					have_nightmare(get_mon_num(MAX_DEPTH));
-
-					/* Remove the monster restriction */
-					get_mon_num_prep(NULL, NULL);
+					have_nightmare();
 				}
-				(void)set_paralyzed(p_ptr->paralyzed + rand_range(5, 15));
+				(void)inc_paralyzed(rand_range(5, 15));
 			}
 			break;
 		}
@@ -2680,9 +2673,9 @@ bool field_action_hit_trap_gas(field_type *f_ptr, va_list vp)
 		{
 			msgf("A gas of scintillating colors surrounds you!");
 
-			if (!p_ptr->resist_chaos)
+			if (!(p_ptr->flags2 & (TR2_RES_CHAOS)))
 			{
-				(void)set_image(p_ptr->image + rand_range(10, 30));
+				(void)inc_image(rand_range(10, 30));
 			}
 			break;
 		}
@@ -2839,7 +2832,7 @@ bool field_action_hit_trap_disenchant(field_type *f_ptr, va_list vp)
 	/* Saving throw */
 	if (!check_save(f_ptr->data[1])) return (FALSE);
 
-	if (!p_ptr->resist_disen)
+	if (!(p_ptr->flags2 & (TR2_RES_DISEN)))
 	{
 		msgf("There is a bright flash of light!");
 		(void)apply_disenchant();
@@ -3331,7 +3324,7 @@ bool field_action_door_bash(field_type *f_ptr, va_list vp)
 	int jam = va_arg(vp, int);
 
 	/* Extract unjamming "power" */
-	int power = jam / 10 + adj_str_wgt[p_ptr->stat_ind[A_STR]] / 2;
+	int power = jam / 10 + adj_str_wgt[p_ptr->stat[A_STR].ind] / 2;
 
 	if (randint0(power) > f_ptr->counter)
 	{
@@ -3527,7 +3520,7 @@ bool field_action_door_gf(field_type *f_ptr, va_list vp)
 		}
 
 		/* Destroy the feature */
-		cave_set_feat(f_ptr->fx, f_ptr->fy, FEAT_FLOOR);
+		cave_set_feat(f_ptr->fx, f_ptr->fy, the_floor());
 
 		/* Delete the field */
 		return (TRUE);
@@ -3612,7 +3605,7 @@ bool field_action_weaponmaster2(field_type *f_ptr, va_list vp)
 	int *factor = va_arg(vp, int *);
 	s32b cost;
 
-	if (p_ptr->command_cmd == 'E')
+	if (p_ptr->cmd.cmd == 'E')
 	{
 		cost = f_ptr->data[1] * *factor;
 
@@ -3658,14 +3651,14 @@ bool field_action_recharge2(field_type *f_ptr, va_list vp)
 	int *factor = va_arg(vp, int *);
 	s32b cost;
 
-	if (p_ptr->command_cmd == 'R')
+	if (p_ptr->cmd.cmd == 'R')
 	{
 		building_recharge(f_ptr->data[1] * *factor);
 
 		*factor = TRUE;
 	}
 
-	else if (p_ptr->command_cmd == 'I')
+	else if (p_ptr->cmd.cmd == 'I')
 	{
 		cost = f_ptr->data[2] * *factor;
 
@@ -3716,7 +3709,7 @@ bool field_action_weaponplus2(field_type *f_ptr, va_list vp)
 {
 	int *factor = va_arg(vp, int *);
 
-	if (p_ptr->command_cmd == 'E')
+	if (p_ptr->cmd.cmd == 'E')
 	{
 		item_tester_hook = item_tester_hook_melee_weapon;
 
@@ -3755,7 +3748,7 @@ bool field_action_armourplus2(field_type *f_ptr, va_list vp)
 {
 	int *factor = va_arg(vp, int *);
 
-	if (p_ptr->command_cmd == 'E')
+	if (p_ptr->cmd.cmd == 'E')
 	{
 		item_tester_hook = item_tester_hook_armour;
 
@@ -3796,7 +3789,7 @@ bool field_action_mutate2(field_type *f_ptr, va_list vp)
 	int *factor = va_arg(vp, int *);
 	s32b cost;
 
-	if (p_ptr->command_cmd == 'E')
+	if (p_ptr->cmd.cmd == 'E')
 	{
 		cost = f_ptr->data[1] * *factor * (count_mutations() + 1);
 
@@ -3857,7 +3850,7 @@ bool field_action_buymap2(field_type *f_ptr, va_list vp)
 	int *factor = va_arg(vp, int *);
 	s32b cost;
 
-	if (p_ptr->command_cmd == 'E')
+	if (p_ptr->cmd.cmd == 'E')
 	{
 		cost = f_ptr->data[1] * *factor;
 
@@ -3907,7 +3900,7 @@ bool field_action_library2(field_type *f_ptr, va_list vp)
 	int *factor = va_arg(vp, int *);
 	s32b cost;
 
-	if (p_ptr->command_cmd == 'R')
+	if (p_ptr->cmd.cmd == 'R')
 	{
 		cost = f_ptr->data[1] * *factor;
 
@@ -3961,7 +3954,7 @@ bool field_action_casino2(field_type *f_ptr, va_list vp)
 	/* Ignore f_ptr */
 	(void)f_ptr;
 
-	switch (p_ptr->command_cmd)
+	switch (p_ptr->cmd.cmd)
 	{
 		case 'H':
 		{
@@ -4045,7 +4038,7 @@ bool field_action_inn2(field_type *f_ptr, va_list vp)
 
 	s32b cost;
 
-	if (p_ptr->command_cmd == 'E')
+	if (p_ptr->cmd.cmd == 'E')
 	{
 		cost = f_ptr->data[1] * *factor / 100;
 
@@ -4062,7 +4055,7 @@ bool field_action_inn2(field_type *f_ptr, va_list vp)
 		/* Hack, use factor as a return value */
 		*factor = TRUE;
 	}
-	else if (p_ptr->command_cmd == 'R')
+	else if (p_ptr->cmd.cmd == 'R')
 	{
 		cost = f_ptr->data[1] * *factor / 20;
 
@@ -4107,7 +4100,7 @@ bool field_action_healer2(field_type *f_ptr, va_list vp)
 
 	s32b cost;
 
-	if (p_ptr->command_cmd == 'R')
+	if (p_ptr->cmd.cmd == 'R')
 	{
 		cost = f_ptr->data[1] * *factor;
 
@@ -4167,7 +4160,7 @@ bool field_action_magetower2(field_type *f_ptr, va_list vp)
 
 	s32b cost;
 
-	if (p_ptr->command_cmd == 'R')
+	if (p_ptr->cmd.cmd == 'R')
 	{
 		cost = f_ptr->data[1] * *factor;
 
@@ -4198,7 +4191,7 @@ bool field_action_magetower2(field_type *f_ptr, va_list vp)
 		return (FALSE);
 	}
 
-	if (p_ptr->command_cmd == 'T')
+	if (p_ptr->cmd.cmd == 'T')
 	{
 		cost = f_ptr->data[1] * *factor;
 

@@ -921,9 +921,7 @@ proc InitOther {} {
 
 #	if {$::DEBUG} {
 #		NSModule::AddModule NSDebug [PathTk debug.tcl]
-#		NSModule::AddModule NSDebugAlloc [PathTk debug-alloc.tcl]
 #		NSModule::LoadIfNeeded NSDebug
-#		NSModule::LoadIfNeeded NSDebugAlloc
 #	}
 
 	# The load window is obscured below

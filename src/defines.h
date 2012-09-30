@@ -31,28 +31,35 @@
  */
 #define VERSION_NAME "ZAngband"
 
+/* Savefile version */
+#define SAVEFILE_VERSION 44
+
+/* User-visible version */
+#define VER_MAJOR 2
+#define VER_MINOR 7
+#define VER_PATCH 3
+#define VER_EXTRA 0
+
+/* Stringify argument */
+#define Z_STR(a) Z_STR1(a)
+
+#define Z_STR1(a)\
+	# a
+
+/* Pre-release version string */
+#if VER_EXTRA != 0
+	#define PRE_VERSION \
+		"pre" Z_STR(VER_EXTRA)
+#else
+	#define PRE_VERSION
+#endif /* VER_EXTRA != 0 */
+
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.7.2"
-
-
-/*
- * Current version number of Angband: 2.8.1
- */
-#define VERSION_MAJOR   2
-#define VERSION_MINOR   8
-#define VERSION_PATCH   1
-
-#define SAVEFILE_VERSION 40
-
-/* Added for ZAngband */
-/* Why do we need a fake version number? */
-#define FAKE_VERSION   0
-#define FAKE_VER_MAJOR 2
-#define FAKE_VER_MINOR 7
-#define FAKE_VER_PATCH 1
+#define VERSION_STRING \
+	Z_STR(VER_MAJOR) "." Z_STR(VER_MINOR) "." Z_STR(VER_PATCH) PRE_VERSION
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -61,10 +68,6 @@
 /* hack - define if the source contains the cleanup_angband() function. */
 #define HAS_CLEANUP
 
-/*
- * This value is not currently used
- */
-#define VERSION_EXTRA   0
 
 /*
  * The maximum number of players we support
@@ -116,6 +119,12 @@
 
 /* Hack XXX  Start of the sea types = 2^16 - 65*/
 #define WILD_SEA	65471
+
+/* Town types */
+#define TOWN_OLD		1
+#define TOWN_FRACT		2
+#define TOWN_QUEST		3
+#define TOWN_DUNGEON    4
 
 /*
  * Quest type
@@ -669,15 +678,17 @@
 /*
  * Commands
  */
-#define PET_DISMISS					0
-#define PET_STAY_CLOSE				1
-#define PET_FOLLOW_ME				2
-#define PET_SEEK_AND_DESTROY		3
-#define PET_ALLOW_SPACE				4
-#define PET_STAY_AWAY				5
-#define PET_OPEN_DOORS				6
-#define PET_TAKE_ITEMS				7
-#define PET_CHOICE_MAX				8
+
+#define PET_STAY_CLOSE				0
+#define PET_FOLLOW_ME				1
+#define PET_SEEK_AND_DESTROY		2
+#define PET_ALLOW_SPACE				3
+#define PET_STAY_AWAY				4
+#define PET_OPEN_DOORS				5
+#define PET_TAKE_ITEMS				6
+#define PET_INFO					7
+#define PET_DISMISS					8
+#define PET_CHOICE_MAX				9
 
 /*
  * Follow distances
@@ -705,7 +716,7 @@
 #define EGO_INFLATE		10
 
 /*
- * There is a 1/50 (2%) chance of inflating the requested monster_level
+ * There is a 1/50 (2%) chance of inflating the requested monster level
  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
  * Lower values yield harder monsters more often.
  */
@@ -714,6 +725,8 @@
 /* 1/x chance of hurting even if invulnerable! */
 #define PENETRATE_INVULNERABILITY 13
 
+/* Mana drained by getting in a psi hit */
+#define PSI_COST 1
 
 
 /*
@@ -824,8 +837,8 @@
 /*
  * Magic-books for the realms
  */
-#define REALM1_BOOK     (p_ptr->realm1 + TV_LIFE_BOOK - 1)
-#define REALM2_BOOK     (p_ptr->realm2 + TV_LIFE_BOOK - 1)
+#define REALM1_BOOK     (p_ptr->spell.r[0].realm + TV_LIFE_BOOK - 1)
+#define REALM2_BOOK     (p_ptr->spell.r[1].realm + TV_LIFE_BOOK - 1)
 
 
 /*
@@ -886,6 +899,10 @@
  */
 #define MAX_STACK_SIZE		100
 
+/*
+ * A "stack" of items is limited to less than or equal to 20.0 lbs.
+ */
+#define MAX_STACK_WEIGHT        200
 
 
 /*
@@ -1178,10 +1195,35 @@
 #define WILD_INFO_ROAD		0x02
 #define WILD_INFO_WATER		0x04
 #define WILD_INFO_LAVA		0x08
-#define WILD_INFO_OBJECT	0x10
+#define WILD_INFO_DONE		0x10
 #define WILD_INFO_SEEN		0x20
 #define WILD_INFO_ACID		0x40
 #define WILD_INFO_QUEST		0x80
+
+
+/* Types of "liquid" for dungeon */
+#define LQ_NONE		0x00
+#define LQ_WATER	0x01
+#define LQ_LAVA		0x02
+#define LQ_ACID		0x04
+#define LQ_SWAMP	0x08
+
+#define LQ_MAX		4
+
+/* Room types */
+#define RT_TAG_CROWDED	0x0001 /* Affects "crowded" counter */
+#define RT_NATURAL		0x0002
+#define RT_ANIMAL		0x0004
+#define RT_COMPLEX		0x0008
+#define RT_DENSE		0x0010
+#define RT_RUIN			0x0020
+#define RT_SIMPLE		0x0040
+#define RT_BUILDING		0x0080
+#define RT_CRYPT		0x0100
+#define RT_RVAULT		0x0200
+#define RT_STRANGE		0x0400
+#define RT_FANCY		0x0800
+
 
 /*** Field Thaumatergical types - (see "fields.c" and t_info.txt) ***/
 #define FT_NONE					0x0000
@@ -1332,6 +1374,9 @@
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
+
+/* The maximum "special" artifact index */
+#define MAX_ART_SPECIAL          15
 
 /* Lites */
 #define ART_GALADRIEL            1
@@ -1562,7 +1607,7 @@
 #define EGO_SLAYING             49
 #define EGO_AGILITY             50
 #define EGO_POWER               51
-/* xxx */
+#define EGO_GHOUL_TOUCH         52
 /* xxx */
 #define EGO_WEAKNESS            54
 #define EGO_CLUMSINESS          55
@@ -1636,8 +1681,8 @@
 /* xxx */
 /* xxx */
 /* xxx */
-/* xxx */
-/* xxx */
+#define EGO_RETURNING           117
+#define EGO_EXPLOSION           118
 #define EGO_HURT_DRAGON         119
 #define EGO_SLAYING_BOLT        120
 #define EGO_LIGHTNING_BOLT      121
@@ -1858,6 +1903,7 @@
 #define SV_GREAT_HAMMER                 19
 #define SV_MACE_OF_DISRUPTION           20
 #define SV_WHIP_OF_ENTANGLEMENT         21
+#define SV_HAMMER_OF_RETURNING          22
 #define SV_GROND                        50
 
 /* The "sval" values for TV_POLEARM */
@@ -1918,6 +1964,7 @@
 #define SV_BLADE_OF_CHAOS               30
 #define SV_DIAMOND_EDGE                 31
 #define SV_ELFBLADE                     32
+#define SV_PSIBLADE                     33
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD          2
@@ -2033,6 +2080,8 @@
 #define SV_AMULET_NO_MAGIC              13
 #define SV_AMULET_NO_TELE               14
 #define SV_AMULET_RESISTANCE            15
+#define SV_AMULET_PROT_EVIL             16
+#define SV_AMULET_PROT_UNDEAD           17
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
@@ -2087,6 +2136,7 @@
 #define SV_RING_ELEMENTS				50
 #define SV_RING_RES_FIRE_COLD           51
 #define SV_RING_CAT                     52
+#define SV_RING_FATE                    53
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS                0
@@ -2422,6 +2472,7 @@
 #define FF_PERM			0x10	/* Permanent terrain */
 #define FF_OBJECT		0x20	/* Terrain is described like an object */
 #define FF_PATTERN		0x40	/* The pattern */
+#define FF_MARK			0x80	/* Remember tile if seen */
 
 /*
  * Bit flags for the "project()" function
@@ -2948,6 +2999,40 @@
 #define TR3_PERMA_CURSE         0x80000000L	/* Item is Perma Cursed */
 
 
+#define TR4_XXX1                0x00000001L
+#define TR4_XXX2                0x00000002L
+#define TR4_XXX3                0x00000004L
+#define TR4_XXX4                0x00000008L
+#define TR4_XXX5                0x00000010L
+#define TR4_XXX6                0x00000020L
+#define TR4_XXX7                0x00000040L
+#define TR4_XXX8                0x00000080L
+#define TR4_IM_LITE             0x00000100L
+#define TR4_IM_DARK             0x00000200L
+#define TR4_SH_ACID             0x00000400L
+#define TR4_SH_COLD             0x00000800L
+#define TR4_MUTATE              0x00001000L
+#define TR4_PATRON              0x00002000L
+#define TR4_STRANGE_LUCK        0x00004000L
+#define TR4_PASS_WALL           0x00008000L
+#define TR4_GHOUL_TOUCH         0x00010000L
+#define TR4_PSI_CRIT            0x00020000L
+#define TR4_RETURN              0x00040000L
+#define TR4_EXPLODE             0x00080000L
+#define TR4_HURT_ACID           0x00100000L
+#define TR4_HURT_ELEC           0x00200000L
+#define TR4_HURT_FIRE           0x00400000L
+#define TR4_HURT_COLD           0x00800000L
+#define TR4_HURT_LITE           0x01000000L
+#define TR4_HURT_DARK           0x02000000L
+#define TR4_XXX27               0x04000000L
+#define TR4_XXX28               0x08000000L
+#define TR4_AUTO_CURSE          0x10000000L
+#define TR4_DRAIN_STATS         0x20000000L
+#define TR4_CANT_EAT            0x40000000L
+#define TR4_SLOW_HEAL           0x80000000L
+
+
 /*
  * Hack -- flag set 1 -- mask for "pval-dependant" flags.
  * Note that all "pval" dependant flags must be in "flags1".
@@ -2973,25 +3058,6 @@
 #define TR3_IGNORE_MASK \
 	(TR3_IGNORE_ACID | TR3_IGNORE_ELEC | TR3_IGNORE_FIRE | \
 	 TR3_IGNORE_COLD )
-
-
-/*
- * Hack - Flags that were not part of Moria.
- */
-#define TR1_MORIA_MASK \
-	(~(TR1_CHAOTIC | TR1_VAMPIRIC | TR1_VORPAL | \
-	 TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | \
-	 TR1_BRAND_FIRE | TR1_BRAND_COLD))
-
-#define TR2_MORIA_MASK \
-	(~(TR2_REFLECT | TR2_RES_POIS | TR2_RES_FEAR | TR2_RES_LITE | \
-	 TR2_RES_DARK | TR2_RES_CONF | TR2_RES_SOUND | \
-	 TR2_RES_SHARDS | TR2_RES_NETHER | TR2_RES_NEXUS | \
-	 TR2_RES_CHAOS | TR2_RES_DISEN))
-
-#define TR3_MORIA_MASK \
-	(~(TR3_SH_FIRE | TR3_SH_ELEC | TR3_NO_TELE | TR3_NO_MAGIC | \
-	 TR3_TY_CURSE | TR3_LITE))
 
 
 /*** Monster blow constants ***/
@@ -3304,37 +3370,38 @@
 #define RF8_WILD_WASTE2         0x00000020
 #define RF8_WILD_SWAMP1         0x00000040
 #define RF8_WILD_SWAMP2         0x00000080
-#define RF8_NOT_FOREST1         0x00000100
-#define RF8_NOT_FOREST2         0x00000200
-#define RF8_NOT_MOUNT1          0x00000400
-#define RF8_NOT_MOUNT2          0x00000800
-#define RF8_NOT_WASTE1          0x00001000
-#define RF8_NOT_WASTE2          0x00002000
-#define RF8_NOT_SWAMP1          0x00004000
-#define RF8_NOT_SWAMP2          0x00008000
-#define RF8_WILD_SHORE          0x00010000
-#define RF8_WILD_OCEAN          0x00020000
-#define RF8_WILD_GRASS          0x00040000
-#define RF8_WILD_TOWN           0x00080000
-#define RF8_DUNGEON_01          0x00100000
-#define RF8_DUNGEON_02          0x00200000
-#define RF8_DUNGEON_03          0x00400000
-#define RF8_DUNGEON_04          0x00800000
-#define RF8_DUNGEON_05          0x01000000
-#define RF8_DUNGEON_06          0x02000000
-#define RF8_DUNGEON_07          0x04000000
-#define RF8_DUNGEON_08          0x08000000
-#define RF8_DUNGEON_09          0x10000000
-#define RF8_DUNGEON_10          0x20000000
-#define RF8_DUNGEON_11          0x40000000
-#define RF8_DUNGEON_12          0x80000000
+#define RF8_WILD_SHORE          0x00000100
+#define RF8_WILD_OCEAN          0x00000200
+#define RF8_WILD_GRASS          0x00000400
+#define RF8_WILD_TOWN           0x00000800
+#define RF8_DUN_DARKWATER       0x00001000
+#define RF8_DUN_LAIR            0x00002000
+#define RF8_DUN_TEMPLE          0x00004000
+#define RF8_DUN_TOWER           0x00008000
+#define RF8_DUN_RUIN            0x00010000
+#define RF8_DUN_GRAVE           0x00020000
+#define RF8_DUN_CAVERN          0x00040000
+#define RF8_DUN_PLANAR          0x00080000
+#define RF8_DUN_HELL            0x00100000
+#define RF8_DUN_HORROR          0x00200000
+#define RF8_DUN_MINE            0x00400000
+#define RF8_DUN_CITY            0x00800000
+#define RF8_DUN_XTRA1			0x01000000
+#define RF8_DUN_XTRA2			0x02000000
+#define RF8_DUN_XTRA3			0x04000000
+#define RF8_DUN_XTRA4			0x08000000
+#define RF8_DUN_XTRA5			0x10000000
+#define RF8_DUN_XTRA6			0x20000000
+#define RF8_DUN_XTRA7			0x40000000
+#define RF8_DUN_XTRA8			0x80000000
+
 
 /*
  * Useful flag combinations
  */
 
-#define RF8_DUNGEON             0xFFF00000
-#define RF8_WILD                0x000700FF
+#define RF8_DUNGEON             0xFFFFF000
+#define RF8_WILD                0x000007FF
 
 
 /*
@@ -3619,7 +3686,7 @@
 #define stack_allow_wands		svr_ptr->options[4]
 /* {TRUE, 0, NULL, 					"Number 36" }, svr_ptr->options[5] */
 #define expand_list				svr_ptr->options[6]
-#define view_perma_grids		p_ptr->options[31]
+/* {TRUE, 0, NULL, 					"Number 38" }, p_ptr->options[31] */
 #define view_torch_grids		p_ptr->options[32]
 /* {TRUE,  0, NULL,					"Number 40" }, svr_ptr->options[7] */
 #define dungeon_stair			svr_ptr->options[8]
@@ -3793,14 +3860,14 @@
 #define ironman_shops			p_ptr->birth[2]
 #define ironman_small_levels	p_ptr->birth[3]
 #define ironman_downward		p_ptr->birth[4]
-#define ironman_autoscum		p_ptr->birth[5]
+/* {TRUE,  0, NULL,					"Number 197" }, p_ptr->birth[5] */
 #define ironman_hard_quests		p_ptr->birth[6]
 /* {TRUE,  0, NULL,					"Number 199" }, p_ptr->birth[7] */
 #define ironman_empty_levels	p_ptr->birth[8]
 #define terrain_streams			p_ptr->birth[9]
-#define ironman_moria			p_ptr->birth[10]
+/* {TRUE,  0, NULL,					"Number 202" }, p_ptr->birth[10] */
 #define munchkin_death			p_ptr->birth[11]
-#define ironman_rooms			p_ptr->birth[12]
+/* {TRUE,  0, NULL,					"Number 204" }, p_ptr->birth[12] */
 /* {TRUE,  0, NULL,					"Number 205" }, p_ptr->birth[13] */
 #define preserve_mode			p_ptr->birth[14]
 #define autoroller				p_ptr->birth[15]
@@ -3981,10 +4048,17 @@
     (f_info[(C)->feat].flags & FF_BLOCK)
 
 /*
+ * A half-blocking grid
+ */
+#define cave_semi_grid(C) \
+	(f_info[(C)->feat].flags & FF_HALF_LOS)
+
+
+/*
  * True half the time for trees. (Block line of sight half the time.)
  */
 #define cave_half_grid(C) \
-    ((f_info[(C)->feat].flags & FF_HALF_LOS) && (quick_rand()))
+    (cave_semi_grid(C) && (quick_rand()))
 
 /*
  * Grid will block LOS.
@@ -4035,6 +4109,12 @@
 	(f_info[(C)->feat].flags & FF_PATTERN)
 
 /*
+ * Is the grid worth remembering?
+ */
+#define cave_mem_grid(C) \
+	(f_info[(C)->feat].flags & FF_MARK)
+
+/*
  * Determine if a "legal" grid is within "los" of the player
  *
  * Note the use of comparison to zero to force a "boolean" result
@@ -4063,6 +4143,8 @@
  *  so we have the correct types.
  * (Without this check - it would be quite easy
  * to get the two pointers the wrong way around.)
+ *
+ * We need to lite_spot() as well...
  */
 #define remember_grid(C1, C2) \
 	(((C2)->feat = (C1)->feat), \
@@ -4469,8 +4551,8 @@ extern int PlayerUID;
  * Player displays
  */
 #define DISPLAY_PLAYER_STANDARD		0	/* standard display */
-#define DISPLAY_PLAYER_HISTORY		1	/* standard display with history */
-#define DISPLAY_PLAYER_SUMMARY		2	/* summary of various things */
+#define DISPLAY_PLAYER_SUMMARY		1	/* summary of various things */
+#define DISPLAY_PLAYER_FLAG             2
 
 #define DISPLAY_PLAYER_MAX		3
 
@@ -4487,3 +4569,4 @@ extern int PlayerUID;
 #define TABLE_ROW		10
 
 #define INVALID_CHOICE 255
+

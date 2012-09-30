@@ -347,41 +347,6 @@ typedef int errr;
 #define RF7_LITE_1			0x00000020	/* Monster carries a small lite */
 #define RF7_LITE_2			0x00000040	/* Monster carries a large lite */
 
-/*
- * Monster race wilderness flags
- */
-#define RF8_WILD_FOREST1        0x00000001
-#define RF8_WILD_FOREST2        0x00000002
-#define RF8_WILD_MOUNT1         0x00000004
-#define RF8_WILD_MOUNT2         0x00000008
-#define RF8_WILD_WASTE1         0x00000010
-#define RF8_WILD_WASTE2         0x00000020
-#define RF8_WILD_SWAMP1         0x00000040
-#define RF8_WILD_SWAMP2         0x00000080
-#define RF8_NOT_FOREST1         0x00000100
-#define RF8_NOT_FOREST2         0x00000200
-#define RF8_NOT_MOUNT1          0x00000400
-#define RF8_NOT_MOUNT2          0x00000800
-#define RF8_NOT_WASTE1          0x00001000
-#define RF8_NOT_WASTE2          0x00002000
-#define RF8_NOT_SWAMP1          0x00004000
-#define RF8_NOT_SWAMP2          0x00008000
-#define RF8_WILD_SHORE          0x00010000
-#define RF8_WILD_OCEAN          0x00020000
-#define RF8_WILD_GRASS          0x00040000
-#define RF8_WILD_TOWN           0x00080000
-#define RF8_DUNGEON_01          0x00100000
-#define RF8_DUNGEON_02          0x00200000
-#define RF8_DUNGEON_03          0x00400000
-#define RF8_DUNGEON_04          0x00800000
-#define RF8_DUNGEON_05          0x01000000
-#define RF8_DUNGEON_06          0x02000000
-#define RF8_DUNGEON_07          0x04000000
-#define RF8_DUNGEON_08          0x08000000
-#define RF8_DUNGEON_09          0x10000000
-#define RF8_DUNGEON_10          0x20000000
-#define RF8_DUNGEON_11          0x40000000
-#define RF8_DUNGEON_12          0x80000000
 
 /*
  * Useful flag combinations
@@ -587,7 +552,6 @@ extern void delete_monster_idx(int i);
 extern void delete_monster(int x, int y);
 extern void compact_monsters(int size);
 extern s16b m_pop(void);
-extern void get_mon_num_prep(monster_hook_type monster_hook, monster_hook_type monster_hook2);
 extern s16b get_mon_num(int level);
 extern void monster_desc(char *desc, const monster_type *m_ptr, int mode, int max);
 extern void lore_do_probe(int m_idx);
@@ -595,10 +559,8 @@ extern void lore_treasure(int m_idx, int num_item, int num_gold);
 extern void update_mon_vis(u16b r_idx, int increment);
 extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
-extern bool place_monster_aux(int x, int y, int r_idx, bool slp, bool grp, bool friendly, bool pet);
-extern bool place_monster(int x, int y, bool slp, bool grp);
+extern bool place_monster(int x, int y, bool slp, bool grp, int deltalevel);
 extern bool alloc_horde(int x, int y);
-extern bool alloc_monster(int dis, bool slp);
 extern bool summon_specific(int who, int x1, int y1, int lev, int type, bool group, bool friendly, bool pet);
 extern bool summon_named_creature(int x1, int y1, int r_idx, bool slp, bool group_ok, bool pet);
 extern bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet);
@@ -606,29 +568,10 @@ extern void update_smart_learn(int m_idx, int what);
 extern bool place_monster_one(int x, int y, int r_idx, bool slp, bool friendly, bool pet);
 
 /* monster3.c (currently in monster1.c) */
-extern bool monster_dungeon(int r_idx);
-extern bool monster_quest(int r_idx);
-extern bool monster_ocean(int r_idx);
-extern bool monster_shore(int r_idx);
-extern bool monster_town(int r_idx);
-extern bool monster_grass(int r_idx);
-extern bool monster_deep_water_dun(int r_idx);
-extern bool monster_shallow_water_dun(int r_idx);
-extern bool monster_lava_dun(int r_idx);
-extern bool monster_acid_dun(int r_idx);
-extern bool monster_swamp_dun(int r_idx);
-extern bool monster_deep_water_wild(int r_idx);
-extern bool monster_shallow_water_wild(int r_idx);
-extern bool monster_lava_wild(int r_idx);
-extern bool monster_acid_wild(int r_idx);
-extern bool monster_swamp_wild(int r_idx);
-extern monster_hook_type get_monster_hook(void);
-extern monster_hook_type get_monster_hook2(int x, int y);
 extern void set_friendly(monster_type *m_ptr);
 extern void set_pet(monster_type *m_ptr);
 extern void set_hostile(monster_type *m_ptr);
 extern void anger_monster(monster_type *m_ptr);
-extern bool monster_can_cross_terrain(byte feat, monster_race *r_ptr);
 extern bool are_enemies(const monster_type *m_ptr1, const monster_type *m_ptr2);
 extern bool monster_living(const monster_race *r_ptr);
 

@@ -915,11 +915,6 @@ static void Widget_map_info(map_block *mb_ptr, term_map *map, vptr data)
 		
 	int xp, yp;
 	int x = map->x, y = map->y;
-	
-	mb_ptr->a = map->a;
-	mb_ptr->c = map->c;
-	mb_ptr->ta = map->ta;
-	mb_ptr->tc = map->tc;
 
 	if (widgetPtr->flags & WIDGET_WIPE) return;
 
@@ -1473,9 +1468,6 @@ static int Widget_ObjCmd(ClientData clientData, Tcl_Interp *interp, int objc, Tc
 	{
 		/* Hack - initialise the hooks into the overhead map code */
 	
-		/* Initialise the overhead map code */
-		init_overhead_map();
-
 		/* Save the tk hooks into the overhead map */
 		set_callback((callback_type) Widget_map_info, CALL_MAP_INFO, widgetPtr);
 		set_callback((callback_type) Widget_map_erase, CALL_MAP_ERASE, widgetPtr);

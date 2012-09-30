@@ -14,8 +14,8 @@
  *
  * Adapted from "main-ibm.c".
  *
- * Author: Robert Ruehlmann (rr9@angband.org).
- * See "http://thangorodrim.angband.org/".
+ * Author: Robert Ruehlmann (rr9@thangorodrim.net).
+ * See "http://www.thangorodrim.net/".
  *
  * Initial framework (and some code) by Ben Harrison (benh@phial.com).
  *
@@ -133,8 +133,6 @@ struct term_data
 	int font_hgt;
 
 	FONT *font;
-
-	bool uses_grx_font;
 
 #ifdef USE_GRAPHICS
 
@@ -763,8 +761,6 @@ static errr Term_user_dos(int n)
 {
 	int k;
 
-	char status[4];
-
 	char section[80];
 
 	/* Unused parameter */
@@ -942,7 +938,7 @@ static errr Term_user_dos(int n)
 			case 'r':
 			{
 				int h, w, i = 1;
-				char *descr;
+				cptr descr;
 
 				/* Clear screen */
 				Term_clear();
@@ -1251,15 +1247,7 @@ static void Term_nuke_dos(term *t)
 	/* Free the terminal font */
 	if (td->font)
 	{
-		if (td->uses_grx_font)
-		{
-			free(td->font->dat.dat_prop);
-			free(td->font);
-		}
-		else
-		{
-			destroy_font(td->font);
-		}
+		destroy_font(td->font);
 	}
 
 #ifdef USE_GRAPHICS
@@ -1408,7 +1396,7 @@ static void dos_dump_screen(void)
 	get_palette(pal);
 
 	/* Build the filename for the screen-dump */
-	path_build(filename, 1024, ANGBAND_DIR_USER, "dump.bmp");
+	path_build(filename, sizeof(filename), ANGBAND_DIR_USER, "dump.bmp");
 
 	/* Save it */
 	save_bmp(filename, bmp, pal);
@@ -1419,200 +1407,6 @@ static void dos_dump_screen(void)
 	/* Success message */
 	msgf("Screen dump saved.");
 	message_flush();
-}
-
-
-/* GRX font file reader by Mark Wodrich.
- *
- * GRX FNT files consist of the header data (see struct below). If the font
- * is proportional, followed by a table of widths per character (unsigned
- * shorts). Then, the data for each character follows. 1 bit/pixel is used,
- * with each line of the character stored in contiguous bytes. High bit of
- * first byte is leftmost pixel of line.
- *
- * Note : FNT files can have a variable number of characters, so we must
- *        check that the chars 32..127 exist.
- */
-
-#define FONTMAGIC       0x19590214L
-
-
-/* .FNT file header */
-typedef struct
-{
-	unsigned long  magic;
-	unsigned long  bmpsize;
-	unsigned short width;
-	unsigned short height;
-	unsigned short minchar;
-	unsigned short maxchar;
-	unsigned short isfixed;
-	unsigned short reserved;
-	unsigned short baseline;
-	unsigned short undwidth;
-	char           fname[16];
-	char           family[16];
-} FNTfile_header;
-
-
-#define GRX_TMP_SIZE    4096
-
-
-
-/* converts images from bit to byte format */
-static void convert_grx_bitmap(int width, int height, unsigned char *src, unsigned char *dest)
-{
-	unsigned short x, y, bytes_per_line;
-	unsigned char bitpos, bitset;
-
-	bytes_per_line = (width + 7) >> 3;
-
-	for (y = 0; y < height; y++)
-	{
-		for (x = 0; x < width; x++)
-		{
-			bitpos = 7-(x&7);
-			bitset = !!(src[(bytes_per_line * y) + (x >> 3)] & (1 << bitpos));
-			dest[y * width + x] = bitset;
-		}
-	}
-}
-
-
-
-/* reads GRX format images from disk */
-static unsigned char **load_grx_bmps(PACKFILE *f, FNTfile_header *hdr, int numchar, unsigned short *wtable)
-{
-	int t, width, bmp_size;
-	unsigned char *temp;
-	unsigned char **bmp;
-
-	/* alloc array of bitmap pointers */
-	bmp = malloc(sizeof(unsigned char *) * numchar);
-
-	/* assume it's fixed width for now */
-	width = hdr->width;
-
-	/* temporary working area to store FNT bitmap */
-	temp = malloc(GRX_TMP_SIZE);
-
-	for (t = 0; t < numchar; t++)
-	{
-		/* if prop. get character width */
-		if (!hdr->isfixed)
-			width = wtable[t];
-
-		/* work out how many bytes to read */
-		bmp_size = ((width + 7) >> 3) * hdr->height;
-
-		/* oops, out of space! */
-		if (bmp_size > GRX_TMP_SIZE)
-		{
-			free(temp);
-			for (t--; t >= 0; t--)
-			free(bmp[t]);
-			free(bmp);
-			return NULL;
-		}
-
-		/* alloc space for converted bitmap */
-		bmp[t] = malloc(width * hdr->height);
-
-		/* read data */
-		pack_fread(temp, bmp_size, f);
-
-		/* convert to 1 byte/pixel */
-		convert_grx_bitmap(width, hdr->height, temp, bmp[t]);
-	}
-
-	free(temp);
-	return bmp;
-}
-
-
-
-/* main import routine for the GRX font format */
-static FONT *import_grx_font(char *fname)
-{
-	PACKFILE *f;
-	FNTfile_header hdr;              /* GRX font header */
-	int numchar;                     /* number of characters in the font */
-	unsigned short *wtable = NULL;   /* table of widths for each character */
-	unsigned char **bmp;             /* array of font bitmaps */
-	FONT *font = NULL;               /* the Allegro font */
-	FONT_PROP *font_prop;
-	int c, c2, start, width;
-
-	f = pack_fopen(fname, F_READ);
-	if (!f)
-		return NULL;
-
-	pack_fread(&hdr, sizeof(hdr), f);      /* read the header structure */
-
-	if (hdr.magic != FONTMAGIC)		/* check magic number */
-	{
-		pack_fclose(f);
-		return NULL;
-	}
-
-	numchar = hdr.maxchar - hdr.minchar + 1;
-
-	if (!hdr.isfixed)                    /* proportional font */
-	{
-		wtable = malloc(sizeof(unsigned short) * numchar);
-		pack_fread(wtable, sizeof(unsigned short) * numchar, f);
-	}
-
-	bmp = load_grx_bmps(f, &hdr, numchar, wtable);
-	if (!bmp)
-		goto get_out;
-
-	if (pack_ferror(f))
-		goto get_out;
-
-	font = malloc(sizeof(FONT));
-	font->height = -1;
-	font->dat.dat_prop = font_prop = malloc(sizeof(FONT_PROP));
-	font_prop->render = NULL;
-
-	start = 32 - hdr.minchar;
-	width = hdr.width;
-
-	for (c = 0; c  <FONT_SIZE; c++)
-	{
-		c2 = c+start;
-
-		if ((c2 >= 0) && (c2 < numchar))
-		{
-			if (!hdr.isfixed)
-				width = wtable[c2];
-
-			font_prop->dat[c] = create_bitmap_ex(8, width, hdr.height);
-			memcpy(font_prop->dat[c]->dat, bmp[c2], width * hdr.height);
-		}
-		else
-		{
-			font_prop->dat[c] = create_bitmap_ex(8, 8, hdr.height);
-			clear(font_prop->dat[c]);
-		}
-	}
-
-	get_out:
-
-	pack_fclose(f);
-
-	if (wtable)
-	free(wtable);
-
-	if (bmp)
-	{
-		for (c = 0; c < numchar; c++)
-			free(bmp[c]);
-
-		free(bmp);
-	}
-
-	return font;
 }
 
 
@@ -1672,22 +1466,10 @@ static bool init_windows(void)
 		strcpy(buf, get_config_string(section, "font_file", "xm8x13.fnt"));
 
 		/* Build the name of the font file */
-		path_build(filename, 1024, xtra_font_dir, buf);
-
-		/* Load a "*.fnt" file */
-		if (suffix(filename, ".fnt"))
-		{
-			/* Load the font file */
-			if (!(td->font = import_grx_font(filename)))
-			{
-				quit_fmt("Error reading font file '%s'", filename);
-			}
-
-			td->uses_grx_font = TRUE;
-		}
+		path_build(filename, sizeof(filename), xtra_font_dir, buf);
 
 		/* Load a "*.dat" file */
-		else if (suffix(filename, ".dat"))
+		if (suffix(filename, ".dat"))
 		{
 			DATAFILE *fontdata;
 
@@ -1742,7 +1524,7 @@ static void init_background(void)
 		strcpy(buf, get_config_string("Background", format("Background-%d", i), ""));
 
 		/* Build the filename for the background-bitmap */
-		path_build(filename, 1024, xtra_graf_dir, buf);
+		path_build(filename, sizeof(filename), xtra_graf_dir, buf);
 
 		/* Try to open the bitmap file */
 		background[i] = load_bitmap(filename, background_pallete);
@@ -1799,7 +1581,7 @@ static bool init_graphics(void)
 		num_windows = get_config_int(section, "num_windows", 1);
 
 		/* Build the name of the bitmap file */
-		path_build(filename, 1024, xtra_graf_dir, name_tiles);
+		path_build(filename, sizeof(filename), xtra_graf_dir, name_tiles);
 
 		/* Open the bitmap file */
 		if ((tiles = load_bitmap(filename, tiles_pallete)) != NULL)
@@ -1930,7 +1712,7 @@ static bool init_sound(void)
 #endif /* USE_MOD_FILES */
 
 		/* Access the new sample */
-		path_build(filename, 1024, xtra_sound_dir, "sound.cfg");
+		path_build(filename, sizeof(filename), xtra_sound_dir, "sound.cfg");
 
 		/* Read config info from "lib/xtra/sound/sound.cfg" */
 		override_config_file(filename);
@@ -1950,7 +1732,7 @@ static bool init_sound(void)
 			for (j = 0; j < sample_count[i]; j++)
 			{
 				/* Access the new sample */
-				path_build(filename, 1024, xtra_sound_dir, argv[j]);
+				path_build(filename, sizeof(filename), xtra_sound_dir, argv[j]);
 
 				/* Load the sample */
 				samples[i][j] = load_sample(filename);
@@ -2034,7 +1816,7 @@ static errr Term_xtra_dos_sound(int v)
  */
 static void play_song(void)
 {
-	char filename[256];
+	char filename[1024];
 
 	/* Clear the old song */
 	if (midi_song) destroy_midi(midi_song);
@@ -2049,7 +1831,7 @@ static void play_song(void)
 #endif /* USE_MOD_FILES */
 
 	/* Access the new song */
-	path_build(filename, 1024, xtra_music_dir, music_files[current_song - 1]);
+	path_build(filename, sizeof(filename), xtra_music_dir, music_files[current_song - 1]);
 
 	/* Load and play the new song */
 	midi_song = load_midi(filename);
@@ -2149,16 +1931,16 @@ errr init_dos(void)
 	quit_aux = dos_quit_hook;
 
 	/* Build the "graf" path */
-	path_build(xtra_graf_dir, 1024, ANGBAND_DIR_XTRA, "graf");
+	path_build(xtra_graf_dir, sizeof(xtra_graf_dir), ANGBAND_DIR_XTRA, "graf");
 
 	/* Build the "font" path */
-	path_build(xtra_font_dir, 1024, ANGBAND_DIR_XTRA, "font");
+	path_build(xtra_font_dir, sizeof(xtra_font_dir), ANGBAND_DIR_XTRA, "font");
 
 	/* Build the "sound" path */
-	path_build(xtra_sound_dir, 1024, ANGBAND_DIR_XTRA, "sound");
+	path_build(xtra_sound_dir, sizeof(xtra_sound_dir), ANGBAND_DIR_XTRA, "sound");
 
 	/* Build the "music" path */
-	path_build(xtra_music_dir, 1024, ANGBAND_DIR_XTRA, "music");
+	path_build(xtra_music_dir, sizeof(xtra_music_dir), ANGBAND_DIR_XTRA, "music");
 
 	/* Initialize the windows */
 	init_windows();

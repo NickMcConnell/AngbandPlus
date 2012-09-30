@@ -327,7 +327,7 @@ static void borg_hidden(void)
 		if (!my_need_stat_check[i]) continue;
 
 		/* Hack - get current internal stat value */
-		my_stat_cur[i] = p_ptr->stat_cur[i];
+		my_stat_cur[i] = p_ptr->stat[i].cur;
 
 		/* Max stat is the max that the cur stat ever is. */
 		if (my_stat_cur[i] > my_stat_max[i])
@@ -856,14 +856,14 @@ static void borg_parse_aux(cptr msg, int len)
 	char buf[256];
 
 	/* Log (if needed) */
-	if (borg_fff) fprintf(borg_fff, "& Msg <%s>\n", msg);
+	if (borg_fff) froff(borg_fff, "& Msg <%s>\n", msg);
 
 
 	/* Hack -- Notice death */
 	if (prefix(msg, "You die."))
 	{
 		/* Abort (unless cheating) */
-		if (!(p_ptr->wizard || cheat_live))
+		if (!(p_ptr->state.wizard || cheat_live))
 		{
 			/* Abort */
 			borg_oops("death");
@@ -1967,7 +1967,7 @@ static void init_borg_txt_file(void)
 	C_MAKE(borg_has, z_info->k_max, int);
 
 	/* Make sure we know who and what we are */
-	borg_class = p_ptr->pclass;
+	borg_class = p_ptr->rp.pclass;
 
 	/* Use default values */
 	borg_scums_uniques = TRUE;
@@ -2003,18 +2003,18 @@ static void borg_log_death(void)
 	/* Save the date */
 	strftime(buf, 80, "%Y/%m/%d %H:%M\n", localtime(&death_time));
 
-	fprintf(borg_log_file, buf);
+	froff(borg_log_file, buf);
 
-	fprintf(borg_log_file, "%s the %s %s, Level %d/%d\n", player_name,
-			race_info[p_ptr->prace].title,
-			class_info[p_ptr->pclass].title, p_ptr->lev, p_ptr->max_lev);
+	froff(borg_log_file, "%s the %s %s, Level %d/%d\n", player_name,
+			race_info[p_ptr->rp.prace].title,
+			class_info[p_ptr->rp.pclass].title, p_ptr->lev, p_ptr->max_lev);
 
-	fprintf(borg_log_file, "Exp: %lu  Gold: %lu  Turn: %lu\n",
+	froff(borg_log_file, "Exp: %lu  Gold: %lu  Turn: %lu\n",
 			(long) /* total_points() */ 0, (long)p_ptr->au, (long)turn);
-	fprintf(borg_log_file, "Killed on level: %d (max. %d) by %s\n",
-			p_ptr->depth, p_ptr->max_depth, p_ptr->died_from);
+	froff(borg_log_file, "Killed on level: %d (max. %d) by %s\n",
+			p_ptr->depth, p_ptr->max_depth, p_ptr->state.died_from);
 
-	fprintf(borg_log_file, "----------\n\n");
+	froff(borg_log_file, "----------\n\n");
 
 	my_fclose(borg_log_file);
 }
@@ -2044,9 +2044,9 @@ static void borg_log_death_data(void)
 	(void)time(&death_time);
 
 	/* dump stuff for easy import to database */
-	fprintf(borg_log_file, "%s, %s, %d, %d, %s\n",
-			race_info[p_ptr->prace].title, class_info[p_ptr->pclass].title,
-			p_ptr->lev, p_ptr->depth, p_ptr->died_from);
+	froff(borg_log_file, "%s, %s, %d, %d, %s\n",
+			race_info[p_ptr->rp.prace].title, class_info[p_ptr->rp.pclass].title,
+			p_ptr->lev, p_ptr->depth, p_ptr->state.died_from);
 
 	my_fclose(borg_log_file);
 }
@@ -2166,46 +2166,32 @@ static char borg_inkey_hack(int flush_first)
 		borg_prompt = TRUE;
 	}
 
-
-	/*
-	 * Mega-Hack -- Catch "Die? [y/n]" messages
-	 * If there is text on the first line...
-	 * And the game does not want a command...
-	 * And the cursor is on the top line...
-	 * And the text acquired above is "Die?" 
-	 */
-	if (borg_prompt && !p_ptr->inkey_flag &&
-		(y == 0) && (x >= 4) && streq(buf, "Die?") && borg_cheat_death)
+	/* Mega-Hack -- Handle death */
+	if (p_ptr->state.is_dead)
 	{
 		/* Flush messages */
 		borg_parse(NULL);
-
-		/* flush the buffer */
-		borg_flush();
-
-		/* Take note */
-		borg_note("# Cheating death...");
-
-		/* Log the death */
-		borg_log_death();
-		borg_log_death_data();
-
-		/* Cheat death */
-		return ('n');
-	}
-
-	/* Mega-Hack -- Handle death */
-	if (p_ptr->is_dead)
-	{
+	
 		/* Log death */
 		borg_log_death();
 		borg_log_death_data();
 
 		/* flush the buffer */
 		borg_flush();
-
-		/* Oops  */
-		borg_oops("player died");
+		
+		if (borg_cheat_death)
+		{
+			/* Ignore death, and just print a message */
+			borg_note("Player died, continuing with borg_cheat_death");
+			
+			/* Cheat death */
+			return ('n');
+		}
+		else
+		{
+			/* Oops  */
+			borg_oops("player died");
+		}
 
 		/* Useless keypress */
 		return (KTRL('C'));
@@ -2220,7 +2206,7 @@ static char borg_inkey_hack(int flush_first)
 	 * And there is text before the cursor...
 	 * And that text is "-more-"
 	 */
-	if (borg_prompt && !p_ptr->inkey_flag &&
+	if (borg_prompt && !p_ptr->cmd.inkey_flag &&
 		(y == 0) && (x >= 7) &&
 		(0 == borg_what_text(x - 7, y, 7, &t_a, buf)) &&
 		(streq(buf, " -more-")))
@@ -2240,7 +2226,7 @@ static char borg_inkey_hack(int flush_first)
 	 * If there is text on the first line...
 	 * And the game wants a command
 	 */
-	if (borg_prompt && p_ptr->inkey_flag)
+	if (borg_prompt && p_ptr->cmd.inkey_flag)
 	{
 		/* Get the message(s) */
 		if (0 == borg_what_text(0, 0, -80, &t_a, buf))
@@ -2271,7 +2257,7 @@ static char borg_inkey_hack(int flush_first)
 	if (ch) return (ch);
 
 	/* Hack - check to see if we are doing a repeated action */
-	if (p_ptr->running || p_ptr->command_rep || p_ptr->resting)
+	if (p_ptr->state.running || p_ptr->cmd.rep || p_ptr->state.resting)
 	{
 		return (0);
 	}
@@ -2493,9 +2479,6 @@ void borg_init_9(void)
 
 	/* Hack - initialise the hooks into the overhead map code */
 
-	/* Initialise the overhead map code */
-	init_overhead_map();
-
 	/* Save the borg hooks into the overhead map */
 	set_callback((callback_type) borg_map_info, CALL_MAP_INFO, NULL);
 	set_callback((callback_type) borg_map_erase, CALL_MAP_ERASE, NULL);
@@ -2521,14 +2504,14 @@ void borg_init_9(void)
 	/*** Hack -- Extract race ***/
 
 	/* Insert the player Race--cheat */
-	borg_race = p_ptr->prace;
+	borg_race = p_ptr->rp.prace;
 
 	/* Extract the race pointer */
 	rb_ptr = &race_info[borg_race];
 
 
 	/*** Hack -- Extract class ***/
-	borg_class = p_ptr->pclass;
+	borg_class = p_ptr->rp.pclass;
 
 	/* Extract the class pointer */
 	cb_ptr = &class_info[borg_class];
@@ -3194,28 +3177,28 @@ void do_cmd_borg(void)
 			my_need_stat_check[5] = TRUE;
 
 			/* Allowable Cheat -- Obtain "recall" flag */
-			goal_recalling = p_ptr->word_recall * 1000;
+			goal_recalling = p_ptr->tim.word_recall * 1000;
 
 			/* Allowable Cheat -- Obtain "prot_from_evil" flag */
-			borg_prot_from_evil = (p_ptr->protevil ? TRUE : FALSE);
+			borg_prot_from_evil = (p_ptr->tim.protevil ? TRUE : FALSE);
 
 			/* Allowable Cheat -- Obtain "speed" flag */
-			borg_speed = (p_ptr->fast ? TRUE : FALSE);
+			borg_speed = (p_ptr->tim.fast ? TRUE : FALSE);
 
 			/* Allowable Cheat -- Obtain "goi" flag */
-			borg_goi = (p_ptr->invuln ? 9000 : 0);
-			borg_inviso = (p_ptr->tim_invis ? 9000 : 0);
+			borg_goi = (p_ptr->tim.invuln ? 9000 : 0);
+			borg_inviso = (p_ptr->tim.invis ? 9000 : 0);
 
 			/* Allowable Cheat -- Obtain "resist" flags */
-			my_oppose_acid = (p_ptr->oppose_acid ? TRUE : FALSE);
-			my_oppose_elec = (p_ptr->oppose_elec ? TRUE : FALSE);
-			my_oppose_fire = (p_ptr->oppose_fire ? TRUE : FALSE);
-			my_oppose_cold = (p_ptr->oppose_cold ? TRUE : FALSE);
-			my_oppose_pois = (p_ptr->oppose_pois ? TRUE : FALSE);
-			borg_bless = (p_ptr->blessed ? TRUE : FALSE);
-			borg_shield = (p_ptr->shield ? TRUE : FALSE);
-			borg_hero = (p_ptr->hero ? TRUE : FALSE);
-			borg_berserk = (p_ptr->shero ? TRUE : FALSE);
+			my_oppose_acid = (p_ptr->tim.oppose_acid ? TRUE : FALSE);
+			my_oppose_elec = (p_ptr->tim.oppose_elec ? TRUE : FALSE);
+			my_oppose_fire = (p_ptr->tim.oppose_fire ? TRUE : FALSE);
+			my_oppose_cold = (p_ptr->tim.oppose_cold ? TRUE : FALSE);
+			my_oppose_pois = (p_ptr->tim.oppose_pois ? TRUE : FALSE);
+			borg_bless = (p_ptr->tim.blessed ? TRUE : FALSE);
+			borg_shield = (p_ptr->tim.shield ? TRUE : FALSE);
+			borg_hero = (p_ptr->tim.hero ? TRUE : FALSE);
+			borg_berserk = (p_ptr->tim.shero ? TRUE : FALSE);
 
 			/* Message */
 			borg_note("# Installing keypress hook");
@@ -3241,25 +3224,25 @@ void do_cmd_borg(void)
 			borg_step = 0;
 
 			/* Allowable Cheat -- Obtain "recall" flag */
-			goal_recalling = p_ptr->word_recall * 1000;
+			goal_recalling = p_ptr->tim.word_recall * 1000;
 
 			/* Allowable Cheat -- Obtain "prot_from_evil" flag */
-			borg_prot_from_evil = (p_ptr->protevil ? TRUE : FALSE);
+			borg_prot_from_evil = (p_ptr->tim.protevil ? TRUE : FALSE);
 			/* Allowable Cheat -- Obtain "speed" flag */
-			borg_speed = (p_ptr->fast ? TRUE : FALSE);
+			borg_speed = (p_ptr->tim.fast ? TRUE : FALSE);
 			/* Allowable Cheat -- Obtain "goi" flag */
-			borg_goi = (p_ptr->invuln ? 9000 : 0);
-			borg_inviso = (p_ptr->tim_invis ? 9000 : 0);
+			borg_goi = (p_ptr->tim.invuln ? 9000 : 0);
+			borg_inviso = (p_ptr->tim.invis ? 9000 : 0);
 			/* Allowable Cheat -- Obtain "resist" flags */
-			my_oppose_acid = (p_ptr->oppose_acid ? TRUE : FALSE);
-			my_oppose_elec = (p_ptr->oppose_elec ? TRUE : FALSE);
-			my_oppose_fire = (p_ptr->oppose_fire ? TRUE : FALSE);
-			my_oppose_cold = (p_ptr->oppose_cold ? TRUE : FALSE);
-			my_oppose_pois = (p_ptr->oppose_pois ? TRUE : FALSE);
-			borg_bless = (p_ptr->blessed ? TRUE : FALSE);
-			borg_shield = (p_ptr->shield ? TRUE : FALSE);
-			borg_hero = (p_ptr->hero ? TRUE : FALSE);
-			borg_berserk = (p_ptr->shero ? TRUE : FALSE);
+			my_oppose_acid = (p_ptr->tim.oppose_acid ? TRUE : FALSE);
+			my_oppose_elec = (p_ptr->tim.oppose_elec ? TRUE : FALSE);
+			my_oppose_fire = (p_ptr->tim.oppose_fire ? TRUE : FALSE);
+			my_oppose_cold = (p_ptr->tim.oppose_cold ? TRUE : FALSE);
+			my_oppose_pois = (p_ptr->tim.oppose_pois ? TRUE : FALSE);
+			borg_bless = (p_ptr->tim.blessed ? TRUE : FALSE);
+			borg_shield = (p_ptr->tim.shield ? TRUE : FALSE);
+			borg_hero = (p_ptr->tim.hero ? TRUE : FALSE);
+			borg_berserk = (p_ptr->tim.shero ? TRUE : FALSE);
 
 			/* Message */
 			borg_note("# Installing keypress hook");
@@ -3304,24 +3287,24 @@ void do_cmd_borg(void)
 			my_need_stat_check[5] = TRUE;
 
 			/* Allowable Cheat -- Obtain "recall" flag */
-			goal_recalling = p_ptr->word_recall * 1000;
+			goal_recalling = p_ptr->tim.word_recall * 1000;
 			/* Allowable Cheat -- Obtain "prot_from_evil" flag */
-			borg_prot_from_evil = (p_ptr->protevil ? TRUE : FALSE);
+			borg_prot_from_evil = (p_ptr->tim.protevil ? TRUE : FALSE);
 			/* Allowable Cheat -- Obtain "speed" flag */
-			borg_speed = (p_ptr->fast ? TRUE : FALSE);
+			borg_speed = (p_ptr->tim.fast ? TRUE : FALSE);
 			/* Allowable Cheat -- Obtain "goi" flag */
-			borg_goi = (p_ptr->invuln ? 9000 : 0);
-			borg_inviso = (p_ptr->tim_invis ? 9000 : 0);
+			borg_goi = (p_ptr->tim.invuln ? 9000 : 0);
+			borg_inviso = (p_ptr->tim.invis ? 9000 : 0);
 			/* Allowable Cheat -- Obtain "resist" flags */
-			my_oppose_acid = (p_ptr->oppose_acid ? TRUE : FALSE);
-			my_oppose_elec = (p_ptr->oppose_elec ? TRUE : FALSE);
-			my_oppose_fire = (p_ptr->oppose_fire ? TRUE : FALSE);
-			my_oppose_cold = (p_ptr->oppose_cold ? TRUE : FALSE);
-			my_oppose_pois = (p_ptr->oppose_pois ? TRUE : FALSE);
-			borg_bless = (p_ptr->blessed ? TRUE : FALSE);
-			borg_shield = (p_ptr->shield ? TRUE : FALSE);
-			borg_hero = (p_ptr->hero ? TRUE : FALSE);
-			borg_berserk = (p_ptr->shero ? TRUE : FALSE);
+			my_oppose_acid = (p_ptr->tim.oppose_acid ? TRUE : FALSE);
+			my_oppose_elec = (p_ptr->tim.oppose_elec ? TRUE : FALSE);
+			my_oppose_fire = (p_ptr->tim.oppose_fire ? TRUE : FALSE);
+			my_oppose_cold = (p_ptr->tim.oppose_cold ? TRUE : FALSE);
+			my_oppose_pois = (p_ptr->tim.oppose_pois ? TRUE : FALSE);
+			borg_bless = (p_ptr->tim.blessed ? TRUE : FALSE);
+			borg_shield = (p_ptr->tim.shield ? TRUE : FALSE);
+			borg_hero = (p_ptr->tim.hero ? TRUE : FALSE);
+			borg_berserk = (p_ptr->tim.shero ? TRUE : FALSE);
 
 			/* Message */
 			borg_note("# Installing keypress hook");
@@ -3850,7 +3833,7 @@ void do_cmd_borg(void)
 			int n = 0;
 
 			/* Turns */
-			n = (p_ptr->command_arg ? p_ptr->command_arg : 1);
+			n = (p_ptr->cmd.arg ? p_ptr->cmd.arg : 1);
 
 			/* Danger of grid */
 			msgf("Danger(%d,%d,%d) is %d",
@@ -3966,7 +3949,7 @@ void do_cmd_borg(void)
 		case 'O':
 		{
 			/* Command: Display all known info on item */
-			int n = p_ptr->command_arg - 1;
+			int n = p_ptr->cmd.arg - 1;
 
 			/* Paranoia */
 			if (n < 0) n = 0;
@@ -3993,7 +3976,7 @@ void do_cmd_borg(void)
 		case 'E':
 		{
 			/* Command: Display all known info on item */
-			int n = p_ptr->command_arg - 1;
+			int n = p_ptr->cmd.arg - 1;
 
 			/* Paranoia */
 			if (n < 0) n = 0;

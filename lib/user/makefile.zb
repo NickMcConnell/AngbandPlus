@@ -1,0 +1,5 @@
+subdir = ./lib/user/
+
+## makefile.zb
+
+srcfiles += lib/user/makefile.zb

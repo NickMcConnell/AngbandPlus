@@ -102,7 +102,7 @@ static cptr state_hunger(void)
  */
 static cptr state_blind(void)
 {
-	if (p_ptr->blind)
+	if (p_ptr->tim.blind)
 	{
 		return "Blind";
 	}
@@ -117,7 +117,7 @@ static cptr state_blind(void)
  */
 static cptr state_confused(void)
 {
-	if (p_ptr->confused)
+	if (p_ptr->tim.confused)
 	{
 		return "Confused";
 	}
@@ -132,7 +132,7 @@ static cptr state_confused(void)
  */
 static cptr state_afraid(void)
 {
-	if (p_ptr->afraid)
+	if (p_ptr->tim.afraid)
 	{
 		return "Afraid";
 	}
@@ -147,7 +147,7 @@ static cptr state_afraid(void)
  */
 static cptr state_poisoned(void)
 {
-	if (p_ptr->poisoned)
+	if (p_ptr->tim.poisoned)
 	{
 		return "Poisoned";
 	}
@@ -194,15 +194,15 @@ static int trunc_num(int n)
 static cptr state_state(void)
 {
 	/* Paralysis */
-	if (p_ptr->paralyzed)
+	if (p_ptr->tim.paralyzed)
 	{
 		return "Paralyzed!";
 	}
 
 	/* Resting */
-	else if (p_ptr->resting)
+	else if (p_ptr->state.resting)
 	{
-		int n = p_ptr->resting;
+		int n = p_ptr->state.resting;
 
 		/* Rest until healed */
 		if (n == -1)
@@ -223,9 +223,9 @@ static cptr state_state(void)
 	}
 
 	/* Repeating */
-	else if (p_ptr->command_rep)
+	else if (p_ptr->cmd.rep)
 	{
-		int n = p_ptr->command_rep;
+		int n = p_ptr->cmd.rep;
 
 		s_status_value = trunc_num(n);
 
@@ -240,7 +240,7 @@ static cptr state_state(void)
 	}
 
 	/* Searching */
-	else if (p_ptr->searching)
+	else if (p_ptr->state.searching)
 	{
 		return "Searching";
 	}
@@ -260,7 +260,7 @@ static cptr state_speed(void)
 	int n = p_ptr->pspeed;
 
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
-	if (p_ptr->searching) n += 10;
+	if (p_ptr->state.searching) n += 10;
 
 	/* Fast */
 	if (n > 110)
@@ -294,7 +294,7 @@ static cptr state_study(void)
 
 static cptr state_cut(void)
 {
-	int c = p_ptr->cut;
+	int c = p_ptr->tim.cut;
 
 	if (c > 1000)
 	{
@@ -332,7 +332,7 @@ static cptr state_cut(void)
 
 static cptr state_stun(void)
 {
-	int s = p_ptr->stun;
+	int s = p_ptr->tim.stun;
 
 	if (s > 100)
 	{
@@ -355,13 +355,13 @@ static cptr state_stun(void)
 static cptr state_winner(void)
 {
 	/* Wizard */
-	if (p_ptr->wizard)
+	if (p_ptr->state.wizard)
 	{
 		return "Wizard";
 	}
 
 	/* Winner */
-	else if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+	else if (p_ptr->state.total_winner || (p_ptr->lev > PY_MAX_LEVEL))
 	{
 		return "Winner";
 	}
@@ -450,7 +450,7 @@ static void shots_per_round(int *_shots, int *_shots_frac)
 			}
 			case SV_HEAVY_XBOW:
 			{
-				if (p_ptr->stat_use[A_DEX] >= 16)
+				if (p_ptr->stat[A_DEX].use >= 16)
 				{
 					energy_fire = 150;
 				}
@@ -491,7 +491,7 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 
 	static cptr cmdOptions[] = {"ability", "age", "armor_class",
 		"blows_per_round", "died_from",
-		"exp", "food", "gold", "height", "history", "hitpoints",
+		"exp", "food", "gold", "height", "hitpoints",
 		"infravision", "level", "mana", "max_depth", "position",
 		"sex", "shots_per_round", "social_class",
 		"title", "to_dam", "to_hit", "weight",
@@ -503,7 +503,7 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 		NULL};
 	enum {IDX_ABILITY, IDX_AGE, IDX_ARMOR_CLASS,
 		IDX_BLOWS_PER_ROUND, IDX_DIED_FROM,
-		IDX_EXP, IDX_FOOD, IDX_GOLD, IDX_HEIGHT, IDX_HISTORY, IDX_HITPOINTS,
+		IDX_EXP, IDX_FOOD, IDX_GOLD, IDX_HEIGHT, IDX_HITPOINTS,
 		IDX_INFRAVISION, IDX_LEVEL, IDX_MANA, IDX_MAX_DEPTH, IDX_POSITION,
 		IDX_SEX, IDX_SHOTS_PER_ROUND, IDX_SOCIAL_CLASS,
 		IDX_TITLE, IDX_TO_DAM, IDX_TO_HIT, IDX_WEIGHT,
@@ -520,7 +520,6 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 	int i, tmp;
 	long expadv;
 	double pct;
-	char buf[512];
 	cptr t;
 
 	static cptr abilityOptions[] = {"fighting", "bows_throw", "saving_throw",
@@ -571,26 +570,26 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 			/* Fighting Skill (with current weapon) */
 			o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 			tmp = p_ptr->to_h + o_ptr->to_h;
-			ability[0].rating = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
+			ability[0].rating = p_ptr->skill.thn + (tmp * BTH_PLUS_ADJ);
 	
 			/* Shooting Skill (with current bow and normal missile) */
 			o_ptr = &p_ptr->equipment[EQUIP_BOW];
 			tmp = p_ptr->to_h + o_ptr->to_h;
-			ability[1].rating = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
+			ability[1].rating = p_ptr->skill.thb + (tmp * BTH_PLUS_ADJ);
 	
-			ability[2].rating = p_ptr->skill_sav;
-			ability[3].rating = p_ptr->skill_stl;
-			ability[4].rating = p_ptr->skill_fos;
-			ability[5].rating = p_ptr->skill_sns;
-			ability[6].rating = p_ptr->skill_dis;
-			ability[7].rating = p_ptr->skill_dev;
+			ability[2].rating = p_ptr->skill.sav;
+			ability[3].rating = p_ptr->skill.stl;
+			ability[4].rating = p_ptr->skill.fos;
+			ability[5].rating = p_ptr->skill.sns;
+			ability[6].rating = p_ptr->skill.dis;
+			ability[7].rating = p_ptr->skill.dev;
 			 
 			Tcl_SetStringObj(resultPtr, format("%d %d",
 				ability[index].rating, ability[index].max), -1);
 			break;
 
 		case IDX_AGE: /* age */
-			Tcl_SetIntObj(resultPtr, p_ptr->age);
+			Tcl_SetIntObj(resultPtr, p_ptr->rp.age);
 			break;
 
 		case IDX_ARMOR_CLASS: /* armor_class */
@@ -608,12 +607,12 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 		}
 
 		case IDX_DIED_FROM: /* died_from */
-			if (!p_ptr->is_dead)
+			if (!p_ptr->state.is_dead)
 			{
 				Tcl_SetStringObj(resultPtr, "character is not dead", -1);
 				return TCL_ERROR;
 			}
-			ExtToUtf_SetResult(interp, p_ptr->died_from);
+			ExtToUtf_SetResult(interp, p_ptr->state.died_from);
 			break;
 
 		case IDX_EXP: /* exp */
@@ -635,18 +634,7 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 			break;
 
 		case IDX_HEIGHT: /* height */
-			Tcl_SetIntObj(resultPtr, p_ptr->ht);
-			break;
-
-		case IDX_HISTORY: /* history */
-			buf[0] = '\0';
-			for (i = 0; i < 4; i++)
-			{
-				(void) strcat(buf, format("%s\n", p_ptr->history[i]));
-			}
-			i = strlen(buf) - 1;
-			while (buf[i] == '\n') buf[i--] = '\0';
-			ExtToUtf_SetResult(interp, buf);
+			Tcl_SetIntObj(resultPtr, p_ptr->rp.ht);
 			break;
 
 		case IDX_HITPOINTS: /* hitpoints */
@@ -693,12 +681,12 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 		}
 
 		case IDX_SOCIAL_CLASS: /* social_class */
-			Tcl_SetIntObj(resultPtr, p_ptr->sc);
+			Tcl_SetIntObj(resultPtr, p_ptr->rp.sc);
 			break;
 
 		case IDX_TITLE: /* title */
 			ExtToUtf_SetResult(interp,
-				player_title[p_ptr->pclass][(p_ptr->lev-1)/5]);
+				player_title[p_ptr->rp.pclass][(p_ptr->lev-1)/5]);
 			break;
 
 		case IDX_TO_DAM: /* to_dam */
@@ -710,7 +698,7 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 			break;
 
 		case IDX_WEIGHT: /* weight */
-			Tcl_SetIntObj(resultPtr, p_ptr->wt);
+			Tcl_SetIntObj(resultPtr, p_ptr->rp.wt);
 			break;
 
 		case IDX_TOTAL_WEIGHT: /* total_weight */
@@ -726,7 +714,7 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 			break;
 
 		case IDX_IS_DEAD: /* is_dead */
-			Tcl_SetBooleanObj(resultPtr, p_ptr->is_dead);
+			Tcl_SetBooleanObj(resultPtr, p_ptr->state.is_dead);
 			break;
 
 		case IDX_TURN: /* turn */
@@ -746,7 +734,7 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 			break;
 
 		case IDX_NEW_SPELLS: /* new_spells */
-			if (!p_ptr->realm1)
+			if (!p_ptr->spell.r[0].realm)
 			{
 				Tcl_SetStringObj(resultPtr, "character cannot read books", -1);
 				return TCL_ERROR;
@@ -755,15 +743,15 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 			break;
 
 		case IDX_COMMAND_REP: /* command_rep */
-			Tcl_SetIntObj(resultPtr, p_ptr->command_rep);
+			Tcl_SetIntObj(resultPtr, p_ptr->cmd.rep);
 			break;
 
 		case IDX_RUNNING: /* running */
-			Tcl_SetIntObj(resultPtr, p_ptr->running);
+			Tcl_SetIntObj(resultPtr, p_ptr->state.running);
 			break;
 
 		case IDX_PRAYER_OR_SPELL: /* prayer_or_spell */
-			if (!p_ptr->realm1)
+			if (!p_ptr->spell.r[0].realm)
 			{
 				Tcl_SetStringObj(resultPtr, "character cannot read books", -1);
 				return TCL_ERROR;
@@ -832,8 +820,8 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 
 		case IDX_LIFE_RATING: /* life_rating */
 			i = (int) (((long) p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) / 
-				(2 * p_ptr->hitdie + ((PY_MAX_LEVEL - 1) *
-				(p_ptr->hitdie + 1))));
+				(2 * p_ptr->rp.hitdie + ((PY_MAX_LEVEL - 1) *
+				(p_ptr->rp.hitdie + 1))));
 			Tcl_SetIntObj(resultPtr, i);
 			break;
 			
@@ -843,12 +831,12 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 
 		case IDX_REALM1: /* realm1 */
 			Tcl_SetStringObj(resultPtr,
-				realm_names[p_ptr->realm1], -1);
+				realm_names[p_ptr->spell.r[0].realm], -1);
 			break;
 
 		case IDX_REALM2: /* realm2 */
 			Tcl_SetStringObj(resultPtr,
-				realm_names[p_ptr->realm2], -1);
+				realm_names[p_ptr->spell.r[1].realm], -1);
 			break;
 
 		case IDX_PATRON: /* patron */
@@ -1372,8 +1360,8 @@ objcmd_game(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST 
 		}
 		
 		case IDX_VERSION: /* version */
-			Tcl_SetStringObj(resultPtr, format("%d.%d.%d", FAKE_VER_MAJOR,
-				FAKE_VER_MINOR, FAKE_VER_PATCH), -1);
+			Tcl_SetStringObj(resultPtr, format("%d.%d.%d", VER_MAJOR,
+				VER_MINOR, VER_PATCH), -1);
 			break;
 	}
 
@@ -1507,7 +1495,7 @@ objcmd_inventory(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *C
 		case IDX_WEIGHT_LIMIT: /* weight_limit */
 
 			/* Max carrying capacity in 10ths of pounds */
-			i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
+			i = adj_str_wgt[p_ptr->stat[A_STR].ind] * 100;
 			Tcl_SetIntObj(resultPtr, i);
 			break;
 	}

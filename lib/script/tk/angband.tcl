@@ -116,27 +116,7 @@ proc angband_display {window action args} {
 	} else {
 
 		switch -- $window {
-
-			kingly {
-				if {[catch {
-					NSModule::LoadIfNeeded NSTomb
-					NSTomb::KinglyWindow
-				} result]} {
-					HandleError $result
-				}
-				return
-			}
 	
-			tomb {
-				if {[catch {
-					NSModule::LoadIfNeeded NSTomb
-					NSTomb::TombWindow
-				} result]} {
-					HandleError $result
-				}
-				return
-			}
-
 			equip {
 				if {[string equal [Value inventory,style] new]} {
 					NSModule::LoadIfNeeded NSInventory2

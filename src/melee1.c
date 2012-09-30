@@ -24,6 +24,10 @@ static int monster_critical(int dice, int sides, int dam)
 	int max = 0;
 	int total = dice * sides;
 
+	/* Luck isn't always good for you... */
+	if (p_ptr->flags4 & (TR4_STRANGE_LUCK))
+		dam = dam * 3 / 2;
+
 	/* Must do at least 95% of perfect */
 	if (dam < total * 19 / 20) return (0);
 
@@ -202,10 +206,10 @@ bool make_attack_normal(int m_idx)
 		if (!method) break;
 
 		/* Stop if player is dead or gone */
-		if (!p_ptr->playing || p_ptr->is_dead) break;
+		if (!p_ptr->state.playing || p_ptr->state.is_dead) break;
 
 		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
+		if (p_ptr->state.leaving) break;
 
 		/* Extract the attack "power" */
 		switch (effect)
@@ -371,20 +375,51 @@ bool make_attack_normal(int m_idx)
 		/* Monster hits player */
 		if (!effect || check_hit(power, rlev))
 		{
+			int protect = 0;
+			
 			/* Always disturbing */
 			disturb(TRUE);
 
+			if ((p_ptr->flags1 & TR1_SLAY_DRAGON) &&
+					(r_ptr->flags3 & RF3_DRAGON))
+				protect = 5;
+			else if ((p_ptr->flags1 & TR1_SLAY_DEMON) &&
+					(r_ptr->flags3 & RF3_DEMON))
+				protect = 5;
+			else if ((p_ptr->flags1 & TR1_SLAY_UNDEAD) &&
+					(r_ptr->flags3 & RF3_UNDEAD))
+				protect = 4;
+			else if ((p_ptr->flags1 & TR1_SLAY_ORC) &&
+					(r_ptr->flags3 & RF3_ORC))
+				protect = 4;
+			else if ((p_ptr->flags1 & TR1_SLAY_TROLL) &&
+					(r_ptr->flags3 & RF3_TROLL))
+				protect = 4;
+			else if ((p_ptr->flags1 & TR1_SLAY_GIANT) &&
+					(r_ptr->flags3 & RF3_GIANT))
+				protect = 4;
+			else if ((p_ptr->flags1 & TR1_SLAY_ANIMAL) &&
+					(r_ptr->flags3 & RF3_ANIMAL))
+				protect = 3;
+			else if ((p_ptr->flags1 & TR1_SLAY_EVIL) &&
+					(r_ptr->flags3 & RF3_EVIL))
+				protect = 3;
+			else if ((p_ptr->tim.protevil > 0) &&
+					(r_ptr->flags3 & RF3_EVIL))
+				protect = 3;
 
-			/* Hack -- Apply "protection from evil" */
-			if ((p_ptr->protevil > 0) &&
-				(r_ptr->flags3 & RF3_EVIL) &&
-				(p_ptr->lev >= rlev) && ((randint0(100) + p_ptr->lev) > 50))
+			/* Apply "protection" */
+			if (protect > 0 && 
+					randint1(protect * p_ptr->lev) > 2 * rlev &&
+					!one_in_(20))
 			{
+#if 0
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
 				{
 					r_ptr->r_flags3 |= RF3_EVIL;
 				}
+#endif
 
 				/* Message */
 				msgf("%^s is repelled.", m_name);
@@ -436,7 +471,7 @@ bool make_attack_normal(int m_idx)
 			/* Message */
 			if (act)
 			{
-				if ((p_ptr->image) && one_in_(3))
+				if ((p_ptr->tim.image) && one_in_(3))
 				{
 					msgf("%^s %s you.", m_name,
 							   silly_attacks[randint0(MAX_SILLY_ATTACK)]);
@@ -491,10 +526,10 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Take "poison" effect */
-						if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+						if (!((p_ptr->flags2 & (TR2_RES_POIS)) ||
+							 p_ptr->tim.oppose_pois))
 						{
-							if (set_poisoned
-								(p_ptr->poisoned + randint1(rlev) + 5))
+							if (inc_poisoned(randint1(rlev) + 5))
 							{
 								obvious = TRUE;
 							}
@@ -512,7 +547,7 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Allow complete resist */
-						if (!p_ptr->resist_disen)
+						if (!(p_ptr->flags2 & (TR2_RES_DISEN)))
 						{
 							/* Apply disenchantment */
 							if (apply_disenchant()) obvious = TRUE;
@@ -592,9 +627,9 @@ bool make_attack_normal(int m_idx)
 						obvious = TRUE;
 
 						/* Saving throw (unless paralyzed) based on dex and level */
-						if (!p_ptr->paralyzed &&
+						if (!p_ptr->tim.paralyzed &&
 							(randint0(100) <
-							 (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+							 (adj_dex_safe[p_ptr->stat[A_DEX].ind] +
 							  p_ptr->lev)))
 						{
 							/* Saving throw message */
@@ -655,9 +690,9 @@ bool make_attack_normal(int m_idx)
 						if (m_ptr->confused) break;
 
 						/* Saving throw (unless paralyzed) based on dex and level */
-						if (!p_ptr->paralyzed &&
+						if (!p_ptr->tim.paralyzed &&
 							(randint0(100) <
-							 (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+							 (adj_dex_safe[p_ptr->stat[A_DEX].ind] +
 							  p_ptr->lev)))
 						{
 							/* Saving throw message */
@@ -763,7 +798,7 @@ bool make_attack_normal(int m_idx)
 							if (o_ptr->pval < 1) o_ptr->pval = 1;
 
 							/* Notice */
-							if (!p_ptr->blind)
+							if (!p_ptr->tim.blind)
 							{
 								msgf("Your light dims.");
 								obvious = TRUE;
@@ -850,9 +885,9 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Increase "blind" */
-						if (!p_ptr->resist_blind)
+						if (!(p_ptr->flags2 & (TR2_RES_BLIND)))
 						{
-							if (set_blind(p_ptr->blind + 10 + randint1(rlev)))
+							if (inc_blind(10 + randint1(rlev)))
 							{
 								obvious = TRUE;
 							}
@@ -870,10 +905,9 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Increase "confused" */
-						if (!p_ptr->resist_confu)
+						if (!(p_ptr->flags2 & (TR2_RES_CONF)))
 						{
-							if (set_confused
-								(p_ptr->confused + 3 + randint1(rlev)))
+							if (inc_confused(3 + randint1(rlev)))
 							{
 								obvious = TRUE;
 							}
@@ -891,19 +925,19 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Increase "afraid" */
-						if (p_ptr->resist_fear)
+						if (p_ptr->flags2 & (TR2_RES_FEAR))
 						{
 							msgf("You stand your ground!");
 							obvious = TRUE;
 						}
-						else if (randint0(100) < p_ptr->skill_sav)
+						else if (randint0(100) < p_ptr->skill.sav)
 						{
 							msgf("You stand your ground!");
 							obvious = TRUE;
 						}
 						else
 						{
-							if (set_afraid(p_ptr->afraid + 3 + randint1(rlev)))
+							if (inc_afraid(3 + randint1(rlev)))
 							{
 								obvious = TRUE;
 							}
@@ -918,26 +952,25 @@ bool make_attack_normal(int m_idx)
 					case RBE_PARALYZE:
 					{
 						/* Hack -- Prevent perma-paralysis via damage */
-						if (p_ptr->paralyzed && (damage < 1)) damage = 1;
+						if (p_ptr->tim.paralyzed && (damage < 1)) damage = 1;
 
 						/* Take damage */
 						take_hit(damage, ddesc);
 
 						/* Increase "paralyzed" */
-						if (p_ptr->free_act)
+						if (p_ptr->flags2 & (TR2_FREE_ACT))
 						{
 							msgf("You are unaffected!");
 							obvious = TRUE;
 						}
-						else if (randint0(100) < p_ptr->skill_sav)
+						else if (randint0(100) < p_ptr->skill.sav)
 						{
 							msgf("You resist the effects!");
 							obvious = TRUE;
 						}
 						else
 						{
-							if (set_paralyzed
-								(p_ptr->paralyzed + 3 + randint1(rlev)))
+							if (inc_paralyzed(3 + randint1(rlev)))
 							{
 								obvious = TRUE;
 							}
@@ -1059,7 +1092,7 @@ bool make_attack_normal(int m_idx)
 						/* Take damage */
 						take_hit(damage, ddesc);
 
-						if (p_ptr->hold_life && (randint0(100) < 95))
+						if ((p_ptr->flags2 & (TR2_HOLD_LIFE)) && (randint0(100) < 95))
 						{
 							msgf("You keep hold of your life force!");
 						}
@@ -1068,7 +1101,7 @@ bool make_attack_normal(int m_idx)
 							s32b d = damroll(10,
 											 6) +
 								(p_ptr->exp / 100) * MON_DRAIN_LIFE;
-							if (p_ptr->hold_life)
+							if ((p_ptr->flags2 & (TR2_HOLD_LIFE)))
 							{
 								msgf("You feel your life slipping away!");
 								lose_exp(d / 10);
@@ -1090,16 +1123,15 @@ bool make_attack_normal(int m_idx)
 						/* Take damage */
 						take_hit(damage, ddesc);
 
-						if (p_ptr->hold_life && (randint0(100) < 90))
+						if ((p_ptr->flags2 & (TR2_HOLD_LIFE)) && (randint0(100) < 90))
 						{
 							msgf("You keep hold of your life force!");
 						}
 						else
 						{
-							s32b d = damroll(20,
-											 6) +
+							s32b d = damroll(20, 6) +
 								(p_ptr->exp / 100) * MON_DRAIN_LIFE;
-							if (p_ptr->hold_life)
+							if (p_ptr->flags2 & (TR2_HOLD_LIFE))
 							{
 								msgf("You feel your life slipping away!");
 								lose_exp(d / 10);
@@ -1121,16 +1153,15 @@ bool make_attack_normal(int m_idx)
 						/* Take damage */
 						take_hit(damage, ddesc);
 
-						if (p_ptr->hold_life && (randint0(100) < 75))
+						if ((p_ptr->flags2 & (TR2_HOLD_LIFE)) && (randint0(100) < 75))
 						{
 							msgf("You keep hold of your life force!");
 						}
 						else
 						{
-							s32b d = damroll(40,
-											 6) +
+							s32b d = damroll(40, 6) +
 								(p_ptr->exp / 100) * MON_DRAIN_LIFE;
-							if (p_ptr->hold_life)
+							if (p_ptr->flags2 & (TR2_HOLD_LIFE))
 							{
 								msgf("You feel your life slipping away!");
 								lose_exp(d / 10);
@@ -1152,16 +1183,15 @@ bool make_attack_normal(int m_idx)
 						/* Take damage */
 						take_hit(damage, ddesc);
 
-						if (p_ptr->hold_life && (randint0(100) < 50))
+						if ((p_ptr->flags2 & (TR2_HOLD_LIFE)) && (randint0(100) < 50))
 						{
 							msgf("You keep hold of your life force!");
 						}
 						else
 						{
-							s32b d = damroll(80,
-											 6) +
+							s32b d = damroll(80, 6) +
 								(p_ptr->exp / 100) * MON_DRAIN_LIFE;
-							if (p_ptr->hold_life)
+							if ((p_ptr->flags2 & (TR2_HOLD_LIFE)))
 							{
 								msgf("You feel your life slipping away!");
 								lose_exp(d / 10);
@@ -1181,10 +1211,10 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Take "poison" effect */
-						if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+						if (!((p_ptr->flags2 & (TR2_RES_POIS)) ||
+							 p_ptr->tim.oppose_pois))
 						{
-							if (set_poisoned
-								(p_ptr->poisoned + randint1(rlev) + 5))
+							if (inc_poisoned(randint1(rlev) + 5))
 							{
 								obvious = TRUE;
 							}
@@ -1256,10 +1286,10 @@ bool make_attack_normal(int m_idx)
 									 act);
 
                                 /* Note: this is a change from old behavior -RML */
-								p_ptr->stat_cur[stat] =
-									(p_ptr->stat_cur[stat] * 3) / 4;
-								if (p_ptr->stat_cur[stat] <
-									30) p_ptr->stat_cur[stat] = 30;
+								p_ptr->stat[stat].cur =
+									(p_ptr->stat[stat].cur * 3) / 4;
+								if (p_ptr->stat[stat].cur <
+									30) p_ptr->stat[stat].cur = 30;
 								p_ptr->update |= (PU_BONUS);
 								break;
 							}
@@ -1271,10 +1301,10 @@ bool make_attack_normal(int m_idx)
 
 								for (k = 0; k < A_MAX; k++)
 								{
-									p_ptr->stat_cur[k] =
-										(p_ptr->stat_cur[k] * 3) / 4;
-									if (p_ptr->stat_cur[k] <
-										30) p_ptr->stat_cur[k] = 30;
+									p_ptr->stat[k].cur =
+										(p_ptr->stat[k].cur * 3) / 4;
+									if (p_ptr->stat[k].cur <
+										30) p_ptr->stat[k].cur = 30;
 								}
 								p_ptr->update |= (PU_BONUS);
 								break;
@@ -1292,7 +1322,7 @@ bool make_attack_normal(int m_idx)
 						/* Take damage */
 						take_hit(damage, ddesc);
 
-						if (p_ptr->hold_life && (randint0(100) < 50))
+						if ((p_ptr->flags2 & (TR2_HOLD_LIFE)) && (randint0(100) < 50))
 						{
 							msgf("You keep hold of your life force!");
 							resist_drain = TRUE;
@@ -1302,7 +1332,7 @@ bool make_attack_normal(int m_idx)
 							s32b d = damroll(60,
 											 6) +
 								(p_ptr->exp / 100) * MON_DRAIN_LIFE;
-							if (p_ptr->hold_life)
+							if (p_ptr->flags2 & (TR2_HOLD_LIFE))
 							{
 								msgf("You feel your life slipping away!");
 								lose_exp(d / 10);
@@ -1315,12 +1345,12 @@ bool make_attack_normal(int m_idx)
 						}
 
 						/* Heal the attacker? */
-						if (!(p_ptr->prace == RACE_ZOMBIE ||
-							  p_ptr->prace == RACE_VAMPIRE ||
-							  p_ptr->prace == RACE_SPECTRE ||
-							  p_ptr->prace == RACE_SKELETON ||
-							  p_ptr->prace == RACE_GOLEM ||
-							  p_ptr->prace == RACE_GHOUL) &&
+						if (!(p_ptr->rp.prace == RACE_ZOMBIE ||
+							  p_ptr->rp.prace == RACE_VAMPIRE ||
+							  p_ptr->rp.prace == RACE_SPECTRE ||
+							  p_ptr->rp.prace == RACE_SKELETON ||
+							  p_ptr->rp.prace == RACE_GOLEM ||
+							  p_ptr->rp.prace == RACE_GHOUL) &&
 							(damage > 2) && !(resist_drain))
 						{
 							bool did_heal = FALSE;
@@ -1414,7 +1444,7 @@ bool make_attack_normal(int m_idx)
 				}
 
 				/* Apply the cut */
-				if (k) (void)set_cut(p_ptr->cut + k);
+				if (k) (void)inc_cut(k);
 			}
 
 			/* Handle stun */
@@ -1469,7 +1499,7 @@ bool make_attack_normal(int m_idx)
 				}
 
 				/* Apply the stun */
-				if (k) (void)set_stun(p_ptr->stun + k);
+				if (k) (void)inc_stun(k);
 			}
 
 			if (explode)
@@ -1485,7 +1515,7 @@ bool make_attack_normal(int m_idx)
 
 			if (touched)
 			{
-				if (p_ptr->sh_fire && alive)
+				if ((p_ptr->flags3 & (TR3_SH_FIRE)) && alive)
 				{
 					if (!(r_ptr->flags3 & RF3_IM_FIRE))
 					{
@@ -1510,7 +1540,7 @@ bool make_attack_normal(int m_idx)
 					}
 				}
 
-				if (p_ptr->sh_elec && alive)
+				if ((p_ptr->flags3 & (TR3_SH_ELEC)) && alive)
 				{
 					if (!(r_ptr->flags3 & RF3_IM_ELEC))
 					{
@@ -1532,6 +1562,56 @@ bool make_attack_normal(int m_idx)
 					{
 						if (visible)
 							r_ptr->r_flags3 |= RF3_IM_ELEC;
+					}
+				}
+
+				if ((p_ptr->flags4 & (TR4_SH_ACID)) && alive)
+				{
+					if (!(r_ptr->flags3 & RF3_IM_ACID))
+					{
+						int dam = damroll(2, 6);
+
+						/* Modify the damage */
+						dam = mon_damage_mod(m_ptr, dam, 0);
+
+						msgf("%^s gets melted!", m_name);
+
+						if (mon_take_hit(m_idx, dam, &fear,
+										 " turns into a puddle of goo."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (visible)
+							r_ptr->r_flags3 |= RF3_IM_ACID;
+					}
+				}
+
+				if ((p_ptr->flags4 & (TR4_SH_COLD)) && alive)
+				{
+					if (!(r_ptr->flags3 & RF3_IM_COLD))
+					{
+						int dam = damroll(2, 6);
+
+						/* Modify the damage */
+						dam = mon_damage_mod(m_ptr, dam, 0);
+
+						msgf("%^s gets frozen!", m_name);
+
+						if (mon_take_hit(m_idx, dam, &fear,
+										 " turns into an icicle."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (visible)
+							r_ptr->r_flags3 |= RF3_IM_COLD;
 					}
 				}
 				touched = FALSE;
@@ -1608,7 +1688,7 @@ bool make_attack_normal(int m_idx)
 
 
 	/* Always notice cause of death */
-	if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT))
+	if (p_ptr->state.is_dead && (r_ptr->r_deaths < MAX_SHORT))
 	{
 		r_ptr->r_deaths++;
 	}

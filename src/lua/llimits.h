@@ -1,5 +1,5 @@
 /*
-** $Id: llimits.h,v 1.1 2001/10/29 17:49:53 rr9 Exp $
+** $Id: llimits.h,v 1.2 2002/12/29 19:28:39 sfuerst Exp $
 ** Limits, basic types, and some other "installation-dependent" definitions
 ** See Copyright Notice in lua.h
 */
@@ -160,6 +160,13 @@ typedef unsigned long Instruction;
 #if MAXUPVALUES>MAXARG_B
 #undef MAXUPVALUES
 #define MAXUPVALUES	MAXARG_B
+#endif
+
+/* special code to fit a LUA_MULTRET inside an argB */
+#define MULT_RET        255	/* (<=MAXARG_B) */
+#if MULT_RET>MAXARG_B
+#undef MULT_RET
+#define MULT_RET	MAXARG_B
 #endif
 
 

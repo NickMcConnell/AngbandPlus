@@ -12,7 +12,6 @@
 
 #include "tnb.h"
 #include <tkFont.h>
-#include <tkMenu.h>
 
 #include <limits.h>
 #ifndef USHRT_MAX

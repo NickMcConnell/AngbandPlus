@@ -29,17 +29,14 @@ cptr copyright[5] =
 /*
  * Executable version
  */
-byte version_major = VERSION_MAJOR;
-byte version_minor = VERSION_MINOR;
-byte version_patch = VERSION_PATCH;
-byte version_extra = VERSION_EXTRA;
+byte version_major = VER_MAJOR;
+byte version_minor = VER_MINOR;
+byte version_patch = VER_PATCH;
+byte version_extra = VER_EXTRA;
 
 /*
  * Savefile version
  */
-byte sf_major;	/* Savefile's "version_major" */
-byte sf_minor;	/* Savefile's "version_minor" */
-byte sf_patch;	/* Savefile's "version_patch" */
 byte sf_extra;	/* Savefile's "version_extra" */
 u32b sf_version;	/* Savefile's "version" */
 
@@ -69,30 +66,25 @@ bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
 /*
  * Various things
  */
-bool character_generated;	/* The character exists */
-bool character_dungeon;	/* The character has a dungeon */
-bool character_loaded;	/* The character was loaded from a savefile */
-bool character_saved;	/* The character was just saved to a savefile */
+bool character_generated = FALSE;	/* The character exists */
+bool character_dungeon = FALSE;	/* The character has a dungeon */
+bool character_loaded = FALSE;	/* The character was loaded from a savefile */
+bool character_saved = FALSE;	/* The character was just saved to a savefile */
 
-bool character_icky;	/* The game is in an icky full screen mode */
-bool character_xtra;	/* The game is in an icky startup mode */
+bool character_icky = FALSE;	/* The game is in an icky full screen mode */
+bool character_xtra = FALSE;	/* The game is in an icky startup mode */
 
 u32b seed_flavor;	/* Hack -- consistent object colors */
 
 bool msg_flag;	/* Used in msg_print() for "buffering" */
 
-obj_theme dun_theme;	/* Current dungeon object theme */
 s16b num_repro;	/* Current reproducer count */
-
-s16b object_level;	/* Current object creation level */
-s16b monster_level;	/* Current monster creation level */
-s16b base_level;	/* Base dungeon level */
 
 s32b turn;	/* Current game turn */
 s32b old_turn;	/* Turn when level began (feelings) */
 
 bool use_sound;	/* The "sound" mode is enabled */
-bool use_graphics;	/* The "graphics" mode is enabled */
+byte use_graphics;	/* The "graphics" mode enabled (0 is none) */
 
 bool use_transparency = FALSE;	/* Use transparent tiles */
 
@@ -443,12 +435,6 @@ bool (*in_boundsp) (int, int);
 s32b max_wild;
 
 /*
- * The dungeon data itself
- */
-dun_type dun_data;
-dun_type *dun_ptr = &dun_data;
-
-/*
  * The current global region.
  */
 region_type cave_data;
@@ -763,24 +749,6 @@ bool (*ang_sort_comp) (const vptr u, const vptr v, int a, int b);
 void (*ang_sort_swap) (const vptr u, const vptr v, int a, int b);
 
 
-
-/*
- * Hack -- function hooks to restrict "get_mon_num_prep()" function
- */
-monster_hook_type get_mon_num_hook;
-
-/* This is a mess. :-/ */
-monster_hook_type get_mon_num2_hook;
-
-
-/*
- * Hack -- function hook to restrict "get_obj_num_prep()" function
- */
-byte (*get_obj_num_hook) (int k_idx);
-
-
-/* Get rid of the quest stuff? */
-
 /*
  * Default spell color table (quark index)
  */
@@ -801,14 +769,3 @@ int init_flags;
  */
 int highscore_fd = -1;
 
-/*
- * Should the monster allocation fail with inappropriate terrain?
- *
- * This hack is only used by the polymoph function... this probably
- * could be removed, and that function done a different way.
- */
-bool monster_terrain_sensitive = TRUE;
-
-
-/* Get rid of this... */
-int mutant_regenerate_mod = 100;

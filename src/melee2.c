@@ -1380,7 +1380,7 @@ static bool get_moves(int m_idx, int *mm)
 
 				/* Check grid */
 				if (cave_floor_grid(c_ptr)
-					&& monster_can_cross_terrain(c_ptr->feat, r_ptr))
+					&& test_monster_square(c_ptr, r_ptr))
 				{
 					/* One more room grid */
 					room++;
@@ -1814,7 +1814,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 					update_mon_vis(t_ptr->r_idx, 1);
 				}
 
-				if ((p_ptr->image) && one_in_(3))
+				if ((p_ptr->tim.image) && one_in_(3))
 				{
 					strnfmt(temp, 80, "%s %s.",
 								 silly_attacks[randint0(MAX_SILLY_ATTACK)],
@@ -2267,7 +2267,7 @@ static void take_move(int m_idx, int *mm)
 			}
 
 			/* Notice */
-			cave_set_feat(nx, ny, FEAT_FLOOR);
+			cave_set_feat(nx, ny, the_floor());
 		}
 
 		else if (cave_wall_grid(c_ptr))
@@ -2302,7 +2302,15 @@ static void take_move(int m_idx, int *mm)
 		field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST, m_ptr, &flags);
 
 		/* Get result */
-		if (flags & (MEG_DO_MOVE)) do_move = TRUE;
+		if (flags & (MEG_DO_MOVE))
+		{
+			do_move = TRUE;
+		}
+		else
+		{
+			do_move = FALSE;
+		}
+		
 		if (flags & (MEG_OPEN)) did_open_door = TRUE;
 		if (flags & (MEG_BASH)) did_bash_door = TRUE;
 		if (flags & (MEG_DO_TURN)) do_turn = TRUE;
@@ -2413,7 +2421,7 @@ static void take_move(int m_idx, int *mm)
 		 * to allow monsters to attack an enemy,
 		 * even if it can't enter the terrain.
 		 */
-		if (do_move && !monster_can_cross_terrain(c_ptr->feat, r_ptr))
+		if (do_move && !test_monster_square(c_ptr, r_ptr))
 		{
 			/* Assume no move allowed */
 			do_move = FALSE;
@@ -2517,14 +2525,9 @@ static void take_move(int m_idx, int *mm)
 				if ((r_ptr->flags2 & (RF2_TAKE_ITEM | RF2_KILL_ITEM)) &&
 					(!is_pet(m_ptr) || p_ptr->pet_pickup_items))
 				{
-					u32b f1, f2, f3;
-
 					u32b flg3 = 0L;
 
 					char o_name[256];
-
-					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
 
 					/* Acquire the object name */
 					object_desc(o_name, o_ptr, TRUE, 3, 256);
@@ -2533,15 +2536,15 @@ static void take_move(int m_idx, int *mm)
 					monster_desc(m_name, m_ptr, 0x04, 80);
 
 					/* React to objects that hurt the monster */
-					if (f1 & TR1_KILL_DRAGON) flg3 |= (RF3_DRAGON);
-					if (f1 & TR1_SLAY_DRAGON) flg3 |= (RF3_DRAGON);
-					if (f1 & TR1_SLAY_TROLL) flg3 |= (RF3_TROLL);
-					if (f1 & TR1_SLAY_GIANT) flg3 |= (RF3_GIANT);
-					if (f1 & TR1_SLAY_ORC) flg3 |= (RF3_ORC);
-					if (f1 & TR1_SLAY_DEMON) flg3 |= (RF3_DEMON);
-					if (f1 & TR1_SLAY_UNDEAD) flg3 |= (RF3_UNDEAD);
-					if (f1 & TR1_SLAY_ANIMAL) flg3 |= (RF3_ANIMAL);
-					if (f1 & TR1_SLAY_EVIL) flg3 |= (RF3_EVIL);
+					if (o_ptr->flags1 & TR1_KILL_DRAGON) flg3 |= (RF3_DRAGON);
+					if (o_ptr->flags1 & TR1_SLAY_DRAGON) flg3 |= (RF3_DRAGON);
+					if (o_ptr->flags1 & TR1_SLAY_TROLL) flg3 |= (RF3_TROLL);
+					if (o_ptr->flags1 & TR1_SLAY_GIANT) flg3 |= (RF3_GIANT);
+					if (o_ptr->flags1 & TR1_SLAY_ORC) flg3 |= (RF3_ORC);
+					if (o_ptr->flags1 & TR1_SLAY_DEMON) flg3 |= (RF3_DEMON);
+					if (o_ptr->flags1 & TR1_SLAY_UNDEAD) flg3 |= (RF3_UNDEAD);
+					if (o_ptr->flags1 & TR1_SLAY_ANIMAL) flg3 |= (RF3_ANIMAL);
+					if (o_ptr->flags1 & TR1_SLAY_EVIL) flg3 |= (RF3_EVIL);
 
 					/* The object cannot be picked up by the monster */
 					if ((o_ptr->flags3 & TR3_INSTA_ART) ||
@@ -2770,7 +2773,7 @@ static void process_monster(int m_idx)
 		u32b notice = 0;
 
 		/* Hack -- handle non-aggravation */
-		if (!p_ptr->aggravate) notice = randint0(1024);
+		if (!(p_ptr->flags3 & (TR3_AGGRAVATE))) notice = randint0(1024);
 
 		/* Nightmare monsters are more alert */
 		if (ironman_nightmare) notice /= 2;
@@ -2785,7 +2788,7 @@ static void process_monster(int m_idx)
 			if (m_ptr->cdis < 50) d = (100 / m_ptr->cdis);
 
 			/* Hack -- handle aggravation */
-			if (p_ptr->aggravate) d = m_ptr->csleep;
+			if (p_ptr->flags3 & (TR3_AGGRAVATE)) d = m_ptr->csleep;
 
 			/* Still asleep */
 			if (m_ptr->csleep > d)
@@ -2914,7 +2917,7 @@ static void process_monster(int m_idx)
 	}
 
 	/* No one wants to be your friend if you're aggravating */
-	if (!is_hostile(m_ptr) && p_ptr->aggravate)
+	if (!is_hostile(m_ptr) && (p_ptr->flags3 & (TR3_AGGRAVATE)))
 		gets_angry = TRUE;
 
 	/* Acquire the monster name */
@@ -3263,7 +3266,7 @@ void process_monsters(int min_energy)
 		r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
+		if (p_ptr->state.leaving) break;
 
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
@@ -3327,7 +3330,7 @@ void process_monsters(int min_energy)
 		/* Handle "sight" and "aggravation" */
 		else if ((m_ptr->cdis <= MAX_SIGHT) &&
 				 ((in_boundsp(fx, fy) && player_has_los_grid(parea(fx, fy)))
-				  || p_ptr->aggravate))
+				  || (p_ptr->flags3 & (TR3_AGGRAVATE))))
 		{
 			/* We can "see" or "feel" the player */
 			test = TRUE;
@@ -3355,10 +3358,10 @@ void process_monsters(int min_energy)
 		process_monster(i);
 
 		/* Hack -- notice death or departure */
-		if (!p_ptr->playing || p_ptr->is_dead) break;
+		if (!p_ptr->state.playing || p_ptr->state.is_dead) break;
 
 		/* Notice leaving */
-		if (p_ptr->leaving) break;
+		if (p_ptr->state.leaving) break;
 	}
 
 	/* Reset global index */

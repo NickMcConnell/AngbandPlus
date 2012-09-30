@@ -345,6 +345,8 @@ proc NSMiscWindow::InitDisplay_Misc {parent} {
 	# Display help string in Main Window status bar
 	CanvasFeedbackInit $c
 
+if 0 {
+
 	# Character image (center at 22,22)
 	$c create widget 0 0 -anchor center -tags icon
 	
@@ -377,6 +379,7 @@ proc NSMiscWindow::InitDisplay_Misc {parent} {
 	"
 
 	CanvasFeedbackAdd $c icon "NSMiscWindow::CanvasFeedbackCmd_MiscWindow icon"
+}
 	
 	# Focus ring around character image (since user can click it)
 	$c create rectangle 0 0 1 1 -outline Black -tags focus

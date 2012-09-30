@@ -16,8 +16,8 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS      68		/* Used with rings (min 51) */
-#define MAX_AMULETS    17		/* Used with amulets (min 16) */
+#define MAX_ROCKS      68		/* Used with rings (min 54) */
+#define MAX_AMULETS    22		/* Used with amulets (min 18) */
 #define MAX_WOODS      32		/* Used with staffs (min 30) */
 #define MAX_METALS     39		/* Used with wands/rods (min 30/29) */
 #define MAX_COLORS     66		/* Used with potions (min 64) */
@@ -74,8 +74,9 @@ static cptr amulet_adj[MAX_AMULETS] =
 {
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
-	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper", "Rosetted"
+	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver", 
+	"Copper", "Rosetted", "Spiral", "Star", "Square", 
+	"Hexagonal", "Steel"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -83,7 +84,8 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
-	TERM_L_UMBER, TERM_VIOLET	/* Hack */
+	TERM_L_UMBER, TERM_VIOLET, TERM_VIOLET, TERM_YELLOW, TERM_L_UMBER,
+	TERM_L_DARK, TERM_WHITE
 };
 
 
@@ -332,7 +334,7 @@ static bool object_flavor(int k_idx)
 
 void get_table_name(char *out_string, bool quotes)
 {
-	int testcounter = rand_range(2, 3);
+	int testcounter = 2;
 	
 	int len = 0;
 	
@@ -673,8 +675,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 	cptr s;
 
-	u32b f1, f2, f3;
-
 	object_type *bow_ptr;
 
 	/* damage dice, damage sides, damage bonus, energy */
@@ -688,14 +688,14 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 	monster_race *r_ptr = &r_info[o_ptr->pval];
 
-	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
 	/* See if the object is "aware" */
 	if (object_aware_p(o_ptr)) aware = TRUE;
 
 	/* See if the object is "known" */
 	if (object_known_p(o_ptr)) known = TRUE;
+
+	/* Artifacts are not "aware' unless "known" */
+	if ((o_ptr->flags3 & TR3_INSTA_ART) && !known) aware = FALSE;
 
 	/* Extract default "base" string */
 	basenm = get_object_name(o_ptr);
@@ -783,8 +783,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Amulets (including a few "Specials") */
 
 			/* Known artifacts */
-			if ((o_ptr->flags3 & TR3_INSTA_ART) && aware &&
-				(o_ptr->activate > 128)) break;
+			if ((k_ptr->flags3 & TR3_INSTA_ART) && aware) break;
 
 			/* Color the object */
 			modstr = amulet_adj[o_ptr->sval];
@@ -802,8 +801,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Rings (including a few "Specials") */
 
 			/* Known artifacts */
-			if ((o_ptr->flags3 & TR3_INSTA_ART) && aware &&
-				(o_ptr->activate > 128)) break;
+			if ((k_ptr->flags3 & TR3_INSTA_ART) && aware) break;
 
 			/* Color the object */
 			modstr = ring_adj[o_ptr->sval];
@@ -1222,7 +1220,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 
 	/* Display the item like a weapon */
-	if (f3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
+	if (o_ptr->flags3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
 
 	/* Display the item like a weapon */
 	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
@@ -1269,7 +1267,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 				}
 				case SV_LONG_BOW:
 				{
-					if (p_ptr->stat_use[A_STR] >= 16)
+					if (p_ptr->stat[A_STR].use >= 160)
 					{
 						power = 3;
 					}
@@ -1298,7 +1296,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			}
 
 			/* Apply the "Extra Might" flag */
-			if (f3 & (TR3_XTRA_MIGHT)) power++;
+			if (o_ptr->flags3 & (TR3_XTRA_MIGHT)) power++;
 
 			/* Append a special "damage" string */
 			strnfcat(buf, max, &len, " (x%d)", power);
@@ -1315,7 +1313,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		/* Show the tohit/todam on request */
 		if (show_weapon)
 		{
-			strnfcat(buf, max, &len, " (%+d,%+d%%)", o_ptr->to_h, o_ptr->to_d * 3);
+			strnfcat(buf, max, &len, " (%+d,%+d%%)", o_ptr->to_h, 
+					deadliness_calc(o_ptr->to_d) - 100);
 		}
 
 		/* Show the tohit if needed */
@@ -1363,7 +1362,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		tmul = p_ptr->ammo_mult;
 
 		/* Get extra "power" from "extra might" */
-		if (p_ptr->xtra_might) tmul++;
+		if (p_ptr->flags3 & (TR3_XTRA_MIGHT)) tmul++;
 
 		/* launcher multiplier */
 		avgdam *= tmul;
@@ -1482,26 +1481,26 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 
 	/* Dump "pval" flags for wearable items */
-	if (known && (f1 & (TR1_PVAL_MASK)))
+	if (known && (o_ptr->flags1 & (TR1_PVAL_MASK)))
 	{
 		/* Start the display */
 		strnfcat(buf, max, &len, " (%+d", o_ptr->pval);
 
 		/* Do not display the "pval" flags */
-		if (f3 & (TR3_HIDE_TYPE))
+		if (o_ptr->flags3 & (TR3_HIDE_TYPE))
 		{
 			/* Nothing */
 		}
 
 		/* Speed */
-		else if (f1 & (TR1_SPEED))
+		else if (o_ptr->flags1 & (TR1_SPEED))
 		{
 			/* Dump " to speed" */
 			strnfcat(buf, max, &len, " to speed");
 		}
 
 		/* Attack speed */
-		else if (f1 & (TR1_BLOWS))
+		else if (o_ptr->flags1 & (TR1_BLOWS))
 		{
 			if (ABS(o_ptr->pval) == 1)
 			{

@@ -63,7 +63,7 @@ void output_note(cptr final_note, ...)
 	if (!fff) return;
 
 	/* Add note, and close note file */
-	fprintf(fff, "%s", buf);
+	froff(fff, "%s", buf);
 
 	my_fclose(fff);
 }
@@ -152,17 +152,17 @@ void add_note_type(int note_number)
 
 			/* Build the string containing the player information */
 			len = strnfmt(player, 100, "the %s %s",
-						  race_info[p_ptr->prace].title,
-						  class_info[p_ptr->pclass].title);
+						  race_info[p_ptr->rp.prace].title,
+						  class_info[p_ptr->rp.pclass].title);
 
-			if (p_ptr->realm1 != REALM_NONE)
+			if (p_ptr->spell.r[0].realm != REALM_NONE)
 			{
-				strnfcat(player, 100, &len, " of %s", realm_names[p_ptr->realm1]);
+				strnfcat(player, 100, &len, " of %s", realm_names[p_ptr->spell.r[0].realm]);
 			}
 
-			if (p_ptr->realm2 != REALM_NONE)
+			if (p_ptr->spell.r[1].realm != REALM_NONE)
 			{
-				strnfcat(player, 100, &len, " and %s", realm_names[p_ptr->realm2]);
+				strnfcat(player, 100, &len, " and %s", realm_names[p_ptr->spell.r[1].realm]);
 			}
 
 			/* Add in "character start" information */

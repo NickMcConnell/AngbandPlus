@@ -141,37 +141,6 @@ proc openlf {fileName} {
 	return $id
 }
 
-# NewItemCmd_Assign --
-#
-#	Called by NSCanvist2::InsertItem() to create a list row.
-#
-# Arguments:
-#	arg1					about arg1
-#
-# Results:
-#	What happened.
-
-proc NewItemCmd_Assign {canvistId x y assign} {
-
-	set c [NSCanvist2::Info $canvistId canvas]
-	set columnWidth [NSCanvist2::Info $canvistId columnWidth]
-	set rowHeight [NSCanvist2::Info $canvistId rowHeight]
-if 0 {
-	# Selection rectangle around everything
-	lappend itemIdList [$c create rectangle [expr {$x + 2}] [expr {$y + 2}] \
-		[expr {$x + $columnWidth - 2}] [expr {$y + $rowHeight - 2}] \
-		-fill {} -outline {} -tags enabled -width 2.0]
-}
-	# Widget
-	set iw [icon size]
-	set ih [icon size]
-	set xdiff [expr {int([expr {($columnWidth - $iw) / 2}])}]
-	set ydiff [expr {int([expr {($rowHeight - $ih) / 2}])}]
-	lappend itemIdList [$c create widget [expr {$x + $xdiff}] \
-		[expr {$y + $ydiff}] -assign $assign -tags enabled]
-
-	return $itemIdList
-}
 
 # SetWindowIcon --
 #

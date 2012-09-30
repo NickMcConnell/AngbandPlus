@@ -477,26 +477,34 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
  *
  * Return whether we want this choice verified or not.
  */
-static int get_choice(char c, int num, bool *ask)
+static int get_choice(char *c, int num, bool *ask)
 {
 	int asked;
 	
 	int i;
+	
+	*c = inkey();
+	
+	/* Handle "cancel" */
+	if (*c == ESCAPE)
+    {
+        	return (-2);
+    }
 
 	if (num < 19)
 	{
-		if (isalpha(c))
+		if (isalpha(*c))
 		{
 			/* Note verify */
-			asked = (isupper(c));
+			asked = (isupper(*c));
 
 			/* Lowercase */
-			if (asked) c = tolower(c);
+			if (asked) *c = tolower(*c);
 			
 			*ask = (asked != FALSE);
 
 			/* Extract request */
-			return(islower(c) ? A2I(c) : -1);
+			return(A2I(*c));
 		}
 		
 		/* Invalid choice */
@@ -507,7 +515,7 @@ static int get_choice(char c, int num, bool *ask)
 	/* Else - look for a match */
 	for (i = 0; i < num; i++)
 	{
-		if (listsym[i] == c)
+		if (listsym[i] == *c)
 		{
 			/* Hack - we cannot ask if there are too many options */
 			*ask = FALSE;
@@ -572,22 +580,22 @@ bool display_menu(menu_type *options, int select, bool scroll, int (* disp)(int)
 	}
    
 	/* Get a command from the user */
-	while ((choice = inkey()))
+	while (TRUE)
 	{
+		/* Try to get previously saved value */
+		if (!repeat_pull(&i))
+		{
+			/* Try to match with available options */
+			i = get_choice(&choice, num, &ask);
+    	}
+	
     	/* Handle "cancel" */
-		if (choice == ESCAPE)
+		if (i == -2)
         {
 			/* Restore the screen */
 			screen_load();
         	return (FALSE);
         }
-		
-		/* Try to get previously saved value */
-		if (!repeat_pull(&i))
-		{
-			/* Try to match with available options */
-			i = get_choice(choice, num, &ask);
-    	}
 		
 		/* No match? */
 		if (i == -1)
@@ -706,19 +714,28 @@ bool display_menu(menu_type *options, int select, bool scroll, int (* disp)(int)
 					if (options[j].flags & MN_CLEAR)
 					{
 						screen_load();
-						screen_save();
 					}
 				
 					if (options[j].action(j))
 					{
-						/* Restore the screen */
-						screen_load();
+						/* Hack - restore the screen */
+						if (!(options[j].flags & MN_CLEAR))
+						{
+							/* Restore the screen */
+							screen_load();
+						}
 						
 						/* Save for later */
 						repeat_push(save_choice);
 	
 						/* Success */
 						return (TRUE);
+					}
+					
+					/* Hack - save the screen */
+					if (options[j].flags & MN_CLEAR)
+					{
+						screen_save();
 					}
 										
 					/*
@@ -761,7 +778,16 @@ void bell(cptr reason)
 	Term_fresh();
 
 	/* Hack -- memorize the reason if possible */
-	if (character_generated && reason) message_add(reason, MSG_BELL);
+	if (character_generated && reason)
+	{
+		message_add(reason, MSG_BELL);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_MESSAGE);
+
+		/* Force window redraw */
+		window_stuff();
+	}
 
 	/* Make a bell noise (if allowed) */
 	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
@@ -886,7 +912,7 @@ static void put_cstr(int col, int row, cptr str, bool clear)
 				c++;
 				
 				/* Hack -- fake monochrome */
-				if (!use_color || ironman_moria) a = TERM_WHITE;
+				if (!use_color) a = TERM_WHITE;
 				
 				continue;
 			}
@@ -1068,7 +1094,7 @@ void roff(cptr str, ...)
 				a = *s - 'A';
 								
 				/* Hack -- fake monochrome */
-				if (!use_color || ironman_moria) a = TERM_WHITE;
+				if (!use_color) a = TERM_WHITE;
 				
 				continue;
 			}
@@ -1096,7 +1122,7 @@ void roff(cptr str, ...)
 			 * This makes "$$" turn into just "$".
 			 */
 			 
-			 /* Stop if new reach null */
+			/* Stop if now reach null */
 			else if (*s == 0) break;
 		}
 
@@ -1158,6 +1184,68 @@ void roff(cptr str, ...)
 		/* Advance */
 		if (++x > w) x = w;
 	}
+}
+
+/*
+ * Like the above roff(), print lines.
+ * However, print them to a file like fprintf().
+ *
+ * froff() is smarter than fprintf() though.
+ * It will prune out the '$' colour escape codes.
+ * It will also understand the '%v' format control sequence.
+ */
+void froff(FILE *fff, cptr str, ...)
+{
+	va_list vp;
+
+	char buf[1024];
+	char *p1 = buf, *p2 = buf;
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, str);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, str, &vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+	
+	/* Scan list, deleting '$' colour escape sequences */
+	while(*p1)
+	{
+		if (*p1 == '$')
+		{
+			/* Scan the next character */
+			p1++;
+			
+			/* Is it a colour specifier? */
+			if ((*p1 >= 'A') && (*p1 <= 'R'))
+			{
+				/* Skip it - and overwrite it later */
+				p1++;
+				
+				continue;
+			}
+			
+			/* Stop if now reach null */
+			else if (*p1 == 0) break;
+			
+			/*
+			 * Hack XXX XXX - otherwise, ignore the dollar sign
+			 *
+			 * This makes "$$" turn into just "$".
+			 */
+		}
+		
+		/* Copy a character */
+		*p2++ = *p1++;
+	}
+	
+	/* Terminate the array */
+	*p2 = 0;
+	
+	/* Output it to the file */
+	fprintf(fff, "%s", buf);
 }
 
 
@@ -1390,18 +1478,21 @@ bool get_check(cptr prompt, ...)
 		i = inkey();
 		if (quick_messages) break;
 		if (i == ESCAPE) break;
-		if (strchr("YyNn", i)) break;
+		if (strchr("YyNn\n\r", i)) break;
 		bell("Illegal response to a 'yes/no' question!");
 	}
 
 	/* Erase the prompt */
 	clear_msg();
 
-	/* Normal negation */
-	if ((i != 'Y') && (i != 'y')) return (FALSE);
-
-	/* Success */
-	return (TRUE);
+	/* Success? */
+	switch (i)
+	{
+		case 'y': case 'Y': case '\n': case '\r':
+			return (TRUE);
+		default:
+			return (FALSE);
+	}
 }
 
 
@@ -1449,13 +1540,13 @@ s16b get_quantity(cptr prompt, int max)
 
 
 	/* Use "command_arg" */
-	if (p_ptr->command_arg)
+	if (p_ptr->cmd.arg)
 	{
 		/* Extract a number */
-		amt = p_ptr->command_arg;
+		amt = p_ptr->cmd.arg;
 
-		/* Clear "command_arg" */
-		p_ptr->command_arg = 0;
+		/* Clear "cmd.arg" */
+		p_ptr->cmd.arg = 0;
 
 		/* Enforce the maximum */
 		if (amt > max) amt = max;

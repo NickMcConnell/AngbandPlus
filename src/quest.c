@@ -240,6 +240,27 @@ errr init_quests(void)
 	return (0);
 }
 
+static bool monster_quest(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Random quests are in the dungeon */
+	if (!(r_ptr->flags8 & RF8_DUNGEON)) return FALSE;
+
+	/* No random quests for aquatic monsters */
+	if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
+
+	/* No random quests for multiplying monsters */
+	if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
+
+	/* No quests to kill friendly monsters */
+	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
+	
+	/* Only "hard" monsters for quests */
+	if (r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_FRIENDS)) return FALSE;
+
+	return TRUE;
+}
 
 /*
  * Quests
@@ -326,8 +347,8 @@ void get_player_quests(int q_num)
 
 #endif /* 0 */
 
-	/* Prepare allocation table */
-	get_mon_num_prep(monster_quest, NULL);
+	/* Prepare monster list */
+	get_mon_num_prep(monster_quest);	
 
 	/* Generate quests */
 	for (i = 0; i < v; i++)
@@ -363,9 +384,6 @@ void get_player_quests(int q_num)
 			r_idx = get_mon_num(depth);
 
 			r_ptr = &r_info[r_idx];
-
-			/* Look at the monster - only "hard" monsters for quests */
-			if (r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_FRIENDS)) continue;
 
 			/* Save the index if the monster is deeper than current monster */
 			if (!best_r_idx || (r_info[r_idx].level > best_level))
@@ -403,6 +421,9 @@ void get_player_quests(int q_num)
 		/* Create the quest */
 		insert_dungeon_monster_quest(best_r_idx, num, level);
 	}
+	
+	/* Restore allocation table */
+	get_mon_num_prep(NULL);
 
 	/* Add the winner quests */
 
@@ -624,6 +645,9 @@ static void create_stairs(int x, int y)
 	int ny, nx;
 
 	cave_type *c_ptr = area(x, y);
+	
+	/* Paranoia - not on deepest dungeon level */
+	if (p_ptr->depth == max_dun_level()) return;
 
 	/* Stagger around */
 	while ((cave_perma_grid(c_ptr) || c_ptr->o_idx) && !(i > 100))
@@ -657,6 +681,10 @@ static void create_stairs(int x, int y)
 static void quest_reward(int num, int x, int y)
 {
 	object_type *o_ptr;
+	
+	dun_type *dundata = place[p_ptr->place_num].dungeon;
+	
+	obj_theme *o_theme = &dundata->theme;
 
 	/* Ignore num for now */
 	(void)num;
@@ -667,12 +695,12 @@ static void quest_reward(int num, int x, int y)
 		if (randint0(number_of_quests()) < 20)
 		{
 			/* Make a great object */
-			o_ptr = make_object(30, dun_theme);
+			o_ptr = make_object(base_level(), 30, o_theme);
 		}
 		else
 		{
 			/* Make a good object */
-			o_ptr = make_object(15, dun_theme);
+			o_ptr = make_object(base_level(), 15, o_theme);
 		}
 
 		if (!o_ptr) continue;
@@ -776,7 +804,7 @@ void trigger_quest_create(byte c_type, vptr data)
 							/* Try to place the monster */
 							if (place_monster_aux
 								(x, y, q_ptr->data.dun.r_idx, FALSE, group,
-								 FALSE, FALSE))
+								 FALSE, FALSE, TRUE))
 							{
 								/* Success */
 								break;
@@ -872,7 +900,7 @@ void trigger_quest_complete(byte x_type, vptr data)
 					if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
 					{
 						/* Total winner */
-						p_ptr->total_winner = TRUE;
+						p_ptr->state.total_winner = TRUE;
 
 						/* Redraw the "title" */
 						p_ptr->redraw |= (PR_TITLE);
@@ -1185,7 +1213,7 @@ bool do_cmd_knowledge_quests(int dummy)
 		}
 
 		/* Copy to the file */
-		fprintf(fff, "%s", tmp_str);
+		froff(fff, "%s", tmp_str);
 	}
 
 	/* Close the file */
@@ -1217,7 +1245,7 @@ bool do_cmd_knowledge_quests(int dummy)
  * Line 3 -- forbid aquatic monsters
  */
 #define quest_monster_okay(I) \
-	(monster_dungeon(I) && \
+	(!(r_info[I].flags8 & RF8_WILD_TOWN) && \
 	 !(r_info[I].flags1 & RF1_UNIQUE) && \
 	 !(r_info[I].flags7 & RF7_AQUATIC))
 
@@ -1471,7 +1499,7 @@ bool quest_blank(int x, int y, int xsize, int ysize, int place_num, byte flags)
 	/* Look to see if another town / quest is too close */
 	for (i = 1; i < place_num; i++)
 	{
-		if (distance(place[i].x, place[i].y, x, y) < QUEST_MIN_DIST)
+		if (distance(place[i].x, place[i].y, x, y) < MIN_DIST_QUEST)
 		{
 			/* Too close? */
 			return (FALSE);
@@ -1643,10 +1671,6 @@ void draw_quest(u16b place_num)
 
 	cave_type *c_ptr;
 
-	/* Save generation levels */
-	s16b temp_m_level = monster_level;
-	s16b temp_o_level = object_level;
-
 	/* Object theme */
 	obj_theme theme;
 
@@ -1668,14 +1692,8 @@ void draw_quest(u16b place_num)
 	/* Hack -- Induce consistant quest layout */
 	Rand_value = place[place_num].seed;
 
-	/* Hack - change to monster level of wilderness */
-	monster_level = w_ptr->done.mon_gen;
-
-	/* Change object level */
-	object_level = w_ptr->done.mon_gen;
-
 	/* Apply the monster restriction */
-	get_mon_num_prep(camp_types[q_ptr->data.wld.data].hook_func, NULL);
+	get_mon_num_prep(camp_types[q_ptr->data.wld.data].hook_func);
 
 	/* Set theme for weapons / armour */
 	theme.treasure = 0;
@@ -1685,11 +1703,8 @@ void draw_quest(u16b place_num)
 
 	init_match_theme(theme);
 
-	/* Activate restriction */
-	get_obj_num_hook = kind_is_theme;
-
 	/* Prepare allocation table */
-	get_obj_num_prep();
+	get_obj_num_prep(kind_is_theme);
 
 	/* Pick number random spots within region */
 	n = (pl_ptr->xsize * pl_ptr->ysize) / 4;
@@ -1749,8 +1764,8 @@ void draw_quest(u16b place_num)
 
 	init_match_theme(theme);
 
-	/* Prepare allocation table */
-	get_obj_num_prep();
+	/* Clear allocation table */
+	get_obj_num_prep(kind_is_theme);
 
 	/* Scatter stuff over the region */
 	for (i = 0; i < pl_ptr->xsize * WILD_BLOCK_SIZE; i++)
@@ -1811,12 +1826,5 @@ void draw_quest(u16b place_num)
 	Rand_quick = FALSE;
 
 	/* Remove the monster restriction */
-	get_mon_num_prep(NULL, NULL);
-
-	/* Clear restriction */
-	get_obj_num_hook = NULL;
-
-	/* Hack - Restore levels */
-	monster_level = temp_m_level;
-	object_level = temp_o_level;
+	get_mon_num_prep(NULL);
 }

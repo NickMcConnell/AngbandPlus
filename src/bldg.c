@@ -19,7 +19,7 @@
 static bool force_build_exit = FALSE;
 
 
-void have_nightmare(int r_idx)
+static void have_nightmare_aux(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 	char m_name[80];
@@ -46,7 +46,7 @@ void have_nightmare(int r_idx)
 		power *= 2;
 	}
 
-	if (saving_throw(p_ptr->skill_sav * 100 / power))
+	if (saving_throw(p_ptr->skill.sav * 100 / power))
 	{
 		msgf("%^s chases you through your dreams.", m_name);
 
@@ -54,7 +54,7 @@ void have_nightmare(int r_idx)
 		return;
 	}
 
-	if (p_ptr->image)
+	if (p_ptr->tim.image)
 	{
 		/* Something silly happens... */
 		msgf("You behold the %s visage of %s!",
@@ -63,7 +63,7 @@ void have_nightmare(int r_idx)
 		if (one_in_(3))
 		{
 			msgf(funny_comments[randint0(MAX_SAN_COMMENT)]);
-			p_ptr->image = p_ptr->image + randint1(r_ptr->level);
+			(void) inc_image(randint1(r_ptr->level));
 		}
 
 		/* Never mind; we can't see it clearly enough */
@@ -76,7 +76,7 @@ void have_nightmare(int r_idx)
 
 	r_ptr->r_flags4 |= RF4_ELDRITCH_HORROR;
 
-	switch (p_ptr->prace)
+	switch (p_ptr->rp.prace)
 	{
 		case RACE_IMP:
 		{
@@ -100,21 +100,21 @@ void have_nightmare(int r_idx)
 	}
 
 	/* Mind blast */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	if (!saving_throw(p_ptr->skill.sav * 100 / power))
 	{
-		if (!p_ptr->resist_confu)
+		if (!(p_ptr->flags2 & (TR2_RES_CONF)))
 		{
-			(void)set_confused(p_ptr->confused + rand_range(4, 8));
+			(void)inc_confused(rand_range(4, 8));
 		}
-		if (!p_ptr->resist_chaos && one_in_(3))
+		if (!(p_ptr->flags2 & (TR2_RES_CHAOS)) && one_in_(3))
 		{
-			(void)set_image(p_ptr->image + rand_range(250, 400));
+			(void)inc_image(rand_range(250, 400));
 		}
 		return;
 	}
 
 	/* Lose int & wis */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	if (!saving_throw(p_ptr->skill.sav * 100 / power))
 	{
 		(void)do_dec_stat(A_INT);
 		(void)do_dec_stat(A_WIS);
@@ -122,33 +122,33 @@ void have_nightmare(int r_idx)
 	}
 
 	/* Brain smash */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	if (!saving_throw(p_ptr->skill.sav * 100 / power))
 	{
-		if (!p_ptr->resist_confu)
+		if (!(p_ptr->flags2 & (TR2_RES_CONF)))
 		{
-			(void)set_confused(p_ptr->confused + rand_range(4, 8));
+			(void)inc_confused(rand_range(4, 8));
 		}
-		if (!p_ptr->free_act)
+		if (!(p_ptr->flags2 & (TR2_FREE_ACT)))
 		{
-			(void)set_paralyzed(p_ptr->paralyzed + rand_range(4, 8));
+			(void)inc_paralyzed(rand_range(4, 8));
 		}
-		while (!saving_throw(p_ptr->skill_sav))
+		while (!saving_throw(p_ptr->skill.sav))
 		{
 			(void)do_dec_stat(A_INT);
 		}
-		while (!saving_throw(p_ptr->skill_sav))
+		while (!saving_throw(p_ptr->skill.sav))
 		{
 			(void)do_dec_stat(A_WIS);
 		}
-		if (!p_ptr->resist_chaos)
+		if (!(p_ptr->flags2 & (TR2_RES_CHAOS)))
 		{
-			(void)set_image(p_ptr->image + rand_range(250, 400));
+			(void)inc_image(rand_range(250, 400));
 		}
 		return;
 	}
 
 	/* Permanent lose int & wis */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	if (!saving_throw(p_ptr->skill.sav * 100 / power))
 	{
 		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
 		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
@@ -160,7 +160,7 @@ void have_nightmare(int r_idx)
 	}
 
 	/* Amnesia */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	if (!saving_throw(p_ptr->skill.sav * 100 / power))
 	{
 		if (lose_all_info())
 		{
@@ -171,8 +171,8 @@ void have_nightmare(int r_idx)
 
 	/* Else gain permanent insanity */
 	if ((p_ptr->muta3 & MUT3_MORONIC) && (p_ptr->muta2 & MUT2_BERS_RAGE) &&
-		((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
-		((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
+		((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->flags2 & (TR2_RES_FEAR))) &&
+		((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->flags2 & (TR2_RES_CHAOS))))
 	{
 		/* The poor bastard already has all possible insanities! */
 		return;
@@ -199,7 +199,8 @@ void have_nightmare(int r_idx)
 			}
 			case 2:
 			{
-				if (!(p_ptr->muta2 & MUT2_COWARDICE) && !p_ptr->resist_fear)
+				if (!(p_ptr->muta2 & MUT2_COWARDICE) &&
+					!(p_ptr->flags2 & (TR2_RES_FEAR)))
 				{
 					msgf("You become paranoid!");
 
@@ -217,7 +218,8 @@ void have_nightmare(int r_idx)
 			}
 			case 3:
 			{
-				if (!(p_ptr->muta2 & MUT2_HALLU) && !p_ptr->resist_chaos)
+				if (!(p_ptr->muta2 & MUT2_HALLU) &&
+					!(p_ptr->flags2 & (TR2_RES_CHAOS)))
 				{
 					msgf("You are afflicted by a hallucinatory insanity!");
 					p_ptr->muta2 |= MUT2_HALLU;
@@ -242,6 +244,19 @@ void have_nightmare(int r_idx)
 	handle_stuff();
 }
 
+
+/*
+ * Wrapper function around the nightmare-making routine
+ * so we make sure the monster summon list is restored.
+ */
+void have_nightmare(void)
+{
+	/* Get a monster */
+	int r_idx = get_filter_mon_num(MAX_DEPTH, get_nightmare);
+
+	/* Have some nightmares */
+	have_nightmare_aux(r_idx);
+}
 
 bool get_nightmare(int r_idx)
 {
@@ -297,13 +312,10 @@ static void display_build(const field_type *f_ptr, const store_type *b_ptr)
 	cptr owner_name = (bo_ptr->owner_name);
 	cptr race_name = race_info[bo_ptr->owner_race].title;
 
-	/* Compute the racial factor */
-	factor = rgold_adj[bo_ptr->owner_race][p_ptr->prace];
+	/* The charisma factor */
+	factor = adj_chr_gold[p_ptr->stat[A_CHR].ind];
 
-	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-
-	factor = ((factor + 100) * bo_ptr->inflate) / 400;
+	factor = ((factor + 200) * bo_ptr->inflate) / 400;
 
 	Term_clear();
 	prtf(1, 2, "%s (%s) %s", owner_name, race_name, build_name);
@@ -795,7 +807,7 @@ bool inn_rest(void)
 	}
 
 	/* Hurt? */
-	if ((p_ptr->poisoned) || (p_ptr->cut))
+	if ((p_ptr->tim.poisoned) || (p_ptr->tim.cut))
 	{
 		msgf("You need a healer, not a room.");
 		message_flush();
@@ -817,19 +829,13 @@ bool inn_rest(void)
 	{
 		msgf("Horrible visions flit through your mind as you sleep.");
 
-		/* Pick a nightmare */
-		get_mon_num_prep(get_nightmare, NULL);
-
 		/* Have some nightmares */
 		while (TRUE)
 		{
-			have_nightmare(get_mon_num(MAX_DEPTH));
+			have_nightmare();
 
 			if (!one_in_(3)) break;
 		}
-
-		/* Remove the monster restriction */
-		get_mon_num_prep(NULL, NULL);
 
 		msgf("You awake screaming.");
 		message_flush();
@@ -838,9 +844,9 @@ bool inn_rest(void)
 	}
 
 	/* Normally heal the player */
-	(void)set_blind(0);
-	(void)set_confused(0);
-	p_ptr->stun = 0;
+	(void)clear_blind();
+	(void)clear_confused();
+	p_ptr->tim.stun = 0;
 	p_ptr->csp = p_ptr->msp;
 
 	msgf("You awake refreshed for the new day.");
@@ -905,40 +911,77 @@ static void compare_weapon_aux1(const object_type *o_ptr)
 {
 	int r = 10;
 
-	u32b f1, f2, f3;
-
-	/* Get the flags of the weapon */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
 	/* Print the relevant lines */
-	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  CLR_YELLOW "Animals:", 17);
-	if (f1 & TR1_SLAY_EVIL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												CLR_YELLOW "Evil:", 15);
-	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  CLR_YELLOW "Undead:", 20);
-	if (f1 & TR1_SLAY_DEMON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_YELLOW "Demons:", 20);
-	if (f1 & TR1_SLAY_ORC) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-											   CLR_YELLOW "Orcs:", 20);
-	if (f1 & TR1_SLAY_TROLL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_YELLOW "Trolls:", 20);
-	if (f1 & TR1_SLAY_GIANT) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_YELLOW "Giants:", 20);
-	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  CLR_YELLOW "Dragons:", 20);
-	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  CLR_YELLOW "Dragons:", 30);
-	if (f1 & TR1_BRAND_ACID) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_RED "Acid:", 20);
-	if (f1 & TR1_BRAND_ELEC) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_RED "Elec:", 20);
-	if (f1 & TR1_BRAND_FIRE) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_RED "Fire:", 20);
-	if (f1 & TR1_BRAND_COLD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_RED "Cold:", 20);
-	if (f1 & TR1_BRAND_POIS) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_RED "Poison:", 20);
+	if (o_ptr->flags1 & TR1_SLAY_ANIMAL)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_YELLOW "Animals:", 17);
+	}
+	if (o_ptr->flags1 & TR1_SLAY_EVIL)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_YELLOW "Evil:", 15);
+	}
+	if (o_ptr->flags1 & TR1_SLAY_UNDEAD)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_YELLOW "Undead:", 20);
+	}
+	if (o_ptr->flags1 & TR1_SLAY_DEMON)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_YELLOW "Demons:", 20);
+	}
+	if (o_ptr->flags1 & TR1_SLAY_ORC)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_YELLOW "Orcs:", 20);
+	}
+	if (o_ptr->flags1 & TR1_SLAY_TROLL)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_YELLOW "Trolls:", 20);
+	}
+	if (o_ptr->flags1 & TR1_SLAY_GIANT)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_YELLOW "Giants:", 20);
+	}
+	if (o_ptr->flags1 & TR1_SLAY_DRAGON)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_YELLOW "Dragons:", 20);
+	}
+	if (o_ptr->flags1 & TR1_KILL_DRAGON)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_YELLOW "Dragons:", 30);
+	}
+	if (o_ptr->flags1 & TR1_BRAND_ACID)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_RED "Acid:", 20);
+	}
+	if (o_ptr->flags1 & TR1_BRAND_ELEC)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_RED "Elec:", 20);
+	}
+	if (o_ptr->flags1 & TR1_BRAND_FIRE)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_RED "Fire:", 20);
+	}
+	if (o_ptr->flags1 & TR1_BRAND_COLD)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_RED "Cold:", 20);
+	}
+	if (o_ptr->flags1 & TR1_BRAND_POIS)
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+							CLR_RED "Poison:", 20);
+	}
 }
 
 
@@ -950,7 +993,7 @@ static void compare_weapon_aux1(const object_type *o_ptr)
  */
 static int hit_prob(int to_h, int ac)
 {
-	int chance = p_ptr->skill_thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
+	int chance = p_ptr->skill.thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
 	int prob = 0;
 
 	if (chance > 0 && ac < chance) prob = (100 * (chance - ac) / chance);
@@ -966,7 +1009,7 @@ static int hit_prob(int to_h, int ac)
  */
 static int critical_prob(int to_h, int number)
 {
-	int chance = p_ptr->skill_thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
+	int chance = p_ptr->skill.thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
 
 	if (chance <= 0) return (0);
 
@@ -1124,6 +1167,7 @@ bool compare_weapons(void)
 	o_ptr->kn_flags1 = o_ptr->flags1;
 	o_ptr->kn_flags2 = o_ptr->flags2;
 	o_ptr->kn_flags3 = o_ptr->flags3;
+	o_ptr->kn_flags4 = o_ptr->flags4;
 
 	/* Erase the "feeling" */
 	o_ptr->feeling = FEEL_NONE;
@@ -1667,11 +1711,11 @@ static void bldg_process_command(building_type * bldg, int i)
 		{
 			/* needs work */
 			hp_player(200);
-			set_poisoned(0);
-			set_blind(0);
-			set_confused(0);
-			set_cut(0);
-			set_stun(0);
+			clear_poisoned();
+			clear_blind();
+			clear_confused();
+			clear_cut();
+			clear_stun();
 			paid = TRUE;
 			break;
 		}
@@ -1747,13 +1791,10 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 
 	int factor;
 
-	/* Compute the racial factor */
-	factor = rgold_adj[bo_ptr->owner_race][p_ptr->prace];
+	/* The charisma factor */
+	factor = adj_chr_gold[p_ptr->stat[A_CHR].ind];
 
-	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-
-	factor = ((factor + 100) * bo_ptr->inflate) / 400;
+	factor = ((factor + 200) * bo_ptr->inflate) / 400;
 
 	field_hook(&area(p_ptr->px, p_ptr->py)->fld_idx,
 			   FIELD_ACT_STORE_ACT2, &factor);
@@ -1785,7 +1826,7 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 {
 	/* Hack - Get a command */
-	p_ptr->command_cmd = inkey();
+	p_ptr->cmd.cmd = inkey();
 
 	/* Handle repeating the last command */
 	repeat_check();
@@ -1794,7 +1835,7 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 	if (process_build_hook(f_ptr, b_ptr)) return (FALSE);
 
 	/* Parse the command */
-	switch (p_ptr->command_cmd)
+	switch (p_ptr->cmd.cmd)
 	{
 		case ESCAPE:
 		{
@@ -1997,13 +2038,13 @@ void do_cmd_bldg(field_type *f_ptr)
 	character_icky++;
 
 	/* No command argument */
-	p_ptr->command_arg = 0;
+	p_ptr->cmd.arg = 0;
 
 	/* No repeated command */
-	p_ptr->command_rep = 0;
+	p_ptr->cmd.rep = 0;
 
 	/* No automatic command */
-	p_ptr->command_new = 0;
+	p_ptr->cmd.new = 0;
 
 	/* Display the building */
 	display_build(f_ptr, b_ptr);
@@ -2049,7 +2090,7 @@ void do_cmd_bldg(field_type *f_ptr)
 
 
 	/* Hack -- Cancel automatic command */
-	p_ptr->command_new = 0;
+	p_ptr->cmd.new = 0;
 
 	/* Flush messages XXX XXX XXX */
 	message_flush();

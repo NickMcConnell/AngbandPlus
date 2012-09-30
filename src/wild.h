@@ -30,13 +30,17 @@
 #define ROAD_MIN		3
 
 /* Minimum separation between towns */
-#define TOWN_MIN_DIST	10
+#define MIN_DIST_TOWN	10
 
 /* Minimum separation between quests */
-#define QUEST_MIN_DIST	10
+#define MIN_DIST_QUEST	10
 
-/* Fraction of towns that are not quests: default is (1/2) */
-#define TOWN_FRACTION	2
+/* Minimum separation between dungeons */
+#define MIN_DIST_DUNGEON	8
+
+/* Number of wilderness places */
+#define NUM_TOWNS		20
+#define NUM_DUNGEON		20
 
 /* Dodgy replacement for SCREEN_WID and SCREEN_HGT */
 
@@ -51,12 +55,6 @@
 
 /* Starting town has pre-defined stores */
 #define START_STORE_NUM     7
-
-/* Town types */
-#define TOWN_OLD		1
-#define TOWN_FRACT		2
-#define TOWN_QUEST		3
-#define TOWN_FARM       4
 
 /* Town monster types */
 #define TOWN_MONST_VILLAGER		1
@@ -114,6 +112,11 @@
 #define QUEST_CAMP_MON		5	/* One in five squares has a monster */
 #define QUEST_CAMP_OBJ		5	/* One in five squares has an object */
 #define QUEST_CAMP_SCATTER	10	/* Non-camp sqaures have stuff */
+
+/* Dungeon flags */
+#define DF_NONE			0x00
+#define DF_ROAD			0x01
+#define DF_TRACK		0x02
 
 
 /* Building types */

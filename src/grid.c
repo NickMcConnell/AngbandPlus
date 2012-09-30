@@ -80,7 +80,7 @@ void place_random_stairs(int x, int y)
 		up_stairs = FALSE;
 
 	/* Bottom */
-	if (p_ptr->depth >= MAX_DEPTH - 1)
+	if (p_ptr->depth >= max_dun_level())
 		down_stairs = FALSE;
 
 	/* Quest-level */
@@ -125,7 +125,7 @@ void place_random_door(int x, int y)
 	if (ironman_nightmare && one_in_(666))
 	{
 		/* Create invisible wall */
-		set_feat_grid(c_ptr, FEAT_FLOOR);
+		set_feat_grid(c_ptr, dun->feat_floor);
 		(void)place_field(x, y, FT_WALL_INVIS);
 		return;
 	}
@@ -172,7 +172,7 @@ void place_closed_door(int x, int y)
 	if (ironman_nightmare && one_in_(666))
 	{
 		/* Create invisible wall */
-		set_feat_bold(x, y, FEAT_FLOOR);
+		set_feat_bold(x, y, dun->feat_floor);
 		(void)place_field(x, y, FT_WALL_INVIS);
 		return;
 	}
@@ -248,7 +248,7 @@ void vault_objects(int x, int y, int num)
 			/* Place an item */
 			if (randint0(100) < 75)
 			{
-				place_object(k, j, FALSE, FALSE);
+				place_object(k, j, FALSE, FALSE, 0);
 			}
 
 			/* Place gold */
@@ -350,9 +350,7 @@ void vault_monsters(int x1, int y1, int num)
 			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* Place the monster (allow groups) */
-			monster_level = base_level + 2;
-			(void)place_monster(x, y, TRUE, TRUE);
-			monster_level = base_level;
+			(void)place_monster(x, y, TRUE, TRUE, 2);
 
 			/* Have placed a monster */
 			break;
@@ -475,6 +473,35 @@ void generate_draw(int x1, int y1, int x2, int y2, int feat)
 		set_feat_bold(x, y2, feat);
 	}
 }
+
+
+/*
+ * Generate helper -- draw a line with a feature in a room
+ */
+void generate_line(int x1, int y1, int x2, int y2, int feat)
+{
+	int i;
+	
+	if (x1 == x2)
+	{
+		for (i = y1; i <= y2; i++)
+		{
+			set_feat_bold(x1, i, feat);
+		}
+	}
+	else if (y1 == y2)
+	{
+		for (i = x1; i <= x2; i++)
+		{
+			set_feat_bold(i, y1, feat);
+		}
+	}
+	else
+	{
+		quit("Not a horizontal or vertical line in generate_line()");
+	}
+}
+
 
 
 /*
@@ -685,7 +712,7 @@ void set_floor(int x, int y)
 	/* Set to be floor if is a wall (don't touch lakes). */
 	if (c_ptr->feat == FEAT_WALL_EXTRA)
 	{
-		set_feat_grid(c_ptr, FEAT_FLOOR);
+		set_feat_grid(c_ptr, dun->feat_floor);
 	}
 }
 
@@ -954,7 +981,7 @@ static bool set_tunnel(int *x, int *y, bool affectwall)
 		return TRUE;
 	}
 
-	if (feat == FEAT_FLOOR)
+	if (feat == dun->feat_floor)
 	{
 		/* Don't do anything */
 		return TRUE;
@@ -983,7 +1010,7 @@ static bool set_tunnel(int *x, int *y, bool affectwall)
 				}
 			}
 		}
-		set_feat_bold(*x, *y, FEAT_FLOOR);
+		set_feat_bold(*x, *y, dun->feat_floor);
 
 		return TRUE;
 	}
@@ -1277,7 +1304,7 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 			midval = cave_p(x3, y3)->feat;
 		}
 
-		if (midval == FEAT_FLOOR)
+		if (midval == dun->feat_floor)
 		{
 			if (build_tunnel2(x1, y1, x3, y3, type, cutoff))
 			{
@@ -1831,9 +1858,9 @@ bool generate_fracave(int x0, int y0, int xsize, int ysize, int cutoff,
 	fill_data.c3 = 0;
 
 	/* features to fill with */
-	fill_data.feat1 = FEAT_FLOOR;
-	fill_data.feat2 = FEAT_FLOOR;
-	fill_data.feat3 = FEAT_FLOOR;
+	fill_data.feat1 = dun->feat_floor;
+	fill_data.feat2 = dun->feat_floor;
+	fill_data.feat3 = dun->feat_floor;
 
 	/* number of filled squares */
 	fill_data.amount = 0;
@@ -1974,10 +2001,10 @@ bool generate_fracave(int x0, int y0, int xsize, int ysize, int cutoff,
 
 
 bool generate_lake(int x0, int y0, int xsize, int ysize,
-                   int c1, int c2, int c3, int type)
+                   int c1, int c2, int c3,
+				   byte f1, byte f2, byte f3)
 {
 	int x, y, xhsize, yhsize;
-	int feat1, feat2, feat3;
 
 	cave_type *c_ptr;
 
@@ -1985,121 +2012,15 @@ bool generate_lake(int x0, int y0, int xsize, int ysize,
 	xhsize = xsize / 2;
 	yhsize = ysize / 2;
 
-	/* Get features based on type */
-	switch (type)
-	{
-		case LAKE_LAVA:
-		{
-			/* Lava */
-			feat1 = FEAT_DEEP_LAVA;
-			feat2 = FEAT_SHAL_LAVA;
-			feat3 = FEAT_FLOOR;
-			break;
-		}
-
-		case LAKE_WATER:
-		{
-			/* Water */
-			feat1 = FEAT_DEEP_WATER;
-			feat2 = FEAT_SHAL_WATER;
-			feat3 = FEAT_FLOOR;
-			break;
-		}
-
-		case LAKE_DESTROY:
-		{
-			/* Collapsed cave */
-			feat1 = FEAT_FLOOR;
-			feat2 = FEAT_FLOOR;
-			feat3 = FEAT_RUBBLE;
-			break;
-		}
-
-		case LAKE_EEARTH:
-		{
-			/* Earth vault */
-			feat1 = FEAT_RUBBLE;
-			feat2 = FEAT_FLOOR;
-			feat3 = FEAT_RUBBLE;
-			break;
-		}
-
-		case LAKE_EAIR:
-		{
-			/* Air vault */
-			feat1 = FEAT_FLOOR;
-			feat2 = FEAT_TREES;
-			feat3 = FEAT_FLOOR;
-			break;
-		}
-
-		case LAKE_EWATER:
-		{
-			/* Water vault */
-			feat1 = FEAT_SHAL_WATER;
-			feat2 = FEAT_DEEP_WATER;
-			feat3 = FEAT_SHAL_WATER;
-			break;
-		}
-
-		case LAKE_EFIRE:
-		{
-			/* Fire Vault */
-			feat1 = FEAT_SHAL_LAVA;
-			feat2 = FEAT_DEEP_LAVA;
-			feat3 = FEAT_SHAL_LAVA;
-			break;
-		}
-
-		case LAKE_CAVERN:
-		{
-			/* Cavern */
-			feat1 = FEAT_FLOOR;
-			feat2 = FEAT_FLOOR;
-			feat3 = FEAT_FLOOR;
-			break;
-		}
-
-		case LAKE_RUBBLE:
-		{
-			/* Rubble everywhere */
-			feat1 = FEAT_RUBBLE;
-			feat2 = FEAT_RUBBLE;
-			feat3 = FEAT_FLOOR;
-			break;
-		}
-
-		case LAKE_SAND:
-		{
-			/* Sand everywhere */
-			feat1 = FEAT_SAND;
-			feat2 = FEAT_SAND;
-			feat3 = FEAT_FLOOR;
-			break;
-		}
-
-		case LAKE_ROCK:
-		{
-			/* Rock formation */
-			feat1 = FEAT_WALL_INNER;
-			feat2 = FEAT_WALL_INNER;
-			feat3 = FEAT_FLOOR;
-			break;
-		}
-
-			/* Paranoia */
-		default: return FALSE;
-	}
-
 	/* cutoffs */
 	fill_data.c1 = c1;
 	fill_data.c2 = c2;
 	fill_data.c3 = c3;
 
 	/* features to fill with */
-	fill_data.feat1 = feat1;
-	fill_data.feat2 = feat2;
-	fill_data.feat3 = feat3;
+	fill_data.feat1 = f1;
+	fill_data.feat2 = f2;
+	fill_data.feat3 = f3;
 
 	/* number of filled squares */
 	fill_data.amount = 0;

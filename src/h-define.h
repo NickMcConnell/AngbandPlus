@@ -121,16 +121,16 @@
 
 	/* Pick which type of output to use */
 # ifdef DEBUG_CORE
-#  define __assert_fmt core_fmt
+#  define ANG__assert_fmt core_fmt
 # else /* DEBUG_CORE */
-#  define __assert_fmt quit_fmt
+#  define ANG__assert_fmt quit_fmt
 # endif /* DEBUG_CORE */
 
 	/* Pick whether to save the game before aborting */
 # ifdef DEBUG_ABORT
-#  define __assert_save ((void) 0)
+#  define ANG__assert_save ((void) 0)
 # else
-#  define __assert_save save_player()
+#  define ANG__assert_save save_player()
 # endif
 
 	/* Possibly save the game, and then abort. */
@@ -140,8 +140,8 @@
 		if (!(expr))\
 		{\
 			signals_ignore_tstp();\
-			__assert_save;\
-			__assert_fmt("\n%s%s\n%s%s\n%s%d\n\n",\
+			ANG__assert_save;\
+			ANG__assert_fmt("\n%s%s\n%s%s\n%s%d\n\n",\
 			"Assertion failed: ", #expr,\
 			"in file ", __FILE__,\
 			"on line ", __LINE__);\

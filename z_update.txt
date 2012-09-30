@@ -3,9 +3,125 @@ the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
 
+Zangband 2.7.3:
+- Added many new object flags to describe new behaviour.
+- Changed the build system to not use automake.  The makefiles
+  are recursively included, instead of recursively executed.
+  This makes intra-directory dependancies work properly.
+- Added auto-detection of the gtk, tk and vcs ports in the
+  configure script.
+- Fixed a bug in the lua source, MULT_RET was being used before
+  it was defined.
+- More cleanup of the tk port source.  This still is alpha-level
+  quality though.
+- Replaced much of the random artifact code.  The changes include:
+  Preventing the slow digestion flag from being given to armour.
+  Themed artifact types.
+  More types of items can be random artifacts, including phials etc.
+  The power of randarts depends on the depth you find them.
+- Fix problems with redrawing the screen when a racial activation
+  kills a monster.
+- Tweaked the mutations, adding disadvantages to most "good"
+  mutations, and advantages to some of the "bad" ones.  Removed
+  the regeneration modifier caused by having too many mutations.
+- Fixed a crash on loading corrupt savefiles, when o_max was set
+  a the limit.
+- Changed the r_info.txt to make groups of monsters appear in
+  a logical order in the dungeon.
+- Prevent multiple traps from being created on the same square.
+  It seems no one likes this "feature".
+- Added a few new death messages.
+- Added a few new items.  (A ring, two amulets and a sword.)
+- Removed player histories from the info screen.
+- Added themed dungeons.  These will have differing distributions
+  of monsters, objects, rooms, floors and depths.  If you don't
+  like the booty in one type of dungeon, try somewhere else.
+- Added approximately ten more types of rooms so that the new
+  dungeons will look quite different from each other.
+- Tweaked item selection so that not quite so many out of depth
+  items are made early in the dungeon.
+- Shortened the town names.
+- Added the dragons from Ingeborg Norden.
+- Minor fixups to the borg - it understands traps now.
+  (Code from Matt T.)
+- Huge cleanups to the lua interface - instead of using set_blah(),
+  use inc_blah() or clear_blah().
+- Added a "return" flags to some items.  This causes them to
+  return to your hand when thrown.
+- Thrown weapons stack in your inventory.
+- Gave rogues an extra shot with a thrown dagger at level 10.
+- Only delay on TERM_XTRA_DELAY when the requested delay is >0.
+  This should speed up the Borg a lot on systems that end the
+  timeslice of the process when calling "usleep(0)".
+- Fixed a problem with resizing the bitmap in the gtk port, when bits
+  per pixel and bytes per pixel don't correspond (for example 24 bit
+  bitmap, but 4 bytes per pixel).
+- Fixed the pattern vortex abuse.
+- Fix problem with open/closing doors in the dark/blind.
+- Fix problem when there are too many objects on a square to list
+  them all.  Just list the first 23.
+- Fix bug with selling cursed items to stores causing them to be
+  displayed for sale at 0 AU.
+- Fix bug with bows causing the STR and DEX bonuses to always apply.
+- Prevent the player from buying stacks of weapons / armour.
+- Optimised the overhead map and dungeon map term types.  They
+  should be much more usable on slow machines.
+- Fix object corruption in shooting code with regards to the fired
+  ammo being paritally overwritten by a dead monsters loot.
+- Fix many bugs where changing the ego type of an item didn't cause
+  a pack sort/combine.
+- Minor error messages are now immediately displayed in the message
+  window.  (bug reported by "Mogami")
+- Make sure regions are loaded properly.  Before, we generated everything
+  and then copied the loaded savefile over the top.  This screws the
+  object, monster and field lists.  We now take care of the creation
+  manually - fixing up the refcounts in allocate_block().  This fixes
+  the "corrupted savefile" bug where the game was bombing out on
+  an assert in object2.c  2.7.3 will load these "broken" savefiles
+  with no problems.
+- Fix a couple of problems with darkness-causing spells.
+- Fixed a crash on displaying graphics on secondary terms in a few
+  linux ports.
+- Removed autoscum and ironman_rooms options.  The new dungeon-making
+  algorithm makes much more interesting dungeons...
+- Removed the old "destroy dungeon" code - the new ruined dungeons
+  look much better.
+- Made multiple dungeons appear in the middle of the wilderness.
+  The number on the wilderness main-map is the starting depth of the
+  dungeon divided by 10.  (Just like quest difficulties.)
+- Add the pet info screen as an option in the pet menu.
+- Make the enter key function as 'yes' for yes/no prompts.
+- Add description lines for objects, and display them in the
+  inspect command.  (Most objects don't have descriptions yet.)
+- Make the "save and exit" prompt work better with bigscreen.
+- Fix autorepeat bug with menu code.  (Makes the 'n' command work
+  again.)
+- Glyph of warding works again.
+- Fix generation of crossroads in the wilderness.
+- Add support for broken Win 2k, which has problems displaying the
+  "centered dot" character.  This is from "danceswithcrows@usa.net"
+   on rec.games.roguelike.angband.
+- Updated the FAQ.
+- The DOS version can now be compiled with current releases of the
+  Allegro library.
+- Apply Bablos's fixes to the amiga port.
+- Fix the query-symbol command so that it doesn't leave junk on the
+  screen.
+- Highlight quest monsters in visible monster list term.
+- Fix bounds checking so that rooms next to permanent walls on the
+  dungeon boundary get lit properly.
+- Attempt to fix the problem where the game generates towns with
+  blank spots for stores, when converting from old savefiles.
+- Display town names on large scale wilderness map when cursor is on
+  the towns.
+- Add command to display list of stores for the highlighted town on
+  the large scale wilderness map.
+- Removed the view_perma_grids option - it didn't do much.
+- Arena levels only appear in "city" dungeons.
+- Make deep swamp act safer with regards to resist poison.
+- Make the borg_cheat_death option work again.
+
 Zangband 2.7.2:
-
-
 - Made the HAVE_MKSTEMP option on by default for the linux ports.
   If you do not have a library with that function the option can be
   removed.
@@ -44,7 +160,7 @@ Zangband 2.7.2:
 - There is some randomness applied to the last digit of starting
   characters' stats.
 - Added some borg fixes from Lunal (M. Titus).
-- Made Rings of See Invisible, Dexterity, Resist Fire, Resist Cold,
+- Made Rings of See Invisible, Dexterity, Resist Fire and Cold,
   and Ring of the Cat more common.
 - Change the nominal depths of many items to match their actual
   drop depths, or in some cases add or change drop entries to match
@@ -326,7 +442,6 @@ Zangband 2.7.1:
 - Fixed a problem with the autoconf bootstrap method.
 - Rangers are better, not worse at hitting monsters hiding in trees.	
 - Normal stores can generate good or excellent items again.
-
 
 ZAngband 2.7.0:
 - Removed the python code, and replaced it with scripting using Lua.

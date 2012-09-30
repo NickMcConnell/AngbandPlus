@@ -224,9 +224,10 @@ proc NSChoiceWindow::InitWindow {oop} {
 	canvas $canvas \
 		-borderwidth 0 -width $iconSize -height $iconSize -background Black \
 		-highlightthickness 0
+if 0 {
 	$canvas create widget \
 		6 6 -tags icon
-
+}
 	# Create an arrow which appears when there is content out of site
 	set x [expr {$iconSize / 2}]
 	$canvas create polygon [expr {$x - 3}] 46 [expr {$x + 3}] 46 \

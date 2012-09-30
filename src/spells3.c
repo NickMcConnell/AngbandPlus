@@ -76,23 +76,14 @@ bool teleport_away(int m_idx, int dis)
 
 			c_ptr = area(nx, ny);
 
-			/* Check for a field that blocks movement */
-			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
-			{
-				continue;
-			}
-
 			/* Require "empty" floor space */
 			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* Not on player */
 			if ((ny == p_ptr->py) && (nx == p_ptr->px)) continue;
 
-			/* ...nor onto the Pattern */
-			if (cave_pattern_grid(c_ptr)) continue;
-
 			/* Not on bad terrain */
-			if (!monster_can_cross_terrain(c_ptr->feat, r_ptr)) continue;
+			if (!test_monster_square(c_ptr, r_ptr)) continue;
 
 			/* 
 			 * Test for fields that will not allow monsters to
@@ -346,7 +337,7 @@ void teleport_player(int dis)
 	bool look = TRUE;
 	cave_type *c_ptr;
 
-	if (p_ptr->anti_tele)
+	if (p_ptr->flags3 & (TR3_NO_TELE))
 	{
 		msgf("A mysterious force prevents you from teleporting!");
 		return;
@@ -522,7 +513,7 @@ void teleport_player_to(int nx, int ny)
 	/* No movement at all */
 	if ((ny == py) && (nx == px)) return;
 
-	if (p_ptr->anti_tele)
+	if (p_ptr->flags3 & (TR3_NO_TELE))
 	{
 		msgf("A mysterious force prevents you from teleporting!");
 		return;
@@ -614,6 +605,48 @@ void teleport_player_to(int nx, int ny)
 }
 
 
+/*
+ * What is the maximum dungeon level for this dungeon?
+ */
+int max_dun_level(void)
+{
+	place_type *pl_ptr = &place[p_ptr->place_num];
+	dun_type *d_ptr = pl_ptr->dungeon;
+
+	/* Vanilla town is special */
+	if (vanilla_town) return (MAX_DEPTH - 1);
+	
+	/* Otherwise, use max depth of dungeon */
+	return (d_ptr->max_level);
+}
+
+/*
+ * Fix problems due to dungeons not starting at level 1.
+ */
+void fixup_dun_level(void)
+{
+	place_type *pl_ptr = &place[p_ptr->place_num];
+	dun_type *d_ptr = pl_ptr->dungeon;
+	
+	/* Don't need to do anything with the old dungeon */
+	if (vanilla_town) return;
+	
+	/* Out of bounds */
+	if (p_ptr->depth < d_ptr->min_level)
+	{
+		/* We have just decended - and have to decend more? */
+		if (p_ptr->depth == 1)
+		{
+			p_ptr->depth = d_ptr->min_level;
+		}
+		else
+		{
+			/* Assume we are rising from d_ptr->min_level upwards. */
+			p_ptr->depth = 0;
+		}
+	}
+}
+
 
 /*
  * Teleport the player one level up or down (random when legal)
@@ -627,9 +660,13 @@ void teleport_player_level(void)
 		return;
 	}
 
-	if (!check_down_wild()) return;
-
-	if (p_ptr->anti_tele)
+	if (!check_down_wild())
+	{
+		msgf("There is no effect.");
+		return;
+	}
+	
+	if (p_ptr->flags3 & (TR3_NO_TELE))
 	{
 		msgf("A mysterious force prevents you from teleporting!");
 		return;
@@ -644,9 +681,9 @@ void teleport_player_level(void)
 		p_ptr->depth++;
 
 		/* Leaving */
-		p_ptr->leaving = TRUE;
+		p_ptr->state.leaving = TRUE;
 	}
-	else if (is_quest_level(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH - 1))
+	else if (is_quest_level(p_ptr->depth))
 	{
 		msgf(MSGT_TPLEVEL, "You rise up through the ceiling.");
 
@@ -655,9 +692,9 @@ void teleport_player_level(void)
 		p_ptr->depth--;
 
 		/* Leaving */
-		p_ptr->leaving = TRUE;
+		p_ptr->state.leaving = TRUE;
 	}
-	else if (one_in_(2))
+	else if (one_in_(2) || (p_ptr->depth >= max_dun_level()))
 	{
 		msgf(MSGT_TPLEVEL, "You rise up through the ceiling.");
 
@@ -666,7 +703,7 @@ void teleport_player_level(void)
 		p_ptr->depth--;
 
 		/* Leaving */
-		p_ptr->leaving = TRUE;
+		p_ptr->state.leaving = TRUE;
 	}
 	else
 	{
@@ -677,8 +714,11 @@ void teleport_player_level(void)
 		p_ptr->depth++;
 
 		/* Leaving */
-		p_ptr->leaving = TRUE;
+		p_ptr->state.leaving = TRUE;
 	}
+
+	/* Fix dungeon level due to new themed dungeons */
+	fixup_dun_level();
 
 	/* Sound */
 	sound(SOUND_TPLEVEL);
@@ -687,30 +727,21 @@ void teleport_player_level(void)
 
 bool check_down_wild(void)
 {
+	/* Can always recall from dungeon */
+	if (p_ptr->depth) return (TRUE);
+
 	/* Hack - no recalling in the middle of the wilderness */
-	if ((!p_ptr->depth) && (!p_ptr->place_num))
+	if (!p_ptr->place_num)
 	{
 		msgf("Nothing happens.");
 		return (FALSE);
 	}
 
 	/* Cannot recall in towns with no dungeon */
-	if ((!vanilla_town) && (!p_ptr->depth))
+	if (!vanilla_town)
 	{
-		bool found = FALSE;
-		int i;
-
-		/* Look for stairs */
-		for (i = 0; i < place[p_ptr->place_num].numstores; i++)
-		{
-			if (place[p_ptr->place_num].store[i].type == BUILD_STAIRS)
-			{
-				found = TRUE;
-				break;
-			}
-		}
-
-		if (!found)
+		/* Look for dungeon */
+		if (!place[p_ptr->place_num].dungeon)
 		{
 			msgf("Nothing happens.");
 			return (FALSE);
@@ -746,15 +777,15 @@ void recall_player(int turns)
 			p_ptr->max_depth = p_ptr->depth;
 
 	}
-	if (!p_ptr->word_recall)
+	if (!p_ptr->tim.word_recall)
 	{
-		p_ptr->word_recall = turns;
+		p_ptr->tim.word_recall = turns;
 		msgf("The air about you becomes charged...");
 		p_ptr->redraw |= (PR_STATUS);
 	}
 	else
 	{
-		p_ptr->word_recall = 0;
+		p_ptr->tim.word_recall = 0;
 		msgf("A tension leaves the air around you...");
 		p_ptr->redraw |= (PR_STATUS);
 	}
@@ -896,10 +927,10 @@ void mutate_player(void)
 	ii = randint0(A_MAX);
 	for (jj = ii; jj == ii; jj = randint0(A_MAX)) /* loop */ ;
 
-	max1 = p_ptr->stat_max[ii];
-	cur1 = p_ptr->stat_cur[ii];
-	max2 = p_ptr->stat_max[jj];
-	cur2 = p_ptr->stat_cur[jj];
+	max1 = p_ptr->stat[ii].max;
+	cur1 = p_ptr->stat[ii].cur;
+	max2 = p_ptr->stat[jj].max;
+	cur2 = p_ptr->stat[jj].cur;
 
 	/* Adjust the swapped stats... */
 	bonus1 = rp_ptr->r_adj[ii] + cp_ptr->c_adj[ii];
@@ -912,10 +943,10 @@ void mutate_player(void)
 	cur1 = max1;
 	cur2 = max2;
 
-	p_ptr->stat_max[ii] = max2;
-	p_ptr->stat_cur[ii] = cur2;
-	p_ptr->stat_max[jj] = max1;
-	p_ptr->stat_cur[jj] = cur1;
+	p_ptr->stat[ii].max = max2;
+	p_ptr->stat[ii].cur = cur2;
+	p_ptr->stat[jj].max = max1;
+	p_ptr->stat[jj].cur = cur1;
 
 	p_ptr->update |= (PU_BONUS);
 }
@@ -942,7 +973,7 @@ void apply_nexus(const monster_type *m_ptr)
 
 		case 6:
 		{
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 				break;
@@ -955,7 +986,7 @@ void apply_nexus(const monster_type *m_ptr)
 
 		case 7:
 		{
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skill.sav)
 			{
 				msgf("You resist the effects!");
 				break;
@@ -1106,6 +1137,18 @@ void brand_weapon(int brand_type)
 		add_ego_flags(o_ptr, ego);
 
 		o_ptr->cost = cost;
+		
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Recalculate mana */
+		p_ptr->update |= (PU_MANA);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	}
 }
 
@@ -1181,7 +1224,7 @@ void fetch(int dir, int wgt, bool require_los)
 	}
 
 	/* Use a target */
-	if (!ironman_moria && (dir == 5) && target_okay())
+	if ((dir == 5) && target_okay())
 	{
 		tx = p_ptr->target_col;
 		ty = p_ptr->target_row;
@@ -1285,7 +1328,7 @@ void alter_reality(void)
 		if (autosave_l) do_cmd_save_game(TRUE);
 
 		/* Leaving */
-		p_ptr->leaving = TRUE;
+		p_ptr->state.leaving = TRUE;
 	}
 	else
 	{
@@ -1410,18 +1453,13 @@ void identify_pack(void)
  */
 static bool uncurse_item(object_type *o_ptr, bool all)
 {
-	u32b f1, f2, f3;
-	
 	bool heavy;
 
 	/* Uncursed already */
 	if (!cursed_p(o_ptr)) return (FALSE);
 
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
 	/* Heavily Cursed Items need a special spell */
-	if (!all && (f3 & TR3_HEAVY_CURSE))
+	if (!all && (o_ptr->flags3 & TR3_HEAVY_CURSE))
 	{
 		/* Let the player know */
 		o_ptr->kn_flags3 |= TR3_HEAVY_CURSE;
@@ -1431,7 +1469,7 @@ static bool uncurse_item(object_type *o_ptr, bool all)
 	}
 
 	/* Perma-Cursed Items can NEVER be uncursed */
-	if (f3 & TR3_PERMA_CURSE) 
+	if (o_ptr->flags3 & TR3_PERMA_CURSE) 
 	{
 		/* Let the player know */
 		o_ptr->kn_flags3 |= TR3_PERMA_CURSE;
@@ -1445,7 +1483,7 @@ static bool uncurse_item(object_type *o_ptr, bool all)
 	o_ptr->kn_flags3 &= ~(TR3_CURSED | TR3_HEAVY_CURSE);
 	
 	/* Heavy sensing? */
-	heavy = class_info[p_ptr->pclass].heavy_sense;
+	heavy = class_info[p_ptr->rp.pclass].heavy_sense;
 	
 	/* Hack -- assume no feeling */
 	o_ptr->feeling = FEEL_NONE;
@@ -1530,7 +1568,7 @@ bool alchemy(void)
 	cptr q, s;
 
 	/* Hack -- force destruction */
-	if (p_ptr->command_arg > 0) force = TRUE;
+	if (p_ptr->cmd.arg > 0) force = TRUE;
 
 	/* Get an item */
 	q = "Turn which item to gold? ";
@@ -1632,33 +1670,23 @@ void stair_creation(void)
 	/* XXX XXX XXX */
 	delete_object(px, py);
 
-#if 0
-	/* Create a staircase */
-	if (p_ptr->inside_quest)
-	{
-		/* Quest? */
-		msgf("There is no effect!");
-		return;
-	}
-#endif /* 0 */
-
 	if (!p_ptr->depth || ironman_downward)
 	{
 		/* Town/wilderness or Ironman */
 		cave_set_feat(px, py, FEAT_MORE);
 	}
-	else if (is_quest_level(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH - 1))
+	else if (is_quest_level(p_ptr->depth))
 	{
 		/* Quest level */
 		cave_set_feat(px, py, FEAT_LESS);
 	}
-	else if (one_in_(2))
+	else if (one_in_(2) || (p_ptr->depth >= max_dun_level()))
 	{
-		cave_set_feat(px, py, FEAT_MORE);
+		cave_set_feat(px, py, FEAT_LESS);
 	}
 	else
 	{
-		cave_set_feat(px, py, FEAT_LESS);
+		cave_set_feat(px, py, FEAT_MORE);
 	}
 }
 
@@ -1670,12 +1698,8 @@ void stair_creation(void)
  */
 static void break_curse(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	if (cursed_p(o_ptr) && !(f3 & TR3_PERMA_CURSE) && (randint0(100) < 25))
+	if (cursed_p(o_ptr) && !(o_ptr->flags3 & TR3_PERMA_CURSE)
+		 && (randint0(100) < 25))
 	{
 		msgf("The curse is broken!");
 		
@@ -1964,7 +1988,8 @@ bool artifact_scroll(void)
 			p_ptr->update |= PU_WEIGHT;
 		}
 
-		okay = create_artifact(o_ptr, TRUE);
+		/* The power of the generated artifact depends on player level */
+		okay = create_artifact(o_ptr, p_ptr->lev * 2, TRUE);
 	}
 
 	/* Failure */
@@ -2037,6 +2062,7 @@ static void bad_luck(object_type *o_ptr)
 		o_ptr->flags1 = 0;
 		o_ptr->flags2 = 0;
 		o_ptr->flags3 = 0;
+		o_ptr->flags4 = 0;
 
 		add_ego_flags(o_ptr, EGO_BLASTED);
 
@@ -2048,6 +2074,9 @@ static void bad_luck(object_type *o_ptr)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	}
 }
 
@@ -2230,6 +2259,7 @@ bool mundane_spell(void)
 	o_ptr->flags1 = k_ptr->flags1;
 	o_ptr->flags2 = k_ptr->flags2;
 	o_ptr->flags3 = k_ptr->flags3;
+	o_ptr->flags4 = k_ptr->flags4;
 
 	/* For rod-stacking */
 	if (o_ptr->tval == TV_ROD)
@@ -2276,6 +2306,7 @@ bool identify_fully(void)
 	o_ptr->kn_flags1 = o_ptr->flags1;
 	o_ptr->kn_flags2 = o_ptr->flags2;
 	o_ptr->kn_flags3 = o_ptr->flags3;
+	o_ptr->kn_flags4 = o_ptr->flags4;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2471,8 +2502,8 @@ bool recharge(int power)
 			/*** Determine Seriousness of Failure ***/
 
 			/* (High) Mages recharge objects more safely. */
-			if ((p_ptr->pclass == CLASS_MAGE) ||
-				(p_ptr->pclass == CLASS_HIGH_MAGE))
+			if ((p_ptr->rp.pclass == CLASS_MAGE) ||
+				(p_ptr->rp.pclass == CLASS_HIGH_MAGE))
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
@@ -2596,7 +2627,6 @@ bool recharge(int power)
 bool bless_weapon(void)
 {
 	object_type *o_ptr;
-	u32b f1, f2, f3;
 	char o_name[256];
 	cptr q, s;
 
@@ -2615,13 +2645,10 @@ bool bless_weapon(void)
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0, 256);
 
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
 	if (cursed_p(o_ptr))
 	{
-		if (((f3 & TR3_HEAVY_CURSE) && (randint1(100) < 33)) ||
-			(f3 & TR3_PERMA_CURSE))
+		if (((o_ptr->flags3 & TR3_HEAVY_CURSE) && (randint1(100) < 33)) ||
+			(o_ptr->flags3 & TR3_PERMA_CURSE))
 		{
 			msgf("The black aura on the %s disrupts the blessing!",
 					   o_name);
@@ -2642,7 +2669,7 @@ bool bless_weapon(void)
 	 * artifact weapon they find. Ego weapons and normal weapons
 	 * can be blessed automatically.
 	 */
-	if (f3 & TR3_BLESSED)
+	if (o_ptr->flags3 & TR3_BLESSED)
 	{
 		msgf("The %s %s blessed already.", o_name,
 				   ((o_ptr->number > 1) ? "were" : "was"));
@@ -2928,14 +2955,16 @@ void display_spell_list(void)
 {
 	int i, j;
 	int y = 0, x = 0;
-	int use_realm1 = p_ptr->realm1 - 1;
-	int use_realm2 = p_ptr->realm2 - 1;
+	int use_realm[2];
 	const magic_type *s_ptr;
 	char name[80];
 	char out_val[160];
 	int row = 0, col = 0;
 	unsigned int max_wid = 0;
 
+	use_realm[0] = p_ptr->spell.r[0].realm - 1;
+	use_realm[1] = p_ptr->spell.r[1].realm - 1;
+	
 	/* Erase window */
 	clear_from(0);
 
@@ -2943,7 +2972,7 @@ void display_spell_list(void)
 	if (!mp_ptr->spell_book) return;
 
 	/* Mindcrafter spell-list */
-	if (p_ptr->pclass == CLASS_MINDCRAFTER)
+	if (p_ptr->rp.pclass == CLASS_MINDCRAFTER)
 	{
 		int minfail;
 		int plev = p_ptr->lev;
@@ -2972,7 +3001,7 @@ void display_spell_list(void)
 
 			/* Reduce failure rate by INT/WIS adjustment */
 			chance -=
-				3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+				3 * (adj_mag_stat[p_ptr->stat[mp_ptr->spell_stat].ind] - 1);
 
 			/* Not enough mana to cast */
 			if (spell.mana_cost > p_ptr->csp)
@@ -2982,14 +3011,14 @@ void display_spell_list(void)
 			}
 
 			/* Extract the minimum failure rate */
-			minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+			minfail = adj_mag_fail[p_ptr->stat[mp_ptr->spell_stat].ind];
 
 			/* Minimum failure rate */
 			if (chance < minfail) chance = minfail;
 
 			/* Stunning makes spells harder */
-			if (p_ptr->stun > 50) chance += 25;
-			else if (p_ptr->stun) chance += 15;
+			if (p_ptr->tim.stun > 50) chance += 25;
+			else if (p_ptr->tim.stun) chance += 15;
 
 			/* Always a 5 percent chance of working */
 			if (chance > 95) chance = 95;
@@ -3009,7 +3038,7 @@ void display_spell_list(void)
 	/* Normal spellcaster with books */
 
 	/* Scan books */
-	for (j = 0; j < ((use_realm2 > -1) ? 2 : 1); j++)
+	for (j = 0; j < ((use_realm[1] > -1) ? 2 : 1); j++)
 	{
 		int n = 0;
 
@@ -3019,10 +3048,10 @@ void display_spell_list(void)
 			cptr a = CLR_WHITE;
 
 			/* Access the spell */
-			s_ptr = &mp_ptr->info[(j < 1) ? use_realm1 : use_realm2][i % 32];
+			s_ptr = &mp_ptr->info[use_realm[j]][i % 32];
 
 			strcpy(name,
-				   spell_names[(j < 1) ? use_realm1 : use_realm2][i % 32]);
+				   spell_names[use_realm[j]][i % 32]);
 
 			/* Illegible */
 			if (s_ptr->slevel >= 99)
@@ -3035,27 +3064,21 @@ void display_spell_list(void)
 			}
 
 			/* Forgotten */
-			else if ((j < 1) ?
-					 ((p_ptr->spell_forgotten1 & (1L << i))) :
-					 ((p_ptr->spell_forgotten2 & (1L << (i % 32)))))
+			else if (p_ptr->spell.r[j].forgotten & (1L << (i % 32)))
 			{
 				/* Forgotten */
 				a = CLR_ORANGE;
 			}
 
 			/* Unknown */
-			else if (!((j < 1) ?
-					   (p_ptr->spell_learned1 & (1L << i)) :
-					   (p_ptr->spell_learned2 & (1L << (i % 32)))))
+			else if (!(p_ptr->spell.r[j].learned & (1L << (i % 32))))
 			{
 				/* Unknown */
 				a = CLR_RED;
 			}
 
 			/* Untried */
-			else if (!((j < 1) ?
-					   (p_ptr->spell_worked1 & (1L << i)) :
-					   (p_ptr->spell_worked2 & (1L << (i % 32)))))
+			else if (!(p_ptr->spell.r[j].worked & (1L << (i % 32))))
 			{
 				/* Untried */
 				a = CLR_YELLOW;
@@ -3109,7 +3132,7 @@ s16b spell_chance(int spell, int realm)
 	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	chance -= 3 * (adj_mag_stat[p_ptr->stat[mp_ptr->spell_stat].ind] - 1);
 
 	/* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
@@ -3117,30 +3140,46 @@ s16b spell_chance(int spell, int realm)
 		chance += 5 * (s_ptr->smana - p_ptr->csp);
 	}
 
+	/* Some mutations increase spell failure */
+	if ((p_ptr->muta3 & MUT3_MAGIC_RES) || (p_ptr->muta1 & MUT1_EAT_MAGIC))
+	{
+		chance += 5;
+	}
+
+	if (realm == REALM_DEATH-1 && (p_ptr->muta1 & MUT1_BANISH))
+	{
+		chance += 10;
+	}
+
+	if (p_ptr->muta3 & MUT3_SILLY_VOI)
+	{
+		chance += s_ptr->slevel;
+	}
+
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	minfail = adj_mag_fail[p_ptr->stat[mp_ptr->spell_stat].ind];
 
 	/*
 	 * Non mage/priest characters never get too good
 	 * (added high mage, mindcrafter)
 	 */
-	if ((p_ptr->pclass != CLASS_PRIEST) &&
-		(p_ptr->pclass != CLASS_MAGE) &&
-		(p_ptr->pclass != CLASS_MINDCRAFTER) &&
-		(p_ptr->pclass != CLASS_HIGH_MAGE))
+	if ((p_ptr->rp.pclass != CLASS_PRIEST) &&
+		(p_ptr->rp.pclass != CLASS_MAGE) &&
+		(p_ptr->rp.pclass != CLASS_MINDCRAFTER) &&
+		(p_ptr->rp.pclass != CLASS_HIGH_MAGE))
 	{
 		if (minfail < 5) minfail = 5;
 	}
 
 	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-	if ((p_ptr->pclass == CLASS_PRIEST) && p_ptr->icky_wield) chance += 25;
+	if ((p_ptr->rp.pclass == CLASS_PRIEST) && p_ptr->icky_wield) chance += 25;
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
+	if (p_ptr->tim.stun > 50) chance += 25;
+	else if (p_ptr->tim.stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
@@ -3167,18 +3206,18 @@ bool spell_okay(int spell, bool known, int realm)
 	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
 
 	/* Spell is forgotten */
-	if ((realm == p_ptr->realm2 - 1) ?
-		(p_ptr->spell_forgotten2 & (1L << spell)) :
-		(p_ptr->spell_forgotten1 & (1L << spell)))
+	if ((realm == p_ptr->spell.r[1].realm - 1) ?
+		(p_ptr->spell.r[1].forgotten & (1L << spell)) :
+		(p_ptr->spell.r[0].forgotten & (1L << spell)))
 	{
 		/* Never okay */
 		return (FALSE);
 	}
 
 	/* Spell is learned */
-	if ((realm == p_ptr->realm2 - 1) ?
-		(p_ptr->spell_learned2 & (1L << spell)) :
-		(p_ptr->spell_learned1 & (1L << spell)))
+	if ((realm == p_ptr->spell.r[1].realm - 1) ?
+		(p_ptr->spell.r[1].learned & (1L << spell)) :
+		(p_ptr->spell.r[0].learned & (1L << spell)))
 	{
 		/* Okay to cast, not to study */
 		return (known);
@@ -3207,8 +3246,8 @@ void spell_info(char *p, int spell, int realm)
 		int plev = p_ptr->lev;
 
 		/* See below */
-		int orb = (plev / ((p_ptr->pclass == CLASS_PRIEST ||
-							p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4));
+		int orb = (plev / ((p_ptr->rp.pclass == CLASS_PRIEST ||
+							p_ptr->rp.pclass == CLASS_HIGH_MAGE) ? 2 : 4));
 
 		/* Analyze the spell */
 		switch (realm)
@@ -3489,9 +3528,9 @@ void spell_info(char *p, int spell, int realm)
 					case 4:
 					{
 						strnfmt(p, 80, " dam %d+3d5", plev + (plev /
-														  (((p_ptr->pclass ==
+														  (((p_ptr->rp.pclass ==
 															 CLASS_MAGE)
-															|| (p_ptr->pclass ==
+															|| (p_ptr->rp.pclass ==
 																CLASS_HIGH_MAGE))
 														   ? 2 : 4)));
 						break;
@@ -3619,8 +3658,8 @@ void spell_info(char *p, int spell, int realm)
 					case 8:
 					{
 						strnfmt(p, 80, " dam %d+3d6", plev +
-								(plev / (((p_ptr->pclass == CLASS_MAGE) ||
-										  (p_ptr->pclass ==
+								(plev / (((p_ptr->rp.pclass == CLASS_MAGE) ||
+										  (p_ptr->rp.pclass ==
 										   CLASS_HIGH_MAGE)) ? 2 : 4)));
 						break;
 					}
@@ -3845,7 +3884,7 @@ void print_spells(byte *spells, int num, int x, int y, int realm)
 	cptr comment;
 	char info[80];
 
-	if (((realm <= 0) || (realm >= MAX_REALM)) && p_ptr->wizard)
+	if (((realm < 0) || (realm >= MAX_REALM)) && p_ptr->state.wizard)
 		msgf("Warning! print_spells called with null realm");
 
 	/* Title the list */
@@ -3880,27 +3919,27 @@ void print_spells(byte *spells, int num, int x, int y, int realm)
 		comment = info;
 
 		/* Analyze the spell */
-		if ((realm + 1 != p_ptr->realm1) && (realm + 1 != p_ptr->realm2))
+		if ((realm + 1 != p_ptr->spell.r[0].realm) && (realm + 1 != p_ptr->spell.r[1].realm))
 		{
 			comment = CLR_SLATE " uncastable";
 		}
 
 		/* We know these books */
-		else if ((realm + 1 == p_ptr->realm1) ?
-				 ((p_ptr->spell_forgotten1 & (1L << spell))) :
-				 ((p_ptr->spell_forgotten2 & (1L << spell))))
+		else if ((realm + 1 == p_ptr->spell.r[0].realm) ?
+				 ((p_ptr->spell.r[0].forgotten & (1L << spell))) :
+				 ((p_ptr->spell.r[1].forgotten & (1L << spell))))
 		{
 			comment = CLR_YELLOW " forgotten";
 		}
-		else if (!((realm + 1 == p_ptr->realm1) ?
-				   (p_ptr->spell_learned1 & (1L << spell)) :
-				   (p_ptr->spell_learned2 & (1L << spell))))
+		else if (!((realm + 1 == p_ptr->spell.r[0].realm) ?
+				   (p_ptr->spell.r[0].learned & (1L << spell)) :
+				   (p_ptr->spell.r[1].learned & (1L << spell))))
 		{
 			comment = CLR_L_BLUE " unknown";
 		}
-		else if (!((realm + 1 == p_ptr->realm1) ?
-				   (p_ptr->spell_worked1 & (1L << spell)) :
-				   (p_ptr->spell_worked2 & (1L << spell))))
+		else if (!((realm + 1 == p_ptr->spell.r[0].realm) ?
+				   (p_ptr->spell.r[0].worked & (1L << spell)) :
+				   (p_ptr->spell.r[1].worked & (1L << spell))))
 		{
 			comment = CLR_L_GREEN " untried";
 		}
@@ -4074,10 +4113,8 @@ bool hates_cold(const object_type *o_ptr)
  */
 int set_acid_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
 	if (!hates_acid(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_ACID) return (FALSE);
+	if (o_ptr->flags3 & TR3_IGNORE_ACID) return (FALSE);
 	return (TRUE);
 }
 
@@ -4087,10 +4124,8 @@ int set_acid_destroy(object_type *o_ptr)
  */
 int set_elec_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
 	if (!hates_elec(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_ELEC) return (FALSE);
+	if (o_ptr->flags3 & TR3_IGNORE_ELEC) return (FALSE);
 	return (TRUE);
 }
 
@@ -4100,10 +4135,8 @@ int set_elec_destroy(object_type *o_ptr)
  */
 int set_fire_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
 	if (!hates_fire(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_FIRE) return (FALSE);
+	if (o_ptr->flags3 & TR3_IGNORE_FIRE) return (FALSE);
 	return (TRUE);
 }
 
@@ -4113,10 +4146,8 @@ int set_fire_destroy(object_type *o_ptr)
  */
 int set_cold_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
 	if (!hates_cold(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_COLD) return (FALSE);
+	if (o_ptr->flags3 & TR3_IGNORE_COLD) return (FALSE);
 	return (TRUE);
 }
 
@@ -4195,220 +4226,6 @@ int inven_damage(inven_func typ, int perc)
 
 	/* Return the casualty count */
 	return (k);
-}
-
-
-/*
- * Acid has hit the player, attempt to affect some armor.
- *
- * Note that the "base armor" of an object never changes.
- *
- * If any armor is damaged (or resists), the player takes less damage.
- */
-static int minus_ac(void)
-{
-	object_type *o_ptr = NULL;
-	u32b f1, f2, f3;
-	char o_name[256];
-
-
-	/* Pick a (possibly empty) inventory slot */
-	switch (randint1(6))
-	{
-		case 1:
-		{
-			o_ptr = &p_ptr->equipment[EQUIP_BODY];
-			break;
-		}
-		case 2:
-		{
-			o_ptr = &p_ptr->equipment[EQUIP_ARM];
-			break;
-		}
-		case 3:
-		{
-			o_ptr = &p_ptr->equipment[EQUIP_OUTER];
-			break;
-		}
-		case 4:
-		{
-			o_ptr = &p_ptr->equipment[EQUIP_HANDS];
-			break;
-		}
-		case 5:
-		{
-			o_ptr = &p_ptr->equipment[EQUIP_HEAD];
-			break;
-		}
-		case 6:
-		{
-			o_ptr = &p_ptr->equipment[EQUIP_FEET];
-			break;
-		}
-	}
-
-	/* Nothing to damage */
-	if (!o_ptr->k_idx) return (FALSE);
-
-	/* No damage left to be done */
-	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
-
-
-	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 0, 256);
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Object resists */
-	if (f3 & TR3_IGNORE_ACID)
-	{
-		msgf("Your %s is unaffected!", o_name);
-
-		return (TRUE);
-	}
-
-	/* Message */
-	msgf("Your %s is damaged!", o_name);
-
-	/* Damage the item */
-	o_ptr->to_a--;
-
-	/* Calculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
-
-	/* Item was damaged */
-	return (TRUE);
-}
-
-
-/*
- * Hurt the player with Acid
- */
-void acid_dam(int dam, cptr kb_str)
-{
-	int inv;
-
-	/* Total Immunity */
-	if (p_ptr->immune_acid || (dam <= 0)) return;
-
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
-
-	/* Resist the damage */
-	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
-
-	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-
-	if ((!(p_ptr->oppose_acid || p_ptr->resist_acid)) && one_in_(HURT_CHANCE))
-		(void)do_dec_stat(A_CHR);
-
-	/* If any armor gets hit, defend the player */
-	if (minus_ac()) dam = (dam + 1) / 2;
-
-	/* Take damage */
-	take_hit(dam, kb_str);
-
-	/* Inventory damage */
-	if (!(p_ptr->oppose_acid && p_ptr->resist_acid))
-		(void)inven_damage(set_acid_destroy, inv);
-}
-
-
-/*
- * Hurt the player with electricity
- */
-void elec_dam(int dam, cptr kb_str)
-{
-	int inv;
-
-	/* Total immunity */
-	if (p_ptr->immune_elec || (dam <= 0)) return;
-
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
-
-	/* Resist the damage */
-	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
-	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
-
-	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-
-	if ((!(p_ptr->oppose_elec || p_ptr->resist_elec)) && one_in_(HURT_CHANCE))
-		(void)do_dec_stat(A_DEX);
-
-	/* Take damage */
-	take_hit(dam, kb_str);
-
-	/* Inventory damage */
-	if (!(p_ptr->oppose_elec && p_ptr->resist_elec))
-		(void)inven_damage(set_elec_destroy, inv);
-}
-
-
-/*
- * Hurt the player with Fire
- */
-void fire_dam(int dam, cptr kb_str)
-{
-	int inv;
-
-	/* Totally immune */
-	if (p_ptr->immune_fire || (dam <= 0)) return;
-
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
-
-	/* Resist the damage */
-	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
-
-	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-
-	if ((!(p_ptr->oppose_fire || p_ptr->resist_fire)) && one_in_(HURT_CHANCE))
-		(void)do_dec_stat(A_STR);
-
-	/* Take damage */
-	take_hit(dam, kb_str);
-
-	/* Inventory damage */
-	if (!(p_ptr->resist_fire && p_ptr->oppose_fire))
-		(void)inven_damage(set_fire_destroy, inv);
-}
-
-
-/*
- * Hurt the player with Cold
- */
-void cold_dam(int dam, cptr kb_str)
-{
-	int inv;
-
-	/* Total immunity */
-	if (p_ptr->immune_cold || (dam <= 0)) return;
-
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
-
-	/* Resist the damage */
-	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
-
-	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-
-	if ((!(p_ptr->oppose_cold || p_ptr->resist_cold)) && one_in_(HURT_CHANCE))
-		(void)do_dec_stat(A_STR);
-
-	/* Take damage */
-	take_hit(dam, kb_str);
-
-	/* Inventory damage */
-	if (!(p_ptr->resist_cold && p_ptr->oppose_cold))
-		(void)inven_damage(set_cold_destroy, inv);
 }
 
 
@@ -4495,6 +4312,7 @@ bool curse_armor(void)
 		o_ptr->flags1 = 0;
 		o_ptr->flags2 = 0;
 		o_ptr->flags3 = 0;
+		o_ptr->flags4 = 0;
 
 		/* Lose your feeling */
 		o_ptr->feeling = FEEL_NONE;
@@ -4509,6 +4327,9 @@ bool curse_armor(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	}
 
 	return (TRUE);
@@ -4561,6 +4382,7 @@ bool curse_weapon(void)
 		o_ptr->flags1 = 0;
 		o_ptr->flags2 = 0;
 		o_ptr->flags3 = 0;
+		o_ptr->flags4 = 0;
 		
 		/* Lose your feeling */
 		o_ptr->feeling = FEEL_NONE;
@@ -4575,6 +4397,9 @@ bool curse_weapon(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	}
 
 	/* Notice */
@@ -4612,6 +4437,9 @@ bool brand_bolts(void)
 
 		/* Enchant */
 		(void)enchant(o_ptr, rand_range(2, 6), ENCH_TOHIT | ENCH_TODAM);
+		
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Notice */
 		return (TRUE);
@@ -4702,20 +4530,16 @@ bool polymorph_monster(int x, int y)
 		delete_monster_idx(c_ptr->m_idx);
 
 		/* Create a new monster (no groups) */
-		if (place_monster_aux(x, y, new_r_idx, FALSE, FALSE, friendly, pet))
+		if (place_monster_aux(x, y, new_r_idx, FALSE, FALSE, friendly, pet, TRUE))
 		{
 			/* Success */
 			polymorphed = TRUE;
 		}
 		else
 		{
-			monster_terrain_sensitive = FALSE;
-
-			/* Placing the new monster failed */
+			/* Placing the new monster failed - use the old. */
 			(void)place_monster_aux(x, y, old_r_idx, FALSE, FALSE, friendly,
-									pet);
-
-			monster_terrain_sensitive = TRUE;
+									pet, TRUE);
 		}
 	}
 
@@ -4816,9 +4640,9 @@ void sanity_blast(const monster_type *m_ptr)
 	if (is_pet(m_ptr) && !one_in_(8)) return;
 
 	/* Do we pass the saving throw? */
-	if (saving_throw(p_ptr->skill_sav * 100 / power)) return;
+	if (saving_throw(p_ptr->skill.sav * 100 / power)) return;
 
-	if (p_ptr->image)
+	if (p_ptr->tim.image)
 	{
 		/* Something silly happens... */
 		msgf("You behold the %s visage of %v!",
@@ -4827,7 +4651,7 @@ void sanity_blast(const monster_type *m_ptr)
 		if (one_in_(3))
 		{
 			msgf(funny_comments[randint0(MAX_SAN_COMMENT)]);
-			p_ptr->image = p_ptr->image + randint1(r_ptr->level);
+			(void)inc_image(randint1(r_ptr->level));
 		}
 
 		/* Never mind; we can't see it clearly enough */
@@ -4842,26 +4666,26 @@ void sanity_blast(const monster_type *m_ptr)
 	r_ptr->r_flags4 |= RF4_ELDRITCH_HORROR;
 
 	/* Demon characters are unaffected */
-	if (p_ptr->prace == RACE_IMP) return;
+	if (p_ptr->rp.prace == RACE_IMP) return;
 
 	/* Undead characters are 50% likely to be unaffected */
-	if (((p_ptr->prace == RACE_SKELETON) ||
-		 (p_ptr->prace == RACE_ZOMBIE) ||
-		 (p_ptr->prace == RACE_VAMPIRE) ||
-		 (p_ptr->prace == RACE_SPECTRE) ||
-		 (p_ptr->prace == RACE_GHOUL)) && saving_throw(25 + p_ptr->lev)) return;
+	if (((p_ptr->rp.prace == RACE_SKELETON) ||
+		 (p_ptr->rp.prace == RACE_ZOMBIE) ||
+		 (p_ptr->rp.prace == RACE_VAMPIRE) ||
+		 (p_ptr->rp.prace == RACE_SPECTRE) ||
+		 (p_ptr->rp.prace == RACE_GHOUL)) && saving_throw(25 + p_ptr->lev)) return;
 
 	/* Mind blast */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	if (!saving_throw(p_ptr->skill.sav * 100 / power))
 	{
-		if ((!p_ptr->resist_fear) || one_in_(5))
+		if ((!(p_ptr->flags2 & (TR2_RES_FEAR))) || one_in_(5))
 		{
 			/* Get afraid, even if have resist fear! */
-			(void)set_afraid(p_ptr->afraid + rand_range(10, 20));
+			(void)inc_afraid(rand_range(10, 20));
 		}
-		if (!p_ptr->resist_chaos)
+		if (!(p_ptr->flags2 & (TR2_RES_CHAOS)))
 		{
-			(void)set_image(p_ptr->image + rand_range(150, 400));
+			(void)inc_image(rand_range(150, 400));
 		}
 		return;
 	}

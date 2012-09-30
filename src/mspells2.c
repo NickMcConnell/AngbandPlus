@@ -83,7 +83,7 @@ bool monst_spell_monst(int m_idx)
 	bool wake_up = FALSE;
 	bool fear = FALSE;
 
-	bool blind = (p_ptr->blind ? TRUE : FALSE);
+	bool blind = (p_ptr->tim.blind ? TRUE : FALSE);
 
 	bool see_m = m_ptr->ml;
 	bool see_t;
@@ -106,10 +106,10 @@ bool monst_spell_monst(int m_idx)
 	if (randint0(100) >= chance) return (FALSE);
 
 	/* Stop if player is dead or gone */
-	if (!p_ptr->playing || p_ptr->is_dead) return (FALSE);
+	if (!p_ptr->state.playing || p_ptr->state.is_dead) return (FALSE);
 
 	/* Handle "leaving" */
-	if (p_ptr->leaving) return (FALSE);
+	if (p_ptr->state.leaving) return (FALSE);
 
 	/* Scan thru all monsters */
 	for (i = 1; i < m_max; i++)
@@ -3112,7 +3112,7 @@ bool monst_spell_monst(int m_idx)
 		}
 
 		/* Always take note of monsters that kill you */
-		if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT))
+		if (p_ptr->state.is_dead && (r_ptr->r_deaths < MAX_SHORT))
 		{
 			r_ptr->r_deaths++;
 		}

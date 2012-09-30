@@ -119,7 +119,7 @@ typedef unsigned long s64b;
 typedef signed long s32b;
 typedef unsigned long u32b;
 
-#if USE_64B
+#ifdef USE_64B
 
 /* Try to get a 64 bit type */
 # if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L

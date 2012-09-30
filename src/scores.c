@@ -177,19 +177,15 @@ static long total_points(void)
 	/* Not too much of a reward since some people like playing with this. */
 	if (ironman_small_levels) mult += 5;
 
-	/* Moria mode is very hard */
-	if (ironman_moria) mult += 20;
-
 	/* More ironman options */
 	if (ironman_empty_levels) mult += 10;
 	if (ironman_nightmare) mult += 20;
-	if (ironman_rooms) mult += 10;
 
 	if (mult < 5) mult = 5;		/* At least 5% of the original score */
 
 	temp = p_ptr->max_exp + (100 * p_ptr->max_depth);
 
-	temp = (temp * mult) / race_info[p_ptr->prace].r_exp;
+	temp = (temp * mult) / race_info[p_ptr->rp.prace].r_exp;
 
 	temp += equip_value() / 10;
 
@@ -421,7 +417,7 @@ void enter_score(void)
 
 #ifndef SCORE_WIZARDS
 	/* Wizard-mode pre-empts scoring */
-	if (p_ptr->noscore & 0x003F)
+	if (p_ptr->state.noscore & 0x003F)
 	{
 		msgf("Score not registered for wizards.");
 		message_flush();
@@ -432,7 +428,7 @@ void enter_score(void)
 
 #ifndef SCORE_BORGS
 	/* Borg-mode pre-empts scoring */
-	if (p_ptr->noscore & 0x00C0)
+	if (p_ptr->state.noscore & 0x00C0)
 	{
 		msgf("Score not registered for borgs.");
 		message_flush();
@@ -443,7 +439,7 @@ void enter_score(void)
 
 #ifndef SCORE_CHEATERS
 	/* Cheaters are not scored */
-	if (p_ptr->noscore & 0xFF00)
+	if (p_ptr->state.noscore & 0xFF00)
 	{
 		msgf("Score not registered for cheaters.");
 		message_flush();
@@ -453,7 +449,7 @@ void enter_score(void)
 #endif
 
 	/* Interupted */
-	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
+	if (!p_ptr->state.total_winner && streq(p_ptr->state.died_from, "Interrupting"))
 	{
 		msgf("Score not registered due to interruption.");
 		message_flush();
@@ -462,7 +458,7 @@ void enter_score(void)
 	}
 
 	/* Quitter */
-	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
+	if (!p_ptr->state.total_winner && streq(p_ptr->state.died_from, "Quitting"))
 	{
 		msgf("Score not registered due to quitting.");
 		message_flush();
@@ -476,7 +472,7 @@ void enter_score(void)
 
 	/* Save the version */
 	strnfmt(the_score.what, 8, "%u.%u.%u",
-			VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+			VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	/* Calculate and save the points */
 	strnfmt(the_score.pts, 10, "%9lu", (unsigned long)total_points());
@@ -518,9 +514,9 @@ void enter_score(void)
 
 	/* Save the player info XXX XXX XXX */
 	strnfmt(the_score.uid, 8, "%7u", (uint)player_uid);
-	strnfmt(the_score.sex, 2, "%c", (p_ptr->psex ? 'm' : 'f'));
-	strnfmt(the_score.p_r, 3, "%2d", (int)p_ptr->prace);
-	strnfmt(the_score.p_c, 3, "%2d", (int)p_ptr->pclass);
+	strnfmt(the_score.sex, 2, "%c", (p_ptr->rp.psex ? 'm' : 'f'));
+	strnfmt(the_score.p_r, 3, "%2d", (int)p_ptr->rp.prace);
+	strnfmt(the_score.p_c, 3, "%2d", (int)p_ptr->rp.pclass);
 
 	/* Save the level and such */
 	strnfmt(the_score.cur_lev, 4, "%3d", p_ptr->lev);
@@ -529,7 +525,7 @@ void enter_score(void)
 	strnfmt(the_score.max_dun, 4, "%3d", p_ptr->max_depth);
 
 	/* Save the cause of death (31 chars) */
-	strnfmt(the_score.how, 32, "%-.31s", p_ptr->died_from);
+	strnfmt(the_score.how, 32, "%-.31s", p_ptr->state.died_from);
 
 	/* Grab permissions */
 	safe_setuid_grab();
@@ -612,7 +608,7 @@ void predict_score(void)
 
 	/* Save the version */
 	strnfmt(the_score.what, 8, "%u.%u.%u",
-			VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+			VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	/* Calculate and save the points */
 	strnfmt(the_score.pts, 10, "%9lu", (unsigned long)total_points());
@@ -631,9 +627,9 @@ void predict_score(void)
 
 	/* Save the player info XXX XXX XXX */
 	strnfmt(the_score.uid, 8, "%7u", (uint)player_uid);
-	strnfmt(the_score.sex, 2, "%c", (p_ptr->psex ? 'm' : 'f'));
-	strnfmt(the_score.p_r, 3, "%2d", (int)p_ptr->prace);
-	strnfmt(the_score.p_c, 3, "%2d", (int)p_ptr->pclass);
+	strnfmt(the_score.sex, 2, "%c", (p_ptr->rp.psex ? 'm' : 'f'));
+	strnfmt(the_score.p_r, 3, "%2d", (int)p_ptr->rp.prace);
+	strnfmt(the_score.p_c, 3, "%2d", (int)p_ptr->rp.pclass);
 
 	/* Save the level and such */
 	strnfmt(the_score.cur_lev, 4, "%3d", p_ptr->lev);
@@ -711,7 +707,7 @@ void show_highclass(void)
 	}
 
 	prtf(0, m + 8, "You) %s the %s (Level %2d)",
-			player_name, race_info[p_ptr->prace].title, p_ptr->lev);
+			player_name, race_info[p_ptr->rp.prace].title, p_ptr->lev);
 
 	(void)fd_close(highscore_fd);
 	highscore_fd = -1;
@@ -779,10 +775,10 @@ void race_score(int race_num)
 	}
 
 	/* add player if qualified */
-	if ((p_ptr->prace == race_num) && (p_ptr->lev >= lastlev))
+	if ((p_ptr->rp.prace == race_num) && (p_ptr->lev >= lastlev))
 	{
 		prtf(0, m + 8, "You) %s the %s (Level %3d)",
-				player_name, race_info[p_ptr->prace].title, p_ptr->lev);
+				player_name, race_info[p_ptr->rp.prace].title, p_ptr->lev);
 	}
 
 	(void)fd_close(highscore_fd);
@@ -817,7 +813,7 @@ void kingly(void)
 	p_ptr->depth = 0;
 
 	/* Fake death */
-	(void)strcpy(p_ptr->died_from, "Ripe Old Age");
+	(void)strcpy(p_ptr->state.died_from, "Ripe Old Age");
 
 	/* Restore the experience */
 	p_ptr->exp = p_ptr->max_exp;

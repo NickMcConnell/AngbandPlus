@@ -30,117 +30,12 @@ int *g_background = NULL;
 bool g_icon_map_changed = FALSE;
 
 
-/*
- * Determine the icon type/index of a real icon type from the given
- * icon type/index. This routine is used to get the actual frame of
- * a sprite for example. Usually the given icon type/index is returned.
- */
-void FinalIcon(IconSpec *iconOut, t_assign_icon *assignPtr)
-{
-	iconOut->type = assignPtr->type;
-	iconOut->index = assignPtr->index;
-}
-
 void init_palette(void)
 {
 	if (Palette_Init(g_interp) != TCL_OK)
 		quit(Tcl_GetStringResult(g_interp));
 
 	g_palette_rgb = Palette_GetRGB();
-}
-
-
-char *AssignToString_Icon(char *buf, t_assign_icon *assign)
-{
-	strnfmt(buf, 128, "icon %s %d",
-			g_icon_data[assign->type].desc,
-			assign->index);
-
-	return buf;
-}
-
-static int Icon_Validate(Tcl_Interp *interp, char *typeName, int index, IconSpec *specPtr)
-{
-	t_icon_data *iconDataPtr;
-	int type;
-
-	/* Look up the icon type by name */
-	if (Icon_FindTypeByName(interp, &type, typeName) != TCL_OK)
-	{
-		return TCL_ERROR;
-	}
-
-	iconDataPtr = &g_icon_data[type];
-
-	/* Verify index */
-	if ((index < 0) || (index >= iconDataPtr->icon_count))
-	{
-		/* Set the error */
-		Tcl_SetStringObj(Tcl_GetObjResult(interp),
-			format("bad icon index \"%d\": must be from 0 to %d",
-			index, iconDataPtr->icon_count - 1), -1);
-
-		/* Failure */
-		return TCL_ERROR;
-	}
-
-	specPtr->type = type;
-	specPtr->index = index;
-
-	/* Success */
-	return TCL_OK;
-}
-
-static int StringToAssign_Icon(Tcl_Interp *interp, t_assign_icon *assignPtr, cptr desc)
-{
-	char option[64], typeName[64];
-	IconSpec iconSpec;
-
-	if (sscanf(desc, "%s %s %d", option, typeName, &iconSpec.index) < 3)
-	{
-		Tcl_SetResult(interp, format("malformed assignment \"%s\"",
-			desc), TCL_VOLATILE);
-		return TCL_ERROR;
-	}
-
-	if (Icon_Validate(interp, typeName, iconSpec.index, &iconSpec) != TCL_OK)
-	{
-		return TCL_ERROR;
-	}
-
-	assignPtr->type = iconSpec.type;
-	assignPtr->index = iconSpec.index;
-
-	return TCL_OK;
-}
-
-
-cptr keyword_assign_type[] = {"icon", NULL};
-
-int assign_parse(Tcl_Interp *interp, t_assign_icon *assignPtr, cptr desc)
-{
-	char option[64];
-	Tcl_Obj *objPtr;
-	int assignType;
-
-	/* Ex. "icon dungeon 10" */
-	if (sscanf(desc, "%s", option) != 1)
-	{
-		Tcl_SetResult(interp, format("malformed assignment \"%s\"",
-			desc), TCL_VOLATILE);
-		return TCL_ERROR;
-	}
-
-	objPtr = Tcl_NewStringObj(option, -1);
-	if (Tcl_GetIndexFromObj(interp, objPtr, keyword_assign_type,
-		"option", 0, &assignType) != TCL_OK)
-	{
-		Tcl_DecrRefCount(objPtr);
-		return TCL_ERROR;
-	}
-	Tcl_DecrRefCount(objPtr);
-
-	return StringToAssign_Icon(interp, assignPtr, desc);
 }
 
 
@@ -314,8 +209,8 @@ void init_icons(int size, int depth)
 	if (init_widget(g_interp, g_icon_depth) != TCL_OK)
 		quit(Tcl_GetStringFromObj(Tcl_GetObjResult(g_interp), NULL));
 	
-	if (CanvasWidget_Init(g_interp) != TCL_OK)
-		quit(Tcl_GetStringFromObj(Tcl_GetObjResult(g_interp), NULL));
+	/* if (CanvasWidget_Init(g_interp) != TCL_OK)
+		quit(Tcl_GetStringFromObj(Tcl_GetObjResult(g_interp), NULL)); */
 }
 
 
@@ -468,184 +363,16 @@ int PixelPtrToLong(IconPtr p, int bypp)
 	return 0;
 }
 
-int Image2Bits(Tcl_Interp *interp, t_icon_data *iconDataPtr,
-	Tk_PhotoHandle photoH, int imageW, int imageH, XColor *xColorPtr)
-{
-	Tk_PhotoImageBlock photoBlock;
-	int row, col, y, x;
-	int i, r, g, b;
-	int r2 = 0, g2 = 0, b2 = 0;
-	unsigned char *srcPtr, *dstPtr;
-	int dataSize;
-	int numCol, numRow;
-	int iconW = iconDataPtr->width;
-	int pixelSize = iconDataPtr->bypp;
-
-	/* Hack - ignore parameter */
-	(void) interp;
-
-	/* Get info about the image */
-	(void) Tk_PhotoGetImage(photoH, &photoBlock);
-
-	/* Calculate the number of icons based on image dimensions */
-	numCol = (photoBlock.width / imageW);
-	numRow = (photoBlock.height / imageH);
-	iconDataPtr->icon_count = numCol * numRow;
-
-	/* Allocate icon buffer */
-	dataSize = iconDataPtr->icon_count * iconDataPtr->length;
-	C_MAKE(iconDataPtr->icon_data, dataSize, byte);
-
-	if (pixelSize == 1)
-	{
-		/* Clear the color hash table used by Palette_RGB2Index() */
-		Palette_ResetHash();
-	}
-
-	if (xColorPtr)
-	{
-		r2 = ((double) xColorPtr->red / USHRT_MAX) * 255;
-		g2 = ((double) xColorPtr->green / USHRT_MAX) * 255;
-		b2 = ((double) xColorPtr->blue / USHRT_MAX) * 255;
-	}		
-
-	dstPtr = iconDataPtr->icon_data;
-	for (row = 0; row < numRow; row++)
-	{
-		for (col = 0; col < numCol; col++)
-		{
-			srcPtr = photoBlock.pixelPtr +
-				col * imageW * photoBlock.pixelSize +
-				row * imageH * photoBlock.pitch;
-			for (y = 0; y < imageH; y++)
-			{
-				for (x = 0; x < imageW; x++)
-				{
-					r = *(srcPtr + x * photoBlock.pixelSize + photoBlock.offset[0]);
-					g = *(srcPtr + x * photoBlock.pixelSize + photoBlock.offset[1]);
-					b = *(srcPtr + x * photoBlock.pixelSize + photoBlock.offset[2]);
-					if (xColorPtr)
-					{
-						/* Transparent */
-						if ((r == r2) && (g == g2) && (b == b2))
-						{
-							/* Exclude from mask */
-							r = g = b = 0;
-						}
-		
-						/* Opaque */
-						else
-						{
-							/* Include in mask */
-							r = g = b = 0xFF;
-						}
-					}
-					if (imageW != iconW)
-					{
-						if (iconW == 24)
-						{
-							if ((y & 1) && (x & 1))
-							{
-								PixelSet_RGB(dstPtr, r, g, b, pixelSize);
-								dstPtr += pixelSize;
-							}
-							else if (y & 1)
-							{
-								PixelSet_RGB(dstPtr, r, g, b, pixelSize);
-								dstPtr += pixelSize;
-								PixelSet_RGB(dstPtr, r, g, b, pixelSize);
-								dstPtr += pixelSize;
-							}
-							else if (x & 1)
-							{
-								PixelSet_RGB(dstPtr, r, g, b, pixelSize);
-								PixelSet_RGB(dstPtr + iconW * pixelSize, r, g, b, pixelSize);
-								dstPtr += pixelSize;
-							}
-							else
-							{
-								PixelSet_RGB(dstPtr, r, g, b, pixelSize);
-								PixelSet_RGB(dstPtr + pixelSize, r, g, b, pixelSize);
-								PixelSet_RGB(dstPtr + iconW * pixelSize, r, g, b, pixelSize);
-								PixelSet_RGB(dstPtr + (iconW + 1) * pixelSize, r, g, b, pixelSize);
-								dstPtr += 2 * pixelSize;
-							}
-						}
-						if (iconW == 32)
-						{
-							PixelSet_RGB(dstPtr, r, g, b, pixelSize);
-							PixelSet_RGB(dstPtr + pixelSize, r, g, b, pixelSize);
-							PixelSet_RGB(dstPtr + iconW * pixelSize, r, g, b, pixelSize);
-							PixelSet_RGB(dstPtr + (iconW + 1) * pixelSize, r, g, b, pixelSize);
-							dstPtr += 2 * pixelSize;
-						}
-					}
-					else
-					{
-						PixelSet_RGB(dstPtr, r, g, b, pixelSize);
-						dstPtr += pixelSize;
-					}
-				}
-				srcPtr += photoBlock.pitch;
-				if (imageW != iconW)
-				{
-					if (iconW == 24)
-					{
-						if (!(y & 1))
-							dstPtr += iconW * pixelSize;
-					}
-					if (iconW == 32)
-					{
-						dstPtr += iconW * pixelSize;
-					}
-				}
-			}
-		}
-	}
-
-	/* This step strips off blank icons at the end */
-	{
-		int whiteValue = 0xFF;
-		int emptyIcon = TRUE;
-		int n = iconDataPtr->icon_count - 1;
-
-		if (pixelSize == 1)
-			whiteValue = PALETTE_WHITE;
-		while (emptyIcon)
-		{
-			srcPtr = iconDataPtr->icon_data + n * iconDataPtr->length;
-			for (i = 0; i < iconDataPtr->length; i++)
-			{
-				if (*srcPtr++ != whiteValue)
-				{
-					emptyIcon = FALSE;
-					break;
-				}
-			}
-			if (emptyIcon)
-			{
-				iconDataPtr->icon_count -= 1;
-				n--;
-			}
-		}
-	}
-
-	return TCL_OK;
-}
-
 
 /*
  * objcmd_icon --
  */
 static int objcmd_icon(ClientData dummy, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[])
 {
-	static cptr cmdOption[] = {"count", "size",
-		"depth", "height", "width", NULL};
-	enum {IDX_COUNT, IDX_SIZE, IDX_DEPTH, IDX_HEIGHT, IDX_WIDTH} option;
+	static cptr cmdOption[] = {"size", NULL};
+	enum {IDX_SIZE} option;
 	Tcl_Obj *resultPtr = Tcl_GetObjResult(interp);
 
-	t_icon_data *iconDataPtr;
-	
 	/* Hack - ignore parameter */
 	(void) dummy;
 	
@@ -664,128 +391,16 @@ static int objcmd_icon(ClientData dummy, Tcl_Interp *interp, int objc, Tcl_Obj *
     }
 
 	switch (option)
-	{
-		case IDX_COUNT: /* count */
-			if (objc != 3)
-			{
-				Tcl_WrongNumArgs(interp, 2, objv, "typeName");
-				return TCL_ERROR;
-			}
-
-			/* Lookup the icon type by name */
-			if (Icon_GetTypeFromObj(interp, &iconDataPtr, objv[2]) != TCL_OK)
-			{
-				return TCL_ERROR;
-			}
-
-			/* Return the number of icons */
-			Tcl_SetIntObj(resultPtr, iconDataPtr->icon_count);
-			break;
-			
+	{			
 		case IDX_SIZE: /* size */
 			Tcl_SetIntObj(resultPtr, g_icon_size);
 			break;
-
-		case IDX_DEPTH: /* depth */
-			Tcl_SetIntObj(resultPtr, g_icon_depth);
-			break;
-
-		case IDX_HEIGHT: /* height */
-		{
-			/* Lookup the icon type by name */
-			if (Icon_GetTypeFromObj(interp, &iconDataPtr, objv[2]) != TCL_OK)
-			{
-				return TCL_ERROR;
-			}
-
-			Tcl_SetIntObj(resultPtr, iconDataPtr->height);
-			break;
-		}
-
-		case IDX_WIDTH: /* width */
-		{
-			/* Lookup the icon type by name */
-			if (Icon_GetTypeFromObj(interp, &iconDataPtr, objv[2]) != TCL_OK)
-			{
-				return TCL_ERROR;
-			}
-
-			Tcl_SetIntObj(resultPtr, iconDataPtr->width);
-			break;
-		}
 	}
 
 	/* Success */
 	return TCL_OK;
 }
 
-
-int Icon_FindTypeByName(Tcl_Interp *interp, int *typeIndexPtr, char *typeName)
-{
-	Tcl_HashEntry *hPtr;
-
-	/* Look up the icon type by name */
-	hPtr = Tcl_FindHashEntry(&g_icon_table, typeName);
-
-	/* The icon type was not found */
-	if (hPtr == NULL)
-	{
-		Tcl_Obj *resultPtr = Tcl_GetObjResult(interp);
-
-		/* Set the error */
-		Tcl_AppendStringsToObj(resultPtr, "unknown icon type \"",
-			typeName, "\"", NULL);
-
-		/* Failure */
-		return TCL_ERROR;
-	}
-
-	(*typeIndexPtr) = (int) Tcl_GetHashValue(hPtr);
-
-	/* Success */
-	return TCL_OK;
-}
-
-int Icon_GetTypeFromObj(Tcl_Interp *interp, t_icon_data **typePtrPtr,
-	Tcl_Obj *objPtr)
-{
-	int typeIndex;
-
-	if (Icon_FindTypeByName(interp, &typeIndex, Tcl_GetString(objPtr))
-		!= TCL_OK)
-	{
-		return TCL_ERROR;
-	}
-
-	(*typePtrPtr) = &g_icon_data[typeIndex];
-
-	return TCL_OK;
-}
-
-int Icon_GetIndexFromObj(Tcl_Interp *interp, int *indexPtr,
-	Tcl_Obj *objPtr, t_icon_data *iconDataPtr)
-{
-	int index;
-
-	if (Tcl_GetIntFromObj(interp, objPtr, &index) != TCL_OK)
-	{
-		return TCL_ERROR;
-	}
-	if ((index < 0) || (index >= iconDataPtr->icon_count))
-	{
-		/* Set the error */
-		Tcl_SetStringObj(Tcl_GetObjResult(interp),
-			format("bad icon index \"%d\": must be from 0 to %d",
-			index, iconDataPtr->icon_count - 1), -1);
-
-		/* Failure */
-		return TCL_ERROR;
-	}
-
-	(*indexPtr) = index;
-
-	return TCL_OK;
-}
 
 /*
  * Initialization.

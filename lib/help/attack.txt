@@ -159,8 +159,9 @@ Certain classes automatically receive additional shots as they become
 more experienced. Rangers receive an additional shot with a bow at
 level 20 and at level 40 and an additional shot with a crossbow at
 level 30. Rogues receive an extra shot with a sling at level 20 and at
-level 40. Warriors receive an additional shot with any missile launcher
-at level 40.
+level 40 and an additional shot with a thrown dagger at level 10. 
+Warriors receive an additional shot with any missile launcher at level 
+40.
 
 
 ***** <EgoArtifact>

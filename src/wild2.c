@@ -867,59 +867,6 @@ static bool create_city(int x, int y, int town_num)
 
 
 /*
- * Look to see if a wilderness block is able to have
- * a town overlayed on top.
- */
-static bool town_blank(int x, int y, int xsize, int ysize, int town_num)
-{
-	int i, j;
-	wild_gen2_type *w_ptr;
-
-	/* Hack - Population check */
-	if (randint0(256) > wild[y][x].trans.pop_map) return (FALSE);
-
-	for (i = x - 1; i < x + xsize + 2; i++)
-	{
-		for (j = y - 1; j < y + ysize + 2; j++)
-		{
-			/* Hack - Not next to boundary */
-			if ((i <= 0) || (i >= max_wild - 1) ||
-				(j <= 0) || (j >= max_wild - 1))
-			{
-				return (FALSE);
-			}
-
-			w_ptr = &wild[j][i].trans;
-
-			/* No place already */
-			if (w_ptr->place) return (FALSE);
-
-			/* No water or lava or acid */
-			if (w_ptr->
-				info & (WILD_INFO_WATER | WILD_INFO_LAVA | WILD_INFO_ACID))
-				return (FALSE);
-
-			/* No Ocean */
-			if (w_ptr->hgt_map < (256 / SEA_FRACTION)) return (FALSE);
-		}
-	}
-
-
-	/* Look to see if another town is too close */
-	for (i = 1; i < town_num; i++)
-	{
-		if (distance(place[i].x, place[i].y, x, y) < TOWN_MIN_DIST)
-		{
-			/* Too close? */
-			return (FALSE);
-		}
-	}
-
-	/* Ok then */
-	return (TRUE);
-}
-
-/*
  * Draw the gates to the city
  */
 static void draw_gates(byte i, byte j, place_type *pl_ptr)
@@ -1236,7 +1183,7 @@ static void draw_city(u16b town_num)
 	Rand_quick = TRUE;
 
 	/* Hack -- Induce consistant town layout */
-	Rand_value = place[town_num].seed;
+	Rand_value = pl_ptr->seed;
 
 	/* Get value of "magic" level of buildings */
 	magic = (byte)randint0(256);
@@ -1326,31 +1273,343 @@ static void draw_city(u16b town_num)
 	Rand_quick = FALSE;
 }
 
+
 /*
- * Initialise the place structures
+ * Draw a (generic) dungeon entrance on a region
  *
- * There are currently, cities and quests.
- *
- * Soon there will be:
- * Ruins, barracks, towers etc.
+  * This is really crappy... but will be improved soonish.
  */
-bool init_places(int xx, int yy)
+static void draw_dungeon(u16b place_num)
+{
+	int x, y;
+	int i, j;
+
+	place_type *pl_ptr = &place[place_num];
+
+	/* Paranoia */
+	if (pl_ptr->region) quit("Dungeon entrance already has region during creation.");
+
+	/* Get region */
+	pl_ptr->region = (s16b)create_region(WILD_BLOCK_SIZE, WILD_BLOCK_SIZE,
+										 REGION_NULL);
+
+	/* Hack - do not increment refcount here - let allocate_block do that */
+
+	/* Hack -- Use the "simple" RNG */
+	Rand_quick = TRUE;
+
+	/* Hack -- Induce consistant layout */
+	Rand_value = pl_ptr->seed;
+	
+	/* Get location of stairs */
+	x = randint1(14);
+	y = randint1(14);
+	
+	/* Put dungeon floor next to stairs so they are easy to find. */
+	for (i = -1; i <= 1; i++)
+	{
+		for (j = -1; j <= 1; j++)
+		{
+			/* Convert square to dungeon floor */
+			set_feat_bold(x + i, y + j, FEAT_FLOOR);
+		}
+	}
+
+	/* Add down stairs */
+	set_feat_bold(x, y, FEAT_MORE);
+
+	/* Hack -- use the "complex" RNG */
+	Rand_quick = FALSE;
+}
+
+
+/*
+ * Look to see if a wilderness block is able to have
+ * a town/dungeon overlayed on top.
+ */
+static bool blank_spot(int x, int y, int xsize, int ysize, int town_num, bool town)
+{
+	int i, j;
+	wild_gen2_type *w_ptr;
+	
+	int dist;
+
+	/* Hack - Population check */
+	if (randint0(256) > wild[y][x].trans.pop_map) return (FALSE);
+
+	for (i = x - 1; i < x + xsize + 2; i++)
+	{
+		for (j = y - 1; j < y + ysize + 2; j++)
+		{
+			/* Hack - Not next to boundary */
+			if ((i <= 0) || (i >= max_wild - 1) ||
+				(j <= 0) || (j >= max_wild - 1))
+			{
+				return (FALSE);
+			}
+
+			w_ptr = &wild[j][i].trans;
+
+			/* No place already */
+			if (w_ptr->place) return (FALSE);
+
+			/* No water or lava or acid */
+			if (w_ptr->
+				info & (WILD_INFO_WATER | WILD_INFO_LAVA | WILD_INFO_ACID))
+				return (FALSE);
+
+			/* No Ocean */
+			if (w_ptr->hgt_map < (256 / SEA_FRACTION)) return (FALSE);
+		}
+	}
+
+	if (town)
+	{
+		dist = MIN_DIST_TOWN;
+	}
+	else
+	{
+		dist = MIN_DIST_DUNGEON;
+	}
+	
+	/* Look to see if another place is too close */
+	for (i = 1; i < town_num; i++)
+	{ 
+		if (distance(place[i].x, place[i].y, x, y) < dist)
+		{
+			/* Too close? */
+			return (FALSE);
+		}
+	}
+
+	/* Ok then */
+	return (TRUE);
+}
+
+#define DUN_LIST_NUM		12
+
+/*
+ * A few dungeon types.
+ *
+ */
+static const dun_gen_type dungeons[] =
+{
+	{{0, 10, 0, 40}, RF8_DUN_DARKWATER, 0, 15, 0, 1,
+		100, 0,
+		RT_SIMPLE | RT_NATURAL | RT_ANIMAL | RT_STRANGE,
+		FEAT_DRY_MUD,
+		LQ_WATER | LQ_SWAMP,
+		DF_TRACK | DF_ROAD},
+
+	{{50, 10, 10, 0}, RF8_DUN_LAIR, 10, 50, 10, 1,
+		100, 100,
+		RT_NATURAL | RT_COMPLEX | RT_RUIN,
+		FEAT_DIRT,
+		LQ_WATER | LQ_ACID | LQ_SWAMP,
+		DF_NONE},
+
+	{{10, 30, 30, 30}, RF8_DUN_TEMPLE, 20, 60, 20, 1,
+		250, 250,
+		RT_SIMPLE | RT_COMPLEX | RT_DENSE | RT_FANCY | RT_BUILDING | RT_CRYPT,
+		FEAT_FLOOR_TILE,
+		LQ_WATER | LQ_LAVA,
+		DF_ROAD},
+
+	{{20, 0, 80, 0}, RF8_DUN_TOWER, 20, 60, 30, 1,
+		250, 200,
+		RT_SIMPLE | RT_COMPLEX | RT_BUILDING | RT_RVAULT,
+		FEAT_FLOOR_WOOD,
+		LQ_ACID | LQ_LAVA,
+		DF_TRACK},
+
+	{{10, 20, 20, 0}, RF8_DUN_RUIN, 20, 80, 25, 1,
+		0, 150,
+		RT_RUIN,
+		FEAT_PEBBLES,
+		LQ_WATER | LQ_LAVA | LQ_SWAMP,
+		DF_TRACK | DF_ROAD},
+
+	{{50, 20, 20, 0}, RF8_DUN_GRAVE, 30, 100, 25, 1,
+		50, 150,
+		RT_COMPLEX | RT_FANCY | RT_CRYPT,
+		FEAT_FLOOR_TILE,
+		LQ_WATER | LQ_SWAMP,
+		DF_TRACK | DF_ROAD},
+
+	{{30, 30, 30, 10}, RF8_DUN_CAVERN, 40, 80, 0, 1,
+		50, 200,
+		RT_SIMPLE | RT_ANIMAL | RT_DENSE | RT_RUIN | RT_RVAULT,
+		FEAT_DIRT,
+		LQ_WATER | LQ_ACID | LQ_LAVA,
+		DF_TRACK},
+
+	{{30, 30, 40, 0}, RF8_DUN_PLANAR, 40, 127, 0, 1,
+		0, 250,
+		RT_COMPLEX | RT_DENSE | RT_FANCY | RT_RVAULT,
+		FEAT_SAND,
+		LQ_ACID | LQ_LAVA,
+		DF_TRACK},
+
+	{{20, 40, 40, 0}, RF8_DUN_HELL, 60, 127, 0, 1,
+		0, 0,
+		RT_SIMPLE | RT_NATURAL | RT_ANIMAL | RT_DENSE | RT_RUIN |
+		RT_FANCY | RT_RVAULT | RT_STRANGE,
+		FEAT_SOLID_LAVA,
+		LQ_LAVA,
+		DF_TRACK},
+
+	{{0, 20, 20, 0}, RF8_DUN_HORROR, 80, 127, 0, 1,
+		0, 150,
+		RT_SIMPLE | RT_NATURAL | RT_ANIMAL | RT_DENSE | RT_RUIN | RT_STRANGE,
+		FEAT_SALT,
+		LQ_ACID,
+		DF_TRACK},
+
+	{{10, 20, 10, 40}, RF8_DUN_MINE, 0, 40, 25, 1,
+		200, 200,
+		RT_SIMPLE | RT_NATURAL | RT_ANIMAL | RT_RUIN | RT_STRANGE,
+		FEAT_DIRT,
+		LQ_WATER | LQ_LAVA,
+		DF_ROAD},
+
+	{{30, 30, 10, 10}, RF8_DUN_CITY, 20, 60, 25, 1,
+		200, 200,
+		RT_SIMPLE | RT_COMPLEX | RT_DENSE | RT_FANCY | RT_BUILDING |
+		RT_CRYPT | RT_RVAULT | RT_STRANGE,
+		FEAT_FLOOR_TILE,
+		LQ_WATER,
+		DF_TRACK | DF_ROAD},
+
+	{{0, 0, 0, 0}, 0, 0, 0, 0, 0,
+		0, 0,
+		0,
+		FEAT_NONE,
+		LQ_NONE,
+		DF_NONE},
+};
+
+
+/*
+ * Pick a type of dungeon from the above list
+ */
+const dun_gen_type *pick_dungeon_type(void)
+{
+	int tmp, total;
+
+	const dun_gen_type *d_ptr;
+
+	/* Calculate the total possibilities */
+	for (d_ptr = dungeons, total = 0; d_ptr->habitat; d_ptr++)
+	{
+		/* Count this possibility */
+		if (d_ptr->min_level > p_ptr->depth) continue;
+
+		/* Normal selection */
+		total += d_ptr->chance * MAX_DEPTH * 10 /
+				(p_ptr->depth - d_ptr->min_level + 5);
+	}
+
+	/* Pick a random type */
+	tmp = randint0(total);
+
+	/* Find this type */
+	for (d_ptr = dungeons, total = 0; d_ptr->habitat; d_ptr++)
+	{
+		/* Count this possibility */
+		if (d_ptr->min_level > p_ptr->depth) continue;
+		
+		total += d_ptr->chance * MAX_DEPTH * 10 /
+			(p_ptr->depth - d_ptr->min_level + 5);
+
+		/* Found the type */
+		if (tmp < total) break;
+	}
+
+	/* Return the index of the chosen dungeon */
+	return (d_ptr);
+}
+
+
+/* Save dungeon information so we know what to build later */
+static void init_dungeon(place_type *pl_ptr, const dun_gen_type *d_ptr)
+{
+	dun_type *dt_ptr;
+
+	/* Create it */
+	MAKE(pl_ptr->dungeon, dun_type);
+
+	dt_ptr = pl_ptr->dungeon;
+
+	/* Set the object theme (structure copy) */
+	dt_ptr->theme = d_ptr->theme;
+	
+	/* Hack - Reset the dungeon habitat to be everything */
+	dt_ptr->habitat = d_ptr->habitat;
+	
+	/* Dungeon is full range of levels? */
+	if (!d_ptr->dif_level)
+	{
+		/* Save level bounds */
+		dt_ptr->min_level = d_ptr->min_level;
+		dt_ptr->max_level = d_ptr->max_level;
+	}
+	else
+	{
+		/* Get range of levels */
+		int range = Rand_normal(d_ptr->dif_level, d_ptr->dif_level / 2);
+	
+		/* Make sure fits inside bounds */
+		if (range > d_ptr->max_level - d_ptr->min_level)
+		{
+			/* Save level bounds */
+			dt_ptr->min_level = d_ptr->min_level;
+			dt_ptr->max_level = d_ptr->max_level;
+		}
+		else
+		{
+			/* Fit dungeon within level bounds (randomly) */
+			dt_ptr->min_level = rand_range(d_ptr->min_level, d_ptr->max_level - range);
+			dt_ptr->max_level = dt_ptr->min_level + range;
+		}
+	}
+	
+	/* Copy dungeon creation info */
+	dt_ptr->rooms = d_ptr->rooms;
+	dt_ptr->floor = d_ptr->floor;
+	dt_ptr->liquid = d_ptr->liquid;
+	
+	/* Extra flags */
+	dt_ptr->flags = d_ptr->flags;
+}
+
+
+/* Hack - return the current type of "floor" */
+byte the_floor(void)
+{
+	/* In the wilderness */
+	if (!p_ptr->depth) return (FEAT_DIRT);
+	
+	/* In the dungeon */
+	return (place[p_ptr->place_num].dungeon->floor);
+}
+
+
+static bool create_towns(int xx, int yy)
 {
 	int x, y, i;
 	bool first_try = TRUE;
 
 	wild_gen2_type *w_ptr;
 
+	place_type *pl_ptr;
+
 	/* Variables to pick "easiest" town. */
 	u16b best_town = 0, town_value = 0;
-
-	/* No towns yet */
-	place_count = 1;
 
 	/*
 	 * Try to add z_info->wp_max towns.
 	 */
-	while (place_count < z_info->wp_max)
+	while (place_count < NUM_TOWNS)
 	{
 		if (first_try)
 		{
@@ -1368,63 +1627,51 @@ bool init_places(int xx, int yy)
 			y = randint0(max_wild);
 		}
 
-		if (place_count < z_info->wp_max / TOWN_FRACTION)
+		/*
+		 * See if a city will fit.
+		 * (Need a 8x8 block free.)
+		 */
+		if (!blank_spot(x, y, 8, 8, place_count, TRUE)) continue;
+
+		/* Generate it */
+		if (!create_city(x, y, place_count)) continue;
+		
+		/* get wildernesss + place pointers */
+		w_ptr = &wild[y][x].trans;
+		pl_ptr = &place[place_count];
+				
+		/* Check to see if the town has stairs */
+		for (i = 0; i < pl_ptr->numstores; i++)
 		{
-			/*
-			 * See if a city will fit.
-			 * (Need a 8x8 block free.)
-			 */
-			if (!town_blank(x, y, 8, 8, place_count)) continue;
-
-			/* Generate it */
-			if (create_city(x, y, place_count))
+			if (pl_ptr->store[i].type == BUILD_STAIRS)
 			{
-				w_ptr = &wild[y][x].trans;
-
+				/* Create dungeon information */
+				if (!pl_ptr->dungeon)
+				{
+					/* Use sewer */
+					init_dungeon(pl_ptr, &dungeons[0]);
+				}
+				
 				/* Select easiest town */
 				if (w_ptr->law_map > town_value)
 				{
-					/* Check to see if the town has stairs */
-					for (i = 0; i < place[place_count].numstores; i++)
-					{
-						if (place[place_count].store[i].type == BUILD_STAIRS)
-						{
-							/* Save this town */
-							town_value = w_ptr->law_map;
-							best_town = place_count;
+					/* Save this town */
+					town_value = w_ptr->law_map;
+					best_town = place_count;
 
-							/* Done */
-							break;
-						}
-					}
+					/* Done */
+					continue;
 				}
 			}
-			else
-			{
-				/* Try again */
-				continue;
-			}
 		}
-		else
-		{
-			int xsize, ysize;
-			byte flags;
-
-			/* Pick quest size / type */
-			pick_wild_quest(&xsize, &ysize, &flags);
-
-			/* See if a quest will fit */
-			if (!quest_blank(x, y, xsize, ysize, place_count, flags)) continue;
-
-			/* Build it */
-			if (!create_quest(x, y, place_count)) continue;
-		}
-
-
+		
 		/* Increment number of places */
-		place_count++;
+		place_count++;		
 	}
-
+	
+	/* Paranoia */
+	if (!best_town) return (FALSE);
+	
 	/* Hack - the starting town uses pre-defined stores */
 	for (i = 0; i < place[best_town].numstores; i++)
 	{
@@ -1452,9 +1699,6 @@ bool init_places(int xx, int yy)
 		}
 	}
 
-	/* Paranoia */
-	if (!best_town) return (FALSE);
-
 	/* Build starting city / town */
 	draw_city(best_town);
 
@@ -1462,6 +1706,202 @@ bool init_places(int xx, int yy)
 
 	/* Hack - No current region */
 	set_region(0);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/*
+ * What is the "score" for a dungeon of the given type
+ * at this location in the wilderness?
+ * The lower the score, the better the match.
+ */
+static long score_dungeon(const wild_gen2_type *w_ptr, const dun_gen_type *d_ptr)
+{
+	long score = 0, value;
+	
+	/* Height */
+	value = w_ptr->hgt_map - d_ptr->height;
+	score += value * value;
+	
+	/* Population */
+	value = w_ptr->pop_map - d_ptr->pop;
+	score += value * value;
+	
+	/* Lawless level */
+	value = w_ptr->law_map - d_ptr->min_level;
+	score += value * value;
+	
+	return (score);
+}
+
+
+
+/* Add in dungeons into the wilderness */
+static void create_dungeons(void)
+{
+	int i, j;
+	
+	int x, y;
+	
+	int best;
+	
+	long best_val, score;
+	
+	place_type *pl_ptr;
+	
+	wild_gen2_type *w_ptr;
+	
+	int dungeon_list[NUM_DUNGEON];
+	
+	/*
+	 * Scan for places to add dungeons.
+	 */
+	while (place_count < NUM_TOWNS + NUM_DUNGEON)
+	{
+		/* Get a random position */
+		x = randint0(max_wild);
+		y = randint0(max_wild);
+		
+		pl_ptr = &place[place_count];
+
+		/*
+		 * See if a dungeon will fit.
+		 * (Need a 1x1 block free.)
+		 */
+		if (!blank_spot(x, y, 1, 1, place_count, FALSE)) continue;
+		
+		/* Get location */
+		w_ptr = &wild[y][x].trans;
+
+		/*
+		 * Add city to wilderness
+		 * Note: only 255 towns can be stored currently.
+		 */
+		w_ptr->place = (byte)place_count;
+				
+		pl_ptr->x = x;
+		pl_ptr->y = y;
+		pl_ptr->xsize = 1;
+		pl_ptr->ysize = 1;
+		
+		/* We are a dugneon */
+		pl_ptr->type = TOWN_DUNGEON;
+		
+		/* We have monsters */
+		pl_ptr->monst_type = TOWN_MONST_ABANDONED;
+		
+		/* Hack - A really crap name */
+		strcpy(pl_ptr->name, "Dungeon");
+
+		/* Increment number of places */
+		place_count++;
+	}
+
+	/* Select list of dungeon types to use */
+	for (i = 0; i <	NUM_DUNGEON; i++)
+	{
+		/* Make sure we have at least one of each */
+		if (i < DUN_LIST_NUM)
+		{
+			dungeon_list[i] = i;
+		}
+		else
+		{
+			dungeon_list[i] = randint0(DUN_LIST_NUM);
+		}	
+	}
+	
+	/* Match available dungeon types to locations */
+	for (i = 0; i < NUM_DUNGEON; i++)
+	{
+		/* Score each available location, and pick the best one. */
+		
+		best = -1;
+		best_val = -1;
+		
+		for (j = NUM_TOWNS; j < NUM_TOWNS + NUM_DUNGEON; j++)
+		{
+			pl_ptr = &place[j];
+			
+			/* Skip already created dungeons */
+			if (pl_ptr->dungeon) continue;
+			
+			/* Get location */
+			w_ptr = &wild[pl_ptr->y][pl_ptr->x].trans;
+			
+			score = score_dungeon(w_ptr, &dungeons[dungeon_list[i]]);
+			
+			/* Better dungeon? */
+			if ((best == -1) || (score < best_val))
+			{
+				best = j;
+				best_val = score;
+			}
+		}
+		
+		/* Initialise best dungeon */
+		init_dungeon(&place[best], &dungeons[dungeon_list[i]]);
+	}
+}
+
+
+/*
+ * Place the quests on the wilderness
+ */
+static void create_quests(void)
+{
+	int x, y;
+
+	int xsize, ysize;
+	byte flags;
+
+	/*
+	 * Try to add z_info->wp_max towns.
+	 */
+	while (place_count < z_info->wp_max)
+	{
+		/* Get a random position */
+		x = randint0(max_wild);
+		y = randint0(max_wild);
+	
+		/* Pick quest size / type */
+		pick_wild_quest(&xsize, &ysize, &flags);
+
+		/* See if a quest will fit */
+		if (!quest_blank(x, y, xsize, ysize, place_count, flags)) continue;
+
+		/* Build it */
+		if (!create_quest(x, y, place_count)) continue;
+
+		/* Increment number of places */
+		place_count++;
+	}
+}
+
+
+/*
+ * Initialise the place structures
+ *
+ * There are currently, cities and quests.
+ *
+ * Soon there will be:
+ * Ruins, barracks, towers etc.
+ */
+bool init_places(int xx, int yy)
+{
+	/* No towns yet */
+	place_count = 1;
+	
+	/* Create towns */
+	if (!create_towns(xx, yy)) return (FALSE);
+
+	/* Create dungeons */
+	create_dungeons();
+	
+	/* Create quests */
+	create_quests();
 
 	/* Done */
 	return (TRUE);
@@ -1763,6 +2203,9 @@ void init_vanilla_town(void)
 			wild[j][i].done.place = 1;
 		}
 	}
+	
+	/* Create dungeon */
+	MAKE(pl_ptr->dungeon, dun_type);
 
 	/* Make the town - and get the location of the stairs */
 	van_town_gen(1);
@@ -1800,6 +2243,11 @@ static void place_gen(u16b place_num)
 			draw_quest(place_num);
 			break;
 		}
+		case TOWN_DUNGEON:
+		{
+			draw_dungeon(place_num);
+			break;
+		}
 		default:
 		{
 			quit("Unknown town/quest type in wilderness");
@@ -1821,8 +2269,10 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 
 	int fld_idx, type;
 
+	wild_done_type *w_ptr = &wild[y][x].done;
+
 	/* Generation level for monsters and objects */
-	int level = wild[y][x].done.mon_gen;
+	int level = w_ptr->mon_gen;
 
 	cave_type *c_ptr;
 	place_type *pl_ptr = &place[w_place];
@@ -1858,19 +2308,6 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 
 			/* Copy the terrain */
 			block_ptr[j][i].feat = c_ptr->feat;
-
-			/*
-			 * Instantiate object
-			 */
-			place_specific_object(x2, y2, level, c_ptr->o_idx);
-
-			/*
-			 * Instantiate monster
-			 */
-			if (c_ptr->m_idx)
-			{
-				place_monster_one(x2, y2, c_ptr->m_idx, FALSE, FALSE, FALSE);
-			}
 
 			/*
 			 * Instantiate field
@@ -1937,6 +2374,25 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 
 					break;
 				}
+			}
+			
+			/* Hack - finished quests don't have monsters or objects */
+			if ((pl_ptr->type == TOWN_QUEST) && (w_ptr->info & WILD_INFO_DONE))
+			{
+				continue;
+			}
+			
+			/*
+			 * Instantiate object
+			 */
+			place_specific_object(x2, y2, level, c_ptr->o_idx);
+
+			/*
+			 * Instantiate monster
+			 */
+			if (c_ptr->m_idx)
+			{
+				place_monster_one(x2, y2, c_ptr->m_idx, FALSE, FALSE, FALSE);
 			}
 		}
 	}
@@ -3146,12 +3602,12 @@ static void add_monsters_block(int x, int y)
 				if (one_in_(2))
 				{
 					/* Monsters are awake */
-					(void)place_monster(xx + i, yy + j, FALSE, TRUE);
+					(void)place_monster(xx + i, yy + j, FALSE, TRUE, 0);
 				}
 				else
 				{
 					/* Monsters are asleep */
-					(void)place_monster(xx + i, yy + j, TRUE, TRUE);
+					(void)place_monster(xx + i, yy + j, TRUE, TRUE, 0);
 				}
 			}
 		}
@@ -3163,16 +3619,13 @@ void light_dark_square(int x, int y, bool daytime)
 	cave_type *c_ptr = area(x, y);
 	pcave_type *pc_ptr = parea(x, y);
 
-	/* Hack -- Notice spot */
-	note_spot(x, y);
-
 	if (daytime)
 	{
 		/* Assume lit */
 		c_ptr->info |= (CAVE_GLOW);
 
-		/* Hack -- Memorize lit grids if allowed */
-		if (view_perma_grids) remember_grid(c_ptr, pc_ptr);
+		/* Memorize lit grids */
+		remember_grid(c_ptr, pc_ptr);
 
 		/* If is daytime - have seen this square */
 		wild[y / 16][x / 16].done.info |= WILD_INFO_SEEN;
@@ -3194,10 +3647,13 @@ void light_dark_square(int x, int y, bool daytime)
 			/* Assume lit */
 			c_ptr->info |= (CAVE_GLOW);
 
-			/* Hack -- Memorize lit grids if allowed */
-			if (view_perma_grids) remember_grid(c_ptr, pc_ptr);
+			/* Memorize lit grids */
+			remember_grid(c_ptr, pc_ptr);
 		}
 	}
+	
+	/* Hack -- Light spot */
+	lite_spot(x, y);
 }
 
 
@@ -3334,11 +3790,6 @@ static void gen_block(int x, int y)
 
 	/* Day / Night - lighten or darken the new block */
 	light_dark_block(x, y);
-
-	/* Set the object generation level */
-
-	/* Hack - set object level to monster level */
-	object_level = wild[y][x].done.mon_gen;
 
 	/* Add monsters */
 	add_monsters_block(x, y);
@@ -3559,11 +4010,30 @@ static void allocate_block(int x, int y)
 		/* Get new block */
 		wild_grid[y][x] = wild_cache[wc_cnt++];
 
-		/* Generate the block */
-		gen_block(x, y);
-
-		if (place_num)
+	
+		/* Are we in the process of loading the game? */
+		if (character_loaded)
 		{
+			/* Generate the block */
+			gen_block(x, y);
+
+			if (place_num)
+			{
+				/* Increase refcount for region */
+				incref_region(place[place_num].region);
+			}
+		}
+		
+		/* We need to make sure the refcounted regions work */
+		else if (place_num)
+		{
+			/* Do we need to make the map? */
+			if (!place[place_num].region)
+			{
+				/* Create the place */
+				place_gen(place_num);
+			}
+			
 			/* Increase refcount for region */
 			incref_region(place[place_num].region);
 		}
@@ -3613,6 +4083,7 @@ void move_wild(void)
 
 	quest_type *q_ptr;
 	place_type *pl_ptr;
+	wild_done_type *w_ptr;
 
 	/* Get upper left hand block in grid. */
 
@@ -3620,8 +4091,10 @@ void move_wild(void)
 	x = ((u16b)p_ptr->wilderness_x / WILD_BLOCK_SIZE);
 	y = ((u16b)p_ptr->wilderness_y / WILD_BLOCK_SIZE);
 
+	w_ptr = &wild[y][x].done;
+
 	/* The player sees the wilderness block he is on. */
-	wild[y][x].done.info |= WILD_INFO_SEEN;
+	w_ptr->info |= WILD_INFO_SEEN;
 
 	/* Hack - set place */
 	p_ptr->place_num = wild[y][x].done.place;
@@ -3629,15 +4102,15 @@ void move_wild(void)
 	pl_ptr = &place[p_ptr->place_num];
 
 	/* Check for wilderness quests */
-	if (pl_ptr->quest_num)
+	if ((pl_ptr->quest_num) && !(w_ptr->info & WILD_INFO_DONE))
 	{
 		q_ptr = &quest[pl_ptr->quest_num];
 
 		/* Some quests are completed by walking on them */
 		if (q_ptr->x_type == QX_WILD_ENTER)
 		{
-			/* Remove town block from wilderness */
-			wild[y][x].done.place = 0;
+			/* We have been here */
+			w_ptr->info |= WILD_INFO_DONE;
 
 			/* Decrement active block counter */
 			pl_ptr->data--;
@@ -3801,7 +4274,7 @@ static bool in_bounds_wild_player(int x, int y)
 
 
 /* Allocate all grids around player */
-void init_wild_cache(void)
+static void init_wild_cache(void)
 {
 	int x = p_ptr->old_wild_x, y = p_ptr->old_wild_y;
 	int i, j;
@@ -3854,6 +4327,8 @@ void change_level(int level)
 {
 	int i, j;
 	pcave_type *pc_ptr;
+	
+	place_type *pl_ptr = &place[p_ptr->place_num];
 
 	bool switched = FALSE;
 
@@ -3868,10 +4343,10 @@ void change_level(int level)
 
 	if (level == 0)
 	{
-		if (dun_ptr->region)
+		if (pl_ptr->dungeon && pl_ptr->dungeon->region)
 		{
 			/* Delete dungeon */
-			dun_ptr->region = unref_region(dun_ptr->region);
+			pl_ptr->dungeon->region = unref_region(pl_ptr->dungeon->region);
 		}
 
 		/* In the wilderness */
@@ -3918,10 +4393,10 @@ void change_level(int level)
 	else
 	{
 		/* In the dungeon */
-		if (dun_ptr->region)
+		if (pl_ptr->dungeon && pl_ptr->dungeon->region)
 		{
 			/* Delete old dungeon */
-			dun_ptr->region = unref_region(dun_ptr->region);
+			pl_ptr->dungeon->region = unref_region(pl_ptr->dungeon->region);
 
 			/* New dungeon is created in generate.c */
 		}
@@ -3929,7 +4404,6 @@ void change_level(int level)
 		/* Used to be in the wilderness? */
 		if (area == access_wild) switched = TRUE;
 
-		/* Change dun_ptr? */
 
 		/* 
 		 * Zero bounds - allocated in generate.c
@@ -3979,6 +4453,25 @@ void change_level(int level)
 
 
 /*
+ * Get the base level for objects and monsters
+ * around the player.
+ */
+int base_level(void)
+{
+	wild_done_type *w_ptr;
+
+	/* Are we in the dungeon? */
+	if (p_ptr->depth) return (p_ptr->depth);
+	
+	/* Point to wilderness block info */
+	w_ptr = &wild[p_ptr->py / 16][p_ptr->px / 16].done;
+	
+	/* The level of the wilderness */
+	return(w_ptr->mon_gen);
+}
+
+
+/*
  * Delete all active things
  */
 void wipe_all_list(void)
@@ -4004,7 +4497,7 @@ void wipe_all_list(void)
 		wipe_rg_list();
 
 		/* No more dungeon */
-		dun_ptr->region = 0;
+		cur_region = 0;
 	}
 	else
 	{

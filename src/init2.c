@@ -87,9 +87,9 @@ void init_file_paths(char *path)
 {
 	char *tail;
 
-#ifdef SET_UID
+#ifdef PRIVATE_USER_PATH
 	char buf[1024];
-#endif /* SET_UID */
+#endif /* PRIVATE_USER_PATH */
 
 	/*** Free everything ***/
 
@@ -363,10 +363,10 @@ static errr init_info_raw(int fd, header *head)
 static void init_header(header *head, int num, int len)
 {
 	/* Save the "version" */
-	head->v_major = VERSION_MAJOR;
-	head->v_minor = VERSION_MINOR;
-	head->v_patch = VERSION_PATCH;
-	head->v_extra = VERSION_EXTRA;
+	head->v_major = VER_MAJOR;
+	head->v_minor = VER_MINOR;
+	head->v_patch = VER_PATCH;
+	head->v_extra = VER_EXTRA;
 
 	/* Save the "record" information */
 	head->info_num = num;
@@ -1321,6 +1321,9 @@ void init_angband(void)
 		/* Close */
 		my_fclose(fp);
 	}
+	
+	/* Display version number */
+	put_fstr(42, 3, "%d.%d.%d", VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	/* Flush it */
 	Term_fresh();
@@ -1425,16 +1428,13 @@ void init_angband(void)
 	/* Access the "user" pref file */
 	(void)process_pref_file("user.prf");
 
-	/* Access the "basic" system pref file */
-	(void)process_pref_file("pref-%s.prf", ANGBAND_SYS);
-
-	/* Access the "user" system pref file */
-	(void)process_pref_file("user-%s.prf", ANGBAND_SYS);
-
 	/* Initialise the fake monochrome flag */
 	fake_monochrome = (!use_graphics
 					   || streq(ANGBAND_SYS, "ibm")) ? TRUE : FALSE;
-
+	
+	/* Initialise the overhead map */
+	init_overhead_map();
+	
 	/* Done */
 	note("[Initialization complete]");
 }
@@ -1490,6 +1490,9 @@ void cleanup_angband(void)
 	FREE(cave_cost);
 
 #endif /* MONSTER_FLOW */
+
+	/* Delete the overhead map */
+	del_overhead_map();
 
 /*
  * Note that this causes problems if Zangband exits due to an error

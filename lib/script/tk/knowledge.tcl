@@ -1026,6 +1026,8 @@ proc NSKnowledge::NewItemCmd {oop canvistId y args} {
 	# Get the width of the canvas
 	set canvasWidth [winfo width $c]
 
+if 0 {
+
 	# Image
 	if {[string length $data(-assign)]} {
 		set iw [icon size]
@@ -1038,6 +1040,7 @@ proc NSKnowledge::NewItemCmd {oop canvistId y args} {
 	} else {
 		set wid 3
 	}
+}
 
 	# Text
 	lappend itemIdList [$c create text [expr {$wid + 1}] [expr {$y + $diff}] \

@@ -1,0 +1,11 @@
+subdir = ./lib/script/tk/config/
+
+## makefile.zb
+
+srcfiles += lib/script/tk/config/makefile.zb
+files += $(addprefix lib/script/tk/config/, \
+	adamNN+feat.cfg birth classic-common config geometry \
+	adam+feat-assign adamNN-common classic+feat-assign \
+	classicNN+feat.cfg dg32-assign value adam-assign \
+	adamNN.cfg classic-assign classicNN.cfg dg32.cfg \
+	)

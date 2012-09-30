@@ -1,0 +1,20 @@
+subdir = ./lib/help/
+
+## makefile.zb
+
+srcfiles += lib/help/makefile.zb
+
+files += \
+	lib/help/attack.hlp lib/help/attack.txt lib/help/birth.hlp \
+	lib/help/birth.txt lib/help/bldg.txt lib/help/charattr.hlp \
+	lib/help/charattr.txt lib/help/command.hlp lib/help/command.txt \
+	lib/help/commdesc.hlp lib/help/commdesc.txt lib/help/defend.hlp \
+	lib/help/defend.txt lib/help/dungeon.hlp lib/help/dungeon.txt \
+	lib/help/gambling.txt lib/help/general.hlp lib/help/general.txt \
+	lib/help/help.hlp lib/help/helpinfo.txt lib/help/magic.hlp \
+	lib/help/magic.txt lib/help/monster.hlp lib/help/monster.txt \
+	lib/help/objects.hlp lib/help/objects.txt lib/help/option.hlp \
+	lib/help/option.txt lib/help/pref.hlp lib/help/pref.txt \
+	lib/help/readme.txt lib/help/spoiler.hlp lib/help/town.hlp \
+	lib/help/town.txt lib/help/version.txt lib/help/wizard.txt \
+	lib/help/interface.html
