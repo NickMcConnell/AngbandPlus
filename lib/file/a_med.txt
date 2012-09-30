@@ -1,0 +1,88 @@
+N:*:Default
+86
+'Resistor'
+'Warrior's Shield'
+of Polonium
+'Guardian'
+'Protector'
+of Thiron
+of Quatis
+of Holiness
+'Bloodshield'
+'Morthog'
+of Tyrolia
+'Pendulum'
+of the Champions
+of Ziggmund
+'Defender'
+'Protection of Ramses'
+'Orion's Belt'
+'Deluder'
+'Saver'
+of Steel
+'Steelskin'
+'Lawbringer'
+'Shadow'
+of the Shadows
+'Sentinel'
+'Restorer'
+'Clockwork'
+'Conservator'
+'Cyclopean'
+of Crystal
+of the Dark
+of Stone
+'Dam'
+'Force Field'
+of Ivory
+of Jade
+of Lead
+'Mana Web'
+'Mightstone'
+of Runes
+'Skull of Vecna'
+of Icarus
+'Jewel Symal'
+'Worfskin'
+'Camelot'
+'Metallicus'
+'Regenerator'
+'Moonstone'
+'Stormcloak'
+'Honesty'
+of Storms
+of Honour
+of Justice
+of Ra
+of the Castle Master
+of the Black Tiger
+'Myth'
+of Crystallion
+'Mechwarrior'
+of the Iron Lord
+of Lifeforce
+'Total Eclipse'
+'Windwalker'
+'Balancer'
+of Gordion
+of Locutus
+'Trilogy'
+of Super Zaxxon
+of the Cross
+of the Cleric
+'Survivalist'
+of Kevlar
+'Full Metal Jacket'
+of the Borg
+of the Mystics
+of the Magi
+of Robustness
+of Sussamma
+of Akebono
+of Takanohana
+of Sybok
+of the Valkyrie
+of Olorin
+of Llewella
+of Gondor
+of Belegennon

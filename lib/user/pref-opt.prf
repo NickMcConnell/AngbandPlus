@@ -1,0 +1,143 @@
+# File: pref-opt.prf
+
+#
+# Allow user specification of various options
+#
+# This file includes, if appropriate, various "sub-files"
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+
+
+##### User-Interface #####
+
+X:rogue_like_commands
+Y:quick_messages
+Y:other_query_flag
+Y:carry_query_flag
+X:use_old_target
+Y:always_pickup
+Y:always_repeat
+X:depth_in_feet
+X:stack_force_notes
+X:stack_force_costs
+Y:show_labels
+Y:show_weights
+X:show_inven_graph
+X:show_equip_graph
+X:show_store_graph
+Y:show_choices
+Y:show_details
+X:ring_bell
+Y:use_color
+
+
+##### Disturbance #####
+
+X:find_ignore_stairs
+Y:find_ignore_doors
+Y:find_cut
+Y:find_examine
+X:disturb_move
+Y:disturb_near
+Y:disturb_panel
+Y:disturb_minor
+Y:alert_hitpoint
+X:alert_failure
+
+
+##### Game-Play #####
+
+X:auto_haggle
+X:auto_scum
+Y:stack_allow_items
+Y:stack_allow_wands
+Y:expand_look
+Y:expand_list
+Y:view_perma_grids
+X:view_torch_grids
+X:dungeon_align
+Y:dungeon_stair
+X:flow_by_sound
+X:flow_by_smell
+X:smart_learn
+X:smart_cheat
+
+
+##### Efficiency #####
+
+X:view_reduce_lite
+X:view_reduce_view
+X:avoid_abort
+X:avoid_other
+Y:flush_failure
+X:flush_disturb
+X:flush_command
+Y:fresh_before
+X:fresh_after
+X:fresh_message
+Y:compress_savefile
+X:hilite_player
+Y:view_yellow_lite
+Y:view_bright_lite
+Y:view_granite_lite
+Y:view_special_lite
+
+
+##### ZAngband options #####
+
+Y:disturb_other
+Y:last_words
+Y:speak_unique
+Y:small_levels
+X:always_small_levels
+Y:empty_levels
+X:player_symbols
+Y:equippy_chars
+X:skip_mutations
+X:plain_descriptions
+X:stupid_monsters
+X:auto_destroy
+Y:confirm_wear
+X:confirm_stairs
+X:disturb_pets
+X:easy_open
+X:easy_disarm
+X:easy_floor
+X:use_command
+X:center_player
+X:avoid_center
+
+
+##### Birth #####
+
+X:vanilla_town
+X:lite_town
+Y:terrain_streams
+Y:maximize_mode
+Y:preserve_mode
+Y:autoroller
+
+
+##### Ironman #####
+
+X:ironman_shops
+X:ironman_small_levels
+X:ironman_downward
+X:ironman_autoscum
+X:ironman_hard_quests
+X:ironman_empty_levels
+X:ironman_rooms
+X:ironman_nightmare
+
+
+##### Silly #####
+
+X:munchkin_death
+X:munchkin_rings
+
+
+##### Stacking #####
+
+Y:testing_stack
+Y:testing_carry

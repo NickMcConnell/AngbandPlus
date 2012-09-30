@@ -1,0 +1,87 @@
+N:*:Default
+85
+'Ehr Rhee'
+of Eastwood
+'Zir Dawn'
+'Lor Goth'
+of the Foo
+of Pobox
+of Demos
+of Talos
+of Evasion
+of Traveling
+of Balmoth
+of the Uncaring
+of Zod
+of Glenda
+'Wind Shield'
+'Van's Shield'
+of Lesser Shielding
+'Dasmiff'
+'Pizza'
+'Whisperfeet'
+of Shifting
+'Curator'
+'Astrosuit'
+'Combat Enviro-Suit'
+'Bubble'
+of Clay
+'Force Shield'
+of Glass
+of Illusion
+of Phantasm
+of the Jester
+of the Joker
+of the Mirror Image
+of Misery
+of the Unseen
+of the Scarecrow
+of Sand
+'Sad Giant's Shield'
+'Weakstone'
+of Halloween
+'Blank'
+'Sheet'
+'Wind Fan'
+of Humility
+of Passion
+of the Humpback
+of Bobble
+'Midnight Resistance'
+of Zombi
+'Kid Gloves'
+'Babel'
+'Grand Prix'
+'Krypton Egg'
+'Mindbender'
+'Goonie'
+'Risk'
+'Iron Maiden'
+'Generator'
+of Transylvania
+'Zaxxon'
+'Wapiti'
+'Deja-Vu'
+of the Apparition
+of the Wormhole
+of Holy Smoke
+of the Masochist
+of King Nothing
+of the Stuntman
+of the Kemma
+of the Keva
+'Full Metal Hand'
+'Wooden Box'
+of Blind Justice
+of the Mortals
+of Compactness
+of Proximity
+of Satisfaction
+of Gurnemanz
+of Tannhaeuser
+of Martin
+of Coral
+of Barahir
+'Dal-i-Thalion'
+'Paurnimmen'
+of Hide-and-Seek

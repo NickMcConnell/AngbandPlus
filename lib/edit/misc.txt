@@ -1,0 +1,39 @@
+# CVS: Last edit by $Author: ebock $ on $Date: 1999/11/17 19:53:30 $
+# File: misc.txt
+
+# Maximum number of towns
+M:T:6
+
+# Maximum number of quests
+M:Q:100
+
+# Maximum x size of the wilderness
+M:WX:10
+
+# Maximum y size of the wilderness
+M:WY:10
+
+# Maximum number of monsters in r_info.txt
+M:R:872
+
+# Maximum number of items in k_info.txt
+M:K:581
+
+# Maximum number of vaults in v_info.txt
+M:V:115
+
+# Maximum number of terrain features in f_info.txt
+M:F:160
+
+# Maximum number of artifacts in a_info.txt
+M:A:128
+
+# Maximum number of ego-items in e_info.txt
+M:E:128
+
+# Maximum size for "o_list[]"
+M:O:512
+
+# Maximum size for "m_list[]"
+M:M:1024
+

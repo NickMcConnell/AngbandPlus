@@ -1,0 +1,986 @@
+This is a document file listing the changes in Zangband (compared to the
+standard Angband 2.8.1.) No long explanations, just a list. See code for
+details. In reversed chronological order (more or less):
+
+ZAngband 2.2.8:
+-Extended the online helpfile system significantly (case-insensitive
+ searching, links into specific sections of a help-file).
+-Updated large parts of the documentation, and added a modified version
+ of Chris Weisinger's Angband Newbie Guide.
+-Added Tom Morton's 'fake artifact names' patch.  Inscribing "a Foo" with
+ "#'Bar'" will display the item as "a Foo 'Bar'".
+-Added magical figurines, statues, and corpses (corpses are turned off
+ since they can't be resurrected yet).
+-Changed the way game-created inscriptions work. They're seperate from
+ player inscriptions now. No more problem with priests cursing and
+ scrolls of remove curse that mess up your own inscriptions.
+-Various changes to the Mindcrafter:
+  - Dimension Door is back. At level 40.
+  - Psychometry becomes Identify at level 25, not 40.
+  - PSI damage only affects opponents that can see you (affects
+    neural blast, mind wave, as well as a Trump spell, a mutation
+    and a racial power).
+  - Psychic Drain is always a radius-0 ball, not bigger.
+  - Adrenalin Channeling only heals when the player isn't already
+    'heroed' ('herofied'? 'heroficated'?) and hasted.
+  - Precognition also gives Detect Doors at level 5.
+-Added multiple message tracking (ie. 'You tunnel into the granite wall
+ <30x>').
+-Added a health display to the pet knowledge, extended the pet commands
+ and tweaked pet behavior somewhat.
+-Introduced pref files for options (for new savefiles).
+-Made amendments to various quests by Shayne Steel and their rewards.
+-Added several monsters.
+-Rebalanced and modified many monsters.
+-Monster groups now appear "scattered".
+-Added conical breath attacks.
+-New ironman option: Nightmare mode.  It isn't even remotely fair.
+-Made some changes to the wizard commands.
+-Improved the documentation of the *_info.txt files.
+-Resting at the Inn now restores hit-points and mana.
+-Increased the ratings of the 'miniature cell' and 'interlock' vaults.
+-Modified the messages for some spells casted by monsters.
+-Restricted the rewards for killing monsters to uniques.
+-Added a new scroll 'of mundanity'.
+-New weapon type - the 'Diamond Edge' sword which has the vorpal flag.
+-Chests now use the '&' symbol and have more varied colors.
+-Decreased the levels of certain rods.
+-Lucerne Hammers are now 'polearms'. Turmil is now a 'blessed' blade.
+-Players should now be cautious when throwing certain potions!
+-Tweaked the naming of random artifacts.
+-Changed various monsters to allow them to speak and added relevant
+ entries to monspeak.txt.
+-Monsters with KILL_BODY will now perform an attack on other monsters
+ blocking their path rather than insta-killing them.
+-Added 8x8 graphics tiles for the new monsters and items.
+-Numerous spelling and grammar changes in, and additions to, various
+ flavor messages.
+-Added code to support monster invulnerability and vampirism.
+-Removed the 'Unbiased RNG' option.
+-Separated chaos and confusion resistance and added RES_CONF to several
+ artifacts and other objects.
+-Changed the colors on some traps and added a new trap.
+-Removed the requirement that destroyed levels be 'boring'.
+-Disabled bones file production.
+-Updated the names of certain windows.
+-Made the autoroller a bit friendlier.
+-Added support for HTML help files to the Windows version.
+-Reduced the cost and level of the 'sterility' mutation.
+-Chaos Warriors can no longer get the 'You attract the attention of a
+ chaos deity' mutation.
+-Aggravation no longer annoys friendly monsters.
+-Tweaked 'star' spells to allow rays to be fired in all directions.
+-Due to popular demand, multiple rings are supported.  Additional rings 
+ can be obtained upon reaching an appropriate level.
+-Made amulet, potion, ring mimics slightly more troublesome.
+-Charging items now have a darker colour in inventory.
+-Lifted many shopkeepers from CthAngband, no more five copies of
+ the same 5k shopkeeper (unless the RNG is really after you).
+-Changed the savefile version numbering somewhat, to prevent problems
+ with the savefiles of development versions.
+-Fixed a bug in patterns in *greater* vaults that made it impossible
+ to walk them.
+-Fixed a bug that crashed the ^Q command now and then.
+-Added a missing entry to timefun.txt.
+-You can now teleport into forested areas. This will prevent getting
+ trapped in the wilderness.
+-Fixed a bug with tunneling.
+-Another attempt at fixing the 'more-than-seven-unnamed-Nazguls' bug.
+-Fixed a bug which could cause crashes when *id-ing* an object.
+-Fixed a bug that prevented monsters from casting spells correctly.
+-Fixed a bug in the wand/rod selling code.
+-Fixed a bug with '.' and ',' in the roguelike keyset.
+-Fixed an over-correction in the 'distance' function.
+-Fixed a bug that allowed *huge* vaults to be placed partially outside
+ of the level causing crashes or strange bugs.
+-Fixed a bug with the 'unified commands' option that allowed you to
+ perform certain actions when blinded or confused.
+-Fixed a bug that caused thrown/fired objects to look strange with
+ graphics turned on.
+-Fixed some problems in makefile.ibm and makefile.std.
+-Split the dungeon generation code into smaller files (generate.c, grid.c,
+ rooms.c and streams.c).
+-Changed the compiler optimization flags for the DOS version to work-
+ around a bug in DJGPP that could cause ZAngband to hang when
+ compacting items.
+-Added main-lsl.c from Angband 2.7.9v6.  This is untested.
+-Removed some unused savefile code.
+
+ZAngband 2.2.7
+-Fixed two bugs in the pet spellcasting AI.
+-Maximize mode, preserve mode, and the autoroller are now specified in
+ the startup-options.
+-The number of spellpoints gained by casting 'Omnicide' is now resticted
+ to twice your maximum spellpoints.
+-'Teleport level' scrolls and spells won't have any effect on quest-levels
+ if the 'no upstairs' ironman mode is active.
+-Orc and Troll pits will no longer contain undead trolls or orcs.
+-The DOS version now uses BMP files instead of the patented GIF
+ format.
+-Fixed a graphics glitch with beam spells and permanent walls.
+-Fixed an inaccessible area in one of the vaults.
+-Added Greg Wooledge's fix for a compilation problem on various Linux
+ systems.
+-The "laser eye" mutation will now properly anger pets and friendly
+ monsters.
+-Fixed a bug in the "research monster" building command.
+-The time-command now displays the turn number.
+-The level-teleport from the pattern is now restricted to downward in
+ ironman mode, but allows to get down to the bottom of the dungeon if
+ you already finished off the Serpent.
+-Lit arena levels no longer reveal the whole level and the objects.
+The following changes are mainly by Prfnoff and Eric Bock:
+-Added a new Ironman option to always generate "arena" levels.
+-Added a new startup option that controls terrain streamer generation.
+-Added two new "munchkin" startup options: one allows Mindcrafters to get
+ Dimension Door, and another turns the death save off (in a way).
+ Both prevent scoring and are displayed on character dumps.
+-Added a new Ironman option to always generate very unusual rooms.
+-Fiddled a little with the TY_CURSE code (to prevent paralyze/Cyberdemon
+ as result of certain things).
+-Added Eric Bock's wizard allocation patch.
+-Adapted Eric Bock's player centering scroll patch.
+-The Windows version will now try to create missing directories. (Eric Bock)
+
+ZAngband 2.2.6c
+-*Really* fixed the bug that could cause crashs when finishing a random
+ quest.
+-Several changes to the 'Old Castle' quest. Replaced the "unknown grids"
+ with normal floor. Fixed a bug that placed Mother Hydra instead of
+ Death Knights. The reward is now correctly placed in front of the inn.
+ You will now fail the quest when leaving without completing it first.
+-Fixed a bug that caused beam spells to do double damage at the end of
+ the beam.
+-The casino will throw you out if you don't have money.
+-Fixed a glitch in the description of the snotlings.
+-Splitted up the cave generation source code.
+
+ZAngband 2.2.6b
+-Fixed a bug that could cause crashs when finishing a random quest.
+
+ZAngband 2.2.6
+-Added a new quest and 3 new artifacts by Shayne Steele.
+-Added a new quest by John I'anson-Holton.
+-Added Mark Kvale's labyrinth rooms.
+-The Alter (+) command will close an open door, as the documentation
+ says it does.
+-The monster memory will now record the lack of attacks of some monsters.
+-Fixed some small bugs in the documentation.
+-Fixed some bugs that prevented display of the correct message when
+ failing some of the quests.
+-The quest stairs will no longer be placed on objects.
+-Disintegration spells will no longer affect grass and dirt and
+ disintegrated trees will leave behind a patch of grass.
+-Cleaned up the handling of non-living monsters.
+-Monsters detected by magic are now correctly marked as seen in the
+ monster memory.
+-Rewards for killing uniques are no longer depending on the "speaking
+ uniques" option.
+-Fixed several small bugs in the monster definitions.
+-Fixed a bug that prevented the proper assignment of the Water Cave quest.
+-Fixed a bug in the distribution of charges for thrown wands and rods.
+-Fixed a bug that prevented Eldritch Horrors detected by telepathy or
+ magic from blasting your sanity.
+-Secret doors the player reveals are sometimes locked or jammed.
+-Doubled the maximum number of objects and monsters per level.
+-The spell list now uses colors.
+-The savefile loading code now always shows the correct version number.
+-Fixed a compilation problem in the X11 module when compiling with graphics
+ turned off.
+-Fixed a compilation problem on Solaris and SGI machines.
+
+ZAngband 2.2.5e
+-Recharging wands, staffs, and rods is now easier and more powerful.
+-Fixed a bug that could crash the game when recharging wands or staves
+ with many charges.
+-Fixed a bug that created overcharged wands when purchasing wands from
+ stores.
+-The black market will now often carry stacks of wands, rods, and staves.
+-Fixed a bug in trump magic's Mind Blast spell that could crash the game.
+-Fixed a bug in the pricing of the recharge services for staves.
+-The Windows version will now prevent saving and exiting the game while
+ reading a scroll to stop certain abuses.
+
+ZAngband 2.2.5d
+-Spells that ask for a direction or an item to apply the spell to, can
+ now be canceled without losing a turn or mana.
+-Fixed a bug in Z 2.2.5c that lowered the hitpoints of many monsters.
+-Fixed two small bugs in the vaults.
+-Blue horrors will now appear near the location of the killed Pink horror.
+
+ZAngband 2.2.5c
+-Fixed a bug that prevented locked doors from detection with spells.
+-Fixed a compilation problem in main-gcu.c for curses versions support
+ for colors.
+-Fixed a bug that allowed stacked staves to be overcharged in the tower
+ of sorcery.
+-Fixed some bugs in the new vaults.
+-Fixed a bug that messed up the order of quests in the town Telmora.
+-Fixed a bug that allowed Farmer Maggot's dogs to speak when dying and
+ to be wanted for crimes.
+-Fixed a bug in the definition of the 16x16 tile for angels.
+-Compiled the DOS version with the up-to-date version of Allegro 3.11.
+ This should improve compatibility with various sound- and graphic-cards.
+-The Windows version no longer requires the ZAngband.ini file to be
+ present.
+-Added an experimental terminal window option to show a player-centered
+ overhead view of the dungeon.
+
+ZAngband 2.2.5b
+-Quest monsters that have been teleported away by destruction spells
+ will now be healed.
+-Fixed a bug that caused the game to hang when entering some of the shops.
+-Fixed a typo in "melee2.c" that influenced speaking uniques.
+-The buildings in the "lite" town are not correctly initialized.
+-Long rumors (more than 80 characters) will no longer cause error
+ messages.
+-Bug in the price calculation of wands fixed.
+-Changed the windows resizing in the Windows version a bit.
+
+ZAngband 2.2.5
+-Added an option to unify the item commands like "zap a rod", "use a
+ staff", "eat food", "aim a wand", ... into a "use object" command.
+-Bloodletters of Khorne drop Blades of Chaos less often.
+-Randomized the parameters for dungeon creation to produce more
+ different dungeon layouts.
+-Character dumps will now include the inventories of all homes.
+-Empty slots in homes and the player inventory are no longer displayed
+ in the character dumps and spaces are stripped from the line endings.
+-Added Eric Bock's unbiased RNG as an startup-option.
+-Added a modified version of Matt Graham's speaking uniques patch.
+ The lines for every speaking unique are now user-defineable for the
+ fearful, friendly and normal monsters and the death of the monster.
+-Added lines for Farmer Maggots dogs.
+-Farmer Maggot, Martti Ihrasaari, and Fundin Bluecloak are now friendly,
+ but will fight back if attacked (or aggravated).
+-The Shadow Cloak of Luthien now provides light- and dark-resistance.
+-The confusion resistance granted by chaos resistance is now displayed.
+-Telekinetic powers no longer work on items in vaults.
+-Several small changes to the "City beneath the sea" quest.
+-Various quest related bugs have been fixed.
+-Changed the autoroller to the Angband 2.8.3 layout.
+-Pets will not try to shoot spells through the player.
+-Two bugs in the easy_pickup option fixed. The correct message will be
+ displayed when picking up an object from a stack including money.
+ Switching between inventory and equipment lists when selecting an
+ object will now correctly update the display.
+-Fixed a bug that displayed the quest-completed message again
+ when killing summoned monsters in an already completed fixed quest.
+-The descriptions for the lightning ball (radius 3) and the
+ balance dragon scale mail activation are now correctly displayed.
+-Fixed a bug that caused the wilderness to be reinitialized when leaving
+ a building even if not necessary.
+-Fixed a bug with the monster-tracking of some spells.
+-Fixed a typo and a wrong terrain feature in the "Logrus Master" quest.
+-Fixed a small error in the character history of vampires.
+-Fixed several bugs in the research monster building command.
+-Monster recall no longer shows the "You feel an intense desire to
+ kill this monster." message if you have not met the creature yet.
+-Added Keldon Jones' new main-gcu files with support for multiple windows,
+ color redefinition and special character support.
+Thanks to Topi Ylinen for the following changes:
+-Many monsters have been tweaked a bit (mainly rebalancing hitpoints).
+-Potions of Healing and *Healing* are now more common on the deeper levels.
+-Two new quests added.
+-New quest-failed texts for several quests.
+-The 8x8 tiles have been slightly edited and various errors in the tile
+ definitions have been fixed.
+-The command to dump the "Knowledge menu" lists into a file (with 'f'
+ or 'F') is available again.
+The following changes are taken from Leon Marick's OAngband:
+-Added the enhanced wand and rod stacking.
+-Confused monsters cannot steal items.
+
+ZAngband 2.2.4
+-Most fixed quests will now be marked as failed if you leave before
+ completing your goal.
+-Changed the "Druid's Shop" quest to a "Logrus Master" quest.
+-Added 33 new vaults designed by Chris Weisiger.
+-Chests produce less gold and more items; all chest items are at least
+ "good" (like in GWAngband).
+-Increased the randomness of long-range teleport effects to decrease the
+ frequency of consecutive teleports "bouncing" the player between two or
+ three different spots (also from GWAngband).
+-Golems have now a penality to dexterity (-2).
+-Mindcrafters no longer get the 'dimension door' power.
+-Toned down The Katana of Groo and Stormbringer.
+-Toned down the number of extra attacks on random artifacts.
+-The quests from the magic towers are now only available for members
+ of the towers realm.
+-Added a note about the startup-options to the prompts at birth.
+-Fixed a bug that could crash the game when making strange offers while
+ haggling.
+-Corrected the damage calculation for slays and brands in the weaponsmaster.
+-Fixed a bug in the Amberites 'shadow shifting' ability while in quests.
+-Fixed a bug that could turn monster hitpoints negative when draining
+ charges from magical items.
+-Monsters attacked by other monsters will now always wake up.
+-Fixed a typo in the description of 'Cthugha, the Living Flame'.
+-Added a patch by Julian Lighton, that changes the way effects like
+ Mind Wave interact with special critters like Pink Horrors and
+ Warriors of the Dawn.
+-Changed the Windows port to support easier resizing of the windows
+ and display of scores.  Also removed the Abort menu item.
+-Added a modified 'main-x11.c' file by Denis Eropkin.
+-The wall creation spells like "Wall of Stone" no longer create a
+ wall directly on the player.
+-Corrected the pluralization of some monsters.
+-Added an updated short building documentation and a new rumor file
+ with many new and changed rumors (thanks to Juergen Neitzel).
+ The total number of rumors is now 613.
+
+ZAngband 2.2.3d
+-Fixed a bug that caused food to become invisible after switching from
+ the 8x8 tiles to ASCII mode.
+-Fixed a bug in the loading of magic realm specific pref-files.
+ Macros and other preferences in files with the names "Life.prf",
+ "Sorcery.prf", "Nature.prf", "Chaos.prf", "Death.prf", "Trump.prf",
+ and "Arcane.prf" are now automatically loaded for magic users with
+ these realms.
+-Fixed a small memory leak in the research monster option.
+-Fixed a bug in the chaos realm spell "Meteor swarm".
+-ZAngband will no longer try to place Sea-Trolls in troll pits.
+-Corrected hitpoints of lesser krakens and Yig, Father of Serpents.
+-Friendly monsters will no longer be wanted for crimes.
+-Undead players races will start the game at midnight.
+
+ZAngband 2.2.3c
+-Fixed a bug in the weaponsmaster that could cause the inventory to
+ get corrupted.
+-Worked around a bug in the optimizer of the Windows MS VC compiler
+ that caused all entries in the list of racial powers and mutations
+ to be labeled with "a)".
+-Fixed a bug that allowed the player to gain full knowledge
+ about all monsters.
+-Kamikaze yeeks and Leprechaun fanatics are now fearless.
+-Fixed a bug in the "polymorph self" routine that could cause
+ crashes.
+-Restored the 'Hellfire' spell to it's former glory. Evil monsters
+ take extra damage, all others normal damage.
+-Fixed a bug that allowed the player to fire anything with a bow
+ that is too heavy to wield comfortably.
+-Fixed a bug that could place the player inside rubble after recalling
+ down into the dungeon.
+
+ZAngband 2.2.3b
+-The algorithm for the selection of random quest monsters is now
+ less likely to choose an easy monster, especially on the deeper levels.
+-Prevented savefile-scumming of the casino.
+-Fixed a bug that sometimes caused monsters in quests to share the same
+ position with the player.
+-Fixed a bug that allowed up-stairs to be created in the 'no climbing up'
+ mode on quest-levels.
+-Fixed the palette of the 16x16.bmp for the Windows version.
+-Fixed the 16x16 tiles for 'Wolf, Farmer Maggot's dog' and the
+ 'insect swarm'.
+-Fixed a bug in the vanilla_town option that could cause the player
+ to be trapped in permanent walls.
+
+ZAngband 2.2.3
+-Improved the initialization- and game-speed and reduced memory requirements.
+-Added a menu for startup options (press '=' at character generation to
+ enter it).
+-Added a 'vanilla town' startup-option, that disables the wilderness,
+ buildings and quests (but you can still use the random quests).
+-Added several 'ironman' startup-options, like 'all stores closed',
+ 'no climbing upwards', 'always small levels', and 'always autoscum'.
+-Added a menu for 'pet commands' (press 'p' to access it).  You can
+ call them to you, send them out to kill monsters, dismiss them, and
+ allow/dissallow opening of door and picking up items. Your pets will
+ drop all picked up items when you disallow them to pick up anything.
+-Greatly lowered the fail-rates of the trump spells.
+-Trump summoning spells will now only summon hostile monsters if the
+ spell fails.
+-Rangers start now with a short-bow, a dagger and some arrows instead
+ of the broad-sword.
+-High-mages will now start with a wand of magic missile.
+-Changed the monster AI to allow monster groups to surround the player
+ in arena levels and in the wilderness.
+-Completely changed the item enchantment and recharge services of
+ the buildings and adjusted the prices.
+-You can now also enchant bolts and shots in the Rangers guild.
+-Changed the Weaponsmaster to display the weapon-damage including the
+ players bonus to damage.
+-Random quest monsters may now appear in groups or with escorts.
+-Changed the creation of trees in the dungeon to a more reasonable layout.
+-Added a new room type with four pillars.
+-Lowered the odds of ammunition breaking when thrown/fired.
+-Changed the display of racial powers and mutations to show fail rates.
+-Adjusted the 'shriek' mutation.
+-Changed the 'Hellfire' spell. Now it hurts Good, Evil resist,
+ and others take normal damage.
+-Fixed a bug in the mindcrafter 'psychometry' spell that could cause crashes.
+-Fixed a bug in the rumors code that produced *strange* rumors.
+-You no longer receive "The sun has risen/fallen" messages when in a quest.
+-The 'Living Trump' spell now correctly gives 'random teleportation'
+ or the 'teleport control' ability.
+-Golems, skeletons, zombies, vampires and spectres no longer get food
+ rations at character birth. Vampires no longer get scrolls of light.
+-Fixed a bug that messed up quest-descriptions with single quotes
+ in the text.
+-The 'banish evil' mutation no longer affects quest monsters or uniques.
+-'Swordsman' will now be correctly pluralized.
+-The 'Eric's Stronghold' quest in the 'lite' town is rewarded correctly.
+-A bug that caused *strange* problems when the sound of the DOS version
+ was enabled was "fixed" by disabling MOD-file support.
+-Fixed a bug in the initialization of realm dependent buildings.
+-Added a bunch of new 16x16 tiles by Adam Bolt.
+-Updated the ZAngband FAQ and the documentation a bit.
+-The following bugfixes and patches are taken from Tim Baker's ZAngbandTk:
+-Added the 'easy floor' option. You can now select an item from a stack
+ on the floor by browsing a list.
+-Fixed a bug that prevented the player from entering a new wilderness
+ area if the target grid was lava or water.
+-The monster-health bar is now correctly updated.
+-The 'Cowardice' mutation is now correctly handled.
+-Animal pack monsters will now flee correctly if afraid.
+-Fixed a bug that could cause the mindcrafters spell-points to go
+ below zero if a failed spell caused a mana-storm.
+-Friendly monsters and pets are now a bit more careful in the
+ selection of targets for distance attacks.
+-Monsters falling asleep from an psi-attack are now correctly noted.
+-Escaping from an earthquake works now correctly.
+-Monsters that are embedded in rock after an earthquake are now killed.
+-Snaga sappers will now explode when killed.
+
+ZAngband 2.2.2d
+-Having mutations will now slow down hitpoint regeneration and reduce
+ the hitpoints healed from draining monsters with a vampiric weapon.
+ Beastman are affected less by this effect.
+-The door creation spell no longer creates a door directly on the player.
+-Added many new rumors by Juergen Neitzel.
+-Fixed the display of the life rating.
+-Fixed the wilderness mode prompt.
+-ZAngband now removes the '.lok' file when quiting at character
+ generation on systems where VERIFY_SAVEFILE is defined.
+-Removed the space after Thorondor's name in r_info.txt.
+-Beholders are now worth less experience than the undead beholders.
+-Really fixed the bug in the 'Eric's Stronghold' quest.
+-Fixed the articles of the new armors.
+-The 'Assault on Montsalvat' quest is now only available to
+ Paladins of Death.
+-Fixed two bugs in the monster polymorph code.
+-Changed the prompt when quitting (commiting suicide).
+-Changed the behaviour of the automatic trap disarming. Traps that
+ can't affect you are now ignored.
+-Disintegration spells no longer affect water or lava.
+-Fixed a bug in the artifact activation code that prevented
+ artifact dragon scale mails from activating correctly.
+-Scrolls of artifact creation no longer affect dragon scale mails.
+-Splitted up the source code into smaller files.
+
+ZAngband 2.2.2c
+-The chaos tower can now remove mutations.
+-Fixed a bug in the layout of the M$ quest.
+-Fixed a bug that made pack animal fearless.
+-Fixed a bug that could hang the game in mountain areas.
+-Fixed several spelling errors.
+-Fixed a bug that prevented already killed uniques from being revived
+ for a quest.
+-Fixed a bug that allowed normal sized levels to be created when the
+ 'always create small dungeon-levels' option is active.
+-Fixed a bug that caused monsters to cast spells at the player
+ even if they can't hit the player with the spell.
+-Fixed several bugs in the M$ quest.
+-Fixed a bug in the 'Eric's Stronghold' quest.
+-Fixed a bug in the R'Lyeh quest.
+-Fixed a bug that allowed monsters that can 'destroy weaker monsters'
+ to destroy quest monsters.
+-Fixed a bug that caused the extra attacks from mutations to sometimes
+ "kill" an already dead monster.
+-Changed the vampiric mutation to act like the racial activation.
+-The mindcrafter 'psychometry' spell now can pseudo-id already sensed items.
+-Added Jesse Jones' updated main-mac.c file (used for the Mac versions)
+ with improved handling of multiple monitors, arg_graphics is saved
+ with the preferences, and a much more attractive alert window.
+
+ZAngband 2.2.2
+-Fixed a bug that could crash the game when entering any area
+ around the town 'Angwil'.
+-Fixed the 'wilderness mode' prompt.
+-Allowed the dropping of items and running in forests.
+-Pressing ESCAPE at the prompt for your bet in the gambling
+ house works now correctly.
+-Fixed a graphics glitch with beam spells and permanent walls.
+-'Word of recall' works now also outside of the towns.
+-Golems, Zombies, Vampires, ... no longer can get food in the inns.
+-You have now to pay for rumors in the inn.
+-Dworkin Barimen has now a chance to drop the Jewel of Judgement.
+-You can no longer kick aquatic monsters in the ankle.
+-Removed a duplicated 'You have completed your quest!' when
+ summoning and killing a monster in an already completed quest.
+-Killing monsters with the explosion of a thrown potion gives now
+ experience.
+-Fixed the 'You see (nothing).' message that can appear in an obscure
+ constellation involving a skeleton quaffing a potion of detonation.
+-Set the default state of the first two terminal windows to
+ 'Display messages' and 'Display inven/equip'.
+-Set the default state for the list and look commands to expanded mode.
+-'Trap Creation' only affects floor grids now.
+-Added 4 new quests designed by Topi Ylinen.
+-Added 5 new quests designed by Jeff Coleburn.
+-Changed some other quests slightly.
+-Added the Rod of Pesticide (fast charging, activates for a low damage
+ poison cloud).
+-Changed the behavior of earthquake/destruction spells in quests.
+ In random quests these spells try to teleport away quest monsters,
+ before the area caves in, in predefined quests these spells do
+ nothing.
+-Changed the (Mass-)Genocide spells to prevent them from working in
+ predefined quests.
+-Fixed the pluralization of various monster names.
+-Bloodletters of Khorne may now drop magical blades of chaos.
+-Added a draft of the new ZAngband-FAQ.
+-Various other bugfixes.
+
+ZAngband 2.2.1
+-Changed the scores file back to the old pre-2.2.0 file-format, Score-files
+ from version 2.2.0 won't work!  The installation will overwrite the
+ 'lib/apex/scores.raw' file by default, so if you want to keep your
+ old scores file then make a backup before installing.
+-Added friendly monsters.
+-Added a 'no wilderness' mode for slower systems. The mode can be selected
+ when starting a new character and when importing a 2.1.1c or older
+ savefile. A special town with quests and buildings has been added for
+ this mode.
+-Bloodletters of Khorne drop now a Blade of Chaos when killed.
+-Pink horrors split into two Blue Horrors when killed.
+-Allowed easy addition of new monsters to r_info.txt.
+-Various optimizations to improve game speed.
+-Added a cold aura to some monsters.
+-Added an option to switch on 'hard quests' on character birth and when
+ importing old savefiles.
+-Fixed a bug in the 'Reset Recall' spell.
+-Fixed problems with the 'Vault' quest.
+-Added a home to the town Telmora.
+-Changed the 'look' command to ignore boring terrains.
+-Changed the damage when walking over shallow lava.
+-Fixed a bug that allowed creation of townspeople in the dungeon.
+-Changed the behaviour of the 'magic mapping' spell.
+-Fixed a bug that allowed monsters to ignore 'glyphs of warding' and
+ 'exploding runes'.
+-Fixed bugs in the 'absorb light' mutation.
+-Fixed a bug that sometimes prevented the creation of 'connected stairs'
+ and caused lookups when killing the last quest-monster.
+-Fixed a bug that hangs the game when displaying the contents of your
+ houses after quitting or dying.
+-Various changes in the monster definitions.
+-Fixed the k_info.txt entry of the Trifurcate Spear.
+-Removed some disturbing messages.
+-'Detect treasure' no longer detects monsters represented with an '*'.
+-Prevented the use of 'Alter Reality' in quests.
+-Changed the description of ~ in the 'identify symbol' command.
+-Changed some of the 8x8 tiles.
+-Hagen has now a high chance to drop his spear.
+-Fixed the 'cursed items as quest rewards' bug.
+
+ZAngband 2.2.0
+-Added 279 new monsters and the corresponding 8x8 sized tiles designed and
+ drawed by Topi Ylinen.
+-Added 46 new items (weapons, armor, and ammo) designed by John Duffin and
+ Leigh Silas Hanrihan.
+-Added exploding, aquatic, swimming, and flying monsters.
+-Added new monster melee attacks (time, explode, and disease).
+-Added Ken Wigles KAngband style town, quests and terrains.
+-Changed quest system to allow more flexibility and multi-level quests.
+-Added big wilderness outside the towns with a modified fractal terrain
+ generator from KAmband.
+-New initialization code for quests, towns, buildings and wilderness.
+-Removed the 64 kByte limits for monsters, items, artifacts, and vaults.
+-Moved the definition of the limits for the number of monsters, items,
+ vaults, ... to an external data-file.
+-Added Keldon Jones patch to allow automatic recreation of the raw-files.
+-Added "equippy chars" in the inventory, equipment list and in shops.
+-Fixed the definitions of the new tiles for the Half-Ogres and Dark-Elfes.
+-Added support for the S-Lang scripting language, based on Scott Bigham's
+ S-Lang patch.
+-Added Greg Wooledge's patch that adds the "flag grid" to Zangband
+ char dumps and shows immunities in the "flag grid".
+-The Windows version no longer requires "LibPath" to be set correctly.
+ This allows installation in any directory without changes to the ini-file.
+-Allowed random selection of race, class, realms, ... at character birth
+ with the * key.
+-Added the Easy-Patch by Tim Baker and changed it to be an option.
+-Added 52 new mutations created by Jeff Duprey.
+-Changed the pet AI to make the pets more useful.
+-Added new sound-events.
+-Only uniques will now resist disintegration effects.
+-Warrior-Mages can now choose Sorcery.
+-Many other changes and bugfixes.
+
+ZAngband 2.1.1c
+-Fixed the 16x16 tile for hobbit characters. A beer mug is fitting for
+ a hobbit, but it was still a bug. ;-)
+-Fixed another bug in the creation of quest levels.
+-Allowed all characters created in pre 2.1.1 versions of ZAngband to
+ choose the number of quests when loading the savegame. You may have to
+ leave and reenter the current level, if it's a quest level.
+-Only Uniques will now resist disintegration effects.
+-The last questmonster now drops all carried items, the normal monster
+ drop and one reward item when you finish the quest.
+-Reward drops are no longer added to the monster knowledge.
+-Fixed the problem with the transparent color of the 8x8 bitmap.
+
+ZAngband 2.1.1b
+-Quest message pluralization fixed (again).
+-No more extremely out of depth quests for new characters.
+-Disintegration spells like "Fist of force" can destroy walls.
+-Reflection works now.
+-Corrected the new tiles for spirit naga, angel, and blue jellies.
+
+ZAngband 2.1.1
+-Paralysis attacks on a paralyzed player always do at least one hp of
+ damage.  This should prevent "infinite paralysis" from floating eyes.
+-Fixed some bugs in the autosaving code.
+-Fixed a bug in the monster-AI code.
+-Added circular rooms from Dag Arneson Ying-YAngband.
+-Fixed a bug that allowed the creation of artifact-arrows, -bolts,
+ and -shots with scrolls of artifact creation.
+-Adam Bolt's tiles are now finished and every monster/object/spell effect
+ has a tile.
+-Another bug in the quest code fixed.
+-Quest messages are now correctly pluralized.
+-The roguelike commands to show game time (the ' key) and to activate the
+ racial power/mutation (the O key) work now.
+-Benny S. Hofmann's patch to the windows version allows switching between
+ ASCII, old tiles and Adam Bolt's tiles.
+-Toned down the TY-curse a bit.
+
+ZAngband 2.1.1 beta 2
+-Updated Adam Bolt's terrain tiles again.
+-Implemented the item flavoring code from Angband 2.8.3.
+-Fixed a bug in the macro-creation.
+-Fixed a bug creation of the quest levels.
+
+ZAngband 2.1.1 beta 1
+-Updated Adam Bolt's terrain tiles.
+-Mindcrafter powers are correctly displayed in the spell-list window
+ and don't crash the game anymore.
+-Fixed a bug in the random activations of the mutations, the effects
+ appear less often now.
+-The main-win.c file is now ready for compiling with Adam Bolt's new tiles.
+ Just define "USE_AB_TILES" and compile it.  The windows version also
+ supports transparency and the "double-step bug" is fixed.
+-Added a sound-event for the "Hitpoint Warning".
+-Pets will no longer pick up/destroy items.
+-Implemented Greg Harvey's patch that adds the macro code from 2.8.3.
+-Added Heino Vander Sanden's QAngband quest code with big help from
+ Dean Anderson.
+
+
+Zangband 2.1.0e
+-Fixed some bugs with the new bookstore and the store maintainance and
+ owner shuffling works for the bookstore.
+-Fixed the problem with compiling the main.c file on Unix/Linux systems.
+
+
+Zangband 2.1.0d
+-Silas Dunsmore's cumulative light radius patch added.
+ Any object in your equipment that has the 'glow' flag will extend your
+ lit-area radius by 1, up to a maximum of 5.  The normal light-source
+ objects still work the same, but glowing artifacts and helms of light
+ are actually useful.
+-Added a bookstore to the town to free up space in the magic shop.
+-Fixed problems with the Summon Demon (Chaos), Raise Death (Death),
+ Phantasmal Servant (Trump), Mindwave, and Adrenaline (Mindcraft) spells
+ on systems without mathematical coprocessor.
+-Chaos Warriors are no longer hurt (or killed) by the "strain of casting
+ (Mass) Genocide" when the chaos patron casts the Genocide spell ("Let me
+ relieve thee of thine oppressors!").
+-Fixed a bug with the sound-effects, the correct effects will be played
+ now.
+-Added new sound-events for buying and selling in stores.
+-Added support for Adam Bolt's new tile-graphics, transparency- and
+ lighting-effects, MOD-, and S3M-files to the DOS version.
+ Adam Bolt's tiles for ZAngband are not yet finished, most of the ZAngband
+ specific monsters are displayed with other tiles or with ASCII-characters.
+ The special DOS options can be accessed by pressing ! while playing.
+
+
+Zangband 2.1.0c
+-Command (in powers menu) to dismiss all pets (costs no mana, takes a turn)
+-Alberich has lost his "deadly touch"
+-Hilarious new nonsensical rumours courtesy of altavista translation service
+-A "pit" variant of the "symbol clone nest"
+-James Lockwood's store-auto*id* and examine patch
+-Patches from Silas Dunsmore, lots of little fixes
+-Teleporting monsters have to pass a skill test to follow you
+-"Blessed" weapons are likely to resist cursing by monsters
+-Heavy cursing less likely; scrolls of *Remove curse* for sale in the temple
+TODO (features/ideas/bugfixes that have not yet been implemented):
+        * Game difficulty levels (point-based / simple to impossible?)
+        * Quests
+        * Your own inscriptions should not be junked if an item becomes cursed
+        * Potential bug: exploding unmakers crash / hang the game?
+        * Maybe weapons of slay xxx should glow if xxx is nearby? (option)
+        * Bug? Eldritch horrors seen first via ESP don't blast your sanity?
+        * Disintegration balls can explode out-of-bounds?
+        * Add oriental melee weapons for monks (nunchaku, bo stick etc.)
+        * Smashed potions should also affect the player (if withing range)
+        * Perhaps add Silas Dunsmore's cumulative light radius patch
+
+--
+Zangband 2.1.0
+-Version handling for save files, pre-210 save files loaded as 206 save files
+ * Svga is the default; '-mibm' for no graphics, '-mibm -g' for font graphics
+-The Dos version can run in 3 modes: SVGA graphics, font graphics, text only
+-Lots of extra tests added to generate.c to avoid infinite loops
+-Special feelings caused by other than artifacts should be less common now
+-New options; Autosaving options; "Testing" options renamed ("Stacking")
+-Confirm staircases turned into a runtime option
+-New plain_descriptions option (to split up show_labels)
+-New auto_destroy option to destroy known worthless items without prompting
+-New option to confirm wielding/wearing known cursed items
+-Confirm staircases is a runtime option now
+-Options  menu reorganized. Zangband special options under a separate sub-menu
+-Activate power command ('U'/'O') uses a menu now
+-Total kill count option added in the 'knowledge' menu
+-The display command can dump to file (command 'f')
+-New texts added (into lib/file/) by jd9072@aol.com, for extra colour
+-Gollum patch (by John May & 'Tim') implemented (slighty toned down version)
+-Fixed a number of bugs in the object absorption code (also in store.c)
+-2 new magic realms: Trump (teleport+summoning), Arcane (weak general purpose)
+-The "Polymorph Self" is a bit less useless now
+-Added chaos mutations
+-Potion of New Life gets rid of all mutations (in addition to normal effect)
+-Added (possible) activation effects for random artifacts
+-Immunities are a _lot_ less common in random artifacts now
+-Fixed (?) the bug which was causing the One Ring sometimes not being cursed
+-Four new types of amulets to make amulets more interesting
+-Feather Fall turned into Levitation (allows flying over trap doors)
+-Object flags: NO_TELE (prevents teleporting), NO_MAGIC (no spells, high save)
+-Added a very powerful new artifact, the Sword of the Dawn (as rare as Ringil)
+-Two new races: Sprite (very weak & smart), Chaos Beastman (gain mutations)
+-New class: High Mage (specializes in one realm, learns it really well)
+-Warrior/Paladin/DeathKn gain xp for destroying deep books (all/non-Life/Life)
+-Certain races gain no nutrition from food (they must use Satisfy Hunger)
+-Chaos warriors gain resist chaos at lvl 30, resist fear at lvl 40
+-Unencumbered monks gain free action at lvl 25
+-Monks are more likely to attack with the highest level attack available now
+-Added special breaths for Draconian Monks, Chaos Warriors and Warrior-Mages
+-Monsters which use the same symbol sometimes appear in 'hordes'
+-Everybody's favourite monster, 'the Unmaker', is far nastier now
+-Some monsters are 'good' (as opposed to 'evil'), immune to holy fire
+-Some monsters are sanity-blasting 'eldritch horrors'
+-For fairnesses' sake, monsters can also have reflection & auras of fire/elec
+-Certain monsters may resist teleportation
+-Adjacent monsters which can teleport may follow you when you teleport
+-Clones drop treasure nor objects
+-The 'xxx curses' spells may actually make your equipment 'cursed'
+-Added a new very powerful spell, Hand of Doom, for high level uniques
+-Killing Amberites can be dangerous -- ever heard of the Amberite blood curse?
+-The Serpent of Chaos is a bit tougher now
+-Various minor fixes & cosmetic enhancements & new icons
+-Lots of features by Paul Sexton:
+        * Major revision of the spell system (nature+death+chaos upgraded)
+        * Summoning spells for friendly monsters
+        * Charming spells to make new friends
+        * Wand of Lightning Bolts -> Tame Monster
+        * Two new races: Vampire & Spectre
+        * Mindcrafter class
+        * Potion smashing effects
+        * Cosmetic changes (character info screen)
+-My own changes to the above:
+        * You may accidentally attack friends if blind, confused etc.
+        * No 'friendly uniques' can be summoned
+        * You must pay upkeep (mana) for friendly monsters
+        * Fixed the fatal "displacing crash" bug (caused by my own code)
+        * 'Friends' are also possible as Chaos rewards, artifact activation
+
+--
+Zangband 2.0.6
+-Dos version compiled with Robert Ruehlmann's SVGA graphics+windows code
+-The option display_spell_flags works slightly better now (on windowed systems)
+-Free Action _almost_ negates the paralyzing effect of 'ancient curse'
+-Three new character classes: Warrior-Mage, Chaos Warrior and Monk
+-Three new (protective) item flags: Reflection, Auras of Fire and Electricity
+-Pattern Vaults implemented -- now any character can walk the Pattern
+-The artifacts you create yourself will be *identified* when created
+-Certain uniques may drop artifacts which 'belong' to them
+-Patch (by Daniel Nash): Wizard mode command to create specific artifacts
+-Patch (by Scott Bigham): Rods sort by recharging time left
+-Fixed a missing break which was crippling the "Summon Kin" code
+-Invulnerability no longer induces 'blindness' with graphics enabled
+-Hopefully fixed the char dump so that it no longer requires fp math unit
+-Certain ego items with digging actually receive + to digging
+-Empty dark levels are a lot less common early on now
+-Life magic Holy orb is resisted by non-evils (Hellfire works as before)
+-Detect Treasure / Objects also detects Treasure / Object 'monsters'
+-Only 'Assassins' (Rogues with Death magic) get a poisoned weapon when created
+-Warriors get the extra shots later than rangers
+-Lots of minor and cosmetic fixes
+*Bugfix release: 2.0.6b:
+-Compiled the dos binary so that it asks for no confirmation with stairs
+-Birth.txt includes a description of monk attack types
+-Chaos Warriors get 'nasty' rewards much less often now
+-Fixed a missing break in self_knowledge
+-Fixed the 'Tunneling bug'
+-Quick-fixed the infamous 'two-eyed cyclopses bug' (for new characters)
+-Fixed a minor display bug with equippy chars which did not update correctly
+-The function calc_spells() should work a bit more logically now
+-Caine and Hagen had their drops mixed; fixed.
+-Dworkin may now carry the JoJ. Smeagol may still NOT carry the ... Ring
+-Fixed the potion icon bug
+-Also redrew / modified / added icons
+
+--
+Zangband 2.0.5
+-Stuff from 2.8.2, including:
+        * Auto-knowledge of standard ego item flags
+        * The new generic "knowledge" command
+        * Preserve artifacts when creation fails
+        * 'Synchronized' compact objects+monsters when saving
+        * The old z-term.c replaced with the new one
+        * Monsters stay visible as long as they are being detected
+        * (Other bug fixes already present, like the stacking bug fix)
+-Fixed a bug which could cause teleport_player to hang the game
+-Fixed the "This race has no bonus power." message bug (zombies, skeletons)
+-Halflings can cook some food
+-Klackon powers changed: they _become_ faster, activate to spit acid
+-Dark Elves gain their power (magic missile) one level earlier now
+-Most Chaos attack spells are a bit cheaper for mages
+-Chaos loses Blink, new spell ('Wallbreaker') for chaotic wall destruction
+-Death Ray (in Necronomicon) works a lot more often now
+-Healing II replaced w/ 'Bless Weapon', of use to priests (artifacts resist)
+-Blessings of the Grail is no longer 'heavily blessed' :)
+-Explosive runes are no longer 'permanent rock'
+-Self knowledge gives some info about your racial power now
+-'Amber' skill rank (numeric value) is calculated differently now
+-Inscribe '.' in a (non-cursed) teleporting item to prevent teleporting
+-They will also not teleport you if have the disturb_other option set to FALSE
+-Vampiric weapons can heal a maximum of 100 hp per round
+-Random bow artifacts no longer get 'useless' (slay xxx) flags
+-Immunities are somewhat less common in random artifacts
+-The 'bias' code no longer produces arbitrary resistances for ego items
+-Better random names for random artifacts
+-Also, Julian Lighton's patch to fix crashes (w/ random artifacts) implemented
+-Wand of Rockets identifies itself if used (like other wands)
+-Scrolls of *identify* are a bit more common now
+-*Identify* gives correct info about Fear Resistance in an item
+-The temple buys blessed weapons
+-A certain artifact which is not in a_info will be cursed when created
+-Julian Lighton's ingenious new monster spell to summon 'relatives' added
+-The boring Terminator monster replaced w/ Warriors of the Dawn (from Hawkmoon)
+-Some of the highest level uniques can now summon Cyberdemons to help them
+-Some of the Lovecraftian uniques have been boosted up a bit
+-Some of the other uniques have been upgraded a bit as well
+-Groo behaves in a more Grooish manner now
+-Themis and Mnemosyne have the correct gender now
+-Fixed a display bug (on a PC, w/ a shapechanger + no graphics)
+-Again, more minor and cosmetic fixes
+
+--
+Zangband 2.0.4
+-Correct version display
+-No less than 16 new player races (all new, although a few ideas are borrowed)
+-Recharging True replaced w/ Explosive Rune (explodes only if you stand on it)
+-Mages can choose Life magic (they are worse than paladins in it)
+-Death Knights (variant of the Paladin class) added
+-Warriors and Paladins become immune to fear at high levels
+-Rogues also get a (much weaker) backstab attack against fleeing foes
+-New vaults (vaguely based on ancient Egyptian tombs / temples)
+-Small levels have (initially) less monsters now (related to the level size)
+-More precautions to avoid (the rare) hangups when a small level is generated
+-Fixed a bug with spell selection (cmd5.c)
+-Rings of Flames etc. also give temporary resistance when activated
+-Rings of Flames etc. show their activation info now when *identified*
+-Weapons of fire will also work as light now
+-Slightly better, 'smart' generation of random artifacts
+-New summoning effects for 'wild magic'
+-Level based bonus to the racial power activation test
+-Ball of Radiation & Invoke Logrus (monster attacks) are functional now
+-Radiation effects changed slightly
+-A certain artifact which is not in a_info no longer gets RES_DISEN
+-Minor changes to the PC font (hopefully for the better...)
+-Slightly saner price calculation for random items
+-Slightly better prompts ("recite which prayer" vs "cast which prayer")
+-Other cosmetic and minor fixes
+
+--
+Zangband 2.0.3
+-Rings of Flames, Ice and Acid can now be activated (for an obvious effect)
+-New vaults (some have their floor plans borrowed from Nethack)
+-Cosmetic fixes (documentation)
+-Game balance fixes
+-Kharis no longer crashes the spoiler generation
+-Evil jellies (like death molds and shoggoths) no longer show up in jelly pits
+-Better 'speech' for uniques that are afraid (/lib/file/monfear.txt)
+-Trump weapons can now also be activated for teleport
+-Ego weapon damage dice loaded properly
+-Amberites can now open doors, 'summon Amberites' no longer produces undead
+-Monster special resistances fully implemented
+-Grayswandir is a sabre now
+-Rings of high resistance stack now (Lordly Protection doesn't)
+-Fixed Rings of Extra Attacks
+-Curing also cures hallucination
+-Angels are fearless now
+-Nature's Wrath (spell) damage upgraded
+-Call Chaos sometimes produces highly destructive beams now
+
+--
+Zangband 2.0.2
+-Internal version Angband 2.8.1, fake version (Z 2.0.2) displayed for commands
+-Finally updated (almost all of) the documentation!
+-Fixed more bugs in v_info
+-The stacking patch applied (fixes gold deleting all objects below it)
+-Redraw mana / hp after using racial powers & receiving rewards
+-Certain stationary monsters are fearless now
+-Priests can choose Life or Death magic (not both) + 1 from S / N / C
+-Some paladin prayers are slightly easier now
+-Sorcery spells are now available earlier (to make the realm more competitive)
+-Miscast Chaos spells may produce random "wild magic" effects
+-Miscast Death spells may hurt the player
+-Nature Awareness downgraded slightly
+-'Produce food' (Nature spell) renamed to 'Foraging' (no real reason, though)
+-Other cosmetic fixes+enhancements (Ball of Cold has no longer "Duration" :)
+-Different colours for the special player symbol (level dependent)
+-Nightwalker CAN_SPEAK moved to Raphael (where it belongs)
+-Rotting corpses and malicious leprechauns have physical attacks now
+-No more freebie attacks on unseen monsters in walls (digging must be used)
+-Using certain aimed rods no longer randomly crashes the game
+-Small levels should no longer cause alloc_monster to hang the game
+-Dragon Helm of Dor-Lomin no longer crashes the game
+-Arcum Dagsson's code to support separate macro files for different realms
+-Fixed a bug that prevented random resistances for some artifacts
+-Fixed a bug which prevented the saving of random flags from certain items
+-Better name-forming code for Random artifacts (created in Black Market)
+-Better descriptions for unidentified objects (without show_labels)
+-Equippy characters restored as an option by popular demand (I missed them too)
+-Initial life rating display moved to a more logical place
+-do_cmd_rerate will now be compiled even without wizard mode
+-Rewards for killing wanted uniques are at least 250 gold (not 0 gold)
+-Option to dump the 'final' screen (when you die)
+
+--
+Zangband 2.0.1
+-Nature Sense Surroundings upgraded to Nature Awareness
+-Removed 'marginal' item generation from temple, added 3 * scroll of WoR
+-Compile time option to display different player symbols (/race, /class)
+-Fixed take_hit message for Scroll of Logrus (not "of Chaos")
+-Fixed the major bug with spell remembrance/forgetting in xtra1.c
+-Fixed the damage display for Frost Bolt
+-Fixed "You can learn 1 new spells." in cmd5.c
+-Magic traps are a bit less lethal early on
+-Silly hallucination monsters (as in Nethack)
+-Potion of Confusion -> Booze
+-Alchemy now takes into account the amount of items (max still 30k / spell)
+-Changes to options
+-Genocide True replaced with Vampiric Branding
+-Fixed a bug in v_info
+-Items stolen by the agents of black market may show up in the Black market
+-Racial intrinsics are a bit easier to use now
+
+--
+Zangband 2.0.0
+-New spell system (life, sorcery, nature, chaos, death magic)
+-New monsters list (mostly from the older Zangband)
+-User can_not_ set the colors of flavored objects (via pref files)
+-Warriors get extra blows and shots, increased damage
+-Rangers have a slightly better innate pseudo-id
+-Last words, speaking uniques, rumors, warrants, error messages
+-"Negative" level feelings
+-New ego items and artifacts
+-New object flags (VORPAL, CHAOTIC, VAMPIRIC, BRAND_POIS)
+-Rogues start with a poisoned dagger and can backstab nasties
+-xtra1.c, files.c: DUNADAN -> AMBERITE
+-Other stuff...
