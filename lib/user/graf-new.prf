@@ -533,8 +533,11 @@ F:81:0x82/0x8E
 # Bookstore
 F:82:0x82/0x8F
 
+# Bookstore
+F:83:0x82/0x90
+
 # Deep Water
-F:83:0x83/0x80
+F:187:0x83/0x80
 
 # Shallow Water
 F:84:0xB4/0x97
@@ -556,6 +559,9 @@ F:96:0x82/0x9A
 
 # Mountain
 F:97:0x8D/0x98
+
+# Between
+F:160:0x81/0x9E
 
 
 ##### Object attr/char definitions #####
@@ -1920,6 +1926,9 @@ K:499:0x8B/0x9E
 # Phial of Galadriel
 K:500:0x8E/0x9D
 
+# Phial of Undeath
+K:661:0x8E/0x9D
+
 # Star of Elendil
 K:501:0x8E/0x9E
 
@@ -1989,6 +1998,128 @@ K:522:0x87/0x83
 # Amulet of Resistance
 K:523:0x87/0x83
 
+# Zweihander
+K:524:0xB6/0x8C
+
+# Tanto
+K:525:0xB6/0x81
+
+# Splint Mail (rr9)
+
+# Do-Maru
+K:527:0xB6/0x82
+
+# Trifurcate spear
+K:528:0xB6/0x85
+
+# Three Piece Rod
+K:529:0xB6/0x80
+
+# O-yoroi
+K:530:0xB6/0x83
+
+# Fur Cloak
+K:531:0xB6/0x8C
+
+# Lajatang
+K:532:0xB6/0x86
+
+# Hatchet
+K:533:0xB6/0x8F
+
+# Rhino Hide Armour
+K:535:0xB6/0x88
+
+# Leather Jacket
+K:536:0xB6/0x80
+
+# Sickle
+K:537:0xB6/0x90
+
+# Tetsubo
+K:538:0xB6/0x87
+
+# Nunchaku
+K:539:0xB6/0x91
+
+# Bo Staff
+K:540:0xB6/0x93
+
+# Jo Staff
+K:541:0xB6/0x92
+
+# Club (rr9)
+
+# Broad Spear
+K:543:0xB6/0x84
+
+# Khopesh
+K:544:0xB6/0x94
+
+# Flamberge
+K:545:0xB6/0x83
+
+# Claymore
+K:546:0xB6/0x8D
+
+# Espadon
+K:547:0xB6/0x8E
+
+# Great Scimitar
+K:548:0xB6/0x8B
+
+# Wakizashi
+K:549:0xB6/0x98
+
+# Naginata
+K:550:0xB6/0x88
+
+# Fauchard
+K:551:0xB6/0x95
+
+# Guisarme
+K:552:0xB6/0x96
+
+# Heavy Lance
+K:553:0xB6/0x82
+
+# Basillard
+K:554:0xB6/0x99
+
+# Ninjato
+K:555:0xB6/0x97
+
+# Ring Mail (rr9)
+
+# Cord Armour
+K:557:0xB6/0x8B
+
+# Paper Armour
+K:558:0xB6/0x8A
+
+# Padded Armour
+K:559:0xB6/0x89
+
+# Kabuto
+K:560:0xB6/0x84
+
+# Stone and Hide Armour
+K:561:0xB6/0x8D
+
+# Jingasa
+K:562:0xB6/0x85
+
+# Haramakido
+K:563:0xB6/0x81
+
+# Stone of Lore
+K:647:0x8E/0x9C
+
+# Anchor of Space-time
+K:652:0x8D/0x9E
+
+# Palantir of Minas Tirith
+K:675:0x8D/0x9F
 
 
 ##### Monster attr/char definitions #####
@@ -3787,7 +3918,7 @@ R:659:0xB2/0x97
 # Shoggoth
 R:463:0xB2/0x98
 
-# Rinaldo, son of Brand
+# Ji Indur Dawndeath
 R:660:0xB2/0x99
 
 # Archon
@@ -4053,7 +4184,7 @@ R:760:0xB3/0x8C
 
 #N:762:Fundin Bluecloak
 
-# Dworkin Barimen
+# Hoarmurath of Dir
 R:763:0xB3/0x8D
 
 # Uriel, Angel of Fire
@@ -4068,7 +4199,7 @@ R:766:0x9E/0x9A
 #N:767:Daoloth, the Render of the Veils
 
 # Nightwalker
-R:768:0xA4/0x8D
+# R:768:0xA4/0x8D
 
 # Raphael, the Messenger
 R:769:0x9D/0x96
@@ -4078,9 +4209,9 @@ R:769:0x9D/0x96
 # Saruman of Many Colours
 R:771:0xAB/0x9E
 
-#N:772:Gandalf the Grey
+#N:772:Uvatha the Horseman
 
-# Brand, Mad Visionary of Amber
+# Blue DragonRider
 R:773:0xB3/0x8E
 
 # Shadowlord
@@ -4121,13 +4252,13 @@ R:786:0xB3/0x91
 
 #N:788:Glaaki
 
-# Bleys, Master of Manipulation
+# T'ron , the rebel DragonRider
 R:789:0xB3/0x92
 
 # Great Wyrm of Many Colours
 R:790:0xB3/0x93
 
-# Fiona the Sorceress
+# Marda, rider of the Gold Loranth
 R:791:0xB3/0x94
 
 # Tselakus, the Dreadlord
@@ -4136,7 +4267,7 @@ R:792:0xA0/0x87
 # Sky Drake
 R:793:0xB3/0x95
 
-# Julian, Master of Forest Amber
+# Green DragonRider
 R:794:0xB3/0x96
 
 #N:795:Tiamat, Celestial Dragon of Evil
@@ -4149,7 +4280,7 @@ R:796:0xB3/0x97
 # Black reaver
 R:798:0xA1/0x85
 
-# Caine, the Conspirator
+# Brown DragonRider
 R:799:0xB3/0x98
 
 # Master quylthulg
@@ -4171,7 +4302,7 @@ R:805:0xA7/0x81
 
 #N:806:Tsathoggua, the Sleeper of N'kai
 
-# Gerard, Strongman of Amber
+# Bronze DragonRider
 R:807:0xB3/0x99
 
 # Ungoliant, the Unlight
@@ -4187,7 +4318,7 @@ R:811:0xA5/0x86
 
 #N:812:Warp demon
 
-# Eric the Usurper
+# Gold DragonRider
 R:813:0xB3/0x9B
 
 #N:814:Yig, Father of Serpents
@@ -4205,7 +4336,7 @@ R:816:0xB3/0x9D
 # Klingsor, Evil Master of Magic
 R:819:0xB3/0x9E
 
-# Corwin, Lord of Avalon
+# Lessa, rider of the Gold Ramoth
 R:820:0xB3/0x9F
 
 # The Emperor Quylthulg
@@ -4216,7 +4347,7 @@ R:822:0xA2/0x83
 
 #N:823:Cthugha, the Living Flame
 
-# Benedict, the Ideal Warrior
+# F'lar, rider of the Bronze Mnementh
 R:824:0xB4/0x80
 
 # The Witch-King of Angmar
@@ -4301,19 +4432,31 @@ R:856:0xAD/0x98
 # Great Cthulhu
 R:857:0xB4/0x8B
 
-# Sauron, the Sorcerer
-R:858:0xAC/0x80
+# Sorka, rider of the Gold Faranth
+R:858:0xB4/0x8C
 
 #N:859:The Unicorn of Order
 
-# Oberon, King of Amber
-R:860:0xB4/0x8C
-
-#N:861:Morgoth, Lord of Darkness
+# Sauron, the Sorcerer
+R:860:0xAC/0x80
 
 # The Serpent of Chaos
-R:862:0xB4/0x8D
+R:861:0xB4/0x8D
 
+# Morgoth, Lord of Darkness
+R:862:0xB4/0x8E
+
+# Human warrior
+R:863:0xB5/0x80
+
+# Elven archer
+R:864:0xB5/0x81
+
+# Dwarven warrior
+R:865:0xB5/0x82
+
+# Mountain Orc
+R:866:0xB5/0x83
 
 # Load the special player pictures
 %:xtra-new.prf

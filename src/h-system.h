@@ -124,5 +124,8 @@ extern long atol();
 
 #include <stdarg.h>
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
 
 #endif /* INCLUDED_H_SYSTEM_H */

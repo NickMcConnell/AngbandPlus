@@ -1,0 +1,15 @@
+# q_shelob.txt
+
+# Name
+Q:6:N:Shelob, Spider of Darkness
+
+# Definition
+Q:6:Q:1:0:0:1:33:481:0
+
+# Description for quest
+?:[LEQ $QUEST6 2]
+Q:6:T:The forest of Mirkwood is a very unsane place to go and it is mainly
+Q:6:T:due to Shelob, the mighty Spider, who came in our forest a long time
+Q:6:T:ago. You need to kill her and save us! May the light shine on you.
+?:1
+

@@ -88,6 +88,7 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR_HELP);
 	string_free(ANGBAND_DIR_INFO);
 	string_free(ANGBAND_DIR_SAVE);
+	string_free(ANGBAND_DIR_SCPT);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
 
@@ -114,9 +115,9 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_HELP = string_make("");
 	ANGBAND_DIR_INFO = string_make("");
 	ANGBAND_DIR_SAVE = string_make("");
+        ANGBAND_DIR_SCPT = string_make("");
 	ANGBAND_DIR_USER = string_make("");
 	ANGBAND_DIR_XTRA = string_make("");
-
 
 #else /* VM */
 
@@ -154,6 +155,10 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "save");
 	ANGBAND_DIR_SAVE = string_make(path);
+
+	/* Build a path name */
+        strcpy(tail, "scpt");
+        ANGBAND_DIR_SCPT = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "user");
@@ -2104,8 +2109,18 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
-		{ TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE }
-	},
+                { TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
+
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 1 },
+
+		{ TV_PRAYER_BOOK, 1 },
+		{ TV_PRAYER_BOOK, 2 },
+		{ TV_PRAYER_BOOK, 2 },
+                { TV_PRAYER_BOOK, 3 },
+        },
 
 	{
 		/* Alchemy shop */
@@ -2225,16 +2240,15 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SORCERY_BOOK, 1 },
 		{ TV_SORCERY_BOOK, 1 },
 
-		{ TV_ARCANE_BOOK, 0 },
-		{ TV_ARCANE_BOOK, 0 },
-		{ TV_ARCANE_BOOK, 1 },
-		{ TV_ARCANE_BOOK, 1 },
+		{ TV_MAGIC_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 1 },
 
-		{ TV_ARCANE_BOOK, 2 },
-		{ TV_ARCANE_BOOK, 2 },
-		{ TV_ARCANE_BOOK, 3 },
-		{ TV_ARCANE_BOOK, 3 },
-
+		{ TV_MAGIC_BOOK, 1 },
+		{ TV_MAGIC_BOOK, 2 },
+		{ TV_MAGIC_BOOK, 2 },
+		{ TV_MAGIC_BOOK, 3 }
 	},
 
 	{
@@ -2348,14 +2362,60 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 		{ TV_LIFE_BOOK, 0 },
 		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
+		{ TV_LIFE_BOOK, 1 },
+		{ TV_LIFE_BOOK, 1 },
 
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
-	}
+                { TV_MUSIC_BOOK, 0 },
+                { TV_MUSIC_BOOK, 0 },
+                { TV_MUSIC_BOOK, 1 },
+                { TV_MUSIC_BOOK, 1 },
+
+                { TV_SYMBIOTIC_BOOK, 0 },
+                { TV_SYMBIOTIC_BOOK, 0 },
+        },
+
+	{
+                /* Pet Shop */
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+
+		{ TV_FOOD, SV_FOOD_BISCUIT },
+		{ TV_FOOD, SV_FOOD_BISCUIT },
+		{ TV_FOOD, SV_FOOD_BISCUIT },
+		{ TV_FOOD, SV_FOOD_BISCUIT },
+
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+                { TV_EGG, 1 },
+
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
 };
 
 
@@ -2510,6 +2570,29 @@ static errr init_quests(void)
 
 
 /*
+ * Pointer to wilderness_type
+ */
+typedef wilderness_type *wilderness_type_ptr;
+
+/*
+ * Initialize wilderness array
+ */
+static errr init_wilderness(void)
+{
+	int i;
+
+	/* Allocate the wilderness (two-dimension array) */
+	C_MAKE(wilderness, max_wild_y, wilderness_type_ptr);
+	C_MAKE(wilderness[0], max_wild_x * max_wild_y, wilderness_type);
+
+	/* Init the other pointers */
+	for (i = 1; i < max_wild_y; i++)
+		wilderness[i] = wilderness[0] + i * max_wild_x;
+
+	return 0;
+}
+
+/*
  * Initialize some other arrays
  */
 static errr init_other(void)
@@ -2524,6 +2607,9 @@ static errr init_other(void)
 
 	/* Allocate and Wipe the monster list */
 	C_MAKE(m_list, max_m_idx, monster_type);
+
+        /* Allocate and Wipe the monster r_idx to keep list */
+        C_MAKE(r_idx_to_keep, max_m_idx, s16b);
 
 
 	/* Allocate and wipe each line of the cave */
@@ -2871,6 +2957,45 @@ static void init_angband_aux(cptr why)
 	quit("Fatal Error.");
 }
 
+#ifdef USE_PYTHON
+/*
+ * Initialize the Python interpreter that we'll be using, and also insert
+ * some modules into it that we provide, so that Python code can call
+ * on Angband functions.
+ */
+static errr init_python(void)
+{
+	char buf[1024];
+
+	/* Initialize the Python interpreter */
+	Py_Initialize();
+
+	/* Add the "script" directory to the module search path */
+	sprintf(buf, "import sys; sys.path.insert(0, '%s')", ANGBAND_DIR_SCPT);
+	PyRun_SimpleString(buf);
+
+        /* Add the PernAngband modules */
+        initio();
+        initcave();
+        initmisc();
+        initkind();
+        initevent();
+        initobject();
+        initmonster();
+        initplayer();
+        initspell();
+        initquest();
+        initrace();
+        initdungeon();
+
+	/* Import initial module */
+	sprintf(buf, "import init");
+	PyRun_SimpleString(buf);
+
+	/* Success */
+	return (0);
+}
+#endif
 
 /*
  * Hack -- main Angband initialization entry point
@@ -3025,12 +3150,10 @@ void init_angband(void)
 	note("[Initializing values... (misc)]");
 	if (init_misc()) quit("Cannot initialize misc. values");
 
-#ifdef USE_SLANG
-
-	note("[Initializing scripts... ]");
-	if (init_script()) quit("Cannot initialize SLang");
-
-#endif /* USE_SLANG */
+#ifdef USE_PYTHON
+        note("[Initializing Python scripts... ]");
+        if (init_python()) quit("Cannot initialize Python scripts");
+#endif
 
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
@@ -3055,6 +3178,10 @@ void init_angband(void)
 	/* Initialize town array */
 	note("[Initializing arrays... (towns)]");
 	if (init_towns()) quit("Cannot initialize towns");
+
+	/* Initialize wilderness array */
+	note("[Initializing arrays... (wilderness)]");
+	if (init_wilderness()) quit("Cannot initialize wilderness");
 
 	/* Initialize building array */
 	note("[Initializing arrays... (buildings)]");

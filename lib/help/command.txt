@@ -91,15 +91,15 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  e  Equipment list                       E  Eat some food
  f  Fire an item                         F  Fuel your lantern/torch
  g  Stay still (flip pickup)             G  Gain new spells/prayers
- h  (unused)                             H  (unused)
+ h  Hack up a corpse                     H  (unused)
  i  Inventory list                       I  Observe an item
  j  Jam a door                           J  (unused)
- k  Destroy an item                      K  (unused)
+ k  Destroy an item                      K  Cure meat
  l  Look around                          L  Locate player on map
  m  Cast a spell / use mental power      M  Full dungeon map
  n  (unused)                             N  (unused)
- o  Open a door or chest                 O  (unused)
- p  (unused in Zangband)                 P  (unused)
+ o  Open a door or chest                 O  Sacrifice at an altar
+ p  Pray to your god (if any)            P  Pet commands
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Toggle search mode
@@ -129,7 +129,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  +  Alter grid                          ^Q  Quit to next midi song
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
- :  Take notes                          ^T  (unused)
+ :  Take notes                          ^T  Time of the day
  '  (unused)                            ^U  (unused)
  "  Enter a user pref command           ^V  (unused)
  ,  Stay still (with pickup)            ^W  (special - wizard mode)
@@ -159,7 +159,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  m  Spell casting / mental power         M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
  o  Open a door or chest                 O  Use bonus power (if any)
- p  (unused in Zangband)                 P  Browse a book
+ p  Pray to your god (if any)            P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Jam a door (Spike)
@@ -167,16 +167,16 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  u  (walk - north east)                  U  (run - north east)
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  Locate player on map (Where)
- x  Look around                          X  (unused)
+ x  Look around                          X  Pet commands
  y  (walk - north west)                  Y  (run - north west)
  z  Aim a wand (Zap)                     Z  Use a staff (Zap)
  !  Interact with system                ^A  (special - wizard command)
  @  Interact with macros                ^B  (tunnel - south west)
  #  Toggle search mode                  ^C  (special - break)
- $  (unused)                            ^D  Destroy item
+ $  Hack up a corpse                    ^D  Destroy item
  %  Interact with visuals               ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
- &  Interact with colors                ^G  (unused)
+ &  Interact with colors                ^G  Sacrifice at an altar
  *  Target monster or location          ^H  (tunnel - west)
  (  Load screen dump                    ^I  (special - tab)
  )  Dump screen dump                    ^J  (tunnel - south)
@@ -184,13 +184,13 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  }  Uninscribe an object                ^L  (tunnel - east)
  [  (unused)                            ^M  (tunnel - south)
  ]  (unused)                            ^N  (tunnel - south east)
- -  Walk (flip pickup)                  ^O  (unused)
+ -  Walk (flip pickup)                  ^O  Cure meat
  _  Enter store                         ^P  Show previous messages
  +  Alter grid                          ^Q  Quit to next midi song
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
  :  Take notes                          ^T  Dig a Tunnel
- '  (unused)                            ^U  (tunnel - north east)
+ '  Time of the day                     ^U  (tunnel - north east)
  "  Enter a user pref command           ^V  Examine current target
  ,  Run                                 ^W  (special - wizard mode)
  <  Go up staircase                     ^X  Save and quit

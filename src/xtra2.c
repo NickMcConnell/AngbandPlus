@@ -14,6 +14,19 @@
 
 #define REWARD_CHANCE 10
 
+static cptr favor_text[11] = {
+  "impossible",
+  "impossible",
+  "impossible",
+  "extremely unlikely",
+  "extremely unlikely",
+  "extremely unlikely",
+  "unlikely",
+  "unlikely",
+  "likely",
+  "certain",
+  "certain beyond any doubt"
+};
 
 
 /*
@@ -60,8 +73,53 @@ bool set_invis(int v, int p)
 	if (disturb_state)
 		disturb(0, 0);
 
-	/* Redraw invisibility */
-	p_ptr->redraw |= (PR_INVIS);
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "no_breeds"
+ */
+bool set_no_breeders(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!no_breeds)
+		{
+                        msg_print("You feel an anti-sexual aura.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (no_breeds)
+		{
+                        msg_print("You no longer feel an anti-sexual aura.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        no_breeds = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -119,7 +177,7 @@ bool set_mimic(int v, int p)
         p_ptr->redraw |= (PR_TITLE);
 
 	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
+        p_ptr->update |= (PU_BONUS | PU_SANITY);
 
 	/* Result */
 	return (TRUE);
@@ -188,6 +246,65 @@ bool set_blind(int v)
 	return (TRUE);
 }
 
+/*
+ * Set "p_ptr->tim_lite", notice observable changes
+ *
+ * Note the use of "PU_LITE" and "PU_VIEW", which is needed to
+ * memorize any terrain features which suddenly become "visible".
+ * Note that blindness is currently the only thing which can affect
+ * "player_can_see_bold()".
+ */
+bool set_lite(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->tim_lite)
+		{
+                        msg_print("You suddently seem brighter!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->tim_lite)
+		{
+                        msg_print("You are no longer bright.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->tim_lite = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Fully update the visuals */
+        p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Set "p_ptr->confused", notice observable changes
@@ -446,10 +563,55 @@ bool set_image(int v)
 	return (TRUE);
 }
 
-
 /*
- * Set "p_ptr->fast", notice observable changes
+ * Set "p_ptr->lightspeed", notice observable changes
  */
+bool set_light_speed(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->lightspeed)
+		{
+                        msg_print("You feel like if the time was stoped!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->lightspeed)
+		{
+                        msg_print("You feel the time coming back to its normal rate.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->lightspeed = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
 bool set_fast(int v)
 {
 	bool notice = FALSE;
@@ -1953,7 +2115,7 @@ void check_experience(void)
 		lite_spot(py, px);
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+                p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
@@ -1995,7 +2157,7 @@ void check_experience(void)
 		msg_format("Welcome to level %d.", p_ptr->lev);
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+                p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
@@ -2092,6 +2254,146 @@ static int get_coin_type(monster_race *r_ptr)
 	return (0);
 }
 
+/*
+ * This routine handles the production of corpses/skeletons/heads/skulls
+ * when a monster is killed.
+ */
+void place_corpse(monster_type *m_ptr)
+{
+   monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	object_type *i_ptr;
+   object_type object_type_body;
+
+   object_type *w_ptr = &inventory[INVEN_WIELD];
+
+   int x = m_ptr->fx;
+   int y = m_ptr->fy;
+   int i = w_ptr->weight + ((p_ptr->to_h + w_ptr->to_h) * 5) + (p_ptr->lev * 3);
+
+	/* Handle decapitations. This is not allowed with hafted weapons. */
+   bool crit = (randint(5000) <= i);
+   bool decapitate = ((rand_int(m_ptr->maxhp) <= -(m_ptr->hp)) &&
+                       (w_ptr->tval != TV_HAFTED) && crit);
+
+  	/* Get local object */
+	i_ptr = &object_type_body;
+
+   /* It has a physical form */
+   if (r_ptr->flags9 & RF9_DROP_CORPSE)
+   {
+		/* Wipe the object */
+                object_prep(i_ptr, lookup_kind(TV_CORPSE, SV_CORPSE_CORPSE));
+
+     	/* Unique corpses are unique */
+     	if (r_ptr->flags1 & RF1_UNIQUE)
+     	{
+        	object_aware(i_ptr);
+                i_ptr->name1 = 201;
+     	}
+
+     	/* Calculate length of time before decay */
+        i_ptr->pval = r_ptr->weight + rand_int(r_ptr->weight);
+
+		/* Set weight */
+        i_ptr->weight = (r_ptr->weight + rand_int(r_ptr->weight) / 10) + 1;
+
+     	/* Remember what we are */
+        i_ptr->pval2 = m_ptr->r_idx;
+
+        /* Some hp */
+        i_ptr->pval3 = ((maxroll(r_ptr->hdice, r_ptr->hside) + p_ptr->mhp) / 2);
+        i_ptr->pval3 -= randint(i_ptr->pval3) / 3;
+
+		/* Drop it in the dungeon */
+		drop_near(i_ptr, -1, y, x);
+   }
+
+   /* The creature is an animated skeleton. */
+   if (!(r_ptr->flags9 & RF9_DROP_CORPSE) && (r_ptr->flags9 & RF9_DROP_SKELETON))
+   {
+		/* Wipe the object */
+                object_prep(i_ptr, lookup_kind(TV_CORPSE, SV_CORPSE_SKELETON));
+
+     	/* Unique corpses are unique */
+     	if (r_ptr->flags1 & RF1_UNIQUE)
+     	{
+			object_aware(i_ptr);
+                i_ptr->name1 = 201;
+     	}
+
+      i_ptr->pval = 0;
+
+		/* Set weight */
+        i_ptr->weight = (r_ptr->weight / 4 + rand_int(r_ptr->weight) / 40) + 1;
+
+     	/* Remember what we are */
+        i_ptr->pval2 = m_ptr->r_idx;
+
+		/* Drop it in the dungeon */
+		drop_near(i_ptr, -1, y, x);
+   }
+#if 0
+   /*
+    * Decapitated it if it has a head, or if it *is* a head.
+    * This is rather messy.
+    */
+   if ((!(r_ptr->flags9 & RF9_HAS_NO_HEAD)) && (decapitate ||
+         (!(r_ptr->flags9 & RF9_DROP_CORPSE) &&
+       !(r_ptr->flags9 & RF9_DROP_SKELETON))))
+   {
+		/* Wipe the object */
+                object_prep(i_ptr, lookup_kind(TV_CORPSE, SV_CORPSE_HEAD));
+
+     	/* Unique heads are unique */
+      if (r_ptr->flags1 & RF1_UNIQUE)
+      {
+         object_aware(i_ptr);
+                i_ptr->name1 = 201;
+		}
+
+      /* Calculate length of time before decay */
+        i_ptr->pval = r_ptr->weight / 30 + rand_int(r_ptr->weight) / 30;
+
+		/* Set weight */
+           i_ptr->weight = (r_ptr->weight / 30 + rand_int(r_ptr->weight) / 300) + 1;
+
+      /* Remember what we are */
+        i_ptr->pval2 = m_ptr->r_idx;
+
+		/* Drop it in the dungeon */
+		drop_near(i_ptr, -1, y, x);
+   }
+
+   /* It has a skull, but no head */
+   if (!(r_ptr->flags9 & RF9_HAS_NO_HEAD) && (!(r_ptr->flags9 & RF9_HAS_NO_SKULL)) &&
+       (decapitate || (!(r_ptr->flags9 & RF9_DROP_CORPSE) &&
+       !(r_ptr->flags9 & RF9_DROP_SKELETON))))
+   {
+		/* Wipe the object */
+                object_prep(i_ptr, lookup_kind(TV_CORPSE, SV_CORPSE_SKULL));
+
+     	/* Unique heads are unique */
+      if (r_ptr->flags1 & RF1_UNIQUE)
+		{
+			object_aware(i_ptr);
+                        i_ptr->name1 = 201;
+		}
+
+		i_ptr->pval = 0;
+
+		/* Set weight */
+                i_ptr->weight = (r_ptr->weight / 60 + rand_int(r_ptr->weight) / 600) + 1;
+
+		/* Remember what we are */
+                i_ptr->pval2 = m_ptr->r_idx;
+
+		/* Drop it in the dungeon */
+		drop_near(i_ptr, -1, y, x);
+	}
+#endif
+}
+
 
 /*
  * Handle the "death" of a monster.
@@ -2139,6 +2441,21 @@ void monster_death(int m_idx)
 	object_type forge;
 	object_type *q_ptr;
 
+#ifdef USE_PYTHON
+        if (perform_event(EVENT_MONSTER_DEATH, Py_BuildValue("(iii)", m_idx, m_ptr->r_idx, 0))) return;
+#endif
+        /* If it was impressed delete it from the to keep list */
+        if(m_ptr->impressed)
+        {
+                for(i=0;i<max_m_idx-1;i++)
+                {
+                        if(r_idx_to_keep[i]==m_ptr->r_idx)
+                        {
+                                r_idx_to_keep[i] = 0;
+                                break;
+                        }
+                }
+        }
 
 	/* Get the location */
 	y = m_ptr->fy;
@@ -2184,6 +2501,9 @@ void monster_death(int m_idx)
 
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
+
+	/* Average dungeon and monster levels */
+	object_level = (dun_level + r_ptr->level) / 2;
 
 	/* Mega^2-hack -- destroying the Stormbringer gives it us! */
 	if (strstr((r_name + r_ptr->name),"Stormbringer"))
@@ -2272,8 +2592,45 @@ void monster_death(int m_idx)
 		(void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
 	}
 
-	/* ToDo: Bloodletter of Khorne should drop a blade of chaos */
-	/* ToDo: Pink horrors should be replaced with 2 Blue horrors */
+	/* Bloodletters of Khorne drop a blade of chaos */
+	else if (strstr((r_name + r_ptr->name),"Bloodletter"))
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Prepare to make a Blade of Chaos */
+		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
+
+		apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE);
+
+		/* Drop it in the dungeon */
+                drop_near(q_ptr, -1, y, x);
+	}
+
+	/* Pink horrors are replaced with 2 Blue horrors */
+	else if (strstr((r_name + r_ptr->name),"ink horror"))
+	{
+                for (i = 0; i < 2; i++)
+		{
+			int wy = py, wx = px;
+			int attempts = 100;
+
+			do
+			{
+				scatter(&wy, &wx, py, px, 3, 0);
+			}
+			while (!(in_bounds(wy,wx) && cave_floor_bold(wy,wx)) && --attempts);
+
+			if (attempts > 0)
+			{
+                                if (summon_specific(wy, wx, 100, SUMMON_BLUE_HORROR))
+				{
+					if (player_can_see_bold(wy, wx))
+						msg_print ("A blue horror appears!");
+				}
+                        }                
+                }
+	}
 
 	/* Mega-Hack -- drop "winner" treasures */
 	else if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
@@ -2310,7 +2667,23 @@ void monster_death(int m_idx)
 			/* Drop it in the dungeon */
 			drop_near(q_ptr, -1, y, x);
 		}
-		else
+                else if (strstr((r_name + r_ptr->name),"Smeagol"))
+                {
+			/* Get local object */
+			q_ptr = &forge;
+
+                        object_wipe(q_ptr);
+
+                        /* Mega-Hack -- Prepare to make a ring of invisibility */
+                        object_prep(q_ptr, lookup_kind(TV_RING, SV_RING_INVIS));
+                        q_ptr->number = 1;
+
+                        apply_magic(q_ptr, -1, TRUE, TRUE, FALSE);
+
+			/* Drop it in the dungeon */
+			drop_near(q_ptr, -1, y, x);
+                }
+                else
 		{
 			byte a_idx = 0;
 			int chance = 0;
@@ -2326,51 +2699,20 @@ void monster_death(int m_idx)
                                 a_idx = ART_THRAIN;
                                 chance = 30;
 			}
-                        else if (strstr((r_name + r_ptr->name),"Brand, Mad Visionary of Amber"))
+                        else if (strstr((r_name + r_ptr->name),"T'ron , the rebel DragonRider"))
 			{
-				if (randint(3)!=1)
-				{
-					a_idx = ART_CUBRAGOL;
-					chance = 25;
-				}
-				else
-				{
-					a_idx = ART_ANGUIREL;
-					chance = 33;
-				}
+                                a_idx = ART_TRON;
+                                chance = 75;
 			}
-                        else if (strstr((r_name + r_ptr->name),"Corwin, Lord of Avalon"))
+                        else if (strstr((r_name + r_ptr->name),"Mardra, rider of the Gold Loranth"))
 			{
-				if (randint(3)!=1)
-				{
-					a_idx = ART_ARUNRUTH;
-					chance = 33;
-				}
-				else
-				{
-					a_idx = ART_PAURNIMMEN;
-					chance = 33;
-				}
+                                a_idx = ART_MARDA;
+                                chance = 50;
 			}
                         else if (strstr((r_name + r_ptr->name),"Saruman of Many Colours"))
 			{
 				a_idx = ART_ELENDIL;
-				chance = 20;
-			}
-                        else if (strstr((r_name + r_ptr->name),"Fiona the Sorceress"))
-			{
-				a_idx = ART_BELANGIL;
-				chance = 50;
-			}
-                        else if (strstr((r_name + r_ptr->name),"Julian, Master of Forest Amber"))
-			{
-				a_idx = ART_CELEBORN;
-				chance = 45;
-			}
-                        else if (strstr((r_name + r_ptr->name),"Klingsor, Evil Master of Magic"))
-			{
-				a_idx = ART_OROME;
-				chance = 40;
+                                chance = 30;
 			}
                         else if (strstr((r_name + r_ptr->name),"Groo the Wanderer"))
 			{
@@ -2381,11 +2723,21 @@ void monster_death(int m_idx)
 			{
 				a_idx = ART_NIMLOTH;
 				chance = 66;
-			}
-                        else if (strstr((r_name + r_ptr->name),"Caine, the Conspirator"))
+                        }
+                        else if (strstr((r_name + r_ptr->name),"Muar, the Balrog"))
 			{
-				a_idx = ART_ANGRIST;
-				chance = 50;
+                                a_idx = ART_CALRIS;
+                                chance = 60;
+			}
+                        else if (strstr((r_name + r_ptr->name),"Gothmog, the High Captain of Balrogs"))
+			{
+                                a_idx = ART_GOTHMOG;
+                                chance = 50;
+			}
+                        else if (strstr((r_name + r_ptr->name),"Eol the Dark Elf"))
+			{
+                                a_idx = ART_ANGUIREL;
+                                chance = 50;
 			}
 
 			if ((a_idx > 0) && ((randint(99)<chance) || (wizard)))
@@ -2433,6 +2785,29 @@ void monster_death(int m_idx)
 		}
 	}
 
+        /* Hack - the Dragonriders give some firestone */
+        else if (r_ptr->flags3 & RF3_DRAGONRIDER)
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+                /* Prepare to make some Firestone */
+                object_prep(q_ptr, lookup_kind(TV_FIRESTONE, SV_FIRESTONE));
+                q_ptr->number = (byte)rand_range(10,20);
+
+		/* Drop it in the dungeon */
+                drop_near(q_ptr, -1, y, x);
+	}
+
+        /* Hack - the protected monsters must be advanged */
+        else if (r_ptr->flags9 & RF9_WYRM_PROTECT)
+	{
+                int xx = x,yy = y;
+                msg_print("This monster was under the protection of a great wyrm of power!");
+                scatter(&yy, &xx, y, x, 100, 0);
+                place_monster_aux(yy, xx, 847, FALSE, FALSE, is_pet(m_ptr));
+	}
+
 	/* Let monsters explode! */
 	for (i = 0; i < 4; i++)
 	{
@@ -2476,6 +2851,7 @@ void monster_death(int m_idx)
 				case RBE_EXP_80:    typ = GF_MISSILE; break;
 				case RBE_DISEASE:   typ = GF_POIS; break;
 				case RBE_TIME:      typ = GF_TIME; break;
+                                case RBE_SANITY:    typ = GF_MISSILE; break;
 			}
 
 			project(m_idx, 3, y, x, damage, typ, flg);
@@ -2493,11 +2869,10 @@ void monster_death(int m_idx)
 
 	if (cloned) number = 0; /* Clones drop no stuff */
 
+        if((!force_coin)&&(randint(100)<50)) place_corpse(m_ptr);
+
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
-
-	/* Average dungeon and monster levels */
-	object_level = (dun_level + r_ptr->level) / 2;
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
@@ -2575,7 +2950,7 @@ void monster_death(int m_idx)
 				}
 
 				/* Finish the two main quests without rewarding */
-                                if ((i == QUEST_SAURON) || (i == QUEST_MORGOTH))
+                                if ((i == QUEST_SHELOB) || (i == QUEST_SAURON) || (i == QUEST_MORGOTH))
 				{
 					quest[i].status = QUEST_STATUS_FINISHED;
 				}
@@ -2631,12 +3006,17 @@ void monster_death(int m_idx)
 	else if ((quest[i].type == QUEST_TYPE_KILL_ALL) &&
 		     (p_ptr->inside_quest))
 	{
+                monster_type * mt_ptr;
 		number_mon = 0;
 
 		for (i2 = 0; i2 < cur_wid; ++i2)
 			for (j2 = 0; j2 < cur_hgt; j2++)
 				if (cave[j2][i2].m_idx > 0)
-					number_mon++;
+                                {
+                                        mt_ptr = &m_list[cave[j2][i2].m_idx];
+                                        if(!(mt_ptr->smart & SM_FRIEND))
+                                                number_mon++;
+                                }
 
 		if ((number_mon - 1) == 0)
 		{
@@ -2657,6 +3037,15 @@ void monster_death(int m_idx)
 	/* Create a magical staircase */
 	if (create_stairs)
 	{
+                cave_set_feat(y - 1, x + 1, FEAT_FLOOR);
+                cave_set_feat(y + 1, x + 1, FEAT_FLOOR);
+                cave_set_feat(y + 1, x - 1, FEAT_FLOOR);
+                cave_set_feat(y - 1, x - 1, FEAT_FLOOR);
+                cave_set_feat(y - 1, x, FEAT_FLOOR);
+                cave_set_feat(y + 1, x, FEAT_FLOOR);
+                cave_set_feat(y, x - 1, FEAT_FLOOR);
+                cave_set_feat(y, x + 1, FEAT_FLOOR);
+
 		/* Stagger around */
 		while (!cave_valid_bold(y, x))
 		{
@@ -2715,9 +3104,14 @@ void monster_death(int m_idx)
 
 		/* Congratulations */
 		msg_print("*** CONGRATULATIONS ***");
+                msg_print("Thanks to you, Arda is free !");
 		msg_print("You have won the game!");
 		msg_print("You may retire (commit suicide) when you are ready.");
 	}
+
+#ifdef USE_PYTHON
+        perform_event(EVENT_MONSTER_DEATH, Py_BuildValue("(iii)", m_idx, m_ptr->r_idx, 1));
+#endif
 }
 
 
@@ -2776,20 +3170,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
-
-		if ((r_ptr->flags3 & (RF3_AMBERITE)) && (randint(2)==1))
-		{
-			int curses = 1 + randint(3);
-
-			msg_format("%^s puts a terrible blood curse on you!", m_name);
-			curse_equipment(100, 50);
-
-			do
-			{
-				activate_ty_curse();
-			}
-			while (--curses);
-		}
 
 		if (speak_unique && (r_ptr->flags2 & (RF2_CAN_SPEAK)))
 		{
@@ -3388,6 +3768,9 @@ static bool target_set_accept(int y, int x)
 		if (c_ptr->feat == FEAT_GLYPH) return (TRUE);
 		if (c_ptr->feat == FEAT_MINOR_GLYPH) return (TRUE);
 
+                /* Notice the Between */
+                if (c_ptr->feat == FEAT_BETWEEN) return (TRUE);
+
 		/* Notice the Pattern */
 		if ((c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
 		    (c_ptr->feat >= FEAT_PATTERN_START))
@@ -3424,16 +3807,18 @@ static bool target_set_accept(int y, int x)
 		if (c_ptr->feat == FEAT_MAGMA_K) return (TRUE);
 		if (c_ptr->feat == FEAT_QUARTZ_K) return (TRUE);
 
+#if 0
 		/* Notice water, lava, ... */
-		if (c_ptr->feat == FEAT_DEEP_WATER) return (TRUE);
-		if (c_ptr->feat == FEAT_SHAL_WATER) return (TRUE);
-		if (c_ptr->feat == FEAT_DEEP_LAVA) return (TRUE);
-		if (c_ptr->feat == FEAT_SHAL_LAVA) return (TRUE);
-		if (c_ptr->feat == FEAT_DIRT) return (TRUE);
-		if (c_ptr->feat == FEAT_GRASS) return (TRUE);
-		if (c_ptr->feat == FEAT_DARK_PIT) return (TRUE);
-		if (c_ptr->feat == FEAT_TREES) return (TRUE);
-		if (c_ptr->feat == FEAT_MOUNTAIN) return (TRUE);
+                if (c_ptr->feat == FEAT_DEEP_WATER) return (TRUE);
+                if (c_ptr->feat == FEAT_SHAL_WATER) return (TRUE);
+                if (c_ptr->feat == FEAT_DEEP_LAVA) return (TRUE);
+                if (c_ptr->feat == FEAT_SHAL_LAVA) return (TRUE);
+                if (c_ptr->feat == FEAT_DIRT) return (TRUE);
+                if (c_ptr->feat == FEAT_GRASS) return (TRUE);
+                if (c_ptr->feat == FEAT_DARK_PIT) return (TRUE);
+                if (c_ptr->feat == FEAT_TREES) return (TRUE);
+                if (c_ptr->feat == FEAT_MOUNTAIN) return (TRUE);
+#endif
 
 		/* Notice quest features */
 		if (c_ptr->feat == FEAT_QUEST_ENTER) return (TRUE);
@@ -3705,6 +4090,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		}
 
 
+
 		/* Scan all objects in the grid */
 		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 		{
@@ -3796,6 +4182,12 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			{
 				s3 = "the entrance to the ";
 			}
+
+                        if ((feat == FEAT_MORE) && c_ptr->special)
+                        {
+                                s3 = dungeon_info[c_ptr->special].prefix;
+                                name = dungeon_info[c_ptr->special].name;
+                        }
 
 			/* Display a message */
 			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
@@ -6483,3 +6875,362 @@ void dump_mutations(FILE * OutFile)
 		}
 	}
 }
+
+/*
+ * Set "p_ptr->grace", notice observable changes
+ */
+void set_grace(s32b v) {
+  p_ptr->grace = v;
+  p_ptr->update |= PU_BONUS;
+  handle_stuff();
+}
+
+/*
+ * Show religious info.
+ */
+
+bool show_god_info(bool ext) {
+  int badness = interpret_grace();
+  int pgod = p_ptr->pgod - 1;
+  int tmp;
+
+  deity *d_ptr;
+
+  if (pgod < 0) {
+    msg_print("You don't worship anyone.");
+    msg_print(NULL);
+    return FALSE;
+
+  } else {
+    d_ptr = &deity_info[pgod];
+
+    msg_print(NULL);
+
+    Term_save();
+
+    roff(format("You worship %s, the %s deity of %s. ", d_ptr->name,
+                deity_rarity[d_ptr->rarity], d_ptr->god_of));
+    roff(format("%s is %s, and you are %s by him/her. ", d_ptr->name,
+               deity_niceness[d_ptr->grace_deduction],
+               deity_standing[badness]));
+    if (noscore)
+       roff(format("Your current grace is %d, and god's favor is %d. ",
+       p_ptr->grace, p_ptr->god_favor));
+    roff("\n");
+
+    if (ext || noscore) {
+      int fav = badness - interpret_favor();
+
+      roff(format("It is %s that your prayers will be answered.\n", favor_text[fav]));
+    }
+
+    tmp = inkey();
+
+    Term_load();
+  }
+
+  return TRUE;
+}
+
+/*
+ * Return a number denoting your current standing with your god,
+ * ranging from 0 (really bad) to 10 (really good).
+ * Note that 0-5 mean ``cursed'', 6-7 mean ``neutral'',
+ * and 8-10 mean ``blessed''.
+ */
+
+int interpret_grace(void) {
+  if (p_ptr->grace <      -60000) return 0;
+  else if (p_ptr->grace < -50000) return 1;
+  else if (p_ptr->grace < -40000) return 2;
+  else if (p_ptr->grace < -30000) return 3;
+  else if (p_ptr->grace < -20000) return 4;
+  else if (p_ptr->grace < -10000) return 5;
+  else if (p_ptr->grace <      0) return 6;
+
+  else if (p_ptr->grace >  20000) return 10;
+  else if (p_ptr->grace >  10000) return 9;
+  else if (p_ptr->grace >   5000) return 8;
+  else if (p_ptr->grace >      0) return 7;
+
+  /* Should never happen! */
+  return -1;
+}
+
+
+/*
+ * Same as interpret_grace, but for p_ptr->god_favor.
+ */
+
+int interpret_favor(void) {
+  if (p_ptr->god_favor <      -60000) return 0;
+  else if (p_ptr->god_favor < -50000) return 1;
+  else if (p_ptr->god_favor < -40000) return 2;
+  else if (p_ptr->god_favor < -30000) return 3;
+  else if (p_ptr->god_favor < -20000) return 4;
+  else if (p_ptr->god_favor < -10000) return 5;
+  else if (p_ptr->god_favor <      0) return 6;
+
+  else if (p_ptr->god_favor >  20000) return 10;
+  else if (p_ptr->god_favor >  10000) return 9;
+  else if (p_ptr->god_favor >   5000) return 8;
+  else if (p_ptr->god_favor >      0) return 7;
+
+  /* Should never happen! */
+  return -1;
+}
+
+/*
+ * Here come the side effect functions. They are classified according
+ * to how beneficial they are, to avoid a giant nested switch/case
+ * statement.
+ */
+
+/* Great side effect. */
+
+void great_side_effect(void) {
+  int tmp;
+
+  tmp = randint(100);
+
+  if (tmp <= 10) {
+    if (summon_specific_friendly(py, px, dun_level+rand_spread(10, 5), damroll(4,6), FALSE)) {
+      msg_print("Something materializes out of thin air.");
+    } else {
+      msg_print("You feel a strange tingling, but the feeling passes.");
+    }
+  } else if (tmp <= 20) {
+    msg_print("You feel something land at your feet.");
+    acquirement(py, px, 1, 1, 1);
+  } else if (tmp <= 30) {
+    enchant_spell(0, 0, randint(3) + 2, 0);
+  } else if (tmp <= 40) {
+    enchant_spell(randint(3), randint(3), 0, 0);
+  } else if (tmp <= 50) {
+    fire_explosion(py, px, GF_MAKE_GLYPH, 9, 0);
+  } else if (tmp <= 60) {
+    recharge(100);
+  } else if (tmp <= 70) {
+    msg_print("You feel like someone has taken a burden off your back.");
+    remove_all_curse();
+  } else if (tmp <= 80) {
+    identify_fully();
+  } else if (tmp <= 90) {
+    msg_print("The power of your deity makes the dungeon change!");
+    alter_reality();
+    hp_player(5000);
+    (void)set_poisoned(0);
+    (void)set_blind(0);
+    (void)set_confused(0);
+    (void)set_image(0);
+    (void)set_stun(0);
+    (void)set_cut(0);
+    (void)do_res_stat(A_STR);
+    (void)do_res_stat(A_CON);
+    (void)do_res_stat(A_DEX);
+    (void)do_res_stat(A_WIS);
+    (void)do_res_stat(A_INT);
+    (void)do_res_stat(A_CHR);
+  } else if (tmp <= 100) {
+    msg_print("You feel a great surge of holiness!");
+    do_inc_stat(A_STR);
+    do_inc_stat(A_INT);
+    do_inc_stat(A_WIS);
+    do_inc_stat(A_DEX);
+    do_inc_stat(A_CON);
+    do_inc_stat(A_CHR);
+  }
+}
+
+/* Nasty side effect. */
+
+void nasty_side_effect(void) {
+  int tmp;
+
+  tmp = randint(100);
+  if (tmp < 10) {
+    set_poisoned(p_ptr->poisoned + 10 + randint(10));
+  } else if (tmp < 20) {
+    set_confused(p_ptr->confused + 10 + randint(10));
+  } else if (tmp < 30) {
+    set_blind(p_ptr->blind + 10 + randint(10));
+  } else if (tmp < 40) {
+    set_slow(p_ptr->slow + 10 + randint(10));
+  } else if (tmp < 50) {
+    set_cut(p_ptr->cut + 10 + randint(100));
+  } else if (tmp < 60) {
+    set_stun(p_ptr->stun + randint(110));
+  } else if (tmp < 70) {
+    msg_print("You hear a loud shriek!");
+    aggravate_monsters(1);
+  } else if (tmp < 80) {
+    set_image(p_ptr->image + 20 + randint(20));
+  } else if (tmp < 90) {
+    msg_print("You feel very sick.");
+    set_slow(p_ptr->slow + 10 + randint(10));
+    set_confused(p_ptr->confused + 10 + randint(10));
+    set_poisoned(p_ptr->poisoned + 10 + randint(10));
+  } else if (tmp < 100) {
+    if (summon_specific(py, px, dun_level+randint(7), damroll(4,6))) {
+      msg_print("Something materializes out of thin air.");
+    } else {
+      msg_print("You feel a strange tingling, but the feeling passes.");
+    }
+  }
+}
+
+/* Deadly side effect. */
+
+void deadly_side_effect(bool god) {
+  int tmp;
+  bool (*boom)(int, int, int, int, int);
+
+  /* Lisp-like hack to save typing. */
+  if (god) {
+    boom = fire_godly_wrath;
+  } else {
+    boom = fire_explosion;
+  }
+
+  tmp = randint(100);
+
+  if (tmp <= 10) {
+    if (summon_specific(py, px, dun_level+20, damroll(4,6))) {
+      msg_print("Something materializes out of thin air.");
+    } else {
+      msg_print("You feel a strange tingling, but the feeling passes.");
+    }
+  } else if (tmp <= 20) {
+    activate_ty_curse();
+  } else if (tmp <= 30) {
+    msg_print("The world twists!");
+    destroy_area(py, px, 9, 0);
+  } else if (tmp <= 40) {
+    msg_print("Your nerves and muscles feel weak and lifeless.");
+    (void)dec_stat(A_STR, 5, TRUE);
+    (void)dec_stat(A_INT, 5, TRUE);
+    (void)dec_stat(A_WIS, 5, TRUE);
+    (void)dec_stat(A_DEX, 5, TRUE);
+    (void)dec_stat(A_CON, 5, TRUE);
+    (void)dec_stat(A_CHR, 5, TRUE);
+  } else if (tmp <= 50) {
+    msg_print("You feel somehow inadequate...");
+    p_ptr->exp -= (p_ptr->exp / 4);
+    p_ptr->max_exp -= (p_ptr->exp / 4);
+    check_experience();
+  } else if (tmp <= 60) {
+    msg_print("Your whole life flashes before your eyes.");
+    boom(py, px, GF_TIME, 5, 100);
+  } else if (tmp <= 70) {
+    msg_print("Everything seems grayer somehow...");
+    boom(py, px, GF_DISENCHANT, 5, 100);
+  } else if (tmp <= 80) {
+    msg_print("There is a loud cackle...");
+    boom(py, px, GF_MAKE_TRAP, 9, 0);
+  } else if (tmp <= 90) {
+    msg_print("Something is trying to destroy your brain!");
+    take_sanity_hit(damroll(10,10), "blasted into oblivion by an angry deity");
+  } else if (tmp <= 100) {
+    godly_wrath_blast();
+  }
+}
+
+/*
+ * Fire a godly blast from the sky.
+ * Note that only attacks which are not resisted are used.
+ * (Gods are omnipotent, aren't they?)
+ */
+
+void godly_wrath_blast(void) {
+  int tmp;
+  int type = 0;
+  bool ok = FALSE;
+  int flg = PROJECT_GRID | PROJECT_KILL | PROJECT_STOP;
+
+  while (1) {
+    tmp = randint(10);
+
+    switch (tmp) {
+    case 1:
+      if (!p_ptr->immune_acid) {
+        type = GF_ACID;
+        ok = TRUE;
+        msg_print("You are blasted by acid from the sky!");
+      }
+      break;
+
+    case 2:
+      if (!p_ptr->immune_elec) {
+        type = GF_ELEC;
+        ok = TRUE;
+        msg_print("You are blasted by a giant ball lightning from the sky!");
+      }
+      break;
+
+    case 3:
+      if (!(p_ptr->resist_pois || p_ptr->oppose_pois)) {
+        type = GF_POIS;
+        ok = TRUE;
+        msg_print("A poisonous cloud descends from the sky!");
+      }
+      break;
+
+    case 4:
+      if (!p_ptr->resist_neth) {
+        type = GF_NETHER;
+        ok = TRUE;
+        msg_print("A force of death surrounds you!");
+      }
+      break;
+
+    case 5:
+      if (!(p_ptr->resist_sound || p_ptr->resist_conf)) {
+        type = GF_WATER;
+        ok = TRUE;
+        msg_print("A flood of water falls from the sky!");
+      }
+      break;
+
+    case 6:
+      if (!p_ptr->resist_chaos) {
+        type = GF_CHAOS;
+        ok = TRUE;
+        msg_print("You are blasted by a gale of chaos!");
+      }
+      break;
+
+    case 7:
+      if (!p_ptr->resist_shard) {
+        type = GF_SHARDS;
+        ok = TRUE;
+        msg_print("A multitude of shards descends on you from the sky!");
+      }
+      break;
+
+    case 8:
+      if (!p_ptr->resist_disen) {
+        type = GF_DISENCHANT;
+        ok = TRUE;
+        msg_print("You feel your magical aura wane!");
+      }
+      break;
+
+    case 9:
+      type = GF_TIME;
+      ok = TRUE;
+      msg_print("A dizzying array of blinking dots falls from the sky!");
+      break;
+
+    case 10:
+      type = GF_METEOR;
+      ok = TRUE;
+      msg_print("A giant meteor falls on you from the sky!");
+      break;
+    }
+
+    if (ok) break;
+  }
+
+  (void)project(-99, 0, py, px, damroll(4, 5), type, flg);
+}
+

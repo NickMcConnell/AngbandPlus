@@ -1,0 +1,365 @@
+== INTRODUCTION ==
+
+If your version is not compiled to use the S-Lang scripting language, use
+the following instrutions.
+
+The installation procedure is as follows:
+
+- Obtain and install the S-Lang library separately.  S-Lang can be
+  obtained via WWW at <URL:http://space.mit.edu/~davis/slang.html> or
+  via FTP at <URL:ftp://space.mit.edu/pub/davis/slang/>.
+
+- Edit your Makefile and add the following (_mutatis mutandis_ for your
+  compiler setup):
+
+  + compiler options -DUSE_SLANG
+  + object files script.o
+  + library option -lslang
+
+- Run make as usual.
+
+== script.sl ==
+This is a specific file in the script sub-directory. The first line indicate
+the number of script avaiable. Each couple of lines correspond to a script
+file. The first line is the script file name and the second is the
+initializing script name(see below). If not initializing script is needed
+just put "nothing".
+
+== S-Lang angband specific functions ==
+
+First, familiarize yourself with the S-Lang documentation; there are a
+few quirks to the language that you have to be careful of.  This patch
+adds the following Angband-specific S-Lang intrinsics:
+
+  plev()					Returns: integer
+  Returns the current player level.
+
+  pclass()					Returns: integer
+  Returns the player class, as one of:
+
+	CLASS_WARRIOR  Warrior		CLASS_MAGE     Mage
+	CLASS_PRIEST   Priest		CLASS_ROGUE    Rogue
+	CLASS_RANGER   Ranger		CLASS_PALADIN  Paladin
+        etc...
+
+  dice(num, sides)				Returns: integer
+  Random dice roll.
+  
+  message(string)				Returns: void
+  Prints string on the message line using msg_print().  To get the
+  functionality of msg_format(), use the S-Lang Sprintf() intrinsic.
+
+  message_delayed(string)			Returns: void
+  This should only be used just before a bolt(), ball() or beam() call.
+  It causes string to be printed after the user has been prompted for a
+  direction by bolt()/beam()/ball().  If the user escapes out of the
+  direction prompt, the pending message is discarded.  This is primarily
+  for the "You breathe (something)." messages in the various Dragon
+  Scale Mail activations.
+
+  set_field(field, val)				Returns: void
+  Change the value of a field in the player data structure.  The
+  available fields are:
+
+	FL_BLIND     Blindness		FL_CONF      Confusion
+	FL_POIS      Poison		FL_FEAR      Fear
+	FL_PARALYZ   Paralysis		FL_HALLU     Hallucination
+	FL_FAST      Temporary speed	FL_SLOW      Temporary slowness
+	FL_SHIELD    Shield		FL_BLESS     Blessing
+	FL_HERO      Heroism		FL_SHERO     Berzerk rage
+	FL_PROTEVIL  Prot. from evil	FL_INVULN    Invulnerability
+	FL_SEE_INV   Temp see invisible	FL_INFRA     Temp infravision
+	FL_OPP_ACID  Temp acid resist	FL_OPP_ELEC  Temp lightning resist
+	FL_OPP_FIRE  Temp fire resist	FL_OPP_COLD  Temp cold resist
+	FL_OPP_POIS  Temp poison resist	FL_STUN      Stun
+	FL_CUT       Cuts		FL_FOOD      Food
+
+  All accompanying messages and screen flag changes are included.
+  
+  add_field(field, amt)				Returns: void	    
+  As per set_field(), but adds amt to the current value of the field.
+
+  get_field(field)				Returns: integer
+  As per set_field(), but returns the current value of the field and
+  changes nothing.
+
+  bolt(type, dam)				Returns: void
+  Launch a bolt of the specified type with the specified damage.  The
+  following damage types are available:
+
+	GF_ELEC       Lightning		GF_POIS        Poison
+	GF_ACID       Acid		GF_COLD        Cold
+	GF_FIRE       Fire		GF_MISSILE     Magic missile
+	GF_ARROW      Arrow		GF_PLASMA      Plasma
+	GF_HOLY_ORB   Orb of draining	GF_WATER       Water
+	GF_LITE	      Light (as hound	GF_DARK        Darkness (as hound
+		      breath)			       breath)
+	GF_LITE_WEAK  Light (as wand)	GF_DARK_WEAK   Darkness (as scroll) [1]
+	GF_SHARDS     Shards		GF_SOUND       Sound
+	GF_CONFUSION  Confusion (as	GF_FORCE       Elemental force
+		      Bronze DSM)	GF_INERTIA     Inertia
+	GF_MANA       Mana		GF_METEOR      Meteors
+	GF_ICE        Ice		GF_CHAOS       Chaos
+	GF_NETHER     Nether		GF_DISENCHANT  Disenchantment		    
+	GF_NEXUS      Nexus		GF_TIME        Time
+	GF_GRAVITY    Gravity		GF_KILL_WALL   Stone to mud
+	GF_KILL_DOOR  Destroy doors	GF_KILL_TRAP   Destroy traps [1]
+		      and traps [1]	GF_MAKE_WALL   Not implemented
+	GF_MAKE_DOOR  Create doors [1]	GF_MAKE_TRAP   Create traps [1]
+	GF_OLD_CLONE  Clone monster [1]	GF_OLD_POLY    Polymorph monster [2]
+	GF_OLD_HEAL   Heal monster [3]	GF_OLD_SPEED   Haste monster [1]
+	GF_OLD_SLOW   Slow monster [2]	GF_OLD_CONF    Confusion (as wand) [2]
+	GF_OLD_SLEEP  Sleep monster [2]	GF_OLD_DRAIN   Drain life
+	GF_AWAY_UNDEAD  Teleport away	GF_AWAY_EVIL   Teleport away evil [4]
+			undead [4]	GF_AWAY_ALL    Teleport away [4]
+	GF_TURN_UNDEAD Scare undead [2]	GF_TURN_EVIL   Scare evil [2]
+	GF_TURN_ALL   Scare monster [2]	GF_DISP_UNDEAD  Dispel undead
+	GF_DISP_EVIL  Dispel evil	GF_DISP_ALL    Dispel monster      
+
+	[1] Damage parameter is ignored.
+	[2] Damage parameter is used as the "strength" of the effect for
+	    the purpose of a monster saving throw.
+	[3] Damage parameter is used as the amount of healing.
+	[4] Damage parameter is used as the distance range for the
+	    teleport.
+
+  Note that a bolt only effects the monster at the target, not the floor
+  grid or any items there, so a bolt of GF_KILL_DOOR, for instance, is
+  useless; see beam() and ball(), however.
+
+  ball(rad, type, dam)				Returns: void
+  Launch a ball with the specified radius of the specified damage type,
+  with the specified damage.  Damage types are as per bolt().  Note that
+  all monsters, items and floor grids in the blast radius are affected by
+  the ball.
+
+  beam(type, dam, flags, prob)			Returns: void
+  Launch a beam of the specified damage type, with the specified damage.
+  The following flags indicate what will be affected along the beam's
+  path, and can be combined with bitwise or:
+
+	PROJECT_GRID  Affect floor grids
+	PROJECT_ITEM  Affect objects
+	PROJECT_KILL  Affect monsters
+
+  prob is the probability that the beam will be a beam, expressed as a
+  percentage; if a random check against this probability fails, the beam
+  devolves to a bolt, as per bolt().  Use 100 here for effects that
+  should always beam.
+
+  burst(rad, type, dam, flags)			Returns: void
+  Launch a burst (ie. ball centered on the player) with the specified
+  radius of the specified damage type, with the specified damage.
+  Effect flags are as per beam(), with one additional flag allowed:
+
+  	PROJECT_HIDE  Do not display the burst effect.  Useful for
+  		      grid-affecting bursts like GF_MAKE_DOOR.
+
+  los(type, dam)				Returns: void
+  Apply the specified damage with the specified damage type to all
+  monsters in line of sight.  As with bolt(), objects and floor grids
+  are not affected.
+
+  heal(amt)					Returns: void
+  Heals the player by the specified amount.
+
+  restore_stat(stat)				Returns: void
+  Restore specified stat, as follows:
+
+  	A_STR  Strength		A_INT Intelligence	A_WIS  Wisdom
+  	A_DEX  Dexterity	A_CON Constitution	A_CHR  Charisma
+
+  detect(what)					Returns: void
+  Cast a detection spell, as follows:
+
+  	DET_SDOOR  Detect doors/stairs	DET_TRAPS  Detect traps
+  	DET_MON    Detect monsters	DET_TREAS  Detect treasure
+  	DET_OBJ    Detect objects	DET_EVIL   Detect evil
+  	DET_MAGIC  Detect enchantment	DET_INVIS  Detect invisible
+  	DET_ALL    Detection (as priest spell)
+
+  teleport_self(range)				Returns: void
+  Teleport player within the specified distance range.
+
+  recharge(eff)					Returns: void
+  Recharge wand/staff/rod, with the specified "effectiveness".  For
+  comparison, here are the effectivenesses of various existing recharge
+  effects:
+
+  	5    Mage's Recharge I spell
+  	40   Mage's Recharge II spell
+  	100  Mage's Recharge III spell
+  	15   Priest's Recharge spell
+  	60   Scroll of recharging
+
+  recall(time)					Returns: void
+  If the word-of-recall timer is currently zero, set it to the specified
+  value; otherwise, reset it to zero.
+
+  enchant_weapon(to_hit, to_dam)		Returns: void
+  Attempt to enchant a weapon.  to_hit and to_dam are the number of
+  attempts to make for each field.
+
+  enchant_armor(to_ac)				Returns: void
+  Attempt to enchant a piece of armor.  to_ac is the number of attempts
+  to make.
+
+  misc(what)					Returns: void
+  A catch-all function for various spell effects that didn't fit
+  anywhere else.  The following effects are available:
+
+	MI_ID            Identify	MI_FULL_ID     *Identify*
+	MI_RES_LEV       Restore level	MI_UNCURSE     Remove curse
+  	MI_FULL_UNCURSE  *Remove curse*	MI_PROBING     Probing
+  	MI_MK_STAIR      Create stair	MI_GLYPH       Create warding glyph
+  	MK_GENOCIDE      Genocide	MI_MASS_GENO   Mass genocide
+  	MI_TELE_LEV      Teleport level	MI_MAP_AREA    Magic mapping
+  	MI_WIZ_LITE      Wizard light	MI_BRAND_WEAP  Brand weapon
+  	MI_BRAND_BOLT    Brand ammo	MI_LITE_ROOM   Light room
+  	MI_DESTROY	 Destruction	MI_QUAKE       Earthquake
+  	MI_ALTER	 Alter reality	MI_RAZORBACK   Special Razorback
+  	MI_RING_POWER    Special Ring of	       effect
+  			 Power effect
+
+  Note that MI_LITE_ROOM does not cause damage to nearby light-sensitive
+  creatures; to achieve that effect, combine MI_LITE_ROOM with a burst()
+  of GF_LITE_WEAK.
+
+  quest_status(quest_num)                       Returns: integer
+  Return the status of the quest # quest_num
+
+  energy(amt)                                   Returns: void
+  Add amt to energy_use
+
+  aggravate()                                   Returns: void
+  Aggaravate the monsters
+
+  set_feat(y, x, feat)                          Returns: void
+  Change the feature of the location (y,x)
+
+== EVENTS ==
+The events are used by a lot of scripts to be activated when a specific
+action happens. An event can be a player move, the aiming of a wand or whatever
+else. There is 2 function to use the events:
+
+- event_id = install_event(event_type, "function_name")
+  Which install an event handler for the event_type. i.e:
+  key_id = install_event(EVENT_KEYPRESS, "key_pressed");
+  will call the function key_pressed each time the player press a key.
+  the function return a number used to remove the event handler(see below)
+
+- remove_event(event_id)
+  Which remove an event handler, whose number is contained in event_id
+
+An event must give a response to Angband, to do that it must set the variable
+"script_retval" to 0 if the normal Angband code must be called and 1 if it must
+be skipped. i.e:
+
+define key_pressed(key, a, b)
+{
+        if(key == 'y')
+        {
+                do_what_you_want();
+                script_retval = 1;
+        }
+}
+
+Each event's handler receive 3 parameters. Their name is NOT important so each
+handler can use the name it wants. As in the example only the first parameter
+is used to give the keycode the other don't have a specific name. So a typical
+handler looks like that:
+
+define handler(a, b, c)
+{
+}
+
+== INITIALIZING SCRIPT ==
+But you'll say, the handler must be installed somewhere! And this is the use
+of the initializing script. The name of this script is writen in the scrip.sl
+file. In general this script is used to install event's handlers.
+A typical initializing scrip looks like that:
+
+define init_script(typ)
+{        
+}
+
+It always take 1 parameter which indicate what type of initialization is being
+done. A 0 stand for the game initialization and a 1 for a reinit after the loading
+of the savefile.
+
+To understand better the concept of event handler and initialization script see
+the shoutkey.sl example which test is the 'y' key is pressed and if so shout
+at the monsters to aggravate them :)
+
+== Saving/Loading variables ==
+Some scripts may want to save some variables, so PernAngband provides 2
+function and 2 events:
+- EVENT_LOADGAME which is called after loading the game
+- EVENT_SAVEGAME which is called after saving the game
+- rd_variable() reads a variable in the savefile
+- wr_variable(val) writes a variable in the savefile
+
+Note: A script must have the SAME number of rd_variable and wr_variable.
+The 2 functions must only be called in the apropriate event's handler!
+
+IMPORTANT: There is an annoying thing: you must keep the scripts which use
+the saving function in the same order in script.sl and you CAN'T remove one.
+If you do so the variables of the other scripts will be modifed. You can just
+delete the last script without problems. I'll try to make some more powerfull
+fuction to avoid those disagreement but for now use those ones.
+See the testdsk.sl for an example, it is not included in script.sl because
+it's totaly useless.
+
+== Event List ==
+EVENT_KEYPRESS: The first parameter contain the keycode, the other aren't used.
+"script_val" to 1 means not to execute the normal default code.
+
+EVENT_ENTER_QUEST: The first parameter is the quest number and the second the
+danger level.
+
+EVENT_PLAYER_MOVE: First is y, second is x. "script_val" to 1 means not to
+execute the normal default code.
+
+EVENT_PLAYER_SEARCH: First is y, second is x. "script_val" to 1 means not to
+execute the normal default code.
+
+EVENT_GO_UP: First is the new level, second is the current, third is the quest
+number of the current level(if any). "script_val" to 1 means not to execute
+the normal default code.
+
+EVENT_GO_DOWN: First is the new level, second is the current, third is the
+quest number of the current level(if any). "script_val" to 1 means not to
+execute the normal default code.
+
+EVENT_PLAYER_FEELING: No parameters. "script_val" to 1 means not to execute
+the normal default code.
+
+EVENT_GENERATE_LVL: First is the level. "script_val" to 1 means not to
+execute the normal default code. Note that if the normal code is not executed
+the script MUST fill the level(ok there is not function to do so now) !
+
+EVENT_LOAD_GAME: No parameters. "script_val" to 1 means not to execute the
+normal default code.
+
+EVENT_SAVE_GAME: No parameters. "script_val" to 1 means not to execute the
+normal default code.
+
+== Global variables ==
+- scrip_retval: Put to 0 before the script is called, if the script set it to
+1 the normal angband code is NOT used.
+
+- inside_quest: return the number of the current quest. Note it's read-only.
+
+- py:
+- px: They are the coordonnates of the player on the map.
+
+== DEBUGGING ==
+
+An additional debugging-mode command is now available:  ^A@ (ctrl-A,
+shift-2) will allow you to run an S-Lang function by name or by @inline.
+
+
+
+Dark God "dark.god@infonie.fr"
+---------------------------------------
+Last modification for PernAngband 3.1.0

@@ -215,6 +215,35 @@ The Bookstore ("9")
 
 === Within The Dungeon ===
 
+--------IMPORTANT---------
+PernAngband 3.0.9 has introduced a new vision of the dungeon. There is no more
+one big huge dungeon, but 4 smallest dungeon which can be accessed from
+different towns. Levels 1 to 10 are now the Upper reaches of Galgals with
+mountain and trees as walls and grass and dirt as floor. Levels 11 to 33 are
+now in the Mirkwood Forest with wall replaced by trees and floor by grass.
+Levels 34 to 66 are now the Land of Mordor with wall and mountain and floor
+replaced by dirt. And finally from level 67 to 127 there is the Dungeon of
+Angband with normal walls and floor.
+
+Galgals are accessed by Bree.
+Mirkwood is accessed by Menegroth/Doriath.
+Mordor is accessed by Minas Anor.
+Angband is accessed by Gondolin.
+
+A new character mustn't try to go at Mordor or Angband as it's first dungeon !
+It must go to the Upper reaches of Galgals.
+
+There is also some other dungeons that are totaly new to the game, they aren't
+created from the old big dungeon.
+For now (3.1.2) there is 2 other dungeons:
+The Volcano at the north east of Minas Anor, levels 30-45 with shallow/deep
+lava, dark pit and mountain.
+
+And THE harder dungeon of the game:
+The Hell near the volcano, levels 500-530 with shallow/deep lava and dark pit.
+And well... some presents at level 530!
+--------------------------
+
 Once your character is adequately supplied with food, light, armor, and
 weapons, he is ready to enter the dungeon.  Move on top of the `>' symbol
 and use the "Down" command (">").
@@ -480,5 +509,5 @@ of past incarnations.
 The newsgroup "rec.games.roguelike.angband" is a good place to ask various
 questions about both game play and game design, and you can email bug
 reports and such to (benh@phial.com).  Be sure to include the version
-number you are playing in any bug reports.  Zangband specific bug reports
-should be sent to (rr9@angband.org).
+number you are playing in any bug reports.  PernAngband specific bug reports
+should be sent to (dark.god@infonie.fr).

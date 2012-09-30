@@ -145,7 +145,7 @@ struct object_kind
 	byte tval;			/* Object type */
 	byte sval;			/* Object sub type */
 
-	s16b pval;			/* Object extra info */
+        s32b pval;                      /* Object extra info */
 
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
@@ -155,13 +155,14 @@ struct object_kind
 
 	byte dd, ds;		/* Damage dice/sides */
 
-	s16b weight;		/* Weight */
+        s32b weight;            /* Weight */
 
 	s32b cost;			/* Object "base cost" */
 
 	u32b flags1;		/* Flags, set 1 */
 	u32b flags2;		/* Flags, set 2 */
 	u32b flags3;		/* Flags, set 3 */
+        u32b flags4;            /* Flags, set 4 */
 
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
@@ -186,6 +187,8 @@ struct object_kind
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
+
+        bool know;                      /* extractable flag for the alchemist */
 };
 
 
@@ -225,6 +228,7 @@ struct artifact_type
 	u32b flags1;		/* Artifact Flags, set 1 */
 	u32b flags2;		/* Artifact Flags, set 2 */
 	u32b flags3;		/* Artifact Flags, set 3 */
+        u32b flags4;            /* Artifact Flags, set 4 */
 
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
@@ -262,6 +266,7 @@ struct ego_item_type
 	u32b flags1;		/* Ego-Item Flags, set 1 */
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
+        u32b flags4;            /* Ego-Item Flags, set 4 */
 };
 
 
@@ -327,7 +332,7 @@ struct monster_race
 
 	s32b mexp;				/* Exp value for kill */
 
-	s16b extra;				/* Unused (for now) */
+        s32b weight;                            /* Weight of the monster */
 
 	byte freq_inate;		/* Inate spell frequency */
 	byte freq_spell;		/* Other spell frequency */
@@ -389,6 +394,8 @@ struct monster_race
 	u32b r_flags5;			/* Observed racial flags */
 	u32b r_flags6;			/* Observed racial flags */
 	u32b r_flags7;			/* Observed racial flags */
+        u32b r_flags8;                  /* Observed racial flags */
+        u32b r_flags9;                  /* Observed racial flags */
 };
 
 
@@ -469,7 +476,7 @@ struct cave_type
 
 	s16b m_idx;		/* Monster in this grid */
 
-	s16b special;	/* Special cave info */
+        s16b special;           /* Special cave info */
 
 	byte mimic;		/* Feature to mimic */
 
@@ -524,13 +531,17 @@ struct object_type
 	byte tval;			/* Item type (from kind) */
 	byte sval;			/* Item sub-type (from kind) */
 
-	s16b pval;			/* Item extra-parameter */
+        s32b pval;                      /* Item extra-parameter */
+        s16b pval2;                     /* Item extra-parameter for some special
+                                           items*/
+        s16b pval3;                     /* Item extra-parameter for some special
+                                           items*/
 
 	byte discount;		/* Discount (if any) */
 
 	byte number;		/* Number of items */
 
-	s16b weight;		/* Item weight */
+        s32b weight;            /* Item weight */
 
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
@@ -558,6 +569,7 @@ struct object_type
     u32b art_flags1;        /* Flags, set 1  Alas, these were necessary */
     u32b art_flags2;        /* Flags, set 2  for the random artifacts of*/
     u32b art_flags3;        /* Flags, set 3  Zangband */
+    u32b art_flags4;        /* Flags, set 4  PernAngband */
 
 	
 	s16b next_o_idx;	/* Next object in stack (if any) */
@@ -622,6 +634,7 @@ struct monster_type
 
 #endif
 
+        bool impressed;                  /* Is the monster impresed(if he can)? */
 };
 
 
@@ -800,7 +813,7 @@ struct player_magic
 	int spell_first;		/* Level of first spell */
 	int spell_weight;		/* Weight that hurts spells */
 
-    magic_type info[MAX_REALM][32];    /* The available spells */
+        magic_type info[MAX_REALM][32];    /* The available spells */
 };
 
 
@@ -841,7 +854,7 @@ struct player_race
 	s16b r_thb;			/* combat (shooting) */
 
 	byte r_mhp;			/* Race hit-dice modifier */
-	byte r_exp;			/* Race experience factor */
+        u16b r_exp;                     /* Race experience factor */
 
 	byte b_age;			/* base age */
 	byte m_age;			/* mod age */
@@ -858,7 +871,7 @@ struct player_race
 
 	byte infra;			/* Infra-vision	range */
 
-    u16b choice;        /* Legal class choices */
+        u32b choice;        /* Legal class choices */
 /*    byte choice_xtra;   */
 };
 
@@ -925,15 +938,13 @@ struct player_type
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
-    byte realm1;        /* First magic realm */
-    byte realm2;        /* Second magic realm */
+        u16b realm1;        /* First magic realm */
+        u16b realm2;        /* Second magic realm */
         byte mimic_form;        /* Actualy transformation */
 	byte oops;			/* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
-    u16b expfact;       /* Experience factor
-                            Note: was byte, causing overflow for Amberite
-                            characters (such as Amberite Paladins) */
+        u16b expfact;       /* Experience factor */                            
 
 	byte maximize;		/* Maximize stats */
 	byte preserve;		/* Preserve artifacts */
@@ -974,18 +985,27 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
+        s16b msane;                   /* Max sanity */
+        s16b csane;                   /* Cur sanity */
+        u16b csane_frac;              /* Cur sanity frac */
+
         s16b mtp;                       /* Max tank pts */
         s16b ctp;                       /* Cur tank pts */
         s16b tp_aux1;                   /* aux1 tank pts */
         s16b tp_aux2;                   /* aux2 tank pts */
 
+        s32b grace;                   /* Your God's appreciation factor. */
+        s32b god_favor;               /* Last time you asked for a favor. */
+        byte pgod;                    /* Your God. */
+
 	s16b max_plv;		/* Max Player Level */
-	s16b max_dlv;		/* Max level explored */
+        s16b max_dlv[MAX_DUNGEONS];           /* Max level explored */
 
 	s16b stat_max[6];	/* Current "maximal" stat values */
 	s16b stat_cur[6];	/* Current "natural" stat values */
 
 	s16b fast;			/* Timed -- Fast */
+        s16b lightspeed;                /* Timed -- Light Speed */
 	s16b slow;			/* Timed -- Slow */
 	s16b blind;			/* Timed -- Blindness */
 	s16b paralyzed;		/* Timed -- Paralysis */
@@ -1019,17 +1039,18 @@ struct player_type
     s16b tim_invisible; /* Timed Invisibility */
     s16b tim_inv_pow;   /* Power of timed invisibility */
     s16b tim_mimic;     /* Timed Mimic */
-    s16b tim_xtra4;     /* Later */
-    s16b tim_xtra5;     /* Later */
+    s16b tim_lite;      /* Timed Lite */
     s16b tim_xtra6;     /* Later */
     s16b tim_xtra7;     /* Later */
     s16b tim_xtra8;     /* Later */
+    s16b immov_cntr;    /* Timed -- Last ``immovable'' command. */
 
     s16b chaos_patron;
     u32b muta1;
     u32b muta2;
     u32b muta3;
 
+        s16b recall_dungeon;    /* Recall in which dungeon */
 	s16b word_recall;	/* Word of recall counter */
 
 	s16b energy;		/* Current energy */
@@ -1060,6 +1081,7 @@ struct player_type
 	bool heavy_wield;	/* Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
 	bool icky_wield;	/* Icky weapon */
+        bool immovable;         /* Immovable character */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 
@@ -1097,6 +1119,13 @@ struct player_type
 	bool resist_blind;	/* Resist blindness */
 	bool resist_neth;	/* Resist nether */
 	bool resist_fear;	/* Resist fear */
+        bool resist_continuum;  /* Resist space-time continuum disruption */
+
+        bool sensible_fire;     /* Fire does more damage on the player */
+/* Not used and NOT coded now */
+//        bool sensible_cold;     /* Cold does more damage on the player */
+//        bool sensible_elec;     /* Lightning does more damage on the player */
+//        bool sensible_acid;     /* Acid does more damage on the player */
 
     bool reflect;       /* Reflect 'bolt' attacks */
     bool sh_fire;       /* Fiery 'immolation' effect */
@@ -1137,6 +1166,7 @@ struct player_type
 
 	s16b dis_ac;		/* Known base ac */
 
+        s16b to_m;                      /* Bonus to mana */
         s16b to_s;                      /* Bonus to spell */
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to dam */
@@ -1184,13 +1214,34 @@ struct player_type
 
         cptr mimic_name;
 
-	/*** Temporary fields ***/
+        byte music;             /* Current music */
 
-	bool leaving;			/* True if player is leaving */
+        byte tactic;                  /* from 128-4 extremely coward to */
+                                      /* 128+4 berserker */
+        byte movement;                /* base movement way */
 
-	byte spec_history[101]; /* 0 = no special */
+        bool no_mortal;         /* Fated to never die by the hand of a mortal being */
+
+        bool black_breath;      /* The Tolkien's Black Breath */
+
+        bool precognition;      /* Like the cheat mode */
+
+        byte spec_history[127]; /* 0 = no special */
 				/* 1 = special level unused */
 				/* 2 = special level used */
+
+	/*** Pet commands ***/
+	byte pet_follow_distance; /* Length of the imaginary "leash" for pets */
+	byte pet_open_doors;      /* flag - allow pets to open doors */
+	byte pet_pickup_items;    /* flag - allow pets to pickup items */
+
+        /*** Body changing variables ***/
+        u16b body_monster;        /* In which body is the player */
+        bool disembodied;         /* Is the player in a body ? */
+
+	/*** Temporary fields ***/
+
+        bool leaving;                   /* True if player is leaving */
 };
 
 
@@ -1302,33 +1353,145 @@ struct dun_type
 };
 
 /* Alchemists */
+typedef struct alchemist_recipe_ego alchemist_recipe_ego;
+struct alchemist_recipe_ego
+{
+        int     ego,which,enchant,ego_num;
+};
+
+typedef struct alchemist_recipe_item alchemist_recipe_item;
+struct alchemist_recipe_item
+{
+        int     ctval,csval,num;
+        int     etval,esval;
+};
+
 typedef struct alchemist_recipe alchemist_recipe;
 struct alchemist_recipe
 {
         int     sval_baterie;
-        int     ego0,which0,enchant0;
-        int     ego1,which1,enchant1;
-        int     ego2,which2,enchant2;
+        alchemist_recipe_ego ego[9];
 
-        int     ctval_0,csval_0,num0;
-        int     ctval_1,csval_1,num1;
-        int     ctval_2,csval_2,num2;
-        int     ctval_3,csval_3,num3;
-        int     ctval_4,csval_4,num4;
-        int     ctval_5,csval_5,num5;
-        int     ctval_6,csval_6,num6;
-        int     ctval_7,csval_7,num7;
-        int     ctval_8,csval_8,num8;
-        int     ctval_9,csval_9,num9;
+        alchemist_recipe_item item[9];
+};
 
-        int     etval_0,esval_0;
-        int     etval_1,esval_1;
-        int     etval_2,esval_2;
-        int     etval_3,esval_3;
-        int     etval_4,esval_4;
-        int     etval_5,esval_5;
-        int     etval_6,esval_6;
-        int     etval_7,esval_7;
-        int     etval_8,esval_8;
-        int     etval_9,esval_9;
+/* A structure for deity information. */
+typedef struct deity deity;
+struct deity {
+  cptr name;
+  cptr god_of;
+  byte grace_deduction;
+  byte rarity;
+};
+
+/* A structure for tactics */
+typedef struct tactic_info_type tactic_info_type;
+struct tactic_info_type {
+  s16b to_hit;
+  s16b to_dam;
+  s16b to_ac;
+  s16b to_stealth;
+  s16b to_disarm;
+  s16b to_saving;
+  cptr name;
+};
+
+/* A structure to describe a random artifact. */
+typedef struct random_artifact random_artifact;
+struct random_artifact {
+  char name_full[80];     /* Full name for the artifact */
+  char name_short[80];    /* Un-Id'd name */
+  byte level;             /* Level of the artifact */
+  byte attr;              /* Color that is used on the screen */
+  u32b cost;              /* Object's value */
+  byte activation;        /* Activation. */
+  s16b timeout;           /* Timeout. */
+  byte generated;         /* Does it exist already? */
+};
+
+/* A structure to describe an activation. */
+typedef struct activation activation;
+struct activation {
+  char desc[80];          /* Desc of the activation */
+  u32b cost;              /* costs value */
+  s16b spell;             /* Spell. */
+};
+
+/* A structure to describe a music. */
+typedef struct music music;
+struct music {
+  char desc[80];          /* Desc of the music */
+  s16b music;             /* Music. */
+  s16b dur;               /* Duration(if any) */
+  s16b init_recharge;     /* Minimal recharge time */
+  s16b turn_recharge;     /* Recharge time for each more turn */
+  byte min_inst;          /* Minimum instrument for the music */
+  byte rarity;            /* Rarity of the music(use 100 to unallow to be randomly generated) */
+};
+
+/* A structure to describe the random spells of the Power Mages */
+typedef struct random_spell random_spell;
+struct random_spell {
+  char desc[30];          /* Desc of the spell */
+  char name[30];          /* Name of the spell */
+  s16b mana;              /* Mana cost */
+  s16b fail;              /* Failure rate */
+  u32b proj_flags;        /* Project function flags */
+  byte GF;                /* Type of the projection */
+  byte radius;
+  byte dam_sides;
+  byte dam_dice;
+  byte level;             /* Level needed */
+  bool untried;           /* Is the spell was tried? */
+};
+
+/* A structure to describe the fate of the player */
+typedef struct fate fate;
+struct fate {
+        byte fate;      /* Which fate */
+        byte level;     /* On which level */
+        byte serious;   /* Is it sure? */
+        s16b o_idx;     /* Object to find */
+        s16b e_idx;     /* Ego-Item to find */
+        s16b a_idx;     /* Artifact to find */
+        s16b v_idx;     /* Vault to find */
+        s16b r_idx;     /* Monster to find */
+        s16b count;     /* Number of things */
+        s16b time;      /* Turn before */
+        bool know;      /* Has it been predicted? */
+};
+
+/* A structure for movements */
+typedef struct move_info_type move_info_type;
+struct move_info_type {
+   s16b to_speed;
+   s16b to_search;
+   s16b to_stealth;
+   s16b to_percep;
+   cptr name;
+};
+
+/* A structure for the != dungeon types */
+typedef struct dungeon_info_type dungeon_info_type;
+struct dungeon_info_type {
+        cptr prefix;                    /* Prefix("a " or "an ") */
+        cptr name;                      /* Name of the dungeon */
+        cptr short_name;                /* Short name for the dungeon */
+        s16b floor1;                    /* Floor tile 1 */
+        byte floor_percent1;            /* Chance of type 1 */
+        s16b floor2;                    /* Floor tile 2 */
+        byte floor_percent2;            /* Chance of type 2 */
+        s16b floor3;                    /* Floor tile 3 */
+        byte floor_percent3;            /* Chance of type 3 */
+        s16b outer_wall;                /* Outer wall tile */
+        s16b inner_wall;                /* Inner wall tile */
+        s16b fill_type1;                /* Cave tile 1 */
+        byte fill_percent1;             /* Chance of type 1 */
+        s16b fill_type2;                /* Cave tile 2 */
+        byte fill_percent2;             /* Chance of type 2 */
+        s16b fill_type3;                /* Cave tile 3 */
+        byte fill_percent3;             /* Chance of type 3 */
+        s16b mindepth;                  /* Minimal depth */
+        s16b maxdepth;                  /* Maximal depth */
+        bool principal;                 /* If it's a part of the main dungeon */
 };

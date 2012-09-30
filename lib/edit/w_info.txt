@@ -27,9 +27,6 @@ W:F:W:2:40
 # Mountain
 W:F:M:11:50
 
-# Volcano
-W:F:V:10:60
-
 # Town 1
 W:F:1:1:0:1:0:Bree
 
@@ -41,6 +38,9 @@ W:F:5:1:0:3:0:Minas Anor
 
 # Town 4
 W:F:6:7:4:4:0:Menegroth
+
+# Volcano
+W:F:V:7:4:5:0:Volcano
 
 # Grassland with road east-west-south
 W:F:-:6:3:0:14

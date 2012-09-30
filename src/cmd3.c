@@ -31,7 +31,6 @@ void do_cmd_inven(void)
 	/* Note that we are in "inventory" mode */
 	command_wrk = FALSE;
 
-
 	/* Save the screen */
 	Term_save();
 
@@ -59,7 +58,7 @@ void do_cmd_inven(void)
        (total_weight * 100) / ((capacity_tester) / 2));
 
 #else
-    sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
+    sprintf(out_val, "Inventory: carrying %ld.%ld pounds (%ld%% of capacity). Command: ",
            total_weight / 10, total_weight % 10,
        (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
 #endif
@@ -101,7 +100,6 @@ void do_cmd_equip(void)
 	/* Note that we are in "equipment" mode */
 	command_wrk = TRUE;
 
-
 	/* Save the screen */
 	Term_save();
 
@@ -115,7 +113,7 @@ void do_cmd_equip(void)
 	item_tester_full = FALSE;
 
 	/* Build a prompt */
-   sprintf(out_val, "Equipment: carrying %d.%d pounds (%d%% of capacity). Command: ",
+   sprintf(out_val, "Equipment: carrying %ld.%ld pounds (%ld%% of capacity). Command: ",
            total_weight / 10, total_weight % 10,
        (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
 
@@ -164,7 +162,7 @@ static bool item_tester_hook_wear(object_type *o_ptr)
  */
 void do_cmd_wield(void)
 {
-	int i, item, slot;
+        int i, item, slot, num = 1;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -249,20 +247,22 @@ void do_cmd_wield(void)
 	/* Obtain local object */
 	object_copy(q_ptr, o_ptr);
 
+        if(slot == INVEN_AMMO) num = o_ptr->number; 
+
 	/* Modify quantity */
-	q_ptr->number = 1;
+        q_ptr->number = num;
 
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
-		inven_item_increase(item, -1);
+                inven_item_increase(item, -num);
 		inven_item_optimize(item);
 	}
 
 	/* Decrease the item (from the floor) */
 	else
 	{
-		floor_item_increase(0 - item, -1);
+                floor_item_increase(0 - item, -num);
 		floor_item_optimize(0 - item);
 	}
 
@@ -270,11 +270,29 @@ void do_cmd_wield(void)
 	o_ptr = &inventory[slot];
 
 	/* Take off existing item */
-	if (o_ptr->k_idx)
-	{
-		/* Take off existing item */
-		(void)inven_takeoff(slot, 255);
-	}
+        if(slot != INVEN_AMMO)
+        {
+                if (o_ptr->k_idx)
+                {
+                        /* Take off existing item */
+                        (void)inven_takeoff(slot, 255);
+                }
+        }
+        else
+        {
+                if (o_ptr->k_idx)
+                {
+                        if (!object_similar(o_ptr, q_ptr))
+                        {
+                                /* Take off existing item */
+                                (void)inven_takeoff(slot, 255);
+                        }
+                        else
+                        {
+                                q_ptr->number += o_ptr->number;
+                        }
+                }                
+        }
 
 	/* Wear the new stuff */
 	object_copy(o_ptr, q_ptr);
@@ -297,6 +315,10 @@ void do_cmd_wield(void)
 	else if (slot == INVEN_LITE)
 	{
 		act = "Your light source is";
+	}
+        else if (slot == INVEN_AMMO)
+	{
+                act = "In your quiver you have";
 	}
 	else
 	{
@@ -325,11 +347,17 @@ void do_cmd_wield(void)
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
 
+        /* Recalculate hitpoint */
+        p_ptr->update |= (PU_HP);
+
 	/* Recalculate mana */
 	p_ptr->update |= (PU_MANA);
 
-    p_ptr->redraw |= (PR_EQUIPPY);
+        /* Redraw monster hitpoint */
+        p_ptr->redraw |= (PR_MH);
 
+        p_ptr->redraw |= (PR_EQUIPPY);
+ 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 }
@@ -382,7 +410,12 @@ void do_cmd_takeoff(void)
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
 
-    p_ptr->redraw |= (PR_EQUIPPY);
+        /* Recalculate hitpoint */
+        p_ptr->update |= (PU_HP);
+
+        p_ptr->redraw |= (PR_MH);
+
+        p_ptr->redraw |= (PR_EQUIPPY);
 }
 
 
@@ -451,7 +484,8 @@ static bool high_level_book(object_type * o_ptr)
 {
     if ((o_ptr->tval == TV_LIFE_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
         (o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_CHAOS_BOOK) ||
-        (o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_TRUMP_BOOK))
+        (o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_TRUMP_BOOK)  ||
+        (o_ptr->tval == TV_SYMBIOTIC_BOOK) || (o_ptr->tval == TV_MUSIC_BOOK))
         {
             if (o_ptr->sval>1) return TRUE;
             else return FALSE;
@@ -1172,7 +1206,7 @@ static cptr ident_info[] =
 	"-:A wand (or rod)",
 	".:Floor",
 	"/:A polearm (Axe/Pike/etc)",
-	/* "0:unused", */
+        "0:An altar",
 	"1:Entrance to General Store",
 	"2:Entrance to Armory",
 	"3:Entrance to Weaponsmith",

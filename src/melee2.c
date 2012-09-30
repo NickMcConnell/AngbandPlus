@@ -146,6 +146,9 @@ static void get_enemy_dir(monster_type *m_ptr, int *mm)
 		y = m_ptr->fy + check_monsters[i][0];
 		x = m_ptr->fx + check_monsters[i][1];
 
+		/* Hack -- no fighting away from player */
+                if (m_list[cave[y][x].m_idx].cdis > p_ptr->pet_follow_distance) continue;
+
 		if (in_bounds(y, x))
 		{
 			if (cave[y][x].m_idx)
@@ -248,7 +251,7 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 	/* It is dead now... or is it? */
 	if (m_ptr->hp < 0)
 	{
-		if ((r_ptr->flags1 & RF1_UNIQUE) ||
+                if (((r_ptr->flags1 & RF1_UNIQUE) && (!(r_ptr->flags7 & RF7_PET))) ||
 			(r_ptr->flags1 & RF1_QUESTOR))
 		{
 			m_ptr->hp = 1;
@@ -753,8 +756,11 @@ static bool summon_possible(int y1, int x1)
 			/* Hack: no summon on glyph of warding */
 			if (cave[y][x].feat == FEAT_GLYPH) continue;
 			if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
-			
-			/* ...nor on the Pattern */
+
+                        /* Nor on the between */
+                        if (cave[y][x].feat == FEAT_BETWEEN) return (FALSE);
+
+                        /* ...nor on the Pattern */
 			if ((cave[y][x].feat >= FEAT_PATTERN_START)
 				&& (cave[y][x].feat <= FEAT_PATTERN_XTRA2)) continue;
 			
@@ -891,7 +897,7 @@ static bool spell_annoy(byte spell)
 static bool spell_summon(byte spell)
 {
 	/* All summon spells */
-	if (spell >= 160 + 16) return (TRUE);
+        if (spell >= 160 + 13) return (TRUE);
 	
 	/* Doesn't summon */
 	return (FALSE);
@@ -2376,27 +2382,15 @@ static bool monst_spell_monst(int m_idx)
                         }
 			}
 			
-			/* RF6_XXX3X6 */
-		case 160+6:
-			{
-				break;
-			}
-			
-			/* RF6_XXX4X6 */
-		case 160+7:
-			{
-				break;
-			}
-			
 			/* RF6_TELE_TO */
-		case 160+8:
+                case 160+6:
 			{
 				/* Not implemented */
 				break;
 			}
 			
 			/* RF6_TELE_AWAY */
-		case 160+9:
+                case 160+7:
 			{
 			if (special_flag) break;
 				
@@ -2440,20 +2434,14 @@ static bool monst_spell_monst(int m_idx)
 			}
 			
 			/* RF6_TELE_LEVEL */
-		case 160+10:
+                case 160+8:
 			{
 				/* Not implemented */
 				break;
 			}
 			
-			/* RF6_XXX5 */
-		case 160+11:
-			{
-				break;
-			}
-			
 			/* RF6_DARKNESS */
-		case 160+12:
+                case 160+9:
 			{
 				if (!direct) break;
 				disturb(1, 0);
@@ -2468,25 +2456,77 @@ static bool monst_spell_monst(int m_idx)
 			}
 			
 			/* RF6_TRAPS */
-		case 160+13:
+                case 160+10:
 			{
 				/* Not implemented */
 				break;
 			}
 			
 			/* RF6_FORGET */
-		case 160+14:
+                case 160+11:
 			{
 				/* Not implemented */
 				break;
 			}
 			
-			/* RF6_XXX6X6 */
-		case 160+15:
+                        /* RF6_ANIM_DEAD */
+                case 160+12:
 			{
+                                break;
+			}
+
+                        /* RF6_S_BUG */
+                case 160+13:
+			{
+				disturb(1, 0);
+				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
+                                else msg_format("%^s magically codes some software bugs.", m_name);
+				for (k = 0; k < 6; k++)
+				{
+					if (friendly)
+                                                count += summon_specific_friendly(y, x, rlev, SUMMON_BUG, TRUE);
+					else
+                                                count += summon_specific(y, x, rlev, SUMMON_BUG);
+				}
+				if (blind && count) msg_print("You hear many things appear nearby.");
 				break;
 			}
 			
+                        /* RF6_S_RNG */
+                case 160+14:
+			{
+				disturb(1, 0);
+				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
+                                else msg_format("%^s magically codes some RNGs.", m_name);
+				for (k = 0; k < 6; k++)
+				{
+					if (friendly)
+                                                count += summon_specific_friendly(y, x, rlev, SUMMON_RNG, TRUE);
+					else
+                                                count += summon_specific(y, x, rlev, SUMMON_RNG);
+				}
+				if (blind && count) msg_print("You hear many things appear nearby.");
+				break;
+			}
+			
+
+                        /* RF6_S_DRAGONRIDER */
+                case 160+15:
+			{
+				disturb(1, 0);
+				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
+                                else msg_format("%^s magically summons a DragonRider!", m_name);
+				for (k = 0; k < 1; k++)
+				{
+					if (friendly)
+                                                count += summon_specific_friendly(y, x, rlev, SUMMON_DRAGONRIDER, TRUE);
+					else
+                                                count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDER);
+				}
+				if (blind && count) msg_print("You hear something appear nearby.");
+                                break;
+			}
+
 			/* RF6_SUMMON_KIN */
 		case 160+16:
 			{
@@ -2837,14 +2877,14 @@ static bool monst_spell_monst(int m_idx)
 void curse_equipment(int chance, int heavy_chance)
 {
 	bool changed = FALSE;
-	u32b    o1, o2, o3;
+        u32b    o1, o2, o3, o4;
 	object_type * o_ptr = &inventory[INVEN_WIELD - 1 + randint(12)];
 
 	if (randint(100) > chance) return;
 
 	if (!(o_ptr->k_idx)) return;
 
-	object_flags(o_ptr, &o1, &o2, &o3);
+        object_flags(o_ptr, &o1, &o2, &o3, &o4);
 
 
 	/* Extra, biased saving throw for blessed items */
@@ -2981,6 +3021,9 @@ bool make_attack_spell(int m_idx)
 	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
 	if (is_pet(m_ptr)) return (FALSE);
 
+        /* Cannot attack the player if mortal and player fated to never die by the ... */
+        if((r_ptr->flags7 & RF7_MORTAL)&&(p_ptr->no_mortal)) return (FALSE);
+
 	/* Hack -- Extract the spell probability */
 	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
 	 
@@ -3078,7 +3121,7 @@ bool make_attack_spell(int m_idx)
 			f6 &= ~(RF6_SUMMON_MASK);
 		}
 
-		/* No spells left */
+                /* No spells left */
 		if (!f4 && !f5 && !f6) return (FALSE);
 	}
 
@@ -3707,7 +3750,7 @@ bool make_attack_spell(int m_idx)
 					 (void) set_image(p_ptr->image + rand_int(250) + 150);
 				 }
 				 
-				 take_hit(damroll(8, 8), ddesc);
+                                 take_sanity_hit(damroll(8, 8), ddesc);
 			 }
 			 break;
 		 }
@@ -3733,7 +3776,7 @@ bool make_attack_spell(int m_idx)
 			 else
 			 {
 				 msg_print("Your mind is blasted by psionic energy.");
-				 take_hit(damroll(12, 15), ddesc);
+                                 take_sanity_hit(damroll(12,15), ddesc);
 				 if (!p_ptr->resist_blind)
 				 {
 					 (void)set_blind(p_ptr->blind + 8 + rand_int(8));
@@ -4215,20 +4258,8 @@ bool make_attack_spell(int m_idx)
 			 break;
 		 }
 		 
-		 /* RF6_XXX3X6 */
-	 case 160+6:
-		 {
-			 break;
-		 }
-		 
-		 /* RF6_XXX4X6 */
-	 case 160+7:
-		 {
-			 break;
-		 }
-		 
 		 /* RF6_TELE_TO */
-	 case 160+8:
+         case 160+6:
 		 {
 			 if (!direct) break;
 			 disturb(1, 0);
@@ -4238,7 +4269,7 @@ bool make_attack_spell(int m_idx)
 		 }
 		 
 		 /* RF6_TELE_AWAY */
-	 case 160+9:
+         case 160+7:
 		 {
 			 if (!direct) break;
 			 disturb(1, 0);
@@ -4248,7 +4279,7 @@ bool make_attack_spell(int m_idx)
 		 }
 		 
 		 /* RF6_TELE_LEVEL */
-	 case 160+10:
+         case 160+8:
 		 {
 			 if (!direct) break;
 			 disturb(1, 0);
@@ -4270,14 +4301,8 @@ bool make_attack_spell(int m_idx)
 			 break;
 		 }
 		 
-		 /* RF6_XXX5 */
-	 case 160+11:
-		 {
-			 break;
-		 }
-		 
 		 /* RF6_DARKNESS */
-	 case 160+12:
+         case 160+9:
 		 {
 			 if (!direct) break;
 			 disturb(1, 0);
@@ -4288,7 +4313,7 @@ bool make_attack_spell(int m_idx)
 		 }
 		 
 		 /* RF6_TRAPS */
-	 case 160+13:
+         case 160+10:
 		 {
 			 if (!direct) break;
 			 disturb(1, 0);
@@ -4299,7 +4324,7 @@ bool make_attack_spell(int m_idx)
 		 }
 		 
 		 /* RF6_FORGET */
-	 case 160+14:
+         case 160+11:
 		 {
 			 if (!direct) break;
 			 disturb(1, 0);
@@ -4315,13 +4340,53 @@ bool make_attack_spell(int m_idx)
 			 }
 			 break;
 		 }
-		 
-		 /* RF6_XXX6X6 */
-	 case 160+15:
-		 {
-			 break;
-		 }
-		 
+
+                /* RF6_ANIM_DEAD */
+         case 160+12:
+                break;
+
+                        /* RF6_S_BUG */
+                case 160+13:
+			{
+				disturb(1, 0);
+                                if (blind) msg_format("%^s mumbles.", m_name);
+                                else msg_format("%^s magically codes some software bugs.", m_name);
+				for (k = 0; k < 6; k++)
+				{
+                                        count += summon_specific(y, x, rlev, SUMMON_BUG);
+				}
+				if (blind && count) msg_print("You hear many things appear nearby.");
+				break;
+			}
+			
+                        /* RF6_S_RNG */
+                case 160+14:
+			{
+				disturb(1, 0);
+                                if (blind) msg_format("%^s mumbles.", m_name);
+                                else msg_format("%^s magically codes some RNGs.", m_name);
+				for (k = 0; k < 6; k++)
+				{
+                                        count += summon_specific(y, x, rlev, SUMMON_RNG);
+				}
+				if (blind && count) msg_print("You hear many things appear nearby.");
+				break;
+			}
+
+                        /* RF6_S_DRAGONRIDER */
+                case 160+15:
+			{
+				disturb(1, 0);
+                                if (blind) msg_format("%^s mumbles.", m_name);
+                                else msg_format("%^s magically summons a DragonRider!", m_name);
+				for (k = 0; k < 1; k++)
+				{
+                                         count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDER);
+				}
+				if (blind && count) msg_print("You hear something appear nearby.");
+                                break;
+			}
+
 		 /* RF6_SUMMON_KIN */
 	 case 160+16:
 		 {
@@ -5343,7 +5408,7 @@ static bool get_moves(int m_idx, int *mm)
 }
 
 
-static int check_hit2(int power, int level, int ac)
+int check_hit2(int power, int level, int ac)
 {
 	int i, k;
 
@@ -5479,6 +5544,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 		case RBE_EXP_80:        power =  5; break;
 		case RBE_DISEASE:       power =  5; break;
 		case RBE_TIME:          power =  5; break;
+                case RBE_SANITY:        power = 60; break;
 		}
 		
 		
@@ -5692,6 +5758,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 				}
 				
 			case RBE_HURT:
+                        case RBE_SANITY:
 				{
 					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 					break;
@@ -6183,12 +6250,12 @@ static void process_monster(int m_idx, bool is_friend)
 	}
 	
 	/* No one wants to be your friend if you're aggravating */
-	if ((is_pet(m_ptr)) && (p_ptr->aggravate))
+        if ((is_pet(m_ptr)) && (p_ptr->aggravate) && !(r_ptr->flags7 & RF7_PET))
 		gets_angry = TRUE;
 	
 	/* Paranoia... no friendly uniques outside wizard mode -- TY */
 	if ((is_pet(m_ptr)) && !(wizard) &&
-		(r_ptr->flags1 & (RF1_UNIQUE)))
+                (r_ptr->flags1 & (RF1_UNIQUE)) && !(r_ptr->flags7 & RF7_PET))
 		gets_angry = TRUE;
 	
 	if (gets_angry)
@@ -6333,7 +6400,12 @@ static void process_monster(int m_idx, bool is_friend)
 						get_rnd_line("smeagol.txt", bravado);
 					msg_format("%^s %s", m_name, bravado);
 				}
-				else
+                                else if (is_pet(m_ptr))
+                                {
+                                        get_rnd_line("speakpet.txt", bravado);
+					msg_format("%^s %s", m_name, bravado);
+                                }
+                                else
 				{
 					if (m_ptr->monfear)
 						get_rnd_line("monfear.txt", bravado);
@@ -6402,20 +6474,21 @@ static void process_monster(int m_idx, bool is_friend)
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
 	}
-	/* pet movement */	
+
+	/* Pets will follow the player */
+	else if (is_pet(m_ptr) &&
+	         (m_ptr->cdis > p_ptr->pet_follow_distance))
+	{
+		get_moves(m_idx, mm);
+	}
+
+	/* pet movement */
 	else if (is_pet(m_ptr))
 	{
-		if (m_ptr->cdis > FOLLOW_DISTANCE)
-		{
-			get_moves(m_idx, mm);
-		}
-		else
-		{
-			/* by default, move randomly */
-			mm[0] = mm[1] = mm[2] = mm[3] = 5;
+                /* by default, move randomly */
+                mm[0] = mm[1] = mm[2] = mm[3] = 5;
 
-			get_enemy_dir(m_ptr, mm);
-		}
+                get_enemy_dir(m_ptr, mm);
 	}
 
 	/* Normal movement */
@@ -6476,10 +6549,60 @@ static void process_monster(int m_idx, bool is_friend)
 			do_move = TRUE;
 		}
 
-		/* Hack -- trees are no obstacle */
+		/* Hack -- check for Glyph of Warding */
+                if ((c_ptr->feat == FEAT_GLYPH) &&
+		    !(r_ptr->flags1 & RF1_NEVER_BLOW))
+		{
+			/* Assume no move allowed */
+			do_move = FALSE;
+			
+			/* Break the ward */
+			if (randint(BREAK_GLYPH) < r_ptr->level)
+			{
+				/* Describe observable breakage */
+				if (c_ptr->info & CAVE_MARK)
+				{
+					msg_print("The rune of protection is broken!");
+				}
+				
+				/* Forget the rune */
+				c_ptr->info &= ~(CAVE_MARK);
+				
+				/* Break the rune */
+				cave_set_feat(ny, nx, FEAT_FLOOR);
+				
+				/* Allow movement */
+				do_move = TRUE;
+			}
+		}
+
+                /* Hack -- trees are obstacle */
 		else if (cave[ny][nx].feat == FEAT_TREES)
 		{
-			do_move = TRUE;
+			/* Do not move */
+                        if(r_ptr->flags9 & RF9_KILL_TREES)
+                        {
+                                do_move = TRUE;
+
+                                /* Forget the tree */
+                                c_ptr->info &= ~(CAVE_MARK);
+
+                                /* Notice */
+                                cave_set_feat(ny, nx, FEAT_GRASS);
+                        }
+                        else
+                        {
+                                do_move = FALSE;
+                        }
+
+                        if ((ny == py) && (nx == px))
+                        {
+                                /* Do the attack */
+                                (void)make_attack_normal(m_idx, 2);
+			
+                                /* Took a turn */
+                                do_turn = TRUE;
+                        }
 		}
 
 		/* Hack -- player 'in' wall */
@@ -6545,14 +6668,8 @@ static void process_monster(int m_idx, bool is_friend)
 			/* Take a turn */
 			do_turn = TRUE;
 
-#if 0
-			/* Creature can open doors. */
-			if ((r_ptr->flags2 & (RF2_OPEN_DOOR)) &&
-				!(is_pet(m_ptr)))
-#else
-				if (r_ptr->flags2 & (RF2_OPEN_DOOR))
-#endif
-
+                        if ((r_ptr->flags2 & (RF2_OPEN_DOOR)) &&
+                            (!is_pet(m_ptr) || p_ptr->pet_open_doors))
 				{
 					/* Closed doors and secret doors */
 					if ((c_ptr->feat == FEAT_DOOR_HEAD) ||
@@ -6592,7 +6709,8 @@ static void process_monster(int m_idx, bool is_friend)
 				}
 				
 				/* Stuck doors -- attempt to bash them down if allowed */
-				if (may_bash && (r_ptr->flags2 & RF2_BASH_DOOR))
+                                if (may_bash && (r_ptr->flags2 & RF2_BASH_DOOR) &&
+                                   (!is_pet(m_ptr) || p_ptr->pet_open_doors))
 				{
 					int k;
 					
@@ -6642,33 +6760,6 @@ static void process_monster(int m_idx, bool is_friend)
 					if (player_has_los_bold(ny, nx)) do_view = TRUE;
 				}
 		}
-
-		/* Hack -- check for Glyph of Warding */
-		else if (do_move && (c_ptr->feat == FEAT_GLYPH) &&
-		    !(r_ptr->flags1 & RF1_NEVER_BLOW))
-		{
-			/* Assume no move allowed */
-			do_move = FALSE;
-			
-			/* Break the ward */
-			if (randint(BREAK_GLYPH) < r_ptr->level)
-			{
-				/* Describe observable breakage */
-				if (c_ptr->info & CAVE_MARK)
-				{
-					msg_print("The rune of protection is broken!");
-				}
-				
-				/* Forget the rune */
-				c_ptr->info &= ~(CAVE_MARK);
-				
-				/* Break the rune */
-				cave_set_feat(ny, nx, FEAT_FLOOR);
-				
-				/* Allow movement */
-				do_move = TRUE;
-			}
-		}
 		else if (do_move && (c_ptr->feat == FEAT_MINOR_GLYPH)
 			&& !(r_ptr->flags1 & RF1_NEVER_BLOW))
 		{
@@ -6701,6 +6792,39 @@ static void process_monster(int m_idx, bool is_friend)
 				do_move = TRUE;
 			}
 		}
+
+                /* Hack -- the Between teleport the monsters too */
+                else if (cave[ny][nx].feat == FEAT_BETWEEN)
+		{
+                        nx = cave[ny][nx].special & 255;
+                        ny = cave[ny][nx].special >> 8;
+                        get_pos_player(100, &ny, &nx);
+
+                        /* Access that cave grid */
+                        c_ptr = &cave[ny][nx];		
+		
+                        /* Access that cave grid's contents */
+                        y_ptr = &m_list[c_ptr->m_idx];
+
+                        if(!(r_ptr->flags3 & RF3_IM_COLD))
+                        {
+                                if((m_ptr->hp - distance(ny,nx,oy,ox)*2)<=0)
+                                {
+                                        ny = oy + ddy[d];
+                                        nx = ox + ddx[d];
+                                        do_move = FALSE;
+                                }
+                                else
+                                {
+                                       m_ptr->hp -= distance(ny,nx,oy,ox)*2;
+                                       do_move = TRUE;
+                                }
+                        }
+                        else
+                        {
+                                do_move = TRUE;
+                        }
+		}
 		
 		/* Some monsters never attack */
 		if (do_move && (ny == py) && (nx == px) &&
@@ -6719,7 +6843,7 @@ static void process_monster(int m_idx, bool is_friend)
 		if (do_move && (ny == py) && (nx == px))
 		{
 			/* Do the attack */
-			(void)make_attack_normal(m_idx);
+                        (void)make_attack_normal(m_idx, 1);
 			
 			/* Do not move */
 			do_move = FALSE;
@@ -6884,11 +7008,12 @@ static void process_monster(int m_idx, bool is_friend)
 				
 				/* Take or Kill objects on the floor */
 				/* rr9: Pets will no longer pick up/destroy items */
-				if (((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
+                                if ((((r_ptr->flags2 & (RF2_TAKE_ITEM)) &&
+				      (!is_pet(m_ptr) || p_ptr->pet_pickup_items)) ||
 					(r_ptr->flags2 & (RF2_KILL_ITEM))) &&
 					!is_pet(m_ptr))
 				{
-					u32b f1, f2, f3;
+                                        u32b f1, f2, f3, f4;
 					
 					u32b flg3 = 0L;
 					
@@ -6896,7 +7021,7 @@ static void process_monster(int m_idx, bool is_friend)
 					char o_name[80];
 					
 					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
+                                        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 					
 					/* Acquire the object name */
 					object_desc(o_name, o_ptr, TRUE, 3);

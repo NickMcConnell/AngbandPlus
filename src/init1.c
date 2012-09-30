@@ -110,6 +110,7 @@ static cptr r_info_blow_effect[] =
 	"EXP_80",
 	"DISEASE",
 	"TIME",
+        "INSANITY",
 	NULL
 };
 
@@ -205,14 +206,14 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"AMBERITE",
+        "DRAGONRIDER",
 	"GOOD",
 	"AURA_COLD", /* TODO: Implement aura_cold */
 	"NONLIVING",
 	"HURT_LITE",
 	"HURT_ROCK",
-	"HURT_FIRE",
-	"HURT_COLD",
+        "SUSCEP_FIRE",
+        "SUSCEP_COLD",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -224,7 +225,7 @@ static cptr r_info_flags3[] =
 	"RES_PLAS",
 	"RES_NEXU",
 	"RES_DISE",
-	"UNIQUE_7",
+        "UNIQUE_4",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -320,16 +321,16 @@ static cptr r_info_flags6[] =
 	"XXX2X6",
 	"BLINK",
 	"TPORT",
-	"XXX3X6",
-	"XXX4X6",
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
-	"XXX5",
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
 	"ANIM_DEAD", /* ToDo: Implement ANIM_DEAD */
+        "S_BUG",
+        "S_RNG",
+        "S_DRAGONRIDER",  /* DG : Summon DragonRider */
 	"S_KIN",
 	"S_CYBER",
 	"S_MONSTER",
@@ -358,8 +359,8 @@ static cptr r_info_flags7[] =
 	"CAN_SWIM",
 	"CAN_FLY",
 	"FRIENDLY",
-	"XXX7X4",
-	"XXX7X5",
+        "PET",
+        "MORTAL",
 	"XXX7X6",
 	"XXX7X7",
 	"XXX7X8",
@@ -435,15 +436,15 @@ static cptr r_info_flags9[] =
 {
 	"DROP_CORPSE",
 	"DROP_SKELETON",
-	"XXX9X2",
-	"XXX9X3",
-	"XXX9X4",
-	"XXX9X5",
-	"XXX9X6",
-	"XXX9X7",
-	"XXX9X8",
-	"XXX9X9",
-	"XXX9X10",
+        "HAS_NO_HEAD",
+        "HAS_NO_SKULL",
+        "HAS_EGG",
+        "IMPRESED",
+        "SUSCEP_ACID",
+        "SUSCEP_ELEC",
+        "SUSCEP_POIS",
+        "KILL_TREES",
+        "WYRM_PROTECT",
 	"XXX9X11",
 	"XXX9X12",
 	"XXX9X13",
@@ -519,7 +520,7 @@ static cptr k_info_flags2[] =
 	"SUST_CON",
 	"SUST_CHR",
         "INVIS",
-	"XXX2",
+        "LIFE",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -554,7 +555,7 @@ static cptr k_info_flags3[] =
 	"SH_FIRE",
 	"SH_ELEC",
 	"QUESTITEM",
-	"XXX4",
+        "DECAY",
 	"NO_TELE",
 	"NO_MAGIC",
 	"WRAITH",
@@ -583,6 +584,45 @@ static cptr k_info_flags3[] =
 	"CURSED",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
+};
+
+/*
+ * Object flags
+ */
+static cptr k_info_flags4[] =
+{
+        "NEVER_BLOW",
+        "PRECOGNITION",
+        "BLACK_BREATH",
+        "RECHARGE",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4",
+        "XXX4"
 };
 
 
@@ -1079,6 +1119,16 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 		}
 	}
 
+        /* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, k_info_flags4[i]))
+		{
+                        k_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}
+
 	/* Oops */
 	msg_format("Unknown object flag '%s'.", what);
 
@@ -1432,6 +1482,16 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 		}
 	}
 
+        /* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, k_info_flags4[i]))
+		{
+                        a_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}
+
 	/* Oops */
 	msg_format("Unknown artifact flag '%s'.", what);
 
@@ -1723,6 +1783,16 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 		if (streq(what, k_info_flags3[i]))
 		{
 			e_ptr->flags3 |= (1L << i);
+			return (0);
+		}
+	}
+
+        /* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, k_info_flags4[i]))
+		{
+                        e_ptr->flags4 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2286,17 +2356,19 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
 		{
-			int lev, rar, pad;
+                        int lev, rar, wt;
 			long exp;
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-				&lev, &rar, &pad, &exp)) return (1);
+                                &lev, &rar, &wt, &exp)) return (1);
 
 			/* Save the values */
 			r_ptr->level = lev;
 			r_ptr->rarity = rar;
-			r_ptr->extra = pad;
+                        /* MEGA HACK */
+                        if(!wt) wt = 100;
+                        r_ptr->weight = wt;
 			r_ptr->mexp = exp;
 
 			/* Next... */
@@ -3226,10 +3298,21 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 				max_m_idx = atoi(zz[1]); 
 			}
 
+                        /* Maximum wilderness x size */
+                        else if (zz[0][0] == 'X')
+			{
+                                max_wild_x = atoi(zz[1]); 
+			}
+
+                        /* Maximum wilderness y size */
+                        else if (zz[0][0] == 'Y')
+			{
+                                max_wild_y = atoi(zz[1]); 
+			}
+
 			return (0);
 		}
 	}
-
 
 	/* Failure */
 	return (1);
@@ -3455,7 +3538,17 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Variant name */
 			else if (streq(b+1, "VARIANT"))
 			{
-				v = "ZANGBAND";
+                                v = "PERNANGBAND";
+			}
+
+			/* Wilderness */
+			else if (streq(b+1, "WILDERNESS"))
+			{
+				if (vanilla_town)
+					sprintf(tmp, "NONE");
+				else
+					sprintf(tmp, "NORMAL");
+				v = tmp;
 			}
 		}
 

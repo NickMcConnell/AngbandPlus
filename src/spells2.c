@@ -321,7 +321,7 @@ static int remove_curse_aux(int all)
 	/* Attempt to uncurse items being worn */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		u32b f1, f2, f3;
+                u32b f1, f2, f3, f4;
 
 		object_type *o_ptr = &inventory[i];
 
@@ -332,7 +332,7 @@ static int remove_curse_aux(int all)
 		if (!cursed_p(o_ptr)) continue;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+                object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Heavily Cursed Items need a special spell */
 		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
@@ -354,6 +354,22 @@ static int remove_curse_aux(int all)
 
 		/* Take note */
 		o_ptr->note = quark_add("uncursed");
+
+                /* Reverse the curse effect */
+ /* jk - scrolls of *remove curse* have a 1 in (55-level chance to */
+ /* reverse the curse effects - a ring of damage(-15) {cursed} then */
+ /* becomes a ring of damage (+15) */
+ /* this does not go for artifacts - a Sword of Mormegil +40,+60 would */
+ /* be somewhat unbalancing */
+ /* due to the nature of this procedure, it only works on cursed items */
+ /* ie you get only one chance! */
+                if ((randint(55-p_ptr->lev)==1) && !artifact_p(o_ptr))
+                {
+                        if (o_ptr->to_a<0) o_ptr->to_a=-o_ptr->to_a;
+                        if (o_ptr->to_h<0) o_ptr->to_h=-o_ptr->to_h;
+                        if (o_ptr->to_d<0) o_ptr->to_d=-o_ptr->to_d;
+                        if (o_ptr->pval<0) o_ptr->pval=-o_ptr->pval;
+                }
 
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -579,7 +595,7 @@ void self_knowledge(void)
 	/* Acquire item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
 	{
-		u32b t1, t2, t3;
+                u32b t1, t2, t3, t4;
 
 		o_ptr = &inventory[k];
 
@@ -587,7 +603,7 @@ void self_knowledge(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &t1, &t2, &t3);
+                object_flags(o_ptr, &t1, &t2, &t3, &t4);
 
 		/* Extract flags */
 		f1 |= t1;
@@ -624,12 +640,6 @@ void self_knowledge(void)
 		case RACE_HALF_TROLL:
 			if (plev > 9)
 				info[i++] = "You enter berserk fury (cost 12).";
-			break;
-		case RACE_AMBERITE:
-			if (plev > 29)
-				info[i++] = "You can Shift Shadows (cost 50).";
-			if (plev > 39)
-				info[i++] = "You can mentally Walk the Pattern (cost 75).";
 			break;
 		case RACE_BARBARIAN:
 			if (plev > 7)
@@ -687,6 +697,10 @@ void self_knowledge(void)
                 case RACE_RKNIGHT:
                         sprintf(Dummy, "You can flash a bright aura, dam. %d (cost 9).", plev*2);
                         info[i++] = Dummy;
+                        if(p_ptr->lev>29){
+                                sprintf(Dummy, "You can jump to the light speed, %d turns (cost 30).",3 + plev/10);
+                                info[i++] = Dummy;
+                        }
 			break;
 		default:
 			break;
@@ -1091,10 +1105,10 @@ void self_knowledge(void)
 		}
 	}
 
-if (p_ptr->allow_one_death)
-{
-  info[i++] = "The blood of life flows through your veins.";
-}
+        if (p_ptr->allow_one_death)
+        {
+                info[i++] = "The blood of life flows through your veins.";
+        }
 	if (p_ptr->blind)
 	{
 		info[i++] = "You cannot see.";
@@ -1270,6 +1284,10 @@ if (p_ptr->allow_one_death)
 	{
 		info[i++] = "You are resistant to fire.";
 	}
+        else if (p_ptr->sensible_fire)
+	{
+                info[i++] = "You are very sensible to fire.";
+	}
 
 	if (p_ptr->immune_cold)
 	{
@@ -1337,6 +1355,10 @@ if (p_ptr->allow_one_death)
 	{
 		info[i++] = "Your eyes are resistant to blindness.";
 	}
+        if (p_ptr->resist_continuum)
+	{
+                info[i++] = "The space-time continuum can be disrupted near you.";
+	}
 
 	if (p_ptr->sustain_str)
 	{
@@ -1362,6 +1384,10 @@ if (p_ptr->allow_one_death)
 	{
 		info[i++] = "Your charisma is sustained.";
 	}
+        if (p_ptr->black_breath)
+        {
+                info[i++] = "You suffer from Black Breath.";
+        }
 
 	if (f1 & (TR1_STR))
 	{
@@ -2165,13 +2191,14 @@ bool detect_objects_magic(void)
 
 		/* Artifacts, misc magic items, or enchanted wearables */
 		if (artifact_p(o_ptr) || ego_item_p(o_ptr) || o_ptr->art_name ||
-		    (tv == TV_AMULET) || (tv == TV_RING) ||
+                    (tv == TV_AMULET) || (tv == TV_RING) || (tv == TV_BATERIE) ||
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
-		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
+                    (tv == TV_SCROLL) || (tv == TV_POTION) || (tv == TV_POTION2) ||
 		    (tv == TV_LIFE_BOOK) || (tv == TV_SORCERY_BOOK) ||
 		    (tv == TV_NATURE_BOOK) || (tv == TV_CHAOS_BOOK) ||
-		    (tv == TV_DEATH_BOOK) ||
+                    (tv == TV_DEATH_BOOK) || (tv == TV_MIMIC_BOOK) ||
 		    (tv == TV_TRUMP_BOOK) || (tv == TV_ARCANE_BOOK) ||
+                    (tv == TV_SYMBIOTIC_BOOK) || (tv == TV_MUSIC_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -2614,7 +2641,9 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
-		case TV_SWORD:
+                case TV_MSTAFF:
+                case TV_BOOMERANG:
+                case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_DIGGING:
@@ -2665,6 +2694,16 @@ bool item_tester_hook_weapon_armour(object_type *o_ptr)
 	       item_tester_hook_armour(o_ptr));
 }
 
+/*
+ * Check if an object is artifactable
+ */
+bool item_tester_hook_artifactable(object_type *o_ptr)
+{
+	return(item_tester_hook_weapon(o_ptr) ||
+               item_tester_hook_armour(o_ptr) ||
+               (o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET));
+}
+
 
 /*
  * Enchants a plus onto an item. -RAK-
@@ -2686,11 +2725,11 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	int     i, chance, prob;
 	bool    res = FALSE;
 	bool    a = (artifact_p(o_ptr) || o_ptr->art_name);
-	u32b    f1, f2, f3;
+        u32b    f1, f2, f3, f4;
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
@@ -2771,6 +2810,38 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			}
 		}
 
+
+		/* Enchant to damage */
+                if (eflag & (ENCH_PVAL))
+		{
+                        if (o_ptr->pval < 0) chance = 0;
+                        else if (o_ptr->pval > 8) chance = 1000;
+                        else chance = enchant_table[o_ptr->pval];
+
+			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
+			{
+                                o_ptr->pval++;
+				res = TRUE;
+
+				/* only when you get it above -1 -CFT */
+				if (cursed_p(o_ptr) &&
+				    (!(f3 & (TR3_PERMA_CURSE))) &&
+                                    (o_ptr->pval >= 0) && (rand_int(100) < 25))
+				{
+					msg_print("The curse is broken!");
+					o_ptr->ident &= ~(IDENT_CURSED);
+					o_ptr->ident |= (IDENT_SENSE);
+
+					if (o_ptr->art_flags3 & (TR3_CURSED))
+					    o_ptr->art_flags3 &= ~(TR3_CURSED);
+					if (o_ptr->art_flags3 & (TR3_HEAVY_CURSE))
+					    o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
+
+					o_ptr->note = quark_add("uncursed");
+				}
+			}
+		}
+
 		/* Enchant to armor class */
 		if (eflag & (ENCH_TOAC))
 		{
@@ -2826,7 +2897,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
  * Note that "num_ac" requires armour, else weapon
  * Returns TRUE if attempted, FALSE if cancelled
  */
-bool enchant_spell(int num_hit, int num_dam, int num_ac)
+bool enchant_spell(int num_hit, int num_dam, int num_ac, int num_pval)
 {
 	int         item;
 	bool        okay = FALSE;
@@ -2870,7 +2941,8 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	/* Enchant */
 	if (enchant(o_ptr, num_hit, ENCH_TOHIT)) okay = TRUE;
 	if (enchant(o_ptr, num_dam, ENCH_TODAM)) okay = TRUE;
-	if (enchant(o_ptr, num_ac, ENCH_TOAC)) okay = TRUE;
+        if (enchant(o_ptr, num_ac, ENCH_TOAC)) okay = TRUE;
+        if (enchant(o_ptr, num_pval, ENCH_PVAL)) okay = TRUE;
 
 	/* Failure */
 	if (!okay)
@@ -2886,7 +2958,6 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	return (TRUE);
 }
 
-
 void curse_artifact(object_type * o_ptr)
 {
 	if (o_ptr->pval) o_ptr->pval = 0 - ((o_ptr->pval) + randint(4));
@@ -2898,6 +2969,7 @@ void curse_artifact(object_type * o_ptr)
 	if (randint(3)==1) o_ptr-> art_flags3 |= TR3_TY_CURSE;
 	if (randint(2)==1) o_ptr-> art_flags3 |= TR3_AGGRAVATE;
 	if (randint(3)==1) o_ptr-> art_flags3 |= TR3_DRAIN_EXP;
+        if (randint(3)==1) o_ptr-> art_flags4 |= TR4_BLACK_BREATH;
 	if (randint(2)==1) o_ptr-> art_flags3 |= TR3_TELEPORT;
 	else if (randint(3)==1) o_ptr->art_flags3 |= TR3_NO_TELE;
 	if (p_ptr->pclass != CLASS_WARRIOR && (randint(3)==1))
@@ -4062,6 +4134,16 @@ void give_activation_power (object_type * o_ptr)
 	o_ptr->timeout = 0;
 }
 
+int get_activation_power()
+{
+        object_type *o_ptr;
+
+        artifact_bias = 0;
+
+        give_activation_power(o_ptr);
+
+        return o_ptr->xtra2;
+}
 
 void get_random_name(char * return_name, bool armour, int power)
 {
@@ -4326,7 +4408,7 @@ bool artifact_scroll(void)
 
 
 	/* Enchant weapon/armour */
-	item_tester_hook = item_tester_hook_weapon_armour;
+        item_tester_hook = item_tester_hook_artifactable;
 
 	/* Get an item */
 	q = "Enchant which item? ";
@@ -4595,6 +4677,8 @@ bool recharge(int num)
 
 	cptr q, s;
 
+        u32b f1, f2, f3, f4;
+
 	/* Only accept legal items */
 	item_tester_hook = item_tester_hook_recharge;
 
@@ -4615,6 +4699,8 @@ bool recharge(int num)
 		o_ptr = &o_list[0 - item];
 	}
 
+        /* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Extract the object "level" */
 	lev = k_info[o_ptr->k_idx].level;
@@ -4629,7 +4715,7 @@ bool recharge(int num)
 		if (i < 1) i = 1;
 
 		/* Back-fire */
-		if (rand_int(i) == 0)
+                if ((rand_int(i) == 0)&&(!(f4 & TR4_RECHARGE)))
 		{
 			/* Hack -- backfire */
 			msg_print("The recharge backfires, draining the rod further!");
@@ -4668,7 +4754,7 @@ bool recharge(int num)
 		if (i < 1) i = 1;
 
 		/* Back-fire XXX XXX XXX */
-		if (rand_int(i) == 0)
+                if ((rand_int(i) == 0)&&(!(f4 & TR4_RECHARGE)))
 		{
 			/* Dangerous Hack -- Destroy the item */
 			msg_print("There is a bright flash of light.");
@@ -4754,6 +4840,31 @@ bool project_hack(int typ, int dam)
 	return (obvious);
 }
 
+/*
+ * Apply a "project()" a la meteor shower
+ */
+void project_meteor(int radius, int typ, int dam, u32b flg)
+{
+        int x, y, dx, dy, d, count = 0, i;
+        int b = radius + randint(radius); 
+        for (i = 0; i < b; i++) {
+                do {
+                        count++;
+                        if (count > 1000)  break;
+                        x = px - 5 + randint(10);
+                        y = py - 5 + randint(10);
+                        dx = (px > x) ? (py - x) : (x - px);
+                        dy = (py > y) ? (py - y) : (y - py);
+                        /* Approximate distance */
+                        d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+                } while ((d > 5) || (!(player_has_los_bold(y, x))));
+			   
+                if (count > 1000)   break;
+                count = 0;
+                project(0, 2, y, x, dam, typ, PROJECT_JUMP | flg);
+        }
+}
+
 
 /*
  * Speed monsters
@@ -4769,6 +4880,14 @@ bool speed_monsters(void)
 bool slow_monsters(void)
 {
 	return (project_hack(GF_OLD_SLOW, p_ptr->lev));
+}
+
+/*
+ * Paralyzation monsters
+ */
+bool conf_monsters(void)
+{
+        return (project_hack(GF_OLD_CONF, p_ptr->lev));
 }
 
 /*
@@ -5954,6 +6073,8 @@ void teleport_swap(int dir)
 	cave_type * c_ptr;
 	monster_type * m_ptr;
 	monster_race * r_ptr;
+
+        if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return;}
 	
 	if ((dir == 5) && target_okay())
 	{
@@ -6093,6 +6214,17 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 	}
 }
 
+bool fire_godly_wrath(int y, int x, int typ, int rad, int dam) {
+  int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+  return (project(0, rad, y, x, dam, typ, flg));
+}
+
+bool fire_explosion(int y, int x, int typ, int rad, int dam) {
+  int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+  return (project(0, rad, y, x, dam, typ, flg));
+}
 
 /*
  * Some of the old functions
@@ -6219,6 +6351,9 @@ bool death_ray(int dir, int plev)
 bool teleport_monster(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_KILL;
+
+        if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return FALSE;}
+
 	return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
 }
 
@@ -6513,7 +6648,7 @@ void bless_weapon(void)
 {
 	int             item;
 	object_type     *o_ptr;
-	u32b            f1, f2, f3;
+        u32b            f1, f2, f3, f4;
 	char            o_name[80];
 	cptr            q, s;
 
@@ -6542,7 +6677,7 @@ void bless_weapon(void)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
         /* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	if (o_ptr->ident & (IDENT_CURSED))
 	{
@@ -6839,4 +6974,220 @@ void alter_reality(void)
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
+}
+
+/* Heal insanity. */
+bool heal_insanity(int val) {
+  if (p_ptr->csane < p_ptr->msane) {
+    p_ptr->csane += val;
+
+    if (p_ptr->csane >= p_ptr->msane) {
+      p_ptr->csane = p_ptr->msane;
+      p_ptr->csane_frac = 0;
+    }
+
+    p_ptr->redraw |= PR_SANITY;
+    p_ptr->window |= (PW_SPELL | PW_PLAYER);
+    
+    if (val < 5) {
+      msg_print("You feel a little better.");
+    } else if (val < 15) {
+      msg_print("You feel better.");
+    } else if (val < 35) {
+      msg_print("You feel much better.");
+    } else {
+      msg_print("You feel very good.");
+    }
+
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/*
+ * Helper function for passwall()
+ *
+ * Handles moving the player to the final location, and
+ * what happens when he gets there.
+ */
+static void passwall_finish(int y, int x, bool safe)
+{
+	byte feat;
+	bool door;
+
+	/* Did the player actually move? */
+	if (py == y && px == x)
+		return;
+
+	if (!cave_floor_bold(y, x))
+	{
+                feat = cave[y][x].feat;
+		door = ((feat >= FEAT_DOOR_HEAD && feat <= FEAT_DOOR_TAIL) ||
+				feat == FEAT_SECRET);
+
+		if (!safe)
+		{
+			if (!door)
+			{
+				msg_print("You emerge in the wall!");
+				take_hit(damroll(10, 8), "becoming one with a wall");
+				cave_set_feat(y, x, FEAT_FLOOR);
+			}
+			else
+			{
+				msg_print("You emerge in a door!");
+				take_hit(damroll(5, 5), "becoming one with a door");
+				cave_set_feat(y, x, FEAT_BROKEN);
+			}
+		}
+		else
+		{
+			if (door)
+				cave_set_feat(y, x, FEAT_OPEN);
+			else
+				cave_set_feat(y, x, FEAT_FLOOR);
+		}
+	}
+
+        /* Move player */
+        py = y;
+        px = x;
+
+	/* Take care of traps/objects/stores/etc */
+	step_effects(y, x, always_pickup);
+}
+
+/*
+ * Send the player shooting through walls in the given direction until
+ * they reach a non-wall space, or a monster, or a permanent wall.
+ */
+bool passwall(int dir, bool safe, bool local)
+{
+	int y1, x1, y2, x2;
+	int ty, tx, dy, dx;
+        int oy, ox, ny, nx;
+
+	int i, path_n = 0;
+
+	/* We want to stop when we hit a monster */
+        int flg = (PROJECT_WALL | PROJECT_STOP | PROJECT_KILL);
+
+	/* Actual grids in the "path" */
+	u16b path_g[512];
+
+	bool in_wall = FALSE;
+
+	/* Use the given direction */
+	tx = px + 99 * ddx[dir];
+	ty = py + 99 * ddy[dir];
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+                tx = target_col;
+                ty = target_row;
+	}
+
+	/* In case we need to relocate the target */
+	dy = ty - py;
+	dx = tx - px;
+
+	/* Starting location */
+	y1 = py;
+	x1 = px;
+
+	/* Default "destination" */
+	y2 = ty;
+	x2 = tx;
+
+	/* Make sure we're actually going somewhere */
+	if (x1 == x2 && y1 == y2)
+		return FALSE;
+
+	/* Project until done */
+	while (1)
+	{
+		/* Calculate the projection path */
+		path_n = project_path(path_g, MAX_RANGE, y1, x1, y2, x2, flg);
+
+		oy = y1;
+		ox = x1;
+
+		/* Project along the path */
+		for (i = 0; i < path_n; i++)
+		{
+			ny = GRID_Y(path_g[i]);
+			nx = GRID_X(path_g[i]);
+
+			/* Stop if we tried to go through a monster or a 
+			 * permanent wall */
+                        if (cave[ny][nx].m_idx || (!cave_floor_bold(ny, nx) &&
+									   cave_perma_bold(ny, nx)))
+			{
+				passwall_finish(oy, ox, safe);
+
+                                /* Check for new panel (redraw map) */
+                                verify_panel();
+
+                                /* Update stuff */
+                                p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_HP);
+
+                                /* Update the monsters */
+                                p_ptr->update |= (PU_DISTANCE);
+
+                                /* Window stuff */
+                                p_ptr->window |= (PW_OVERHEAD);
+				return TRUE;
+			}
+
+			if (in_wall)
+			{
+				/* Stop when we reach an empty floor */
+				if (cave_floor_bold(ny, nx))
+				{
+					passwall_finish(ny, nx, safe);
+
+                                        /* Check for new panel (redraw map) */
+                                        verify_panel();
+
+                                        /* Update stuff */
+                                        p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_HP);
+
+                                        /* Update the monsters */
+                                        p_ptr->update |= (PU_DISTANCE);
+
+                                        /* Window stuff */
+                                        p_ptr->window |= (PW_OVERHEAD);
+					return TRUE;
+				}
+			}
+			else
+			{
+				/* Check if we've entered the walls yet */
+				if (!cave_floor_bold(ny, nx))
+					in_wall = TRUE;
+				else
+				{
+					/* Abort if we needed to start by a wall and didn't */
+					if (local)
+						return FALSE;
+				}
+			}
+
+			oy = ny;
+			ox = nx;
+		}
+
+		/* Continue */
+		y1 = ny;
+		x1 = nx;
+
+		/* If we reached the target, but aren't done yet, move it. */
+		if (y1 == y2 && x1 == x2)
+		{
+			y2 = y1 + dy;
+			x2 = x1 + dx;
+		}
+	}
 }

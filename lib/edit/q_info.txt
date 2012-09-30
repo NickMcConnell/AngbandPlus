@@ -7,31 +7,19 @@
 
 # Thieves Hideout
 ?:[EQU $QUEST_NUMBER 1]
+%:q0000001.txt
+
+# Troll Fortress
+?:[EQU $QUEST_NUMBER 2]
 %:q00troll.txt
 
-# Sever
-?:[EQU $QUEST_NUMBER 2]
-%:q0000002.txt
-
-# Druid Shop
+# Battle of the five army
 ?:[EQU $QUEST_NUMBER 3]
-%:q0000003.txt
+%:q005army.txt
 
-# Vault
-?:[EQU $QUEST_NUMBER 4]
-%:q0000004.txt
-
-# Tower
-?:[EQU $QUEST_NUMBER 5]
-%:q0000005.txt
-
-# Tower part 2
+# Shelob
 ?:[EQU $QUEST_NUMBER 6]
-%:q0000006.txt
-
-# Tower part 3
-?:[EQU $QUEST_NUMBER 7]
-%:q0000007.txt
+%:q_shelob.txt
 
 # Sauron
 ?:[EQU $QUEST_NUMBER 8]
@@ -60,6 +48,34 @@
 # Water Cave
 ?:[EQU $QUEST_NUMBER 18]
 %:q00water.txt
+
+# Eol the Dark Elf
+?:[EQU $QUEST_NUMBER 19]
+%:q0000019.txt
+
+# Nirnaeth Arnoediad
+?:[EQU $QUEST_NUMBER 20]
+%:q0000020.txt
+
+# Maeglin, Betrayer of Gondolin
+?:[EQU $QUEST_NUMBER 21]
+%:q0000021.txt
+
+# Invasion of Gondolin
+?:[EQU $QUEST_NUMBER 22]
+%:q0000022.txt
+
+# Vapor Quest
+?:[EQU $QUEST_NUMBER 24]
+%:q0000inn.txt
+
+# The Rise and Fall of Micro$oft
+?:[EQU $QUEST_NUMBER 25]
+%:q00000ms.txt
+
+# Fight against a threadfall
+?:[EQU $QUEST_NUMBER 30]
+%:q_thread.txt
 
 # Random quests (always adressed with number 40)
 ?:[EQU $QUEST_NUMBER 40]

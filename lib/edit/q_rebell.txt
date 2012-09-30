@@ -1,0 +1,124 @@
+# q_rebell.txt
+# by Akhronath (zzhou22876@aol.com)
+# Quest: Destroy Thurantar, the Darkstar
+
+# Name
+Q:4:N:Rebellion in Gondolin
+
+# Definition
+Q:4:Q:1:0:0:1:75:939:0
+
+# Description for quest
+?:[LEQ $QUEST4 2]
+Q:4:T:Rebellion is brewing within the walls of Gondolin.
+Q:4:T:I will need you to shatter it before it has opportunity
+Q:4:T:inflict harm upon the people. It is rumoured that
+Q:4:T:the rebels are summoning malevolent powers in 
+Q:4:T:preparation for upheaval. Banish all evils they may
+Q:4:T:have arrayed against you, and destroy their leader.
+Q:4:T:Be swift. 
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST4 3]
+Q:4:T:You have wrought a mighty service indeed to the city.  
+Q:4:T:Receive now this modest gift.
+?:1
+
+# Floor
+F:.:1:0
+
+# Deep water
+F:W:83:2
+
+# Floor (no-tele)
+F:s:1:5
+
+# Floor (no-tele) with item
+F:z:1:5:0:*
+
+# Floor with Silent watcher
+F:a:1:0:397
+
+# Floor with Sorceror
+F:b:1:0:638
+
+# Floor with Dark elven sorceror
+F:c:1:0:657
+
+# Floor with High priest
+F:d:1:0:689
+
+# Floor with Dracolich
+F:e:1:0:701
+
+# Floor with Spectral tyrannosaur
+F:f:1:0:705
+
+# Floor with Skull druj
+F:g:1:0:750
+
+# Floor with Nightwing
+F:h:1:0:722
+
+# Floor with Khamul the Easterling
+F:i:1:0:738
+
+# Floor with Thuringwethil
+F:j:1:0:755
+
+# Floor with Hoarmurath of Dir
+F:k:1:0:763
+
+# Floor (no-tele) with Black reaver
+F:l:1:5:798
+
+# Floor with Thurantar, the Darkstar
+F:m:1:0:939
+
+# Floor with Malekith the Accursed
+F:n:1:0:628
+
+# Floor with Fallen angel
+F:o:1:0:652
+
+# Dungeon
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XX%%%%%%%%%%c......c%%%%%%%%%%%%%%%%%%...........%%%....f%%%%%%%%%%%%%XlsssXXzzzzzzzXX
+D:XX.......%%%........%%........g%%%%%%%..o...o.....D.....%%.e%%%%%%%%%%Xssss%XzzzzzzzXX
+D:XX..h.h..%%%....d...%%........g....%%%...........%%%...%D....%%%%%**%%XlsssX%zzzzzzzXX
+D:XX........D.........%%........g%%%.%%%....o...o..%%e..%%..**.e%%%***%%XssssXXzzzzzzzXX
+D:XX..h.h..%%%c.......%%D%%%%%%%%%%%.%%%...........%%..%%%e.**...%%.**%%XlsssXXXXXXXXXXX
+D:XX.......%%%%%%%%%%D%%.%%%%%%%%%%%.%%%..o...o....%%f%%.%%....%D%.@.*%%XssssXXXXXXXXXXX
+D:XX%%%%%%%%%%%%%%%%%.%%g%%%%%%%%%%%...............%%%%.@.%%e.%%.%...@%%XlssssssssssssXX
+D:XX%%%%%%%%%%%%%...e..%.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.....%%%%..%D...%%XsssssssssssssXX
+D:XX%%%%%%%%%%%%%.%%%%%%.%%%..h....%%%%%%%%%%%%%%%%%%.@..@..%%.@..%%%%%%XlslssssslslslXX
+D:XX%%%%%%%%%%%%%D%....%D%%%.%%%%%.%%%%%%%%%%%%%%%%%.........D%.....%%%%XXXXXX%XXXXXXXXX
+D:XX%%%%%%%%%%%%%........%%%.%%%%%.......h.....f..D..@..@..@..%%.@.%%%%%%%%%%%%%%%%%%%XX
+D:XX%%%%%%%%%%%%.....c....%%.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%XX
+D:XX%%%%%%%%%%%%..........%%D%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.....%%%XX
+D:XX...%%%a.%.a%...b...d..%%..%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.........%XX
+D:X....%%%.....%..........%%....d%%%..............................................i..%XX
+D:X<...........D.....c....%%..h...D..WW.c.WW.d.WW.e.WW.f.WW.g.WW.h.WW.o.WW............XX
+D:X....%%%.....%..........%%....d%%%..............................................k..%XX
+D:XX...%%%a.%.a%...b...d..%%..%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.........%XX
+D:XX%%%%%%%%%%%%..........%%D%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.....%%%XX
+D:XX%%%%%%%%%%%%.....c....%%...h..%%%%%%%%.......%%%.........%%%%%%%%%%%%%%%%%.%%%%%%%XX
+D:XX%%%%%%%%%%%%%........%%%%%%%%..........c...d..D..o..o..o.%%%%%%%%%%%%%%%%%.%%%%%%%XX
+D:XX%%%%%%%%%%%%%D%....%D%%%%%%%%%%%%%%%%%.......%%%.........%%%%%%%%%%%%%%%%%.%%%%%%%XX
+D:XX%%%%%%%%%%e...%%%%%%...h.%%%%%%%%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%%%%%.%%%%%%%XX
+D:XX%%%%%%%%%....%%%%%%%%%%%......h......%%%%%%%%%%%%%%%%D%%%%%%%%%%%%%%%%%%%%D%%%%%%%XX
+D:XX%%%%%%%%e..e%%e..f%%%%%%%%%%%%%%%%%%D%%%%%%%%%%%%%%%%.%%%%%%%%%d...d...d.......%%%XX
+D:XX%%%%%%%....%%....%%%%%%%%%%%%%%%%%%%.....e...e%%%%g.g.g.g%%%%WW..................%XX
+D:XX%%%%%%......f.....D....f......c%%%%%..f........%%%.......%%%%WW......W.......j...%XX
+D:XX%%%%%e.f.e....e%%%%%%%%%%........%%%%.......f...D........%%%WWW.....WWW........m..XX
+D:XX%%%%%%%%%%%...%%%%%%%%%%9***9****9%%%....e....%%%%.......%%%%WW......W.......n...%XX
+D:XX%%%%%%%%%%....%%%%%%%%%%%*9***9**%%%%%.........%%%.......%%%%WW..................%XX
+D:XX%%%%%%%%%e.f.e%%%%%%%%%%%%%*9**%%%%%%%h..h..h..h%%g.g.g.g%%%%%%d...d...d...d...%%%XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:17:1

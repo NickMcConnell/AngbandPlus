@@ -345,31 +345,31 @@ M:60
 N:64:explosive rune
 G:*:R
 
-N:65:Pattern startpoint
+N:65:Straight Road startpoint
 G:*:w
 
-N:66:section of the Pattern
+N:66:section of the Straight Road
 G:*:B
 
-N:67:section of the Pattern
+N:67:section of the Straight Road
 G:*:b
 
-N:68:section of the Pattern
+N:68:section of the Straight Road
 G:*:B
 
-N:69:section of the Pattern
+N:69:section of the Straight Road
 G:*:b
 
-N:70:section of the Pattern
+N:70:section of the Straight Road
 G:*:W
 
-N:71:section of the Pattern (discharged)
+N:71:section of the Straight Road (discharged)
 G:*:W
 
-N:72:Pattern exit
+N:72:Straight Road exit
 G:*:w
 
-N:73:corrupted section of the Pattern
+N:73:corrupted section of the Straight Road
 G:*:D
 
 # 0x4A --> shop -- general store (perm)
@@ -417,10 +417,10 @@ G:8:y
 N:82:Bookstore
 G:9:o
 
-# 0x53 --> terrain -- deep water
+# 83 --> shop -- Pet Shop (perm)
 
-N:83:pool of deep water
-G:#:b
+N:83:Pet Shop
+G:p:B
 
 N:84:stream of shallow water
 G:#:B
@@ -542,3 +542,90 @@ G:+:B
 N:159:Building
 G:+:B
 
+N:160:Between gate
+G:|:B
+
+###### Here are the altars. ######
+
+N:161:Altar of Passing
+G:0:D
+
+N:162:Altar of Youth
+G:0:w
+
+N:163:Altar of Shadow
+G:0:s
+
+N:164:Altar of Hunting
+G:0:o
+
+N:165:Altar of Mourning
+G:0:r
+
+N:166:Altar of Harvest
+G:0:g
+
+N:167:Altar of Water
+G:0:b
+
+N:168:Altar of Stone
+G:0:u
+
+N:169:Altar of Evil
+G:0:D
+
+N:170:Altar of Healing
+G:0:W
+
+N:171:Altar of Moon
+G:0:v
+
+N:172:Altar of Sun
+G:0:y
+
+N:173:Altar of Rage
+G:0:R
+
+N:174:Altar of Beasts
+G:0:G
+
+N:175:Altar of Winds
+G:0:B
+
+N:176:Altar of Spheres
+G:0:U
+
+N:177:Altar of Time
+G:0:g
+
+N:178:Altar of Infinity
+G:0:r
+
+N:179:Altar of Change
+G:0:u
+
+N:180:Altar of Stasis
+G:0:U
+
+N:181:Altar of Particles
+G:0:v
+
+N:182:Altar of Continuity
+G:0:y
+
+N:183:Altar of Energy
+G:0:R
+
+N:184:Altar of Matter
+G:0:G
+
+N:185:Altar of Being
+G:0:W
+
+N:186:Altar of Unbeing
+G:0:D
+
+# 187 --> terrain -- deep water
+
+N:187:pool of deep water
+G:#:b

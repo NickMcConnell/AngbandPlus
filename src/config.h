@@ -592,11 +592,6 @@
 #define CHECK_MODIFICATION_TIME
 
 /*
- * Use S-Lang scripting language
- */
-/* #define USE_SLANG */
-
-/*
  * Pet give exp to beastmaster
  */
 #define PET_GAIN_EXP

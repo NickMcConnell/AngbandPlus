@@ -310,31 +310,38 @@ have intrinsic abilities.
                 weak. Like Golems and Zombies, Spectres gain almost no
                 nutrition from ordinary food.
 
-	Ent
-		The Ent are a powerful race dating from the beginning of the world.
-		Some of them are older than the older high-elves ! There were made
-		to protect the trees from the man and the elves, being very strong
-		they also are slow. Also as the gardian of the trees they have the
-		innate ability of making the trees grow to protect them !
+        Ent
+                The Ents are a powerful race dating from the beginning of the
+                world, eldest of all animals or plants who inhabit Arda.
+                Spirits from afar, they were summoned to guard the forests of
+                Middle-earth. As the Shepherds of the Trees, they have the
+                innate power to cause trees to rise about them for protection.
 
         Rohan's Knight
-                The mighty knights come from the Rohan , with their fast horses.
-		They gain exra speed with levels and have a fast +5 from the
-		beginning of their live !
-		They are very wise and can enter in an Holy Fury or made
-		a Flash Aura to confuse the monster !
+                Knights of the Riddermark, these warriors are mounted upon
+                swift steeds. As thus, they receive a +5 to speed from the
+                beginning of their adventures, and gain in speed as they
+                become more experienced in riding. Wise through their
+                prolonged contact with the Dunedain, their wrath may be seen
+                in auras of war that drive their foes to confusion, and in
+                a ray of light when jumping to the light speed.
 
         DragonRider
-		The desperation of the elves has send a Telepathic wave into
-		the space and the time. And on the far planet Pern , the 
-		DragonRider , witch are human mounting powerful but friendly
-                dragon , have received the telepathic message and they've decided
-                to come back in time and to travel through the light-years to help
-                Arda ! Their dragon can breath flame after eating the firestone
-		They are also very thelepathic , and the most important they can
-                go in a place called BETWEEN to travel through space and time !
+		As the war with Morgoth continued, the desperate elves sent a
+                telepathic distress call through time and space. On the
+                distant planet of Pern, the powerful Dragonriders responded.
+                Dragonriders are very powerful, and the dragon can breathe
+                flame after eating some firestone. They are also telepathic,
+                and gain the ability to go Between, traveling through space
+                and time. However, they take a very long time to gain levels,
+                as both human and dragon must accumulate experience.
 
-
+	Death Mold
+                Death Molds are very powerful creatures. However, they are
+                also molds. Lacking the ability to move as other creatures
+                do, Death Molds have the powers of Phase Door, targeted
+                teleportation, telekinesis, and controlled Teleport Level.
+                They also intrinsically resist Nexus and Nether.
 
 === Classes ===
  
@@ -514,22 +521,108 @@ have intrinsic abilities.
                benefits in mana costs, minimum levels and failure rates.
  
 	Beastmaster
-                They live in tune with the monter , witch they can summon.
-		Being master of monster they can only weild a whip or something
-                like that without a penality.
-                They also have a great charisma to control their pets.
+                Beastmasters are in tune with the minds of the creatures of
+                the Pits of Angband. They have the ability to summon a limited
+                number of pets every level, dependant on their level and
+                their Charisma. However, they are limited to blunt weapons
+                like Whips and Maces.
 
 	Alchemist
-                The alchemists can use the power bateries to move or convert
-		the power of the ring , amulet , staff ... With this powers they
-		can have good objects at lower levels. And if they are good used
-                it can become a powerful class.
+                Alchemists are the only class that can harness the abilities
+                of the power batteries found in the dungeon. They can add
+                these batteries to staves, rings, wands, rods, and sometimes
+                weapons and armor to create new items or recharge old ones.
+                They can also extract batteries from magical items they find.
+                Using these abilities, Alchemists can get very good items at
+                low levels. The trouble is getting them to survive later on.
 
         Mimic
-                The Mimics are a class that use the books of lore to transform
-                themselves into other beings ! When transformed they lose
-                their racial powers/resistances and gain the powers/resistance
-                of the being they are transformed in.
+                Mimics possess the ability to transform into various creatures
+                using special books. While transformed, they lose their
+                intrinsic abilities, and gain those of the creature they have
+                transformed into.
+
+        Symbiant
+                Symbiants live in harmony with all of the monsters that do not
+                move; the Mushrooms, Molds, Floating Eyes, and such. They can
+                hypnotize these creatures and then wield them like items.
+                Using certain spells in their unique magical realm, they can
+                even use the magical powers of their pets like magic books.
+
+        Harper
+                Harpers are like traditional musicians. Sort of. Their magical
+                attacks are sound-based, and last as long as the Harper has
+                mana. If the Harper runs out of mana, he/she stops singing.
+                There is also a low-level "spell" that will cease the song.
+                Harpers cannot commence singing without light, however, if
+                the light ceases, they can continue the song without.
+
+        Power Mage
+                They are combat oriented mage, they don't use any spellbooks
+                and gain their spells when they pass a level, they can have
+                up to 100 offensive spells which are randomly chosen. But they
+                are very *bad* warriors. They also have a lot more of mana than
+                the other spellcasters.
+
+        Runecrafter
+                Instead of using spellbooks like the other spellcasters they
+                have chosen to use their runes. To cast a spell they just
+                select the primary rune, like the elements, fire, cold, ... and
+                they also chose a set of secondary runes, which modify the
+                effect of the primal one. The secondary runes can be Self,
+                Arrow, Ray, ... and even Armageddon. After that they chose
+                the amount of mana to use and the spell is casted! But the
+                more of second runes they chose the more of mana is used just
+                to cast the spell. They also are bad fighters, but if they
+                concentrate all their mana in one spell(and with a mage staff
+                of mana it's better) they could kill nearly everything in
+                one spell.
+ 
+          Wizard
+               A wizard must live by his wits. He cannot hope to simply hack
+               his  way  through the dungeon, and so must therefore use his
+               magic to defeat,  deceive, confuse, and escape. A wizard  is
+               not really complete without an assortment of magical devices
+               to use in addition to his spells.  He can master the  higher
+               level  magical  devices far easier than anyone else, and has
+               the best saving throw to resist effects of  spells  cast  at
+               him.  Intelligence  and   Dexterity  are  his primary stats.
+               There is no rule that says a wizard  cannot  become  a  good
+               fighter, but spells are his true realm.
+ 
+          Prior
+               A Prior is a character of holy devotion.  They explore  the
+               dungeon  only  to destroy the evil that lurks within, and if
+               treasure just happens to fall into  their  packs,  well,  so
+               much  more  to  the  glory of their church!  Priors receive
+               their spells from a deity, and therefore do not choose which
+               spells they will learn.  They are familiar with magical dev-
+               ices, preferring to call them instruments of  god,  but  are
+               not  as good as a mage in their use.  Priors have good sav-
+               ing throws,  and  make  decent  fighters,  preferring  blunt
+               weapons  over  edged  ones.  Wisdom  and  Charisma  are  the
+               Prior's primary stats.
+
+        Possessor
+                This is a very special class, they have no magic power, they
+                aren't very good fighters, the only thing they can do is to
+                made their soul leave their body to come into an other. When
+                they control a monster's corpse they can use it's own magical
+                powers. Also when fighting monsters the four first blows are
+                the monster's ones. When a Possessor leave a corpse the corpse
+                won't decay and they become a soul with 1 hp no powers which
+                can't pick up objects and which can pass trought walls. In the
+                shape of the soul they go under their new corpse and incarnate
+                into.
+
+        Sorcerer
+                The Sorcerer is a pure magical class as the fighters are a
+                pure warrior class. They can wield any weapon useless it's a
+                Mage Staff and with it they are the WORSE fighters of the game
+                even bare-handed. But to compensate that they are the BEST
+                magical class: the can use any book of any realm without
+                having to learn the spell, but they also don't gain any
+                experience from casting a spell.
 
 === Stats ===
 
@@ -687,33 +780,59 @@ Spectre       No      Yes     Yes     Yes     No      No      Yes     No
 Ent           Yes     No      Yes     No      No      Yes     Yes     No
 RohanKnight   Yes     No      No      No      Yes     Yes     Yes     Yes
 DragonRider   Yes     No      No      No      Yes     Yes     Yes     No
+Death Mold    No      Yes     Yes     Yes     No      No      No      No
 
 
 
-                     Mind-   High   Beast-  Alch-
-            Monk    crafter  Mage   Master  emist Mimic
-Human         Yes     Yes     Yes    Yes     Yes   No
-Half-Elf      Yes     Yes     Yes    Yes     Yes   Yes
-Elf           Yes     Yes     Yes    Yes     Yes   Yes
-Hobbit        No      No      Yes    No      Yes   Yes
-Gnome         No      Yes     Yes    No      Yes   Yes
-Dwarf         No      No      No     No      Yes   Yes
-Half-Orc      Yes     No      No     No      No    Yes
-Half-Troll    No      No      No     No      No    No
-Dunadan       Yes     Yes     Yes    Yes     Yes   No
-High-Elf      Yes     Yes     Yes    Yes     Yes   Yes
-Barbarian     No      No      No     No      No    No
-Half-Ogre     No      No      Yes    No      No    No
-Half-Giant    No      No      No     No      No    No
-Kobold        No      No      No     No      No    Yes
-Nibelung      No      No      Yes    No      Yes   Yes
-Dark Elf      Yes     Yes     Yes    Yes     Yes   Yes
-Vampire       Yes     Yes     Yes    No      Yes   Yes
-Spectre       Yes     Yes     Yes    No      No    No 
-Ent           No      No      Yes    Yes     Yes   No
-RohanKngith   No      No      Yes    No      No    No
-DragonRider   No      Yes     Yes    Yes     No    No
+                     Mind-   High   Beast-  Alch-                       Power
+            Monk    crafter  Mage   Master  emist Mimic Symbiant Harper Mage
+Human         Yes     Yes     Yes    Yes     Yes   No      Yes    Yes   No
+Half-Elf      Yes     Yes     Yes    Yes     Yes   Yes     Yes    Yes   No
+Elf           Yes     Yes     Yes    Yes     Yes   Yes     Yes    Yes   No
+Hobbit        No      No      Yes    No      Yes   Yes     Yes    Yes   No
+Gnome         No      Yes     Yes    No      Yes   Yes     Yes    No    No
+Dwarf         No      No      No     No      Yes   Yes     Yes    Yes   No
+Half-Orc      Yes     No      No     No      No    Yes     No     No    Yes
+Half-Troll    No      No      No     No      No    No      No     No    Yes
+Dunadan       Yes     Yes     Yes    Yes     Yes   No      Yes    Yes   No
+High-Elf      Yes     Yes     Yes    Yes     Yes   Yes     Yes    Yes   No
+Barbarian     No      No      No     No      No    No      No     No    Yes
+Half-Ogre     No      No      Yes    No      No    No      No     No    Yes
+Half-Giant    No      No      No     No      No    No      No     No    Yes
+Kobold        No      No      No     No      No    Yes     Yes    Yes   Yes
+Nibelung      No      No      Yes    No      Yes   Yes     Yes    Yes   No
+Dark Elf      Yes     Yes     Yes    Yes     Yes   Yes     Yes    Yes   No
+Vampire       Yes     Yes     Yes    No      Yes   Yes     No     Yes   Yes
+Spectre       Yes     Yes     Yes    No      No    No      Yes    Yes   Yes
+Ent           No      No      Yes    Yes     Yes   No      Yes    No    No
+RohanKnigth   No      No      Yes    No      No    No      No     Yes   No
+DragonRider   No      Yes     Yes    Yes     No    No      No     Yes   No
+Death Mold    No      Yes     Yes    Yes     No    Yes     Yes    No    Yes
 
+             Rune-                  Poss-  Sor-
+            crafter Wizard   Prior  essor cerer
+Human         Yes     Yes     Yes    Yes   Yes
+Half-Elf      Yes     Yes     Yes    Yes   Yes
+Elf           Yes     Yes     Yes    Yes   Yes
+Hobbit        No      Yes     No     No    No
+Gnome         No      Yes     Yes    No    Yes
+Dwarf         No      No      Yes    No    No
+Half-Orc      Yes     No      Yes    No    No
+Half-Troll    No      No      Yes    No    No
+Dunadan       Yes     Yes     Yes    Yes   Yes
+High-Elf      Yes     Yes     Yes    Yes   Yes
+Barbarian     Yes     No      Yes    No    Yes
+Half-Ogre     No      Yes     Yes    No    No
+Half-Giant    No      No      No     No    No
+Kobold        Yes     No      Yes    No    No
+Nibelung      No      Yes     Yes    No    No
+Dark Elf      Yes     Yes     Yes    Yes   Yes
+Vampire       Yes     Yes     Yes    Yes   Yes
+Spectre       Yes     Yes     Yes    Yes   Yes
+Ent           No      No      Yes    No    No
+RohanKnigth   Yes     No      No     No    Yes
+DragonRider   Yes     No      No     No    Yes
+Death Mold    No      Yes     Yes    Yes   No
 
 
 
@@ -747,22 +866,20 @@ are listed in the following table.
            Dwarf       +2   -2   +2   -2   +2   -3      11         +35%
            Half-Orc    +2   -1    0    0   +1   -4      10         +10%
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +37%
-           Dunadan     +1   +2   +2   +2   +3   +2      10         +125%
+           Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
            High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
            Barbarian   +3   -2   -1   +1   +2   -2      11         +20%
            Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
-           Half-Giant  +4   -2   -2   -2   +3   -3      13         +50% (*)
+           Half-Giant  +4   -2   -2   -2   +3   -3      13         +50%
            Kobold      +1   -1    0   +1    0   -4       9         +25%
            Nibelung    +1   -1   +2    0   +2   -4      11         +35%
            Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
-           Vampire     +3   +3   -1   -1   +1   +2      11         +100% (**)
-           Spectre     -5   +4   +4   +2   -3   -6       7         +80% (**)
-	   Ent         +10  -3   +2   -5   +11  -3      12         +135%
-	   RohanKnight +4   -2   +3   +1   +4   +2      10         +120%
-	   DragonRider +6   +3  -10    0   +6   +8      15         +160%
-
-                (*) = Changed in 2.0.6.
-                (**) = Changed or new in 2.1.0.
+           Vampire     +3   +3   -1   -1   +1   +2      11         +100%
+           Spectre     -5   +4   +4   +2   -3   -6       7         +80%
+           Ent         +10  -3   +2   -5   +11  -3      12         +70%
+           RohanKnight +4   -2   +3   +1   +4   +2      10         +100%
+           DragonRider +6   +3   -10   0   +6   +8      15         +230%
+           Death Mold  +20  +20  +20  +20  +20  +20     15         +0%
 
 
                          STR     INT     WIS     DEX     CON     CHR
@@ -780,7 +897,14 @@ are listed in the following table.
            BeastMaster   +2      -4      -2      +2      +2      +5
            Alchemist     -2      +3      +4      +2      -2       0
            Mimic         +2       0       0      +5      -1       1
- 
+           Symbiant       0      +2      -2      +2      +2      -3
+           Harper        -2      +4       0       0      -2      +3
+           Power-Mage    -5      +5      -2       0      -2      +1
+           Runecrafter   -3       0       0       3      -3      +1
+           Wizard        -5      +3       0      +1      -2      +1
+           Prior         -1      -3      +3      -1       0      +2
+           Possessor     +1      -2      -2      +1      +1       0
+           Sorcerer      -5      +6      +4      +2      -5      +1
  
 === Ability Tables (updated for 2.0.6) ===
 
@@ -808,6 +932,7 @@ are listed in the following table.
            Ent          +5   +5   +20  -6   +5   +4   +15  +5     50 feet
            RohanKnight  +10  +5   +5   -8   +1   +1   +5   +5     None
            DragonRider  +6    0   +10  -16  +30  +10  +15  +5     None
+           Death Mold   +15  -5   +15  +25  +0   +10  +25  +25    10 feet
  
 
                 Disarm  Device  Save    Stealth Search  Melee   Missile XP
@@ -823,10 +948,16 @@ Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
 Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
 High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
 BeastMaster     20+7    36+13   30+9    4       16/20   56+15   20+15   +10%
-Alchemist       30+7    60+30   10+9    2       26/20   14+15   20+15   +50%
-Mimic           10+11   11+13   30+9    22      26/20   44+25   40+25   +30%
-
-  
+Alchemist       30+7    60+30   10+9    2       26/20   34+15   30+15   +40%
+Mimic           10+11   11+13   30+9    22      26/20   64+25   40+25   +30%
+Symbiant        10+4    12+13   30+9    10      16/10   36+15   20+15   +20%
+Harper          10+8    16+13   20+12  -5       16/20   34+15   20+15   +30%
+Power Mage      20+7    36+13   30+9    2       16/20   14+7    10+7    +20%
+Runecrafter     15+7    36+13   20+9    6       16/30   20+7    18+7    +40%
+Wizard          30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
+Prior           25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
+Possessor       25+12   18+7    18+10   1       14/2    30+25   25+25   +30%
+Sorcerer        35+22   48+17   38+20   3       22/12   10+15   15+15   +50%
 
 === Monks: Attack Types (2.0.6b)
 

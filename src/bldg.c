@@ -622,7 +622,7 @@ static bool inn_comm(int cmd)
 	switch(cmd)
 	{
 		case BACT_FOOD: /* Buy food & drink */
-                        if(p_ptr->prace!=RACE_VAMPIRE){
+                        if ((p_ptr->prace!=RACE_VAMPIRE)&&(p_ptr->mimic_form!=MIMIC_VAMPIRE)){
                                 msg_print("The barkeep gives you some gruel and a beer.");
                                 msg_print(NULL);
                                 (void) set_food(PY_FOOD_MAX - 1);
@@ -632,9 +632,39 @@ static bool inn_comm(int cmd)
 
 		case BACT_REST: /* Rest for the night */
 			dawnval = ((turn % (10L * TOWN_DAWN)));
-			if (dawnval > 50000)
-			{  /* nighttime */
-				if ((p_ptr->poisoned) || (p_ptr->cut))
+                        if ((p_ptr->prace==RACE_VAMPIRE)||(p_ptr->mimic_form==MIMIC_VAMPIRE)){
+                        if (dawnval < 50000) {  /* nighttime */
+				if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
+				{
+					msg_print("You need a healer, not a room.");
+					msg_print(NULL);
+					msg_print("Sorry, but don't want anyone dying in here.");
+					return(FALSE);
+				}
+				else
+				{
+					turn = ((turn/50000)+1)*50000;
+					p_ptr->chp = p_ptr->mhp;
+					set_blind(0);
+					set_confused(0);
+					p_ptr->stun = 0;
+                                        msg_print("You awake refreshed for the new night.");
+					p_ptr->leftbldg = TRUE;
+					p_ptr->leaving = TRUE;
+
+                                        /* Select new bounties. */
+                                        select_bounties();
+				}
+			}
+			else
+			{
+                                msg_print("The rooms are available only at daylight for the Vampires.");
+				msg_print(NULL);
+				return(FALSE);
+			}
+                        }else{
+			if (dawnval > 50000) {  /* nighttime */
+				if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
 				{
 					msg_print("You need a healer, not a room.");
 					msg_print(NULL);
@@ -651,6 +681,9 @@ static bool inn_comm(int cmd)
 					msg_print("You awake refreshed for the new day.");
 					p_ptr->leftbldg = TRUE;
 					p_ptr->leaving = TRUE;
+
+                                        /* Select new bounties. */
+                                        select_bounties();
 				}
 			}
 			else
@@ -659,6 +692,7 @@ static bool inn_comm(int cmd)
 				msg_print(NULL);
 				return(FALSE);
 			}
+                        }
 			break;
 		case BACT_RUMORS: /* Listen for rumors */
 			{
@@ -1062,9 +1096,9 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, 
  */
 static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 {
-	u32b f1, f2, f3;
+        u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	if (f1 & (TR1_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Animals:", f1, f2, f3, TERM_YELLOW);
 	if (f1 & (TR1_SLAY_EVIL)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Evil:", f1, f2, f3, TERM_YELLOW);
@@ -1320,6 +1354,322 @@ static bool research_item(void)
 
 
 /*
+ * Show the current quest monster. 
+ */
+static void show_quest_monster(void) {
+  monster_race* r_ptr = &r_info[bounties[0][0]];
+
+  msg_format("Quest monster: %s. "
+	     "Need to turn in %d corpse%s to receive reward.",
+	     r_name + r_ptr->name, bounties[0][1],
+	     (bounties[0][1] > 1 ? "s" : ""));
+  msg_print(NULL);
+}
+
+
+/*
+ * Show the current bounties.
+ */
+static void show_bounties(void) {
+  int i, j = 6;
+  monster_race* r_ptr;
+  char buff[80];
+
+  clear_bldg(7,18);
+
+  c_prt(TERM_YELLOW, "Currently active bounties:", 4, 2);
+
+  for (i = 1; i < MAX_BOUNTIES; i++, j++) {
+    r_ptr = &r_info[bounties[i][0]];
+
+    sprintf(buff, "%-30s (%d gp)", r_name + r_ptr->name, bounties[i][1]);
+
+    prt(buff, j, 2);
+    
+    if (j >= 17) {
+      msg_print("Press space for more.");
+      msg_print(NULL);
+      
+      clear_bldg(7,18);
+      j = 5;
+    }
+  }
+}
+
+
+/*
+ * Filter for corpses that currently have a bounty on them.
+ */
+static bool item_tester_hook_bounty(object_type* o_ptr) {
+  if (o_ptr->tval == TV_CORPSE) {
+    int i;
+
+    for (i = 1; i < MAX_BOUNTIES; i++) {
+      if (bounties[i][0] == o_ptr->pval2) return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/* Filter to match the quest monster's corpse. */
+static bool item_tester_hook_quest_monster(object_type* o_ptr) {
+  if (o_ptr->tval == TV_CORPSE && o_ptr->pval2 == bounties[0][0]) return TRUE;
+  return FALSE;
+}
+
+
+/* 
+ * Return the boost in the corpse's value depending on how rare the body
+ * part is.
+ */
+static int corpse_value_boost(int sval) {
+
+  switch (sval) {
+  case SV_CORPSE_HEAD:
+  case SV_CORPSE_SKULL:
+    return 1;
+  }
+  
+  /* Default to no boost. */
+  return 0;
+}
+  
+/*
+ * Sell a corpse, if there's currently a bounty on it.
+ */
+static void sell_corpses(void) {
+  object_type* o_ptr;
+  int i, boost = 0;
+  s16b value;
+  int item;
+
+  /* Set the hook. */
+  item_tester_hook = item_tester_hook_bounty;
+
+  /* Select a corpse to sell. */
+  if (!get_item(&item, "Sell which corpse", "You have no corpses you can sell.", USE_INVEN)) return;
+
+  o_ptr = &inventory[item];
+
+  /* Exotic body parts are worth more. */
+  boost = corpse_value_boost(o_ptr->sval);
+
+  /* Try to find a match. */
+  for (i = 1; i < MAX_BOUNTIES; i++) {
+
+    if (o_ptr->pval2 == bounties[i][0]) {
+      value = bounties[i][1] + boost*(r_info[o_ptr->pval].level);
+
+      value *= o_ptr->number;
+
+      msg_format("Sold for %ld gold pieces.", value);
+      msg_print(NULL);
+      p_ptr->au += value;
+
+      inven_item_increase(item, -1);
+      inven_item_describe(item);
+      inven_item_optimize(item);
+
+      return;
+    }
+  }
+
+  msg_print("Sorry, but that monster does not have a bounty on it.");
+  msg_print(NULL);
+}
+
+
+
+/*
+ * Hook for bounty monster selection.
+ */
+static bool mon_hook_bounty(int r_idx) {
+  monster_race* r_ptr = &r_info[r_idx];
+
+  if (r_ptr->flags1 & RF1_UNIQUE || (!(r_ptr->flags9 & RF9_DROP_CORPSE)&& !(r_ptr->flags9 & RF9_DROP_SKELETON)) ||
+      r_ptr->flags7 & RF7_PET || r_ptr->flags7 & RF7_FRIENDLY) 
+    return FALSE;
+
+  return TRUE;
+}
+
+
+static void select_quest_monster(void) {
+  monster_race* r_ptr;
+  int amt;
+
+  /* Set up the hooks -- no bounties on uniques or monsters with no
+   * corpses. */
+  get_mon_num_hook = mon_hook_bounty;
+  get_mon_num_prep();
+
+  /* Set up the quest monster. */
+  bounties[0][0] = get_mon_num(p_ptr->lev);
+
+  r_ptr = &r_info[bounties[0][0]];
+
+  /* Select the number of monsters needed to kill. Groups and breeders require
+   * more. */
+  amt = randnor(5, 3);
+
+  if (amt < 2) amt = 2;
+
+  if (r_ptr->flags1 & RF1_FRIEND)  amt *= 3; amt /= 2;
+  if (r_ptr->flags1 & RF1_FRIENDS) amt *= 2;
+  if (r_ptr->flags2 & RF2_MULTIPLY) amt *= 3;
+  
+  if (r_ptr->flags7 & RF7_AQUATIC) amt /= 2;
+
+  bounties[0][1] = amt;
+
+  /* Undo the filters. */
+  get_mon_num_hook = NULL;
+  get_mon_num_prep();
+}
+
+
+
+/*
+ * Sell a corpse for a reward.
+ */
+static void sell_quest_monster(void) {
+  object_type* o_ptr;
+  int item;
+
+  /* Set the hook. */
+  item_tester_hook = item_tester_hook_quest_monster;
+
+  /* Select a corpse to sell. */
+  if (!get_item(&item, "Sell which corpse", "You have no corpses you can sell.", USE_INVEN)) return;
+
+  o_ptr = &inventory[item];
+
+  bounties[0][1] -= o_ptr->number;
+
+  /* Completed the quest. */
+  if (bounties[0][1] <= 0) {
+        int m;
+        monster_race *r_ptr;
+
+    msg_print("You have completed your quest!");
+    msg_print(NULL);
+
+                        /* Give full knowledge */
+                        /* Hack -- Maximal info */
+                        r_ptr = &r_info[bounties[0][0]];
+
+                        msg_print(format("Well done! As a reward I'll teach you every thing about the %s, check your recall",r_name + r_ptr->name));
+
+                        r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
+
+                        /* Observe "maximal" attacks */
+                        for (m = 0; m < 4; m++)
+                        {
+			/* Examine "actual" blows */
+			if (r_ptr->blow[m].effect || r_ptr->blow[m].method)
+			{
+				/* Hack -- maximal observations */
+				r_ptr->r_blows[m] = MAX_UCHAR;
+			}
+                        }
+
+                        /* Hack -- maximal drops */
+                        r_ptr->r_drop_gold = r_ptr->r_drop_item =
+                        (((r_ptr->flags1 & (RF1_DROP_4D2)) ? 8 : 0) +
+                         ((r_ptr->flags1 & (RF1_DROP_3D2)) ? 6 : 0) +
+                         ((r_ptr->flags1 & (RF1_DROP_2D2)) ? 4 : 0) +
+                         ((r_ptr->flags1 & (RF1_DROP_1D2)) ? 2 : 0) +
+                         ((r_ptr->flags1 & (RF1_DROP_90))  ? 1 : 0) +
+                         ((r_ptr->flags1 & (RF1_DROP_60))  ? 1 : 0));
+
+                        /* Hack -- but only "valid" drops */
+                        if (r_ptr->flags1 & (RF1_ONLY_GOLD)) r_ptr->r_drop_item = 0;
+                        if (r_ptr->flags1 & (RF1_ONLY_ITEM)) r_ptr->r_drop_gold = 0;
+
+                        /* Hack -- observe many spells */
+                        r_ptr->r_cast_inate = MAX_UCHAR;
+                        r_ptr->r_cast_spell = MAX_UCHAR;
+
+                        /* Hack -- know all the flags */
+                        r_ptr->r_flags1 = r_ptr->flags1;
+                        r_ptr->r_flags2 = r_ptr->flags2;
+                        r_ptr->r_flags3 = r_ptr->flags3;
+                        r_ptr->r_flags4 = r_ptr->flags4;
+                        r_ptr->r_flags5 = r_ptr->flags5;
+                        r_ptr->r_flags6 = r_ptr->flags6;
+                        r_ptr->r_flags4 = r_ptr->flags7;
+                        r_ptr->r_flags5 = r_ptr->flags8;
+                        r_ptr->r_flags6 = r_ptr->flags9;
+    msg_print(NULL);
+
+    select_quest_monster();
+
+  } else {
+    msg_format("Well done, only %d more to go.", bounties[0][1]);
+    msg_print(NULL);
+  }
+
+  inven_item_increase(item, -1);
+  inven_item_describe(item);
+  inven_item_optimize(item);
+}
+
+
+
+/*
+ * Fill the bounty list with monsters.
+ */
+void select_bounties(void) {
+  int i, j;
+
+  select_quest_monster();
+
+  /* Set up the hooks -- no bounties on uniques or monsters with no
+   * corpses. */
+  get_mon_num_hook = mon_hook_bounty;
+  get_mon_num_prep();
+
+  for (i = 1; i < MAX_BOUNTIES; i++) {
+    int lev = i*5 + randnor(0, 2);
+    monster_race* r_ptr;
+    s16b r_idx;
+    s16b val;
+    
+    if (lev < 1) 
+      lev = 1;
+
+    if (lev >= MAX_DEPTH)
+      lev = MAX_DEPTH-1;
+
+    /* We don't want duplicate entries in the list. */
+    while (TRUE) {
+      r_idx = get_mon_num(lev);
+
+      for (j = 0; j < i; j++) {
+	if (bounties[j][0] == r_idx) continue;
+      }
+
+      break;
+    }
+
+    bounties[i][0] = r_idx;
+
+    r_ptr = &r_info[r_idx];
+
+    val = r_ptr->mexp + r_ptr->level*20 + randnor(0, r_ptr->level*2);
+
+    if (val < 1) val = 1;
+
+    bounties[i][1] = val;
+  }
+
+  /* Undo the filters. */
+  get_mon_num_hook = NULL;
+  get_mon_num_prep();
+}
+
+/*
  * Execute a building command
  */
 static void bldg_process_command(building_type *bldg, int i)
@@ -1492,8 +1842,9 @@ static void bldg_process_command(building_type *bldg, int i)
 			amt = get_quantity("Teleport to which level? ", 98);
 			if (amt > 0)
 			{
+                                dungeon_type = calc_dungeon_type();
 				p_ptr->word_recall = 1;
-				p_ptr->max_dlv = amt;
+                                p_ptr->max_dlv[dungeon_type] = amt;
 				msg_print("The air about you becomes charged...");
 				paid = TRUE;
 			}
@@ -1529,7 +1880,45 @@ static void bldg_process_command(building_type *bldg, int i)
                                 if(p_ptr->chp<=0)p_ptr->chp=1;
                         }else msg_print("Hum .. you are NOT a DragonRider , you need a dragon to go between !");
 			break;
+                case BACT_MIMIC_NORMAL:
+                        set_mimic(0,0);
+                        paid = TRUE;
+                        break;
 
+                case BACT_VIEW_BOUNTIES:
+                        show_bounties();
+                        break;
+
+                case BACT_VIEW_QUEST_MON:
+                        show_quest_monster();
+                        break;
+
+                case BACT_SELL_QUEST_MON:
+                        sell_quest_monster();
+                        break;
+
+                case BACT_SELL_CORPSES:
+                        sell_corpses();
+                        break;
+
+                case BACT_DIVINATION:
+                {
+                        int i, count = 0;
+                        while(count < 1000)
+                        {
+                                count++;
+                                i = rand_int(MAX_FATES);
+                                if(!fates[i].fate) continue;
+                                if(fates[i].know) continue;
+                                msg_print("You know a little more of your fate.");
+
+                                fates[i].know = TRUE;
+                                break;
+                        }
+
+                        paid = TRUE;
+                        break;
+                }
 	}
 
 	if (paid)

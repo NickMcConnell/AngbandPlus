@@ -215,7 +215,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Weight */
-	sprintf(wgt, "%3d.%d", q_ptr->weight / 10, q_ptr->weight % 10);
+        sprintf(wgt, "%3ld.%ld", q_ptr->weight / 10, q_ptr->weight % 10);
 }
 
 
@@ -735,7 +735,7 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
 				TR1_DEX | TR1_CON | TR1_CHR);
 
-	u32b f1, f2, f3;
+        u32b f1, f2, f3, f4;
 
 	cptr *affects_list;
 
@@ -748,12 +748,12 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 	}
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	affects_list = p_ptr->pval_affects;
 
 	/* Create the "+N" string */
-	sprintf(p_ptr->pval_desc, "%s%d", POSITIZE(o_ptr->pval), o_ptr->pval);
+        sprintf(p_ptr->pval_desc, "%s%ld", POSITIZE(o_ptr->pval), o_ptr->pval);
 
 	/* First, check to see if the pval affects all stats */
 	if ((f1 & all_stats) == all_stats)
@@ -782,9 +782,9 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 /* Note the slaying specialties of a weapon */
 static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 {
-	u32b f1, f2, f3;
+        u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	slay_list = spoiler_flag_aux(f1, slay_flags_desc, slay_list,
 				     N_ELEMENTS(slay_flags_desc));
@@ -796,9 +796,9 @@ static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 /* Note an object's elemental brands */
 static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 {
-	u32b f1, f2, f3;
+        u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	brand_list = spoiler_flag_aux(f1, brand_flags_desc, brand_list,
 				      N_ELEMENTS(brand_flags_desc));
@@ -811,9 +811,9 @@ static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 /* Note the resistances granted by an object */
 static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 {
-	u32b f1, f2, f3;
+        u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	resist_list = spoiler_flag_aux(f2, resist_flags_desc,
 				       resist_list, N_ELEMENTS(resist_flags_desc));
@@ -826,9 +826,9 @@ static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 /* Note the immunities granted by an object */
 static void analyze_immune (object_type *o_ptr, cptr *immune_list)
 {
-	u32b f1, f2, f3;
+        u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	immune_list = spoiler_flag_aux(f2, immune_flags_desc,
 				       immune_list, N_ELEMENTS(immune_flags_desc));
@@ -844,9 +844,9 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
 	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
 				   TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
 
-	u32b f1, f2, f3;
+        u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Simplify things if an item sustains all stats */
 	if ((f2 & all_sustains) == all_sustains)
@@ -873,9 +873,9 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
  */
 static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 {
-	u32b f1, f2, f3;
+        u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	misc_list = spoiler_flag_aux(f2, misc_flags2_desc, misc_list,
 				     N_ELEMENTS(misc_flags2_desc));
@@ -982,7 +982,7 @@ static void print_header(void)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
 #else /* FAKE_VERSION */
-    sprintf(buf, "Artifact Spoilers for Zangband Version %d.%d.%d",
+    sprintf(buf, "Artifact Spoilers for PernAngband Version %d.%d.%d",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 #endif /* FAKE_VERSION */
@@ -1335,7 +1335,7 @@ static void spoil_mon_desc(cptr fname)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #else
-    fprintf(fff, "Monster Spoilers for Zangband Version %d.%d.%d\n",
+    fprintf(fff, "Monster Spoilers for PernAngband Version %d.%d.%d\n",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #endif
@@ -1557,7 +1557,7 @@ static void spoil_mon_info(cptr fname)
 	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-    sprintf(buf, "Monster Spoilers for Zangband Version %d.%d.%d\n",
+    sprintf(buf, "Monster Spoilers for PernAngband Version %d.%d.%d\n",
          FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -1678,7 +1678,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-		else if (flags3 & (RF3_AMBERITE)) spoil_out (" Amberite");
+                else if (flags3 & (RF3_DRAGONRIDER)) spoil_out (" DragonRider");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1855,16 +1855,16 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_XXX2))              vp[vn++] = "do something";
 		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
 		if (flags6 & (RF6_TPORT))             vp[vn++] = "teleport-self";
-		if (flags6 & (RF6_XXX3))              vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX4))              vp[vn++] = "do something";
+                if (flags6 & (RF6_S_BUG))             vp[vn++] = "summon software bugs";
+                if (flags6 & (RF6_S_RNG))             vp[vn++] = "summon RNGs";
 		if (flags6 & (RF6_TELE_TO))           vp[vn++] = "teleport to";
 		if (flags6 & (RF6_TELE_AWAY))         vp[vn++] = "teleport away";
 		if (flags6 & (RF6_TELE_LEVEL))        vp[vn++] = "teleport level";
-		if (flags6 & (RF6_XXX5))              vp[vn++] = "do something";
 		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
 		if (flags6 & (RF6_RAISE_DEAD))        vp[vn++] = "raise dead";
+                if (flags6 & (RF6_S_DRAGONRIDER))     vp[vn++] = "summon a dragonrider";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
 		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon aid";
@@ -1973,8 +1973,8 @@ static void spoil_mon_info(cptr fname)
 		vn = 0;
 		if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
 		if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
-		if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "fire";
-		if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "cold";
+                if (flags3 & (RF3_SUSCEP_FIRE)) vp[vn++] = "fire";
+                if (flags3 & (RF3_SUSCEP_COLD)) vp[vn++] = "cold";
 
 		if (vn)
 		{
@@ -2280,8 +2280,119 @@ static void spoil_mon_info(cptr fname)
 	msg_print("Successfully created a spoiler file.");
 }
 
+static char* get_tval_name(int tval)
+{
+        switch(tval)
+        {
+                case TV_SWORD:
+                        return "Sword";
+                case TV_POLEARM:
+                        return "Polearm";
+                case TV_HAFTED:
+                        return "Hafted";
+                case TV_CROWN:
+                        return "Crown";
+                case TV_HELM:
+                        return "Helm";
+                case TV_GLOVES:
+                        return "Gloves";
+                case TV_CLOAK:
+                        return "Cloak";
+                case TV_BOOTS:
+                        return "Boots";
+                case TV_SOFT_ARMOR:
+                        return "Soft armor";
+                case TV_HARD_ARMOR:
+                        return "Hard armor";
+        }
+        return "";
+}
 
+/*
+ * Create a spoiler file for bateries
+ */
+static void spoil_bateries(cptr fname)
+{
+        int i, b;
 
+	char buf[1024];
+        char ttt[300];
+        char desc1[80], desc2[80];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Open the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff)
+	{
+		msg_print("Cannot create spoiler file.");
+		return;
+	}
+
+	/* Dump the header */
+        sprintf(buf, "Batery Spoilers for PernAngband Version %d.%d.%d",
+                FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	spoiler_underline(buf);
+
+        spoil_out("\n\n");
+
+        for(i = 0; i < MAX_ALCHEMIST_RECIPES; i++)
+        {
+                object_type *o_ptr, *q_ptr, forge;
+                object_kind *k_ptr;
+                ego_item_type *e_ptr;
+
+                if(!alchemist_recipes[i].sval_baterie) continue;
+
+                o_ptr = &forge;
+                object_prep(o_ptr, lookup_kind(TV_BATERIE, alchemist_recipes[i].sval_baterie));
+                k_ptr = &k_info[o_ptr->k_idx];
+
+                sprintf(ttt, "Baterie of %s :\n", k_name + k_ptr->name);
+                spoil_out(ttt);
+
+                spoil_out("Can be used to make :\n");
+                for(b = 0; b < 9; b++)
+                        if(alchemist_recipes[i].ego[b].ego){
+                                e_ptr = &e_info[alchemist_recipes[i].ego[b].ego];
+                                sprintf(ttt, "-       %s %s with %d baterie%s\n", get_tval_name(alchemist_recipes[i].ego[b].which), e_name + e_ptr->name, alchemist_recipes[i].ego[b].ego_num, (alchemist_recipes[i].ego[b].ego_num)?"s":"");
+                                spoil_out(ttt);
+                        }
+
+                spoil_out("\n");
+
+                for(b = 0; b < 9; b++)
+                        if(alchemist_recipes[i].item[b].ctval)
+                        {
+                                o_ptr = &forge;
+                                object_prep(o_ptr, lookup_kind(alchemist_recipes[i].item[b].ctval, alchemist_recipes[i].item[b].csval));
+                                object_desc_store(desc1, o_ptr, 1, 0);
+                                q_ptr = &forge;
+                                object_prep(q_ptr, lookup_kind(alchemist_recipes[i].item[b].etval, alchemist_recipes[i].item[b].esval));
+                                object_desc_store(desc2, q_ptr, 1, 0);
+                                sprintf(ttt, "Convert %s into %s with %d baterie%s\n", desc1, desc2, alchemist_recipes[i].item[b].num, (alchemist_recipes[i].item[b].num)?"s":"");
+                                spoil_out(ttt);
+                        }
+
+                spoil_out("\n---------------------------------------\n\n");
+        }
+
+	/* Check for errors */
+	if (ferror(fff) || my_fclose(fff))
+	{
+		msg_print("Cannot close spoiler file.");
+		return;
+	}
+
+	/* Message */
+	msg_print("Successfully created a spoiler file.");
+}
 
 
 
@@ -2323,6 +2434,7 @@ void do_cmd_spoilers(void)
 		prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
 		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
 		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
+                prt("(5) Brief Batery Info (bat-info.spo)", 9, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);
@@ -2358,6 +2470,12 @@ void do_cmd_spoilers(void)
 		else if (i == '4')
 		{
 			spoil_mon_info("mon-info.spo");
+		}
+
+                /* Option (5) */
+                else if (i == '5')
+		{
+                        spoil_bateries("bat-info.spo");
 		}
 
 		/* Oops */

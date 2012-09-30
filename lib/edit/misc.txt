@@ -6,29 +6,29 @@ M:T:100
 # Maximum number of quests
 M:Q:1000
 
-# Maximum x size of the wilderness (unused)
-M:WX:10
+# Maximum x size of the wilderness
+M:X:10
 
-# Maximum y size of the wilderness (unused)
-M:WY:10
+# Maximum y size of the wilderness
+M:Y:10
 
 # Maximum number of monsters in r_info.txt
-M:R:864
+M:R:1000
 
 # Maximum number of items in k_info.txt
-M:K:700
+M:K:800
 
 # Maximum number of vaults in v_info.txt
-M:V:83
+M:V:105
 
 # Maximum number of terrain features in f_info.txt
-M:F:160
+M:F:200
 
 # Maximum number of artifacts in a_info.txt
-M:A:128
+M:A:210
 
 # Maximum number of ego-items in e_info.txt
-M:E:128
+M:E:140
 
 # Maximum size for "o_list[]"
 M:O:256

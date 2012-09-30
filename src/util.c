@@ -3411,3 +3411,121 @@ void repeat_check(void)
 }
 
 #endif /* ALLOW_REPEAT -- TNB */
+
+/*
+ * Read a number at a specific location on the screen
+ *
+ * Allow numbers of any size and save the last keypress.
+ */
+u32b get_number(u32b def, u32b max, int y, int x, char *cmd)
+{
+	int i;
+
+	u32b res = def;
+
+	/* Player has not typed anything yet */
+	bool no_keys = TRUE;
+
+	/* Begin the input with default */
+	prt(format("%lu", def), y, x);
+
+	/* Get a command count */
+	while (1)
+	{
+		/* Get a new keypress */
+		*cmd = inkey();
+
+		/* Simple editing (delete or backspace) */
+		if ((*cmd == 0x7F) || (*cmd == KTRL('H')))
+		{
+			/* Override the default */
+			no_keys = FALSE;
+
+			/* Delete a digit */
+			res = res / 10;
+
+			prt(format("%lu", res), y, x);
+		}
+
+		/* Actual numeric data */
+		else if (*cmd >= '0' && *cmd <= '9')
+		{
+			/* Override the default */
+			if (no_keys)
+			{
+				no_keys = FALSE;
+				res = 0;
+			}
+
+			/* Don't overflow */
+			if (((u32b)(0 - 1) - D2I(*cmd)) / 10 < res)
+			{
+				/* Warn */
+				bell();
+
+				/* Limit */
+				res = (max + 1 == 0) ? 0 - 1 : max;
+			}
+
+			/* Stop count at maximum */
+			else if (res * 10 + D2I(*cmd) > max)
+			{
+				/* Warn */
+				bell();
+
+				/* Limit */
+				res = max;
+			}
+
+			/* Increase count */
+			else
+			{
+				/* Incorporate that digit */
+				res = res * 10 + D2I(*cmd);
+			}
+
+			/* Show current count */
+			prt(format("%lu", res), y, x);
+		}
+
+		/* Escape cancels */
+		else if (*cmd == ESCAPE)
+		{
+			res = 0;
+			break;
+		}
+
+		/* Exit on "unusable" input */
+		else
+		{
+			break;
+		}
+	}
+
+	return res;
+}
+
+/*
+ * Allow the user to select multiple items without pressing '0'
+ */
+void get_count(int number, int max)
+{
+	char cmd;
+
+	/* Use the default */
+        command_arg = number;
+
+	/* Hack -- Optional flush */
+	if (flush_command) flush();
+
+	/* Clear top line */
+	prt("", 0, 0);
+
+	/* Begin the input */
+	prt("How many?", 0, 0);
+
+	/* Actually get a number */
+        command_arg = get_number(command_arg, max, 0, 10, &cmd);
+
+	prt("", 0, 0);
+}

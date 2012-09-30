@@ -1,0 +1,4 @@
+Known bugs:
+- Artifact spoiler don't show the muscial ones and some other
+- Egg price seem to don't work well
+- Batery(ies) are not correctly spelled!

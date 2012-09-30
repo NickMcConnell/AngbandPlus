@@ -78,6 +78,7 @@ bool character_xtra;		/* The game is in an icky startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
+u32b seed_dungeon;              /* Simulate persisten dungeons */
 
 s16b command_cmd;		/* Current "Angband Command" */
 
@@ -109,6 +110,7 @@ s16b resting;			/* Current counter for resting, if any */
 s16b cur_hgt;			/* Current dungeon height */
 s16b cur_wid;			/* Current dungeon width */
 s16b dun_level;			/* Current dungeon level */
+s16b old_dun_level;             /* Old dungeon level */
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
@@ -143,7 +145,7 @@ bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 bool repair_monsters;	/* Hack -- optimize detect monsters */
 bool repair_objects;	/* Hack -- optimize detect objects */
 
-s16b total_weight;		/* Total weight being carried */
+s32b total_weight;              /* Total weight being carried */
 
 s16b inven_nxt;			/* Hack -- unused */
 bool hack_mind;
@@ -224,6 +226,9 @@ bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool small_levels;		/* Allow unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
+bool water_levels;              /* Allow flooded levels */
+bool always_small_level;        /* Small levels */
+bool flavored_attacks;          /* Show silly messages when fighting */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
 bool skip_mutations;		/* Skip mutations screen even if we have it */
@@ -233,7 +238,6 @@ bool auto_destroy;		/* Known worthless items are destroyed without confirmation 
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
-
 
 
 /* Option Set 3 -- Game-Play */
@@ -866,6 +870,12 @@ cptr ANGBAND_DIR_INFO;
 cptr ANGBAND_DIR_SAVE;
 
 /*
+ * Scripts.
+ * These files are portable between platforms
+ */
+cptr ANGBAND_DIR_SCPT;
+
+/*
  * User "preference" files (ascii)
  * These files are rarely portable between platforms
  */
@@ -876,7 +886,6 @@ cptr ANGBAND_DIR_USER;
  * These files are rarely portable between platforms
  */
 cptr ANGBAND_DIR_XTRA;
-
 
 /*
  * Total Hack -- allow all items to be listed (even empty ones)
@@ -940,10 +949,15 @@ bool easy_disarm = TRUE;
 
 
 /*
+ * Maximum size of the wilderness
+ */
+u16b max_wild_x;
+u16b max_wild_y;
+
+/*
  * Wilderness
  */
-wilderness_type wilderness[MAX_WILD_Y][MAX_WILD_X];
-
+wilderness_type **wilderness;
 
 /*
  * Buildings
@@ -1016,5 +1030,57 @@ int quest_text_line;
  */
 int init_flags;
 
-bool special_flag;              /* True if on special level */
+/* True if on special level */
+bool special_flag;
+
+/* True if on fated level */
+bool fate_flag;
+
+/* No breeders */
+u16b no_breeds;
+
+/* Carried monsters can't take the damage if this is them which attack the player */
+bool carried_monster_hit = FALSE;
+
+/*
+ * Random artifacts.
+ */
+random_artifact random_artifacts[MAX_RANDARTS];
+
+/*
+ * Current bounties. An array of tuples of two, with the first being the
+ * r_idx of the monster, and the second the monster's worth.
+ */
+s16b bounties[MAX_BOUNTIES][2];
+
+/*
+ * Random spells.
+ */
+random_spell random_spells[MAX_SPELLS];
+s16b spell_num;
+
+/*
+ * r_idx of the imprinted monsters to keep;
+ */
+s16b *r_idx_to_keep;
+
+/*
+ * Fate.
+ */
+fate fates[MAX_FATES];
+
+/*
+ * Vanilla town.
+ */
+byte vanilla_town;
+
+/*
+ * Which dungeon ?
+ * 0 = Wilderness
+ * 1 = Mirkwood
+ * 2 = Mordor
+ * 3 = Angband
+ * 4 = Galgals
+ */
+byte dungeon_type;
 

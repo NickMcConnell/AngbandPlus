@@ -12,6 +12,55 @@
 
 #include "angband.h"
 
+/*
+ * adds n flags to o_ptr chosen randomly from the masks f1..f4
+ */
+static void enhance_random(object_type *o_ptr,int n,u32b f1,u32b f2,u32b f3,u32b f4)
+{
+  int counter=0,null_mask;
+  u32b *f,*t,x;
+
+  while (n)
+    {
+      /* inefficient, but simple */
+      x = 1L << rand_int(32);
+      switch (randint(4))
+	{
+	case 1: 
+	  null_mask = TR1_NULL_MASK;
+	  f = &f1;
+	  t = &o_ptr->art_flags1;
+	  break;
+	case 2: 
+	  null_mask = TR2_NULL_MASK;
+	  f = &f2;
+	  t = &o_ptr->art_flags2;
+	  break;
+	case 3: 
+	  null_mask = TR3_NULL_MASK;
+	  f = &f3;
+	  t = &o_ptr->art_flags3;
+	  break;
+	case 4: 
+	  null_mask = TR4_NULL_MASK;
+	  f = &f4;
+	  t = &o_ptr->art_flags4;
+	  break;
+	default:
+	  null_mask = 0;
+	  f = t = NULL;
+	  return;
+	}
+      if (++counter > 10000) break;
+      if (x & null_mask) continue;
+      if (!(x & *f)) continue;
+      if (x & *t) continue;
+      /* success */
+      *f &= ~x;
+      *t |= x;
+      n--;
+    }
+}
 
 
 /*
@@ -452,7 +501,11 @@ void wipe_o_list(void)
 			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
 			{
 				/* Mega-Hack -- Preserve the artifact */
-				a_info[o_ptr->name1].cur_num = 0;
+                                if (o_ptr->tval == TV_RANDART) {
+                                        random_artifacts[o_ptr->sval].generated = FALSE;
+                                }else{
+                                        a_info[o_ptr->name1].cur_num = 0;
+                                }
 			}
 		}
 
@@ -812,13 +865,16 @@ static s32b object_value_base(object_type *o_ptr)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Aware item -- use template cost */
-	if (object_aware_p(o_ptr)) return (k_ptr->cost);
+        if ((object_aware_p(o_ptr))&&(o_ptr->tval!=TV_EGG)) return (k_ptr->cost);
 
 	/* Analyze the type */
 	switch (o_ptr->tval)
 	{
 		/* Un-aware Food */
 		case TV_FOOD: return (5L);
+
+		/* Un-aware Potions */
+                case TV_POTION2: return (20L);
 
 		/* Un-aware Potions */
 		case TV_POTION: return (20L);
@@ -840,6 +896,19 @@ static s32b object_value_base(object_type *o_ptr)
 
 		/* Un-aware Amulets */
 		case TV_AMULET: return (45L);
+
+                /* Eggs */
+                case TV_EGG:
+		{
+                        monster_type *m_ptr = &m_list[o_ptr->pval2];
+                        monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+                        /* Pay the monster level */
+                        return (r_ptr->level * 100)+100;
+
+			/* Done */
+			break;
+		}
 	}
 
 	/* Paranoia -- Oops */
@@ -850,9 +919,9 @@ static s32b object_value_base(object_type *o_ptr)
 s32b flag_cost(object_type * o_ptr, int plusses)
 {
 	s32b total = 0;
-	u32b f1, f2, f3;
+        u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	if (f1 & TR1_STR) total += (1000 * plusses);
 	if (f1 & TR1_INT) total += (1000 * plusses);
@@ -870,8 +939,8 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		total += (10000 + (2500 * plusses));
 	if ((f1 & TR1_BLOWS) && (plusses > 0))
 		total += (10000 + (2500 * plusses));
-        if (f1 & TR1_MANA) total += 0;
-        if (f1 & TR1_SPELL) total += 0;
+        if (f1 & TR1_MANA) total += (1000 * plusses);
+        if (f1 & TR1_SPELL) total += (2000 * plusses);
 	if (f1 & TR1_SLAY_ANIMAL) total += 3500;
 	if (f1 & TR1_SLAY_EVIL) total += 4500;
 	if (f1 & TR1_SLAY_UNDEAD) total += 3500;
@@ -894,13 +963,13 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f2 & TR2_SUST_DEX) total += 850;
 	if (f2 & TR2_SUST_CON) total += 850;
 	if (f2 & TR2_SUST_CHR) total += 250;
-        if (f2 & TR2_INVIS) total += 0;
-	if (f2 & TR2_XXX2) total += 0;
+        if (f2 & TR2_INVIS) total += 3000;
+        if (f2 & TR2_LIFE) total += (5000 * plusses);
 	if (f2 & TR2_IM_ACID) total += 10000;
 	if (f2 & TR2_IM_ELEC) total += 10000;
 	if (f2 & TR2_IM_FIRE) total += 10000;
 	if (f2 & TR2_IM_COLD) total += 10000;
-	if (f2 & TR2_XXX3) total += 0;
+        if (f2 & TR2_SENS_FIRE) total -= 100;
 	if (f2 & TR2_REFLECT) total += 10000;
 	if (f2 & TR2_FREE_ACT) total += 4500;
 	if (f2 & TR2_HOLD_LIFE) total += 8500;
@@ -923,7 +992,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_SH_FIRE) total += 5000;
 	if (f3 & TR3_SH_ELEC) total += 5000;
 	if (f3 & TR3_QUESTITEM) total += 0;
-	if (f3 & TR3_XXX4) total += 0;
+        if (f3 & TR3_DECAY) total += 0;
 	if (f3 & TR3_NO_TELE) total += 2500;
 	if (f3 & TR3_NO_MAGIC) total += 2500;
 	if (f3 & TR3_WRAITH) total += 250000;
@@ -958,6 +1027,9 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_CURSED) total -= 5000;
 	if (f3 & TR3_HEAVY_CURSE) total -= 12500;
 	if (f3 & TR3_PERMA_CURSE) total -= 15000;
+        if (f4 & TR4_NEVER_BLOW) total -= 15000;
+        if (f4 & TR4_PRECOGNITION) total += 250000;
+        if (f4 & TR4_BLACK_BREATH) total -= 12500;
 
 	/* Also, give some extra for activatable powers... */
 
@@ -1069,10 +1141,13 @@ s32b object_value_real(object_type *o_ptr)
 {
 	s32b value;
 
-	u32b f1, f2, f3;
+        u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
+	if (o_ptr->tval == TV_RANDART) {
+                return random_artifacts[o_ptr->sval].cost;
+	}
 
 	/* Hack -- "worthless" items */
 	if (!k_ptr->cost) return (0L);
@@ -1080,9 +1155,8 @@ s32b object_value_real(object_type *o_ptr)
 	/* Base cost */
 	value = k_ptr->cost;
 
-
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3)
 	{
@@ -1136,9 +1210,10 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
+                case TV_MSTAFF:
 		{
 			/* Hack -- Negative "pval" is always bad */
-			if (o_ptr->pval < 0) return (0L);
+                        if (o_ptr->pval < 0) return (0L);
 
 			/* No pval */
 			if (!o_ptr->pval) break;
@@ -1173,6 +1248,19 @@ s32b object_value_real(object_type *o_ptr)
 	/* Analyze the item */
 	switch (o_ptr->tval)
 	{
+                /* Eggs */
+                case TV_EGG:
+		{
+                        monster_type *m_ptr = &m_list[o_ptr->pval2];
+                        monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+                        /* Pay the monster level */
+                        value += r_ptr->level * 100;
+
+			/* Done */
+			break;
+		}
+
 		/* Wands/Staffs */
 		case TV_WAND:
 		case TV_STAFF:
@@ -1364,6 +1452,27 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			return (0);
 		}
 
+                case TV_RANDART: {
+                        return FALSE;
+                }
+
+                case TV_INSTRUMENT:
+                {
+                        return FALSE;
+                }
+
+                case TV_HYPNOS:
+                case TV_EGG:
+                {
+                        return FALSE;
+                }
+
+                /* Corpses*/
+                case TV_CORPSE:
+		{
+                        return FALSE;
+		}
+
 		/* Food and Potions and Scrolls */
 		case TV_FOOD:
 		case TV_POTION:
@@ -1398,9 +1507,11 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 		/* Weapons and Armor */
 		case TV_BOW:
+                case TV_BOOMERANG:
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+                case TV_MSTAFF:
 		case TV_SWORD:
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -1717,6 +1828,42 @@ static s16b m_bonus(int max, int level)
 }
 
 
+/*
+ * Tinker with the random artifact to make it acceptable
+ * for a certain depth; also connect a random artifact to an 
+ * object.
+ */
+static void finalize_randart(object_type* o_ptr, int lev) {
+  int r;
+  int i = 0;
+  int foo = lev + randnor(0, 5);
+  bool flag = TRUE;
+
+  /* Paranoia */
+  if (o_ptr->tval != TV_RANDART) return;
+
+  if (foo < 1) foo = 1;
+  if (foo > 100) foo = 100;
+
+  while (flag) {
+    r = rand_int(MAX_RANDARTS);
+	      
+    if (!(random_artifacts[r].generated) || i > 2000) {
+      random_artifact* ra_ptr = &random_artifacts[r];
+
+      o_ptr->sval = r;
+      o_ptr->pval2 = ra_ptr->activation;
+      o_ptr->xtra2 = activation_info[ra_ptr->activation].spell;
+
+      ra_ptr->level = lev;
+      ra_ptr->generated = TRUE;
+      flag = FALSE;
+    }
+
+    i++;
+  }
+}
+
 
 
 /*
@@ -1781,7 +1928,7 @@ void random_artifact_resistance(object_type * o_ptr)
 	switch(o_ptr->name1)
 	{
 		case ART_CELEBORN: case ART_ARVEDUI: case ART_CASPANION:
-		case ART_HITHLOMIR: case ART_ROHIRRIM:
+                case ART_TRON: case ART_ROHIRRIM:
 		case ART_CELEGORM: case ART_ANARION: case ART_THRANDUIL:
 		case ART_LUTHIEN: case ART_THROR: case ART_THORIN:
 		case ART_NIMTHANC: case ART_DETHANC: case ART_NARTHANC:
@@ -1903,6 +2050,57 @@ static bool make_artifact_special(object_type *o_ptr)
 		return (TRUE);
 	}
 
+	/* Check the artifact list (just the "specials") */
+        for (i = ART_MIN_SPECIAL; i < max_a_idx; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+
+		/* Skip "empty" artifacts */
+		if (!a_ptr->name) continue;
+
+		/* Cannot make an artifact twice */
+		if (a_ptr->cur_num) continue;
+
+		if (a_ptr->flags3 & TR3_QUESTITEM) continue;
+
+		/* XXX XXX Enforce minimum "depth" (loosely) */
+		if (a_ptr->level > dun_level)
+		{
+			/* Acquire the "out-of-depth factor" */
+			int d = (a_ptr->level - dun_level) * 2;
+
+			/* Roll for out-of-depth creation */
+			if (rand_int(d) != 0) continue;
+		}
+
+		/* Artifact "rarity roll" */
+		if (rand_int(a_ptr->rarity) != 0) return (0);
+
+		/* Find the base object */
+		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+		/* XXX XXX Enforce minimum "object" level (loosely) */
+		if (k_info[k_idx].level > object_level)
+		{
+			/* Acquire the "out-of-depth factor" */
+			int d = (k_info[k_idx].level - object_level) * 5;
+
+			/* Roll for out-of-depth creation */
+			if (rand_int(d) != 0) continue;
+		}
+
+		/* Assign the template */
+		object_prep(o_ptr, k_idx);
+
+		/* Mega-Hack -- mark the item as an artifact */
+		o_ptr->name1 = i;
+
+
+
+		/* Success */
+		return (TRUE);
+	}
+
 	/* Failure */
 	return (FALSE);
 }
@@ -1927,7 +2125,7 @@ static bool make_artifact(object_type *o_ptr)
 	if (o_ptr->number != 1) return (FALSE);
 
 	/* Check the artifact list (skip the "specials") */
-	for (i = ART_MIN_NORMAL; i < max_a_idx; i++)
+        for (i = ART_MIN_NORMAL; i < ART_MIN_SPECIAL; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
@@ -2141,12 +2339,13 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+                case TV_BOOMERANG:
 		{
 			/* Very Good */
 			if (power > 1)
 			{
 				/* Roll for an ego-item */
-				switch (randint((o_ptr->tval == TV_POLEARM)?40:42))
+                                switch (randint((o_ptr->tval == TV_POLEARM)?43:45))
 				{
 					case 1:
 					{
@@ -2367,7 +2566,25 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						random_resistance(o_ptr, FALSE, ((randint(22))+16));
 						break;
 					}
-					default: /* 2 slots for TV_SWORD and TV_HAFTED */
+                                        case 41:
+					{
+                                                o_ptr->name2 = EGO_LIFE;
+                                                o_ptr->pval = m_bonus(3, level);
+                                                break;
+                                        }
+                                        case 42:
+                                                o_ptr->name2 = EGO_SUPER_DEFENDER;
+                                                /* maybe penalize str/dex/speed/attacks */
+                                                enhance_random(o_ptr,7,0,0xFFFFFFFF,0,0);
+                                                break;
+                                        case 43:
+                                                o_ptr->name2 = EGO_SPECTRAL;
+                                                enhance_random(o_ptr,rand_int(3),TR1_VORPAL,TR2_RES_NETHER,TR3_WRAITH,
+                                                               0);
+                                                if (!(o_ptr->art_flags3 & TR3_WRAITH)) 
+                                                        o_ptr->art_flags3 |= TR3_ACTIVATE;
+                                                break;
+                                        default: /* 2 slots for TV_SWORD and TV_HAFTED */
 					{
 						if (o_ptr->tval == TV_SWORD)
 						{
@@ -2396,8 +2613,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				/* Roll for ego-item */
 				if (rand_int(MAX_DEPTH) < level)
 				{
-					o_ptr->name2 = EGO_MORGUL;
-					if (randint(6)==1) o_ptr->art_flags3 |= TR3_TY_CURSE;
+                                        if(randint(2)==0){
+                                                o_ptr->name2 = EGO_MORGUL;
+                                                if (randint(6)==1) o_ptr->art_flags3 |= TR3_TY_CURSE;
+                                        }else{
+                                                o_ptr->name2 = EGO_NOTHING;
+                                        }
 				}
 			}
 
@@ -2658,7 +2879,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			rating += 30;
 
 			/* Mention the item */
-			if (cheat_peek) object_mention(o_ptr);
+                        if ((cheat_peek)||(p_ptr->precognition)) object_mention(o_ptr);
 
 			break;
 		}
@@ -2737,7 +2958,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				rating += 5;
 
 				/* Mention the item */
-				if (cheat_peek) object_mention(o_ptr);
+                                if ((cheat_peek)||(p_ptr->precognition)) object_mention(o_ptr);
 				dragon_resist(o_ptr);
 			}
 			else
@@ -3031,7 +3252,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				rating += 5;
 
 				/* Mention the item */
-				if (cheat_peek) object_mention(o_ptr);
+                                if ((cheat_peek)||(p_ptr->precognition)) object_mention(o_ptr);
 				dragon_resist(o_ptr);
 			}
 			else
@@ -3302,7 +3523,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					rating += 25;
 
 					/* Mention the item */
-					if (cheat_peek) object_mention(o_ptr);
+                                        if ((cheat_peek)||(p_ptr->precognition)) object_mention(o_ptr);
 
 					break;
 				}
@@ -3555,7 +3776,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					rating += 25;
 
 					/* Mention the item */
-					if (cheat_peek) object_mention(o_ptr);
+                                        if ((cheat_peek)||(p_ptr->precognition)) object_mention(o_ptr);
 
 					break;
 				}
@@ -3610,6 +3831,62 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			break;
 		}
 
+                case TV_CORPSE:
+		{
+                        /* Hack -- choose a monster */
+                        monster_race* r_ptr;
+                        int r_idx=get_mon_num(dun_level);
+                        r_ptr = &r_info[r_idx];
+
+                        if(!(r_ptr->flags1 & RF1_UNIQUE))
+                                o_ptr->pval=r_idx;
+                        else
+                                o_ptr->pval=1;
+			break;
+		}
+
+                case TV_EGG:
+		{
+                        /* Hack -- choose a monster */
+                        monster_race* r_ptr;
+                        int r_idx, count = 0;
+                        bool OK = FALSE;
+
+                        while((!OK) && (count<1000))
+                        {
+                                r_idx = get_mon_num(dun_level);
+                                r_ptr = &r_info[r_idx];
+
+                                if(r_ptr->flags9 & RF9_HAS_EGG)
+                                {
+                                        o_ptr->pval2 = r_idx;
+                                        OK = TRUE;
+                                }
+                                count++;
+                        }
+                        if(count==1000) o_ptr->pval2 = 940; /* Blue fire-liard */
+
+                        r_ptr = &r_info[o_ptr->pval2];
+                        o_ptr->weight = (r_ptr->weight + rand_int(r_ptr->weight) / 100) + 1;
+                        o_ptr->pval = r_ptr->weight * 3 + rand_int(r_ptr->weight) + 1;
+                        break;
+		}
+
+                case TV_HYPNOS:
+		{
+                        /* Hack -- choose a monster */
+                        monster_race* r_ptr;
+                        int r_idx=get_mon_num(dun_level);
+                        r_ptr = &r_info[r_idx];
+
+                        o_ptr->pval2 = maxroll(r_ptr->hdice, r_ptr->hside);
+                        if(!(r_ptr->flags1 & RF1_NEVER_MOVE))
+                                o_ptr->pval=r_idx;
+                        else
+                                o_ptr->pval=20;
+			break;
+		}
+
 		case TV_WAND:
 		{
 			/* Hack -- charge wands */
@@ -3639,16 +3916,78 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 			break;
 		}
-  case TV_POTION:
-    if (o_ptr->sval == SV_POTION_BLOOD)
-       { 
-	 /* Rating boost */
-	 rating += 25;
-	 /*  Mention the item */
-	 if ( cheat_peek) object_mention(o_ptr);
-       } 
-    break;
-	}
+                case TV_POTION:
+                        if (o_ptr->sval == SV_POTION_BLOOD)
+                        { 
+                                /* Rating boost */
+                                rating += 25;
+                                /*  Mention the item */
+                                if ((cheat_peek)||(p_ptr->precognition)) object_mention(o_ptr);
+                        } 
+                        break;
+                case TV_INSTRUMENT:
+                {
+                        bool OK = FALSE;
+                        int m;
+
+                        if(o_ptr->sval != SV_HORN)
+                        {
+                                if (power > 1)
+                                {
+                                        /* Roll for ego-item */
+                                        switch (randint(3))
+                                        {
+                                                case 1: case 2:
+                                                {
+                                                        o_ptr->name2 = EGO_INST_ELDAR;
+                                                        random_resistance(o_ptr, FALSE, ((randint(22))+16));
+                                                        break;
+                                                }
+                                                case 3:
+                                                {
+                                                        o_ptr->name2 = EGO_INST_POWER;
+                                                        random_resistance(o_ptr, FALSE, ((randint(22))+16));
+                                                        break;
+                                                }
+                                        }
+                                }
+                                /* Get a music */
+                                while(!OK)
+                                {
+                                       m = rand_int(MAX_MUSICS);
+                                       if(o_ptr->sval >= music_info[m].min_inst)
+                                               if(rand_int(100)<100-music_info[m].rarity)
+                                               {
+                                                        o_ptr->pval2 = m;
+                                                        OK = TRUE;
+                                               }                                                
+                                }
+                        }
+                        else
+                        {
+                                if (power > 1)
+                                {
+                                        o_ptr->name2 = EGO_INST_DRAGONKIND;
+                                        switch(randint(4))
+                                        {
+                                                case 1:
+                                                        o_ptr->pval2 = GF_ELEC;
+                                                        break;
+                                                case 2:
+                                                        o_ptr->pval2 = GF_FIRE;
+                                                        break;
+                                                case 3:
+                                                        o_ptr->pval2 = GF_COLD;
+                                                        break;
+                                                case 4:
+                                                        o_ptr->pval2 = GF_ACID;
+                                                        break;
+                                        }
+                                }
+                        }
+                        break;
+                }
+        }
 }
 
 
@@ -3784,7 +4123,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		good_item_flag = TRUE;
 
 		/* Cheat -- peek at the item */
-		if (cheat_peek) object_mention(o_ptr);
+                if ((cheat_peek)||(p_ptr->precognition)) object_mention(o_ptr);
 
 		/* Done */
 		return;
@@ -3794,11 +4133,17 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Apply magic */
 	switch (o_ptr->tval)
 	{
+                case TV_RANDART:
+                {
+                        finalize_randart(o_ptr, lev);
+                        break;
+                }
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_BOOMERANG:
 		case TV_BOW:
 		case TV_SHOT:
 		case TV_ARROW:
@@ -3864,6 +4209,13 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 			/* Weapon (Defender) */
 			case EGO_DF:
+			{
+				o_ptr->xtra1 = EGO_XTRA_SUSTAIN;
+				break;
+			}
+
+                        /* Weapon (*Defender*) */
+                        case EGO_SUPER_DEFENDER:
 			{
 				o_ptr->xtra1 = EGO_XTRA_SUSTAIN;
 				break;
@@ -3950,7 +4302,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		rating += e_ptr->rating;
 
 		/* Cheat -- describe the item */
-		if (cheat_peek) object_mention(o_ptr);
+                if ((cheat_peek)||(p_ptr->precognition)) object_mention(o_ptr);
 
 		/* Done */
 		return;
@@ -3970,6 +4322,32 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	}
 }
 
+
+/*
+ * Determine if an object must not be generated.
+ */
+static bool kind_is_legal(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+		/* All items except bones are legal */
+        if (k_ptr->tval == TV_CORPSE)
+	{
+                if (k_ptr->sval != SV_CORPSE_SKULL && k_ptr->sval != SV_CORPSE_SKELETON &&
+                         k_ptr->sval != SV_CORPSE_HEAD && k_ptr->sval != SV_CORPSE_CORPSE)
+		{
+			  return TRUE;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+        if (k_ptr->tval == TV_HYPNOS) return FALSE;
+
+	/* Assume legal */
+	return TRUE;
+}
 
 
 /*
@@ -4023,6 +4401,8 @@ static bool kind_is_good(int k_idx)
 		case TV_CHAOS_BOOK:
 		case TV_DEATH_BOOK:
 		case TV_TRUMP_BOOK:
+                case TV_MUSIC_BOOK:
+                case TV_SYMBIOTIC_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -4092,6 +4472,9 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 			get_obj_num_prep();
 		}
 
+		/* Activate restriction */
+		get_obj_num_hook = kind_is_legal;
+
 		/* Pick a random object */
 		k_idx = get_obj_num(base);
 
@@ -4135,7 +4518,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		rating += (k_info[j_ptr->k_idx].level - dun_level);
 
 		/* Cheat -- peek at items */
-		if (cheat_peek) object_mention(j_ptr);
+                if ((cheat_peek)||(p_ptr->precognition)) object_mention(j_ptr);
 	}
 	
 	/* Success */
@@ -4506,7 +4889,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		/* Message */
 		msg_format("The %s disappear%s.",
 			   o_name, (plural ? "" : "s"));
-
+                             
 		/* Debug */
 		if (wizard) msg_print("(no floor space)");
 
@@ -5126,6 +5509,17 @@ s16b inven_carry(object_type *o_ptr, bool final)
 			if ((j_ptr->tval == p_ptr->realm2+89) &&
 			    (o_ptr->tval != p_ptr->realm2+89)) continue;
 
+                        /* Mega hack potion and potion2 */
+/*                        if ((o_ptr->tval == TV_POTION) &&
+                            (j_ptr->tval != TV_POTION)) break;
+                        if ((j_ptr->tval == TV_POTION) &&
+                            (o_ptr->tval != TV_POTION)) continue;
+
+                        if ((o_ptr->tval == TV_POTION2) &&
+                            (j_ptr->tval != TV_POTION2)) break;
+                        if ((j_ptr->tval == TV_POTION2) &&
+                            (o_ptr->tval != TV_POTION2)) continue;
+*/
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
 			if (o_ptr->tval < j_ptr->tval) continue;
@@ -5268,6 +5662,12 @@ s16b inven_takeoff(int item, int amt)
 		act = "You were holding";
 	}
 
+        /* Took off ammo */
+        else if (item == INVEN_AMMO)
+	{
+                act = "You were carrying in your quiver";
+	}
+
 	/* Took off something */
 	else
 	{
@@ -5278,8 +5678,19 @@ s16b inven_takeoff(int item, int amt)
 	inven_item_increase(item, -amt);
 	inven_item_optimize(item);
 
-	/* Carry the object */
-	slot = inven_carry(q_ptr, FALSE);
+        if((item == INVEN_CARRY)&&(p_ptr->pclass != CLASS_SYMBIANT))
+        {
+                /* Drop the monster */
+                o_ptr->pval2 = 0;
+                msg_print("You carefully drop the poor monster on the floor.");
+                drop_near(q_ptr,0, py,px);
+                slot = -1;
+        }
+        else
+        {
+                /* Carry the object */
+                slot = inven_carry(q_ptr, FALSE);
+        }
 
 	/* Message */
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
@@ -5317,7 +5728,7 @@ void inven_drop(int item, int amt)
 
 
 	/* Take off equipment */
-	if (item >= INVEN_WIELD)
+        if (item >= INVEN_WIELD)
 	{
 		/* Take off first */
 		item = inven_takeoff(item, amt);
@@ -5326,7 +5737,7 @@ void inven_drop(int item, int amt)
 		o_ptr = &inventory[item];
 	}
 
-
+        if(item > -1){
 	/* Get local object */
 	q_ptr = &forge;
 
@@ -5343,12 +5754,13 @@ void inven_drop(int item, int amt)
 	msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
 	/* Drop it near the player */
-	drop_near(q_ptr, 0, py, px);
+        drop_near(q_ptr, 0, py, px);
 
 	/* Modify, Describe, Optimize */
 	inven_item_increase(item, -amt);
 	inven_item_describe(item);
 	inven_item_optimize(item);
+        }
 }
 
 
@@ -5740,7 +6152,7 @@ s16b spell_chance(int spell,int realm)
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
-	/* Not enough mana to cast */
+         /* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
 	{
 		chance += 5 * (s_ptr->smana - p_ptr->csp);
@@ -5796,7 +6208,45 @@ bool spell_okay(int spell, bool known, int realm)
 	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
 
 	/* Spell is forgotten */
-	if ((realm == p_ptr->realm2-1) ?
+        if ((p_ptr->pclass != CLASS_SORCERER) && ((realm == p_ptr->realm2-1) ?
+	    (spell_forgotten2 & (1L << spell)) :
+            (spell_forgotten1 & (1L << spell))))
+	{
+		/* Never okay */
+		return (FALSE);
+	}
+
+	/* Spell is learned */
+        if ((p_ptr->pclass == CLASS_SORCERER) || ((realm == p_ptr->realm2-1) ?
+	    (spell_learned2 & (1L << spell)) :
+            (spell_learned1 & (1L << spell))))
+	{
+		/* Okay to cast, not to study */
+		return (known);
+	}
+
+	/* Okay to study, not to cast */
+	return (!known);
+}
+
+
+/*
+ * Determine if a spell is "okay" for the player to cast or study
+ * The spell must be legible, not forgotten, and also, to cast,
+ * it must be known, and to study, it must not be known.
+ */
+bool nr_spell_okay(int spell, bool known)
+{
+	magic_type *s_ptr;
+
+	/* Access the spell */
+        s_ptr = &mp_ptr->info[(spell>31)][spell];
+
+	/* Spell is illegal */
+	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
+
+	/* Spell is forgotten */
+        if ((spell>31) ?
 	    (spell_forgotten2 & (1L << spell)) :
 	    (spell_forgotten1 & (1L << spell)))
 	{
@@ -5805,7 +6255,7 @@ bool spell_okay(int spell, bool known, int realm)
 	}
 
 	/* Spell is learned */
-	if ((realm == p_ptr->realm2-1) ?
+        if ((spell>31) ?
 	    (spell_learned2 & (1L << spell)) :
 	    (spell_learned1 & (1L << spell)))
 	{
@@ -5816,7 +6266,6 @@ bool spell_okay(int spell, bool known, int realm)
 	/* Okay to study, not to cast */
 	return (!known);
 }
-
 
 
 /*
@@ -5835,9 +6284,13 @@ static void spell_info(char *p, int spell, int realm)
 #ifdef DRS_SHOW_SPELL_INFO
 	{
 		int plev = p_ptr->lev;
+                int to_s2=p_ptr->to_s/2;
+                char *sto_s2 = (to_s2<2)?"":format("+%d",to_s2);
+                char *smt_s2 = (to_s2<2)?"":format("*%d",to_s2);
 
 		/* See below */
 		int orb = (plev / ((p_ptr->pclass == 2 || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4));
+                to_s2 = (to_s2==0)?1:to_s2;
 
 		/* Analyze the spell */
 		switch (realm)
@@ -5845,132 +6298,133 @@ static void spell_info(char *p, int spell, int realm)
 			case 0: /* Life */
 				switch (spell)
 				{
-					case  1: strcpy (p, " heal 2d10"); break;
-					case  2: strcpy (p, " dur 12+d12 turns"); break;
-					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  6: strcpy (p, " heal 4d10"); break;
-					case 10: strcpy (p, " heal 8d10"); break;
-					case 11: strcpy (p, " dur 24+d24"); break;
-					case 12: sprintf(p, " dam 3d6+%d", (plev + orb)); break;
-					case 13: sprintf(p, " dur d25+%d", 3 * (plev)); break;
-					case 14: strcpy (p, " heal 300"); break;
-					case 16: sprintf(p, " dam %d+%d", plev, plev); break;
-					case 18: sprintf(p, " dam %d+%d", 3 * plev, 3 * plev); break;
-					case 20: sprintf(p, " dam %d", 4 * plev); break;
-					case 22: sprintf(p, " d %d/h 1000", 4 * plev); break;
-					case 24: strcpy (p, " dur 25+d25"); break;
-					case 25: strcpy (p, " dur 48+d48"); break;
-					case 28: strcpy (p, " heal 2000"); break;
-					case 30: sprintf(p, " h300/d%d+388", plev * 4); break;
-					case 31: strcpy (p, " dur 7+d7"); break;
+                                        case  1: sprintf(p, " heal 2d10%s",sto_s2); break;
+                                        case  2: sprintf(p, " dur 12%s+d12 turns", sto_s2); break;
+                                        case  4: sprintf(p, " dam %d", 10 + (plev / 2)*to_s2+1); break;
+                                        case  6: sprintf(p, " heal 4d10%s",sto_s2); break;
+                                        case 10: sprintf(p, " heal 8d10%s",sto_s2); break;
+                                        case 11: sprintf(p, " dur 24%s+d24",sto_s2); break;
+                                        case 12: sprintf(p, " dam 3d6+%d", (plev + orb)*to_s2); break;
+                                        case 13: sprintf(p, " dur d25+%d",to_s2 + 3 * (plev)); break;
+                                        case 14: sprintf(p, " heal 300%s",smt_s2); break;
+                                        case 16: sprintf(p, " dam %d+%d", plev+p_ptr->to_s, plev+p_ptr->to_s); break;
+                                        case 18: sprintf(p, " dam %d+%d", 3 * plev*to_s2, 3 * plev*to_s2); break;
+                                        case 20: sprintf(p, " dam %d", 4 * plev*to_s2); break;
+                                        case 22: sprintf(p, " d %d/h 1000", 4 * plev * to_s2); break;
+                                        case 24: sprintf(p, " dur 25%s+d25",sto_s2); break;
+                                        case 25: sprintf(p, " dur 48%s+d48",sto_s2); break;
+                                        case 28: sprintf(p, " heal 2000%s",smt_s2); break;
+                                        case 30: sprintf(p, " h300/d%d+388", plev * 4 * to_s2); break;
+                                        case 31: sprintf(p, " dur 7%s+d7",sto_s2); break;
 				}
 				break;
 
 			case 1: /* Sorcery */
 				switch (spell)
 				{
-					case  1: strcpy (p, " range 10"); break;
-					case  3: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  5: sprintf(p, " range %d", plev * 5); break;
-					case 13: sprintf(p, " dur %d+d%d", plev, (plev+20)); break;
-					case 19: sprintf(p, " range %d", plev+2); break;
-					case 20: strcpy (p, " dur 25+d30"); break;
-					case 23: strcpy (p, " delay 15+d21"); break;
-					case 25: sprintf(p, " max wgt %d", plev * 15 / 10); break;
+                                        case  1: sprintf(p, " range 10%s",smt_s2); break;
+                                        case  3: sprintf(p, " dam %d", 10 + (plev / 2) + to_s2); break;
+                                        case  5: sprintf(p, " range %d", plev * 5 * to_s2); break;
+                                        case 10: sprintf(p, " dur %d+d%d", plev/2 + p_ptr->to_s, plev); break;
+                                        case 13: sprintf(p, " dur %d+d%d", plev +to_s2, (plev+20)); break;
+                                        case 19: sprintf(p, " range %d", plev+2 +to_s2); break;
+                                        case 20: sprintf(p, " dur 25%s+d30",sto_s2); break;
+                                        case 23: sprintf(p, " delay 15+d21"); break;
+                                        case 25: sprintf(p, " max wgt %d", plev * 15 / 10 + to_s2); break;
 					case 26: sprintf(p, " dam 7d7+%d", (plev/2)); break;
-					case 27: strcpy (p, " dur 25+d30"); break;
-					case 31: strcpy (p, " dur 8+d8"); break;
+                                        case 27: sprintf(p, " dur 25%s+d30",sto_s2); break;
+                                        case 31: sprintf(p, " dur 8%s+d8",sto_s2); break;
 				}
 				break;
 
 			case 2: /* Nature */
 				switch (spell)
 				{
-					case  1: strcpy (p, " heal 2d8"); break;
-					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  6: strcpy (p, " dur 20+d20"); break;
-					case  9: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-					case 11: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-					case 12: strcpy (p, " dam 6d8"); break;
-					case 15: strcpy (p, " heal 1000"); break;
-					case 18: strcpy (p, " dur 20+d30"); break;
-					case 19: strcpy (p, " dur 20+d20"); break;
-					case 24: strcpy (p, " rad 10"); break;
-					case 26: sprintf(p, " dam %d", 70+plev); break;
-					case 27: sprintf(p, " dam %d", 90+plev); break;
-					case 28: sprintf(p, " dam %d", 100+plev); break;
-					case 29: strcpy (p, " dam 75"); break;
-					case 31: sprintf(p, " dam %d+%d", 4*plev,100+plev); break;
+                                        case  1: sprintf(p, " heal 2d8%s",sto_s2); break;
+                                        case  4: sprintf(p, " dam %d", 10 + (plev / 2)+to_s2); break;
+                                        case  6: sprintf(p, " dur 20%s+d20",sto_s2); break;
+                                        case  9: sprintf(p, " dam %dd8", (3+((plev-5)/4))*to_s2); break;
+                                        case 11: sprintf(p, " dam %dd8", (5+((plev-5)/4))*to_s2); break;
+                                        case 12: sprintf(p, " dur 10%s+d10",sto_s2); break;
+                                        case 15: sprintf(p, " heal 1000%s",smt_s2); break;
+                                        case 18: sprintf(p, " dur 20%s+d30",sto_s2); break;
+                                        case 19: sprintf(p, " dur 20%s+d20",sto_s2); break;
+                                        case 24: sprintf(p, " rad 10%s",sto_s2); break;
+                                        case 26: sprintf(p, " dam %d", 70+plev*to_s2); break;
+                                        case 27: sprintf(p, " dam %d", 90+plev*to_s2); break;
+                                        case 28: sprintf(p, " dam %d", 100+plev*to_s2); break;
+                                        case 29: sprintf(p, " dam 75%s",smt_s2); break;
+                                        case 31: sprintf(p, " dam %d+%d", 4*plev+to_s2,100+plev); break;
 				}
 				break;
 
 			case 3: /* Chaos */
 				switch (spell)
 				{
-					case  0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
-					case  2: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+                                        case  0: sprintf(p, " dam %dd4", 3+((plev-1)/5)*to_s2); break;
+                                        case  2: sprintf(p, " dam %d", 10 + (plev / 2)*to_s2); break;
 					case  4: sprintf(p, " dam 3d5+%d", plev + (plev / 
 					     (((p_ptr->pclass == CLASS_MAGE) ||
-					     (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))); break;
-					case  5: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-					case  6: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-					case  7: sprintf(p, " range %d", plev * 5); break;
-					case  8: strcpy (p, " random"); break;
+                                             (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))*to_s2); break;
+                                        case  5: sprintf(p, " dam %dd8", (6+((plev-5)/4))*to_s2); break;
+                                        case  6: sprintf(p, " dam %dd8", (8+((plev-5)/4))*to_s2); break;
+                                        case  7: sprintf(p, " range %d", plev * 5 *to_s2); break;
+                                        case  8: sprintf(p, " random"); break;
 					case  9: sprintf(p, " dam %dd8", (10+((plev-5)/4))); break;
-					case 10: sprintf(p, " dam %d", 45 + plev); break;
-					case 11: sprintf(p, " dam %dd8", (11+((plev-5)/4))); break;
-					case 12: sprintf(p, " dam %d", 55 + plev); break;
-					case 15: sprintf(p, " dam %d", 66 + plev); break;
-					case 17: sprintf(p, " dam %dd8", (5+((plev)/10))); break;
-					case 19: sprintf(p, " dam %d", 80 + plev); break;
-					case 24: sprintf(p, " dam %dd8", (9 + ((plev/10)))); break;
-					case 25: sprintf(p, " dam %d each", (3*plev)/2); break;
-					case 26: sprintf(p, " dam %d", 75 + plev); break;
-					case 27: strcpy (p, " dam 75 / 150"); break;
-					case 28: sprintf(p, " dam %d", 120 + plev); break;
+                                        case 10: sprintf(p, " dam %d", 45 + plev *to_s2); break;
+                                        case 11: sprintf(p, " dam %dd8", (11+((plev-5)/4))*to_s2); break;
+                                        case 12: sprintf(p, " dam %d", 55 + plev *to_s2); break;
+                                        case 15: sprintf(p, " dam %d", 66 + plev *to_s2); break;
+                                        case 17: sprintf(p, " dam %dd8", (5+((plev)/10))*to_s2); break;
+                                        case 19: sprintf(p, " dam %d", 80 + plev*to_s2); break;
+                                        case 24: sprintf(p, " dam %dd8", (9 + ((plev/10)))*to_s2); break;
+                                        case 25: sprintf(p, " dam %d each", (3*plev)/2 *to_s2); break;
+                                        case 26: sprintf(p, " dam %d", 75 + plev *to_s2); break;
+                                        case 27: sprintf(p, " dam 75 / 150"); break;
+                                        case 28: sprintf(p, " dam %d", 120 + plev *to_s2); break;
 					case 29: sprintf(p, " dam %d", 300 + (plev * 2)); break;
-					case 30: sprintf(p, " dam %d", p_ptr->chp); break;
-					case 31: strcpy (p, " dam 3 * 175"); break;
+                                        case 30: sprintf(p, " dam %d", p_ptr->chp*to_s2); break;
+                                        case 31: sprintf(p, " dam 3 * 175"); break;
 				}
 				break;
 
 			case 4: /* Death */
 				switch(spell)
 				{
-					case  1: sprintf(p, " dam %dd3", (3 + ((plev-1)/5))); break;
-					case  3: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  5: sprintf(p, " dur 20+d20"); break;
+                                        case  1: sprintf(p, " dam %dd3", (3 + ((plev-1)/5))*to_s2); break;
+                                        case  3: sprintf(p, " dam %d", 10 + (plev / 2)*to_s2); break;
+                                        case  5: sprintf(p, " dur 20%s+d20",sto_s2); break;
 					case  8: sprintf(p, " dam 3d6+%d", plev +
 					    (plev / (((p_ptr->pclass == CLASS_MAGE) ||
-					    (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))); break;
-					case  9: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-					case 11: sprintf(p, " dm %d* 5+d15", 2 + (plev/15)); break;
-					case 13: sprintf(p, " dam %d", 4 * plev); break;
-					case 16: strcpy (p, " dur 25+d25"); break;
-					case 17: strcpy (p, " random"); break;
-					case 18: sprintf(p, " dam %dd8", (4+((plev-5)/4))); break;
-					case 19: strcpy (p, " max dur 50"); break;
-					case 20: strcpy (p, " dam 3*100"); break;
-					case 22: strcpy (p, " dam 120"); break;
-					case 27: sprintf(p, " dam %d", plev * 3); break;
-					case 28: sprintf(p, " dam %d", plev * 4); break;
-					case 29: strcpy (p, " dam 666"); break;
-					case 31: sprintf(p, " dur %d+d%d", (plev/2), (plev/2)); break;
+                                            (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))*to_s2); break;
+                                        case  9: sprintf(p, " dam %dd8", (6+((plev-5)/4))*to_s2); break;
+                                        case 11: sprintf(p, " dam %d* 5+d15", 2 + (plev/15)*to_s2); break;
+                                        case 13: sprintf(p, " dam %d", 4 * plev * to_s2); break;
+                                        case 16: sprintf(p, " dur 25%s+d25",sto_s2); break;
+                                        case 17: sprintf(p, " random"); break;
+                                        case 18: sprintf(p, " dam %dd8", (4+((plev-5)/4))*to_s2); break;
+                                        case 19: sprintf(p, " max dur 50%s",sto_s2); break;
+                                        case 20: sprintf(p, " dam 3*100%s",smt_s2); break;
+                                        case 22: sprintf(p, " dam 120%s",smt_s2); break;
+                                        case 27: sprintf(p, " dam %d", plev * 3 * to_s2); break;
+                                        case 28: sprintf(p, " dam %d", plev * 4 * to_s2); break;
+                                        case 29: sprintf(p, " dam 666%s",smt_s2); break;
+                                        case 31: sprintf(p, " dur %d+d%d%s", (plev/2), (plev/2),sto_s2); break;
 				}
 				break;
 
 			case 5: /* Trump */
 				switch(spell)
 				{
-					case  0: strcpy (p, " range 10"); break;
-					case  1: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)); break;
-					case  2: strcpy (p, " random"); break;
-					case  4: sprintf(p, " range %d", plev * 4); break;
-					case  5: sprintf(p, " range %d", plev+2); break;
-					case  6: strcpy (p, " dur 25+d30"); break;
-					case  8: sprintf(p, " max wgt %d", plev * 15 / 10); break;
-					case 14: strcpy (p, " delay 15+d21"); break;
-					case 22: sprintf(p, " dam %d", plev * 3); break;
+                                        case  0: sprintf(p, " range 10%s",sto_s2); break;
+                                        case  1: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)*to_s2); break;
+                                        case  2: sprintf(p, " random"); break;
+                                        case  4: sprintf(p, " range %d", plev * 4*to_s2); break;
+                                        case  5: sprintf(p, " range %d", plev+2+to_s2); break;
+                                        case  6: sprintf(p, " dur 25+d30%s",sto_s2); break;
+                                        case  8: sprintf(p, " max wgt %d", plev * 15 / 10+to_s2); break;
+                                        case 14: sprintf(p, " delay 15+d21"); break;
+                                        case 22: sprintf(p, " dam %d", plev * 3*to_s2); break;
 				}
 				break;
 
@@ -5978,20 +6432,52 @@ static void spell_info(char *p, int spell, int realm)
 				switch (spell)
 				{
 					case  0: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)); break;
-					case  4: strcpy (p, " range 10"); break;
-					case  5: sprintf(p, " dam 2d%d", plev / 2); break;
-					case  7: strcpy (p, " heal 2d8"); break;
+                                        case  4: sprintf(p, " range 10%s",sto_s2); break;
+                                        case  5: sprintf(p, " dam 2d%d", plev / 2+to_s2); break;
+                                        case  7: sprintf(p, " heal 2d8%s",sto_s2); break;
 					case 14:
 					case 15:
 					case 16:
-					case 17: strcpy (p, " dur 20+d20"); break;
-					case 18: strcpy (p, " heal 4d8"); break;
-					case 19: sprintf(p, " range %d", plev * 5); break;
-					case 21: strcpy (p, " dam 6d8"); break;
-					case 23: strcpy (p, " dur 24+d24"); break;
-					case 28: sprintf(p, " dam %d", 75 + (plev)); break;
-					case 30: strcpy (p, " delay 15+d21"); break;
-					case 31: strcpy (p, " dur 25+30"); break;
+                                        case 17: sprintf(p, " dur 20%s+d20",sto_s2); break;
+                                        case 18: sprintf(p, " heal 4d8%s",sto_s2); break;
+                                        case 19: sprintf(p, " range %d", plev * 5+to_s2); break;
+                                        case 21: sprintf(p, " dam 6d8%s",sto_s2); break;
+                                        case 23: sprintf(p, " dur 24%s+d24",sto_s2); break;
+                                        case 28: sprintf(p, " dam %d", 75 + (plev)+to_s2); break;
+                                        case 30: sprintf(p, " delay 15%s+d21",sto_s2); break;
+                                        case 31: sprintf(p, " dur 25%s+30",sto_s2); break;
+				}
+				break;
+
+                        case 7: /* Symbiotic */
+				switch (spell)
+				{
+                                        case  0: sprintf(p, " heal monster 2d6%s",sto_s2); break;
+                                        case  2: sprintf(p, " vampiric heal monster 2d6%s",sto_s2); break;
+                                        case  3: sprintf(p, " hp->hp monster 6d15%s",sto_s2); break;
+                                        case  16: sprintf(p, " sp->hp monster 6d15%s",sto_s2); break;
+                                        case  18: sprintf(p, " heal monster 3d60%s",sto_s2); break;
+                                        case  19: sprintf(p, " heal 2d40%s",sto_s2); break;
+				}
+				break;
+
+                        case 8: /* Music */
+				switch (spell)
+				{
+                                        case  2: sprintf(p, " dam %dd4",(4+((plev-1)/5)) * p_ptr->to_s); break;
+                                        case  9: sprintf(p, " radius 1"); break;
+                                        case  10: sprintf(p, " range 100"); break;
+                                        case  11: sprintf(p, " dam %dd6",(10+((plev-1)/5)) * p_ptr->to_s); break;
+                                        case  13: sprintf(p, " radius 1"); break;
+                                        case  17: sprintf(p, " range 20"); break;
+                                        case  18: sprintf(p, " power %dd5",(10+((plev-1)/5)) * p_ptr->to_s); break;
+                                        case  19: sprintf(p, " dam %dd10",(20+((plev-1)/5)) * p_ptr->to_s); break;
+                                        case  21: sprintf(p, " dam %dd6/turn",10+plev/15); break;
+                                        case  24: sprintf(p, " power 40"); break;
+                                        case  25: sprintf(p, " dam %dd20",(100+((plev-1)/5)) * p_ptr->to_s); break;
+                                        case  26: sprintf(p, " radius 1"); break;
+                                        case  28: sprintf(p, " radius 10"); break;
+                                        case  30: sprintf(p, " radius 1"); break;
 				}
 				break;
 
@@ -6011,7 +6497,7 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 	int             i, spell;
 	magic_type      *s_ptr;
 	cptr            comment;
-	char            info[80];
+        char            info[80], sname[80];
 	char            out_val[160];
 
 
@@ -6050,28 +6536,33 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 		comment = info;
 
 		/* Analyze the spell */
-		if ((realm+1 == p_ptr->realm1) ?
+                if ((p_ptr->pclass != CLASS_SORCERER) &&
+                    ((realm+1 == p_ptr->realm1) ?
 		    ((spell_forgotten1 & (1L << spell))) :
-		    ((spell_forgotten2 & (1L << (spell)))))
+                    ((spell_forgotten2 & (1L << (spell))))))
 		{
 			comment = " forgotten";
 		}
-		else if (!((realm+1 == p_ptr->realm1) ?
+                else if ((p_ptr->pclass != CLASS_SORCERER) &&
+                 (!((realm+1 == p_ptr->realm1) ?
 		    (spell_learned1 & (1L << spell)) :
-		    (spell_learned2 & (1L << (spell)))))
+                    (spell_learned2 & (1L << (spell))))))
 		{
 			comment = " unknown";
 		}
-		else if (!((realm+1 == p_ptr->realm1) ?
+                else if ((p_ptr->pclass != CLASS_SORCERER) &&
+                 (!((realm+1 == p_ptr->realm1) ?
 		    (spell_worked1 & (1L << spell)) :
-		    (spell_worked2 & (1L << (spell)))))
+                    (spell_worked2 & (1L << (spell))))))
 		{
 			comment = " untried";
 		}
 
+                sprintf(sname, spell_names[realm][spell]);
+
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
-		    I2A(i), spell_names[realm][spell], /* realm, spell */
+                    I2A(i), sname, /* realm, spell */
 		    s_ptr->slevel, s_ptr->smana, spell_chance(spell,realm), comment);
 		prt(out_val, y + i + 1, x);
 	}
@@ -6080,6 +6571,185 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 	prt("", y + i + 1, x);
 }
 
+/*
+ * Extra information on a spell         -DRS-
+ *
+ * We can use up to 14 characters of the buffer 'p'
+ *
+ * The strings in this function were extracted from the code in the
+ * functions "do_cmd_cast()" and "do_cmd_pray()" and may be dated.
+ */
+static void nr_spell_info(char *p, int spell)
+{
+        int to_s2=p_ptr->to_s/2;
+        char *sto_s2 = (to_s2<2)?"":format("+%d",to_s2);
+        char *smt_s2 = (to_s2<2)?"":format("*%d",to_s2);
+
+        to_s2 = (to_s2==0)?1:to_s2;
+
+	/* Default */
+	strcpy(p, "");
+
+#ifdef DRS_SHOW_SPELL_INFO
+
+	/* Mage spells */
+	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
+	{
+		int plev = p_ptr->lev;
+
+		/* Analyze the spell */
+		switch (spell)
+		{
+                        case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5) * to_s2); break;
+                        case 2: sprintf(p, " range 10%s", smt_s2); break;
+                        case 5: sprintf(p, " heal 2%sd8", smt_s2); break;
+                        case 8: sprintf(p, " dam %d", 10 + (plev / 2) * to_s2); break;
+                        case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4)) * to_s2); break;
+                        case 14: sprintf(p, " range %d", plev * 10 * to_s2); break;
+                        case 15: sprintf(p, " dam 6%sd8", smt_s2); break;
+                        case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4)) * to_s2); break;
+                        case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4)) * to_s2); break;
+                        case 26: sprintf(p, " dam %d", 30 + plev * to_s2); break;
+                        case 29: sprintf(p, " dur %d+d20", plev + to_s2); break;
+                        case 30: sprintf(p, " dam %d", 55 + plev * to_s2); break;
+                        case 38: sprintf(p, " dam %dd8", (6+((plev-5)/4)) * to_s2); break;
+                        case 39: sprintf(p, " dam %d", 40 + plev/2 * to_s2); break;
+                        case 40: sprintf(p, " dam %d", 40 + plev * to_s2); break;
+                        case 41: sprintf(p, " dam %d", 70 + plev * to_s2); break;
+                        case 42: sprintf(p, " dam %d", 65 + plev * to_s2); break;
+                        case 43: sprintf(p, " dam %d", 300 + plev*2 * to_s2); break;
+                        case 49: sprintf(p, " dur 20%s+d20", sto_s2); break;
+                        case 50: sprintf(p, " dur 20%s+d20", sto_s2); break;
+                        case 51: sprintf(p, " dur 20%s+d20", sto_s2); break;
+                        case 52: sprintf(p, " dur 20%s+d20", sto_s2); break;
+                        case 53: sprintf(p, " dur 20%s+d20", sto_s2); break;
+                        case 54: sprintf(p, " dur 25%s+d25", sto_s2); break;
+                        case 55: sprintf(p, " dur 30%s+d20", sto_s2); break;
+                        case 56: sprintf(p, " dur 25%s+d25", sto_s2); break;
+                        case 57: sprintf(p, " dur %d+d25", 30+plev + to_s2); break;
+                        case 58: sprintf(p, " dur 6%s+d8", sto_s2); break;
+		}
+	}
+
+	/* Priest spells */
+	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+	{
+		int plev = p_ptr->lev;
+
+		/* See below */
+		int orb = (plev / ((p_ptr->pclass == 2) ? 2 : 4));
+
+		/* Analyze the spell */
+		switch (spell)
+		{
+                        case 1: sprintf(p, " heal 2%sd10", smt_s2); break;
+                        case 2: sprintf(p, " dur 12%s+d12", sto_s2); break;
+                        case 9: sprintf(p, " range %d", 3*plev * to_s2); break;
+                        case 10: sprintf(p, " heal 4%sd10", smt_s2); break;
+                        case 11: sprintf(p, " dur 24%s+d24", sto_s2); break;
+                        case 15: sprintf(p, " dur 10%s+d10", sto_s2); break;
+                        case 17: sprintf(p, " %d+3d6", plev * to_s2 + orb); break;
+                        case 18: sprintf(p, " heal 6%sd10", smt_s2); break;
+                        case 19: sprintf(p, " dur 24%s+d24", sto_s2); break;
+                        case 20: sprintf(p, " dur %d+d25", 3*plev + to_s2); break;
+                        case 23: sprintf(p, " heal 8%sd10", smt_s2); break;
+                        case 25: sprintf(p, " dur 48%s+d48", sto_s2); break;
+                        case 26: sprintf(p, " dam d%d", 3*plev * to_s2); break;
+                        case 27: sprintf(p, " heal 300%s", smt_s2); break;
+                        case 28: sprintf(p, " dam d%d", 3*plev * to_s2); break;
+                        case 30: sprintf(p, " heal 1000%s", smt_s2); break;
+                        case 36: sprintf(p, " heal 4%sd10", smt_s2); break;
+                        case 37: sprintf(p, " heal 8%sd10", smt_s2); break;
+                        case 38: sprintf(p, " heal 2000%s", smt_s2); break;
+                        case 41: sprintf(p, " dam d%d", 4*plev * to_s2); break;
+                        case 42: sprintf(p, " dam d%d", 4*plev * to_s2); break;
+                        case 45: sprintf(p, " dam 200%s", smt_s2); break;
+                        case 52: sprintf(p, " range 10%s", smt_s2); break;
+                        case 53: sprintf(p, " range %d", 8*plev * to_s2); break;
+		}
+	}
+
+#endif
+
+}
+
+
+/*
+ * Print a list of spells (for browsing or casting or viewing)
+ */
+void nr_print_spells(byte *spells, int num, int y, int x)
+{
+	int                     i, spell;
+
+	magic_type              *s_ptr;
+
+	cptr            comment;
+
+	char            info[80];
+
+	char            out_val[160];
+
+
+	/* Title the list */
+	prt("", y, x);
+	put_str("Name", y, x + 5);
+	put_str("Lv Mana Fail Info", y, x + 35);
+
+	/* Dump the spells */
+	for (i = 0; i < num; i++)
+	{
+		/* Access the spell */
+		spell = spells[i];
+
+		/* Access the spell */
+                s_ptr = &mp_ptr->info[0][spell];
+
+		/* Skip illegible spells */
+		if (s_ptr->slevel >= 99)
+		{
+			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
+			prt(out_val, y + i + 1, x);
+			continue;
+		}
+
+		/* XXX XXX Could label spells above the players level */
+
+		/* Get extra info */
+                nr_spell_info(info, spell);
+
+		/* Use that info */
+		comment = info;
+
+		/* Analyze the spell */
+		if ((spell < 32) ?
+		    ((spell_forgotten1 & (1L << spell))) :
+		    ((spell_forgotten2 & (1L << (spell - 32)))))
+		{
+			comment = " forgotten";
+		}
+		else if (!((spell < 32) ?
+			   (spell_learned1 & (1L << spell)) :
+			   (spell_learned2 & (1L << (spell - 32)))))
+		{
+			comment = " unknown";
+		}
+		else if (!((spell < 32) ?
+			   (spell_worked1 & (1L << spell)) :
+			   (spell_worked2 & (1L << (spell - 32)))))
+		{
+			comment = " untried";
+		}
+
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
+                        I2A(i), nr_spell_names[mp_ptr->spell_type][spell],
+                        s_ptr->slevel, s_ptr->smana, spell_chance(spell, 0), comment);
+		prt(out_val, y + i + 1, x);
+	}
+
+	/* Clear the bottom line */
+	prt("", y + i + 1, x);
+}
 
 
 /*
@@ -6157,3 +6827,259 @@ void display_koff(int k_idx)
 	}
 }
 
+
+/*
+ * Let the floor carry an object
+ */
+s16b floor_carry(int y, int x, object_type *j_ptr)
+{
+	int n = 0;
+
+	s16b o_idx;
+
+	s16b this_o_idx, next_o_idx = 0;
+
+
+	/* Scan objects in that grid for combination */
+        for (this_o_idx = cave[y][x].o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Check for combination */
+		if (object_similar(o_ptr, j_ptr))
+		{
+			/* Combine the items */
+			object_absorb(o_ptr, j_ptr);
+
+			/* Result */
+			return (this_o_idx);
+		}
+
+		/* Count objects */
+		n++;
+	}
+
+
+	/* Make an object */
+	o_idx = o_pop();
+
+	/* Success */
+	if (o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Acquire object */
+		o_ptr = &o_list[o_idx];
+
+		/* Structure Copy */
+		object_copy(o_ptr, j_ptr);
+
+		/* Location */
+		o_ptr->iy = y;
+		o_ptr->ix = x;
+
+		/* Forget monster */
+		o_ptr->held_m_idx = 0;
+
+		/* Build a stack */
+                o_ptr->next_o_idx = cave[y][x].o_idx;
+
+		/* Place the object */
+                cave[y][x].o_idx = o_idx;
+
+		/* Notice */
+		note_spot(y, x);
+
+		/* Redraw */
+		lite_spot(y, x);
+	}
+
+	/* Result */
+	return (o_idx);
+}
+
+/*
+ *	Notice a decaying object in the pack
+ */
+void pack_decay(int item)
+{
+	object_type *o_ptr=&inventory[item];
+
+   monster_race *r_ptr = &r_info[o_ptr->pval2];
+
+	object_type *i_ptr;
+	object_type object_type_body;
+
+   int amt = o_ptr->number;
+
+   s16b m_type;
+   s32b wt;
+
+	byte known = o_ptr->name1;
+
+   byte gone = 1;
+
+  	char desc[80];
+
+  	/* Player notices each decaying object */
+  	object_desc(desc, o_ptr, TRUE, 3);
+  	msg_format("You feel %s decompose.", desc);
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Obtain local object */
+	object_copy(i_ptr, o_ptr);
+
+   /* Remember what creature we were */
+   m_type = o_ptr->pval2;
+
+   /* and how much we weighed */
+   wt = r_ptr->weight;
+
+   /* Get rid of decayed object */
+	inven_item_increase(item, -amt);
+	inven_item_optimize(item);
+
+        if (i_ptr->tval == TV_CORPSE)
+   {
+      /* Monster must have a skull for its head to become one */
+                if ((i_ptr->sval == SV_CORPSE_HEAD) && (!(r_ptr->flags9 & RF9_HAS_NO_SKULL)))
+      {
+         /* Replace the head with a skull */
+        object_prep(i_ptr, lookup_kind(TV_CORPSE, SV_CORPSE_SKULL));
+         i_ptr->weight = wt / 60 + rand_int(wt) / 600;
+
+         /* Stay here */
+         gone = 0;
+      }
+      /* Monster must have a skeleton for its corpse to become one */
+                if ((i_ptr->sval == SV_CORPSE_CORPSE) && (r_ptr->flags3 & RF9_DROP_SKELETON))
+      {
+         /* Replace the corpse with a skeleton */
+        object_prep(i_ptr, lookup_kind(TV_CORPSE, SV_CORPSE_SKELETON));
+         i_ptr->weight = wt / 4 + rand_int(wt) / 40;
+
+         /* Stay here */
+         gone = 0;
+      }
+
+      /* Don't restore if the item is gone */
+      if (!gone)
+      {
+      	i_ptr->number = amt;
+        i_ptr->pval2 = m_type;
+
+      	/* Should become "The skull of Farmer Maggot", not "A skull" */
+      	if (known)
+      	{
+       		object_aware(i_ptr);
+
+         	/* Named skeletons are artifacts */
+                i_ptr->name1 = 201;
+      	}
+        inven_carry(i_ptr,TRUE);
+      }
+   }
+}
+
+/*
+ *	Decay an object on the floor
+ */
+void floor_decay(int item)
+{
+	object_type *o_ptr=&o_list[item];
+
+   monster_race *r_ptr = &r_info[o_ptr->pval2];
+
+	object_type *i_ptr;
+	object_type object_type_body;
+
+   int amt = o_ptr->number;
+
+   s16b m_type;
+	s32b wt;
+
+	byte known = o_ptr->name1;
+
+   /* Assume we disappear */
+   byte gone = 1;
+
+   byte x = o_ptr->ix;
+   byte y = o_ptr->iy;
+
+   /* Maybe the player sees it */
+  	bool visible = player_can_see_bold(o_ptr->iy, o_ptr->ix);
+  	char desc[80];
+
+  	if (visible)
+  	{
+  		/* Player notices each decaying object */
+		object_desc(desc, o_ptr, TRUE, 3);
+     	msg_format("You see %s decompose.", desc);
+  	}
+
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Obtain local object */
+	object_copy(i_ptr, o_ptr);
+
+   /* Remember what creature we were */
+   m_type = o_ptr->pval2;
+
+   /* and how much we weighed */
+   wt = r_ptr->weight;
+
+   floor_item_increase(item, -amt);
+   floor_item_optimize(item);
+
+        if (i_ptr->tval == TV_CORPSE)
+   {
+      /* Monster must have a skull for its head to become one */
+                if ((i_ptr->sval == SV_CORPSE_HEAD) && (!(r_ptr->flags9 & RF9_HAS_NO_SKULL)))
+      {
+         /* Replace the head with a skull */
+        object_prep(i_ptr, lookup_kind(TV_CORPSE, SV_CORPSE_SKULL));
+         i_ptr->weight = wt / 60 + rand_int(wt) / 600;
+
+         /* Stay here */
+         gone = 0;
+      }
+
+      /* Monster must have a skeleton for its corpse to become one */
+                if ((i_ptr->sval == SV_CORPSE_CORPSE) && (r_ptr->flags3 & RF9_DROP_SKELETON))
+      {
+         /* Replace the corpse with a skeleton */
+        object_prep(i_ptr, lookup_kind(TV_CORPSE, SV_CORPSE_SKELETON));
+         i_ptr->weight = wt / 4 + rand_int(wt) / 40;
+
+         /* Stay here */
+         gone = 0;
+      }
+
+      /* Don't restore if the item is gone */
+      if (!gone)
+      {
+      	i_ptr->number = amt;
+        i_ptr->pval2 = m_type;
+
+      	/* Should become "The skull of Farmer Maggot", not "A skull" */
+      	if (known)
+      	{
+       		object_aware(i_ptr);
+
+         	/* Named skeletons are artifacts */
+                i_ptr->name1 = 201;
+      	}
+      	floor_carry(y, x, i_ptr);
+      }
+   }
+}

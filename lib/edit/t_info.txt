@@ -6,12 +6,15 @@
 %:t_pref.txt
 
 # Town 1
-?:[EQU $TOWN 1]
+?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NORMAL] ]
 %:t0000001.txt
+?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NONE] ]
+%:t_basic.txt
+?:1
 
 # Town 2
 ?:[EQU $TOWN 2]
-%:t0000002.txt
+%:t_gondol.txt
 
 # Town 3
 ?:[EQU $TOWN 3]
@@ -21,3 +24,6 @@
 ?:[EQU $TOWN 4]
 %:t0000004.txt
 
+# Volcano
+?:[EQU $TOWN 5]
+%:volcano.txt

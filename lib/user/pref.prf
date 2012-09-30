@@ -206,17 +206,29 @@ C:1:a
 A:Q
 C:1:^C
 
-# Hack -- swap equipment
-A:w0
-C:1:X
-
 # Hack - race/mutation power activation
 A:U
 C:1:O
 
-# Hack - race/mutation power activation
+# Time of the day
 A:^t
 C:1:'
+
+# Sacrifice at an altar
+A:O
+C:1:^g
+
+# Hack up a corpse
+A:h
+C:1:$
+
+# Cure meat
+A:K
+C:1:^O
+
+# Pet commands
+A:P
+C:1:X
 
 
 ##### System Specific Subfiles #####

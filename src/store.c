@@ -459,6 +459,10 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
           115, 110, 115, 125, 110, 110, 110,
           130, 130  },
 
+        /* Death Mold: Theoretical, copied from half-orc */
+	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
+          120, 125, 115, 115, 110, 120, 110,
+          130, 130   },
 };
 
 
@@ -578,7 +582,8 @@ static void mass_produce(object_type *o_ptr)
 		}
 
 		case TV_POTION:
-		case TV_SCROLL:
+                case TV_POTION2:
+                case TV_SCROLL:
 		{
 			if (cost <= 60L) size += mass_roll(3, 5);
 			if (cost <= 240L) size += mass_roll(1, 5);
@@ -592,7 +597,11 @@ static void mass_produce(object_type *o_ptr)
 		case TV_DEATH_BOOK:
 		case TV_TRUMP_BOOK:
 		case TV_ARCANE_BOOK:
+                case TV_SYMBIOTIC_BOOK:
                 case TV_MIMIC_BOOK:
+                case TV_MUSIC_BOOK:
+                case TV_MAGIC_BOOK:
+                case TV_PRAYER_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -796,8 +805,8 @@ static bool store_check_num(object_type *o_ptr)
 
 static bool is_blessed(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
-	object_flags(o_ptr, &f1, &f2, &f3);
+        u32b f1, f2, f3, f4;
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	if (f3 & TR3_BLESSED) return (TRUE);
 	else return (FALSE);
 }
@@ -823,6 +832,7 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
+                                case TV_CORPSE:
 				case TV_FOOD:
 				case TV_LITE:
 				case TV_FLASK:
@@ -871,11 +881,13 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_SHOT:
 				case TV_BOLT:
 				case TV_ARROW:
+                                case TV_BOOMERANG:
 				case TV_BOW:
 				case TV_DIGGING:
 				case TV_HAFTED:
 				case TV_POLEARM:
 				case TV_SWORD:
+                                case TV_MSTAFF:
 				break;
 				default:
 				return (FALSE);
@@ -889,8 +901,10 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-						case TV_LIFE_BOOK:
+                                case TV_LIFE_BOOK:
+                                case TV_PRAYER_BOOK:
 				case TV_SCROLL:
+                                case TV_POTION2:
 				case TV_POTION:
 				case TV_HAFTED:
 				break;
@@ -911,7 +925,10 @@ static bool store_will_buy(object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 				case TV_SCROLL:
+                                case TV_POTION2:
 				case TV_POTION:
+                                case TV_BATERIE:
+                                case TV_BOTTLE:
 				break;
 				default:
 				return (FALSE);
@@ -931,16 +948,22 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_DEATH_BOOK:
 				case TV_TRUMP_BOOK:
 				case TV_ARCANE_BOOK:
+                                case TV_SYMBIOTIC_BOOK:
                                 case TV_MIMIC_BOOK:
+                                case TV_MUSIC_BOOK:
+                                case TV_MAGIC_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
 				case TV_WAND:
 				case TV_ROD:
 				case TV_SCROLL:
+                                case TV_POTION2:
 				case TV_POTION:
+                                case TV_MSTAFF:
+                                case TV_RANDART:
 				break;
-				default:
+                                default:
 				return (FALSE);
 			}
 			break;
@@ -958,12 +981,29 @@ static bool store_will_buy(object_type *o_ptr)
 						case TV_LIFE_BOOK:
 						case TV_TRUMP_BOOK:
 						case TV_ARCANE_BOOK:
+                                                case TV_SYMBIOTIC_BOOK:
+                                                case TV_MUSIC_BOOK:
                                                 case TV_MIMIC_BOOK:
+                                                case TV_MAGIC_BOOK:
+                                                case TV_PRAYER_BOOK:
 					break;
 				default:
 					return (FALSE);
 			}
 			break;
+                /* Pet Shop */
+                case 9:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+                                case TV_EGG:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
 		}
 	}
 
@@ -1322,10 +1362,10 @@ static void store_create(void)
 	for (tries = 0; tries < 4; tries++)
 	{
 		/* Black Market */
-		if (cur_store_num == STORE_BLACK)
+                if (cur_store_num == STORE_BLACK)
 		{
 			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+                        level = 5 + p_ptr->lev + rand_int(30);
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1341,7 +1381,10 @@ static void store_create(void)
 			i = st_ptr->table[rand_int(st_ptr->table_num)];
 
 			/* Hack -- fake level for apply_magic() */
-			level = rand_range(1, STORE_OBJ_LEVEL);
+                        if(cur_store_num == STORE_PET)
+                                level = 5 + p_ptr->lev + rand_int(30);
+                        else
+                                level = rand_range(1, STORE_OBJ_LEVEL);
 		}
 
 

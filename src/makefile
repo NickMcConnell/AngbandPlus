@@ -25,45 +25,47 @@ OBJS = \
   generate.o dungeon.o init1.o init2.o \
   store.o birth.o wizard1.o wizard2.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  load1.o load2.o save.o files.o \
+  load2.o save.o files.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o monster1.o monster2.o \
   variable.o tables.o util.o cave.o \
   z-term.o z-rand.o z-form.o z-virt.o z-util.o \
-  bldg.o
+  bldg.o eventmod.o iomod.o cavemod.o monmod.o playmod.o \
+  miscmod.o kindmod.o objmod.o spellmod.o questmod.o racemod.o \
+  dunmod.o
 
 # Compiler
 CC = gcc
 
 # Compiler flags
 CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
--DUSE_TRANSPARENCY
+-DUSE_TRANSPARENCY -DUSE_PYTHON
 
 
 # Libraries
-LIBS = -lpc -lalleg
+LIBS = -lpc -lalleg -lpython -lparser -lobjects
 
 
 #
 # Targets
 #
 
-default: zangband.exe
-	copy zangband.exe ..
-	del zangband.exe
+default: ../pernang.exe
+#         copy pernang.exe ..
+#         del pernang.exe
 
-install: zangband.exe
-	copy zangband.exe ..
+install: ../pernang.exe
+#        copy pernang.exe ..
 
-all: zangband.exe
-	@echo All done.  Use 'make install' to install.
+all: ../pernang.exe
+#        @echo All done.  Use 'make install' to install.
 
 
 #
 # Link executables
 #
 
-zangband.exe: $(OBJS)
+../pernang.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

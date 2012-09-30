@@ -13,6 +13,64 @@
 #include "angband.h"
 
 
+/* Try to bash an altar. */
+static bool do_cmd_bash_altar(int y, int x) {
+
+  cave_type       *c_ptr;
+
+  bool more = FALSE;
+  int pgod = p_ptr->pgod;
+  int agod = cave[y][x].feat-FEAT_ALTAR_HEAD+1;
+  int tmp = randint(100);
+  c_ptr = &cave[y][x];
+
+  msg_print("You smash into the altar!");
+
+  /* Player doesn't worship anyone -- create an explosion. */
+  if (pgod == 0) {
+    /* 5% to explode. */
+    if (randint(20) == 10) {
+      godly_wrath_blast();
+    } else {
+      more = TRUE;
+    }
+  } else if (pgod == agod) {
+    /* Supreme blasphemy! */
+    msg_format("%s thunders: ``Enjoy your eternity in hell, mortal!",
+               deity_info[pgod-1].name);
+    set_grace(-200000);
+    godly_wrath_blast();
+  } else {
+    /* 50% chance of nothing happening,
+     * 40% of explosion,
+     * 10% of consecration. */
+
+    if (tmp < 50) {
+      more = TRUE;
+    }
+    else if (tmp < 90) {
+      msg_format("%s thunders: ``Know thy place, mortal!''",
+                 deity_info[agod-1].name);
+      godly_wrath_blast();
+      set_grace(p_ptr->grace - 1000);
+    } else {
+      msg_print("The old altar crumbles into dust, and a new one materializes in its place.");
+      msg_format("%s is pleased!",
+                 deity_info[pgod-1].name);
+      set_grace(p_ptr->grace + 1000);
+      great_side_effect();
+
+      /* Forget the altar */
+      c_ptr->feat &= ~(CAVE_MARK);
+      /* Change it. */
+      cave_set_feat(y, x, FEAT_ALTAR_HEAD+(pgod-1));
+    }
+  }
+
+  return more;
+}
+
+
 /*
  * Go up one level
  */
@@ -21,6 +79,10 @@ void do_cmd_go_up(void)
 	bool go_up = FALSE;
 	cave_type *c_ptr;
         char i;
+
+#ifdef USE_PYTHON
+        if(perform_event(EVENT_GO_UP, Py_BuildValue("(ii)", dun_level, p_ptr->inside_quest))) return;
+#endif
 
 	/* Player grid */
 	c_ptr = &cave[py][px];
@@ -144,6 +206,10 @@ void do_cmd_go_down(void)
 	bool fall_trap = FALSE;
         char i;
 
+#ifdef USE_PYTHON
+        if(perform_event(EVENT_GO_DOWN, Py_BuildValue("(ii)", dun_level, p_ptr->inside_quest))) return;
+#endif
+
 	/* Player grid */
 	c_ptr = &cave[py][px];
 
@@ -241,6 +307,12 @@ void do_cmd_go_down(void)
 
 			/* Go down */
 			dun_level++;
+
+                        if(c_ptr->special)
+                        {
+                                dungeon_type = c_ptr->special;
+                                dun_level = dungeon_info[dungeon_type].mindepth;
+                        }
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
@@ -1957,8 +2029,10 @@ void do_cmd_bash(void)
 		c_ptr = &cave[y][x];
 
 		/* Nothing useful */
-		if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		      (c_ptr->feat <= FEAT_DOOR_TAIL)))
+                if  ((c_ptr->feat < FEAT_DOOR_HEAD ||
+                      c_ptr->feat > FEAT_DOOR_TAIL) &&
+                      (c_ptr->feat < FEAT_ALTAR_HEAD ||
+                       c_ptr->feat > FEAT_ALTAR_TAIL))
 		{
 			/* Message */
 			msg_print("You see nothing there to bash.");
@@ -1977,6 +2051,11 @@ void do_cmd_bash(void)
 			py_attack(y, x);
 		}
 
+                else if (c_ptr->feat >= FEAT_ALTAR_HEAD &&
+                         c_ptr->feat <= FEAT_ALTAR_TAIL)
+                {
+                        more = do_cmd_bash_altar(y, x);
+                }
 		/* Bash a closed door */
 		else
 		{
@@ -2198,11 +2277,7 @@ void do_cmd_spike(void)
 }
 
 
-
-/*
- * Support code for the "Walk" and "Jump" commands
- */
-void do_cmd_walk(int pickup)
+void do_cmd_walk_jump(int pickup)
 {
 	int dir;
 
@@ -2239,12 +2314,22 @@ void do_cmd_walk(int pickup)
 	if (!more) disturb(0, 0);
 }
 
-
-
 /*
- * Start running.
+ * Support code for the "Walk" and "Jump" commands
  */
-void do_cmd_run(void)
+void do_cmd_walk(int pickup)
+{
+        /* Move (usually pickup) */
+  
+        if (p_ptr->immovable) {
+                do_cmd_unwalk();
+        } else {
+                do_cmd_walk_jump(pickup);
+        }
+}
+
+
+void do_cmd_run_run()
 {
 	int dir;
 
@@ -2266,13 +2351,25 @@ void do_cmd_run(void)
 	}
 }
 
+/*
+ * Start running.
+ */
+void do_cmd_run(void)
+{
+	if (p_ptr->immovable) {
+                do_cmd_immovable_special();
+                return;
+        }else
+                do_cmd_run_run();
+}
+
 
 
 /*
  * Stay still.  Search.  Enter stores.
  * Pick up treasure if "pickup" is true.
  */
-void do_cmd_stay(int pickup)
+void do_cmd_stay_stay(int pickup)
 {
 	cave_type *c_ptr = &cave[py][px];
 
@@ -2354,6 +2451,15 @@ void do_cmd_stay(int pickup)
 	}
 }
 
+void do_cmd_stay(int pickup)
+{
+        /* Hold still (usually pickup) */
+//        if (p_ptr->immovable) {
+//                do_cmd_unwalk();
+//        }else{
+                do_cmd_stay_stay(pickup);
+//        }
+}
 
 
 /*
@@ -2439,6 +2545,7 @@ static int breakage_chance(object_type *o_ptr)
 		/* Always break */
 		case TV_FLASK:
 		case TV_POTION:
+                case TV_POTION2:
 		case TV_BOTTLE:
 		case TV_FOOD:
                 case TV_FIRESTONE:
@@ -2521,8 +2628,6 @@ void do_cmd_fire(void)
 
 	int msec = delay_factor * delay_factor * delay_factor;
 
-	cptr q, s;
-
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
 
@@ -2533,7 +2638,7 @@ void do_cmd_fire(void)
 		return;
 	}
 
-
+#if 0   /* Old code without the quiver slot */
 	/* Require proper missile */
 	item_tester_tval = p_ptr->tval_ammo;
 
@@ -2552,7 +2657,25 @@ void do_cmd_fire(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+#else   /* New code with the quiver slot */
 
+        /* Get the "ammo" (if any) */
+        o_ptr = &inventory[INVEN_AMMO];
+
+        item = INVEN_AMMO;
+
+        if(!o_ptr->k_idx)
+	{
+		msg_print("You have nothing to fire with.");
+		return;
+	}
+
+        if(p_ptr->tval_ammo != o_ptr->tval)
+	{
+		msg_print("You have nothing to fire with.");
+		return;
+	}
+#endif
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
@@ -3179,6 +3302,321 @@ void do_cmd_throw(void)
 	drop_near(q_ptr, j, y, x);
 }
 
+/*
+ * Throw a boomerang object from the equipement(bow).
+ *
+ * Note: "unseen" monsters are very hard to hit.
+ *
+ * Should throwing a weapon do full damage?  Should it allow the magic
+ * to hit bonus of the weapon to have an effect?  Should it ever cause
+ * the item to be destroyed?  Should it do any damage at all?
+ */
+void do_cmd_boomerang(void)
+{
+        int dir;
+        int j, y, x, ny, nx, ty, tx;
+	int chance, tdam, tdis;
+	int mul, div;
+	int cur_dis, visible;
+
+	object_type forge;
+	object_type *q_ptr;
+
+	object_type *o_ptr;
+
+	bool hit_body = FALSE;
+	bool hit_wall = FALSE;
+
+	byte missile_attr;
+	char missile_char;
+
+	char o_name[80];
+
+	int msec = delay_factor * delay_factor * delay_factor;
+
+
+	/* Get the "bow" (if any) */
+        o_ptr = &inventory[INVEN_BOW];
+
+
+	/* Get a direction (or cancel) */
+	if (!get_aim_dir(&dir)) return;
+
+
+	/* Get local object */
+	q_ptr = &forge;
+
+	/* Obtain a local object */
+	object_copy(q_ptr, o_ptr);
+
+	/* Single object */
+	q_ptr->number = 1;
+
+	/* Description */
+	object_desc(o_name, q_ptr, FALSE, 3);
+
+	/* Find the color and symbol for the object for throwing */
+	missile_attr = object_attr(q_ptr);
+	missile_char = object_char(q_ptr);
+
+	/* Extract a "distance multiplier" */
+	/* Changed for 'launcher' mutation */
+	mul = 10 + 2 * (throw_mult - 1);
+
+	/* Enforce a minimum "weight" of one pound */
+	div = ((q_ptr->weight > 10) ? q_ptr->weight : 10);
+
+	/* Hack -- Distance -- Reward strength, penalize weight */
+	tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
+
+	/* Max distance of 10-18 */
+	if (tdis > mul) tdis = mul;
+
+	/* Hack -- Base damage from thrown object */
+	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d;
+	tdam *= throw_mult;
+
+	/* Chance of hitting */
+	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
+
+
+	/* Take a turn */
+	energy_use = 100;
+
+
+	/* Start at the player */
+	y = py;
+	x = px;
+
+	/* Predict the "target" location */
+	tx = px + 99 * ddx[dir];
+	ty = py + 99 * ddy[dir];
+
+	/* Check for "target request" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = target_col;
+		ty = target_row;
+	}
+
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+
+	/* Travel until stopped */
+	for (cur_dis = 0; cur_dis <= tdis; )
+	{
+		/* Hack -- Stop at the target */
+		if ((y == ty) && (x == tx)) break;
+
+		/* Calculate the new location (see "project()") */
+		ny = y;
+		nx = x;
+		mmove2(&ny, &nx, py, px, ty, tx);
+
+		/* Stopped by walls/doors */
+		if (!cave_floor_bold(ny, nx))
+		{
+			hit_wall = TRUE;
+			break;
+		}
+
+		/* Advance the distance */
+		cur_dis++;
+
+		/* Save the new location */
+		x = nx;
+		y = ny;
+
+
+		/* The player can see the (on screen) missile */
+		if (panel_contains(y, x) && player_can_see_bold(y, x))
+		{
+			/* Draw, Hilite, Fresh, Pause, Erase */
+			print_rel(missile_char, missile_attr, y, x);
+			move_cursor_relative(y, x);
+			Term_fresh();
+			Term_xtra(TERM_XTRA_DELAY, msec);
+			lite_spot(y, x);
+			Term_fresh();
+		}
+
+		/* The player cannot see the missile */
+		else
+		{
+			/* Pause anyway, for consistancy */
+			Term_xtra(TERM_XTRA_DELAY, msec);
+		}
+
+
+		/* Monster here, Try to hit it */
+		if (cave[y][x].m_idx)
+		{
+			cave_type *c_ptr = &cave[y][x];
+
+			monster_type *m_ptr = &m_list[c_ptr->m_idx];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+			/* Check the visibility */
+			visible = m_ptr->ml;
+
+			/* Note the collision */
+			hit_body = TRUE;
+
+			/* Did we hit it (penalize range) */
+			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+			{
+				bool fear = FALSE;
+
+				/* Assume a default death */
+				cptr note_dies = " dies.";
+
+				/* Some monsters get "destroyed" */
+				if ((r_ptr->flags3 & (RF3_DEMON)) ||
+				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
+				    (r_ptr->flags2 & (RF2_STUPID)) ||
+				    (strchr("Evg", r_ptr->d_char)))
+				{
+					/* Special note at death */
+					note_dies = " is destroyed.";
+				}
+
+
+				/* Handle unseen monster */
+				if (!visible)
+				{
+					/* Invisible monster */
+					msg_format("The %s finds a mark.", o_name);
+				}
+
+				/* Handle visible monster */
+				else
+				{
+					char m_name[80];
+
+					/* Get "the monster" or "it" */
+					monster_desc(m_name, m_ptr, 0);
+
+					/* Message */
+					msg_format("The %s hits %s.", o_name, m_name);
+
+					/* Hack -- Track this monster race */
+					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+
+					/* Hack -- Track this monster */
+					if (m_ptr->ml) health_track(c_ptr->m_idx);
+				}
+
+				/* Apply special damage XXX XXX XXX */
+				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
+				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+
+				/* No negative damage */
+				if (tdam < 0) tdam = 0;
+
+				/* Complex message */
+				if (wizard)
+				{
+					msg_format("You do %d (out of %d) damage.",
+					           tdam, m_ptr->hp);
+				}
+
+				/* Hit the monster, check for death */
+				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
+				{
+					/* Dead monster */
+				}
+
+				/* No death */
+				else
+				{
+					/* Message */
+					message_pain(c_ptr->m_idx, tdam);
+
+					/* Anger friends */
+					if (is_pet(m_ptr) &&
+					    (!(k_info[q_ptr->k_idx].tval == TV_POTION)))
+					{
+						char m_name[80];
+						monster_desc(m_name, m_ptr, 0);
+						msg_format("%s gets angry!", m_name);
+						set_pet(m_ptr, FALSE);
+					}
+
+					/* Take note */
+					if (fear && m_ptr->ml)
+					{
+						char m_name[80];
+
+						/* Sound */
+						sound(SOUND_FLEE);
+
+						/* Get the monster name (or "it") */
+						monster_desc(m_name, m_ptr, 0);
+
+						/* Message */
+						msg_format("%^s flees in terror!", m_name);
+					}
+				}
+
+                                /* Chance of breakage (during attacks) */
+                                j = (hit_body ? breakage_chance(o_ptr) : 0);
+
+                                /* Break the boomerang */
+                                if (!(o_ptr->art_name || artifact_p(o_ptr)) && (rand_int(100) < j))
+                                {
+                                        msg_print(format("Your %s is destroyed.",o_name));
+                                        inven_item_increase(INVEN_BOW, -1);
+                                        inven_item_optimize(INVEN_BOW);
+                                }
+                        }
+
+			/* Stop looking */
+			break;
+                }
+	}
+
+        /* Travel back to the player */
+	for (cur_dis = 0; cur_dis <= tdis; )
+	{
+		/* Hack -- Stop at the target */
+                if ((y == py) && (x == px)) break;
+
+		/* Calculate the new location (see "project()") */
+		ny = y;
+		nx = x;
+                mmove2(&ny, &nx, ty, tx, py, px);
+
+		/* Advance the distance */
+		cur_dis++;
+
+		/* Save the new location */
+		x = nx;
+		y = ny;
+
+
+		/* The player can see the (on screen) missile */
+		if (panel_contains(y, x) && player_can_see_bold(y, x))
+		{
+			/* Draw, Hilite, Fresh, Pause, Erase */
+			print_rel(missile_char, missile_attr, y, x);
+			move_cursor_relative(y, x);
+			Term_fresh();
+			Term_xtra(TERM_XTRA_DELAY, msec);
+			lite_spot(y, x);
+			Term_fresh();
+		}
+
+		/* The player cannot see the missile */
+		else
+		{
+			/* Pause anyway, for consistancy */
+			Term_xtra(TERM_XTRA_DELAY, msec);
+		}
+	}
+}
+
 
 /* Note: return value indicates that we have succesfully used the power */
 
@@ -3327,7 +3765,7 @@ static void cmd_racial_power_aux (void)
         cptr p = "Power of the flame: ";
     
 
-        if(!p_ptr->tim_mimic)
+        if((!p_ptr->tim_mimic)&&(!p_ptr->body_monster))
         switch(p_ptr->prace)
 	{
 		case RACE_DWARF:
@@ -3384,71 +3822,6 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
-		case RACE_AMBERITE:
-			/* Select power to use */
-			while (TRUE)
-			{
-				if (!get_com("Use [S]hadow Shifting or [P]attern Mindwalking? ", &ch))
-				{
-					amber_power = 0;
-					break;
-				}
-
-				if (ch == 'P' || ch == 'p')
-				{
-					amber_power = 1;
-					break;
-				}
-
-				if (ch == 'S' || ch == 's')
-				{
-					amber_power = 2;
-					break;
-				}
-
-			}
-
-			if (amber_power == 1)
-			{
-				if (racial_aux(40, 75, A_WIS, 50))
-				{
-					msg_print("You picture the Pattern in your mind and walk it...");
-					(void)set_poisoned(0);
-					(void)set_image(0);
-					(void)set_stun(0);
-					(void)set_cut(0);
-					(void)set_blind(0);
-					(void)set_afraid(0);
-					(void)do_res_stat(A_STR);
-					(void)do_res_stat(A_INT);
-					(void)do_res_stat(A_WIS);
-					(void)do_res_stat(A_DEX);
-					(void)do_res_stat(A_CON);
-					(void)do_res_stat(A_CHR);
-					(void)restore_level();
-				}
-			}
-
-			else if(amber_power == 2)
-			{
-				if (racial_aux(30, 50, A_INT, 50))
-				{
-					msg_print("You start walking around. Your surroundings change.");
-
-					if (autosave_l)
-					{
-						is_autosave = TRUE;
-						msg_print("Autosaving the game...");
-						do_cmd_save_game();
-						is_autosave = FALSE;
-					}
-
-					/* Leaving */
-					p_ptr->leaving = TRUE;
-				}
-			}
-			break;
-
 		case RACE_BARBARIAN:
 			if (racial_aux(8, 10, A_WIS, (p_ptr->pclass == CLASS_WARRIOR?6:12)))
 			{
@@ -3481,7 +3854,7 @@ static void cmd_racial_power_aux (void)
 			/* Select power to use */
 			while (TRUE)
 			{
-                                if (!get_com("Use [F]lash aura or [H]oly fury  ?", &ch))
+                                if (!get_com("Use [F]lash aura or [L]ight speed jump  ?", &ch))
 				{
 					amber_power = 0;
 					break;
@@ -3493,7 +3866,7 @@ static void cmd_racial_power_aux (void)
 					break;
 				}
 
-                                if (ch == 'H' || ch == 'h')
+                                if (ch == 'L' || ch == 'l')
 				{
 					amber_power = 2;
 					break;
@@ -3514,10 +3887,9 @@ static void cmd_racial_power_aux (void)
                         }
                         if (amber_power == 2)
 			{
-                                if (racial_aux(5, 9, A_WIS, 7))
+                                if (racial_aux(30, 30, A_WIS, 7))
                                 {
-                                        (void)set_shero(p_ptr->shero + 8 + randint(plev));
-                                        (void)hp_player(40);
+                                        (void)set_light_speed(p_ptr->lightspeed + 1 + randint(plev/25));
                                 }
                         }
 			break;
@@ -3647,7 +4019,7 @@ static void cmd_racial_power_aux (void)
                                 if((ch=='A')||(ch=='a'))p_ptr->race_extra1=1;
                                 if((ch=='E')||(ch=='e'))p_ptr->race_extra1=2;
 
-                                itoa(p_ptr->tp_aux1,out_val,10);
+                                sprintf(out_val, "%d", p_ptr->tp_aux1);
 
                                 /* Ask for power */
                                 if (!get_string(p, out_val, 4)) return;
@@ -3715,7 +4087,7 @@ static void cmd_racial_power_aux (void)
 			msg_print("This race has no bonus power.");
 			energy_use = 0;
 	}
-        else
+        else if (p_ptr->mimic_form)
         switch(p_ptr->mimic_form)
         {
                 case MIMIC_ENT:
@@ -3765,7 +4137,7 @@ static void cmd_racial_power_aux (void)
 				}
                         break;
                 case MIMIC_KOBOLD:
-			if (racial_aux(12, 8, A_DEX, 14))
+                        if (racial_aux(1, 8, A_DEX, 14))
 			{
 				if(!get_aim_dir(&dir)) break;
 				msg_print("You throw a dart of poison.");
@@ -3773,7 +4145,7 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
                 case MIMIC_DEMON:
-			if (racial_aux(9, 15, A_WIS, 15))
+                        if (racial_aux(1, 15, A_WIS, 15))
 			{
 				if (!get_aim_dir(&dir)) break;
 				if (p_ptr->lev >= 30)
@@ -3806,7 +4178,7 @@ static void cmd_racial_power_aux (void)
                 case MIMIC_VALAR:
                         if (racial_aux(1, 30, A_CHR, 6))
 			{
-                        msg_print("The power of Eru Iluvatar flow trought you!");
+                        msg_print("The power of Eru Iluvatar flows trought you!");
                         msg_print("The world change!");
                 if (autosave_l)
                 {
@@ -3851,7 +4223,6 @@ void do_cmd_racial_power(void)
 	bool warrior = ((p_ptr->pclass == CLASS_WARRIOR)?TRUE:FALSE);
 
 	int pets = 0, pet_ctr = 0;
-	bool all_pets = FALSE;
 	monster_type * m_ptr;
 
 	bool has_racial = FALSE;
@@ -3875,7 +4246,7 @@ void do_cmd_racial_power(void)
 		return;
 	}
 
-        if(!p_ptr->tim_mimic)
+        if((!p_ptr->tim_mimic)&&(!p_ptr->body_monster))
 	switch (p_ptr->prace)
 	{
 		case RACE_DWARF:
@@ -3940,11 +4311,6 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_AMBERITE:
-			racial_power = "Amberite powers    (lvl 30/40, cost 50/75, INT/WIS 50)";
-			has_racial = TRUE;
-			break;
-
 		case RACE_HALF_OGRE:
 			if (lvl < 25)
 				racial_power = "explosive rune     (racial, lvl 25, cost 35)";
@@ -3995,7 +4361,7 @@ void do_cmd_racial_power(void)
 			break;
 
                 case RACE_RKNIGHT:
-                        racial_power = "Rohan's Kinght's Powers";
+                        racial_power = "Rohan's Knight's Powers";
 			has_racial = TRUE;
 			break;
                 case RACE_DRAGONRIDER:
@@ -4071,13 +4437,6 @@ void do_cmd_racial_power(void)
 		m_ptr = &m_list[pet_ctr];
 
 		if (is_pet(m_ptr)) pets++;
-	}
-
-	if (!(has_racial) && !(p_ptr->muta1) && !(pets))
-	{
-		msg_print("You have no powers to activate.");
-		energy_use = 0;
-		return;
 	}
 
 	if (has_racial)
@@ -4349,9 +4708,12 @@ void do_cmd_racial_power(void)
 
 	if (pets > 0)
 	{
-		strcpy(power_desc[num], "dismiss pets");
-		powers[num++] = -2;
+                strcpy(power_desc[num], "hypnotize a pet");
+                powers[num++] = -3;
 	}
+
+        strcpy(power_desc[num], "Awake an hypnotized pet");
+        powers[num++] = -4;
 
 	/* Nothing chosen yet */
 	flag = FALSE;
@@ -4497,47 +4859,86 @@ void do_cmd_racial_power(void)
 		return;
 	}
 
+#ifdef USE_PYTHON
+        if(perform_event(EVENT_XTRA_POWER, Py_BuildValue("(i)", i))) return;
+#endif
+
 	if (powers[i]<0)
 	{
 		if (powers[i] == -1) cmd_racial_power_aux();
-		else
-		{
-			int Dismissed = 0;
+                else if (powers[i] == -3)
+                {
+                        int dir,x,y;
+                        cave_type *c_ptr;
+                        monster_type *m_ptr;
+                        monster_race *r_ptr;
+                        object_type     *q_ptr;
+                        object_type     forge;
 
-			if (get_check("Dismiss all pets? ")) all_pets = TRUE;
+                        msg_print("Hypnotize which pet?");
+                        if (!get_rep_dir(&dir)) return;
+                        y = py + ddy[dir];
+                        x = px + ddx[dir];
+                        c_ptr = &cave[y][x];
+                        if(c_ptr->m_idx)
+                        {
+                                m_ptr = &m_list[c_ptr->m_idx];
+                                r_ptr = &r_info[m_ptr->r_idx];
 
-			/* Process the monsters (backwards) */
-			for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
-			{
-				/* Access the monster */
-				m_ptr = &m_list[pet_ctr];
-				if (is_pet(m_ptr)) /* Get rid of it! */
-				{
-					bool delete_this = FALSE;
+                                if(r_ptr->flags1 & RF1_NEVER_MOVE)
+                                {
+                                        q_ptr=&forge;
+                                        object_prep(q_ptr, lookup_kind(TV_HYPNOS, 1));
+                                        q_ptr->number = 1;
+                                        q_ptr->pval = m_ptr->r_idx;
+                                        q_ptr->pval2 = m_ptr->hp;
+                                        object_aware(q_ptr);
+                                        object_known(q_ptr);
 
-					if (all_pets)
-						delete_this = TRUE;
-					else
-					{
-						char friend_name[80], check_friend[80];
-						monster_desc(friend_name, m_ptr, 0x80);
-						sprintf(check_friend, "Dismiss %s? ", friend_name);
+                                        q_ptr->ident |= IDENT_STOREB;
+                        
+                                        drop_near(q_ptr, 0,y,x);
 
-						if (get_check(check_friend))
-							delete_this = TRUE;
-					}
+                                        delete_monster(y,x);
+                                        health_who = 0;
+                                }
+                                else
+                                        msg_print("You can only hypnotize the monsters that can't move.");
+                        }
+                        else msg_print("There is no pet here !");
+                }
+                else if (powers[i] == -4)
+                {
+                        monster_type *m_ptr;
+                        int m_idx;
+                        int item,x,y;
+                        object_type *o_ptr;
 
-					if (delete_this)
-					{
-						delete_monster_idx(pet_ctr);
-						Dismissed++;
-					}
-				}
-			}
+                        cptr q, s;
 
-			msg_format("You have dismissed %d pet%s.", Dismissed,
-			    (Dismissed==1?"":"s"));
-		}
+                        /* Restrict choices to monsters */
+                        item_tester_tval = TV_HYPNOS;
+
+                        /* Get an item */
+                        q = "Awake which monster? ";
+                        s = "You have no monster to awake.";
+                        if (!get_item(&item, q, s, (USE_FLOOR))) return;
+
+                        o_ptr = &o_list[0 - item];
+
+                        x=px;
+                        y=py;
+                        get_pos_player(100, &y, &x);
+
+                        if((m_idx=place_monster_one_return(y, x, o_ptr->pval, FALSE, TRUE))==0) return;
+
+                        m_ptr = &m_list[m_idx];
+                        m_ptr->hp = o_ptr->pval2;
+
+                        floor_item_increase(0 - item, -1);
+                        floor_item_describe(0 - item);
+                        floor_item_optimize(0 - item);
+                }
 	}
 	else
 	{
@@ -4940,10 +5341,10 @@ void do_cmd_racial_power(void)
 			case MUT1_RECALL:
 				if (racial_aux(17, 50, A_INT, 16))
 				{
-					if (dun_level && (p_ptr->max_dlv > dun_level))
+                                        if (dun_level && (p_ptr->max_dlv[dungeon_type] > dun_level))
 					{
 						if (get_check("Reset recall depth? "))
-							p_ptr->max_dlv = dun_level;
+                                                        p_ptr->max_dlv[dungeon_type] = dun_level;
 					}
 					if (!p_ptr->word_recall)
 					{
@@ -5030,4 +5431,1129 @@ void do_cmd_racial_power(void)
 
 	/* Success */
 	return;
+}
+
+/*
+ * Try to ``walk'' using phase door.
+ */
+
+void do_cmd_unwalk() {
+  int dir, y, x, feat;
+  cave_type *c_ptr;
+
+  bool more = FALSE;
+
+  if (!get_rep_dir(&dir)) return;
+
+  y = py + ddy[dir];
+  x = px + ddx[dir];
+
+  c_ptr = &cave[y][x];
+  feat = c_ptr->feat;
+
+  /* Must have knowledge to know feature XXX XXX */
+  if (!(c_ptr->info & (CAVE_MARK))) feat = FEAT_NONE;
+
+  /* Take a turn */
+  p_ptr->energy -= 100;
+
+
+  /* Allow repeated command */
+  if (command_arg)
+    {
+      /* Set repeat count */
+      command_rep = command_arg - 1;
+
+      /* Redraw the state */
+      p_ptr->redraw |= (PR_STATE);
+
+      /* Cancel the arg */
+      command_arg = 0;
+    }
+
+  
+  /* Attack monsters */
+  if (c_ptr->m_idx > 0) {
+    /* Attack */
+    py_attack(y, x);
+  }
+
+  /* Hack -- Ignore weird terrain types. */
+  else if (feat >= FEAT_PERM_EXTRA && feat != FEAT_TREES) {
+    teleport_player(10);
+  }
+    
+  /* Tunnel through walls */
+  else if (feat >= FEAT_SECRET) {
+    /* Tunnel */
+    more = do_cmd_tunnel_aux(y, x, dir);
+  }
+
+  /* Bash jammed doors */
+  else if (feat >= FEAT_DOOR_HEAD + 0x08) {
+    /* Tunnel */
+    more = do_cmd_bash_aux(y, x, dir);
+  }
+  
+  /* Open closed doors */
+  else if (feat >= FEAT_DOOR_HEAD) {
+    /* Tunnel */
+    more = do_cmd_open_aux(y, x, dir);
+  }
+
+  /* Disarm traps */
+  else if (feat >= FEAT_TRAP_HEAD) {
+    /* Tunnel */
+    more = do_cmd_disarm_aux(y, x, dir);
+  }
+
+  /* Walking semantics */
+  else {
+    teleport_player_directed(10, dir);
+  }
+
+  /* Cancel repetition unless we can continue */
+  if (!more) disturb(0, 0);
+}
+
+static bool tport_vertically(bool how) {
+  if ((p_ptr->inside_arena)||(p_ptr->inside_quest)) { /* arena or quest -KMW- */
+    msg_print("There is no effect.");
+    return FALSE;
+  }
+
+  /* Go down */
+
+  if (how) {
+    if (dun_level >= MAX_DEPTH-1) {
+      msg_print("The floor is impermeable.");
+      return FALSE;
+    }
+
+    msg_print("You sink through the floor.");
+    dun_level++;
+    p_ptr->leaving = TRUE;
+  } else {
+    if (!dun_level) {
+      msg_print("The only thing above you is air.");
+      return FALSE;
+    }
+
+    msg_print("You rise through the ceiling.");
+    dun_level--;
+    p_ptr->leaving = TRUE;
+  }
+  return TRUE;
+}
+
+
+/*
+ * Do a special ``movement'' action. Meant to be used for ``immovable''
+ * characters.
+ */
+void do_cmd_immovable_special(void) {
+  int i,ii,ij,dir;
+  int foo = p_ptr->immov_cntr;
+  int lose_sp = 0;
+  int lose_hp = 0;
+  bool did_act = FALSE;
+  bool did_load = FALSE;
+
+  if (foo > 1) {
+    if (p_ptr->csp > foo/2) {
+
+      msg_format("This will drain %d mana points!", foo/2);
+      if (!get_check("Proceed? "))
+	return;
+
+      lose_sp = foo/2;
+
+    } else if (p_ptr->chp > foo/2) {
+
+      msg_format("Warning: This will drain %d hit points!", foo/2);
+      if (!get_check("Proceed? "))
+	return;
+
+      lose_hp = foo/2;
+
+    } else {
+      msg_print("You can't use your powers yet.");
+      return;
+    }
+  }
+
+  /* Enter "icky" mode */
+  character_icky = TRUE;
+
+  /* Save the screen */
+  Term_save();
+
+
+  /* Interact until done */
+  while (1) {
+    /* Clear screen */
+    Term_clear();
+
+    /* Ask for a choice */
+    prt("Do what special action:", 2, 0);
+
+    /* Give some choices */
+    prt("(1) Teleport to a specific place.", 4, 5);
+    prt("(2) Fetch an item.", 5, 5);
+    prt("(3) Go up 50'", 6, 5);
+    prt("(4) Go down 50'", 7, 5);
+
+    /* Prompt */
+    prt("Command: ", 9, 0);
+
+    /* Prompt */
+    i = inkey();
+
+    /* Done */
+    if (i == ESCAPE) break;
+
+    /* Tele-to */
+    if (i == '1') {
+      Term_load();
+      character_icky = FALSE;
+      did_load = TRUE;
+
+      if (!tgt_pt(&ii,&ij)) break;
+
+      /* Teleport to the target */
+      teleport_player_to(ij,ii); 
+
+      did_act = TRUE;
+      break;
+    }
+
+    /* Fetch item */
+    else if (i == '2') {
+      Term_load();
+      character_icky = FALSE;
+      did_load = TRUE;
+
+      if (!get_aim_dir(&dir)) return;
+      fetch(dir, p_ptr->lev*15, FALSE);
+
+      did_act = TRUE;
+      break;
+    }
+
+    /* Move up */
+    else if (i == '3') {
+      Term_load();
+      character_icky = FALSE;
+      did_load = TRUE;
+
+      if (!tport_vertically(FALSE)) return;
+
+      did_act = TRUE;
+      break;
+    }
+
+    /* Move down */
+    else if (i == '4') {
+      Term_load();
+      character_icky = FALSE;
+      did_load = TRUE;
+
+      if (!tport_vertically(TRUE)) return;
+
+      did_act = TRUE;
+      break;
+    }
+
+    /* Unknown option */
+    else {
+      bell();
+    }
+
+  }
+
+  /* Check if screen was restored before */
+  if (!did_load) {
+    /* Restore the screen */
+    Term_load();
+
+    /* Leave "icky" mode */
+    character_icky = FALSE;
+  }
+
+  /* Apply stat losses if something was done */
+  if (did_act) {
+    p_ptr->immov_cntr += 101-(p_ptr->lev*2);
+
+    if (lose_sp) {
+      p_ptr->csp -= lose_sp;
+      p_ptr->redraw |= (PR_MANA);
+    }
+
+    if (lose_hp) {
+      p_ptr->chp -= lose_hp;
+      p_ptr->redraw |= (PR_HP);
+    }
+  }
+}
+
+static bool item_tester_hook_sacrifice(object_type* o_ptr) {
+  if (object_value(o_ptr) * o_ptr->number > 0) return TRUE;
+
+  return FALSE;
+}
+
+/*
+ * Handle sacrifices.
+ * Grace is increased by value of sacrifice.
+ */
+void do_cmd_sacrifice(void) {
+
+  object_type *o_ptr;
+
+  cptr q, s;
+
+  int val;
+
+  byte on_what = cave[py][px].feat;
+  byte what_god;
+
+  int item = 1;
+
+  /* Check valididty */
+
+  if (on_what < FEAT_ALTAR_HEAD || on_what > FEAT_ALTAR_TAIL) {
+    show_god_info(FALSE);
+    return;
+  }
+
+  what_god = on_what-FEAT_ALTAR_HEAD+1;
+
+  item_tester_hook = item_tester_hook_sacrifice;
+
+  /* Get sacrifice */
+  q = "Sacrifice what? ";
+  s = "You have nothing to sacrifice.";
+  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+
+  o_ptr = &inventory[item];
+
+  energy_use = 100;
+
+  val = object_value(o_ptr) * o_ptr->number;
+
+  /* Modify grace */
+
+  if (p_ptr->pgod == 0) {
+    p_ptr->pgod = what_god;
+    set_grace(p_ptr->grace + val);
+    p_ptr->god_favor = -60000;
+
+  } else if (p_ptr->pgod != what_god) {
+    msg_format("%s thunders in outrage at your blasphemy!",
+            deity_info[p_ptr->pgod-1].name);
+
+    set_grace(p_ptr->grace - val*10);
+    (void) do_dec_stat(A_WIS);
+    p_ptr->update |= PU_BONUS;
+
+    if (val > 2500) {
+      msg_format("You feel %s abandon you.",
+              deity_info[p_ptr->pgod-1].name);
+
+      p_ptr->pgod = what_god;
+      set_grace(val);
+      p_ptr->god_favor = -60000;
+    }
+
+  } else {
+    set_grace(p_ptr->grace + val*5);
+  }
+
+        /* Eliminate the item (from the pack) */
+        if (item >= 0)
+        {
+                inven_item_increase(item, -1);
+                inven_item_describe(item);
+                inven_item_optimize(item);
+        }
+}
+
+s32b rune_combine = 0;
+
+/*
+ * Hook to determine if an object is "rune-able"
+ */
+static bool item_tester_hook_runeable1(object_type *o_ptr)
+{
+        if(o_ptr->tval != TV_RUNE1) return FALSE;
+
+        /* Assume yes */
+        return (TRUE);
+}
+/*
+ * Hook to determine if an object is "rune-able"
+ */
+static bool item_tester_hook_runeable2(object_type *o_ptr)
+{
+        if(o_ptr->tval != TV_RUNE2) return FALSE;
+
+        if (rune_combine & (1<<o_ptr->sval)) return (FALSE);
+
+        /* Assume yes */
+        return (TRUE);
+}
+
+/*
+ * Combine the Runes
+ */
+void do_cmd_rune(void)
+{
+        int item, dir, power, rune2 = 0, power_rune = 0;
+        int chance, minfail, powerdiv;
+
+        int rad = 0, ty = -1, tx = -1, dam = 0, type = 0, flg = 0;
+
+	object_type     *o_ptr;
+
+	cptr q, s;
+
+        bool OK = FALSE;
+
+        rune_combine = 0;        
+
+        /* Require some mana */
+        if(!p_ptr->csp)
+        {
+                msg_print("You have no mana!");
+                return;
+        }
+	
+	/* Require lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+	
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+        /* Restrict choices to unused runes */
+        item_tester_hook = item_tester_hook_runeable1;
+
+	/* Get an item */
+        q = "Use which rune? ";
+        s = "You have no rune to use.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+        type = o_ptr->sval;
+
+        do
+        {
+                /* Restrict choices to unused secondary runes */
+                item_tester_hook = item_tester_hook_runeable2;
+
+                OK = !get_item(&item, q, s, (USE_INVEN | USE_FLOOR));
+
+                /* Get the item (in the pack) */
+                if (item >= 0)
+                {
+                        o_ptr = &inventory[item];
+                }
+
+                /* Get the item (on the floor) */
+                else
+                {
+                        o_ptr = &o_list[0 - item];
+                }
+                rune_combine |= 1 << o_ptr->sval;
+                rune2 |= 1 << o_ptr->sval;
+        }while(!OK);
+
+        if(!rune2)
+        {
+                msg_print("You have not chose a second rune!");
+                return;
+        }
+
+        if(rune2 & RUNE_POWER_SURGE)
+                power_rune += 3;
+        if(rune2 & RUNE_ARMAGEDDON)
+                power_rune += 2;
+        if(rune2 & RUNE_SPHERE)
+                power_rune += 2;
+        if(rune2 & RUNE_RAY)
+                power_rune += 1;
+
+        power = get_quantity("Which amount of Mana?", p_ptr->csp - (power_rune * (p_ptr->lev / 5)));
+
+        p_ptr->csp -= power + (power_rune * (p_ptr->lev / 5));
+
+        /* Not too weak power */
+        power = (power < 10)?10:power;
+
+        /* To reduce the high level powr, while increasing the low levels */
+        powerdiv = power / (3 + (p_ptr->lev / 10));
+
+        dam = damroll((powerdiv < 2)?powerdiv:2,power);
+
+        /* Extract the base spell failure rate */
+        chance = (10 * power_rune) + (power / 100);
+
+        /* Reduce failure rate by INT/WIS adjustment */
+        chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+
+        /* Extract the minimum failure rate */
+        minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+
+        /* Minimum failure rate */
+        if (chance < minfail) chance = minfail;
+  
+        /* Stunning makes spells harder */
+        if (p_ptr->stun > 50) chance += 25;
+        else if (p_ptr->stun) chance += 15;
+
+        /* Always a 5 percent chance of working */
+        if (chance > 95) chance = 95;
+
+        /* Failure ? */
+	if (rand_int(100) < chance)
+	{
+                char sfail[80];
+
+		if (flush_failure) flush();
+
+                get_rnd_line("sfail.txt",sfail);
+
+                msg_format("A cloud of %s appears above you.", sfail);
+		sound(SOUND_FAIL);
+
+                energy_use = 100;
+
+                /* Window stuff */
+                p_ptr->window |= (PW_PLAYER);
+                p_ptr->redraw |= (PR_MANA);
+                return;
+	}
+
+        if(rune2 & RUNE_POWER_SURGE)
+        {
+                flg |= PROJECT_VIEWABLE;
+                ty = py;
+                tx = px;
+        }
+        if(rune2 & RUNE_ARMAGEDDON)
+        {
+                flg |= PROJECT_THRU;
+                flg |= PROJECT_KILL;
+                flg |= PROJECT_ITEM;
+                flg |= PROJECT_GRID;
+                flg |= PROJECT_METEOR_SHOWER;
+                rad = (power / 8 == 0)?1:power / 8;
+                rad = (rad > 10)?10:rad;
+                ty = py;
+                tx = px;
+        }
+        if(rune2 & RUNE_SPHERE)
+        {
+                flg |= PROJECT_THRU;
+                flg |= PROJECT_KILL;
+                flg |= PROJECT_ITEM;
+                flg |= PROJECT_GRID;
+                rad = (power / 8 == 0)?1:power / 8;
+                rad = (rad > 10)?10:rad;
+                ty = py;
+                tx = px;
+        }
+        if(rune2 & RUNE_RAY)
+        {
+                flg |= PROJECT_THRU;
+                flg |= PROJECT_STOP;
+                flg |= PROJECT_KILL;
+                flg |= PROJECT_BEAM;
+                ty = -1;
+                tx = -1;
+        }
+        if(rune2 & RUNE_ARROW)
+        {
+                flg |= PROJECT_THRU;
+                flg |= PROJECT_STOP;
+                flg |= PROJECT_KILL;
+                ty = -1;
+                tx = -1;
+        }
+        if(rune2 & RUNE_SELF)
+        {
+                flg |= PROJECT_THRU;
+                flg |= PROJECT_STOP;
+                flg |= PROJECT_KILL;
+                ty = py;
+                tx = px;
+                unsafe = TRUE;
+        }
+
+        if((ty == -1)&&(tx == -1))
+        {
+                if (!get_aim_dir(&dir)) return;
+
+                /* Use the given direction */
+                tx = px + ddx[dir];
+                ty = py + ddy[dir];
+
+                /* Hack -- Use an actual "target" */
+                if ((dir == 5) && target_okay())
+                {
+                        tx = target_col;
+                        ty = target_row;
+                }
+        }
+
+        if(flg & PROJECT_VIEWABLE)
+        {
+                project_hack(type, dam);
+        }
+        else if(flg & PROJECT_METEOR_SHOWER)
+        {
+                project_meteor(rad, type, dam, flg);
+        }
+        else project(0, rad, ty, tx, dam, type, flg);
+
+        if(unsafe) unsafe = FALSE;
+
+	/* Take a turn */
+	energy_use = 100;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+        p_ptr->redraw |= (PR_MANA);
+}
+
+/*
+ * Set of variables and functions to create an artifact
+ */
+typedef struct flag flag;
+struct flag {
+        int flag;
+        int level;
+        char desc[50];
+};
+
+flag flags1_level[28]=
+{
+        {TR1_STR,40,"Strength"},
+        {TR1_INT,43,"Intelligence"},
+        {TR1_WIS,38,"Wisdom"},
+        {TR1_DEX,46,"Dexterity"},
+        {TR1_CON,42,"Constitution"},
+        {TR1_CHR,30,"Charisma"},
+        {TR1_STEALTH,32,"Stealth"},
+        {TR1_SEARCH,29,"Search"},
+        {TR1_INFRA,6,"Infravision"},
+        {TR1_TUNNEL,3,"Tunnel"},
+        {TR1_SPEED,49,"Speed"},
+        {TR1_BLOWS,38,"Blows"},
+        {TR1_VAMPIRIC,26,"Vampiric"},
+        {TR1_SLAY_ANIMAL,16,"Slay Annimal"},
+        {TR1_SLAY_EVIL,25,"Slay Evil"},
+        {TR1_SLAY_UNDEAD,30,"Slay Undead"},
+        {TR1_SLAY_DEMON,40,"Slay Demon"},
+        {TR1_SLAY_ORC,10,"Slay Orc"},
+        {TR1_SLAY_TROLL,16,"Slay Troll"},
+        {TR1_SLAY_GIANT,25,"Slay Giant"},
+        {TR1_SLAY_DRAGON,33,"Slay Dragon"},
+        {TR1_KILL_DRAGON,41,"*Slay* Dragon"},
+        {TR1_VORPAL,36,"Vorpal"},
+        {TR1_BRAND_POIS,3,"Brand Poison"},
+        {TR1_BRAND_ACID,12,"Brand Acid"},
+        {TR1_BRAND_ELEC,10,"Brand Lightning"},
+        {TR1_BRAND_FIRE,6,"Brand Fire"},
+        {TR1_BRAND_COLD,8,"Brand Cold"},
+};
+
+flag flags2_level[31]=
+{
+        {TR2_SUST_STR,32,"Sustain Strength"},
+        {TR2_SUST_INT,34,"Sustain Intelligence"},
+        {TR2_SUST_WIS,28,"Sustain Wisdom"},
+        {TR2_SUST_DEX,36,"Sustain Dexterity"},
+        {TR2_SUST_CON,36,"Sustain Constitution"},
+        {TR2_SUST_CHR,25,"Sustain Charisma"},
+        {TR2_INVIS,20,"Invisibility"},
+        {TR2_LIFE,50,"Extra Life"},
+        {TR2_IM_ACID,49,"Immune Acid"},
+        {TR2_IM_ELEC,50,"Immune Ligthning"},
+        {TR2_IM_FIRE,49,"Immune Fire"},
+        {TR2_IM_COLD,50,"Immune Cold"},
+        {TR2_REFLECT,38,"Reflection"},
+        {TR2_FREE_ACT,20,"Free Action"},
+        {TR2_HOLD_LIFE,30,"Hold Life"},
+        {TR2_RES_ACID,12,"Resist Acid"},
+        {TR2_RES_ELEC,15,"Resist Lightning"},
+        {TR2_RES_FIRE,13,"Resist Fire"},
+        {TR2_RES_COLD,14,"Resist Cold"},
+        {TR2_RES_POIS,25,"Resist Poison"},
+        {TR2_RES_FEAR,26,"Resist Fear"},
+        {TR2_RES_LITE,31,"Resist Lite"},
+        {TR2_RES_DARK,33,"Resist Darkness"},
+        {TR2_RES_BLIND,30,"Resist Blindness"},
+        {TR2_RES_CONF,36,"Resist Confusion"},
+        {TR2_RES_SOUND,38,"Resist Sound"},
+        {TR2_RES_SHARDS,42,"Resist Shards"},
+        {TR2_RES_NETHER,39,"Resist Nether"},
+        {TR2_RES_NEXUS,46,"Resist Nexus"},
+        {TR2_RES_CHAOS,39,"Resist Chaos"},
+        {TR2_RES_DISEN,47,"Resist Disenchantment"},
+};
+
+flag flags3_level[17]=
+{
+        {TR3_SH_FIRE,20,"Aura Fire"},
+        {TR3_SH_ELEC,25,"Aura Ligthning"},
+        {TR3_NO_TELE,29,"Anti Teleportaton"},
+        {TR3_NO_MAGIC,34,"Anti Magic"},
+        {TR3_WRAITH,50,"Wraith Form"},
+        {TR3_TY_CURSE,1,"Ancient Curse"},
+        {TR3_FEATHER,15,"Levitation"},
+        {TR3_LITE,8,"Lite"},
+        {TR3_SEE_INVIS,20,"See Invisible"},
+        {TR3_TELEPATHY,36,"Telepathy"},
+        {TR3_REGEN,32,"Regeneration"},
+        {TR3_DRAIN_EXP,1,"Drain Experience"},
+        {TR3_TELEPORT,12,"Teleport"},
+        {TR3_AGGRAVATE,1,"Aggravate"},
+        {TR3_CURSED,1,"Cursed"},
+        {TR3_HEAVY_CURSE,1,"Heavy Cursed"},
+        {TR3_PERMA_CURSE,1,"Permanently Cursed"},
+};
+
+bool flags1_select[28];
+bool flags2_select[31];
+bool flags3_select[17];
+
+int show_flags(byte flag)
+{
+        int max = 0, i, x;
+
+        char ttt[80];
+
+        if (flag == 1) max = 28;
+        if (flag == 2) max = 31;
+        if (flag == 3) max = 17;
+
+	Term_clear();
+
+        for(i = 0; i < max; i++)
+        {
+                if(i < 22) x = 5; else x = 45;
+                sprintf(ttt, " ");
+                if((flag == 1)&&!flags1_select[i]) sprintf(ttt, "%c) %s(level %d)", (i < 26)?I2A(i):('0' + i - 26), flags1_level[i].desc, flags1_level[i].level);
+                if((flag == 2)&&!flags2_select[i]) sprintf(ttt, "%c) %s(level %d)", (i < 26)?I2A(i):('0' + i - 26), flags2_level[i].desc, flags2_level[i].level);
+                if((flag == 3)&&!flags3_select[i]) sprintf(ttt, "%c) %s(level %d)", (i < 26)?I2A(i):('0' + i - 26), flags3_level[i].desc, flags3_level[i].level);
+                if(ttt) prt(ttt, ((i < 22)?i:i - 22) + 2, x);
+        }
+        return max;
+}
+
+void do_cmd_create_artifact()
+{
+        int max, i = 0, pval = 0;
+
+        u32b cur_cost = 0;
+
+        char out_val[160], ttt[80];
+
+        bool flag = FALSE, okay = FALSE;
+
+        char choice = 0;
+
+        cptr q, s;
+
+        int item;
+
+        object_type forge;
+        object_type *q_ptr = &forge;
+        
+        char o_name[80];
+
+        s32b max_lev = (p_ptr->lev * 5000) + randint(p_ptr->skill_dev * 100) + (p_ptr->skill_dev * 100);
+
+        energy_use = 100;
+
+        /* Restrict choices to artifactable items */
+        item_tester_hook = item_tester_hook_artifactable;
+
+	/* Get an item */
+        q = "Use which item? ";
+        s = "You have nothing to use.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+                q_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+                q_ptr = &o_list[0 - item];
+	}
+
+	/* Description */
+        object_desc(o_name, q_ptr, FALSE, 0);
+
+        if (q_ptr->name1 || q_ptr->art_name)
+	{
+		msg_format("The %s %s already %s!",
+                    o_name, ((q_ptr->number > 1) ? "are" : "is"),
+                    ((q_ptr->number > 1) ? "artifacts" : "an artifact"));
+		okay = FALSE;
+	}
+
+        else if (q_ptr->name2)
+	{
+		msg_format("The %s %s already %s!",
+                    o_name, ((q_ptr->number > 1) ? "are" : "is"),
+                    ((q_ptr->number > 1) ? "ego items" : "an ego item"));
+		okay = FALSE;
+	}
+
+	else
+	{
+                if (q_ptr->number > 1)
+		{
+			msg_print("Not enough enough energy to enchant more than one object!");
+                        msg_format("%d of your %s %s destroyed!",(q_ptr->number)-1, o_name, (q_ptr->number>2?"were":"was"));
+                        q_ptr->number = 1;
+		}
+                okay = TRUE;
+	}
+
+        if(!okay) return;
+
+        pval = get_quantity("Which bonus(1-5) ?", 5);
+
+        /* Save the screen */
+        Term_save();
+
+        for(i = 0; i < 28; i++)
+                flags1_select[i] = FALSE;
+        for(i = 0; i < 31; i++)
+                flags2_select[i] = FALSE;
+        for(i = 0; i < 17; i++)
+                flags3_select[i] = FALSE;
+
+        /* Chose the flags1 */
+        max = show_flags(1);
+        prt("Total cost(the higher the cost is, the harder the creation is): 0 gp", 1, 0);
+
+        /* Build a prompt (accept all flags) */
+        if (max <= 26)
+	{
+                /* Build a prompt (accept all flags) */
+                strnfmt(out_val, 78, "(Flags %c-%c, ESC=next set of flags) Add which flag to your artifact? ",
+                        I2A(0), I2A(max - 1));
+	}
+	else
+	{
+                strnfmt(out_val, 78, "(Flags %c-%c, ESC=next set of flags) Add which flag to your artifact? ",
+                        I2A(0), '0' + max - 27);
+	}
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		if (isalpha(choice))
+		{
+			/* Lowercase */
+                        if (isupper(choice)) choice = tolower(choice);
+
+			/* Extract request */
+			i = (islower(choice) ? A2I(choice) : -1);
+		}
+		else
+		{
+			i = choice - '0' + 26;
+		}
+
+		/* Totally Illegal */
+                if ((i < 0) || (i >= max))
+		{
+			bell();
+			continue;
+                }
+                else if(p_ptr->lev < flags1_level[i].level)
+		{
+			bell();
+			continue;
+                }
+                else
+                {
+                        object_type *o_ptr, forge;
+                        int j;
+                        char ttt[80];
+
+                        flags1_select[i] = TRUE;
+                        show_flags(1);
+
+                        o_ptr = &forge;
+                        object_wipe(o_ptr);
+                        o_ptr->tval = TV_BOTTLE;
+                        o_ptr->sval = 1;
+                        o_ptr->art_flags1 = 0;
+                        o_ptr->art_flags2 = 0;
+                        o_ptr->art_flags3 = 0;
+                        for(j = 0; j < 28; j++)
+                                if(flags1_select[j]) o_ptr->art_flags1 |= flags1_level[j].flag;
+
+                        cur_cost = (flag_cost(o_ptr, pval) < 1)?1:flag_cost(o_ptr, pval);
+                        sprintf(ttt, "Total cost(the higher the cost is, the harder the creation is): %ld gp", cur_cost);
+                        prt(ttt, 1, 0);
+                }
+
+                if(choice == '\e') flag = TRUE;
+        }
+
+        /* Chose the flags2 */
+        max = show_flags(2);
+        sprintf(ttt, "Total cost(the higher the cost is, the harder the creation is): %ld gp", cur_cost);
+        prt(ttt, 1, 0);
+
+        /* Build a prompt (accept all flags) */
+        if (max <= 26)
+	{
+                /* Build a prompt (accept all flags) */
+                strnfmt(out_val, 78, "(Flags %c-%c, ESC=next set of flags) Add which flag to your artifact? ",
+                        I2A(0), I2A(max - 1));
+	}
+	else
+	{
+                strnfmt(out_val, 78, "(Flags %c-%c, ESC=next set of flags) Add which flag to your artifact? ",
+                        I2A(0), '0' + max - 27);
+	}
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		if (isalpha(choice))
+		{
+			/* Lowercase */
+                        if (isupper(choice)) choice = tolower(choice);
+
+			/* Extract request */
+			i = (islower(choice) ? A2I(choice) : -1);
+		}
+		else
+		{
+			i = choice - '0' + 26;
+		}
+
+		/* Totally Illegal */
+                if ((i < 0) || (i >= max))
+		{
+			bell();
+			continue;
+                }
+                else if(p_ptr->lev < flags2_level[i].level)
+		{
+			bell();
+			continue;
+                }
+                else
+                {
+                        object_type *o_ptr, forge;
+                        int j;
+                        char ttt[80];
+
+                        flags2_select[i] = TRUE;
+                        show_flags(2);
+
+                        o_ptr = &forge;
+                        object_wipe(o_ptr);
+                        o_ptr->tval = TV_BOTTLE;
+                        o_ptr->sval = 1;
+                        o_ptr->art_flags1 = 0;
+                        o_ptr->art_flags2 = 0;
+                        o_ptr->art_flags3 = 0;
+                        for(j = 0; j < 28; j++)
+                                if(flags1_select[j]) o_ptr->art_flags1 |= flags1_level[j].flag;
+                        for(j = 0; j < 31; j++)
+                                if(flags2_select[j]) o_ptr->art_flags2 |= flags2_level[j].flag;
+
+                        cur_cost = (flag_cost(o_ptr, pval) < 1)?1:flag_cost(o_ptr, pval);
+                        sprintf(ttt, "Total cost(the higher the cost is, the harder the creation is): %ld gp", cur_cost);
+                        prt(ttt, 1, 0);
+                }
+
+                if(choice == '\e') flag = TRUE;
+        }
+
+        /* Chose the flags3 */
+        max = show_flags(3);
+        sprintf(ttt, "Total cost(the higher the cost is, the harder the creation is): %ld gp", cur_cost);
+        prt(ttt, 1, 0);
+
+        /* Build a prompt (accept all flags) */
+        if (max <= 26)
+	{
+                /* Build a prompt (accept all flags) */
+                strnfmt(out_val, 78, "(Flags %c-%c, ESC=create the artifact) Add which flag to your artifact? ",
+                        I2A(0), I2A(max - 1));
+	}
+	else
+	{
+                strnfmt(out_val, 78, "(Flags %c-%c, ESC=create the artifact) Add which flag to your artifact? ",
+                        I2A(0), '0' + max - 27);
+	}
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		if (isalpha(choice))
+		{
+			/* Lowercase */
+                        if (isupper(choice)) choice = tolower(choice);
+
+			/* Extract request */
+			i = (islower(choice) ? A2I(choice) : -1);
+		}
+		else
+		{
+			i = choice - '0' + 26;
+		}
+
+		/* Totally Illegal */
+                if ((i < 0) || (i >= max))
+		{
+			bell();
+			continue;
+                }
+                else if(p_ptr->lev < flags3_level[i].level)
+		{
+			bell();
+			continue;
+                }
+                else
+                {
+                        object_type *o_ptr, forge;
+                        int j;
+                        char ttt[80];
+
+                        flags3_select[i] = TRUE;
+                        show_flags(3);
+
+                        o_ptr = &forge;
+                        object_wipe(o_ptr);
+                        o_ptr->tval = TV_BOTTLE;
+                        o_ptr->sval = 1;
+                        o_ptr->art_flags1 = 0;
+                        o_ptr->art_flags2 = 0;
+                        o_ptr->art_flags3 = 0;
+                        for(j = 0; j < 28; j++)
+                                if(flags1_select[j]) o_ptr->art_flags1 |= flags1_level[j].flag;
+                        for(j = 0; j < 31; j++)
+                                if(flags2_select[j]) o_ptr->art_flags2 |= flags2_level[j].flag;
+                        for(j = 0; j < 17; j++)
+                                if(flags3_select[j]) o_ptr->art_flags3 |= flags3_level[j].flag;
+
+                        cur_cost = (flag_cost(o_ptr, pval) < 1)?1:flag_cost(o_ptr, pval);
+                        sprintf(ttt, "Total cost(the higher the cost is, the harder the creation is): %ld gp", cur_cost);
+                        prt(ttt, 1, 0);
+                }
+
+                if(choice == '\e') flag = TRUE;
+        }
+
+        /* Restore the screen */
+        Term_load();
+
+        /* Failure ? */
+        if(cur_cost > rand_int(max_lev))
+        {
+                msg_print("You fail to create the artifact, the powerful force of it are released!");
+                msg_print("Your body is altered by them!");
+                dec_stat(A_STR, 45, TRUE);
+                dec_stat(A_INT, 45, TRUE);
+                dec_stat(A_WIS, 45, TRUE);
+                dec_stat(A_DEX, 45, TRUE);
+                dec_stat(A_CON, 45, TRUE);
+                dec_stat(A_CHR, 45, TRUE);
+
+                curse_equipment(98, 70);
+                curse_equipment(98, 70);
+                curse_equipment(98, 70);
+                curse_equipment(98, 70);
+
+                /* Window stuff */
+                p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+                /* Redraw stuff */
+                p_ptr->redraw |= PR_STATS;
+                return;
+        }
+
+        /* Actually create the artifact */
+        q_ptr->pval = pval;
+
+        /* Just to be sure */
+        q_ptr->art_flags3 |= ( TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
+	                       TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+
+        /* Apply the flags */
+        for(i = 0; i < 28; i++)
+                if(flags1_select[i]) q_ptr->art_flags1 |= flags1_level[i].flag;
+        for(i = 0; i < 31; i++)
+                if(flags2_select[i]) q_ptr->art_flags2 |= flags2_level[i].flag;
+        for(i = 0; i < 17; i++)
+                if(flags3_select[i]) q_ptr->art_flags3 |= flags3_level[i].flag;
+
+
+	{
+		char dummy_name[80];
+                char new_name[80];
+
+		strcpy(dummy_name, "");
+                identify_fully_aux(q_ptr);
+                q_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
+		if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
+                        strcpy(new_name,"of an Alchemist");
+		else
+		{
+			strcpy(new_name,"called '");
+			strcat(new_name,dummy_name);
+			strcat(new_name,"'");
+		}
+		/* Identify it fully */
+                object_aware(q_ptr);
+                object_known(q_ptr);
+
+		/* Mark the item as fully known */
+                q_ptr->ident |= (IDENT_MENTAL);
+
+                /* Save the inscription */
+                q_ptr->art_name = quark_add(new_name);
+	}
+
+        /* Bad side effect */
+        curse_equipment(98, 90);
+        curse_equipment(98, 90);
+        curse_equipment(98, 90);
+
+	/* Window stuff */
+        p_ptr->window |= (PW_INVEN | PW_EQUIP);
 }

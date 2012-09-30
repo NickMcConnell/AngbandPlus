@@ -125,6 +125,9 @@ static void roff_aux(int r_idx, int remem)
 	u32b		flags4;
 	u32b		flags5;
 	u32b		flags6;
+        u32b            flags7;
+        u32b            flags8;
+        u32b            flags9;
 
 	int		vn = 0;
 	cptr		vp[64];
@@ -203,6 +206,9 @@ static void roff_aux(int r_idx, int remem)
 		r_ptr->r_flags4 = r_ptr->flags4;
 		r_ptr->r_flags5 = r_ptr->flags5;
 		r_ptr->r_flags6 = r_ptr->flags6;
+                r_ptr->r_flags7 = r_ptr->flags7;
+                r_ptr->r_flags8 = r_ptr->flags8;
+                r_ptr->r_flags9 = r_ptr->flags9;
 	}
 
 
@@ -218,6 +224,9 @@ static void roff_aux(int r_idx, int remem)
 	flags4 = (r_ptr->flags4 & r_ptr->r_flags4);
 	flags5 = (r_ptr->flags5 & r_ptr->r_flags5);
 	flags6 = (r_ptr->flags6 & r_ptr->r_flags6);
+        flags7 = (r_ptr->flags7 & r_ptr->r_flags7);
+        flags8 = (r_ptr->flags8 & r_ptr->r_flags8);
+        flags9 = (r_ptr->flags9 & r_ptr->r_flags9);
 
 
 	/* Assume some "obvious" flags */
@@ -245,7 +254,7 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->flags3 & (RF3_EVIL)) flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & (RF3_GOOD)) flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
-		if (r_ptr->flags3 & (RF3_AMBERITE)) flags3 |= (RF3_AMBERITE);
+                if (r_ptr->flags3 & (RF3_DRAGONRIDER)) flags3 |= (RF3_DRAGONRIDER);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
@@ -427,6 +436,13 @@ static void roff_aux(int r_idx, int remem)
 	old = FALSE;
 
 	/* Describe location */
+        if (r_ptr->flags7 & RF7_PET)
+	{
+                roff(format("%^s is friendly to you. ", wd_he[msex]));
+		old = TRUE;
+	}
+
+	/* Describe location */
 	if (r_ptr->level == 0)
 	{
 		roff(format("%^s lives in the town", wd_he[msex]));
@@ -558,7 +574,7 @@ static void roff_aux(int r_idx, int remem)
 		else if (flags3 & (RF3_GIANT))      roff(" giant");
 		else if (flags3 & (RF3_TROLL))      roff(" troll");
 		else if (flags3 & (RF3_ORC))        roff(" orc");
-		else if (flags3 & (RF3_AMBERITE))   roff(" Amberite");
+                else if (flags3 & (RF3_DRAGONRIDER))   roff(" DragonRider");
 		else                                roff(" creature");
 
 		/* Group some variables */
@@ -755,12 +771,12 @@ static void roff_aux(int r_idx, int remem)
 	if (flags6 & (RF6_XXX2))            vp[vn++] = "do something";
 	if (flags6 & (RF6_BLINK))           vp[vn++] = "blink-self";
 	if (flags6 & (RF6_TPORT))           vp[vn++] = "teleport-self";
-	if (flags6 & (RF6_XXX3))            vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX4))            vp[vn++] = "do something";
+        if (flags6 & (RF6_S_BUG))           vp[vn++] = "summon software bugs";
+        if (flags6 & (RF6_S_RNG))           vp[vn++] = "summon RNG";
 	if (flags6 & (RF6_TELE_TO))         vp[vn++] = "teleport to";
 	if (flags6 & (RF6_TELE_AWAY))       vp[vn++] = "teleport away";
 	if (flags6 & (RF6_TELE_LEVEL))      vp[vn++] = "teleport level";
-	if (flags6 & (RF6_XXX5))            vp[vn++] = "do something";
+        if (flags6 & (RF6_S_DRAGONRIDER))   vp[vn++] = "summon a DragonRider";
 	if (flags6 & (RF6_DARKNESS))        vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))           vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))          vp[vn++] = "cause amnesia";
@@ -928,14 +944,25 @@ static void roff_aux(int r_idx, int remem)
 	{
 		roff(format("%^s regenerates quickly.  ", wd_he[msex]));
 	}
+        if (r_ptr->flags7 & (RF7_MORTAL))
+	{
+                roff(format("%^s is a mortal being.  ", wd_he[msex]));
+	}
+        else
+	{
+                roff(format("%^s is an immortal being.  ", wd_he[msex]));
+	}
 
 
 	/* Collect susceptibilities */
 	vn = 0;
 	if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
 	if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
-	if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "fire";
-	if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "cold";
+        if (flags3 & (RF3_SUSCEP_FIRE)) vp[vn++] = "fire";
+        if (flags3 & (RF3_SUSCEP_COLD)) vp[vn++] = "cold";
+        if (flags9 & (RF9_SUSCEP_ACID)) vp[vn++] = "acid";
+        if (flags9 & (RF9_SUSCEP_ELEC)) vp[vn++] = "lightning";
+        if (flags9 & (RF9_SUSCEP_POIS)) vp[vn++] = "poison";
 
 	/* Describe susceptibilities */
 	if (vn)
@@ -1296,7 +1323,8 @@ static void roff_aux(int r_idx, int remem)
 			case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
 			case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
 			case RBE_DISEASE:	q = "disease"; break;
-			case RBE_TIME:      q = "time"; break;
+                        case RBE_TIME:          q = "time"; break;
+                        case RBE_SANITY:        q = "blast sanity"; break;
 		}
 
 

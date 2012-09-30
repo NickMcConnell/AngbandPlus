@@ -1,0 +1,6178 @@
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:m0e*t
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0g*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0g*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0g*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0d*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0e*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0e*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+# Macro '69'
+
+A:m0f*t
+P:^_x3C\r
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0e*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+# Macro '69'
+
+A:m0f*t
+P:^_x3C\r
+
+
+# Macro '70'
+
+A:m2b
+P:^_x44\r
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0e*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+# Macro '69'
+
+A:m0f*t
+P:^_x3C\r
+
+
+# Macro '70'
+
+A:m2b
+P:^_x44\r
+
+
+# Macro '71'
+
+A:m0g*t
+P:^_x3D\r
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0e*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+# Macro '69'
+
+A:m0f*t
+P:^_x3C\r
+
+
+# Macro '70'
+
+A:m2b
+P:^_x44\r
+
+
+# Macro '71'
+
+A:m0g*t
+P:^_x3D\r
+
+
+# Macro '72'
+
+A:m4b*t
+P:^_x3E\r
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0e*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+# Macro '69'
+
+A:m0f*t
+P:^_x3C\r
+
+
+# Macro '70'
+
+A:m2b
+P:^_x44\r
+
+
+# Macro '71'
+
+A:m0g*t
+P:^_x3D\r
+
+
+# Macro '72'
+
+A:m4b*t
+P:^_x3E\r
+
+
+# Macro '73'
+
+A:m2b-a
+P:^_x43\r
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0e*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+# Macro '69'
+
+A:m0f*t
+P:^_x3C\r
+
+
+# Macro '70'
+
+A:m2b
+P:^_x44\r
+
+
+# Macro '71'
+
+A:m0g*t
+P:^_x3D\r
+
+
+# Macro '72'
+
+A:m4b*t
+P:^_x3E\r
+
+
+# Macro '73'
+
+A:m2b-a
+P:^_x43\r
+
+
+# Macro '74'
+
+A:m0f
+P:^_x42\r
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0e*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+# Macro '69'
+
+A:m0f*t
+P:^_x3C\r
+
+
+# Macro '70'
+
+A:m2b
+P:^_x44\r
+
+
+# Macro '71'
+
+A:m0g*t
+P:^_x3D\r
+
+
+# Macro '72'
+
+A:m4b*t
+P:^_x3E\r
+
+
+# Macro '73'
+
+A:m2b-a
+P:^_x43\r
+
+
+# Macro '74'
+
+A:m0f
+P:^_x42\r
+
+
+# Macro '75'
+
+A:m5c
+P:n
+
+
+# Macro '76'
+
+A:m5d
+P:N
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0e*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+# Macro '69'
+
+A:m0f*t
+P:^_x3C\r
+
+
+# Macro '70'
+
+A:m2b
+P:^_x44\r
+
+
+# Macro '71'
+
+A:m0g*t
+P:^_x3D\r
+
+
+# Macro '72'
+
+A:m4b*t
+P:^_x3E\r
+
+
+# Macro '73'
+
+A:m2b-a
+P:^_x43\r
+
+
+# Macro '74'
+
+A:m0h
+P:^_x42\r
+
+
+# Macro '75'
+
+A:m5c
+P:n
+
+
+# Macro '76'
+
+A:m5d
+P:N
+
+
+
+
+
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:m0a*t\e\e\e\e
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:\r
+P:\r
+
+
+# Macro '64'
+
+A:m0e*t
+P:^_x3B\r
+
+
+# Macro '65'
+
+A:m
+P:m
+
+
+# Macro '66'
+
+A:m3d
+P:^_x85\r
+
+
+# Macro '67'
+
+A:A/f
+P:^_x86\r
+
+
+# Macro '68'
+
+A:\e
+P:\e
+
+
+# Macro '69'
+
+A:m0f*t
+P:^_x3C\r
+
+
+# Macro '70'
+
+A:m2b
+P:^_x44\r
+
+
+# Macro '71'
+
+A:m0g*t
+P:^_x3D\r
+
+
+# Macro '72'
+
+A:m4b*t
+P:^_x3E\r
+
+
+# Macro '73'
+
+A:m2b-a
+P:^_x43\r
+
+
+# Macro '74'
+
+A:m0h
+P:^_x42\r
+
+
+# Macro '75'
+
+A:n
+P:n
+
+
+# Macro '76'
+
+A:m5d
+P:N
+
+
+
+
+
+

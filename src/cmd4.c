@@ -43,7 +43,7 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
 
 	/* Forget lite/view */
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
@@ -55,7 +55,7 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+        p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
@@ -112,15 +112,23 @@ void do_cmd_change_name(void)
 		/* Display the player */
 		display_player(mode);
 
-		if (mode == 6)
+                if (mode == 6)
 		{
 			mode = 0;
 			display_player(mode);
 		}
 
 		/* Prompt */
-		Term_putstr(2, 23, -1, TERM_WHITE,
-			"['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
+                if (mode == 0)
+                {
+                        Term_putstr(6, 22, -1, TERM_WHITE,
+                                "['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
+                        Term_putstr(23, 23, -1, TERM_WHITE,
+                                "['t' to tactics, 'e' to movement]");
+                }else{
+                        Term_putstr(6, 23, -1, TERM_WHITE,
+                                "['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
+                }
 
 		/* Query */
 		c = inkey();
@@ -153,6 +161,15 @@ void do_cmd_change_name(void)
 			mode++;
 		}
 
+                else if (c == 't')
+                {
+                        if (mode==0) (void)do_cmd_change_tactic();
+                }
+
+                else if (c == 'e')
+                {
+                        if (mode==0) do_cmd_change_movement();
+                }
 		/* Oops */
 		else
 		{
@@ -978,7 +995,7 @@ void do_cmd_options(void)
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
 
-		prt("(Z/5) Zangband Options", 9, 5);
+                prt("(P/5) PernAngband Options", 9, 5);
 		/* Testing */
 		prt("(S) Stacking Options", 10, 5);
 		/* Special choices */
@@ -1037,10 +1054,10 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Zangband Options */
-			case 'Z': case 'z': case '5':
+                        /* PernAngband Options */
+                        case 'P': case 'p': case '5':
 			{
-				do_cmd_options_aux(5, "Zangband Options");
+                                do_cmd_options_aux(5, "PernAngband Options");
 				break;
 			}
 
@@ -2529,7 +2546,7 @@ void do_cmd_version(void)
     msg_format("You are playing Angband %d.%d.%d.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-    msg_format("You are playing Zangband %d.%d.%d.",
+    msg_format("You are playing PernAngband %d.%d.%d.",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
                
@@ -2562,9 +2579,17 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
+        if (perform_event(EVENT_FEELING, Py_BuildValue("(ii)", dun_level, p_ptr->inside_quest))) return;
+
 	/* Verify the feeling */
 	if (feeling < 0) feeling = 0;
 	if (feeling > 10) feeling = 10;
+
+        /* Feeling of the fate */
+        if ((fate_flag) && (!special_flag) && (!p_ptr->inside_quest))
+	{
+                msg_print("You feel that you will meet your fate here.");
+	}
 
         /* No useful feeling in special levels */
         if (special_flag)
@@ -2574,7 +2599,7 @@ void do_cmd_feeling(void)
 	}
 
 	/* No useful feeling in quests */
-	if (p_ptr->inside_quest)
+        if (p_ptr->inside_quest)
 	{
 		msg_print("Looks like a typical quest level.");
 		return;
@@ -2903,6 +2928,9 @@ void do_cmd_knowledge_artifacts(void)
 				/* Acquire next object */
 				next_o_idx = o_ptr->next_o_idx;
 
+                                /* Ignore random artifacts */
+                                if (o_ptr->tval == TV_RANDART) continue;
+	  
 				/* Ignore non-artifacts */
 				if (!artifact_p(o_ptr)) continue;
 
@@ -2923,6 +2951,9 @@ void do_cmd_knowledge_artifacts(void)
 		/* Ignore non-objects */
 		if (!o_ptr->k_idx) continue;
 
+                /* Ignore random artifacts */
+                if (o_ptr->tval == TV_RANDART) continue;
+	  
 		/* Ignore non-artifacts */
 		if (!artifact_p(o_ptr)) continue;
 
@@ -2980,7 +3011,6 @@ void do_cmd_knowledge_artifacts(void)
 	fd_kill(file_name);
 }
 
-
 /*
  * Display known uniques
  *
@@ -2988,12 +3018,11 @@ void do_cmd_knowledge_artifacts(void)
  */
 static void do_cmd_knowledge_uniques(void)
 {
-	int k;
+        int k;
 
 	FILE *fff;
 
 	char file_name[1024];
-
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -3464,7 +3493,7 @@ static void do_cmd_knowledge_quests(void)
 				/* New random */
 				rand_level = quest[i].level;
 
-				if (p_ptr->max_dlv >= rand_level)
+                                if (p_ptr->max_dlv[dungeon_type] >= rand_level)
 				{
 					/* Print the quest info */
 					r_ptr = &r_info[quest[i].r_idx];
@@ -3502,9 +3531,125 @@ static void do_cmd_knowledge_quests(void)
 	show_file(file_name, "Quest status", 0, 0);
 
 	/* Remove the file */
-	fd_kill(file_name);
+        fd_kill(file_name);
 }
 
+
+/*
+ * Print fate status
+ */
+static void do_cmd_knowledge_fates(void)
+{
+	FILE *fff;
+	char file_name[1024];
+        char tmp_str[200];
+	int i;
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+        for (i = 0; i < MAX_FATES; i++)
+	{
+                if((fates[i].fate) && (fates[i].know))
+                {
+                        if(fates[i].serious)
+                        {
+                                fprintf(fff, "You are fated to ");
+                        }
+                        else
+                        {
+                                fprintf(fff, "You may ");
+                        }
+                        switch(fates[i].fate)
+                        {
+                                case FATE_FIND_O:
+                                {
+                                        object_type *o_ptr, forge;
+                                        char desc[80];
+
+                                        o_ptr = &forge;
+                                        object_prep(o_ptr, fates[i].o_idx);
+                                        object_desc_store(desc, o_ptr, 1, 0);
+
+                                        fprintf(fff, "find %s on level %d.\n", desc, fates[i].level);
+                                        break;
+                                }
+                                case FATE_FIND_A:
+                                {
+                                        object_type *q_ptr, forge;
+                                        char desc[80];
+                                        artifact_type *a_ptr = &a_info[fates[i].a_idx];
+                                        int I_kind;
+
+					/* Get local object */
+					q_ptr = &forge;
+
+					/* Wipe the object */
+					object_wipe(q_ptr);
+
+					/* Acquire the "kind" index */
+					I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+					/* Create the artifact */
+					object_prep(q_ptr, I_kind);
+
+					/* Save the name */
+                                        q_ptr->name1 = fates[i].a_idx;
+
+					/* Extract the fields */
+					q_ptr->pval = a_ptr->pval;
+					q_ptr->ac = a_ptr->ac;
+					q_ptr->dd = a_ptr->dd;
+					q_ptr->ds = a_ptr->ds;
+					q_ptr->to_a = a_ptr->to_a;
+					q_ptr->to_h = a_ptr->to_h;
+					q_ptr->to_d = a_ptr->to_d;
+					q_ptr->weight = a_ptr->weight;
+
+					/* Hack -- acquire "cursed" flag */
+					if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
+
+					random_artifact_resistance(q_ptr);
+
+                                        object_desc_store(desc, q_ptr, 1, 0);
+
+                                        fprintf(fff, "find %s on level %d.\n", desc, fates[i].level);
+                                        break;
+                                }
+                                case FATE_FIND_R:
+                                {
+                                        char desc[80];
+
+                                        monster_race_desc(desc, fates[i].r_idx);
+                                        fprintf(fff, "meet %s on level %d.\n", desc, fates[i].level);
+                                        break;
+                                }
+                                case FATE_DIE:
+                                {
+                                        fprintf(fff, "die on level %d.\n", fates[i].level);
+                                        break;
+                                }
+                                case FATE_NO_DIE_MORTAL:
+                                {
+                                        fprintf(fff, "never to die by the hand of a mortal being.\n");
+                                        break;
+                                }
+                        }
+                }                        
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+        show_file(file_name, "Fate status", 0, 0);
+
+	/* Remove the file */
+        fd_kill(file_name);
+}
 
 
 /*
@@ -3540,6 +3685,7 @@ void do_cmd_knowledge(void)
 		prt("(5) Display mutations", 8, 5);
 		prt("(6) Display current pets", 9, 5);
 		prt("(7) Display current quests", 10, 5);
+                prt("(8) Display current fates", 11, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);
@@ -3572,6 +3718,9 @@ void do_cmd_knowledge(void)
 			break;
 		case '7': /* Quests */
 			do_cmd_knowledge_quests();
+			break;
+                case '8': /* Fates */
+                        do_cmd_knowledge_fates();
 			break;
 		default: /* Unknown option */
 			bell();
@@ -3613,3 +3762,30 @@ void do_cmd_checkquest(void)
 	/* Leave "icky" mode */
 	character_icky = FALSE;
 }
+
+void do_cmd_change_tactic(void)
+{
+   char c;
+   p_ptr->tactic++;
+   if (p_ptr->tactic>8) p_ptr->tactic = 0;
+   prt(format("During your adventures in PernAngband, you behave %s. -- more --",
+       tactic_info[p_ptr->tactic].name),0,0);
+   c = inkey();
+   p_ptr->update |= (PU_BONUS);
+   update_stuff();
+   prt("",0,0);
+}
+
+void do_cmd_change_movement(void)
+{
+   char c;
+   p_ptr->movement++;
+   if (p_ptr->movement>8) p_ptr->movement = 0;
+   prt(format("During your adventures in PernAngband, you explore %s. -- more --",
+              move_info[p_ptr->movement].name),0,0);
+   c = inkey();
+   p_ptr->update |= (PU_BONUS);
+   update_stuff();
+   prt("",0,0);
+}
+

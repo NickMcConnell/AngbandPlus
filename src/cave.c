@@ -739,6 +739,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Access floor */
 			f_ptr = &f_info[FEAT_FLOOR];
 
+                        if ((feat == FEAT_INVIS) && (!(p_ptr->inside_quest)))
+                                f_ptr = &f_info[dungeon_info[dungeon_type].floor1];
+
 			/* Normal char */
 			c = f_ptr->x_char;
 
@@ -1158,7 +1161,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Handle "player" */
 	if ((y == py) && (x == px))
 	{
-		monster_race *r_ptr = &r_info[0];
+                monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
 		/* Get the "player" attr */
 		a = r_ptr->x_attr;
@@ -1208,6 +1211,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							while (a == TERM_DARK);
 							break;
 						case CLASS_MAGE:
+                                                case CLASS_ALCHEMIST:
 						case CLASS_HIGH_MAGE:
 							if (p_ptr->lev < 20)
 								a = TERM_L_RED;
@@ -1234,6 +1238,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 							else
 								a = TERM_L_DARK;
 							break;
+                                                case CLASS_MIMIC:
+                                                case CLASS_BEASTMASTER:
 						case CLASS_WARRIOR:
 							if (p_ptr->lev < 20)
 								a = TERM_L_UMBER;
@@ -1241,6 +1247,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 								a = TERM_UMBER;
 							break;
 						case CLASS_MONK:
+                                                case CLASS_HARPER:
 						case CLASS_MINDCRAFTER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_UMBER;
@@ -1272,6 +1279,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_HIGH_ELF:
 							c = 223;
 							break;
+                                                case RACE_MOLD:
 						case RACE_HALF_OGRE:
 							c = 168;
 							break;
@@ -1568,7 +1576,7 @@ void prt_map(void)
 			char tc;
 
 			/* Determine what is there */
-			map_info(y, x, &a, &c, &ta, &tc);
+                        map_info(y, x, &a, &c, &ta, &tc);
 
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
@@ -1581,7 +1589,7 @@ void prt_map(void)
 			Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
 #else /* USE_TRANSPARENCY */
 			/* Determine what is there */
-			map_info(y, x, &a, &c);
+                        map_info(y, x, &a, &c);
 
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
@@ -1762,9 +1770,9 @@ void display_map(int *cy, int *cx)
 	}
 
 	/* Fill in the map */
-	for (i = 0; i < cur_wid; ++i)
+        for (i = 0; i < cur_wid; ++i)
 	{
-		for (j = 0; j < cur_hgt; ++j)
+                for (j = 0; j < cur_hgt; ++j)
 		{
 			/* Location */
 			x = i / RATIO + 1;
@@ -1772,9 +1780,9 @@ void display_map(int *cy, int *cx)
 
 			/* Extract the current attr/char at that map location */
 #ifdef USE_TRANSPARENCY
-			map_info(j, i, &ta, &tc, &ta, &tc);
+                        map_info(j, i, &ta, &tc, &ta, &tc);
 #else /* USE_TRANSPARENCY */
-			map_info(j, i, &ta, &tc);
+                        map_info(j, i, &ta, &tc);
 #endif /* USE_TRANSPARENCY */
 
 			/* Extract the priority of that attr/char */
@@ -1830,7 +1838,7 @@ void display_map(int *cy, int *cx)
 			}
 
 			/* Add the character */
-			Term_addch(ta, tc);
+                        Term_addch(ta, tc);
 		}
 	}
 
@@ -3454,6 +3462,18 @@ void wiz_lite(void)
 	p_ptr->window |= (PW_OVERHEAD);
 }
 
+void wiz_lite_extra(void)
+{
+        int y, x;
+			for(y=0;y < cur_hgt;y++)
+			{
+				for(x=0;x < cur_wid;x++)
+				{
+					cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
+				}
+			}
+			wiz_lite();
+}
 
 /*
  * Forget the dungeon map (ala "Thinking of Maud...").

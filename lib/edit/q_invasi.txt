@@ -1,0 +1,123 @@
+# q_invasi.txt
+# by Akhronath (zzhou22876@aol.com)
+# Quest: Escape from the invasion of Gondolin
+
+# Name
+Q:5:N:Invasion of Gondolin
+
+# Definition
+Q:5:Q:4:0:0:0:90:0:0
+
+# Description for quest
+?:[LEQ $QUEST5 2]
+Q:5:T:Morgoth is upon us! Dragons and Balrogs have poured over secret
+Q:5:T:ways of the Echoriath, and are already nigh upon the city. Go
+Q:5:T:with the city's guards to the plains, and seek a path of escape
+Q:5:T:so that not all will be lost. I forbode that you will not be able
+Q:5:T:to return without fighting through the most powerful of foes.
+?:1
+
+# Description for quest rewarding
+?:[EQU $QUEST5 3]
+Q:5:T:You have our eternal gratitude. Receive this powerful gift.
+?:1
+
+# Dirt (known)
+F:.:88:1
+
+# Dirt (no-tele) near quest exit
+F:s:88:5
+
+# Quest exit
+F:<:9:5
+
+# Dirt with Balrog
+F:a:88:1:720
+
+# Dirt with Muar, the Balrog
+F:b:88:1:872
+
+# Dirt with Lungorthin, the Balrog of White Fire
+F:c:88:1:839
+
+# Dirt with Gothmog, the High Captain of Balrogs
+F:d:88:1:856
+
+# Dirt with Ancient red dragon
+F:e:88:1:644
+
+# Dirt with Ancient multi-hued dragon
+F:f:88:1:675
+
+# Dirt with Great hell wyrm
+F:g:88:1:756
+
+# Dirt with Scatha the Worm
+F:h:88:1:692
+
+# Dirt with Smaug the Golden
+F:i:88:1:697
+
+# Dirt with Itangast the Fire Drake
+F:j:88:1:710
+
+# Dirt with Glaurung, Father of the Dragons
+F:k:88:1:715
+
+# Dirt with Ancalagon the Black
+F:l:88:1:766
+
+# Dirt (nt) with Tiamat, Celestial Dragon of Evil
+F:m:88:5:795
+
+# Dirt (nt) with Great Wyrm of Power
+F:n:88:5:847
+
+# Dirt with High-elven ranger
+F:o:88:1:945
+
+# Dirt (nt) with Great hell wyrm
+F:p:88:5:756
+
+# Dungeon
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXsssssspppn<npppsssXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX%%%%%%%ssspsspspppnmnpppspsspsssssss%%%%%%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX....XXXXXXXXXX......%%%%%%%ssssssssssspppppppssssssssssssss%%%%%%.....XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXX......XX..............%%%%%%%ssssspsspsspppppsspsspssssssssss%%%%%..............XXXXXXXXXXXXXXXXXXX
+D:XXXX..............f.........%%%%%%ssssssssssssssssssssssssssssss%%%%%%.........g........XXXXXXXXXXXXXXX
+D:XXXXXX................f....%%%%%%%%ssssspsspsspsspsspssssssssss%%%%%.....g................XXXXXXXXXXXXX
+D:XXXXXXXXX.......g..............%%%%%%%ssssssssssssssssssssssss%%%%%%%.........................XXXXXXXXX
+D:XXXXXXXX....f...........e....%%%%%%%%%%%%spssspssspssssssss%%%%%%%%%%%%%.......e...e....g......XXXXXXXX
+D:XXXXXXXX.......e............%%%%%%%%%%%ssssssssssssssssssssssss%%%%%%%%%%............e...........XXXXXX
+D:XXXXXXXX............g......%%%%%sssssssssssssssssssssssssss%%%%%%.................k...............XXXXX
+D:XXXXXXXX....f..l..........%%%%%%%%sssssssssssssssssssssssss%%%%%%%...................e....g.....XXXXXXX
+D:XXXXXXX...........g........%%%%%%%%%sssssssssssssssssssss%%%%%%%..........e...................XXXXXXXXX
+D:XXXXXX................f.......%%%%%ssfsgsfsgsfsgsfsgssssss%%%%%%%%...............a............XXXXXXXXX
+D:XXX........e.........................................%%%s%%%%%%%%%%%.........e......f......g...XXXXXXXX
+D:X....f..............................g..............%%%%%%%%%......................................XXXXX
+D:X.............f......e.....................f......%%%%%%%%%.......f........f.............f......XXXXXXX
+D:X.....g................f.........a...................%%%%%%%%%........................g........XXXXXXXX
+D:XXX.......e......e.........i.....................j...............................f...............XXXXXX
+D:XXXXXX........................f..........%%%%%%%..............f.......g................f............XXX
+D:XXXXXXX......e.........a............e...%%%%%%%%%........f..................a................g.......XX
+D:XXXXXXXXX.........e.......................%%%%%%%%%..................................e...............XX
+D:XXXXXXXX......................e.............%%%%%.....f.......a..f.......f.......g...............XXXXXX
+D:XXXXXXX..............e............f......%%%%%%.......................a.......................XXXXXXXXX
+D:XXXXXXXX.......c.........e...............%%%%%%%%%..........f...............d...............XXXXXXXXXXX
+D:XXXXXXXXXX.f...............................%%%%%%.......e..............e........a....g.....XXXXXXXXXXXX
+D:XXXXXXXXXX....f...........XXX.......e........%%%...........e....f..........................XXXXXXXXXXXX
+D:XXXXXXXXXX.............XXXXX.............f...........ooo.............e.....f...................XXXXXXXX
+D:XXXXXXXXXXX......f....XXX........e.................ooo.ooo...e........................h............XXXX
+D:XXXXXXXXXXXX..........XX..................e.......oo.....oo......f............g.............g........XX
+D:XXXXXXXXXXXXX.g....e..XX.............e...........oo.......oo...........................g.............XX
+D:XXXXXXXXXXXX..........XXXX.................a.....o.........o..e......XXX...........................XXXX
+D:XXXXXXXX........g.....XXXXX........b.............oo.......oo........XXXXXX.......................XXXXXX
+D:XXXXXXXX....e........XXXXXXXX..........e..........o.......o.....f...XXXXXXX.........XXXXXXX.....XXXXXXX
+D:XXXXXXXXXX.........XXXXXXXXXXX............f.......oo.....oo........XXXXXXXXXX..XXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.................oo...oo.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:32:55
