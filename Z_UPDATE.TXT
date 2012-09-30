@@ -1,6 +1,99 @@
-This is a document file listing the changes in Zangband (compared to
-the standard Angband 2.8.1.) No long explanations, just a list. See
-code for details. In reversed chronological order (more or less):
+This is a document file listing the changes in Zangband (compared to the
+standard Angband 2.8.1.) No long explanations, just a list. See code for
+details. In reversed chronological order (more or less):
+
+ZAngband 2.1.1c
+-Fixed the 16x16 tile for hobbit characters. A beer mug is fitting for
+ a hobbit, but it was still a bug. ;-)
+-Fixed another bug in the creation of quest levels.
+-Allowed all characters created in pre 2.1.1 versions of ZAngband to
+ choose the number of quests when loading the savegame. You may have to
+ leave and reenter the current level, if it's a quest level.
+-Only Uniques will now resist disintegration effects.
+-The last questmonster now drops all carried items, the normal monster
+ drop and one reward item when you finish the quest.
+-Reward drops are no longer added to the monster knowledge.
+-Fixed the problem with the transparent color of the 8x8 bitmap.
+
+ZAngband 2.1.1b
+-Quest message pluralization fixed (again).
+-No more extremely out of depth quests for new characters.
+-Desintegration spells like "Fist of force" can destroy walls.
+-Reflection works now.
+-Corrected the new tiles for spirit naga, angel, and blue jellies.
+-Creation of artifact arrows/bolts/shots with scrolls of artifact creation
+ is allowed again.
+
+ZAngband 2.1.1
+-Paralysis attacks on a paralyzed player always do at least one hp of damage.
+ This should prevent "infinite paralysis" from floating eyes.
+-Fixed some bugs in the autosaving code.
+-Fixed a bug in the monster-AI code.
+-Added circular rooms from Dag Arneson Ying-YAngband.
+-Fixed a bug that allowed the creation of artifact-arrows, -bolts, and -shots
+ with scrolls of artifact creation.
+-Adam Bolt's tiles are now finished and every monster/object/spell effect has a tile.
+-Another bug in the quest code fixed.
+-Quest messages are now correctly pluralized.
+-The roguelike commands to show game time (the ' key) and to activate the racial
+ power/mutation (the O key) work now.
+-Benny S. Hofmann's patch to the windows version allows switching between ASCII,
+ old tiles and Adam Bolt's tiles.
+-Toned down the TY-curse a bit.
+
+ZAngband 2.1.1 beta 2
+-Updated Adam Bolt's terrain tiles again.
+-Implemented the item flavoring code from Angband 2.8.3.
+-Fixed a bug in the macro-creation.
+-Fixed a bug creation of the quest levels.
+
+
+ZAngband 2.1.1 beta 1
+-Updated Adam Bolt's terrain tiles.
+-Mindcrafter powers are correctly displayed in the spell-list window
+ and don't crash the game anymore.
+-Fixed a bug in the random activations of the mutations, the
+ effects appear less often now.
+-The main-win.c file is now ready for compiling with Adam Bolt's
+ new tiles. Just define "USE_AB_TILES" and compile it.
+ The windows version also supports transparency and the
+ "double-step bug" is fixed.
+-Added a sound-event for the "Hitpoint Warning".
+-Pets will no longer pick up/destroy items.
+-Implemented Greg Harvey's patch that adds the macro code from 2.8.3.
+-Added Heino Vander Sanden's QAngband quest code with big help from
+ Dean Anderson.
+
+
+Zangband 2.1.0e
+-Fixed some bugs with the new bookstore and the store maintainance and
+ owner shuffling works for the bookstore.
+-Fixed the problem with compiling the main.c file on Unix/Linux systems.
+
+
+Zangband 2.1.0d
+-Silas Dunsmore's cumulative light radius patch added.
+ Any object in your equipment that has the 'glow' flag will extend your
+ lit-area radius by 1, up to a maximum of 5.  The normal light-source
+ objects still work the same, but glowing artifacts and helms of light
+ are actually useful.
+-Added a bookstore to the town to free up space in the magic shop.
+-Fixed problems with the Summon Demon (Chaos), Raise Death (Death),
+ Phantasmal Servant (Trump), Mindwave, and Adrenaline (Mindcraft)
+ spells on systems without mathematical coprocessor.
+-Chaos Warriors are no longer hurt (or killed) by the "strain of
+ casting (Mass) Genocide" when the chaos patron casts the Genocide
+ spell ("Let me relieve thee of thine oppressors!").
+-Fixed a bug with the sound-effects, the correct effects will be
+ played now.
+-Added new sound-events for buying and selling in stores.
+-Added support for Adam Bolt's new tile-graphics, transparency-
+ and lighting-effects, MOD-, and S3M-files to the DOS version.
+ Adam Bolt's tiles for ZAngband are not yet finished, most of the
+ ZAngband specific monsters are displayed with other tiles or with
+ ASCII-characters.
+ The special DOS options can be accessed by pressing ! while playing.
+
 
 Zangband 2.1.0c
 -Command (in powers menu) to dismiss all pets (costs no mana, takes a turn)
