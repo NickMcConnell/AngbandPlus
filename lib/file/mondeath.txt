@@ -32,6 +32,16 @@ N:54:Wolf, Farmer Maggot's dog
 N:55:Fang, Farmer Maggot's dog
 0
 
+N:63:Smeagol
+1
+#LOTR Book6 Chap.3
+hisses, 'We'll die, yes, die into the dust...Dusst!'
+
+N:573:Lord Borel of Hendrake
+1
+#Amber Book5 Chap.10
+'Oh, basely done! I had hoped better of thee!'
+
 N:*:Default
 332
 'Live and let live, right..?'

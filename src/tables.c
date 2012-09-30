@@ -1014,73 +1014,43 @@ const byte adj_con_mhp[] =
 };
 
 
+
 /*
- * This table is used to help calculate the number of blows the player can
- * make in a single round of attacks (one player turn) with a normal weapon.
+ * This is changed for [O] combat V2.  (From L.M.)
  *
- * This number ranges from a single blow/round for weak players to up to six
- * blows/round for powerful warriors.
+ * This table is used to help calculate the number of blows the player 
+ * can make in a single round of attacks (one player turn) with a 
+ * weapon that is not too heavy to wield effectively.
  *
- * Note that certain artifacts and ego-items give "bonus" blows/round.
- *
- * First, from the player class, we extract some values:
- *
- *    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
- *    Mage    --> num = 4; mul = 2; div = MAX(40, weapon_weight);
- *    Priest  --> num = 5; mul = 3; div = MAX(35, weapon_weight);
- *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
- *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
- *    Paladin --> num = 5; mul = 4; div = MAX(30, weapon_weight);
+ * The player gets "blows_table[P][D]" blows/round, as shown below.
  *
  * To get "P", we look up the relevant "adj_str_blow[]" (see above),
- * multiply it by "mul", and then divide it by "div", rounding down.
+ * multiply it by 6, and then divide it by the effective weapon 
+ * weight (in deci-pounds), rounding down.
  *
- * To get "D", we look up the relevant "adj_dex_blow[]" (see above),
- * note especially column 6 (DEX 18/101) and 11 (DEX 18/150).
+ * To get "D", we look up the relevant "adj_dex_blow[]" (see above).
  *
- * The player gets "blows_table[P][D]" blows/round, as shown below,
- * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
+ * (Some interesting calculations)
+ * The character cannot get five blows with any weapon greater than 36 
+ * lb, and cannot get six with any weapon greater than 20 lb.
  */
 const byte blows_table[12][12] =
 {
-	/* P/D */
-	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
+	            /*  <- Dexterity factor -> */
+	/* 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11+ */
 
-	/* 0  */
-	{  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2},
-
-	/* 1  */
-	{  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   3,   3},
-
-	/* 2  */
-	{  2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3},
-
-	/* 3  */
-	{  2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,   3},
-
-	/* 4  */
-	{  2,   2,   2,   2,   2,   3,   3,   3,   3,   3,   3,   4},
-
-	/* 5  */
-	{  2,   2,   2,   2,   3,   3,   3,   3,   3,   4,   4,   4},
-
-	/* 6  */
-	{  2,   2,   2,   2,   3,   3,   3,   3,   4,   4,   4,   4},
-
-	/* 7  */
-	{  2,   2,   2,   3,   3,   3,   3,   4,   4,   4,   4,   4},
-
-	/* 8  */
-	{  2,   2,   3,   3,   3,   3,   4,   4,   4,   4,   4,   4},
-
-	/* 9  */
-	{  2,   2,   3,   3,   3,   4,   4,   4,   4,   4,   4,   5},
-
-	/* 10 */
-	{  2,   3,   3,   3,   3,   4,   4,   4,   4,   4,   5,   5},
-
-	/* 11+ */
-	{  2,   3,   3,   3,   4,   4,   4,   4,   4,   4,   5,   5}
+	{  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2 }, /*  0         */
+	{  2,  2,  2,  2,  2,  2,  2,  2,  2,  3,  3,  3 }, /*  1    ^    */
+	{  2,  2,  2,  2,  2,  3,  3,  3,  3,  4,  4,  4 }, /*  2    |    */
+	{  2,  2,  2,  3,  3,  3,  4,  4,  4,  4,  4,  4 }, /*  3         */
+	{  2,  2,  3,  3,  3,  4,  4,  4,  4,  4,  5,  5 }, /*  4  Ratio  */
+	{  2,  2,  3,  3,  4,  4,  4,  4,  4,  5,  5,  5 }, /*  5  of STR */
+	{  2,  3,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5 }, /*  6  over   */
+	{  2,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5,  6 }, /*  7  weight */
+	{  2,  3,  3,  4,  4,  4,  5,  5,  5,  5,  6,  6 }, /*  8         */
+	{  2,  3,  4,  4,  4,  4,  5,  5,  5,  5,  6,  6 }, /*  9    |    */
+	{  2,  3,  4,  4,  4,  4,  5,  5,  5,  6,  6,  6 }, /* 10    V    */
+	{  2,  3,  4,  4,  4,  4,  5,  5,  6,  6,  6,  6 }  /* 11+        */
 };
 
 
@@ -1624,7 +1594,7 @@ const byte rgold_adj[MAX_RACES][MAX_RACES] =
 	/* Dark Elf */
 	{ 110, 110, 110, 115, 120, 130, 115, 115, 120, 110, 115,
 	  115, 115, 116, 115, 120, 120, 115, 115, 101, 110, 110,
-	  110, 110, 112, 122, 110, 110, 110, 115  },
+	  110, 110, 112, 122, 110, 110, 110, 115, 122  },
 
 	/* Draconian: theoretical, copied from High_Elf */
 	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
@@ -1813,7 +1783,7 @@ player_sex sex_info[MAX_SEXES] =
  *
  *      Title,
  *      {STR,INT,WIS,DEX,CON,CHR},
- *      r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
+ *      r_dis, r_dev, r_sav, r_stl, r_sns, r_fos, r_thn, r_thb,
  *      hitdie, exp base,
  *      Age (Base, Mod),
  *      Male (Hgt, Wgt),
@@ -2172,8 +2142,8 @@ player_race race_info[MAX_RACES] =
  *
  *      Title,
  *      {STR,INT,WIS,DEX,CON,CHR},
- *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
- *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
+ *      c_dis, c_dev, c_sav, c_stl, c_sns, c_fos, c_thn, c_thb,
+ *      x_dis, x_dev, x_sav, x_stl, x_sns, x_fos, x_thn, x_thb,
  *      HD, Exp, pet_upkeep_div
  */
 player_class class_info[MAX_CLASS] =
@@ -2245,7 +2215,7 @@ player_class class_info[MAX_CLASS] =
 	{
 		"Monk",
 		{ 2, -1, 1, 3, 2, 1},
-		45, 32, 28, 5, 32, 24, 12, 14,
+		45, 32, 28, 5, 16, 24, 12, 14,
 		15, 11, 10, 0,  0,  0, 30, 25,
 		6, 40, 20
 	},
@@ -5786,36 +5756,6 @@ cptr spell_names[7][32] =
 	}
 };
 
-
-/*
- * Conversion of plusses to Deadliness to a percentage added to damage.
- * Much of this table is not intended ever to be used, and is included
- * only to handle possible inflation elsewhere. -LM-
- */
-const byte deadliness_conversion[151] =
-{
-	  0,
-	  5,  10,  14,  18,  22,  26,  30,  33,  36,  39,
-	 42,  45,  48,  51,  54,  57,  60,  63,  66,  69,
-	 72,  75,  78,  81,  84,  87,  90,  93,  96,  99,
-	102, 104, 107, 109, 112, 114, 117, 119, 122, 124,
-	127, 129, 132, 134, 137, 139, 142, 144, 147, 149,
-	152, 154, 157, 159, 162, 164, 167, 169, 172, 174,
-	176, 178, 180, 182, 184, 186, 188, 190, 192, 194,
-	196, 198, 200, 202, 204, 206, 208, 210, 212, 214,
-	216, 218, 220, 222, 224, 226, 228, 230, 232, 234,
-	236, 238, 240, 242, 244, 246, 248, 250, 251, 253,
-
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, 255, 255
-};
-
-
-
-
 /*
  * Each chest has a certain set of traps, determined by pval
  * Each chest has a "pval" from 1 to the chest level (max 55)
@@ -6118,8 +6058,8 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display spell list",
 	"Display character",
-	NULL,
-	NULL,
+	"Display script variables",
+	"Display script source",
 	"Display messages",
 	"Display overhead view",
 	"Display monster recall",
@@ -6127,7 +6067,7 @@ cptr window_flag_desc[32] =
 	"Display dungeon view",
 	"Display snap-shot",
 	"Display visible monsters",
-	"Display script messages",
+	NULL,
 	"Display borg messages",
 	"Display borg status",
 	NULL,
@@ -6362,12 +6302,12 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 6, "ironman_los",			"Monsters use player line of sight" },
 	{FALSE, 6, "ironman_empty_levels",	"Always create empty 'arena' levels" },
 	{TRUE,  6, "terrain_streams",		"Create terrain 'streamers' in the dungeon" },
-	{FALSE,  6, "ironman_moria",			"The good old days..." },
+	{FALSE, 6, "ironman_moria",			"The good old days..." },
 	{FALSE, 6, "munchkin_death",		"Ask for saving death" },
 	{FALSE, 6, "ironman_rooms",			"Always generate very unusual rooms" },
-	{TRUE,  6, "maximize_mode",			"Maximize stats" },
+	{TRUE,  0, NULL,					"Number 205" },
 	{TRUE,  6, "preserve_mode",			"Preserve artifacts" },
-	{TRUE,  6, "autoroller",			"Specify 'minimal' stats" },
+	{TRUE,  6, "autoroller",			"Specify stat weightings" },
 	{FALSE, 6, "point_based",			"Generate character using a point system" },
 	{TRUE,  6, "silly_monsters",		"Allow silly monsters" },
 	{FALSE, 6, "ironman_nightmare",		"Nightmare mode (this isn't even remotely fair!)" },
@@ -6716,6 +6656,136 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
 	"molests"
 };
 
+
+/* Monster Blow-Method types */
+const rbm_type rbm_info[MAX_RBM] =
+{
+	{
+		NULL, NULL,
+		SOUND_NONE, FALSE, FALSE, FALSE
+	},
+
+	{
+		"hit", "hits %s.",
+		SOUND_HIT, TRUE, TRUE, TRUE
+	},
+
+	{
+		"touch", "touches %s.",
+		SOUND_TOUCH, TRUE, FALSE, FALSE
+	},
+	
+	{
+		"punch", "punches %s.",
+		SOUND_HIT, TRUE, FALSE, TRUE
+	},
+	
+	{
+		"kick", "kicks %s.",
+		SOUND_HIT, TRUE, FALSE, TRUE
+	},
+	
+	{
+		"claw", "claws %s.",
+		SOUND_CLAW, TRUE, TRUE, FALSE
+	},
+	
+	{
+		"bite", "bites %s.",
+		SOUND_BITE, TRUE, TRUE, FALSE
+	},
+	
+	{
+		"sting", "stings %s.",
+		SOUND_STING, TRUE, FALSE, FALSE
+	},
+	
+	{
+		"XXX1","XXX1's %s.",
+		SOUND_NONE, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"butt", "butts %s.",
+		SOUND_HIT, TRUE, FALSE, TRUE
+	},
+	
+	{
+		"crush", "crushes %s.",
+		SOUND_CRUSH, TRUE, FALSE, TRUE
+	},
+	
+	{
+		"engulf", "engulfs %s.",
+		SOUND_CRUSH, TRUE, FALSE, FALSE
+	},
+	
+	{
+		"charge", "charges %s.",
+		SOUND_BUY, TRUE, FALSE, FALSE
+	},
+	
+	{
+		"crawl on you", "crawls on %s.",
+		SOUND_SLIME, TRUE, FALSE, FALSE
+	},
+	
+	{
+		"drool on you", "drools on %s.",
+		SOUND_SLIME, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"spit", "spits on %s.",
+		SOUND_SLIME, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"explode", "explodes.",
+		SOUND_NONE, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"gaze", "gazes at %s.",
+		SOUND_NONE, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"wail", "wails at %s.",
+		SOUND_WAIL, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"release spores", "releases spores at %s.",
+		SOUND_SLIME, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"XXX4", "projects XXX4's at %s.",
+		SOUND_NONE, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"beg", "begs %s for money.",
+		SOUND_MOAN, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"insult", "insults %s.",
+		SOUND_MOAN, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"moan", "moans at %s.",
+		SOUND_MOAN, FALSE, FALSE, FALSE
+	},
+	
+	{
+		"sing", "sings to %s.",
+		SOUND_SHOW, FALSE, FALSE, FALSE
+	}
+};
+
 /* Field function's + names */
 const field_action f_action[] =
 {
@@ -7034,7 +7104,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 		"You can breathe fire.",
 		"You gain the ability to breathe fire.",
 		"You lose the ability to breathe fire.",
-		"Fire breath (dam lvl*2)",
+		"Fire breath (lvl*2)",
 		20, 20, A_CON, 18,
 		0
 	},
@@ -7134,7 +7204,7 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 	    "You can consume solid rock.",
 	    "The walls look delicious.",
 	    "The walls look unappetizing.",
-	    "eat rock",
+	    "Eat rock",
 	    8, 12, A_CON, 18,
 	    0
 	},
@@ -8031,7 +8101,7 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	    "You can move youself accross the dungeon.",
 	    "(nothing)",
 	    "(nothing)",
-	    "Telport (range 10 + plev)",
+	    "Telport (range 10 + lvl)",
 	    5, 10, A_INT, 12,
 	    0
 	},
@@ -8121,7 +8191,7 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	    "You can throw boulders with great force.",
 	    "(nothing)",
 	    "(nothing)",
-	    "Throw boulder (dam 3/2 * lev)",
+	    "Throw Boulder (3*lvl)/2",
 	    20, 15, A_STR, 12,
 	    0
 	},
@@ -8171,7 +8241,7 @@ const mutation_type race_powers[MAX_RACE_POWERS] =
 	    "You can fire magic missiles.",
 	    "(nothing)",
 	    "(nothing)",
-	    "Magic missile (3+(lev-1)/5)d4",
+	    "Magic missile",
 	    2, 2, A_INT, 9,
 	    0
 	},

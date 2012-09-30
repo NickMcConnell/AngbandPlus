@@ -104,10 +104,10 @@ static errr wr_block(void)
 	fake[3] = (byte)(data_size >> 8);
 
 	/* Dump the head */
-	err = fd_write(data_fd, (char*)&fake, 4);
+	err = fd_write(data_fd, (char *)&fake, 4);
 
 	/* Dump the actual data */
-	err = fd_write(data_fd, (char*)data_head, data_size);
+	err = fd_write(data_fd, (char *)data_head, data_size);
 
 	/* XXX XXX XXX */
 	fake[0] = 0;
@@ -116,7 +116,7 @@ static errr wr_block(void)
 	fake[3] = 0;
 
 	/* Dump the tail */
-	err = fd_write(data_fd, (char*)&fake, 4);
+	err = fd_write(data_fd, (char *)&fake, 4);
 
 	/* Hack -- reset */
 	data_next = data_head;
@@ -187,7 +187,7 @@ static void put_s32b(s32b v)
  */
 static void put_string(char *str)
 {
-	while ((*data_next++ = *str++) != '\0');
+	while ((*data_next++ = *str++) != '\0') ;
 }
 
 
@@ -197,22 +197,22 @@ static void put_string(char *str)
  */
 static errr wr_savefile(void)
 {
-	int     i;
+	int i;
 
-	u32b    now;
+	u32b now;
 
-	byte    tmp8u;
-	u16b    tmp16u;
+	byte tmp8u;
+	u16b tmp16u;
 
-	errr    err;
+	errr err;
 
-	byte    fake[4];
+	byte fake[4];
 
 
 	/*** Hack -- extract some data ***/
 
 	/* Hack -- Acquire the current time */
-	now = time((time_t*)(NULL));
+	now = time((time_t *) (NULL));
 
 	/* Note the operating system */
 	sf_xtra = 0L;
@@ -237,7 +237,7 @@ static errr wr_savefile(void)
 
 
 	/* Dump the data */
-	err = fd_write(data_fd, (char*)&fake, 4);
+	err = fd_write(data_fd, (char *)&fake, 4);
 
 
 	/* Make array XXX XXX XXX */
@@ -268,7 +268,7 @@ static errr wr_savefile(void)
 
 
 	/* Kill array XXX XXX XXX */
-	C_KILL(data_head, 65535, byte);
+	KILL(data_head);
 
 
 	/* Success */
@@ -289,7 +289,7 @@ static errr rd_block(void)
 	byte fake[4];
 
 	/* Read the head data */
-	err = fd_read(data_fd, (char*)&fake, 4);
+	err = fd_read(data_fd, (char *)&fake, 4);
 
 	/* Extract the type and size */
 	data_type = (fake[0] | ((u16b)fake[1] << 8));
@@ -299,10 +299,10 @@ static errr rd_block(void)
 	C_WIPE(data_head, 65535, byte);
 
 	/* Read the actual data */
-	err = fd_read(data_fd, (char*)data_head, data_size);
+	err = fd_read(data_fd, (char *)data_head, data_size);
 
 	/* Read the tail data */
-	err = fd_read(data_fd, (char*)&fake, 4);
+	err = fd_read(data_fd, (char *)&fake, 4);
 
 	/* XXX XXX XXX Verify */
 
@@ -329,7 +329,7 @@ static void get_byte(byte *ip)
  */
 static void get_char(char *ip)
 {
-	get_byte((byte*)ip);
+	get_byte((byte *)ip);
 }
 
 /*
@@ -348,7 +348,7 @@ static void get_u16b(u16b *ip)
  */
 static void get_s16b(s16b *ip)
 {
-	get_u16b((u16b*)ip);
+	get_u16b((u16b *)ip);
 }
 
 /*
@@ -369,7 +369,7 @@ static void get_u32b(u32b *ip)
  */
 static void get_s32b(s32b *ip)
 {
-	get_u32b((u32b*)ip);
+	get_u32b((u32b *)ip);
 }
 
 
@@ -379,9 +379,9 @@ static void get_s32b(s32b *ip)
  */
 static errr rd_savefile(void)
 {
-	bool    done = FALSE;
+	bool done = FALSE;
 
-	byte    fake[4];
+	byte fake[4];
 
 
 	/* Open the savefile */
@@ -391,7 +391,7 @@ static errr rd_savefile(void)
 	if (data_fd < 0) return (1);
 
 	/* Strip the first four bytes (see below) */
-	if (fd_read(data_fd, (char*)(fake), 4)) return (1);
+	if (fd_read(data_fd, (char *)(fake), 4)) return (1);
 
 
 	/* Make array XXX XXX XXX */
@@ -410,14 +410,14 @@ static errr rd_savefile(void)
 		/* Analyze the type */
 		switch (data_type)
 		{
-			/* Done XXX XXX XXX */
+				/* Done XXX XXX XXX */
 			case 0:
 			{
 				done = TRUE;
 				break;
 			}
 
-			/* Grab the options */
+				/* Grab the options */
 			case TYPE_OPTIONS:
 			{
 				if (get_options()) err = -1;
@@ -434,7 +434,7 @@ static errr rd_savefile(void)
 
 
 	/* Kill array XXX XXX XXX */
-	C_KILL(data_head, 65535, byte);
+	KILL(data_head);
 
 
 	/* Success */
@@ -451,12 +451,12 @@ static errr rd_savefile(void)
  * Some "local" parameters, used to help write savefiles
  */
 
-static FILE     *fff;           /* Current save "file" */
+static FILE *fff;	/* Current save "file" */
 
-static byte     xor_byte;       /* Simple encryption */
+static byte xor_byte;	/* Simple encryption */
 
-static u32b     v_stamp = 0L;   /* A simple "checksum" on the actual values */
-static u32b     x_stamp = 0L;   /* A simple "checksum" on the encoded bytes */
+static u32b v_stamp = 0L;	/* A simple "checksum" on the actual values */
+static u32b x_stamp = 0L;	/* A simple "checksum" on the encoded bytes */
 
 
 
@@ -587,9 +587,9 @@ static void wr_item(const object_type *o_ptr)
 
 	/* The new flags */
 	wr_s32b(o_ptr->cost);
-	
+
 	wr_byte(o_ptr->activate);
-	
+
 	wr_u32b(o_ptr->kn_flags1);
 	wr_u32b(o_ptr->kn_flags2);
 	wr_u32b(o_ptr->kn_flags3);
@@ -745,7 +745,7 @@ static void wr_store(const store_type *st_ptr)
 	/* Position in the town */
 	wr_u16b(st_ptr->x);
 	wr_u16b(st_ptr->y);
-	
+
 	/* Type of store */
 	wr_byte(st_ptr->type);
 
@@ -827,7 +827,7 @@ static void wr_options(void)
 	wr_s16b(autosave_freq);
 
 	/*** Normal options ***/
-	
+
 	/* Analyze the options */
 	for (n = 0; n < 8; n++)
 	{
@@ -845,11 +845,11 @@ static void wr_options(void)
 				flag &= ~(1L << i);
 			}
 		}
-		
+
 		/* Dump the flag */
 		wr_u32b(flag);
 	}
-	
+
 	/* Oops */
 	for (i = 0; i < 8; i++) wr_u32b(option_mask[i]);
 
@@ -857,10 +857,10 @@ static void wr_options(void)
 	/*** Window options ***/
 
 	/* Dump the flags */
-	for (i = 0; i < 8; i++) wr_u32b(window_flag[i]);
+	for (i = 0; i < ANGBAND_TERM_MAX; i++) wr_u32b(window_flag[i]);
 
 	/* Dump the masks */
-	for (i = 0; i < 8; i++) wr_u32b(window_mask[i]);
+	for (i = 0; i < ANGBAND_TERM_MAX; i++) wr_u32b(window_mask[i]);
 }
 
 
@@ -901,7 +901,7 @@ static void wr_extra(void)
 	wr_byte(p_ptr->psex);
 	wr_byte(p_ptr->realm1);
 	wr_byte(p_ptr->realm2);
-	wr_byte(0);	/* oops */
+	wr_byte(0);					/* oops */
 
 	wr_byte(p_ptr->hitdie);
 	wr_u16b(p_ptr->expfact);
@@ -924,12 +924,12 @@ static void wr_extra(void)
 	wr_u16b(p_ptr->exp_frac);
 	wr_s16b(p_ptr->lev);
 
-	wr_s16b(p_ptr->town_num); /* -KMW- */
+	wr_s16b(p_ptr->place_num);
 
 	/* Write arena and rewards information -KMW- */
 	wr_s16b(0);
 	wr_s16b(0);
-	wr_s16b(p_ptr->inside_quest);
+	wr_s16b(0);
 	wr_byte(0);
 	wr_byte(0);
 
@@ -953,20 +953,20 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->max_depth);
 
 	/* More info */
-	wr_s16b(0);     /* oops */
-	wr_s16b(0);     /* oops */
-	wr_s16b(0);     /* oops */
-	wr_s16b(0);     /* oops */
+	wr_s16b(0);					/* oops */
+	wr_s16b(0);					/* oops */
+	wr_s16b(0);					/* oops */
+	wr_s16b(0);					/* oops */
 	wr_s16b(p_ptr->sc);
-	wr_s16b(0);     /* oops */
+	wr_s16b(0);					/* oops */
 
-	wr_s16b(0);             /* old "rest" */
+	wr_s16b(0);					/* old "rest" */
 	wr_s16b(p_ptr->blind);
 	wr_s16b(p_ptr->paralyzed);
 	wr_s16b(p_ptr->confused);
 	wr_s16b(p_ptr->food);
-	wr_s16b(0);     /* old "food_digested" */
-	wr_s16b(0);     /* old "protection" */
+	wr_s16b(0);					/* old "food_digested" */
+	wr_s16b(0);					/* old "protection" */
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
@@ -1018,21 +1018,21 @@ static void wr_extra(void)
 	}
 
 	wr_byte(p_ptr->confusing);
-	wr_byte(0);     /* oops */
-	wr_byte(0);     /* oops */
-	wr_byte(0);     /* oops */
+	wr_byte(0);					/* oops */
+	wr_byte(0);					/* oops */
+	wr_byte(0);					/* oops */
 	wr_byte(p_ptr->searching);
-	wr_byte(maximize_mode);
-	wr_byte(preserve_mode);
-	wr_byte(0);
+	wr_byte(0);					/* oops */
+	wr_byte(0);					/* oops */
+	wr_byte(0);					/* oops */
 
 	/* Future use */
 	for (i = 0; i < 12; i++) wr_u32b(0L);
 
 	/* Ignore some flags */
-	wr_u32b(0L);    /* oops */
-	wr_u32b(0L);    /* oops */
-	wr_u32b(0L);    /* oops */
+	wr_u32b(0L);				/* oops */
+	wr_u32b(0L);				/* oops */
+	wr_u32b(0L);				/* oops */
 
 
 	/* Write the "object seeds" */
@@ -1049,27 +1049,27 @@ static void wr_extra(void)
 	wr_byte(p_ptr->is_dead);
 
 	/* Write feeling */
-	wr_byte(feeling);
+	wr_byte(dun_ptr->feeling);
 
 	/* Turn of last "feeling" */
 	wr_s32b(old_turn);
 
 	/* Current turn */
 	wr_s32b(turn);
-	
+
 	/* Trap detection status */
 	wr_byte(p_ptr->detected);
-	
-	/* Coords of last trap detection spell */
-	wr_s16b(p_ptr->detecty);
-	wr_s16b(p_ptr->detectx);
+
+	/* Old Coords of last trap detection spell */
+	wr_s16b(0);
+	wr_s16b(0);
 }
 
 /*
  * Save the dungeon or wilderness
  */
 
-static void save_map(int ymax, int ymin, int xmax, int xmin)
+static void save_map(int xmin, int ymin, int xmax, int ymax)
 {
 	int y, x;
 
@@ -1079,6 +1079,7 @@ static void save_map(int ymax, int ymin, int xmax, int xmin)
 	byte prev_char;
 
 	cave_type *c_ptr;
+	pcave_type *pc_ptr;
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
@@ -1092,12 +1093,12 @@ static void save_map(int ymax, int ymin, int xmax, int xmin)
 		for (x = xmin; x < xmax; x++)
 		{
 			/* Get the cave */
-			c_ptr = area(y, x);
+			c_ptr = area(x, y);
 
 			/* Extract a byte */
 			tmp8u = c_ptr->info;
 
-			/* If the run is broken, or too full, flush it 	*/
+			/* If the run is broken, or too full, flush it  */
 			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
 			{
 				wr_byte((byte)count);
@@ -1122,6 +1123,87 @@ static void save_map(int ymax, int ymin, int xmax, int xmin)
 	}
 
 
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_char = 0;
+
+	/* Dump the cave */
+	for (y = ymin; y < ymax; y++)
+	{
+		for (x = xmin; x < xmax; x++)
+		{
+			/* Get the cave */
+			pc_ptr = parea(x, y);
+
+			/* Extract a byte */
+			tmp8u = pc_ptr->player;
+
+			/* If the run is broken, or too full, flush it  */
+			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_byte((byte)prev_char);
+				prev_char = tmp8u;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_byte((byte)prev_char);
+	}
+
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_char = 0;
+
+	/* Dump the cave */
+	for (y = ymin; y < ymax; y++)
+	{
+		for (x = xmin; x < xmax; x++)
+		{
+			/* Get the cave */
+			pc_ptr = parea(x, y);
+
+			/* Extract a byte */
+			tmp8u = pc_ptr->feat;
+
+			/* If the run is broken, or too full, flush it  */
+			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_byte((byte)prev_char);
+				prev_char = tmp8u;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_byte((byte)prev_char);
+	}
+
+
+
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
 	/* Note that this will induce two wasted bytes */
@@ -1134,7 +1216,7 @@ static void save_map(int ymax, int ymin, int xmax, int xmin)
 		for (x = xmin; x < xmax; x++)
 		{
 			/* Get the cave */
-			c_ptr = area(y,x);
+			c_ptr = area(x, y);
 
 			/* Extract a byte */
 			tmp8u = c_ptr->feat;
@@ -1162,49 +1244,6 @@ static void save_map(int ymax, int ymin, int xmax, int xmin)
 		wr_byte((byte)count);
 		wr_byte((byte)prev_char);
 	}
-
-
-	/*** Simple "Run-Length-Encoding" of cave ***/
-
-	/* Note that this will induce two wasted bytes */
-	count = 0;
-	prev_char = 0;
-
-	/* Dump the cave */
-	for (y = ymin; y < ymax; y++)
-	{
-		for (x = xmin; x < xmax; x++)
-		{
-			/* Get the cave */
-			c_ptr = area(y,x);
-
-			/* Extract a byte - the "mimic" feat variable has been removed. */
-			tmp8u = 0;
-
-			/* If the run is broken, or too full, flush it */
-			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
-			{
-				wr_byte((byte)count);
-				wr_byte((byte)prev_char);
-				prev_char = tmp8u;
-				count = 1;
-			}
-
-			/* Continue the run */
-			else
-			{
-				count++;
-			}
-		}
-	}
-
-	/* Flush the data (if any) */
-	if (count)
-	{
-		wr_byte((byte)count);
-		wr_byte((byte)prev_char);
-	}
-	
 }
 
 /*
@@ -1214,19 +1253,8 @@ static void save_wild_data(void)
 {
 	int i, j;
 
-	/* Save bounds */
-	wr_u16b(wild_grid.y_max);
-	wr_u16b(wild_grid.x_max);
-	wr_u16b(wild_grid.y_min);
-	wr_u16b(wild_grid.x_min);
-	wr_byte(wild_grid.y);
-	wr_byte(wild_grid.x);
-
-	/* Save cache status */
-	wr_byte(wild_grid.cache_count);
-
 	/* Save wilderness seed */
-	wr_u32b(wild_grid.wild_seed);
+	wr_u32b(wild_seed);
 
 	/* Save wilderness map */
 	for (i = 0; i < max_wild; i++)
@@ -1236,8 +1264,8 @@ static void save_wild_data(void)
 			/* Terrain */
 			wr_u16b(wild[j][i].done.wild);
 
-			/* Town / Dungeon / Specials */
-			wr_byte(wild[j][i].done.town);
+			/* Places */
+			wr_byte(wild[j][i].done.place);
 
 			/* Info flag */
 			wr_byte(wild[j][i].done.info);
@@ -1257,9 +1285,6 @@ static void save_wild_data(void)
 static void wr_dungeon(void)
 {
 	int i;
-	
-	int cur_wid = max_wid;
-	int cur_hgt = max_hgt;
 
 	/*** Basic info ***/
 
@@ -1269,8 +1294,8 @@ static void wr_dungeon(void)
 	wr_u16b(num_repro);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
-	wr_u16b(max_hgt);
-	wr_u16b(max_wid);
+	wr_u16b(p_ptr->max_hgt);
+	wr_u16b(p_ptr->max_wid);
 	wr_u16b(max_panel_rows);
 	wr_u16b(max_panel_cols);
 
@@ -1280,30 +1305,33 @@ static void wr_dungeon(void)
 	if (p_ptr->depth)
 	{
 		/* Save dungeon map */
-		save_map(max_hgt, min_hgt, max_wid, min_wid);
-
+		save_map(p_ptr->min_wid, p_ptr->min_hgt, p_ptr->max_wid,
+				 p_ptr->max_hgt);
+#if 0
 		/* Hack - the player is not in this dungeon */
 		character_dungeon = FALSE;
-		
+
 		/* Save wilderness map */
 		change_level(0);
 
 		save_map(wild_grid.y_max, wild_grid.y_min,
-		         wild_grid.x_max, wild_grid.x_min);
+				 wild_grid.x_max, wild_grid.x_min);
 
 		change_level(p_ptr->depth);
-		
+
 		/* The character is back in the dungeon */
 		character_dungeon = TRUE;
-		
+
 		/* Restore bounds */
 		max_hgt = cur_hgt;
 		max_wid = cur_wid;
+#endif /* 0 */
 	}
 	else
 	{
-		save_map(wild_grid.y_max, wild_grid.y_min,
-		         wild_grid.x_max, wild_grid.x_min);
+		/* Save wilderness map */
+		save_map(p_ptr->min_wid, p_ptr->min_hgt, p_ptr->max_wid,
+				 p_ptr->max_hgt);
 	}
 
 
@@ -1368,16 +1396,16 @@ static void wr_dungeon(void)
  */
 static bool wr_savefile_new(void)
 {
-	int        i, j;
+	int i, j;
 
-	u32b              now;
+	u32b now;
 
-	byte            tmp8u;
-	u16b            tmp16u;
+	byte tmp8u;
+	u16b tmp16u;
 
 
 	/* Guess at the current time */
-	now = time((time_t *)0);
+	now = time((time_t *) 0);
 
 
 	/* Note the operating system */
@@ -1447,48 +1475,85 @@ static bool wr_savefile_new(void)
 	/* Dump the messages and colors (oldest first!) */
 	for (i = tmp16u - 1; i >= 0; i--)
 	{
-		wr_string(message_str(i));
-		wr_byte(message_color(i));
+		wr_string(message_str((s16b)i));
+		wr_byte(message_color((s16b)i));
 	}
 
 
 	/* Dump the monster lore */
-	tmp16u = max_r_idx;
+	tmp16u = z_info->r_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_lore(i);
 
 
 	/* Dump the object memory */
-	tmp16u = max_k_idx;
+	tmp16u = z_info->k_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
 	/* Dump the towns */
-	tmp16u = max_towns;
+	tmp16u = z_info->wp_max;
 	wr_u16b(tmp16u);
 
 	/* Dump the quests */
-	tmp16u = max_quests;
-	wr_u16b(tmp16u);
+	wr_s16b(q_max);
 
-	for (i = 0; i < max_quests; i++)
+	for (i = 1; i < q_max; i++)
 	{
-		/* Save status for every quest */
-		wr_s16b(quest[i].status);
+		wr_byte(quest[i].status);
+		wr_byte(quest[i].flags);
+		wr_byte(quest[i].type);
+		wr_byte(quest[i].item);
 
-		/* And the dungeon level too */
-		/* (prevents problems with multi-level quests) */
-		wr_s16b(quest[i].level);
+		wr_u16b(quest[i].place);
+		wr_u16b(quest[i].shop);
+		wr_u16b(quest[i].reward);
 
-		/* Save quest status if quest is running */
-		if (quest[i].status == QUEST_STATUS_TAKEN)
+		wr_byte(quest[i].c_type);
+		wr_byte(quest[i].x_type);
+
+		wr_u32b(quest[i].timeout);
+		wr_string(quest[i].name);
+
+		/* Data - quest-type specific */
+		switch (quest[i].type)
 		{
-			wr_s16b(quest[i].cur_num);
-			wr_s16b(quest[i].max_num);
-			wr_s16b(quest[i].type);
-			wr_s16b(quest[i].r_idx);
-			wr_s16b(quest[i].k_idx);
-			wr_byte(quest[i].flags);
+			case QUEST_TYPE_UNKNOWN: break;
+
+			case QUEST_TYPE_GENERAL:
+			{
+				wr_u16b(quest[i].data.gen.place);
+				wr_u16b(quest[i].data.gen.shop);
+				wr_u16b(quest[i].data.gen.r_idx);
+				wr_u16b(quest[i].data.gen.cur_num);
+				wr_u16b(quest[i].data.gen.max_num);
+				break;
+			}
+
+			case QUEST_TYPE_DUNGEON:
+			{
+				wr_u16b(quest[i].data.dun.r_idx);
+				wr_u16b(quest[i].data.dun.level);
+
+				wr_s16b(quest[i].data.dun.cur_num);
+				wr_s16b(quest[i].data.dun.max_num);
+				wr_s16b(quest[i].data.dun.num_mon);
+				break;
+			}
+
+			case QUEST_TYPE_WILD:
+			{
+				wr_u16b(quest[i].data.wld.place);
+				wr_u16b(quest[i].data.wld.data);
+				wr_byte(quest[i].data.wld.depth);
+				break;
+			}
+
+			default:
+			{
+				/* Unknown quest type... panic */
+				quit("Cannot save unknown quest type.");
+			}
 		}
 	}
 
@@ -1496,11 +1561,11 @@ static bool wr_savefile_new(void)
 	wr_s32b(p_ptr->wilderness_x);
 	wr_s32b(p_ptr->wilderness_y);
 
-	wr_s32b((s32b) max_wild);
-	wr_s32b((s32b) max_wild);
+	wr_s32b((s32b)max_wild);
+	wr_s32b((s32b)max_wild);
 
 	/* Hack -- Dump the artifacts */
-	tmp16u = max_a_idx;
+	tmp16u = z_info->a_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
@@ -1510,7 +1575,6 @@ static bool wr_savefile_new(void)
 		wr_byte(0);
 		wr_byte(0);
 	}
-
 
 
 	/* Write the "extra" information */
@@ -1534,7 +1598,7 @@ static bool wr_savefile_new(void)
 	wr_u32b(p_ptr->spell_forgotten2);
 
 	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		wr_byte(p_ptr->spell_order[i]);
 	}
@@ -1559,44 +1623,53 @@ static bool wr_savefile_new(void)
 	wr_u16b(0xFFFF);
 
 	/* Note the towns */
-	tmp16u = town_count;
+	tmp16u = place_count;
 	wr_u16b(tmp16u);
 
 	/* Dump the town data */
-	for (i = 1; i < town_count; i++)
+	for (i = 1; i < place_count; i++)
 	{
+		place_type *pl_ptr = &place[i];
+
 		/* RNG seed */
-		wr_u32b(town[i].seed);
+		wr_u32b(pl_ptr->seed);
 
 		/* Number of stores */
-		wr_byte(town[i].numstores);
+		wr_byte(pl_ptr->numstores);
 
 		/* Type */
-		wr_u16b(town[i].type);
-		wr_byte(town[i].pop);
-		
+		wr_u16b(pl_ptr->type);
+		wr_byte(pl_ptr->data);
+
 		/* Gates */
-		wr_byte(town[i].gates_x[0]);
-		wr_byte(town[i].gates_x[1]);
-		wr_byte(town[i].gates_x[2]);
-		wr_byte(town[i].gates_x[3]);
-		
-		wr_byte(town[i].gates_y[0]);
-		wr_byte(town[i].gates_y[1]);
-		wr_byte(town[i].gates_y[2]);
-		wr_byte(town[i].gates_y[3]);
+		wr_byte(pl_ptr->gates_x[0]);
+		wr_byte(pl_ptr->gates_x[1]);
+		wr_byte(pl_ptr->gates_x[2]);
+		wr_byte(pl_ptr->gates_x[3]);
+
+		wr_byte(pl_ptr->gates_y[0]);
+		wr_byte(pl_ptr->gates_y[1]);
+		wr_byte(pl_ptr->gates_y[2]);
+		wr_byte(pl_ptr->gates_y[3]);
 
 		/* Location */
-		wr_byte(town[i].x);
-		wr_byte(town[i].y);
+		wr_byte(pl_ptr->x);
+		wr_byte(pl_ptr->y);
+
+		/* Size */
+		wr_byte(pl_ptr->xsize);
+		wr_byte(pl_ptr->ysize);
+
+		wr_u16b(pl_ptr->quest_num);
+		wr_byte(pl_ptr->monst_type);
 
 		/* Name */
-		wr_string(town[i].name);
+		wr_string(pl_ptr->name);
 
 		/* Dump the stores of all towns */
-		for (j = 0; j < town[i].numstores; j++)
+		for (j = 0; j < pl_ptr->numstores; j++)
 		{
-			wr_store(&town[i].store[j]);
+			wr_store(&pl_ptr->store[j]);
 		}
 	}
 
@@ -1614,28 +1687,8 @@ static bool wr_savefile_new(void)
 		/* Dump the ghost */
 		wr_ghost();
 
-#ifdef USE_SCRIPT
-		{
-			cptr callbacks = save_game_callback();
-			if (callbacks && *callbacks)
-			{
-				wr_s32b(strlen(callbacks));
-				wr_string(callbacks);
-				string_free(callbacks);
-			}
-			else
-			{
-				/* No scripts */
-				wr_s32b(0);
-			}
-		}
-#else /* USE_SCRIPT */
-
 		/* No scripts */
 		wr_s32b(0);
-
-#endif /* USE_SCRIPT */
-
 	}
 
 
@@ -1661,9 +1714,9 @@ static bool wr_savefile_new(void)
  */
 static bool save_player_aux(char *name)
 {
-	bool    ok = FALSE;
-	int     fd;
-	int     mode = 0644;
+	bool ok = FALSE;
+	int fd;
+	int mode = 0644;
 
 
 	/* No file yet */
@@ -1674,8 +1727,14 @@ static bool save_player_aux(char *name)
 	FILE_TYPE(FILE_TYPE_SAVE);
 
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Create the savefile */
 	fd = fd_make(name, mode);
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* File is okay */
 	if (fd >= 0)
@@ -1683,8 +1742,14 @@ static bool save_player_aux(char *name)
 		/* Close the "fd" */
 		(void)fd_close(fd);
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Open the savefile */
 		fff = my_fopen(name, "wb");
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* Successful open */
 		if (fff)
@@ -1696,8 +1761,14 @@ static bool save_player_aux(char *name)
 			my_fclose(fff);
 		}
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Remove "broken" files */
 		if (!ok) (void)fd_kill(name);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 	}
 
 
@@ -1718,9 +1789,9 @@ static bool save_player_aux(char *name)
  */
 bool save_player(void)
 {
-	int             result = FALSE;
+	int result = FALSE;
 
-	char    safe[1024];
+	char safe[1024];
 
 
 #ifdef SET_UID
@@ -1745,8 +1816,14 @@ bool save_player(void)
 	strcat(safe, "n");
 #endif /* VM */
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Remove it */
 	(void)fd_kill(safe);
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* Attempt to save the player */
 	if (save_player_aux(safe))
@@ -1763,6 +1840,9 @@ bool save_player(void)
 		strcat(temp, "o");
 #endif /* VM */
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Remove it */
 		(void)fd_kill(temp);
 
@@ -1775,6 +1855,9 @@ bool save_player(void)
 		/* Remove preserved savefile */
 		(void)fd_kill(temp);
 
+		/* Drop permissions */
+		safe_setuid_drop();
+
 		/* Hack -- Pretend the character was loaded */
 		character_loaded = TRUE;
 
@@ -1784,8 +1867,14 @@ bool save_player(void)
 		strcpy(temp, savefile);
 		strcat(temp, ".lok");
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Remove lock file */
 		fd_kill(temp);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 #endif
 
@@ -1829,17 +1918,17 @@ bool save_player(void)
  */
 bool load_player(void)
 {
-	int             fd = -1;
+	int fd = -1;
 
-	errr    err = 0;
+	errr err = 0;
 
-	byte    vvv[4];
+	byte vvv[4];
 
 #ifdef VERIFY_TIMESTAMP
-	struct stat     statbuf;
+	struct stat statbuf;
 #endif
 
-	cptr    what = "generic";
+	cptr what = "generic";
 
 
 	/* Paranoia */
@@ -1852,23 +1941,28 @@ bool load_player(void)
 	/* Allow empty savefile name */
 	if (!savefile[0]) return (TRUE);
 
+	/* Grab permissions */
+	safe_setuid_grab();
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(VM)
+	/* Open the savefile */
+	fd = fd_open(savefile, O_RDONLY);
 
-	/* XXX XXX XXX Fix this */
+	/* Drop permissions */
+	safe_setuid_drop();
 
-	/* Verify the existance of the savefile */
-	if (access(savefile, 0) < 0)
+	/* No file */
+	if (fd < 0)
 	{
 		/* Give a message */
 		msg_print("Savefile does not exist.");
-		msg_print(NULL);
+		message_flush();
 
 		/* Allow this */
 		return (TRUE);
 	}
 
-#endif
+	/* Close the file */
+	(void)fd_close(fd);
 
 
 #ifdef VERIFY_SAVEFILE
@@ -1884,8 +1978,14 @@ bool load_player(void)
 		strcpy(temp, savefile);
 		strcat(temp, ".lok");
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Check for lock */
 		fkk = my_fopen(temp, "r");
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* Oops, lock exists */
 		if (fkk)
@@ -1895,14 +1995,20 @@ bool load_player(void)
 
 			/* Message */
 			msg_print("Savefile is currently in use.");
-			msg_print(NULL);
+			message_flush();
 
 			/* Oops */
 			return (FALSE);
 		}
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Create a lock file */
 		fkk = my_fopen(temp, "w");
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* Dump a line of info */
 		fprintf(fkk, "Lock file for savefile '%s'\n", savefile);
@@ -1917,8 +2023,14 @@ bool load_player(void)
 	/* Okay */
 	if (!err)
 	{
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Open the savefile */
 		fd = fd_open(savefile, O_RDONLY);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* No file */
 		if (fd < 0) err = -1;
@@ -1932,12 +2044,20 @@ bool load_player(void)
 	{
 
 #ifdef VERIFY_TIMESTAMP
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Get the timestamp */
 		(void)fstat(fd, &statbuf);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
 #endif
 
 		/* Read the first four bytes */
-		if (fd_read(fd, (char*)(vvv), 4)) err = -1;
+		if (fd_read(fd, (char *)(vvv), 4)) err = -1;
 
 		/* What */
 		if (err) what = "Cannot read savefile";
@@ -1949,7 +2069,6 @@ bool load_player(void)
 	/* Process file */
 	if (!err)
 	{
-
 		/* Extract version */
 		z_major = vvv[0];
 		z_minor = vvv[1];
@@ -1962,8 +2081,7 @@ bool load_player(void)
 
 		/* Pre-2.1.0: Assume 2.0.6 (same as 2.0.0 - 2.0.5) */
 		if ((z_major == sf_major) &&
-		    (z_minor == sf_minor) &&
-		    (z_patch == sf_patch))
+			(z_minor == sf_minor) && (z_patch == sf_patch))
 		{
 			z_major = 2;
 			z_minor = 0;
@@ -2020,7 +2138,7 @@ bool load_player(void)
 	{
 		/* Hack -- Verify the timestamp */
 		if (sf_when > (statbuf.st_ctime + 100) ||
-		    sf_when < (statbuf.st_ctime - 100))
+			sf_when < (statbuf.st_ctime - 100))
 		{
 			/* Message */
 			what = "Invalid timestamp";
@@ -2037,8 +2155,7 @@ bool load_player(void)
 	{
 		/* Give a conversion warning */
 		if ((FAKE_VER_MAJOR != z_major) ||
-		    (FAKE_VER_MINOR != z_minor) ||
-		    (FAKE_VER_PATCH != z_patch))
+			(FAKE_VER_MINOR != z_minor) || (FAKE_VER_PATCH != z_patch))
 		{
 			if (z_major == 2 && z_minor == 0 && z_patch == 6)
 			{
@@ -2048,9 +2165,9 @@ bool load_player(void)
 			{
 				/* Message */
 				msg_format("Converted a %d.%d.%d savefile.",
-				    z_major, z_minor, z_patch);
+						   z_major, z_minor, z_patch);
 			}
-			msg_print(NULL);
+			message_flush();
 		}
 
 		/* Player is dead */
@@ -2064,6 +2181,13 @@ bool load_player(void)
 			{
 				/* A character was loaded */
 				character_loaded = TRUE;
+				
+				/*
+				 * We need to initialise things properly here.
+				 * The wilderness is not loaded (or saved when dead)
+				 * - so we need to create it now.
+				 */
+				create_wilderness();
 
 				/* Done */
 				return (TRUE);
@@ -2105,8 +2229,14 @@ bool load_player(void)
 		strcpy(temp, savefile);
 		strcat(temp, ".lok");
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Remove lock */
 		fd_kill(temp);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 	}
 
 #endif
@@ -2114,8 +2244,8 @@ bool load_player(void)
 
 	/* Message */
 	msg_format("Error (%s) reading %d.%d.%d savefile.",
-		   what, z_major, z_minor, z_patch);
-	msg_print(NULL);
+			   what, z_major, z_minor, z_patch);
+	message_flush();
 
 	/* Oops */
 	return (FALSE);
@@ -2134,7 +2264,7 @@ void remove_loc(void)
 	/* Get "games" permissions */
 	beGames();
 
-# endif /* SECURE */
+# endif	/* SECURE */
 #endif /* SET_UID */
 
 #ifdef VERIFY_SAVEFILE
@@ -2154,7 +2284,7 @@ void remove_loc(void)
 	/* Drop "games" permissions */
 	bePlayer();
 
-# endif /* SECURE */
+# endif	/* SECURE */
 #endif /* SET_UID */
 
 }

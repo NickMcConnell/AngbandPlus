@@ -1,5 +1,13 @@
 /* File z-form.h */
 
+/*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
+
 #ifndef INCLUDED_Z_FORM_H
 #define INCLUDED_Z_FORM_H
 
@@ -30,6 +38,9 @@ extern uint strfmt(char *buf, cptr fmt, ...);
 
 /* Format arguments into a static resizing buffer */
 extern char *vformat(cptr fmt, va_list vp);
+
+/* Free the memory allocated for the format buffer */
+extern void vformat_kill(void);
 
 /* Simple interface to "vformat()" */
 extern char *format(cptr fmt, ...);

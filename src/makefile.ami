@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/13 04:55:54 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/12/24 17:10:49 $
 # Smakefile
 #
 # Amiga SAS/C 6.50
@@ -16,7 +16,7 @@ OBJS = \
   store.o birth.o load.o \
   wizard1.o wizard2.o grid.o rooms.o streams.o \
   generate.o dungeon.o init1.o init2.o \
-  effects.o racial.o fields.o\
+  effects.o quest.o racial.o fields.o\
   artifact.o mutation.o flavor.o spells3.o \
   mspells1.o mspells2.o scores.o mind.o \
   bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\
@@ -76,6 +76,7 @@ object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 bldg.o: bldg.c $(INCS)
 effects.o: effects.c $(INCS)
+quest.o: quest.c $(INCS) wild.h grid.h
 racial.o: racial.c $(INCS)
 artifact.o: artifact.c $(INCS)
 mutation.o: mutation.c $(INCS)
@@ -94,7 +95,7 @@ store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
-wild1.o: wild1.c $(INCS) wild.h
+wild1.o: wild1.c $(INCS) wild.h grid.h
 wild2.o: wild2.c $(INCS) wild.h grid.h
 wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)

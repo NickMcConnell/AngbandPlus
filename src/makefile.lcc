@@ -52,6 +52,7 @@ OBJS=\
 	rooms.obj \
 	readdib.obj \
 	racial.obj \
+	quest.obj \
 	object2.obj \
 	object1.obj \
 	obj_kind.obj \
@@ -280,6 +281,7 @@ WILD1_C=\
 	types.h\
 	externs.h\
 	wild.h\
+	grid.h\
 
 wild1.obj: $(WILD1_C) wild1.c
 	$(CC) -c $(CFLAGS) wild1.c
@@ -656,6 +658,29 @@ OBJ_KIND_C=\
 
 obj_kind.obj: $(OBJ_KIND_C) obj_kind.c
 	$(CC) -c $(CFLAGS) obj_kind.c
+	
+# Build QUEST.C
+QUEST_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	z-virt.h\
+	z-form.h\
+	z-rand.h\
+	z-term.h\
+	z-config.h\
+	defines.h\
+	types.h\
+	externs.h\
+	wild.h\
+	grid.h\
+
+quest.obj: $(QUEST_C) quest.c
+	$(CC) -c $(CFLAGS) quest.c
 
 # Build MUTATION.C
 MUTATION_C=\

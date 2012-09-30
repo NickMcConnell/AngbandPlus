@@ -421,6 +421,15 @@ Beastman
     every time they advance a level they have a little chance of
     gaining yet another mutation.
 
+Ghoul
+    This race of undead preys upon the dead and dying. Ghouls can learn
+    to sense living creatures around them and, having killed them, can
+    feast upon their corpses gaining nourishment. As an undead being,
+    Ghouls naturally resist the effects of cold, poison and life-draining
+    attacks.  As they grow stronger the effects of darkness and nether
+    upon them decreases.  In addition, the Ghoul's touch may paralyze
+    some oponents. Ghoul's make adequate fighters and poor spell casters.
+
 
 ***** <TheClasses>
 === Classes ===
@@ -896,7 +905,7 @@ Vampire       +3   +3   -1   -1   +1   +2      11         +100%
 Spectre       -5   +4   +4   +2   -3   -6       7         +80%
 Sprite        -4   +3   +3   +3   -2   +2       7         +75%
 Beastman      +2   -2   -1   -1   +2   -4      11         +40%
-
+Ghoul          0   -1   -1   -1   +1   -5       9         +125%
 
 --- Table 2 - Class Statistic Bonus Table ---
 
@@ -957,7 +966,7 @@ Vampire       +4    +10   +10   +4    +1    +8    +5    +0    50 feet
 Spectre       +10   +25   +20   +5    +5    +14   -10   -5    50 feet
 Sprite        +10   +10   +10   +4    +10   +10   -8    +0    40 feet
 Beastman      -5    -2    -1    -1    -1    +5    +9    +5    None
-
+Ghoul         -3    -3    +6    +1    +0    +5    +5    +0    20 feet
 
 
 --- Table 2 - Class Skill Bonus Table ---
@@ -980,7 +989,7 @@ High Mage     30+7  36+13 30+9   2    15/20       10+15  10+10
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: May 25, 2001
+Last update: October 15, 2001
 
 ***** Begin Hyperlinks
 ***** [1] birth.txt

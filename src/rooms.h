@@ -14,4 +14,4 @@
 
 /* Externs */
 
-extern bool room_build(int y0, int x0, int typ);
+extern bool room_build(int x0, int y0, int typ);

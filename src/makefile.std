@@ -34,50 +34,18 @@
 # This Makefile comes with "default" dependancies that may be obsolete.
 #
 
-##
-## Compile for python?
-##
-#
-# PYTHON = TRUE
-#
 
+LUAOBJS = \
+  lua/lapi.o lua/ldebug.o lua/lmem.o lua/lstrlib.o lua/lvm.o \
+  lua/tolua_lb.o lua/lauxlib.o lua/ldo.o lua/lobject.o lua/ltable.o \
+  lua/lzio.o lua/tolua_rg.o lua/lbaselib.o lua/lfunc.o lua/lparser.o \
+  lua/ltests.o lua/tolua_bd.o lua/tolua_tm.o lua/lcode.o lua/lgc.o \
+  lua/lstate.o lua/ltm.o lua/tolua_eh.o lua/tolua_tt.o lua/ldblib.o \
+  lua/llex.o lua/lstring.o lua/lundump.o lua/tolua_gp.o
 
-#
-# The interface files
-#
-
-ifdef PYTHON
-
-INTER = \
-	cave.i io.i pclass.i random.i store.i typemap.i \
-	commands.i monster.i player.i realms.i system.i util.i \
-	event.i objects.i prace.i spells.i terrain.i
-
-
-#
-# The generated source files
-#
-
-
-PSRCS = \
-	cave_wrap.c monster_wrap.c prace_wrap.c store_wrap.c \
-	commands_wrap.c objects_wrap.c random_wrap.c system_wrap.c \
-	event_wrap.c pclass_wrap.c realms_wrap.c terrain_wrap.c \
-	io_wrap.c player_wrap.c spells_wrap.c util_wrap.c
-
-
-#
-# The generated object files
-#	
-
-
-POBJS = \
-	cave_wrap.o monster_wrap.o prace_wrap.o store_wrap.o \
-	commands_wrap.o objects_wrap.o random_wrap.o system_wrap.o \
-	event_wrap.o pclass_wrap.o realms_wrap.o terrain_wrap.o \
-	io_wrap.o player_wrap.o spells_wrap.o util_wrap.o
-	
-endif
+TOLUAOBJS = \
+  lua/tolua.o lua/tolualua.o lua/liolib.o \
+  $(LUAOBJS)
 
 
 #
@@ -94,12 +62,14 @@ SRCS = \
 	store.c birth.c load.c \
 	wizard1.c wizard2.c grid.c streams.c rooms.c \
 	generate.c dungeon.c init1.c init2.c \
-	effects.c racial.c \
+	effects.c quest.c racial.c script.c \
 	artifact.c mutation.c flavor.c spells3.c \
 	mspells1.c mspells2.c scores.c mind.c maid-x11.c\
 	bldg.c obj_kind.c wild1.c wild2.c avatar.c notes.c\
 	main-cap.c main-gcu.c main-x11.c main-xaw.c main-xpj.c\
-	main-lsl.c main-vcs.c main-gtk.c main.c $(PSRCS)
+	main-lsl.c main-vcs.c main-gtk.c main.c \
+	l-monst.c l-object.c l-player.c l-random.c l-ui.c \
+	l-misc.c l-spell.c
 
 OBJS = \
 	z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -111,14 +81,15 @@ OBJS = \
 	store.o birth.o load.o \
 	wizard1.o wizard2.o grid.o streams.o rooms.o \
 	generate.o dungeon.o init1.o init2.o \
-	effects.o racial.o \
+	effects.o quest.o racial.o script.o \
 	artifact.o mutation.o flavor.o spells3.o \
 	mspells1.o mspells2.o scores.o mind.o maid-x11.o\
 	bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\
 	main-cap.o main-gcu.o main-x11.o main-xaw.o main-xpj.o\
-	main-lsl.o main-vcs.o main-gtk.o main.o $(POBJS)
-
-
+	main-lsl.o main-vcs.o main-gtk.o main.o\
+	l-monst.o l-object.o l-player.o l-random.o l-ui.o \
+	l-misc.o l-spell.o \
+	$(LUAOBJS)
 
 ##
 ## Following are some "system" definitions
@@ -150,44 +121,6 @@ CC = gcc
 
 
 #
-# The python version to use. (I have 1.5)
-#
-
-PYVERSION = python1.5
-
-
-#
-# The name of the swig tool.
-#
-
-SWIG = swig
-
-
-#
-# The flags to pass to SWIG
-#
-
-SFLAGS = -python -dnone
-
-#
-# The flags used to compile for python
-#
-
-PYFLAGS = -I/usr/include/$(PYVERSION) -w
-
-#
-# The libraries needed for python
-# (I have Python 1.5)
-#
-
-ifdef PYTHON
-
-PYLIB = -L/usr/local/lib/$(PYVERSION)/ -l$(PYVERSION)
-
-endif
-
-
-#
 # Standard version (see main-x11.c and main-gcu.c)
 #
 # This version supports both "X11" and "curses" in a single executable.
@@ -213,23 +146,13 @@ endif
 ##
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
 #         -D"USE_X11" -D"USE_GCU" -D"USE_VCS" -D"USE_TRANSPARENCY"
-#LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib $(PYLIB)
+#LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 
 ## Option: Use XAW instead of pure X11
 CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
           -D"USE_XAW" -D"USE_GCU" -D"USE_VCS" -D"USE_TRANSPARENCY"
 LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
-          -lX11 -lcurses $(PYLIB)
-
-
-##
-## Variation - Debian 
-##
-#
-#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
-#         -D"USE_GCU" -D"USE_TRANSPARENCY" -D"USE_XPJ" -D"USE_X11"
-#LIBS = -lX11 -lcurses -lncurses -L/usr/X11R6/lib $(PYLIB)
-
+          -lX11 -lcurses -lncurses
 
 ##
 ## Variation - 3D Projected View
@@ -238,7 +161,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
 #         -D"USE_GCU" -D"USE_TRANSPARENCY" -D"USE_XPJ"
 #		 
-#LIBS = -lX11 -lcurses -lncurses -L/usr/X11R6/lib $(PYLIB)
+#LIBS = -lX11 -lcurses -lncurses -L/usr/X11R6/lib
 
 
 ##
@@ -246,10 +169,10 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 ## (Use the -m option to start the one you want.)
 ##
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g  -D"USE_GCU" -D"USE_VCS"\
-#         -D"USE_TRANSPARENCY" -D"USE_XPJ" -D"USE_X11" -D"USE_XAW" -D"USE_LSL"
+#         -D"USE_TRANSPARENCY" -D"USE_XPJ" -D"USE_X11" -D"USE_XAW" -D"USE_LSL"\
 #         `gtk-config --cflags` -D"USE_GTK" 
 #		 
-#LIBS = -lX11 -lcurses -lncurses -L/usr/X11R6/lib -lz -lvgagl -lvga $(PYLIB) \
+#LIBS = -lX11 -lcurses -lncurses -L/usr/X11R6/lib -lz -lvgagl -lvga \
 #       -lXaw -lXext -lSM -lICE -lXmu -lXt -lgtk `gtk-config --libs`
 
 ##
@@ -258,28 +181,28 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 #
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g -I/usr/x11r6/include \
 #         -D"USE_X11" -D"USE_GCU" -D"USE_TRANSPARENCY"
-#LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib $(PYLIB)
+#LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 
 
 ##
 ## Variation -- Only support "main-x11.c" (not "main-gcu.c")
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11"
-#LIBS = -lX11 $(PYLIB)
+#LIBS = -lX11
 
 
 ##
 ## Variation -- Only support "main-gcu.c" (not "main-x11.c")
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU"
-#LIBS = -lcurses -ltermcap $(PYLIB)
+#LIBS = -lcurses -ltermcap
 
 
 ##
 ## Variation -- Use "main-xaw.c" instead of "main-x11.c"
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_XAW" -D"USE_GCU"
-#LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap $(PYLIB)
+#LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap
 
 
 ##
@@ -288,7 +211,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g  -D"USE_GCU"\
 #         -D"USE_TRANSPARENCY" `gtk-config --cflags` -D"USE_GTK" 
 #		 
-#LIBS = -lcurses -lncurses -L/usr/X11R6/lib $(PYLIB) \
+#LIBS = -lcurses -lncurses -L/usr/X11R6/lib \
 #       -lgtk `gtk-config --libs`
 
 
@@ -296,7 +219,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 ## Variation -- Use "main-cap.c" instead of "main-gcu.c"
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_CAP"
-#LIBS = -lX11 -ltermcap $(PYLIB)
+#LIBS = -lX11 -ltermcap
 
 
 ##
@@ -311,7 +234,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 #CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses \
 #         -Wall -O2 -fno-strength-reduce -fomit-frame-pointer \
 #         -D"USE_X11" -D"USE_GCU"
-#LIBS = -L/usr/X11R6/lib -lX11 -lncurses -ltermcap $(PYLIB)
+#LIBS = -L/usr/X11R6/lib -lX11 -lncurses -ltermcap
 
 ##
 ## Variation -- this might work better than the suggestion above
@@ -320,7 +243,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 #         -Wall -O2 -fno-strength-reduce -fomit-frame-pointer \
 #         -D"USE_X11" -D"USE_GCU" \
 #         -D"USE_TPOSIX" -D"USE_CURS_SET"
-#LIBS = -lX11 -lncurses $(PYLIB)
+#LIBS = -lX11 -lncurses
 #LDFLAGS = -s
 
 
@@ -328,14 +251,14 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 ## Variation -- compile for Solaris
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"SOLARIS"
-#LIBS = -lX11 -lsocket -lcurses $(PYLIB)
+#LIBS = -lX11 -lsocket -lcurses
 
 
 ##
 ## Variation -- compile for SGI Indigo runnig Irix
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"SGI"
-#LIBS = -lX11 -lcurses -ltermcap -lsun $(PYLIB)
+#LIBS = -lX11 -lcurses -ltermcap -lsun
 
 
 
@@ -345,21 +268,21 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 #CC     = cc
 ##CFLAGS = -std -O -g3 -Olimit 4000 -D"USE_X11" -D"USE_GCU"
 #CFLAGS = -std -g -D"USE_X11" -D"USE_GCU"
-#LIBS   = -lX11 -lcurses -ltermcap -lrpcsvc $(PYLIB)
+#LIBS   = -lX11 -lcurses -ltermcap -lrpcsvc
 
 
 ##
 ## Variation -- compile for Interactive Unix (ISC) systems
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"ISC"
-#LIBS = -lX11 -lcurses -lnsl_s -linet -lcposix $(PYLIB)
+#LIBS = -lX11 -lcurses -lnsl_s -linet -lcposix
 
 
 ##
 ## Variation -- Support fat binaries under NEXTSTEP
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU" -arch m68k -arch i386
-#LIBS = -lcurses -ltermcap $(PYLIB)
+#LIBS = -lcurses -ltermcap
 
 
 ##
@@ -369,7 +292,7 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 #
 #CC = cc
 #CFLAGS = -bnoquiet -O2  -D"USE_X11" -D"SYS_V"
-#LIBS = -lX11 -ltermcap -lcurses -lbsd -lXm -lXmu -lXaw -lXt $(PYLIB)
+#LIBS = -lX11 -ltermcap -lcurses -lbsd -lXm -lXmu -lXaw -lXt
 
 
 ##
@@ -380,9 +303,16 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 ## use the normal scaled graphics?
 #
 #CFLAGS = -Wall -D"USE_LSL"
-#LIBS = -lz -lvgagl -lvga $(PYLIB)
+#LIBS = -lz -lvgagl -lvga
 
+#
+# Hack -- "install" as the base target
+# (Installing is much nicer if you don't use the autoconf generated
+# makefile system.)
+#
 
+install: zangband
+	cp zangband ..
 
 #
 # Build the "ZAngband" program
@@ -392,13 +322,6 @@ zangband: $(OBJS)
 	$(CC) $(CFLAGS) -o zangband $(OBJS) $(LDFLAGS) $(LIBS)
 
 
-#
-# Hack -- "install" as the base target
-#
-
-install: zangband
-	cp zangband ..
-
 
 #
 # Clean up old junk
@@ -406,7 +329,9 @@ install: zangband
 
 clean:
 	-rm -f *.bak *.o
-
+	-rm -f ./lua/*.bak ./lua/*.o
+	-rm -f ./l-*.c
+	-rm -f ./lua/tolua
 
 #
 # Generate dependencies automatically
@@ -415,6 +340,13 @@ clean:
 depend:
 	makedepend -D__MAKEDEPEND__ $(SRCS)
 
+
+#
+# Lua stuff
+#
+
+lua/tolua: $(TOLUAOBJS)
+	$(CC) -o lua/tolua $(TOLUAOBJS) $(LDFLAGS) $(LIBS)
 
 #
 # Hack -- some file dependencies
@@ -475,9 +407,11 @@ notes.o: notes.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 obj_kind.o: obj_kind.c $(INCS)
+quest.o: quest.c $(INCS) wild.h grid.h
 racial.o: racial.c $(INCS)
-scores.o: scores.c $(INCS)
 save.o: save.c $(INCS)
+scores.o: scores.c $(INCS)
+script.o: script.c $(INCS)
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
 spells3.o: spells3.c $(INCS)
@@ -485,7 +419,7 @@ store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
-wild1.o: wild1.c $(INCS) wild.h
+wild1.o: wild1.c $(INCS) wild.h grid.h
 wild2.o: wild2.c $(INCS) wild.h grid.h
 wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)
@@ -498,15 +432,28 @@ z-util.o: z-util.c $(HDRS) z-util.h
 z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
 
 #
-# Python wrapper files
+# Build wrappers
+#
+# (This probably should be cleaned up a little.)
 #
 
-ifdef PYTHON
+l-monst.c: lua/tolua l-monst.pkg
+	lua/tolua -n monster -o l-monst.c l-monst.pkg
 
-$(POBJS): %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $< $(PYFLAGS)
+l-object.c: lua/tolua l-object.pkg
+	lua/tolua -n object -o l-object.c l-object.pkg
 
-$(PSRCS): %_wrap.c: %.i $(INCS)
-	$(SWIG) $(SFLAGS) $<
+l-player.c: lua/tolua l-player.pkg
+	lua/tolua -n player -o l-player.c l-player.pkg
 
-endif
+l-random.c: lua/tolua l-random.pkg
+	lua/tolua -n random -o l-random.c l-random.pkg
+
+l-ui.c: lua/tolua l-ui.pkg
+	lua/tolua -n ui -o l-ui.c l-ui.pkg
+
+l-misc.c: lua/tolua l-misc.pkg
+	lua/tolua -n misc -o l-misc.c l-misc.pkg
+
+l-spell.c: lua/tolua l-spell.pkg
+	lua/tolua -n spell -o l-spell.c l-spell.pkg

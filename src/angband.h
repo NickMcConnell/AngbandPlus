@@ -36,11 +36,6 @@
 #include "types.h"
 #include "externs.h"
 
-#ifdef USE_SCRIPT
-#include "event.h"
-#endif /* USE_SCRIPT */
-
-
 
 /***** Some older copyright messages follow below *****/
 
@@ -91,4 +86,3 @@
 
 
 #endif
-

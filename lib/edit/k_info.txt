@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/29 10:19:05 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2002/01/14 20:03:04 $
 # File: k_info.txt
 
 
@@ -669,7 +669,7 @@ G:{:U
 I:17:1:0
 W:10:0:2:5
 A:17/2:43/2
-P:0:3d4:0:0:0
+P:0:1d12:0:0:0
 F:SHOW_MODS
 
 N:79:& Seeker Arrow~
@@ -677,7 +677,7 @@ G:{:G
 I:17:2:0
 W:50:0:2:50
 A:80/2:90/1:105/1
-P:0:6d4:0:0:0
+P:0:1d20:0:0:0
 F:SHOW_MODS
 
 N:80:& Bolt~
@@ -685,7 +685,7 @@ G:{:s
 I:18:0:0
 W:5:0:3:5
 A:5/1:43/2:70/2
-P:0:2d5:0:0:0
+P:0:1d10:0:0:0
 F:SHOW_MODS
 
 N:81:& Seeker Bolt~
@@ -693,7 +693,7 @@ G:{:B
 I:18:2:0
 W:60:0:3:75
 A:90/4:100/4
-P:0:4d5:0:0:0
+P:0:1d20:0:0:0
 F:SHOW_MODS
 
 N:82:& Rounded Pebble~
@@ -771,7 +771,7 @@ W:52:0:5:3000
 A:52/4:95/1
 P:4:0d0:0:0:4
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
-F:STEALTH | SEARCH
+F:STEALTH | SENSE
 
 N:91:& Pair~ of Soft Leather Boots
 G:]:U
@@ -848,7 +848,7 @@ F:IGNORE_ACID
 N:101:& Robe~
 G:(:b
 I:36:2:0
-W:80:0:20:4
+W:1:0:20:4
 A:1/1:80/1
 P:2:0d0:0:0:0
 
@@ -1117,12 +1117,12 @@ W:100:0:2:10000
 A:100/1
 F:SPEED | HIDE_TYPE
 
-N:137:Searching
+N:137:Sensing
 G:=:d
 I:45:23:5
 W:5:0:2:50
 A:9/2
-F:SEARCH | HIDE_TYPE
+F:SENSE | HIDE_TYPE
 
 N:138:Teleportation
 G:=:d
@@ -1315,12 +1315,12 @@ W:20:0:3:250
 A:20/2
 F:CHR | HIDE_TYPE
 
-N:165:Searching
+N:165:Sensing
 G:":d
 I:40:5:5
 W:12:0:3:100
 A:12/2
-F:SEARCH | HIDE_TYPE
+F:SENSE | HIDE_TYPE
 
 N:166:Teleportation
 G:":d
@@ -1367,7 +1367,7 @@ I:40:8:5
 W:75:0:3:5000
 A:75/4:100/3
 P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SEARCH |
+F:FREE_ACT | SEE_INVIS | SENSE |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:172:Destruction
@@ -1385,21 +1385,21 @@ F:TY_CURSE | NO_TELE | NO_MAGIC | REGEN | HIDE_TYPE
 N:173:Enchant Weapon Skill
 G:?:d
 I:70:17:0
-W:26:0:5:125
+W:26:0:5:250
 A:26/1
 F:EASY_KNOW
 
 N:174:Enchant Weapon Deadliness
 G:?:d
 I:70:18:0
-W:26:0:5:125
+W:26:0:5:250
 A:26/1
 F:EASY_KNOW
 
 N:175:Enchant Armor
 G:?:d
 I:70:16:0
-W:26:0:5:125
+W:26:0:5:250
 A:26/1
 F:EASY_KNOW
 
@@ -1544,7 +1544,7 @@ G:{:o
 I:17:2:0
 W:50:0:4:20
 A:35/5:52/3:75/1
-P:0:4d4:0:0:0
+P:0:1d16:0:0:0
 F:SHOW_MODS
 
 N:196:& Mithril Shot~
@@ -1665,7 +1665,7 @@ F:EASY_KNOW
 N:212:*Enchant Weapon*
 G:?:d
 I:70:21:0
-W:50:0:5:400
+W:50:0:5:500
 A:75/1
 F:EASY_KNOW
 
@@ -1679,7 +1679,7 @@ F:EASY_KNOW
 N:214:*Enchant Armor*
 G:?:d
 I:70:20:0
-W:50:0:5:400
+W:50:0:5:500
 A:75/1:92/1
 F:EASY_KNOW
 
@@ -1722,7 +1722,7 @@ N:220:Word of Recall
 G:?:d
 I:70:11:0
 W:5:0:5:70
-A:7/1
+A:1/3:7/1
 F:EASY_KNOW
 
 N:221:*Destruction*
@@ -2296,7 +2296,7 @@ G:{:y
 I:17:0:0
 W:3:0:1:1
 A:5/2:10/2
-P:0:2d4:0:0:0
+P:0:1d8:0:0:0
 F:SHOW_MODS
 
 ##### Additional wands #####
@@ -4126,7 +4126,7 @@ W:56:0:280:1320
 A:56/2
 P:17:1d4:-2:0:0
 
-N:564:& Incandescent Light~
+N:564:& Incandescent Globe~
 G:!:y
 I:39:3:0
 W:20:10:5:20000
@@ -4254,7 +4254,7 @@ G:{:W
 I:18:1:0
 W:55:0:3:25
 A:43/2:70/2
-P:0:3d5:0:0:0
+P:0:1d15:0:0:0
 F:SHOW_MODS
 
 

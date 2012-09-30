@@ -103,7 +103,12 @@ wails, 'Tekeli-li!  Tekeli-li!'
 #N:687:Ariel, Queen of Air
 #N:697:Smaug the Golden
 #N:712:Fafner the Dragon
-#N:713:Fangorn the Treebeard
+
+N:713:Fangorn the Treebeard
+1
+#LOTR Book3 Chap.4
+says: 'Hoom, hm, ah well.'
+
 #N:715:Glaurung, Father of the Dragons
 #N:729:Ulik the Troll
 #N:730:Baphomet the Minotaur Lord

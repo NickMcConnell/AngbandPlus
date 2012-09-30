@@ -8,7 +8,7 @@
  * are included in all such copies.
  */
 
-/* Purpose: Visual Display Support for "term.c", for the IBM */
+/* Purpose: Visual Display Support for "z-term.c", for the IBM */
 
 
 /*
@@ -378,7 +378,7 @@ static void activate_color_complex(void)
 
 #endif /* 1 */
 
-};
+}
 
 
 /*
@@ -881,6 +881,11 @@ static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
 	register byte attr;
 	register byte *dest;
 
+#ifdef USE_TRANSPARENCY
+	/* Unused parameter */
+	(void)tap;
+	(void)tcp;
+#endif /* USE_TRANSPARENCY */
 
 #ifdef USE_CONIO
 
@@ -950,6 +955,9 @@ static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
  */
 static void Term_init_ibm(term *t)
 {
+	/* Unused parameter */
+	(void)t;
+
 	/* XXX Nothing */
 }
 
@@ -959,7 +967,6 @@ static void Term_init_ibm(term *t)
  */
 static void Term_nuke_ibm(term *t)
 {
-
 #ifdef USE_WAT
 
 	/* Nothing */
@@ -969,6 +976,9 @@ static void Term_nuke_ibm(term *t)
 	union REGS r;
 
 #endif /* USE_WAT */
+
+	/* Unused parameter */
+	(void)t;
 
 	/* Move the cursor to the bottom of the screen */
 	Term_curs_ibm(0, rows-1);
@@ -1140,7 +1150,8 @@ void enable_graphic_font(const char *font)
 {
 	__dpmi_regs dblock = {{0}};
 
-	unsigned seg, sel, i;
+	unsigned int seg, i;
+	int sel;
 
 	/*
 	 * Allocate a block of memory 4096 bytes big in `low memory' so a real
@@ -1176,7 +1187,7 @@ void enable_graphic_font(const char *font)
 
 	/* We're done with the low memory, free it */
 	__dpmi_free_dos_memory(sel);
-};
+}
 
 #endif /* USE_286 */
 
@@ -1186,6 +1197,9 @@ void enable_graphic_font(const char *font)
 
 /*
  * Initialize the IBM "visual module"
+ *
+ * Hack -- we assume that "blank space" should be "white space"
+ * (and not "black space" which might make more sense).
  *
  * Note the use of "((x << 2) | (x >> 4))" to "expand" a 6 bit value
  * into an 8 bit value, without losing much precision, by using the 2
@@ -1307,7 +1321,7 @@ errr init_ibm(void)
 			activate_color_complex();
 
 			/* Use graphics */
-			use_graphics = TRUE;
+			use_graphics = GRAPHICS_ORIGINAL;
 		}
 	}
 

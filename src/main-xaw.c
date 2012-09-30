@@ -1666,7 +1666,7 @@ errr init_xaw(int argc, char *argv[])
 	int pict_wid = 0;
 	int pict_hgt = 0;
 
-	int bitdepth = 0;
+	int graphmode = GRAPHICS_ANY;
 	
 #ifdef USE_TRANSPARENCY
 
@@ -1693,10 +1693,14 @@ errr init_xaw(int argc, char *argv[])
 		
 		if (prefix(argv[i], "-b"))
 		{
+			int bitdepth = 0;
+			
 			bitdepth = atoi(&argv[i][2]);
 			
-			/* paranoia */
-			if ((bitdepth != 16) && (bitdepth != 8)) bitdepth = 0;
+			/* Paranoia */
+			if (bitdepth == 16) graphmode = GRAPHICS_ADAM_BOLT;
+			if (bitdepth == 8) graphmode = GRAPHICS_ORIGINAL;
+			
 			continue;
 		}
 #endif /* USE_GRAPHICS */
@@ -1760,44 +1764,7 @@ errr init_xaw(int argc, char *argv[])
 	/* Try graphics */
 	if (arg_graphics)
 	{
-		use_graphics = FALSE;
-		
-		if ((bitdepth == 0) || (bitdepth == 16))
-		{
-			/* Try the "16x16.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
-
-			/* Use the "16x16.bmp" file if it exists */
-			if (0 == fd_close(fd_open(filename, O_RDONLY)))
-			{
-				/* Use graphics */
-				use_graphics = TRUE;
-
-				use_transparency = TRUE;
-
-				pict_wid = pict_hgt = 16;
-
-				ANGBAND_GRAF = "new";
-			}
-		}
-		
-		/* We failed, or we want 8x8 graphics */
-		if (!use_graphics && ((bitdepth == 0) || (bitdepth == 8)))
-		{
-			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
-
-			/* Use the "8x8.bmp" file if it exists */
-			if (0 == fd_close(fd_open(filename, O_RDONLY)))
-			{
-				/* Use graphics */
-				use_graphics = TRUE;
-
-				pict_wid = pict_hgt = 8;
-
-				ANGBAND_GRAF = "old";
-			}
-		}
+		(void) pick_graphics(graphmode, &pict_wid, &pict_hgt, filename);
 	}
 
 	/* Load graphics */

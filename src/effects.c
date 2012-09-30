@@ -14,11 +14,6 @@
 
 /*
  * Set "p_ptr->blind", notice observable changes
- *
- * Note the use of "PU_UN_VIEW", which is needed to
- * memorize any terrain features which suddenly become "visible".
- * Note that blindness is currently the only thing which can affect
- * "player_can_see_bold()".
  */
 bool set_blind(int v)
 {
@@ -53,7 +48,7 @@ bool set_blind(int v)
 	p_ptr->blind = v;
 
 	/* Redraw status bar */
-	p_ptr->redraw |=  (PR_STATUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -62,7 +57,7 @@ bool set_blind(int v)
 	if (disturb_state) disturb(FALSE);
 
 	/* Fully update the visuals - hack set torch to be radius 0 */
-	p_ptr->update |= (PU_UN_VIEW | PU_VIEW | PU_MONSTERS | PU_TORCH);
+	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_TORCH);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -310,7 +305,7 @@ bool set_image(int v)
 		{
 			msg_print("Oh, wow! Everything looks so cosmic now!");
 			notice = TRUE;
-			
+
 			/* Update the monster vis window */
 			p_ptr->window |= PW_VISIBLE;
 		}
@@ -323,7 +318,7 @@ bool set_image(int v)
 		{
 			msg_print("You can see clearly again.");
 			notice = TRUE;
-			
+
 			/* Update the monster vis window */
 			p_ptr->window |= PW_VISIBLE;
 		}
@@ -750,7 +745,8 @@ bool set_wraith_form(int v)
 	{
 		if (!p_ptr->wraith_form)
 		{
-			msg_print("You leave the physical world and turn into a wraith-being!");
+			msg_print
+				("You leave the physical world and turn into a wraith-being!");
 			notice = TRUE;
 
 			/* Redraw map */
@@ -1322,8 +1318,8 @@ bool set_stun(int v)
 	 * designed for newbies - not scummers.)
 	 */
 	if ((p_ptr->prace == RACE_GOLEM) &&
-	    !(ironman_shops || ironman_downward || ironman_hard_quests ||
-	      ironman_empty_levels || ironman_rooms || ironman_nightmare))
+		!(ironman_shops || ironman_downward || ironman_hard_quests ||
+		  ironman_empty_levels || ironman_rooms || ironman_nightmare))
 	{
 		v = 0;
 	}
@@ -1382,20 +1378,26 @@ bool set_stun(int v)
 		/* Describe the state */
 		switch (new_aux)
 		{
-			/* Stun */
 			case 1:
-			msg_print("You have been stunned.");
-			break;
+			{
+				/* Stun */
+				msg_print("You have been stunned.");
+				break;
+			}
 
-			/* Heavy stun */
 			case 2:
-			msg_print("You have been heavily stunned.");
-			break;
+			{
+				/* Heavy stun */
+				msg_print("You have been heavily stunned.");
+				break;
+			}
 
-			/* Knocked out */
 			case 3:
-			msg_print("You have been knocked out.");
-			break;
+			{
+				/* Knocked out */
+				msg_print("You have been knocked out.");
+				break;
+			}
 		}
 
 		/*
@@ -1409,7 +1411,7 @@ bool set_stun(int v)
 		 * something...
 		 */
 		if ((randint1(1000) < v || one_in_(16)) &&
-		 (!(p_ptr->pclass == CLASS_MINDCRAFTER)))
+			(!(p_ptr->pclass == CLASS_MINDCRAFTER)))
 		{
 			msg_print("A vicious blow hits your head.");
 			if (one_in_(3))
@@ -1437,11 +1439,13 @@ bool set_stun(int v)
 		/* Describe the state */
 		switch (new_aux)
 		{
-			/* None */
 			case 0:
-			msg_print("You are no longer stunned.");
-			if (disturb_state) disturb(FALSE);
-			break;
+			{
+				/* None */
+				msg_print("You are no longer stunned.");
+				if (disturb_state) disturb(FALSE);
+				break;
+			}
 		}
 
 		/* Notice */
@@ -1486,8 +1490,8 @@ bool set_cut(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->prace == RACE_GOLEM ||
-	    p_ptr->prace == RACE_SKELETON ||
-	    p_ptr->prace == RACE_SPECTRE ||
+		p_ptr->prace == RACE_SKELETON ||
+		p_ptr->prace == RACE_SPECTRE ||
 		(p_ptr->prace == RACE_ZOMBIE && p_ptr->lev > 11))
 		v = 0;
 
@@ -1593,40 +1597,54 @@ bool set_cut(int v)
 		/* Describe the state */
 		switch (new_aux)
 		{
-			/* Graze */
 			case 1:
-			msg_print("You have been given a graze.");
-			break;
+			{
+				/* Graze */
+				msg_print("You have been given a graze.");
+				break;
+			}
 
-			/* Light cut */
 			case 2:
-			msg_print("You have been given a light cut.");
-			break;
+			{
+				/* Light cut */
+				msg_print("You have been given a light cut.");
+				break;
+			}
 
-			/* Bad cut */
 			case 3:
-			msg_print("You have been given a bad cut.");
-			break;
+			{
+				/* Bad cut */
+				msg_print("You have been given a bad cut.");
+				break;
+			}
 
-			/* Nasty cut */
 			case 4:
-			msg_print("You have been given a nasty cut.");
-			break;
+			{
+				/* Nasty cut */
+				msg_print("You have been given a nasty cut.");
+				break;
+			}
 
-			/* Severe cut */
 			case 5:
-			msg_print("You have been given a severe cut.");
-			break;
+			{
+				/* Severe cut */
+				msg_print("You have been given a severe cut.");
+				break;
+			}
 
-			/* Deep gash */
 			case 6:
-			msg_print("You have been given a deep gash.");
-			break;
+			{
+				/* Deep gash */
+				msg_print("You have been given a deep gash.");
+				break;
+			}
 
-			/* Mortal wound */
 			case 7:
-			msg_print("You have been given a mortal wound.");
-			break;
+			{
+				/* Mortal wound */
+				msg_print("You have been given a mortal wound.");
+				break;
+			}
 		}
 
 		/* Notice */
@@ -1649,11 +1667,13 @@ bool set_cut(int v)
 		/* Describe the state */
 		switch (new_aux)
 		{
-			/* None */
 			case 0:
-			msg_print("You are no longer bleeding.");
-			if (disturb_state) disturb(FALSE);
-			break;
+			{
+				/* None */
+				msg_print("You are no longer bleeding.");
+				if (disturb_state) disturb(FALSE);
+				break;
+			}
 		}
 
 		/* Notice */
@@ -1801,34 +1821,44 @@ bool set_food(int v)
 		/* Describe the state */
 		switch (new_aux)
 		{
-			/* Weak */
 			case 1:
-			msg_print("You are still weak.");
-			break;
+			{
+				/* Weak */
+				msg_print("You are still weak.");
+				break;
+			}
 
-			/* Hungry */
 			case 2:
-			msg_print("You are still hungry.");
-			break;
+			{
+				/* Hungry */
+				msg_print("You are still hungry.");
+				break;
+			}
 
-			/* Normal */
 			case 3:
-			msg_print("You are no longer hungry.");
-			break;
+			{
+				/* Normal */
+				msg_print("You are no longer hungry.");
+				break;
+			}
 
-			/* Full */
 			case 4:
-			msg_print("You are full!");
-			break;
+			{
+				/* Full */
+				msg_print("You are full!");
+				break;
+			}
 
-			/* Bloated */
 			case 5:
-			msg_print("You have gorged yourself!");
+			{
+				/* Bloated */
+				msg_print("You have gorged yourself!");
 
-			chg_virtue(V_HARMONY, -1);
-			chg_virtue(V_PATIENCE, -1);
-			chg_virtue(V_TEMPERANCE, -2);
-			break;
+				chg_virtue(V_HARMONY, -1);
+				chg_virtue(V_PATIENCE, -1);
+				chg_virtue(V_TEMPERANCE, -2);
+				break;
+			}
 		}
 
 		/* Change */
@@ -1841,30 +1871,40 @@ bool set_food(int v)
 		/* Describe the state */
 		switch (new_aux)
 		{
-			/* Fainting / Starving */
 			case 0:
-			msg_print("You are getting faint from hunger!");
-			break;
+			{
+				/* Fainting / Starving */
+				msg_print("You are getting faint from hunger!");
+				break;
+			}
 
-			/* Weak */
 			case 1:
-			msg_print("You are getting weak from hunger!");
-			break;
+			{
+				/* Weak */
+				msg_print("You are getting weak from hunger!");
+				break;
+			}
 
-			/* Hungry */
 			case 2:
-			msg_print("You are getting hungry.");
-			break;
+			{
+				/* Hungry */
+				msg_print("You are getting hungry.");
+				break;
+			}
 
-			/* Normal */
 			case 3:
-			msg_print("You are no longer full.");
-			break;
+			{
+				/* Normal */
+				msg_print("You are no longer full.");
+				break;
+			}
 
-			/* Full */
 			case 4:
-			msg_print("You are no longer gorged.");
-			break;
+			{
+				/* Full */
+				msg_print("You are no longer gorged.");
+				break;
+			}
 		}
 
 		/* Change */
@@ -1907,7 +1947,7 @@ bool inc_stat(int stat)
 	value = p_ptr->stat_cur[stat];
 
 	/* Cannot go above 18/100 */
-	if (value < 18+100)
+	if (value < 18 + 100)
 	{
 		/* Gain one (sometimes two) points */
 		if (value < 18)
@@ -1917,10 +1957,10 @@ bool inc_stat(int stat)
 		}
 
 		/* Gain 1/6 to 1/3 of distance to 18/100 */
-		else if (value < 18+98)
+		else if (value < 18 + 98)
 		{
 			/* Approximate gain value */
-			gain = (((18+100) - value) / 2 + 3) / 2;
+			gain = (((18 + 100) - value) / 2 + 3) / 2;
 
 			/* Paranoia */
 			if (gain < 1) gain = 1;
@@ -1929,7 +1969,7 @@ bool inc_stat(int stat)
 			value += randint1(gain) + gain / 2;
 
 			/* Maximal value */
-			if (value > 18+99) value = 18 + 99;
+			if (value > 18 + 99) value = 18 + 99;
 		}
 
 		/* Gain one point at a time */
@@ -2002,7 +2042,7 @@ bool dec_stat(int stat, int amount, int permanent)
 			/* Hack -- Decrement by a random amount between one-quarter */
 			/* and one-half of the stat bonus times the percentage, with a */
 			/* minimum damage of half the percentage. -CWS */
-			loss = (((cur-18) / 2 + 1) / 2 + 1);
+			loss = (((cur - 18) / 2 + 1) / 2 + 1);
 
 			/* Paranoia */
 			if (loss < 1) loss = 1;
@@ -2011,7 +2051,7 @@ bool dec_stat(int stat, int amount, int permanent)
 			loss = (rand_range(loss, loss * 2) * amount) / 100;
 
 			/* Maximal loss */
-			if (loss < amount/2) loss = amount/2;
+			if (loss < amount / 2) loss = amount / 2;
 
 			/* Lose some points */
 			cur = cur - loss;
@@ -2049,9 +2089,9 @@ bool dec_stat(int stat, int amount, int permanent)
 			/* Hack -- Decrement by a random amount between one-quarter */
 			/* and one-half of the stat bonus times the percentage, with a */
 			/* minimum damage of half the percentage. -CWS */
-			loss = (((max-18) / 2 + 1) / 2 + 1);
+			loss = (((max - 18) / 2 + 1) / 2 + 1);
 			loss = (rand_range(loss, loss * 2) * amount) / 100;
-			if (loss < amount/2) loss = amount/2;
+			if (loss < amount / 2) loss = amount / 2;
 
 			/* Lose some points */
 			max = max - loss;
@@ -2205,12 +2245,36 @@ bool do_dec_stat(int stat)
 	/* Access the "sustain" */
 	switch (stat)
 	{
-		case A_STR: if (p_ptr->sustain_str) sust = TRUE; break;
-		case A_INT: if (p_ptr->sustain_int) sust = TRUE; break;
-		case A_WIS: if (p_ptr->sustain_wis) sust = TRUE; break;
-		case A_DEX: if (p_ptr->sustain_dex) sust = TRUE; break;
-		case A_CON: if (p_ptr->sustain_con) sust = TRUE; break;
-		case A_CHR: if (p_ptr->sustain_chr) sust = TRUE; break;
+		case A_STR:
+		{
+			if (p_ptr->sustain_str) sust = TRUE;
+			break;
+		}
+		case A_INT:
+		{
+			if (p_ptr->sustain_int) sust = TRUE;
+			break;
+		}
+		case A_WIS:
+		{
+			if (p_ptr->sustain_wis) sust = TRUE;
+			break;
+		}
+		case A_DEX:
+		{
+			if (p_ptr->sustain_dex) sust = TRUE;
+			break;
+		}
+		case A_CON:
+		{
+			if (p_ptr->sustain_con) sust = TRUE;
+			break;
+		}
+		case A_CHR:
+		{
+			if (p_ptr->sustain_chr) sust = TRUE;
+			break;
+		}
 	}
 
 	/* Sustain */
@@ -2218,7 +2282,7 @@ bool do_dec_stat(int stat)
 	{
 		/* Message */
 		msg_format("You feel %s for a moment, but the feeling passes.",
-				desc_stat_neg[stat]);
+				   desc_stat_neg[stat]);
 
 		/* Notice effect */
 		return (TRUE);
@@ -2368,12 +2432,12 @@ bool lose_all_info(void)
 	}
 
 	/* Hack - Remove all knowledge about objects */
-	
+
 	/* Scan the object kinds */
-	for (k = 1; k < max_k_idx; k++)
+	for (k = 1; k < z_info->k_max; k++)
 	{
 		object_kind *k_ptr = &k_info[k];
-	
+
 		/* Forget flavored items, with saving throw */
 		if (k_ptr->flavor && one_in_(p_ptr->skill_sav))
 		{
@@ -2520,15 +2584,15 @@ void do_poly_self(void)
 		if (!effect_msg[0])
 		{
 			msg_format("You turn into a%s %s!",
-			    (((new_race == RACE_AMBERITE) ||
-			      (new_race == RACE_ELF) ||
-			      (new_race == RACE_IMP)) ? "n" : ""),
-				race_info[new_race].title);
+					   (((new_race == RACE_AMBERITE) ||
+						 (new_race == RACE_ELF) ||
+						 (new_race == RACE_IMP)) ? "n" : ""),
+					   race_info[new_race].title);
 		}
 		else
 		{
 			msg_format("You turn into a %s%s!", effect_msg,
-				race_info[new_race].title);
+					   race_info[new_race].title);
 		}
 
 		chg_virtue(V_CHANCE, 2);
@@ -2542,15 +2606,15 @@ void do_poly_self(void)
 		/* Calculate the height/weight for males */
 		if (p_ptr->psex == SEX_MALE)
 		{
-			p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-			p_ptr->wt = randnor(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+			p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+			p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
 		}
 
 		/* Calculate the height/weight for females */
 		else if (p_ptr->psex == SEX_FEMALE)
 		{
-			p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-			p_ptr->wt = randnor(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+			p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+			p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
 		}
 
 		check_experience();
@@ -2561,7 +2625,7 @@ void do_poly_self(void)
 		p_ptr->update |= (PU_BONUS);
 
 		handle_stuff();
-		lite_spot(p_ptr->py, p_ptr->px);
+		lite_spot(p_ptr->px, p_ptr->py);
 	}
 
 	if ((power > randint0(30)) && one_in_(6))
@@ -2610,7 +2674,7 @@ void do_poly_self(void)
 		mutate_player();
 		power--;
 	}
-	
+
 	/* Hack - reset visuals so the player's tile can change */
 	reset_visuals();
 }
@@ -2696,8 +2760,8 @@ void take_hit(int damage, cptr hit_from)
 		/* Hack -- Note death */
 		if (!last_words)
 		{
-			msg_print("You die.");
-			msg_print(NULL);
+			message(MSG_DEATH, 0, "You die.");
+			message_flush();
 		}
 		else
 		{
@@ -2732,13 +2796,13 @@ void take_hit(int damage, cptr hit_from)
 	if (p_ptr->chp < warning)
 	{
 		/* Hack -- bell on first notice */
-		if (old_chp > warning) bell();
+		if (old_chp > warning) bell("Low hitpoint warning!");
 
 		sound(SOUND_WARN);
 
 		/* Message */
-		msg_print("*** LOW HITPOINT WARNING! ***");
-		msg_print(NULL);
+		message(MSG_HITPOINT_WARN, 0, "*** LOW HITPOINT WARNING! ***");
+		message_flush();
 	}
 }
 
@@ -2776,4 +2840,27 @@ void lose_exp(s32b amount)
 
 	/* Check Experience */
 	check_experience();
+}
+
+/*
+ * Make some noise
+ */
+void make_noise(byte amount)
+{
+	int total = amount + p_ptr->noise_level;
+
+	/* Paranoia (watching for overflow) */
+	if (total > MONSTER_FLOW_DEPTH)
+	{
+		total = MONSTER_FLOW_DEPTH;
+	}
+
+	/* Update the flow if this gets too high */
+	if (total >= 3 * MONSTER_FLOW_DEPTH / 4)
+	{
+		p_ptr->update |= PU_FLOW;
+	}
+
+	/* Save the new noise level */
+	p_ptr->noise_level = (byte)total;
 }

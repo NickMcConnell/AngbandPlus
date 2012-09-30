@@ -6,74 +6,23 @@
 # Standard defines
 #
 
-CC      =       gcc
-WRES    =       windres
-LIBS    =       -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
-CFLAGS  =       -Wall -W -pedantic -mno-cygwin -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS
+CC = gcc
+WRES = windres
+LIBS = -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
+CFLAGS = -Wall -W -pedantic -mno-cygwin -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS
 
+LUALIBS = -s -mno-cygwin
 
-SRCS = \
-	angband.rc \
-	artifact.c \
-	avatar.c \
-	birth.c \
-	bldg.c \
-	cave.c \
-	cmd1.c \
-	cmd2.c \
-	cmd3.c \
-	cmd4.c \
-	cmd5.c \
-	cmd6.c \
-	dungeon.c \
-	effects.c \
-	fields.c \
-	files.c \
-	flavor.c \
-	generate.c \
-	grid.c \
-	init1.c \
-	init2.c \
-	load.c \
-	main.c \
-	main-win.c \
-	melee1.c \
-	melee2.c \
-	mind.c \
-	monster1.c \
-	monster2.c \
-	mspells1.c \
-	mspells2.c \
-	mutation.c \
-	notes.c \
-	obj_kind.c \
-	object1.c \
-	object2.c \
-	racial.c \
-	readdib.c \
-	rooms.c \
-	save.c \
-	scores.c \
-	spells1.c \
-	spells2.c \
-	spells3.c \
-	store.c \
-	streams.c \
-	tables.c \
-	util.c \
-	variable.c \
-	wild1.c \
-	wild2.c \
-	wizard1.c \
-	wizard2.c \
-	xtra1.c \
-	xtra2.c \
-	z-form.c \
-	z-rand.c \
-	z-term.c \
-	z-util.c \
-	z-virt.c 
+LUAOBJS = \
+	lua/lapi.o      lua/ldebug.o  lua/lmem.o     lua/lstrlib.o  lua/lvm.o       lua/tolua_lb.o \
+	lua/lauxlib.o   lua/ldo.o     lua/lobject.o  lua/ltable.o   lua/lzio.o      lua/tolua_rg.o \
+	lua/lbaselib.o  lua/lfunc.o   lua/lparser.o  lua/ltests.o   lua/tolua_bd.o  lua/tolua_tm.o \
+	lua/lcode.o     lua/lgc.o     lua/lstate.o   lua/ltm.o      lua/tolua_eh.o  lua/tolua_tt.o \
+	lua/ldblib.o    lua/llex.o    lua/lstring.o  lua/lundump.o  lua/tolua_gp.o
 
+TOLUAOBJS = \
+	lua/tolua.o lua/tolualua.o lua/liolib.o \
+	$(LUAOBJS)
 
 EXOBJS = \
 	angband.res \
@@ -112,6 +61,7 @@ EXOBJS = \
 	obj_kind.o \
 	object1.o \
 	object2.o \
+	quest.o \
 	racial.o \
 	readdib.o \
 	rooms.o \
@@ -135,8 +85,11 @@ EXOBJS = \
 	z-rand.o \
 	z-term.o \
 	z-util.o \
-	z-virt.o 
-
+	z-virt.o \
+	script.o \
+	l-monst.o l-object.o l-player.o l-random.o l-ui.o \
+	l-misc.o l-spell.o \
+	$(LUAOBJS)
 
 HDRS = \
 	h-basic.h \
@@ -173,6 +126,29 @@ cleanbin:
 
 clean:	cleanobjs cleanbin
 
+lua/tolua: $(TOLUAOBJS)
+	$(CC) -o lua/tolua $(TOLUAOBJS) $(INCDIRS) $(LIBDIRS) $(LUALIBS)
+
+l-monst.c: lua/tolua l-monst.pkg
+	lua/tolua -n monster -o l-monst.c l-monst.pkg
+
+l-object.c: lua/tolua l-object.pkg
+	lua/tolua -n object -o l-object.c l-object.pkg
+
+l-player.c: lua/tolua l-player.pkg
+	lua/tolua -n player -o l-player.c l-player.pkg
+
+l-random.c: lua/tolua l-random.pkg
+	lua/tolua -n random -o l-random.c l-random.pkg
+
+l-ui.c: lua/tolua l-ui.pkg
+	lua/tolua -n ui -o l-ui.c l-ui.pkg
+
+l-misc.c: lua/tolua l-misc.pkg
+	lua/tolua -n misc -o l-misc.c l-misc.pkg
+
+l-spell.c: lua/tolua l-spell.pkg
+	lua/tolua -n spell -o l-spell.c l-spell.pkg
 
 #
 # Dependency rules
@@ -304,6 +280,9 @@ object2.o: object2.c $(INCS)
 
 obj_kind.o: obj_kind.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+	
+quest.o: quest.c $(INCS) wild.h grid.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 racial.o: racial.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
@@ -349,7 +328,7 @@ util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-wild1.o: wild1.c $(INCS) wild.h
+wild1.o: wild1.c $(INCS) wild.h grid.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 wild2.o: wild2.c $(INCS) wild.h grid.h
@@ -382,3 +361,5 @@ z-util.o: z-util.c $(HDRS) z-util.h
 z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
+.c.o:
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<

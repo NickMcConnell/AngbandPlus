@@ -60,7 +60,7 @@
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(ACORN) && !defined(VM)
+    !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
 #  include <mem.h>
 # else
@@ -79,7 +79,7 @@
 # ifndef USG
 #  include <sys/param.h>
 #  include <sys/file.h>
-# endif /* !USG */
+# endif	/* !USG */
 
 # ifdef linux
 #  include <sys/file.h>
@@ -101,43 +101,15 @@
 #include <unistd.h>
 #endif /* __DJGPP__ */
 
-
-#ifdef SET_UID
-
-#ifdef USG
-# include <string.h>
-#else
-# include <strings.h>
-# ifndef strstr
-extern char *strstr();
-# endif
-# ifndef strchr
-extern char *strchr();
-# endif
-# ifndef strrchr
-extern char *strrchr();
-# endif
-#endif
-
-#else /* SET_UID */
-
-# include <string.h>
-
-#endif /* SET_UID */
-
-
-#if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN) && !defined(WIN32)
-extern long atol();
-#endif
-
+#include <string.h>
 
 #include <stdarg.h>
 
 
 /* Include maid-x11.c */
 #if defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ)
-	#define USE_XMAID
-#endif 
+#define USE_XMAID
+#endif
 
 
 /* Hack - this should be in h-types.h, but we need errr here */
@@ -150,15 +122,15 @@ typedef int errr;
 /* The init functions for each port called from main.c */
 
 #ifdef USE_XAW
-extern errr init_xaw(int, char**);
+extern errr init_xaw(int, char **);
 #endif
 
 #ifdef USE_X11
-extern errr init_x11(int, char**);
+extern errr init_x11(int, char **);
 #endif
 
 #ifdef USE_XPJ
-extern errr init_xpj(int, char**);
+extern errr init_xpj(int, char **);
 #endif
 
 #ifdef USE_GCU
@@ -166,7 +138,7 @@ extern errr init_gcu(void);
 #endif
 
 #ifdef USE_CAP
-extern errr init_cap(int, char**);
+extern errr init_cap(int, char **);
 #endif
 
 #ifdef USE_DOS
@@ -198,11 +170,11 @@ extern errr init_lsl(void);
 #endif
 
 #ifdef USE_GTK
-extern errr init_gtk(unsigned char*, int, char**);
+extern errr init_gtk(unsigned char *, int, char **);
 #endif
 
 #ifdef USE_VCS
-extern errr init_vcs(int argc, char** argv);
+extern errr init_vcs(int argc, char **argv);
 #endif
 
 #endif /* INCLUDED_H_SYSTEM_H */

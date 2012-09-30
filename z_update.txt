@@ -2,6 +2,110 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+ZAngband 2.7.0:
+- Removed the python code, and replaced it with scripting using Lua.
+- Added scripting for food, potions, scrolls, wands and staves.
+- Fixed the Amberite racial skills.
+- Climbing stairs no longer takes zero game time.
+- Replaced the combat system with a simplified version of  Oangband
+  combat version 2.  Changes include:
+  - Enchant scrolls act more like stat potions, the increase is variable.
+  - The critical hit formula is simpler.
+  - The deadliness calculation is linear.
+  - The intrinsic percentage deadliness is shown on the weapon.
+  - Changed the damage dice of arrows and bolts.
+- Updated util.c to be more like that in newer versions of Angband.
+- Updated the init code to the Angband 2.9.3 codebase.
+- Zangband handles file permissions like Angband.
+- Updated the mac, windows and dos ports to use the latest files.
+- Updated the gtk port to use pelpels menu code.
+- The newgame command line flag now works properly with the gtk port.
+- Removed many magic numbers from the sourcecode.
+- The chaos patron big heal reward now restores stats and then heals
+  to ensure full heal like the potion of life.
+- Removed non-maximise mode, and changed maximise mode to have more
+  variablity at the start of the game.  This method takes the best
+  attributes of both old options.
+- Disintegrate affects the new terrains in a smarter way.
+- Fixed possible crash in displaying shape-changing monsters.
+- Fixed the ironman_los option.
+- The ATTR_MULTI flag now takes into account the breaths if the monster
+  has any.  This is similar to the code in Oangband.  Several vortices
+  and Wyrms now use this flag.
+- Changed curse display on the info screen.  A permanent curse is
+  displayed like an immunity.
+- Added the improved identification patch from RML.
+- Split up the cave data type into player and non-player information.
+- The memorisation of the map has changed so you remember the terrain
+  features.  This prevents you from seeing Umber Hulks approaching
+  as they dig their tunnels.
+- Added the GRID_SEEN flag from Angband, and optimised the update_view()
+  and map_info() routines to use the new information.
+- Added a noise-level patch, similar to that in Oangband.  The more
+  noisy you are, the further away the monsters will have accurate flow
+  information to your location.
+- Replaced the underlying wilderness code.  The new code allows quests
+  in the wilderness to be made.
+- Replaced the old cave[][] array with "regions".  Regions allow
+  multiple dungeons to be active at once.  They also simplifie the code
+  for creating towns and quests in the wilderness.
+- Fixed the rng so it works on 64bit systems.
+- Prevented the player from gaining extra information when selling items
+  to the rare stores.
+- Improved the artifact activation messages a bit.
+- The EAT_LITE mutation decreases o_ptr->timeout instead of the pval of
+  the light.
+- Replaced the quest code.  The new code supports quests in the dungeon
+  wilderness, and general quests.
+- Fixed the spelling error with Aluminium flavoured items.
+- Added the missing documentation about the (+x/+y) information on ammo.
+- The players' colour depends on hitpoint status.
+- The disturb_traps option now works much better.  You will get a
+  message if you move outside a region you have detected for traps.
+- Major code cleanup - replaced all coordinates in the form (y,x) with
+  the more natural (x,y) form.
+- The 'use all linux ports' option in makefile.std works now.
+- Added more lines to mondeath.txt and monspeak.txt
+- Decreased the xp for the plain gold ring, stopping score overflow.
+- Fixed problem when trying to destroy closed doors with GF_KILL_WALL.
+- Made the word of recall scroll more common in the shops and dungeon.
+- Fixed the road-making code so that it connects to town gates.
+- Fixed problems with spectres, doors, and the easy_open option.
+- Fixed the bug with monsters not being able to bash doors.
+- Fixed the bug with exiting item creation in debug mode early.
+- Added four new ego types for lites.  Lites deliberately have easy_know.
+- Replaced some artifacts with others from gumband.  Other artifacts
+  were renamed to be more in theme.
+- The phial is deeper in the dungeon, now that there are ego lites.
+- The inventory and equipment screens now support bigscreen.
+- The inventory, equipment and floor menu boxes now support bigscreen.
+- Some of the racial activation names were too long.
+- Searching is renamed to "sensing", and now has an additional affect on
+  psuedo-id rate.
+- Fixed display glitch with hitpoint warning menu.
+- Fixed the rarity inversion of monster pits/nests.
+- Added the new improved autoroller from Antiband.
+- Use "player_base".prf for player-specific pref file name.
+- Cleaned up the AI code somewhat, using some code from Oangband.
+- Gremlins should have the SILLY flag.
+- Enabled comments in get_rnd_line()
+- Added more lines for speaking uniques.
+- Monsters and objects are not quite so out of depth in vaults.
+- Passed the code through a hacked-up version of gnu-indent that
+  understands most of the angband coding style.
+- The svga port now knows about the font location on debian boxes.
+- Added patch to only darken rods if the whole stack is charging.
+- Updated the quark compaction code.
+- Fixed up some bugs in the automake makefiles.
+- The messages when loading a savefile are now displayed correctly.
+- Fixed bug with loading vanilla town savefiles with the player
+  standing the lower right hand corner of the map.
+- Fixed the crash caused by starting the game with the wizard mode
+  option and with a dead character.
+- Fixed bug trying to display a term with the overhead map, but with
+  too small of a size.
+- Aquatic monsters cannot be teleported onto dry land.
+
 ZAngband 2.6.2:
 - Made potions of restore life levels more common.
 - Fixed loading of some 2.4.0 savefiles that weren't working.

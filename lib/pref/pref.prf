@@ -22,6 +22,10 @@
 %:spell-xx.prf
 
 
+##### Message color definitions #####
+%:message.prf
+
+
 ##### System Specific Subfiles #####
 
 ?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj]]

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/13 04:55:54 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/11/25 15:02:48 $
 # File: Makefile.acn
 # For Acorn machines with RISC OS 3.10 or later
 
@@ -25,7 +25,7 @@ OBJS = \
   store.o birth.o load.o \
   wizard1.o wizard2.o grid.o streams.o rooms.o \
   generate.o dungeon.o init1.o init2.o \
-  effects.o racial.o fields.o\
+  effects.o quest.o racial.o fields.o\
   artifact.o mutation.o flavor.o spells3.o \
   mspells1.o mspells2.o scores.o mind.o \
   bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\

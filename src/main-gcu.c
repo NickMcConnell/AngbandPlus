@@ -996,7 +996,7 @@ errr init_gcu(void)
 
 #ifdef USE_GRAPHICS
 	/* Set graphics flag */
-	use_graphics = FALSE;
+	use_graphics = GRAPHICS_NONE;
 
 	/* Use the graphical wall tiles? */
 	use_blocks = arg_graphics;

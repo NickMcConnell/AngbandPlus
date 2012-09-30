@@ -696,7 +696,7 @@ static errr Term_xtra_dos(int n, int v)
 					/* Get a *new* song at random */
 					while (1)
 					{
-						n = randint1(song_number);
+						n = Rand_simple(song_number);
 						if (n != current_song) break;
 					}
 					current_song = n;
@@ -765,6 +765,9 @@ static errr Term_user_dos(int n)
 
 	char section[80];
 
+	/* Unused parameter */
+	(void)n;
+
 	/* Interact */
 	while (1)
 	{
@@ -772,14 +775,14 @@ static errr Term_user_dos(int n)
 		Term_clear();
 
 		/* Print date and time of compilation */
-		prt(format("Compiled: %s %s\n", __TIME__, __DATE__), 1, 45);
+		prt(format("Compiled: %s %s\n", __TIME__, __DATE__), 45, 1);
 
 		/* Why are we here */
-		prt("DOS options", 2, 0);
+		prt("DOS options", 0, 2);
 
 		/* Give some choices */
 #ifdef USE_SOUND
-		prt("(V) Sound Volume", 4, 5);
+		prt("(V) Sound Volume", 5, 4);
 		prt("(M) Music Volume", 5, 5);
 #endif /* USE_SOUND */
 
@@ -793,7 +796,7 @@ static errr Term_user_dos(int n)
 		{
 			strcpy(status, "Off");
 		}
-		prt(format("(G) Graphics : %s", status), 7, 5);
+		prt(format("(G) Graphics : %s", status), 5, 7);
 
 #endif /* USE_GRAPHICS */
 
@@ -807,16 +810,16 @@ static errr Term_user_dos(int n)
 		{
 			strcpy(status, "Off");
 		}
-		prt(format("(S) Sound/Music : %s", status), 8, 5);
+		prt(format("(S) Sound/Music : %s", status), 5, 8);
 
 #endif /* USE_SOUND */
 
-		prt("(R) Screen resolution", 12, 5);
+		prt("(R) Screen resolution", 5, 12);
 
-		prt("(W) Save current options", 14, 5);
+		prt("(W) Save current options", 5, 14);
 
 		/* Prompt */
-		prt("Command: ", 18, 0);
+		prt("Command: ", 0, 18);
 
 		/* Get command */
 		k = inkey();
@@ -833,13 +836,13 @@ static errr Term_user_dos(int n)
 			case 'v':
 			{
 				/* Prompt */
-				prt("Command: Sound Volume", 18, 0);
+				prt("Command: Sound Volume", 0, 18);
 
 				/* Get a new value */
 				while (1)
 				{
-					prt(format("Current Volume: %d", digi_volume), 22, 0);
-					prt("Change Volume (+, - or ESC to accept): ", 20, 0);
+					prt(format("Current Volume: %d", digi_volume), 0, 22);
+					prt("Change Volume (+, - or ESC to accept): ", 0, 20);
 					k = inkey();
 					if (k == ESCAPE) break;
 					switch (k)
@@ -872,13 +875,13 @@ static errr Term_user_dos(int n)
 			case 'm':
 			{
 				/* Prompt */
-				prt("Command: Music Volume", 18, 0);
+				prt("Command: Music Volume", 0, 18);
 
 				/* Get a new value */
 				while (1)
 				{
-					prt(format("Current Volume: %d", midi_volume), 22, 0);
-					prt("Change Volume (+, - or ESC to accept): ", 20, 0);
+					prt(format("Current Volume: %d", midi_volume), 0, 22);
+					prt("Change Volume (+, - or ESC to accept): ", 0, 20);
 					k = inkey();
 					if (k == ESCAPE) break;
 					switch (k)
@@ -914,7 +917,7 @@ static errr Term_user_dos(int n)
 			case 'G':
 			case 'g':
 			{
-				/* Toggle "arg_graphics" */
+				/* Hack - Toggle "arg_graphics" */
 				arg_graphics = !arg_graphics;
 
 				/* React to changes */
@@ -959,8 +962,8 @@ static errr Term_user_dos(int n)
 				Term_clear();
 
 				/* Prompt */
-				prt("Command: Screen Resolution", 1, 0);
-				prt(format("Restart %s to get the new screenmode.", VERSION_NAME), 3, 0);
+				prt("Command: Screen Resolution", 0, 1);
+				prt(format("Restart %s to get the new screenmode.", VERSION_NAME), 0, 3);
 
 				/* Get a list of the available presets */
 				while (1)
@@ -976,14 +979,14 @@ static errr Term_user_dos(int n)
 					descr = get_config_string(section, "Description", "");
 
 					/* Print it */
-					prt(format("(%d) %d x %d   %s", i, w, h, descr), 4 + i, 0);
+					prt(format("(%d) %d x %d   %s", i, w, h, descr),0,  4 + i);
 
 					/* Next */
 					i++;
 				}
 
 				/* Get a new resolution */
-				prt(format("Screen Resolution : %d", resolution), 20, 0);
+				prt(format("Screen Resolution : %d", resolution), 0, 20);
 				k = inkey();
 				if (k == ESCAPE) break;
 				if (isdigit(k)) resolution = D2I(k);
@@ -1003,7 +1006,7 @@ static errr Term_user_dos(int n)
 			case 'W':
 			case 'w':
 			{
-				prt("Saving current options", 18, 0);
+				prt("Saving current options", 0, 18);
 
 #ifdef USE_SOUND
 				set_config_int("sound", "digi_volume", digi_volume);
@@ -1023,7 +1026,7 @@ static errr Term_user_dos(int n)
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
 
 	/* Redraw it */
@@ -1262,6 +1265,9 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
  */
 static void Term_init_dos(term *t)
 {
+	/* Unused parameter */
+	(void)t;
+
 	/* XXX Nothing */
 }
 
@@ -1353,6 +1359,10 @@ static void dos_quit_hook(cptr str)
 {
 	int i;
 
+
+	/* Unused parameter */
+	(void)str;
+
 	/* Destroy windows */
 	for (i = MAX_TERM_DATA - 1; i >= 0; i--)
 	{
@@ -1439,7 +1449,7 @@ static void dos_dump_screen(void)
 
 	/* Success message */
 	msg_print("Screen dump saved.");
-	msg_print(NULL);
+	message_flush();
 }
 
 
@@ -1826,16 +1836,30 @@ static bool init_graphics(void)
 		if ((tiles = load_bitmap(filename, tiles_pallete)) != NULL)
 		{
 			int i;
+			cptr graf_mode;
+			
 
 			/*
 			 * Set the graphics mode to "new" if Adam Bolt's
 			 * new 16x16 tiles are used.
 			 */
-			ANGBAND_GRAF = get_config_string(section, "graf-mode", "old");
+			graf_mode = get_config_string(section, "graf-mode", "old");
 
-			/* Use transparent blits */
-			if (streq(ANGBAND_GRAF, "new"))
+			if (streq(graf_mode, "new"))
+			{
+				arg_graphics = GRAPHICS_ADAM_BOLT;
+
+				/* Use transparent blits */
 				use_transparency = TRUE;
+			}
+			else if (streq(graf_mode, "old"))
+			{
+				arg_graphics = GRAPHICS_ORIGINAL;
+			}
+			else
+			{
+				arg_graphics = GRAPHICS_NONE;
+			}
 
 			/* Select the bitmap pallete */
 			set_palette_range(tiles_pallete, 0, COLOR_OFFSET - 1, 0);
@@ -1949,7 +1973,7 @@ static bool init_sound(void)
 		for (i = 1; i < SOUND_MAX; i++)
 		{
 			/* Get the sample names */
-			argv = get_config_argv(section, angband_sound_name[i], &sample_count[i]);
+			argv = get_config_argv(section, (char *)angband_sound_name[i], &sample_count[i]);
 
 			/* Limit the number of samples */
 			if (sample_count[i] > SAMPLE_MAX) sample_count[i] = SAMPLE_MAX;
@@ -2023,7 +2047,7 @@ static errr Term_xtra_dos_sound(int v)
 	if ((v < 0) || (v >= SOUND_MAX)) return (1);
 
 	/* Get a random sample from the available ones */
-	n = randint0(sample_count[v]);
+	n = Rand_simple(sample_count[v]);
 
 	/* Play the sound, catch errors */
 	if (samples[v][n])
@@ -2080,6 +2104,13 @@ static void play_song(void)
 
 /*
  * Attempt to initialize this file
+ *
+ * Hack -- we assume that "blank space" should be "white space"
+ * (and not "black space" which might make more sense).
+ *
+ * Note the use of "((x << 2) | (x >> 4))" to "expand" a 6 bit value
+ * into an 8 bit value, without losing much precision, by using the 2
+ * most significant bits as the least significant bits in the new value.
  *
  * We should attempt to "share" bitmaps (and fonts) between windows
  * with the same "tile" size.  XXX XXX XXX
@@ -2231,4 +2262,3 @@ errr init_dos(void)
 }
 
 #endif /* USE_DOS */
-

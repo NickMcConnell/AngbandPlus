@@ -7,7 +7,7 @@ AC_INIT(src/main.c)
 dnl write the resulting #defines into a header file
 AM_CONFIG_HEADER(src/autoconf.h)
 
-AM_INIT_AUTOMAKE(zangband, 2.6.1)
+AM_INIT_AUTOMAKE(zangband, 2.7.0)
 
 AC_ARG_WITH(setgid,
 [  --with-setgid=NAME      setgid usage: install angband as group NAME],
@@ -34,36 +34,15 @@ AC_SUBST(DEFAULT_PATH)
 
 dnl Checks for programs.
 AC_PROG_CC
+AC_PROG_RANLIB
+
+dnl -fno-strength-reduce prevents a bug in some versions of gcc
+if test "$GCC" = yes; then
+  CFLAGS="$CFLAGS -fno-strength-reduce"
+fi
+
 
 dnl Checks for libraries.
-
-dnl Check for ncurses, curses, or termcap
-AC_CHECK_LIB(ncurses, initscr, [AC_DEFINE(USE_GCU) AC_DEFINE(USE_NCURSES) LIBS="$LIBS -lncurses"])
-if test "$ac_cv_lib_ncurses_initscr" != yes; then
-  AC_CHECK_LIB(curses, initscr, [AC_DEFINE(USE_GCU) LIBS="$LIBS -lcurses"])
-  if test "$ac_cv_lib_curses_initscr" != yes; then
-    AC_CHECK_LIB(termcap, tgetent, [AC_DEFINE(USE_CAP) LIBS="$LIBS -ltermcap"])
-  fi
-fi
-
-dnl Checks for header files.
-AC_PATH_XTRA
-
-if test "$no_x" != "yes"; then
-  LIBS="$LIBS -lX11"
-  AC_DEFINE(USE_X11)
-  AC_DEFINE(USE_XPJ)
-  AC_DEFINE(USE_TRANSPARENCY)
-  ANGBAND_OBJS="maid-x11.o"
-  AC_SUBST(ANGBAND_OBJS)
-fi
-
-LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS $LIBS"
-CFLAGS="$X_CFLAGS $CFLAGS"
-LDFLAGS="$X_LIBS $LDFLAGS"
-
-dnl Check for the Athena widget set
-AC_CHECK_LIB(Xaw, XawInitializeWidgetSet, [AC_DEFINE(USE_XAW) LIBS="$LIBS -lXaw"])
 
 AC_CYGWIN
 AC_MINGW32
@@ -77,6 +56,34 @@ if test "$CYGWIN" = "yes"; then
   AM_CONDITIONAL(CYGWIN, test "$CYGWIN" = "yes")
   ANGBAND_OBJS="readdib.o angband.res"
   AC_SUBST(ANGBAND_OBJS)
+else
+  dnl Check for ncurses, curses, or termcap
+  AC_CHECK_LIB(ncurses, initscr, [AC_DEFINE(USE_GCU) AC_DEFINE(USE_NCURSES) LIBS="$LIBS -lncurses"])
+  if test "$ac_cv_lib_ncurses_initscr" != yes; then
+    AC_CHECK_LIB(curses, initscr, [AC_DEFINE(USE_GCU) LIBS="$LIBS -lcurses"])
+    if test "$ac_cv_lib_curses_initscr" != yes; then
+      AC_CHECK_LIB(termcap, tgetent, [AC_DEFINE(USE_CAP) LIBS="$LIBS -ltermcap"])
+    fi
+  fi
+
+  dnl Checks for header files.
+  AC_PATH_XTRA
+
+  if test "$no_x" != "yes"; then
+    LIBS="$LIBS -lX11"
+    AC_DEFINE(USE_X11)
+    AC_DEFINE(USE_XPJ)
+    AC_DEFINE(USE_TRANSPARENCY)
+    ANGBAND_OBJS="maid-x11.o"
+    AC_SUBST(ANGBAND_OBJS)
+  fi
+
+  LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS $LIBS"
+  CFLAGS="$X_CFLAGS $CFLAGS"
+  LDFLAGS="$X_LIBS $LDFLAGS"
+
+  dnl Check for the Athena widget set
+  AC_CHECK_LIB(Xaw, XawInitializeWidgetSet, [AC_DEFINE(USE_XAW) LIBS="$LIBS -lXaw"])
 fi
 
 AC_HEADER_STDC
@@ -97,4 +104,4 @@ AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(gethostname mkdir select strstr strtol usleep mkstemp)
 
-AC_OUTPUT(Makefile src/makefile lib/Makefile lib/apex/Makefile lib/bone/Makefile lib/data/Makefile lib/edit/Makefile lib/file/Makefile lib/help/Makefile lib/info/Makefile lib/pref/Makefile lib/save/Makefile lib/script/Makefile lib/user/Makefile lib/xtra/Makefile)
+AC_OUTPUT(Makefile src/makefile src/lua/makefile lib/Makefile lib/apex/Makefile lib/bone/Makefile lib/data/Makefile lib/edit/Makefile lib/file/Makefile lib/help/Makefile lib/info/Makefile lib/pref/Makefile lib/save/Makefile lib/script/Makefile lib/user/Makefile lib/xtra/Makefile)

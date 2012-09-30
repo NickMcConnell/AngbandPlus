@@ -2175,9 +2175,8 @@ static errr globe_init(term_data *td)
 				gTileCols = (pictRect.right - pictRect.left) / gTileWidth;
 				gTileCols = (pictRect.bottom - pictRect.top) / gTileHeight;
 				
-				ANGBAND_GRAF = "old";
-				
 				use_transparency = false;
+				use_graphics = GRAPHICS_ORIGINAL;
 				
 				break;
 			}
@@ -2196,9 +2195,8 @@ static errr globe_init(term_data *td)
 				gTileCols = (pictRect.right - pictRect.left) / gTileWidth;
 				gTileCols = (pictRect.bottom - pictRect.top) / gTileHeight;
 				
-				ANGBAND_GRAF = "new";
-				
 				use_transparency = true;
+				use_graphics = GRAPHICS_ADAM_BOLT;
 				
 				break;
 			}
@@ -2206,7 +2204,7 @@ static errr globe_init(term_data *td)
 		case GRAPHICS_NONE:
 		default:
 			{
-				use_graphics = false;
+				use_graphics = GRAPHICS_NONE;
 				use_transparency = false;
 			}
 			return 0;
@@ -2451,20 +2449,12 @@ static errr Term_xtra_mac_react(void)
 		{
 			plog("Cannot initialize graphics!");
 			arg_graphics = GRAPHICS_NONE;
-			use_graphics = false;
+			use_graphics = GRAPHICS_NONE;
 		}
 
 		/* Apply request */
 		current_graphics = arg_graphics;
-		
-		if( current_graphics == GRAPHICS_NONE )
-		{
-			use_graphics = false;
-		}
-		else
-		{
-			use_graphics = true;
-		}
+		use_graphics = current_graphics;
 
 		/* Apply and Verify */
 		term_data_check_size(td);
@@ -2529,7 +2519,7 @@ static errr Term_xtra_mac(int n, int v)
 		case TERM_XTRA_BORED:
 		{
 			/* Process an event */
-			(void)CheckEvents(0);
+			(void)CheckEvents(FALSE);
 
 			/* Success */
 			return (0);
@@ -2549,7 +2539,7 @@ static errr Term_xtra_mac(int n, int v)
 		case TERM_XTRA_FLUSH:
 		{
 			/* Hack -- flush all events */
-			while (CheckEvents(TRUE)) /* loop */;
+			while (CheckEvents(FALSE)) /* loop */;
 
 			/* Success */
 			return (0);
@@ -2616,10 +2606,14 @@ static errr Term_xtra_mac(int n, int v)
 			/* If needed */
 			if (v > 0)
 			{
-				long m = TickCount() + (v * 60L) / 1000;
-
-				/* Wait for it */
-				while (TickCount() < m) /* loop */;
+				EventRecord tmp;
+				UInt32 ticks;
+				
+				/* Convert milliseconds to ticks */
+				ticks = (v * 60L) / 1000;
+				
+				/* Hack - block for those ticks */
+				WaitNextEvent(~everyEvent, &tmp, ticks, nil);
 			}
 
 			/* Success */
@@ -5101,7 +5095,7 @@ static void menu(long mc)
 				{
 					/* Toggle arg_sound */
 					arg_graphics = GRAPHICS_NONE;
-					use_graphics = false;
+					use_graphics = GRAPHICS_NONE;
 					use_transparency = false;
 					
 					/* React to changes */
@@ -5118,7 +5112,7 @@ static void menu(long mc)
 				{
 					/* Toggle arg_sound */
 					arg_graphics = GRAPHICS_ORIGINAL;
-					use_graphics = true;
+					use_graphics = GRAPHICS_ORIGINAL;
 					use_transparency = false;
 					
 					/* React to changes */
@@ -5135,7 +5129,7 @@ static void menu(long mc)
 				{
 					/* Toggle arg_sound */
 					arg_graphics = GRAPHICS_ADAM_BOLT;
-					use_graphics = true;
+					use_graphics = GRAPHICS_ADAM_BOLT;
 					use_transparency = true;
 					
 					/* React to changes */
@@ -5381,6 +5375,10 @@ static bool CheckEvents(bool wait)
 
 	term_data *td = NULL;
 
+	UInt32 sleep_ticks;
+
+#ifndef TARGET_CARBON
+
 	huge curTicks;
 
 	static huge lastTicks = 0L;
@@ -5395,19 +5393,28 @@ static bool CheckEvents(bool wait)
 	/* Timestamp last check */
 	lastTicks = curTicks;
 
-#ifndef TARGET_CARBON
 	/* Let the "system" run */
 	SystemTask();
-#endif
 
 	if( use_sound )
 	{
 		check_music();
 	}
-			
+	
+	/* Blocking call to WaitNextEvent - Should use MAX_INT XXX XXX XXX */
+	if (wait)
+	{
+		sleep_ticks = 0x7FFFFFFFL;
+	}
+	else
+	{
+		/* Non-blocking call */
+		sleep_ticks = 0L;
+	}
+		
 	/* Get an event (or null) */
-	GetNextEvent(everyEvent, &event);
-
+	WaitNextEvent(everyEvent, &event, sleep_ticks, nil);
+ 
 	/* Hack -- Nothing is ready yet */
 	if (event.what == nullEvent) return (FALSE);
 
@@ -5853,10 +5860,8 @@ static vptr lifeboat = NULL;
 /*
  * Hook to "release" memory
  */
-static vptr hook_rnfree(vptr v, huge size)
+static vptr hook_rnfree(vptr v)
 {
-
-#pragma unused (size)
 
 #ifdef USE_MALLOC
 
@@ -6237,9 +6242,8 @@ int main(void)
 	/* Prepare the windows */
 	init_windows();
 	
-	
 	/* Hack -- process all events */
-	while (CheckEvents(TRUE)) /* loop */;
+	while (CheckEvents(FALSE)) /* loop */;
 
 	/* Reset the cursor */
 #ifdef TARGET_CARBON
@@ -6267,7 +6271,7 @@ int main(void)
 
 
 	/* Hack -- process all events */
-	while (CheckEvents(TRUE)) /* loop */;
+	while (CheckEvents(FALSE)) /* loop */;
 
 
 	/* We are now initialized */
@@ -6279,7 +6283,7 @@ int main(void)
 
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
+	prt("[Choose 'New' or 'Open' from the 'File' menu]", 15, 23);
 
 	/* Flush the prompt */
 	Term_fresh();

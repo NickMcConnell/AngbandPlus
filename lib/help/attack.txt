@@ -130,6 +130,13 @@ may in fact reach a target, but fails to do any damage. Higher armor
 class makes it harder to do damage, and so leads to more misses; it
 will also reduce the damage from a strike that actually occurs.
 
+You can find out roughly how much damage your missile weapons will do
+by looking at the (+#/+#) value on the ammunition in your inventory.
+The two numbers indicate the average damage done per shot, and average
+damage done per round.  These numbers take into account whether or not
+you have identified your ammunition and launcher.  The two numbers can
+differ because different launchers take differing energies to fire.
+
 The varying types of missile launchers each have their own strengths
 and weaknesses. Which can be summarized as follows:
 

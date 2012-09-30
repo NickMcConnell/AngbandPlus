@@ -1,53 +1,74 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/12 11:14:03 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/12/24 17:07:33 $
 # File: misc.txt
 
+# This file is used to initialize the "lib/data/z_info.raw" file, which is
+# used to initialize the "array sizes" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/z_info.raw" file.
+
+# Version stamp (required)
+
+V:2.8.1
+
+# Maximum number of feature types
+M:F:160
+
+# Maximum number of object kinds
+M:K:582
+
+# Maximum number of artifacts
+M:A:128
+
+# Maximum number of ego-item types
+M:E:128
+
+# Maximum number of monster races
+M:R:885
+
+# Maximum number of vaults
+M:V:126
 
 # Maximum number of quests
 M:Q:100
 
-# Maximum size of the wilderness
-M:WS:129
-
-# Maximum number of nodes in the wilderness decision tree
-M:WN:250
-
-# Maximum number of wilderness block generation types
-M:WT:300
-
-# Maximum number of "places" in the wilderness
-M:WP:20
-
-# Maximum number of monsters in r_info.txt
-M:R:885
-
-# Maximum number of items in k_info.txt
-M:K:582
-
-# Maximum number of vaults in v_info.txt
-M:V:126
-
-# Maximum number of terrain features in f_info.txt
-M:F:160
-
-# Maximum number of artifacts in a_info.txt
-M:A:128
-
-# Maximum number of ego-items in e_info.txt
-M:E:128
-
-# Maximum number of field types in t_info.txt
-M:T:142
-
-# Maximum size for "o_list[]"
-# Increase this if you get lots of 'Generation restarted (too many objects)' messages.
-M:O:512
-
-# Maximum size for "m_list[]"
-# Increase this if you get lots of 'Generation restarted (too many monsters)' messages.
-M:M:1024
+# Maximum number of field types
+M:U:142
 
 # Maximum size for "fld_list[]"
 # Increase this if you get lots of 'Compacting fields...' messages.
 M:D:512
 
+# Maximum size of the wilderness
+M:W:S:129
 
+# Maximum number of nodes in the wilderness decision tree
+M:W:N:250
+
+# Maximum number of wilderness block generation types
+M:W:T:300
+
+# Maximum number of "places" in the wilderness (towns + quests)
+M:W:P:40
+
+# Maximum number of active "regions" in dungeon / wilderness
+M:G:10
+
+# Maximum number of objects
+M:O:512
+
+# Maximum number of monsters
+M:M:1024
+
+#
+# Array sizes (in bytes) for some initialization stuff
+#
+
+# Size of the "fake" array for reading in names of monsters, objects,
+# artifacts, store-owners, player-races, ...
+M:N:40960
+
+# Size of the "fake" array for reading in the descriptions of monsters,
+# vaults, and the player-histories
+M:T:122880

@@ -246,21 +246,44 @@ GraphicsContext *buffer;
 /* The font data */
 static void *font;
 
+/* Look for a font to use */
+static gzFile get_fontfile(void)
+{
+	gzFile fontfile;
+	
+	fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf.gz","r");
+	if (fontfile) return (fontfile);
+
+	/* Try uncompressed */
+	fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf","r");
+	if (fontfile) return (fontfile);
+	
+	/* Debian is special... */
+	fontfile = gzopen("/usr/share/consolefonts/lat1-12.psf.gz","r");
+	if (fontfile) return (fontfile);
+
+	/* Try uncompressed */
+	fontfile = gzopen("/usr/share/consolefonts/lat1-12.psf","r");
+	if (fontfile) return (fontfile);
+	
+	/* Failure */
+	return (NULL);
+}
+
+
 /* Initialize the screen font */
 static void initfont(void)
 {
 	gzFile fontfile;
 	void *temp;
 	long junk;
-
-	if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf.gz","r")))
+	
+	fontfile = get_fontfile();
+	
+	if (!(fontfile))
 	{
-		/* Try uncompressed */
-		if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf","r")))
-		{
-			printf ("Error: could not open font file.  Aborting....\n");
-			exit(1);
-		}
+		quit("Error: could not open font file.  Aborting....\n");
+		exit(1);
 	}
 
 	/* Junk the 4-byte header */
@@ -286,7 +309,7 @@ static void initfont(void)
 	gl_setfont(8, 12, font);
 	
 	/* Cleanup */
-	C_FREE(temp, 256 * 13, byte);
+	free(temp);
 	gzclose(fontfile);
 }
 
@@ -338,8 +361,8 @@ static errr term_xtra_svgalib(int n, int v)
  		case TERM_XTRA_EVENT:
 		{
 			/* Process some pending events */
-			if (v) return (CheckEvents (FALSE));
-			while (!CheckEvents (TRUE));
+			if (v) return (CheckEvents(FALSE));
+			while (!CheckEvents(TRUE));
 			return 0;
 		}
 		
@@ -353,7 +376,7 @@ static errr term_xtra_svgalib(int n, int v)
 		case TERM_XTRA_CLEAR:
 		{
 			/* Clear the entire window */
-			gl_fillbox (0, 0, 80 * CHAR_W, 25 * CHAR_H, 0);
+			gl_fillbox(0, 0, 80 * CHAR_W, 25 * CHAR_H, 0);
 			return 0;
 		}
 
@@ -449,12 +472,12 @@ static void term_load_bitmap(void)
 	/* Build the "graf" path */
 	path_build(path, 1024, ANGBAND_DIR_XTRA, "graf");
 
-	sprintf (path, "%s/8x13.bmp", path);
+	sprintf(path, "%s/8x13.bmp", path);
   
 	/* See if the file exists */
 	if (fd_close(fd_open(path, O_RDONLY)))
 	{
-		printf ("Unable to load bitmap data file %s, bailing out....\n", path);
+		quit_fmt("Unable to load bitmap data file %s, bailing out....\n", path);
 		exit (-1);
 	}
 	
@@ -463,7 +486,7 @@ static void term_load_bitmap(void)
 	/* Blit bitmap into buffer */
 	gl_putbox(0, 0, bw, bh, temp);
 	
-	FREE(temp, byte);
+	FREE(temp);
 
 	return;
 }
@@ -540,6 +563,18 @@ static void term_nuke_svgalib(term *t)
 }
 
 /*
+ * Quit hook - go back to text mode
+ */
+static void hook_quit(cptr str)
+{
+	/* Hack - Ignore parameter */
+	(void) str;
+
+	/* Go back to text mode */
+	vga_setmode(TEXT);
+}
+
+/*
  * Hook SVGAlib routines into term.c
  */
 errr init_lsl(void)
@@ -550,10 +585,13 @@ errr init_lsl(void)
 
 	if (arg_graphics)
 	{
-		use_graphics = TRUE;
+		use_graphics = GRAPHICS_ORIGINAL;
 	}
 	
 #endif /* USE_GRAPHICS */
+
+	/* Quit hook */
+	quit_aux = hook_quit;
 
 	/* Initialize the term */
 	term_init(t, 80, 24, 1024);
@@ -582,7 +620,7 @@ errr init_lsl(void)
 	t->wipe_hook = term_wipe_svgalib;
 	t->curs_hook = term_curs_svgalib;
 	t->xtra_hook = term_xtra_svgalib;
-
+	
 	/* Save the term */
 	term_screen = t;
 	

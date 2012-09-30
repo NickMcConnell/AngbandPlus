@@ -205,33 +205,48 @@ struct term
 	term_win *tmp;
 	term_win *mem;
 
-	void (*init_hook)(term *t);
-	void (*nuke_hook)(term *t);
+	void (*init_hook) (term *t);
+	void (*nuke_hook) (term *t);
 
-	errr (*user_hook)(int n);
+	errr (*user_hook) (int n);
 
-	errr (*xtra_hook)(int n, int v);
+	errr (*xtra_hook) (int n, int v);
 
-	errr (*curs_hook)(int x, int y);
+	errr (*curs_hook) (int x, int y);
 
-	errr (*wipe_hook)(int x, int y, int n);
+	errr (*wipe_hook) (int x, int y, int n);
 
-	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
+	errr (*text_hook) (int x, int y, int n, byte a, cptr s);
 
-	void (*resize_hook)(void);
+	void (*resize_hook) (void);
 
 #ifdef USE_TRANSPARENCY
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
-#else /* USE_TRANSPARENCY */
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp);
+	errr (*pict_hook) (int x, int y, int n, const byte *ap, const char *cp,
+					   const byte *tap, const char *tcp);
+#else  /* USE_TRANSPARENCY */
+	errr (*pict_hook) (int x, int y, int n, const byte *ap, const char *cp);
 #endif /* USE_TRANSPARENCY */
 
 };
 
 
+#ifdef USE_TERM_MAP
 
+/*
+ * Map data structure
+ */
+typedef struct term_map term_map;
 
+struct term_map
+{
+	u16b object;
+	u16b monster;
+	u16b field;
+	byte terrain;
+	byte flags;
+};
 
+#endif /* USE_TERM_MAP */
 
 
 /**** Available Constants ****/
@@ -254,19 +269,36 @@ struct term
  *
  * The other actions do not need a "v" code, so "zero" is used.
  */
-#define TERM_XTRA_EVENT	1	/* Process some pending events */
-#define TERM_XTRA_FLUSH 2	/* Flush all pending events */
-#define TERM_XTRA_CLEAR 3	/* Clear the entire window */
-#define TERM_XTRA_SHAPE 4	/* Set cursor shape (optional) */
-#define TERM_XTRA_FROSH 5	/* Flush one row (optional) */
-#define TERM_XTRA_FRESH 6	/* Flush all rows (optional) */
-#define TERM_XTRA_NOISE 7	/* Make a noise (optional) */
-#define TERM_XTRA_SOUND 8	/* Make a sound (optional) */
-#define TERM_XTRA_BORED 9	/* Handle stuff when bored (optional) */
-#define TERM_XTRA_REACT 10	/* React to global changes (optional) */
-#define TERM_XTRA_ALIVE 11	/* Change the "hard" level (optional) */
-#define TERM_XTRA_LEVEL 12	/* Change the "soft" level (optional) */
-#define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
+#define TERM_XTRA_EVENT	1		/* Process some pending events */
+#define TERM_XTRA_FLUSH 2		/* Flush all pending events */
+#define TERM_XTRA_CLEAR 3		/* Clear the entire window */
+#define TERM_XTRA_SHAPE 4		/* Set cursor shape (optional) */
+#define TERM_XTRA_FROSH 5		/* Flush one row (optional) */
+#define TERM_XTRA_FRESH 6		/* Flush all rows (optional) */
+#define TERM_XTRA_NOISE 7		/* Make a noise (optional) */
+#define TERM_XTRA_SOUND 8		/* Make a sound (optional) */
+#define TERM_XTRA_BORED 9		/* Handle stuff when bored (optional) */
+#define TERM_XTRA_REACT 10		/* React to global changes (optional) */
+#define TERM_XTRA_ALIVE 11		/* Change the "hard" level (optional) */
+#define TERM_XTRA_LEVEL 12		/* Change the "soft" level (optional) */
+#define TERM_XTRA_DELAY 13		/* Delay some milliseconds (optional) */
+#define TERM_XTRA_ERMAP 14		/* Erase the overhead map (optional) */
+
+/*
+ * This is used by the Borg and by ports that like to
+ * draw a "graphical" small-scale map
+ */
+#ifdef TERM_USE_MAP
+
+/*
+ * Constants used to pass lighting information to users
+ * of the overhead map hooks.
+ */
+#define MAP_SEEN	0x01
+#define MAP_GLOW	0x02
+#define MAP_LITE	0x04
+
+#endif /* TERM_USE_MAP */
 
 
 /**** Available Variables ****/
@@ -282,8 +314,9 @@ extern void Term_xtra(int n, int v);
 #ifdef USE_TRANSPARENCY
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
 
-extern void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta, char *tc);
-#else /* USE_TRANSPARENCY */
+extern void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta,
+							char *tc);
+#else  /* USE_TRANSPARENCY */
 extern void Term_queue_char(int x, int y, byte a, char c);
 
 extern void Term_queue_line(int x, int y, int n, byte *a, char *c);
@@ -326,6 +359,13 @@ extern void Term_activate(term *t);
 extern errr term_nuke(term *t);
 extern errr term_init(term *t, int w, int h, int k);
 
-#endif
+#ifdef USE_TERM_MAP
 
+extern errr (*term_map_hook) (int x, int y, term_map data) = NULL;
+extern errr (*term_erase_map_hook) (void) = NULL;
+extern void Term_write_map(int x, int y, cave_type *c_ptr, pcave_type *pc_ptr);
+extern void Term_erase_map(void);
 
+#endif /* USE_TERM_MAP */
+
+#endif /* INCLUDED_Z_TERM_H */

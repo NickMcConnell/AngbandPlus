@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/13 04:55:54 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/11/25 15:02:48 $
 # File: Makefile.win
 
 # For Borland C++ 4.52 Win16 and Win32
@@ -29,7 +29,7 @@ SRCS = \
   wizard1.c wizard2.c grid.c rooms.c streams.c\
   generate.c dungeon.c init1.c init2.c \
   main-win.c readdib.c \
-  effects.c racial.c \
+  effects.c quest.c racial.c \
   artifact.c mutation.c flavor.c spells3.c \
   mspells1.c mspells2.c scores.c mind.c \
   bldg.c obj_kind.c wild1.c wild2.c avatar.c notes.c
@@ -45,7 +45,7 @@ OBJS = \
   wizard1.obj wizard2.obj grid.obj rooms.obj streams.obj \
   generate.obj dungeon.obj init1.obj init2.obj \
   main-win.obj readdib.obj \
-  effects.o racial.o \
+  effects.o quest.o racial.o \
   artifact.o mutation.o flavor.o spells3.o \
   mspells1.o mspells2.o scores.o mind.o \
   bldg.obj obj_kind.obj wild1.o wild2.o avatar.o notes.o
@@ -61,7 +61,7 @@ OBJS32 = \
   wizard1.o32 wizard2.o32 grid.o32 streams.o32 rooms.o32 \
   generate.o32 dungeon.o32 init1.o32 init2.o32 \
   main-win.o32 readdib.o32 \
-  effects.o32 racial.o32 \
+  effects.o32 quest.o32 racial.o32 \
   artifact.o32 mutation.o32 flavor.o32 spells3.o32 \
   mspells1.o32 mspells2.o32 scores.o32 mind.o32 \
   bldg.o32 obj_kind.o32 wild1.o32 wild2.o32 avatar.o32 notes.o32
@@ -177,7 +177,7 @@ cmd1 cmd2 cmd3 cmd4 cmd5 cmd6 +
 store birth load +
 wizard1 wizard2 +
 generate dungeon init1 init2 +
-effects racial obj_kind +
+effects quest racial obj_kind +
 artifact mutation flavor spells3 +
 mspells1 mspells2 scores mind +
 main-win readdib bldg wild1 wild2 avatar notes,+
@@ -208,7 +208,7 @@ cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 +
 store.o32 birth.o32 load.o32 +
 wizard1.o32 wizard2.o32 grid.o32 streams.o32 rooms.o32 +
 generate.o32 dungeon.o32 init1.o32 init2.o32 +
-effects.o32 racial.o32 obj_kind.o32 +
+effects.o32 quest.o32 racial.o32 obj_kind.o32 +
 artifact.o32 mutation.o32 flavor.o32 spells3.o32 +
 mspells1.o32 mspells2.o32 scores.o32 mind.o32 +
 main-win.o32 readdib.o32 bldg.o32 wild1.o32 wild2.o32 avatar.o32 notes.o32,+

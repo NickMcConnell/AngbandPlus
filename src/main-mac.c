@@ -3977,10 +3977,8 @@ static vptr lifeboat = NULL;
 /*
  * Hook to "release" memory
  */
-static vptr hook_rnfree(vptr v, huge size)
+static vptr hook_rnfree(vptr v)
 {
-
-#pragma unused (size)
 
 #ifdef USE_MALLOC
 
@@ -4409,7 +4407,7 @@ int main(void)
 
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
+	prt("[Choose 'New' or 'Open' from the 'File' menu]", 15, 23);
 
 	/* Flush the prompt */
 	Term_fresh();

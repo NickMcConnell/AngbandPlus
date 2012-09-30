@@ -1,5 +1,7 @@
 N:*:Default
-39
+41
+'Stink'
+'Rirgil'
 of Misery
 of Backbiting
 of Horror

@@ -398,6 +398,11 @@ cringes and whimpers.
 says, 'Look, I promise I won't bite the mailman anymore!'
 says, 'Hey, put that rolled-up newspaper down!'
 
+#LOTR Book5 Chap.10
+N:818:The Mouth of Sauron
+1
+cries, 'I am a herald and ambassador, and may not be assailed!'
+
 N:819:Klingsor, Evil Master of Magic
 4
 wails, 'Dire distress! Dire distress!'
@@ -407,7 +412,6 @@ shouts, 'Ho, guards! Up! Foes are at hand!'
 
 N:830:Cantoras, the Skeletal Lord
 N:831:Mephistopheles, Lord of Hell
-N:818:The Mouth of Sauron
 N:804:Vecna, the Emperor Lich
 N:844:Kaschei the Immortal
 N:856:Gothmog, the High Captain of Balrogs

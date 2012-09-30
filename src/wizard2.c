@@ -12,6 +12,8 @@
 
 #include "angband.h"
 
+#include "script.h"
+
 
 /*
  * Hack -- Rerate Hitpoints
@@ -47,12 +49,12 @@ void do_cmd_rerate(void)
 
 		/* Legal values */
 		if ((p_ptr->player_hp[PY_MAX_LEVEL - 1] >= min_value) &&
-		    (p_ptr->player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
+			(p_ptr->player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
 	}
 
 	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-		(2 * p_ptr->hitdie +
-		((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
+					(2 * p_ptr->hitdie +
+					 ((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
 
 
 	/* Update and redraw hitpoints */
@@ -82,7 +84,7 @@ static void wiz_create_named_art(int a_idx)
 	int py = p_ptr->py;
 
 	/* Create the artifact */
-	create_named_art(a_idx, py, px);
+	create_named_art(a_idx, px, py);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -116,19 +118,19 @@ static void do_cmd_summon_horde(void)
 
 	while (--attempts)
 	{
-		scatter(&wy, &wx, py, px, 3);
+		scatter(&wx, &wy, px, py, 3);
 
 		/* paranoia */
-		if (!in_bounds2(wy, wx)) continue;
+		if (!in_bounds2(wx, wy)) continue;
 
-		c_ptr = area(wy, wx);
+		c_ptr = area(wx, wy);
 		if (cave_naked_grid(c_ptr)) break;
 
 		/* Not under the player */
 		if ((wy == py) && (wx == px)) break;
 	}
 
-	(void)alloc_horde(wy, wx);
+	(void)alloc_horde(wx, wy);
 }
 
 #endif /* MONSTER_HORDES */
@@ -137,10 +139,10 @@ static void do_cmd_summon_horde(void)
 /*
  * Output a long int in binary format.
  */
-static void prt_binary(u32b flags, int row, int col)
+static void prt_binary(u32b flags, int col, int row)
 {
-	int        	i;
-	u32b        bitmask;
+	int i;
+	u32b bitmask;
 
 	/* Scan the flags */
 	for (i = bitmask = 1; i <= 32; i++, bitmask *= 2)
@@ -165,7 +167,7 @@ static void prt_binary(u32b flags, int row, int col)
  *
  * Use a monte-carlo method to calculate the probabilities.
  */
-static void prt_alloc(const object_type *o_ptr, int row, int col, u32b monte)
+static void prt_alloc(const object_type *o_ptr, int col, int row, u32b monte)
 {
 	u32b i, j;
 	u32b maxd = 1, maxr = 1, maxt = 1;
@@ -182,7 +184,7 @@ static void prt_alloc(const object_type *o_ptr, int row, int col, u32b monte)
 	(void)C_WIPE(total, MAX_DEPTH, u32b);
 	(void)C_WIPE(display, 20, u32b);
 
-	msg_print(NULL);
+	message_flush();
 	prt("Calculating probability distribution - please wait.", 0, 0);
 
 	/* Refresh */
@@ -248,31 +250,33 @@ static void prt_alloc(const object_type *o_ptr, int row, int col, u32b monte)
 	/* Graph the rarities */
 	for (i = 0; i < 20; i++)
 	{
-		Term_putch(col, row + i + 1, TERM_WHITE,  '|');
+		Term_putch(col, row + i + 1, TERM_WHITE, '|');
 
 		/* Note the level */
 		if ((i * MAX_DEPTH / 20 <= home) && (home < (i + 1) * MAX_DEPTH / 20))
 		{
-			c_prt(TERM_RED, format("%.*s", display[i], "**********"), row + i + 1, col + 1);
+			c_prt(TERM_RED, format("%.*s", display[i], "**********"), col + 1,
+				  row + i + 1);
 		}
 		else
 		{
-			c_prt(c, format("%.*s", display[i], "**********"), row + i + 1, col + 1);
+			c_prt(c, format("%.*s", display[i], "**********"), col + 1,
+				  row + i + 1);
 		}
 	}
 
 	/* Make it look nice */
-	prt(r, row, col);
+	prt(r, col, row);
 
-	Term_putch(col, row + 2, TERM_WHITE,  '6');
+	Term_putch(col, row + 2, TERM_WHITE, '6');
 
-	Term_putch(col, row + 8, TERM_WHITE,  'A');
-	Term_putch(col, row + 9, TERM_WHITE,  'L');
+	Term_putch(col, row + 8, TERM_WHITE, 'A');
+	Term_putch(col, row + 9, TERM_WHITE, 'L');
 	Term_putch(col, row + 10, TERM_WHITE, 'L');
 	Term_putch(col, row + 11, TERM_WHITE, 'O');
 	Term_putch(col, row + 12, TERM_WHITE, 'C');
 
-	prt("+", row + 21, col);
+	prt("+", col, row + 21);
 }
 
 
@@ -285,7 +289,7 @@ static void do_cmd_wiz_bamf(void)
 	if (!p_ptr->target_who) return;
 
 	/* Teleport to the target */
-	teleport_player_to(p_ptr->target_row, p_ptr->target_col);
+	teleport_player_to(p_ptr->target_col, p_ptr->target_row);
 }
 
 
@@ -311,13 +315,13 @@ static void do_cmd_wiz_change_aux(void)
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
 
 		/* Query */
-		if (!get_string(ppp, tmp_val, 3)) return;
+		if (!get_string(ppp, tmp_val, 4)) return;
 
 		/* Extract */
 		tmp_int = atoi(tmp_val);
 
 		/* Verify */
-		if (tmp_int > 18+100) tmp_int = 18+100;
+		if (tmp_int > 18 + 100) tmp_int = 18 + 100;
 		else if (tmp_int < 3) tmp_int = 3;
 
 		/* Save it */
@@ -329,7 +333,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
 
 	/* Query */
-	if (!get_string("Gold: ", tmp_val, 9)) return;
+	if (!get_string("Gold: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -345,7 +349,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
 
 	/* Query */
-	if (!get_string("Experience: ", tmp_val, 9)) return;
+	if (!get_string("Experience: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -385,6 +389,8 @@ static void do_cmd_wiz_feature(int feat)
 
 	int y, x, d = 3, attempts = 30;
 
+	cave_type *c_ptr;
+
 	while (1)
 	{
 		/* Find a location */
@@ -392,7 +398,7 @@ static void do_cmd_wiz_feature(int feat)
 		x = rand_spread(px, d);
 
 		/* Reject illegal grids */
-		if (!in_bounds(y, x)) continue;
+		if (!in_boundsp(x, y)) continue;
 
 		/* Reject the player */
 		if ((y == py) && (x == px)) continue;
@@ -405,27 +411,27 @@ static void do_cmd_wiz_feature(int feat)
 			attempts = 8 * d;
 		}
 
+		/* Access grid */
+		c_ptr = area(x, y);
+
 		/* Try to place a new feature */
-		if (area(y, x)->feat == feat) continue;
+		if (c_ptr->feat == feat) continue;
 
 		/* Okay */
 		break;
 	}
 
 	/* Nuke objects */
-	delete_object_idx(area(y, x)->o_idx);
+	delete_object_idx(c_ptr->o_idx);
 
 	/* Nuke monsters */
-	delete_monster_idx(area(y, x)->m_idx);
-
-	/* Forget this grid */
-	area(y, x)->info &= ~(CAVE_MARK);
+	delete_monster_idx(c_ptr->m_idx);
 
 	/* Place the feature */
-	cave_set_feat(y, x, feat);
+	cave_set_feat(x, y, feat);
 
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_MON_LITE);
+	/* Change knowledge of grid */
+	parea(x, y)->feat = feat;
 }
 
 
@@ -517,56 +523,56 @@ static void wiz_display_item(const object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Clear the screen */
-	for (i = 1; i <= 23; i++) prt("", i, j - 2);
+	for (i = 1; i <= 23; i++) prt("", j - 2, i);
 
 	/* Describe fully */
-	object_desc_store(buf, o_ptr, TRUE, 3);
+	object_desc_store(buf, o_ptr, TRUE, 3, 256);
 
-	prt(buf, 2, j);
+	prt(buf, j, 2);
 
 	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
-	           o_ptr->k_idx, get_object_level(o_ptr),
-	           o_ptr->tval, o_ptr->sval), 4, j);
+			   o_ptr->k_idx, get_object_level(o_ptr),
+			   o_ptr->tval, o_ptr->sval), j, 4);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
-	           o_ptr->number, o_ptr->weight,
-	           o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
+			   o_ptr->number, o_ptr->weight,
+			   o_ptr->ac, o_ptr->dd, o_ptr->ds), j, 5);
 
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
-	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
+			   o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), j, 6);
 
 	prt(format("activate = %-4d  cost = %ld",
-	           o_ptr->activate, (long)object_value(o_ptr)), 7, j);
+			   o_ptr->activate, (long)object_value(o_ptr)), j, 7);
 
 	prt(format("ident = %04x  timeout = %-d",
-	           o_ptr->ident, o_ptr->timeout), 8, j);
+			   o_ptr->ident, o_ptr->timeout), j, 8);
 
-	prt("+------------FLAGS1------------+", 10, j);
-	prt("AFFECT........SLAY........BRAND.", 11, j);
-	prt("              cvae      xsqpaefc", 12, j);
-	prt("siwdcc  ssidsahanvudotgddhuoclio", 13, j);
-	prt("tnieoh  trnipttmiinmrrnrrraiierl", 14, j);
-	prt("rtsxna..lcfgdkcpmldncltggpksdced", 15, j);
-	prt_binary(f1, 16, j);
+	prt("+------------FLAGS1------------+", j, 10);
+	prt("AFFECT........SLAY........BRAND.", j, 11);
+	prt("              cvae      xsqpaefc", j, 12);
+	prt("siwdcc  ssidsahanvudotgddhuoclio", j, 13);
+	prt("tnieoh  trnipttmiinmrrnrrraiierl", j, 14);
+	prt("rtsxna..lcfgdkcpmldncltggpksdced", j, 15);
+	prt_binary(f1, j, 16);
 
-	prt("+------------FLAGS2------------+", 17, j);
-	prt("SUST...IMMUN..RESIST............", 18, j);
-	prt("        aefctrpsaefcpfldbc sn   ", 19, j);
-	prt("siwdcc  clioheatcliooeialoshtncd", 20, j);
-	prt("tnieoh  ierlrfraierliatrnnnrhehi", 21, j);
-	prt("rtsxna..dcedwlatdcedsrekdfddrxss", 22, j);
-	prt_binary(f2, 23, j);
+	prt("+------------FLAGS2------------+", j, 17);
+	prt("SUST...IMMUN..RESIST............", j, 18);
+	prt("        aefctrpsaefcpfldbc sn   ", j, 19);
+	prt("siwdcc  clioheatcliooeialoshtncd", j, 20);
+	prt("tnieoh  ierlrfraierliatrnnnrhehi", j, 21);
+	prt("rtsxna..dcedwlatdcedsrekdfddrxss", j, 22);
+	prt_binary(f2, j, 23);
 
-	prt("+------------FLAGS3------------+", 10, j+32);
-	prt("fe      ehsi  st    iiiiadta  hp", 11, j+32);
-	prt("il   n taihnf ee    ggggcregb vr", 12, j+32);
-	prt("re  no ysdose eld   nnnntalrl ym", 13, j+32);
-	prt("ec  om cyewta ieirmsrrrriieaeccc", 14, j+32);
-	prt("aa  ta uktmatlnpgeihaefcvnpvsuuu", 15, j+32);
-	prt("uu  eg rnyoahivaeggoclioaeoasrrr", 16, j+32);
-	prt("rr  li sopdretitsehtierltxrtesss", 17, j+32);
-	prt("aa  ec ewestreshtntsdcedeptedeee", 18, j+32);
-	prt_binary(f3, 19, j+32);
+	prt("+------------FLAGS3------------+", j + 32, 10);
+	prt("fe      ehsi  st    iiiiadta  hp", j + 32, 11);
+	prt("il   n taihnf ee    ggggcregb vr", j + 32, 12);
+	prt("re  no ysdose eld   nnnntalrl ym", j + 32, 13);
+	prt("ec  om cyewta ieirmsrrrriieaeccc", j + 32, 14);
+	prt("aa  ta uktmatlnpgeihaefcvnpvsuuu", j + 32, 15);
+	prt("uu  eg rnyoahivaeggoclioaeoasrrr", j + 32, 16);
+	prt("rr  li sopdretitsehtierltxrtesss", j + 32, 17);
+	prt("aa  ec ewestreshtntsdcedeptedeee", j + 32, 18);
+	prt_binary(f3, j + 32, 19);
 }
 
 
@@ -575,56 +581,57 @@ static void wiz_display_item(const object_type *o_ptr)
  */
 typedef struct tval_desc
 {
-	int        tval;
-	cptr       desc;
-} tval_desc;
+	int tval;
+	cptr desc;
+}
+tval_desc;
 
 /*
  * A list of tvals and their textual names
  */
 static const tval_desc tvals[] =
 {
-	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
-	{ TV_BOW,               "Bow"                  },
-	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
-	{ TV_SHIELD,            "Shield"               },
-	{ TV_CROWN,             "Crown"                },
-	{ TV_HELM,              "Helm"                 },
-	{ TV_GLOVES,            "Gloves"               },
-	{ TV_BOOTS,             "Boots"                },
-	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
-	{ TV_RING,              "Ring"                 },
-	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
-	{ TV_POTION,            "Potion"               },
-	{ TV_SCROLL,            "Scroll"               },
-	{ TV_WAND,              "Wand"                 },
-	{ TV_STAFF,             "Staff"                },
-	{ TV_ROD,               "Rod"                  },
-	{ TV_LIFE_BOOK,         "Life Spellbook"       },
-	{ TV_SORCERY_BOOK,      "Sorcery Spellbook"    },
-	{ TV_NATURE_BOOK,       "Nature Spellbook"     },
-	{ TV_CHAOS_BOOK,        "Chaos Spellbook"      },
-	{ TV_DEATH_BOOK,        "Death Spellbook"      },
-	{ TV_TRUMP_BOOK,        "Trump Spellbook"      },
-	{ TV_ARCANE_BOOK,       "Arcane Spellbook"     },
-	{ TV_SPIKE,             "Spikes"               },
-	{ TV_DIGGING,           "Digger"               },
-	{ TV_CHEST,             "Chest"                },
-	{ TV_FIGURINE,          "Magical Figurine"     },
-	{ TV_STATUE,            "Statue"               },
-	{ TV_FOOD,              "Food"                 },
-	{ TV_FLASK,             "Flask"                },
-	{ TV_JUNK,              "Junk"                 },
-	{ TV_SKELETON,          "Skeleton"             },
-	{ 0,                    NULL                   }
+	{TV_SWORD, "Sword"},
+	{TV_POLEARM, "Polearm"},
+	{TV_HAFTED, "Hafted Weapon"},
+	{TV_BOW, "Bow"},
+	{TV_ARROW, "Arrows"},
+	{TV_BOLT, "Bolts"},
+	{TV_SHOT, "Shots"},
+	{TV_SHIELD, "Shield"},
+	{TV_CROWN, "Crown"},
+	{TV_HELM, "Helm"},
+	{TV_GLOVES, "Gloves"},
+	{TV_BOOTS, "Boots"},
+	{TV_CLOAK, "Cloak"},
+	{TV_DRAG_ARMOR, "Dragon Scale Mail"},
+	{TV_HARD_ARMOR, "Hard Armor"},
+	{TV_SOFT_ARMOR, "Soft Armor"},
+	{TV_RING, "Ring"},
+	{TV_AMULET, "Amulet"},
+	{TV_LITE, "Lite"},
+	{TV_POTION, "Potion"},
+	{TV_SCROLL, "Scroll"},
+	{TV_WAND, "Wand"},
+	{TV_STAFF, "Staff"},
+	{TV_ROD, "Rod"},
+	{TV_LIFE_BOOK, "Life Spellbook"},
+	{TV_SORCERY_BOOK, "Sorcery Spellbook"},
+	{TV_NATURE_BOOK, "Nature Spellbook"},
+	{TV_CHAOS_BOOK, "Chaos Spellbook"},
+	{TV_DEATH_BOOK, "Death Spellbook"},
+	{TV_TRUMP_BOOK, "Trump Spellbook"},
+	{TV_ARCANE_BOOK, "Arcane Spellbook"},
+	{TV_SPIKE, "Spikes"},
+	{TV_DIGGING, "Digger"},
+	{TV_CHEST, "Chest"},
+	{TV_FIGURINE, "Magical Figurine"},
+	{TV_STATUE, "Statue"},
+	{TV_FOOD, "Food"},
+	{TV_FLASK, "Flask"},
+	{TV_JUNK, "Junk"},
+	{TV_SKELETON, "Skeleton"},
+	{0, NULL}
 };
 
 
@@ -685,7 +692,7 @@ static int wiz_create_itemtype(void)
 		row = 2 + (num % 20);
 		col = 30 * (num / 20);
 		ch = listsym[num];
-		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
+		prt(format("[%c] %s", ch, tvals[num].desc), col, row);
 	}
 
 	/* We need to know the maximal possible tval_index */
@@ -714,7 +721,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 60) && (i < max_k_idx); i++)
+	for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -730,7 +737,7 @@ static int wiz_create_itemtype(void)
 			strip_name(buf, i);
 
 			/* Print it */
-			prt(format("[%c] %s", ch, buf), row, col);
+			prt(format("[%c] %s", ch, buf), col, row);
 
 			/* Remember the object index */
 			choice[num++] = i;
@@ -768,31 +775,31 @@ static void wiz_tweak_item(object_type *o_ptr)
 
 	p = "Enter new 'pval' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->pval);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->pval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_a' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_a);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_a = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_h' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_h);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_h = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_d' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_d);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_d = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'activate' setting: ";
-	sprintf(tmp_val, "%d", (int) o_ptr->activate);
-	if (!get_string(p, tmp_val, 5)) return;
+	sprintf(tmp_val, "%d", (int)o_ptr->activate);
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->activate = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 }
@@ -811,8 +818,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 	bool changed = FALSE;
 
 	/* Hack -- leave normal artifacts alone */
-	if ((o_ptr->flags3 & TR3_INSTA_ART) &&
-		(o_ptr->activate > 128)) return;
+	if ((o_ptr->flags3 & TR3_INSTA_ART) && (o_ptr->activate > 128)) return;
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -828,7 +834,8 @@ static void wiz_reroll_item(object_type *o_ptr)
 		wiz_display_item(q_ptr);
 
 		/* Ask wizard what to do. */
-		if (!get_com("[a]ccept, [w]orthless, [n]ormal, [e]xcellent, [s]pecial? ", &ch))
+		if (!get_com
+			("[a]ccept, [w]orthless, [n]ormal, [e]xcellent, [s]pecial? ", &ch))
 		{
 			/* Preserve wizard-generated artifacts */
 			if ((q_ptr->flags3 & TR3_INSTA_ART) && (q_ptr->activate > 128))
@@ -854,35 +861,35 @@ static void wiz_reroll_item(object_type *o_ptr)
 			a_info[q_ptr->activate - 128].cur_num = 0;
 			q_ptr->activate = 0;
 			q_ptr->xtra_name = 0;
-			
+
 			/* Remove the artifact flag */
 			o_ptr->flags3 &= ~(TR3_INSTA_ART);
 		}
 
 		switch (ch)
 		{
-			/* Apply bad magic, but first clear object */
-			case 'w': case 'W':
+			case 'w':  case 'W':
 			{
+				/* Apply bad magic, but first clear object */
 				object_prep(q_ptr, o_ptr->k_idx);
 				apply_magic(q_ptr, p_ptr->depth, 0, OC_FORCE_BAD);
 				break;
 			}
-			/* Apply normal magic, but first clear object */
-			case 'n': case 'N':
+			case 'n':  case 'N':
 			{
+				/* Apply normal magic, but first clear object */
 				object_prep(q_ptr, o_ptr->k_idx);
 				apply_magic(q_ptr, p_ptr->depth, 0, OC_NORMAL);
 				break;
 			}
-			/* Apply great magic, but first clear object */
-			case 'e': case 'E':
+			case 'e':  case 'E':
 			{
+				/* Apply great magic, but first clear object */
 				object_prep(q_ptr, o_ptr->k_idx);
 				apply_magic(q_ptr, p_ptr->depth, 30, OC_FORCE_GOOD);
 				break;
 			}
-			case 's': case 'S':
+			case 's':  case 'S':
 			{
 				object_prep(q_ptr, o_ptr->k_idx);
 
@@ -931,12 +938,12 @@ static void wiz_statistics(object_type *o_ptr)
 	cptr p = "Enter number of items to roll: ";
 	char tmp_val[80];
 
-	sprintf(tmp_val, "%ld", (long) test_roll);
-	if (get_string(p, tmp_val, 10)) test_roll = atol(tmp_val);
+	sprintf(tmp_val, "%ld", (long)test_roll);
+	if (get_string(p, tmp_val, 11)) test_roll = atol(tmp_val);
 	test_roll = MAX(1, test_roll);
 
 	/* Display the rarity graph */
-	prt_alloc(o_ptr, 2, 0, test_roll);
+	prt_alloc(o_ptr, 0, 2, test_roll);
 }
 
 
@@ -945,9 +952,9 @@ static void wiz_statistics(object_type *o_ptr)
  */
 static void wiz_quantity_item(object_type *o_ptr)
 {
-	int         tmp_int, tmp_qnt;
+	int tmp_int, tmp_qnt;
 
-	char        tmp_val[100];
+	char tmp_val[100];
 
 
 	/* Never duplicate artifacts */
@@ -960,7 +967,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 	sprintf(tmp_val, "%d", (int)o_ptr->number);
 
 	/* Query */
-	if (get_string("Quantity: ", tmp_val, 2))
+	if (get_string("Quantity: ", tmp_val, 3))
 	{
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -994,7 +1001,7 @@ static void do_cmd_wiz_play(void)
 {
 	int item;
 
-	object_type	forge;
+	object_type forge;
 	object_type *q_ptr;
 
 	object_type *o_ptr;
@@ -1036,8 +1043,8 @@ static void do_cmd_wiz_play(void)
 	/* Display the item */
 	wiz_display_item(q_ptr);
 
-	/* Display the rarity graph - turned off for now (too slow).*/
-	/* prt_alloc(o_ptr, 2, 0, 1000); */
+	/* Display the rarity graph - turned off for now (too slow). */
+	/* prt_alloc(o_ptr, 0, 2, 1000); */
 
 	/* The main loop */
 	while (TRUE)
@@ -1046,7 +1053,8 @@ static void do_cmd_wiz_play(void)
 		wiz_display_item(q_ptr);
 
 		/* Get choice */
-		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity? ", &ch))
+		if (!get_com
+			("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity? ", &ch))
 		{
 			break;
 		}
@@ -1121,16 +1129,7 @@ static void do_cmd_wiz_play(void)
  */
 static void wiz_create_item(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-	int i;
-
-	object_type	forge;
-	object_type *q_ptr;
-	object_kind *k_ptr;
-
 	int k_idx;
-
 
 	/* Save the screen */
 	screen_save();
@@ -1141,48 +1140,10 @@ static void wiz_create_item(void)
 	/* Restore the screen */
 	screen_load();
 
-
-	/* Return if failed */
 	if (!k_idx) return;
 
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Create the item */
-	object_prep(q_ptr, k_idx);
-
-	k_ptr = &k_info[k_idx];
-
-	if (k_ptr->flags3 & TR3_INSTA_ART)
-	{
-		/* Find the "special" artifact this object belongs to */
-		for (i = 1; i < max_a_idx; i++)
-		{
-			artifact_type *a_ptr = &a_info[i];
-
-			/* Skip "empty" artifacts */
-			if (!a_ptr->name) continue;
-
-			if ((a_ptr->tval == k_ptr->tval) && (a_ptr->sval == k_ptr->sval))
-			{
-				/* found it */
-				create_named_art(i, py, px);
-
-				/* All done */
-				msg_print("Allocated.");
-
-				return;
-			}
-		}
-	}
-	else
-	{
-		/* Apply magic */
-		apply_magic(q_ptr, p_ptr->depth, 0, 0);
-	}
-
-	/* Drop the object from heaven */
-	(void)drop_near(q_ptr, -1, py, px);
+	/* Place the object */
+	place_specific_object(p_ptr->px, p_ptr->py, p_ptr->depth, k_idx);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -1243,18 +1204,18 @@ static void do_cmd_wiz_jump(void)
 	/* Ask for level */
 	if (p_ptr->command_arg <= 0)
 	{
-		char	ppp[80];
+		char ppp[80];
 
-		char	tmp_val[160];
+		char tmp_val[160];
 
 		/* Prompt */
-		sprintf(ppp, "Jump to level (0-%d): ", MAX_DEPTH-1);
+		sprintf(ppp, "Jump to level (0-%d): ", MAX_DEPTH - 1);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->depth);
 
 		/* Ask for a level */
-		if (!get_string(ppp, tmp_val, 10)) return;
+		if (!get_string(ppp, tmp_val, 11)) return;
 
 		/* Extract request */
 		p_ptr->command_arg = atoi(tmp_val);
@@ -1273,17 +1234,6 @@ static void do_cmd_wiz_jump(void)
 
 	/* Change level */
 	p_ptr->depth = p_ptr->command_arg;
-	leaving_quest = p_ptr->inside_quest;
-
-	/* Leaving an 'only once' quest marks it as failed */
-	if (leaving_quest &&
-		(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-		(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-	{
-		quest[leaving_quest].status = QUEST_STATUS_FAILED;
-	}
-
-	p_ptr->inside_quest = 0;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -1301,7 +1251,7 @@ static void do_cmd_wiz_learn(void)
 	object_type *q_ptr;
 
 	/* Scan every object */
-	for (i = 1; i < max_k_idx; i++)
+	for (i = 1; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -1333,7 +1283,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE);
+		(void)summon_specific(0, px, py, p_ptr->depth, 0, TRUE, FALSE, FALSE);
 	}
 }
 
@@ -1356,7 +1306,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 	/* if (!r_idx) return; */
 
 	/* Prevent illegal monsters */
-	if (r_idx >= max_r_idx) return;
+	if (r_idx >= z_info->r_max) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1364,17 +1314,20 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&y, &x, py, px, d);
+		scatter(&x, &y, px, py, d);
 
 		/* paranoia */
-		if (!in_bounds2(y, x)) continue;
+		if (!in_bounds2(x, y)) continue;
 
 		/* Require empty grids */
-		c_ptr = area(y, x);
+		c_ptr = area(x, y);
 		if (!cave_empty_grid(c_ptr)) continue;
 
+		/* Not on player */
+		if ((x == px) && (y == py)) continue;
+
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, FALSE)) break;
+		if (place_monster_aux(x, y, r_idx, slp, TRUE, FALSE, FALSE)) break;
 	}
 }
 
@@ -1386,7 +1339,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
  */
 static void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 {
-	(void)summon_named_creature(p_ptr->py, p_ptr->px, r_idx, slp, TRUE, TRUE);
+	(void)summon_named_creature(p_ptr->px, p_ptr->py, r_idx, slp, TRUE, TRUE);
 }
 
 
@@ -1436,43 +1389,6 @@ static void do_cmd_wiz_zap_all(void)
 	/* Update some things */
 	p_ptr->update |= (PU_MON_LITE);
 }
-
-
-#ifdef USE_SCRIPT
-
-/*
- * Hack -- Execute a script function
- */
-static void do_cmd_wiz_script(void)
-{
-	int err;
-	char name[80];
-
-	/* Get name of script to execute */
-	name[0] = '\0';
-
-	if (!get_string("Function name: ", name, 80)) return;
-
-	/* No name, no execute */
-	if (name[0] == '\0')
-	{
-		msg_print("Cancelled.");
-		return;
-	}
-
-	/* Execute script */
-	err = script_execute(name);
-
-	/* Error */
-	if (err)
-	{
-		msg_print("Failed.");
-		return;
-	}
-}
-
-#endif /* USE_SCRIPT */
-
 
 
 #ifdef ALLOW_SPOILERS
@@ -1549,7 +1465,7 @@ static void outflagmatlab2(u32b flag, FILE *fff, int hp)
 	char buf[10];
 
 	i = 1;
-	for (j = 0; j < 32; j++, i<<=1)
+	for (j = 0; j < 32; j++, i <<= 1)
 	{
 		/* If the bit is set */
 		if (flag & i)
@@ -1675,14 +1591,8 @@ void output_monster_matlab(void)
 	/* Create the file name */
 	path_build(buf, 500, ANGBAND_DIR_SAVE, "monmatlb.m");
 
-	/* Drop priv's */
-	safe_setuid_drop();
-
 	/* Open file */
 	fff = my_fopen(buf, "w");
-
-	/* Grab priv's */
-	safe_setuid_grab();
 
 	/* Failure */
 	if (!fff) return;
@@ -1691,7 +1601,7 @@ void output_monster_matlab(void)
 	fprintf(fff, "xx=[];\n");
 
 	/* Min and max monsters to output in the matrix */
-	max = max_r_idx;
+	max = z_info->r_max;
 	min = 20;
 
 	for (i = min; i < max; i++)
@@ -1699,7 +1609,7 @@ void output_monster_matlab(void)
 		fprintf(fff, "x=[");
 
 		/* Get race */
-		r_ptr =  &r_info[i];
+		r_ptr = &r_info[i];
 
 		/* Hitpoints x2 */
 		hp = r_ptr->hdice * (r_ptr->hside + 1);
@@ -1740,10 +1650,10 @@ void output_monster_matlab(void)
 	for (i = min; i < max; i++)
 	{
 		/* Get race */
-		r_ptr =  &r_info[i];
+		r_ptr = &r_info[i];
 
 		/* Output the level */
-		sprintf(buf2, "%d ",  monster_power_mat(r_ptr->level));
+		sprintf(buf2, "%d ", monster_power_mat(r_ptr->level));
 
 		fprintf(fff, "%s", buf2);
 	}
@@ -1756,7 +1666,7 @@ void output_monster_matlab(void)
 	for (i = min; i < max; i++)
 	{
 		/* Get race */
-		r_ptr =  &r_info[i];
+		r_ptr = &r_info[i];
 
 		/* Output the experience for a kill */
 		sprintf(buf2, "%ld ", r_ptr->mexp);
@@ -1779,8 +1689,8 @@ void do_cmd_debug(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int     x, y;
-	char    cmd;
+	int x, y;
+	char cmd;
 
 
 	/* Get a "debug command" */
@@ -1789,200 +1699,234 @@ void do_cmd_debug(void)
 	/* Analyze the command */
 	switch (cmd)
 	{
-		/* Nothing */
 		case ESCAPE:
 		case ' ':
 		case '\n':
 		case '\r':
-		break;
-
+		{
+			/* Nothing */
+			break;
+		}
 
 #ifdef ALLOW_SPOILERS
-
-		/* Hack -- Generate Spoilers */
 		case '"':
+		{
+			/* Hack -- Generate Spoilers */
 			do_cmd_spoilers();
-		break;
-
+			break;
+		}
 #endif /* ALLOW_SPOILERS */
 
 #ifdef MATLAB
 		case '=':
+		{
 			output_monster_matlab();
-		break;
+			break;
+		}
 #endif /* MATLAB */
 
-		/* Hack -- Help */
 		case '?':
+		{
+			/* Hack -- Help */
 			screen_save();
-			(void)show_file("wizard.txt", NULL, 0 , 0);
+			(void)show_file("wizard.txt", NULL, 0, 0);
 			screen_load();
-		break;
+			break;
+		}
 
-
-		/* Cure all maladies */
 		case 'a':
+		{
+			/* Cure all maladies */
 			do_cmd_wiz_cure_all();
-		break;
+			break;
+		}
 
-		/* Know alignment */
 		case 'A':
+		{
+			/* Know alignment */
 			msg_format("Your alignment is %d.", p_ptr->align);
-		break;
+			break;
+		}
 
-		/* Teleport to target */
 		case 'b':
+		{
+			/* Teleport to target */
 			do_cmd_wiz_bamf();
-		break;
+			break;
+		}
 
-		/* Create any object */
 		case 'c':
+		{
+			/* Create any object */
 			wiz_create_item();
-		break;
+			break;
+		}
 
-		/* Create a named artifact */
 		case 'C':
+		{
+			/* Create a named artifact */
 			wiz_create_named_art(p_ptr->command_arg);
-		break;
+			break;
+		}
 
-		/* Detect everything */
 		case 'd':
+		{
+			/* Detect everything */
 			(void)detect_all();
-		break;
+			break;
+		}
 
-		/* Edit character */
 		case 'e':
+		{
+			/* Edit character */
 			do_cmd_wiz_change();
-		break;
+			break;
+		}
 
-		/* View item info */
 		case 'f':
+		{
+			/* View item info */
 			(void)identify_fully();
-		break;
+			break;
+		}
 
-		/* Create feature */
 		case 'F':
+		{
+			/* Create feature */
 			if (p_ptr->command_arg > 0) do_cmd_wiz_feature(p_ptr->command_arg);
-		break;
+			break;
+		}
 
-		/* Good Objects */
 		case 'g':
+		{
+			/* Good Objects */
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, FALSE, TRUE);
-		break;
+			acquirement(px, py, p_ptr->command_arg, FALSE, TRUE);
+			break;
+		}
 
-		/* Hitpoint rerating */
 		case 'h':
+		{
+			/* Hitpoint rerating */
 			do_cmd_rerate();
-		break;
+			break;
+		}
 
 #ifdef MONSTER_HORDES
 		case 'H':
-			do_cmd_summon_horde();
-		break;
-#endif /* MONSTER_HORDES */
-
-		/* Identify */
-		case 'i':
-			(void)ident_spell();
-		break;
-
-		/* Fields Integrity */
-		case 'I':
-			(void)test_field_data_integrity();
-		break;
-
-		/* Go up or down in the dungeon */
-		case 'j':
-			do_cmd_wiz_jump();
-		break;
-
-		/* Test compression code */
-		case 'J':
-			/* test_compress_module(); */
-		break;
-		
-		/* Self-Knowledge */
-		case 'k':
-			self_knowledge();
-		break;
-
-		/* Learn about objects */
-		case 'l':
-			do_cmd_wiz_learn();
-		break;
-		
-		/* Lose Mutation */
-		case 'L':
-			(void)lose_mutation(p_ptr->command_arg);
-		break;
-
-		/* Magic Mapping */
-		case 'm':
-			map_area();
-		break;
-
-		/* Gain Mutation */
-		case 'M':
-			(void)gain_mutation(p_ptr->command_arg);
-		break;
-
-		/* Specific reward */
-		case 'r':
-			(void)gain_level_reward(p_ptr->command_arg);
-		break;
-
-		/* Summon _friendly_ named monster */
-		case 'N':
-			do_cmd_wiz_named_friendly(p_ptr->command_arg, TRUE);
-		break;
-
-		/* Summon Named Monster */
-		case 'n':
-			do_cmd_wiz_named(p_ptr->command_arg, TRUE);
-		break;
-
-		/* Object playing routines */
-		case 'o':
-			do_cmd_wiz_play();
-		break;
-
-		/* Phase Door */
-		case 'p':
-			teleport_player(10);
-		break;
-
-#if 0
-		/* Complete a Quest -KMW- */
-		case 'q':
 		{
-			for (i = 0; i < max_quests; i++)
-			{
-				if (p_ptr->quest[i].status == QUEST_STATUS_TAKEN)
-				{
-					p_ptr->quest[i].status++;
-					msg_print("Completed Quest");
-					msg_print(NULL);
-					break;
-				}
-			}
-			if (i == max_quests)
-			{
-				msg_print("No current quest");
-				msg_print(NULL);
-			}
+			do_cmd_summon_horde();
 			break;
 		}
-#endif
+#endif /* MONSTER_HORDES */
 
-		/* Make every dungeon square "known" to test streamers -KMW- */
+		case 'i':
+		{
+			/* Identify */
+			(void)ident_spell();
+			break;
+		}
+
+		case 'I':
+		{
+			/* Fields Integrity */
+			(void)test_field_data_integrity();
+			break;
+		}
+
+		case 'j':
+		{
+			/* Go up or down in the dungeon */
+			do_cmd_wiz_jump();
+			break;
+		}
+
+		case 'J':
+		{
+			/* Test compression code */
+			/* test_compress_module(); */
+			break;
+		}
+
+		case 'k':
+		{
+			/* Self-Knowledge */
+			self_knowledge();
+			break;
+		}
+
+		case 'l':
+		{
+			/* Learn about objects */
+			do_cmd_wiz_learn();
+			break;
+		}
+
+		case 'L':
+		{
+			/* Lose Mutation */
+			(void)lose_mutation(p_ptr->command_arg);
+			break;
+		}
+
+		case 'm':
+		{
+			/* Magic Mapping */
+			map_area();
+			break;
+		}
+
+		case 'M':
+		{
+			/* Gain Mutation */
+			(void)gain_mutation(p_ptr->command_arg);
+			break;
+		}
+
+		case 'r':
+		{
+			/* Specific reward */
+			(void)gain_level_reward(p_ptr->command_arg);
+			break;
+		}
+
+		case 'N':
+		{
+			/* Summon _friendly_ named monster */
+			do_cmd_wiz_named_friendly(p_ptr->command_arg, TRUE);
+			break;
+		}
+
+		case 'n':
+		{
+			/* Summon Named Monster */
+			do_cmd_wiz_named(p_ptr->command_arg, TRUE);
+			break;
+		}
+
+		case 'o':
+		{
+			/* Object playing routines */
+			do_cmd_wiz_play();
+			break;
+		}
+
+		case 'p':
+		{
+			/* Phase Door */
+			teleport_player(10);
+			break;
+		}
+
 		case 'u':
 		{
-			for (y = min_hgt; y < max_hgt; y++)
+			/* Make every dungeon square "known" to test streamers -KMW- */
+			for (y = p_ptr->min_hgt; y < p_ptr->max_hgt; y++)
 			{
-				for (x = min_wid; x < max_wid; x++)
+				for (x = p_ptr->min_wid; x < p_ptr->max_wid; x++)
 				{
-					area(y, x)->info |= (CAVE_GLOW | CAVE_MARK);
+					area(x, y)->info |= (CAVE_GLOW);
+					parea(x, y)->feat = area(x, y)->feat;
 				}
 			}
 
@@ -1990,25 +1934,32 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Summon Random Monster(s) */
 		case 's':
+		{
+			/* Summon Random Monster(s) */
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
 			do_cmd_wiz_summon(p_ptr->command_arg);
-		break;
+			break;
+		}
 
-		/* Teleport */
 		case 't':
+		{
+			/* Teleport */
 			teleport_player(100);
-		break;
+			break;
+		}
 
-		/* Very Good Objects */
 		case 'v':
+		{
+			/* Very Good Objects */
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, TRUE, TRUE);
-		break;
+			acquirement(px, py, p_ptr->command_arg, TRUE, TRUE);
+			break;
+		}
 
-		/* Wizard Light the Level */
 		case 'w':
+		{
+			/* Wizard Light the Level */
 			if (p_ptr->depth)
 			{
 				wiz_lite();
@@ -2017,14 +1968,20 @@ void do_cmd_debug(void)
 			{
 				learn_map();
 			}
-		break;
+			break;
+		}
 
+#ifdef DEBUG
 		case 'W':
+		{
 			test_decision_tree();
-		break;
+			break;
+		}
+#endif /* DEBUG */
 
-		/* Increase Experience */
 		case 'x':
+		{
+			/* Increase Experience */
 			if (p_ptr->command_arg)
 			{
 				gain_exp(p_ptr->command_arg);
@@ -2033,33 +1990,42 @@ void do_cmd_debug(void)
 			{
 				gain_exp(p_ptr->exp + 1);
 			}
-		break;
+			break;
+		}
 
-		/* Zap Monsters (Genocide) */
 		case 'z':
+		{
+			/* Zap Monsters (Genocide) */
 			do_cmd_wiz_zap();
-		break;
+			break;
+		}
 
 		case 'Z':
+		{
 			do_cmd_wiz_zap_all();
-		break;
+			break;
+		}
 
-		/* Hack -- whatever I desire */
 		case '_':
+		{
+			/* Hack -- whatever I desire */
 			do_cmd_wiz_hack_ben();
-		break;
+			break;
+		}
 
-#ifdef USE_SCRIPT
-		/* Hack -- activate a script */
 		case '@':
-			do_cmd_wiz_script();
-		break;
-#endif /* USE_SCRIPT */
+		{
+			/* Execute script */
+			do_cmd_script();
+			break;
+		}
 
-		/* Not a Wizard Command */
 		default:
+		{
+			/* Not a Debug Command */
 			msg_print("That is not a valid debug command.");
-		break;
+			break;
+		}
 	}
 }
 

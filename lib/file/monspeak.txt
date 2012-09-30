@@ -32,6 +32,7 @@ N:8:Farmer Maggot
 seems sad about something.
 asks if you have seen his dogs.
 tells you to get off his land.
+#LOTR Book1 Chap.4
 says, "Grip! Fang! Wolf! Come on, lads!"
 says, "They won't harm you -- not unless I tell 'em to!"
 says, "Here, Grip! Fang! Heel!"
@@ -101,14 +102,18 @@ N:137:Wormtongue, Agent of Saruman
 whines and sniggers.
 whispers nasty things.
 says, 'I'll slaughter you slowly...'
+#LOTR Book3 Chap.6
 says, 'Lathspell I name you, Ill-news; and Ill-news is an ill guest they say.'
 says, 'Forbid his staff!'
+#LOTR Book3 Chap.6
 yells, 'You lie!'
+#LOTR Book3 Chap.9
 says, 'Let me go, let me go!  I know the way!'
+#LOTR Book3 Chap.9
 says, 'My messages are useless now!'
 says, 'No no!'
+#LOTR Book6 Chap.8
 hisses, 'You told me to; you made me do it!'
-
 
 N:138:Robin Hood, the Outlaw
 6
@@ -260,6 +265,7 @@ N:493:Bert the Stone Troll
 N:494:Bill the Stone Troll
 N:495:Tom the Stone Troll
 4
+#Hobbit Chap.2
 complains, 'What's a burrahobbit got to do with my pocket, anyways?'
 rejoices, 'No more roast mutton! Roast adventurer today!'
 says, 'That'll teach yer!'
@@ -276,25 +282,42 @@ shouts: 'Back, over-bold one!'
 whines: 'You swindler, do you seek to vilify me?'
 
 N:517:Jurt the Living Trump
-1
+2
+#Amber Book8 Chap.4
 says: 'Only your death will set things right.'
+says: 'Don't call me clumsy!'
 
 #N:551:Rogrog the Black Troll
 
 N:573:Lord Borel of Hendrake
 3
+#Amber Book9 Chap.6
 says: 'You smile at your own cowardice? Stand and fight, bastard!'
+#Amber Book10 Chap.5
 says: 'I am Borel, Duke of Hendrake, Master of Arms of the Ways of Hendrake.'
-says: 'Oh, basely done! I had hoped better of thee!'
+#Amber Book5 Chap.10
+'I do not want it said that I took unfair advantage of you when I killed you.'
 
 #N:595:Father Dagon
 #N:596:Mother Hydra
-#N:598:Mandor, Master of the Logrus
+
+N:598:Mandor, Master of the Logrus
+2
+'Well, well, well.'
+'It is a great pleasure to fight with such a worthy opponent as you.'
+
 #N:606:Loge, Spirit of Fire
 #N:615:Moire, Queen of Rebma
 #N:616:Kavlax the Many-Headed
 #N:628:Malekith the Accursed
-#N:642:Jasra, Brand's Mistress
+
+N:642:Jasra, Brand's Mistress
+2
+#In Amber Book8, She overtake the Keep of the Four Worlds
+#and turn the previous master into a coatrack
+'I will turn you into a coatrack.'
+'I'm a master of the Keep of the Four Worlds!'
+
 #N:651:Strygalldwir
 
 N:654:Judge Fire
@@ -307,8 +330,17 @@ hisses, 'Your crime isssss life.'
 hisses, 'The sssentencce isss death!'
 hisses, 'Your crime issss life. The sssentencce isss death.'
 
-#N:660:Rinaldo, son of Brand
-#N:670:Jack of Shadows
+#Quotes from "A salesman's tale"
+N:660:Rinaldo, son of Brand
+2
+says, 'What's a freezer? Glad you asked. It's a box to store your body!'
+'If you buy a Grand-D machine, I'll throw Werewindle into the bargain.'
+
+N:670:Jack of Shadows
+2
+'The power of shadow is infinite.'
+'With the Key of Kolwynia, I am invincible!'
+
 #N:681:Chaugnar Faugn, Horror from the Hills
 
 N:685:Shoggoth
@@ -337,8 +369,19 @@ says: 'My fangs are not for chattering, soon you will feel them.'
 says: 'My throat is well made to gulp you down.'
 growls: 'Come here, young braggart.'
 
-#N:713:Fangorn the Treebeard
-#N:715:Glaurung, Father of the Dragons
+N:713:Fangorn the Treebeard
+2
+#LOTR Book3 Chap.4
+says: 'Hoom, hm, ah well.'
+#LOTR Book6 Chap.6
+#Too long, intentionaly :) to discourage those who defy him.
+booms: 'Burarum, you evileyed - blackhanded - bowlegged - flinthearted - clawfingered - foulbellied - bloodthirsty, morimaite'sincahonda, hoom, hm, ...'
+
+N:715:Glaurung, Father of the Dragons
+N:766:Ancalagon the Black
+1
+says: 'Thou shalt not escape thy doom.'
+
 #N:729:Ulik the Troll
 #N:730:Baphomet the Minotaur Lord
 
@@ -386,13 +429,13 @@ says, 'I shall smite thee with extreme prejudice!'
 says, 'Hope you like eternal damnation!'
 says, 'Verily, it is too late for thee.'
 
-#N:766:Ancalagon the Black
 #N:767:Daoloth, the Render of the Veils
 #N:770:Artsi the Champion of Chaos
 #N:771:Saruman of Many Colours
 
 N:772:Gandalf the Grey
 3
+#LOTR Book2 Chap.5
 says, 'I am a Wielder of the Flame of Anor, you cannot pass.'
 says, 'The dark fire will not avail you, Flame of Udun.'
 says, 'Go Back to the Shadow! You cannot pass!'
@@ -415,7 +458,14 @@ says, 'Go Back to the Shadow! You cannot pass!'
 #N:817:Hela, Queen of the Dead
 #N:820:Corwin, Lord of Avalon
 #N:824:Benedict, the Ideal Warrior
-#N:825:The Witch-King of Angmar
+
+N:825:The Witch-King of Angmar
+2
+#LOTR Book5 Chap.4
+says, 'Do you not know Death when you see it?'
+#LOTR Book5 Chap.6
+says, 'Thou fool. No living man may hinder me!'
+
 #N:828:Ithaqua the Windwalker
 #N:834:Ymir the Ice Giant
 #N:835:Loki the Trickster
@@ -473,6 +523,16 @@ lifts his leg at the nearest wall.
 says, 'Bad adventurer! No more living for you!'
 snarls and howls.
 
+#LOTR Book5 Chap.10
+N:818:The Mouth of Sauron
+6
+asks, 'Anyone with authority to treat with me? Not thou at least!'
+says, 'This time thou hast stuck out thy nose too far.'
+says, 'Thou shalt see what comes to him who defy Sauron the Great.'
+says, 'Take swift counsel with what little wit is left to you.'
+says, 'And now thou shalt endure the slow torment of years!'
+says, 'Do not bandy words in your insolence with the Mouth of Sauron!'
+
 N:819:Klingsor, Evil Master of Magic
 6
 states, 'The time has come.'
@@ -484,7 +544,6 @@ yells, 'I will cut you down with your master's spear!'
 
 N:830:Cantoras, the Skeletal Lord
 N:831:Mephistopheles, Lord of Hell
-N:818:The Mouth of Sauron
 N:804:Vecna, the Emperor Lich
 N:844:Kaschei the Immortal
 N:856:Gothmog, the High Captain of Balrogs

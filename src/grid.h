@@ -15,9 +15,6 @@
 
 /* Macros */
 
-#define place_locked_door(Y,X)  make_lockjam_door(Y, X, randint1(10) + dun_level / 10, FALSE)
-#define place_secret_door(Y,X)  cave[(Y)][(X)].feat = FEAT_SECRET
-
 #define LAKE_LAVA		1
 #define LAKE_WATER		2
 #define LAKE_DESTROY	3
@@ -30,40 +27,68 @@
 #define LAKE_SAND		10
 #define LAKE_ROCK		11
 
+/*
+ * Access the cave data for the current region
+ */
+#define cave_p(X, Y) \
+	(&cave_data[Y][X])
+
+/*
+ * Access the cave data for the given region
+ */
+#define access_region(X, Y, R) \
+	(&rg_list[R][Y][X])
+
+/*
+ * Set feature on a square
+ */
+#define set_feat_bold(X, Y, F) \
+	(cave_p(X, Y)->feat=(F))
+
+/*
+ * Grid-based version of the above
+ */
+#define set_feat_grid(C, F) \
+	((C)->feat=(F))
+
+/* Helpful macros */
+#define place_locked_door(X, Y) \
+	make_lockjam_door((X), (Y), randint1(10) + dun_level / 10, FALSE)
+#define place_secret_door(X,Y) \
+	set_feat_bold((X), (Y), (FEAT_SECRET))
+
 
 /* Externs */
 extern bool new_player_spot(void);
 
-extern void place_random_stairs(int y, int x);
-extern void place_random_door(int y, int x);
-extern void place_closed_door(int y, int x);
+extern void place_random_stairs(int x, int y);
+extern void place_random_door(int x, int y);
+extern void place_closed_door(int x, int y);
 
-extern void vault_monsters(int y1, int x1, int num);
-extern void vault_objects(int y, int x, int num);
-extern void vault_traps(int y, int x, int yd, int xd, int num);
+extern void vault_objects(int x, int y, int num);
+extern void vault_traps(int x, int y, int xd, int yd, int num);
+extern void vault_monsters(int x1, int y1, int num);
 
-extern int next_to_walls(int y, int x);
+extern int next_to_walls(int x, int y);
 
-extern void generate_room(int y1, int x1, int y2, int x2, int light);
-extern void generate_vault(int y1, int x1, int y2, int x2);
-extern void clear_vault(int y1, int x1, int y2, int x2);
-extern void generate_fill(int y1, int x1, int y2, int x2, int feat);
-extern void generate_draw(int y1, int x1, int y2, int x2, int feat);
-extern void generate_plus(int y1, int x1, int y2, int x2, int feat);
-extern void generate_open(int y1, int x1, int y2, int x2, int feat);
-extern void generate_hole(int y1, int x1, int y2, int x2, int feat);
-extern void generate_door(int y1, int x1, int y2, int x2, bool secret);
+extern void generate_room(int x1, int y1, int x2, int y2, int light);
+extern void generate_vault(int x1, int y1, int x2, int y2);
+extern void clear_vault(int x1, int y1, int x2, int y2);
+extern void generate_fill(int x1, int y1, int x2, int y2, int feat);
+extern void generate_draw(int x1, int y1, int x2, int y2, int feat);
+extern void generate_plus(int x1, int y1, int x2, int y2, int feat);
+extern void generate_door(int x1, int y1, int x2, int y2, bool secret);
 
 
 extern bool get_is_floor(int x, int y);
 extern void set_floor(int x, int y);
 
-extern void build_tunnel(int row1, int col1, int row2, int col2);
+extern void build_tunnel(int col1, int row1, int col2, int row2);
 extern bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff);
 
-extern void generate_hmap(int y0, int x0, int xsiz, int ysiz, int grd,
-	 int roug, int cutoff);
-extern bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
-	 bool light);
-extern bool generate_lake(int y0, int x0, int xsize, int ysize,
-	 int c1, int c2, int c3, int type);
+extern void generate_hmap(int x0, int y0, int xsiz, int ysiz, int grd,
+						  int roug, int cutoff);
+extern bool generate_fracave(int x0, int y0, int xsize, int ysize, int cutoff,
+							 bool light);
+extern bool generate_lake(int x0, int y0, int xsize, int ysize,
+						  int c1, int c2, int c3, int type);

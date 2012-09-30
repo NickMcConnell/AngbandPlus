@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/29 10:23:50 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2002/01/02 12:15:10 $
 # File: e_info.txt
 
 
@@ -103,13 +103,31 @@ F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR |
 F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 12 (unused)
+### Lites ###
 
-# 13 (unused)
+N:12:of Everburning
+X:29:10
+W:0:2:0:500
+C:0:0:0:0
+F:LITE
 
-# 14 (unused)
+N:13:of Brightness
+X:29:10
+W:0:2:0:500
+C:0:0:0:6
+F:SENSE | INFRA
 
-# 15 (unused)
+N:14:of Vision
+X:29:15
+W:18:10:0:750
+C:0:0:0:6
+F:SEE_INVIS | RES_BLIND | SENSE
+
+N:15:of Warmth
+X:29:13
+W:10:4:0:500
+C:0:0:0:0
+F:RES_COLD
 
 
 ### Shields ###
@@ -197,7 +215,7 @@ N:30:of Seeing
 X:33:8
 W:30:2:0:1000
 C:0:0:0:5
-F:SEARCH | RES_BLIND | SEE_INVIS
+F:SENSE | RES_BLIND | SEE_INVIS
 
 N:31:of Infravision
 X:33:11
@@ -592,7 +610,7 @@ N:98:(Trump Weapon)
 X:24:22
 W:30:3:0:1500
 C:4:4:0:2
-F:SLAY_EVIL | TELEPORT | FREE_ACT | SEARCH |
+F:SLAY_EVIL | TELEPORT | FREE_ACT | SENSE |
 F:REGEN | SLOW_DIGEST | RES_NEXUS | ACTIVATE
 
 N:99:(Pattern Weapon)

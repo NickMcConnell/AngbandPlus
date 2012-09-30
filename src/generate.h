@@ -4,16 +4,16 @@
 /*
  * Dungeon generation values
  */
-#define DUN_UNUSUAL 200 /* Level/chance of unusual room (was 200) */
-#define DUN_DEST    18  /* 1/chance of having a destroyed level */
-#define SMALL_LEVEL 5   /* 1/chance of smaller size (5) */
-#define EMPTY_LEVEL 15  /* 1/chance of being 'empty' (15) */
-#define LAKE_LEVEL  10   /* 1/chance of being a lake on the level */
-#define DARK_EMPTY  5   /* 1/chance of arena level NOT being lit (2) */
-#define DUN_CAV1    600 /* 1/chance for getting a cavern is: */
-#define DUN_CAV2    75  /* DUN_CAV1/(dun_level + DUN_CAV2) */
+#define DUN_UNUSUAL 200			/* Level/chance of unusual room (was 200) */
+#define DUN_DEST    18			/* 1/chance of having a destroyed level */
+#define SMALL_LEVEL 5			/* 1/chance of smaller size (5) */
+#define EMPTY_LEVEL 15			/* 1/chance of being 'empty' (15) */
+#define LAKE_LEVEL  10			/* 1/chance of being a lake on the level */
+#define DARK_EMPTY  5			/* 1/chance of arena level NOT being lit (2) */
+#define DUN_CAV1    600			/* 1/chance for getting a cavern is: */
+#define DUN_CAV2    75			/* DUN_CAV1/(dun_level + DUN_CAV2) */
 			/*  = 5 at dl 30   and = 3 at dl 100 */
-#define MIN_CAVERN  30  /* Minimum level to get a cavern */
+#define MIN_CAVERN  30			/* Minimum level to get a cavern */
 
 /* Number of rooms to attempt (was 50) */
 #define DUN_ROOMS_MIN	10
@@ -22,15 +22,15 @@
 /*
  * Dungeon tunnel generation values
  */
-#define DUN_TUN_RND_MIN	 5 /* Chance of random direction (was 10) */
+#define DUN_TUN_RND_MIN	 5		/* Chance of random direction (was 10) */
 #define DUN_TUN_RND_MAX	20
-#define DUN_TUN_CHG_MIN	20 /* Chance of changing direction (was 30) */
+#define DUN_TUN_CHG_MIN	20		/* Chance of changing direction (was 30) */
 #define DUN_TUN_CHG_MAX	60
-#define DUN_TUN_CON_MIN 10 /* Chance of extra tunneling (was 15) */
+#define DUN_TUN_CON_MIN 10		/* Chance of extra tunneling (was 15) */
 #define DUN_TUN_CON_MAX	40
-#define DUN_TUN_PEN_MIN 30 /* Chance of doors at room entrances (was 25) */
+#define DUN_TUN_PEN_MIN 30		/* Chance of doors at room entrances (was 25) */
 #define DUN_TUN_PEN_MAX 70
-#define DUN_TUN_JCT_MIN 60 /* Chance of doors at tunnel junctions (was 90) */
+#define DUN_TUN_JCT_MIN 60		/* Chance of doors at tunnel junctions (was 90) */
 #define DUN_TUN_JCT_MAX 90
 
 
@@ -44,30 +44,30 @@ extern int dun_tun_jct;
 /*
  * Dungeon streamer generation values
  */
-#define DUN_STR_DEN     5	/* Density of streamers */
-#define DUN_STR_RNG     2	/* Width of streamers */
-#define DUN_STR_MAG     3	/* Number of magma streamers */
-#define DUN_STR_MC     90	/* 1/chance of treasure per magma */
-#define DUN_STR_QUA	    2	/* Number of quartz streamers */
-#define DUN_STR_QC     40	/* 1/chance of treasure per quartz */
-#define DUN_STR_WLW     1	/* Width of lava & water streamers -KMW- */
-#define DUN_STR_DWLW    8	/* Density of water & lava streams -KMW- */
+#define DUN_STR_DEN     5		/* Density of streamers */
+#define DUN_STR_RNG     2		/* Width of streamers */
+#define DUN_STR_MAG     3		/* Number of magma streamers */
+#define DUN_STR_MC     90		/* 1/chance of treasure per magma */
+#define DUN_STR_QUA	    2		/* Number of quartz streamers */
+#define DUN_STR_QC     40		/* 1/chance of treasure per quartz */
+#define DUN_STR_WLW     1		/* Width of lava & water streamers -KMW- */
+#define DUN_STR_DWLW    8		/* Density of water & lava streams -KMW- */
 
-#define DUN_MOS_DEN	2	/* Density of moss streamers */
-#define DUN_MOS_RNG	10	/* Width of moss streamers */
-#define DUN_STR_MOS	2	/* Number of moss streamers */
-#define DUN_WAT_DEN	15	/* Density of rivers */
-#define DUN_WAT_RNG	2	/* Width of rivers */
-#define DUN_STR_WAT	3	/* Max number of rivers */
-#define DUN_WAT_CHG	50	/* 1 in 50 chance of junction in river */
+#define DUN_MOS_DEN	2			/* Density of moss streamers */
+#define DUN_MOS_RNG	10			/* Width of moss streamers */
+#define DUN_STR_MOS	2			/* Number of moss streamers */
+#define DUN_WAT_DEN	15			/* Density of rivers */
+#define DUN_WAT_RNG	2			/* Width of rivers */
+#define DUN_STR_WAT	3			/* Max number of rivers */
+#define DUN_WAT_CHG	50			/* 1 in 50 chance of junction in river */
 
 /*
  * Dungeon treausre allocation values
  */
-#define DUN_AMT_ROOM	9	/* Amount of objects for rooms */
-#define DUN_AMT_ITEM	3	/* Amount of objects for rooms/corridors */
-#define DUN_AMT_GOLD	3	/* Amount of treasure for rooms/corridors */
-#define DUN_AMT_INVIS 3	/* Amount of invisible walls for rooms/corridors */
+#define DUN_AMT_ROOM	9		/* Amount of objects for rooms */
+#define DUN_AMT_ITEM	3		/* Amount of objects for rooms/corridors */
+#define DUN_AMT_GOLD	3		/* Amount of treasure for rooms/corridors */
+#define DUN_AMT_INVIS 3			/* Amount of invisible walls for rooms/corridors */
 
 /*
  * Hack -- Dungeon allocation "places"

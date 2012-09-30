@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2001/05/06 00:24:39 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2001/12/01 17:07:23 $ */
 /* File: main-mac.c */
 
 /* Purpose: Simple support for MACINTOSH Angband */
@@ -4645,7 +4645,7 @@ int main(void)
 
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
+	prt("[Choose 'New' or 'Open' from the 'File' menu]", 15, 23);
 
 	/* Flush the prompt */
 	Term_fresh();
