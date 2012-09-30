@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/29 03:09:21 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/04 10:32:05 $ */
 /* File: dungeon.c */
 
 /* Purpose: Angband game engine */
@@ -4115,8 +4115,7 @@ void play_game(bool new_game)
 	/* Initialize field info */
 	if (init_t_info()) quit("Cannot initialize fields");
 	
-	
-	
+		
 	/* Attempt to load */
 	if (!load_player())
 	{
@@ -4224,7 +4223,7 @@ void play_game(bool new_game)
 		/* Hack -- seed for flavors */
 		seed_flavor = rand_int(0x10000000);
 
-		/* Hack -- seed for town layout (not used an more) */
+		/* Hack -- seed for town layout (not used any more) */
 		seed_town = 0;
 	}
 
@@ -4278,8 +4277,7 @@ void play_game(bool new_game)
 #endif
 
 	/* Load the "pref" files */
-	load_all_pref_files();
-	
+	load_all_pref_files();	
 	
 
 	/* Set or clear "rogue_like_commands" if requested */
@@ -4335,18 +4333,6 @@ void play_game(bool new_game)
 	/* Process */
 	while (TRUE)
 	{
-#ifdef USE_SCRIPT
-		/* Save the current coordinates */
-		s32b wild_y = p_ptr->wilderness_y;
-		s32b wild_x = p_ptr->wilderness_x;
-		s16b level = dun_level;
-
-		if (level == 0)
-			enter_wilderness_callback(wild_y, wild_x);
-		else
-			enter_level_callback(level);
-#endif /* USE_SCRIPT */
-
 		/* Process the level */
 		dungeon();
 
@@ -4384,13 +4370,6 @@ void play_game(bool new_game)
 
 		/* XXX XXX XXX */
 		msg_print(NULL);
-
-#ifdef USE_SCRIPT
-		if (level == 0)
-			leave_wilderness_callback(wild_y, wild_x);
-		else
-			leave_level_callback(level);
-#endif /* USE_SCRIPT */
 
 		/* Accidental Death */
 		if (alive && death)

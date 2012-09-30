@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/09/16 17:41:06 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/07 01:37:41 $ */
 /* File: wizard2.c */
 
 /* Purpose: Wizard commands */
@@ -118,6 +118,9 @@ static void do_cmd_summon_horde(void)
 
 		c_ptr = area(wy, wx);
 		if (cave_naked_grid(c_ptr)) break;
+		
+		/* Not under the player */
+		if ((wy == py) && (wx == px)) break;
 	}
 
 	(void)alloc_horde(wy, wx);

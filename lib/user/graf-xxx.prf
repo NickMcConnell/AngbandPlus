@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/04 09:11:05 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/12 10:31:39 $
 ##### Special attr/char values #####
 
 
@@ -3033,53 +3033,12 @@ F:30:0xA2:0x90
 # gas trap
 F:31:0xA2:0x91
 
-# door
+# closed door
 F:32:0x81:0x8B
 
-# locked door
-F:33:0x81:0x8B
+#N:33:pillar
+#G:#:w
 
-# locked door
-F:34:0x81:0x8B
-
-# locked door
-F:35:0x81:0x8B
-
-# locked door
-F:36:0x81:0x8B
-
-# locked door
-F:37:0x81:0x8B
-
-# locked door
-F:38:0x81:0x8B
-
-# locked door
-F:39:0x81:0x8B
-
-# jammed door
-F:40:0x81:0x8B
-
-# jammed door
-F:41:0x81:0x8B
-
-# jammed door
-F:42:0x81:0x8B
-
-# jammed door
-F:43:0x81:0x8B
-
-# jammed door
-F:44:0x81:0x8B
-
-# jammed door
-F:45:0x81:0x8B
-
-# jammed door
-F:46:0x81:0x8B
-
-# jammed door
-F:47:0x81:0x8B
 
 # secret door
 F:48:0x80:0x82

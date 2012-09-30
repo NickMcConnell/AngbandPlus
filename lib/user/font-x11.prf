@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/04/24 11:46:07 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/12 10:31:39 $
 # File: font-x11.prf
 
 
@@ -44,6 +44,10 @@ F:12:4/0xB7
 F:13:2/0xB7
 F:14:8/0xB7
 
+
+# Pillar
+F:33:1/0x01
+
 # dirt
 F:88:7/0xB7
 
@@ -55,6 +59,8 @@ F:91:1/0xB7
 
 # snow
 F:135:9/0xB7
+
+
 
 
 #
@@ -101,6 +107,8 @@ F:60:1/0x02
 F:61:1/0x02
 F:62:1/0x02
 F:63:1/0x02
+
+
 
 # Space monster
 R:144:0x00:0xB7

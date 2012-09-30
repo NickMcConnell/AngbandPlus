@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/31 10:53:42 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/16 11:26:34 $ */
 /* File: main-mac.c */
 
 /* Purpose: Simple support for MACINTOSH Angband */
@@ -989,7 +989,8 @@ static OSErr BenSWCreateGWorldFromPict(
 	GWorldPtr *maskGWorld,
 	GWorldPtr *bufferGWorld,
 	PicHandle pictH,
-	PicHandle maskH)
+	PicHandle maskH,
+	term_data *td )
 {
 	OSErr err;
 	GWorldPtr saveGWorld;
@@ -1001,7 +1002,7 @@ static OSErr BenSWCreateGWorldFromPict(
 
 	{
 		tempGWorld = NULL;
-		
+
 		/* Reset */
 		*pictGWorld = NULL;
 
@@ -1016,7 +1017,7 @@ static OSErr BenSWCreateGWorldFromPict(
 		OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
 
 		/* Create a GWorld */
-		err = NewGWorld(&tempGWorld, depth, &pictRect, nil, 
+		err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
 						theGDH, noNewDevice);
 
 		/* Success */
@@ -1043,10 +1044,10 @@ static OSErr BenSWCreateGWorldFromPict(
 		/* Restore GWorld */
 		SetGWorld(saveGWorld, saveGDevice);
 	}
-	
+
 	{
 		tempGWorld = NULL;
-		
+
 		/* Reset */
 		*maskGWorld = NULL;
 
@@ -1061,7 +1062,7 @@ static OSErr BenSWCreateGWorldFromPict(
 		OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
 
 		/* Create a GWorld */
-		err = NewGWorld(&tempGWorld, depth, &pictRect, nil, 
+		err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
 						theGDH, noNewDevice);
 
 		/* Success */
@@ -1088,10 +1089,10 @@ static OSErr BenSWCreateGWorldFromPict(
 		/* Restore GWorld */
 		SetGWorld(saveGWorld, saveGDevice);
 	}
-	
+
 	{
 		tempGWorld = NULL;
-		
+
 		/* Reset */
 		*bufferGWorld = NULL;
 
@@ -1103,14 +1104,14 @@ static OSErr BenSWCreateGWorldFromPict(
 
 		/* Obtain size rectangle */
 		pictRect.left = 0;
-		pictRect.right = map_wid * kGrafWidth;
+		pictRect.right = td->r.right - td->r.left;
 		pictRect.top = 0;
-		pictRect.bottom = map_hgt * kGrafHeight;
-		
-		OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
+		pictRect.bottom = td->tile_hgt;
+
+		/* OffsetRect(&pictRect, -pictRect.left, -pictRect.top); */
 
 		/* Create a GWorld */
-		err = NewGWorld(&tempGWorld, depth, &pictRect, nil, 
+		err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
 						theGDH, noNewDevice);
 
 		/* Success */
@@ -1122,12 +1123,11 @@ static OSErr BenSWCreateGWorldFromPict(
 		/* Save pointer */
 		*bufferGWorld = tempGWorld;
 	}
-	
-	
+
+
 	/* Success */
 	return (0);
 }
-
 
 /*
  * Init the global "frameP"
@@ -4085,11 +4085,7 @@ static bool CheckEvents(bool wait)
 					
 					/* Reset map size if required */
 					if (window == 0)
-					{				
-						/* Recalculate map size */
-						map_hgt = td->rows - 2;
-						map_wid = td->cols - 14;
-				
+					{								
 						/* Mega-Hack -- no panel yet */
 						panel_row_min = 0;
 						panel_row_max = 0;

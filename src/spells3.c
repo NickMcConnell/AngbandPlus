@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/13 00:28:49 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/12 09:33:11 $ */
 /* File: spells3.c */
 
 /* Purpose: Spell code (part 3) */
@@ -381,6 +381,9 @@ void teleport_player(int dis)
 			if (!(cave_naked_grid(c_ptr) ||
 			    ((c_ptr->feat & 0x60) == 0x60))) continue;
 
+			/* No non-movement */
+			if ((y == py) && (x == px)) continue;
+			
 			/* Check for a field that blocks movement */
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
 			{
@@ -528,6 +531,9 @@ void teleport_player_to(int ny, int nx)
 		if (cave_naked_grid(c_ptr) && !(fields_have_flags(c_ptr->fld_idx,
 				 FIELD_INFO_NO_ENTER))) break;
 
+		/* No non-movement */
+		if ((y == py) && (x == px)) continue;
+		
 		/* Occasionally advance the distance */
 		if (++ctr > (4 * dis * dis + 4 * dis + 1))
 		{
@@ -1031,6 +1037,8 @@ void call_the_(void)
 
 /*
  * Fetch an item (teleport it right underneath the caster)
+ *
+ * This is a massive hack.
  */
 void fetch(int dir, int wgt, bool require_los)
 {
@@ -1118,7 +1126,8 @@ void fetch(int dir, int wgt, bool require_los)
 
 	i = c_ptr->o_idx;
 	c_ptr->o_idx = o_ptr->next_o_idx;
-	area(py,px)->o_idx = i; /* 'move' it */
+
+	area(py, px)->o_idx = i; /* 'move' it */
 	o_ptr->next_o_idx = 0;
 	o_ptr->iy = py;
 	o_ptr->ix = px;
@@ -1126,7 +1135,10 @@ void fetch(int dir, int wgt, bool require_los)
 	object_desc(o_name, o_ptr, TRUE, 0);
 	msg_format("%^s flies through the air to your feet.", o_name);
 
+	/* Notice the moved object (The player gets redrawn) */
 	note_spot(py, px);
+	
+	/* Redraw the map???  Can we just use lite_spot() a few times? */
 	p_ptr->redraw |= PR_MAP;
 }
 
@@ -1841,35 +1853,14 @@ bool artifact_scroll(void)
 
 
 /*
- * Apply good luck to an object
- */
-static void good_luck(object_type *o_ptr)
-{
-	/* Objects become better sometimes */
-	if (!rand_int(13))
-	{
-		int number = o_ptr->number;
-
-		bool great = ego_item_p(o_ptr);
-
-		/* Prepare it */
-		object_prep(o_ptr, o_ptr->k_idx);
-
-		/* Restore the number */
-		o_ptr->number = number;
-
-		/* Apply good magic (allow artifacts, good, great if an ego-item, no curse) */
-		apply_magic(o_ptr, dun_level, TRUE, TRUE, great, FALSE);
-	}
-}
-
-
-/*
  * Apply bad luck to an object
  */
 static void bad_luck(object_type *o_ptr)
 {
 	bool is_art = artifact_p(o_ptr) || o_ptr->art_name;
+	
+	/* Do not curse unwieldable items */
+	if (wield_slot(o_ptr) == -1) return;
 
 	/* Objects become worse sometimes */
 	if (!rand_int(13))
@@ -1936,12 +1927,6 @@ static void bad_luck(object_type *o_ptr)
  */
 void identify_item(object_type *o_ptr)
 {
-	if ((p_ptr->muta3 & MUT3_GOOD_LUCK) &&
-		 !artifact_p(o_ptr) && !o_ptr->art_name && !object_known_p(o_ptr))
-	{
-		good_luck(o_ptr);
-	}
-
 	if (p_ptr->muta3 & MUT3_BAD_LUCK)
 	{
 		bad_luck(o_ptr);

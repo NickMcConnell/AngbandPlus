@@ -150,8 +150,8 @@ static bool alloc_stairs(int feat, int num, int walls)
 			for (j = 0; !flag && j <= 10000; j++)
 			{
 				/* Pick a random grid */
-				y = rand_range(min_hgt, max_hgt - 1);
-				x = rand_range(min_wid, max_wid - 1);
+				y = rand_range(min_hgt + 1, max_hgt - 2);
+				x = rand_range(min_wid + 1, max_wid - 2);
 
 				/* Access the grid */
 				c_ptr = &cave[y][x];
@@ -199,7 +199,7 @@ static void alloc_object(int set, int typ, int num)
 {
 	int y, x, k;
 	int dummy = 0;
-	cave_type *c_ptr;
+	cave_type *c_ptr = NULL;
 
 	/* Place some objects */
 	for (k = 0; k < num; k++)
@@ -212,8 +212,8 @@ static void alloc_object(int set, int typ, int num)
 			dummy++;
 
 			/* Location */
-			y = rand_range(min_hgt, max_hgt - 1);
-			x = rand_range(min_wid, max_wid - 1);
+			y = rand_range(min_hgt + 1, max_hgt - 2);
+			x = rand_range(min_wid + 1, max_wid - 2);
 
 			c_ptr = &cave[y][x];
 
@@ -248,7 +248,7 @@ static void alloc_object(int set, int typ, int num)
 		{
 			case ALLOC_TYP_RUBBLE:
 			{
-				place_rubble(y, x);
+				c_ptr->feat = FEAT_RUBBLE;
 				break;
 			}
 
@@ -451,17 +451,17 @@ static bool cave_gen(void)
 		destroyed = TRUE;
 
 		/* extra rubble around the place looks cool */
-		build_lake(3);
+		build_lake(LAKE_DESTROY);
 	}
 
 	/* Make a lake some of the time */
 	if ((rand_int(LAKE_LEVEL) == 0) && !empty_level && !destroyed && terrain_streams)
 	{
 		/* Lake of Water */
-		if (dun_level > 52) laketype = 2;
+		if (dun_level > 52) laketype = LAKE_WATER;
 
 		/* Lake of Lava */
-		if (dun_level > 90) laketype = 1;
+		if (dun_level > 90) laketype = LAKE_LAVA;
 
 		if (laketype != 0)
 		{
@@ -538,8 +538,8 @@ static bool cave_gen(void)
 #ifdef FORCE_V_IDX
 				if (room_build(y, x, 8)) continue;
 #else
-				/* Type 8 -- Greater vault (4%) */
-				if (k < 4)
+				/* Type 8 -- Greater vault (7%) */
+				if (k < 7)
 				{
 					if (max_vault_ok > 1)
 					{
@@ -551,8 +551,8 @@ static bool cave_gen(void)
 					}
 				}
 
-				/* Type 7 -- Lesser vault (6%) */
-				if (k < 10)
+				/* Type 7 -- Lesser vault (10%) */
+				if (k < 17)
 				{
 					if (max_vault_ok > 0)
 					{
@@ -566,27 +566,36 @@ static bool cave_gen(void)
 
 
 				/* Type 5 -- Monster nest (8%) */
-				if ((k < 18) && room_build(y, x, 5)) continue;
+				if ((k < 25) && room_build(y, x, 5)) continue;
 
 				/* Type 6 -- Monster pit (10%) */
-				if ((k < 28) && room_build(y, x, 6)) continue;
+				if ((k < 35) && room_build(y, x, 6)) continue;
 
-				/* Type 10 -- Random vault (4%) */
-				if ((k < 32) && room_build(y, x, 10)) continue;
+				/* Type 10 -- Random vault (8%) */
+				if ((k < 43) && room_build(y, x, 10)) continue;
 #endif
 
 			}
 
-			/* Type 4 -- Large room (25%) */
-			if ((k < 25) && room_build(y, x, 4)) continue;
+			/* Type 4 -- Large room (15%) */
+			if ((k < 15) && room_build(y, x, 4)) continue;
 
-			/* Type 3 -- Cross room (25%) */
+			/* Type 14 -- Large room (10%) */
+			if ((k < 25) && room_build(y, x, 14)) continue;
+			
+			/* Type 13 -- Large Feature room (5%) */
+			if ((k < 30) && room_build(y, x, 13)) continue;
+			
+			/* Type 3 -- Cross room (20%) */
 			if ((k < 50) && room_build(y, x, 3)) continue;
 
 			/* Type 2 -- Overlapping (25%) */
 			if ((k < 75) && room_build(y, x, 2)) continue;
+			
+			/* Type 11 -- Parallelagram (5%) */
+			if ((k < 80) && room_build(y, x, 15)) continue;
 
-			/* Type 11 -- Circular (10%) */
+			/* Type 11 -- Circular (5%) */
 			if ((k < 85) && room_build(y, x, 11)) continue;
 
 			/* Type 12 -- Crypt (15%) */
@@ -613,8 +622,8 @@ static bool cave_gen(void)
 	{
 		while (randint(DUN_MOS_DEN) == 1)
 		{
-			place_trees(rand_range(min_wid, max_wid - 1),
-				 rand_range(min_hgt, max_hgt - 1));
+			place_trees(rand_range(min_wid + 1, max_wid - 2),
+				 rand_range(min_hgt + 1, max_hgt - 2));
 		}
 	}
 
@@ -744,7 +753,7 @@ static bool cave_gen(void)
 			c_ptr = &cave[y][x];
 			
 			/* Deleting a locked or jammed door is problematical */
-			clear_icky_door(c_ptr);
+			delete_field_location(c_ptr);
 
 			/* Clear previous contents (if not a lake), add a floor */
 			if ((c_ptr->feat < FEAT_DEEP_WATER) ||
@@ -765,7 +774,7 @@ static bool cave_gen(void)
 			c_ptr = &cave[y][x];
 			
 			/* Deleting a locked or jammed door is problematical */
-			clear_icky_door(c_ptr);
+			delete_field_location(c_ptr);
 
 			/* Clear previous contents, add up floor */
 			c_ptr->feat = FEAT_FLOOR;
@@ -851,8 +860,8 @@ static bool cave_gen(void)
 						/* Find an empty grid */
 						while (TRUE)
 						{
-							y = rand_range(min_hgt, max_hgt - 1);
-							x = rand_range(min_wid, max_wid - 1);
+							y = rand_range(min_hgt + 1, max_hgt - 2);
+							x = rand_range(min_wid + 1, max_wid - 2);
 
 							/* Access the grid */
 							c_ptr = &cave[y][x];

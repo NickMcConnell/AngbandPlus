@@ -15,24 +15,6 @@
 #include "generate.h"
 #include "grid.h"
 
-void clear_icky_door(cave_type *c_ptr)
-{
-	s16b *fld_ptr;
-	
-	/* Want a closed door terrain */
-	if (c_ptr->feat != FEAT_CLOSED) return;
-	
-	/* See if there is a door field here */
-	fld_ptr = field_is_type(&c_ptr->fld_idx, FTYPE_DOOR);
-	
-	if (*fld_ptr)
-	{
-		/* There is - delete it */
-		delete_field_ptr(fld_ptr);
-	}
-}
-
-
 /*
  * Returns random co-ordinates for player/monster/object
  */
@@ -115,9 +97,13 @@ void place_random_stairs(int y, int x)
 
 	/* Place the stairs */
 	if (up_stairs)
-		place_up_stairs(y, x);
+	{
+		c_ptr->feat = FEAT_LESS;
+	}
 	else if (down_stairs)
-		place_down_stairs(y, x);
+	{
+		c_ptr->feat = FEAT_MORE;
+	}
 }
 
 
@@ -128,8 +114,8 @@ void place_random_door(int y, int x)
 {
 	int tmp;
 
-	/* Making a door on top of a door is problematical */
-	clear_icky_door(&cave[y][x]);	
+	/* Making a door on top of fields is problematical */
+	delete_field(y, x);
 	
 	/* Invisible wall */
 	if (ironman_nightmare && !rand_int(666))
@@ -207,49 +193,6 @@ void place_closed_door(int y, int x)
 	{
 		/* Create jammed door */
 		make_lockjam_door(y, x, randint(5) + dun_level / 10, TRUE);
-	}
-}
-
-
-/*
- * Make an empty square floor, for the middle of rooms
- */
-void place_floor(int x1, int x2, int y1, int y2, bool light)
-{
-	int x, y;
-
-	/* Place a full floor under the room */
-	for (y = y1 - 1; y <= y2 + 1; y++)
-	{
-		for (x = x1 - 1; x <= x2 + 1; x++)
-		{
-			set_cave_feat(y, x, FEAT_FLOOR);
-			add_cave_info(y, x, CAVE_ROOM);
-			if (light) add_cave_info(y, x, CAVE_GLOW);
-		}
-	}
-}
-
-
-/*
- * Make an empty square room, only floor and wall grids
- */
-void place_room(int x1, int x2, int y1, int y2, bool light)
-{
-	int y, x;
-
-	place_floor(x1, x2, y1, y2, light);
-
-	/* Walls around the room */
-	for (y = y1 - 1; y <= y2 + 1; y++)
-	{
-		place_outer_wall(y, x1 - 1);
-		place_outer_wall(y, x2 + 1);
-	}
-	for (x = x1 - 1; x <= x2 + 1; x++)
-	{
-		place_outer_wall(y1 - 1, x);
-		place_outer_wall(y2 + 1, x);
 	}
 }
 
@@ -426,6 +369,225 @@ int next_to_walls(int y, int x)
 
 
 /*
+ * Generate helper -- create a new room with optional light
+ */
+void generate_room(int y1, int x1, int y2, int x2, int light)
+{
+	int y, x;
+	
+	cave_type *c_ptr;
+
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			/* Point to grid */
+			c_ptr = &cave[y][x];
+			
+			c_ptr->info |= (CAVE_ROOM);
+			if (light) c_ptr->info |= (CAVE_GLOW);
+		}
+	}
+}
+
+/*
+ * Generate helper -- set flags for random vault.
+ */
+void generate_vault(int y1, int x1, int y2, int x2)
+{
+	int y, x;
+
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			cave[y][x].info |= (CAVE_ROOM | CAVE_ICKY);
+		}
+	}
+}
+
+/*
+ * Generate helper -- unset the CAVE_ICKY flag in a region.
+ */
+void clear_vault(int y1, int x1, int y2, int x2)
+{
+	int y, x;
+
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			cave[y][x].info &= ~(CAVE_ICKY);
+		}
+	}
+}
+
+/*
+ * Generate helper -- fill a rectangle with a feature
+ */
+void generate_fill(int y1, int x1, int y2, int x2, int feat)
+{
+	int y, x;
+
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			cave_set_feat(y, x, feat);
+		}
+	}
+}
+
+/*
+ * Generate helper -- draw a rectangle with a feature
+ */
+void generate_draw(int y1, int x1, int y2, int x2, int feat)
+{
+	int y, x;
+
+	for (y = y1; y <= y2; y++)
+	{
+		cave_set_feat(y, x1, feat);
+		cave_set_feat(y, x2, feat);
+	}
+
+	for (x = x1; x <= x2; x++)
+	{
+		cave_set_feat(y1, x, feat);
+		cave_set_feat(y2, x, feat);
+	}
+}
+
+
+/*
+ * Generate helper -- split a rectangle with a feature
+ */
+void generate_plus(int y1, int x1, int y2, int x2, int feat)
+{
+	int y, x;
+	int y0, x0;
+
+	/* Center */
+	y0 = (y1 + y2) / 2;
+	x0 = (x1 + x2) / 2;
+
+	for (y = y1; y <= y2; y++)
+	{
+		cave_set_feat(y, x0, feat);
+	}
+
+	for (x = x1; x <= x2; x++)
+	{
+		cave_set_feat(y0, x, feat);
+	}
+}
+
+
+/*
+ * Generate helper -- open all sides of a rectangle with a feature
+ */
+void generate_open(int y1, int x1, int y2, int x2, int feat)
+{
+	int y0, x0;
+
+	/* Center */
+	y0 = (y1 + y2) / 2;
+	x0 = (x1 + x2) / 2;
+
+	/* Open all sides */
+	cave_set_feat(y1, x0, feat);
+	cave_set_feat(y0, x1, feat);
+	cave_set_feat(y2, x0, feat);
+	cave_set_feat(y0, x2, feat);
+}
+
+
+/*
+ * Generate helper -- open one side of a rectangle with a feature
+ */
+void generate_hole(int y1, int x1, int y2, int x2, int feat)
+{
+	int y0, x0;
+
+	/* Center */
+	y0 = (y1 + y2) / 2;
+	x0 = (x1 + x2) / 2;
+
+	/* Open random side */
+	switch (rand_int(4))
+	{
+		case 0:
+		{
+			cave_set_feat(y1, x0, feat);
+			break;
+		}
+		case 1:
+		{
+			cave_set_feat(y0, x1, feat);
+			break;
+		}
+		case 2:
+		{
+			cave_set_feat(y2, x0, feat);
+			break;
+		}
+		case 3:
+		{
+			cave_set_feat(y0, x2, feat);
+			break;
+		}
+	}
+}
+
+/*
+ * Generate helper -- open one side of a rectangle with a door
+ */
+void generate_door(int y1, int x1, int y2, int x2, bool secret)
+{
+	int y0, x0;
+
+	/* Center */
+	y0 = (y1 + y2) / 2;
+	x0 = (x1 + x2) / 2;
+
+	/* Open random side */
+	switch (rand_int(4))
+	{
+		case 0:
+		{
+			y0 = y1;
+			break;
+		}
+		case 1:
+		{
+			x0 = x1;
+			break;
+		}
+		case 2:
+		{
+			y0 = y2;
+			break;
+		}
+		case 3:
+		{
+			x0 = x2;
+			break;
+		}
+	}
+	
+	/* Add the door */
+	if (secret)
+	{
+		place_secret_door(y0, x0);
+	}
+	else
+	{
+		place_closed_door(y0, x0);
+	}
+}
+
+
+/*
  * Always picks a correct direction
  */
 void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
@@ -469,9 +631,13 @@ bool get_is_floor(int x, int y)
 		return (FALSE);
 	}
 
+	/* Do not count floors internal to other rooms */
+	if (cave[y][x].info & CAVE_ROOM) return (FALSE);
+
 	/* Do the real check */
 	if (cave[y][x].feat == FEAT_FLOOR) return (TRUE);
 
+	/* Not a floor */
 	return (FALSE);
 }
 
@@ -1594,10 +1760,11 @@ static void cave_fill(int y, int x)
 
 
 bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
-	 bool light, bool room)
+	 bool light)
 {
 	int x, y, i, xhsize, yhsize;
 	cave_type *c_ptr;
+	byte info;
 
 	/* offsets to middle from corner */
 	xhsize = xsize / 2;
@@ -1629,19 +1796,24 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 	if (fill_data.amount < 10)
 	{
 		/* too small - clear area and try again later */
-		for (x = 0; x <= xsize; ++x)
-		{
-			for (y = 0; y <= ysize; ++y)
-			{
-				c_ptr = &cave[y0 + y - yhsize][x0 + x - xhsize];
-				
-				c_ptr->feat = FEAT_WALL_EXTRA;
-				c_ptr->info &= ~(CAVE_ICKY | CAVE_ROOM);
-			}
-		}
+		
+		/* Clear the height map */
+		generate_fill(y0 - yhsize , x0 - xhsize,
+			 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1, FEAT_WALL_EXTRA);
+		
+		/* Clear the icky flag */
+		clear_vault(y0 - yhsize , x0 - xhsize,
+			 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1);		
+		
+		/* Try again */
 		return FALSE;
 	}
-
+	
+	/* Get the cave info value to logical OR to the grids */
+	info = CAVE_ROOM;
+	if (light) info |= CAVE_GLOW; 
+	
+	
 	/*
 	 * Do boundarys-check to see if they are next to a filled region
 	 * If not then they are set to normal granite
@@ -1652,45 +1824,31 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 		/* top boundary */
 		c_ptr = &cave[0 + y0 - yhsize][i + x0 - xhsize];
 		
-		if ((c_ptr->info & CAVE_ICKY) && (room))
+		if (c_ptr->info & CAVE_ICKY)
 		{
 			/* Next to a 'filled' region? - set to be room walls */
 			c_ptr->feat = FEAT_WALL_OUTER;
-			
-			if (light) c_ptr->info |= (CAVE_GLOW);
-			
-			c_ptr->info |= (CAVE_ROOM);
-			c_ptr->feat = FEAT_WALL_OUTER;
+			c_ptr->info |= info;
 		}
 		else
 		{
 			/* set to be normal granite */
-			cave[y0 + 0 - yhsize][x0 + i - xhsize].feat = FEAT_WALL_EXTRA;
-		}
-		
-		/* clear the icky flag-don't need it any more */
-		c_ptr->info &= ~(CAVE_ICKY);
+			c_ptr->feat = FEAT_WALL_EXTRA;
+		}	
 
 		/* bottom boundary */
 		c_ptr = &cave[ysize + y0 - yhsize][i + x0 - xhsize];
-		if ((c_ptr->info & CAVE_ICKY) && (room))
+		if (c_ptr->info & CAVE_ICKY)
 		{
 			/* Next to a 'filled' region? - set to be room walls */
 			c_ptr->feat = FEAT_WALL_OUTER;
-			
-			if (light) c_ptr->info |= (CAVE_GLOW);
-			
-			c_ptr->info |= (CAVE_ROOM);
-			c_ptr->feat = FEAT_WALL_OUTER;
+			c_ptr->info |= info;
 		}
 		else
 		{
 			/* set to be normal granite */
 			c_ptr->feat = FEAT_WALL_EXTRA;
 		}
-
-		/* clear the icky flag-don't need it any more */
-		c_ptr->info &= ~(CAVE_ICKY);
 	}
 
 	/* Do the left and right boundaries minus the corners (done above) */
@@ -1699,35 +1857,11 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 		/* left boundary */
 		c_ptr = &cave[i + y0 - yhsize][0 + x0 - xhsize];
 		
-		if ((c_ptr->info & CAVE_ICKY) && room)
+		if (c_ptr->info & CAVE_ICKY)
 		{
 			/* room boundary */
 			c_ptr->feat = FEAT_WALL_OUTER;
-			
-			if (light) c_ptr->info |= (CAVE_GLOW);
-			c_ptr->info |= (CAVE_ROOM);
-			c_ptr->feat = FEAT_WALL_OUTER;
-		}
-		else
-		{
-			/* outside room */
-			c_ptr->feat = FEAT_WALL_EXTRA;
-		}
-		
-		/* clear icky flag -done with it */
-		c_ptr->info &= ~(CAVE_ICKY);
-		
-		/* right boundary */
-		c_ptr = &cave[i + y0 - yhsize][xsize + x0 - xhsize];
-		if ((c_ptr->info & CAVE_ICKY) && room)
-		{
-			/* room boundary */
-			c_ptr->feat = FEAT_WALL_OUTER;
-			
-			if (light) c_ptr->info |= (CAVE_GLOW);
-			
-			c_ptr->info |= (CAVE_ROOM);
-			c_ptr->feat = FEAT_WALL_OUTER;
+			c_ptr->info |= info;
 		}
 		else
 		{
@@ -1735,8 +1869,19 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 			c_ptr->feat = FEAT_WALL_EXTRA;
 		}
 
-		/* clear icky flag -done with it */
-		c_ptr->info &= ~(CAVE_ICKY);
+		/* right boundary */
+		c_ptr = &cave[i + y0 - yhsize][xsize + x0 - xhsize];
+		if (c_ptr->info & CAVE_ICKY)
+		{
+			/* room boundary */
+			c_ptr->feat = FEAT_WALL_OUTER;
+			c_ptr->info |= info;
+		}
+		else
+		{
+			/* outside room */
+			c_ptr->feat = FEAT_WALL_EXTRA;
+		}
 	}
 
 
@@ -1747,46 +1892,22 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 		{
 			c_ptr = &cave[y0 + y - yhsize][x0 + x - xhsize];
 			
-			if (c_ptr->info & CAVE_ICKY)
-			{
-				/* Clear the icky flag in the filled region */
-				c_ptr->info &= ~CAVE_ICKY;
-				
-				if (c_ptr->feat == FEAT_FLOOR)
-				{
-					/* Set appropriate flags */
-					if (light) c_ptr->info |= (CAVE_GLOW);
-					if (room) c_ptr->info |= (CAVE_ROOM);
-				}
-				else if (c_ptr->feat == FEAT_WALL_OUTER)
-				{
-					/* Walls */
-					if (light) c_ptr->info |= (CAVE_GLOW);
-					if (room)
-					{
-						c_ptr->info |= (CAVE_ROOM);
-					}
-					else
-					{
-						c_ptr->feat = FEAT_WALL_EXTRA;
-						c_ptr->info &= ~(CAVE_ROOM);
-					}
-				}
-				else
-				{
-					/* Clear the unconnected regions */
-					c_ptr->feat = FEAT_WALL_EXTRA;
-					c_ptr->info &= ~(CAVE_ROOM);
-				}
-			}
-			else
+			if (!(c_ptr->info & CAVE_ICKY))
 			{
 				/* Clear the unconnected regions */
 				c_ptr->feat = FEAT_WALL_EXTRA;
-				c_ptr->info &= ~(CAVE_ROOM);
+			}
+			else
+			{
+				/* Is part of the cave */
+				c_ptr->info |= info;
 			}
 		}
 	}
+	
+	/* Clear the icky flag */
+	clear_vault(y0 - yhsize , x0 - xhsize,
+		 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1);
 
 	/*
 	 * XXX XXX XXX There is a slight problem when tunnels pierce the caves:
@@ -1805,7 +1926,7 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 bool generate_lake(int y0, int x0, int xsize, int ysize,
 	 int c1, int c2, int c3, int type)
 {
-	int x, y, i, xhsize, yhsize;
+	int x, y, xhsize, yhsize;
 	int feat1, feat2, feat3;
 
 	cave_type *c_ptr;
@@ -1817,48 +1938,77 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 	/* Get features based on type */
 	switch (type)
 	{
-		case 1:{
-				/* Lava */
-				feat1 = FEAT_DEEP_LAVA;
-				feat2 = FEAT_SHAL_LAVA;
-				feat3 = FEAT_FLOOR;
-				}; break;
-		case 2:{
-				/* Water */
-				feat1 = FEAT_DEEP_WATER;
-				feat2 = FEAT_SHAL_WATER;
-				feat3 = FEAT_FLOOR;
-				}; break;
-		case 3: {
-				/* Collapsed cave */
-				feat1 = FEAT_FLOOR;
-				feat2 = FEAT_FLOOR;
-				feat3 = FEAT_RUBBLE;
-				}; break;
-		case 4: {
-				/* Earth vault */
-				feat1 = FEAT_RUBBLE;
-				feat2 = FEAT_FLOOR;
-				feat3 = FEAT_RUBBLE;
-				}; break;
-		case 5: {
-				/* Air vault */
-				feat1 = FEAT_FLOOR;
-				feat2 = FEAT_TREES;
-				feat3 = FEAT_FLOOR;
-				}; break;
-		case 6: {
-				/* Water vault */
-				feat1 = FEAT_SHAL_WATER;
-				feat2 = FEAT_DEEP_WATER;
-				feat3 = FEAT_SHAL_WATER;
-				}; break;
-		case 7: {
-				/* Fire Vault */
-				feat1 = FEAT_SHAL_LAVA;
-				feat2 = FEAT_DEEP_LAVA;
-				feat3 = FEAT_SHAL_LAVA;
-				}; break;
+		case LAKE_LAVA:
+		{
+			/* Lava */
+			feat1 = FEAT_DEEP_LAVA;
+			feat2 = FEAT_SHAL_LAVA;
+			feat3 = FEAT_FLOOR;
+			break;
+		}
+		
+		case LAKE_WATER:
+		{
+			/* Water */
+			feat1 = FEAT_DEEP_WATER;
+			feat2 = FEAT_SHAL_WATER;
+			feat3 = FEAT_FLOOR;
+			break;
+		}
+		
+		case LAKE_DESTROY:
+		{
+			/* Collapsed cave */
+			feat1 = FEAT_FLOOR;
+			feat2 = FEAT_FLOOR;
+			feat3 = FEAT_RUBBLE;
+			break;
+		}
+		
+		case LAKE_EEARTH:
+		{
+			/* Earth vault */
+			feat1 = FEAT_RUBBLE;
+			feat2 = FEAT_FLOOR;
+			feat3 = FEAT_RUBBLE;
+			break;
+		}
+		
+		case LAKE_EAIR:
+		{
+			/* Air vault */
+			feat1 = FEAT_FLOOR;
+			feat2 = FEAT_TREES;
+			feat3 = FEAT_FLOOR;
+			break;
+		}
+		
+		case LAKE_EWATER:
+		{
+			/* Water vault */
+			feat1 = FEAT_SHAL_WATER;
+			feat2 = FEAT_DEEP_WATER;
+			feat3 = FEAT_SHAL_WATER;
+			break;
+		}
+		
+		case LAKE_EFIRE:
+		{
+			/* Fire Vault */
+			feat1 = FEAT_SHAL_LAVA;
+			feat2 = FEAT_DEEP_LAVA;
+			feat3 = FEAT_SHAL_LAVA;
+			break;
+		}
+		
+		case LAKE_CAVERN:
+		{
+			/* Cavern */
+			feat1 = FEAT_FLOOR;
+			feat2 = FEAT_FLOOR;
+			feat3 = FEAT_FLOOR;
+			break;
+		}
 
 		/* Paranoia */
 		default: return FALSE;
@@ -1892,48 +2042,22 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 	if (fill_data.amount < 10)
 	{
 		/* too small -clear area and try again later */
-		for (x = 0; x <= xsize; ++x)
-		{
-			for (y = 0; y <= ysize; ++y)
-			{
-				c_ptr = &cave[y0 + y - yhsize][x0 + x - xhsize];
-				
-				c_ptr->feat = FEAT_WALL_EXTRA;
-				c_ptr->info &= ~(CAVE_ICKY);
-			}
-		}
+		
+		/* Clear the height map */
+		generate_fill(y0 - yhsize , x0 - xhsize,
+			 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1, FEAT_WALL_EXTRA);
+		
+		/* Clear the icky flag */
+		clear_vault(y0 - yhsize , x0 - xhsize,
+			 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1);
+			 
+		/* Try again */
 		return FALSE;
 	}
 
 	/* Do boundarys- set to normal granite */
-	for (i = 0; i <= xsize; ++i)
-	{
-		c_ptr = &cave[y0 + 0 - yhsize][x0 + i - xhsize];		
-		
-		c_ptr->feat = FEAT_WALL_EXTRA;
-		c_ptr->info &= ~(CAVE_ICKY);		
-
-		c_ptr = &cave[y0 + ysize - yhsize][x0 + i - xhsize];
-		
-		c_ptr->feat = FEAT_WALL_EXTRA;
-		c_ptr->info &= ~(CAVE_ICKY);
-	}
-
-	/* Do the left and right boundaries minus the corners (done above) */
-
-	for (i = 1; i < ysize; ++i)
-	{
-		c_ptr = &cave[y0 + i - yhsize][x0 + 0 - xhsize];		
-		
-		c_ptr->feat = FEAT_WALL_EXTRA;
-		c_ptr->info &= ~(CAVE_ICKY);		
-
-		c_ptr = &cave[y0 + i - yhsize][x0 + xsize - xhsize];
-		
-		c_ptr->feat = FEAT_WALL_EXTRA;
-		c_ptr->info &= ~(CAVE_ICKY);
-	}
-
+	generate_draw(y0 - yhsize , x0 - xhsize,
+		y0 - yhsize + ysize, x0 - xhsize + xsize, FEAT_WALL_EXTRA);
 
 	/* Do the rest: convert back to the normal format */
 	for (x = 1; x < xsize; ++x)
@@ -1948,9 +2072,6 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 				c_ptr->feat = FEAT_WALL_EXTRA;
 			}
 
-			/* turn off icky flag (no longer needed.) */
-			c_ptr->info &= ~(CAVE_ICKY | CAVE_ROOM);
-
 			/* Light lava and trees */
 			if ((c_ptr->feat == FEAT_DEEP_LAVA) ||
 				(c_ptr->feat == FEAT_SHAL_LAVA) ||
@@ -1961,5 +2082,10 @@ bool generate_lake(int y0, int x0, int xsize, int ysize,
 		}
 	}
 
+	/* Clear the icky flag */
+	clear_vault(y0 - yhsize , x0 - xhsize,
+		 y0 - yhsize + ysize - 1, x0 - xhsize + xsize - 1);
+
+	/* Done */
 	return TRUE;
 }

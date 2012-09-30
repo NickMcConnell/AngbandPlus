@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/12 11:20:50 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/10/16 17:21:02 $ */
 /* File: cmd5.c */
 
 /* Purpose: Spell/Prayer commands */
@@ -1711,6 +1711,7 @@ static bool cast_death_spell(int spell)
 		break;
 	case 25: /* Raise the Dead */
 		{
+#if 0
 			bool pet = (randint(3) == 1);
 			bool group;
 			int type;
@@ -1737,7 +1738,15 @@ static bool cast_death_spell(int spell)
 
 				chg_virtue(V_UNLIFE, 1);
 			}
+#else /* 0 */
 
+			/* Testing the new corpse-raising code. */
+			if (raise_dead(py, px, (bool)(randint(3) != 1)))
+			{
+				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
+				chg_virtue(V_UNLIFE, 1);
+			}
+#endif /* 0 */			
 			break;
 		}
 	case 26: /* Esoteria */

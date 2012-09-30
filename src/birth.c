@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/16 09:55:32 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/06 11:07:12 $ */
 /* File: birth.c */
 
 /* Purpose: create a player character */
@@ -2375,7 +2375,8 @@ static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
  * each costing a certain amount of points (as above), from a pool of 48
  * available points, to which race/class modifiers are then applied.
  *
- * Each unused point is converted into 100 gold pieces.
+ * Each unused point is converted into 100 gold pieces, with a maximum of
+ * 600 gp at birth.
  *
  * Taken from V 2.9.0
  */
@@ -2470,6 +2471,9 @@ static bool player_birth_aux_2(void)
 
 		/* Gold is inversely proportional to cost */
 		p_ptr->au = (100 * (48 - cost)) + 100;
+
+		/* Maximum of 600 gold */
+		if (p_ptr->au > 600) p_ptr->au = 600;
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);

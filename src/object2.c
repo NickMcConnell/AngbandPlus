@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/09/16 17:41:06 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/12 09:33:11 $ */
 /* File: object2.c */
 
 /* Purpose: Object code, part 2 */
@@ -3735,6 +3735,15 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	/* Maximal chance of being "great" */
 	if (f2 > 20) f2 = 20;
 
+	/* "Good Luck" mutation */
+	if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && !rand_int(13))
+	{
+		/* The player is lucky - the item is better than normal */
+		good = TRUE;
+		
+		if (rand_int(2)) great = TRUE;
+	}
+
 
 	/* Assume normal */
 	power = 0;
@@ -4303,11 +4312,8 @@ void place_object(int y, int x, bool good, bool great)
 		o_ptr->python = object_create_callback(o_ptr);
 #endif /* USE_SCRIPT */
 
-		/* Notice */
+		/* Notice + Redraw */
 		note_spot(y, x);
-
-		/* Redraw */
-		lite_spot(y, x);
 	}
 	else
 	{
@@ -4423,11 +4429,8 @@ void place_gold(int y, int x)
 		o_ptr->python = object_create_callback(o_ptr);
 #endif /* USE_SCRIPT */
 
-		/* Notice */
+		/* Notice + Redraw */
 		note_spot(y, x);
-
-		/* Redraw */
-		lite_spot(y, x);
 	}
 }
 
@@ -4787,11 +4790,8 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		done = TRUE;
 	}
 
-	/* Note the spot */
+	/* Note + Redraw the spot */
 	note_spot(by, bx);
-
-	/* Draw the spot */
-	lite_spot(by, bx);
 
 	/* Sound */
 	sound(SOUND_DROP);

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:48 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/06 10:31:24 $
 # Monster attr/char definitions
 
 # Player
@@ -3411,4 +3411,103 @@ F:63:0x02:0xB1
 # explosive rune
 F:64:0x0C:0xCB
 
+# Fields are initialised here.  (Note that some don't need tiles.)
 
+# Invisible Wall
+# no tile.
+
+# Glyph of warding.
+T:2:0x0E:0xCB
+
+# Explosive rune.
+T:3:0x0C:0xCB
+
+# Corpse
+#T:4:
+
+# Skeleton
+#T:5:
+
+# Trapdoor
+T:6:0x01:0x97
+
+# Pit
+T:7:0x07:0x97
+
+# Spiked Pit
+T:8:0x07:0x97
+
+# Poison Pit
+T:9:0x07:0x97
+
+# Evil Rune
+T:10:0xA2:0x8B
+
+# Strange Rune
+T:11:0xA2:0x8A
+
+# Discoloured Spot
+T:12:0x02:0x97
+
+# Discoloured Spot
+T:13:0x02:0x97
+
+# Gas Trap
+T:14:0x05:0x97
+
+# Compact Rune
+T:15:0x0B:0x97
+
+# Dart Trap
+T:16:0x04:0x97
+
+# Dart Trap
+T:17:0x04:0x97
+
+# Twisted Rune
+T:18:0x0B:0x97
+
+# Geometric Rune
+T:19:0x0B:0x97
+
+# Glowing Rune
+T:20:0x0B:0x97
+
+# Jagged Rune
+T:21:0x0B:0x97
+
+# Fractured Rune
+T:22:0x0B:0x97
+
+# Faded Rune
+T:23:0x0B:0x97
+
+# Flashing Rune
+T:24:0x0B:0x97
+
+# Weird Rune
+T:25:0x0B:0x97
+
+# Shimmering Rune
+T:26:0x0B:0x97
+
+# Smelly Rune
+T:27:0x0B:0x97
+
+# Intricate Rune
+T:28:0x0B:0x97
+
+# Bright Rune
+T:29:0x0B:0x97
+
+# Blurry Rune
+T:30:0x0B:0x97
+
+# Spiral Rune
+T:31:0x0B:0x97
+
+# Locked Door
+T:32:0x0E:0xC5
+
+# Jammed Door
+T:33:0x07:0xC5

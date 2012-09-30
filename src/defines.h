@@ -22,12 +22,6 @@
  * be defined in this file, but which may be related to definitions here.
  * This is of course bad programming practice, but nobody is perfect...
  *
- * For example, there are MANY things that depend on the screen being
- * 80x24, with the top line used for messages, the bottom line being
- * used for status, and exactly 22 lines used to show the dungeon.
- * Just because your screen can hold 46 lines does not mean that the
- * game will work if you try to use 44 lines to show the dungeon.
- *
  * You have been warned.
  */
 
@@ -870,38 +864,12 @@
 #define FEAT_PEBBLES		0x0E
 #define FEAT_SOLID_LAVA		0x0F
 
-#if 0  /* Traps are now fields */
-	/* Traps */
-	#define FEAT_TRAP_TRAPDOOR      0x10
-	#define FEAT_TRAP_PIT           0x11
-	#define FEAT_TRAP_SPIKED_PIT    0x12
-	#define FEAT_TRAP_POISON_PIT    0x13
-	#define FEAT_TRAP_TY_CURSE      0x14
-	#define FEAT_TRAP_TELEPORT      0x15
-	#define FEAT_TRAP_FIRE          0x16
-	#define FEAT_TRAP_ACID          0x17
-	#define FEAT_TRAP_SLOW          0x18
-	#define FEAT_TRAP_LOSE_STR      0x19
-	#define FEAT_TRAP_LOSE_DEX      0x1A
-	#define FEAT_TRAP_LOSE_CON      0x1B
-	#define FEAT_TRAP_BLIND         0x1C
-	#define FEAT_TRAP_CONFUSE       0x1D
-	#define FEAT_TRAP_POISON        0x1E
-	#define FEAT_TRAP_SLEEP         0x1F
+/* Gap where the traps were */
 
-#endif /* 0 */
-
-/* Doors */
-/* #define FEAT_DOOR_HEAD          0x20 Locked and jammed */
-/* #define FEAT_DOOR_TAIL          0x2F doors are now fields */
-
+/* Closed Door */
 #define FEAT_CLOSED				0x20
-
-
+#define FEAT_PILLAR         	0x21
 /* A big gap for expansion */
-
-
-
 
 /* Extra */
 #define FEAT_SECRET             0x30
@@ -925,8 +893,7 @@
 #define FEAT_PERM_OUTER         0x3E
 #define FEAT_PERM_SOLID         0x3F
 
-/* Glyph */
-/* #define FEAT_MINOR_GLYPH        0x40 Now is a field */
+/* Gap where Glyph was */
 
 /* Pattern */
 #define FEAT_PATTERN_START      0x41
@@ -948,13 +915,13 @@
 #define FEAT_SHAL_WATER         0x54
 #define FEAT_DEEP_LAVA          0x55
 #define FEAT_SHAL_LAVA          0x56
-/* #define FEAT_DARK_PIT           0x57 Now is a field */
+
+/* Gap */
+
 #define FEAT_DIRT               0x58
 #define FEAT_GRASS              0x59
 
-/* #define FEAT_TRAP_TRAPS		0x5A	Now is a field */
-
-/* #define FEAT_WALL_INVIS		0x5B	Now is a field */
+/* Gap */
 
 #define FEAT_OCEAN_WATER	0x5C
 #define FEAT_DEEP_ACID		0x5D
@@ -969,16 +936,17 @@
 #define FEAT_PINE_TREE		0x64
 #define FEAT_SNOW_TREE		0x65
 #define FEAT_OBELISK		0x66
-#define FEAT_PILLAR         0x67
 
-/* Feature 0x68 - 0x6F unused */
+
+/* Gap */
 
 /* Impassible terrains */
 #define FEAT_FENCE		    0x70
 #define FEAT_WELL		    0x71
 #define FEAT_FOUNTAIN       0x72
 #define FEAT_JUNGLE		    0x73
-/* Buildings - removed (replaced with fields) */
+
+/* Gap  */
 
 /* Slow "floor" terrains */
 
@@ -3392,8 +3360,7 @@
 	  ((C)->feat == FEAT_DIRT)) && \
 	  ((C)->o_idx == 0) && \
 	  ((C)->m_idx == 0) && \
-	  ((C)->fld_idx == 0) && \
-	  !((C) == area(py, px)))
+	  ((C)->fld_idx == 0))
 
 
 /*

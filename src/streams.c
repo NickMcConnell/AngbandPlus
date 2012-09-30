@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/25 11:27:04 $
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/04 10:32:05 $
  *
  * File: streams.c
  * Purpose: Used by dungeon generation. This file holds all the
@@ -108,8 +108,8 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 						/* Do not convert permanent features */
 						if (cave_perma_grid(c_ptr)) continue;
 
-						/* Deleting a locked / jammed door is problematical */
-						clear_icky_door(c_ptr);
+						/* Making a door on top of fields is problematical */
+						delete_field_location(c_ptr);
 						
 						/*
 						 * Clear previous contents, add feature
@@ -293,8 +293,8 @@ void place_trees(int x, int y)
 			/* Want square to be in the circle and accessable. */
 			if (in_bounds(j, i) && (distance(j, i, y, x) < 4) && !cave_perma_grid(c_ptr))
 			{
-				/* Deleting a locked or jammed door is problematical */
-				clear_icky_door(c_ptr);
+				/* Adding to grids with fields is problematical */
+				delete_field_location(c_ptr);
 				
 				/*
 				 * Clear previous contents, add feature
@@ -370,8 +370,8 @@ void destroy_level(void)
 					/* Delete objects */
 					delete_object(y, x);
 					
-					/* Deleting a locked or jammed door is problematical */
-					clear_icky_door(c_ptr);
+					/* Delete all fields */
+					delete_field_location(c_ptr);
 
 					/* Wall (or floor) type */
 					t = rand_int(200);
@@ -422,10 +422,9 @@ void destroy_level(void)
 void build_cavern(void)
 {
 	int grd, roug, cutoff, xsize, ysize, x0, y0;
-	bool done, light;
+	bool done;
 
-	light = done = FALSE;
-	if (dun_level <= randint(50)) light = TRUE;
+	done = FALSE;
 
 	/* Make a cave the size of the dungeon */
 	xsize = max_wid - 1;
@@ -452,7 +451,8 @@ void build_cavern(void)
 		generate_hmap(y0 + 1, x0 + 1, xsize, ysize, grd, roug, cutoff);
 
 		/* Convert to normal format+ clean up */
-		done = generate_fracave(y0 + 1, x0 + 1, xsize, ysize, cutoff, light, FALSE);
+		done = generate_lake(y0 + 1, x0 + 1, xsize, ysize,
+			 cutoff, cutoff, cutoff, LAKE_CAVERN);
 	}
 }
 

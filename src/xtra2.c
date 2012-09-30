@@ -544,7 +544,7 @@ void monster_death(int m_idx)
 		/* Hack - corpses only appear on certain floors */
 		if ((feat == FEAT_FLOOR) ||
 			((feat >= FEAT_SAND) && (feat <= FEAT_SOLID_LAVA)) ||
-			((feat >= FEAT_DIRT) && (feat <= FEAT_PILLAR)) ||
+			((feat >= FEAT_DIRT) && (feat <= FEAT_OBELISK)) ||
 			((feat >= FEAT_BUSH) && (feat <= FEAT_SHAL_SWAMP)))
 		{
 			if (corpse)
@@ -1502,6 +1502,10 @@ void verify_panel(void)
 
 	max_prow_min = max_panel_rows - hgt;
 	max_pcol_min = max_panel_cols - wid;
+	
+	/* Bounds checking */
+	if (max_prow_min < 0) max_prow_min = 0;
+	if (max_pcol_min < 0) max_pcol_min = 0;
 
 	/* Center on player */
 	if (center_player && (!avoid_center || !running))
@@ -1938,8 +1942,9 @@ static bool target_set_accept(int y, int x)
 		/* Acquire next field */
 		next_f_idx = f_ptr->next_f_idx;
 
-		/* Memorized field */
-		if (f_ptr->info & FIELD_INFO_MARK) return (TRUE);
+		/* Memorized , lookable field */
+		if ((f_ptr->info & (FIELD_INFO_MARK | FIELD_INFO_NO_LOOK)) ==
+			 FIELD_INFO_MARK) return (TRUE);
 	}
 
 	/* Interesting memorized features */
@@ -2179,9 +2184,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 							attitude = " ";
 
 						/* Describe, and prompt for recall */
-						sprintf(out_val, "%s%s%s%s (%s)%s%s[r,%s]",
+						sprintf(out_val, "%s%s%s%s (%s)%s[r,%s]",
 						    s1, s2, s3, m_name, look_mon_desc(c_ptr->m_idx),
-						    (m_ptr->smart & SM_CLONED ? " (clone)": ""),
 						    attitude, info);
 
 						prt(out_val, 0, 0);
@@ -2391,8 +2395,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			if (f_ptr->info & FIELD_INFO_NO_LOOK) continue;
 
 			/* Describe if if is visible and known. */
-			if ((f_ptr->info & (FIELD_INFO_MARK | FIELD_INFO_VIS))
-				 == (FIELD_INFO_MARK | FIELD_INFO_VIS))
+			if (f_ptr->info & FIELD_INFO_MARK)
 			{
 				/* See if it has a special name */
 				if (f_ptr->action[FIELD_ACT_LOOK])

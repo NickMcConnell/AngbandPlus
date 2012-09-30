@@ -2,6 +2,30 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+ZAngband 2.5.2b:
+-The "Good luck" and "Bad luck" mutations no longer affect unweildable
+ items.  The "Good luck" mutation can no longer be abused with memory
+ mosses.
+-Fixed a bug in the dynamic monster lighting.
+-Increased the price of powerful rods.
+-The map should no longer "jump about" when the center on player option
+ is on.
+-You get a maximum of 600gp for left-over points in the point-based
+ character generation.
+-Glyphs of warding and explosive runes can now be created.
+-You can't run into traps any more.
+-Bugfixing and cleanup of the dungeon generation code.
+-Shooting at monsters adjacent to you is much harder if they are awake.
+-The death spell "raise dead" now raises corpses.
+-Added yet another type of random vault.
+-Pillars now use the pillar tile.  This tile is "semi-graphical" in X11
+ when in ascii mode.
+-Added three new types of rooms.  (Some with multiple sub-types.)
+-Fixed a couple of problems with mindcrafter spell descriptions.
+-Closed several possible security holes in the pref-file handling.
+-Renamed makefile.cyg to match the other makefiles.
+-Fields now have tiles on the main-ibm platform.
+
 ZAngband 2.5.2:
 -Added monster lighting effects.  This is similar to the monster
  lighting patch from APW, however it is much more efficient.  Also,
