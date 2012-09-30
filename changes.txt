@@ -1572,7 +1572,7 @@
 - Staffs of wishing now only have 1 charge
 
 12/12/2000
-- A patch to the alchemist patch from KUSUNOE Toru, they should now work
+- A patch to the alchemist patch from KUSUNOSE Toru, they should now work
   perfectly
 - h-system.h fixed so it should compile fine on Linux
 
@@ -1584,10 +1584,10 @@
 - Phial of galadriel and Phial of Undeath now use the same symbol(yellow ~)
 
 06/01/2001
-- Fates now show up in the character dump (thanks Kusunoe)
-- Scrolls of Divination are more friendly now (thanks Kusunoe)
+- Fates now show up in the character dump (thanks Kusunose)
+- Scrolls of Divination are more friendly now (thanks Kusunose)
 - Artifacts in monsters inventories not yet seen are not shown in the
-  artifact list (thanks Kusunoe)
+  artifact list (thanks Kusunose)
 
 08/01/2001
 - Zweihanders are now 2handed weapons(as they always should have been :)
@@ -1666,4 +1666,179 @@
 - Fixed a Runcrafter bug which could crash the game is no second rune was
   selected
 
-11/02/2001 -- PernAngband 4.1.5
+11/02/2001 - PernAngband 4.1.5
+
+11/02/2001
+- Ents get nearly no sustenance from eating
+
+15/02/2001
+- Center player option
+- Alchemists artifact craetion now requires player level magic essenses to
+  work. The stats are permanently reduced upon faillure(as it always meant to
+  be). You PERMANENTLY lose 100 max hp when trying to create an artifact.
+  This should reduce the number of mad alchemists :)
+- Dark Swords as a new item type. They generate an antimagic field of 50%
+  minus the enchantment(a +5+5 one will only do 40%) on a 5 distance(also
+  minus the enchantment
+- Unbelievers now generate a (player level)% antimagic field on a distance of
+  (player level / 10)
+- An antimagic field disable any form of magic on the user, and can prevent
+  monsters from casting spells(not breathing). A 50% magioc field will have
+  a 50% chance of stopping a spell
+
+18/02/2001
+- Normal Artifacts. Normal Artifacts are artifacts found directly in k_info
+  that doesnt require a place in a_info. That allow strange artifacts, like
+  wands, rods, staff(those were possible already but uglily), ... and even
+  food
+- The Rod Tip of Home Summoning is now a Normal Artifact
+- The Greater Ration of Health is the first(very rare) food artifact !
+  When eaten it provide +70 hp permanently
+- The Potion of the Blood of Life is now Normal Artifact
+- Invulnerability can no more appear in fountains
+- The Ring of Precognition is now a Normal Artifact
+- The Ring of Wraithform is now a Normal Artifact
+- The Scroll of Deincarnation is now a Normal Artifact
+- Hell is now the Nether Realm
+- Fixed a bug that created stairs at bottoms of dungeons
+- Extra blows can only be provided by things in the weapon slots
+- The Scroll of Mass Resurection
+- Renamed Warrior-Mage to Warlock
+
+20/02/2001
+- The Wand of Stone to Mud of Thrain and The Wand of Fireball of Gandalf
+  got the EASY_USE flag, allowing them to be used even by unskilled
+  characters
+- As does the Stone of lore
+
+23/02/2001
+- Fixed a bug that allowed people in quests to use the '<' key to get to the
+  wilderness timescale
+- Fixed a quets bug that allowed the player to regenerate the quest many times
+- The Contol the Three shadow spell is now much much more effective, since
+  it removes black breath and DG_CURSE. The only little annoying thing is that
+  it requires that player to wear the *THREE* rings. And that can only be
+  acomplished with either the Possessor class(thought they CAN'T use the spell
+  no hope for them) or The Scroll of Deincarnation
+
+10/03/2001
+- Monks can choose which spell to learn
+- Fixed a bug with limited ESP description
+- Fixed a bug in Possessor's titles
+
+09/04/2001
+- DeathMolds can now teleport onto stores & such(all features that are
+  considered floor by the game)
+- Objects cannot be dropped on traps anymore
+- The Sandworm Queen no longer appears multiples times
+- Harpers wont crash at the start anymore
+- Panic saves will use the playername.pnc filename(thanks Improv)
+- Symbiants can't hypnotize monsters that aren't pet anymore
+
+15/04/2001
+- Add an old patch from SC which allows dungeons to project an attack every
+  few turns. For example a player in the Nether Realm will be hurt by nether
+  every 3 turns for a damage of 10d10.
+  The syntax is(up to 4 lines):
+  E:<dices>d<sides>:<frequency>:<attack type>
+- Volcano now does 2d10 damage each 10 turns, beware scrolls on the floor :)
+- Lost ruins of numenor does 1d1 acid damage each turn(water will RUST you)
+- Cirith Ungol will poison you every 20 turns for 4d4
+- Illusory Castle will confuse you every 6 turns for 6d2
+- Small Water Cave does 1d1 acid damage each 20 turns(water will RUST you)
+- Nether Realm is unlightable(as is the Maze) and alwaos empty levels
+- Nether Realm is now guarded by Tik'srvzllat who guards the Ring of Phasing
+  a powerfull ring that allow wraithform and immunity to nether
+
+16/04/2001
+- New Race system, Now you select a race AND a race modifier at birth.
+  For example you choose to be a human vampire, or a dwarf skeleton, ...
+  Then some modifiers apply(stats, skills, extra powers, ...). Note that
+  all races can't use all race modifiers
+- New race modifier, Barbarian, the old barbarian race is gone
+- New race, the Wood Elf from CathAngband, masters of the bow, with 1 extra
+  might and 1 more if they use bow and are high level enough
+- Extra Might can now be > 1
+- Penality for priests using non blessed swords/axes/polearms is now (-15,-15)
+- New weapon category: Axes
+- Add Weaponmaster class from Gumband, trained into one weapon category, being
+  great with it but bad with anything else
+
+18/04/2001
+- Aranruth is a broad sword, 15lb, 3d5
+- Fixed lots of spelling errors/typos thanks to Improv
+- Add a new birth option: Astral(ghosts from KaMband, name from Gumband)
+  It enforces vanilla town and makes you start at level 98, you can't recall
+  and need to reach town
+- Trap doors can't appear at the last level of dungeons or in non dungeons
+- The concept of non-dungeon places: some "dungeons" got the FLAT flag
+  meaning they are  ... flat, like a forest
+- The concept of Towers, going up instead of down
+- Updated birth.txt to take in account the race modifiers
+- Wood Elves can go throught trees
+- Ammo similar to the one in your quiver will always be picked up
+
+20/04/2001
+- The death fate is way different now. When the player enters level he is
+  fated to die on he gets teleported to a special level in a special dungeon.
+  the level is empty, small and full of really ut of depth monsters. Recall,
+  genocide, ... are forbiden. There are no stairs, the only way to leave it is
+  to kill every single monster of the level. Then the player is teleported
+  back to town. Chance of surviving are *LOW* but not unexistant :)
+- The knowledge rune will now probe monsters
+- Runecrafters are now playable(new damage formula) even at low levels !
+  Now lets hope they are not TOO powerful :)
+- Runecrafters upgraded. They can now:
+        1) Cast a spell on the fly(as before)
+        2) Cast a runespell the memorized before(can memorize up to 100)
+        3) Cast it from a carved runestone(uses 75% mana and does NOT need the
+           runes to be present in the inventory, but canibalyse the runes at
+           creation and must carry it around)
+- Mormegil is now a Darksword and is quite nice
+- Lesser & Greater Krakens now drop corpse
+
+24/04/2001
+- Add random towns in the dungeons. There can be up to 4 towns per dungeons.
+  Not all dungeons(well should say places) can hold towns. Random towns shops
+  are took from the possible shops in st_info.txt with the RANDOM flag
+- Stores in st_info.txt got flags
+- When carving a Runestone the involved runes are destroyed
+- Random towns can have different shapes, from vanilla one to hidden one
+  (the stores are palced randomply on the level, without any buildings)
+- When the player is invisible and does not have see invisible the @ symbol
+  disappear
+- Cannot locate undetected traps by simply 'l'ooking around
+- Mariliths cannot use boots
+
+26/04/2001
+- The player is no more "teleported away" when leaving some buildings
+- Level gaining artifacts rariuty have been increased
+- Death Ray will actually kill the player
+- Removed traps of death ray(now that death ray insta-kill)
+- Recharged wands/staffs cannot be extracted anymore
+- Wraithform no longer reduce damage
+- New hp formula for Possessors
+- Some sentence for the DarkGod monster to say, based on #angband :)
+
+28/04/2001
+- *WARNING*, squelch list has to be checked upon importing an old savefile
+- Every item can provides blows since Alchemists cant create that much arts
+  now
+- Wielding a mage staff(even non ego ones) will provide with a decrease of 20% 
+  of the casting speed(using 80 energy instead of 100)
+- Add makefile.bcc thanks to Arch
+
+29/04/2001
+- Some Spelling/Grammar fixes in lib/help/ -- Improv
+- Leveling atifacts will not use a new scheme:
+  There are now groups of abilities(the Fire realm, the Cold Realm and so on)
+  Whenever a weapon goes up a level, it gets to either:
+  1.  become enchanted by +2/+1
+  2.  gain another attribute from a group it already has.
+  3.  gain +1 to hit, and a point.
+  when a weapon gains a certain number of points, it can buy access to a new group
+  Note that some groups can contain good AND bad abilities
+- Pet shop now sells scrolls of summon never moving pets
+- Lots of fixes(ammo weigth, god flags, ...) thanks to Kusunose Toru
+- Towers desactivated for the time begin
+- Rods considered good

@@ -154,6 +154,7 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_AXE:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_HELM:
@@ -316,7 +317,17 @@ static void rd_item(object_type *o_ptr)
         rd_s16b(&o_ptr->pval2);
 
         /* Special pval */
-        rd_s16b(&o_ptr->pval3);
+        if (!p_older_than(4, 2, 2))
+        {
+                rd_s32b(&o_ptr->pval3);
+        }
+        else
+        {
+                s16b tmp;
+
+                rd_s16b(&tmp);
+                o_ptr->pval3 = tmp;
+        }
 
         rd_byte(&o_ptr->discount);
         rd_byte(&o_ptr->number);
@@ -533,6 +544,10 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->monfear);
         rd_u32b(&m_ptr->smart);
         rd_byte(&m_ptr->imprinted);
+        if (!p_older_than(4, 1, 7))
+                rd_s16b(&m_ptr->possessor);
+        else
+                m_ptr->possessor = 0;
 }
 
 
@@ -967,7 +982,41 @@ static void rd_extra(void)
 
 	/* Class/Race/Gender/Spells */
 	rd_byte(&p_ptr->prace);
-	rd_byte(&p_ptr->pclass);
+
+        if (!p_older_than(4, 1, 8))
+        {
+                rd_byte(&p_ptr->pracem);
+        }
+        else
+        {
+                p_ptr->pracem = 0;
+
+                /* Convert the old barbarian */
+                if (p_ptr->prace == 10)
+                {
+                        p_ptr->prace = RACE_HUMAN;
+                        p_ptr->pracem = RMOD_BARBARIAN;
+                }
+                /* Convert the old vampire */
+                else if (p_ptr->prace == 16)
+                {
+                        p_ptr->prace = RACE_HUMAN;
+                        p_ptr->pracem = RMOD_VAMPIRE;
+                }
+                /* Convert the old spectre */
+                else if (p_ptr->prace == 17)
+                {
+                        p_ptr->prace = RACE_HUMAN;
+                        p_ptr->pracem = RMOD_SPECTRE;
+                }
+                /* Convert the the races to match their new position */
+                else
+                {
+                        if (p_ptr->prace > 10) p_ptr->prace--;
+                        if (p_ptr->prace > 17) p_ptr->prace -= 2;
+                }
+        }
+        rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->psex);
         rd_u16b(&p_ptr->realm1);
         rd_u16b(&p_ptr->realm2);
@@ -1031,6 +1080,14 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->mhp);
 	rd_s16b(&p_ptr->chp);
 	rd_u16b(&p_ptr->chp_frac);
+        if (!p_older_than(4, 1, 6))
+        {
+                rd_s16b(&p_ptr->hp_mod);
+        }
+        else
+        {
+                p_ptr->hp_mod = 0;
+        }
 
         rd_s16b(&p_ptr->msane);
         rd_s16b(&p_ptr->csane);
@@ -1182,6 +1239,16 @@ static void rd_extra(void)
         rd_u16b(&p_ptr->body_monster);
         rd_byte(&p_ptr->disembodied);
 
+        /* Astral being */
+        if (!p_older_than(4, 1, 9))
+        {
+                rd_byte(&p_ptr->astral);
+        }
+        else
+        {
+                p_ptr->astral = FALSE;
+        }
+
         /* Read the music */
         rd_byte(&p_ptr->music);
 
@@ -1206,6 +1273,29 @@ static void rd_extra(void)
         for (i = 0; i < MAX_SPELLS; i++)
         {
                 rd_spells(i);
+        }
+
+        if (!p_older_than(4, 2, 0))
+        {
+                rd_s16b(&rune_num);
+                for (i = 0; i < MAX_RUNES; i++)
+                {
+                        rd_string(rune_spells[i].name, 30);
+                        rd_s16b(&(rune_spells[i].type));
+                        rd_s16b(&(rune_spells[i].rune2));
+                        rd_s16b(&(rune_spells[i].mana));
+                }
+        }
+        else
+        {
+                rune_num = 0;
+                for (i = 0; i < MAX_RUNES; i++)
+                {
+                        strcpy(rune_spells[i].name, "");
+                        rune_spells[i].type = 0;
+                        rune_spells[i].rune2 = 0;
+                        rune_spells[i].mana = 0;
+                }
         }
 
 	/* Skip the flags */
@@ -2104,6 +2194,7 @@ static errr rd_savefile_new_aux(void)
                 if (tmp8u & 0x10) k_ptr->squeltch = 2;
                 if (tmp8u & 0x20) k_ptr->squeltch = 3;
                 if (tmp8u & 0x40) k_ptr->squeltch = 4;
+                k_ptr->artifact = (tmp8u & 0x80) ? TRUE: FALSE;
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
@@ -2144,6 +2235,68 @@ static errr rd_savefile_new_aux(void)
 			return (23);
 		}
 
+                if (!p_older_than(4, 2, 1))
+                {
+                        /* Min of random towns */
+                        rd_u16b(&max_towns_load);
+
+                        /* Incompatible save files */
+                        if (max_towns_load != TOWN_RANDOM)
+                        {
+                                note(format("Different random towns base (%u)!", max_towns_load));
+                                return (23);
+                        }
+
+                        for (i = TOWN_RANDOM; i < max_towns; i++)
+                        {
+                                rd_u32b(&town[i].seed);
+                                rd_byte(&town[i].numstores);
+                                rd_byte(&town[i].real);
+                        }
+
+                        /* Number of dungeon */
+                        rd_u16b(&max_towns_load);
+
+                        /* Incompatible save files */
+                        if (max_towns_load > max_d_idx)
+                        {
+                                note(format("Too many dungeon types (%u)!", max_towns_load));
+                                return (23);
+                        }
+
+                        /* Number of towns per dungeon */
+                        rd_u16b(&max_quests_load);
+
+                        /* Incompatible save files */
+                        if (max_quests_load > max_d_idx)
+                        {
+                                note(format("Too many town per dungeons (%u)!", max_quests_load));
+                                return (23);
+                        }
+
+                        for (i = 0; i < max_towns_load; i++)
+                        {
+                                for (j = 0; j < max_quests_load; j++)
+                                {
+                                        rd_s16b(&(d_info[i].t_idx[j]));
+                                        rd_s16b(&(d_info[i].t_level[j]));
+                                }
+                                rd_s16b(&(d_info[i].t_num));
+                        }
+                }
+                else
+                {
+                        for (i = 0; i < max_d_idx; i++)
+                        {
+                                for (j = 0; j < TOWN_DUNGEON; j++)
+                                {
+                                        d_info[i].t_idx[j] = 0;
+                                        d_info[i].t_level[j] = 0;
+                                }
+                                d_info[i].t_num = 0;
+                        }
+                }
+
 		/* Number of quests */
 		rd_u16b(&max_quests_load);
 
@@ -2164,7 +2317,7 @@ static errr rd_savefile_new_aux(void)
 			if (quest[i].status == 1)
 			{
                                 rd_s16b(&quest[i].k_idx);
-                                if(quest[i].k_idx)a_info[quest[i].k_idx].flags3 |= TR3_QUESTITEM;
+                                if (quest[i].k_idx) a_info[quest[i].k_idx].flags3 |= TR3_QUESTITEM;
 				rd_s16b(&quest[i].cur_num);
 				rd_s16b(&quest[i].max_num);
 				rd_s16b(&quest[i].type);
@@ -2344,6 +2497,7 @@ static errr rd_savefile_new_aux(void)
 
 	/* Important -- Initialize the race/class */
 	rp_ptr = &race_info[p_ptr->prace];
+        rmp_ptr = &race_mod_info[p_ptr->pracem];
 	cp_ptr = &class_info[p_ptr->pclass];
 
 	/* Important -- Initialize the magic */
@@ -2466,9 +2620,23 @@ static errr rd_savefile_new_aux(void)
 errr rd_savefile_new(void)
 {
 	errr err;
+#ifdef SAFER_PANICS
+	char panic_fname[1024];
 
-	/* The savefile is a binary file */
-	fff = my_fopen(savefile, "rb");
+        if (!panicload)
+        {
+#endif /* SAFER_PANICS */
+                /* The savefile is a binary file */
+                fff = my_fopen(savefile, "rb");
+#ifdef SAFER_PANICS
+	}
+        if (panicload)
+        {
+		strcpy(panic_fname, savefile);
+                strcat(panic_fname, ".pnc");
+		fff = my_fopen(panic_fname, "rb");
+        }
+#endif /* SAFER_PANICS */
 
 	/* Paranoia */
 	if (!fff) return (-1);

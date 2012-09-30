@@ -2740,9 +2740,6 @@ void do_cmd_load_screen(void)
 			/* Put the attr/char */
 			Term_draw(x, y, a, c);
 		}
-
-		/* End the row */
-		fprintf(fff, "\n");
 	}
 
 
@@ -2906,10 +2903,11 @@ void do_cmd_knowledge_artifacts(void)
 
 	char base_name[80];
 
-	bool *okay;
+        bool *okay, *okayk;
 
 	/* Allocate the "okay" array */
 	C_MAKE(okay, max_a_idx, bool);
+        C_MAKE(okayk, max_k_idx, bool);
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -2933,6 +2931,23 @@ void do_cmd_knowledge_artifacts(void)
 
 		/* Assume okay */
 		okay[k] = TRUE;
+	}
+
+        for (k = 0; k < max_k_idx; k++)
+	{
+                object_kind *k_ptr = &k_info[k];
+
+		/* Default */
+                okayk[k] = FALSE;
+
+		/* Skip "empty" artifacts */
+                if (!(k_ptr->flags3 & TR3_NORM_ART)) continue;
+
+		/* Skip "uncreated" artifacts */
+                if (!k_ptr->artifact) continue;
+
+		/* Assume okay */
+                okayk[k] = TRUE;
 	}
 
 	/* Check the dungeon */
@@ -2965,7 +2980,14 @@ void do_cmd_knowledge_artifacts(void)
 				if (object_known_p(o_ptr)) continue;
 
 				/* Note the artifact */
-				okay[o_ptr->name1] = FALSE;
+                                if (k_info[o_ptr->k_idx].flags3 & TR3_NORM_ART)
+                                {
+                                        okayk[o_ptr->k_idx] = FALSE;
+                                }
+                                else
+                                {
+                                        okay[o_ptr->name1] = FALSE;
+                                }
 			}
 		}
 	}
@@ -2998,7 +3020,14 @@ void do_cmd_knowledge_artifacts(void)
 			if (object_known_p(o_ptr)) continue;
 
 			/* Note the artifact */
-			okay[o_ptr->name1] = FALSE;
+                        if (k_info[o_ptr->k_idx].flags3 & TR3_NORM_ART)
+                        {
+                                okayk[o_ptr->k_idx] = FALSE;
+                        }
+                        else
+                        {
+                                okay[o_ptr->name1] = FALSE;
+                        }
 		}
 	}
 
@@ -3020,7 +3049,14 @@ void do_cmd_knowledge_artifacts(void)
 		if (object_known_p(o_ptr)) continue;
 
 		/* Note the artifact */
-		okay[o_ptr->name1] = FALSE;
+                if (k_info[o_ptr->k_idx].flags3 & TR3_NORM_ART)
+                {
+                        okayk[o_ptr->k_idx] = FALSE;
+                }
+                else
+                {
+                        okay[o_ptr->name1] = FALSE;
+                }
 	}
 
 	/* Scan the artifacts */
@@ -3060,6 +3096,34 @@ void do_cmd_knowledge_artifacts(void)
 		fprintf(fff, "     The %s\n", base_name);
 	}
 
+        for (k = 0; k < max_k_idx; k++)
+	{
+		/* List "dead" ones */
+                if (!okayk[k]) continue;
+
+		/* Paranoia */
+		strcpy(base_name, "Unknown Artifact");
+
+		/* Real object */
+                if (k)
+		{
+			object_type forge;
+			object_type *q_ptr;
+
+			/* Get local object */
+			q_ptr = &forge;
+
+			/* Create fake object */
+                        object_prep(q_ptr, k);
+
+			/* Describe the artifact */
+			object_desc_store(base_name, q_ptr, FALSE, 0);
+		}
+
+		/* Hack -- Build the artifact name */
+		fprintf(fff, "     The %s\n", base_name);
+	}
+
 	/* Close the file */
 	my_fclose(fff);
 
@@ -3068,6 +3132,9 @@ void do_cmd_knowledge_artifacts(void)
 
 	/* Remove the file */
 	fd_kill(file_name);
+
+        C_FREE(okay, max_a_idx, bool);
+        C_FREE(okayk, max_k_idx, bool);
 }
 
 
@@ -3595,6 +3662,7 @@ static void do_cmd_knowledge_quests(void)
 				}
 			}
 			else if ((quest[i].type == QUEST_TYPE_RANDOM) &&
+ 				 (d_info[dungeon_type].flags1 & DF1_PRINCIPAL) &&
 			         (quest[i].level < rand_level))
 			{
 				/* New random */

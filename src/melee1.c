@@ -1012,7 +1012,7 @@ bool carried_make_attack_normal(int r_idx)
 								case A_INT: act = "bright"; break;
 								case A_WIS: act = "wise"; break;
 								case A_DEX: act = "agile"; break;
-								case A_CON: act = "hale"; break;
+								case A_CON: act = "hardy"; break;
 								case A_CHR: act = "beautiful"; break;
 							}
 
@@ -2418,7 +2418,7 @@ bool make_attack_normal(int m_idx, byte divis)
 								case A_INT: act = "bright"; break;
 								case A_WIS: act = "wise"; break;
 								case A_DEX: act = "agile"; break;
-								case A_CON: act = "hale"; break;
+								case A_CON: act = "hardy"; break;
 								case A_CHR: act = "beautiful"; break;
 							}
 

@@ -45,6 +45,8 @@ struct birther
 
 	s16b stat[6];
 
+	s16b chaos_patron;
+
 	char history[4][60];
 };
 
@@ -710,6 +712,7 @@ void create_random_name(int race, char *name)
 		break;
 	case RACE_DARK_ELF:
 	case RACE_ELF:
+        case RACE_WOOD_ELF:
 	case RACE_HALF_ELF:
 	case RACE_HIGH_ELF:
 		strcpy(name, elf_syllable1[rand_int(sizeof(elf_syllable1) / sizeof(char*))]);
@@ -727,13 +730,10 @@ void create_random_name(int race, char *name)
 		strcat(name, hobbit_syllable2[rand_int(sizeof(hobbit_syllable2) / sizeof(char*))]);
 		strcat(name, hobbit_syllable3[rand_int(sizeof(hobbit_syllable3) / sizeof(char*))]);
 		break;
-	case RACE_BARBARIAN:
 	case RACE_DUNADAN:
 	case RACE_HUMAN:
         case RACE_RKNIGHT:
         case RACE_DRAGONRIDER:
-	case RACE_SPECTRE:
-	case RACE_VAMPIRE:
 		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
 		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
 		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
@@ -1013,6 +1013,9 @@ static void save_prev_data(void)
 		prev.stat[i] = p_ptr->stat_max[i];
 	}
 
+	/* Save the chaos patron */
+	prev.chaos_patron = p_ptr->chaos_patron;
+
 	/* Save the history */
 	for (i = 0; i < 4; i++)
 	{
@@ -1046,6 +1049,9 @@ static void load_prev_data(void)
 		temp.stat[i] = p_ptr->stat_max[i];
 	}
 
+	/* Save the chaos patron */
+	temp.chaos_patron = p_ptr->chaos_patron;
+
 	/* Save the history */
 	for (i = 0; i < 4; i++)
 	{
@@ -1069,6 +1075,9 @@ static void load_prev_data(void)
 		p_ptr->stat_cur[i] = prev.stat[i];
 	}
 
+	/* Load the chaos patron */
+	p_ptr->chaos_patron = prev.chaos_patron;
+
 	/* Load the history */
 	for (i = 0; i < 4; i++)
 	{
@@ -1090,6 +1099,9 @@ static void load_prev_data(void)
 	{
 		prev.stat[i] = temp.stat[i];
 	}
+
+	/* Save the chaos patron */
+	prev.chaos_patron = temp.chaos_patron;
 
 	/* Save the history */
 	for (i = 0; i < 4; i++)
@@ -1212,7 +1224,7 @@ static void get_stats(void)
 		p_ptr->stat_max[i] = j;
 
 		/* Obtain a "bonus" for "race" and "class" */
-		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+                bonus = rp_ptr->r_adj[i] + rmp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
 		/* Variable stat maxes */
 		if (p_ptr->maximize)
@@ -1256,7 +1268,7 @@ static void get_extra(void)
 	p_ptr->max_plv = p_ptr->lev = 1;
 
 	/* Experience factor */
-	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+        p_ptr->expfact = rp_ptr->r_exp + rmp_ptr->r_exp + cp_ptr->c_exp;
 
 	/* Initialize arena and rewards information -KMW- */
 	p_ptr->arena_number = 0;
@@ -1275,7 +1287,7 @@ static void get_extra(void)
 	}
 
 	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
+        p_ptr->hitdie = rp_ptr->r_mhp + rmp_ptr->r_mhp + cp_ptr->c_mhp;
 
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
@@ -1374,7 +1386,6 @@ static void get_history(void)
 			break;
 		}
 		case RACE_HUMAN:
-		case RACE_BARBARIAN:
 		{
 			chart = 1;
 			break;
@@ -1387,6 +1398,7 @@ static void get_history(void)
 		}
 
 		case RACE_ELF:
+                case RACE_WOOD_ELF:
 		case RACE_HIGH_ELF:
 		{
 			chart = 7;
@@ -1461,16 +1473,6 @@ static void get_history(void)
                 case RACE_ENT:
 		{
                         chart = 94;
-			break;
-		}
-		case RACE_VAMPIRE:
-		{
-			chart = 113;
-			break;
-		}
-		case RACE_SPECTRE:
-		{
-			chart = 118;
 			break;
 		}
                 case RACE_MOLD:
@@ -1606,27 +1608,27 @@ errr init_randart(void) {
 static void get_ahw(void)
 {
 	/* Calculate the age */
-	p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
+        p_ptr->age = rp_ptr->b_age + rmp_ptr->b_age + randint(rp_ptr->m_age + rmp_ptr->m_age);
 
 	/* Calculate the height/weight for males */
 	if (p_ptr->psex == SEX_MALE)
 	{
-		p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		p_ptr->wt = randnor(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+                p_ptr->ht = randnor(rp_ptr->m_b_ht + rmp_ptr->m_b_ht, rp_ptr->m_m_ht + rmp_ptr->m_m_ht);
+                p_ptr->wt = randnor(rp_ptr->m_b_wt + rmp_ptr->m_b_wt, rp_ptr->m_m_wt + rmp_ptr->m_m_wt);
 	}
 
 	/* Calculate the height/weight for females */
 	else if (p_ptr->psex == SEX_FEMALE)
 	{
-		p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		p_ptr->wt = randnor(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+                p_ptr->ht = randnor(rp_ptr->f_b_ht + rmp_ptr->f_b_ht, rp_ptr->f_m_ht + rmp_ptr->f_m_ht);
+                p_ptr->wt = randnor(rp_ptr->f_b_wt + rmp_ptr->f_b_wt, rp_ptr->f_m_wt + rmp_ptr->f_m_wt);
 	}
 
         /* Calculate the height/weight for neuters */
         else if (p_ptr->psex == SEX_NEUTER)
 	{
-                p_ptr->ht = randnor((rp_ptr->m_b_ht + rp_ptr->f_b_ht) / 2, (rp_ptr->m_m_ht + rp_ptr->f_m_ht) / 2);
-                p_ptr->wt = randnor((rp_ptr->m_b_wt + rp_ptr->f_b_wt) / 2, (rp_ptr->m_m_wt + rp_ptr->f_m_wt) / 2);
+                p_ptr->ht = randnor((rp_ptr->m_b_ht + rmp_ptr->m_b_ht + rp_ptr->f_b_ht + rmp_ptr->f_b_ht) / 2, (rp_ptr->m_m_ht + rmp_ptr->m_m_ht + rp_ptr->f_m_ht + rmp_ptr->f_m_ht) / 2);
+                p_ptr->wt = randnor((rp_ptr->m_b_wt + rmp_ptr->m_b_wt + rp_ptr->f_b_wt + rmp_ptr->f_b_wt) / 2, (rp_ptr->m_m_wt + rmp_ptr->m_m_wt + rp_ptr->f_m_wt + rmp_ptr->f_m_wt) / 2);
 	}
 }
 
@@ -1715,7 +1717,7 @@ static void player_wipe(void)
         p_ptr->to_m = 0;
 
 	/* Hack -- zero the struct */
-	p_ptr=WIPE(p_ptr, player_type);
+        p_ptr = WIPE(p_ptr, player_type);
 
 	/* Wipe the history */
 	for (i = 0; i < 4; i++)
@@ -1733,6 +1735,16 @@ static void player_wipe(void)
 		quest[i].type = 0;
 		quest[i].level = 0;
 		quest[i].r_idx = 0;
+	}
+
+        /* Wipe the rune spells */
+        rune_num = 0;
+        for (i = 0; i < MAX_RUNES; i++)
+	{
+                strcpy(rune_spells[i].name, "");
+                rune_spells[i].type = 0;
+                rune_spells[i].rune2 = 0;
+                rune_spells[i].mana = 0;
 	}
 
 	/* No weight */
@@ -1774,6 +1786,9 @@ static void player_wipe(void)
 
                 /* Reset "squeltch" */
                 k_ptr->squeltch = 0;
+
+                /* Reset "artifact" */
+                k_ptr->artifact = 0;
 	}
 
 
@@ -2087,9 +2102,9 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-                /* UNBELIEBER */
+                /* Unbeliever */
                 { TV_RING, SV_RING_RES_FEAR },
-		{ TV_SWORD, SV_BROAD_SWORD },
+                { TV_SWORD, SV_DARK_SWORD },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
 	},
 
@@ -2098,6 +2113,16 @@ static byte player_init[MAX_CLASS][3][2] =
                 { TV_MAGERY_BOOK, 0 }, /* Hack: For realm1 book */
                 { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
                 { TV_NETHER_BOOK, 0 }  /* Hack: for realm2 book */
+	},
+
+	{
+		/*
+		 * Weaponmaster - they also get a weapon appropriate to
+		 * their specialty.  See below. -- Gumby
+		 */
+		{ TV_RING, SV_RING_RES_FEAR },
+		{ TV_POTION, SV_POTION_HEROISM },
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
 	},
 };
 
@@ -2191,8 +2216,39 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-        if (p_ptr->prace == RACE_VAMPIRE ||
-		p_ptr->prace == RACE_SPECTRE)
+	/* Gotta give Weaponmasters a weapon they can use! -- Gumby */
+	if (p_ptr->pclass == CLASS_WEAPONMASTER)
+	{
+                switch (p_ptr->class_extra1)
+		{
+			case TV_HAFTED:
+				object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_MACE));
+				break;
+			case TV_POLEARM:
+				object_prep(q_ptr, lookup_kind(TV_POLEARM, SV_PIKE));
+				break;
+			case TV_AXE:
+				object_prep(q_ptr, lookup_kind(TV_AXE, SV_LIGHT_WAR_AXE));
+				break;
+			case TV_SWORD:
+				object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
+				break;
+		}
+		q_ptr->number = 1;
+
+		object_aware(q_ptr);
+		object_known(q_ptr);
+
+		/* These objects are "storebought" */
+		q_ptr->ident |= IDENT_STOREB;
+
+		(void)inven_carry(q_ptr, FALSE);
+	}
+
+	/* Get local object */
+	q_ptr = &forge;
+
+        if (p_ptr->pracem == RMOD_VAMPIRE || p_ptr->pracem == RMOD_SPECTRE || p_ptr->pracem == RMOD_SKELETON || p_ptr->pracem == RMOD_ZOMBIE)
 	{
 		/* Hack -- Give the player scrolls of satisfy hunger */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
@@ -2218,7 +2274,7 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-	if (p_ptr->prace == RACE_VAMPIRE)
+        if (p_ptr->pracem == RMOD_VAMPIRE)
 	{
 		/* Hack -- Give the player scrolls of light */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_LIGHT));
@@ -2390,7 +2446,7 @@ static void player_outfit(void)
                 else if (tv == TV_NETHER_BOOK) tv = TV_VALARIN_BOOK + p_ptr->realm2 - 1;
 
 		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
-		    p_ptr->prace == RACE_BARBARIAN)
+                    p_ptr->pracem == RMOD_BARBARIAN)
 			/* Barbarians do not need a ring of resist fear */
 			sv = SV_RING_SUSTAIN_STR;
 
@@ -2480,8 +2536,12 @@ static bool player_birth_aux()
 
 	int mode = 0;
 
+        int racem[100], max_racem = 0;
+
 	bool flag = FALSE;
 	bool prev = FALSE;
+
+        u32b restrict;
 
 	cptr str;
 
@@ -2507,13 +2567,13 @@ static bool player_birth_aux()
 	Term_clear();
 
 	/* Title everything */
-	put_str("Name        :", 2, 1);
-	put_str("Sex         :", 3, 1);
-	put_str("Race        :", 4, 1);
-	put_str("Class       :", 5, 1);
+        put_str("Name  :", 2, 1);
+        put_str("Sex   :", 3, 1);
+        put_str("Race  :", 4, 1);
+        put_str("Class :", 5, 1);
 
 	/* Dump the default name */
-	c_put_str(TERM_L_BLUE, player_name, 2, 15);
+        c_put_str(TERM_L_BLUE, player_name, 2, 9);
 
 
 	/*** Instructions ***/
@@ -2579,7 +2639,7 @@ static bool player_birth_aux()
 	str = sp_ptr->title;
 
 	/* Display */
-	c_put_str(TERM_L_BLUE, str, 3, 15);
+        c_put_str(TERM_L_BLUE, str, 3, 9);
 
 	/* Clean up */
 	clear_from(15);
@@ -2608,7 +2668,7 @@ static bool player_birth_aux()
 	/* Choose */
 	while (1)
 	{
-        sprintf(buf, "Choose a race (%c-4), * for a random choice, = for options: ", I2A(0));
+        sprintf(buf, "Choose a race (%c-%c), * for a random choice, = for options: ", I2A(0), I2A(MAX_RACES - 1));
         put_str(buf, 17, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
@@ -2636,22 +2696,119 @@ static bool player_birth_aux()
 	str = rp_ptr->title;
 
 	/* Display */
-	c_put_str(TERM_L_BLUE, str, 4, 15);
+        c_put_str(TERM_L_BLUE, str, 4, 9);
 
 	/* Get a random name */
 	create_random_name(p_ptr->prace, player_name);
 
 	/* Display */
-	c_put_str(TERM_L_BLUE, player_name, 2, 15);
+        c_put_str(TERM_L_BLUE, player_name, 2, 9);
+
+	/* Clean up */
+	clear_from(15);
+
+
+        /*** Player race mod ***/
+        for (n = 0; n < 100; n++) racem[n] = 0;
+
+        for (n = 0; n < MAX_RACE_MODS; n++)
+	{
+		/* Analyze */
+                p_ptr->pracem = n;
+                rmp_ptr = &race_mod_info[p_ptr->pracem];
+                str = rmp_ptr->title;
+
+                /* Must be an ok choice */
+                if (!(BIT(p_ptr->prace) & rmp_ptr->choice)) continue;
+
+                /* Ok thats a possibility */
+                racem[max_racem++] = n;
+	}
+
+        /* Ah ! nothing found, lets use the default */
+        if (!max_racem) p_ptr->pracem = 0;
+        /* Only one ? use it */
+        else if (max_racem == 1) p_ptr->pracem = racem[0];
+        /* We got to ask the player */
+        else
+        {
+                max_racem = 0;
+
+                /* Extra info */
+                Term_putstr(5, 15, -1, TERM_WHITE,
+                        "Your 'race modifier' determines various intrinsic factors and bonuses.");
+
+                /* Dump races */
+                for (n = 0; n < MAX_RACE_MODS; n++)
+                {
+                        /* Analyze */
+                        p_ptr->pracem = n;
+                        rmp_ptr = &race_mod_info[p_ptr->pracem];
+                        str = rmp_ptr->title;
+
+                        /* Must be an ok choice */
+                        if (!(BIT(p_ptr->prace) & rmp_ptr->choice)) continue;
+
+                        /* Ok thats a possibility */
+                        racem[max_racem++] = n;
+
+                        /* Display */
+                        /* Hack the first one */
+                        if (n)
+                                sprintf(buf, "%c%c %s", I2A(max_racem - 1), p2, str);
+                        else
+                                sprintf(buf, "%c%c Classical", I2A(max_racem - 1), p2);
+                        put_str(buf, 18 + ((max_racem - 1)/5), 2 + 15 * ((max_racem - 1) % 5));
+                }
+
+                /* Choose */
+                while (1)
+                {
+                        sprintf(buf, "Choose a race modifier (%c-%c), * for a random choice, = for options: ", I2A(0), I2A(MAX_RACE_MODS - 1));
+                        put_str(buf, 17, 2);
+                        c = inkey();
+                        if (c == 'Q') quit(NULL);
+                        if (c == 'S') return (FALSE);
+                        if (c == '*')
+                        {
+                                do
+                                {
+                                        k = rand_int(max_racem);
+                                } while (!(BIT(racem[k]) & rmp_ptr->choice));
+                                break;
+                        }
+
+                        k = (islower(c) ? A2I(c) : -1);
+                        if ((k >= 0) && (k < max_racem) && (BIT(p_ptr->prace) & race_mod_info[racem[k]].choice)) break;
+
+                        if (c == '?') do_cmd_help();
+                        else if (c == '=')
+                        {
+                                screen_save();
+                                do_cmd_options_aux(6, "Startup Options");
+                                screen_load();
+                        }
+                        else bell();
+                }
+
+                /* Set race */
+                p_ptr->pracem = racem[k];
+        }
+        rmp_ptr = &race_mod_info[p_ptr->pracem];
+        sprintf(buf, "%s %s", rp_ptr->title, rmp_ptr->title);
+
+	/* Display */
+        c_put_str(TERM_L_BLUE, buf, 4, 9);
 
 	/* Clean up */
 	clear_from(15);
 
 
 	/*** Player class ***/
+        restrict = rp_ptr->choice + rmp_ptr->pclass - rmp_ptr->mclass;
 
 	/* Extra info */
-        Term_putstr(5, 14, -1, TERM_WHITE,
+        Term_putstr(5, 13, -1, TERM_WHITE,
 		"Your 'class' determines various intrinsic abilities and bonuses.");
 
 	/* Dump classes */
@@ -2667,23 +2824,23 @@ static bool player_birth_aux()
 
 #if 0
                 /* Verify legality */
-                if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
+                if (!(restrict & (1L << n))) mod = " (*)";
 #endif
 
-                if (!(rp_ptr->choice & (1L << n )))
+                if (!(restrict & (1L << n )))
                         sprintf(buf, "%c%c (%s)%s", (n <= 25)?I2A(n):I2D(n-26), p2, str, mod);
                 else
                         /* Display */
                         sprintf(buf, "%c%c %s%s", (n <= 25)?I2A(n):I2D(n-26), p2, str, mod);
 
-                put_str(buf, 17 + (n/4), 2 + 17 * (n%4));
+                put_str(buf, 16 + (n/4), 2 + 16 * (n%4));
 	}
 
 	/* Get a class */
 	while (1)
 	{
-                sprintf(buf, "Choose a class (%c-%c), * for random, = for options: ", I2A(0), (n <= 25)?I2A(n-1):I2D(n-26));
-                put_str(buf, 16, 2);
+                sprintf(buf, "Choose a class (%c-%c), * for random, = for options: ", I2A(0), (n <= 25)?I2A(n-1):I2D(n-26-1));
+                put_str(buf, 15, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
@@ -2706,7 +2863,7 @@ static bool player_birth_aux()
 
 	/* Set class */
 #ifdef FORBID_BAD_COMBINAISON
-        if (!(rp_ptr->choice & (1L << k )))
+        if (!(restrict & (1L << k )))
         {
                 noscore |= 0x0020;
                 message_add(" ");
@@ -2725,20 +2882,20 @@ static bool player_birth_aux()
 	str = cp_ptr->title;
 
 	/* Display */
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
+        c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 9);
 
 	/* Clean up */
 
 	clear_from(15);
 
-    get_realms();
+        get_realms();
 
 	if (p_ptr->realm1 || p_ptr->realm2)
-		put_str("Magic       :", 6, 1);
+                put_str("Magic :", 6, 1);
 	if (p_ptr->realm1)
-		c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1],6,15);
+                c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1], 6, 9);
 	if (p_ptr->realm2)
-		c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2],7,15);
+                c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2], 7, 9);
 
 
 	/* Clear */
@@ -2749,22 +2906,11 @@ static bool player_birth_aux()
         p_ptr->preserve = preserve;
         p_ptr->special = special_lvls;
 
-        /* Set the recall dungeon accordingly */
-        if (vanilla_town)
-        {
-                dungeon_type = DUNGEON_VANILLA;
-                p_ptr->recall_dungeon = DUNGEON_VANILLA;
-        }
-        else
-        {
-                dungeon_type = DUNGEON_GALGALS;
-                p_ptr->recall_dungeon = DUNGEON_GALGALS;
-        }
 
         /* Set dungeon seed */
         if (permanent_levels)
         {
-                seed_dungeon = rand_int(0x10000000);
+                seed_dungeon = randint(0x10000000);
         }else{
                 seed_dungeon = 0;
         }
@@ -2779,6 +2925,25 @@ static bool player_birth_aux()
                 screen_save();
                 do_cmd_options_aux(6, "Startup Options");
                 screen_load();
+        }
+
+        /* hack astral = vanilla town */
+        if (astral_option)
+        {
+                vanilla_town = TRUE;
+                p_ptr->astral = TRUE;
+        }
+
+        /* Set the recall dungeon accordingly */
+        if (vanilla_town)
+        {
+                dungeon_type = DUNGEON_VANILLA;
+                p_ptr->recall_dungeon = DUNGEON_VANILLA;
+        }
+        else
+        {
+                dungeon_type = DUNGEON_GALGALS;
+                p_ptr->recall_dungeon = DUNGEON_GALGALS;
         }
 
 
@@ -2807,7 +2972,7 @@ static bool player_birth_aux()
 			stat_match[i] = 0;
 
 			/* Race/Class bonus */
-			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+                        j = rp_ptr->r_adj[i] + rmp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
 			/* Obtain the "maximal" stat */
 			m = adjust_stat(17, j, TRUE);
@@ -2970,7 +3135,7 @@ static bool player_birth_aux()
 		}
 	}
 
-        /* Init the two main quests (Sauron + Morgoth) */
+        /* Init the three main quests (Shelob + Sauron + Morgoth) */
 	init_flags = INIT_ASSIGN;
         p_ptr->inside_quest = QUEST_SHELOB;
 	process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
@@ -2996,15 +3161,19 @@ static bool player_birth_aux()
 		{
 			Term_clear();
 
-			put_str("Name        :", 2, 1);
-			put_str("Sex         :", 3, 1);
-			put_str("Race        :", 4, 1);
-			put_str("Class       :", 5, 1);
+                        put_str("Name :", 2, 1);
+                        put_str("Sex  :", 3, 1);
+                        put_str("Race :", 4, 1);
+                        put_str("Class:", 5, 1);
 
-			c_put_str(TERM_L_BLUE, player_name, 2, 15);
-			c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 15);
-			c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 15);
-			c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
+                        c_put_str(TERM_L_BLUE, player_name, 2, 9);
+                        c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 9);
+                        if (p_ptr->pracem)
+                                sprintf(buf, "%s %s", rp_ptr->title, rmp_ptr->title);
+                        else
+                                sprintf(buf, "%s", rp_ptr->title);
+                        c_put_str(TERM_L_BLUE, buf, 4, 9);
+                        c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 9);
 
 			/* Label stats */
 			put_str("STR:", 2 + A_STR, 61);
@@ -3110,6 +3279,16 @@ static bool player_birth_aux()
 
 		/* Roll for gold */
 		get_money();
+
+		/* Choose specialty for Weaponmasters -- Gumby
+		 * Considered putting probabilities in here, but I think
+		 * I'll keep it simple and trust people not to reroll the
+		 * character just because they didn't get Swords.
+		 */
+		if (p_ptr->pclass == CLASS_WEAPONMASTER)
+		{
+                        p_ptr->class_extra1 = rand_range(TV_HAFTED, TV_AXE);
+		}
 
                 /* Hack -- get a chaos patron even if you are not a chaos warrior */
                 p_ptr->chaos_patron = (randint(MAX_PATRON)) - 1;
@@ -3305,7 +3484,6 @@ static void validate_bg(void)
 
         race_chart[RACE_DUNADAN] = 1;
         race_chart[RACE_HUMAN] = 1;
-        race_chart[RACE_BARBARIAN] = 1;
         race_chart[RACE_HALF_ELF] = 4;
         race_chart[RACE_ELF] = 7;
         race_chart[RACE_HIGH_ELF] = 7;
@@ -3322,10 +3500,9 @@ static void validate_bg(void)
         race_chart[RACE_NIBELUNG] = 87;
         race_chart[RACE_DRAGONRIDER] = 89;
         race_chart[RACE_ENT] = 94;
-        race_chart[RACE_VAMPIRE] = 113;
-        race_chart[RACE_SPECTRE] = 118;
         race_chart[RACE_MOLD] = 200;
         race_chart[RACE_YEEK] = 205;
+        race_chart[RACE_WOOD_ELF] = 7;
 
         /* Check each race */
         for (race = 0; race < MAX_RACES; race++)
@@ -3359,6 +3536,18 @@ bool check_near_terrains(x, y)
 }
 
 /*
+ * Initialize a random town
+ */
+void init_town(int t_idx, int level)
+{
+        town_type *t_ptr = &town[t_idx];
+
+        t_ptr->real = TRUE;
+        t_ptr->seed = randint(0x10000000);
+        t_ptr->numstores = 8; /* Total hack and not even used */
+}
+
+/*
  * Create a new character.
  *
  * Note that we may be called with "junk" leftover in the various
@@ -3366,7 +3555,7 @@ bool check_near_terrains(x, y)
  */
 void player_birth(void)
 {
-        int i,j,n;
+        int i, j, n, rtown = TOWN_RANDOM;
 
         /* Validate the bg[] table */
         validate_bg();
@@ -3398,15 +3587,61 @@ void player_birth(void)
 	/* Hack -- outfit the player */
 	player_outfit();
 
-	/* Init the shops */
+        /* Init the towns */
 	for (i = 1; i < max_towns; i++)
 	{
+                /* Init the stores */
                 for (j = 0; j < max_st_idx; j++)
 		{
 			/* Initialize */
 			store_init(i, j);
 		}
 	}
+
+        /* Initialize random towns in the dungeons */
+        for (i = 0; i < max_d_idx; i++)
+        {
+                dungeon_info_type *d_ptr = &d_info[i];
+                int num = 0;
+
+                if (!(d_ptr->flags1 & DF1_RANDOM_TOWNS)) continue;
+
+                /* Can we add a town ? */
+                while (magik(TOWN_CHANCE - (num * 10)))
+                {
+                        int lev;
+
+                        d_ptr->t_idx[num] = rtown;
+                        rtown++;
+
+                        while (TRUE)
+                        {
+                                int j;
+                                bool ok = TRUE;
+
+                                lev = rand_range(d_ptr->mindepth, d_ptr->maxdepth - 1);
+
+                                /* Be sure it wasnt already used */
+                                for (j = 0; j < num; j++)
+                                {
+                                        if (d_ptr->t_level[j] == lev) ok = FALSE;
+                                }
+
+                                /* Ok found one */
+                                if (ok) break;
+                        }
+                        d_ptr->t_level[num] = lev;
+
+                        if (wizard) message_add(format("Random dungeon town: d_idx:%d, lev:%d", i, lev));
+
+                        /* Create the town */
+                        init_town(d_ptr->t_idx[num], d_ptr->t_level[num]);
+
+                        num++;
+                }
+
+                d_ptr->t_num = num;
+        }
 
 	/* Init wilderness seeds */
         for (i = 0; i < max_wild_x; i++)

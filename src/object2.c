@@ -503,6 +503,8 @@ void wipe_o_list(void)
 				/* Mega-Hack -- Preserve the artifact */
                                 if (o_ptr->tval == TV_RANDART) {
                                         random_artifacts[o_ptr->sval].generated = FALSE;
+                                }else if (k_info[o_ptr->k_idx].flags3 & TR3_NORM_ART) {
+                                        k_info[o_ptr->k_idx].artifact = FALSE;
                                 }else{
                                         a_info[o_ptr->name1].cur_num = 0;
                                 }
@@ -883,8 +885,7 @@ static s32b object_value_base(object_type *o_ptr)
                 /* Eggs */
                 case TV_EGG:
 		{
-                        monster_type *m_ptr = &m_list[o_ptr->pval2];
-                        monster_race *r_ptr = race_inf(m_ptr);
+                        monster_race *r_ptr = &r_info[o_ptr->pval2];
 
                         /* Pay the monster level */
                         return (r_ptr->level * 100)+100;
@@ -1185,6 +1186,7 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+                case TV_AXE:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_HELM:
@@ -1238,8 +1240,7 @@ s32b object_value_real(object_type *o_ptr)
                 /* Eggs */
                 case TV_EGG:
 		{
-                        monster_type *m_ptr = &m_list[o_ptr->pval2];
-                        monster_race *r_ptr = race_inf(m_ptr);
+                        monster_race *r_ptr = &r_info[o_ptr->pval2];
 
                         /* Pay the monster level */
                         value += r_ptr->level * 100;
@@ -1250,6 +1251,13 @@ s32b object_value_real(object_type *o_ptr)
 
 		/* Wands/Staffs */
 		case TV_WAND:
+		{
+			/* Pay extra for charges */
+			value += ((value / 20) * o_ptr->pval) / o_ptr->number;
+
+			/* Done */
+			break;
+		}
 		case TV_STAFF:
 		{
 			/* Pay extra for charges */
@@ -1301,6 +1309,7 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_SWORD:
+                case TV_AXE:
 		case TV_POLEARM:
 		{
 			/* Hack -- negative hit/damage bonuses */
@@ -1420,6 +1429,11 @@ s32b object_value(object_type *o_ptr)
 bool object_similar(object_type *o_ptr, object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
+        u32b f1, f2, f3, f4, esp, f11, f12, f13, f14, esp1;
+
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(j_ptr, &f11, &f12, &f13, &f14, &esp1);
 
 
 	/* Require identical object types */
@@ -1438,6 +1452,12 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
                 case TV_RANDART: {
                         return FALSE;
+                }
+
+                case TV_RUNE2:
+                {
+                        if ((o_ptr->sval == RUNE_STONE) || (j_ptr->sval == RUNE_STONE)) return FALSE;
+                        else return TRUE;
                 }
 
                 case TV_INSTRUMENT:
@@ -1485,6 +1505,9 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			/* Require identical charges, since staffs are bulky. */
 			if (o_ptr->pval != j_ptr->pval) return (0);
 
+                        /* Do not combine recharged ones with non recharged ones. */
+                        if ((f4 & TR4_RECHARGED) != (f14 & TR4_RECHARGED)) return (0);
+
                         /* Beware artifatcs should not combibne with "lesser" thing */
                         if (o_ptr->name1 != j_ptr->name1) return (0);
 
@@ -1505,7 +1528,8 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
                         /* Beware artifatcs should not combibne with "lesser" thing */
                         if (o_ptr->name1 != j_ptr->name1) return (0);
 
-                        /* Wand charges combine in PernAngband.  */
+                        /* Do not combine recharged ones with non recharged ones. */
+                        if ((f4 & TR4_RECHARGED) != (f14 & TR4_RECHARGED)) return (0);
 
 			/* Assume okay */
 			break;
@@ -1533,6 +1557,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_AXE:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_HELM:
@@ -1732,7 +1757,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Clear the record */
-	o_ptr=WIPE(o_ptr, object_type);
+        o_ptr = WIPE(o_ptr, object_type);
 
 	/* Save the kind index */
 	o_ptr->k_idx = k_idx;
@@ -1768,6 +1793,8 @@ void object_prep(object_type *o_ptr, int k_idx)
         {
                 o_ptr->elevel = (k_ptr->level / 10) + 1;
                 o_ptr->exp = player_exp[o_ptr->elevel - 1];
+                o_ptr->pval2 = 1;       /* Start with one point */
+                o_ptr->pval3 = 0;       /* No flags groups */
         }
 }
 
@@ -2387,6 +2414,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+                case TV_AXE:
                 case TV_BOOMERANG:
                 case TV_DAEMON_BOOK:
 		{
@@ -2618,8 +2646,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
                                         case 41:
 					{
                                                 o_ptr->name2 = EGO_LIFE;
-                                                o_ptr->pval = m_bonus(4, level);
-                                                if (o_ptr->pval > 5) o_ptr->pval = 5;
+                                                o_ptr->pval = randint(2);
+
+                                                while ((o_ptr->pval <= 5) && magik(10))
+                                                {
+                                                        o_ptr->pval++;
+                                                }
                                                 break;
                                         }
                                         case 42:
@@ -2692,25 +2724,40 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				/* Roll for an ego-item */
                                 switch (randint(8))
 				{
-                                        case 1: case 3: case 5: case 7:
+                                        case 1: case 3:
 					{
                                                 o_ptr->name2 = EGO_MANA;
-                                                o_ptr->pval = m_bonus(10, level);
+                                                o_ptr->pval = randint(3);
+
+                                                while ((o_ptr->pval <= 7) && magik(10))
+                                                {
+                                                        o_ptr->pval++;
+                                                }
                                                 break;
                                         }
                                         case 2: case 4:
 					{
                                                 o_ptr->name2 = EGO_SPELL;
-                                                o_ptr->pval = m_bonus(6, level);
+                                                o_ptr->pval = randint(3);
+
+                                                while ((o_ptr->pval <= 7) && magik(10))
+                                                {
+                                                        o_ptr->pval++;
+                                                }
                                                 break;
                                         }
                                         case 6:
 					{
                                                 o_ptr->name2 = EGO_MANA_SPELL;
-                                                o_ptr->pval = m_bonus(10, level);
+                                                o_ptr->pval = randint(2);
+
+                                                while ((o_ptr->pval <= 5) && magik(10))
+                                                {
+                                                        o_ptr->pval++;
+                                                }
                                                 break;
                                         }
-                                        case 8:
+                                        case 8: case 5: case 7:
                                         {
                                                 o_ptr->name2 = EGO_MSTAFF_POWER;
                                                 o_ptr->xtra2 = (randint(10)+1) + ((randint(10)+1)<<4);
@@ -2728,7 +2775,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				/* Roll for ego-item */
 				if (rand_int(MAX_DEPTH) < level)
 				{
-                                        o_ptr->name2 = EGO_MANA;
                                         o_ptr->pval = 0;
                                         if (randint(10)==1) o_ptr->art_flags3 |= TR3_TY_CURSE;
 				}
@@ -2751,6 +2797,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					case 1: case 11:
 					{
 						o_ptr->name2 = EGO_EXTRA_MIGHT;
+                                                o_ptr->pval = m_bonus(3, level) + 1;
 						random_resistance(o_ptr, FALSE, ((randint(34))+4));
 						break;
 					}
@@ -3898,13 +3945,13 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 		{
                         /* Hack -- choose a monster */
                         monster_race* r_ptr;
-                        int r_idx=get_mon_num(dun_level);
+                        int r_idx = get_mon_num(dun_level);
                         r_ptr = &r_info[r_idx];
 
                         if(!(r_ptr->flags1 & RF1_UNIQUE))
-                                o_ptr->pval=r_idx;
+                                o_ptr->pval = r_idx;
                         else
-                                o_ptr->pval=1;
+                                o_ptr->pval = 1;
 			break;
 		}
 
@@ -3927,7 +3974,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
                                 }
                                 count++;
                         }
-                        if(count==1000) o_ptr->pval2 = 940; /* Blue fire-liard */
+                        if(count==1000) o_ptr->pval2 = 940; /* Blue fire-lizard */
 
                         r_ptr = &r_info[o_ptr->pval2];
                         o_ptr->weight = (r_ptr->weight + rand_int(r_ptr->weight) / 100) + 1;
@@ -4139,6 +4186,19 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 {
 	int i, rolls, f1, f2, power;
 
+        /* No need to touch normal artifacts */
+        if (k_info[o_ptr->k_idx].flags3 & TR3_NORM_ART)
+        {
+                /* Ahah! we tried to trick us !! */
+                if (k_info[o_ptr->k_idx].artifact)
+                {
+                        object_prep(o_ptr, lookup_kind(k_info[o_ptr->k_idx].btval, k_info[o_ptr->k_idx].bsval));
+                        if (wizard) msg_print("We've been tricked!");
+                }
+
+                k_info[o_ptr->k_idx].artifact = TRUE;
+                return;
+        }
 
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
@@ -4252,6 +4312,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_AXE:
                 case TV_BOOMERANG:
 		case TV_BOW:
 		case TV_SHOT:
@@ -4448,7 +4509,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 /* The themed objects to use */
 static obj_theme match_theme;
 
-static void init_match_theme(obj_theme theme)
+void init_match_theme(obj_theme theme)
 {
 	/* Save the theme */
 	match_theme = theme;
@@ -4492,6 +4553,7 @@ bool kind_is_theme(int k_idx)
 		case TV_HAFTED:		prob = match_theme.combat; break;
 		case TV_POLEARM:	prob = match_theme.combat; break;
 		case TV_SWORD:		prob = match_theme.combat; break;
+                case TV_AXE:            prob = match_theme.combat; break;
 		case TV_GLOVES:		prob = match_theme.combat; break;
 		case TV_HELM:		prob = match_theme.combat; break;
 		case TV_SHIELD:		prob = match_theme.combat; break;
@@ -4549,11 +4611,17 @@ bool kind_is_theme(int k_idx)
 /*
  * Determine if an object must not be generated.
  */
-static bool kind_is_legal(int k_idx)
+bool kind_is_legal(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
         if (!kind_is_theme(k_idx)) return FALSE;
+
+        /* No 2 times the same normal artifact */
+        if ((k_info[k_idx].flags3 & TR3_NORM_ART) && (k_info[k_idx].artifact))
+        {
+                return FALSE;
+        }
 
         if (k_ptr->tval == TV_CORPSE)
 	{
@@ -4573,7 +4641,7 @@ static bool kind_is_legal(int k_idx)
         if ((k_ptr->tval == TV_SCROLL) && (k_ptr->sval == SV_SCROLL_SPELL)) return FALSE;
 
         /* Used only for the Nazgul rings */
-        if ((k_ptr->tval == TV_RING) && (k_ptr->sval = SV_RING_SPECIAL)) return FALSE;
+        if ((k_ptr->tval == TV_RING) && (k_ptr->sval == SV_RING_SPECIAL)) return FALSE;
 
 	/* Assume legal */
 	return TRUE;
@@ -4610,6 +4678,7 @@ static bool kind_is_good(int k_idx)
 		/* Weapons -- Good unless damaged */
 		case TV_BOW:
 		case TV_SWORD:
+                case TV_AXE:
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_DIGGING:
@@ -4622,6 +4691,12 @@ static bool kind_is_good(int k_idx)
 		/* Ammo -- Arrows/Bolts are good */
 		case TV_BOLT:
 		case TV_ARROW:
+		{
+			return (TRUE);
+		}
+
+                /* Base rod */
+                case TV_ROD_MAIN:
 		{
 			return (TRUE);
 		}
@@ -4731,7 +4806,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 		object_prep(j_ptr, k_idx);
 	}
 
-	/* Apply magic (allow artifacts) */
+        /* Apply magic (allow artifacts) */
 	apply_magic(j_ptr, object_level, TRUE, good, great);
 
 	/* Hack -- generate multiple spikes/missiles */
@@ -4838,6 +4913,10 @@ void place_object(int y, int x, bool good, bool great)
 		if (q_ptr->name1)
 		{
 			a_info[q_ptr->name1].cur_num = 0;
+		}
+                else if (k_info[q_ptr->k_idx].flags3 & TR3_NORM_ART)
+		{
+                        k_info[q_ptr->k_idx].artifact = 0;
 		}
 	}
 }
@@ -5059,6 +5138,8 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 			/* Require floor space (or shallow terrain) -KMW- */
                         if (!(f_info[c_ptr->feat].flags1 & FF1_FLOOR)) continue;
 
+                        /* No traps */
+                        if (c_ptr->t_idx) continue;
 
 			/* No objects */
 			k = 0;
@@ -5214,6 +5295,10 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		if (j_ptr->name1)
 		{
 			a_info[j_ptr->name1].cur_num = 0;
+		}
+                else if (k_info[j_ptr->k_idx].flags3 & TR3_NORM_ART)
+		{
+                        k_info[j_ptr->k_idx].artifact = 0;
 		}
 
 		/* Failure */

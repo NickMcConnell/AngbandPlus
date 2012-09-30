@@ -1,12 +1,12 @@
 === Attacking and Being Attacked ===
  
-Attacking is simple in Angband.  If you move into a creature, you attack him.
-You can attack from a distance by firing a missile or by magical means such
-as aiming a wand.  Creatures attack in the same way.  If they move into you,
-they attack you.  Some creatures can also cast spells from a distance, and
-others can use various breath weapons such as fire on you from a distance.
+Attacking is simple in PernAngband.  If you move into a creature, you attack
+it. You can attack from a distance by firing a missile or by magical means
+such as aiming a wand. Creatures attack in the same way. If they move into
+you, they attack you. Some creatures can also cast spells from a distance,
+and others can use various breath weapons such as fire on you from a distance.
 
-Creatures in walls can not be attacked by wands and other magic attacks
+Creatures in walls cannot be attacked by wands and other magic attacks
 normally stopped by walls.  You can attack a creature in a wall normally
 by trying to move into the wall space containing the creature.  However, if
 the creature is invisible (such as a ghost), you must tunnel into the wall
@@ -16,16 +16,18 @@ bump your head and look quite silly.
 If you are wielding a weapon, the damage for the weapon is used when you hit
 a creature.  Otherwise you get a single punch which does minimal damage.
 
-You may wield both a primary weapon for melee combat, and a bow or other
-missile launcher for launching missiles at the same time (along with a
-light, an amulet, two rings, a helmet, boots, gloves, a shield, a cloak, and
-body armor).  Be sure not to try and kill a dragon with a shovel, it makes
-you look silly and probably won't work...
+You may wield a primary weapon for melee combat and a bow(or other
+missile launcher) for launching missiles at the same time. it is also rumored
+that powerfull beings can "use" corpses that are not belonging to them and
+some of those corpse have more(or less) equipment possibility than the
+average player.
  
 Firing a missile while wielding the appropriate launcher is the only way to
 get the "full" power out of the missile.  You may of course throw an arrow
 at a monster without shooting it, but you will find the effects may not be
-what you had hoped.
+what you had hoped for. Also carrying your ammos in the quiver will take off
+the annoyance to select which ammo you desire to use each time you want to
+fire.
 
 Hits and misses are determined by ability to hit versus armor class.  A hit
 is a strike that does some damage; a miss may in fact reach a target, but
@@ -36,10 +38,10 @@ actually occurs.
 
 === Monster Memories ===
 
-There are hundreds of different creatures in the pits of Angband, many of
+There are hundreds of different creatures in the Middle Earth, many of
 which have the same letter symbol and color on the screen.  The exact species
 of a creature can be discovered by looking at it.  It is also very difficult
-to keep track of the capabilities of various creatures.  Luckily, Angband
+to keep track of the capabilities of various creatures.  Luckily, PernAngband
 automatically keeps track of your experiences with a particular creature.
 This feature is called the monster memory.  You monster memory recalls the
 particular attacks of each creature (whether or not technically a monster)
@@ -95,9 +97,8 @@ Finally, some rare weapons have special abilities.  These are called ego
 weapons, and are feared by great and meek.  An ego weapon must be wielded
 to receive the benefit of its abilities.
 
-Ego weapons are denoted by the following "names": (note - these descriptions
-are more or less out of date)
- 
+Those are the most common rumors about those ego items. But it is believed
+that much more exists...
 
 (Defender)
      A magical weapon that actually helps the wielder defend himself, thus
@@ -126,8 +127,8 @@ are more or less out of date)
 Blade of Sharpness
      These weapons are known to score very deadly hits.
 
-(Trump Weapon)
-     A trump weapon is a curious object. Its full powers are not known,
+(Dragon Weapon)
+     A dragon weapon is a curious object. Its full powers are not known,
      but it can teleport its wielder, when it chooses to (provided its
      wielder gives it the permission for a teleport).
 
@@ -166,9 +167,9 @@ Weapon of Westernesse
      also lets you see invisible creatures and protects from paralyzation and
      some slowing attacks.  These blades were made by the Dunedain.
 
-(Pattern Weapon)
-     A Pattern Weapon has been embedded with a fragment of the Pattern. As
-     a result, it is very deadly against the minions of Chaos. A rumour has
+Weapon of Valinor
+     A Weapon of Valinor has been blessed by the Vala from valinor. As
+     a result, it is very deadly against the minions of Morgoth. A rumour has
      it that they are at least as powerful as Weapons of Westernesse, or
      even the weaker artifacts...
 
@@ -230,8 +231,13 @@ of Chaos, Maces of Disruption, and Scythes of Slicing.  They can also be
 ego weapons like the ones above.  For example, a Blade of Chaos (Holy
 Avenger) is much more powerful than many artifact weapons!
 
-For artifact weapons, see "rumors.hlp".
+Usualy a character will only be able to use one weapon at a time, but there
+are execptions, if the character soul is incarned into a powerful being with
+more than two arms(rumors speaks of ancient and powerful demons called
+Mariliths)
 
+Also some weapons can be used in one hand while some others require tow hands
+to correctly handle them, thus forbiding the use of a shield.
 
 === Body and Shield Bashes ===
 
@@ -280,8 +286,8 @@ provide an armor bonus.  Many pieces of heavy body armor will also have a
 decreases your chances of hitting monsters.  This can range from nonexistent
 for very light armor to (-8) for the very heaviest armor!
 
-Some pieces of armor will possess special abilities denoted by the following
-names: (these are very out of date!)
+Some rumors speaks of pieces of armor that have greater powers:
+
 
 of Resist Acid.
      A character using such an object will take only one third normal damage
@@ -319,7 +325,7 @@ Robes of the Magi.
      incredible rarity.
  
 Crown of Might
-     This is the great crown of the warriors.  The wearer will have an
+     This is a great crown of warriors.  The wearer will have an
      increased strength, dexterity, and constituion, and will also be immune
      to any foe's attempt to slow or paralyze him or her.
 

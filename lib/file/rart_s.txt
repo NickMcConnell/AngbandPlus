@@ -43,7 +43,7 @@ a Gray Bottle
 an Orange Tome
 a Shiny Gem
 an Ancient Gray Tome
-a Crystall Ball
+a Crystal Ball
 a Golden Box
 a Skullcap
 a Jester's Cap

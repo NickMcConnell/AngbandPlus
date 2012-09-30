@@ -1253,6 +1253,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_AXE:
 		case TV_DIGGING:
 		{
 			show_weapon = TRUE;
@@ -1611,8 +1612,16 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	    break;
 	  }
 
-                case TV_RUNE1:
                 case TV_RUNE2:
+		{
+                        if (o_ptr->sval != RUNE_STONE)
+                        {
+                                modstr = basenm;
+                                basenm = "& Rune~ [#]";
+                        }
+                        break;
+		}
+                case TV_RUNE1:
 		{
 			modstr = basenm;
                         basenm = "& Rune~ [#]";
@@ -1922,6 +1931,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_HAFTED:
 		case TV_POLEARM:
                 case TV_MSTAFF:
+                case TV_AXE:
 		case TV_SWORD:
 		case TV_DIGGING:
                 case TV_DAEMON_BOOK:
@@ -1945,7 +1955,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		power = (o_ptr->sval % 10);
 
 		/* Apply the "Extra Might" flag */
-		if (f3 & (TR3_XTRA_MIGHT)) power++;
+                if (f3 & (TR3_XTRA_MIGHT)) power += o_ptr->pval;
 
 		/* Append a special "damage" string */
 		t = object_desc_chr(t, ' ');
@@ -3009,6 +3019,18 @@ cptr item_activation(object_type *o_ptr,byte num)
 		{
                         return "alter reality every 100 turns";
 		}
+                case ART_ORCHAST:
+		{
+			return "detect orcs every 10 turns";
+		}
+		case ART_NIGHT:
+		{
+			return "vampiric drain (3*100) every 250 turns";
+		}
+		case ART_NATUREBANE:
+		{
+                        return "dispel monsters (300) every 200+d200 turns";
+		}
 	}
 
         if(o_ptr->tval == TV_EGG)
@@ -3223,6 +3245,23 @@ bool identify_fully_aux(object_type *o_ptr)
                 /* Add a blank line */
                 info[i++] = "";
 	}
+
+        if (f4 & TR4_LEVELS)
+        {
+                int j = 0;
+
+                if (count_bits(o_ptr->pval3) == 0) info[i++] = "It is sentient.";
+                else if (count_bits(o_ptr->pval3) > 1) info[i++] = "It is sentient and can have access to the realms of:";
+                else  info[i++] = "It is sentient and can have access to the realm of:";
+
+                for (j = 0; j < MAX_FLAG_GROUP; j++)
+                {
+                        if (BIT(j) & o_ptr->pval3) info[i++] = flags_groups[j].name;
+                }
+
+                /* Add a blank line */
+                info[i++] = "";
+        }
 
         if (f4 & TR4_COULD2H) info[i++] = "It can be wielded two-handed.";
         if (f4 & TR4_MUST2H) info[i++] = "It must be wielded two-handed.";
@@ -3516,6 +3555,10 @@ bool identify_fully_aux(object_type *o_ptr)
 		info[i++] = "It provides resistance to shards.";
 	}
 
+        if (f4 & (TR4_IM_NETHER))
+	{
+                info[i++] = "It provides immunity to nether.";
+	}
 	if (f2 & (TR2_RES_NETHER))
 	{
 		info[i++] = "It provides resistance to nether.";
@@ -3559,21 +3602,22 @@ bool identify_fully_aux(object_type *o_ptr)
 	}
         if (esp)
 	{
-                if (p_ptr->telepathy & ESP_ALL) info[i++] = "It gives telepathic powers.";
+                if (esp & ESP_ALL) info[i++] = "It gives telepathic powers.";
                 else
                 {
-                        if (p_ptr->telepathy & ESP_ORC) info[i++] = "It allaows you to sense the presence of orcs.";
-                        if (p_ptr->telepathy & ESP_TROLL) info[i++] = "It allaows you to sense the presence of trolls.";
-                        if (p_ptr->telepathy & ESP_DRAGON) info[i++] = "It allaows you to sense the presence of dragons.";
-                        if (p_ptr->telepathy & ESP_GIANT) info[i++] = "It allaows you to sense the presence of giants.";
-                        if (p_ptr->telepathy & ESP_DEMON) info[i++] = "It allaows you to sense the presence of demons.";
-                        if (p_ptr->telepathy & ESP_UNDEAD) info[i++] = "It allaows you to sense presence of undeads.";
-                        if (p_ptr->telepathy & ESP_EVIL) info[i++] = "It allaows you to sense the presence of evil beings.";
-                        if (p_ptr->telepathy & ESP_ANIMAL) info[i++] = "It allaows you to sense the presence of animals.";
-                        if (p_ptr->telepathy & ESP_DRAGONRIDER) info[i++] = "It allaows you to sense the presence of dragonriders.";
-                        if (p_ptr->telepathy & ESP_GOOD) info[i++] = "It allaows you to sense the presence of good beings.";
-                        if (p_ptr->telepathy & ESP_NONLIVING) info[i++] = "It allaows you to sense the presence of non-living things.";
-                        if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "It allaows you to sense the presence of Unique beings.";
+                        if (esp & ESP_ORC) info[i++] = "It allows you to sense the presence of orcs.";
+                        if (esp & ESP_TROLL) info[i++] = "It allows you to sense the presence of trolls.";
+                        if (esp & ESP_DRAGON) info[i++] = "It allows you to sense the presence of dragons.";
+                        if (esp & ESP_SPIDER) info[i++] = "It allows you to sense the presence of spiders.";
+                        if (esp & ESP_GIANT) info[i++] = "It allows you to sense the presence of giants.";
+                        if (esp & ESP_DEMON) info[i++] = "It allows you to sense the presence of demons.";
+                        if (esp & ESP_UNDEAD) info[i++] = "It allows you to sense presence of undeads.";
+                        if (esp & ESP_EVIL) info[i++] = "It allows you to sense the presence of evil beings.";
+                        if (esp & ESP_ANIMAL) info[i++] = "It allows you to sense the presence of animals.";
+                        if (esp & ESP_DRAGONRIDER) info[i++] = "It allows you to sense the presence of dragonriders.";
+                        if (esp & ESP_GOOD) info[i++] = "It allows you to sense the presence of good beings.";
+                        if (esp & ESP_NONLIVING) info[i++] = "It allows you to sense the presence of non-living things.";
+                        if (esp & ESP_UNIQUE) info[i++] = "It allows you to sense the presence of Unique beings.";
                 }
 	}
 	if (f3 & (TR3_SLOW_DIGEST))
@@ -3851,6 +3895,7 @@ s16b wield_slot(object_type *o_ptr)
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_AXE:
                 case TV_DAEMON_BOOK:
 		{
                         return get_slot(INVEN_WIELD);
@@ -5833,6 +5878,43 @@ int wear_ammo(object_type *o_ptr)
         return slot;
 }
 
+/* Try to pickup arrows */
+void pickup_ammo()
+{
+        s16b this_o_idx, next_o_idx = 0, slot;
+        char o_name[80];
+
+        /* Scan the pile of objects */
+        for (this_o_idx = cave[py][px].o_idx; this_o_idx; this_o_idx = next_o_idx)
+        {
+                object_type *o_ptr;
+  
+                /* Acquire object */
+                o_ptr = &o_list[this_o_idx];
+
+                if (object_similar(o_ptr, &inventory[INVEN_AMMO]))
+                {
+                        msg_print("You add the ammo to your quiver.");
+                        slot = wear_ammo(o_ptr);
+
+                        /* Get the item again */
+                        o_ptr = &inventory[slot];
+   
+                        /* Describe the object */
+                        object_desc(o_name, o_ptr, TRUE, 3);
+   
+                        /* Message */
+                        msg_format("You have %s (%c).", o_name, index_to_label(slot));
+
+                        /* Delete the object */
+                        delete_object_idx(this_o_idx);
+                }
+
+                /* Acquire next object */
+                next_o_idx = o_ptr->next_o_idx;
+        }
+}
+
 
   /*
    * Make the player carry everything in a grid
@@ -5856,6 +5938,9 @@ void py_pickup_floor(int pickup)
 
         /* Squeltch the floor */
         squeltch_grid();
+
+        /* Try to grab ammo */
+        pickup_ammo();
   
         /* Scan the pile of objects */
         for (this_o_idx = cave[py][px].o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -6039,6 +6124,130 @@ void py_pickup_floor(int pickup)
         }
   }
 
+/* Add a flags group */
+void gain_flag_group(object_type *o_ptr, bool silent)
+{
+        int grp = 0;
+        int tries = 1000;
+
+        while (tries--)
+        {
+                grp = rand_int(MAX_FLAG_GROUP);
+
+                /* If we already got this group continue */
+                if (o_ptr->pval3 & BIT(grp)) continue;
+
+                /* Not enough points ? */
+                if (flags_groups[grp].price > o_ptr->pval2) continue;
+
+                /* Ok, enough points and not already got it */
+                break;
+        }
+
+        /* Ack, nothing found */
+        if (tries <= 1) return;
+
+        o_ptr->pval2 -= flags_groups[grp].price;
+        o_ptr->pval3 |= BIT(grp);
+
+        if (!silent)
+        {
+                char o_name[80];
+
+                object_desc(o_name, o_ptr, FALSE, 0);
+                msg_format("%s gains access to the %s realm.", o_name, flags_groups[grp].name);
+        }
+}
+
+u32b get_flag(object_type *o_ptr, int grp, int k)
+{
+        u32b f = 0, flag_set = 0;
+        int tries = 1000;
+        u32b f1, f2, f3, f4, esp, flag_test;
+
+	/* Extract some flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+
+        /* get the corresponding flag set of the group */
+        switch (k)
+        {
+                case 0: flag_set = flags_groups[grp].flags1; flag_test = f1; break;
+                case 1: flag_set = flags_groups[grp].flags2; flag_test = f2; break;
+                case 2: flag_set = flags_groups[grp].flags3; flag_test = f3; break;
+                case 3: flag_set = flags_groups[grp].flags4; flag_test = f4; break;
+                case 4: flag_set = flags_groups[grp].esp; flag_test = esp; break;
+                default: flag_set = flags_groups[grp].flags1; flag_test = f1; break;
+        }
+
+        /* If no flags, no need to look */
+        if (!count_bits(flag_set)) return 0;
+
+        while (tries--)
+        {
+                /* get a random flag */
+                f = BIT(rand_int(32));
+
+                /* is it part of the group */
+                if (!(f & flag_set)) continue;
+
+                /* Already got it */
+                if (f & flag_test) continue;
+
+                /* Ok one */
+                break;
+        }
+
+        if (tries <= 1) return (0);
+        else return (f);
+}
+
+/* Add a flags from a flag group */
+void gain_flag_group_flag(object_type *o_ptr, bool silent)
+{
+        int grp = 0, k = 0;
+        u32b f = 0;
+        int tries = 20000;
+
+        if (!count_bits(o_ptr->pval3)) return;
+
+        while (tries--)
+        {
+                /* Get a flag set */
+                k = rand_int(5);
+
+                /* get a flag group */
+                grp = rand_int(MAX_FLAG_GROUP);
+
+                if (!(BIT(grp) & o_ptr->pval3)) continue;
+
+                /* Return a flag from the group/set */
+                f = get_flag(o_ptr, grp, k);
+
+                if (!f) continue;
+
+                break;
+        }
+
+        if (tries <= 1) return;
+
+        switch (k)
+        {
+                case 0: o_ptr->art_flags1 |= f; break;
+                case 1: o_ptr->art_flags2 |= f; break;
+                case 2: o_ptr->art_flags3 |= f; break;
+                case 3: o_ptr->art_flags4 |= f; break;
+                case 4: o_ptr->art_esp |= f; break;
+        }
+
+        if (!silent)
+        {
+                char o_name[80];
+
+                object_desc(o_name, o_ptr, FALSE, 0);
+                msg_format("%s gains a new power from the %s realm.", o_name, flags_groups[grp].name);
+        }
+}
+
 /*
  * When an object gain a level, he can gain some attributes
  */
@@ -6050,69 +6259,38 @@ void object_gain_level(object_type *o_ptr)
         object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
         /* First it can gain some tohit and todam */
-        if((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) ||
+        if((o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) ||
            (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_MSTAFF))
         {
-                int m = rand_int(100);
+                int k = rand_int(100);
 
-                /* No more +80+80 artifacts */
-                if (m < 45)
+                /* gain +2,+1 */
+                if (k < 33)
+                {
+                        o_ptr->to_h += randint(2);
+                        o_ptr->to_d += 1;
+                }
+                /* +1 and 1 point */
+                else if (k < 66)
                 {
                         o_ptr->to_h += 1;
-                }
-                else if (m < 90)
-                {
-                        o_ptr->to_d += 1;
+                        o_ptr->pval2++;
+
+                        if (magik(NEW_GROUP_CHANCE)) gain_flag_group(o_ptr, FALSE);
                 }
                 else
                 {
-                        o_ptr->to_h += 1;
-                        o_ptr->to_d += 1;
-                }
-        }
+                        if (!o_ptr->pval3) gain_flag_group(o_ptr, FALSE);
 
-        /* Can gain resistance */
-        if(rand_int(100) < 7)
-        {
-                artifact_bias = 0;
-		random_resistance(o_ptr, FALSE, ((randint(22))+16));
-        }
+                        gain_flag_group_flag(o_ptr, FALSE);
 
-        /* Can gain some plus */
-        if(rand_int(100) < 4)
-        {
-                random_plus(o_ptr, FALSE);
-
-                if(!o_ptr->pval)
-                {
-                        if (o_ptr->art_flags1 & TR1_BLOWS)
-                            o_ptr->pval = randint(2) + 1;
+                        if (!o_ptr->pval) o_ptr->pval = 1;
                         else
                         {
-                                do
-                                {
-                                        o_ptr->pval++;
-                                }
-                                while (o_ptr->pval<randint(5) || randint(o_ptr->pval)==1);
-                        }
+                                while (magik(20 - (o_ptr->pval * 2))) o_ptr->pval++;
 
-                        /* Restrict blows to avoid siliness */
-                        if ((o_ptr->art_flags1 & TR1_BLOWS) && (o_ptr->pval >= 3 + rand_int(2)))
-                        {
-                                o_ptr->pval = 3;
+                                if (o_ptr->pval > 5) o_ptr->pval = 5;
                         }
                 }
-        }
-
-        /* Extremely rare -- it can gain some pval */
-        if(((o_ptr->pval) || f1) && (rand_int(300) < 2))
-        {
-                o_ptr->pval++;
-        }
-
-        /* Can gain something */
-        if(rand_int(100) < 4)
-        {
-                random_misc(o_ptr, FALSE);
         }
 }

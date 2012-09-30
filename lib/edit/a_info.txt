@@ -230,7 +230,7 @@ N:15:of Lore
 I:39:15:0
 W:15:12:15:20000
 P:0:1d1:0:0:0:15
-F:ACTIVATE | SPECIAL_GENE |
+F:ACTIVATE | SPECIAL_GENE | EASY_USE
 F:INSTA_ART
 D:A great emerald that fills your mind with images of knowledge and dreadful 
 D:understanding as you stare into its depths.
@@ -361,7 +361,7 @@ P:14:1d4:-2:0:15
 F:STR | CHR | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_SHARDS | RES_NEXUS
 D:A hauberk, leggings, and sleeves of interlocking steel rings, well padded 
-D:with leather.  You feel strong and tall as Arvedui, last king or Arnor, 
+D:with leather. You feel strong and tall as Arvedui, last king of Arnor, 
 D:as you put it on.
 
 
@@ -474,7 +474,7 @@ D:himself powerless to wither or diminish.
 # The Beaked Axe of Hurin
 
 N:33:of Hurin
-I:22:10:3
+I:24:10:3
 W:20:15:180:90000
 P:0:2d6:12:20:0
 F:BLOWS | CON | HIDE_TYPE | BRAND_ACID
@@ -545,8 +545,8 @@ W:20:2:60:45000
 P:6:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | SPECIAL_GENE
 F:RES_ACID | RES_NEXUS | ESP_ORC | ESP_TROLL | ESP_GIANT
-D:A great helm as steady as the heros of the Westdike.  Mighty were the 
-D:blows of Helm the Hammerhand!
+D:A great helm as steady as the heroes of the Westdike. Mighty were the 
+D:blows of Helm, the Hammerhand!
 
 
 # The _DRAGON_ Helm of Dor-Lomin
@@ -730,7 +730,7 @@ W:10:3:5:30000
 P:1:0d0:0:0:10
 F:FREE_ACT | RES_LITE | SUST_CON | LITE | ACTIVATE
 F:SPECIAL_GENE |
-D:These gloves glow so brightly as to light the way for the player and cast 
+D:These gloves glow so brightly as to light the way for their owner and cast 
 D:magical bolts with great frequency.
 
 
@@ -763,8 +763,8 @@ I:31:2:0
 W:10:20:25:11000
 P:2:1d1:0:0:15
 F:RES_ELEC | ACTIVATE
-D:A set of handgear with sparks surrounding it, and able to fire electricity 
-D:bolts.
+D:A set of handgear with sparks surrounding it, able to fire
+D:bolts of electricity.
 
 
 # The Set of Gauntlets 'Paurnen'
@@ -774,7 +774,7 @@ I:31:2:0
 W:10:20:25:12000
 P:2:1d1:0:0:15
 F:RES_ACID | ACTIVATE
-D:A set of handgear so acidic that it may fire bolts of acid.
+D:A set of handgear so corrosive that it may fire bolts of acid.
 
 
 # The Set of Gauntlets 'Camlost'
@@ -880,14 +880,14 @@ F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | BRAND_POIS |
 F:FREE_ACT | RES_DARK | SUST_DEX | SEE_INVIS |
 F:SHOW_MODS
 D:Forged from meteoric iron, this long chopping dagger slices through  
-D:ordinary metal as easily as its name, "Iron Cleaver" suggests.
+D:ordinary metal as easily as its title, "Iron Cleaver" suggests.
 
 
 # The Dagger 'Narthanc'
 
 N:66:'Narthanc'
 I:23:4:0
-W:4:40:12:12000
+W:4:100:12:12000
 P:0:1d4:4:6:0
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | LITE | LEVELS
 D:A fiery dagger finely balanced for deadly throws.
@@ -897,7 +897,7 @@ D:A fiery dagger finely balanced for deadly throws.
 
 N:67:'Nimthanc'
 I:23:4:0
-W:3:40:12:11000
+W:3:100:12:11000
 P:0:1d4:4:6:0
 F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS | LEVELS
 D:A frosty dagger finely balanced for deadly throws.
@@ -907,7 +907,7 @@ D:A frosty dagger finely balanced for deadly throws.
 
 N:68:'Dethanc'
 I:23:4:0
-W:5:40:12:13000
+W:5:100:12:13000
 P:0:1d4:4:6:0
 F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS | LEVELS
 D:A dagger covered in sparks and finely balanced for deadly throws.
@@ -955,9 +955,9 @@ D:peril.
 # The Broad Sword 'Aranruth'
 
 N:72:'Aranruth'
-I:23:11:4
-W:20:45:50:125000
-P:0:2d7:20:12:0
+I:23:16:4
+W:20:45:150:125000
+P:0:3d5:20:12:0
 F:STR | DEX | CON | SUST_CON | SUST_STR
 F:REGEN | FREE_ACT | SEE_INVIS |
 F:RES_CHAOS | RES_NETHER | HOLD_LIFE | RES_FEAR |
@@ -966,7 +966,7 @@ F:SLAY_DEMON | SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD |
 F:BRAND_COLD |
 F:SLOW_DIGEST | SHOW_MODS | HIDE_TYPE | BLESSED
 D:The beautiful sword of Thingol with a hilt of gold and silver inlay, 
-D:glistening icy enough to freeze the hearts of demons.  You feel supple 
+D:glistening icily enough to freeze the hearts of demons. You feel supple 
 D:and lightfooted as you hold it.
 
 
@@ -1034,20 +1034,21 @@ F:STR | CHR | INFRA | HIDE_TYPE | VORPAL |
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE | LITE |
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
 F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE | SHOW_MODS
-D:Dark runes and deadly stand stark against the naked steel of this awesome 
-D:weapon, and you feel an stunning power of slaying and rending as you 
+D:Dark and deadly runes stand stark against the naked steel of this awesome 
+D:weapon, and you feel a stunning power of slaying and rending as you 
 D:slowly approach.
 
 
-# The Two-Handed Sword 'Mormegil'
+# The Dark Sword 'Mormegil'
 
 N:78:'Mormegil'
-I:23:25:10
+I:23:33:2
 W:30:15:250:0
-P:0:4d6:-40:-60:-50
-F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR | DG_CURSE |
+P:0:6d7:0:0:-20
+F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR |
 F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | LITE | LEVELS
-D:A foul, twisted sword with blacked spines and knobs, whose very name is a 
+F:BLOWS | KILL_DRAGON | RES_CHAOS
+D:A foul, twisted sword with blackened spines and knobs, whose very name is a 
 D:curse upon the lips of Elves and Men.
 
 
@@ -1115,7 +1116,7 @@ P:0:2d5:10:15:5
 F:STR | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
 F:RES_FIRE | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS | LITE
-D:The famed "Flame of the West", the Sword that was Broken and is forged 
+D:The famed "Flame of the West", the sword that was broken and is forged 
 D:again.  It glows with the essence of fire, its wearer is mighty in combat, 
 D:and no creature of Sauron can withstand it.
 
@@ -1152,7 +1153,7 @@ I:23:7:0
 W:15:8:40:15000
 P:0:1d6:12:19:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
-D:A slender, tapered blade whose wielder strikes cold criticals with deadly 
+D:A slender, tapered blade whose wielder strikes icy blows with deadly 
 D:accuracy.
 
 
@@ -1173,15 +1174,15 @@ D:dismay to creatures natural and unnatural.
 
 N:88:'Sting'
 I:23:8:2
-W:20:25:75:100000
+W:20:205:75:100000
 P:0:1d6:7:8:0
-F:STR | DEX | CON | BLOWS | LEVELS | | ESP_ORC | ESP_UNDEAD
+F:STR | DEX | CON | BLOWS | LEVELS | ESP_ORC | ESP_UNDEAD | ESP_SPIDER
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | 
 F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
 D:"I will give you a name, and I shall call you Sting."  The perfect size  
 D:for Bilbo, and stamped forever by the courage he found in Mirkwood, this  
 D:sturdy little blade grants the wearer combat prowess and survival 
-D:abilities he did not know he had.
+D:abilities they did not know they had.
 
 
 # The Scimitar 'Haradekket'
@@ -1222,9 +1223,9 @@ F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL |
 F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:RES_CHAOS | SEE_INVIS | ESP_EVIL | AGGRAVATE | SHOW_MODS
 F:CHAOTIC | VORPAL | BRAND_FIRE | BRAND_POIS | LITE | SPECIAL_GENE
-D:This weapon of wrath, wracked by a desperate berserkergang, dives hungrily 
-D:into the yielding flesh of your enemies.  You yourself fall under the  
-D:shadow of death even as you inflict wounds that will not heal.
+D:This weapon of wrath, cursed with a violent anger, dives hungrily 
+D:into the flesh of its enemies. It gathers shadows of death into its
+D:owner as they inflict wounds that will never heal.
 
 # The Long Sword 'Vorpal Blade'
 
@@ -1241,21 +1242,21 @@ D:went snicker-snack!"
 # The Beaked Axe of Theoden
 
 N:93:of Theoden
-I:22:10:3
+I:24:10:3
 W:20:15:180:40000
 P:0:2d6:8:10:0
 F:WIS | CON | HIDE_TYPE | 
 F:SLAY_DRAGON | ESP_EVIL | ESP_UNDEAD | SLOW_DIGEST | ACTIVATE | SHOW_MODS
-D:The narrow axe head, finely balanced by a crow's beak, of this weapon 
-D:pierces through even the armour of Smaug himself, and you become aware of 
-D:the minds of your enemies.
+D:The narrow axe head of this weapon, finely balanced by a crow's beak, 
+D:would pierce even the armour of Smaug, and its wielder becomes aware of
+D:the minds of their enemies.
 
 
 # The Glaive of Pain
 
 N:94:of Pain
 I:22:13:0
-W:30:25:190:50000
+W:30:155:190:50000
 P:0:9d6:0:30:0
 F:SHOW_MODS | LEVELS
 D:The massive chopper that crowns this glaive glows blood-red and black; 
@@ -1329,10 +1330,9 @@ W:15:12:50:30000
 P:0:1d6:11:13:0
 F:STEALTH | RES_DARK | INFRA | SPEED |
 F:BRAND_COLD | SLAY_UNDEAD | RES_COLD | SEE_INVIS | SHOW_MODS
-D:A thin spike of thrice-forged steel caps a straight silvan shaft cut from 
-D:a legendary tree, and spells to break the wills of the undead and strike 
-D:cold into the breasts of your enemies lay upon this perfectly balanced 
-D:spear.
+D:A thin spike of thrice-forged steel caps a straight sylvan shaft cut from 
+D:a legendary tree; spells to break the will of the undead and strike cold
+D:fear into the hearts of foes lie on this perfectly balanced spear.
 
 
 # The Lance of Eorlingas
@@ -1343,15 +1343,15 @@ W:20:23:360:55000
 P:0:3d8:3:21:0
 F:DEX | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS
-D:"Forth Eorlingas!".  To the field of Cormallen Eorl the Young came beyond 
-D:hope to save beleaguered Gondor, and from his lance fled massive trolls 
+D:"Forth Eorlingas!". To the field of Cormallen came Eorl the Young
+D:to save beleaguered Gondor, and from his lance fled massive trolls 
 D:and dire wolves.
 
 
 # The Great Axe of Durin
 
 N:101:of Durin
-I:22:25:3
+I:24:25:3
 W:30:90:230:150000
 P:0:4d4:10:20:15
 F:CON | HIDE_TYPE | ESP_EVIL
@@ -1365,7 +1365,7 @@ D:Kazad-dum to protect the wearer and slay all evils found underground.
 # The Great Axe of Eonwe
 
 N:102:of Eonwe
-I:22:25:2
+I:24:25:2
 W:30:120:230:200000
 P:0:4d4:15:18:8
 F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | 
@@ -1380,7 +1380,7 @@ D:evil at a word, and grants Maia-like powers of body and mind.
 # The Battle Axe of Balli Stonehand
 
 N:103:of Balli Stonehand
-I:22:22:3
+I:24:22:3
 W:30:15:170:90000
 P:0:3d8:8:11:5
 F:STR | CON | STEALTH | HIDE_TYPE | ESP_NONLIVING
@@ -1394,7 +1394,7 @@ D:to resist and endure lie ready for he who shall wield it once more.
 # The Battle Axe 'Lotharang'
 
 N:104:'Lotharang'
-I:22:22:1
+I:24:22:1
 W:30:15:170:21000
 P:0:2d8:4:3:0
 F:STR | DEX | HIDE_TYPE | 
@@ -1406,28 +1406,28 @@ D:allows rapid recovery from their blows.
 # The Lochaber Axe 'Mundwine' -> of the Dwarves
 
 N:105:of the Dwarves
-I:22:28:10
+I:24:28:10
 W:30:8:250:80000
 P:0:3d8:12:17:0
 F:SLAY_EVIL | TUNNEL | INFRA | SEARCH | SLAY_GIANT |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_FEAR |
 F:SHOW_MODS
 D:A massive axe with twin razor-sharp heads, so large that it usually
-D:requires two hands to wield, intricately engraved with spells to ward off
-D:the elements and smite evil in filleted gold.
+D:requires two hands to wield, intricately engraved in gold with spells
+D:to ward off the elements and smite evil.
 
 
 # The Broad Axe 'Barukkheled'
 
 N:106:'Barukkheled'
-I:22:11:3
+I:24:11:3
 W:20:8:160:50000
 P:0:2d6:13:19:0
 F:CON | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
 F:SEE_INVIS | SHOW_MODS
-D:A royal heirloom of the southern coast, strong in combat against the evil 
-D:creatures of earth.
+D:A royal heirloom of the southern coast, strong in combat against evil 
+D:creatures of the earth.
 
 
 # The Trident of Wrath
@@ -1454,8 +1454,8 @@ F:DEX | HIDE_TYPE |
 F:SLAY_DRAGON | SLAY_ANIMAL | FREE_ACT | HOLD_LIFE | IM_ACID | 
 F:RES_NETHER | SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE | 
 F:BLESSED | SHOW_MODS | SPECIAL_GENE |
-D:The awesome weapon of the Vala Ulmo, Lord of Waters.  Mightest of all the 
-D:powers of good save Manwe himself, Ulmo laughs to scorn the dread powers  
+D:The awesome weapon of the Vala Ulmo, Lord of Waters. Mightest of all the 
+D:powers of good save Manwe himself, Ulmo laughs in scorn at the dread powers  
 D:of the undead, and is utterly in command of the Element of acid.
 
 
@@ -1477,7 +1477,7 @@ D:returning.
 
 N:110:of the Dawn
 I:23:17:3
-W:40:120:130:250000
+W:40:160:130:250000
 P:0:3d5:20:20:0
 F:ACTIVATE | LITE | BRAND_FIRE | FREE_ACT | RES_FIRE | INFRA | LEVELS |
 F:SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | VORPAL | CLONE |
@@ -1542,7 +1542,7 @@ F:STR | HIDE_TYPE |
 F:SLAY_ANIMAL | SLAY_TROLL | SLAY_ORC | RES_NEXUS | SEE_INVIS | 
 F:SHOW_MODS
 D:You feel strong and firm of foot as you whip the chain-suspended spiked orb 
-D:around - and bath it in the blood of your foes.
+D:around - and bathe it in the blood of your foes.
 
 
 # The Morning Star 'Firestar'
@@ -1563,8 +1563,8 @@ I:21:5:0
 W:20:15:200:50000
 P:0:3d4:12:12:0
 F:KILL_DRAGON | BRAND_ELEC | IM_ELEC | ACTIVATE | SHOW_MODS
-D:A great ridged mace that surrounds you in a nimbus of living lightning; 
-D:you remain utterly untouched, even as fat sparks crackle around your 
+D:A great ridged mace that calls around you a nimbus of living lightning; 
+D:you remain utterly untouched even as fat sparks arc around your 
 D:fingers and eyebrows.
 
 
@@ -1580,7 +1580,7 @@ F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS |
 F:SEE_INVIS | SHOW_MODS
 D:The wondrous hammer of Aule, creator of the wise Dwarven lords of old.  
 D:It bears magics of demolishing that no serpent or demon can withstand, and 
-D:envokes the strength of mountains to ward off the tumult of the elements.
+D:invokes the strength of mountains to ward off the tumult of the elements.
 
 
 # The Quarterstaff 'Nar-i-vagil'
@@ -1601,7 +1601,7 @@ N:119:'Eriril'
 I:21:3:4
 W:20:18:150:20000
 P:0:1d9:3:5:0
-F:INT | WIS | HIDE_TYPE | LEVELS | ESP_EVIL
+F:INT | WIS | HIDE_TYPE | ESP_EVIL
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 D:The radiant golden staff of an Istari of legend, this wizard's companion 
 D:grants keen sight and the knowledge of many hidden things.
@@ -1659,9 +1659,11 @@ I:21:2:5
 W:20:15:120:100000
 P:0:3d6:15:16:0
 F:CON | DEX | INFRA | HIDE_TYPE | 
-F:BRAND_FIRE | SLAY_EVIL | SLAY_DEMON | RES_FIRE |
+F:BRAND_FIRE | SLAY_EVIL | SLAY_DEMON | RES_FIRE | ESP_SPIDER
 F:VORPAL | RES_LITE | LITE | REGEN | ESP_DEMON
 F:SHOW_MODS
+D:With this unbearably bright whip of flame, the Balrog Gothmog has become 
+D:known for never having lost in combat.
 
 
 # The Long Bow 'Belthronding'
@@ -1679,7 +1681,7 @@ D:faintly shines a pale clear gold.
 # The Long Bow of Bard
 
 N:125:of Bard
-I:19:13:3
+I:19:13:2
 W:30:20:40:20000
 P:0:0d0:17:19:0
 F:DEX | HIDE_TYPE | ESP_DRAGON
@@ -1695,7 +1697,7 @@ I:19:23:10
 W:50:25:110:50000
 P:0:0d0:10:14:0
 F:SPEED | 
-F:RES_FIRE | XTRA_MIGHT | ACTIVATE | SHOW_MODS
+F:RES_FIRE | ACTIVATE | SHOW_MODS
 D:A crossbow that grants fiery speed to he who finds it, and from which 
 D:shoot bolts that blaze with flame unquenchable.
 
@@ -1723,8 +1725,8 @@ W:20:10:20:40000
 P:0:4d5:8:12:0
 F:DEX |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
-D:Beor's boomerang makes the wielder agile offers 
-D:some protections from the elements.  
+D:Beor's boomerang makes its wielder as agile as the winds, 
+D:and as hard to harm.
 
 N:129:'Glimdrir'
 I:15:4:3
@@ -1732,9 +1734,9 @@ W:40:20:20:60000
 P:0:5d5:15:16:0
 F:DEX | SPEED | FREE_ACT | BRAND_POIS | SLAY_EVIL | SLAY_UNDEAD | REGEN
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_SOUND | NO_TELE | CURSED
-D:A powerful boomerang that makes one agile and fast, and that slays 
-D:evil and undead creatures, but beware, teleportation will not be 
-D:easy with this on!
+D:A powerful boomerang that makes one agile and fast, with a thirst for
+D:evil and undead creatures, but demands its wielder not teleport, for fear
+D:of desertion.
 
 # The Robe of Incanus [aka Gandalf]
 
@@ -1800,9 +1802,11 @@ W:40:10:15:80000
 P:0:3d4:0:0:0
 F:CHR | SPEED | WIS | SEE_INVIS | RES_SOUND | ACTIVATE | STEALTH
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-D:Piemur's drum is much like the harp of Master Robinson.  It protects 
-D:the wearer is many ways; by making him less noticable and sheilding 
-D:from the elements.  It also makes them able to run away faster.  
+D:Piemur's drum is much like the harp of Master Robinson. It protects 
+D:its wearer in many ways; by making him less noticable and shielding 
+D:them from the elements. The beat of this drum also sounds a call to
+D:action that increases the wearer's speed. 
+
 
 # The Flute of Menolly
 
@@ -1812,8 +1816,8 @@ W:20:10:10:50000
 P:0:3d4:0:0:0
 F:CHR | SPEED | WIS | RES_SOUND | ACTIVATE | STEALTH
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | ESP_DRAGONRIDER
-D:A pretty flute that makes those who play it more beatiful, wiser and 
-D:faster. 
+D:A pretty flute that makes those who play it beautiful, wise and 
+D:fast. 
 
 # The Pick of Erebor
 
@@ -1870,7 +1874,7 @@ D:Boromir's horn gives courage to the wearer.
 # The black axe of Gothmog, which slew Fingon
 
 N:145:of Gothmog
-I:22:28:-4
+I:24:28:-4
 W:30:8:250:30000
 P:0:3d8:14:19:0
 F:BRAND_FIRE | CHR | ACTIVATE | SHOW_MODS | CURSED |  DG_CURSE |
@@ -1885,7 +1889,7 @@ I:17:2:0
 W:20:5:3:25000
 P:0:10d8:10:20:0
 F:SLAY_EVIL | SLAY_DEMON
-D:An arrow that was created to rid the world from deamons.  
+D:An arrow that was created to rid the world of deamons.  
 
 
 # The Long Sword of Eru Iluvatar
@@ -1913,9 +1917,9 @@ N:148:of Mithrandir
 I:65:22:38
 W:50:10:10:12000
 P:0:2d4:0:0:0
-F:RECHARGE
-D:Mithrandir's wand that throws powerful fire balls at enemies.  It 
-D:can be rechanged without blowing up, for it is built to hold 
+F:RECHARGE | EASY_USE | RECHARGED
+D:Mithrandir's wand that throws powerful fireballs at enemies.  It 
+D:can be recharged without blowing up, for it is built to hold 
 D:much magical energy.
 
 
@@ -1925,7 +1929,7 @@ N:149:of Thrain
 I:65:6:25
 W:10:10:10:3200
 P:0:2d4:0:0:0
-F:RECHARGE | SPECIAL_GENE |
+F:RECHARGE | SPECIAL_GENE | EASY_USE | RECHARGED
 D:The miner's friend.  This wand was used by Thrain to dig into the 
 D:walls of the dungeon and is quite useful because it will never 
 D:be destroyed.
@@ -1943,7 +1947,7 @@ F:BRAND_FIRE | SEE_INVIS | SLOW_DIGEST | FREE_ACT |
 F:VAMPIRIC | NO_TELE | AGGRAVATE | WRAITH | INVIS |
 F:CURSED | HEAVY_CURSE | DG_CURSE | SHOW_MODS | CLONE |
 D:Dark flames wreath the naked steel of the Witch-King of Angmar.  
-D:A mighty curse to all those who wield it despite its master, 
+D:A mighty curse to all those who wield it apart from its master, 
 D:the torture of the wraithworld awaits those who dare.
 
 
@@ -1959,8 +1963,8 @@ P:0:10d5:25:26:0
 F:VORPAL | BRAND_COLD | BRAND_FIRE | BRAND_ELEC | BRAND_ACID | BRAND_POIS |
 F:KILL_DRAGON | SLAY_GIANT | SLAY_TROLL | SLAY_UNDEAD | SLAY_ORC |
 F:SLAY_DEMON | SLAY_EVIL |
-D:Made during the war against Morgoth in the Belegriand, this powerfull 
-D:bolt is the bane of Morgoth power.
+D:Made during the war against Morgoth in the Belegriand, this powerful 
+D:bolt is the bane of Morgoth's power.
 
 
 # The Heavy Crossbow of the Elves
@@ -1981,13 +1985,78 @@ D:is perfect against the terrible powers of Morgoth.
 # The Soft Leather Armour of the Sandworm
 
 N:153:of the Sandworm
-I:36:16:5
+I:36:4:5
 W:30:3:80:65000
 P:30:0d0:0:0:0
 F:RES_POIS | RES_ELEC | RES_FIRE | RES_ACID | SPECIAL_GENE
 F:TUNNEL | STR | STEALTH | INFRA | ESP_ANIMAL
-D:This powerfull peice of armour was made using the rests of
+D:This powerful piece of armour was made using the remains of 
 D:the Sandworm Queen.
+
+# The Lochaber Axe 'Dragonbane'
+
+N:154:'Dragonbane'
+I:24:28:2
+W:70:20:260:33000
+P:0:3d8:20:20:0
+F:BLOWS | KILL_DRAGON | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_POIS | SHOW_MODS
+D:Forged by the Dwarves to defend their home of Khazad-dum from dragons, 
+D:this axe has been lost to time.. until now.
+
+# The Light War Axe 'Limbslicer'
+
+N:155:'Limbslicer'
+I:24:8:4
+W:15:3:140:12000
+P:0:2d5:12:15:0
+F:DEX | VORPAL | HIDE_TYPE | SHOW_MODS
+D:The Nieblung of Bathak forged this blade, and it shares their thirst 
+D:for blood.
+
+# The Broad Axe 'Orchast'
+
+N:156:'Orchast'
+I:24:11:4
+W:15:2:170:12000
+P:0:2d7:20:14:0
+F:DEX | SEARCH | SLAY_ORC | ACTIVATE | HIDE_TYPE | SHOW_MODS
+D:Forged by the dwarves of Khazad-dum in a time of desperation, 
+D:this axe turned many a battle against the invading orcs.
+
+# The Hatchet of the Night
+
+N:157:of the Night
+I:24:1:4
+W:45:20:45:34000
+P:0:2d6:34:22:0
+F:DEX | STEALTH | VAMPIRIC | SLAY_UNDEAD | RES_DARK | HIDE_TYPE | 
+F:SHOW_MODS | SEE_INVIS | ACTIVATE
+D:Found on an unmarked grave after a violent storm, this hatchet 
+D:has a sinister aura of darkness and decay.
+
+# The Slaughter Axe 'Naturebane'
+
+N:158:'Naturebane'
+I:24:30:3
+W:70:20:300:28400
+P:0:5d7:31:27:0
+F:STR | SLAY_ANIMAL | SUST_STR | RES_SHARDS | RES_NEXUS | FEATHER | 
+F:HIDE_TYPE | SHOW_MODS | ACTIVATE
+D:Used by the orcs in their battle at Dragor Bragollach against the elves, this 
+D:axe has a bloodthirst for nature. 
+
+# The Light War Axe of Ice
+
+N:159:of Ice
+I:24:8:3
+W:30:25:140:26550
+P:0:2d5:3:15:0
+F:INT | CHR | SUST_DEX | BRAND_COLD | IM_COLD | RES_NEXUS | HIDE_TYPE | 
+F:SHOW_MODS
+D:Crafted of ice and held solid by powerful spells, this icy axe 
+D:delivers a chill of death to its victims.
+
 
 # The Phial of Undeath
 
@@ -1997,7 +2066,7 @@ W:1:1:10:0
 P:0:1d1:0:0:0
 F:CURSED | INT | WIS | CON | DEX | CHR | STR | ACTIVATE |
 F:INSTA_ART | DG_CURSE | ESP_UNDEAD
-D:It appears like the Phial of Galadrial at first, but wait!  It 
+D:It appears like the Phial of Galadrial at first, but wait! It 
 D:is a cursed phail created by an evil wizard to lure adventurers 
 D:into wielding it unknowingly.
 
@@ -2022,3 +2091,20 @@ F:INSTA_ART
 D:A shining white ball of unbreakable crystal, the ancient palantiri, 
 D:or 'far-watchers' were used by kings of Numenor and later by the Exiles 
 D:for rapid communication between distant lands.
+
+
+# The Ring of Phasing
+
+N:203:of Phasing
+I:45:55:4
+W:110:0:2:3000000
+P:0:1d1:0:0:0
+F:SPEED | SEE_INVIS
+F:CURSED | HEAVY_CURSE | REGEN
+F:WRAITH | IM_NETHER | DRAIN_EXP | HOLD_LIFE | SPECIAL_GENE |
+F:INSTA_ART
+D:Imbued with the screams of the victims of undead everywhere, this 
+D:ring is more a hole in reality than anything else. Strange forces ripple over 
+D:its surface, giving you visions of a reality considerably less solid than this 
+D:one. You feel your senses reel, and must make a conscious effort not to throw 
+D:this ring as far from you as possible.

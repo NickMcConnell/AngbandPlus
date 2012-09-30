@@ -549,6 +549,7 @@ static tval_desc tvals[] =
 	{ TV_SWORD,             "Sword"                },
 	{ TV_POLEARM,           "Polearm"              },
 	{ TV_HAFTED,            "Hafted Weapon"        },
+        { TV_AXE,               "Axe"                  },
 	{ TV_BOW,               "Bow"                  },
         { TV_BOOMERANG,         "Boomerang"            },
 	{ TV_ARROW,             "Arrows"               },
@@ -773,7 +774,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 	wiz_display_item(o_ptr);
 
         p = "Enter new 'pval3' setting: ";
-        sprintf(tmp_val, "%d", o_ptr->pval3);
+        sprintf(tmp_val, "%ld", o_ptr->pval3);
 	if (!get_string(p, tmp_val, 5)) return;
         o_ptr->pval3 = atoi(tmp_val);
 	wiz_display_item(o_ptr);
@@ -808,12 +809,12 @@ static void wiz_tweak_item(object_type *o_ptr)
         o_ptr->sval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
-        p = "Enter new 'exp level' setting: ";
-        sprintf(tmp_val, "%d", o_ptr->elevel);
-	if (!get_string(p, tmp_val, 5)) return;
-        o_ptr->elevel = atoi(tmp_val);
+        p = "Enter new 'obj exp' setting: ";
+        sprintf(tmp_val, "%ld", o_ptr->exp);
+        if (!get_string(p, tmp_val, 9)) return;
 	wiz_display_item(o_ptr);
-        o_ptr->exp = player_exp[o_ptr->elevel - 1];
+        o_ptr->exp = atoi(tmp_val);
+        check_experience_obj(o_ptr);
 }
 
 
@@ -1198,7 +1199,7 @@ static void do_cmd_wiz_play(void)
 		wiz_display_item(q_ptr);
 
 		/* Get choice */
-		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity? ", &ch))
+                if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity flag[g]roup [f]lag? ", &ch))
 		{
 			changed = FALSE;
 			break;
@@ -1228,6 +1229,16 @@ static void do_cmd_wiz_play(void)
 		if (ch == 'q' || ch == 'Q')
 		{
 			wiz_quantity_item(q_ptr);
+		}
+
+                if (ch == 'g' || ch == 'G')
+		{
+                        gain_flag_group(q_ptr, FALSE);
+		}
+
+                if (ch == 'f' || ch == 'F')
+		{
+                        gain_flag_group_flag(q_ptr, FALSE);
 		}
 	}
 
@@ -1800,6 +1811,11 @@ void do_cmd_debug(void)
 			teleport_player(10);
 			break;
 
+                /* Panic save the game */
+                case 'P':
+                        exit_game_panic();
+			break;
+
 		/* Complete a Quest -KMW- */
 		case 'q':
 		{
@@ -1847,6 +1863,11 @@ void do_cmd_debug(void)
 		case 's':
 			if (command_arg <= 0) command_arg = 1;
 			do_cmd_wiz_summon(command_arg);
+			break;
+
+                /* Create lots of traps */
+                case 'S':
+                        fire_ball(GF_MAKE_TRAP, 0, 15, 15);
 			break;
 
 		/* Teleport */
@@ -1921,6 +1942,7 @@ void do_cmd_debug(void)
                 case 'F':
                 msg_format("Trap: %d", cave[py][px].t_idx);
                 msg_format("Old feature: %d", cave[py][px].feat);
+                msg_format("Special: %d", cave[py][px].special);
                 cave_set_feat(py,px,command_arg);
                 break;
 

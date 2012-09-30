@@ -397,6 +397,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 {
    bool ident = FALSE;
    s16b trap;
+   dungeon_info_type *d_ptr = &d_info[dungeon_type];
 
    s16b k, l;
 
@@ -656,7 +657,8 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
          msg_print("You fell through a trap door!");
          if (p_ptr->ffall)
          {
-            msg_print("You float gently down to the next level.");
+            if (d_ptr->flags1 & DF1_TOWER) msg_print("You float gently down to the previous level.");
+            else msg_print("You float gently down to the next level.");
          }
          else
          {
@@ -672,7 +674,8 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 	    is_autosave = FALSE;
 	 }
 
-	 dun_level++;
+         if (d_ptr->flags1 & DF1_TOWER) dun_level--;
+         else dun_level++;
 
 	 /* Leaving */
 	 p_ptr->leaving = TRUE;
@@ -752,13 +755,13 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
                else if ((j_ptr->tval==TV_ROD_MAIN) && (j_ptr->pval == SV_ROD_RECALL))
                {
                   j_ptr->timeout = 0; /* a long time */
-                  if (!ident) msg_print("You have a feeling of staying.");
+                  if (!ident) msg_print("You feel the air stabilize around you.");
                   ident=TRUE;
                }
             }
             if ((!ident) && (p_ptr->word_recall == 0))
             {
-               msg_print("You feel like leaving against your will!");
+               msg_print("You strange forces start to grasp at you!");
                p_ptr->word_recall = 15 + randint(20);
                ident=TRUE;
             }
@@ -1411,7 +1414,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
       case TRAP_OF_AGING:
       {
          msg_print("Colors are scintillating around you, you see your past running before your eyes.");
-	 p_ptr->age += randint(rp_ptr->b_age/2);
+         p_ptr->age += randint((rp_ptr->b_age + rmp_ptr->b_age) / 2);
 	 ident = TRUE;
 	 trap_hit(trap);
 	 break;
@@ -1421,8 +1424,8 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 	 s16b tmp;
 
          msg_print("Heavy fumes sprout out... you feel you transmute.");
-	 if (p_ptr->psex == SEX_FEMALE) tmp = rp_ptr->f_b_ht;
-	 else tmp = rp_ptr->m_b_ht;
+         if (p_ptr->psex == SEX_FEMALE) tmp = rp_ptr->f_b_ht + rmp_ptr->f_b_ht;
+         else tmp = rp_ptr->m_b_ht + rmp_ptr->m_b_ht;
 
 	 p_ptr->ht += randint(tmp/4);
 	 ident = TRUE;
@@ -1434,8 +1437,8 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 	 s16b tmp;
 
          msg_print("Heavy fumes sprout out... you feel you transmute.");
-	 if (p_ptr->psex == SEX_FEMALE) tmp = rp_ptr->f_b_ht;
-	 else tmp = rp_ptr->m_b_ht;
+         if (p_ptr->psex == SEX_FEMALE) tmp = rp_ptr->f_b_ht + rmp_ptr->f_b_ht;
+         else tmp = rp_ptr->m_b_ht + rmp_ptr->m_b_ht;
 
 	 p_ptr->ht -= randint(tmp/4);
 	 if (p_ptr->ht <= tmp/4) p_ptr->ht = tmp/4;
@@ -1458,7 +1461,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 	    /* no sense saying this unless you never have tanker point */
 	    if (p_ptr->mtp==0)
             {
-               msg_format("Suddenly you feel glad you're only a %s",rp_ptr->title);
+               msg_format("Suddenly you feel glad you're only a %s", rp_ptr->title);
             }
             else
             {
@@ -1517,7 +1520,6 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
       /* Bolt Trap */
       case TRAP_OF_ROCKET: ident=player_handle_breath_trap(1, GF_ROCKET, trap); break;
       case TRAP_OF_NUKE_BOLT: ident=player_handle_breath_trap(1, GF_NUKE, trap); break;
-      case TRAP_OF_DEATH_RAY: ident=player_handle_breath_trap(1, GF_DEATH_RAY, trap); break;
       case TRAP_OF_HOLY_FIRE: ident=player_handle_breath_trap(1, GF_HOLY_FIRE, trap); break;
       case TRAP_OF_HELL_FIRE: ident=player_handle_breath_trap(1, GF_HELL_FIRE, trap); break;
       case TRAP_OF_PSI_BOLT: ident=player_handle_breath_trap(1, GF_PSI, trap); break;
@@ -1577,6 +1579,7 @@ void place_trap(int y, int x)
    s16b           cnt        = 0;
    u32b flags;
    cave_type *c_ptr = &cave[y][x];
+   dungeon_info_type *d_ptr = &d_info[dungeon_type];
 
    /* no traps in town or on first level */
    if (dun_level<=1) return;
@@ -1596,10 +1599,13 @@ void place_trap(int y, int x)
       t_ptr = &t_info[trap];
 
       /* no traps below their minlevel */
-      if (t_ptr->minlevel>dun_level) continue;
+      if (t_ptr->minlevel > dun_level) continue;
 
       /* is this a correct trap now?   */
       if (!(t_ptr->flags & flags)) continue;
+
+      /* hack, no trap door at the bottom of dungeon or in flat(non dungeon) places */
+      if (((d_ptr->maxdepth == dun_level) || (d_ptr->flags1 & DF1_FLAT)) && (trap == TRAP_OF_SINKING)) continue;
 
       /* how probable is this trap   */
       if (rand_int(100)<t_ptr->probability)

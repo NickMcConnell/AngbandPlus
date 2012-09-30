@@ -16,6 +16,7 @@
 # L:<floor1>:<%1>:<floor2>:<%2>:<floor3>:<%3>
 # A:<wall1>:<%1>:<wall2>:<%2>:<wall3>:<%3>:<outer wall>:<inner wall>
 # O:<%treasure>:<%combat>:<%magic>:<%tools>
+# E:<dices>d<sides>:<frequency>:<attack type>
 # F:<flags>
 # M:<monster flags>
 # S:<monster spells>
@@ -45,7 +46,7 @@ W:0:0:0:4:0:14:160
 L:89:80:199:20:1:0
 A:96:100:56:0:56:0:57:58
 O:20:20:20:20
-F:PRINCIPAL
+F:PRINCIPAL | FLAT
 
 
 ### The principal dungeons, they were created by spliting the vanilla dungeon ###
@@ -56,7 +57,8 @@ W:11:33:5:2:0:14:160
 L:89:95:199:5:1:0
 A:96:100:56:0:56:0:202:96
 O:20:20:20:20
-F:PRINCIPAL | NO_DOORS | NO_DESTROY
+F:PRINCIPAL | NO_DOORS | NO_DESTROY | FLAT
+F:RANDOM_TOWNS
 
 N:2:Mordor
 D:a door to the Land of Mordor
@@ -80,7 +82,7 @@ W:1:10:1:1:0:14:160
 L:88:78:89:18:199:4
 A:96:34:97:66:56:0:57:97
 O:20:20:20:20
-F:PRINCIPAL
+F:PRINCIPAL | FLAT
 
 # The Additionnal dungeons
 
@@ -90,17 +92,21 @@ W:30:45:18:0:1:14:160
 L:86:100:1:0:1:0
 A:85:33:97:33:87:34:57:85
 O:10:10:30:30
+E:2d10:10:FIRE
 F:CAVE | MONSTER_PERCENT_100
 M:IM_FIRE
 
-N:6:Hell
-D:a stairway to the Hell
-W:666:696:50:0:1:14:160
-L:86:80:85:20:1:0
+N:6:Nether Realm
+D:a magical portal to the Nether Realm
+W:666:696:40:0:3:14:160
+L:102:80:86:15:85:5
 A:85:80:87:20:87:0:57:85
 O:25:25:25:25
-F:CAVERN | MONSTER_PERCENT_100
-M:IM_FIRE
+E:10d10:3:NETHER
+F:EMPTY | MONSTER_PERCENT_90 | FORGET
+F:RANDOM_TOWNS
+F:LAVA_RIVER | FINAL_GUARDIAN_1032 | FINAL_ARTIFACT_203
+M:RES_NETH | R_CHAR_G | R_CHAR_W | R_CHAR_U
 
 N:7:Submerged Ruins
 D:a submerged way to the lost land of Numenor
@@ -108,6 +114,8 @@ W:40:60:25:0:0:14:160
 L:84:95:187:5:1:0
 A:187:80:84:10:56:10:57:187
 O:30:30:10:10
+E:1d1:1:ACID
+F:FLAT
 
 # Dungeon from Variaz
 N:8:Vanilla Dungeon
@@ -116,6 +124,19 @@ W:1:127:1:0:0:14:160
 L:1:100:1:0:1:0
 O:20:20:20:20
 A:56:100:56:0:56:0:57:58
+F:RANDOM_TOWNS
+
+# Cirith Ungol with Ungoliant
+N:9:Cirith Ungol
+D:an entrance to Cirith Ungol
+W:25:60:10:0:3:14:160
+L:87:5:88:65:16:30
+A:97:90:16:10:56:0:16:58
+O:30:30:30:10
+E:4d4:20:POISON
+F:MONSTER_PERCENT_98 | FINAL_GUARDIAN_808 | FINAL_ARTIFACT_18
+F:CIRCULAR_ROOMS
+M:ORC | SPIDER | R_CHAR_c | R_CHAR_a | R_CHAR_w | R_CHAR_m | R_CHAR_j
 
 # Vecna is there, guarding Doomcaller
 N:16:Graveyard
@@ -133,7 +154,8 @@ W:25:33:10:0:3:24:100
 L:1:98:188:2:1:0
 A:56:50:189:50:56:0:57:58
 O:50:10:20:20
-F:MONSTER_PERCENT_70 |
+E:6d2:6:CONFUSION
+F:MONSTER_PERCENT_70
 M:STUPID | WEIRD_MIND | SHAPECHANGER | ATTR_MULTI | CHAR_MULTI | RAND_25 |
 M:RAND_50 | EMPTY_MIND | MULTIPLY | INVISIBLE | PASS_WALL
 S:BR_CONF | BR_CHAO | BA_CHAO | CONF | FORGET | TRAPS
@@ -160,7 +182,7 @@ F:MONSTER_PERCENT_68
 M:ORC | R_CHAR_k | R_CHAR_o | R_CHAR_O | ANIMAL
 
 N:20:Dragon's Lair
-D:a big, dark and frigthening tunnel leading to a Dragon's Lair
+D:a big, dark and frightening tunnel leading to a Dragon's Lair
 W:60:72:25:0:3:20:140
 L:88:100:1:0:1:0
 A:97:90:87:10:56:0:57:97
@@ -174,8 +196,9 @@ D:a path of grass leading to a Forest
 W:28:40:15:0:3:15:100
 L:88:76:84:16:199:8
 A:96:100:56:0:56:0:202:96
-O:5:20:15:30
-F:WATER_RIVERS | NO_DOORS | MONSTER_PERCENT_70 | NO_DESTROY
+O:20:5:15:30
+F:WATER_RIVERS | NO_DOORS | MONSTER_PERCENT_70 | NO_DESTROY | FLAT
+F:RANDOM_TOWNS
 M:ANIMAL | R_CHAR_S | R_CHAR_J | R_CHAR_Z
 
 # There is Muar with The Quarterstaff of Olorin
@@ -184,9 +207,10 @@ D:a stone door leading to the depths of the Moria
 W:30:50:20:0:3:40:40
 L:88:100:1:0:1:0
 A:97:100:56:0:56:0:57:97
-O:50:30:10:5
+O:30:50:10:5
 F:FINAL_ARTIFACT_120 | FINAL_GUARDIAN_872 | WATER_RIVER | BIG
 F:MONSTER_PERCENT_80 | NO_UP | NO_DOWN
+F:RANDOM_TOWNS
 F:WILD_45_30__44_37
 M:ORC | TROLL | GIANT | DEMON
 
@@ -208,6 +232,7 @@ W:32:34:20:0:0:14:160
 L:84:100:84:0:84:0
 A:97:100:56:0:56:0:57:58
 O:10:10:30:30
+E:1d1:20:ACID
 F:FINAL_ARTIFACT_107 | FINAL_GUARDIAN_517 | MONSTER_PERCENT_90
 F:NO_UP | NO_DOWN
 M:IM_COLD
@@ -218,6 +243,8 @@ W:37:95:20:0:0:14:160
 L:89:100:89:0:89:0
 A:97:100:56:0:56:0:97:97
 O:20:20:20:20
+F:RANDOM_TOWNS
+F:FLAT
 
 N:26:The Wild Land Of Kurukar
 D:an way to the The Wild Land Of Kurukar
@@ -225,6 +252,8 @@ W:36:76:15:0:0:14:160
 L:89:100:1:0:1:0
 A:89:50:96:25:84:25:57:58
 O:20:20:20:20
+F:RANDOM_TOWNS
+F:FLAT
 
 N:27:The Sandworm lair
 D:a sandhole
@@ -236,12 +265,22 @@ F:NO_DOORS | SAND_VEIN | MONSTER_PERCENT_100
 F:FINAL_GUARDIAN_1030 | FINAL_ARTIFACT_153
 M:R_CHAR_w
 
+# Used by the death fate
+N:28:Death fate
+D:a fated deah
+W:1:1:1:0:0:30:255
+L:1:100:1:0:1:0
+A:1:100:1:0:1:0:1:1
+O:0:0:0:0
+F:EMPTY | SMALLEST
+
 # N:<index>:<name>
 # D:<long name>
 # W:<min depth>:<min depth>:<min player level>:<next dungeon>:<flags mode>:<min alloc>:<max alloc chance>
 # L:<floor1>:<%1>:<floor2>:<%2>:<floor3>:<%3>
 # A:<wall1>:<%1>:<wall2>:<%2>:<wall3>:<%3>:<outer wall>:<inner wall>
 # O:<%treasure>:<%combat>:<%magic>:<%tools>
+# E:<dices>d<sides>:<frequency>:<attack type>
 # F:<flags>
 # M:<monster flags>
 # S:<monster spells>

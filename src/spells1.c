@@ -720,7 +720,7 @@ void teleport_player_to(int ny, int nx)
 		}
 
 		/* Accept "naked" floor grids */
-		if (cave_naked_bold(y, x)) break;
+                if (cave_naked_bold2(y, x)) break;
 
 		/* Occasionally advance the distance */
 		if (++ctr > (4 * dis * dis + 4 * dis + 1))
@@ -1114,12 +1114,6 @@ void take_hit(int damage, cptr hit_from)
 		}
 	}
 
-        if ((p_ptr->wraith_form)&&(!p_ptr->disembodied))
-	{
-                damage /= 5;
-		if ((damage==0) && (randint(10)==1)) damage = 1;
-	}
-
         /* Hurt the wielded monster if any */
         if((o_ptr->k_idx) && (randint(10)<4) && (!carried_monster_hit))
         {
@@ -1205,7 +1199,7 @@ void take_hit(int damage, cptr hit_from)
                         p_ptr->class_extra3 |= CLASS_UNDEAD;
                         p_ptr->class_extra4 = p_ptr->lev + (rand_int(p_ptr->lev / 2) - (p_ptr->lev / 4));
                         if (p_ptr->class_extra4 < 1) p_ptr->class_extra4 = 1;
-                        msg_format("You have to kill %d monster%s to be bringed back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
+                        msg_format("You have to kill %d monster%s to be brought back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
 
                         /* MEGA-HACK !!! */
                         calc_hitpoints();
@@ -1369,6 +1363,7 @@ static bool hates_acid(object_type *o_ptr)
 		case TV_BOLT:
 		case TV_BOW:
 		case TV_SWORD:
+                case TV_AXE:
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_HELM:
@@ -2211,6 +2206,8 @@ void mutate_player(void)
  */
 static void apply_nexus(monster_type *m_ptr)
 {
+        if (m_ptr == NULL) return;
+
 	if (!special_flag)
 	{
 	switch (randint(7))
@@ -2721,6 +2718,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			int percent = c_ptr->feat == GF_COLD ? 20 : 50;
 			
                         if(!(f_info[c_ptr->feat].flags1 & FF1_FLOOR)) break;
+                        if(!(f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
 			
 			if (randint(100) < percent)
 				cave_set_feat(y, x, FEAT_ICE);
@@ -2758,6 +2756,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                 case GF_HOLY_FIRE:
                 case GF_HELL_FIRE:
                 {
+                        if(!(f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
+
                         if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_SMALL_TREES))
                         {
 				/* Forget the trap */
@@ -2786,13 +2786,23 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                                 else if (k < 25)
                                         cave_set_feat(y, x, FEAT_ASH);
                         }
+                        else if ((c_ptr->feat == FEAT_SANDWALL) || (c_ptr->feat == FEAT_SANDWALL_H) || (c_ptr->feat == FEAT_SANDWALL_K))
+                        {
+                                int k = randint(100);
+
+                                /* Glass it */
+                                if (k < 30)
+                                        cave_set_feat(y, x, FEAT_GLASS_WALL);
+                        }
                         break;
                 }
 		
 		case GF_WATER:
 		{
 			int p1 = 0, p2 = 0, f1 = 0, f2 = 0, f = 0, k;
-			
+
+                        if(!(f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
+
 			if ((c_ptr->feat == FEAT_FLOOR) ||
 			    (c_ptr->feat == FEAT_DIRT) ||
 			    (c_ptr->feat == FEAT_GRASS))
@@ -2846,6 +2856,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                 case GF_FORCE:
                 case GF_NUKE:
                 {
+                        if(!(f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
+
                         if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_SMALL_TREES))
                         {
                                 /* Forget the grid */
@@ -2859,6 +2871,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
   
                 case GF_DISINTEGRATE:
                 {
+                        if(!(f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
+
                         if (((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_SMALL_TREES) ||
                             (f_info[c_ptr->feat].flags1 & FF1_FLOOR)) &&
                             randint(100) < 30)
@@ -3092,6 +3106,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Require a "naked" floor grid */
                         if (!cave_clean_bold(y, x)) break;
 
+                        if(!(f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
+
 			/* Create a closed door */
 			cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
 
@@ -3122,6 +3138,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Require a "naked" floor grid */
                         if (!cave_clean_bold(y, x)) break;
 
+                        if(!(f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
+
 			cave_set_feat(y, x, FEAT_GLYPH);
 
 			break;
@@ -3133,6 +3151,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* Require a "naked" floor grid */
                         if (!cave_clean_bold(y, x)) break;
+
+                        if(!(f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
 
                         /* Place a wall */
 			cave_set_feat(y, x, FEAT_WALL_EXTRA);
@@ -3176,6 +3196,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                         {
                                 /* Require a "naked" floor grid */
                                 if (!cave_naked_bold(y, x)) break;
+
+                                if(!(f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
 
                                 /* Place a shallow lava */
                                 cave_set_feat(y, x, FEAT_SHAL_LAVA);
@@ -3270,6 +3292,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 			/* Delete the monster (if any) */
 			delete_monster(y, x);
+
+                        if(!(f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
 
 			/* Destroy "valid" grids */
 			if (cave_valid_bold(y, x))
@@ -3775,7 +3799,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	s32b            div, new_exp, new_exp_frac;
 
 	/* Is the monster "seen"? */
-	bool seen = m_ptr->ml;
+        bool seen;
 
 	/* Were the effects "obvious" (if seen)? */
 	bool obvious = FALSE;
@@ -3812,7 +3836,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Assume a default death */
 	cptr note_dies = " dies.";
 
-
+        seen = (m_ptr->ml && (who != -100))?TRUE:FALSE;
 
 	/* Walls protect monsters */
 	/* (No, they don't)  */
@@ -3869,6 +3893,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			case GF_JAM_DOOR:
                         case GF_RAISE:
 			case GF_RAISE_DEMON:
+                        case GF_IDENTIFY:
 				break;             /* none of the above anger */
 			case GF_TRAP_DEMONSOUL:
 				if (r_ptr->flags3 & RF3_DEMON)
@@ -3940,6 +3965,17 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Analyze the damage type */
 	switch (typ)
 	{
+                case GF_IDENTIFY:
+                {
+                        if (seen) obvious = TRUE;
+
+                        /* Probe */
+                        do_probe(c_ptr->m_idx);
+
+                        dam = 0;
+                        break;
+                }
+
                 /* Death -- instant death  */
                 case GF_DEATH:
 		{
@@ -6275,7 +6311,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	bool fuzzy = FALSE;
 
 	/* Source monster */
-	monster_type *m_ptr;
+        monster_type *m_ptr = NULL;
 
 	/* Monster name (for attacks) */
 	char m_name[80];
@@ -6294,7 +6330,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
         if ((!who)&&(!unsafe)) return (FALSE);
 
 
-	if (p_ptr->reflect && !a_rad && !(randint(10)==1))
+        /* Effects done by the plane cannot bounce */
+        if (p_ptr->reflect && !a_rad && !(randint(10)==1) && (who != -100))
 	{
                 int t_y, t_x;
 		int max_attempts = 10;
@@ -6350,19 +6387,40 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
             else strcpy(killer, "Divine Wrath");
         }
 
-	/* Get the source monster */
-	m_ptr = &m_list[who];
+        /* Did the dungeon do it? */
+        if (who == -100)
+        {
+                sprintf(killer, "%s",
+                        d_name + d_info[dungeon_type].name);
+        }
 
-	/* Get the monster name */
-	monster_desc(m_name, m_ptr, 0);
+        if (who >= -1)
+        {
+                /* Get the source monster */
+                m_ptr = &m_list[who];
 
-	/* Get the monster's real name */
-	monster_desc(killer, m_ptr, 0x88);
+                /* Get the monster name */
+                monster_desc(m_name, m_ptr, 0);
 
+                /* Get the monster's real name */
+                monster_desc(killer, m_ptr, 0x88);
+        }
+
+        if (who == -2)
+        {
+                sprintf(killer, t_name + t_info[cave[py][px].t_idx].name);
+        }
 
 	/* Analyze the damage */
 	switch (typ)
 	{
+                case GF_DEATH_RAY:
+		{
+                        if (fuzzy) msg_print("You are hit by pure death!");
+                        take_hit(32000, killer);
+			break;
+		}
+
 		/* Standard damage -- hurts inventory too */
 		case GF_ACID:
 		{
@@ -6512,9 +6570,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (fuzzy) msg_print("You are hit by nether forces!");
 			if (p_ptr->resist_neth)
 			{
-				if (!(p_ptr->prace == RACE_SPECTRE))
-					dam *= 6; dam /= (randint(6) + 6);
+                                dam *= 6; dam /= (randint(6) + 6);
 			}
+                        else if (p_ptr->immune_neth)
+                        {
+                                dam = 0;
+                        }
 			else
 			{
 				if (p_ptr->hold_life && (rand_int(100) < 75))
@@ -6533,7 +6594,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 				}
 			}
 
-			if (p_ptr->prace == RACE_SPECTRE)
+                        if (p_ptr->pracem == RMOD_SPECTRE)
 			{
 				msg_print("You feel invigorated!");
 				hp_player(dam / 4);
@@ -6768,7 +6829,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
-                        if ((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE))
+                        if ((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE))
 			{
 				msg_print("The light scorches your flesh!");
 				dam *= 2;
@@ -6797,7 +6858,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
 
-                                if ((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) dam = 0;
+                                if ((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) dam = 0;
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
@@ -7004,7 +7065,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
                 /* Statis -- paralyse */
                 case GF_STASIS:
 		{
-                        if (fuzzy) msg_print("You are hit by something paralysing!");
+                        if (fuzzy) msg_print("You are hit by something paralyzing!");
                         set_paralyzed(p_ptr->paralyzed + dam);
 			break;
 		}
@@ -7241,7 +7302,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	}
 
 	/* Start at player */
-	else if (who <= 0)
+        else if ((who <= 0) && (who != -100))
 	{
 		x1 = px;
 		y1 = py;
@@ -7298,7 +7359,10 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 
 	/* Calculate the projection path */
-	path_n = project_path(path_g, MAX_RANGE, y1, x1, y2, x2, flg);
+        if (who == -100)
+                path_n = 0;
+        else
+                path_n = project_path(path_g, MAX_RANGE, y1, x1, y2, x2, flg);
 
 
 	/* Hack -- Handle stuff */

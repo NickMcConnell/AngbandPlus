@@ -153,7 +153,7 @@ bool set_tim_ffall(int v)
 	{
                 if (p_ptr->tim_ffall)
 		{
-                        msg_print("You are suddently heavier.");
+                        msg_print("You are suddenly heavier.");
 			notice = TRUE;
 		}
 	}
@@ -336,7 +336,7 @@ bool set_tim_fire_aura(int v)
 	{
                 if (!p_ptr->tim_fire_aura)
 		{
-                        msg_print("You are envolloped into flames.");
+                        msg_print("You are enveloped in flames.");
 			notice = TRUE;
 		}
 	}
@@ -346,7 +346,7 @@ bool set_tim_fire_aura(int v)
 	{
                 if (p_ptr->tim_fire_aura)
 		{
-                        msg_print("You are no longer envolloped into flames.");
+                        msg_print("You are no longer enveloped in flames.");
 			notice = TRUE;
 		}
 	}
@@ -480,7 +480,7 @@ bool set_oppose_cc(int v)
 	{
                 if (!p_ptr->oppose_cc)
 		{
-                        msg_print("You feel protected against the raw chaos.");
+                        msg_print("You feel protected against raw chaos.");
 			notice = TRUE;
 		}
 	}
@@ -625,7 +625,7 @@ bool set_mimic(int v, int p)
 	{
                 if (!p_ptr->tim_mimic)
 		{
-                        msg_print("You feel that your body change.");
+                        msg_print("You feel your body change.");
                         p_ptr->mimic_form=p;
 			notice = TRUE;
 		}
@@ -747,7 +747,7 @@ bool set_lite(int v)
 	{
                 if (!p_ptr->tim_lite)
 		{
-                        msg_print("You suddently seem brighter!");
+                        msg_print("You suddenly seem brighter!");
 			notice = TRUE;
 		}
 	}
@@ -1035,7 +1035,7 @@ bool set_image(int v)
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_M_LIST);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1059,7 +1059,7 @@ bool set_light_speed(int v)
 	{
                 if (!p_ptr->lightspeed)
 		{
-                        msg_print("You feel like if the time was stoped!");
+                        msg_print("You feel as if time has stopped!");
 			notice = TRUE;
 		}
 	}
@@ -1069,7 +1069,7 @@ bool set_light_speed(int v)
 	{
                 if (p_ptr->lightspeed)
 		{
-                        msg_print("You feel the time coming back to its normal rate.");
+                        msg_print("You feel time returning to its normal rate.");
 			notice = TRUE;
 		}
 	}
@@ -1360,7 +1360,7 @@ bool set_holy(int v)
 	{
                 if (!p_ptr->holy)
 		{
-                        msg_print("You feel an holy aura around you!");
+                        msg_print("You feel a holy aura around you!");
 			notice = TRUE;
 		}
 	}
@@ -1624,7 +1624,7 @@ bool set_protundead(int v)
 	{
                 if (!p_ptr->protundead)
 		{
-                        msg_print("You feel safe from undeads!");
+                        msg_print("You feel safe from undead!");
 			notice = TRUE;
 		}
 	}
@@ -1634,7 +1634,7 @@ bool set_protundead(int v)
 	{
                 if (p_ptr->protundead)
 		{
-                        msg_print("You no longer feel safe from undeads.");
+                        msg_print("You no longer feel safe from undead.");
 			notice = TRUE;
 		}
 	}
@@ -1993,7 +1993,7 @@ bool set_mental_barrier(int v)
 	{
                 if (p_ptr->tim_mental_barrier)
 		{
-                        msg_print("Your mind is no more strong.");
+                        msg_print("Your mind is no longer especially strong.");
 			notice = TRUE;
 		}
 	}
@@ -2413,10 +2413,10 @@ bool set_cut(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-    if (p_ptr->prace == RACE_SPECTRE )
-        v = 0;
+        if ((p_ptr->pracem == RMOD_SPECTRE) || (p_ptr->pracem == RMOD_SKELETON))
+                v = 0;
 
-    /* Mortal wound */
+        /* Mortal wound */
 	if (p_ptr->cut > 1000)
 	{
 		old_aux = 7;
@@ -2934,6 +2934,40 @@ void check_experience(void)
 	}
 }
 
+/*
+ * Advance experience levels and print experience
+ */
+void check_experience_obj(object_type *o_ptr)
+{
+	int		i;
+
+	/* Note current level */
+        i = o_ptr->elevel;
+
+	/* Hack -- lower limit */
+        if (o_ptr->exp < 0) o_ptr->exp = 0;
+
+	/* Hack -- upper limit */
+        if (o_ptr->exp > PY_MAX_EXP) o_ptr->exp = PY_MAX_EXP;
+
+	/* Gain levels while possible */
+        while ((o_ptr->elevel < PY_MAX_LEVEL) &&
+               (o_ptr->exp >= (player_exp[o_ptr->elevel - 1] * 5 / 2)))
+	{
+                char buf[100];
+
+                /* Add a level */
+                o_ptr->elevel++;
+
+                /* Get object name */
+                object_desc(buf, o_ptr, 1, 0);
+                msg_format("%s gains a level!", buf);
+
+                /* What does it gains ? */
+                object_gain_level(o_ptr);
+	}
+}
+
 
 /*
  * Gain experience
@@ -3201,7 +3235,7 @@ void monster_death(int m_idx)
 
                 if(!p_ptr->class_extra4)
                 {
-                        msg_print("Your death has been advanged, thus you come back to live.");
+                        msg_print("Your death has been avenged -- you return to life.");
                         p_ptr->class_extra3 &= ~CLASS_UNDEAD;
 
                         /* Display the hitpoints */
@@ -3673,7 +3707,8 @@ void monster_death(int m_idx)
 			continue;
 
 		if (((quest[i].type == QUEST_TYPE_KILL_LEVEL) ||
-		     (quest[i].type == QUEST_TYPE_RANDOM)) &&
+		     ((quest[i].type == QUEST_TYPE_RANDOM) &&
+		      (d_info[dungeon_type].flags1 & DF1_PRINCIPAL))) &&
 		     (quest[i].r_idx == m_ptr->r_idx))
 		{
 			quest[i].cur_num++;
@@ -3777,7 +3812,7 @@ void monster_death(int m_idx)
 	}
 
 	/* Create a magical staircase */
-	if (create_stairs)
+        if (create_stairs && (dun_level < d_info[dungeon_type].maxdepth))
 	{
                 int i, j;
 
@@ -3827,7 +3862,6 @@ void monster_death(int m_idx)
 		/* Drop it in the dungeon */
 		drop_near(q_ptr, -1, y, x);
 	}
-
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
@@ -4010,7 +4044,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
                         object_type *o_ptr;
                         object_kind *k_ptr;
                         u32b f1, f2, f3, f4, esp;
-                        char buf[128];
 
                         /* Access the weapon */
                         o_ptr = &inventory[INVEN_WIELD];
@@ -4025,18 +4058,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
                                 /* Gain experience */
                                 o_ptr->exp += new_exp;
-                                if((o_ptr->exp >= (player_exp[o_ptr->elevel - 1] * 5 / 2)) && (o_ptr->elevel < 50))
-                                {
-                                        /* Add a level */
-                                        o_ptr->elevel++;
-
-                                        /* Get object name */
-                                        object_desc(buf, o_ptr, 1, 0);
-                                        msg_format("%s gains a level!", buf);
-
-                                        /* What does it gains ? */
-                                        object_gain_level(o_ptr);
-                                }
+                                check_experience_obj(o_ptr);
                         }
                 }
 
@@ -4164,10 +4186,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
  */
 void panel_bounds(void)
 {
-	panel_row_min = panel_row * (SCREEN_HGT / 2);
 	panel_row_max = panel_row_min + SCREEN_HGT - 1;
 	panel_row_prt = panel_row_min - 1;
-	panel_col_min = panel_col * (SCREEN_WID / 2);
 	panel_col_max = panel_col_min + SCREEN_WID - 1;
 	panel_col_prt = panel_col_min - 13;
 }
@@ -4187,37 +4207,65 @@ void verify_panel(void)
 	int y = py;
 	int x = px;
 
-	int prow = panel_row;
-	int pcol = panel_col;
+        int prow = panel_row_min;
+        int pcol = panel_col_min;
 
-	/* Scroll screen when 2 grids from top/bottom edge */
-	if ((y < panel_row_min + 2) || (y > panel_row_max - 2))
+	/* Center on player */
+        if (center_player)
 	{
-		prow = ((y - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
-		if (prow > max_panel_rows) prow = max_panel_rows;
-		else if (prow < 0) prow = 0;
-	}
+		/* Center vertically */
+                prow = y - (PANEL_HGT);
+                if (prow < 0) prow = 0;
+                else if (prow > max_panel_rows * (SCREEN_HGT / 2)) prow = max_panel_rows * (SCREEN_HGT / 2);
 
-	/* Scroll screen when 4 grids from left/right edge */
-	if ((x < panel_col_min + 4) || (x > panel_col_max - 4))
-	{
-		pcol = ((x - SCREEN_WID / 4) / (SCREEN_WID / 2));
-		if (pcol > max_panel_cols) pcol = max_panel_cols;
-		else if (pcol < 0) pcol = 0;
+		/* Center horizontally */
+                pcol = x - (PANEL_WID);
+                if (pcol < 0) pcol = 0;
+                else if (pcol > max_panel_cols * (SCREEN_WID / 2)) pcol = max_panel_cols * (SCREEN_WID / 2);
 	}
+	else
+	{
+                /* Scroll screen when 2 grids from top/bottom edge */
+                if (y < panel_row_min + 2)
+                {
+                        prow = ((y - 2) / PANEL_HGT) * PANEL_HGT;
+                        if (prow > max_panel_rows * PANEL_HGT) prow = max_panel_rows * PANEL_HGT;
+                        else if (prow < 0) prow = 0;
+                }
+                else if (y > panel_row_max - 2)
+                {
+                        prow = (y / PANEL_HGT) * PANEL_HGT;
+                        if (prow > max_panel_rows * PANEL_HGT) prow = max_panel_rows * PANEL_HGT;
+                        else if (prow < 0) prow = 0;
+                }
+
+                /* Scroll screen when 4 grids from left/right edge */
+                if (x < panel_col_min + 4)
+                {
+                        pcol = ((x - 4) / PANEL_WID) * PANEL_WID;
+                        if (pcol > max_panel_cols * PANEL_WID) pcol = max_panel_cols * PANEL_WID;
+                        else if (pcol < 0) pcol = 0;
+                }
+                else if (x > panel_col_max - 4)
+                {
+                        pcol = (x / PANEL_WID) * PANEL_WID;
+                        if (pcol > max_panel_cols * PANEL_WID) pcol = max_panel_cols * PANEL_WID;
+                        else if (pcol < 0) pcol = 0;
+                }
+        }
 
 	/* Check for "no change" */
-	if ((prow == panel_row) && (pcol == panel_col)) return;
+        if ((prow == panel_row_min) && (pcol == panel_col_min)) return;
 
 	/* Hack -- optional disturb on "panel change" */
-	if (disturb_panel) disturb(0, 0);
+	if (disturb_panel && !center_player) disturb(0, 0);
 
 	/* Save the new panel info */
-	panel_row = prow;
-	panel_col = pcol;
+        panel_row_min = prow;
+        panel_col_min = pcol;
 
 	/* Recalculate the boundaries */
-	panel_bounds();
+        panel_bounds();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);
@@ -4584,7 +4632,6 @@ static bool target_set_accept(int y, int x)
 	if (c_ptr->info & (CAVE_MARK))
 	{
                 if(f_info[c_ptr->feat].flags1 & FF1_NOTICE) return TRUE;
-                if (c_ptr->t_idx) return TRUE;
 	}
 
         /* Known traps */
@@ -5009,7 +5056,10 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			}
 			
 			/* Display a message */
-                        sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+                        if (!wizard)
+                                sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+                        else
+                                sprintf(out_val, "%s%s%s%s [%s] (%d:%d:%d)", s1, s2, s3, name, info, c_ptr->feat, c_ptr->mimic, c_ptr->special);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -5305,14 +5355,27 @@ bool target_set(int mode)
 				x += ddx[d];
 				y += ddy[d];
 
-				/* Hack -- Verify x */
-				if ((x>=cur_wid-1) || (x>panel_col_max)) x--;
-				else if ((x<=0) || (x<panel_col_min)) x++;
+                                if (!wizard)
+                                {
+                                        /* Hack -- Verify x */
+                                        if ((x>=cur_wid-1) || (x>panel_col_max)) x--;
+                                        else if ((x <= 0) || (x<panel_col_min)) x++;
 
-				/* Hack -- Verify y */
-				if ((y>=cur_hgt-1) || (y>panel_row_max)) y--;
-				else if ((y<=0) || (y<panel_row_min)) y++;
-			}
+                                        /* Hack -- Verify y */
+                                        if ((y>=cur_hgt-1) || (y>panel_row_max)) y--;
+                                        else if ((y <= 0) || (y<panel_row_min)) y++;
+                                }
+                                else
+                                {
+                                        /* Hack -- Verify x */
+                                        if ((x > cur_wid-1) || (x > panel_col_max)) x--;
+                                        else if ((x < 0) || (x < panel_col_min)) x++;
+
+                                        /* Hack -- Verify y */
+                                        if ((y > cur_hgt-1) || (y > panel_row_max)) y--;
+                                        else if ((y < 0) || (y < panel_row_min)) y++;
+                                }
+        		}
 		}
 	}
 
@@ -6522,7 +6585,7 @@ bool gain_random_mutation(int choose_mut)
 	}
 	else
 	{
-		if (p_ptr->prace == RACE_VAMPIRE &&
+                if (p_ptr->pracem == RMOD_VAMPIRE &&
 		  !(p_ptr->muta1 & MUT1_HYPN_GAZE) &&
 		   (randint(10)<7))
 		{

@@ -361,10 +361,10 @@ static cptr r_info_flags7[] =
 	"FRIENDLY",
         "PET",
         "MORTAL",
-        "XXX7X6",
+        "SPIDER",
         "NAZGUL",
         "DG_CURSE",
-	"XXX7X9",
+        "POSSESSOR",
 	"XXX7X10",
 	"XXX7X11",
 	"XXX7X12",
@@ -567,7 +567,7 @@ static cptr k_info_flags3[] =
 	"FEATHER",
 	"LITE",
 	"SEE_INVIS",
-        "XXXXXXX",
+        "NORM_ART",
 	"SLOW_DIGEST",
 	"REGEN",
 	"XTRA_MIGHT",
@@ -608,13 +608,13 @@ static cptr k_info_flags4[] =
         "CHARGING",
         "CHEAPNESS",
         "FOUNTAIN",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
+        "ANTIMAGIC_50",
+        "ANTIMAGIC_30",
+        "ANTIMAGIC_20",
+        "ANTIMAGIC_10",
+        "EASY_USE",
+        "IM_NETHER",
+        "RECHARGED",
         "XXX4",
         "XXX4",
         "XXX4",
@@ -642,7 +642,7 @@ static cptr esp_flags[] =
         "ESP_GOOD",
         "ESP_NONLIVING",
         "ESP_UNIQUE",
-	"XXX8X02",
+        "ESP_SPIDER",
 	"XXX8X02",
 	"XXX8X02",
 	"XXX8X02",
@@ -685,7 +685,7 @@ static cptr f_info_flags1[] =
         "SUPPORT_LIGHT",
         "CAN_CLIMB",
         "TUNNELABLE",
-        "XXX1",
+        "WEB",
         "XXX1",
         "XXX1",
         "XXX1",
@@ -727,12 +727,12 @@ static cptr d_info_flags1[] =
         "FORGET",
         "NO_DESTROY",
         "SAND_VEIN",
-        "XXX1",
-        "XXX1",
-        "XXX1",
-        "XXX1",
-        "XXX1",
-        "XXX1",
+        "CIRCULAR_ROOMS",
+        "EMPTY",
+        "DAMAGE_FEAT",
+        "FLAT",
+        "TOWER",
+        "RANDOM_TOWNS",
         "XXX1",
         "XXX1",
         "XXX1",
@@ -835,6 +835,46 @@ static cptr wf_info_flags1[] =
         "XXX1",
         "XXX1",
         "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1"
+};
+
+/*
+ * Stores flags
+ */
+static cptr st_info_flags1[] =
+{
+        "DEPEND_LEVEL",
+        "SHALLOW_LEVEL",
+        "MEDIUM_LEVEL",
+        "DEEP_LEVEL",
+        "RARE",
+        "VERY_RARE",
+        "COMMON",
+        "ALL_ITEM",
+        "RANDOM",
+        "FORCE_LEVEL",
         "XXX1",
         "XXX1",
         "XXX1",
@@ -978,6 +1018,51 @@ static cptr stm_info_flags1[] =
         "XXX1",
         "XXX1",
         "XXX1"
+};
+
+/*
+ * Dungeon effect types (used in E:damage:frequency:type entry in d_info.txt)
+ */
+static struct
+{
+        cptr name;
+        int feat;
+} d_info_dtypes[] =
+{
+        {"ELEC", GF_ELEC},
+        {"POISON", GF_POIS},
+        {"ACID", GF_ACID},
+        {"COLD", GF_COLD},
+        {"FIRE", GF_FIRE},
+        {"MISSILE", GF_MISSILE},
+        {"ARROW", GF_ARROW},
+        {"PLASMA", GF_PLASMA},
+        {"WATER", GF_WATER},
+        {"LITE", GF_LITE},
+        {"DARK", GF_DARK},
+        {"LITE_WEAK", GF_LITE_WEAK},
+        {"LITE_DARK", GF_DARK_WEAK},
+        {"SHARDS", GF_SHARDS},
+        {"SOUND", GF_SOUND},
+        {"CONFUSION", GF_CONFUSION},
+        {"FORCE", GF_FORCE},
+        {"INERTIA", GF_INERTIA},
+        {"MANA", GF_MANA},
+        {"METEOR", GF_METEOR},
+        {"ICE", GF_ICE},
+        {"CHAOS", GF_CHAOS},
+        {"NETHER", GF_NETHER},
+        {"DISENCHANT", GF_DISENCHANT},
+        {"NEXUS", GF_NEXUS},
+        {"TIME", GF_TIME},
+        {"GRAVITY", GF_GRAVITY},
+        {"ROCKET", GF_ROCKET},
+        {"NUKE", GF_NUKE},
+        {"HOLY_FIRE", GF_HOLY_FIRE},
+        {"HELL_FIRE", GF_HELL_FIRE},
+        {"DISINTEGRATE", GF_DISINTEGRATE},
+        {"DESTRUCTION", GF_DESTRUCTION},
+        {NULL, 0}
 };
 
 
@@ -1760,6 +1845,23 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr->extra = extra;
 			k_ptr->weight = wgt;
 			k_ptr->cost = cost;
+
+			/* Next... */
+			continue;
+		}
+
+                /* Process 'T' for "arTifact Info" (one line only) */
+                if (buf[0] == 'T')
+		{
+                        int btval, bsval;
+
+			/* Scan for the values */
+                        if (2 != sscanf(buf+2, "%d:%d",
+                                &btval, &bsval)) return (1);
+
+			/* Save the values */
+                        k_ptr->btval = btval;
+                        k_ptr->bsval = bsval;
 
 			/* Next... */
 			continue;
@@ -4237,6 +4339,61 @@ errr init_d_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+                /* Process 'E' for "Effects" (up to four lines) -SC- */
+                if (buf[0] == 'E')
+                {
+                        int side, dice, freq, type;
+                        cptr tmp;
+  
+                        /* Find the next empty blow slot (if any) */
+                        for (i = 0; i < 4; i++) if ((!d_ptr->d_side[i]) &&
+                                                    (!d_ptr->d_dice[i])) break;
+  
+                        /* Oops, no more slots */
+                        if (i == 4) return (1);
+  
+                        /* Scan for the values */
+                          if (4 != sscanf(buf+2, "%dd%d:%d:%d",
+                                  &dice, &side, &freq, &type))
+                        {
+                                int j;
+                         
+                                if (3 != sscanf(buf+2, "%dd%d:%d",
+                                                &dice, &side, &freq)) return (1);
+                         
+                                tmp = buf+2;
+                                for (j = 0; j < 2; j++)
+                                {
+                                        tmp = strchr(tmp, ':');
+                                        if (tmp == NULL) return(1);
+                                        tmp++;
+                                }
+                         
+                                j = 0;
+  
+                                while (d_info_dtypes[j].name != NULL)
+                                        if (strcmp(d_info_dtypes[j].name, tmp) == 0)
+                                        {
+                                                d_ptr->d_type[i] = d_info_dtypes[j].feat;
+                                                break;
+                                        }
+                                        else j++;
+                         
+                                if (d_info_dtypes[j].name == NULL) return(1);
+                        }
+                        else
+                                d_ptr->d_type[i] = type;
+  
+                        freq *= 10;
+                        /* Save the values */
+                        d_ptr->d_side[i] = side;
+                        d_ptr->d_dice[i] = dice;
+                        d_ptr->d_frequency[i] = freq;
+  
+                        /* Next... */
+                        continue;
+                }
+
                 /* Process 'F' for "Dungeon Flags" (multiple lines) */
 		if (buf[0] == 'F')
 		{
@@ -4464,13 +4621,37 @@ static errr grab_one_race_flag(owner_type *ow_ptr, int state, cptr what)
 }
 
 /*
+ * Grab one store flag from a textual string
+ */
+static errr grab_one_store_flag(store_info_type *st_ptr, cptr what)
+{
+	int i;
+
+        /* Scan store flags */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, st_info_flags1[i]))
+		{
+                        st_ptr->flags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+        msg_format("Unknown store flag '%s'.", what);
+
+	/* Failure */
+	return (1);
+}
+
+/*
  * Initialize the "st_info" array, by parsing an ascii "template" file
  */
 errr init_st_info_txt(FILE *fp, char *buf)
 {
         int i = 0, item_idx = 0;
 
-        char *s;
+	char *s, *t;
 
 	/* Not ready yet */
 	bool okay = FALSE;
@@ -4618,7 +4799,8 @@ errr init_st_info_txt(FILE *fp, char *buf)
 
 			/* Get the index */
                         st_ptr->table[item_idx][1] = rar1;
-                        st_ptr->table[item_idx++][0] = lookup_kind(tv1, sv1);
+                        /* Hack -- 256 as a sval means all possible items */
+                        st_ptr->table[item_idx++][0] = (sv1 < 256)?lookup_kind(tv1, sv1):tv1 + 10000;
 
                         st_ptr->table_num = item_idx;
 
@@ -4669,6 +4851,33 @@ errr init_st_info_txt(FILE *fp, char *buf)
 
                         /* Next... */
                         continue;
+		}
+
+                /* Process 'F' for "store Flags" (multiple lines) */
+                if (buf[0] == 'F')
+		{
+			/* Parse every entry */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+                                if (0 != grab_one_store_flag(st_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
 		}
 
                 /* Process 'O' for "Owners" (one line only) */
@@ -6182,6 +6391,12 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "RACE"))
 			{
 				v = rp_ptr->title;
+			}
+
+                        /* Race Mod */
+                        else if (streq(b+1, "RACEMOD"))
+			{
+                                v = rmp_ptr->title;
 			}
 
 			/* Class */

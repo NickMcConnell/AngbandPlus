@@ -143,6 +143,7 @@ static void sense_inventory(void)
 	switch (p_ptr->pclass)
 	{
 		case CLASS_WARRIOR:
+                case CLASS_WEAPONMASTER:
                 case CLASS_UNBELIEVER:
                 case CLASS_POSSESSOR:
                 case CLASS_MIMIC:
@@ -302,6 +303,7 @@ static void sense_inventory(void)
 			case TV_HAFTED:
 			case TV_POLEARM:
 			case TV_SWORD:
+                        case TV_AXE:
 			case TV_BOOTS:
 			case TV_GLOVES:
 			case TV_HELM:
@@ -999,7 +1001,7 @@ static void check_music()
                         gere_music(music_info[p_ptr->music].music);
                 }else
                 {
-                        msg_print("Your instrument stop singing.");
+                        msg_print("Your instrument stops singing.");
                         p_ptr->music = 255;
                 }
         }
@@ -1043,6 +1045,8 @@ static void process_world(void)
 	int regen_amount;
 	bool cave_no_regen = FALSE;
 	int upkeep_factor = 0;
+
+        dungeon_info_type *d_ptr = &d_info[dungeon_type];
 
 	cave_type *c_ptr;
 
@@ -1243,7 +1247,7 @@ static void process_world(void)
 
 
 	/* (Vampires) Take damage from sunlight */
-        if ((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE))
+        if ((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE))
 	{
 		if ((!dun_level)
 		    && (!(p_ptr->resist_lite)) && !(p_ptr->invuln)
@@ -1357,27 +1361,19 @@ static void process_world(void)
 	 */
 	if (!cave_floor_bold(py, px))
 	{
-                bool only_walls = ((p_ptr->pclass == CLASS_MIMIC) && (p_ptr->class_extra6 & CLASS_WALL));
-
 		/* Player can walk through trees */
                 if ((cave[py][px].feat == FEAT_TREES) &&
                     ((p_ptr->pclass==CLASS_DRUID) || (p_ptr->pclass==CLASS_RANGER) || (p_ptr->prace==RACE_ENT)))
 		{
 			/* Do nothing */
 		}
-
-		else if (!(p_ptr->invuln) &&
-		    !(p_ptr->wraith_form) &&
-                    !(only_walls) &&
-                    (!p_ptr->fly || !(f_info[cave[py][px].feat].flags1 & FF1_CAN_FLY)) &&
-                    (!p_ptr->climb || !(f_info[cave[py][px].feat].flags1 & FF1_CAN_CLIMB)) &&
-		    ((p_ptr->chp > ((p_ptr->lev)/5)) || (p_ptr->prace != RACE_SPECTRE)))
+                else if (!player_can_enter(cave[py][px].feat))
 		{
 			cptr dam_desc;
 
 			cave_no_regen = TRUE;
 
-			if (p_ptr->prace == RACE_SPECTRE)
+                        if (p_ptr->pracem == RMOD_SPECTRE)
 			{
 				msg_print("Your molecules feel disrupted!");
 				dam_desc = "density";
@@ -1388,8 +1384,11 @@ static void process_world(void)
 				dam_desc = "solid rock";
 			}
 
-			take_hit(1 + ((p_ptr->lev)/5), dam_desc);
-		}
+                        if (((p_ptr->chp > (p_ptr->lev / 5)) && (p_ptr->pracem == RMOD_SPECTRE)) || (p_ptr->pracem != RMOD_SPECTRE))
+                        {
+                                take_hit(1 + ((p_ptr->lev)/5), dam_desc);
+                        }
+                }
 	}
 
 
@@ -2047,6 +2046,42 @@ static void process_world(void)
 		(void)set_cut(p_ptr->cut - adjust);
 	}
 
+        /* Hack - damage done by the dungeon -SC- */
+        if ((dun_level != 0) && (d_ptr->d_frequency[0] != 0))
+        {
+                int i, j, k;
+         
+                /* Apply damage to every grid in the dungeon */
+                for (i = 0; i < 4; i++)
+                {
+                        /* Check the frequency */
+                        if (d_ptr->d_frequency[i] == 0) continue;
+                 
+                        if (((turn % d_ptr->d_frequency[i]) == 0) &&
+                            ((d_ptr->d_side[i] != 0) || (d_ptr->d_dice[i] != 0)))
+                                for (j = 0; j < cur_hgt - 1; j++)
+                                        for (k = 0; k < cur_wid - 1; k++)
+                                        {
+                                                int l, dam = 0;
+                                         
+                                                if (!(d_ptr->flags1 & DF1_DAMAGE_FEAT))
+                                                /* If the grid is empty, skip it */
+                                                        if ((cave[j][k].o_idx == 0) &&
+                                                            ((j != py) && (i != px)))
+                                                                continue;
+
+                                                /* Let's not hurt poor monsters */
+                                                if (cave[j][k].m_idx) continue;
+                                         
+                                                /* Roll damage */
+                                                for (l = 0; l < d_ptr->d_dice[i]; l++)
+                                                        dam += randint(d_ptr->d_side[i]);
+                                         
+                                                /* Apply damage */
+                                                project(-100, 0, j, k, dam, d_ptr->d_type[i], PROJECT_KILL | PROJECT_ITEM | PROJECT_HIDE);
+                                        }
+                }
+        }
 
         /* Every 1500 turns, warn about any Black Breath not gotten from an equipped
          * object, and stop any resting. -LM-
@@ -2488,7 +2523,7 @@ static void process_world(void)
 		{
 			
 			disturb(0,0);
-			msg_print("Your stomach roils, and you lose your lunch!");
+			msg_print("Your stomach rolls, and you lose your lunch!");
 			msg_print(NULL);
 			set_food(PY_FOOD_WEAK);
 		}
@@ -2935,7 +2970,7 @@ static void process_world(void)
 	/*** Involuntary Movement ***/
 
 	/* Delayed Word-of-Recall */
-	if (p_ptr->word_recall)
+        if (p_ptr->word_recall && (!p_ptr->astral) && (dungeon_type != DUNGEON_DEATH))
 	{
 		/*
 		 * HACK: Autosave BEFORE resetting the recall counter (rr9)
@@ -3000,6 +3035,16 @@ static void process_world(void)
 			sound(SOUND_TPLEVEL);
 		}
 	}
+        else if (p_ptr->word_recall && p_ptr->astral)
+        {
+                msg_print("As an astral being you can't recall.");
+                p_ptr->word_recall = 0;
+        }
+        else if (p_ptr->word_recall && (dungeon_type == DUNGEON_DEATH))
+        {
+                msg_print("You are fated to die here, FIGHT for your life!");
+                p_ptr->word_recall = 0;
+        }
 }
 
 
@@ -3390,7 +3435,7 @@ static void process_command(void)
 		/* Go up staircase */
 		case '<':
 		{
-                        if(!p_ptr->wild_mode && !dun_level)
+                        if(!p_ptr->wild_mode && !dun_level && !is_quest(dun_level))
                         {
                                 if (!vanilla_town)
                                 {
@@ -3399,6 +3444,11 @@ static void process_command(void)
                                                 p_ptr->oldpx = px;
                                                 p_ptr->oldpy = py;
                                                 change_wild_mode();
+
+                                                /* Update the known wilderness */
+                                                reveal_wilderness_around_player(p_ptr->wilderness_y,
+                                                                                p_ptr->wilderness_x,
+                                                                                0, WILDERNESS_SEE_RADIUS);
                                         }
                                         else
                                                 msg_print("To flee the ambush you have to reach the edge of the map.");
@@ -3538,7 +3588,7 @@ static void process_command(void)
                                         else if (p_ptr->pclass == CLASS_POWERMAGE)
                                                 do_cmd_powermage();
                                         else if (p_ptr->pclass == CLASS_RUNECRAFTER)
-                                                do_cmd_rune();
+                                                do_cmd_runecrafter();
                                         else if (p_ptr->pclass == CLASS_ARCHER)
                                                 do_cmd_archer();
                                         else if (p_ptr->pclass == CLASS_POSSESSOR)
@@ -4473,7 +4523,7 @@ static void dungeon(void)
 	}
 
 	/* No stairs down from Quest */
-	if (is_quest(dun_level))
+        if (is_quest(dun_level) && (!p_ptr->astral))
 	{
 		create_down_stair = FALSE;
                 create_down_shaft = FALSE;
@@ -4525,20 +4575,35 @@ static void dungeon(void)
                 create_down_shaft = create_up_shaft = FALSE;
 	}
 
+	/* Center on player */
+        if (center_player)
+	{
+		/* Center vertically */
+                panel_row_min = py - (PANEL_HGT);
+                if (panel_row_min < 0) panel_row_min = 0;
+                else if (panel_row_min > max_panel_rows * (SCREEN_HGT / 2)) panel_row_min = max_panel_rows * (SCREEN_HGT / 2);
 
-	/* Choose a panel row */
-	panel_row = ((py - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
-	if (panel_row > max_panel_rows) panel_row = max_panel_rows;
-	else if (panel_row < 0) panel_row = 0;
+		/* Center horizontally */
+                panel_col_min = px - (PANEL_WID);
+                if (panel_col_min < 0) panel_col_min = 0;
+                else if (panel_col_min > max_panel_cols * (SCREEN_WID / 2)) panel_col_min = max_panel_cols * (SCREEN_WID / 2);
+	}
+	else
+	{
+                /* Choose a panel row */
+                panel_row_min = (py / SCREEN_HGT) * SCREEN_HGT;
+                if (panel_row_min > max_panel_rows * PANEL_HGT) panel_row_min = max_panel_rows * PANEL_HGT;
+                else if (panel_row_min < 0) panel_row_min = 0;
 
-	/* Choose a panel col */
-	panel_col = ((px - SCREEN_WID / 4) / (SCREEN_WID / 2));
-	if (panel_col > max_panel_cols) panel_col = max_panel_cols;
-	else if (panel_col < 0) panel_col = 0;
+                /* Choose a panel col */
+                panel_col_min = (px / SCREEN_WID) * SCREEN_WID;
+                if (panel_col_min > max_panel_cols * PANEL_WID) panel_col_min = max_panel_cols * PANEL_WID;
+                else if (panel_col_min < 0) panel_col_min = 0;
+        }
 
 	/* Recalculate the boundaries */
 	panel_bounds();
-
+        verify_panel();
 
 	/* Flush messages */
 	msg_print(NULL);
@@ -4631,6 +4696,28 @@ static void dungeon(void)
 	object_level = dun_level;
 
 	hack_mind = TRUE;
+
+        /* Mega Hack, if needed wipe all stairs */
+        if (dungeon_type == DUNGEON_DEATH)
+        {
+                int i, j;
+
+                for (i = 0; i < cur_wid; i++)
+                for (j = 0; j < cur_hgt; j++)
+                {
+                        if ((cave[j][i].feat == FEAT_MORE) || (cave[j][i].feat == FEAT_LESS) ||
+                            (cave[j][i].feat == FEAT_SHAFT_UP) || (cave[j][i].feat == FEAT_SHAFT_DOWN))
+                        {
+                                cave[j][i].feat = FEAT_FLOOR;
+                        }
+                }
+
+                /* Reset the monster generation level */
+                monster_level = 127;
+
+                /* Reset the object generation level */
+                object_level = 0;
+        }
 
 	/* Main loop */
 	while (TRUE)
@@ -4984,11 +5071,6 @@ void play_game(bool new_game)
 		/* The dungeon is not ready */
 		character_dungeon = FALSE;
 
-		/* Start in town */
-		dun_level = 0;
-		p_ptr->inside_quest = 0;
-		p_ptr->inside_arena = 0;
-
 		/* Hack -- seed for flavors */
 		seed_flavor = rand_int(0x10000000);
 
@@ -4998,9 +5080,15 @@ void play_game(bool new_game)
 		/* Roll up a new character */
 		player_birth();
 
+                /* Start in town, or not */
+                if (p_ptr->astral) dun_level = 98;
+                else dun_level = 0;
+		p_ptr->inside_quest = 0;
+		p_ptr->inside_arena = 0;
+
 		/* Hack -- enter the world */
                 /* Mega-hack Vampires and Spectres start in the dungeon */
-                if ((p_ptr->prace == RACE_VAMPIRE) || (p_ptr->prace == RACE_SPECTRE))
+                if ((p_ptr->pracem == RMOD_VAMPIRE) || (p_ptr->pracem == RMOD_SPECTRE) || (p_ptr->pracem == RMOD_SKELETON) || (p_ptr->pracem == RMOD_ZOMBIE))
                         turn = (10L * TOWN_DAWN / 2) + 1;
                 else
                         turn = 1;
@@ -5080,6 +5168,13 @@ void play_game(bool new_game)
                 /* Save the level */
                 old_dun_level = dun_level;
 
+                /* We reached surface ? good, lets go down again !! */
+                if (p_ptr->astral && (!dun_level))
+                {
+                        p_ptr->astral = FALSE;
+                        msg_print("Well done ! You reached the town ! You can now go down again.");
+                }
+
                 /* Update monster list window */
                 p_ptr->window |= (PW_M_LIST);
 
@@ -5105,6 +5200,26 @@ void play_game(bool new_game)
                 dun_level = old_dun_level;
                 save_dungeon();
                 dun_level = tmp_dun;
+
+                for(i = 0; i < MAX_FATES; i++)
+                {
+                        if (((!fates[i].serious) && (randint(2)==1)) || (fates[i].serious))
+                        if ((fates[i].fate) && (fates[i].level == dun_level))
+                        {
+                                switch(fates[i].fate)
+                                {
+                                        case FATE_DIE:
+                                                msg_print("You were fated to die there, DIE!");
+
+                                                /* You shall perish there */
+                                                dungeon_type = DUNGEON_DEATH;
+                                                dun_level = 1;
+
+                                                fates[i].fate = FATE_NONE;
+                                                break;
+                                }
+                        }
+                }
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();

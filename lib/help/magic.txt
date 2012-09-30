@@ -113,7 +113,7 @@ powers of good to aid him.  The Crusade Paladin  is a more warlike
 fighter, using his spells to enhance his skill in battle. Paladins 
 may learn up to 32 spells.
 
-WARRIOR MAGES: Warmages begin the game with Sigaldry, and they can 
+WARLOCKS: Warmages begin the game with Sigaldry, and they can 
 freely select any other minor realm of magic.  They can eventually 
 learn 48 spells.
 

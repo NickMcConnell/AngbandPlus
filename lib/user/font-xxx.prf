@@ -348,6 +348,9 @@ E:22:0x01
 # SWORD
 E:23:0x01
 
+# AXE
+E:24:0x01
+
 # BOOTS
 E:30:0x0F
 

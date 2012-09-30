@@ -613,3 +613,8 @@
  * innate lite sources (light hounds, etc) or torches (mages, paladins, etc)
  */
 /* #define MONSTER_LITE */
+
+/*
+ * Panic saves have a different name
+ */
+#define SAFER_PANICS

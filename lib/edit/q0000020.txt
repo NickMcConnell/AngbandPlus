@@ -8,7 +8,7 @@ Q:20:Q:4:0:0:0:35:0:0:2
 ?:[LEQ $QUEST20 2]
 Q:20:T:The fortunes of war in the north turn against us. 
 Q:20:T:Morgoth's treachery has driven our armies back nigh 
-Q:20:T:to the city's walls. Go forth from the city's gates 
+Q:20:T:to the city's walls. Go forth from the city gates 
 Q:20:T:and clear a path for them to retreat. You need not 
 Q:20:T:destroy the troll army, simply drive a path through.
 ?:1

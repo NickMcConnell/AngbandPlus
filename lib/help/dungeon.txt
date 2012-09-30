@@ -1,17 +1,17 @@
-=== The Dungeon ===
+=== The Dungeons and Various Places of Middle Earth ===
 
 
-After you have created your character, you will begin your Angband adventure.
-Symbols appearing on your screen will represent the dungeon's walls, floor,
-objects, features, and creatures lurking about.  In order to direct your
-character through his adventure, you will enter single character commands
-(see "commands.txt").
+After you have created your character, you will begin your PernAngband
+adventure. Symbols appearing on your screen will represent the world's
+walls, floor, objects, features, and creatures lurking about.  In order
+to direct your character through his adventure, you will enter single
+character commands (see "commands.txt").
 
 
 === Symbols On Your Map ===
 
 Symbols on your map can be broken down into three categories: Features of
-the dungeon such as walls, floor, doors, and traps; Objects which can be
+the world such as walls, floor, doors, and traps; Objects which can be
 picked up such as treasure, weapons, magical devices, etc; and creatures
 which may or may not move about the dungeon, but are mostly harmful to your
 character's well being.
@@ -38,7 +38,7 @@ something you are more comfortable with.
   '   A broken door                   6   Entrance to Magic Shop
   <   A staircase up                  7   Entrance to the Black Market
   >   A staircase down                8   Entrance to your Home
-  &   A fountain
+  &   A fountain                      9   Entrance to Bookstore
 
 
                    Features that block line of sight

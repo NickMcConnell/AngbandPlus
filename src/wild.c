@@ -1,9 +1,9 @@
 /* File: generate.c */
 
-/* Purpose: Wilderness related things */
+/* Purpose: Wilderness & Town related things */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2001 James E. Wilson, Robert A. Koeneke, DarkGod
  *
  * This software may be copied and distributed for educational, research, and
  * not for profit purposes provided that this copyright and statement are
@@ -18,6 +18,12 @@
  * Various defines for the wilderness
  */
 #define DUN_WILD_VAULT          50      /* Chance of finding a wilderness vault. */
+
+/*
+ * Various defines for the towns
+ */
+#define TOWN_NORMAL_FLOOR       70
+#define TOWN_BORDER             90
 
 
 /*
@@ -563,4 +569,518 @@ void reveal_wilderness_around_player(int y, int x, int h, int w)
                         }
                 }
         }
+}
+
+/*
+ * Builds a store at a given pseudo-location
+ *
+ * As of 2.8.1 (?) the town is actually centered in the middle of a
+ * complete level, and thus the top left corner of the town itself
+ * is no longer at (0,0), but rather, at (qy,qx), so the constants
+ * in the comments below should be mentally modified accordingly.
+ *
+ * As of 2.7.4 (?) the stores are placed in a more "user friendly"
+ * configuration, such that the four "center" buildings always
+ * have at least four grids between them, to allow easy running,
+ * and the store doors tend to face the middle of town.
+ *
+ * The stores now lie inside boxes from 3-9 and 12-18 vertically,
+ * and from 7-17, 21-31, 35-45, 49-59.  Note that there are thus
+ * always at least 2 open grids between any disconnected walls.
+ *
+ * Note the use of "town_illuminate()" to handle all "illumination"
+ * and "memorization" issues.
+ */
+static void build_store(int qy, int qx, int n, int yy, int xx)
+{
+	int y, x, y0, x0, y1, x1, y2, x2, tmp;
+
+	/* Find the "center" of the store */
+	y0 = qy + yy * 9 + 6;
+	x0 = qx + xx * 14 + 12;
+
+	/* Determine the store boundaries */
+	y1 = y0 - randint((yy == 0) ? 3 : 2);
+	y2 = y0 + randint((yy == 1) ? 3 : 2);
+	x1 = x0 - randint(5);
+	x2 = x0 + randint(5);
+
+	/* Build an invulnerable rectangular building */
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			/* Create the building */
+			cave_set_feat(y, x, FEAT_PERM_EXTRA);
+		}
+	}
+
+	/* Pick a door direction (S,N,E,W) */
+	tmp = rand_int(4);
+
+	/* Re-roll "annoying" doors */
+	if (((tmp == 0) && (yy == 1)) ||
+	    ((tmp == 1) && (yy == 0)) ||
+	    ((tmp == 2) && (xx == 3)) ||
+	    ((tmp == 3) && (xx == 0)))
+	{
+		/* Pick a new direction */
+		tmp = rand_int(4);
+	}
+
+	/* Extract a "door location" */
+	switch (tmp)
+	{
+		/* Bottom side */
+		case 0:
+		{
+			y = y2;
+			x = rand_range(x1, x2);
+			break;
+		}
+
+		/* Top side */
+		case 1:
+		{
+			y = y1;
+			x = rand_range(x1, x2);
+			break;
+		}
+
+		/* Right side */
+		case 2:
+		{
+			y = rand_range(y1, y2);
+			x = x2;
+			break;
+		}
+
+		/* Left side */
+		default:
+		{
+			y = rand_range(y1, y2);
+			x = x1;
+			break;
+		}
+	}
+
+	/* Clear previous contents, add a store door */
+        cave[y][x].feat = FEAT_SHOP;
+        cave[y][x].special = n;
+
+	/* Notice */
+	note_spot(y, x);
+
+	/* Redraw */
+	lite_spot(y, x);
+}
+
+static void build_store_circle(int qy, int qx, int n, int yy, int xx)
+{
+        int tmp, y, x, y0, x0, rad = 2 + rand_int(2);
+
+	/* Find the "center" of the store */
+	y0 = qy + yy * 9 + 6;
+	x0 = qx + xx * 14 + 12;
+
+	/* Determine the store boundaries */
+
+        /* Build an invulnerable circular building */
+        for (y = y0 - rad; y <= y0 + rad; y++)
+	{
+                for (x = x0 - rad; x <= x0 + rad; x++)
+		{
+                        if (distance(y0, x0, y, x) > rad) continue;
+
+			/* Create the building */
+			cave_set_feat(y, x, FEAT_PERM_EXTRA);
+		}
+	}
+
+	/* Pick a door direction (S,N,E,W) */
+	tmp = rand_int(4);
+
+	/* Re-roll "annoying" doors */
+	if (((tmp == 0) && (yy == 1)) ||
+	    ((tmp == 1) && (yy == 0)) ||
+	    ((tmp == 2) && (xx == 3)) ||
+	    ((tmp == 3) && (xx == 0)))
+	{
+		/* Pick a new direction */
+		tmp = rand_int(4);
+	}
+
+	/* Extract a "door location" */
+	switch (tmp)
+	{
+		/* Bottom side */
+		case 0:
+		{
+                        for (y = y0; y <= y0 + rad; y++) cave_set_feat(y, x0, FEAT_FLOOR);
+			break;
+		}
+
+		/* Top side */
+		case 1:
+		{
+                        for (y = y0 - rad; y <= y0; y++) cave_set_feat(y, x0, FEAT_FLOOR);
+			break;
+		}
+
+		/* Right side */
+		case 2:
+		{
+                        for (x = x0; x <= x0 + rad; x++) cave_set_feat(y0, x, FEAT_FLOOR);
+			break;
+		}
+
+		/* Left side */
+		default:
+		{
+                        for (x = x0 - rad; x <= x0; x++) cave_set_feat(y0, x, FEAT_FLOOR);
+			break;
+		}
+	}
+
+	/* Clear previous contents, add a store door */
+        cave[y0][x0].feat = FEAT_SHOP;
+        cave[y0][x0].special = n;
+
+	/* Notice */
+        note_spot(y0, x0);
+
+	/* Redraw */
+        lite_spot(y0, x0);
+}
+
+static void build_store_hidden(int n, int yy, int xx)
+{
+	/* Clear previous contents, add a store door */
+        cave[yy][xx].feat = FEAT_SHOP;
+        cave[yy][xx].special = n;
+
+	/* Notice */
+        note_spot(yy, xx);
+
+	/* Redraw */
+        lite_spot(yy, xx);
+}
+
+/* Return a list of stores */
+static int get_shops(int *rooms)
+{
+        int n, num = 0;
+
+        for (n = 0; n < max_st_idx; n++)
+        {
+                rooms[n] = 0;
+        }
+
+        for (n = 0; n < max_st_idx; n++)
+        {
+                int chance = 50;
+
+                if (st_info[n].flags1 & SF1_COMMON) chance += 30;
+                if (st_info[n].flags1 & SF1_RARE) chance -= 20;
+                if (st_info[n].flags1 & SF1_VERY_RARE) chance -= 30;
+
+                if (!magik(chance)) continue;
+
+                if (st_info[n].flags1 & SF1_RANDOM) rooms[num++] = n;
+        }
+
+        return num;
+}
+
+/* Generate town borders */
+static void set_border(int y, int x)
+{
+        if (cave_floor_bold(y, x))
+        {
+                cave[y][x].feat = FEAT_DOOR_HEAD;
+                cave[y][x].special = 0;
+
+                /* Notice */
+                note_spot(y, x);
+
+                /* Redraw */
+                lite_spot(y, x);
+        }
+        else
+        {
+                cave[y][x].feat = FEAT_PERM_SOLID;
+                cave[y][x].special = 0;
+
+                /* Notice */
+                note_spot(y, x);
+
+                /* Redraw */
+                lite_spot(y, x);
+        }
+}
+
+static void town_borders(int t_idx, int qy, int qx)
+{
+        int y, x;
+
+        x = qx;
+        for (y = qy; y < qy + SCREEN_HGT - 1; y++)
+	{
+                set_border(y, x);
+        }
+
+        x = qx + SCREEN_WID - 1;
+        for (y = qy; y < qy + SCREEN_HGT - 1; y++)
+	{
+                set_border(y, x);
+	}
+
+        y = qy;
+        for (x = qx; x < qx + SCREEN_WID - 1; x++)
+	{
+                set_border(y, x);
+	}
+
+        y = qy + SCREEN_HGT - 1;
+        for (x = qx; x < qx + SCREEN_WID; x++)
+	{
+                set_border(y, x);
+	}
+}
+
+
+/*
+ * Generate the "consistent" town features, and place the player
+ *
+ * Hack -- play with the R.N.G. to always yield the same town
+ * layout, including the size and shape of the buildings, the
+ * locations of the doorways, and the location of the stairs.
+ */
+static void town_gen_hack(int t_idx, int qy, int qx)
+{
+        int y, x, k, floor, num = 0;
+
+        int *rooms;
+
+        /* Do we use dungeon floor or normal one */
+        if (magik(TOWN_NORMAL_FLOOR)) floor = FEAT_FLOOR;
+        else floor = 0;
+
+        /* Place some floors */
+        for (y = qy + 1; y < qy + SCREEN_HGT - 1; y++)
+	{
+                for (x = qx + 1; x < qx + SCREEN_WID - 1; x++)
+		{
+			/* Create empty floor */
+                        cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
+                        cave[y][x].info |= CAVE_ROOM;
+		}
+	}
+
+	/* Prepare an Array of "remaining stores", and count them */
+        C_MAKE(rooms, max_st_idx, int);
+        num = get_shops(rooms);
+
+	/* Place two rows of stores */
+	for (y = 0; y < 2; y++)
+	{
+		/* Place four stores per row */
+		for (x = 0; x < 4; x++)
+		{
+			/* Pick a random unplaced store */
+                        k = ((num <= 1) ? 0 : rand_int(num));
+
+			/* Build that store at the proper location */
+                        build_store(qy, qx, rooms[k], y, x);
+
+			/* Shift the stores down, remove one store */
+                        rooms[k] = rooms[--num];
+		}
+	}
+        C_FREE(rooms, max_st_idx, int);
+
+        /* Generates the town's borders */
+        if (magik(TOWN_NORMAL_FLOOR)) town_borders(t_idx, qy, qx);
+}
+
+static void town_gen_circle(int t_idx, int qy, int qx)
+{
+        int y, x, cy, cx, rad, floor, k, num = 0;
+
+        int *rooms;
+
+        /* Do we use dungeon floor or normal one */
+        if (magik(TOWN_NORMAL_FLOOR)) floor = FEAT_FLOOR;
+        else floor = 0;
+
+        rad = (SCREEN_HGT / 2);
+
+        y = qy;
+        for (x = qx + rad; x < qx + SCREEN_WID - rad; x++)
+	{
+                set_border(y, x);
+	}
+
+        y = qy + SCREEN_HGT - 1;
+        for (x = qx + rad; x < qx + SCREEN_WID - rad; x++)
+	{
+                set_border(y, x);
+	}
+        /* Place some floors */
+        for (y = qy + 1; y < qy + SCREEN_HGT - 1; y++)
+	{
+                for (x = qx + rad; x < qx + SCREEN_WID - rad; x++)
+		{
+			/* Create empty floor */
+                        cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
+                        cave[y][x].info |= CAVE_ROOM;
+		}
+	}
+
+        cy = qy + (SCREEN_HGT / 2);
+        
+        cx = qx + rad;
+        for (y = cy - rad; y < cy + rad + 1; y++)
+        for (x = cx - rad; x < cx + 1; x++)
+        {
+                int d = distance(cy, cx, y, x);
+
+                if ((d == rad) || (d == rad - 1)) set_border(y, x);
+
+                if (d < rad - 1)
+                {
+                        cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
+                        cave[y][x].info |= CAVE_ROOM;
+                }
+        }
+
+        cx = qx + SCREEN_WID - rad - 1;
+        for (y = cy - rad; y < cy + rad + 1; y++)
+        for (x = cx; x < cx + rad + 1; x++)
+        {
+                int d = distance(cy, cx, y, x);
+
+                if ((d == rad) || (d == rad - 1)) set_border(y, x);
+
+                if (d < rad - 1)
+                {
+                        cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
+                        cave[y][x].info |= CAVE_ROOM;
+                }
+        }
+
+	/* Prepare an Array of "remaining stores", and count them */
+        C_MAKE(rooms, max_st_idx, int);
+        num = get_shops(rooms);
+
+	/* Place two rows of stores */
+	for (y = 0; y < 2; y++)
+	{
+		/* Place four stores per row */
+		for (x = 0; x < 4; x++)
+		{
+			/* Pick a random unplaced store */
+                        k = ((num <= 1) ? 0 : rand_int(num));
+
+			/* Build that store at the proper location */
+                        build_store_circle(qy, qx, rooms[k], y, x);
+
+			/* Shift the stores down, remove one store */
+                        rooms[k] = rooms[--num];
+		}
+	}
+        C_FREE(rooms, max_st_idx, int);
+}
+
+
+static void town_gen_hidden(int t_idx, int qy, int qx)
+{
+        int y, x, n, k, num = 0, i;
+
+        int *rooms;
+
+	/* Prepare an Array of "remaining stores", and count them */
+        C_MAKE(rooms, max_st_idx, int);
+        num = get_shops(rooms);
+
+        /* Get a number of stores to place */
+        n = randint(num / 2);
+
+        /* Place k stores */
+        for (i = 0; i < n; i++)
+	{
+                /* Pick a random unplaced store */
+                k = ((num <= 1) ? 0 : rand_int(num));
+
+                /* Find a good spot */
+                while (TRUE)
+                {
+                        y = rand_range(1, cur_hgt - 2);
+                        x = rand_range(1, cur_wid - 2);
+
+                        if (cave_empty_bold(y, x)) break;
+                }
+
+                /* Build that store at the proper location */
+                build_store_hidden(rooms[k], y, x);
+
+                /* Shift the stores down, remove one store */
+                rooms[k] = rooms[--num];
+	}
+        C_FREE(rooms, max_st_idx, int);
+}
+
+
+
+/*
+ * Town logic flow for generation of new town
+ *
+ * We start with a fully wiped cave of normal floors.
+ *
+ * Note that town_gen_hack() plays games with the R.N.G.
+ *
+ * This function does NOT do anything about the owners of the stores,
+ * nor the contents thereof.  It only handles the physical layout.
+ *
+ * We place the player on the stairs at the same time we make them.
+ *
+ * Hack -- since the player always leaves the dungeon by the stairs,
+ * he is always placed on the stairs, even if he left the dungeon via
+ * word of recall or teleport level.
+ */
+void town_gen(int t_idx)
+{
+        int qy, qx;
+
+        /* Center fo the level */
+        qy = (cur_hgt - SCREEN_HGT) / 2;
+        qx = (cur_wid - SCREEN_WID) / 2;
+
+	/* Build stuff */
+        switch(rand_int(2))
+        {
+                case 0:
+                        town_gen_hack(t_idx, qy, qx);
+                        if (wizard) msg_format("Town level(normal) (%d, seed %d)", t_idx, town[t_idx].seed);
+                        break;
+                case 1:
+                        town_gen_circle(t_idx, qy, qx);
+                        if (wizard) msg_format("Town level(circle)(%d, seed %d)", t_idx, town[t_idx].seed);
+                        break;
+                case 2:
+                        town_gen_hidden(t_idx, qy, qx);
+                        if (wizard) msg_format("Town level(hidden)(%d, seed %d)", t_idx, town[t_idx].seed);
+                        break;
+        }
+
+        p_ptr->town_num = t_idx;
+
+#if 0 /* DGDGDGDG : some natives */
+	/* Make some residents */
+	for (i = 0; i < residents; i++)
+	{
+		/* Make a resident */
+                (void)alloc_monster(3, TRUE);
+        }
+#endif
 }

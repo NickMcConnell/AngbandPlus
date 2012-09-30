@@ -1,7 +1,8 @@
-/* Squeltch.c 	   Iain McFall 22/Aug/2000	 imcfall@lineone.net
-This file contains functions for the menu management and 
-actual destroying of unwanted items
-*/
+/*
+ * Squeltch.c        Iain McFall 22/Aug/2000       imcfall@lineone.net
+ * This file contains functions for the menu management and 
+ * actual destroying of unwanted items
+ */
 
 
 /* Issues to consider:
@@ -40,62 +41,64 @@ actual destroying of unwanted items
 #define ITEM_SWORD			1
 #define ITEM_HAFTED			2
 #define ITEM_BLUNT			3
-#define ITEM_BOW			4
-#define ITEM_AMMO			5
-#define ITEM_DIGGER			6
-#define ITEM_BODY_ARMOUR	7
-#define ITEM_DRAG_ARMOUR	8
-#define ITEM_OTHER_ARMOUR	9
+#define ITEM_AXE                        4
+#define ITEM_BOOK_DAEM                  5
+#define ITEM_BOW                        6
+#define ITEM_AMMO                       7
+#define ITEM_DIGGER                     8
 
-#define ITEM_RING			10
-#define ITEM_AMULET			11
+#define ITEM_BODY_ARMOUR        9
+#define ITEM_DRAG_ARMOUR        10
+#define ITEM_OTHER_ARMOUR       11
 
-#define ITEM_POTION1		12
-#define ITEM_POTION2		13
-#define ITEM_SCROLL			14
-#define ITEM_ROD			15
-#define ITEM_STAFF			16
-#define ITEM_WAND			17
+#define ITEM_RING                       12
+#define ITEM_AMULET                     13
 
-#define ITEM_FOOD			18
-#define ITEM_CRAP			19
-#define ITEM_FIRESTONE		20
-#define ITEM_ESSENCE		21
-#define ITEM_PARCHMENT		22
-#define ITEM_INSTRUMENT		23
-#define ITEM_RUNE			24
-#define ITEM_STONE			25
-#define ITEM_BOOK_LORE		26
-#define ITEM_BOOK_SONG		27
-#define ITEM_BOOK_SYMB		28
+#define ITEM_POTION1            14
+#define ITEM_POTION2            15
+#define ITEM_SCROLL                     16
+#define ITEM_ROD                        17
+#define ITEM_STAFF                      18
+#define ITEM_WAND                       19
 
-#define ITEM_BOOK_VALA		29
-#define ITEM_BOOK_MAGE		30
-#define ITEM_BOOK_SHAD		31
-#define ITEM_BOOK_CHAO		32
-#define ITEM_BOOK_NETH		33
-#define ITEM_BOOK_CRUS		34
-#define ITEM_BOOK_SIGA		35
-#define ITEM_BOOK_MAGI		36
-#define ITEM_BOOK_PRAY		37
-#define ITEM_BOOK_ILLU		38
-#define ITEM_BOOK_TRIB		39
-#define ITEM_BOOK_DAEM		40
+#define ITEM_FOOD                       20
+#define ITEM_CRAP                       21
+#define ITEM_FIRESTONE          22
+#define ITEM_ESSENCE            23
+#define ITEM_PARCHMENT          24
+#define ITEM_INSTRUMENT         25
+#define ITEM_RUNE                       26
+#define ITEM_STONE                      27
+#define ITEM_BOOK_LORE          28
+#define ITEM_BOOK_SONG          29
+#define ITEM_BOOK_SYMB          30
 
-#define ITEM_CORPSE			41
+#define ITEM_BOOK_VALA          31
+#define ITEM_BOOK_MAGE          32
+#define ITEM_BOOK_SHAD          33
+#define ITEM_BOOK_CHAO          34
+#define ITEM_BOOK_NETH          35
+#define ITEM_BOOK_CRUS          36
+#define ITEM_BOOK_SIGA          37
+#define ITEM_BOOK_MAGI          38
+#define ITEM_BOOK_PRAY          39
+#define ITEM_BOOK_ILLU          40
+#define ITEM_BOOK_TRIB          41
 
-#define ITEM_MAX                        42
+#define ITEM_CORPSE                     42
+
+#define ITEM_MAX                        43
 
 
 static int cat_type[256];
 
-static cptr categories[] = {NULL,"Swords","Polearms","Blunt Weapons","Bows","Ammo","Dig/M.Staff/Boom",
+static cptr categories[] = {NULL,"Swords","Axe","Polearms","Blunt Weapons","Daemon Books","Bows","Ammo","Dig/M.Staff/Boom",
 							"Body Armour","Dragon Armour","Other Armour","Rings","Amulets","Potions",
 							"Potions(2!)","Scrolls","Rods","Staffs","Wands","Food","Boring Stuff",
 							"Firestones","Essences","Parchments","Instruments","Runes","Stones",
 							"Lore Books","Songbooks","Symbiotic Books","Valarin Books","Magery Books",
 							"Shadow Books","Chaos Books","Nether Books","Crusade Books","Sigaldry Books",
-                                                        "Magic Books","Prayer Books","Illusion Books","Tribal Books","Daemon Books","Corpses"};
+                                                        "Magic Books","Prayer Books","Illusion Books","Tribal Books","Corpses"};
 
 static bool sq_init = FALSE;	
 
@@ -153,6 +156,7 @@ static void init_categories(void)
 	for (i = 1; i < 256; i++) cat_type[i]=0;
 	
 	/* Stuff to hurt with */
+        cat_type[TV_AXE]=ITEM_AXE;
 	cat_type[TV_SWORD]=ITEM_SWORD;
 	cat_type[TV_POLEARM]=ITEM_HAFTED;
 	cat_type[TV_HAFTED]=ITEM_BLUNT;
@@ -349,6 +353,7 @@ void do_cmd_squeltch_options(void)
 				/* Analyze matching items */
 				if (cat_type[k_ptr->tval] == category)
 				if (!(k_ptr->flags3 & TR3_INSTA_ART))
+                                if (!(k_ptr->flags3 & TR3_NORM_ART))
 				if (k_ptr->aware)
 				{
 					byte attr;
@@ -494,7 +499,7 @@ static bool destroy_it(object_type *o_ptr)
 	if (!k_info[o_ptr->k_idx].squeltch) return FALSE;
 
 	/* Keep Artifacts */
-	if (o_ptr->name1||o_ptr->art_name) return FALSE;
+        if (artifact_p(o_ptr)) return FALSE;
 
 	/* Destroy it.. */
 	if (k_info[o_ptr->k_idx].squeltch==DESTROY_ALL) return TRUE;

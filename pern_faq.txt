@@ -1,5 +1,5 @@
                           PernAngband FAQ
-                     Updated for version 4.1.2
+                     Updated for version 4.1.5
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -58,7 +58,9 @@ level 56, or really useful like to never die by the hand of a mortal.
 Q: Why can't I pick up monster corpses ?
 
 A: You must set an option in the PernAngband play options to allow it. It's
-disallowed by default to avoid being killed by picking up something heavy like a Great Wyrm of Power corpse, suddenly dropping to -500 speed, and dying nastily.
+disallowed by default to avoid being killed by picking up something heavy
+like a Great Wyrm of Power corpse, suddenly dropping to -500 speed, and dying
+nastily.
 ------------------------------------------------------------------------------
 Q: Who is Mathilde, the Science Student whom I see every so often in the
 town?
@@ -95,3 +97,7 @@ Q: When I stand on between gates I'm never teleported away, what's wrong ?
 
 A: Between gates are no more automatics, you must press > while standing on
    one to activate it
+------------------------------------------------------------------------------
+Q: When it panic saves it reloads an old savefile !!
+
+A: Now the panic save use a different file to save, savefile.pnc

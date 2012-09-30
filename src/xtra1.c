@@ -78,7 +78,7 @@ static void god_bonus(int god, int goodness, bool do_print) {
 
                         if (goodness > 1) {
                                 p_ptr->see_inv = TRUE;
-                                p_ptr->telepathy |= ESP_ORC | ESP_TROLL | ESP_GOOD | ESP_UNDEAD | ESP_DEMON | ESP_EVIL;
+                                p_ptr->telepathy |= ESP_SPIDER | ESP_ORC | ESP_TROLL | ESP_GOOD | ESP_UNDEAD | ESP_DEMON | ESP_EVIL;
                                 if (do_print) msg_print("You sense your prey.");
                         }
 
@@ -424,7 +424,6 @@ static void prt_tp(void)
 
 /*
  * Prints the player's current sanity.
- * The format is different from HP/SP to save screen space.
  */
 static void prt_sane(void) {
   char tmp[32];
@@ -732,6 +731,7 @@ static void prt_sp(void)
 static void prt_depth(void)
 {
 	char depths[32];
+        dungeon_info_type *d_ptr = &d_info[dungeon_type];
 
 	if (p_ptr->inside_arena)
 	{
@@ -754,11 +754,13 @@ static void prt_depth(void)
 	}
 	else if (depth_in_feet)
 	{
-		(void)sprintf(depths, "%d ft", dun_level * 50);
+                if (d_ptr->flags1 & DF1_TOWER) (void)sprintf(depths, "-%d ft", dun_level * 50);
+                else (void)sprintf(depths, "%d ft", dun_level * 50);
 	}
 	else
 	{
-		(void)sprintf(depths, "Lev %d", dun_level);
+                if (d_ptr->flags1 & DF1_TOWER) (void)sprintf(depths, "Lev -%d", dun_level);
+                else (void)sprintf(depths, "Lev %d", dun_level);
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
@@ -1582,6 +1584,20 @@ static void fix_m_list(void)
 		/* Clear */
 		Term_clear();
 
+		/* Hallucination */
+		if (p_ptr->image)
+		{
+			c_prt(TERM_WHITE,"You can not see clearly",0,0);
+
+			/* Fresh */
+			Term_fresh();
+
+			/* Restore */
+			Term_activate(old);
+
+			return;
+		}
+
 		/* reset visible count */
                 for (i = 1; i < max_r_idx; i++)
 		{
@@ -2247,18 +2263,13 @@ void calc_hitpoints(void)
         /* Hack: Sorcerer have a -25% hp penality */
         if (mhp && (p_ptr->pclass == CLASS_SORCERER)) mhp -= mhp / 4;
 
+        /* Factor in the pernament hp modifications */
+        mhp += p_ptr->hp_mod;
+        if (mhp < 1) mhp = 1;
+
 	/* Factor in the hero / superhero settings */
 	if (p_ptr->hero) mhp += 10;
 	if (p_ptr->shero) mhp += 30;
-
-        if(p_ptr->body_monster)
-        {
-                monster_race *r_ptr = &r_info[p_ptr->body_monster];
-
-                mhp = (maxroll(r_ptr->hdice, r_ptr->hside) + mhp + mhp) / 3;
-        }
-
-        if(p_ptr->disembodied) mhp = 1;
 
         i = 0;
         while (p_ptr->body_parts[i] == INVEN_WIELD)
@@ -2285,6 +2296,15 @@ void calc_hitpoints(void)
 
                 i++;
         }
+
+        if (p_ptr->body_monster)
+        {
+                monster_race *r_ptr = &r_info[p_ptr->body_monster];
+                int rhp = maxroll(r_ptr->hdice, r_ptr->hside);
+
+                mhp = (rhp + sroot(rhp) + mhp) / 3;
+        }
+        if (p_ptr->disembodied) mhp = 1;
 
         /* HACK - being undead means less DP */
         if(p_ptr->class_extra3 & CLASS_UNDEAD)
@@ -2911,7 +2931,7 @@ byte calc_mimic()
                         p_ptr->resist_fear = TRUE;
                         p_ptr->reflect = TRUE;
                         p_ptr->pspeed += 7;
-                        blow += 2;
+                        blow += 1;
                         break;
                 }
                 case MIMIC_VALAR:
@@ -3002,7 +3022,7 @@ byte calc_mimic()
                         p_ptr->ffall=TRUE;
                         p_ptr->regenerate=TRUE;
                         p_ptr->sh_fire = TRUE;
-                        blow += 4;
+                        blow += 1;
                         break;
                 }
 		
@@ -3042,13 +3062,112 @@ byte calc_mimic()
                         p_ptr->immune_elec = TRUE;
                         p_ptr->immune_fire = TRUE;
                         p_ptr->pspeed += 15;
-                        blow += 5;
+                        blow += 4;
                         break;
                 }
         }
         return blow;
 }
 
+/* Returns the blow information based on class */
+void analyze_blow(int *num, int *wgt, int *mul)
+{
+		/* Analyze the class */
+		switch (p_ptr->pclass)
+		{
+			/* Warrior */
+			case CLASS_WARRIOR:
+                        case CLASS_UNBELIEVER:
+                        case CLASS_WEAPONMASTER:
+                                *num = 6; *wgt = 30; *mul = 5; break;
+
+                        case CLASS_MIMIC:
+                        case CLASS_HARPER:
+                        case CLASS_BEASTMASTER:
+                                *num = 5; *wgt = 35; *mul = 4; break;
+
+                        /* Sorcerer */
+                        case CLASS_SORCERER:
+                                *num = 1; *wgt = 1; *mul = 1; break;
+
+			/* Mage */
+			case CLASS_MAGE:
+                        case CLASS_WIZARD:
+			case CLASS_HIGH_MAGE:
+                        case CLASS_POWERMAGE:
+                        case CLASS_RUNECRAFTER:
+                                *num = 4; *wgt = 40; *mul = 2; break;
+
+			/* Priest, Mindcrafter */
+			case CLASS_PRIEST:
+                        case CLASS_PRIOR:
+			case CLASS_MINDCRAFTER:
+                                *num = 5; *wgt = 35; *mul = 3; break;
+
+			/* Rogue */
+			case CLASS_ROGUE:
+                        case CLASS_SYMBIANT:
+                        case CLASS_POSSESSOR:
+                                *num = 5; *wgt = 30; *mul = 3; break;
+
+			/* Ranger */
+                        case CLASS_ALCHEMIST:
+			case CLASS_RANGER:
+                                *num = 5; *wgt = 35; *mul = 4; break;
+
+                        /* Druid, Necromancer */
+                        case CLASS_DRUID:
+                        case CLASS_NECRO:
+			case CLASS_DAEMONOLOGIST:
+                                *num = 4; *wgt = 35; *mul = 3; break;
+
+                        case CLASS_ARCHER:
+                                *num = 4; *wgt = 35; *mul = 4; break;
+
+			/* Paladin */
+                        case CLASS_PALADIN:             
+                                *num = 5; *wgt = 30; *mul = 4; break;
+
+			/* Warrior-Mage */
+			case CLASS_WARRIOR_MAGE:
+                                *num = 5; *wgt = 35; *mul = 3; break;
+
+			/* Chaos Warrior */
+			case CLASS_CHAOS_WARRIOR:
+                                *num = 5; *wgt = 30; *mul = 4; break;
+
+			/* Monk */
+			case CLASS_MONK:
+                                *num = (p_ptr->lev<40?3:4); *wgt = 40; *mul = 4; break;
+
+			/* Illusionist -KMW- */
+                        case CLASS_ILLUSIONIST:
+                                *num = 4; *wgt = 35; *mul = 3; break;
+		}
+}
+
+/* Are all the weapons wielded of the right type ? */
+bool is_weaponmaster_weapon()
+{
+        int i;
+        object_type *o_ptr;
+
+        if (p_ptr->pclass != CLASS_WEAPONMASTER) return TRUE;
+
+        i = 0;
+        while (p_ptr->body_parts[i] == INVEN_WIELD)
+        {
+                o_ptr = &inventory[INVEN_WIELD + i];
+
+                /* If we find even only one non specialized weapon it's bad luck for the poor weaponmaster */
+                if (inventory[INVEN_WIELD + i].tval != p_ptr->class_extra1) return FALSE;
+
+                i++;
+        }
+
+        /* Everything is ok */
+        return TRUE;
+}
 
 /*
  * Calculate the players current "state", taking into account
@@ -3111,9 +3230,6 @@ void calc_bonuses(void)
         /* Spell power */
         p_ptr->to_s = 0;
 
-        /* Anti-summon field */
-        p_ptr->antisummon = 0;
-
 	/* Clear the Displayed/Real armor class */
 	p_ptr->dis_ac = p_ptr->ac = 0;
 
@@ -3144,7 +3260,7 @@ void calc_bonuses(void)
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
 	p_ptr->bless_blade = FALSE;
-	p_ptr->xtra_might = FALSE;
+        p_ptr->xtra_might = 0;
 	p_ptr->impact = FALSE;
 	p_ptr->see_inv = FALSE;
 	p_ptr->free_act = FALSE;
@@ -3177,6 +3293,7 @@ void calc_bonuses(void)
 	p_ptr->resist_nexus = FALSE;
 	p_ptr->resist_blind = FALSE;
 	p_ptr->resist_neth = FALSE;
+        p_ptr->immune_neth = FALSE;
 	p_ptr->resist_fear = FALSE;
         p_ptr->resist_continuum = FALSE;
 	p_ptr->reflect = FALSE;
@@ -3194,37 +3311,41 @@ void calc_bonuses(void)
 
         p_ptr->precognition = FALSE;
 
+        /* The anti magic field surrounding the player */
+        p_ptr->antimagic = 0;
+        p_ptr->antimagic_dis = 0;
+
 
 	/* Base infravision (purely racial) */
-	p_ptr->see_infra = rp_ptr->infra;
+        p_ptr->see_infra = rp_ptr->infra + rmp_ptr->infra;
 
 
 	/* Base skill -- disarming */
-	p_ptr->skill_dis = rp_ptr->r_dis + cp_ptr->c_dis;
+        p_ptr->skill_dis = rp_ptr->r_dis + rmp_ptr->r_dis + cp_ptr->c_dis;
 
 	/* Base skill -- magic devices */
-	p_ptr->skill_dev = rp_ptr->r_dev + cp_ptr->c_dev;
+        p_ptr->skill_dev = rp_ptr->r_dev + rmp_ptr->r_dev + cp_ptr->c_dev;
 
 	/* Base skill -- saving throw */
-	p_ptr->skill_sav = rp_ptr->r_sav + cp_ptr->c_sav;
+        p_ptr->skill_sav = rp_ptr->r_sav + rmp_ptr->r_sav + cp_ptr->c_sav;
 
 	/* Base skill -- stealth */
-	p_ptr->skill_stl = rp_ptr->r_stl + cp_ptr->c_stl;
+        p_ptr->skill_stl = rp_ptr->r_stl + rmp_ptr->r_stl + cp_ptr->c_stl;
 
 	/* Base skill -- searching ability */
-	p_ptr->skill_srh = rp_ptr->r_srh + cp_ptr->c_srh;
+        p_ptr->skill_srh = rp_ptr->r_srh + rmp_ptr->r_srh + cp_ptr->c_srh;
 
 	/* Base skill -- searching frequency */
-	p_ptr->skill_fos = rp_ptr->r_fos + cp_ptr->c_fos;
+        p_ptr->skill_fos = rp_ptr->r_fos + rmp_ptr->r_fos + cp_ptr->c_fos;
 
 	/* Base skill -- combat (normal) */
-	p_ptr->skill_thn = rp_ptr->r_thn + cp_ptr->c_thn;
+        p_ptr->skill_thn = rp_ptr->r_thn + rmp_ptr->r_thn + cp_ptr->c_thn;
 
 	/* Base skill -- combat (shooting) */
-	p_ptr->skill_thb = rp_ptr->r_thb + cp_ptr->c_thb;
+        p_ptr->skill_thb = rp_ptr->r_thb + rmp_ptr->r_thb + cp_ptr->c_thb;
 
 	/* Base skill -- combat (throwing) */
-	p_ptr->skill_tht = rp_ptr->r_thb + cp_ptr->c_thb;
+        p_ptr->skill_tht = rp_ptr->r_thb + rmp_ptr->r_thb + cp_ptr->c_thb;
 
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
@@ -3285,7 +3406,8 @@ void calc_bonuses(void)
 				p_ptr->free_act = TRUE;
 			break;
                 case CLASS_UNBELIEVER:
-                        p_ptr->antisummon += (p_ptr->lev / 10) + 1;
+                        p_ptr->antimagic += p_ptr->lev;
+                        p_ptr->antimagic_dis += (p_ptr->lev / 10) + 1;
 
                         if (p_ptr->class_extra6 & CLASS_ANTIMAGIC)
                         {
@@ -3294,12 +3416,19 @@ void calc_bonuses(void)
                                 p_ptr->resist_continuum = TRUE;
                         }
 			break;
+		case CLASS_WEAPONMASTER:
+			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
+			break;
 	}
 
 	/***** Races ****/
         if((!p_ptr->mimic_form)&&(!p_ptr->body_monster))
+        {
 	switch (p_ptr->prace)
 	{
+                case RACE_WOOD_ELF:
+			p_ptr->resist_lite = TRUE;
+			break;
 		case RACE_ELF:
 			p_ptr->resist_lite = TRUE;
 			break;
@@ -3342,9 +3471,6 @@ void calc_bonuses(void)
 			p_ptr->resist_lite = TRUE;
 			p_ptr->see_inv = TRUE;
 			break;
-		case RACE_BARBARIAN:
-			p_ptr->resist_fear = TRUE;
-			break;
 		case RACE_HALF_OGRE:
 			p_ptr->resist_dark = TRUE;
 			p_ptr->sustain_str = TRUE;
@@ -3363,23 +3489,6 @@ void calc_bonuses(void)
 		case RACE_DARK_ELF:
 			p_ptr->resist_dark = TRUE;
 			if (p_ptr->lev > 19) p_ptr->see_inv = TRUE;
-			break;
-		case RACE_VAMPIRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->resist_cold = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->lite = TRUE;
-			break;
-		case RACE_SPECTRE:
-			p_ptr->resist_neth = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			p_ptr->resist_cold = TRUE;
-                        if (p_ptr->lev > 34) p_ptr->telepathy |= ESP_UNIQUE | ESP_GOOD | ESP_EVIL;
 			break;
                 case RACE_RKNIGHT:
                         /* Rohan's Knights become faster */
@@ -3421,6 +3530,49 @@ void calc_bonuses(void)
 			/* Do nothing */
 			;
 	}
+        switch (p_ptr->pracem)
+	{
+                case RMOD_VAMPIRE:
+			p_ptr->resist_dark = TRUE;
+			p_ptr->hold_life = TRUE;
+			p_ptr->resist_neth = TRUE;
+			p_ptr->resist_cold = TRUE;
+			p_ptr->resist_pois = TRUE;
+			p_ptr->lite = TRUE;
+			break;
+                case RMOD_SPECTRE:
+			p_ptr->resist_neth = TRUE;
+                        p_ptr->immune_neth = TRUE;
+			p_ptr->hold_life = TRUE;
+			p_ptr->see_inv = TRUE;
+			p_ptr->resist_pois = TRUE;
+			p_ptr->slow_digest = TRUE;
+			p_ptr->resist_cold = TRUE;
+                        if (p_ptr->lev > 34) p_ptr->telepathy |= ESP_UNIQUE | ESP_GOOD | ESP_EVIL;
+			break;
+                case RMOD_SKELETON:
+                        p_ptr->resist_shard = TRUE;
+                        p_ptr->hold_life = TRUE;
+                        p_ptr->see_inv = TRUE;
+                        p_ptr->resist_pois = TRUE;
+                        if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
+                        break;
+                case RMOD_ZOMBIE:
+                        p_ptr->resist_neth = TRUE;
+                        p_ptr->hold_life = TRUE;
+                        p_ptr->see_inv = TRUE;
+                        p_ptr->resist_pois = TRUE;
+                        p_ptr->slow_digest = TRUE;
+                        if (p_ptr->lev > 4) p_ptr->resist_cold = TRUE;
+                        break;
+                case RMOD_BARBARIAN:
+			p_ptr->resist_fear = TRUE;
+			break;
+		default:
+			/* Do nothing */
+			;
+	}
+        }
 
 	/* Hack -- apply racial/class stat maxes */
 	if (p_ptr->maximize)
@@ -3429,7 +3581,7 @@ void calc_bonuses(void)
 		for (i = 0; i < 6; i++)
 		{
 			/* Modify the stats for "race" */
-			p_ptr->stat_add[i] += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
+                        p_ptr->stat_add[i] += (rp_ptr->r_adj[i] + rmp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
 		}
 	}
 
@@ -3574,7 +3726,7 @@ void calc_bonuses(void)
 		
 		if (p_ptr->muta3 & MUT3_ESP)
 		{
-                        p_ptr->telepathy |= 1 << (p_ptr->lev * 32 / 50);
+                        p_ptr->telepathy |= (((1 << (p_ptr->lev * 32 / 50)) - 1) << 1) + 1;
 		}
 
 		if (p_ptr->muta3 & MUT3_LIMBER)
@@ -3665,7 +3817,7 @@ void calc_bonuses(void)
 		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
 
 		/* Affect blows */
-		if (f1 & (TR1_BLOWS)) extra_blows += o_ptr->pval;
+                if (f1 & (TR1_BLOWS)) extra_blows += o_ptr->pval;
 
 		/* Hack -- cause earthquakes */
 		if (f1 & (TR1_IMPACT)) p_ptr->impact = TRUE;
@@ -3681,7 +3833,7 @@ void calc_bonuses(void)
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
-		if (f3 & (TR3_XTRA_MIGHT)) p_ptr->xtra_might = TRUE;
+                if (f3 & (TR3_XTRA_MIGHT)) p_ptr->xtra_might += o_ptr->pval;
 		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
 		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
                 if (esp) p_ptr->telepathy |= esp;
@@ -3717,6 +3869,7 @@ void calc_bonuses(void)
 		if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
 		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
 		if (f2 & (TR2_RES_NETHER)) p_ptr->resist_neth = TRUE;
+                if (f4 & (TR4_IM_NETHER)) p_ptr->immune_neth = TRUE;
 
 		if (f2 & (TR2_REFLECT)) p_ptr->reflect = TRUE;
 		if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
@@ -3733,6 +3886,27 @@ void calc_bonuses(void)
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
                 if (f4 & (TR4_PRECOGNITION)) p_ptr->precognition = TRUE;
+
+                if (f4 & (TR4_ANTIMAGIC_50))
+                {
+                        p_ptr->antimagic += 50 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
+                        p_ptr->antimagic += 5 - ((o_ptr->to_h + o_ptr->to_d + o_ptr->pval + o_ptr->to_a) / 15);
+                }
+                if (f4 & (TR4_ANTIMAGIC_30))
+                {
+                        p_ptr->antimagic += 30 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
+                        p_ptr->antimagic += 3 - ((o_ptr->to_h + o_ptr->to_d + o_ptr->pval + o_ptr->to_a) / 15);
+                }
+                if (f4 & (TR4_ANTIMAGIC_20))
+                {
+                        p_ptr->antimagic += 20 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
+                        p_ptr->antimagic += 2;
+                }
+                if (f4 & (TR4_ANTIMAGIC_10))
+                {
+                        p_ptr->antimagic += 10 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
+                        p_ptr->antimagic += 1;
+                }
 
                 /* The new code implementing Tolkien's concept of "Black Breath"
                  * takes advantage of the existing drain_exp character flag, renamed
@@ -4278,8 +4452,17 @@ void calc_bonuses(void)
                         /* Extra shot at level 45 */
                         if (p_ptr->lev >= 45) p_ptr->num_fire++;
 
-                        /* Extra shot at level 25 */
-                        if (p_ptr->lev >= 25) p_ptr->xtra_might = TRUE;
+                        /* Extra might at level 25 */
+                        if (p_ptr->lev >= 25) p_ptr->xtra_might++;
+		}
+
+                /* Hack -- Reward Wood Elves */
+                if (p_ptr->prace == RACE_WOOD_ELF)
+		{
+                        p_ptr->xtra_might++;
+
+                        /* Even better if bow & high lvl */
+                        if ((p_ptr->tval_ammo == TV_ARROW) && (p_ptr->lev >= 25)) p_ptr->xtra_might++;
 		}
 
 		/*
@@ -4339,77 +4522,7 @@ void calc_bonuses(void)
 
 		int num = 0, wgt = 0, mul = 0, div = 0;
 
-		/* Analyze the class */
-		switch (p_ptr->pclass)
-		{
-			/* Warrior */
-			case CLASS_WARRIOR:
-                        case CLASS_UNBELIEVER:
-				num = 6; wgt = 30; mul = 5; break;
-
-                        case CLASS_MIMIC:
-                        case CLASS_HARPER:
-                        case CLASS_BEASTMASTER:
-                                num = 5; wgt = 35; mul = 4; break;
-
-                        /* Sorcerer */
-                        case CLASS_SORCERER:
-                                num = 1; wgt = 1; mul = 1; break;
-
-			/* Mage */
-			case CLASS_MAGE:
-                        case CLASS_WIZARD:
-			case CLASS_HIGH_MAGE:
-                        case CLASS_POWERMAGE:
-                        case CLASS_RUNECRAFTER:
-				num = 4; wgt = 40; mul = 2; break;
-
-			/* Priest, Mindcrafter */
-			case CLASS_PRIEST:
-                        case CLASS_PRIOR:
-			case CLASS_MINDCRAFTER:
-				num = 5; wgt = 35; mul = 3; break;
-
-			/* Rogue */
-			case CLASS_ROGUE:
-                        case CLASS_SYMBIANT:
-                        case CLASS_POSSESSOR:
-				num = 5; wgt = 30; mul = 3; break;
-
-			/* Ranger */
-                        case CLASS_ALCHEMIST:
-			case CLASS_RANGER:
-				num = 5; wgt = 35; mul = 4; break;
-
-                        /* Druid, Necromancer */
-                        case CLASS_DRUID:
-                        case CLASS_NECRO:
-			case CLASS_DAEMONOLOGIST:
-                                num = 4; wgt = 35; mul = 3; break;
-
-                        case CLASS_ARCHER:
-                                num = 4; wgt = 35; mul = 4; break;
-
-			/* Paladin */
-                        case CLASS_PALADIN:             
-				num = 5; wgt = 30; mul = 4; break;
-
-			/* Warrior-Mage */
-			case CLASS_WARRIOR_MAGE:
-				num = 5; wgt = 35; mul = 3; break;
-
-			/* Chaos Warrior */
-			case CLASS_CHAOS_WARRIOR:
-				num = 5; wgt = 30; mul = 4; break;
-
-			/* Monk */
-			case CLASS_MONK:
-				num = (p_ptr->lev<40?3:4); wgt = 40; mul = 4; break;
-
-			/* Illusionist -KMW- */
-                        case CLASS_ILLUSIONIST:
-                                num = 4; wgt = 35; mul = 3; break;
-		}
+                analyze_blow(&num, &wgt, &mul);
 
 		/* Enforce a minimum "weight" (tenth pounds) */
 		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
@@ -4435,8 +4548,33 @@ void calc_bonuses(void)
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
 
-		/* Level bonus for warriors (1-3) */
-                if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_UNBELIEVER)) p_ptr->num_blow += (p_ptr->lev) / 15;
+		switch (p_ptr->pclass)
+		{
+			case CLASS_WARRIOR: /* 3 extra blows */
+                        case CLASS_UNBELIEVER:
+				p_ptr->num_blow += (p_ptr->lev / 15);
+				break;
+			case CLASS_WARRIOR_MAGE: /* 2 extra blows */
+				p_ptr->num_blow += (p_ptr->lev / 25);
+				break;
+                        case CLASS_PALADIN:
+			case CLASS_CHAOS_WARRIOR: /* 1 extra blow */
+				if (p_ptr->lev > 24) p_ptr->num_blow += 1;
+				break;
+			case CLASS_WEAPONMASTER:
+			/*
+			 * Weaponmasters only get 1 blow with weapons that
+			 * don't match their specialty. Otherwise, they get a
+			 * bonus of 1-3 blows (as per Warriors). -- Gumby
+			 */
+                                if (!is_weaponmaster_weapon())
+					p_ptr->num_blow = 1;
+                                else
+					p_ptr->num_blow += (p_ptr->lev / 15);
+				break;
+			default: /* no extra blows */
+				break;
+		}
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
@@ -4445,79 +4583,9 @@ void calc_bonuses(void)
         else if (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON])
         {
 		int str_index, dex_index;
-                int num = 0, mul = 0;
+                int num = 0, wgt = 0, mul = 0;
 
-		/* Analyze the class */
-		switch (p_ptr->pclass)
-		{
-			/* Warrior */
-			case CLASS_WARRIOR:
-                        case CLASS_UNBELIEVER:
-                                num = 6; mul = 5; break;
-
-                        case CLASS_MIMIC:
-                        case CLASS_HARPER:
-                        case CLASS_BEASTMASTER:
-                                num = 5; mul = 4; break;
-
-                        /* Sorcerer */
-                        case CLASS_SORCERER:
-                                num = 1; mul = 1; break;
-
-			/* Mage */
-			case CLASS_MAGE:
-                        case CLASS_WIZARD:
-			case CLASS_HIGH_MAGE:
-                        case CLASS_POWERMAGE:
-                        case CLASS_RUNECRAFTER:
-                                num = 4; mul = 2; break;
-
-			/* Priest, Mindcrafter */
-			case CLASS_PRIEST:
-                        case CLASS_PRIOR:
-			case CLASS_MINDCRAFTER:
-                                num = 5; mul = 3; break;
-
-			/* Rogue */
-			case CLASS_ROGUE:
-                        case CLASS_SYMBIANT:
-                        case CLASS_POSSESSOR:
-                                num = 5; mul = 3; break;
-
-			/* Ranger */
-                        case CLASS_ALCHEMIST:
-			case CLASS_RANGER:
-                                num = 5; mul = 4; break;
-
-                        /* Druid, Necromancer */
-                        case CLASS_DRUID:
-                        case CLASS_NECRO:
-			case CLASS_DAEMONOLOGIST:
-                                num = 4; mul = 3; break;
-
-                        case CLASS_ARCHER:
-                                num = 4; mul = 4; break;
-
-			/* Paladin */
-                        case CLASS_PALADIN:             
-                                num = 5; mul = 4; break;
-
-			/* Warrior-Mage */
-			case CLASS_WARRIOR_MAGE:
-                                num = 5; mul = 3; break;
-
-			/* Chaos Warrior */
-			case CLASS_CHAOS_WARRIOR:
-                                num = 5; mul = 4; break;
-
-			/* Monk */
-			case CLASS_MONK:
-                                num = (p_ptr->lev<40?3:4); mul = 4; break;
-
-			/* Illusionist -KMW- */
-                        case CLASS_ILLUSIONIST:
-                                num = 4; mul = 3; break;
-		}
+                analyze_blow(&num, &wgt, &mul);
 
 		/* Access the strength vs weight */
                 str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / 3);
@@ -4536,9 +4604,6 @@ void calc_bonuses(void)
 
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
-
-		/* Level bonus for warriors (1-3) */
-                if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_UNBELIEVER)) p_ptr->num_blow += (p_ptr->lev) / 15;
 
 		/* Maximal value */
                 if (p_ptr->num_blow > 4) p_ptr->num_blow = 4;
@@ -4578,14 +4643,44 @@ void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 	monk_armour_aux = FALSE;
 
-	/* Extra bonus for warriors... */
-        if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_UNBELIEVER))
+	/*
+	 * Bonuses to-hit and to-dam based on class. Was a series of if()
+	 * statements, but switches are *much* better. -- Gumby
+	 */
+	switch (p_ptr->pclass)
 	{
-		p_ptr->to_h += (p_ptr->lev/5);
-		p_ptr->to_d += (p_ptr->lev/5);
-
-		p_ptr->dis_to_h += (p_ptr->lev/5);
-		p_ptr->dis_to_d += (p_ptr->lev/5);
+                case CLASS_WARRIOR: case CLASS_UNBELIEVER:
+			p_ptr->to_h += (p_ptr->lev/5);
+			p_ptr->to_d += (p_ptr->lev/5);
+			p_ptr->dis_to_h += (p_ptr->lev/5);
+			p_ptr->dis_to_d += (p_ptr->lev/5);
+			break;
+                case CLASS_PALADIN:
+		case CLASS_CHAOS_WARRIOR:
+			p_ptr->to_h += (p_ptr->lev/10);
+			p_ptr->to_d += (p_ptr->lev/10);
+			p_ptr->dis_to_h += (p_ptr->lev/10);
+			p_ptr->dis_to_d += (p_ptr->lev/10);
+			break;
+		/*
+		 * Weaponmasters are fabulous with their preferred weapon
+		 * type and all other weapon types are 'icky'.
+		 */
+		case CLASS_WEAPONMASTER:
+                        if (!is_weaponmaster_weapon())
+			{
+				p_ptr->icky_wield = TRUE;
+			}
+                        else
+			{
+                                p_ptr->to_h += p_ptr->lev / 2;
+                                p_ptr->to_d += p_ptr->lev / 2;
+                                p_ptr->dis_to_h += p_ptr->lev / 2;
+                                p_ptr->dis_to_d += p_ptr->lev / 2;
+			}
+			break;
+		default: /* no bonuses */
+			break;
 	}
 
         /* Parse all the weapons */
@@ -4614,15 +4709,15 @@ void calc_bonuses(void)
 
                 /* Priest weapon penalty for non-blessed edged weapons */
                 if ((((p_ptr->pclass == CLASS_PRIEST)||(p_ptr->pclass == CLASS_PRIOR)) && (!p_ptr->bless_blade) &&
-                    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))) && (o_ptr->k_idx))
+                    ((o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))) && (o_ptr->k_idx))
                 {
                         /* Reduce the real bonuses */
-                        p_ptr->to_h -= 2;
-                        p_ptr->to_d -= 2;
+                        p_ptr->to_h -= 15;
+                        p_ptr->to_d -= 15;
 
                         /* Reduce the mental bonuses */
-                        p_ptr->dis_to_h -= 2;
-                        p_ptr->dis_to_d -= 2;
+                        p_ptr->dis_to_h -= 15;
+                        p_ptr->dis_to_d -= 15;
 
                         /* Icky weapon */
                         p_ptr->icky_wield = TRUE;
@@ -4786,7 +4881,10 @@ void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->icky_wield)
 		{
-			msg_print("You do not feel comfortable with your weapon.");
+			if (p_ptr->pclass == CLASS_WEAPONMASTER)
+				msg_print("You feel uncomfortable without your preferred weapon.");
+			else
+				msg_print("You do not feel comfortable with your weapon.");
 		}
 		else if (inventory[INVEN_WIELD].k_idx)
 		{
@@ -5011,7 +5109,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_MISC))
 	{
 		p_ptr->redraw &= ~(PR_MISC);
-		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+                prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
 		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 	}
 

@@ -320,3 +320,10 @@ wishes you luck.
 skips along happily.
 1
 is surrounded by the purple aura of the RNG. Touch at your peril.
+
+N:861:Dark God, the Mighty Coder of Hell
+2
+says "Hullo".
+emits a low "hmmmm".
+1
+screams "PernAngband rules".

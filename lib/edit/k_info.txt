@@ -459,7 +459,7 @@ F:SHOW_MODS | COULD2H
 
 N:59:& Beaked Axe~
 G:/:s
-I:22:10:0
+I:24:10:0
 W:15:0:180:408
 A:15/1
 P:0:2d6:0:0:0
@@ -523,7 +523,7 @@ F:SHOW_MODS | MUST2H
 
 N:67:& Great Axe~
 G:/:s
-I:22:25:0
+I:24:25:0
 W:40:0:230:500
 A:40/1
 P:0:4d4:0:0:0
@@ -531,7 +531,7 @@ F:SHOW_MODS | MUST2H
 
 N:68:& Battle Axe~
 G:/:s
-I:22:22:0
+I:24:22:0
 W:15:0:170:334
 A:15/1
 P:0:2d8:0:0:0
@@ -539,7 +539,7 @@ F:SHOW_MODS | COULD2H
 
 N:69:& Lochaber Axe~
 G:/:D
-I:22:28:0
+I:24:28:0
 W:45:0:250:750
 A:45/1
 P:0:3d8:0:0:0
@@ -547,7 +547,7 @@ F:SHOW_MODS | COULD2H
 
 N:70:& Broad Axe~
 G:/:s
-I:22:11:0
+I:24:11:0
 W:15:0:160:304
 A:15/1
 P:0:2d6:0:0:0
@@ -1766,7 +1766,6 @@ I:71:62:-2500
 W:90:0:4:100000
 A:90/9
 P:0:1d1:0:0:0
-F:FOUNTAIN
 
 N:239:New Life
 G:!:d
@@ -3743,7 +3742,7 @@ F:SHOW_MODS
 
 N:533:& Hatchet~
 G:/:s
-I:22:1:0
+I:24:1:0
 W:10:0:60:120
 A:10/2
 P:0:1d5:0:0:0
@@ -4047,6 +4046,8 @@ I:71:3:200
 W:70:0:4:10000
 A:70/16
 P:0:1d1:0:0:0
+T:71:2
+F:NORM_ART
 
 N:574:Cold
 G:*:G
@@ -4972,7 +4973,7 @@ W:50:0:4:2
 A:50/1:70/1:90/1
 P:0:1d1:0:0:0
 
-N:697:Anti-Death
+N:697:Undeath
 G:?:G
 I:104:92:0
 W:35:5:2:1000
@@ -4997,12 +4998,15 @@ P:0:1d1:0:0:0
 F:ACTIVATE
 
 # Ring of Precognition
-N:700:Precognition
+N:700:Ring~ of Precognition
 G:=:d
 I:45:51:0
 W:90:0:2:300000
-A:90/1
+A:90/10
+T:45:23
 F:PRECOGNITION
+F:NORM_ART
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Athelas, cures Black Breath
 
@@ -5155,10 +5159,19 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:720:Deincarnation
 G:?:d
 I:70:40:0
-W:20:0:5:160000
-A:20/8
+W:90:0:5:160000
+A:90/140
+T:70:51
+F:NORM_ART
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 721 -- unused XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+N:721:& Dark Sword~
+G:|:D
+I:23:33:0
+W:25:0:70:500
+A:25/1:80/2
+P:0:3d7:0:0:0
+F:SHOW_MODS | ANTIMAGIC_50
 
 N:722:Numenorean for beginners
 G:?:s
@@ -5514,12 +5527,13 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Ring of Wraith Form
-N:770:Wraith Form
+N:770:& Ring~
 G:=:d
 I:45:55:0
 W:110:0:2:300000
 A:110/5
-F:WRAITH
+F:INSTA_ART
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:771:[Earth]
 G:?:R
@@ -5560,12 +5574,15 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Rod
+# Now an artifact
 N:776:Home Summoning
 G:-:d
 I:66:30:75
 W:90:0:15:150000
 A:100/14
 P:0:1d1:0:0:0
+T:66:1
+F:NORM_ART
 
 # Additionnal swords
 N:777:& Shadow Blade~
@@ -5580,15 +5597,15 @@ N:778:& Bluesteel Blade~
 G:|:b
 I:23:31:0
 W:60:1800:50:6000
-A:40/6:60/3:80/2:100/1
-P:0:3d9:4:0:0
+A:60/20
+P:0:1d6:4:0:0
 F:SHOW_MODS | VORPAL
 
 # Amulet
 N:779:the Serpents
 G:":G
 I:40:17:0
-W:25:0:3:900
+W:25:0:3:10000
 A:25/1
 F:RES_POIS | DEX | ACTIVATE
 
@@ -5735,19 +5752,72 @@ N:798:& Golden Rod~ of#
 G:-:y
 I:67:125:0
 W:40:0:15:1250
-A:40/1
+A:40/2
 P:0:1d1:0:0:0
 
 N:799:& Mithril Rod~ of#
 G:-:B
 I:67:160:0
 W:50:0:15:1600
-A:50/1
+A:50/5
 P:0:1d1:0:0:0
 
 N:800:& Adamantite Rod~ of#
 G:-:v
 I:67:200:0
 W:60:0:15:2000
-A:60/1
+A:60/10
 P:0:1d1:0:0:0
+
+# Greater Ration of Health
+N:801:& Greater Ration~ of Health
+G:,:g
+I:80:41:0
+W:90:5:2:60000
+A:90/50
+T:80:40
+F:NORM_ART
+
+# Scroll
+N:802:Mass Resurection
+G:?:d
+I:70:43:0
+W:55:0:5:0
+A:55/1
+T:70:1
+F:NORM_ART
+
+N:803:& Cleaver~
+G:/:s
+I:24:2:0
+W:13:0:110:175
+A:13/1
+P:0:2d4:0:0:0
+F:SHOW_MODS
+
+N:804:& Light War Axe~
+G:/:s
+I:24:8:0
+W:16:0:140:300
+A:16/1
+P:0:2d5:0:0:0
+F:SHOW_MODS
+
+# Slaughter Axe
+
+N:805:& Slaughter Axe~
+G:/:G
+I:24:30:0
+W:70:0:300:6000
+A:70/8
+P:0:5d7:0:0:0
+F:SLAY_ANIMAL | SHOW_MODS
+
+N:806:& Runestone~
+G:?:v
+I:105:255:0
+W:10:5:2:300
+A:10/3:20/2:30/1:60/1
+P:0:1d1:0:0:0
+F:IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | IGNORE_ACID
+

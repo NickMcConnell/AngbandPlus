@@ -189,6 +189,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+                case TV_AXE:
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
@@ -561,7 +562,10 @@ void search(void)
  */
 void carry(int pickup)
 {
-        if(!p_ptr->disembodied) py_pickup_floor(pickup);
+        if(!p_ptr->disembodied)
+        {
+                py_pickup_floor(pickup);
+        }
 }
 
 
@@ -2680,7 +2684,7 @@ bool player_can_enter(byte feature)
         bool only_wall = FALSE;
 
 	/* Player can not walk through "walls" unless in Shadow Form */
-	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE))
+        if ((p_ptr->wraith_form) || (p_ptr->pracem == RMOD_SPECTRE))
 		pass_wall = TRUE;
 	else
 		pass_wall = FALSE;
@@ -2731,7 +2735,11 @@ bool player_can_enter(byte feature)
 #endif
 		case FEAT_TREES:
 			{
-                                if ((p_ptr->ffall)||(p_ptr->prace==RACE_ENT)||(p_ptr->mimic_form==MIMIC_ENT)||(p_ptr->pclass==CLASS_RANGER)||(p_ptr->pclass==CLASS_DRUID))
+                                if ((p_ptr->fly) || (p_ptr->prace == RACE_ENT) ||
+                                    (p_ptr->mimic_form == MIMIC_ENT) ||
+                                    (p_ptr->pclass == CLASS_RANGER) ||
+                                    (p_ptr->prace == RACE_WOOD_ELF) ||
+                                    (p_ptr->pclass == CLASS_DRUID))
 					return (TRUE);
 				else
 					return (FALSE);
@@ -2750,6 +2758,8 @@ bool player_can_enter(byte feature)
                                 else if ((pass_wall || only_wall) && (f_info[feature].flags1 & FF1_CAN_PASS))
 					return (TRUE);
                                 else if (f_info[feature].flags1 & FF1_NO_WALK)
+                                        return (FALSE);
+                                else if ((f_info[feature].flags1 & FF1_WEB) && (!(r_info[p_ptr->body_monster].flags7 & RF7_SPIDER)))
                                         return (FALSE);
 			}
 	}
@@ -2840,7 +2850,7 @@ void move_player_aux(int dir, int do_pickup, int run)
         }
 
 	/* Exit the area */
-        if ((!dun_level) && (!p_ptr->wild_mode) &&
+        if ((!dun_level) && (!p_ptr->wild_mode) && (!is_quest(dun_level)) &&
 		((x == 0) || (x == cur_wid-1) ||
 		 (y == 0) || (y == cur_hgt-1)))
 	{

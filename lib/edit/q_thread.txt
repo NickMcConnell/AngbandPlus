@@ -13,16 +13,15 @@ Q:30:Q:6:0:0:0:50:960:0:6
 ?:[LEQ $QUEST30 2]
 Q:30:T:Hi, greet DragonRider. We need your help, a threadfall has began
 Q:30:T:over our forest and we have not enough DragonRiders to fight it!
-Q:30:T:So you need to go there and fight the threadfall alone. You need
-Q:30:T:to save at least 50% of the forest and beware of the thread that
-Q:30:T:eat the trees and even of your own flame!
-Q:30:T:By the egg of Faranth, you'll win!
+Q:30:T:Please go there and clear the forest of threads. You need
+Q:30:T:to save at least 50% of the forest from the dangers of the threads
+Q:30:T:and even your own flame! By the egg of Faranth, you'll win!
 ?:1
 
 # Description for quest reward
 ?:[EQU $QUEST30 3]
 Q:30:T:Thanks you very much. Some of the Weyrs of Pern have send us
-Q:30:T:reinforcement, so you can continue your main quest.
+Q:30:T:reinforcements, so you can continue your main quest.
 ?:1
 
 # letter:feature:cave_info:monster:object:ego:artifact:trap:special

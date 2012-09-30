@@ -30,6 +30,24 @@ static bool item_tester_hook_scroll_amulet(object_type *o_ptr)
 	return (FALSE);
 }
 
+/* Are we using a mage staff */
+bool is_magestaff()
+{
+        int i;
+
+        i = 0;
+        while (p_ptr->body_parts[i] == INVEN_WIELD)
+        {
+                object_type *o_ptr = &inventory[INVEN_WIELD + i];
+
+                if ((o_ptr->k_idx) && (o_ptr->tval == TV_MSTAFF)) return (TRUE);
+
+                i++;
+        }
+
+        return (FALSE);
+}
+
 /*
  * Allow user to choose a spell/prayer from the given book.
  *
@@ -477,7 +495,7 @@ void do_cmd_study(void)
 	handle_stuff();
 
 	/* Mage -- Learn a selected spell */
-        if (mp_ptr->spell_book != TV_VALARIN_BOOK)
+        if ((mp_ptr->spell_book != TV_VALARIN_BOOK) || (p_ptr->pclass == CLASS_MONK))
 	{
 		/* Ask for a spell, allow cancel */
                 if (!get_spell(&spell, "study", sval, FALSE, o_ptr) && (spell == -1)) return;
@@ -694,21 +712,28 @@ void do_poly_self(void)
 		rp_ptr = &race_info[p_ptr->prace];
 		
 		/* Experience factor */
-		p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+                p_ptr->expfact = rp_ptr->r_exp + rmp_ptr->r_exp + cp_ptr->c_exp;
 		
 		/* Calculate the height/weight for males */
-		if (p_ptr->psex == SEX_MALE)
-		{
-			p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-			p_ptr->wt = randnor(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
-		}
-		
-		/* Calculate the height/weight for females */
-		else if (p_ptr->psex == SEX_FEMALE)
-		{
-			p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-			p_ptr->wt = randnor(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
-		}
+                if (p_ptr->psex == SEX_MALE)
+                {
+                        p_ptr->ht = randnor(rp_ptr->m_b_ht + rmp_ptr->m_b_ht, rp_ptr->m_m_ht + rmp_ptr->m_m_ht);
+                        p_ptr->wt = randnor(rp_ptr->m_b_wt + rmp_ptr->m_b_wt, rp_ptr->m_m_wt + rmp_ptr->m_m_wt);
+                }
+
+                /* Calculate the height/weight for females */
+                else if (p_ptr->psex == SEX_FEMALE)
+                {
+                        p_ptr->ht = randnor(rp_ptr->f_b_ht + rmp_ptr->f_b_ht, rp_ptr->f_m_ht + rmp_ptr->f_m_ht);
+                        p_ptr->wt = randnor(rp_ptr->f_b_wt + rmp_ptr->f_b_wt, rp_ptr->f_m_wt + rmp_ptr->f_m_wt);
+                }
+
+                /* Calculate the height/weight for neuters */
+                else if (p_ptr->psex == SEX_NEUTER)
+                {
+                        p_ptr->ht = randnor((rp_ptr->m_b_ht + rmp_ptr->m_b_ht + rp_ptr->f_b_ht + rmp_ptr->f_b_ht) / 2, (rp_ptr->m_m_ht + rmp_ptr->m_m_ht + rp_ptr->f_m_ht + rmp_ptr->f_m_ht) / 2);
+                        p_ptr->wt = randnor((rp_ptr->m_b_wt + rmp_ptr->m_b_wt + rp_ptr->f_b_wt + rmp_ptr->f_b_wt) / 2, (rp_ptr->m_m_wt + rmp_ptr->m_m_wt + rp_ptr->f_m_wt + rmp_ptr->f_m_wt) / 2);
+                }
 		
 		check_experience();
 		p_ptr->max_plv = p_ptr->lev;
@@ -996,7 +1021,7 @@ void shriek_effect()
                         break;
                 case 4:
                         msg_print("Your shriek is so horrible that you damage your health!");
-                        take_hit(damroll(p_ptr->lev/5,8),"a too vibrating sound");
+                        take_hit(damroll(p_ptr->lev/5,8),"inner hemorrhaging");
                         break;
         }
 }
@@ -1400,7 +1425,7 @@ static void cast_valarin_spell(int spell)
                 case 62: /* earendil's star */
                         fire_ball(GF_LITE, 0, 150 * mto_s2, 8 + to_s2);
                         wiz_lite();
-                        if (((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) && !(p_ptr->resist_lite))
+                        if (((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) && !(p_ptr->resist_lite))
                         {
                                msg_print("The starlight scorches your flesh!");
                                take_hit(50, "starlight");
@@ -1969,7 +1994,7 @@ static void cast_shadow_spell(int spell)
 				p_ptr->window |= (PW_PLAYER);
 				p_ptr->window |= (PW_SPELL);
 			}
-                        msg_print("Your feel your head clearer.");
+                        msg_print("Your feel your head clear.");
                         break;
                 }
                 case 18: /* Shadow Regeneration */
@@ -2276,7 +2301,7 @@ static void cast_shadow_spell(int spell)
                         if (dest > d_info[dungeon_type].maxdepth) dest = d_info[dungeon_type].maxdepth;
 
                         /* Accept request */
-                        msg_format("Atunnel of shadows is open to the level %d.", dest);
+                        msg_format("A tunnel of shadows is open to the level %d.", dest);
 
                         if (autosave_l)
                         {
@@ -2420,9 +2445,16 @@ static void cast_shadow_spell(int spell)
                                 msg_print("The power of the Elven Rings is released! You are now protected from the passing of the Time.");
                                 set_tim_res_time(p_ptr->tim_res_time + 20 + randint(30) + (p_ptr->to_s * 2));
                                 restore_level();
+                                if (p_ptr->black_breath)
+                                {
+                                        msg_print("The hold of the Black Breath on you is broken!");
+                                }
+                                p_ptr->black_breath = FALSE;
+
+                                remove_dg_curse();
                         }
                         else
-                                msg_print("You must wear two of the Three Rings of Power(Narya, Nenya and Vilya) to use this spell.");
+                                msg_print("You must wear the Three Rings of Power(Narya, Nenya and Vilya) to use this spell.");
                         break;
                 case 60: /* Protection from Undeads */
                         if(p_ptr->black_breath)
@@ -2581,7 +2613,7 @@ static void cast_chaos_spell(int spell)
 				damroll(10+((plev-5)/4), 8));
 			break;
         case 10: /* Sonic Boom */
-               msg_print("BOOM! Shake the room!");
+               msg_print("BOOM! The room shakes!");
                    project(0, 2+plev/10, py, px,
                45+plev*mto_s2, GF_SOUND, PROJECT_KILL|PROJECT_ITEM);
                    break;
@@ -3224,7 +3256,7 @@ static void cast_nether_spell(int spell)
                 destroy_area(py, px, 15 + to_s2, TRUE);
         break;
         case 62: /* Summon Greater Undead */
-                msg_format("You magically summon greater undeads.");
+                msg_format("You magically summon greater undead.");
                 summon_specific_friendly(py, px, dun_level, SUMMON_HI_UNDEAD_NO_UNIQUES, TRUE);
         break;
         case 63: /* Mass Genocide */
@@ -3921,19 +3953,19 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number)
 
         /* List the powers */
         if(r_ptr->flags2 & RF2_MULTIPLY) {strcpy(power_desc[num],"Multiply");powers[num++]=90;}
-        if(r_ptr->flags4 & RF4_SHRIEK) {strcpy(power_desc[num],"Agravate monsters");powers[num++]=0;}
+        if(r_ptr->flags4 & RF4_SHRIEK) {strcpy(power_desc[num],"Aggrevate monsters");powers[num++]=0;}
         if(great) if(r_ptr->flags4 & RF4_ROCKET) {strcpy(power_desc[num],"Rocket");powers[num++]=1;}
-        if(r_ptr->flags4 & RF4_ARROW_1) {strcpy(power_desc[num],"Arrow1");powers[num++]=2;}
-        if(r_ptr->flags4 & RF4_ARROW_2) {strcpy(power_desc[num],"Arrow2");powers[num++]=3;}
-        if(great) if(r_ptr->flags4 & RF4_ARROW_3) {strcpy(power_desc[num],"Arrow3");powers[num++]=4;}
-        if(great) if(r_ptr->flags4 & RF4_ARROW_4) {strcpy(power_desc[num],"Arrow4");powers[num++]=5;}
+        if(r_ptr->flags4 & RF4_ARROW_1) {strcpy(power_desc[num],"Light Arrow");powers[num++]=2;}
+        if(r_ptr->flags4 & RF4_ARROW_2) {strcpy(power_desc[num],"Minor Arrow");powers[num++]=3;}
+        if(great) if(r_ptr->flags4 & RF4_ARROW_3) {strcpy(power_desc[num],"Major Arrow");powers[num++]=4;}
+        if(great) if(r_ptr->flags4 & RF4_ARROW_4) {strcpy(power_desc[num],"Grand Arrow");powers[num++]=5;}
         if(great) if(r_ptr->flags4 & RF4_BR_ACID) {strcpy(power_desc[num],"Breathe Acid");powers[num++]=6;}
         if(great) if(r_ptr->flags4 & RF4_BR_ELEC) {strcpy(power_desc[num],"Breathe Lightning");powers[num++]=7;}
         if(r_ptr->flags4 & RF4_BR_FIRE) {strcpy(power_desc[num],"Breathe Fire");powers[num++]=8;}
         if(r_ptr->flags4 & RF4_BR_COLD) {strcpy(power_desc[num],"Breathe Cold");powers[num++]=9;}
         if(great) if(r_ptr->flags4 & RF4_BR_POIS) {strcpy(power_desc[num],"Breathe Poison");powers[num++]=10;}
         if(great) if(r_ptr->flags4 & RF4_BR_NETH) {strcpy(power_desc[num],"Breathe Nether");powers[num++]=11;}
-        if(r_ptr->flags4 & RF4_BR_LITE) {strcpy(power_desc[num],"Breathe Lite");powers[num++]=12;}
+        if(r_ptr->flags4 & RF4_BR_LITE) {strcpy(power_desc[num],"Breathe Light");powers[num++]=12;}
         if(great) if(r_ptr->flags4 & RF4_BR_DARK) {strcpy(power_desc[num],"Breathe Darkness");powers[num++]=13;}
         if(great) if(r_ptr->flags4 & RF4_BR_CONF) {strcpy(power_desc[num],"Breathe Confusion");powers[num++]=14;}
         if(great) if(r_ptr->flags4 & RF4_BR_SOUN) {strcpy(power_desc[num],"Breathe Sound");powers[num++]=15;}
@@ -3991,7 +4023,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number)
         if(r_ptr->flags6 & RF6_DARKNESS) {strcpy(power_desc[num],"Darkness");powers[num++]=69;}
         if(great) if(r_ptr->flags6 & RF6_TRAPS) {strcpy(power_desc[num],"Create Traps");powers[num++]=88;}
 	if(great) if(r_ptr->flags6 & RF6_RAISE_DEAD) {strcpy(power_desc[num],"Raise the Dead");powers[num++]=89;}
-        if(r_ptr->flags6 & RF6_S_BUG) {strcpy(power_desc[num],"Summon Sofware Bugs");powers[num++]=70;}
+        if(r_ptr->flags6 & RF6_S_BUG) {strcpy(power_desc[num],"Summon Software Bugs");powers[num++]=70;}
         if(r_ptr->flags6 & RF6_S_RNG) {strcpy(power_desc[num],"Summon RNG");powers[num++]=71;}
         if(great) if(r_ptr->flags6 & RF6_S_DRAGONRIDER) {strcpy(power_desc[num],"Summon DragonRider");powers[num++]=72;}
         if(r_ptr->flags6 & RF6_S_KIN) {strcpy(power_desc[num],"Summon Kin");powers[num++]=73;}
@@ -4183,17 +4215,17 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number)
                                fire_bolt(GF_ARROW, dir, damroll(1,6));
                         break;
                 case 3: /* Arrow2 */
-                        msg_print("You fire a heavy arrow...");
+                        msg_print("You fire a minor arrow...");
                         if (get_aim_dir(&dir))
                                fire_bolt(GF_ARROW, dir, damroll(3,6));
                         break;
                 case 4: /* Arrow3 */
-                        msg_print("You fire a light missile...");
+                        msg_print("You fire a major arrow...");
                         if (get_aim_dir(&dir))
                                fire_bolt(GF_ARROW, dir, damroll(5,6));
                         break;
                 case 5: /* Arrow4 */
-                        msg_print("You fire a heavy missile...");
+                        msg_print("You fire a grand arrow...");
                         if (get_aim_dir(&dir))
                                fire_bolt(GF_ARROW, dir, damroll(7,6));
                         break;
@@ -4228,12 +4260,12 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number)
                                fire_ball(GF_NETHER, dir, p_ptr->lev * 5, rad);
                         break;
                 case 12: /* br lite */
-                        msg_print("You breathe lite ...");
+                        msg_print("You breathe light ...");
                         if (get_aim_dir(&dir))
                                fire_ball(GF_LITE, dir, p_ptr->lev * 8, rad);
                         break;
                 case 13: /* br dark */
-                        msg_print("You breathe dark ...");
+                        msg_print("You breathe darkness ...");
                         if (get_aim_dir(&dir))
                                fire_ball(GF_DARK, dir, p_ptr->lev * 8, rad);
                         break;
@@ -4466,7 +4498,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number)
                                fire_bolt(GF_OLD_SLOW, dir, damroll(6, 8) + (p_ptr->lev/3));
                         break;
                 case 60: /* hold */
-                        msg_print("You cast a bolt of paralisation ...");
+                        msg_print("You cast a bolt of paralyzation ...");
                         if (get_aim_dir(&dir))
                                fire_bolt(GF_OLD_SLEEP, dir, damroll(5, 8) + (p_ptr->lev/3));
                         break;
@@ -4563,7 +4595,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number)
 				}
                         break;
                 case 73: /* Summon kin */
-                                msg_format("You magically summon some Kins.");
+                                msg_format("You magically summon some of your kin.");
 				summon_kin_type = r_ptr->d_char; /* Big hack */
                                 for (k = 0; k < 6; k++)
 				{
@@ -4648,7 +4680,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number)
 				}
                         break;
                 case 85: /* Summon hiundead */
-                                msg_format("You magically summon greater undeads.");
+                                msg_format("You magically summon greater undead.");
                                 for (k = 0; k < 8; k++)
 				{
                                                 summon_specific_friendly(y, x, rlev, SUMMON_HI_UNDEAD_NO_UNIQUES, TRUE);
@@ -4662,7 +4694,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number)
 				}
                         break;
                 case 87: /* Summon wraith */
-                                msg_format("You magically summon Wraith.");
+                                msg_format("You magically summon a wraith.");
                                 for (k = 0; k < 8; k++)
 				{
                                                 summon_specific_friendly(y, x, rlev, SUMMON_WRAITH, TRUE);
@@ -4753,7 +4785,7 @@ static void cast_symbiotic_spell(int spell)
                                 p_ptr->redraw |= (PR_MH);
                         }
                         else
-                                msg_print("You can't do this in your weaken state.");
+                                msg_print("You can't do this in your weakened state.");
                 }
                 else
                         msg_print("You are not in symbiosis.");
@@ -5466,7 +5498,7 @@ static void cast_druid_spell(int spell)
                                 if(!amt) break;
 
                                 /* Ask for laying type */
-                                if(get_check("Do you want to absord the old mana before laying?"))
+                                if(get_check("Do you want to absorb the old mana before laying?"))
                                         att |= CLASS_MANA_PATH_ERASE;
 
                                 p_ptr->class_extra7 = CLASS_MANA_PATH;
@@ -5591,7 +5623,7 @@ static void cast_druid_spell(int spell)
                                 if(!amt) break;
 
                                 /* Ask for laying type */
-                                if(get_check("Do you want to absord the old mana before laying?"))
+                                if(get_check("Do you want to absorb the old mana before laying?"))
                                         att |= CLASS_MANA_PATH_ERASE;
 
                                 p_ptr->class_extra7 = CLASS_WINDS_MANA;
@@ -5871,6 +5903,13 @@ void do_cmd_cast(void)
 	magic_type	*s_ptr;
 	
 	cptr q, s;
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
 	
 	/* Require spell ability */
 	if (!p_ptr->realm1)
@@ -6017,20 +6056,24 @@ void do_cmd_cast(void)
         {
                 if ((o_ptr->tval == TV_DAEMON_BOOK) && (item == INVEN_WIELD))
                 {
-                        energy_use = 33;
+                        if (is_magestaff()) energy_use = 26;
+                        else energy_use = 33;
                 }
                 else if ((o_ptr->tval == TV_DAEMON_BOOK) && (item != INVEN_WIELD))
                 {
-                        energy_use = 500;
+                        if (is_magestaff()) energy_use = 400;
+                        else energy_use = 500;
                 }
                 else
                 {
-                        energy_use = 100;
+                        if (is_magestaff()) energy_use = 80;
+                        else energy_use = 100;
                 }
         }
         else
         {
-                energy_use = 100;
+                if (is_magestaff()) energy_use = 80;
+                else energy_use = 100;
         }
 
 	/* Sufficient mana */

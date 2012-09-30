@@ -341,7 +341,7 @@ bool closing_flag;		/* Dungeon is closing */
  */
 
 s16b max_panel_rows, max_panel_cols;
-s16b panel_row, panel_col;
+//s16b panel_row, panel_col;
 s16b panel_row_min, panel_row_max;
 s16b panel_col_min, panel_col_max;
 s16b panel_col_prt, panel_row_prt;
@@ -524,7 +524,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Angband",
+        "PernAngband",
 	"Mirror",
 	"Recall",
 	"Choice",
@@ -726,10 +726,11 @@ player_type *p_ptr = &p_body;
 
 /*
  * Pointer to the player tables
- * (sex, race, class, magic)
+ * (sex, race, race mod, class, magic)
  */
 player_sex *sp_ptr;
 player_race *rp_ptr;
+player_race_mod *rmp_ptr;
 player_class *cp_ptr;
 player_magic *mp_ptr;
 
@@ -1162,6 +1163,12 @@ random_spell random_spells[MAX_SPELLS];
 s16b spell_num;
 
 /*
+ * Runecrafter's selfmade spells.
+ */
+rune_spell rune_spells[MAX_RUNES];
+s16b rune_num;
+
+/*
  * Fate.
  */
 fate fates[MAX_FATES];
@@ -1243,3 +1250,13 @@ bool zang_monsters, joke_monsters, pern_monsters, cth_monsters;
  * How will mana staf & weapons of life act
  */
 bool munchkin_multipliers = TRUE;
+
+/*
+ * Center view
+ */
+bool center_player = FALSE;
+
+/*
+ * Ghost option
+ */
+bool astral_option = FALSE;

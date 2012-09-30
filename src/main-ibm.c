@@ -10,7 +10,6 @@
 
 /* Purpose: Visual Display Support for "term.c", for the IBM */
 
-
 /*
  * Original code by "Billy Tanksley (wtanksle@ucsd.edu)"
  * Use "Makefile.ibm" to compile Angband using this file.

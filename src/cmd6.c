@@ -415,19 +415,19 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 	{
 		brdam = ((brpow / 3) > 1600 ? 1600 : (brpow / 3));
 
-      msg_print("Roaring flames engulf you!");
+                msg_print("Roaring flames engulf you!");
 
 		/* Total Immunity */
 		if (!(p_ptr->immune_fire || (brdam <= 0)))
-      {
+                {
 			/* Take damage */
 			fire_dam(brdam, "an explosion");
-         harmful = TRUE;
-      }
+                        harmful = TRUE;
+                }
  		o_ptr->pval = 0;
    }
    else if (r_ptr->flags4 & RF4_BR_FIRE)
-	{
+   {
      	set_oppose_fire(p_ptr->oppose_fire + rand_int(10) + 10);
    }
    if (r_ptr->flags4 & RF4_BR_COLD && brpow > 0)
@@ -763,6 +763,14 @@ void do_cmd_eat_food(void)
         if(o_ptr->tval==TV_FOOD){
 	switch (o_ptr->sval)
 	{
+                case SV_FOOD_GREAT_HEALTH:
+                {
+                        p_ptr->hp_mod += 70;
+                        msg_print("As you eat it you begin to feel your life flow getting stronger.");
+                        ident = TRUE;
+                        p_ptr->update |= (PU_HP);
+                        break;
+                }
 		case SV_FOOD_POISON:
 		{
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
@@ -990,7 +998,7 @@ void do_cmd_eat_food(void)
                                 if(p_ptr->ctp>p_ptr->mtp)p_ptr->ctp=p_ptr->mtp;
                                 p_ptr->redraw |= (PR_TANK);
                                 ident = TRUE;
-                        }else msg_print("You can't eat more firestone you vomit !");
+                        }else msg_print("You can't eat more firestone, you vomit !");
 			break;
 		}
                 case SV_FIRESTONE:
@@ -1105,7 +1113,7 @@ void do_cmd_eat_food(void)
         if(!fval) fval = o_ptr->pval;
 
 	/* Food can feed the player */
-        if ((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE))
+        if ((p_ptr->pracem == RMOD_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
 	{
 		/* Reduced nutritional benefit */
                 (void)set_food(p_ptr->food + (fval / 10));
@@ -1113,9 +1121,14 @@ void do_cmd_eat_food(void)
 		if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
 			msg_print("Your hunger can only be satisfied with fresh blood!");
 	}
-        else if (p_ptr->prace == RACE_SPECTRE)
+        else if ((p_ptr->pracem == RMOD_SPECTRE) || (p_ptr->pracem == RMOD_SKELETON) || (p_ptr->pracem == RMOD_ZOMBIE))
 	{
 		msg_print("The food of mortals is poor sustenance for you.");
+                set_food(p_ptr->food + ((fval) / 20));
+	}
+        else if (p_ptr->prace == RACE_ENT)
+	{
+                msg_print("Food is poor sustenance for you.");
                 set_food(p_ptr->food + ((fval) / 20));
 	}
 	else
@@ -2035,16 +2048,16 @@ static bool quaff_potion(int tval, int sval, int pval)
                         }
                         break;
                 case SV_POTION2_CURE_LIGHT_SANITY:
-                        heal_insanity(damroll(4,8));
+                        if (heal_insanity(damroll(4,8))) ident = TRUE;
                         break;
                 case SV_POTION2_CURE_SERIOUS_SANITY:
-                        heal_insanity(damroll(8,8));
+                        if (heal_insanity(damroll(8,8))) ident = TRUE;
                         break;
                 case SV_POTION2_CURE_CRITICAL_SANITY:
-                        heal_insanity(damroll(12,8));
+                        if (heal_insanity(damroll(12,8))) ident = TRUE;
                         break;
                 case SV_POTION2_CURE_SANITY:
-                        heal_insanity(damroll(10,100));
+                        if (heal_insanity(damroll(10,100))) ident = TRUE;
                         break;
         }
          
@@ -2500,6 +2513,24 @@ void do_cmd_read_scroll(void)
         {
 	switch (o_ptr->sval)
 	{
+                case SV_SCROLL_MASS_RESURECTION:
+                {
+                        int k;
+
+                        ident = TRUE;
+                        msg_print("You feel the souls of the deads coming back from the Halls of Mandos.");
+
+                        for (k = 0; k < max_r_idx; k++)
+                        {
+                                monster_race *r_ptr = &r_info[k];
+
+                                if (r_ptr->flags1 & RF1_UNIQUE)
+                                {
+                                        r_ptr->max_num = 1;
+                                }
+                        }
+                        break;
+                }
                 case SV_SCROLL_SPELL:
                         cast_spell(o_ptr->pval, o_ptr->pval2);
                 break;
@@ -2962,7 +2993,6 @@ void do_cmd_read_scroll(void)
                                 int w = atoi(get_line(fil, path, i + 2));
                                 int h = atoi(get_line(fil, path, i + 3));
 
-                                msg_format("y:%d, x:%d, h:%d, w:%d", y, x, h,w);
                                 reveal_wilderness_around_player(y, x, h, w);
                         }
                 }
@@ -3062,12 +3092,19 @@ void do_cmd_use_staff(void)
 	int			item, ident, chance, k, lev;
 
 	object_type		*o_ptr;
+        u32b f1, f2, f3, f4, esp;
 
 	cptr q, s;
 
 	/* Hack -- let staffs of identify get aborted */
 	bool use_charge = TRUE;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
 
 	/* Restrict choices to wands */
 	item_tester_tval = TV_STAFF;
@@ -3121,6 +3158,15 @@ void do_cmd_use_staff(void)
 
 	/* Hight level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
+
+        /* Extract object flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+
+        /* Is it simple to use ? */
+        if (f4 & TR4_EASY_USE)
+        {
+                chance *= 10;
+        }
 
 	/* Give everyone a (slight) chance */
 	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
@@ -3506,6 +3552,15 @@ void do_cmd_aim_wand(void)
 
 	cptr q, s;
 
+        u32b f1, f2, f3, f4, esp;
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
 
@@ -3562,6 +3617,15 @@ void do_cmd_aim_wand(void)
 
 	/* Hight level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
+
+        /* Extract object flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+
+        /* Is it simple to use ? */
+        if (f4 & TR4_EASY_USE)
+        {
+                chance *= 10;
+        }
 
 	/* Give everyone a (slight) chance */
 	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
@@ -3916,6 +3980,13 @@ void zap_combine_rod_tip(object_type *q_ptr, int tip_item)
         object_kind *k_ptr;
 	cptr q, s;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
 	/* Restrict choices to rods */
         item_tester_hook = item_tester_hook_attachable;
 
@@ -3981,6 +4052,13 @@ void do_cmd_zap_rod(void)
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
 
 	/* Restrict choices to rods */
         item_tester_hook = item_tester_hook_zapable;
@@ -4014,7 +4092,7 @@ void do_cmd_zap_rod(void)
                 }
                 else
                 {
-                        msg_print("You acn't attach from the floor.");
+                        msg_print("You can't a rod tip that's on the floor.");
                         return;
                 }
         }
@@ -4056,6 +4134,12 @@ void do_cmd_zap_rod(void)
 
 	/* Hight level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
+
+        /* Is it simple to use ? */
+        if (f4 & TR4_EASY_USE)
+        {
+                chance *= 10;
+        }
 
 	/* Give everyone a (slight) chance */
 	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
@@ -4399,7 +4483,7 @@ int ring_of_power()
         else if(p == 2)
         {
                 msg_print("The power of the ring destroys the world!");
-                msg_print("The world change!");
+                msg_print("The world changes!");
                 if (autosave_l)
                 {
                     is_autosave = TRUE;
@@ -4498,6 +4582,8 @@ void do_cmd_activate(void)
 
 	object_type     *o_ptr;
 
+        u32b f1, f2, f3, f4, esp;
+
 	cptr q, s;
 
 	/* Prepare the hook */
@@ -4550,6 +4636,15 @@ void do_cmd_activate(void)
 	/* Hight level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
+        /* Extract object flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+
+        /* Is it simple to use ? */
+        if (f4 & TR4_EASY_USE)
+        {
+                chance *= 10;
+        }
+
 	/* Give everyone a (slight) chance */
 	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
 	{
@@ -4569,7 +4664,7 @@ void do_cmd_activate(void)
 
         if ((o_ptr->tval == TV_INSTRUMENT)&&(o_ptr->timeout))
         {
-                msg_print("You desactivate it...");
+                msg_print("You deactivate it...");
                 p_ptr->music = 255;
 		return;
         }
@@ -5399,7 +5494,7 @@ void do_cmd_activate(void)
                                             SUMMON_DRAGONRIDER, (bool)(plev == 50 ? TRUE : FALSE)))
                                         {
                                                 msg_print("A DragonRider comes from the BETWEEN !");
-                                                msg_print("'I will help you in your hard task.'");
+                                                msg_print("'I will help you in your difficult task.'");
                                         }
                                 }
                                 o_ptr->timeout = 1000;
@@ -5569,6 +5664,32 @@ void do_cmd_activate(void)
                                 o_ptr->timeout = 100;
                                 break;
                         }
+			case ART_NATUREBANE:
+			{
+				msg_print("Your axe glows blood red...");
+                                dispel_monsters(300);
+				o_ptr->timeout = 200 + randint(200);
+				break;
+			}
+			case ART_NIGHT:
+			{
+				msg_print("Your axe emits a black aura...");
+				if (!get_aim_dir(&dir)) return;
+                                for (i = 0; i < 3; i++)
+				{
+					if (drain_life(dir, 100))
+						hp_player(100);
+				}
+				o_ptr->timeout = 250;
+				break;
+			}
+                        case ART_ORCHAST:
+			{
+				msg_print("Your weapon glows brightly...");
+				(void)detect_monsters_xxx(RF3_ORC);
+				o_ptr->timeout = 10;
+				break;
+			}
 		}
 
 		/* Window stuff */
@@ -5601,7 +5722,7 @@ void do_cmd_activate(void)
                 }
                 else
                 {
-                        msg_format("Your instrument emits loud sound...");
+                        msg_format("Your instrument emits a loud sound...");
                         aggravate_monsters(1);
                         o_ptr->timeout = 100;
                 }
@@ -5881,8 +6002,7 @@ void do_cmd_activate(void)
                                         /* It explodes, doesnt it ? */
                                         take_hit(damroll(2, 10), "an exploding ring");
 
-                                        o_ptr->k_idx = 0;
-                                        o_ptr->number = 0;
+                                        inven_item_increase(item, -255);
                                         inven_item_optimize(item);
                                 }
 				break;

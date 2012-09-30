@@ -401,7 +401,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust > 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (cur_store_num == 6) price = price / 2;
+                if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM) price = price / 2;
 	}
 
 	/* Shop is selling */
@@ -414,7 +414,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust < 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (cur_store_num == 6) price = price * 2;
+                if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM) price = price * 2;
 	}
 
 	/* Compute the final price (with rounding) */
@@ -504,6 +504,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_HELM:
 		case TV_CROWN:
 		case TV_SWORD:
+                case TV_AXE:
 		case TV_POLEARM:
 		case TV_HAFTED:
 		case TV_DIGGING:
@@ -792,6 +793,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_HAFTED:
 				case TV_POLEARM:
 				case TV_SWORD:
+                                case TV_AXE:
                                 case TV_MSTAFF:
 				break;
 				default:
@@ -815,6 +817,7 @@ static bool store_will_buy(object_type *o_ptr)
 				break;
 				case TV_POLEARM:
 				case TV_SWORD:
+                                case TV_AXE:
 				if (is_blessed(o_ptr))
 					break;
 				default:
@@ -1254,6 +1257,43 @@ static void store_delete(void)
 	store_item_optimize(what);
 }
 
+/* Analyze store flags and return a level */
+int return_level()
+{
+        store_info_type *sti_ptr = &st_info[st_ptr->st_idx];
+        int level;
+
+        if (sti_ptr->flags1 & SF1_RANDOM) level = 0;
+        else level = rand_range(1, STORE_OBJ_LEVEL);
+
+        if (sti_ptr->flags1 & SF1_DEPEND_LEVEL) level += dun_level;
+
+        if (sti_ptr->flags1 & SF1_SHALLOW_LEVEL) level += 5 + rand_int(5);
+        if (sti_ptr->flags1 & SF1_MEDIUM_LEVEL) level += 25 + rand_int(25);
+        if (sti_ptr->flags1 & SF1_DEEP_LEVEL) level += 45 + rand_int(45);
+
+        if (sti_ptr->flags1 & SF1_ALL_ITEM) level += p_ptr->lev;
+
+        return (level);
+}
+
+/* Is it an ok object ? */
+static int store_tval = 0, store_level = 0;
+
+/*
+ * Hack -- determine if a template is "good"
+ */
+static bool kind_is_storeok(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+        if (!kind_is_legal(k_idx)) return FALSE;
+
+        if (k_ptr->tval != store_tval) return (FALSE);
+        if (k_ptr->level < (store_level / 2)) return (FALSE);
+
+        return (TRUE);
+}
 
 /*
  * Creates a random item and gives it to a store
@@ -1281,11 +1321,11 @@ static void store_create(void)
 	/* Hack -- consider up to four items */
 	for (tries = 0; tries < 4; tries++)
 	{
-		/* Black Market */
-                if (cur_store_num == STORE_BLACK)
+                /* Black Market */
+                if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM)
 		{
 			/* Pick a level for object/magic */
-                        level = 5 + p_ptr->lev + rand_int(30);
+                        level = return_level();
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1306,10 +1346,42 @@ static void store_create(void)
                         if (!magik(chance)) continue;
 
 			/* Hack -- fake level for apply_magic() */
-                        if(cur_store_num == STORE_PET)
-                                level = 5 + p_ptr->lev + rand_int(30);
-                        else
-                                level = rand_range(1, STORE_OBJ_LEVEL);
+                        level = return_level();
+
+                        /* Hack -- i > 10000 means it's a tval and all svals are allowed */
+                        if (i > 10000)
+                        {
+                                obj_theme theme;
+
+                                /* No restrictions */
+                                theme.treasure = 100;
+                                theme.combat = 100;
+                                theme.magic = 100;
+                                theme.tools = 100;
+                                init_match_theme(theme);
+
+                                /* Activate restriction */
+                                get_obj_num_hook = kind_is_storeok;
+                                store_tval = i - 10000;
+
+                                /* Do we forbid too shallow items ? */
+                                if (st_info[st_ptr->st_idx].flags1 & SF1_FORCE_LEVEL) store_level = level;
+                                else store_level = 0;
+
+                                /* Prepare allocation table */
+                                get_obj_num_prep();
+
+                                /* Get it ! */
+                                i = get_obj_num(level);
+
+                                /* Clear restriction */
+                                get_obj_num_hook = NULL;
+
+                                /* Prepare allocation table */
+                                get_obj_num_prep();
+                        }
+
+                        if (!i) continue;
 		}
 
 
@@ -1340,7 +1412,7 @@ static void store_create(void)
 		if (q_ptr->tval == TV_CHEST) continue;
 
 		/* Prune the black market */
-		if (cur_store_num == 6)
+                if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM)
 		{
 			/* Hack -- No "crappy" items */
 			if (black_market_crap(q_ptr)) continue;
@@ -3866,7 +3938,7 @@ void store_maint(int town_num, int store_num)
 	st_ptr->insult_cur = 0;
 
 	/* Mega-Hack -- prune the black market */
-	if (store_num == STORE_BLACK)
+        if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM)
 	{
 		/* Destroy crappy black market items */
 		for (j = st_ptr->stock_num - 1; j >= 0; j--)

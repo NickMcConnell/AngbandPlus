@@ -100,7 +100,11 @@ N:15:fountain
 G:_:D
 F:FLOOR | NOTICE | REMEMBER
 
-# 0x10 --> 0x1F -- UNUSED
+N:16:web
+G:+:y
+F:CAN_PASS | NOTICE | WEB | NOTICE | TUNNELABLE
+
+# 0x11 --> 0x1F -- UNUSED
 
 # 0x2x --> locked door (power 0)
 
@@ -503,7 +507,9 @@ N:101:high mountain chain
 G:^:W
 F:WALL | NO_WALK | NO_VISION | PERMANENT
 
-# XXX 102 -> 159 UNUSED XXX
+N:102:nether mist
+G:.:v
+F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
 
 N:160:Between gate
 G:+:v

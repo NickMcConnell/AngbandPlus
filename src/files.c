@@ -643,6 +643,12 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 				v = rp_ptr->title;
 			}
 
+			/* Race */
+                        else if (streq(b+1, "RACEMOD"))
+			{
+                                v = rmp_ptr->title;
+			}
+
 			/* Class */
 			else if (streq(b+1, "CLASS"))
 			{
@@ -1273,7 +1279,16 @@ static void display_player_various(void)
 
 	/* Shooting Skill (with current bow and normal missile) */
 	o_ptr = &inventory[INVEN_BOW];
-	tmp = p_ptr->to_h + o_ptr->to_h;
+
+	/* Fix the display for Weaponmasters & Priests -- Gumby */
+	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+            (inventory[INVEN_WIELD].tval == p_ptr->class_extra1))
+                tmp = (p_ptr->to_h - (p_ptr->lev / 2)) + o_ptr->to_h;
+	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
+		tmp = p_ptr->to_h + o_ptr->to_h + 15;
+	else
+		tmp = p_ptr->to_h + o_ptr->to_h;
+
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
 
@@ -1440,6 +1455,9 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
 		if (p_ptr->lev > 39)
 			(*f2) |= (TR2_FREE_ACT);
 		break;
+        case CLASS_WEAPONMASTER:
+                if (p_ptr->lev > 29) (*f2) |= (TR2_RES_FEAR);
+                break;
 	default:
 		; /* Do nothing */
 	}
@@ -1449,6 +1467,10 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
         {
         switch (p_ptr->prace)
         {
+        case RACE_WOOD_ELF:
+                (*f2) |= (TR2_RES_LITE);
+                (*f3) |= (TR3_XTRA_MIGHT);
+                break;
         case RACE_ELF:
                 (*f2) |= (TR2_RES_LITE);
                 break;
@@ -1490,9 +1512,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
 		(*f2) |= (TR2_RES_LITE);
 		(*f3) |= (TR3_SEE_INVIS);
 		break;
-	case RACE_BARBARIAN:
-		(*f2) |= (TR2_RES_FEAR);
-		break;
 	case RACE_HALF_OGRE:
 		(*f2) |= (TR2_SUST_STR);
 		(*f2) |= (TR2_RES_DARK);
@@ -1513,25 +1532,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
 		if (p_ptr->lev > 19)
 			(*f3) |= (TR3_SEE_INVIS);
 		break;
-	case RACE_VAMPIRE:
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_DARK);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f3) |= (TR3_LITE);
-		(*f2) |= (TR2_RES_POIS);
-		(*f2) |= (TR2_RES_COLD);
-		break;
-	case RACE_SPECTRE:
-		(*f2) |= (TR2_RES_COLD);
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 34)
-                        (*esp) |= (ESP_UNIQUE | ESP_GOOD | ESP_EVIL);
-		break;
-
         case RACE_DRAGONRIDER:
             (*f3) |= TR3_FEATHER;
         if (p_ptr->lev > 3)
@@ -1585,6 +1585,48 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
 
 	default:
 		; /* Do nothing */
+	}
+        switch (p_ptr->pracem)
+        {
+        case RMOD_BARBARIAN:
+		(*f2) |= (TR2_RES_FEAR);
+		break;
+        case RMOD_VAMPIRE:
+		(*f2) |= (TR2_HOLD_LIFE);
+		(*f2) |= (TR2_RES_DARK);
+		(*f2) |= (TR2_RES_NETHER);
+		(*f3) |= (TR3_LITE);
+		(*f2) |= (TR2_RES_POIS);
+		(*f2) |= (TR2_RES_COLD);
+		break;
+        case RMOD_SPECTRE:
+		(*f2) |= (TR2_RES_COLD);
+		(*f3) |= (TR3_SEE_INVIS);
+		(*f2) |= (TR2_HOLD_LIFE);
+		(*f2) |= (TR2_RES_NETHER);
+                (*f4) |= (TR4_IM_NETHER);
+		(*f2) |= (TR2_RES_POIS);
+		(*f3) |= (TR3_SLOW_DIGEST);
+		if (p_ptr->lev > 34)
+                        (*esp) |= (ESP_UNIQUE | ESP_GOOD | ESP_EVIL);
+		break;
+        case RMOD_SKELETON:
+		(*f3) |= (TR3_SEE_INVIS);
+		(*f2) |= (TR2_RES_SHARDS);
+		(*f2) |= (TR2_HOLD_LIFE);
+		(*f2) |= (TR2_RES_POIS);
+		if (p_ptr->lev > 9)
+			(*f2) |= (TR2_RES_COLD);
+		break;
+        case RMOD_ZOMBIE:
+		(*f3) |= (TR3_SEE_INVIS);
+		(*f2) |= (TR2_HOLD_LIFE);
+		(*f2) |= (TR2_RES_NETHER);
+		(*f2) |= (TR2_RES_POIS);
+		(*f3) |= (TR3_SLOW_DIGEST);
+		if (p_ptr->lev > 4)
+			(*f2) |= (TR2_RES_COLD);
+		break;
 	}
         }
         else if(p_ptr->mimic_form)
@@ -1898,7 +1940,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
 		if (p_ptr->muta3 & MUT3_ESP)
 		{
                         /* Based on level */
-                        (*esp) |= 1 << (p_ptr->lev * 32 / 50);
+                        (*esp) |= (((1 << (p_ptr->lev * 32 / 50)) - 1) << 1) + 1;
 		}
 		
 		if (p_ptr->muta3 & MUT3_MOTION)
@@ -1940,6 +1982,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
                                         (*f2) |= TR2_RES_POIS;
                                 if(good > 2)
                                         (*f2) |= TR2_RES_SOUND;
+                                break;
                         case GOD_AULE:
                                 (*f3) |= TR3_FEATHER;
                                 (*f2) |= TR2_FREE_ACT;
@@ -1947,6 +1990,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
                                         (*f3) |= TR3_REGEN;
                                 if(good > 2)
                                         (*f2) |= TR2_RES_SHARDS;
+                                break;
                         case GOD_MELKOR:
                                 (*f3) |= TR3_AGGRAVATE;
                                 (*f2) |= TR2_RES_DARK;
@@ -1956,7 +2000,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
                                 if(good > 1)
                                 {
                                         (*f3) |= TR3_SEE_INVIS;
-                                        (*esp) |= ESP_ORC | ESP_TROLL | ESP_GOOD | ESP_UNDEAD | ESP_DEMON | ESP_EVIL;
+                                        (*esp) |= ESP_SPIDER | ESP_ORC | ESP_TROLL | ESP_GOOD | ESP_UNDEAD | ESP_DEMON | ESP_EVIL;
                                 }
                                 if(good > 2)
                                 {
@@ -1970,12 +2014,14 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
                                         (*f2) |= TR2_RES_DARK;
                                 if(good > 2)
                                         (*f2) |= TR2_HOLD_LIFE;
+                                break;
                         case GOD_ARIEN:
                                 (*f3) |= TR3_LITE;
                                 if(good > 1)
                                         (*f2) |= TR2_RES_LITE;
                                 if(good > 2)
                                         (*f3) |= TR3_REGEN;
+                                break;
                         case GOD_TULKAS:
                                 if(good > 2)
                                 {
@@ -1983,10 +2029,12 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
                                         (*f2) |= TR2_RES_BLIND;
                                         (*f2) |= TR2_RES_CONF;
                                 }
+                                break;
                         case GOD_MANWE:
                                 (*f2) |= TR2_SUST_DEX;
                                 (*f2) |= TR2_RES_SOUND;
                                 (*f2) |= TR2_FREE_ACT;
+                                break;
                         case GOD_VARDA:
                                 (*f2) |= TR2_SUST_INT;
                                 (*f2) |= TR2_SUST_WIS;
@@ -1997,15 +2045,18 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
                                         (*f2) |= TR2_RES_CONF;
                                         (*f2) |= TR2_RES_FEAR;
                                 }
+                                break;
                         case GOD_ERU:
                                 (*f3) |= TR3_REGEN;
                                 (*f3) |= TR3_LITE;
+                                break;
                         case GOD_RNG:
                                 (*f3) |= TR3_SLOW_DIGEST;
                                 if(good > 1)
                                         (*f2) |= TR2_RES_POIS;
                                 if(good > 2)
                                         (*f2) |= TR2_RES_SOUND;
+                                break;
                 }
         }
 
@@ -2191,12 +2242,12 @@ static void display_player_misc_info(void)
 	char	buf[80];
 
 	/* Display basics */
-	put_str("Name      :", 2, 1);
-	put_str("Sex       :", 3, 1);
-	put_str("Race      :", 4, 1);
-	put_str("Class     :", 5, 1);
+        put_str("Name  :", 2, 1);
+        put_str("Sex   :", 3, 1);
+        put_str("Race  :", 4, 1);
+        put_str("Class :", 5, 1);
 
-	c_put_str(TERM_L_BLUE, player_name, 2, 13);
+        c_put_str(TERM_L_BLUE, player_name, 2, 9);
 	if (p_ptr->body_monster != 0)
 	{
 		monster_race *r_ptr = &r_info[p_ptr->body_monster];
@@ -2207,13 +2258,14 @@ static void display_player_misc_info(void)
 		else if ((r_ptr->flags1 & RF1_FEMALE) != 0)
 			strcpy(tmp, "Female");
 		else
-			strcpy(tmp, "Neutral");
-		c_put_str(TERM_L_BLUE, tmp, 3, 13);
+			strcpy(tmp, "Neuter");
+                c_put_str(TERM_L_BLUE, tmp, 3, );
 	}
 	else
-                c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 13);
-	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 13);
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 13);
+                c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 9);
+        sprintf(buf, "%s %s", rp_ptr->title, rmp_ptr->title);
+        c_put_str(TERM_L_BLUE, buf, 4, 9);
+        c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 9);
 
 	/* Display extras */
 	put_str("Level     :", 6, 1);
@@ -2289,7 +2341,7 @@ static void display_player_stat_info(void)
 		/* Deduct class and race bonuses if in maximize */
 		if (p_ptr->maximize)
 		{
-			e_adj -= rp_ptr->r_adj[i];
+                        e_adj -= (rp_ptr->r_adj[i] + rmp_ptr->r_adj[i]);
 			e_adj -= cp_ptr->c_adj[i];
 		}
 
@@ -2302,7 +2354,7 @@ static void display_player_stat_info(void)
 		c_put_str(TERM_BLUE, buf, row+i, stat_col+5);
       
 		/* Race, class, and equipment modifiers */
-		(void) sprintf(buf, "%3d", (int) rp_ptr->r_adj[i]);
+                (void) sprintf(buf, "%3d", (int) rp_ptr->r_adj[i] + rmp_ptr->r_adj[i]);
 		c_put_str(TERM_L_BLUE, buf, row+i, stat_col+12);
 		(void) sprintf(buf, "%3d", (int) cp_ptr->c_adj[i]);
 		c_put_str(TERM_L_BLUE, buf, row+i, stat_col+16);
@@ -2625,7 +2677,7 @@ static cptr object_flag_names[192] =
         NULL,
         NULL,
         NULL,
-        NULL,
+        "Imm Neth",
         NULL,
         NULL,
         NULL,
@@ -2913,17 +2965,19 @@ void display_player(int mode)
                 monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
 		/* Name, Sex, Race, Class */
-		put_str("Name        :", 2, 1);
-		put_str("Sex         :", 3, 1);
-		put_str("Race        :", 4, 1);
-		put_str("Class       :", 5, 1);
-                put_str("Body        :", 6, 1);
+                put_str("Name  :", 2, 1);
+                put_str("Sex   :", 3, 1);
+                put_str("Race  :", 4, 1);
+                put_str("Class :", 5, 1);
+                put_str("Body  :", 6, 1);
                 if (p_ptr->realm1 || p_ptr->realm2)
-                        put_str("Magic       :", 7, 1);
+                        put_str("Magic :", 7, 1);
                 if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-                        put_str("Patron      :", 8, 1);
+                        put_str("Patron:", 8, 1);
+		if (p_ptr->pclass == CLASS_WEAPONMASTER)
+                        put_str("Specialty   :", 7, 1);
 
-		c_put_str(TERM_L_BLUE, player_name, 2, 15);
+                c_put_str(TERM_L_BLUE, player_name, 2, 9);
 		if (p_ptr->body_monster != 0)
 		{
 			monster_race *r_ptr = &r_info[p_ptr->body_monster];
@@ -2934,20 +2988,33 @@ void display_player(int mode)
 			else if ((r_ptr->flags1 & RF1_FEMALE) != 0)
 				strcpy(tmp, "Female");
 			else
-				strcpy(tmp, "Neutral");
-			c_put_str(TERM_L_BLUE, tmp, 3, 15);
+				strcpy(tmp, "Neuter");
+                        c_put_str(TERM_L_BLUE, tmp, 3, 9);
 		}
 		else
-                        c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 15);
-		c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 15);
-		c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
-                c_put_str(TERM_L_BLUE, r_name + r_ptr->name, 6, 15);
-                if (p_ptr->realm1)
-                        c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1],7,15);
+                        c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 9);
+                sprintf(buf, "%s %s", rp_ptr->title, rmp_ptr->title);
+                c_put_str(TERM_L_BLUE, buf, 4, 9);
+                c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 9);
+                c_put_str(TERM_L_BLUE, r_name + r_ptr->name, 6, 9);
+
+		if (p_ptr->pclass == CLASS_WEAPONMASTER)
+		{
+                        if (p_ptr->class_extra1 == TV_HAFTED)
+                                c_put_str(TERM_L_BLUE, "Blunt", 7, 15);
+                        else if (p_ptr->class_extra1 == TV_POLEARM)
+                                c_put_str(TERM_L_BLUE, "Polearms", 7, 15);
+                        else if (p_ptr->class_extra1 == TV_AXE)
+                                c_put_str(TERM_L_BLUE, "Axes", 7, 15);
+                        else if (p_ptr->class_extra1 == TV_SWORD)
+                                c_put_str(TERM_L_BLUE, "Swords", 7, 15);
+		}
+                else if (p_ptr->realm1)
+                        c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1], 7, 9);
                 if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-                        c_put_str(TERM_L_BLUE, chaos_patrons[p_ptr->chaos_patron], 8, 15);
+                        c_put_str(TERM_L_BLUE, chaos_patrons[p_ptr->chaos_patron], 8, 9);
                 else if (p_ptr->realm2)
-                        c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2],8,15);
+                        c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2], 8, 9);
 
 		/* Age, Height, Weight, Social */
 		prt_num("Age          ", (int)p_ptr->age, 2, 32, TERM_L_BLUE);
@@ -4051,13 +4118,13 @@ void get_name(void)
 	while (1)
 	{
 		/* Go to the "name" field */
-		move_cursor(2, 15);
+                move_cursor(2, 9);
 
 		/* Save the player name */
 		strcpy(tmp, player_name);
 
 		/* Get an input, ignore "Escape" */
-		if (askfor_aux(tmp, 15)) strcpy(player_name, tmp);
+                if (askfor_aux(tmp, 9)) strcpy(player_name, tmp);
 
 		/* Process the player name */
 		process_player_name(FALSE);
@@ -4070,7 +4137,7 @@ void get_name(void)
 	sprintf(tmp, "%-15.15s", player_name);
 
 	/* Re-Draw the name (in light blue) */
-	c_put_str(TERM_L_BLUE, tmp, 2, 15);
+        c_put_str(TERM_L_BLUE, tmp, 2, 9);
 
 	/* Erase the prompt, etc */
 	clear_from(22);
@@ -4132,6 +4199,8 @@ void do_cmd_suicide(void)
  */
 void do_cmd_save_game(void)
 {
+        panic_save = 0;  /* Fixes an apparently long-lived bug */
+
         /* Save the current level if in a persistent level */
         save_dungeon();
 
@@ -4879,9 +4948,9 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 			for (aged = the_score.turns; isspace(*aged); aged++) /* loop */;
 
 			/* Dump some info */
-			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
+                        sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
 			        place, the_score.pts, the_score.who,
-			        race_info[pr].title, class_info[pc].title,
+                                race_info[pr].title, class_info[pc].title,
 			        clev);
 
 			/* Append a "maximum level" */

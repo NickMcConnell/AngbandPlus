@@ -1,6 +1,6 @@
 
             *********************************************************
-            ** PernAngband 4.1.5  **  The Troubles of Middle Earth **
+            ** PernAngband 4.2.2  **  The Troubles of Middle Earth **
             *********************************************************
 
                "One Ring to rule them all, One Ring to find them

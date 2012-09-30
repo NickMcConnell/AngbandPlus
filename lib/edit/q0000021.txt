@@ -15,7 +15,7 @@ Q:21:T:It has long been whispered that Maeglin has been
 Q:21:T:practicing black arts. Now a heavy darkness lies 
 Q:21:T:over his house to the east of the city. We fear 
 Q:21:T:that great evils have already come forth. Banish 
-Q:21:T:whatever foul creatures that now inhabit the 
+Q:21:T:whatever foul creatures now inhabit the 
 Q:21:T:house, and put an end to this rebellion.
 
 # Description for quest reward

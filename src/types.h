@@ -209,6 +209,10 @@ struct object_kind
         byte squeltch;                  /* Should we destroy it ? */
 
         u32b esp;                       /* ESP flags */
+
+        byte btval;                     /* Become Object type */
+        byte bsval;                     /* Become Object sub type */
+        bool artifact;                  /* Is it a normal artifact(already generated) */
 };
 
 
@@ -635,7 +639,7 @@ struct object_type
         s32b pval;                      /* Item extra-parameter */
         s16b pval2;                     /* Item extra-parameter for some special
                                            items*/
-        s16b pval3;                     /* Item extra-parameter for some special
+        s32b pval3;                     /* Item extra-parameter for some special
                                            items*/
 
 	byte discount;		/* Discount (if any) */
@@ -743,7 +747,9 @@ struct monster_type
 
 #endif
 
-        bool imprinted;                  /* Is the monster imprinted(if he can)? */
+        bool imprinted;                 /* Is the monster imprinted(if he can)? */
+
+        s16b possessor;                 /* Is it under the control of a possessor ? */
 };
 
 
@@ -904,6 +910,8 @@ struct store_info_type
 
         char chr;                       /* Char of the building */
         byte attr;                      /* Attr of the building */
+
+        s32b flags1;                    /* Flags */
 };
 
 /*
@@ -1018,6 +1026,48 @@ struct player_race
 /*    byte choice_xtra;   */
 };
 
+typedef struct player_race_mod player_race_mod;
+
+struct player_race_mod
+{
+        cptr title;                     /* Type of race mod */
+        bool place;                     /* TRUE = race race modifier, FALSE = Race modifier race */
+
+        s16b r_adj[6];                  /* (+) Racial stat bonuses */
+
+        s16b r_dis;                     /* (+) disarming */
+        s16b r_dev;                     /* (+) magic devices */
+        s16b r_sav;                     /* (+) saving throw */
+        s16b r_stl;                     /* (+) stealth */
+        s16b r_srh;                     /* (+) search ability */
+        s16b r_fos;                     /* (+) search frequency */
+        s16b r_thn;                     /* (+) combat (normal) */
+        s16b r_thb;                     /* (+) combat (shooting) */
+
+        char r_mhp;                     /* (+) Race mod hit-dice modifier */
+        s16b r_exp;                     /* (+) Race mod experience factor */
+
+        char b_age;                     /* (+) base age */
+        char m_age;                     /* (+) mod age */
+
+        char m_b_ht;            /* (+) base height (males) */
+        char m_m_ht;            /* (+) mod height (males) */
+        char m_b_wt;            /* (+) base weight (males) */
+        char m_m_wt;            /* (+) mod weight (males) */
+
+        char f_b_ht;            /* (+) base height (females) */
+        char f_m_ht;            /* (+) mod height (females)   */
+        char f_b_wt;            /* (+) base weight (females) */
+        char f_m_wt;            /* (+) mod weight (females) */
+
+        char infra;             /* (+) Infra-vision range */
+
+        u32b choice;            /* Legal race choices */
+
+        u32b pclass;            /* Classes allowed */
+        u32b mclass;            /* Classes restricted */
+};
+
 
 /*
  * Player class info
@@ -1078,21 +1128,22 @@ struct player_type
 	s16b oldpy;		/* Previous player location -KMW- */
 	s16b oldpx;		/* Previous player location -KMW- */
 
-	byte psex;			/* Sex index */
-	byte prace;			/* Race index */
+        byte psex;              /* Sex index */
+        byte prace;             /* Race index */
+        byte pracem;            /* Race Mod index */
 	byte pclass;		/* Class index */
-        u16b realm1;        /* First magic realm */
-        u16b realm2;        /* Second magic realm */
+        u16b realm1;            /* First magic realm */
+        u16b realm2;            /* Second magic realm */
         byte mimic_form;        /* Actualy transformation */
-	byte oops;			/* Unused */
+        byte oops;              /* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
-        u16b expfact;       /* Experience factor */                            
+        u16b expfact;           /* Experience factor */                            
 
 	byte maximize;		/* Maximize stats */
 	byte preserve;		/* Preserve artifacts */
         byte special;           /* Special levels */
-        byte allow_one_death;          /* Blood of live */
+        byte allow_one_death;   /* Blood of life */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -1122,7 +1173,8 @@ struct player_type
 
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
-	u16b chp_frac;		/* Cur hit frac (times 2^16) */
+        u16b chp_frac;                  /* Cur hit frac (times 2^16) */
+        s16b hp_mod;                    /* A modificator(permanent) */
 
 	s16b msp;			/* Max mana pts */
 	s16b csp;			/* Cur mana pts */
@@ -1261,6 +1313,7 @@ struct player_type
 	bool immune_elec;	/* Immunity to lightning */
 	bool immune_fire;	/* Immunity to fire */
 	bool immune_cold;	/* Immunity to cold */
+        bool immune_neth;       /* Immunity to nether */
 
 	bool resist_acid;	/* Resist acid */
 	bool resist_elec;	/* Resist lightning */
@@ -1287,12 +1340,12 @@ struct player_type
 /*        bool sensible_elec;*/   /* Lightning does more damage on the player */
 /*        bool sensible_acid;*/   /* Acid does more damage on the player */
 
-    bool reflect;       /* Reflect 'bolt' attacks */
-    bool sh_fire;       /* Fiery 'immolation' effect */
-    bool sh_elec;       /* Electric 'immolation' effect */
+        bool reflect;       /* Reflect 'bolt' attacks */
+        bool sh_fire;       /* Fiery 'immolation' effect */
+        bool sh_elec;       /* Electric 'immolation' effect */
 
-    bool anti_magic;    /* Anti-magic */
-    bool anti_tele;     /* Prevent teleportation */
+        bool anti_magic;    /* Anti-magic */
+        bool anti_tele;     /* Prevent teleportation */
 
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */
@@ -1317,7 +1370,7 @@ struct player_type
         u32b telepathy;         /* Telepathy */
 	bool slow_digest;	/* Slower digestion */
 	bool bless_blade;	/* Blessed blade */
-	bool xtra_might;	/* Extra might bow */
+        byte xtra_might;        /* Extra might bow */
 	bool impact;		/* Earthquake blows */
 
         s16b invis;             /* Invisibility */
@@ -1336,7 +1389,8 @@ struct player_type
 
 	s16b ac;			/* Base ac */
 
-        byte antisummon;        /* Radius of the anti summoning field */
+        byte antimagic;         /* Power of the anti magic field */
+        byte antimagic_dis;     /* Radius of the anti magic field */
 
 	s16b see_infra;		/* Infravision range */
 
@@ -1399,6 +1453,9 @@ struct player_type
         u16b body_monster;        /* In which body is the player */
         bool disembodied;         /* Is the player in a body ? */
         byte body_parts[INVEN_TOTAL - INVEN_WIELD]; /* Which body parts does he have ? */
+
+        /* Astral */
+        bool astral;              /* We started at the bottom ? */
 
 	/*** Temporary fields ***/
 
@@ -1616,9 +1673,11 @@ struct move_info_type {
 
 /* A structure for the != dungeon types */
 typedef struct dungeon_info_type dungeon_info_type;
-struct dungeon_info_type {
+struct dungeon_info_type
+{
         u32b name;                      /* Name */
         u32b text;                      /* Description */
+
         s16b floor1;                    /* Floor tile 1 */
         byte floor_percent1;            /* Chance of type 1 */
         s16b floor2;                    /* Floor tile 2 */
@@ -1633,8 +1692,10 @@ struct dungeon_info_type {
         byte fill_percent2;             /* Chance of type 2 */
         s16b fill_type3;                /* Cave tile 3 */
         byte fill_percent3;             /* Chance of type 3 */
+
         s16b mindepth;                  /* Minimal depth */
         s16b maxdepth;                  /* Maximal depth */
+
         bool principal;                 /* If it's a part of the main dungeon */
         byte next;                      /* The next part of the main dungeon */
         byte min_plev;                  /* Minimal plev needed to enter -- it's an anti-cheating mesure */
@@ -1664,13 +1725,49 @@ struct dungeon_info_type {
         byte special_percent;           /* % of monsters affected by the flags/races allowed, to add some variety */
 
         obj_theme objs;                 /* The drops type */
+
+        int d_dice[4];                  /* Number of dices */
+        int d_side[4];                  /* Number of sides */
+        int d_frequency[4];             /* Frequency of damage (1 is the minimum) */
+        int d_type[4];                  /* Type of damage */
+
+        s16b t_idx[TOWN_DUNGEON];       /* The towns */
+        s16b t_level[TOWN_DUNGEON];     /* The towns levels */
+        s16b t_num;                     /* Number of towns */
 };
 
 /* A structure for inscriptions */
 typedef struct inscription_info_type inscription_info_type;
-struct inscription_info_type {
+struct inscription_info_type
+{
         char text[40];                  /* The inscription itself */
         byte when;                      /* When it is executed */
         bool know;                      /* Is the inscription know ? */
         byte mana;                      /* Grid mana needed */
+};
+
+/* To hold Runecrafters prefered spells */
+typedef struct rune_spell rune_spell;
+struct rune_spell
+{
+        char name[30];          /* name */
+
+        s16b type;              /* Type of the spell(GF) */
+        s16b rune2;             /* Modifiers */
+        s16b mana;              /* Mana involved */
+};
+
+/* For level gaining artifacts, artifact creation, ... */
+typedef struct flags_group flags_group;
+struct flags_group
+{
+        char name[30];          /* Name */
+
+        byte price;             /* Price to "buy" it */
+
+        u32b flags1;            /* Flags set 1 */
+        u32b flags2;            /* Flags set 2 */
+        u32b flags3;            /* Flags set 3 */
+        u32b flags4;            /* Flags set 4 */
+        u32b esp;               /* ESP flags set */
 };

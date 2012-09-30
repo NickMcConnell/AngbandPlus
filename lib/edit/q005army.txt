@@ -12,7 +12,7 @@ Q:13:Q:6:0:0:0:40:0:0:2
 ?:[LEQ $QUEST13 2]
 Q:13:T:Near the Lonely Mountain, a large conflict is brewing between 
 Q:13:T:the Free Peoples and the minions of Morgoth. We are sending 
-Q:13:T:you there to help your armies to win against those terribles
+Q:13:T:you there to help their armies to win against the terrible
 Q:13:T:legions of Morgoth...
 ?:1
 

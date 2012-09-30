@@ -281,6 +281,13 @@ void do_cmd_mindcraft(void)
 	int             plev = p_ptr->lev;
         magic_power     spell;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
 	/* not if confused */
 	if (p_ptr->confused)
 	{
@@ -695,6 +702,13 @@ void do_cmd_mimic(void)
 	int             plev = p_ptr->lev;
         magic_power     spell;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
 	/* not if confused */
 	if (p_ptr->confused)
 	{
@@ -968,7 +982,7 @@ void do_cmd_beastmaster(void)
 	monster_type    *m_ptr;
 
 	/* Process the monsters (backwards) */
-        p_ptr->class_extra1=0;
+        p_ptr->class_extra1 = 0;
 	for (i = m_max - 1; i >= 1; i--)
 	{
 		/* Access the monster */
@@ -987,7 +1001,8 @@ void do_cmd_beastmaster(void)
         else msg_print("You can't summon more pets");
     
 	/* Take a turn */
-	energy_use = 100;
+        if (is_magestaff()) energy_use = 80;
+        else energy_use = 100;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
@@ -1021,16 +1036,20 @@ static bool item_tester_hook_powerable(object_type *o_ptr)
 static bool item_tester_hook_extractable(object_type *o_ptr)
 {
         object_kind *k_ptr = &k_info[o_ptr->k_idx];
+        u32b f1, f2, f3, f4, esp;
 
-        if(((o_ptr->tval==TV_POTION)||
-        (o_ptr->tval==TV_POTION2)||
-        (o_ptr->tval==TV_WAND)||
-        (o_ptr->tval==TV_STAFF)||
-        (o_ptr->tval==TV_RING)||
-        (o_ptr->tval==TV_AMULET)||
-        (o_ptr->tval==TV_SCROLL)||
-        ((o_ptr->tval==TV_ROD_MAIN) && o_ptr->pval)||
-        (o_ptr->tval==TV_ROD))
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+
+        if(((o_ptr->tval == TV_POTION)||
+        (o_ptr->tval == TV_POTION2)||
+        ((o_ptr->tval == TV_WAND) && (!(f4 & TR4_RECHARGED))) ||
+        ((o_ptr->tval == TV_STAFF) && (!(f4 & TR4_RECHARGED))) ||
+        (o_ptr->tval == TV_RING)||
+        (o_ptr->tval == TV_AMULET)||
+        (o_ptr->tval == TV_SCROLL)||
+        ((o_ptr->tval == TV_ROD_MAIN) && o_ptr->pval)||
+        (o_ptr->tval == TV_ROD))
         &&(!k_ptr->know)) return TRUE;
 
 	/* Assume not */
@@ -1124,6 +1143,14 @@ void do_cmd_alchemist(void)
 
         cptr q, s;
         char com[80];
+
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
 
         q_ptr = &forge;
 
@@ -1591,7 +1618,6 @@ void do_cmd_pray(void) {
 /* 
  * Return percentage chance of spell failure. 
  */
-
 int spell_chance_random(random_spell* rspell) {
   int chance, minfail;
 
@@ -1796,6 +1822,13 @@ void do_cmd_powermage(void)
         int dir, chance;
         int ty = 0, tx = 0;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
         s_ptr = select_spell(FALSE);
     
         if (s_ptr == NULL) return;
@@ -1867,7 +1900,8 @@ void do_cmd_powermage(void)
         }
 
 	/* Take a turn */
-	energy_use = 100;
+        if (is_magestaff()) energy_use = 80;
+        else energy_use = 100;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
@@ -3425,14 +3459,21 @@ void do_cmd_possessor()
 {
         char ch, ext;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
         while (TRUE)
         {
-                if (!get_com("[U]se your race powers or your [I]ncarnating powers ?", &ch))
+                if (!get_com("Use your [R]ace powers or your [I]ncarnating powers ?", &ch))
                 {
                         ext = 0;
                         break;
                 }
-                if (ch == 'U' || ch == 'u')
+                if (ch == 'R' || ch == 'r')
                 {
                         ext = 1;
                         break;
@@ -3726,6 +3767,13 @@ void do_cmd_necromancer(void)
 
         mto_s2 = (mto_s2==0)?1:mto_s2;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
 	/* not if confused */
 	if (p_ptr->confused)
 	{
@@ -3789,11 +3837,11 @@ void do_cmd_necromancer(void)
 			b = randint(100);
                         if (b < 10)
 			{
-                                msg_print("Oh, no! You become un undead !");
+                                msg_print("Oh, no! You become an undead !");
 
                                 p_ptr->class_extra3 |= CLASS_UNDEAD;
                                 p_ptr->class_extra4 = 2 * p_ptr->lev;
-                                msg_format("You have to kill %d monster%s to be bringed back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
+                                msg_format("You have to kill %d monster%s to be brought back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
 
                                 /* MEGA-HACK !!! */
                                 calc_hitpoints();
@@ -3810,7 +3858,7 @@ void do_cmd_necromancer(void)
 			}
                         else if (b < 40)
 			{
-                                msg_print("Suddently you feel yourself in bad situation...");
+                                msg_print("Suddenly you feel that you're in bad situation...");
                                 summon_specific(py, px, max_dlv[dungeon_type], (p_ptr->lev >= 30)?SUMMON_HI_UNDEAD:SUMMON_UNDEAD);
 			}
 			else
@@ -3888,7 +3936,7 @@ void do_cmd_necromancer(void)
 
                                 p_ptr->class_extra3 |= CLASS_UNDEAD;
                                 p_ptr->class_extra4 = p_ptr->lev + (rand_int(p_ptr->lev / 2) - (p_ptr->lev / 4));
-                                msg_format("You have to kill %d monster%s to be bringed back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
+                                msg_format("You have to kill %d monster%s to be brought back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
 
                                 /* MEGA-HACK !!! */
                                 calc_hitpoints();
@@ -3911,7 +3959,8 @@ void do_cmd_necromancer(void)
 	}
     
 	/* Take a turn */
-	energy_use = 100;
+        if (is_magestaff()) energy_use = 80;
+        else energy_use = 100;
 	
 	/* Sufficient mana */
 	if (spell.mana_cost <= p_ptr->csp)
@@ -4189,4 +4238,991 @@ void cast_daemon_spell(int spell)
 			msg_print(NULL);
 			break;
 	}
+}
+
+/* Runecrafters */
+static s32b rune_combine = 0;
+
+/*
+ * Hook to determine if an object is "runestone"
+ */
+static bool item_tester_hook_runestone(object_type *o_ptr)
+{
+        if (o_ptr->tval != TV_RUNE2) return FALSE;
+
+        if (o_ptr->sval != RUNE_STONE) return FALSE;
+
+        if (o_ptr->pval != 0) return FALSE;
+
+        /* Assume yes */
+        return (TRUE);
+}
+static bool item_tester_hook_runestone_full(object_type *o_ptr)
+{
+        if (o_ptr->tval != TV_RUNE2) return FALSE;
+
+        if (o_ptr->sval != RUNE_STONE) return FALSE;
+
+        if (o_ptr->pval == 0) return FALSE;
+
+        /* Assume yes */
+        return (TRUE);
+}
+/*
+ * Hook to determine if an object is "rune-able"
+ */
+static bool item_tester_hook_runeable1(object_type *o_ptr)
+{
+        if(o_ptr->tval != TV_RUNE1) return FALSE;
+
+        /* Assume yes */
+        return (TRUE);
+}
+/*
+ * Hook to determine if an object is "rune-able"
+ */
+static bool item_tester_hook_runeable2(object_type *o_ptr)
+{
+        if (o_ptr->tval != TV_RUNE2) return FALSE;
+
+        if (o_ptr->sval == RUNE_STONE) return FALSE;
+
+        if (rune_combine & (1<<o_ptr->sval)) return (FALSE);
+
+        /* Assume yes */
+        return (TRUE);
+}
+
+/* math.h(sqrt) is banned of angband so ... :) */
+s32b sroot(s32b n)
+{
+        s32b i = n / 2;
+
+        if (n < 2) return (n);
+
+        while (1)
+        {
+                s32b err = (i - n / (i + 1)) / 2;
+
+                if (!err) break;
+
+                i -= err;
+        }
+
+        return ((n / i < i) ? (i - 1) : i);
+}
+
+/*
+ * Damage formula, for runes
+ */
+void rune_calc_power(s32b *power, s32b *powerdiv)
+{
+        /* Not too weak power(parano‹a) */
+        *power = (*power < 1)?1:*power;
+        *power += 3;
+
+        *power = 37 * sroot(*power) / 10;
+
+        /* To reduce the high level power, while increasing the low levels */
+        *powerdiv = *power / 3;
+        if (*powerdiv < 1) *powerdiv = 1;
+
+        /* Use the spell multiplicator */
+        *power *= (p_ptr->to_s / 2)?(p_ptr->to_s / 2):1;
+}
+
+/* 
+ * Return percentage chance of runespell failure. 
+ */
+int spell_chance_rune(rune_spell* spell)
+{
+        int chance, minfail;
+        s32b power = spell->mana, power_rune = 0, powerdiv = 0;
+
+        if(spell->rune2 & RUNE_POWER_SURGE)
+                power_rune += 4;
+        if(spell->rune2 & RUNE_ARMAGEDDON)
+                power_rune += 3;
+        if(spell->rune2 & RUNE_SPHERE)
+                power_rune += 2;
+        if(spell->rune2 & RUNE_RAY)
+                power_rune += 1;
+
+        rune_calc_power(&power, &powerdiv);
+
+        chance = (5 * power_rune) + (power);
+
+        /* Reduce failure rate by INT/WIS adjustment */
+        chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+
+        /* Extract the minimum failure rate */
+        minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+
+        /* Minimum failure rate */
+        if (chance < minfail) chance = minfail;
+  
+        /* Stunning makes spells harder */
+        if (p_ptr->stun > 50) chance += 25;
+        else if (p_ptr->stun) chance += 15;
+
+        /* Always a 5 percent chance of working */
+        if (chance > 95) chance = 95;
+
+        /* Return the chance */
+        return (chance);
+}
+
+/*
+ * Combine the Runes
+ */
+int rune_exec(rune_spell *spell, int cost)
+{
+        int dir, power_rune = 0, mana_used;
+        int chance;
+        s32b power, powerdiv;
+
+        int rad = 0, ty = -1, tx = -1, dam = 0, flg = 0;
+
+        if(spell->rune2 & RUNE_POWER_SURGE)
+                power_rune += 4;
+        if(spell->rune2 & RUNE_ARMAGEDDON)
+                power_rune += 3;
+        if(spell->rune2 & RUNE_SPHERE)
+                power_rune += 2;
+        if(spell->rune2 & RUNE_RAY)
+                power_rune += 1;
+
+        power = spell->mana;
+
+        if ((power * cost / 100) > p_ptr->csp - (power_rune * (p_ptr->lev / 5)))
+        {
+                power = p_ptr->csp - (power_rune * (p_ptr->lev / 5));
+                mana_used = power + (power_rune * (p_ptr->lev / 5));
+        }
+        else
+        {
+                mana_used = (power * cost / 100) + (power_rune * (p_ptr->lev / 5));
+        }
+
+        rune_calc_power(&power, &powerdiv);
+        
+        dam = damroll(powerdiv, power);
+
+        if (wizard) msg_format("Rune %dd%d = dam %d", powerdiv, power, dam);
+
+        /* Extract the base spell failure rate */
+        chance = spell_chance_rune(spell);
+
+        /* Failure ? */
+	if (rand_int(100) < chance)
+	{
+                char sfail[80];
+
+		if (flush_failure) flush();
+
+                get_rnd_line("sfail.txt",sfail);
+
+                msg_format("A cloud of %s appears above you.", sfail);
+		sound(SOUND_FAIL);
+
+                if (is_magestaff()) energy_use = 80;
+                else energy_use = 100;
+
+                /* Window stuff */
+                p_ptr->window |= (PW_PLAYER);
+                p_ptr->redraw |= (PR_MANA);
+                return mana_used;
+	}
+
+        if(spell->rune2 & RUNE_POWER_SURGE)
+        {
+                flg |= PROJECT_VIEWABLE;
+                ty = py;
+                tx = px;
+        }
+        if(spell->rune2 & RUNE_ARMAGEDDON)
+        {
+                flg |= PROJECT_THRU;
+                flg |= PROJECT_KILL;
+                flg |= PROJECT_ITEM;
+                flg |= PROJECT_GRID;
+                flg |= PROJECT_METEOR_SHOWER;
+                rad = (power / 8 == 0)?1:power / 8;
+                rad = (rad > 10)?10:rad;
+                ty = py;
+                tx = px;
+        }
+        if(spell->rune2 & RUNE_SPHERE)
+        {
+                flg |= PROJECT_THRU;
+                flg |= PROJECT_KILL;
+                flg |= PROJECT_ITEM;
+                flg |= PROJECT_GRID;
+                rad = (power / 8 == 0)?1:power / 8;
+                rad = (rad > 10)?10:rad;
+                ty = py;
+                tx = px;
+        }
+        if(spell->rune2 & RUNE_RAY)
+        {
+                flg |= PROJECT_THRU;
+                flg |= PROJECT_KILL;
+                flg |= PROJECT_BEAM;
+                ty = -1;
+                tx = -1;
+        }
+        if(spell->rune2 & RUNE_ARROW)
+        {
+                flg |= PROJECT_THRU;
+                flg |= PROJECT_STOP;
+                flg |= PROJECT_KILL;
+                ty = -1;
+                tx = -1;
+        }
+        if(spell->rune2 & RUNE_SELF)
+        {
+                flg |= PROJECT_THRU;
+                flg |= PROJECT_STOP;
+                flg |= PROJECT_KILL;
+                ty = py;
+                tx = px;
+                unsafe = TRUE;
+        }
+
+        if((ty == -1)&&(tx == -1))
+        {
+                if (!get_aim_dir(&dir)) return mana_used;
+
+                /* Use the given direction */
+                tx = px + ddx[dir];
+                ty = py + ddy[dir];
+
+                /* Hack -- Use an actual "target" */
+                if ((dir == 5) && target_okay())
+                {
+                        tx = target_col;
+                        ty = target_row;
+                }
+        }
+
+        if(flg & PROJECT_VIEWABLE)
+        {
+                project_hack(spell->type, dam);
+        }
+        else if(flg & PROJECT_METEOR_SHOWER)
+        {
+                project_meteor(rad, spell->type, dam, flg);
+        }
+        else project(0, rad, ty, tx, dam, spell->type, flg);
+
+        if (unsafe) unsafe = FALSE;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+        p_ptr->redraw |= (PR_MANA);
+
+        return (mana_used);
+}
+
+/* Test if all runes needed at in the player inventory */
+bool test_runespell(rune_spell *spell)
+{
+        int i;
+        object_type *o_ptr;
+        bool typeok = FALSE;
+        int rune2 = 0;
+
+        for (i = 0; i < INVEN_WIELD; i++)
+        {
+                o_ptr = &inventory[i];
+
+                if (!o_ptr->k_idx) continue;
+
+                /* Does the rune1(type) match ? */
+                if ((o_ptr->tval == TV_RUNE1) && (o_ptr->sval == spell->type)) typeok = TRUE;
+
+                if ((o_ptr->tval == TV_RUNE2) && (o_ptr->sval != RUNE_STONE))
+                {
+                        /* Add it to the list */
+                        rune2 |= 1 << o_ptr->sval;
+                }
+        }
+
+        /* Need all runes to be present */
+        return (typeok && ((rune2 & spell->rune2) == spell->rune2));
+}
+
+/* Ask for rune, rune2 and mana */
+bool get_runespell(rune_spell *spell)
+{
+        int item, power_rune = 0, rune2 = 0;
+        s32b power;
+
+        int type = 0;
+
+	object_type     *o_ptr;
+
+	cptr q, s;
+
+        bool OK = FALSE;
+
+        rune_combine = 0;
+
+        /* Restrict choices to unused runes */
+        item_tester_hook = item_tester_hook_runeable1;
+
+	/* Get an item */
+        q = "Use which rune? ";
+        s = "You have no rune to use.";
+        if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+        type = o_ptr->sval;
+
+        do
+        {
+                /* Restrict choices to unused secondary runes */
+                item_tester_hook = item_tester_hook_runeable2;
+
+                OK = !get_item(&item, q, s, (USE_INVEN | USE_FLOOR));
+
+                if (OK) break;
+
+                /* Get the item (in the pack) */
+                if (item >= 0)
+                {
+                        o_ptr = &inventory[item];
+                }
+
+                /* Get the item (on the floor) */
+                else
+                {
+                        o_ptr = &o_list[0 - item];
+                }
+                rune_combine |= 1 << o_ptr->sval;
+                rune2 |= 1 << o_ptr->sval;
+        } while (!OK);
+
+        if (!rune2)
+        {
+                msg_print("You have not selected a second rune!");
+                return FALSE;
+        }
+
+        power = get_quantity("Which amount of Mana?", p_ptr->csp - (power_rune * (p_ptr->lev / 5)));
+        if (power < 1) power = 1;
+
+        spell->mana = power;
+        spell->type = type;
+        spell->rune2 = rune2;
+
+        return TRUE;
+}
+
+void do_cmd_rune(void)
+{
+        rune_spell spell;
+
+        /* Require some mana */
+        if(p_ptr->csp <= 0)
+        {
+                msg_print("You have no mana!");
+                return;
+        }
+	
+	/* Require lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+	
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+        if (!get_runespell(&spell)) return;
+
+        /* Execute at normal mana cost */
+        p_ptr->csp -= rune_exec(&spell, 100);
+
+        /* Safety :) */
+        if (p_ptr->csp < 0) p_ptr->csp = 0;
+
+	/* Take a turn */
+        if (is_magestaff()) energy_use = 80;
+        else energy_use = 100;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+        p_ptr->redraw |= (PR_MANA);
+}
+
+/*
+ * Print a batch of runespells.
+ */
+static void print_runespell_batch(int batch, int max)
+{
+        char buff[80];
+        rune_spell* spell;
+        int i;
+        s32b power, powerdiv;
+        int p, dp;
+
+        prt(format("      %-30s Fail Mana Power", "Name"), 1, 20);
+
+        for (i = 0; i < max; i++)
+        {
+                spell = &rune_spells[batch * 10 + i];
+
+                power = spell->mana;
+                rune_calc_power(&power, &powerdiv);
+                p = power;
+                dp = powerdiv;
+
+                sprintf(buff, "  %c) %-30s %4d%% %4d %dd%d ", I2A(i), spell->name, 
+                        spell_chance_rune(spell), spell->mana, dp, p);
+
+                prt(buff, 2 + i, 20);
+        }
+        prt("", 2 + i, 20);
+}
+
+
+
+/* 
+ * List ten random spells and ask to pick one. 
+ */
+
+static rune_spell* select_runespell_from_batch(int batch, bool quick, int *s_idx)
+{
+  char tmp[160];
+  char which;
+  int mut_max = 10;
+  rune_spell* ret;
+
+  Term_save();
+
+  if (rune_num < (batch+1)*10) {
+    mut_max = rune_num - batch*10;
+  }
+
+  sprintf(tmp, "(a-%c, * to list, / to rename, - to comment) Select a power: ", 
+	  I2A(mut_max-1));
+  
+  prt(tmp, 0, 0);
+
+  if (quick) {
+    print_runespell_batch(batch, mut_max);
+  }
+
+  while (1) {
+    which = inkey();
+
+    if (which == ESCAPE) {
+      *s_idx = -1;
+      ret = NULL;
+      break;
+
+    } else if (which == '*'  || which == '?' || which == ' ') {
+      print_runespell_batch(batch, mut_max);
+
+    } else if (which == '\r' && mut_max == 1) {
+      *s_idx = batch*10;
+      ret = &rune_spells[batch*10];
+      break;
+
+    } else if (which == '/') {
+      prt("Rename which power: ", 0, 0);
+      which = tolower(inkey());
+
+      if (islower(which) && A2I(which) <= mut_max) {
+	get_string("Name this power: ", 
+                   rune_spells[batch*10+A2I(which)].name, 29);
+	prt(tmp, 0, 0);
+      } else {
+	bell();
+	prt(tmp, 0, 0);
+      }
+
+    }
+    else
+    {
+      which = tolower(which);
+      if (islower(which) && A2I(which) < mut_max) {
+        *s_idx = batch*10+A2I(which);
+        ret = &rune_spells[batch*10+A2I(which)];
+	break;
+      } else {
+	bell();
+      }
+    }
+  }
+
+  Term_load();
+
+  return ret;
+}
+  
+
+/* 
+ * Pick a random spell from a menu 
+ */
+
+rune_spell* select_runespell(bool quick, int *s_idx)
+{
+  char tmp[160];
+  char which;
+  int batch_max = (rune_num-1)/10;
+
+  if (rune_num == 0) {
+    msg_print("There are no runespells you can cast.");
+    return NULL;
+  }
+
+  Term_save();
+
+  sprintf(tmp, "(a-%c) Select batch of powers: ", I2A(batch_max));
+  
+  prt(tmp, 0, 0);
+  
+  while (1) {
+    which = inkey();
+    
+    if (which == ESCAPE) {
+      Term_load();
+      return NULL;
+
+    } else if (which == '\r' && batch_max == 0) {
+      Term_load();
+      return select_runespell_from_batch(0, quick, s_idx);
+
+    } else {
+      which = tolower(which);
+      if (islower(which) && A2I(which) <= batch_max) {
+	Term_load();
+        return select_runespell_from_batch(A2I(which), quick, s_idx);
+      } else {
+	bell();
+      }
+    }
+  }
+}
+
+/* Cast a memorized -- note that the only limits are antimagic & conf, NOT blind */
+void do_cmd_rune_cast()
+{
+        rune_spell *s_ptr;
+        int s_idx;
+
+        /* Require some mana */
+        if(p_ptr->csp <= 0)
+        {
+                msg_print("You have no mana!");
+                return;
+        }
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+        s_ptr = select_runespell(FALSE, &s_idx);
+    
+        if (s_ptr == NULL) return;
+
+        /* Need the runes */
+        if (!test_runespell(s_ptr))
+        {
+                msg_print("You lack some essential rune(s) for this runespell!");
+		return;
+        }
+
+        /* Execute at normal mana cost */
+        p_ptr->csp -= rune_exec(s_ptr, 100);
+
+        /* Safety :) */
+        if (p_ptr->csp < 0) p_ptr->csp = 0;
+
+	/* Take a turn */
+        if (is_magestaff()) energy_use = 80;
+        else energy_use = 100;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+        p_ptr->redraw |= (PR_MANA);
+}
+
+/* Cast a runespell from a carved runestone */
+void do_cmd_runestone()
+{
+        rune_spell s_ptr;
+	object_type     *o_ptr;
+	cptr q, s;
+        int item;
+
+        /* Require some mana */
+        if(p_ptr->csp <= 0)
+        {
+                msg_print("You have no mana!");
+                return;
+        }
+
+	/* Require lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
+        /* Restrict choices to unused runes */
+        item_tester_hook = item_tester_hook_runestone_full;
+
+	/* Get an item */
+        q = "Cast from which runestone? ";
+        s = "You have no runestone to cast from.";
+        if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+        s_ptr.type = o_ptr->pval;
+        s_ptr.rune2 = o_ptr->pval2;
+        s_ptr.mana = o_ptr->pval3;
+
+        /* Execute less mana */
+        p_ptr->csp -= rune_exec(&s_ptr, 75);
+
+        /* Safety :) */
+        if (p_ptr->csp < 0) p_ptr->csp = 0;
+
+	/* Take a turn */
+        energy_use = 100;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+        p_ptr->redraw |= (PR_MANA);
+}
+
+/* Add a runespell to the list */
+void do_cmd_rune_add_mem()
+{
+        rune_spell s_ptr;
+        rune_spell *ds_ptr = &rune_spells[rune_num];
+
+        if (rune_num >= MAX_RUNES)
+        {
+                msg_print("You have already learn the maximun number of runespells!");
+		return;
+        }
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+        if (!get_runespell(&s_ptr)) return;
+
+        ds_ptr->type = s_ptr.type;
+        ds_ptr->rune2 = s_ptr.rune2;
+        ds_ptr->mana = s_ptr.mana;
+        strcpy(ds_ptr->name, "Unnamed Runespell");
+    
+        get_string("Name this runespell: ", ds_ptr->name, 29);
+
+        rune_num++;
+
+	/* Take a turn */
+	energy_use = 100;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+        p_ptr->redraw |= (PR_MANA);
+}
+
+/* Carve a runespell onto a Runestone */
+void do_cmd_rune_carve()
+{
+        rune_spell s_ptr;
+	object_type     *o_ptr;
+	cptr q, s;
+        int item, i;
+        char out_val[80];
+
+	/* Require lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+        if (!get_check("Beware, this will destroy the involved runes, continue?")) return;
+
+        if (!get_runespell(&s_ptr)) return;
+
+        /* Restrict choices to unused runes */
+        item_tester_hook = item_tester_hook_runestone;
+
+	/* Get an item */
+        q = "Use which runestone? ";
+        s = "You have no runestone to use.";
+        if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+        o_ptr->pval = s_ptr.type;
+        o_ptr->pval2 = s_ptr.rune2;
+        o_ptr->pval3 = s_ptr.mana;
+
+	/* Start with nothing */
+	strcpy(out_val, "");
+
+	/* Use old inscription */
+	if (o_ptr->note)
+	{
+		/* Start with the old inscription */
+		strcpy(out_val, quark_str(o_ptr->note));
+	}
+
+	/* Get a new inscription (possibly empty) */
+        if (get_string("Name this runestone: ", out_val, 80))
+	{
+		/* Save the inscription */
+		o_ptr->note = quark_add(out_val);
+
+		/* Combine the pack */
+		p_ptr->notice |= (PN_COMBINE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	}
+
+        /* Delete the runes */
+        for (i = 0; i < INVEN_WIELD; i++)
+        {
+                o_ptr = &inventory[i];
+
+                if (o_ptr->k_idx)
+                {
+                        bool do_del = FALSE;
+
+                        if ((o_ptr->tval == TV_RUNE1) && (o_ptr->sval == s_ptr.type)) do_del = TRUE;
+                        if ((o_ptr->tval == TV_RUNE2) && (BIT(o_ptr->sval) & s_ptr.rune2)) do_del = TRUE;
+
+                        if (do_del)
+                        {
+                                inven_item_increase(i, -1);
+                                inven_item_optimize(i);
+                        }
+                }
+        }
+
+        /* Take a turn -- Carving takes a LONG time */
+        energy_use = 400;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+        p_ptr->redraw |= (PR_MANA);
+}
+
+
+/* Remove a runespell */
+void do_cmd_rune_del()
+{
+        rune_spell *s_ptr;
+        int s_idx;
+        int i;
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+        s_ptr = select_runespell(FALSE, &s_idx);
+    
+        if (s_ptr == NULL) return;
+
+        /* Delete and move */
+        for (i = rune_num; i > s_idx; i--)
+        {
+                rune_spells[i - 1].type = rune_spells[i].type;
+                rune_spells[i - 1].rune2 = rune_spells[i].rune2;
+                rune_spells[i - 1].mana = rune_spells[i].mana;
+                strcpy(rune_spells[i - 1].name, rune_spells[i].name);
+        }
+        rune_num--;
+
+	/* Take a turn */
+	energy_use = 100;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+        p_ptr->redraw |= (PR_MANA);
+}
+
+void do_cmd_rune_add()
+{
+        int ext = 0;
+        char ch;
+
+        /* Select what to do */
+        while (TRUE)
+        {
+                if (!get_com("Add to [M]emory(need runes to cast) or Carve a [R]unestone(less mana to cast)", &ch))
+                {
+                        ext = 0;
+                        break;
+                }
+                if (ch == 'M' || ch == 'm')
+                {
+                        ext = 1;
+                        break;
+                }
+                if (ch == 'R' || ch == 'r')
+                {
+                        ext = 2;
+                        break;
+                }
+        }
+
+        switch (ext)
+        {
+                /* Create a Spell in memory */
+                case 1:
+                        do_cmd_rune_add_mem();
+                        break;
+                /* Carve a Runestone */
+                case 2:
+                        do_cmd_rune_carve();
+                        break;
+        }
+}
+
+void do_cmd_runecrafter()
+{
+        int ext = 0;
+        char ch;
+
+        /* Select what to do */
+        while (TRUE)
+        {
+                if (!get_com("Rune Spell:[C]reate, [D]elete, C[a]st, D[i]rectly Cast or Use [R]unestone", &ch))
+                {
+                        ext = 0;
+                        break;
+                }
+                if (ch == 'C' || ch == 'c')
+                {
+                        ext = 1;
+                        break;
+                }
+                if (ch == 'D' || ch == 'd')
+                {
+                        ext = 2;
+                        break;
+                }
+                if (ch == 'A' || ch == 'a')
+                {
+                        ext = 3;
+                        break;
+                }
+                if (ch == 'I' || ch == 'i')
+                {
+                        ext = 4;
+                        break;
+                }
+                if (ch == 'R' || ch == 'r')
+                {
+                        ext = 5;
+                        break;
+                }
+        }
+
+        switch (ext)
+        {
+                /* Create a Spell */
+                case 1:
+                        do_cmd_rune_add();
+                        break;
+                /* Delete a Spell */
+                case 2:
+                        do_cmd_rune_del();
+                        break;
+                /* Cast a Spell */
+                case 3:
+                        do_cmd_rune_cast();
+                        break;
+                /* Directly Cast a Spell */
+                case 4:
+                        do_cmd_rune();
+                        break;
+                /* Cast a Runestone */
+                case 5:
+                        do_cmd_runestone();
+                        break;
+        }
 }

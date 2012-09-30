@@ -118,14 +118,14 @@ CC = gcc
 # attempt to "guess" at many of these flags based on your system.
 #
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
-#LIBS = -lX11 -lcurses -ltermcap
+#LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 
 
 ##
 ## Variation -- Only support "main-x11.c" (not "main-gcu.c")
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11"
-#LIBS = -lX11
+#LIBS = -lX11 -L/usr/X11R6/lib
 
 
 ##
@@ -139,7 +139,7 @@ CC = gcc
 ## Variation -- Use "main-xaw.c" instead of "main-x11.c"
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_XAW" -D"USE_GCU"
-#LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap
+#LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 
 
 ##
@@ -234,7 +234,7 @@ testing: $(OBJS)
 #
 
 clean:
-	\rm *.bak *.o
+        rm -f *.bak *.o
 
 
 #
@@ -242,7 +242,7 @@ clean:
 #
 
 depend:
-	makedepend -D__MAKEDEPEND__ $(SRCS)
+        makedepend -D__MAKEDEPEND__ $(SRCS)
 
 
 #

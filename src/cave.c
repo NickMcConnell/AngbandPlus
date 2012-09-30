@@ -1169,7 +1169,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	}
 
 	/* Handle "player" */
-	if ((y == py) && (x == px))
+        if ((y == py) && (x == px) && ((!p_ptr->invis) || ((p_ptr->invis) && (p_ptr->see_inv))))
 	{
                 monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
@@ -1256,6 +1256,7 @@ void map_info(int y, int x, byte *ap, char *cp)
                                                 case CLASS_MIMIC:
                                                 case CLASS_BEASTMASTER:
 						case CLASS_WARRIOR:
+                                                case CLASS_WEAPONMASTER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_UMBER;
 							else
@@ -1323,12 +1324,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 							break;
                                                 case RACE_ENT:
 							c = 6;
-							break;
-						case RACE_VAMPIRE:
-							c = 217;
-							break;
-						case RACE_SPECTRE:
-							c = 241;
 							break;
 					}
 				}

@@ -485,7 +485,9 @@ void do_cmd_go_down(void)
   
                 /* Go down */
                 if (go_down)
+                {
                         dun_level++;
+                }
                 else if (go_down_many)
                 {
                         int i = randint(3) + 1, j;
@@ -1428,7 +1430,7 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	if ((c_ptr->feat < FEAT_SANDWALL) || (c_ptr->feat > FEAT_SANDWALL_K))
 		if(!inventory[INVEN_TOOL].k_idx || (inventory[INVEN_TOOL].tval != TV_DIGGING))
 	{
-                msg_print("You have to use a shovel or a pick in your tool slot.");
+                msg_print("You need to have a shovel or pick in your tool slot.");
 
                 return FALSE;
         }
@@ -3097,7 +3099,19 @@ void do_cmd_fire(void)
 	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d + j_ptr->to_d;
 
 	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
+	/*
+	 * Must adjust so that Weaponmasters don't get their level bonus and
+	 * Priests don't get penalized for icky_wield.
+	 *							-- Gumby
+	 */
+	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+            (inventory[INVEN_WIELD].tval == p_ptr->class_extra1))
+                bonus = ((p_ptr->to_h - (p_ptr->lev / 2)) + q_ptr->to_h + j_ptr->to_h);
+	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
+		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h + 15);
+	else
+		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
+
         chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ)) - p_ptr->lev;
         if(chance < 5) chance = 5;
 
@@ -3144,7 +3158,7 @@ void do_cmd_fire(void)
 	}
 
 	/* Get extra "power" from "extra might" */
-	if (p_ptr->xtra_might) tmul++;
+        tmul += p_ptr->xtra_might;
 
 	/* Boost the damage */
 	tdam *= tmul;
@@ -3517,8 +3531,12 @@ void do_cmd_throw(void)
 	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d;
 	tdam *= throw_mult;
 
-	/* Chance of hitting */
-	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
+	/* Chance of hitting - adjusted for Weaponmasters -- Gumby */
+	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+            (inventory[INVEN_WIELD].tval == p_ptr->class_extra1))
+                chance = (p_ptr->skill_tht + ((p_ptr->to_h - (p_ptr->lev / 2)) * BTH_PLUS_ADJ));
+	else
+		chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
 
 
 	/* Take a turn */
@@ -4196,9 +4214,6 @@ static void cmd_racial_power_aux (void)
 	int dir = 0;
 	object_type *q_ptr;
 	object_type forge;
-	int dummy = 0;
-	cave_type *c_ptr;
-	int y = 0, x = 0;
 	int	ii = 0, ij = 0;
         char out_val[80];
         cptr p = "Power of the flame: ";
@@ -4256,17 +4271,6 @@ static void cmd_racial_power_aux (void)
 			(p_ptr->pclass == CLASS_WARRIOR?6:12)))
 			{
 				msg_print("RAAAGH!");
-				(void)set_afraid(0);
-
-				(void)set_shero(p_ptr->shero + 10 + randint(plev));
-				(void)hp_player(30);
-			}
-			break;
-
-		case RACE_BARBARIAN:
-			if (racial_aux(8, 10, A_WIS, (p_ptr->pclass == CLASS_WARRIOR?6:12)))
-			{
-				msg_print("Raaagh!");
 				(void)set_afraid(0);
 
 				(void)set_shero(p_ptr->shero + 10 + randint(plev));
@@ -4444,9 +4448,9 @@ static void cmd_racial_power_aux (void)
                                 }
                                 if (racial_aux(7, 30, A_CON, 6)){
                                 if(dun_level==0)
-                                        msg_print("You are stupid , you are already in town !");
+                                        msg_print("You are already in town!");
                                 else{
-                                        msg_print("You go between and show your Dragon the Town");
+                                        msg_print("You go between and point your Dragon at town");
                                         p_ptr->energy -= 100;
                                         p_ptr->word_recall=1;
                                 }
@@ -4468,53 +4472,6 @@ static void cmd_racial_power_aux (void)
                                 p_ptr->tp_aux1 = atoi(out_val);                                
                         }
 			break;
-
-		case RACE_VAMPIRE:
-			if (racial_aux(2, (1+(plev/3)), A_CON, 9))
-			{
-				/* Only works on adjacent monsters */
-				if (!get_rep_dir(&dir)) break;   /* was get_aim_dir */
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-				c_ptr = &cave[y][x];
-
-				if (!(c_ptr->m_idx))
-				{
-					msg_print("You bite into thin air!");
-					break;
-				}
-
-				msg_print("You grin and bare your fangs...");
-				dummy = plev + randint(plev) * MAX(1, plev/10);   /* Dmg */
-				if (drain_life(dir, dummy))
-				{
-					if (p_ptr->food < PY_FOOD_FULL)
-						/* No heal if we are "full" */
-						(void)hp_player(dummy);
-					else
-						msg_print("You were not hungry.");
-						/* Gain nutritional sustenance: 150/hp drained */
-						/* A Food ration gives 5000 food points (by contrast) */
-						/* Don't ever get more than "Full" this way */
-						/* But if we ARE Gorged,  it won't cure us */
-						dummy = p_ptr->food + MIN(5000, 100 * dummy);
-					if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
-						(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
-				}
-				else
-					msg_print("Yechh. That tastes foul.");
-			}
-			break;
-
-		case RACE_SPECTRE:
-			if (racial_aux(4, 6, A_INT, 3))
-			{
-				msg_print("You emit an eldritch howl!");
-				if (!get_aim_dir(&dir)) break;
-				(void)fear_monster(dir, plev);
-			}
-			break;
-
 
                 case RACE_ENT:
                         if (racial_aux(2, 6, A_CON, 3))
@@ -4645,6 +4602,93 @@ static void cmd_racial_power_aux (void)
 }
 
 
+static void cmd_racial_mod_power_aux (void)
+{
+	s16b plev = p_ptr->lev;
+	int dir = 0;
+	int dummy = 0;
+        int y = 0, x = 0;
+	cave_type *c_ptr;
+    
+
+        if((!p_ptr->tim_mimic)&&(!p_ptr->body_monster))
+        switch(p_ptr->pracem)
+	{
+                case RMOD_VAMPIRE:
+			if (racial_aux(2, (1+(plev/3)), A_CON, 9))
+			{
+				/* Only works on adjacent monsters */
+				if (!get_rep_dir(&dir)) break;   /* was get_aim_dir */
+				y = py + ddy[dir];
+				x = px + ddx[dir];
+				c_ptr = &cave[y][x];
+
+				if (!(c_ptr->m_idx))
+				{
+					msg_print("You bite into thin air!");
+					break;
+				}
+
+				msg_print("You grin and bare your fangs...");
+				dummy = plev + randint(plev) * MAX(1, plev/10);   /* Dmg */
+				if (drain_life(dir, dummy))
+				{
+					if (p_ptr->food < PY_FOOD_FULL)
+						/* No heal if we are "full" */
+						(void)hp_player(dummy);
+					else
+						msg_print("You were not hungry.");
+						/* Gain nutritional sustenance: 150/hp drained */
+						/* A Food ration gives 5000 food points (by contrast) */
+						/* Don't ever get more than "Full" this way */
+						/* But if we ARE Gorged,  it won't cure us */
+						dummy = p_ptr->food + MIN(5000, 100 * dummy);
+					if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
+						(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
+				}
+				else
+					msg_print("Yechh. That tastes foul.");
+			}
+			break;
+
+                case RMOD_SPECTRE:
+			if (racial_aux(4, 6, A_INT, 3))
+			{
+				msg_print("You emit an eldritch howl!");
+				if (!get_aim_dir(&dir)) break;
+				(void)fear_monster(dir, plev);
+			}
+			break;
+
+                case RMOD_SKELETON:
+                case RMOD_ZOMBIE:
+			if (racial_aux(30, 30, A_WIS, 18))
+			{
+				msg_print("You attempt to restore your lost energies.");
+				(void)restore_level();
+			}
+			break;
+                case RMOD_BARBARIAN:
+			if (racial_aux(8, 10, A_WIS, (p_ptr->pclass == CLASS_WARRIOR?6:12)))
+			{
+				msg_print("Raaagh!");
+				(void)set_afraid(0);
+
+				(void)set_shero(p_ptr->shero + 10 + randint(plev));
+				(void)hp_player(30);
+			}
+			break;
+		default:
+                        msg_print("This race modifier has no bonus power.");
+			energy_use = 0;
+	}
+
+	p_ptr->redraw |= (PR_HP | PR_MANA);
+	p_ptr->window |= (PW_PLAYER);
+	p_ptr->window |= (PW_SPELL);
+}
+
+
 /*
  * Allow user to choose a power (racial / mutation / mimic) to activate
  */
@@ -4671,9 +4715,9 @@ void do_cmd_racial_power(void)
 	int pets = 0, pet_ctr = 0;
 	monster_type * m_ptr;
 
-	bool has_racial = FALSE;
+        bool has_racial = FALSE, mhas_racial = FALSE;
 
-	cptr racial_power = "(none)";
+        cptr racial_power = "(none)", mracial_power = "(none)";
 
 	cptr q, s;
 
@@ -4693,6 +4737,7 @@ void do_cmd_racial_power(void)
 	}
 
         if((!p_ptr->tim_mimic)&&(!p_ptr->body_monster))
+        {
 	switch (p_ptr->prace)
 	{
 		case RACE_DWARF:
@@ -4747,16 +4792,6 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_BARBARIAN:
-			if (lvl < 8)
-				racial_power = "berserk            (racial, lvl 8, cost 10)";
-			else if (warrior)
-				racial_power = "berserk            (racial, cost 10, WIS 6@8)";
-			else
-				racial_power = "berserk            (racial, cost 10, WIS 12@8)";
-			has_racial = TRUE;
-			break;
-
 		case RACE_HALF_OGRE:
 			if (lvl < 25)
 				racial_power = "explosive rune     (racial, lvl 25, cost 35)";
@@ -4773,14 +4808,6 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_SPECTRE:
-			if (lvl < 4)
-				racial_power = "scare monster      (racial, lvl 4, cost 3)";
-			else
-				racial_power = "scare monster      (racial, cost 3, INT 3@5)";
-			has_racial = TRUE;
-			break;
-
 		case RACE_KOBOLD:
 			if (lvl < 12)
 				racial_power = "poison dart        (racial, lvl 12, cost 8, dam lvl)";
@@ -4794,15 +4821,6 @@ void do_cmd_racial_power(void)
 				racial_power = "magic missile      (racial, lvl 2, cost 2)";
 			else
 				racial_power = "magic missile      (racial, cost 2, INT 9@2)";
-			has_racial = TRUE;
-			break;
-
-
-		case RACE_VAMPIRE:
-			if (lvl < 2)
-				racial_power = "drain life         (racial, lvl 2, cost 1 + lvl/3) ";
-			else
-				racial_power = "drain life         (racial, cost 1 + lvl/3, CON 9@2)";
 			has_racial = TRUE;
 			break;
 
@@ -4826,6 +4844,42 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 	}
+        switch (p_ptr->pracem)
+	{
+                case RMOD_SPECTRE:
+			if (lvl < 4)
+                                mracial_power = "scare monster      (racial, lvl 4, cost 3)";
+			else
+                                mracial_power = "scare monster      (racial, cost 3, INT 3@5)";
+                        mhas_racial = TRUE;
+			break;
+                case RMOD_VAMPIRE:
+			if (lvl < 2)
+                                mracial_power = "drain life         (racial, lvl 2, cost 1 + lvl/3) ";
+			else
+                                mracial_power = "drain life         (racial, cost 1 + lvl/3, CON 9@2)";
+                        mhas_racial = TRUE;
+			break;
+                case RMOD_SKELETON:
+                case RMOD_ZOMBIE:
+			if (lvl < 30)
+                                mracial_power = "restore life       (racial, lvl 30, cost 30)";
+			else
+                                mracial_power = "restore life       (racial, cost 30, WIS 18@30)";
+                        mhas_racial = TRUE;
+			break;
+
+                case RMOD_BARBARIAN:
+			if (lvl < 8)
+                                mracial_power = "berserk            (racial, lvl 8, cost 10)";
+			else if (warrior)
+                                mracial_power = "berserk            (racial, cost 10, WIS 6@8)";
+			else
+                                mracial_power = "berserk            (racial, cost 10, WIS 12@8)";
+                        mhas_racial = TRUE;
+			break;
+	}
+        }
         else
         switch(p_ptr->mimic_form)
         {
@@ -4894,6 +4948,12 @@ void do_cmd_racial_power(void)
 	{
 		powers[0] = -1;
 		strcpy(power_desc[0], racial_power);
+		num++;
+	}
+        if (mhas_racial)
+	{
+                powers[num] = -8;
+                strcpy(power_desc[num], mracial_power);
 		num++;
 	}
 
@@ -5331,9 +5391,10 @@ void do_cmd_racial_power(void)
 	}
 
 
-	if (powers[i]<0)
+        if (powers[i] < 0)
 	{
 		if (powers[i] == -1) cmd_racial_power_aux();
+                else if (powers[i] == -8) cmd_racial_mod_power_aux();
                 else if (powers[i] == -3)
                 {
                         int dir,x,y;
@@ -5353,7 +5414,7 @@ void do_cmd_racial_power(void)
                                 m_ptr = &m_list[c_ptr->m_idx];
                                 r_ptr = race_inf(m_ptr);
 
-                                if(r_ptr->flags1 & RF1_NEVER_MOVE)
+                                if ((r_ptr->flags1 & RF1_NEVER_MOVE) && is_pet(m_ptr))
                                 {
                                         q_ptr=&forge;
                                         object_prep(q_ptr, lookup_kind(TV_HYPNOS, 1));
@@ -5371,7 +5432,7 @@ void do_cmd_racial_power(void)
                                         health_who = 0;
                                 }
                                 else
-                                        msg_print("You can only hypnotize the monsters that can't move.");
+                                        msg_print("You can only hypnotize monsters that can't move.");
                         }
                         else msg_print("There is no pet here !");
                 }
@@ -5379,7 +5440,7 @@ void do_cmd_racial_power(void)
                 {
                         monster_type *m_ptr;
                         int m_idx;
-                        int item,x,y;
+                        int item, x, y, d;
                         object_type *o_ptr;
 
                         cptr q, s;
@@ -5394,11 +5455,19 @@ void do_cmd_racial_power(void)
 
                         o_ptr = &o_list[0 - item];
 
-                        x=px;
-                        y=py;
-                        get_pos_player(100, &y, &x);
+                        d = 2;
+                        while (d < 100)
+                        {
+                                scatter(&y, &x, py, px, d, 0);
 
-                        if((m_idx=place_monster_one_return(y, x, o_ptr->pval, 0, FALSE, TRUE))==0) return;
+                                if (cave_floor_bold(y, x) && (!cave[y][x].m_idx)) break;
+
+                                d++;
+                        }
+
+                        if (d >= 100) return;
+
+                        if ((m_idx = place_monster_one(y, x, o_ptr->pval, 0, FALSE, TRUE)) == 0) return;
 
                         m_ptr = &m_list[m_idx];
                         m_ptr->hp = o_ptr->pval2;
@@ -5411,13 +5480,13 @@ void do_cmd_racial_power(void)
                 {
                         do_cmd_necromancer();
                 }
-                else if (powers[i] == -7)
-                {
-                        do_cmd_beastmaster();
-                }
                 else if (powers[i] == -6)
                 {
                         do_cmd_integrate_body();
+                }
+                else if (powers[i] == -7)
+                {
+                        do_cmd_beastmaster();
                 }
 	}
 	else
@@ -5928,6 +5997,13 @@ void do_cmd_unwalk() {
 
   if (!get_rep_dir(&dir)) return;
 
+  /* A mold can't blink in small scale mode */
+  if (p_ptr->wild_mode)
+  {
+    msg_print("You cannot move in the overview display.");
+    return;
+  }
+
   y = py + ddy[dir];
   x = px + ddx[dir];
 
@@ -6331,275 +6407,6 @@ void do_cmd_sacrifice(void) {
         }
 }
 
-s32b rune_combine = 0;
-
-/*
- * Hook to determine if an object is "rune-able"
- */
-static bool item_tester_hook_runeable1(object_type *o_ptr)
-{
-        if(o_ptr->tval != TV_RUNE1) return FALSE;
-
-        /* Assume yes */
-        return (TRUE);
-}
-/*
- * Hook to determine if an object is "rune-able"
- */
-static bool item_tester_hook_runeable2(object_type *o_ptr)
-{
-        if(o_ptr->tval != TV_RUNE2) return FALSE;
-
-        if (rune_combine & (1<<o_ptr->sval)) return (FALSE);
-
-        /* Assume yes */
-        return (TRUE);
-}
-
-/*
- * Combine the Runes
- */
-void do_cmd_rune(void)
-{
-        int item, dir, power, rune2 = 0, power_rune = 0;
-        int chance, minfail, powerdiv;
-
-        int rad = 0, ty = -1, tx = -1, dam = 0, type = 0, flg = 0;
-
-	object_type     *o_ptr;
-
-	cptr q, s;
-
-        bool OK = FALSE;
-
-        rune_combine = 0;        
-
-        /* Require some mana */
-        if(!p_ptr->csp)
-        {
-                msg_print("You have no mana!");
-                return;
-        }
-	
-	/* Require lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-	
-	/* Not when confused */
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-        /* Restrict choices to unused runes */
-        item_tester_hook = item_tester_hook_runeable1;
-
-	/* Get an item */
-        q = "Use which rune? ";
-        s = "You have no rune to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-        type = o_ptr->sval;
-
-        do
-        {
-                /* Restrict choices to unused secondary runes */
-                item_tester_hook = item_tester_hook_runeable2;
-
-                OK = !get_item(&item, q, s, (USE_INVEN | USE_FLOOR));
-
-                if (OK) break;
-
-                /* Get the item (in the pack) */
-                if (item >= 0)
-                {
-                        o_ptr = &inventory[item];
-                }
-
-                /* Get the item (on the floor) */
-                else
-                {
-                        o_ptr = &o_list[0 - item];
-                }
-                rune_combine |= 1 << o_ptr->sval;
-                rune2 |= 1 << o_ptr->sval;
-        }while (!OK);
-
-        if (!rune2)
-        {
-                msg_print("You have not selected a second rune!");
-                return;
-        }
-
-        if(rune2 & RUNE_POWER_SURGE)
-                power_rune += 3;
-        if(rune2 & RUNE_ARMAGEDDON)
-                power_rune += 2;
-        if(rune2 & RUNE_SPHERE)
-                power_rune += 2;
-        if(rune2 & RUNE_RAY)
-                power_rune += 1;
-
-        power = get_quantity("Which amount of Mana?", p_ptr->csp - (power_rune * (p_ptr->lev / 5)));
-
-        p_ptr->csp -= power + (power_rune * (p_ptr->lev / 5));
-
-        /* Not too weak power */
-        power = (power < 10)?10:power;
-
-        /* Use the spell multiplicator */
-        power *= (p_ptr->to_s)?p_ptr->to_s:1;
-
-        /* To reduce the high level power, while increasing the low levels */
-        powerdiv = power / (2 + (p_ptr->lev / 25));
-
-        dam = damroll((powerdiv < 2)?powerdiv:2, power);
-
-        /* Extract the base spell failure rate */
-        chance = (10 * power_rune) + (power / 100);
-
-        /* Reduce failure rate by INT/WIS adjustment */
-        chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
-
-        /* Extract the minimum failure rate */
-        minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
-
-        /* Minimum failure rate */
-        if (chance < minfail) chance = minfail;
-  
-        /* Stunning makes spells harder */
-        if (p_ptr->stun > 50) chance += 25;
-        else if (p_ptr->stun) chance += 15;
-
-        /* Always a 5 percent chance of working */
-        if (chance > 95) chance = 95;
-
-        /* Failure ? */
-	if (rand_int(100) < chance)
-	{
-                char sfail[80];
-
-		if (flush_failure) flush();
-
-                get_rnd_line("sfail.txt",sfail);
-
-                msg_format("A cloud of %s appears above you.", sfail);
-		sound(SOUND_FAIL);
-
-                energy_use = 100;
-
-                /* Window stuff */
-                p_ptr->window |= (PW_PLAYER);
-                p_ptr->redraw |= (PR_MANA);
-                return;
-	}
-
-        if(rune2 & RUNE_POWER_SURGE)
-        {
-                flg |= PROJECT_VIEWABLE;
-                ty = py;
-                tx = px;
-        }
-        if(rune2 & RUNE_ARMAGEDDON)
-        {
-                flg |= PROJECT_THRU;
-                flg |= PROJECT_KILL;
-                flg |= PROJECT_ITEM;
-                flg |= PROJECT_GRID;
-                flg |= PROJECT_METEOR_SHOWER;
-                rad = (power / 8 == 0)?1:power / 8;
-                rad = (rad > 10)?10:rad;
-                ty = py;
-                tx = px;
-        }
-        if(rune2 & RUNE_SPHERE)
-        {
-                flg |= PROJECT_THRU;
-                flg |= PROJECT_KILL;
-                flg |= PROJECT_ITEM;
-                flg |= PROJECT_GRID;
-                rad = (power / 8 == 0)?1:power / 8;
-                rad = (rad > 10)?10:rad;
-                ty = py;
-                tx = px;
-        }
-        if(rune2 & RUNE_RAY)
-        {
-                flg |= PROJECT_THRU;
-                flg |= PROJECT_KILL;
-                flg |= PROJECT_BEAM;
-                ty = -1;
-                tx = -1;
-        }
-        if(rune2 & RUNE_ARROW)
-        {
-                flg |= PROJECT_THRU;
-                flg |= PROJECT_STOP;
-                flg |= PROJECT_KILL;
-                ty = -1;
-                tx = -1;
-        }
-        if(rune2 & RUNE_SELF)
-        {
-                flg |= PROJECT_THRU;
-                flg |= PROJECT_STOP;
-                flg |= PROJECT_KILL;
-                ty = py;
-                tx = px;
-                unsafe = TRUE;
-        }
-
-        if((ty == -1)&&(tx == -1))
-        {
-                if (!get_aim_dir(&dir)) return;
-
-                /* Use the given direction */
-                tx = px + ddx[dir];
-                ty = py + ddy[dir];
-
-                /* Hack -- Use an actual "target" */
-                if ((dir == 5) && target_okay())
-                {
-                        tx = target_col;
-                        ty = target_row;
-                }
-        }
-
-        if(flg & PROJECT_VIEWABLE)
-        {
-                project_hack(type, dam);
-        }
-        else if(flg & PROJECT_METEOR_SHOWER)
-        {
-                project_meteor(rad, type, dam, flg);
-        }
-        else project(0, rad, ty, tx, dam, type, flg);
-
-        if(unsafe) unsafe = FALSE;
-
-	/* Take a turn */
-	energy_use = 100;
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER);
-        p_ptr->redraw |= (PR_MANA);
-}
-
 /*
  * Set of variables and functions to create an artifact
  */
@@ -6651,7 +6458,9 @@ flag flags2_level[31]=
         {TR2_SUST_CON,36,"Sustain Constitution"},
         {TR2_SUST_CHR,25,"Sustain Charisma"},
         {TR2_INVIS,20,"Invisibility"},
+#if 0 /* DG: Well too unbalancing right now */
         {TR2_LIFE,50,"Extra Life"},
+#endif
         {TR2_IM_ACID,49,"Immune Acid"},
         {TR2_IM_ELEC,50,"Immune Ligthning"},
         {TR2_IM_FIRE,49,"Immune Fire"},
@@ -6689,12 +6498,7 @@ flag flags3_level[17]=
         {TR3_LITE,8,"Lite"},
         {TR3_SEE_INVIS,20,"See Invisible"},
         {TR3_REGEN,32,"Regeneration"},
-        {TR3_DRAIN_EXP,1,"Drain Experience"},
         {TR3_TELEPORT,12,"Teleport"},
-        {TR3_AGGRAVATE,1,"Aggravate"},
-        {TR3_CURSED,1,"Cursed"},
-        {TR3_HEAVY_CURSE,1,"Heavy Cursed"},
-        {TR3_PERMA_CURSE,1,"Permanently Cursed"},
 };
 
 bool flags1_select[28];
@@ -6725,6 +6529,41 @@ int show_flags(byte flag)
         return max;
 }
 
+static bool magic_essence()
+{
+        int i;
+        int j = 0;
+
+        for (i = 0; i < INVEN_WIELD; i++)
+        {
+                object_type *o_ptr = &inventory[i];
+
+                /* Count the magic essenses */
+                if (o_ptr->k_idx && (o_ptr->tval == TV_BATERIE) && (o_ptr->sval == SV_BATERIE_MAGIC)) j += o_ptr->number;
+        }
+
+        if (j >= p_ptr->lev)
+        {
+                /* Consume them */
+                msg_print("All your magic essences are absobed in the effort.");
+
+                for (i = 0; i < INVEN_WIELD; i++)
+                {
+                        object_type *o_ptr = &inventory[i];
+
+                        if (o_ptr->k_idx && (o_ptr->tval == TV_BATERIE) && (o_ptr->sval == SV_BATERIE_MAGIC))
+                        {
+                                inven_item_increase(i, -255);
+                                inven_item_describe(i);
+                                inven_item_optimize(i);
+                        }
+                }
+
+                return TRUE;
+        }
+        else return FALSE;
+}
+
 void do_cmd_create_artifact()
 {
         int max, i = 0, pval = 0;
@@ -6749,6 +6588,15 @@ void do_cmd_create_artifact()
         s32b max_lev = (p_ptr->lev * 5000) + randint(p_ptr->skill_dev * 100) + (p_ptr->skill_dev * 100);
 
         energy_use = 100;
+
+        msg_print("Creating an artifact will result into a permanent loss of 100 base hp.");
+        if (!get_check("Are you sure you want to do that?")) return;
+
+        if (!magic_essence())
+        {
+                msg_format("You need %d magic essenses.", p_ptr->lev);
+                return;
+        }
 
         /* Restrict choices to artifactable items */
         item_tester_hook = item_tester_hook_artifactable;
@@ -6802,7 +6650,11 @@ void do_cmd_create_artifact()
 
         if(!okay) return;
 
-        pval = get_quantity("Which bonus(1-5) ?", 5);
+        /* he/she got warned */
+        p_ptr->hp_mod -= 100;
+        p_ptr->update |= (PU_HP);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+        pval = get_quantity("Which bonus(1-5) ?", 1);
 
         /* Save the screen */
         Term_save();
@@ -6845,6 +6697,9 @@ void do_cmd_create_artifact()
 		else
 		{
 			i = choice - '0' + 26;
+
+			/* Illegal */
+			if (i <= 26) i = -1;
 		}
 
 		/* Totally Illegal */
@@ -6917,6 +6772,9 @@ void do_cmd_create_artifact()
 		else
 		{
 			i = choice - '0' + 26;
+
+			/* Illegal */
+			if (i <= 26) i = -1;
 		}
 
 		/* Totally Illegal */
@@ -6991,6 +6849,9 @@ void do_cmd_create_artifact()
 		else
 		{
 			i = choice - '0' + 26;
+
+			/* Illegal */
+			if (i <= 26) i = -1;
 		}
 
 		/* Totally Illegal */
@@ -7043,12 +6904,12 @@ void do_cmd_create_artifact()
         {
                 msg_print("You fail to create the artifact, the powerful forces in it are released!");
                 msg_print("Your body is altered by them!");
-                dec_stat(A_STR, 45, TRUE);
-                dec_stat(A_INT, 45, TRUE);
-                dec_stat(A_WIS, 45, TRUE);
-                dec_stat(A_DEX, 45, TRUE);
-                dec_stat(A_CON, 45, TRUE);
-                dec_stat(A_CHR, 45, TRUE);
+                dec_stat(A_STR, 45, STAT_DEC_PERMANENT);
+                dec_stat(A_INT, 45, STAT_DEC_PERMANENT);
+                dec_stat(A_WIS, 45, STAT_DEC_PERMANENT);
+                dec_stat(A_DEX, 45, STAT_DEC_PERMANENT);
+                dec_stat(A_CON, 45, STAT_DEC_PERMANENT);
+                dec_stat(A_CHR, 45, STAT_DEC_PERMANENT);
 
                 curse_equipment(98, 70);
                 curse_equipment(98, 70);
@@ -7064,7 +6925,7 @@ void do_cmd_create_artifact()
         }
 
         /* Actually create the artifact */
-        q_ptr->pval = pval;
+        q_ptr->pval = randint(pval);
 
         /* Just to be sure */
         q_ptr->art_flags3 |= ( TR3_IGNORE_ACID | TR3_IGNORE_ELEC |

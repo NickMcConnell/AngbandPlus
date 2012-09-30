@@ -4,6 +4,9 @@
 
 #include "angband.h"
 
+#ifdef SAFER_PANICS
+bool panicload;
+#endif
 
 #ifdef FUTURE_SAVEFILES
 
@@ -545,7 +548,7 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->sval);
         wr_s32b(o_ptr->pval);
         wr_s16b(o_ptr->pval2);
-        wr_s16b(o_ptr->pval3);
+        wr_s32b(o_ptr->pval3);
 
 	wr_byte(o_ptr->discount);
 	wr_byte(o_ptr->number);
@@ -627,6 +630,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->monfear);
         wr_u32b(m_ptr->smart);
         wr_byte(m_ptr->imprinted);
+        wr_s16b(m_ptr->possessor);
 }
 
 
@@ -703,6 +707,7 @@ static void wr_xtra(int k_idx)
         if (k_ptr->squeltch == 2)  tmp8u |= 0x10;
         if (k_ptr->squeltch == 3)  tmp8u |= 0x20;
         if (k_ptr->squeltch == 4)  tmp8u |= 0x40;
+        if (k_ptr->artifact) tmp8u |= 0x80;
 
 	wr_byte(tmp8u);
 }
@@ -961,6 +966,7 @@ static void wr_extra(void)
 
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);
+        wr_byte(p_ptr->pracem);
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
         wr_u16b(p_ptr->realm1);
@@ -1011,6 +1017,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
 	wr_u16b(p_ptr->chp_frac);
+        wr_s16b(p_ptr->hp_mod);
 
 	wr_s16b(p_ptr->msane);
 	wr_s16b(p_ptr->csane);
@@ -1148,6 +1155,9 @@ static void wr_extra(void)
         wr_u16b(p_ptr->body_monster);
         wr_byte(p_ptr->disembodied);
 
+        /* Are we an astral thing ? */
+        wr_byte(p_ptr->astral);
+
         /* The music */
         wr_byte(p_ptr->music);
 
@@ -1170,6 +1180,15 @@ static void wr_extra(void)
         wr_s16b(spell_num);
         for (i = 0; i < MAX_SPELLS; i++) {
                 wr_spells(i);
+        }
+
+        wr_s16b(rune_num);
+        for (i = 0; i < MAX_RUNES; i++)
+        {
+                wr_string(rune_spells[i].name);
+                wr_s16b(rune_spells[i].type);
+                wr_s16b(rune_spells[i].rune2);
+                wr_s16b(rune_spells[i].mana);
         }
 
 	/* Ignore some flags */
@@ -1743,6 +1762,30 @@ static bool wr_savefile_new(void)
 	tmp16u = max_towns;
 	wr_u16b(tmp16u);
 
+        /* Hack -- Dump the random towns */
+        tmp16u = TOWN_RANDOM;
+	wr_u16b(tmp16u);
+        for (i = TOWN_RANDOM; i < max_towns; i++)
+	{
+                wr_u32b(town[i].seed);
+                wr_byte(town[i].numstores);     /* Stores are saved elsewhere */
+                wr_byte(town[i].real);
+	}
+
+        tmp16u = max_d_idx;
+	wr_u16b(tmp16u);
+        tmp16u = TOWN_DUNGEON;
+	wr_u16b(tmp16u);
+        for (i = 0; i < max_d_idx; i++)
+	{
+                for (j = 0; j < TOWN_DUNGEON; j++)
+                {
+                        wr_s16b(d_info[i].t_idx[j]);
+                        wr_s16b(d_info[i].t_level[j]);
+                }
+                wr_s16b(d_info[i].t_num);
+	}
+
 	/* Dump the quests */
 	tmp16u = max_quests;
 	wr_u16b(tmp16u);
@@ -2006,6 +2049,9 @@ bool save_player(void)
 	int             result = FALSE;
 
 	char    safe[1024];
+#ifdef SAFER_PANICS
+	char panicsave[1024];
+#endif /* SAFER PANICS */
 
 
 #ifdef SET_UID
@@ -2018,6 +2064,23 @@ bool save_player(void)
 # endif
 
 #endif
+
+#ifdef SAFER_PANICS
+        if(panic_save)
+	{
+                strcpy(panicsave, savefile);
+                strcat(panicsave, ".pnc"); /* Not sure how to do this so it's
+					nicely portable to brain-damaged OS's
+					with short filenames */
+                fd_kill(panicsave);     /* Remove any old panic saves */
+                save_player_aux(panicsave);
+# ifdef SECURE
+                /* Drop "games" permissions */
+                bePlayer();
+# endif /* SECURE */
+                return TRUE;
+	}
+#endif /* SAFER_PANICS */
 
 
 	/* New savefile */
@@ -2125,12 +2188,29 @@ bool load_player(void)
 	errr    err = 0;
 
 	byte    vvv[4];
+#ifdef SAFER_PANICS
+	char panic_fname[1024]; /* Filename for panic savefiles */
+	int testfd = -1;
+#endif /* SAFER_PANICS */
 
 #ifdef VERIFY_TIMESTAMP
 	struct stat     statbuf;
 #endif
 
 	cptr    what = "generic";
+
+#ifdef SAFER_PANICS
+        panicload = FALSE;
+	strncpy(panic_fname, savefile,1024);
+        strcat(panic_fname, ".pnc"); /* This might concievably cause a buffer
+					overflow, but the rest of the code
+					in this file does likewise. If someone
+					ever audits pernband for security
+					problems, well, don't blame me. The rest
+					of the code was like this before I even
+					got here -- Pat */
+
+#endif /* SAFER_PANICS */
 
 
 	/* Paranoia */
@@ -2149,7 +2229,11 @@ bool load_player(void)
 	/* XXX XXX XXX Fix this */
 
 	/* Verify the existance of the savefile */
-	if (access(savefile, 0) < 0)
+        if ((access(savefile, 0) < 0)
+#ifdef SAFER_PANICS
+	&& (access(panic_fname,0) < 0)
+#endif /* SAFER_PANICS */
+				)
 	{
 		/* Give a message */
 		msg_print("Savefile does not exist.");
@@ -2217,6 +2301,20 @@ bool load_player(void)
 		/* Message (below) */
 		if (err) what = "Cannot open savefile";
 	}
+
+#ifdef SAFER_PANICS
+	testfd = fd_open(panic_fname, O_RDONLY);
+	fd_close(testfd);
+        if (testfd > 0)  /* A panic save exists, which is not normally the case */
+        {
+		panicload = 1;
+		fd_close(fd);
+		fd = fd_open(panic_fname, O_RDONLY); /* Prefer panic saves
+						over real saves */
+		what = "";	/* This is not the error if we're at this pt */
+		err = 0;
+        }
+#endif /* SAFER_PANICS */
 
 	/* Process file */
 	if (!err)
@@ -2379,6 +2477,17 @@ bool load_player(void)
 			/* Reset cause of death */
 			(void)strcpy(died_from, "(alive and well)");
 		}
+
+#ifdef SAFER_PANICS
+		if(panicload)
+                {
+			fd_kill(panic_fname); /* Done loading, it'll either
+					immediately panic and re-save, or
+					we don't need the panicsave file
+					anymore. Either way, it's safe to
+					zap the original panicsave */
+                }
+#endif /* SAFER_PANICS */
 
 		/* Success */
 		return (TRUE);

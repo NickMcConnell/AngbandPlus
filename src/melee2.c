@@ -1275,9 +1275,6 @@ static bool monst_spell_monst(int m_idx)
 		see_either = (see_m || see_t);
 		see_both = (see_m && see_t);
 
-                /* mega hack that is used by the antisummoning field */
-                summoner_monster = m_ptr;
-
 		switch (thrown_spell)
 		{
 		/* RF4_SHRIEK */
@@ -2786,7 +2783,7 @@ static bool monst_spell_monst(int m_idx)
 			{
 				disturb(1, 0);
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
-                                else msg_format("%^s magically summons Wraith!", m_name);
+                                else msg_format("%^s magically summons a wraith!", m_name);
 				
 				
 				for (k = 0; k < 8; k++)
@@ -2834,9 +2831,6 @@ static bool monst_spell_monst(int m_idx)
 			}
    }
 
-   /* Deactivate the HACK */
-   summoner_monster = NULL;
- 
    if (wake_up)
    {
 	   t_ptr->csleep = 0;
@@ -3060,7 +3054,7 @@ bool make_attack_spell(int m_idx)
 	char            m_name[80];
 	char            m_poss[80];
 	char            ddesc[80];
-	bool            no_inate = FALSE;
+        bool            no_inate = FALSE;
 
 	/* Target location */
 	int x = px;
@@ -3256,9 +3250,13 @@ bool make_attack_spell(int m_idx)
 		}
 	}
 
-        /* mega hack that is used by the antisummoning field */
-        summoner_monster = m_ptr;
-
+        /* Can the player disrupt it's punny attemps ? */
+        if ((p_ptr->antimagic_dis >= m_ptr->cdis) && (magik(p_ptr->antimagic)) && (thrown_spell >= 128))
+        {
+                msg_format("Your anti-magic field disrupts %^s spell.", m_name);
+        }
+        else
+        {
 	/* Cast the spell. */
 	switch (thrown_spell)
 	{
@@ -4711,10 +4709,8 @@ bool make_attack_spell(int m_idx)
 			 break;
 		 }
 	}
+        }
 
-        /* Deactivate the HACK */
-        summoner_monster = NULL;
-	
 	/* Remember what the monster did to us */
 	if (seen)
 	{
@@ -5169,7 +5165,47 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
 }
 
 
+/* Find an appropriate corpse */
+void find_corpse(monster_type *m_ptr, int *y, int *x)
+{
+        int k, last = -1;
 
+        for (k = 0; k < max_o_idx; k++)
+        {
+                object_type *o_ptr = &o_list[k];
+                monster_type *t_ptr, *t2_ptr;
+
+                if (!o_ptr->k_idx) continue;
+
+                if (o_ptr->tval != TV_CORPSE) continue;
+
+                t_ptr = &m_list[o_ptr->pval];
+
+                /* Cannot incarnate into a higher level monster */
+                if (r_info[t_ptr->r_idx].level > r_info[m_ptr->r_idx].level) continue;
+
+                /* Must be in LOS */
+                if (los(m_ptr->fy, m_ptr->fx, o_ptr->iy, o_ptr->ix)) continue;
+
+                if (last != -1)
+                {
+                        t2_ptr = &m_list[o_list[last].pval];
+                        if (r_info[t_ptr->r_idx].level > r_info[t2_ptr->r_idx].level) last = k;
+                        else continue;
+                }
+                else
+                {
+                        last = k;
+                }
+        }
+
+        /* Must be ok now */
+        if (last != -1)
+        {
+                *y = o_list[last].iy;
+                *x = o_list[last].ix;
+        }
+}
 
 
 /*
@@ -5188,13 +5224,21 @@ static bool get_moves(int m_idx, int *mm)
 	int x2 = px;
 	bool done = FALSE;
 
-        if(doppleganger)
+        if (doppleganger)
         {
-                if(magik(90))
+                if (magik(90))
                 {
                         y2 = m_list[doppleganger].fy;
                         x2 = m_list[doppleganger].fx;
                 }
+        }
+
+        /* A possessor is not interrested in the player, it only wants a corpse */
+        if (r_ptr->flags7 & RF7_POSSESSOR)
+        {
+#if 0 /* DGDGDGDG -- make it work */
+                find_corpse(m_ptr, &y2, &x2);
+#endif
         }
 
 #ifdef MONSTER_FLOW
@@ -6726,6 +6770,14 @@ static void process_monster(int m_idx, bool is_friend)
 			/* Monster went through a wall */
 			did_pass_wall = TRUE;
 		}
+
+                /* Monster moves through webs */
+                else if ((f_info[c_ptr->feat].flags1 & FF1_WEB) &&
+                         (r_ptr->flags7 & RF7_SPIDER))
+                {
+                        /* Pass through webs */
+                        do_move = TRUE;
+                }
 		
 		/* Handle doors and secret doors */
 		else if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&

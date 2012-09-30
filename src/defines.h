@@ -42,8 +42,8 @@
 /* Added for PernAngband */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 4
-#define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 5
+#define FAKE_VER_MINOR 2
+#define FAKE_VER_PATCH 2
 
 #define ANGBAND_2_8_1
 
@@ -133,6 +133,7 @@
 #define MAX_BOUNTIES        24
 
 #define MAX_SPELLS          100
+#define MAX_RUNES           100
 
 /*
  * Arena constants
@@ -161,12 +162,17 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           23
+#define MAX_RACES           21
+
+/*
+ * Maximum number of player "race mod" types (see "table.c", etc)
+ */
+#define MAX_RACE_MODS       6
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            28
+#define MAX_CLASS            29
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
@@ -684,19 +690,27 @@ and tables.c --TY */
 #define RACE_HALF_TROLL         7
 #define RACE_DUNADAN            8
 #define RACE_HIGH_ELF           9
-#define RACE_BARBARIAN          10
-#define RACE_HALF_OGRE          11
-#define RACE_HALF_GIANT         12
-#define RACE_KOBOLD             13
-#define RACE_NIBELUNG           14
-#define RACE_DARK_ELF           15
-#define RACE_VAMPIRE            16
-#define RACE_SPECTRE            17
-#define RACE_ENT                18
-#define RACE_RKNIGHT            19
-#define RACE_DRAGONRIDER        20
-#define RACE_MOLD               21
-#define RACE_YEEK               22
+#define RACE_HALF_OGRE          10
+#define RACE_HALF_GIANT         11
+#define RACE_KOBOLD             12
+#define RACE_NIBELUNG           13
+#define RACE_DARK_ELF           14
+#define RACE_ENT                15
+#define RACE_RKNIGHT            16
+#define RACE_DRAGONRIDER        17
+#define RACE_MOLD               18
+#define RACE_YEEK               19
+#define RACE_WOOD_ELF           20
+
+/*
+ * Player race constants (hard-coded by save-files, arrays, etc)
+ */
+#define RMOD_NONE               0
+#define RMOD_VAMPIRE            1
+#define RMOD_SPECTRE            2
+#define RMOD_SKELETON           3
+#define RMOD_ZOMBIE             4
+#define RMOD_BARBARIAN          5
 
 
 /*
@@ -730,6 +744,7 @@ and tables.c --TY */
 #define CLASS_NECRO             25
 #define CLASS_UNBELIEVER        26
 #define CLASS_DAEMONOLOGIST     27
+#define CLASS_WEAPONMASTER      28
 
 /*** Screen Locations ***/
 
@@ -1136,6 +1151,10 @@ and tables.c --TY */
 /* Diggers */
 #define ART_EREBOR              140
 
+#define ART_ORCHAST             156
+#define ART_NIGHT               157
+#define ART_NATUREBANE          158
+
 /* Spell for various object */
 #define SPELL_ID_PLAIN          1
 #define SPELL_BO_FIRE           2
@@ -1479,8 +1498,9 @@ and tables.c --TY */
 #define TV_BOW          19      /* Slings/Bows/Xbows */
 #define TV_DIGGING      20      /* Shovels/Picks */
 #define TV_HAFTED       21      /* Priest Weapons */
-#define TV_POLEARM      22      /* Axes and Pikes */
+#define TV_POLEARM      22      /* Pikes/Glaives/Spears/etc. */
 #define TV_SWORD        23      /* Edged Weapons */
+#define TV_AXE          24      /* Axes/Cleavers */
 #define TV_BOOTS        30      /* Boots */
 #define TV_GLOVES       31      /* Gloves */
 #define TV_HELM         32      /* Helms */
@@ -1593,8 +1613,18 @@ and tables.c --TY */
 #define SV_MACE_OF_DISRUPTION           20	/* 5d8  */
 #define SV_GROND                        50	/* 3d4  */
 
-/* The "sval" values for TV_POLEARM */
+/* The "sval" values for TV_AXE */
 #define SV_HATCHET                       1	/* 1d5 */
+#define SV_CLEAVER                       2      /* 2d4 */
+#define SV_LIGHT_WAR_AXE                 8      /* 2d5 */
+#define SV_BEAKED_AXE                   10	/* 2d6 */
+#define SV_BROAD_AXE                    11	/* 2d6 */
+#define SV_BATTLE_AXE                   22	/* 2d8 */
+#define SV_GREAT_AXE                    25	/* 4d4 */
+#define SV_LOCHABER_AXE                 28	/* 3d8 */
+#define SV_SLAUGHTER_AXE                30      /* 5d7 */
+
+/* The "sval" values for TV_POLEARM */
 #define SV_SPEAR                         2	/* 1d6 */
 #define SV_SICKLE                        3	/* 2d3 */
 #define SV_AWL_PIKE                      4	/* 1d8 */
@@ -1603,18 +1633,13 @@ and tables.c --TY */
 #define SV_BROAD_SPEAR                   7	/* 1d9 */
 #define SV_PIKE                          8	/* 2d5 */
 #define SV_NAGINATA                      9  /* 2d6 */
-#define SV_BEAKED_AXE                   10	/* 2d6 */
-#define SV_BROAD_AXE                    11	/* 2d6 */
 #define SV_GLAIVE                       13	/* 2d6 */
 #define SV_LAJATANG                     14	/* 2d7 */
 #define SV_HALBERD                      15	/* 3d4 */
 #define SV_GUISARME                     16  /* 2d5 */
 #define SV_SCYTHE                       17	/* 5d3 */
 #define SV_LANCE                        20	/* 2d8 */
-#define SV_BATTLE_AXE                   22	/* 2d8 */
-#define SV_GREAT_AXE                    25	/* 4d4 */
 #define SV_TRIFURCATE_SPEAR             26	/* 2d9 */
-#define SV_LOCHABER_AXE                 28	/* 3d8 */
 #define SV_HEAVY_LANCE                  29  /* 4d8 */
 #define SV_SCYTHE_OF_SLICING            30	/* 8d4 */
 
@@ -1650,6 +1675,7 @@ and tables.c --TY */
 #define SV_BLADE_OF_CHAOS               30  /* 6d5 */
 #define SV_SHADOW_BLADE                 31  /* 4d4 */
 #define SV_BLUESTEEL_BLADE              32  /* 3d9 */
+#define SV_DARK_SWORD                   33  /* 3d7 */
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD          2
@@ -1996,7 +2022,7 @@ and tables.c --TY */
 #define SV_SCROLL_DEINCARNATION         40
 #define SV_SCROLL_STAR_DESTRUCTION      41
 #define SV_SCROLL_DISPEL_UNDEAD         42
-/* XXX */
+#define SV_SCROLL_MASS_RESURECTION      43
 #define SV_SCROLL_GENOCIDE              44
 #define SV_SCROLL_MASS_GENOCIDE         45
 #define SV_SCROLL_ACQUIREMENT           46
@@ -2128,6 +2154,7 @@ and tables.c --TY */
 #define SV_FOOD_PINT_OF_ALE             38
 #define SV_FOOD_PINT_OF_WINE            39
 #define SV_FOOD_ATHELAS                 40
+#define SV_FOOD_GREAT_HEALTH            41
 
 /* The "sval" codes for TV_BATERIE */
 #define SV_BATERIE_POISON    1
@@ -2904,7 +2931,7 @@ and tables.c --TY */
 #define TR3_FEATHER                     0x00001000L     /* Feather Falling */
 #define TR3_LITE                        0x00002000L     /* Permanent Light */
 #define TR3_SEE_INVIS           0x00004000L     /* See Invisible */
-/* XXX XXX XXX */
+#define TR3_NORM_ART            0x00008000L     /* Artifact in k_info */
 #define TR3_SLOW_DIGEST         0x00010000L     /* Item slows down digestion */
 #define TR3_REGEN                       0x00020000L     /* Item induces regeneration */
 #define TR3_XTRA_MIGHT          0x00040000L     /* Bows get extra multiplier */
@@ -2941,8 +2968,34 @@ and tables.c --TY */
 #define TR4_CHARGING            0x00004000L     /* Rod recharge faster */
 #define TR4_CHEAPNESS           0x00008000L     /* Rod spells are cheaper(in mana cost) to cast */
 #define TR4_FOUNTAIN            0x00010000L     /* Available as fountain (for potions) */
+#define TR4_ANTIMAGIC_50        0x00020000L     /* Forbid magic */
+#define TR4_ANTIMAGIC_30        0x00040000L     /* Forbid magic */
+#define TR4_ANTIMAGIC_20        0x00080000L     /* Forbid magic */
+#define TR4_ANTIMAGIC_10        0x00100000L     /* Forbid magic */
+#define TR4_EASY_USE            0x00200000L     /* Easily activable */
+#define TR4_IM_NETHER           0x00400000L     /* Immunity to nether */
+#define TR4_RECHARGED           0x00800000L     /* Object has been recharged once */
 #define TR4_NULL_MASK           0xFFFFFFFCL
 
+/* ESP defines */
+#define ESP_ORC                 0x00000001L
+#define ESP_TROLL               0x00000002L
+#define ESP_DRAGON              0x00000004L
+#define ESP_GIANT               0x00000008L
+#define ESP_DEMON               0x00000010L
+#define ESP_UNDEAD              0x00000020L
+#define ESP_EVIL                0x00000040L
+#define ESP_ANIMAL              0x00000080L
+#define ESP_DRAGONRIDER         0x00000100L
+#define ESP_GOOD                0x00000200L
+#define ESP_NONLIVING           0x00000400L
+#define ESP_UNIQUE              0x00000800L
+#define ESP_SPIDER              0x00001000L
+#define ESP_ALL                 0x80000000L
+
+/* Number of group of flags to choose from */
+#define MAX_FLAG_GROUP          12
+#define NEW_GROUP_CHANCE        40      /* Chance to get a new group */
 
 /*
  * Hack -- flag set 1 -- mask for "pval-dependant" flags.
@@ -2971,6 +3024,7 @@ and tables.c --TY */
 #define FF1_SUPPORT_LIGHT       0x00002000L
 #define FF1_CAN_CLIMB           0x00004000L
 #define FF1_TUNNELABLE          0x00008000L
+#define FF1_WEB                 0x00010000L
 
 /*** Dungeon type flags -- DG ***/
 #define DF1_PRINCIPAL           0x00000001L
@@ -2992,6 +3046,12 @@ and tables.c --TY */
 #define DF1_FORGET              0x00010000L
 #define DF1_NO_DESTROY          0x00020000L
 #define DF1_SAND_VEIN           0x00040000L
+#define DF1_CIRCULAR_ROOMS      0x00080000L
+#define DF1_EMPTY               0x00100000L
+#define DF1_DAMAGE_FEAT         0x00200000L
+#define DF1_FLAT                0x00400000L
+#define DF1_TOWER               0x00800000L
+#define DF1_RANDOM_TOWNS        0x01000000L
 
 /*** Monster blow constants ***/
 
@@ -3289,9 +3349,10 @@ and tables.c --TY */
 #define RF7_FRIENDLY            0x00000008  /* Monster is friendly */
 #define RF7_PET                 0x00000010  /* Monster is a pet */
 #define RF7_MORTAL              0x00000020  /* Monster is a mortal being */
-/*** XXX ***/
+#define RF7_SPIDER              0x00000040  /* Monster is a spider (can pass webs) */
 #define RF7_NAZGUL              0x00000080  /* Monster is a Nazgul */
 #define RF7_DG_CURSE            0x00000100  /* If killed the monster grant a DG Curse to the player */
+#define RF7_POSSESSOR           0x00000200  /* Is it a dreaded possessor monster ? */
 
 
 /*
@@ -3447,7 +3508,7 @@ and tables.c --TY */
  * Artifacts use the "name1" field
  */
 #define artifact_p(T) \
-        ((T)->tval == TV_RANDART || ((T)->name1 ? TRUE : FALSE))
+        ((T)->tval == TV_RANDART || ((T)->name1 ? TRUE : FALSE) || ((k_info[(T)->k_idx].flags3 & TR3_NORM_ART)? TRUE : FALSE))
 
 /*
  * Ego-Items use the "name2" field
@@ -3591,6 +3652,11 @@ and tables.c --TY */
 #define cave_naked_bold(Y,X) \
         ((f_info[cave[Y][X].feat].flags1 & FF1_FLOOR) && \
          (!(f_info[cave[Y][X].feat].flags1 & FF1_PERMANENT)) && \
+	  (cave[Y][X].o_idx == 0) && \
+          (cave[Y][X].m_idx == 0))
+
+#define cave_naked_bold2(Y,X) \
+        ((f_info[cave[Y][X].feat].flags1 & FF1_FLOOR) && \
 	  (cave[Y][X].o_idx == 0) && \
           (cave[Y][X].m_idx == 0))
 
@@ -3991,6 +4057,7 @@ extern int PlayerUID;
 #define RUNE_SPHERE             0x00000008
 #define RUNE_POWER_SURGE        0x00000010
 #define RUNE_ARMAGEDDON         0x00000020
+#define RUNE_STONE              0x000000FF
 
 
 /*
@@ -4005,6 +4072,8 @@ extern int PlayerUID;
 #define DUNGEON_HELL            6
 #define DUNGEON_NUMENOR         7
 #define DUNGEON_VANILLA         8
+/* hack, used for the death fate */
+#define DUNGEON_DEATH           28
 
 /* Max depth of each dungeon(max_depth - min_depth) */
 #define MAX_DUNGEON_DEPTH       128
@@ -4117,7 +4186,7 @@ extern int PlayerUID;
 #define MEGO_FIX                2
 #define MEGO_PRC                3
 
-#define MEGO_CHANCE             5       /* 10% chances of getting ego monsters */
+#define MEGO_CHANCE             5       /* % chances of getting ego monsters */
 
 /* Monster Ego flags */
 #define EF1_NO_UNDEAD           0x00000001L
@@ -4133,17 +4202,29 @@ extern int PlayerUID;
 #define OBJ_GENE_MAGIC          20
 #define OBJ_GENE_TOOL           20
 
-/* ESP defines */
-#define ESP_ORC                 0x00000001L
-#define ESP_TROLL               0x00000002L
-#define ESP_DRAGON              0x00000004L
-#define ESP_GIANT               0x00000008L
-#define ESP_DEMON               0x00000010L
-#define ESP_UNDEAD              0x00000020L
-#define ESP_EVIL                0x00000040L
-#define ESP_ANIMAL              0x00000080L
-#define ESP_DRAGONRIDER         0x00000100L
-#define ESP_GOOD                0x00000200L
-#define ESP_NONLIVING           0x00000400L
-#define ESP_UNIQUE              0x00000800L
-#define ESP_ALL                 0x80000000L
+/*
+ * Used (or should be) by various functions and tables needing access to
+ * single bits
+ */
+#define BIT(x) (1 << (x))
+
+/* Town defines */
+#define TOWN_RANDOM     20              /* First random town */
+#define TOWN_DUNGEON    4               /* Maximun number of towns per dungeon */
+#define TOWN_CHANCE     50              /* Chance of 1 town */
+
+
+/*
+ * Store flags
+ */
+#define SF1_DEPEND_LEVEL        0x00000001L
+#define SF1_SHALLOW_LEVEL       0x00000002L
+#define SF1_MEDIUM_LEVEL        0x00000004L
+#define SF1_DEEP_LEVEL          0x00000008L
+#define SF1_RARE                0x00000010L
+#define SF1_VERY_RARE           0x00000020L
+#define SF1_COMMON              0x00000040L
+#define SF1_ALL_ITEM            0x00000080L     /* Works as the BM */
+#define SF1_RANDOM              0x00000100L
+#define SF1_FORCE_LEVEL         0x00000200L
+

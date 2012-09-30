@@ -320,6 +320,17 @@ void delete_monster_idx(int i)
 	/* Count monsters */
 	m_cnt--;
 
+        /* Do we survided our fate ? */
+        if ((dungeon_type == DUNGEON_DEATH) && (!m_cnt))
+        {
+                msg_print("You overcome your fate, mortal!");
+
+                dungeon_type = DUNGEON_WILDERNESS;
+                dun_level = 0;
+
+                p_ptr->leaving = TRUE;
+        }
+
 	/* Update monster list window */
 	p_ptr->window |= (PW_M_LIST);
 
@@ -638,7 +649,7 @@ bool restrict_monster_to_dungeon(monster_race *r_ptr)
         dungeon_info_type *d_ptr = &d_info[dungeon_type];
         byte a;
 
-        /* Some percent of monsters are alloways accepted */
+        /* Some percent of monsters are allways accepted */
         if (magik(100 - d_ptr->special_percent)) return TRUE;
 
         if(d_ptr->mode == DUNGEON_MODE_AND)
@@ -844,6 +855,9 @@ bool restrict_monster_to_dungeon(monster_race *r_ptr)
         return TRUE;
 }
 
+/* Ugly hack, let summon unappropriate monsters */
+bool summon_hack = FALSE;
+
 /*
  * Choose a monster race that seems "appropriate" to the given level
  *
@@ -960,7 +974,7 @@ s16b get_mon_num(int level)
                 if(!joke_monsters && (r_ptr->flags8 & RF8_JOKEANGBAND)) continue;
 
                 /* Some dungeon types restrict the possible monsters */
-                if(!restrict_monster_to_dungeon(r_ptr) && dun_level) continue;
+                if(!summon_hack && !restrict_monster_to_dungeon(r_ptr) && dun_level) continue;
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -1409,7 +1423,7 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 		}
 
 		/* Undead characters are 50% likely to be unaffected */
-                if (((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) || (p_ptr->prace == RACE_SPECTRE))
+                if (((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) || (p_ptr->pracem == RMOD_SPECTRE))
 		{
 			if (randint(100) < (25 + (p_ptr->lev))) return;
 		}
@@ -1691,6 +1705,7 @@ void update_mon(int m_idx, bool full)
 
                         /* Different ESP */
                         if ((p_ptr->telepathy & ESP_ORC) && (r_ptr->flags3 & RF3_ORC)) can_esp = TRUE;
+                        if ((p_ptr->telepathy & ESP_SPIDER) && (r_ptr->flags7 & RF7_SPIDER)) can_esp = TRUE;
                         if ((p_ptr->telepathy & ESP_TROLL) && (r_ptr->flags3 & RF3_TROLL)) can_esp = TRUE;
                         if ((p_ptr->telepathy & ESP_DRAGON) && (r_ptr->flags3 & RF3_DRAGON)) can_esp = TRUE;
                         if ((p_ptr->telepathy & ESP_GIANT) && (r_ptr->flags3 & RF3_GIANT)) can_esp = TRUE;
@@ -1900,7 +1915,7 @@ void update_monsters(bool full)
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
  */
-bool place_monster_one(int y, int x, int r_idx, int ego, bool slp, bool charm)
+s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, bool charm)
 {
         int             i;
         char            dummy[5];
@@ -1914,70 +1929,70 @@ bool place_monster_one(int y, int x, int r_idx, int ego, bool slp, bool charm)
 	cptr		name = (r_name + r_ptr->name);
 
         /* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
-        if(p_ptr->wild_mode) return FALSE;
+        if(p_ptr->wild_mode) return 0;
 
 	/* Verify location */
-	if (!in_bounds(y, x)) return (FALSE);
+        if (!in_bounds(y, x)) return 0;
 
 	/* Require empty space */
-	if (!cave_empty_bold(y, x)) return (FALSE);
+        if (!cave_empty_bold(y, x)) return 0;
 
 
 	/* Hack -- no creation on glyph of warding */
-	if (cave[y][x].feat == FEAT_GLYPH) return (FALSE);
-	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return (FALSE);
+        if (cave[y][x].feat == FEAT_GLYPH) return 0;
+        if (cave[y][x].feat == FEAT_MINOR_GLYPH) return 0;
 
         /* Nor on the between */
-        if (cave[y][x].feat == FEAT_BETWEEN) return (FALSE);
+        if (cave[y][x].feat == FEAT_BETWEEN) return 0;
 
         /* Nor on the altars */
         if ((cave[y][x].feat >= FEAT_ALTAR_HEAD)
          && (cave[y][x].feat <= FEAT_ALTAR_TAIL))
-                return (FALSE);
+                return 0;
 
 	/* Nor on the Pattern */
 	if ((cave[y][x].feat >= FEAT_PATTERN_START)
 	 && (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-		return (FALSE);
+                return 0;
 
 	/* Paranoia */
-	if (!r_idx) return (FALSE);
+        if (!r_idx) return 0;
 
 	/* Paranoia */
-	if (!r_ptr->name) return (FALSE);
+        if (!r_ptr->name) return 0;
 
         /* Ego Uniques are NOT to be created */
-        if ((r_ptr->flags1 & RF1_UNIQUE) && ego) return FALSE;
+        if ((r_ptr->flags1 & RF1_UNIQUE) && ego) return 0;
 
         /* Now could we generate an Ego Monster */
         r_ptr = race_info_idx(r_idx, ego);
 
 	if (!monster_can_cross_terrain(cave[y][x].feat, r_ptr))
 	{
-		return FALSE;
+                return 0;
 	}
 
         /* Unallow some uniques to be generated outside of their quests/special levels/dungeons */
         if ((r_ptr->flags9 & RF9_SPECIAL_GENE) && !hack_allow_special && !vanilla_town)
         {
-                return FALSE;
+                return 0;
         }
 
         /* Unallow some uniques to be ever generated by any means but some spells and such */
         if ((r_ptr->flags9 & RF9_NEVER_GENE) && !hack_allow_special && !vanilla_town)
         {
-                return FALSE;
+                return 0;
         }
 
         /* Hack -- "unique" monsters must be "unique" */
         if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->max_num == -1))
 	{
 		/* Cannot create */
-                return (FALSE);
+                return 0;
 	}
 
         /* The monster is already on an unique level */
-        if (r_ptr->on_saved) return (FALSE);
+        if (r_ptr->on_saved) return 0;
 
 /* Anyway that doesn't work .... hum... TO FIX -- DG */
 #if 0
@@ -1985,21 +2000,21 @@ bool place_monster_one(int y, int x, int r_idx, int ego, bool slp, bool charm)
         if ((!(r_ptr->flags8 & (RF8_WILD_TOWN))) && (wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].terrain_idx == TERRAIN_TOWN) && !dun_level)
 	{
 		/* Cannot create */
-		return (FALSE);
+                return (0);
 	}
 #endif
 	/* Hack -- "unique" monsters must be "unique" */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
 	{
 		/* Cannot create */
-		return (FALSE);
+                return 0;
 	}
 
 	/* Depth monsters may NOT be created out of depth */
 	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (dun_level < r_ptr->level))
 	{
 		/* Cannot create */
-		return (FALSE);
+                return 0;
 	}
 
 	/* Powerful monster */
@@ -2042,7 +2057,7 @@ bool place_monster_one(int y, int x, int r_idx, int ego, bool slp, bool charm)
 	hack_m_idx_ii = c_ptr->m_idx;
 
 	/* Mega-Hack -- catch "failure" */
-	if (!c_ptr->m_idx) return (FALSE);
+        if (!c_ptr->m_idx) return 0;
 
 
 	/* Get a new monster record */
@@ -2081,6 +2096,8 @@ bool place_monster_one(int y, int x, int r_idx, int ego, bool slp, bool charm)
 	}
 
         /* Generate the monster's inventory(if any) */
+        /* Only if not fated to die */
+        if (dungeon_type != DUNGEON_DEATH)
         {
                 bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
                 bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
@@ -2256,360 +2273,7 @@ bool place_monster_one(int y, int x, int r_idx, int ego, bool slp, bool charm)
 
 
 	/* Success */
-	return (TRUE);
-}
-
-s16b place_monster_one_return(int y, int x, int r_idx, int ego, bool slp, bool charm)
-{
-        int             i;
-        char            dummy[5];
-
-	cave_type		*c_ptr;
-
-	monster_type	*m_ptr;
-
-	monster_race	*r_ptr = &r_info[r_idx];
-
-	cptr		name = (r_name + r_ptr->name);
-
-        /* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
-        if(p_ptr->wild_mode) return FALSE;
-
-	/* Verify location */
-	if (!in_bounds(y, x)) return (FALSE);
-
-	/* Require empty space */
-	if (!cave_empty_bold(y, x)) return (FALSE);
-
-
-	/* Hack -- no creation on glyph of warding */
-	if (cave[y][x].feat == FEAT_GLYPH) return (FALSE);
-	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return (FALSE);
-
-        /* Nor on the between */
-        if (cave[y][x].feat == FEAT_BETWEEN) return (FALSE);
-
-        /* Nor on the altars */
-        if ((cave[y][x].feat >= FEAT_ALTAR_HEAD)
-         && (cave[y][x].feat <= FEAT_ALTAR_TAIL))
-                return (FALSE);
-
-	/* Nor on the Pattern */
-	if ((cave[y][x].feat >= FEAT_PATTERN_START)
-	 && (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-		return (FALSE);
-
-	/* Paranoia */
-	if (!r_idx) return (FALSE);
-
-	/* Paranoia */
-	if (!r_ptr->name) return (FALSE);
-
-        /* Ego Uniques are NOT to be created */
-        if ((r_ptr->flags1 & RF1_UNIQUE) && ego) return FALSE;
-
-        /* Now could we generate an Ego Monster */
-        r_ptr = race_info_idx(r_idx, ego);
-
-	if (!monster_can_cross_terrain(cave[y][x].feat, r_ptr))
-	{
-		return FALSE;
-	}
-
-        /* Unallow some uniques to be generated outside of their quests/special levels/dungeons */
-        if ((r_ptr->flags9 & RF9_SPECIAL_GENE) && !hack_allow_special && !vanilla_town)
-        {
-                return FALSE;
-        }
-
-        /* Hack -- "unique" monsters must be "unique" */
-        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->max_num == -1))
-	{
-		/* Cannot create */
-                return (FALSE);
-	}
-
-        /* The monster is already on an unique level */
-        if (r_ptr->on_saved) return (FALSE);
-
-/* Anyway that doesn't work .... hum... TO FIX -- DG */
-#if 0
-        /* Hack -- non "town" monsters are NEVER generated in town */
-        if ((!(r_ptr->flags8 & (RF8_WILD_TOWN))) && (wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].terrain_idx == TERRAIN_TOWN) && !dun_level)
-	{
-		/* Cannot create */
-		return (FALSE);
-	}
-#endif
-	/* Hack -- "unique" monsters must be "unique" */
-	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
-	{
-		/* Cannot create */
-		return (FALSE);
-	}
-
-	/* Depth monsters may NOT be created out of depth */
-	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (dun_level < r_ptr->level))
-	{
-		/* Cannot create */
-		return (FALSE);
-	}
-
-	/* Powerful monster */
-	if (r_ptr->level > dun_level)
-	{
-		/* Unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
-		{
-			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Unique (%s).", name);
-
-			/* Boost rating by twice delta-depth */
-			rating += (r_ptr->level - dun_level) * 2;
-		}
-
-		/* Normal monsters */
-		else
-		{
-			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Monster (%s).", name);
-
-			/* Boost rating by delta-depth */
-			rating += (r_ptr->level - dun_level);
-		}
-	}
-
-	/* Note the monster */
-	else if (r_ptr->flags1 & (RF1_UNIQUE))
-	{
-		/* Unique monsters induce message */
-                if ((cheat_hear)||(p_ptr->precognition)) msg_format("Unique (%s).", name);
-	}
-
-
-	/* Access the location */
-	c_ptr = &cave[y][x];
-
-	/* Make a new monster */
-        c_ptr->m_idx = m_pop();
-	hack_m_idx_ii = c_ptr->m_idx;
-
-	/* Mega-Hack -- catch "failure" */
-	if (!c_ptr->m_idx) return (FALSE);
-
-
-	/* Get a new monster record */
-	m_ptr = &m_list[c_ptr->m_idx];
-
-	/* Save the race */
-	m_ptr->r_idx = r_idx;
-        m_ptr->ego = ego;
-
-	/* Place the monster at the location */
-	m_ptr->fy = y;
-	m_ptr->fx = x;
-
-	/* No "damage" yet */
-	m_ptr->stunned = 0;
-	m_ptr->confused = 0;
-	m_ptr->monfear = 0;
-
-        /* No objects yet */
-        m_ptr->hold_o_idx = 0;
-
-	/* Friendly? */
-        if ( charm || (r_ptr->flags7 & RF7_PET) )
-	{
-		set_pet(m_ptr, TRUE);
-	}
-
-	/* Assume no sleeping */
-	m_ptr->csleep = 0;
-
-	/* Enforce sleeping if needed */
-	if (slp && r_ptr->sleep)
-	{
-		int val = r_ptr->sleep;
-		m_ptr->csleep = ((val * 2) + randint(val * 10));
-	}
-
-        /* Generate the monster's inventory(if any) */
-        {
-                bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
-                bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
-
-                bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
-                bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
-
-                int j;
-
-                int force_coin = get_coin_type(r_ptr);
-
-                int dump_item = 0;
-                int dump_gold = 0;
-                object_type forge;
-                object_type *q_ptr;
-
-                int number = 0;
-
-                /* Average dungeon and monster levels */
-                object_level = (dun_level + r_ptr->level) / 2;
-
-                /* Determine how much we can drop */
-                if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
-                if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
-                if  (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
-                if  (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
-                if  (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
-                if  (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
-
-                /* Hack -- handle creeping coins */
-                coin_type = force_coin;
-
-                /* Drop some objects */
-                for (j = 0; j < number; j++)
-                {
-                        int o_idx;
-                        object_type *o_ptr;
-
-                        /* Get local object */
-                        q_ptr = &forge;
-
-                        /* Wipe the object */
-                        object_wipe(q_ptr);
-
-                        /* Make Gold */
-                        if (do_gold && (!do_item || (rand_int(100) < 50)))
-                        {
-                                /* Make some gold */
-                                if (!make_gold(q_ptr)) continue;
-
-                                /* XXX XXX XXX */
-                                dump_gold++;
-                        }
-
-                        /* Make Object */
-                        else
-                        {
-                                /* Make an object */
-                                if (!make_object(q_ptr, good, great, r_ptr->drops)) continue;
-
-                                /* XXX XXX XXX */
-                                dump_item++;
-                        }
-
-                        /* Get new object */
-                        o_idx = o_pop();
-
-                        if(o_idx)
-                        {
-                                /* Get the item */
-                                o_ptr = &o_list[o_idx];
-
-                                /* Structure copy */
-                                object_copy(o_ptr, q_ptr);
-
-                                /* Build a stack */
-                                o_ptr->next_o_idx = m_ptr->hold_o_idx;
-
-                                o_ptr->held_m_idx = c_ptr->m_idx;
-                                o_ptr->ix = 0;
-                                o_ptr->iy = 0;
-
-                                m_ptr->hold_o_idx = o_idx;
-                        }
-                }
-
-                /* Reset the object level */
-                object_level = dun_level;
-
-                /* Reset "coin" type */
-                coin_type = 0;
-        }
-
-	/* Unknown distance */
-	m_ptr->cdis = 0;
-
-	/* No flags */
-	m_ptr->mflag = 0;
-
-	/* Not visible */
-	m_ptr->ml = FALSE;
-
-
-	/* Assign maximal hitpoints */
-	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
-	{
-		m_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
-	}
-	else
-	{
-		m_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
-	}
-
-	/* And start out fully healthy */
-	m_ptr->hp = m_ptr->maxhp;
-
-
-	/* Extract the monster base speed */
-	m_ptr->mspeed = r_ptr->speed;
-
-	/* Hack -- small racial variety */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
-	{
-		/* Allow some small variation per monster */
-		i = extract_energy[r_ptr->speed] / 10;
-		if (i) m_ptr->mspeed += rand_spread(0, i);
-	}
-
-
-	/* Give a random starting energy */
-	m_ptr->energy = (byte)rand_int(100);
-
-	/* Force monster to wait for player */
-	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
-	{
-		/* Monster is still being nice */
-		m_ptr->mflag |= (MFLAG_NICE);
-
-		/* Must repair monsters */
-		repair_monsters = TRUE;
-	}
-
-	/* Hack -- see "process_monsters()" */
-	if (c_ptr->m_idx < hack_m_idx)
-	{
-		/* Monster is still being born */
-		m_ptr->mflag |= (MFLAG_BORN);
-	}
-
-
-	/* Update the monster */
-	update_mon(c_ptr->m_idx, TRUE);
-
-
-	/* Hack -- Count the number of "reproducers" */
-	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro++;
-
-
-	/* Hack -- Notice new multi-hued monsters */
-	if (r_ptr->flags1 & (RF1_ATTR_MULTI)) shimmer_monsters = TRUE;
-
-        /* Hack -- we need to modify the REAL r_info, not the fake one */
-        r_info = &r_info[r_idx];
-
-	/* Hack -- Count the monsters on the level */
-	r_ptr->cur_num++;
-
-        /* Unique monsters on saved levels should be "marked" */
-        if ((r_ptr->flags1 & RF1_UNIQUE) && get_dungeon_save(dummy))
-        {
-                r_ptr->on_saved = TRUE;
-        }
-
-
-	/* Success */
-	return (TRUE);
+        return c_ptr->m_idx;
 }
 
 /*
@@ -2826,7 +2490,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 			if (!z) break;
 
 			/* Place a single escort */
-                        (void)place_monster_one(ny, nx, z, pick_ego_monster(z), slp, charm);
+                        place_monster_one(ny, nx, z, pick_ego_monster(z), slp, charm);
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
@@ -3015,11 +2679,6 @@ bool alloc_monster(int dis, bool slp)
  * Hack -- the "type" of the current "summon specific"
  */
 static int summon_specific_type = 0;
-
-/*
- * Hack -- The monste that summons
- */
-monster_type *summoner_monster = NULL;
 
 
 /*
@@ -3340,16 +2999,6 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	bool Group_ok = TRUE;
 	bool (*old_get_mon_num_hook)(int r_idx);
 
-        if (summoner_monster != NULL)
-        {
-                if (summoner_monster->cdis <= p_ptr->antisummon)
-                {
-                        msg_print("Your anti-summoning field disrupt the summoning!");
-                        return FALSE;
-                }
-        }
-        summoner_monster = NULL;
-
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
 	{
@@ -3381,7 +3030,6 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	/* Failure */
 	if (i == 20) return (FALSE);
 
-
 	/* Save the "summon" type */
 	summon_specific_type = type;
 
@@ -3396,7 +3044,9 @@ bool summon_specific(int y1, int x1, int lev, int type)
 
 
 	/* Pick a monster, using the level calculation */
+        summon_hack = TRUE;
 	r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+        summon_hack = FALSE;
 
 #ifdef R_IDX_TESTING_HACK
 	r_idx = 356;
@@ -3432,16 +3082,6 @@ bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok)
 {
 	int i, x, y, r_idx;
 	bool (*old_get_mon_num_hook)(int r_idx);
-
-        if (summoner_monster != NULL)
-        {
-                if (summoner_monster->cdis <= p_ptr->antisummon)
-                {
-                        msg_print("Your anti-summoning field disrupt the summoning!");
-                        return FALSE;
-                }
-        }
-        summoner_monster = NULL;
 
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)

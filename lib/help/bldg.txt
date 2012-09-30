@@ -23,6 +23,6 @@ Inn: Resting will refresh, and those ghosts prowl at night...
 Rumors can be helpful or just plain silly.
 All buildings are made of stone and unlikely to move around.
 
-This file is no longer 100% acurate for ZAngband 2.2.0.
+This file is not very acurate for PernAngband 4.2.2.
 
 

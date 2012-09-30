@@ -80,6 +80,7 @@ static grouper group_item[] =
 	{ TV_SWORD,         "Weapons" },
 	{ TV_POLEARM,       NULL },
 	{ TV_HAFTED,        NULL },
+        { TV_AXE,           NULL },
 	{ TV_DIGGING,       NULL },
         { TV_MSTAFF,        NULL },
 
@@ -209,6 +210,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+                case TV_AXE:
 		case TV_DIGGING:
 		{
 			sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
@@ -402,6 +404,7 @@ static grouper group_artifact[] =
 	{ TV_SWORD,             "Edged Weapons" },
 	{ TV_POLEARM,           "Polearms" },
 	{ TV_HAFTED,            "Hafted Weapons" },
+        { TV_AXE,               "Axes" },
 
         { TV_MSTAFF,            "Mage Staffs" },
 
@@ -1750,13 +1753,13 @@ static void spoil_mon_info(cptr fname)
 
 		if (flags2 & (RF2_AURA_FIRE))
 		{
-			sprintf(buf, "%s is surrounded in flames.  ", wd_che[msex]);
+			sprintf(buf, "%s is surrounded by flames.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 
 		if (flags2 & (RF2_AURA_ELEC))
 		{
-			sprintf(buf, "%s is surrounded in electricity.  ", wd_che[msex]);
+			sprintf(buf, "%s is surrounded by electricity.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 
@@ -2321,6 +2324,8 @@ static char* get_tval_name(int tval)
                         return "Polearm";
                 case TV_HAFTED:
                         return "Hafted";
+                case TV_AXE:
+                        return "Axe";
                 case TV_CROWN:
                         return "Crown";
                 case TV_HELM:

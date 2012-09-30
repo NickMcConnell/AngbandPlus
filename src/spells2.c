@@ -928,7 +928,7 @@ void self_knowledge(FILE *fff)
 		if (r_ptr->flags6 & RF6_S_DRAGON)
 			info[i++] = "You can magically summon a dragon.";
 		if (r_ptr->flags6 & RF6_S_HI_UNDEAD)
-			info[i++] = "You can magically summon greater undeads.";
+			info[i++] = "You can magically summon greater undead.";
 		if (r_ptr->flags6 & RF6_S_HI_DRAGON)
 			info[i++] = "You can magically summon greater dragons.";
 		if (r_ptr->flags6 & RF6_S_WRAITH)
@@ -950,6 +950,9 @@ void self_knowledge(FILE *fff)
 		/* Not implemented */
 		if (r_ptr->flags7 & RF7_NAZGUL)
 			info[i++] = "You are a Nazgul.";
+
+                if (r_ptr->flags7 & RF7_SPIDER)
+                        info[i++] = "You are a spider.";
 
                 if (r_ptr->flags8 & RF8_WILD_TOWN)
 			info[i++] = "You appear in towns.";
@@ -980,6 +983,7 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You are protected by great wyrms of power.";
 	}
 	else
+        {
 	switch (p_ptr->prace)
 	{
                 case RACE_DWARF:
@@ -1011,10 +1015,6 @@ void self_knowledge(FILE *fff)
 			if (plev > 9)
 				info[i++] = "You enter berserk fury (cost 12).";
 			break;
-		case RACE_BARBARIAN:
-			if (plev > 7)
-				info[i++] = "You can enter berserk fury (cost 10).";
-			break;
 		case RACE_HALF_OGRE:
 			if (plev > 24)
 				info[i++] = "You can set an Explosive Rune (cost 35).";
@@ -1039,20 +1039,6 @@ void self_knowledge(FILE *fff)
 				info[i++] = Dummy;
 			}
 			break;
-		case RACE_VAMPIRE:
-			if (plev > 1)
-			{
-				sprintf(Dummy, "You can steal life from a foe, dam. %d-%d (cost %d).",
-				    plev+MAX(1, plev/10), plev+plev*MAX(1, plev/10), 1+(plev/3));
-				info[i++] = Dummy;
-			}
-			break;
-		case RACE_SPECTRE:
-			if (plev > 3)
-			{
-				info[i++] = "You can wail to terrify your enemies (cost 3).";
-			}
-			break;
                 case RACE_ENT:
 			if (plev > 3)
 			{
@@ -1075,6 +1061,35 @@ void self_knowledge(FILE *fff)
 		default:
 			break;
 	}
+        switch (p_ptr->pracem)
+	{
+                case RMOD_VAMPIRE:
+			if (plev > 1)
+			{
+				sprintf(Dummy, "You can steal life from a foe, dam. %d-%d (cost %d).",
+				    plev+MAX(1, plev/10), plev+plev*MAX(1, plev/10), 1+(plev/3));
+				info[i++] = Dummy;
+			}
+			break;
+                case RMOD_SPECTRE:
+			if (plev > 3)
+			{
+				info[i++] = "You can wail to terrify your enemies (cost 3).";
+			}
+			break;
+                case RMOD_ZOMBIE:
+                case RMOD_SKELETON:
+			if (plev > 29)
+				info[i++] = "You can restore lost life forces (cost 30).";
+			break;
+                case RMOD_BARBARIAN:
+			if (plev > 7)
+				info[i++] = "You can enter berserk fury (cost 10).";
+			break;
+		default:
+			break;
+	}
+        }
 
 	if (p_ptr->muta1)
 	{
@@ -1599,15 +1614,16 @@ void self_knowledge(FILE *fff)
                         if (p_ptr->telepathy & ESP_ORC) info[i++] = "You can sense the presence of orcs.";
                         if (p_ptr->telepathy & ESP_TROLL) info[i++] = "You can sense the presence of trolls.";
                         if (p_ptr->telepathy & ESP_DRAGON) info[i++] = "You can sense the presence of dragons.";
+                        if (p_ptr->telepathy & ESP_SPIDER) info[i++] = "You can sense the presence of spiders.";
                         if (p_ptr->telepathy & ESP_GIANT) info[i++] = "You can sense the presence of giants.";
                         if (p_ptr->telepathy & ESP_DEMON) info[i++] = "You can sense the presence of demons.";
-                        if (p_ptr->telepathy & ESP_UNDEAD) info[i++] = "You can sense presence of undeads.";
+                        if (p_ptr->telepathy & ESP_UNDEAD) info[i++] = "You can sense presence of undead.";
                         if (p_ptr->telepathy & ESP_EVIL) info[i++] = "You can sense the presence of evil beings.";
                         if (p_ptr->telepathy & ESP_ANIMAL) info[i++] = "You can sense the presence of animals.";
                         if (p_ptr->telepathy & ESP_DRAGONRIDER) info[i++] = "You can sense the presence of dragonriders.";
                         if (p_ptr->telepathy & ESP_GOOD) info[i++] = "You can sense the presence of good beings.";
                         if (p_ptr->telepathy & ESP_NONLIVING) info[i++] = "You can sense the presence of non-living things.";
-                        if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "You can sense the presence of Unique beings.";
+                        if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "You can sense the presence of unique beings.";
                 }
 	}
 	if (p_ptr->hold_life)
@@ -1625,6 +1641,10 @@ void self_knowledge(FILE *fff)
 	if (p_ptr->sh_elec)
 	{
 		info[i++] = "You are surrounded with electricity.";
+	}
+        if (p_ptr->antimagic)
+	{
+                info[i++] = "You are surrounded by an anti-magic field.";
 	}
 	if (p_ptr->anti_magic)
 	{
@@ -1736,7 +1756,11 @@ void self_knowledge(FILE *fff)
 	{
 		info[i++] = "You are resistant to nexus attacks.";
 	}
-	if (p_ptr->resist_neth)
+        if (p_ptr->immune_neth)
+	{
+                info[i++] = "You are immune to nether forces.";
+	}
+        else if (p_ptr->resist_neth)
 	{
 		info[i++] = "You are resistant to nether forces.";
 	}
@@ -1750,7 +1774,7 @@ void self_knowledge(FILE *fff)
 	}
         if (p_ptr->resist_continuum)
 	{
-                info[i++] = "The space-time continuum can be disrupted near you.";
+                info[i++] = "The space-time continuum cannot be disrupted near you.";
 	}
 
 	if (p_ptr->sustain_str)
@@ -3049,6 +3073,7 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
                 case TV_MSTAFF:
                 case TV_BOOMERANG:
                 case TV_SWORD:
+                case TV_AXE:
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_DIGGING:
@@ -4069,10 +4094,10 @@ void random_slay (object_type * o_ptr, bool is_scroll)
 			o_ptr->art_flags1 |= TR1_CHAOTIC;
 			if (randint(2)==1) return;
 		}
-	}
+        }
 
 	else if (artifact_bias == BIAS_PRIESTLY &&
-	   (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM) &&
+           (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_AXE) &&
 	  !(o_ptr->art_flags3 & TR3_BLESSED))
 	{
 		/* A free power for "priestly" random artifacts */
@@ -4706,6 +4731,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 
 		if (o_ptr->art_flags1 & TR1_BLOWS)
 		    o_ptr->pval = randint(2) + 1;
+                else if (o_ptr->art_flags3 & TR3_XTRA_MIGHT)
+		    o_ptr->pval = randint(2) + 1;
 		else
 		{
 			do
@@ -5242,6 +5269,9 @@ bool recharge(int power)
 		}
 	}
 
+        /* Mark as recharged -- For alchemists */
+        o_ptr->art_flags4 |= TR4_RECHARGED;
+
 	/* Inflict the penalties for failing a recharge. */
 	if (fail)
 	{
@@ -5641,6 +5671,13 @@ bool invoke(int dam, int typee)
 
         if (special_flag) return(FALSE);
 
+        /* Hack -- when you are fated to die, you cant cheat :) */
+        if (dungeon_type == DUNGEON_DEATH)
+        {
+                msg_print("A mysterious force stops the genocide.");
+                return FALSE;
+        }
+
 	/* Mega-Hack -- Get a monster symbol */
 	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
 
@@ -5698,6 +5735,13 @@ bool genocide(bool player_cast)
 	int     msec = delay_factor * delay_factor * delay_factor;
 
         if (special_flag) return(FALSE);
+
+        /* Hack -- when you are fated to die, you cant cheat :) */
+        if (dungeon_type == DUNGEON_DEATH)
+        {
+                msg_print("A mysterious force stops the genocide.");
+                return FALSE;
+        }
 
 	/* Mega-Hack -- Get a monster symbol */
 	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
@@ -5768,6 +5812,13 @@ bool mass_genocide(bool player_cast)
 
         if (special_flag) return(FALSE);
 
+        /* Hack -- when you are fated to die, you cant cheat :) */
+        if (dungeon_type == DUNGEON_DEATH)
+        {
+                msg_print("A mysterious force stops the genocide.");
+                return FALSE;
+        }
+
 	/* Delete the (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
@@ -5819,7 +5870,21 @@ bool mass_genocide(bool player_cast)
 	return (result);
 }
 
+/* Probe a monster */
+void do_probe(int m_idx)
+{
+        char m_name[80];
+        monster_type *m_ptr = &m_list[m_idx];
 
+        /* Get "the monster" or "something" */
+        monster_desc(m_name, m_ptr, 0x04);
+
+        /* Describe the monster */
+        msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
+
+        /* Learn all of the non-spell, non-treasure flags */
+        lore_do_probe(m_idx);
+}
 
 /*
  * Probe nearby monsters
@@ -5845,19 +5910,11 @@ bool probing(void)
 		/* Probe visible monsters */
 		if (m_ptr->ml)
 		{
-			char m_name[80];
-
 			/* Start the message */
 			if (!probe) msg_print("Probing...");
 
-			/* Get "the monster" or "something" */
-			monster_desc(m_name, m_ptr, 0x04);
-
-			/* Describe the monster */
-			msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
-
-			/* Learn all of the non-spell, non-treasure flags */
-			lore_do_probe(i);
+                        /* Actualy probe */
+                        do_probe(i);
 
 			/* Probe worked */
 			probe = TRUE;
@@ -7948,25 +8005,24 @@ void change_wild_mode(void)
          * A mold can't go into small scale mode, it's impossible for me to find
          * a good way to handle blinking on such a small map
          */
-        if(!p_ptr->immovable)
-        {
-                p_ptr->wild_mode = !p_ptr->wild_mode;
+	if (p_ptr->immovable && !(p_ptr->wild_mode))
+	{
+		msg_print("Sorry, you can't move well enough to use the overview display.");
+		return;
+	}
 
-                if (autosave_l)
-                {
-                        is_autosave = TRUE;
-                        msg_print("Autosaving the game...");
-                        do_cmd_save_game();
-                        is_autosave = FALSE;
-                }
+	p_ptr->wild_mode = !p_ptr->wild_mode;
 
-                /* Leaving */
-                p_ptr->leaving = TRUE;
-        }
-        else
-        {
-                msg_print("Sorry, you can't move well enough to use the overview display.");
-        }
+	if (autosave_l)
+	{
+		is_autosave = TRUE;
+		msg_print("Autosaving the game...");
+		do_cmd_save_game();
+		is_autosave = FALSE;
+	}
+
+	/* Leaving */
+	p_ptr->leaving = TRUE;
 }
 
 
@@ -8247,10 +8303,10 @@ bool reset_recall(void)
 	amt = get_quantity(format("Which level in %s(%d-%d)? ",d_info[i].name + d_name,
 			d_info[i].mindepth,d_info[i].maxdepth),d_info[i].maxdepth);
 
-	if (amt<1) return FALSE;
+        if (amt < 1) return FALSE;
 
 	/* Enforce minimum level */
-	if (amt<d_info[i].mindepth) (amt=d_info[i].mindepth);
+        if (amt < d_info[i].mindepth) (amt = d_info[i].mindepth);
 
 	/* Mega hack -- Forbid levels 99 and 100 */
 	if((amt == 99) || (amt == 100)) amt = 98;
@@ -8261,3 +8317,22 @@ bool reset_recall(void)
 	return TRUE;
 }
 
+/* The only way to get rid of the dreaded DG_CURSE*/
+void remove_dg_curse()
+{
+        int k;
+
+        /* Parse all the items */
+        for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+        {
+                object_type *o_ptr = &inventory[k];
+
+                if (o_ptr->k_idx && (o_ptr->art_flags4 & TR4_DG_CURSE))
+                {
+                        o_ptr->art_flags3 &= ~TR3_HEAVY_CURSE;
+                        o_ptr->art_flags3 &= ~TR3_CURSED;
+                        o_ptr->art_flags4 &= ~TR4_DG_CURSE;
+                        msg_print("The Morgothian Curse withers away.");
+                }
+        }
+}

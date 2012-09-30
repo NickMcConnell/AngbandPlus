@@ -745,10 +745,10 @@ I:6:80:5:6:15:10d12:g
 D:A nuke bolt hits you
 F:FLOOR | CHEST | DOOR | LEVEL3
 
-N:163:Trap of Death Ray
-I:8:80:5:9:25:15d16:g
-D:A Ray of Death hits you
-F:FLOOR | CHEST | DOOR | LEVEL4
+#N:163:Trap of Death Ray
+#I:8:80:5:9:25:15d16:g
+#D:A Ray of Death hits you
+#F:FLOOR | CHEST | DOOR | LEVEL4
 
 N:164:Trap of Holy Fire
 I:6:80:5:6:15:10d12:g

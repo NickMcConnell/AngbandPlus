@@ -22,6 +22,7 @@ static bool leave_bldg = FALSE;
 static int building_loc = 0;
 
 
+/* Test if the state accords with the player */
 bool is_state(store_type *s_ptr, int state)
 {
         owner_type *ow_ptr = &ow_info[s_ptr->owner];
@@ -216,6 +217,8 @@ static void arena_comm(int cmd)
 				p_ptr->exit_bldg = FALSE;
 				reset_tim_flags();
 				p_ptr->leaving = TRUE;
+                                p_ptr->oldpx = px;
+                                p_ptr->oldpy = py;
 				leave_bldg = TRUE;
 			}
 			break;
@@ -569,7 +572,8 @@ static bool inn_comm(int cmd)
 	switch(cmd)
 	{
 		case BACT_FOOD: /* Buy food & drink */
-                        if ((p_ptr->prace!=RACE_VAMPIRE)&&(p_ptr->mimic_form!=MIMIC_VAMPIRE)){
+                        if ((p_ptr->pracem != RMOD_VAMPIRE) && (p_ptr->mimic_form!=MIMIC_VAMPIRE))
+                        {
                                 msg_print("The barkeep gives you some gruel and a beer.");
                                 msg_print(NULL);
                                 (void) set_food(PY_FOOD_MAX - 1);
@@ -579,7 +583,7 @@ static bool inn_comm(int cmd)
 
 		case BACT_REST: /* Rest for the night */
 			dawnval = ((turn % (10L * TOWN_DAWN)));
-                        if ((p_ptr->prace==RACE_VAMPIRE)||(p_ptr->mimic_form==MIMIC_VAMPIRE)){
+                        if ((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form==MIMIC_VAMPIRE)){
                         if (dawnval < 50000) {  /* nighttime */
 				if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
 				{
@@ -592,11 +596,14 @@ static bool inn_comm(int cmd)
 				{
 					turn = ((turn/50000)+1)*50000;
 					p_ptr->chp = p_ptr->mhp;
+					p_ptr->csp = p_ptr->msp;
 					set_blind(0);
 					set_confused(0);
 					p_ptr->stun = 0;
                                         msg_print("You awake refreshed for the new night.");
 					p_ptr->leaving = TRUE;
+                                        p_ptr->oldpx = px;
+                                        p_ptr->oldpy = py;
 
                                         /* Select new bounties. */
                                         select_bounties();
@@ -626,6 +633,8 @@ static bool inn_comm(int cmd)
 					p_ptr->stun = 0;
 					msg_print("You awake refreshed for the new day.");
 					p_ptr->leaving = TRUE;
+                                        p_ptr->oldpx = px;
+                                        p_ptr->oldpy = py;
 
                                         /* Select new bounties. */
                                         select_bounties();
@@ -928,7 +937,7 @@ static bool compare_weapons(void)
 		o1_ptr = &inventory[item];
 
 	/* To remove a warning */
-        if (((o1_ptr->tval < TV_BOW) || (o1_ptr->tval > TV_SWORD)) && (o1_ptr->tval != TV_MSTAFF))
+        if (((o1_ptr->tval < TV_BOW) || (o1_ptr->tval > TV_AXE)) && (o1_ptr->tval != TV_MSTAFF))
 	{
 		msg_print("Not a weapon! Try again.");
 		msg_print(NULL);
@@ -952,7 +961,7 @@ static bool compare_weapons(void)
 		o2_ptr = &inventory[item2];
 
 	/* To remove a warning */
-        if (((o2_ptr->tval < TV_BOW) || (o2_ptr->tval > TV_SWORD)) && (o2_ptr->tval != TV_MSTAFF))
+        if (((o2_ptr->tval < TV_BOW) || (o2_ptr->tval > TV_AXE)) && (o2_ptr->tval != TV_MSTAFF))
 	{
 		msg_print("Not a weapon! Try again.");
 		msg_print(NULL);
@@ -1314,7 +1323,7 @@ static void sell_quest_monster(void) {
                         /* Hack -- Maximal info */
                         r_ptr = &r_info[bounties[0][0]];
 
-                        msg_print(format("Well done! As a reward I'll teach you every thing about the %s, check your recall",r_name + r_ptr->name));
+                        msg_print(format("Well done! As a reward I'll teach you everything about the %s, (check your recall)",r_name + r_ptr->name));
 
                         r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
 
@@ -1774,6 +1783,8 @@ void do_cmd_quest(void)
 		p_ptr->inside_quest = cave[py][px].special;
 		dun_level = 1;
 		p_ptr->leaving = TRUE;
+                p_ptr->oldpx = px;
+                p_ptr->oldpy = py;
 	}
 }
 
@@ -1889,7 +1900,6 @@ static cptr find_quest[] =
 	"You find the following inscription in the floor",
 	"You see a message inscribed in the wall",
 	"There is a sign saying",
-	"Something is writen on the staircase",
 	"You find a scroll with the following message",
 };
 
@@ -1909,7 +1919,7 @@ void quest_discovery(int q_idx)
 
 	strcpy(name, (r_name + r_ptr->name));
 
-	msg_print(find_quest[rand_range(0,4)]);
+        msg_print(find_quest[rand_range(0, 3)]);
 	msg_print(NULL);
 
 	if (q_num == 1)
