@@ -59,3 +59,19 @@ P:68:2:2
 F:DEX
 P:68:3:1
 F:KILL_UNDEAD | SH_ELEC | FLY
+
+
+# Gothmog's Armory -- Demonologists set
+
+N:3:Gothmog's Armory
+D:It is from a group of items that once belonged to Gothmog, 
+D:the High Captain of the Balrogs
+# The demonblade of gothmog
+P:181:3:7
+F:STR | CON | SPEED | VAMPIRIC
+# The demonshield of gothmog
+P:182:3:0
+F:IM_FIRE | IM_COLD | SH_ELEC
+# The demonhorns of gothmog
+P:183:3:0
+F:ESP_EVIL | ESP_GOOD | AUTO_ID

@@ -1,3 +1,5 @@
+~~~~~01|Dark Elf
+~~~~~02|Races|Dark Elf
 #####R=== Dark Elves ===
 
 #####GDescription
@@ -18,7 +20,5 @@ Charisma        +1
 Hit Dice Sides  9         
 Exp Penalty     +50%
 
-#####GStarting Equipment
-If they are *very* lucky they may begin with:
-    A shadow blade
-
+######GSkill Bonuses (supplementary to existing skills)
+Magic           0.000           [0.200]

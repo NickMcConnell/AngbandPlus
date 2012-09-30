@@ -47,7 +47,7 @@ R:0:0x89/0xAE
 R:0:0x89/0xAF
 ?:[EQU $RACE RohanKnight]
 R:0:0x89/0xB0
-?:[EQU $RACE DragonRider]
+?:[EQU $RACE Thunderlord]
 R:0:0x89/0xB1
 ?:[EQU $RACE DeathMold]
 R:0:0x89/0xB2
@@ -98,7 +98,7 @@ R:0:0x92/0x93
 R:0:0x92/0x94
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE RohanKnight] ]
 R:0:0x93/0x91
-?:[AND [EQU $CLASS Warrior] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Thunderlord] ]
 R:0:0x92/0x95
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Mindflayer] ]
 R:0:0x92/0x96
@@ -161,7 +161,7 @@ R:0:0x93/0x92
 R:0:0x93/0x93
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Dark Elf] ]
 R:0:0x93/0x94
-?:[AND [EQU $CLASS Mage] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE Thunderlord] ]
 R:0:0x93/0x95
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Mindflayer] ]
 R:0:0x93/0x96
@@ -224,7 +224,7 @@ R:0:0x94/0x92
 R:0:0x94/0x93
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Dark Elf] ]
 R:0:0x94/0x94
-?:[AND [EQU $CLASS Priest] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE Thunderlord] ]
 R:0:0x94/0x95
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Mindflayer] ]
 R:0:0x94/0x96
@@ -287,7 +287,7 @@ R:0:0x95/0x92
 R:0:0x95/0x93
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Dark Elf] ]
 R:0:0x95/0x94
-?:[AND [EQU $CLASS Rogue] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE Thunderlord] ]
 R:0:0x95/0x95
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Mindflayer] ]
 R:0:0x95/0x96
@@ -350,7 +350,7 @@ R:0:0x96/0x92
 R:0:0x96/0x93
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Dark Elf] ]
 R:0:0x96/0x94
-?:[AND [EQU $CLASS Ranger] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE Thunderlord] ]
 R:0:0x96/0x95
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Mindflayer] ]
 R:0:0x96/0x96
@@ -413,7 +413,7 @@ R:0:0x97/0x92
 R:0:0x97/0x93
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Dark Elf] ]
 R:0:0x97/0x94
-?:[AND [EQU $CLASS Paladin] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE Thunderlord] ]
 R:0:0x97/0x95
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Mindflayer] ]
 R:0:0x97/0x96
@@ -476,7 +476,7 @@ R:0:0x98/0x92
 R:0:0x98/0x93
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Dark Elf] ]
 R:0:0x98/0x94
-?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Thunderlord] ]
 R:0:0x98/0x95
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Mindflayer] ]
 R:0:0x98/0x96
@@ -539,7 +539,7 @@ R:0:0x99/0x92
 R:0:0x99/0x93
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Dark Elf] ]
 R:0:0x99/0x94
-?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Thunderlord] ]
 R:0:0x99/0x95
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Mindflayer] ]
 R:0:0x99/0x96
@@ -602,7 +602,7 @@ R:0:0x9A/0x92
 R:0:0x9A/0x93
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Dark Elf] ]
 R:0:0x9A/0x94
-?:[AND [EQU $CLASS Monk] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Monk] [EQU $RACE Thunderlord] ]
 R:0:0x9A/0x95
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Mindflayer] ]
 R:0:0x9A/0x96
@@ -665,7 +665,7 @@ R:0:0x9B/0x92
 R:0:0x9B/0x93
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Dark Elf] ]
 R:0:0x9B/0x94
-?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Thunderlord] ]
 R:0:0x9B/0x95
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Mindflayer] ]
 R:0:0x9B/0x96
@@ -728,7 +728,7 @@ R:0:0x9C/0x92
 R:0:0x9C/0x93
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Dark Elf] ]
 R:0:0x9C/0x94
-?:[AND [EQU $CLASS High-Mage] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS High-Mage] [EQU $RACE Thunderlord] ]
 R:0:0x9C/0x95
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Mindflayer] ]
 R:0:0x9C/0x96
@@ -791,7 +791,7 @@ R:0:0x9C/0x92
 R:0:0x9C/0x93
 ?:[AND [EQU $CLASS Alchemist] [EQU $RACE Dark Elf] ]
 R:0:0x9C/0x94
-?:[AND [EQU $CLASS Alchemist] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Thunderlord] ]
 R:0:0x9C/0x95
 ?:[AND [EQU $CLASS Alchemist] [EQU $RACE Mindflayer] ]
 R:0:0x9C/0x96
@@ -854,7 +854,7 @@ R:0:0x96/0x92
 R:0:0x96/0x93
 ?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Dark Elf] ]
 R:0:0x96/0x94
-?:[AND [EQU $CLASS BeastMaster] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Thunderlord] ]
 R:0:0x96/0x95
 ?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Mindflayer] ]
 R:0:0x96/0x96
@@ -920,7 +920,7 @@ R:0:0x93/0x92
 R:0:0x93/0x93
 ?:[AND [EQU $CLASS Alchemist] [EQU $RACE Dark Elf] ]
 R:0:0x93/0x94
-?:[AND [EQU $CLASS Alchemist] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Thunderlord] ]
 R:0:0x93/0x95
 ?:[AND [EQU $CLASS Alchemist] [EQU $RACE Mindflayer] ]
 R:0:0x93/0x96
@@ -983,7 +983,7 @@ R:0:0x93/0x92
 R:0:0x93/0x93
 ?:[AND [EQU $CLASS Wizard] [EQU $RACE Dark Elf] ]
 R:0:0x93/0x94
-?:[AND [EQU $CLASS Wizard] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Wizard] [EQU $RACE Thunderlord] ]
 R:0:0x93/0x95
 ?:[AND [EQU $CLASS Wizard] [EQU $RACE Mindflayer] ]
 R:0:0x93/0x96
@@ -1046,7 +1046,7 @@ R:0:0x94/0x92
 R:0:0x94/0x93
 ?:[AND [EQU $CLASS Prior] [EQU $RACE Dark Elf] ]
 R:0:0x94/0x94
-?:[AND [EQU $CLASS Prior] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Prior] [EQU $RACE Thunderlord] ]
 R:0:0x94/0x95
 ?:[AND [EQU $CLASS Prior] [EQU $RACE Mindflayer] ]
 R:0:0x94/0x96
@@ -1105,7 +1105,7 @@ R:0:0x92/0x93
 R:0:0x92/0x94
 ?:[AND [EQU $CLASS Possessor] [EQU $RACE RohanKnight] ]
 R:0:0x93/0x91
-?:[AND [EQU $CLASS Possessor] [EQU $RACE DragonRider] ]
+?:[AND [EQU $CLASS Possessor] [EQU $RACE Thunderlord] ]
 R:0:0x92/0x95
 ?:[AND [EQU $CLASS Possessor] [EQU $RACE Mindflayer] ]
 R:0:0x92/0x96

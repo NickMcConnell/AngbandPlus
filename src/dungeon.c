@@ -11,6 +11,9 @@
  */
 
 #include "angband.h"
+#include "lua.h"
+#include "tolua.h"
+extern lua_State* L;
 
 #define TY_CURSE_CHANCE 100
 #define DG_CURSE_CHANCE 50
@@ -32,10 +35,10 @@ bool save_hack = TRUE;
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
-static byte value_check_aux1(object_type *o_ptr)
+byte value_check_aux1(object_type *o_ptr)
 {
 	/* Artifacts */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	if (artifact_p(o_ptr))
 	{
 		/* Cursed/Broken */
 		if (cursed_p(o_ptr)) return (SENSE_TERRIBLE);
@@ -67,8 +70,7 @@ static byte value_check_aux1(object_type *o_ptr)
 	return (SENSE_AVERAGE);
 }
 
-
-static byte value_check_aux1_magic(object_type *o_ptr)
+byte value_check_aux1_magic(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -135,13 +137,13 @@ static byte value_check_aux1_magic(object_type *o_ptr)
 /*
  * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
  */
-static byte value_check_aux2(object_type *o_ptr)
+byte value_check_aux2(object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
 	if (cursed_p(o_ptr)) return (SENSE_CURSED);
 
 	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return (SENSE_GOOD_LIGHT);
+	if (artifact_p(o_ptr)) return (SENSE_GOOD_LIGHT);
 
 	/* Ego-Items -- except cursed/broken ones */
 	if (ego_item_p(o_ptr)) return (SENSE_GOOD_LIGHT);
@@ -157,7 +159,7 @@ static byte value_check_aux2(object_type *o_ptr)
 }
 
 
-static byte value_check_aux2_magic(object_type *o_ptr)
+byte value_check_aux2_magic(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -237,23 +239,78 @@ static bool granted_resurrection(void)
         return (FALSE);
 }
 
+byte select_sense(object_type *o_ptr, bool ok_combat, bool ok_magic)
+{
+        /* Valid "tval" codes */
+        switch (o_ptr->tval)
+        {
+        case TV_SHOT:
+        case TV_ARROW:
+        case TV_BOLT:
+        case TV_BOW:
+        case TV_DIGGING:
+        case TV_HAFTED:
+        case TV_POLEARM:
+        case TV_SWORD:
+        case TV_MSTAFF:
+        case TV_AXE:
+        case TV_BOOTS:
+        case TV_GLOVES:
+        case TV_HELM:
+        case TV_CROWN:
+        case TV_SHIELD:
+        case TV_CLOAK:
+        case TV_SOFT_ARMOR:
+        case TV_HARD_ARMOR:
+        case TV_DRAG_ARMOR:
+        case TV_BOOMERANG:
+        case TV_TRAPKIT:
+                {
+                        if (ok_combat) return 1;
+                        break;
+                }
+
+        case TV_POTION:
+        case TV_POTION2:
+        case TV_SCROLL:
+        case TV_WAND:
+        case TV_STAFF:
+        case TV_ROD:
+        case TV_ROD_MAIN:
+                {
+                        if (ok_magic) return 2;
+                        break;
+                }
+
+                /* Dual use? */
+        case TV_DAEMON_BOOK:
+                {
+                        if (ok_combat || ok_magic) return 1;
+                        break;
+                }
+        }
+        return 0;
+}
 
 /*
  * Sense the inventory
  *
- *   Class 0 = Warrior --> fast and heavy
- *   Class 1 = Mage    --> slow and light
- *   Class 2 = Priest  --> fast but light
- *   Class 3 = Rogue   --> okay and heavy
- *   Class 4 = Ranger  --> slow but heavy  (changed!)
- *   Class 5 = Paladin --> slow but heavy
+ * Combat items (weapons and armour) - Fast, weak if combat skill < 10, strong
+ * otherwise.
+ *
+ * Magic items (scrolls, staffs, wands, potions etc) - Slow, weak if
+ * magic skill < 10, strong otherwise.
+ *
+ * It shouldn't matter a lot to discriminate against magic users, because
+ * they learn one form of ID or another, and because most magic items are
+ * easy_know.
  */
 static void sense_inventory(void)
 {
-	int i;
+	int i, combat_lev, magic_lev;
 
-        bool heavy = FALSE, heavy_magic = FALSE;
-        bool ok_combat = FALSE, ok_magic = FALSE;
+	bool heavy_combat, heavy_magic;
+	bool ok_combat, ok_magic;
 
 	byte feel;
 
@@ -268,11 +325,62 @@ static void sense_inventory(void)
 	if (p_ptr->confused) return;
 
 	/* Can we pseudo id */
+#if 0
+
 	if (0 == rand_int(133 - get_skill_scale(SKILL_COMBAT, 130))) ok_combat = TRUE;
-        if (0 == rand_int(133 - get_skill_scale(SKILL_MAGIC, 130))) ok_magic = TRUE;
-        if ((!ok_combat) && (!ok_magic)) return;
-	heavy = (get_skill(SKILL_COMBAT) > 10) ? TRUE : FALSE;
-        heavy_magic = (get_skill(SKILL_MAGIC) > 10) ? TRUE : FALSE;
+	if (0 == rand_int(133 - get_skill_scale(SKILL_MAGIC, 130))) ok_magic = TRUE;
+
+#endif
+
+	/*
+	 * In Angband, the chance of pseudo-id uses two different formulae:
+	 *
+	 * (1) Fast. 0 == rand_int(BASE / (plev * plev + 40)
+	 * (2) Slow. 0 == rand_int(BASE / (plev + 5)
+	 *
+	 * Warriors: Fase with BASE == 9000
+	 * Magi: Slow with BASE == 240000
+	 * Priests: Fast with BASE == 10000
+	 * Rogues: Fase with BASE == 20000
+	 * Rangers: Slow with BASE == 120000
+	 * Paladins: Fast with BASE == 80000
+	 *
+	 * In other words, those who have identify spells are penalised.
+	 * The problems with Pern/Tome since it externalised player classes
+	 * is that it uses the same and slow formula for spellcasters and
+	 * fighters.
+	 *
+	 * In the following code, combat item pseudo-ID improves exponentially,
+	 * (fast with BASE 9000) and magic one linear (slow with base 60000 --
+	 * twice faster than V rangers).
+	 *
+	 * I hope this makes it closer to the original model -- pelpel
+	 */
+
+	/* The combat skill affects weapon/armour pseudo-ID */
+	combat_lev = get_skill(SKILL_COMBAT);
+
+	/* Use the fast formula */
+	ok_combat = (0 == rand_int(9000L / (combat_lev * combat_lev + 40)));
+
+	/* The magic skill affects magic item pseudo-ID */
+	magic_lev = get_skill(SKILL_MAGIC);
+
+	/*
+	 * Use the slow formula, because spellcasters have id spells
+	 *
+	 * Lowered the base value because V rangers are known to have
+	 * pretty useless pseudo-ID. This should make it ten times more often.
+	 */
+	ok_magic = (0 == rand_int(12000L / (magic_lev + 5)));
+
+	/* Both ID rolls failed */
+	if (!ok_combat && !ok_magic) return;
+
+	/* Higher skill levels give the player better sense of items */
+	heavy_combat = (combat_lev > 10) ? TRUE : FALSE;
+	heavy_magic = (magic_lev > 10) ? TRUE : FALSE;
+
 
 	/*** Sense everything ***/
 
@@ -286,48 +394,8 @@ static void sense_inventory(void)
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
 
-		/* Valid "tval" codes */
-		switch (o_ptr->tval)
-		{
-			case TV_SHOT:
-			case TV_ARROW:
-			case TV_BOLT:
-			case TV_BOW:
-			case TV_DIGGING:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_SWORD:
-			case TV_MSTAFF:
-			case TV_AXE:
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_HELM:
-			case TV_CROWN:
-			case TV_SHIELD:
-			case TV_CLOAK:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-			case TV_BOOMERANG:
-			case TV_TRAPKIT:
-			{
-				if (ok_combat) okay = 1;
-				break;
-			}
-
-			case TV_POTION:
-			case TV_POTION2:
-			case TV_SCROLL:
-			case TV_WAND:
-			case TV_STAFF:
-			case TV_ROD:
-			case TV_ROD_MAIN:
-			case TV_FOOD:
-			{
-				if (ok_magic) okay = 2;
-				break;
-			}
-		}
+                /* Valid "tval" codes */
+                okay = select_sense(o_ptr, ok_combat, ok_magic);
 
 		/* Skip non-sense machines */
 		if (!okay) continue;
@@ -344,7 +412,7 @@ static void sense_inventory(void)
 		/* Check for a feeling */
 		if (okay == 1)
 		{
-			feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+			feel = (heavy_combat ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 		}
 		else
 		{
@@ -388,6 +456,9 @@ static void sense_inventory(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
+
+        /* Squelch ! */
+        squeltch_inventory();
 }
 
 
@@ -466,12 +537,12 @@ static bool pattern_effect(void)
 		(void)set_cut(0);
 		(void)set_blind(0);
 		(void)set_afraid(0);
-		(void)do_res_stat(A_STR);
-		(void)do_res_stat(A_INT);
-		(void)do_res_stat(A_WIS);
-		(void)do_res_stat(A_DEX);
-		(void)do_res_stat(A_CON);
-		(void)do_res_stat(A_CHR);
+		(void)do_res_stat(A_STR, TRUE);
+		(void)do_res_stat(A_INT, TRUE);
+		(void)do_res_stat(A_WIS, TRUE);
+		(void)do_res_stat(A_DEX, TRUE);
+		(void)do_res_stat(A_CON, TRUE);
+		(void)do_res_stat(A_CHR, TRUE);
 		(void)restore_level();
 		(void)hp_player(1000);
 		cave_set_feat(py, px, FEAT_PATTERN_OLD);
@@ -849,139 +920,173 @@ bool decays(object_type *o_ptr)
 }
 
 
-static void gere_music(s16b music)
+static int gere_music(s16b music)
 {
-	switch(music)
-	{
-		case MUSIC_SLOW:
-		{
-			slow_monsters();
-			break;
-		}
+        /*
+         * If < 0 it means it is a lua spell, yes it means the first spell
+         * defined in lua cannot be used this way, too bad..
+         */
+        if (music < 0)
+        {
+                int oldtop = lua_gettop(L), use_mana;
 
-		case MUSIC_STUN:
-		{
-			stun_monsters(damroll(p_ptr->lev/10,2));
-			break;
-		}
+                music = -music;
 
-		case MUSIC_LIFE:
-		{
-			hp_player(damroll(2,8));
-			break;
-		}
+                /* Push the function */
+                lua_getglobal(L, "exec_lasting_spell");
 
-		case MUSIC_MIND:
-		{
-			set_tim_esp(2);
-			break;
-		}
+                /* Push the spell */
+                tolua_pushnumber(L, music);
 
-		case MUSIC_LITE:
-		{
-			set_lite(2);
-			break;
-		}
+                /* Call the function */
+                if (lua_call(L, 1, 1))
+                {
+                        cmsg_format(TERM_VIOLET, "ERROR in lua_call while calling lasting spell");
+                        return 0;
+                }
 
-		case MUSIC_FURY:
-		{
-			set_hero(2);
-			break;
-		}
+                use_mana = tolua_getnumber(L, -(lua_gettop(L) - oldtop), 0);
+                return use_mana;
+        }
+        else
+        {
+                magic_type *s_ptr;
+                s_ptr = &realm_info[REALM_MUSIC][p_ptr->music_extra2];
 
-		case MUSIC_AWARE:
-		{
-			detect_objects_magic(DEFAULT_RADIUS);
-			break;
-		}
+                switch (music)
+                {
+                case MUSIC_SLOW:
+                        {
+                                slow_monsters();
+                                break;
+                        }
 
-		case MUSIC_ID:
-		{
-			fire_explosion(py, px, GF_IDENTIFY, 1, 1);
-			break;
-		}
+                case MUSIC_STUN:
+                        {
+                                stun_monsters(damroll(p_ptr->lev/10,2));
+                                break;
+                        }
 
-		case MUSIC_ILLUSION:
-		{
-			conf_monsters();
-			break;
-		}
-		case MUSIC_WALL:
-		{
-			fire_explosion(py, px, GF_KILL_WALL, 1, 1);
-			break;
-		}
+                case MUSIC_LIFE:
+                        {
+                                hp_player(damroll(2,8));
+                                break;
+                        }
 
-		case MUSIC_RESIST:
-		{
-			(void)set_oppose_acid(2);
-			(void)set_oppose_elec(2);
-			(void)set_oppose_fire(2);
-			(void)set_oppose_cold(2);
-			(void)set_oppose_pois(2);
-			break;
-		}
+                case MUSIC_MIND:
+                        {
+                                set_tim_esp(2);
+                                break;
+                        }
 
-		case MUSIC_TIME:
-		{
-			set_fast(2, 10);
-			break;
-		}
+                case MUSIC_LITE:
+                        {
+                                set_lite(2);
+                                break;
+                        }
 
-		case MUSIC_BETWEEN:
-		{
-			teleport_player(20);
-			break;
-		}
+                case MUSIC_FURY:
+                        {
+                                set_hero(2);
+                                break;
+                        }
 
-		case MUSIC_CHARME:
-		{
-			project_hack(GF_CHARM, damroll(10 + p_ptr->lev/15,6));
-			break;
-		}
+                case MUSIC_AWARE:
+                        {
+                                detect_objects_magic(DEFAULT_RADIUS);
+                                break;
+                        }
 
-		case MUSIC_VIBRA:
-		{
-			project_hack(GF_SOUND, damroll(10 + p_ptr->lev/15,6));
-			break;
-		}
+                case MUSIC_ID:
+                        {
+                                fire_explosion(py, px, GF_IDENTIFY, 1, 1);
+                                break;
+                        }
 
-		case MUSIC_HOLY:
-		{
-			set_mimic(2,MIMIC_VALAR);
-			break;
-		}
+                case MUSIC_ILLUSION:
+                        {
+                                conf_monsters();
+                                break;
+                        }
+                case MUSIC_WALL:
+                        {
+                                fire_explosion(py, px, GF_KILL_WALL, 1, 1);
+                                break;
+                        }
 
-		case MUSIC_HIDE:
-		{
-			set_invis(2, 40);
-			break;
-		}
+                case MUSIC_RESIST:
+                        {
+                                (void)set_oppose_acid(2);
+                                (void)set_oppose_elec(2);
+                                (void)set_oppose_fire(2);
+                                (void)set_oppose_cold(2);
+                                (void)set_oppose_pois(2);
+                                break;
+                        }
 
-		case MUSIC_LIBERTY:
-		{
-			set_invuln(2);
-			break;
-		}
+                case MUSIC_TIME:
+                        {
+                                set_fast(2, 10);
+                                break;
+                        }
 
-		case MUSIC_RAISE:
-		{
-			fire_explosion(py, px, GF_RAISE, 1, 1);
-			break;
-		}
+                case MUSIC_BETWEEN:
+                        {
+                                teleport_player(20);
+                                break;
+                        }
 
-		case MUSIC_SHADOW:
-		{
-			set_shadow(2);
-			break;
-		}
+                case MUSIC_CHARME:
+                        {
+                                project_hack(GF_CHARM, damroll(10 + p_ptr->lev/15,6));
+                                break;
+                        }
 
-		case MUSIC_STAR_ID:
-		{
-			fire_explosion(py, px, GF_STAR_IDENTIFY, 1, 1);
-			break;
-		}
-	}
+                case MUSIC_VIBRA:
+                        {
+                                project_hack(GF_SOUND, damroll(10 + p_ptr->lev/15,6));
+                                break;
+                        }
+
+                case MUSIC_HOLY:
+                        {
+                                set_mimic(2,MIMIC_VALAR);
+                                break;
+                        }
+
+                case MUSIC_HIDE:
+                        {
+                                set_invis(2, 40);
+                                break;
+                        }
+
+                case MUSIC_LIBERTY:
+                        {
+                                set_invuln(2);
+                                break;
+                        }
+
+                case MUSIC_RAISE:
+                        {
+                                fire_explosion(py, px, GF_RAISE, 1, 1);
+                                break;
+                        }
+
+                case MUSIC_SHADOW:
+                        {
+                                set_shadow(2);
+                                break;
+                        }
+
+                case MUSIC_STAR_ID:
+                        {
+                                fire_explosion(py, px, GF_STAR_IDENTIFY, 1, 1);
+                                break;
+                        }
+                }
+
+                return s_ptr->smana;
+        }
 }
 
 
@@ -1098,8 +1203,7 @@ static void gere_class_special()
 
 static void check_music()
 {
-	magic_type *s_ptr;
-
+        int use_mana;
 	object_type *o_ptr = &inventory[INVEN_BOW];
 
 
@@ -1130,20 +1234,19 @@ static void check_music()
 	}
 
 	/* Music singed by player */
-	if (!get_skill(SKILL_MUSIC)) return;
-
 	if (!p_ptr->music_extra) return;
 
-	s_ptr = &realm_info[REALM_MUSIC][p_ptr->music_extra2];
+        use_mana = gere_music(p_ptr->music_extra);
 
-	if (p_ptr->csp < s_ptr->smana)
+	if (p_ptr->csp < use_mana)
 	{
-		msg_print("You stop singing.");
+		msg_print("You stop your spell.");
+		p_ptr->music_extra = MUSIC_NONE;
 		p_ptr->music_extra2 = MUSIC_NONE;
 	}
 	else
 	{
-		p_ptr->csp -= s_ptr->smana;
+		p_ptr->csp -= use_mana;
 
 		/* Redraw mana */
 		p_ptr->redraw |= (PR_MANA);
@@ -1151,8 +1254,6 @@ static void check_music()
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
 	}
-
-	gere_music(p_ptr->music_extra);
 }
 
 
@@ -1202,6 +1303,7 @@ void apply_effect(int y, int x)
 }
 
 
+#if 0
 /*
  * Activate corruptions' effects on player
  *
@@ -1212,524 +1314,8 @@ void apply_effect(int y, int x)
  */
 static void process_corruption_effects(void)
 {
-	if ((p_ptr->muta2 & MUT2_BERS_RAGE) && (rand_int(3000) == 0))
-	{
-		disturb(0,0);
-		cmsg_print(TERM_L_RED, "RAAAAGHH!");
-		cmsg_print(TERM_L_RED, "You feel a fit of rage coming over you!");
-		(void) set_shero(p_ptr->shero + 10 + randint(p_ptr->lev));
-	}
-
-	if ((p_ptr->muta2 & MUT2_COWARDICE) && (rand_int(3000) == 0))
-	{
-		if (!p_ptr->resist_fear && !p_ptr->hero && !p_ptr->shero)
-		{
-			disturb(0,0);
-			msg_print("It's so dark... so scary!");
-			p_ptr->redraw |= (PR_AFRAID);
-			p_ptr->afraid = p_ptr->afraid + 13 + randint(26);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_RTELEPORT) && (rand_int(5000) == 0))
-	{
-		if (!p_ptr->resist_nexus && !(p_ptr->muta1 & MUT1_VTELEPORT) &&
-		    !p_ptr->anti_tele)
-		{
-			disturb(0,0);
-
-			/* Teleport player */
-			msg_print("Your position suddenly seems very uncertain...");
-			msg_print(NULL);
-			teleport_player(40);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_ALCOHOL) && (rand_int(6400) == 0))
-	{
-		if (!p_ptr->resist_chaos && !p_ptr->resist_conf)
-		{
-			disturb(0,0);
-
-			p_ptr->redraw |= (PR_EXTRA);
-			msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
-
-			if (rand_int(20) == 0)
-			{
-				msg_print(NULL);
-
-				if (rand_int(3) == 0) lose_all_info();
-				else wiz_dark();
-
-				teleport_player(100);
-				wiz_dark();
-
-				msg_print("You wake up somewhere with a sore head...");
-				msg_print("You can't remember a thing, or how you got here!");
-			}
-			else
-			{
-				if (!p_ptr->resist_conf)
-				{
-					(void)set_confused(p_ptr->confused + rand_int(20) + 15);
-				}
-
-				if (!p_ptr->resist_chaos && (rand_int(3) == 0))
-				{
-					msg_print("Thishcischs GooDSChtuff!");
-					(void)set_image(p_ptr->image + rand_int(150) + 150);
-				}
-			}
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_HALLU) && (rand_int(6400) == 0))
-	{
-		if (!p_ptr->resist_chaos)
-		{
-			disturb(0,0);
-			p_ptr->redraw |= (PR_EXTRA);
-			(void)set_image(p_ptr->image + rand_int(50) + 20);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_FLATULENT) && (rand_int(3000) == 0))
-	{
-		disturb(0,0);
-
-		msg_print("BRRAAAP! Oops.");
-		msg_print(NULL);
-		fire_ball(GF_POIS, 0, p_ptr->lev,3);
-	}
-
-	if ((p_ptr->muta2 & MUT2_PROD_MANA) && !p_ptr->anti_magic &&
-	    (rand_int(9000) == 0))
-	{
-		int dire = 0;
-
-		disturb(0,0);
-		msg_print("Magical energy flows through you! You must release it!");
-		flush();
-		msg_print(NULL);
-		(void)get_hack_dir(&dire);
-		fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3);
-	}
-
-	if ((p_ptr->muta2 & MUT2_ATT_DEMON) && !p_ptr->anti_magic &&
-	    (rand_int(6666) == 0))
-	{
-		bool d_summon = FALSE;
-
-		if (rand_int(6) == 0)
-		{
-			d_summon = summon_specific_friendly(py, px, dun_level,
-			                                    SUMMON_DEMON, TRUE);
-		}
-		else
-		{
-			d_summon = summon_specific(py, px, dun_level, SUMMON_DEMON);
-		}
-
-		if (d_summon)
-		{
-			cmsg_print(TERM_VIOLET, "You have attracted a demon!");
-			disturb(0,0);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_SPEED_FLUX) && (rand_int(6000) == 0))
-	{
-		disturb(0,0);
-		if (rand_int(2) == 0)
-		{
-			cmsg_print(TERM_L_RED, "You feel less energetic.");
-			if (p_ptr->fast > 0)
-			{
-				set_fast(0, 10);
-			}
-			else
-			{
-				set_slow(p_ptr->slow + randint(30) + 10);
-			}
-		}
-		else
-		{
-			cmsg_print(TERM_L_GREEN, "You feel more energetic.");
-			if (p_ptr->slow > 0)
-			{
-				set_slow(0);
-			}
-			else
-			{
-				set_fast(p_ptr->fast + randint(30) + 10, 10);
-			}
-		}
-		msg_print(NULL);
-	}
-
-	if ((p_ptr->muta2 & MUT2_BANISH_ALL) && (rand_int(9000) == 0))
-	{
-		disturb(0,0);
-		msg_print("You suddenly feel almost lonely.");
-		banish_monsters(100);
-		if (!dun_level)
-		{
-			msg_print("You see one of the shopkeepers running for the hills!");
-			store_shuffle(rand_int(max_st_idx));
-		}
-		msg_print(NULL);
-	}
-
-	if ((p_ptr->muta2 & MUT2_EAT_LIGHT) && (rand_int(3000) == 0))
-	{
-		object_type *o_ptr;
-
-		msg_print("A shadow passes over you.");
-		msg_print(NULL);
-
-		/* Absorb light from the current possition */
-		if (cave[py][px].info & CAVE_GLOW)
-		{
-			hp_player(10);
-		}
-
-		o_ptr = &inventory[INVEN_LITE];
-
-		/* Absorb some fuel in the current lite */
-		if (o_ptr->tval == TV_LITE)
-		{
-			u32b f1, f2, f3, f4, f5, esp;
-
-			/* Extract the item flags */
-			object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-
-			/* Use some fuel (except on artifacts) */
-			if ((f4 & TR4_FUEL_LITE) && (o_ptr->timeout > 0))
-			{
-				/* Heal the player a bit */
-				hp_player(o_ptr->timeout/20);
-
-				/* Decrease life-span of lite */
-				o_ptr->timeout /= 2;
-
-				msg_print("You absorb energy from your light!");
-
-				/*
-				 * ToDo: Implement a function to handle
-				 * changes of the fuel
-				 */
-
-				/* Hack -- notice interesting fuel steps */
-				if ((o_ptr->timeout < 100) || ((o_ptr->timeout % 100) == 0))
-				{
-					/* Window stuff */
-					p_ptr->window |= (PW_EQUIP);
-				}
-
-				/* Hack -- Special treatment when blind */
-				if (p_ptr->blind)
-				{
-					/* Hack -- save some light for later */
-					if (o_ptr->timeout == 0) o_ptr->timeout++;
-				}
-
-				/* The light is now out */
-				else if (o_ptr->timeout == 0)
-				{
-					disturb(0, 0);
-					cmsg_print(TERM_YELLOW, "Your light has gone out!");
-				}
-
-				/* The light is getting dim */
-				else if ((o_ptr->timeout < 100) && ((o_ptr->timeout % 10) == 0))
-				{
-					if (disturb_minor) disturb(0, 0);
-					cmsg_print(TERM_YELLOW, "Your light is growing faint.");
-				}
-			}
-		}
-
-		/*
-		 * Unlite the area (radius 10) around player and
-		 * do 50 points damage to every affected monster
-		 */
-		unlite_area(50, 10);
-	}
-
-	if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) && !p_ptr->anti_magic &&
-	    (rand_int(7000) == 0))
-	{
-
-		bool a_summon = FALSE;
-
-		if (rand_int(3) == 0)
-		{
-			a_summon = summon_specific_friendly(py, px, dun_level,
-			                                    SUMMON_ANIMAL, TRUE);
-		}
-		else
-		{
-			a_summon = summon_specific(py, px, dun_level, SUMMON_ANIMAL);
-		}
-
-		if (a_summon)
-		{
-			msg_print("You have attracted an animal!");
-			disturb(0,0);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_RAW_CHAOS) && !p_ptr->anti_magic &&
-	    (rand_int(8000) == 0))
-	{
-		disturb(0,0);
-		msg_print("You feel the world warping around you!");
-		msg_print(NULL);
-		fire_ball(GF_CHAOS, 0, p_ptr->lev,8);
-	}
-
-	if ((p_ptr->muta2 & MUT2_NORMALITY) && (rand_int(5000) == 0))
-	{
-		lose_corruption(0);
-	}
-
-	if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic &&
-	    (rand_int(3000) == 0))
-	{
-
-		disturb(0,0);
-		msg_print("You feel insubstantial!");
-		msg_print(NULL);
-		set_shadow(p_ptr->tim_wraith + randint(p_ptr->lev/2) + (p_ptr->lev/2));
-	}
-
-	if ((p_ptr->muta2 & MUT2_POLY_WOUND) && (rand_int(3000) == 0))
-	{
-		do_poly_wounds();
-	}
-
-	if ((p_ptr->muta2 & MUT2_WASTING) && (rand_int(3000) == 0))
-	{
-		int which_stat = rand_int(6);
-		int sustained = FALSE;
-
-		switch (which_stat)
-		{
-			case A_STR:
-			{
-				if (p_ptr->sustain_str) sustained = TRUE;
-				break;
-			}
-
-			case A_INT:
-			{
-				if (p_ptr->sustain_int) sustained = TRUE;
-				break;
-			}
-
-			case A_WIS:
-			{
-				if (p_ptr->sustain_wis) sustained = TRUE;
-				break;
-			}
-
-			case A_DEX:
-			{
-				if (p_ptr->sustain_dex) sustained = TRUE;
-				break;
-			}
-
-			case A_CON:
-			{
-				if (p_ptr->sustain_con) sustained = TRUE;
-				break;
-			}
-
-			case A_CHR:
-			{
-				if (p_ptr->sustain_chr) sustained = TRUE;
-				break;
-			}
-
-			default:
-			{
-				msg_print("Invalid stat chosen!");
-				sustained = TRUE;
-				break;
-			}
-		}
-
-		if (!sustained)
-		{
-			disturb(0,0);
-			msg_print("You can feel yourself wasting away!");
-			msg_print(NULL);
-			(void)dec_stat(which_stat, randint(6)+6, rand_int(3) == 0);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_ATT_DRAGON) && !p_ptr->anti_magic &&
-	    (rand_int(3000) == 0))
-	{
-		bool d_summon = FALSE;
-
-		if (rand_int(5) == 0)
-		{
-			d_summon = summon_specific_friendly(py, px, dun_level,
-			                                    SUMMON_DRAGON, TRUE);
-		}
-		else
-		{
-			d_summon = summon_specific(py, px, dun_level, SUMMON_DRAGON);
-		}
-
-		if (d_summon)
-		{
-			msg_print("You have attracted a dragon!");
-			disturb(0,0);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_WEIRD_MIND) && !p_ptr->anti_magic &&
-	    (rand_int(3000) == 0))
-	{
-		if (p_ptr->tim_esp > 0)
-		{
-			msg_print("Your mind feels cloudy!");
-			set_tim_esp(0);
-		}
-		else
-		{
-			msg_print("Your mind expands!");
-			set_tim_esp(p_ptr->lev);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_NAUSEA) && !p_ptr->slow_digest &&
-	    (rand_int(9000) == 0))
-	{
-
-		disturb(0,0);
-		msg_print("Your stomach rolls, and you lose your lunch!");
-		msg_print(NULL);
-		set_food(PY_FOOD_WEAK);
-	}
-
-	if ((p_ptr->muta2 & MUT2_WALK_SHAD) && !p_ptr->anti_magic &&
-	    (rand_int(12000) == 0))
-	{
-		alter_reality();
-	}
-
-	if ((p_ptr->muta2 & MUT2_WARNING) && (rand_int(1000) == 0))
-	{
-		int danger_amount = 0;
-		int monster;
-
-		for (monster = 0; monster < m_max; monster++)
-		{
-			monster_type *m_ptr = &m_list[monster];
-
-			/* Paranoia -- Skip dead monsters */
-			if (!m_ptr->r_idx) continue;
-
-			if (m_ptr->level >= p_ptr->lev)
-			{
-				danger_amount += m_ptr->level - p_ptr->lev + 1;
-			}
-		}
-
-		if (danger_amount > 100)
-		{
-			msg_print("You feel utterly terrified!");
-		}
-		else if (danger_amount > 50)
-		{
-			msg_print("You feel terrified!");
-		}
-		else if (danger_amount > 20)
-		{
-			msg_print("You feel very worried!");
-		}
-		else if (danger_amount > 10)
-		{
-			msg_print("You feel paranoid!");
-		}
-		else if (danger_amount > 5)
-		{
-			msg_print("You feel almost safe.");
-		}
-		else
-		{
-			msg_print("You feel lonely.");
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic &&
-	    (rand_int(5000) == 0))
-	{
-
-		disturb(0,0);
-		cmsg_print(TERM_L_GREEN, "You feel invincible!");
-		msg_print(NULL);
-		(void)set_invuln(p_ptr->invuln + randint(8) + 8);
-	}
-
-	if ((p_ptr->muta2 & MUT2_SP_TO_HP) && (rand_int(2000) == 0))
-	{
-		int wounds = p_ptr->mhp - p_ptr->chp;
-
-		if (wounds > 0)
-		{
-			int healing = p_ptr->csp;
-
-			if (healing > wounds)
-			{
-				healing = wounds;
-			}
-
-			hp_player(healing);
-			p_ptr->csp -= healing;
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_HP_TO_SP) && !p_ptr->anti_magic &&
-	    (rand_int(4000) == 0))
-	{
-		int wounds = p_ptr->msp - p_ptr->csp;
-
-		if (wounds > 0)
-		{
-			int healing = p_ptr->chp;
-
-			if (healing > wounds)
-			{
-				healing = wounds;
-			}
-
-			p_ptr->csp += healing;
-			take_hit(healing, "blood rushing to the head");
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_DISARM) && (rand_int(10000) == 0))
-	{
-		object_type *o_ptr;
-
-		disturb(0,0);
-		msg_print("You trip over your own feet!");
-		take_hit(randint(p_ptr->wt/6), "tripping");
-
-		msg_print(NULL);
-		o_ptr = &inventory[INVEN_WIELD];
-		if (o_ptr->k_idx)
-		{
-			msg_print("You drop your weapon!");
-			inven_drop(INVEN_WIELD, 1, py, px, FALSE);
-		}
-	}
 }
-
+#endif
 
 
 
@@ -1868,8 +1454,28 @@ static void process_world(void)
 	u32b f1 = 0 , f2 = 0 , f3 = 0, f4 = 0, f5 = 0, esp = 0;
 
 
-	/* Every 10 game turns */
+	/*
+	 * Every 10 game turns -- which means this section is invoked once
+	 * in a player turn under the normal speed, and 132 times in a move
+	 * in the reduced map mode.
+	 */
 	if (turn % 10) return;
+
+	/*
+	 * I don't know if this is the right thing to do because I'm totally
+	 * ignorant (yes, I must admit that...) about the scripting part of
+	 * the game, but since there have been complaints telling us it
+	 * runs terribly slow in the reduced map mode... -- pelpel
+	 *
+	 * Note to coders: if it is desirable to make this active in the
+	 * reduced map mode, remove the if condition surrounding the line
+	 * and move the code inside into every 1000 game turns section.
+	 */
+	if (dun_level || (!p_ptr->wild_mode))
+	{
+		/* Let the script live! */
+		process_hooks(HOOK_PROCESS_WORLD, "()");
+	}
 
 	/* Handle the player song */
 	check_music();
@@ -1880,15 +1486,21 @@ static void process_world(void)
 	/* Check the fate */
 	if (fate_option && (p_ptr->lev > 10))
 	{
-		if (randint(50000) == 666) gain_fate(0);
+		/*
+		 * WAS: == 666 against randint(50000).
+		 * Since CPU's don't know Judeo-Christian / Cabalistic traditions,
+		 * and since comparisons with zero is more efficient in many
+		 * architectures...
+		 */
+		if (rand_int(50000) == 0) gain_fate(0);
 	}
 
 	/*** Is the wielded monsters still hypnotised ***/
 	o_ptr = &inventory[INVEN_CARRY];
 
 	if (o_ptr->k_idx)
-        {
-                monster_race *r_ptr = &r_info[o_ptr->pval];
+	{
+		monster_race *r_ptr = &r_info[o_ptr->pval];
 
 		if ((randint(1000) < r_ptr->level - ((p_ptr->lev * 2) + get_skill(SKILL_SYMBIOTIC))))
 		{
@@ -1899,7 +1511,11 @@ static void process_world(void)
 
 	/*** Check the Time and Load ***/
 
-	/* Every 1000 game turns */
+	/*
+	 * Every 1000 game turns -- which means this section is invoked every
+	 * 100 player turns under the normal speed, and slightly more than
+	 * one per move in the reduced map.
+	 */
 	if ((turn % 1000) == 0)
 	{
 		/* Check time and load */
@@ -2134,10 +1750,10 @@ static void process_world(void)
 	if (!p_ptr->wild_mode &&
 	    !p_ptr->inside_arena &&
 	    !p_ptr->inside_quest &&
-	    (rand_int(d_info[dungeon_type].max_m_alloc_chance) == 0))
+            (rand_int(d_info[(dun_level) ? dungeon_type : DUNGEON_WILDERNESS].max_m_alloc_chance) == 0))
 	{
 		/* Make a new monster */
-		if (!(dungeon_flags1 & LF1_NO_NEW_MONSTER))
+		if (!(dungeon_flags2 & DF2_NO_NEW_MONSTER))
 		{
 			(void)alloc_monster(MAX_SIGHT + 5, FALSE);
 		}
@@ -2294,9 +1910,6 @@ static void process_world(void)
 
 			/* Regeneration takes more food */
 			if (p_ptr->tim_regen) i += p_ptr->tim_regen_pow / 10;
-
-			/* DragonRider takes more food */
-			if (PRACE_FLAG(PR1_TP)) i += 15;
 
 			/* Invisibility consume a lot of food */
 			i += p_ptr->invis / 2;
@@ -2465,7 +2078,7 @@ static void process_world(void)
                         inc_piety(GOD_ERU, inc);
                 }
         }
-        /* Manwe piety decrease with time */
+        /* Most gods piety decrease with time */
         if (((turn % 300) == 0) && (!p_ptr->did_nothing) && (!p_ptr->wild_mode) && (dun_level))
         {
                 GOD(GOD_MANWE)
@@ -2498,6 +2111,20 @@ static void process_world(void)
                         inc_piety(GOD_TULKAS, -dec);
                 }
         }
+        /* Yavanna piety decrease with time */
+        if (((turn % 400) == 0) && (!p_ptr->did_nothing) && (!p_ptr->wild_mode) && (dun_level))
+        {
+                GOD(GOD_YAVANNA)
+                {
+                        int dec = 5 - wisdom_scale(3);
+
+                        /* Blech what an hideous hack */
+                        if (!strcmp(rp_ptr->title + rp_name, "Ent"))
+                                dec -= wisdom_scale(2);
+                        if (dec < 1) dec = 1;
+                        inc_piety(GOD_YAVANNA, -dec);
+                }
+        }
         p_ptr->did_nothing = FALSE;
 
 	/* Increase regen by tim regen */
@@ -2509,6 +2136,15 @@ static void process_world(void)
 
 	/* Special floor -- Pattern, in a wall -- yields no healing */
 	if (cave_no_regen) regen_amount = 0;
+
+        /* Being over grass allows Yavanna to regen you */
+        PRAY_GOD(GOD_YAVANNA)
+        {
+                if (cave[py][px].feat == FEAT_GRASS)
+                {
+                        regen_amount += 200 + wisdom_scale(800);
+                }
+        }
 
 	/* Regenerate Hit Points if needed */
 	if ((p_ptr->chp < p_ptr->mhp) && !cave_no_regen)
@@ -2536,7 +2172,7 @@ static void process_world(void)
 			p_ptr->stat_cnt[i]--;
 			if (p_ptr->stat_cnt[i] == 0)
 			{
-				do_res_stat(i);
+				do_res_stat(i, FALSE);
 			}
 		}
 	}
@@ -2576,7 +2212,9 @@ static void process_world(void)
 
 		/* Dead player */
 		if (p_ptr->chp < 0)
-		{
+                {
+                        bool old_quick = quick_messages;
+
 			/* Sound */
 			sound(SOUND_DEATH);
 
@@ -2608,10 +2246,12 @@ static void process_world(void)
 			/* Note death */
 			death = TRUE;
 
+                        quick_messages = FALSE;
                         if (get_check("Make a last screenshot? "))
 			{
                                 do_cmd_html_dump();
-			}
+                        }
+                        quick_messages = old_quick;
 
 			/* Dead */
 			return;
@@ -2648,6 +2288,28 @@ static void process_world(void)
 	{
 		(void)set_meditation(p_ptr->meditation - 1);
 	}
+
+	/* Timed project */
+	if (p_ptr->tim_project)
+	{
+		(void)set_project(p_ptr->tim_project - 1, p_ptr->tim_project_gf, p_ptr->tim_project_dam, p_ptr->tim_project_rad, p_ptr->tim_project_flag);
+        }
+
+        /* Timed roots */
+        if (p_ptr->tim_roots)
+        {
+                (void)set_roots(p_ptr->tim_roots - 1, p_ptr->tim_roots_ac, p_ptr->tim_roots_dam);
+        }
+
+        /* Timed breath */
+        if (p_ptr->tim_water_breath)
+        {
+                (void)set_tim_breath(p_ptr->tim_water_breath - 1, FALSE);
+        }
+        if (p_ptr->tim_magic_breath)
+        {
+                (void)set_tim_breath(p_ptr->tim_magic_breath - 1, TRUE);
+        }
 
 	/* Timed regen */
 	if (p_ptr->tim_regen)
@@ -3048,7 +2710,7 @@ static void process_world(void)
 					{
 						int l, dam = 0;
 
-						if (!(d_ptr->flags1 & DF1_DAMAGE_FEAT))
+						if (!(dungeon_flags1 & DF1_DAMAGE_FEAT))
 						{
 							/* If the grid is empty, skip it */
 							if ((cave[j][k].o_idx == 0) &&
@@ -3185,6 +2847,18 @@ static void process_world(void)
 
 #endif /* !pelpel */
 
+        /* Arg canot breath? */
+        if ((dungeon_flags2 & DF2_WATER_BREATH) && (!p_ptr->water_breath))
+        {
+                cmsg_print(TERM_L_RED, "You cannot breath water, you suffocate!");
+                take_hit(damroll(3, p_ptr->lev), "suffocating");
+        }
+        if ((dungeon_flags2 & DF2_NO_BREATH) && (!p_ptr->magical_breath))
+        {
+                cmsg_print(TERM_L_RED, "There is no air there! You suffocate!");
+                take_hit(damroll(3, p_ptr->lev), "suffocating");
+        }
+
 	/*
 	 * Every 1500 turns, warn about any Black Breath not gotten from
 	 * an equipped object, and stop any resting. -LM-
@@ -3272,14 +2946,6 @@ static void process_world(void)
 
 	/* Calculate torch radius */
 	p_ptr->update |= (PU_TORCH);
-
-
-	/*** Process corruption effects ***/
-
-	if (p_ptr->muta2 && !p_ptr->wild_mode && dun_level)
-	{
-		process_corruption_effects();
-	}
 
 
 	/*** Process Inventory ***/
@@ -3534,13 +3200,13 @@ static void process_world(void)
 			{
 				if (o_ptr->timeout > 0)
 				{
-					if(d_info[dungeon_type].flags1 & DF1_HOT)
+					if(dungeon_flags1 & DF1_HOT)
 					{
 					       o_ptr->pval -= 2;
 					}
-					else if((d_info[dungeon_type].flags1 & DF1_COLD) && rand_int(2))
+					else if((dungeon_flags1 & DF1_COLD) && rand_int(2))
 					{
-					       o_ptr->pval--;
+					       if (magik(50)) o_ptr->pval--;
 					}
 					else
 					{
@@ -3605,12 +3271,11 @@ static void process_world(void)
 		p_ptr->window |= (PW_INVEN);
 	}
 
-	/* Feel the inventory */
-	sense_inventory();
-
-	/* Handle squelch-on-sense */
-	squeltch_inventory();
-
+        /* Feel the inventory */
+        if (dun_level || (!p_ptr->wild_mode))
+        {
+                sense_inventory();
+        }
 
 	/*** Process Objects ***/
 
@@ -3662,13 +3327,13 @@ static void process_world(void)
 			{
 				if (o_ptr->timeout > 0)
 				{
-					if(d_info[dungeon_type].flags1 & DF1_HOT)
+					if(dungeon_flags1 & DF1_HOT)
 					{
 					       o_ptr->pval -= 2;
 					}
-					else if((d_info[dungeon_type].flags1 & DF1_COLD) && rand_int(2))
+					else if((dungeon_flags1 & DF1_COLD) && rand_int(2))
 					{
-					       o_ptr->pval--;
+					       if (magik(50)) o_ptr->pval--;
 					}
 					else
 					{
@@ -4801,6 +4466,7 @@ static void process_command(void)
 
 		/* Show quest status -KMW- */
 		case KTRL('Q'):
+		case CMD_QUEST:
 		{
 			do_cmd_checkquest();
 			break;
@@ -4888,8 +4554,6 @@ static void process_command(void)
 			break;
 		}
 		
-#ifdef USE_SOCK
-
 		/* Connect to IRC. */
 		case CMD_IRC_CONNECT:
 		{
@@ -4910,8 +4574,6 @@ static void process_command(void)
 			irc_disconnect();
 			break;
 		}
-
-#endif /* USE_SOCK */
 		
 		/* Game time. */
 		case CMD_SHOW_TIME:
@@ -4927,10 +4589,18 @@ static void process_command(void)
 			break;
 		}
 		
-		/* Save a html screenshot. */
+                /* Save a html screenshot. */
 		case CMD_DUMP_HTML:
 		{
 			do_cmd_html_dump();
+			break;
+		}
+		
+		/* Record a macro. */
+		case '$':
+		case CMD_MACRO:
+		{
+			do_cmd_macro_recorder();
 			break;
 		}
 
@@ -5105,11 +4775,6 @@ void process_player(void)
 		/* Refresh (optional) */
 		if (fresh_before) Term_fresh();
 
-
-		/* Handle squelch-on-move */
-		squeltch_grid();
-
-
 		/* Hack -- Pack Overflow */
 		if (inventory[INVEN_PACK].k_idx)
 		{
@@ -5225,7 +4890,8 @@ void process_player(void)
 
 			/* Process the command */
 			process_command();
-                        p_ptr->did_nothing = TRUE;
+
+			p_ptr->did_nothing = TRUE;
 		}
 
 		/* Normal command */
@@ -5287,8 +4953,9 @@ void process_player(void)
 				}
 			}
 
-			/* Shimmer objects if needed */
-			if (!avoid_other && !use_graphics && shimmer_objects)
+			/* Shimmer objects if needed and requested */
+			if (!avoid_other && !avoid_shimmer && !use_graphics &&
+			    shimmer_objects)
 			{
 				/* Clear the flag */
 				shimmer_objects = FALSE;
@@ -5314,20 +4981,19 @@ void process_player(void)
 				}
 			}
 
-			/* Shimmer features if needed */
-			if (!avoid_other && !use_graphics && !resting && !running)
+			/*
+			 * Shimmer features if needed and requested
+			 *
+			 * Note: this can be unbearably slow when a player chooses
+			 * to use a REALLY big screen in levels filled with shallow
+			 * water.  I believe this also hurts a lot on multiuser systems.
+			 * However fast modern processors are, I/O cannot be made that
+			 * fast, and that's why shimmering has been limited to small
+			 * number of monsters -- pelpel
+			 */
+			if (!avoid_other && !avoid_shimmer && !use_graphics &&
+			    !resting && !running)
 			{
-				/*
-				 * Shimmer multi-hued features
-				 *
-				 * Note: this can be unbearably slow when a player chooses
-				 * to use a REALLY big screen in levels filled with shallow
-				 * water. However fast modern processors are, I/O cannot
-				 * be made that fast, and that's why shimmering was
-				 * limited to small number of monsters. Maybe we can
-				 * introduce non-shimmering shallow water and place
-				 * shimmering ones among them -- pelpel
-				 */
 				for (j = panel_row_min; j <= panel_row_max; j++)
 				{
 					for (i = panel_col_min; i <= panel_col_max; i++)
@@ -5335,10 +5001,7 @@ void process_player(void)
 						cave_type *c_ptr = &cave[j][i];
 						feature_type *f_ptr;
 
-						/*
-						 * Acquire object -- for speed only base items are
-						 * allowed to shimmer
-						 */
+						/* Apply terrain feature mimics */
 						if (c_ptr->mimic)
 						{
 							f_ptr = &f_info[c_ptr->mimic];
@@ -5348,10 +5011,10 @@ void process_player(void)
 							f_ptr = &f_info[f_info[c_ptr->feat].mimic];
 						}
 
-						/* Skip non-multi-hued monsters */
+						/* Skip normal features */
 						if (!(f_ptr->flags1 & (FF1_ATTR_MULTI))) continue;
 
-						/* Redraw regardless */
+						/* Redraw a shimmering spot */
 						lite_spot(j, i);
 					}
 				}
@@ -5421,7 +5084,7 @@ void process_player(void)
 			 *
 			 * Forget everything when requested hehe I'm *NASTY*
 			 */
-			if (dun_level && (d_info[dungeon_type].flags1 & DF1_FORGET))
+			if (dun_level && (dungeon_flags1 & DF1_FORGET))
 			{
 				wiz_dark();
 			}
@@ -5446,8 +5109,6 @@ void process_player(void)
  */
 static void dungeon(void)
 {
-	dungeon_info_type *d_ptr = &d_info[dungeon_type];
-
 	/* Reset various flags */
 	hack_mind = FALSE;
 
@@ -5507,8 +5168,8 @@ static void dungeon(void)
 	if (!dungeon_stair) create_down_shaft = create_up_shaft = FALSE;
 
 	/* no connecting stairs on special levels */
-	if (!(dungeon_flags1 & LF1_NO_STAIR)) create_down_stair = create_up_stair = FALSE;
-	if (!(dungeon_flags1 & LF1_NO_STAIR)) create_down_shaft = create_up_shaft = FALSE;
+	if (!(dungeon_flags2 & DF2_NO_STAIR)) create_down_stair = create_up_stair = FALSE;
+	if (!(dungeon_flags2 & DF2_NO_STAIR)) create_down_shaft = create_up_shaft = FALSE;
 
 	/* Make a stairway. */
 	if ((create_up_stair || create_down_stair ||
@@ -5524,19 +5185,19 @@ static void dungeon(void)
 			/* Make stairs */
 			if (create_down_stair)
 			{
-				cave_set_feat(py, px, (d_ptr->flags1 & DF1_FLAT) ? FEAT_WAY_MORE : FEAT_MORE);
+				cave_set_feat(py, px, (dungeon_flags1 & DF1_FLAT) ? FEAT_WAY_MORE : FEAT_MORE);
 			}
 			else if (create_down_shaft)
 			{
-				cave_set_feat(py, px, (d_ptr->flags1 & DF1_FLAT) ? FEAT_WAY_MORE : FEAT_SHAFT_DOWN);
+				cave_set_feat(py, px, (dungeon_flags1 & DF1_FLAT) ? FEAT_WAY_MORE : FEAT_SHAFT_DOWN);
 			}
 			else if (create_up_shaft)
 			{
-				cave_set_feat(py, px, (d_ptr->flags1 & DF1_FLAT) ? FEAT_WAY_LESS : FEAT_SHAFT_UP);
+				cave_set_feat(py, px, (dungeon_flags1 & DF1_FLAT) ? FEAT_WAY_LESS : FEAT_SHAFT_UP);
 			}
 			else
 			{
-				cave_set_feat(py, px, (d_ptr->flags1 & DF1_FLAT) ? FEAT_WAY_LESS : FEAT_LESS);
+				cave_set_feat(py, px, (dungeon_flags1 & DF1_FLAT) ? FEAT_WAY_LESS : FEAT_LESS);
 			}
 		}
 
@@ -5781,7 +5442,7 @@ static void dungeon(void)
 		process_hooks(HOOK_END_TURN, "(d)", is_quest(dun_level));
 
 		/* Make it pulsate and live !!!! */
-		if ((d_info[dungeon_type].flags1 & DF1_EVOLVE) && dun_level)
+		if ((dungeon_flags1 & DF1_EVOLVE) && dun_level)
 		{
 			if (!(turn % 10)) evolve_level(TRUE);
 		}
@@ -5847,41 +5508,7 @@ static void dungeon(void)
 
 
 
-#if 0
-
-/* Old routine to load pref files */
-
 /*
- * Load some "user pref files"
- */
-static void load_all_pref_files(void)
-{
-	char buf[1024];
-
-	/* Access the "race" pref file */
-	sprintf(buf, "%s.prf", rp_ptr->title + rp_name);
-
-	/* Process that file */
-	process_pref_file(buf);
-
-	/* Access the "class" pref file */
-	sprintf(buf, "%s.prf", spp_ptr->title + c_name);
-
-	/* Process that file */
-	process_pref_file(buf);
-
-	/* Access the "character" pref file */
-	sprintf(buf, "%s.prf", player_base);
-
-	/* Process that file */
-	process_pref_file(buf);
-}
-
-#else
-
-/*
- * Arcum Dagsson's code to support separate macro files for different realms
- *
  * Load some "user pref files"
  */
 static void load_all_pref_files(void)
@@ -5907,29 +5534,10 @@ static void load_all_pref_files(void)
 	/* Process that file */
 	process_pref_file(buf);
 
-	/* Access the "realm 1" pref file */
-	if ((realm_names[p_ptr->realm1][0] != "no magic") &&
-	    (realm_names[p_ptr->realm1][0] != "unknown"))
-	{
-		sprintf(buf, "%s.prf",realm_names[p_ptr->realm1][0]);
-
-		/* Process that file */
-		process_pref_file(buf);
-	}
-
-	/* Access the "realm 2" pref file */
-	if ((realm_names[p_ptr->realm2][0] != "no magic") &&
-	    (realm_names[p_ptr->realm2][0] != "unknown"))
-	{
-		sprintf(buf, "%s.prf",realm_names[p_ptr->realm2][0]);
-
-		/* Process that file */
-		process_pref_file(buf);
-	}
+        /* Process player specific automatizer sets */
+        path_build(buf, 1024, ANGBAND_DIR_USER, format("%s.atm", player_name));
+        luadofile(buf, TRUE);
 }
-
-
-#endif
 
 /*
  * Actually play a game
@@ -5943,7 +5551,6 @@ void play_game(bool new_game)
 	int i, tmp_dun;
 
 	bool cheat_death = FALSE;
-
 
 	hack_corruption = FALSE;
 
@@ -6091,11 +5698,11 @@ void play_game(bool new_game)
 		/* Mega-hack Vampires and Spectres start in the dungeon */
 		if (PRACE_FLAG(PR1_UNDEAD))
 		{
-			turn = (10L * DAY / 2) + (START_DAY * 10);
+			turn = (10L * DAY / 2) + (START_DAY * 10) + 1;
 		}
 		else
 		{
-			turn = START_DAY * 10;
+			turn = (START_DAY * 10) + 1;
 		}
 	}
 
@@ -6361,9 +5968,6 @@ void play_game(bool new_game)
 				/* Restore spell points */
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
-
-				/* Restore tank points */
-				p_ptr->ctp = p_ptr->mtp;
 
 				/* Hack -- Healing */
 				(void)set_blind(0);

@@ -1,4 +1,7 @@
 |||||oy
+~~~~~01|Magic|Thaumaturgy
+~~~~~02|Thaumaturgy Magic
+~~~~~03|Skills|Thaumaturgy - Spell Info
 #####R === ToME Magic - Thaumaturgy ===
 
 Thaumaturgy is a different type of magic where the spells learnt are not 
@@ -14,4 +17,14 @@ learn, and no ability to improve the power of a learnt spell. So, a bolt
 spell with damage 1d5 will remain at 1d5 damage for the whole game. And the
 spells learnt are *all* attack spells of some sort (remembering that things 
 like light and stone-to-mud can damage some monsters) - so no teleporting, no
-identify, no healing spells are learnt.
+identify, no healing spells are learnt. At most, some wall creation.
+
+They use their magics through the 'm' key. They then select a general 
+group of spells, followed by a specific spell.
+
+Thaumaturgy spells can take the form of:
+- a bolt, tageted at a singe location;
+- a beam, which hits all monsters in a line;
+- a ball (either centered on the caster or targettable);
+- an meteor strike (multiple balls in the vicinity of the caster);
+- a spell that affects all monsters in line of sight.

@@ -266,9 +266,6 @@
 
 
 
-
-
-
 /*
  * The current "term"
  */
@@ -280,7 +277,11 @@ int do_movies = 0; /* Later set this as a global */
 		/* set to 1 if you want movies made */
 time_t lastc;
 int last_paused = 0;
-int same_second(void);
+int cmovie_get_msecond(void);
+
+/* Record cmovies with millisecond frame rate */
+long cmov_last_time_msec;
+long cmov_delta_time_msec;
 
 
 /*** Local routines ***/
@@ -478,7 +479,9 @@ errr Term_user(int n)
 
 /*
  * Execute the "Term->xtra_hook" hook, if available (see above).
+ * And *hacky* get a return code
  */
+long Term_xtra_long;
 errr Term_xtra(int n, int v)
 {
 	/* Verify the hook */
@@ -1315,10 +1318,9 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 	byte na;
 	char nc;
 
-
 	/* Scan "modified" columns */
 	for (x = x1; x <= x2; x++)
-	{
+        {
 		/* See what is currently here */
 		oa = old_aa[x];
 		oc = old_cc[x];
@@ -1566,12 +1568,12 @@ errr Term_fresh(void)
 
 		if ((do_movies == 1) && IN_MAINWINDOW)
 		{
-			if(!same_second())
+			if(!cmovie_get_msecond())
 			{
-				fprintf(movfile, "S:1:\n");
+				fprintf(movfile, "S:%ld:\n", cmov_delta_time_msec);
 			}
 			fprintf(movfile, "C:\n");
-			last_paused=0;
+			last_paused = 0;
 		}
 
 		/* Physically erase the entire window */
@@ -2266,10 +2268,13 @@ errr Term_redraw(void)
 {
 	/* Pat */
 	if((do_movies == 1) && IN_MAINWINDOW)
-		{
-		if(!same_second()){fprintf(movfile, "S:1:\n");}
-		last_paused=1;
-		}
+        {
+                if (!cmovie_get_msecond())
+                {
+                        fprintf(movfile, "S:%ld:\n", cmov_delta_time_msec);
+                }
+                last_paused = 1;
+        }
 	/* Endpat */
 
 	/* Force "total erase" */
@@ -2292,12 +2297,18 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 
 	char *c_ptr;
 
-		/* Pat */
-	if((do_movies == 1) && IN_MAINWINDOW)
-		{
-		if(!same_second() ){fprintf(movfile,"W:1:\n");}
-		}
-		/* Endpat */
+#if 0 // DGDGDGDG
+        /* Pat */
+	if ((do_movies == 1) && IN_MAINWINDOW)
+        {
+                if (!cmovie_get_msecond())
+                {
+                        fprintf(movfile,"W:1:\n");
+                }
+        }
+        /* Endpat */
+#endif
+
 	/* Bounds checking */
 	if (y2 >= Term->hgt) y2 = Term->hgt - 1;
 	if (x2 >= Term->wid) x2 = Term->wid - 1;
@@ -2501,10 +2512,16 @@ errr Term_inkey(char *ch, bool wait, bool take)
 	{
 		/* Process random events */
 		Term_xtra(TERM_XTRA_BORED, 0);
-	}
-		/* PatN */
-	if((do_movies == 1) && (last_paused==0) && (!same_second() )){fprintf(movfile, "S:1:\n");last_paused=1;}
-		/* PatNEnd */
+        }
+
+        /* PatN */
+        if ((do_movies == 1) && (last_paused == 0) && (!cmovie_get_msecond()))
+        {
+                fprintf(movfile, "S:%ld:\n", cmov_delta_time_msec);
+                last_paused = 1;
+        }
+        /* PatNEnd */
+
 	/* Wait */
 	if (wait)
 	{
@@ -3077,21 +3094,41 @@ errr term_init(term *t, int w, int h, int k)
 	return (0);
 }
 
-
 /*
  * Determine if we are called in the same second as the last time?
  * This *ASSUMES* that time_t is seconds past something. Is this portable?
  */
-int same_second(void)
+int cmovie_get_msecond(void)
 {
+#ifndef USE_PRECISE_CMOVIE
+        /* Not very precise, but portable */
 	time_t thisc;
 
 	thisc = time(NULL);
+
+        cmov_delta_time_msec = 300;
 
 	if (thisc == lastc)
 	{
 		return 1;
 	}
 	return 0;
+#else /* Very precise but needs main-foo.c to define TERM_XTRA_GET_DELAY */
+        Term_xtra(TERM_XTRA_GET_DELAY, 0);
+
+        cmov_delta_time_msec = Term_xtra_long - cmov_last_time_msec;
+        cmov_last_time_msec = Term_xtra_long;
+        return 0;
+#endif
 }
 
+void cmovie_init_second()
+{
+#ifndef USE_PRECISE_CMOVIE
+        /* Not very precise, but portable */
+        cmov_last_time_msec = 0;
+#else /* Precise but need main-foo.c to have TERM_XTRA_GET_DELAY */
+        Term_xtra(TERM_XTRA_GET_DELAY, 0);
+        cmov_last_time_msec = Term_xtra_long;
+#endif
+}

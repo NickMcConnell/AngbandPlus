@@ -3,6 +3,34 @@
 -- Lua player funtions
 --
 
+-- Gods
+function deity(i)
+        return deity_info[1 + i]
+end
+
+-------- skill stuff ---------
+
+-- Easy skill access
+function skill(i)
+        return s_info[i + 1]
+end
+
+-- Sart a lasting spell
+function player.start_lasting_spell(spl)
+        player.music_extra = -spl
+end
+
+-- stat mods
+function player.modify_stat(stat, inc)
+	player.stat_add[1 + stat] = player.stat_add[1 + stat] + inc
+end
+
+-- powers mods
+function player.add_power(pow)
+	player.powers[1 + pow] = TRUE
+end
+
+
 -- modify mana
 -- returns TRUE if there is a pb
 function increase_mana(amt)
@@ -18,6 +46,15 @@ function increase_mana(amt)
         return FALSE
 end
 
+
+-- Return the coordinates of the player whether in wild or not
+function player.get_wild_coord()
+	if player.wild_mode == TRUE then
+                return py, px
+        else
+                return player.wilderness_y, player.wilderness_x
+        end
+end
 
 -- Create a new power
 __power_fct = {}
@@ -102,6 +139,12 @@ function __birth_hook_objects()
         if get_class_name() == "Priest(Manwe)" then
                 local obj = create_object(TV_BOOK, 255);
                 obj.pval = find_spell("Manwe's Blessing")
+                inven_carry(obj, FALSE)
+                end_object(obj)
+        end
+        if get_class_name() == "Druid" then
+                local obj = create_object(TV_BOOK, 255);
+                obj.pval = find_spell("Charm Animal")
                 inven_carry(obj, FALSE)
                 end_object(obj)
         end

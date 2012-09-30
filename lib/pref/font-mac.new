@@ -7,112 +7,102 @@
 #
 
 
-### Terrain Features ###
+##### Feature attr/char definitions #####
 
-# fountain (white / long s)
-F:2:1/-70
+# fountain
+F:2:0x01/0xBA
 
-# fountain (light dark / long s)
-F:15:8/-70
+# fountain
+F:15:0x08/0xBA
 
-# stream of shallow water (light blue / double tilde)
-F:84:14/-59
+# stream of shallow water
+F:84:0x0E/0xC5
 
-# pool of deep lava (red / double tilde)
-F:85:4/-59
+# pool of deep lava
+F:85:0x0C/0xC5
 
-# stream of shallow lava (light umber / double tilde)
-F:86:15/-59
+# stream of shallow lava
+F:86:0x04/0xC5
 
-# dead tree (light dark / yen sign)
-F:92:8/-76
+# dead tree
+F:92:0x08/0xB4
 
-# tree (light green / yen sign)
-F:96:13/-76
+# tree
+F:96:0x0D/0xB4
 
-# mountain chain (light umber / triangle)
-F:97:15/-58
+# mountain chain
+F:97:0x0F/0xC6
 
-# high mountain chain (light slate / triangle)
-F:101:9/-58
+# high mountain chain
+F:101:0x09/0xC6
 
-# Between gate (purple / Omega)
-F:160:10/-67
+# Void Jumpgate
+F:160:0x0A/0xBD
 
-# Altar of Forests (green / pi)
-F:161:5/-71
+# Altar of Being
+F:161:0x09/0xB9
 
-# Altar of Water (blue / pi)
-F:162:6/-71
+# Altar of Winds
+F:162:0x0E/0xB9
 
-# Altar of Earth (umber / pi)
-F:163:7/-71
+# Altar of Force
+F:163:0x0C/0xB9
 
-# Altar of Darkness (light dark / pi)
-F:164:8/-71
+# Altar of Darkness
+F:164:0x08/0xB9
 
-# Altar of Moon (purple / pi)
-F:165:10/-71
+# stream of tainted water
+F:174:0x07/0xC5
 
-# Altar of Sun (yellow / pi)
-F:166:11/-71
+# Void Jumpgate
+F:176:0x0A/0xBD
 
-# Altar of Rage (light red / pi)
-F:167:12/-71
+# Great Fire
+F:178:0x0A/0xC5
 
-# Altar of Winds (light blue / pi)
-F:168:14/-71
+# Ekkaia, the Encircling Sea
+F:182:0x06/0xC5
 
-# Altar of Stars (light umber / pi)
-F:169:15/-71
+# pool of deep water
+F:187:0x06/0xC5
 
-# Altar of Being (light slate / pi)
-F:170:9/-71
+# small tree
+F:202:0x05/0xB4
 
-# Altar of Randomness (purple / pi)
-F:171:10/-71
+# a blazing fire
+F:205:0x0B/0xC5
 
-# stream of tainted water (umber / double tilde)
-F:174:7/-59
-
-# Between gate (purple / Omega)
-F:176:10/-67
-
-# pool of deep water (blue / double tilde)
-F:187:6/-59
-
-# small tree (green / yen sign)
-F:202:5/-76
-
-# Underground Tunnel (light umber / Omega)
-F:204:15/-67
+# condensing water
+F:209:0x0E/0xC5
 
 
-### Monsters ###
+##### Monster attr/char definitions #####
 
-# Old Man Willow (slate / yen sign)
-R:206:2/-76
+# Old Man Willow
+R:206:0x02/0xB4
 
-# Tangleweed (green / yen sign)
-R:248:5/-76
+# Tangleweed
+R:248:0x05/0xB4
 
-# Poison ivy (green / yen sign)
-R:266:5/-76
+# Poison ivy
+R:266:0x05/0xB4
 
-# Giant Venus Flytrap (green / yen sign)
-R:317:5/-76
+# Giant Venus Flytrap
+R:317:0x05/0xB4
 
-# Huorn (green / yen sign)
-R:329:5/-76
+# Huorn
+R:329:0x05/0xB4
 
-# Xiclotlan (light dark / yen sign)
-R:396:8/-76
+# Xiclotlan
+R:396:0x08/0xB4
 
-# Ent (light green / yen sign)
-R:708:13/-76
+# Ent
+R:708:0x0D/0xB4
 
-# Quickbeam, the Ent (light green / yen sign)
-R:714:13/-76
+# Quickbeam, the Ent
+R:714:0x0D/0xB4
 
-# Fangorn the Treebeard, Lord of the Ents (light green / yen sign)
-R:934:13/-76
+# Fangorn the Treebeard, Lord of the Ents
+R:934:0x0D/0xB4
+
+

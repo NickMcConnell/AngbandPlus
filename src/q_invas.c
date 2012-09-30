@@ -59,12 +59,13 @@ bool quest_invasion_ai_hook(char *fmt)
 	if (m_ptr->r_idx == 825)
 	{
 		/* Oups he fleed */
-		if ((m_ptr->fy == cquest.data[0]) || (m_ptr->fx == cquest.data[1]))
+		if ((m_ptr->fy == cquest.data[0]) && (m_ptr->fx == cquest.data[1]))
 		{
 			delete_monster_idx(m_idx);
 
 			cmsg_print(TERM_YELLOW, "Maeglin found the way to Gondolin, all hope is lost now!");
-			cquest.status = QUEST_STATUS_FAILED;
+                        cquest.status = QUEST_STATUS_FAILED;
+                        town_info[2].destroyed = TRUE;
 			return (FALSE);
 		}
 
@@ -93,6 +94,9 @@ bool quest_invasion_turn_hook(char *fmt)
 	/* Wait until the end of the current quest */
 	if (p_ptr->inside_quest) return( FALSE);
 
+	/* Wait until the end of the astral mode */
+	if (p_ptr->astral) return( FALSE);
+
 	/* Ok give the quest */
 	quick_messages = FALSE;
 	cmsg_print(TERM_YELLOW, "A Thunderlord jumps out of the between in front of you and says:");
@@ -108,6 +112,7 @@ bool quest_invasion_turn_hook(char *fmt)
 		cmsg_print(TERM_YELLOW, "'I will return alone and die there. May you be doomed!'");
 
 		cquest.status = QUEST_STATUS_FAILED;
+                town_info[2].destroyed = TRUE;
 
 		quick_messages = old_quick_messages;
 
@@ -204,6 +209,7 @@ bool quest_invasion_stair_hook(char *fmt)
 			if (!get_check("Really abandon the quest?")) return TRUE;
 			cmsg_print(TERM_YELLOW, "You flee away from Maeglin and his army...");
 			cquest.status = QUEST_STATUS_FAILED;
+                        town_info[2].destroyed = TRUE;
 		}
 		del_hook(HOOK_STAIR, quest_invasion_stair_hook);
 		process_hooks_restart = TRUE;

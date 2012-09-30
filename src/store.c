@@ -730,7 +730,7 @@ static bool store_check_num(object_type *o_ptr)
 }
 
 
-static bool is_blessed(object_type *o_ptr)
+bool is_blessed(object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4, f5, esp;
 	object_flags_known(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
@@ -752,184 +752,17 @@ static bool store_will_buy(object_type *o_ptr)
 
 	if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM) return TRUE;
 
-	/* Switch on the store */
-	switch (cur_store_num)
-	{
-		/* General Store */
-		case 0:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_CORPSE:
-				case TV_FOOD:
-				case TV_LITE:
-				case TV_FLASK:
-				case TV_SPIKE:
-				case TV_SHOT:
-				case TV_ARROW:
-				case TV_BOLT:
-				case TV_DIGGING:
-				case TV_CLOAK:
-				case TV_BOTTLE: /* 'Green', recycling Angband */
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-
-		/* Armoury */
-		case 1:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_BOOTS:
-				case TV_GLOVES:
-				case TV_CROWN:
-				case TV_HELM:
-				case TV_SHIELD:
-				case TV_CLOAK:
-				case TV_SOFT_ARMOR:
-				case TV_HARD_ARMOR:
-				case TV_DRAG_ARMOR:
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-
-		/* Weapon Shop */
-		case 2:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_SHOT:
-				case TV_BOLT:
-				case TV_ARROW:
-				case TV_BOOMERANG:
-				case TV_BOW:
-				case TV_DIGGING:
-				case TV_HAFTED:
-				case TV_POLEARM:
-				case TV_SWORD:
-				case TV_AXE:
-				case TV_MSTAFF:
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-
-		/* Temple */
-		case 3:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_SCROLL:
-				case TV_POTION2:
-				case TV_POTION:
-				case TV_HAFTED:
-				break;
-				case TV_POLEARM:
-				case TV_SWORD:
-				case TV_AXE:
-				if (is_blessed(o_ptr))
-					break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-
-		/* Alchemist */
-		case 4:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_SCROLL:
-				case TV_POTION2:
-				case TV_POTION:
-				case TV_BATERIE:
-				case TV_BOTTLE:
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-
-		/* Magic Shop */
-		case 5:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_BOOK:
-				case TV_SYMBIOTIC_BOOK:
-				case TV_MUSIC_BOOK:
-				case TV_DAEMON_BOOK:
-				case TV_DRUID_BOOK:
-				case TV_AMULET:
-				case TV_RING:
-				case TV_STAFF:
-				case TV_WAND:
-				case TV_ROD:
-				case TV_ROD_MAIN:
-				case TV_SCROLL:
-				case TV_POTION2:
-				case TV_POTION:
-				case TV_MSTAFF:
-				case TV_RANDART:
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-		/* Bookstore Shop */
-		case 8:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-			case TV_BOOK:
-			case TV_SYMBIOTIC_BOOK:
-			case TV_MUSIC_BOOK:
-			case TV_DAEMON_BOOK:
-			case TV_DRUID_BOOK:
-				break;
-			default:
-				return (FALSE);
-			}
-			break;
-		/* Pet Shop */
-		case 9:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_EGG:
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-		}
-	}
-
-	/* XXX XXX XXX Ignore "worthless" items */
+        /* XXX XXX XXX Ignore "worthless" items */
 	if (object_value(o_ptr) <= 0) return (FALSE);
 
-	/* Assume okay */
-	return (TRUE);
+        /* Lua can define things to buy */
+        if (process_hooks_ret(HOOK_STORE_BUY, "d", "(d,s,O)", st_ptr->st_idx, st_info[st_ptr->st_idx].name + st_name, o_ptr))
+        {
+                return process_hooks_return[0].num;
+        }
+
+	/* Assume not okay */
+	return (FALSE);
 }
 
 
@@ -1310,7 +1143,6 @@ static bool kind_is_storeok(int k_idx)
 /*
  * Creates a random item and gives it to a store
  * This algorithm needs to be rethought.  A lot.
- * Currently, "normal" stores use a pre-built array.
  *
  * Note -- the "level" given to "obj_get_num()" is a "favored"
  * level, that is, there is a much higher chance of getting
@@ -1320,10 +1152,11 @@ static bool kind_is_storeok(int k_idx)
  */
 static void store_create(void)
 {
-	int i, tries, level, chance, item;
+	int i = 0, tries, level = 0, chance, item;
 
 	object_type forge;
-	object_type *q_ptr;
+        object_type *q_ptr = NULL;
+        bool obj_all_done = FALSE;
 
 
 	/* Paranoia -- no room left */
@@ -1332,9 +1165,18 @@ static void store_create(void)
 
 	/* Hack -- consider up to four items */
 	for (tries = 0; tries < 4; tries++)
-	{
+        {
+                obj_all_done = FALSE;
+
+                /* Lua can define things to buy */
+                if (process_hooks_ret(HOOK_STORE_STOCK, "O", "(d,s,d)", st_ptr->st_idx, st_info[st_ptr->st_idx].name + st_name, return_level()))
+                {
+                        obj_all_done = TRUE;
+                        q_ptr = process_hooks_return[0].o_ptr;
+                }
+
 		/* Black Market */
-		if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM)
+		else if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM)
 		{
 			obj_theme theme;
 
@@ -1419,33 +1261,37 @@ static void store_create(void)
 			if (!i) continue;
 		}
 
-		/* Don't allow k_info artifacts */
-		if (k_info[i].flags3 & TR3_NORM_ART)
-			continue;
+                /* Only if not already done */
+                if (!obj_all_done)
+                {
+                        /* Don't allow k_info artifacts */
+                        if (k_info[i].flags3 & TR3_NORM_ART)
+                                continue;
 
-		/* Don't allow artifacts */
-		if (k_info[i].flags3 & TR3_INSTA_ART)
-			continue;
+                        /* Don't allow artifacts */
+                        if (k_info[i].flags3 & TR3_INSTA_ART)
+                                continue;
 
-		/* Get local object */
-		q_ptr = &forge;
+                        /* Get local object */
+                        q_ptr = &forge;
 
-		/* Create a new object of the chosen kind */
-		object_prep(q_ptr, i);
+                        /* Create a new object of the chosen kind */
+                        object_prep(q_ptr, i);
 
-		/* Apply some "low-level" magic (no artifacts) */
-		apply_magic(q_ptr, level, FALSE, FALSE, FALSE);
+                        /* Apply some "low-level" magic (no artifacts) */
+                        apply_magic(q_ptr, level, FALSE, FALSE, FALSE);
 
-		/* Hack -- Charge lite's */
-		if (q_ptr->tval == TV_LITE)
-		{
-			u32b f1, f2, f3, f4, f5, esp;
+                        /* Hack -- Charge lite's */
+                        if (q_ptr->tval == TV_LITE)
+                        {
+                                u32b f1, f2, f3, f4, f5, esp;
 
-			object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+                                object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-			if (f4 & TR4_FUEL_LITE) q_ptr->timeout = k_info[q_ptr->k_idx].pval2 / 2;
-		}
+                                if (f4 & TR4_FUEL_LITE) q_ptr->timeout = k_info[q_ptr->k_idx].pval2;
+                        }
 
+                }
 
 		/* The item is "known" */
 		object_known(q_ptr);
@@ -1476,6 +1322,12 @@ static void store_create(void)
 
 		/* Mass produce and/or Apply discount */
 		mass_produce(q_ptr);
+
+		/* The charges an wands are per each, so multiply to get correct number */
+		if(!obj_all_done && q_ptr->tval == TV_WAND)
+		{
+			q_ptr->pval *= q_ptr->number;
+		}
 
 		/* Attempt to carry the (known) item */
 		(void)store_carry(q_ptr);
@@ -2608,95 +2460,99 @@ void store_stole(void)
 
 	/* Player tries to stole it */
 	if (rand_int((40 - p_ptr->stat_ind[A_DEX]) +
-	    ((j_ptr->weight * amt) / (5 + get_skill_scale(SKILL_STEALING, 15))) +
-	    (get_skill_scale(SKILL_STEALING, 25))) <= 10)
+	    ((j_ptr->weight * amt) / (5 + get_skill_scale(SKILL_STEALING, 15))) -
+	    (get_skill_scale(SKILL_STEALING, 15))) <= 10)
 	{
-				/* Hack -- buying an item makes you aware of it */
-				object_aware(j_ptr);
+		/* Hack -- buying an item makes you aware of it */
+		object_aware(j_ptr);
 
-				/* Hack -- clear the "fixed" flag from the item */
-				j_ptr->ident &= ~(IDENT_FIXED);
+		/* Be aware of how you found it */
+		j_ptr->found = OBJ_FOUND_STOLEN;
+		j_ptr->found_aux1 = st_ptr->st_idx;
 
-				/* Describe the transaction */
-				object_desc(o_name, j_ptr, TRUE, 3);
+		/* Hack -- clear the "fixed" flag from the item */
+		j_ptr->ident &= ~(IDENT_FIXED);
 
+		/* Describe the transaction */
+		object_desc(o_name, j_ptr, TRUE, 3);
+
+		/* Message */
+		msg_format("You steal %s.", o_name);
+
+		/* Erase the inscription */
+		j_ptr->note = 0;
+
+		/* Give it to the player */
+		item_new = inven_carry(j_ptr, FALSE);
+
+		/* Describe the final result */
+		object_desc(o_name, &inventory[item_new], TRUE, 3);
+
+		/* Message */
+		msg_format("You have %s (%c).",
+		           o_name, index_to_label(item_new));
+
+		/* Handle stuff */
+		handle_stuff();
+
+		/* Note how many slots the store used to have */
+		i = st_ptr->stock_num;
+
+		/* Remove the bought items from the store */
+		store_item_increase(item, -amt);
+		store_item_optimize(item);
+
+		/* Store is empty */
+		if (st_ptr->stock_num == 0)
+		{
+			/* Shuffle */
+			if (retire_owner_p())
+			{
 				/* Message */
-				msg_format("You steal %s.", o_name);
+				msg_print("The shopkeeper retires.");
 
-				/* Erase the inscription */
-				j_ptr->note = 0;
-
-				/* Give it to the player */
-				item_new = inven_carry(j_ptr, FALSE);
-
-				/* Describe the final result */
-				object_desc(o_name, &inventory[item_new], TRUE, 3);
-
-				/* Message */
-				msg_format("You have %s (%c).",
-				           o_name, index_to_label(item_new));
-
-				/* Handle stuff */
-				handle_stuff();
-
-				/* Note how many slots the store used to have */
-				i = st_ptr->stock_num;
-
-				/* Remove the bought items from the store */
-				store_item_increase(item, -amt);
-				store_item_optimize(item);
-
-				/* Store is empty */
-				if (st_ptr->stock_num == 0)
-				{
-					/* Shuffle */
-					if (retire_owner_p())
-					{
-						/* Message */
-						msg_print("The shopkeeper retires.");
-
-						/* Shuffle the store */
-						store_shuffle(cur_store_num);
-					}
-
-					/* Maintain */
-					else
-					{
-						/* Message */
-						msg_print("The shopkeeper brings out some new stock.");
-					}
-
-					/* New inventory */
-					for (i = 0; i < 10; i++)
-					{
-						/* Maintain the store */
-						store_maint(p_ptr->town_num, cur_store_num);
-					}
-
-					/* Start over */
-					store_top = 0;
-
-					/* Redraw everything */
-					display_inventory();
-				}
-
-				/* The item is gone */
-				else if (st_ptr->stock_num != i)
-				{
-					/* Pick the correct screen */
-					if (store_top >= st_ptr->stock_num) store_top -= 12;
-
-					/* Redraw everything */
-					display_inventory();
-				}
-
-				/* Item is still here */
-				else
-				{
-					/* Redraw the item */
-					display_entry(item);
-				}
+				/* Shuffle the store */
+				store_shuffle(cur_store_num);
 			}
+
+			/* Maintain */
+			else
+			{
+				/* Message */
+				msg_print("The shopkeeper brings out some new stock.");
+			}
+
+			/* New inventory */
+			for (i = 0; i < 10; i++)
+			{
+				/* Maintain the store */
+				store_maint(p_ptr->town_num, cur_store_num);
+			}
+
+			/* Start over */
+			store_top = 0;
+
+			/* Redraw everything */
+			display_inventory();
+		}
+
+		/* The item is gone */
+		else if (st_ptr->stock_num != i)
+		{
+			/* Pick the correct screen */
+			if (store_top >= st_ptr->stock_num) store_top -= 12;
+
+			/* Redraw everything */
+			display_inventory();
+		}
+
+		/* Item is still here */
+		else
+		{
+			/* Redraw the item */
+			display_entry(item);
+		}
+	}
 	else
 	{
 		/* Complain */
@@ -2810,15 +2666,23 @@ void store_purchase(void)
 		}
 
 		/* How many can we buy ? 99 if price is 0*/
-		if (best==0)
+		if (cur_store_num == STORE_HOME)
+		{
+			q = 99;
+		}
+		else if (best==0)
 		{
 			q = 99;
 		}
 		else
-		{
-			q = p_ptr->au / best;
+                {
+                        if (auto_haggle)
+                                q = p_ptr->au / (best + (best / 10));
+                        else
+                                q = p_ptr->au / best;
 		}
-		if (o_ptr->number < q) q = o_ptr->number;
+                if (o_ptr->number < q)
+                        q = o_ptr->number;
 
 		/* None ? ahh too bad */
 		if (!q)
@@ -2915,6 +2779,10 @@ void store_purchase(void)
 
 				/* Hack -- buying an item makes you aware of it */
 				object_aware(j_ptr);
+
+				/* Be aware of how you found it */
+				j_ptr->found = OBJ_FOUND_STORE;
+				j_ptr->found_aux1 = st_ptr->st_idx;
 
 				/* Hack -- clear the "fixed" flag from the item */
 				j_ptr->ident &= ~(IDENT_FIXED);
@@ -3478,7 +3346,7 @@ void store_examine(void)
 	/* Describe it fully */
 	if (o_ptr->tval < TV_BOOK)
 	{
-		if (!identify_fully_aux(o_ptr, NULL)) msg_print("You see nothing special.");
+		if (!object_out_desc(o_ptr, NULL, FALSE)) msg_print("You see nothing special.");
 		/* Books are read */
 	}
 	else
@@ -3827,8 +3695,11 @@ static bool store_process_command(void)
 
 			/* Hack -- Unknown command */
 		default:
-		{
-			msg_print("That command does not work in stores.");
+                {
+                        if (st_ptr->st_idx == STORE_HOME)
+                                msg_print("That command does not work in this home.");
+                        else
+                                msg_print("That command does not work in this store.");
 			break;
 		}
 	}
@@ -3947,12 +3818,14 @@ void do_cmd_store(void)
 
 
 		/* Basic commands */
-		prt(" ESC) Exit.", 22, 0);
+		c_prt(TERM_YELLOW, " ESC.", 22, 0);
+		prt(") Exit.", 22, 4);
 
 		/* Browse if necessary */
 		if (st_ptr->stock_num > 12)
 		{
-			prt(" SPACE) Next page", 23, 0);
+                        c_prt(TERM_YELLOW, " SPACE", 23, 0);
+                        prt(") Next page", 23, 6);
 		}
 
 		/* Prompt */

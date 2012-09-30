@@ -1682,6 +1682,15 @@
                     <FILEKIND>Text</FILEKIND>
                     <FILEFLAGS></FILEFLAGS>
                 </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:w_dun.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Text</FILEKIND>
+                    <FILEFLAGS></FILEFLAGS>
+                </FILE>
             </FILELIST>
             <LINKORDER>
                 <FILEREF>
@@ -2032,6 +2041,13 @@
                     <PATHROOT>Project</PATHROOT>
                     <ACCESSPATH>:</ACCESSPATH>
                     <PATH>:src:w_play_c.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                </FILEREF>
+                <FILEREF>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:w_dun.c</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
                 <FILEREF>
@@ -4056,6 +4072,15 @@
                     <FILEKIND>Text</FILEKIND>
                     <FILEFLAGS></FILEFLAGS>
                 </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:w_dun.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Text</FILEKIND>
+                    <FILEFLAGS></FILEFLAGS>
+                </FILE>
             </FILELIST>
             <LINKORDER>
                 <FILEREF>
@@ -4399,6 +4424,13 @@
                     <PATHROOT>Project</PATHROOT>
                     <ACCESSPATH>:</ACCESSPATH>
                     <PATH>:src:w_play_c.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                </FILEREF>
+                <FILEREF>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:w_dun.c</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
                 <FILEREF>
@@ -6421,6 +6453,15 @@
                     <FILEKIND>Text</FILEKIND>
                     <FILEFLAGS>Debug</FILEFLAGS>
                 </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:w_dun.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Text</FILEKIND>
+                    <FILEFLAGS>Debug</FILEFLAGS>
+                </FILE>
             </FILELIST>
             <SEGMENTLIST>
                 <SEGMENT>
@@ -6756,6 +6797,13 @@
                         <PATHROOT>Project</PATHROOT>
                         <ACCESSPATH>:</ACCESSPATH>
                         <PATH>:src:w_play_c.c</PATH>
+                        <PATHFORMAT>MacOS</PATHFORMAT>
+                    </FILEREF>
+                    <FILEREF>
+                        <PATHTYPE>PathRelative</PATHTYPE>
+                        <PATHROOT>Project</PATHROOT>
+                        <ACCESSPATH>:</ACCESSPATH>
+                        <PATH>:src:w_dun.c</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                     <FILEREF>
@@ -7709,6 +7757,14 @@
                 <PATHROOT>Project</PATHROOT>
                 <ACCESSPATH>:</ACCESSPATH>
                 <PATH>:src:lua_bind.c</PATH>
+                <PATHFORMAT>MacOS</PATHFORMAT>
+            </FILEREF>
+            <FILEREF>
+                <TARGETNAME>T.o.M.E. (PPC)</TARGETNAME>
+                <PATHTYPE>PathRelative</PATHTYPE>
+                <PATHROOT>Project</PATHROOT>
+                <ACCESSPATH>:</ACCESSPATH>
+                <PATH>:src:w_dun.c</PATH>
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
         </GROUP>

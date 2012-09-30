@@ -117,13 +117,26 @@ bool quest_thieves_finish_hook(char *fmt)
 	q_ptr = &forge;
 	object_prep(q_ptr, lookup_kind(TV_SWORD, SV_LONG_SWORD));
 	q_ptr->number = 1;
+        q_ptr->found = OBJ_FOUND_REWARD;
 	apply_magic(q_ptr, 5, TRUE, TRUE, FALSE);
 	object_aware(q_ptr);
 	object_known(q_ptr);
 	(void)inven_carry(q_ptr, FALSE);
 
-	/* Continue the plot */
-	*(quest[q_idx].plot) = (magik(50))?QUEST_TROLL:QUEST_WIGHT;
+        /* Continue the plot */
+
+        /* 10% chance to randomly select, otherwise use the combat/magic skill ratio */
+        if (magik(10) || (get_skill(SKILL_COMBAT) == get_skill(SKILL_MAGIC)))
+        {
+                *(quest[q_idx].plot) = (magik(50))?QUEST_TROLL:QUEST_WIGHT;
+        }
+        else
+        {
+                if (get_skill(SKILL_COMBAT) > get_skill(SKILL_MAGIC))
+                        *(quest[q_idx].plot) = QUEST_TROLL;
+                else
+                        *(quest[q_idx].plot) = QUEST_WIGHT;
+        }
 	quest[*(quest[q_idx].plot)].init(*(quest[q_idx].plot));
 
 	del_hook(HOOK_QUEST_FINISH, quest_thieves_finish_hook);

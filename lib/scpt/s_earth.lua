@@ -15,7 +15,7 @@ STONESKIN = add_spell
                         else
                         	type = 0
                         end
-                	set_shield(randint(10) + 10 + get_level(STONESKIN, 100), 10 + get_level(STONESKIN, 50), type, 2 + get_level(STONESKIN, 5), 3 + get_level(STONESKIN, 5))
+                	return set_shield(randint(10) + 10 + get_level(STONESKIN, 100), 10 + get_level(STONESKIN, 50), type, 2 + get_level(STONESKIN, 5), 3 + get_level(STONESKIN, 5))
 	end,
 	["info"] = 	function()
         		if get_level(STONESKIN, 50) >= 25 then
@@ -37,12 +37,22 @@ DIG = add_spell
         ["level"] = 	12,
         ["mana"] = 	14,
         ["mana_max"] = 	14,
-        ["fail"] = 	10,
+        ["fail"] = 	20,
+        ["stick"] =
+        {
+                        ["charge"] =    { 15, 5 },
+                        [TV_WAND] =
+                        {
+                                ["rarity"] = 		25,
+                                ["base_level"] =        { 1, 1 },
+                                ["max_level"] =        	{ 1, 1 },
+                        },
+        },
         ["spell"] = 	function()
         		local ret, dir
 	        	ret, dir = get_aim_dir()
-        	        if ret == FALSE then return FALSE end
-			wall_to_mud(dir)
+        	        if ret == FALSE then return end
+			return wall_to_mud(dir)
 	end,
 	["info"] = 	function()
         		return ""
@@ -59,7 +69,17 @@ STONEPRISON = add_spell
         ["level"] = 	25,
         ["mana"] = 	30,
         ["mana_max"] = 	50,
-        ["fail"] = 	10,
+        ["fail"] = 	65,
+        ["stick"] =
+        {
+                        ["charge"] =    { 5, 3 },
+                        [TV_WAND] =
+                        {
+                                ["rarity"] = 		57,
+                                ["base_level"] =        { 1, 3 },
+                                ["max_level"] =        	{ 5, 20 },
+                        },
+        },
         ["spell"] = 	function()
 			local ret, x, y
         		if get_level(STONEPRISON, 50) >= 10 then
@@ -69,6 +89,7 @@ STONEPRISON = add_spell
                                 x = px
                         end
 			wall_stone(y, x)
+                        return TRUE
 	end,
 	["info"] = 	function()
         		return ""
@@ -86,15 +107,25 @@ STRIKE = add_spell
         ["level"] = 	30,
         ["mana"] = 	30,
         ["mana_max"] = 	50,
-        ["fail"] = 	30,
+        ["fail"] = 	60,
+        ["stick"] =
+        {
+                        ["charge"] =    { 2, 6 },
+                        [TV_WAND] =
+                        {
+                                ["rarity"] = 		635,
+                                ["base_level"] =        { 1, 5 },
+                                ["max_level"] =        	{ 10, 50 },
+                        },
+        },
         ["spell"] = 	function()
 			local ret, dir, rad
 	        	ret, dir = get_aim_dir()
-        	        if ret == FALSE then return FALSE end
+        	        if ret == FALSE then return end
                         if get_level(STRIKE, 50) >= 12 then
-		        	fire_ball(GF_FORCE, dir, 50 + get_level(STRIKE, 50), 0)
+		        	return fire_ball(GF_FORCE, dir, 50 + get_level(STRIKE, 50), 1)
                         else
-		        	fire_ball(GF_FORCE, dir, 50 + get_level(STRIKE, 50), 1)
+		        	return fire_ball(GF_FORCE, dir, 50 + get_level(STRIKE, 50), 0)
                         end
 	end,
 	["info"] = 	function()
@@ -118,7 +149,17 @@ SHAKE = add_spell
         ["level"] = 	27,
         ["mana"] = 	25,
         ["mana_max"] = 	30,
-        ["fail"] = 	30,
+        ["fail"] = 	60,
+        ["stick"] =
+        {
+                        ["charge"] =    { 5, 10 },
+                        [TV_STAFF] =
+                        {
+                                ["rarity"] = 		75,
+                                ["base_level"] =        { 1, 3 },
+                                ["max_level"] =        	{ 9, 20 },
+                        },
+        },
         ["spell"] = 	function()
 			local ret, x, y
                         if get_level(SHAKE, 50) >= 10 then
@@ -129,6 +170,7 @@ SHAKE = add_spell
                                 y = py
                         end
 			earthquake(y, x, 4 + get_level(SHAKE, 10));
+                        return TRUE
 	end,
 	["info"] = 	function()
 			return "rad "..(4 + get_level(SHAKE, 10))

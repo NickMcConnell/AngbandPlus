@@ -136,12 +136,27 @@ bool quest_shroom_give_hook(char *fmt)
 		object_type forge, *q_ptr;
 
 		msg_print("Oh thank you !");
-		msg_print("Take that !");
+		msg_print("Take my sling and those mushrooms, may they help you !");
 		msg_print("Farmer Maggot heads back to his house");
 
+                /* Mushrooms */
 		q_ptr = &forge;
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_CURE_SERIOUS));
+                q_ptr->found = OBJ_FOUND_REWARD;
 		q_ptr->number = rand_range(15, 20);
+		object_aware(q_ptr);
+		object_known(q_ptr);
+		q_ptr->discount = 100;
+		q_ptr->ident |= IDENT_STOREB;
+		(void)inven_carry(q_ptr, FALSE);
+
+                /* The sling of farmer maggot */
+		q_ptr = &forge;
+		object_prep(q_ptr, lookup_kind(TV_BOW, SV_SLING));
+                q_ptr->found = OBJ_FOUND_REWARD;
+                q_ptr->number = 1;
+                q_ptr->name1 = 149;
+                apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		q_ptr->discount = 100;
@@ -175,7 +190,8 @@ bool quest_shroom_speak_hook(char *fmt)
 
 		m_name = get_next_arg_str(fmt);
 
-		msg_format("%^s asks your help.", m_name);
+                msg_format("%^s asks your help.", m_name);
+                exec_lua("ingame_help('monster_chat')");
 	}
 	else
 	{

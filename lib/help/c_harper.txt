@@ -39,6 +39,3 @@ A harper begins the game with:
     A dagger
     Soft leather armor
     A firelizard egg
-If they are *very* lucky they may also begin with:
-    a musical instrument
-    

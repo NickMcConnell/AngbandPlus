@@ -98,62 +98,6 @@ bool power_chance(power_type *x_ptr)
 	return (FALSE);
 }
 
-bool power_chance_tank(power_type *x_ptr)
-{
-	int diff = x_ptr->diff;
-
-	if (p_ptr->ctp < x_ptr->cost)
-	{
-		energy_use = 0;
-		return FALSE;
-	}
-
-	if (p_ptr->lev < x_ptr->level)
-	{
-		msg_format("You need to attain level %d to use this power.", x_ptr->level);
-		energy_use = 0;
-		return FALSE;
-	}
-
-	else if (p_ptr->confused)
-	{
-		msg_print("You are too confused to use this power.");
-		energy_use = 0;
-		return FALSE;
-	}
-
-	/* Else attempt to do it! */
-
-	if (p_ptr->stun) x_ptr->diff += p_ptr -> stun;
-	else if (p_ptr->lev > x_ptr->level)
-	{
-		int lev_adj = ((p_ptr->lev - x_ptr->level)/3);
-		if (lev_adj > 10) lev_adj = 10;
-		diff -= lev_adj;
-	}
-
-	if (diff < 5) diff = 5;
-
-	/* take time and pay the price */
-	energy_use = 100;
-	p_ptr->ctp -= (x_ptr->cost / 2 ) + (randint(x_ptr->cost / 2));
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER);
-	p_ptr->window |= (PW_SPELL);
-
-
-	/* Success? */
-	if (randint(p_ptr->stat_cur[x_ptr->stat]) >=
-	    ((diff / 2) + randint(diff / 2)))
-	return TRUE;
-
-	if (flush_failure) flush();
-	msg_print("You've failed to concentrate hard enough.");
-
-	return FALSE;
-}
-
 static void power_activate(int power)
 {
 	s16b plev = p_ptr->lev;
@@ -162,7 +106,7 @@ static void power_activate(int power)
 	int dir = 0, dummy;
 	object_type *q_ptr;
 	object_type forge;
-	int	ii = 0, ij = 0;
+	int        ii = 0, ij = 0;
 	/* char out_val[80]; */
 	/* cptr p = "Power of the flame: "; */
 	cptr q, s;
@@ -175,6 +119,11 @@ static void power_activate(int power)
 
 	switch(power)
 	{
+		case PWR_BALROG:
+			{
+				set_mimic(p_ptr->lev / 2, MIMIC_BALROG);
+			}
+			break;
 		case PWR_BEAR:
 			{
 				set_mimic(150 + (p_ptr->lev * 10) , MIMIC_BEAR);
@@ -562,7 +511,7 @@ static void power_activate(int power)
 			}
 			break;
 
-                case PWR_THUNDER:
+		case PWR_THUNDER:
 			/* Select power to use */
 			while (TRUE)
 			{
@@ -602,14 +551,14 @@ static void power_activate(int power)
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You conjures the thunder!.");
-                                        fire_beam(GF_ELEC, dir, p_ptr->lev * 2);
-                                        fire_beam(GF_SOUND, dir, p_ptr->lev * 2);
+					fire_beam(GF_ELEC, dir, p_ptr->lev * 2);
+					fire_beam(GF_SOUND, dir, p_ptr->lev * 2);
 					p_ptr->energy -= 100;
 				}
 			}
 			if (amber_power == 2)
 			{
-				if(dungeon_flags1 & LF1_NO_TELEPORT)
+				if(dungeon_flags2 & DF2_NO_TELEPORT)
 				{
 					msg_print("No teleport on special levels ...");
 					break;
@@ -636,7 +585,7 @@ static void power_activate(int power)
 			}
 			if (amber_power == 3)
 			{
-				if (dungeon_flags1 & LF1_NO_TELEPORT)
+				if (dungeon_flags2 & DF2_NO_TELEPORT)
 				{
 					msg_print("No recall on special levels..");
 					break;
@@ -1361,61 +1310,71 @@ static power_type* select_power(int *x_idx)
 		}
 	}
 
-	character_icky = TRUE;
-	Term_save();
-
-	while (1)
+	/* Exit if there aren't powers */
+	if (max == 0)
 	{
-		print_power_batch(p, start, max, mode);
-		which = inkey();
-
-		if (which == ESCAPE)
-		{
-			*x_idx = -1;
-			ret = NULL;
-			break;
-		}
-		else if (which == '*' || which == '?' || which == ' ')
-		{
-			mode = (mode)?FALSE:TRUE;
-			Term_load();
-			character_icky = FALSE;
-		}
-		else if (which == '+')
-		{
-			start += 20;
-			if (start >= max) start -= 20;
-			Term_load();
-			character_icky = FALSE;
-		}
-		else if (which == '-')
-		{
-			start -= 20;
-			if (start < 0) start += 20;
-			Term_load();
-			character_icky = FALSE;
-		}
-		else
-		{
-			which = tolower(which);
-			if (start + A2I(which) >= max)
-			{
-				bell();
-				continue;
-			}
-			if (start + A2I(which) < 0)
-			{
-				bell();
-				continue;
-			}
-
-			*x_idx = p[start + A2I(which)];
-			ret = &powers_type[p[start + A2I(which)]];
-			break;
-		}
+		*x_idx = -1;
+		ret = NULL;
+		msg_print("You don't have any special powers.");
 	}
-	Term_load();
-	character_icky = FALSE;
+	else
+	{
+		character_icky = TRUE;
+		Term_save();
+
+		while (1)
+		{
+			print_power_batch(p, start, max, mode);
+			which = inkey();
+
+			if (which == ESCAPE)
+			{
+				*x_idx = -1;
+				ret = NULL;
+				break;
+			}
+			else if (which == '*' || which == '?' || which == ' ')
+			{
+				mode = (mode)?FALSE:TRUE;
+				Term_load();
+				character_icky = FALSE;
+			}
+			else if (which == '+')
+			{
+				start += 20;
+				if (start >= max) start -= 20;
+				Term_load();
+				character_icky = FALSE;
+			}
+			else if (which == '-')
+			{
+				start -= 20;
+				if (start < 0) start += 20;
+				Term_load();
+				character_icky = FALSE;
+			}
+			else
+			{
+				which = tolower(which);
+				if (start + A2I(which) >= max)
+				{
+					bell();
+					continue;
+				}
+				if (start + A2I(which) < 0)
+				{
+					bell();
+					continue;
+				}
+
+				*x_idx = p[start + A2I(which)];
+				ret = &powers_type[p[start + A2I(which)]];
+				break;
+			}
+		}
+		Term_load();
+		character_icky = FALSE;
+	}
 
 	C_FREE(p, power_max, int);
 
@@ -1427,8 +1386,16 @@ void do_cmd_power()
 {
 	int x_idx;
 	power_type *x_ptr;
+	bool push = TRUE;
 
-	if (!command_arg) x_ptr = select_power(&x_idx);
+	/* Get the skill, if available */
+	if (repeat_pull(&x_idx))
+	{
+		if ((x_idx < 0) || (x_idx >= power_max)) return;
+		x_ptr = &powers_type[x_idx];
+		push = FALSE;
+	}
+	else if (!command_arg) x_ptr = select_power(&x_idx);
 	else
 	{
 		x_idx = command_arg - 1;
@@ -1437,6 +1404,8 @@ void do_cmd_power()
 	}
 
 	if (x_ptr == NULL) return;
+
+	if (push) repeat_push(x_idx);
 
 	if (p_ptr->powers[x_idx])
 		power_activate(x_idx);

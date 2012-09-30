@@ -361,7 +361,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 		{
 			char dummy_name[80];
 			strcpy(dummy_name, "");
-			identify_fully_aux(o_ptr, NULL);
+			object_out_desc(o_ptr, NULL, FALSE);
 			o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
 			if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
 				sprintf(new_name, "of '%s'", player_name);
@@ -470,8 +470,11 @@ bool artifact_scroll(void)
 		/* Message */
 		msg_print("The enchantment failed.");
 	}
+	else
+		o_ptr->found = OBJ_FOUND_SELFMADE;
 
 	/* Something happened */
 	return (TRUE);
 }
+
 

@@ -1,5 +1,5 @@
 LUA_PKG = w_quest.c w_mnster.c w_player.c w_z_pack.c w_obj.c \
-	  w_util.c w_spells.c w_quest.c w_play_c.c
+	  w_util.c w_spells.c w_quest.c w_play_c.c w_dun.c
 
 all: $(LUA_PKG)
 	echo -n
@@ -30,3 +30,6 @@ w_spells.c: spells.pkg
 
 w_quest.c: quest.pkg
 	tolua -n quest -o w_quest.c quest.pkg
+
+w_dun.c: dungeon.pkg
+	tolua -n dungeon -o w_dun.c dungeon.pkg

@@ -219,6 +219,7 @@ bool carried_make_attack_normal(int r_idx)
 			case RBE_SANITY:    power = 60; break;
 			case RBE_HALLU:     power = 10; break;
 			case RBE_PARASITE:  power =  5; break;
+			case RBE_ABOMINATION:     power = 30; break;
 		}
 
 
@@ -489,6 +490,28 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
 					carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+
+					break;
+				}
+
+				case RBE_ABOMINATION:
+				{
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Morph, but let mimicry skill have a chance to stop this */
+                                        if (magik(60 - get_skill(SKILL_MIMICRY)))
+                                        {
+                                                /* Message */
+                                                cmsg_print(TERM_VIOLET, "You feel the dark powers twisting your body!");
+
+                                                set_mimic(damage, MIMIC_ABOMINATION);
+                                        }
+                                        else
+                                        {
+                                                /* Message */
+                                                cmsg_print(TERM_VIOLET, "You feel the dark powers trying to twisting your body, they fail.");
+                                        }
 
 					break;
 				}
@@ -1333,7 +1356,8 @@ bool make_attack_normal(int m_idx, byte divis)
 			case RBE_TIME:      power =  5; break;
 			case RBE_SANITY:    power = 60; break;
 			case RBE_HALLU:     power = 10; break;
-			case RBE_PARASITE:  power =  5; break;
+                        case RBE_PARASITE:  power =  5; break;
+                        case RBE_ABOMINATION: power = 20; break;
 		}
 
 
@@ -1674,6 +1698,28 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+
+					break;
+				}
+
+                                case RBE_ABOMINATION:
+				{
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Morph, but let mimicry skill have a chance to stop this */
+                                        if (magik(60 - get_skill(SKILL_MIMICRY)))
+                                        {
+                                                /* Message */
+                                                cmsg_print(TERM_VIOLET, "You feel the dark powers twisting your body!");
+
+                                                set_mimic(damage, MIMIC_ABOMINATION);
+                                        }
+                                        else
+                                        {
+                                                /* Message */
+                                                cmsg_print(TERM_VIOLET, "You feel the dark powers trying to twisting your body, they fail.");
+                                        }
 
 					break;
 				}

@@ -1,3 +1,5 @@
+~~~~~01|Spectre
+~~~~~02|Race Modifiers|Spectre
 #####R=== Spectral Race ===
 
 #####GDescription

@@ -80,10 +80,10 @@ C:O:45:38:1d1
 C:O:37:4:1d1
 C:k:+2000:+800:Combat
 C:k:+1000:+850:Weaponmastery
-C:k:+0:+200:Sword-mastery
-C:k:+0:+200:Axe-mastery
-C:k:+0:+200:Hafted-mastery
-C:k:+0:+200:Polearm-mastery
+C:k:+0:+400:Sword-mastery
+C:k:+0:+400:Axe-mastery
+C:k:+0:+400:Hafted-mastery
+C:k:+0:+400:Polearm-mastery
 C:k:+1000:+600:Archery
 C:k:+1000:+900:Sneakiness
 C:k:+1000:+900:Disarming
@@ -118,6 +118,7 @@ C:a:g:Nobody
 C:a:g:Manwe Sulimo
 C:a:g:Tulkas
 C:a:g:Melkor Bauglir
+C:a:g:Yavanna Kementari
 
 C:a:N:Axemaster
 C:a:D:Fighters specialized in the use of axes
@@ -136,10 +137,12 @@ C:a:g:Nobody
 C:a:g:Manwe Sulimo
 C:a:g:Tulkas
 C:a:g:Melkor Bauglir
+C:a:g:Yavanna Kementari
 
 C:a:N:Haftedmaster
 C:a:D:Fighters specialized in the use of hafted weaponss
 C:a:k:+1000:+300:Hafted-mastery
+C:a:k:+0:+500:Stunning-blows
 C:a:k:+0:+100:Weaponmastery
 C:a:k:+0:+100:Combat
 C:a:k:+0:-100:Axe-mastery
@@ -168,7 +171,8 @@ C:a:O:22:8:1d1
 C:a:g:All Gods
 
 C:a:N:Unbeliever
-C:a:D:They dont believe in magic and can even prevent it's usage around them
+C:a:D:They dont believe in magic and can even prevent its usage around them
+C:a:k:=0:=0:Prayer
 C:a:k:=0:=0:Magic
 C:a:k:=0:=0:Magic-Device
 C:a:k:=0:=0:Spirituality
@@ -178,6 +182,28 @@ C:a:K:50:Combat
 C:a:K:50:Antimagic
 C:a:O:23:33:1d1
 C:a:g:Nobody
+
+C:a:N:Demonologist
+C:a:D:Masters of the school of demonology, they both trained in melee
+C:a:D:fighting than using demon spells to enhance their combat potential.
+C:a:O:115:55:1d1
+C:a:k:+0:-50:Combat
+C:a:k:+0:-100:Weaponmastery
+C:a:k:+0:+200:Sword-mastery
+C:a:k:=0:=0:Axe-mastery
+C:a:k:=0:=0:Hafted-mastery
+C:a:k:=0:=0:Polearm-mastery
+C:a:k:+1000:-200:Archery
+C:a:k:+1000:+900:Sneakiness
+C:a:k:+1000:+900:Disarming
+C:a:k:+1000:+400:Magic
+C:a:k:+1000:+300:Spirituality
+C:a:k:=0:=0:Antimagic
+C:a:k:+1000:+1000:Demonology
+C:a:g:Nobody
+C:a:g:Manwe Sulimo
+C:a:g:Tulkas
+C:a:g:Melkor Bauglir
 
 C:N:1:Mage
 C:D:0:The basic spellcaster with lots of different skills
@@ -201,25 +227,24 @@ C:P:0:30
 C:G:ZERO_FAIL | 
 C:E:0:0:0:0:0:0
 C:O:111:50:1d1
-C:O:23:4:1d1
 C:k:+1000:+900:Magic
 C:k:+0:+200:Magic-Device
 C:k:+0:+400:Sorcery
 C:k:+0:+600:Spell-power
 C:k:+1000:+600:Mana
-C:k:+0:+600:Fire
-C:k:+0:+600:Water
-C:k:+0:+600:Air
-C:k:+0:+600:Earth
-C:k:+0:+600:Temporal
-C:k:+0:+600:Divination
-C:k:+0:+600:Conveyance
-C:k:+0:+600:Nature
-C:k:+0:+600:Meta
-C:k:+0:+600:Mind
-C:k:+0:+600:Necromancy
-C:k:+0:+600:Runecraft
-C:k:+0:+600:Thaumaturgy
+C:k:+0:+700:Fire
+C:k:+0:+700:Water
+C:k:+0:+700:Air
+C:k:+0:+700:Earth
+C:k:+0:+700:Temporal
+C:k:+0:+700:Divination
+C:k:+0:+700:Conveyance
+C:k:+0:+700:Nature
+C:k:+0:+700:Meta
+C:k:+0:+700:Mind
+C:k:+0:+700:Necromancy
+C:k:+0:+700:Runecraft
+C:k:+0:+700:Thaumaturgy
 C:k:+1000:+550:Spirituality
 C:k:+1000:+200:Combat
 C:k:+700:+400:Weaponmastery
@@ -242,6 +267,7 @@ C:a:k:+0:+300:Temporal
 C:a:k:+0:+300:Divination
 C:a:k:+0:+300:Meta
 C:a:k:+0:+300:Mind
+C:a:O:23:4:1d1
 
 C:a:N:Elementalist
 C:a:D:The master of the four elements
@@ -262,6 +288,7 @@ C:a:k:+0:+100:Nature
 C:a:k:+0:+100:Temporal
 C:a:k:+0:+100:Divination
 C:a:k:+0:+100:Meta
+C:a:O:23:4:1d1
 
 C:a:N:Warper
 C:a:D:The master of space and time
@@ -279,6 +306,7 @@ C:a:k:+0:+100:Nature
 C:a:k:+0:+500:Temporal
 C:a:k:+0:+500:Divination
 C:a:k:+0:+100:Meta
+C:a:O:23:4:1d1
 
 C:a:N:Sorceror
 C:a:D:The master of all magic schools
@@ -293,6 +321,7 @@ C:a:k:-1000:+0:Mana
 C:a:k:+0:+200:Necromancy
 C:a:k:+0:+200:Runecraft
 C:a:k:+0:+200:Thaumaturgy
+C:a:O:36:2:1d1
 
 C:a:N:Necromancer
 C:a:D:The master of the death.
@@ -305,7 +334,9 @@ C:a:k:+0:+100:Earth
 C:a:k:+0:-200:Nature
 C:a:k:+0:+100:Temporal
 C:a:k:+0:+200:Mind
-C:a:k:+0:+600:Monster-lore
+C:a:k:+1000:+600:Monster-lore
+C:a:k:+5000:+900:Corpse-preservation
+C:a:O:23:4:1d1
 
 C:a:N:Runecrafter
 C:a:D:Runecrafters use the runes found in Middle Earth to create
@@ -314,6 +345,7 @@ C:a:k:+1000:+50:Magic
 C:a:k:+1000:+300:Runecraft
 C:a:O:105:1:1d1
 C:a:O:104:5:1d1
+C:a:O:23:4:1d1
 
 C:a:N:Thaumaturgist
 C:a:D:Thaumaturgy spells come from within and are different for each character.
@@ -322,6 +354,7 @@ C:a:k:-1000:+0:Mana
 C:a:k:+2000:+50:Magic
 C:a:k:+1000:+300:Thaumaturgy
 C:a:k:+0:-150:Magic-Device
+C:a:O:23:4:1d1
 
 C:a:N:Alchemist
 C:a:D:An alchemists can quickly create powerful magic items through the correct use
@@ -348,8 +381,9 @@ C:a:k:+0:-600:Mind
 C:a:k:+1000:+800:Alchemy
 C:a:k:+0:+50:Magic-Device
 C:a:O:31:1:1d1
-C:a:O:4:2:1d1
+C:a:O:4:2:6d1
 C:a:O:2:1:1d1
+C:a:O:23:4:1d1
 
 C:N:2:Archer
 C:D:0:'Kill them before they see you' could be the motto of the archer class.
@@ -403,9 +437,9 @@ C:a:N:Ranger
 C:a:D:Rangers are capable archers but are also trained in hand to hand combat
 C:a:D:and nature/conveyance/divination magic schools
 C:a:k:+0:+400:Magic
-C:a:k:+0:+400:Nature
-C:a:k:+0:+400:Divination
-C:a:k:+0:+400:Conveyance
+C:a:k:+0:+500:Nature
+C:a:k:+0:+500:Divination
+C:a:k:+0:+500:Conveyance
 C:a:k:+0:+100:Disarming
 C:a:k:+0:+50:Sneakiness
 C:a:k:+0:+200:Monster-lore
@@ -415,6 +449,7 @@ C:a:O:23:10:1d1
 C:a:g:Nobody
 C:a:g:Manwe Sulimo
 C:a:g:Tulkas
+C:a:g:Yavanna Kementari
 
 C:N:3:Rogue
 C:D:0:Rogues are masters of tricks, they can steal from shops and monsters
@@ -472,8 +507,8 @@ C:F:CRIT
 C:R:48:1
 C:F:CRIT
 C:E:0:0:0:0:0:0
-C:k:+1000:+900:Combat
-C:k:+1000:+900:Weaponmastery
+C:k:+1000:+700:Combat
+C:k:+1000:+700:Weaponmastery
 C:k:+1000:+300:Sword-mastery
 C:k:+1000:+500:Critical-hits
 C:k:+1000:+700:Magic
@@ -499,7 +534,7 @@ C:a:N:Assassin
 C:a:D:Assassins are stealthy killers
 C:a:k:+0:+100:Combat
 C:a:k:+0:+100:Weaponmastery
-C:a:k:+0:+200:Sword-mastery
+C:a:k:+0:+100:Sword-mastery
 C:a:k:+1000:+100:Critical-hits
 C:a:k:+0:-300:Magic
 C:a:k:+0:-200:Conveyance
@@ -599,7 +634,6 @@ C:a:k:+1000:+300:Mimicry
 C:a:N:Symbiant
 C:a:D:A symbiant can merge his/her body with one of a monster unable to move
 C:a:D:by itself. They also have a few spells to help the symbiosis.
-C:a:O:112:0:1d1
 C:a:O:23:4:1d1
 C:a:O:70:6:1d1
 C:a:k:+0:+100:Combat
@@ -712,6 +746,17 @@ C:a:k:+0:+300:Prayer
 C:a:k:+0:-600:Necromancy
 C:a:k:+0:+50:Weaponmastery
 
+C:a:N:Druid
+C:a:D:A priest that serves Yavanna Kementari to protect
+C:a:D:and help the regrowth of nature on Arda.
+C:a:O:21:5:1d1
+C:a:g:Yavanna Kementari
+C:a:k:+0:+300:Prayer
+C:a:k:+0:-600:Necromancy
+C:a:k:+0:+50:Weaponmastery
+C:a:k:+1000:+700:Monster-lore
+C:a:k:+1000:+700:Summoning
+
 C:a:N:Dark-Priest
 C:a:D:A priest that serves Melkor Bauglir to bring chaos
 C:a:D:and destruction to Arda
@@ -741,12 +786,12 @@ C:a:g:Eru Iluvatar
 C:a:g:Manwe Sulimo
 C:a:g:Tulkas
 C:a:g:Melkor Bauglir
+C:a:g:Yavanna Kementari
 C:a:k:+0:-300:Prayer
 C:a:k:+0:-200:Necromancy
 C:a:k:+1000:+300:Mindcraft
-C:a:k:+0:+00:Spell-power
-C:k:+0:+200:Sneakiness
-C:k:+0:+100:Magic-Device
+C:a:k:+0:+200:Sneakiness
+C:a:k:+0:+100:Magic-Device
 
 ###############################TEST###############################
 C:N:30:Test
@@ -838,6 +883,7 @@ C:a:O:23:16:1d1
 # R:G:race flags
 # R:R:level:pval
 # R:F:flags
+# R:k:value:modifier:skill name
 
 I:
 
@@ -850,7 +896,7 @@ R:K:0:0:0:0:0:10:0:0
 R:P:10:100:0:1
 R:M:14:6:72:6:180:25:66:4:150:20
 R:E:1:1:1:2:1:1
-R:C:Warrior | Archer | Mage | Rogue | Priest
+R:C:Warrior | Archer | Mage | Rogue | Priest | Loremaster
 
 R:N:1:Half-Elf
 R:D:A crossbreed of elf and human, they get the best of the two races.
@@ -859,7 +905,7 @@ R:K:2:3:3:1:6:11:-1:5
 R:P:9:110:2:4
 R:M:24:16:66:6:130:15:62:6:100:10
 R:E:1:1:1:2:1:1
-R:C:Warrior | Archer | Mage | Rogue | Priest
+R:C:Warrior | Archer | Mage | Rogue | Priest | Loremaster
 R:G:ELF
 
 R:N:2:Elf
@@ -873,7 +919,7 @@ R:M:75:75:60:4:100:6:54:4:80:6
 R:E:1:1:1:2:1:1
 R:R:1:0
 R:F:RES_LITE | 
-R:C:Warrior | Archer | Mage | Priest
+R:C:Warrior | Archer | Mage | Priest | Loremaster
 R:G:ELF
 
 R:N:3:Hobbit
@@ -888,7 +934,7 @@ R:Z:create food
 R:G:RESIST_BLACK_BREATH | XTRA_MIGHT_SLING |
 R:R:1:0
 R:F:SUST_DEX | 
-R:C:Warrior | Archer | Mage | Rogue
+R:C:Warrior | Archer | Mage | Rogue | Loremaster
 R:k:+0:+300:Sling-mastery
 
 R:N:4:Gnome
@@ -954,7 +1000,7 @@ R:M:50:50:82:5:190:20:78:6:180:15
 R:E:1:1:1:2:1:1
 R:R:1:0
 R:F:SUST_CON | REGEN | 
-R:C:Warrior | Archer | Mage | Rogue | Priest
+R:C:Warrior | Archer | Mage | Rogue | Priest | Loremaster
 
 R:N:9:High-Elf
 R:D:Elves are the first born, the Eldar.
@@ -969,7 +1015,7 @@ R:R:1:0
 R:F:SEE_INVIS | 
 R:F:RES_LITE | 
 R:G:ELF
-R:C:Warrior | Archer | Mage | Priest
+R:C:Warrior | Archer | Mage | Priest | Loremaster
 
 R:N:10:Half-Ogre
 R:D:A crossbreed between a human and an ogre.
@@ -998,7 +1044,7 @@ R:F:SUST_STR |
 R:R:20:1
 R:F:STR | 
 R:k:+1000:+1000:Bearform-combat
-R:C:Warrior | Rogue
+R:C:Warrior | Rogue | Loremaster
 
 R:N:12:Kobold
 R:D:A weaker kind of goblin, related to orcs.
@@ -1052,7 +1098,7 @@ R:P:14:210:5:94
 R:M:255:70:72:6:100:25:66:4:100:20
 R:E:1:1:1:2:1:1
 R:Z:grow trees
-R:G:PASS_TREE | NO_STUN | 
+R:G:PASS_TREE | NO_STUN | NO_FOOD |
 R:G:AC_LEVEL | 
 R:R:1:-5
 R:F:SPEED | SENS_FIRE | SLOW_DIGEST | 
@@ -1061,7 +1107,7 @@ R:F:SEE_INVIS |
 R:R:20:0
 R:F:ESP_ORC | 
 R:F:ESP_TROLL | ESP_EVIL | 
-R:C:Warrior | Priest
+R:C:Warrior | Priest | Loremaster
 R:k:+0:+200:Barehand-combat
 
 R:N:16:RohanKnight
@@ -1145,7 +1191,7 @@ R:K:-5:-5:-10:0:-5:0:-10:-10
 R:P:6:25:2:205
 R:M:10:4:40:5:50:10:35:4:45:10
 R:E:1:1:1:2:1:1
-R:C:Warrior | Archer | Mage | Rogue | Priest
+R:C:Warrior | Archer | Mage | Rogue | Priest | Loremaster
 
 R:N:20:Wood-Elf
 R:D:Elves are the first born, the Eldar.
@@ -1158,7 +1204,7 @@ R:E:1:1:1:2:1:1
 R:G:XTRA_MIGHT_BOW | PASS_TREE
 R:R:1:1
 R:F:XTRA_MIGHT | RES_LITE | 
-R:C:Warrior | Archer | Mage | Priest
+R:C:Warrior | Archer | Mage | Priest | Loremaster
 R:G:ELF
 R:k:+0:+200:Archery
 
@@ -1191,7 +1237,7 @@ R:R:42:1
 R:F:STR | INT | WIS | DEX | CON | CHR | 
 R:R:48:1
 R:F:STR | INT | WIS | DEX | CON | CHR | 
-R:C:Warrior | Archer | Mage | Rogue | Priest
+R:C:Warrior | Archer | Mage | Rogue | Priest | Loremaster
 
 
 ##############################################################################
@@ -1211,6 +1257,7 @@ R:C:Warrior | Archer | Mage | Rogue | Priest
 # S:G:subrace flags
 # S:R:level:pval
 # S:F:flags
+# S:k:value:modifier:skill name
 
 # Make the parser actually work :)
 I:
@@ -1346,6 +1393,8 @@ S:P:0:0:0
 S:M:0:0:0:0:0:0:0:0:0:0
 S:E:0:0:0:0:0:0
 S:G:ASTRAL
+S:R:1:0
+S:F:SEE_INVIS
 S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
 S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
 S:A:Kobold | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | Thunderlord | 

@@ -31,8 +31,20 @@ drop me a line please) in no particular order:
 - Luc French for lots of ideas & code
 - Kieron for some patches
 - Runescrye for ra_info.txt and surely more :)
-- Fearof4s for lua patches and lua toturial
+- Fearof4s for lua patches, lua tutorial, quests and stuff.
 - Pav Lucistnik for some patches
+- Mef for the huge task of updating class and magic help documents for 2.x
+  and lots and lots of other help updates!
+- Erik J Brown for some changes to help docs.
+- vrak (Per-Arne Holtmon Ak) for magic.txt
+- Kat B for other help updates.
+- Chris Hadgis for Luck spoiler, lua *.pkg help docs, and other help docs.
+- lemming for skills.txt and stuff
+- Paladin Rithe (Brian Ronk) for birth.txt
+- John Gilmore for alchemy improvements patch
+- Massimiliano Marangio for lots and lots of help updates, typo corrections, 
+  bug fixes etc.
+- Neil Stevens <neil@qualityassistant.com> for some polishing
 
 - All that I forgot in the list, hit me a bit then email me to get added
 

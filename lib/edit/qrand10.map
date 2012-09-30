@@ -17,7 +17,7 @@ F:G:188:6
 F:D:38:6
 
 # Floor with Trap
-F:t:1:8:0:0:0:0:*
+F:t:1:2056:0:0:0:0:*
 
 # Deep lava
 F:F:85:12

@@ -281,6 +281,7 @@ struct term
 #define TERM_XTRA_ALIVE 11	/* Change the "hard" level (optional) */
 #define TERM_XTRA_LEVEL 12	/* Change the "soft" level (optional) */
 #define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
+#define TERM_XTRA_GET_DELAY 14	/* Get the cuyrrent time in milliseconds (optional) */
 
 
 /**** Available Variables ****/
@@ -295,6 +296,7 @@ extern int last_paused;
 
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
+extern long Term_xtra_long;
 
 #ifdef USE_TRANSPARENCY
 #ifdef USE_EGO_GRAPHICS

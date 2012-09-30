@@ -163,3 +163,8 @@ N:26:Gondolin
 D:The pillaged city of the Noldor
 W:1:2:0:203:1:P
 X:49:49:49:88:88:88:92:92:92:92:93:93:94:94:94:174:205:205         
+
+N:27:Khazad-dum 
+D:The dwarven stronghold
+W:1:5:0:203:1:5
+X:1:1:1:1:1:1:1:1:1:1:88:88:88:88:88:88:88:88

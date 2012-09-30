@@ -1,4 +1,5 @@
 |||||oy
+~~~~~01|Help
 #####R=== Using the Online Help ===
 
 #####GKey            | Action
@@ -20,7 +21,7 @@ Return         | Activate the selected link
 
 #####R=== General Information ===
 
-The game of PernAngband is a single player dungeon simulation.  A player
+The game of ToME is a single player dungeon simulation.  A player
 may choose from a number of races and classes when creating a character,
 and then "run" that character over a period of days, weeks, even months,
 attempting to win the game by defeating Morgoth, who lurks somewhere in 
@@ -32,11 +33,11 @@ owners.  After preparing for his adventure, the player can descend into the
 dungeon near Bree where fantastic adventures await his coming!
  
 You will probably need to browse through the "help files", especially the
-one on available commands, before beginning any serious adventuring...
+one on available *****command.txt*0[commands], before beginning any
+serious adventuring...
 
-I'd also highly recommend reading the pern_faq in the Newbie directory (at 
-least the first section of it about the differences between Vanilla Angband
-and PernAngband.
-
+I'd also highly recommend reading the *****tome_faq.txt*0[ToME faq] under
+"Extra help for new players" (at least the first section of it about the
+differences between Vanilla Angband and ToME).
 
 

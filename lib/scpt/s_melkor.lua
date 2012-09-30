@@ -9,15 +9,20 @@ function do_melkor_curse(who)
 
                 m_ptr.maxhp = m_ptr.maxhp - r_ptr.hside;
                 if m_ptr.maxhp < 1 then m_ptr.maxhp = 1 end
-                m_ptr.hp = m_ptr.maxhp
+                if m_ptr.hp > m_ptr.maxhp then m_ptr.hp = m_ptr.maxhp end
                 player.redraw = bor(player.redraw, PR_HEALTH)
         end
         if get_level(MELKOR_CURSE) >= 25 then
                 m_ptr.speed = m_ptr.speed - get_level(MELKOR_CURSE, 7)
                 m_ptr.mspeed = m_ptr.mspeed - get_level(MELKOR_CURSE, 7)
+
+		if m_ptr.speed < 70 then m_ptr.speed = 70 end
+		if m_ptr.mspeed < 70 then m_ptr.mspeed = 70 end
         end
         if get_level(MELKOR_CURSE) >= 15 then
                 m_ptr.ac = m_ptr.ac - get_level(MELKOR_CURSE, 50)
+
+		if m_ptr.ac < -70 then m_ptr.ac = -70 end
         end
 
         local i, pow
@@ -54,15 +59,17 @@ MELKOR_CURSE = add_spell
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
 	                        local ret, dir = get_aim_dir()
-        	                if ret == FALSE then return FALSE end
+        	                if ret == FALSE then return end
 
                 	        if target_who == -1 then
                                 	msg_print("You must target a monster.")
                         	else
 	                                do_melkor_curse(target_who)
         	                end
+                                return TRUE
 	end,
 	["info"] = 	function()
                         return ""
@@ -83,12 +90,13 @@ MELKOR_CORPSE_EXPLOSION = add_spell
         ["level"] =     10,
         ["mana"] =      100,
         ["mana_max"] =  500,
-        ["fail"] = 	20,
+        ["fail"] = 	45,
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
-		        fire_ball(GF_CORPSE_EXPL, 0, 20 + get_level(MELKOR_CORPSE_EXPLOSION, 70), 2 + get_level(MELKOR_CORPSE_EXPLOSION, 5))
+		        return fire_ball(GF_CORPSE_EXPL, 0, 20 + get_level(MELKOR_CORPSE_EXPLOSION, 70), 2 + get_level(MELKOR_CORPSE_EXPLOSION, 5))
 	end,
 	["info"] = 	function()
                         return "dam "..(20 + get_level(MELKOR_CORPSE_EXPLOSION, 70)).."%"
@@ -105,13 +113,14 @@ MELKOR_MIND_STEAL = add_spell
         ["level"] =     20,
         ["mana"] =      1000,
         ["mana_max"] =  3000,
-        ["fail"] = 	40,
+        ["fail"] = 	90,
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
 	                        local ret, dir = get_aim_dir()
-        	                if ret == FALSE then return FALSE end
+        	                if ret == FALSE then return end
 
                 	        if target_who == -1 then
                                 	msg_print("You must target a monster.")
@@ -131,6 +140,7 @@ MELKOR_MIND_STEAL = add_spell
 					        local m_name = monster_desc(m_ptr, 0).." resists."
 				        	msg_print(strupper(strsub(m_name, 0, 1))..strsub(m_name, 2))
         	                        end
+                                        return TRUE
         	                end
 	end,
 	["info"] = 	function()
@@ -138,6 +148,6 @@ MELKOR_MIND_STEAL = add_spell
 	end,
         ["desc"] =	{
                         "It allows your spirit to temporaly leave your own body, which will",
-                        "be vulnerable, to control one of your ennemies body."
+                        "be vulnerable, to control one of your enemies body."
         }
 }

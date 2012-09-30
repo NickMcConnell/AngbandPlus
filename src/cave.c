@@ -462,6 +462,9 @@ static void image_object(byte *ap, char *cp)
 
 			/* Random color */
 			*ap = randint(15);
+
+			/* Done */
+			break;
 		}
 
 		/* Normal graphics */
@@ -1055,7 +1058,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 
 		/**** Step 2 -- Apply special random effects ****/
-		if (!avoid_other && attr_mutable)
+		if (!avoid_other && !avoid_shimmer && attr_mutable)
 		{
 			/* Special terrain effect */
 			if (c_ptr->effect)
@@ -1421,8 +1424,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 					*ap = a;
 				}
 
-				/* Hack -- Bizarre grid under monster */
-				else if ((*ap & 0x80) || (*cp & 0x80))
+				/*
+				 * Hack -- Bizarre grid under monster
+				 * WAS: else if (*ap & 0x80) || (*cp & 0x80) -- pelpel
+				 */
+				else if (*ap & 0x80)
 				{
 					/* Use char */
 					*cp = c;
@@ -2004,17 +2010,6 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 		/* Get the "player" char */
 		c = r_ptr->d_char;
-
-		if (player_char_health)
-		{
-			int percent = p_ptr->chp * 10 / p_ptr->mhp;
-
-			if (percent < 7)
-			{
-				c = I2D(percent);
-				if (percent < 3) a = TERM_L_RED;
-			}
-		}
 
 		/* Save the info */
 		*ap = a;
@@ -5205,7 +5200,7 @@ int is_quest(int level)
 int random_quest_number()
 {
 	if ((dun_level >= 1) && (dun_level < MAX_RANDOM_QUEST) &&
-	    (d_info[dungeon_type].flags1 & DF1_PRINCIPAL) &&
+	    (dungeon_flags1 & DF1_PRINCIPAL) &&
 	    (random_quests[dun_level].type) && (!is_randhero()))
 	{
 		return dun_level;

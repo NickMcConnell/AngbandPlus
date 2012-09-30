@@ -45,6 +45,28 @@ void grow_trees(int rad)
 }
 
 /*
+ * Grow grass
+ */
+void grow_grass(int rad)
+{
+	int a, i, j;
+
+	for (a = 0; a < rad * rad + 11; a++)
+	{
+		i = (Rand_mod((rad*2)+1)-rad+Rand_mod((rad*2)+1)-rad)/2;
+		j = (Rand_mod((rad*2)+1)-rad+Rand_mod((rad*2)+1)-rad)/2;
+
+		if (!in_bounds(py + j, px + i)) continue;
+		if (distance(py, px, py + j, px + i) > rad) continue;
+
+		if (cave_clean_bold(py + j, px + i))
+		{
+			cave_set_feat(py + j, px + i, FEAT_GRASS);
+		}
+	}
+}
+
+/*
  * Increase players hit points, notice effects
  */
 bool hp_player(int num)
@@ -208,10 +230,10 @@ bool do_dec_stat(int stat, int mode)
 /*
  * Restore lost "points" in a stat
  */
-bool do_res_stat(int stat)
+bool do_res_stat(int stat, bool full)
 {
 	/* Attempt to increase */
-	if (res_stat(stat))
+	if (res_stat(stat, full))
 	{
 		/* Message */
 		msg_format("You feel less %s.", desc_stat_neg[stat]);
@@ -233,7 +255,7 @@ bool do_inc_stat(int stat)
 	bool res;
 
 	/* Restore strength */
-	res = res_stat(stat);
+	res = res_stat(stat, TRUE);
 
 	/* Attempt to increase */
 	if (inc_stat(stat))
@@ -282,7 +304,7 @@ void identify_pack(void)
 		object_known(o_ptr);
 
 		/* Process the appropriate hooks */
-		process_hooks(HOOK_IDENTIFY, "(d)", i);
+		process_hooks(HOOK_IDENTIFY, "(d,s)", i, "normal");
 	}
 }
 
@@ -311,8 +333,11 @@ void identify_pack_fully(void)
                 o_ptr->ident |= (IDENT_MENTAL);
 
 		/* Process the appropriate hooks */
-		process_hooks(HOOK_IDENTIFY, "(d)", i);
+		process_hooks(HOOK_IDENTIFY, "(d,s)", i, "full");
 	}
+
+        /* Squelch ! */
+        squeltch_inventory();
 }
 
 
@@ -640,7 +665,12 @@ void self_knowledge(FILE *fff)
 	}
 
         if (death)
-                info[i++] = "You are dead.";
+        {
+                static char buf[150];
+
+                sprintf(buf, "You are dead, killed by %s.", died_from);
+                info[i++] = buf;
+        }
 
 	/* Racial powers... */
 	if (p_ptr->body_monster != 0)
@@ -649,14 +679,14 @@ void self_knowledge(FILE *fff)
 
 		if (r_ptr->flags1 & RF1_CHAR_CLEAR ||
 		    r_ptr->flags1 & RF1_ATTR_CLEAR)
-			info[i++] = "You are clear.";
+			info[i++] = "You are transparent.";
 		if ((r_ptr->flags1 & RF1_CHAR_MULTI) ||
 		    (r_ptr->flags2 & RF2_SHAPECHANGER))
-			info[i++] = "Your form constantly change.";
+			info[i++] = "Your form constantly changes.";
 		if (r_ptr->flags1 & RF1_ATTR_MULTI)
-			info[i++] = "Your color constantly change.";
+			info[i++] = "Your color constantly changes.";
 		if (r_ptr->flags1 & RF1_NEVER_BLOW)
-			info[i++] = "You do not have any physical weapon";
+			info[i++] = "You do not have a physical weapon.";
 		if (r_ptr->flags1 & RF1_NEVER_MOVE)
 			info[i++] = "You cannot move.";
 		if ((r_ptr->flags1 & RF1_RAND_25) &&
@@ -680,9 +710,9 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You are cold blooded.";
 		/* Not implemented */
 		if (r_ptr->flags2 & RF2_EMPTY_MIND)
-			info[i++] = "You have empty mind.";
+			info[i++] = "You have an empty mind.";
 		if (r_ptr->flags2 & RF2_WEIRD_MIND)
-			info[i++] = "You have weird mind.";
+			info[i++] = "You have a weird mind.";
 		if (r_ptr->flags4 & RF4_MULTIPLY)
 			info[i++] = "You can multiply.";
 		if (r_ptr->flags2 & RF2_POWERFUL)
@@ -736,8 +766,8 @@ void self_knowledge(FILE *fff)
 		else if (r_ptr->flags3 & RF3_ANIMAL)
 			info[i++] = "You are an animal.";
 		/* Not implemented */
-		else if (r_ptr->flags3 & RF3_DRAGONRIDER)
-			info[i++] = "You have dragonrider blood in your veins.";
+		else if (r_ptr->flags3 & RF3_THUNDERLORD)
+			info[i++] = "You have thunderlord blood in your veins.";
 		if (r_ptr->flags3 & RF3_EVIL)
 			info[i++] = "You are inherently evil.";
 		else if (r_ptr->flags3 & RF3_GOOD)
@@ -839,7 +869,7 @@ void self_knowledge(FILE *fff)
 		if (r_ptr->flags4 & RF4_BR_NUKE)
 			info[i++] = "You can breathe nuke.";
 		if (r_ptr->flags4 & RF4_BR_DISI)
-			info[i++] = "You can breathe disitegration.";
+			info[i++] = "You can breathe disintegration.";
 		if (r_ptr->flags5 & RF5_BA_ACID)
 			info[i++] = "You can cast a ball of acid.";
 		if (r_ptr->flags5 & RF5_BA_ELEC)
@@ -912,7 +942,7 @@ void self_knowledge(FILE *fff)
 		if (r_ptr->flags6 & RF6_TPORT)
 			info[i++] = "You can teleport.";
 		if (r_ptr->flags6 & RF6_TELE_TO)
-			info[i++] = "You can go between.";
+			info[i++] = "You can go between places.";
 		if (r_ptr->flags6 & RF6_TELE_AWAY)
 			info[i++] = "You can teleport away.";
 		if (r_ptr->flags6 & RF6_TELE_LEVEL)
@@ -930,8 +960,8 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You can magically summon a Software Bugs.";
 		if (r_ptr->flags6 & RF6_S_RNG)
 			info[i++] = "You can magically summon the RNG.";
-		if (r_ptr->flags6 & RF6_S_DRAGONRIDER)
-			info[i++] = "You can magically summon some Dragonriders.";
+		if (r_ptr->flags6 & RF6_S_THUNDERLORD)
+			info[i++] = "You can magically summon some Thunderlords.";
 		if (r_ptr->flags6 & RF6_S_KIN)
 			info[i++] = "You can magically summon some Kins.";
 		if (r_ptr->flags6 & RF6_S_HI_DEMON)
@@ -986,7 +1016,7 @@ void self_knowledge(FILE *fff)
 		if (r_ptr->flags8 & RF8_WILD_TOWN)
 			info[i++] = "You appear in towns.";
 		if (r_ptr->flags8 & RF8_WILD_SHORE)
-			info[i++] = "You appear in shores.";
+			info[i++] = "You appear on the shore.";
 		if (r_ptr->flags8 & RF8_WILD_OCEAN)
 			info[i++] = "You appear in the ocean.";
 		if (r_ptr->flags8 & RF8_WILD_WASTE)
@@ -998,7 +1028,7 @@ void self_knowledge(FILE *fff)
 		if (r_ptr->flags8 & RF8_WILD_MOUNTAIN)
 			info[i++] = "You appear in the mountains.";
 		if (r_ptr->flags8 & RF8_WILD_GRASS)
-			info[i++] = "You appear in grasses.";
+			info[i++] = "You appear in grassy areas.";
 
 		if (r_ptr->flags9 & RF9_SUSCEP_ACID)
 			info[i++] = "You are sensitive to acid.";
@@ -1021,276 +1051,9 @@ void self_knowledge(FILE *fff)
 		}
 	}
 
-	if (p_ptr->muta2)
-	{
-		if (p_ptr->muta2 & MUT2_BERS_RAGE)
-		{
-			info[i++] = "You are subject to berserker fits.";
-		}
-		if (p_ptr->muta2 & MUT2_COWARDICE)
-		{
-			info[i++] = "You are subject to cowardice.";
-		}
-		if (p_ptr->muta2 & MUT2_RTELEPORT)
-		{
-			info[i++] = "You are teleporting randomly.";
-		}
-		if (p_ptr->muta2 & MUT2_ALCOHOL)
-		{
-			info[i++] = "Your body produces alcohol.";
-		}
-		if (p_ptr->muta2 & MUT2_HALLU)
-		{
-			info[i++] = "You have a hallucinatory insanity.";
-		}
-		if (p_ptr->muta2 & MUT2_FLATULENT)
-		{
-			info[i++] = "You are subject to uncontrollable flatulence.";
-		}
-		if (p_ptr->muta2 & MUT2_PROD_MANA)
-		{
-			info[i++] = "You are producing magical energy uncontrollably.";
-		}
-		if (p_ptr->muta2 & MUT2_ATT_DEMON)
-		{
-			info[i++] = "You attract demons.";
-		}
-		if (p_ptr->muta2 & MUT2_SCOR_TAIL)
-		{
-			info[i++] = "You have a scorpion tail (poison, 3d7).";
-		}
-		if (p_ptr->muta2 & MUT2_HORNS)
-		{
-			info[i++] = "You have horns (dam. 2d6).";
-		}
-		if (p_ptr->muta2 & MUT2_BEAK)
-		{
-			info[i++] = "You have a beak (dam. 2d4).";
-		}
-		if (p_ptr->muta2 & MUT2_SPEED_FLUX)
-		{
-			info[i++] = "You move faster or slower randomly.";
-		}
-		if (p_ptr->muta2 & MUT2_BANISH_ALL)
-		{
-			info[i++] = "You sometimes cause nearby creatures to vanish.";
-		}
-		if (p_ptr->muta2 & MUT2_EAT_LIGHT)
-		{
-			info[i++] = "You sometimes feed off of the light around you.";
-		}
-		if (p_ptr->muta2 & MUT2_TRUNK)
-		{
-			info[i++] = "You have an elephantine trunk (dam 1d4).";
-		}
-		if (p_ptr->muta2 & MUT2_ATT_ANIMAL)
-		{
-			info[i++] = "You attract animals.";
-		}
-		if (p_ptr->muta2 & MUT2_TENTACLES)
-		{
-			info[i++] = "You have evil looking tentacles (dam 2d5).";
-		}
-		if (p_ptr->muta2 & MUT2_RAW_CHAOS)
-		{
-			info[i++] = "You occasionally are surrounded with raw chaos.";
-		}
-		if (p_ptr->muta2 & MUT2_NORMALITY)
-		{
-			info[i++] = "You may be corrupted, but you're recovering.";
-		}
-		if (p_ptr->muta2 & MUT2_WRAITH)
-		{
-			info[i++] = "You fade in and out of physical reality.";
-		}
-		if (p_ptr->muta2 & MUT2_POLY_WOUND)
-		{
-			info[i++] = "Your health is subject to chaotic forces.";
-		}
-		if (p_ptr->muta2 & MUT2_WASTING)
-		{
-			info[i++] = "You have a horrible wasting disease.";
-		}
-		if (p_ptr->muta2 & MUT2_ATT_DRAGON)
-		{
-			info[i++] = "You attract dragons.";
-		}
-		if (p_ptr->muta2 & MUT2_WEIRD_MIND)
-		{
-			info[i++] = "Your mind randomly expands and contracts.";
-		}
-		if (p_ptr->muta2 & MUT2_NAUSEA)
-		{
-			info[i++] = "You have a seriously upset stomach.";
-		}
-		if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
-		{
-			info[i++] = "Chaos deities give you gifts.";
-		}
-		if (p_ptr->muta2 & MUT2_WALK_SHAD)
-		{
-			info[i++] = "You occasionally stumble into other shadows.";
-		}
-		if (p_ptr->muta2 & MUT2_WARNING)
-		{
-			info[i++] = "You receive warnings about your foes.";
-		}
-		if (p_ptr->muta2 & MUT2_INVULN)
-		{
-			info[i++] = "You occasionally feel invincible.";
-		}
-		if (p_ptr->muta2 & MUT2_SP_TO_HP)
-		{
-			info[i++] = "Your blood sometimes rushes to your muscles.";
-		}
-		if (p_ptr->muta2 & MUT2_HP_TO_SP)
-		{
-			info[i++] = "Your blood sometimes rushes to your head.";
-		}
-		if (p_ptr->muta2 & MUT2_DISARM)
-		{
-			info[i++] = "You occasionally stumble and drop things.";
-		}
-	}
-
-	if (p_ptr->muta3)
-	{
-		if (p_ptr->muta3 & MUT3_HYPER_STR)
-		{
-			info[i++] = "You are superhumanly strong (+4 STR).";
-		}
-		if (p_ptr->muta3 & MUT3_PUNY)
-		{
-			info[i++] = "You are puny (-4 STR).";
-		}
-		if (p_ptr->muta3 & MUT3_HYPER_INT)
-		{
-			info[i++] = "Your brain is a living computer (+4 INT/WIS).";
-		}
-		if (p_ptr->muta3 & MUT3_MORONIC)
-		{
-			info[i++] = "You are moronic (-4 INT/WIS).";
-		}
-		if (p_ptr->muta3 & MUT3_RESILIENT)
-		{
-			info[i++] = "You are very resilient (+4 CON).";
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_FAT)
-		{
-			info[i++] = "You are extremely fat (+2 CON, -2 speed).";
-		}
-		if (p_ptr->muta3 & MUT3_ALBINO)
-		{
-			info[i++] = "You are albino (-4 CON).";
-		}
-		if (p_ptr->muta3 & MUT3_FLESH_ROT)
-		{
-			info[i++] = "Your flesh is rotting (-2 CON, -1 CHR).";
-		}
-		if (p_ptr->muta3 & MUT3_SILLY_VOI)
-		{
-			info[i++] = "Your voice is a silly squeak (-4 CHR).";
-		}
-		if (p_ptr->muta3 & MUT3_BLANK_FAC)
-		{
-			info[i++] = "Your face is featureless (-1 CHR).";
-		}
-		if (p_ptr->muta3 & MUT3_ILL_NORM)
-		{
-			info[i++] = "Your appearance is masked with illusion.";
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_EYES)
-		{
-			info[i++] = "You have an extra pair of eyes (+15 search).";
-		}
-		if (p_ptr->muta3 & MUT3_MAGIC_RES)
-		{
-			info[i++] = "You are resistant to magic.";
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_NOIS)
-		{
-			info[i++] = "You make a lot of strange noise (-3 stealth).";
-		}
-		if (p_ptr->muta3 & MUT3_INFRAVIS)
-		{
-			info[i++] = "You have remarkable infravision (+3).";
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
-		{
-			info[i++] = "You have an extra pair of legs (+3 speed).";
-		}
-		if (p_ptr->muta3 & MUT3_SHORT_LEG)
-		{
-			info[i++] = "Your legs are short stubs (-3 speed).";
-		}
-		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
-		{
-			info[i++] = "Electricity is running through your veins.";
-		}
-		if (p_ptr->muta3 & MUT3_FIRE_BODY)
-		{
-#if 0
-			/* Unnecessary, actually... */
-			info[i++] = "Your body is enveloped in flames.";
-#endif
-		}
-		if (p_ptr->muta3 & MUT3_WART_SKIN)
-		{
-			info[i++] = "Your skin is covered with warts (-2 CHR, +5 AC).";
-		}
-		if (p_ptr->muta3 & MUT3_SCALES)
-		{
-			info[i++] = "Your skin has turned into scales (-1 CHR, +10 AC).";
-		}
-		if (p_ptr->muta3 & MUT3_IRON_SKIN)
-		{
-			info[i++] = "Your skin is made of steel (-1 DEX, +25 AC).";
-		}
-		if (p_ptr->muta3 & MUT3_WINGS)
-		{
-			info[i++] = "You have wings.";
-		}
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_LIMBER)
-		{
-			info[i++] = "Your body is very limber (+3 DEX).";
-		}
-		if (p_ptr->muta3 & MUT3_ARTHRITIS)
-		{
-			info[i++] = "Your joints ache constantly (-3 DEX).";
-		}
-		if (p_ptr->muta3 & MUT3_RES_TIME)
-		{
-			info[i++] = "You are protected from the ravages of time.";
-		}
-		if (p_ptr->muta3 & MUT3_VULN_ELEM)
-		{
-			info[i++] = "You are susceptible to damage from the elements.";
-		}
-		if (p_ptr->muta3 & MUT3_MOTION)
-		{
-			info[i++] = "Your movements are precise and forceful (+1 STL).";
-		}
-		if (p_ptr->muta3 & MUT3_SUS_STATS)
-		{
-			/* Unnecessary */
-		}
-	}
-
 	if (p_ptr->allow_one_death)
 	{
-		info[i++] = "The blood of life flows through your veins.";
+		info[i++] = "The Blood of Life flows through your veins.";
 	}
 	if (p_ptr->blind)
 	{
@@ -1330,7 +1093,7 @@ void self_knowledge(FILE *fff)
 	}
 	if (p_ptr->blessed)
 	{
-		info[i++] = "You feel rightous.";
+		info[i++] = "You feel righteous.";
 	}
 	if (p_ptr->hero)
 	{
@@ -1379,6 +1142,14 @@ void self_knowledge(FILE *fff)
 	if (p_ptr->see_inv)
 	{
 		info[i++] = "You can see invisible creatures.";
+        }
+	if (p_ptr->magical_breath)
+	{
+		info[i++] = "You can breath without air.";
+	}
+	else if (p_ptr->water_breath)
+	{
+		info[i++] = "You can breath underwater.";
 	}
 	if (p_ptr->ffall)
 	{
@@ -1414,7 +1185,7 @@ void self_knowledge(FILE *fff)
 			if (p_ptr->telepathy & ESP_UNDEAD) info[i++] = "You can sense presence of undead.";
 			if (p_ptr->telepathy & ESP_EVIL) info[i++] = "You can sense the presence of evil beings.";
 			if (p_ptr->telepathy & ESP_ANIMAL) info[i++] = "You can sense the presence of animals.";
-			if (p_ptr->telepathy & ESP_DRAGONRIDER) info[i++] = "You can sense the presence of dragonriders.";
+			if (p_ptr->telepathy & ESP_THUNDERLORD) info[i++] = "You can sense the presence of thunderlords.";
 			if (p_ptr->telepathy & ESP_GOOD) info[i++] = "You can sense the presence of good beings.";
 			if (p_ptr->telepathy & ESP_NONLIVING) info[i++] = "You can sense the presence of non-living things.";
 			if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "You can sense the presence of unique beings.";
@@ -2975,13 +2746,13 @@ void stair_creation(void)
 		return;
 	}
 
-	if (d_info[dungeon_type].flags1 & DF1_FLAT)
+	if (dungeon_flags1 & DF1_FLAT)
 	{
 		msg_print("No stair creation in non dungeons...");
 		return;
 	}
 
-	if (dungeon_flags1 & LF1_SPECIAL)
+	if (dungeon_flags2 & DF2_SPECIAL)
 	{
 		msg_print("No stair creation on special levels...");
 		return;
@@ -3027,7 +2798,6 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 		case TV_MSTAFF:
-		case TV_DAEMON_BOOK:
 		case TV_BOOMERANG:
 		case TV_SWORD:
 		case TV_AXE:
@@ -3040,6 +2810,16 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 		case TV_SHOT:
 		{
 			return (TRUE);
+		}
+		case TV_DAEMON_BOOK:
+		{
+			switch (o_ptr->sval)
+			{
+				case SV_DEMONBLADE:
+				{
+					return (TRUE);
+				}
+			}
 		}
 	}
 
@@ -3065,6 +2845,17 @@ bool item_tester_hook_armour(object_type *o_ptr)
 		case TV_GLOVES:
 		{
 			return (TRUE);
+		}
+		case TV_DAEMON_BOOK:
+		{
+			switch (o_ptr->sval)
+			{
+				case SV_DEMONHORN:
+				case SV_DEMONSHIELD:
+				{
+					return (TRUE);
+				}
+			}
 		}
 	}
 
@@ -3352,7 +3143,9 @@ void curse_artifact(object_type * o_ptr)
 	if (o_ptr->to_h) o_ptr->to_h = 0 - ((o_ptr->to_h) + randint(4));
 	if (o_ptr->to_d) o_ptr->to_d = 0 - ((o_ptr->to_d) + randint(4));
 	o_ptr->art_flags3 |= ( TR3_HEAVY_CURSE | TR3_CURSED );
-	if (randint(4)==1) o_ptr-> art_flags3 |= TR3_PERMA_CURSE;
+#if 0 /* Silly */
+        if (randint(4)==1) o_ptr-> art_flags3 |= TR3_PERMA_CURSE;
+#endif
 	if (randint(3)==1) o_ptr-> art_flags3 |= TR3_TY_CURSE;
 	if (randint(2)==1) o_ptr-> art_flags3 |= TR3_AGGRAVATE;
 	if (randint(3)==1) o_ptr-> art_flags3 |= TR3_DRAIN_EXP;
@@ -4408,17 +4201,25 @@ bool ident_spell(void)
 	/* If the item was an artifact, and if the auto-note is selected, write a message. */
 	if (take_notes && auto_notes && (artifact_p(o_ptr) || o_ptr->name1))
 	{
-		char note[80];
+		char note[150];
 		char item_name[80];
 		object_desc(item_name, o_ptr, FALSE, 0);
 
 		/* Build note and write */
 		sprintf(note, "Found The %s", item_name);
+                add_note(note, 'A');
 
-		add_note(note, 'A');
+		sprintf(note, "has found The %s", item_name);
+                irc_emote(note);
 	}
 	/* Process the appropriate hooks */
-	process_hooks(HOOK_IDENTIFY, "(d)", item);
+        process_hooks(HOOK_IDENTIFY, "(d,s)", item, "normal");
+
+        /* Squelch ! */
+        if (item > 0)
+                squeltch_inventory();
+        else
+                squeltch_grid();
 
 	/* Something happened */
 	return (TRUE);
@@ -4445,18 +4246,24 @@ bool ident_all(void)
                 /* If the item was an artifact, and if the auto-note is selected, write a message. */
                 if (take_notes && auto_notes && (artifact_p(o_ptr) || o_ptr->name1))
                 {
-                        char note[80];
+                        char note[150];
                         char item_name[80];
                         object_desc(item_name, o_ptr, FALSE, 0);
 
                         /* Build note and write */
                         sprintf(note, "Found The %s", item_name);
-
                         add_note(note, 'A');
+
+                        sprintf(note, "has found The %s", item_name);
+                        irc_emote(note);
                 }
                 /* Process the appropriate hooks */
-                process_hooks(HOOK_IDENTIFY, "(d)", -i);
+		process_hooks(HOOK_IDENTIFY, "(d,s)", -i, "normal");
         }
+
+        /* Squelch ! */
+        squeltch_inventory();
+        squeltch_grid();
 
 	/* Something happened */
 	return (TRUE);
@@ -4546,20 +4353,32 @@ bool identify_fully(void)
 	/* If the item was an artifact, and if the auto-note is selected, write a message. */
 	if (take_notes && auto_notes && (artifact_p(o_ptr) || o_ptr->name1))
 	{
-		char note[80];
+		char note[150];
 		char item_name[80];
 		object_desc(item_name, o_ptr, FALSE, 0);
 
 		/* Build note and write */
 		sprintf(note, "Found The %s", item_name);
+                add_note(note, 'A');
 
-		add_note(note, 'A');
-	}
-	/* Process the appropriate hooks */
-	process_hooks(HOOK_IDENTIFY, "(d)", item);
+                sprintf(note, "has found The %s", item_name);
+                irc_emote(note);
+        }
 
 	/* Describe it fully */
-	identify_fully_aux(o_ptr, NULL);
+	object_out_desc(o_ptr, NULL, FALSE);
+
+	/* For those with alchemist skills, learn how to create it */
+	alchemist_learn_object(o_ptr);
+
+        /* Process the appropriate hooks */
+        process_hooks(HOOK_IDENTIFY, "(d,s)", item, "full");
+
+        /* Squelch ! */
+        if (item > 0)
+                squeltch_inventory();
+        else
+                squeltch_grid();
 
 	/* Success */
 	return (TRUE);
@@ -5151,7 +4970,7 @@ bool invoke(int dam, int typee)
 	bool    result = FALSE;
 	int     msec = delay_factor * delay_factor * delay_factor;
 
-	if (dungeon_flags1 & LF1_NO_GENO) return(FALSE);
+	if (dungeon_flags2 & DF2_NO_GENO) return(FALSE);
 
 	/* Hack -- when you are fated to die, you cant cheat :) */
 	if (dungeon_type == DUNGEON_DEATH)
@@ -5293,7 +5112,7 @@ bool genocide(bool player_cast)
 {
 	char    typ;
 
-	if (dungeon_flags1 & LF1_NO_GENO) return(FALSE);
+	if (dungeon_flags2 & DF2_NO_GENO) return(FALSE);
 
 	/* Hack -- when you are fated to die, you cant cheat :) */
 	if (dungeon_type == DUNGEON_DEATH)
@@ -5320,7 +5139,7 @@ bool mass_genocide(bool player_cast)
 
 	int     msec = delay_factor * delay_factor * delay_factor;
 
-	if (dungeon_flags1 & LF1_NO_GENO) return(FALSE);
+	if (dungeon_flags2 & DF2_NO_GENO) return(FALSE);
 
 	/* Hack -- when you are fated to die, you cant cheat :) */
 	if (dungeon_type == DUNGEON_DEATH)
@@ -5497,7 +5316,7 @@ void wipe(int y1, int x1, int r)
 
 	bool flag = FALSE;
 
-	if (dungeon_flags1 & LF1_NO_GENO)
+	if (dungeon_flags2 & DF2_NO_GENO)
 	{
 		msg_print("Not on special levels!");
 		return;
@@ -5589,7 +5408,7 @@ void destroy_area(int y1, int x1, int r, bool full, bool bypass)
 	/* XXX XXX */
 	full = full ? full : 0;
 
-	if (dungeon_flags1 & LF1_NO_GENO)
+	if (dungeon_flags2 & DF2_NO_GENO)
 	{
 		msg_print("Not on special levels!");
 		return;
@@ -5794,7 +5613,7 @@ void earthquake(int cy, int cx, int r)
 	}
 
 	/* First, affect the player (if necessary) */
-	if (hurt)
+	if (hurt && !p_ptr->wraith_form)
 	{
 		/* Check around the player */
 		for (i = 0; i < 8; i++)
@@ -5895,6 +5714,10 @@ void earthquake(int cy, int cx, int r)
 
 		/* Important -- no wall on player */
 		map[16+py-cy][16+px-cx] = FALSE;
+
+		/* Semi-wraiths have to be hurt *some*, says DG */
+		if(PRACE_FLAG(PR1_SEMI_WRAITH))
+			damage /= 4;
 
 		/* Take some damage */
 		if (damage) take_hit(damage, "an earthquake");
@@ -7259,11 +7082,11 @@ void activate_dg_curse(void)
 			break;
 		case 25:
 			/*
-			 * Only summon Dragon Riders not too shallow in the dungeon.
+			 * Only summon Thunderlords not too shallow in the dungeon.
 			 */
 			if ((dun_level > 25) && !stop_dg)
 			{
-				msg_print("Oh! You attracted some evil DragonRiders!");
+				msg_print("Oh! You attracted some evil Thunderlords!");
 				summon_dragon_riders();
 
 				/* This is evil -- DG */
@@ -7359,7 +7182,7 @@ void summon_dragon_riders()
 
 	for (i = 0; i < max_dr; i++)
 	{
-		(void)summon_specific(py, px, 100, SUMMON_DRAGONRIDER);
+		(void)summon_specific(py, px, 100, SUMMON_THUNDERLORD);
 	}
 }
 
@@ -7818,7 +7641,7 @@ bool passwall(int dir, bool safe)
 
 	if (p_ptr->wild_mode) return FALSE;
 	if (p_ptr->inside_quest) return FALSE;
-	if (dungeon_flags1 & LF1_NO_TELEPORT) return FALSE;
+	if (dungeon_flags2 & DF2_NO_TELEPORT) return FALSE;
 
 	/* Must go somewhere */
 	if (dir == 5) return FALSE;
@@ -8017,13 +7840,13 @@ int reset_recall_aux()
 
 			if (i >= max_d_idx)
 			{
-				msg_print("Never heard of that dungeon!");
+				msg_print("Never heard of that place!");
 				msg_print(NULL);
 				continue;
 			}
 			else if (d_info[i].flags1 & DF1_NO_RECALL)
 			{
-				msg_print("This dungeon blocks my magic!");
+				msg_print("This place blocks my magic!");
 				msg_print(NULL);
 				continue;
 			}
@@ -8063,22 +7886,26 @@ int reset_recall_aux()
 	return ret;
 }
 
-bool reset_recall(void)
+bool reset_recall(bool no_trepas_max_depth)
 {
-	int dun, depth;
+	int dun, depth, max;
 
 	/* Choose dungeon */
 	dun = reset_recall_aux();
 
 	if (dun < 1) return FALSE;
 
-	/* Choose depth */
-	depth = get_quantity(format("Which level in %s(%d-%d)? ",
-	                            d_info[dun].name + d_name,
-	                            d_info[dun].mindepth, d_info[dun].maxdepth),
-	                     d_info[dun].maxdepth);
+        /* Choose depth */
+        if (!no_trepas_max_depth)
+                max = d_info[dun].maxdepth;
+        else
+                max = max_dlv[dun];
+        depth = get_quantity(format("Which level in %s(%d-%d)? ",
+                d_info[dun].name + d_name,
+                d_info[dun].mindepth, max),
+                max);
 
-	if (depth < 1) return FALSE;
+        if (depth < 1) return FALSE;
 
 	/* Enforce minimum level */
 	if (depth < d_info[dun].mindepth) depth = d_info[dun].mindepth;
@@ -8119,7 +7946,7 @@ void create_between_gate(int dist, int y, int x)
 {
 	int ii, ij, plev = get_skill(SKILL_CONVEYANCE);
 
-	if (dungeon_flags1 & LF1_NO_TELEPORT)
+	if (dungeon_flags2 & DF2_NO_TELEPORT)
 	{
 		msg_print("Not on special levels!");
 		return;
@@ -8146,9 +7973,15 @@ void create_between_gate(int dist, int y, int x)
 	{
 		ij = y;
 		ii = x;
-	}
-	cave_set_feat(py,px,FEAT_BETWEEN);
-	cave_set_feat(ij,ii,FEAT_BETWEEN);
-	cave[py][px].special = ii + (ij << 8);
-	cave[ij][ii].special = px + (py << 8);
+        }
+        if (!(f_info[cave[py][px].feat].flags1 & FF1_PERMANENT))
+        {
+                cave_set_feat(py, px, FEAT_BETWEEN);
+                cave[py][px].special = ii + (ij << 8);
+        }
+        if (!(f_info[cave[ij][ii].feat].flags1 & FF1_PERMANENT))
+        {
+                cave_set_feat(ij, ii, FEAT_BETWEEN);
+                cave[ij][ii].special = px + (py << 8);
+        }
 }

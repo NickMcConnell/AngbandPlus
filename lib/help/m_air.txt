@@ -1,4 +1,7 @@
 |||||oy
+~~~~~01|Magic|Air School
+~~~~~02|Air Magic
+~~~~~03|Skills|Air - Spell Info
 #####R === ToME Magic - Air School ===
 
 The air school of magic contains spells where the element of air is used
@@ -10,8 +13,8 @@ the air school at a level of 2/3 of your prayer level. e.g. If the skill
 "Spirituality: Prayer" is at level 12, you can cast up to level 8 air school
 spells.
 
-#####GAir Spells
-The are five spells available for the air school. These Spells are:
+#####BAir Spells
+There are five spells available for the air school. These Spells are:
 1. [[[[[BNoxious Cloud] (school level 3)
    Creates a cloud of poison.
    The clound will persist for some turns, damaging all monsters passing by.

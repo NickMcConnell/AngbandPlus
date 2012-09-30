@@ -1,10 +1,13 @@
+~~~~~01|DeathMolds
+~~~~~02|Races|DeathMolds
 #####R=== DeathMolds ===
 
 #####GDescription
 Death Molds are incredibly powerful creatures. However, they are also 
 molds. Lacking the ability to move as other creatures do, Death Molds have
 the powers of Phase Door, targeted teleportation, telekinesis, and 
-controlled Teleport Level. They also intrinsically resist Nexus and Nether.
+controlled Teleport Level. They also intrinsically resist Nexus and Nether,
+and are more skilled at Necromancy than other races.
 
 #####GStat Modifiers
 Strength        +10   
@@ -16,7 +19,5 @@ Charisma        -15
 Hit Dice Sides  15         
 Exp Penalty     +150%
 
-#####GStarting Equipment
-If they are *very* lucky they may begin with:
-    Scrolls of Summon Never Moving Pet
-    
+######GSkill Bonuses (supplementary to existing skills)
+Necromancy            0.000           [0.200]

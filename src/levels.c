@@ -27,8 +27,14 @@ bool get_command(const char *file, char comm, char *param)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DNGN, file);
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* The file exists ? */
 	/* no ? then command not found */
@@ -167,69 +173,6 @@ bool get_dungeon_name(char *buf)
 }
 
 /*
- * Level flags
- */
-static cptr level_flags1[] =
-{
-	"NO_TELEPORT",
-	"ASK_LEAVE",
-	"NO_STAIR",
-	"SPECIAL",
-	"NO_NEW_MONSTER",
-	"DESC",
-	"NO_GENO",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-	"XXX3",
-};
-
-/*
- * Grab one level flag from a textual string
- */
-static errr grab_one_level_flag(cptr what)
-{
-	int i;
-
-	/* Check flags1 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, level_flags1[i]))
-		{
-			dungeon_flags1 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Oops */
-	msg_format("Unknown level flag '%s'.", what);
-
-	/* Error */
-	return (1);
-}
-
-/*
  * Return the special level name
  */
 void get_level_flags()
@@ -258,7 +201,7 @@ void get_level_flags()
 			}
 
 			/* Parse this entry */
-			if (0 != grab_one_level_flag(s)) return;
+			if (0 != grab_one_dungeon_flag(&dungeon_flags1, &dungeon_flags2, s)) return;
 
 			/* Start the next entry */
 			s = t;

@@ -12,7 +12,9 @@
 
 #include "angband.h"
 
-#ifdef USE_SOCK
+#define IRC_SERVER "irc.worldirc.org"
+#define IRC_PORT "6667"
+#define IRC_CHANNEL "#angband"
 
 /*
  * By the way, CTCP's for unique kills and artefact finds would be nice to
@@ -21,41 +23,42 @@
  * *pelpel finds Long Sword 'Ringil' (4d5) (+22,+25) (+10 to speed) :)
  */
 
-void *pern_irc;
-bool pern_irc_connect = FALSE;
+ip_connection tome_irc_forge;
+ip_connection *tome_irc = &tome_irc_forge;
 bool irc_can_join = FALSE;
 char irc_nick[30];
-char irc_world[50];
+char irc_world[100];
 
 void irc_connect()
 {
-	void *c;
-	char buf[500], *s;
+        char buf[500], *s;
+        int rnd_name = randint(999);
 
-	if (pern_irc_connect) return;
+	if (tome_irc->connected) return;
 
-	sprintf(irc_world, "Pern-Arda");
-	sprintf(irc_nick, "Dummy");
+	sprintf(irc_world, "%99s", IRC_CHANNEL);
+	sprintf(irc_nick, "Dummy_%03d", rnd_name);
 	get_string("Enter Nickname: ", irc_nick, 10);
 
-	c = zsock_connect(IRC_SERVER, atoi(IRC_PORT));
-        pern_irc = c;
-
-	zsock_send(c, format("NICK _%03d_%s\r\n", randint(999), irc_nick));
-	zsock_wait(c);
-	zsock_recv(c, buf, 500);
+	zsock.setup(tome_irc, IRC_SERVER, atoi(IRC_PORT), ZSOCK_TYPE_TCP, FALSE);
+	zsock.open(tome_irc);
+        zsock.write(tome_irc, format("NICK %s\r\n", irc_nick));
+	zsock.wait(tome_irc, 40);
+	zsock.read(tome_irc, buf, 500);
 	s = strchr(buf, ':');
-	zsock_send(c, format("PONG %s\r\n", s));
-	zsock_send(c, format("USER guest 0 *BIRC :ToME %d.%d.%d User\r\n",
+	zsock.write(tome_irc, format("PONG %s\r\n", s));
+	zsock.write(tome_irc, format("USER tome 0 *BIRC :ToME %d.%d.%d User\r\n",
                              VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
-
-	pern_irc_connect = TRUE;
+#if 0 /* Pfft spoilsport */
         while (!irc_can_join)
-                irc_poll(c);
+		irc_poll();
+#endif
 
-	zsock_send(c, format("JOIN %s\r\n", IRC_CHANNEL));
-
+	zsock.write(tome_irc, format("JOIN %s\r\n", irc_world));
+        
 	cmsg_print(TERM_L_GREEN, "Connected to IRC");
+
+        zsock.add_timer(irc_poll);
 }
 
 void irc_change_nick()
@@ -65,8 +68,7 @@ void irc_change_nick()
 
 void irc_disconnect()
 {
-	if (!pern_irc_connect) return;
-        pern_irc_connect = FALSE;
+	if (!tome_irc->connected) return;
         irc_can_join = FALSE;
 
         irc_quit(format("ToME %d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
@@ -76,8 +78,7 @@ void irc_disconnect()
 
 void irc_disconnect_aux(char *str, bool message)
 {
-	if (!pern_irc_connect) return;
-	pern_irc_connect = FALSE;
+	if (!tome_irc->connected) return;
         irc_can_join = FALSE;
 
 	irc_quit(str);
@@ -87,10 +88,17 @@ void irc_disconnect_aux(char *str, bool message)
 
 void irc_emote(char *buf)
 {
-        if (!pern_irc_connect) return;
+        char *b;
+        char *base = "PRIVMSG %s :%cACTION %s%c\r\n";
 
-        zsock_send(pern_irc, format("PRIVMSG %s :%cACTION %s%c%c\r\n", IRC_CHANNEL, 1, buf, 1, 1 /*,irc_world*/));
-        message_add(MESSAGE_IRC, format("* %s %s", irc_nick, buf), TERM_YELLOW);
+        if (!tome_irc->connected) return;
+
+        C_MAKE(b, strlen(buf) + strlen(base) + 1, char);
+        sprintf(b, base, irc_world, 1, buf, 1);
+        zsock.write(tome_irc, b);
+        sprintf(b, "* %s %s", irc_nick, buf);
+        message_add(MESSAGE_IRC, b, TERM_YELLOW);
+        C_FREE(b, strlen(buf) + strlen(base) + 1, char);
         fix_irc_message();
 }
 
@@ -98,16 +106,22 @@ void irc_chat()
 {
 	char buf[80] = "";
 
-	if (!pern_irc_connect) return;
+	if (!tome_irc->connected) return;
 	if (get_string("Say: ", buf, 80))
 	{
 		if (prefix(buf, "/me "))
                 {
                         irc_emote(buf + 4);
 		}
+		else if ((prefix(buf, "/join ")) && (buf[6] != '\0'))
+                {
+                        zsock.write(tome_irc, format("PART %s\r\n", irc_world));
+                        sprintf(irc_world, "%99s", buf + 6);
+                        zsock.write(tome_irc, format("JOIN %s\r\n", irc_world));
+		}
 		else
 		{
-			zsock_send(pern_irc, format("PRIVMSG %s :%s\r\n", IRC_CHANNEL, buf /*, 3, irc_world */));
+			zsock.write(tome_irc, format("PRIVMSG %s :%s\r\n", irc_world, buf /*, 3, irc_world */));
 			message_add(MESSAGE_IRC, format("<%s> #w%s", irc_nick, buf), TERM_L_BLUE);
 			fix_irc_message();
 		}
@@ -119,18 +133,18 @@ void irc_chat()
 #define TERM_CHAT1	TERM_YELLOW
 #define TERM_CHAT2	TERM_WHITE
 
-void irc_poll(void *sock)
+void irc_poll()
 {
 	char buf[5000], *next, *nick, *space;
 
-	if (pern_irc_connect && zsock_can_read(sock))
+	if (tome_irc->connected && zsock.can_read(tome_irc))
 	{
-		zsock_recv(sock, buf, 2500);
+		zsock.read(tome_irc, buf, 2500);
 
 		if (prefix(buf, "PING "))
 		{
 			message_add(MESSAGE_IRC, format("*** Recieved a PING request from server %s.", buf + 6), TERM_SERVER);
-			zsock_send(pern_irc, format("PONG %s\r\n", buf + 5));
+			zsock.write(tome_irc, format("PONG %s\r\n", buf + 5));
 			return;
 		}
 		if (*buf != ':') return;
@@ -203,21 +217,21 @@ void irc_poll(void *sock)
 					message_add(MESSAGE_IRC, format("*** PING request from %s", nick), TERM_CTCP);
 					fix_irc_message();
 
-					zsock_send(pern_irc, format("NOTICE %s :%cPING %d%c\r\n", nick, 1, next, 1));
+					zsock.write(tome_irc, format("NOTICE %s :%cPING %d%c\r\n", nick, 1, next, 1));
 				}
 				else if (prefix(next, "NICK"))
 				{
 					message_add(MESSAGE_IRC, format("*** NICK request from %s", nick), TERM_CTCP);
 					fix_irc_message();
 
-					zsock_send(pern_irc, format("NOTICE %s :%cNICK %s%c\r\n", nick, 1, irc_nick, 1));
+					zsock.write(tome_irc, format("NOTICE %s :%cNICK %s%c\r\n", nick, 1, irc_nick, 1));
 				}
 				else if (prefix(next, "VERSION"))
 				{
 					message_add(MESSAGE_IRC, format("*** VERSION request from %s", nick), TERM_CTCP);
 					fix_irc_message();
 
-					zsock_send(pern_irc, format("NOTICE %s :%cVERSION ToME %d.%d.%d%c\r\n", nick, 1, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, 1));
+					zsock.write(tome_irc, format("NOTICE %s :%cVERSION ToME %d.%d.%d%c\r\n", nick, 1, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, 1));
 				}
 			}
 			else
@@ -273,9 +287,11 @@ void irc_quit(char *str)
 {
 	char buf[300];
 
-	sprintf(buf, "QUIT :%s\r\n", str);
-	zsock_send(pern_irc, buf);
-	zsock_disconnect(pern_irc);
-}
+        zsock.remove_timer(irc_poll);
 
-#endif
+        sprintf(buf, "QUIT :%s\r\n", str);
+
+	zsock.write(tome_irc, buf);
+	zsock.close(tome_irc);
+	zsock.unsetup(tome_irc);
+}

@@ -1,9 +1,10 @@
 -- Quest helper files
 
 -- Savefile helpers
-function add_loadsave(name)
+function add_loadsave(name, default)
 	assert(name, "No variable name to save")
-        __loadsave_name[__loadsave_max] = name
+        assert(default, "No default value")
+        __loadsave_name[__loadsave_max] = { name = name, default = default }
 	__loadsave_max = __loadsave_max + 1
 end
 
@@ -27,7 +28,7 @@ function add_quest(q)
         setglobal(q.global, i)
 
         -- Make it save & load
-	add_loadsave("quest("..q.global..").status")
+	add_loadsave("quest("..q.global..").status", QUEST_STATUS_UNTAKEN)
 
         if type(q.desc) == "table" then
 	        z = 0
@@ -53,9 +54,8 @@ function add_quest(q)
         end
         if q.data then
         	for index, d in q.data do
-                	setglobal(index, d)
 		        -- Make it save & load
-	     	        add_loadsave(index)
+	     	        add_loadsave(index, d)
 	        end
         end
         return i

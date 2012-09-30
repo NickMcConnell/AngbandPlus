@@ -25,6 +25,12 @@ cptr copyright[5] =
 	"are included in all such copies."
 };
 
+int max_macrotrigger = 0;
+char *macro_template = NULL;
+char *macro_modifier_chr;
+char *macro_modifier_name[MAX_MACRO_MOD];
+char *macro_trigger_name[MAX_MACRO_TRIG];
+char *macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
 /*
  * Executable version
@@ -277,6 +283,7 @@ bool view_reduce_lite;		/* Reduce lite-radius when running */
 bool view_reduce_view;		/* Reduce view-radius in town */
 
 bool avoid_abort;			/* Avoid checking for user abort */
+bool avoid_shimmer;			/* Avoid processing extra shimmering */
 bool avoid_other;			/* Avoid processing special colors */
 
 bool flush_failure;			/* Flush input on any failure */
@@ -789,6 +796,9 @@ u32b spell_learned[MAX_REALM][2];   /* bit mask of spells learned */
 u32b spell_worked[MAX_REALM][2];    /* bit mask of spells tried and worked */
 u32b spell_forgotten[MAX_REALM][2]; /* bit mask of spells learned but forgotten */
 byte spell_level[MAX_REALM][64];    /* spell levels */
+u32b alchemist_known_egos[32];
+u32b alchemist_known_artifacts[6];
+u32b alchemist_gained;
 
 
 /*
@@ -799,6 +809,13 @@ byte spell_level[MAX_REALM][64];    /* spell levels */
  */
 s16b player_hp[PY_MAX_LEVEL];
 
+/*
+ * The alchemy recipe arrays
+ */
+header *al_head;
+alchemist_recipe *alchemist_recipes;
+char *al_name;
+artifact_select_flag *a_select_flags;
 
 /*
  * The vault generation arrays
@@ -964,6 +981,16 @@ char *d_text;
  * This variable is used to choose an appropriate "pref-xxx" file
  */
 cptr ANGBAND_SYS = "xxx";
+
+/*
+ * Hack -- The special Angband "Keyboard Suffix"
+ * This variable is used to choose an appropriate macro-trigger definition
+ */
+#ifdef JP
+cptr ANGBAND_KEYBOARD = "JAPAN";
+#else
+cptr ANGBAND_KEYBOARD = "0";
+#endif
 
 /*
  * Hack -- The special Angband "Graphics Suffix"
@@ -1183,6 +1210,11 @@ u16b max_v_idx;
 u16b max_f_idx;
 
 /*
+ * Maximum number of alchemist recipies in al_info.txt
+ */
+u16b max_al_idx;
+
+/*
  * Maximum number of artifacts in a_info.txt
  */
 u16b max_a_idx;
@@ -1342,6 +1374,11 @@ bool point_based;
 /* Maximize, preserve, special levels, ironman_rooms */
 bool maximize, preserve, special_lvls, ironman_rooms;
 
+/* In inventory option window, just erase the letters,
+ * rather that displaying the list without the invalid
+ * selections */
+bool inventory_no_move;
+
 /* Notes patch */
 bool take_notes, auto_notes;
 
@@ -1417,6 +1454,7 @@ bool auto_more;
  * Dungeon flags
  */
 s32b dungeon_flags1;
+s32b dungeon_flags2;
 
 /*
  * The last character displayed
@@ -1490,3 +1528,24 @@ int cli_total = 0;
  * max_bact, only used so that lua scripts can add new bacts without worrying about the numbers
  */
 int max_bact = 54;
+
+/*
+ * Max corruptions
+ */
+s16b max_corruptions = 0;
+
+/*
+ * Ingame contextual help
+ */
+bool option_ingame_help = TRUE;
+
+/*
+ * Automatizer enabled status
+ */
+bool automatizer_enabled = FALSE;
+
+/*
+ * Location of the last teleportation thath affected the level
+ */
+s16b last_teleportation_y = -1;
+s16b last_teleportation_x = -1;

@@ -288,7 +288,7 @@ LIBS = -lpthread -lSDL
 #
 
 BASESRCS = \
-  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
+  z-util.c z-virt.c z-form.c z-rand.c z-term.c z-sock.c \
   variable.c tables.c util.c cave.c cmovie.c \
   object1.c object2.c traps.c monster1.c monster2.c monster3.c \
   xtra1.c xtra2.c spells1.c spells2.c \
@@ -313,12 +313,12 @@ BASEOBJS = \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o irc.o \
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o z-sock.o irc.o \
   iso/simgraph.o iso/simview.o iso/world_adaptor.o iso/world_view.o
 
 LUASRCS = \
   script.c lua_bind.c \
-  w_util.c w_player.c w_z_pack.c w_obj.c w_mnster.c w_spells.c w_quest.c w_play_c.c
+  w_util.c w_player.c w_z_pack.c w_obj.c w_mnster.c w_spells.c w_quest.c w_play_c.c w_dun.c
 
 TOLUASRCS = \
   lua/lapi.c lua/lcode.c lua/ldebug.c lua/ldo.c lua/lfunc.c lua/lgc.c \
@@ -330,7 +330,7 @@ TOLUASRCS = \
 
 LUAOBJS = \
   script.o lua_bind.o \
-  w_util.o w_player.o w_z_pack.o w_obj.o w_mnster.o w_spells.o w_quest.o w_play_c.o
+  w_util.o w_player.o w_z_pack.o w_obj.o w_mnster.o w_spells.o w_quest.o w_play_c.o w_dun.o
 
 TOLUAOBJS = \
   lua/lapi.o lua/lcode.o lua/ldebug.o lua/ldo.o lua/lfunc.o lua/lgc.o \
@@ -496,6 +496,9 @@ w_spells.c: spells.pkg $(TOLUADEP)
 
 w_quest.c: quest.pkg $(TOLUADEP)
 	$(TOLUA) -n quest -o w_quest.c quest.pkg
+
+w_dun.c: dungeon.pkg $(TOLUA)
+	$(TOLUA) -n dungeon -o w_dun.c dungeon.pkg
 
 endif
 

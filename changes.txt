@@ -1,444 +1,428 @@
-ToME 2.0.0 changes
+ToME 2.1.0 changes
 
 Interface changes:
-- IRC code for the XAW port. Caveat: it causes a linker error
-  if you USE_X11 and USE_XAW at the same time... -- pelpel
-- Removed hard-coded direction keys in the skills menu -- pelpel
-- view_special_lite and view_granite_lite that work with non-white
-  terrains (for ASCII mode only, already done for 16x16 tiles) -- pelpel
-- Inven/equip/item choice in subwindows now clears to the bottom of screen,
-  to avoid glitches and in accordance with the way it worked -- pelpel
-- Identify and *Identify* don't list known/fully known items in
-  object selection -- pelpel
-- Auto-squelch menu now accepts ^R as an alternative to ^S, to be nice
-  for those who USE_GCU. Thanks Skylar Thompson for the problem report
+- Better (hopefully) object identification screen
+- The game asks confirmation before learning a skill that can exclude an
+  already known one
+- When 'I'nspecting(or upon *id*) a fully *id* weapon/ammo the game will
+  tell you the damage it would do if you used it(idea from Ey)
+- 'U' power menu is now usable with repeat key 'n'
+- Added avoid_shimmer efficiency option to suppress shimmering of terrain
+  features, because I have had problems with them on really big screens
   -- pelpel
-- Hopefully finished special lighting effects. Now it works this way
-  (with all lighting effects options on):
-  Perma-lit grids and lit walls/doors within sight, and remembered important
-  features = f_info colours, Perma-lit floors and walls/doors out of
-  sight = darker colours, torch-lit "boring" floor = yellow, torch-lit
-  grids out-of-sight = dark grey, blindness = B&W -- pelpel
-- Because I find detection no longer works on panels, added DTrap status
-  line as well as a new disturbance option disturb_detect. Also removed
-  hardcoded row/column positions in the status line code, in preparation
-  for big-screen support -- pelpel
-- Added scrolling target/look code, which is bastardised :) form of
-  Z and V ones -- pelpel
-- Big screen is sort of working now, but main-xxx.c (have
-  to remove restrinction on size of the PernAngband window) and
-  cmovie are still needing upgrade -- pelpel
-- Big screen support for X11 and XAW ports (already done for Gtk, Mac
-  and Windows ports). Also added an option -o to force the use of 8x8
-  tiles in graphics mode. Say "-g -- -o" to activate it. And please note
-  that because of the way transparency effect is implemented in
-  X11/XAW/Gtk ports, it is available even with 8x8 tiles -- pelpel
-- Moving onto quest entrance/exit no longer causes annoying automatic
-  stair movements. You have to tell the game '>' or '<' to enter/leave
+- Easy close is now slightly more intelligent in their handling of
+  broken doors -- pelpel
+- Ingame contextual help is on by default(it was before, but it was bugged..)
+  It is now proccessed by lua, file help.lua and should be much easier to
+  add new sections to than before. So all feel free :)
+- Contextual help for the birth screens too. Press ? when over a race,
+  class, ... and it'll bring the specific help for it
+- Contexual help to skill screen, press ?
+- Easy macro recorder! Just press $ and press a normal key sequence!
+- The new Automatizer got a GUI :) It should be quite easy to grasp, you
+  define rules to match and action to take. But it does allow very complex
+  rules.
+- Updated the forgotten IBM pseudographics, based on my unknown work for
+  Pern 4.1.2.  Also added an X11 BDF file so that it can be used on
+  the three X ports -- copy graf-ibm.prf to font-x11.prf in your user
+  directory (i.e. ~/.tome) and set the font of main window to the font
+  made from lib/xtra/ang16.bdf.  Instruction for installing new X fonts
+  should be found in the bdftopcf, mkfontdir and xset man pages.
   -- pelpel
-- Stats can now be displayed in a linear mode(from 3 to 37) instead of
-  3 to 18/***, the option is off by default
-- Added recall depth subcommand to the knowledge menu -- pelpel
-- Removed the flavoured_attack option and made most 'silly' messages
-  off by default. They are now controlled by 'insanity roll', which is
-  d100 roll against (max_sanity - current_sanity) * 100 / max_sanity.
-  The same roll is also used to determine if the game should use
-  silly monster descriptions (in addition to the hallucination
-  effects) -- pelpel
-- The skill interface no longer asks question whenever you increase skills.
-  Changes to skill values are made permanent if the player confirms them
-  when s/he leave the skill menu, otherwise, they are simply ignored
-  -- pelpel
-- Bigtile patch for windows, x11 and mac ports thanks to Takeshi Mogami
-- Asks for a last screenshot upon death
-- You can now dump a frame of a cmovie as an html screenshot(while playing
-  the movie)
-- The commands for skills and spells are swapped. Please use 'G' to learn/
-  check skills and '$' ('\$' in roguelike) to learn spells.
-- The prompt to cast a spell now understand to press @, which will ask for
-  a spell name, it'll look all books and cast it if you can.
-  It EASES macros, a macro will now look like:
-  02m@Manathrust\r*t
-- Message recall now understands bigscreen thanks to pav
-- Help now understands bigscreen thanks to pav
-- Skill screen now understands bigscreen thanks to pav
-- No more pickup prompt with autopickup when inventory is full, thanks to pav
-- Took big screen code for horizontal scrolling of message recalls
-  from Vanilla -- pelpel
-- You can navigate through option menus with roguelike_keys -- in fact,
-  I didn't know users of the original keyset can go up before I play
-  the latest V and see its code... Taken from Vanilla CVS -- pelpel
-- Added big screen support for GCU -- pelpel
-- The skill screen cannot be abused to get more skills anymore
+- Current location(town, level, ...) is show in orange when about to recall
+- You can press $ at object destruction prompt to automaticaly create a new rule
+  for the Automatizer about the object being destroyed
+- Macro-patch from Mogami, now the macro prf files are portable between Windows,
+  X11 and Mac. It also shows readable triggers like: \[shift-F1] and such
+- Replaced font-ibm.prf, graf-ibm.prf, font-win.prf and font-mac.new (a
+  font-mac.prf replacement that has IBM-like pseudographics definitions)
+  with program-generated ones, hopefully up-to-date with recent changes
+  in info.txt files -- pelpel
+- Unusable skills do not show anymore on the skill screen
+- New option to not have the equipment/inventory windows move items around
+  when a prompt ask for an item. Thanks to John Gilmore
+- Recording cmovies is now working on a microsecond timeframe, much better looking
+  Let's just hope that silly systems know gettimeofday()
+- Obvious object flags will show up when 'I'nspecting items when they are
+  only identified(no more need for *id*). Obvious flags are like acid
+  resisatnce on an armor of resist acid and such
+- Cause of death is now shown in chardumps
+- CTRL+] to save an html screenshot anytime(ie: to preserve the current
+  message)
+- Thanks to the new TERM_XTRA_GET_DELAY the cmovie code is now cleaner
+  and should work fine:) Windows and unix platforms should now be able
+  of microsecond resolution cmovies!
+- Skills that have sub-skills in which you do not (and cannot) have points
+  no longer display the redundant +/- sign. thanks lemming for the code.
+  -- fearoffours
+- Fixed the bug that told you you could buy more items than you really could.
+  At least when using auto_haggle. Poor sods that dont use it shall burn
+  in hell
+- Damage info is displayed for items that are only identified
+- new <state> function to the automatizer to detect identified state
+- Automatizer rules are automatically apply upon exit of the screen or
+  autogeneration of a rule with the 'k' command
+- Added a message if you don't have powers but press 'U' -- masmarangio
+- Added the extended command #quest (or #Q for short) to get quest list
+  because some prts catch the CTRL+Q combo
+- 'Compare weapons' works only with melee weapons, item selection changed.
+  Expanded the description of a god at birth. -- masmarangio
+- Removed the silly 'You are shooting with a flute' message. -- masmarangio
+- Added OBJ_FOUND_SELFMADE for items that were created by the player.
+  Alchemist should also use it (not changed yet). Replaced the plain
+  description "in the Town" for items fond on the surface -- masmarangio
+  
 
 Gameplay changes:
-- The adventurer quest reward is now either the adventurer or some skills
-
-Monster changes:
-- Added a command to dismiss companions in the pet menu
-- Restored monster light code, modeled after Steven Fuerst's implementation
-  insteand of APW one this time, but without his support for multiple radii.
-  -- pelpel
-- Made monster light a run-time option. CAVEAT: It'll cause display
-  weirdness when you turn this option from ON to OFF while playing.
-  Save/Restart or entering new level will fix the problem.
-  Should call forget_mon_lite() when the game detects it... -- pelpel
-- monster lite option is on by default
-- Confusion, stunning, charming now works on uniques(those that dont have the
-  corresponding resistance)
-- Revision of the conf/stun/sleep resists for uniques thanks to Runescrye
-- Monsters drop stolen gold when killed
-
-Object changes:
-- Elvish waybread renamed to lembas, thanks to nimloth
-- Combining rod and rod tip now considers rod's cheapness flag.
-  -- Kusunose
-- There are 2 kinds of spellbooks for the magic schools, the ones that
-  are named "a Spellbook of foo" where foo is a randomly choosen spell
-  (selection is based on the dungeon level)
-  and other names that are fixed books
-- School spellbooks can be fireproof ego items
-- Bound the wands & staves damage/power to the Magic skill, attack wands
-  should actually be usefull now
-- Reset recall now lists all the dungeons a player has visited and 
-  additionally allow a player to select by name. -- Kusunose
-- Enabled the generation of double ego items. An item cannot get 2 prefix
-  or 2 suffix, it will always be a prefix and a suffix
-
-Player changes:
-- Changed the magic system, it now uses schools of magic instead of
-  realms. A school contains much less spells than a realm. Each spell
-  is unique and dont make others redundant. Also all spells tries to stay
-  usefull for the whole game, by increasing in power and effects with levels.
-  A spell can be assigned to more than more school, in which case all the
-  schools need to be raised to obtain more power. All spells are implemented
-  in lua, to make it easy to tweak them.
-  All spells arent coded yet but my plans are for those schools:
-  Mana, Fire, Water, Air, Earth, Mind, Conveyance, Meta, Temporal,
-  Divination, Nature and Nether
-  It may change somewhat but thats the general idea :)
-  Books are not specific to a school, they can contain any spell from any
-  schools, it is even imaginable to have randomly created books
-- High intelligence increase mana regeneration rate
-- The skill system is ready ! Some small tweakings are needed, but it is
-  mostly ready. Each level you gain a few skill points that you can spend
-  on various skills(like combat, weaponmastery, magic, ...). Most actions
-  are now tied to skills.
-- Classes revamped as more or less skill templates. Classes now can have
-  specializations which allow starting with somewhat different skill set.
-- New god system, each god will be much more different from all others.
-  Altars are less vital. There are less gods.
-- Magic skill now allows you to copy spells from books into various
-  objects. Not all objects can contain spells naturally, but most object
-  of the Magi can, and all mage staves
-- Spectres loses HP while in walls, it was too abusable(and in fact, I never
-  planned to remove it)
-- Made running commands exempt from do_nothing processing, because this
-  can be abusable and makes no sense -- you could, for example, hold down
-  movment keys when following Eru and use running when following other
-  deities -- pelpel
-- Pseudo-id is now bound to the Combat skill(for weapons/armors) and the
-  Magic skill(potions, ...)
-- It is now possible to press @ at the 'm' key prompt to select a skill action
-  by it's full name. Thus allowing unbreakable macro:
-  m@Cast a spell\r@Manathrust\r*t
-- New god Melkor Bauglir
-- Weaponmastery, Archery and Barehand skills increase Combat skill much more
-- Deathmold fetch ability pickups gold and objects(if autopickup is set) thanks
-  to "kenderband" <kenderband@hotmail.com>
-- New bounty quest available at the beastmaster shanty! Bring back a corpse
-  and get some monster-lore skill and the ability to learn corpse-preservation
-  skill if you couldn't already
-- Replaced first necromancy spell with Horrify from the old Nether realm and
-  the third spell with absorb soul, provides some health upon monster death
-
-Misc changes:
-- (Mac, Carbon)Graphics mode performance improvement. When a user
-  chooses a fixed width font (as is almost always the case) and
-  doesn't change tile width & height, the higher_pict method is
-  used instead of *very* slow and inefficient always_pict to
-  draw things -- pelpel
-- The prf file loader always searches for the user directory first,
-  then the pref directory if it can't find it there, so that user
-  can override the system defaults keeping the distributed files
-  intact. This also simpifies the pref loading codes in several
-  places -- pelpel
-- the html help file converter now gets it's header and footer
-  from head.aux and foot.aux in lib/help to help website
-  designer adapt the generated files to whatever they want
-- The running code now uses DONT_NOTICE_RUNNING and CAN_RUN terrain
-  feature flags for non-conditional checks, i.e. everything but doors,
-  stairs and alike, and those requiring levitation or immunity -- pelpel
-- Included the lua tutorials by Fearof4s
-- Replaced the field of view code with that from Angband 2.8.3--
-  -- pelpel
-- los, player's field of view, and spell/breath projection now all use
-  FF1_NO_VISION for the sake of consistency (in addition to the wall
-  check in case of spell/breath projection) -- pelpel
-- CAVE_TRDT wasn't cleared when a trap is disarmed, which had some
-  subtle effects and forced coders to double check c_ptr->info and
-  c_ptr->t_idx in various places -- pelpel
-- Added FF1_DOOR flag to open doors for lightning effects in map_info()
-  and have the trap creation code explicitly avoid them, because traps
-  have and should never been performance bottlenecks -- pelpel
-- Some process_world() sections (most notably monster generation and
-  lingering spell effects) are conditionalised so that they don't run
-  in the overhead map -- pelpel
-- Changed all the signed (!) flags I was able to find to unsigned, because
-  they don't make any sense. Savefile code should be modified as well
-  if we ever care for savefile portability -- pelpel
-- The tunnel code (ordinary one) now performs double check for
-  feat_wall_outer and CAVE_ROOM (which was added a couple of weeks ago),
-  so it is safe to use any terrain features for outer wall, including
-  those identical to fill_type -- pelpel
-- (Temporary note) Separated staying effect handling code from
-  process_world() and made it a function, so that it can be called in
-  any place with in dungeon() [can be activated by #define pelpel :)]
-  I temporarily placed it after process_player(), but we have to spend
-  some time testing this, seeking for the best turn structure -- pelpel
-- Auto-squelch is performed *before* a player turn, just before the
-  pack overflow code to prevent some interface problems. This means
-  that squelching occurs as the very last action of a player turn,
-  after monster drops or even after pseudo-ID, so that you don't have to
-  press extra space to squelch items. Another possible arrangement
-  would be within process_world(), right after sensing -- pelpel
-- Added flush() before all the quest questions to prevent accidental
-  loss/declination/acceptance of quest rewards/quests, also added
-  very important flush_failure and flush() to the lua interface and
-  put that in the spell failure code, so that spells can be macroed
-  safely -- pelpel
-- Depth/field name area is now 13 character long, so that names like
-  "shallow water" will fit, and "Lothlorien" is not truncated in GCU.
-  Also added short dungeon name prefix to the depth-in-feet mode -- pelpel
-- Because map_info() is the #1 bottleneck routine and because I felt
-  hack_map_info_default is incredibly ugly :(, I removed
-  hack_map_info_default and added specialised version of map_info()
-  for use by cmovie and the HTML screen shot saver -- pelpel
-- Added 8x8 graphics support to trap display code -- pelpel
-- Added another graphics mode variable called graphics_mode :),
-  somewhat like use_graphics in ZAngband, but it doesn't
-  require any changes to main-xxx.c. It's set within reset_visuals()
-  and used by map_info(), so that it doesn't have to do streq()
-  each time it is called -- pelpel
-- Added term resize hooks so that one doesn't have to hit the redraw
-  key and alike when s/he resizes windows. Hooked functions are placed
-  in xtra2.c, because they are only related to big screen support
-  and other panel related codes are there.  Don't like the way stuffs
-  are initialised -- assumption about max number of terms, setting terms
-  package hooks from within the upper layer codes -- but the existing
-  implementations do it this way, and the "right" way requires changes
-  to main-xxx.c, which I'm too lazy to do... -- pelpel
-- Ego graphics code now only tries to use graphics overlays for
-  monsters and players if and only if 16x16 tiles are used -- pelpel
-- Shimmering terrain features no longer shimmer while running or resting
-  to make themselves somewhat more bearable on slower machines -- pelpel
-- Updated lighting effect code so that it works the same as rr9's Angband
-  versions. Also removed hardcoded IBM pseudo graphics code points, so that
-  if anyone is ever interested in updating its font & prf files, s/he
-  can do so freely without editing the source code.
-  And map_info / map_info_default is now fully aware of c_ptr->mimic,
-  so that map edges will not have strange lighting effects etc.,
-  hopefully -- pelpel
-- Renamed see_wall() in cmd1.c to see_obstacle() also added a grid-based
-  version of the function to be used by run_test(), so that those who have
-  immunity and/or levitation can run over lava fields, deep water etc.
-  -- pelpel
-- Less platform-dependent savefile processing code for the game start
-  menu, thanks again for kobayasi. It now uses files.c utility routines
-  for building appropriate savefile names -- pelpel
-- Added initialization code to add SPECIAL_GENE flag to final guardians
-  and their artifacts (and DROP_RANDART if there are no final artifacts).
-  -- Kusunose
-- Moved squelch-on-sense code from process_player() to process_world()
-  -- pelpel
-- Changed repeated message code to V-CVS one -- pelpel
-- Trap display now uses x_attr/x_char of FEAT_TRAP (f_info N:17)
-  1) if a trap is set on a "boring" terrain in the ASCII mode, where
-  only x_char is used and attr is taken from tr_info.txt XXX XXX XXX
-  or 2) if attr/char for a trap is not defined in prf files in the
-  graphics modes -- pelpel
-- Removed FAKE_VER_*, because it has been quite long since we lost savefile
-  compatibility with Angband 2.8.1 and info.txt files can be updated
-  by sed/perl/whatever script in a snap -- pelpel
-- To accommodate the practice of not upgrading version stamp of info.txt
-  files at each release (never done in V-based variants, but common among
-  Z-based ones for historical reasons), version stamp checks against game
-  data files in lib/edit is made a compile time option
-  (VERIFY_VERSION_STAMP), off by default.  With this option off, version
-  stamp checks for the binary files are still performed and they always
-  have version signature of the game, not those specified by the V: lines
-  -- pelpel
-- Upgraded the lua bitlib so it can handle stuff like bor(1, 2, 4, 8)
-- Block comments( --[[...]] ) in Lua enabled
-- Reorganised the linkage order of makefile.org a bit, so that similar
-  files are grouped together, also frequently called files are not coupled
-  together with rarely used ones. This *might* help on-demand-paging memory
-  manager a bit -- pelpel
-- Changed all occurances of " ?" in strings to "? ". --takkaria
-- Renamed inappropriately called global array 'town' to 'town_info', also
-  moved some boolean town_type members into 'flags', in order to support
-  dungeon town information subcommand of do_cmd_knowledge -- pelpel
-- Commented out or moved many local variables causing 'unused' warnings,
-  because of badly placed if 0's -- pelpel
-- Renamed 422colors.prf to 422color.prf, to make it fit with the 8.3 naming
-  convention -- pelpel
-- Entirely removed function definining macros from script.c, because
-  it can confuse some compilers (a lcc case was reported), and some
-  preprocessor reports syntax error for missing macro arguments -- pelpel
-- Some, if not all, command line options are documented -- pelpel
-- 1) Slightly reorganised menus in the Mac ports, because there were so
-  many of them on the menu bar. 2) added a switch (-b) to the GCU port
-  to select multiple terms or one big screen. 3) the GTK port issued
-  huge number of fatal warnings if the graphics mode was turned on and off.
-  4) Compiled latest V CVS with main-gtk.c in T.o.M.E. and fixed some
-  portability problems.  -- pelpel
-- Exported cur_hgt and cur_wid to lua by request of Fearof4s. (takkaria)
-- Updated the lua help files thanks to Fearof4s and Chris Hadgis
-- Updated lua_ques.txt to fix some misinformation. -- fearoffours
-- More lua documentation fixes, particularly adding square brackets to field 
-  names on lines that would allow this without mucking up colour formatting.
+- Wielding the One Ring has some ... disadvantages now ...
+- Troll Glade/Wight Grave selection is now (usualy) based on the
+  Combat/Magic skills level
+- The chance for combat item pseudo-ID now improves exponentially,
+  just like V Warriors (combat skill 0 == plev 0, maxed == plev 50),
+  while that for magic items improves slowly, just like V Rangers
+  and Mages but with higher success rate (more than ten times as
+  frequent as V Rangers) -- pelpel
+- Added town of Khazad-Dum (where 'exit' from Moria was) with nice Mining
+  supply shop. -- fearoffours
+- Added new god quest. Given at random time by your god, you have to retrieve
+  a piece of a relic generated at a random level of a randomly places dungeon.
+  More than one of these quests may be given (currently up to 4), though only
+  if you complete previous quests. The relic is only generated once in each
+  dungeon, so look carefully for it. Diving won't help you. -- fearoffours
+- Added the fireproofing quest. Visit the Mage tower in lothlorien to get the
+  quest, bring back something for the mage, get books fireproofed in return.
+  -- fearoffours
+- Alchemy totaly changed! Thanks to John Gilmore for the patch! It has now entered
+  cvs to begin being tested and "balanced" ;)
+- Yavanna's followers now have a God quest. -- fearoffours
+- The Old Mage in Lothlorien will now fireproof staves or scrolls as well as
+  books, making it profitable for non-spellcasters. Currently he has enough
+  errr 'fireproofing material' for 3 books or 4 staves or 12 scrolls, or a
+  combination of these. Check fireprof.lua for the code. -- fearoffours
+- OK the god quest is a little easier now, as you're told the dungeon is to
+  the north/south and east/west of you. -- fearoffours
+- Having autosquelch on will now not affect the essence in the fireproof
+  quest. And the mage gives a warning about the fact it may be easy to
+  destroy it too. -- fearoffours
+- God quest relic is now inscribed to prevent automatizer 'accidents' 
   -- fearoffours
 
+Monster changes:
+- Monster ego wont start awake
+- Farmer maggot quest provides a better reward, thanks to Revanant Morituri
+  and Wil Hunt for the idea
+- Changed "The Balrog of Moria" to "Durin's Bane". Less of a mouthful, and more
+  in-theme -- fearoffours
+- added the "spirits". They are the inhabitants of the void. They're nasty.
+  -- fearoffours
+- Only gain exp from pet kills, not from every monsters, when using Monster
+  Lore skill
+- Themed townspeople! In Lothlorien and GOndolin you find elven people and
+  dwarven in Khazad-dum
+- Firebirds (formerly firelizards) and Thunderlords are B, not d and D
+  -- neil
+- Increase Thunderlord rarities -- neil
+
+Object changes:
+- Removed CURSE_NO_DROP from ego items. Players want new curses, and when
+  they get them they complain...
+- Ring/Amulet of Spell, cheap, early objects that can contain a spell
+- Temple will now stock random spells from god schools, Magic Shop will
+  only stock non god spells and bookstore will contain both
+- Stores buyable list is now lua defined
+- Scythes of Slicing are now vorpal, rarer and deeper
+- All objects now have a description, thanks to Konijn
+  When identifying an item you can then press 'I'nspect to check it. It si most
+  usefull for scrolls & such, they tell you what exactly they will do
+- Behold! The new Grand Scheme For Wands, Staves and Rods!;)
+  Now all sticks in the game use the same system as the spells. The unified
+  spell system could we say ;)
+  What does it changes? sticks should now be usefull, jsut as spells are.
+  For example a wand of manathrust is not to be laughed at.
+  Hw does it work? 'I'nspect the stick you want to know about you'll see
+  he details, each stick gets a spell and a base level. The base level
+  means the spell will be cast at that level if you have 0 in the
+  Magic Device skill. If you have Magic Device it increases the level.
+  Works a bit like Spell-power for the spells.
+  Also the distinction of wands/staves is tenuous now, wands are attack
+  stuff and staves not but wands can sometimes NOT be targeted spells
+- Activations are now a_info/k_info/e_info definable with a: lines
+  You can do a:HARDCORE=NAME where NAME is an activation name
+  that is hardcoded in the C source.
+  Or a:SPELL=Name where Name is a "spell" name as defined in the unified
+  spell system(the first defined spell(index 0) cannot be used this way
+- When 'I'nspecting objects you'll know how you found them
+- 3 new artifacts of Gothmog, regrouped in an item set
+- Darksword antimagic field now scales on the antimagic skill
+  So using one with 0 in the skill is not worth much
+- Distinguish stolen items from bought items -- neil
+- Cut down the price of Spectral weapon given their .. usefullness
+- Let Demonshields and Demonhorns be treated as armor -- neil
+- Wands/staves are now described this way: a wand of foo[bonus|max]
+  Bonus is the bonus spell levels you get, and max is the limit of spell
+  levels for that wand. It means even if you have Magic Device at level 50
+  you cannot get a level 50 spell from a wand with max 30. Naturally the
+  max(and bonus) increase with the depth you find the wand/staff :)
+- Fix and reduce the wand and staff pricing -- neil
+- Allow Wooden Rods to be sold at the Magic Shop -- neil
+- Monster traps are disarmed by GF_KILL_TRAP and GF_KILL_DOOR -- masmarangio
+
+Player changes:
+- New corruption system, savefiles are compatibles but you will loose
+  all your corruptions.
+  Most corruptions now have a good and a bad effect. Some corruptions
+  depends of others, it means that you can only get them when you have
+  the ones they depend of(i.e: Balrog Form need Balrog Wings, Balrog
+  Aura and balrog Strength to work). Some corruptions can be mutualy
+  exclusive. The list of corruption is totaly rewrote. They are more
+  in-theme now.
+- All Udun spells are no more multi-school spells
+- Reorganized the skill tree to remove the Misc skill tree. Alchemy is now
+  under Magic, Antimagic is in Combat and Music in Spirituality
+- Give Ents scrolls of satisfy hunger instead of some food.  -- Kusunose
+- Increased the modifier of the masteries for warriors
+- New Warrior subclass, the Demonologist, spell enhanced warriors. They
+  use the new Demon school and the renewed Demonblades, Demonshields and
+  Demonhorns. Their spells enhance their fighting potential. They can either
+  be seen as a force of good, fighting against demons with their own powers
+  or as a force of evil fighting to bring corruption to the world.
+- Sorcerors begin with a robe instead of a dagger
+- Changed the formula to calc the player HP when using possession so that
+  a higher possession skill will be prefered
+- lost Souls now have see invisible, I know I'm far too nice :)
+- New Water spell: Vapor, it create a low damage wide radius short lasting
+  cloud of water. It is designed to be a cheap attack spell for annoying
+  critters. Beware, random spellbooks & inscribed objects spells will "morph"
+  to other ones, sorry, unavoidable
+- Mindcrafters gets esp even after level 40
+- Symbiotic power changed to be bookless
+- Available skills to leanr via random quests are defined in s_info.txt
+- Trying to mimic when already mimiced(with the skill) will turn you back to
+  normal form
+- Yavanna Kementari as a new Vala, protectress of nature. Along with her
+  priests, the Druids
+- Typo in Druid description: Kemenari -> Kementari. --fearoffours
+- Subraces can now have skill mods
+- Spells bound to two or more schools now require at least one point in
+  each of the schools to be used
+- New skill, Stunning-blows, a haftedmastery subskill, just like critical
+  hits is a subskill of swordmasery. It requires a hafted weapon > 5 lb
+- Necromancers start with corpse preservation skill
+- New Meta/Conveyance Spell: Tracker, it will track the last teleportation
+  that happened on the level and teleport you to its destination
+- Summon skill doesnt caerte drops for partial summons
+- Summon skill doesnt work in an antimagic field
+- Lost souls start with many satisfy hunger scrolls, I'm really too nice...
+- Players in monster form can now use barehanded combat, instead of
+  reverting to monster attacks. -- neil
+
+Misc changes:
+- The splash screen now shows "Tales of Middle Earth" or "Troubles of Middle
+  Earth" randomly.  Thanks to Scott Holder for the idea and some code.
+  (takkaria)
+- makefile.org now defaultds to ./lib for the lib directory
+- makefile.org is now makefile.std
+- Added safe_setuid_grab/safe_setuid_drop to all the functions that
+  access files in the lib directory. I did so even for the game
+  initialisation, knowing that it's very unorthodox. This is because
+  I found some of them in the init[12].c.  There's no other sure ways
+  to keep them from messing multiuser installations. -- pelpel
+- Added makefile.dos, which is a copy of makefile (now), in order to
+  prevent overwriting accidents. Ideally, 'makefile' should be in the
+  .cvsignore, so that every developper can feel at ease with his/her
+  own preferred environment -- pelpel
+- Added Melkor to the gods docs.
+- Improved the adventurer guide and added a section for macros to it
+- Made chg_to_txt in files.c conditional, so that it won't be included in
+  Windows, Mac and RISCOS ports (they don't call the function, so it has
+  been dead code) -- pelpel
+- Do not grab/drop permissions twice.  Thanks to kobayasi for the patch.
+  -- Kusunose
+- Removed the autosquelch to replace it with a new Automatizer that should
+  be much more powerful. It lacks a gui, but that should soon change :)
+- Added updated class help documents. Removed extraneous ones.  Amended
+  links in birth.txt to reflect changes. Added appropriate entries to
+  help.lua for contextual class help at birth. Thanks to Mef. -- fearoffours
+- More contextual help: races and god selection at birth, rod tips, rods and
+  trapping kits. -- feaoffours
+- Fix birth.txt crash -- fearoffours
+- Updated skill docs, thanks to lemming
+- More minor help file updates. thanks mef and Chris Hadgis
+- Reformatted the makefile.WHICH file.  Do we really need this file anymore?
+  other variants get by without it, I don't really think it's needed...
+  (takkaria)
+- Reformatted the todo list, removed some entries which have been done.
+  Also added a section for stuff which I will do (one day). (takkaria)
+- I've reformatted and reorganized a fair bit of notes.c; I've made stuff
+  less hacky and made the function which writes notes to file use
+  my_fputs()...  Also replaced some hardcoded buffer sizes with sizeof().
+  (takkaria)
+- Removed hardcoded buffer sizes in wizard1.c. (takkaria)
+- Added .cvsignore to the src directory to prevent makefile overwriting
+  accidents from happening. Currently it excludes makefile (developers
+  are expected to update platform-specific makefile if s/he indents to
+  make permanent changes to them), tome, tolua, TOME.EXE and TOLUA.EXE.
+  -- pelpel
+- Updated symbiant helpfiles including full list of their new bookless spells
+  in m_symbio.txt -- fearoffours
+- Introduced a performance measure for process_world_hook, which I suspect
+  is causing slow movement problems in the reduced map mode.  Please read
+  the comment in process_world() [in dungeon.c] for alternative solutions.
+  -- pelpel
+- Changed every instance of "essense" to the correctly-spelled "essence".
+  Update your macros. -- neil
+- Trimmed down the size of chardumps(removed uselessness from object
+  descriptions)
+- Added descriptions to Totems, removed redundant need to identify them.
+  -- neil
+- Help docs for Yavanna and Druids, thanks Mef and Massimiliano Marangio.
+  -- fearoffours
+- Yes, more help updates. In tome_faq.txt and TANG.txt I added links to
+  skills.txt, magic.txt, birth.txt and gods.txt where appropriate. Removed
+  two references to Pern that got missed in tome_faq.txt.Added a
+  c_priest.txt file for contextual help at birth when choosing a main class.
+  Corrected typo in r_info (SPirit became Spirit). -- fearoffours
+- Added a new TERM_XTRA call, TERM_XTRA_GET_DELAY which should return the
+  time in microseconds. What time exactly isnt meaningfull but it must be
+  usable to compute the length of time an action takes.
+- Made all the socket code into z-sock.[ch] and wrapped it into a
+  virtualizing layer so that the rest of the code can use it independantly
+  of the implementation. Currently unix and windows sockets are supported.
+- Lots and lots of itsy-witsy help file updates. Stunning-blows, other
+  references to Pern, more links to other files... -- fearoffours
+- Compress the grid in the character dump, eliminating blank lines and only
+  showing lines without '+'s for the resistances and sustains page -- neil
+- Show the Mathom-house contents in the character dump -- neil
+- Cleaned up the notes code a little.  (takkaria)
+- Display in the dump how interesting items were found -- neil
+- DESTDIR support in makefile.std -- neil
+- main-net.c display module which redirects display over the z-sock layer
+  and thus over any ip network to allow to create very lightweight terminals
+  to play ToME everywhere. This is still experimental
+- Distinguish average, disarmed, and empty chests in the automatizer -- neil
+- Can include string terminators in help file tags i.e:
+  *****foo.txt*7[see:\] it works;)]
+- Can save screenshots to help file format, this is only usefull to
+  documentation writters and thus the option only appears when wizard mode
+  is activated. It uses the new verbatim mode &&&&& at the line beginning
+- The helpfile typo corrections just keep coming! Added Udun school help,
+  and demonologist school help, thanks Mef and masmarangio. -- fearoffours
+- Some more spelling errors corrected. Updated warriors skills in the
+  help files -- masmarangio
+- Skill updates for more character classes in the help files. -- masmarangio
+- Automatizer tutorial added. -- fearoffours
+- Clean out some unused variables and some other valid warnings -- neil
+- Updates of the character races help files -- masmarangio
+- God quest gets more clues to the location, and they're printed in the 
+  'Ctrl-Q'uest screen. I'm too nice. -- fearoffours
+- Added contextual help for wands/staves, also added a section in the help 
+  about it. --fearoffours
+- Some small help file updates (Muar becomes Durin's Bane) -- masmarangio
+- Added full mindcrafting spell info in the same form as other schools of 
+  magic. Removed help on the Music skill, as this will not be included for 
+  2.1.0. Added some other help stuff. -- fearoffours
+- Help now has an alphabetical index! -- fearoffours
+- Removed help on the Druidistic skill since Druids are normal Priests now.
+  Minor changes to the skill example to match human warriors.
+  Updated Option help file, some other minor changes -- masmarangio
+- Removed Tank Points and firestones. -- neil
+- Removed PERNANGBAND monster flag and renamed as many Pern monsters,
+  artifacts, and other references as I could find -- neil
+- Renamed instruments in luckspoi.txt, comment changes -- masmarangio
+- The description of ACT_DEST_DOOR includes traps, better description of
+  deactivating music instruments. -- masmarangio
+
 Dungeon changes:
-- A fair number of dungeon guardians lost their defined artifact drop
-  and got a randart drop instead. The removed arts are back top normal
-  behavior(can be found)
-- There should be less not-at-all secret "secret" doors.
-  This does *not* mean that ancient prob, but those mountains enbedded in
-  plain wall in Barrow-Downs, for example -- pelpel
-- Some spells can now stay in effect for a while, like a cloud of poison
-  will stay in place and poison everything passing in it
-- Streamers use small tress instead of trees, a la KAngband and
-  variants that borrowed it's code. And they should look more like
-  streamers in most dungeons -- pelpel
-- Neither player or monsters can see through, breath, or cast spells
-  over small trees, that are outer wall in Mirkwood -- arena levels
-  were too nasty otherwise... -- pelpel
-- Moved wiz_dark() implementing the maze level from move_player() to
-  process_player(), so that a spellcaster can no longer do magic mapping--
-  detect monsters--detect traps then casting teleport as often as s/he
-  wishes to make things incredibly easy. Because of my laziness detected
-  traps aren't displayed if they are out of sight. This would require
-  tremendous hack. Anyway, don't worry, they are still remembered -- pelpel
-- Added a dungeon flag that prevents generation of streamers, and
-  gave it to those with water/lava rivers and places like Numenor
-  and the Sacred Land of Mountains. Maze and evolving levels don't
-  require this. Also made lava deeper (dlev 34 or below). Trees can
-  appear on any flat levels. And eliminated undesirable calls to
-  the RNG in the streamer code -- pelpel
-- Rewrote place_new_way() so that it doesn't create unconnected dungeon
-  sections, destroy outer walls of rooms, or dig room corners -- pelpel
-- Angband dungeon now adjusts monster levels to the dungeon level.
-  The monsters here will have a minimun level in the range of:
-  level / 2 to level. So at level 67 the lowest monster you can encounter
-  will be level 33. This means that if a white icky thing is generated
-  it will be a level 33 white icky thing. If the base monster level is higher
-  then nothing is adjusted.
-- Altars now have CAN_RUN flag, so that you no longer see the
-  message "You cannot run in that direction" when trying to run
-  across them -- pelpel
-- Put yet another fractal code (unlike the others it's quite simple)
-  in the level filler generator, and added a F: parameter in d_info.txt
-  to control its behaviour. Its syntax is FILL_METHOD_#, where # is
-  0: use the first filler w/o calling RNG (for Angband, Mirkwood etc.),
-  1: the same as the previous versions (default), 2: slightly smoothed,
-  3: more smoothed, or 4: max smoothing (initial step of 8 grids) -- pelpel
-- No more shafts in the halls of mandos
-- Tweaked the door code a bit so that some doors are much harder
-  to find -- pelpel
-- The inn in Bree is now The Prancing Pony.  -- Kusunose
-- Small levels cannot generate full levels anymore
+- Since Tome generated small levels once in three times when requested,
+  which I think is too often, and in Z and Ey the chance is 1/5 and 1/10
+  respectively, I lowered the chance to 1/6 -- pelpel
+- Added SPIRIT flag to The Void, so that Spirits are actually generated there now
+  -- fearoffours
 
 Bug fixes:
-- Normal (non-vampire) races didn't get mana regenerated at Inn -- pelpel
-- Fixed the monster casting at other monsters but targetting you bug
-- Sacrificing wands now decreases charges
-- The random text code left files open in many error cases -- pelpel
-- Fixed more running problems (FEAT_SAND and FEAT_ASH) -- pelpel
-- Some routines called malloc/free instead of C_MAKE/C_FREE in
-  the vault generation -- pelpel
-- One wrong sign in the fractal cave code (vertical average) -- pelpel
-- Fixed the store info file thanks to wrabhit23
-- Ego items had extra spaces in their names -- pelpel
-- (XAW)Terminals used wrong names. USE_EGO_GRAPHICS didn't even
-  compile -- pelpel
-- The Mathom house acted like a normal shop when selling.  -- Kusunose
-- Many room walls didn't have the CAVE_ROOM flag set -- pelpel
-- More running problem (small trees in Mirkwood) -- pelpel
-- final artifacts were not generated if they are k_info artifacts.
+- Fixed a silly bug preventing Polearm masstery from wroking
+- In multiuser installations, notes and cmovie were written under the lib
+  directory using the game's permission, making them inaccessible by
+  the player. I moved them to ~/.tome. Note: This means that a coder
+  shouldn't grab permission before opening files in these directories
+  -- pelpel
+- There are still inappropriate (and even unbalanced!!!) calls to
+  safe_setuid_grab() and safe_setuid_drop() in the game. Thanks Neil
+  for pointing out those in the macro save commands. There are so many
+  places that I have to look at, but I'm trying... -- pelpel
+- Perma curse cannot happen on randarts anymore
+- Player could not pick up items from home if he did not have enough
+  gold.  -- Kusunose
+- Traps of wasting wand dont mess up wands
+- Dragon helms get resistances
+- No races were allowed to be loremasters
+- Fixed a bug in Character classes allowed, tahnks to Alex Wilkins
+- Spells cannot be cast while blinded or confused(execpt for a few)
+- Poor Melkor didnt had his altar generated in dungeons, while he is the
+  only god for a use of an altar
+- Fixed the -1 activation power of some mage staves of spell
+- Added missing spell frequency to Fire golem.  -- Kusunose
+- Symbiant cannot pickup a hypnotized pet from a pile.  Thanks to kobayasi
+  for the patch.  -- Kusunose
+- Stats more than 18/220 were displayed incorrectly if linear_stats was ON.
   -- Kusunose
-- Fixed get_com interface for lua
-- Squelch on sense now destroys {good} items if it's told
-  "destroy good", but only when the "strong" pseudo-ID is in
-  effect. Doing so for the "weak" method would be too dangerous -- pelpel
-- '-s' crashed the game. Thanks kobayashi for the fix -- pelpel
-- Doors are remembered, so that they work better with easy_open.
-  The easy_open code now performs checks for the perennially hard-to-handle
-  feature mimic field -- pelpel
-- monster_carry() could cause permanant artefact loss. A similar code
-  in quests and guardian artefact generation are also fixed -- pelpel
-- Do not drop from wild if player were not in wild mode in previous turn;
-  it put player in wrong place and could crash the game.  -- Kusunose
-- Summoning monsters from totems could crash the game.  -- Kusunose
-- The Heavy Crossbow of the Elves was 'the ultimate armor' in the
-  fully identified description.  -- Kusunose
-- Fixed a bug in the hook code that may or may not be the cause of
-  various quest-related bugs -- pelpel
-- Fixed a bug in the 6 monster randquest thanks to Louis-Frederic Michaud
-- Fixed the "automatic ego filter" bug in the squeltch filter -- pelpel
-- Made panel_bound() more paranoid about the current dungeon size,
-  to prevent many big screen-related crashes -- pelpel
-- Beastmaster Shanty overpayed a bounty if monster's corpses are stacked.
+- The small_level option had the same effect as always_small_levels
+  -- pelpel
+- Exploding ammo dont stack with normal ammo
+- Ammo creation is bound to Arechery skill instead of player level
+- Fixed a bug in related skills, when one increased a skills sometimes the
+  related skills didnt increased
+- Temporal stat drain no longer cancels normal stat drain.  -- Kusunose
+- The amount of mana in each grid was always magical level.  -- Kusunose
+- Extracted essences overwrote a weapon slot when inventry was full.
   -- Kusunose
-- A failure in disarming traps using easy-disarm caused another attempt
-  at disarming traps (because it calls move_player_aux which calls
-  do_cmd_disarm_aux which calls move_player_aux...), growing call
-  stack infinitely. It's dangerous, and, in fact, players were totally
-  safe from traps (messages said "You set off...", but traps were never
-  activated) -- pelpel
-- Black breath could crash the game (it's really evil, isn't it :) 
-  Thanks Kevin W. Thomas for the patch -- pelpel
-- map_info() had problem with walls mimicking floors -- pelpel
-- Polymorphing random effect of Chaos Warriors could crash the game.
-  Special thanks for Kevin W. Thomas for the detailed analysis
-  of the problem -- pelpel
-- Dungeon town generation could crash the game. Thanks Mogami
-  for the analysis of the problem -- pelpel
-- Supplied missing suid code in 1) savefile removal action in the startup
-  screen, 2) dungeon savefile removal, and 3) bone file removal.
-  Thanks kobayasi for the patch -- pelpel
-- Special level names wherent corrently displayed if the N: line was the
-  first of the file in lib/dngn
-- '/' in item selection didn't update screen correctly -- pelpel
-- Level generation could cause infinite loop in the Sacred Land of
-  Mountains -- pelpel
-- Player ghosts were disabled in a way causing special feeling on
-  every level -- pelpel
-- Took 64-bit safe RNG from Vanilla -- pelpel
-- Wide light radius worked in the small scale wilderness map,
-  where it should have been WILDERNESS_SEE_RADIUS -- pelpel
-- Since streamers can create unconnected dungeon sections, the code for
-  it is moved after stair and player allocation -- pelpel
-- Some player_type fields and corresponding lua interface definitions
-  were of different types. Fix thanks to rr9. -- pelpel
-- Gave SPECIAL_GENE flags to the k_info.txt entries of SPECIAL_GENE
-  special artefacts -- pelpel
-- Player is now guaranteed to have initialive after entering a level.
-  Thanks Joseph William Dixon for the patch -- pelpel
-- The skill increase/decrease code was unable to detect underflow -- pelpel
-- Full map command displayed only half of current dungeon level when 
-  bigtile mode is used.  Thanks for Takeshi Mogami for tha patch
-  -- Kusunose
-- Various spell effects that polymorph monsters could crash the game.
-  -- Kusunose
-- Compare weapons command miscalculated muliplying bonus.  -- Kusunose
-- Fixed junk artifacts and music instruments stacking bug in stores
-  -- Kusunose
-- Capped max number of extra blows at 2 when the limit_blow flag is set
-  in two places -- pelpel
-- Cancelling a scroll of reset recall didn't work.  -- Kusunose
-- One was able to have another entry in the score file for a dead/retired
-  character by loading him/her with the -w option, then answering 'n' to
-  the wizard mode confirmation. Bug report and fix (for Angband 3.0.1, but
-  applicable for all variants) by Hallvard B. Furuseth, Takeshi Mogami and
-  Robert Ruehlmann -- pelpel
+- Fix mushrooms stacking for the maggot quest
+- Casting "Disperse Magic" when spell level is 20 or more produced a lua
+  error.  -- Kusunose
+- The centre player option failed to do so while running. Thanks Neil
+  Stevens for the patch. -- pelpel
+- Random Artifact arrows should now stack properly.  -- wilh
+- Mindcrafters lost their ESP at level 40.  Now they have it permanently
+  at that level.  (p_info.txt) -- wilh
+- Above bug was supposed to be skill level 40, not clvl 40.  Fixed. :)
+- Fixed a bug that made mage staves very costy
+- Fix a bug of wands in store
+- Fix an old spelling error: "droped" not "dropped" -- Neil
+- Fixed bug where ironman_rooms would give you the number of random quests
+  you played last time, instead of zero. -- neil
+- Allow non-artifact, non-ego items with activations be activated. -- neil
+- Don't let the Maggot sling be generated randomly. -- neil
+- Prevent the automatizer from treating "good" bows as "average" -- neil
+- Prevent earthquake damage for characters with wraithform, and prevent
+  some of the damage for characters with semi-wraithform -- neil
+- Fix spelling of Book of Teleportation -- neil
+- Magelock cannot override permanent walls(or walls for taht matter) and works
+  only in LOS
+- Automatizer should not treat enchanted ammo and tools as average, either.
+  -- neil
+- Fixed the bug that allowed to use unallowed gods
+- Two-handed artifact weapons now act as such -- neil
+- Don't mark items as store bought until they are bought -- neil
+- Don't show Gondolin twice in the dump -- neil
+- Fixed the incredible townspeople generation rate
+- String fixes from lemming -- neil
+- Don't print discomfort messages when examining and comparing weapons -- neil
+- Add experimental support to the automatizer for marking "bad" rings and
+  amulets -- neil
+- Let summoners summon again (patch by masmarangio) -- neil
+- Remove duplicate warning of an empty quiver (patch by masmarangio) -- neil
+- Make the automatizer work independently of the player's body -- neil
+- Don't spoil things in the dump -- neil
+- Maiar can't choose a god anymore -- masmarangio
+- Staves are properly fireproofed now. -- fearoffours
+- Correct Damage/Round display for bare and bear combat. -- neil
+- Melkor wants you to sacrifice corpses, not raw meat -- neil
+- Fixed an off-by-one error in loadsave.c that caused savefile corruption
+  if the number of monsters or objects saved was maximal -- masmarangio
+- Corrected the price of enchanted boomerangs and instruments. -- masmarangio
+- Corrected the used multiplier while 'I'nspecting ammo.
+  Fixed the damage of throwing items / boomerangs -- masmarangio
+- Fix some artifact activations -- neil
+- Fixed (temporarily) item activation and description. Some items could
+  activate for the unified activation, and display the other activation, so
+  further changes are needed. -- masmarangio

@@ -1,5 +1,6 @@
 |||||oy
-#####RThe Beginner's Guide to the Gods.
+~~~~~01|Gods
+#####RThe Guide to the Gods.
 
 #####G1.  Introduction
         Everybody likes to have a little helping hand now and then.  What
@@ -8,17 +9,19 @@ The gods won't help just any mortal who calls for help.  You have to give them
 a little something too.
 
 #####G2.  How Do I Get in on This?
-        When you start a character, you get a choice of whether or not you 
+        When you start a character, you get a choice of whether or not you
 wish to begin worshipping a God (unless you're something like a priest - they
 *must* start with a God to worship). If you do choose to be a follower of one
-of the Gods, you will gain certain abilities provided you do not do things 
+of the Gods, you will gain certain abilities provided you do not do things
 that displease them. The measure of how happy your God is with you is your
-piety - the Pt stat is your measure of piety. Different actions will allow you 
-to gain or lose piety over time. 
+piety - the Pt stat is your measure of piety. Different actions will allow you
+to gain or lose piety over time. Choose your God carefully too, as once you 
+have chosen to worship one, you cannot forsake him/her for another
 
 #####G3.  So, Who Are These Gods?
-        In ToME, there are three Gods you may choose to worship, being:
-1. *****g_eru.txt*0[Eru Illuvatar] - the father of the Valar. 
+        In ToME, there are five Gods you may choose to worship, being:
+1. *****g_eru.txt*0[Eru Iluvatar] - the father of the Valar.
 2. *****g_manwe.txt*0[Manwe Sulimo] - the second strongest of the Valar (Morgoth was the strongest).
-3. *****g_tulkas.txt*0[Tulkas] - Another of the Valar, Tulkas values strength and courage.
-
+3. *****g_yavann.txt*0[Yavanna Kementari] - the Earth Queen who created plants and animals.
+4. *****g_tulkas.txt*0[Tulkas] - another of the Valar, Tulkas values strength and courage.
+5. *****g_melkor.txt*0[Melkor Bauglir] - the Dark Enemy himself, once the most powerful of the Valar.

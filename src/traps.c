@@ -457,7 +457,6 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 {
 	bool ident = FALSE;
 	s16b trap;
-	dungeon_info_type *d_ptr = &d_info[dungeon_type];
 
 	s16b k, l;
 
@@ -800,7 +799,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 
 			if (p_ptr->ffall)
 			{
-				if (d_ptr->flags1 & DF1_TOWER)
+				if (dungeon_flags1 & DF1_TOWER)
 				{
 					msg_print("You float gently down to the previous level.");
 				}
@@ -823,7 +822,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 				is_autosave = FALSE;
 			}
 
-			if (d_ptr->flags1 & DF1_TOWER) dun_level--;
+			if (dungeon_flags1 & DF1_TOWER) dun_level--;
 			else dun_level++;
 
 			/* Leaving */
@@ -1316,6 +1315,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 						if (object_known_p(j_ptr)) ident = TRUE;
 						j_ptr->sval = rand_int(SV_WAND_NASTY_WAND);
 						j_ptr->k_idx = lookup_kind(j_ptr->tval, j_ptr->sval);
+                                                j_ptr->ident &= ~(IDENT_KNOWN);
 						p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 					}
 
@@ -1325,6 +1325,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 						if (object_known_p(j_ptr)) ident = TRUE;
 						j_ptr->sval = rand_int(SV_STAFF_NASTY_STAFF);
 						j_ptr->k_idx = lookup_kind(j_ptr->tval, j_ptr->sval);
+                                                j_ptr->ident &= ~(IDENT_KNOWN);
 						p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 					}
 				}
@@ -1699,28 +1700,6 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 			break;
 		}
 
-		/* Trap of Tanker Drain */
-		case TRAP_OF_TANKER_DRAIN:
-		{
-			if (p_ptr->ctp > 0)
-			{
-				p_ptr->ctp = 0;
-				msg_print("You sense a great loss.");
-				ident = TRUE;
-			}
-			else if (p_ptr->mtp == 0)
-			{
-				/* no sense saying this unless you never have tanker point */
-				msg_format("Suddenly you feel glad you're only a %s",
-				           rp_ptr->title + rp_name);
-			}
-			else
-			{
-				msg_print("Your head feels dizzy for a moment.");
-			}
-			break;
-		}
-
 		/* Trap of Divine Anger */
 		case TRAP_OF_DIVINE_ANGER:
 		{
@@ -1870,7 +1849,7 @@ void place_trap(int y, int x)
 		 * Hack -- No trap door at the bottom of dungeon or in flat
 		 * (non dungeon) places
 		 */
-		if (((d_ptr->maxdepth == dun_level) || (d_ptr->flags1 & DF1_FLAT)) &&
+		if (((d_ptr->maxdepth == dun_level) || (dungeon_flags1 & DF1_FLAT)) &&
 		    (trap == TRAP_OF_SINKING)) continue;
 
 		/* How probable is this trap */
@@ -2244,14 +2223,14 @@ bool mon_hit_trap_aux_staff(int m_idx, int sval)
 	monster_type *m_ptr = &m_list[m_idx];
 	int dam = 0, typ = 0;
 	int rad = 0;
-	int k;
 	int y = m_ptr->fy;
 	int x = m_ptr->fx;	
 
 	/* Depend on staff type */
 	switch (sval)
 	{
-		case SV_STAFF_IDENTIFY:		
+#if 0
+        case SV_STAFF_IDENTIFY:
 		case SV_STAFF_DETECT_DOOR:	
 		case SV_STAFF_DETECT_INVIS:	
 		case SV_STAFF_DETECT_EVIL:	
@@ -2355,6 +2334,7 @@ bool mon_hit_trap_aux_staff(int m_idx, int sval)
 		case SV_STAFF_DESTRUCTION:
 			destroy_area(y, x, 15, TRUE, FALSE);
 			return (FALSE);
+#endif
 		default:
 			return (FALSE);
 	}
@@ -2504,11 +2484,11 @@ bool mon_hit_trap_aux_wand(int m_idx, int sval)
 	int y = m_ptr->fy;
 	int x = m_ptr->fx;
 
-	if (sval == SV_WAND_WONDER) sval = rand_int(SV_WAND_WONDER);
 	/* Depend on wand type */
 	switch (sval)
 	{
-		case SV_WAND_HEAL_MONSTER:
+#if 0
+        case SV_WAND_HEAL_MONSTER:
 			typ = GF_OLD_HEAL;
 			dam = damroll(4, 6);
 			break;
@@ -2625,7 +2605,8 @@ bool mon_hit_trap_aux_wand(int m_idx, int sval)
 			}
 			dam = 100; /* hack */
 			rad = 3;
-			break;
+                        break;
+#endif
 		default:
 			return (FALSE);
 	}

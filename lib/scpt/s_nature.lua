@@ -7,9 +7,10 @@ GROWTREE = add_spell
         ["level"] = 	6,
         ["mana"] = 	6,
         ["mana_max"] = 	30,
-        ["fail"] = 	20,
+        ["fail"] = 	35,
         ["spell"] = 	function()
         		grow_trees(2 + get_level(GROWTREE, 7))
+                        return TRUE
 	end,
 	["info"] = 	function()
 			return "rad "..(2 + get_level(GROWTREE, 7))
@@ -26,9 +27,19 @@ HEALING = add_spell
         ["level"] = 	10,
         ["mana"] = 	15,
         ["mana_max"] = 	50,
-        ["fail"] = 	20,
+        ["fail"] = 	45,
+        ["stick"] =
+        {
+                        ["charge"] =    { 2, 3 },
+                        [TV_STAFF] =
+                        {
+                                ["rarity"] = 		90,
+                                ["base_level"] =        { 1, 5 },
+                                ["max_level"] =        	{ 20, 40 },
+                        },
+        },
         ["spell"] = 	function()
-        		hp_player(player.mhp * (15 + get_level(HEALING, 35)) / 100)
+        		return hp_player(player.mhp * (15 + get_level(HEALING, 35)) / 100)
 	end,
 	["info"] = 	function()
 			return "heal "..(15 + get_level(HEALING, 35)).."% = "..(player.mhp * (15 + get_level(HEALING, 35)) / 100).."hp"
@@ -45,24 +56,36 @@ RECOVERY = add_spell
         ["level"] = 	15,
         ["mana"] = 	10,
         ["mana_max"] = 	25,
-        ["fail"] = 	20,
+        ["fail"] = 	60,
+        ["stick"] =
+        {
+                        ["charge"] =    { 5, 10 },
+                        [TV_STAFF] =
+                        {
+                                ["rarity"] = 		50,
+                                ["base_level"] =        { 1, 5 },
+                                ["max_level"] =        	{ 10, 30 },
+                        },
+        },
         ["spell"] = 	function()
-        		set_poisoned(player.poisoned / 2)
+                        local obvious
+        		obvious = set_poisoned(player.poisoned / 2)
                         if get_level(RECOVERY, 50) >= 5 then
-                        	set_poisoned(0)
-                                set_cut(0)
+                        	obvious = is_obvious(set_poisoned(0), obvious)
+                                obvious = is_obvious(set_cut(0), obvious)
                         end
                         if get_level(RECOVERY, 50) >= 10 then
-				do_res_stat(A_STR)
-				do_res_stat(A_CON)
-				do_res_stat(A_DEX)
-				do_res_stat(A_WIS)
-				do_res_stat(A_INT)
-				do_res_stat(A_CHR)
+				obvious = is_obvious(do_res_stat(A_STR, TRUE), obvious)
+				obvious = is_obvious(do_res_stat(A_CON, TRUE), obvious)
+				obvious = is_obvious(do_res_stat(A_DEX, TRUE), obvious)
+				obvious = is_obvious(do_res_stat(A_WIS, TRUE), obvious)
+				obvious = is_obvious(do_res_stat(A_INT, TRUE), obvious)
+				obvious = is_obvious(do_res_stat(A_CHR, TRUE), obvious)
                         end
                         if get_level(RECOVERY, 50) >= 15 then
-                        	restore_level()
+                        	obvious = is_obvious(restore_level(), obvious)
                         end
+                        return obvious
 	end,
 	["info"] = 	function()
 			return ""
@@ -82,9 +105,9 @@ REGENERATION = add_spell
         ["level"] = 	20,
         ["mana"] = 	30,
         ["mana_max"] = 	55,
-        ["fail"] = 	20,
+        ["fail"] = 	70,
         ["spell"] = 	function()
-        		if player.tim_regen == 0 then set_tim_regen(randint(10) + 5 + get_level(REGENERATION, 50), 300 + get_level(REGENERATION, 700)) end
+        		if player.tim_regen == 0 then return set_tim_regen(randint(10) + 5 + get_level(REGENERATION, 50), 300 + get_level(REGENERATION, 700)) end
 	end,
 	["info"] = 	function()
 			return "dur "..(5 + get_level(REGENERATION, 50)).."+d10 power "..(300 + get_level(REGENERATION, 700))
@@ -102,10 +125,20 @@ SUMMONANNIMAL = add_spell
         ["level"] = 	25,
         ["mana"] = 	25,
         ["mana_max"] = 	50,
-        ["fail"] = 	20,
+        ["fail"] = 	90,
+        ["stick"] =
+        {
+                        ["charge"] =    { 1, 3 },
+                        [TV_WAND] =
+                        {
+                                ["rarity"] = 		85,
+                                ["base_level"] =        { 1, 5 },
+                                ["max_level"] =        	{ 15, 45 },
+                        },
+        },
         ["spell"] = 	function()
         		summon_specific_level = 25 + get_level(SUMMONANNIMAL, 50)
-        		summon_monster(py, px, dun_level, TRUE, SUMMON_ANIMAL)
+        		return summon_monster(py, px, dun_level, TRUE, SUMMON_ANIMAL)
 	end,
 	["info"] = 	function()
 			return "level "..(25 + get_level(SUMMONANNIMAL, 50))

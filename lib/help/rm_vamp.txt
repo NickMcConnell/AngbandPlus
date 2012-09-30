@@ -1,3 +1,5 @@
+~~~~~01|Vampire
+~~~~~02|Race Modifiers|Vampire
 #####R=== Vampiric Race ===
 
 #####GDescription

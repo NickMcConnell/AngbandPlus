@@ -1,4 +1,5 @@
 |||||oy
+~~~~~99|Commands
 #####R=== List of Commands ===
 
 
@@ -81,7 +82,7 @@ make macros which, for example, allow the use of the shift or control modifier
 keys, plus a numeric keypad key, to specify the "run" or "tunnel" command, with
 the given direction, regardless of any keymap definitions, by using the fact
 that you can always, for example, use "\" + "." + "6", to specify "run east".
-
+~~~~~100|Commands|Original keyset
 #####R=== Original Keyset Command Summary (4.2.x) ===
 
  *****command.txt*1[a  Aim a wand]                           *****command.txt*2[A  Activate an artifact]
@@ -113,7 +114,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*47[!  Interact with system]                ^A  (special - debug command)
  *****command.txt*49[@  Interact with macros]                ^B  (unused)
  #  (unused)                            ^C  (special - break)
- $  Interact with the skills            ^D  (unused)
+ *****command.txt*97[$  Record macros]                       ^D  (unused)
  *****command.txt*51[%  Interact with visuals]               *****command.txt*52[^E  Toggle choice window]
  ^  (special - control key)             *****command.txt*53[^F  Repeat level feeling]
  *****command.txt*54[&  Interact with colors]                ^G  (unused)
@@ -139,9 +140,10 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*79[\  (special - bypass keymap)]            *****command.txt*80[|  Do cmovies]
  *****command.txt*81[`  (special - escape)]                   *****command.txt*82[~  Check artifacts, uniques, objects]
  *****command.txt*83[/  Identify symbol]                      *****command.txt*84[?  Help]
+                                        *****command.txt*98[^\]  Take an html screenshot]
 
 
-
+~~~~~101|Commands|Roguelike keyset
 #####R===  Roguelike Keyset Command Summary (4.2.x) ===
 
  *****command.txt*45[a  Zap a rod (Activate)]                 *****command.txt*2[A  Activate an artifact]
@@ -162,7 +164,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*28[p  Pray to your god (if any)]            *****command.txt*3[P  Browse a book]
  *****command.txt*30[q  Quaff a potion]                       *****command.txt*31[Q  Quit (commit suicide)]
  *****command.txt*32[r  Read a scroll]                        *****command.txt*33[R  Rest for a period]
- *****command.txt*34[s  Search for traps/doors]               *****command.txt*19[S  Jam a door (Spike)]
+ *****command.txt*34[s  Search for traps/doors]               *****command.txt*97[S  Record macros]
  *****command.txt*11[t  Fire an item]                         *****command.txt*36[T  Take off equipment]
  *****command.txt*95[u  (walk - north east)]                  *****command.txt*95[U  (run - north east)]
  *****command.txt*40[v  Throw an item]                        *****command.txt*16[V  Drink from a fountain]
@@ -200,7 +202,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*81[`  (special - escape)]                   *****command.txt*82[~  Check artifacts, uniques, objects]
  *****command.txt*83[/  Identify symbol]                      *****command.txt*84[?  Help]
 
-
+~~~~~102|Commands|Special keys
 #####R=== Special Keys ===
  
         Certain special keys may be intercepted by the operating system or
@@ -239,8 +241,8 @@ will abort the command.  The "[y/n]" prompts may be answered with "y" or
 "n", or escape.  The "-more-" message prompts may be cleared (after reading
 the displayed message) by pressing ESCAPE, SPACE, RETURN, LINEFEED, or by
 any keypress, if the "quick_messages" option is turned on.
- 
-
+~~~~~103|Commands|Command counts
+~~~~~104|Commands|Repeating a command
 #####R===  Command Counts ===
  
         Some commands can be executed a fixed number of times by preceding
@@ -312,7 +314,7 @@ use both "z4" and "u4" as desired.
 accident, and [[[[[Binscribing "!*" on an object] will allow you to be very paranoid
 about the object.  Note that "selling" and "dropping" both use the "d" command.
 
-
+~~~~~105|Pref files
 #####R=== User Pref Files ===
 
         Angband allows you to change various aspects of the game to suit
@@ -357,7 +359,7 @@ and/or interact with various of the user preferences in a more intuitive
 way than the user pref commands allow.  The commands include "Interact with
 macros" (@), "Interact with visuals" (%), and "Interact with colors" (&),
 described below.
-
+~~~~~106|Pref files|Macros
 #####G--- User Pref Files (Macros) ---
 
         The "Interact with macros" command allows you to define or remove
@@ -400,7 +402,7 @@ the nearest monster.
 *****macrofaq.txt*0[macrofaq.txt], originally written by Jim Lyon (jplyon@attglobal.net),
 modified for ToME with Jim's permission by Dawnmist 
 (angband@dawnmist.8m.com).
-
+~~~~~107|Pref files|Keymaps
 #####G--- User Pref Files (Keymaps) ---
 
         The "Interact with macros" command also allows you to define
@@ -419,7 +421,7 @@ ability to "disable" a command by mapping it to "\x00",
 	Keymaps can be specified in user pref files as line of the form
 "M:<T> <key> <str>", where <T> is the keyset (0/1 for original/roguelike),
 <key> is the encoded trigger key, and <str> is the encoded keymap action.
-
+~~~~~108|Pref files|Visuals
 #####G--- User Pref Files (Visuals) ---
 
         You can use the "Interact with visuals" command to change various
@@ -442,7 +444,7 @@ must do so, remember that you are only cheating yourself.
 
 	Keymaps can be specified in user pref files as line of the form
 "R:<N>:<A>/<C>" or "K:<N>:<A>/<C>" or "F:<N>:<A>/<C>" or "U:<N>:<A>/<C>".
-
+~~~~~109|Pref files|Colors
 #####G--- User Pref Files (Colors) ---
 
         The "Interact with colors" command allows you to change the actual
@@ -454,14 +456,14 @@ currently used by Angband.
 
 	Colors can be specified in user pref files as line of the form
 "V:<N>:<V>:<R>:<G>:<B>".
-
+~~~~~110|Pref files|Options
 #####G--- User Pref Files (Options) ---
 
         The "Interact with options" command allows you to turn options
 on or off.  You may turn options off or on using the user pref commands
 of the form "X:<option>" or "Y:<option>" respectively.
 
- 
+~~~~~111|Commands|Command descriptions 
 #####R===  Command Descriptions ===
 
         The following command descriptions are listed as the command name
@@ -476,7 +478,7 @@ while others use the "repeat count" as an "argument", for example, commands
 which need a "quantity" will use the "repeat count" instead of asking for
 a quantity, allowing the use of "0d" for "drop all".  Commands which ask
 for a quantity will convert any "letters" into the maximal legal value.
-
+~~~~~112|Commands|Inventory
 #####R---  Inventory Commands ---
 ~~~~~17
 [[[[[GInventory list (i)]
@@ -529,7 +531,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         way and cannot be taken off until the curse is removed.  If there
         is no room in your inventory for the item, your pack will overflow
         and you will drop the item after taking it off.
-
+~~~~~113|Commands|Movement
 #####R---  Movement Commands ---
 ~~~~~67
 [[[[[GWalk (with pickup) (;)]
@@ -578,7 +580,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         town which has only one, and "quest" levels, which have none until
         the quest monster is killed.  Going down a staircase will take you
         to a new dungeon level.  See "Go Up Staircase" for more info.
-
+~~~~~114|Commands|Resting
 #####R---   Resting Commands ---
 ~~~~~72
 [[[[[GStay still (with pickup) (,) or Stay still (with pickup) (.)]
@@ -608,7 +610,7 @@ for a quantity will convert any "letters" into the maximal legal value.
 [[[[[GEnter store (_)]
         When standing on the door of a store, this command allows the character
         to enter the store again. 
-
+~~~~~115|Commands|Searching
 #####R---  Searching Commands ---
 ~~~~~34
 [[[[[GSearch (s)]
@@ -629,7 +631,8 @@ for a quantity will convert any "letters" into the maximal legal value.
         twice the food.  Search mode will automatically turn off if you
         are disturbed.  You may also turn off search mode by entering the
         Search Mode command again.
-
+~~~~~116|Commands|Alteration commands
+~~~~~117|Commands|Terrain interaction
 #####R---  Alter Commands ---
 ~~~~~37
 [[[[[GTunnel (T) or Tunnel (^T)]
@@ -709,7 +712,7 @@ for a quantity will convert any "letters" into the maximal legal value.
 [[[[[GSteal (Z)]
         Allows the player to try to steal items from shops. Also allows 
         thieves to steal from monsters.
-
+~~~~~118|Commands|Spells and prayers
 #####R---  Spell and Prayer Commands ---
 ~~~~~3
 [[[[[GBrowse a book (b) or Peruse a book (P)]
@@ -745,7 +748,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         possible abilities are listed in an index under the U (or O) command.
         These type of abilities can include the Vampire's bite, a DeathMold's
         telekinesis, and a RohanKnight's light speed capabilities.
-
+~~~~~119|Commands|Object manipulation
 #####R---  Object Manipulation Commands ---
 ~~~~~10
 [[[[[GEat some food (E)]
@@ -809,7 +812,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         protect meat from hacked-up corpses from going bad.
 ~~~~~16
 [[[[[GDrink from a fountain (H)]
-        All fountains in Pern are magical, and act like magical potions. Unlike
+        All fountains in Arda are magical, and act like magical potions. Unlike
         potions, however, it is not possible to identify the type of fountain
         before drinking from it.
 ~~~~~44
@@ -857,7 +860,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         turns.  The recharging time varies depending on the type of rod.
         This command may require a direction (depending on the type of
         rod, and whether you are aware of its type) and can use a target.
-
+~~~~~120|Commands|Throwing and missile weapons
 #####R---  Throwing and Missile Weapons ---
 ~~~~~11
 [[[[[GFire an item (f) or Fire an item (t)]
@@ -925,7 +928,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         can often improve the effects of that attack, since ball attacks are
         not stopped by interposed monsters if the ball is launched at a target.
         This command takes no time.
-        
+~~~~~121|Commands|Looking        
 #####R---  Looking Commands ---
 ~~~~~25
 [[[[[GFull screen map (M)]
@@ -962,7 +965,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         This command lets you observe a previously *identified* item.
         This will tell you things about the special powers of the object.
         Currently, it only makes sense for artifacts and ego-items.
-
+~~~~~122|Commands|Messages
 #####R--- Message Commands ---
 ~~~~~53
 [[[[[GRepeat level feeling (^F)]
@@ -977,7 +980,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         This command allows you to take notes, which will then appear in
         your message list (prefixed with "Note:").  This command takes
         no time.
-
+~~~~~123|Commands|Game status
 #####R--- Game Status Commands ---
 ~~~~~6
 [[[[[GCharacter Description (C)]
@@ -1013,7 +1016,8 @@ for a quantity will convert any "letters" into the maximal legal value.
         This command is used to give the current time within the game. 
         Extremely useful for characters such as Vampires to check whether
         it is safe to leave the dungeon.
-
+~~~~~124|Commands|Saving and Exiting
+~~~~~125|Saving and Exiting
 #####R--- Saving and Exiting Commands ---
 ~~~~~75
 [[[[[GSave and Quit (Ctrl-X)]
@@ -1031,7 +1035,8 @@ for a quantity will convert any "letters" into the maximal legal value.
         Kills your character and exits Angband.  You will be prompted to
         make sure you really want to do this, and then asked to verify
         that choice.  Note that dead characters are dead forever.
-
+~~~~~126|Commands|Pref files
+~~~~~127|Pref files|Commands
 #####R--- User pref file commands ---
 ~~~~~65
 [[[[[GInteract with options (=)]
@@ -1071,7 +1076,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         a user pref command" command, activated by "double quote". You may have to
         use the "redraw" command (^R) after changing certain of the aspects of the 
         game, to allow Angband to adapt to your changes.
-
+~~~~~128|Commands|Help
 #####R--- Help ---
 ~~~~~84
 [[[[[GHelp (?)]
@@ -1109,7 +1114,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         This command will tell you what version of Angband you are using.
         For more information, see the "version.txt" help file.
 
-
+~~~~~129|Commands|Extras
 #####R--- Extra Commands ---
 ~~~~~27
 [[[[[GSacrifice at an altar (O)]
@@ -1175,6 +1180,15 @@ for a quantity will convert any "letters" into the maximal legal value.
 
         The cmovie files (.cmv) are located in lib/cmov, note that they quickly
         become huge and so you REALLY should compress them before sending to friends.
+~~~~~97
+[[[[[GRecord macros ($)]
+        This is an easier way to create macros. Activate it, press the key
+        sequence for your macro, reactivate it and it will create the macro
+        for you. Note than when possible usingthe @ key at item selection
+        is a good idea since it removes the need to inscribe items.
+~~~~~98
+[[[[[GTake html screenshot (^\])]
+	Creates an html screenshot of the current screen
 
 -- 
 Original: Alexander Cutler and Andy Astrand

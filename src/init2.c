@@ -165,10 +165,6 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_INFO = string_make(path);
 
 	/* Build a path name */
-	strcpy(tail, "note");
-	ANGBAND_DIR_NOTE = string_make(path);
-
-	/* Build a path name */
 	strcpy(tail, "save");
 	ANGBAND_DIR_SAVE = string_make(path);
 
@@ -188,6 +184,8 @@ void init_file_paths(char *path)
 		/* Get an absolute path from the file name */
 		path_parse(user_path, 1024, PRIVATE_USER_PATH);
 		ANGBAND_DIR_USER = string_make(user_path);
+		ANGBAND_DIR_NOTE = string_make(user_path);
+		ANGBAND_DIR_CMOV = string_make(user_path);
 	}
 
 #else /* PRIVATE_USER_PATH */
@@ -196,15 +194,19 @@ void init_file_paths(char *path)
 	strcpy(tail, "user");
 	ANGBAND_DIR_USER = string_make(path);
 
+	/* Build a path name */
+	strcpy(tail, "note");
+	ANGBAND_DIR_NOTE = string_make(path);
+
+	/* Build a .. blah blah -- Improv */
+	strcpy(tail, "cmov");
+	ANGBAND_DIR_CMOV = string_make(path);
+
 #endif /* PRIVATE_USER_PATH */
 
 	/* Build a path name */
 	strcpy(tail, "xtra");
 	ANGBAND_DIR_XTRA = string_make(path);
-
-	/* Build a .. blah blah -- Improv */
-	strcpy(tail, "cmov");
-	ANGBAND_DIR_CMOV = string_make(path);
 
 #endif /* VM */
 
@@ -445,9 +447,13 @@ static errr init_f_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "f_info.raw");
 
+	/* Grab permission */
 	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Process existing "raw" file */
@@ -494,8 +500,14 @@ static errr init_f_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "f_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'f_info.txt' file.");
@@ -533,12 +545,16 @@ static errr init_f_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "f_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -582,8 +598,14 @@ static errr init_f_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "f_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'f_info.raw' file.");
@@ -708,8 +730,14 @@ static errr init_k_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "k_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -755,8 +783,14 @@ static errr init_k_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "k_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'k_info.txt' file.");
@@ -794,12 +828,16 @@ static errr init_k_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "k_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -843,8 +881,14 @@ static errr init_k_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "k_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'k_info.raw' file.");
@@ -1072,8 +1116,14 @@ static errr init_set_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "set_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -1119,8 +1169,14 @@ static errr init_set_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "set_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'set_info.txt' file.");
@@ -1158,12 +1214,16 @@ static errr init_set_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "set_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -1207,8 +1267,14 @@ static errr init_set_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "set_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot open 'set_info.raw' file.");
@@ -1274,8 +1340,14 @@ static errr init_a_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -1321,8 +1393,14 @@ static errr init_a_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "a_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'a_info.txt' file.");
@@ -1360,12 +1438,16 @@ static errr init_a_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -1409,8 +1491,14 @@ static errr init_a_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot open 'a_info.raw' file.");
@@ -1478,8 +1566,14 @@ static errr init_s_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "s_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -1523,8 +1617,14 @@ static errr init_s_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "s_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 's_info.txt' file.");
@@ -1561,12 +1661,16 @@ static errr init_s_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "s_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -1610,8 +1714,14 @@ static errr init_s_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "s_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot open 's_info.raw' file.");
@@ -1736,8 +1846,14 @@ static errr init_e_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "e_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -1785,8 +1901,14 @@ static errr init_e_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "e_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'e_info.txt' file.");
@@ -1824,12 +1946,16 @@ static errr init_e_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "e_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -1873,8 +1999,14 @@ static errr init_e_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "e_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'e_info.raw' file.");
@@ -1980,8 +2112,14 @@ static errr init_ra_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "ra_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -2024,8 +2162,14 @@ static errr init_ra_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "ra_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'ra_info.txt' file.");
@@ -2063,12 +2207,16 @@ static errr init_ra_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "ra_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -2103,8 +2251,14 @@ static errr init_ra_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "ra_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'ra_info.raw' file.");
@@ -2663,8 +2817,14 @@ static errr init_r_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -2710,8 +2870,14 @@ static errr init_r_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "r_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'r_info.txt' file.");
@@ -2749,12 +2915,16 @@ static errr init_r_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -2798,8 +2968,14 @@ static errr init_r_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'r_info.raw' file.");
@@ -2865,8 +3041,14 @@ static errr init_re_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "re_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -2910,8 +3092,14 @@ static errr init_re_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "re_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 're_info.txt' file.");
@@ -2949,12 +3137,16 @@ static errr init_re_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "re_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -2993,8 +3185,14 @@ static errr init_re_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "re_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 're_info.raw' file.");
@@ -3060,8 +3258,14 @@ static errr init_d_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "d_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -3107,8 +3311,14 @@ static errr init_d_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "d_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'd_info.txt' file.");
@@ -3146,12 +3356,16 @@ static errr init_d_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "d_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -3195,8 +3409,14 @@ static errr init_d_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "d_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'd_info.raw' file.");
@@ -3302,8 +3522,14 @@ static errr init_player_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -3377,8 +3603,14 @@ static errr init_player_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "p_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'p_info.txt' file.");
@@ -3416,12 +3648,16 @@ static errr init_player_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -3530,8 +3766,14 @@ static errr init_player_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'p_info.raw' file.");
@@ -3596,8 +3838,14 @@ static errr init_st_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "st_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -3641,8 +3889,14 @@ static errr init_st_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "st_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'st_info.txt' file.");
@@ -3680,12 +3934,16 @@ static errr init_st_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "st_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -3725,8 +3983,14 @@ static errr init_st_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "st_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'st_info.raw' file.");
@@ -3791,8 +4055,14 @@ static errr init_ow_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "ow_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -3836,8 +4106,14 @@ static errr init_ow_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "ow_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'ow_info.txt' file.");
@@ -3875,12 +4151,16 @@ static errr init_ow_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "ow_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -3920,8 +4200,14 @@ static errr init_ow_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "ow_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'ow_info.raw' file.");
@@ -3986,8 +4272,14 @@ static errr init_ba_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "ba_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -4031,8 +4323,14 @@ static errr init_ba_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "ba_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'ba_info.txt' file.");
@@ -4070,12 +4368,16 @@ static errr init_ba_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "ba_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -4115,8 +4417,14 @@ static errr init_ba_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "ba_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'ba_info.raw' file.");
@@ -4181,8 +4489,14 @@ static errr init_wf_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "wf_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -4228,8 +4542,14 @@ static errr init_wf_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "wf_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'wf_info.txt' file.");
@@ -4267,12 +4587,16 @@ static errr init_wf_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "wf_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -4319,8 +4643,14 @@ static errr init_wf_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "wf_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'wf_info.raw' file.");
@@ -4440,8 +4770,14 @@ static errr init_t_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "tr_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -4486,8 +4822,14 @@ static errr init_t_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "tr_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'tr_info.txt' file.");
@@ -4524,12 +4866,16 @@ static errr init_t_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "tr_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -4571,8 +4917,14 @@ static errr init_t_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "tr_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'tr_info.raw' file.");
@@ -4585,6 +4937,284 @@ static errr init_t_info(void)
 
 	/* Error */
 	if (err) quit("Cannot parse 'tr_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "al_info" array, by parsing a binary "image" file
+ */
+static errr init_al_info_raw(int fd)
+{
+	header test;
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != al_head->v_major) ||
+	    (test.v_minor != al_head->v_minor) ||
+	    (test.v_patch != al_head->v_patch) ||
+	    (test.v_extra != al_head->v_extra) ||
+	    (test.info_num != al_head->info_num) ||
+	    (test.info_len != al_head->info_len) ||
+	    (test.head_size != al_head->head_size) ||
+	    (test.info_size != al_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Accept the header */
+	(*al_head) = test;
+
+	/* Allocate the "al_info" array */
+	C_MAKE(alchemist_recipes, al_head->info_num, alchemist_recipe);
+
+	/* Read the "al_info" array */
+	fd_read(fd, (char*)(alchemist_recipes), al_head->info_size);
+
+	/* Allocate the "al_name" array */
+	C_MAKE(al_name, al_head->name_size, char );
+
+	/* Read the "al_info" array */
+	fd_read(fd, (char*)(al_name), al_head->name_size);
+
+	/* Allocate the "al_text" array */
+	C_MAKE((char *)a_select_flags, al_head->text_size, char );
+
+	/* Read the "al_info" array */
+	fd_read(fd, (char*)(a_select_flags), al_head->text_size);
+	
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "al_info" array
+ *
+ * Not a flat array, but an array none the less
+ */
+errr init_al_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(al_head, header);
+
+	/* Save the "version" */
+	al_head->v_major = VERSION_MAJOR;
+	al_head->v_minor = VERSION_MINOR;
+	al_head->v_patch = VERSION_PATCH;
+	al_head->v_extra = 0;
+
+	/* Save the "record" information */
+	al_head->info_num = max_al_idx;
+	al_head->info_len = sizeof(alchemist_recipe);
+
+	/* Save the size of "al_head" and "al_info" */
+	al_head->head_size = sizeof(header);
+
+	al_head->info_size = al_head->info_num * al_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "al_info.raw");
+
+#if 0
+
+	/* Grab permission */
+	safe_setuid_grab();
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
+
+#else
+
+	fd = -1;
+
+#endif
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "al_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_al_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+		msg_print("Ignoring obsolete/defective 'v_info.raw' file.");
+		msg_print(NULL);
+	}
+
+	fake_text_size = FAKE_TEXT_SIZE;
+	fake_name_size = FAKE_NAME_SIZE;
+
+	/* Allocate the "al_info" array */
+	C_MAKE(alchemist_recipes, al_head->info_num, alchemist_recipe);
+
+	/* Allocate the fake arrays */
+	/* ok, so we fudge a bit, but
+	   fake text size will ALWAYS be larger
+	   than 32*5*sizeof(artifact_select_flag) = 10 int and 5 bytes
+	   which is the maximum size of the a_select_flags array 
+	   */
+	C_MAKE(al_name, fake_name_size, char);
+	C_MAKE((char *)a_select_flags, fake_text_size, char);
+
+	/*** Load the ascii template file ***/
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "al_info.txt");
+
+	/* Grab permission */
+	safe_setuid_grab();
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'al_info.txt' file.");
+
+	/* Parse the file */
+	err = init_al_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'al_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'al_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "al_info.raw");
+
+	/* Grab permission */
+	safe_setuid_grab();
+
+	/* Kill the old file */
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Drop permission */
+	safe_setuid_drop();
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(al_head), al_head->head_size);
+
+		/* Dump the "al_info" array */
+		fd_write(fd, (char*)(alchemist_recipes), al_head->info_size);
+
+		/* Dump the "al_name" array */
+		fd_write(fd, (char*)(al_name), al_head->name_size);
+		
+		/* Dump the "al_info" array */
+		fd_write(fd, (char*)(a_select_flags), al_head->text_size);
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "al_info" array */
+	C_KILL(alchemist_recipes, al_head->info_num, alchemist_recipe);
+
+	/* Free the 'Fake' arrays */
+	C_KILL(al_name, al_head->name_size, char);
+	C_KILL((char *)a_select_flags, al_head->text_size, char);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+#endif /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "al_info.raw");
+
+	/* Grab permission */
+	safe_setuid_grab();
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot load 'al_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_al_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'al_info.raw' file.");
 
 	/* Success */
 	return (0);
@@ -4694,10 +5324,20 @@ errr init_v_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
 
 #if 0
+
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
+
 #else
+
 	fd = -1;
+
 #endif
 
 	/* Process existing "raw" file */
@@ -4744,8 +5384,14 @@ errr init_v_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "v_info.txt");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Parse it */
 	if (!fp) quit("Cannot open 'v_info.txt' file.");
@@ -4783,12 +5429,16 @@ errr init_v_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
 
-	/* Kill the old file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Kill the old file */
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Dump to the file */
@@ -4832,8 +5482,14 @@ errr init_v_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd < 0) quit("Cannot load 'v_info.raw' file.");
@@ -4861,7 +5517,7 @@ static errr  init_misc(void)
 	int ystart = 0;
 	int i;
 
-        /*** Prepare the various "bizarre" arrays ***/
+	/*** Prepare the various "bizarre" arrays ***/
 
 	/* Macro variables */
 	C_MAKE(macro__pat, MACRO_MAX, cptr);
@@ -5008,33 +5664,76 @@ static errr init_wilderness(void)
 	return 0;
 }
 
+/*
+ * XXX XXX XXX XXX XXX Realloc is not guaranteed to work (see main-gtk.c
+ * and main-mac.c.
+ */
 void reinit_powers_type(s16b new_size)
 {
-	/* Reallocate the extra memory */
-	powers_type = (power_type*)realloc(powers_type, new_size * sizeof(power_type));
-	p_ptr->powers = (bool*)realloc(p_ptr->powers, new_size * sizeof(bool));
+        power_type *new_powers_type;
+        bool *new_powers;
+
+        C_MAKE(new_powers_type, new_size, power_type);
+        C_MAKE(new_powers, new_size, bool);
+
+        /* Reallocate the extra memory */
+        if (powers_type && p_ptr->powers)
+        {
+                C_COPY(new_powers_type, powers_type, power_max, power_type);
+                C_COPY(new_powers, p_ptr->powers, power_max, bool);
+
+                C_FREE(powers_type, power_max, power_type);
+                C_FREE(p_ptr->powers, power_max, bool);
+        }
+
+	powers_type = new_powers_type;
+        p_ptr->powers = new_powers;
+
 	power_max = new_size;
 }
 
+/*
+ * XXX XXX XXX XXX XXX Realloc is not guaranteed to work (see main-gtk.c
+ * and main-mac.c.
+ */
 void reinit_quests(s16b new_size)
 {
-	/* Reallocate the extra memory */
-	quest = (quest_type*)realloc(quest, new_size * sizeof(quest_type));
+        quest_type *new_quest;
+
+        C_MAKE(new_quest, new_size, quest_type);
+
+        /* Reallocate the extra memory */
+        if (quest)
+        {
+                C_COPY(new_quest, quest, max_q_idx, quest_type);
+
+                C_FREE(quest, max_q_idx, quest_type);
+        }
+
+	quest = new_quest;
+
 	max_q_idx = new_size;
 }
 
 void init_spells(s16b new_size)
 {
-	/* Reallocate the extra memory */
+	/* allocate the extra memory */
 	C_MAKE(school_spells, new_size, spell_type);
 	max_spells = new_size;
 }
 
 void init_schools(s16b new_size)
 {
-	/* Reallocate the extra memory */
+	/* allocate the extra memory */
 	C_MAKE(schools, new_size, school_type);
 	max_schools = new_size;
+}
+
+void init_corruptions(s16b new_size)
+{
+	/* allocate the extra memory */
+	C_MAKE(p_ptr->corruptions, new_size, bool);
+	max_corruptions = new_size;
 }
 
 /*
@@ -5179,19 +5878,19 @@ static errr init_alloc(void)
 
 	alloc_entry *table;
 
-	s16b num[MAX_DEPTH];
+	s16b num[MAX_DEPTH_MONSTER];
 
-	s16b aux[MAX_DEPTH];
+	s16b aux[MAX_DEPTH_MONSTER];
 
 	s16b *tmp;
 
 	/*** Analyze object allocation info ***/
 
 	/* Clear the "aux" array */
-	tmp=C_WIPE(&aux, MAX_DEPTH, s16b);
+	tmp=C_WIPE(&aux, MAX_DEPTH_MONSTER, s16b);
 
 	/* Clear the "num" array */
-	tmp=C_WIPE(&num, MAX_DEPTH, s16b);
+	tmp=C_WIPE(&num, MAX_DEPTH_MONSTER, s16b);
 
 	/* Size of "alloc_kind_table" */
 	alloc_kind_size = 0;
@@ -5217,7 +5916,7 @@ static errr init_alloc(void)
 	}
 
 	/* Collect the level indexes */
-	for (i = 1; i < MAX_DEPTH; i++)
+	for (i = 1; i < MAX_DEPTH_MONSTER; i++)
 	{
 		/* Group by level */
 		num[i] += num[i-1];
@@ -5277,10 +5976,10 @@ static errr init_alloc(void)
 	/*** Analyze monster allocation info ***/
 
 	/* Clear the "aux" array */
-	tmp=C_WIPE(&aux, MAX_DEPTH, s16b);
+	tmp=C_WIPE(&aux, MAX_DEPTH_MONSTER, s16b);
 
 	/* Clear the "num" array */
-	tmp=C_WIPE(&num, MAX_DEPTH, s16b);
+	tmp=C_WIPE(&num, MAX_DEPTH_MONSTER, s16b);
 
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
@@ -5303,7 +6002,7 @@ static errr init_alloc(void)
 	}
 
 	/* Collect the level indexes */
-	for (i = 1; i < MAX_DEPTH; i++)
+	for (i = 1; i < MAX_DEPTH_MONSTER; i++)
 	{
 		/* Group by level */
 		num[i] += num[i-1];
@@ -5454,6 +6153,8 @@ static void init_angband_aux(cptr why)
  * the high score file, initialize all internal arrays, and
  * load the basic "user pref files".
  *
+ * Note that we blindly assume that "news2.txt" exists. XXX
+ *
  * Be very careful to keep track of the order in which things
  * are initialized, in particular, the only thing *known* to
  * be available when this function is called is the "z-term.c"
@@ -5502,16 +6203,42 @@ void init_angband(void)
 
 	FILE *fp;
 
+	char *news_file;
+
 	char buf[1024];
 
+
+	/*** Choose which news.txt file to use ***/
+
+	/* Choose the news file */
+	switch (time(NULL) % 2)
+	{
+		default:
+		{
+			news_file = "news.txt";
+			break;
+		}
+
+		case 0:
+		{
+			news_file = "news2.txt";
+			break;
+		}
+	}
 
 	/*** Verify the "news" file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, news_file);
+
+	/* Grab permission */
+	safe_setuid_grab();
 
 	/* Attempt to open the file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Failure */
 	if (fd < 0)
@@ -5531,14 +6258,20 @@ void init_angband(void)
 
 	/*** Display the "news" file ***/
 
-	/* Clear screen */
+        /* Clear screen */
 	Term_clear();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, news_file);
+
+	/* Grab permission */
+	safe_setuid_grab();
 
 	/* Open the News file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Dump */
 	if (fp)
@@ -5548,12 +6281,8 @@ void init_angband(void)
 		/* Dump the file to the screen */
 		while (0 == my_fgets(fp, buf, 1024))
 		{
-			/* Display and advance */
-#if 0
-			Term_putstr(0, i++, -1, TERM_WHITE, buf);
-#else
+			/* Display and advance - we use display_message to parse colour codes XXX */
 			display_message(0, i++, strlen(buf), TERM_WHITE, buf);
-#endif
 		}
 
 		/* Close */
@@ -5569,8 +6298,14 @@ void init_angband(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Attempt to open the high score file */
 	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* Failure */
 	if (fd < 0)
@@ -5578,9 +6313,13 @@ void init_angband(void)
 		/* File type is "DATA" */
 		FILE_TYPE(FILE_TYPE_DATA);
 
-		/* Create a new high score file */
+		/* Grab permission */
 		safe_setuid_grab();
+
+		/* Create a new high score file */
 		fd = fd_make(buf, mode);
+
+		/* Drop permission */
 		safe_setuid_drop();
 
 		/* Failure */
@@ -5602,6 +6341,9 @@ void init_angband(void)
 
 	/*** Initialize some arrays ***/
 
+        /* Initilize the socket */
+        zsock_init();
+
 	/* Initialize misc. values */
 	note("[Initializing values... (misc)]");
 	if (init_misc()) quit("Cannot initialize misc. values");
@@ -5616,6 +6358,10 @@ void init_angband(void)
 	/* Initialize skills info */
 	note("[Initializing arrays... (skills)]");
 	if (init_s_info()) quit("Cannot initialize skills");
+
+	/* Initialize alchemy info */
+	note("[Initializing arrays... (alchemy)]");
+	if (init_al_info()) quit("Cannot initialize alchemy");
 
 	/* Initialize player info */
 	note("[Initializing arrays... (players)]");
@@ -5726,6 +6472,11 @@ void init_angband(void)
 
 	/* Process that file */
 	process_pref_file(buf);
+
+        /* Initialize the automatizer */
+        tome_dofile("auto.lua");
+	path_build(buf, 1024, ANGBAND_DIR_USER, "automat.atm");
+        luadofile(buf, TRUE);
 
 	/* Done */
 	note("[Initialization complete]");

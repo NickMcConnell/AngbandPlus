@@ -6,35 +6,36 @@
 %:t_pref.txt
 
 # Town Bree
-?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NORMAL] ]
+?:[AND [EQU $TOWN 1] [EQU $TOWN_DESTROY1 1] ]
+%:t_d_bree.txt
+?:[AND [EQU $TOWN 1] [NOT [EQU $TOWN_DESTROY1 1] ] ]
 %:t_bree.txt
-?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NONE] ]
-%:t_basic.txt
 ?:1
 
 # Town Gondor
-?:[AND [EQU $TOWN 2] [EQU $QUEST15 4] ]
+?:[AND [EQU $TOWN 2] [EQU $TOWN_DESTROY2 1] ]
 %:t_d_gond.txt
-?:[AND [EQU $TOWN 2] [NOT [EQU $QUEST15 4] ] ]
+?:[AND [EQU $TOWN 2] [NOT [EQU $TOWN_DESTROY2 1] ] ]
 %:t_gondol.txt
 ?:1
 
-# Town Old Minas Anor
-#?:[EQU $TOWN 3]
-#%:t0000003.txt
+# Minas Anor
+?:[AND [EQU $TOWN 3] [EQU $TOWN_DESTROY3 1] ]
+%:t_d_mina.txt
+?:[AND [EQU $TOWN 3] [NOT [EQU $TOWN_DESTROY3 1] ] ]
+%:t_minas.txt
+?:1
 
 # Town Lothlorien
-?:[EQU $TOWN 4]
+?:[AND [EQU $TOWN 4] [EQU $TOWN_DESTROY4 1] ]
+%:t_d_lori.txt
+?:[AND [EQU $TOWN 4] [NOT [EQU $TOWN_DESTROY4 1] ] ]
 %:t_lorien.txt
+?:1
 
-# Volcano
-?:[EQU $TOWN 5]
-%:volcano.txt
-
-# Numenor
-?:[EQU $TOWN 6]
-%:numenor.txt
-
-# Minas Anor
-?:[EQU $TOWN 3]
-%:t_minas.txt
+# Khazad-Dum
+?:[AND [EQU $TOWN 5] [EQU $TOWN_DESTROY5 1] ]
+%:t_d_khaz.txt
+?:[AND [EQU $TOWN 5] [NOT [EQU $TOWN_DESTROY5 1] ] ]
+%:t_khazad.txt
+?:1

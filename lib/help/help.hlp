@@ -1,4 +1,6 @@
 |||||oy
+~~~~~01|Help|Main Menu
+~~~~~02|Main Menu
 #####RWelcome to the ToME Online Help System.
 #####R==============================================
 
@@ -9,16 +11,20 @@ Please choose one of the following online help files:
     *****/cbirth.txt*0[(c) Creating a Character]
     *****/ddungeon.txt*0[(d) Exploring the Dungeon]
     *****/eattack.txt*0[(e) Attacking Monsters]
-    *****/fmagic.txt*0[(i) Magic System]
-    *****/gskills.txt*0[(j) Skills System]
-    *****/hcommand.txt*0[(f) List of Commands]
-    *****/ioption.txt*0[(g) List of Options]
+    *****/fcommand.txt*0[(f) List of Commands]
+    *****/goption.txt*0[(g) List of Options]
+    *****/hmagic.txt*0[(h) Magic Schools, Wands and Staves]
+    *****/iskills.txt*0[(i) Skills]
+    *****/jgods.txt*0[(j) Gods]
 
-    *****/jlua.hlp*0[(k) Lua scripting help menu]
+    *****/klua.hlp*0[(k) Lua scripting help menu]
+    *****/lautomat.txt*0[(l) Automatizer help]
 
-    *****/kser.txt*0[(u) User menu (if any)]
-    *****/lspoiler.hlp*0[(s) Spoiler menu]
-    *****/mversion.txt*0[(h) Version Information]
+    *****/uuser.txt*0[(u) User menu (if any)]
+    *****/sspoiler.hlp*0[(s) Spoiler menu]
+    *****/vversion.txt*0[(v) Version Information]
+
+    *****/xindex.txt*0[(x) Alphabetical index]
 
 #####GBasic keys:
 Space          | Advance 1 page (screen)
@@ -37,3 +43,5 @@ Report various ideas and improvments to ideas@t-o-m-e.net (this
 redirects to a mailling list).
 
 You can also directly contact me at darkgod@t-o-m-e.net .
+Help file inaccuracies or suggestions for content should be sent to 
+fearoffours@t-o-m-e.net .

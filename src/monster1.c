@@ -254,7 +254,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 		if (r_ptr->flags3 & (RF3_EVIL)) flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & (RF3_GOOD)) flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
-		if (r_ptr->flags3 & (RF3_DRAGONRIDER)) flags3 |= (RF3_DRAGONRIDER);
+		if (r_ptr->flags3 & (RF3_THUNDERLORD)) flags3 |= (RF3_THUNDERLORD);
 		if (r_ptr->flags7 & (RF7_SPIDER)) flags7 |= (RF7_SPIDER);
 
 		/* Know "forced" flags */
@@ -371,8 +371,14 @@ static void roff_aux(int r_idx, int ego, int remem)
 		/* Build the filename */
 		path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
 
+		/* Grab permission */
+		safe_setuid_grab();
+
 		/* Open the "raw" file */
 		fd = fd_open(buf, O_RDONLY);
+
+		/* Drop permission */
+		safe_setuid_drop();
 
 		/* Use file */
 		if (fd >= 0)
@@ -594,7 +600,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 		else if (flags3 & (RF3_GIANT))      c_roff(TERM_VIOLET, " giant");
 		else if (flags3 & (RF3_TROLL))      c_roff(TERM_VIOLET, " troll");
 		else if (flags3 & (RF3_ORC))        c_roff(TERM_VIOLET, " orc");
-		else if (flags3 & (RF3_DRAGONRIDER))c_roff(TERM_VIOLET, " DragonRider");
+		else if (flags3 & (RF3_THUNDERLORD))c_roff(TERM_VIOLET, " Thunderlord");
 		else if (flags7 & (RF7_SPIDER))     c_roff(TERM_VIOLET, " spider");
 		else if (flags7 & (RF7_NAZGUL))     c_roff(TERM_VIOLET, " Nazgul");
 		else                                roff(" creature");
@@ -805,7 +811,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 	if (flags6 & (RF6_TELE_TO))         vp[vn++] = "teleport to";
 	if (flags6 & (RF6_TELE_AWAY))       vp[vn++] = "teleport away";
 	if (flags6 & (RF6_TELE_LEVEL))      vp[vn++] = "teleport level";
-	if (flags6 & (RF6_S_DRAGONRIDER))   vp[vn++] = "summon a DragonRider";
+	if (flags6 & (RF6_S_THUNDERLORD))   vp[vn++] = "summon a Thunderlord";
 	if (flags6 & (RF6_DARKNESS))        vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))           vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))          vp[vn++] = "cause amnesia";

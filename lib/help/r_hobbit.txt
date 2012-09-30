@@ -1,13 +1,17 @@
+~~~~~01|Hobbit
+~~~~~02|Races|Hobbit
 #####R=== Hobbits ===
 
 #####GDescription
-Hobbits, or Halflings, are very good at bows, throwing, and have good 
-saving throws. They also are very good at searching, disarming, perception,
-and stealth; so they make excellent rogues, but prefer to be called 
-burglars. They are much weaker than humans, and no good at melee fighting.
-Halflings have fair infra-vision, so they can detect warm creatures at a 
+Hobbits, or Halflings, are very good at ranged combat (especially with slings),
+throwing, and have good saving throws. They also are very good at searching,
+disarming, perception and stealth; so they make excellent rogues, but prefer
+to be called burglars. They are much weaker than humans, and no good at melee
+fighting. Halflings have fair infra-vision, so they can detect warm creatures at a 
 distance. Hobbits have their dexterity sustained and in time they learn to cook a 
-delicious meal from available ingredients.  They're sturdy constitutions also allow them to resist the insidious poison of the ring-wraiths
+delicious meal from available ingredients.
+Their sturdy constitutions also allow them to resist the insidious poison of the
+ring-wraiths
 
 #####GStat Modifiers
 Strength        -2   
@@ -19,7 +23,5 @@ Charisma        +1
 Hit Dice Sides  7         
 Exp Penalty     +10%
 
-#####GStarting Equipment
-If they are *very* lucky they may begin with:
-    Some elvish waybread
-
+######GSkill Bonuses (supplementary to existing skills)
+Sling-mastery              0.000           [0.300]

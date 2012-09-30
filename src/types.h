@@ -177,6 +177,8 @@ struct object_kind
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
 
+        s16b activate;		        /* Activation number */
+
 	s16b ac;			/* Base armor */
 
 	byte dd, ds;		/* Damage dice/sides */
@@ -190,6 +192,12 @@ struct object_kind
 	u32b flags3;		/* Flags, set 3 */
 	u32b flags4;            /* Flags, set 4 */
 	u32b flags5;            /* Flags, set 5 */
+
+        u32b oflags1;		/* Obvious Flags, set 1 */
+	u32b oflags2;		/* Obvious Flags, set 2 */
+	u32b oflags3;		/* Obvious Flags, set 3 */
+	u32b oflags4;           /* Obvious Flags, set 4 */
+	u32b oflags5;           /* Obvious Flags, set 5 */
 
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
@@ -220,6 +228,7 @@ struct object_kind
 	byte squeltch;                  /* Should we destroy it ? */
 
 	u32b esp;                       /* ESP flags */
+	u32b oesp;                      /* Obvious ESP flags */
 
 	byte btval;                     /* Become Object type */
 	byte bsval;                     /* Become Object sub type */
@@ -254,6 +263,8 @@ struct artifact_type
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
 
+        s16b activate;			/* Activation Number */
+
 	s16b ac;			/* Base armor */
 
 	byte dd, ds;		/* Damage when hits */
@@ -268,6 +279,12 @@ struct artifact_type
 	u32b flags4;            /* Artifact Flags, set 4 */
 	u32b flags5;            /* Artifact Flags, set 5 */
 
+        u32b oflags1;		/* Obvious Flags, set 1 */
+	u32b oflags2;		/* Obvious Flags, set 2 */
+	u32b oflags3;		/* Obvious Flags, set 3 */
+	u32b oflags4;           /* Obvious Flags, set 4 */
+	u32b oflags5;           /* Obvious Flags, set 5 */
+
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
 
@@ -275,6 +292,7 @@ struct artifact_type
 	byte max_num;		/* Unused (should be "1") */
 
 	u32b esp;                       /* ESP flags */
+	u32b oesp;                       /* ESP flags */
 
 	s16b power;                     /* Power granted(if any) */
 
@@ -295,9 +313,9 @@ struct ego_item_type
 
 	bool before;                    /* Before or after the object name ? */
 
-	byte tval[6];
-	byte min_sval[6];
-	byte max_sval[6];
+	byte tval[10];
+	byte min_sval[10];
+	byte max_sval[10];
 
 	byte rating;		/* Rating boost */
 
@@ -308,6 +326,8 @@ struct ego_item_type
 	s16b max_to_h;          /* Maximum to-hit bonus */
 	s16b max_to_d;          /* Maximum to-dam bonus */
 	s16b max_to_a;          /* Maximum to-ac bonus */
+
+        s16b activate;			/* Activation Number */
 
 	s32b max_pval;          /* Maximum pval */
 
@@ -320,7 +340,26 @@ struct ego_item_type
 	u32b flags4[5];            /* Ego-Item Flags, set 4 */
 	u32b flags5[5];            /* Ego-Item Flags, set 5 */
 	u32b esp[5];                       /* ESP flags */
-	u32b fego[5];                       /* ego flags */
+	u32b oflags1[5];           /* Ego-Item Obvious Flags, set 1 */
+	u32b oflags2[5];           /* Ego-Item Obvious Flags, set 2 */
+	u32b oflags3[5];           /* Ego-Item Obvious Flags, set 3 */
+	u32b oflags4[5];           /* Ego-Item Obvious Flags, set 4 */
+	u32b oflags5[5];           /* Ego-Item Obvious Flags, set 5 */
+	u32b oesp[5];              /* Obvious ESP flags */
+	u32b fego[5];              /* ego flags */
+
+        u32b need_flags1;            /* Ego-Item Flags, set 1 */
+	u32b need_flags2;            /* Ego-Item Flags, set 2 */
+	u32b need_flags3;            /* Ego-Item Flags, set 3 */
+	u32b need_flags4;            /* Ego-Item Flags, set 4 */
+	u32b need_flags5;            /* Ego-Item Flags, set 5 */
+	u32b need_esp;                       /* ESP flags */
+        u32b forbid_flags1;            /* Ego-Item Flags, set 1 */
+	u32b forbid_flags2;            /* Ego-Item Flags, set 2 */
+	u32b forbid_flags3;            /* Ego-Item Flags, set 3 */
+	u32b forbid_flags4;            /* Ego-Item Flags, set 4 */
+	u32b forbid_flags5;            /* Ego-Item Flags, set 5 */
+	u32b forbid_esp;                       /* ESP flags */
 
 	s16b power;                     /* Power granted(if any) */
 };
@@ -426,8 +465,8 @@ struct monster_race
 	u32b name;				/* Name (offset) */
 	u32b text;                              /* Text (offset) */
 
-	byte hdice;				/* Creatures hit dice count */
-	byte hside;				/* Creatures hit dice sides */
+	u16b hdice;				/* Creatures hit dice count */
+	u16b hside;				/* Creatures hit dice sides */
 
 	s16b ac;				/* Armour Class */
 
@@ -795,11 +834,24 @@ struct object_type
 	u32b art_flags5;        /* Flags, set 5  PernAngband */
 	u32b art_esp;           /* Flags, set esp  PernAngband */
 
+        u32b art_oflags1;       /* Obvious Flags, set 1 */
+	u32b art_oflags2;       /* Obvious Flags, set 2 */
+	u32b art_oflags3;       /* Obvious Flags, set 3 */
+	u32b art_oflags4;       /* Obvious Flags, set 4 */
+	u32b art_oflags5;       /* Obvious Flags, set 5 */
+	u32b art_oesp;          /* Obvious Flags, set esp */
+
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
 
-	byte sense;             /* Pseudo-id status */
+        byte sense;             /* Pseudo-id status */
+
+        byte found;             /* How did we find it */
+        s16b found_aux1;        /* Stores info for found */
+        s16b found_aux2;        /* Stores info for found */
+        s16b found_aux3;        /* Stores info for found */
+        s16b found_aux4;        /* Stores info for found */
 };
 
 
@@ -824,8 +876,8 @@ struct monster_type
 	byte fy;			/* Y location on map */
 	byte fx;			/* X location on map */
 
-	s16b hp;			/* Current Hit points */
-	s16b maxhp;			/* Max Hit points */
+	s32b hp;			/* Current Hit points */
+	s32b maxhp;			/* Max Hit points */
 
 	monster_blow blow[4];           /* Up to four blows per round */
 
@@ -848,7 +900,7 @@ struct monster_type
 
 	byte cdis;			/* Current dis from player */
 
-	byte mflag;			/* Extra monster flags */
+	s32b mflag;			/* Extra monster flags */
 
 	bool ml;			/* Monster is "visible" */
 
@@ -1184,6 +1236,11 @@ struct player_race_mod
 
 	byte g_attr;                    /* Overlay graphic attribute */
 	char g_char;                    /* Overlay graphic character */
+
+	char skill_basem[MAX_SKILLS];
+	u32b skill_base[MAX_SKILLS];
+	char skill_modm[MAX_SKILLS];
+	s16b skill_mod[MAX_SKILLS];
 };
 
 
@@ -1399,11 +1456,6 @@ struct player_type
 	s16b csane;                   /* Cur sanity */
 	u16b csane_frac;              /* Cur sanity frac */
 
-	s16b mtp;                       /* Max tank pts */
-	s16b ctp;                       /* Cur tank pts */
-	s16b tp_aux1;                   /* aux1 tank pts */
-	s16b tp_aux2;                   /* aux2 tank pts */
-
 	s32b grace;                     /* Your God's appreciation factor. */
 	byte pgod;                      /* Your God. */
         bool praying;                   /* Praying to your god. */
@@ -1458,15 +1510,25 @@ struct player_type
 
 	s16b rush;              /* Rush and Bush */
 
-	s16b tim_esp;       /* Timed ESP */
-	s16b tim_wraith;    /* Timed wraithform */
-	s16b tim_ffall;     /* Timed Levitation */
-	s16b tim_fly;       /* Timed Levitation */
-	s16b tim_fire_aura; /* Timed Fire Aura */
-	s16b tim_poison;    /* Timed poison hands */
-	s16b tim_thunder;   /* Timed thunderstorm */
-	s16b tim_thunder_p1;/* Timed thunderstorm */
-	s16b tim_thunder_p2;/* Timed thunderstorm */
+	s16b tim_esp;       	/* Timed ESP */
+	s16b tim_wraith;    	/* Timed wraithform */
+	s16b tim_ffall;     	/* Timed Levitation */
+	s16b tim_fly;       	/* Timed Levitation */
+	s16b tim_fire_aura; 	/* Timed Fire Aura */
+	s16b tim_poison;    	/* Timed poison hands */
+	s16b tim_thunder;   	/* Timed thunderstorm */
+	s16b tim_thunder_p1;	/* Timed thunderstorm */
+        s16b tim_thunder_p2;	/* Timed thunderstorm */
+
+        s16b tim_project;       /* Timed project upon melee blow */
+        s16b tim_project_dam;
+        s16b tim_project_gf;
+        s16b tim_project_rad;
+        s16b tim_project_flag;
+
+        s16b tim_roots;         /* Timed roots */
+        s16b tim_roots_ac;
+        s16b tim_roots_dam;
 
 	s16b resist_magic;  /* Timed Resist Magic (later) */
 	s16b tim_invisible; /* Timed Invisibility */
@@ -1489,13 +1551,12 @@ struct player_type
 	s16b parasite_r_idx;/* Timed parasite monster */
 	u32b loan, loan_time;/* Timer -- loan */
 	s16b absorb_soul;   /* Timed soul absordtion */
+        s16b tim_magic_breath;      /* Magical breathing -- can breath anywhere */
+        s16b tim_water_breath;      /* Water breathing -- can breath underwater */
 
 	s16b immov_cntr;    /* Timed -- Last ``immovable'' command. */
 
 	s16b chaos_patron;
-	u32b muta1;
-	u32b muta2;
-	u32b muta3;
 
 	s16b recall_dungeon;    /* Recall in which dungeon */
 	s16b word_recall;	/* Word of recall counter */
@@ -1597,6 +1658,8 @@ struct player_type
 	byte drain_mana;        /* mana draining */
 	byte drain_life;        /* hp draining */
 
+        bool magical_breath;    /* Magical breathing -- can breath anywhere */
+        bool water_breath;      /* Water breathing -- can breath underwater */
 	bool climb;             /* Can climb mountains */
 	bool fly;               /* Can fly over some features */
 	bool ffall;             /* No damage falling */
@@ -1702,6 +1765,17 @@ struct player_type
 	bool black_breath;      /* The Tolkien's Black Breath */
 
 	bool precognition;      /* Like the cheat mode */
+
+        /*** Extra flags -- used for lua and easying stuff ***/
+        u32b xtra_f1;
+        u32b xtra_f2;
+        u32b xtra_f3;
+        u32b xtra_f4;
+        u32b xtra_f5;
+        u32b xtra_esp;
+
+        /* Corruptions */
+        bool *corruptions;
 
 	/*** Pet commands ***/
 	byte pet_follow_distance; /* Length of the imaginary "leash" for pets */
@@ -1822,7 +1896,6 @@ struct wilderness_map
  * stores and buildings
  */
 typedef struct town_type town_type;
-
 struct town_type
 {
 	cptr name;
@@ -1832,33 +1905,43 @@ struct town_type
 
 	byte flags;             /* Town flags */
 	/* Left this for the sake of compatibility */
-	bool stocked;           /* Is the town actualy stocked ? */
+        bool stocked;           /* Is the town actualy stocked ? */
+
+        bool destroyed;         /* Is the town destroyed? */
 };
+
 
 /* Alchemists */
-typedef struct alchemist_recipe_ego alchemist_recipe_ego;
 
-struct alchemist_recipe_ego
+typedef struct tval_desc2
 {
-	int     ego,which,enchant,ego_num;
-};
-
-typedef struct alchemist_recipe_item alchemist_recipe_item;
-
-struct alchemist_recipe_item
-{
-	int     ctval,csval,num;
-	int     etval,esval;
-};
+	int        tval;
+	cptr       desc;
+} tval_desc2;
 
 typedef struct alchemist_recipe alchemist_recipe;
-
 struct alchemist_recipe
 {
-	int     sval_baterie;
-	alchemist_recipe_ego ego[9];
+	int     sval_essence;
+	byte	tval;
+	byte	sval;
+	byte	qty;
+};
 
-	alchemist_recipe_item item[9];
+typedef struct artifact_select_flag artifact_select_flag;
+struct artifact_select_flag {
+	byte group;		/* Flag group to display it in */
+	int flag;		/* item flag to set */
+	byte level;		/* Player skill level to start at */
+	int desc;		/* Display this description to select flag */
+	u32b xp;		/* xp cost for this flag */
+	bool pval;		/* indicates this flag benifits from pval */
+	int item_desc;	/* Description of required item */
+	int item_descp;	/* Description of required item */
+	byte rtval;		/* Required items' tval */
+	byte rsval;		/* Required items' sval */
+	int  rpval;		/* Required items' pval (zero for no req) */
+	int  rflag[6];	/* Monster Race flags for required Corpses */
 };
 
 /*
@@ -2229,7 +2312,7 @@ typedef union hook_return hook_return;
 union hook_return
 {
 	s32b num;
-	char *str;
+	cptr str;
 	object_type *o_ptr;
 };
 
@@ -2334,4 +2417,14 @@ struct school_type
 {
         cptr name;                      /* Name */
         s16b skill;                     /* Skill used for that school */
+};
+
+/*
+ * Desc for GF_FOO
+ */
+typedef struct gf_name_type gf_name_type;
+struct gf_name_type
+{
+	int gf;
+	cptr name;
 };

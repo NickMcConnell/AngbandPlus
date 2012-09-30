@@ -105,13 +105,6 @@
 #include <X11/keysymdef.h>
 #endif /* __MAKEDEPEND__ */
 
-#ifdef USE_UNIXSOCK
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#endif
-
 /*
  * Include some helpful X11 code.
  */
@@ -427,110 +420,6 @@ static infowin *Infowin = (infowin*)(NULL);
 static infoclr *Infoclr = (infoclr*)(NULL);
 static infofnt *Infofnt = (infofnt*)(NULL);
 
-
-/**** Sockets handling ****/
-#ifdef USE_UNIXSOCK
-#include <signal.h>
-
-/* Receive the alarm signal */
-static struct sigaction handle_old_alarm;
-void handle_timer(int sig)
-{
-        irc_poll(pern_irc);
-        ualarm(400, 0);
-}
-
-void *zsock_connect(char *hos, short port)
-{
-        struct sigaction new;
-	struct hostent *host;
-	struct sockaddr_in sin;
-	int *client;
-
-	MAKE(client, int);
-	*client = socket(AF_INET, SOCK_STREAM, 0);
-
-	host = gethostbyname(hos);
-
-	memset(&sin, 0, sizeof sin);
-	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = ((struct in_addr *)(host->h_addr))->s_addr;
-	sin.sin_port = htons(port);
-
-	if (connect(*client, (struct sockaddr*)&sin, sizeof sin) == -1)
-	{
-		/* could not connect to server */
-		return NULL;
-	}
-
-        /* Register the timer */
-        new.sa_handler = handle_timer;
-        new.sa_flags = 0;
-        sigaction(SIGALRM, &new, &handle_old_alarm);
-        ualarm(400, 0);
-
-	return client;
-}
-
-bool zsock_can_read(void *client)
-{
-	struct timeval t;
-	fd_set rd;
-	int *c = client;
-
-	FD_ZERO(&rd);
-	FD_SET(*c, &rd);
-	t.tv_sec = 0;
-	t.tv_usec = 0;
-	select(*c + 1, &rd, NULL, NULL, &t);
-	if (FD_ISSET(*c, &rd)) return TRUE;
-	else return (FALSE);
-}
-
-bool zsock_wait(void *client)
-{
-	struct timeval t;
-	fd_set rd;
-	int *c = client;
-
-	t.tv_sec = 30;
-	t.tv_usec = 0;
-
-	FD_ZERO(&rd);
-	FD_SET(*c, &rd);
-	select(*c + 1, &rd, NULL, NULL, &t);
-	if (FD_ISSET(*c, &rd)) return TRUE;
-	else return (FALSE);
-}
-
-void zsock_disconnect(void *client)
-{
-        alarm(0);
-        sigaction(SIGALRM, &handle_old_alarm, NULL);
-	close(*(int*)client);
-	FREE(client, int);
-}
-
-void zsock_send(void *sock, char *str)
-{
-	send(*(int*)sock, str, strlen(str), 0);
-}
-
-void zsock_recv(void *sock, char *str, int len)
-{
-	char c;
-	int l = 0;
-
-	while ((l < len) && zsock_can_read(sock))
-	{
-		recv(*(int*)sock, &c, 1, 0);
-		if (c == '\r') continue;
-		if (c == '\n') break;
-		str[l++] = c;
-	}
-	str[l] = '\0';
-}
-#endif
 
 /**** Generic code ****/
 
@@ -2005,12 +1894,8 @@ static errr Term_xtra_x11(int n, int v)
 
 		/* Process random events XXX */
 		case TERM_XTRA_BORED:
-
 		{
-
-#ifdef USE_SOCK
-                        irc_poll(pern_irc);
-#endif
+			irc_poll();
 
                         return (CheckEvent(0));
                 }
@@ -2018,13 +1903,10 @@ static errr Term_xtra_x11(int n, int v)
 		/* Process Events XXX */
 		case TERM_XTRA_EVENT:
 		{
+			irc_poll();
 
-#ifdef USE_SOCK
-	    irc_poll(pern_irc);
-#endif
-
-		    return (CheckEvent(v));
-	}
+                        return (CheckEvent(v));
+                }
 
 		/* Flush the events XXX */
 		case TERM_XTRA_FLUSH: while (!CheckEvent(FALSE)); return (0);
@@ -2037,11 +1919,22 @@ static errr Term_xtra_x11(int n, int v)
 
 		/* Delay for some milliseconds */
 		case TERM_XTRA_DELAY:
-#ifdef USE_SOCK
-	    irc_poll(pern_irc);
-#endif
+			irc_poll();
 
-	    usleep(1000 * v); return (0);
+                        usleep(1000 * v);
+                        return (0);
+
+                /* Get Delay of some milliseconds */
+		case TERM_XTRA_GET_DELAY:
+		{
+			int ret;
+			struct timeval tv;
+
+			ret = gettimeofday(&tv, NULL);
+                        Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+
+			return ret;
+		}
 
 		/* React to changes */
 		case TERM_XTRA_REACT: return (Term_xtra_x11_react());

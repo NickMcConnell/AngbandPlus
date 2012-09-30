@@ -8,13 +8,14 @@ STARIDENTIFY = add_spell
         ["level"] = 	35,
         ["mana"] = 	30,
         ["mana_max"] = 	30,
-        ["fail"] = 	10,
+        ["fail"] = 	80,
         ["spell"] = 	function()
         		if get_check("Cast on yourself?") == TRUE then
                         	self_knowledge()
                         else
                         	identify_fully()
                         end
+                        return TRUE
 	end,
 	["info"] = 	function()
                        	return ""
@@ -32,16 +33,30 @@ IDENTIFY = add_spell
         ["level"] = 	8,
         ["mana"] = 	10,
         ["mana_max"] = 	50,
-        ["fail"] = 	10,
+        ["fail"] = 	40,
+        ["stick"] =
+        {
+                        ["charge"] =    { 7, 10 },
+                        [TV_STAFF] =
+                        {
+                                ["rarity"] = 		45,
+                                ["base_level"] =        { 1, 15 },
+                                ["max_level"] =        	{ 15, 40 },
+                        },
+        },
         ["spell"] = 	function()
         		if get_level(IDENTIFY, 50) >= 27 then
-                        	identify_pack()
-                                fire_ball(GF_IDENTIFY, 0, 1, get_level(IDENTIFY, 3))
+                                local obvious
+                        	obvious = identify_pack()
+                                obvious = is_obvious(fire_ball(GF_IDENTIFY, 0, 1, get_level(IDENTIFY, 3)), obvious)
+                                return obvious
         		elseif get_level(IDENTIFY, 50) >= 17 then
-                        	identify_pack()
-                                fire_ball(GF_IDENTIFY, 0, 1, 0)
+                                local obvious
+                        	obvious = identify_pack()
+                                obvious = is_obvious(fire_ball(GF_IDENTIFY, 0, 1, 0), obvious)
+                                return obvious
                         else
-                        	ident_spell()
+                        	if ident_spell() == TRUE then return TRUE else return end
                         end
 	end,
 	["info"] = 	function()
@@ -66,13 +81,24 @@ VISION = add_spell
         ["level"] = 	15,
         ["mana"] = 	7,
         ["mana_max"] = 	55,
-        ["fail"] = 	10,
+        ["fail"] = 	45,
+        ["stick"] =
+        {
+                        ["charge"] =    { 4, 6 },
+                        [TV_STAFF] =
+                        {
+                                ["rarity"] = 		60,
+                                ["base_level"] =        { 1, 5 },
+                                ["max_level"] =        	{ 10, 30 },
+                        },
+        },
         ["spell"] = 	function()
         		if get_level(VISION, 50) >= 25 then
                         	wiz_lite_extra()
                         else
                         	map_area()
                         end
+                        return TRUE
 	end,
 	["info"] = 	function()
 			return ""
@@ -90,15 +116,27 @@ SENSEHIDDEN = add_spell
         ["level"] = 	5,
         ["mana"] = 	2,
         ["mana_max"] = 	10,
-        ["fail"] = 	10,
+        ["fail"] = 	25,
+        ["stick"] =
+        {
+                        ["charge"] =    { 1, 15 },
+                        [TV_STAFF] =
+                        {
+                                ["rarity"] = 		20,
+                                ["base_level"] =        { 1, 15 },
+                                ["max_level"] =        	{ 10, 50 },
+                        },
+        },
         ["spell"] = 	function()
-        		detect_traps(10 + get_level(SENSEHIDDEN, 40, 0))
-        		if get_level(SENSEHIDDEN, 50) >= 10 then
-                        	set_tim_invis(10 + randint(20) + get_level(SENSEHIDDEN, 40))
+                        local obvious = nil
+        		obvious = detect_traps(10 + get_level(SENSEHIDDEN, 40, 0))
+        		if get_level(SENSEHIDDEN, 50) >= 15 then
+                        	obvious = is_obvious(set_tim_invis(10 + randint(20) + get_level(SENSEHIDDEN, 40)), obvious)
                         end
+                        return obvious
 	end,
 	["info"] = 	function()
-        		if get_level(SENSEHIDDEN, 50) >= 10 then
+        		if get_level(SENSEHIDDEN, 50) >= 15 then
 				return "rad "..(10 + get_level(SENSEHIDDEN, 40)).." dur "..(10 + get_level(SENSEHIDDEN, 40)).."+d20"
 			else
                                 return "rad "..(10 + get_level(SENSEHIDDEN, 40))
@@ -117,10 +155,22 @@ REVEALWAYS = add_spell
         ["level"] = 	9,
         ["mana"] = 	3,
         ["mana_max"] = 	15,
-        ["fail"] = 	10,
+        ["fail"] = 	20,
+        ["stick"] =
+        {
+                        ["charge"] =    { 6, 6 },
+                        [TV_STAFF] =
+                        {
+                                ["rarity"] = 		35,
+                                ["base_level"] =        { 1, 15 },
+                                ["max_level"] =        	{ 25, 50 },
+                        },
+        },
         ["spell"] = 	function()
-        		detect_doors(10 + get_level(REVEALWAYS, 40, 0))
-        		detect_stairs(10 + get_level(REVEALWAYS, 40, 0))
+                        local obvious
+        		obvious = detect_doors(10 + get_level(REVEALWAYS, 40, 0))
+        		obvious = is_obvious(detect_stairs(10 + get_level(REVEALWAYS, 40, 0)), obvious)
+                        return obvious
 	end,
 	["info"] = 	function()
                         return "rad "..(10 + get_level(REVEALWAYS, 40))
@@ -138,11 +188,23 @@ SENSEMONSTERS = add_spell
         ["mana"] =      1,
         ["mana_max"] =  20,
         ["fail"] = 	10,
+        ["stick"] =
+        {
+                        ["charge"] =    { 5, 10 },
+                        [TV_STAFF] =
+                        {
+                                ["rarity"] = 		37,
+                                ["base_level"] =        { 1, 10 },
+                                ["max_level"] =        	{ 15, 40 },
+                        },
+        },
         ["spell"] = 	function()
-                        detect_monsters_normal(10 + get_level(SENSEMONSTERS, 40, 0))
+                        local obvious
+                        obvious = detect_monsters_normal(10 + get_level(SENSEMONSTERS, 40, 0))
         		if get_level(SENSEMONSTERS, 50) >= 30 then
-                        	set_tim_esp(10 + randint(10) + get_level(SENSEMONSTERS, 20))
+                        	obvious = is_obvious(set_tim_esp(10 + randint(10) + get_level(SENSEMONSTERS, 20)), obvious)
                         end
+                        return obvious
 	end,
 	["info"] = 	function()
         		if get_level(SENSEMONSTERS, 50) >= 30 then

@@ -1213,12 +1213,8 @@ void do_cmd_options(void)
 	int k;
 
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
 	/* Save the screen */
-	Term_save();
-
+	screen_save();
 
 	/* Interact */
 	while (1)
@@ -1234,33 +1230,30 @@ void do_cmd_options(void)
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
-                prt("(T/5) ToME Options", 8, 5);
+                prt("(5) ToME Options", 8, 5);
 		prt("(6) Birth Options(read only)", 9, 5);
 
-		/* Testing */
-		prt("(S) Stacking Options", 10, 5);
-
 		/* Special choices */
-		prt("(D) Base Delay Factor", 11, 5);
-		prt("(H) Hitpoint Warning", 12, 5);
-		prt("(A) Autosave Options", 13, 5);
+		prt("(D) Base Delay Factor", 10, 5);
+		prt("(H) Hitpoint Warning", 11, 5);
+		prt("(A) Autosave Options", 12, 5);
 
-		/* Squeltching */
-		prt("(Q) Squelch Stuff", 14, 5);
+                /* Automatizer */
+                prt("(T) Automatizer", 14, 5);
 
 
 		/* Window flags */
-		prt("(W) Window Flags", 15, 5);
+		prt("(W) Window Flags", 16, 5);
 
 		/* Cheating */
-		prt("(C) Cheating Options", 17, 5);
+		prt("(C) Cheating Options", 18, 5);
 
 		/* Dump */
-		prt("(U) Dump Options/Squelch setting", 19, 5);
-		prt("(O) Load Options/Squelch setting", 20, 5);
+		prt("(U) Dump Options setting", 20, 5);
+		prt("(O) Load Options setting", 21, 5);
 
 		/* Prompt */
-		prt("Command: ", 21, 0);
+		prt("Command: ", 22, 0);
 
 		/* Get command */
 		k = inkey();
@@ -1351,7 +1344,7 @@ void do_cmd_options(void)
 			}
 
                         /* ToME Options */
-                        case 'T': case 't': case '5':
+                        case '5':
 			{
                                 do_cmd_options_aux(5, "ToME Options", FALSE);
 
@@ -1365,7 +1358,7 @@ void do_cmd_options(void)
 
 				break;
 			}
-
+#if 0 /* DGDGDG -- has if anyone used those */
 			/* Stacking Options */
 			case 'S':
 			case 's':
@@ -1375,7 +1368,7 @@ void do_cmd_options(void)
 
 				break;
 			}
-
+#endif
 			/* Cheating Options */
 			case 'C':
 			{
@@ -1385,20 +1378,17 @@ void do_cmd_options(void)
 				break;
 			}
 
+			case 't':
+			case 'T':
+			{
+				do_cmd_automatizer();
+				break;
+			}
+
 			case 'a':
 			case 'A':
 			{
 				do_cmd_options_autosave("Autosave");
-
-				break;
-			}
-
-			/* Suqeltch stuff */
-			case 'Q':
-			case 'q':
-			{
-				/* Spawn */
-				do_cmd_squeltch_options();
 
 				break;
 			}
@@ -1474,13 +1464,10 @@ void do_cmd_options(void)
 
 
 	/* Restore the screen */
-	Term_load();
+	screen_load();
 
 	/* Set the ingame help */
 	ingame_help(p_ptr->help.enabled);
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
 }
 
 
@@ -1580,7 +1567,7 @@ static errr macro_dump(cptr fname)
  *
  * Note that both "flush()" calls are extremely important.
  */
-static void do_cmd_macro_aux(char *buf)
+static void do_cmd_macro_aux(char *buf, bool macro_screen)
 {
 	int i, n = 0;
 
@@ -1619,11 +1606,14 @@ static void do_cmd_macro_aux(char *buf)
 	flush();
 
 
-	/* Convert the trigger */
-	ascii_to_text(tmp, buf);
+        if (macro_screen)
+        {
+                /* Convert the trigger */
+                ascii_to_text(tmp, buf);
 
-	/* Hack -- display the trigger */
-	Term_addstr(-1, TERM_WHITE, tmp);
+                /* Hack -- display the trigger */
+                Term_addstr(-1, TERM_WHITE, tmp);
+        }
 }
 
 #endif
@@ -1869,14 +1859,8 @@ void do_cmd_macros(void)
 			/* Ask for a file */
 			if (!askfor_aux(tmp, 80)) continue;
 
-			/* Drop priv's */
-			safe_setuid_grab();
-
 			/* Dump the macros */
 			(void)macro_dump(tmp);
-
-			/* Grab priv's */
-			safe_setuid_drop();
 
 			/* Prompt */
 			msg_print("Appended macros.");
@@ -1894,7 +1878,7 @@ void do_cmd_macros(void)
 			prt("Trigger: ", 18, 0);
 
 			/* Get a macro trigger */
-			do_cmd_macro_aux(buf);
+			do_cmd_macro_aux(buf, TRUE);
 
 			/* Acquire action */
 			k = macro_find_exact(buf);
@@ -1933,7 +1917,7 @@ void do_cmd_macros(void)
 			prt("Trigger: ", 18, 0);
 
 			/* Get a macro trigger */
-			do_cmd_macro_aux(buf);
+			do_cmd_macro_aux(buf, TRUE);
 
 			/* Clear */
 			clear_from(20);
@@ -1968,7 +1952,7 @@ void do_cmd_macros(void)
 			prt("Trigger: ", 18, 0);
 
 			/* Get a macro trigger */
-			do_cmd_macro_aux(buf);
+			do_cmd_macro_aux(buf, TRUE);
 
 			/* Link the macro */
 			macro_add(buf, buf);
@@ -1992,14 +1976,8 @@ void do_cmd_macros(void)
 			/* Ask for a file */
 			if (!askfor_aux(tmp, 80)) continue;
 
-			/* Drop priv's */
-			safe_setuid_grab();
-
 			/* Dump the macros */
 			(void)keymap_dump(tmp);
-
-			/* Grab priv's */
-			safe_setuid_drop();
 
 			/* Prompt */
 			msg_print("Appended keymaps.");
@@ -2242,14 +2220,8 @@ void do_cmd_visuals(void)
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
 
-			/* Drop priv's */
-			/* safe_setuid_grab(); */
-
 			/* Append to the file */
 			fff = my_fopen(buf, "a");
-
-			/* Grab priv's */
-			/* safe_setuid_drop(); */
 
 			/* Failure */
 			if (!fff) continue;
@@ -2302,14 +2274,8 @@ void do_cmd_visuals(void)
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
 
-			/* Drop priv's */
-			/* safe_setuid_grab(); */
-
 			/* Append to the file */
 			fff = my_fopen(buf, "a");
-
-			/* Grab priv's */
-			/* safe_setuid_drop(); */
 
 			/* Failure */
 			if (!fff) continue;
@@ -2362,14 +2328,8 @@ void do_cmd_visuals(void)
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
 
-			/* Drop priv's */
-			/* safe_setuid_grab(); */
-
 			/* Append to the file */
 			fff = my_fopen(buf, "a");
-
-			/* Grab priv's */
-			/* safe_setuid_drop(); */
 
 			/* Failure */
 			if (!fff) continue;
@@ -2745,14 +2705,8 @@ void do_cmd_colors(void)
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
 
-			/* Drop priv's */
-			/* safe_setuid_grab(); */
-
 			/* Append to the file */
 			fff = my_fopen(buf, "a");
-
-			/* Grab priv's */
-			/* safe_setuid_drop(); */
 
 			/* Failure */
 			if (!fff) continue;
@@ -3037,7 +2991,7 @@ void do_cmd_feeling(void)
 	if (feeling > 10) feeling = 10;
 
 	/* Feeling of the fate */
-	if (fate_flag && !(dungeon_flags1 & LF1_SPECIAL) && !p_ptr->inside_quest)
+	if (fate_flag && !(dungeon_flags2 & DF2_SPECIAL) && !p_ptr->inside_quest)
 	{
 		msg_print("You feel that you will meet your fate here.");
 	}
@@ -3055,7 +3009,7 @@ void do_cmd_feeling(void)
 	}
 
 	/* No useful feeling in special levels */
-	if (dungeon_flags1 & LF1_DESC)
+	if (dungeon_flags2 & DF2_DESC)
 	{
 		char buf[1024];
 
@@ -3271,14 +3225,8 @@ void do_cmd_save_screen(void)
 		/* File type is "TEXT" */
 		FILE_TYPE(FILE_TYPE_TEXT);
 
-		/* Hack -- drop permissions */
-		/* safe_setuid_grab(); */
-
 		/* Append to the file */
 		fff = my_fopen(buf, "w");
-
-		/* Hack -- grab permissions */
-		/* safe_setuid_drop(); */
 
 		/* Oops */
 		if (!fff) return;
@@ -4248,7 +4196,7 @@ void do_cmd_knowledge_corruptions(void)
 	fff = my_fopen(file_name, "w");
 
 	/* Dump the corruptions to file */
-	if (fff) dump_corruptions(fff);
+	if (fff) dump_corruptions(fff, TRUE);
 
 	/* Close the file */
 	my_fclose(fff);
@@ -4334,7 +4282,7 @@ static void do_cmd_knowledge_quests(void)
                         if (i == QUEST_RANDOM)
                         {
                                 /**/
-                                if (!(d_info[dungeon_type].flags1 & DF1_PRINCIPAL)) continue;
+                                if (!(dungeon_flags1 & DF1_PRINCIPAL)) continue;
                                 if (!random_quests[dun_level].type) continue;
                                 if (p_ptr->inside_quest) continue;
                                 if (!dun_level) continue;
@@ -4342,7 +4290,7 @@ static void do_cmd_knowledge_quests(void)
                                 if (!is_randhero())
                                 {
                                         fprintf(fff, "#####yCaptured princess!\n");
-                                        fprintf(fff, "A princess is being held prisonner and tortured here!\n");
+                                        fprintf(fff, "A princess is being held prisoner and tortured here!\n");
                                         fprintf(fff, "Save her from the horrible %s.\n",
                                                 r_info[random_quests[dun_level].r_idx].name + r_name);
                                 }
@@ -4436,12 +4384,11 @@ static void do_cmd_knowledge_fates(void)
  */
 void do_cmd_knowledge_notes(void)
 {
-	char fname[80];
+	/* Spawn */
+	show_notes_file();
 
-
-	strcpy(fname, notes_file());
-
-	show_file(fname, "Notes", 0, 0);
+	/* Done */
+	return;
 }
 
 
@@ -4486,7 +4433,7 @@ void do_cmd_knowledge(void)
 		if (take_notes) prt("(B) Display notes", 15, 5);
 
 		/* Prompt */
-		prt("Command: ", 15, 0);
+		prt("Command: ", 17, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -4786,3 +4733,68 @@ void do_cmd_time()
 	my_fclose(fff);
 }
 
+/*
+ * Macro recorder!
+ * It records all keypresses and then put them in a macro
+ * Not as powerfull as the macro screen, but much easier for newbies
+ */
+char *macro_recorder_current = NULL;
+void macro_recorder_start()
+{
+        msg_print("Starting macro recording, press this key again to stop. Note that if the action you want to record accepts the @ key, use it, it will remove your the need to inscribe stuff.");
+        C_MAKE(macro_recorder_current, 1, char);
+        macro_recorder_current[0] = '\0';
+}
+
+void macro_recorder_add(char c)
+{
+        char *old_macro_recorder_current = macro_recorder_current;
+
+        if (macro_recorder_current == NULL) return;
+
+        C_MAKE(macro_recorder_current, strlen(macro_recorder_current) + 1 + 1, char);
+        sprintf(macro_recorder_current, "%s%c", old_macro_recorder_current, c);
+        C_FREE(old_macro_recorder_current, strlen(old_macro_recorder_current) + 1, char);
+}
+
+void macro_recorder_stop()
+{
+        char *str, *macro;
+        char buf[1024];
+
+        /* Ok we remove the last key, because it is the key to stop recording */
+        macro_recorder_current[strlen(macro_recorder_current) - 1] = '\0';
+
+        /* Stop the recording */
+        macro = macro_recorder_current;
+        macro_recorder_current = NULL;
+
+        /* Add it */
+        if (get_check("Are you satisfied and want to create the macro? "))
+        {
+                prt("Trigger: ", 0, 0);
+
+                /* Get a macro trigger */
+                do_cmd_macro_aux(buf, FALSE);
+
+                /* Link the macro */
+                macro_add(buf, macro);
+
+                /* Prompt */
+                C_MAKE(str, (strlen(macro) + 1) * 3, char);
+                ascii_to_text(str, macro);
+                msg_format("Added a macro '%s', if you want it to stay permanently press @ now and dump macros to a file.", str);
+                C_FREE(str, (strlen(macro) + 1) * 3, char);
+        }
+
+        /* Ok now rid of useless stuff */
+        C_FREE(macro, strlen(macro) + 1, char);
+}
+
+void do_cmd_macro_recorder()
+{
+        if (macro_recorder_current == NULL)
+                macro_recorder_start();
+        else
+                macro_recorder_stop();
+}

@@ -11,13 +11,16 @@ TULKAS_AIM = add_spell
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
                         local dur = get_level(TULKAS_AIM, 50) + randint(10)
+                        local obvious
 
-                        set_strike(dur)
+                        obvious = set_strike(dur)
                         if get_level(TULKAS_AIM) >= 20 then
-                                set_tim_deadly(dur)
+                                obvious = is_obvious(set_tim_deadly(dur), obvious)
                         end
+                        return obvious
 	end,
 	["info"] = 	function()
                         return "dur "..(get_level(TULKAS_AIM, 50)).."+d10"
@@ -35,15 +38,16 @@ TULKAS_WAVE = add_spell
         ["level"] =     20,
         ["mana"] =      200,
         ["mana_max"] =  200,
-        ["fail"] = 	20,
+        ["fail"] = 	75,
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
                         local ret, dir = get_aim_dir()
                         if ret == FALSE then return end
 
-                        fire_bolt(GF_ATTACK, dir, get_level(TULKAS_WAVE, player.num_blow))
+                        return fire_bolt(GF_ATTACK, dir, get_level(TULKAS_WAVE, player.num_blow))
 	end,
 	["info"] = 	function()
                         return "blows "..(get_level(TULKAS_WAVE, player.num_blow))
@@ -60,12 +64,13 @@ TULKAS_SPIN = add_spell
         ["level"] =     10,
         ["mana"] =      100,
         ["mana_max"] =  100,
-        ["fail"] = 	20,
+        ["fail"] = 	45,
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
-                        fire_ball(GF_ATTACK, 0, 1, 1)
+                        return fire_ball(GF_ATTACK, 0, 1, 1)
 	end,
 	["info"] = 	function()
                         return ""

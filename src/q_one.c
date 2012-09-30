@@ -103,6 +103,18 @@ bool quest_one_wield_hook(char *fmt)
         abandon_god(GOD_ERU);
         abandon_god(GOD_MANWE);
         abandon_god(GOD_TULKAS);
+        abandon_god(GOD_YAVANNA);
+
+        /*
+         * Ok now we are evil, right ?
+         * Towns arent, right ?
+         * So let's destroy them !
+         */
+        town_info[1].destroyed = TRUE;
+        town_info[2].destroyed = TRUE;
+        town_info[3].destroyed = TRUE;
+        town_info[4].destroyed = TRUE;
+        town_info[5].destroyed = TRUE;
 
 	/* Continue the plot */
 	cquest.status = QUEST_STATUS_FAILED_DONE;
@@ -134,7 +146,7 @@ bool quest_one_identify_hook(char *fmt)
 			o_ptr = &o_list[0 - item];
 		}
 
-		if (o_ptr->name1 == ART_POWER)
+		if ((o_ptr->name1 == ART_POWER) && (!object_known_p(o_ptr)))
 		{
 			cmsg_print(TERM_YELLOW, "You finally found the One Ring, source of Sauron power, and key to");
 			cmsg_print(TERM_YELLOW, "its destruction. Remember, bring it to Mount Doom and destroy it.");

@@ -121,7 +121,6 @@ static grouper group_item[] =
 	{ TV_SPIKE,         "Various" },
 	{ TV_LITE,          NULL },
 	{ TV_FLASK,         NULL },
-	{ TV_FIRESTONE,     NULL },
 	{ TV_BOTTLE,        NULL },
 	{ TV_SKELETON,      NULL },
 
@@ -244,15 +243,13 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Open the file */
-	/* safe_setuid_grab(); */
 	fff = my_fopen(buf, "w");
-	/* safe_setuid_drop(); */
 
 	/* Oops */
 	if (!fff)
@@ -1045,140 +1042,28 @@ static void print_header(void)
 #define LIST_SEP ';'
 
 
-static void spoiler_outlist(cptr header, cptr *list, char separator)
-{
-	int line_len, buf_len;
-	char line[MAX_LINE_LEN+1], buf[80];
-
-	/* Ignore an empty list */
-	if (*list == NULL) return;
-
-	/* This function always indents */
-	strcpy(line, INDENT1);
-
-	/* Create header (if one was given) */
-	if (header && *header)
-	{
-		strcat(line, header);
-		strcat(line, " ");
-	}
-
-	line_len = strlen(line);
-
-	/* Now begin the tedious task */
-	while (1)
-	{
-		/* Copy the current item to a buffer */
-		strcpy(buf, *list);
-
-		/* Note the buffer's length */
-		buf_len = strlen(buf);
-
-		/*
-		 * If there is an item following this one, pad with separator and
-		 * a space and adjust the buffer length
-		 */
-
-		if (list[1])
-		{
-			sprintf(buf + buf_len, "%c ", separator);
-			buf_len += 2;
-		}
-
-		/*
-		 * If the buffer will fit on the current line, just append the
-		 * buffer to the line and adjust the line length accordingly.
-		 */
-
-		if (line_len + buf_len <= MAX_LINE_LEN)
-		{
-			strcat(line, buf);
-			line_len += buf_len;
-		}
-
-		/* Apply line wrapping and indention semantics described above */
-		else
-		{
-			/*
-			 * Don't print a trailing list separator but do print a trailing
-			 * item separator.
-			 */
-			if (line_len > 1 && line[line_len - 1] == ' '
-			    && line[line_len - 2] == LIST_SEP)
-			{
-				/* Ignore space and separator */
-				line[line_len - 2] = '\0';
-
-				/* Write to spoiler file */
-				fprintf(fff, "%s\n", line);
-
-				/* Begin new line at primary indention level */
-				sprintf(line, "%s%s", INDENT1, buf);
-			}
-
-			else
-			{
-				/* Write to spoiler file */
-				fprintf(fff, "%s\n", line);
-
-				/* Begin new line at secondary indention level */
-				sprintf(line, "%s%s", INDENT2, buf);
-			}
-
-			line_len = strlen(line);
-		}
-
-		/* Advance, with break */
-		if (!*++list) break;
-	}
-
-	/* Write what's left to the spoiler file */
-	fprintf(fff, "%s\n", line);
-}
-
-
 /* Create a spoiler file entry for an artifact */
 
-static void spoiler_print_art(obj_desc_list *art_ptr)
+static void spoiler_print_art(obj_desc_list *art_ptr, int name1, int set, object_type *o_ptr)
 {
-	pval_info_type *pval_ptr = &art_ptr->pval_info;
+        /* Don't indent the first line */
+#if 0 // DGDGDGDG
+        fprintf(fff, "<P>%s<BR>", art_ptr->description);
+#else
+        fprintf(fff, "%s", art_ptr->description);
+#endif
+        c_roff_file_tab = 4;
+        c_roff_file_indent = FALSE;
+        object_out_desc(o_ptr, fff, FALSE);
+        c_roff_file_tab = 0;
+        c_roff_file_indent = TRUE;
 
-	char buf[80];
-
-	/* Don't indent the first line */
-	fprintf(fff, "%s\n", art_ptr->description);
-
-	/* An "empty" pval description indicates that the pval affects nothing */
-	if (pval_ptr->pval_desc[0])
-	{
-		/* Mention the effects of pval */
-		sprintf(buf, "%s to", pval_ptr->pval_desc);
-		spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
-	}
-
-	/* Now deal with the description lists */
-
-	spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
-
-	spoiler_outlist("", art_ptr->brands, LIST_SEP);
-
-	spoiler_outlist("Immunity to", art_ptr->immunities, ITEM_SEP);
-
-	spoiler_outlist("Resist", art_ptr->resistances, ITEM_SEP);
-
-	spoiler_outlist("Sustain", art_ptr->sustains, ITEM_SEP);
-
-	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
-
-
-	/* Write out the possible activation at the primary indention level */
-	if (art_ptr->activation)
-	{
-		fprintf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
-	}
-
-	/* End with the miscellaneous facts */
-	fprintf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
+        /* End with the miscellaneous facts */
+#if 0 // DGDGDGDG
+        fprintf(fff, "<BR>%s</P>", art_ptr->misc_desc);
+#else
+        fprintf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
+#endif
 }
 
 
@@ -1187,7 +1072,8 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
  */
 static bool make_fake_artifact(object_type *o_ptr, int name1)
 {
-	int i;
+        int i;
+        int cur;
 
 	artifact_type *a_ptr = &a_info[name1];
 
@@ -1208,7 +1094,8 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	o_ptr->name1 = name1;
 
 	/* Extract the fields */
-	o_ptr->pval = a_ptr->pval;
+#if 0
+        o_ptr->pval = a_ptr->pval;
 	o_ptr->ac = a_ptr->ac;
 	o_ptr->dd = a_ptr->dd;
 	o_ptr->ds = a_ptr->ds;
@@ -1216,6 +1103,11 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	o_ptr->to_h = a_ptr->to_h;
 	o_ptr->to_d = a_ptr->to_d;
 	o_ptr->weight = a_ptr->weight;
+#else
+        cur = a_ptr->cur_num;
+        apply_magic(o_ptr, -1, TRUE, TRUE, TRUE);
+        a_ptr->cur_num = cur;
+#endif
 
 	/* Success */
 	return (TRUE);
@@ -1238,15 +1130,13 @@ static void spoil_artifact(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Open the file */
-	/* safe_setuid_grab(); */
 	fff = my_fopen(buf, "w");
-	/* safe_setuid_drop(); */
 
 	/* Oops */
 	if (!fff)
@@ -1255,6 +1145,9 @@ static void spoil_artifact(cptr fname)
 		return;
 	}
 
+#if 0 // DGDGDGDG
+        fprintf(fff, "<HTML><BODY BGCOLOR=#000000 TEXT=#CCCCCC>");
+#endif
 	/* Dump the header */
 	print_header();
 
@@ -1290,10 +1183,13 @@ static void spoil_artifact(cptr fname)
 			object_analyze(q_ptr, &artifact);
 
 			/* Write out the artifact description to the spoiler file */
-			spoiler_print_art(&artifact);
+			spoiler_print_art(&artifact, j, a_ptr->set, q_ptr);
 		}
 	}
 
+#if 0 // DGDGDGDG
+        fprintf(fff, "</BODY></HTML>");
+#endif
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
@@ -1329,15 +1225,13 @@ static void spoil_mon_desc(cptr fname)
 	char exp[80];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Open the file */
-	/* safe_setuid_grab(); */
 	fff = my_fopen(buf, "w");
-	/* safe_setuid_drop(); */
 
 	/* Oops */
 	if (!fff)
@@ -1549,15 +1443,13 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Open the file */
-	/* safe_setuid_grab(); */
 	fff = my_fopen(buf, "w");
-	/* safe_setuid_drop(); */
 
 	/* Oops */
 	if (!fff)
@@ -1685,7 +1577,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-		else if (flags3 & (RF3_DRAGONRIDER)) spoil_out (" DragonRider");
+		else if (flags3 & (RF3_THUNDERLORD)) spoil_out (" Thunderlord");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1869,7 +1761,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
 		if (flags6 & (RF6_RAISE_DEAD))        vp[vn++] = "raise dead";
-		if (flags6 & (RF6_S_DRAGONRIDER))     vp[vn++] = "summon a dragonrider";
+		if (flags6 & (RF6_S_THUNDERLORD))     vp[vn++] = "summon a thunderlord";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
 		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon aid";
@@ -1915,9 +1807,10 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		if (breath || magic)
-		{
+                {
+                        int times = r_ptr->freq_inate + r_ptr->freq_spell;
 			sprintf(buf, "; 1 time in %d.  ",
-				200 / (r_ptr->freq_inate + r_ptr->freq_spell));
+                                200 / ((times) ? times : 1));
 			spoil_out(buf);
 		}
 
@@ -2321,26 +2214,48 @@ static char* get_tval_name(int tval)
 	return "";
 }
 
+char *long_intro = "
+Essences are the tools of the trade for Alchemists, and unfortunately are useless for any other class. Alchemists use essences to create magical items for them to use.
+They can be either found on the floor while exploring the  dungeon, or extracted from other magical items the alchemist finds during their adventures.
+To create an artifact, the alchemist will have to sacrifice 1 hit point, and an amount of magic essence similar to his skill in alchemy. The alchemist then allows the artifact to gain experience, and when it has enough, uses that experience to add abilities to the artifact. The alchemist can allow the artifact to continue to gain experience, thus keeping open the option to add more abilities later. This requires a similar amount of magic essence, but does not require the sacrifice of another hit point.
+Note that the experience you gain is divided among the  artifacts that you have as well as going to yourself, so you will gain levels more slowly when empowering artifacts. Also, the artifact only gets 60% of the experience. So  killing a creature worth 20xp would gain 10 for you, and 6 for the artifact.
+You can also modify existing artifacts when you attain level 50. Also at level 50 you will gain the ability to make temporary artifacts, which don't require the complex empowerments that regular items require, but also vanish after awhile.
+You cannot give an artifact an ability unless you have *Identified* an artifact which has that ability.
+For every four levels gained in the alchemy skill, the alchemist learns about objects of level level/4, starting by learning about level 1 objects at skill level 0.  (actually 1, but who's counting?)
+At level 5 you gain the ability to make ego items - but watch it! Your base failure rate will be 90%, and won't be 0% until you reach level 50. Adding gold will  increase the chances of success in direct perportion to the value of the item you are trying to create. Note that this results in automatic success when the item you are trying to create happens to pick up a curse in the process.
+At level 5 you also gain knowledge of some basic ego item recipes. These are: Shocking, Fiery, Frozen,  Venomous, and chaotic weapons, Resist fire armor, and lite of boldness.
+At level 10 you will gain knowledge of digging ego items, if you have selected the option 'always  generate very unusual rooms' (ironman_rooms)
+At level 15 you can create ego wands, staves, rings, etc.
+At level 25 You gain the ability to empower artifacts.
+At level 50 You gain the ability to create temporary artifacts, which don't require any exotic ingredients beyond a single corpse of any type.
+Between levels 25 and 50, you will steadily gain the ability to set more and more flags.
+                                                                                                                                                                       To finalize an artifact, you 'P'ower it, and select the powers you want. Powers are divided into the following five catagories:
+*****essences.txt*01[Stats, Sustains, luck, speed, vision, etc.]
+*****essences.txt*02[Misc. (Auras, light, see invis, etc)]
+*****essences.txt*03[Weapon Branding]
+*****essences.txt*04[Resistances and immunities]
+*****essences.txt*05[ESP and curses]
+";
+
 /*
  * Create a spoiler file for essences
  */
 static void spoil_bateries(cptr fname)
 {
-	int i, b;
+	int j,i,tval,sval,group;
+	object_type forge,*o_ptr;
 
 	char buf[1024];
-	char ttt[300];
-	char desc1[80], desc2[80];
+
+	tval=sval=group=-1;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* safe_setuid_grab(); */
 	fff = my_fopen(buf, "w");
-	/* safe_setuid_drop(); */
 
 	/* Oops */
 	if (!fff)
@@ -2350,51 +2265,108 @@ static void spoil_bateries(cptr fname)
 	}
 
 	/* Dump the header */
-        sprintf(buf, "Essence Spoiler for ToME Version %d.%d.%d",
+	sprintf(buf, "|||||oy\n#####RAlchemy Spoiler for ToME Version %d.%d.%d\n#####R",
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
 
-	spoil_out("\n\n");
 
-	for(i = 0; i < MAX_ALCHEMIST_RECIPES; i++)
+	/*New code starts here -*/
+	/*print header, including artifact header*/
+	/*Cycle through artifact flags*/
+	/*	print desc*/
+	/*	cycle through all alchemist_recipies*/
+	/*		print matching*/
+	/*Print items header.*/
+	/*Cycle through alchemist_recipies*/
+	/*	sval or tval changed?*/
+	/*		skip artifacts (tval=0)*/
+	/*		print item desc (ego (tval=1)or item)*/
+	/*	print essences required*/
+	/*Done!*/
+
+	/*Print basic header.*/
+	spoil_out(long_intro);
+
+	/*Cycle through artifact flags*/
+	for( i=0 ; a_select_flags[i].group ; i++ )
 	{
-		object_type *o_ptr, *q_ptr, forge;
-		object_kind *k_ptr;
-		ego_item_type *e_ptr;
-
-		if(!alchemist_recipes[i].sval_baterie) continue;
-
-		o_ptr = &forge;
-		object_prep(o_ptr, lookup_kind(TV_BATERIE, alchemist_recipes[i].sval_baterie));
-		k_ptr = &k_info[o_ptr->k_idx];
-
-		sprintf(ttt, "Essence of %s :\n", k_name + k_ptr->name);
-		spoil_out(ttt);
-
-		spoil_out("Can be used to make :\n");
-		for(b = 0; b < 9; b++)
-			if(alchemist_recipes[i].ego[b].ego){
-				e_ptr = &e_info[alchemist_recipes[i].ego[b].ego];
-				sprintf(ttt, "-       %s %s with %d essence%s\n", get_tval_name(alchemist_recipes[i].ego[b].which), e_name + e_ptr->name, alchemist_recipes[i].ego[b].ego_num, (alchemist_recipes[i].ego[b].ego_num)?"s":"");
-				spoil_out(ttt);
-			}
-
-		spoil_out("\n");
-
-		for(b = 0; b < 9; b++)
-			if(alchemist_recipes[i].item[b].ctval)
+		if( a_select_flags[i].group != group )
+		{
+			group = a_select_flags[i].group;
+			spoil_out("\n\n~~~~~");
+			switch(group)
 			{
-				o_ptr = &forge;
-				object_prep(o_ptr, lookup_kind(alchemist_recipes[i].item[b].ctval, alchemist_recipes[i].item[b].csval));
-				object_desc_store(desc1, o_ptr, 1, 0);
-				q_ptr = &forge;
-				object_prep(q_ptr, lookup_kind(alchemist_recipes[i].item[b].etval, alchemist_recipes[i].item[b].esval));
-				object_desc_store(desc2, q_ptr, 1, 0);
-				sprintf(ttt, "Convert %s into %s with %d essence%s\n", desc1, desc2, alchemist_recipes[i].item[b].num, (alchemist_recipes[i].item[b].num)?"s":"");
-				spoil_out(ttt);
+			case 1: spoil_out("01\n#####GStats, Sustains, Luck, Speed, Vision, Etc..\n");break;
+			case 2: spoil_out("02\n#####GMisc. (Auras, Light, See Invis, etc..)\n");break;
+			case 3: spoil_out("03\n#####GWeapons Brands\n");break;
+			case 4: spoil_out("04\n#####GResistances and Immunities\n");break;
+			case 5: spoil_out("05\n#####GESP and Curses\n");break;
+			default: spoil_out(format("06\n#####GExtra group=%d\n",group));
 			}
+			spoil_out("lvl xp      Power\n");
+		}
+	/*	print desc*/
+		spoil_out(format("%-2d %-8d %-24s %s\n",
+		    a_select_flags[i].level,
+		    a_select_flags[i].xp,
+		    al_name+a_select_flags[i].desc,
+		    al_name+a_select_flags[i].item_desc));
+	/*	cycle through all alchemist_recipies*/
+		for( j=0 ; j<max_al_idx ; j++ )
+		{
+	/*		print matching*/
+			if(alchemist_recipes[j].tval == 0 
+			    && alchemist_recipes[j].sval == a_select_flags[i].flag
+				&& alchemist_recipes[j].qty
+				)
+			{
+				spoil_out(format("    %d essences of %s\n",alchemist_recipes[j].qty,
+					k_name+k_info[lookup_kind(TV_BATERIE,alchemist_recipes[j].sval_essence)].name));
+			}
+		}
+	}
 
-		spoil_out("\n---------------------------------------\n\n");
+	spoil_out("\n\nThe following basic item recipies also exist:\n");
+	/*Cycle through alchemist_recipies*/
+	for( i=0 ; i < max_al_idx ; i ++)
+	{
+		alchemist_recipe *ar_ptr=&alchemist_recipes[i];
+
+	/*	sval or tval changed?*/
+		if(tval != ar_ptr->tval || sval != ar_ptr->sval)
+		{
+			char o_name[80];
+	/*		skip artifacts (tval=0)*/
+			if(ar_ptr->tval == 0 )
+				continue;
+
+			tval=ar_ptr->tval;
+			sval=ar_ptr->sval;
+
+	/*		print item desc (ego (tval=1)or item)*/
+			if(ar_ptr->tval == 1)
+			{
+				strcpy(o_name,e_name+e_info[ar_ptr->sval].name);
+			}
+			else
+			{
+				/* Find the name of that object */
+				o_ptr = &forge;
+				object_wipe(o_ptr);
+				object_prep(o_ptr, lookup_kind(tval, sval));
+				apply_magic(o_ptr, 1, FALSE, FALSE, FALSE);
+				object_aware(o_ptr);
+				object_known(o_ptr);
+				o_ptr->name2 = o_ptr->name2b = 0;
+				/* the 0 mode means only the text, leaving off any numbers */
+				object_desc(o_name, o_ptr, FALSE, 0);
+			}
+			spoil_out("\n");
+			spoil_out(o_name);
+		}
+	/*	print essence required*/
+		spoil_out(format(" %d %s",ar_ptr->qty,
+			k_name+k_info[lookup_kind(TV_BATERIE,ar_ptr->sval_essence)].name));
 	}
 
 	/* Check for errors */
@@ -2406,6 +2378,7 @@ static void spoil_bateries(cptr fname)
 
 	/* Message */
 	msg_print("Successfully created a spoiler file.");
+	return;
 }
 
 
@@ -2435,14 +2408,12 @@ static void spoil_spells(cptr fname)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* safe_setuid_grab(); */
 	fff = my_fopen(buf, "w");
-	/* safe_setuid_drop(); */
 
 	/* Oops */
 	if (!fff)

@@ -176,35 +176,48 @@ int pick_ego_monster(int r_idx)
 	int tries = max_re_idx + 10;
 	monster_ego *re_ptr;
 
-	/* No townspeople ego */
-	if (!r_info[r_idx].level) return 0;
-
-	/* First are we allowed to find an ego */
-	if (!magik(MEGO_CHANCE)) return 0;
-
-
-	/* Lets look for one */
-	while(tries--)
+	if ((!(dungeon_flags2 & DF2_ELVEN)) && (!(dungeon_flags2 & DF2_DWARVEN)))
 	{
-		/* Pick one */
-		ego = rand_range(1, max_re_idx - 1);
-		re_ptr = &re_info[ego];
+		/* No townspeople ego */
+		if (!r_info[r_idx].level) return 0;
 
-		/*  No hope so far */
-		if (!mego_ok(r_idx, ego)) continue;
+		/* First are we allowed to find an ego */
+		if (!magik(MEGO_CHANCE)) return 0;
 
-		/* Not too much OoD */
-		lvl = r_info[r_idx].level;
-		MODIFY(lvl, re_ptr->level, 0);
-		lvl -= ((dun_level / 2) + (rand_int(dun_level / 2)));
-		if (lvl < 1) lvl = 1;
-		if (rand_int(lvl)) continue;
+		/* Lets look for one */
+		while (tries--)
+		{
+			/* Pick one */
+			ego = rand_range(1, max_re_idx - 1);
+			re_ptr = &re_info[ego];
 
-		/* Each ego types have a rarity */
-		if (rand_int(re_ptr->rarity)) continue;
+			/*  No hope so far */
+			if (!mego_ok(r_idx, ego)) continue;
 
-		/* We finanly got one ? GREAT */
-		return ego;
+			/* Not too much OoD */
+			lvl = r_info[r_idx].level;
+			MODIFY(lvl, re_ptr->level, 0);
+			lvl -= ((dun_level / 2) + (rand_int(dun_level / 2)));
+			if (lvl < 1) lvl = 1;
+			if (rand_int(lvl)) continue;
+
+			/* Each ego types have a rarity */
+			if (rand_int(re_ptr->rarity)) continue;
+
+			/* We finanly got one ? GREAT */
+			return ego;
+		}
+	}
+	/* Bypass restrictions for themed townspeople */
+	else
+	{
+		if (dungeon_flags2 & DF2_ELVEN)
+			ego = test_mego_name("Elven");
+		else if (dungeon_flags2 & DF2_DWARVEN)
+			ego = test_mego_name("Dwarven");
+
+		if (mego_ok(r_idx, ego))
+			return ego;
 	}
 
 	/* Found none ? so sad, well no ego for the time being */
@@ -1045,9 +1058,6 @@ s16b get_mon_num(int level)
 		/* Zangbandish monsters allowed ? or not ? */
 		if(!zang_monsters && (r_ptr->flags8 & RF8_ZANGBAND)) continue;
 
-		/* Pernian monsters allowed ? or not ? */
-		if(!pern_monsters && (r_ptr->flags8 & RF8_PERNANGBAND)) continue;
-
 		/* Lovercraftian monsters allowed ? or not ? */
 		if(!cth_monsters && (r_ptr->flags8 & RF8_CTHANGBAND)) continue;
 
@@ -1255,7 +1265,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 		res = "it";
 
 		/* Brute force: split on the possibilities */
-		switch (kind + (mode & 0x07))
+		switch (kind | (mode & 0x07))
 		{
 			/* Neuter, or unknown */
 			case 0x00: res = "it"; break;
@@ -1579,67 +1589,6 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 		return;
 	}
 
-	/* Else gain permanent insanity */
-	if ((p_ptr->muta3 & MUT3_MORONIC) && (p_ptr->muta2 & MUT2_BERS_RAGE) &&
-	   ((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
-	   ((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
-	{
-		/* The poor bastard already has all possible insanities! */
-		return;
-	}
-
-	while (!happened)
-	{
-		switch(randint(4))
-		{
-			case 1:
-			if (!(p_ptr->muta3 & MUT3_MORONIC))
-			{
-				msg_print("You turn into an utter moron!");
-				if (p_ptr->muta3 & MUT3_HYPER_INT)
-				{
-					msg_print("Your brain is no longer a living computer.");
-					p_ptr->muta3 &= ~(MUT3_HYPER_INT);
-				}
-				p_ptr->muta3 |= MUT3_MORONIC;
-				happened = TRUE;
-			}
-			break;
-			case 2:
-			if (!(p_ptr->muta2 & MUT2_COWARDICE) && !(p_ptr->resist_fear))
-			{
-				msg_print("You become paranoid!");
-
-				/* Duh, the following should never happen, but anyway... */
-				if (p_ptr->muta3 & MUT3_FEARLESS)
-				{
-					msg_print("You are no longer fearless.");
-					p_ptr->muta3 &= ~(MUT3_FEARLESS);
-				}
-
-				p_ptr->muta2 |= MUT2_COWARDICE;
-				happened = TRUE;
-			}
-			break;
-			case 3:
-			if (!(p_ptr->muta2 & MUT2_HALLU) && !(p_ptr->resist_chaos))
-			{
-				msg_print("You are afflicted by a hallucinatory insanity!");
-				p_ptr->muta2 |= MUT2_HALLU;
-				happened = TRUE;
-			}
-			break;
-			default:
-			if (!(p_ptr->muta2 & MUT2_BERS_RAGE))
-			{
-				msg_print("You become subject to fits of berserk rage!");
-				p_ptr->muta2 |= MUT2_BERS_RAGE;
-				happened = TRUE;
-			}
-			break;
-		}
-	}
-
 	p_ptr->update |= PU_BONUS;
 	handle_stuff();
 }
@@ -1811,35 +1760,39 @@ void update_mon(int m_idx, bool full)
 			if ((p_ptr->telepathy & ESP_UNDEAD) && (r_ptr->flags3 & RF3_UNDEAD)) can_esp = TRUE;
 			if ((p_ptr->telepathy & ESP_EVIL) && (r_ptr->flags3 & RF3_EVIL)) can_esp = TRUE;
 			if ((p_ptr->telepathy & ESP_ANIMAL) && (r_ptr->flags3 & RF3_ANIMAL)) can_esp = TRUE;
-			if ((p_ptr->telepathy & ESP_DRAGONRIDER) && (r_ptr->flags3 & RF3_DRAGONRIDER)) can_esp = TRUE;
+			if ((p_ptr->telepathy & ESP_THUNDERLORD) && (r_ptr->flags3 & RF3_THUNDERLORD)) can_esp = TRUE;
 			if ((p_ptr->telepathy & ESP_GOOD) && (r_ptr->flags3 & RF3_GOOD)) can_esp = TRUE;
 			if ((p_ptr->telepathy & ESP_NONLIVING) && (r_ptr->flags3 & RF3_NONLIVING)) can_esp = TRUE;
 			if ((p_ptr->telepathy & ESP_UNIQUE) && ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags3 & RF3_UNIQUE_4))) can_esp = TRUE;
 			if (p_ptr->telepathy & ESP_ALL) can_esp = TRUE;
 
-			/* Empty mind, no telepathy */
-			if (r_ptr->flags2 & (RF2_EMPTY_MIND))
-			{
-				do_empty_mind = TRUE;
-			}
+                        /* Only do this when we can really detect monster */
+                        if (can_esp)
+                        {
+			  /* Empty mind, no telepathy */
+                          if (r_ptr->flags2 & (RF2_EMPTY_MIND))
+                          {
+                                  do_empty_mind = TRUE;
+                          }
 
-			/* Weird mind, occasional telepathy */
-			else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
-			{
-				do_weird_mind = TRUE;
-				if (rand_int(100) < 10)
-				{
-					hard = can_esp;
-					flag |= can_esp;
-				}
-			}
+                          /* Weird mind, occasional telepathy */
+                          else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
+                          {
+                                  do_weird_mind = TRUE;
+                                  if (rand_int(100) < 10)
+                                  {
+                                          hard = TRUE;
+                                          flag = TRUE;
+                                  }
+                          }
 
-			/* Normal mind, allow telepathy */
-			else
-			{
-				hard = can_esp;
-				flag |= can_esp;
-			}
+                          /* Normal mind, allow telepathy */
+                          else
+                          {
+                                  hard = TRUE;
+                                  flag = TRUE;
+                          }
+                        }
 		}
 
 		/* Merchants sense objects */
@@ -2097,9 +2050,10 @@ bool kind_is_randart(int k_idx)
  */
 bool bypass_r_ptr_max_num = FALSE;
 int place_monster_result = 0;
+bool place_monster_one_no_drop = FALSE;
 s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 {
-	int i;
+	int i, base;
 	char dummy[5];
 	bool add_level = FALSE;
 	int min_level = 0, max_level = 0;
@@ -2111,8 +2065,6 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	cptr name = (r_name + r_ptr->name);
-
-	dungeon_info_type *d_ptr = &d_info[dungeon_type];
 
 	/* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
 	if(p_ptr->wild_mode) return 0;
@@ -2179,6 +2131,13 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 		return 0;
 	}
 
+	/* Disallow Spirits in The Void, now this *IS* an ugly hack, I hate to do it ... */
+	if ((r_ptr->flags7 & RF7_SPIRIT) && (dungeon_type != DUNGEON_VOID))
+	{
+		if (wizard) cmsg_format(TERM_L_RED, "WARNING: Refused monster(%d): SPIRIT in non VOID", r_idx);
+		return 0;
+	}
+
 	/* Fully forbid it */
 	if (r_ptr->flags9 & RF9_NEVER_GENE)
 	{
@@ -2230,7 +2189,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (dun_level < r_ptr->level))
 	{
 		/* Cannot create */
-		if (wizard) cmsg_print(TERM_L_RED, "WARNING: FORCE_DEATH");
+		if (wizard) cmsg_print(TERM_L_RED, "WARNING: FORCE_DEPTH");
 		return 0;
 	}
 
@@ -2332,7 +2291,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 
 	/* Generate the monster's inventory(if any) */
 	/* Only if not fated to die */
-	if (dungeon_type != DUNGEON_DEATH)
+	if ((dungeon_type != DUNGEON_DEATH) && (!place_monster_one_no_drop))
 	{
 		bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
 		bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
@@ -2405,7 +2364,12 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 			if (tries)
 			{
 				object_prep(q_ptr, i);
-				create_artifact(q_ptr, FALSE, TRUE);
+                                create_artifact(q_ptr, FALSE, TRUE);
+                                q_ptr->found = OBJ_FOUND_MONSTER;
+                                q_ptr->found_aux1 = m_ptr->r_idx;
+                                q_ptr->found_aux2 = m_ptr->ego;
+                                q_ptr->found_aux3 = dungeon_type;
+                                q_ptr->found_aux4 = level_or_feat(dungeon_type, dun_level);
 
 				monster_carry(m_ptr, c_ptr->m_idx, q_ptr);
 			}
@@ -2455,6 +2419,11 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 				dump_item++;
 			}
 
+                        q_ptr->found = OBJ_FOUND_MONSTER;
+                        q_ptr->found_aux1 = m_ptr->r_idx;
+                        q_ptr->found_aux2 = m_ptr->ego;
+                        q_ptr->found_aux3 = dungeon_type;
+                        q_ptr->found_aux4 = level_or_feat(dungeon_type, dun_level);
 			monster_carry(m_ptr, c_ptr->m_idx, q_ptr);
 		}
 
@@ -2463,12 +2432,13 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 
 		/* Reset "coin" type */
 		coin_type = 0;
-	}
+        }
+        place_monster_one_no_drop = FALSE;
 
 
 	/* Assign maximal hitpoints */
 	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
-	{
+        {
 		m_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
 	}
 	else
@@ -2503,19 +2473,23 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 		if (i) m_ptr->mspeed += rand_spread(0, i);
 	}
 
-	/* Need to match dungeon level ? */
-	if (d_ptr->flags2 & DF2_ADJUST_LEVEL_1_2)
+        /* Need to match dungeon level ? */
+        base = dun_level;
+        if (dungeon_flags2 & DF2_ADJUST_LEVEL_PLAYER)
+                base = p_ptr->lev * 2;
+
+	if (dungeon_flags2 & DF2_ADJUST_LEVEL_1_2)
 	{
 		min_level = max_level = dun_level / 2;
 		add_level = TRUE;
 	}
-	if (d_ptr->flags1 & DF1_ADJUST_LEVEL_1)
+	if (dungeon_flags1 & DF1_ADJUST_LEVEL_1)
 	{
 		if (!min_level) min_level = dun_level;
 		max_level = dun_level;
 		add_level = TRUE;
 	}
-	if (d_ptr->flags1 & DF1_ADJUST_LEVEL_2)
+	if (dungeon_flags1 & DF1_ADJUST_LEVEL_2)
 	{
 		if (!min_level) min_level = dun_level * 2;
 		max_level = dun_level * 2;
@@ -3207,9 +3181,9 @@ bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-		case SUMMON_DRAGONRIDER:
+		case SUMMON_THUNDERLORD:
 		{
-			okay = (r_ptr->flags3 & RF3_DRAGONRIDER)?TRUE:FALSE;
+			okay = (r_ptr->flags3 & RF3_THUNDERLORD)?TRUE:FALSE;
 			break;
 		}
 
@@ -3969,3 +3943,4 @@ void monster_drop_carried_objects(monster_type *m_ptr)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 }
+

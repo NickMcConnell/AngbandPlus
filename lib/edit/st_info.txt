@@ -195,7 +195,10 @@ I:100:Restore Dexterity
 T:100:71:46
 I:100:Restore Charisma
 I:100:Identify
-I:100:Identify
+I:100:*Identify*
+I:100:*Identify*
+I:100:*Identify*
+I:100:*Identify*
 I:100:*Identify*
 I:100:*Identify*
 I:100:Light
@@ -225,48 +228,32 @@ I:100:Protection
 I:100:Fire Resistance
 I:100:Cold Resistance
 I:100:Charisma
-#I:100:Slow Digestion
+I:100:Slow Digestion
 T:100:40:3
 I:100:Acid Resistance
 I:100:Lightning Resistance
 I:100:Searching
-I:100:Slow Monster
-I:100:Confuse Monster
-I:100:Sleep Monster
-I:100:Magic Missile
-I:100:Stinking Cloud
-I:100:Wonder
-I:100:Disarming
-#I:100:Light
-T:100:65:7
-#I:100:Enlightenment
-T:100:55:9
-I:100:Trap Location
-#I:100:Door/Stair Location
-T:100:55:13
-I:100:Treasure Location
-I:100:Object Location
-#I:100:Detect Invisible
-T:100:55:14
-#I:100:Detect Evil
-T:100:55:15
-I:100:55:4
-I:100:55:4
-I:100:55:4
-I:100:55:4
-I:100:Perception
-I:100:Perception
-I:100:Perception
-I:100:Perception
-I:100:Perception
-#I:100:Remove Curse
-T:100:55:6
 I:100:Cure Light Wounds
+# Rods
 I:100:Probing
-# & Book~ of Beginner Cantrips
+I:25:& Wooden Rod~ of#
+# Book
 T:100:111:50
-T:100:111:50
-T:100:111:50
+# Wands
+T:100:65:3
+T:100:65:8
+T:100:65:11
+T:100:65:16
+T:100:65:22
+# Staves
+T:100:55:3
+T:100:55:5
+T:100:55:8
+T:100:55:9
+T:100:55:14
+T:60:55:15
+T:60:55:16
+T:60:55:17
 A:0:0:1:2:3:4
 O:34:35:36:37
 G:6:r
@@ -286,18 +273,12 @@ G:8:y
 W:24
 
 N:8:Book Store
-I:100:[Earth]
-I:100:[Fire]
-I:100:[Air]
-T:100:119:0
-I:100:[Minstrel's Music]
-I:100:[Dark Incantations]
-I:100:[Immortal Rituals]
-I:100:[Life in symbiosis]
-I:100:[Life in symbiosis]
 # & Book~ of Beginner Cantrips
 T:100:111:50
 T:100:111:50
+T:100:111:255
+T:100:111:255
+T:100:111:255
 T:100:111:255
 T:100:111:255
 T:100:111:255
@@ -404,7 +385,7 @@ O:24:24:24:24
 G:+:u
 W:0
 
-N:22:Thunderlords's Hide
+N:22:Thunderlords' Nest
 A:0:0:33:2:34:0
 O:25:25:25:25
 G:+:U
@@ -423,7 +404,7 @@ G:+:U
 W:0
 
 N:25:Wizards Spire
-A:0:0:26:27:0:0
+A:60:0:26:27:0:0
 O:54:54:54:54
 G:+:U
 W:0
@@ -628,7 +609,7 @@ N:48:Expensive Black Market
 A:0:0:1:2:3:0
 O:38:39:40:41
 G:7:v
-F:ALL_ITEM | DEEP_LEVEL | DEPEND_LEVEL | MEDIUM_LEVEL
+F:RANDOM | ALL_ITEM | DEEP_LEVEL | DEPEND_LEVEL | MEDIUM_LEVEL
 W:12
 
 N:49:Common Shop
@@ -733,3 +714,19 @@ O:69:69:69:69
 G:+:w
 W:8
 
+##### Mining equipment for Khazad-Dum #####
+
+N:59:Mining Supply store
+T:100:20:256
+I:100:& Wooden Torch~
+I:95:& Brass Lantern~
+I:95:& Flask~ of oil
+I:75:& Dwarven Lantern~
+I:60:& Feanorian Lamp~
+T:60:65:6
+T:70:71:22
+A:0:0:1:2:3:4
+O:11:15:26:40
+F:MEDIUM_LEVEL
+G:+:s
+W:24

@@ -2181,7 +2181,6 @@ option_type option_info[] =
 	{ &use_color,                   TRUE,   1,      19,
 	"use_color",                    "Use color if possible (slow)" },
 
-
 	/*** Disturbance ***/
 
 	{ &find_ignore_stairs,          FALSE,   2,     0,
@@ -2327,8 +2326,11 @@ option_type option_info[] =
 	{ &avoid_abort,                 FALSE,  4,      2,
 	"avoid_abort",                  "Avoid checking for user abort" },
 
+	{ &avoid_shimmer,               FALSE,  4,      17,
+	"avoid_shimmer",                "Avoid extra shimmering (fast)" },
+
 	{ &avoid_other,                 FALSE,  4,      3,
-	"avoid_other",                  "Avoid processing special colors(slow)" },
+	"avoid_other",                  "Avoid processing special colors (fast)" },
 
 	{ &flush_failure,               TRUE,   4,      4,
 	"flush_failure",                "Flush input on various failures" },
@@ -2378,7 +2380,7 @@ option_type option_info[] =
 
 #endif /* 0 */
 
-	{ &(p_body.help.enabled),       TRUE,   5,      1,
+        { &option_ingame_help,          TRUE,   5,      1,
 	"ingame_help",                  "Ingame contextual help" },
 
 	{ &exp_need,                    FALSE,  5,      2,
@@ -2395,6 +2397,10 @@ option_type option_info[] =
 
 	{ &linear_stats,                FALSE,  5,      7,
 	"linear_stats",                 "Stats are represented in a linear way" },
+
+ 	{ &inventory_no_move,           FALSE,   5,      8,
+ 	"inventory_no_move",            "In option windows, just omit the select char" },
+ 
 
 	/*** Birth Options ***/
 
@@ -3450,643 +3456,56 @@ magic_power mimic_powers[MAX_MIMIC_POWERS] =
 	},
 };
 
-alchemist_recipe alchemist_recipes[MAX_ALCHEMIST_RECIPES] = {
-	{SV_BATERIE_POISON,
-		{
-			{EGO_BRAND_POIS,TV_SWORD,0,8},
-			{EGO_BRAND_POIS,TV_HAFTED,0,8},
-			{EGO_BRAND_POIS,TV_POLEARM,0,8},
-			{EGO_BRAND_POIS,TV_AXE,0,8},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_BOTTLE,1,1,
-			 TV_POTION,SV_POTION_POISON},
-			{TV_WAND,SV_WAND_NOTHING,1,
-			 TV_WAND,SV_WAND_STINKING_CLOUD},
-			{TV_WAND,SV_WAND_STINKING_CLOUD,1,
-			 TV_WAND,SV_WAND_STINKING_CLOUD},
-			{TV_RING,SV_RING_NOTHING,4,
-			 TV_RING,SV_RING_RESIST_POIS},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
+magic_power symbiotic_powers[MAX_SYMBIOTIC_POWERS] =
+{
+	/* Level gained,  cost,  %fail,  name */
+	{
+		1,   1,  0,
+		"Hypnotize",
+		"Hypnotize a non-moving pet to allow you to enter symbiosis(wear) with it."
 	},
-	{SV_BATERIE_EXPLOSION,
-		{
-			{EGO_SLAYING_WEAPON,TV_SWORD,ALCHEMIST_ENCHANT_DAM,8},
-			{EGO_SLAYING_WEAPON,TV_HAFTED,ALCHEMIST_ENCHANT_DAM,8},
-			{EGO_SLAYING_WEAPON,TV_POLEARM,ALCHEMIST_ENCHANT_DAM,8},
-			{EGO_SLAYING_WEAPON,TV_AXE,ALCHEMIST_ENCHANT_DAM,8},
-			{EGO_SLAYING,TV_GLOVES,ALCHEMIST_ENCHANT_DAM,8},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_WAND,SV_WAND_NOTHING,1,
-			 TV_WAND,SV_WAND_MAGIC_MISSILE},
-			{TV_BOTTLE,1,1,
-			 TV_POTION,SV_POTION_DETONATIONS},
-			{TV_STAFF,SV_STAFF_NOTHING,2,
-			 TV_STAFF,SV_STAFF_EARTHQUAKES},
-			{TV_SCROLL,SV_SCROLL_NOTHING,1,
-			 TV_SCROLL,SV_SCROLL_DARKNESS},
-			{TV_WAND,SV_WAND_MAGIC_MISSILE,1,
-			 TV_WAND,SV_WAND_MAGIC_MISSILE},
-			{TV_STAFF,SV_STAFF_EARTHQUAKES,2,
-			 TV_STAFF,SV_STAFF_EARTHQUAKES},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
+	{
+		1,   1,  0,
+		"Release",
+		"Release an hypnotized pet."
 	},
-	{SV_BATERIE_TELEPORT,
-		{
-			{EGO_TELEPORTATION,TV_CROWN,0,7},
-			{EGO_TELEPORTATION,TV_HELM,0,7},
-			{EGO_DRAGON, TV_SWORD,ALCHEMIST_ENCHANT_PVAL,9},
-			{EGO_DRAGON, TV_HAFTED,ALCHEMIST_ENCHANT_PVAL,9},
-			{EGO_DRAGON, TV_POLEARM,ALCHEMIST_ENCHANT_PVAL,9},
-			{EGO_DRAGON, TV_AXE,ALCHEMIST_ENCHANT_PVAL,9},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_SCROLL,SV_SCROLL_NOTHING,1,
-			 TV_SCROLL,SV_SCROLL_TELEPORT},
-			{TV_ROD,SV_ROD_NOTHING,3,
-			 TV_ROD,SV_ROD_TELEPORT_AWAY},
-			{TV_WAND,SV_WAND_NOTHING,1,
-			 TV_WAND,SV_WAND_TELEPORT_AWAY},
-			{TV_WAND,SV_WAND_TELEPORT_AWAY,1,
-			 TV_WAND,SV_WAND_TELEPORT_AWAY},
-			{TV_STAFF,SV_STAFF_NOTHING,1,
-			 TV_STAFF,SV_STAFF_TELEPORTATION},
-			{TV_STAFF,SV_STAFF_TELEPORTATION,1,
-			 TV_STAFF,SV_STAFF_TELEPORTATION},
-			{TV_RING,SV_RING_NOTHING,3,
-			 TV_RING,SV_RING_TELEPORTATION},
-			{TV_AMULET,SV_AMULET_NOTHING,4,
-			 TV_AMULET,SV_AMULET_TELEPORT},
-			{0,0,1,
-			 0,0},
-		}
+	{
+		3,   2,  10,
+		"Charm never-moving",
+		"Tries to charm a never-moving monster."
 	},
-	{SV_BATERIE_ACID,
-		{
-			{EGO_BRAND_ACID,TV_SWORD,0,8},
-			{EGO_BRAND_ACID,TV_HAFTED,0,8},
-			{EGO_BRAND_ACID,TV_POLEARM,0,8},
-			{EGO_BRAND_ACID,TV_AXE,0,8},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_RING,SV_RING_NOTHING,8,
-			 TV_RING,SV_RING_ACID},
-			{TV_WAND,SV_WAND_NOTHING,2,
-			 TV_WAND,SV_WAND_ACID_BOLT},
-			{TV_WAND,SV_WAND_ACID_BOLT,2,
-			 TV_WAND,SV_WAND_ACID_BOLT},
-			{TV_ROD,SV_ROD_NOTHING,5,
-			 TV_ROD,SV_ROD_ACID_BOLT},
-			{TV_SCROLL,SV_SCROLL_NOTHING,1,
-			 TV_SCROLL,SV_SCROLL_CURSE_ARMOR},
-			{TV_AMULET,SV_AMULET_NOTHING,2,
-			 TV_AMULET,SV_AMULET_RESIST_ACID},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
+	{
+		5,   5,  20,
+		"Life share",
+		"Evens out your life with your symbiote."
 	},
-	{SV_BATERIE_COLD,
-		{
-			{EGO_BRAND_COLD,TV_SWORD,0,8},
-			{EGO_BRAND_COLD,TV_HAFTED,0,8},
-			{EGO_BRAND_COLD,TV_POLEARM,0,8},
-			{EGO_BRAND_COLD,TV_AXE,0,8},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_RING,SV_RING_NOTHING,8,
-			 TV_RING,SV_RING_ICE},
-			{TV_WAND,SV_WAND_NOTHING,1,
-			 TV_WAND,SV_WAND_COLD_BOLT},
-			{TV_WAND,SV_WAND_COLD_BOLT,1,
-			 TV_WAND,SV_WAND_COLD_BOLT},
-			{TV_ROD,SV_ROD_NOTHING,4,
-			 TV_ROD,SV_ROD_COLD_BOLT},
-			{TV_SCROLL,SV_SCROLL_NOTHING,1,
-			 TV_SCROLL,SV_SCROLL_ICE},
-			{TV_BOTTLE,1,1,
-			 TV_POTION,SV_POTION_RESIST_COLD},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
+	{
+		10,   10,  20,
+		"Use minor powers",
+		"Allows you to use some of the powers of your symbiote."
 	},
-	{SV_BATERIE_FIRE,
-		{
-			{EGO_BRAND_FIRE,TV_SWORD,0,8},
-			{EGO_BRAND_FIRE,TV_HAFTED,0,8},
-			{EGO_AURA_FIRE,TV_CLOAK,0,9},
-			{EGO_BRAND_FIRE,TV_POLEARM,0,8},
-			{EGO_BRAND_FIRE,TV_AXE,0,8},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_RING,SV_RING_NOTHING,8,
-			 TV_RING,SV_RING_FLAMES},
-			{TV_WAND,SV_WAND_NOTHING,2,
-			 TV_WAND,SV_WAND_FIRE_BOLT},
-			{TV_WAND,SV_WAND_FIRE_BOLT,2,
-			 TV_WAND,SV_WAND_FIRE_BOLT},
-			{TV_ROD,SV_ROD_NOTHING,4,
-			 TV_ROD,SV_ROD_FIRE_BOLT},
-			{TV_SCROLL,SV_SCROLL_NOTHING,1,
-			 TV_SCROLL,SV_SCROLL_FIRE},
-			{TV_BOTTLE,1,1,
-			 TV_POTION,SV_POTION_RESIST_HEAT},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
+	{
+		15,   14,  25,
+		"Heal symbiote",
+		"Heals your symbiotic monster."
 	},
-	{SV_BATERIE_LIFE,
-		{
-			{EGO_VAMPIRIC,TV_SWORD,0,12},
-			{EGO_VAMPIRIC,TV_HAFTED,0,12},
-			{EGO_VAMPIRIC,TV_POLEARM,0,12},
-			{EGO_VAMPIRIC,TV_AXE,0,12},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_RING,SV_RING_NOTHING,5,
-			 TV_RING,SV_RING_PROTECTION},
-			{TV_STAFF,SV_STAFF_NOTHING,2,
-			 TV_STAFF,SV_STAFF_CURING},
-			{TV_STAFF,SV_STAFF_CURING,2,
-			 TV_STAFF,SV_STAFF_CURING},
-			{TV_WAND,SV_WAND_NOTHING,2,
-			 TV_WAND,SV_WAND_DRAIN_LIFE},
-			{TV_WAND,SV_WAND_DRAIN_LIFE,2,
-			 TV_WAND,SV_WAND_DRAIN_LIFE},
-			{TV_ROD,SV_ROD_NOTHING,5,
-			 TV_ROD,SV_ROD_CURING},
-			{TV_SCROLL,SV_SCROLL_NOTHING,1,
-			 TV_SCROLL,SV_SCROLL_SATISFY_HUNGER},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
+	{
+		25,   30,  40,
+		"Use major powers",
+		"Allows you to use all the powers of your symbiote."
 	},
-	{SV_BATERIE_CONFUSION,
-		{
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_RING,SV_RING_NOTHING,2,
-			 TV_RING,SV_RING_RES_CONFUSION},
-			{TV_WAND,SV_WAND_NOTHING,1,
-			 TV_WAND,SV_WAND_CONFUSE_MONSTER},
-			{TV_WAND,SV_WAND_CONFUSE_MONSTER,1,
-			 TV_WAND,SV_WAND_CONFUSE_MONSTER},
-			{TV_SCROLL,SV_SCROLL_NOTHING,1,
-			 TV_SCROLL,SV_SCROLL_MONSTER_CONFUSION},
-			{TV_BOTTLE,1,1,
-			 TV_POTION,SV_POTION_CONFUSION},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
+	{
+		30,   35,  40,
+		"Summon never-moving pet",
+		"Summons a never-moving pet."
 	},
-	{SV_BATERIE_LITE,
-		{
-			{EGO_LITE,TV_CROWN,0,5},
-			{EGO_LITE,TV_HELM,0,5},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_RING,SV_RING_NOTHING,6,
-			 TV_RING,SV_RING_RES_LD},
-			{TV_STAFF,SV_STAFF_NOTHING,1,
-			 TV_STAFF,SV_STAFF_LITE},
-			{TV_STAFF,SV_STAFF_LITE,1,
-			 TV_STAFF,SV_STAFF_LITE},
-			{TV_WAND,SV_WAND_NOTHING,1,
-			 TV_WAND,SV_WAND_LITE},
-			{TV_WAND,SV_WAND_LITE,1,
-			 TV_WAND,SV_WAND_LITE},
-			{TV_ROD,SV_ROD_NOTHING,3,
-			 TV_ROD,SV_ROD_ILLUMINATION},
-			{TV_SCROLL,SV_SCROLL_NOTHING,1,
-			 TV_SCROLL,SV_SCROLL_LIGHT},
-			{TV_BOTTLE,1,2,
-			 TV_POTION,SV_POTION_INFRAVISION},
-			{0,0,1,
-			 0,0},
-		}
-	},
-	{SV_BATERIE_CHAOS,
-		{
-			{EGO_CHAOTIC,TV_SWORD,0,10},
-			{EGO_CHAOTIC,TV_HAFTED,0,10},
-			{EGO_CHAOTIC,TV_POLEARM,0,10},
-			{EGO_CHAOTIC,TV_AXE,0,10},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_RING,SV_RING_NOTHING,5,
-			 TV_RING,SV_RING_RES_CHAOS},
-			{TV_WAND,SV_WAND_NOTHING,4,
-			 TV_WAND,SV_WAND_ANNIHILATION},
-			{TV_WAND,SV_WAND_ANNIHILATION,4,
-			 TV_WAND,SV_WAND_ANNIHILATION},
-			{TV_ROD,SV_ROD_NOTHING,5,
-			 TV_ROD,SV_ROD_POLYMORPH},
-			{TV_SCROLL,SV_SCROLL_NOTHING,2,
-			 TV_SCROLL,SV_SCROLL_CHAOS},
-			{TV_BOTTLE,1,3,
-			 TV_POTION,SV_POTION_MUTATION},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
-	},
-	{SV_BATERIE_TIME,
-		{
-			{EGO_SPEED,TV_BOOTS,ALCHEMIST_ENCHANT_PVAL,13},
-			{EGO_RESISTANCE,TV_SOFT_ARMOR,0,10},
-			{EGO_RESISTANCE,TV_HARD_ARMOR,0,10},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_RING,SV_RING_NOTHING,6,
-			 TV_RING,SV_RING_SPEED},
-			{TV_STAFF,SV_STAFF_NOTHING,2,
-			 TV_STAFF,SV_STAFF_SPEED},
-			{TV_STAFF,SV_STAFF_SPEED,2,
-			 TV_STAFF,SV_STAFF_SPEED},
-			{TV_ROD,SV_ROD_NOTHING,9,
-			 TV_ROD,SV_ROD_SPEED},
-			{TV_BOTTLE,1,33,
-			 TV_POTION,SV_POTION_EXPERIENCE},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
-	},
-	{SV_BATERIE_MAGIC,
-		{
-			{EGO_MAGI,TV_HELM,ALCHEMIST_ENCHANT_PVAL,10},
-			{EGO_MAGI,TV_CROWN,ALCHEMIST_ENCHANT_PVAL,10},
-			{EGO_JUMP,TV_BOOTS,0,6},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_AMULET,SV_AMULET_NOTHING,6,
-			 TV_AMULET,SV_AMULET_THE_MAGI},
-			{TV_RING,SV_RING_NOTHING,5,
-			 TV_RING,SV_RING_INT},
-			{TV_STAFF,SV_STAFF_NOTHING,3,
-			 TV_STAFF,SV_STAFF_THE_MAGI},
-			{TV_STAFF,SV_STAFF_THE_MAGI,3,
-			 TV_STAFF,SV_STAFF_THE_MAGI},
-			{TV_ROD,SV_ROD_NOTHING,9,
-			 TV_ROD,SV_ROD_IDENTIFY},
-			{TV_SCROLL,SV_SCROLL_NOTHING,99,
-			 TV_SCROLL,SV_SCROLL_ARTIFACT},
-			{TV_BOTTLE,1,2,
-			 TV_POTION,SV_POTION_RESTORE_MANA},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
-	},
-	{SV_BATERIE_XTRA_LIFE,
-		{
-			{EGO_LIFE,TV_SWORD,ALCHEMIST_ENCHANT_PVAL,15},
-			{EGO_LIFE,TV_HAFTED,ALCHEMIST_ENCHANT_PVAL,15},
-			{EGO_LIFE,TV_POLEARM,ALCHEMIST_ENCHANT_PVAL,15},
-			{EGO_LIFE,TV_AXE,ALCHEMIST_ENCHANT_PVAL,15},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-		{
-			{TV_BOTTLE,1,2,
-			 TV_POTION,SV_POTION_NEW_LIFE},
-			{TV_STAFF,SV_STAFF_NOTHING,2,
-			 TV_STAFF,SV_STAFF_HEALING},
-			{TV_STAFF,SV_STAFF_HEALING,2,
-			 TV_STAFF,SV_STAFF_HEALING},
-			{TV_WAND,SV_WAND_NOTHING,2,
-			 TV_WAND,SV_WAND_CHARM_MONSTER},
-			{TV_WAND,SV_WAND_CHARM_MONSTER,2,
-			 TV_WAND,SV_WAND_CHARM_MONSTER},
-			{TV_ROD,SV_ROD_NOTHING,5,
-			 TV_ROD,SV_ROD_HEALING},
-			{TV_SCROLL,SV_SCROLL_NOTHING,3,
-			 TV_SCROLL,SV_SCROLL_MASS_GENOCIDE},
-			{0,0,1,
-			 0,0},
-			{0,0,1,
-			 0,0},
-		}
-	},
-	{SV_BATERIE_DARKNESS,
-		{
-			{EGO_STEALTH,TV_CLOAK,ALCHEMIST_ENCHANT_PVAL,12},
-			{EGO_QUIET,TV_BOOTS,ALCHEMIST_ENCHANT_PVAL,12},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-
-		{
-			{TV_BOTTLE,1,2,
-			 TV_POTION,SV_POTION_INVIS},
-			{TV_WAND,SV_WAND_NOTHING,1,
-			 TV_WAND,SV_WAND_FEAR_MONSTER},
-			{TV_WAND,SV_WAND_FEAR_MONSTER,2,
-			 TV_WAND,SV_WAND_FEAR_MONSTER},
-			{TV_STAFF,SV_STAFF_NOTHING,1,
-			 TV_STAFF,SV_STAFF_DARKNESS},
-			{TV_STAFF,SV_STAFF_DARKNESS,1,
-			 TV_STAFF,SV_STAFF_DARKNESS},
-			{TV_ROD,SV_ROD_NOTHING,6,
-			 TV_ROD,SV_ROD_SLEEP_MONSTER},
-			{TV_RING,SV_RING_NOTHING,8,
-			 TV_RING,SV_RING_INVIS},
-			{TV_AMULET,SV_AMULET_NOTHING,3,
-			 TV_AMULET,SV_AMULET_DOOM},
-			{0,0,0,
-			 0,0},
-		},
-	},
-	{SV_BATERIE_KNOWLEDGE,
-		{
-			{EGO_WISDOM,TV_CROWN,ALCHEMIST_ENCHANT_PVAL,8},
-			{EGO_WISDOM,TV_HELM,ALCHEMIST_ENCHANT_PVAL,8},
-			{EGO_BLESS_BLADE,TV_SWORD,ALCHEMIST_ENCHANT_PVAL,7},
-			{EGO_BLESS_BLADE,TV_HAFTED,ALCHEMIST_ENCHANT_PVAL,7},
-			{EGO_BLESS_BLADE,TV_POLEARM,ALCHEMIST_ENCHANT_PVAL,7},
-			{EGO_BLESS_BLADE,TV_AXE,ALCHEMIST_ENCHANT_PVAL,7},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-
-		{
-			{TV_BOTTLE,1,7,
-			 TV_POTION,SV_POTION_SELF_KNOWLEDGE},
-			{TV_WAND,SV_WAND_NOTHING,2,
-			 TV_WAND,SV_WAND_DISARMING},
-			{TV_WAND,SV_WAND_DISARMING,2,
-			 TV_WAND,SV_WAND_DISARMING},
-			{TV_STAFF,SV_STAFF_NOTHING,3,
-			 TV_STAFF,SV_STAFF_IDENTIFY},
-			{TV_STAFF,SV_STAFF_IDENTIFY,3,
-			 TV_STAFF,SV_STAFF_IDENTIFY},
-			{TV_ROD,SV_ROD_NOTHING,7,
-			 TV_ROD,SV_ROD_PROBING},
-			{TV_RING,SV_RING_NOTHING,5,
-			 TV_RING,SV_RING_SEE_INVIS},
-			{TV_AMULET,SV_AMULET_NOTHING,6,
-			 TV_AMULET,SV_AMULET_SEARCHING},
-			{TV_SCROLL,SV_SCROLL_NOTHING,2,
-			 TV_SCROLL,SV_SCROLL_IDENTIFY},
-		},
-	},
-	{SV_BATERIE_FORCE,
-		{
-			{EGO_PROTECTION,TV_CLOAK,ALCHEMIST_ENCHANT_AC,6},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-
-		{
-			{TV_BOTTLE,1,7,
-			 TV_POTION,SV_POTION_RESISTANCE},
-			{TV_WAND,SV_WAND_NOTHING,1,
-			 TV_WAND,SV_WAND_STONE_TO_MUD},
-			{TV_WAND,SV_WAND_STONE_TO_MUD,1,
-			 TV_WAND,SV_WAND_STONE_TO_MUD},
-			{TV_STAFF,SV_STAFF_NOTHING,2,
-			 TV_STAFF,SV_STAFF_DESTRUCTION},
-			{TV_STAFF,SV_STAFF_DESTRUCTION,2,
-			 TV_STAFF,SV_STAFF_DESTRUCTION},
-			{TV_ROD,SV_ROD_NOTHING,20,
-			 TV_ROD,SV_ROD_HAVOC},
-			{TV_RING,SV_RING_NOTHING,8,
-			 TV_RING,SV_RING_RES_SHARDS},
-			{TV_AMULET,SV_AMULET_NOTHING,2,
-			 TV_AMULET,SV_AMULET_SLOW_DIGEST},
-			{TV_SCROLL,SV_SCROLL_NOTHING,2,
-			 TV_SCROLL,SV_SCROLL_ENCHANT_ARMOR},
-		},
-	},
-	{SV_BATERIE_LIGHTNING,
-		{
-			{EGO_RESIST_ELEC,TV_SOFT_ARMOR,0,4},
-			{EGO_RESIST_ELEC,TV_HARD_ARMOR,0,4},
-			{EGO_ENDURE_ELEC,TV_SHIELD,0,4},
-			{EGO_BRAND_ELEC,TV_SWORD,0,9},
-			{EGO_BRAND_ELEC,TV_POLEARM,0,9},
-			{EGO_BRAND_ELEC,TV_HAFTED,0,9},
-			{EGO_LIGHTNING_BOLT,TV_SHOT,0,2},
-			{EGO_LIGHTNING_BOLT,TV_ARROW,0,2},
-			{EGO_LIGHTNING_BOLT,TV_BOLT,0,2},
-		},
-
-		{
-			{TV_BOTTLE,1,10,
-			 TV_POTION,SV_POTION_ENLIGHTENMENT},
-			{TV_WAND,SV_WAND_NOTHING,2,
-			 TV_WAND,SV_WAND_ELEC_BALL},
-			{TV_WAND,SV_WAND_ELEC_BALL,2,
-			 TV_WAND,SV_WAND_ELEC_BALL},
-			{TV_STAFF,SV_STAFF_NOTHING,1,
-			 TV_STAFF,SV_STAFF_STARLITE},
-			{TV_STAFF,SV_STAFF_STARLITE,1,
-			 TV_STAFF,SV_STAFF_STARLITE},
-			{TV_ROD,SV_ROD_NOTHING,15,
-			 TV_ROD,SV_ROD_ELEC_BALL},
-			{TV_RING,SV_RING_NOTHING,6,
-			 TV_RING,SV_RING_RES_BLINDNESS},
-			{TV_AMULET,SV_AMULET_NOTHING,40,
-			 TV_AMULET,SV_AMULET_REFLECTION},
-			{TV_SCROLL,SV_SCROLL_NOTHING,3,
-			 TV_SCROLL,SV_SCROLL_RECHARGING},
-		},
-	},
-	{SV_BATERIE_MANA,
-		{
-			{EGO_FREE_ACTION,TV_GLOVES,0,15},
-			{EGO_MOTION,TV_BOOTS,0,15},
-			{EGO_DF,TV_SWORD,ALCHEMIST_ENCHANT_DAM | ALCHEMIST_ENCHANT_PVAL | ALCHEMIST_ENCHANT_AC,23},
-			{EGO_DF,TV_POLEARM,ALCHEMIST_ENCHANT_DAM | ALCHEMIST_ENCHANT_PVAL | ALCHEMIST_ENCHANT_AC,23},
-			{EGO_DF,TV_HAFTED,ALCHEMIST_ENCHANT_DAM | ALCHEMIST_ENCHANT_PVAL | ALCHEMIST_ENCHANT_AC,23},
-			{EGO_DF,TV_AXE,ALCHEMIST_ENCHANT_DAM | ALCHEMIST_ENCHANT_PVAL | ALCHEMIST_ENCHANT_AC,23},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
-
-		{
-			{TV_BOTTLE,1,1,
-			 TV_POTION,SV_POTION_SLEEP},
-			{TV_WAND,SV_WAND_NOTHING,1,
-			 TV_WAND,SV_WAND_SLEEP_MONSTER},
-			{TV_WAND,SV_WAND_SLEEP_MONSTER,1,
-			 TV_WAND,SV_WAND_SLEEP_MONSTER},
-			{TV_STAFF,SV_STAFF_NOTHING,2,
-			 TV_STAFF,SV_STAFF_SLEEP_MONSTERS},
-			{TV_STAFF,SV_STAFF_SLEEP_MONSTERS,2,
-			 TV_STAFF,SV_STAFF_SLEEP_MONSTERS},
-			{TV_ROD,SV_ROD_NOTHING,10,
-			 TV_ROD,SV_ROD_MAPPING},
-			{TV_RING,SV_RING_NOTHING,6,
-			 TV_RING,SV_RING_FREE_ACTION},
-			{TV_AMULET,SV_AMULET_NOTHING,15,
-			 TV_AMULET,SV_AMULET_NO_MAGIC},
-			{TV_SCROLL,SV_SCROLL_NOTHING,3,
-			 TV_SCROLL,SV_SCROLL_STAR_ENCHANT_WEAPON},
-		},
+	{
+		40,   60,  70,
+		"Force Symbiosis",
+		"Allows you to use all the powers of a monster in your line of sight."
 	},
 };
-/*
-	{SV_BATERIE_,
-		{
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-			{0,0,0,1},
-		},
 
-		{
-			{0,0,0,
-			 0,0},
-			{0,0,0,
-			 0,0},
-			{0,0,0,
-			 0,0},
-			{0,0,0,
-			 0,0},
-			{0,0,0,
-			 0,0},
-			{0,0,0,
-			 0,0},
-			{0,0,0,
-			 0,0},
-			{0,0,0,
-			 0,0},
-			{0,0,0,
-			 0,0},
-		},
-	},
-*/
 
 /*
  * Textual translation of your god's "niceness".
@@ -4124,6 +3543,11 @@ cptr deity_standing[11] =
 	"favored",
 	"championed"
 };
+
+/*
+ * Name and description (max. 10 lines) of the gods.
+ * Only the first four lines are printed at birth. 
+ */
 
 deity_type deity_info[MAX_GODS] =
 {
@@ -4190,8 +3614,23 @@ deity_type deity_info[MAX_GODS] =
 	{
 		"Melkor Bauglir",
 		{
-			"He is the most powerful of the Valar. He became corrupted and he's now \n"
+			"He is the most powerful of the Valar. He became corrupted and he's now ",
 			"the greatest threat of Arda, he is also known as Morgoth, the dark enemy.",
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+		},
+	},
+	{
+		"Yavanna Kementari",
+		{
+			"She is the vala of nature, protectress of the great forests of "
+			"Middle Earth.",
 			NULL,
 			NULL,
 			NULL,
@@ -4277,8 +3716,10 @@ activation activation_info[MAX_T_ACT] =
 	{ "aggravation", 0, ACT_AGGRAVATE },
 	{ "corruption", 100, ACT_MUT },
 	{ "cure insanity", 2000, ACT_CURE_INSANITY },
-	{ "cure corruption", 2000, ACT_CURE_MUT },
 	{ "light absortion", 800, ACT_LIGHT_ABSORBTION },
+#if 0 /* No more for the time being, ehehhe evil I am :> */
+        { "cure corruption", 2000, ACT_CURE_MUT },
+#endif
 };
 
 /*
@@ -4289,14 +3730,14 @@ music music_info[MAX_MUSICS] =
 	{"singing a song of freedom",MUSIC_BETWEEN,10,40,10,1,10},
 	{"singing a charming song",MUSIC_CHARME,6,60,20,1,15},
 	{"singing a knowledge song",MUSIC_ID,6,50,5,2,10},
-	{"singing a *knowledge* song",MUSIC_STAR_ID,2,100,50,4,100}, /* Never random, only for the Harp of Master Robinton */
+	{"singing a *knowledge* song",MUSIC_STAR_ID,2,100,50,4,100}, /* Never random, only for the Harp of Maglor */
 	{"singing a beautiful song",MUSIC_NONE,0,0,0,1,1},
 	{"singing a hiding song",MUSIC_HIDE,20,50,8,3,6},
 	{"singing a song of brightness",MUSIC_LITE,60,20,4,1,5},
 	{"singing a immaterial song",MUSIC_SHADOW,30,50,2,5,15},
 	{"singing a godness song",MUSIC_HOLY,20,100,20,6,15},
-	{"singing a *godness* song",MUSIC_HOLY,30,100,20,5,100}, /* Never random, only for the Drum of Piemur */
-	{"singing a *charming* song",MUSIC_CHARME,20,100,20,1,100}, /* Never random, only for the Flute of Menolly */
+	{"singing a *godness* song",MUSIC_HOLY,30,100,20,5,100}, /* Never random, only for the Drum of the sky */
+	{"singing a *charming* song",MUSIC_CHARME,20,100,20,1,100}, /* Never random, only for the Flute of Daeron */
 };
 
 /*
@@ -4956,6 +4397,13 @@ power_type powers_type_init[POWER_MAX_INIT] =
 		"You can no longer sense your dodging success chance.",
 		0, 0, 0, 0,
 	},
+	{
+		"turn into a balrog",
+		"You can turn into a balrog at will.",
+		"You feel the fire of udun burning in you.",
+		"You no longer feel the fire of udun in you.",
+		35, 80, A_WIS, 25,
+	},
 };
 
 /*
@@ -5365,12 +4813,12 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		{
 			"The armies of Morgoth are closing in on the last remaining strongholds",
 			"of resistance against him. We are too far apart to help each other.",
-			"The arrival of our new Dragonrider allies has helped, but can only delay",
+			"The arrival of our new Thunderlord allies has helped, but can only delay",
 			"the inevitable. We must be able to stand together and reinforce each other,",
-			"or both our kingdoms will fall separately. The Dragonriders have taught us",
+			"or both our kingdoms will fall separately. The Thunderlords have taught us",
 			"how to use the Void Jumpgates: we need you to open a Void Jumpgate in our",
 			"own city, and that of Gondolin.",
-			"Simply travel to Gondolin, but beware of rebel dragonriders.",
+			"Simply travel to Gondolin, but beware of rebel thunderlords.",
 			"",
 			"",
 		},
@@ -5542,7 +4990,7 @@ monster_power monster_powers[96] =
 	{ RF6_RAISE_DEAD, "Raise the Dead", 400, TRUE },
 	{ 0, "(none)", 0, FALSE },
 	{ 0, "(none)", 0, FALSE },
-	{ RF6_S_DRAGONRIDER, "Summon DragonRiders", 90, TRUE },
+	{ RF6_S_THUNDERLORD, "Summon Thunderlords", 90, TRUE },
 	{ RF6_S_KIN, "Summon Kin", 80, FALSE },
 	{ RF6_S_HI_DEMON, "Summon Greater Demons", 90, TRUE },
 	{ RF6_S_MONSTER, "Summon Monster", 50, FALSE },
@@ -5567,8 +5015,8 @@ tval_desc tval_descs[] =
 	{
 		TV_BATERIE,
 		"Essences contain the primitive magic forces which enable "
-		"Alchemists using them to create powerful magic items from "
-		"other magic items."
+		"Alchemy skill users can use them to create powerful magic "
+		"items from other magic items."
 	},
 	{
 		TV_MSTAFF,
@@ -5577,9 +5025,8 @@ tval_desc tval_descs[] =
 		"normal time and some will yield even greater powers."
 	},
 	{
-		TV_FIRESTONE,
-		"DragonRiders can feed their dragons with firestone to "
-		"allow them to breath fire."
+		3,
+		"XXX"
 	},
 	{
 		TV_PARCHEMENT,
@@ -5634,7 +5081,7 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_HAFTED,
-		"Hafted weapons are melee weapons. Priests can use them "
+		"Hafted weapons are melee weapons. Eru followers can use them "
 		"without penalties."
 	},
 	{
@@ -5673,8 +5120,8 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_TRAPKIT,
-		"Trapping kits are used by rogues to set deadly monster "
-		"traps."
+		"Trapping kits are used with the trapping skill to set "
+		"deadly monster traps."
 	},
 	{
 		TV_STAFF,
@@ -5734,11 +5181,11 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_RUNE1,
-		"Runes are used by Runecrafters to create brand new spells."
+		"Runes are used with the Runecraft skill to create brand new spells."
 	},
 	{
 		TV_RUNE2,
-		"Runes are used by Runecrafters to create brand new spells."
+		"Runes are used with the Runecraft skill  to create brand new spells."
 	},
 	{
 		TV_JUNK,
@@ -5814,8 +5261,8 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_DAEMON_BOOK,
-		"This magic book is used by daemonologists to control "
-		"demons."
+		"This unholy demon equipment is used with the Demonology skill to control "
+		"the realm of demon power."
 	},
 	{0, ""},
 };
@@ -5896,4 +5343,104 @@ int max_body_part[BODY_MAX] =
 	6,      /* Finger */
 	2,      /* Head */
 	2,      /* Legs */
+};
+
+/*
+ * Description of GF_FOO
+ */
+gf_name_type gf_names[] =
+{
+	{ GF_ELEC, "electricity" },
+	{ GF_POIS, "poison" },
+	{ GF_ACID, "acid" },
+	{ GF_COLD, "cold" },
+	{ GF_FIRE, "fire" },
+	{ GF_UNBREATH, "asphyxiating gas" },
+	{ GF_CORPSE_EXPL, "corpse explosion" },
+	{ GF_MISSILE, "missile" },
+	{ GF_ARROW, "arrow" },
+	{ GF_PLASMA, "plasma" },
+	{ GF_WAVE, "a tidal wave" },
+	{ GF_WATER, "water" },
+	{ GF_LITE, "light" },
+	{ GF_DARK, "darkness" },
+	{ GF_LITE_WEAK, "weak light" },
+	{ GF_DARK_WEAK, "weak darkness" },
+	{ GF_SHARDS, "shards" },
+	{ GF_SOUND, "sound" },
+	{ GF_CONFUSION, "confusion" },
+	{ GF_FORCE, "force" },
+	{ GF_INERTIA, "inertia" },
+	{ GF_MANA, "pure mana" },
+	{ GF_METEOR, "meteor" },
+	{ GF_ICE, "ice" },
+	{ GF_CHAOS, "chaos" },
+	{ GF_NETHER, "nether" },
+	{ GF_DISENCHANT, "disenchantment" },
+	{ GF_NEXUS, "nexus" },
+	{ GF_TIME, "time" },
+	{ GF_GRAVITY, "gravity" },
+	{ GF_KILL_WALL, "wall destruction" },
+	{ GF_KILL_DOOR, "door destruction" },
+	{ GF_KILL_TRAP, "trap destruction" },
+	{ GF_MAKE_WALL, "wall creation" },
+	{ GF_MAKE_DOOR, "door creation" },
+	{ GF_MAKE_TRAP, "trap creation" },
+	{ GF_OLD_CLONE, "clone" },
+	{ GF_OLD_POLY, "polymorph" },
+	{ GF_OLD_HEAL, "healing" },
+	{ GF_OLD_SPEED, "speed" },
+	{ GF_OLD_SLOW, "slowness" },
+	{ GF_OLD_CONF, "confusion" },
+	{ GF_OLD_SLEEP, "sleep" },
+	{ GF_OLD_DRAIN, "drain life" },
+	{ GF_AWAY_UNDEAD, "teleport away undead" },
+	{ GF_AWAY_EVIL, "teleport away evil" },
+	{ GF_AWAY_ALL, "teleport away" },
+	{ GF_TURN_UNDEAD, "scare undead" },
+	{ GF_TURN_EVIL, "scare evil" },
+	{ GF_TURN_ALL, "scare" },
+	{ GF_DISP_UNDEAD, "dispel undead" },
+	{ GF_DISP_EVIL, "dispel evil" },
+	{ GF_DISP_ALL, "dispel" },
+	{ GF_DISP_DEMON, "dispel demons" },
+	{ GF_DISP_LIVING, "dispel living creatures" },
+	{ GF_ROCKET, "rocket" },
+	{ GF_NUKE, "nuke" },
+	{ GF_MAKE_GLYPH, "glyph creation" },
+	{ GF_STASIS, "stasis" },
+	{ GF_STONE_WALL, "stone wall creation" },
+	{ GF_DEATH_RAY, "death ray" },
+	{ GF_STUN, "stunning" },
+	{ GF_HOLY_FIRE, "holy fire" },
+	{ GF_HELL_FIRE, "hellfire" },
+	{ GF_DISINTEGRATE, "disintegration" },
+	{ GF_CHARM, "charming" },
+	{ GF_CONTROL_UNDEAD, "undead control" },
+	{ GF_CONTROL_ANIMAL, "animal control" },
+	{ GF_PSI, "psionic energy" },
+	{ GF_PSI_DRAIN, "psionic drain" },
+	{ GF_TELEKINESIS, "telekinesis" },
+	{ GF_JAM_DOOR, "door jamming" },
+	{ GF_DOMINATION, "domination" },
+	{ GF_DISP_GOOD, "dispel good" },
+	{ GF_IDENTIFY, "identification" },
+	{ GF_RAISE, "raise dead" },
+	{ GF_STAR_IDENTIFY, "*identification*" },
+	{ GF_DESTRUCTION, "destruction" },
+	{ GF_STUN_CONF, "stunning and confusion" },
+	{ GF_STUN_DAM, "stunning and damage" },
+	{ GF_CONF_DAM, "confusion and damage" },
+	{ GF_STAR_CHARM, "*charming*" },
+	{ GF_IMPLOSION, "implosion" },
+	{ GF_LAVA_FLOW, "lava" },
+	{ GF_FEAR, "fear" },
+	{ GF_BETWEEN_GATE, "jumpgate creation" },
+	{ GF_WINDS_MANA, "" },
+	{ GF_DEATH, "death" },
+	{ GF_CONTROL_DEMON, "control demon" },
+	{ GF_RAISE_DEMON, "raise demon" },
+	{ GF_TRAP_DEMONSOUL, "*control demon*" },
+	{ GF_ATTACK, "projected melee attacks" },
+        { -1, NULL },
 };

@@ -1,4 +1,6 @@
 |||||oy
+~~~~~01|Luck (spoiler)
+~~~~~02|Spoilers|Luck
 #####RLuck
 
 "You've got to ask yourself one question: do I feel lucky? Well do ya 
@@ -65,9 +67,9 @@ The Set of Cesti of Fingolfin (+4)
 The Long Sword 'Anduril' (+4)
 The Long Bow of Bard (+2)
 The Mage Staff of Gandalf (+12)
-The Harp of Master Robinton (+3)
-The Drum of Piemur (+2)
-The Flute of Menolly (+1)
+The Harp of Maglor (+3)
+The Drum of the Sky (+2)
+The Flute of Daeron (+1)
 The Long Sword of Eru Iluvatar (+10)
 The Robe of Great Luck (+60)
 The Heavy Crossbow of the Elves (+5)

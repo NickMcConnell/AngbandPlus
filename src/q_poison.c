@@ -119,6 +119,7 @@ bool quest_poison_finish_hook(char *fmt)
 
 	q_ptr = &forge;
 	object_prep(q_ptr, lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_BLUE));
+        q_ptr->found = OBJ_FOUND_REWARD;
 	q_ptr->number = 1;
 	q_ptr->name2 = EGO_ELVENKIND;
 	apply_magic(q_ptr, 1, FALSE, FALSE, FALSE);

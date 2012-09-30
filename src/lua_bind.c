@@ -273,28 +273,34 @@ school_type *grab_school_type(s16b num)
 }
 
 /* Change this fct if I want to switch to learnable spells */
-s32b lua_get_level(s32b s, s32b lvl, s32b max, s32b min)
+s32b lua_get_level(s32b s, s32b lvl, s32b max, s32b min, s32b bonus)
 {
         s32b tmp;
 
         tmp = lvl - ((school_spells[s].skill_level - 1) * (SKILL_STEP / 10));
-        lvl = (tmp * (max * (SKILL_STEP / 10)) / (SKILL_MAX / 10)) / (SKILL_STEP / 10);
-        if (lvl < min) lvl = min;
-        else if (lvl > 0)
-        {
-                tmp += p_ptr->to_s * (SKILL_STEP / 10);
-                tmp += get_skill_scale(SKILL_SPELL, 20) * (SKILL_STEP / 10);
-                lvl = (tmp * (max * (SKILL_STEP / 10)) / (SKILL_MAX / 10)) / (SKILL_STEP / 10);
-        }
+
+        if (tmp >= (SKILL_STEP / 10)) /* We require at least one spell level */
+                tmp += bonus;
+
+        tmp = (tmp * (max * (SKILL_STEP / 10)) / (SKILL_MAX / 10));
+
+        if (tmp < 0) /* Shift all negative values, so they map to appropriate integer */
+                tmp -= SKILL_STEP / 10 - 1; 
+
+        /* Now, we can safely divide */
+        lvl = tmp / (SKILL_STEP / 10);
+
+        if (lvl < min)
+                lvl = min;
+
         return lvl;
 }
 
 s32b lua_spell_chance(s32b chance, int level, int skill_level, int mana, int cur_mana, int stat)
 {
         int             minfail;
-
 	/* Reduce failure rate by "effective" level adjustment */
-        chance -= 3 * (level - skill_level);
+        chance -= 3 * (level - 1);
 
 	/* Reduce failure rate by INT/WIS adjustment */
         chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[stat]] - 1);
@@ -334,6 +340,31 @@ s32b lua_spell_chance(s32b chance, int level, int skill_level, int mana, int cur
 	return (chance);
 }
 
+s32b lua_spell_device_chance(s32b chance, int level, int base_level)
+{
+        int             minfail;
+
+        /* Reduce failure rate by "effective" level adjustment */
+        chance -= (level - 1);
+
+	/* Extract the minimum failure rate */
+        minfail = 15 - get_skill_scale(SKILL_DEVICE, 25);
+        if (minfail < 0) minfail = 0;
+
+	/* Minimum failure rate */
+	if (chance < minfail) chance = minfail;
+
+	/* Stunning makes spells harder */
+	if (p_ptr->stun > 50) chance += 25;
+	else if (p_ptr->stun) chance += 15;
+
+	/* Always a 5 percent chance of working */
+	if (chance > 95) chance = 95;
+
+	/* Return the chance */
+	return (chance);
+}
+
 /* Cave */
 cave_type *lua_get_cave(int y, int x)
 {
@@ -345,6 +376,24 @@ void set_target(int y, int x)
         target_who = -1;
         target_col = x;
         target_row = y;
+}
+
+void get_target(int dir, int *y, int *x)
+{
+        int ty, tx;
+
+	/* Use the given direction */
+	tx = px + (ddx[dir] * 100);
+	ty = py + (ddy[dir] * 100);
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = target_col;
+		ty = target_row;
+        }
+        *y = ty;
+        *x = tx;
 }
 
 /* Level gen */
@@ -371,6 +420,36 @@ void load_map(char *name, int *y, int *x)
 	process_dungeon_file_full = TRUE;
 	process_dungeon_file(name, y, x, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
+}
+
+/* Allow lua to use a temporary file */
+static char lua_temp_name[1025];
+static bool lua_temp_file_alloc = FALSE;
+void lua_make_temp_file()
+{
+        if (lua_temp_file_alloc) return;
+
+        if (path_temp(lua_temp_name, 1024)) return;
+
+	/* Open a new file */
+	hook_file = my_fopen(lua_temp_name, "w");
+}
+
+void lua_close_temp_file()
+{
+	/* Close the file */
+	my_fclose(hook_file);
+}
+
+void lua_end_temp_file()
+{
+	/* Remove the file */
+	fd_kill(lua_temp_name);
+}
+
+cptr lua_get_temp_name()
+{
+        return lua_temp_name;
 }
 
 bool alloc_room(int by0, int bx0, int ysize, int xsize, int *y1, int *x1, int *y2, int *x2)
@@ -452,7 +531,6 @@ static bool lua_mon_hook_bounty(int r_idx)
 
 int lua_get_new_bounty_monster(int lev)
 {
-        monster_race* r_ptr;
         int r_idx;
 
 	/*
@@ -470,6 +548,29 @@ int lua_get_new_bounty_monster(int lev)
         get_mon_num_prep();
 
         return r_idx;
+}
+
+/*
+ * Some misc functions
+ */
+char *lua_input_box(cptr title, int max)
+{
+        static char buf[80];
+        int wid, hgt;
+
+        strcpy(buf, "");
+        Term_get_size(&wid, &hgt);
+        if (!input_box(title, hgt / 2, wid / 2, buf, (max > 79) ? 79 : max))
+                return "";
+        return buf;
+}
+
+char lua_msg_box(cptr title)
+{
+        int wid, hgt;
+
+        Term_get_size(&wid, &hgt);
+        return msg_box(title, hgt / 2, wid / 2);
 }
 
 #endif

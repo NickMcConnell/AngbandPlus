@@ -1,3 +1,5 @@
+~~~~~01|Corrupted
+~~~~~02|Race Modifiers|Corrupted
 #####R=== Corrupted Race ===
 
 #####GDescription

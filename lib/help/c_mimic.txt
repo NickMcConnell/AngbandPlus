@@ -1,3 +1,5 @@
+~~~~~01|Mimic
+~~~~~02|Classes|Mimic
 #####R=== Mimics ===
 
 #####GDescription
@@ -5,25 +7,55 @@ Mimics possess the ability to transform into various creatures using
 special cloaks. While transformed, they lose their intrinsic abilities, 
 and gain those of the creature they have transformed into.
 
-#####GPrimary Stats
-Dexterity (spell casting stat)
 
-#####GMagic Usage
-Mimics don't use spellbooks specifically, and as such do not study any
-realm of magic. However, they are able to use the specialised powers 
-inherent in many cloaks found within the dungeon (cloaks of mimicry).
-These cloaks are activated using the "m" command, and enable the Mimic
-to change form.
+#####GStarting Stat Modifiers
+Strength         +1
+Intelligence     -2
+Wisdom           +1
+Dexterity        +1
+Constitution     +0
+Charisma         +1
+Bonus Blows       0
+Hit Die          +d8
+Exp Penalty      40%
 
-In addition to activating cloaks, the Mimic also has the ability to use
-some personal spells, which are also activated by the "m" command.
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  1.000           [0.800]
+  Weaponmastery         1.000           [0.800]
+  Archery               1.000           [0.700]
+  Barehand-combat       1.000           [0.600]
+Sneakiness              1.000           [0.800]
+  Stealth               1.000           [0.800]
+  Disarming             1.000           [0.700]
+Magic                   1.000           [0.700]
+  Magic-Device          1.000           [1.000]
+Spirituality            1.000           [0.500]
+  Prayer                0.000           [0.500]
+Monster-lore            1.000           [1.100]
+  Corpse-preservation   1.000           [0.900]
+  Possession            0.000           [0.100]
+  Mimicry               1.000           [0.800]
 
 #####GStarting Equipment
 A mimic begins the game with:
     A cloak of mimicry [Wolf]
     A potion of healing
     A dagger
-If they are *very* lucky they may also begin with:
-    A cloak of mimicry [Goat]
-    
+~~~~~03|Mimic|Mimicry powers
+~~~~~05|Skills|Mimicry - mimicry powers
+#####GMimicry
+[[[[[BMimicry powers are accessed using the 'm' key.]  
+Mimics can alter their form using special cloaks called cloaks of mimicry.
+Even if this ability can give them access to increased stats, regeneration,
+speed and resistances, there is always the risk of the shape-change going
+horribly wrong, turning the character into an abomination for some time.
+Also, you should keep in mind that any racial power or stat modifier is
+overridden during the shape-shift. 
+As your mimicry skill increases, your character is less likely to spoil
+the transformation attempt and may even gain other powers, such as making
+his colouration match his surroundings (becoming in all respects invisible)
+or even stranger abilities... rumors abound about Tarka the Chameleon and 
+her two pairs of boots of speed.
+
     

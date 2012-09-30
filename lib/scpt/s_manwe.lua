@@ -7,14 +7,16 @@ MANWE_SHIELD = add_spell
         ["level"] =     10,
         ["mana"] =      100,
         ["mana_max"] =  500,
-        ["fail"] = 	20,
+        ["fail"] = 	30,
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
                         local dur = get_level(MANWE_SHIELD, 50) + 10 + randint(20)
+                        local obvious
 
-                        set_protevil(dur)
+                        obvious = set_protevil(dur)
                         if get_level(MANWE_SHIELD) >= 10 then
                                 local type
 
@@ -22,8 +24,9 @@ MANWE_SHIELD = add_spell
                                 if get_level(MANWE_SHIELD) >= 20 then
                                         type = SHIELD_COUNTER
                                 end
-                                set_shield(dur, get_level(MANWE_SHIELD, 30), type, 1 + get_level(MANWE_SHIELD, 2), 1 + get_level(MANWE_SHIELD, 6))
+                                obvious = is_obvious(set_shield(dur, get_level(MANWE_SHIELD, 30), type, 1 + get_level(MANWE_SHIELD, 2), 1 + get_level(MANWE_SHIELD, 6)), obvious)
                         end
+                        return obvious
 	end,
 	["info"] = 	function()
                         local desc = "dur "..(get_level(MANWE_SHIELD, 50) + 10).."+d20"
@@ -50,12 +53,13 @@ MANWE_AVATAR = add_spell
         ["level"] =     35,
         ["mana"] =      1000,
         ["mana_max"] =  1000,
-        ["fail"] = 	20,
+        ["fail"] = 	80,
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
-                        set_mimic(get_level(MANWE_AVATAR, 20) + randint(10), MIMIC_MAIAR)
+                        return set_mimic(get_level(MANWE_AVATAR, 20) + randint(10), MIMIC_MAIAR)
 	end,
         ["info"] =      function()
                         return "dur "..(get_level(MANWE_AVATAR, 20)).."+d10"
@@ -76,21 +80,24 @@ MANWE_BLESS = add_spell
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
                         local dur = get_level(MANWE_BLESS, 70) + 30 + randint(40)
+                        local obvious
 
-                        set_blessed(dur)
-                        set_afraid(0)
-                        set_lite(0)
+                        obvious = set_blessed(dur)
+                        obvious = is_obvious(set_afraid(0), obvious)
+                        obvious = is_obvious(set_lite(0), obvious)
                         if get_level(MANWE_BLESS) >= 10 then
-                                set_hero(dur)
+                                obvious = is_obvious(set_hero(dur), obvious)
                         end
                         if get_level(MANWE_BLESS) >= 20 then
-                                set_shero(dur)
+                                obvious = is_obvious(set_shero(dur), obvious)
                         end
                         if get_level(MANWE_BLESS) >= 30 then
-                                set_holy(dur)
+                                obvious = is_obvious(set_holy(dur), obvious)
                         end
+                        return obvious
 	end,
         ["info"] =      function()
                         return "dur "..(get_level(MANWE_BLESS, 70) + 30).."+d40"
@@ -111,10 +118,11 @@ MANWE_CALL = add_spell
         ["level"] =     20,
         ["mana"] =      200,
         ["mana_max"] =  500,
-        ["fail"] = 	20,
+        ["fail"] = 	40,
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
                         local y, x, m_idx
 
@@ -123,6 +131,7 @@ MANWE_CALL = add_spell
 
                 	if m_idx ~= 0 then
                                 monster_set_level(m_idx, 20 + get_level(MANWE_CALL, 70, 0))
+                                return TRUE
                         end
 	end,
         ["info"] =      function()

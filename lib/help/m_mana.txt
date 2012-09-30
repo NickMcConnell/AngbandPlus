@@ -1,4 +1,7 @@
 |||||oy
+~~~~~01|Magic|Mana School
+~~~~~02|Mana Magic
+~~~~~03|Skills|Mana - Spell Info
 #####R === ToME Magic - Mana School ===
 
 The mana school of magic contains spells where the raw force of magic is used
@@ -10,18 +13,25 @@ the mana school at a level of 1/2 of your prayer level. e.g. If the skill
 "Spirituality: Prayer" is at level 10, you can cast up to level 5 mana school
 spells.
 
-#####GMana Spells
-The are four spells available for the mana school. These Spells are:
-1. [[[[[BManathrust] (school level 1)
+#####sMana Spells
+There are four spells available for the mana school. These Spells are:
+1. [[[[[sManathrust] (school level 1)
    Conjures up mana into a powerful bolt.
    The damage is irresistible and will increase with spell level
-2. [[[[[BRemove Curses] (school level 10)
+2. [[[[[sRemove Curses] (school level 10)
    Remove curses of worn objects.
    At spell level 20 switches to *remove curses*
-3. [[[[[BElemental Shield] (school level 20)
+3. [[[[[sElemental Shield] (school level 20)
    Provide resistances to the four basic elements.
-4. [[[[[BDisruption Shield] (school level 45)
+4. [[[[[sDisruption Shield] (school level 45)
    Uses mana instead of hitpoints to take damage.
    At spell level 5 switches to Globe of Invulnerability.
    The spell breaks as soon as a melee, shooting, throwing or magical skill
    action is attempted.
+
+
+#####GUdun spells that can be cast with Mana skill
+
+1. [[[[[DDrain] (school level 1)
+   Drains the mana contained in wands, staves and rods to increase yours.
+   

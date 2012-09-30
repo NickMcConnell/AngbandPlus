@@ -93,7 +93,8 @@ bool quest_eol_finish_hook(char *fmt)
 	c_put_str(TERM_YELLOW, "Accept my thanks, and that reward.", 9, 0);
 
 	q_ptr = &forge;
-	object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_DWARVEN));
+        object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_DWARVEN));
+        q_ptr->found = OBJ_FOUND_REWARD;
 	q_ptr->name2 = EGO_LITE_MAGI;
 	apply_magic(q_ptr, 1, FALSE, FALSE, FALSE);
 	q_ptr->number = 1;

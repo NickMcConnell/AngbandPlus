@@ -38,7 +38,7 @@
 
 #include "angband.h"
 
-#ifdef USE_SDL
+#if defined(USE_SDL) || defined(USE_LUA_GUI)
 
 
 #include "SDL/SDL.h"
@@ -728,6 +728,7 @@ sdl_keymapt sdl_keymap[] =
 
 void Multikeypress(char *k)
 {
+        printf("zog : '%s'\n", k);
 	while (*k) Term_keypress(*k++);
 }
 

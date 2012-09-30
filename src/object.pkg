@@ -168,6 +168,10 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define TR5_WOUNDING            0x00000080L     /* Wounds monsters */
 #define TR5_FULL_NAME           0x00000100L     /* Uses direct name from k_info */
 #define TR5_LUCK                0x00000200L     /* Luck += pval */
+#define TR5_IMMOVABLE           0x00000400L     /* Cannot move */
+#define TR5_SPELL_CONTAIN       0x00000800L     /* Can contain a spell */
+#define TR5_RES_MORGUL          0x00001000L     /* Is not shattered by morgul fiends(nazguls) */
+#define TR5_ACTIVATE_NO_WIELD   0x00002000L     /* Can be 'A'ctivated without being wielded */
 
 #define ESP_ORC                 0x00000001L
 #define ESP_TROLL               0x00000002L
@@ -177,7 +181,7 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define ESP_UNDEAD              0x00000020L
 #define ESP_EVIL                0x00000040L
 #define ESP_ANIMAL              0x00000080L
-#define ESP_DRAGONRIDER         0x00000100L
+#define ESP_THUNDERLORD         0x00000100L
 #define ESP_GOOD                0x00000200L
 #define ESP_NONLIVING           0x00000400L
 #define ESP_UNIQUE              0x00000800L
@@ -211,7 +215,6 @@ static obj_theme lua_obj_theme @ theme_forge;
 
 #define TV_SKELETON      1      /* Skeletons ('s') */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
-#define TV_FIRESTONE     3      /* For DragonRiders */
 #define TV_BATERIE       4      /* For the Alchemists */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_MSTAFF        6      /* Mage Staffs */
@@ -260,11 +263,11 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define TV_RUNE1        104      /* Base runes */
 #define TV_RUNE2        105      /* Modifier runes */
 
-#define TV_BOOK 	111
-#define TV_SYMBIOTIC_BOOK 118
-#define TV_MUSIC_BOOK   119
-#define TV_DRUID_BOOK   124
-#define TV_DAEMON_BOOK  125
+#define TV_BOOK         111
+#define TV_SYMBIOTIC_BOOK 112
+#define TV_MUSIC_BOOK   113
+#define TV_DRUID_BOOK   114
+#define TV_DAEMON_BOOK  115
 
 /* The "sval" codes for TV_TOOL */
 #define SV_TOOL_CLIMB 0
@@ -272,10 +275,6 @@ static obj_theme lua_obj_theme @ theme_forge;
 
 /* The "sval" codes for TV_MSTAFF */
 #define SV_MSTAFF 1
-
-/* The "sval" codes for TV_FIRESTONE */
-#define SV_FIRESTONE  3
-#define SV_FIRE_SMALL 6
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT                    0	/* pebbles */
@@ -446,7 +445,7 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define SV_LEATHER_SCALE_MAIL           11
 #define SV_LEATHER_JACK                 12
 #define SV_STONE_AND_HIDE_ARMOR         15  /* 15 */
-#define SV_DRAGONRIDER_SUIT             16
+#define SV_THUNDERLORD_SUIT             16
 
 /* The "sval" codes for TV_HARD_ARMOR */
 #define SV_RUSTY_CHAIN_MAIL              1  /* 14- */
@@ -522,6 +521,7 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define SV_AMULET_WEAPONMASTERY         24
 #define SV_AMULET_WISDOM                28
 #define SV_AMULET_INFRA                 26
+#define SV_AMULET_SPELL                 27
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
@@ -582,79 +582,18 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define SV_RING_WRAITH                  55
 #define SV_RING_ELEC                    56
 #define SV_RING_CRIT                    57
+#define SV_RING_SPELL                   58
 
 /* The "sval" codes for TV_STAFF */
-#define SV_STAFF_DARKNESS                0
-#define SV_STAFF_SLOWNESS                1
-#define SV_STAFF_HASTE_MONSTERS          2
-#define SV_STAFF_SUMMONING               3
-#define SV_STAFF_TELEPORTATION           4
-#define SV_STAFF_IDENTIFY                5
-#define SV_STAFF_REMOVE_CURSE            6
-#define SV_STAFF_STARLITE                7
-#define SV_STAFF_LITE                    8
-#define SV_STAFF_MAPPING                 9
-#define SV_STAFF_DETECT_GOLD            10
-#define SV_STAFF_DETECT_ITEM            11
-#define SV_STAFF_DETECT_TRAP            12
-#define SV_STAFF_DETECT_DOOR            13
-#define SV_STAFF_DETECT_INVIS           14
-#define SV_STAFF_DETECT_EVIL            15
-#define SV_STAFF_CURE_LIGHT             16
-#define SV_STAFF_CURING                 17
-#define SV_STAFF_HEALING                18
-#define SV_STAFF_THE_MAGI               19
-#define SV_STAFF_SLEEP_MONSTERS         20
-#define SV_STAFF_SLOW_MONSTERS          21
-#define SV_STAFF_SPEED                  22
-#define SV_STAFF_PROBING                23
-#define SV_STAFF_DISPEL_EVIL            24
-#define SV_STAFF_POWER                  25
-#define SV_STAFF_HOLINESS               26
-#define SV_STAFF_GENOCIDE               27
-#define SV_STAFF_EARTHQUAKES            28
-#define SV_STAFF_DESTRUCTION            29
-#define SV_STAFF_NOTHING                30
-#define SV_STAFF_WISHING                31
-#define SV_STAFF_GANDALF                32
+#define SV_STAFF_SCHOOL                 1
+#define SV_STAFF_NOTHING                2
 
 /* jk - the first valuable staff */
 #define SV_STAFF_NASTY_STAFF              4
 
 /* The "sval" codes for TV_WAND */
-#define SV_WAND_HEAL_MONSTER             0
-#define SV_WAND_HASTE_MONSTER            1
-#define SV_WAND_CLONE_MONSTER            2
-#define SV_WAND_TELEPORT_AWAY            3
-#define SV_WAND_DISARMING                4
-#define SV_WAND_TRAP_DOOR_DEST           5
-#define SV_WAND_STONE_TO_MUD             6
-#define SV_WAND_LITE                     7
-#define SV_WAND_SLEEP_MONSTER            8
-#define SV_WAND_SLOW_MONSTER             9
-#define SV_WAND_CONFUSE_MONSTER         10
-#define SV_WAND_FEAR_MONSTER            11
-#define SV_WAND_DRAIN_LIFE              12
-#define SV_WAND_POLYMORPH               13
-#define SV_WAND_STINKING_CLOUD          14
-#define SV_WAND_MAGIC_MISSILE           15
-#define SV_WAND_ACID_BOLT               16
-#define SV_WAND_CHARM_MONSTER           17
-#define SV_WAND_FIRE_BOLT               18
-#define SV_WAND_COLD_BOLT               19
-#define SV_WAND_ACID_BALL               20
-#define SV_WAND_ELEC_BALL               21
-#define SV_WAND_FIRE_BALL               22
-#define SV_WAND_COLD_BALL               23
-#define SV_WAND_WONDER                  24
-#define SV_WAND_ANNIHILATION            25
-#define SV_WAND_DRAGON_FIRE             26
-#define SV_WAND_DRAGON_COLD             27
-#define SV_WAND_DRAGON_BREATH           28
-#define SV_WAND_ROCKETS                 29
-#define SV_WAND_NOTHING                 30
-#define SV_WAND_WALL_CREATION           31
-#define SV_WAND_THRAIN                  32
+#define SV_WAND_SCHOOL                  1
+#define SV_WAND_NOTHING                 2
 
 /* jk - the first valuable wand */
 #define SV_WAND_NASTY_WAND               3
@@ -914,6 +853,33 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define SV_CORPSE_SKULL      4
 #define SV_CORPSE_MEAT       5
 
+/* The "sval" codes for TV_DAEMON_BOOK */
+#define SV_DEMONBLADE  55
+#define SV_DEMONSHIELD 56
+#define SV_DEMONHORN   57
+
+/*
+ * Special Object Flags
+ */
+#define IDENT_SENSE             0x01    /* Item has been "sensed" */
+#define IDENT_FIXED             0x02    /* Item has been "haggled" */
+#define IDENT_EMPTY             0x04    /* Item charges are known */
+#define IDENT_KNOWN             0x08    /* Item abilities are known */
+#define IDENT_STOREB            0x10    /* Item is storebought !!!! */
+#define IDENT_MENTAL            0x20    /* Item information is known */
+#define IDENT_CURSED            0x40    /* Item is temporarily cursed */
+
+/*
+ * Location of objects when they were found
+ */
+#define OBJ_FOUND_MONSTER       1
+#define OBJ_FOUND_FLOOR         2
+#define OBJ_FOUND_VAULT         3
+#define OBJ_FOUND_SPECIAL       4
+#define OBJ_FOUND_RUBBLE        5
+#define OBJ_FOUND_REWARD        6
+#define OBJ_FOUND_STORE         7
+
 struct obj_theme
 {
 	byte treasure;
@@ -1128,7 +1094,24 @@ struct object_type
 	s16b held_m_idx;	/* Monster holding us (if any) */
 
 	byte sense;             /* Pseudo-id status */
+
+        byte found;             /* How did we find it */
+        s16b found_aux1;        /* Stores info for found */
+        s16b found_aux2;        /* Stores info for found */
 };
+
+/* Pseudo-id defines */
+#define SENSE_NONE                      0
+#define SENSE_CURSED			1
+#define SENSE_AVERAGE			2
+#define SENSE_GOOD_LIGHT		3
+#define SENSE_GOOD_HEAVY		4
+#define SENSE_EXCELLENT			5
+#define SENSE_WORTHLESS			6
+#define SENSE_TERRIBLE			7
+#define SENSE_SPECIAL			8
+#define SENSE_BROKEN			9
+#define SENSE_UNCURSED			10
 
 extern object_type o_list[max_o_idx];
 extern object_type inventory[INVEN_TOTAL];
@@ -1143,9 +1126,12 @@ extern ego_item_type e_info[max_e_idx];
 extern char *e_name;
 extern char *e_text;
 
-extern void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp);
+extern s16b m_bonus(int max, int level);
+extern s16b wield_slot_ideal(object_type *o_ptr, bool ideal);
+extern s16b wield_slot(object_type *o_ptr);
+extern void object_flags(object_type *o_ptr, u32b *f1 = 0, u32b *f2 = 0, u32b *f3 = 0, u32b *f4 = 0, u32b *f5 = 0, u32b *esp = 0);
 extern char *lua_object_desc @ object_desc(object_type *o_ptr, int pref, int mode);
-extern bool identify_fully_aux(object_type *o_ptr, FILE *fff);
+extern bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down);
 extern void inven_item_describe(int item);
 extern void inven_item_increase(int item, int num);
 extern bool inven_item_optimize(int item);
@@ -1161,6 +1147,7 @@ extern s16b lookup_kind(int tval, int sval);
 extern void object_wipe(object_type *o_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
 extern void object_copy(object_type *o_ptr, object_type *j_ptr);
+extern bool inven_carry_okay(object_type *o_ptr);
 extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
 extern bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme);
 extern s16b drop_near(object_type *o_ptr, int chance, int y, int x);
@@ -1173,3 +1160,28 @@ extern bool is_magestaff();
 extern void identify_pack_fully(void);
 extern s16b inven_carry(object_type *o_ptr, bool final);
 extern s32b calc_total_weight(void);
+extern int get_slot(int slot);
+extern bool is_blessed(object_type *o_ptr);
+extern cptr sense_desc[1000];  /* 1000 is just a hack for tolua */
+extern void object_pickup(int this_o_idx);
+
+$static bool lua_is_artifact(object_type *o_ptr) { return artifact_p(o_ptr); }
+static bool lua_is_artifact@is_artifact(object_type *o_ptr);
+
+$static bool lua_is_aware(object_type *o_ptr) { return object_aware_p(o_ptr); }
+static bool lua_is_aware@is_aware(object_type *o_ptr);
+
+$static bool lua_is_known(object_type *o_ptr) { return object_known_p(o_ptr); }
+static bool lua_is_known@is_known(object_type *o_ptr);
+
+$static void lua_set_aware(object_type *o_ptr) { object_aware(o_ptr); }
+static void lua_set_aware@set_aware(object_type *o_ptr);
+
+$static void lua_set_known(object_type *o_ptr) { object_known(o_ptr); }
+static void lua_set_known@set_known(object_type *o_ptr);
+
+extern byte value_check_aux1(object_type *o_ptr);
+extern byte value_check_aux1_magic(object_type *o_ptr);
+extern byte value_check_aux2(object_type *o_ptr);
+extern byte value_check_aux2_magic(object_type *o_ptr);
+extern byte select_sense(object_type *o_ptr, bool ok_combat, bool ok_magic);

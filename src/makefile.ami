@@ -6,7 +6,7 @@ all: angband
 
 # Object files
 OBJS = \
-  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
+  z-util.o z-virt.o z-form.o z-rand.o z-term.o z-sock.o \
   variable.o tables.o util.o cave.o cmovie.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   xtra1.o xtra2.o spells1.o spells2.o help.o \
@@ -28,7 +28,7 @@ HDRS = \
 INCS = \
   angband.h \
   config.h defines.h types.h externs.h \
-  z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
+  z-term.h z-rand.h z-util.h z-virt.h z-form.h z-sock.h$(HDRS)
 
 # Linking
 angband: $(OBJS)
@@ -104,4 +104,4 @@ z-rand.o: z-rand.c $(HDRS) z-rand.h
 z-term.o: z-term.c $(HDRS) z-term.h z-virt.h
 z-util.o: z-util.c $(HDRS) z-util.h
 z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
-
+z-sock.o: z-sock.c $(HDRS) z-sock.h

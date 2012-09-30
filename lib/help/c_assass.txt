@@ -1,0 +1,51 @@
+~~~~~01|Assassin
+~~~~~02|Classes|Assasin
+#####R=== Assassins ===
+#####GDescription
+Assassin are similar to rogues, but have trained their combat abilities more
+extensively by neglecting the study of magic. They also tend to be more stealthy
+and careful in their dungeon exploration, but aren't so good at stealing,
+trapping and disarming as their more "peaceful" counterparts.
+
+#####GStarting Stat Modifiers
+Strength       +2
+Intelligence   +1
+Wisdom         -2
+Dexterity      +3
+Constitution   +1
+Charisma       -1
+Bonus Blows    0
+Hit Die        +d6
+Exp Penalty    25%
+
+#####GStarting Skills
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  1.000           [0.800]
+  Weaponmastery         1.000           [0.800]
+    Sword-mastery       1.000           [0.400]
+      Critical-hits     1.000           [0.600]
+Sneakiness              1.000           [2.200]
+  Stealth               1.000           [0.900]
+  Disarming             1.000           [1.000]
+  Trapping              1.000           [1.000]
+  Backstab              1.000           [1.400]
+  Stealing              1.000           [0.800]
+  Dodging               1.000           [1.000]
+Magic                   1.000           [0.400]
+  Magic-Device          1.000           [1.050]
+  Conveyance            0.000           [0.300]
+  Divination            0.000           [0.300]
+  Temporal              0.000           [0.300]
+Spirituality            1.000           [0.700]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
+
+#####GStarting Equipment
+An assassin begins the game with:
+    a Dagger
+    a Catapult trap set
+    some Iron Shots
+
+
+
+

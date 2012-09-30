@@ -14,28 +14,26 @@
 #include "angband.h"
 
 /* 
- * A short helper function for add_note and other
- * functions that returns the file name for the notes file.
+ * Show the notes file on the screen
  */
-cptr notes_file(void)
+void show_notes_file(void)
 {
-	char fname[15];
-	static char buf[500];
-	char base_name[9];
+	char basename[13];
+	char buf[1024];
 
-	/* Hack -- extract first 8 characters of name */
-	strncpy(base_name, player_name, 8);
+	/* Hack -- extract first 8 characters of name and append an extension */
+	(void)strnfmt(basename, sizeof(basename), "%.8s.nte", player_base);
+	basename[sizeof(basename) - 1] = '\0';
 
-	base_name[8] = '\0';
+	/* Build the path */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_NOTE, basename);
 
-	/* Create the file name from the character's name plus .txt */
-	sprintf(fname, "%s.nte", base_name);
-	path_build(buf, 500, ANGBAND_DIR_NOTE, fname);
+	/* Invoke show_file */
+   (void)show_file(buf, NULL, 0, 0);
 
-	/* return the filename */
-	return buf;
+	/* Done */
+	return;
 }
-
 
 /* 
  * Output a string to the notes file.
@@ -44,27 +42,35 @@ cptr notes_file(void)
 void output_note(char *final_note)
 {
 	FILE *fff;
+	char basename[13];
+	char buf[1024];
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Grab */
-	safe_setuid_grab();
+	/* Hack -- extract first 8 characters of name and append an extension */
+	(void)strnfmt(basename, sizeof(basename), "%.8s.nte", player_base);
+	basename[sizeof(basename) - 1] = '\0';
+
+	/* Build the path */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_NOTE, basename);
 
 	/* Open notes file */
-	fff = my_fopen(notes_file(), "a");
-
-	/* Drop */
-	safe_setuid_drop();
+	fff = my_fopen(buf, "a");
 
 	/* Failure */
 	if (!fff) return;
 
 	/* Add note, and close note file */
-	fprintf(fff, final_note);
+	my_fputs(fff, final_note, 0);
 
+	/* Close the handle */
 	my_fclose(fff);
+
+	/* Done */
+	return;
 }
+
 
 /*
  * Add note to file using a string + character symbol
@@ -84,33 +90,26 @@ void add_note(char *note, char code)
 	strncpy(buf, note, 60);
 
 	/* Get date and time */
-	sprintf(long_day, "%ld:%02ld %s, %s", (bst(HOUR, turn) % 12 == 0) ? 12 : (bst(HOUR, turn) % 12), bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE, FALSE));
+	sprintf(long_day, "%ld:%02ld %s, %s", (bst(HOUR, turn) % 12 == 0) ? 12 : (bst(HOUR, turn) % 12),
+	   bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE,
+	   FALSE));
 
 	/* Get depth  */
-
-	if (!dun_level)
-	{
-		strcpy(depths, "  Town");
-	}
-	else if (depth_in_feet)
-	{
-		sprintf(depths, "%4dft", dun_level * 50);
-	}
-	else
-	{
-		sprintf(depths, "Lev%3d", dun_level);
-	}
+	if (!dun_level) strcpy(depths, "  Town");
+	else if (depth_in_feet) sprintf(depths, "%4dft", dun_level * 50);
+	else sprintf(depths, "Lev%3d", dun_level);
 
 	/* Make note */
-	sprintf(final_note, "%-20s %s %c: %s\n", long_day,
-		 depths, code, buf);
+	sprintf(final_note, "%-20s %s %c: %s", long_day, depths, code, buf);
 
 	/* Output to the notes file */
 	output_note(final_note);
 }
 
 
-/* Add note to file using type specified by note_number */
+/*
+ * Append a note to the notes file using a "type".
+ */
 void add_note_type(int note_number)
 {
 	char long_day[50], true_long_day[50];
@@ -124,7 +123,8 @@ void add_note_type(int note_number)
 	sprintf(buf, "%ld", bst(YEAR, turn) + START_YEAR);
 	sprintf(long_day, "%ld:%02ld %s the %s of III %s", (bst(HOUR, turn) % 12 == 0) ? 12 : (bst(HOUR, turn) % 12), bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE, FALSE), buf);
 
-	switch(note_number)
+	/* Work out what to do */
+	switch (note_number)
 	{
 		case NOTE_BIRTH:
 		{
@@ -152,39 +152,41 @@ void add_note_type(int note_number)
 				"================================================\n"
 				"%s %s\n"
 				"Born on %s\n"
-				"================================================\n"
-				"\n",
+				"================================================\n",
 				player_name, player, true_long_day);
+
+			break;
 		}
-		break;
 
 		case NOTE_WINNER:
 		{
 			sprintf(buf,
 				"%s slew Morgoth on %s\n"
 				"Long live %s!\n"
-				"================================================\n",
+				"================================================",
 				player_name, long_day, player_name);
+
+				break;
 		}
-		break;
 
 		case NOTE_SAVE_GAME:
 		{
 			/* Saving the game */
-			sprintf(buf, "\nSession end: %s\n", true_long_day);
+			sprintf(buf, "\nSession end: %s", true_long_day);
+
+			break;
 		}
-		break;
 
 		case NOTE_ENTER_DUNGEON:
 		{
 			/* Entering the game after a break. */
 			sprintf(buf,
 			"================================================\n"
-			"New session start: %s\n"
-			"\n",
+			"New session start: %s\n",
 			true_long_day);
+
+			break;
 		}
-		break;
 
 		default: return;
 	}

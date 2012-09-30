@@ -1,3 +1,5 @@
+~~~~~01|Possesor
+~~~~~02|Classes|Possesor
 #####R=== Possessors ===
 
 #####GDescription
@@ -8,10 +10,41 @@ the abilities of the monster, and their hitpoints and the monster's
 are averaged. While in the incorporeal form between bodies, they have 
 only one hitpoint. 
 
-#####GPrimary Stats
-Wisdom (spell casting stat)
+#####GStarting Stat Modifiers
+Strength         +1
+Intelligence     -2
+Wisdom           +1
+Dexterity        +1
+Constitution     +0
+Charisma         +1
+Bonus Blows       0
+Hit Die          +d8
+Exp Penalty      40%
 
-#####GMagic Usage
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  1.000           [0.600]
+  Weaponmastery         1.000           [0.600]
+  Archery               1.000           [0.400]
+Sneakiness              1.000           [0.700]
+  Stealth               1.000           [0.700]
+  Disarming             1.000           [0.500]
+Magic                   0.000           [0.600]
+  Magic-Device          1.000           [1.000]
+Spirituality            1.000           [0.500]
+  Prayer                0.000           [0.500]
+Monster-lore            1.000           [1.100]
+  Corpse-preservation   1.000           [0.900]
+  Possession            1.000           [0.800]
+
+#####GStarting Equipment
+A possessor begins the game with:
+    a potion of healing
+    a short sword
+    hard leather armor
+~~~~~03|Possesor|Possesor powers 
+
+#####GPossession
 The strange art of reanimating the corpse of a monster and making
 it one's own can be of extreme benefit to those skilled in it. The body
 the player possesses can grant powerful abilities, such as increased
@@ -20,25 +53,17 @@ gives the player a large number of hit points. Possessing uniques is
 especially neat.  
 
 Possessors leave their own body by using the 'm' command, and choosing 
-"[I]incarnating powers".  They then become a very vulnerable ghostly 
+"[I]incarnating powers". Lacking a lifeforce to sustain it, a corpse may rot
+immediately when a Possessor leaves it, but a high Possession skill score
+may prevent this from happening. They then become a very vulnerable ghostly 
 being which travels to where another corpse is lying on the floor, and 
 possesses it by again using the 'm' command.  Once possessed, many 
 monster corpses allow the player to perform various special actions
-(such as blinking or summoning) by using the option "[U]se your race
+(such as blinking or summoning) by using the option "Use your [R]ace
 powers".
 
 All corpses alter the player's melee attacks. When they incarnate in a 
 monster that allows the use of a weapon, monster blows are ignored 
-[[[[[Btotaly]. When they incarnate in a monster that doesn't allow use of a 
+[[[[[Btotally]. When they incarnate in a monster that doesn't allow use of a 
 weapon (dragons for example) they use the monster blows [[[[[Band only them]!
-
-#####GStarting Equipment
-A possessor begins the game with:
-    a potion of healing
-    a sword sword
-    hard leather armor
-If they are *very* lucky they may also begin with:
-    scrolls of remove curse
-    
-
 		

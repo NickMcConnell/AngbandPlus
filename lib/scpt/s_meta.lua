@@ -7,9 +7,9 @@ RECHARGE = add_spell
         ["level"] = 	5,
         ["mana"] = 	10,
         ["mana_max"] = 	100,
-        ["fail"] = 	10,
+        ["fail"] = 	20,
         ["spell"] = 	function()
-        		recharge(60 + get_level(RECHARGE, 140))
+        		return recharge(60 + get_level(RECHARGE, 140))
 	end,
 	["info"] = 	function()
                 	return "power "..(60 + get_level(RECHARGE, 140))
@@ -34,17 +34,17 @@ SPELLBINDER = add_spell
         ["level"] = 	20,
         ["mana"] = 	100,
         ["mana_max"] = 	300,
-        ["fail"] = 	30,
+        ["fail"] = 	85,
         ["spell"] = 	function()
         		local i, ret, c
 
         		if player.spellbinder_num ~= 0 then
                         	msg_print("The spellbinder is already active.")
-                        	return
+                        	return TRUE
                         end
 
 			ret, c = get_com("Trigger at [a]75% hp [b]50% hp [c]25% hp?", strbyte("a"))
-			if ret == FALSE then return end
+			if ret == FALSE then return TRUE end
                         
                         if c == strbyte("a") then
 	        		player.spellbinder_trigger = SPELLBINDER_HP75
@@ -64,11 +64,11 @@ SPELLBINDER = add_spell
                                 if s == -1 then
 	        			player.spellbinder_trigger = 0
         		                player.spellbinder_num = 0
-                                	return
+                                	return TRUE
                                 else
                                 	if spell(s).skill_level > 7 + get_level(SPELLBINDER, 35) then
                                         	msg_print("You are only allowed spells with a base level of "..(7 + get_level(SPELLBINDER, 35))..".");
-                                                return
+                                                return TRUE
                                         end
                                 end
 	                        player.spellbinder[i] = s
@@ -76,6 +76,7 @@ SPELLBINDER = add_spell
                         end
                         player.energy = player.energy - 3100;
                         msg_print("Spellbinder ready.")
+                        return TRUE
 	end,
 	["info"] = 	function()
                 	return "number "..(get_spellbinder_max()).." max level "..(7 + get_level(SPELLBINDER, 35))
@@ -97,37 +98,49 @@ DISPERSEMAGIC = add_spell
         ["level"] = 	15,
         ["mana"] = 	30,
         ["mana_max"] = 	60,
-        ["fail"] = 	10,
+        ["fail"] = 	40,
         -- Unnafected by blindness
         ["blind"] =     FALSE,
         -- Unnafected by confusion
         ["confusion"] = FALSE,
+        ["stick"] =
+        {
+                        ["charge"] =    { 5, 5 },
+                        [TV_WAND] =
+                        {
+                                ["rarity"] = 		25,
+                                ["base_level"] =        { 1, 15 },
+                                ["max_level"] =        	{ 5, 40 },
+                        },
+        },
         ["spell"] = 	function()
-                        set_blind(0)
-                        set_lite(0)
+                        local obvious
+                        obvious = set_blind(0)
+                        obvious = is_obvious(set_lite(0), obvious)
                         if get_level(DISPERSEMAGIC, 50) >= 5 then
-	                        set_confused(0)
-	                        set_image(0)
+	                        obvious = is_obvious(set_confused(0), obvious)
+	                        obvious = is_obvious(set_image(0), obvious)
                         end
                         if get_level(DISPERSEMAGIC, 50) >= 10 then
-	                        set_slow(0)
-	                        set_fast(0, 0)
-                                set_light_speed(0)
+	                        obvious = is_obvious(set_slow(0), obvious)
+	                        obvious = is_obvious(set_fast(0, 0), obvious)
+                                obvious = is_obvious(set_light_speed(0), obvious)
                         end
                         if get_level(DISPERSEMAGIC, 50) >= 15 then
-	                        set_stun(0)
-	                        set_meditation(0)
-	                        set_cut(0)
+	                        obvious = is_obvious(set_stun(0), obvious)
+	                        obvious = is_obvious(set_meditation(0), obvious)
+	                        obvious = is_obvious(set_cut(0), obvious)
                         end
                         if get_level(DISPERSEMAGIC, 50) >= 20 then
-	                        set_hero(0)
-	                        set_shero(0)
-                                set_blessed(0)
-                                set_shield(0)
-                                set_afraid(0)
-                                set_parasite(0, 0)
-                                set_mimic(0)
+	                        obvious = is_obvious(set_hero(0), obvious)
+	                        obvious = is_obvious(set_shero(0), obvious)
+                                obvious = is_obvious(set_blessed(0), obvious)
+                                obvious = is_obvious(set_shield(0, 0, 0, 0, 0), obvious)
+                                obvious = is_obvious(set_afraid(0), obvious)
+                                obvious = is_obvious(set_parasite(0, 0), obvious)
+                                obvious = is_obvious(set_mimic(0, 0), obvious)
                         end
+                        return TRUE
 	end,
 	["info"] = 	function()
                 	return ""
@@ -139,5 +152,30 @@ DISPERSEMAGIC = add_spell
                         "Level 10: speed (both bad or good) and light speed",
                         "Level 15: stunning, meditation, cuts",
                         "Level 20: hero, super hero, bless, shields, afraid, parasites, mimicry",
+        }
+}
+
+TRACKER = add_spell
+{
+	["name"] = 	"Tracker",
+        ["school"] = 	{SCHOOL_META, SCHOOL_CONVEYANCE},
+        ["level"] = 	30,
+        ["mana"] = 	50,
+        ["mana_max"] = 	50,
+        ["fail"] = 	95,
+        ["spell"] = 	function()
+                        if last_teleportation_y == -1 then
+                                msg_print("There has not been any teleporatation here.")
+                                return TRUE
+                        end
+                        teleport_player_to(last_teleportation_y, last_teleportation_x)
+                        return TRUE
+	end,
+	["info"] = 	function()
+                	return ""
+	end,
+        ["desc"] =	{
+        		"Tracks down the last teleportation that happened on the level and teleports",
+                        "you to it",
         }
 }

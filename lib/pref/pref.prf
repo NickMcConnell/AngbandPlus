@@ -162,10 +162,6 @@ C:1:W
 A:b
 C:1:P
 
-# Jam a door (Spike)
-A:j
-C:1:S
-
 # Toggle search mode
 A:S
 C:1:#
@@ -246,6 +242,10 @@ C:1:(
 A:#
 C:1:)
 
+# Record command
+A:$
+C:1:S
+
 
 ### Extended macros ###
 
@@ -267,6 +267,8 @@ L:-8187:skills:Check skills
 L:-8187:S
 L:-8186:html-dump:Save an html screenshot
 L:-8186:D
+L:-8184:quest:Show quest list
+L:-8184:Q
 L:y:give:Give an object to a monster
 L:Y:chat:Talk to a monster
 L:j:jam:Jam a door

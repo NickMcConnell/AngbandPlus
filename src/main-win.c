@@ -232,7 +232,6 @@
  * For IRC stuff
  */
 #ifdef USE_WINSOCK
-#include <winsock2.h>
 #define ZSOCK_TIMER_ID   1
 #define ZSOCK_TIMER_RATE 50
 #endif
@@ -555,7 +554,35 @@ static BYTE win_pal[256] =
  * Hack -- define which keys are "special"
  */
 static bool special_key[256];
+static bool ignore_key[256];
 
+#if 1
+/*
+ * Hack -- initialization list for "special_key"
+ */
+static byte special_key_list[] = {
+        VK_CLEAR,VK_PAUSE,VK_CAPITAL,VK_KANA,
+#ifdef JP
+        VK_JUNJA,VK_FINAL,VK_KANJI, VK_CONVERT,VK_NONCONVERT,VK_ACCEPT,VK_MODECHANGE,
+#endif
+        VK_PRIOR,VK_NEXT,VK_END,VK_HOME,VK_LEFT,VK_UP,VK_RIGHT,VK_DOWN,
+        VK_SELECT,VK_PRINT,VK_EXECUTE,VK_SNAPSHOT,VK_INSERT,VK_DELETE,
+        VK_HELP,VK_APPS,
+        VK_F1,VK_F2,VK_F3,VK_F4,VK_F5,VK_F6,VK_F7,VK_F8,VK_F9,VK_F10,
+        VK_F11,VK_F12,VK_F13,VK_F14,VK_F15,VK_F16,VK_F17,VK_F18,VK_F19,VK_F20,
+        VK_F21,VK_F22,VK_F23,VK_F24,VK_NUMLOCK,VK_SCROLL,
+        VK_ATTN,VK_CRSEL,VK_EXSEL,VK_EREOF,VK_PLAY,VK_ZOOM,VK_NONAME,
+        VK_PA1,0
+};
+
+static byte ignore_key_list[] = {
+VK_ESCAPE,VK_TAB,VK_SPACE,
+'F','W','O','H', /* these are menu characters.*/
+VK_SHIFT,VK_CONTROL,VK_MENU,VK_LWIN,VK_RWIN,
+VK_LSHIFT,VK_RSHIFT,VK_LCONTROL,VK_RCONTROL,VK_LMENU,VK_RMENU,0
+};
+
+#else
 /*
  * Hack -- initialization list for "special_key"
  *
@@ -635,6 +662,7 @@ static byte special_key_list[] =
 
 	0
 };
+#endif
 
 
 /*
@@ -1761,9 +1789,8 @@ static errr Term_xtra_win_event(int v)
 	/* Check for an event */
 	else
 	{
-#ifdef USE_SOCK
-		irc_poll(pern_irc);
-#endif
+                irc_poll();
+
 		/* Check */
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
@@ -1961,10 +1988,19 @@ static errr Term_xtra_win(int n, int v)
 		/* Delay for some milliseconds */
 		case TERM_XTRA_DELAY:
 		{
-#ifdef USE_SOCK
-			irc_poll(pern_irc);
-#endif
+			irc_poll();
+
 			return (Term_xtra_win_delay(v));
+		}
+
+		/* Get the current time in milliseconds */
+		case TERM_XTRA_GET_DELAY:
+		{
+			DWORD t;
+
+			t = GetTickCount();
+                        Term_xtra_long = t;
+			return 0;
 		}
 	}
 
@@ -2033,6 +2069,13 @@ static errr Term_wipe_win(int x, int y, int n)
 	return 0;
 }
 
+/*
+ * Return the HWND of the main window
+ */
+HWND get_main_hwnd()
+{
+        return data[0].w;
+}
 
 /*
  * Low level graphics.  Assumes valid input.
@@ -3434,7 +3477,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
 
 			/* Handle "special" keys */
-			if (special_key[(byte)(wParam)])
+			if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
 			{
 				/* Begin the macro trigger */
 				Term_keypress(31);
@@ -3612,14 +3655,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 			break;
 		}
-
-#ifdef USE_WINSOCK
-		case WM_TIMER:
-		{
-			irc_poll(pern_irc);
-		}
-#endif /* USE_WINSOCK */
-
 	}
 
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -3754,7 +3789,7 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 			if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
 
 			/* Handle "special" keys */
-			if (special_key[(byte)(wParam)])
+			if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
 			{
 				/* Begin the macro trigger */
 				Term_keypress(31);
@@ -4033,99 +4068,6 @@ static void hook_quit(cptr str)
 	exit(0);
 }
 
-#ifdef USE_WINSOCK
-void *zsock_connect(char *hos, short port)
-{
-	struct hostent *host;
-	struct sockaddr_in sin;
-	SOCKET *client;
-
-	MAKE(client, SOCKET);
-	*client = socket(AF_INET, SOCK_STREAM, 0);
-
-	host = gethostbyname(hos);
-
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = ((struct in_addr *)(host->h_addr))->s_addr;
-	sin.sin_port = htons(port);
-
-	if (connect(*client, &sin, sizeof sin) == SOCKET_ERROR)
-	{
-		/* could not connect to server */
-		return (NULL);
-	}
-
-	SetTimer(data[0].w, ZSOCK_TIMER_ID, ZSOCK_TIMER_RATE, NULL);
-
-	return (client);
-}
-
-bool zsock_can_read(void *client)
-{
-	struct timeval t;
-	fd_set rd;
-	SOCKET *c = client;
-
-	FD_ZERO(&rd);
-	FD_SET(*c, &rd);
-	t.tv_sec = 0;
-	t.tv_usec = 0;
-	select(*c + 1, &rd, NULL, NULL, &t);
-	if (FD_ISSET(*c, &rd)) return TRUE;
-	else return (FALSE);
-}
-
-bool zsock_wait(void *client)
-{
-	struct timeval t;
-	fd_set rd;
-	SOCKET *c = client;
-
-	t.tv_sec = 30;
-	t.tv_usec = 0;
-
-	FD_ZERO(&rd);
-	FD_SET(*c, &rd);
-	select(*c + 1, &rd, NULL, NULL, &t);
-	if (FD_ISSET(*c, &rd)) return TRUE;
-	else return (FALSE);
-}
-
-void zsock_disconnect(void *client)
-{
-	SOCKET *c = client;
-
-	closesocket(*c);
-	FREE(c, SOCKET);
-
-	KillTimer(data[0].w, ZSOCK_TIMER_ID);
-}
-
-void zsock_send(void *sock, char *str)
-{
-	SOCKET *c = sock;
-
-	send(*c, str, strlen(str), 0);
-}
-
-void zsock_recv(void *sock, char *str, int len)
-{
-	char c;
-	int l = 0;
-	SOCKET *cc = sock;
-
-	while ((l < len) && zsock_can_read(sock))
-	{
-		recv(*cc, &c, 1, 0);
-		if (c == '\r') continue;
-		if (c == '\n') break;
-		str[l++] = c;
-	}
-	str[l] = '\0';
-}
-#endif
-
 /*** Initialize ***/
 
 
@@ -4170,10 +4112,20 @@ static void init_stuff(void)
 	/* Validate the path */
 	validate_dir(path);
 
-	/* Init the file paths */
+	/*** Initialise the file paths ***/
+
+	/* Start with standard ones */
 	init_file_paths(path);
 
-	/* Hack -- Validate the paths */
+	/* Build the "font" path */
+	path_build(path, 1024, ANGBAND_DIR_XTRA, "font");
+
+	/* Allocate the path */
+	ANGBAND_DIR_XTRA_FONT = string_make(path);
+
+
+	/*** Validate the paths to ensure we have a working install ***/
+
 	validate_dir(ANGBAND_DIR_APEX);
 	validate_dir(ANGBAND_DIR_BONE);
 	validate_dir(ANGBAND_DIR_DATA);
@@ -4187,21 +4139,6 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_USER);
 	validate_dir(ANGBAND_DIR_XTRA);
 	validate_dir(ANGBAND_DIR_CMOV);
-
-	/* Build the filename */
-	path_build(path, 1024, ANGBAND_DIR_FILE, "news.txt");
-
-	/* Hack -- Validate the "news.txt" file */
-	validate_file(path);
-
-
-	/* Build the "font" path */
-	path_build(path, 1024, ANGBAND_DIR_XTRA, "font");
-
-	/* Allocate the path */
-	ANGBAND_DIR_XTRA_FONT = string_make(path);
-
-	/* Validate the "font" directory */
 	validate_dir(ANGBAND_DIR_XTRA_FONT);
 
 	/* Build the filename */
@@ -4255,7 +4192,6 @@ static void init_stuff(void)
 	/* validate_dir(ANGBAND_DIR_XTRA_HELP); */
 }
 
-
 int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 		       LPSTR lpCmdLine, int nCmdShow)
 {
@@ -4264,31 +4200,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	WNDCLASS wc;
 	HDC hdc;
 	MSG msg;
-#ifdef USE_WINSOCK
-	WSADATA wsaData;
-	WORD version;
-	int error;
-
-	version = MAKEWORD( 2, 0 );
-
-	error = WSAStartup( version, &wsaData );
-
-	/* check for error */
-	if ( error != 0 )
-	{
-		/* error occured */
-		return FALSE;
-	}
-
-	/* check for correct version */
-	if ( LOBYTE( wsaData.wVersion ) != 2 ||
-	     HIBYTE( wsaData.wVersion ) != 0 )
-	{
-		/* incorrect WinSock version */
-		WSACleanup();
-		return 100;
-	}
-#endif
 
 	/* Save globally */
 	hInstance = hInst;
@@ -4377,6 +4288,27 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Set the system suffix */
 	ANGBAND_SYS = "win";
 
+
+	/* Set the keyboard suffix */
+	if (7 != GetKeyboardType(0))
+		ANGBAND_KEYBOARD = "0";
+	else
+	{
+		/* Japanese keyboard */
+		switch (GetKeyboardType(1))
+		{
+		case 0x0D01: case 0x0D02:
+		case 0x0D03: case 0x0D04:
+		case 0x0D05: case 0x0D06:
+			/* NEC PC-98x1 */
+			ANGBAND_KEYBOARD = "NEC98";
+			break;
+		default:
+			/* PC/AT */
+			ANGBAND_KEYBOARD = "JAPAN";
+		}
+	}
+
 	/* Initialize */
 	init_angband();
 
@@ -4404,6 +4336,11 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
+	}
+	/* Initialize the keypress analyzer */
+	for (i = 0; ignore_key_list[i]; ++i)
+	{
+		ignore_key[ignore_key_list[i]] = TRUE;
 	}
 
 	/* Paranoia */

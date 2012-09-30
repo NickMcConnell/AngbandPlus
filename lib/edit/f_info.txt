@@ -629,7 +629,7 @@ D:0:A dark rift opens to the void here.
 N:161:Altar of Being
 G:0:W
 F:FLOOR | REMEMBER | NOTICE | CAN_RUN
-D:0:You feal at peace.
+D:0:You feel at peace.
 
 N:162:Altar of Winds
 G:0:B
@@ -644,9 +644,13 @@ D:0:You grow a desire to fight evil.
 N:164:Altar of Darkness
 G:0:D
 F:FLOOR | REMEMBER | NOTICE | CAN_RUN
-D:0:Images of pain and death feels your mind.
+D:0:Images of pain and death fill your mind.
 
-# XXX
+N:165:Altar of Nature
+G:0:g
+F:FLOOR | REMEMBER | NOTICE | CAN_RUN
+D:0:You feel the desire to walk in a great forest.
+
 # XXX
 # XXX
 # XXX
@@ -839,3 +843,41 @@ G:::w
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:CAN_FLY | SUPPORT_LIGHT | PERMANENT
 D:1:Looks like this pile of rubble is quite hard.
+
+# Rocky ground - rougher terrain.
+N:207:rocky ground
+G:.:s
+F:FLOOR | SUPPORT_LIGHT | CAN_RUN
+F:DONT_NOTICE_RUNNING
+
+# cloud-like vapour. Floor for Eru's temple
+N:208:cloud-like vapour
+G:.:W
+S:W:B:B:W:w:W:B
+F:FLOOR | CAN_LEVITATE | CAN_FLY | SUPPORT_LIGHT 
+F:ATTR_MULTI | CAN_RUN | DONT_NOTICE_RUNNING
+
+# condensing water
+N:209:condensing water
+G:~:B
+S:B:B:B:B:B:B:b
+F:ATTR_MULTI
+F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT | CAN_RUN
+F:DONT_NOTICE_RUNNING
+
+# Dense mist. Can pass through, but not see through
+N:210:dense mist
+G:#:w
+S:w:W:s:s:s:w:w
+F:FLOOR | NO_VISION | REMEMBER | SUPPORT_LIGHT
+F:ATTR_MULTI | DONT_NOTICE_RUNNING
+D:0:You wander through the mist.
+D:1:You cannot tunnel through mist!
+
+# Hail-stone wall
+N:211:hail-stone wall
+G:#:W
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
+F:DONT_NOTICE_RUNNING
+F:TUNNELABLE
+D:1:You tunnel into the hail-stone wall.

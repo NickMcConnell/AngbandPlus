@@ -55,213 +55,6 @@
 #endif /* __MAKEDEPEND__ */
 
 
-#ifdef USE_UNIXSOCK
-
-/*
- * Copied from main-x11.c, slightly modified to be safer.
- *
- * XXX XXX XXX Although system-dependent, these don't belong here,
- * because we can use the same code for all the Unix ports --
- * X11, XAW, GTK+ and GCU.
- */
-
-# ifndef __MAKEDEPEND__
-# include <arpa/inet.h>
-# include <netinet/in.h>
-# include <sys/socket.h>
-# include <netdb.h>
-# endif /* !__MAKEDEPEND__ */
-
-
-/**** Sockets handling ****/
-
-/*
- * Establish connection with the Pern IRC server
- */
-void *zsock_connect(char *hos, short port)
-{
-	struct hostent *host;
-	struct sockaddr_in sin;
-	int sock;
-	int *client;
-
-
-	/* Open a socket for TCP (<- SOCK_STREAM) / IP (<-AF_INET) */
-	sock = socket(AF_INET, SOCK_STREAM, 0);
-
-	/* Oops */
-	if (sock == -1) return (NULL);
-
-	/* Lookup hostname */
-	host = gethostbyname(hos);
-
-	/* Initialise address info */
-	memset(&sin, 0, sizeof sin);
-	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = ((struct in_addr *)(host->h_addr))->s_addr;
-	sin.sin_port = htons(port);
-
-	/* Try to connect to the server */
-	if (connect(sock, (struct sockaddr*)&sin, sizeof sin) == -1)
-	{
-		/* Free system resources */
-		close(sock);
-
-		/* Failure */
-		return (NULL);
-	}
-
-	/*
-	 * Allocate temporary storage for 'socket' -- seems silly,
-	 * but required for Winsock compatibility.
-	 */
-	MAKE(client, int);
-
-	/* Fill it in with the file descriptor of the open socket */
-	*client = sock;
-
-	/* Success */
-	return (client);
-}
-
-
-/*
- * Determine if there is any pending incoming data in the socket
- * Non-blocking version, used in almost all cases but after establishing
- * a connection to the Pern IRC server.
- */
-bool zsock_can_read(void *client)
-{
-	struct timeval t;
-	fd_set rd;
-	int sock = *(int *)client;
-
-	/* Clear the set of file descriptors */
-	FD_ZERO(&rd);
-
-	/* We are only interested in the IRC socket */
-	FD_SET(sock, &rd);
-
-	/* No delay */
-	t.tv_sec = 0;
-	t.tv_usec = 0;
-
-	/* See if there is data we can read */
-	select(sock + 1, &rd, NULL, NULL, &t);
-
-	/* Return the result */
-	if (FD_ISSET(sock, &rd)) return (TRUE);
-	else return (FALSE);
-}
-
-
-/*
- * Determine if there is any pending incoming data in the socket
- * Blocking version, called only once for handshaking.
- */
-bool zsock_wait(void *client)
-{
-	struct timeval t;
-	fd_set rd;
-	int sock = *(int *)client;
-
-	/* Clear the set of file descriptors */
-	FD_ZERO(&rd);
-
-	/* We are only interested in the IRC socket */
-	FD_SET(sock, &rd);
-
-	/* Allow the call to block for 30 seconds at most */
-	t.tv_sec = 30;
-	t.tv_usec = 0;
-
-	/* See if there is data we can read */
-	select(sock + 1, &rd, NULL, NULL, &t);
-
-	/* Return the result */
-	if (FD_ISSET(sock, &rd)) return TRUE;
-	else return (FALSE);
-}
-
-
-/*
- * Close connection with the Pern IRC server
- */
-void zsock_disconnect(void *client)
-{
-	/* Free system resources */
-	close(*(int*)client);
-
-	/* Free the temporary memory */
-	FREE(client, int);
-}
-
-
-/*
- * Send a NULL terminated string to the Pern IRC server
- */
-void zsock_send(void *client, char *str)
-{
-	/* Send the string (without null) */
-	send(*(int*)client, str, strlen(str), 0);
-}
-
-
-/*
- * Read data sent from the Pern IRC server and
- * store it to 'str'.
- * Caution: The buffer must be one byte longer than 'len',
- * or it can cause buffer overflow XXX XXX
- */
-void zsock_recv(void *client, char *str, int len)
-{
-	char c;
-	int sock = *(int *)client;
-	int arg, oarg;
-	int l = 0;
-
-	/* Clear the buffer */
-	str[0] = '\0';
-
-	/* Obtain current fd flags */
-	if (fcntl(sock, F_GETFL, &arg) == -1) return;
-
-	/* Save the current settings */
-	oarg = arg;
-
-	/* Request non-blocking I/O */
-	arg |= (O_NONBLOCK);
-	if (fcntl(sock, F_SETFL, &arg) == -1) return;
-
-	while (l < len)
-	{
-		/* Try to read a character from the socket */
-		if (recv(sock, &c, 1, 0) == -1)
-		{
-			/* No data is available to read */
-			if (errno == EAGAIN) break;
-		}
-
-		/* Ignore carriage returns */
-		if (c == '\r') continue;
-
-		/* End of line found */
-		if (c == '\n') break;
-
-		/* Copy the input */
-		str[l++] = c;
-	}
-
-	/* Restore the old setting */
-	(void)fcntl(sock, F_SETFL, &oarg);
-
-	/* Null terminate the string */
-	str[l] = '\0';
-}
-
-#endif /* USE_UNIXSOCK */
-
-
 /*
  * Include some helpful X11 code.
  */
@@ -1706,6 +1499,18 @@ static errr Term_xtra_xaw(int n, int v)
 		case TERM_XTRA_DELAY:
 		usleep(1000 * v);
 		return (0);
+
+                /* Get Delay of some milliseconds */
+		case TERM_XTRA_GET_DELAY:
+		{
+			int ret;
+			struct timeval tv;
+
+			ret = gettimeofday(&tv, NULL);
+                        Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+
+			return ret;
+		}
 
 		case TERM_XTRA_REACT:
 		return (Term_xtra_xaw_react());

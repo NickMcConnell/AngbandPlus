@@ -1,6 +1,10 @@
+|||||oy
+~~~~~01|Gods|Manwe
+~~~~~02|Manwe
 #####R === Manwe Sulimo ===
 
-Manwe is the strongest of the Valar, next to Morgoth.
+Manwe is the strongest of the Valar, next to Morgoth. His most faithful 
+followers are those of the class *****c_pr_man.txt*0[Priest(Manwe)].
 
 #####GThe benefits of Worshipping Manwe Sulimo
 1. As you increase your piety, Manwe will grant boosts to your speed (up to
@@ -18,7 +22,7 @@ Manwe is the strongest of the Valar, next to Morgoth.
 1. Your piety slowly decreases with time, whether you are praying or not.
 2. He doesn't like it if you kill monsters that are aligned with good.
 3. He will completely abandon you if you wear The One Ring.
-
+~~~~~03|Manwe|Prayers
 #####GManwe Sulimo's Magic
 Worshipping Manwe Sulimo gives the adventurer access to a set of special
 spells that come directly from the hands of Manwe. These spells use your piety

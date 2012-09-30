@@ -111,7 +111,7 @@ bool mon_take_hit_mon(int s_idx, int m_idx, int dam, bool *fear, cptr note)
 			monster_gain_exp(s_idx, dive, FALSE);
 
                         /* Monster lore skill allows gaining xp from pets */
-			if (get_skill(SKILL_LORE))
+			if (get_skill(SKILL_LORE) && (s_ptr->status >= MSTATUS_PET))
 			{
 				/* Maximum player level */
 				div = p_ptr->max_plv;
@@ -2262,7 +2262,7 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_TPORT */
 		case 160+5:
 			{
-			if (dungeon_flags1 & LF1_NO_TELEPORT) break; /* No teleport on special levels */
+			if (dungeon_flags2 & DF2_NO_TELEPORT) break; /* No teleport on special levels */
 			else
 			{
 				if (disturb_other) disturb(1, 0);
@@ -2282,7 +2282,7 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_TELE_AWAY */
 		case 160+7:
 			{
-			if (dungeon_flags1 & LF1_NO_TELEPORT) break;
+			if (dungeon_flags2 & DF2_NO_TELEPORT) break;
 
 				if (!direct) break;
 				else
@@ -2400,18 +2400,18 @@ static bool monst_spell_monst(int m_idx)
 			}
 
 
-			/* RF6_S_DRAGONRIDER */
+			/* RF6_S_THUNDERLORD */
 		case 160+15:
 			{
 				if (disturb_other) disturb(1, 0);
 				if (blind || !see_m) monster_msg("%^s mumbles.", m_name);
-				else monster_msg("%^s magically summons a DragonRider!", m_name);
+				else monster_msg("%^s magically summons a Thunderlord!", m_name);
 				for (k = 0; k < 1; k++)
 				{
 					if (friendly)
-						count += summon_specific_friendly(y, x, rlev, SUMMON_DRAGONRIDER, TRUE);
+						count += summon_specific_friendly(y, x, rlev, SUMMON_THUNDERLORD, TRUE);
 					else
-						count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDER);
+						count += summon_specific(y, x, rlev, SUMMON_THUNDERLORD);
 				}
 				if (blind && count) monster_msg("You hear something appear nearby.");
 				break;
@@ -4351,15 +4351,15 @@ bool make_attack_spell(int m_idx)
 				break;
 			}
 
-			/* RF6_S_DRAGONRIDER */
+			/* RF6_S_THUNDERLORD */
 		case 160+15:
 			{
 				disturb(1, 0);
 				if (blind) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s magically summons a DragonRider!", m_name);
+				else msg_format("%^s magically summons a Thunderlord!", m_name);
 				for (k = 0; k < 1; k++)
 				{
-					 count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDER);
+					 count += summon_specific(y, x, rlev, SUMMON_THUNDERLORD);
 				}
 				if (blind && count) msg_print("You hear something appear nearby.");
 				break;
@@ -5120,7 +5120,7 @@ void find_corpse(monster_type *m_ptr, int *y, int *x)
 /*
  * Choose target
  */
-static void get_target(int m_idx)
+static void get_target_monster(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	int i, t = -1, d = 9999;
@@ -5691,6 +5691,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 		case RBE_SANITY:        power = 60; break;
 		case RBE_HALLU:         power = 10; break;
 		case RBE_PARASITE:      power =  5; break;
+		case RBE_ABOMINATION:   power = 20; break;
 		}
 
 
@@ -5922,6 +5923,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
 			case RBE_UN_BONUS:
 			case RBE_UN_POWER:
+			case RBE_ABOMINATION:
 				{
 					pt = GF_DISENCHANT;
 					break;
@@ -6588,7 +6590,7 @@ static void process_monster(int m_idx, bool is_frien)
 	}
 
 	/* Need a new target ? */
-	if ((m_ptr->target == -1) || magik(10)) get_target(m_idx);
+	if ((m_ptr->target == -1) || magik(10)) get_target_monster(m_idx);
 
 
 	/* Attempt to cast a spell */

@@ -9,5 +9,7 @@
 [B]- Teleport level out of dungeons, recalling into a dungeon and taking stairs
      out of it, or changing wilderness mode sometimes brings player to a strange
      location.
+[B]- Ego types (like a Cursed Ring of Stupidity) will prevent the
+     automatizer from destroying an otherwise destroyable item
 
-[V]  T.o.M.E 2.0.0 aka "Point of No Return"
+[V]  T.o.M.E 2.1.0 aka "No Surrender, No Retreat"

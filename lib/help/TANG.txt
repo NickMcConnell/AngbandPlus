@@ -1,4 +1,5 @@
 |||||oy
+~~~~~01|Help|Newbie help
 #####R              The ToME Newbie Guide
 Pat Gunn
 Based loosely off of Chris Weisieger's Angband Newbie Guide.
@@ -17,7 +18,7 @@ and select one of the following class/race combinations that will
 make for a simple first character:
 	Wood Elf (Normal) Archer
 	Half-Troll (Zombie) Unbeliever
-	Half-Titan (Barbarian) Warrior
+	Half-Ogre (Barbarian) Warrior
 
 After class/race selection, you will roll your statistics. Roll a few times
 until you get decent strength, constitution, and dexterity scores (the higher
@@ -54,10 +55,15 @@ in open rooms when monsters can gang up on you. Also, avoid floating eyes
 'e', and 'l'ook at monsters before getting involved in combat with them.
 The 'C' button will bring up a screen telling you how many experience points
 you need to go to next level, and 'l'ooking at monsters will tell you how
-many experience points they are worth. Grab treasure, and when you are
-carrying close to as much as you can carry, head back to Bree and sell
-your loot. After a few trips, and reaching level 3, try going deeper in
-the dungeon before coming up.
+many experience points they are worth. 
+
+	Once you go up a level, you'll want to invest some skill points so 
+that your character improves. See the *****skills.txt*0[skills] help file for 
+details.
+
+	Grab treasure, and when you are carrying close to as much as you can 
+carry, head back to Bree and sell your loot. After a few trips, and reaching 
+level 3, try going deeper in the dungeon before coming up.
 
 	Before you start going past the 8th or 9th level down, you will
 want some means of detecting traps, as traps begin to be a problem around
@@ -68,7 +74,7 @@ that you'll want to use them again every time the screen scrolls onto a
 screen you haven't tried for traps yet. Some kinds of items grant useful
 resistances or powers. You can see your current resistances and other
 stats by hitting 'C' and scrolling through the screens that come up. 
-If you come across a dragonrider coat early in the game, they make
+If you come across a Thunderlord coat early in the game, they make
 a good choice, as they grant resistance to fire and cold. Resistances
 reduce the damage attacks of certain kinds do, and often reduce the
 effectiveness of side-effects they have. As you progress deeper in the
@@ -105,9 +111,9 @@ to visit.
 	bonus of +4. If you wear it, your armour rating will increase by
 	9. 
 
-#####GA Weapon (Holy Avenger) (1d6) (+5,+2) (+6)
+#####GA Weapon (Defender) (1d6) (+12,+5) [+6] (+2 to stealth)
 	This is a special type of weapon, with special powers. The powers
-	depend on the type (there are more types than just Holy Avenger),
+	depend on the type (there are more types than just Defender),
 	and some types can grant a variety of different powers. To get the
 	full info on this kind of weapon, you can either 'x'amine it if it's
 	being sold in a store, use certain kinds of magic (*Id*), or use

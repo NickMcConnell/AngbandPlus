@@ -1,11 +1,13 @@
+~~~~~01|Corruptions (Spoiler)
+~~~~~02|Spoilers|Corruptions
 #####R=== ToME Corruptions Spoiler ===
 
-Sometimes adventurers become exposed to the dark powers of Morgoth. If they 
-are unable to resist these powers, they become corrupted. Corruptions can 
+Sometimes adventurers become exposed to the dark powers of Morgoth. If they
+are unable to resist these powers, they become corrupted. Corruptions can
 change their physical or mental abilities, some of which can be good, and
-some bad. Most corruptions will affect you permanently, although some only 
-operate when they are activated (whether by player choice or as a random 
-event). You can check which corruptions do you have in the knowledge screen 
+some bad. Most corruptions will affect you permanently, although some only
+operate when they are activated (whether by player choice or as a random
+event). You can check which corruptions do you have in the knowledge screen
 6 (accessed through the '~' menu) or in a character dump.
 
 #####GGaining and losing corruptions
@@ -13,778 +15,102 @@ There are many ways how to gain or lose corruptions.
 
 You can select the *****rm_corru.txt*0[corrupted race] on birth. Such foul
 adventurers will gain and lose corruptions as they gain experience and
-levels. The same applies to characters with the 'Chaos deities give you
-gifts' corruption. There is a 1 in 3 chance to lose a corruption instead
+levels. There is a 1 in 3 chance to lose a corruption instead
 of gaining it on these occasions.
 
 You can become corrupted by quaffing a Potion of Corruption or by drinking
 from Fountain of Corruption. Also some strange items can be activated
 for corruption.
 
-There is 1 in 3 chance you will get corrupted when hit by a chaos attack 
+There is 1 in 3 chance you will get corrupted when hit by a chaos attack
 while lacking a source of chaos resistance.
-
-If you have attracted the attention of a chaos deity, you have 1 in 6 chance
-to be rewarded by being given a corruption when you gain an experience level.
 
 You can also gain and lose corruptions when polymorphing yourself.
 
-[[[[[BQuaffing a potion of New Life cures all your corruptions]. Also some strange 
-items activate for curing all corruptions.
-
-In general, corruptions are gained randomly. But there are two notable
-exceptions. If you are a Vampire, you have a 70% chance to gain the 'Your gaze
-is hypnotic' corruption if you don't already have it. If you have studied the
-symbiotic skill, you have 70% chance to gain the 'You can cause mold to grow 
-near you' corruption. Also, some corruptions override each other - you cannot 
-be Superhumanly strong (+4 Strength) with Puny Muscles (-4 Strength)!
-
-#####GList of corruptions
-The chance of any random corruption activating is measured against player 
-turns with the player at normal (+0) speed. The chance of gaining a 
-particular corruption is expressed in parentheses after corruption's name.
-
-
-[[[[[BYou can spit acid (dam lvl).] (4/194)
-Gain message: You gain the ability to spit acid.
-Lose message: You lose the ability to spit acid.
-Min. character level: 9
-Mana cost: 9
-Difficulty: dexterity at 15
-Activation message: You spit acid...
-Effect: Casts a ball of acid (dam [[[[[Gplev], radius [[[[[G1+(plev/30)]).
-
-[[[[[BYou can breathe fire (dam lvl * 2).] (3/194)
-Gain message: You gain the ability to breathe fire.
-Lose message: You lose the ability to breathe fire.
-Min. character level: 20
-Mana cost: 10
-Difficulty: constitution at 18
-Activation message: You breathe fire...
-Effect: Cast a ball of fire (dam [[[[[Gplev*2], radius [[[[[G1+(plev/20)]).
-
-[[[[[BYour gaze is hypnotic.] (2/194)
-Gain message: Your eyes look mesmerizing...
-Lose message: Your eyes look uninteresting.
-Min. character level: 12
-Mana cost: 12
-Difficulty: charisma at 18
-Activation message: Your eyes look mesmerizing...
-Effect: Charm monster (turn it into a friendly monster).
-
-[[[[[BYou are telekinetic.] (2/194)
-Gain message: You gain the ability to move objects telekinetically.
-Lose message: You lose the ability to move objects telekinetically.
-Min. character level: 9
-Mana cost: 9
-Difficulty: wisdom at 14
-Activation message: You concentrate...
-Effect: Teleports one item in line of sight under your feet. You can't
-  teleport items which are too heavy.
-
-[[[[[BYou can teleport at will.] (3/194)
-Gain message: You gain the power of teleportation at will.
-Lose message: You lose the power of teleportation at will.
-Min. character level: 7
-Mana cost: 7
-Difficulty: wisdom at 15
-Activation message: You concentrate...
-Effect: Teleport self up to [[[[[G10+(4*plev)] squares away.
-
-[[[[[BYou can Mind Blast your enemies.] (2/194)
-Gain message: You gain the power of Mind Blast.
-Lose message: You lose the power of Mind Blast.
-Min. character level: 5
-Mana cost: 3
-Difficulty: wisdom at 15
-Activation message: You concentrate...
-Effect: Casts a bolt of psionic energy (damage [[[[[G((plev-1)/5)+3]).
-
-[[[[[BYou can emit hard radiation at will.] (2/194)
-Gain message: You start emitting hard radiation.
-Lose message: You stop emitting hard radiation.
-Min. character level: 15
-Mana cost: 15
-Difficulty: constitution at 14
-Activation message: Radiation flows from your body!
-Effect: Casts a ball of nuclear waste centered around player.
-  33% chance to polymorph affected monsters.
-
-[[[[[BYou can drain life from a foe like a vampire.] (2/194)
-Gain message: You become vampiric.
-Lose message: You are no longer vampiric.
-Min. character level: 4
-Mana cost: 5
-Difficulty: constitution at 9
-Activation message: You grin and bare your fangs...
-Effect: Drains life from one adjacent monster. If the player is fully fed, he
-  is fed a bit more, otherwise is fed and healed (150 food units from 1
-  drained HP).
-
-[[[[[BYou can smell nearby precious metal.] (3/194)
-Gain message: You smell a metallic odour.
-Lose message: You no longer smell a metallic odour.
-Min. character level: 3
-Mana cost: 2
-Difficulty: intelligence at 12
-Effect: Casts 'detect treasure'.
-
-[[[[[BYou can smell nearby monsters.] (4/194)
-Gain message: You can smell nearby monsters.
-Lose message: You no longer smell filthy monsters.
-Min. character level: 5
-Mana cost: 4
-Difficulty: intelligence at 15
-Effect: Casts 'detect monsters'.
-
-[[[[[BYou can teleport yourself short distances.] (3/194)
-Gain message: You gain the power of minor teleportation.
-Lose message: You lose the power of minor teleportation.
-Min. character level: 3
-Mana cost: 3
-Difficulty: wisdom at 12
-Effect: Teleports the player a small distance (up to [[[[[G10] squares).
-
-[[[[[BYou can consume solid rock.] (2/194)
-Gain message: The walls look delicious.
-Lose message: The walls look unappetizing.
-Min. character level: 8
-Mana cost: 12
-Difficulty: constitution at 18
-Effect: Removes the rock and feeds you (for comparison, one ration is 5000)
-  Doors, rubble - 3000
-  Magma, quartz rock - 5000
-  Sandwall - 500
-  Granite - 10000 ("This granite is very filling!")
-
-[[[[[BYou can switch locations with another being.] (2/194)
-Gain message: You feel like walking a mile in someone else's shoes.
-Lose message: You feel like staying in your own shoes.
-Min. character level: 15
-Mana cost: 12
-Difficulty: dexterity as 16
-Effect: Swap locations with selected monster.
-
-[[[[[BYou can emit a horrible shriek.] (3/194)
-Gain message: Your vocal cords get much tougher.
-Lose message: Your vocal cords get much weaker.
-Min. character level: 4
-Mana cost: 4
-Difficulty: constitution at 6
-Effect: Casts a ball of sound of radius [[[[[G8] that also aggravates monsters.
-
-[[[[[BYou can emit bright light.] (3/194)
-Gain message: You can light up rooms with your presence.
-Lose message: You can no longer light up rooms with your presence.
-Min. character level: 3
-Mana cost: 2
-Difficulty: intelligence at 10
-Effect: Lights up an area.
-
-[[[[[BYou can feel the danger of evil magic.] (2/194)
-Gain message: You can feel evil magics.
-Lose message: You can no longer feel evil magics.
-Min. character level: 7
-Mana cost: 14
-Difficulty: wisdom at 14
-Effect: Pseudo-id's all cursed items.
-
-[[[[[BYou can drive yourself into a berserk frenzy.] (3/194)
-Gain message: You feel a controlled rage.
-Lose message: You no longer feel a controlled rage.
-Min. character level: 8
-Mana cost: 8
-Difficulty: strength at 14
-Activation message: RAAAGH!
-Effect: Removes fear, makes the character heroic for [[[[[G1dplev+10] turns and
-  raises hit points temporarily by [[[[[G30].
-
-[[[[[BYou can polymorph yourself at will.] (1/194)
-Gain message: Your body seems mutable.
-Lose message: Your body seem stable.
-Min. character level: 18
-Mana cost: 20
-Difficulty: constitution at 18
-Activation message: You feel a change coming over you...
-Effect: Polymorphs you. One or more of these cases can happen on activation:
-  sex change, stat reduction, cure or gain corruption, new race, abomination
-  (massive stat decrease with damage, can kill you - "killed by lethal
-  corruption"), reroll hit points and polymorph wounds (cures or cuts).
-
-[[[[[BYou can turn ordinary items to gold.] (2/194)
-Gain message: You gain the Midas touch.
-Lose message: You lose the Midas touch.
-Min. character level: 10
-Mana cost: 5
-Difficulty: intelligence at 12
-Effect: Turns an item into gold (one third of store value - doesn't work on
-  artifacts).
-
-[[[[[BYou can cause mold to grow near you.] (1/194)
-Gain message: You feel a sudden affinity for mold.
-Lose message: You feel a sudden dislike for mold.
-Min. character level: 1
-Mana cost: 6
-Difficulty: constitution at 14
-Effect: Summon friendly mold all around you (creatures with 'm' symbol).
-
-[[[[[BYou can harden yourself to the ravages of the elements.] (3/194)
-Gain message: You feel like you can protect yourself.
-Lose message: You feel like you might be vulnerable.
-Min. character level: 10
-Mana cost: 12
-Difficulty: constitution at 12
-Effect: Casts resist of one to five (plev/10) elements: acid, electricity,
-  fire, cold and/or poison for the duration of [[[[[G1d20+20] turns.
-
-[[[[[BYou can bring down the dungeon around your ears.] (3/194)
-Gain message: You gain the ability to wreck the dungeon.
-Lose message: You lose the ability to wreck the dungeon.
-Min. character level: 12
-Mana cost: 12
-Difficulty: strength at 16
-Effect: Casts earthquake. Doesn't work on quest levels and in town.
-
-[[[[[BYou can consume magic energy for your own use.] (1/194)
-Gain message: Your magic items look delicious.
-Lose message: Your magic items no longer look delicious.
-Min. character level: 17
-Mana cost: 1
-Difficulty: wisdom at 15
-Effect: Drains energy from a magical item. Rods became discharged, staves and
-  wands are drained to 0 charges. Character get charges*plev spell points.
-
-[[[[[BYou can feel the strength of the magics affecting you.] (2/194)
-Gain message: You feel you can better understand the magic around you.
-Lose message: You no longer sense magic.
-Min. character level: 6
-Mana cost: 6
-Difficulty: intelligence at 10
-Effect: Reveals various conditions affecting you.
-
-[[[[[BYou can cause mass impotence.] (1/194)
-Gain message: You can give everything around you a headache.
-Lose message: You hear a massed sigh of relief.
-Min. character level: 20
-Mana cost: 40
-Difficulty: charisma at 18
-Activation message: You suddenly have a headache!
-Effect: Character take [[[[[G1d30+30] damage ("the strain of forcing abstinence")
-   and breeders on that dungeon level stop breeding.
-
-[[[[[BYou can run for your life after hitting something.] (2/194)
-Gain message: You suddenly understand how thieves feel.
-Lose message: You no longer feel jumpy.
-Min. character level: 10
-Mana cost: 12
-Difficulty: dexterity at 14
-Effect: Attacks a monster and then teleports you immediately.
-
-[[[[[BYou can emit confusing, blinding radiation.] (3/194)
-Gain message: You gain the ability to emit dazzling lights.
-Lose message: You lose the ability to emit dazzling lights.
-Min. character level: 7
-Mana cost: 15
-Difficulty: charisma at 8
-Effect: Stuns, confuses and scares monsters in a ball around you.
-
-[[[[[BYou can create a spear of darkness.] (3/194)
-Gain message: An illusory spear of darkness appears in your hand.
-Lose message: The spear of darkness disappear.
-Min. character level: 7
-Mana cost: 10
-Difficulty: wisdom at 9
-Effect: Casts a beam of darkness.
-
-[[[[[BYou can travel between town and the depths.] (2/194)
-Gain message: You feel briefly homesick, but it passes.
-Lose message: You feel briefly homesick.
-Min. character level: 17
-Mana cost: 50
-Difficulty: intelligence at 16
-Effect: Casts 'Word of Recall' (equivalent to the scroll).
-
-[[[[[BYou can send evil creatures directly to Hell.] (1/194)
-Gain message: You feel a holy wrath fill you.
-Lose message: You no longer feel a holy wrath.
-Min. character level: 25
-Mana cost: 25
-Difficulty: wisdom at 18
-Activation message: The evil creature vanishes in a puff of sulphurous smoke!
-Effect: Banishes (magically removes) selected evil monster.
-
-[[[[[BYou can freeze things with a touch.] (2/194)
-Gain message: Your hands get very cold.
-Lose message: Your hands warm up.
-Min. character level: 2
-Mana cost: 2
-Difficulty: constitution at 11
-Effect: Fires a cold bolt at one adjacent monster.
-
-[[[[[BYou can hurl objects with great force.] (2/194)
-Gain message: Your throwing arm feels much stronger.
-Lose message: Your throwing arm feels much weaker.
-Min. character level: 1
-Mana cost: 10
-Difficulty: strength at 6
-Effect: Throws an item, doing 2 to 5 times more damage (depends on player 
-  level).
-
-
-[[[[[BYou are subject to berserker fits.] (1/194)
-Gain message: You become subject to fits of berserk rage!
-Lose message: You are no longer subject to fits of berserk rage!
-Chance of activation: 1 in 3000
-Activation message: [[[[[RAAAAGHH! You feel a fit of rage coming over you!]
-Effect: Heroism for [[[[[G1dlev+10] turns.
-
-[[[[[BYou are subject to cowardice.] (1/194)
-Gain message: You become an incredible coward!
-Lose message: You are no longer an incredible coward!
-Chance of activation: 1 in 3000 unless player has resist fear or is under
-  effect of heroism.
-Activation message: It's so dark... so scary!
-Effect: Scare player for [[[[[G1d26+13] turns
-This corruption removes 'You are completely fearless' corruption.
-
-[[[[[BYou are teleporting randomly.] (1/194)
-Gain message: Your position seems very uncertain...
-Lose message: Your position seems more certain.
-Chance of activation: 1 in 5000 unless player has resist nexus,
-  anti-teleportation field or 'You can teleport at will' corruption.
-Activation message: Your position suddenly seems very uncertain...
-Effect: Teleport player up to [[[[[G40] squares away.
-
-[[[[[BYour body produces alcohol.] (1/194)
-Gain message: Your body starts producing alcohol!
-Lose message: Your body stops producing alcohol!
-Chance of activation: 1 in 6400 unless player resist chaos or confusion.
-Activation message: You feel a SSSCHtupor cOmINg over yOu... *HIC*!
-Effect:
-  1 in 20 "You wake up somewhere with a sore head... You can't remember
-    a thing, or how you got here!" Teleport player up to [[[[[G100] squares away,
-    forget map of level, and 1 in 3 cause amnesia.
-  19 in 20 Confuse player (unless player has resistance) for [[[[[G1d20+15] turns
-    Additionally 1 in 3 "Thishcischs GooDSChtuff!" hallucinate (unless player
-    has chaos resistance) for [[[[[G1d150+150] turns.
-
-[[[[[BYou have a hallucinatory insanity.] (1/194)
-Gain message: You are afflicted by a hallucinatory insanity!
-Lose message: You are no longer afflicted by a hallucinatory insanity!
-Chance of activation: 1 in 6400 unless player resist chaos
-Effect: Hallucinate for [[[[[G1d50+20] turns.
-
-[[[[[BYou are subject to uncontrollable flatulence.] (1/194)
-Gain message: You become subject to uncontrollable flatulence.
-Lose message: You are no longer subject to uncontrollable flatulence.
-Chance of activation: 1 in 3000
-Activation message: BRRAAAP! Oops.
-Effect: Creates a ball of poison gas (radius [[[[[G3]) centered on player.
-
-[[[[[BYou are producing magical energy uncontrollably.] (1/194)
-Gain message: You start producing magical energy uncontrollably.
-Lose message: You stop producing magical energy uncontrollably.
-Chance of activation: 1 in 9000 unless player has anti-magic field.
-Activation message: Magical energy flows through you! You must release it!
-Effect: Casts a mana ball (radius [[[[[G3]).
-
-[[[[[BYou attract demons.] (2/194)
-Gain message: You start attracting demons.
-Lose message: You stop attracting demons.
-Chance of activation: 1 in 6666 unless player has anti-magic field.
-Activation message: You have attracted a demon!
-Effect:
-  1 in 6 Summons a friendly demon.
-  5 in 6 Summons a (hostile) demon.
-
-[[[[[BYou have a scorpion tail (poison, 3d7).] (2/194)
-Gain message: You grow a scorpion tail!
-Lose message: You lose your scorpion tail!
-Effect: You attack with poisonous 3d7 'weapon' every round in addition to 
-  your normal attacks.
-
-[[[[[BYou have horns (dam. 2d6).] (2/194)
-Gain message: Horns pop forth from your forehead!
-Lose message: Your horns vanish from your forehead!
-Effect: You attack with 2d6 'weapon' every round in addition to your normal 
-  attacks.
-
-[[[[[BYou have a beak (dam. 2d4).] (2/194)
-Gain message: Your mouth turns into a sharp, powerful beak!
-Lose message: Your moth reverts to normal!
-Effect: You attack with 2d4 'weapon' every round in addition to your normal 
-  attacks.
-This corruption removes 'You have an elephantine trunk' corruption.
-
-[[[[[BYou move faster or slower randomly.] (2/194)
-Gain message: You become manic-depressive.
-Lose message: You are no longer manic-depressive.
-Chance of activation: 1 in 6000
-Effect:
-  1 in 2 "[[[[[RYou feel less energetic!]" Terminates haste or slows player for 
-    [[[[[G1d30+10] turns.
-  1 in 2 "[[[[[GYou feel more energetic!]" Terminates effect of slowing or hastes
-    player for [[[[[G1d30+10] turns.
-
-[[[[[BYou sometimes cause nearby creatures to vanish.] (2/194)
-Gain message: You feel a terrifying power lurking behind you.
-Lose message: You no longer feel a terrifying power lurking behind you.
-Chance of activation: 1 in 9000
-Activation message: You suddenly feel almost lonely!
-Effect: Banishes (removes without killing) all monsters. If player is in town,
-  shuffles the storekeeper in one of the stores. "You see one of the 
-  shopkeepers running for the hills!"
-
-[[[[[BYou sometimes feed off of the light around you.] (1/194)
-Gain message: You feel a strange kinship with Ungoliant.
-Lose message: You feel the world's a brighter place.
-Chance of activation: 1 in 3000
-Activation message: A shadow passes over you.
-Effect: Absorb light from current position (if lit) and heal player [[[[[G10] HP.
-  "You absorb energy from your light!" If wielding a refuelable light source,
-  it reduces the fuel in the light source to one half and heals the player by
-  an amount of 1/10 of the absorbed fuel. Removes light from an area of 10 
-  squares around the player and harms every affected monster.
-
-[[[[[BYou have an elephantine trunk (dam 1d4).] (2/194)
-Gain message: Your nose grows into an elephant-like trunk.
-Lose message: Your nose returns to a normal length.
-Effect: You attack with 1d4 'weapon' every round in addition to your normal
-  attacks.
-This corruption removes the 'You have a beak' corruption.
-
-[[[[[BYou attract animals.] (1/194)
-Gain message: You start attracting animals.
-Lose message: You stop attracting animals.
-Chance of activation: 1 in 7000 unless player has anti-magic field.
-Activation message: You have attracted an animal!
-Effect:
-  1 in 3 Summons a friendly animal
-  2 in 3 Summons a (hostile) animal
-
-[[[[[BYou have evil looking tentacles (dam 2d5).] (1/194)
-Gain message: Evil-looking tentacles sprout from your sides.
-Lose message: Your tentacles vanish from your sides.
-Effect: You attack with burning 2d5 'weapon' every round in addition to your
-  normal attacks.
-
-[[[[[BYou occasionally are surrounded with raw chaos.] (1/194)
-Gain message: You feel the universe is less stable around you.
-Lose message: You feel the universe is more stable around you.
-Chance of activation: 1 in 8000 unless player has anti-magic field
-Activation message: You feel the world warping around you!
-Effect: Creates a chaos ball (radius [[[[[G8]) centered on player.
-
-[[[[[BYou may be corrupted, but you're recovering.] (3/194)
-Gain message: You feel strangely normal.
-Lose message: You feel normally strange.
-Chance of activation: 1 in 5000
-Effect: Cures one corruption each time it activates until it finally cures
-  itself.
-
-[[[[[BYou fade in and out of physical reality.] (1/194)
-Gain message: You start to fade in and out of the physical world.
-Lose message: You are firmly in the physical world.
-Chance of activation: 1 in 3000 unless player has anti-magic field
-Activation message: You feel insubstantial!
-Effect: Grants wraithform for [[[[[G(1dplev)/2 + plev/2] turns.
-
-[[[[[BYour health is subject to chaotic forces.] (1/194)
-Gain message: You feel forces of chaos entering your old scars.
-Lose message: You feel forces of chaos departing your old scars.
-Chance of activation: 1 in 3000
-Effect: Polymorphs your wounds. Heals some amount and
-  4 in 5 halves the cut counter.
-  1 in 5 creates more wounds.
-
-[[[[[BYou have a horrible wasting disease.] (1/194)
-Gain message: You suddenly contract a horrible wasting disease!
-Lose message: You are cured of the horrible wasting disease!
-Chance of activation: 1 in 3000
-Activation message: You can feel yourself wasting away!
-Effect: Decreases one stat by [[[[[G1d6+6] points permanently or temporarily, unless
-  the stat is sustained.
-
-[[[[[BYou attract dragons.] (1/194)
-Gain message: You start attracting dragons.
-Lose message: You stop attracting dragons.
-Chance of activation: 1 in 3000 unless player has anti-magic field
-Activation message: You have attracted a dragon!
-Effect:
-  1 in 5 Summons a friendly dragon
-  4 in 5 Summons a (hostile) dragon
-
-[[[[[BYour mind randomly expands and contracts.] (2/194)
-Gain message: Your thoughts suddenly take off in strange directions.
-Lose message: Your thoughts return to boring paths.
-Chance of activation: 1 in 3000 unless player has anti-magic field
-Effect: Temporarily stops telepathy ("Your mind feels cloudy!") or 
-  temporarily gives telepathy ("Your mind expands!") for [[[[[Gplev] turns.
-
-[[[[[BYou have a seriously upset stomach.] (1/194)
-Gain message: Your stomach starts to roil nauseously.
-Lose message: Your stomach stops roiling.
-Chance of activation: 1 in 9000 unless player has slow digestion
-Activation message: Your stomach roils, and you lose your lunch!
-Effect: Reduces player to being "weak from hunger".
-
-[[[[[BChaos deities give you gifts.] (2/194)
-Gain message: You attract the notice of a chaos deity!
-Lose message: You lose the attention of the chaos deities.
-Effect: Player gets a reward when they advance to a new experience level.
-  Rewards could be: corruption, new body (polymorph self), experience gain,
-  experience drain, good item, great item, chaos blade, TY curse, summoned
-  monsters, havoc, stat increase or decrease, ruination, wounds polymorph,
-  augmentation, attack by disintegration ball, full heal, curse weapon or
-  armor, destruction, genocide, mass genocide, dispel monsters, or summons
-  friendly demons, monsters or undead.
-
-[[[[[BYou occasionally stumble into other shadows.] (1/194)
-Gain message: You feel like reality is as thin as paper.
-Lose message: You feel like you're trapped in reality.
-Chance of activation: 1 in 12000 unless player has anti-magic field
-Effect: Alter reality.
-
-[[[[[BYou receive warnings about your foes.] (2/194)
-Gain message: You suddenly feel paranoid.
-Lose message: You no longer feel paranoid.
-Chance of activation: 1 in 1000
-Effect: Gives the player an idea about out of depth monsters on the current 
-  level. "You feel utterly terrified!" / "You feel terrified!"
-  "You feel very worried!" / "You feel paranoid!" / "You feel almost safe."
-  "You feel lonely."
-
-[[[[[BYou occasionally feel invincible.] (1/194)
-Gain message: You are blessed with fits of invulnerability.
-Lose message: You are no longer blessed with fits of invulnerability.
-Chance of activation: 1 in 5000 unless player has anti-magic field
-Activation message: [[[[[GYou feel invincible!]
-Effect: Makes the player invulnerable for [[[[[G1d8+8] turns.
-
-[[[[[BYour blood sometimes rushes to your muscles.] (2/194)
-Gain message: You are subject to fits of magical healing.
-Lose message: You are no longer subject to fits of magical healing.
-Chance of activation: 1 in 2000
-Effect: Heals player by turning spell points to hit points.
-
-[[[[[BYour blood sometimes rushes to your head.] (1/194)
-Gain message: You are subject to fits of painful clarity.
-Lose message: You are no longer subject to fits of painful clarity.
-Chance of activation: 1 in 4000 unless player has anti-magic field
-Effect: Restores mana by turning hit points to spell points. It can kill you.
-  (Killed by blood rushing to your head.)
-
-[[[[[BYou occasionally stumble and drop things.] (1/194)
-Gain message: Your feet grow to four times their former size.
-Lose message: Your feet shrink to their former size.
-Chance of activation: 1 in 10000
-Activation message: You trip over your own feet! You drop your weapon!
-Effect: Damages you ([[[[[Gweight/6] HP; your Weight not weight of carried items)
-  and causes you to drop your wielded weapon on the floor.
-
-
-[[[[[BYou are superhumanly strong (+4 STR).] (3/194)
-Gain message: You turn into a superhuman he-man!
-Lose message: Your muscles revert to normal.
-Effect: Add +4 to strength.
-This corruption removes the 'You are puny' corruption.
-
-[[[[[BYou are puny (-4 STR).] (3/194)
-Gain message: Your muscles wither away...
-Lose message: Your muscles revert to normal.
-Effect: Subtract -4 from strength.
-This corruption removes the 'You are superhumanly strong' corruption.
-
-[[[[[BYour brain is a living computer (+4 INT/WIS).] (3/194)
-Gain message: Your brain evolves into a living computer!
-Lose message: Your brain reverts to normal.
-Effect: Add +4 to intelligence and wisdom.
-This corruption removes the 'You are moronic' corruption.
-
-[[[[[BYou are moronic (-4 INT/WIS).] (3/194)
-Gain message: Your brain withers away...
-Lose message: Your brain reverts to normal.
-Effect: Subtract -4 from intelligence and wisdom.
-This corruption removes the 'Your brain is a living computer' corruption.
-
-[[[[[BYou are very resilient (+4 CON).] (2/194)
-Gain message: You become extraordinarily resilient.
-Lose message: You become ordinarily resilient again.
-Effect: Add +4 to constitution.
-
-[[[[[BYou are extremely fan (+2 CON, -2 speed).] (2/194)
-Gain message: You become sickeningly fat!
-Lose message: You benefit from a miracle diet!
-Effect: Add +2 to constitution and subtract -2 from speed.
-
-[[[[[BYou are albino (-4 CON).] (2/194)
-Gain message: You turn into an albino! You feel frail...
-Lose message: You are no longer an albino!
-Effect: Subtract -4 from constitution.
-
-[[[[[BYour flesh is rotting (-2 CON, -1 CHR).] (3/194)
-Gain message: Your flesh is afflicted by a rotting disease!
-Lose message: Your flesh is no longer afflicted by a rotting disease!
-Effect: Subtract -2 from constitution, -1 from charisma, and cancel
-  regeneration.
-This corruption removes 'Your skin is made of steel' and 'You are
-regenerating' corruptions.
-
-[[[[[BYour voice is a silly squeak (-4 CHR).] (2/194)
-Gain message: Your voice turns into a ridiculous squeak!
-Lose message: Your voice returns to normal.
-Effect: Subtract -4 from charisma.
-
-[[[[[BYour face is featureless (-1 CHR).] (2/194)
-Gain message: Your face becomes completely featureless!
-Lose message: Your facial features return.
-Effect: Subtract -1 from charisma.
-
-[[[[[BYour appearance is masked with illusion.] (1/194)
-Gain message: You start projecting a reassuring image.
-Lose message: You stop projecting a reassuring image.
-Effect: Sets your charisma to value based on your character level. Internal
-  stats, racial, class and equipment bonuses don't apply.
-
-[[[[[BYou have an extra pair of eyes (+15 search).] (3/194)
-Gain message: You grow an extra pair of eyes!
-Lose message: Your extra eyes vanish!
-Effect: Add +15 to searching.
-
-[[[[[BYou are resistant to magic.] (2/194)
-Gain message: You become resistant to magic.
-Lose message: You become susceptible to magic again.
-Effect: Add 15+(plev/5) to saving throw.
-
-[[[[[BYou make a lot of strange noise (-3 stealth).] (3/194)
-Gain message: You start making strange noise!
-Lose message: You stop making strange noise!
-Effect: Subtract -3 from stealth.
-
-[[[[[BYou have remarkable infravision (+3).] (3/194)
-Gain message: Your infravision is improved.
-Lose message: Your infravision is degraded.
-Effect: Add 30 ft to infravision range.
-
-[[[[[BYou have an extra pair of legs (+3 speed).] (2/194)
-Gain message: You grow an extra pair of legs!
-Lose message: Your extra legs disappear!
-Effect: Add +3 to speed.
-
-[[[[[BYour legs are short stubs (-3 speed).] (2/194)
-Gain message: Your legs turn into short stubs!
-Lose message: Your legs lengthen to normal.
-Effect: Add -3 to speed.
-
-[[[[[BElectricity is running through your veins.] (2/194)
-Gain message: Electricity starts running through you!
-Lose message: Electricity stops running through you.
-Effect: Creates an electric aura around the player. Every attacking monster
-  will be struck by lightning.
-
-[[[[[BYour body is enveloped in flames.] (2/194)
-Gain message: Your body is enveloped in flames!
-Lose message: Your body is no longer enveloped in flames.
-Effect: Creates a fiery aura around the player. Every attacking monster will 
-  be burned.
-
-[[[[[BYour skin is covered with warts (-2 CHR, +5 AC).] (3/194)
-Gain message: Disgusting warts appear everywhere on you!
-Lose message: Your warts disappear!
-Effect: Subtract -2 from charisma, add +5 to AC.
-This corruption removes the 'Your skin is made of steel' corruption.
-
-[[[[[BYour skin has turned into scales (-1 CHR, +10 AC).] (3/194)
-Gain message: Your skin turns into black scales!
-Lose message: Your scales vanish!
-Effect: Subtract -1 from charisma, add +25 to AC.
-This corruption removes the 'Your skin is made of steel' corruption.
-
-[[[[[BYour skin is made of steel (-1 DEX, +25 AC).] (2/194)
-Gain message: Your skin turns to steel!
-Lose message: Your skin reverts to flesh!
-Effect: Subtract -1 from dexterity, add +25 to AC.
-This corruption removes the 'Your skin has turned into scales', 'Your flesh is
-rotting' and 'Your skin is covered with warts' corruptions.
-
-[[[[[BYou have wings.] (2/194)
-Gain message: You grow a pair of wings.
-Lose message: Your wings fall off.
-Effect: Grants feather falling and levitation.
-
-[[[[[BYou are completely fearless.] (3/194)
-Gain message: You become completely fearless.
-Lose message: You begin to feel fear again.
-Effect: Grants resistance to fear.
-This corruption removes the 'You are subject to cowardice' corruption.
-
-[[[[[BYou are regenerating.] (2/194)
-Gain message: You start regenerating.
-Lose message: You stop regenerating.
-Effect: Grants regeneration.
-This corruption removes the 'Your flesh is rotting' corruption.
-
-[[[[[BYou are telepathic.] (2/194)
-Gain message: You develop a telepathic ability!
-Lose message: You lose your telepathic ability!
-Effect: Grants telepathy. Quality of telepathy rises with character level,
-  becoming full telepathy at level 50.
-
-[[[[[BYour body is very limber (+3 DEX).] (3/194)
-Gain message: Your muscles become limber.
-Lose message: Your muscles stiffen.
-Effect: Add +3 to dexterity.
-This corruption removes the 'Your joints ache constantly' corruption.
-
-[[[[[BYour joints ache constantly (-3 DEX).] (3/194)
-Gain message: Your joints suddenly hurt.
-Lose message: Your joints stop hurting.
-Effect: Subtract -3 from dexterity.
-This corruption removes the 'Your body is very limber' corruption.
-
-[[[[[BYou are protected from the ravages of time.] (1/194)
-Gain message: You feel immortal.
-Lose message: You feel all too mortal.
-Effect: Grants resistance to the effects of time attacks (like time 
-  resistance).
-
-[[[[[BYou are susceptible to damage from the elements.] (1/194)
-Gain message: You feel strangely exposed.
-Lose message: You feel less exposed.
-Effect: Player takes double damage from acid, electricity, fire and cold 
-  based attacks.
-
-[[[[[BYour movements are precise and forceful (+1 STL).] (3/194)
-Gain message: You move with new assurance.
-Lose message: You move with less assurance.
-Effect: Grants free action and add +1 to stealth.
-
-[[[[[BYour body resists serious damage.] (2/194)
-Gain message: You feel like you can recover from anything.
-Lose message: You no longer feel like you can recover from anything.
-Effect: Sustain stats (cumulative)
-  from level  1 constitution
-  from level 10 strength
-  from level 20 dexterity
-  from level 30 wisdom
-  from level 40 intelligence
-  from level 50 charisma
-
-
-#####GSource diving
-This spoiler documents CVS version of ToME from 3rd May 2002. Things could
-changed since. You can check sources yourself, most important stuff is hidden
-here:
-
-dungeon.c, function process_corruption_effects
-files1.c, function player_flags
-tables.c, struct powers_type_init
-xtra1.c, function calc_bonuses
-xtra2.c, function gain_random_corruption
-xtra2.c, function lose_corruption
-xtra2.c, function dump_corruptions
-
-
-#####yCompiled by Pav Lucistnik <pav@oook.cz>
-#####yCorrections by Dawnmist <angband@dawnmist.8m.com>
-
+[[[[[BBalrog Aura]
+  Surrounds you with a fiery aura
+  But it can burn scrolls when you read them
+[[[[[GGain message: A corrupted wall of flames surrounds you.]
+[[[[[RLose message: The wall of corrupted flames abandons you.]
+
+
+[[[[[BBalrog Wings]
+  Creates ugly, but working, wings allowing you to fly
+  But it reduces charisma by 4 and dexterity by 2
+[[[[[GGain message: Wings of shadow grow in your back.]
+[[[[[RLose message: The wings in your back fall apart.]
+
+
+[[[[[BBalrog Strength]
+  Provides 3 strength and 1 constitution
+  But it reduces charisma by 1 and dexterity by 3
+[[[[[GGain message: Your muscles gets unnatural strength.]
+[[[[[RLose message: Your muscles gets weaker again.]
+
+
+[[[[[BBalrog Form]
+  Allows you to turn into a balrog at will
+  You need Balrog Wings, Balrog Aura and Balrog Strength to activate it
+[[[[[GGain message: You feel the might of a Balrog inside you.]
+[[[[[RLose message: The presence of the balrog seems to abandon you.]
+It depends on:
+  Balrog Aura
+  Balrog Wings
+  Balrog Strength
+
+
+[[[[[BDemon Spirit]
+  Increases your intelligence by 1
+  But reduce your charisma by 2
+[[[[[GGain message: Your spirit opens to corrupted thoughts.]
+[[[[[RLose message: Your spirit closes again to the corrupted thoughts.]
+
+
+[[[[[BDemon Hide]
+  Increases your armor class by your level
+  Provides immunity to fire at level 40
+  But reduces speed by your level / 7
+[[[[[GGain message: Your skin grows into a thick hide.]
+[[[[[RLose message: Your skin returns to a natural state.]
+
+
+[[[[[BDemon Breath]
+  Provides fire breath
+  But gives a small chance to spoil potions when you quaff them
+[[[[[GGain message: Your breath becomes mephitic.]
+[[[[[RLose message: Your breath is once again normal.]
+
+
+[[[[[BDemon Realm]
+  Provides access to the demon school skill and the use of demonic equipment
+  You need Demon Spirit, Demon Hide and Demon Breath to activate it
+[[[[[GGain message: You feel more attuned to the demon realm.]
+[[[[[RLose message: You lose your attunement to the demon realm.]
+It depends on:
+  Demon Spirit
+  Demon Hide
+  Demon Breath
+
+
+[[[[[BRandom teleportation]
+  Randomly teleports you around
+[[[[[GGain message: Space seems to fizzle around you.]
+[[[[[RLose message: Space solidify again around you.]
+It is opposed to:
+  Anti-teleportation
+
+
+[[[[[BAnti-teleportation]
+  Prevents all teleportations, be it of you or monsters
+[[[[[GGain message: Space continuum freezes around you.]
+[[[[[RLose message: Space continuum can once more be altered around you.]
+It is opposed to:
+  Random teleportation
+
+
+[[[[[BTroll Blood]
+  Troll blood flows in your veins, granting increased regeneration
+  It also enables you to feel the presence of other troll beings
+  But it will make your presence more noticeable and aggravating
+[[[[[GGain message: Your blood thickens, you sense corruption in it.]
+[[[[[RLose message: Your blood returns to a normal state.]

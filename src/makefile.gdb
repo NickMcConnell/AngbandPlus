@@ -33,11 +33,11 @@ OBJS = \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o z-sock.o
 
 LUAOBJS = \
   script.o lua_bind.o \
-  w_util.o w_player.o w_z_pack.o w_obj.o w_mnster.o w_spells.o w_quest.o w_play_c.o
+  w_util.o w_player.o w_z_pack.o w_obj.o w_mnster.o w_spells.o w_quest.o w_play_c.o w_dun.o
 
 TOLUAOBJS = \
   lua/lapi.o lua/lcode.o lua/ldebug.o lua/ldo.o lua/lfunc.o lua/lgc.o \
@@ -148,5 +148,8 @@ w_spells.c: spells.pkg $(TOLUA)
 
 w_quest.c: quest.pkg $(TOLUA)
 	$(TOLUA) -n quest -o w_quest.c quest.pkg
+
+w_dun.c: dungeon.pkg $(TOLUA)
+	$(TOLUA) -n dungeon -o w_dun.c dungeon.pkg
 
 endif

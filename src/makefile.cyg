@@ -24,7 +24,7 @@
 # Comment out this line if you don't want Lua scripting
 LUA=TRUE
 
-IRCARGS = -DUSE_SOCK -DUSE_WINSOCK -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#angband\"
+#IRCARGS = -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#angband\"
 
 
 
@@ -128,7 +128,10 @@ WRES = windres
 ##
 COPTS = -s -Wall -mno-cygwin -O2 -fno-strength-reduce
 INCLUDES =
-DEFINES = -DWINDOWS -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA $(IRCARGS)
+DEFINES = -DWINDOWS -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA \
+	-DUSE_PRECISE_CMOVIE \
+        -DUSE_WINSOCK \
+        $(IRCARGS)
 
 LIBS = -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm -lwsock32
 
@@ -269,7 +272,7 @@ LIBS = -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm -lwsock32
 #
 
 BASESRCS = \
-  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
+  z-util.c z-virt.c z-form.c z-rand.c z-term.c z-sock.c \
   variable.c tables.c util.c cave.c cmovie.c \
   object1.c object2.c traps.c monster1.c monster2.c monster3.c \
   xtra1.c xtra2.c spells1.c spells2.c \
@@ -284,6 +287,7 @@ BASESRCS = \
   readdib.c angband.rc main-win.c main.c
 
 BASEOBJS = \
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o z-sock.o \
   main.o main-win.o readdib.o angband.res \
   generate.o dungeon.o init1.o init2.o plots.o help.o \
   store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
@@ -292,12 +296,11 @@ BASEOBJS = \
   status.o randart.o irc.o skills.o gods.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
-  variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o
+  variable.o tables.o util.o cave.o ghost.o wild.o powers.o
 
 LUASRCS = \
   script.c lua_bind.c \
-  w_util.c w_player.c w_z_pack.c w_obj.c w_mnster.c w_spells.c w_quest.c w_play_c.c
+  w_util.c w_player.c w_z_pack.c w_obj.c w_mnster.c w_spells.c w_quest.c w_play_c.c w_dun.c
 
 TOLUASRCS = \
   lua/lapi.c lua/lcode.c lua/ldebug.c lua/ldo.c lua/lfunc.c lua/lgc.c \
@@ -309,7 +312,7 @@ TOLUASRCS = \
 
 LUAOBJS = \
   script.o lua_bind.o \
-  w_util.o w_player.o w_z_pack.o w_obj.o w_mnster.o w_spells.o w_quest.o w_play_c.o
+  w_util.o w_player.o w_z_pack.o w_obj.o w_mnster.o w_spells.o w_quest.o w_play_c.o w_dun.o
 
 TOLUAOBJS = \
   lua/lapi.o lua/lcode.o lua/ldebug.o lua/ldo.o lua/lfunc.o lua/lgc.o \
@@ -421,6 +424,9 @@ w_spells.c: spells.pkg $(TOLUA)
 
 w_quest.c: quest.pkg $(TOLUA)
 	$(TOLUA) -n quest -o w_quest.c quest.pkg
+
+w_dun.c: dungeon.pkg $(TOLUA)
+	$(TOLUA) -n dungeon -o w_dun.c dungeon.pkg
 
 endif
 

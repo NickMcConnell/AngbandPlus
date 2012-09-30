@@ -1,3 +1,5 @@
+~~~~~01|Gnome
+~~~~~02|Races|Gnome
 #####R=== Gnomes ===
 
 #####GDescription
@@ -20,6 +22,3 @@ Charisma        -2
 Hit Dice Sides  8         
 Exp Penalty     +35%
 
-#####GStarting Equipment
-If they are *very* lucky they may begin with:
-    A copper rod

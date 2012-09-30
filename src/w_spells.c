@@ -1,6 +1,6 @@
 /*
 ** Lua binding: spells
-** Generated automatically by tolua 4.0a - angband on Wed May 29 01:06:50 2002.
+** Generated automatically by tolua 4.0a - angband on Tue Dec  3 21:40:42 2002.
 */
 
 #include "lua/tolua.h"
@@ -345,6 +345,27 @@ tolua_lerror:
  return 0;
 }
 
+/* function: grow_grass */
+static int toluaI_spells_grow_grass00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int rad = ((int)  tolua_getnumber(tolua_S,1,0));
+ {
+  grow_grass(rad);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'grow_grass'.");
+ return 0;
+}
+
 /* function: grow_trees */
 static int toluaI_spells_grow_trees00(lua_State* tolua_S)
 {
@@ -477,14 +498,16 @@ static int toluaI_spells_do_res_stat00(lua_State* tolua_S)
 {
  if (
  !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,2)
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
  )
  goto tolua_lerror;
  else
  {
   int stat = ((int)  tolua_getnumber(tolua_S,1,0));
+  bool full = ((bool)  tolua_getnumber(tolua_S,2,0));
  {
-  bool toluaI_ret = (bool)  do_res_stat(stat);
+  bool toluaI_ret = (bool)  do_res_stat(stat,full);
  tolua_pushnumber(tolua_S,(long)toluaI_ret);
  }
  }
@@ -1685,6 +1708,25 @@ tolua_lerror:
  return 0;
 }
 
+/* function: make_wish */
+static int toluaI_spells_make_wish00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  make_wish();
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'make_wish'.");
+ return 0;
+}
+
 /* function: fire_wave */
 static int toluaI_spells_fire_wave00(lua_State* tolua_S)
 {
@@ -2184,13 +2226,15 @@ tolua_lerror:
 static int toluaI_spells_reset_recall00(lua_State* tolua_S)
 {
  if (
- !tolua_isnoobj(tolua_S,1)
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,2)
  )
  goto tolua_lerror;
  else
  {
+  bool no_trepas_max_depth = ((bool)  tolua_getnumber(tolua_S,1,0));
  {
-  bool toluaI_ret = (bool)  reset_recall();
+  bool toluaI_ret = (bool)  reset_recall(no_trepas_max_depth);
  tolua_pushnumber(tolua_S,(long)toluaI_ret);
  }
  }
@@ -2220,6 +2264,29 @@ static int toluaI_spells_get_aim_dir00(lua_State* tolua_S)
  return 2;
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'get_aim_dir'.");
+ return 0;
+}
+
+/* function: get_rep_dir */
+static int toluaI_spells_get_rep_dir00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,1) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int dp = ((int)  tolua_getnumber(tolua_S,1,0));
+ {
+  bool toluaI_ret = (bool)  get_rep_dir(&dp);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ tolua_pushnumber(tolua_S,(long)dp);
+ }
+ }
+ return 2;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_rep_dir'.");
  return 0;
 }
 
@@ -2907,7 +2974,8 @@ static int toluaI_spells_lua_get_level00(lua_State* tolua_S)
  !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
  !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
  !tolua_istype(tolua_S,4,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,5)
+ !tolua_istype(tolua_S,5,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,6)
  )
  goto tolua_lerror;
  else
@@ -2916,8 +2984,9 @@ static int toluaI_spells_lua_get_level00(lua_State* tolua_S)
   s32b lvl = ((s32b)  tolua_getnumber(tolua_S,2,0));
   s32b max = ((s32b)  tolua_getnumber(tolua_S,3,0));
   s32b min = ((s32b)  tolua_getnumber(tolua_S,4,0));
+  s32b bonus = ((s32b)  tolua_getnumber(tolua_S,5,0));
  {
-  s32b toluaI_ret = (s32b)  lua_get_level(s,lvl,max,min);
+  s32b toluaI_ret = (s32b)  lua_get_level(s,lvl,max,min,bonus);
  tolua_pushnumber(tolua_S,(long)toluaI_ret);
  }
  }
@@ -2959,6 +3028,32 @@ tolua_lerror:
  return 0;
 }
 
+/* function: lua_spell_device_chance */
+static int toluaI_spells_lua_spell_device_chance00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,4)
+ )
+ goto tolua_lerror;
+ else
+ {
+  s32b chance = ((s32b)  tolua_getnumber(tolua_S,1,0));
+  int level = ((int)  tolua_getnumber(tolua_S,2,0));
+  int base_level = ((int)  tolua_getnumber(tolua_S,3,0));
+ {
+  s32b toluaI_ret = (s32b)  lua_spell_device_chance(chance,level,base_level);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'lua_spell_device_chance'.");
+ return 0;
+}
+
 /* function: get_school_spell */
 static int toluaI_spells_get_school_spell00(lua_State* tolua_S)
 {
@@ -2979,6 +3074,87 @@ static int toluaI_spells_get_school_spell00(lua_State* tolua_S)
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'get_school_spell'.");
  return 0;
+}
+
+/* get function: last_teleportation_y */
+static int toluaI_get_spells_last_teleportation_y(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)last_teleportation_y);
+ return 1;
+}
+
+/* set function: last_teleportation_y */
+static int toluaI_set_spells_last_teleportation_y(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  last_teleportation_y = ((s16b)  tolua_getnumber(tolua_S,1,0));
+ return 0;
+}
+
+/* get function: last_teleportation_x */
+static int toluaI_get_spells_last_teleportation_x(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)last_teleportation_x);
+ return 1;
+}
+
+/* set function: last_teleportation_x */
+static int toluaI_set_spells_last_teleportation_x(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  last_teleportation_x = ((s16b)  tolua_getnumber(tolua_S,1,0));
+ return 0;
+}
+
+/* function: get_pos_player */
+static int toluaI_spells_get_pos_player00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,4)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int dis = ((int)  tolua_getnumber(tolua_S,1,0));
+  int ny = ((int)  tolua_getnumber(tolua_S,2,0));
+  int nx = ((int)  tolua_getnumber(tolua_S,3,0));
+ {
+  get_pos_player(dis,&ny,&nx);
+ tolua_pushnumber(tolua_S,(long)ny);
+ tolua_pushnumber(tolua_S,(long)nx);
+ }
+ }
+ return 2;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_pos_player'.");
+ return 0;
+}
+
+/* function: teleport_player_to */
+static int toluaI_spells_teleport_player_to01(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int ny = ((int)  tolua_getnumber(tolua_S,1,0));
+  int nx = ((int)  tolua_getnumber(tolua_S,2,0));
+ {
+  teleport_player_to(ny,nx);
+ }
+ }
+ return 0;
+tolua_lerror:
+ return toluaI_spells_teleport_player_to00(tolua_S);
 }
 
 /* Open function */
@@ -3110,6 +3286,7 @@ int tolua_spells_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"take_sanity_hit",toluaI_spells_take_sanity_hit00);
  tolua_function(tolua_S,NULL,"project",toluaI_spells_project00);
  tolua_function(tolua_S,NULL,"corrupt_player",toluaI_spells_corrupt_player00);
+ tolua_function(tolua_S,NULL,"grow_grass",toluaI_spells_grow_grass00);
  tolua_function(tolua_S,NULL,"grow_trees",toluaI_spells_grow_trees00);
  tolua_function(tolua_S,NULL,"hp_player",toluaI_spells_hp_player00);
  tolua_function(tolua_S,NULL,"heal_insanity",toluaI_spells_heal_insanity00);
@@ -3171,6 +3348,7 @@ int tolua_spells_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"lite_area",toluaI_spells_lite_area00);
  tolua_function(tolua_S,NULL,"unlite_area",toluaI_spells_unlite_area00);
  tolua_function(tolua_S,NULL,"fire_ball_beam",toluaI_spells_fire_ball_beam00);
+ tolua_function(tolua_S,NULL,"make_wish",toluaI_spells_make_wish00);
  tolua_function(tolua_S,NULL,"fire_wave",toluaI_spells_fire_wave00);
  tolua_constant(tolua_S,NULL,"EFF_WAVE",EFF_WAVE);
  tolua_constant(tolua_S,NULL,"EFF_LAST",EFF_LAST);
@@ -3195,6 +3373,7 @@ int tolua_spells_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"project",toluaI_spells_project01);
  tolua_function(tolua_S,NULL,"reset_recall",toluaI_spells_reset_recall00);
  tolua_function(tolua_S,NULL,"get_aim_dir",toluaI_spells_get_aim_dir00);
+ tolua_function(tolua_S,NULL,"get_rep_dir",toluaI_spells_get_rep_dir00);
  tolua_function(tolua_S,NULL,"project_los",toluaI_spells_project_los00);
  tolua_function(tolua_S,NULL,"map_area",toluaI_spells_map_area00);
  tolua_function(tolua_S,NULL,"wiz_lite",toluaI_spells_wiz_lite00);
@@ -3231,7 +3410,12 @@ int tolua_spells_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"school",toluaI_spells_school00);
  tolua_function(tolua_S,NULL,"lua_get_level",toluaI_spells_lua_get_level00);
  tolua_function(tolua_S,NULL,"lua_spell_chance",toluaI_spells_lua_spell_chance00);
+ tolua_function(tolua_S,NULL,"lua_spell_device_chance",toluaI_spells_lua_spell_device_chance00);
  tolua_function(tolua_S,NULL,"get_school_spell",toluaI_spells_get_school_spell00);
+ tolua_globalvar(tolua_S,"last_teleportation_y",toluaI_get_spells_last_teleportation_y,toluaI_set_spells_last_teleportation_y);
+ tolua_globalvar(tolua_S,"last_teleportation_x",toluaI_get_spells_last_teleportation_x,toluaI_set_spells_last_teleportation_x);
+ tolua_function(tolua_S,NULL,"get_pos_player",toluaI_spells_get_pos_player00);
+ tolua_function(tolua_S,NULL,"teleport_player_to",toluaI_spells_teleport_player_to01);
  return 1;
 }
 /* Close function */
@@ -3363,6 +3547,7 @@ void tolua_spells_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"take_sanity_hit");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"corrupt_player");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"grow_grass");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"grow_trees");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"hp_player");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"heal_insanity");
@@ -3426,6 +3611,7 @@ void tolua_spells_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"lite_area");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"unlite_area");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"fire_ball_beam");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"make_wish");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"fire_wave");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_WAVE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_LAST");
@@ -3450,6 +3636,7 @@ void tolua_spells_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"reset_recall");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_aim_dir");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_rep_dir");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project_los");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"map_area");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"wiz_lite");
@@ -3475,5 +3662,14 @@ void tolua_spells_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"school");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"lua_get_level");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"lua_spell_chance");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"lua_spell_device_chance");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_school_spell");
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"last_teleportation_y"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"last_teleportation_x"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_pos_player");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"teleport_player_to");
 }

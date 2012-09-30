@@ -47,18 +47,24 @@ void init_hooks()
 	}
 }
 
-void dump_hooks()
+void dump_hooks(int h_idx)
 {
-	int i;
+        int min = 0, max = MAX_HOOKS, i;
 
-	for (i = 0; i < MAX_HOOKS; i++)
+        if (h_idx != -1)
+        {
+                min = h_idx;
+                max = h_idx + 1;
+        }
+
+	for (i = min; i < max; i++)
 	{
 		hooks_chain *c = hooks_heads[i];
 
 		/* Find it */
 		while (c != NULL)
 		{
-			msg_format("%s(%s)", c->name, (c->type == HOOK_TYPE_C)?"C":"Lua");
+                        msg_format("%s(%s)", c->name, (c->type == HOOK_TYPE_C)?"C":"Lua");
 
 			c = c->next;
 		}
@@ -211,7 +217,7 @@ char* get_next_arg_str(char *fmt)
 		switch (fmt[get_next_arg_pos++])
 		{
 			case 's':
-				return (param_pile[get_next_arg_pile_pos++].str);
+				return (char*)(param_pile[get_next_arg_pile_pos++].str);
 			case ')':
 				get_next_arg_pos--;
 				return 0;
@@ -283,13 +289,12 @@ static bool vprocess_hooks_return(int h_idx, char *ret, char *fmt, va_list *ap)
 		else if (c->type == HOOK_TYPE_LUA)
 		{
 			int i = 0, nb = 0, nbr = 1;
-			int oldtop = lua_gettop(L);
+			int oldtop = lua_gettop(L), size;
 
 			/* Push the function */
 			lua_getglobal(L, c->script);
 
 			/* Push and count the arguments */
-			nb = 0;
 			COPY(&real_ap, ap, va_list);
 			while (fmt[i])
 			{
@@ -319,28 +324,43 @@ static bool vprocess_hooks_return(int h_idx, char *ret, char *fmt, va_list *ap)
 			nbr += strlen(ret);
 
 			/* Call the function */
-			lua_call(L, nb, nbr);
+                        if (lua_call(L, nb, nbr))
+                        {
+                                cmsg_format(TERM_VIOLET, "ERROR in lua_call while calling '%s' lua hook script. Breaking the hook chain now.", c->script);
+                                return FALSE;
+                        }
+
+                        /* Number of returned values, SHOULD be the same as nbr, but I'm paranoid */
+                        size = lua_gettop(L) - oldtop;
 
 			/* get the extra returns if needed */
 			for (i = 0; i < nbr - 1; i++)
 			{
 				if ((ret[i] == 'd') || (ret[i] == 'l'))
 				{
-					if (lua_isnumber(L, 2 + i)) process_hooks_return[i].num = tolua_getnumber(L, 2 + i, 0);
-					else process_hooks_return[i].num = 0;
+					if (lua_isnumber(L, (-size) + 1 + i)) process_hooks_return[i].num = tolua_getnumber(L, (-size) + 1 + i, 0);
+                                        else process_hooks_return[i].num = 0;
 				}
 				else if (ret[i] == 's')
 				{
-					if (lua_isstring(L, 2 + i)) process_hooks_return[i].str = (char*)tolua_getstring(L, 2 + i, 0);
+					if (lua_isstring(L, (-size) + 1 + i)) process_hooks_return[i].str = tolua_getstring(L, (-size) + 1 + i, "");
 					else process_hooks_return[i].str = NULL;
 				}
+				else if (ret[i] == 'O')
+				{
+                                        if (tolua_istype(L, (-size) + 1 + i, tolua_tag(L, "object_type"), 0))
+                                                process_hooks_return[i].o_ptr = (object_type*)tolua_getuserdata(L, (-size) + 1 + i, NULL);
+                                        else
+                                                process_hooks_return[i].o_ptr = NULL;
+				}
 				else process_hooks_return[i].num = 0;
-			}
+                        }
+
 			/* Get the basic return(continue or stop the hook chain) */
-			if (tolua_getnumber(L, 1,0))
+			if (tolua_getnumber(L, -size, 0))
 			{
-				lua_settop(L, oldtop);
-				return (TRUE);
+                                lua_settop(L, oldtop);
+                                return (TRUE);
 			}
 			if (process_hooks_restart)
 			{
@@ -349,7 +369,7 @@ static bool vprocess_hooks_return(int h_idx, char *ret, char *fmt, va_list *ap)
 			}
 			else
 				c = c->next;
-			lua_settop(L, oldtop);
+                        lua_settop(L, oldtop);
 		}
 #endif
 		else

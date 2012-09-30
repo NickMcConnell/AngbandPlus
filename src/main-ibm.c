@@ -774,10 +774,9 @@ static errr Term_xtra_ibm(int n, int v)
 		/* Process events */
 		case TERM_XTRA_EVENT:
 		{
-#ifdef USE_SOCK
-			irc_poll(pern_irc);
-#endif
-			/* Process one event */
+			irc_poll();
+
+                        /* Process one event */
 			return (Term_xtra_ibm_event(v));
 		}
 

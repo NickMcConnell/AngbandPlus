@@ -3,7 +3,7 @@
 # Purpose: Makefile for Linux + SVGA library
 
 SRCS = \
-  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
+  z-util.c z-virt.c z-form.c z-rand.c z-term.c z-sock.c \
   variable.c tables.c util.c cave.c cmovie.c \
   object1.c object2.c traps.c monster1.c monster2.c monster3.c \
   xtra1.c xtra2.c spells1.c spells2.c help.c \
@@ -17,7 +17,7 @@ SRCS = \
   main-ami.c main.c
 
 OBJS = \
-  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
+  z-util.o z-virt.o z-form.o z-rand.o z-term.o z-sock.o \
   variable.o tables.o util.o cave.o cmovie.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   xtra1.o xtra2.o spells1.o spells2.o help.o \

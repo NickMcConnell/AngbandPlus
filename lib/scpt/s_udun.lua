@@ -46,12 +46,13 @@ DRAIN = add_spell
                                 end
                                 increase_mana(add)
                         end
+                        return TRUE
 	end,
 	["info"] = 	function()
 	                return ""
 	end,
         ["desc"] =	{
-                        "",
+                        "Drains the mana contained in wands, staves and rods to increase yours",
         }
 }
 
@@ -62,7 +63,17 @@ GENOCIDE = add_spell
         ["level"] = 	25,
         ["mana"] = 	50,
         ["mana_max"] = 	50,
-        ["fail"] = 	20,
+        ["fail"] = 	90,
+        ["stick"] =
+        {
+                        ["charge"] =    { 2, 2 },
+                        [TV_STAFF] =
+                        {
+                                ["rarity"] = 		85,
+                                ["base_level"] =        { 1, 1 },
+                                ["max_level"] =        	{ 5, 15 },
+                        },
+        },
         ["spell"] = 	function()
                         local type
 
@@ -70,12 +81,14 @@ GENOCIDE = add_spell
                         if get_level(GENOCIDE) >= 10 then type = 1 end
                         if type == 0 then
                                 genocide(TRUE)
+                                return TRUE
                         else
                                 if get_check("Genocide all monsters near you? ") == TRUE then
                                         mass_genocide(TRUE)
                                 else
                                 	genocide(TRUE)
                                 end
+                                return TRUE
                         end
 	end,
 	["info"] = 	function()
@@ -90,13 +103,13 @@ GENOCIDE = add_spell
 WRAITHFORM = add_spell
 {
 	["name"] = 	"Wraithform",
-        ["school"] = 	{SCHOOL_UDUN, SCHOOL_EARTH},
+        ["school"] = 	{SCHOOL_UDUN, SCHOOL_CONVEYANCE},
         ["level"] = 	30,
         ["mana"] = 	20,
         ["mana_max"] = 	40,
-        ["fail"] = 	20,
+        ["fail"] = 	95,
         ["spell"] = 	function()
-                       	set_shadow(randint(30) + 20 + get_level(WRAITHFORM, 40))
+                       	return set_shadow(randint(30) + 20 + get_level(WRAITHFORM, 40))
 	end,
 	["info"] = 	function()
 	                return "dur "..(20 + get_level(WRAITHFORM, 40)).."+d30"
@@ -113,9 +126,9 @@ FLAMEOFUDUN = add_spell
         ["level"] = 	35,
         ["mana"] = 	70,
         ["mana_max"] = 	100,
-        ["fail"] = 	20,
+        ["fail"] = 	95,
         ["spell"] = 	function()
-                       	set_mimic(randint(15) + 5 + get_level(FLAMEOFUDUN, 30), MIMIC_BALROG)
+                       	return set_mimic(randint(15) + 5 + get_level(FLAMEOFUDUN, 30), MIMIC_BALROG)
 	end,
 	["info"] = 	function()
 	                return "dur "..(5 + get_level(FLAMEOFUDUN, 30)).."+d15"

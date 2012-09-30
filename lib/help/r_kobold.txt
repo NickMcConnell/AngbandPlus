@@ -1,3 +1,5 @@
+~~~~~01|Kobold
+~~~~~02|Races|Kobold
 #####R=== Kobolds ===
 
 #####GDescription
@@ -15,8 +17,4 @@ Constitution    0
 Charisma        -4       
 Hit Dice Sides  9         
 Exp Penalty     +25%
-
-#####GStarting Equipment
-If they are *very* lucky they may begin with:
-    A dagger (Poison Brand)
 

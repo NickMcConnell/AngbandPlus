@@ -1,8 +1,12 @@
+|||||oy
+~~~~~01|Gods|Eru
+~~~~~02|Eru
 #####R === Eru Iluvatar ===
 
-Eru Iluvatar is the father of the Valar.
+Eru Iluvatar is the father of the Valar. His most faithful followers are those 
+of the class *****c_pr_eru.txt*0[Priest(Eru)].
 
-#####GThe benefits of Worshipping Eru Illuvatar
+#####GThe benefits of Worshipping Eru Iluvatar
 1. As you increase your piety, Eru will grant you a boost to your wisdom. 
    Eventually he will also start increasing your ability to handle magical 
    power, resulting in a boost to your spellpoints.
@@ -15,12 +19,12 @@ Eru Iluvatar is the father of the Valar.
      a) Not praying, and
      b) Actively doing something (i.e. not resting or in the Wilderness map).
    
-#####GThe disadvantages of Worshipping Eru Illuvatar
+#####GThe disadvantages of Worshipping Eru Iluvatar
 1. He doesn't like it if you destroy blessed weapons.
-2. You can only wield blunt weapons without penalty.
+2. You can only wield blunt or blessed weapons without penalty.
 3. He doesn't like it if you kill monsters that are aligned with good.
 4. He will completely abandon you if you wear The One Ring.
-
+~~~~~~03|Eru|Prayers
 #####GEru Iluvatar's Magic
 Worshipping Eru Iluvatar gives the adventurer access to a set of special
 spells that come directly from the hands of Eru. These spells use your piety

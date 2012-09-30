@@ -747,9 +747,8 @@ static errr Term_xtra_dos(int n, int v)
 		/* Process events */
 		case TERM_XTRA_EVENT:
 		{
-#ifdef USE_SOCK
-			irc_poll(pern_irc);
-#endif
+			irc_poll();
+
 			/* Process one event */
 			return (Term_xtra_dos_event(v));
 		}
@@ -767,9 +766,7 @@ static errr Term_xtra_dos(int n, int v)
 		/* Do something useful if bored */
 		case TERM_XTRA_BORED:
 		{
-#ifdef USE_SOCK
-			irc_poll(pern_irc);
-#endif
+			irc_poll();
 
 #ifdef USE_SOUND
 			/*
@@ -822,10 +819,9 @@ static errr Term_xtra_dos(int n, int v)
 		/* Delay for some milliseconds */
 		case TERM_XTRA_DELAY:
 		{
-#ifdef USE_SOCK
-			irc_poll(pern_irc);
-#endif
-			/* Delay if needed */
+			irc_poll();
+
+                        /* Delay if needed */
 			if (v > 0) delay(v);
 
 			/* Success */

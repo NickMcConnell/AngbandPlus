@@ -1,6 +1,6 @@
 /*
 ** Lua binding: monster
-** Generated automatically by tolua 4.0a - angband on Sun Jul 14 14:32:44 2002.
+** Generated automatically by tolua 4.0a - angband on Thu Dec 12 01:44:23 2002.
 */
 
 #include "lua/tolua.h"
@@ -1717,7 +1717,7 @@ static int toluaI_set_monster_monster_type_mflag(lua_State* tolua_S)
  if (!self) TOLUA_ERR_SELF;
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
  TOLUA_ERR_ASSIGN;
-  self->mflag = ((byte)  tolua_getnumber(tolua_S,2,0));
+  self->mflag = ((s32b)  tolua_getnumber(tolua_S,2,0));
  return 0;
 }
 
@@ -2534,7 +2534,7 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"RF3_UNDEAD",RF3_UNDEAD);
  tolua_constant(tolua_S,NULL,"RF3_EVIL",RF3_EVIL);
  tolua_constant(tolua_S,NULL,"RF3_ANIMAL",RF3_ANIMAL);
- tolua_constant(tolua_S,NULL,"RF3_DRAGONRIDER",RF3_DRAGONRIDER);
+ tolua_constant(tolua_S,NULL,"RF3_THUNDERLORD",RF3_THUNDERLORD);
  tolua_constant(tolua_S,NULL,"RF3_GOOD",RF3_GOOD);
  tolua_constant(tolua_S,NULL,"RF3_AURA_COLD",RF3_AURA_COLD);
  tolua_constant(tolua_S,NULL,"RF3_NONLIVING",RF3_NONLIVING);
@@ -2637,7 +2637,7 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"RF6_RAISE_DEAD",RF6_RAISE_DEAD);
  tolua_constant(tolua_S,NULL,"RF6_S_BUG",RF6_S_BUG);
  tolua_constant(tolua_S,NULL,"RF6_S_RNG",RF6_S_RNG);
- tolua_constant(tolua_S,NULL,"RF6_S_DRAGONRIDER",RF6_S_DRAGONRIDER);
+ tolua_constant(tolua_S,NULL,"RF6_S_THUNDERLORD",RF6_S_THUNDERLORD);
  tolua_constant(tolua_S,NULL,"RF6_S_KIN",RF6_S_KIN);
  tolua_constant(tolua_S,NULL,"RF6_S_HI_DEMON",RF6_S_HI_DEMON);
  tolua_constant(tolua_S,NULL,"RF6_S_MONSTER",RF6_S_MONSTER);
@@ -2681,7 +2681,6 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"RF8_WILD_MOUNTAIN",RF8_WILD_MOUNTAIN);
  tolua_constant(tolua_S,NULL,"RF8_WILD_GRASS",RF8_WILD_GRASS);
  tolua_constant(tolua_S,NULL,"RF8_CTHANGBAND",RF8_CTHANGBAND);
- tolua_constant(tolua_S,NULL,"RF8_PERNANGBAND",RF8_PERNANGBAND);
  tolua_constant(tolua_S,NULL,"RF8_ZANGBAND",RF8_ZANGBAND);
  tolua_constant(tolua_S,NULL,"RF8_JOKEANGBAND",RF8_JOKEANGBAND);
  tolua_constant(tolua_S,NULL,"RF8_ANGBAND",RF8_ANGBAND);
@@ -2709,6 +2708,8 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"MFLAG_NICE",MFLAG_NICE);
  tolua_constant(tolua_S,NULL,"MFLAG_SHOW",MFLAG_SHOW);
  tolua_constant(tolua_S,NULL,"MFLAG_MARK",MFLAG_MARK);
+ tolua_constant(tolua_S,NULL,"MFLAG_NO_DROP",MFLAG_NO_DROP);
+ tolua_constant(tolua_S,NULL,"MFLAG_QUEST2",MFLAG_QUEST2);
  tolua_cclass(tolua_S,"monster_blow","");
  tolua_tablevar(tolua_S,"monster_blow","method",toluaI_get_monster_monster_blow_method,toluaI_set_monster_monster_blow_method);
  tolua_tablevar(tolua_S,"monster_blow","effect",toluaI_get_monster_monster_blow_effect,toluaI_set_monster_monster_blow_effect);
@@ -2851,7 +2852,7 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SUMMON_NO_UNIQUES",SUMMON_NO_UNIQUES);
  tolua_constant(tolua_S,NULL,"SUMMON_PHANTOM",SUMMON_PHANTOM);
  tolua_constant(tolua_S,NULL,"SUMMON_ELEMENTAL",SUMMON_ELEMENTAL);
- tolua_constant(tolua_S,NULL,"SUMMON_DRAGONRIDER",SUMMON_DRAGONRIDER);
+ tolua_constant(tolua_S,NULL,"SUMMON_THUNDERLORD",SUMMON_THUNDERLORD);
  tolua_constant(tolua_S,NULL,"SUMMON_BLUE_HORROR",SUMMON_BLUE_HORROR);
  tolua_constant(tolua_S,NULL,"SUMMON_BUG",SUMMON_BUG);
  tolua_constant(tolua_S,NULL,"SUMMON_RNG",SUMMON_RNG);
@@ -2948,7 +2949,7 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_UNDEAD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_EVIL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_ANIMAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_DRAGONRIDER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_THUNDERLORD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_GOOD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_AURA_COLD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_NONLIVING");
@@ -3051,7 +3052,7 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_RAISE_DEAD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_BUG");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_RNG");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_DRAGONRIDER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_THUNDERLORD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_KIN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_HI_DEMON");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_MONSTER");
@@ -3095,7 +3096,6 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF8_WILD_MOUNTAIN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF8_WILD_GRASS");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF8_CTHANGBAND");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF8_PERNANGBAND");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF8_ZANGBAND");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF8_JOKEANGBAND");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF8_ANGBAND");
@@ -3123,6 +3123,8 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"MFLAG_NICE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"MFLAG_SHOW");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"MFLAG_MARK");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"MFLAG_NO_DROP");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"MFLAG_QUEST2");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"monster_blow");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"monster_race");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"monster_type");
@@ -3180,7 +3182,7 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_NO_UNIQUES");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_PHANTOM");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_ELEMENTAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_DRAGONRIDER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_THUNDERLORD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_BLUE_HORROR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_BUG");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_RNG");

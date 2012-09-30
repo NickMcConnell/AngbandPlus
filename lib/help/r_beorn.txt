@@ -1,3 +1,5 @@
+~~~~~01|Beorning
+~~~~~02|Races|Beorning
 #####R=== Beornings ===
 
 #####GDescription
@@ -15,6 +17,5 @@ Charisma        -5
 Hit Dice Sides  12         
 Exp Penalty     +50%
 
-#####GStarting Equipment
-If they are *very* lucky they may begin with:
-
+######GSkill Bonuses (supplementary to existing skills)
+Bearform-combat            1.000           [1.000]

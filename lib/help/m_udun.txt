@@ -1,0 +1,27 @@
+|||||oy
+~~~~~01|Magic|Udun School
+~~~~~02|Udun Magic
+~~~~~03|Skills|Udun - Spell Info
+#####R === ToME Magic - Udun School ===
+
+The Udun school of magic contains spells where the corrupted forces of Melkor
+Bauglir are used to create the final spell effect. There are rumours of an
+"Unholy Tome of the Hellflame" which contains all the Udun school spells within
+it's bindings.
+
+The Udun school is available only to a worshipper of *****g_melkor.txt*0[Melkor Bauglir]. They will also
+need some proficiency in the magic schools of Mana, Nature, Conveyance, and Fire
+to cast the Udun spells. On the other hand the spell power of Udun spells is
+greatly increased by the level of the caster.
+
+#####DUdun Spells
+There are four spells available for the Udun school. These spells are:
+1. [[[[[DDrain] (school level 1)
+   Drains the mana contained in wands, staves and rods to increase yours.
+2. [[[[[DGenocide] (school level 25)
+   Genocides all monsters of a race on the level.
+   At level 10 it can genocide all monsters near you.
+3. [[[[[DWraithform] (school level 30)
+   Turns you temporarily into an immaterial being.
+4. [[[[[DFlame of Udun] (school level 35)
+   Turns you temporarily into a powerful balrog.

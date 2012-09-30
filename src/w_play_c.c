@@ -1,6 +1,6 @@
 /*
 ** Lua binding: player_c
-** Generated automatically by tolua 4.0a - angband on Sun May 19 22:11:11 2002.
+** Generated automatically by tolua 4.0a - angband on Tue Dec  3 21:40:54 2002.
 */
 
 #include "lua/tolua.h"
@@ -11,6 +11,8 @@ void tolua_player_c_close (lua_State* tolua_S);
 
 #include "angband.h"
 static char *get_class_name() {return spp_ptr->title + c_name;}
+static char *get_race_name() {return rp_ptr->title + rp_name;}
+static char *get_subrace_name() {return rmp_ptr->title + rmp_name;}
 
 /* function to register type */
 static void toluaI_reg_types (lua_State* tolua_S)
@@ -1283,6 +1285,26 @@ static int toluaI_set_player_c_skill_type_order(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: hidden of class  skill_type */
+static int toluaI_get_player_c_skill_type_hidden(lua_State* tolua_S)
+{
+  skill_type* self = (skill_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->hidden);
+ return 1;
+}
+
+/* set function: hidden of class  skill_type */
+static int toluaI_set_player_c_skill_type_hidden(lua_State* tolua_S)
+{
+  skill_type* self = (skill_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->hidden = ((bool)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: s_info */
 static int toluaI_get_player_c_s_info(lua_State* tolua_S)
 {
@@ -1374,6 +1396,70 @@ tolua_lerror:
  return 0;
 }
 
+/* function: get_melee_skills */
+static int toluaI_player_c_get_melee_skills00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  s16b toluaI_ret = (s16b)  get_melee_skills();
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_melee_skills'.");
+ return 0;
+}
+
+/* function: find_skill */
+static int toluaI_player_c_find_skill00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  cptr name = ((cptr)  tolua_getstring(tolua_S,1,0));
+ {
+  s16b toluaI_ret = (s16b)  find_skill(name);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'find_skill'.");
+ return 0;
+}
+
+/* function: find_skill_i */
+static int toluaI_player_c_find_skill_i00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  cptr name = ((cptr)  tolua_getstring(tolua_S,1,0));
+ {
+  s16b toluaI_ret = (s16b)  find_skill_i(name);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'find_skill_i'.");
+ return 0;
+}
+
 /* function: get_class_name */
 static int toluaI_player_c_get_class_name00(lua_State* tolua_S)
 {
@@ -1391,6 +1477,46 @@ static int toluaI_player_c_get_class_name00(lua_State* tolua_S)
  return 1;
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'get_class_name'.");
+ return 0;
+}
+
+/* function: get_race_name */
+static int toluaI_player_c_get_race_name00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  char* toluaI_ret = (char*)  get_race_name();
+ tolua_pushstring(tolua_S,(const char*)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_race_name'.");
+ return 0;
+}
+
+/* function: get_subrace_name */
+static int toluaI_player_c_get_subrace_name00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  char* toluaI_ret = (char*)  get_subrace_name();
+ tolua_pushstring(tolua_S,(const char*)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_subrace_name'.");
  return 0;
 }
 
@@ -1460,6 +1586,7 @@ int tolua_player_c_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"skill_type","father",toluaI_get_player_c_skill_type_father,toluaI_set_player_c_skill_type_father);
  tolua_tablevar(tolua_S,"skill_type","dev",toluaI_get_player_c_skill_type_dev,toluaI_set_player_c_skill_type_dev);
  tolua_tablevar(tolua_S,"skill_type","order",toluaI_get_player_c_skill_type_order,toluaI_set_player_c_skill_type_order);
+ tolua_tablevar(tolua_S,"skill_type","hidden",toluaI_get_player_c_skill_type_hidden,toluaI_set_player_c_skill_type_hidden);
  tolua_globalarray(tolua_S,"s_info",toluaI_get_player_c_s_info,toluaI_set_player_c_s_info);
  tolua_constant(tolua_S,NULL,"SKILL_CONVEYANCE",SKILL_CONVEYANCE);
  tolua_constant(tolua_S,NULL,"SKILL_MANA",SKILL_MANA);
@@ -1517,12 +1644,18 @@ int tolua_player_c_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SKILL_LEARN",SKILL_LEARN);
  tolua_constant(tolua_S,NULL,"SKILL_UDUN",SKILL_UDUN);
  tolua_constant(tolua_S,NULL,"SKILL_DEVICE",SKILL_DEVICE);
+ tolua_constant(tolua_S,NULL,"SKILL_STUN",SKILL_STUN);
  tolua_constant(tolua_S,NULL,"SKILL_MAX",SKILL_MAX);
  tolua_constant(tolua_S,NULL,"SKILL_STEP",SKILL_STEP);
  tolua_function(tolua_S,NULL,"get_skill",toluaI_player_c_get_skill00);
  tolua_function(tolua_S,NULL,"get_skill_scale",toluaI_player_c_get_skill_scale00);
  tolua_function(tolua_S,NULL,"do_get_new_skill",toluaI_player_c_do_get_new_skill00);
+ tolua_function(tolua_S,NULL,"get_melee_skills",toluaI_player_c_get_melee_skills00);
+ tolua_function(tolua_S,NULL,"find_skill",toluaI_player_c_find_skill00);
+ tolua_function(tolua_S,NULL,"find_skill_i",toluaI_player_c_find_skill_i00);
  tolua_function(tolua_S,NULL,"get_class_name",toluaI_player_c_get_class_name00);
+ tolua_function(tolua_S,NULL,"get_race_name",toluaI_player_c_get_race_name00);
+ tolua_function(tolua_S,NULL,"get_subrace_name",toluaI_player_c_get_subrace_name00);
  return 1;
 }
 /* Close function */
@@ -1590,10 +1723,16 @@ void tolua_player_c_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_LEARN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_UDUN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_DEVICE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_STUN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_MAX");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_STEP");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_skill");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_skill_scale");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"do_get_new_skill");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_melee_skills");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"find_skill");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"find_skill_i");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_class_name");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_race_name");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_subrace_name");
 }

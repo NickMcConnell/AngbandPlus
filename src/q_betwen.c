@@ -43,9 +43,9 @@ bool quest_between_move_hook(char *fmt)
 	p_ptr->inside_quest = QUEST_BETWEEN;
 	p_ptr->leaving = TRUE;
 
-	cmsg_print(TERM_YELLOW, "Looks like a full wing of dragonriders ambushes you !");
-	cmsg_print(TERM_YELLOW, "T'ron steps forth and speak: 'The secret of the Void Jumpgates");
-	cmsg_print(TERM_YELLOW, "will not be used by any but the dragonriders!'");
+	cmsg_print(TERM_YELLOW, "Looks like a full wing of thunderlords ambushes you !");
+	cmsg_print(TERM_YELLOW, "Trone steps forth and speak: 'The secret of the Void Jumpgates");
+	cmsg_print(TERM_YELLOW, "will not be used by any but the thunderlords!'");
 
 	return FALSE;
 }
@@ -81,7 +81,7 @@ bool quest_between_gen_hook(char *fmt)
 	/* Otherwise instadeath */
 	energy_use = 0;
 
-	dungeon_flags1 |= LF1_NO_GENO;
+	dungeon_flags2 |= DF2_NO_GENO;
 
 	return TRUE;
 }

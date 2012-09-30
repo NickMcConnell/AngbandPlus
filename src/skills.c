@@ -29,12 +29,12 @@ void increase_skill(int i, s16b *invest)
         if (s_info[i].value >= SKILL_MAX) return;
 
         /* Cannot allocate more than player level + 10 levels */
-        if ((s_info[i].value / SKILL_STEP) >= (p_ptr->lev + 10))
+        if (((s_info[i].value + s_info[i].mod) / SKILL_STEP) >= (p_ptr->lev + 6))
         {
                 int hgt, wid;
 
 		Term_get_size(&wid, &hgt);
-                msg_box("Cannot raise a skill value above 10 + player level.", (int)(hgt / 2), (int)(wid / 2));
+                msg_box("Cannot raise a skill value above 5 + player level.", (int)(hgt / 2), (int)(wid / 2));
                 return;
         }
 
@@ -89,6 +89,20 @@ s16b find_skill(cptr name)
 	/* No match found */
 	return (-1);
 }
+s16b find_skill_i(cptr name)
+{
+	u16b i;
+
+	/* Scan skill list */
+	for (i = 1; i < max_s_idx; i++)
+	{
+		/* The name matches */
+		if (0 == stricmp(s_info[i].name + s_name, name)) return (i);
+	}
+
+	/* No match found */
+	return (-1);
+}
 
 
 /*
@@ -101,14 +115,35 @@ s16b get_skill(int skill)
 
 
 /*
- *
+ * Return "scale" (a misnomer -- this is max value) * (current skill value)
+ * / (max skill value)
  */
 s16b get_skill_scale(int skill, u32b scale)
 {
+#if 0
 	/* XXX XXX XXX */
 	return (((s_info[skill].value / 10) * (scale * (SKILL_STEP / 10)) /
 	         (SKILL_MAX / 10)) /
 	        (SKILL_STEP / 10));
+#else
+
+	u32b temp;
+
+	/*
+	 * SKILL_STEP shouldn't matter here because the second parameter is
+	 * relatively small (the largest one being somewhere around 200),
+	 * AND because we could have used much simpler 0--50 if the ability
+	 * progression were only possible at step boundaries.
+	 *
+	 * Because I'm not at all certain about my interpretation of the mysterious
+	 * formula given above, I verified this works the same by using a tiny
+	 * scheme program... -- pelpel
+	 */
+	temp = scale * s_info[skill].value;
+
+	return (temp / SKILL_MAX);
+
+#endif
 }
 
 
@@ -127,6 +162,26 @@ int get_idx(int i)
 	return (0);
 }
 
+static bool is_known(int s_idx)
+{
+        int i;
+
+        if (wizard) return TRUE;
+        if (s_info[s_idx].value || s_info[s_idx].mod) return TRUE;
+
+        for (i = 0; i < max_s_idx; i++)
+        {
+                /* It is our child, if we dont know it we contiue to search, if we know it it is enough*/
+                if (s_info[i].father == s_idx)
+                {
+                        if (is_known(i))
+                                return TRUE;
+                }
+        }
+
+        /* Ok know none */
+        return FALSE;
+}
 
 /*
  *
@@ -139,9 +194,9 @@ void init_table_aux(int table[MAX_SKILLS][2], int *idx, int father, int lev,
 	for (j = 1; j < max_s_idx; j++)
 	{
 		i = get_idx(j);
-
 		if (s_info[i].father != father) continue;
-		if (s_info[i].hidden) continue;
+                if (s_info[i].hidden) continue;
+                if (!is_known(i)) continue;
 
 		table[*idx][0] = i;
 		table[*idx][1] = lev;
@@ -164,7 +219,7 @@ bool has_child(int sel)
 
 	for (i = 1; i < max_s_idx; i++)
 	{
-		if (s_info[i].father == sel)
+                if ((s_info[i].father == sel) && (is_known(i)))
 			return (TRUE);
 	}
 	return (FALSE);
@@ -225,17 +280,20 @@ void dump_skills(FILE *fff)
 void print_skills(int table[MAX_SKILLS][2], int max, int sel, int start)
 {
 	int i, j;
-	int wid, hgt;
+        int wid, hgt;
+        cptr keys;
 
 	Term_clear();
 	Term_get_size(&wid, &hgt);
 
-	c_prt(TERM_WHITE, "ToME Skills Screen", 0, 28);
+        c_prt(TERM_WHITE, "ToME Skills Screen", 0, 28);
+        keys = format("#BEnter#W to develop a branch, #Bup#W/#Bdown#W to move, #Bright#W/#Bleft#W to modify, #B?#W for help");
+        display_message(0, 1, strlen(keys), TERM_WHITE, keys);
 	c_prt((p_ptr->skill_points) ? TERM_L_BLUE : TERM_L_RED,
-	      format("Skill points left: %d", p_ptr->skill_points), 1, 0);
-	print_desc_aux(s_info[table[sel][0]].desc + s_text, 2, 0);
+	      format("Skill points left: %d", p_ptr->skill_points), 2, 0);
+	print_desc_aux(s_info[table[sel][0]].desc + s_text, 3, 0);
 
-	for (j = start; j < start + (hgt - 4); j++)
+	for (j = start; j < start + (hgt - 5); j++)
 	{
 		byte color = TERM_WHITE;
 		char deb = ' ', end = ' ';
@@ -260,23 +318,23 @@ void print_skills(int table[MAX_SKILLS][2], int max, int sel, int start)
 		if (!has_child(i))
 		{
 			c_prt(color, format("%c.%c%s", deb, end, s_info[i].name + s_name),
-			      j + 4 - start, table[j][1] * 4);
+			      j + 5 - start, table[j][1] * 4);
 		}
 		else if (s_info[i].dev)
 		{
 			c_prt(color, format("%c-%c%s", deb, end, s_info[i].name + s_name),
-			      j + 4 - start, table[j][1] * 4);
+			      j + 5 - start, table[j][1] * 4);
 		}
 		else
 		{
 			c_prt(color, format("%c+%c%s", deb, end, s_info[i].name + s_name),
-			      j + 4 - start, table[j][1] * 4);
+			      j + 5 - start, table[j][1] * 4);
 		}
 		c_prt(color,
 		      format("%02ld.%03ld [%01d.%03d]",
 			         s_info[i].value / SKILL_STEP, s_info[i].value % SKILL_STEP,
 			         s_info[i].mod / 1000, s_info[i].mod % 1000),
-			  j + 4 - start, 60);
+			  j + 5 - start, 60);
 	}
 }
 
@@ -311,6 +369,8 @@ void recalc_skills(bool init)
                                 msg_format("You have gained %d new thaumaturgy spells.", thaum_gain);
                 }
 
+                process_hooks(HOOK_RECALC_SKILLS, "()");
+
 		/* Update stuffs */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_POWERS |
 	                      PU_SANITY | PU_BODY);
@@ -327,6 +387,7 @@ void recalc_skills_theory(s16b *invest, s32b *base_val, u16b *base_mod, s32b *bo
 {
         int i, j;
 
+        /* First we assign the normal points */
         for (i = 0; i < max_s_idx; i++)
         {
                 /* Calc the base */
@@ -337,22 +398,25 @@ void recalc_skills_theory(s16b *invest, s32b *base_val, u16b *base_mod, s32b *bo
 
                 /* It cannot go below 0 */
                 if (s_info[i].value < 0) s_info[i].value = 0;
+        }
 
-                /* Modify related skills */
+        /* Then we modify related skills */
+        for (i = 0; i < max_s_idx; i++)
+        {
                 for (j = 1; j < max_s_idx; j++)
                 {
                         /* Ignore self */
                         if (j == i) continue;
 
                         /* Exclusive skills */
-                        if ((s_info[i].action[j] == SKILl_EXCLUSIVE) && s_info[i].value && invest[i])
+                        if ((s_info[i].action[j] == SKILl_EXCLUSIVE) && invest[i])
                         {
                                 /* Turn it off */
                                 s_info[j].value = 0;
                         }
 
                         /* Non-exclusive skills */
-                        else
+                        else if (s_info[i].action[j])
                         {
                                 /* Increase / decrease with a % */
                                 s32b val = s_info[j].value + (invest[i] * s_info[j].mod * s_info[i].action[j] / 100);
@@ -389,11 +453,8 @@ void do_cmd_skill()
 
 	recalc_skills(TRUE);
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
 	/* Save the screen */
-	Term_save();
+	screen_save();
 
 	/* Allocate arrays to save skill values */
 	C_MAKE(skill_values_save, MAX_SKILLS, s32b);
@@ -447,14 +508,14 @@ void do_cmd_skill()
 		/* Next page */
 		else if (c == 'n')
 		{
-			sel += (hgt - 4);
+			sel += (hgt - 5);
 			if (sel >= max) sel = max - 1;
 		}
 
 		/* Previous page */
 		else if (c == 'p')
 		{
-			sel -= (hgt - 4);
+			sel -= (hgt - 5);
 			if (sel < 0) sel = 0;
 		}
 
@@ -489,11 +550,14 @@ void do_cmd_skill()
 			/* Decrease the skill */
 			if (wizard && (c == '-')) skill_bonus[table[sel][0]] -= SKILL_STEP;
 
+                        /* Contextual help */
+			if (c == '?') exec_lua(format("ingame_help('select_context', 'skill', '%s')", s_info[table[sel][0]].name + s_name));;
+
 			/* Handle boundaries and scrolling */
 			if (sel < 0) sel = max - 1;
 			if (sel >= max) sel = 0;
 			if (sel < start) start = sel;
-			if (sel >= start + (hgt - 4)) start = sel - (hgt - 4) + 1;
+			if (sel >= start + (hgt - 5)) start = sel - (hgt - 5) + 1;
 		}
 	}
 
@@ -533,10 +597,7 @@ void do_cmd_skill()
 	C_FREE(skill_bonus, MAX_SKILLS, s32b);
 
 	/* Load the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	screen_load();
 
         recalc_skills(FALSE);
 }
@@ -622,8 +683,11 @@ static void choose_melee()
 		for (i = 0, z = 0; z < A2I(c); i++)
 			if (melee_bool[i]) z++;
 		p_ptr->melee_style = melee_skills[melee_num[z]];
-		for (i = INVEN_WIELD; p_ptr->body_parts[i - INVEN_WIELD] == INVEN_WIELD; i++)
-			inven_takeoff(i, 255, FALSE);
+                for (i = INVEN_WIELD; p_ptr->body_parts[i - INVEN_WIELD] == INVEN_WIELD; i++)
+                {
+                        if (inventory[i].k_idx)
+                                inven_takeoff(i, 255, FALSE);
+                }
 		energy_use = 100;
 		break;
 	}
@@ -697,7 +761,7 @@ int do_cmd_activate_skill_aux()
 
 	for (i = 1; i < max_s_idx; i++)
 	{
-		if (s_info[i].action_mkey && s_info[i].value)
+		if (s_info[i].action_mkey && s_info[i].value && ((!s_info[i].hidden) || (i == SKILL_LEARN)))
 		{
 			int j;
 			bool next = FALSE;
@@ -823,7 +887,7 @@ void do_cmd_activate_skill()
 	{
 		x_idx = command_arg - 1;
 		if ((x_idx < 0) || (x_idx >= max_s_idx)) return;
-                if ((!s_info[x_idx].value) || (!s_info[x_idx].action_mkey))
+                if (((s_info[x_idx].hidden) && (x_idx != SKILL_LEARN)) || (!s_info[x_idx].value) || (!s_info[x_idx].action_mkey))
                 {
                         msg_print("You cannot use this skill.");
                         return;
@@ -890,6 +954,9 @@ void do_cmd_activate_skill()
 			break;
 		case MKEY_NECRO:
 			do_cmd_necromancer();
+			break;
+		case MKEY_SYMBIOTIC:
+			do_cmd_symbiotic();
 			break;
 		case MKEY_TRAP:
 			do_cmd_set_trap();
@@ -1087,7 +1154,6 @@ void compute_skills(s32b *v, s32b *m, int i)
 
 	/***** race skills *****/
 
-	/* If the skill correspond to the magic realms lets pump them a bit */
 	value = rp_ptr->skill_base[i];
 	mod = rp_ptr->skill_mod[i];
 
@@ -1096,9 +1162,18 @@ void compute_skills(s32b *v, s32b *m, int i)
 	*m = modify_aux(*m,
 	                mod, rp_ptr->skill_modm[i]);
 
+	/***** race mod skills *****/
+
+	value = rmp_ptr->skill_base[i];
+	mod = rmp_ptr->skill_mod[i];
+
+	*v = modify_aux(*v,
+	                value, rmp_ptr->skill_basem[i]);
+	*m = modify_aux(*m,
+	                mod, rmp_ptr->skill_modm[i]);
+
 	/***** class skills *****/
 
-	/* If the skill correspond to the magic realms lets pump them a bit */
 	value = cp_ptr->skill_base[i];
 	mod = cp_ptr->skill_mod[i];
 
@@ -1109,7 +1184,6 @@ void compute_skills(s32b *v, s32b *m, int i)
 
 	/***** class spec skills *****/
 
-	/* If the skill correspond to the magic realms lets pump them a bit */
 	value = spp_ptr->skill_base[i];
 	mod = spp_ptr->skill_mod[i];
 
@@ -1133,48 +1207,32 @@ void init_skill(u32b value, s16b mod, int i)
                 s_info[i].hidden = FALSE;
 }
 
-/*
- * Get a skill from a list
- */
-static int available_skills[] =
-{
-        SKILL_COMBAT,
-        SKILL_MASTERY,
-        SKILL_ARCHERY,
-        SKILL_HAND,
-        SKILL_MAGIC,
-        SKILL_DIVINATION,
-        SKILL_CONVEYANCE,
-        SKILL_SNEAK,
-        SKILL_NECROMANCY,
-        SKILL_SPIRITUALITY,
-        SKILL_MINDCRAFT,
-        SKILL_MIMICRY,
-        SKILL_ANTIMAGIC,
-        SKILL_RUNECRAFT,
-        SKILL_TRAPPING,
-        SKILL_STEALTH,
-        SKILL_DISARMING,
-        SKILL_THAUMATURGY,
-        SKILL_SUMMON,
-        SKILL_LORE,
-        -1
-};
-
 void do_get_new_skill()
 {
         char *items[4];
         int skl[4];
         u32b val[4], mod[4];
         bool used[MAX_SKILLS];
-        int max = 0, max_a = 0, res;
+        int available_skills[MAX_SKILLS];
+        int max = 0, max_a = 0, res, i;
 
         /* Check if some skills didnt influence other stuff */
         recalc_skills(TRUE);
 
+        /* Grab the ones we can gain */
+        max = 0;
+        for (i = 0; i < max_s_idx; i++)
+        {
+                if (s_info[i].flags1 & SKF1_RANDOM_GAIN)
+                        available_skills[max++] = i;
+        }
+        available_skills[max++] = -1;
+
         /* Init */
-	for (max = 0; max < MAX_SKILLS; max++)
+        for (max = 0; max < MAX_SKILLS; max++)
+        {
                 used[max] = FALSE;
+        }
 
         /* Count the number of available skills */
         while (available_skills[max_a] != -1) max_a++;
@@ -1190,6 +1248,7 @@ void do_get_new_skill()
                 {
                         i = rand_int(max_a);
                 } while (used[available_skills[i]]);
+
                 s_ptr = &s_info[available_skills[i]];
                 used[available_skills[i]] = TRUE;
 
@@ -1207,18 +1266,57 @@ void do_get_new_skill()
                 skl[max] = available_skills[i];
                 items[max] = (char *)string_make(format("%-40s: +%02ld.%03ld value, +%01d.%03d modifier", s_ptr->name + s_name, val[max] / SKILL_STEP, val[max] % SKILL_STEP, mod[max] / SKILL_STEP, mod[max] % SKILL_STEP));
         }
-        res = ask_menu("Choose a skill to learn(a-d to choose, ESC to cancel)?", (char **)items, 4);
 
-        /* Ok ? lets learn ! */
-        if (res > -1)
+        while (TRUE)
         {
-                skill_type *s_ptr = &s_info[skl[res]];
-                s_ptr->value += val[res];
-                s_ptr->mod += mod[res];
-                if (mod[res])
-                        msg_format("You can now learn the %s skill.", s_ptr->name + s_name);
-                else
-                        msg_format("Your knowledge of the %s skill increase.", s_ptr->name + s_name);
+                bool oppose = FALSE;
+                int oppose_skill = -1;
+
+                res = ask_menu("Choose a skill to learn(a-d to choose, ESC to cancel)?", (char **)items, 4);
+
+                /* Check we dont oppose an existing skill */
+                for (i = 0; i < max_s_idx; i++)
+                {
+                        if ((s_info[i].action[skl[res]] == SKILl_EXCLUSIVE) && (s_info[i].value))
+                        {
+                                oppose = TRUE;
+                                oppose_skill = i;
+                                break;
+                        }
+                }
+
+                /* Ok we oppose, so be sure */
+                if (oppose)
+				{
+					cptr msg;
+
+					/*
+					 * Because this is SO critical a question, we must flush
+					 * input to prevent killing character off -- pelpel
+					 */
+					flush();
+
+					/* Prepare prompt */
+					msg = format("This skill is mutualy exclusive with "
+								 "at least %s, continue?",
+								 s_info[oppose_skill].name + s_name);
+
+					/* The player rejected the choice */
+					if (!get_check(msg)) continue;
+				}
+
+                /* Ok ? lets learn ! */
+                if (res > -1)
+                {
+                        skill_type *s_ptr = &s_info[skl[res]];
+                        s_ptr->value += val[res];
+                        s_ptr->mod += mod[res];
+                        if (mod[res])
+                                msg_format("You can now learn the %s skill.", s_ptr->name + s_name);
+                        else
+                                msg_format("Your knowledge of the %s skill increase.", s_ptr->name + s_name);
+                }
+                break;
         }
 
         /* Free them ! */

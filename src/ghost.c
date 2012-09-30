@@ -56,8 +56,14 @@ void make_bones(void)
 				/* Build the filename */
 				path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
 
+				/* Grab permission */
+				safe_setuid_grab();
+
 				/* Attempt to open the bones file */
 				fp = my_fopen(str, "r");
+
+				/* Drop permission */
+				safe_setuid_drop();
 
 				/* Close it right away */
 				if (fp) my_fclose(fp);
@@ -73,8 +79,14 @@ void make_bones(void)
 			/* File type is "TEXT" */
 			FILE_TYPE(FILE_TYPE_TEXT);
 
+			/* Grab permission */
+			safe_setuid_grab();
+
 			/* Try to write a new "Bones File" */
 			fp = my_fopen(str, "w");
+
+			/* Drop permission */
+			safe_setuid_drop();
 
 			/* Not allowed to write it?  Weird. */
 			if (!fp) return;
@@ -395,7 +407,7 @@ static void set_ghost_aux_1(void)
 	if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
 	if (grace == RACE_KOBOLD) r_ptr->flags3 |= (RF3_ORC);
 	if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-	if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+	if (grace == RACE_THUNDERLORD) r_ptr->flags3 |= (RF3_THUNDERLORD);
 
 
 	/* Armor class */
@@ -596,7 +608,7 @@ static void set_ghost_aux_2(void)
 				r_ptr->flags3 |= (RF3_IM_COLD);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
 				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-				if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+				if (grace == RACE_THUNDERLORD) r_ptr->flags3 |= (RF3_THUNDERLORD);
 				r_ptr->ac = 26;
 				r_ptr->speed = 110;
 
@@ -615,7 +627,7 @@ static void set_ghost_aux_2(void)
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
 				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-				if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+				if (grace == RACE_THUNDERLORD) r_ptr->flags3 |= (RF3_THUNDERLORD);
 				r_ptr->ac = 30;
 				r_ptr->speed = 110;
 				r_ptr->hside *= 2;
@@ -634,7 +646,7 @@ static void set_ghost_aux_2(void)
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
 				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-				if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+				if (grace == RACE_THUNDERLORD) r_ptr->flags3 |= (RF3_THUNDERLORD);
 				r_ptr->ac = 35;
 				r_ptr->speed = 110;
 				r_ptr->hside *= 2;
@@ -1035,8 +1047,14 @@ s16b place_ghost(void)
 	/* Choose a bones file */
 	sprintf(tmp, "%s%sbone%03d.%03d", ANGBAND_DIR_BONE, PATH_SEP, dungeon_type, level);
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the bones file */
 	fp = my_fopen(tmp, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* No bones file to use */
 	if (!fp) return (FALSE);

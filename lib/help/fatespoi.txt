@@ -1,4 +1,6 @@
 |||||oy
+~~~~~01|Spoilers|Fates
+~~~~~02|Fates (spoiler)
 #####R                                Fate Spoiler
 #####R                        Accurate for PernAngband 5.x.x
 #####R                              by Dustin Ragan

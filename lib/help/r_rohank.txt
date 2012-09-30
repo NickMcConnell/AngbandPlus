@@ -1,3 +1,5 @@
+~~~~~01|RohanKnight
+~~~~~02|Races|RohanKnight
 #####R=== RohanKnights ===
 
 #####GDescription
@@ -18,6 +20,5 @@ Charisma        +2
 Hit Dice Sides  10         
 Exp Penalty     +120%
 
-#####GStarting Equipment
-If they are *very* lucky they may begin with:
-    Boots of free action
+######GSkill Bonuses (supplementary to existing skills)
+Weaponmastery           0.000           [0.200]

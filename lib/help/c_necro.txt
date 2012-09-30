@@ -1,16 +1,13 @@
+|||||oy
+~~~~~01|Necromancer
+~~~~~02|Classes|Necromancer
 #####R=== Necromancers ===
 
 #####GDescription
 As a Priest devotes his life to his chosen deity, so Necromancers 
 devote their lives to the study of death. Familiar with all of the 
-forms of unbeing, they are able to cast spells from the Nether realm 
-with great effect. Moreover, if and when they die, they can send out 
-their spirit to avenge their enemies and drain their life force. If 
-enough beings are so drained, the Necromancer may return to life. On 
-the other hand, a Necromancer can only maintain the force of will
-required to animate his spirit for a limited time. If they do not 
-manage to return to the realm of the living before their willpower 
-gives out, death becomes permanent. 
+forms of unbeing, they are able to manipulate spirit and flesh for
+great effect.
 
 #####GStarting Stat Modifiers
 Strength         -5
@@ -19,42 +16,56 @@ Wisdom           +0
 Dexterity        +1
 Constitution     -2
 Charisma         +1
-Bonus Blows      0
+Bonus Blows       0
 Hit Die          +d0
 Exp Penalty      30%
 
 #####GStarting Skills:
 #####BSkill                   Start Level     Skill Point Gains
-Combat                  1.000           [0.200]
-  Weaponmastery         0.700           [0.400]
+Combat                  1.000           [0.400]
+  Weaponmastery         0.700           [0.600]
 Sneakiness              1.000           [0.900]
 Magic                   1.000           [0.900]
+  Magic-Device          1.000           [1.200]
   Sorcery               0.000           [0.400]
   Spell-power           0.000           [0.600]
   Mana                  0.000           [0.600]
-  Fire                  0.000           [0.700]
-  Water                 0.000           [0.600]
-  Air                   0.000           [0.600]
-  Earth                 0.000           [0.700]
-  Temporal              0.000           [0.700]
-  Divination            0.000           [0.600]
-  Conveyance            0.000           [0.600]
-  Nature                0.000           [0.400]
-  Meta                  0.000           [0.600]
-  Mind                  0.000           [0.600]
-  Necromancy            1.000           [0.900]
-  Runecraft             0.000           [0.600]
-  Thaumaturgy           0.000           [0.600]
+  Fire                  0.000           [0.800]
+  Water                 0.000           [0.700]
+  Air                   0.000           [0.700]
+  Earth                 0.000           [0.800]
+  Temporal              0.000           [0.800]
+  Divination            0.000           [0.700]
+  Conveyance            0.000           [0.700]
+  Nature                0.000           [0.500]
+  Meta                  0.000           [0.700]
+  Mind                  0.000           [0.900]
+  Necromancy            1.000           [1.000]
+  Runecraft             0.000           [0.700]
+  Thaumaturgy           0.000           [0.700]
 Spirituality            1.000           [0.550]
   Prayer                0.000           [0.500]
-Monster-lore            0.000           [0.500]
+Monster-lore            1.000           [1.100]
+  Corpse-preservation   5.000           [0.900]
 
 #####GStarting Equipment
 A necromancer begins the game with:
-    L1 book of nether
-    A sickle
-    A scroll of dispel undead
-If they are *very* lucky they may also begin with:
-    a potion of death
-    
-    
+    A book of Beginner Cantrips
+    A dagger
+
+#####GNecromancy
+*****m_necrom.txt*0[Necromancy powers] [[[[[Bare accessed using the 'm' key.]  
+Even from the start of his career, an inexperienced necromancer
+can channel forces from the underworld to assault the mind of
+living creatures, therefore terrifying them. With little effort he
+can also learn the art of reanimating a dead corpse, turning it into
+an undead slave. It is only at a later point in his career that this
+foul mage learns to manipulate his life force as well, gaining the
+ability to absorb hit points from both living and dead opponents.
+The greatest necromancers even gain the ability to survive their own
+death: when they should be killed, they instead turn into a ghostly
+being; they then receive a set number of Death Points, which are in
+all respects similar to hit points except that they go automatically
+down each turn. If the necromancer manages to kill a certain amount
+of creatures before his Death Points reach 0 he is returned to life,
+otherwise his will dissipates and he finally achieves true death.

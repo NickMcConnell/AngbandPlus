@@ -1,3 +1,5 @@
+~~~~~01|Dwarf
+~~~~~02|Races|Dwarf
 #####R=== Dwarves ===
 
 #####GDescription
@@ -22,8 +24,4 @@ Constitution    +2
 Charisma        -3       
 Hit Dice Sides  11         
 Exp Penalty     +25%
-
-#####GStarting Equipment
-If they are *very* lucky they may begin with:
-    A helmet of light
 

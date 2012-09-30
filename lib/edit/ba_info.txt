@@ -272,3 +272,8 @@ I:53:2:p
 N:59:Donate an item
 C:0:0:0
 I:43:0:d
+
+# Mage Tower quest in Lothlorien
+N:60:Get a quest
+C:0:0:0
+I:56:0:q

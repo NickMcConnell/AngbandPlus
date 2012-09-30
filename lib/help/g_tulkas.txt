@@ -1,6 +1,9 @@
+|||||oy
+~~~~~01|Tulkas
+~~~~~02|Gods|Tulkas
 #####R === Tulkas ===
 
-Another of the Valar.
+Another of the Valar. His most faithful followers are *****c_palad.txt*0[Paladins].
 
 #####GThe benefits of Worshipping Tulkas
 1. As you increase your piety, Tulkas will grant boosts to your constitution
@@ -13,7 +16,7 @@ Another of the Valar.
 #####GThe disadvantages of Worshipping Tulkas
 1. When you are praying, your piety slowly decreases with time.
 2. He will completely abandon you if you wear The One Ring.
-
+~~~~~03|Tulkas|Prayers
 #####GTulkas's Magic
 Worshipping Tulkas gives the adventurer access to a set of special spells 
 that come directly from the hands of Tulkas. These spells use your piety to 

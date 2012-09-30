@@ -1,3 +1,5 @@
+~~~~~01|Human
+~~~~~02|Races|Human
 #####R=== Humans ===
 
 #####GDescription
@@ -9,8 +11,4 @@ human.
 
 #####GStat Modifiers
 None - Humans are the base race.
-
-#####GStarting Equipment
-If they are *very* lucky they may begin with:
-    Some scrolls of identify
 

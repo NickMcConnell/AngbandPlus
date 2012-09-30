@@ -1,9 +1,12 @@
+|||||oy
+~~~~~01|Warper
+~~~~~02|Classes|Warper
 #####R=== Warpers ===
 
 #####GDescription
-A warper is a type of mage that prefers to deal in magic that alters the 
-fabric of space and time. They specialise in the schools of Conveyance, 
-Divination and Temporal magic. 
+A Warper is a type of mage that prefers to deal in magic that alters the 
+fabric of space and time. They specialise in the schools of *****m_convey,txt*0[Conveyance], 
+*****m_divin.txt*0[Divination] and *****m_tempo.txt*0[Temporal] magic. 
 
 #####GStarting Stat Modifiers
 Strength         -5
@@ -12,7 +15,7 @@ Wisdom           +0
 Dexterity        +1
 Constitution     -2
 Charisma         +1
-Bonus Blows      0
+Bonus Blows       0
 Hit Die          +d0
 Exp Penalty      30%
 
@@ -22,32 +25,28 @@ Combat                  1.000           [0.200]
   Weaponmastery         0.700           [0.400]
 Sneakiness              1.000           [0.900]
 Magic                   1.000           [0.900]
+  Magic-Device          1.000           [1.050]
   Sorcery               0.000           [0.400]
   Spell-power           0.000           [0.600]
   Mana                  1.000           [0.700]
-  Fire                  0.000           [0.700]
-  Water                 0.000           [0.700]
-  Air                   0.000           [0.700]
-  Earth                 0.000           [0.700]
-  Temporal              0.000           [1.100]
-  Divination            0.000           [1.100]
-  Conveyance            0.000           [1.100]
-  Nature                0.000           [0.700]
-  Meta                  0.000           [0.700]
-  Mind                  0.000           [0.600]
-  Necromancy            0.000           [0.600]
-  Runecraft             0.000           [0.600]
-  Thaumaturgy           0.000           [0.600]
+  Fire                  0.000           [0.800]
+  Water                 0.000           [0.800]
+  Air                   0.000           [0.800]
+  Earth                 0.000           [0.800]
+  Temporal              0.000           [1.200]
+  Divination            0.000           [1.200]
+  Conveyance            0.000           [1.200]
+  Nature                0.000           [0.800]
+  Meta                  0.000           [0.800]
+  Mind                  0.000           [0.700]
+  Necromancy            0.000           [0.700]
+  Runecraft             0.000           [0.700]
+  Thaumaturgy           0.000           [0.700]
 Spirituality            1.000           [0.550]
   Prayer                0.000           [0.500]
 Monster-lore            0.000           [0.500]
 
 #####GStarting Equipment
 A warper begins the game with:
-    A book of Cantrips
+    A book of Beginner Cantrips
     A dagger
-    A wand of fire bolts
-If they are *very* lucky they may also begin with:
-    A L2 spellbook of one of the chosen realms
-
-		

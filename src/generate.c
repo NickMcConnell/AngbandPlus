@@ -108,7 +108,7 @@
 #define DUN_ROOMS      50	/* Number of rooms to attempt */
 #define DUN_UNUSUAL   194	/* Level/chance of unusual room (was 200) */
 #define DUN_DEST       18	/* 1/chance of having a destroyed level */
-#define SMALL_LEVEL     3	/* 1/chance of smaller size (3)*/
+#define SMALL_LEVEL     6	/* 1/chance of smaller size (3->6) */
 #define EMPTY_LEVEL    15	/* 1/chance of being 'empty' (15)*/
 #define DARK_EMPTY      5	/* 1/chance of arena level NOT being lit (2)*/
 #define XTRA_MAGIC     10	/* 1/chance of having a level with more magic (10)*/
@@ -147,7 +147,7 @@
 #define DUN_AMT_ROOM    9	/* Amount of objects for rooms */
 #define DUN_AMT_ITEM    3	/* Amount of objects for rooms/corridors */
 #define DUN_AMT_GOLD    3	/* Amount of treasure for rooms/corridors */
-#define DUN_AMT_ALTAR   3	/* Amount of altars */
+#define DUN_AMT_ALTAR   1	/* Amount of altars */
 #define DUN_AMT_BETWEEN 2	/* Amount of between gates */
 #define DUN_AMT_FOUNTAIN 1	/* Amount of fountains */
 
@@ -354,7 +354,7 @@ static void place_up_stairs(int y, int x)
 	cave_type *c_ptr = &cave[y][x];
 
 	/* Create up stairs */
-	if ((rand_int(3) == 0) && (!(d_info[dungeon_type].flags2 & DF2_NO_SHAFT)))
+	if ((rand_int(3) == 0) && (!(dungeon_flags2 & DF2_NO_SHAFT)))
 	{
 		cave_set_feat(y, x, FEAT_SHAFT_UP);
 	}
@@ -392,7 +392,7 @@ static void place_down_stairs(int y, int x)
 	 * All thoses tests are necesary because a shaft can jump up to 4 levels
 	 */
 	if ((dun_level + 4 <= d_info[dungeon_type].maxdepth) &&
-	    (rand_int(3) == 0) && (!(d_info[dungeon_type].flags2 & DF2_NO_SHAFT)))
+	    (rand_int(3) == 0) && (!(dungeon_flags2 & DF2_NO_SHAFT)))
 	{
 		cave_set_feat(y, x, FEAT_SHAFT_DOWN);
 	}
@@ -672,7 +672,7 @@ static bool new_player_spot(int branch)
 	int max_attempts = 5000;
 
 	/* Place the player */
-	if (d_info[dungeon_type].flags1 & DF1_FLAT)
+	if (dungeon_flags1 & DF1_FLAT)
 	{
 		place_new_way(&y, &x);
 	}
@@ -705,13 +705,13 @@ static bool new_player_spot(int branch)
 	px = x;
 
 	/* XXX XXX XXX */
-	if (dungeon_stair && !(dungeon_flags1 & LF1_NO_STAIR) && dun_level &&
+	if (dungeon_stair && !(dungeon_flags2 & DF2_NO_STAIR) && dun_level &&
 	    (!is_quest(dun_level) || (old_dun_level < dun_level)) && !branch)
 	{
 		if (old_dun_level < dun_level)
 		{
 			place_up_stairs(py ,px);
-			if (d_info[dungeon_type].flags1 & DF1_FLAT)
+			if (dungeon_flags1 & DF1_FLAT)
 			{
 				cave_set_feat(py, px, FEAT_WAY_LESS);
 			}
@@ -719,7 +719,7 @@ static bool new_player_spot(int branch)
 		else
 		{
 			place_down_stairs(py ,px);
-			if (d_info[dungeon_type].flags1 & DF1_FLAT)
+			if (dungeon_flags1 & DF1_FLAT)
 			{
 				cave_set_feat(py, px, FEAT_WAY_MORE);
 			}
@@ -767,7 +767,8 @@ static void place_rubble(int y, int x)
  */
 static void place_altar(int y, int x)
 {
-        /* No altars randomly genearted .. yet ? */
+        if (magik(10))
+                cave_set_feat(y, x, 164);
 }
 
 
@@ -989,7 +990,6 @@ static void place_random_door(int y, int x)
 static void alloc_stairs(int feat, int num, int walls, int branch)
 {
 	int y, x, i, j, flag;
-	dungeon_info_type *d_ptr = &d_info[dungeon_type];
 	cave_type *c_ptr;
 
 
@@ -1002,7 +1002,7 @@ static void alloc_stairs(int feat, int num, int walls, int branch)
 			/* Try several times, then decrease "walls" */
 			for (j = 0; !flag && j <= 3000; j++)
 			{
-				if (d_ptr->flags1 & DF1_FLAT)
+				if (dungeon_flags1 & DF1_FLAT)
 				{
 					place_new_way(&y, &x);
 				}
@@ -1026,11 +1026,11 @@ static void alloc_stairs(int feat, int num, int walls, int branch)
 				if (!dun_level)
 				{
 					/* Clear previous contents, add down stairs */
-					if (d_ptr->flags1 & DF1_FLAT)
+					if (dungeon_flags1 & DF1_FLAT)
 					{
 						cave_set_feat(y, x, FEAT_WAY_MORE);
 					}
-					else if ((rand_int(3) == 0) && (!(d_info[dungeon_type].flags2 & DF2_NO_SHAFT)))
+					else if ((rand_int(3) == 0) && (!(dungeon_flags2 & DF2_NO_SHAFT)))
 					{
 						cave_set_feat(y, x, FEAT_SHAFT_DOWN);
 					}
@@ -1043,14 +1043,14 @@ static void alloc_stairs(int feat, int num, int walls, int branch)
 				/* Quest -- must go up */
 				else if ((is_quest(dun_level) && (dun_level >= 1)) ||
 				         ((dun_level >= d_info[dungeon_type].maxdepth) &&
-						  (!d_info[dungeon_type].flags1 & DF1_FORCE_DOWN)))
+						  (!dungeon_flags1 & DF1_FORCE_DOWN)))
 				{
 					/* Clear previous contents, add up stairs */
-					if (d_ptr->flags1 & DF1_FLAT)
+					if (dungeon_flags1 & DF1_FLAT)
 					{
 						cave_set_feat(y, x, FEAT_WAY_LESS);
 					}
-					else if ((rand_int(3) == 0) && (!(d_info[dungeon_type].flags2 & DF2_NO_SHAFT)))
+					else if ((rand_int(3) == 0) && (!(dungeon_flags2 & DF2_NO_SHAFT)))
 					{
 						cave_set_feat(y, x, FEAT_SHAFT_UP);
 					}
@@ -1154,7 +1154,7 @@ static void alloc_object(int set, int typ, int num)
 
 			case ALLOC_TYP_OBJECT:
 			{
-				place_object(y, x, FALSE, FALSE);
+				place_object(y, x, FALSE, FALSE, OBJ_FOUND_FLOOR);
 				break;
 			}
 
@@ -1705,7 +1705,7 @@ static void check_room_boundary(int x1, int y1, int x2, int y2)
 	bool old_is_floor, new_is_floor;
 
 	/* Avoid doing this in irrelevant places -- pelpel */
-	if (!(d_info[dungeon_type].flags1 & DF1_CAVERN)) return;
+	if (!(dungeon_flags1 & DF1_CAVERN)) return;
 
 	/* Initialize */
 	count = 0;
@@ -1819,7 +1819,7 @@ static void vault_objects(int y, int x, int num)
 			/* Place an item */
 			if (rand_int(100) < 75)
 			{
-				place_object(j, k, FALSE, FALSE);
+				place_object(j, k, FALSE, FALSE, OBJ_FOUND_FLOOR);
 			}
 
 			/* Place gold */
@@ -1978,6 +1978,14 @@ bool room_alloc(int x, int y, bool crowded, int by0, int bx0, int *xx, int *yy)
 	/* Acquire the location of the room */
 	*yy = ((by1 + by2 + 1) * BLOCK_HGT) / 2;
 	*xx = ((bx1 + bx2 + 1) * BLOCK_WID) / 2;
+
+	/*
+	 * Paranoia -- I still can't figure out why why some rooms don't have
+	 * full walls when they stick to the dungeon boundary...
+	 * I don't think this function itself is a part of original... --  pelpel
+	 */
+	if (!in_bounds2(*yy, *xx)) return (FALSE);
+	if (!in_bounds2(*yy + y, *xx + x)) return (FALSE);
 
 
 	/* Save the room location */
@@ -2370,7 +2378,7 @@ static void build_type3(int by0, int bx0)
 			}
 
 			/* Place a treasure in the vault */
-			place_object(yval, xval, FALSE, FALSE);
+			place_object(yval, xval, FALSE, FALSE, OBJ_FOUND_FLOOR);
 
 			/* Let's guard the treasure well */
 			vault_monsters(yval, xval, rand_int(2) + 3);
@@ -2565,7 +2573,7 @@ static void build_type4(int by0, int bx0)
 			/* Object (80%) */
 			if (rand_int(100) < 80)
 			{
-				place_object(yval, xval, FALSE, FALSE);
+				place_object(yval, xval, FALSE, FALSE, OBJ_FOUND_FLOOR);
 			}
 
 			/* Stairs (20%) */
@@ -2653,8 +2661,8 @@ static void build_type4(int by0, int bx0)
 				vault_monsters(yval, xval + 2, randint(2));
 
 				/* Objects */
-				if (rand_int(3) == 0) place_object(yval, xval - 2, FALSE, FALSE);
-				if (rand_int(3) == 0) place_object(yval, xval + 2, FALSE, FALSE);
+				if (rand_int(3) == 0) place_object(yval, xval - 2, FALSE, FALSE, OBJ_FOUND_FLOOR);
+				if (rand_int(3) == 0) place_object(yval, xval + 2, FALSE, FALSE, OBJ_FOUND_FLOOR);
 			}
 
 			break;
@@ -3712,7 +3720,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 				{
 					if (rand_int(100) < 75)
 					{
-						place_object(y, x, FALSE, FALSE);
+						place_object(y, x, FALSE, FALSE, OBJ_FOUND_VAULT);
 					}
 					else
 					{
@@ -3796,7 +3804,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = dun_level;
 					object_level = dun_level + 7;
-					place_object(y, x, TRUE, FALSE);
+					place_object(y, x, TRUE, FALSE, OBJ_FOUND_VAULT);
 					object_level = dun_level;
 					break;
 				}
@@ -3808,7 +3816,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = dun_level;
 					object_level = dun_level + 20;
-					place_object(y, x, TRUE, TRUE);
+					place_object(y, x, TRUE, TRUE, OBJ_FOUND_VAULT);
 					object_level = dun_level;
 					break;
 				}
@@ -3825,7 +3833,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 					if (rand_int(100) < 50)
 					{
 						object_level = dun_level + 7;
-						place_object(y, x, FALSE, FALSE);
+						place_object(y, x, FALSE, FALSE, OBJ_FOUND_VAULT);
 						object_level = dun_level;
 					}
 					break;
@@ -3876,7 +3884,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 				case 'A':
 				{
 					object_level = dun_level + 12;
-					place_object(y, x, TRUE, FALSE);
+					place_object(y, x, TRUE, FALSE, OBJ_FOUND_VAULT);
 					object_level = dun_level;
 					break;
 				}
@@ -4899,7 +4907,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = dun_level;
 					object_level = dun_level + 20;
-					place_object(y, x, TRUE, FALSE);
+					place_object(y, x, TRUE, FALSE, OBJ_FOUND_FLOOR);
 					object_level = dun_level;
 				}
 				else if (value < 5)
@@ -4909,7 +4917,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = dun_level;
 					object_level = dun_level + 10;
-					place_object(y, x, TRUE, FALSE);
+					place_object(y, x, TRUE, FALSE, OBJ_FOUND_FLOOR);
 					object_level = dun_level;
 				}
 				else if (value < 10)
@@ -4935,7 +4943,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 					/* Object or trap */
 					if (rand_int(100) < 25)
 					{
-						place_object(y, x, FALSE, FALSE);
+						place_object(y, x, FALSE, FALSE, OBJ_FOUND_FLOOR);
 					}
 					else
 					{
@@ -4962,7 +4970,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 					if (rand_int(100) < 50)
 					{
 						object_level = dun_level + 7;
-						place_object(y, x, FALSE, FALSE);
+						place_object(y, x, FALSE, FALSE, OBJ_FOUND_FLOOR);
 						object_level = dun_level;
 					}
 				}
@@ -4986,7 +4994,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 					}
 					else if (rand_int(100) < 50)
 					{
-						place_object(y, x, FALSE, FALSE);
+						place_object(y, x, FALSE, FALSE, OBJ_FOUND_FLOOR);
 					}
 				}
 
@@ -6255,7 +6263,7 @@ static void build_type12(int by0, int bx0)
 		build_small_room(x0, y0);
 
 		/* Place a treasure in the vault */
-		place_object(y0, x0, FALSE, FALSE);
+		place_object(y0, x0, FALSE, FALSE, OBJ_FOUND_FLOOR);
 
 		/* Let's guard the treasure well */
 		vault_monsters(y0, x0, rand_int(2) + 3);
@@ -6670,7 +6678,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2, bool water)
 		place_floor(y, x);
 
 		/* Occasional doorway */
-		if (!(d_info[dungeon_type].flags1 & DF1_NO_DOORS) &&
+		if (!(dungeon_flags1 & DF1_NO_DOORS) &&
 		    (rand_int(100) < DUN_TUN_PEN))
 		{
 			/* Place a random door */
@@ -6772,7 +6780,7 @@ static void try_door(int y, int x)
 	if (!in_bounds(y, x)) return;
 
 	/* Some dungeons don't have doors at all */
-	if (d_info[dungeon_type].flags1 & (DF1_NO_DOORS)) return;
+	if (dungeon_flags1 & (DF1_NO_DOORS)) return;
 
 	/* Ignore walls */
 	if (f_info[cave[y][x].feat].flags1 & FF1_WALL) return;
@@ -6804,7 +6812,7 @@ static void try_doors(int y, int x)
 	/* if (!in_bounds(y, x)) return; */
 
 	/* Some dungeons don't have doors at all */
-	if (d_info[dungeon_type].flags1 & (DF1_NO_DOORS)) return;
+	if (dungeon_flags1 & (DF1_NO_DOORS)) return;
 
 	/* Reset tally */
 	n = 0;
@@ -7612,7 +7620,7 @@ static bool cave_gen(void)
 	 * width/height, generate the dungeon normally, then double it
 	 * in both directions
 	 */
-	if (d_ptr->flags1 & DF1_DOUBLE)
+	if (dungeon_flags1 & DF1_DOUBLE)
 	{
 		cur_wid/=2;
 		cur_hgt/=2;
@@ -7649,9 +7657,9 @@ static bool cave_gen(void)
 	if (!(max_panel_cols)) max_vault_ok--;
 
 	/* Check for 'arena' level -- never for maze/evolving levels */
-	if (!(d_ptr->flags1 & (DF1_MAZE | DF1_LIFE_LEVEL)))
+	if (!(dungeon_flags1 & (DF1_MAZE | DF1_LIFE_LEVEL)))
 	{
-		if ((d_ptr->flags1 & (DF1_EMPTY)) ||
+		if ((dungeon_flags1 & (DF1_EMPTY)) ||
 		    (empty_levels && (rand_int(EMPTY_LEVEL) == 0)))
 		{
 			empty_level = TRUE;
@@ -7673,10 +7681,10 @@ static bool cave_gen(void)
 
 
 	/* Normal (non-maze, non-evolving) level */
-	if (!(d_ptr->flags1 & (DF1_MAZE | DF1_LIFE_LEVEL)))
+	if (!(dungeon_flags1 & (DF1_MAZE | DF1_LIFE_LEVEL)))
 	{
 		/* Possible cavern */
-		if ((d_ptr->flags1 & DF1_CAVERN) && (rand_int(dun_level/2) > DUN_CAVERN))
+		if ((dungeon_flags1 & DF1_CAVERN) && (rand_int(dun_level/2) > DUN_CAVERN))
 		{
 			cavern = TRUE;
 
@@ -7702,7 +7710,7 @@ static bool cave_gen(void)
 		if ((cur_wid != MAX_WID) || (cur_hgt != MAX_HGT)) destroyed = FALSE;
 
 		/* Hack -- No destroyed levels */
-		if (d_ptr->flags1 & DF1_NO_DESTROY) destroyed = FALSE;
+		if (dungeon_flags1 & DF1_NO_DESTROY) destroyed = FALSE;
 
 		/* Actual maximum number of rooms on this level */
 		dun->row_rooms = cur_hgt / BLOCK_HGT;
@@ -7759,7 +7767,7 @@ static bool cave_gen(void)
 				else
 				{
 					/* Attempt a "trivial" room */
-					if ((d_ptr->flags1 & DF1_CIRCULAR_ROOMS) &&
+					if ((dungeon_flags1 & DF1_CIRCULAR_ROOMS) &&
 					    room_build(y, x, 9))
 					{
 						continue;
@@ -7838,7 +7846,7 @@ static bool cave_gen(void)
 				/* Hack - build standard rectangular rooms if needed */
 				if (k < 90)
 				{
-					if ((d_ptr->flags1 & DF1_CIRCULAR_ROOMS) && room_build(y, x, 1)) continue;
+					if ((dungeon_flags1 & DF1_CIRCULAR_ROOMS) && room_build(y, x, 1)) continue;
 					else if (room_build(y, x, 9)) continue;
 				}
 
@@ -7847,13 +7855,13 @@ static bool cave_gen(void)
 			}
 
 			/* Attempt a trivial room */
-			if (d_ptr->flags1 & DF1_CAVE)
+			if (dungeon_flags1 & DF1_CAVE)
 			{
 				if (room_build(y, x, 10)) continue;
 			}
 			else
 			{
-				if ((d_ptr->flags1 & DF1_CIRCULAR_ROOMS) && room_build(y, x, 9)) continue;
+				if ((dungeon_flags1 & DF1_CIRCULAR_ROOMS) && room_build(y, x, 9)) continue;
 				else if (room_build(y, x, 1)) continue;
 			}
 		}
@@ -7906,7 +7914,7 @@ static bool cave_gen(void)
 
 
 	/* Ordinary levels */
-	if (!(d_ptr->flags1 & (DF1_MAZE | DF1_LIFE_LEVEL)))
+	if (!(dungeon_flags1 & (DF1_MAZE | DF1_LIFE_LEVEL)))
 	{
 		/* Hack -- Scramble the room order */
 		for (i = 0; i < dun->cent_n; i++)
@@ -7978,7 +7986,7 @@ static bool cave_gen(void)
 
 
 		/* Add some sand streamers */
-		if ((d_ptr->flags1 & DF1_SAND_VEIN) && !rand_int(4))
+		if ((dungeon_flags1 & DF1_SAND_VEIN) && !rand_int(4))
 		{
 			if((cheat_room)||(p_ptr->precognition)) msg_print("Sand vein.");
 			build_streamer(FEAT_SANDWALL, DUN_STR_SC);
@@ -7994,18 +8002,18 @@ static bool cave_gen(void)
 		}
 
 		/* Hack -- Add some rivers if requested */
-		if ((d_ptr->flags1 & DF1_WATER_RIVER) && !rand_int(4))
+		if ((dungeon_flags1 & DF1_WATER_RIVER) && !rand_int(4))
 		{
 			if(cheat_room || p_ptr->precognition) msg_print("River of water.");
 			add_river(FEAT_DEEP_WATER, FEAT_SHAL_WATER);
 		}
-		if ((d_ptr->flags1 & DF1_LAVA_RIVER) && !rand_int(4))
+		if ((dungeon_flags1 & DF1_LAVA_RIVER) && !rand_int(4))
 		{
 			if((cheat_room)||(p_ptr->precognition)) msg_print("River of lava.");
 			add_river(FEAT_DEEP_LAVA, FEAT_SHAL_LAVA);
 		}
 
-		if (d_ptr->flags1 & DF1_WATER_RIVERS)
+		if (dungeon_flags1 & DF1_WATER_RIVERS)
 		{
 			int max = 3 + rand_int(2);
 			bool said = FALSE;
@@ -8021,7 +8029,7 @@ static bool cave_gen(void)
 			}
 		}
 
-		if (d_ptr->flags1 & DF1_LAVA_RIVERS)
+		if (dungeon_flags1 & DF1_LAVA_RIVERS)
 		{
 			int max = 2 + rand_int(2);
 			bool said = FALSE;
@@ -8041,7 +8049,7 @@ static bool cave_gen(void)
 	/* A MAZE/Life level */
 	else
 	{
-		if (d_ptr->flags1 & DF1_MAZE) generate_maze();
+		if (dungeon_flags1 & DF1_MAZE) generate_maze();
 		else gen_life_level();
 	}
 
@@ -8059,22 +8067,22 @@ static bool cave_gen(void)
 		alloc_stairs(FEAT_LESS, 5, 3, branch);
 	}
 
-	if ((dun_level < d_ptr->maxdepth) || ((dun_level == d_ptr->maxdepth) && (d_ptr->flags1 & DF1_FORCE_DOWN)))
+	if ((dun_level < d_ptr->maxdepth) || ((dun_level == d_ptr->maxdepth) && (dungeon_flags1 & DF1_FORCE_DOWN)))
 	{
 		/* Place 3 or 4 down stairs near some walls */
-		alloc_stairs((d_ptr->flags1 & DF1_FLAT) ? FEAT_WAY_MORE : FEAT_MORE, rand_range(3, 4), 3, 0);
+		alloc_stairs((dungeon_flags1 & DF1_FLAT) ? FEAT_WAY_MORE : FEAT_MORE, rand_range(3, 4), 3, 0);
 
 		/* Place 1 or 2 down shafts near some walls */
-		if (!(d_ptr->flags2 & DF2_NO_SHAFT)) alloc_stairs((d_ptr->flags1 & DF1_FLAT) ? FEAT_WAY_MORE : FEAT_SHAFT_DOWN, rand_range(0, 1), 3, 0);
+		if (!(dungeon_flags2 & DF2_NO_SHAFT)) alloc_stairs((dungeon_flags1 & DF1_FLAT) ? FEAT_WAY_MORE : FEAT_SHAFT_DOWN, rand_range(0, 1), 3, 0);
 	}
 
-	if ((dun_level > d_ptr->mindepth) || ((dun_level == d_ptr->mindepth) && (!(d_ptr->flags1 & DF1_NO_UP))))
+	if ((dun_level > d_ptr->mindepth) || ((dun_level == d_ptr->mindepth) && (!(dungeon_flags1 & DF1_NO_UP))))
 	{
 		/* Place 1 or 2 up stairs near some walls */
-		alloc_stairs((d_ptr->flags1 & DF1_FLAT) ? FEAT_WAY_LESS : FEAT_LESS, rand_range(1, 2), 3, 0);
+		alloc_stairs((dungeon_flags1 & DF1_FLAT) ? FEAT_WAY_LESS : FEAT_LESS, rand_range(1, 2), 3, 0);
 
 		/* Place 0 or 1 up shafts near some walls */
-		if (!(d_ptr->flags2 & DF2_NO_SHAFT)) alloc_stairs((d_ptr->flags1 & DF1_FLAT) ? FEAT_WAY_LESS : FEAT_SHAFT_UP, rand_range(0, 1), 3, 0);
+		if (!(dungeon_flags2 & DF2_NO_SHAFT)) alloc_stairs((dungeon_flags1 & DF1_FLAT) ? FEAT_WAY_LESS : FEAT_SHAFT_UP, rand_range(0, 1), 3, 0);
 	}
 
 	process_hooks(HOOK_GEN_LEVEL, "(d)", is_quest(dun_level));
@@ -8084,8 +8092,8 @@ static bool cave_gen(void)
 		return FALSE;
 
 	/* Add streamers of trees, water, or lava -KMW- */
-	if (!(d_ptr->flags1 & (DF1_MAZE | DF1_LIFE_LEVEL)) &&
-	    !(d_ptr->flags1 & DF1_NO_STREAMERS))
+	if (!(dungeon_flags1 & (DF1_MAZE | DF1_LIFE_LEVEL)) &&
+	    !(dungeon_flags1 & DF1_NO_STREAMERS))
 	{
 		int num;
 
@@ -8094,7 +8102,7 @@ static bool cave_gen(void)
 		 *
 		 * Small trees (penetrate walls)
 		 */
-		if ((d_ptr->flags1 & DF1_FLAT) && (randint(20) > 15))
+		if ((dungeon_flags1 & DF1_FLAT) && (randint(20) > 15))
 		{
 			num = randint(DUN_STR_QUA);
 
@@ -8193,8 +8201,10 @@ static bool cave_gen(void)
 	if (k > 10) k = 10;
 	if (k < 2) k = 2;
 
-	/* Pick a base number of monsters */
-	i = d_ptr->min_m_alloc_level;
+        /*
+         * Pick a base number of monsters
+         */
+        i = d_ptr->min_m_alloc_level;
 
 	/* To make small levels a bit more playable */
 	if ((cur_hgt < MAX_HGT) || (cur_wid < MAX_WID))
@@ -8216,7 +8226,7 @@ static bool cave_gen(void)
 
 	/* Put some monsters in the dungeon */
 	for (i = i + k; i > 0; i--)
-	{
+        {
 		(void)alloc_monster(0, TRUE);
 	}
 
@@ -8486,22 +8496,8 @@ static bool cave_gen(void)
 				/* Save the name */
 				q_ptr->name1 = d_ptr->final_artifact;
 
-				/* Extract the fields */
-				q_ptr->pval = a_ptr->pval;
-				q_ptr->ac = a_ptr->ac;
-				q_ptr->dd = a_ptr->dd;
-				q_ptr->ds = a_ptr->ds;
-				q_ptr->to_a = a_ptr->to_a;
-				q_ptr->to_h = a_ptr->to_h;
-				q_ptr->to_d = a_ptr->to_d;
-				q_ptr->weight = a_ptr->weight;
-
-				/* Hack -- acquire "cursed" flag */
-				if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
-
-				random_artifact_resistance(q_ptr);
-
-				a_info[d_ptr->final_artifact].cur_num = 1;
+                                /* Actually create it */
+                                apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 
 				a_allow_special[d_ptr->final_artifact] = FALSE;
 
@@ -8596,7 +8592,7 @@ static bool cave_gen(void)
 	}
 
 	/* Now double the generated dungeon */
-	if (d_ptr->flags1 & DF1_DOUBLE)
+	if (dungeon_flags1 & DF1_DOUBLE)
 	{
 		/* We begin at the bottom-right corner and from there move
 		 * up/left (this way we don't need another array for the
@@ -8928,24 +8924,34 @@ static void finalise_special_level(void)
  */
 void generate_grid_mana()
 {
-	int y, x, mana;
+	int y, x, mana, mult;
 	bool xtra_magic = FALSE;
 
-	if(randint(XTRA_MAGIC) == 1) xtra_magic = TRUE;
-
-	if (((cheat_room)||(p_ptr->precognition)) && xtra_magic) msg_print("Magical level");
-
-	for(y = 0; y < cur_hgt; y++)
+	if (randint(XTRA_MAGIC) == 1)
 	{
-		for(x = 0; x < cur_wid; x++)
+		xtra_magic = TRUE;
+
+		if (cheat_room || p_ptr->precognition)
+		{
+			msg_print("Magical level");
+		}
+	}
+
+	mult = ((xtra_magic) ? 3 : 2);
+
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
 		{
 			cave_type *c_ptr = &cave[y][x];
 
 			/* Calculate the amount of mana in each grid */
-			mana = (((XTRA_MAGIC)?3:2) * m_bonus(255, dun_level) / 2) + ((XTRA_MAGIC)?10 + rand_int(10):0);
+			mana = mult * m_bonus(255, dun_level) / 2;
+			if (xtra_magic) mana += 10 + rand_int(10);
 
 			/* Never more than 255 or less than 0(parano‹a) */
-			mana = (mana < 0)?0:(mana > 255)?255:mana;
+			if (mana < 0) mana = 0;
+			if (mana > 255) mana = 255;
 
 			c_ptr->mana = mana;
 		}
@@ -8972,8 +8978,11 @@ void generate_cave(void)
 
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
-	generate_special_feeling = FALSE;
-	dungeon_flags1 = 0;
+        generate_special_feeling = FALSE;
+
+        /* Initialize the flags with the basic dungeon flags */
+	dungeon_flags1 = d_ptr->flags1;
+	dungeon_flags2 = d_ptr->flags2;
 
 	/* Is it a town level ? */
 	for (i = 0; i < TOWN_DUNGEON; i++)
@@ -8999,7 +9008,7 @@ void generate_cave(void)
 		Rand_value = seed_dungeon;
 	}
 
-
+        process_hooks(HOOK_GEN_LEVEL_BEGIN, "");
 
 	/* Try to load a saved level */
 	if (get_dungeon_save(buf))
@@ -9218,8 +9227,8 @@ void generate_cave(void)
 			else
 			{
 				/* Very small (1 x 1 panel) level */
-				if (!(d_ptr->flags1 & DF1_BIG) &&
-				    (d_ptr->flags1 & DF1_SMALLEST))
+				if (!(dungeon_flags1 & DF1_BIG) &&
+				    (dungeon_flags1 & DF1_SMALLEST))
 				{
 					if (cheat_room || p_ptr->precognition)
 					{
@@ -9244,10 +9253,10 @@ void generate_cave(void)
 				}
 
 				/* Small level */
-				else if (!(d_ptr->flags1 & DF1_BIG) &&
+				else if (!(dungeon_flags1 & DF1_BIG) &&
 				         (always_small_level ||
-				          (d_ptr->flags1 & DF1_SMALL) ||
-				          (small_levels || rand_int(SMALL_LEVEL) == 0)))
+				          (dungeon_flags1 & DF1_SMALL) ||
+				          (small_levels && rand_int(SMALL_LEVEL) == 0)))
 				{
 					if (cheat_room || p_ptr->precognition)
 					{
@@ -9411,6 +9420,10 @@ void generate_cave(void)
 
 	/* Set special level generated flag if applicable */
 	finalise_special_level();
+
+        /* No teleporatations yet */
+        last_teleportation_y = -1;
+        last_teleportation_x = -1;
 
 	/* Mark the dungeon town as found */
 	if (town_level)

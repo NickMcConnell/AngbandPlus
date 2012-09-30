@@ -5,216 +5,283 @@
 # to specify simple attr/char remappings using a standard font, allowing
 # the use of special pseudo-graphic pictures for walls and such.
 #
-# Note that this file is extremely similar to the "font-ibm.prf" file,
+# Note that this file is extremely similar to the file "font-ibm.prf",
 # but it uses different codes, since it uses the special pseudo-graphic
 # symbols defined in the "lib/xtra/font/*.FON" files, and there is only
 # one special wall type, so we have to use special "colors".
 #
 
 
-### Terrain features ###
+##### Feature attr/char definitions #####
 
-# open floor (white / centered dot)
-F:1:1/31
+# open floor
+F:1:0x01/0x1F
 
-# secret door (white / solid block)
-F:48:1/127
+# web
+F:16:0x0B/0x7F
 
-# magma vein (slate / solid block)
-F:50:2/127
-F:52:2/127
+# secret door
+F:48:0x01/0x7F
 
-# quartz vein (light slate / solid block)
-F:51:9/127
-F:53:9/127
+# magma vein
+F:50:0x02/0x7F
 
-# granite wall (white / solid block)
-F:56:1/127
-F:57:1/127
-F:58:1/127
-F:59:1/127
+# quartz vein
+F:51:0x09/0x7F
 
-# permanent wall (white / solid block)
-F:60:1/127
-F:61:1/127
-F:62:1/127
-F:63:1/127
+# magma vein
+F:52:0x02/0x7F
 
-F:75:1/127
-F:76:1/127
-F:77:1/127
-F:78:1/127
+# quartz vein
+F:53:0x09/0x7F
 
-# pool of deep lava (red / solid block)
-F:85:4/127
+# granite wall
+F:56:0x01/0x7F
 
-# stream of shallow lava (light umber / solid block)
-F:86:15/127
+# granite wall
+F:57:0x01/0x7F
 
-# dark pit (light dark / solid block)
-F:87:8/127
+# granite wall
+F:58:0x01/0x7F
 
-# dirt (light umber / centered dot)
-F:88:15/31
+# granite wall
+F:59:0x01/0x7F
 
-# patch of grass (light green / centered dot)
-F:89:13/31
+# permanent wall
+F:60:0x01/0x7F
 
-# ice (light slate / centered dot)
-F:90:9/31
+# permanent wall
+F:61:0x01/0x7F
 
-# sand (yellow / centered dot)
-F:91:11/31
+# permanent wall
+F:62:0x01/0x7F
 
-# dead tree (light dark / solid block)
-F:92:8/127
+# permanent wall
+F:63:0x01/0x7F
 
-# ash (slate / centered dot)
-F:93:2/31
+# permanent wall
+F:75:0x01/0x7F
 
-# mud (umber / centered dot)
-F:94:7/31
+# permanent wall
+F:76:0x01/0x7F
 
-# ice wall (light slate / solid block)
-F:95:9/127
+# permanent wall
+F:77:0x01/0x7F
 
-# tree (light green / solid block)
-F:96:13/127
+# permanent wall
+F:78:0x01/0x7F
 
-# sandwall (yellow / solid block)
-F:98:11/127
-F:99:11/127
+# pool of deep lava
+F:85:0x0C/0x1F
 
-# nether mist (purple / solid block)
-#F:102:10/127
+# stream of shallow lava
+F:86:0x04/0x1F
 
-# floor (red / centered dot)
-F:172:4/31
+# dark pit
+F:87:0x08/0x7F
 
-# Underground Tunnel (slate / solid block)
-F:173:2/127
+# dirt
+F:88:0x0F/0x1F
 
-# lava wall (white / solid block) -- indistinguishable from normal granite
-F:177:1/127
+# patch of grass
+F:89:0x0D/0x1F
 
-# glass wall (light blue / centered dot)
-F:188:14/31
+# ice
+F:90:0x09/0x1F
 
-# illusion wall (white / solid block)
-F:189:1/127
+# sand
+F:91:0x0B/0x1F
 
-# grass roof (yellow / solid block)
-F:190:11/127
-F:191:11/127
-F:192:11/127
+# dead tree
+F:92:0x08/0x7F
 
-# brick roof (red / solid block)
-F:193:4/127
-F:194:4/127
-F:195:4/127
+# ash
+F:93:0x02/0x1F
 
-# windows and rain barrels (white /solid block)
-#F:196:1/127
-#F:197:1/127
-#F:198:1/127
+# mud
+F:94:0x07/0x1F
 
-# cobblestone road (white / centered dot)
-F:200:1/31
-F:201:1/31
+# ice wall
+F:95:0x09/0x7F
 
-# small tree (green / solid block)
-F:202:5/127
+# tree
+F:96:0x0D/0x7F
 
-# a blazing fire (yellow / solid block)
-F:205:11/127
+# sandwall
+F:98:0x0B/0x7F
+
+# sandwall
+F:99:0x0B/0x7F
+
+# sandwall with treasure
+F:100:0x03/0x7F
+
+# nether mist
+F:102:0x0A/0x7F
+
+# Underground Tunnel
+F:173:0x02/0x7F
+
+# lava wall
+F:177:0x0C/0x7F
+
+# Great Fire
+F:178:0x0A/0x7F
+
+# field
+F:181:0x05/0x1F
+
+# glass wall
+F:188:0x0E/0x1F
+
+# illusion wall
+F:189:0x01/0x7F
+
+# Grass roof
+F:190:0x0B/0x7F
+
+# grass roof top
+F:191:0x0B/0x7F
+
+# grass roof chimney
+F:192:0x0B/0x7F
+
+# brick roof
+F:193:0x04/0x7F
+
+# brick roof top
+F:194:0x04/0x7F
+
+# brick roof chimney
+F:195:0x04/0x7F
+
+# rain barrel
+F:198:0x01/0x7F
+
+# cobblestone road
+F:200:0x01/0x1F
+
+# cobblestone with outlet
+F:201:0x01/0x1F
+
+# small tree
+F:202:0x05/0x7F
+
+# Underground Tunnel
+F:204:0x0F/0x7F
+
+# a blazing fire
+F:205:0x0B/0x7F
+
+# rocky ground
+F:207:0x02/0x1F
+
+# cloud-like vapour
+F:208:0x09/0x1F
+
+# dense mist
+F:210:0x01/0x7F
+
+# hail-stone wall
+F:211:0x09/0x7F
 
 
-### Monsters ###
+##### Monster attr/char definitions #####
 
-# Old Man Willow (slate / solid block)
-R:206:2/127
+# Space monster
+R:144:0x00/0x1F
 
-# Tangleweed (green / solid block)
-R:248:5/127
+# Old Man Willow
+R:206:0x02/0x7F
 
-# Poison ivy (green / solid block)
-R:266:5/127
+# Lurker
+R:247:0x01/0x1F
 
-# Giant Venus Flytrap (green / solid block)
-R:317:5/127
+# Tangleweed
+R:248:0x05/0x7F
 
-# Stunwall (light slate / solid block)
-R:326:9/127
+# Poison ivy
+R:266:0x05/0x7F
 
-# Huorn (green / solid block)
-R:329:5/127
+# Giant Venus Flytrap
+R:317:0x05/0x7F
 
-# Livingstone (light slate / solid block)
-R:336:9/127
+# Stunwall
+R:326:0x09/0x7F
 
-# Vampiric mist (light dark / solid block)
-R:365:8/127
+# Huorn
+R:329:0x05/0x7F
 
-# Xiclotlan (light dark / solid block)
-R:396:8/127
+# Landmine
+R:333:0x01/0x1F
 
-# Roper (light dark / solid block)
-R:426:8/127
+# Livingstone
+R:336:0x09/0x7F
 
-# Lesser wall monster (light slate / solid block)
-R:448:9/127
+# Vampiric mist
+R:365:0x08/0x7F
 
-# Mist giant (light blue / solid block)
-R:552:14/127
+# It
+R:393:0x09/0x1F
 
-# Weird fume (purple / solid block)
-R:625:10/127
+# Xiclotlan
+R:396:0x08/0x7F
 
-# Ent (light green / solid block)
-R:708:13/127
+# Roper
+R:426:0x08/0x7F
 
-# Quickbeam, the Ent (light green / solid block)
-R:714:13/127
+# Lesser wall monster
+R:448:0x09/0x7F
 
-# Greater wall monster (light slate / solid block)
-R:718:9/127
+# Chaos tile
+R:458:0x0A/0x1F
 
-# Ahtu, Avatar of Nyarlathotep (light dark / solid block)
-R:761:8/127
+# Mist giant
+R:552:0x0E/0x7F
 
-# Fangorn the Treebeard, Lord of the Ents (light green / solid block)
-R:934:13/127
+# Trapper
+R:565:0x01/0x1F
 
-# The Glass Golem (light slate / solid block)
-R:1033:9/127
+# Time bomb
+R:567:0x01/0x1F
 
-# Golgarach, the Living Rock (light slate / solid block)
-R:1035:9/127
+# Weird fume
+R:625:0x0A/0x7F
 
-# Lurker (white / centered dot)
-R:247:1/31
+# Colour out of space
+R:678:0x0A/0x1F
 
-# Landmine (white / centered dot)
-R:333:1/31
+# Ent
+R:708:0x0D/0x7F
 
-# It (light slate / centered dot)
-R:393:9/31
+# Quickbeam, the Ent
+R:714:0x0D/0x7F
 
-# Chaos tile (purple / centered dot)
-R:458:10/31
+# Greater wall monster
+R:718:0x09/0x7F
 
-# Trapper (white / centered dot)
-R:565:1/31
+# Ahtu, Avatar of Nyarlathotep
+R:761:0x08/0x7F
 
-# Time bomb (white / centered dot)
-R:567:1/31
+# Null, the Living Void
+R:803:0x00/0x1F
 
-# Colour out of space (purple / centered dot)
-R:678:10/31
+# Rocket mine
+R:870:0x0C/0x1F
 
-# Rocket mine (light red / centered dot)
-R:870:12/31
+# Bouncing mine
+R:871:0x0E/0x1F
 
-# Bouncing mine (light blue / centered dot)
-R:871:14/31
+# Fangorn the Treebeard, Lord of the Ents
+R:934:0x0D/0x7F
+
+# The Glass Golem
+R:1033:0x09/0x7F
+
+# Golgarach, the Living Rock
+R:1035:0x09/0x7F
+
+# Spirit
+R:1053:0x09/0x1F
+
 

@@ -1,48 +1,58 @@
-#####R=== Rogues ===
+|||||oy
+~~~~~01|Rogue
+~~~~~02|Classes|Rogue
+#####R== Rogues ===
 
 #####GDescription
-A Rogue is a character that prefers to live by cunning, but is capable 
-of fighting their way out of a tight spot. The master of traps and 
-locks, no device is impossible for him to overcome. A rogue will learn 
-to set many kinds of traps as they become more experienced. Rogues have
-high stealth, allowing them to sneak around many creatures without 
-having to fight, or to sneak up and get the first blow. A rogue's
-perception is higher than any other class, and usually they notice 
-traps or secret doors without needing a search. Rogues are better than 
-warriors or paladins with magical devices, but still can not rely on 
-their performance. Rogues can also learn a few spells, but not the 
-powerful offensive spells magi can use. 
-               
-#####GPrimary Stats
-Intelligence (spellcasting stat)
-Dexterity.
+Rogues are jacks of all trades, but master of none. With the notable exception
+of Archery and Monster-related skills, they are capable of adapting to any
+situation. Their strong point, anyhow, lies in stealth and careful planning:
+Where a warrior would simply hack away (and risk being hacked up himself) or a 
+mage would Manathrust, a Rogue would awaken a monster with an arrow in the back,
+waiting for the creature to be killed by the line of traps she had previously
+laid between her and her opponent.
 
-#####GMagic Usage
-Rogues can choose one realm of magic and learn all spells in the first 
-four books.
+Rogues have access to the schools of *****m_convey.txt*0[Conveyance], *****m_divin.txt*0[Divination] and *****m_tempo.txt*0[Temporal] magic.
 
-Rogues have the option of choosing one of the following realms of magic:
-*****m_magery.txt*0[Magery]   *****m_shadow.txt*0[Shadow]   *****m_nether.txt*0[Nether]   *****m_illus.txt*0[Illusion]   *****m_spirit.txt*0[Spirit]   *****m_sigald.txt*0[Sigaldry]
+#####GStarting Stat Modifiers
+Strength       +2
+Intelligence   +1
+Wisdom         -2
+Dexterity      +3
+Constitution   +1
+Charisma       -1
+Bonus Blows    0
+Hit Die        +d6
+Exp Penalty    25%
 
-Rogues are not expert spellcrafters,  but may nevertheless learn some 
-minor magicks. Rogues  can  learn  24 spells.
-
-In addition to their magic, rogues are also *thieves*. They are capable of
-stealing items from monsters (using the "Z" command), and get a boosted 
-chance of success when trying to steal from shops. Each successful attempt
-earns them some experience (and the object they stole, of course!).
-
-Finally, rogues do not have to always fight monsters directly - they are
-capable of laying traps in the dungeon to lure monsters into. To do this, 
-they need a trapping kit and trigger, and use the "U" command to lay the 
-trap.
+#####GStarting Skills
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  1.000           [0.700]
+  Weaponmastery         1.000           [0.700]
+    Sword-mastery       1.000           [0.300]
+      Critical-hits     1.000           [0.500]
+Sneakiness              1.000           [1.100]
+  Stealth               1.000           [0.700]
+  Disarming             1.000           [1.100]
+  Trapping              1.000           [1.600]
+  Backstab              1.000           [1.100]
+  Stealing              1.000           [1.100]
+  Dodging               1.000           [1.000]
+Magic                   1.000           [0.700]
+  Magic-Device          1.000           [1.150]
+  Conveyance            0.000           [0.500]
+  Divination            0.000           [0.500]
+  Temporal              0.000           [0.500]
+Spirituality            1.000           [0.700]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
 
 #####GStarting Equipment
-A rogue begins the game with:
-    L1 spellbook of chosen realm
-    A dagger (poison brand if chose shadow realm)
-    A trap kit (arrow)
-If they are *very* lucky they may also begin with:
-    boots of free action
- 
- 
+A Rogue begins the game with:
+    a Dagger
+    a Catapult trap set
+    some Iron Shots
+
+
+
+

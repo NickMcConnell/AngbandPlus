@@ -1,0 +1,40 @@
+|||||oy
+~~~~~01|Magic|Necromancy
+~~~~~02|Necromancy Magic
+~~~~~03|Skills|Necromancy - Spell Info
+#####R === ToME Magic - Necromancy ===
+The art of Necromancy is the foul practice of manipulating the life
+force of creatures.
+
+Necromancy powers are accessed using the 'm' key and then selecting
+'Use Necromancy'; they are cast with Spell Points, like normal spells,
+and do not need light to be performed.
+
+1. [[[[[DHorrify] (Level 1) Cost:2
+   Calls upon the dark forces and open a channel into the mind of a
+   monster, stunning and scaring it.
+   At level 21 it affects all monsters in a beam.
+   At level 36 it affects all monsters in a ball.
+   At level 46 it affects all monsters in sight.
+2. [[[[[DRaise Dead] (Level 5) Cost:6
+   This power makes corpses in a small radius from the caster rise as an
+   undead ego monster at the service of the caster. The loyalty of those
+   monsters is not guaranteed, though. It also heals monsters within the
+   same radius.
+3. [[[[[DAbsorb Soul] (Level 20) Cost:10
+   This heals you by a good amount every time you kill a monster within
+   its duration. It is especially useful when your character is in undead
+   form (see below)
+4. [[[[[DVampirism] (Level 30) Cost:15
+   Drains part of the life-force from a nearby monster and gives it to you.
+5. [[[[[DUndead form] (Level 30) Cost:N/A
+   Not actually an activable power, this kicks in automatically when your
+   character would die. Instead, he/she becomes an undead creature with a
+   small amount of Death Points (DP). Every normal (+0 speed) turn, one DP
+   is lost; you can regain it like you would do with Hit Points.
+   If you manage to kill enough monsters before your DP goes below 0, your
+   character is brought back to life.
+6. [[[[[DDeath] (Level 35) Cost:100
+   Yes, the name is not nice. Neither are the effects: the target dies
+   immediately, but so does your character (not that death is such a great
+   annoyance for necromancers)

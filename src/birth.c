@@ -302,7 +302,7 @@ static void create_random_name(int race, char *name)
 		case RACE_DUNADAN:
 		case RACE_HUMAN:
 		case RACE_RKNIGHT:
-		case RACE_DRAGONRIDER:
+		case RACE_THUNDERLORD:
 		{
 			idx = rand_int(sizeof(human_syllable1) / sizeof(char *));
 			syl1 = human_syllable1[idx];
@@ -674,7 +674,7 @@ static void load_prev_data(bool save)
 {
 	int i;
 
-	birther	temp;
+	birther        temp;
 
 
 	/*** Save the current data ***/
@@ -773,7 +773,7 @@ static void load_prev_data(bool save)
  * auto_roll is boolean and states maximum changes should be used rather
  * than random ones to allow specification of higher values to wait for
  *
- * The "p_ptr->maximize" code is important	-BEN-
+ * The "p_ptr->maximize" code is important        -BEN-
  */
 static int adjust_stat(int value, int amount, int auto_roll)
 {
@@ -869,7 +869,7 @@ static void get_stats(void)
 		 *
 		 * 57 was 54... I hate 'magic numbers' :< TY
 		 *
-		 * (d3 + d4 + d5)	 ~= 7.5 (+- 4.5)
+		 * (d3 + d4 + d5)         ~= 7.5 (+- 4.5)
 		 * with 5 makes avg. stat value of 12.5 (min 8, max 17)
 		 *
 		 * (d3 + d4 + d5) x 6 ~= 45 (+- 18)
@@ -1293,15 +1293,25 @@ static void player_wipe(void)
 	int i, j;
 
 	bool *powers;
+	bool *corruptions;
 
 
 	/* Wipe special levels */
 	wipe_saved();
 
-	/* Hack -- zero the struct */
+	/* Save the powers & corruptions */
 	powers = p_ptr->powers;
+	corruptions = p_ptr->corruptions;
+
+	/* Hack -- zero the struct */
 	p_ptr = WIPE(p_ptr, player_type);
+
+	/* Restore the powers & corruptions */
 	p_ptr->powers = powers;
+	p_ptr->corruptions = corruptions;
+
+	/* Wipe the corruptions */
+	(void)C_WIPE(p_ptr->corruptions, max_corruptions, bool);
 
 	/* Wipe the history */
 	for (i = 0; i < 4; i++)
@@ -1312,11 +1322,6 @@ static void player_wipe(void)
 			else history[i][j] = '\0';
 		}
 	}
-
-	/* No corruptions yet */
-	p_ptr->muta1 = 0;
-	p_ptr->muta2 = 0;
-	p_ptr->muta3 = 0;
 
 	/* Wipe the towns */
 	for (i = 0; i < max_d_idx; i++)
@@ -1431,6 +1436,13 @@ static void player_wipe(void)
 		spell_worked[i][0] = spell_worked[i][1] = 0L;
 		spell_forgotten[i][0] = spell_forgotten[i][1] = 0L;
 	}
+
+	/* Wipe the alchemists' recipes */
+	for( i = 0 ; i < 32 ; i++)
+		alchemist_known_egos[i] = 0;
+	for( i = 0 ; i < 6 ; i++)
+		alchemist_known_artifacts[i]=0;
+	alchemist_gained = 0;
 
 	/* Clear "cheat" options */
 	cheat_peek = FALSE;
@@ -1599,9 +1611,9 @@ static void player_outfit(void)
 {
 	int i, tv, sv;
 
-	object_type	forge;
+	object_type        forge;
 
-	object_type	*q_ptr;
+	object_type        *q_ptr;
 
 
 	/*
@@ -1629,7 +1641,7 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-	if (PRACE_FLAG(PR1_UNDEAD))
+	if (PRACE_FLAG(PR1_NO_FOOD) || PRACE_FLAG(PR1_VAMPIRE))
 	{
 		/* Hack -- Give the player scrolls of satisfy hunger */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
@@ -1714,16 +1726,13 @@ static void player_outfit(void)
 		q_ptr->ident |= IDENT_STOREB;
 
 		(void)inven_carry(q_ptr, FALSE);
-	}
 
-	/* Get local object */
-	q_ptr = &forge;
+		/* Get local object */
+		q_ptr = &forge;
 
-	if (PRACE_FLAGS(PR1_TP))
-	{
-		/* Hack -- Give the player some small firestones */
-		object_prep(q_ptr, lookup_kind(TV_FIRESTONE, SV_FIRE_SMALL));
-		q_ptr->number = (byte)rand_range(8,15);
+		/* Hack -- Give the player scrolls of satisfy hunger */
+		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
+		q_ptr->number = (byte)rand_range(20,30);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
@@ -1731,10 +1740,10 @@ static void player_outfit(void)
 		q_ptr->ident |= IDENT_STOREB;
 
 		(void)inven_carry(q_ptr, FALSE);
-
-		p_ptr->tp_aux1=4;
-		p_ptr->ctp=4;
 	}
+
+	/* Get local object */
+	q_ptr = &forge;
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -1789,7 +1798,7 @@ static void player_outfit(void)
 		}
 #endif
 		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
+		q_ptr->ident |= IDENT_MENTAL;
 		q_ptr->number = damroll(cp_ptr->obj_dd[i], cp_ptr->obj_ds[i]);
 
 		object_aware(q_ptr);
@@ -1823,7 +1832,7 @@ static void player_outfit(void)
 		}
 #endif
 		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
+		q_ptr->ident |= IDENT_STOREB | IDENT_MENTAL;
 		q_ptr->number = damroll(cp_ptr->spec[p_ptr->pspec].obj_dd[i],
 								cp_ptr->spec[p_ptr->pspec].obj_ds[i]);
 
@@ -1885,10 +1894,10 @@ static void player_outfit(void)
 #define MAX_RANDOM_QUESTS_TYPES ((7 * 3) + (7 * 1))
 int random_quests_types[MAX_RANDOM_QUESTS_TYPES] =
 {
-	1,  5,  6,  10, 11, 12, 14,	 /* Princess type */
-	1,  5,  6,  10, 11, 12, 14,	 /* Princess type */
-	1,  5,  6,  10, 11, 12, 14,	 /* Princess type */
-	20, 13, 15, 16,  9, 17, 18,	 /* Hero Sword Quest */
+	1,  5,  6,  10, 11, 12, 14,         /* Princess type */
+	1,  5,  6,  10, 11, 12, 14,         /* Princess type */
+	1,  5,  6,  10, 11, 12, 14,         /* Princess type */
+	20, 13, 15, 16,  9, 17, 18,         /* Hero Sword Quest */
 };
 
 /* Enforce OoD monsters until this level */
@@ -1897,7 +1906,7 @@ int random_quests_types[MAX_RANDOM_QUESTS_TYPES] =
 static void gen_random_quests(int n)
 {
 	int step, lvl, i, k;
-
+	int old_type = dungeon_type;
 
 	/* Factor dlev value by 1000 to keep precision */
 	step = (98 * 1000) / n;
@@ -1914,15 +1923,34 @@ static void gen_random_quests(int n)
 
 		int min_level;
 
+		int tries = 5000;
+
 		random_quest *q_ptr = &random_quests[rl];
 
+		int j;
+
+		/* Find the appropriate dungeon */
+		for (j = 0; j < max_d_idx; j++)
+		{
+			dungeon_info_type *d_ptr = &d_info[j];
+
+			if (!(d_ptr->flags1 & DF1_PRINCIPAL)) continue;
+
+			if ((d_ptr->mindepth <= rl) && (rl <= d_ptr->maxdepth))
+			{
+				dungeon_type = j;
+				break;
+			}
+		}
 
 		q_ptr->type = random_quests_types[rand_int(MAX_RANDOM_QUESTS_TYPES)];
 
 		/* XXX XXX XXX Try until valid choice is found */
-		while (TRUE)
+		while (tries)
 		{
 			bool ok;
+
+			tries--;
 
 			/* Random monster 5 - 10 levels out of depth */
 			q_ptr->r_idx = get_mon_num(rl + 4 + randint(6));
@@ -1974,19 +2002,30 @@ static void gen_random_quests(int n)
 			if (r_ptr->level > min_level) break;
 		}
 
-		if (r_ptr->flags1 & RF1_UNIQUE)
+		/* Arg could not find anything ??? */
+		if (!tries)
 		{
-			r_ptr->max_num = -1;
+			if (wizard) message_add(MESSAGE_MSG, format("Could not find quest monster on lvl %d", rl), TERM_RED);
+			q_ptr->type = 0;
 		}
+		else
+		{
+			if (r_ptr->flags1 & RF1_UNIQUE)
+			{
+				r_ptr->max_num = -1;
+			}
 
-		q_ptr->done = FALSE;
+			q_ptr->done = FALSE;
 
-		if (wizard) message_add(MESSAGE_MSG,
-								format("Quest for %d on lvl %d",
-									   q_ptr->r_idx, rl), TERM_RED);
+			if (wizard) message_add(MESSAGE_MSG,
+						format("Quest for %d on lvl %d",
+						       q_ptr->r_idx, rl), TERM_RED);
+		}
 
 		lvl += step;
 	}
+
+	dungeon_type = old_type;
 }
 
 int dump_classes(s16b *classes, int sel, s32b *restrict)
@@ -2192,7 +2231,7 @@ int dump_rmods(int sel, int *racem, int max)
 
 int dump_gods(int sel, int *choice, int max)
 {
-		int i;
+		int i, j;
 	char buf[80];
 	cptr str;
 
@@ -2202,10 +2241,10 @@ int dump_gods(int sel, int *choice, int max)
 	Term_putstr(5, 17, -1, TERM_WHITE,
 		"You can choose to worship a god, some class must start with a god.");
 
-		for (i = 0; i < max; i++)
+	for (i = 0; i < max; i++)
 	{
 		char p2 = ')', p1 = ' ';
-				int n = choice[i];
+		int n = choice[i];
 		deity_type *g_ptr = &deity_info[0];
 
 		if (!n) str = "No God";
@@ -2215,30 +2254,36 @@ int dump_gods(int sel, int *choice, int max)
 			str = g_ptr->name;
 		}
 
-				if (sel == i)
+		if (sel == i)
 		{
 			p1 = '[';
 			p2 = ']';
 		}
 
 		/* Display */
-		strnfmt(buf, 80, "%c%c%c %s", p1, I2A(n), p2, str);
+		strnfmt(buf, 80, "%c%c%c %s", p1, I2A(i), p2, str);
 
 		/* Print some more info */
-				if (sel == i)
+		if (sel == i)
 		{
-						if (n) print_desc(g_ptr->desc[0]);
+			if (n)
+			{
+				/* Display the first four lines of the god description */
+				for (j=0; j<4; j++)
+					if (g_ptr->desc[j] != NULL)
+						print_desc_aux(g_ptr->desc[j],12+j,1);
+			}
 			else print_desc("You can begin as an atheist and still convert to a god later.");
 
-						c_put_str(TERM_L_BLUE, buf, 20 + (n/4), 1 + 20 * (n%4));
+			c_put_str(TERM_L_BLUE, buf, 20 + (i/4), 1 + 20 * (i%4));
 		}
 		else
 		{
-						put_str(buf, 20 + (n/4), 1 + 20 * (n%4));
+			put_str(buf, 20 + (i/4), 1 + 20 * (i%4));
 		}
 	}
 
-		return (max);
+	return (max);
 }
 
 
@@ -2421,7 +2466,7 @@ static bool player_birth_aux_ask()
 			}
 			k = (islower(c) ? A2I(c) : -1);
 			if ((k >= 0) && (k < n)) break;
-			if (c == '?') do_cmd_help();
+			if (c == '?') exec_lua(format("ingame_help('select_context', 'race', '%s')", race_info[sel].title + rp_name));
 			else if (c == '=')
 			{
 				screen_save();
@@ -2537,12 +2582,12 @@ static bool player_birth_aux_ask()
 					} while (!(BIT(racem[k]) & rmp_ptr->choice[racem[k] / 32]));
 					break;
 				}
+				else if (c == '?') exec_lua(format("ingame_help('select_context', 'subrace', '%s')", race_mod_info[racem[sel]].title + rmp_name));
 
 				k = (islower(c) ? A2I(c) : -1);
 				if ((k >= 0) && (k < max_racem) &&
 				   (BIT(p_ptr->prace) & race_mod_info[racem[k]].choice[p_ptr->prace / 32])) break;
 
-				if (c == '?') do_cmd_help();
 				else if (c == '=')
 				{
 					screen_save();
@@ -2612,7 +2657,7 @@ repeat_player_class:
 		int z;
 
 		for (z = 0; z < 2; z++)
-			restrict[z] = rp_ptr->choice[z] + rmp_ptr->pclass[z] - rmp_ptr->mclass[z];
+			restrict[z] = (rp_ptr->choice[z] | rmp_ptr->pclass[z]) & (~rmp_ptr->mclass[z]);
 
 		if (max_mc_idx > 1)
 		{
@@ -2673,7 +2718,7 @@ repeat_player_class:
 			}
 			k = (islower(c) ? A2I(c) : (D2I(c) + 26));
 			if ((k >= 0) && (k < n)) break;
-			if (c == '?') do_cmd_help();
+			if (c == '?') exec_lua(format("ingame_help('select_context', 'class', '%s')", class_info[class_types[sel]].title + c_name));
 			else if (c == '=')
 			{
 				screen_save();
@@ -2744,7 +2789,7 @@ repeat_player_class:
 			}
 			k = (islower(c) ? A2I(c) : (D2I(c) + 26));
 			if ((k >= 0) && (k < n)) break;
-			if (c == '?') do_cmd_help();
+			if (c == '?') exec_lua(format("ingame_help('select_context', 'class', '%s')", class_info[p_ptr->pclass].spec[sel].title + c_name));
 			else if (c == '=')
 			{
 				screen_save();
@@ -2801,35 +2846,39 @@ repeat_player_class:
 	{
 		k = previous_char.god;
 		p_ptr->pgod = k;
-                set_grace(previous_char.grace);
-        }
-        else
+		set_grace(previous_char.grace);
+	}
+	else if (PRACE_FLAG(PR1_NO_GOD))
 	{
-                int choice[MAX_GODS];
-                int max = 0;
+		p_ptr->pgod = GOD_NONE;
+	}
+	else
+	{
+		int choice[MAX_GODS];
+		int max = 0;
 
-                /* Get the list of possible gods */
-                for (n = 0; n < MAX_GODS; n++)
-                {
-                        if ((cp_ptr->gods | spp_ptr->gods) & BIT(n))
-                                choice[max++] = n;
-                }
+		/* Get the list of possible gods */
+		for (n = 0; n < MAX_GODS; n++)
+		{
+			if ((cp_ptr->gods | spp_ptr->gods) & BIT(n))
+				choice[max++] = n;
+		}
 
-                if (!max)
-                {
-                        p_ptr->pgod = GOD_NONE;
-                }
-                else if (max == 1)
-                {
-                        p_ptr->pgod = choice[0];
-                }
-                else if (max > 1)
-                {
-                        sel = 0;
-                        n = dump_gods(sel, choice, max);
+		if (!max)
+		{
+			p_ptr->pgod = GOD_NONE;
+		}
+		else if (max == 1)
+		{
+			p_ptr->pgod = choice[0];
+		}
+		else if (max > 1)
+		{
+			sel = 0;
+			n = dump_gods(sel, choice, max);
 
-                        /* Choose */
-                        while (1)
+			/* Choose */
+			while (1)
 			{
 				strnfmt(buf, 200, "Choose a god (%c-%c), * for a random choice, "
 					"= for options, 8/2/4/6 for movment: ",
@@ -2845,8 +2894,12 @@ repeat_player_class:
 					break;
 				}
 				k = (islower(c) ? A2I(c) : -1);
-				if ((k >= 0) && (k < n)) break;
-				if (c == '?') do_cmd_help();
+				if ((k >= 0) && (k < max))
+				{
+					k = choice[k];
+					break;
+				}
+				if (c == '?') exec_lua(format("ingame_help('select_context', 'god', '%s')", deity_info[choice[sel]].name));
 				else if (c == '=')
 				{
 					screen_save();
@@ -2856,8 +2909,8 @@ repeat_player_class:
 				else if (c == '2')
 				{
 					sel += 4;
-                                        if(sel >=n) sel %= 4;
-                                        dump_gods(sel, choice, max);
+					if(sel >=n) sel %= 4;
+					dump_gods(sel, choice, max);
 				}
 				else if (c == '8')
 				{
@@ -2892,18 +2945,18 @@ repeat_player_class:
 			p_ptr->grace = 0;
 		}
 
-                /* A god that like us ? more grace ! */
-                if (PRACE_FLAGS(PR1_GOD_FRIEND))
-                {
-                        set_grace(200);
-                }
-                else
-                {
-                        set_grace(100);
-                }
-        }
+		/* A god that like us ? more grace ! */
+		if (PRACE_FLAGS(PR1_GOD_FRIEND))
+		{
+			set_grace(200);
+		}
+		else
+		{
+			set_grace(100);
+		}
+	}
 
-        /* Clean up */
+	/* Clean up */
 	clear_from(12);
 
 	if (do_quick_start)
@@ -3033,18 +3086,23 @@ repeat_player_class:
 			/* Clear */
 			clear_from(15);
 		}
-
-		/* Set the quest monster hook */
-		get_mon_num_hook = monster_quest;
-
-		/* Prepare allocation table */
-		get_mon_num_prep();
-
-		/* Generate quests */
-		for (i = 0; i < MAX_RANDOM_QUEST; i++) random_quests[i].type = 0;
-		if (v) gen_random_quests(v);
-		max_quests = v;
 	}
+	else
+	{
+		/* NO quests for ironman rooms */
+		v = 0;
+	}
+
+	/* Set the quest monster hook */
+	get_mon_num_hook = monster_quest;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Generate quests */
+	for (i = 0; i < MAX_RANDOM_QUEST; i++) random_quests[i].type = 0;
+	if (v) gen_random_quests(v);
+	max_quests = v;
 
 	p_ptr->inside_quest = 0;
 
@@ -3135,10 +3193,6 @@ static bool player_birth_aux_point(void)
 
 	/* Hack -- get a chaos patron even if you are not a chaos warrior */
 	p_ptr->chaos_patron = (randint(MAX_PATRON)) - 1;
-
-	p_ptr->muta1 = 0;
-	p_ptr->muta2 = 0;
-	p_ptr->muta3 = 0;
 
 	/* Get luck */
 	p_ptr->luck_base = rp_ptr->luck + rmp_ptr->luck + rand_range(-5, 5);
@@ -3519,10 +3573,6 @@ static bool player_birth_aux_auto()
 
 		/* Hack -- get a chaos patron even if you are not a chaos warrior */
 		p_ptr->chaos_patron = (randint(MAX_PATRON)) - 1;
-
-		p_ptr->muta1 = 0;
-		p_ptr->muta2 = 0;
-		p_ptr->muta3 = 0;
 
 		/* Input loop */
 		while (TRUE)
@@ -3926,9 +3976,9 @@ void player_birth(void)
 			while (z != -1)
 			{
 				s_info[z].dev = TRUE;
-								z = s_info[z].father;
-								if (z == 0)
-										break;
+				z = s_info[z].father;
+				if (z == 0)
+					break;
 			}
 		}
 	}
@@ -3937,11 +3987,13 @@ void player_birth(void)
 	if (get_skill(SKILL_THAUMATURGY))
 		generate_spell(get_skill(SKILL_THAUMATURGY));
 
-		/* Complete the god */
-		follow_god(p_ptr->pgod, TRUE);
+	/* Complete the god */
+	i = p_ptr->pgod;
+	p_ptr->pgod = 0;
+	follow_god(i, TRUE);
 
-		/* Select the default melee type */
-		select_default_melee();
+	/* Select the default melee type */
+	select_default_melee();
 
 	/* Make a note file if that option is set */
 	if (take_notes)
@@ -4023,6 +4075,9 @@ void player_birth(void)
 	/* Init the towns */
 	for (i = 1; i < max_towns; i++)
 	{
+		/* Not destroyed ! yet .. ;) */
+		town_info[i].destroyed = FALSE;
+
 		/* Ignore non-existent towns */
 		if (!(town_info[i].flags & (TOWN_REAL))) continue;
 
@@ -4174,9 +4229,13 @@ void save_savefile_names()
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Read the file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Read the file */
 	fff = my_fopen(buf, "w");
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* Failure */

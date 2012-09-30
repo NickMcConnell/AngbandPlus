@@ -12,6 +12,10 @@
 
 
 #include "angband.h"
+#include "lua.h"
+#include "tolua.h"
+
+extern lua_State *L;
 
 
 /* Maximum number of tries for teleporting */
@@ -21,6 +25,8 @@
 static bool hook_school_spellable(object_type *o_ptr)
 {
         if (o_ptr->tval == TV_BOOK)
+                return TRUE;
+        else if (o_ptr->tval == TV_DAEMON_BOOK)
                 return TRUE;
         else
         {
@@ -273,10 +279,7 @@ bool must_learn_spells()
                 if (s_info[i].value)
                         switch (i)
                         {
-                                case SKILL_SYMBIOTIC:
-                                case SKILL_MUSIC:
                                 case SKILL_DRUID:
-                                case SKILL_DAEMON:
                                         return TRUE;
                         }
         }
@@ -390,7 +393,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known,
 
 
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
+	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, $=macro spell, ESC=exit) %^s which %s? ",
 	        p, I2A(0), I2A(num - 1), prompt, p);
 
 	/* Get a spell from the user */
@@ -545,7 +548,7 @@ void do_cmd_browse_aux(object_type *o_ptr)
         u32b f1, f2, f3, f4, f5, esp;
 
 
-        if (o_ptr->tval == TV_BOOK)
+        if ((o_ptr->tval == TV_BOOK) || (o_ptr->tval == TV_DAEMON_BOOK))
 	{
 		browse_school_spell(o_ptr->sval, o_ptr->pval);
 		return;
@@ -1421,8 +1424,6 @@ void wild_magic(int spell)
 		case 27:
 		case 28:
 		{
-			(void) gain_random_corruption(0);
-
 			break;
 		}
 
@@ -2432,7 +2433,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 		/* BLINK */
 		case 68:
 		{
-			if (dungeon_flags1 & LF1_NO_TELEPORT)
+			if (dungeon_flags2 & DF2_NO_TELEPORT)
 			{
 				msg_print("No teleport on special levels...");
 				break;
@@ -2446,7 +2447,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 		/* TPORT */
 		case 69:
 		{
-			if (dungeon_flags1 & LF1_NO_TELEPORT)
+			if (dungeon_flags2 & DF2_NO_TELEPORT)
 			{
 				msg_print("No teleport on special levels...");
 				break;
@@ -2462,7 +2463,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 		{
 			int ii,ij;
 
-			if (dungeon_flags1 & LF1_NO_TELEPORT)
+			if (dungeon_flags2 & DF2_NO_TELEPORT)
 			{
 				msg_print("No teleport on special levels...");
 				break;
@@ -2490,7 +2491,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 		/* TELE_AWAY */
 		case 71:
 		{
-			if (dungeon_flags1 & LF1_NO_TELEPORT)
+			if (dungeon_flags2 & DF2_NO_TELEPORT)
 			{
 				msg_print("No teleport on special levels...");
 				break;
@@ -2506,7 +2507,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 		/* TELE_LEVEL */
 		case 72:
 		{
-			if (dungeon_flags1 & LF1_NO_TELEPORT)
+			if (dungeon_flags2 & DF2_NO_TELEPORT)
 			{
 				msg_print("No teleport on special levels...");
 				break;
@@ -2553,12 +2554,12 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 
 		/* 78 S_RNG -- Not available, who dares? */
 
-		/* S_DRAGONRIDER */
+		/* S_THUNDERLORD */
 		case 79:
 		{
 			for (k = 0; k < 1; k++)
 			{
-				summon_specific_friendly(y, x, rlev, SUMMON_DRAGONRIDER, TRUE);
+				summon_specific_friendly(y, x, rlev, SUMMON_THUNDERLORD, TRUE);
 			}
 
 			break;
@@ -4997,7 +4998,7 @@ bool get_item_hook_find_spell(int *item)
                 if ((wield_slot(o_ptr) != -1) && (i < INVEN_WIELD)) continue;
 
                 /* Is it a non-book? */
-                if ((o_ptr->tval != TV_BOOK))
+                if ((o_ptr->tval != TV_BOOK) && (o_ptr->tval != TV_DAEMON_BOOK))
                 {
                         u32b f1, f2, f3, f4, f5, esp;
                 
@@ -5046,6 +5047,7 @@ u32b get_school_spell(cptr do_what)
 	char choice;
 	char out_val[160];
 	char buf2[40];
+	char buf3[40];
         object_type *o_ptr;
         int tmp;
         int sval, pval;
@@ -5054,7 +5056,8 @@ u32b get_school_spell(cptr do_what)
         get_item_extra_hook = get_item_hook_find_spell;
         item_tester_hook = hook_school_spellable;
 	sprintf(buf2, "You have no book to %s from", do_what);
-        if (!get_item(&item, format("%^s from which book?", do_what), buf2, USE_INVEN | USE_EQUIP | USE_EXTRA )) return -1;
+	sprintf(buf3, "%s from which book?", do_what);
+        if (!get_item(&item, buf3, buf2, USE_INVEN | USE_EQUIP | USE_EXTRA )) return -1;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -5100,7 +5103,7 @@ u32b get_school_spell(cptr do_what)
 	spell = -1;
 
         /* Is it a random book, or something else ? */
-        if (o_ptr->tval == TV_BOOK)
+        if ((o_ptr->tval == TV_BOOK) || (o_ptr->tval == TV_DAEMON_BOOK))
         {
                 sval = o_ptr->sval;
                 pval = o_ptr->pval;
@@ -5381,6 +5384,13 @@ void do_cmd_copy_spell()
         object_type *o_ptr;
 
         if (spell == -1) return;
+
+        /* Spells that cannot be randomly created cannot be copied */
+        if (exec_lua(format("return can_spell_random(%d)", spell)) == FALSE)
+        {
+                msg_print("This spell cannot be copied.");
+        }
+
         item_tester_hook = hook_school_can_spellable;
         if (!get_item(&item, "Copy to which object? ", "You have no object to copy to.", (USE_INVEN | USE_EQUIP))) return;
         o_ptr = get_object(item);
@@ -5388,4 +5398,30 @@ void do_cmd_copy_spell()
         msg_print("You copy the spell!");
         o_ptr->pval2 = spell;
         inven_item_describe(item);
+}
+
+/*
+ * Finds a spell by name, optimized for speed
+ */
+int find_spell(char *name)
+{
+        int oldtop, spell;
+        oldtop = lua_gettop(L);
+
+        lua_getglobal(L, "find_spell");
+        tolua_pushstring(L, name);
+
+        /* Call the function */
+        if (lua_call(L, 1, 1))
+        {
+                cmsg_format(TERM_VIOLET, "ERROR in lua_call while calling 'find_spell'.");
+                lua_settop(L, oldtop);
+                return -1;
+        }
+
+        spell = tolua_getnumber(L, -(lua_gettop(L) - oldtop), -1);
+
+        lua_settop(L, oldtop);
+
+        return spell;
 }

@@ -25,6 +25,5 @@ A merchant begins the game with:
     A small steel chest containing gold and items
     A long sword
     A wand of tame monsters
-If they are *very* lucky they may also begin with:
-    +1000 gold
+
 

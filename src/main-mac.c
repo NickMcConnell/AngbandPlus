@@ -3919,7 +3919,7 @@ static void menu(long mc)
 					term_data *td = &data[0];
 
 					/* Toggle "arg_bigtile" */
-					use_bigtile = !use_bigtile;
+					arg_bigtile = use_bigtile = !use_bigtile;
 
 					/* Activate */
 					Term_activate(td->t);

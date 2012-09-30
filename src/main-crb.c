@@ -2572,6 +2572,8 @@ static void cf_load_prefs()
 		return;
 	}
 
+#if 0
+
 	/* Check version */
 	if ((pref_major != PREF_VER_MAJOR) ||
 		(pref_minor != PREF_VER_MINOR) ||
@@ -2586,6 +2588,8 @@ static void cf_load_prefs()
 		/* Ignore */
 		return;
 	}
+
+#endif
 
 	/* Gfx settings */
 	{
@@ -4159,7 +4163,7 @@ static void menu(long mc)
 					term_data *td = &data[0];
 
 					/* Toggle "arg_bigtile" */
-					use_bigtile = !use_bigtile;
+					arg_bigtile = use_bigtile = !use_bigtile;
 
 					/* Activate */
 					Term_activate(td->t);

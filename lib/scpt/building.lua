@@ -8,7 +8,7 @@ end
 
 function __bact_activate(bact)
         if __building_actions[bact] then
-                __building_actions[bact]()
+                return __building_actions[bact]()
         end
 end
 

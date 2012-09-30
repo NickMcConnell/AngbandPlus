@@ -1,132 +1,127 @@
 |||||oy
-#####R === ToME Magic System ===
+~~~~~03|Magic
+#####R === ToME Magic system ===
 
-In the official releases of Angband there are only two types magic spells:  
-Magic spells and priestly Prayers. If the character is a mage, ranger or a
-rogue (s)he can learn magic spells; if (s)he is a priest or a paladin, 
-(s)he can learn prayers. All mages can learn the same spells and all priests
-can learn the same spells. This has been changed drastically for ToME.
+*****magic.txt*02[Wands and Staves]
 
-Ok, DarkGod graciously asked me to write a little about how the spell/magic
-system works now, since it seems some people have trouble adapting. I won't 
-go too much into the basics of a skill-base system vs the old one, but I can 
-tell you that they each range from 0 to 50, where 50 is maxed. Once you've 
-gone up a character level now, you gain 4 skill points, and you can arrange 
-these as you like. Now, you've noticed that after the skill name, there are 
-two columns of numbers. The first one tells you what level you have that 
-skill at. The second one is a certain number which is enclosed in []-type 
-brackets. This number tells you how much you will increase that skill by 
-adding a skill point to it. An example: say you've just leveled, and is now 
-level 2, and you've gotten yourself 4 brand-new and exciting skill points to
-distribute. So, you look at the skills list, and think for yourself that you 
-need more mana, which will require you to invest your skillpoints in the 
-'Magic' skill. The line for the 'Magic' skill looks like this at the end 
-there: 01.000 [00.800]. So, when you then add your four skill points, it'll 
-read 03.400 [00.800]. Simple maths tells you that you've added 2.4 levels to 
-that skill. That's how the system works. (A very newbiefied way to explain 
-this, and I hadn't even intended to do it, so don't be insulted if you 
-interpret in the direction of me thinking of you like a total n00b, which 
-would be unintentional from my part). You increase/decrease a skill by hitting
-the right/left direction arrows on your keyboard, and using up/down will take 
-you and down in the skill tree. To expand a major skill tree, use 'Enter'. You
-can also use the keypad keys to do this manipulation, with 8/2 traveling up 
-and down and 6/4 to increase/decrease a skill. You can increase skill where 
-the []-type bracket column has a number other than 0 in it. Those with 0 
-aren't meant for you to be used and are greyed out. Also note that once you
-have distributed the points, and exited the Skills screen and choosen to use 
-that setup, you won't be able to change them later. But, anyway, here goes 
-the rest.
+For the basics of how to use skills, please see *****skills.txt*0[Using Skills].
 
-You now have a base 'Magic' skill. This is the most important one, since it's 
-the one that increases the mana reserves you've got (and it's *always* useful 
-to have a lot mana, no)? :) and also the 'Magic Device' ability, which allows
-the use of wands/staffs/rods and activation of items that can be activated 
-(junkarts, arts). The 'Magic Device' ability also increases the power of wands
-and staves now.
+In ToME you have a basic *****skills.txt*21[Magic] skill. This skill is one of the most
+important one for a spellcaster, since it is responsible for how much mana you
+have. You can never have too much of it. If you like magical devices, the
+Magical Device skill is also important, since it controls the Magical
+Device ability of your character. This ability again dictates the fail rates
+of use of wands/rods/staffs and activation of random-artifacts/artifacts, and
+it will also increase the power of these items.
+~~~~~01|Magic|Schools
+ToME uses skills to define the various schools of magic. There are 11 primary 
+schools:
+     *****m_mana.txt*0[Mana]           *****m_fire.txt*0[Fire]            *****m_water.txt*0[Water]
+     *****m_air.txt*0[Air]            *****m_earth.txt*0[Earth]           *****m_meta.txt*0[Meta]
+     *****m_convey.txt*0[Conveyance]     *****m_divin.txt*0[Divination]      *****m_tempo.txt*0[Temporal]
+     *****m_mind.txt*0[Mind]           *****m_nature.txt*0[Nature]
 
-Under the 'Magic' skill, you have several sub-skills. Now, realms are 
-something which we had in old Pern, but they aren't called that anymore in
-ToME. Now, you've got 11 schools of magic. They include '*****m_mana.txt*0[Mana]', '*****m_fire.txt*0[Fire]',
-'*****m_water.txt*0[Water]', '*****m_air.txt*0[Air]', '*****m_earth.txt*0[Earth]', '*****m_meta.txt*0[Meta]', '*****m_convey.txt*0[Conveyance]', '*****m_divin.txt*0[Divination]', '*****m_tempo.txt*0[Temporal]',
-'*****m_mind.txt*0[Mind]' and '*****m_nature.txt*0[Nature]'. The 'Daemon' skill is now temporarily defunct, and
-should not appear in the list again until DarkGod finds a use for it. :)
-Now, you also have 'Necromancy', which will give you access to the old
-necromancy spells that were in old Pern. The 'Runecraft' skill will enable
-you to use runes, which acts like the old 'Runecraft' class in old Pern.
-The '*****m_thaum.txt*0[Thaumaturgy]' skill is currently being reworked, so may alter from what 
-the docs say. In addition to the schools of magic, by worshipping a God you
-also gain the ability to do magic that is special to that God. There are 
-three Gods - *****g_eru.txt*0[Eru Iluvatar], *****g_manwe.txt*0[Manwe Sulimo], and *****g_tulkas.txt*0[Tulkas], each of which specialise
-in different areas of magic.
+Other magical skills, generally being used primarily by characters of a specific 
+class are:
+     *****m_demono.txt*0[Demonology]     *****m_necrom.txt*0[Necromancy]      *****skills.txt*36[Runecraft]
+     *****m_thaum.txt*0[Thaumaturgy]    *****skills.txt*49[Alchemy]
 
-So, let's do some explaining about how the schools of magic system works. As
-I've already written down, there are 11 different magic schools. They all 
-give access to different spells of variable usefulness. The way it works is
-that by adding skill points into a specific school skill will enable you to
-get higher level spells for that specific school. By level requirements for
-a specific spell you could actually say skill requirement, since they 
-correlate exactly. A simple explanation: If you've got, say, the 'Mana' 
-school skill at level 24.000, it means you can use any spell in the mana 
-school up to and including those requiring level 24. Kinda simple, no ? There
-are also some spells requiring a certain skill level in two schools, and 
-DarkGod is hinting that there will come spells requiring three or more schools
-later. That'll be fun, right ? :)  Anyway, another thing that might need a 
-tad explaining is that if you're looking at a spell, and it's spell level is
-something like '-2' and is grayed out, it simply means that you need to 
-increase the school's level by 2 to use it.
+The *****m_demono.txt*0[Demonology] skill is primarily  used by *****c_demono.txt*0[Demonologists] for their special 
+spells, whereas the *****m_necrom.txt*0[Necromancy] skill is used by *****c_necro.txt*0[Necromancers] for their own set 
+of special spells.
+The same goes for *****skills.txt*36[Runecraft], which is used by *****c_runecr.txt*0[Runecrafters] to allow use of more 
+difficult runes or rune-combinations. *****m_thaum.txt*0[Thaumaturgy] gives you a randomly chosen 
+attack spell, and as such each game with it will be different. Lastly we have 
+*****skills.txt*49[Alchemy], which is used by *****c_alchem.txt*0[Alchemists].
 
-Another thing that should be explained about the skills and schools of magic 
-right now, is that the skill doesn't stop being useful only for gaining 
-spells. The higher the skill level, the higher the spell level will be, and 
-the more powerful your spells will be. An example: you've gotten the 'Mana' 
-skill up to level 24. Now, the 'Manathrust' spell is one of the spells for 
-that school that only requires skill level 1, but since you've got skill 
-level 24, the power of the spell is increased as well. When you were a lowly
-fresh char, that spell cost 1 mana to cast and did 4d2 damage. However, with 
-'Mana' at level 24, it costs 7 mana to cast, and does 27d10 (!!!) damage. So,
-the magic school skills have two uses as you can see. Oh, and btw, 
-'Manathrust' is irresistible for monsters and is one of the most dangerous in
-the game. :)
+In addition to the schools of magic, you can get access to special sets of
+spells if you worship a God. There are currently four good Gods,
+*****g_eru.txt*0[Eru Iluvatar], *****g_manwe.txt*0[Manwe Sulimo], *****g_yavann.txt*0[Yavanna Kementari] and *****g_tulkas.txt*0[Tulkas]. There is also an evil
+god, *****g_melkor.txt*0[Melkor]. Each of them gives you access to different types of spells.
 
-Now, you'll probably be howling about the two top-most skills, right ? ;) 
-Well, the 'Spell power' skill is a very nice skill. Very basically, it adds 
-spell levels (or casting levels) to a spell. Thus, increasing the 'Spell 
-power' skill will add a few levels to all the spells you can already cast. 
-It doesn't give you *access* to new spells, it *only* boosts those that you 
-already have access to. With 'Spell power' at level 50 you get 20 or so spell 
-levels added to those spells you've already got, and it's a linear formula, 
-so calculating how much you get per level in the skill should be easy. Let's 
-take yet another example: You now have increased 'Spell power' to level 25, 
-which should give you 10 spell levels to every spell you've got. Also, 'Mana' 
-is currently hovering around 19, and you can see that in order to be able to 
-use the 'Elemental Shield' spell, you need to increase 'Mana' up to 20 to use.
-Now, let's say you do that, add enough skill points to the 'Mana' skill, and 
-you pass level 20. But, instead of getting 'Elemental Shield' at level 1, 
-which you would without 'Spell power', you instantly get 10 spell levels
-added to it, effectively making 'Elemental Shield' a level 11 spell, much 
-more powerful than at level 1.
+Worshippers of Melkor also have access to the special *****m_udun.txt*0[Udun] school of magic.
 
-So, then it's the last skill, 'Sorcery'. DarkGod seems to have a liking for 
-this kinda magic user. The 'Sorcery' skill is available to any mage character,
-but they will have to spend a lot more points in it to increase it in 
-comparison to a Mage/Sorcerer, which doesn't really have to spend many skill
-points to raise it. They have insane minuses when it comes to combat (due to 
-use of the 'Sorcery' skill, see further down), but in return, they can use 
-the 'Sorcery' skill. This skill is as insane as in Pern, and gives access to
-all 11 schools of magic. In fact, it acts like each of the other magic school
-skills do, with the exception that it does it for all 11 simultaneously, with
-no penalties to them. Just to make sure you've gotten it, 'Sorcery' covers 
-'Mana', 'Fire', 'Water', 'Air', 'Earth', 'Meta', 'Conveyance', 'Divination', 
-'Temporal', 'Mind' and 'Nature'. An example: If you increase the 'Sorcery' 
-skill to level 3, all the 11 listed schools will in effect act like level 3,
-giving you access to all spells for those schools up to and including level 3.
-Now, as a sidenote, 'Sorcery' has a HP penalty. Yes, that's right, with a 
-level 50 'Sorcery' skill you get a 50% HP penalty. It also has a penalty to 
-'ToHit' and ToDam', i.e., they decrease as 'Sorcery' increases. DarkGod sure 
-is nasty, ain't he ? But I guess access to 11 schools of magic through one 
-skill has to have some bad drawbacks too.
+The 11 different primary schools give you access to different spells of
+variable usefulness. The way they work is that by adding skill points to a
+specific school will enable you to get higher level spells for that specific
+school. By level requirements for a specific spell you could actually say skill
+requirement, since they correlate exactly. Let's take a simple example:
+If you have the *****m_mana.txt*0[Mana] school skill at level 24.000, it means you can use any
+spell in the mana school up to and including those requiring level 24. There are
+also some spells requiring a certain skill level in two schools, and there is a
+possibility of spells requiring three or more. Lastly, if you look at a spell,
+and the spell level reads -2 or some other negative value while it's also
+grayed out, that means you need to increase the corresponding school's skill
+level by 3, since only 2 will have it end up on spell level 0, where it
+still is unusable.
 
-Well, that should be about it. 
+Another thing that should be explained about the skills and schools of magic
+right now, is that the skill doesn't stop being useful only for gaining spells.
+The higher the skill level, the higher the spell level will be, and the more
+powerful your spells will be. For instance, say you have the *****m_mana.txt*0[Mana] skill at
+level 24. Now, the Manathrust spell is one of the spells for that school
+that only requires skill level 1, but since you've got skill at level 24, the
+power of the spell is increased as well. For comparison, a level 1
+Manathrust costs 1 mana and does 4d2 damage, while at level 24 it costs 12
+mana and does a whopping 27d10 damage.
 
-                                 Written by: vrak AKA Per-Arne Holtmon Ak
+The *****skills.txt*23[Sorcery] skill is a nice skill, since it gives you
+access to all the 11 primary schools of magic, just as if you'd spend an equal
+amount of skill points in all the skills. It's available to any mage character,
+but only a *****c_sorcer.txt*0[Sorceror] will be able to be proficient in it. Also, having this
+skill at level 1 will give you a hitpoint-penalty of 1%, all the way up to
+skill level 50, with a hitpoint-penalty of 50%. There is also a ToHit and a
+ToDam penalty in here too.
 
+There is the *****skills.txt*22[Spell Power] skill. This skill is rather nice, since it
+will augment the spells you already have access to. The distinction between this
+and the others, is that it will not grant you new spells, but instead increase
+the levels of spells. At level 50 it grants 20 extra spell levels.
+
+There is also the Magic-Device skill which affects your ability to use wands, 
+staves, rods and to activate special objects. It also affects the spell-levels 
+of the staff and wand spells, as explained below.
+~~~~~02|Wands
+~~~~~04|Magic|Wands and Staves
+~~~~~05|Staves
+#####GWands and Staves
+
+Wands and staves (sticks) operate in a similar fashion, and in fact most of
+them use the same spells with the same effects. When you pick up a stick, you'll
+see it has two numbers in the format [x|y] in addition to the number of charges
+it holds. By increasing your magic-device skill you can increase the level (and
+hence the power) of the spell in that stick. The x value are skill level
+bonuses which the staff itself holds, and these are added onto your existing
+magic-device skill for the purpose of using the staff. The y value is the
+maximum possible skill level for that stick. Things are balanced by the use of a
+"minimum magic-device skill level required to raise spell level". Here's an
+example:
+A Staff of Sense Hidden [1|10]. Your magic device skill is at 6. If you were to
+identify the staff and then 'I'nspect it, you would see the following
+information:
+
+&&&&&w wSwpwewlwlw wdwewswcwrwiwbwtwiwownw:w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
+&&&&&w wDwewtwewcwtwsw wtwhwew wtwrwawpwsw wiwnw waw wcwewrwtwawiwnw wrwawdwiwuwsw wawrwowuwnwdw wywowuw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
+&&&&&w wAwtw wlwewvwewlw w1w5w wiwtw wawlwlwowwwsw wywowuw wtwow wswewnwswew wiwnwvwiwswiwbwlwew wfwowrw waw wwwhwiwlwew w w w w w w w w w w w w w w w w w w w w w w 
+&&&&&w wSwpwewlwlw wlwewvwewlw:w B3w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
+&&&&&w wMwiwnwiwmwuwnw wMwawgwiwcw wDwewvwiwcwew wlwewvwewlw wtwow wiwnwcwrwewawswew wswpwewlwlw wlwewvwewlw:w B5w w w w w w w w w w w w w w w w w w w w w w w w w w 
+&&&&&w wSwpwewlwlw wfwawiwlw:w g2g3w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
+&&&&&w wSwpwewlwlw wiwnwfwow:w yryaydy y1y3w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
+
+The Spell level is the level at which the spell will actually be cast.
+Spell fail is the spell fail percentage. The spell info may contain the radius
+of effect, amount of damage, or duration the spell might last.
+The Minimum Magic Device level to increase your spell level is just that. If
+your magic device skill was less than this level, then the staff would be
+casting the spell at level one. Our magic device skill is 6. Therefore we are
+casting at level 2 (at skill level 5, we should be casting the spell at level 1).
+Then we add the bonus from the staff of 1, which gives us our spell level of 3.
+If our magic device in this example had been 14, this would have given us a
+spell level of 1 + (14 - 5 + 1) = 11. This is calculated from the formula:
+spell level = staff bonus + (magic device - minimum magic device + 1)).
+However given that the maximum spell level with this staff is 10, you'll be
+casting with a spell level of 10.
+As you get deeper into the dungeons, the bonuses and maximum spell levels
+increase.
+
+                                        Written by: vrak AKA Per-Arne Holtmon Ak

@@ -1,3 +1,6 @@
+|||||oy
+~~~~~01|Monk
+~~~~~02|Classes|Monk
 #####R=== Monks ===
 
 #####GDescription
@@ -7,34 +10,54 @@ their training in martial arts makes them much more powerful with no
 armour nor weapons. To gain the resistances necessary for survival at 
 higher levels a monk may need to wear some kind of armour, but if the 
 armour worn is too heavy, it will severely disturb their martial arts 
-maneuvers. As the monk advances levels, new, powerful forms of attack 
+maneuvers. As the monk gains in skill, new, powerful forms of attack 
 become available. Their defensive capabilities (blocking and dodging) 
 increase likewise, but if armour is being worn, this effect decreases. 
+Fortunately, the amount of armour a monk can wear while still fighting 
+efficiently can be increased by raising his/her Barehanded-combat skill. 
 It is rumoured that the monastic training even makes monks faster than 
-any other character class! Fortunately, the amount of armour a monk can
-wear while still fighting efficiently increases with experience. 
+any other character class! 
 
-#####GPrimary Stats
-Wisdom (spell casting stat)
+Monks also have access to the schools of *****m_meta.txt*0[Meta], *****m_tempo.txt*0[Temporal] and *****m_mind.txt*0[Mind] magic.
 
-#####GMagic Usage
-A monk may choose one realm of magic and learn 24 spell levels from it.
+#####GStarting Stat Modifiers
+Strength         +1
+Intelligence     -2
+Wisdom           +1
+Dexterity        +1
+Constitution     +0
+Charisma         +1
+Bonus Blows       0
+Hit Die          +d8
+Exp Penalty      40%
 
-The different sects of monks are devoted to different areas of magic.  
-The typical monk utilizes his internal powers, and uses the *****m_tribal.txt*0[Tribal] 
-realm. A monk who serves the greater powers can choose the *****m_valar.txt*0[Valarin] 
-realm, while monks who deal with the phantasmal can take the realms of 
-*****m_spirit.txt*0[Spirit] or *****m_illus.txt*0[Illusion]. Monks who take one of the major realms can only 
-learn from the first four books.
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  0.000           [0.900]
+  Weaponmastery         0.000           [0.300]
+  Archery               0.000           [0.400]
+  Barehand-combat       1.000           [0.900]
+Sneakiness              1.000           [0.900]
+  Stealth               1.000           [0.900]
+  Disarming             1.000           [0.900]
+  Dodging               0.000           [0.700]
+Magic                   0.000           [0.600]
+  Magic-Device          1.000           [1.000]
+  Meta                  0.000           [0.500]
+  Temporal              0.000           [0.500]
+  Mind                  0.000           [0.500]
+Spirituality            1.000           [0.900]
+  Prayer                0.000           [0.500]
+Monster-lore            1.000           [1.100]
+  Corpse-preservation   1.000           [0.500]
+  Possession            0.000           [0.100]
 
 #####GStarting Equipment
 A monk begins the game with:
-    L1 spellbook of chosen realm
     A potion of healing
     Soft leather armor
-If they are *very* lucky they may also begin with:
-    a cloak of protection
-     
+~~~~~03|Monk|Monk attacks
+~~~~~04|Tables|Monk attacks
 #####GMonk Attacks
 #####BAttack Name     Min.lvl Damage  Stun    Notes
 -----------------------------------------------------------------------------

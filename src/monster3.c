@@ -62,6 +62,8 @@ bool is_enemy(monster_type *m_ptr, monster_type *t_ptr)
 
 bool change_side(monster_type *m_ptr)
 {
+        monster_race *r_ptr = race_inf(m_ptr);
+
 	/* neutrals and companions  */
 	switch (m_ptr->status)
 	{
@@ -71,8 +73,10 @@ bool change_side(monster_type *m_ptr)
 			break;
 #endif
 		case MSTATUS_FRIEND:
-			m_ptr->status = MSTATUS_ENEMY;
-			break;
+                        m_ptr->status = MSTATUS_ENEMY;
+                        if ((r_ptr->flags3 & RF3_ANIMAL) && (!(r_ptr->flags3 & RF3_EVIL)))
+                                inc_piety(GOD_YAVANNA, -m_ptr->level * 4);
+                        break;
 		case MSTATUS_NEUTRAL_P:
 			m_ptr->status = MSTATUS_NEUTRAL_M;
 			break;
@@ -81,6 +85,8 @@ bool change_side(monster_type *m_ptr)
 			break;
 		case MSTATUS_PET:
 			m_ptr->status = MSTATUS_ENEMY;
+                        if ((r_ptr->flags3 & RF3_ANIMAL) && (!(r_ptr->flags3 & RF3_EVIL)))
+                                inc_piety(GOD_YAVANNA, -m_ptr->level * 4);
 			break;
 		case MSTATUS_COMPANION:
 			return FALSE;

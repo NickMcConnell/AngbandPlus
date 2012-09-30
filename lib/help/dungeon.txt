@@ -1,4 +1,5 @@
 |||||oy
+~~~~~02|Dungeons
 #####R=== The Dungeons and Various Places of Middle Earth ===
 
 
@@ -8,7 +9,8 @@ walls, floor, objects, features, and creatures lurking about.  In order
 to direct your character through his adventure, you will enter single
 character commands (see "*****command.txt*0[command.txt]").
 
-
+~~~~~03|Symbols
+~~~~~04|Identifying features
 #####R=== Symbols On Your Map ===
 
 Symbols on your map can be broken down into three categories: Features of
@@ -54,17 +56,14 @@ something you are more comfortable with.
   [[[[[g.]   Patch of Grass                  [[[[[W.]   Ice
   [[[[[y.]   Sand                            [[[[[D.]   Ash
   [[[[[u.]   Mud                             [[[[[v.]   Nether mist
-  [[[[[r.]   Floor                           [[[[[g0]   Altar of Forests
-  [[[[[bO]   Alter of Water                  [[[[[u0]   Altar of Earth
-  [[[[[D0]   Altar of Darkness               [[[[[v0]   Altar of Moon
-  [[[[[y0]   Altar of Sun                    [[[[[R0]   Altar of Rage
-  [[[[[B0]   Altar of Winds                  [[[[[U0]   Altar of Stars
-  [[[[[W0]   Altar of Being                  [[[[[v0]   Altar of Randomness
-  [[[[[v+]   Between Gate                    [[[[[v;]   Monster trap
-  [[[[[B.]   Glass wall                      [[[[[w#]   Illusion wall
-  [[[[[g;]   Grass with flowers              [[[[[w.]   Cobblestone road
-  [[[[[g#]   Small tree                      [[[[[w*]   Town (in wilderness)
-  [[[[[U^]   Underground tunnel              [[[[[y+]   A web
+  [[[[[r.]   Floor                           [[[[[D0]   Altar of Darkness               
+  [[[[[R0]   Altar of Force                  [[[[[B0]   Altar of Winds                  
+  [[[[[W0]   Altar of Being                  [[[[[v+]   Void Jumpgate
+  [[[[[v;]   Monster trap                    [[[[[B.]   Glass wall
+  [[[[[w#]   Illusion wall                   [[[[[g;]   Grass with flowers
+  [[[[[w.]   Cobblestone road                [[[[[g#]   Small tree
+  [[[[[w*]   Town (in wilderness)            [[[[[U^]   Underground tunnel
+  [[[[[y+]   A web
 
 #####G                   Features that block line of sight
 
@@ -92,8 +91,8 @@ something you are more comfortable with.
   ~   Junk, Sticks, Skeletons, etc    `   Trapping kit, climbing set
   ~   Stone, random artifact          o   Egg
   *   An essence                      &   (unused)
- 
- 
+
+~~~~~05|Monsters
 #####G                             Monsters
  
             $   Creeping Coins      ,   Mushroom Patch
@@ -125,7 +124,7 @@ something you are more comfortable with.
             z   Zombie/Mummy        Z   Zephyr Hound
 
 
-
+~~~~~07|Town
 #####R=== The Town Level ===
 
 The town level is where you will begin your adventure. The town consists of
@@ -230,14 +229,14 @@ item if another is encountered.
 #####GThe Temple ("4")
      The Temple deals in healing and restoration potions, as well as bless
      scrolls, word of recall scrolls, some approved priestly weapons, and 
-     books of Life magic for priests and paladins.
+     priest spell books.
 
 #####GThe Alchemy shop ("5")
      The Alchemy Shop deals in all types of potions and scrolls.
 
 #####GThe Magic User's Shop ("6")
      The Magic User's Shop deals in all sorts of rings, wands, amulets, and
-     staves, as well as some magic user books (Sorcery, and Arcane).
+     staves, as well as spell books.
 
 #####GThe Black Market ("7")
      The Black Market will sell and buy anything at extortionate prices.
@@ -250,13 +249,13 @@ item if another is encountered.
 
 #####GThe Bookstore ("9")
     The Bookstore deals in all sorts of magical books. You can purchase
-    and sell spellbooks for the spellcasters here.
+    and sell spellbooks for spellcasters and priests here.
 
 There are other buildings that may be found in the town levels, such as the 
 inn or the castle. Further description of these shops can be found in the
 *****bldg.txt*0[bldg.txt] help file.
 
-~~~~~1
+~~~~~1|Wilderness
 #####R=== The Wilderness and the Wilderness Map ===
 
 Between the towns, the hand of civilisation has not tamed the lands, and
@@ -294,7 +293,7 @@ The "Adventurer's Guide to Middle Earth" (a parchment that *every*
 character begins the game with) contains details about the towns and
 some of the dungeons, including rough directions on how to get there.
 
-
+~~~~~06|Dungeons|In the dungeon
 #####R=== Within The Dungeon ===
 
 Once your character is adequately supplied with food, light, armor, and
@@ -332,7 +331,7 @@ or your torch (with other torches), so it is a good idea to carry extra
 torches or flasks of oil, as appropriate. There are rumours of objects of
 exceptional power which glow with their own never-ending light.
 
-
+~~~~~08|Objects
 #####R=== Objects Found In The Dungeon ===
 
 The mines are full of objects just waiting to be picked up and used. How
@@ -406,13 +405,13 @@ Also, occasionally you will notice that something in your inventory or
 equipment list seems to be magical. High level characters are much more
 likely to notice this than beginning characters. When you do notice this,
 the item in question will be inscribed with "good" or "cursed" as is
-relevant.  Priests acquire this ability far more readily than other
-character classes.
-
-Warriors, Rogues, Rangers and Paladins have a special method of "sensing"
-their inventory/equipment items, which tells them not only if an item is
-"good" or "cursed", but also if it is "average", and if it is "special"
-or "excellent", or "terrible" or "worthless".
+relevant.  You can increase your ability to notice magical effcts of armour 
+and weapoons by increasing the *****skills.txt*01[Combat] skill. You can increase your ability 
+to sense particularly well enchanted magical items (potions, scrolls. wands 
+etc) by increasing your *****skills.txt*21[Magic] skill. If you increase these 
+high enough, you will gain a special method of "sensing" your 
+inventory/equipment items, which tells you if an item is "good" or "cursed", 
+but also if it is "average", "special", "excellent", "terrible" or "worthless".
 
 It is rumored that rings of power and extra rare spell books may be found
 deeper in the dungeon...
@@ -421,7 +420,8 @@ And lastly, a final warning: not all objects are what they seem. The line
 between tasty food and annoying mushroom is a fine one, and sometimes a
 potion will reach out and bite you...
 
-
+~~~~~09|Objects|Cursed Objects
+~~~~~10|Cursed Objects
 #####R=== Cursed Objects ===
 
 Some objects, mainly armor and weapons, have had curses laid upon them.
@@ -435,8 +435,8 @@ If you wear or wield a cursed item, you will immediately feel something
 wrong. The item will also be inscribed "cursed".
 
 Shopkeepers will refuse to buy any known cursed item.
-
-
+~~~~~13|Mining
+~~~~~11|Dungeons|Mining
 #####R=== Mining ===
 
 Much of the treasure within the dungeon can be found only by mining it out
@@ -471,7 +471,7 @@ dungeon and completely surrounded by titanium and granite walls, requiring
 a digging implement or magical means to enter. The same rumors imply that
 these rooms are guarded by incredibly powerful monsters, so beware!
 
-
+~~~~~12|Dungeons|Doors, Passages, Rooms and Staircases
 #####R=== Staircases, Secret Doors, Passages, and Rooms ===
 
 Staircases are the manner in which you get deeper or climb out of the
@@ -502,7 +502,7 @@ through.
 
 For historical reasons, secret doors are never locked.
 
-
+~~~~~14|Winning
 #####R=== Winning The Game ===
 
 Once your character has killed Sauron, who lives on level 99 (4950') in the
@@ -541,7 +541,7 @@ they reached dungeon level 60 before finding their first artifact? Did you
 have a really scary moment that stands out from the rest of the game? And how
 *did* you actually defeat Morgoth, anyway?
 
-
+~~~~~15|Dying
 #####R=== Upon Death and Dying ===
  
 If your character falls below 0 hit points, he has died and cannot be
@@ -556,10 +556,12 @@ case the new character is generated exactly as if the file was not there,
 but the new player will find his monster memory containing all the experience
 of past incarnations.
 
-
+~~~~~16|Help|Contact
 #####R=== Help ===
 
 The newsgroup "[[[[[Brec.games.roguelike.angband]" is a good place to ask various
 questions about both game play and game design, and you can email bug
-reports and such to (darkgod@t-o-m-e.net). Be sure to include the version
-number you are playing in any bug reports.
+reports and such to (darkgod@t-o-m-e.net). Errors in help files, or suggestions 
+for improvements to help file content should be emailed to 
+(fearoffours@t-o-m-e.net) Be sure to include the version number you are playing 
+in any bug reports.

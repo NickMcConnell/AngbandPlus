@@ -5,57 +5,49 @@
 -- function called when a key in the variable part ofthe savefile is read
 -- if the key matches what we need, we use it, otehrwise just ignore it
 function __savefile_load(key, val)
-	local index, name
+	local index, elem
         
-        for index, name in __loadsave_name do
-	        if (key == name) then
-        	        dostring(name.." = "..val)
+        for index, elem in __loadsave_name do
+	        if (key == elem.name) then
+        	        dostring(elem.name.." = "..val)
 	       	end
+        end
+end
+
+function dump_loadsave()
+        local k, e
+        for k, e in __loadsave_name do
+                msg_print(k.." :: ".. e.name.." ["..e.default.."]")
         end
 end
 
 -- called when the game is saved, can only save numbers
 -- assosiate a key with them to allow the loading code to recognize them
 function __savefile_save()
-	local index, name
-        for index, name in __loadsave_name do
-        	dostring("__loadsave_tmp = "..name)
-	        save_number_key(name, __loadsave_tmp);
+	local index, elem
+        for index, elem in __loadsave_name do
+        	dostring("__loadsave_tmp = "..elem.name)
+	        save_number_key(elem.name, __loadsave_tmp);
 	end
 end
-
---[[
-add_quest
-{
-        ["global"] =    "MY_QUEST",
-        ["name"] =      "My funny quest",
-        ["desc"] =      {
-                        "My funny quest desc",
-        },
-        ["level"] =     42,
-        ["data"] =      {
-                        ["test_var"] = 0,
-                        ["test_var2"] = 1
-        },
-        ["hooks"] =     {
-                        [HOOK_BIRTH_OBJECTS] = function()
-                                quest(MY_QUEST).status = QUEST_STATUS_TAKEN
-                        end,
-                        [HOOK_BUILD_ROOM1] = function(by0, bx0)
-                                local x, y, y2, x2, ret
-
-                                y, x = get_map_size("qrand6.map")
-                                ret, y, x, y2, x2 = alloc_room(by0, bx0, y, x)
-                                if ret == TRUE then
-                                        y, x, y2, x2 = load_map("qrand6.map", y, x)
-                                end
-                        end,
-        },
-}
-]]
-
--- Savefile end
 
 register_savefile(__loadsave_max)
 add_hook_script(HOOK_LOAD_GAME, "__savefile_load", "__hook_load")
 add_hook_script(HOOK_SAVE_GAME, "__savefile_save", "__hook_save")
+
+-- Automagicaly set unkown variables, otherwise the savefile code
+-- might get VERY upset
+do
+        local k, e
+        -- We need to be able to check for unknown globals
+	unset_safe_globals()
+        for k, e in __loadsave_name do
+                if dostring("return "..(e.name)) == nil then
+                        dostring((e.name).." = "..(e.default))
+                end
+        end
+        -- Now taht we did, we set it back, for it is usefull ;)
+	set_safe_globals()
+end
+
+-- Savefile end

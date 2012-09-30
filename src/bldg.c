@@ -180,8 +180,11 @@ void show_building(store_type *s_ptr)
 				}
 			}
 
-			strnfmt(tmp_str, 80, " %c) %s %s", ba_ptr->letter, ba_ptr->name + ba_name, buff);
-			c_put_str(action_color, tmp_str, 21 + (i / 2), 17 + (30 * (i % 2)));
+			strnfmt(tmp_str, 80, " %c", ba_ptr->letter);
+                        c_put_str(TERM_YELLOW, tmp_str, 21 + (i / 2), 17 + (30 * (i % 2)));
+
+			strnfmt(tmp_str, 80, ") %s %s", ba_ptr->name + ba_name, buff);
+			c_put_str(action_color, tmp_str, 21 + (i / 2), 2 + 17 + (30 * (i % 2)));
 		}
 	}
 }
@@ -1036,6 +1039,14 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 
 
 /*
+ * Select melee weapons
+ */
+static bool item_tester_hook_melee_weapon(object_type *o_ptr)
+{
+	return (wield_slot(o_ptr) == INVEN_WIELD);
+}
+
+/*
  * compare_weapons -KMW-
  */
 static bool compare_weapons(void)
@@ -1059,8 +1070,11 @@ static bool compare_weapons(void)
 	object_copy(orig_ptr, i_ptr);
 
 	i = 6;
-	/* Get an item */
-	q = "What is your first weapon? ";
+	/* Get first weapon */
+	/* Restrict choices to meele weapons */
+	item_tester_hook = item_tester_hook_melee_weapon;
+
+	q = "What is your first melee weapon? ";
 	s = "You have nothing to compare.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN)))
 	{
@@ -1073,19 +1087,11 @@ static bool compare_weapons(void)
 	if (item >= 0)
 		o1_ptr = &inventory[item];
 
-	/* To remove a warning */
-	if (((o1_ptr->tval < TV_BOW) || (o1_ptr->tval > TV_AXE)) &&
-	    (o1_ptr->tval != TV_MSTAFF))
-	{
-		msg_print("Not a weapon! Try again.");
-		msg_print(NULL);
-		inven_item_increase(INVEN_PACK, -1);
-		inven_item_optimize(INVEN_PACK);
-		return(FALSE);
-	}
+	/* Get second weapon */
+	/* Restrict choices to melee weapons */
+	item_tester_hook = item_tester_hook_melee_weapon;
 
-	/* Get an item */
-	q = "What is your second weapon? ";
+	q = "What is your second melee weapon? ";
 	s = "You have nothing to compare.";
 	if (!get_item(&item2, q, s, (USE_EQUIP | USE_INVEN)))
 	{
@@ -1097,22 +1103,11 @@ static bool compare_weapons(void)
 	/* Get the item (in the pack) */
 	if (item2 >= 0) o2_ptr = &inventory[item2];
 
-	/* To remove a warning */
-	if (((o2_ptr->tval < TV_BOW) || (o2_ptr->tval > TV_AXE)) &&
-	    (o2_ptr->tval != TV_MSTAFF))
-	{
-		msg_print("Not a weapon! Try again.");
-		msg_print(NULL);
-		inven_item_increase(INVEN_PACK, -1);
-		inven_item_optimize(INVEN_PACK);
-		return(FALSE);
-	}
-
 	put_str("Based on your current abilities, here is what your weapons will do", 4, 2);
 
 	i_ptr = &inventory[INVEN_WIELD];
 	object_copy(i_ptr, o1_ptr);
-	calc_bonuses();
+	calc_bonuses(TRUE);
 
 	list_weapon(o1_ptr,i,2);
 	compare_weapon_aux1(o1_ptr, 2, i+8);
@@ -1122,14 +1117,14 @@ static bool compare_weapons(void)
 		object_copy(i_ptr, orig_ptr);
 	else
 		object_copy(i_ptr, o2_ptr);
-	calc_bonuses();
+	calc_bonuses(TRUE);
 
 	list_weapon(o2_ptr,i,40);
 	compare_weapon_aux1(o2_ptr, 40, i+8);
 
 	i_ptr = &inventory[INVEN_WIELD];
 	object_copy(i_ptr, orig_ptr);
-	calc_bonuses();
+	calc_bonuses(TRUE);
 
 	inven_item_increase(INVEN_PACK, -1);
 	inven_item_optimize(INVEN_PACK);
@@ -1644,8 +1639,6 @@ void select_bounties(void)
  */
 bool bldg_process_command(store_type *s_ptr, int i)
 {
-	object_type *q_ptr, forge;
-
 	store_action_type *ba_ptr = &ba_info[st_info[s_ptr->st_idx].actions[i]];
 
 	int bact = ba_ptr->action;
@@ -1657,8 +1650,6 @@ bool bldg_process_command(store_type *s_ptr, int i)
 	bool set_reward = FALSE;
 
 	bool recreate = FALSE;
-
-	int amt;
 
 
 	if (is_state(s_ptr, STORE_LIKED))
@@ -1901,12 +1892,12 @@ bool bldg_process_command(store_type *s_ptr, int i)
 		/* needs work */
 		case BACT_RESTORE:
 		{
-			if (do_res_stat(A_STR)) paid = TRUE;
-			if (do_res_stat(A_INT)) paid = TRUE;
-			if (do_res_stat(A_WIS)) paid = TRUE;
-			if (do_res_stat(A_DEX)) paid = TRUE;
-			if (do_res_stat(A_CON)) paid = TRUE;
-			if (do_res_stat(A_CHR)) paid = TRUE;
+			if (do_res_stat(A_STR, TRUE)) paid = TRUE;
+			if (do_res_stat(A_INT, TRUE)) paid = TRUE;
+			if (do_res_stat(A_WIS, TRUE)) paid = TRUE;
+			if (do_res_stat(A_DEX, TRUE)) paid = TRUE;
+			if (do_res_stat(A_CON, TRUE)) paid = TRUE;
+			if (do_res_stat(A_CHR, TRUE)) paid = TRUE;
 			break;
 		}
 
@@ -1952,56 +1943,11 @@ bool bldg_process_command(store_type *s_ptr, int i)
 
 		case BACT_TELEPORT_LEVEL:
 		{
-			if (reset_recall())
+			if (reset_recall(FALSE))
 			{
 				p_ptr->word_recall = 1;
 				msg_print("The air about you becomes charged...");
 				paid = TRUE;
-			}
-			break;
-		}
-
-		case BACT_BUYFIRESTONE:
-		{
-			amt = get_quantity("How many firestones (10 gold each)? ", 1000);
-			if (amt > 0)
-			{
-				bcost=amt*10;
-				if(p_ptr->au>=bcost)
-				{
-					paid=TRUE;
-					msg_print("You have bought some firestones !");
-
-					/* Hack -- Give the player Firestone! */
-					q_ptr = &forge;
-					object_prep(q_ptr, lookup_kind(TV_FIRESTONE, SV_FIRE_SMALL));
-					q_ptr->number = amt;
-					object_aware(q_ptr);
-					object_known(q_ptr);
-					drop_near(q_ptr, -1, py, px);
-				}
-				else msg_print("You do not have the gold!");
-			}
-			break;
-		}
-
-		case BACT_COMEBACKTIME:
-		{
-			if (PRACE_FLAG(PR1_TP))
-			{
-				if (do_res_stat(A_STR)) paid = TRUE;
-				if (do_res_stat(A_INT)) paid = TRUE;
-				if (do_res_stat(A_WIS)) paid = TRUE;
-				if (do_res_stat(A_DEX)) paid = TRUE;
-				if (do_res_stat(A_CON)) paid = TRUE;
-				if (do_res_stat(A_CHR)) paid = TRUE;
-				p_ptr->chp-=1000;
-				if(p_ptr->chp<=0)p_ptr->chp=1;
-			}
-			else
-			{
-				msg_print("Hum .. you are NOT a DragonRider, "
-				          "you need a dragon to go between !");
 			}
 			break;
 		}
@@ -2151,9 +2097,10 @@ bool bldg_process_command(store_type *s_ptr, int i)
 
                 default:
                 {
-                        if (process_hooks_ret(HOOK_BUILDING_ACTION, "d", "(d)", bact))
+                        if (process_hooks_ret(HOOK_BUILDING_ACTION, "dd", "(d)", bact))
                         {
                                 paid = process_hooks_return[0].num;
+                                recreate = process_hooks_return[1].num;
                         }
                         break;
                 }

@@ -62,6 +62,7 @@ void princess_death(s32b m_idx, s32b r_idx)
 
 				/* Make a great object */
 				make_object(q_ptr, TRUE, TRUE, theme);
+                                q_ptr->found = OBJ_FOUND_REWARD;
 
 				/* Drop it in the dungeon */
 				drop_near(q_ptr, -1, y + 1, x);
@@ -160,7 +161,7 @@ bool quest_random_death_hook(char *fmt)
 	m_idx = get_next_arg(fmt);
 	r_idx = m_list[m_idx].r_idx;
 
-	if (!(d_info[dungeon_type].flags1 & DF1_PRINCIPAL)) return (FALSE);
+	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
 	if (p_ptr->inside_quest) return (FALSE);
@@ -188,7 +189,7 @@ bool quest_random_turn_hook(char *fmt)
 }
 bool quest_random_feeling_hook(char *fmt)
 {
-	if (!(d_info[dungeon_type].flags1 & DF1_PRINCIPAL)) return (FALSE);
+	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
 	if (p_ptr->inside_quest) return (FALSE);
@@ -207,7 +208,7 @@ bool quest_random_gen_hero_hook(char *fmt)
 {
 	int i;
 
-	if (!(d_info[dungeon_type].flags1 & DF1_PRINCIPAL)) return (FALSE);
+	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
 	if (p_ptr->inside_quest) return (FALSE);
@@ -244,7 +245,7 @@ bool quest_random_gen_hook(char *fmt)
 	by0 = get_next_arg(fmt);
 	bx0 = get_next_arg(fmt);
 
-	if (!(d_info[dungeon_type].flags1 & DF1_PRINCIPAL)) return (FALSE);
+	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
 	if (p_ptr->inside_quest) return (FALSE);

@@ -50,7 +50,7 @@
 # Here you will find ego monster types like 'Spectral','Skeleton','Archer' etc.
 
 # File: s_info.txt
-# This file is used to initialize the "skills" information for the PernAngband game.
+# This file is used to initialize the "skills" information for the ToME game.
 # Here you will find player & monster skills, 8you can use their IDs in other files(?),
 # You will find skills like 'Bearform-combat' , 'Necromancy' , 'Spell-power' etc.
 
@@ -80,7 +80,7 @@
 # File: tr_info.txt
 # This file comes from Angband64 written by Jurriaan Kalkman
 # and describes the traps items can have
-# You will find traps like 'Summon Fast Quylthulgs Trap' , 'Wisdom Trap' , 'Trap of Tanker Drain' etc.
+# You will find traps like 'Summon Fast Quylthulgs Trap' , 'Wisdom Trap' etc.
 
 # File: v_info.txt
 # This file is used to initialize the "vault template" information for the Angband game.

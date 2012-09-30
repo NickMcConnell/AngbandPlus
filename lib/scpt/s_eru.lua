@@ -13,16 +13,21 @@ ERU_SEE = add_spell
         ["stat"] =      A_WIS,
         -- Unnafected by blindness
         ["blind"] =     FALSE,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
-                        set_tim_invis(randint(20) + 10 + get_level(ERU_SEE, 100))
+                        local obvious
+                        obvious = set_tim_invis(randint(20) + 10 + get_level(ERU_SEE, 100))
                         if get_level(ERU_SEE) >= 30 then
                         	wiz_lite_extra()
+                                obvious = TRUE
                         elseif get_level(ERU_SEE) >= 10 then
                         	map_area()
+                                obvious = TRUE
                         end
                         if get_level(ERU_SEE) >= 20 then
-	                        set_blind(0)
+	                        obvious = is_obvious(set_blind(0), obvious)
                         end
+                        return obvious
 	end,
 	["info"] = 	function()
 			return "dur "..(10 + get_level(ERU_SEE, 100)).."+d20"
@@ -43,18 +48,21 @@ ERU_LISTEN = add_spell
         ["level"] = 	7,
         ["mana"] = 	15,
         ["mana_max"] = 	200,
-        ["fail"] = 	20,
+        ["fail"] = 	25,
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
         		if get_level(ERU_LISTEN) >= 30 then
                         	ident_all()
                         	identify_pack()
+                                return TRUE
         		elseif get_level(ERU_LISTEN) >= 14 then
                         	identify_pack()
+                                return TRUE
                         else
-                        	ident_spell()
+                        	return ident_spell()
                         end
 	end,
 	["info"] = 	function()
@@ -75,15 +83,17 @@ ERU_UNDERSTAND = add_spell
         ["level"] = 	30,
         ["mana"] = 	200,
         ["mana_max"] = 	600,
-        ["fail"] = 	20,
+        ["fail"] = 	50,
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
         		if get_level(ERU_UNDERSTAND) >= 10 then
                         	identify_pack_fully()
+                                return TRUE
                         else
-                        	identify_fully()
+                        	return identify_fully()
                         end
 	end,
 	["info"] = 	function()
@@ -103,12 +113,13 @@ ERU_PROT = add_spell
         ["level"] = 	35,
         ["mana"] = 	400,
         ["mana_max"] = 	400,
-        ["fail"] = 	20,
+        ["fail"] = 	80,
         -- Uses piety to cast
         ["piety"] =     TRUE,
         ["stat"] =      A_WIS,
+        ["random"] = 	SKILL_SPIRITUALITY,
         ["spell"] = 	function()
-                        fire_ball(GF_MAKE_GLYPH, 0, 1, 1 + get_level(ERU_PROT, 2, 0))
+                        return fire_ball(GF_MAKE_GLYPH, 0, 1, 1 + get_level(ERU_PROT, 2, 0))
 	end,
 	["info"] = 	function()
 			return "rad "..(1 + get_level(ERU_PROT, 2, 0))

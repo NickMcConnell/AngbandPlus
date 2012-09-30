@@ -113,6 +113,7 @@ static cptr r_info_blow_effect[] =
 	"INSANITY",
 	"HALLU",
 	"PARASITE",
+	"ABOMINATION",
 	NULL
 };
 
@@ -208,7 +209,7 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"DRAGONRIDER",
+	"THUNDERLORD",
 	"GOOD",
 	"AURA_COLD", /* TODO: Implement aura_cold */
 	"NONLIVING",
@@ -332,7 +333,7 @@ static cptr r_info_flags6[] =
 	"ANIM_DEAD", /* ToDo: Implement ANIM_DEAD */
 	"S_BUG",
 	"S_RNG",
-	"S_DRAGONRIDER",  /* DG : Summon DragonRider */
+	"S_THUNDERLORD",  /* DG : Summon Thunderlord */
 	"S_KIN",
 	"S_HI_DEMON",
 	"S_MONSTER",
@@ -376,7 +377,7 @@ static cptr r_info_flags7[] =
 	"DROP_RANDART",
 	"AI_PLAYER",
 	"NO_THEFT",
-	"XXX7X19",
+	"SPIRIT",
 	"XXX7X20",
 	"XXX7X21",
 	"XXX7X22",
@@ -409,7 +410,7 @@ static cptr r_info_flags8[] =
 	"WILD_GRASS",
 	"NO_CUT",
 	"CTHANGBAND",
-	"PERNANGBAND",
+	"XXX8X13",
 	"ZANGBAND",
 	"JOKEANGBAND",
 	"BASEANGBAND",
@@ -685,9 +686,9 @@ cptr k_info_flags5[] =
 	"IMMOVABLE",
         "SPELL_CONTAIN",
 	"RES_MORGUL",
-	"XXX8X02",
-	"XXX8X02",
-	"XXX8X02",
+	"ACTIVATE_NO_WIELD",
+	"MAGIC_BREATH",
+	"WATER_BREATH",
 	"XXX8X02",
 	"XXX8X17",
 	"XXX8X18",
@@ -719,7 +720,7 @@ cptr esp_flags[] =
 	"ESP_UNDEAD",
 	"ESP_EVIL",
 	"ESP_ANIMAL",
-	"ESP_DRAGONRIDER",
+	"ESP_THUNDERLORD",
 	"ESP_GOOD",
 	"ESP_NONLIVING",
 	"ESP_UNIQUE",
@@ -865,18 +866,18 @@ static cptr d_info_flags2[] =
 {
 	"ADJUST_LEVEL_1_2",
 	"NO_SHAFT",
-	"XXX1",
-	"XXX1",
-	"XXX1",
-	"XXX1",
-	"XXX1",
-	"XXX1",
-	"XXX1",
-	"XXX1",
-	"XXX1",
-	"XXX1",
-	"XXX1",
-	"XXX1",
+	"ADJUST_LEVEL_PLAYER",
+	"NO_TELEPORT",
+	"ASK_LEAVE",
+	"NO_STAIR",
+	"SPECIAL",
+	"NO_NEW_MONSTER",
+	"DESC",
+	"NO_GENO",
+	"NO_BREATH",
+	"WATER_BREATH",
+	"ELVEN",
+	"DWARVEN",
 	"XXX1",
 	"XXX1",
 	"XXX1",
@@ -1022,7 +1023,7 @@ static cptr st_info_flags1[] =
  */
 cptr rp_info_flags1[] =
 {
-	"TP",
+	"XXX",
 	"PASS_TREE",
 	"RESIST_BLACK_BREATH",
 	"NO_STUN",
@@ -1100,8 +1101,8 @@ cptr rp_info_flags2[] =
 static cptr s_info_flags1[] =
 {
         "HIDDEN",
-        "XXX1",
-	"XXX1",
+        "AUTO_HIDE",
+        "RANDOM_GAIN",
 	"XXX1",
 	"XXX1",
 	"XXX1",
@@ -1180,6 +1181,231 @@ static struct
 	{NULL, 0}
 };
 
+/* Essence names for al_info.txt */
+static const char *essence_names[]={
+	"No name here", /* can't be matched, sscanf stops at spaces */
+	"POISON",
+	"EXPLOSION",
+	"TELEPORT",
+	"COLD",
+	"FIRE",
+	"ACID",
+	"LIFE",
+	"CONFUSION",
+	"LITE",
+	"CHAOS",
+	"TIME",
+	"MAGIC",
+	"EXTRALIFE",
+	"DARKNESS",
+	"KNOWLEDGE",
+	"FORCE",
+	"LIGHTNING",
+	"MANA",
+	""
+};
+static const char *activation_names[]={
+	"NO_ACTIVATION",       /*  0 */
+	"SUNLIGHT",            /*  1 */
+	"BO_MISS_1",           /*  2 */
+	"BA_POIS_1",           /*   3*/
+	"BO_ELEC_1",           /*   4*/
+	"BO_ACID_1",           /*   5*/
+	"BO_COLD_1",           /*   6*/
+	"BO_FIRE_1",           /*   7*/
+	"BA_COLD_1",           /*   8*/
+	"BA_FIRE_1",           /*   9*/
+	"DRAIN_1",             /*  10*/
+	"BA_COLD_2",           /*  11*/
+	"BA_ELEC_2",           /*  12*/
+	"DRAIN_2",             /*  13*/
+	"VAMPIRE_1",           /*  14*/
+	"BO_MISS_2",           /*  15*/
+	"BA_FIRE_2",           /*  16*/
+	"BA_COLD_3",           /*  17*/
+	"BA_ELEC_3",           /*  18*/
+	"WHIRLWIND",           /*  19*/
+	"VAMPIRE_2",           /*  20*/
+	"CALL_CHAOS",          /*  21*/
+	"ROCKET",              /*  22*/
+	"DISP_EVIL",           /*  23*/
+	"BA_MISS_3",           /*  24*/
+	"DISP_GOOD",           /*  25*/
+	"GILGALAD",            /*  26*/
+	"CELEBRIMBOR",         /*  27*/
+	"SKULLCLEAVER",        /*  28*/
+	"HARADRIM",            /*  29*/
+	"FUNDIN",              /*  30*/
+	"EOL",                 /*  31*/
+	"UMBAR",               /*  32*/
+	"NUMENOR",             /*  33*/
+	"KNOWLEDGE",           /*  34*/
+	"UNDEATH",             /*  35*/
+	"THRAIN",              /*  36*/
+	"BARAHIR",             /*  37*/
+	"TULKAS",              /*  38*/
+	"NARYA",               /*  39*/
+	"NENYA",               /*  40*/
+	"VILYA",               /*  41*/
+	"POWER",               /*  42*/
+	"STONE_LORE",          /*  43*/
+	"RAZORBACK",           /*  44*/
+	"BLADETURNER",         /*  45*/
+	"MEDIATOR",            /*  46*/
+	"BELEGENNON",          /*  47*/
+	"GORLIM",              /*  48*/
+	"COLLUIN",             /*  49*/
+	"BELANGIL",            /*  50*/
+	"CONFUSE",             /*  51*/
+	"SLEEP",               /*  52*/
+	"QUAKE",               /*  53*/
+	"TERROR",              /*  54*/
+	"TELE_AWAY",           /*  55*/
+	"BANISH_EVIL",         /*  56*/
+	"GENOCIDE",            /*  57*/
+	"MASS_GENO",           /*  58*/
+	"ANGUIREL",            /*  59*/
+	"ERU",                 /*  60*/
+	"DAWN",                /*  61*/
+	"FIRESTAR",            /*  62*/
+	"TURMIL",              /*  63*/
+	"CUBRAGOL",            /*  64*/
+	"CHARM_ANIMAL",        /*  65*/
+	"CHARM_UNDEAD",        /*  66*/
+	"CHARM_OTHER",         /*  67*/
+	"CHARM_ANIMALS",       /*  68*/
+	"CHARM_OTHERS",        /*  69*/
+	"SUMMON_ANIMAL",       /*  70*/
+	"SUMMON_PHANTOM",      /*  71*/
+	"SUMMON_ELEMENTAL",    /*  72*/
+	"SUMMON_DEMON",        /*  73*/
+	"SUMMON_UNDEAD",       /*  74*/
+	"ELESSAR",             /*  75*/
+	"GANDALF",             /*  76*/
+	"MARDA",               /*  77*/
+	"PALANTIR",            /*  78*/
+	"MAGLOR",              /*  79*/
+	"SKY",                 /*  80*/
+	"CURE_LW",             /*  81*/
+	"CURE_MW",             /*  82*/
+	"CURE_POISON",         /*  83*/
+	"REST_LIFE",           /*  84*/
+	"REST_ALL",            /*  85*/
+	"CURE_700",            /*  86*/
+	"CURE_1000",           /*  87*/
+	"DAERON",              /*  88*/
+	"EREBOR",              /*  89*/
+	"DRUEDAIN",            /*  90*/
+	"ESP",                 /*  91*/
+	"BERSERK",             /*  92*/
+	"PROT_EVIL",           /*  93*/
+	"RESIST_ALL",          /*  94*/
+	"SPEED",               /*  95*/
+	"XTRA_SPEED",          /*  96*/
+	"WRAITH",              /*  97*/
+	"INVULN",              /*  98*/
+	"ROHAN",               /*  99*/
+	"HELM",                /*  100*/
+	"BOROMIR",             /*  101*/
+	"HURIN",               /*  102*/
+	"AXE_GOTHMOG",         /*  103*/
+	"MELKOR",              /*  104*/
+	"GROND",               /*  105*/
+	"NATUREBANE",          /*  106*/
+	"NIGHT",               /*  107*/
+	"ORCHAST",             /*  108*/
+	"XXX109", "XXX110",
+	"LIGHT",               /*  111*/
+	"MAP_LIGHT",           /*  112*/
+	"DETECT_ALL",          /*  113*/
+	"DETECT_XTRA",         /*  114*/
+	"ID_FULL",             /*  115*/
+	"ID_PLAIN",            /*  116*/
+	"RUNE_EXPLO",          /*  117*/
+	"RUNE_PROT",           /*  118*/
+	"SATIATE",             /*  119*/
+	"DEST_DOOR",           /*  120*/
+	"STONE_MUD",           /*  121*/
+	"RECHARGE",            /*  122*/
+	"ALCHEMY",             /*  123*/
+	"DIM_DOOR",            /*  124*/
+	"TELEPORT",            /*  125*/
+	"RECALL",              /*  126*/
+	"DEATH",               /*  127*/
+	"RUINATION",           /*  128*/
+	"DESTRUC",             /*  129*/
+	"UNINT",               /*  130*/
+	"UNSTR",               /*  131*/
+	"UNCON",               /*  132*/
+	"UNCHR",               /*  133*/
+	"UNDEX",               /*  134*/
+	"UNWIS",               /*  135*/
+	"STATLOSS",            /*  136*/
+	"HISTATLOSS",          /*  137*/
+	"EXPLOSS",             /*  138*/
+	"HIEXPLOSS",           /*  139*/
+	"SUMMON_MONST",        /*  140*/
+	"PARALYZE",            /*  141*/
+	"HALLU",               /*  142*/
+	"POISON",              /*  143*/
+	"HUNGER",              /*  144*/
+	"STUN",                /*  145*/
+	"CUTS",                /*  146*/
+	"PARANO",              /*  147*/
+	"CONFUSION",           /*  148*/
+	"BLIND",               /*  149*/
+	"PET_SUMMON",          /*  150*/
+	"CURE_PARA",           /*  151*/
+	"CURE_HALLU",          /*  152*/
+	"CURE_POIS",           /*  153*/
+	"CURE_HUNGER",         /*  154*/
+	"CURE_STUN",           /*  155*/
+	"CURE_CUTS",           /*  156*/
+	"CURE_FEAR",           /*  157*/
+	"CURE_CONF",           /*  158*/
+	"CURE_BLIND",          /*  159*/
+	"CURING",              /*  160*/
+	"DARKNESS",            /*  161*/
+	"LEV_TELE",            /*  162*/
+	"ACQUIREMENT",         /*  163*/
+	"WEIRD",               /*  164*/
+	"AGGRAVATE",           /*  165*/
+	"MUT",                 /*  166*/
+	"CURE_INSANITY",       /*  167*/
+	"CURE_MUT",            /*  168*/
+	"LIGHT_ABSORBTION",    /*  169*/
+	"BA_FIRE_3",           /*  170*/
+	"BA_COLD_3",           /*  171*/         
+	"BA_ELEC_3",           /*  172*/         
+	"BA_ACID_3",           /*  173*/         
+	"SPIN",                /*  174*/    
+	"NOLDOR",              /*  175*/      
+	"SPECTRAL",            /*  176*/        
+	"JUMP",                /*  177*/    
+	"DEST_TELE",           /*  178*/         
+	"BA_POIS_4",           /*  179*/          
+	"BA_COLD_4",           /*  180*/          
+	"BA_FIRE_4",           /*  181*/          
+	"BA_ACID_4",           /*  182*/         
+	"BA_ELEC_4",           /*  183*/         
+	"BR_ELEC",             /*  184*/       
+	"BR_COLD",             /*  185*/       
+	"BR_FIRE",             /*  186*/       
+	"BR_ACID",             /*  187*/       
+	"BR_POIS",             /*  188*/       
+	"BR_MANY",             /*  189*/       
+	"BR_CONF",             /*  190*/       
+	"BR_SOUND",            /*  191*/        
+	"BR_CHAOS",            /*  192*/        
+	"BR_SHARD",            /*  193*/        
+	"BR_BALANCE",          /*  194*/          
+	"BR_LIGHT",            /*  195*/        
+	"BR_POWER",            /*  196*/        
+	"GROW_MOLD",           /*  197*/
+	"XXX198", "XXX199",
+	"MUSIC",               /*  200*/
+	""                            
+};                                
 
 /*
  * Convert a "color letter" into an "actual" color
@@ -1210,6 +1436,29 @@ int color_char_to_attr(char c)
 
 	return (-1);
 }
+
+/*
+ * Attr value-to-char convertion table
+ */
+byte conv_color[16] =
+{
+	'd',
+	'w',
+	's',
+	'o',
+	'r',
+	'g',
+	'b',
+	'u',
+	'D',
+	'W',
+	'v',
+	'y',
+	'R',
+	'G',
+	'B',
+	'U',
+};
 
 
 /* Values in re_info can be fixed, added, substracted or percented */
@@ -1358,6 +1607,18 @@ static errr grab_one_player_race_flag(s32b *f1, s32b *f2, cptr what)
 
 	/* Error */
 	return (1);
+}
+
+/* Get an activation number (good for artifacts, recipes, egos, and object kinds) */
+int get_activation(char *activation)
+{
+	int i;
+	for( i = 0 ; activation_names[i][0] ; i++)
+		if(!strncmp(activation_names[i],activation,19))
+		{
+			return i;
+		}
+	return -1;
 }
 
 /*
@@ -2068,6 +2329,26 @@ errr init_player_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
+
+		/* Process 'k' for "skills" */
+		if ((buf[0] == 'S') && (buf[2] == 'k'))
+		{
+			long val, mod, i;
+			char name[200], v, m;
+
+			/* Scan for the values */
+			if (5 != sscanf(buf+4, "%c%ld:%c%ld:%s",
+				&v, &val, &m, &mod, name)) return (1);
+
+			if ((i = find_skill(name)) == -1) return (1);
+			rmp_ptr->skill_basem[i] = monster_ego_modify(v);
+			rmp_ptr->skill_base[i] = val;
+			rmp_ptr->skill_modm[i] = monster_ego_modify(m);
+			rmp_ptr->skill_mod[i] = mod;
+
+			/* Next... */
+			continue;
+                }
 
 		/* Process 'K' for "sKills" */
 		if ((buf[0] == 'S') && (buf[2] == 'K'))
@@ -3532,7 +3813,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 /*
  * Grab one flag in an object_kind from a textual string
  */
-static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
+static errr grab_one_kind_flag(object_kind *k_ptr, cptr what, bool obvious)
 {
 	int i;
 
@@ -3540,8 +3821,11 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 	for (i = 0; i < 32; i++)
 	{
 		if (streq(what, k_info_flags1[i]))
-		{
-			k_ptr->flags1 |= (1L << i);
+                {
+                        if (obvious)
+                                k_ptr->oflags1 |= (1L << i);
+                        else
+                                k_ptr->flags1 |= (1L << i);
 			return (0);
 		}
 	}
@@ -3551,7 +3835,10 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 	{
 		if (streq(what, k_info_flags2[i]))
 		{
-			k_ptr->flags2 |= (1L << i);
+                        if (obvious)
+                                k_ptr->oflags2 |= (1L << i);
+                        else
+                                k_ptr->flags2 |= (1L << i);
 			return (0);
 		}
 	}
@@ -3561,7 +3848,10 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 	{
 		if (streq(what, k_info_flags2_trap[i]))
 		{
-			k_ptr->flags2 |= (1L << i);
+                        if (obvious)
+                                k_ptr->oflags2 |= (1L << i);
+                        else
+                                k_ptr->flags2 |= (1L << i);
 			return (0);
 		}
 	}
@@ -3571,7 +3861,10 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 	{
 		if (streq(what, k_info_flags3[i]))
 		{
-			k_ptr->flags3 |= (1L << i);
+                        if (obvious)
+                                k_ptr->oflags3 |= (1L << i);
+                        else
+                                k_ptr->flags3 |= (1L << i);
 			return (0);
 		}
 	}
@@ -3581,7 +3874,10 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 	{
 		if (streq(what, k_info_flags4[i]))
 		{
-			k_ptr->flags4 |= (1L << i);
+                        if (obvious)
+                                k_ptr->oflags4 |= (1L << i);
+                        else
+                                k_ptr->flags4 |= (1L << i);
 			return (0);
 		}
 	}
@@ -3591,7 +3887,10 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 	{
 		if (streq(what, k_info_flags5[i]))
 		{
-			k_ptr->flags5 |= (1L << i);
+                        if (obvious)
+                                k_ptr->oflags5 |= (1L << i);
+                        else
+                                k_ptr->flags5 |= (1L << i);
 			return (0);
 		}
 	}
@@ -3601,7 +3900,10 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 	{
 		if (streq(what, esp_flags[i]))
 		{
-			k_ptr->esp |= (1L << i);
+                        if (obvious)
+                                k_ptr->oesp |= (1L << i);
+                        else
+                                k_ptr->esp |= (1L << i);
 			return (0);
 		}
 	}
@@ -3750,10 +4052,20 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			if (k_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
 
 			/* Advance and Save the text index */
-			if (!k_ptr->text) k_ptr->text = ++k_head->text_size;
+                        if (!k_ptr->text) k_ptr->text = ++k_head->text_size;
+
+                        /* Append a space if needed */
+                        else if (k_text[k_head->text_size - 1] != ' ')
+                        {
+                                /* Append chars to the name */
+                                strcpy(k_text + k_head->text_size, " ");
+
+                                /* Advance the index */
+                                k_head->text_size += 1;
+                        }
 
 			/* Append chars to the name */
-			strcpy(k_text + k_head->text_size, s);
+                        strcpy(k_text + k_head->text_size, s);
 
 			/* Advance the index */
 			k_head->text_size += strlen(s);
@@ -3798,10 +4110,22 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
 				&tval, &sval, &pval, &pval2))
-			{
-				if (3 != sscanf(buf+2, "%d:%d:%d",
-					&tval, &sval, &pval))
-					return (1);
+                        {
+                                char spl[70];
+
+                                if (4 != sscanf(buf+2, "%d:%d:%d:SPELL=%s",
+                                                &tval, &sval, &pval, spl))
+                                {
+                                        if (3 != sscanf(buf+2, "%d:%d:%d",
+                                                        &tval, &sval, &pval))
+                                                return (1);
+                                }
+                                else
+                                {
+                                        char *spl = strchr(buf + 2, '=') + 1;
+
+                                        pval2 = find_spell(spl);
+                                }
 			}
 
 			/* Save the values */
@@ -3868,6 +4192,26 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			if (i == power_max) return (6);
 
 			k_ptr->power = i;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'a' for Activation */
+		if( buf[0] == 'a')
+                {
+                        if (prefix(buf + 2, "HARDCORE="))
+                        {
+                                k_ptr->activate = get_activation(buf + 11);
+                                if(k_ptr->activate == -1)
+                                        return 1;
+                        }
+                        else if (prefix(buf + 2, "SPELL="))
+                        {
+                                k_ptr->activate = -find_spell(buf + 8);
+                                if(k_ptr->activate == -(-1))
+                                        return 1;
+                        }
 
 			/* Next... */
 			continue;
@@ -3942,7 +4286,34 @@ errr init_k_info_txt(FILE *fp, char *buf)
 				}
 
 				/* Parse this entry */
-				if (0 != grab_one_kind_flag(k_ptr, s)) return (5);
+				if (0 != grab_one_kind_flag(k_ptr, s, FALSE)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'f' for obvious flags */
+		if (buf[0] == 'f')
+		{
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_kind_flag(k_ptr, s, TRUE)) return (5);
 
 				/* Start the next entry */
 				s = t;
@@ -3971,11 +4342,9 @@ errr init_k_info_txt(FILE *fp, char *buf)
 	return (0);
 }
 
+/*Get a kind flag, return flag*32+bit number or -1 for unknown*/
 
-/*
- * Grab one flag in an artifact_type from a textual string
- */
-static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
+int get_k_flag(char *what)
 {
 	int i;
 
@@ -3983,8 +4352,406 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 	for (i = 0; i < 32; i++)
 	{
 		if (streq(what, k_info_flags1[i]))
+			return i;
+		if (streq(what, k_info_flags2[i]))
+			return 1*32+i;
+		if (streq(what, k_info_flags2_trap[i]))
+			return 1*32+i;
+		if (streq(what, k_info_flags3[i]))
+			return 2*32+i;
+		if (streq(what, k_info_flags4[i]))
+			return 3*32+i;
+		if (streq(what, k_info_flags5[i]))
+			return 4*32+i;
+		if (streq(what, esp_flags[i]))
+			return 5*32+i;
+	}
+
+	/* Oops */
+	msg_format("Unknown object flag '%s'.", what);
+
+	/* Error */
+	return (-1);
+
+}
+
+int get_r_flag(char *what)
+{
+	int i;
+
+	/* Check flags */
+	/* this processes all r_info_flag arrays in parallel.
+	   Seemed like a good idea at the time..
+	*/
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags1[i])) 
+			return      i;
+		if (streq(what, r_info_flags2[i])) 
+			return 1*32+i;
+		if (streq(what, r_info_flags3[i])) 
+			return 2*32+i;
+		if (streq(what, r_info_flags4[i])) 
+			return 3*32+i;
+		if (streq(what, r_info_flags5[i])) 
+			return 4*32+i;
+		if (streq(what, r_info_flags6[i])) 
+			return 5*32+i;
+		if (streq(what, r_info_flags7[i])) 
+			return 6*32+i;
+		if (streq(what, r_info_flags8[i])) 
+			return 7*32+i;
+		if (streq(what, r_info_flags9[i])) 
+			return 8*32+i;
+	}
+
+	/* Oops */
+	msg_format("Unknown race flag '%s'.", what);
+
+	/* Error */
+	return (-1);
+}
+int init_al_info_essence(char *essence)
+{
+	int i;
+	for( i = 0 ; essence_names[i][0] ; i++)
+		if(!strncmp(essence_names[i],essence,9))
 		{
-			a_ptr->flags1 |= (1L << i);
+			return i;
+		}
+	return -1;
+}
+/*
+ * Initialize the "al_info" array, by parsing an ascii "template" file
+ */
+errr init_al_info_txt(FILE *fp, char *buf)
+{
+	int al_idx=0,a_idx=0;
+	char *s,*t;
+	struct artifact_select_flag *a_ptr=NULL;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+	/* Fun! */
+	al_head->name_size = 0;
+	*al_name = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+#ifdef VERIFY_VERSION_STAMP
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != al_head->v_major) ||
+			    (v2 != al_head->v_minor) ||
+			    (v3 != al_head->v_patch))
+			{
+				return (2);
+			}
+
+#else /* VERIFY_VERSION_STAMP */
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) return (2);
+
+#endif /* VERIFY_VERSION_STAMP */
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (2);
+
+		/* Process 'I' for "Info" (one line only) */
+		if (buf[0] == 'I')
+		{
+			int tval, sval, qty;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+				&tval, &sval, &qty))
+			{
+					return (1);
+			}
+
+			/* ignore everything after the first space. */
+			s = strchr(buf,' ');
+			if(s!=NULL)
+				*s = 0;
+
+			/* Save the values */
+			alchemist_recipes[al_idx].tval = tval;
+			alchemist_recipes[al_idx].sval = sval;
+			alchemist_recipes[al_idx].qty  = qty;
+			alchemist_recipes[al_idx].sval_essence = init_al_info_essence(strrchr(buf,':')+1);
+			if(alchemist_recipes[al_idx].sval_essence < 0)
+				return 5;
+
+			al_idx++;
+			if(al_idx >= max_al_idx)
+				return 7;
+			/* Next... */
+			continue;
+		}
+		if (buf[0] == 'a')
+		{
+			int qty;
+			if( 1 != sscanf(buf+2, "%d",&qty))
+			{
+				return (1);
+			}
+			s = strrchr(buf,':');
+			*(s++) = 0;
+			t = strchr(s,' ');
+			*(t++) = 0;
+			alchemist_recipes[al_idx].tval = 0;
+			alchemist_recipes[al_idx].sval = get_k_flag(s);
+			alchemist_recipes[al_idx].qty  = qty;
+			alchemist_recipes[al_idx].sval_essence = init_al_info_essence(t);
+			if(alchemist_recipes[al_idx].sval_essence < 0)
+				return 1;
+
+			al_idx++;
+			if(al_idx >= max_al_idx)
+				return 7; /* 7 is an 'out of memory' error */
+
+			continue;
+		}
+		if (buf[0] == 'A')
+		{
+			int group,level,pval,rtval,rsval,rpval;
+			long xp;
+			/*Verify that complete description information is
+			  Recorded for previous Artifact flag
+			*/
+			if(a_ptr 
+			&& (!a_ptr->group || !a_ptr->desc || !a_ptr->item_desc != !a_ptr->rtval)
+			)
+				return (1);
+				
+			a_ptr = &a_select_flags[a_idx++];
+
+			if( 7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%ld",
+				&group,&rtval,&rsval,&rpval,&pval,&level,&xp))
+				return (1);
+			a_ptr->group = group;
+			a_ptr->rtval = rtval;
+			a_ptr->rsval = rsval;
+			a_ptr->rpval = rpval;
+			a_ptr->pval  = pval;
+			a_ptr->level = level;
+			a_ptr->xp    = xp;
+			continue;
+		}
+		
+		/*Anything else here MUST be a artifact flag line*/
+		if( !a_ptr)
+			return (3);
+
+		if (buf[0] == 'F')
+		{
+			/* Get the Item flag associated with this */
+			a_ptr->flag = get_k_flag(buf+2);
+			if(a_ptr->flag == -1)
+				return (1);
+			continue;
+		}
+		if (buf[0] == 'x')
+		{
+			/* Get the activation name associated with this */
+			a_ptr->flag = -get_activation(buf+2);
+			if(a_ptr->flag == 1)
+				return (1);
+			a_ptr->group = 88;
+			a_ptr->pval = 0;
+			continue;
+		}
+		/* Get the race flags associated with this */
+		if (buf[0] == 'f')
+		{
+			char *s, *t;
+			int idx=0;
+
+			if( a_ptr->rflag[0] )
+			{
+				msg_print("duplicate f: entries for one corpse");
+				return (5);
+			}
+
+			if( a_ptr->rtval != TV_CORPSE )
+			{
+				msg_print("f: section for corpse flags only");
+				return (5);
+			}
+			if( a_ptr->rpval )
+			{
+				msg_print("Can't specify r_info.txt index with f: section");
+				return (5);
+			}
+			
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while ((*t == ' ') || (*t == '|')) t++;
+				}
+
+				if( idx > 5 )
+				{
+					msg_print("Limit on race flags is currently 6");
+					return (5);
+				}
+
+				/* Parse this entry */
+				a_ptr->rflag[idx] = get_r_flag(s);
+				if (a_ptr->rflag[idx++] == -1)
+					return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'p' for "Plural Description" */
+		/* Only valid for flag which depend on pval */
+		if (buf[0] == 'p')
+		{
+			/* Reject if doesn't depend on pval */
+
+			if(!a_ptr->pval)
+				return (1);
+
+			/* Acquire the description */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+			if (al_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+
+			/* Advance and Save the name index */
+			a_ptr->item_descp = ++al_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(al_name + al_head->name_size, s);
+
+			/* Advance the index */
+			al_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Acquire the description */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+			if (al_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+
+			/* Advance and Save the name index */
+			a_ptr->desc = ++al_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(al_name + al_head->name_size, s);
+
+			/* Advance the index */
+			al_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'd' for "Item Description" */
+		if (buf[0] == 'd')
+		{
+			/* Acquire the name */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+			if (al_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+
+			if (a_ptr->item_desc) 
+				return (7);
+
+			/* Advance and Save the name index */
+			a_ptr->item_desc = ++al_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(al_name + al_head->name_size, s);
+
+			/* Advance the index */
+			al_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Oops */
+		return (6);
+	}
+
+	/* No version yet */
+	if (!okay) return (2);
+
+	/* Hack - set the al_head->text_size to byte size of array */
+	al_head->text_size = (a_idx+1) * sizeof(artifact_select_flag);
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Grab one flag in an artifact_type from a textual string
+ */
+static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what, bool obvious)
+{
+	int i;
+
+	/* Check flags1 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags1[i]))
+                {
+                        if (obvious)
+                                a_ptr->oflags1 |= (1L << i);
+                        else
+                                a_ptr->flags1 |= (1L << i);
 			return (0);
 		}
 	}
@@ -3994,7 +4761,10 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 	{
 		if (streq(what, k_info_flags2[i]))
 		{
-			a_ptr->flags2 |= (1L << i);
+                        if (obvious)
+                                a_ptr->oflags2 |= (1L << i);
+                        else
+                                a_ptr->flags2 |= (1L << i);
 			return (0);
 		}
 	}
@@ -4004,7 +4774,10 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 	{
 		if (streq(what, k_info_flags2_trap[i]))
 		{
-			a_ptr->flags2 |= (1L << i);
+                        if (obvious)
+                                a_ptr->oflags2 |= (1L << i);
+                        else
+                                a_ptr->flags2 |= (1L << i);
 			return (0);
 		}
 	}
@@ -4014,7 +4787,10 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 	{
 		if (streq(what, k_info_flags3[i]))
 		{
-			a_ptr->flags3 |= (1L << i);
+                        if (obvious)
+                                a_ptr->oflags3 |= (1L << i);
+                        else
+                                a_ptr->flags3 |= (1L << i);
 			return (0);
 		}
 	}
@@ -4024,7 +4800,10 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 	{
 		if (streq(what, k_info_flags4[i]))
 		{
-			a_ptr->flags4 |= (1L << i);
+                        if (obvious)
+                                a_ptr->oflags4 |= (1L << i);
+                        else
+                                a_ptr->flags4 |= (1L << i);
 			return (0);
 		}
 	}
@@ -4034,7 +4813,10 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 	{
 		if (streq(what, k_info_flags5[i]))
 		{
-			a_ptr->flags5 |= (1L << i);
+                        if (obvious)
+                                a_ptr->oflags5 |= (1L << i);
+                        else
+                                a_ptr->flags5 |= (1L << i);
 			return (0);
 		}
 	}
@@ -4044,7 +4826,10 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 	{
 		if (streq(what, esp_flags[i]))
 		{
-			a_ptr->esp |= (1L << i);
+                        if (obvious)
+                                a_ptr->oesp |= (1L << i);
+                        else
+                                a_ptr->esp |= (1L << i);
 			return (0);
 		}
 	}
@@ -4181,6 +4966,13 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			a_ptr->esp = 0;
 			a_ptr->power = -1;
 
+			/*Require activating artifacts to have a activation type */
+			if(a_ptr && a_ptr->flags3 & TR3_ACTIVATE && !a_ptr->activate)
+			{
+				msg_print("Activate flag without activate type");
+				return 1;
+			}
+
 			/* Next... */
 			continue;
 		}
@@ -4313,11 +5105,58 @@ errr init_a_info_txt(FILE *fp, char *buf)
 				}
 
 				/* Parse this entry */
-				if (0 != grab_one_artifact_flag(a_ptr, s)) return (5);
+				if (0 != grab_one_artifact_flag(a_ptr, s, FALSE)) return (5);
 
 				/* Start the next entry */
 				s = t;
 			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'f' for obvious flags */
+		if (buf[0] == 'f')
+		{
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_artifact_flag(a_ptr, s, TRUE)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Read activation type. */
+		if (buf[0] == 'a')
+		{
+                        if (prefix(buf + 2, "HARDCORE="))
+                        {
+                                a_ptr->activate = get_activation(buf + 11);
+                                if(a_ptr->activate == -1)
+                                        return 1;
+                        }
+                        else if (prefix(buf + 2, "SPELL="))
+                        {
+                                a_ptr->activate = -find_spell(buf + 8);
+                                if(a_ptr->activate == -(-1))
+                                        return 1;
+                        }
 
 			/* Next... */
 			continue;
@@ -4960,7 +5799,7 @@ errr init_s_info_txt(FILE *fp, char *buf)
 /*
  * Grab one flag in a ego-item_type from a textual string
  */
-static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n)
+static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n, bool obvious)
 {
 	int i;
 
@@ -4968,8 +5807,11 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n)
 	for (i = 0; i < 32; i++)
 	{
 		if (streq(what, k_info_flags1[i]))
-		{
-			e_ptr->flags1[n] |= (1L << i);
+                {
+                        if (obvious)
+                                e_ptr->oflags1[n] |= (1L << i);
+                        else
+                                e_ptr->flags1[n] |= (1L << i);
 			return (0);
 		}
 	}
@@ -4979,7 +5821,10 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n)
 	{
 		if (streq(what, k_info_flags2[i]))
 		{
-			e_ptr->flags2[n] |= (1L << i);
+                        if (obvious)
+                                e_ptr->oflags2[n] |= (1L << i);
+                        else
+                                e_ptr->flags2[n] |= (1L << i);
 			return (0);
 		}
 	}
@@ -4989,7 +5834,10 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n)
 	{
 		if (streq(what, k_info_flags2_trap[i]))
 		{
-			e_ptr->flags2[n] |= (1L << i);
+                        if (obvious)
+                                e_ptr->oflags2[n] |= (1L << i);
+                        else
+                                e_ptr->flags2[n] |= (1L << i);
 			return (0);
 		}
 	}
@@ -4999,7 +5847,10 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n)
 	{
 		if (streq(what, k_info_flags3[i]))
 		{
-			e_ptr->flags3[n] |= (1L << i);
+                        if (obvious)
+                                e_ptr->oflags3[n] |= (1L << i);
+                        else
+                                e_ptr->flags3[n] |= (1L << i);
 			return (0);
 		}
 	}
@@ -5009,7 +5860,10 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n)
 	{
 		if (streq(what, k_info_flags4[i]))
 		{
-			e_ptr->flags4[n] |= (1L << i);
+                        if (obvious)
+                                e_ptr->oflags4[n] |= (1L << i);
+                        else
+                                e_ptr->flags4[n] |= (1L << i);
 			return (0);
 		}
 	}
@@ -5019,7 +5873,10 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n)
 	{
 		if (streq(what, k_info_flags5[i]))
 		{
-			e_ptr->flags5[n] |= (1L << i);
+                        if (obvious)
+                                e_ptr->oflags5[n] |= (1L << i);
+                        else
+                                e_ptr->flags5[n] |= (1L << i);
 			return (0);
 		}
 	}
@@ -5029,7 +5886,10 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n)
 	{
 		if (streq(what, esp_flags[i]))
 		{
-			e_ptr->esp[n] |= (1L << i);
+                        if (obvious)
+                                e_ptr->oesp[n] |= (1L << i);
+                        else
+                                e_ptr->esp[n] |= (1L << i);
 			return (0);
 		}
 	}
@@ -5046,6 +5906,108 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n)
 
 	/* Oops */
 	msg_format("Unknown ego-item flag '%s'.", what);
+
+	/* Error */
+	return (1);
+}
+
+static bool grab_one_ego_item_flag_restrict(ego_item_type *e_ptr, cptr what, bool need)
+{
+	int i;
+
+	/* Check flags1 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags1[i]))
+                {
+                        if (need)
+                                e_ptr->need_flags1 |= (1L << i);
+                        else
+                                e_ptr->forbid_flags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags2 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags2[i]))
+		{
+                        if (need)
+                                e_ptr->need_flags2 |= (1L << i);
+                        else
+                                e_ptr->forbid_flags2 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags2 -- traps */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags2_trap[i]))
+		{
+                        if (need)
+                                e_ptr->need_flags2 |= (1L << i);
+                        else
+                                e_ptr->forbid_flags2 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags3 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags3[i]))
+		{
+                        if (need)
+                                e_ptr->need_flags3 |= (1L << i);
+                        else
+                                e_ptr->forbid_flags3 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+                        if (need)
+                                e_ptr->need_flags4 |= (1L << i);
+                        else
+                                e_ptr->forbid_flags4 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags5 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags5[i]))
+		{
+                        if (need)
+                                e_ptr->need_flags5 |= (1L << i);
+                        else
+                                e_ptr->forbid_flags5 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check esp_flags */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, esp_flags[i]))
+		{
+                        if (need)
+                                e_ptr->need_esp |= (1L << i);
+                        else
+                                e_ptr->forbid_esp |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown ego-item restrict flag '%s'.", what);
 
 	/* Error */
 	return (1);
@@ -5171,7 +6133,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			cur_r = -1;
 			cur_t = 0;
 
-			for (j = 0; j < 6; j++)
+			for (j = 0; j < 10; j++)
 			{
 				e_ptr->tval[j] = 255;
 			}
@@ -5225,6 +6187,8 @@ errr init_e_info_txt(FILE *fp, char *buf)
 		{
 			int tv, minsv, maxsv;
 
+                        if (cur_t == 10) return 1;
+
 			/* Scan for the values */
 			if (3 != sscanf(buf+2, "%d:%d:%d",
 				&tv, &minsv, &maxsv)) return (1);
@@ -5234,7 +6198,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			e_ptr->min_sval[cur_t] = minsv;
 			e_ptr->max_sval[cur_t] = maxsv;
 
-			cur_t++;
+                        cur_t++;
 
 			/* Next... */
 			continue;
@@ -5244,6 +6208,8 @@ errr init_e_info_txt(FILE *fp, char *buf)
 		if (buf[0] == 'R')
 		{
 			int rar;
+
+                        if (cur_r == 5) return 1;
 
 			/* Scan for the values */
 			if (1 != sscanf(buf+2, "%d",
@@ -5337,6 +6303,79 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+                if (buf[0] == 'a')
+ 		{
+                        if (prefix(buf + 2, "HARDCORE="))
+                        {
+                                e_ptr->activate = get_activation(buf + 11);
+                                if(e_ptr->activate == -1)
+                                        return 1;
+                        }
+                        else if (prefix(buf + 2, "SPELL="))
+                        {
+                                e_ptr->activate = -find_spell(buf + 8);
+                                if (e_ptr->activate == -(-1))
+                                        return 1;
+                        }
+  
+  			/* Next... */
+  			continue;
+  		}
+
+                /* Hack -- Process 'r:N' for needed flags */
+		if ((buf[0] == 'r') && (buf[2] == 'N'))
+		{
+			/* Parse every entry textually */
+			for (s = buf + 4; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while ((*t == ' ') || (*t == '|')) t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_ego_item_flag_restrict(e_ptr, s, TRUE)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+                /* Hack -- Process 'r:F' for forbidden flags */
+		if ((buf[0] == 'r') && (buf[2] == 'F'))
+		{
+			/* Parse every entry textually */
+			for (s = buf + 4; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while ((*t == ' ') || (*t == '|')) t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_ego_item_flag_restrict(e_ptr, s, FALSE)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
 		/* Hack -- Process 'F' for flags */
 		if (buf[0] == 'F')
 		{
@@ -5356,7 +6395,36 @@ errr init_e_info_txt(FILE *fp, char *buf)
 				}
 
 				/* Parse this entry */
-				if (0 != grab_one_ego_item_flag(e_ptr, s, cur_r)) return (5);
+				if (0 != grab_one_ego_item_flag(e_ptr, s, cur_r, FALSE)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'f' for obvious flags */
+		if (buf[0] == 'f')
+		{
+			if (cur_r == -1) return (6);
+
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while ((*t == ' ') || (*t == '|')) t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_ego_item_flag(e_ptr, s, cur_r, TRUE)) return (5);
 
 				/* Start the next entry */
 				s = t;
@@ -5639,6 +6707,8 @@ errr init_ra_info_txt(FILE *fp, char *buf)
 		if (buf[0] == 'T')
 		{
 			int tv, minsv, maxsv;
+
+                        if (cur_t == 20) return 1;
 
 			/* Scan for the values */
 			if (3 != sscanf(buf+2, "%d:%d:%d",
@@ -7378,7 +8448,7 @@ errr init_t_info_txt(FILE *fp, char *buf)
 /*
  * Grab one flag for a dungeon type from a textual string
  */
-static errr grab_one_dungeon_flag(dungeon_info_type *d_ptr, cptr what)
+errr grab_one_dungeon_flag(s32b *flags1, s32b *flags2, cptr what)
 {
 	int i;
 
@@ -7387,7 +8457,7 @@ static errr grab_one_dungeon_flag(dungeon_info_type *d_ptr, cptr what)
 	{
 		if (streq(what, d_info_flags1[i]))
 		{
-			d_ptr->flags1 |= (1L << i);
+			*flags1 |= (1L << i);
 			return (0);
 		}
 	}
@@ -7397,7 +8467,7 @@ static errr grab_one_dungeon_flag(dungeon_info_type *d_ptr, cptr what)
 	{
 		if (streq(what, d_info_flags2[i]))
 		{
-			d_ptr->flags2 |= (1L << i);
+			*flags2 |= (1L << i);
 			return (0);
 		}
 	}
@@ -7969,7 +9039,7 @@ errr init_d_info_txt(FILE *fp, char *buf)
 				}
 
 				/* Parse this entry */
-				if (0 != grab_one_dungeon_flag(d_ptr, s)) return (5);
+				if (0 != grab_one_dungeon_flag(&(d_ptr->flags1), &(d_ptr->flags2), s)) return (5);
 
 				/* Start the next entry */
 				s = t;
@@ -9380,7 +10450,35 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalst
 
 			return (0);
 		}
-	}
+        }
+
+        /* Process "f:flags" -- level flags */
+        else if (buf[0] == 'f')
+        {
+                char *s, *t;
+
+		/* Parse every entry textually */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while (*t == ' ' || *t == '|') t++;
+			}
+
+			/* Parse this entry */
+			if (0 != grab_one_dungeon_flag(&dungeon_flags1, &dungeon_flags2, s)) return 1;
+
+			/* Start the next entry */
+			s = t;
+                }
+
+                return 0;
+        }
 
 	/* Process "D:<dungeon>" -- info for the cave grids */
 	else if (buf[0] == 'D')
@@ -9458,7 +10556,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalst
 				 */
 				if (rand_int(100) < 75)
 				{
-					place_object(y, x, FALSE, FALSE);
+					place_object(y, x, FALSE, FALSE, OBJ_FOUND_SPECIAL);
 				}
 				else
 				{
@@ -9476,25 +10574,25 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalst
 
 					object_level = quest[p_ptr->inside_quest].level + object_index;
 					if (rand_int(100) < 75)
-						place_object(y, x, FALSE, FALSE);
+						place_object(y, x, FALSE, FALSE, OBJ_FOUND_SPECIAL);
 					else if (rand_int(100) < 80)
-						place_object(y, x, TRUE, FALSE);
+						place_object(y, x, TRUE, FALSE, OBJ_FOUND_SPECIAL);
 					else
-						place_object(y, x, TRUE, TRUE);
+						place_object(y, x, TRUE, TRUE, OBJ_FOUND_SPECIAL);
 
 					object_level = level;
 				}
 				else if (rand_int(100) < 75)
 				{
-					place_object(y, x, FALSE, FALSE);
+					place_object(y, x, FALSE, FALSE, OBJ_FOUND_SPECIAL);
 				}
 				else if (rand_int(100) < 80)
 				{
-					place_object(y, x, TRUE, FALSE);
+					place_object(y, x, TRUE, FALSE, OBJ_FOUND_SPECIAL);
 				}
 				else
 				{
-					place_object(y, x, TRUE, TRUE);
+					place_object(y, x, TRUE, TRUE, OBJ_FOUND_SPECIAL);
 				}
 			}
 			/* Random trap */
@@ -9754,6 +10852,12 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalst
 			else if (zz[0][0] == 'A')
 			{
 				max_a_idx = atoi(zz[1]); 
+			}
+
+			/* Maximum al_idx */
+			else if (zz[0][0] == 'a')
+			{
+				max_al_idx = atoi(zz[1]); 
 			}
 
 			/* Maximum e_idx */
@@ -10084,6 +11188,13 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 				v = pref_tmp_value;
 			}
 
+			/* Town destroyed */
+			else if (prefix(b+1, "TOWN_DESTROY"))
+                        {                               
+				strnfmt(pref_tmp_value, 8, "%d", town_info[atoi(b + 13)].destroyed);
+				v = pref_tmp_value;
+			}
+
 			/* Current quest number */
 			else if (streq(b+1, "QUEST_NUMBER"))
 			{
@@ -10200,8 +11311,14 @@ errr process_dungeon_file(cptr name, int *yval, int *xval, int ymax, int xmax, b
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, name);
 
+	/* Grab permission */
+	safe_setuid_grab();
+
 	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
 
 	/* No such file */
 	if (!fp)

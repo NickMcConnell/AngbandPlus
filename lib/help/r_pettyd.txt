@@ -1,3 +1,5 @@
+~~~~~01|Petty Dwarf
+~~~~~02|Races|Petty Dwarf
 #####R=== Petty Dwarves ===
 
 #####GDescription
@@ -16,8 +18,4 @@ Constitution    +2
 Charisma        -4       
 Hit Dice Sides  11         
 Exp Penalty     +35%
-
-#####GStarting Equipment
-If they are *very* lucky they may begin with:
-    A helmet of light
 

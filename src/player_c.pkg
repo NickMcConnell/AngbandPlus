@@ -100,6 +100,7 @@ struct skill_type
 	s16b father;                            /* Father in the skill tree */
 	bool dev;                               /* Is the branch developped ? */
 	s16b order;                             /* Order in the tree */
+        bool hidden;                            /* Innactive */
 };
 
 skill_type s_info[max_s_idx];
@@ -160,6 +161,7 @@ skill_type s_info[max_s_idx];
 #define SKILL_LEARN             54
 #define SKILL_UDUN              55
 #define SKILL_DEVICE            56
+#define SKILL_STUN              57
 
 #define SKILL_MAX               50000           /* Maximun skill value */
 #define SKILL_STEP              1000            /* 1 skill point */
@@ -167,6 +169,15 @@ skill_type s_info[max_s_idx];
 extern s16b get_skill(int skill);
 extern s16b get_skill_scale(int skill, u32b scale);
 extern void do_get_new_skill();
+extern s16b get_melee_skills();
+extern s16b find_skill(cptr name);
+extern s16b find_skill_i(cptr name);
 
 $static char *get_class_name() {return spp_ptr->title + c_name;}
 char *get_class_name();
+
+$static char *get_race_name() {return rp_ptr->title + rp_name;}
+char *get_race_name();
+
+$static char *get_subrace_name() {return rmp_ptr->title + rmp_name;}
+char *get_subrace_name();

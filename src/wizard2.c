@@ -240,19 +240,6 @@ static void wiz_create_named_art()
  */
 void do_cmd_wiz_hack_ben(int day)
 {
-	int ii, jj;
-
-	if (!tgt_pt(&ii, &jj)) return;
-
-	if (cave[jj][ii].m_idx)
-	{
-		p_ptr->control = cave[jj][ii].m_idx;
-	}
-	else
-	{
-		p_ptr->control = 0;
-	}
-
 	/* Success */
 	return;
 }
@@ -555,18 +542,9 @@ static void wiz_display_item(object_type *o_ptr)
 
 
 /*
- * A structure to hold a tval and its description
- */
-typedef struct tval_desc2
-{
-	int        tval;
-	cptr       desc;
-} tval_desc2;
-
-/*
  * A list of tvals and their textual names
  */
-static tval_desc2 tvals[] =
+tval_desc2 tvals[] =
 {
 	{ TV_SWORD,             "Sword"                },
 	{ TV_POLEARM,           "Polearm"              },
@@ -590,7 +568,7 @@ static tval_desc2 tvals[] =
 	{ TV_AMULET,            "Amulet"               },
 	{ TV_LITE,              "Lite"                 },
 	{ TV_POTION,            "Potion"               },
-	{ TV_POTION2,           "Potion2"              },
+	{ TV_POTION2,           "Potion"               },
 	{ TV_SCROLL,            "Scroll"               },
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
@@ -1430,12 +1408,12 @@ void do_cmd_wiz_cure_all(void)
 	(void)remove_all_curse();
 
 	/* Restore stats */
-	(void)res_stat(A_STR);
-	(void)res_stat(A_INT);
-	(void)res_stat(A_WIS);
-	(void)res_stat(A_CON);
-	(void)res_stat(A_DEX);
-	(void)res_stat(A_CHR);
+	(void)res_stat(A_STR, TRUE);
+	(void)res_stat(A_INT, TRUE);
+	(void)res_stat(A_WIS, TRUE);
+	(void)res_stat(A_CON, TRUE);
+	(void)res_stat(A_DEX, TRUE);
+	(void)res_stat(A_CHR, TRUE);
 
 	/* Restore the level */
 	(void)restore_level();
@@ -1462,9 +1440,6 @@ void do_cmd_wiz_cure_all(void)
 	/* Restore mana */
 	p_ptr->csp = p_ptr->msp;
 	p_ptr->csp_frac = 0;
-
-	/* Restore tank */
-	p_ptr->ctp = p_ptr->mtp;
 
 	/* Cure stuff */
 	(void)set_blind(0);

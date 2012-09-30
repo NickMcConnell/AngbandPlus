@@ -1,3 +1,6 @@
+|||||oy
+~~~~~01|Alchemist
+~~~~~02|Classes|Alchemist
 #####R=== Alchemists ===
 
 #####GDescription
@@ -24,7 +27,7 @@ Wisdom           +0
 Dexterity        +1
 Constitution     -2
 Charisma         +1
-Bonus Blows      0
+Bonus Blows       0
 Hit Die          +d0
 Exp Penalty      30%
 
@@ -34,32 +37,50 @@ Combat                  1.000           [0.700]
   Weaponmastery         0.700           [0.700]
 Sneakiness              1.000           [0.900]
 Magic                   3.000           [0.900]
-  Divination            0.000           [0.400]
-  Meta                  0.000           [0.400]
-  Mind                  0.000           [0.400]
-  Runecraft             0.000           [0.600]
+  Magic-Device          1.000           [1.250]
+  Fire                  0.000           [0.100]
+  Water                 0.000           [0.100]
+  Air                   0.000           [0.100]
+  Earth                 0.000           [0.100]
+  Temporal              0.000           [0.100]
+  Divination            0.000           [0.500]
+  Conveyance            0.000           [0.100]
+  Nature                0.000           [0.100]
+  Meta                  0.000           [0.500]
+  Mind                  0.000           [0.100]
+  Necromancy            0.000           [0.100]
+  Runecraft             0.000           [0.700]
+  Thaumaturgy           0.000           [0.100]
+  Alchemy               1.000           [0.800]
 Spirituality            1.000           [0.800]
   Prayer                0.000           [0.500]
 Monster-lore            0.000           [0.500]
-Misc                    0.000           [0.000]
-  Alchemy               1.000           [0.800]
 
+#####GStarting Equipment
+An alchemist begins the game with:
+    A small sword
+    Six essences of explosion
+    An empty bottle
+    A set of leather gloves
+~~~~~03|Alchemist|Alchemy powers explained
+~~~~~05|Skills|Alchemy - Alchemy powers
 #####GAlchemy
-[[[[[BThe alchemic techniques are accessed using the 'm' key.]  An
-alchemist may then 'E'xtract power or 'A'dd power. The Alchemist [[[[[vmust]
+[[[[[BThe alchemical techniques are accessed using the 'm' key.]  
+Alchemists may then 'E'xtract power or 'A'dd power. The Alchemist [[[[[vmust]
 be wearing GLOVES to use their alchemy powers.
 
 Alchemist's are also capable of [[[[[Bcreating their own artifacts], but
 this is a time-consuming, though rewarding, activity. To do so, they
-need to imbue a normal (non-ego/non-artifact) item with a number of
-essences of magic (equal to their character level) and then wield the 
-item. While using the item, it will gain experience (which reduces the
-amount of exp the wearer gains during this time). When the alchemist 
-feels that the item is powerful enough,  they can finalise the artifact
-by "buying" powers using the experience the artifact has collected.
+need to imbue an ego item with a number of essences of magic (equal
+to their skill level) and then wield the item. While using the item, 
+it will gain experience (which reduces the amount of exp the wearer 
+gains during this time). When the alchemist feels that the item is 
+powerful enough,  they can finalise the artifact by "buying" powers 
+using the experience the artifact has collected. They will also require 
+exotic ingredients to add the abilities.
 
-Many (but not all) potions, scrolls, wands, staffs, rods, rings, and 
-amulets contain useable magical energies.  An alchemist taps that 
+Most (but not all) potions, scrolls, wands, staffs, rods, rings, and 
+amulets contain usable magical energies.  An alchemist taps that 
 energy, using the technique "'E'xtract power" to create one or more
 essences of a type appropriate to the original object.
 
@@ -67,40 +88,37 @@ The drained object itself is now called "of nothing".  Unlike any
 other kind of object, it can have new magics added to it.
 
 An alchemist can add power to such items by using essences he made 
-or found.  He does this with the technique "'A'dd power".  He
-can then select a kind of essence, then the object he wishes to
-restore magic to.  If he has enough essences, and the object does
-not already have magics in it, the alchemy succeeds.
+or found.  He does this with the technique "'P'ower".  He
+can then select the object he wishes enchant, and the kind of 
+object he wishes to create. Only object types that he knows the 
+recipe for will be displayed, and ones for which essences are 
+lacking will be displayed in red. Objects whose level exceeds his
+own are sometimes difficult to create, though he can always add
+gold to improve the chances of his success.
 
 [[[[[BA few pointers:]
      -Recipes are (usually) logical. Acid essences don't make Dragon 
-      Weapons.
+      Weapons. And you can always look at the recipes you know with
+	  the 'B'ook command.
      -Not all objects or ego-item types can be made using alchemy.
-     -Alchemy is partially reversible.  Anything but weapons and armour 
-      that can be enchanted using essences will also create them 
-      if drained, but extra wand and staff charges have no effect.
+     -Alchemy is mostly reversible.  Most items that you can 
+	  'E'xtract from, you can later re-create, if you learn about
+	  them when extracting from them. You won't always get enough
+	  essences from destroying an item to recreate it, though the 
+	  chance of doing so will get higher as you increase in skill.
+     -*identifying* an object that you can destroy will always teach
+	  you how to create it (if creating it is possible).
+     -Since you can't create abilities in artifacts that you aren't
+	  aware of, make sure to *identify* all the artifacts you can.
+     -You can't *identify* things you buy in shops, so you'll have
+	  to extract from them and take your chances.
 
 [[[[[BSome Recipes:]
-Any alchemist worth his salt knows lots of recipes.  Here are some to 
-get the beginner started, and others may be discovered by trial and 
-error (or read about in the *****essences.txt*0[Essences SPOILER]).
+Any alchemist worth his salt knows lots of recipes.  By extracting from
+items in the dungeon, he learns to create more and more items. You
+can see the recipes you know using the 'B'ook command. The alchemist
+starts off knowing some basic recipes, and gains more recipes as time 
+goes on.
 
-     Essences of Acid:
-          8 essences + any ordinary weapon = acid branding
-          8 essences + Ring of Nothing = Ring of Acid
-          2 essences + Wand of Nothing = Wand of Acid Bolts
-          2 essences + Wand of Acid Bolts = one additional charge
-          5 essences + Rod of Nothing = Rod of Acid Bolts
-          1 essence  + Scroll of Nothing = Scroll of Curse Armour
-          2 essences + Amulet of Nothing = Amulet of Resist Acid
+More details can be found in the *****essences.txt*0[Essences SPOILER]).
 
-#####GStarting Equipment
-An alchemist begins the game with:
-    A small sword
-    An essense of explosion
-    An empty bottle
-    Leather gloves
-If they are *very* lucky they may also begin with:
-    a rod tip of nothing
-
-		

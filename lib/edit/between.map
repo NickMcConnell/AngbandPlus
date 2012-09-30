@@ -16,22 +16,22 @@ F:,:89:3
 # Tree
 F:T:96:3
 
-# Floor with grass with a green dragonrider
+# Floor with grass with a green thunderlord
 F:G:89:5:955
 
-# Floor with grass with a blue dragonrider
+# Floor with grass with a blue thunderlord
 F:L:89:5:956
 
-# Floor with grass with a brown dragonrider
+# Floor with grass with a brown thunderlord
 F:B:89:5:957
 
-# Floor with grass with a bronze dragonrider
+# Floor with grass with a bronze thunderlord
 F:z:89:5:958
 
-# Floor with dirt with a bronze dragonrider
+# Floor with dirt with a bronze thunderlord
 F:Z:88:5:958
 
-# Floor with grass with a gold dragonrider
+# Floor with grass with a gold thunderlord
 F:D:88:5:959
 
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

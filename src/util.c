@@ -915,6 +915,131 @@ static int dehex(char c)
 }
 
 
+static int my_stricmp(cptr a, cptr b)
+{
+	cptr s1, s2;
+	char z1, z2;
+
+	/* Scan the strings */
+	for (s1 = a, s2 = b; TRUE; s1++, s2++)
+	{
+		z1 = FORCEUPPER(*s1);
+		z2 = FORCEUPPER(*s2);
+		if (z1 < z2) return (-1);
+		if (z1 > z2) return (1);
+		if (!z1) return (0);
+	}
+}
+
+static int my_strnicmp(cptr a, cptr b, int n)
+{
+	cptr s1, s2;
+	char z1, z2;
+
+	/* Scan the strings */
+	for (s1 = a, s2 = b; n > 0; s1++, s2++, n--)
+	{
+		z1 = FORCEUPPER(*s1);
+		z2 = FORCEUPPER(*s2);
+		if (z1 < z2) return (-1);
+		if (z1 > z2) return (1);
+		if (!z1) return (0);
+	}
+	return 0;
+}
+
+
+static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
+{
+	char *s = *bufptr;
+	cptr str = *strptr;
+	bool mod_status[MAX_MACRO_MOD];
+
+	int i, len = 0;
+	int shiftstatus = 0;
+	cptr key_code;
+
+	if (macro_template == NULL)
+		return;
+	
+	for (i = 0; macro_modifier_chr[i]; i++)
+		mod_status[i] = FALSE;
+	str++;
+
+	/* Examine modifier keys */
+	while (1)
+	{
+		for (i=0; macro_modifier_chr[i]; i++)
+		{
+			len = strlen(macro_modifier_name[i]);
+			
+			if(!my_strnicmp(str, macro_modifier_name[i], len))
+				break;
+		}
+		if (!macro_modifier_chr[i]) break;
+		str += len;
+		mod_status[i] = TRUE;
+		if ('S' == macro_modifier_chr[i])
+			shiftstatus = 1;
+	}
+	for (i = 0; i < max_macrotrigger; i++)
+	{
+		len = strlen(macro_trigger_name[i]);
+		if (!my_strnicmp(str, macro_trigger_name[i], len) && ']' == str[len])
+		{
+			/* a trigger name found */
+			break;
+		}
+	}
+
+	/* Invalid trigger name? */
+	if (i == max_macrotrigger)
+	{
+		str = strchr(str, ']');
+		if (str)
+		{
+			*s++ = (char)31;
+			*s++ = (char)13;
+			*bufptr = s;
+			*strptr = str; /* where **strptr == ']' */
+		}
+		return;
+	}
+
+	key_code = macro_trigger_keycode[shiftstatus][i];
+	str += len;
+
+	*s++ = (char)31;
+	for (i = 0; macro_template[i]; i++)
+	{
+		char ch = macro_template[i];
+		int j;
+
+		switch(ch)
+		{
+		case '&':
+			for (j = 0; macro_modifier_chr[j]; j++) {
+				if (mod_status[j])
+					*s++ = macro_modifier_chr[j];
+			}
+			break;
+		case '#':
+			strcpy(s, key_code);
+			s += strlen(key_code);
+			break;
+		default:
+			*s++ = ch;
+			break;
+		}
+	}
+	*s++ = (char)13;
+
+	*bufptr = s;
+	*strptr = str; /* where **strptr == ']' */
+	return;
+}
+
+
 /*
 * Hack -- convert a printable string into real ascii
 *
@@ -935,8 +1060,14 @@ void text_to_ascii(char *buf, cptr str)
 			/* Skip the backslash */
 			str++;
 
-			/* Hex-mode XXX */
-			if (*str == 'x')
+                        /* Macro Trigger */
+ 			if (*str == '[')
+ 			{
+ 				trigger_text_to_ascii(&s, &str);
+ 			}
+
+                        /* Hex-mode XXX */
+ 			else if (*str == 'x')
 			{
 				*s = 16 * dehex(*++str);
 				*s++ += dehex(*++str);
@@ -1041,6 +1172,68 @@ void text_to_ascii(char *buf, cptr str)
 }
 
 
+bool trigger_ascii_to_text(char **bufptr, cptr *strptr)
+{
+	char *s = *bufptr;
+	cptr str = *strptr;
+	char key_code[100];
+	int i;
+	cptr tmp;
+
+	if (macro_template == NULL)
+		return FALSE;
+
+	*s++ = '\\';
+	*s++ = '[';
+
+	for (i = 0; macro_template[i]; i++)
+	{
+		int j;
+		char ch = macro_template[i];
+
+		switch(ch)
+		{
+		case '&':
+			while ((tmp = strchr(macro_modifier_chr, *str)))
+			{
+				j = (int)(tmp - macro_modifier_chr);
+				tmp = macro_modifier_name[j];
+				while(*tmp) *s++ = *tmp++;
+				str++;
+			}
+			break;
+		case '#':
+			for (j = 0; *str && *str != (char)13; j++)
+				key_code[j] = *str++;
+			key_code[j] = '\0';
+			break;
+		default:
+			if (ch != *str) return FALSE;
+			str++;
+		}
+	}
+	if (*str++ != (char)13) return FALSE;
+
+	for (i = 0; i < max_macrotrigger; i++)
+	{
+		if (!my_stricmp(key_code, macro_trigger_keycode[0][i])
+		    || !my_stricmp(key_code, macro_trigger_keycode[1][i]))
+			break;
+	}
+	if (i == max_macrotrigger)
+		return FALSE;
+
+	tmp = macro_trigger_name[i];
+	while (*tmp) *s++ = *tmp++;
+
+	*s++ = ']';
+	
+	*bufptr = s;
+	*strptr = str;
+	return TRUE;
+}
+
+
 /*
 * Hack -- convert a string into a printable form
 */
@@ -1053,7 +1246,16 @@ void ascii_to_text(char *buf, cptr str)
 	{
 		byte i = (byte)(*str++);
 
-		if (i == ESCAPE)
+ 		/* Macro Trigger */
+ 		if (i == 31)
+ 		{
+ 			if(!trigger_ascii_to_text(&s, &str))
+ 			{
+ 				*s++ = '^';
+ 				*s++ = '_';
+ 			}
+ 		}
+ 		else if (i == ESCAPE)
 		{
 			*s++ = '\\';
 			*s++ = 'e';
@@ -1659,7 +1861,8 @@ char inkey(void)
 		/* Cancel the various "global parameters" */
 		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
-		/* Accept result */
+                /* Accept result */
+                macro_recorder_add(ch);
 		return (ch);
 	}
 
@@ -1676,6 +1879,7 @@ char inkey(void)
 		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
 		/* Accept result */
+                macro_recorder_add(ch);
 		return (ch);
 	}
 
@@ -1798,10 +2002,13 @@ char inkey(void)
 
 
 		/* Handle "control-right-bracket" */
-		if (ch == 29)
+		if ((ch == 29) || ((!rogue_like_commands) && (ch == KTRL('D'))))
 		{
 			/* Strip this key */
 			ch = 0;
+
+                        /* Hack -- always do an html dump */
+			do_cmd_html_dump();
 
 			/* Continue */
 			continue;
@@ -1862,6 +2069,7 @@ char inkey(void)
 
 
 	/* Return the keypress */
+        macro_recorder_add(ch);
 	return (ch);
 }
 
@@ -2619,7 +2827,8 @@ void prt(cptr str, int row, int col)
 * This function will correctly handle any width up to the maximum legal
 * value of 256, though it works best for a standard 80 character width.
 */
-void c_roff(byte a, cptr str)
+void (*c_roff)(byte a, cptr str) = c_roff_real;
+void c_roff_real(byte a, cptr str)
 {
 	int x, y;
 
@@ -2712,6 +2921,139 @@ void c_roff(byte a, cptr str)
 		/* Advance */
 		if (++x > w) x = w;
 	}
+}
+
+/* Same as c_roff, but to a file */
+FILE *c_roff_file_fff = NULL;
+int c_roff_file_x = 0;
+int c_roff_file_y = 0;
+int c_roff_file_tab = 0;
+bool c_roff_file_indent = TRUE;
+
+static void c_roff_file_tab_out()
+{
+        int i;
+
+        for (i = 0; i < c_roff_file_tab; i++)
+                fprintf(c_roff_file_fff, " ");
+}
+
+/* roff to a file */
+void c_roff_file(byte a, cptr str)
+{
+        const char *c;
+
+        for (c = str; *c; c++)
+        {
+                if (c_roff_file_x == 0)
+                {
+                        while (*c)
+                        {
+                                if (*c != ' ') break;
+                                c++;
+                        }
+                }
+                if (!*c)
+                        break;
+
+                if (*c == '\n')
+                {
+                        fprintf(c_roff_file_fff, "\n");
+                        c_roff_file_tab_out();
+                        if (c_roff_file_indent)
+                                fprintf(c_roff_file_fff, " ");
+                        c_roff_file_x = 0;
+                }
+                else
+                {
+                        fprintf(c_roff_file_fff, "%c", *c);
+                        c_roff_file_x++;
+                        if (c_roff_file_x > 65)
+                        {
+                                if (*c != ' ')
+                                {
+                                        c++;
+                                        while (*c)
+                                        {
+                                                if (*c == ' ') break;
+                                                if (*c == '\n') break;
+                                                fprintf(c_roff_file_fff, "%c", *c);
+                                                c++;
+                                        }
+                                        c--;
+                                }
+
+                                if (*(c + 1))
+                                {
+                                        fprintf(c_roff_file_fff, "\n");
+                                        c_roff_file_tab_out();
+                                        c_roff_file_x = 0;
+                                }
+                        }
+                }
+        }
+}
+
+/* roff to an html file */
+void c_roff_file_html(byte a, cptr str)
+{
+        const char *c;
+
+        fprintf(c_roff_file_fff, "<FONT COLOR=\"#%02X%02X%02X\">",
+                angband_color_table[a][1],
+                angband_color_table[a][2],
+                angband_color_table[a][3]);
+
+        for (c = str; *c; c++)
+        {
+                if (c_roff_file_x == 0)
+                {
+                        while (*c)
+                        {
+                                if (*c != ' ') break;
+                                c++;
+                        }
+                }
+                if (!*c)
+                        break;
+
+                if (*c == '\n')
+                {
+                        fprintf(c_roff_file_fff, "<BR>");
+                        c_roff_file_tab_out();
+                        if (c_roff_file_indent)
+                                fprintf(c_roff_file_fff, " ");
+                        c_roff_file_x = 0;
+                }
+                else
+                {
+                        fprintf(c_roff_file_fff, "%c", *c);
+                        c_roff_file_x++;
+                        if (c_roff_file_x > 65)
+                        {
+                                if (*c != ' ')
+                                {
+                                        c++;
+                                        while (*c)
+                                        {
+                                                if (*c == ' ') break;
+                                                if (*c == '\n') break;
+                                                fprintf(c_roff_file_fff, "%c", *c);
+                                                c++;
+                                        }
+                                        c--;
+                                }
+
+                                if (*(c + 1))
+                                {
+                                        fprintf(c_roff_file_fff, "\n");
+                                        c_roff_file_tab_out();
+                                        c_roff_file_x = 0;
+                                }
+                        }
+                }
+        }
+        fprintf(c_roff_file_fff, "</FONT>");
 }
 
 /*
@@ -4054,28 +4396,6 @@ void build_gamma_table(int gamma)
 #endif /* SUPPORT_GAMMA */
 
 /*
- * Creates a msg bbox and ask a question
- */
-char msg_box(cptr text, int y, int x)
-{
-        int i;
-
-        c_put_str(TERM_WHITE, text, y, x - (strlen(text) / 2));
-        for (i = x - (strlen(text) / 2) - 1; i < x + (strlen(text) / 2) + 1; i++)
-        {
-                c_put_str(TERM_L_BLUE, "-", y - 1, i);
-                c_put_str(TERM_L_BLUE, "-", y + 1, i);
-        }
-        Term_putch(x - (strlen(text) / 2) - 1, y - 1, TERM_L_BLUE, '/');
-        Term_putch(x - (strlen(text) / 2) - 1, y, TERM_L_BLUE, '|');
-        Term_putch(x - (strlen(text) / 2) - 1, y + 1, TERM_L_BLUE, '\\');
-        Term_putch(x + (strlen(text) / 2), y - 1, TERM_L_BLUE, '\\');
-        Term_putch(x + (strlen(text) / 2), y, TERM_L_BLUE, '|');
-        Term_putch(x + (strlen(text) / 2), y + 1, TERM_L_BLUE, '/');
-        return inkey();
-}
-
-/*
  * Ask to select an item in a list
  */
 int ask_menu(cptr ask, char **items, int max)
@@ -4185,4 +4505,86 @@ s32b value_scale(int value, int vmax, int max, int min)
         value += min;
 
         return value;
+}
+
+/*
+ * Displays a box
+ */
+void draw_box(int y, int x, int h, int w)
+{
+        int i, j;
+
+        for (i = x + 1; i < x + w - 1; i++)
+                for (j = y + 1; j < y + h - 1; j++)
+                        Term_putch(i, j, TERM_L_BLUE, ' ');
+
+
+        for (i = x; i < x + w; i++)
+        {
+                c_put_str(TERM_L_BLUE, "-", y, i);
+                c_put_str(TERM_L_BLUE, "-", y + h, i);
+        }
+        for (i = y; i < y + h; i++)
+        {
+                c_put_str(TERM_L_BLUE, "|", i, x);
+                c_put_str(TERM_L_BLUE, "|", i, x + w);
+        }
+        Term_putch(x, y, TERM_L_BLUE, '/');
+        Term_putch(x + w, y, TERM_L_BLUE, '\\');
+        Term_putch(x, y + h, TERM_L_BLUE, '\\');
+        Term_putch(x + w, y + h, TERM_L_BLUE, '/');
+}
+
+
+/*
+ * Displays a scrollable boxed list with a selected item
+ */
+void display_list(int y, int x, int h, int w, cptr title, cptr *list, int max, int begin, int sel, byte sel_color)
+{
+        int i;
+
+        draw_box(y, x, h, w);
+        c_put_str(TERM_L_BLUE, title, y, x + ((w - strlen(title)) / 2));
+
+        for (i = 0; i < h - 1; i++)
+        {
+                byte color = TERM_WHITE;
+
+                if (i + begin >= max) break;
+
+                if (i + begin == sel) color = sel_color;
+                c_put_str(color, list[i + begin], y + 1 + i, x + 1);
+        }
+}
+
+/*
+ * Creates an input box
+ */
+bool input_box(cptr text, int y, int x, char *buf, int max)
+{
+        int smax;
+
+        if (max < strlen(text)) smax = strlen(text) + 1;
+        else smax = max + 1;
+
+        draw_box(y - 1, x - (smax / 2), 3, smax);
+        c_put_str(TERM_WHITE, text, y, x - (strlen(text) / 2));
+
+        Term_gotoxy(x - (smax / 2) + 1, y + 1);
+        return askfor_aux(buf, max);
+}
+/*
+ * Creates a msg bbox and ask a question
+ */
+char msg_box(cptr text, int y, int x)
+{
+        draw_box(y - 1, x - ((strlen(text) + 1) / 2), 2, strlen(text) + 1);
+        c_put_str(TERM_WHITE, text, y, x - ((strlen(text) + 1) / 2) + 1);
+        return inkey();
+}
+
+/* Rescale a value */
+s32b rescale(s32b x, s32b max, s32b new_max)
+{
+        return (x * new_max) / max;
 }

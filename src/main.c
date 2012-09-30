@@ -82,21 +82,14 @@ static bool check_create_user_dir(void)
 	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
 
 
-	/* Become user -- it's still running suid */
-	safe_setuid_drop();
-
 	/* See if it already exists */
 	ret = stat(dirpath, &stat_buf);
-
 
 	/* It does */
 	if (ret == 0)
 	{
 		/* Now we see if it's a directory */
 		if ((stat_buf.st_mode & S_IFMT) == S_IFDIR) return (TRUE);
-
-		/* Become game */
-		safe_setuid_grab();
 
 		/*
 		 * Something prevents us from create a directory with
@@ -108,11 +101,8 @@ static bool check_create_user_dir(void)
 	/* No - this maybe the first time. Try to create a directory */
 	else
 	{
-                /* Create the ~/.ToME directory */
+		/* Create the ~/.ToME directory */
 		ret = mkdir(dirpath, 0700);
-
-		/* Become game */
-		safe_setuid_grab();
 
 		/* An error occured */
 		if (ret == -1) return (FALSE);
@@ -308,6 +298,10 @@ int main(int argc, char *argv[])
 
 	bool args = TRUE;
 
+#ifdef CHECK_MEMORY_LEAKS
+	GC_find_leak = 1;
+#endif /* CHECK_MEMORY_LEAKS */
+
 
 	/* Save the "program name" XXX XXX XXX */
 	argv0 = argv[0];
@@ -330,9 +324,9 @@ int main(int argc, char *argv[])
 # ifdef SECURE
 	/* Authenticate */
 	Authenticate();
-# endif
+# endif /* SECURE */
 
-#endif
+#endif /* SET_UID */
 
 
 	/* Get the file paths */
@@ -374,14 +368,16 @@ int main(int argc, char *argv[])
 		quit("setuid(): cannot set permissions correctly!");
 	}
 
-#  endif
+#  endif /* XXX XXX XXX */
 
-# endif
+# endif /* SAFE_SETUID */
 
-#endif
+#endif /* SET_UID */
 
 
 #ifdef SET_UID
+
+	/* Please note that the game is still running in the game's permission */
 
 	/* Initialize the "time" checker */
 	if (check_time_init() || check_time())
@@ -395,12 +391,36 @@ int main(int argc, char *argv[])
 		quit("The gates to Angband are closed (bad load).");
 	}
 
+
+	/*
+	 * Become user -- This will be the normal state for the rest of the game.
+	 *
+	 * Put this here because it's totally irrelevant to single user operating
+	 * systems, as witnessed by huge number of cases where these functions
+	 * weren't used appropriately (at least in this variant).
+	 *
+	 * Whenever it is necessary to open/remove/move the files in the lib folder,
+	 * this convention must be observed:
+	 *
+	 *    safe_setuid_grab();
+     *
+	 *    fd_open/fd_make/fd_kill/fd_move which requires game's permission,
+	 *    i.e. manipulating files under the lib directory
+	 *
+	 *    safe_setuid_drop();
+	 *
+	 * Please never ever make unmatched calls to these grab/drop functions.
+	 *
+	 * Please note that temporary files used by various information commands
+	 * and ANGBAND_DIR_USER files shouldn't be manipulated this way, because
+	 * they reside outside of the lib directory on multiuser installations.
+	 * -- pelpel
+	 */
+	safe_setuid_drop();
+
+
 	/* Acquire the "user name" as a default player name */
-#ifdef ANGBAND_2_8_1
 	user_name(player_name, player_uid);
-#else /* ANGBAND_2_8_1 */
-	user_name(op_ptr->full_name, player_uid);
-#endif /* ANGBAND_2_8_1 */
 
 
 #ifdef PRIVATE_USER_PATH
@@ -422,6 +442,8 @@ int main(int argc, char *argv[])
 #endif /* PRIVATE_USER_PATH */
 
 #endif /* SET_UID */
+
+
 
 
 	/* Process the command line arguments */
@@ -509,12 +531,17 @@ int main(int argc, char *argv[])
 			}
 
 			case 'h':
+			{
+				goto usage;
+				break;
+			}
+
 			case 'H':
 			{
 				char *s;
 				int j;
 
-                                init_lua();
+				init_lua();
 				for (j = i + 1; j < argc; j++)
 				{
 					s = argv[j];
@@ -544,11 +571,15 @@ int main(int argc, char *argv[])
 
 			case '-':
 			{
+			    if (argv[i][2] == 'h' && !strcmp((argv[i]+2), "help"))
+				goto usage;
+			    else {
 				argv[i] = argv[0];
 				argc = argc - i;
 				argv = argv + i;
 				args = FALSE;
 				break;
+			    }
 			}
 
 			default:
@@ -559,7 +590,8 @@ int main(int argc, char *argv[])
 				/* Dump usage information */
 				for (j = 0; j < argc; j++) printf("%s ", argv[j]);
 				printf("\n");
-				puts("Usage: angband [options] [-- subopts]");
+				puts("Usage: tome [options] [-- subopts]");
+				puts("  -h                 This help");
 				puts("  -n                 Start a new character");
 				puts("  -f                 Request fiddle mode");
 				puts("  -w                 Request wizard mode");
@@ -567,7 +599,7 @@ int main(int argc, char *argv[])
 				puts("  -g                 Request graphics mode");
 				puts("  -o                 Request original keyset");
 				puts("  -r                 Request rogue-like keyset");
-				puts("  -h <list of files> Convert helpfile to htlm");
+				puts("  -H <list of files> Convert helpfile to html");
 				puts("  -c f1 f2           Convert changelog f1 to nice txt f2");
 				puts("  -s<num>            Show <num> high scores");
 				puts("  -u<who>            Use your <who> savefile");
@@ -670,13 +702,12 @@ int main(int argc, char *argv[])
 	process_player_name(TRUE);
 
 
-
 	/* Install "quit" hook */
 	quit_aux = quit_hook;
 
 
-	/* Drop privs (so X11 will work correctly) */
-	safe_setuid_drop();
+        /* Install the zsock hooks we cannot do it later because main-net needs them */
+        zsock_init();
 
 
 #ifdef USE_GLU
@@ -739,6 +770,19 @@ int main(int argc, char *argv[])
 		if (0 == init_gcu(argc, argv))
 		{
 			ANGBAND_SYS = "gcu";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_GLU
+	/* Attempt to use the "main-glu.c" support */
+	if (!done && (!mstr || (streq(mstr, "glu"))))
+	{
+		extern errr init_glu(int, char**);
+		if (0 == init_glu(argc, argv))
+		{
+			ANGBAND_SYS = "glu";
 			done = TRUE;
 		}
 	}
@@ -868,6 +912,32 @@ int main(int argc, char *argv[])
 	}
 #endif
 
+#ifdef USE_LUA_GUI
+        /* Attempt to use the "main-lua.c" support */
+	if (!done && (!mstr || (streq(mstr, "lua"))))
+	{
+		extern errr init_lua_gui(int, char**);
+		if (0 == init_lua_gui(argc, argv))
+		{
+			ANGBAND_SYS = "lua";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_NET
+        /* Attempt to use the "main-net.c" support */
+	if (!done && (!mstr || (streq(mstr, "net"))))
+	{
+		extern errr init_net(int, char**);
+		if (0 == init_net(argc, argv))
+		{
+			ANGBAND_SYS = "net";
+			done = TRUE;
+		}
+	}
+#endif
+
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
@@ -886,6 +956,10 @@ int main(int argc, char *argv[])
 
 	/* Play the game */
 	play_game(new_game);
+
+#ifdef CHECK_MEMORY_LEAKS
+        CHECK_LEAKS();
+#endif
 
 	/* Quit */
 	quit(NULL);

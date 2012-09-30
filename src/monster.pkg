@@ -111,7 +111,7 @@ static monster_type lua_monster_forge @ monster_forge;
 #define RF3_UNDEAD                      0x00000020      /* Undead */
 #define RF3_EVIL                        0x00000040      /* Evil */
 #define RF3_ANIMAL                      0x00000080      /* Animal */
-#define RF3_DRAGONRIDER            0x00000100  /* DG: DragonRider */
+#define RF3_THUNDERLORD            0x00000100  /* DG: Thunderlord */
 #define RF3_GOOD                        0x00000200      /* Good */
 #define RF3_AURA_COLD                        0x00000400      /* Freezes in melee */
 #define RF3_NONLIVING           0x00000800  /* TY: Non-Living (?) */
@@ -226,7 +226,7 @@ static monster_type lua_monster_forge @ monster_forge;
 #define RF6_RAISE_DEAD                  0x00001000      /* Raise Dead */
 #define RF6_S_BUG                       0x00002000      /* Summon Software bug */
 #define RF6_S_RNG                       0x00004000      /* Summon RNG */
-#define RF6_S_DRAGONRIDER               0x00008000      /* Summon DragonRiders */
+#define RF6_S_THUNDERLORD               0x00008000      /* Summon Thunderlords */
 #define RF6_S_KIN                       0x00010000      /* Summon "kin" */
 #define RF6_S_HI_DEMON                  0x00020000      /* Summon greater demons! */
 #define RF6_S_MONSTER                   0x00040000      /* Summon Monster */
@@ -280,7 +280,7 @@ static monster_type lua_monster_forge @ monster_forge;
 #define RF8_WILD_GRASS          0x00000400
 /********* FREE *********/
 #define RF8_CTHANGBAND          0x00001000
-#define RF8_PERNANGBAND         0x00002000
+/********* FREE *********/
 #define RF8_ZANGBAND            0x00004000
 #define RF8_JOKEANGBAND         0x00008000
 #define RF8_ANGBAND             0x00010000
@@ -310,14 +310,16 @@ static monster_type lua_monster_forge @ monster_forge;
 /*
  * Special Monster Flags
  */
-#define MFLAG_VIEW      0x01    /* Monster is in line of sight */
-#define MFLAG_QUEST     0x02    /* Monster is subject to a quest */
-#define MFLAG_PARTIAL   0x04    /* Monster is a partial summon */
-#define MFLAG_CONTROL   0x08    /* Monster is controled */
-#define MFLAG_BORN      0x10    /* Monster is still being born */
-#define MFLAG_NICE      0x20    /* Monster is still being nice */
-#define MFLAG_SHOW      0x40    /* Monster is recently memorized */
-#define MFLAG_MARK      0x80    /* Monster is currently memorized */
+#define MFLAG_VIEW      0x00000001    /* Monster is in line of sight */
+#define MFLAG_QUEST     0x00000002    /* Monster is subject to a quest */
+#define MFLAG_PARTIAL   0x00000004    /* Monster is a partial summon */
+#define MFLAG_CONTROL   0x00000008    /* Monster is controled */
+#define MFLAG_BORN      0x00000010    /* Monster is still being born */
+#define MFLAG_NICE      0x00000020    /* Monster is still being nice */
+#define MFLAG_SHOW      0x00000040    /* Monster is recently memorized */
+#define MFLAG_MARK      0x00000080    /* Monster is currently memorized */
+#define MFLAG_NO_DROP   0x00000100    /* Monster wont drop obj/corpse */
+#define MFLAG_QUEST2    0x00000200    /* Monster is subject to a quest */
 
 struct monster_blow
 {
@@ -449,7 +451,7 @@ struct monster_type
 
 	byte cdis;			/* Current dis from player */
 
-	byte mflag;			/* Extra monster flags */
+	s32b mflag;			/* Extra monster flags */
 
 	bool ml;			/* Monster is "visible" */
 
@@ -526,7 +528,7 @@ extern void monster_set_level(int m_idx, int level);
 #define SUMMON_NO_UNIQUES           46
 #define SUMMON_PHANTOM              47
 #define SUMMON_ELEMENTAL            48
-#define SUMMON_DRAGONRIDER          49
+#define SUMMON_THUNDERLORD          49
 #define SUMMON_BLUE_HORROR          50
 #define SUMMON_BUG                  51
 #define SUMMON_RNG                  52

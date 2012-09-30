@@ -13,7 +13,7 @@
 #include "angband.h"
 
 /* 1/x chance of reducing stats (for elemental attacks) */
-#define HURT_CHANCE 16
+#define HURT_CHANCE 32
 
 /* 1/x chance of hurting even if invulnerable!*/
 #define PENETRATE_INVULNERABILITY 13
@@ -101,6 +101,9 @@ void teleport_player_directed(int rad, int dir)
 		teleport_player(rad);
 		return;
 	}
+
+        /* Rooted means no move */
+        if (p_ptr->tim_roots) return;
 
 	if (yfoo == 0) x_major = TRUE;
 	if (xfoo == 0) y_major = TRUE;
@@ -281,7 +284,9 @@ void teleport_away(int m_idx, int dis)
 	sound(SOUND_TPOTHER);
 
 	/* Update the new location */
-	cave[ny][nx].m_idx = m_idx;
+        cave[ny][nx].m_idx = m_idx;
+        last_teleportation_y = ny;
+        last_teleportation_x = nx;
 
 	/* Update the old location */
 	cave[oy][ox].m_idx = 0;
@@ -394,6 +399,8 @@ void teleport_to_player(int m_idx)
 
 	/* Update the new location */
 	cave[ny][nx].m_idx = m_idx;
+        last_teleportation_y = ny;
+        last_teleportation_x = nx;
 
 	/* Update the old location */
 	cave[oy][ox].m_idx = 0;
@@ -442,13 +449,16 @@ void teleport_player(int dis)
 
 	if (p_ptr->wild_mode) return;
 
+        /* Rooted means no move */
+        if (p_ptr->tim_roots) return;
+
 	if (p_ptr->anti_tele && (!teleport_player_bypass))
 	{
 		msg_print("A mysterious force prevents you from teleporting!");
 		return;
 	}
 
-	if ((dungeon_flags1 & LF1_NO_TELEPORT) && (!teleport_player_bypass))
+	if ((dungeon_flags2 & DF2_NO_TELEPORT) && (!teleport_player_bypass))
 	{
 		msg_print("No teleport on special levels...");
 		return;
@@ -516,6 +526,8 @@ void teleport_player(int dis)
 	/* Move the player */
 	py = y;
 	px = x;
+        last_teleportation_y = y;
+        last_teleportation_x = x;
 
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
@@ -702,6 +714,8 @@ void teleport_monster_to(int m_idx, int ny, int nx)
 	m_ptr->fy = y;
 	m_ptr->fx = x;
 	cave[y][x].m_idx = m_idx;
+        last_teleportation_y = y;
+        last_teleportation_x = x;
 
 	/* Update the monster (new location) */
 	update_mon(m_idx, TRUE);
@@ -736,11 +750,14 @@ void teleport_player_to(int ny, int nx)
 		return;
 	}
 
-	if (dungeon_flags1 & LF1_NO_TELEPORT)
+	if (dungeon_flags2 & DF2_NO_TELEPORT)
 	{
 		msg_print("No teleport on special levels...");
 		return;
 	}
+
+        /* Rooted means no move */
+        if (p_ptr->tim_roots) return;
 
 	/* Find a usable location */
 	while (1)
@@ -774,6 +791,8 @@ void teleport_player_to(int ny, int nx)
 	/* Move the player */
 	py = y;
 	px = x;
+        last_teleportation_y = y;
+        last_teleportation_x = x;
 
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
@@ -813,7 +832,7 @@ void teleport_player_level(void)
 		msg_print("There is no effect.");
 		return;
 	}
-	if (dungeon_flags1 & LF1_NO_TELEPORT)
+	if (dungeon_flags2 & DF2_NO_TELEPORT)
 	{
 		msg_print("No teleport on special levels...");
 		return;
@@ -837,6 +856,9 @@ void teleport_player_level(void)
 		msg_print("A mysterious force prevents you from teleporting!");
 		return;
 	}
+
+        /* Rooted means no move */
+        if (p_ptr->tim_roots) return;
 
 	if (!dun_level)
 	{
@@ -926,6 +948,13 @@ void recall_player(int d, int f)
 		return;
 	}
 #endif
+        /* Rooted means no move */
+        if (p_ptr->tim_roots)
+        {
+                msg_print("Your roots prevent the recall.");
+                return;
+        }
+
 
 	if (dun_level && (max_dlv[dungeon_type] > dun_level) &&
 	    !p_ptr->inside_quest)
@@ -943,7 +972,8 @@ void recall_player(int d, int f)
 	{
 		p_ptr->word_recall = 0;
 		msg_print("A tension leaves the air around you...");
-	}
+        }
+        p_ptr->redraw |= (PR_DEPTH);
 }
 
 
@@ -1523,7 +1553,6 @@ static bool hates_acid(object_type *o_ptr)
 		/* Junk is useless */
 		case TV_SKELETON:
 		case TV_BOTTLE:
-		case TV_FIRESTONE:
 		case TV_EGG:
 		{
 			return (TRUE);
@@ -1865,9 +1894,6 @@ void acid_dam(int dam, cptr kb_str)
 	/* Total Immunity */
 	if (p_ptr->immune_acid || (dam <= 0)) return;
 
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
-
 	/* Resist the damage */
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
@@ -1898,9 +1924,6 @@ void elec_dam(int dam, cptr kb_str)
 	/* Total immunity */
 	if (p_ptr->immune_elec || (dam <= 0)) return;
 
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
-
 	/* Resist the damage */
 	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
@@ -1930,9 +1953,6 @@ void fire_dam(int dam, cptr kb_str)
 	/* Totally immune */
 	if (p_ptr->immune_fire || (dam <= 0)) return;
 
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
-
 	/* Resist the damage */
 	if (p_ptr->sensible_fire) dam = (dam + 2) * 2;
 	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
@@ -1961,9 +1981,6 @@ void cold_dam(int dam, cptr kb_str)
 
 	/* Total immunity */
 	if (p_ptr->immune_cold || (dam <= 0)) return;
-
-	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
 
 	/* Resist the damage */
 	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
@@ -2158,16 +2175,15 @@ bool dec_stat(int stat, int amount, int mode)
 	/* Apply changes */
 	if (res)
 	{
-		/* Actually set the stat to its new value. */
-		p_ptr->stat_cur[stat] = cur;
-		p_ptr->stat_max[stat] = max;
-
 		if (mode==STAT_DEC_TEMPORARY)
 		{
 			u16b dectime;
 
 			/* a little crude, perhaps */
 			dectime = rand_int(max_dlv[dungeon_type]*50) + 50;
+
+			/* Calculate loss */
+			loss = p_ptr->stat_cur[stat] - cur;
 
 			/* prevent overflow, stat_cnt = u16b */
 			/* or add another temporary drain... */
@@ -2185,6 +2201,10 @@ bool dec_stat(int stat, int amount, int mode)
 			}
 		}
 
+		/* Actually set the stat to its new value. */
+		p_ptr->stat_cur[stat] = cur;
+		p_ptr->stat_max[stat] = max;
+
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 	}
@@ -2197,22 +2217,48 @@ bool dec_stat(int stat, int amount, int mode)
 /*
  * Restore a stat.  Return TRUE only if this actually makes a difference.
  */
-bool res_stat(int stat)
+bool res_stat(int stat, bool full)
 {
-	/* Restore if needed */
-	if (p_ptr->stat_cur[stat] != p_ptr->stat_max[stat])
+	/* Fully restore */
+	if (full)
 	{
-		/* Restore */
-		p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
+		/* Restore if needed */
+		if (p_ptr->stat_cur[stat] != p_ptr->stat_max[stat])
+		{
+			/* Restore */
+			p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
 
-		/* Remove temporary drain */
-		p_ptr->stat_cnt[stat] = 0;
+			/* Remove temporary drain */
+			p_ptr->stat_cnt[stat] = 0;
+			p_ptr->stat_los[stat] = 0;
 
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
 
-		/* Success */
-		return (TRUE);
+			/* Something happened */
+			return (TRUE);
+		}
+	}
+
+	/* Restore temporary drained stat */
+	else
+	{
+		/* Restore if needed */
+		if (p_ptr->stat_los[stat])
+		{
+			/* Restore */
+			p_ptr->stat_cur[stat] += p_ptr->stat_los[stat];
+
+			/* Remove temporary drain */
+			p_ptr->stat_cnt[stat] = 0;
+			p_ptr->stat_los[stat] = 0;
+
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Something happened */
+			return (TRUE);
+		}
 	}
 
 	/* Nothing to restore */
@@ -2343,7 +2389,7 @@ static void apply_nexus(monster_type *m_ptr)
 {
 	if (m_ptr == NULL) return;
 
-	if (!(dungeon_flags1 & LF1_NO_TELEPORT))
+	if (!(dungeon_flags2 & DF2_NO_TELEPORT))
 	{
 		switch (randint(7))
 		{
@@ -2944,7 +2990,10 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			if ((c_ptr->feat == FEAT_TREES) ||
 			    (c_ptr->feat == FEAT_SMALL_TREES))
 			{
-				cave_set_feat(y, x, FEAT_DEAD_TREE);
+                                cave_set_feat(y, x, FEAT_DEAD_TREE);
+
+                                /* Silly thing to destroy trees when a yavanna worshipper */
+                                inc_piety(GOD_YAVANNA, -50);
 
 				if (seen) obvious = TRUE;
 			}
@@ -3011,7 +3060,10 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			int k;
 
 			/* "Permanent" features will stay */
-			if ((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
+                        if ((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
+
+                        /* Needs more than 30 damage */
+                        if (dam < 30) break;
 
 			if ((c_ptr->feat == FEAT_FLOOR) ||
 			    (c_ptr->feat == FEAT_DIRT) ||
@@ -3112,8 +3164,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* Destroy Traps (and Locks) */
 		case GF_KILL_TRAP:
 		{
-			/* Destroy traps */
-			if (c_ptr->t_idx != 0)
+			/* Destroy normal traps and disarm monster traps */
+			if ((c_ptr->t_idx != 0) || (c_ptr->feat == FEAT_MON_TRAP))
 			{
 				/* Check line of sight */
 				if (player_has_los_bold(y, x))
@@ -3125,8 +3177,17 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Forget the trap */
 				c_ptr->info &= ~(CAVE_MARK | CAVE_TRDT);
 
-				/* Destroy the trap */
+				/* Destroy normal traps */
 				c_ptr->t_idx = 0;
+
+				/* Disarm monster traps */
+				if (c_ptr->feat == FEAT_MON_TRAP)
+				{
+					c_ptr->special = c_ptr->special2 = 0;
+
+					/* Remove the feature */
+					place_floor(y, x);
+				}
 
 				/* Hack -- Force redraw */
 				note_spot(y, x);
@@ -3159,10 +3220,11 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* Destroy Doors (and traps) */
 		case GF_KILL_DOOR:
 		{
-			/* Destroy all doors and traps */
+			/* Destroy all doors and traps, and disarm monster traps */
 			if ((c_ptr->feat == FEAT_OPEN) ||
 			    (c_ptr->feat == FEAT_BROKEN) ||
 			    (c_ptr->t_idx != 0) ||
+			    (c_ptr->feat == FEAT_MON_TRAP) ||
 			    ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
 			     (c_ptr->feat <= FEAT_DOOR_TAIL)))
 			{
@@ -3183,13 +3245,21 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				}
 
 				/* Forget the door */
-				c_ptr->info &= ~(CAVE_MARK);
+				c_ptr->info &= ~(CAVE_MARK | CAVE_TRDT);
 
-				/* Remove traps */
+				/* Remove normal traps */
 				c_ptr->t_idx = 0;
+
+				/* Disarm monster traps */
+				if (c_ptr->feat == FEAT_MON_TRAP)
+					c_ptr->special = c_ptr->special2 = 0;
 
 				/* Remove the feature */
 				place_floor(y, x);
+
+                                /* Hack -- Force redraw */
+				note_spot(y, x);
+				lite_spot(y, x);
 			}
 
 			break;
@@ -3315,7 +3385,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					}
 
 					/* Place gold */
-					place_object(y, x, FALSE, FALSE);
+					place_object(y, x, FALSE, FALSE, OBJ_FOUND_RUBBLE);
 				}
 			}
 
@@ -3401,7 +3471,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Require a "naked" floor grid */
 			if (!cave_clean_bold(y, x)) break;
 
-			if((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
+			if ((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
+			if (!(f_info[c_ptr->feat].flags1 & FF1_FLOOR)) break;
 
 			/* Place a wall */
 			cave_set_feat(y, x, FEAT_WALL_EXTRA);
@@ -3912,11 +3983,15 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				object_aware(o_ptr);
 				object_known(o_ptr);
 
-				/* Process the appropriate hooks */
-				process_hooks(HOOK_IDENTIFY, "(d)", 0 - this_o_idx);
-
-				/* Mark the item as fully known */
+                                /* Mark the item as fully known */
 				o_ptr->ident |= (IDENT_MENTAL);
+
+				/* Process the appropriate hooks */
+                                process_hooks(HOOK_IDENTIFY, "(d,s)", 0 - this_o_idx, "full");
+
+                                /* Squelch ! */
+                                squeltch_grid();
+
 				break;
 			}
 			case GF_IDENTIFY:
@@ -3925,7 +4000,11 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				object_known(o_ptr);
 
 				/* Process the appropriate hooks */
-				process_hooks(HOOK_IDENTIFY, "(d)", 0 - this_o_idx);
+                                process_hooks(HOOK_IDENTIFY, "(d,s)", 0 - this_o_idx, "normal");
+
+                                /* Squelch ! */
+                                squeltch_grid();
+
 				break;
 			}
 			case GF_RAISE:
@@ -4216,6 +4295,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			case GF_AWAY_EVIL:
 			case GF_AWAY_ALL:
 			case GF_CHARM:
+			case GF_CHARM_UNMOVING:
 			case GF_STAR_CHARM:
 			case GF_CONTROL_UNDEAD:
 			case GF_CONTROL_ANIMAL:
@@ -5226,6 +5306,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 				{
 					note = " is in your thrall!";
 					m_ptr->status = MSTATUS_PET;
+                                        if ((r_ptr->flags3 & RF3_ANIMAL) && (!(r_ptr->flags3 & RF3_EVIL)))
+                                                inc_piety(GOD_YAVANNA, m_ptr->level * 2);
 				}
 				else
 				{
@@ -5544,6 +5626,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 				{
 					note = " suddenly seems friendly!";
 					m_ptr->status = MSTATUS_FRIEND;
+                                        if ((r_ptr->flags3 & RF3_ANIMAL) && (!(r_ptr->flags3 & RF3_EVIL)))
+                                                inc_piety(GOD_YAVANNA, m_ptr->level * 2);
 				}
 			}
 
@@ -5586,6 +5670,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 					note = " suddenly seems friendly!";
 					if (can_create_companion()) m_ptr->status = MSTATUS_COMPANION;
 					else m_ptr->status = MSTATUS_PET;
+
+                                        if ((r_ptr->flags3 & RF3_ANIMAL) && (!(r_ptr->flags3 & RF3_EVIL)))
+                                                inc_piety(GOD_YAVANNA, m_ptr->level * 2);
 				}
 			}
 
@@ -5614,6 +5701,37 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 				}
 #endif
 
+				/* Resist */
+				/* No obvious effect */
+				note = " is unaffected!";
+				obvious = FALSE;
+			}
+			else if (p_ptr->aggravate)
+			{
+				note = " hates you too much!";
+			}
+			else
+			{
+				note = " is in your thrall!";
+				m_ptr->status = MSTATUS_PET;
+			}
+
+			/* No "real" damage */
+			dam = 0;
+			break;
+		}
+
+		/* Control never-moving */
+		case GF_CHARM_UNMOVING:
+		{
+			if (seen) obvious = TRUE;
+
+			/* Attempt a saving throw */
+			if ((r_ptr->flags1 & RF1_UNIQUE) ||
+			    (m_ptr->mflag & MFLAG_QUEST) ||
+			  (!(r_ptr->flags1 & RF1_NEVER_MOVE)) ||
+			    (m_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			{
 				/* Resist */
 				/* No obvious effect */
 				note = " is unaffected!";
@@ -5664,7 +5782,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				note = " is tamed!";
-				m_ptr->status = MSTATUS_PET;
+                                m_ptr->status = MSTATUS_PET;
+                                inc_piety(GOD_YAVANNA, m_ptr->level * 2);
 			}
 
 			/* No "real" damage */
@@ -5982,7 +6101,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_AWAY_UNDEAD:
 		{
 
-			if (dungeon_flags1 & LF1_NO_TELEPORT) break;/* No teleport on special levels */
+			if (dungeon_flags2 & DF2_NO_TELEPORT) break;/* No teleport on special levels */
 			/* Only affect undead */
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
@@ -6028,7 +6147,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Teleport evil (Use "dam" as "power") */
 		case GF_AWAY_EVIL:
 		{
-			if (dungeon_flags1 & LF1_NO_TELEPORT) break;/* No teleport on special levels */
+			if (dungeon_flags2 & DF2_NO_TELEPORT) break;/* No teleport on special levels */
 			/* Only affect evil */
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
@@ -6076,7 +6195,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			bool resists_tele = FALSE;
 
-			if (dungeon_flags1 & LF1_NO_TELEPORT) break;/* No teleport on special levels */
+			if (dungeon_flags2 & DF2_NO_TELEPORT) break;/* No teleport on special levels */
 			if (r_ptr->flags3 & (RF3_RES_TELE))
 			{
 				if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -7169,11 +7288,6 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (!p_ptr->resist_chaos)
 			{
 				(void)set_image(p_ptr->image + randint(10));
-				if (randint(3)==1)
-				{
-					msg_print("Your body is twisted by chaos!");
-					(void)gain_random_corruption(0);
-				}
 			}
 			if (!p_ptr->resist_neth && !p_ptr->resist_chaos)
 			{
@@ -7452,7 +7566,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		{
 			if (fuzzy) msg_print("You are hit by a blast from the past!");
 
-			if ((p_ptr->muta3 & MUT3_RES_TIME)||(p_ptr->resist_continuum))
+			if (p_ptr->resist_continuum)
 			{
 				dam *= 4;
 				dam /= (randint(6) + 6);
@@ -7510,7 +7624,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		/* Gravity -- stun plus slowness plus teleport */
 		case GF_GRAVITY:
 		{
-			if (dungeon_flags1 & LF1_NO_TELEPORT) break;/* No teleport on special levels */
+			if (dungeon_flags2 & DF2_NO_TELEPORT) break;/* No teleport on special levels */
 			if (fuzzy) msg_print("You are hit by something heavy!");
 			msg_print("Gravity warps around you.");
 			if(!unsafe)
@@ -8519,7 +8633,8 @@ bool potion_smash_effect(int who, int y, int x, int o_sval)
 			ident = TRUE;
 			break;
 		case SV_POTION_DEATH:
-			dt = GF_DEATH_RAY;    /* !! */
+                        dt = GF_MANA;    /* !! */
+                        dam = damroll(10, 10);
 			angry = TRUE;
 			radius = 1;
 			ident = TRUE;

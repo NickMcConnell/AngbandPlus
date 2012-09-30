@@ -1,31 +1,42 @@
+|||||oy
+~~~~~01|Paladin
+~~~~~02|Classes|Paladin
+~~~~~03|Tulkas|Paladin
 #####R=== Paladins ===
 
 #####GDescription
-A Paladin is a warrior/priest. They are very good fighters, but not 
-very good at missile weapons. They receive prayers at a slower pace 
-than priests, but can receive even the most powerful prayers. They are 
-poor at  stealth, perception, searching, and magical devices. They have
-a decent saving throw due to divine protection. 
+A Paladin is a warrior/priest at the service of *****g_tulkas.txt*0[Tulkas]. As such, his duty
+is to ever be vigilant against the forces of evil and even seek and destroy
+those monsters which are evil to the core, especially the foulest
+spawns of hell. Luckily, his quest is eased by the blessing bestowed
+by Tulkas himself.
 
-#####GPrimary Stats
-Strength
-Wisdom (spell casting stat)
+#####GStarting Stat Modifiers
+Strength         -1
+Intelligence     -3
+Wisdom           +3
+Dexterity        -1
+Constitution     +0
+Charisma         +2
+Bonus Blows       0
+Hit Die          +d2
+Exp Penalty      20%
 
-#####GMagic Usage
-Paladins are holy warriors, and as such they may choose one devotion 
-from among *****m_nether.txt*0[Nether], *****m_valar.txt*0[Valarin], and *****m_crusad.txt*0[Crusade]. 
-
-The Nether Paladin is one of sinister aspect, wielding power over the 
-undead. His counterpart, the Valarin Paladin, focuses on harnessing the
-powers of good to aid him. The Crusade Paladin is a more warlike 
-fighter, using his spells to enhance his skill in battle. Paladins may 
-learn up to 32 spell levels.
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  2.000           [0.800]
+  Weaponmastery         1.000           [0.800]
+  Barehand-combat       0.000           [0.900]
+Sneakiness              1.000           [0.900]
+Magic                   1.000           [0.900]
+  Magic-Device          1.000           [1.050]
+  Spell-power           0.000           [0.600]
+Spirituality            1.000           [1.000]
+  Prayer                1.000           [1.400]
+  Mindcraft             0.000           [0.600]
+Monster-lore            0.000           [0.500]
 
 #####GStarting Equipment
 A paladin begins the game with:
-    L1 spellbook of chosen realm
-    A broadsword
-    A scroll of protection from evil
-If they are *very* lucky they may also begin with:
-    a scroll of *enchant weapon*
-    
+    A spellbook of Divine Aim
+    A two-handed sword

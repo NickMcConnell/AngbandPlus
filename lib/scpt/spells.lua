@@ -46,6 +46,16 @@ SCHOOL_WATER = add_school
 	["name"] = "Water", 
         ["skill"] = SKILL_WATER,
         ["sorcery"] = TRUE,
+        ["gods"] =
+        {
+                -- Yavanna Kementari provides the Water school at 1/2 the prayer skill
+                [GOD_YAVANNA] =
+                {
+                        ["skill"] = SKILL_PRAY,
+                        ["mul"] = 1,
+                        ["div"] = 2,
+                },
+        },
 }
 SCHOOL_EARTH = add_school
 {
@@ -60,6 +70,13 @@ SCHOOL_EARTH = add_school
                         ["skill"] = SKILL_PRAY,
                         ["mul"] = 4,
                         ["div"] = 5,
+                },
+                -- Yavanna Kementari provides the Water school at 1/2 the prayer skill
+                [GOD_YAVANNA] =
+                {
+                        ["skill"] = SKILL_PRAY,
+                        ["mul"] = 1,
+                        ["div"] = 2,
                 },
         },
 }
@@ -100,12 +117,32 @@ SCHOOL_TEMPORAL = add_school
 	["name"] = "Temporal", 
         ["skill"] = SKILL_TEMPORAL,
         ["sorcery"] = TRUE,
+        ["gods"] =
+        {
+                -- Yavanna Kementari provides the Temoral school at 1/6 the prayer skill
+                [GOD_YAVANNA] =
+                {
+                        ["skill"] = SKILL_PRAY,
+                        ["mul"] = 1,
+                        ["div"] = 6,
+                },
+        },
 }
 SCHOOL_NATURE = add_school
 {
 	["name"] = "Nature", 
         ["skill"] = SKILL_NATURE,
         ["sorcery"] = TRUE,
+        ["gods"] =
+        {
+                -- Yavanna Kementari provides the Water school at 1/2 the prayer skill
+                [GOD_YAVANNA] =
+                {
+                        ["skill"] = SKILL_PRAY,
+                        ["mul"] = 1,
+                        ["div"] = 2,
+                },
+        },
 }
 SCHOOL_META = add_school
 {
@@ -150,10 +187,15 @@ SCHOOL_UDUN = add_school
 {
 	["name"] = 		"Udun",
         ["skill"] = 		SKILL_UDUN,
-        ["sorcery"] = 		TRUE,
         ["bonus_level"] = 	function()
         				return ((player.lev * 2) / 3)
         			end,
+}
+SCHOOL_DEMON = add_school
+{
+	["name"] = "Demon",
+        ["skill"] = SKILL_DAEMON,
+        ["no_random"] = TRUE,
 }
 
 -- The God specific schools, all tied to the prayer skill
@@ -181,6 +223,26 @@ SCHOOL_MELKOR = add_school
         ["skill"] = SKILL_PRAY,
         ["god"] = GOD_MELKOR,
 }
+SCHOOL_YAVANNA = add_school
+{
+        ["name"] = "Yavanna Kementari",
+        ["skill"] = SKILL_PRAY,
+        ["god"] = GOD_YAVANNA,
+}
+
+-- Not a real school, rather a palcehodler for stick only spells
+SCHOOL_DEVICE = add_school
+{
+        ["name"] = "Device",
+        ["skill"] = SKILL_DEVICE,
+}
+
+-- Music "spells"
+SCHOOL_MUSIC = add_school
+{
+        ["name"] = "Music",
+        ["skill"] = SKILL_MUSIC,
+}
 
 -- Put some spells
 tome_dofile("s_fire.lua")
@@ -201,6 +263,18 @@ tome_dofile("s_eru.lua")
 tome_dofile("s_manwe.lua")
 tome_dofile("s_tulkas.lua")
 tome_dofile("s_melkor.lua")
+tome_dofile("s_yavann.lua")
+
+-- Specific schools
+tome_dofile("s_demon.lua")
+
+-- Device spells
+tome_dofile("s_stick.lua")
+
+-- Musics
+tome_dofile("s_music.lua")
+
+-- List of spellbooks
 
 -- Create the crystal of mana
 school_book[0] = {
@@ -224,12 +298,12 @@ school_book[3] = {
 
 -- The book of the unstopable wave
 school_book[4] = {
-        ENTPOTION, TIDALWAVE, ICESTORM,
+        VAPOR, ENTPOTION, TIDALWAVE, ICESTORM,
 }
 
 -- Create the book of translocation
 school_book[5] = {
-        DISARM, BLINK, TELEPORT, TELEAWAY, RECALL,
+        DISARM, BLINK, TELEPORT, TELEAWAY, RECALL, PROBABILITY_TRAVEL,
 }
 
 -- Create the book of the tree
@@ -244,12 +318,12 @@ school_book[7] = {
 
 -- Create the book of the Time
 school_book[8] = {
-        MAGELOCK, SLOWMONSTER, ESSENSESPEED, BANISHMENT,
+        MAGELOCK, SLOWMONSTER, ESSENCESPEED, BANISHMENT,
 }
 
 -- Create the book of meta spells
 school_book[9] = {
-        RECHARGE, DISPERSEMAGIC, SPELLBINDER,
+        RECHARGE, DISPERSEMAGIC, SPELLBINDER, TRACKER,
 }
 
 -- Create the book of the mind
@@ -282,14 +356,19 @@ school_book[23] = {
         MELKOR_CURSE, MELKOR_CORPSE_EXPLOSION, MELKOR_MIND_STEAL,
 }
 
+-- Create the book of yavanna
+school_book[24] = {
+        YAVANNA_CHARM_ANIMAL, YAVANNA_GROW_GRASS, YAVANNA_TREE_ROOTS, YAVANNA_WATER_BITE, YAVANNA_UPROOT,
+}
+
 -- Create the book of beginner's cantrip
 school_book[50] = {
-        MANATHRUST, GLOBELIGHT, ENTPOTION, BLINK, SENSEMONSTER, SENSEHIDDEN,
+        MANATHRUST, GLOBELIGHT, ENTPOTION, BLINK, SENSEMONSTERS, SENSEHIDDEN,
 }
 
 -- Create the book of teleporatation
 school_book[51] = {
-        TELEPORT, TELEAWAY
+        BLINK, TELEPORT, TELEAWAY
 }
 
 -- Create the book of recall
@@ -305,4 +384,34 @@ school_book[53] = {
 -- Create the book of fireflash
 school_book[54] = {
         FIREFLASH
+}
+
+-- Create the Armageddon Demonblade
+school_book[55] = {
+        DEMON_BLADE, DEMON_MADNESS, DEMON_FIELD,
+}
+
+-- Create the Shield Demonblade
+school_book[56] = {
+        DOOM_SHIELD, DEMON_CLOAK, UNHOLY_WORD,
+}
+
+-- Create the Control Demonblade
+school_book[57] = {
+        DEMON_SUMMON, DISCHARGE_MINION, CONTROL_DEMON,
+}
+
+-- Create the Song Patterns book
+school_book[58] = {
+        MUSIC_STOP, MUSIC_HOLD, MUSIC_STUN, MUSIC_CONF,
+}
+
+-- Create the Lays of the Heroes book
+school_book[59] = {
+        MUSIC_STOP, MUSIC_LITE, MUSIC_HEAL, MUSIC_HERO, MUSIC_TIME,
+}
+
+-- Create the  book
+school_book[60] = {
+        MUSIC_STOP, MUSIC_MIND,
 }

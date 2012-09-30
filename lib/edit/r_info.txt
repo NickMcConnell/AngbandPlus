@@ -1,7 +1,8 @@
-#File: r_info.txt
+# File: r_info.txt
 # With new monsters for Zangband 2.2 (or 2.3)
 # With new monsters for PernAngband 3.x.x
 # With lots of monsters for PernAngband 4.x.x
+# With Spirits for ToME 2.1.x
 
 # This file is used to initialize the "lib/raw/r_info.raw" file, which is
 # used to initialize the "monster race" information for the Angband game.
@@ -11792,7 +11793,7 @@ B:HIT:SHATTER:12d13
 F:FORCE_SLEEP | FORCE_MAXHP | HURT_ROCK |
 F:ONLY_GOLD | DROP_4D2 | MOVE_BODY | KILL_WALL |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
-F:EVIL | GIANT | MALE | ZANGBAND | HAS_LITE | NO_CUT
+F:EVIL | GIANT | MALE | HAS_LITE | NO_CUT
 D:A rock giant, a being made of living stone. 
 
 N:710:Itangast the Fire Drake
@@ -13483,8 +13484,8 @@ D:the underside of the body were many white pyramids, presumably
 D:used for locomotion. The diameter of the body must have been 
 D:at least ten feet at its least wide..." 
 
-N:789:T'ron, the Rebel Dragonrider
-G:D:D
+N:789:Trone, the Rebel Thunderlord
+G:B:D
 I:130:80d100:20:120:80
 W:72:2:400000:45000
 E:1:1:1:2:1:1
@@ -13494,16 +13495,16 @@ B:HIT:HURT:12d10
 B:CHARGE:HURT:10d10
 B:CHARGE:HURT:10d10
 F:UNIQUE | MALE | CAN_SPEAK | RES_TELE | SPECIAL_GENE | 
-F:FORCE_MAXHP | REGENERATE | DRAGONRIDER | CAN_FLY |
+F:FORCE_MAXHP | REGENERATE | THUNDERLORD | CAN_FLY |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:SMART | OPEN_DOOR | BASH_DOOR | DROP_CHOSEN |
 F:EVIL | IM_FIRE | IM_COLD | IM_POIS | 
-F:MORTAL | PERNANGBAND | HAS_LITE
+F:MORTAL | HAS_LITE
 S:1_IN_4 | 
 S:TELE_TO | SCARE | BR_TIME | BR_FIRE |
-S:BO_MANA | S_DRAGONRIDER
-D:As the Dragonriders came from Pern to help the elves, T'ron and his rebel 
-D:Dragonwing came to defend Morgoth! He is an evil and powerful Dragonrider. 
+S:BO_MANA | S_THUNDERLORD
+D:As the Thunderlords came from afar to help the elves, Trone and his rebel 
+D:wing came to defend Morgoth! He is an evil and powerful Thunderlord. 
 
 N:790:Great Wyrm of Many Colours
 G:D:v
@@ -13526,27 +13527,27 @@ S:BR_POIS | BR_ELEC | BR_ACID | BR_FIRE | BR_COLD |
 S:CONF | SCARE | BLIND
 D:A huge dragon whose scales shimmer in myriad hues. 
 
-N:791:Mardra, rider of the Gold Loranth
-G:D:y
+N:791:Marda, rider of gold Laronth
+G:B:y
 I:130:100d85:100:100:50
-W:75:1:420000:35000
+W:75:6:420000:35000
 E:1:1:1:2:1:1
 O:50:50:0:0
 B:HIT:HURT:12d15
 B:HIT:HURT:12d15
 B:HIT:HURT:12d15
 B:HIT:HURT:12d15
-F:UNIQUE | FEMALE | CAN_SPEAK | DRAGONRIDER | ONLY_ITEM | RES_TELE | 
+F:UNIQUE | FEMALE | CAN_SPEAK | THUNDERLORD | ONLY_ITEM | RES_TELE | 
 F:DROP_CHOSEN | DROP_CORPSE | DROP_SKELETON | CAN_FLY | 
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 |
 F:EVIL | IM_POIS | IM_ELEC | SMART | REGENERATE | OPEN_DOOR | BASH_DOOR |
-F:MORTAL | PERNANGBAND | HAS_LITE
+F:MORTAL | HAS_LITE
 S:1_IN_4 |
 S:SCARE | BLIND | TPORT | BLINK | TELE_AWAY | TELE_TO | 
-S:BR_FIRE | BA_MANA | S_DRAGONRIDER
-D:Former Weyrwomand of Fort Weyr, she and T'ron have fallen under the control 
-D:of Morgoth. Loranth, her dragon, can summon Dragonriders to her aid. 
+S:BR_FIRE | BA_MANA | S_THUNDERLORD
+D:Former leader among the Thunderlords, she and Trone have fallen under the
+D:control of Morgoth. Laronth, her eagle, can summon Thunderlords to her aid. 
 
 N:792:Tselakus, the Dreadlord
 G:G:R
@@ -14171,26 +14172,26 @@ D:rumoured that this is in fact none other than Sauron in disguise:
 D:although if this is so, he has yet to reveal his full power - and perhaps 
 D:will not do so while his deception lasts, in the hope of keeping it going. 
 
-N:820:Lessa, rider of the Gold Ramoth
-G:D:y
+N:820:Lisa, rider of gold Romth
+G:B:y
 I:130:65d100:100:100:15
-W:78:1:420000:35500
+W:78:6:420000:35500
 E:1:1:1:2:1:1
 O:50:50:0:0
 B:HIT:HURT:10d15
 B:HIT:HURT:10d15
 B:HIT:HURT:10d15
 B:HIT:HURT:10d15
-F:UNIQUE | FEMALE | DRAGONRIDER | RES_TELE | CAN_FLY | GOOD |
+F:UNIQUE | FEMALE | THUNDERLORD | RES_TELE | CAN_FLY | GOOD |
 F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | PET |
 F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
 F:IM_COLD | IM_POIS | IM_ACID | IM_ELEC | REGENERATE | 
-F:MORTAL | PERNANGBAND | HAS_LITE
+F:MORTAL | HAS_LITE
 S:1_IN_4 |
-S:TPORT | TELE_TO | BR_FIRE | S_DRAGONRIDER | 
+S:TPORT | TELE_TO | BR_FIRE | S_THUNDERLORD | 
 S:TELE_AWAY | HEAL | BA_NETH | BO_NETH | BA_FIRE | BO_FIRE
-D:The Weyrwomand of the Weyr of Benden, she came to help you. 
+D:She came to help you. 
 
 N:821:Master quylthulg
 G:Q:B
@@ -14245,27 +14246,27 @@ D:to see the great amorphous shpaes streaming skyward from the
 D:accursed place, nor the equally great being hovering like a cloud 
 D:of living fire above the trees." 
 
-N:824:F'lar, rider of the Bronze Mnementh
-G:D:U
+N:824:Flare, rider of bronze Moonth
+G:B:U
 I:130:70d100:100:100:15
-W:79:1:400000:38500
+W:79:5:400000:38500
 E:1:1:1:2:1:1
 O:50:50:0:0
 B:HIT:HURT:15d15
 B:HIT:HURT:15d15
 B:HIT:HURT:15d15
 B:HIT:HURT:15d15
-F:UNIQUE | MALE | DRAGONRIDER | RES_TELE | CAN_FLY | CAN_SPEAK |
+F:UNIQUE | MALE | THUNDERLORD | RES_TELE | CAN_FLY | CAN_SPEAK |
 F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON |
 F:FORCE_SLEEP | FORCE_MAXHP | PET | GOOD |
 F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
 F:IM_COLD | IM_POIS | IM_ACID | IM_ELEC | IM_FIRE | REGENERATE | 
-F:MORTAL | PERNANGBAND | HAS_LITE
+F:MORTAL | HAS_LITE
 S:1_IN_4 |
-S:SCARE | TPORT | TELE_TO | S_DRAGONRIDER | 
+S:SCARE | TPORT | TELE_TO | S_THUNDERLORD | 
 S:TELE_LEVEL | HEAL | BR_FIRE | BR_TIME | ROCKET
-D:The Weyrleader of Benden Weyr on Pern, he has come with Lessa to help you in 
-D:your battle. Having already saved Pern, he now wants to save Arda! 
+D:A leader from afar, he has come with his eagle to help you in 
+D:your battle. Having already saved his home, he now wants to save Arda! 
 
 N:825:Maeglin, the Traitor of Gondolin
 G:h:D
@@ -14363,15 +14364,15 @@ S:MIND_BLAST | CAUSE_4 | BA_CHAO | BA_WATE | S_HI_UNDEAD | S_KIN
 D:The Wendigo, moving so fast that you can see little except two 
 D:glowing eyes burning with hatred. 
 
-N:829:Hellhound
+N:829:Greater Hellhound
 G:C:r
-I:120:48d10:25:80:30
+I:120:48d30:25:80:30
 W:78:2:600:600
 E:0:1:0:2:1:0
 O:0:0:0:0
-B:BITE:FIRE:3d12
-B:BITE:FIRE:3d12
-B:BITE:FIRE:3d12
+B:BITE:FIRE:5d12
+B:BITE:FIRE:5d12
+B:BITE:FIRE:5d12
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_CORPSE 
 F:RAND_25 | FRIENDS | AURA_FIRE | SUSCEP_COLD |
 F:BASH_DOOR | MOVE_BODY | 
@@ -15042,10 +15043,10 @@ D:somewhat bloated corpulence... It lumbered slobberingly into sight
 D:and gropingly squeezed its gelatinous green immensity through the 
 D:black doorway... A mountain shambled or walked." 
 
-N:858:Sorka, rider of the Gold Faranth
-G:D:y
+N:858:Sarko, rider of gold Foronth
+G:B:y
 I:145:99d111:100:165:0
-W:97:1:420000:65000
+W:97:6:420000:65000
 E:1:1:1:2:1:1
 O:50:50:0:0
 B:HIT:HURT:12d12
@@ -15053,17 +15054,17 @@ B:HIT:HURT:12d12
 B:HIT:FIRE:12d12
 B:HIT:FIRE:12d12
 F:UNIQUE | FEMALE | DROP_CORPSE | 
-F:ATTR_MULTI | DRAGONRIDER | RES_TELE | PET | CAN_SPEAK |
+F:ATTR_MULTI | THUNDERLORD | RES_TELE | PET | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | GOOD |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:DROP_CHOSEN | REFLECTING | AURA_FIRE | AURA_ELEC | 
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | POWERFUL |
-F:MORTAL | PERNANGBAND | HAS_LITE
+F:MORTAL | HAS_LITE
 S:1_IN_4 | 
-S:TPORT | TELE_TO | BR_FIRE | BR_TIME | S_DRAGONRIDER | TELE_AWAY |
-D:Faranth is the first Dragonrider queen, and Sorka the first to discover 
-D:the Fire-lizards, the ancestor of the Dragons of Pern. She will try to 
+S:TPORT | TELE_TO | BR_FIRE | BR_TIME | S_THUNDERLORD | TELE_AWAY |
+D:Foronth is the first Eagle queen, and Sarko the first to discover 
+D:the Firebirds, the ancestor of the Thunderlord eagles. She will try to 
 D:help you! 
 
 N:859:The Unicorn of Order
@@ -15135,14 +15136,14 @@ F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF |NO_FEAR | NO_STUN | RES_TELE
 F:MORTAL | JOKEANGBAND | HAS_LITE
 S:1_IN_2 | 
-S:S_DRAGONRIDER | BR_CHAO | BA_CHAO | ROCKET | BRAIN_SMASH | S_HI_DEMON | 
+S:S_THUNDERLORD | BR_CHAO | BA_CHAO | ROCKET | BRAIN_SMASH | S_HI_DEMON | 
 S:BR_NETH | HASTE | BR_MANA | S_HI_UNDEAD | S_HI_DRAGON | TRAPS | FORGET | 
 S:BR_NUKE | BR_POIS | BR_DISI | HAND_DOOM | HEAL | TPORT | TELE_TO |
 S:S_BUG | S_RNG |
 D:He is the master of coding; none can match his skill. He created the 
 D:Variant Maintainer, the RNGs, and the software bugs. Bull Gates is 
 D:nothing next to him. Do not think that since he loves the novels of 
-D:Pern he is to be ignored! He wishes to translate your soul into 
+D:Tolkien he is to be ignored! He wishes to translate your soul into 
 D:assembler, the one hitch being that he must kill you first. If you 
 D:encounter him, pray your deity holds you in good stead. 
 
@@ -15328,7 +15329,7 @@ S:1_IN_3
 S:ROCKET | ARROW_4 | BLINK | BR_POIS | BR_CHAO | BR_NEXU
 D:It was left here to be used against intruders. 
 
-N:872:The Balrog of Moria
+N:872:Durin's Bane
 G:U:v
 I:130:30d100:20:100:80
 W:50:3:13000:30000
@@ -16386,10 +16387,10 @@ S:BLIND | CONF | SCARE |
 S:BR_ACID
 D:A huge and very powerful dragon.  Great steaming pools of acid drip from 
 D:its form onto the ground.  You shudder when you see the acid eating away 
-D:the very stones of the dungeon - what could it do to you? 
+D:the very stones of the dungeon - what could it do to you?
 
-N:940:Blue Firelizard
-G:d:B
+N:940:Blue Firebird
+G:B:B
 I:120:4d5:8:15:10
 W:5:3:100:0
 E:0:1:0:6:1:0
@@ -16398,14 +16399,14 @@ B:CLAW:HURT:3d4
 B:CLAW:FIRE:5d4
 F:IM_COLD | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP | IMPRESED |
 F:CAN_FLY | SMART | PET | DROP_CORPSE | HAS_EGG | GOOD |
-F:MORTAL | PERNANGBAND | HAS_LITE
+F:MORTAL |  HAS_LITE
 S:1_IN_10
 S:TELE_TO |
-D:The ancestors of the Dragons of the Dragonriders, these are 
-D:friendly funny flying creatures with the powers of the dragons. 
+D:The ancestors of the Eagles of the Thunderlords, these are 
+D:friendly funny flying creatures with power.
 
-N:941:Green Firelizard
-G:d:G
+N:941:Green Firebird
+G:B:G
 I:120:4d5:10:15:10
 W:7:3:110:0
 E:0:1:0:6:1:0
@@ -16414,14 +16415,14 @@ B:CLAW:HURT:4d4
 B:CLAW:FIRE:5d4
 F:IM_COLD | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP | IMPRESED |
 F:CAN_FLY | SMART | PET | DROP_CORPSE | HAS_EGG | GOOD |
-F:MORTAL | PERNANGBAND | HAS_LITE
+F:MORTAL | HAS_LITE
 S:1_IN_10
 S:TELE_TO |
-D:The ancestors of the Dragons of the Dragonriders, these are 
-D:friendly funny flying creatures with the powers of the dragons. 
+D:The ancestors of the Eagles of the Thunderlords, these are 
+D:friendly funny flying creatures with power. 
 
-N:942:Brown Firelizard
-G:d:u
+N:942:Brown Firebird
+G:B:u
 I:120:5d5:10:15:10
 W:10:3:120:0
 E:0:1:0:6:1:0
@@ -16430,14 +16431,14 @@ B:CLAW:HURT:5d4
 B:CLAW:FIRE:7d4
 F:IM_COLD | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP | IMPRESED |
 F:CAN_FLY | SMART | PET | DROP_CORPSE | HAS_EGG | GOOD |
-F:MORTAL | PERNANGBAND | HAS_LITE
+F:MORTAL | HAS_LITE
 S:1_IN_10
 S:TELE_TO |
-D:The ancestors of the Dragons of the Dragonriders, these are 
-D:friendly funny flying creatures with the powers of the dragons. 
+D:The ancestors of the Eagles of the Thunderlords, these are 
+D:friendly funny flying creatures with power. 
 
-N:943:Bronze Firelizard
-G:d:U
+N:943:Bronze Firebird
+G:B:U
 I:120:6d5:15:15:10
 W:13:3:130:0
 E:0:1:0:6:1:0
@@ -16446,14 +16447,14 @@ B:CLAW:HURT:6d4
 B:CLAW:FIRE:7d4
 F:IM_COLD | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP | IMPRESED |
 F:CAN_FLY | SMART | PET | DROP_CORPSE | HAS_EGG | GOOD |
-F:MORTAL | PERNANGBAND | HAS_LITE
+F:MORTAL | HAS_LITE
 S:1_IN_10
 S:TELE_TO |
-D:The ancestors of the Dragons of the Dragonriders, these are 
-D:friendly funny flying creatures with the powers of the dragons. 
+D:The ancestors of the Eagles of the Thunderlords, these are 
+D:friendly funny flying creatures with power. 
 
-N:944:Gold Firelizard
-G:d:y
+N:944:Gold Firebird
+G:B:y
 I:120:6d5:20:15:10
 W:15:3:140:0
 E:0:1:0:6:1:0
@@ -16462,11 +16463,11 @@ B:CLAW:HURT:6d4
 B:CLAW:FIRE:8d4
 F:IM_COLD | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP | IMPRESED |
 F:CAN_FLY | SMART | PET | DROP_CORPSE | HAS_EGG | GOOD |
-F:MORTAL | PERNANGBAND | HAS_LITE
+F:MORTAL | HAS_LITE
 S:1_IN_10
 S:TELE_TO |
-D:The ancestors of the Dragons of the Dragonriders, these are 
-D:friendly funny flying creatures with the powers of the dragons. 
+D:The ancestors of the Eagles of the Thunderlords, these are 
+D:friendly funny flying creatures with power. 
 
 N:945:High-elven ranger
 G:h:G
@@ -16689,82 +16690,82 @@ D:spells are lethal and his combat blows crushingly hard. He moves at
 D:speed, and commands legions of evil to do his bidding. It is said that he 
 D:is fated never to die by the hand of mortal man.
 
-N:955:Green Dragonrider
-G:D:g
+N:955:Green Thunderlord
+G:B:g
 I:120:50d50:20:100:50
-W:30:1:30000:10000
+W:30:4:30000:10000
 E:1:1:1:2:1:1
 O:50:50:0:0
 B:HIT:HURT:8d6
 B:HIT:HURT:8d6
 F:FEMALE |
-F:DRAGONRIDER | DROP_SKELETON | DROP_CORPSE |
+F:THUNDERLORD | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR |
-F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | PERNANGBAND | HAS_LITE
+F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | HAS_LITE
 S:1_IN_4 |
 S:BR_FIRE |
 S:BLINK | TELE_AWAY
-D:A Dragonrider of Pern. Among the weaker breeds, but still dangerous. 
+D:A Thunderlord. Among the weaker breeds, but still dangerous. 
 
-N:956:Blue Dragonrider
-G:D:b
+N:956:Blue Thunderlord
+G:B:b
 I:120:60d60:20:100:50
-W:40:1:30000:20000
+W:40:4:30000:20000
 E:1:1:1:2:1:1
 O:50:50:0:0
 B:HIT:HURT:8d7
 B:HIT:HURT:8d7
 F:MALE | SMART |
-F:DRAGONRIDER | DROP_SKELETON | DROP_CORPSE |
+F:THUNDERLORD | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR |
-F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | PERNANGBAND | HAS_LITE
+F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | HAS_LITE
 S:1_IN_4 |
 S:BR_FIRE |
 S:TPORT | BLINK
-D:A Dragonrider of Pern. Among the weaker breeds, but still dangerous. 
+D:A Thunderlord. Among the weaker breeds, but still dangerous. 
 
-N:957:Brown Dragonrider
-G:D:u
+N:957:Brown Thunderlord
+G:B:u
 I:130:70d70:30:100:50
-W:50:1:30000:20000
+W:50:4:30000:20000
 E:1:1:1:2:1:1
 O:50:50:0:0
 B:HIT:HURT:8d9
 B:HIT:HURT:8d9
 F:MALE | SMART |
-F:DRAGONRIDER | DROP_SKELETON | DROP_CORPSE |
+F:THUNDERLORD | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR |
-F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | PERNANGBAND | HAS_LITE
+F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY |  HAS_LITE
 S:1_IN_4 |
 S:BR_FIRE |
 S:TPORT | BLINK
-D:A Dragonrider of Pern. Beware its flame. 
+D:A Thunderlord. Beware its flame. 
 
-N:958:Bronze Dragonrider
-G:D:U
+N:958:Bronze Thunderlord
+G:B:U
 I:130:80d80:30:100:50
-W:60:1:30000:20000
+W:60:5:30000:20000
 E:1:1:1:2:1:1
 O:50:50:0:0
 B:HIT:HURT:10d9
 B:HIT:HURT:10d9
 F:MALE | SMART |
-F:DRAGONRIDER | DROP_SKELETON | DROP_CORPSE |
+F:THUNDERLORD | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR |
-F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | PERNANGBAND | HAS_LITE
+F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | HAS_LITE
 S:1_IN_4 |
 S:BR_FIRE | BR_TIME |
 S:TPORT | BLINK
-D:A Dragonrider of Pern, mightiest among the males. 
+D:A Thunderlord, mightiest among the males. 
 
-N:959:Gold Dragonrider
-G:D:y
+N:959:Gold Thunderlord
+G:B:y
 I:130:90d90:30:100:50
-W:70:1:30000:20000
+W:70:5:30000:20000
 E:1:1:1:2:1:1
 O:50:50:0:0
 B:HIT:HURT:10d9
@@ -16772,17 +16773,17 @@ B:HIT:HURT:10d9
 B:HIT:HURT:10d9
 B:HIT:HURT:10d9
 F:FEMALE | SMART |
-F:DRAGONRIDER | DROP_SKELETON | DROP_CORPSE |
+F:THUNDERLORD | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR |
-F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | PERNANGBAND | HAS_LITE
+F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | HAS_LITE
 S:1_IN_4 |
 S:BR_FIRE | BR_TIME | 
 S:TPORT | BLINK | TELE_TO | TELE_AWAY |
-S:S_DRAGONRIDER
-D:A Dragonrider of Pern, among the queens of their kind. 
+S:S_THUNDERLORD
+D:A Thunderlord, among the queens of their kind. 
 
-N:960:Thread
+N:960:Blood Sprout
 G:,:g
 I:140:3d5:10:1:0
 W:50:1:50:3
@@ -16795,10 +16796,9 @@ B:TOUCH:HURT:3d15
 F:STUPID | EMPTY_MIND | KILL_TREES | 
 F:IM_POIS | IM_ELEC | IM_ACID | IM_COLD |
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
-F:MORTAL | PERNANGBAND
+F:MORTAL
 S:MULTIPLY
-D:A kind of carnivorous giant mycorhiza:  originally from the far system 
-D:of Rukbat in which orbits the plant Pern, home of the Dragonriders. 
+D:A kind of giant mycorrhiza, corrupted into a carnivore by Morgoth.
 
 N:961:Gorlim, Betrayer of Barahir
 G:p:s
@@ -16892,7 +16892,7 @@ F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL | IM_POIS | MORTAL | BASEANGBAND
 D:It is moving slowly towards you. 
 
-N:966:Dolphiner
+N:966:Wavelord
 G:p:b
 I:120:16d100:30:120:40
 W:61:3:1800:7000
@@ -16906,11 +16906,11 @@ F:SMART | PET | DROP_CORPSE | FRIENDS | WILD_SHORE | WILD_OCEAN | WILD_TOO |
 F:IM_POIS | AQUATIC | CAN_SWIM | DROP_USEFUL |
 F:NO_CONF | NO_SLEEP | NO_FEAR | DROP_GOOD | DROP_3D2 |
 F:MORTAL | REGENERATE | TAKE_ITEM | GOOD | SUSCEP_FIRE |
-F:RES_WATE | RES_NEXU | PERNANGBAND | HAS_LITE
+F:RES_WATE | RES_NEXU | HAS_LITE
 S:1_IN_4
 S:BO_WATE | BA_WATE | BO_ICEE
-D:The Dolphiners came with the Dragonriders from the far planet Pern. 
-D:These friendly beings ride their dolphins into combat to assist you. 
+D:The Dolphiners came with the Thunderlords from their far home. 
+D:These friendly beings ride their sharks into combat to assist you. 
 
 N:967:Novice possessor (soul)
 G:G:D
@@ -16946,7 +16946,7 @@ E:0:1:1:2:1:1
 O:0:0:1:0
 F:FEMALE | CAN_SPEAK
 F:FORCE_MAXHP | SPECIAL_GENE | NO_TARGET
-F:NEVER_MOVE | NEVER_BLOW | GOOD | NO_DEATH 
+F:NEVER_MOVE | NEVER_BLOW | GOOD | NO_DEATH | RES_TELE
 F:MORTAL | BASEANGBAND | UNIQUE | PET | 
 D:The princess of an unknown kingdom, you need to save her! 
 
@@ -18144,7 +18144,7 @@ D:mist circling rapidly around it, Tik'srvzllat threatens your sanity
 D:with its appearance alone. 
 
 N:1033:The Glass Golem
-G:#:W
+G:g:W
 I:130:100d15:200:170:0
 W:52:4:0:2000
 E:0:0:0:0:0:0
@@ -18248,13 +18248,13 @@ D:the nether hells to seek revenge on the world.
 N:1038:Water hound
 G:Z:r
 I:110:12d6:30:30:0
-W:43:1:600:70
+W:43:1:600:150
 B:BITE:HURT:1d6
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
 E:0:1:0:2:1:0
 O:0:0:0:0
-F:FORCE_SLEEP | BASH_DOOR | DROP_CORPSE | 
+F:FORCE_SLEEP | BASH_DOOR | DROP_CORPSE | FRIENDS
 F:ANIMAL | IM_COLD | MORTAL | BASEANGBAND | RES_WATE | NO_CUT
 S:1_IN_5 | BA_WATE
 D:The sound of a hundred waterfalls rushes through your ears as 
@@ -18347,5 +18347,599 @@ F:BASH_DOOR | AURA_FIRE | HAS_LITE
 F:IM_FIRE | SPECIAL_GENE
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | NO_STUN
 F:MORTAL | BASEANGBAND | NO_CUT | AI_PLAYER
+S:1_IN_10 | 
 S:BR_FIRE
 D:A sentient mass of pure fire. 
+
+N:1044:Melkor, Lord of Darkness
+G:G:v
+I:150:300d300:100:150:0
+W:150:1:200000:60000
+E:1:1:1:2:1:1
+O:25:25:25:25
+B:HIT:ABOMINATION:3d10
+B:HIT:TIME:24d10
+B:HIT:INSANITY:24d10
+B:HIT:LOSE_ALL:24d10
+F:UNIQUE | CAN_SPEAK | MALE |
+F:FORCE_MAXHP | SPIRIT
+F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
+F:DROP_GOOD | DROP_GREAT | DROP_CHOSEN | RES_NETH |
+F:SMART | KILL_WALL | MOVE_BODY | AURA_FIRE |
+F:REGENERATE | POWERFUL | SPECIAL_GENE | CAN_FLY | KILL_TREES
+F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_STUN | NO_SLEEP | NO_FEAR | RES_TELE | BASEANGBAND |
+S:1_IN_4 | 
+S:BRAIN_SMASH | 
+S:BA_MANA | BO_MANA | BA_NETH | BA_CHAO | BA_DARK | ANIM_DEAD | 
+S:S_MONSTERS | S_UNIQUE | S_HI_DEMON | S_HI_UNDEAD | S_HI_DRAGON | 
+S:BR_NETH | BR_DISI | HAND_DOOM | S_WRAITH | HEAL | BRAIN_SMASH |
+S:DRAIN_MANA | TELE_TO | DARKNESS
+D:He was the most powerful of the Valar, the equal of Manwe. 
+D:You banned him here, in the Void, and now you must destroy him 
+D:forever. However here in the Void, his spirit gained much power 
+D:for he is closer to the Eternal Flame. He is coming to you in pure 
+D:madness, which make shim even more dangerous. You are on the verge 
+D:of dying! 
+
+## Here are the Spirits, inhabitants of the Void, all called "Spirit" making it hard to know what we are up against ##
+## Note: I am nasty heheh :)
+
+# Spirit of nether
+N:1045:Spirit
+G:G:v
+I:120:40d80:30:50:20
+W:128:2:0:5000
+E:0:1:1:2:0:0
+O:25:0:75:0
+B:TOUCH:EXP_80:10d10
+B:TOUCH:EXP_80:10d10
+F:SPIRIT | BASEANGBAND | NEVER_MOVE | EMPTY_MIND | NO_CUT |
+F:COLD_BLOOD | INVISIBLE 
+S:1_IN_1 |
+S:BA_NETH
+D:This strange, almost intangible spirit keeps assaulting you! 
+
+# Spirit of annoyance (hahaha AI_ANNOY and MULTIPLY)
+N:1046:Spirit
+G:G:B
+I:130:40d20:30:70:70
+W:144:4:0:500
+E:0:0:0:0:0:0
+O:5:5:5:0
+B:TOUCH:POISON:10d10
+B:CRAWL:POISON:10d10
+B:CRAWL:EAT_ITEM:10d9
+B:BITE:UN_BONUS:9d9
+F:SPIRIT | BASEANGBAND | WEIRD_MIND | FRIENDS |
+F:AI_ANNOY | PASS_WALL
+S:MULTIPLY
+D:These things multiply at an apparently unstoppable rate! 
+
+# Spirit of movement
+N:1047:Spirit
+G:G:B
+I:130:10d80:50:65:10
+W:132:1:10:5500
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:TOUCH:LOSE_DEX:2d3
+B:TOUCH:PARALYZE:1d12
+B:TOUCH:PARALYZE:1d12
+F:SPIRIT | BASEANGBAND | NO_SLEEP | PASS_WALL | WEIRD_MIND 
+S:1_IN_2 |
+S:SLOW | BLINK | HOLD | HASTE
+D:Coming towards you quickly, it seems intent on moving faster than you. 
+
+# Spirit of confusion
+N:1048:Spirit
+G:G:v
+I:120:40d80:80:85:0
+W:135:2:0:5500
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:ENGULF:HALLU:16d8
+B:ENGULF:HALLU:16d8
+B:ENGULF:CONFUSE:16d8
+B:ENGULF:CONFUSE:16d8
+F:SPIRIT | BASEANGBAND | RES_NEXU |  AURA_ELEC | IM_FIRE | IM_ELEC |
+F:EMPTY_MIND | BASH_DOOR | POWERFUL | CAN_FLY | ATTR_MULTI |
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_CUT
+S:1_IN_3 |
+S:BR_CHAO | BR_NEXU | BR_NUKE | BR_CONF
+D:A swirling mass, constantly changing its appearance. 
+
+# Spirit of brawn
+N:1049:Spirit
+G:G:U
+I:130:140d100:50:180:30
+W:145:3:10000:8000
+E:1:1:1:2:1:1
+O:0:100:0:0
+B:HIT:SHATTER:18d18
+B:HIT:CONFUSE:18d18
+B:HIT:SHATTER:18d18
+B:HIT:CONFUSE:18d18
+F:SPIRIT | BASEANGBAND | DROP_4D2 | KILL_BODY | KILL_WALL |
+F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | KILL_TREES | 
+F:EVIL | GIANT | HURT_ROCK | BASEANGBAND | HAS_LITE | 
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS
+D:Strong and swarthy, this spirit could bend metal with his bare hands.
+
+# Spirit of Wyrms
+N:1050:Spirit
+G:G:v
+I:130:151d151:50:190:50
+W:147:8:10000:87500
+E:0:1:0:6:1:0
+O:50:50:0:0
+B:CLAW:HURT:10d15
+B:CLAW:HURT:10d15
+B:BITE:HURT:14d18
+B:BITE:HURT:14d18
+F:SPIRIT | FORCE_MAXHP | MOVE_BODY | AURA_FIRE | REFLECTING | AURA_ELEC |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | AURA_COLD |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | RES_NETH | RES_DISE |
+F:DRAGON | GOOD | RES_TELE | DROP_CORPSE | KILL_TREES | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP |
+F:RES_NEXU | RES_PLAS | CAN_FLY | BASEANGBAND | HAS_LITE | NO_CUT
+S:1_IN_3 |
+S:S_HI_DRAGON | S_DRAGON | S_KIN | 
+S:BR_NUKE | BR_ACID | BR_ELEC | BR_FIRE |
+S:BR_COLD | BR_POIS | BR_NETH | BR_LITE | BR_DARK |
+S:BR_CONF | BR_SOUN | BR_CHAO | BR_DISE | BR_NEXU |
+S:BR_TIME | BR_INER | BR_GRAV | BR_SHAR | BR_PLAS |
+S:BR_WALL | BR_MANA | BR_DISI
+D:This spirit bears a remarkable similarity to some of the most powerful 
+D:types of dragonkind found in Middle-Earth. It appears to be even more 
+D:fearsome though! 
+
+# Spirit of snakes
+N:1051:Spirit
+G:G:g
+I:130:150d100:40:80:20
+W:133:3:90:750
+E:1:1:1:2:1:1
+O:25:20:25:20
+B:BITE:POISON:15d15
+B:BITE:POISON:15d15
+B:BITE:LOSE_ALL:10d12
+F:SPIRIT | CAN_SWIM | IM_POIS | IM_ACID |
+F:DROP_60 | DROP_2D2 | FRIENDS | DROP_CORPSE |
+F:OPEN_DOOR | BASH_DOOR | EVIL | BASEANGBAND
+S:1_IN_4 |
+S:BA_POIS | S_MONSTER | SCARE | HOLD
+D:It slides towards you, a horrible scaly, slidy thing. 
+
+# Spirit of seeing
+N:1052:Spirit
+G:G:v
+I:130:95d110:60:130:10
+W:141:3:60:50000
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:GAZE:UN_BONUS:12d12
+B:GAZE:UN_POWER:12d10
+B:GAZE:INSANITY:12d14
+B:GAZE:LOSE_ALL:6d6
+F:SPIRIT | BASH_DOOR | EVIL | IM_POIS | 
+F:CAN_FLY | BASEANGBAND
+S:1_IN_2 | 
+S:BLIND | CONF | FORGET | SCARE | DRAIN_MANA | BRAIN_SMASH | 
+S:BA_DARK | BO_MANA | BA_NETH | BA_ACID | BA_FIRE | BA_COLD 
+D:You will find it difficult to avoid being seen by this spirit! And 
+D:once it has you in its sight, beware! 
+
+# Spirit of unseeing 
+N:1053:Spirit
+G:.:W
+I:120:55d50:20:130:80
+W:142:6:60:4000
+E:0:0:0:0:0:0
+O:10:0:90:0
+B:TOUCH:UN_BONUS:12d12
+B:TOUCH:UN_POWER:12d10
+B:TOUCH:INSANITY:12d14
+B:TOUCH:LOSE_ALL:6d6
+F:SPIRIT | CAN_FLY | REFLECTING |
+F:SMART | BASH_DOOR | COLD_BLOOD | INVISIBLE | EMPTY_MIND |
+F:EVIL | BASEANGBAND | CHAR_MULTI | CHAR_CLEAR | ATTR_CLEAR
+S:1_IN_3 | 
+S:DRAIN_MANA | BLINK | BLIND | SCARE | CONF | 
+S:HEAL | TELE_AWAY | DARKNESS | TRAPS | FORGET | SHRIEK
+D:Hopefully you will kill this spirit before you realise it exists. 
+
+# Spirit of ickyness
+N:1054:Spirit
+G:G:g
+I:130:80d80:30:60:10
+W:138:4:300:40000
+E:0:0:0:0:0:0
+O:40:30:10:10
+B:CRAWL:POISON:12d14
+B:CRAWL:EAT_FOOD:12d14
+B:TOUCH:ACID:13d15
+B:HIT:HURT:13d15
+F:SPIRIT | BASEANGBAND |
+F:EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD | IM_POIS | 
+F:EMPTY_MIND 
+S:1_IN_4 | 
+S:DRAIN_MANA | BLIND | CONF | SCARE | S_KIN
+D:A horrible slimy spirit, that seems to ooze evilness. I wouldn't get 
+D:too close to it if I were you. 
+
+# Spirit of friendship
+N:1055:Spirit
+G:G:W
+I:130:35d100:40:150:100
+W:136:3:200:10000
+E:0:1:0:2:1:0
+O:50:50:0:0
+B:BITE:HURT:12d12
+B:BITE:HURT:12d12
+B:BITE:HURT:12d8
+B:BITE:HURT:12d8
+F:SPIRIT | BASEANGBAND |
+F:ESCORT | ESCORTS |
+F:OPEN_DOOR | BASH_DOOR 
+S:1_IN_2 | 
+S:S_KIN
+D:This spirit appears to have lots of friends! 
+
+# Spirit of abomination
+N:1056:Spirit
+G:G:d
+I:130:40d80:30:125:125
+W:134:2:200:5000
+E:0:0:0:0:0:0
+O:50:0:50:0
+B:WAIL:TERRIFY:8d9
+B:HIT:HURT:10d10
+B:HIT:ABOMINATION:6d10
+B:HIT:ABOMINATION:6d10
+F:SPIRIT | BASEANGBAND |
+F:EVIL | UNDEAD | IM_POIS | IM_COLD | NO_CONF | NO_SLEEP | 
+F:COLD_BLOOD | HURT_LITE | NO_CUT 
+S:1_IN_3 |
+S:SCARE | HOLD | DARKNESS | SCARE 
+D:It seems to have been woken from the dead, this spirit. It lumbers 
+D:towards you, seeking to turn you into a form as hideous as its own! 
+
+### Here come the spirits of <player stat> ###
+#
+# Spirit of strength
+N:1057:Spirit
+G:G:u
+I:120:140d100:50:180:170
+W:129:2:10000:8000
+E:1:1:1:2:1:1
+O:0:100:0:0
+B:HIT:LOSE_STR:4d8
+B:HIT:LOSE_STR:4d8
+B:HIT:LOSE_STR:4d8
+F:SPIRIT | BASEANGBAND | DROP_2D2 | KILL_BODY | KILL_WALL |
+F:BASH_DOOR | EVIL | GIANT | HURT_ROCK | 
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS
+D:It is coming for you, this massive imposing tower of strength.
+D:It appears almost unstoppable! 
+
+# Spirit of intelligence
+N:1058:Spirit
+G:G:r
+I:140:80d100:50:100:10
+W:131:2:10000:8000
+E:1:1:1:2:1:1
+O:0:0:100:0
+B:HIT:LOSE_INT:4d8
+B:HIT:LOSE_INT:4d8
+B:HIT:LOSE_INT:4d8
+F:EVIL | SPIRIT | BASEANGBAND | DROP_2D2 | 
+F:OPEN_DOOR | SMART |
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS
+S:1_IN_2 |
+S:HASTE | TPORT | TELE_TO | BLIND | CONF | 
+S:BO_MANA | BO_FIRE | BO_COLD | BO_ELEC | 
+D:This spirit looks very clever, cunning almost. 
+
+# Spirit of wisdom
+N:1059:Spirit
+G:G:G
+I:130:120d100:50:200:130
+W:137:2:10000:8000
+E:1:1:1:2:1:1
+O:0:50:50:0
+B:HIT:LOSE_WIS:4d8
+B:HIT:LOSE_WIS:4d8
+B:HIT:LOSE_WIS:4d8
+F:EVIL | SPIRIT | BASEANGBAND | DROP_2D2 | 
+F:OPEN_DOOR | 
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS
+S:1_IN_2 |
+S:HEAL | MIND_BLAST | CAUSE_4 | SCARE | 
+S:DRAIN_MANA | BRAIN_SMASH | FORGET |
+D:This spirit has something of a priestly look about it. 
+
+# Spirit of dexterity
+N:1060:Spirit
+G:G:W
+I:160:120d100:50:160:50
+W:139:2:10000:8000
+E:1:1:1:2:1:1
+O:0:50:25:25
+B:HIT:LOSE_DEX:4d8
+B:HIT:LOSE_DEX:4d8
+B:HIT:LOSE_DEX:4d8
+F:EVIL | SPIRIT | BASEANGBAND | DROP_2D2 | 
+F:OPEN_DOOR | SMART |
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS
+S:1_IN_1 |
+S:ARROW_4
+D:This spirit moves almost too quickly for you to see him. 
+
+# Spirit of constitution
+N:1061:Spirit
+G:G:s
+I:120:140d100:50:180:50
+W:143:2:10000:8000
+E:1:1:1:2:1:1
+O:0:50:0:50
+B:HIT:LOSE_CON:4d8
+B:HIT:LOSE_CON:4d8
+B:HIT:LOSE_CON:4d8
+F:EVIL | SPIRIT | BASEANGBAND | DROP_2D2 | BASH_DOOR |
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS
+D:This spirit moves slower than most, but thunders on and on 
+D:towards you. 
+
+# Spirit of charisma
+N:1062:Spirit
+G:G:b
+I:140:80d100:50:120:90
+W:146:2:10000:8000
+E:1:1:1:2:1:1
+O:70:10:10:10
+B:HIT:LOSE_CHR:4d8
+B:HIT:LOSE_CHR:4d8
+B:HIT:LOSE_CHR:4d8
+F:SPIRIT | BASEANGBAND | DROP_2D2 | 
+F:OPEN_DOOR | EVIL | TAKE_ITEM |
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS
+S:1_IN_2 |
+S:TRAPS | ARROW_3 | BLINK | TELE_TO | CONF 
+D:There is something attractive about this spirit, and it seems 
+D:to have a full purse. 
+
+### Here come some elemental spirits ###
+#
+# Spirit of flickering fire 
+N:1063:Spirit
+G:G:r
+I:120:60d100:50:65:80
+W:130:1:5:6000
+E:1:1:1:2:1:1
+O:25:60:0:15
+B:HIT:FIRE:10d8
+B:HIT:FIRE:10d8
+B:HIT:FIRE:10d8
+F:SPIRIT | BASEANGBAND | AI_ANNOY | IM_FIRE | AURA_FIRE | HAS_LITE
+S:1_IN_2 |
+S:BO_FIRE | BA_FIRE
+D:Flickering towards you, and then away, this spirit will burn you badly! 
+
+# Spirit of icy cold
+N:1064:Spirit
+G:G:w
+I:120:60d100:50:65:80
+W:148:1:5:6000
+E:1:1:1:2:1:1
+O:25:60:0:15
+B:HIT:COLD:10d8
+B:HIT:COLD:10d8
+B:HIT:COLD:10d8
+F:SPIRIT | BASEANGBAND | IM_COLD | AURA_COLD | 
+F:COLD_BLOOD | BASH_DOOR 
+S:1_IN_2 |
+S:BO_COLD | BA_COLD
+D:The temperature around you drops as soon as you set eyes on this spirit. 
+
+# Spirit of corrosion (acid)
+N:1065:Spirit
+G:G:s
+I:120:60d100:50:65:80
+W:146:1:5:6000
+E:1:1:1:2:1:1
+O:25:60:0:15
+B:HIT:ACID:10d8
+B:HIT:ACID:10d8
+B:HIT:ACID:10d8
+F:SPIRIT | BASEANGBAND | IM_ACID | BASH_DOOR | KILL_TREES 
+S:1_IN_2 |
+S:BO_ACID | BA_ACID
+D:The very fabric of the void heals itself where this spirit walks. 
+
+# Spirit of shocking (electricity)
+N:1066:Spirit
+G:G:b
+I:120:60d100:50:65:80
+W:149:1:5:6000
+E:1:1:1:2:1:1
+O:25:60:0:15
+B:HIT:ELEC:10d8
+B:HIT:ELEC:10d8
+B:HIT:ELEC:10d8
+F:SPIRIT | BASEANGBAND | IM_ELEC | AURA_ELEC | BASH_DOOR 
+S:1_IN_2 |
+S:BO_ELEC | BA_ELEC
+D:The air crackles as this spirit approaches, and you smell singed flesh. 
+
+# Spirit of Valaraukar (Balrogs)
+N:1067:Spirit
+G:G:v
+I:130:130d100:100:140:10
+W:149:1:170:43000
+E:1:1:1:2:1:1
+O:0:100:0:0
+B:HIT:FIRE:11d12
+B:HIT:FIRE:11d12
+B:CRUSH:HURT:10d12
+B:TOUCH:UN_POWER
+F:SPIRIT | CAN_FLY | KILL_WALL | AURA_FIRE | NONLIVING |
+F:ONLY_ITEM | DROP_2D2 | EVIL | DEMON | 
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:IM_FIRE | IM_ELEC | BASEANGBAND | HAS_LITE
+S:1_IN_3 | 
+S:BLIND | CONF | SCARE | BR_FIRE 
+D:Carrying a whip of fire, this spirit looks not dissimilair to a certain 
+D:balrog. 
+
+# Spirit of shadows
+N:1068:Spirit
+G:G:d
+I:130:30d100:70:150:4
+W:140:4:2300:10000
+E:1:1:1:2:1:1
+O:20:80:0:0
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+B:TOUCH:EXP_80:20d8
+B:TOUCH:EXP_40:20d8
+F:SPIRIT | BASEANGBAND | REFLECTING | REGENERATE |
+F:IM_ACID | IM_ELEC | IM_COLD | IM_FIRE | IM_POIS | RES_TELE |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | SMART | POWERFUL 
+S:1_IN_3 |
+S:BLIND | HEAL | BA_DARK | HASTE | CONF 
+D:Deriving his strength from the shadows, this spirit 
+D:steals only for the challenge. 
+
+# Spirit of vampire or something
+N:1069:Spirit
+G:G:W
+I:130:50d50:30:90:10
+W:143:2:1700:18000
+E:1:1:1:2:1:1
+O:0:70:30:0
+B:HIT:HURT:10d9
+B:HIT:HURT:9d9
+B:BITE:EXP_80:9d9
+B:BITE:EXP_80:9d9
+F:SPIRIT | FORCE_SLEEP | CAN_FLY |
+F:DROP_60 | DROP_4D2 | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | RES_TELE | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | 
+F:NO_CONF | NO_SLEEP | BASEANGBAND | NO_CUT | SPIRIT
+S:1_IN_3 | 
+S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
+S:BRAIN_SMASH | DARKNESS | BO_NETH 
+D:Your blood curdles and your bones chill as this spirit approaches. 
+
+# Spirit of unresistability (hehehehe)
+N:1070:Spirit
+G:G:v
+I:140:40d100:40:70:20
+W:149:4:1200:20000
+E:1:1:1:2:1:1:
+O:0:0:0:100
+B:HIT:SHATTER:18d10
+B:HIT:SHATTER:18d10
+B:HIT:LOSE_ALL:8d8
+B:TOUCH:UN_POWER
+F:BASEANGBAND | SPIRIT | SMART | 
+F:OPEN_DOOR | BASH_DOOR | POWERFUL |
+F:RES_NEXU | RES_NETH | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | 
+F:IM_POIS | IM_ELEC | IM_ACID | IM_COLD |
+S:1_IN_2 |
+S:BA_MANA | BR_PLAS | BR_TIME | ROCKET | HAND_DOOM | FORGET | BA_WATE
+D:This spirit appears to be afraid of very little, and confident in it's
+D:ability to destroy you. 
+
+# Spirit of time
+N:1071:Spirit
+G:G:G
+I:130:80d100:40:110:0
+W:150:3:800:50000
+E:0:1:0:2:1:0
+O:0:0:0:0
+B:TOUCH:TIME:6d12
+B:TOUCH:TIME:6d12
+B:TOUCH:TIME:6d12
+B:TOUCH:TIME:6d12
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE | 
+F:ANIMAL | NO_CONF | NO_SLEEP | 
+F:SPIRIT | BASEANGBAND
+S:1_IN_2 | 
+S:BR_TIME | SLOW | HASTE | HOLD
+D:All at once you see that which is to come and that which has gone before. 
+
+# Spirit of Gold
+N:1072:Spirit
+G:G:y
+I:130:50d80:20:110:100
+W:130:4:80:8000
+E:0:1:0:2:1:0
+O:100:0:0:0
+B:TOUCH:EAT_GOLD:7d15
+B:TOUCH:EAT_GOLD:7d15
+B:HIT:POISON:6d12
+B:HIT:POISON:6d12
+F:ONLY_GOLD | SPIRIT | BASEANGBAND |
+F:DROP_4D2 | DROP_4D2 | DROP_4D2 | REFLECTING | COLD_BLOOD | REGENERATE | 
+F:BASH_DOOR | MOVE_BODY | IM_ELEC | IM_COLD | IM_POIS | 
+F:RES_TELE | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:ARROW_4 | HEAL | FORGET 
+D:It is the very essence of financial greed... 
+
+# Spirit of doom 
+N:1073:Spirit
+G:G:D
+I:136:60d70:40:70:30
+W:134:2:60:8000
+E:1:1:1:2:1:1
+O:0:10:90:0
+B:HIT:HURT:14d14
+B:HIT:HURT:14d14
+B:HIT:HURT:14d14
+F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | NO_CONF | NO_SLEEP | 
+F:SPIRIT | BASEANGBAND | HAS_LITE
+S:1_IN_2 | 
+S:HAND_DOOM | CAUSE_4 | DARKNESS 
+D:The very presence of this creature fills the air with an aura of doom. 
+D:You feel waves of depression descending on you as it approaches. 
+
+# Spirit of etherealism (?)
+N:1074:Spirit
+G:G:o
+I:120:40d100:30:120:40
+W:141:3:1700:10000
+E:0:1:0:6:1:0
+B:CLAW:HURT:14d10
+B:CLAW:HURT:14d10
+B:BITE:HURT:17d10
+F:INVISIBLE | CAN_FLY | SPIRIT | WEIRD_MIND |
+F:PASS_WALL | POWERFUL | MOVE_BODY | 
+F:EVIL | NO_CONF | NO_SLEEP | BASEANGBAND | SPIRIT
+S:1_IN_2 | 
+S:BLIND | CONF | 
+S:BR_LITE | BR_DARK | BR_CONF
+D:This sprit seems to flicker in and out of this plane, and is a master 
+D:of light and dark.
+
+# Spirit of orc (boring huh)
+N:1075:Spirit
+G:G:v
+I:120:90d10:30:160:100
+W:142:3:2700:11111
+E:1:1:1:2:1:1
+O:10:90:0:0
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | IM_POIS | ONLY_ITEM |
+F:MORTAL | BASEANGBAND | HAS_LITE | SPIRIT
+D:Stupid but strong, this spirit has an orcish aura about him.
+
+### Here endeth the Spirits ###

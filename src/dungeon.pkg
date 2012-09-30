@@ -1,0 +1,436 @@
+/* File: dungeon.pkg */
+
+/*
+ * Purpose: Lua interface defitions for dungeon routines.
+ * To be processed by tolua to generate C source code.
+ */
+
+$#include "angband.h"
+
+typedef char* cptr;
+typedef int errr;
+typedef unsigned char bool;
+typedef unsigned char byte;
+typedef signed short s16b;
+typedef unsigned short u16b;
+typedef signed int s32b;
+typedef unsigned int u32b;
+
+/*** Terrain Feature Indexes (see "lib/edit/f_info.txt") ***/
+
+/* Nothing */
+#define FEAT_NONE               0x00
+
+/* Basic features */
+#define FEAT_FLOOR              0x01
+#define FEAT_FOUNTAIN           0x02
+#define FEAT_GLYPH              0x03
+#define FEAT_OPEN               0x04
+#define FEAT_BROKEN             0x05
+#define FEAT_LESS               0x06
+#define FEAT_MORE               0x07
+
+/* Quest features -KMW- */
+#define FEAT_QUEST_ENTER        0x08
+#define FEAT_QUEST_EXIT         0x09
+#define FEAT_QUEST_DOWN         0x0A
+#define FEAT_QUEST_UP           0x0B
+
+/* Shafts -GSN- */
+#define FEAT_SHAFT_DOWN         0x0D
+#define FEAT_SHAFT_UP           0x0E
+
+/* Basic feature */
+#define FEAT_EMPTY_FOUNTAIN     0x0F
+
+/* Feature 0x10 -- web */
+
+/* Traps */
+#define FEAT_TRAP               0x11
+
+/* Features 0x12 - 0x1F -- unused */
+
+/* Doors */
+#define FEAT_DOOR_HEAD          0x20
+#define FEAT_DOOR_TAIL          0x2F
+
+/* Extra */
+#define FEAT_SECRET             0x30
+#define FEAT_RUBBLE             0x31
+
+/* Seams */
+#define FEAT_MAGMA              0x32
+#define FEAT_QUARTZ             0x33
+#define FEAT_MAGMA_H            0x34
+#define FEAT_QUARTZ_H           0x35
+#define FEAT_MAGMA_K            0x36
+#define FEAT_QUARTZ_K           0x37
+
+/* Walls */
+#define FEAT_WALL_EXTRA         0x38
+#define FEAT_WALL_INNER         0x39
+#define FEAT_WALL_OUTER         0x3A
+#define FEAT_WALL_SOLID         0x3B
+#define FEAT_PERM_EXTRA         0x3C
+#define FEAT_PERM_INNER         0x3D
+#define FEAT_PERM_OUTER         0x3E
+#define FEAT_PERM_SOLID         0x3F
+
+/* Explosive rune */
+#define FEAT_MINOR_GLYPH        0x40
+
+/* Pattern */
+#define FEAT_PATTERN_START      0x41
+#define FEAT_PATTERN_1          0x42
+#define FEAT_PATTERN_2          0x43
+#define FEAT_PATTERN_3          0x44
+#define FEAT_PATTERN_4          0x45
+#define FEAT_PATTERN_END        0x46
+#define FEAT_PATTERN_OLD        0x47
+#define FEAT_PATTERN_XTRA1      0x48
+#define FEAT_PATTERN_XTRA2      0x49
+
+/* Shops */
+#define FEAT_SHOP               0x4A
+
+/* Permanent walls for quests */
+#define FEAT_QUEST1             0x4B
+#define FEAT_QUEST2             0x4C
+#define FEAT_QUEST3             0x4D
+#define FEAT_QUEST4             0x4E
+
+/* Features 0x4F - 0x53 -- unused */
+
+/* Additional terrains */
+#define FEAT_SHAL_WATER         0x54
+#define FEAT_DEEP_LAVA          0x55
+#define FEAT_SHAL_LAVA          0x56
+#define FEAT_DARK_PIT           0x57
+#define FEAT_DIRT               0x58
+#define FEAT_GRASS              0x59
+#define FEAT_ICE                0x5A
+#define FEAT_SAND               0x5B
+#define FEAT_DEAD_TREE          0x5C
+#define FEAT_ASH                0x5D
+#define FEAT_MUD                0x5E
+#define FEAT_ICE_WALL           0x5F
+#define FEAT_TREES              0x60
+#define FEAT_MOUNTAIN           0x61
+#define FEAT_SANDWALL           0x62
+#define FEAT_SANDWALL_H         0x63
+#define FEAT_SANDWALL_K         0x64
+/* Feature 0x65 -- high mountain chain */
+/* Feature 0x66 -- nether mist */
+
+/* Features 0x67 - 0x9F -- unused */
+
+#define FEAT_BETWEEN            0xA0 /* 160 */
+
+/* Altars */
+#define FEAT_ALTAR_HEAD         0xA1 /* 161 */
+#define FEAT_ALTAR_TAIL         0xAB /* 171 */
+
+#define FEAT_MARKER             0xAC /* 172 */
+/* Feature 0xAD -- Underground Tunnel */
+#define FEAT_TAINTED_WATER      0xAE /* 174 */
+#define FEAT_MON_TRAP           0xAF /* 175 */
+#define FEAT_BETWEEN2           0xB0 /* 176 */
+/* Feature 0xB1 -- lava wall */
+#define FEAT_GREAT_FIRE         0xB2 /* 178 */
+#define FEAT_WAY_MORE           0xB3 /* 179 */
+#define FEAT_WAY_LESS           0xB4 /* 180 */
+/* Feature 0xB5 -- field */
+#define FEAT_EKKAIA             0xB6 /* 182 */
+
+/* Features 0xB7 - 0xBA -- unused */
+
+#define FEAT_DEEP_WATER         0xBB /* 187 */
+#define FEAT_GLASS_WALL         0xBC /* 188 */
+#define FEAT_ILLUS_WALL         0xBD /* 189 */
+/* Feature 0xBE -- grass roof */
+/* Feature 0xBF -- grass roof top */
+/* Feature 0xC0 -- grass roof chimney */
+/* Feature 0xC1 -- brick roof */
+/* Feature 0xC2 -- brick roof top */
+/* Feature 0xC3 -- brick roof chimney */
+/* Feature 0xC4 -- window */
+/* Feature 0xC5 -- small window */
+/* Feature 0xC6 -- rain barrel */
+#define FEAT_FLOWER             0xC7 /* 199 */
+/* Feature 0xC8 -- cobblestone road */
+/* Feature 0xC9 -- cobblestone with outlet */
+#define FEAT_SMALL_TREES        0xCA /* 202 */
+#define FEAT_TOWN               0xCB /* 203 */
+/* Feature 0xCC -- Underground Tunnel */
+#define FEAT_FIRE               0xCD /* 205 */
+/* Feature 0xCE -- pile of rubble (permanent) */
+
+/* Features 0xCF - 0xFF -- unused */
+
+
+/*** Dungeon type flags -- DG ***/
+#define DF1_PRINCIPAL           0x00000001L	/* Is a principal dungeon */
+#define DF1_MAZE                0x00000002L	/* Is a maze-type dungeon */
+#define DF1_SMALLEST            0x00000004L	/* Creates VERY small levels like The Maze */
+#define DF1_SMALL               0x00000008L	/* Creates small levels like Dol Goldor */
+#define DF1_BIG                 0x00000010L	/* Creates big levels like Moria, and Angband dungeons */
+#define DF1_NO_DOORS            0x00000020L	/* No doors on rooms, like Barrowdowns, Old Forest etc) */
+#define DF1_WATER_RIVER         0x00000040L	/* Allow a single water streamer on a level */
+#define DF1_LAVA_RIVER          0x00000080L	/* Allow a single lava streamer on a level */
+#define DF1_WATER_RIVERS        0x00000100L	/* Allow multiple water streamers on a level */
+#define DF1_LAVA_RIVERS         0x00000200L	/* Allow multiple lava streamers on a level */
+#define DF1_CAVE                0x00000400L	/* Allow orc-cave like 'fractal' rooms */
+#define DF1_CAVERN              0x00000800L	/* Allow cavern rooms */
+#define DF1_NO_UP               0x00001000L	/* Disallow up stairs */
+#define DF1_HOT                 0x00002000L	/* Corpses on ground and in pack decay quicker through heat */
+#define DF1_COLD                0x00004000L	/* Corpses on ground and in pack decay quicker through cold */
+#define DF1_FORCE_DOWN          0x00008000L	/* No up stairs generated */
+#define DF1_FORGET              0x00010000L	/* Features are forgotten, like the Maze and Illusory Castle */
+#define DF1_NO_DESTROY          0x00020000L	/* No destroyed levels in dungeon */
+#define DF1_SAND_VEIN           0x00040000L	/* Like in the sandworm lair */
+#define DF1_CIRCULAR_ROOMS      0x00080000L	/* Allow circular rooms */
+#define DF1_EMPTY               0x00100000L	/* Allow arena levels */
+#define DF1_DAMAGE_FEAT         0x00200000L	/* Effect specified in will affect all grids incl. terrain and monsters */
+#define DF1_FLAT                0x00400000L	/* Creates paths to next areas at edge of level, like Barrowdowns */
+#define DF1_TOWER               0x00800000L	/* You start at bottom and go up rather than the reverse */
+#define DF1_RANDOM_TOWNS        0x01000000L	/* Allow random towns */
+#define DF1_DOUBLE              0x02000000L	/* Generates everything at double size like Helcaraxe and Erebor */
+#define DF1_LIFE_LEVEL          0x04000000L	/* Creates dungeon level on modified 'game of life' algorithm */
+#define DF1_EVOLVE              0x08000000L	/* Evolving, pulsing levels like Heart of the Earth */
+#define DF1_ADJUST_LEVEL_1      0x10000000L	/* Minimum monster level will be equal to dungeon level */
+#define DF1_ADJUST_LEVEL_2      0x20000000L	/* Minimum monster level will be double the dungeon level */
+#define DF1_NO_RECALL           0x40000000L	/* No recall allowed */
+#define DF1_NO_STREAMERS        0x80000000L	/* No streamers */
+
+#define DF2_ADJUST_LEVEL_1_2    0x00000001L	/* Minimum monster level will be half the dungeon level */
+#define DF2_NO_SHAFT            0x00000002L	/* No shafts */
+#define DF2_ADJUST_LEVEL_PLAYER 0x00000004L	/* Uses player level*2 instead of dungeon level for other ADJUST_LEVEL flags */
+#define DF2_NO_TELEPORT         0x00000008L
+#define DF2_ASK_LEAVE           0x00000010L
+#define DF2_NO_STAIR            0x00000020L
+#define DF2_SPECIAL             0x00000040L
+#define DF2_NO_NEW_MONSTER      0x00000080L
+#define DF2_DESC                0x00000100L
+#define DF2_NO_GENO             0x00000200L
+#define DF2_NO_BREATH           0x00000400L     /* Oups, cannot breath here */
+#define DF2_WATER_BREATH        0x00000800L     /* Oups, cannot breath here, need water breathing */
+#define DF2_ELVEN               0x00001000L     /* Try to create elven monster ego */
+#define DF2_DWARVEN             0x00002000L     /* Try to create dwarven monster ego */
+
+extern s32b dungeon_flags1@level_flags1;
+extern s32b dungeon_flags2@level_flags2;
+
+/*
+ * Maximum dungeon height in grids, must be a multiple of SCREEN_HGT,
+ * probably hard-coded to SCREEN_HGT * 3.
+ */
+#define MAX_HGT         66
+
+/*
+ * Maximum dungeon width in grids, must be a multiple of SCREEN_WID,
+ * probably hard-coded to SCREEN_WID * 3.
+ */
+#define MAX_WID         198
+
+/* Town defines */
+#define TOWN_RANDOM     20              /* First random town */
+#define TOWN_DUNGEON    4               /* Maximun number of towns per dungeon */
+#define TOWN_CHANCE     50              /* Chance of 1 town */
+
+/*
+ * Wilderness terrains
+ */
+#define TERRAIN_EDGE             0 /* Edge of the World */
+#define TERRAIN_TOWN             1 /* Town */
+#define TERRAIN_DEEP_WATER       2 /* Deep water */
+#define TERRAIN_SHALLOW_WATER    3 /* Shallow water */
+#define TERRAIN_SWAMP            4 /* Swamp */
+#define TERRAIN_DIRT             5 /* Dirt */
+#define TERRAIN_GRASS            6 /* Grass */
+#define TERRAIN_TREES            7 /* Trees */
+#define TERRAIN_DESERT           8 /* Desert */
+#define TERRAIN_SHALLOW_LAVA     9 /* Shallow lava */
+#define TERRAIN_DEEP_LAVA       10 /* Deep lava */
+#define TERRAIN_MOUNTAIN        11 /* Mountain */
+
+#define MAX_WILD_TERRAIN        18
+
+/* Border */
+struct border_type 
+{
+	byte 	north[MAX_WID];
+	byte 	south[MAX_WID];
+	byte 	east[MAX_HGT];
+	byte 	west[MAX_HGT];
+	byte	north_west;
+	byte	north_east;
+	byte	south_west;
+	byte	south_east;
+};
+
+
+/*
+ * A structure describing a wilderness area
+ * with a terrain, a town or a dungeon entrance
+ */
+struct wilderness_type_info
+{
+	u32b    name;                   /* Name (offset) */
+	u32b    text;                   /* Text (offset) */
+	u16b    entrance;               /* Which town is there(<1000 i's a town, >=1000 it a dungeon) */
+	byte    road;                   /* Flags of road */
+	int     level;                  /* Difficulty level */
+	u32b    flags1;                 /* Some flags */
+	byte    feat;                   /* The feature of f_info.txt that is used to allow passing, ... and to get a char/color/graph */
+	byte    terrain_idx;            /* Terrain index(defined in defines.h) */
+
+	byte    terrain[MAX_WILD_TERRAIN];/* Feature types for the plasma generator */
+};
+
+/*
+ * A structure describing a wilderness map
+ */
+struct wilderness_map
+{
+	int     feat;                   /* Wilderness feature */
+	u32b    seed;                   /* Seed for the RNG */
+	u16b    entrance;               /* Entrance for dungeons */
+
+	bool    known;                  /* Is it seen by the player ? */
+};
+
+
+/*
+ * A structure describing a town with
+ * stores and buildings
+ */
+struct town_type
+{
+	cptr name;
+	u32b seed; /* Seed for RNG */
+	store_type *store;      /* The stores [max_st_idx] */
+	byte numstores;
+
+	byte flags;             /* Town flags */
+	/* Left this for the sake of compatibility */
+        bool stocked;           /* Is the town actualy stocked ? */
+
+        bool destroyed;         /* Is the town destroyed? */
+};
+
+extern u16b max_towns;
+extern town_type town_info[max_towns];
+
+/* Define monster generation rules */
+struct rule_type
+{
+	byte mode;                      /* Mode of combinaison of the monster flags */
+	byte percent;                   /* Percent of monsters affected by the rule */
+
+	u32b mflags1;                   /* The monster flags that are allowed */
+	u32b mflags2;
+	u32b mflags3;
+	u32b mflags4;
+	u32b mflags5;
+	u32b mflags6;
+	u32b mflags7;
+	u32b mflags8;
+	u32b mflags9;
+
+	char r_char[5];                 /* Monster race allowed */
+};
+
+/*
+ * "Themed" objects.
+ * Probability in percent for each class of objects to be dropped.
+ * This could perhaps be an array - but that wouldn't be as clear.
+ */
+struct obj_theme
+{
+	byte treasure;
+	byte combat;
+	byte magic;
+	byte tools;
+};
+
+/* A structure for the != dungeon types */
+struct dungeon_info_type
+{
+	u32b name;                      /* Name */
+	u32b text;                      /* Description */
+	char short_name[3];             /* Short name */
+
+	s16b floor1;                    /* Floor tile 1 */
+	byte floor_percent1[2];         /* Chance of type 1 */
+	s16b floor2;                    /* Floor tile 2 */
+	byte floor_percent2[2];         /* Chance of type 2 */
+	s16b floor3;                    /* Floor tile 3 */
+	byte floor_percent3[2];         /* Chance of type 3 */
+	s16b outer_wall;                /* Outer wall tile */
+	s16b inner_wall;                /* Inner wall tile */
+	s16b fill_type1;                /* Cave tile 1 */
+	byte fill_percent1[2];          /* Chance of type 1 */
+	s16b fill_type2;                /* Cave tile 2 */
+	byte fill_percent2[2];          /* Chance of type 2 */
+	s16b fill_type3;                /* Cave tile 3 */
+	byte fill_percent3[2];          /* Chance of type 3 */
+	byte fill_method;				/* Smoothing parameter for the above */
+
+	s16b mindepth;                  /* Minimal depth */
+	s16b maxdepth;                  /* Maximal depth */
+
+	bool principal;                 /* If it's a part of the main dungeon */
+	byte next;                      /* The next part of the main dungeon */
+	byte min_plev;                  /* Minimal plev needed to enter -- it's an anti-cheating mesure */
+
+	int min_m_alloc_level;          /* Minimal number of monsters per level */
+	int max_m_alloc_chance;         /* There is a 1/max_m_alloc_chance chance per round of creating a new monster */
+
+	u32b flags1;                    /* Flags 1 */
+	u32b flags2;                    /* Flags 1 */
+
+	byte rule_percents[100];        /* Flat rule percents */
+	rule_type rules[5];             /* Monster generation rules */
+
+	int final_object;               /* The object you'll find at the bottom */
+	int final_artifact;             /* The artifact you'll find at the bottom */
+	int final_guardian;             /* The artifact's guardian. If an artifact is specified, then it's NEEDED */
+
+	int ix;
+        int iy;
+        int ox;
+        int oy;             /* Wilderness coordinates of the entrance/output of the dungeon */
+
+	obj_theme objs;                 /* The drops type */
+
+	int d_dice[4];                  /* Number of dices */
+	int d_side[4];                  /* Number of sides */
+	int d_frequency[4];             /* Frequency of damage (1 is the minimum) */
+	int d_type[4];                  /* Type of damage */
+
+	s16b t_idx[TOWN_DUNGEON];       /* The towns */
+	s16b t_level[TOWN_DUNGEON];     /* The towns levels */
+	s16b t_num;                     /* Number of towns */
+};
+extern u16b max_d_idx;
+extern dungeon_info_type d_info[max_d_idx];
+extern char *d_name;
+extern char *d_text;
+
+extern u16b max_wild_x;
+extern u16b max_wild_y;
+extern u16b max_wf_idx;
+extern wilderness_type_info wf_info[max_wf_idx];
+extern char *wf_name;
+extern char *wf_text;
+
+extern byte dungeon_type@current_dungeon_idx;
+
+/*
+ * tolua doesnt like wierd arraysn, I'll use accessing functions
+ * extern wilderness_map wild_map[max_wild_y][max_wild_x];
+ */
+$static wilderness_map* lua_get_wild_map(int y, int x) { return &wild_map[y][x]; }
+wilderness_map* lua_get_wild_map@wild_map(int y, int x);
+
+extern void place_trap(int y, int x);

@@ -120,16 +120,17 @@ s16b critical_shot(int weight, int plus, int dam)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-s16b critical_norm(int weight, int plus, int dam, bool allow_skill_crit)
+s16b critical_norm(int weight, int plus, int dam, int weapon_tval, bool *done_crit)
 {
 	int i, k, num = randint(5000);
 
+        *done_crit = FALSE;
 
 	/* Extract "blow" power */
 	i = (weight + ((p_ptr->to_h + plus) * 5) +
                  get_skill_scale(p_ptr->melee_style, 150));
         i += 50 * p_ptr->xtra_crit;
-        if (allow_skill_crit)
+        if ((weapon_tval == TV_SWORD) && (weight < 50) && get_skill(SKILL_CRITS))
         {
                 i += get_skill_scale(SKILL_CRITS, 40 * 50);
         }
@@ -140,14 +141,15 @@ s16b critical_norm(int weight, int plus, int dam, bool allow_skill_crit)
 	{
 		set_tim_deadly(p_ptr->tim_deadly - 1);
 		msg_print("It was a *GREAT* hit!");
-		dam = 3 * dam + 20;
+                dam = 3 * dam + 20;
+                *done_crit = TRUE;
 	}
 
 	/* Chance */
 	else if (num <= i)
 	{
 		k = weight + randint(650);
-                if (allow_skill_crit)
+		if ((weapon_tval == TV_SWORD) && (weight < 50) && get_skill(SKILL_CRITS))
                 {
                         k += get_skill_scale(SKILL_CRITS, 400);
                 }
@@ -177,6 +179,7 @@ s16b critical_norm(int weight, int plus, int dam, bool allow_skill_crit)
 			msg_print("It was a *SUPERB* hit!");
 			dam = ((7 * dam) / 2) + 25;
 		}
+                *done_crit = TRUE;
 	}
 
 	return (dam);
@@ -315,20 +318,6 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 				}
 
 				if (mult < 5) mult = 5;
-
-#if 0							/* pelpel */
-
-				/*
-				 * It no longer makes sense to have an artefact with
-				 * special slay for an optional unique, and it is
-				 * way too hackish as well  -- pelpel
-				 */
-
-				if ((o_ptr->name1 == ART_AEGLIN) &&
-					strstr(r_name + r_ptr->name, "Fafner"))
-					mult *= 3;
-
-#endif /* pelpel */
 			}
 
 			/* Execute Undead */
@@ -728,7 +717,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 {
 	int k, bonus, chance;
 
-	int n_weight = 0;
+        int n_weight = 0;
+        bool done_crit;
 
 	monster_type *m_ptr = &m_list[m_idx];
 
@@ -741,56 +731,6 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
 	switch (attack)
 	{
-		case MUT2_SCOR_TAIL:
-		{
-			dss = 3;
-			ddd = 7;
-			n_weight = 5;
-			atk_desc = "tail";
-
-			break;
-		}
-
-		case MUT2_HORNS:
-		{
-			dss = 2;
-			ddd = 6;
-			n_weight = 15;
-			atk_desc = "horns";
-
-			break;
-		}
-
-		case MUT2_BEAK:
-		{
-			dss = 2;
-			ddd = 4;
-			n_weight = 5;
-			atk_desc = "beak";
-
-			break;
-		}
-
-		case MUT2_TRUNK:
-		{
-			dss = 1;
-			ddd = 4;
-			n_weight = 35;
-			atk_desc = "trunk";
-
-			break;
-		}
-
-		case MUT2_TENTACLES:
-		{
-			dss = 2;
-			ddd = 5;
-			n_weight = 5;
-			atk_desc = "tentacles";
-
-			break;
-		}
-
 		default:
 		{
 			dss = ddd = n_weight = 1;
@@ -817,7 +757,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		msg_format("You hit %s with your %s.", m_name, atk_desc);
 
 		k = damroll(ddd, dss);
-		k = critical_norm(n_weight, p_ptr->to_h, k, FALSE);
+		k = critical_norm(n_weight, p_ptr->to_h, k, -1, &done_crit);
 
 		/* Apply the player damage bonuses */
 		k += p_ptr->to_d;
@@ -853,37 +793,6 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Damage, check for fear and mdeath */
 		switch (attack)
 		{
-			case MUT2_SCOR_TAIL:
-			{
-				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL);
-				break;
-			}
-
-			case MUT2_HORNS:
-			{
-				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
-				break;
-			}
-
-			case MUT2_BEAK:
-			{
-				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
-				break;
-			}
-
-			case MUT2_TRUNK:
-			{
-				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
-				break;
-			}
-
-			case MUT2_TENTACLES:
-			{
-				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_HELL_FIRE,
-				        PROJECT_KILL);
-				break;
-			}
-
 			default:
 			{
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
@@ -1085,6 +994,8 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 			case RBE_HALLU: power = 10;
 				break;
 			case RBE_PARASITE: power = 5;
+				break;
+			case RBE_ABOMINATION: power = 20;
 				break;
 		}
 
@@ -1306,6 +1217,7 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 
 				case RBE_UN_BONUS:
 				case RBE_UN_POWER:
+				case RBE_ABOMINATION:
 				{
 					pt = GF_DISENCHANT;
 					break;
@@ -2256,7 +2168,8 @@ static void py_attack_hand(int *k, monster_type *m_ptr, s32b *special)
 	int resist_stun = 0, max = MAX_MA;
 	monster_race *r_ptr = race_inf(m_ptr);
 	char m_name[80];
-	bool desc = FALSE;
+        bool desc = FALSE;
+        bool done_crit;
         int plev = p_ptr->lev;
 
 	if ((!p_ptr->body_monster) && (p_ptr->mimic_form == MIMIC_BEAR) &&
@@ -2365,7 +2278,7 @@ static void py_attack_hand(int *k, monster_type *m_ptr, s32b *special)
 		desc = TRUE;
 	}
 
-	*k = critical_norm(plev * (randint(10)), ma_ptr->min_level, *k, FALSE);
+	*k = critical_norm(plev * (randint(10)), ma_ptr->min_level, *k, -1, &done_crit);
 
 	if ((special_effect & MA_KNEE) && ((*k + p_ptr->to_d) < m_ptr->hp))
 	{
@@ -2527,7 +2440,9 @@ void py_attack(int y, int x, int max_blow)
 
 	bool do_quake = FALSE;
 
-	bool drain_msg = TRUE;
+        bool done_crit = FALSE;
+
+        bool drain_msg = TRUE;
 
 	int drain_result = 0, drain_heal = 0;
 
@@ -2578,8 +2493,8 @@ void py_attack(int y, int x, int max_blow)
 
 	/* Stop if friendly */
 	if ((is_friend(m_ptr) >= 0) &&
-		!(p_ptr->stun || p_ptr->confused || p_ptr->image ||
-		  ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero) || !(m_ptr->ml)))
+            !(p_ptr->stun || p_ptr->confused || p_ptr->image ||
+              !(m_ptr->ml)))
 	{
 		if (!(inventory[INVEN_WIELD].art_name))
 		{
@@ -2621,19 +2536,24 @@ void py_attack(int y, int x, int max_blow)
 		return;
 	}
 
-	/* Monsters that can dont use weapons, us etheir natural attacks */
+	/* Monsters can use barehanded combat, but not weapon combat */
 	if ((p_ptr->body_monster) &&
-		(!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON]))
+		(!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON]) &&
+		!(p_ptr->melee_style == SKILL_HAND))
 	{
 		incarnate_monster_attack(c_ptr->m_idx, &fear, &mdeath, y, x);
 	}
 	/* Otherwise use your weapon(s) */
 	else
 	{
+		int weapons;
+		if(p_ptr->melee_style == SKILL_MASTERY)
+			weapons = r_info[p_ptr->body_monster].body_parts[BODY_WEAPON];
+		else /* SKILL_HAND */
+			weapons = 1;
 
 		/* Attack with ALL the weapons !!!!! -- ooh that's gonna hurt YOU */
-		for (weap = 0;
-			 weap < r_info[p_ptr->body_monster].body_parts[BODY_WEAPON]; weap++)
+		for (weap = 0; weap < weapons; ++weap)
 		{
 			/* Monster is already dead ? oh :( */
 			if (mdeath) break;
@@ -2745,7 +2665,31 @@ void py_attack(int y, int x, int max_blow)
 								do_quake = TRUE;
 							}
 
-							k = critical_norm(o_ptr->weight, o_ptr->to_h, k, ((o_ptr->tval == TV_SWORD) && (o_ptr->weight < 50)));
+							k = critical_norm(o_ptr->weight, o_ptr->to_h, k, o_ptr->tval, &done_crit);
+
+							/* Stunning blow */
+							if (magik(get_skill(SKILL_STUN)) && (o_ptr->tval == TV_HAFTED) && (o_ptr->weight > 50) && done_crit)
+							{
+								if (!(r_ptr->flags4 & (RF4_BR_SOUN)) && !(r_ptr->flags4 & (RF4_BR_WALL)) && k)
+								{
+                                                                        int tmp;
+
+									/* Get stunned */
+									if (m_ptr->stunned)
+									{
+										msg_format("%^s is more dazed.", m_name);
+										tmp = m_ptr->stunned + get_skill_scale(SKILL_STUN, 30) + 10;
+									}
+									else
+									{
+										msg_format("%^s is dazed.", m_name);
+										tmp = get_skill_scale(SKILL_STUN, 60) + 20;
+									}
+
+									/* Apply stun */
+									m_ptr->stunned = (tmp < 200) ? tmp : 200;
+								}
+							}
 
 							if (vorpal_cut)
 							{
@@ -2769,20 +2713,32 @@ void py_attack(int y, int x, int max_blow)
 								}
 								else k += o_ptr->to_d + p_ptr->to_d_melee;
 							}
-							else k += o_ptr->to_d + p_ptr->to_d_melee;
+							else k += o_ptr->to_d;
+
+							/* Project some more nasty stuff? */
+							if (p_ptr->tim_project)
+							{
+								project(0, p_ptr->tim_project_rad, y, x, p_ptr->tim_project_dam, p_ptr->tim_project_gf, p_ptr->tim_project_flag | PROJECT_JUMP);
+								if (!c_ptr->m_idx)
+								{
+									mdeath = TRUE;
+									break;
+								}
+							}
 
 							do_nazgul(&k, &num, num_blow, weap, r_ptr, o_ptr);
+
 						}
 
-                                                /* Melkor can cast curse for you*/
-                                                PRAY_GOD(GOD_MELKOR)
-                                                {
-                                                        if ((p_ptr->grace > 5000) && magik(wisdom_scale(110) - m_ptr->level))
-                                                        {
-                                                                if (exec_lua("return get_level(MELKOR_CURSE)") >= 5)
-                                                                        exec_lua(format("do_melkor_curse(%d)", c_ptr->m_idx));
-                                                        }
-                                                }
+						/* Melkor can cast curse for you*/
+						PRAY_GOD(GOD_MELKOR)
+						{
+							if ((p_ptr->grace > 5000) && magik(wisdom_scale(110) - m_ptr->level))
+							{
+								if (exec_lua("return get_level(MELKOR_CURSE)") >= 5)
+									exec_lua(format("do_melkor_curse(%d)", c_ptr->m_idx));
+							}
+						}
 
 						/* May it clone the monster ? */
 						if ((f4 & TR4_CLONE) && magik(30))
@@ -2794,10 +2750,6 @@ void py_attack(int y, int x, int max_blow)
 
 						/* Apply the player damage bonuses */
 						k += p_ptr->to_d + p_ptr->to_d_melee;
-
-						/* Penalty for could-2H when having a shield */
-						if ((f4 & TR4_COULD2H) &&
-							inventory[INVEN_ARM].k_idx) k /= 2;
 
 						/* No negative damage */
 						if (k < 0) k = 0;
@@ -2856,7 +2808,7 @@ void py_attack(int y, int x, int max_blow)
 							/* Hack -- High-level warriors can spread their attacks out
 							 * among weaker foes.
 							 */
-                                                        if ((get_skill(p_ptr->melee_style) > 34) && (num < num_blow) &&
+							if ((get_skill(p_ptr->melee_style) > 34) && (num < num_blow) &&
 							    (energy_use))
 							{
 								energy_use = energy_use * num / num_blow;
@@ -3017,23 +2969,8 @@ void py_attack(int y, int x, int max_blow)
 		}
 	}
 
-	/* Mutations which yield extra 'natural' attacks */
-	if (!no_extra)
-	{
-		if (p_ptr->muta2 & MUT2_HORNS && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_HORNS, &fear, &mdeath);
-		if (p_ptr->muta2 & MUT2_BEAK && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_BEAK, &fear, &mdeath);
-		if (p_ptr->muta2 & MUT2_SCOR_TAIL && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_SCOR_TAIL, &fear, &mdeath);
-		if (p_ptr->muta2 & MUT2_TRUNK && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_TRUNK, &fear, &mdeath);
-		if (p_ptr->muta2 & MUT2_TENTACLES && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_TENTACLES, &fear, &mdeath);
-	}
-
 	/* Carried monster can attack too */
-	if (m_list[c_ptr->m_idx].hp)
+	if ((!mdeath) && m_list[c_ptr->m_idx].hp)
 		carried_monster_attack(c_ptr->m_idx, &fear, &mdeath, y, x);
 
 	/* Hack -- delay fear messages */
@@ -3241,8 +3178,10 @@ bool player_can_enter(byte feature)
 		case FEAT_TREES:
 		{
 			if ((p_ptr->fly) || (PRACE_FLAG(PR1_PASS_TREE)) ||
-				(get_skill(SKILL_DRUID) > 15) ||
-				(p_ptr->mimic_form == MIMIC_ENT))
+                            (get_skill(SKILL_DRUID) > 15) ||
+                            (p_ptr->mimic_form == MIMIC_ENT) ||
+                            ((p_ptr->grace >= 9000) && (p_ptr->praying) && (p_ptr->pgod == GOD_YAVANNA))
+                           )
 				return (TRUE);
 			else
 				return (FALSE);
@@ -3462,8 +3401,7 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 
 		/* Attack -- only if we can see it OR it is not in a wall */
 		if ((is_friend(m_ptr) > 0) &&
-			!(p_ptr->confused || p_ptr->image || !(m_ptr->ml) || p_ptr->stun ||
-			  ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)) &&
+			!(p_ptr->confused || p_ptr->image || !(m_ptr->ml) || p_ptr->stun) &&
 			(pattern_seq(py, px, y, x)) &&
 			((player_can_enter(cave[y][x].feat))))
 		{
@@ -3693,6 +3631,9 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 	{
 		int oy, ox;
 		int feat;
+
+                /* Rooted means no move */
+                if (p_ptr->tim_roots) return;
 
 		/* Save old location */
 		oy = py;

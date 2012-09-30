@@ -71,6 +71,7 @@ bool quest_thrain_death_hook(char *fmt)
 			object_wipe(q_ptr);
 			object_prep(q_ptr, lookup_kind(TV_HELM, SV_DRAGON_HELM));
 			q_ptr->number = 1;
+                        q_ptr->found = OBJ_FOUND_REWARD;
 			create_artifact(q_ptr, FALSE, TRUE);
 			q_ptr->art_name = quark_add("of Thrain");
 

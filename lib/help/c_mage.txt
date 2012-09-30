@@ -1,3 +1,6 @@
+|||||oy
+~~~~~01|Mage
+~~~~~02|Classes|Mage
 #####R=== Mages ===
 
 #####GDescription
@@ -5,11 +8,11 @@ A Mage must live by his wits. He cannot hope to simply hack his way
 through the dungeon, and so must therefore use his magic to defeat, 
 deceive, confuse, and escape. A mage is not really complete without an
 assortment of magical devices to use in addition to his spells. He can
-master the higher level magical devices far easier than anyone else, 
-and has the best saving throw to resist effects of spells cast at him.
- 
+master the higher level magical devices easily and has good saving throws. 
+
 There is no reason a mage cannot become a good fighter, but spells are 
-their true realm. 
+his true realm. For more information on magic schools and spell effects see 
+the *****magic.txt*01[Magic help file].
 
 #####GStarting Stat Modifiers
 Strength         -5
@@ -18,7 +21,7 @@ Wisdom           +0
 Dexterity        +1
 Constitution     -2
 Charisma         +1
-Bonus Blows      0
+Bonus Blows       0
 Hit Die          +d0
 Exp Penalty      30%
 
@@ -28,32 +31,28 @@ Combat                  1.000           [0.200]
   Weaponmastery         0.700           [0.400]
 Sneakiness              1.000           [0.900]
 Magic                   1.000           [0.900]
+  Magic-Device          1.000           [1.200]
   Sorcery               0.000           [0.400]
   Spell-power           0.000           [0.600]
   Mana                  1.000           [0.900]
-  Fire                  0.000           [0.900]
-  Water                 0.000           [0.900]
-  Air                   0.000           [0.900]
-  Earth                 0.000           [0.900]
-  Temporal              0.000           [0.900]
-  Divination            0.000           [0.900]
-  Conveyance            0.000           [0.900]
-  Nature                0.000           [0.900]
-  Meta                  0.000           [0.900]
-  Mind                  0.000           [0.900]
-  Necromancy            0.000           [0.600]
-  Runecraft             0.000           [0.600]
-  Thaumaturgy           0.000           [0.600]
+  Fire                  0.000           [1.000]
+  Water                 0.000           [1.000]
+  Air                   0.000           [1.000]
+  Earth                 0.000           [1.000]
+  Temporal              0.000           [1.000]
+  Divination            0.000           [1.000]
+  Conveyance            0.000           [1.000]
+  Nature                0.000           [1.000]
+  Meta                  0.000           [1.000]
+  Mind                  0.000           [1.000]
+  Necromancy            0.000           [0.700]
+  Runecraft             0.000           [0.700]
+  Thaumaturgy           0.000           [0.700]
 Spirituality            1.000           [0.550]
   Prayer                0.000           [0.500]
 Monster-lore            0.000           [0.500]
 
 #####GStarting Equipment
 A mage begins the game with:
-    A book of Cantrips
+    A book of Beginner Cantrips
     A dagger
-    A wand of fire bolts
-If they are *very* lucky they may also begin with:
-    A L2 spellbook of one of the chosen realms
-
-		

@@ -41,7 +41,8 @@ CCOPTS = -jb -j1 -Hc -tW -lGn -w- \
 	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400 \
 	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA \
 	-I$(BCCDIR)\include -I. -Ilua -DUSE_LUA \
-	-DUSE_SOCK -DUSE_WINSOCK \
+        -DUSE_PRECISE_CMOVIE \
+	-DUSE_WINSOCK \
         -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#angband\"
 
 # Compile flags:
@@ -108,6 +109,7 @@ OBJ = \
 	z-term.obj \
 	z-util.obj \
 	z-virt.obj \
+        z-sock.obj \
 	w_mnster.obj \
 	w_obj.obj \
 	w_play_c.obj \
@@ -116,6 +118,7 @@ OBJ = \
 	w_spells.obj \
 	w_util.obj \
 	w_z_pack.obj \
+        w_dun.obj \
 	$(TOLUAOBJS)
 
 TOLUAOBJS = \
@@ -203,6 +206,9 @@ w_spells.c: spells.pkg $(TOLUA)
 
 w_quest.c: quest.pkg $(TOLUA)
 	$(TOLUA) -n quest -o w_quest.c quest.pkg
+
+w_dun.c: dungeon.pkg $(TOLUA)
+	$(TOLUA) -n dungeon -o w_dun.c dungeon.pkg
 
 ########################### Implicit Rules ########################
 .c.obj:
