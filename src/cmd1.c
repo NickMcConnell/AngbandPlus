@@ -112,7 +112,7 @@ static int critical_melee(int chance, int sleeping_bonus, cptr m_name,
 		 * sleeping monsters. -LM-
 		 */
 		if ((sleeping_bonus) && (p_ptr->pclass == CLASS_ROGUE))
-			msg_print("You ruthlessly sneak attack!");
+			msgf("You ruthlessly sneak attack!");
 
 		/* Determine level of critical hit x 10. */
 		if (randint0(90) == 0) mult_m_crit = 50;
@@ -126,32 +126,32 @@ static int critical_melee(int chance, int sleeping_bonus, cptr m_name,
 		if ((mult_m_crit == 15) ||
 			((o_ptr->tval == TV_HAFTED) && (o_ptr->sval == SV_WHIP)))
 		{
-			message_format(MSG_HIT, 0, "You strike %s.", m_name);
+			msgf(MSGT_HIT, "You strike %s.", m_name);
 		}
 		else if (mult_m_crit == 20)
 		{
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
-				message_format(MSG_HIT, 0, "You hack at %s.", m_name);
+				msgf(MSGT_HIT, "You hack at %s.", m_name);
 			else
-				message_format(MSG_HIT, 0, "You bash %s.", m_name);
+				msgf(MSGT_HIT, "You bash %s.", m_name);
 		}
 		else if (mult_m_crit == 27)
 		{
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
-				message_format(MSG_HIT, 0, "You slash %s.", m_name);
+				msgf(MSGT_HIT, "You slash %s.", m_name);
 			else
-				message_format(MSG_HIT, 0, "You pound %s.", m_name);
+				msgf(MSGT_HIT, "You pound %s.", m_name);
 		}
 		else if (mult_m_crit == 36)
 		{
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
-				message_format(MSG_HIT, 0, "You gouge %s!", m_name);
+				msgf(MSGT_HIT, "You gouge %s!", m_name);
 			else
-				message_format(MSG_HIT, 0, "You bludgeon %s!", m_name);
+				msgf(MSGT_HIT, "You bludgeon %s!", m_name);
 		}
 		else
 		{
-			message_format(MSG_HIT, 0, "You *smite* %s!", m_name);
+			msgf(MSGT_HIT, "You *smite* %s!", m_name);
 		}
 	}
 
@@ -162,7 +162,7 @@ static int critical_melee(int chance, int sleeping_bonus, cptr m_name,
 	else
 	{
 		mult_m_crit = 10;
-		message_format(MSG_HIT, 0, "You hit %s.", m_name);
+		msgf(MSGT_HIT, "You hit %s.", m_name);
 	}
 
 	return (mult_m_crit);
@@ -190,27 +190,27 @@ static s16b critical_norm(int weight, int plus, int dam)
 
 		if (k < 400)
 		{
-			msg_print("It was a good hit!");
+			msgf("It was a good hit!");
 			dam = 2 * dam + 5;
 		}
 		else if (k < 700)
 		{
-			msg_print("It was a great hit!");
+			msgf("It was a great hit!");
 			dam = 2 * dam + 10;
 		}
 		else if (k < 900)
 		{
-			msg_print("It was a superb hit!");
+			msgf("It was a superb hit!");
 			dam = 3 * dam + 15;
 		}
 		else if (k < 1300)
 		{
-			msg_print("It was a *GREAT* hit!");
+			msgf("It was a *GREAT* hit!");
 			dam = 3 * dam + 20;
 		}
 		else
 		{
-			msg_print("It was a *SUPERB* hit!");
+			msgf("It was a *SUPERB* hit!");
 			dam = ((7 * dam) / 2) + 25;
 		}
 	}
@@ -516,7 +516,7 @@ void search(void)
 					if (old_count != count_traps(&tx, &ty, TRUE))
 					{
 						/* Message */
-						msg_print("You have found a trap.");
+						msgf("You have found a trap.");
 
 						/* Disturb */
 						disturb(FALSE);
@@ -527,7 +527,7 @@ void search(void)
 				if (c_ptr->feat == FEAT_SECRET)
 				{
 					/* Message */
-					msg_print("You have found a secret door.");
+					msgf("You have found a secret door.");
 
 					/* Pick a door */
 					create_closed_door(x, y);
@@ -549,7 +549,7 @@ void search(void)
 					if (!object_known_p(o_ptr))
 					{
 						/* Message */
-						msg_print("You have discovered a trap on the chest!");
+						msgf("You have discovered a trap on the chest!");
 
 						/* Know the trap */
 						object_known(o_ptr);
@@ -609,8 +609,6 @@ void py_pickup_aux(object_type *o_ptr)
 
 	int slot;
 
-	char o_name[256];
-
 	/* Duplicate the object */
 	j_ptr = object_dup(o_ptr);
 
@@ -625,14 +623,11 @@ void py_pickup_aux(object_type *o_ptr)
 	 * so j_ptr should never be NULL after inven_carry()
 	 */
 
-	/* Describe the object */
-	object_desc(o_name, j_ptr, TRUE, 3, 256);
-
 	/* Get slot number */
 	slot = get_item_position(p_ptr->inventory, j_ptr);
 
 	/* Message */
-	msg_format("You have %s (%c).", o_name, I2A(slot));
+	msgf("You have %v (%c).", OBJECT_FMT(j_ptr, TRUE, 3), I2A(slot));
 }
 
 
@@ -686,7 +681,7 @@ void carry(int pickup)
 		if (o_ptr->tval == TV_GOLD)
 		{
 			/* Message */
-			msg_format("You have found %ld gold pieces worth of %s.",
+			msgf("You have found %ld gold pieces worth of %s.",
 					   (long)o_ptr->pval, o_name);
 
 			sound(SOUND_SELL);
@@ -723,13 +718,13 @@ void carry(int pickup)
 			/* Describe the object */
 			if (!pickup)
 			{
-				msg_format("You see %s.", o_name);
+				msgf("You see %s.", o_name);
 			}
 
 			/* Note that the pack is too full */
 			else if (!inven_carry_okay(o_ptr))
 			{
-				msg_format("You have no room for %s.", o_name);
+				msgf("You have no room for %s.", o_name);
 			}
 
 			/* Pick up the item (if requested and allowed) */
@@ -739,15 +734,12 @@ void carry(int pickup)
 				if (carry_query_flag)
 				{
 					int i;
-					char out_val[160];
 
 					/* Paranoia XXX XXX XXX */
 					message_flush();
 
-					sprintf(out_val, "Pick up %s? [y/n/k] ", o_name);
-
 					/* Prompt for it */
-					prt(out_val, 0, 0);
+					prtf(0, 0, "Pick up %s? [y/n/k] ", o_name);
 
 					/* Get an acceptable answer */
 					while (TRUE)
@@ -760,7 +752,7 @@ void carry(int pickup)
 					}
 
 					/* Erase the prompt */
-					prt("", 0, 0);
+					clear_msg();
 
 					if ((i == 'Y') || (i == 'y'))
 					{
@@ -814,18 +806,15 @@ void carry(int pickup)
 		/* One object */
 		if (floor_num == 1)
 		{
-			/* Describe the object */
-			object_desc(o_name, fo_ptr, TRUE, 3, 256);
-
 			/* Message */
-			msg_format("You see %s.", o_name);
+			msgf("You see %v.", OBJECT_FMT(fo_ptr, TRUE, 3));
 		}
 
 		/* Multiple objects */
 		else
 		{
 			/* Message */
-			msg_format("You see a pile of %d items.", floor_num);
+			msgf("You see a pile of %d items.", floor_num);
 		}
 
 		/* Done */
@@ -838,18 +827,15 @@ void carry(int pickup)
 		/* One object */
 		if (floor_num == 1)
 		{
-			/* Describe the object */
-			object_desc(o_name, fo_ptr, TRUE, 3, 256);
-
 			/* Message */
-			msg_format("You have no room for %s.", o_name);
+			msgf("You have no room for %v.", OBJECT_FMT(fo_ptr, TRUE, 3));
 		}
 
 		/* Multiple objects */
 		else
 		{
 			/* Message */
-			msg_print("You have no room for any of the objects on the floor.");
+			msgf("You have no room for any of the objects on the floor.");
 		}
 
 		/* Done */
@@ -863,18 +849,12 @@ void carry(int pickup)
 		if (carry_query_flag)
 		{
 			int i;
-			char out_val[160];
 
 			/* Paranoia XXX XXX XXX */
 			message_flush();
 
-			/* Describe the object */
-			object_desc(o_name, fo_ptr, TRUE, 3, 256);
-
-			sprintf(out_val, "Pick up %s? [y/n/k] ", o_name);
-
 			/* Prompt for it */
-			prt(out_val, 0, 0);
+			prtf(0, 0,"Pick up %v? [y/n/k] ", OBJECT_FMT(fo_ptr, TRUE, 3));
 
 			/* Get an acceptable answer */
 			while (TRUE)
@@ -887,7 +867,7 @@ void carry(int pickup)
 			}
 
 			/* Erase the prompt */
-			prt("", 0, 0);
+			clear_msg();
 
 			if ((i == 'Y') || (i == 'y'))
 			{
@@ -945,9 +925,9 @@ static void touch_zap_player(const monster_type *m_ptr)
 				damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
 			/* Hack -- Get the "died from" name */
-			monster_desc(aura_dam, m_ptr, 0x88);
+			monster_desc(aura_dam, m_ptr, 0x88, 80);
 
-			msg_print("You are suddenly very hot!");
+			msgf("You are suddenly very hot!");
 
 			if (p_ptr->oppose_fire) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_fire) aura_damage = (aura_damage + 2) / 3;
@@ -968,9 +948,9 @@ static void touch_zap_player(const monster_type *m_ptr)
 				damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
 			/* Hack -- Get the "died from" name */
-			monster_desc(aura_dam, m_ptr, 0x88);
+			monster_desc(aura_dam, m_ptr, 0x88, 80);
 
-			msg_print("You are suddenly very cold!");
+			msgf("You are suddenly very cold!");
 
 			if (p_ptr->oppose_cold) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_cold) aura_damage = (aura_damage + 2) / 3;
@@ -991,12 +971,12 @@ static void touch_zap_player(const monster_type *m_ptr)
 				damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
 			/* Hack -- Get the "died from" name */
-			monster_desc(aura_dam, m_ptr, 0x88);
+			monster_desc(aura_dam, m_ptr, 0x88, 80);
 
 			if (p_ptr->oppose_elec) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_elec) aura_damage = (aura_damage + 2) / 3;
 
-			msg_print("You get zapped!");
+			msgf("You get zapped!");
 			take_hit(aura_damage, aura_dam);
 			r_ptr->r_flags2 |= RF2_AURA_ELEC;
 			handle_stuff();
@@ -1065,7 +1045,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	}
 
 	/* Extract monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0, 80);
 
 
 	/* Calculate the "attack quality" */
@@ -1079,8 +1059,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Sound */
 		sound(SOUND_HIT);
 
-		message_format(MSG_HIT, m_ptr->r_idx, "You hit %s with your %s.",
-					   m_name, atk_desc);
+		msgf(MSGT_HIT, "You hit %s with your %s.", m_name, atk_desc);
+		msg_effect(MSG_HIT, m_ptr->r_idx);
 
 		k = damroll(ddd, dss);
 		k = critical_norm(n_weight, p_ptr->to_h, k);
@@ -1097,7 +1077,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Complex message */
 		if (p_ptr->wizard)
 		{
-			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+			msgf("You do %d (out of %d) damage.", k, m_ptr->hp);
 		}
 
 		/* Anger the monster */
@@ -1149,7 +1129,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		sound(SOUND_MISS);
 
 		/* Message */
-		message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+		msgf(MSGT_MISS, "You miss %s.", m_name);
+		msg_effect(MSG_MISS, m_ptr->r_idx);
 	}
 }
 
@@ -1206,7 +1187,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, const cave_type *c_ptr,
 	{
 		o_ptr = &p_ptr->equipment[EQUIP_ARM];
 
-		msg_print("You get in a shield bash!");
+		msgf("You get in a shield bash!");
 
 		/* Calculate attack quality, a mix of momentum and accuracy. */
 		bash_quality = p_ptr->skill_thn + (p_ptr->wt / 8) +
@@ -1226,12 +1207,12 @@ static bool monster_bash(int *blows, int sleeping_bonus, const cave_type *c_ptr,
 
 		/* Encourage the player to keep wearing that heavy shield. */
 		if (randint1(bash_dam) > 30 + randint1(bash_dam / 2))
-			msg_print("WHAMM!");
+			msgf("WHAMM!");
 
 		/* Complex message */
 		if (p_ptr->wizard)
 		{
-			msg_format("You do %d (out of %d) damage.", bash_dam, m_ptr->hp);
+			msgf("You do %d (out of %d) damage.", bash_dam, m_ptr->hp);
 		}
 
 		/* Damage, check for fear and death. */
@@ -1244,7 +1225,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, const cave_type *c_ptr,
 		/* Stunning. */
 		if (bash_quality + p_ptr->lev > randint1(200 + r_ptr->level * 8))
 		{
-			msg_format("%^s is stunned.", m_name);
+			msgf("%^s is stunned.", m_name);
 
 			m_ptr->stunned += randint0(p_ptr->lev / 5) + 4;
 			if (m_ptr->stunned > 24) m_ptr->stunned = 24;
@@ -1254,7 +1235,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, const cave_type *c_ptr,
 		if (bash_quality + p_ptr->lev > randint1(300 + r_ptr->level * 6) &&
 			!(r_ptr->flags3 & (RF3_NO_CONF)))
 		{
-			msg_format("%^s appears confused.", m_name);
+			msgf("%^s appears confused.", m_name);
 
 			m_ptr->confused += randint0(p_ptr->lev / 5) + 4;
 		}
@@ -1306,7 +1287,7 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 
 			if (p_ptr->wizard && cheat_xtra)
 			{
-				msg_print("Attack re-selected.");
+				msgf("Attack re-selected.");
 			}
 		}
 		else
@@ -1321,13 +1302,16 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 	{
 		if (r_ptr->flags1 & RF1_MALE)
 		{
-			message_format(MSG_HIT, m_ptr->r_idx,
-						   "You hit %s in the groin with your knee!", m_name);
+			msgf(MSGT_HIT, "You hit %s in the groin with your knee!", m_name);
+			msg_effect(MSG_HIT, m_ptr->r_idx);
 			sound(SOUND_PAIN);
 			special_effect = MA_KNEE;
 		}
 		else
-			message_format(MSG_HIT, m_ptr->r_idx, ma_ptr->desc, m_name);
+		{
+			msgf(MSGT_HIT, ma_ptr->desc, m_name);
+			msg_effect(MSG_HIT, m_ptr->r_idx);
+		}
 	}
 
 	else if (ma_ptr->effect == MA_SLOW)
@@ -1335,12 +1319,16 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 		if (!((r_ptr->flags1 & RF1_NEVER_MOVE) ||
 			  strchr("~#{}.UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
 		{
-			message_format(MSG_HIT, m_ptr->r_idx, "You kick %s in the ankle.",
+			msgf(MSGT_HIT, "You kick %s in the ankle.",
 						   m_name);
+			msg_effect(MSG_HIT, m_ptr->r_idx);
 			special_effect = MA_SLOW;
 		}
 		else
-			message_format(MSG_HIT, m_ptr->r_idx, ma_ptr->desc, m_name);
+		{
+			msgf(MSGT_HIT, ma_ptr->desc, m_name);
+			msg_effect(MSG_HIT, m_ptr->r_idx);
+		}
 	}
 	else
 	{
@@ -1349,14 +1337,15 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 			stun_effect = rand_range(ma_ptr->effect / 2, ma_ptr->effect);
 		}
 
-		message_format(MSG_HIT, m_ptr->r_idx, ma_ptr->desc, m_name);
+		msgf(MSGT_HIT, ma_ptr->desc, m_name);
+		msg_effect(MSG_HIT, m_ptr->r_idx);
 	}
 
 	*k = critical_norm(p_ptr->lev * randint1(10), ma_ptr->min_level, *k);
 
 	if ((special_effect == MA_KNEE) && ((*k + p_ptr->to_d) < m_ptr->hp))
 	{
-		msg_format("%^s moans in agony!", m_name);
+		msgf("%^s moans in agony!", m_name);
 		stun_effect = rand_range(8, 20);
 		resist_stun /= 3;
 	}
@@ -1366,7 +1355,7 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 		if (!(r_ptr->flags1 & RF1_UNIQUE) &&
 			(randint1(p_ptr->lev) > r_ptr->level) && m_ptr->mspeed > 60)
 		{
-			msg_format("%^s starts limping slower.", m_name);
+			msgf("%^s starts limping slower.", m_name);
 			m_ptr->mspeed -= 10;
 		}
 	}
@@ -1376,9 +1365,9 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 		if (p_ptr->lev > randint1(r_ptr->level + resist_stun + 10))
 		{
 			if (m_ptr->stunned)
-				msg_format("%^s is more stunned.", m_name);
+				msgf("%^s is more stunned.", m_name);
 			else
-				msg_format("%^s is stunned.", m_name);
+				msgf("%^s is stunned.", m_name);
 
 			m_ptr->stunned += stun_effect;
 		}
@@ -1479,7 +1468,7 @@ void py_attack(int x, int y)
 	m_ptr->csleep = 0;
 
 	/* Extract monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0, 80);
 
 	/* Auto-Recall if possible and visible */
 	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -1490,19 +1479,14 @@ void py_attack(int x, int y)
 	/* Look to see if we've spotted a mimic */
 	if (m_ptr->smart & SM_MIMIC)
 	{
-		char m_name2[80];
-
-		/* Get name */
-		monster_desc(m_name2, m_ptr, 0x88);
-
+		/* We've spotted it */
+		msgf("You've found %v!", MONSTER_FMT(m_ptr, 0x88));
+		
 		/* Toggle flag */
 		m_ptr->smart &= ~(SM_MIMIC);
 
 		/* It is in the monster list now if visible */
 		if (m_ptr->ml) update_mon_vis(m_ptr->r_idx, 1);
-
-		/* We've spotted it */
-		msg_format("You've found %s!", m_name2);
 	}
 
 	/* Stop if friendly and visible */
@@ -1512,18 +1496,18 @@ void py_attack(int x, int y)
 	{
 		if (!o_ptr->xtra_name)
 		{
-			msg_format("You stop to avoid hitting %s.", m_name);
+			msgf("You stop to avoid hitting %s.", m_name);
 			return;
 		}
 
 		/* Mega-hack */
 		if (!(streq(quark_str(o_ptr->xtra_name), "'Stormbringer'")))
 		{
-			msg_format("You stop to avoid hitting %s.", m_name);
+			msgf("You stop to avoid hitting %s.", m_name);
 			return;
 		}
 
-		msg_format("Your black blade greedily attacks %s!", m_name);
+		msgf("Your black blade greedily attacks %s!", m_name);
 
 		chg_virtue(V_INDIVIDUALISM, 1);
 		chg_virtue(V_HONOUR, -1);
@@ -1536,9 +1520,9 @@ void py_attack(int x, int y)
 	{
 		/* Message */
 		if (m_ptr->ml)
-			msg_format("You are too afraid to attack %s!", m_name);
+			msgf("You are too afraid to attack %s!", m_name);
 		else
-			msg_format("There is something scary in your way!");
+			msgf("There is something scary in your way!");
 
 		/* Done */
 		return;
@@ -1706,11 +1690,11 @@ void py_attack(int x, int y)
 
 					if (o_ptr->activate + 128 == ART_VORPAL_BLADE)
 					{
-						msg_print("Your Vorpal Blade goes snicker-snack!");
+						msgf("Your Vorpal Blade goes snicker-snack!");
 					}
 					else
 					{
-						msg_format("Your weapon cuts deep into %s!", m_name);
+						msgf("Your weapon cuts deep into %s!", m_name);
 					}
 
 					/* Try to increase the damage */
@@ -1725,7 +1709,7 @@ void py_attack(int x, int y)
 					/* Ouch! */
 					if (k > m_ptr->hp)
 					{
-						msg_format("You cut %s in half!", m_name);
+						msgf("You cut %s in half!", m_name);
 					}
 					else
 					{
@@ -1733,37 +1717,37 @@ void py_attack(int x, int y)
 						{
 							case 2:
 							{
-								msg_format("You gouge %s!", m_name);
+								msgf("You gouge %s!", m_name);
 								break;
 							}
 							case 3:
 							{
-								msg_format("You maim %s!", m_name);
+								msgf("You maim %s!", m_name);
 								break;
 							}
 							case 4:
 							{
-								msg_format("You carve %s!", m_name);
+								msgf("You carve %s!", m_name);
 								break;
 							}
 							case 5:
 							{
-								msg_format("You cleave %s!", m_name);
+								msgf("You cleave %s!", m_name);
 								break;
 							}
 							case 6:
 							{
-								msg_format("You smite %s!", m_name);
+								msgf("You smite %s!", m_name);
 								break;
 							}
 							case 7:
 							{
-								msg_format("You eviscerate %s!", m_name);
+								msgf("You eviscerate %s!", m_name);
 								break;
 							}
 							default:
 							{
-								msg_format("You shred %s!", m_name);
+								msgf("You shred %s!", m_name);
 							}
 						}
 					}
@@ -1773,7 +1757,7 @@ void py_attack(int x, int y)
 			/* Bare hands and not a monk */
 			else
 			{
-				msg_format("You %s %s.",
+				msgf("You %s %s.",
 						   ((p_ptr->prace == RACE_GHOUL) ? "claw" : "punch"),
 						   m_name);
 			}
@@ -1787,7 +1771,7 @@ void py_attack(int x, int y)
 			/* Complex message */
 			if (p_ptr->wizard)
 			{
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+				msgf("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
 
 			/* Damage, check for fear and death */
@@ -1830,7 +1814,7 @@ void py_attack(int x, int y)
 
 					if (cheat_xtra)
 					{
-						msg_format("Draining left: %d", drain_left);
+						msgf("Draining left: %d", drain_left);
 					}
 
 					if (drain_left)
@@ -1847,7 +1831,7 @@ void py_attack(int x, int y)
 
 						if (drain_msg)
 						{
-							msg_format("Your weapon drains life from %s!",
+							msgf("Your weapon drains life from %s!",
 									   m_name);
 							drain_msg = FALSE;
 						}
@@ -1866,7 +1850,7 @@ void py_attack(int x, int y)
 				if (p_ptr->confusing)
 				{
 					p_ptr->confusing = FALSE;
-					msg_print("Your hands stop glowing.");
+					msgf("Your hands stop glowing.");
 					p_ptr->redraw |= (PR_STATUS);
 				}
 
@@ -1878,15 +1862,15 @@ void py_attack(int x, int y)
 						r_ptr->r_flags3 |= RF3_NO_CONF;
 					}
 
-					msg_format("%^s is unaffected.", m_name);
+					msgf("%^s is unaffected.", m_name);
 				}
 				else if (randint0(100) < r_ptr->level)
 				{
-					msg_format("%^s is unaffected.", m_name);
+					msgf("%^s is unaffected.", m_name);
 				}
 				else
 				{
-					msg_format("%^s appears confused.", m_name);
+					msgf("%^s appears confused.", m_name);
 					m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
 				}
 			}
@@ -1899,20 +1883,20 @@ void py_attack(int x, int y)
 					if (r_ptr->flags1 & RF1_UNIQUE)
 					{
 						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
-						msg_format("%^s is unaffected!", m_name);
+						msgf("%^s is unaffected!", m_name);
 						resists_tele = TRUE;
 					}
 					else if (r_ptr->level > randint1(100))
 					{
 						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
-						msg_format("%^s resists!", m_name);
+						msgf("%^s resists!", m_name);
 						resists_tele = TRUE;
 					}
 				}
 
 				if (!resists_tele)
 				{
-					msg_format("%^s disappears!", m_name);
+					msgf("%^s disappears!", m_name);
 					teleport_away(c_ptr->m_idx, 50);
 					num = p_ptr->num_blow + 1;	/* Can't hit it anymore! */
 					no_extra = TRUE;
@@ -1927,13 +1911,13 @@ void py_attack(int x, int y)
 				{
 					if (polymorph_monster(x, y))
 					{
-						msg_format("%^s changes!", m_name);
+						msgf("%^s changes!", m_name);
 
 						/* Hack -- Get new monster */
 						m_ptr = &m_list[c_ptr->m_idx];
 
 						/* Oops, we need a different name... */
-						monster_desc(m_name, m_ptr, 0);
+						monster_desc(m_name, m_ptr, 0, 80);
 
 						/* Hack -- Get new race */
 						r_ptr = &r_info[m_ptr->r_idx];
@@ -1942,7 +1926,7 @@ void py_attack(int x, int y)
 					}
 					else
 					{
-						msg_format("%^s is unaffected.", m_name);
+						msgf("%^s is unaffected.", m_name);
 					}
 				}
 			}
@@ -1957,7 +1941,8 @@ void py_attack(int x, int y)
 			sound(SOUND_MISS);
 
 			/* Message */
-			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+			msgf(MSGT_MISS, "You miss %s.", m_name);
+			msg_effect(MSG_MISS, m_ptr->r_idx);
 		}
 	}
 
@@ -1986,7 +1971,7 @@ void py_attack(int x, int y)
 		/* Message */
 		if (ghoul_hack && (m_ptr->ml))
 		{
-			msg_format("%^s falls asleep!", m_name);
+			msgf("%^s falls asleep!", m_name);
 		}
 
 		/* Sleep */
@@ -1997,11 +1982,7 @@ void py_attack(int x, int y)
 	/* Hack -- delay fear messages */
 	else if (fear && m_ptr->ml)
 	{
-		/* Sound */
-		sound(SOUND_FLEE);
-
-		/* Message */
-		message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
+		flee_message(m_name, m_ptr->r_idx);
 	}
 
 	if (drain_left != MAX_VAMPIRIC_DRAIN)
@@ -2034,7 +2015,7 @@ static void summon_pattern_vortex(int x, int y)
 		{
 			if (summon_named_creature(x, y, i, FALSE, FALSE, FALSE))
 			{
-				msg_print("You hear a bell chime.");
+				msgf("You hear a bell chime.");
 			}
 		}
 	}
@@ -2182,7 +2163,7 @@ static bool pattern_seq(int c_x, int c_y, int n_x, int n_y)
 				default:
 				{
 					if (p_ptr->wizard)
-						msg_format("Funny Pattern walking, %d.",
+						msgf("Funny Pattern walking, %d.",
 								   *area(c_x, c_y));
 
 					/* Goof-up */
@@ -2248,7 +2229,7 @@ void move_player(int dir, int do_pickup)
 
 	bool p_can_pass_walls = FALSE;
 	bool stormbringer = FALSE;
-	bool p_can_pass_fields = TRUE;
+	bool p_cant_pass_fields;
 
 	bool oktomove = TRUE;
 
@@ -2262,7 +2243,7 @@ void move_player(int dir, int do_pickup)
 		if (!in_bounds2(x, y))
 		{
 			/* Do not leave the wilderness */
-			msg_print("You can not leave the wilderness.");
+			msgf("You can not leave the wilderness.");
 			p_ptr->energy_use = 0;
 			return;
 		}
@@ -2299,8 +2280,8 @@ void move_player(int dir, int do_pickup)
 	}
 
 	/* Get passability of field(s) if there */
-	p_can_pass_fields = !(fields_have_flags(c_ptr->fld_idx,
-											FIELD_INFO_NO_ENTER));
+	p_cant_pass_fields = fields_have_flags(c_ptr->fld_idx,
+											FIELD_INFO_NO_ENTER);
 
 	/* Hack -- attack monsters */
 	if (c_ptr->m_idx
@@ -2316,7 +2297,7 @@ void move_player(int dir, int do_pickup)
 			m_ptr->csleep = 0;
 
 			/* Extract monster name (or "it") */
-			monster_desc(m_name, m_ptr, 0);
+			monster_desc(m_name, m_ptr, 0, 80);
 
 			/* Auto-Recall if possible and visible */
 			if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -2332,7 +2313,7 @@ void move_player(int dir, int do_pickup)
 			else if (cave_floor_grid(area(px, py)) ||
 					 (r_info[m_ptr->r_idx].flags2 & RF2_PASS_WALL))
 			{
-				msg_format("You push past %s.", m_name);
+				msgf("You push past %s.", m_name);
 				m_ptr->fy = py;
 				m_ptr->fx = px;
 				area(px, py)->m_idx = c_ptr->m_idx;
@@ -2341,7 +2322,7 @@ void move_player(int dir, int do_pickup)
 			}
 			else
 			{
-				msg_format("%^s is in your way!", m_name);
+				msgf("%^s is in your way!", m_name);
 				p_ptr->energy_use = 0;
 				oktomove = FALSE;
 			}
@@ -2356,9 +2337,9 @@ void move_player(int dir, int do_pickup)
 	}
 
 	/* Fields can block movement */
-	else if (!(p_can_pass_walls || p_can_pass_fields))
+	else if (p_cant_pass_fields)
 	{
-		msg_print("You can't cross that!");
+		msgf("You can't cross that!");
 		p_ptr->running = 0;
 		oktomove = FALSE;
 	}
@@ -2421,7 +2402,7 @@ void move_player(int dir, int do_pickup)
 			/* Notice things in the dark */
 			if ((pc_ptr->feat != c_ptr->feat) && !player_can_see_grid(pc_ptr))
 			{
-				msg_print("You feel a closed door blocking your way.");
+				msgf("You feel a closed door blocking your way.");
 				remember_grid(c_ptr, pc_ptr);
 				lite_spot(x, y);
 			}
@@ -2436,7 +2417,7 @@ void move_player(int dir, int do_pickup)
 					return;
 				}
 
-				msg_print("There is a closed door blocking your way.");
+				msgf("There is a closed door blocking your way.");
 
 				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
 					p_ptr->energy_use = 0;
@@ -2458,7 +2439,7 @@ void move_player(int dir, int do_pickup)
 		/* Notice things in the dark */
 		if ((pc_ptr->feat != c_ptr->feat) && !player_can_see_grid(pc_ptr))
 		{
-			message(MSG_HITWALL, 0, "You feel something blocking your way.");
+			msgf(MSGT_HITWALL, "You feel something blocking your way.");
 			remember_grid(c_ptr, pc_ptr);
 			lite_spot(x, y);
 		}
@@ -2468,7 +2449,7 @@ void move_player(int dir, int do_pickup)
 			/* Rubble */
 			if (c_ptr->feat == FEAT_RUBBLE)
 			{
-				message(MSG_HITWALL, 0, "There is rubble blocking your way.");
+				msgf(MSGT_HITWALL, "There is rubble blocking your way.");
 
 				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
 					p_ptr->energy_use = 0;
@@ -2483,7 +2464,7 @@ void move_player(int dir, int do_pickup)
 			/* Jungle */
 			else if (c_ptr->feat == FEAT_JUNGLE)
 			{
-				message(MSG_HITWALL, 0, "The jungle is impassable.");
+				msgf(MSGT_HITWALL, "The jungle is impassable.");
 
 				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
 					p_ptr->energy_use = 0;
@@ -2492,7 +2473,7 @@ void move_player(int dir, int do_pickup)
 			/* Pillar */
 			else if (c_ptr->feat == FEAT_PILLAR)
 			{
-				message(MSG_HITWALL, 0, "There is a pillar blocking your way.");
+				msgf(MSGT_HITWALL, "There is a pillar blocking your way.");
 
 				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
 					p_ptr->energy_use = 0;
@@ -2501,7 +2482,7 @@ void move_player(int dir, int do_pickup)
 			/* Wall (or secret door) */
 			else
 			{
-				message(MSG_HITWALL, 0, "There is a wall blocking your way.");
+				msgf(MSGT_HITWALL, "There is a wall blocking your way.");
 
 				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
 					p_ptr->energy_use = 0;
@@ -2536,7 +2517,7 @@ void move_player(int dir, int do_pickup)
 		ox = px;
 
 		/* Process fields under the player. */
-		field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE, NULL);
+		field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE);
 
 		/* Move the player */
 		p_ptr->py = y;
@@ -2560,7 +2541,7 @@ void move_player(int dir, int do_pickup)
 		lite_spot(ox, oy);
 
 		/* Process fields under the player. */
-		field_hook(&area(x, y)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
+		field_hook(&area(x, y)->fld_idx, FIELD_ACT_PLAYER_ENTER);
 
 		/* Sound */
 		/* sound(SOUND_WALK); */
@@ -2586,7 +2567,7 @@ void move_player(int dir, int do_pickup)
 		{
 			/* We are out of range */
 
-			msg_print("Out of trap detection range.");
+			msgf("Out of trap detection range.");
 
 			/* Reset the detection flag */
 			p_ptr->detected = FALSE;
@@ -2956,12 +2937,8 @@ static bool run_test(void)
 	cave_type *c_ptr;
 	pcave_type *pc_ptr;
 
-	/* Hack - do not run next to edge of wilderness */
-	if (!in_bounds(px, py)) return TRUE;
-
 	/* Where we came from */
 	prev_dir = p_ptr->run_old_dir;
-
 
 	/* Range of newly adjacent grids */
 	max = (prev_dir & 0x01) + 1;
@@ -3058,6 +3035,7 @@ static bool run_test(void)
 				case FEAT_TREE_GEN:
 				case FEAT_TREE_SNOW:
 				case FEAT_SNOW:
+				case FEAT_JUNGLE:
 				{
 					/* Ignore */
 					notice = FALSE;
@@ -3372,7 +3350,7 @@ void run_step(int dir)
 		if (see_wall(dir, p_ptr->px, p_ptr->py))
 		{
 			/* Message */
-			msg_print("You cannot run in that direction.");
+			msgf("You cannot run in that direction.");
 
 			/* Disturb */
 			disturb(FALSE);

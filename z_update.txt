@@ -3,6 +3,169 @@ the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
 
+Zangband 2.7.2:
+
+
+- Made the HAVE_MKSTEMP option on by default for the linux ports.
+  If you do not have a library with that function the option can be
+  removed.
+- Fixed makefile.std so that the BSD ports will compile properly.
+- Fixed some dependancy problems in makefile.std in ports that
+  add extra files to compile to the source list.
+- Added an option to makefile.std to compile without the gtk
+  libraries.
+- Made the amiga port use the new overhead map interface.  Removed
+  the code that changes the graphical tile indecies only in the
+  amiga port.  It is trivial to add it in main-ami.c if needed.
+- Replaced the Amulet of Adornment with Amulet of Berserk Strength.
+- Fixed some monster pluralization issues.
+- The game no longer gives away information by displaying the color
+  of unknown items in shops.
+- Fixed the bug causing wrong prices for items where the base type
+  has a bonus/penalty to hit or to ac.
+- Fixed some bugs with the quark handling causing object inscriptions
+  to be corrupted.
+- Acquirement will not give you cursed items.
+- Make sure 'good' and 'great' monster drops are not junk.
+- Added 'elemental' nests.
+- Add missing EASY_KNOW flags to mushroom types.
+- The chances for monsters summoned by artifact activations being
+  hostile were backwards.
+- The depth and xp reward for a few monster types were adjusted.
+- Correctly handle changing and saving attr/char prefs on systems
+  where 'char' is signed.
+- Updated configure.in and the makefile system
+- Changed the internal representation of the stats to be linear.
+  The only gameplay change is the effects of stat loss from time
+  effects.
+- The stats are displayed in decimal.
+- Don't adjust stats below 3.
+- Smoothed out the effects of stat potions.
+- There is some randomness applied to the last digit of starting
+  characters' stats.
+- Added some borg fixes from Lunal (M. Titus).
+- Made Rings of See Invisible, Dexterity, Resist Fire, Resist Cold,
+  and Ring of the Cat more common.
+- Change the nominal depths of many items to match their actual
+  drop depths, or in some cases add or change drop entries to match
+  the nominal depth.  (This fixes some old bugs caused by the
+  dungeon rearrangement in 2.5.x)
+- Fixed the bug that caused arrows that miss to disappear and
+  corrupt the object arrays.
+- Allow magesmiths (weapons) to enchant deadliness a bit higher,
+  and display the possible enchantment correctly.
+- Fix browse info for many spells to actually match what they do.
+- Allow the player to dimension door onto trees.
+- Fix bug with drawing the player's light right after sunset.
+- Updated the help files.
+- Fixed a bug found by Victor Chou where the first item on the
+  floor was used when you pressed '-' at the item prompt, even
+  when that item was of an incorrect type.
+- Fixed the double-free bug for quark strings found by Randy Heit.
+- Halve the cost of using the magetowers.
+- Fixed a bug causing using a magetower with monster lights on to
+  crash the game.
+- Changed the price of identify pack and restore all stats building
+  options.
+- The stone wall spell doesn't affect permanent grids now.
+- Fixed the racial and mutation activation menu.
+- The *identify* information now uses bigscreen.
+- Fixed bug that caused heavily cursed items to be mistakenly shown
+  as permanently cursed.
+- Scrolls of *Identify* give the message "You have nothing to
+  *identify*" if they have nothing to work on.
+- Made sure the starting town has a Bazaar.
+- Added a hugely altered version of Tim Bakers Tcl/Tk port.  This is
+  alpha-quality and most functionality is currently disabled.  It
+  will be renabled over time.  Start the game with the -mtnb option
+  to try it out.  The code has been changed to be much more portable
+  than the original version.  Other angband varients will be able to
+  use it if the maid-grf interface is ported over.  This port
+  requires tcl/tk version 8.4.0 or higher to compile.
+- Changed alot of the string formatting code to be more powerful.
+  It now can include colour codes, and calls to specialized
+  format functions which can take arbitrary inputs.
+- Changed the message and screen display code to use the more powerful
+  formatted string input.
+- You can use the escape character '$' followed by a letter from A to P 
+  in an inscription or player name to make coloured text.
+- These escape sequences also work in the help files to allow coloured
+  text there as well.
+- Moved most of the low-level interface code to a new file: ui.c and
+  created a generic menu system in that source file, instead of
+  using many copies of virtually the same code throughout the source.
+- Simplified the API of the fields code by using vaargs instead of
+  pointers to arbitrary structs.
+- Updated the Lua source to the 4.0.1 release.
+- Changed the terms code so that Term_save() and Term_load() will work
+  with an arbitrary number of saved screens, rather than just one.
+- Changed the ascii art in the winners crown.
+- Removed the old code used to output a matlab .m file used to balance
+  the dungeon distribution of monsters.
+- Removed many unused options from the borg command screen.
+- Removed all users of sprintf() in the main source, and replaced them
+  with the safer strnfmt().  Changed all uses of strcat() to strnfcat()
+  or strnfmt() to prevent buffer overflows.
+- Fixed crashes in the wilderness caused by recursion in trying to
+  place monsters on swamp or lava tiles.
+- Fixed bug when buying wands from stores when you already have a stack
+  with more charges than the number in the store.
+- Inscribing things with the '!' modifier works again.
+- Fixed some major bugs with spell effects and objects.  The first 
+  object in a pile was affecting what happened to the ones below it in
+  strange ways.
+- Prevented artifacts being created with +0 stealth.
+- Fixed enormous bug that was corrupting the player inventory when
+  loading some savefiles.
+- Made spells work on the fake wilderness boundary squares.
+- Changed phantom beasts from light to dark blue, so they don't look
+  like phantom warriors.
+- The rarity of a monster is now displayed in the monster memory.
+- Automatically load 'player.prf' at startup/birth.
+- Decreased number of messages displayed in character dumps to be
+  50 by default.  (There is an option to restore the old behaviour.)
+- The deepest kills are displayed in character dumps.
+- Added a new item "Whip of Entanglement"
+- Fixed loading savefiles from dead characters.
+- Put the auto-notes files in the 'user' directory, instead of the
+  savefile directory.  This works much better in multi-player
+  machines, where the file will be put in the ~/.angband/ZAngband
+  directory.
+- Monsters killed in the wilderness now have reasonable drops, instead
+  of having ones calculated as if they are on level zero.
+- Fixed the vanilla town option so it doesn't crash when the town is
+  made.
+- Get rid of inconsistancy of colouring between charging and
+  fully charged rods.
+- Jungle no longer makes running extremely annoying.
+- Immobile monsters don't say they are fleeing.
+- Fixed display bug with reading phase door scrolls on the ground.
+- Fixed the 'paralyzed!' message, which wasn't updated properly.
+- Improved the description of time attacks.
+- Fixed the problem with monster AI that was exposed by the day of
+  the dove spell, and mindcrafter domination effect.
+- Made sure you can always see the price of items you are buying
+  or selling by putting them on another line.
+- Fixed the silly message when removing an item you are wearing.
+- Fixed the mindcrafter psychometry spell to work like the mage
+  identify spell, and only list available items.
+- Only show inscribed objects in the uninscribe command menu.
+- Fixed bugs with uncursing items, where the players information
+  wasn't been updated fully.
+- The shatter armour / weapon effects now update the players
+  object feelings.
+- Fix infinite loop when you try to dimension door to your current
+  location.
+- Made the mindcrafter power menu work more like the standard spell
+  menu, and display the available options all the time.
+- Fixed off-by one bug in object allocation code.
+- Fixed major bug when objects in the players pack combine.
+- Fixed a bug where non-passable fields weren't working as planned.
+- Selling items was giving free identify for the rest of the pile.
+  This doesn't make sense for wands.
+- Prevent towns from having blank names. 
+- Display the starting town name properly when the game begins.
+
 Zangband 2.7.1:
 - Split off the graphics-specific code in util.c and moved it into
   maid-grf.c
@@ -163,7 +326,6 @@ Zangband 2.7.1:
 - Fixed a problem with the autoconf bootstrap method.
 - Rangers are better, not worse at hitting monsters hiding in trees.	
 - Normal stores can generate good or excellent items again.
-- 
 
 
 ZAngband 2.7.0:

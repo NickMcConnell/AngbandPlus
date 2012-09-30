@@ -563,17 +563,6 @@ errr borg_what_text(int x, int y, int n, byte *a, char *s)
 
 
 /*
- * Log a message to a file
- */
-void borg_info(cptr what)
-{
-	/* Dump a log file message */
-	if (borg_fff) fprintf(borg_fff, "%s\n", what);
-}
-
-
-
-/*
  * Memorize a message, Log it, Search it, and Display it in pieces
  */
 void borg_note(cptr what)
@@ -588,10 +577,8 @@ void borg_note(cptr what)
 	/* Memorize it */
 	message_add(what, MSG_GENERIC);
 
-
 	/* Log the message */
-	borg_info(what);
-
+	if (borg_fff) fprintf(borg_fff, "%s\n", what);
 
 	/* Mega-Hack -- Check against the search string */
 	if (borg_match[0] && strstr(what, borg_match))
@@ -618,7 +605,7 @@ void borg_note(cptr what)
 		Term_locate(&x, &y);
 
 		/* Erase current line */
-		Term_erase(0, y, 255);
+		clear_row(y);
 
 
 		/* Total length */
@@ -656,13 +643,13 @@ void borg_note(cptr what)
 				buf[i] = '\0';
 
 				/* Show message */
-				Term_addstr(-1, TERM_WHITE, buf);
+				roff(buf);
 
 				/* Advance (wrap) */
 				if (++y >= h) y = 0;
 
 				/* Erase next line */
-				Term_erase(0, y, 255);
+				clear_row(y);
 
 				/* Advance */
 				what += k;
@@ -672,26 +659,26 @@ void borg_note(cptr what)
 			}
 
 			/* Show message tail */
-			Term_addstr(-1, TERM_WHITE, what);
+			roff(what);
 
 			/* Advance (wrap) */
 			if (++y >= h) y = 0;
 
 			/* Erase next line */
-			Term_erase(0, y, 255);
+			clear_row(y);
 		}
 
 		/* Normal */
 		else
 		{
 			/* Show message */
-			Term_addstr(-1, TERM_WHITE, what);
+			roff(what);
 
 			/* Advance (wrap) */
 			if (++y >= h) y = 0;
 
 			/* Erase next line */
-			Term_erase(0, y, 255);
+			clear_row(y);
 		}
 
 
@@ -717,7 +704,7 @@ void borg_note_fmt(cptr fmt, ...)
 	va_start(vp, fmt);
 
 	/* Format the args, save the length */
-	(void)vstrnfmt(buf, 1024, fmt, vp);
+	(void)vstrnfmt(buf, 1024, fmt, &vp);
 
 	/* End the Varargs Stuff */
 	va_end(vp);
@@ -760,7 +747,7 @@ void borg_oops_fmt(cptr fmt, ...)
 	va_start(vp, fmt);
 
 	/* Format the args, save the length */
-	(void)vstrnfmt(buf, 1024, fmt, vp);
+	(void)vstrnfmt(buf, 1024, fmt, &vp);
 
 	/* End the Varargs Stuff */
 	va_end(vp);
@@ -792,7 +779,7 @@ errr borg_keypress(char k)
 	(void)strnfmt(buf, 10, "& Key <%c>", k);
 
 	/* Hack -- note the keypress */
-	if (borg_fff) borg_info(buf);
+	if (borg_fff) fprintf(borg_fff, "%s\n", buf);
 
 	/* Store the char, advance the queue */
 	borg_key_queue[borg_key_head++] = k;

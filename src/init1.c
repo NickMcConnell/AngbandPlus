@@ -1286,7 +1286,7 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 		return (0);
 
 	/* Oops */
-	msg_format("Unknown object flag '%s'.", what);
+	msgf("Unknown object flag '%s'.", what);
 
 	/* Error */
 	return (PARSE_ERROR_GENERIC);
@@ -1520,7 +1520,7 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 		return (0);
 
 	/* Oops */
-	msg_format("Unknown artifact flag '%s'.", what);
+	msgf("Unknown artifact flag '%s'.", what);
 
 	/* Error */
 	return (PARSE_ERROR_GENERIC);
@@ -1693,7 +1693,7 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 		return (0);
 
 	/* Oops */
-	msg_format("Unknown ego-item flag '%s'.", what);
+	msgf("Unknown ego-item flag '%s'.", what);
 
 	/* Error */
 	return (PARSE_ERROR_GENERIC);
@@ -1874,7 +1874,7 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 		return (0);
 
 	/* Oops */
-	msg_format("Unknown monster flag '%s'.", what);
+	msgf("Unknown monster flag '%s'.", what);
 
 	/* Failure */
 	return (PARSE_ERROR_GENERIC);
@@ -1896,7 +1896,7 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
 		return (0);
 
 	/* Oops */
-	msg_format("Unknown monster flag '%s'.", what);
+	msgf("Unknown monster flag '%s'.", what);
 
 	/* Failure */
 	return (PARSE_ERROR_GENERIC);
@@ -1965,7 +1965,7 @@ errr parse_r_info(char *buf, header *head)
 		/* Store the text */
 		if (!add_text(&(r_ptr->text), head, s))
 		{
-			msg_print("Icky Description!!");
+			msgf("Icky Description!!");
 			message_flush();
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 		}
@@ -2230,7 +2230,7 @@ static errr grab_one_wild_flag(wild_gen_data_type *w_ptr, cptr what)
 	}
 
 	/* Oops */
-	msg_format("Unknown wilderness flag '%s'.", what);
+	msgf("Unknown wilderness flag '%s'.", what);
 
 	/* Error */
 	return (PARSE_ERROR_GENERIC);
@@ -2447,7 +2447,7 @@ static errr grab_one_info_flag(field_thaum *t_ptr, cptr what)
 	}
 
 	/* Oops */
-	msg_format("Unknown field info-flag '%s'.", what);
+	msgf("Unknown field info-flag '%s'.", what);
 
 	/* Error */
 	return (PARSE_ERROR_GENERIC);
@@ -2508,7 +2508,7 @@ static errr grab_one_action_flag(field_thaum *t_ptr, char *what)
 	}
 
 	/* Oops */
-	msg_format("Unknown field info-flag '%s'.", t);
+	msgf("Unknown field info-flag '%s'.", t);
 
 	/* Error */
 	return (PARSE_ERROR_GENERIC);

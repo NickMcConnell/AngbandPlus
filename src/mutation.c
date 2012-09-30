@@ -506,7 +506,7 @@ bool gain_mutation(int choose_mut)
 	/* Choose a mutation */
 	if (!select_mutation(choose_mut, TRUE, &num))
 	{
-		msg_print("You feel normal.");
+		msgf("You feel normal.");
 		return FALSE;
 	}
 	else
@@ -548,8 +548,8 @@ bool gain_mutation(int choose_mut)
 
 		muta_which = mut_ptr->which;
 
-		msg_print("You mutate!");
-		msg_print(mut_ptr->gain_text);
+		msgf("You mutate!");
+		msgf(mut_ptr->gain_text);
 
 		/* Gain the mutation */
 		if (num < MUT_PER_SET)
@@ -572,7 +572,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_HYPER_STR)
 				{
-					msg_print("You no longer feel super-strong!");
+					msgf("You no longer feel super-strong!");
 					p_ptr->muta3 &= ~(MUT3_HYPER_STR);
 				}
 			}
@@ -580,7 +580,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_PUNY)
 				{
-					msg_print("You no longer feel puny!");
+					msgf("You no longer feel puny!");
 					p_ptr->muta3 &= ~(MUT3_PUNY);
 				}
 			}
@@ -588,7 +588,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_HYPER_INT)
 				{
-					msg_print("Your brain is no longer a living computer.");
+					msgf("Your brain is no longer a living computer.");
 					p_ptr->muta3 &= ~(MUT3_HYPER_INT);
 				}
 			}
@@ -596,7 +596,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_MORONIC)
 				{
-					msg_print("You are no longer moronic.");
+					msgf("You are no longer moronic.");
 					p_ptr->muta3 &= ~(MUT3_MORONIC);
 				}
 			}
@@ -604,17 +604,17 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_SCALES)
 				{
-					msg_print("You lose your scales.");
+					msgf("You lose your scales.");
 					p_ptr->muta3 &= ~(MUT3_SCALES);
 				}
 				if (p_ptr->muta3 & MUT3_FLESH_ROT)
 				{
-					msg_print("Your flesh rots no longer.");
+					msgf("Your flesh rots no longer.");
 					p_ptr->muta3 &= ~(MUT3_FLESH_ROT);
 				}
 				if (p_ptr->muta3 & MUT3_WART_SKIN)
 				{
-					msg_print("You lose your warts.");
+					msgf("You lose your warts.");
 					p_ptr->muta3 &= ~(MUT3_WART_SKIN);
 				}
 			}
@@ -624,7 +624,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_IRON_SKIN)
 				{
-					msg_print("Your skin is no longer made of steel.");
+					msgf("Your skin is no longer made of steel.");
 					p_ptr->muta3 &= ~(MUT3_IRON_SKIN);
 				}
 			}
@@ -632,7 +632,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta2 & MUT2_COWARDICE)
 				{
-					msg_print("You are no longer cowardly.");
+					msgf("You are no longer cowardly.");
 					p_ptr->muta2 &= ~(MUT2_COWARDICE);
 				}
 			}
@@ -640,7 +640,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_REGEN)
 				{
-					msg_print("You stop regenerating.");
+					msgf("You stop regenerating.");
 					p_ptr->muta3 &= ~(MUT3_REGEN);
 				}
 			}
@@ -648,7 +648,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_FLESH_ROT)
 				{
-					msg_print("Your flesh stops rotting.");
+					msgf("Your flesh stops rotting.");
 					p_ptr->muta3 &= ~(MUT3_FLESH_ROT);
 				}
 			}
@@ -656,7 +656,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_ARTHRITIS)
 				{
-					msg_print("Your joints stop hurting.");
+					msgf("Your joints stop hurting.");
 					p_ptr->muta3 &= ~(MUT3_ARTHRITIS);
 				}
 			}
@@ -664,7 +664,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_LIMBER)
 				{
-					msg_print("You no longer feel limber.");
+					msgf("You no longer feel limber.");
 					p_ptr->muta3 &= ~(MUT3_LIMBER);
 				}
 			}
@@ -675,7 +675,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta3 & MUT3_FEARLESS)
 				{
-					msg_print("You no longer feel fearless.");
+					msgf("You no longer feel fearless.");
 					p_ptr->muta3 &= ~(MUT3_FEARLESS);
 				}
 			}
@@ -683,7 +683,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta2 & MUT2_TRUNK)
 				{
-					msg_print("Your nose is no longer elephantine.");
+					msgf("Your nose is no longer elephantine.");
 					p_ptr->muta2 &= ~(MUT2_TRUNK);
 				}
 			}
@@ -691,7 +691,7 @@ bool gain_mutation(int choose_mut)
 			{
 				if (p_ptr->muta2 & MUT2_BEAK)
 				{
-					msg_print("You no longer have a hard beak.");
+					msgf("You no longer have a hard beak.");
 					p_ptr->muta2 &= ~(MUT2_BEAK);
 				}
 			}
@@ -726,7 +726,7 @@ bool lose_mutation(int choose_mut)
 
 		muta_which = mut_ptr->which;
 
-		msg_print(mut_ptr->lose_text);
+		msgf(mut_ptr->lose_text);
 
 		if (num < MUT_PER_SET)
 		{
@@ -752,13 +752,13 @@ bool lose_mutation(int choose_mut)
 /*
  * Print out a description of the current mutations
  */
-void dump_mutations(FILE *OutFile)
+void dump_mutations(FILE *fff)
 {
 	const mutation_type *mut_ptr;
 
 	int i;
 
-	if (!OutFile) return;
+	if (!fff) return;
 
 	/* Run through the mutations */
 	for (i = 0; i < MUT_PER_SET * 3; i++)
@@ -767,7 +767,7 @@ void dump_mutations(FILE *OutFile)
 
 		if (player_has_mut(i))
 		{
-			fprintf(OutFile, "%s\n", mut_ptr->desc_text);
+			fprintf(fff, "%s\n", mut_ptr->desc_text);
 		}
 	}
 }
@@ -776,17 +776,19 @@ void dump_mutations(FILE *OutFile)
 /*
  * List mutations we have...
  */
-void do_cmd_knowledge_mutations(void)
+bool do_cmd_knowledge_mutations(int dummy)
 {
 	FILE *fff;
 	char file_name[1024];
-
+	
+	/* Hack - ignore parameter */
+	(void) dummy;
 
 	/* Open a temporary file */
 	fff = my_fopen_temp(file_name, sizeof(file_name));
 
 	/* Failure */
-	if (!fff) return;
+	if (!fff) return (FALSE);
 
 	/* Dump the mutations to file */
 	if (fff) dump_mutations(fff);
@@ -799,6 +801,8 @@ void do_cmd_knowledge_mutations(void)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
+	
+	return (FALSE);
 }
 
 
@@ -808,11 +812,13 @@ static int count_bits(u32b x)
 	int n = 0;
 
 	if (x)
+	{
 		do
 		{
 			n++;
 		}
 		while (0 != (x = x & (x - 1)));
+	}
 
 	return (n);
 }
@@ -875,7 +881,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 	if (mut_ptr->which == MUT1_SPIT_ACID)
 	{
-		msg_print("You spit acid...");
+		msgf("You spit acid...");
 		if (get_aim_dir(&dir))
 		{
 			(void)fire_ball(GF_ACID, dir, lvl, 1 + (lvl / 30));
@@ -884,7 +890,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 	else if (mut_ptr->which == MUT1_BR_FIRE)
 	{
-		msg_print("You breathe fire...");
+		msgf("You breathe fire...");
 		if (get_aim_dir(&dir))
 		{
 			(void)fire_ball(GF_FIRE, dir, lvl * 2, 1 + (lvl / 20));
@@ -893,7 +899,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 	else if (mut_ptr->which == MUT1_HYPN_GAZE)
 	{
-		msg_print("Your eyes look mesmerizing...");
+		msgf("Your eyes look mesmerizing...");
 		if (get_aim_dir(&dir))
 		{
 			(void)charm_monster(dir, lvl);
@@ -902,7 +908,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 	else if (mut_ptr->which == MUT1_TELEKINES)
 	{
-		msg_print("You concentrate...");
+		msgf("You concentrate...");
 		if (get_aim_dir(&dir))
 		{
 			fetch(dir, lvl * 10, TRUE);
@@ -911,12 +917,12 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 	else if (mut_ptr->which == MUT1_VTELEPORT)
 	{
-		msg_print("You concentrate...");
+		msgf("You concentrate...");
 		teleport_player(10 + 4 * lvl);
 	}
 	else if (mut_ptr->which == MUT1_MIND_BLST)
 	{
-		msg_print("You concentrate...");
+		msgf("You concentrate...");
 		if (get_aim_dir(&dir))
 		{
 			(void)fire_bolt(GF_PSI, dir, damroll(3 + ((lvl - 1) / 5), 3));
@@ -930,7 +936,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 	else if (mut_ptr->which == MUT1_RADIATION)
 	{
-		msg_print("Radiation flows from your body!");
+		msgf("Radiation flows from your body!");
 		(void)fire_ball(GF_NUKE, 0, (lvl * 2), 3 + (lvl / 20));
 	}
 
@@ -943,7 +949,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		if (p_ptr->afraid)
 		{
 			/* Message */
-			msg_print("You are too afraid!");
+			msgf("You are too afraid!");
 			return;
 		}
 
@@ -959,10 +965,10 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 		if (!(c_ptr->m_idx))
 		{
-			msg_print("You bite into thin air!");
+			msgf("You bite into thin air!");
 			return;
 		}
-		msg_print("You grin and bare your fangs...");
+		msgf("You grin and bare your fangs...");
 
 		dummy = lvl * 2;
 
@@ -977,7 +983,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 				(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX - 1 : dummy);
 		}
 		else
-			msg_print("Yechh. That tastes foul.");
+			msgf("Yechh. That tastes foul.");
 	}
 
 	else if (mut_ptr->which == MUT1_SMELL_MET)
@@ -1011,22 +1017,22 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 		if (cave_floor_grid(c_ptr))
 		{
-			msg_print("You bite into thin air!");
+			msgf("You bite into thin air!");
 			return;
 		}
 		else if (cave_perma_grid(c_ptr) || (c_ptr->feat == FEAT_MOUNTAIN))
 		{
-			msg_print("Ouch!  This wall is harder than your teeth!");
+			msgf("Ouch!  This wall is harder than your teeth!");
 			return;
 		}
 		else if (c_ptr->m_idx)
 		{
-			msg_print("There's something in the way!");
+			msgf("There's something in the way!");
 			return;
 		}
 		else if (c_ptr->feat == FEAT_TREES)
 		{
-			msg_print("You don't like the woody taste!");
+			msgf("You don't like the woody taste!");
 			return;
 		}
 		else
@@ -1042,7 +1048,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 			}
 			else
 			{
-				msg_print("This granite is very filling!");
+				msgf("This granite is very filling!");
 				(void)set_food(p_ptr->food + 10000);
 			}
 		}
@@ -1053,7 +1059,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		ox = px;
 
 		/* Process fields under the player. */
-		field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE, NULL);
+		field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE);
 
 		/* Move the player */
 		py = y;
@@ -1078,7 +1084,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		lite_spot(ox, oy);
 
 		/* Process fields under the player. */
-		field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
+		field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_ENTER);
 
 		verify_panel();
 
@@ -1212,7 +1218,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		{
 			if (o_ptr->pval > 0)
 			{
-				msg_print("You can't absorb energy from a discharged rod.");
+				msgf("You can't absorb energy from a discharged rod.");
 			}
 			else
 			{
@@ -1229,7 +1235,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 			}
 			else
 			{
-				msg_print("There's no energy there to absorb!");
+				msgf("There's no energy there to absorb!");
 			}
 			o_ptr->info |= OB_EMPTY;
 		}
@@ -1251,7 +1257,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 	/* Fake a population explosion. */
 	else if (mut_ptr->which == MUT1_STERILITY)
 	{
-		msg_print("You suddenly have a headache!");
+		msgf("You suddenly have a headache!");
 		take_hit(rand_range(17, 34), "the strain of forcing abstinence");
 		num_repro += MAX_REPRO;
 	}
@@ -1274,7 +1280,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		}
 		else
 		{
-			msg_print("You don't see any monster in this direction");
+			msgf("You don't see any monster in this direction");
 			message_flush();
 		}
 	}
@@ -1315,7 +1321,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 		if (!c_ptr->m_idx)
 		{
-			msg_print("You sense no evil there!");
+			msgf("You sense no evil there!");
 			return;
 		}
 
@@ -1327,12 +1333,12 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		{
 			/* Delete the monster, rather than killing it. */
 			delete_monster_idx(c_ptr->m_idx);
-			msg_print
+			msgf
 				("The evil creature vanishes in a puff of sulfurous smoke!");
 		}
 		else
 		{
-			msg_print("Your invocation is ineffectual!");
+			msgf("Your invocation is ineffectual!");
 		}
 	}
 	else if (mut_ptr->which == MUT1_COLD_TOUCH)
@@ -1351,7 +1357,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 		if (!c_ptr->m_idx)
 		{
-			msg_print("You wave your hands in the air.");
+			msgf("You wave your hands in the air.");
 			return;
 		}
 		(void)fire_bolt(GF_COLD, dir, 2 * lvl);
@@ -1375,8 +1381,8 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	if (mut_ptr->which == MUT2_BERS_RAGE)
 	{
 		disturb(FALSE);
-		msg_print("RAAAAGHH!");
-		msg_print("You feel a fit of rage coming over you!");
+		msgf("RAAAAGHH!");
+		msgf("You feel a fit of rage coming over you!");
 		(void)set_shero(p_ptr->shero + 10 + randint1(p_ptr->lev));
 	}
 
@@ -1385,7 +1391,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		if (!(p_ptr->resist_fear || p_ptr->hero || p_ptr->shero))
 		{
 			disturb(FALSE);
-			msg_print("It's so dark... so scary!");
+			msgf("It's so dark... so scary!");
 			(void)set_afraid(p_ptr->afraid + rand_range(13, 40));
 		}
 	}
@@ -1398,7 +1404,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 			disturb(FALSE);
 
 			/* Teleport player */
-			msg_print("Your position suddenly seems very uncertain...");
+			msgf("Your position suddenly seems very uncertain...");
 			message_flush();
 			teleport_player(40);
 		}
@@ -1410,7 +1416,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		{
 			disturb(FALSE);
 			p_ptr->redraw |= PR_EXTRA;
-			msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
+			msgf("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
 		}
 
 		if (!p_ptr->resist_confu)
@@ -1428,14 +1434,14 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 					wiz_dark();
 				teleport_player(100);
 				wiz_dark();
-				msg_print("You wake up somewhere with a sore head...");
-				msg_print("You can't remember a thing, or how you got here!");
+				msgf("You wake up somewhere with a sore head...");
+				msgf("You can't remember a thing, or how you got here!");
 			}
 			else
 			{
 				if (one_in_(3))
 				{
-					msg_print("Thishcischs GooDSChtuff!");
+					msgf("Thishcischs GooDSChtuff!");
 					(void)set_image(p_ptr->image + rand_range(150, 300));
 				}
 			}
@@ -1456,7 +1462,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	{
 		disturb(FALSE);
 
-		msg_print("BRRAAAP! Oops.");
+		msgf("BRRAAAP! Oops.");
 		message_flush();
 		(void)fire_ball(GF_POIS, 0, p_ptr->lev, 3);
 	}
@@ -1465,7 +1471,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	{
 		int dire = 0;
 		disturb(FALSE);
-		msg_print("Magical energy flows through you! You must release it!");
+		msgf("Magical energy flows through you! You must release it!");
 		flush();
 		message_flush();
 		(void)get_hack_dir(&dire);
@@ -1479,7 +1485,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		if (summon_specific((pet ? -1 : 0), p_ptr->px, p_ptr->py,
 							p_ptr->depth, SUMMON_DEMON, TRUE, FALSE, pet))
 		{
-			msg_print("You have attracted a demon!");
+			msgf("You have attracted a demon!");
 			disturb(FALSE);
 		}
 	}
@@ -1489,7 +1495,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		disturb(FALSE);
 		if (one_in_(2))
 		{
-			msg_print("You feel less energetic.");
+			msgf("You feel less energetic.");
 			if (p_ptr->fast > 0)
 			{
 				(void)set_fast(0);
@@ -1501,7 +1507,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		}
 		else
 		{
-			msg_print("You feel more energetic.");
+			msgf("You feel more energetic.");
 			if (p_ptr->slow > 0)
 			{
 				(void)set_slow(0);
@@ -1517,7 +1523,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	else if (mut_ptr->which == MUT2_BANISH_ALL)
 	{
 		disturb(FALSE);
-		msg_print("You suddenly feel almost lonely.");
+		msgf("You suddenly feel almost lonely.");
 		(void)banish_monsters(100);
 		message_flush();
 	}
@@ -1527,7 +1533,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		object_type *o_ptr;
 		cave_type *c_ptr = area(p_ptr->px, p_ptr->py);
 
-		msg_print("A shadow passes over you.");
+		msgf("A shadow passes over you.");
 		message_flush();
 
 		/* Absorb light from the current possition */
@@ -1550,7 +1556,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 				/* Decrease life-span of lite */
 				o_ptr->timeout /= 2;
 
-				msg_print("You absorb energy from your light!");
+				msgf("You absorb energy from your light!");
 
 				/* Notice interesting fuel steps */
 				notice_lite_change(o_ptr);
@@ -1571,7 +1577,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		if (summon_specific((pet ? -1 : 0), p_ptr->px, p_ptr->py,
 							p_ptr->depth, SUMMON_ANIMAL, TRUE, FALSE, pet))
 		{
-			msg_print("You have attracted an animal!");
+			msgf("You have attracted an animal!");
 			disturb(FALSE);
 		}
 	}
@@ -1579,7 +1585,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	else if ((mut_ptr->which == MUT2_RAW_CHAOS) && !p_ptr->anti_magic)
 	{
 		disturb(FALSE);
-		msg_print("You feel the world warping around you!");
+		msgf("You feel the world warping around you!");
 		message_flush();
 		(void)fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
 	}
@@ -1588,14 +1594,14 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	{
 		if (!lose_mutation(0))
 		{
-			msg_print("You feel oddly normal.");
+			msgf("You feel oddly normal.");
 		}
 	}
 
 	else if ((mut_ptr->which == MUT2_WRAITH) && !p_ptr->anti_magic)
 	{
 		disturb(FALSE);
-		msg_print("You feel insubstantial!");
+		msgf("You feel insubstantial!");
 		message_flush();
 		(void)set_wraith_form(p_ptr->wraith_form +
 							  rand_range(p_ptr->lev / 2, p_ptr->lev));
@@ -1632,20 +1638,16 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 				if (p_ptr->sustain_chr) sustained = TRUE;
 				break;
 			default:
-				msg_print("Invalid stat chosen!");
+				msgf("Invalid stat chosen!");
 				sustained = TRUE;
 		}
 
 		if (!sustained)
 		{
 			disturb(FALSE);
-			msg_print("You can feel yourself wasting away!");
+			msgf("You can feel yourself wasting away!");
 			message_flush();
-#if 0
-			(void)dec_stat(which_stat, rand_range(6, 12), one_in_(3));
-#else
 			(void)dec_stat(which_stat, rand_range(6, 12), 0);
-#endif
 		}
 	}
 
@@ -1656,7 +1658,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		if (summon_specific((pet ? -1 : 0), p_ptr->px, p_ptr->py,
 							p_ptr->depth, SUMMON_DRAGON, TRUE, FALSE, pet))
 		{
-			msg_print("You have attracted a dragon!");
+			msgf("You have attracted a dragon!");
 			disturb(FALSE);
 		}
 	}
@@ -1665,12 +1667,12 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	{
 		if (p_ptr->tim_esp > 0)
 		{
-			msg_print("Your mind feels cloudy!");
+			msgf("Your mind feels cloudy!");
 			(void)set_tim_esp(0);
 		}
 		else
 		{
-			msg_print("Your mind expands!");
+			msgf("Your mind expands!");
 			(void)set_tim_esp(p_ptr->lev);
 		}
 	}
@@ -1678,7 +1680,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	else if ((mut_ptr->which == MUT2_NAUSEA) && !p_ptr->slow_digest)
 	{
 		disturb(FALSE);
-		msg_print("Your stomach roils, and you lose your lunch!");
+		msgf("Your stomach roils, and you lose your lunch!");
 		message_flush();
 		(void)set_food(PY_FOOD_WEAK);
 	}
@@ -1708,23 +1710,23 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		}
 
 		if (danger_amount > 100)
-			msg_print("You feel utterly terrified!");
+			msgf("You feel utterly terrified!");
 		else if (danger_amount > 50)
-			msg_print("You feel terrified!");
+			msgf("You feel terrified!");
 		else if (danger_amount > 20)
-			msg_print("You feel very worried!");
+			msgf("You feel very worried!");
 		else if (danger_amount > 10)
-			msg_print("You feel paranoid!");
+			msgf("You feel paranoid!");
 		else if (danger_amount > 5)
-			msg_print("You feel almost safe.");
+			msgf("You feel almost safe.");
 		else
-			msg_print("You feel lonely.");
+			msgf("You feel lonely.");
 	}
 
 	else if ((mut_ptr->which == MUT2_INVULN) && !p_ptr->anti_magic)
 	{
 		disturb(FALSE);
-		msg_print("You feel invincible!");
+		msgf("You feel invincible!");
 		message_flush();
 		(void)set_invuln(p_ptr->invuln + rand_range(8, 16));
 	}
@@ -1770,20 +1772,20 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		object_type *o_ptr;
 
 		disturb(FALSE);
-		msg_print("You trip over your own feet!");
+		msgf("You trip over your own feet!");
 		take_hit(randint1(p_ptr->wt / 6), "tripping");
 
 		message_flush();
 		o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 		if ((o_ptr->k_idx) && !cursed_p(o_ptr))
 		{
-			msg_print("You drop your weapon!");
+			msgf("You drop your weapon!");
 			inven_drop(o_ptr, 1);
 		}
 	}
 }
 
-/* Constan mutation effects */
+/* Constant mutation effects */
 void mutation_effect(void)
 {
 	/* Hyper Strength */

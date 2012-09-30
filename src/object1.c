@@ -838,7 +838,8 @@ bool identify_fully_aux(const object_type *o_ptr)
 
 	cptr info[128], reclaim[128], temp;
 	int num_reclaim = 0;
-
+	
+	int wid, hgt;
 
 	/* Extract the flags */
 	object_flags_known(o_ptr, &f1, &f2, &f3);
@@ -1414,34 +1415,36 @@ bool identify_fully_aux(const object_type *o_ptr)
 
 	/* No special effects */
 	if (!i) return (FALSE);
-
+	
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Save the screen */
 	screen_save();
 
 	/* Erase the screen */
-	for (k = 1; k < 24; k++) prt("", 13, k);
+    clear_region(13, 1, hgt);
 
 	/* Label the information */
-	prt("     Item Attributes:", 15, 1);
+	prtf(15, 1, "     Item Attributes:");
 
 	/* We will print on top of the map (column 13) */
 	for (k = 2, j = 0; j < i; j++)
 	{
 		/* Show the info */
-		prt(info[j], 15, k++);
+		prtf(15, k++, info[j]);
 
-		/* Every 20 entries (lines 2 to 21), start over */
-		if ((k == 22) && (j + 1 < i))
+		/* Every hgt-2 entries (lines 2 to hgt-3), start over */
+		if ((k == hgt - 2) && (j + 1 < i))
 		{
-			prt("-- more --", 15, k);
+			prtf(15, k, "-- more --");
 			(void)inkey();
-			for (; k > 2; k--) prt("", 15, k);
+			for (; k > 2; k--) prtf(15, k, "");
 		}
 	}
 
 	/* Wait for it */
-	prt("[Press any key to continue]", 15, k);
+	prtf(13, k, "[Press any key to continue]");
 	(void)inkey();
 
 	/* Restore the screen */
@@ -2219,7 +2222,7 @@ static bool item_is_recharging(object_type *o_ptr)
 	if (o_ptr->timeout &&
 		((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 	{
-		if (object_known_p(o_ptr) && (o_ptr->tval == TV_ROD))
+		if (o_ptr->tval == TV_ROD)
 		{
 			/* Paranoia. */
 			if (!k_ptr->pval) return (FALSE);
@@ -2248,12 +2251,11 @@ static bool item_is_recharging(object_type *o_ptr)
  */
 void display_inven(void)
 {
-	int i = 0, n;
+	int i = 0;
 	object_type *o_ptr;
-	byte attr;
+	cptr attr;
 
 	char tmp_val[80];
-	char o_name[256];
 
 	int wid, hgt;
 
@@ -2264,7 +2266,8 @@ void display_inven(void)
 	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
 		/* Start with an empty "index" */
-		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
+		tmp_val[0] = tmp_val[1] = ' ';
+		tmp_val[2] = 0;
 
 		/* Is this item "acceptable"? */
 		if (item_tester_okay(o_ptr))
@@ -2277,35 +2280,22 @@ void display_inven(void)
 		}
 
 		/* Display the index (or blank space) */
-		Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
-
-		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3, wid - 3);
-
-		/* Obtain the length of the description */
-		n = strlen(o_name);
+		prtf(0, i, tmp_val);
 
 		/* Get a color */
-		attr = tval_to_attr[o_ptr->tval % 128];
+		attr = color_seq[tval_to_attr[o_ptr->tval % 128]];
 
 		/* Grey out charging items */
-		if (item_is_recharging(o_ptr)) attr = TERM_L_DARK;
-
-		/* Hack -- fake monochrome */
-		if (!use_color || ironman_moria) attr = TERM_WHITE;
+		if (item_is_recharging(o_ptr)) attr = CLR_L_DARK;
 
 		/* Display the entry itself */
-		Term_putstr(3, i, n, attr, o_name);
-
-		/* Erase the rest of the line */
-		Term_erase(3 + n, i, 255);
+		put_fstr(3, i, "%s" CLR_SET_DEFAULT "%v", attr, OBJECT_FMT(o_ptr, TRUE, 3));
 
 		/* Display the weight if needed */
 		if (show_weights && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			Term_putstr(wid - 9, i, -1, TERM_WHITE, tmp_val);
+			prtf(wid - 9, i, "%3d.%1d lb", wgt / 10, wgt % 10);
 		}
 
 		/* Count items in inventory */
@@ -2314,11 +2304,7 @@ void display_inven(void)
 	OBJ_ITT_END;
 
 	/* Erase the rest of the window */
-	for (; i < hgt; i++)
-	{
-		/* Erase the line */
-		Term_erase(0, i, 255);
-	}
+    clear_from(i);
 }
 
 
@@ -2329,7 +2315,7 @@ void display_equip(void)
 {
 	int i, n;
 	object_type *o_ptr;
-	byte attr;
+	cptr attr;
 	char tmp_val[80];
 	char o_name[256];
 
@@ -2346,7 +2332,8 @@ void display_equip(void)
 		o_ptr = &p_ptr->equipment[i];
 
 		/* Start with an empty "index" */
-		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
+		tmp_val[0] = tmp_val[1] = ' ';
+		tmp_val[2] = 0;
 
 		/* Is this item "acceptable"? */
 		if (item_tester_okay(o_ptr))
@@ -2359,52 +2346,38 @@ void display_equip(void)
 		}
 
 		/* Display the index (or blank space) */
-		Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
-
-		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3, 256);
+		prtf(0, i, tmp_val);
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
 
 		/* Get the color */
-		attr = tval_to_attr[o_ptr->tval % 128];
+		attr = color_seq[tval_to_attr[o_ptr->tval % 128]];
 
 		/* Grey out charging items */
-		if (item_is_recharging(o_ptr)) attr = TERM_L_DARK;
-
-		/* Hack -- fake monochrome */
-		if (!use_color || ironman_moria) attr = TERM_WHITE;
+		if (item_is_recharging(o_ptr)) attr = CLR_L_DARK;
 
 		/* Display the entry itself */
-		Term_putstr(3, i, n, attr, o_name);
-
-		/* Erase the rest of the line */
-		Term_erase(3 + n, i, 255);
+		put_fstr(3, i, "%s" CLR_SET_DEFAULT "%v", attr, OBJECT_FMT(o_ptr, TRUE, 3));
 
 		/* Display the slot description (if needed) */
 		if (show_labels)
 		{
-			Term_putstr(wid - 19, i, -1, TERM_WHITE, "<--");
-			Term_putstr(wid - 15, i, -1, TERM_WHITE, mention_use(i));
+			prtf(wid - 19, i, "<--");
+			put_fstr(wid - 15, i, mention_use(i));
 		}
 
 		/* Display the weight (if needed) */
 		if (show_weights && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			int col = (show_labels ? wid - 28 : wid - 19);
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			Term_putstr(col, i, -1, TERM_WHITE, tmp_val);
+			int col = (show_labels ? wid - 28 : wid - 9);
+			put_fstr(col, i, "%3d.%1d lb", wgt / 10, wgt % 10);
 		}
 	}
 
 	/* Erase the rest of the window */
-	for (i = EQUIP_MAX; i < hgt; i++)
-	{
-		/* Clear that line */
-		Term_erase(0, i, 255);
-	}
+    clear_from(EQUIP_MAX);
 }
 
 
@@ -2424,11 +2397,10 @@ void show_list(s16b o_list_ptr)
 	object_type *o_ptr;
 
 	char o_name[256];
-	char tmp_val[80];
 
 	object_type *out_object[23];
 	int out_index[23];
-	byte out_color[23];
+	cptr out_color[23];
 	char out_desc[23][256];
 
 	byte a;
@@ -2476,10 +2448,10 @@ void show_list(s16b o_list_ptr)
 		/* Save the object index, color, and description */
 		out_index[k] = i;
 		out_object[k] = o_ptr;
-		out_color[k] = tval_to_attr[o_ptr->tval % 128];
+		out_color[k] = color_seq[tval_to_attr[o_ptr->tval % 128]];
 
 		/* Grey out charging items */
-		if (item_is_recharging(o_ptr)) out_color[k] = TERM_L_DARK;
+		if (item_is_recharging(o_ptr)) out_color[k] = CLR_L_DARK;
 
 		(void)strcpy(out_desc[k], o_name);
 
@@ -2516,21 +2488,14 @@ void show_list(s16b o_list_ptr)
 		o_ptr = out_object[j];
 
 		/* Clear the line */
-		prt("", col ? col - 2 : col, j + 1);
-
-		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", I2A(out_index[j]));
+		prtf(col ? col - 2 : col, j + 1, "");
 
 		/* Clear the line with the (possibly indented) index */
-		put_str(tmp_val, col, j + 1);
+		put_fstr(col, j + 1, "%c)", I2A(out_index[j]));
 
 		/* Display graphics for object, if desired */
 		a = object_attr(o_ptr);
 		c = object_char(o_ptr);
-
-#ifdef AMIGA
-		if (a & 0x80) a |= 0x40;
-#endif
 
 		/* Fake monochrome */
 		if (!use_color || ironman_moria)
@@ -2543,19 +2508,19 @@ void show_list(s16b o_list_ptr)
 		Term_draw(col + 3, j + 1, a, c);
 
 		/* Display the entry itself */
-		c_put_str(out_color[j], out_desc[j], col + 5, j + 1);
+		put_fstr(col + 5, j + 1, "%s" CLR_SET_DEFAULT "%s",
+				 out_color[j], out_desc[j]);
 
 		/* Display the weight if needed */
 		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			(void)sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, lim, j + 1);
+			put_fstr(lim, j + 1, "%3d.%1d lb", wgt / 10, wgt % 10);
 		}
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < hgt - 2)) prt("", col ? col - 2 : col, j + 1);
+	if (j && (j < hgt - 2)) prtf(col ? col - 2 : col, j + 1, "");
 }
 
 
@@ -2569,10 +2534,9 @@ void show_equip(void)
 
 	object_type *o_ptr;
 
-	char tmp_val[80];
 	char o_name[256];
 	int out_index[23];
-	byte out_color[23];
+	cptr out_color[23];
 	char out_desc[23][256];
 
 	byte a;
@@ -2615,16 +2579,10 @@ void show_equip(void)
 
 		/* Save the color */
 		out_index[k] = i;
-		out_color[k] = tval_to_attr[o_ptr->tval % 128];
+		out_color[k] = color_seq[tval_to_attr[o_ptr->tval % 128]];
 
 		/* Grey out charging items */
-		if (item_is_recharging(o_ptr)) out_color[k] = TERM_L_DARK;
-
-		/* Fake monochrome */
-		if (!use_color || ironman_moria)
-		{
-			out_color[k] = TERM_WHITE;
-		}
+		if (item_is_recharging(o_ptr)) out_color[k] = CLR_L_DARK;
 
 		(void)strcpy(out_desc[k], o_name);
 
@@ -2669,13 +2627,10 @@ void show_equip(void)
 		o_ptr = &p_ptr->equipment[i];
 
 		/* Clear the line */
-		prt("", col ? col - 2 : col, j + 1);
-
-		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", I2A(i));
+		prtf(col ? col - 2 : col, j + 1, "");
 
 		/* Clear the line with the (possibly indented) index */
-		put_str(tmp_val, col, j + 1);
+		put_fstr(col, j + 1,"%c)", I2A(i));
 
 		/* Show_equip_graph perm. on. */
 		a = object_attr(o_ptr);
@@ -2683,10 +2638,6 @@ void show_equip(void)
 
 		/* Hack - if no object, don't display the 'nothing' symbol */
 		if (!o_ptr->number) c = ' ';
-
-#ifdef AMIGA
-		if (a & 0x80) a |= 0x40;
-#endif
 
 		/* Fake monochrome */
 		if (!use_color || ironman_moria)
@@ -2703,31 +2654,31 @@ void show_equip(void)
 		if (show_labels)
 		{
 			/* Mention the use */
-			(void)sprintf(tmp_val, "%-14s: ", mention_use(i));
-			put_str(tmp_val, col + 5, j + 1);
+			put_fstr(col + 5, j + 1, "%-14s: ", mention_use(i));
 
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], col + 21, j + 1);
+			put_fstr(col + 21, j + 1, "%s" CLR_SET_DEFAULT "%s",
+					 out_color[j], out_desc[j]);
 		}
 
 		/* No labels */
 		else
 		{
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], col + 5, j + 1);
+			put_fstr(col + 5, j + 1, "%s" CLR_SET_DEFAULT "%s",
+					 out_color[j], out_desc[j]);
 		}
 
 		/* Display the weight if needed */
 		if (show_weights && o_ptr->number)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			(void)sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, lim, j + 1);
+			put_fstr(lim, j + 1, "%3d.%d lb", wgt / 10, wgt % 10);
 		}
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < hgt - 2)) prt("", col ? col - 2 : col, j + 1);
+	if (j && (j < hgt - 2)) prtf(col ? col - 2 : col, j + 1, "");
 }
 
 
@@ -2777,24 +2728,13 @@ void toggle_inven_equip(void)
  */
 static bool verify(cptr prompt, object_type *o_ptr)
 {
-	char o_name[256];
-	char out_val[512];
-
-	/* Describe */
-	object_desc(o_name, o_ptr, TRUE, 3, 256);
-
-	/* Prompt */
-	(void)sprintf(out_val, "%s %s? ", prompt, o_name);
-
 	/* Query */
-	return (get_check(out_val));
+	return (get_check("%s %v? ", prompt, OBJECT_FMT(o_ptr, TRUE, 3)));
 }
 
 
 /*
  * Hack -- allow user to "prevent" certain choices
- *
- * The item can be negative to mean "item on floor".
  */
 static bool get_item_allow(object_type *o_ptr)
 {
@@ -3024,6 +2964,8 @@ static void show_item_prompt(bool inven, bool equip, bool floor, cptr pmt,
 	char out_val[160];
 
 	object_type *eo_ptr;
+	
+	int len = 0;
 
 	switch (command_wrk)
 	{
@@ -3036,13 +2978,13 @@ static void show_item_prompt(bool inven, bool equip, bool floor, cptr pmt,
 			show_list(p_ptr->inventory);
 
 			/* Begin the prompt */
-			sprintf(out_val, "Inven:");
+			len = strnfmt(out_val, 160, "Inven:");
 
 			/* Append */
-			if (equip) strcat(out_val, " / for Equip,");
+			if (equip) strnfcat(out_val, 160, &len, " / for Equip,");
 
 			/* Append */
-			if (floor) strcat(out_val, " - for floor,");
+			if (floor) strnfcat(out_val, 160, &len, " - for floor,");
 
 			break;
 		}
@@ -3072,13 +3014,13 @@ static void show_item_prompt(bool inven, bool equip, bool floor, cptr pmt,
 			show_equip();
 
 			/* Begin the prompt */
-			sprintf(out_val, "Equip:");
+			len = strnfmt(out_val, 160, "Equip:");
 
 			/* Append */
-			if (inven) strcat(out_val, " / for Inven,");
+			if (inven) strnfcat(out_val, 160, &len, " / for Inven,");
 
 			/* Append */
-			if (floor) strcat(out_val, " - for floor,");
+			if (floor) strnfcat(out_val, 160, &len, " - for floor,");
 
 			break;
 		}
@@ -3096,33 +3038,30 @@ static void show_item_prompt(bool inven, bool equip, bool floor, cptr pmt,
 				show_list(c_ptr->o_idx);
 
 				/* Begin the prompt */
-				sprintf(out_val, "Floor:");
+				len = strnfmt(out_val, 160, "Floor:");
 
 				/* Append */
 				if (inven)
 				{
-					strcat(out_val, " / for Inven,");
+					strnfcat(out_val, 160, &len, " / for Inven,");
 				}
 				else if (equip)
 				{
-					strcat(out_val, " / for Equip,");
+					strnfcat(out_val, 160, &len, " / for Equip,");
 				}
 			}
 			else
 			{
 				/* Begin the prompt */
-				sprintf(out_val, "Top item on floor: '-'");
+				len = strnfmt(out_val, 160, "Top item on floor: '-'");
 			}
 
 			break;
 		}
 	}
 
-	/* Finish the prompt */
-	strcat(out_val, " ESC");
-
 	/* Show the prompt */
-	prt(format("(%s) %s", out_val, pmt), 0, 0);
+	prtf(0, 0, "(%s ESC) %s", out_val, pmt);
 }
 
 /*
@@ -3392,7 +3331,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	if (!allow_inven && !allow_equip && !allow_floor)
 	{
 		/* Warning if needed */
-		if (str) msg_print(str);
+		if (str) msgf(str);
 
 		/* Forget the item_tester_tval restriction */
 		item_tester_tval = 0;
@@ -3447,6 +3386,9 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	/* Repeat until done */
 	while (!done)
 	{
+		/* Make sure object is in the unselected state */
+		o_ptr = NULL;
+		
 		/* Activate the correct term info */
 		toggle = toggle_windows(toggle, command_wrk);
 
@@ -3528,6 +3470,9 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 					/* Scan all objects in the grid */
 					OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 					{
+						/* Valid items only */
+						if (!item_tester_okay(o_ptr)) continue;
+					
 						/* Allow player to "refuse" certain actions */
 						if (!get_item_allow(o_ptr)) continue;
 
@@ -3550,11 +3495,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 					if ((command_wrk == (USE_FLOOR)) || (!carry_query_flag))
 					{
 						/* Allow player to "refuse" certain actions */
-						if (!get_item_allow(fo_ptr))
-						{
-							done = TRUE;
-							break;
-						}
+						if (!get_item_allow(fo_ptr)) continue;
 
 						/* We use the first floor item */
 						o_ptr = fo_ptr;
@@ -3616,11 +3557,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 				}
 
 				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(o_ptr))
-				{
-					done = TRUE;
-					break;
-				}
+				if (!get_item_allow(o_ptr)) continue;
 
 				/* Accept that choice */
 				done = TRUE;
@@ -3653,11 +3590,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 				}
 
 				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(o_ptr))
-				{
-					done = TRUE;
-					break;
-				}
+				if (!get_item_allow(o_ptr)) continue;
 
 				/* Accept that choice */
 				done = TRUE;
@@ -3711,15 +3644,13 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 				if (ver && !verify("Try", o_ptr))
 				{
 					done = TRUE;
+					o_ptr = NULL;
 					break;
 				}
 
 				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(o_ptr))
-				{
-					done = TRUE;
-					break;
-				}
+				if (!get_item_allow(o_ptr)) continue;
+					
 
 				/* Accept that choice */
 				done = TRUE;
@@ -3752,7 +3683,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	window_stuff();
 
 	/* Clear the prompt line */
-	prt("", 0, 0);
+	clear_msg();
 
 	/* Save this object */
 	save_object_choice(o_ptr, command_wrk);

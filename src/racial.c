@@ -22,7 +22,12 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 	int i;
 	int val;
 	int sum = 0;
-	int stat = p_ptr->stat_cur[use_stat];
+    int stat = p_ptr->stat_cur[use_stat];
+
+    if (stat <= 180)
+        stat /= 10;
+    else
+        stat += 18-180;
 
 	/* No chance for success */
 	if ((p_ptr->lev < min_level) || p_ptr->confused)
@@ -52,7 +57,7 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 		val = i - difficulty;
 		if (val > 0)
 			sum += (val <= difficulty) ? val : difficulty;
-	}
+    }
 
 	if (difficulty == 0)
 		return (100);
@@ -87,12 +92,12 @@ static void eat_corpse(void)
 		{
 			if (f_ptr->t_idx == FT_CORPSE)
 			{
-				msg_print("The corpse tastes delicious!");
+				msgf("The corpse tastes delicious!");
 				(void)set_food(p_ptr->food + 2000);
 			}
 			else
 			{
-				msg_print("The bones taste delicious!");
+				msgf("The bones taste delicious!");
 				(void)set_food(p_ptr->food + 1000);
 			}
 
@@ -110,7 +115,7 @@ static void eat_corpse(void)
 	}
 
 	/* Nothing to eat */
-	msg_print("There is no fresh skeleton or corpse here!");
+	msgf("There is no fresh skeleton or corpse here!");
 	p_ptr->energy_use = 0;
 
 	/* Done */
@@ -118,13 +123,18 @@ static void eat_corpse(void)
 }
 
 
-
 /*
  * Note: return value indicates that we have succesfully used the power
  */
 bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 {
-	bool use_hp = FALSE;
+    bool use_hp = FALSE;
+    int stat = p_ptr->stat_cur[use_stat];
+
+    if (stat <= 180)
+        stat /= 10;
+    else
+        stat += 18-180;
 
 	/* Not enough mana - use hp */
 	if (p_ptr->csp < cost) use_hp = TRUE;
@@ -132,7 +142,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	/* Power is not available yet */
 	if (p_ptr->lev < min_level)
 	{
-		msg_format("You need to attain level %d to use this power.", min_level);
+		msgf("You need to attain level %d to use this power.", min_level);
 		p_ptr->energy_use = 0;
 		return FALSE;
 	}
@@ -140,7 +150,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	/* Too confused */
 	else if (p_ptr->confused)
 	{
-		msg_print("You are too confused to use this power.");
+		msgf("You are too confused to use this power.");
 		p_ptr->energy_use = 0;
 		return FALSE;
 	}
@@ -190,13 +200,13 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	p_ptr->window |= (PW_PLAYER | PW_SPELL);
 
 	/* Success? */
-	if (randint1(p_ptr->stat_cur[use_stat]) >=
+	if (randint1(stat) >=
 		rand_range(difficulty / 2, difficulty))
 	{
 		return TRUE;
 	}
 
-	msg_print("You've failed to concentrate hard enough.");
+	msgf("You've failed to concentrate hard enough.");
 	return FALSE;
 }
 
@@ -212,7 +222,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 		{
 			case RACE_DWARF:
 			{
-				msg_print("You examine your surroundings.");
+				msgf("You examine your surroundings.");
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
@@ -228,28 +238,28 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 				/* Drop the object from heaven */
 				drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
-				msg_print("You cook some food.");
+				msgf("You cook some food.");
 
 				break;
 			}
 
 			case RACE_GNOME:
 			{
-				msg_print("Blink!");
+				msgf("Blink!");
 				teleport_player(10 + plev);
 				break;
 			}
 
 			case RACE_HALF_ORC:
 			{
-				msg_print("You play tough.");
+				msgf("You play tough.");
 				(void)set_afraid(0);
 				break;
 			}
 
 			case RACE_HALF_TROLL:
 			{
-				msg_print("RAAAGH!");
+				msgf("RAAAGH!");
 				if (!p_ptr->shero)
 				{
 					(void)hp_player(30);
@@ -265,7 +275,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				/* Hack - use levels to choose ability */
 				if (mut_ptr->level == 40)
 				{
-					msg_print
+					msgf
 						("You picture the Pattern in your mind and walk it...");
 					(void)set_poisoned(0);
 					(void)set_image(0);
@@ -287,11 +297,11 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 					/* No effect in arena or quest */
 					if (is_quest_level(p_ptr->depth))
 					{
-						msg_print("There is no effect.");
+						msgf("There is no effect.");
 					}
 					else
 					{
-						msg_print
+						msgf
 							("You start walking around. Your surroundings change.");
 
 						if (autosave_l) do_cmd_save_game(TRUE);
@@ -305,7 +315,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 			case RACE_BARBARIAN:
 			{
-				msg_print("Raaagh!");
+				msgf("Raaagh!");
 				if (!p_ptr->shero)
 				{
 					(void)hp_player(30);
@@ -318,7 +328,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 			case RACE_HALF_OGRE:
 			{
-				msg_print("You carefully set an explosive rune...");
+				msgf("You carefully set an explosive rune...");
 				(void)explosive_rune();
 				break;
 			}
@@ -326,14 +336,14 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_HALF_GIANT:
 			{
 				if (!get_aim_dir(&dir)) break;
-				msg_print("You bash at a stone wall.");
+				msgf("You bash at a stone wall.");
 				(void)wall_to_mud(dir);
 				break;
 			}
 
 			case RACE_HALF_TITAN:
 			{
-				msg_print("You examine your foes...");
+				msgf("You examine your foes...");
 				(void)probing();
 				break;
 			}
@@ -341,7 +351,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_CYCLOPS:
 			{
 				if (!get_aim_dir(&dir)) break;
-				msg_print("You throw a huge boulder.");
+				msgf("You throw a huge boulder.");
 				(void)fire_bolt(GF_MISSILE, dir, (3 * plev) / 2);
 				break;
 			}
@@ -349,7 +359,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_YEEK:
 			{
 				if (!get_aim_dir(&dir)) break;
-				msg_print("You make a horrible scream!");
+				msgf("You make a horrible scream!");
 				(void)fear_monster(dir, plev);
 				break;
 			}
@@ -357,7 +367,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_KLACKON:
 			{
 				if (!get_aim_dir(&dir)) break;
-				msg_print("You spit acid.");
+				msgf("You spit acid.");
 				if (plev < 25)
 					(void)fire_bolt(GF_ACID, dir, plev);
 				else
@@ -368,14 +378,14 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_KOBOLD:
 			{
 				if (!get_aim_dir(&dir)) break;
-				msg_print("You throw a dart of poison.");
+				msgf("You throw a dart of poison.");
 				(void)fire_bolt(GF_POIS, dir, plev);
 				break;
 			}
 
 			case RACE_NIBELUNG:
 			{
-				msg_print("You examine your surroundings.");
+				msgf("You examine your surroundings.");
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
@@ -385,7 +395,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_DARK_ELF:
 			{
 				if (!get_aim_dir(&dir)) break;
-				msg_print("You cast a magic missile.");
+				msgf("You cast a magic missile.");
 				(void)fire_bolt_or_beam(10, GF_MISSILE, dir,
 										damroll(3 + ((plev - 1) / 5), 4));
 				break;
@@ -492,7 +502,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				}
 
 				if (!get_aim_dir(&dir)) break;
-				msg_format("You breathe %s.", Type_desc);
+				msgf("You breathe %s.", Type_desc);
 				(void)fire_ball(Type, dir, plev * 2, (plev / 15) + 1);
 				break;
 			}
@@ -502,7 +512,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				if (!get_aim_dir(&dir)) break;
 				else
 				{
-					msg_print("You concentrate and your eyes glow red...");
+					msgf("You concentrate and your eyes glow red...");
 					(void)fire_bolt(GF_PSI, dir, plev);
 				}
 
@@ -514,12 +524,12 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				if (!get_aim_dir(&dir)) break;
 				if (plev >= 30)
 				{
-					msg_print("You cast a ball of fire.");
+					msgf("You cast a ball of fire.");
 					(void)fire_ball(GF_FIRE, dir, plev, 2);
 				}
 				else
 				{
-					msg_print("You cast a bolt of fire.");
+					msgf("You cast a bolt of fire.");
 					(void)fire_bolt(GF_FIRE, dir, plev);
 				}
 				break;
@@ -534,7 +544,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_SKELETON:
 			case RACE_ZOMBIE:
 			{
-				msg_print("You attempt to restore your lost energies.");
+				msgf("You attempt to restore your lost energies.");
 				(void)restore_level();
 				break;
 			}
@@ -556,11 +566,11 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 				if (!c_ptr->m_idx)
 				{
-					msg_print("You bite into thin air!");
+					msgf("You bite into thin air!");
 					break;
 				}
 
-				msg_print("You grin and bare your fangs...");
+				msgf("You grin and bare your fangs...");
 				dummy = plev + randint1(plev) * MAX(1, plev / 10);	/* Dmg */
 				if (drain_gain_life(dir, dummy))
 				{
@@ -574,13 +584,13 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 									   PY_FOOD_MAX ? PY_FOOD_MAX - 1 : dummy);
 				}
 				else
-					msg_print("Yechh. That tastes foul.");
+					msgf("Yechh. That tastes foul.");
 				break;
 			}
 
 			case RACE_SPECTRE:
 			{
-				msg_print("You emit an eldritch howl!");
+				msgf("You emit an eldritch howl!");
 				if (!get_aim_dir(&dir)) break;
 				(void)fear_monster(dir, plev);
 				break;
@@ -588,7 +598,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 			case RACE_SPRITE:
 			{
-				msg_print("You throw some magic dust...");
+				msgf("You throw some magic dust...");
 				if (plev < 25)
 					(void)sleep_monsters_touch();
 				else
@@ -609,7 +619,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				break;
 			}
 			default:
-				msg_print("This race has no bonus power.");
+				msgf("This race has no bonus power.");
 				p_ptr->energy_use = 0;
 		}
 	}
@@ -622,11 +632,29 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 }
 
 
+/*
+ * Header for racial menu
+ */
+static int display_racial_header(int num)
+{
+	/* Print header(s) */
+	if (num < 18)
+		prtf(0, 2, "                            Lv Cost Fail");
+	else
+		prtf(0, 2, "                            Lv Cost Fail                            Lv Cost Fail");
+		
+	
+	/* Move the options down one row */
+	return (1);
+}
+
+
+
 typedef struct power_desc_type power_desc_type;
 
 struct power_desc_type
 {
-	char name[40];
+	cptr name;
 	int level;
 	int cost;
 	int fail;
@@ -634,40 +662,45 @@ struct power_desc_type
 	const mutation_type *power;
 };
 
+static power_desc_type power_desc[36];
+
+/*
+ * Access the power and use it.
+ */
+static bool do_cmd_power_aux(int num)
+{
+	if (power_desc[num].number == -1)
+	{
+		/* A racial power */
+		cmd_racial_power_aux(power_desc[num].power);
+	}
+	else
+	{
+		/* A mutation */
+		mutation_power_aux(power_desc[num].power);
+	}
+
+	/* Exit the menu */
+	return (TRUE);
+}
+
 
 /*
  * Allow user to choose a power (racial / mutation) to activate
  */
 void do_cmd_racial_power(void)
 {
-	power_desc_type power_desc[36];
-	int num, ask, i = 0;
-	bool flag;
-	char choice;
-	char out_val[160];
+	menu_type racial_menu[37];
+	int num = 0, i = 0;
+	
+	char buf[1024];
 
 	const mutation_type *mut_ptr;
-	
-	byte y = 1, x = 0;
-	int ctr = 0;
-	char dummy[80];
-	char letter;
-	int x1, y1;
-
-	/* Wipe desc */
-	for (num = 0; num < 36; num++)
-	{
-		strcpy(power_desc[num].name, "");
-		power_desc[num].number = 0;
-	}
-
-	/* Reset num */
-	num = 0;
 
 	/* Not when we're confused */
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused to use any powers!");
+		msgf("You are too confused to use any powers!");
 		p_ptr->energy_use = 0;
 		return;
 	}
@@ -679,159 +712,74 @@ void do_cmd_racial_power(void)
 
 		if (mut_ptr->which == p_ptr->prace)
 		{
-			strcpy(power_desc[num].name, mut_ptr->name);
+			power_desc[num].name = mut_ptr->name;
 			power_desc[num].level = mut_ptr->level;
 			power_desc[num].cost = mut_ptr->cost;
 			power_desc[num].fail = 100 -
 				racial_chance(mut_ptr->level, mut_ptr->stat, mut_ptr->diff);
 			power_desc[num].number = -1;
-			power_desc[num++].power = mut_ptr;
+			power_desc[num].power = mut_ptr;
+			num++;
 		}
-	}
-
-	/* Not if we don't have any */
-	if (num == 0 && !p_ptr->muta1)
-	{
-		msg_print("You have no powers to activate.");
-		p_ptr->energy_use = 0;
-		return;
 	}
 
 	/* Look for appropriate mutations */
-	if (p_ptr->muta1)
+	for (i = 0; i < MUT_PER_SET; i++)
 	{
-		for (i = 0; i < MUT_PER_SET; i++)
-		{
-			mut_ptr = &mutations[i];
+		mut_ptr = &mutations[i];
 
-			if (p_ptr->muta1 & mut_ptr->which)
-			{
-				strcpy(power_desc[num].name, mut_ptr->name);
-				power_desc[num].level = mut_ptr->level;
-				power_desc[num].cost = mut_ptr->cost;
-				power_desc[num].fail = 100 -
-					racial_chance(mut_ptr->level, mut_ptr->stat, mut_ptr->diff);
-				power_desc[num].number = mut_ptr->which;
-				power_desc[num++].power = mut_ptr;
-			}
+		if (p_ptr->muta1 & mut_ptr->which)
+		{
+			power_desc[num].name = mut_ptr->name;
+			power_desc[num].level = mut_ptr->level;
+			power_desc[num].cost = mut_ptr->cost;
+			power_desc[num].fail = 100 -
+				racial_chance(mut_ptr->level, mut_ptr->stat, mut_ptr->diff);
+			power_desc[num].number = mut_ptr->which;
+			power_desc[num].power = mut_ptr;
+			num++;
 		}
 	}
-
-	/* Nothing chosen yet */
-	flag = FALSE;
-
-	strcpy(dummy, "");
-
-	/* Save the screen */
-	screen_save();
-
-	/* Print header(s) */
-	if (num < 17)
-		prt("                            Lv Cost Fail", x, y++);
-	else
-		prt("                            Lv Cost Fail                            Lv Cost Fail", x, y++);
-
-	/* Print list */
-	while (ctr < num)
+	
+	/* Not if we don't have any */
+	if (num == 0)
 	{
-		/* letter/number for power selection */
-		if (ctr < 26)
-			letter = I2A(ctr);
-		else
-			letter = '0' + ctr - 26;
-		x1 = ((ctr < 17) ? x : x + 40);
-		y1 = ((ctr < 17) ? y + ctr : y + ctr - 17);
-
-		sprintf(dummy, " %c) %-23.23s %2d %4d %3d%%",
-				letter,
-				power_desc[ctr].name,
-				power_desc[ctr].level,
-				power_desc[ctr].cost, power_desc[ctr].fail);
-		prt(dummy, x1, y1);
-		ctr++;
+		msgf("You have no powers to activate.");
+		p_ptr->energy_use = 0;
+		return;
 	}
-
-	/* Build a prompt */
-	(void)strnfmt(out_val, 78,
-				  "(Powers %c-%c, ESC=exit) Use which power? ", I2A(0),
-				  (num <= 26) ? I2A(num - 1) : '0' + num - 27);
-
-	if (!repeat_pull(&i) || i < 0 || i >= num)
+	
+	/* Initialise the options for the menu */
+	for (i = 0; i < num; i++)
 	{
-		/* Get a spell from the user */
-		while (!flag && get_com(out_val, &choice))
-		{
-
-			if (choice == '\r' && num == 1)
-			{
-				choice = 'a';
-			}
-
-			if (isalpha(choice))
-			{
-				/* Note verify */
-				ask = (isupper(choice));
-
-				/* Lowercase */
-				if (ask) choice = tolower(choice);
-
-				/* Extract request */
-				i = (islower(choice) ? A2I(choice) : -1);
-			}
-			else
-			{
-				ask = FALSE;	/* Can't uppercase digits */
-
-				i = choice - '0' + 26;
-			}
-
-			/* Totally Illegal */
-			if ((i < 0) || (i >= num))
-			{
-				bell("Illegal racial power choice!");
-				continue;
-			}
-
-			/* Verify it */
-			if (ask)
-			{
-				char tmp_val[160];
-
-				/* Prompt */
-				(void)strnfmt(tmp_val, 78, "Use %s? ", power_desc[i].name);
-
-				/* Belay that order */
-				if (!get_check(tmp_val)) continue;
-			}
-
-			/* Stop the loop */
-			flag = TRUE;
-		}
-
-		/* Restore the screen */
-		screen_load();
-
-		/* Abort if needed */
-		if (!flag)
-		{
-			p_ptr->energy_use = 0;
-			return;
-		}
-
-		repeat_push(i);
+		strnfmt(buf, 1024, "%-23.23s %2d %4d %3d%%",
+				power_desc[i].name,
+				power_desc[i].level,
+				power_desc[i].cost, power_desc[i].fail);
+		
+		/* Add option to menu */
+		racial_menu[i].text = string_make(buf);
+		racial_menu[i].help = NULL;
+		racial_menu[i].action = do_cmd_power_aux;
+		racial_menu[i].flags = MN_ACTIVE | MN_CLEAR;
 	}
-
-
-
-	if (power_desc[i].number == -1)
+	
+	/* Make sure the menu is terminated */
+	racial_menu[num].text = NULL;
+	racial_menu[num].help = NULL;
+	racial_menu[num].action = NULL;
+	racial_menu[num].flags = 0x00;
+	
+	
+	if (!display_menu(racial_menu, -1, FALSE, display_racial_header, "Use which power?"))
 	{
-		cmd_racial_power_aux(power_desc[i].power);
+		/* We aborted */
+		p_ptr->energy_use = 0;
 	}
-	else
+	
+	/* Free the allocated strings */
+	for (i = 0; i < num; i++)
 	{
-		mutation_power_aux(power_desc[i].power);
+		string_free(racial_menu[i].text);
 	}
-
-	/* Success */
-	return;
 }

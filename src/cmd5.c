@@ -128,25 +128,20 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 		if (!spell_okay(spell, known, use_realm - 1))
 		{
 			bell("Illegal spell choice!");
-			msg_format("You may not %s that %s.", prompt, p);
+			msgf("You may not %s that %s.", prompt, p);
 			continue;
 		}
 
 		/* Verify it */
 		if (ask)
 		{
-			char tmp_val[160];
-
 			/* Access the spell */
 			s_ptr = &mp_ptr->info[use_realm - 1][spell % 32];
 
-			/* Prompt */
-			(void)strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
-						  prompt, spell_names[use_realm - 1][spell % 32],
-						  s_ptr->smana, spell_chance(spell, use_realm - 1));
-
 			/* Belay that order */
-			if (!get_check(tmp_val)) continue;
+			if (!get_check("%^s %s (%d mana, %d%% fail)? ",
+						  prompt, spell_names[use_realm - 1][spell % 32],
+						  s_ptr->smana, spell_chance(spell, use_realm - 1))) continue;
 		}
 
 		/* Stop the loop */
@@ -226,13 +221,10 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 	print_spells(spells, num, 20, 1, (o_ptr->tval - TV_BOOKS_MIN));
 
 	/* Clear the top line */
-	prt("", 0, 0);
+	clear_msg();
 
 	/* Prompt user */
-	put_str("[Press any key to continue]", 23, 0);
-
-	/* Wait for key */
-	(void)inkey();
+    pause_line(0);
 
 	/* Restore the screen */
 	screen_load();
@@ -253,7 +245,7 @@ void do_cmd_browse(void)
 	/* Warriors are illiterate */
 	if (!(p_ptr->realm1 || p_ptr->realm2))
 	{
-		msg_print("You cannot read books!");
+		msgf("You cannot read books!");
 		return;
 	}
 
@@ -293,32 +285,31 @@ void do_cmd_study(void)
 
 	if (!p_ptr->realm1)
 	{
-		msg_print("You cannot read books!");
+		msgf("You cannot read books!");
 		return;
 	}
 
 	if (p_ptr->blind || no_lite())
 	{
-		msg_print("You cannot see!");
+		msgf("You cannot see!");
 		return;
 	}
 
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		msgf("You are too confused!");
 		return;
 	}
 
 	if (!(p_ptr->new_spells))
 	{
-		msg_format("You cannot learn any new %ss!", p);
+		msgf("You cannot learn any new %ss!", p);
 		return;
 	}
 
-	msg_format("You can learn %d new %s%s.", p_ptr->new_spells, p,
+	msgf("You can learn %d new %s%s.", p_ptr->new_spells, p,
 			   (p_ptr->new_spells == 1 ? "" : "s"));
 	message_flush();
-
 
 	/* Restrict choices to "useful" books */
 	item_tester_tval = mp_ptr->spell_book;
@@ -387,7 +378,7 @@ void do_cmd_study(void)
 	if (spell < 0)
 	{
 		/* Message */
-		msg_format("You cannot learn any %ss in that book.", p);
+		msgf("You cannot learn any %ss in that book.", p);
 
 		/* Abort */
 		return;
@@ -420,7 +411,7 @@ void do_cmd_study(void)
 	p_ptr->spell_order[i++] = spell;
 
 	/* Mention the result */
-	message_format(MSG_STUDY, 0, "You have learned the %s of %s.",
+	msgf(MSGT_STUDY, "You have learned the %s of %s.",
 				   p, spell_names
 				   [(increment ? p_ptr->realm2 - 1 : p_ptr->realm1 -
 					 1)][spell % 32]);
@@ -440,7 +431,7 @@ void do_cmd_study(void)
 	if (p_ptr->new_spells)
 	{
 		/* Message */
-		msg_format("You can learn %d more %s%s.",
+		msgf("You can learn %d more %s%s.",
 				   p_ptr->new_spells, p, (p_ptr->new_spells != 1) ? "s" : "");
 	}
 
@@ -706,7 +697,7 @@ static bool cast_life_spell(int spell)
 		case 21:				/* Banishment */
 			if (banish_evil(100))
 			{
-				msg_print("The power of your god banishes evil!");
+				msgf("The power of your god banishes evil!");
 			}
 			break;
 		case 22:				/* Holy Word */
@@ -776,7 +767,7 @@ static bool cast_life_spell(int spell)
 			(void)set_invuln(p_ptr->invuln + rand_range(7, 14));
 			break;
 		default:
-			msg_format("You cast an unknown Life spell: %d.", spell);
+			msgf("You cast an unknown Life spell: %d.", spell);
 			message_flush();
 	}
 
@@ -870,7 +861,7 @@ static bool cast_sorcery_spell(int spell)
 			(void)charm_monster(dir, plev);
 			break;
 		case 19:				/* Dimension Door */
-			msg_print("You open a dimensional gate. Choose a destination.");
+			msgf("You open a dimensional gate. Choose a destination.");
 			return dimension_door();
 		case 20:				/* Sense Minds */
 			(void)set_tim_esp(p_ptr->tim_esp + rand_range(25, 55));
@@ -914,7 +905,7 @@ static bool cast_sorcery_spell(int spell)
 			(void)set_invuln(p_ptr->invuln + rand_range(8, 16));
 			break;
 		default:
-			msg_format("You cast an unknown Sorcery spell: %d.", spell);
+			msgf("You cast an unknown Sorcery spell: %d.", spell);
 			message_flush();
 	}
 
@@ -960,7 +951,7 @@ static bool cast_nature_spell(int spell)
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 			if ((p_ptr->prace == RACE_VAMPIRE) && !p_ptr->resist_lite)
 			{
-				msg_print("The daylight scorches your flesh!");
+				msgf("The daylight scorches your flesh!");
 				take_hit(damroll(2, 2), "daylight");
 			}
 			break;
@@ -1003,7 +994,7 @@ static bool cast_nature_spell(int spell)
 			break;
 		case 12:				/* Ray of Sunlight */
 			if (!get_aim_dir(&dir)) return FALSE;
-			msg_print("A line of sunlight appears.");
+			msgf("A line of sunlight appears.");
 			(void)lite_line(dir);
 			break;
 		case 13:				/* Entangle */
@@ -1092,7 +1083,7 @@ static bool cast_nature_spell(int spell)
 			wiz_lite();
 			if ((p_ptr->prace == RACE_VAMPIRE) && !p_ptr->resist_lite)
 			{
-				msg_print("The sunlight scorches your flesh!");
+				msgf("The sunlight scorches your flesh!");
 				take_hit(50, "sunlight");
 			}
 			break;
@@ -1107,12 +1098,12 @@ static bool cast_nature_spell(int spell)
 						  PROJECT_KILL | PROJECT_ITEM);
 			break;
 		default:
-			msg_format("You cast an unknown Nature spell: %d.", spell);
+			msgf("You cast an unknown Nature spell: %d.", spell);
 			message_flush();
 	}
 
 	if (no_trump)
-		msg_print("No animals arrive.");
+		msgf("No animals arrive.");
 
 	make_noise(2);
 
@@ -1150,7 +1141,7 @@ static bool cast_chaos_spell(int spell)
 		case 3:				/* Touch of Confusion */
 			if (!p_ptr->confusing)
 			{
-				msg_print("Your hands start glowing.");
+				msgf("Your hands start glowing.");
 				p_ptr->confusing = TRUE;
 				p_ptr->redraw |= (PR_STATUS);
 			}
@@ -1199,7 +1190,7 @@ static bool cast_chaos_spell(int spell)
 
 			if (!get_aim_dir(&dir)) return FALSE;
 			if (die > 100)
-				msg_print("You feel a surge of power!");
+				msgf("You feel a surge of power!");
 			if (die < 8) (void)clone_monster(dir);
 			else if (die < 14) (void)speed_monster(dir);
 			else if (die < 26) (void)heal_monster(dir);
@@ -1258,7 +1249,7 @@ static bool cast_chaos_spell(int spell)
 									damroll(10 + ((plev - 5) / 4), 8));
 			break;
 		case 10:				/* Sonic Boom */
-			msg_print("BOOM! Shake the room!");
+			msgf("BOOM! Shake the room!");
 			(void)project(0, plev / 10 + 2, px, py,
 						  45 + plev, GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
 			break;
@@ -1319,13 +1310,13 @@ static bool cast_chaos_spell(int spell)
 				((pet ? -1 : 0), px, py, (plev * 3) / 2, SUMMON_DEMON, group,
 				 FALSE, pet))
 			{
-				msg_print
+				msgf
 					("The area fills with a stench of sulphur and brimstone.");
 
 				if (pet)
-					msg_print("'What is thy bidding... Master?'");
+					msgf("'What is thy bidding... Master?'");
 				else
-					msg_print
+					msgf
 						("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
 			}
 			break;
@@ -1376,7 +1367,7 @@ static bool cast_chaos_spell(int spell)
 		case 28:				/* Magic Rocket */
 			if (!get_aim_dir(&dir)) return FALSE;
 
-			msg_print("You launch a rocket!");
+			msgf("You launch a rocket!");
 			(void)fire_ball(GF_ROCKET, dir, 120 + plev, 2);
 			break;
 		case 29:				/* Mana Storm */
@@ -1393,7 +1384,7 @@ static bool cast_chaos_spell(int spell)
 			call_the_();
 			break;
 		default:
-			msg_format("You cast an unknown Chaos spell: %d.", spell);
+			msgf("You cast an unknown Chaos spell: %d.", spell);
 			message_flush();
 	}
 
@@ -1539,17 +1530,17 @@ static bool cast_death_spell(int spell)
 			int die = randint1(100) + plev / 5;
 			if (!get_aim_dir(&dir)) return FALSE;
 
-			msg_print("You call on the power of the dead...");
+			msgf("You call on the power of the dead...");
 
 			if (die < 26)
 				chg_virtue(V_CHANCE, 1);
 
 			if (die > 100)
-				msg_print("You feel a surge of eldritch force!");
+				msgf("You feel a surge of eldritch force!");
 
 			if (die < 8)
 			{
-				msg_print
+				msgf
 					("Oh no! Mouldering forms rise from the earth around you!");
 				(void)summon_specific(0, px, py, p_ptr->depth, SUMMON_UNDEAD,
 									  TRUE, FALSE, FALSE);
@@ -1558,12 +1549,12 @@ static bool cast_death_spell(int spell)
 			}
 			else if (die < 14)
 			{
-				msg_print("An unnamable evil brushes against your mind...");
+				msgf("An unnamable evil brushes against your mind...");
 				(void)set_afraid(p_ptr->afraid + rand_range(4, 8));
 			}
 			else if (die < 26)
 			{
-				msg_print
+				msgf
 					("Your head is invaded by a horde of gibbering spectral voices...");
 				(void)set_confused(p_ptr->confused + rand_range(4, 8));
 			}
@@ -1657,7 +1648,7 @@ static bool cast_death_spell(int spell)
 			}
 
 			if (die < 31)
-				msg_print
+				msgf
 					("Sepulchral voices chuckle. 'Soon you will join us, mortal.'");
 			break;
 		}
@@ -1711,13 +1702,13 @@ static bool cast_death_spell(int spell)
 		{
 			if (raise_dead(px, py, (bool)(!one_in_(3))))
 			{
-				msg_print
+				msgf
 					("Cold winds begin to blow around you, carrying with them the stench of decay...");
 				chg_virtue(V_UNLIFE, 1);
 			}
 			else
 			{
-				msg_print("Nothing happens.");
+				msgf("Nothing happens.");
 			}
 			break;
 		}
@@ -1812,7 +1803,7 @@ static bool cast_death_spell(int spell)
 								  rand_range(plev / 2, plev));
 			break;
 		default:
-			msg_format("You cast an unknown Death spell: %d.", spell);
+			msgf("You cast an unknown Death spell: %d.", spell);
 			message_flush();
 	}
 
@@ -1832,7 +1823,6 @@ static bool cast_trump_spell(int spell, bool success)
 	int plev = p_ptr->lev;
 	int dummy = 0;
 	bool no_trump = FALSE;
-	char ppp[80];
 	char tmp_val[160];
 
 
@@ -1868,20 +1858,20 @@ static bool cast_trump_spell(int spell, bool success)
 					die = (randint1(110)) + plev / 5;
 				/* Card sharks and high mages get a level bonus */
 
-				msg_print("You shuffle the deck and draw a card...");
+				msgf("You shuffle the deck and draw a card...");
 
 				if (die < 30)
 					chg_virtue(V_CHANCE, 1);
 
 				if (die < 7)
 				{
-					msg_print("Oh no! It's Death!");
+					msgf("Oh no! It's Death!");
 					for (dummy = 0; dummy < randint1(3); dummy++)
 						(void)activate_hi_summon();
 				}
 				else if (die < 14)
 				{
-					msg_print("Oh no! It's the Devil!");
+					msgf("Oh no! It's the Devil!");
 					(void)summon_specific(0, px, py, p_ptr->depth,
 										  SUMMON_DEMON, TRUE, FALSE, FALSE);
 				}
@@ -1889,23 +1879,23 @@ static bool cast_trump_spell(int spell, bool success)
 				{
 					int count = 0;
 
-					msg_print("Oh no! It's the Hanged Man.");
+					msgf("Oh no! It's the Hanged Man.");
 					(void)activate_ty_curse(FALSE, &count);
 				}
 				else if (die < 22)
 				{
-					msg_print("It's the swords of discord.");
+					msgf("It's the swords of discord.");
 					aggravate_monsters(0);
 				}
 				else if (die < 26)
 				{
-					msg_print("It's the Fool.");
+					msgf("It's the Fool.");
 					(void)do_dec_stat(A_INT);
 					(void)do_dec_stat(A_WIS);
 				}
 				else if (die < 30)
 				{
-					msg_print("It's the picture of a strange monster.");
+					msgf("It's the picture of a strange monster.");
 					if (!
 						(summon_specific
 						 (0, px, py, (p_ptr->depth * 3) / 2, rand_range(33, 38),
@@ -1914,52 +1904,52 @@ static bool cast_trump_spell(int spell, bool success)
 				}
 				else if (die < 33)
 				{
-					msg_print("It's the Moon.");
+					msgf("It's the Moon.");
 					(void)unlite_area(10, 3);
 				}
 				else if (die < 38)
 				{
-					msg_print("It's the Wheel of Fortune.");
+					msgf("It's the Wheel of Fortune.");
 					wild_magic(randint0(32));
 				}
 				else if (die < 40)
 				{
-					msg_print("It's a teleport trump card.");
+					msgf("It's a teleport trump card.");
 					teleport_player(10);
 				}
 				else if (die < 42)
 				{
-					msg_print("It's Justice.");
+					msgf("It's Justice.");
 					(void)set_blessed(p_ptr->blessed + p_ptr->lev);
 				}
 				else if (die < 47)
 				{
-					msg_print("It's a teleport trump card.");
+					msgf("It's a teleport trump card.");
 					teleport_player(100);
 				}
 				else if (die < 52)
 				{
-					msg_print("It's a teleport trump card.");
+					msgf("It's a teleport trump card.");
 					teleport_player(200);
 				}
 				else if (die < 60)
 				{
-					msg_print("It's the Tower.");
+					msgf("It's the Tower.");
 					wall_breaker();
 				}
 				else if (die < 72)
 				{
-					msg_print("It's Temperance.");
+					msgf("It's Temperance.");
 					(void)sleep_monsters_touch();
 				}
 				else if (die < 80)
 				{
-					msg_print("It's the Tower.");
+					msgf("It's the Tower.");
 					(void)earthquake(px, py, 5);
 				}
 				else if (die < 82)
 				{
-					msg_print("It's the picture of a friendly monster.");
+					msgf("It's the picture of a friendly monster.");
 					if (!
 						(summon_specific
 						 (-1, px, py, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE1,
@@ -1968,7 +1958,7 @@ static bool cast_trump_spell(int spell, bool success)
 				}
 				else if (die < 84)
 				{
-					msg_print("It's the picture of a friendly monster.");
+					msgf("It's the picture of a friendly monster.");
 					if (!
 						(summon_specific
 						 (-1, px, py, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE2,
@@ -1977,7 +1967,7 @@ static bool cast_trump_spell(int spell, bool success)
 				}
 				else if (die < 86)
 				{
-					msg_print("It's the picture of a friendly monster.");
+					msgf("It's the picture of a friendly monster.");
 					if (!
 						(summon_specific
 						 (-1, px, py, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE4,
@@ -1986,7 +1976,7 @@ static bool cast_trump_spell(int spell, bool success)
 				}
 				else if (die < 88)
 				{
-					msg_print("It's the picture of a friendly monster.");
+					msgf("It's the picture of a friendly monster.");
 					if (!
 						(summon_specific
 						 (-1, px, py, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE5,
@@ -1995,22 +1985,22 @@ static bool cast_trump_spell(int spell, bool success)
 				}
 				else if (die < 96)
 				{
-					msg_print("It's the Lovers.");
+					msgf("It's the Lovers.");
 					if (get_aim_dir(&dir))
 						(void)charm_monster(dir, MIN(p_ptr->lev, 20));
 				}
 				else if (die < 101)
 				{
-					msg_print("It's the Hermit.");
+					msgf("It's the Hermit.");
 					(void)wall_stone();
 				}
 				else if (die < 111)
 				{
-					msg_print("It's the Judgement.");
+					msgf("It's the Judgement.");
 					do_cmd_rerate();
 					if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 					{
-						msg_print("You are cured of all mutations.");
+						msgf("You are cured of all mutations.");
 						p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
 						p_ptr->update |= PU_BONUS;
 						handle_stuff();
@@ -2018,17 +2008,17 @@ static bool cast_trump_spell(int spell, bool success)
 				}
 				else if (die < 120)
 				{
-					msg_print("It's the Sun.");
+					msgf("It's the Sun.");
 					wiz_lite();
 				}
 				else
 				{
-					msg_print("It's the World.");
+					msgf("It's the World.");
 					if (p_ptr->exp < PY_MAX_EXP)
 					{
 						s32b ee = (p_ptr->exp / 25) + 1;
 						if (ee > 5000) ee = 5000;
-						msg_print("You feel more experienced.");
+						msgf("You feel more experienced.");
 						gain_exp(ee);
 					}
 				}
@@ -2037,14 +2027,12 @@ static bool cast_trump_spell(int spell, bool success)
 		case 3:				/* Reset Recall */
 			if (success)
 			{
-				/* Prompt */
-				sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_depth);
-
 				/* Default */
-				sprintf(tmp_val, "%d", MAX(p_ptr->depth, 1));
+				strnfmt(tmp_val, 160, "%d", MAX(p_ptr->depth, 1));
 
 				/* Ask for a level */
-				if (get_string(ppp, tmp_val, 11))
+				if (get_string(tmp_val, 11, "Reset to which level (1-%d): ",
+								 p_ptr->max_depth))
 				{
 					/* Extract request */
 					dummy = atoi(tmp_val);
@@ -2058,7 +2046,7 @@ static bool cast_trump_spell(int spell, bool success)
 					p_ptr->max_depth = dummy;
 
 					/* Accept request */
-					msg_format("Recall depth set to level %d (%d').", dummy,
+					msgf("Recall depth set to level %d (%d').", dummy,
 							   dummy * 50);
 				}
 				else
@@ -2076,7 +2064,7 @@ static bool cast_trump_spell(int spell, bool success)
 		case 5:				/* Dimension Door */
 			if (success)
 			{
-				msg_print("You open a dimensional gate. Choose a destination.");
+				msgf("You open a dimensional gate. Choose a destination.");
 				return dimension_door();
 			}
 			break;
@@ -2107,13 +2095,13 @@ static bool cast_trump_spell(int spell, bool success)
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
-				msg_print("You concentrate on the trump of an animal...");
+				msgf("You concentrate on the trump of an animal...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, plev, type, group, FALSE, pet))
 			{
 				if (!pet)
-					msg_print("An angry animal appears!");
+					msgf("An angry animal appears!");
 			}
 			else
 			{
@@ -2129,7 +2117,7 @@ static bool cast_trump_spell(int spell, bool success)
 					(-1, px, py, (plev * 3) / 2, SUMMON_PHANTOM, FALSE, TRUE,
 					 TRUE))
 				{
-					msg_print("'Your wish, master?'");
+					msgf("'Your wish, master?'");
 				}
 				else
 				{
@@ -2144,14 +2132,14 @@ static bool cast_trump_spell(int spell, bool success)
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
-				msg_print("You concentrate on the trump of a monster...");
+				msgf("You concentrate on the trump of a monster...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, (plev * 3) / 2, type, group, FALSE,
 				 pet))
 			{
 				if (!pet)
-					msg_print("An angry monster appears!");
+					msgf("An angry monster appears!");
 			}
 			else
 			{
@@ -2166,14 +2154,14 @@ static bool cast_trump_spell(int spell, bool success)
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
-				msg_print("You concentrate on the trump of a monster...");
+				msgf("You concentrate on the trump of a monster...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, (plev * 3) / 2, SUMMON_ELEMENTAL,
 				 group, FALSE, pet))
 			{
 				if (!pet)
-					msg_print("An angry elemental appears!");
+					msgf("An angry elemental appears!");
 			}
 			else
 			{
@@ -2206,7 +2194,7 @@ static bool cast_trump_spell(int spell, bool success)
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
-				msg_print("You concentrate on a joker card...");
+				msgf("You concentrate on a joker card...");
 
 			switch (randint1(4))
 			{
@@ -2225,7 +2213,7 @@ static bool cast_trump_spell(int spell, bool success)
 				 pet))
 			{
 				if (!pet)
-					msg_print("An angry creature appears!");
+					msgf("An angry creature appears!");
 			}
 			else
 			{
@@ -2239,14 +2227,14 @@ static bool cast_trump_spell(int spell, bool success)
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
-				msg_print("You concentrate on the trump of a spider...");
+				msgf("You concentrate on the trump of a spider...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, plev, SUMMON_SPIDER, group, FALSE,
 				 pet))
 			{
 				if (!pet)
-					msg_print("An angry spiders appears!");
+					msgf("An angry spiders appears!");
 			}
 			else
 			{
@@ -2261,14 +2249,14 @@ static bool cast_trump_spell(int spell, bool success)
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
-				msg_print("You concentrate on the trump of a reptile...");
+				msgf("You concentrate on the trump of a reptile...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, (plev * 3) / 2, SUMMON_HYDRA, group,
 				 FALSE, pet))
 			{
 				if (!pet)
-					msg_print("An angry reptile appears!");
+					msgf("An angry reptile appears!");
 			}
 			else
 			{
@@ -2282,13 +2270,13 @@ static bool cast_trump_spell(int spell, bool success)
 			bool pet = success;	/* was (randint1(5) > 2) */
 
 			if (success)
-				msg_print("You concentrate on the trump of a hound...");
+				msgf("You concentrate on the trump of a hound...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, plev, SUMMON_HOUND, TRUE, FALSE, pet))
 			{
 				if (!pet)
-					msg_print("Angry barking surrounds you!");
+					msgf("Angry barking surrounds you!");
 			}
 			else
 			{
@@ -2315,7 +2303,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 				/* Gain the mutation */
 				if (gain_mutation(dummy))
-					msg_print("You have turned into a Living Trump.");
+					msgf("You have turned into a Living Trump.");
 			}
 			break;
 		case 22:				/* Death Dealing */
@@ -2329,14 +2317,14 @@ static bool cast_trump_spell(int spell, bool success)
 			bool pet = success;	/* was (randint1(10) > 3) */
 
 			if (success)
-				msg_print("You concentrate on the trump of a Cyberdemon...");
+				msgf("You concentrate on the trump of a Cyberdemon...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, plev * 2, SUMMON_CYBER, FALSE, FALSE,
 				 pet))
 			{
 				if (!pet)
-					msg_print("An angry Cyberdemon appears!");
+					msgf("An angry Cyberdemon appears!");
 			}
 			else
 			{
@@ -2363,7 +2351,7 @@ static bool cast_trump_spell(int spell, bool success)
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
-				msg_print
+				msgf
 					("You concentrate on the trump of an undead creature...");
 
 			if (summon_specific
@@ -2371,7 +2359,7 @@ static bool cast_trump_spell(int spell, bool success)
 				 pet))
 			{
 				if (!pet)
-					msg_print("An angry undead creature appears!");
+					msgf("An angry undead creature appears!");
 			}
 			else
 			{
@@ -2386,14 +2374,14 @@ static bool cast_trump_spell(int spell, bool success)
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
-				msg_print("You concentrate on the trump of a dragon...");
+				msgf("You concentrate on the trump of a dragon...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, plev * 2, SUMMON_DRAGON, group, FALSE,
 				 pet))
 			{
 				if (!pet)
-					msg_print("An angry dragon appears!");
+					msgf("An angry dragon appears!");
 			}
 			else
 			{
@@ -2407,7 +2395,7 @@ static bool cast_trump_spell(int spell, bool success)
 			no_trump = TRUE;
 
 			if (success)
-				msg_print("You concentrate on several trumps at once...");
+				msgf("You concentrate on several trumps at once...");
 
 			for (dummy = 0; dummy < 3 + (plev / 10); dummy++)
 			{
@@ -2420,7 +2408,7 @@ static bool cast_trump_spell(int spell, bool success)
 					 pet))
 				{
 					if (!pet)
-						msg_print("An angry creature appears!");
+						msgf("An angry creature appears!");
 					no_trump = FALSE;
 				}
 			}
@@ -2432,14 +2420,14 @@ static bool cast_trump_spell(int spell, bool success)
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
-				msg_print("You concentrate on the trump of a demon...");
+				msgf("You concentrate on the trump of a demon...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, plev * 2, SUMMON_DEMON, group, FALSE,
 				 pet))
 			{
 				if (!pet)
-					msg_print("An angry demon appears!");
+					msgf("An angry demon appears!");
 			}
 			else
 			{
@@ -2455,14 +2443,14 @@ static bool cast_trump_spell(int spell, bool success)
 			int type = (pet ? SUMMON_HI_DRAGON_NO_UNIQUES : SUMMON_HI_DRAGON);
 
 			if (success)
-				msg_print
+				msgf
 					("You concentrate on the trump of an ancient dragon...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, plev * 2, type, group, FALSE, pet))
 			{
 				if (!pet)
-					msg_print("An angry ancient dragon appears!");
+					msgf("An angry ancient dragon appears!");
 			}
 			else
 			{
@@ -2478,14 +2466,14 @@ static bool cast_trump_spell(int spell, bool success)
 			int type = (pet ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_HI_UNDEAD);
 
 			if (success)
-				msg_print
+				msgf
 					("You concentrate on the trump of a greater undead being...");
 
 			if (summon_specific
 				((pet ? -1 : 0), px, py, plev * 2, type, group, FALSE, pet))
 			{
 				if (!pet)
-					msg_print("An angry greater undead creature appears!");
+					msgf("An angry greater undead creature appears!");
 			}
 			else
 			{
@@ -2495,13 +2483,13 @@ static bool cast_trump_spell(int spell, bool success)
 			break;
 		}
 		default:
-			msg_format("You cast an unknown Trump spell: %d.", spell);
+			msgf("You cast an unknown Trump spell: %d.", spell);
 			message_flush();
 	}
 
 	if (no_trump)
 	{
-		msg_print("Nobody answers to your Trump call.");
+		msgf("Nobody answers to your Trump call.");
 	}
 
 	make_noise(2);
@@ -2604,7 +2592,7 @@ static bool cast_arcane_spell(int spell)
 		case 21:				/* Ray of Light */
 			if (!get_aim_dir(&dir)) return FALSE;
 
-			msg_print("A line of light appears.");
+			msgf("A line of light appears.");
 			(void)lite_line(dir);
 			break;
 		case 22:				/* Satisfy Hunger */
@@ -2655,7 +2643,7 @@ static bool cast_arcane_spell(int spell)
 			}
 			break;
 		default:
-			msg_format("You cast an unknown Arcane spell: %d.", spell);
+			msgf("You cast an unknown Arcane spell: %d.", spell);
 			message_flush();
 	}
 
@@ -2688,21 +2676,21 @@ void do_cmd_cast(void)
 	/* Require spell ability */
 	if (!p_ptr->realm1)
 	{
-		msg_print("You cannot cast spells!");
+		msgf("You cannot cast spells!");
 		return;
 	}
 
 	/* Require lite */
 	if (p_ptr->blind || no_lite())
 	{
-		msg_print("You cannot see!");
+		msgf("You cannot see!");
 		return;
 	}
 
 	/* Not when confused */
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		msgf("You are too confused!");
 		return;
 	}
 
@@ -2740,7 +2728,7 @@ void do_cmd_cast(void)
 		 sval, TRUE, (bool)(increment ? TRUE : FALSE)))
 	{
 		if (spell == -2)
-			msg_format("You don't know any %ss in that book.", prayer);
+			msgf("You don't know any %ss in that book.", prayer);
 		return;
 	}
 
@@ -2755,7 +2743,7 @@ void do_cmd_cast(void)
 	if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
-		msg_format("You do not have enough mana to %s this %s.",
+		msgf("You do not have enough mana to %s this %s.",
 				   ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
 				   prayer);
 
@@ -2772,7 +2760,7 @@ void do_cmd_cast(void)
 	{
 		if (flush_failure) flush();
 
-		msg_format("You failed to get the %s off!", prayer);
+		msgf("You failed to get the %s off!", prayer);
 		sound(SOUND_FAIL);
 
 		if ((randint1(100) < chance) && (mp_ptr->spell_book == TV_LIFE_BOOK))
@@ -2787,14 +2775,14 @@ void do_cmd_cast(void)
 		}
 		else if ((o_ptr->tval == TV_CHAOS_BOOK) && (randint1(100) < spell))
 		{
-			msg_print("You produce a chaotic effect!");
+			msgf("You produce a chaotic effect!");
 			wild_magic(spell);
 		}
 		else if ((o_ptr->tval == TV_DEATH_BOOK) && (randint1(100) < spell))
 		{
 			if ((sval == 3) && one_in_(2))
 			{
-				msg_print("Your sanity is shaken by reading the Necronomicon!");
+				msgf("Your sanity is shaken by reading the Necronomicon!");
 
 				/* Mind blast */
 				if (!saving_throw(p_ptr->skill_sav))
@@ -2818,7 +2806,7 @@ void do_cmd_cast(void)
 			}
 			else
 			{
-				msg_print("It hurts!");
+				msgf("It hurts!");
 				take_hit(damroll(o_ptr->sval + 1, 6), "a miscast Death spell");
 				if ((spell > 15) && one_in_(6) && !p_ptr->hold_life)
 					lose_exp(spell * 250);
@@ -2863,8 +2851,7 @@ void do_cmd_cast(void)
 				break;
 			default:
 				cast = FALSE;
-				msg_format
-					("You cast a spell from an unknown realm: realm %d, spell %d.",
+				msgf("You cast a spell from an unknown realm: realm %d, spell %d.",
 					 realm, spell);
 				message_flush();
 		}
@@ -2919,7 +2906,7 @@ void do_cmd_cast(void)
 		p_ptr->csp_frac = 0;
 
 		/* Message */
-		msg_print("You faint from the effort!");
+		msgf("You faint from the effort!");
 
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
@@ -2935,7 +2922,7 @@ void do_cmd_cast(void)
 			bool perm = one_in_(4);
 
 			/* Message */
-			msg_print("You have damaged your health!");
+			msgf("You have damaged your health!");
 
 			/* Reduce constitution */
 			(void)dec_stat(A_CON, rand_range(15, 25), perm);
@@ -2956,9 +2943,236 @@ void do_cmd_cast(void)
  */
 void do_cmd_pray(void)
 {
-	msg_format("Praying is not used in %s. Use magic spell casting instead.",
+	msgf("Praying is not used in %s. Use magic spell casting instead.",
 			   VERSION_NAME);
 }
+
+/* Forward declare */
+extern menu_type pet_menu[PET_CHOICE_MAX + 1];
+
+
+/*
+ * Dismiss some pets
+ */
+static bool cmd_pets_dismiss(int dummy)
+{
+	int dismissed = 0;
+	
+	monster_type *m_ptr;
+	
+	int pet_ctr;
+	bool pets = FALSE, all_pets = FALSE;
+
+	/* Ignore parameter */
+	(void) dummy;
+
+	if (get_check("Dismiss all pets? ")) all_pets = TRUE;
+
+	/* Process the monsters (backwards) */
+	for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+	{
+		/* Access the monster */
+		m_ptr = &m_list[pet_ctr];
+
+		if (is_pet(m_ptr))
+		{
+			bool delete_this = FALSE;
+
+			if (all_pets)
+				delete_this = TRUE;
+			else
+			{
+				if (get_check("Dismiss %v? ", MONSTER_FMT(m_ptr, 0x80)))
+					delete_this = TRUE;
+			}
+
+			if (delete_this)
+			{
+				/* Notice changes in view */
+				if (r_info[m_ptr->r_idx].flags7 &
+					(RF7_LITE_1 | RF7_LITE_2))
+				{
+					/* Update some things */
+					p_ptr->update |= (PU_MON_LITE);
+				}
+
+				delete_monster_idx(pet_ctr);
+				dismissed++;
+			}
+		}
+	}
+
+	msgf("You have dismissed %d pet%s.", dismissed,
+			   (dismissed == 1 ? "" : "s"));
+	
+	/* Calculate pets */
+	/* Process the monsters (backwards) */
+	for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+	{
+		/* Access the monster */
+		m_ptr = &m_list[pet_ctr];
+
+		if (is_pet(m_ptr))
+		{
+			/* Is it a pet? */
+			pets = TRUE;
+			break;
+		}
+	}
+
+	/* Can only dismiss pets if actually have some */
+	if (pets)
+	{
+		pet_menu[PET_DISMISS].flags |= MN_ACTIVE;
+	}
+	else
+	{
+		pet_menu[PET_DISMISS].flags &= ~(MN_ACTIVE);
+	}
+
+	/* Stay at menu */
+	return (FALSE);
+}
+
+
+static bool cmd_pets_close(int dummy)
+{
+	/* Hack - ignore parameter */
+	(void) dummy;
+	
+	/* Change follow distance */
+	p_ptr->pet_follow_distance = PET_CLOSE_DIST;
+	
+	/* Stay at menu */
+	return (FALSE);
+}
+
+static bool cmd_pets_follow(int dummy)
+{
+	/* Hack - ignore parameter */
+	(void) dummy;
+	
+	/* Change follow distance */
+	p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
+	
+	/* Stay at menu */
+	return (FALSE);
+}
+
+static bool cmd_pets_destroy(int dummy)
+{
+	/* Hack - ignore parameter */
+	(void) dummy;
+	
+	/* Change follow distance */
+	p_ptr->pet_follow_distance = PET_DESTROY_DIST;
+	
+	/* Stay at menu */
+	return (FALSE);
+}
+
+static bool cmd_pets_space(int dummy)
+{
+	/* Hack - ignore parameter */
+	(void) dummy;
+	
+	/* Change follow distance */
+	p_ptr->pet_follow_distance = PET_SPACE_DIST;
+	
+	/* Stay at menu */
+	return (FALSE);
+}
+
+static bool cmd_pets_away(int dummy)
+{
+	/* Hack - ignore parameter */
+	(void) dummy;
+	
+	/* Change follow distance */
+	p_ptr->pet_follow_distance = PET_AWAY_DIST;
+	
+	/* Stay at menu */
+	return (FALSE);
+}
+
+static bool cmd_pets_doors(int dummy)
+{
+	/* Hack - ignore parameter */
+	(void) dummy;
+	
+	/* Toggle the open doors flag */
+	p_ptr->pet_open_doors = !p_ptr->pet_open_doors;
+	
+	if (p_ptr->pet_open_doors)
+	{
+		pet_menu[PET_OPEN_DOORS].text = "pets may open doors";
+	}
+	else
+	{
+		pet_menu[PET_OPEN_DOORS].text = "pets may not open doors";
+	}
+
+		
+	/* Stay at menu */
+	return (FALSE);
+}
+
+static bool cmd_pets_items(int dummy)
+{
+	int pet_ctr;
+	
+	monster_type *m_ptr;
+	
+		/* Hack - ignore parameter */
+	(void) dummy;
+
+
+	/* Toggle pet pickup flag */
+	p_ptr->pet_pickup_items = !p_ptr->pet_pickup_items;
+
+	/* Drop objects being carried by pets */
+	if (!p_ptr->pet_pickup_items)
+	{
+		for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+		{
+			/* Access the monster */
+			m_ptr = &m_list[pet_ctr];
+
+			if (is_pet(m_ptr))
+			{
+				drop_object_list(&m_ptr->hold_o_idx,
+								 m_ptr->fx, m_ptr->fy);
+			}
+		}
+	}
+	
+	if (p_ptr->pet_pickup_items)
+	{
+		pet_menu[PET_TAKE_ITEMS].text = "pets may pick up items";
+	}
+	else
+	{
+		pet_menu[PET_TAKE_ITEMS].text = "pets may not pick up items";
+	}
+	
+	/* Stay at menu */
+	return (FALSE);
+}
+
+
+/* The menu used to interact with pets */
+menu_type pet_menu[PET_CHOICE_MAX + 1] =
+{
+	{"dismiss pets", NULL, cmd_pets_dismiss, MN_ACTIVE},
+	{"stay close", NULL, cmd_pets_close, MN_ACTIVE | MN_SELECT},
+	{"follow me", NULL, cmd_pets_follow, MN_ACTIVE | MN_SELECT},
+	{"seek and destroy", NULL, cmd_pets_destroy, MN_ACTIVE | MN_SELECT},
+	{"give me space", NULL, cmd_pets_space, MN_ACTIVE | MN_SELECT},
+	{"stay away", NULL, cmd_pets_away, MN_ACTIVE | MN_SELECT},
+	{NULL, NULL, cmd_pets_doors, MN_ACTIVE},
+	{NULL, NULL, cmd_pets_items, MN_ACTIVE},
+	MENU_END
+};
 
 
 /*
@@ -2966,23 +3180,10 @@ void do_cmd_pray(void)
  */
 void do_cmd_pet(void)
 {
-	int i = 0;
-	int powers[36];
-	cptr power_desc[36];
-	bool flag;
-	int ask;
-	char choice;
-	char out_val[160];
-	int pets = 0;
+	bool pets = FALSE;
 	int pet_ctr;
-	bool all_pets = FALSE;
 	monster_type *m_ptr;
-	int mode = 0;
-	byte y = 1, x = 0;
-	int ctr = 0;
-	char buf[160];
-	int num = 0;
-
+	int pet_select = -1;
 
 	/* Calculate pets */
 	/* Process the monsters (backwards) */
@@ -2991,250 +3192,70 @@ void do_cmd_pet(void)
 		/* Access the monster */
 		m_ptr = &m_list[pet_ctr];
 
-		if (is_pet(m_ptr)) pets++;
+		if (is_pet(m_ptr))
+		{
+			/* Is it a pet? */
+			pets = TRUE;
+			break;
+		}
 	}
 
+	/* Can only dismiss pets if actually have some */
 	if (pets)
 	{
-		power_desc[num] = "dismiss pets";
-		powers[num++] = PET_DISMISS;
+		pet_menu[PET_DISMISS].flags |= MN_ACTIVE;
+	}
+	else
+	{
+		pet_menu[PET_DISMISS].flags &= ~(MN_ACTIVE);
 	}
 
-	power_desc[num] = "stay close";
-	if (p_ptr->pet_follow_distance == PET_CLOSE_DIST) mode = num;
-	powers[num++] = PET_STAY_CLOSE;
-
-	power_desc[num] = "follow me";
-	if (p_ptr->pet_follow_distance == PET_FOLLOW_DIST) mode = num;
-	powers[num++] = PET_FOLLOW_ME;
-
-	power_desc[num] = "seek and destroy";
-	if (p_ptr->pet_follow_distance == PET_DESTROY_DIST) mode = num;
-	powers[num++] = PET_SEEK_AND_DESTROY;
-
-	power_desc[num] = "give me space";
-	if (p_ptr->pet_follow_distance == PET_SPACE_DIST) mode = num;
-	powers[num++] = PET_ALLOW_SPACE;
-
-	power_desc[num] = "stay away";
-	if (p_ptr->pet_follow_distance == PET_AWAY_DIST) mode = num;
-	powers[num++] = PET_STAY_AWAY;
-
+	/* Get current option */
+	if (p_ptr->pet_follow_distance == PET_CLOSE_DIST)
+	{
+		pet_select = PET_STAY_CLOSE;
+	}
+	
+	if (p_ptr->pet_follow_distance == PET_FOLLOW_DIST)
+	{
+		pet_select = PET_FOLLOW_ME;
+	}
+	
+	if (p_ptr->pet_follow_distance == PET_DESTROY_DIST)
+	{
+		pet_select = PET_SEEK_AND_DESTROY;
+	}
+	
+	if (p_ptr->pet_follow_distance == PET_SPACE_DIST)
+	{
+		pet_select = PET_ALLOW_SPACE;
+	}
+	
+	if (p_ptr->pet_follow_distance == PET_AWAY_DIST)
+	{
+		pet_select = PET_STAY_AWAY;
+	}
+	
+	/* Change option text depending on flag */
 	if (p_ptr->pet_open_doors)
 	{
-		power_desc[num] = "pets may open doors";
+		pet_menu[PET_OPEN_DOORS].text = "pets may open doors";
 	}
 	else
 	{
-		power_desc[num] = "pets may not open doors";
+		pet_menu[PET_OPEN_DOORS].text = "pets may not open doors";
 	}
-	powers[num++] = PET_OPEN_DOORS;
 
+	/* Change option text depending on flag */
 	if (p_ptr->pet_pickup_items)
 	{
-		power_desc[num] = "pets may pick up items";
+		pet_menu[PET_TAKE_ITEMS].text = "pets may pick up items";
 	}
 	else
 	{
-		power_desc[num] = "pets may not pick up items";
-	}
-	powers[num++] = PET_TAKE_ITEMS;
-
-	/* Nothing chosen yet */
-	flag = FALSE;
-
-	/* Build a prompt */
-	(void)strnfmt(out_val, 78, "(Command (%c-%c), ESC=exit) Select a command: ",
-				  I2A(0), I2A(num - 1));
-
-	/* Save the screen */
-	Term_save();
-
-	prt("", x, y++);
-
-	/* Show the list */
-	while (ctr < num)
-	{
-		sprintf(buf, "%s%c) %s", (ctr == mode) ? "*" : " ", I2A(ctr),
-				power_desc[ctr]);
-		prt(buf, x, y + ctr);
-		ctr++;
+		pet_menu[PET_TAKE_ITEMS].text = "pets may not pick up items";
 	}
 
-	if (ctr < 17)
-	{
-		prt("", x, y + ctr);
-	}
-	else
-	{
-		prt("", x, y + 17);
-	}
-
-	/* Get a command from the user */
-	while (!flag && get_com(out_val, &choice))
-	{
-		if (choice == '\r' && num == 1)
-		{
-			choice = 'a';
-		}
-
-		if (isalpha(choice))
-		{
-			/* Note verify */
-			ask = (isupper(choice));
-
-			/* Lowercase */
-			if (ask) choice = tolower(choice);
-
-			/* Extract request */
-			i = (islower(choice) ? A2I(choice) : -1);
-		}
-		else
-		{
-			ask = FALSE;		/* Can't uppercase digits */
-
-			i = choice - '0' + 26;
-		}
-
-		/* Totally Illegal */
-		if ((i < 0) || (i >= num))
-		{
-			bell("Illegal pet command!");
-			continue;
-		}
-
-		/* Verify it */
-		if (ask)
-		{
-			/* Prompt */
-			(void)strnfmt(buf, 78, "Use %s? ", power_desc[i]);
-
-			/* Belay that order */
-			if (!get_check(buf)) continue;
-		}
-
-		/* Stop the loop */
-		flag = TRUE;
-	}
-
-	/* Restore the screen */
-	Term_load();
-
-	/* Abort if needed */
-	if (!flag)
-	{
-		p_ptr->energy_use = 0;
-		return;
-	}
-
-	switch (powers[i])
-	{
-		case PET_DISMISS:		/* Dismiss pets */
-		{
-			int Dismissed = 0;
-
-			if (get_check("Dismiss all pets? ")) all_pets = TRUE;
-
-			/* Process the monsters (backwards) */
-			for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
-			{
-				/* Access the monster */
-				m_ptr = &m_list[pet_ctr];
-
-				if (is_pet(m_ptr))
-				{
-					bool delete_this = FALSE;
-
-					if (all_pets)
-						delete_this = TRUE;
-					else
-					{
-						char friend_name[80], check_friend[80];
-						monster_desc(friend_name, m_ptr, 0x80);
-						sprintf(check_friend, "Dismiss %s? ", friend_name);
-
-						if (get_check(check_friend))
-							delete_this = TRUE;
-					}
-
-					if (delete_this)
-					{
-						/* Notice changes in view */
-						if (r_info[m_ptr->r_idx].flags7 &
-							(RF7_LITE_1 | RF7_LITE_2))
-						{
-							/* Update some things */
-							p_ptr->update |= (PU_MON_LITE);
-						}
-
-						delete_monster_idx(pet_ctr);
-						Dismissed++;
-					}
-				}
-			}
-
-			msg_format("You have dismissed %d pet%s.", Dismissed,
-					   (Dismissed == 1 ? "" : "s"));
-			break;
-		}
-			/* Call pets */
-		case PET_STAY_CLOSE:
-		{
-			p_ptr->pet_follow_distance = PET_CLOSE_DIST;
-			break;
-		}
-			/* "Follow Me" */
-		case PET_FOLLOW_ME:
-		{
-			p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
-			break;
-		}
-			/* "Seek and destoy" */
-		case PET_SEEK_AND_DESTROY:
-		{
-			p_ptr->pet_follow_distance = PET_DESTROY_DIST;
-			break;
-		}
-			/* "Give me space" */
-		case PET_ALLOW_SPACE:
-		{
-			p_ptr->pet_follow_distance = PET_SPACE_DIST;
-			break;
-		}
-			/* "Stay away" */
-		case PET_STAY_AWAY:
-		{
-			p_ptr->pet_follow_distance = PET_AWAY_DIST;
-			break;
-		}
-			/* flag - allow pets to open doors */
-		case PET_OPEN_DOORS:
-		{
-			p_ptr->pet_open_doors = !p_ptr->pet_open_doors;
-			break;
-		}
-			/* flag - allow pets to pickup items */
-		case PET_TAKE_ITEMS:
-		{
-			p_ptr->pet_pickup_items = !p_ptr->pet_pickup_items;
-
-			/* Drop objects being carried by pets */
-			if (!p_ptr->pet_pickup_items)
-			{
-				for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
-				{
-					/* Access the monster */
-					m_ptr = &m_list[pet_ctr];
-
-					if (is_pet(m_ptr))
-					{
-						drop_object_list(&m_ptr->hold_o_idx,
-										 m_ptr->fx, m_ptr->fy);
-					}
-				}
-			}
-
-			break;
-		}
-	}
+	/* Interact with menu */
+	display_menu(pet_menu, pet_select, FALSE, NULL, NULL);
 }

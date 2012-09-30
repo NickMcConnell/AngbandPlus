@@ -154,9 +154,8 @@
  *
  * The new formalism includes a "displayed" screen image (old) which
  * is actually seen by the user, a "requested" screen image (scr)
- * which is being prepared for display, a "memorized" screen image
- * (mem) which is used to save and restore screen images, and a
- * "temporary" screen image (tmp) which is currently unused.
+ * which is being prepared for display, and a list of screen images
+ * which are accessed through the "next" pointers from scr.
  *
  *
  * Several "flags" are available in each "term" to allow the underlying
@@ -375,11 +374,47 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 	s->cy = f->cy;
 	s->cu = f->cu;
 	s->cv = f->cv;
+	
+	/* Copy list pointer */
+	s->next = f->next;
 
 	/* Success */
 	return (0);
 }
 
+
+/*
+ * Hack XXX XXX XXX  Should do this only for the main window.
+ *
+ * Resize a "term_win"
+ *
+ * wn, hn are the new width / height
+ * wo, ho are the old width / height
+ * win is the window to resize.
+ */
+static errr Term_resize_win(int wn, int hn, int wo, int ho, term_win *win)
+{
+	term_win tmp;
+	
+	/* Create a new window of the correct size */
+	(void) term_win_init(&tmp, wn, hn);
+	
+	/* Copy in the information from the old window */
+	(void) term_win_copy(&tmp, win, wo, ho);
+
+	/* Nuke the old window */
+	(void) term_win_nuke(win);
+	
+	/* Illegal cursor? */
+	if (tmp.cx >= wn) tmp.cu = 1;
+	if (tmp.cy >= hn) tmp.cu = 1;
+	
+	/* Save new window (Structure Copy) */
+	*win = tmp;
+	
+	/* Success */
+	return (0);
+}
 
 
 /*** External hooks ***/
@@ -1518,54 +1553,6 @@ void Term_addch(byte a, char c)
 
 
 /*
- * At the current location, using an attr, add a string
- *
- * We also take a length "n", using negative values to imply
- * the largest possible value, and then we use the minimum of
- * this length and the "actual" length of the string as the
- * actual number of characters to attempt to display, never
- * displaying more characters than will actually fit, since
- * we do NOT attempt to "wrap" the cursor at the screen edge.
- *
- * So when this function, or the preceding one, return a
- * positive value, future calls to either function will
- * return negative ones.
- */
-void Term_addstr(int n, byte a, cptr s)
-{
-	int k;
-
-	int w = Term->wid;
-
-	errr res = 0;
-
-	/* Handle "unusable" cursor */
-	if (Term->scr->cu) return;
-
-	/* Obtain maximal length */
-	k = (n < 0) ? (w + 1) : n;
-
-	/* Obtain the usable string length */
-	for (n = 0; (n < k) && s[n]; n++) /* loop */ ;
-
-	/* React to reaching the edge of the screen */
-	if (Term->scr->cx + n >= w) res = n = w - Term->scr->cx;
-
-	/* Queue the first "n" characters for display */
-	Term_queue_chars(Term->scr->cx, Term->scr->cy, n, a, s);
-
-	/* Advance the cursor */
-	Term->scr->cx += n;
-
-	/* Hack -- Notice "Useless" cursor */
-	if (res) Term->scr->cu = 1;
-
-	/* Success (usually) */
-	return;
-}
-
-
-/*
  * Move to a location and, using an attr, add a char
  */
 void Term_putch(int x, int y, byte a, char c)
@@ -1576,23 +1563,6 @@ void Term_putch(int x, int y, byte a, char c)
 	/* Then add the char */
 	Term_addch(a, c);
 }
-
-
-/*
- * Move to a location and, using an attr, add a string
- */
-void Term_putstr(int x, int y, int n, byte a, cptr s)
-{
-	/* Move first */
-	Term_gotoxy(x, y);
-
-	/* Then add the string */
-	(void)Term_addstr(n, a, s);
-
-	/* Success */
-	return;
-}
-
 
 
 /*
@@ -1988,7 +1958,7 @@ errr Term_inkey(char *ch, bool wait, bool take)
 
 
 /*
- * Save the "requested" screen into the "memorized" screen
+ * Save the "requested" screen into "memorized" screen list
  *
  * Every "Term_save()" should match exactly one "Term_load()"
  */
@@ -1996,19 +1966,21 @@ void Term_save(void)
 {
 	int w = Term->wid;
 	int h = Term->hgt;
+	
+	term_win *tmp;
 
-	/* Create */
-	if (!Term->mem)
-	{
-		/* Allocate window */
-		MAKE(Term->mem, term_win);
+	/* Allocate window */
+	MAKE(tmp, term_win);
 
-		/* Initialize window */
-		(void)term_win_init(Term->mem, w, h);
-	}
-
+	/* Initialize window */
+	(void)term_win_init(tmp, w, h);
+	
 	/* Grab */
-	(void)term_win_copy(Term->mem, Term->scr, w, h);
+	(void)term_win_copy(tmp, Term->scr, w, h);
+
+	/* Add the front of the list */
+	tmp->next = Term->scr;
+	Term->scr = tmp;
 }
 
 
@@ -2024,19 +1996,24 @@ void Term_load(void)
 	int w = Term->wid;
 	int h = Term->hgt;
 
-	/* Create */
-	if (!Term->mem)
+	term_win *tmp;
+	
+	/* Pop off window from the list */
+	if (Term->scr->next)
 	{
-		/* Allocate window */
-		MAKE(Term->mem, term_win);
-
-		/* Initialize window */
-		(void)term_win_init(Term->mem, w, h);
+		/* Save pointer to old window */
+		tmp = Term->scr;
+		
+		/* Point to new window */
+		Term->scr = Term->scr->next;
+		
+		/* Free the old window */
+		(void)term_win_nuke(tmp);
+		
+		/* Kill */
+		KILL(tmp);
 	}
-
-	/* Load */
-	(void)term_win_copy(Term->scr, Term->mem, w, h);
-
+	
 	/* Assume change */
 	for (y = 0; y < h; y++)
 	{
@@ -2050,50 +2027,6 @@ void Term_load(void)
 	Term->y2 = h - 1;
 }
 
-
-/*
- * Exchange the "requested" screen with the "tmp" screen
- */
-errr Term_exchange(void)
-{
-	int y;
-
-	int w = Term->wid;
-	int h = Term->hgt;
-
-	term_win *exchanger;
-
-
-	/* Create */
-	if (!Term->tmp)
-	{
-		/* Allocate window */
-		MAKE(Term->tmp, term_win);
-
-		/* Initialize window */
-		(void)term_win_init(Term->tmp, w, h);
-	}
-
-	/* Swap */
-	exchanger = Term->scr;
-	Term->scr = Term->tmp;
-	Term->tmp = exchanger;
-
-	/* Assume change */
-	for (y = 0; y < h; y++)
-	{
-		/* Assume change */
-		Term->x1[y] = 0;
-		Term->x2[y] = w - 1;
-	}
-
-	/* Assume change */
-	Term->y1 = 0;
-	Term->y2 = h - 1;
-
-	/* Success */
-	return (0);
-}
 
 /*
  * React to a new physical window size.
@@ -2107,10 +2040,7 @@ errr Term_resize(int w, int h)
 	byte *hold_x1;
 	byte *hold_x2;
 
-	term_win *hold_old;
-	term_win *hold_scr;
-	term_win *hold_mem;
-	term_win *hold_tmp;
+	term_win *scr;
 
 	/* Resizing is forbidden */
 	if (Term->fixed_shape) return (-1);
@@ -2126,122 +2056,27 @@ errr Term_resize(int w, int h)
 	/* Minimum dimensions */
 	wid = MIN(Term->wid, w);
 	hgt = MIN(Term->hgt, h);
+	
+	/* Resize old window */
+	(void) Term_resize_win(w, h, wid, hgt, Term->old);
+	
+	/* Resize current window and the previous list */
+	for (scr = Term->scr; scr; scr = scr->next)
+	{
+		Term_resize_win(w, h, wid, hgt, scr);
+	}
 
 	/* Save scanners */
 	hold_x1 = Term->x1;
 	hold_x2 = Term->x2;
 
-	/* Save old window */
-	hold_old = Term->old;
-
-	/* Save old window */
-	hold_scr = Term->scr;
-
-	/* Save old window */
-	hold_mem = Term->mem;
-
-	/* Save old window */
-	hold_tmp = Term->tmp;
-
 	/* Create new scanners */
 	C_MAKE(Term->x1, h, byte);
 	C_MAKE(Term->x2, h, byte);
-
-	/* Create new window */
-	MAKE(Term->old, term_win);
-
-	/* Initialize new window */
-	(void)term_win_init(Term->old, w, h);
-
-	/* Save the contents */
-	(void)term_win_copy(Term->old, hold_old, wid, hgt);
-
-	/* Create new window */
-	MAKE(Term->scr, term_win);
-
-	/* Initialize new window */
-	(void)term_win_init(Term->scr, w, h);
-
-	/* Save the contents */
-	(void)term_win_copy(Term->scr, hold_scr, wid, hgt);
-
-	/* If needed */
-	if (hold_mem)
-	{
-		/* Create new window */
-		MAKE(Term->mem, term_win);
-
-		/* Initialize new window */
-		(void)term_win_init(Term->mem, w, h);
-
-		/* Save the contents */
-		(void)term_win_copy(Term->mem, hold_mem, wid, hgt);
-	}
-
-	/* If needed */
-	if (hold_tmp)
-	{
-		/* Create new window */
-		MAKE(Term->tmp, term_win);
-
-		/* Initialize new window */
-		(void)term_win_init(Term->tmp, w, h);
-
-		/* Save the contents */
-		(void)term_win_copy(Term->tmp, hold_tmp, wid, hgt);
-	}
-
+	
 	/* Free some arrays */
 	KILL(hold_x1);
 	KILL(hold_x2);
-
-	/* Nuke */
-	(void)term_win_nuke(hold_old);
-
-	/* Kill */
-	KILL(hold_old);
-
-	/* Illegal cursor */
-	if (Term->old->cx >= w) Term->old->cu = 1;
-	if (Term->old->cy >= h) Term->old->cu = 1;
-
-	/* Nuke */
-	(void)term_win_nuke(hold_scr);
-
-	/* Kill */
-	KILL(hold_scr);
-
-	/* Illegal cursor */
-	if (Term->scr->cx >= w) Term->scr->cu = 1;
-	if (Term->scr->cy >= h) Term->scr->cu = 1;
-
-	/* If needed */
-	if (hold_mem)
-	{
-		/* Nuke */
-		(void)term_win_nuke(hold_mem);
-
-		/* Kill */
-		KILL(hold_mem);
-
-		/* Illegal cursor */
-		if (Term->mem->cx >= w) Term->mem->cu = 1;
-		if (Term->mem->cy >= h) Term->mem->cu = 1;
-	}
-
-	/* If needed */
-	if (hold_tmp)
-	{
-		/* Nuke */
-		(void)term_win_nuke(hold_tmp);
-
-		/* Kill */
-		KILL(hold_tmp);
-
-		/* Illegal cursor */
-		if (Term->tmp->cx >= w) Term->tmp->cu = 1;
-		if (Term->tmp->cy >= h) Term->tmp->cu = 1;
-	}
 
 	/* Save new size */
 	Term->wid = w;
@@ -2318,6 +2153,8 @@ void Term_activate(term *t)
  */
 errr term_nuke(term *t)
 {
+	term_win *tmp, *tmp2;
+
 	/* Hack -- Call the special "nuke" hook */
 	if (t->active_flag)
 	{
@@ -2337,31 +2174,16 @@ errr term_nuke(term *t)
 
 	/* Kill "displayed" */
 	KILL(t->old);
-
-	/* Nuke "requested" */
-	(void)term_win_nuke(t->scr);
-
-	/* Kill "requested" */
-	KILL(t->scr);
-
-	/* If needed */
-	if (t->mem)
+	
+	for (tmp = t->scr; tmp; tmp = tmp2)
 	{
-		/* Nuke "memorized" */
-		(void)term_win_nuke(t->mem);
+		tmp2 = tmp->next;
+	
+		/* Nuke "requested" */
+		(void) term_win_nuke(tmp);
 
-		/* Kill "memorized" */
-		KILL(t->mem);
-	}
-
-	/* If needed */
-	if (t->tmp)
-	{
-		/* Nuke "temporary" */
-		(void)term_win_nuke(t->tmp);
-
-		/* Kill "temporary" */
-		KILL(t->tmp);
+		/* Kill "requested" */
+		KILL(tmp);
 	}
 
 	/* Free some arrays */

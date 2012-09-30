@@ -1,0 +1,264 @@
+<HTML>
+<HEAD>
+<TITLE>The Interface</TITLE>
+</HEAD>
+<BODY>
+<A NAME="using-the-interface"></A>
+<P>
+This file is the original description of the Tk port by Tim Baker.  It
+is now fairly out of date.
+<P>
+<H1>Using The Tk Port Interface</H1>
+<P>
+This file is meant to be a very quick summary of the major features of
+the interface. Make sure you read "The Mouse" section at least.
+<P>
+<A NAME="game-windows"></A>
+<H1>Game Windows</H1>
+<BLOCKQUOTE>
+    Note: Currently the game recognizes two screen sizes: (1) width
+    greater or equal to 800, and (2) anything less than 800. Some of
+    the windows support dynamic resizing and some don't. If you want
+    to move the windows around, be sure to choose the "Save Window
+    Positions" option from the "Window" menu.
+<P>
+    Note: In general, clicking the close box on a window has the same
+    effect as typing Escape. Windows that shouldn't be closed in this
+    way just beep at you.
+</BLOCKQUOTE>
+<H3>Message Window</H3>
+
+The Message Window displays messages to you. You can click the Message
+Window once to display the previous message. Double-click it to see a
+list of previous messages. If the "-more-" prompt is displayed then
+clicking clears the prompt.
+<BLOCKQUOTE>
+    Note: The Message Window is used throughout the game. You should
+    ensure that it does not become obscurred or you may get confused.
+</BLOCKQUOTE>
+<H3>Main Window</H3>
+
+The Main Window displays the cave, status messages, the Monster Health Bar,
+player depth, and an information line. Click the depth display to toggle
+the "depth_in_feet" option. The "Map (M)" command displays a small-scale
+map in the Main Window, with scroll bars. Pointing to a location in the
+dungeon map shows what is at that location, displaying the surrounding
+grids in the Micro Map Window. Click the dungeon map to hide it again.
+Right-Click the dungeon map to bring up a popup menu that allows you to
+change the map's scale. Click-drag to scroll the map. Click the "C" in the
+status bar to recenter the display at the character location.
+<P>
+<H3>Micro Map Window</H3>
+
+The Micro Map Window displays a miniature version of the cave. Pointing
+to a location displays (in the Main Window) what is at that location, and
+displays a description of the location, as is done in the Main Window.
+Click the Micro Map Window to display the full cave map. Right-Click the
+Micro Map Window to bring up a popup menu of resolutions. Click-drag to
+scroll the map. Shift-click to fix the Main Window at the location.
+<P>
+<H3>Inventory Window</H3>
+
+The Inventory Window displays the inventory and equipment your character
+has. When the game is asking you to choose an item, simply double-click
+the item to choose it. When an item is highlighted, the item memory is
+displayed in the Recall Window. Right-click on an item to pop up a
+menu of commands. To change some options related to the display of
+the inventory, click the down-arrow button in the toolbar.
+<P>
+<H3>Recall Window</H3>
+
+The Recall Window displays your character's memory about artifacts,
+monsters and objects. When the game is asking the user to select
+something, such as an inventory item or spell, a list of choices is
+displayed. When the pointer is over a row it is highlighted:
+click the item or spell to choose it. When the pointer is inside the
+Recall Window, the window automatically grows to reveal all of its content.
+When the pointer leaves the Recall Window, the window shrinks back to its
+regular size. When the Choice Window is visible, then all choices are
+displayed in the Choice Window instead.
+<P>
+<H3>Misc Window</H3>
+
+The Misc Window displays a few of the more important attributes for
+your character. Click the character icon to see the Character
+Window. The 9 buttons at the top of the Misc Window give you quick
+access to various functions. Click the "EXP" label to toggle between
+total experience points and points needed to advance. Click the "AC"
+label to toggle between total armor class and base,bonus. Right-click
+to pop up a menu to choose Text Labels versus graphical labels.
+<P>
+<H3>Character Window</H3>
+The Character Window displays information about the character. Menu
+commands allow the user to change the character icon, character name,
+and to write a character record to a text file.
+
+<H3>Character Window (Flags)</H3>
+
+The Flags page of the Character Window displays a table of properties
+affecting the current character. 
+Along the top of the table is one icon for each
+equipment item and one icon for the character. Each row in the
+table displays, under each icon, what properties the item gives
+the character, or what the character's intrinsic abilities are.
+Pointing to one of the icons displays a description of the item,
+(or the character's name, race and class) and the item memory is
+displayed in the Recall Window.
+<P>
+<H3>Book Window</H3>
+
+The Book Window shows the spells in a given book. You can double-click a
+spell to select it when prompted.
+<P>
+<H3>Store Window</H3>
+
+When the game is waiting for a command, double-click an item to initiate
+a purchase (or take an item in the Home). Or, when the game is asking you to
+select an item to purchase double-click one. When an item is selected the
+memory is displayed in the Recall Window, and the quantity field is reset
+to 1. To buy a number of items, type in a number type ENTER.
+<P>
+<H3>Options Window</H3>
+
+The options window allows you to change the multitude of options
+available to you. There are a couple of slider controls, but most of the
+options are boolean on/off options that you can toggle by clicking the
+checkbox beside the description of each option. Options from the non-Tk
+version of the game can be displayed, but these options have no effect.
+
+<H3>Knowledge Window</H3>
+
+The "Knowledge (~)" command brings up this window. On the left is a list
+of groups of related monsters. Click a group to see a list of monsters
+in that group. Click a monster on the right and the monster memory is
+displayed. The menu allows you to see groups of artifacts as well. You can
+search for known artifacts and monsters by name.
+<P>
+<HR>
+<P>
+<H3>Macros Window</H3>
+
+The Macros Window displays a list of all currently defined macros. On the
+left is a string representing the trigger keypress. On the right is
+the associated action for the macro.
+<P>
+Type 'n' to create a new macro. Point the mouse over the Trigger Entry
+and then type a new keypress to invoke the selected macro.
+<P>
+Type an encoded action into the Action Entry and hit Enter. Keep in mind the
+following representations:
+<PRE>
+    \e -- Escape
+    \s -- Space
+    \\ -- Backslash
+</PRE>
+Macros are not the same as in the original Angband. They use X Windows
+symbols for keypress names, which are human-readable. This means most of your
+old macros won't work with AngbandTk.
+<P>
+You can read an existing preferences file by choosing "Load Pref File" from
+the menu. You can append all the currently defined macros to a new or
+exising file by choosing "Dump Macros" from the menu. Even though the
+system asks you to confirm replacing an existing file, the macros are
+actually appended to the file you choose.
+<P>
+<HR>
+<P>
+<H3>Keymap Window</H3>
+
+The Keymap Window displays a keyboard and shows you which keys have
+keymaps assigned to them. A keymap is just like a macro only it applies
+to "normal" keys. Click the left mouse button in the displayed keyboard
+to select a key, enter an action in the Action entry, and hit Enter.
+Entering an empty string deletes the keymap for the selected key.
+<P>
+<H3>Progress Window</H3>
+
+The Progress Window displays the character's hitpoints (HP), spell points
+(also called mana) (SP), and food level (FD). The appearance of the window
+can be changed using a context menu (right-click to access the menu).
+<P>
+<H3>Choice Window</H3>
+
+The Choice Window displays a list of choices whenever the game is asking
+the user to select something, such as an inventory item or spell. A single
+click chooses the item or spell. When the game is not asking the user to
+choose, the character's
+inventory or equipment is displayed (type / to toggle). A context menu of
+actions is available by right-clicking in a row. The default action is
+invoked by double-clicking an item. The Choice Window can be
+closed by clicking the close box in the title bar, and can be shown by
+selecting the menu entry in the Window Menu. When the Choice Window is
+not visible, then all choices are displayed in the Recall Window instead.
+Clicking outside any item pops up a menu of options which control the
+appearance and behaviour of the Choice Window.
+<P>
+<H3>Messages Window</H3>
+
+The Messages Window displays the most recent messages. The Messages Window
+can be closed by clicking the close box in the title bar, and can be
+displayed by selecting the menu entry in the Window Menu.
+
+<A NAME="the-mouse"></A>
+<H1>The Mouse</H1>
+
+These notes apply to mouse events in the Main Window.
+<P>
+1. Click the left mouse button (ButtonPress-1) to move the character
+one step in the corresponding direction. Pressing and holding the
+left mouse button moves the character continuously, but is not the
+same as running (see below).
+<BLOCKQUOTE>
+    Note: No game turns are consumed by moving the character
+    into a wall or on-the-spot, except for the initial mouse click.
+</BLOCKQUOTE>
+2. Click the right mouse button (ButtonPress-3) to make the character
+run in the corresponding direction. Alternatively, shift-click the
+left mouse button (Shift-ButtonPress-1) to make the character run.
+<P>
+3. Control-click the left mouse button (Control-ButtonPress-1) to invoke
+the "Alter (+)" command. See "commands.txt" for what that does.
+<P>
+4. Simply pointing the cursor at a given cave location provides a
+description of what is seen, similar to the "Look (l)" command. When
+the cursor is over a visible monster, the monster health bar is shown
+and monster memory is displayed.
+<P>
+5. When the game is asking you to choose an inventory item, press the
+right mouse button (ButtonPress-3) and a popup menu pops up. Select an
+item from this menu to choose it; otherwise type ESACPE twice. You can
+also choose spells to cast and study in this way.
+<P>
+6. When the game is asking you to enter a direction (as when firing an
+arrow or aiming a wand), simply click the mouse in the desired direction.
+Or right-click to target the monster or location under the mouse.
+<P>
+7. When the "-more-" prompt is displayed, and the "quick_messages" option
+is set, click the mouse to skip past the message. It also works if the
+mouse button is held down (as when fighting a monster).
+<P>
+8. When a repeated command is in progress (running, resting, tunneling,
+etc), simply click the left mouse button (ButtonPress-1) to interrupt
+the command.
+<P>
+9. Control-right-click (Control-ButtonPress-3) pops up a cascading menu
+of items in the character's inventory. Seleting an item uses the item.
+<P>
+10. When the game is asking you to target a monster or location,
+left-click to set the target. If a targettable monster
+is at the location, it is targetted. Otherwise the location is targetted.
+<h1>Performance Issues</h1>
+From a fast, portable, terminal-based game to a single-system multimedia
+monster, the performance of AngbandTk may leave you wanting more. Here are
+some tips for a faster gaming experience.
+<ul>
+<li>Set your monitor to High Color (16-bit) instead of True Color (24 bit).</li>
+<li>Keep the Main Window and Micro Map Window sizes to a minimum.</li>
+<li>Play with 32x32 icons instead of 16x16.</li>
+<li>Turn off the music.</li>
+<li>Close any programs which are running in the background.</li>
+<li>Don't assign a sound to the "Walk a step" event.</li>
+<li>Buy a faster computer. :-)</li>
+</ul>
+</BODY>
+</HTML>

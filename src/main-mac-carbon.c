@@ -899,7 +899,7 @@ static errr process_sound_config_file( const char *name, const char *section )
 		{
 			char		section_string[64];
 			
-			sprintf( section_string, "[%s]", section );
+			strnfmt( section_string, 64, "[%s]", section );
 			
 			if( streq( section_string, buf ) )
 			{
@@ -930,7 +930,7 @@ static errr process_sound_config_file( const char *name, const char *section )
 			/* Find sound effect in pre-defined sound effect list */
 			for( i = 1; i < SOUND_MAX; i++ )
 			{
-				if( strcmp( angband_sound_name[i], the_name ) == 0 )
+				if(streq( angband_sound_name[i], the_name ))
 				{
 					index = i;
 					break;
@@ -976,8 +976,8 @@ static errr process_sound_config_file( const char *name, const char *section )
 	if (err)
 	{
 		/* Useful error message */
-		msg_format("Error %d in line %d of file '%s'.", err, num, name);
-		msg_format("Parsing '%s'", buf);
+		msgf("Error %d in line %d of file '%s'.", err, num, name);
+		msgf("Parsing '%s'", buf);
 	}
 
 	/* Close the file */
@@ -1037,7 +1037,7 @@ static errr process_music_config_file( const char *name, const char *section )
 		{
 			char		section_string[64];
 			
-			sprintf( section_string, "[%s]", section );
+			strnfmt( section_string, 64, "[%s]", section );
 			
 			if( streq( section_string, pbuf ) )
 			{
@@ -1115,7 +1115,7 @@ static errr process_music_config_file( const char *name, const char *section )
 				}
 				else
 				{
-					strcpy( song_description[index], "" );
+					song_description[index][0] = 0);
 				}
 			}
 			
@@ -1191,8 +1191,8 @@ static errr process_music_config_file( const char *name, const char *section )
 	if (err)
 	{
 		/* Useful error message */
-		msg_format("Error %d in line %d of file '%s'.", err, num, name);
-		msg_format("Parsing '%s'", buf);
+		msgf("Error %d in line %d of file '%s'.", err, num, name);
+		msgf("Parsing '%s'", buf);
 	}
 
 	/* Close the file */
@@ -1402,8 +1402,8 @@ static void init_music( void )
 	
 	for( i = 0; i < SONG_MAX; i++ )
 	{
-		strcpy( song_name[i], "" );
-		strcpy( song_description[i], "" );
+		song_name[i][0] = 0;
+		song_description[i][0] = 0;
 		song_volume[i] = ((gSoundVolume*255)/100);
 		song_repeat[i] = 1;
 		song[i] = (Movie)NULL;
@@ -1422,7 +1422,7 @@ static void init_music( void )
 				/*path_build(musicpath, 1024, ANGBAND_DIR_XTRA, "music");*/
 				/*path_build( filepath, 1024, musicpath, song_name[i]);*/
 				
-				sprintf( filepath, ":lib:xtra:music:%s", song_name[i] );
+				strnfmt( filepath, 1024, ":lib:xtra:music:%s", song_name[i] );
 				/*path_build( filepath, 1024, ANGBAND_XTRA_MUSIC, song_name[i] );*/
 				
 				c2p_stringcopy( pFilePath, filepath );
@@ -1496,7 +1496,7 @@ static void init_sounds( void )
 			/*path_build( filepath, 1024, soundpath, sample_name[i][j]);*/
 		
 			/*path_build( filepath, 1024, ANGBAND_XTRA_SOUND, sample_name[i][j] );*/
-			sprintf( filepath, ":lib:xtra:sound:%s", sample_name[i][j] );
+			strnfmt( filepath, 1024, ":lib:xtra:sound:%s", sample_name[i][j] );
 			
 			c2p_stringcopy( pFilePath, filepath );
 	
@@ -3051,7 +3051,7 @@ static void SetupAppDir(void)
 	err = HSetVol(NULL, app_vol, app_dir);
 	if (err != noErr)
 	{
-		sprintf(errString, "Fatal HSetVol Error #%d.\r Exiting.", err);
+		strnfmt(errString, 255, "Fatal HSetVol Error #%d.\r Exiting.", err);
 		mac_warning(errString);
 		ExitToShell();
 	}
@@ -4044,7 +4044,7 @@ static void init_menubar(void)
 			Str15 buf;
 			
 			/* Textual size */
-			sprintf((char*)buf + 1, "%d", i);
+			strnfmt((char*)buf + 1, 15, "%d", i);
 			buf[0] = strlen((char*)buf + 1);
 
 			/* Add the item */
@@ -4065,7 +4065,7 @@ static void init_menubar(void)
 			Str15 buf;
 			
 			/* Describe the item */
-			sprintf((char*)buf + 1, "%.15s", angband_term_name[i]);
+			strnfmt((char*)buf + 1, 15, "%.15s", angband_term_name[i]);
 			buf[0] = strlen((char*)buf + 1);
 
 			/* Add the item */
@@ -4105,7 +4105,7 @@ static void init_menubar(void)
 			Str15 buf;
 			
 			/* Textual size */
-			sprintf((char*)buf + 1, "%d", i);
+			strnfmt((char*)buf + 1, 15, "%d", i);
 			buf[0] = strlen((char*)buf + 1);
 
 			/* Append item */
@@ -4126,7 +4126,7 @@ static void init_menubar(void)
 			Str15 buf;
 
 			/* Textual size */
-			sprintf((char*)buf + 1, "%d", i);
+			strnfmt((char*)buf + 1, 15, "%d", i);
 			buf[0] = strlen((char*)buf + 1);
 
 			/* Append item */
@@ -5212,7 +5212,7 @@ static pascal OSErr AEH_Open(const AppleEvent *theAppleEvent,
 	err = FSpGetFInfo(&myFSS, &myFileInfo);
 	if (err)
 	{
-		sprintf(foo, "Arg!  FSpGetFInfo failed with code %d", err);
+		strnfmt(foo, 128, "Arg!  FSpGetFInfo failed with code %d", err);
 		mac_warning (foo);
 		return err;
 	}
@@ -6229,7 +6229,7 @@ int main(void)
 
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 15, 23);
+	prtf(15, 23, "[Choose 'New' or 'Open' from the 'File' menu]");
 
 	/* Flush the prompt */
 	Term_fresh();

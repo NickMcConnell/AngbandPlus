@@ -847,6 +847,12 @@ static char vault_aux_char;
 /* Breath mask for "monster pit (dragon)" */
 static u32b vault_aux_dragon_mask4;
 
+/* Breath mask for "monster pit (elemental)" */
+static u32b vault_aux_elemental_mask4;
+
+/* Attack type for "monster pit (elemental)" */
+static int vault_aux_elemental_attack;
+
 
 /*
  * Helper monster selection function
@@ -1124,6 +1130,32 @@ static bool vault_aux_cthulhu(int r_idx)
 	return (TRUE);
 }
 
+/*
+ * Helper function for "monster pit (elemental)"
+ */
+static bool vault_aux_elemental(int r_idx)
+{
+    int i;
+
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
+
+	/* Hack -- Accept correct "breath attack" */
+    if (r_ptr->flags4 == vault_aux_elemental_mask4) return (TRUE);
+
+    /* Accept correct "melee attack" */
+    for (i = 0; i < 4; i++)
+    {
+        if (!r_ptr->blow[i].method) break;
+        if (r_ptr->blow[i].effect == vault_aux_elemental_attack) return (TRUE);
+    }
+
+    /* Reject */
+    return (FALSE);
+}
+
 
 /*
  * Helper function for "monster pit (clone)"
@@ -1239,6 +1271,57 @@ static void vault_prep_dragon(void)
 	}
 }
 
+/*
+ * Helper function for "monster pit (elemental)"
+ */
+static void vault_prep_elemental(void)
+{
+	/* Pick dragon type */
+	switch (randint0(3))
+	{
+		case 0:
+		{
+			/* Fire */
+
+			/* Restrict elemental breath type */
+            vault_aux_elemental_mask4 = RF4_BR_FIRE;
+
+            /* Restrict melee attack type */
+            vault_aux_elemental_attack = RBE_FIRE;
+
+			/* Done */
+			break;
+		}
+
+		case 1:
+		{
+			/* Cold */
+
+			/* Restrict elemental breath type */
+            vault_aux_elemental_mask4 = RF4_BR_COLD;
+
+            /* Restrict melee attack type */
+            vault_aux_elemental_attack = RBE_COLD;
+
+			/* Done */
+			break;
+		}
+
+        default:
+		{
+			/* Elec */
+
+			/* Restrict elemental breath type */
+            vault_aux_elemental_mask4 = RF4_BR_ELEC;
+
+            /* Restrict melee attack type */
+            vault_aux_elemental_attack = RBE_ELEC;
+
+			/* Done */
+			break;
+        }
+    }
+}
 
 typedef struct vault_aux_type vault_aux_type;
 
@@ -1316,7 +1399,8 @@ static const vault_aux_type *pick_vault_type(const vault_aux_type *l_ptr)
 static const vault_aux_type nest_types[] =
 {
 	{"clone", vault_aux_clone, vault_prep_clone, 7, 6},
-	{"jelly", vault_aux_jelly, NULL, 7, 2},
+    {"jelly", vault_aux_jelly, NULL, 7, 2},
+    {"elemental", vault_aux_elemental, vault_prep_elemental, 15, 3},
 	{"symbol clone", vault_aux_symbol, vault_prep_symbol, 40, 6},
 	{"mimic", vault_aux_mimic, NULL, 45, 2},
 	{"lovecraftian", vault_aux_cthulhu, NULL, 80, 2},
@@ -1539,7 +1623,7 @@ static void build_type5(int bx0, int by0)
 	if (cheat_room)
 	{
 		/* Room type */
-		msg_format("Monster nest (%s)", n_ptr->name);
+		msgf("Monster nest (%s)", n_ptr->name);
 	}
 
 	/* Shrink to contents of nest */
@@ -1769,7 +1853,7 @@ static void build_type6(int bx0, int by0)
 	if (cheat_room)
 	{
 		/* Room type */
-		msg_format("Monster pit (%s)", n_ptr->name);
+		msgf("Monster pit (%s)", n_ptr->name);
 	}
 
 	/* Create a random pit layout - EB */
@@ -2216,7 +2300,7 @@ static void build_type7(int bx0, int by0)
 	if (dummy >= SAFE_MAX_ATTEMPTS)
 	{
 		if (cheat_room)
-			msg_print("Warning! Could not place lesser vault!");
+			msgf("Warning! Could not place lesser vault!");
 
 		return;
 	}
@@ -2227,7 +2311,7 @@ static void build_type7(int bx0, int by0)
 #endif
 
 	/* Message */
-	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
+	if (cheat_room) msgf("%s", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	dun_ptr->rating += v_ptr->rat;
@@ -2313,7 +2397,7 @@ static void build_type8(int bx0, int by0)
 	if (dummy >= SAFE_MAX_ATTEMPTS)
 	{
 		if (cheat_room)
-			msg_print("Warning! Could not place greater vault!");
+			msgf("Warning! Could not place greater vault!");
 
 		return;
 	}
@@ -2324,7 +2408,7 @@ static void build_type8(int bx0, int by0)
 #endif
 
 	/* Message */
-	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
+	if (cheat_room) msgf("%s", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	dun_ptr->rating += v_ptr->rat;
@@ -2621,7 +2705,7 @@ static void build_bubble_vault(int x0, int y0, int xsize, int ysize)
 	cave_type *c_ptr;
 
 
-	if (cheat_room) msg_print("Bubble Vault");
+	if (cheat_room) msgf("Bubble Vault");
 
 	/* Allocate center of bubbles */
 	for (i = 0; i < BUBBLENUM; i++)
@@ -2778,7 +2862,7 @@ static void build_room_vault(int x0, int y0, int xsize, int ysize)
 	xhsize = xsize / 2;
 	yhsize = ysize / 2;
 
-	if (cheat_room) msg_print("Room Vault");
+	if (cheat_room) msgf("Room Vault");
 
 	/* fill area so don't get problems with arena levels */
 	generate_fill(x0 - xhsize, y0 - yhsize,
@@ -2832,7 +2916,7 @@ static void build_cave_vault(int x0, int y0, int xsiz, int ysiz)
 	xsize = xhsize * 2;
 	ysize = yhsize * 2;
 
-	if (cheat_room) msg_print("Cave Vault");
+	if (cheat_room) msgf("Cave Vault");
 
 	done = FALSE;
 
@@ -3010,7 +3094,7 @@ static void build_maze_vault(int x0, int y0, int xsize, int ysize)
 	int y1, x1, y2, x2;
 	int m, n, num_vertices, *visited;
 
-	if (cheat_room) msg_print("Maze Vault");
+	if (cheat_room) msgf("Maze Vault");
 
 	/* Pick a random room size - randomized by calling routine */
 	dy = ysize / 2 - 1;
@@ -3065,7 +3149,7 @@ static void build_mini_c_vault(int x0, int y0, int xsize, int ysize)
 
 	cave_type *c_ptr;
 
-	if (cheat_room) msg_print("Mini Checker Board Vault");
+	if (cheat_room) msgf("Mini Checker Board Vault");
 
 	/* Pick a random room size */
 	dy = ysize / 2 - 1;
@@ -3328,7 +3412,7 @@ static void build_castle_vault(int x0, int y0, int xsize, int ysize)
 	y2 = y0 + dy;
 	x2 = x0 + dx;
 
-	if (cheat_room) msg_print("Castle Vault");
+	if (cheat_room) msgf("Castle Vault");
 
 	/* generate the room */
 	generate_vault(x1 - 1, y1 - 1, x2 + 1, y2 + 1);
@@ -3440,7 +3524,7 @@ static void build_target_vault(int x0, int y0, int xsize, int ysize)
 	h3 = randint1(32);
 	h4 = randint1(32) - 16;
 
-	if (cheat_room) msg_print("Target Vault");
+	if (cheat_room) msgf("Target Vault");
 
 	/* work out outer radius */
 	if (xsize > ysize)
@@ -3543,7 +3627,7 @@ static void build_elemental_vault(int x0, int y0, int xsiz, int ysiz)
 	int type;
 
 
-	if (cheat_room) msg_print("Elemental Vault");
+	if (cheat_room) msgf("Elemental Vault");
 
 	/* round to make sizes even */
 	xhsize = xsiz / 2;
@@ -3634,7 +3718,7 @@ static void build_micro_room_vault(int x0, int y0, int xsize, int ysize)
 	y2 = y0 + dy;
 	x2 = x0 + dx;
 
-	if (cheat_room) msg_print("Micro-Room Vault");
+	if (cheat_room) msgf("Micro-Room Vault");
 
 	/* generate the room */
 	generate_vault(x1 - 1, y1 - 1, x2 + 1, y2 + 1);

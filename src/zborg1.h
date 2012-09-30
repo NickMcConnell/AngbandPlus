@@ -769,11 +769,6 @@ extern errr borg_what_text(int x, int y, int n, byte *a, char *s);
 
 
 /*
- * Log a message to a file
- */
-extern void borg_info(cptr what);
-
-/*
  * Log a message, Search it, and Show/Memorize it in pieces
  */
 extern void borg_note(cptr what);

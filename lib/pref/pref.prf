@@ -52,6 +52,9 @@
 ?:[EQU $SYS acn]
 %:pref-acn.prf
 
+?:[EQU $SYS tnb]
+%:pref-tnb.prf
+
 ?:1
 
 

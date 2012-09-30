@@ -1714,39 +1714,6 @@ char inkey(void)
 }
 
 
-/*
- * Flush the screen, make a noise
- */
-void bell(cptr reason)
-{
-	/* Mega-Hack -- Flush the output */
-	Term_fresh();
-
-	/* Hack -- memorize the reason if possible */
-	if (character_generated && reason) message_add(reason, MSG_BELL);
-
-	/* Make a bell noise (if allowed) */
-	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
-
-	/* Flush the input (later!) */
-	flush();
-}
-
-
-/*
- * Hack -- Make a (relevant?) sound
- */
-void sound(int val)
-{
-	/* No sound */
-	if (!use_sound) return;
-
-	/* Make a sound (if allowed) */
-	Term_xtra(TERM_XTRA_SOUND, val);
-}
-
-
-
 
 /*
  * The "quark" package
@@ -1863,6 +1830,7 @@ void quark_remove(s16b *i)
 	if (!quark__ref[*i])
 	{
 		string_free(quark__str[*i]);
+		quark__str[*i] = NULL;
 	}
 
 	/* No longer have a quark here */
@@ -2214,7 +2182,7 @@ void message_add(cptr str, u16b type)
 			str = w;
 
 			/* Write it out */
-			sprintf(w, "%s <%dx>", buf, j);
+			strnfmt(w, 1024, "%s <%dx>", buf, j);
 
 			/* Message length */
 			n = strlen(str);
@@ -2414,15 +2382,10 @@ void messages_free(void)
  */
 static void msg_flush(int x)
 {
-	byte a = TERM_L_BLUE;
-
-	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) a = TERM_WHITE;
-
 	if (!p_ptr->skip_more)
 	{
 		/* Pause for response */
-		Term_putstr(x, 0, -1, a, "-more-");
+		prtf(x, 0, CLR_L_BLUE "-more-");
 
 		/* Get an acceptable keypress */
 		while (1)
@@ -2468,12 +2431,12 @@ static int message_column = 0;
  * "pending" messages still on the screen, instead of using "msg_flush()".
  * This should only be done when the user is known to have read the message.
  *
- * We must be very careful about using the "msg_print()" functions without
+ * We must be very careful about using the "msgf()" functions without
  * explicitly calling the special "message_flush()" function, since this may
  * result in the loss of information if the screen is cleared, or if anything
  * is displayed on the top line.
  *
- * Hack -- Note that "msg_print(NULL)" will clear the top line
+ * Hack -- Note that "msgf(NULL)" will clear the top line
  * even if no messages are pending.  This is probably a hack.
  */
 static void msg_print_aux(u16b type, cptr msg)
@@ -2559,7 +2522,7 @@ static void msg_print_aux(u16b type, cptr msg)
 		t[split] = '\0';
 
 		/* Display part of the message */
-		Term_putstr(0, 0, split, color, t);
+		prtf(0, 0, "%s%s", color_seq[color], t);
 
 		/* Flush it */
 		msg_flush(split + 1);
@@ -2576,7 +2539,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	}
 
 	/* Display the tail of the message */
-	Term_putstr(message_column, 0, n, color, t);
+	prtf(message_column, 0, "%s%s", color_seq[color], t);
 
 	/* Remember the message */
 	msg_flag = TRUE;
@@ -2589,77 +2552,67 @@ static void msg_print_aux(u16b type, cptr msg)
 }
 
 
-/*
- * Print a message in the default color (white)
- */
-void msg_print(cptr msg)
-{
-	msg_print_aux(MSG_GENERIC, msg);
-}
+static int current_message_type = MSG_GENERIC;
 
+/*
+ * Change the message type, and parse the following
+ * format string.  See defines.h for the macro this
+ * is used in.
+ */
+void set_message_type(char *buf, uint max, cptr fmt, va_list *vp)
+{
+	cptr str;
+
+	/* Unused parameter */
+	(void)fmt;
+   
+    /* Get the argument - and set the message type */
+	current_message_type = va_arg(*vp, int);
+	
+	/* Get the string to format with. */
+	str = va_arg(*vp, cptr);
+	
+	/* Expand the string */
+	vstrnfmt(buf, max, str, vp);
+}
 
 /*
  * Display a formatted message, using "vstrnfmt()" and "msg_print()".
  */
-void msg_format(cptr fmt, ...)
+void msgf(cptr fmt, ...)
 {
 	va_list vp;
 
 	char buf[1024];
+	
+	/* Set the message type */
+	current_message_type = MSG_GENERIC;
 
 	/* Begin the Varargs Stuff */
 	va_start(vp, fmt);
 
 	/* Format the args, save the length */
-	(void)vstrnfmt(buf, 1024, fmt, vp);
+	(void)vstrnfmt(buf, 1024, fmt, &vp);
 
 	/* End the Varargs Stuff */
 	va_end(vp);
-
+	
+	sound(current_message_type);
+	
 	/* Display */
-	msg_print_aux(MSG_GENERIC, buf);
+	msg_print_aux(current_message_type, buf);
 }
 
-
 /*
- * Display a message and play the associated sound.
+ * Process a message effect
  *
- * The "extra" parameter is currently unused.
+ * (The "extra" parameter is currently unused)
  */
-void message(u16b message_type, s16b extra, cptr message)
+void msg_effect(u16b type, s16b extra)
 {
-	/* Unused parameter */
+	/* Unused parameters */
+	(void)type;
 	(void)extra;
-
-	sound(message_type);
-
-	msg_print_aux(message_type, message);
-}
-
-
-
-/*
- * Display a formatted message and play the associated sound.
- *
- * The "extra" parameter is currently unused.
- */
-void message_format(u16b message_type, s16b extra, cptr fmt, ...)
-{
-	va_list vp;
-
-	char buf[1024];
-
-	/* Begin the Varargs Stuff */
-	va_start(vp, fmt);
-
-	/* Format the args, save the length */
-	(void)vstrnfmt(buf, 1024, fmt, vp);
-
-	/* End the Varargs Stuff */
-	va_end(vp);
-
-	/* Display */
-	message(message_type, extra, buf);
 }
 
 
@@ -2686,555 +2639,27 @@ void message_flush(void)
 }
 
 
-
 /*
- * Hack -- prevent "accidents" in "screen_save()" or "screen_load()"
+ * Check a char for "vowel-hood"
  */
-static int screen_depth = 0;
-
-
-/*
- * Save the screen, and increase the "icky" depth.
- *
- * This function must match exactly one call to "screen_load()".
- */
-void screen_save(void)
+bool is_a_vowel(int ch)
 {
-	/* Hack -- Flush messages */
-	message_flush();
-
-	/* Save the screen (if legal) */
-	if (screen_depth++ == 0) Term_save();
-
-	/* Increase "icky" depth */
-	character_icky++;
-}
-
-
-/*
- * Load the screen, and decrease the "icky" depth.
- *
- * This function must match exactly one call to "screen_save()".
- */
-void screen_load(void)
-{
-	/* Hack -- Flush messages */
-	message_flush();
-
-	/* Load the screen (if legal) */
-	if (--screen_depth == 0) Term_load();
-
-	/* Decrease "icky" depth */
-	character_icky--;
-}
-
-
-/*
- * Display a string on the screen using an attribute.
- *
- * At the given location, using the given attribute, if allowed,
- * add the given string.  Do not clear the line.
- */
-void c_put_str(byte attr, cptr str, int col, int row)
-{
-	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) attr = TERM_WHITE;
-
-	/* Position cursor, Dump the attr/text */
-	Term_putstr(col, row, -1, attr, str);
-}
-
-
-/*
- * As above, but in "white"
- */
-void put_str(cptr str, int col, int row)
-{
-	/* Spawn */
-	Term_putstr(col, row, -1, TERM_WHITE, str);
-}
-
-
-
-/*
- * Display a string on the screen using an attribute, and clear
- * to the end of the line.
- */
-void c_prt(byte attr, cptr str, int col, int row)
-{
-	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) attr = TERM_WHITE;
-
-	/* Clear line, position cursor */
-	Term_erase(col, row, 255);
-
-	/* Dump the attr/text */
-	Term_addstr(-1, attr, str);
-}
-
-
-/*
- * As above, but in "white"
- */
-void prt(cptr str, int col, int row)
-{
-	/* Spawn */
-	c_prt(TERM_WHITE, str, col, row);
-}
-
-
-
-
-/*
- * Print some (colored) text to the screen at the current cursor position,
- * automatically "wrapping" existing text (at spaces) when necessary to
- * avoid placing any text into the last column, and clearing every line
- * before placing any text in that line.  Also, allow "newline" to force
- * a "wrap" to the next line.  Advance the cursor as needed so sequential
- * calls to this function will work correctly.
- *
- * Once this function has been called, the cursor should not be moved
- * until all the related "c_roff()" calls to the window are complete.
- *
- * This function will correctly handle any width up to the maximum legal
- * value of 256, though it works best for a standard 80 character width.
- */
-void c_roff(byte a, cptr str)
-{
-	int x, y;
-
-	int w, h;
-
-	cptr s;
-
-
-	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) a = TERM_WHITE;
-
-
-	/* Obtain the size */
-	(void)Term_get_size(&w, &h);
-
-	/* Obtain the cursor */
-	(void)Term_locate(&x, &y);
-
-	/* Process the string */
-	for (s = str; *s; s++)
+	switch (ch)
 	{
-		char ch;
-
-		/* Force wrap */
-		if (*s == '\n')
-		{
-			/* Wrap */
-			x = 0;
-			y++;
-
-			/* Clear line, move cursor */
-			Term_erase(x, y, 255);
-
-			continue;
-		}
-
-		/* Clean up the char */
-		ch = (isprint(*s) ? *s : ' ');
-
-		/* Wrap words as needed */
-		if ((x >= w - 1) && (ch != ' '))
-		{
-			int i, n = 0;
-
-			byte av[256];
-			char cv[256];
-
-			/* Wrap word */
-			if (x < w)
-			{
-				/* Scan existing text */
-				for (i = w - 2; i >= 0; i--)
-				{
-					/* Grab existing attr/char */
-					(void)Term_what(i, y, &av[i], &cv[i]);
-
-					/* Break on space */
-					if (cv[i] == ' ') break;
-
-					/* Track current word */
-					n = i;
-				}
-			}
-
-			/* Special case */
-			if (n == 0) n = w;
-
-			/* Clear line */
-			Term_erase(n, y, 255);
-
-			/* Wrap */
-			x = 0;
-			y++;
-
-			/* Clear line, move cursor */
-			Term_erase(x, y, 255);
-
-			/* Wrap the word (if any) */
-			for (i = n; i < w - 1; i++)
-			{
-				/* Dump */
-				Term_addch(av[i], cv[i]);
-
-				/* Advance (no wrap) */
-				if (++x > w) x = w;
-			}
-		}
-
-		/* Dump */
-		Term_addch(a, ch);
-
-		/* Advance */
-		if (++x > w) x = w;
-	}
-}
-
-/*
- * As above, but in "white"
- */
-void roff(cptr str)
-{
-	/* Spawn */
-	c_roff(TERM_WHITE, str);
-}
-
-
-
-
-/*
- * Clear part of the screen
- */
-void clear_from(int row)
-{
-	int y;
-
-	/* Erase requested rows */
-	for (y = row; y < Term->hgt; y++)
-	{
-		/* Erase part of the screen */
-		Term_erase(0, y, 255);
-	}
-}
-
-
-
-
-/*
- * Get some input at the cursor location.
- * Assume the buffer is initialized to a default string.
- * Note that this string is often "empty" (see below).
- * The default buffer is displayed in yellow until cleared.
- * Pressing RETURN right away accepts the default entry.
- * Normal chars clear the default and append the char.
- * Backspace clears the default or deletes the final char.
- * ESCAPE clears the buffer and the window and returns FALSE.
- * RETURN accepts the current buffer contents and returns TRUE.
- *
- * Note that 'len' refers to the size of the buffer.  The maximum length
- * of the input is 'len-1'.
- */
-bool askfor_aux(char *buf, int len)
-{
-	int y, x;
-
-	int i = 0;
-
-	int k = 0;
-
-	bool done = FALSE;
-
-	/* Locate the cursor */
-	(void)Term_locate(&x, &y);
-
-
-	/* Paranoia -- check len */
-	if (len < 1) len = 1;
-
-	/* Paranoia -- check column */
-	if ((x < 0) || (x >= 80)) x = 0;
-
-	/* Restrict the length */
-	if (x + len > 80) len = 80 - x;
-
-
-	/* Paranoia -- Clip the default entry */
-	buf[len - 1] = '\0';
-
-
-	/* Display the default answer */
-	Term_erase(x, y, len);
-
-	/* Fake monochrome */
-	if (!use_color || ironman_moria)
-	{
-		Term_putstr(x, y, -1, TERM_WHITE, buf);
-	}
-	else
-	{
-		Term_putstr(x, y, -1, TERM_YELLOW, buf);
+		case 'a':
+		case 'e':
+		case 'i':
+		case 'o':
+		case 'u':
+		case 'A':
+		case 'E':
+		case 'I':
+		case 'O':
+		case 'U':
+			return (TRUE);
 	}
 
-	/* Process input */
-	while (!done)
-	{
-		/* Place cursor */
-		Term_gotoxy(x + k, y);
-
-		/* Get a key */
-		i = inkey();
-
-		/* Analyze the key */
-		switch (i)
-		{
-			case ESCAPE:
-				k = 0;
-				done = TRUE;
-				break;
-
-			case '\n':
-			case '\r':
-				k = strlen(buf);
-				done = TRUE;
-				break;
-
-			case 0x7F:
-			case '\010':
-				if (k > 0) k--;
-				break;
-
-			default:
-				if ((k < len - 1) && (isprint(i)))
-				{
-					buf[k++] = i;
-				}
-				else
-				{
-					bell("Illegal edit key!");
-				}
-				break;
-		}
-
-		/* Terminate */
-		buf[k] = '\0';
-
-		/* Update the entry */
-		Term_erase(x, y, len);
-		Term_putstr(x, y, -1, TERM_WHITE, buf);
-	}
-
-	/* Aborted */
-	if (i == ESCAPE) return (FALSE);
-
-	/* Success */
-	return (TRUE);
-}
-
-
-/*
- * Get a string from the user
- *
- * The "prompt" should take the form "Prompt: "
- *
- * Note that the initial contents of the string is used as
- * the default response, so be sure to "clear" it if needed.
- *
- * We clear the input, and return FALSE, on "ESCAPE".
- */
-bool get_string(cptr prompt, char *buf, int len)
-{
-	bool res;
-
-	/* Paranoia XXX XXX XXX */
-	message_flush();
-
-	/* Display prompt */
-	prt(prompt, 0, 0);
-
-	/* Ask the user for a string */
-	res = askfor_aux(buf, len);
-
-	/* Clear prompt */
-	prt("", 0, 0);
-
-	/* Result */
-	return (res);
-}
-
-
-/*
- * Verify something with the user
- *
- * The "prompt" should take the form "Query? "
- *
- * Note that "[y/n]" is appended to the prompt.
- */
-bool get_check(cptr prompt)
-{
-	int i;
-
-	char buf[80];
-
-	/* Do not skip */
-	p_ptr->skip_more = FALSE;
-
-	/* Paranoia XXX XXX XXX */
-	message_flush();
-
-	/* Hack -- Build a "useful" prompt */
-	(void)strnfmt(buf, 78, "%.70s[y/n] ", prompt);
-
-	/* Prompt for it */
-	prt(buf, 0, 0);
-
-	/* Get an acceptable answer */
-	while (TRUE)
-	{
-		i = inkey();
-		if (quick_messages) break;
-		if (i == ESCAPE) break;
-		if (strchr("YyNn", i)) break;
-		bell("Illegal response to a 'yes/no' question!");
-	}
-
-	/* Erase the prompt */
-	prt("", 0, 0);
-
-	/* Normal negation */
-	if ((i != 'Y') && (i != 'y')) return (FALSE);
-
-	/* Success */
-	return (TRUE);
-}
-
-
-/*
- * Prompts for a keypress
- *
- * The "prompt" should take the form "Command: "
- *
- * Returns TRUE unless the character is "Escape"
- */
-bool get_com(cptr prompt, char *command)
-{
-	/* Paranoia XXX XXX XXX */
-	message_flush();
-
-	/* Display a prompt */
-	prt(prompt, 0, 0);
-
-	/* Get a key */
-	*command = inkey();
-
-	/* Clear the prompt */
-	prt("", 0, 0);
-
-	/* Handle "cancel" */
-	if (*command == ESCAPE) return (FALSE);
-
-	/* Success */
-	return (TRUE);
-}
-
-
-/*
- * Request a "quantity" from the user
- *
- * Hack -- allow "command_arg" to specify a quantity
- */
-s16b get_quantity(cptr prompt, int max)
-{
-	int amt;
-
-	char tmp[80];
-
-	char buf[80];
-
-
-	/* Use "command_arg" */
-	if (p_ptr->command_arg)
-	{
-		/* Extract a number */
-		amt = p_ptr->command_arg;
-
-		/* Clear "command_arg" */
-		p_ptr->command_arg = 0;
-
-		/* Enforce the maximum */
-		if (amt > max) amt = max;
-
-		/* Use it */
-		return (amt);
-	}
-
-	/* Get the item index */
-	if ((max != 1) && repeat_pull(&amt))
-	{
-		/* Enforce the maximum */
-		if (amt > max) amt = max;
-
-		/* Enforce the minimum */
-		if (amt < 0) amt = 0;
-
-		/* Use it */
-		return (amt);
-	}
-
-	/* Build a prompt if needed */
-	if (!prompt)
-	{
-		/* Build a prompt */
-		sprintf(tmp, "Quantity (1-%d): ", max);
-
-		/* Use that prompt */
-		prompt = tmp;
-	}
-
-
-	/* Default to one */
-	amt = 1;
-
-	/* Build the default */
-	sprintf(buf, "%d", amt);
-
-	/* Ask for a quantity */
-	if (!get_string(prompt, buf, 7)) return (0);
-
-	/* Extract a number */
-	amt = atoi(buf);
-
-	/* A letter means "all" */
-	if (isalpha(buf[0])) amt = max;
-
-	/* Enforce the maximum */
-	if (amt > max) amt = max;
-
-	/* Enforce the minimum */
-	if (amt < 0) amt = 0;
-
-	if (amt) repeat_push(amt);
-
-	/* Return the result */
-	return (amt);
-}
-
-
-/*
- * Pause for user response XXX XXX XXX
- */
-void pause_line(int row)
-{
-	int i;
-	prt("", 0, row);
-	put_str("[Press any key to continue]", 23, row);
-	i = inkey();
-	prt("", 0, row);
+	return (FALSE);
 }
 
 
@@ -3331,7 +2756,7 @@ void request_command(int shopping)
 		}
 
 		/* Clear top line */
-		prt("", 0, 0);
+		clear_msg();
 
 
 		/* Command Count */
@@ -3343,7 +2768,7 @@ void request_command(int shopping)
 			p_ptr->command_arg = 0;
 
 			/* Begin the input */
-			prt("Count: ", 0, 0);
+			prtf(0, 0, "Count: ");
 
 			/* Get a command count */
 			while (1)
@@ -3358,7 +2783,7 @@ void request_command(int shopping)
 					p_ptr->command_arg = p_ptr->command_arg / 10;
 
 					/* Show current count */
-					prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+					prtf(0, 0, "Count: %d", p_ptr->command_arg);
 				}
 
 				/* Actual numeric data */
@@ -3382,7 +2807,7 @@ void request_command(int shopping)
 					}
 
 					/* Show current count */
-					prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+					prtf(0, 0, "Count: %d", p_ptr->command_arg);
 				}
 
 				/* Exit on "unusable" input */
@@ -3399,7 +2824,7 @@ void request_command(int shopping)
 				p_ptr->command_arg = 99;
 
 				/* Show current count */
-				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+				prtf(0, 0, "Count: %d", p_ptr->command_arg);
 			}
 
 			/* Hack -- Handle "old_arg" */
@@ -3409,7 +2834,7 @@ void request_command(int shopping)
 				p_ptr->command_arg = old_arg;
 
 				/* Show current count */
-				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+				prtf(0, 0, "Count: %d", p_ptr->command_arg);
 			}
 
 			/* Hack -- white-space means "enter command now" */
@@ -3546,165 +2971,7 @@ void request_command(int shopping)
 
 
 	/* Hack -- erase the message line. */
-	prt("", 0, 0);
-}
-
-
-
-
-/*
- * Check a char for "vowel-hood"
- */
-bool is_a_vowel(int ch)
-{
-	switch (ch)
-	{
-		case 'a':
-		case 'e':
-		case 'i':
-		case 'o':
-		case 'u':
-		case 'A':
-		case 'E':
-		case 'I':
-		case 'O':
-		case 'U':
-			return (TRUE);
-	}
-
-	return (FALSE);
-}
-
-
-/*
- * Convert a "color letter" into an "actual" color
- * The colors are: dwsorgbuDWvyRGBU, as shown below
- */
-int color_char_to_attr(char c)
-{
-	switch (c)
-	{
-		case 'd': return (TERM_DARK);
-		case 'w': return (TERM_WHITE);
-		case 's': return (TERM_SLATE);
-		case 'o': return (TERM_ORANGE);
-		case 'r': return (TERM_RED);
-		case 'g': return (TERM_GREEN);
-		case 'b': return (TERM_BLUE);
-		case 'u': return (TERM_UMBER);
-
-		case 'D': return (TERM_L_DARK);
-		case 'W': return (TERM_L_WHITE);
-		case 'v': return (TERM_VIOLET);
-		case 'y': return (TERM_YELLOW);
-		case 'R': return (TERM_L_RED);
-		case 'G': return (TERM_L_GREEN);
-		case 'B': return (TERM_L_BLUE);
-		case 'U': return (TERM_L_UMBER);
-	}
-
-	return (-1);
-}
-
-
-
-#if 0
-
-/*
- * Replace the first instance of "target" in "buf" with "insert"
- * If "insert" is NULL, just remove the first instance of "target"
- * In either case, return TRUE if "target" is found.
- *
- * XXX Could be made more efficient, especially in the
- * case where "insert" is smaller than "target".
- */
-static bool insert_str(char *buf, cptr target, cptr insert)
-{
-	int i, len;
-	int b_len, t_len, i_len;
-
-	/* Attempt to find the target (modify "buf") */
-	buf = strstr(buf, target);
-
-	/* No target found */
-	if (!buf) return (FALSE);
-
-	/* Be sure we have an insertion string */
-	if (!insert) insert = "";
-
-	/* Extract some lengths */
-	t_len = strlen(target);
-	i_len = strlen(insert);
-	b_len = strlen(buf);
-
-	/* How much "movement" do we need? */
-	len = i_len - t_len;
-
-	/* We need less space (for insert) */
-	if (len < 0)
-	{
-		for (i = t_len; i < b_len; ++i) buf[i + len] = buf[i];
-	}
-
-	/* We need more space (for insert) */
-	else if (len > 0)
-	{
-		for (i = b_len - 1; i >= t_len; --i) buf[i + len] = buf[i];
-	}
-
-	/* If movement occured, we need a new terminator */
-	if (len) buf[b_len + len] = '\0';
-
-	/* Now copy the insertion string */
-	for (i = 0; i < i_len; ++i) buf[i] = insert[i];
-
-	/* Successful operation */
-	return (TRUE);
-}
-
-
-#endif
-
-
-/*
- * GH
- * Called from cmd4.c and a few other places. Just extracts
- * a direction from the keymap for ch (the last direction,
- * in fact) byte or char here? I'm thinking that keymaps should
- * generally only apply to single keys, which makes it no more
- * than 128, so a char should suffice... but keymap_act is 256...
- */
-int get_keymap_dir(char ch)
-{
-	cptr act, s;
-	int d = 0;
-
-	if (isdigit(ch))
-	{
-		d = D2I(ch);
-	}
-	else
-	{
-		if (rogue_like_commands)
-		{
-			act = keymap_act[KEYMAP_MODE_ROGUE][(byte)ch];
-		}
-		else
-		{
-			act = keymap_act[KEYMAP_MODE_ORIG][(byte)ch];
-		}
-
-		if (act)
-		{
-			/* Convert to a direction */
-			for (s = act; *s; ++s)
-			{
-				/* Use any digits in keymap */
-				if (isdigit(*s)) d = D2I(*s);
-			}
-		}
-	}
-	return d;
+	clear_msg();
 }
 
 

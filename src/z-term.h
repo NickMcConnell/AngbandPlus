@@ -26,6 +26,8 @@
  *	- Array[h*w] -- Attribute array
  *	- Array[h*w] -- Character array
  *
+ *  - Pointer to the next window in the stack.
+ *
  * Note that the attr/char pair at (x,y) is a[y][x]/c[y][x]
  * and that the row of attr/chars at (0,y) is a[y]/c[y]
  */
@@ -48,6 +50,8 @@ struct term_win
 
 	byte *vta;
 	char *vtc;
+	
+	term_win *next;
 };
 
 
@@ -132,9 +136,6 @@ struct term_win
  *	- Displayed screen image
  *	- Requested screen image
  *
- *	- Temporary screen image
- *	- Memorized screen image
- *
  *
  *	- Hook for init-ing the term
  *	- Hook for nuke-ing the term
@@ -198,9 +199,6 @@ struct term
 
 	term_win *old;
 	term_win *scr;
-
-	term_win *tmp;
-	term_win *mem;
 
 	void (*init_hook) (term *t);
 	void (*nuke_hook) (term *t);
@@ -285,9 +283,7 @@ extern errr Term_set_cursor(int v);
 extern void Term_gotoxy(int x, int y);
 extern void Term_draw(int x, int y, byte a, char c);
 extern void Term_addch(byte a, char c);
-extern void Term_addstr(int n, byte a, cptr s);
 extern void Term_putch(int x, int y, byte a, char c);
-extern void Term_putstr(int x, int y, int n, byte a, cptr s);
 extern void Term_erase(int x, int y, int n);
 extern void Term_clear(void);
 extern void Term_redraw(void);
@@ -305,8 +301,6 @@ extern errr Term_inkey(char *ch, bool wait, bool take);
 
 extern void Term_save(void);
 extern void Term_load(void);
-
-extern errr Term_exchange(void);
 
 extern errr Term_resize(int w, int h);
 

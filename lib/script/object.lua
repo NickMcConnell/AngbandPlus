@@ -14,10 +14,10 @@ function eat_food(object)
 	   object.sval == SV_FOOD_SLIME_MOLD or
 	   object.sval == SV_FOOD_PINT_OF_ALE or
 	   object.sval == SV_FOOD_PINT_OF_WINE then
-		msg_print("That tastes good.")
+		msgf("That tastes good.")
 		ident = TRUE
 	elseif object.sval == SV_FOOD_WAYBREAD then
-		msg_print("That tastes good.")
+		msgf("That tastes good.")
 		set_poisoned(0)
 		hp_player(damroll(4, 8))
 		ident = TRUE
@@ -114,12 +114,12 @@ function quaff_potion(object)
 	if object.sval == SV_POTION_WATER or
 	   object.sval == SV_POTION_APPLE_JUICE or
 	   object.sval == SV_POTION_SLIME_MOLD then
-		msg_print("You feel less thirsty.")
+		msgf("You feel less thirsty.")
 		ident = TRUE
 	elseif object.sval == SV_POTION_SLOWNESS then
 		if set_slow(player.slow + rand_range(15, 40)) then ident = TRUE end
 	elseif object.sval == SV_POTION_SALT_WATER then
-		msg_print("The potion makes you vomit!")
+		msgf("The potion makes you vomit!")
 		if player.food > PY_FOOD_STARVE - 1 then
 			set_food(PY_FOOD_STARVE - 1)
 		end
@@ -161,16 +161,16 @@ function quaff_potion(object)
 				end
 				teleport_player(100)
 				wiz_dark()
-				msg_print("You wake up somewhere with a sore head...")
-				msg_print("You can't remember a thing, or how you got here!")
+				msgf("You wake up somewhere with a sore head...")
+				msgf("You can't remember a thing, or how you got here!")
 			end
 		end
 	elseif object.sval == SV_POTION_SLEEP then
 		if not player.free_act then
-			msg_print("You fall asleep.")
+			msgf("You fall asleep.")
 
 			if ironman_nightmare then
-				msg_print("A horrible vision enters your mind.")
+				msgf("A horrible vision enters your mind.")
 
 				-- Pick a nightmare
 				get_mon_num_prep(get_nightmare, NULL)
@@ -188,13 +188,13 @@ function quaff_potion(object)
 		end
 	elseif object.sval == SV_POTION_LOSE_MEMORIES then
 		if not player.hold_life and (player.exp > 0) then
-			msg_print("You feel your memories fade.")
+			msgf("You feel your memories fade.")
 
 			lose_exp(player.exp / 4)
 			ident = TRUE
 		end
 	elseif object.sval == SV_POTION_RUINATION then
-		msg_print("Your nerves and muscles feel weak and lifeless!")
+		msgf("Your nerves and muscles feel weak and lifeless!")
 		take_hit(damroll(10, 10), "a potion of Ruination")
 		dec_stat(A_DEX, 25, TRUE)
 		dec_stat(A_WIS, 25, TRUE)
@@ -216,13 +216,13 @@ function quaff_potion(object)
 	elseif object.sval == SV_POTION_DEC_CHR then
 		if do_dec_stat(A_CHR) then ident = TRUE end
 	elseif object.sval == SV_POTION_DETONATIONS then
-		msg_print("Massive explosions rupture your body!")
+		msgf("Massive explosions rupture your body!")
 		take_hit(damroll(50, 20), "a potion of Detonation")
 		set_stun(player.stun + 75)
 		set_cut(player.cut + 5000)
 		ident = TRUE
 	elseif object.sval == SV_POTION_DEATH then
-		msg_print("A feeling of Death flows through your body.")
+		msgf("A feeling of Death flows through your body.")
 		take_hit(5000, "a potion of Death")
 		ident = TRUE
 	elseif object.sval == SV_POTION_INFRAVISION then
@@ -292,7 +292,7 @@ function quaff_potion(object)
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
 	elseif object.sval == SV_POTION_LIFE then
-		msg_print("You feel life flow through your body!")
+		msgf("You feel life flow through your body!")
 		restore_level()
 		set_poisoned(0)
 		set_blind(0)
@@ -316,7 +316,7 @@ function quaff_potion(object)
 		if player.csp < player.msp then
 			player.csp = player.msp
 			player.csp_frac = 0
-			msg_print("Your feel your head clear.")
+			msgf("Your feel your head clear.")
 			player.redraw = bOr(player.redraw, PR_MANA)
 			player.window = bOr(player.window, PW_PLAYER)
 			player.window = bOr(player.window, PW_SPELL)
@@ -356,11 +356,11 @@ function quaff_potion(object)
 		if do_inc_stat(A_CON) then ident = TRUE end
 		if do_inc_stat(A_CHR) then ident = TRUE end
 	elseif object.sval == SV_POTION_ENLIGHTENMENT then
-		msg_print("An image of your surroundings forms in your mind...")
+		msgf("An image of your surroundings forms in your mind...")
 		wiz_lite()
 		ident = TRUE
 	elseif object.sval == SV_POTION_STAR_ENLIGHTENMENT then
-		msg_print("You begin to feel more enlightened...")
+		msgf("You begin to feel more enlightened...")
 		message_flush()
 		wiz_lite()
 		do_inc_stat(A_INT)
@@ -375,7 +375,7 @@ function quaff_potion(object)
 		self_knowledge()
 		ident = TRUE
 	elseif object.sval == SV_POTION_SELF_KNOWLEDGE then
-		msg_print("You begin to know yourself a little better...")
+		msgf("You begin to know yourself a little better...")
 		message_flush()
 		self_knowledge()
 		ident = TRUE
@@ -383,7 +383,7 @@ function quaff_potion(object)
 		if player.exp < PY_MAX_EXP then
 			local ee = (player.exp / 2) + 10
 			if ee > 100000 then ee = 100000 end
-			msg_print("You feel more experienced.")
+			msgf("You feel more experienced.")
 			gain_exp(ee)
 			ident = TRUE
 		end
@@ -408,7 +408,7 @@ function quaff_potion(object)
 	elseif object.sval == SV_POTION_NEW_LIFE then
 		do_cmd_rerate()
 		if (player.muta1 ~= 0) or (player.muta2 ~= 0) or (player.muta3 ~= 0) then
-			msg_print("You are cured of all mutations.")
+			msgf("You are cured of all mutations.")
 			player.muta1 = 0
 			player.muta2 = 0
 			player.muta3 = 0
@@ -432,7 +432,7 @@ function read_scroll(object)
 		end
 		if unlite_area(10, 3) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_AGGRAVATE_MONSTER then
-		msg_print("There is a high pitched humming noise.")
+		msgf("There is a high pitched humming noise.")
 		aggravate_monsters(0)
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_CURSE_ARMOR then
@@ -473,7 +473,7 @@ function read_scroll(object)
 		if not identify_fully() then used_up = FALSE end
 	elseif object.sval == SV_SCROLL_REMOVE_CURSE then
 		if remove_curse() then
-			msg_print("You feel as if someone is watching over you.")
+			msgf("You feel as if someone is watching over you.")
 			ident = TRUE
 		end
 	elseif object.sval == SV_SCROLL_STAR_REMOVE_CURSE then
@@ -527,7 +527,7 @@ function read_scroll(object)
 		if set_blessed(player.blessed + rand_range(24, 72)) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_MONSTER_CONFUSION then
 		if player.confusing == 0 then
-			msg_print("Your hands begin to glow.")
+			msgf("Your hands begin to glow.")
 			player.confusing = TRUE
 			ident = TRUE
 			player.redraw = bOr(player.redraw, PR_STATUS)
@@ -544,7 +544,7 @@ function read_scroll(object)
 		if destroy_area(player.px, player.py, 15) then
 			ident = TRUE
 		else
-			msg_print("The dungeon trembles...")
+			msgf("The dungeon trembles...")
 		end
 	elseif object.sval == SV_SCROLL_DISPEL_UNDEAD then
 		if dispel_undead(60) then ident = TRUE end
@@ -580,11 +580,11 @@ function read_scroll(object)
 		end
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_RUMOR then
-		msg_print("There is message on the scroll. It says:")
+		msgf("There is message on the scroll. It says:")
 		message_flush()
-		msg_print(get_rumor())
+		msgf(get_rumor())
 		message_flush()
-		msg_print("The scroll disappears in a puff of smoke!")
+		msgf("The scroll disappears in a puff of smoke!")
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_ARTIFACT then
 		if not artifact_scroll() then used_up = FALSE end
@@ -625,13 +625,13 @@ function use_staff(object)
 	elseif sval == SV_STAFF_REMOVE_CURSE then
 		if remove_curse() then
 			if player.blind == 0 then
-				msg_print("The staff glows blue for a moment...")
+				msgf("The staff glows blue for a moment...")
 			end
 			ident = TRUE
 		end
 	elseif sval == SV_STAFF_STARLITE then
 		if player.blind == 0 then
-			msg_print("The end of the staff glows brightly...")
+			msgf("The end of the staff glows brightly...")
 		end
 		starlite()
 		ident = TRUE
@@ -673,7 +673,7 @@ function use_staff(object)
 		if player.csp < player.msp then
 			player.csp = player.msp
 			player.csp_frac = 0
-			msg_print("Your feel your head clear.")
+			msgf("Your feel your head clear.")
 			player.redraw = bOr(player.redraw, PR_MANA)
 			player.window = bOr(player.window, PW_PLAYER)
 			player.window = bOr(player.window, PW_SPELL)
@@ -712,7 +712,7 @@ function use_staff(object)
 		if earthquake(player.px, player.py, 10) then
 			ident = TRUE
 		else
-			msg_print("The dungeon trembles.")
+			msgf("The dungeon trembles.")
 		end
 	elseif sval == SV_STAFF_DESTRUCTION then
 		if destroy_area(player.px, player.py, 15) then ident = TRUE end
@@ -756,7 +756,7 @@ function aim_wand(object)
 	-- Roll for usage
 	if (chance < USE_DEVICE) or (randint1(chance) < USE_DEVICE) then
 		if flush_failure then flush() end
-		msg_print("You failed to use the wand properly.")
+		msgf("You failed to use the wand properly.")
 		sound(SOUND_FAIL)
 		return FALSE, FALSE
 	end
@@ -764,7 +764,7 @@ function aim_wand(object)
 	-- The wand is already empty!
 	if object.pval <= 0 then
 		if flush_failure then flush() end
-		msg_print("The wand has no charges left.")
+		msgf("The wand has no charges left.")
 
 		object.ident = bOr(object.ident, IDENT_EMPTY)
 		player.notice = bOr(player.notice, bOr(PN_COMBINE, PN_REORDER))
@@ -796,7 +796,7 @@ function aim_wand(object)
 	elseif sval == SV_WAND_STONE_TO_MUD then
 		if wall_to_mud(dir) then ident = TRUE end
 	elseif sval == SV_WAND_LITE then
-		msg_print("A line of blue shimmering light appears.")
+		msgf("A line of blue shimmering light appears.")
 		lite_line(dir)
 		ident = TRUE
 	elseif sval == SV_WAND_SLEEP_MONSTER then
@@ -832,7 +832,7 @@ function aim_wand(object)
 	elseif sval == SV_WAND_COLD_BALL then
 		ident = fire_ball(GF_COLD, dir, 100, 2)
 	elseif sval == SV_WAND_WONDER then
-		msg_print("Oops.  Wand of wonder activated.")
+		msgf("Oops.  Wand of wonder activated.")
 	elseif sval == SV_WAND_DRAGON_FIRE then
 		ident = fire_ball(GF_FIRE, dir, 250, 3)
 		ident = TRUE
@@ -858,7 +858,7 @@ function aim_wand(object)
 	elseif sval == SV_WAND_ANNIHILATION then
 		ident = fire_ball(GF_DISINTEGRATE, dir, rand_range(125, 225), 2)
 	elseif sval == SV_WAND_ROCKETS then
-		msg_print("You launch a rocket!")
+		msgf("You launch a rocket!")
 		fire_ball(GF_ROCKET, dir, 250, 2)
 		ident = TRUE
 	end

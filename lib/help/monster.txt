@@ -39,12 +39,12 @@ screen. The exact species or type of creature can be discovered by
   x   (unused)                        X   Xorn/Xaren
   y   Yeek                            Y   Yeti
   z   Zombie/Mummy                    Z   Zephyr Hound
-  $   Creeping Coins                  ,   Mushroom Patch
+  $$   Creeping Coins                  ,   Mushroom Patch
   %   Ent, Huorn                      #   Fumes
 
 Note that some monsters disguise themselves by assuming the shape (ie.
 symbol) of common objects found in the dungeon. These include the
-|, ), ?, !, &, $ and * symbols.
+|, ), ?, !, &, $$ and * symbols.
 
 
 ***** <MonsterColors>

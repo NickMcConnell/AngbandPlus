@@ -272,7 +272,7 @@ void build_streamer(int feat, int chance)
 		{
 			if (cheat_room)
 			{
-				msg_print("Warning! Could not place streamer!");
+				msgf("Warning! Could not place streamer!");
 			}
 			return;
 		}
@@ -360,7 +360,7 @@ void destroy_level(void)
 	cave_type *c_ptr;
 
 	/* Note destroyed levels */
-	if (cheat_room) msg_print("Destroyed Level");
+	if (cheat_room) msgf("Destroyed Level");
 
 	/* Drop a few epi-centers (usually about two) */
 	for (n = 0; n < randint1(5); n++)
@@ -490,7 +490,7 @@ void build_lake(int type)
 	/* paranoia - exit if lake type out of range. */
 	if ((type < 1) || (type > 7))
 	{
-		msg_format("Invalid lake type (%d)", type);
+		msgf("Invalid lake type (%d)", type);
 		return;
 	}
 

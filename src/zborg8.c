@@ -231,17 +231,22 @@ static void borg_think_shop_sell(int item, list_item *l_ptr)
 	borg_note_fmt("# Selling %s", l_ptr->o_name);
 
 	/* One item */
+	borg_note_fmt("# Sending key 0");
 	borg_keypress('0');
+	borg_note_fmt("# Sending key 1");
 	borg_keypress('1');
 
 	/* Buy an item */
+	borg_note_fmt("# Sending key s");
 	borg_keypress('s');
 
 	/* Buy the desired item */
+	borg_note_fmt("# Sending key %c", I2A(item));
 	borg_keypress(I2A(item));
 
 	/* Mega-Hack -- Accept the price */
 	borg_keypress('y');
+	borg_keypress('\r');
 	borg_keypress('\r');
 	borg_keypress('\r');
 	borg_keypress('\r');
@@ -281,6 +286,11 @@ static void borg_think_shop_buy(int item)
 	borg_keypress('y');
 	borg_keypress('\r');
 	borg_keypress('\r');
+	borg_keypress('\r');
+	borg_keypress('\r');
+	
+	/* go to first Page */
+	if (item / 12) borg_keypress(' ');
 
 	/* Increment 'use' count */
 	borg_shops[shop_num].u_count++;
@@ -487,6 +497,8 @@ static bool borg_good_sell(list_item *l_ptr)
 	/* Never sell worthless items */
 	if (l_ptr->cost <= 0) return (FALSE);
 
+#if 0
+
 	/* Analyze the type */
 	switch (l_ptr->tval)
 	{
@@ -546,6 +558,8 @@ static bool borg_good_sell(list_item *l_ptr)
 		/* For now check all artifacts */
 		return (FALSE);
 	}
+
+#endif /* 0 */
 
 	/* Assume we can */
 	return (TRUE);

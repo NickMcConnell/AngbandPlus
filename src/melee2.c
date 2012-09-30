@@ -167,17 +167,21 @@ static bool get_enemy_target(monster_type *m_ptr)
 	/* Do we already have a nice enemy? */
 	if (m_ptr->tx || m_ptr->ty)
 	{
-		c_ptr = area(m_ptr->tx, m_ptr->ty);
-
-		/* Is there a monster on our target? */
-		if (c_ptr->m_idx)
+		/* paranoia */
+		if (in_bounds2(m_ptr->tx, m_ptr->ty))
 		{
-			t_ptr = &m_list[c_ptr->m_idx];
+			c_ptr = area(m_ptr->tx, m_ptr->ty);
 
-			/* Is it a a good monster to target? */
-			if (nice_target(m_ptr, r_ptr, t_ptr)) return (TRUE);
+			/* Is there a monster on our target? */
+			if (c_ptr->m_idx)
+			{
+				t_ptr = &m_list[c_ptr->m_idx];
+	
+				/* Is it a a good monster to target? */
+				if (nice_target(m_ptr, r_ptr, t_ptr)) return (TRUE);
+			}
 		}
-
+		
 		/* Forget target */
 		m_ptr->tx = 0;
 		m_ptr->ty = 0;
@@ -394,7 +398,7 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 	bool known = (m_ptr->cdis <= MAX_SIGHT);
 
 	/* Extract monster name */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0, 160);
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -406,7 +410,7 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 	{
 		if (m_ptr->ml)
 		{
-			msg_format("%^s is unharmed.", m_name);
+			msgf("%^s is unharmed.", m_name);
 		}
 
 		return;
@@ -445,17 +449,17 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 				/* Death by special attack */
 				else if (note)
 				{
-					msg_format("%^s%s", m_name, note);
+					msgf("%^s%s", m_name, note);
 				}
 				/* Death by normal attack -- nonliving monster */
 				else if (!monster_living(r_ptr))
 				{
-					msg_format("%^s is destroyed.", m_name);
+					msgf("%^s is destroyed.", m_name);
 				}
 				/* Death by normal attack -- living monster */
 				else
 				{
-					msg_format("%^s is killed.", m_name);
+					msgf("%^s is killed.", m_name);
 				}
 			}
 
@@ -1069,7 +1073,7 @@ static void get_move_advance(monster_type *m_ptr, int *tx, int *ty)
 		y = my + ddy_ddd[i];
 
 		/* Check Bounds */
-		if (!in_bounds(x, y)) continue;
+		if (!in_bounds2(x, y)) continue;
 
 		c_ptr = area(x, y);
 
@@ -1178,7 +1182,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *tx, int *ty)
 					y = m_ptr->fy + ddy_ddd[i];
 
 					/* Check Bounds */
-					if (!in_bounds(x, y)) continue;
+					if (!in_bounds2(x, y)) continue;
 
 					if (in_boundsp(x, y) &&
 						player_has_los_grid(parea(x, y))) continue;
@@ -1222,7 +1226,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *tx, int *ty)
 					y = m_ptr->fy + ddy_ddd[i];
 
 					/* Check Bounds */
-					if (!in_bounds(x, y)) continue;
+					if (!in_bounds2(x, y)) continue;
 
 					c_ptr = area(x, y);
 
@@ -1259,7 +1263,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *tx, int *ty)
 			y = m_ptr->fy + ddy_ddd[i % 8];
 
 			/* Check Bounds */
-			if (!in_bounds(x, y)) continue;
+			if (!in_bounds2(x, y)) continue;
 
 			c_ptr = area(x, y);
 
@@ -1300,13 +1304,8 @@ static bool get_move_retreat(monster_type *m_ptr, int *tx, int *ty)
 			/* Visible */
 			if (m_ptr->ml)
 			{
-				char m_name[80];
-
-				/* Get the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
 				/* Dump a message */
-				msg_format("%^s turns to fight!", m_name);
+				msgf("%^v turns to fight!", MONSTER_FMT(m_ptr, 0));
 			}
 
 			/* Charge! */
@@ -1564,13 +1563,13 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
 	/* Get the monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0, 80);
 
 	/* Get the monster name (or "it") */
-	monster_desc(t_name, t_ptr, 0);
+	monster_desc(t_name, t_ptr, 0, 80);
 
 	/* Get the "died from" information (i.e. "a kobold") */
-	monster_desc(ddesc, m_ptr, 0x88);
+	monster_desc(ddesc, m_ptr, 0x88, 80);
 
 	/* Assume no blink */
 	blinked = FALSE;
@@ -1792,49 +1791,39 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 				/* Look to see if we've spotted a mimic */
 				if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
 				{
-					char m_name2[80];
-
-					/* Get name */
-					monster_desc(m_name2, m_ptr, 0x88);
+					/* We've spotted it */
+					msgf("You see %v!", MONSTER_FMT( m_ptr, 0x88));
 
 					/* Toggle flag */
 					m_ptr->smart &= ~(SM_MIMIC);
 
 					/* It is in the monster list now */
 					update_mon_vis(m_ptr->r_idx, 1);
-
-					/* We've spotted it */
-					msg_format("You see %s!", m_name2);
 				}
 
 				/* Look to see if we've spotted a mimic */
 				if ((t_ptr->smart & SM_MIMIC) && t_ptr->ml)
 				{
-					char t_name2[80];
-
-					/* Get name */
-					monster_desc(t_name2, t_ptr, 0x88);
-
+					/* We've spotted it */
+					msgf("You see %v!", MONSTER_FMT(t_ptr, 0x88));
+					
 					/* Toggle flag */
 					t_ptr->smart &= ~(SM_MIMIC);
 
 					/* It is in the monster list now */
 					update_mon_vis(t_ptr->r_idx, 1);
-
-					/* We've spotted it */
-					msg_format("You see %s!", t_name2);
 				}
 
 				if ((p_ptr->image) && one_in_(3))
 				{
-					(void)strfmt(temp, "%s %s.",
+					strnfmt(temp, 80, "%s %s.",
 								 silly_attacks[randint0(MAX_SILLY_ATTACK)],
 								 t_name);
 				}
 				else
-					(void)strfmt(temp, act, t_name);
+					strnfmt(temp, 80, act, t_name);
 
-				msg_format("%^s %s", m_name, temp);
+				msgf("%^s %s", m_name, temp);
 			}
 
 			/* Hack -- assume all attacks are obvious */
@@ -2014,7 +2003,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 						/* Special message */
 						if (see_m && did_heal)
 						{
-							msg_format("%^s appears healthier.", m_name);
+							msgf("%^s appears healthier.", m_name);
 						}
 					}
 				}
@@ -2028,7 +2017,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 						if (see_either)
 						{
 							blinked = FALSE;
-							msg_format("%^s is suddenly very hot!", m_name);
+							msgf("%^s is suddenly very hot!", m_name);
 							if (see_t)
 								tr_ptr->r_flags2 |= RF2_AURA_FIRE;
 						}
@@ -2045,7 +2034,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 						if (see_either)
 						{
 							blinked = FALSE;
-							msg_format("%^s is suddenly very cold!", m_name);
+							msgf("%^s is suddenly very cold!", m_name);
 							if (see_t)
 								tr_ptr->r_flags3 |= RF3_AURA_COLD;
 						}
@@ -2062,7 +2051,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 						if (see_either)
 						{
 							blinked = FALSE;
-							msg_format("%^s gets zapped!", m_name);
+							msgf("%^s gets zapped!", m_name);
 							if (see_t)
 								tr_ptr->r_flags2 |= RF2_AURA_ELEC;
 						}
@@ -2099,7 +2088,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 					if (see_m)
 					{
 						/* Message */
-						msg_format("%^s misses %s.", m_name, t_name);
+						msgf("%^s misses %s.", m_name, t_name);
 					}
 
 					break;
@@ -2142,7 +2131,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 	{
 		if (see_m)
 		{
-			msg_print("The thief flees laughing!");
+			msgf("The thief flees laughing!");
 		}
 		else if (known)
 		{
@@ -2174,7 +2163,7 @@ static void take_move(int m_idx, int *mm)
 
 	char m_name[80];
 
-	field_mon_test mon_enter_test;
+	byte flags;
 
 	/* Assume nothing */
 	bool do_turn = FALSE;
@@ -2274,7 +2263,7 @@ static void take_move(int m_idx, int *mm)
 
 			if (one_in_(GRINDNOISE))
 			{
-				msg_print("There is a grinding sound.");
+				msgf("There is a grinding sound.");
 			}
 
 			/* Notice */
@@ -2298,22 +2287,25 @@ static void take_move(int m_idx, int *mm)
 		 * specific monster to pass.  (i.e. Glyph of warding)
 		 */
 
-		/* Initialise information to pass to action functions */
-		mon_enter_test.m_ptr = m_ptr;
-
 		/* Set up flags */
-		mon_enter_test.flags = 0x00;
-		if (do_move) mon_enter_test.flags |= MEG_DO_MOVE;
-
+		flags = 0x00;
+		if (do_move)
+        {
+        	flags = MEG_DO_MOVE;
+		}
+        else
+        {
+        	flags = 0x00;
+        }
+        
 		/* Call the hook */
-		field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
-				   (vptr)&mon_enter_test);
+		field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST, m_ptr, &flags);
 
 		/* Get result */
-		if (mon_enter_test.flags & (MEG_DO_MOVE)) do_move = TRUE;
-		if (mon_enter_test.flags & (MEG_OPEN)) did_open_door = TRUE;
-		if (mon_enter_test.flags & (MEG_BASH)) did_bash_door = TRUE;
-		if (mon_enter_test.flags & (MEG_DO_TURN)) do_turn = TRUE;
+		if (flags & (MEG_DO_MOVE)) do_move = TRUE;
+		if (flags & (MEG_OPEN)) did_open_door = TRUE;
+		if (flags & (MEG_BASH)) did_bash_door = TRUE;
+		if (flags & (MEG_DO_TURN)) do_turn = TRUE;
 
 		/* Some monsters never attack */
 		if (do_move && (ny == p_ptr->py) && (nx == p_ptr->px) &&
@@ -2452,23 +2444,18 @@ static void take_move(int m_idx, int *mm)
 			/* Look to see if we've spotted a mimic */
 			if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
 			{
-				char m_name2[80];
-
-				/* Get name */
-				monster_desc(m_name2, m_ptr, 0x88);
+				/* We've spotted it */
+				msgf("You see %v!", MONSTER_FMT(m_ptr, 0x88));
 
 				/* Toggle flag */
 				m_ptr->smart &= ~(SM_MIMIC);
 
 				/* It is in the monster list now */
 				update_mon_vis(m_ptr->r_idx, 1);
-
-				/* We've spotted it */
-				msg_format("You see %s!", m_name2);
 			}
 
 			/* Process fields under the monster. */
-			field_hook(&old_ptr->fld_idx, FIELD_ACT_MONSTER_LEAVE, (vptr)m_ptr);
+			field_hook(&old_ptr->fld_idx, FIELD_ACT_MONSTER_LEAVE, m_ptr);
 
 			/* Hack -- Update the old location */
 			old_ptr->m_idx = c_ptr->m_idx;
@@ -2498,7 +2485,7 @@ static void take_move(int m_idx, int *mm)
 			update_mon(m_idx, TRUE);
 
 			/* Process fields under the monster. */
-			field_hook(&old_ptr->fld_idx, FIELD_ACT_MONSTER_ENTER, (vptr)m_ptr);
+			field_hook(&old_ptr->fld_idx, FIELD_ACT_MONSTER_ENTER, m_ptr);
 
 			/* Redraw the old grid */
 			lite_spot(ox, oy);
@@ -2543,7 +2530,7 @@ static void take_move(int m_idx, int *mm)
 					object_desc(o_name, o_ptr, TRUE, 3, 256);
 
 					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0x04);
+					monster_desc(m_name, m_ptr, 0x04, 80);
 
 					/* React to objects that hurt the monster */
 					if (f1 & TR1_KILL_DRAGON) flg3 |= (RF3_DRAGON);
@@ -2571,8 +2558,7 @@ static void take_move(int m_idx, int *mm)
 							if (m_ptr->ml && see_grid)
 							{
 								/* Dump a message */
-								msg_format
-									("%^s tries to pick up %s, but fails.",
+								msgf("%^s tries to pick up %s, but fails.",
 									 m_name, o_name);
 							}
 						}
@@ -2588,7 +2574,7 @@ static void take_move(int m_idx, int *mm)
 						if (see_grid)
 						{
 							/* Dump a message */
-							msg_format("%^s picks up %s.", m_name, o_name);
+							msgf("%^s picks up %s.", m_name, o_name);
 						}
 
 						/* Forget mark */
@@ -2614,7 +2600,7 @@ static void take_move(int m_idx, int *mm)
 						if (see_grid)
 						{
 							/* Dump a message */
-							msg_format("%^s destroys %s.", m_name, o_name);
+							msgf("%^s destroys %s.", m_name, o_name);
 						}
 
 						/* Delete the object */
@@ -2679,11 +2665,8 @@ static void take_move(int m_idx, int *mm)
 		/* Message if seen */
 		if (m_ptr->ml)
 		{
-			/* Acquire the monster name */
-			monster_desc(m_name, m_ptr, 0);
-
 			/* Dump a message */
-			msg_format("%^s turns to fight!", m_name);
+			msgf("%^v turns to fight!", MONSTER_FMT(m_ptr, 0));
 
 			chg_virtue(V_COMPASSION, -1);
 		}
@@ -2752,11 +2735,8 @@ static void process_monster(int m_idx)
 
 			if (m_ptr->ml)
 			{
-				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
 				/* Oops */
-				msg_format("%^s disappears!", m_name);
+				msgf("%^v disappears!", MONSTER_FMT(m_ptr, 0));
 			}
 
 			/* Generate treasure, etc */
@@ -2767,7 +2747,7 @@ static void process_monster(int m_idx)
 
 			if (sad)
 			{
-				msg_print("You feel sad for a moment.");
+				msgf("You feel sad for a moment.");
 			}
 
 			return;
@@ -2782,7 +2762,7 @@ static void process_monster(int m_idx)
 	c_ptr = area(ox, oy);
 
 	/* Process fields under the monster. */
-	field_hook(&c_ptr->fld_idx, FIELD_ACT_MONSTER_ON, (vptr)m_ptr);
+	field_hook(&c_ptr->fld_idx, FIELD_ACT_MONSTER_ON, m_ptr);
 
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
@@ -2833,11 +2813,8 @@ static void process_monster(int m_idx)
 				/* Notice the "waking up" */
 				if ((m_ptr->ml) && (!(m_ptr->smart & SM_MIMIC)))
 				{
-					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0);
-
 					/* Dump a message */
-					msg_format("%^s wakes up.", m_name);
+					msgf("%^v wakes up.", MONSTER_FMT(m_ptr, 0));
 
 					/* Redraw the health bar */
 					if (p_ptr->health_who == m_idx)
@@ -2885,11 +2862,8 @@ static void process_monster(int m_idx)
 			/* Message if visible */
 			if (m_ptr->ml)
 			{
-				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
 				/* Dump a message */
-				msg_format("%^s is no longer stunned.", m_name);
+				msgf("%^v is no longer stunned.", MONSTER_FMT(m_ptr, 0));
 			}
 		}
 
@@ -2920,11 +2894,8 @@ static void process_monster(int m_idx)
 			/* Message if visible */
 			if ((m_ptr->ml) && (!(m_ptr->smart & SM_MIMIC)))
 			{
-				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
 				/* Dump a message */
-				msg_format("%^s is no longer confused.", m_name);
+				msgf("%^v is no longer confused.", MONSTER_FMT(m_ptr, 0));
 			}
 		}
 	}
@@ -2937,11 +2908,8 @@ static void process_monster(int m_idx)
 
 		if (!(m_ptr->invulner) && m_ptr->ml)
 		{
-			/* Acquire the monster name */
-			monster_desc(m_name, m_ptr, 0);
-
 			/* Dump a message */
-			msg_format("%^s is no longer invulnerable.", m_name);
+			msgf("%^v is no longer invulnerable.", MONSTER_FMT(m_ptr, 0));
 		}
 	}
 
@@ -2950,11 +2918,11 @@ static void process_monster(int m_idx)
 		gets_angry = TRUE;
 
 	/* Acquire the monster name */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_ptr, 0, 80);
 
 	if (gets_angry)
 	{
-		msg_format("%^s suddenly becomes hostile!", m_name);
+		msgf("%^s suddenly becomes hostile!", m_name);
 		set_hostile(m_ptr);
 	}
 
@@ -2980,13 +2948,9 @@ static void process_monster(int m_idx)
 			/* Visual note */
 			if (m_ptr->ml)
 			{
-				char m_poss[80];
-
-				/* Acquire the monster poss */
-				monster_desc(m_poss, m_ptr, 0x22);
-
-				/* Dump a message */
-				msg_format("%^s recovers %s courage.", m_name, m_poss);
+				/* Acquire the monster poss + dump message*/
+				msgf("%^s recovers %v courage.", m_name,
+					 MONSTER_FMT(m_ptr, 0x22));
 			}
 		}
 	}
@@ -3033,7 +2997,7 @@ static void process_monster(int m_idx)
 	if (strstr((r_name + r_ptr->name), "Cyber") && one_in_(CYBERNOISE) &&
 		!m_ptr->ml && (m_ptr->cdis <= MAX_SIGHT))
 	{
-		msg_print("You hear heavy steps.");
+		msgf("You hear heavy steps.");
 	}
 
 	/* Access that cave grid */
@@ -3062,7 +3026,7 @@ static void process_monster(int m_idx)
 		if (get_rnd_line(filename, m_ptr->r_idx, monmessage) == 0)
 		{
 			/* Say something */
-			msg_format("%^s %s", m_name, monmessage);
+			msgf("%^s %s", m_name, monmessage);
 		}
 	}
 

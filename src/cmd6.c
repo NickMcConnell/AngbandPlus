@@ -101,10 +101,10 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 	{
 		/* Reduced nutritional benefit */
 		(void)set_food(p_ptr->food + (o_ptr->pval / 10));
-		msg_print
+		msgf
 			("Mere victuals hold scant sustenance for a being such as yourself.");
 		if (p_ptr->food < PY_FOOD_ALERT)	/* Hungry */
-			msg_print("Your hunger can only be satisfied with fresh blood!");
+			msgf("Your hunger can only be satisfied with fresh blood!");
 	}
 	else if (p_ptr->prace == RACE_SKELETON)
 	{
@@ -113,7 +113,7 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 		{
 			object_type *q_ptr;
 
-			msg_print("The food falls through your jaws!");
+			msgf("The food falls through your jaws!");
 
 			/* Create the item */
 			q_ptr = object_prep(lookup_kind(o_ptr->tval, o_ptr->sval));
@@ -123,14 +123,14 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 		}
 		else
 		{
-			msg_print("The food falls through your jaws and vanishes!");
+			msgf("The food falls through your jaws and vanishes!");
 		}
 	}
 	else if ((p_ptr->prace == RACE_GOLEM) ||
 			 (p_ptr->prace == RACE_ZOMBIE) ||
 			 (p_ptr->prace == RACE_SPECTRE) || (p_ptr->prace == RACE_GHOUL))
 	{
-		msg_print("The food of mortals is poor sustenance for you.");
+		msgf("The food of mortals is poor sustenance for you.");
 		(void)set_food(p_ptr->food + ((o_ptr->pval) / 20));
 	}
 	else
@@ -192,7 +192,7 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 
 	if (p_ptr->prace == RACE_SKELETON)
 	{
-		msg_print("Some of the fluid falls through your jaws!");
+		msgf("Some of the fluid falls through your jaws!");
 		(void)potion_smash_effect(0, p_ptr->px, p_ptr->py, o_ptr->k_idx);
 	}
 
@@ -339,17 +339,17 @@ void do_cmd_read_scroll(void)
 	/* Check some conditions */
 	if (p_ptr->blind)
 	{
-		msg_print("You can't see anything.");
+		msgf("You can't see anything.");
 		return;
 	}
 	if (no_lite())
 	{
-		msg_print("You have no light to read by.");
+		msgf("You have no light to read by.");
 		return;
 	}
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		msgf("You are too confused!");
 		return;
 	}
 
@@ -386,7 +386,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if (floor_item(o_ptr) && (o_ptr->number > 1))
 	{
-		msg_print("You must first pick up the staffs.");
+		msgf("You must first pick up the staffs.");
 		return;
 	}
 
@@ -418,7 +418,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 	if ((chance < USE_DEVICE) || (randint1(chance) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to use the staff properly.");
+		msgf("You failed to use the staff properly.");
 		sound(SOUND_FAIL);
 		return;
 	}
@@ -427,7 +427,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 	if (o_ptr->pval <= 0)
 	{
 		if (flush_failure) flush();
-		msg_print("The staff has no charges left.");
+		msgf("The staff has no charges left.");
 		o_ptr->info |= (OB_EMPTY);
 
 		/* Combine / Reorder the pack (later) */
@@ -493,7 +493,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 			/* Paranoia */
 			if (!o_ptr)
 			{
-				msg_print("Too many dungeon objects - staff lost!");
+				msgf("Too many dungeon objects - staff lost!");
 
 				make_noise(1);
 
@@ -502,7 +502,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 			}
 
 			/* Message */
-			msg_print("You unstack your staff.");
+			msgf("You unstack your staff.");
 		}
 		else
 		{
@@ -566,7 +566,7 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if (floor_item(o_ptr) && (o_ptr->number > 1))
 	{
-		msg_print("You must first pick up the wands.");
+		msgf("You must first pick up the wands.");
 		return;
 	}
 
@@ -574,7 +574,7 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 	if (o_ptr->pval <= 0)
 	{
 		if (flush_failure) flush();
-		msg_print("The wand has no charges left.");
+		msgf("The wand has no charges left.");
 		o_ptr->info |= (OB_EMPTY);
 
 		/* Combine / Reorder the pack (later) */
@@ -672,7 +672,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if (floor_item(o_ptr) && (o_ptr->number > 1))
 	{
-		msg_print("You must first pick up the rods.");
+		msgf("You must first pick up the rods.");
 		return;
 	}
 
@@ -680,7 +680,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 	if ((o_ptr->number == 1) && (o_ptr->timeout))
 	{
 		if (flush_failure) flush();
-		msg_print("The rod is still charging.");
+		msgf("The rod is still charging.");
 		return;
 	}
 	/* A stack of rods lacks enough energy. */
@@ -688,7 +688,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 			 && (o_ptr->timeout > (o_ptr->number - 1) * k_ptr->pval))
 	{
 		if (flush_failure) flush();
-		msg_print("The rods are all still charging.");
+		msgf("The rods are all still charging.");
 		return;
 	}
 
@@ -728,7 +728,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 	if ((chance < USE_DEVICE) || (randint1(chance) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to use the rod properly.");
+		msgf("You failed to use the rod properly.");
 		sound(SOUND_FAIL);
 		return;
 	}
@@ -859,7 +859,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 
 		case SV_ROD_LITE:
 		{
-			msg_print("A line of blue shimmering light appears.");
+			msgf("A line of blue shimmering light appears.");
 			(void)lite_line(dir);
 			ident = TRUE;
 			break;
@@ -1040,7 +1040,7 @@ void ring_of_power(int dir)
 		case 2:
 		{
 			/* Message */
-			msg_print("You are surrounded by a malignant aura.");
+			msgf("You are surrounded by a malignant aura.");
 			sound(SOUND_EVIL);
 
 			/* Decrease all stats (permanently) */
@@ -1062,7 +1062,7 @@ void ring_of_power(int dir)
 		case 3:
 		{
 			/* Message */
-			msg_print("You are surrounded by a powerful aura.");
+			msgf("You are surrounded by a powerful aura.");
 
 			/* Dispel monsters */
 			(void)dispel_monsters(1000);
@@ -1130,7 +1130,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 	if ((chance < USE_DEVICE) || (randint1(chance) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to activate it properly.");
+		msgf("You failed to activate it properly.");
 		sound(SOUND_FAIL);
 		return;
 	}
@@ -1138,13 +1138,13 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 	/* Check the recharge */
 	if (o_ptr->timeout)
 	{
-		msg_print("It whines, glows and fades...");
+		msgf("It whines, glows and fades...");
 		return;
 	}
 
 
 	/* Activate the artifact */
-	message(MSG_ZAP, 0, "You activate it...");
+	msgf(MSGT_ZAP, "You activate it...");
 
 	/* Sound */
 	sound(SOUND_ZAP);
@@ -1173,7 +1173,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 		{
 			case SV_DRAGON_BLUE:
 			{
-				msg_print("You breathe lightning.");
+				msgf("You breathe lightning.");
 				(void)fire_ball(GF_ELEC, dir, 330, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
@@ -1181,7 +1181,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 
 			case SV_DRAGON_WHITE:
 			{
-				msg_print("You breathe frost.");
+				msgf("You breathe frost.");
 				(void)fire_ball(GF_COLD, dir, 370, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
@@ -1189,7 +1189,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 
 			case SV_DRAGON_BLACK:
 			{
-				msg_print("You breathe acid.");
+				msgf("You breathe acid.");
 				(void)fire_ball(GF_ACID, dir, 430, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
@@ -1197,7 +1197,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 
 			case SV_DRAGON_GREEN:
 			{
-				msg_print("You breathe poison gas.");
+				msgf("You breathe poison gas.");
 				(void)fire_ball(GF_POIS, dir, 500, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
@@ -1205,7 +1205,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 
 			case SV_DRAGON_RED:
 			{
-				msg_print("You breathe fire.");
+				msgf("You breathe fire.");
 				(void)fire_ball(GF_FIRE, dir, 670, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
@@ -1214,7 +1214,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 			case SV_DRAGON_MULTIHUED:
 			{
 				chance = randint0(5);
-				msg_format("You breathe %s.",
+				msgf("You breathe %s.",
 						   ((chance == 1) ? "lightning" :
 							((chance == 2) ? "frost" :
 							 ((chance == 3) ? "acid" :
@@ -1230,7 +1230,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 
 			case SV_DRAGON_BRONZE:
 			{
-				msg_print("You breathe confusion.");
+				msgf("You breathe confusion.");
 				(void)fire_ball(GF_CONFUSION, dir, 400, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
@@ -1238,7 +1238,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 
 			case SV_DRAGON_GOLD:
 			{
-				msg_print("You breathe sound.");
+				msgf("You breathe sound.");
 				(void)fire_ball(GF_SOUND, dir, 430, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
@@ -1247,7 +1247,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 			case SV_DRAGON_CHAOS:
 			{
 				chance = randint0(2);
-				msg_format("You breathe %s.",
+				msgf("You breathe %s.",
 						   ((chance == 1 ? "chaos" : "disenchantment")));
 				(void)fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
 								dir, 740, 2);
@@ -1258,7 +1258,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 			case SV_DRAGON_LAW:
 			{
 				chance = randint0(2);
-				msg_format("You breathe %s.",
+				msgf("You breathe %s.",
 						   ((chance == 1 ? "sound" : "shards")));
 				(void)fire_ball((chance == 1 ? GF_SOUND : GF_SHARDS),
 								dir, 750, 2);
@@ -1269,7 +1269,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 			case SV_DRAGON_BALANCE:
 			{
 				chance = randint0(4);
-				msg_format("You breathe %s.",
+				msgf("You breathe %s.",
 						   ((chance == 1) ? "chaos" :
 							((chance == 2) ? "disenchantment" :
 							 ((chance == 3) ? "sound" : "shards"))));
@@ -1284,7 +1284,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 			case SV_DRAGON_SHINING:
 			{
 				chance = randint0(2);
-				msg_format("You breathe %s.",
+				msgf("You breathe %s.",
 						   ((chance == 0 ? "light" : "darkness")));
 				(void)fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 670, 2);
 				o_ptr->timeout = (s16b)rand_range(30, 60);
@@ -1293,7 +1293,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 
 			case SV_DRAGON_POWER:
 			{
-				msg_print("You breathe the elements.");
+				msgf("You breathe the elements.");
 				(void)fire_ball(GF_MISSILE, dir, 1000, 3);
 				o_ptr->timeout = (s16b)rand_range(30, 60);
 				break;
@@ -1351,7 +1351,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 	}
 
 	/* Mistake */
-	msg_print("Oops.  That object cannot be activated.");
+	msgf("Oops.  That object cannot be activated.");
 }
 
 

@@ -214,8 +214,8 @@ void display_scores_aux(int from, int to, int note, const high_score *score)
 	high_score the_score;
 
 	char out_val[256];
-	char tmp_val[160];
-
+	
+	int len;
 
 	/* Paranoia -- it may not have opened */
 	if (highscore_fd < 0) return;
@@ -250,14 +250,12 @@ void display_scores_aux(int from, int to, int note, const high_score *score)
 		Term_clear();
 
 		/* Title */
-		sprintf(tmp_val, "                %s Hall of Fame", VERSION_NAME);
-		put_str(tmp_val, 0, 0);
+		put_fstr(0, 0, "                %s Hall of Fame", VERSION_NAME);
 
 		/* Indicate non-top scores */
 		if (k > 0)
 		{
-			sprintf(tmp_val, "(from position %d)", k + 1);
-			put_str(tmp_val, 40, 0);
+			put_fstr(40, 0, "(from position %d)", k + 1);
 		}
 
 		/* Dump 5 entries */
@@ -307,50 +305,49 @@ void display_scores_aux(int from, int to, int note, const high_score *score)
 			for (aged = the_score.turns; isspace(*aged); aged++) /* loop */ ;
 
 			/* Dump some info */
-			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
+			len = strnfmt(out_val, 256, "%3d.%9s  %s the %s %s, Level %d",
 					place, the_score.pts, the_score.who,
 					race_info[pr].title, class_info[pc].title, clev);
 
 			/* Append a "maximum level" */
-			if (mlev > clev) strcat(out_val, format(" (Max %d)", mlev));
+			if (mlev > clev) strnfcat(out_val, 256, &len, " (Max %d)", mlev);
 
 			/* Dump the first line */
-			c_put_str(attr, out_val, 0, n * 4 + 2);
+			put_fstr(0, n * 4 + 2, "%s%s", color_seq[attr], out_val);
 
 			/* Some people die outside of the dungeon */
 			if (cdun)
 			{
 				/* Another line of info */
-				sprintf(out_val, "               Killed by %s on %s %d",
+				len = strnfmt(out_val, 256, "               Killed by %s on %s %d",
 						the_score.how, "Dungeon Level", cdun);
 
 			}
 			else
 			{
 				/* Died outside */
-				sprintf(out_val,
+				len = strnfmt(out_val, 256,
 						"               Killed by %s in the outside world.",
 						the_score.how);
 			}
 
 			/* Append a "maximum level" */
-			if (mdun > cdun) strcat(out_val, format(" (Max %d)", mdun));
+			if (mdun > cdun) strnfcat(out_val, 256, &len, " (Max %d)", mdun);
 
 			/* Dump the info */
-			c_put_str(attr, out_val, 0, n * 4 + 3);
+			put_fstr(0, n * 4 + 3, "%s%s", color_seq[attr], out_val);
 
 			/* And still another line of info */
-			sprintf(out_val,
-					"               (User %s, Date %s, Gold %s, Turn %s).",
-					user, when, gold, aged);
-			c_put_str(attr, out_val, 0, n * 4 + 4);
+			put_fstr(0, n * 4 + 4,
+				"%s               (User %s, Date %s, Gold %s, Turn %s).",
+					 color_seq[attr], user, when, gold, aged);
 		}
 
 
 		/* Wait for response */
-		prt("[Press ESC to quit, any other key to continue.]", 17, 23);
+		prtf(17, 23, "[Press ESC to quit, any other key to continue.]");
 		j = inkey();
-		prt("", 0, 23);
+		clear_row(23);
 
 		/* Hack -- notice Escape */
 		if (j == ESCAPE) break;
@@ -426,7 +423,7 @@ void enter_score(void)
 	/* Wizard-mode pre-empts scoring */
 	if (p_ptr->noscore & 0x003F)
 	{
-		msg_print("Score not registered for wizards.");
+		msgf("Score not registered for wizards.");
 		message_flush();
 		score_idx = -1;
 		return;
@@ -437,7 +434,7 @@ void enter_score(void)
 	/* Borg-mode pre-empts scoring */
 	if (p_ptr->noscore & 0x00C0)
 	{
-		msg_print("Score not registered for borgs.");
+		msgf("Score not registered for borgs.");
 		message_flush();
 		score_idx = -1;
 		return;
@@ -448,7 +445,7 @@ void enter_score(void)
 	/* Cheaters are not scored */
 	if (p_ptr->noscore & 0xFF00)
 	{
-		msg_print("Score not registered for cheaters.");
+		msgf("Score not registered for cheaters.");
 		message_flush();
 		score_idx = -1;
 		return;
@@ -458,7 +455,7 @@ void enter_score(void)
 	/* Interupted */
 	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
 	{
-		msg_print("Score not registered due to interruption.");
+		msgf("Score not registered due to interruption.");
 		message_flush();
 		score_idx = -1;
 		return;
@@ -467,7 +464,7 @@ void enter_score(void)
 	/* Quitter */
 	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
 	{
-		msg_print("Score not registered due to quitting.");
+		msgf("Score not registered due to quitting.");
 		message_flush();
 		score_idx = -1;
 		return;
@@ -478,24 +475,24 @@ void enter_score(void)
 	(void)WIPE(&the_score, high_score);
 
 	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u",
+	strnfmt(the_score.what, 8, "%u.%u.%u",
 			VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Calculate and save the points */
-	sprintf(the_score.pts, "%9lu", (unsigned long)total_points());
+	strnfmt(the_score.pts, 10, "%9lu", (unsigned long)total_points());
 	the_score.pts[9] = '\0';
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (unsigned long)p_ptr->au);
+	strnfmt(the_score.gold, 10, "%9lu", (unsigned long)p_ptr->au);
 	the_score.gold[9] = '\0';
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (unsigned long)turn);
+	strnfmt(the_score.turns, 10, "%9lu", (unsigned long)turn);
 	the_score.turns[9] = '\0';
 
 #ifdef HIGHSCORE_DATE_HACK
 	/* Save the date in a hacked up form (9 chars) */
-	(void)sprintf(the_score.day, "%-.6s %-.2s", ctime(&ct) + 4,
+	(void)strnfmt(the_score.day, 10, "%-.6s %-.2s", ctime(&ct) + 4,
 				  ctime(&ct) + 22);
 #else  /* HIGHSCORE_DATE_HACK */
 	/* Get the date with a 4-digit year */
@@ -517,22 +514,22 @@ void enter_score(void)
 #endif /* HIGHSCORE_DATE_HACK */
 
 	/* Save the player name (15 chars) */
-	sprintf(the_score.who, "%-.15s", player_name);
+	strnfmt(the_score.who, 16, "%-.15s", player_name);
 
 	/* Save the player info XXX XXX XXX */
-	sprintf(the_score.uid, "%7u", (uint)player_uid);
-	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", (int)p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", (int)p_ptr->pclass);
+	strnfmt(the_score.uid, 8, "%7u", (uint)player_uid);
+	strnfmt(the_score.sex, 2, "%c", (p_ptr->psex ? 'm' : 'f'));
+	strnfmt(the_score.p_r, 3, "%2d", (int)p_ptr->prace);
+	strnfmt(the_score.p_c, 3, "%2d", (int)p_ptr->pclass);
 
 	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
+	strnfmt(the_score.cur_lev, 4, "%3d", p_ptr->lev);
+	strnfmt(the_score.cur_dun, 4, "%3d", p_ptr->depth);
+	strnfmt(the_score.max_lev, 4, "%3d", p_ptr->max_lev);
+	strnfmt(the_score.max_dun, 4, "%3d", p_ptr->max_depth);
 
 	/* Save the cause of death (31 chars) */
-	sprintf(the_score.how, "%-.31s", p_ptr->died_from);
+	strnfmt(the_score.how, 32, "%-.31s", p_ptr->died_from);
 
 	/* Grab permissions */
 	safe_setuid_grab();
@@ -572,7 +569,7 @@ void top_twenty(void)
 	/* No score file */
 	if (highscore_fd < 0)
 	{
-		msg_print("Score file unavailable.");
+		msgf("Score file unavailable.");
 		message_flush();
 		return;
 	}
@@ -607,42 +604,42 @@ void predict_score(void)
 	/* No score file */
 	if (highscore_fd < 0)
 	{
-		msg_print("Score file unavailable.");
+		msgf("Score file unavailable.");
 		message_flush();
 		return;
 	}
 
 
 	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u",
+	strnfmt(the_score.what, 8, "%u.%u.%u",
 			VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Calculate and save the points */
-	sprintf(the_score.pts, "%9lu", (unsigned long)total_points());
+	strnfmt(the_score.pts, 10, "%9lu", (unsigned long)total_points());
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (unsigned long)p_ptr->au);
+	strnfmt(the_score.gold, 10, "%9lu", (unsigned long)p_ptr->au);
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (unsigned long)turn);
+	strnfmt(the_score.turns, 10, "%9lu", (unsigned long)turn);
 
 	/* Hack -- no time needed */
 	strcpy(the_score.day, "TODAY");
 
 	/* Save the player name (15 chars) */
-	sprintf(the_score.who, "%-.15s", player_name);
+	strnfmt(the_score.who, 16, "%-.15s", player_name);
 
 	/* Save the player info XXX XXX XXX */
-	sprintf(the_score.uid, "%7u", (uint)player_uid);
-	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", (int)p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", (int)p_ptr->pclass);
+	strnfmt(the_score.uid, 8, "%7u", (uint)player_uid);
+	strnfmt(the_score.sex, 2, "%c", (p_ptr->psex ? 'm' : 'f'));
+	strnfmt(the_score.p_r, 3, "%2d", (int)p_ptr->prace);
+	strnfmt(the_score.p_c, 3, "%2d", (int)p_ptr->pclass);
 
 	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
+	strnfmt(the_score.cur_lev, 4, "%3d", p_ptr->lev);
+	strnfmt(the_score.cur_dun, 4, "%3d", p_ptr->depth);
+	strnfmt(the_score.max_lev, 4, "%3d", p_ptr->max_lev);
+	strnfmt(the_score.max_dun, 4, "%3d", p_ptr->max_depth);
 
 	/* Hack -- no cause of death */
 	strcpy(the_score.how, "nobody (yet!)");
@@ -676,7 +673,7 @@ void show_highclass(void)
 	int i = 0, j, m = 0;
 	int pr, pc, clev /*, al */ ;
 	high_score the_score;
-	char buf[1024], out_val[256];
+	char buf[1024];
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
@@ -685,7 +682,7 @@ void show_highclass(void)
 
 	if (highscore_fd < 0)
 	{
-		msg_print("Score file unavailable.");
+		msgf("Score file unavailable.");
 		message_flush();
 		return;
 	}
@@ -707,23 +704,21 @@ void show_highclass(void)
 		pc = atoi(the_score.p_c);
 		clev = atoi(the_score.cur_lev);
 
-		sprintf(out_val, "%3d) %s the %s (Level %2d)",
+		prtf(0, m + 7, "%3d) %s the %s (Level %2d)",
 				(m + 1), the_score.who, race_info[pr].title, clev);
-		prt(out_val, 0, m + 7);
 		m++;
 		j++;
 	}
 
-	sprintf(out_val, "You) %s the %s (Level %2d)",
+	prtf(0, m + 8, "You) %s the %s (Level %2d)",
 			player_name, race_info[p_ptr->prace].title, p_ptr->lev);
-	prt(out_val, 0, m + 8);
 
 	(void)fd_close(highscore_fd);
 	highscore_fd = -1;
-	msg_print("Hit any key to continue");
+	msgf("Hit any key to continue");
 	message_flush();
 
-	for (j = 5; j < 18; j++) prt("", 0, j);
+	clear_region(0, 5, 17);
 }
 
 
@@ -736,13 +731,12 @@ void race_score(int race_num)
 	int i = 0, j, m = 0;
 	int pr, pc, clev, lastlev;
 	high_score the_score;
-	char buf[1024], out_val[256], tmp_str[80];
+	char buf[1024];
 
 	lastlev = 0;
 
 	/* rr9: TODO - pluralize the race */
-	sprintf(tmp_str, "The Greatest of all the %s", race_info[race_num].title);
-	prt(tmp_str, 15, 5);
+	prtf(15, 5, "The Greatest of all the %s", race_info[race_num].title);
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
@@ -751,7 +745,7 @@ void race_score(int race_num)
 
 	if (highscore_fd < 0)
 	{
-		msg_print("Score file unavailable.");
+		msgf("Score file unavailable.");
 		message_flush();
 		return;
 	}
@@ -776,9 +770,8 @@ void race_score(int race_num)
 
 		if (pr == race_num)
 		{
-			sprintf(out_val, "%3d) %s the %s (Level %3d)",
+			prtf(0, m + 7, "%3d) %s the %s (Level %3d)",
 					(m + 1), the_score.who, race_info[pr].title, clev);
-			prt(out_val, 0, m + 7);
 			m++;
 			lastlev = clev;
 		}
@@ -788,9 +781,8 @@ void race_score(int race_num)
 	/* add player if qualified */
 	if ((p_ptr->prace == race_num) && (p_ptr->lev >= lastlev))
 	{
-		sprintf(out_val, "You) %s the %s (Level %3d)",
+		prtf(0, m + 8, "You) %s the %s (Level %3d)",
 				player_name, race_info[p_ptr->prace].title, p_ptr->lev);
-		prt(out_val, 0, m + 8);
 	}
 
 	(void)fd_close(highscore_fd);
@@ -804,15 +796,14 @@ void race_score(int race_num)
  */
 void race_legends(void)
 {
-	int i, j;
+	int i;
 
 	for (i = 0; i < MAX_RACES; i++)
 	{
 		race_score(i);
-		msg_print("Hit any key to continue");
+		msgf("Hit any key to continue");
 		message_flush();
-		for (j = 5; j < 19; j++)
-			prt("", 0, j);
+        clear_region(0, 5, 18);
 	}
 }
 
@@ -841,23 +832,24 @@ void kingly(void)
 	Term_clear();
 
 	/* Display a crown */
-	put_str("#", 34, 1);
-	put_str("#####", 32, 2);
-	put_str("#", 34, 3);
-	put_str(",,,  $$$  ,,,", 28, 4);
-	put_str(",,=$   \"$$$$$\"   $=,,", 24, 5);
-	put_str(",$$        $$$        $$,", 22, 6);
-	put_str("*>         <*>         <*", 22, 7);
-	put_str("$$         $$$         $$", 22, 8);
-	put_str("\"$$        $$$        $$\"", 22, 9);
-	put_str("\"$$       $$$       $$\"", 23, 10);
-	put_str("*#########*#########*", 24, 11);
-	put_str("*#########*#########*", 24, 12);
+	put_fstr(22, 1, "             %%%\n"
+					"             %@%\n"
+					"     ___      %      ___\n"
+					"  _=$$###\\   #####	 /###$$=_\n"
+					" $$_______##$$_____$$##_______$$\n"
+					"(**   **   **   **   **   **)\n"
+					"(**   **   **   **   **   **)\n"
+					" TTTTTTTTTTTTTTTTTTTTTTTTTTT\n"
+					" \\. $$$$$$ .\\.  $$$$$$  ./. $$$$$$ ./\n"
+					"  \\  *    |   *   |    *  /\n"
+					"   \\.    .|.     .|.    ./\n"
+					"    ##H##H##H###H##H##H##\n"
+					"    ##H##H##H###H##H##H##\n");
 
 	/* Display a message */
-	put_str("Veni, Vidi, Vici!", 26, 15);
-	put_str("I came, I saw, I conquered!", 21, 16);
-	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), 22, 17);
+	put_fstr(26, 15, "Veni, Vidi, Vici!");
+	put_fstr(21, 16, "I came, I saw, I conquered!");
+	put_fstr(22, 17, "All Hail the Mighty %s!", sp_ptr->winner);
 
 	/* Flush input */
 	flush();

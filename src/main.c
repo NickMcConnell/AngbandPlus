@@ -25,6 +25,10 @@
  */
 static const module_type modules[] =
 {
+#ifdef USE_TNB
+	INIT_MODULE(tnb),
+#endif /* USE_TNB */
+
 #ifdef USE_GTK
 	INIT_MODULE(gtk),
 #endif /* USE_GTK */
@@ -181,15 +185,19 @@ static void create_user_dir(void)
 static void init_stuff(void)
 {
 	char path[1024];
+	
+	int len = 0;
 
 #if defined(AMIGA) || defined(VM)
 
 	/* Hack -- prepare "path" */
-	strcpy(path, "Angband:");
+	strnfmt(path, 511, "Angband:");
 
 #else  /* AMIGA / VM */
 
 	cptr tail = NULL;
+	
+	path[0] = 0;
 
 #ifndef FIXED_PATHS
 
@@ -199,13 +207,10 @@ static void init_stuff(void)
 #endif /* FIXED_PATHS */
 
 	/* Use the angband_path, or a default */
-	strncpy(path, tail ? tail : DEFAULT_PATH, 511);
-
-	/* Make sure it's terminated */
-	path[511] = '\0';
+	strnfcat(path, 511, &len, "%s", tail ? tail : DEFAULT_PATH);
 
 	/* Hack -- Add a path separator (only if needed) */
-	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
+	if (!suffix(path, PATH_SEP)) strnfcat(path, 511, &len, PATH_SEP);
 
 #endif /* AMIGA / VM */
 
@@ -678,8 +683,8 @@ int main(int argc, char *argv[])
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
-	/* Gtk initializes earlier */
-	if (!streq(ANGBAND_SYS, "gtk"))
+	/* Gtk and Tk initialise earlier */
+	if (!(streq(ANGBAND_SYS, "gtk") || streq(ANGBAND_SYS, "tnb")))
 	{
 		/* Catch nasty signals */
 		signals_init();

@@ -855,7 +855,7 @@ static errr loadfile_hook(cptr defname, int row, func_errr loader)
 {
 	char ourbuf[256];
 
-	Term_putstr(0, row, -1, TERM_YELLOW, "[Drag a file to the window]");
+	put_fstr(0, row, CLR_YELLOW "[Drag a file to the window]");
 
 	Term_fresh();
 
@@ -1337,14 +1337,14 @@ static int create_handler(bits event_code, toolbox_action *event,
 {
 	const char *name=event->data.created.name;
 
-	if (strcmp(name, "File") == 0)
+	if (streq(name, "File"))
 	{
 		event_register_toolbox_handler(id->this_obj, action_MENU_ABOUT_TO_BE_SHOWN,
 		                               showfilemenu_handler, 0);
 		return 1;
 	}
 
-	if (strcmp(name, "Colours") == 0)
+	if (streq(name, "Colours"))
 	{
 		event_register_toolbox_handler(id->this_obj, action_MENU_ABOUT_TO_BE_SHOWN,
 		                               showcoloursmenu_handler, 0);
@@ -1353,14 +1353,14 @@ static int create_handler(bits event_code, toolbox_action *event,
 		return 1;
 	}
 
-	if (strcmp(name, "Windows") == 0)
+	if (streq(name, "Windows"))
 	{
 		event_register_toolbox_handler(id->this_obj, action_MENU_ABOUT_TO_BE_SHOWN,
 		                               showwindowsmenu_handler, 0);
 		return 1;
 	}
 
-	if (strcmp(name, "SaveAs") == 0)
+	if (streq(name, "SaveAs"))
 	{
 		event_register_toolbox_handler(id->this_obj, action_SAVE_AS_ABOUT_TO_BE_SHOWN,
 		                               showsave_handler, 0);
@@ -1805,7 +1805,7 @@ int main(int argc, char *argv[])
 	signals_init();
 
 	/* No name (yet) */
-	strcpy(player_name, "");
+	player_name[0] = 0;
 
 	/* Hack -- Use the "pref-acn.prf" file */
 	ANGBAND_SYS = "acn";
@@ -1818,7 +1818,7 @@ int main(int argc, char *argv[])
 	if (argc==1)
 	{
 		/* Prompt the user */
-		prt("[Double-click on a saved game, or choose 'New' from the 'File' menu]", 5, 23);
+		prtf(5, 23, "[Double-click on a saved game, or choose 'New' from the 'File' menu]");
 		Term_fresh();
 	}
 

@@ -470,7 +470,7 @@ static void term_load_bitmap(void)
 	/* Build the "graf" path */
 	path_build(path, 1024, ANGBAND_DIR_XTRA, "graf");
 
-	sprintf(path, "%s/8x13.bmp", path);
+	strnfmt(path, 1024, "%s/8x13.bmp", path);
   
 	/* See if the file exists */
 	if (fd_close(fd_open(path, O_RDONLY)))

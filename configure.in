@@ -7,7 +7,7 @@ AC_INIT(src/main.c)
 dnl write the resulting #defines into a header file
 AM_CONFIG_HEADER(src/autoconf.h)
 
-AM_INIT_AUTOMAKE(zangband, 2.7.0)
+AM_INIT_AUTOMAKE(zangband, 2.7.2cvs)
 
 AC_ARG_WITH(setgid,
 [  --with-setgid=NAME      setgid usage: install angband as group NAME],
@@ -21,12 +21,14 @@ AM_CONDITIONAL(SET_GID, test "$GAMEGROUP" != "")
 
 AC_LANG_C
 
+basedir=`pwd`
+
 dnl generate the installation path for the ./lib/ folder
 if test "$GAMEGROUP" != ""; then
-  MY_EXPAND_DIR(game_datadir, "$datadir/games/$PACKAGE/lib/")
+  game_datadir="$datadir/games/$PACKAGE/lib/"
 else
-  MY_EXPAND_DIR(game_datadir, "./lib/")
-  bindir=".."
+  game_datadir="$basedir/lib/"
+  bindir="$basedir"
 fi
 AC_DEFINE_UNQUOTED(DEFAULT_PATH, "$game_datadir")
 DEFAULT_PATH="$game_datadir"
@@ -48,11 +50,12 @@ AC_CYGWIN
 AC_MINGW32
 AC_EXEEXT
 
+AM_CONDITIONAL(CYGWIN, test "$CYGWIN" = "yes")
+
 if test "$CYGWIN" = "yes"; then
   AC_DEFINE(WINDOWS)
   LIBS="$LIBS -lwinmm"
   LDFLAGS="$LDFLAGS -s -mwindows -e _mainCRTStartup"
-  AM_CONDITIONAL(CYGWIN, test "$CYGWIN" = "yes")
   ANGBAND_OBJS="readdib.o angband.res"
   AC_SUBST(ANGBAND_OBJS)
 else

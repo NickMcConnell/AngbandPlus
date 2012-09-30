@@ -140,7 +140,7 @@ static u16b get_gen_type(byte hgt, byte pop, byte law)
 				}
 				default:
 				{
-					msg_print("Invalid stat chosen!");
+					msgf("Invalid stat chosen!");
 
 					break;
 				}
@@ -1303,8 +1303,8 @@ static u16b add_node(wild_bound_box_type *bound,
 
 				default:
 				{
-					msg_format("Info - %d", tree_ptr->info);
-					msg_print("Invalid stat chosen!");
+					msgf("Info - %d", tree_ptr->info);
+					msgf("Invalid stat chosen!");
 
 					break;
 				}
@@ -1455,22 +1455,22 @@ void test_decision_tree(void)
 	u16b type;
 
 	/* get parameters */
-	msg_print("Type in hgt");
+	msgf("Type in hgt");
 
 	hgt = (byte)get_quantity(NULL, 255);
 
-	msg_print("Type in pop");
+	msgf("Type in pop");
 
 	pop = (byte)get_quantity(NULL, 255);
 
-	msg_print("Type in law");
+	msgf("Type in law");
 
 	law = (byte)get_quantity(NULL, 255);
 
 	/* Get value from decision tree */
 	type = get_gen_type(hgt, pop, law);
 
-	msg_format("Type returned: %d .", type);
+	msgf("Type returned: %d .", type);
 }
 
 #endif /* DEBUG */
@@ -1508,19 +1508,19 @@ void test_mon_wild_integrity(void)
 			/* Dead monster? */
 			if (!m_ptr->r_idx)
 			{
-				msg_print("Dead Monster");
+				msgf("Dead Monster");
 			}
 
 			if (c_ptr->m_idx > m_max)
 			{
-				msg_print("Monster index inconsistancy.");
+				msgf("Monster index inconsistancy.");
 			}
 
 			if ((m_ptr->fy != j) || (m_ptr->fx != i))
 			{
-				msg_print("Monster location inconsistancy.");
-				msg_format("Monster x, cave x,%d,%d", m_ptr->fx, i);
-				msg_format("Monster y, cave y,%d,%d", m_ptr->fy, j);
+				msgf("Monster location inconsistancy.");
+				msgf("Monster x, cave x,%d,%d", m_ptr->fx, i);
+				msgf("Monster y, cave y,%d,%d", m_ptr->fy, j);
 			}
 		}
 	}
@@ -1540,8 +1540,8 @@ static void test_wild_data(void)
 		if ((wild_choice_tree[i].ptrnode1 == 0) ||
 			(wild_choice_tree[i].ptrnode2 == 0))
 		{
-			msg_format("Missing value at %d ", i);
-			msg_format("Cutoff %d ", wild_choice_tree[i].cutoff);
+			msgf("Missing value at %d ", i);
+			msgf("Cutoff %d ", wild_choice_tree[i].cutoff);
 
 			/*
 			 * The "missing value" will be close to the error in
@@ -3006,14 +3006,14 @@ static void wild_done(void)
 	/* Refresh random number seed */
 	wild_seed = randint0(0x10000000);
 
-	/* We now are in the wilderness */
-	character_dungeon = TRUE;
-
 	/* Change back to inside wilderness */
 	p_ptr->depth = 0;
 
 	/* Change to the wilderness */
 	change_level(0);
+	
+	/* We now are in the wilderness */
+	character_dungeon = TRUE;
 }
 
 
@@ -3461,6 +3461,9 @@ void create_wilderness(void)
 
 	bool done = FALSE;
 	int count = 0;
+	
+	/* Invalidate the player while we make everything */
+	character_dungeon = FALSE;
 
 	/* Delete everything */
 	wipe_rg_list();

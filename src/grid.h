@@ -52,8 +52,6 @@
 	((C)->feat=(F))
 
 /* Helpful macros */
-#define place_locked_door(X, Y) \
-	make_lockjam_door((X), (Y), randint1(10) + dun_level / 10, FALSE)
 #define place_secret_door(X,Y) \
 	set_feat_bold((X), (Y), (FEAT_SECRET))
 

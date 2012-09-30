@@ -1,0 +1,24 @@
+# File: config
+
+# Purpose: list of icon configurations
+
+#
+# Copyright (c) 1997-2001 Tim Baker
+#
+# This software may be copied and distributed for educational, research, and
+# not for profit purposes provided that this copyright and statement are
+# included in all such copies.
+#
+
+Config: adam16 "Adam Bolt 16x16"
+Config: adam24 "Adam Bolt 24x24"
+Config: adam32 "Adam Bolt 32x32"
+Config: adam16+feat "Adam Bolt + Original Features 16x16"
+Config: adam32+feat "Adam Bolt + Original Features 32x32"
+Config: classic16 "Ascii + Adam Bolt Features 16x16"
+Config: classic24 "Ascii + Adam Bolt Features 24x24"
+Config: classic32 "Ascii + Adam Bolt Features 32x32"
+Config: classic16+feat "Ascii + Original Features 16x16"
+Config: classic32+feat "Ascii + Original Features 32x32"
+Config: dg32 "David E. Gervais 32x32"
+

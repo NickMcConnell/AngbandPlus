@@ -1,0 +1,112 @@
+# Automatically generated. Do not edit.
+
+Manage TERM_BLUE #0033FF
+Manage TERM_DARK #000000
+Manage TERM_GREEN #00BB00
+Manage TERM_L_BLUE #00FFFF
+Manage TERM_L_DARK #666666
+Manage TERM_L_GREEN #00FF00
+Manage TERM_L_RED #FF0000
+Manage TERM_L_UMBER #CC9933
+Manage TERM_L_WHITE #BBBBBB
+Manage TERM_ORANGE #FF9900
+Manage TERM_RED #BB0000
+Manage TERM_SLATE #777777
+Manage TERM_UMBER #993300
+Manage TERM_VIOLET #FF00FF
+Manage TERM_WHITE #FFFFFF
+Manage TERM_YELLOW #FFFF00
+Manage TV_AMULET #FF9900
+Manage TV_ARCANE_BOOK #BBBBBB
+Manage TV_ARROW #CC9933
+Manage TV_BOLT #CC9933
+Manage TV_BOOTS #CC9933
+Manage TV_BOTTLE #FFFFFF
+Manage TV_BOW #993300
+Manage TV_CHAOS_BOOK #FF0000
+Manage TV_CHEST #777777
+Manage TV_CLOAK #CC9933
+Manage TV_CORPSE #BBBBBB
+Manage TV_CROWN #CC9933
+Manage TV_DEATH_BOOK #666666
+Manage TV_DIGGING #777777
+Manage TV_DRAG_ARMOR #777777
+Manage TV_FIGURINE #BBBBBB
+Manage TV_FLASK #FFFF00
+Manage TV_FOOD #CC9933
+Manage TV_GLOVES #CC9933
+Manage TV_GOLD #FF9900
+Manage TV_HAFTED #FFFFFF
+Manage TV_HARD_ARMOR #777777
+Manage TV_HELM #CC9933
+Manage TV_JUNK #FFFFFF
+Manage TV_LIFE_BOOK #FFFFFF
+Manage TV_LITE #FFFF00
+Manage TV_NATURE_BOOK #00FF00
+Manage TV_NONE #FFFFFF
+Manage TV_POLEARM #FFFFFF
+Manage TV_POTION #00FFFF
+Manage TV_RING #BB0000
+Manage TV_ROD #FF00FF
+Manage TV_SCROLL #FFFFFF
+Manage TV_SHIELD #CC9933
+Manage TV_SHOT #CC9933
+Manage TV_SKELETON #FFFFFF
+Manage TV_SOFT_ARMOR #777777
+Manage TV_SORCERY_BOOK #00FFFF
+Manage TV_SPIKE #777777
+Manage TV_STAFF #CC9933
+Manage TV_STATUE #BBBBBB
+Manage TV_SWORD #FFFFFF
+Manage TV_TRUMP_BOOK #FF9900
+Manage TV_WAND #00BB00
+Manage bigmap,scale 4
+Manage choicewindow,autoexpand 1
+Manage choicewindow,show 0
+Manage choicewindow,showicon 0
+Manage config,prefix classic16
+Manage font,autobar {Helvetica 12}
+Manage font,choice {Helvetica 12}
+Manage font,inventory {Helvetica 12}
+Manage font,knowledge {Helvetica 12}
+Manage font,macros {Courier 12}
+Manage font,magic {Helvetica 12}
+Manage font,message {Helvetica 12}
+Manage font,messages {Helvetica 12}
+Manage font,misc {Helvetica 10}
+Manage font,miscPopup {Helvetica 12}
+Manage font,monster {Helvetica 12}
+Manage font,options {Helvetica 12}
+Manage font,recall {Helvetica 12}
+Manage font,status {Helvetica 12}
+Manage font,statusBar {Helvetica 12}
+Manage font,store {Helvetica 12}
+Manage inventory,alwaysOnTop 1
+Manage inventory,style new
+Manage know_unseen_artifacts 0
+Manage listBG #222222
+Manage listHilite #339999
+Manage listInactive #888888
+Manage main,statusbar,color White
+Manage map,detail high
+Manage message,float 0
+Manage message2window,show 0
+Manage messages,max 256
+Manage misc,float 0
+Manage misc,layout tall
+Manage misc,mode,armor_class 1
+Manage misc,mode,exp 1
+Manage misc,textLabels 0
+Manage progress,showBars 1
+Manage progress,showNumbers 1
+Manage recall,show 1
+Manage recall,showicon 1
+Manage record,dump 1
+Manage record,message 1
+Manage record,photo 1
+Manage settings,showUnused 0
+Manage store,style new
+Manage tip,current 0
+Manage tip,show 1
+Manage warning,setup 0
+Manage window,autosave 1

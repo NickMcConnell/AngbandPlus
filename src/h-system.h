@@ -112,6 +112,7 @@
 #endif
 
 
+
 /* Hack - this should be in h-types.h, but we need errr and cptr here */
 
 /* Error codes for function return values */
@@ -193,6 +194,11 @@ extern cptr help_gtk[];
 #ifdef USE_VCS
 extern errr init_vcs(int argc, char **argv);
 extern cptr help_vcs[];
+#endif
+
+#ifdef USE_TNB
+extern errr init_tnb(int argc, cptr *argv);
+extern cptr help_tnb[];
 #endif
 
 /*

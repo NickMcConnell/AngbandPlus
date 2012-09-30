@@ -178,7 +178,7 @@ static bool los_general(int x1, int y1, int x2, int y2, cave_hook_type c_hook)
 			if ((x == x2) && (y == y2)) return (TRUE);
 
 			/* Stop if out of bounds */
-			if (!in_bounds(x, y)) return (FALSE);
+			if (!in_bounds2(x, y)) return (FALSE);
 
 			c_ptr = area(x, y);
 
@@ -211,7 +211,7 @@ static bool los_general(int x1, int y1, int x2, int y2, cave_hook_type c_hook)
 			if ((x == x2) && (y == y2)) return (TRUE);
 
 			/* Stop if out of bounds */
-			if (!in_bounds(x, y)) return (FALSE);
+			if (!in_bounds2(x, y)) return (FALSE);
 
 			c_ptr = area(x, y);
 
@@ -769,7 +769,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 			if ((x == x1 + dx) && (y == y1 + dy)) break;
 
 			/* Stop if out of bounds */
-			if (!in_bounds(x, y)) break;
+			if (!in_bounds2(x, y)) break;
 
 			c_ptr = area(x, y);
 
@@ -808,7 +808,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 			if ((x == x1 + dx) && (y == y1 + dy)) break;
 
 			/* Stop if out of bounds */
-			if (!in_bounds(x, y)) break;
+			if (!in_bounds2(x, y)) break;
 
 			c_ptr = area(x, y);
 
@@ -850,7 +850,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 		}
 
 		/* Stop if out of bounds */
-		if (!in_bounds(x, y))
+		if (!in_bounds2(x, y))
 		{
 			sq--;
 			break;
@@ -958,7 +958,7 @@ void scatter(int *xp, int *yp, int x, int y, int d)
 		nx = rand_spread(x, d);
 
 		/* Ignore annoying locations */
-		if (!in_bounds(nx, ny)) continue;
+		if (!in_bounds2(nx, ny)) continue;
 
 		/* Ignore excessively distant locations */
 		if ((d > 1) && (distance(x, y, nx, ny) > d)) continue;
@@ -1048,8 +1048,6 @@ bool cave_valid_grid(const cave_type *c_ptr)
 	/* Accept */
 	return (TRUE);
 }
-
-
 
 
 /*
@@ -1663,7 +1661,13 @@ static void variable_player_graph(byte *a, char *c)
  * such as "multi-hued" or "clear" monsters, cause the attr/char codes
  * to be "scrambled" in various ways.
  */
-static void map_info(const cave_type *c_ptr, const pcave_type *pc_ptr,
+
+/* This function needs to be available in maid-grf.c sometimes */
+#ifndef TERM_MAP_INFO
+static
+#endif /* !TERM_MAP_INFO */
+
+void map_info(const cave_type *c_ptr, const pcave_type *pc_ptr,
                      byte *ap, char *cp, byte *tap, char *tcp)
 {
 	feature_type *f_ptr;
@@ -2277,19 +2281,11 @@ void prt_map(void)
 	ymax = (p_ptr->max_hgt - 1 > panel_row_max) ?
 		panel_row_max : p_ptr->max_hgt - 1;
 
-	/* Bottom section of screen */
-	for (y = 1; y <= ymin - panel_row_prt; y++)
-	{
-		/* Erase the section */
-		Term_erase(COL_MAP, y, wid);
-	}
-
 	/* Top section of screen */
-	for (y = ymax - panel_row_prt; y <= hgt; y++)
-	{
-		/* Erase the section */
-		Term_erase(COL_MAP, y, wid);
-	}
+    clear_region(COL_MAP, 1, ymin - panel_row_prt);
+
+	/* Bottom section of screen */
+    clear_region(COL_MAP, ymax - panel_row_prt, hgt);
 
 	/* Sides of screen */
 	/* Left side */
@@ -3006,7 +3002,7 @@ void do_cmd_view_map(void)
 	screen_save();
 
 	/* Note */
-	prt("Please wait...", 0, 0);
+	prtf(0, 0, "Please wait...");
 
 	/* Flush */
 	Term_fresh();
@@ -3026,7 +3022,7 @@ void do_cmd_view_map(void)
 		display_map(&cx, &cy);
 
 		/* Wait for it */
-		put_str("Hit any key to continue", (wid - COL_MAP) / 2, hgt - 1);
+		put_fstr((wid - COL_MAP) / 2, hgt - 1, "Hit any key to continue");
 
 		/* Hilite the player */
 		Term_gotoxy(cx, cy);
@@ -3057,8 +3053,8 @@ void do_cmd_view_map(void)
 			display_map(&cx, &cy);
 
 			/* Wait for it */
-			put_str("Move around, or hit any other key to continue.",
-					COL_MAP - 23 + (wid - COL_MAP) / 2, hgt - 1);
+			put_fstr(COL_MAP - 23 + (wid - COL_MAP) / 2, hgt - 1,
+						"Move around, or hit any other key to continue.");
 
 			/* Hilite the player */
 			Term_gotoxy(cx, cy);
@@ -4884,7 +4880,9 @@ void map_area(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i, x, y, y1, y2, x1, x2;
+	int i, x, y;
+	int y1, y2, x1, x2;
+	int xx, yy;
 
 	cave_type *c_ptr;
 	pcave_type *pc_ptr;
@@ -4896,10 +4894,10 @@ void map_area(void)
 	x2 = px + MAX_DETECT + randint1(20);
 
 	/* Speed -- shrink to fit legal bounds */
-	if (y1 < p_ptr->min_hgt + 1) y1 = p_ptr->min_hgt + 1;
-	if (y2 > p_ptr->max_hgt - 2) y2 = p_ptr->max_hgt - 2;
-	if (x1 < p_ptr->min_wid + 1) x1 = p_ptr->min_wid + 1;
-	if (x2 > p_ptr->max_wid - 2) x2 = p_ptr->max_wid - 2;
+	if (y1 < p_ptr->min_hgt) y1 = p_ptr->min_hgt;
+	if (y2 > p_ptr->max_hgt - 1) y2 = p_ptr->max_hgt - 1;
+	if (x1 < p_ptr->min_wid) x1 = p_ptr->min_wid;
+	if (x2 > p_ptr->max_wid - 1) x2 = p_ptr->max_wid - 1;
 
 	/* Scan that area */
 	for (y = y1; y <= y2; y++)
@@ -4910,8 +4908,7 @@ void map_area(void)
 			pc_ptr = parea(x, y);
 
 			/* All non-walls are "checked" */
-			if (!((c_ptr->feat >= FEAT_MAGMA) &&
-				  (c_ptr->feat <= FEAT_PERM_SOLID)))
+			if (cave_floor_grid(c_ptr))
 			{
 				/* Memorize normal features */
 				if (c_ptr->feat != FEAT_FLOOR)
@@ -4923,12 +4920,16 @@ void map_area(void)
 				/* Memorize known walls */
 				for (i = 0; i < 8; i++)
 				{
-					c_ptr = area(x + ddx_ddd[i], y + ddy_ddd[i]);
-					pc_ptr = parea(x + ddx_ddd[i], y + ddy_ddd[i]);
+					xx = x + ddx_ddd[i];
+					yy = y + ddy_ddd[i];
+					
+					if (!in_boundsp(xx, yy)) continue;
+				
+					c_ptr = area(xx, yy);
+					pc_ptr = parea(xx, yy);
 
 					/* Memorize walls */
-					if ((c_ptr->feat >= FEAT_MAGMA) &&
-						(c_ptr->feat <= FEAT_PERM_SOLID))
+					if (cave_wall_grid(c_ptr))
 					{
 						/* Memorize the walls */
 						remember_grid(c_ptr, pc_ptr);

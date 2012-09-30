@@ -18,27 +18,29 @@ zangband_SOURCES = \
   variable.c tables.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c \
   xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c save.c files.c fields.c\
+  melee1.c melee2.c save.c files.c fields.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load.c \
+  store.c birth.c load.c ui.c \
   wizard1.c wizard2.c grid.c streams.c rooms.c \
   generate.c dungeon.c init1.c init2.c init.h \
   effects.c quest.c racial.c \
   artifact.c mutation.c flavor.c spells3.c \
   mspells1.c mspells2.c scores.c mind.c \
   bldg.c obj_kind.c wild1.c wild2.c avatar.c notes.c\
-  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c \
-  main-win.c main-xpj.c main-vcs.c \
   angband.h autoconf.h defines.h externs.h \
   generate.h grid.h h-basic.h h-config.h h-define.h \
   h-system.h h-type.h maid-x11.h readdib.h rooms.h \
   streams.h types.h wild.h z-config.h z-form.h \
   z-rand.h z-term.h z-util.h z-virt.h \
+  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c \
+  main-win.c main-xpj.c main-vcs.c \
   script.c script.h maid-grf.c maid-grf.h \
   l-monst.c l-object.c l-player.c l-random.c l-ui.c \
   l-misc.c l-spell.c \
   zborg1.c zborg2.c zborg3.c zborg4.c zborg5.c \
-  zborg6.c zborg7.c zborg8.c zborg9.c
+  zborg6.c zborg7.c zborg8.c zborg9.c \
+  zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h \
+  zborg6.h zborg7.h zborg8.h zborg9.h
 
 #
 # Build wrappers
@@ -49,35 +51,33 @@ zangband_SOURCES = \
 # trailing ".c" from the filename.
 #
 
-l-monst.c: l-monst.pkg lua/tolua
+$(srcdir)/l-monst.c: l-monst.pkg lua/tolua
 	lua/tolua -n $(subst l-,,$*) -o $@ $<
 
-l-object.c: l-object.pkg lua/tolua
+$(srcdir)/l-object.c: l-object.pkg lua/tolua
 	lua/tolua -n $(subst l-,,$*) -o $@ $<
 
-l-player.c: l-player.pkg lua/tolua
+$(srcdir)/l-player.c: l-player.pkg lua/tolua
 	lua/tolua -n $(subst l-,,$*) -o $@ $<
 
-l-random.c: l-random.pkg lua/tolua
+$(srcdir)/l-random.c: l-random.pkg lua/tolua
 	lua/tolua -n $(subst l-,,$*) -o $@ $<
 
-l-ui.c: l-ui.pkg lua/tolua
+$(srcdir)/l-ui.c: l-ui.pkg lua/tolua
 	lua/tolua -n $(subst l-,,$*) -o $@ $<
 
-l-misc.c: l-misc.pkg lua/tolua
+$(srcdir)/l-misc.c: l-misc.pkg lua/tolua
 	lua/tolua -n $(subst l-,,$*) -o $@ $<
 
-l-spell.c: l-spell.pkg lua/tolua
+$(srcdir)/l-spell.c: l-spell.pkg lua/tolua
 	lua/tolua -n $(subst l-,,$*) -o $@ $<
 
 
-EXTRA_zangband_SOURCES = \
-  main-acn.c main-ami.c main-dos.c main-emx.c main-gtk.c \
-  main-ibm.c main-lsl.c main-mac.c main-sla.c main-vme.c \
+EXTRA_zangband_SOURCES := \
+  main-acn.c main-ami.c main-dos.c main-emx.c main-ibm.c main-lsl.c \
+  main-mac.c main-mac-carbon.c main-sla.c main-tnb.c main-vme.c \
   main-xxx.c \
-  makefile.acn makefile.ami makefile.bcc makefile.cyg \
-  makefile.dos makefile.emx makefile.ibm makefile.lcc \
-  makefile.std makefile.wat makefile.win \
+  makefile.bcc makefile.std makefile.wat makefile.win \
   angband.rc angband.ico readdib.c readdib.h \
   maid-x11.c \
   l-monst.pkg l-object.pkg l-player.pkg l-random.pkg l-ui.pkg \

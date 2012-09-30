@@ -122,25 +122,16 @@ int home_shop = -1;
 /* Include shop items in power calculation */
 int use_shop;
 
-/*
- * Hack - save old hook for object lists.
- *
- * We chain into this after storing our information.
- * (This is so multiple sub-systems can hook into
- * object changes.)
- */
-callback_type old_list_hook = NULL;
-
-void borg_list_info(byte list_type)
+void borg_list_info(byte list_type, vptr dummy)
 {
 	int i;
+	
+	/* Hack - ignore parameter */
+	(void) dummy;
 
 	/* Don't do anything if the borg is inactive */
 	if (!borg_active)
 	{
-		/* Chain into the old hook, if it exists */
-		if (old_list_hook) ((list_notice_hook_type)old_list_hook) (list_type);
-
 		/* Done */
 		return;
 	}
@@ -245,9 +236,6 @@ void borg_list_info(byte list_type)
 			quit_fmt("Unrecognised list type %d", list_type);
 		}
 	}
-
-	/* Finally - chain into the old hook, if it exists */
-	if (old_list_hook) ((list_notice_hook_type)old_list_hook) (list_type);
 }
 
 
@@ -1185,16 +1173,13 @@ static void borg_notice_lite(void)
 	/* Item missing? */
 	if (!l_ptr) return;
 
-	/* No need for fuel */
-	if (l_ptr->kn_flags3 & TR3_LITE) bp_ptr->able.fuel += 1000;
-
 	/* Lite */
 	if (l_ptr->tval == TV_LITE)
 	{
 		object_kind *k_ptr = &k_info[l_ptr->k_idx];
 
 		/* No fuel means no radius */
-		if (l_ptr->timeout)
+		if (l_ptr->timeout || (l_ptr->kn_flags3 & TR3_LITE))
 		{
 			/* Torches -- radius one */
 			if (k_ptr->sval == SV_LITE_TORCH) bp_ptr->cur_lite += 1;
@@ -1202,14 +1187,26 @@ static void borg_notice_lite(void)
 			/* Lanterns -- radius two */
 			if (k_ptr->sval == SV_LITE_LANTERN) bp_ptr->cur_lite += 2;
 		}
-
+		
+		if (l_ptr->kn_flags3 & TR3_LITE)
+		{
+			/* Permanently glowing */
+			bp_ptr->britelite = TRUE;
+			
+			/* No need for fuel */
+			bp_ptr->able.fuel += 1000;
+		}
+		
 		/* Artifact lites -- radius three */
 		if (l_ptr->kn_flags3 & TR3_INSTA_ART)
 		{
 			bp_ptr->cur_lite += 3;
-
-			/* Artifact lites -- assume glowing */
+			
+			/* Permanently glowing */
 			bp_ptr->britelite = TRUE;
+			
+			/* No need for fuel */
+			bp_ptr->able.fuel += 1000;
 
 			/* Vampires need to be concerned with Artifacts Lites */
 			if ((borg_race == RACE_VAMPIRE) && !(bp_ptr->flags2 & TR2_RES_LITE))
@@ -1871,6 +1868,12 @@ static void borg_notice_inven_item(list_item *l_ptr)
 			{
 				bp_ptr->able.fuel += number;
 			}
+			
+			if (k_ptr->sval == SV_LITE_LANTERN)
+			{
+				bp_ptr->able.fuel += 2;
+			}
+			
 			break;
 		}
 

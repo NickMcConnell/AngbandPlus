@@ -168,6 +168,21 @@ static int wild_first_town[START_STORE_NUM] =
 };
 
 
+/*
+ * Return the building name given a building "type"
+ */
+cptr building_name(byte build_type)
+{
+	u16b field_num;
+
+	/* Look up the field type */
+	field_num = wild_build[build_type].field;
+
+	/* Return the name of the building */
+	return (t_info[field_num].name);
+}
+
+
 /* Find a place for the player */
 static void place_player_start(s32b *x, s32b *y, u16b this_town)
 {
@@ -186,6 +201,9 @@ static void place_player_start(s32b *x, s32b *y, u16b this_town)
 	/* Hack - Reset player position to be on the stairs in town */
 	*x = place[this_town].x * 16 + wild_stairs_x;
 	*y = place[this_town].y * 16 + wild_stairs_y;
+
+	/* Set current town */
+	p_ptr->place_num = this_town;
 }
 
 
@@ -206,7 +224,12 @@ void select_town_name(char *name, int pop)
 		/* Hamlet */
 		if ((len < T_NAME_LEN - 5) && one_in_(2))
 		{
-			strcat(buf, "ville");
+			strnfmt(name, T_NAME_LEN + 1, "%sville", buf);
+		}
+		else
+		{
+			/* Simply copy it */
+			strnfmt(name, T_NAME_LEN + 1, "%s", buf);
 		}
 	}
 	else if (pop < T_SIZE_TOWN)
@@ -214,7 +237,12 @@ void select_town_name(char *name, int pop)
 		/* Tiny town */
 		if ((len < T_NAME_LEN - 4) && one_in_(2))
 		{
-			strcat(buf, " Dun");
+			strnfmt(name, T_NAME_LEN + 1, "%s Dun", buf);
+		}
+				else
+		{
+			/* Simply copy it */
+			strnfmt(name, T_NAME_LEN + 1, "%s", buf);
 		}
 	}
 	else if (pop < T_SIZE_CITY)
@@ -222,7 +250,12 @@ void select_town_name(char *name, int pop)
 		/* Large Town */
 		if ((len < T_NAME_LEN - 3) && one_in_(2))
 		{
-			strcat(buf, "ton");
+			strnfmt(name, T_NAME_LEN + 1, "%ston", buf);
+		}
+				else
+		{
+			/* Simply copy it */
+			strnfmt(name, T_NAME_LEN + 1, "%s", buf);
 		}
 	}
 	else if (pop < T_SIZE_CASTLE)
@@ -230,19 +263,24 @@ void select_town_name(char *name, int pop)
 		/* City */
 		if ((len < T_NAME_LEN - 4) && one_in_(4))
 		{
-			strcat(buf, "ford");
+			strnfmt(name, T_NAME_LEN + 1, "%sford", buf);
 		}
 		else if ((len < T_NAME_LEN - 5) && one_in_(3))
 		{
-			strcat(buf, " City");
+			strnfmt(name, T_NAME_LEN + 1, "%s City", buf);
 		}
 		else if ((len < T_NAME_LEN - 5) && one_in_(2))
 		{
-			strcat(buf, " View");
+			strnfmt(name, T_NAME_LEN + 1, "%s View", buf);
 		}
 		else if ((len < T_NAME_LEN - 5) && one_in_(2))
 		{
-			strcat(buf, " Fort");
+			strnfmt(name, T_NAME_LEN + 1, "%s Fort", buf);
+		}
+		else
+		{
+			/* Simply copy it */
+			strnfmt(name, T_NAME_LEN + 1, "%s", buf);
 		}
 	}
 	else
@@ -250,16 +288,18 @@ void select_town_name(char *name, int pop)
 		/* Castle */
 		if ((len < T_NAME_LEN - 7) && one_in_(2))
 		{
-			strcat(buf, " Castle");
+			strnfmt(name, T_NAME_LEN + 1, "%s Castle", buf);
 		}
 		else if ((len < T_NAME_LEN - 5) && one_in_(2))
 		{
-			strcat(buf, " Keep");
+			strnfmt(name, T_NAME_LEN + 1, "%s Keep", buf);
+		}
+		else
+		{
+			/* Simply copy it */
+			strnfmt(name, T_NAME_LEN + 1, "%s", buf);
 		}
 	}
-
-	/* Copy into result */
-	strcpy(name, buf);
 }
 
 
@@ -360,7 +400,7 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 
 
 	/* paranoia - we didn't find it */
-	msg_print("FAILED to generate building!");
+	msgf("FAILED to generate building!");
 
 	return (0);
 }
@@ -621,7 +661,7 @@ static bool create_city(int x, int y, int town_num)
 	count = fill_town_driver();
 
 	/* Too few squares??? */
-	if (count < 6) return (FALSE);
+	if (count < 7) return (FALSE);
 
 	/* Make sure the city is self-connected properly */
 	remove_islands();
@@ -1866,9 +1906,9 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 					/* Activate the trap */
 					if (place_field(x2, y2, c_ptr->fld_idx))
 					{
-						/* Hack - Initialise it (without "extra" information) */
+						/* Initialise it */
 						(void)field_hook_single(&block_ptr[j][i].fld_idx,
-												FIELD_ACT_INIT, NULL);
+												FIELD_ACT_INIT);
 					}
 
 					break;
@@ -1884,7 +1924,7 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 					{
 						/* Add "power" of lock / jam to the field */
 						(void)field_hook_single(&block_ptr[j][i].fld_idx,
-												FIELD_ACT_INIT, &data);
+												FIELD_ACT_INIT, data);
 					}
 
 					break;
@@ -2918,7 +2958,7 @@ static void blend_helper(cave_type *c_ptr, byte *data, int g_type)
 		}
 		default:
 		{
-			msg_format("Illegal wilderness type %d ", g_type);
+			msgf("Illegal wilderness type %d ", g_type);
 		}
 	}
 }
@@ -3755,8 +3795,8 @@ static bool in_bounds2_cave(int x, int y)
 static bool in_bounds_wild_player(int x, int y)
 {
 	/* Use the same player bounds information as in_bounds_cave() */
-	return ((y > p_ptr->min_hgt) && (x > p_ptr->min_wid)
-			&& (y < p_ptr->max_hgt - 1) && (x < p_ptr->max_wid - 1));
+	return ((y >= p_ptr->min_hgt) && (x >= p_ptr->min_wid)
+			&& (y < p_ptr->max_hgt) && (x < p_ptr->max_wid));
 }
 
 
@@ -3944,6 +3984,9 @@ void change_level(int level)
 void wipe_all_list(void)
 {
 	int i;
+	
+	/* Hack - cull the players inventory */
+	if (p_ptr->inventory) delete_object_list(&p_ptr->inventory);
 
 	/* Clear the store cache */
 	for (i = 0; i < store_cache_num; i++)
@@ -3978,25 +4021,3 @@ void wipe_all_list(void)
 	in_boundsp = NULL;
 }
 
-/*
- * Return the building name given a building "type"
- */
-cptr building_name(byte build_type)
-{
-	/* Must be static so we can return it */
-	static char name[80];
-
-	u16b field_num;
-
-	/* Start off by clearing the name from previous calls */
-	memset(name, 0, 80);
-
-	/* Look up the field type */
-	field_num = wild_build[build_type].field;
-
-	/* Find the name of the building */
-	strcpy(name, t_info[field_num].name);
-
-	return name;
-
-}

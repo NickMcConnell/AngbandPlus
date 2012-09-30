@@ -42,7 +42,7 @@ bool suffix(cptr s, cptr t)
 	if (tlen > slen) return (FALSE);
 
 	/* Compare "t" to the end of "s" */
-	return (!strcmp(s + slen - tlen, t));
+	return (streq(s + slen - tlen, t));
 }
 
 

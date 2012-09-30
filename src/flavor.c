@@ -333,20 +333,21 @@ static bool object_flavor(int k_idx)
 void get_table_name(char *out_string, bool quotes)
 {
 	int testcounter = rand_range(2, 3);
+	
+	int len = 0;
+	
+	/* Empty string */
+	out_string[0] = 0;
 
 	if (quotes)
 	{
-		strcpy(out_string, "'");
-	}
-	else
-	{
-		out_string[0] = 0;
+		strnfcat(out_string, 18, &len, "'");
 	}
 
 	if (one_in_(3))
 	{
 		while (testcounter--)
-			strcat(out_string, syllables[randint0(MAX_SYLLABLES)]);
+			strnfcat(out_string, 18, &len, syllables[randint0(MAX_SYLLABLES)]);
 	}
 	else
 	{
@@ -355,23 +356,19 @@ void get_table_name(char *out_string, bool quotes)
 		while (testcounter--)
 		{
 			(void)get_rnd_line("elvish.txt", 0, Syllable);
-			strcat(out_string, Syllable);
+			strnfcat(out_string, 18, &len, "%s", Syllable);
 		}
 	}
 
 	if (quotes)
 	{
 		out_string[1] = toupper(out_string[1]);
-		strcat(out_string, "'");
+		strnfcat(out_string, 18, &len, "'");
 	}
 	else
 	{
 		out_string[0] = toupper(out_string[0]);
 	}
-
-	out_string[18] = '\0';
-
-	return;
 }
 
 
@@ -521,6 +518,8 @@ void flavor_init(void)
 		while (TRUE)
 		{
 			char buf[80];
+			
+			int buf_len = 0;
 
 			bool okay;
 
@@ -533,6 +532,8 @@ void flavor_init(void)
 				int q, s;
 
 				char tmp[80];
+				
+				int len = 0;
 
 				/* Start a new word */
 				tmp[0] = '\0';
@@ -544,17 +545,14 @@ void flavor_init(void)
 				for (q = 0; q < s; q++)
 				{
 					/* Add the syllable */
-					strcat(tmp, syllables[randint0(MAX_SYLLABLES)]);
+					strnfcat(tmp, 80, &len, syllables[randint0(MAX_SYLLABLES)]);
 				}
 
 				/* Stop before getting too long */
 				if (strlen(buf) + 1 + strlen(tmp) > 15) break;
 
-				/* Add a space */
-				strcat(buf, " ");
-
-				/* Add the word */
-				strcat(buf, tmp);
+				/* Add a space + word */
+				strnfcat(buf, 80, &buf_len, " %s", tmp);
 			}
 
 			/* Save the title */
@@ -615,128 +613,6 @@ void flavor_init(void)
 
 
 /*
- * Print a char "c" into a string "t", as if by sprintf(t, "%c", c),
- * and return a pointer to the terminator (t + 1).
- */
-static char *object_desc_chr(char *t, char c)
-{
-	/* Copy the char */
-	*t++ = c;
-
-	/* Terminate */
-	*t = '\0';
-
-	/* Result */
-	return (t);
-}
-
-
-/*
- * Print a string "s" into a string "t", as if by strcpy(t, s),
- * and return a pointer to the terminator.
- */
-static char *object_desc_str(char *t, cptr s)
-{
-	/* Copy the string */
-	while (*s) *t++ = *s++;
-
-	/* Terminate */
-	*t = '\0';
-
-	/* Result */
-	return (t);
-}
-
-
-
-/*
- * Print an unsigned number "n" into a string "t", as if by
- * sprintf(t, "%u", n), and return a pointer to the terminator.
- */
-static char *object_desc_num(char *t, uint n)
-{
-	uint p;
-
-	/* Find "size" of "n" */
-	for (p = 1; n >= p * 10; p = p * 10) /* loop */ ;
-
-	/* Dump each digit */
-	while (p >= 1)
-	{
-		/* Dump the digit */
-		*t++ = '0' + n / p;
-
-		/* Remove the digit */
-		n = n % p;
-
-		/* Process next digit */
-		p = p / 10;
-	}
-
-	/* Terminate */
-	*t = '\0';
-
-	/* Result */
-	return (t);
-}
-
-
-
-
-/*
- * Print an signed number "v" into a string "t", as if by
- * sprintf(t, "%+d", n), and return a pointer to the terminator.
- * Note that we always print a sign, either "+" or "-".
- */
-static char *object_desc_int(char *t, sint v)
-{
-	uint p, n;
-
-	/* Negative */
-	if (v < 0)
-	{
-		/* Take the absolute value */
-		n = 0 - v;
-
-		/* Use a "minus" sign */
-		*t++ = '-';
-	}
-
-	/* Positive (or zero) */
-	else
-	{
-		/* Use the actual number */
-		n = v;
-
-		/* Use a "plus" sign */
-		*t++ = '+';
-	}
-
-	/* Find "size" of "n" */
-	for (p = 1; n >= p * 10; p = p * 10) /* loop */ ;
-
-	/* Dump each digit */
-	while (p >= 1)
-	{
-		/* Dump the digit */
-		*t++ = '0' + n / p;
-
-		/* Remove the digit */
-		n = n % p;
-
-		/* Process next digit */
-		p = p / 10;
-	}
-
-	/* Terminate */
-	*t = '\0';
-
-	/* Result */
-	return (t);
-}
-
-
-/*
  * Creates a description of the item "o_ptr", and stores it in "out_val".
  *
  * One can choose the "verbosity" of the description, including whether
@@ -782,10 +658,10 @@ static char *object_desc_int(char *t, sint v)
  *   3 -- The Cloak of Death [1,+3] (+2 to Stealth) {nifty}
  */
 void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
-                 int size)
+                 int max)
 {
 	cptr basenm, modstr;
-	int power, indexx;
+	int power;
 
 	bool aware = FALSE;
 	bool known = FALSE;
@@ -795,16 +671,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	bool show_weapon = FALSE;
 	bool show_armour = FALSE;
 
-	cptr s, u;
-	char *t;
-
-	char p1 = '(', p2 = ')';
-	char b1 = '[', b2 = ']';
-	char c1 = '{', c2 = '}';
-	char pct = '%';
-
-	char tmp_val[512];
-	char tmp_val2[256];
+	cptr s;
 
 	u32b f1, f2, f3;
 
@@ -814,7 +681,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	int dd, ds, db, energy_use;
 	int tmul;
 	long avgdam;
-
+	
+	int len = 0;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -823,22 +691,20 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-
 	/* See if the object is "aware" */
 	if (object_aware_p(o_ptr)) aware = TRUE;
 
 	/* See if the object is "known" */
 	if (object_known_p(o_ptr)) known = TRUE;
 
-	/* Hack -- Extract the sub-type "indexx" */
-	indexx = o_ptr->sval;
-
 	/* Extract default "base" string */
 	basenm = get_object_name(o_ptr);
 
 	/* Assume no "modifier" string */
 	modstr = "";
-
+	
+	/* Empty description */
+	buf[0] = '\0';
 
 	/* Analyze the object */
 	switch (o_ptr->tval)
@@ -859,13 +725,15 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		{
 			/* Figurines/Statues */
 			cptr tmp = r_name + r_ptr->name;
+			
+			char idol_name[512];
 
 			if (!(r_ptr->flags1 & RF1_UNIQUE))
 			{
-				sprintf(tmp_val2, "%s%s",
+				strnfmt(idol_name, 512, "%s%s",
 						(is_a_vowel(*tmp) ? "an " : "a "), tmp);
 
-				modstr = tmp_val2;
+				modstr = idol_name;
 			}
 			else
 			{
@@ -889,7 +757,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			break;
 		}
 
-
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
@@ -904,7 +771,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			show_armour = TRUE;
 			break;
 		}
-
 
 		case TV_LITE:
 		{
@@ -921,13 +787,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 				(o_ptr->activate > 128)) break;
 
 			/* Color the object */
-			modstr = amulet_adj[indexx];
+			modstr = amulet_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
 
 			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Amulet~";
 			else
-				basenm = aware ? "& # Amulet~" : "& # Amulet~";
+				basenm = "& # Amulet~";
 			break;
 		}
 
@@ -940,13 +806,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 				(o_ptr->activate > 128)) break;
 
 			/* Color the object */
-			modstr = ring_adj[indexx];
+			modstr = ring_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
 
 			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Ring~";
 			else
-				basenm = aware ? "& # Ring~" : "& # Ring~";
+				basenm = "& # Ring~";
 
 			/* Hack -- The One Ring */
 			if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "Plain Gold";
@@ -957,61 +823,60 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		case TV_STAFF:
 		{
 			/* Color the object */
-			modstr = staff_adj[indexx];
+			modstr = staff_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Staff~";
 			else
-				basenm = aware ? "& # Staff~" : "& # Staff~";
+				basenm = "& # Staff~";
 			break;
 		}
 
 		case TV_WAND:
 		{
 			/* Color the object */
-			modstr = wand_adj[indexx];
+			modstr = wand_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Wand~";
 			else
-				basenm = aware ? "& # Wand~" : "& # Wand~";
+				basenm = "& # Wand~";
 			break;
 		}
 
 		case TV_ROD:
 		{
 			/* Color the object */
-			modstr = rod_adj[indexx];
+			modstr = rod_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Rod~";
 			else
-				basenm = aware ? "& # Rod~" : "& # Rod~";
+				basenm = "& # Rod~";
 			break;
 		}
 
 		case TV_SCROLL:
 		{
 			/* Color the object */
-			modstr = scroll_adj[indexx];
+			modstr = scroll_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Scroll~";
 			else
-				basenm =
-					aware ? "& Scroll~ titled \"#\"" : "& Scroll~ titled \"#\"";
+				basenm = "& Scroll~ titled \"#\"";
 			break;
 		}
 
 		case TV_POTION:
 		{
 			/* Color the object */
-			modstr = potion_adj[indexx];
+			modstr = potion_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Potion~";
 			else
-				basenm = aware ? "& # Potion~" : "& # Potion~";
+				basenm = "& # Potion~";
 			break;
 		}
 
@@ -1021,12 +886,12 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
 
 			/* Color the object */
-			modstr = food_adj[indexx];
+			modstr = food_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Mushroom~";
 			else
-				basenm = aware ? "& # Mushroom~" : "& # Mushroom~";
+				basenm = "& # Mushroom~";
 			break;
 		}
 
@@ -1118,9 +983,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		}
 	}
 
-	/* Start dumping the result */
-	t = tmp_val;
-
 	/* The object "expects" a "number" */
 	if (basenm[0] == '&')
 	{
@@ -1136,38 +998,37 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		/* Hack -- None left */
 		else if (o_ptr->number <= 0)
 		{
-			t = object_desc_str(t, "no more ");
+			strnfcat(buf, max, &len, "no more ");
 		}
 
 		/* Extract the number */
 		else if (o_ptr->number > 1)
 		{
-			t = object_desc_num(t, o_ptr->number);
-			t = object_desc_chr(t, ' ');
+			strnfcat(buf, max, &len, "%d ", o_ptr->number);
 		}
 
 		/* Hack -- The only one of its kind */
 		else if (known && (o_ptr->flags3 & TR3_INSTA_ART))
 		{
-			t = object_desc_str(t, "The ");
+			strnfcat(buf, max, &len, "The ");
 		}
 
 		/* A single one, with a vowel in the modifier */
 		else if ((*s == '#') && (is_a_vowel(modstr[0])))
 		{
-			t = object_desc_str(t, "an ");
+			strnfcat(buf, max, &len, "an ");
 		}
 
 		/* A single one, with a vowel */
 		else if (is_a_vowel(*s))
 		{
-			t = object_desc_str(t, "an ");
+			strnfcat(buf, max, &len, "an ");
 		}
 
 		/* A single one, without a vowel */
 		else
 		{
-			t = object_desc_str(t, "a ");
+			strnfcat(buf, max, &len, "a ");
 		}
 	}
 
@@ -1186,20 +1047,19 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		/* Hack -- all gone */
 		else if (o_ptr->number <= 0)
 		{
-			t = object_desc_str(t, "no more ");
+			strnfcat(buf, max, &len, "no more ");
 		}
 
 		/* Prefix a number if required */
 		else if (o_ptr->number > 1)
 		{
-			t = object_desc_num(t, o_ptr->number);
-			t = object_desc_chr(t, ' ');
+			strnfcat(buf, max, &len, "%d ", o_ptr->number);
 		}
 
 		/* Hack -- The only one of its kind */
 		else if (known && (o_ptr->flags3 & TR3_INSTA_ART))
 		{
-			t = object_desc_str(t, "The ");
+			strnfcat(buf, max, &len, "The ");
 		}
 
 		/* Hack -- single items get no prefix */
@@ -1209,11 +1069,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		}
 	}
 
-	/* Paranoia -- skip illegal tildes */
-	/* while (*s == '~') s++; */
-
 	/* Copy the string */
-	for (; *s; s++)
+	while (*s)
 	{
 		/* Pluralizer */
 		if (*s == '~')
@@ -1221,15 +1078,21 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Add a plural if needed */
 			if (o_ptr->number != 1)
 			{
-				char k = t[-1];
+				/* Get previous character */
+				char k = s[-1];
 
 				/* XXX XXX XXX Mega-Hack */
 
 				/* Hack -- "Cutlass-es" and "Torch-es" */
-				if ((k == 's') || (k == 'h')) *t++ = 'e';
-
-				/* Add an 's' */
-				*t++ = 's';
+				if ((k == 's') || (k == 'h'))
+				{
+					strnfcat(buf, max, &len, "es");
+				}
+				else
+				{
+					/* Add an 's' */
+					strnfcat(buf, max, &len, "s");
+				}
 			}
 		}
 
@@ -1237,26 +1100,23 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		else if (*s == '#')
 		{
 			/* Insert the modifier */
-			for (u = modstr; *u; u++) *t++ = *u;
+			strnfcat(buf, max, &len, "%s", modstr);
 		}
 
 		/* Normal */
 		else
 		{
-			/* Copy */
-			*t++ = *s;
+			/* Copy character */
+			strnfcat(buf, max, &len, "%c", *s);
 		}
+		
+		s++;
 	}
-
-	/* Terminate */
-	*t = '\0';
-
 
 	/* Append the "kind name" to the "base name" */
 	if (append_name)
 	{
-		t = object_desc_str(t, " of ");
-		t = object_desc_str(t, get_object_name(o_ptr));
+		strnfcat(buf, max, &len, " of %s", get_object_name(o_ptr));
 	}
 
 
@@ -1269,22 +1129,18 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			cptr str = strchr(quark_str(o_ptr->inscription), '#');
 
 			/* Add the false name */
-			t = object_desc_chr(t, ' ');
-			t = object_desc_str(t, &str[1]);
+			strnfcat(buf, max, &len, " %s" CLR_DEFAULT, &str[1]);
 		}
 
 		/* Is it a new artifact or ego item? */
 		else if (o_ptr->xtra_name)
 		{
-			t = object_desc_chr(t, ' ');
-
-			t = object_desc_str(t, quark_str(o_ptr->xtra_name));
+			strnfcat(buf, max, &len, " %s", quark_str(o_ptr->xtra_name));
 		}
 	}
 
-
 	/* No more details wanted */
-	if (mode < 1) goto copyback;
+	if (mode < 1) return;
 
 	/* Hack -- Chests must be described in detail */
 	if (o_ptr->tval == TV_CHEST)
@@ -1298,7 +1154,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		/* May be "empty" */
 		else if (!o_ptr->pval)
 		{
-			t = object_desc_str(t, " (empty)");
+			strnfcat(buf, max, &len, " (empty)");
 		}
 
 		/* May be "disarmed" */
@@ -1306,11 +1162,11 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		{
 			if (chest_traps[0 - o_ptr->pval])
 			{
-				t = object_desc_str(t, " (disarmed)");
+				strnfcat(buf, max, &len, " (disarmed)");
 			}
 			else
 			{
-				t = object_desc_str(t, " (unlocked)");
+				strnfcat(buf, max, &len, " (unlocked)");
 			}
 		}
 
@@ -1322,42 +1178,42 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			{
 				case 0:
 				{
-					t = object_desc_str(t, " (Locked)");
+					strnfcat(buf, max, &len, " (Locked)");
 					break;
 				}
 				case CHEST_LOSE_STR:
 				{
-					t = object_desc_str(t, " (Poison Needle)");
+					strnfcat(buf, max, &len, " (Poison Needle)");
 					break;
 				}
 				case CHEST_LOSE_CON:
 				{
-					t = object_desc_str(t, " (Poison Needle)");
+					strnfcat(buf, max, &len, " (Poison Needle)");
 					break;
 				}
 				case CHEST_POISON:
 				{
-					t = object_desc_str(t, " (Gas Trap)");
+					strnfcat(buf, max, &len, " (Gas Trap)");
 					break;
 				}
 				case CHEST_PARALYZE:
 				{
-					t = object_desc_str(t, " (Gas Trap)");
+					strnfcat(buf, max, &len, " (Gas Trap)");
 					break;
 				}
 				case CHEST_EXPLODE:
 				{
-					t = object_desc_str(t, " (Explosion Device)");
+					strnfcat(buf, max, &len, " (Explosion Device)");
 					break;
 				}
 				case CHEST_SUMMON:
 				{
-					t = object_desc_str(t, " (Summoning Runes)");
+					strnfcat(buf, max, &len, " (Summoning Runes)");
 					break;
 				}
 				default:
 				{
-					t = object_desc_str(t, " (Multiple Traps)");
+					strnfcat(buf, max, &len, " (Multiple Traps)");
 					break;
 				}
 			}
@@ -1388,12 +1244,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Missiles and Weapons */
 
 			/* Append a "damage" string */
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_num(t, o_ptr->dd);
-			t = object_desc_chr(t, 'd');
-			t = object_desc_num(t, o_ptr->ds);
-			t = object_desc_chr(t, p2);
+			strnfcat(buf, max, &len, " (%dd%d)", o_ptr->dd, o_ptr->ds);
 
 			/* All done */
 			break;
@@ -1441,7 +1292,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 				}
 				default:
 				{
-					msg_print("Unknown firing multiplier.");
+					msgf("Unknown firing multiplier.");
 					power = 0;
 				}
 			}
@@ -1450,11 +1301,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			if (f3 & (TR3_XTRA_MIGHT)) power++;
 
 			/* Append a special "damage" string */
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_chr(t, 'x');
-			t = object_desc_num(t, power);
-			t = object_desc_chr(t, p2);
+			strnfcat(buf, max, &len, " (x%d)", power);
 
 			/* All done */
 			break;
@@ -1468,32 +1315,19 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		/* Show the tohit/todam on request */
 		if (show_weapon)
 		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_int(t, o_ptr->to_h);
-			t = object_desc_chr(t, ',');
-			t = object_desc_int(t, o_ptr->to_d * 3);
-			t = object_desc_chr(t, pct);
-			t = object_desc_chr(t, p2);
+			strnfcat(buf, max, &len, " (%+d,%+d%%)", o_ptr->to_h, o_ptr->to_d * 3);
 		}
 
 		/* Show the tohit if needed */
 		else if (o_ptr->to_h)
 		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_int(t, o_ptr->to_h);
-			t = object_desc_chr(t, p2);
+			strnfcat(buf, max, &len, " (%+d)", o_ptr->to_h);
 		}
 
 		/* Show the todam if needed */
 		else if (o_ptr->to_d)
 		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_int(t, o_ptr->to_d * 3);
-			t = object_desc_chr(t, pct);
-			t = object_desc_chr(t, p2);
+			strnfcat(buf, max, &len, " (%+d%%)", o_ptr->to_d * 3);
 		}
 	}
 
@@ -1535,15 +1369,12 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		avgdam *= tmul;
 
 		/* display (shot damage/ avg damage) */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
-		t = object_desc_num(t, avgdam / 200);
-		t = object_desc_chr(t, '/');
+		strnfcat(buf, max, &len, " (%d/", avgdam / 200);
 
 		tmul = p_ptr->num_fire;
 		if (tmul == 0)
 		{
-			t = object_desc_chr(t, '0');
+			strnfcat(buf, max, &len, "0)");
 		}
 		else
 		{
@@ -1552,10 +1383,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 			/* rescale */
 			avgdam /= 4 * energy_use;
-			t = object_desc_num(t, avgdam);
+			strnfcat(buf, max, &len, "%d)", avgdam);
 		}
-
-		t = object_desc_chr(t, p2);
 	}
 
 	/* Add the armor bonuses */
@@ -1564,36 +1393,25 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		/* Show the armor class info */
 		if (show_armour)
 		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, b1);
-			t = object_desc_num(t, o_ptr->ac);
-			t = object_desc_chr(t, ',');
-			t = object_desc_int(t, o_ptr->to_a);
-			t = object_desc_chr(t, b2);
+			strnfcat(buf, max, &len, " [%d,%+d]", o_ptr->ac,  o_ptr->to_a);
 		}
 
 		/* No base armor, but does increase armor */
 		else if (o_ptr->to_a)
 		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, b1);
-			t = object_desc_int(t, o_ptr->to_a);
-			t = object_desc_chr(t, b2);
+			strnfcat(buf, max, &len, " [%+d]", o_ptr->to_a);
 		}
 	}
 
 	/* Hack -- always show base armor */
 	else if (show_armour)
 	{
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, b1);
-		t = object_desc_num(t, o_ptr->ac);
-		t = object_desc_chr(t, b2);
+		strnfcat(buf, max, &len, " [%d]", o_ptr->ac);
 	}
 
 
 	/* No more details wanted */
-	if (mode < 2) goto copyback;
+	if (mode < 2) return;
 
 
 	/*
@@ -1603,29 +1421,27 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	if (known && ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)))
 	{
 		/* Dump " (N charges)" */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
+		strnfcat(buf, max, &len, " (");
 
 		/* Clear explaination for staffs. */
 		if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
 		{
-			t = object_desc_num(t, o_ptr->number);
-			t = object_desc_str(t, "x ");
+			strnfcat(buf, max, &len, "%dx ", o_ptr->number);
 		}
-		t = object_desc_num(t, o_ptr->pval);
-		t = object_desc_str(t, " charge");
-
-		if (o_ptr->pval != 1)
+		
+		if (o_ptr->pval == 1)
 		{
-			t = object_desc_chr(t, 's');
+			strnfcat(buf, max, &len, "%d charge)", o_ptr->pval);
 		}
-
-		t = object_desc_chr(t, p2);
+		else
+		{
+			strnfcat(buf, max, &len, "%d charges)", o_ptr->pval);
+		}
 	}
 	/* Hack -- Rods have a "charging" indicator.  Now that stacks of rods may
 	 * be in any state of charge or discharge, this now includes a number. -LM-
 	 */
-	else if (known && (o_ptr->tval == TV_ROD))
+	else if (o_ptr->tval == TV_ROD)
 	{
 		/* Hack -- Dump " (# charging)" if relevant */
 		if (o_ptr->timeout)
@@ -1646,15 +1462,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 				if (power > o_ptr->number) power = o_ptr->number;
 
 				/* Display prettily. */
-				t = object_desc_str(t, " (");
-				t = object_desc_num(t, power);
-				t = object_desc_str(t, " charging)");
+				strnfcat(buf, max, &len, " (%d charging)", power);
 			}
 
 			/* "one Rod of Perception (1 charging)" would look tacky. */
 			else
 			{
-				t = object_desc_str(t, " (charging)");
+				strnfcat(buf, max, &len, " (charging)");
 			}
 		}
 	}
@@ -1663,9 +1477,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	else if ((o_ptr->tval == TV_LITE) && (!(o_ptr->flags3 & TR3_LITE)))
 	{
 		/* Hack -- Turns of light for normal lites */
-		t = object_desc_str(t, " (with ");
-		t = object_desc_num(t, o_ptr->timeout);
-		t = object_desc_str(t, " turns of light)");
+		strnfcat(buf, max, &len, " (with %d turns of light)", o_ptr->timeout);
 	}
 
 
@@ -1673,11 +1485,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	if (known && (f1 & (TR1_PVAL_MASK)))
 	{
 		/* Start the display */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
-
-		/* Dump the "pval" itself */
-		t = object_desc_int(t, o_ptr->pval);
+		strnfcat(buf, max, &len, " (%+d", o_ptr->pval);
 
 		/* Do not display the "pval" flags */
 		if (f3 & (TR3_HIDE_TYPE))
@@ -1689,108 +1497,122 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		else if (f1 & (TR1_SPEED))
 		{
 			/* Dump " to speed" */
-			t = object_desc_str(t, " to speed");
+			strnfcat(buf, max, &len, " to speed");
 		}
 
 		/* Attack speed */
 		else if (f1 & (TR1_BLOWS))
 		{
-			/* Add " attack" */
-			t = object_desc_str(t, " attack");
-
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
+			if (ABS(o_ptr->pval) == 1)
+			{
+				/* Add " attack" */
+				strnfcat(buf, max, &len, " attack");
+			}
+			else
+			{
+				/* Add "attacks" */
+				strnfcat(buf, max, &len, " attacks");
+			}
 		}
 
 		/* Finish the display */
-		t = object_desc_chr(t, p2);
+		strnfcat(buf, max, &len, ")");
 	}
 
 	/* Indicate charging objects, but not rods. */
-	if (known && o_ptr->timeout && o_ptr->tval != TV_ROD
-		&& o_ptr->tval != TV_LITE)
+	if (known && o_ptr->timeout && (o_ptr->tval != TV_ROD)
+		&& (o_ptr->tval != TV_LITE))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
-		t = object_desc_str(t, " (charging)");
+		strnfcat(buf, max, &len, " (charging)");
 	}
 
 
 	/* No more details wanted */
-	if (mode < 3) goto copyback;
-
-
-	/* No inscription yet */
-	tmp_val2[0] = '\0';
+	if (mode < 3) return;
 
 	/* Use the standard inscription if available */
 	if (o_ptr->inscription)
 	{
-		char *tmp = tmp_val2;
+		char tmp_val[256];
+		char *tmp = tmp_val;
 
-		strcpy(tmp_val2, quark_str(o_ptr->inscription));
+		strnfmt(tmp_val, 256, "%s", quark_str(o_ptr->inscription));
 
-		for (; *tmp && (*tmp != '#'); tmp++) ;
-
+		/* Scan for the '#' character which marks a fake name. */
+		while(*tmp && (*tmp != '#'))
+		{
+			tmp++;
+		}
+		
 		*tmp = '\0';
+		
+		/* Append the inscription */
+		strnfcat(buf, max, &len, " {%s" CLR_DEFAULT "}", tmp_val);
 	}
 
 	/* Use the game-generated "feeling" otherwise, if available */
 	else if (o_ptr->feeling)
 	{
-		strcpy(tmp_val2, game_inscriptions[o_ptr->feeling]);
+		/* Append the inscription */
+		strnfcat(buf, max, &len, " {%s" CLR_DEFAULT "}", game_inscriptions[o_ptr->feeling]);
 	}
 
 	/* Note "cursed" if the item is known to be cursed */
 	else if (cursed_p(o_ptr) && (known || (o_ptr->info & (OB_SENSE))))
 	{
-		strcpy(tmp_val2, "cursed");
+		/* Append the inscription */
+		strnfcat(buf, max, &len, " {cursed}");
 	}
 
 	/* Mega-Hack -- note empty wands/staffs */
 	else if (!known && (o_ptr->info & (OB_EMPTY)))
 	{
-		strcpy(tmp_val2, "empty");
+		/* Append the inscription */
+		strnfcat(buf, max, &len, " {empty}");
 	}
 
 	/* Note "tried" if the object has been tested unsuccessfully */
 	else if (!aware && object_tried_p(o_ptr))
 	{
-		strcpy(tmp_val2, "tried");
+		/* Append the inscription */
+		strnfcat(buf, max, &len, " {tried}");
 	}
 
 	/* Note the discount, if any */
 	else if (o_ptr->discount)
 	{
-		(void)object_desc_num(tmp_val2, o_ptr->discount);
-		strcat(tmp_val2, "% off");
-	}
-
-	/* Append the inscription, if any */
-	if (tmp_val2[0])
-	{
-		int n;
-
-		/* Hack -- How much so far */
-		n = (t - tmp_val);
-
-		/* Paranoia -- do not be stupid */
-		if (n > 75) n = 75;
-
-		/* Hack -- shrink the inscription */
-		tmp_val2[75 - n] = '\0';
-
 		/* Append the inscription */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, c1);
-		t = object_desc_str(t, tmp_val2);
-		t = object_desc_chr(t, c2);
+		strnfcat(buf, max, &len, " {%d%% off}", o_ptr->discount);
 	}
+}
 
-  copyback:
-	/* Here's where we dump the built string into buf. */
-	tmp_val[size - 1] = '\0';
-	t = tmp_val;
-	while ((*(buf++) = *(t++))) ;	/* copy the string over */
+/*
+ * Wrapper around object_desc() for the '%v'
+ * format option.  This allows object_desc() to be
+ * called in a format string.
+ *
+ * The parameters are object_type (o_ptr), pref (int), mode(int).
+ */
+void object_fmt(char *buf, uint max, cptr fmt, va_list *vp)
+{
+	const object_type *o_ptr;
+	int pref;
+	int mode;
+	
+	/* Unused parameter */
+	(void)fmt;
+	
+	/* Get the object */
+	o_ptr = va_arg(*vp, const object_type*);
+	
+	/* Get the pref */
+	pref = va_arg(*vp, int);
+	
+	/* Get the mode */
+	mode = va_arg(*vp, int);
+	
+	object_desc(buf, o_ptr, pref, mode, max);
 }
 
 
@@ -1838,3 +1660,32 @@ void object_desc_store(char *buf, const object_type *o_ptr, int pref,
 	/* Restore the "info" */
 	q_ptr->info = info;
 }
+
+/*
+ * Wrapper around object_desc_store() for the '%v'
+ * format option.  This allows object_desc() to be
+ * called in a format string.
+ *
+ * The parameters are object_type (o_ptr), pref (int), mode(int).
+ */
+void object_store_fmt(char *buf, uint max, cptr fmt, va_list *vp)
+{
+	const object_type *o_ptr;
+	int pref;
+	int mode;
+	
+	/* Unused parameter */
+	(void)fmt;
+	
+	/* Get the object */
+	o_ptr = va_arg(*vp, const object_type*);
+	
+	/* Get the pref */
+	pref = va_arg(*vp, int);
+	
+	/* Get the mode */
+	mode = va_arg(*vp, int);
+	
+	object_desc_store(buf, o_ptr, pref, mode, max);
+}
+

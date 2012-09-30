@@ -25,19 +25,25 @@
  */
 
 
+/*
+ * The "type" of the "user defined print routine" function pointers
+ */
+typedef void (*vstrnfmt_aux_func) (char *buf, uint max, cptr fmt, va_list *vp);
+
+
 /**** Available Functions ****/
 
+/* Register table of user format functions */
+extern void register_format_funcs(vstrnfmt_aux_func *table);
+
 /* Format arguments into given bounded-length buffer */
-extern uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp);
+extern uint vstrnfmt(char *buf, uint max, cptr fmt, va_list *vp);
 
 /* Simple interface to "vstrnfmt()" */
 extern uint strnfmt(char *buf, uint max, cptr fmt, ...);
 
-/* Simple interface to "vstrnfmt()", assuming infinite length */
-extern uint strfmt(char *buf, cptr fmt, ...);
-
-/* Format arguments into a static resizing buffer */
-extern char *vformat(cptr fmt, va_list vp);
+/* Append a formatted string to another string */
+extern void strnfcat(char *str, int max, int *end, cptr fmt, ...);
 
 /* Free the memory allocated for the format buffer */
 extern void vformat_kill(void);

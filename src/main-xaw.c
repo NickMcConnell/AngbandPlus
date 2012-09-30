@@ -940,7 +940,7 @@ static XFontStruct *getFont(AngbandWidget widget,
 
 	if (!(fnt = XLoadQueryFont(dpy, font)) && fallback)
 	{
-		sprintf(buf, "Can't find the font \"%s\", trying fixed\n", font);
+		strnfmt(buf, 256, "Can't find the font \"%s\", trying fixed\n", font);
 		XtWarning(buf);
 		if (!(fnt = XLoadQueryFont(dpy, "fixed")))
 		{
@@ -1151,7 +1151,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the KeySym */
 	if (ks)
 	{
-		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
+		strnfmt(msg, 128, "%c%s%s%s%s_%lX%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        (unsigned long)(ks), 13);
@@ -1160,7 +1160,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the Keycode */
 	else
 	{
-		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
+		strnfmt(msg, 128, "%c%s%s%s%sK_%X%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        ev->keycode, 13);
@@ -1483,13 +1483,13 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	                            NULL, 0);
 
 	/* Window specific cols */
-	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
+	strnfmt(buf, 80, "ANGBAND_X11_COLS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) cols = val;
 
 	/* Window specific rows */
-	sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
+	strnfmt(buf, 80, "ANGBAND_X11_ROWS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) rows = val;
@@ -1508,13 +1508,13 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	/* Hack  ox==oy in xaw port */ 
 	
 	/* Window specific inner border offset (ox) */
-	sprintf(buf, "ANGBAND_X11_IBOX_%d", i);
+	strnfmt(buf, 80, "ANGBAND_X11_IBOX_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) widget_arg[6].value = val;
 
 	/* Window specific inner border offset (oy) */
-	sprintf(buf, "ANGBAND_X11_IBOY_%d", i);
+	strnfmt(buf, 80, "ANGBAND_X11_IBOY_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) widget_arg[6].value = val;

@@ -31,7 +31,7 @@ void have_nightmare(int r_idx)
 	if (!(r_ptr->flags1 & RF1_UNIQUE))
 	{
 		/* Describe it */
-		sprintf(m_name, "%s %s", (is_a_vowel(desc[0]) ? "an" : "a"), desc);
+		strnfmt(m_name, 80, "%s %s", (is_a_vowel(desc[0]) ? "an" : "a"), desc);
 
 		if (r_ptr->flags1 & RF1_FRIENDS)
 		{
@@ -41,14 +41,14 @@ void have_nightmare(int r_idx)
 	else
 	{
 		/* Describe it */
-		sprintf(m_name, "%s", desc);
+		strnfmt(m_name, 80, "%s", desc);
 
 		power *= 2;
 	}
 
 	if (saving_throw(p_ptr->skill_sav * 100 / power))
 	{
-		msg_format("%^s chases you through your dreams.", m_name);
+		msgf("%^s chases you through your dreams.", m_name);
 
 		/* Safe */
 		return;
@@ -57,12 +57,12 @@ void have_nightmare(int r_idx)
 	if (p_ptr->image)
 	{
 		/* Something silly happens... */
-		msg_format("You behold the %s visage of %s!",
+		msgf("You behold the %s visage of %s!",
 				   funny_desc[randint0(MAX_SAN_FUNNY)], m_name);
 
 		if (one_in_(3))
 		{
-			msg_print(funny_comments[randint0(MAX_SAN_COMMENT)]);
+			msgf(funny_comments[randint0(MAX_SAN_COMMENT)]);
 			p_ptr->image = p_ptr->image + randint1(r_ptr->level);
 		}
 
@@ -71,7 +71,7 @@ void have_nightmare(int r_idx)
 	}
 
 	/* Something frightening happens... */
-	msg_format("You behold the %s visage of %s!",
+	msgf("You behold the %s visage of %s!",
 			   horror_desc[randint0(MAX_SAN_HORROR)], desc);
 
 	r_ptr->r_flags4 |= RF4_ELDRITCH_HORROR;
@@ -154,7 +154,7 @@ void have_nightmare(int r_idx)
 		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
 		if (happened)
 		{
-			msg_print("You feel much less sane than before.");
+			msgf("You feel much less sane than before.");
 		}
 		return;
 	}
@@ -164,7 +164,7 @@ void have_nightmare(int r_idx)
 	{
 		if (lose_all_info())
 		{
-			msg_print("You forget everything in your utmost terror!");
+			msgf("You forget everything in your utmost terror!");
 		}
 		return;
 	}
@@ -186,10 +186,10 @@ void have_nightmare(int r_idx)
 			{
 				if (!(p_ptr->muta3 & MUT3_MORONIC))
 				{
-					msg_print("You turn into an utter moron!");
+					msgf("You turn into an utter moron!");
 					if (p_ptr->muta3 & MUT3_HYPER_INT)
 					{
-						msg_print("Your brain is no longer a living computer.");
+						msgf("Your brain is no longer a living computer.");
 						p_ptr->muta3 &= ~(MUT3_HYPER_INT);
 					}
 					p_ptr->muta3 |= MUT3_MORONIC;
@@ -201,12 +201,12 @@ void have_nightmare(int r_idx)
 			{
 				if (!(p_ptr->muta2 & MUT2_COWARDICE) && !p_ptr->resist_fear)
 				{
-					msg_print("You become paranoid!");
+					msgf("You become paranoid!");
 
 					/* Duh, the following should never happen, but anyway... */
 					if (p_ptr->muta3 & MUT3_FEARLESS)
 					{
-						msg_print("You are no longer fearless.");
+						msgf("You are no longer fearless.");
 						p_ptr->muta3 &= ~(MUT3_FEARLESS);
 					}
 
@@ -219,7 +219,7 @@ void have_nightmare(int r_idx)
 			{
 				if (!(p_ptr->muta2 & MUT2_HALLU) && !p_ptr->resist_chaos)
 				{
-					msg_print("You are afflicted by a hallucinatory insanity!");
+					msgf("You are afflicted by a hallucinatory insanity!");
 					p_ptr->muta2 |= MUT2_HALLU;
 					happened = TRUE;
 				}
@@ -229,7 +229,7 @@ void have_nightmare(int r_idx)
 			{
 				if (!(p_ptr->muta2 & MUT2_BERS_RAGE))
 				{
-					msg_print("You become subject to fits of berserk rage!");
+					msgf("You become subject to fits of berserk rage!");
 					p_ptr->muta2 |= MUT2_BERS_RAGE;
 					happened = TRUE;
 				}
@@ -258,26 +258,9 @@ bool get_nightmare(int r_idx)
 }
 
 
-/*
- * Clear the building information
- */
-static void clear_bldg(int min_row, int max_row)
-{
-	int i;
-
-	for (i = min_row; i <= max_row; i++)
-		prt("", 0, i);
-}
-
-
 static void building_prt_gold(void)
 {
-	char tmp_str[80];
-
-	prt("Gold Remaining: ", 40, 23);
-
-	sprintf(tmp_str, "%9ld", (long)p_ptr->au);
-	prt(tmp_str, 55, 23);
+	prtf(40, 23, "Gold Remaining: %9ld", (long)p_ptr->au);
 }
 
 /* Does the player have enough gold for this action? */
@@ -287,7 +270,7 @@ bool test_gold(s32b *cost)
 	{
 		/* Player does not have enough gold */
 
-		msg_format("You need %ld gold to do this!", (long)*cost);
+		msgf("You need %ld gold to do this!", (long)*cost);
 		message_flush();
 
 		*cost = 0;
@@ -306,8 +289,6 @@ bool test_gold(s32b *cost)
  */
 static void display_build(const field_type *f_ptr, const store_type *b_ptr)
 {
-	char tmp_str[80];
-
 	const b_own_type *bo_ptr = &b_owners[f_ptr->data[0]][b_ptr->owner];
 
 	int factor;
@@ -325,16 +306,15 @@ static void display_build(const field_type *f_ptr, const store_type *b_ptr)
 	factor = ((factor + 100) * bo_ptr->inflate) / 400;
 
 	Term_clear();
-	sprintf(tmp_str, "%s (%s) %s", owner_name, race_name, build_name);
-	prt(tmp_str, 1, 2);
-	prt("You may:", 0, 19);
+	prtf(1, 2, "%s (%s) %s", owner_name, race_name, build_name);
+	prtf(0, 19, "You may:");
 
 
 	/* Display building-specific information */
 	field_hook(&area(p_ptr->px, p_ptr->py)->fld_idx,
-			   FIELD_ACT_STORE_ACT1, (vptr)&factor);
+			   FIELD_ACT_STORE_ACT1, factor);
 
-	prt(" ESC) Exit building", 0, 23);
+	prtf(0, 23, " ESC) Exit building");
 
 	/* Show your gold */
 	building_prt_gold();
@@ -351,85 +331,91 @@ static void display_fruit(int col, int row, int fruit)
 		case 0:
 		{
 			/* lemon */
-			c_put_str(TERM_YELLOW, "   ####.", col, row);
-			c_put_str(TERM_YELLOW, "  #    #", col, row + 1);
-			c_put_str(TERM_YELLOW, " #     #", col, row + 2);
-			c_put_str(TERM_YELLOW, "#      #", col, row + 3);
-			c_put_str(TERM_YELLOW, "#      #", col, row + 4);
-			c_put_str(TERM_YELLOW, "#     # ", col, row + 5);
-			c_put_str(TERM_YELLOW, "#    #  ", col, row + 6);
-			c_put_str(TERM_YELLOW, ".####   ", col, row + 7);
-			prt(" Lemon  ", col, row + 8);
+			put_fstr(col, row, CLR_YELLOW
+							"   ####.\n"
+							"  #    #\n"
+							" #     #\n"
+							"#      #\n"
+							"#      #\n"
+							"#     # \n"
+							"#    #  \n"
+							".####   \n"
+				CLR_WHITE	" Lemon  ");
 			break;
 		}
 		case 1:
 		{
 			/* orange */
-			c_put_str(TERM_ORANGE, "   ##   ", col, row);
-			c_put_str(TERM_ORANGE, "  #..#  ", col, row + 1);
-			c_put_str(TERM_ORANGE, " #....# ", col, row + 2);
-			c_put_str(TERM_ORANGE, "#......#", col, row + 3);
-			c_put_str(TERM_ORANGE, "#......#", col, row + 4);
-			c_put_str(TERM_ORANGE, " #....# ", col, row + 5);
-			c_put_str(TERM_ORANGE, "  #..#  ", col, row + 6);
-			c_put_str(TERM_ORANGE, "   ##   ", col, row + 7);
-			prt(" Orange ", col, row + 8);
+			put_fstr(col, row, CLR_ORANGE
+							"   ##   \n"
+							"  #..#  \n"
+							" #....# \n"
+							"#......#\n"
+							"#......#\n"
+							" #....# \n"
+							"  #..#  \n"
+							"	##   \n"
+				CLR_WHITE	" Orange ");
 			break;
 		}
 		case 2:
 		{
 			/* sword */
-			c_put_str(TERM_SLATE, "   /\\   ", col, row);
-			c_put_str(TERM_SLATE, "   ##   ", col, row + 1);
-			c_put_str(TERM_SLATE, "   ##   ", col, row + 2);
-			c_put_str(TERM_SLATE, "   ##   ", col, row + 3);
-			c_put_str(TERM_SLATE, "   ##   ", col, row + 4);
-			c_put_str(TERM_SLATE, "   ##   ", col, row + 5);
-			c_put_str(TERM_UMBER, " ###### ", col, row + 6);
-			c_put_str(TERM_UMBER, "   ##   ", col, row + 7);
-			prt(" Sword  ", col, row + 8);
+			put_fstr(col, row, CLR_SLATE
+							"   /\\   \n"
+							"	##   \n"
+							"	##   \n"
+							"	##   \n"
+							"	##   \n"
+							"	##   \n"
+				CLR_UMBER	" ###### \n"
+				CLR_UMBER	"   ##   \n"
+				CLR_WHITE	" Sword  ");
 			break;
 		}
 		case 3:
 		{
 			/* shield */
-			c_put_str(TERM_SLATE, " ###### ", col, row);
-			c_put_str(TERM_SLATE, "#      #", col, row + 1);
-			c_put_str(TERM_SLATE, "# ++++ #", col, row + 2);
-			c_put_str(TERM_SLATE, "# +==+ #", col, row + 3);
-			c_put_str(TERM_SLATE, "#  ++  #", col, row + 4);
-			c_put_str(TERM_SLATE, " #    # ", col, row + 5);
-			c_put_str(TERM_SLATE, "  #  #  ", col, row + 6);
-			c_put_str(TERM_SLATE, "   ##   ", col, row + 7);
-			prt(" Shield ", col, row + 8);
+			put_fstr(col, row, CLR_SLATE
+							" ###### \n"
+							"#  	#\n"
+							"# ++++ #\n"
+							"# +==+ #\n"
+							"#  ++  #\n"
+							" #    # \n"
+							"  #  #  \n"
+							"	##   \n"
+				CLR_WHITE	" Shield ");
 			break;
 		}
 		case 4:
 		{
 			/* plum */
-			c_put_str(TERM_VIOLET, "   ##   ", col, row);
-			c_put_str(TERM_VIOLET, " ###### ", col, row + 1);
-			c_put_str(TERM_VIOLET, "########", col, row + 2);
-			c_put_str(TERM_VIOLET, "########", col, row + 3);
-			c_put_str(TERM_VIOLET, "########", col, row + 4);
-			c_put_str(TERM_VIOLET, " ###### ", col, row + 5);
-			c_put_str(TERM_VIOLET, "  ####  ", col, row + 6);
-			c_put_str(TERM_VIOLET, "   ##   ", col, row + 7);
-			prt("  Plum  ", col, row + 8);
+			put_fstr(col, row, CLR_VIOLET
+							"   ##   \n"
+							" ###### \n"
+							"########\n"
+							"########\n"
+							"########\n"
+							" ###### \n"
+							"  ####  \n"
+							"	##   \n"
+				CLR_WHITE	"  Plum  ");
 			break;
 		}
 		case 5:
 		{
 			/* cherry */
-			c_put_str(TERM_RED, "      ##", col, row);
-			c_put_str(TERM_RED, "   ###  ", col, row + 1);
-			c_put_str(TERM_RED, "  #..#  ", col, row + 2);
-			c_put_str(TERM_RED, "  #..#  ", col, row + 3);
-			c_put_str(TERM_RED, " ###### ", col, row + 4);
-			c_put_str(TERM_RED, "#..##..#", col, row + 5);
-			c_put_str(TERM_RED, "#..##..#", col, row + 6);
-			c_put_str(TERM_RED, " ##  ## ", col, row + 7);
-			prt(" Cherry ", col, row + 8);
+			put_fstr(col, row, CLR_GREEN
+            				"      ##\n"
+					CLR_RED	"   ##" CLR_GREEN "#  \n"
+					CLR_RED "  #..#  \n"
+							"  #..#  \n"
+							" ###### \n"
+							"#..##..#\n"
+							"#..##..#\n"
+							" ##  ## \n"
+				CLR_WHITE	" Cherry ");
 			break;
 		}
 	}
@@ -443,10 +429,12 @@ static s32b gamble_oldgold;
 /*
  * Initialize gambling by getting bet.
  * Return a wager of zero, if something goes wrong.
+ *
+ * Hack - we return with screen still saved if wager is non-zero
  */
 static s32b gamble_init(void)
 {
-	char out_val[160], tmp_str[80];
+	char out_val[160];
 	cptr p;
 
 	s32b wager;
@@ -460,14 +448,13 @@ static s32b gamble_init(void)
 	/* No money */
 	if (p_ptr->au < 1)
 	{
-		msg_print("Hey! You don't have gold - get out of here!");
-		message_flush();
+		msgf("Hey! You don't have gold - get out of here!");
 
 		screen_load();
 		return (0);
 	}
 
-	clear_bldg(5, 23);
+	clear_region(0, 5,23);
 
 	/* Set maximum bet */
 	if (p_ptr->lev < 10)
@@ -479,14 +466,13 @@ static s32b gamble_init(void)
 	maxbet = MIN(maxbet, p_ptr->au);
 
 	/* Get the wager */
-	strcpy(out_val, "");
-	sprintf(tmp_str, "Your wager (1-%ld) ? ", maxbet);
+	out_val[0] = 0;
 
 	/*
 	 * Use get_string() because we may need more than
 	 * the s16b value returned by get_quantity().
 	 */
-	if (!get_string(tmp_str, out_val, 33))
+	if (!get_string(out_val, 33, "Your wager (1-%ld) ? ", maxbet))
 	{
 		screen_load();
 		return (0);
@@ -500,30 +486,26 @@ static s32b gamble_init(void)
 
 	if (wager > p_ptr->au)
 	{
-		msg_print("Hey! You don't have the gold - get out of here!");
-		message_flush();
+		msgf("Hey! You don't have the gold - get out of here!");
 
 		screen_load();
 		return (0);
 	}
 	else if (wager > maxbet)
 	{
-		msg_format("I'll take %ld gold of that. Keep the rest.", maxbet);
+		msgf("I'll take %ld gold of that. Keep the rest.", maxbet);
 		wager = maxbet;
 	}
 	else if (wager < 1)
 	{
-		msg_print("Ok, we'll start with 1 gold.");
+		msgf("Ok, we'll start with 1 gold.");
 		wager = 1;
 	}
 
 	message_flush();
 
-	sprintf(tmp_str, "Gold before game: %9ld", p_ptr->au);
-	prt(tmp_str, 2, 20);
-
-	sprintf(tmp_str, "Current Wager:    %9ld", wager);
-	prt(tmp_str, 2, 21);
+	prtf(2, 20, "Gold before game: %9ld\n"
+				"Current Wager:    %9ld", p_ptr->au, wager);
 
 	/* Prevent savefile-scumming of the casino */
 	Rand_quick = TRUE;
@@ -536,26 +518,24 @@ static s32b gamble_init(void)
 
 static bool gamble_again(bool win, int odds, s32b wager)
 {
-	char tmp_str[80];
 	char again;
 
 	if (win)
 	{
-		prt("YOU WON", 37, 16);
-		p_ptr->au += odds * wager;
-		sprintf(tmp_str, "Payoff: %ld", odds * wager);
-		prt(tmp_str, 37, 17);
+		prtf(37, 16, "YOU WON\n"
+					 "Payoff: %ld\n"
+                     "Again(Y/N)?", odds * wager);
+        p_ptr->au += odds * wager;
 	}
 	else
 	{
-		prt("You Lost", 37, 16);
-		p_ptr->au -= wager;
-		prt("", 37, 17);
+		prtf(37, 16, "You Lost\n"
+					 "\n"
+                     "Again(Y/N)?");
+        p_ptr->au -= wager;
 	}
 
-	sprintf(tmp_str, "Current Gold:     %9ld", p_ptr->au);
-	prt(tmp_str, 2, 22);
-	prt("Again(Y/N)?", 37, 18);
+	prtf(2, 22, "Current Gold:     %9ld", p_ptr->au);
 	Term_gotoxy(49, 18);
 	again = inkey();
 
@@ -563,7 +543,7 @@ static bool gamble_again(bool win, int odds, s32b wager)
 
 	if (wager > p_ptr->au)
 	{
-		msg_print("Hey! You don't have the gold - get out of here!");
+		msgf("Hey! You don't have the gold - get out of here!");
 		message_flush();
 
 		/* Get out here */
@@ -583,11 +563,11 @@ static void gamble_done(void)
 	/* Switch back to complex RNG */
 	Rand_quick = FALSE;
 
-	prt("", 37, 18);
+	prtf(37, 18, "");
 	if (p_ptr->au >= gamble_oldgold)
-		msg_print("You came out a winner! We'll win next time, I'm sure.");
+		msgf("You came out a winner! We'll win next time, I'm sure.");
 	else
-		msg_print("You lost gold! Haha, better head home.");
+		msgf("You lost gold! Haha, better head home.");
 
 	message_flush();
 
@@ -597,20 +577,14 @@ static void gamble_done(void)
 
 void gamble_help(void)
 {
-	screen_save();
-
 	/* Peruse the gambling help file */
 	(void)show_file("gambling.txt", NULL, 0, 0);
-
-	screen_load();
 }
 
 
 void gamble_in_between(void)
 {
 	s32b wager = gamble_init();
-	char tmp_str[80];
-
 	int roll1, roll2, choice;
 
 	bool win;
@@ -622,17 +596,14 @@ void gamble_in_between(void)
 	{
 		win = FALSE;
 
-		c_put_str(TERM_GREEN, "In Between", 2, 5);
+		put_fstr(2, 5, CLR_GREEN "In Between");
 
 		roll1 = randint1(10);
 		roll2 = randint1(10);
 		choice = randint1(10);
 
-		sprintf(tmp_str, "Black die: %d       Black Die: %d", roll1, roll2);
-		prt(tmp_str, 3, 8);
-
-		sprintf(tmp_str, "Red die: %d", choice);
-		prt(tmp_str, 14, 11);
+		put_fstr(3, 8, "Black die: %d       Black Die: %d", roll1, roll2);
+		put_fstr(14, 11, "Red die: %d", choice);
 
 		if (((choice > roll1) && (choice < roll2)) ||
 			((choice < roll1) && (choice > roll2)))
@@ -647,7 +618,6 @@ void gamble_in_between(void)
 void gamble_craps(void)
 {
 	s32b wager = gamble_init();
-	char tmp_str[80];
 
 	int roll1, roll2, roll3, choice;
 
@@ -658,7 +628,7 @@ void gamble_craps(void)
 
 	while (TRUE)
 	{
-		c_put_str(TERM_GREEN, "Craps", 2, 5);
+		put_fstr(2, 5, CLR_GREEN "Craps");
 
 		/* Roll the dice */
 		roll1 = randint1(6);
@@ -666,8 +636,7 @@ void gamble_craps(void)
 		roll3 = roll1 + roll2;
 		choice = roll3;
 
-		sprintf(tmp_str, "First roll: %d %d    Total: %d", roll1, roll2, roll3);
-		prt(tmp_str, 5, 7);
+		put_fstr(5, 7, "First roll: %d %d    Total: %d", roll1, roll2, roll3);
 
 		/* Is it is result straight away? */
 		if ((roll3 == 7) || (roll3 == 11))
@@ -678,16 +647,15 @@ void gamble_craps(void)
 			while (TRUE)
 			{
 				/* Ok - we need to roll a few more times */
-				msg_print("Hit any key to roll again");
+				msgf("Hit any key to roll again");
 				message_flush();
 
 				roll1 = randint1(6);
 				roll2 = randint1(6);
 				roll3 = roll1 + roll2;
 
-				sprintf(tmp_str, "Roll result: %d %d   Total:     %d",
+				prtf(5, 8, "Roll result: %d %d   Total:     %d",
 						roll1, roll2, roll3);
-				prt(tmp_str, 5, 8);
 
 				if (roll3 == choice)
 					win = TRUE;
@@ -709,7 +677,6 @@ void gamble_craps(void)
 void gamble_spin_wheel(void)
 {
 	s32b wager = gamble_init();
-	char tmp_str[80];
 
 	int roll1, choice;
 
@@ -722,19 +689,18 @@ void gamble_spin_wheel(void)
 	{
 		win = FALSE;
 
-		c_put_str(TERM_GREEN, "Wheel", 2, 5);
-		prt("1  2  3  4  5  6  7  8  9 10", 5, 7);
-		prt("--------------------------------", 3, 8);
+		put_fstr(2, 5, CLR_GREEN "Wheel");
+		prtf(5, 7, "1  2  3  4  5  6  7  8  9 10");
+		prtf(3, 8, "--------------------------------");
 
 		choice = get_quantity("Pick a number (1-10): ", 10);
 
 		message_flush();
 		roll1 = randint1(10);
-		sprintf(tmp_str, "The wheel spins to a stop and the winner is %d",
+		prtf(3, 13, "The wheel spins to a stop and the winner is %d",
 				roll1);
-		prt(tmp_str, 3, 13);
-		prt("", 0, 9);
-		prt("*", (3 * roll1 + 2), 9);
+		clear_row(9);
+		prtf((3 * roll1 + 2), 9, "*");
 
 		if (roll1 == choice) win = TRUE;
 
@@ -751,7 +717,6 @@ void gamble_dice_slots(void)
 	{ "Lemon", "Orange", "Sword", "Shield", "Plum", "Cherry" };
 
 	s32b wager = gamble_init();
-	char tmp_str[80];
 
 	int roll1, roll2, choice;
 	int odds;
@@ -763,7 +728,7 @@ void gamble_dice_slots(void)
 
 	while (TRUE)
 	{
-		c_put_str(TERM_GREEN, "Dice Slots", 2, 5);
+		put_fstr(2, 5, CLR_GREEN "Dice Slots");
 		win = FALSE;
 		odds = 0;
 
@@ -773,11 +738,10 @@ void gamble_dice_slots(void)
 		choice = randint1(6);
 
 		/* Show the result */
-		sprintf(tmp_str, "%s %s %s", fruit[roll1 - 1], fruit[roll2 - 1],
+		prtf(37, 15, "%s %s %s", fruit[roll1 - 1], fruit[roll2 - 1],
 				fruit[choice - 1]);
-		prt(tmp_str, 37, 15);
-		prt("/--------------------------\\", 2, 7);
-		prt("\\--------------------------/", 2, 17);
+		prtf(2, 7, "/--------------------------\\");
+		prtf(2, 17, "\\--------------------------/");
 
 		display_fruit(3, 8, roll1 - 1);
 		display_fruit(12, 8, roll2 - 1);
@@ -824,7 +788,7 @@ bool inn_rest(void)
 	/* Only at night time */
 	if ((turn % (10L * TOWN_DAWN)) < 50000)
 	{
-		msg_print("The rooms are available only at night.");
+		msgf("The rooms are available only at night.");
 		message_flush();
 
 		return (FALSE);
@@ -833,9 +797,9 @@ bool inn_rest(void)
 	/* Hurt? */
 	if ((p_ptr->poisoned) || (p_ptr->cut))
 	{
-		msg_print("You need a healer, not a room.");
+		msgf("You need a healer, not a room.");
 		message_flush();
-		msg_print("Sorry, but don't want anyone dying in here.");
+		msgf("Sorry, but don't want anyone dying in here.");
 		message_flush();
 
 		return (FALSE);
@@ -851,7 +815,7 @@ bool inn_rest(void)
 	 */
 	if (ironman_nightmare)
 	{
-		msg_print("Horrible visions flit through your mind as you sleep.");
+		msgf("Horrible visions flit through your mind as you sleep.");
 
 		/* Pick a nightmare */
 		get_mon_num_prep(get_nightmare, NULL);
@@ -867,7 +831,7 @@ bool inn_rest(void)
 		/* Remove the monster restriction */
 		get_mon_num_prep(NULL, NULL);
 
-		msg_print("You awake screaming.");
+		msgf("You awake screaming.");
 		message_flush();
 
 		return (TRUE);
@@ -879,44 +843,11 @@ bool inn_rest(void)
 	p_ptr->stun = 0;
 	p_ptr->csp = p_ptr->msp;
 
-	msg_print("You awake refreshed for the new day.");
+	msgf("You awake refreshed for the new day.");
 	message_flush();
 
 	return (TRUE);
 }
-
-
-#if 0
-
-/*
- * Share gold for thieves
- */
-static void share_gold(void)
-{
-	int i = (p_ptr->lev * 2) * 10;
-	msg_format("You collect %d gold pieces", i);
-	message_flush();
-	p_ptr->au += i;
-}
-
-
-/*
- * Display town history
- */
-static void town_history(void)
-{
-	/* Save screen */
-	screen_save();
-
-	/* Peruse the building help file */
-	(void)show_file("bldg.txt", NULL, 0, 0);
-
-	/* Load screen */
-	screen_load();
-}
-
-
-#endif /* 0 */
 
 
 #define WEP_MAST_COL1	2
@@ -930,9 +861,8 @@ static void town_history(void)
  * the current +dam of the player.
  */
 static void compare_weapon_aux2(const object_type *o_ptr, int numblows,
-                                int r, cptr attr, byte color, byte slay)
+                                int r, cptr attr, byte slay)
 {
-	char tmp_str[80];
 	long maxdam, mindam;
 	int dambonus;
 
@@ -958,13 +888,10 @@ static void compare_weapon_aux2(const object_type *o_ptr, int numblows,
 	intmindam = mindam / 100;
 
 	/* Print the intro text */
-	c_put_str(color, attr, WEP_MAST_COL2, r);
-
-	/* Calculate the min and max damage figures */
-	sprintf(tmp_str, " %d-%d damage", intmindam, intmaxdam);
+	put_fstr(WEP_MAST_COL2, r, attr);
 
 	/* Print the damage */
-	put_str(tmp_str, WEP_MAST_COL2 + 8, r);
+	put_fstr(WEP_MAST_COL2 + 8, r, " %d-%d damage", intmindam, intmaxdam);
 }
 
 
@@ -985,33 +912,33 @@ static void compare_weapon_aux1(const object_type *o_ptr)
 
 	/* Print the relevant lines */
 	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  "Animals:", TERM_YELLOW, 17);
+												  CLR_YELLOW "Animals:", 17);
 	if (f1 & TR1_SLAY_EVIL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												"Evil:", TERM_YELLOW, 15);
+												CLR_YELLOW "Evil:", 15);
 	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  "Undead:", TERM_YELLOW, 20);
+												  CLR_YELLOW "Undead:", 20);
 	if (f1 & TR1_SLAY_DEMON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 "Demons:", TERM_YELLOW, 20);
+												 CLR_YELLOW "Demons:", 20);
 	if (f1 & TR1_SLAY_ORC) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-											   "Orcs:", TERM_YELLOW, 20);
+											   CLR_YELLOW "Orcs:", 20);
 	if (f1 & TR1_SLAY_TROLL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 "Trolls:", TERM_YELLOW, 20);
+												 CLR_YELLOW "Trolls:", 20);
 	if (f1 & TR1_SLAY_GIANT) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 "Giants:", TERM_YELLOW, 20);
+												 CLR_YELLOW "Giants:", 20);
 	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  "Dragons:", TERM_YELLOW, 20);
+												  CLR_YELLOW "Dragons:", 20);
 	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  "Dragons:", TERM_YELLOW, 30);
+												  CLR_YELLOW "Dragons:", 30);
 	if (f1 & TR1_BRAND_ACID) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 "Acid:", TERM_RED, 20);
+												 CLR_RED "Acid:", 20);
 	if (f1 & TR1_BRAND_ELEC) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 "Elec:", TERM_RED, 20);
+												 CLR_RED "Elec:", 20);
 	if (f1 & TR1_BRAND_FIRE) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 "Fire:", TERM_RED, 20);
+												 CLR_RED "Fire:", 20);
 	if (f1 & TR1_BRAND_COLD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 "Cold:", TERM_RED, 20);
+												 CLR_RED "Cold:", 20);
 	if (f1 & TR1_BRAND_POIS) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 "Poison:", TERM_RED, 20);
+												 CLR_RED "Poison:", 20);
 }
 
 
@@ -1112,50 +1039,37 @@ static int critical_prob(int to_h, int number)
  */
 static void list_weapon(const object_type *o_ptr)
 {
-	char o_name[256];
-	char tmp_str[80];
-
 	int dambonus;
 
 	int intmaxdam, intmindam;
 
 	/* Print the weapon name */
-	object_desc(o_name, o_ptr, TRUE, 0, 256);
-	c_put_str(TERM_L_BLUE, o_name, WEP_MAST_COL1, 6);
+	put_fstr(WEP_MAST_COL1, 6, CLR_L_BLUE "%v", OBJECT_FMT(o_ptr, TRUE, 0));
 
 	/* Print to_hit and to_dam of the weapon */
-	sprintf(tmp_str, "To Hit: %d  Deadliness: %d", o_ptr->to_h, o_ptr->to_d);
-	put_str(tmp_str, WEP_MAST_COL1, 8);
+	put_fstr(WEP_MAST_COL1, 8, "To Hit: %d  Deadliness: %d", o_ptr->to_h, o_ptr->to_d);
 
 	/* Print the weapons base damage dice and blows */
-	sprintf(tmp_str, "Dice: %dd%d    Number of Blows: %d",
+	put_fstr(WEP_MAST_COL1, 10, "Dice: %dd%d    Number of Blows: %d",
 			(int)o_ptr->dd, (int)o_ptr->ds, p_ptr->num_blow);
-	put_str(tmp_str, WEP_MAST_COL1, 10);
 
 	/* Print hit probabilities */
-	sprintf(tmp_str, "Enemy AC:  Low   Medium  High");
-	put_str(tmp_str, WEP_MAST_COL1, 12);
-
-	sprintf(tmp_str, "Hit Prob:  %2d%% %2d%% %2d%% %2d%% %2d%%",
+	put_fstr(WEP_MAST_COL1, 12, "Enemy AC:  Low   Medium  High \n"
+								"Hit Prob:  %2d%% %2d%% %2d%% %2d%% %2d%%",
 			hit_prob(o_ptr->to_h, 25), hit_prob(o_ptr->to_h, 50),
 			hit_prob(o_ptr->to_h, 75), hit_prob(o_ptr->to_h, 100),
 			hit_prob(o_ptr->to_h, 200));
-	put_str(tmp_str, WEP_MAST_COL1, 13);
 
 	/* Print critical hit probabilities */
-	sprintf(tmp_str, "Critical: 1.0 1.5 2.0 2.7 3.6 5.0");
-	put_str(tmp_str, WEP_MAST_COL1, 15);
-
-	sprintf(tmp_str, "          %2d%% %2d%% %2d%% %2d%% %2d%% %2d%%",
+	put_fstr(WEP_MAST_COL1, 15, CLR_RED "Critical:" CLR_WHITE " 1.0 1.5 2.0 2.7 3.6 5.0\n"
+										"          %2d%% %2d%% %2d%% %2d%% %2d%% %2d%%",
 			critical_prob(o_ptr->to_h, 0),
 			critical_prob(o_ptr->to_h, 1),
 			critical_prob(o_ptr->to_h, 2),
 			critical_prob(o_ptr->to_h, 3),
 			critical_prob(o_ptr->to_h, 4), critical_prob(o_ptr->to_h, 5));
 
-	put_str(tmp_str, WEP_MAST_COL1, 16);
-
-	c_put_str(TERM_L_BLUE, "Possible Damage:", WEP_MAST_COL2, 6);
+	put_fstr(WEP_MAST_COL2, 6, CLR_L_BLUE "Possible Damage:");
 
 	dambonus = o_ptr->to_d + p_ptr->to_d;
 
@@ -1165,16 +1079,14 @@ static void list_weapon(const object_type *o_ptr)
 
 
 	/* Damage for one blow (if it hits) */
-	sprintf(tmp_str, "One Strike: %d-%d damage", intmindam, intmaxdam);
-	put_str(tmp_str, WEP_MAST_COL2, 7);
+	put_fstr(WEP_MAST_COL2, 7, "One Strike: %d-%d damage", intmindam, intmaxdam);
 
 	/* Rescale */
 	intmindam *= p_ptr->num_blow;
 	intmaxdam *= p_ptr->num_blow;
 
 	/* Damage for the complete attack (if all blows hit) */
-	sprintf(tmp_str, "One Attack: %d-%d damage", intmindam, intmaxdam);
-	put_str(tmp_str, WEP_MAST_COL2, 8);
+	put_fstr(WEP_MAST_COL2, 8, "One Attack: %d-%d damage", intmindam, intmaxdam);
 }
 
 
@@ -1189,7 +1101,7 @@ bool compare_weapons(void)
 	object_type *o_ptr;
 
 	/* Clear the screen */
-	clear_bldg(6, 18);
+    clear_region(0, 6, 18);
 
 	/* Point to wielded weapon */
 	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
@@ -1197,13 +1109,12 @@ bool compare_weapons(void)
 	/* Check to see if we have one */
 	if (!o_ptr->k_idx)
 	{
-		msg_print("You need to wield a weapon.");
+		msgf("You need to wield a weapon.");
 		return (FALSE);
 	}
 
-	put_str
-		("Based on your current abilities, here is what your weapon will do:",
-		 2, 4);
+	put_fstr(2, 4, 
+			"Based on your current abilities, here is what your weapon will do:");
 
 	/* Identify the weapon */
 	identify_item(o_ptr);
@@ -1222,9 +1133,8 @@ bool compare_weapons(void)
 	list_weapon(o_ptr);
 	compare_weapon_aux1(o_ptr);
 
-	put_str
-		("(Only highest damage applies per monster. Special damage not cumulative.)",
-		 0, 20);
+	put_fstr(0, 20,
+			"(Only highest damage applies per monster. Special damage not cumulative.)");
 
 	/* Done */
 	return (TRUE);
@@ -1240,13 +1150,15 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 	object_type *o_ptr;
 	cptr q, s;
 	int maxenchant = (p_ptr->lev / 5);
-	char tmp_str[256];
+	int maxenchant_d = (p_ptr->lev / 3);
 
-
-	clear_bldg(5, 18);
-	prt(format("  Based on your skill, we can improve up to +%d.", maxenchant),
-		0, 5);
-	prt(format("  The price for the service is %d gold per item.", cost), 0, 7);
+    clear_region(0, 5, 18);
+    
+	if (to_dam)
+		prtf(0, 5, "  Based on your skill, we can improve up to +%d,+%d%%.", maxenchant, maxenchant_d * 3);
+	else
+		prtf(0, 5, "  Based on your skill, we can improve up to +%d.", maxenchant);
+	prtf(0, 7, "  The price for the service is %d gold per item.", cost);
 
 	/* Get an item */
 	q = "Improve which item? ";
@@ -1261,8 +1173,8 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 	/* Check if the player has enough money */
 	if (p_ptr->au < (cost * o_ptr->number))
 	{
-		object_desc(tmp_str, o_ptr, TRUE, 0, 256);
-		msg_format("You do not have the gold to improve %s!", tmp_str);
+		msgf("You do not have the gold to improve %v!",
+			OBJECT_FMT(o_ptr, TRUE, 0));
 		message_flush();
 		return (FALSE);
 	}
@@ -1277,7 +1189,7 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 	}
 
 	/* Enchant to damage */
-	if ((to_dam) && (enchant(o_ptr, maxenchant - o_ptr->to_d,
+	if ((to_dam) && (enchant(o_ptr, maxenchant_d - o_ptr->to_d,
 							 (ENCH_TODAM | ENCH_FORCE))))
 	{
 		okay = TRUE;
@@ -1297,14 +1209,14 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 		if (flush_failure) flush();
 
 		/* Message */
-		msg_print("The improvement failed.");
+		msgf("The improvement failed.");
 
 		return (FALSE);
 	}
 	else
 	{
-		object_desc(tmp_str, o_ptr, TRUE, 1, 256);
-		msg_format("Improved %s for %d gold.", tmp_str, cost * o_ptr->number);
+		msgf("Improved %v for %d gold.", OBJECT_FMT(o_ptr, TRUE, 1),
+			 cost * o_ptr->number);
 		message_flush();
 
 		/* Charge the money */
@@ -1336,12 +1248,11 @@ void building_recharge(s32b cost)
 	int price;
 	int charges;
 	int max_charges;
-	char tmp_str[256];
 
 
 	/* Display some info */
-	clear_bldg(5, 18);
-	prt("  The prices of recharge depend on the type.", 0, 6);
+    clear_region(0, 5, 18);
+	prtf(0, 6, "  The prices of recharge depend on the type.");
 
 	/* Only accept legal items */
 	item_tester_hook = item_tester_hook_recharge;
@@ -1364,7 +1275,7 @@ void building_recharge(s32b cost)
 	/* The item must be "known" */
 	if (!object_known_p(o_ptr))
 	{
-		msg_format("The item must be identified first!");
+		msgf("The item must be identified first!");
 		message_flush();
 
 		if ((p_ptr->au >= 50) && get_check("Identify for 50 gold? "))
@@ -1376,9 +1287,7 @@ void building_recharge(s32b cost)
 			identify_item(o_ptr);
 
 			/* Description */
-			object_desc(tmp_str, o_ptr, TRUE, 3, 256);
-
-			msg_format("You have: %s.", tmp_str);
+			msgf("You have: %v.", OBJECT_FMT(o_ptr, TRUE, 3));
 		}
 		else
 		{
@@ -1400,7 +1309,7 @@ void building_recharge(s32b cost)
 		else
 		{
 			/* No recharge necessary */
-			msg_format("That doesn't need to be recharged.");
+			msgf("That doesn't need to be recharged.");
 			message_flush();
 			return;
 		}
@@ -1433,13 +1342,13 @@ void building_recharge(s32b cost)
 		(o_ptr->pval / o_ptr->number >= k_ptr->pval))
 	{
 		if ((o_ptr->tval == TV_WAND) && (o_ptr->number == 1))
-			msg_print("This wand is already fully charged.");
+			msgf("This wand is already fully charged.");
 		else if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
-			msg_print("These wands are already fully charged.");
+			msgf("These wands are already fully charged.");
 		else if ((o_ptr->tval == TV_STAFF) && (o_ptr->number == 1))
-			msg_print("This staff is already fully charged.");
+			msgf("This staff is already fully charged.");
 		else if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
-			msg_print("These staffs are already fully charged.");
+			msgf("These staffs are already fully charged.");
 
 		message_flush();
 		return;
@@ -1451,16 +1360,16 @@ void building_recharge(s32b cost)
 	/* Check if the player has enough money */
 	if (p_ptr->au < price)
 	{
-		object_desc(tmp_str, o_ptr, TRUE, 0, 256);
-		msg_format("You need %d gold to recharge %s!", price, tmp_str);
+		msgf("You need %d gold to recharge %v!", price,
+			 OBJECT_FMT(o_ptr, TRUE, 0));
 		message_flush();
 		return;
 	}
 
 	if (o_ptr->tval == TV_ROD)
 	{
-		if (get_check(format("Recharge the %s for %d gold? ",
-							 ((o_ptr->number > 1) ? "rods" : "rod"), price)))
+		if (get_check("Recharge the %s for %d gold? ",
+							 ((o_ptr->number > 1) ? "rods" : "rod"), price))
 		{
 			/* Recharge fully */
 			o_ptr->timeout = 0;
@@ -1472,15 +1381,18 @@ void building_recharge(s32b cost)
 	}
 	else
 	{
+		char buf[160];
+	
 		if (o_ptr->tval == TV_STAFF)
 			max_charges = k_ptr->pval - o_ptr->pval;
 		else
 			max_charges = o_ptr->number * k_ptr->pval - o_ptr->pval;
+		
+		/* Get prompt */
+		strnfmt(buf, 160, "Add how many charges for %d gold? ", price);
 
 		/* Get the quantity for staves and wands */
-		charges = get_quantity(format("Add how many charges for %d gold? ",
-									  price), MIN(p_ptr->au / price,
-												  max_charges));
+		charges = get_quantity(buf, MIN(p_ptr->au / price, max_charges));
 
 		/* Do nothing */
 		if (charges < 1) return;
@@ -1499,8 +1411,7 @@ void building_recharge(s32b cost)
 	}
 
 	/* Give feedback */
-	object_desc(tmp_str, o_ptr, TRUE, 3, 256);
-	msg_format("%^s %s recharged for %d gold.", tmp_str,
+	msgf("%^v %s recharged for %d gold.", OBJECT_FMT(o_ptr, TRUE, 3),
 			   ((o_ptr->number > 1) ? "were" : "was"), price);
 	message_flush();
 
@@ -1531,7 +1442,7 @@ bool building_healer(void)
 
 	if (paid)
 	{
-		msg_print("You are infused with magic, and your ailments disappear.");
+		msgf("You are infused with magic, and your ailments disappear.");
 		message_flush();
 	}
 
@@ -1573,8 +1484,7 @@ static int collect_magetower_links(int n, int *link_p, int *link_w, s32b *cost,
 			{
 				link_p[max_link] = i;
 				link_w[max_link] = j;
-				cost[max_link] = distance(x, y, pl_ptr->x, pl_ptr->y) *
-					factor * 2;
+				cost[max_link] = distance(x, y, pl_ptr->x, pl_ptr->y) * factor;
 				max_link++;
 
 				/* Only collect 1 link per city */
@@ -1616,15 +1526,13 @@ bool building_magetower(int factor, bool display)
 			int col = (i / 12) * 40;
 
 			/* Label it, clear the line --(-- */
-			(void)sprintf(out_val, "%c) ", I2A(i));
-			prt(out_val, col, row);
+			prtf(col, row, "%c) ", I2A(i));
 
 			/* Print place name */
-			prt(place[link_p[i]].name, col + 3, row);
+			prtf(col + 3, row, place[link_p[i]].name);
 
 			/* Print cost */
-			(void)sprintf(out_val, "%ld au", (long)cost[i]);
-			prt(out_val, col + 30, row);
+			prtf(col + 30, row, "%ld au", (long)cost[i]);
 		}
 	}
 	else
@@ -1633,12 +1541,12 @@ bool building_magetower(int factor, bool display)
 
 		if (max_link == 0)
 		{
-			msg_print("You do not know any other towns to teleport to.");
+			msgf("You do not know any other towns to teleport to.");
 			return (FALSE);
 		}
 
 		/* Build the prompt */
-		(void)sprintf(out_val, "(Towns %c-%c, ESC to exit)",
+		strnfmt(out_val, 160, "(Towns %c-%c, ESC to exit)",
 					  I2A(0), I2A(max_link - 1));
 
 		while (TRUE)
@@ -1667,6 +1575,9 @@ bool building_magetower(int factor, bool display)
 
 				/* Notice player location */
 				Term_move_player();
+
+				/* Remove all monster lights */
+				lite_n = 0;
 
 				/* Notice the move */
 				move_wild();
@@ -1742,7 +1653,7 @@ static void bldg_process_command(building_type * bldg, int i)
 			/* Combine / Reorder the pack (later) */
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-			msg_print("Your posessions have been identified.");
+			msgf("Your posessions have been identified.");
 			message_flush();
 			paid = TRUE;
 			break;
@@ -1785,7 +1696,7 @@ static void bldg_process_command(building_type * bldg, int i)
 			}
 			else
 			{
-				msg_print("You just had your daily allowance!");
+				msgf("You just had your daily allowance!");
 				message_flush();
 			}
 			break;
@@ -1805,7 +1716,7 @@ static void bldg_process_command(building_type * bldg, int i)
 		case BACT_RECALL:
 		{
 			p_ptr->word_recall = 1;
-			msg_print("The air about you becomes charged...");
+			msgf("The air about you becomes charged...");
 			paid = TRUE;
 			p_ptr->redraw |= (PR_STATUS);
 			break;
@@ -1816,8 +1727,8 @@ static void bldg_process_command(building_type * bldg, int i)
 			if (amt > 0)
 			{
 				p_ptr->word_recall = 1;
-				p_ptr->max_dlv = amt;
-				msg_print("The air about you becomes charged...");
+				p_ptr->max_depth = amt;
+				msgf("The air about you becomes charged...");
 				paid = TRUE;
 				p_ptr->redraw |= (PR_STATUS);
 			}
@@ -1845,7 +1756,7 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 	factor = ((factor + 100) * bo_ptr->inflate) / 400;
 
 	field_hook(&area(p_ptr->px, p_ptr->py)->fld_idx,
-			   FIELD_ACT_STORE_ACT2, (vptr)&factor);
+			   FIELD_ACT_STORE_ACT2, &factor);
 
 	/* Hack XXX XXX, factor is returned as 2 if we want a redraw */
 	if (factor == 2)
@@ -2007,13 +1918,6 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 			break;
 		}
 
-		case KTRL('O'):
-		{
-			/* Show previous message */
-			do_cmd_message_one();
-			break;
-		}
-
 		case KTRL('P'):
 		{
 			/* Show previous messages */
@@ -2046,7 +1950,7 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 		default:
 		{
 			/* Hack -- Unknown command */
-			msg_print("That command does not work in buildings.");
+			msgf("That command does not work in buildings.");
 			break;
 		}
 	}
@@ -2079,7 +1983,7 @@ void do_cmd_bldg(field_type *f_ptr)
 	/* Paranoia */
 	if (which == -1)
 	{
-		msg_print("Could not locate building!");
+		msgf("Could not locate building!");
 		return;
 	}
 
@@ -2107,13 +2011,13 @@ void do_cmd_bldg(field_type *f_ptr)
 	/* Interact with player */
 	while (!leave_build)
 	{
-		prt("", 0, 1);
+		clear_row(1);
 
 		/* Clear */
 		clear_from(21);
 
 		/* Basic commands */
-		prt(" ESC) Exit building", 0, 23);
+		prtf(0, 23, " ESC) Exit building");
 
 		/* Show your gold */
 		building_prt_gold();

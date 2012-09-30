@@ -234,30 +234,30 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->r_deaths)
 		{
 			/* Killed ancestors */
-			c_roff(TERM_WHITE, format("%^s has slain %d of your ancestors",
-									  wd_he[msex], r_ptr->r_deaths));
+			roff("%^s has slain %d of your ancestors",
+									  wd_he[msex], r_ptr->r_deaths);
 
 			/* But we've also killed it */
 			if (dead)
 			{
-				c_roff(TERM_WHITE, format(", but you have avenged %s!  ",
+				roff(", but you have avenged %s!  ",
 										  plural(r_ptr->r_deaths, "him",
-												 "them")));
+												 "them"));
 			}
 
 			/* Unavenged (ever) */
 			else
 			{
-				c_roff(TERM_WHITE, format(", who %s unavenged.  ",
+				roff(", who %s unavenged.  ",
 										  plural(r_ptr->r_deaths, "remains",
-												 "remain")));
+												 "remain"));
 			}
 		}
 
 		/* Dead unique who never hurt us */
 		else if (dead)
 		{
-			c_roff(TERM_L_DARK, "You have slain this foe.  ");
+			roff(CLR_L_DARK "You have slain this foe.  ");
 		}
 	}
 
@@ -265,34 +265,28 @@ static void roff_aux(int r_idx, int remem)
 	else if (r_ptr->r_deaths)
 	{
 		/* Dead ancestors */
-		c_roff(TERM_WHITE,
-			   format("%d of your ancestors %s been killed by this creature, ",
-					  r_ptr->r_deaths, plural(r_ptr->r_deaths, "has", "have")));
+		roff("%d of your ancestors %s been killed by this creature, ",
+					  r_ptr->r_deaths, plural(r_ptr->r_deaths, "has", "have"));
 
 		/* Some kills this life */
 		if (r_ptr->r_pkills)
 		{
-			c_roff(TERM_WHITE,
-				   format
-				   ("and you have exterminated at least %d of the creatures.  ",
-					r_ptr->r_pkills));
+			roff("and you have exterminated at least %d of the creatures.  ",
+					r_ptr->r_pkills);
 		}
 
 		/* Some kills past lives */
 		else if (r_ptr->r_tkills)
 		{
-			c_roff(TERM_WHITE,
-				   format
-				   ("and %s have exterminated at least %d of the creatures.  ",
-					"your ancestors", r_ptr->r_tkills));
+			roff("and %s have exterminated at least %d of the creatures.  ",
+					"your ancestors", r_ptr->r_tkills);
 		}
 
 		/* No kills */
 		else
 		{
-			c_roff(TERM_RED,
-				   format("and %s is not ever known to have been defeated.  ",
-						  wd_he[msex]));
+			roff(CLR_RED "and %s is not ever known to have been defeated.  ",
+						  wd_he[msex]);
 		}
 	}
 
@@ -302,24 +296,21 @@ static void roff_aux(int r_idx, int remem)
 		/* Killed some this life */
 		if (r_ptr->r_pkills)
 		{
-			c_roff(TERM_WHITE,
-				   format("You have killed at least %d of these creatures.  ",
-						  r_ptr->r_pkills));
+			roff("You have killed at least %d of these creatures.  ",
+						  r_ptr->r_pkills);
 		}
 
 		/* Killed some last life */
 		else if (r_ptr->r_tkills)
 		{
-			c_roff(TERM_WHITE,
-				   format
-				   ("Your ancestors have killed at least %d of these creatures.  ",
-					r_ptr->r_tkills));
+			roff("Your ancestors have killed at least %d of these creatures.  ",
+					r_ptr->r_tkills);
 		}
 
 		/* Killed none */
 		else
 		{
-			c_roff(TERM_WHITE, "No battles to the death are recalled.  ");
+			roff("No battles to the death are recalled.  ");
 		}
 	}
 
@@ -365,8 +356,8 @@ static void roff_aux(int r_idx, int remem)
 #endif
 
 	/* Dump it */
-	c_roff(TERM_WHITE, buf);
-	c_roff(TERM_WHITE, "  ");
+	roff(buf);
+	roff("  ");
 
 
 	/* Nothing yet */
@@ -375,22 +366,38 @@ static void roff_aux(int r_idx, int remem)
 	/* Describe location */
 	if (r_ptr->level == 0)
 	{
-		c_roff(TERM_WHITE, format("%^s lives in the town", wd_he[msex]));
+		roff("%^s lives in the town", wd_he[msex]);
 		old = TRUE;
 	}
 	else if (r_ptr->r_tkills || cheat_know)
 	{
-		if (depth_in_feet)
+		roff(CLR_SLATE "%^s is ", wd_he[msex]);
+
+		if (r_ptr->r_tkills * r_ptr->rarity >= 30 || cheat_know)
 		{
-			c_roff(TERM_SLATE,
-				   format("%^s is normally found at depths of %d feet",
-						  wd_he[msex], r_ptr->level * 50));
+			if (r_ptr->rarity < 2)
+				roff(CLR_SLATE "very common");
+			else if (r_ptr->rarity < 4)
+				roff(CLR_SLATE "common");
+			else if (r_ptr->rarity < 8)
+				roff(CLR_SLATE "uncommon");
+			else if (r_ptr->rarity < 16)
+				roff(CLR_SLATE "rare");
+			else
+				roff(CLR_SLATE "very rare");
 		}
 		else
 		{
-			c_roff(TERM_SLATE,
-				   format("%^s is normally found on dungeon level %d",
-						  wd_he[msex], r_ptr->level));
+			roff(CLR_SLATE "normally found");
+		}
+		
+		if (depth_in_feet)
+		{
+			roff(CLR_SLATE " at depths of %d feet", r_ptr->level * 50);
+		}
+		else
+		{
+			roff(CLR_SLATE " on dungeon level %d", r_ptr->level);
 		}
 		old = TRUE;
 	}
@@ -402,14 +409,14 @@ static void roff_aux(int r_idx, int remem)
 		/* Introduction */
 		if (old)
 		{
-			c_roff(TERM_WHITE, ", and ");
+			roff(", and ");
 		}
 		else
 		{
-			c_roff(TERM_WHITE, format("%^s ", wd_he[msex]));
+			roff("%^s ", wd_he[msex]);
 			old = TRUE;
 		}
-		c_roff(TERM_WHITE, "moves");
+		roff("moves");
 
 		/* Random-ness */
 		if ((flags1 & RF1_RAND_50) || (flags1 & RF1_RAND_25))
@@ -417,40 +424,40 @@ static void roff_aux(int r_idx, int remem)
 			/* Adverb */
 			if ((flags1 & RF1_RAND_50) && (flags1 & RF1_RAND_25))
 			{
-				c_roff(TERM_WHITE, " extremely");
+				roff(" extremely");
 			}
 			else if (flags1 & RF1_RAND_50)
 			{
-				c_roff(TERM_WHITE, " somewhat");
+				roff(" somewhat");
 			}
 			else if (flags1 & RF1_RAND_25)
 			{
-				c_roff(TERM_WHITE, " a bit");
+				roff(" a bit");
 			}
 
 			/* Adjective */
-			c_roff(TERM_WHITE, " erratically");
+			roff(" erratically");
 
 			/* Hack -- Occasional conjunction */
-			if (speed != 110) c_roff(TERM_WHITE, ", and");
+			if (speed != 110) roff(", and");
 		}
 
 		/* Speed */
 		if (speed > 110)
 		{
-			if (speed > 130) c_roff(TERM_GREEN, " incredibly");
-			else if (speed > 120) c_roff(TERM_GREEN, " very");
-			c_roff(TERM_GREEN, " quickly");
+			if (speed > 130) roff(CLR_GREEN " incredibly");
+			else if (speed > 120) roff(CLR_GREEN " very");
+			roff(CLR_GREEN " quickly");
 		}
 		else if (speed < 110)
 		{
-			if (speed < 90) c_roff(TERM_GREEN, " incredibly");
-			else if (speed < 100) c_roff(TERM_GREEN, " very");
-			c_roff(TERM_GREEN, " slowly");
+			if (speed < 90) roff(CLR_GREEN " incredibly");
+			else if (speed < 100) roff(CLR_GREEN " very");
+			roff(CLR_GREEN " slowly");
 		}
 		else
 		{
-			c_roff(TERM_GREEN, " at normal speed");
+			roff(CLR_GREEN " at normal speed");
 		}
 	}
 
@@ -460,22 +467,22 @@ static void roff_aux(int r_idx, int remem)
 		/* Introduce */
 		if (old)
 		{
-			c_roff(TERM_WHITE, ", but ");
+			roff(", but ");
 		}
 		else
 		{
-			c_roff(TERM_WHITE, format("%^s ", wd_he[msex]));
+			roff("%^s ", wd_he[msex]);
 			old = TRUE;
 		}
 
 		/* Describe */
-		c_roff(TERM_WHITE, "does not deign to chase intruders");
+		roff("does not deign to chase intruders");
 	}
 
 	/* End this sentence */
 	if (old)
 	{
-		c_roff(TERM_WHITE, ".  ");
+		roff(".  ");
 		old = FALSE;
 	}
 
@@ -486,30 +493,30 @@ static void roff_aux(int r_idx, int remem)
 		/* Introduction */
 		if (flags1 & RF1_UNIQUE)
 		{
-			c_roff(TERM_WHITE, "Killing this");
+			roff("Killing this");
 		}
 		else
 		{
-			c_roff(TERM_WHITE, "A kill of this");
+			roff("A kill of this");
 		}
 
 		/* Describe the "quality" */
-		if (flags2 & RF2_XXX_1) c_roff(TERM_L_BLUE, " some property");
-		if (flags3 & RF3_ANIMAL) c_roff(TERM_L_BLUE, " natural");
-		if (flags3 & RF3_EVIL) c_roff(TERM_L_BLUE, " evil");
-		if (flags3 & RF3_GOOD) c_roff(TERM_L_BLUE, " good");
-		if (flags3 & RF3_UNDEAD) c_roff(TERM_L_BLUE, " undead");
+		if (flags2 & RF2_XXX_1) roff(CLR_L_BLUE " some property");
+		if (flags3 & RF3_ANIMAL) roff(CLR_L_BLUE " natural");
+		if (flags3 & RF3_EVIL) roff(CLR_L_BLUE " evil");
+		if (flags3 & RF3_GOOD) roff(CLR_L_BLUE " good");
+		if (flags3 & RF3_UNDEAD) roff(CLR_L_BLUE " undead");
 
 		/* Describe the "race" */
-		if (flags3 & RF3_DRAGON) c_roff(TERM_L_BLUE, " dragon");
-		else if (flags3 & RF3_DEMON) c_roff(TERM_L_BLUE, " demon");
-		else if (flags3 & RF3_GIANT) c_roff(TERM_L_BLUE, " giant");
-		else if (flags3 & RF3_TROLL) c_roff(TERM_L_BLUE, " troll");
-		else if (flags3 & RF3_ORC) c_roff(TERM_L_BLUE, " orc");
-		else if (flags3 & RF3_AMBERITE) c_roff(TERM_L_BLUE, " Amberite");
-		else if (flags2 & RF2_QUANTUM) c_roff(TERM_L_BLUE, " quantum creature");
+		if (flags3 & RF3_DRAGON) roff(CLR_L_BLUE " dragon");
+		else if (flags3 & RF3_DEMON) roff(CLR_L_BLUE " demon");
+		else if (flags3 & RF3_GIANT) roff(CLR_L_BLUE " giant");
+		else if (flags3 & RF3_TROLL) roff(CLR_L_BLUE " troll");
+		else if (flags3 & RF3_ORC) roff(CLR_L_BLUE " orc");
+		else if (flags3 & RF3_AMBERITE) roff(CLR_L_BLUE " Amberite");
+		else if (flags2 & RF2_QUANTUM) roff(CLR_L_BLUE " quantum creature");
 		else
-			c_roff(TERM_WHITE, " creature");
+			roff(" creature");
 
 		/* Group some variables */
 		if (TRUE)
@@ -526,10 +533,9 @@ static void roff_aux(int r_idx, int remem)
 				(((long)new_exp_frac + 0x10000L / 500) * 100) / 0x10000L;
 
 			/* Mention the experience */
-			c_roff(TERM_WHITE, format(" is worth %ld.%02ld point%s",
-									  (long)new_exp, (long)new_exp_frac,
-									  (((new_exp == 1)
-										&& (new_exp_frac == 0)) ? "" : "s")));
+			roff(" is worth %ld.%02ld point%s",
+					(long)new_exp, (long)new_exp_frac,
+					(((new_exp == 1) && (new_exp_frac == 0)) ? "" : "s"));
 
 			/* Take account of annoying English */
 			p = "th";
@@ -545,60 +551,53 @@ static void roff_aux(int r_idx, int remem)
 			if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
 			/* Mention the dependance on the player's level */
-			c_roff(TERM_WHITE, format(" for a%s %lu%s level character.  ",
-									  q, (long)i, p));
+			roff(" for a%s %lu%s level character.  ", q, (long)i, p);
 		}
 	}
 
 	if ((flags2 & RF2_AURA_FIRE) && (flags2 & RF2_AURA_ELEC))
 	{
-		c_roff(TERM_YELLOW,
-			   format("%^s is surrounded by flames and electricity.  ",
-					  wd_he[msex]));
+		roff(CLR_YELLOW "%^s is surrounded by flames and electricity.  ",
+					  wd_he[msex]);
 	}
 	else if ((flags3 & RF3_AURA_COLD) && (flags2 & RF2_AURA_ELEC))
 	{
-		c_roff(TERM_YELLOW,
-			   format("%^s is surrounded by ice and electricity.  ",
-					  wd_he[msex]));
+		roff(CLR_YELLOW "%^s is surrounded by ice and electricity.  ",
+					  wd_he[msex]);
 	}
 	else if (flags2 & RF2_AURA_FIRE)
 	{
-		c_roff(TERM_YELLOW,
-			   format("%^s is surrounded by flames.  ", wd_he[msex]));
+		roff(CLR_YELLOW "%^s is surrounded by flames.  ", wd_he[msex]);
 	}
 	else if (flags3 & RF3_AURA_COLD)
 	{
-		c_roff(TERM_YELLOW, format("%^s is surrounded by ice.  ", wd_he[msex]));
+		roff(CLR_YELLOW "%^s is surrounded by ice.  ", wd_he[msex]);
 	}
 	else if (flags2 & RF2_AURA_ELEC)
 	{
-		c_roff(TERM_YELLOW, format("%^s is surrounded by electricity.  ",
-								   wd_he[msex]));
+		roff(CLR_YELLOW "%^s is surrounded by electricity.  ", wd_he[msex]);
 	}
 
 	if (flags2 & RF2_REFLECTING)
 	{
-		c_roff(TERM_YELLOW, format("%^s reflects bolt spells.  ", wd_he[msex]));
+		roff(CLR_YELLOW "%^s reflects bolt spells.  ", wd_he[msex]);
 	}
 
 	/* Describe escorts */
 	if ((flags1 & RF1_ESCORT) || (flags1 & RF1_ESCORTS))
 	{
-		c_roff(TERM_WHITE, format("%^s usually appears with escorts.  ",
-								  wd_he[msex]));
+		roff("%^s usually appears with escorts.  ", wd_he[msex]);
 	}
 
 	/* Describe friends */
 	else if (flags1 & RF1_FRIENDS)
 	{
-		c_roff(TERM_WHITE, format("%^s usually appears in groups.  ",
-								  wd_he[msex]));
+		roff("%^s usually appears in groups.  ", wd_he[msex]);
 	}
 
 	else if (flags1 & RF1_CHAR_MIMIC)
 	{
-		c_roff(TERM_WHITE, format("%^s is a mimic.  ", wd_he[msex]));
+		roff("%^s is a mimic.  ", wd_he[msex]);
 	}
 
 	/* Collect inate attacks */
@@ -614,23 +613,23 @@ static void roff_aux(int r_idx, int remem)
 	if (vn)
 	{
 		/* Intro */
-		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
+		roff("%^s", wd_he[msex]);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_WHITE, " may ");
-			else if (n < vn - 1) c_roff(TERM_WHITE, ", ");
+			if (n == 0) roff(" may ");
+			else if (n < vn - 1) roff(", ");
 			else
-				c_roff(TERM_WHITE, " or ");
+				roff(" or ");
 
 			/* Dump */
-			c_roff(TERM_L_RED, vp[n]);
+			roff(CLR_L_RED "%s", vp[n]);
 		}
 
 		/* End */
-		c_roff(TERM_WHITE, ".  ");
+		roff(".  ");
 	}
 
 
@@ -666,19 +665,19 @@ static void roff_aux(int r_idx, int remem)
 		breath = TRUE;
 
 		/* Intro */
-		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
+		roff("%^s", wd_he[msex]);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_WHITE, " may breathe ");
-			else if (n < vn - 1) c_roff(TERM_WHITE, ", ");
+			if (n == 0) roff(" may breathe ");
+			else if (n < vn - 1) roff(", ");
 			else
-				c_roff(TERM_WHITE, " or ");
+				roff(" or ");
 
 			/* Dump */
-			c_roff(TERM_L_RED, vp[n]);
+			roff(CLR_L_RED "%s", vp[n]);
 		}
 	}
 
@@ -761,30 +760,30 @@ static void roff_aux(int r_idx, int remem)
 		/* Intro */
 		if (breath)
 		{
-			c_roff(TERM_WHITE, ", and is also");
+			roff(", and is also");
 		}
 		else
 		{
-			c_roff(TERM_WHITE, format("%^s is", wd_he[msex]));
+			roff("%^s is", wd_he[msex]);
 		}
 
 		/* Verb Phrase */
-		c_roff(TERM_WHITE, " magical, casting spells");
+		roff(" magical, casting spells");
 
 		/* Adverb */
-		if (flags2 & RF2_SMART) c_roff(TERM_ORANGE, " intelligently");
+		if (flags2 & RF2_SMART) roff(CLR_ORANGE " intelligently");
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_WHITE, " which ");
-			else if (n < vn - 1) c_roff(TERM_WHITE, ", ");
+			if (n == 0) roff(" which ");
+			else if (n < vn - 1) roff(", ");
 			else
-				c_roff(TERM_WHITE, " or ");
+				roff(" or ");
 
 			/* Dump */
-			c_roff(TERM_L_RED, vp[n]);
+			roff(CLR_L_RED "%s", vp[n]);
 		}
 	}
 
@@ -801,18 +800,18 @@ static void roff_aux(int r_idx, int remem)
 		/* Describe the spell frequency */
 		if (m > 100)
 		{
-			c_roff(TERM_WHITE, format("; 1 time in %d", 100 / n));
+			roff("; 1 time in %d", 100 / n);
 		}
 
 		/* Guess at the frequency */
 		else if (m)
 		{
 			n = ((n + 9) / 10) * 10;
-			c_roff(TERM_WHITE, format("; about 1 time in %d", 100 / n));
+			roff("; about 1 time in %d", 100 / n);
 		}
 
 		/* End this sentence */
-		c_roff(TERM_WHITE, ".  ");
+		roff(".  ");
 	}
 
 
@@ -820,21 +819,20 @@ static void roff_aux(int r_idx, int remem)
 	if (know_armour(r_idx))
 	{
 		/* Armor */
-		c_roff(TERM_WHITE, format("%^s has an armor rating of %d",
-								  wd_he[msex], r_ptr->ac));
+		roff("%^s has an armor rating of %d", wd_he[msex], r_ptr->ac);
 
 		/* Maximized hitpoints */
 		if (flags1 & RF1_FORCE_MAXHP)
 		{
-			c_roff(TERM_WHITE, format(" and a life rating of %d.  ",
-									  r_ptr->hdice * r_ptr->hside));
+			roff(" and a life rating of %d.  ",
+									  r_ptr->hdice * r_ptr->hside);
 		}
 
 		/* Variable hitpoints */
 		else
 		{
-			c_roff(TERM_WHITE, format(" and a life rating of %dd%d.  ",
-									  r_ptr->hdice, r_ptr->hside));
+			roff(" and a life rating of %dd%d.  ",
+									  r_ptr->hdice, r_ptr->hside);
 		}
 	}
 
@@ -856,52 +854,50 @@ static void roff_aux(int r_idx, int remem)
 	if (vn)
 	{
 		/* Intro */
-		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
+		roff("%^s", wd_he[msex]);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_WHITE, " can ");
-			else if (n < vn - 1) c_roff(TERM_WHITE, ", ");
+			if (n == 0) roff(" can ");
+			else if (n < vn - 1) roff(", ");
 			else
-				c_roff(TERM_WHITE, " and ");
+				roff(" and ");
 
 			/* Dump */
-			c_roff(TERM_L_UMBER, vp[n]);
+			roff(CLR_L_UMBER "%s", vp[n]);
 		}
 
 		/* End */
-		c_roff(TERM_WHITE, ".  ");
+		roff(".  ");
 	}
 
 
 	/* Describe special abilities. */
 	if (flags2 & RF2_INVISIBLE)
 	{
-		c_roff(TERM_L_BLUE, format("%^s is invisible.  ", wd_he[msex]));
+		roff(CLR_L_BLUE "%^s is invisible.  ", wd_he[msex]);
 	}
 	if (flags2 & RF2_COLD_BLOOD)
 	{
-		c_roff(TERM_WHITE, format("%^s is cold blooded.  ", wd_he[msex]));
+		roff("%^s is cold blooded.  ", wd_he[msex]);
 	}
 	if (flags2 & RF2_EMPTY_MIND)
 	{
-		c_roff(TERM_WHITE,
-			   format("%^s is not detected by telepathy.  ", wd_he[msex]));
+		roff("%^s is not detected by telepathy.  ", wd_he[msex]);
 	}
 	if (flags2 & RF2_WEIRD_MIND)
 	{
-		c_roff(TERM_WHITE,
-			   format("%^s is rarely detected by telepathy.  ", wd_he[msex]));
+		roff("%^s is rarely detected by telepathy.  ", wd_he[msex]);
 	}
 	if (flags2 & RF2_MULTIPLY)
 	{
-		c_roff(TERM_L_UMBER, format("%^s breeds explosively.  ", wd_he[msex]));
+		roff(CLR_L_UMBER "%^s breeds explosively.  ", wd_he[msex]);
 	}
 	if (flags2 & RF2_REGENERATE)
 	{
-		c_roff(TERM_WHITE, format("%^s regenerates quickly.  ", wd_he[msex]));
+		roff("%^s regenerates quickly.  ", wd_he[msex]);
 	}
 
 
@@ -916,23 +912,23 @@ static void roff_aux(int r_idx, int remem)
 	if (vn)
 	{
 		/* Intro */
-		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
+		roff("%^s", wd_he[msex]);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_WHITE, " is hurt by ");
-			else if (n < vn - 1) c_roff(TERM_WHITE, ", ");
+			if (n == 0) roff(" is hurt by ");
+			else if (n < vn - 1) roff(", ");
 			else
-				c_roff(TERM_WHITE, " and ");
+				roff(" and ");
 
 			/* Dump */
-			c_roff(TERM_YELLOW, vp[n]);
+			roff(CLR_YELLOW "%s", vp[n]);
 		}
 
 		/* End */
-		c_roff(TERM_WHITE, ".  ");
+		roff(".  ");
 	}
 
 
@@ -948,23 +944,23 @@ static void roff_aux(int r_idx, int remem)
 	if (vn)
 	{
 		/* Intro */
-		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
+		roff("%^s", wd_he[msex]);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_WHITE, " resists ");
-			else if (n < vn - 1) c_roff(TERM_WHITE, ", ");
+			if (n == 0) roff(" resists ");
+			else if (n < vn - 1) roff(", ");
 			else
-				c_roff(TERM_WHITE, " and ");
+				roff(" and ");
 
 			/* Dump */
-			c_roff(TERM_ORANGE, vp[n]);
+			roff(CLR_ORANGE "%s", vp[n]);
 		}
 
 		/* End */
-		c_roff(TERM_WHITE, ".  ");
+		roff(".  ");
 	}
 
 
@@ -982,23 +978,23 @@ static void roff_aux(int r_idx, int remem)
 	if (vn)
 	{
 		/* Intro */
-		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
+		roff("%^s", wd_he[msex]);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_WHITE, " resists ");
-			else if (n < vn - 1) c_roff(TERM_WHITE, ", ");
+			if (n == 0) roff(" resists ");
+			else if (n < vn - 1) roff(", ");
 			else
-				c_roff(TERM_WHITE, " and ");
+				roff(" and ");
 
 			/* Dump */
-			c_roff(TERM_ORANGE, vp[n]);
+			roff(CLR_ORANGE "%s", vp[n]);
 		}
 
 		/* End */
-		c_roff(TERM_WHITE, ".  ");
+		roff(".  ");
 	}
 
 
@@ -1015,23 +1011,23 @@ static void roff_aux(int r_idx, int remem)
 	if (vn)
 	{
 		/* Intro */
-		c_roff(TERM_WHITE, format("%^s", wd_he[msex]));
+		roff("%^s", wd_he[msex]);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_WHITE, " cannot be ");
-			else if (n < vn - 1) c_roff(TERM_WHITE, ", ");
+			if (n == 0) roff(" cannot be ");
+			else if (n < vn - 1) roff(", ");
 			else
-				c_roff(TERM_WHITE, " or ");
+				roff(" or ");
 
 			/* Dump */
-			c_roff(TERM_YELLOW, vp[n]);
+			roff(CLR_YELLOW "%s", vp[n]);
 		}
 
 		/* End */
-		c_roff(TERM_WHITE, ".  ");
+		roff(".  ");
 	}
 
 
@@ -1087,9 +1083,8 @@ static void roff_aux(int r_idx, int remem)
 			act = "is ever vigilant for";
 		}
 
-		c_roff(TERM_WHITE,
-			   format("%^s %s intruders, which %s may notice from %d feet.  ",
-					  wd_he[msex], act, wd_he[msex], 10 * r_ptr->aaf));
+		roff("%^s %s intruders, which %s may notice from %d feet.  ",
+					  wd_he[msex], act, wd_he[msex], 10 * r_ptr->aaf);
 	}
 
 
@@ -1100,7 +1095,7 @@ static void roff_aux(int r_idx, int remem)
 		sin = FALSE;
 
 		/* Intro */
-		c_roff(TERM_WHITE, format("%^s may carry", wd_he[msex]));
+		roff("%^s may carry", wd_he[msex]);
 
 		/* Count maximum drop */
 		n = MAX(r_ptr->r_drop_gold, r_ptr->r_drop_item);
@@ -1108,20 +1103,20 @@ static void roff_aux(int r_idx, int remem)
 		/* One drop (may need an "n") */
 		if (n == 1)
 		{
-			c_roff(TERM_WHITE, " a");
+			roff(" a");
 			sin = TRUE;
 		}
 
 		/* Two drops */
 		else if (n == 2)
 		{
-			c_roff(TERM_WHITE, " one or two");
+			roff(" one or two");
 		}
 
 		/* Many drops */
 		else
 		{
-			c_roff(TERM_WHITE, format(" up to %d", n));
+			roff(" up to %d", n);
 		}
 
 
@@ -1149,13 +1144,13 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->r_drop_item)
 		{
 			/* Handle singular "an" */
-			if (sin) c_roff(TERM_WHITE, "n");
+			if (sin) roff("n");
 			sin = FALSE;
 
 			/* Dump "object(s)" */
-			if (p) c_roff(TERM_WHITE, p);
-			c_roff(TERM_WHITE, " object");
-			if (n != 1) c_roff(TERM_WHITE, "s");
+			if (p) roff(p);
+			roff(" object");
+			if (n != 1) roff("s");
 
 			/* Conjunction replaces variety, if needed for "gold" below */
 			p = " or";
@@ -1168,17 +1163,17 @@ static void roff_aux(int r_idx, int remem)
 			if (!p) sin = FALSE;
 
 			/* Handle singular "an" */
-			if (sin) c_roff(TERM_WHITE, "n");
+			if (sin) roff("n");
 			sin = FALSE;
 
 			/* Dump "treasure(s)" */
-			if (p) c_roff(TERM_WHITE, p);
-			c_roff(TERM_WHITE, " treasure");
-			if (n != 1) c_roff(TERM_WHITE, "s");
+			if (p) roff(p);
+			roff(" treasure");
+			if (n != 1) roff("s");
 		}
 
 		/* End this sentence */
-		c_roff(TERM_WHITE, ".  ");
+		roff(".  ");
 	}
 
 
@@ -1366,7 +1361,7 @@ static void roff_aux(int r_idx, int remem)
 			}
 			case RBE_TIME:
 			{
-				q = "time";
+				q = "distrupt the time continuum";
 				break;
 			}
 			case RBE_EXP_VAMP:
@@ -1380,15 +1375,15 @@ static void roff_aux(int r_idx, int remem)
 		/* Introduce the attack description */
 		if (!r)
 		{
-			c_roff(TERM_WHITE, format("%^s can ", wd_he[msex]));
+			roff("%^s can ", wd_he[msex]);
 		}
 		else if (r < n - 1)
 		{
-			c_roff(TERM_WHITE, ", ");
+			roff(", ");
 		}
 		else
 		{
-			c_roff(TERM_WHITE, ", and ");
+			roff(", and ");
 		}
 
 
@@ -1396,22 +1391,22 @@ static void roff_aux(int r_idx, int remem)
 		if (!p) p = "do something weird";
 
 		/* Describe the method */
-		c_roff(TERM_WHITE, p);
+		roff(p);
 
 
 		/* Describe the effect (if any) */
 		if (q)
 		{
 			/* Describe the attack type */
-			c_roff(TERM_WHITE, " to ");
-			c_roff(TERM_L_RED, q);
+			roff(" to ");
+			roff(CLR_L_RED "%s", q);
 
 			/* Describe damage (if known) */
 			if (d1 && d2 && know_damage(r_idx, m))
 			{
 				/* Display the damage */
-				c_roff(TERM_WHITE, " with damage");
-				c_roff(TERM_WHITE, format(" %dd%d", d1, d2));
+				roff(" with damage");
+				roff(" %dd%d", d1, d2);
 			}
 		}
 
@@ -1423,21 +1418,19 @@ static void roff_aux(int r_idx, int remem)
 	/* Finish sentence above */
 	if (r)
 	{
-		c_roff(TERM_WHITE, ".  ");
+		roff(".  ");
 	}
 
 	/* Notice lack of attacks */
 	else if (flags1 & RF1_NEVER_BLOW)
 	{
-		c_roff(TERM_WHITE,
-			   format("%^s has no physical attacks.  ", wd_he[msex]));
+		roff("%^s has no physical attacks.  ", wd_he[msex]);
 	}
 
 	/* Or describe the lack of knowledge */
 	else
 	{
-		c_roff(TERM_WHITE,
-			   format("Nothing is known about %s attack.  ", wd_his[msex]));
+		roff("Nothing is known about %s attack.  ", wd_his[msex]);
 	}
 
 
@@ -1447,13 +1440,12 @@ static void roff_aux(int r_idx, int remem)
 	 */
 	if ((flags1 & RF1_QUESTOR) && (r_ptr->r_sights))
 	{
-		c_roff(TERM_WHITE,
-			   "You feel an intense desire to kill this monster...  ");
+		roff("You feel an intense desire to kill this monster...  ");
 	}
 
 
 	/* All done */
-	c_roff(TERM_WHITE, "\n");
+	roff("\n");
 
 	/* Cheat -- know everything */
 	if ((cheat_know) && (remem == 0))
@@ -1468,7 +1460,7 @@ static void roff_aux(int r_idx, int remem)
 /*
  * Hack -- Display the "name" and "attr/chars" of a monster race
  */
-static void roff_top(int r_idx)
+void roff_top(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1493,40 +1485,34 @@ static void roff_top(int r_idx)
 
 
 	/* Clear the top line */
-	Term_erase(0, 0, 255);
-
+	clear_msg();
+    
 	/* Reset the cursor */
 	Term_gotoxy(0, 0);
 
 	/* A title (use "The" for non-uniques) */
 	if (!(r_ptr->flags1 & RF1_UNIQUE))
 	{
-		Term_addstr(-1, TERM_WHITE, "The ");
+		roff("The ");
 	}
 
 	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	roff(r_name + r_ptr->name);
 
 	/* Append the "standard" attr/char info */
-	Term_addstr(-1, TERM_WHITE, " ('");
+	roff(" ('");
 	Term_addch(a1, c1);
-	Term_addstr(-1, TERM_WHITE, "')");
+	roff("')");
 
 	/* Append the "optional" attr/char info */
-	Term_addstr(-1, TERM_WHITE, "/('");
+	roff("/('");
 	Term_addch(a2, c2);
-	Term_addstr(-1, TERM_WHITE, "'):");
+	roff("'):");
 
 	/* Wizards get extra info */
 	if (p_ptr->wizard)
 	{
-		char buf[6];
-
-		sprintf(buf, "%d", r_idx);
-
-		Term_addstr(-1, TERM_WHITE, " (");
-		Term_addstr(-1, TERM_L_BLUE, buf);
-		Term_addch(TERM_WHITE, ')');
+		roff(" (" CLR_L_BLUE "%d)", r_idx);
 	}
 }
 
@@ -1541,7 +1527,7 @@ void screen_roff(int r_idx, int remember)
 	message_flush();
 
 	/* Begin recall */
-	Term_erase(0, 1, 255);
+	clear_row(1);
 
 	/* Recall monster */
 	roff_aux(r_idx, remember);
@@ -1558,14 +1544,8 @@ void screen_roff(int r_idx, int remember)
  */
 void display_roff(int r_idx)
 {
-	int y;
-
 	/* Erase the window */
-	for (y = 0; y < Term->hgt; y++)
-	{
-		/* Erase the line */
-		Term_erase(0, y, 255);
-	}
+    clear_from(0);
 
 	/* Begin recall */
 	Term_gotoxy(0, 1);
@@ -1588,21 +1568,13 @@ void display_visible(void)
 	byte a1, a2;
 	monster_race *r_ptr;
 
-
 	/* Erase the window */
-	for (y = 0; y < Term->hgt; y++)
-	{
-		/* Erase the line */
-		Term_erase(0, y, 255);
-	}
+    clear_from(0);
 
 	/* Are we hallucinating? */
 	if (p_ptr->image)
 	{
-		/* Go to top left of screen */
-		Term_gotoxy(0, 10);
-
-		Term_addstr(-1, TERM_VIOLET, "Hallucinations");
+		put_fstr(0, 10, CLR_VIOLET "Hallucinations");
 
 		return;
 	}
@@ -1641,37 +1613,31 @@ void display_visible(void)
 		/* Dump the name */
 		if (r_ptr->flags1 & RF1_UNIQUE)
 		{
-			Term_addstr(-1, TERM_L_BLUE, (r_name + r_ptr->name));
+			roff(CLR_L_BLUE "%s", (r_name + r_ptr->name));
 		}
 		else
 		{
-			Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+			roff(r_name + r_ptr->name);
 		}
 
 		/* Append the "standard" attr/char info */
-		Term_addstr(-1, TERM_WHITE, " ('");
+		roff(" ('");
 		Term_addch(a1, c1);
-		Term_addstr(-1, TERM_WHITE, "')");
+		roff("')");
 
 		/* Append the "optional" attr/char info */
-		Term_addstr(-1, TERM_WHITE, "/('");
+		roff("/('");
 		Term_addch(a2, c2);
-		Term_addstr(-1, TERM_WHITE, "'):");
+		roff("'):");
 
 		/* Wizards get extra info */
 		if (p_ptr->wizard)
 		{
-			char buf[6];
-
-			sprintf(buf, "%d", i);
-
-			Term_addstr(-1, TERM_WHITE, " (");
-			Term_addstr(-1, TERM_L_BLUE, buf);
-			Term_addch(TERM_WHITE, ')');
+			roff(" (" CLR_L_BLUE "%d)", i);
 		}
 
 		/* Append count */
-		Term_addstr(-1, TERM_WHITE, format("[%d]", r_ptr->r_see));
+		roff("[%d]", r_ptr->r_see);
 
 		/* Look for the next one */
 		while (i > 0)
@@ -1865,9 +1831,12 @@ bool monster_shallow_water_wild(int r_idx)
 bool monster_lava_wild(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Check wilderness flags */
-	if (!wild_mon_hook(r_idx)) return FALSE;
+	
+	if ((wild_mon_hook) && (wild_mon_hook != monster_lava_wild))
+	{
+		/* Check wilderness flags */
+		if (!wild_mon_hook(r_idx)) return FALSE;
+	}
 
 	if (((r_ptr->flags3 & RF3_IM_FIRE) ||
 		 (r_ptr->flags7 & RF7_CAN_FLY)) && !(r_ptr->flags3 & RF3_AURA_COLD))
@@ -1880,8 +1849,11 @@ bool monster_acid_wild(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Check wilderness flags */
-	if (!wild_mon_hook(r_idx)) return FALSE;
+	if ((wild_mon_hook) && (wild_mon_hook != monster_acid_wild))
+	{
+		/* Check wilderness flags */
+		if (!wild_mon_hook(r_idx)) return FALSE;
+	}
 
 	if (((r_ptr->flags3 & RF3_IM_ACID) || (r_ptr->flags7 & RF7_CAN_FLY)))
 		return TRUE;
@@ -2079,10 +2051,7 @@ void anger_monster(monster_type *m_ptr)
 {
 	if (!is_hostile(m_ptr))
 	{
-		char m_name[80];
-
-		monster_desc(m_name, m_ptr, 0);
-		msg_format("%^s gets angry!", m_name);
+		msgf("%^v gets angry!", MONSTER_FMT(m_ptr, 0));
 		set_hostile(m_ptr);
 
 		chg_virtue(V_INDIVIDUALISM, 1);
@@ -2205,216 +2174,3 @@ bool monster_living(const monster_race *r_ptr)
 		return TRUE;
 }
 
-
-
-/* Dwarves */
-static cptr dwarf_syllable1[] =
-{
-	"B", "D", "F", "G", "Gl", "H", "K", "L", "M", "N", "R", "S", "T", "Th", "V",
-};
-
-static cptr dwarf_syllable2[] =
-{
-	"a", "e", "i", "o", "oi", "u",
-};
-
-static cptr dwarf_syllable3[] =
-{
-	"bur", "fur", "gan", "gnus", "gnar", "li", "lin", "lir", "mli", "nar",
-	"nus", "rin", "ran", "sin", "sil", "sur",
-};
-
-/* Elves */
-static cptr elf_syllable1[] =
-{
-	"Al", "An", "Bal", "Bel", "Cal", "Cel", "El", "Elr", "Elv", "Eow", "F",
-	"Fal", "Fel", "Fin", "G", "Gal", "Gel", "Gl", "Is", "Lan", "Leg", "N",
-	"Nal", "Nel", "S", "Sal", "Sel", "T", "Tal", "Tel", "Thr", "Tin",
-};
-
-static cptr elf_syllable2[] =
-{
-	"a", "adrie", "ara", "e", "ebri", "ele", "ere", "i", "io", "ithra",
-	"ilma", "il-Ga", "ili", "o", "orfi", "u", "y",
-};
-
-static cptr elf_syllable3[] =
-{
-	"l", "las", "lad", "ldor", "ldur", "linde", "lith", "mir", "n", "nd",
-	"ndel", "ndil", "ndir", "nduil", "ng", "mbor", "r", "rith", "ril",
-	"riand", "rion", "s", "thien", "viel", "wen", "wyn",
-};
-
-/* Gnomes */
-static cptr gnome_syllable1[] =
-{
-	"Aar", "An", "Ar", "As", "C", "H", "Han", "Har", "Hel", "Iir", "J",
-	"Jan", "Jar", "K", "L", "M", "Mar", "N", "Nik", "Os", "Ol", "P", "R",
-	"S", "Sam", "San", "T", "Ter", "Tom", "Ul", "V", "W", "Y",
-};
-
-static cptr gnome_syllable2[] =
-{
-	"a", "aa", "ai", "e", "ei", "i", "o", "uo", "u", "uu",
-};
-
-static cptr gnome_syllable3[] =
-{
-	"ron", "re", "la", "ki", "kseli", "ksi", "ku", "ja", "ta", "na",
-	"namari", "neli", "nika", "nikki", "nu", "nukka", "ka", "ko", "li",
-	"kki", "rik", "po", "to", "pekka", "rjaana", "rjatta", "rjukka", "la",
-	"lla", "lli", "mo", "nni",
-};
-
-/* Hobbit */
-static cptr hobbit_syllable1[] =
-{
-	"B", "Ber", "Br", "D", "Der", "Dr", "F", "Fr", "G", "H", "L", "Ler",
-	"M", "Mer", "N", "P", "Pr", "Per", "R", "S", "T", "W",
-};
-
-static cptr hobbit_syllable2[] =
-{
-	"a", "e", "i", "ia", "o", "oi", "u",
-};
-
-static cptr hobbit_syllable3[] =
-{
-	"bo", "ck", "decan", "degar", "do", "doc", "go", "grin", "lba", "lbo",
-	"lda", "ldo", "lla", "ll", "lo", "m", "mwise", "nac", "noc", "nwise",
-	"p", "ppin", "pper", "tho", "to",
-};
-
-/* Human */
-static cptr human_syllable1[] =
-{
-	"Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "Al", "Adw", "Adr", "Ar",
-	"B", "Br", "C", "Cr", "Ch", "Cad", "D", "Dr", "Dw", "Ed", "Eth", "Et",
-	"Er", "El", "Eow", "F", "Fr", "G", "Gr", "Gw", "Gal", "Gl", "H", "Ha",
-	"Ib", "Jer", "K", "Ka", "Ked", "L", "Loth", "Lar", "Leg", "M", "Mir",
-	"N", "Nyd", "Ol", "Oc", "On", "P", "Pr", "R", "Rh", "S", "Sev", "T",
-	"Tr", "Th", "V", "Y", "Z", "W", "Wic",
-};
-
-static cptr human_syllable2[] =
-{
-	"a", "ae", "au", "ao", "are", "ale", "ali", "ay", "ardo", "e", "ei",
-	"ea", "eri", "era", "ela", "eli", "enda", "erra", "i", "ia", "ie",
-	"ire", "ira", "ila", "ili", "ira", "igo", "o", "oa", "oi", "oe",
-	"ore", "u", "y",
-};
-
-static cptr human_syllable3[] =
-{
-	"a", "and", "b", "bwyn", "baen", "bard", "c", "ctred", "cred", "ch",
-	"can", "d", "dan", "don", "der", "dric", "dfrid", "dus", "f", "g",
-	"gord", "gan", "l", "li", "lgrin", "lin", "lith", "lath", "loth", "ld",
-	"ldric", "ldan", "m", "mas", "mos", "mar", "mond", "n", "nydd", "nidd",
-	"nnon", "nwan", "nyth", "nad", "nn", "nnor", "nd", "p", "r", "ron",
-	"rd", "s", "sh", "seth", "sean", "t", "th", "tha", "tlan", "trem",
-	"tram", "v", "vudd", "w", "wan", "win", "wyn", "wyr", "wyr", "wyth",
-};
-
-/* Orc */
-static cptr orc_syllable1[] =
-{
-	"B", "Er", "G", "Gr", "H", "P", "Pr", "R", "V", "Vr", "T", "Tr", "M", "Dr",
-};
-
-static cptr orc_syllable2[] =
-{
-	"a", "i", "o", "oo", "u", "ui",
-};
-
-static cptr orc_syllable3[] =
-{
-	"dash", "dish", "dush", "gar", "gor", "gdush", "lo", "gdish", "k",
-	"lg", "nak", "rag", "rbag", "rg", "rk", "ng", "nk", "rt", "ol", "urk",
-	"shnak", "mog", "mak", "rak",
-};
-
-
-/*
- * Random Name Generator
- * based on a Javascript by Michael Hensley
- * "http://geocities.com/timessquare/castle/6274/"
- */
-void create_name(int type, char *name)
-{
-	int cs = sizeof(char *);
-
-	/* Paranoia */
-	if (!name) return;
-
-	/* Select the monster type */
-	switch (type)
-	{
-			/* Create the monster name */
-		case NAME_DWARF:
-		{
-			strcpy(name,
-				   dwarf_syllable1[randint0(sizeof(dwarf_syllable1) / cs)]);
-			strcat(name,
-				   dwarf_syllable2[randint0(sizeof(dwarf_syllable2) / cs)]);
-			strcat(name,
-				   dwarf_syllable3[randint0(sizeof(dwarf_syllable3) / cs)]);
-			break;
-		}
-
-		case NAME_ELF:
-		{
-			strcpy(name, elf_syllable1[randint0(sizeof(elf_syllable1) / cs)]);
-			strcat(name, elf_syllable2[randint0(sizeof(elf_syllable2) / cs)]);
-			strcat(name, elf_syllable3[randint0(sizeof(elf_syllable3) / cs)]);
-			break;
-		}
-
-		case NAME_GNOME:
-		{
-			strcpy(name,
-				   gnome_syllable1[randint0(sizeof(gnome_syllable1) / cs)]);
-			strcat(name,
-				   gnome_syllable2[randint0(sizeof(gnome_syllable2) / cs)]);
-			strcat(name,
-				   gnome_syllable3[randint0(sizeof(gnome_syllable3) / cs)]);
-			break;
-		}
-
-		case NAME_HOBBIT:
-		{
-			strcpy(name, hobbit_syllable1[randint0(sizeof(hobbit_syllable1)
-												   / cs)]);
-			strcat(name, hobbit_syllable2[randint0(sizeof(hobbit_syllable2)
-												   / cs)]);
-			strcat(name, hobbit_syllable3[randint0(sizeof(hobbit_syllable3)
-												   / cs)]);
-			break;
-		}
-
-		case NAME_HUMAN:
-		{
-			strcpy(name,
-				   human_syllable1[randint0(sizeof(human_syllable1) / cs)]);
-			strcat(name,
-				   human_syllable2[randint0(sizeof(human_syllable2) / cs)]);
-			strcat(name,
-				   human_syllable3[randint0(sizeof(human_syllable3) / cs)]);
-			break;
-		}
-
-		case NAME_ORC:
-		{
-			strcpy(name, orc_syllable1[randint0(sizeof(orc_syllable1) / cs)]);
-			strcat(name, orc_syllable2[randint0(sizeof(orc_syllable2) / cs)]);
-			strcat(name, orc_syllable3[randint0(sizeof(orc_syllable3) / cs)]);
-			break;
-		}
-
-			/* Create an empty name */
-		default:
-		{
-			name[0] = '\0';
-			break;
-		}
-	}
-}

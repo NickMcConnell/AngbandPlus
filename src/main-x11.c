@@ -1274,7 +1274,7 @@ static errr Infofnt_init_real(XFontStruct *info)
  * Inputs:
  *	name: The name of the requested Font
  */
-static errr Infofnt_init_data(cptr name)
+static void Infofnt_init_data(cptr name)
 {
 	XFontStruct *info;
 
@@ -1282,13 +1282,13 @@ static errr Infofnt_init_data(cptr name)
 	/*** Load the info Fresh, using the name ***/
 
 	/* If the name is not given, report an error */
-	if (!name) return (-1);
+	if (!name) quit("Missing font!");
 
 	/* Attempt to load the font */
 	info = XLoadQueryFont(Metadpy->dpy, name);
 
-	/* The load failed, try to recover */
-	if (!info) return (-1);
+	/* The load failed */
+	if (!info) quit_fmt("Failed to find font:\"%s\"", name);
 
 
 	/*** Init the font ***/
@@ -1303,7 +1303,7 @@ static errr Infofnt_init_data(cptr name)
 		XFreeFont(Metadpy->dpy, info);
 
 		/* Fail */
-		return (-1);
+		quit_fmt("Failed to prepare font:\"%s\"", name);
 	}
 
 	/* Save a copy of the font name */
@@ -1311,9 +1311,6 @@ static errr Infofnt_init_data(cptr name)
 
 	/* Mark it as nukable */
 	Infofnt->nuke = 1;
-
-	/* Success */
-	return (0);
 }
 
 
@@ -1568,7 +1565,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the KeySym */
 	if (ks)
 	{
-		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
+		strnfmt(msg, 128, "%c%s%s%s%s_%lX%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        (unsigned long)(ks), 13);
@@ -1577,7 +1574,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the Keycode */
 	else
 	{
-		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
+		strnfmt(msg, 128, "%c%s%s%s%sK_%X%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        ev->keycode, 13);
@@ -2118,23 +2115,23 @@ static errr term_data_init(term_data *td, int i)
 	font = get_default_font(i);
 
 	/* Window specific location (x) */
-	sprintf(buf, "ANGBAND_X11_AT_X_%d", i);
+	strnfmt(buf, 80, "ANGBAND_X11_AT_X_%d", i);
 	str = getenv(buf);
 	x = (str != NULL) ? atoi(str) : -1;
 
 	/* Window specific location (y) */
-	sprintf(buf, "ANGBAND_X11_AT_Y_%d", i);
+	strnfmt(buf, 80, "ANGBAND_X11_AT_Y_%d", i);
 	str = getenv(buf);
 	y = (str != NULL) ? atoi(str) : -1;
 
 	/* Window specific cols */
-	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
+	strnfmt(buf, 80, "ANGBAND_X11_COLS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) cols = val;
 
 	/* Window specific rows */
-	sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
+	strnfmt(buf, 80, "ANGBAND_X11_ROWS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) rows = val;
@@ -2147,13 +2144,13 @@ static errr term_data_init(term_data *td, int i)
 	}
 
 	/* Window specific inner border offset (ox) */
-	sprintf(buf, "ANGBAND_X11_IBOX_%d", i);
+	strnfmt(buf, 80, "ANGBAND_X11_IBOX_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) ox = val;
 
 	/* Window specific inner border offset (oy) */
-	sprintf(buf, "ANGBAND_X11_IBOY_%d", i);
+	strnfmt(buf, 80, "ANGBAND_X11_IBOY_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) oy = val;

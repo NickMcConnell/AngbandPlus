@@ -206,45 +206,6 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_XTRA = string_make(path);
 
 #endif /* VM */
-
-
-#ifdef NeXT
-
-	/* Allow "fat binary" usage with NeXT */
-	if (TRUE)
-	{
-		cptr next = NULL;
-
-# if defined(m68k)
-		next = "m68k";
-# endif
-
-# if defined(i386)
-		next = "i386";
-# endif
-
-# if defined(sparc)
-		next = "sparc";
-# endif
-
-# if defined(hppa)
-		next = "hppa";
-# endif
-
-		/* Use special directory */
-		if (next)
-		{
-			/* Forget the old path name */
-			string_free(ANGBAND_DIR_DATA);
-
-			/* Build a new path name */
-			sprintf(tail, "data-%s", next);
-			ANGBAND_DIR_DATA = string_make(path);
-		}
-	}
-
-#endif /* NeXT */
-
 }
 
 
@@ -430,9 +391,9 @@ static void display_parse_error(cptr filename, errr err, cptr buf)
 	oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 	/* Oops */
-	msg_format("Error at line %d of '%s'.", error_line, filename);
-	msg_format("Record %d contains a '%s' error.", error_idx, oops);
-	msg_format("Parsing '%s'.", buf);
+	msgf("Error at line %d of '%s'.", error_line, filename);
+	msgf("Record %d contains a '%s' error.", error_idx, oops);
+	msgf("Parsing '%s'.", buf);
 	message_flush();
 
 	/* Quit */
@@ -516,7 +477,7 @@ static errr init_info(cptr filename, header *head,
 		fp = my_fopen(buf, "r");
 
 		/* Parse it */
-		if (!fp) quit(format("Cannot open '%s.txt' file.", filename));
+		if (!fp) quit_fmt("Cannot open '%s.txt' file.", filename);
 
 		/* Parse the file */
 		err = init_info_txt(fp, buf, head, head->parse_info_txt);
@@ -557,13 +518,8 @@ static errr init_info(cptr filename, header *head,
 			/* Failure */
 			if (fd < 0)
 			{
-				char why[1024];
-
-				/* Message */
-				sprintf(why, "Cannot create the '%s' file!", buf);
-
 				/* Crash and burn */
-				quit(why);
+				quit_fmt("Cannot create the '%s' file!", buf);
 			}
 		}
 
@@ -623,7 +579,7 @@ static errr init_info(cptr filename, header *head,
 		fd = fd_open(buf, O_RDONLY);
 
 		/* Process existing "raw" file */
-		if (fd < 0) quit(format("Cannot load '%s.raw' file.", filename));
+		if (fd < 0) quit_fmt("Cannot load '%s.raw' file.", filename);
 
 		/* Attempt to parse the "raw" file */
 		err = init_info_raw(fd, head);
@@ -632,7 +588,7 @@ static errr init_info(cptr filename, header *head,
 		fd_close(fd);
 
 		/* Error */
-		if (err) quit(format("Cannot parse '%s.raw' file.", filename));
+		if (err) quit_fmt("Cannot parse '%s.raw' file.", filename);
 
 #ifdef ALLOW_TEMPLATES
 	}
@@ -863,9 +819,9 @@ errr init_w_info(void)
 			(((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'w_info.txt'.", err, error_line);
-		msg_format("Record %d contains a '%s' error.", error_idx, oops);
-		msg_format("Parsing '%s'.", buf);
+		msgf("Error %d at line %d of 'w_info.txt'.", err, error_line);
+		msgf("Record %d contains a '%s' error.", error_idx, oops);
+		msgf("Parsing '%s'.", buf);
 		message_flush();
 
 		/* Quit */
@@ -920,9 +876,9 @@ errr init_t_info(void)
 			(((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 't_info.txt'.", err, error_line);
-		msg_format("Record %d contains a '%s' error.", error_idx, oops);
-		msg_format("Parsing '%s'.", buf);
+		msgf("Error %d at line %d of 't_info.txt'.", err, error_line);
+		msgf("Record %d contains a '%s' error.", error_idx, oops);
+		msgf("Parsing '%s'.", buf);
 		message_flush();
 
 		/* Quit */
@@ -933,6 +889,25 @@ errr init_t_info(void)
 	return (0);
 }
 
+/*
+ * The list of available format functions
+ *
+ * (They should be in order of most-called
+ *  through to least-called.)
+ */
+static vstrnfmt_aux_func my_format_functions[9] =
+{
+	set_message_type,
+	object_fmt,
+	object_store_fmt,
+	monster_fmt,
+	stat_format,
+	center_string,
+	likert,
+	binary_fmt,
+	NULL
+};
+
 
 /*
  * Initialize some other arrays
@@ -940,6 +915,15 @@ errr init_t_info(void)
 static errr init_other(void)
 {
 	int i, j, k, n;
+	
+	/*** Pre-allocate space for the "format()" buffer ***/
+
+	/* Hack -- Just call the "format()" function */
+	(void)format("%s (%s).", "Steven Fuerst", MAINTAINER);
+	
+	/* Initialise the "%v" user-defined format function list */ 
+	register_format_funcs(my_format_functions);
+	
 
 	/*** Prepare the various "bizarre" arrays ***/
 
@@ -1088,12 +1072,6 @@ static errr init_other(void)
 	C_MAKE(place, z_info->wp_max, place_type);
 
 
-	/*** Pre-allocate space for the "format()" buffer ***/
-
-	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Steven Fuerst", MAINTAINER);
-
-
 	/* Success */
 	return (0);
 }
@@ -1207,8 +1185,8 @@ static errr init_alloc(void)
  */
 static void note(cptr str)
 {
-	Term_erase(0, 23, 255);
-	Term_putstr(20, 23, -1, TERM_WHITE, str);
+	clear_row(23);
+	put_fstr(20, 23, str);
 	Term_fresh();
 }
 
@@ -1221,11 +1199,8 @@ static void note(cptr str)
  * may or may not be initialized, but the "plog()" and "quit()"
  * functions are "supposed" to work under any conditions.
  */
-static void init_angband_aux(cptr why)
+static void init_angband_fail(void)
 {
-	/* Why */
-	plog(why);
-
 	/* Explain */
 	plog("The 'lib' directory is probably missing or broken.");
 
@@ -1309,13 +1284,11 @@ void init_angband(void)
 	/* Failure */
 	if (fd < 0)
 	{
-		char why[1024];
-
 		/* Message */
-		sprintf(why, "Cannot access the '%s' file!", buf);
+		plog_fmt("Cannot access the '%s' file!", buf);
 
 		/* Crash and burn */
-		init_angband_aux(why);
+		init_angband_fail();
 	}
 
 	/* Close it */
@@ -1342,7 +1315,7 @@ void init_angband(void)
 		while (0 == my_fgets(fp, buf, 1024))
 		{
 			/* Display and advance */
-			Term_putstr(0, i++, -1, TERM_WHITE, buf);
+			put_fstr(0, i++, buf);
 		}
 
 		/* Close */
@@ -1379,13 +1352,11 @@ void init_angband(void)
 		/* Failure */
 		if (fd < 0)
 		{
-			char why[1024];
-
 			/* Message */
-			sprintf(why, "Cannot create the '%s' file!", buf);
+			plog_fmt("Cannot create the '%s' file!", buf);
 
 			/* Crash and burn */
-			init_angband_aux(why);
+			init_angband_fail();
 		}
 	}
 
@@ -1449,28 +1420,16 @@ void init_angband(void)
 	note("[Initializing user pref files...]");
 
 	/* Access the "basic" pref file */
-	strcpy(buf, "pref.prf");
-
-	/* Process that file */
-	(void)process_pref_file(buf);
+	(void)process_pref_file("pref.prf");
 
 	/* Access the "user" pref file */
-	sprintf(buf, "user.prf");
-
-	/* Process that file */
-	(void)process_pref_file(buf);
+	(void)process_pref_file("user.prf");
 
 	/* Access the "basic" system pref file */
-	sprintf(buf, "pref-%s.prf", ANGBAND_SYS);
-
-	/* Process that file */
-	(void)process_pref_file(buf);
+	(void)process_pref_file("pref-%s.prf", ANGBAND_SYS);
 
 	/* Access the "user" system pref file */
-	sprintf(buf, "user-%s.prf", ANGBAND_SYS);
-
-	/* Process that file */
-	(void)process_pref_file(buf);
+	(void)process_pref_file("user-%s.prf", ANGBAND_SYS);
 
 	/* Initialise the fake monochrome flag */
 	fake_monochrome = (!use_graphics
@@ -1593,9 +1552,6 @@ void cleanup_angband(void)
 	free_info(&k_head);
 	free_info(&f_head);
 	free_info(&z_head);
-
-	/* Free the format() buffer */
-	vformat_kill();
 
 	/* Free the interface callbacks */
 	free_term_callbacks();

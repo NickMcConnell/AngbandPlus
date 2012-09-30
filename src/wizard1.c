@@ -13,8 +13,6 @@
  */
 static FILE *fff = NULL;
 
-
-
 /*
  * Extract a textual representation of an attribute
  */
@@ -43,7 +41,6 @@ static cptr attr_to_text(byte a)
 	/* Oops */
 	return ("Icky");
 }
-
 
 
 /*
@@ -162,7 +159,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
 
 
 	/* Misc info */
-	strcpy(dam, "");
+	dam[0] = 0;
 
 	/* Damage */
 	switch (q_ptr->tval)
@@ -178,7 +175,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
 		case TV_ARROW:
 		{
 			/* Ammo */
-			sprintf(dam, "%dd%d", (int)q_ptr->dd, (int)q_ptr->ds);
+			strnfmt(dam, 80, "%dd%d", (int)q_ptr->dd, (int)q_ptr->ds);
 			break;
 		}
 
@@ -188,7 +185,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
 		case TV_DIGGING:
 		{
 			/* Weapons */
-			sprintf(dam, "%dd%d", (int)q_ptr->dd, (int)q_ptr->ds);
+			strnfmt(dam, 80, "%dd%d", (int)q_ptr->dd, (int)q_ptr->ds);
 			break;
 		}
 
@@ -203,14 +200,14 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
 		case TV_DRAG_ARMOR:
 		{
 			/* Armour */
-			sprintf(dam, "%d", q_ptr->ac);
+			strnfmt(dam, 80, "%d", q_ptr->ac);
 			break;
 		}
 	}
 
 
 	/* Weight */
-	sprintf(wgt, "%3d.%d", q_ptr->weight / 10, q_ptr->weight % 10);
+	strnfmt(wgt, 80, "%3d.%d", q_ptr->weight / 10, q_ptr->weight % 10);
 }
 
 
@@ -241,7 +238,7 @@ static void spoil_obj_desc(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
-		msg_print("Cannot create spoiler file.");
+		msgf("Cannot create spoiler file.");
 		return;
 	}
 
@@ -333,14 +330,14 @@ static void spoil_obj_desc(cptr fname)
 	/* Check for errors */
 	if (ferror(fff))
 	{
-		msg_print("Cannot close spoiler file.");
+		msgf("Cannot close spoiler file.");
 		return;
 	}
 
 	my_fclose(fff);
 
 	/* Message */
-	msg_print("Successfully created a spoiler file.");
+	msgf("Successfully created a spoiler file.");
 }
 
 
@@ -685,7 +682,6 @@ static void spoiler_underline(cptr str)
 }
 
 
-
 /*
  * This function does most of the actual "analysis". Given a set of bit flags
  * (which will be from one of the flags fields from the object in question),
@@ -750,7 +746,7 @@ static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 	affects_list = p_ptr->pval_affects;
 
 	/* Create the "+N" string */
-	sprintf(p_ptr->pval_desc, "%s%d", POSITIZE(o_ptr->pval), o_ptr->pval);
+	strnfmt(p_ptr->pval_desc, 12, "%s%d", POSITIZE(o_ptr->pval), o_ptr->pval);
 
 	/* First, check to see if the pval affects all stats */
 	if ((f1 & all_stats) == all_stats)
@@ -941,7 +937,7 @@ static void analyze_misc(const object_type *o_ptr, char *misc_desc)
 
 	a_ptr = &a_info[o_ptr->activate - 128];
 
-	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
+	strnfmt(misc_desc, 80, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
 			(uint)a_ptr->level, (uint)a_ptr->rarity,
 			a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
 }
@@ -982,11 +978,7 @@ static void object_analyze(const object_type *o_ptr, obj_desc_list *desc_ptr)
 
 static void print_header(void)
 {
-	char buf[80];
-
-	sprintf(buf, "Artifact Spoilers for %s Version %s",
-			VERSION_NAME, VERSION_STRING);
-	spoiler_underline(buf);
+	spoiler_underline("Artifact Spoilers for " VERSION_NAME " Version " VERSION_STRING);
 }
 
 
@@ -1038,13 +1030,12 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	if (*list == NULL) return;
 
 	/* This function always indents */
-	strcpy(line, INDENT1);
+	line_len = strnfmt(line, MAX_LINE_LEN + 1, INDENT1);
 
 	/* Create header (if one was given) */
 	if (header &&(header[0]))
 	{
-		strcat(line, header);
-		strcat(line, " ");
+		strnfcat(line, MAX_LINE_LEN + 1, &line_len, "%s ", header);
 	}
 
 	line_len = strlen(line);
@@ -1065,7 +1056,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 
 		if (list[1])
 		{
-			sprintf(buf + buf_len, "%c ", separator);
+			strnfmt(buf + buf_len, 80 - buf_len, "%c ", separator);
 			buf_len += 2;
 		}
 
@@ -1076,8 +1067,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 
 		if (line_len + buf_len <= MAX_LINE_LEN)
 		{
-			strcat(line, buf);
-			line_len += buf_len;
+			strnfcat(line, MAX_LINE_LEN + 1, &line_len, buf);
 		}
 
 		/* Apply line wrapping and indention semantics described above */
@@ -1097,7 +1087,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 				fprintf(fff, "%s\n", line);
 
 				/* Begin new line at primary indention level */
-				sprintf(line, "%s%s", INDENT1, buf);
+				strnfmt(line, MAX_LINE_LEN + 1, "%s%s", INDENT1, buf);
 			}
 
 			else
@@ -1106,7 +1096,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 				fprintf(fff, "%s\n", line);
 
 				/* Begin new line at secondary indention level */
-				sprintf(line, "%s%s", INDENT2, buf);
+				strnfmt(line, MAX_LINE_LEN + 1, "%s%s", INDENT2, buf);
 			}
 
 			line_len = strlen(line);
@@ -1137,7 +1127,7 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	if (pval_ptr->pval_desc[0])
 	{
 		/* Mention the effects of pval */
-		sprintf(buf, "%s to", pval_ptr->pval_desc);
+		strnfmt(buf, 80, "%s to", pval_ptr->pval_desc);
 		spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
 	}
 
@@ -1248,7 +1238,7 @@ static void spoil_artifact(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
-		msg_print("Cannot create spoiler file.");
+		msgf("Cannot create spoiler file.");
 		return;
 	}
 
@@ -1290,14 +1280,14 @@ static void spoil_artifact(cptr fname)
 	/* Check for errors */
 	if (ferror(fff))
 	{
-		msg_print("Cannot close spoiler file.");
+		msgf("Cannot close spoiler file.");
 		return;
 	}
 
 	my_fclose(fff);
 
 	/* Message */
-	msg_print("Successfully created a spoiler file.");
+	msgf("Successfully created a spoiler file.");
 }
 
 
@@ -1323,6 +1313,7 @@ static void spoil_mon_desc(cptr fname)
 	char ac[80];
 	char hp[80];
 	char exp[80];
+	char vis[80];
 
 
 	/* Build the filename */
@@ -1337,7 +1328,7 @@ static void spoil_mon_desc(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
-		msg_print("Cannot create spoiler file.");
+		msgf("Cannot create spoiler file.");
 		return;
 	}
 
@@ -1381,57 +1372,57 @@ static void spoil_mon_desc(cptr fname)
 		/* Get the "name" */
 		if (r_ptr->flags1 & (RF1_QUESTOR))
 		{
-			sprintf(nam, "[Q] %s", name);
+			strnfmt(nam, 80, "[Q] %s", name);
 		}
 		else if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			sprintf(nam, "[U] %s", name);
+			strnfmt(nam, 80, "[U] %s", name);
 		}
 		else
 		{
-			sprintf(nam, "The %s", name);
+			strnfmt(nam, 80, "The %s", name);
 		}
 
 
 		/* Level */
-		sprintf(lev, "%d", (int)r_ptr->level);
+		strnfmt(lev, 80, "%d", (int)r_ptr->level);
 
 		/* Rarity */
-		sprintf(rar, "%d", (int)r_ptr->rarity);
+		strnfmt(rar, 80, "%d", (int)r_ptr->rarity);
 
 		/* Speed */
 		if (r_ptr->speed >= 110)
 		{
-			sprintf(spd, "+%d", (r_ptr->speed - 110));
+			strnfmt(spd, 80, "+%d", (r_ptr->speed - 110));
 		}
 		else
 		{
-			sprintf(spd, "-%d", (110 - r_ptr->speed));
+			strnfmt(spd, 80, "-%d", (110 - r_ptr->speed));
 		}
 
 		/* Armor Class */
-		sprintf(ac, "%d", r_ptr->ac);
+		strnfmt(ac, 80, "%d", r_ptr->ac);
 
 		/* Hitpoints */
 		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
 		{
-			sprintf(hp, "%d", (int)r_ptr->hdice * r_ptr->hside);
+			strnfmt(hp, 80, "%d", (int)r_ptr->hdice * r_ptr->hside);
 		}
 		else
 		{
-			sprintf(hp, "%dd%d", (int)r_ptr->hdice, (int)r_ptr->hside);
+			strnfmt(hp, 80, "%dd%d", (int)r_ptr->hdice, (int)r_ptr->hside);
 		}
 
 
 		/* Experience */
-		sprintf(exp, "%ld", (long)(r_ptr->mexp));
+		strnfmt(exp, 80, "%ld", (long)(r_ptr->mexp));
 
 		/* Hack -- use visual instead */
-		sprintf(exp, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
+		strnfmt(vis, 80, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
 
 		/* Dump the info */
-		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
-				nam, lev, rar, spd, hp, ac, exp);
+		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s %s\n",
+				nam, lev, rar, spd, hp, ac, exp, vis);
 	}
 
 	/* Free the "who" array */
@@ -1443,14 +1434,14 @@ static void spoil_mon_desc(cptr fname)
 	/* Check for errors */
 	if (ferror(fff))
 	{
-		msg_print("Cannot close spoiler file.");
+		msgf("Cannot close spoiler file.");
 		return;
 	}
 
 	my_fclose(fff);
 
 	/* Worked */
-	msg_print("Successfully created a spoiler file.");
+	msgf("Successfully created a spoiler file.");
 }
 
 
@@ -1476,9 +1467,15 @@ static cptr wd_lhe[3] =
  * Buffer text to the given file. (-SHAWN-)
  * This is basically c_roff() from mon-desc.c with a few changes.
  */
-static void spoil_out(cptr str)
+static void spoil_out(cptr fmt, ...)
 {
 	cptr r;
+	
+	va_list vp;
+
+	char buf[1024];
+	
+	char *str;
 
 	/* Line buffer */
 	static char roff_buf[256];
@@ -1488,9 +1485,9 @@ static void spoil_out(cptr str)
 
 	/* Last space saved into roff_buf */
 	static char *roff_s = NULL;
-
+	
 	/* Special handling for "new sequence" */
-	if (!str)
+	if (!fmt)
 	{
 		if (roff_p != roff_buf) roff_p--;
 		while (*roff_p == ' ' && roff_p != roff_buf) roff_p--;
@@ -1505,6 +1502,18 @@ static void spoil_out(cptr str)
 		roff_buf[0] = '\0';
 		return;
 	}
+	
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, fmt, &vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+	
+	/* Start at the head of the buffer */
+	str = buf;
 
 	/* Scan the given string, character at a time */
 	for (; *str; str++)
@@ -1570,15 +1579,13 @@ static void spoil_mon_info(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
-		msg_print("Cannot create spoiler file.");
+		msgf("Cannot create spoiler file.");
 		return;
 	}
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for %s Version %s",
-			VERSION_NAME, VERSION_STRING);
-	spoiler_underline(buf);
+	spoiler_underline("Monster Spoilers for " VERSION_NAME "  Version " VERSION_STRING);
 	spoiler_blanklines(1);
 
 	/* Allocate the "who" array */
@@ -1639,63 +1646,52 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Name */
-		sprintf(buf, "%s  (", (r_name + r_ptr->name));	/* ---)--- */
-		spoil_out(buf);
+		spoil_out("%s  (", (r_name + r_ptr->name));	/* ---)--- */
 
 		/* Color */
 		spoil_out(attr_to_text(r_ptr->d_attr));
 
 		/* Symbol --(-- */
-		sprintf(buf, " '%c')\n", r_ptr->d_char);
-		spoil_out(buf);
+		spoil_out(" '%c')\n", r_ptr->d_char);
 
 
 		/* Indent */
-		sprintf(buf, "=== ");
-		spoil_out(buf);
+		spoil_out("=== ");
 
 		/* Number */
-		sprintf(buf, "Num:%d  ", who[n]);
-		spoil_out(buf);
+		spoil_out("Num:%d  ", who[n]);
 
 		/* Level */
-		sprintf(buf, "Lev:%d  ", (int)r_ptr->level);
-		spoil_out(buf);
+		spoil_out("Lev:%d  ", (int)r_ptr->level);
 
 		/* Rarity */
-		sprintf(buf, "Rar:%d  ", (int)r_ptr->rarity);
-		spoil_out(buf);
+		spoil_out("Rar:%d  ", (int)r_ptr->rarity);
 
 		/* Speed */
 		if (r_ptr->speed >= 110)
 		{
-			sprintf(buf, "Spd:+%d  ", (r_ptr->speed - 110));
+			spoil_out("Spd:+%d  ", (r_ptr->speed - 110));
 		}
 		else
 		{
-			sprintf(buf, "Spd:-%d  ", (110 - r_ptr->speed));
+			spoil_out("Spd:-%d  ", (110 - r_ptr->speed));
 		}
-		spoil_out(buf);
 
 		/* Hitpoints */
 		if ((flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
 		{
-			sprintf(buf, "Hp:%d  ", ((int)r_ptr->hdice) * r_ptr->hside);
+			spoil_out("Hp:%d  ", ((int)r_ptr->hdice) * r_ptr->hside);
 		}
 		else
 		{
-			sprintf(buf, "Hp:%dd%d  ", (int)r_ptr->hdice, (int)r_ptr->hside);
+			spoil_out("Hp:%dd%d  ", (int)r_ptr->hdice, (int)r_ptr->hside);
 		}
-		spoil_out(buf);
 
 		/* Armor Class */
-		sprintf(buf, "Ac:%d  ", r_ptr->ac);
-		spoil_out(buf);
+		spoil_out("Ac:%d  ", r_ptr->ac);
 
 		/* Experience */
-		sprintf(buf, "Exp:%ld\n", (long)(r_ptr->mexp));
-		spoil_out(buf);
-
+		spoil_out("Exp:%ld\n", (long)(r_ptr->mexp));
 
 		/* Describe */
 		spoil_out(r_text + r_ptr->text);
@@ -1747,44 +1743,38 @@ static void spoil_mon_info(cptr fname)
 
 		if (!r_ptr->level || (flags1 & (RF1_FORCE_DEPTH)))
 		{
-			sprintf(buf, "%s is never found out of depth.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out("%s is never found out of depth.  ", wd_che[msex]);
 		}
 
 		if (flags1 & (RF1_FORCE_SLEEP))
 		{
-			sprintf(buf, "%s is always created sluggish.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out("%s is always created sluggish.  ", wd_che[msex]);
 		}
 
 		if (flags2 & (RF2_AURA_FIRE))
 		{
-			sprintf(buf, "%s is surrounded by flames.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out("%s is surrounded by flames.  ", wd_che[msex]);
 		}
 
 		if (flags3 & (RF3_AURA_COLD))
 		{
-			sprintf(buf, "%s is surrounded by ice.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out("%s is surrounded by ice.  ", wd_che[msex]);
 		}
 
 		if (flags2 & (RF2_AURA_ELEC))
 		{
-			sprintf(buf, "%s is surrounded by electricity.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out("%s is surrounded by electricity.  ", wd_che[msex]);
 		}
 
 		if (flags2 & (RF2_REFLECTING))
 		{
-			sprintf(buf, "%s reflects bolt spells.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out("%s reflects bolt spells.  ", wd_che[msex]);
 		}
 
 		if (flags1 & (RF1_ESCORT))
 		{
-			sprintf(buf, "%s usually appears with ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out("%s usually appears with ", wd_che[msex]);
+
 			if (flags1 & (RF1_ESCORTS)) spoil_out("escorts.  ");
 			else
 				spoil_out("an escort.  ");
@@ -1792,8 +1782,7 @@ static void spoil_mon_info(cptr fname)
 
 		if (flags1 & (RF1_CHAR_MIMIC))
 		{
-			sprintf(buf, "%s is a mimic.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out("%s is a mimic.  ", wd_che[msex]);;
 		}
 
 		/* Collect inate attacks */
@@ -1959,9 +1948,8 @@ static void spoil_mon_info(cptr fname)
 
 		if (breath || magic)
 		{
-			sprintf(buf, "; 1 time in %d.  ",
+			spoil_out("; 1 time in %d.  ",
 					200 / (r_ptr->freq_inate + r_ptr->freq_spell));
-			spoil_out(buf);
 		}
 
 		/* Collect special abilities. */
@@ -2126,9 +2114,8 @@ static void spoil_mon_info(cptr fname)
 		else
 			spoil_out(" is ever vigilant for");
 
-		sprintf(buf, " intruders, which %s may notice from %d feet.  ",
+		spoil_out(" intruders, which %s may notice from %d feet.  ",
 				wd_lhe[msex], 10 * r_ptr->aaf);
-		spoil_out(buf);
 
 		i = 0;
 		if (flags1 & (RF1_DROP_60)) i += 1;
@@ -2157,8 +2144,7 @@ static void spoil_mon_info(cptr fname)
 			}
 			else
 			{
-				sprintf(buf, " up to %u", (uint)i);
-				spoil_out(buf);
+				spoil_out(" up to %u", (uint)i);
 			}
 
 			if (flags1 & (RF1_DROP_GREAT))
@@ -2402,12 +2388,11 @@ static void spoil_mon_info(cptr fname)
 				{
 					spoil_out(" with damage");
 					if (r_ptr->blow[j].d_side == 1)
-						sprintf(buf, " %d", (int)r_ptr->blow[j].d_dice);
+						spoil_out(" %d", (int)r_ptr->blow[j].d_dice);
 					else
-						sprintf(buf, " %dd%d",
+						spoil_out(" %dd%d",
 								(int)r_ptr->blow[j].d_dice,
 								(int)r_ptr->blow[j].d_side);
-					spoil_out(buf);
 				}
 			}
 
@@ -2420,8 +2405,7 @@ static void spoil_mon_info(cptr fname)
 		}
 		else if (flags1 & (RF1_NEVER_BLOW))
 		{
-			sprintf(buf, "%s has no physical attacks.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out("%s has no physical attacks.  ", wd_che[msex]);
 		}
 
 		spoil_out(NULL);
@@ -2433,13 +2417,13 @@ static void spoil_mon_info(cptr fname)
 	/* Check for errors */
 	if (ferror(fff))
 	{
-		msg_print("Cannot close spoiler file.");
+		msgf("Cannot close spoiler file.");
 		return;
 	}
 
 	my_fclose(fff);
 
-	msg_print("Successfully created a spoiler file.");
+	msgf("Successfully created a spoiler file.");
 }
 
 
@@ -2479,14 +2463,12 @@ static void spoil_mutation(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
-		msg_print("Cannot create spoiler file.");
+		msgf("Cannot create spoiler file.");
 		return;
 	}
 
 	/* Dump the header */
-	sprintf(buf, "Mutation Spoilers for %s Version %s",
-			VERSION_NAME, VERSION_STRING);
-	spoiler_underline(buf);
+	spoiler_underline("Mutation Spoilers for " VERSION_NAME " Version " VERSION_STRING);
 	spoiler_blanklines(1);
 
 	for (i = 0; i < MUT_PER_SET * 3; i++)
@@ -2497,46 +2479,37 @@ static void spoil_mutation(cptr fname)
 		if (i == 0)
 		{
 			/* Activatable mutations */
-			sprintf(buf, "The activatable mutations");
-			spoiler_underline(buf);
+			spoiler_underline("The activatable mutations");
 			spoiler_blanklines(1);
 		}
 		else if (i == MUT_PER_SET)
 		{
 			/* Random mutations */
-			sprintf(buf, "Randomly activating mutations");
-			spoiler_underline(buf);
+			spoiler_underline("Randomly activating mutations");
 			spoil_out(NULL);
 		}
 		else if (i == MUT_PER_SET * 2)
 		{
 			/* Other mutations */
-			sprintf(buf, "Other mutations");
-			spoiler_underline(buf);
+			spoiler_underline("Other mutations");
 			spoil_out(NULL);
 		}
 
 		/* Describe mutation */
-		sprintf(buf, format("%s \n", mut_ptr->desc_text));
-		spoil_out(buf);
+		spoil_out("%s \n", mut_ptr->desc_text);
 
 		/* Type 1? */
 		if (i < MUT_PER_SET)
 		{
-			sprintf(buf, "- Activation: %s \n", mut_ptr->name);
-			spoil_out(buf);
+			spoil_out("- Activation: %s \n", mut_ptr->name);
 
-			sprintf(buf, "- Min. level: %d \n", (int)mut_ptr->level);
-			spoil_out(buf);
+			spoil_out("- Min. level: %d \n", (int)mut_ptr->level);
 
-			sprintf(buf, "- HP/SP Cost: %d \n", mut_ptr->cost);
-			spoil_out(buf);
+			spoil_out("- HP/SP Cost: %d \n", mut_ptr->cost);
 
-			sprintf(buf, "- Statistic : %s \n", long_stat_names[mut_ptr->stat]);
-			spoil_out(buf);
+			spoil_out("- Statistic : %s \n", long_stat_names[mut_ptr->stat]);
 
-			sprintf(buf, "- Difficulty: %d \n", mut_ptr->diff);
-			spoil_out(buf);
+			spoil_out("- Difficulty: %d \n", mut_ptr->diff);
 		}
 
 		/* Type 2? */
@@ -2544,8 +2517,7 @@ static void spoil_mutation(cptr fname)
 		{
 			if (mut_ptr->chance > 0)
 			{
-				sprintf(buf, "- Chance/turn: 1-in-%d\n", mut_ptr->chance * 100);
-				spoil_out(buf);
+				spoil_out("- Chance/turn: 1-in-%d\n", mut_ptr->chance * 100);
 			}
 		}
 
@@ -2555,14 +2527,14 @@ static void spoil_mutation(cptr fname)
 	/* Check for errors */
 	if (ferror(fff))
 	{
-		msg_print("Cannot close spoiler file.");
+		msgf("Cannot close spoiler file.");
 		return;
 	}
 
 	my_fclose(fff);
 
 	/* Message */
-	msg_print("Successfully created a spoiler file.");
+	msgf("Successfully created a spoiler file.");
 }
 
 
@@ -2588,19 +2560,16 @@ static void spoil_rac_pow(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
-		msg_print("Cannot create spoiler file.");
+		msgf("Cannot create spoiler file.");
 		return;
 	}
 
 	/* Dump the header */
-	sprintf(buf, "Racial Powers Spoilers for %s Version %s",
-			VERSION_NAME, VERSION_STRING);
-	spoiler_underline(buf);
+	spoiler_underline("Racial Powers Spoilers for " VERSION_NAME " Version " VERSION_STRING);
 	spoiler_blanklines(1);
 
 	/* The Racial Powers */
-	sprintf(buf, "The Racial Powers");
-	spoiler_underline(buf);
+	spoiler_underline("The Racial Powers");
 	spoiler_blanklines(1);
 
 	for (i = 0; i < MAX_RACE_POWERS; i++)
@@ -2609,26 +2578,19 @@ static void spoil_rac_pow(cptr fname)
 
 		/* Describe power */
 		rp_ptr = &race_info[mut_ptr->which];
-		sprintf(buf, "%s", rp_ptr->title);
-		spoiler_underline(buf);
+		spoiler_underline(rp_ptr->title);
 
-		sprintf(buf, format("%s \n", mut_ptr->desc_text));
-		spoil_out(buf);
+		spoil_out("%s \n", mut_ptr->desc_text);
 
-		sprintf(buf, "- Activation: %s \n", mut_ptr->name);
-		spoil_out(buf);
+		spoil_out("- Activation: %s \n", mut_ptr->name);
 
-		sprintf(buf, "- Min. level: %d \n", (int)mut_ptr->level);
-		spoil_out(buf);
+		spoil_out("- Min. level: %d \n", (int)mut_ptr->level);
 
-		sprintf(buf, "- HP/SP Cost: %d \n", mut_ptr->cost);
-		spoil_out(buf);
+		spoil_out("- HP/SP Cost: %d \n", mut_ptr->cost);
 
-		sprintf(buf, "- Statistic : %3s \n", long_stat_names[mut_ptr->stat]);
-		spoil_out(buf);
+		spoil_out("- Statistic : %3s \n", long_stat_names[mut_ptr->stat]);
 
-		sprintf(buf, "- Difficulty: %d \n", mut_ptr->diff);
-		spoil_out(buf);
+		spoil_out("- Difficulty: %d \n", mut_ptr->diff);
 
 		spoiler_blanklines(1);
 	}
@@ -2636,14 +2598,14 @@ static void spoil_rac_pow(cptr fname)
 	/* Check for errors */
 	if (ferror(fff))
 	{
-		msg_print("Cannot close spoiler file.");
+		msgf("Cannot close spoiler file.");
 		return;
 	}
 
 	my_fclose(fff);
 
 	/* Message */
-	msg_print("Successfully created a spoiler file.");
+	msgf("Successfully created a spoiler file.");
 }
 
 
@@ -2671,18 +2633,18 @@ void do_cmd_spoilers(void)
 		Term_clear();
 
 		/* Info */
-		prt("Create a spoiler file.", 0, 2);
+		prtf(0, 2, "Create a spoiler file.");
 
 		/* Prompt for a file */
-		prt("(1) Brief Object Info (obj-desc.spo)", 5, 5);
-		prt("(2) Brief Artifact Info (artifact.spo)", 5, 6);
-		prt("(3) Brief Monster Info (mon-desc.spo)", 5, 7);
-		prt("(4) Full Monster Info (mon-info.spo)", 5, 8);
-		prt("(5) Brief Mutation Info (mutation.spo)", 5, 9);
-		prt("(6) Brief Racial Powers Info (rac-pow.spo)", 5, 10);
+		prtf(5, 5, "(1) Brief Object Info (obj-desc.spo)");
+		prtf(5, 6, "(2) Brief Artifact Info (artifact.spo)");
+		prtf(5, 7, "(3) Brief Monster Info (mon-desc.spo)");
+		prtf(5, 8, "(4) Full Monster Info (mon-info.spo)");
+		prtf(5, 9, "(5) Brief Mutation Info (mutation.spo)");
+		prtf(5, 10, "(6) Brief Racial Powers Info (rac-pow.spo)");
 
 		/* Prompt */
-		prt("Command: ", 0, 12);
+		prtf(0, 12, "Command: ");
 
 		/* Get a choice */
 		i = inkey();

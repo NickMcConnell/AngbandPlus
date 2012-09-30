@@ -578,7 +578,6 @@ extern void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note);
 extern void screen_roff(int r_idx, int remember);
 extern void display_roff(int r_idx);
 extern void display_visible(void);
-extern void create_name(int type, char *name);
 
 /* monster2.c */
 extern cptr horror_desc[MAX_SAN_HORROR];
@@ -590,7 +589,7 @@ extern void compact_monsters(int size);
 extern s16b m_pop(void);
 extern void get_mon_num_prep(monster_hook_type monster_hook, monster_hook_type monster_hook2);
 extern s16b get_mon_num(int level);
-extern void monster_desc(char *desc, const monster_type *m_ptr, int mode);
+extern void monster_desc(char *desc, const monster_type *m_ptr, int mode, int max);
 extern void lore_do_probe(int m_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
 extern void update_mon_vis(u16b r_idx, int increment);

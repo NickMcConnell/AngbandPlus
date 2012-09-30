@@ -56,11 +56,6 @@
 /* Useful typedef for los_general() */
 typedef bool (*map_hook_type) (map_block *mb_ptr);
 
-/* Map hooks */
-extern callback_type old_info_hook;
-extern callback_type old_erase_hook;
-extern callback_type old_move_hook;
-
 /* Recalculate danger */
 extern bool borg_danger_wipe;
 
@@ -73,11 +68,11 @@ extern bool borg_projectable_pure(int x1, int y1, int x2, int y2);
 extern void borg_forget_view(void);
 extern void borg_update_view(void);
 extern void borg_delete_kill(int i, cptr reason);
-extern void borg_map_info(map_block *mb_ptr, term_map *map);
-extern void borg_map_erase(void);
+extern void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy);
+extern void borg_map_erase(vptr dummy);
 extern void borg_update(void);
 extern void borg_react(cptr msg, cptr buf);
-extern void borg_player_move(int x, int y);
+extern void borg_player_move(int x, int y, vptr dummy);
 
 /*
  * Initialize this file

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2002/04/15 16:52:18 $
+# CVS: Last edit by $Author: antimatter $ on $Date: 2002/11/01 10:09:25 $
 # File: misc.txt
 
 # This file is used to initialize the "lib/data/z_info.raw" file, which is
@@ -17,7 +17,7 @@ V:2.8.1
 M:F:160
 
 # Maximum number of object kinds
-M:K:591
+M:K:592
 
 # Maximum number of artifacts
 M:A:128
@@ -26,7 +26,7 @@ M:A:128
 M:E:128
 
 # Maximum number of monster races
-M:R:888
+M:R:889
 
 # Maximum number of vaults
 M:V:126

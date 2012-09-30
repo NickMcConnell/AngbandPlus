@@ -562,18 +562,28 @@
 /* #define PILLAR_TUNNELS */
 
 /*
- * Turn on the overhead map support for the borg
+ * Optional use of 64bit type
  */
+/* #define USE_64B */
+
+/* Include maid-grf.c stuff */
 #ifdef ALLOW_BORG
 #define TERM_USE_MAP
 #define TERM_CAVE_MAP
 #define TERM_USE_LIST
 #endif /* ALLOW_BORG */
 
-/*
- * Optional use of 64bit type
- */
-/* #define USE_64B */
+#ifdef USE_AMI
+#define TERM_USE_MAP
+#define TERM_MAP_GLYPH
+#endif /* USE_AMI */
+
+#ifdef USE_TNB
+#define TERM_USE_MAP
+#define TERM_MAP_GLYPH
+#define TERM_CAVE_MAP
+#define TERM_MAP_INFO
+#endif /* USE_TNB */
 
 /*
  * Defining parts of the new term interface requires

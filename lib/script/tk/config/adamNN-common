@@ -1,0 +1,20 @@
+# File: adamNN-common
+
+# Purpose: common icon configuration settings
+
+#
+# Copyright (c) 1997-2001 Tim Baker
+#
+# This software may be copied and distributed for educational, research, and
+# not for profit purposes provided that this copyright and statement are
+# included in all such copies.
+#
+
+
+# Assign ascii-type icons to everything because not everything has an icon.
+NSConfig::SourceOne classic-common
+
+# Hack
+NSConfig::NoMoreIcons
+
+

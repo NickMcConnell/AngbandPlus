@@ -102,7 +102,6 @@ extern int borg_launch_damage_one(int i, int dam, int typ);
 extern int borg_attack_aux_thrust(void);
 
 
-extern void borg_log_battle(bool);
 extern bool borg_lite_beam(bool simulation);
 extern bool borg_caution_phase(int emergency, int turns);
 

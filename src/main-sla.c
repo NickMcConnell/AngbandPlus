@@ -127,7 +127,7 @@ int has_colors(void)
 	/* We want to allow overriding */
 	for (i = 0; color_terminals [i]; i++)
 	{
-		if (strcmp (color_terminals [i], terminal) == 0)
+		if (streq(color_terminals [i], terminal))
 		{
 			SLtt_Use_Ansi_Colors = 1;
 		}

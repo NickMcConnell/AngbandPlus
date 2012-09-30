@@ -286,7 +286,7 @@ static void do_cs(int y1, int y2)
 
 #ifdef USE_HARDCODE
 	char temp[64];
-	sprintf(temp, cs, y1, y2);
+	strnfmt(temp, 64, cs, y1, y2);
 	tp (temp);
 #endif
 
@@ -306,7 +306,7 @@ static void do_cm(int x, int y)
 
 #ifdef USE_HARDCODE
 	char temp[64];
-	sprintf(temp, cm, y+1, x+1);
+	strnfmt(temp, 64, cm, y+1, x+1);
 	tp(temp);
 #endif
 

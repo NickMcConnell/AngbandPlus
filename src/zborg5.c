@@ -3123,13 +3123,15 @@ static s32b borg_power_aux3(void)
 			}
 		}
 	}
-
-
+	
 	/*** Reward various things ***/
 
 	/* Hack -- Reward light radius */
 	value += (bp_ptr->cur_lite * 100000L);
+	
 
+	/* Hack -- Reward for wearing a permanent light */
+	if (bp_ptr->britelite) value += 5000;
 	/* Hack -- Reward speed */
 
 	if (bp_ptr->speed >= 150)
@@ -3289,7 +3291,7 @@ static s32b borg_power_aux3(void)
 	{
 		if (bp_ptr->flags3 & TR3_FEATHER) value += 50;
 	}
-	if (bp_ptr->britelite) value += 2000L;
+	if (bp_ptr->britelite) value += 200000L;
 	if (bp_ptr->flags3 & TR3_TELEPATHY)
 	{
 		if (bp_ptr->flags3 & TR3_SEE_INVIS) value += 500L;
@@ -3622,8 +3624,8 @@ static s32b borg_power_aux4(void)
 	/*** Basic abilities ***/
 
 	/* Reward fuel */
-	for (k = 0; (k < 5) && (k < bp_ptr->able.fuel); k++) value += 60000L;
-	for (; (k < 10) && (k < bp_ptr->able.fuel); k++) value += 6000L;
+	for (k = 0; (k < 5) && (k < bp_ptr->able.fuel); k++) value += 6000L;
+	for (; (k < 10) && (k < bp_ptr->able.fuel); k++) value += 600L;
 
 	/* Reward Food */
 	/* if hungry, food is THE top priority */
@@ -3777,7 +3779,7 @@ static s32b borg_power_aux4(void)
 		for (k = 0; (k < 5) && (k < bp_ptr->able.csw); k++) value += 250L;
 		for (; (k < 10) && (k < bp_ptr->able.csw); k++) value += 55L;
 	}
-
+	
 	/* Reward Cures */
 	if (!(bp_ptr->flags2 & TR2_RES_CONF))
 	{
@@ -4063,9 +4065,6 @@ cptr borg_restock(int depth)
 
 	/*** Level 2 and 3 ***/
 
-	/* Must have good lite */
-	if (bp_ptr->cur_lite == 1) return ("rs lite+1");
-
 	/* Must have "fuel" */
 	if (bp_ptr->able.fuel < 3) return ("rs fuel+2");
 
@@ -4083,6 +4082,9 @@ cptr borg_restock(int depth)
 	if (depth <= 5) return (NULL);
 
 	/*** Level 6 to 9 ***/
+
+	/* Must have good lite */
+	if (bp_ptr->cur_lite == 1) return ("rs lite+1");
 
 	/* Potions of Critical Wounds */
 	if (!bp_ptr->able.ccw &&
@@ -4164,9 +4166,6 @@ static cptr borg_prepared_aux2(int depth)
 
 	/*** Essential Items for Level 2 ***/
 
-	/* Require lite (radius two) */
-	if (bp_ptr->cur_lite == 1) return ("2 Lite");
-
 	/* Require fuel */
 	if (bp_ptr->able.fuel < 5) return ("5 Fuel");
 
@@ -4190,6 +4189,9 @@ static cptr borg_prepared_aux2(int depth)
 
 
 	/*** Essential Items for Level 5 to 9 ***/
+
+	/* Require lite (radius two) */
+	if (bp_ptr->cur_lite == 1) return ("2 Lite");
 
 	/* Scrolls of Word of Recall */
 	if (bp_ptr->recall < 4) return ("4 recalls");

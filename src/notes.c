@@ -21,15 +21,14 @@ cptr notes_file(void)
 {
 	char fname[15];
 	static char buf[1024];
-	char base_name[9];
 
-	/* Hack -- extract first 8 characters of name */
-	(void)strnfmt(base_name, 9, "%s", player_base);
+	/*
+	 * Hack -- extract first 8 characters of name and
+	 * Create the file name from the character's name plus .txt
+	 */
+	(void)strnfmt(fname, 15, "%.8s.txt", player_base);
 
-	/* Create the file name from the character's name plus .txt */
-	(void)strnfmt(fname, 15, "%s.txt", base_name);
-
-	path_build(buf, 1024, ANGBAND_DIR_SAVE, fname);
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
 	/* return the filename */
 	return buf;
@@ -40,9 +39,22 @@ cptr notes_file(void)
  * Output a string to the notes file.
  * This is the only function that references that file.
  */
-void output_note(cptr final_note)
+void output_note(cptr final_note, ...)
 {
 	FILE *fff;
+	
+	va_list vp;
+
+	char buf[1024];
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, final_note);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, final_note, &vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
 
 	/* Open notes file */
 	fff = my_fopen(notes_file(), "a");
@@ -51,7 +63,7 @@ void output_note(cptr final_note)
 	if (!fff) return;
 
 	/* Add note, and close note file */
-	fprintf(fff, "%s", final_note);
+	fprintf(fff, "%s", buf);
 
 	my_fclose(fff);
 }
@@ -62,13 +74,24 @@ void output_note(cptr final_note)
  * to specify its type so that the notes file can be
  * searched easily by external utilities.
  */
-void add_note(cptr note, char code)
+void add_note(char code, cptr note, ...)
 {
-	char buf[255];
 	char long_day[25];
 	time_t ct = time((time_t *) NULL);
 	char depths[32];
 
+	va_list vp;
+
+	char buf[1024];
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, note);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, note, &vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
 
 	/* Get depth */
 	if (!p_ptr->depth)
@@ -101,12 +124,9 @@ void add_note(cptr note, char code)
 	/* Get the time */
 	(void)strftime(long_day, 10, "%H:%M:%S", localtime(&ct));
 
-	/* Make note */
-	(void)strnfmt(buf, 255, "%s %9ld %s %c: %s\n", long_day, turn,
-				  depths, code, note);
-
 	/* Output to the notes file */
-	output_note(buf);
+	output_note("%s %9ld %s %c: %s\n", long_day, turn,
+				  depths, code, buf);
 }
 
 
@@ -116,8 +136,9 @@ void add_note(cptr note, char code)
 void add_note_type(int note_number)
 {
 	char long_day[30];
-	char buf[1024];
 	time_t ct = time((time_t *) 0);
+	
+	int len;
 
 	/* Get the date */
 	(void)strftime(long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
@@ -130,66 +151,55 @@ void add_note_type(int note_number)
 			char player[100];
 
 			/* Build the string containing the player information */
-			(void)strnfmt(player, 100, "the %s %s",
+			len = strnfmt(player, 100, "the %s %s",
 						  race_info[p_ptr->prace].title,
 						  class_info[p_ptr->pclass].title);
 
 			if (p_ptr->realm1 != REALM_NONE)
 			{
-				(void)strnfmt(player, 100, "%s of ", player);
-				(void)strnfmt(player, 100, "%s%s", player,
-							  realm_names[p_ptr->realm1]);
+				strnfcat(player, 100, &len, " of %s", realm_names[p_ptr->realm1]);
 			}
 
 			if (p_ptr->realm2 != REALM_NONE)
 			{
-				(void)strnfmt(player, 100, "%s and ", player);
-				(void)strnfmt(player, 100, "%s%s", player,
-							  realm_names[p_ptr->realm2]);
+				strnfcat(player, 100, &len, " and %s", realm_names[p_ptr->realm2]);
 			}
 
 			/* Add in "character start" information */
-			(void)strnfmt(buf, 1024,
-						  "\n================================================\n");
-			(void)strnfmt(buf, 1024, "%s%s the %s\n", buf, player_name, player);
-			(void)strnfmt(buf, 1024, "%sBorn on %s\n", buf, long_day);
-			(void)strnfmt(buf, 1024,
-						  "%s================================================\n\n",
-						  buf);
-		}
+			output_note("\n================================================\n"
+						"%s the %s\n"
+						"Born on %s\n"
+						"================================================\n\n",
+						player_name, player,
+						long_day);
 			break;
+		}
+			
 
 		case NOTE_WINNER:
 		{
-			(void)strnfmt(buf, 1024, "%s slew the Serpent of Chaos on %s\n.",
-						  player_name, long_day);
-			(void)strnfmt(buf, 1024, "%sLong live %s!\n", buf, player_name);
-			(void)strnfmt(buf, 1024,
-						  "%s================================================\n",
-						  buf);
-		}
+			output_note("%s slew the Serpent of Chaos on %s\n."
+						"Long live %s!\n"
+						"================================================\n",
+						player_name, long_day,
+						player_name);
 			break;
+		}
 
 		case NOTE_SAVE_GAME:
 		{
 			/* Saving the game */
-			(void)strnfmt(buf, 1024, "\nSession end: %s\n", long_day);
-		}
+			output_note("\nSession end: %s\n", long_day);
 			break;
+		}
 
 		case NOTE_ENTER_DUNGEON:
 		{
 			/* Entering the game after a break. */
-			(void)strnfmt(buf, 1024,
-						  "================================================\n");
-			(void)strnfmt(buf, 1024, "%sNew session start: %s\n\n", buf,
-						  long_day);
-		}
+			output_note("================================================\n"
+						"New session start: %s\n\n",
+						long_day);
 			break;
-
-		default: return;
+		}
 	}
-
-	/* Output the notes to the file */
-	output_note(buf);
 }

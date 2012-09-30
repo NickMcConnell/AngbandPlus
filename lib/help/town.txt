@@ -150,10 +150,8 @@ Stores do not always have everything in stock. As the game progresses,
 they may get new items so check from time to time. Also, if you sell
 them an item, it may get sold to a customer while you are adventuring,
 so don't always expect to be able to get back everything you have sold.
-Note that the inventory of a store will not change while you are in
-town, even if you save the game and return. You must spend time in the
-dungeon if you wish the store owner to clear out his stock and acquire
-new items. If you have a lot of spare gold, you can purchase every item
+The inventory of a store may change even if you don't go into the
+dungeon. If you have a lot of spare gold, you can purchase every item
 in a store, which will induce the store owner to bring out new stock,
 and perhaps even retire.
 
@@ -163,12 +161,6 @@ bought it they will immediately identify the object. If it is a good
 object, they will add it to their inventory. If it was a bad bargain,
 they simply throw the item away. In any case, you may receive some
 knowledge of the item if another is encountered.
-
-Note that in Zangband, store owners will buy more items than they sell.
-Consequently, it is possible to sell an item to a shopkeeper and not
-to have it appear in the store's inventory of things to sell.  If you
-plan to buy somehting back at a later date, make sure you sell the item
-in a store that stocks such items.
 
 
 ***** <Bartering>

@@ -865,11 +865,10 @@ typedef struct field_type field_type;
 /*
  * A function pointer to an action.  The function takes two values:
  * 1) a pointer to the field that is undergoing the action.
- * 2) a pointer to a structure cast to void that contains the
- *	information the action needs to complete its job.
+ * 2) a pointer to the list of 
  * The function returns a bool saying whether or not to delete the field.
  */
-typedef bool (*field_action_type) (field_type *f_ptr, vptr);
+typedef bool (*field_action_type) (field_type *f_ptr, va_list vp);
 
 
 
@@ -959,49 +958,6 @@ struct field_action
 	field_action_type action;	/* The function to call */
 	cptr func;	/* The name of the function */
 };
-
-
-/* 
- * Structure required to pass infomation to the
- * FIELD_ACT_MAGIC_TARGET action functions.
- */
-typedef struct field_magic_target field_magic_target;
-
-struct field_magic_target
-{
-	int who;	/* The source */
-	int dist;	/* Distance from the center of the explosion */
-	int dam;	/* Damage parameter */
-	int typ;	/* GF type of interaction */
-	bool notice;	/* Does the player notice? */
-	bool known;	/* Can the player see us? */
-};
-
-/* 
- * Structure required to pass infomation to the
- * FIELD_ACT_MON_ENTER_TEST action functions.
- */
-typedef struct field_mon_test field_mon_test;
-
-struct field_mon_test
-{
-	monster_type *m_ptr;	/* The monster */
-	byte flags;	/* Does the monster enter this grid? */
-};
-
-/*
- * Structure used to pass to field action functions that
- * test objects for given properties.
- */
-typedef struct field_obj_test field_obj_test;
-
-struct field_obj_test
-{
-	object_type *o_ptr;	/* The object */
-	bool result;	/* Result of the test */
-};
-
-
 
 
 /*
@@ -1264,6 +1220,7 @@ struct player_class
 	s16b c_exp;	/* Class experience factor */
 
 	byte pet_upkeep_div;	/* Pet upkeep divider */
+	bool heavy_sense;
 };
 
 
@@ -1734,7 +1691,6 @@ struct place_type
 	byte gates_y[MAX_GATES];
 
 	char name[T_NAME_LEN];	/* Town name */
-
 };
 
 /* Dungeons */
@@ -1830,4 +1786,25 @@ struct mutation_type
 	int diff;	/* Difficulty (activatable mutations) */
 	int chance;	/* Chance of occuring (random mutations) / 100 */
 
+};
+
+
+/*
+ * A function pointer used in displaying menus
+ *
+ * The function takes a number for the option chosen
+ * and will return TRUE if the selection works, and FALSE
+ * if the menu should stay up.
+ */
+typedef bool (*menu_select_type) (int option);
+
+typedef struct menu_type menu_type;
+
+struct menu_type
+{
+	cptr text;					/* Option text */
+	cptr help;					/* Help file to use */
+	menu_select_type action;	/* Action to do */
+
+	byte flags;					/* Flags controling option behaviour */
 };

@@ -2449,18 +2449,9 @@ static bool borg_handle_self(cptr str)
 }
 
 /*
- * Hack - save old hook to overhead map.
- *
- * We chain into this after storing our information.
- * (This is so multiple sub-systems can hook into
- * map changes.)
- */
-callback_type old_info_hook = NULL;
-
-/*
  * Save the borg information into the overhead map
  */
-void borg_map_info(map_block *mb_ptr, term_map *map)
+void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
 {
 	int i;
 
@@ -2469,13 +2460,13 @@ void borg_map_info(map_block *mb_ptr, term_map *map)
 
 	bool old_wall;
 	bool new_wall;
+	
+	/* Hack - ignore parameter */
+	(void) dummy;
 
 	/* Don't do anything if the borg is inactive */
 	if (!borg_active)
 	{
-		/* Chain into the old hook, if it exists */
-		if (old_info_hook) ((map_info_hook_type)old_info_hook) (mb_ptr, map);
-
 		/* Done */
 		return;
 	}
@@ -2770,25 +2761,17 @@ void borg_map_info(map_block *mb_ptr, term_map *map)
 		/* Remove this grid from any flow */
 		mb_ptr->info &= ~(BORG_MAP_ICKY | BORG_MAP_KNOW);
 	}
-
-	/* Finally - chain into the old hook, if it exists */
-	if (old_info_hook) ((map_info_hook_type)old_info_hook) (mb_ptr, map);
 }
 
-/*
- * Hack - save old hook to erase map.
- *
- * We chain into this after storing our information.
- * (This is so multiple sub-systems can hook into
- * map changes.)
- */
-callback_type old_erase_hook = NULL;
 
 /*
  * Save the borg information into the overhead map
  */
-void borg_map_erase(void)
+void borg_map_erase(vptr dummy)
 {
+	/* Hack -ignore parameter */
+	(void) dummy;
+
 	/* Forget the view */
 	borg_forget_view();
 
@@ -2801,9 +2784,6 @@ void borg_map_erase(void)
 
 	/* Forget old monsters */
 	(void)C_WIPE(borg_kills, BORG_KILLS_MAX, borg_kill);
-
-	/* Call the next one in the chain */
-	if (old_erase_hook) ((map_erase_hook_type)old_erase_hook) ();
 }
 
 
@@ -4524,25 +4504,17 @@ void borg_react(cptr msg, cptr buf)
 	borg_msg_num++;
 }
 
-/*
- * Old player movement hook that we chain
- * into after noting the new position.
- */
-callback_type old_move_hook = NULL;
 
 /*
  * Notice that the player has moved
  */
-void borg_player_move(int x, int y)
+void borg_player_move(int x, int y, vptr dummy)
 {
+	/* Hack - ignore parameter */
+	(void) dummy;
+
 	c_x = x;
 	c_y = y;
-
-	/* Call the next function in the chain if it exists */
-	if (old_move_hook)
-	{
-		((player_move_hook_type) old_move_hook) (x, y);
-	}
 }
 
 

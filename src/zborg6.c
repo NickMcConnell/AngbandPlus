@@ -1175,9 +1175,6 @@ static void borg_near_monster_type(int dist)
 			/* return 1 if not Morgy, +10 if it is Morgy or Sauron */
 			if (r_ptr->flags1 & RF1_QUESTOR)
 			{
-				/* keep a battle log */
-				if (!borg_fff) borg_log_battle(TRUE);
-
 				borg_fighting_unique += 10;
 			}
 
@@ -11786,39 +11783,43 @@ bool borg_recover(void)
 	map_block *mb_ptr = map_loc(c_x, c_y);
 
 	/*** Handle annoying situations ***/
-
-	/* Refuel current torch */
-	if ((equipment[EQUIP_LITE].tval == TV_LITE) &&
-		(k_info[equipment[EQUIP_LITE].k_idx].sval == SV_LITE_TORCH))
+	
+	if (!bp_ptr->britelite)
 	{
-		/* Refuel the torch if needed */
-		if (equipment[EQUIP_LITE].timeout < 250)
+		/* Refuel current torch */
+		if ((equipment[EQUIP_LITE].tval == TV_LITE) &&
+			(k_info[equipment[EQUIP_LITE].k_idx].sval == SV_LITE_TORCH))
 		{
-			if (borg_refuel_torch()) return (TRUE);
+			/* Refuel the torch if needed */
+			if (equipment[EQUIP_LITE].timeout < 250)
+			{
+				if (borg_refuel_torch()) return (TRUE);
 
-			/* Take note */
-			borg_note_fmt("# Need to refuel but cant!", p);
+				/* Take note */
+				borg_note_fmt("# Need to refuel but cant!", p);
 
-			/* Allow Pets to Roam so we dont hit them in the dark. */
-			p_ptr->pet_follow_distance = PET_STAY_AWAY;
+				/* Allow Pets to Roam so we dont hit them in the dark. */
+				p_ptr->pet_follow_distance = PET_STAY_AWAY;
+			}
+		}
 
+		/* Refuel current lantern */
+		if ((equipment[EQUIP_LITE].tval == TV_LITE) &&
+			(k_info[equipment[EQUIP_LITE].k_idx].sval == SV_LITE_LANTERN))
+		{
+			/* Refuel the lantern if needed */
+			if (equipment[EQUIP_LITE].timeout < 500)
+			{
+				if (borg_refuel_lantern()) return (TRUE);
+
+				/* Take note */
+				borg_note_fmt("# Need to refuel but cant!", p);
+				
+				/* Allow Pets to Roam so we dont hit them in the dark. */
+				p_ptr->pet_follow_distance = PET_STAY_AWAY;
+			}
 		}
 	}
-
-	/* Refuel current lantern */
-	if ((equipment[EQUIP_LITE].tval == TV_LITE) &&
-		(k_info[equipment[EQUIP_LITE].k_idx].sval == SV_LITE_LANTERN))
-	{
-		/* Refuel the lantern if needed */
-		if (equipment[EQUIP_LITE].timeout < 500)
-		{
-			if (borg_refuel_lantern()) return (TRUE);
-
-			/* Take note */
-			borg_note_fmt("# Need to refuel but cant!", p);
-		}
-	}
-
 
 	/*** Do not recover when in danger ***/
 

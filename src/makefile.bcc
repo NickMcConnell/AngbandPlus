@@ -121,6 +121,7 @@ OBJ = \
 	avatar.obj \
 	artifact.obj \
 	script.obj \
+	ui.obj \
 	l-monst.obj l-object.obj l-player.obj l-random.obj l-ui.obj \
 	l-misc.obj l-spell.obj \
 	zborg1.obj zborg2.obj zborg3.obj zborg4.obj zborg5.obj \

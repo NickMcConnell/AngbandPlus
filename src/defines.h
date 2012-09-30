@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.7.1"
+#define VERSION_STRING	"2.7.2"
 
 
 /*
@@ -45,7 +45,7 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-#define SAVEFILE_VERSION 39
+#define SAVEFILE_VERSION 40
 
 /* Added for ZAngband */
 /* Why do we need a fake version number? */
@@ -669,14 +669,15 @@
 /*
  * Commands
  */
-#define PET_DISMISS					1
-#define PET_STAY_CLOSE				2
-#define PET_FOLLOW_ME				3
-#define PET_SEEK_AND_DESTROY		4
-#define PET_ALLOW_SPACE				5
-#define PET_STAY_AWAY				6
-#define PET_OPEN_DOORS				7
-#define PET_TAKE_ITEMS				8
+#define PET_DISMISS					0
+#define PET_STAY_CLOSE				1
+#define PET_FOLLOW_ME				2
+#define PET_SEEK_AND_DESTROY		3
+#define PET_ALLOW_SPACE				4
+#define PET_STAY_AWAY				5
+#define PET_OPEN_DOORS				6
+#define PET_TAKE_ITEMS				7
+#define PET_CHOICE_MAX				8
 
 /*
  * Follow distances
@@ -1856,6 +1857,7 @@
 #define SV_TWO_HANDED_FLAIL             18
 #define SV_GREAT_HAMMER                 19
 #define SV_MACE_OF_DISRUPTION           20
+#define SV_WHIP_OF_ENTANGLEMENT         21
 #define SV_GROND                        50
 
 /* The "sval" values for TV_POLEARM */
@@ -2017,7 +2019,7 @@
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_DOOM                   0
 #define SV_AMULET_TELEPORT               1
-#define SV_AMULET_ADORNMENT              2
+#define SV_AMULET_BERSERK                2
 #define SV_AMULET_SLOW_DIGEST            3
 #define SV_AMULET_RESIST_ACID            4
 #define SV_AMULET_SEARCHING              5
@@ -3541,6 +3543,19 @@
 	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
 	 RF4_BR_NUKE | RF4_BR_DISI)
 
+/*** Menu Stuff ***/
+
+
+/* Menu seperator */
+#define MENU_SEPERATOR {"", NULL, NULL, 0x00}
+
+/* Menu terminator */
+#define MENU_END {NULL, NULL, NULL, 0x00}
+
+#define MN_ACTIVE		0x01	/* Available to choose */
+#define MN_SELECT		0x02	/* Can 'select' action */
+#define MN_CLEAR		0x04	/* Clear screen before calling */
+
 /*** Option Definitions ***/
 
 /*
@@ -3751,7 +3766,7 @@
 #define center_player			p_ptr->options[154]
 #define avoid_center			p_ptr->options[155]
 /* {TRUE,  0, NULL,					"Number 172" }, p_ptr->options[156] */
-/* {TRUE,  0, NULL,					"Number 173" }, p_ptr->options[157] */
+#define limit_messages			p_ptr->options[157]
 /* {TRUE,  0, NULL,					"Number 174" }, p_ptr->options[158] */
 /* {TRUE,  0, NULL,					"Number 175" }, p_ptr->options[159] */
 /* {TRUE,  0, NULL,					"Number 176" }, p_ptr->options[160] */
@@ -3845,7 +3860,6 @@
 
 /*** Macro Definitions ***/
 
-
 /*
  * Hack -- The main "screen"
  */
@@ -3925,6 +3939,7 @@
 		for (_this_o_idx = (OSTART); _this_o_idx; _this_o_idx = _next_o_idx) \
 		{ \
 			(O) = &o_list[_this_o_idx];\
+			assert((O)->k_idx); \
 			\
 			_next_o_idx = (O)->next_o_idx;
 
@@ -3932,6 +3947,20 @@
 		} \
 	} while (0)
 
+
+/*
+ * Useful macros for object formatting
+ * (So we use the correct number of arguments)
+ */
+#define OBJECT_FMT(O, P, M) \
+	object_fmt, (O), (P), (M)
+
+#define OBJECT_STORE_FMT(O, P, M) \
+	object_store_fmt, (O), (P), (M)
+
+/* Monster name format */
+#define MONSTER_FMT(M, P) \
+	monster_fmt, (M), (P)
 
 /*
  * Determines if a map location is currently "on screen" -RAK-
@@ -4099,6 +4128,39 @@ extern int PlayerUID;
 #define TERM_L_UMBER            15  /* 'U' */	/* 3,2,1 */
 
 
+/*
+ * Colour format specifiers in strings
+ *
+ * Start with $, and then have a character that depends on the
+ * colour.  We could also use this techinque for other formatting
+ * specifiers...
+ *
+ * Note we must use 'nice' characters for the specifier because
+ * the formatting routines eat some of the control characters.
+ */
+#define CLR_DARK		"$A"  
+#define CLR_WHITE		"$B"
+#define CLR_SLATE		"$C"
+#define CLR_ORANGE		"$D"
+#define CLR_RED			"$E"
+#define CLR_GREEN		"$F"
+#define CLR_BLUE		"$G"
+#define CLR_UMBER		"$H"
+#define CLR_L_DARK		"$I"
+#define CLR_L_WHITE		"$J"
+#define CLR_VIOLET		"$K"
+#define CLR_YELLOW		"$L"
+#define CLR_L_RED		"$M"
+#define CLR_L_GREEN		"$N"
+#define CLR_L_BLUE		"$O"
+#define CLR_L_UMBER		"$P"
+#define CLR_SET_DEFAULT "$Q"
+#define CLR_DEFAULT		"$R"
+
+
+/*
+ * Raw message types
+ */
 #define MSG_GENERIC          0
 #define MSG_HIT              1
 #define MSG_MISS             2
@@ -4131,6 +4193,49 @@ extern int PlayerUID;
 #define MSG_HITPOINT_WARN   29
 
 #define MSG_MAX             30
+
+/*
+ * 'Magic' macro that changes the default message type.
+ * set_message_type sets a static variable to be T, and
+ * then parses the following string as a format string.
+ */
+#define MESSAGE_TYPE(T)		"%v", set_message_type, (T)
+
+/*
+ * Message types used for msgf()  (See util.c)
+ */
+#define MSGT_GENERIC		 MESSAGE_TYPE(0)
+#define MSGT_HIT             MESSAGE_TYPE(1)
+#define MSGT_MISS            MESSAGE_TYPE(2)
+#define MSGT_FLEE            MESSAGE_TYPE(3)
+#define MSGT_DROP            MESSAGE_TYPE(4)
+#define MSGT_KILL            MESSAGE_TYPE(5)
+#define MSGT_LEVEL           MESSAGE_TYPE(6)
+#define MSGT_DEATH           MESSAGE_TYPE(7)
+#define MSGT_STUDY           MESSAGE_TYPE(8)
+#define MSGT_TELEPORT        MESSAGE_TYPE(9)
+#define MSGT_SHOOT           MESSAGE_TYPE(10)
+#define MSGT_QUAFF           MESSAGE_TYPE(11)
+#define MSGT_ZAP             MESSAGE_TYPE(12)
+#define MSGT_WALK            MESSAGE_TYPE(13)
+#define MSGT_TPOTHER         MESSAGE_TYPE(14)
+#define MSGT_HITWALL         MESSAGE_TYPE(15)
+#define MSGT_EAT             MESSAGE_TYPE(16)
+#define MSGT_STORE1          MESSAGE_TYPE(17)
+#define MSGT_STORE2          MESSAGE_TYPE(18)
+#define MSGT_STORE3          MESSAGE_TYPE(19)
+#define MSGT_STORE4          MESSAGE_TYPE(20)
+#define MSGT_DIG             MESSAGE_TYPE(21)
+#define MSGT_OPENDOOR        MESSAGE_TYPE(22)
+#define MSGT_SHUTDOOR        MESSAGE_TYPE(23)
+#define MSGT_TPLEVEL         MESSAGE_TYPE(24)
+#define MSGT_BELL            MESSAGE_TYPE(25)
+#define MSGT_NOTHING_TO_OPEN MESSAGE_TYPE(26)
+#define MSGT_LOCKPICK_FAIL   MESSAGE_TYPE(27)
+#define MSGT_STAIRS          MESSAGE_TYPE(28)
+#define MSGT_HITPOINT_WARN   MESSAGE_TYPE(29)
+
+
 
 
 /*** Sound constants ***/
@@ -4345,6 +4450,11 @@ extern int PlayerUID;
 
 #define FIELD_ACTION_MAX		20
 
+/* To make the declarations in externs.h simpler */
+#define DECL_FIELD_ACTION(N) \
+	extern bool field_action_##N (field_type *f_ptr, va_list vp)
+
+
 /*
  * Monster enter grid test flags
  */
@@ -4370,3 +4480,10 @@ extern int PlayerUID;
 #define LIST_FLOOR			3
 #define LIST_STORE			4
 #define LIST_HOME			5
+
+/* Locations of the tables on the screen (see ui.c / birth.c) */
+#define HEADER_ROW		1
+#define QUESTION_ROW	7
+#define TABLE_ROW		10
+
+#define INVALID_CHOICE 255

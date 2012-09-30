@@ -498,7 +498,7 @@ N:44:Zymurgist
 G:7:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:1:1:2:0:0:0:0:0
+D:1:1:5:0:0:0:0:0
 F:2,field_action_door_build
 F:18,field_action_recharge1 | 19,field_action_recharge2
 
@@ -1368,7 +1368,7 @@ N:141:Healer
 G:9:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:9:80:0:0:0:0:0:0
+D:9:20:0:0:0:0:0:0
 F:2,field_action_door_build
 F:18,field_action_healer1 | 19,field_action_healer2
 

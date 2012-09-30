@@ -19,8 +19,7 @@
 #include "zborg3.h"
 
 /* Object list interface */
-extern callback_type old_list_hook;
-extern void borg_list_info(byte list_type);
+extern void borg_list_info(byte list_type, vptr dummy);
 
 /* Treat items differently depending on flags */
 #define TREAT_AS_NORM	0		/* Normal item */

@@ -163,6 +163,11 @@ cptr help_gcu[] =
 
 
 /*
+ * OPTION: NetBSD seems to like this better
+ */
+/* #define can_change_color() can_change_colors() */
+
+/*
  * Save the "normal" and "angband" terminal settings
  */
 

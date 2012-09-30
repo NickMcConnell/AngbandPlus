@@ -68,7 +68,7 @@ void do_cmd_rerate(void)
 	handle_stuff();
 
 	/* Message */
-	msg_format("Current Life Rating is %d/100.", percent);
+	msgf("Current Life Rating is %d/100.", percent);
 }
 
 
@@ -87,7 +87,7 @@ static void wiz_create_named_art(int a_idx)
 	create_named_art(a_idx, px, py);
 
 	/* All done */
-	msg_print("Allocated.");
+	msgf("Allocated.");
 }
 
 
@@ -97,7 +97,7 @@ static void wiz_create_named_art(int a_idx)
 static void do_cmd_wiz_hack_ben(void)
 {
 	/* Oops */
-	msg_print("Oops.");
+	msgf("Oops.");
 	(void)probing();
 }
 
@@ -135,31 +135,6 @@ static void do_cmd_summon_horde(void)
 
 #endif /* MONSTER_HORDES */
 
-
-/*
- * Output a long int in binary format.
- */
-static void prt_binary(u32b flags, int col, int row)
-{
-	int i;
-	u32b bitmask;
-
-	/* Scan the flags */
-	for (i = bitmask = 1; i <= 32; i++, bitmask *= 2)
-	{
-		/* Dump set bits */
-		if (flags & bitmask)
-		{
-			Term_putch(col++, row, TERM_BLUE, '*');
-		}
-
-		/* Dump unset bits */
-		else
-		{
-			Term_putch(col++, row, TERM_WHITE, '-');
-		}
-	}
-}
 
 #if USE_64B
 typedef u64b ufix40_24;	/* Fixed point: 40 bits integer 24 bits fractional */
@@ -259,7 +234,7 @@ static void prt_alloc(const object_type *o_ptr, int col, int row, u32b monte)
 	u32b rarity[MAX_DEPTH];
 	u32b total[MAX_DEPTH];
 	u32b display[20];
-	byte c = TERM_WHITE;
+	cptr c = CLR_WHITE;
 	cptr r = "+--common--+";
 	u16b kind = o_ptr->k_idx;
 	u16b home = k_info[kind].level;
@@ -270,7 +245,7 @@ static void prt_alloc(const object_type *o_ptr, int col, int row, u32b monte)
 	(void)C_WIPE(display, 20, u32b);
 
 	message_flush();
-	prt("Calculating probability distribution - please wait.", 0, 0);
+	prtf(0, 0, "Calculating probability distribution - please wait.");
 
 	/* Refresh */
 	Term_fresh();
@@ -307,17 +282,17 @@ static void prt_alloc(const object_type *o_ptr, int col, int row, u32b monte)
 	/* Simulate a log graph */
 	if (maxt / maxr > 32)
 	{
-		c = TERM_L_WHITE;
+		c = CLR_L_WHITE;
 		r = "+-uncommon-+";
 	}
 	if (maxt / maxr > 1024)
 	{
-		c = TERM_SLATE;
+		c = CLR_SLATE;
 		r = "+---rare---+";
 	}
 	if (maxt / maxr > 32768L)
 	{
-		c = TERM_L_DARK;
+		c = CLR_L_DARK;
 		r = "+--unique--+";
 	}
 
@@ -351,18 +326,16 @@ static void prt_alloc(const object_type *o_ptr, int col, int row, u32b monte)
 		/* Note the level */
 		if ((i * MAX_DEPTH / 20 <= home) && (home < (i + 1) * MAX_DEPTH / 20))
 		{
-			c_prt(TERM_RED, format("%.*s", display[i], "**********"), col + 1,
-				  row + i + 1);
+			prtf(col + 1, row + i + 1, CLR_RED "%.*s", display[i], "**********");
 		}
 		else
 		{
-			c_prt(c, format("%.*s", display[i], "**********"), col + 1,
-				  row + i + 1);
+			prtf(col + 1, row + i + 1, "%s%.*s", c, display[i], "**********");
 		}
 	}
 
 	/* Make it look nice */
-	prt(r, col, row);
+	prtf(col, row, r);
 
 	Term_putch(col, row + 2, TERM_WHITE, '6');
 
@@ -372,7 +345,7 @@ static void prt_alloc(const object_type *o_ptr, int col, int row, u32b monte)
 	Term_putch(col, row + 11, TERM_WHITE, 'O');
 	Term_putch(col, row + 12, TERM_WHITE, 'C');
 
-	prt("+", col, row + 21);
+	prtf(col, row + 21, "+");
 }
 
 #endif /* USE_64B */
@@ -399,20 +372,15 @@ static void do_cmd_wiz_change_aux(void)
 	int tmp_int;
 	long tmp_long;
 	char tmp_val[160];
-	char ppp[80];
-
 
 	/* Query the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		/* Prompt */
-		sprintf(ppp, "%s (3-118): ", stat_names[i]);
-
 		/* Default */
-		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
+		strnfmt(tmp_val, 160, "%d", p_ptr->stat_max[i]);
 
 		/* Query */
-		if (!get_string(ppp, tmp_val, 4)) return;
+		if (!get_string(tmp_val, 4, "%s (3-118): ", stat_names[i])) return;
 
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -427,10 +395,10 @@ static void do_cmd_wiz_change_aux(void)
 
 
 	/* Default */
-	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
+	strnfmt(tmp_val, 160, "%ld", (long)(p_ptr->au));
 
 	/* Query */
-	if (!get_string("Gold: ", tmp_val, 10)) return;
+	if (!get_string(tmp_val, 10, "Gold: ")) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -443,10 +411,10 @@ static void do_cmd_wiz_change_aux(void)
 
 
 	/* Default */
-	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
+	strnfmt(tmp_val, 160, "%ld", (long)(p_ptr->max_exp));
 
 	/* Query */
-	if (!get_string("Experience: ", tmp_val, 10)) return;
+	if (!get_string(tmp_val, 10, "Experience: ")) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -612,64 +580,61 @@ static void learn_map(void)
  */
 static void wiz_display_item(const object_type *o_ptr)
 {
-	int i, j = 13;
+	int j = 13;
 	u32b f1, f2, f3;
-	char buf[256];
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Clear the screen */
-	for (i = 1; i <= 23; i++) prt("", j - 2, i);
+    clear_region(13 - 2, 1, 23);
 
 	/* Describe fully */
-	object_desc_store(buf, o_ptr, TRUE, 3, 256);
+	prtf(j, 2, "%v", OBJECT_STORE_FMT(o_ptr, TRUE, 3));
 
-	prt(buf, j, 2);
-
-	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
+	prtf(j, 4, "kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
 			   o_ptr->k_idx, get_object_level(o_ptr),
-			   o_ptr->tval, o_ptr->sval), j, 4);
+			   o_ptr->tval, o_ptr->sval);
 
-	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
+	prtf(j, 5, "number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
 			   o_ptr->number, o_ptr->weight,
-			   o_ptr->ac, o_ptr->dd, o_ptr->ds), j, 5);
+			   o_ptr->ac, o_ptr->dd, o_ptr->ds);
 
-	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
-			   o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), j, 6);
+	prtf(j, 6, "pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
+			   o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d);
 
-	prt(format("activate = %-4d  cost = %ld",
-			   o_ptr->activate, (long)object_value(o_ptr)), j, 7);
+	prtf(j, 7, "activate = %-4d  cost = %ld",
+			   o_ptr->activate, (long)object_value(o_ptr));
 
-	prt(format("info = %04x  timeout = %-d",
-			   o_ptr->info, o_ptr->timeout), j, 8);
+	prtf(j, 8, "info = %04x  timeout = %-d",
+			   o_ptr->info, o_ptr->timeout);
 
-	prt("+------------FLAGS1------------+", j, 10);
-	prt("AFFECT........SLAY........BRAND.", j, 11);
-	prt("              cvae      xsqpaefc", j, 12);
-	prt("siwdcc  ssidsahanvudotgddhuoclio", j, 13);
-	prt("tnieoh  trnipttmiinmrrnrrraiierl", j, 14);
-	prt("rtsxna..lcfgdkcpmldncltggpksdced", j, 15);
-	prt_binary(f1, j, 16);
+	prtf(j, 10, "+------------FLAGS1------------+\n"
+				"AFFECT........SLAY........BRAND.\n"
+	    		"              cvae      xsqpaefc\n"
+	    		"siwdcc  ssidsahanvudotgddhuoclio\n"
+	    		"tnieoh  trnipttmiinmrrnrrraiierl\n"
+	    		"rtsxna..lcfgdkcpmldncltggpksdced\n"
+                "%v", binary_fmt, f1);
 
-	prt("+------------FLAGS2------------+", j, 17);
-	prt("SUST...IMMUN..RESIST............", j, 18);
-	prt("        aefctrpsaefcpfldbc sn   ", j, 19);
-	prt("siwdcc  clioheatcliooeialoshtncd", j, 20);
-	prt("tnieoh  ierlrfraierliatrnnnrhehi", j, 21);
-	prt("rtsxna..dcedwlatdcedsrekdfddrxss", j, 22);
-	prt_binary(f2, j, 23);
+	prtf(j, 17, "+------------FLAGS2------------+\n"
+				"SUST...IMMUN..RESIST............\n"
+	    		"        aefctrpsaefcpfldbc sn   \n"
+	    		"siwdcc  clioheatcliooeialoshtncd\n"
+	    		"tnieoh  ierlrfraierliatrnnnrhehi\n"
+	    		"rtsxna..dcedwlatdcedsrekdfddrxss\n"
+                "%v", binary_fmt, f2);
 
-	prt("+------------FLAGS3------------+", j + 32, 10);
-	prt("fe      ehsi  st    iiiiadta  hp", j + 32, 11);
-	prt("il   n taihnf ee    ggggcregb vr", j + 32, 12);
-	prt("re  no ysdose eld   nnnntalrl ym", j + 32, 13);
-	prt("ec  om cyewta ieirmsrrrriieaeccc", j + 32, 14);
-	prt("aa  ta uktmatlnpgeihaefcvnpvsuuu", j + 32, 15);
-	prt("uu  eg rnyoahivaeggoclioaeoasrrr", j + 32, 16);
-	prt("rr  li sopdretitsehtierltxrtesss", j + 32, 17);
-	prt("aa  ec ewestreshtntsdcedeptedeee", j + 32, 18);
-	prt_binary(f3, j + 32, 19);
+	prtf(j + 32, 10,"+------------FLAGS3------------+\n"
+					"fe      ehsi  st    iiiiadta  hp\n"
+				    "il   n taihnf ee    ggggcregb vr\n"
+				    "re  no ysdose eld   nnnntalrl ym\n"
+				    "ec  om cyewta ieirmsrrrriieaeccc\n"
+				    "aa  ta uktmatlnpgeihaefcvnpvsuuu\n"
+				    "uu  eg rnyoahivaeggoclioaeoasrrr\n"
+				    "rr  li sopdretitsehtierltxrtesss\n"
+				    "aa  ec ewestreshtntsdcedeptedeee\n"
+                    "%v", binary_fmt, f3);
 }
 
 
@@ -757,107 +722,150 @@ static void strip_name(char *buf, int k_idx)
 	*t = '\0';
 }
 
+/*
+ * Global variables so the sub-menus can access
+ * the required information
+ */
+static int create_item_kidx = 0;
+static int create_item_tval = 0;
 
 /*
- * Specify tval and sval (type and subtype of object) originally
- * by RAK, heavily modified by -Bernd-
- *
- * This function returns the k_idx of an object type, or zero if failed
- *
- * List up to 50 choices in three columns
+ * Select the item to use
  */
-static int wiz_create_itemtype(void)
+static bool wiz_create_itemtype_aux2(int num)
 {
-	int i, num, max_num;
-	int col, row;
-	int tval;
-
-	cptr tval_desc;
-	char ch;
-
-	int choice[60];
-
-	char buf[160];
-
-
-	/* Clear screen */
-	Term_clear();
-
-	/* Print all tval's and their descriptions */
-	for (num = 0; (num < 60) && tvals[num].tval; num++)
-	{
-		row = 2 + (num % 20);
-		col = 30 * (num / 20);
-		ch = listsym[num];
-		prt(format("[%c] %s", ch, tvals[num].desc), col, row);
-	}
-
-	/* We need to know the maximal possible tval_index */
-	max_num = num;
-
-	/* Choose! */
-	if (!get_com("Get what type of object? ", &ch)) return (0);
-
-	/* Analyze choice */
-	for (num = 0; num < max_num; num++)
-	{
-		if (listsym[num] == ch) break;
-	}
-
-	/* Bail out if choice is illegal */
-	if (num >= max_num) return (0);
-
-	/* Base object type chosen, fill in tval */
-	tval = tvals[num].tval;
-	tval_desc = tvals[num].desc;
-
-
-	/*** And now we go for k_idx ***/
-
-	/* Clear screen */
-	Term_clear();
-
-	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
+	int i;
+	
+	/* Look up the item to use */
+	for (i = 0; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
-
-		/* Analyze matching items */
-		if (k_ptr->tval == tval)
+		
+		if (k_ptr->tval == create_item_tval)
 		{
-			/* Prepare it */
-			row = 2 + (num % 20);
-			col = 30 * (num / 20);
-			ch = listsym[num];
-
-			/* Acquire the "name" of object "i" */
-			strip_name(buf, i);
-
-			/* Print it */
-			prt(format("[%c] %s", ch, buf), col, row);
-
-			/* Remember the object index */
-			choice[num++] = i;
+			/* Are we there yet? */
+			if (!num)
+			{
+				create_item_kidx = i;
+				return (TRUE);
+			}
+			
+			/* Count down the objects to go */
+			num--;
 		}
 	}
 
-	/* We need to know the maximal possible remembered object_index */
-	max_num = num;
+	/* Paranoia */
+	return (FALSE);
+}
 
-	/* Choose! */
-	if (!get_com(format("What Kind of %s? ", tval_desc), &ch)) return (0);
 
-	/* Analyze choice */
-	for (num = 0; num < max_num; num++)
+/*
+ * Specify the sval for the object to create.
+ */
+static bool wiz_create_itemtype_aux1(int tval_entry)
+{
+	int i, num = 0;
+	
+	int tval = tvals[tval_entry].tval;
+	
+	char buf[1024];
+	char prompt[80];
+	
+	menu_type *item_menu;
+	
+	bool result;
+	
+	/* Count number of options */
+	for (i = 0; i < z_info->k_max; i++)
 	{
-		if (listsym[num] == ch) break;
+		object_kind *k_ptr = &k_info[i];
+		
+		if (k_ptr->tval == tval) num++;
 	}
+	
+	/* Create menu array */
+	C_MAKE(item_menu, num + 1, menu_type);
+	
+	/* Collect all the objects and their descriptions */
+	num = 0;
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+		
+		if (k_ptr->tval == tval)
+		{
+			/* Acquire the "name" of object "i" */
+			strip_name(buf, i);
+			
+			/* Create the menu entry */
+			item_menu[num].text = string_make(buf);
+			item_menu[num].help = NULL;
+			item_menu[num].action = wiz_create_itemtype_aux2;
+			item_menu[num].flags = MN_ACTIVE;
+		
+			num++;
+		}
+	}
+	
+	/* Save tval so we can access it in aux2 */
+	create_item_tval = tval;
+	
+	/* Create the prompt */
+	strnfmt(prompt, 80, "What Kind of %s? ", tvals[tval_entry].desc);
+	result = display_menu(item_menu, -1, FALSE, NULL, prompt);
+	
+	/* Free the option strings */
+	for (i = 0; i <= num; i++)
+	{
+		string_free(item_menu[i].text);
+	}
+	
+	/* Free the array */
+	FREE(item_menu);
+	
+	return (result);
+}
 
-	/* Bail out if choice is "illegal" */
-	if (num >= max_num) return (0);
 
-	/* And return successful */
-	return (choice[num]);
+/*
+ * Specify tval and sval (type and subtype of object) originally
+ *
+ * This function returns the k_idx of an object type, or zero if failed
+ */
+static int wiz_create_itemtype(void)
+{
+	int i, num;
+	
+	menu_type *item_menu;
+
+	/* Count number of options */
+	num = 0;
+	while(tvals[num].tval) num++;
+	
+	/* Create menu array */
+	C_MAKE(item_menu, num + 1, menu_type);
+	
+	/* Collect all the tvals and their descriptions */
+	for (i = 0; i < num; i++)
+	{
+		item_menu[i].text = tvals[i].desc;
+		item_menu[i].help = NULL;
+		item_menu[i].action = wiz_create_itemtype_aux1;
+		item_menu[i].flags = MN_ACTIVE | MN_CLEAR;
+	}
+	
+	/* Hack - we know that item_menu[num].text is NULL due to C_MAKE */
+	
+	/* Clear item to make */
+	create_item_kidx = 0;
+	
+	display_menu(item_menu, -1, FALSE, NULL, "Get what type of object? ");
+	
+	/* Free the array */
+	FREE(item_menu);
+	
+	return (create_item_kidx);
 }
 
 
@@ -866,37 +874,31 @@ static int wiz_create_itemtype(void)
  */
 static void wiz_tweak_item(object_type *o_ptr)
 {
-	cptr p;
 	char tmp_val[80];
 
 
-	p = "Enter new 'pval' setting: ";
-	sprintf(tmp_val, "%d", o_ptr->pval);
-	if (!get_string(p, tmp_val, 6)) return;
+	strnfmt(tmp_val, 80, "%d", o_ptr->pval);
+	if (!get_string(tmp_val, 6, "Enter new 'pval' setting: ")) return;
 	o_ptr->pval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
-	p = "Enter new 'to_a' setting: ";
-	sprintf(tmp_val, "%d", o_ptr->to_a);
-	if (!get_string(p, tmp_val, 6)) return;
+	strnfmt(tmp_val, 80, "%d", o_ptr->to_a);
+	if (!get_string(tmp_val, 6, "Enter new 'to_a' setting: ")) return;
 	o_ptr->to_a = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
-	p = "Enter new 'to_h' setting: ";
-	sprintf(tmp_val, "%d", o_ptr->to_h);
-	if (!get_string(p, tmp_val, 6)) return;
+	strnfmt(tmp_val, 80, "%d", o_ptr->to_h);
+	if (!get_string(tmp_val, 6, "Enter new 'to_h' setting: ")) return;
 	o_ptr->to_h = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
-	p = "Enter new 'to_d' setting: ";
-	sprintf(tmp_val, "%d", o_ptr->to_d);
-	if (!get_string(p, tmp_val, 6)) return;
+	strnfmt(tmp_val, 80, "%d", o_ptr->to_d);
+	if (!get_string(tmp_val, 6, "Enter new 'to_d' setting: ")) return;
 	o_ptr->to_d = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
-	p = "Enter new 'activate' setting: ";
-	sprintf(tmp_val, "%d", (int)o_ptr->activate);
-	if (!get_string(p, tmp_val, 6)) return;
+	strnfmt(tmp_val, 80, "%d", (int)o_ptr->activate);
+	if (!get_string(tmp_val, 6, "Enter new 'activate' setting: ")) return;
 	o_ptr->activate = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 }
@@ -1007,11 +1009,13 @@ static void wiz_statistics(object_type *o_ptr)
 {
 	u32b test_roll = 100000;
 
-	cptr p = "Enter number of items to roll: ";
 	char tmp_val[80];
 
-	sprintf(tmp_val, "%ld", (long)test_roll);
-	if (get_string(p, tmp_val, 11)) test_roll = atol(tmp_val);
+	strnfmt(tmp_val, 80, "%ld", (long)test_roll);
+	if (get_string(tmp_val, 11, "Enter number of items to roll: "))
+	{
+		test_roll = atol(tmp_val);
+	}
 	test_roll = MAX(0, test_roll);
 
 	/* Display the rarity graph */
@@ -1038,10 +1042,10 @@ static void wiz_quantity_item(object_type *o_ptr)
 	tmp_qnt = o_ptr->number;
 
 	/* Default */
-	sprintf(tmp_val, "%d", (int)o_ptr->number);
+	strnfmt(tmp_val, 100, "%d", (int)o_ptr->number);
 
 	/* Query */
-	if (get_string("Quantity: ", tmp_val, 3))
+	if (get_string(tmp_val, 3, "Quantity: "))
 	{
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -1109,7 +1113,7 @@ static void do_cmd_wiz_play(void)
 		if (!get_com("[a]ccept [r]eroll [t]weak [q]uantity? ", &ch))
 		{
 			/* Ignore changes */
-			msg_print("Changes ignored.");
+			msgf("Changes ignored.");
 
 			/* Done */
 			break;
@@ -1119,7 +1123,7 @@ static void do_cmd_wiz_play(void)
 		if (ch == 'A' || ch == 'a')
 		{
 			/* Message */
-			msg_print("Changes accepted.");
+			msgf("Changes accepted.");
 
 			/* Swap the objects */
 			swap_objects(q_ptr, o_ptr);
@@ -1199,7 +1203,7 @@ static void wiz_create_item(void)
 	place_specific_object(p_ptr->px, p_ptr->py, p_ptr->depth, k_idx);
 
 	/* All done */
-	msg_print("Allocated.");
+	msgf("Allocated.");
 }
 
 
@@ -1257,18 +1261,14 @@ static void do_cmd_wiz_jump(void)
 	/* Ask for level */
 	if (p_ptr->command_arg <= 0)
 	{
-		char ppp[80];
-
 		char tmp_val[160];
 
-		/* Prompt */
-		sprintf(ppp, "Jump to level (0-%d): ", MAX_DEPTH - 1);
-
 		/* Default */
-		sprintf(tmp_val, "%d", p_ptr->depth);
+		strnfmt(tmp_val, 160, "%d", p_ptr->depth);
 
 		/* Ask for a level */
-		if (!get_string(ppp, tmp_val, 11)) return;
+		if (!get_string(tmp_val, 11, "Jump to level (0-%d): ",
+						MAX_DEPTH - 1)) return;
 
 		/* Extract request */
 		p_ptr->command_arg = atoi(tmp_val);
@@ -1281,7 +1281,7 @@ static void do_cmd_wiz_jump(void)
 	if (p_ptr->command_arg > MAX_DEPTH - 1) p_ptr->command_arg = MAX_DEPTH - 1;
 
 	/* Accept request */
-	msg_format("You jump to dungeon level %d.", p_ptr->command_arg);
+	msgf("You jump to dungeon level %d.", p_ptr->command_arg);
 
 	if (autosave_l) do_cmd_save_game(TRUE);
 
@@ -1458,278 +1458,6 @@ extern void do_cmd_debug(void);
 
 
 /*
- * The following code fragment outputs a matlab
- * 'm' file that can be used to balance the
- * distribution of monsters in the dungeon
- */
-#ifdef MATLAB
-
-
-/*
- * This function outputs the values of a flag
- * to the m file
- */
-static void outflagmatlab(u32b flag, FILE *fff)
-{
-	int i, j;
-
-	char buf[3];
-
-	i = 1;
-
-	for (j = 0; j < 32; j++)
-	{
-		/* Shift the bit */
-		i <<= 1;
-
-		/* If the bit is set */
-		if (flag & i)
-		{
-			sprintf(buf, "1 ");
-		}
-		else
-		{
-			sprintf(buf, "0 ");
-		}
-
-		fprintf(fff, "%s", buf);
-	}
-
-	fprintf(fff, "...\n");
-}
-
-/*
- * This function outputs the values of a flag.
- * However, the flag is scaled by a parameter in
- * some cases.
- * MEGA HACK - on every bit except those in first
- * byte.  (to match with the monster breaths)
- * This is wrong with the other flags... but it seems
- * to produce a fairly good fit to the data anyway.
- */
-static void outflagmatlab2(u32b flag, FILE *fff, int hp)
-{
-	int i, j;
-
-	char buf[10];
-
-	i = 1;
-	for (j = 0; j < 32; j++, i <<= 1)
-	{
-		/* If the bit is set */
-		if (flag & i)
-		{
-			if (i < 256)
-			{
-				sprintf(buf, "1 ");
-			}
-			else
-			{
-				/* A breath - scale it by the hp */
-				sprintf(buf, "%d ", hp);
-			}
-		}
-		else
-		{
-			sprintf(buf, "0 ");
-		}
-
-		fprintf(fff, "%s", buf);
-	}
-
-	fprintf(fff, "...\n");
-}
-
-
-/*
- * This function outputs the blows table for a monster.
- * The results are scaled by the damage x2.
- */
-static void outblowsmatlab(monster_race *r_ptr, char *buf2)
-{
-	int i, effect;
-	int effects[32];
-
-	/* Clear effects list */
-	for (i = 0; i < 32; i++)
-	{
-		effects[i] = 0;
-	}
-
-	/* For each blow */
-	for (i = 0; i < 4; i++)
-	{
-		/* Only count real blows */
-		if (!r_ptr->blow[i].method) continue;
-
-		/* damage x2 */
-		effect = r_ptr->blow[i].d_dice * (r_ptr->blow[i].d_side + 1);
-
-		/* Count "weird" effects */
-		if (effect == 0) effect = 1;
-
-		effects[r_ptr->blow[i].effect] += effect;
-	}
-
-	/* Output effects list */
-	for (i = 0; i < 32; i++)
-	{
-		sprintf(buf2, "%s %d", buf2, effects[i]);
-	}
-}
-
-
-/*
- * This function returns the "power" of a monster
- * existing on a level.
- * This function was calibrated by running several
- * warriors and mages to stat depth an beyond by John H.
- *
- * clevel 0->35   dlevel 0->40
- *       35->50         40->70
- *       50->55*        70->100
- * *Note 55 because the player finds artifacts.
- * This seems to work well.  The inhomogeneous distribution
- * of new monsters / level is made nice and flat.
- */
-static int monster_power_mat(int level)
-{
-	if (level < 40) return (35 * level / 4);
-	if (level < 70) return (5 * (level - 40) + 350);
-	return (((level - 70) * 5) / 3 + 500);
-}
-
-/*
- * This function outputs a MATLAB 'm'file that can
- * be used to balance the monster distribution in the
- * game.
- *
- * Run this function, then do the following:
- * 1) copy monmatlb.m from the /lib/save directory to
- * 	a directory in the matlab path.
- * 2) type "monmatlb" in MATLAB.
- * 3) The matrix is called xx, the monster depths are y,
- *	the monster xp values are xp.
- * 4) Now the balanced values are calculated:
- * 5) Type: "a1=xx\y';"
- * 6) Type: "r1=xx*a1;"
- * 7) Type: "level=r1*100/550;"
- * 8) Type: "i=20:884;"  (Note these are the values of min
- *	and max used below in the code.
- * 9) Type: "[i' round(level)]" MATLAB should now print out a table
- *	of monster number vs new monster depth.
- * 10) To work out the new xp values:
- * 11) Type: "xp2=xp.^(0.15);"  This function scales the xp so
- *	that it seems to be linear with the new monster distribution.
- * 12) Type: "a2=xx\xp2';"
- * 13) Type: "r2=xx*a2;"
- * 14) Type: "xp3=round(r2.^(1/0.15))" MATLAB should now print a list
- *	of the new xp values... use your favourite editor to move this
- *	list next to the old one.  NOTE: My version of matlab cannot
- *	print out the monster number next to the xp without "running
- *	off the top of the screen" so that you cannot copy the result.
- */
-void output_monster_matlab(void)
-{
-	int i, max, min;
-	monster_race *r_ptr;
-	char buf[2048], buf2[50];
-	unsigned int hp;
-	FILE *fff;
-
-	/* Create the file name */
-	path_build(buf, 500, ANGBAND_DIR_SAVE, "monmatlb.m");
-
-	/* Open file */
-	fff = my_fopen(buf, "w");
-
-	/* Failure */
-	if (!fff) return;
-
-	/* Add starting stuff */
-	fprintf(fff, "xx=[];\n");
-
-	/* Min and max monsters to output in the matrix */
-	max = z_info->r_max;
-	min = 20;
-
-	for (i = min; i < max; i++)
-	{
-		fprintf(fff, "x=[");
-
-		/* Get race */
-		r_ptr = &r_info[i];
-
-		/* Hitpoints x2 */
-		hp = r_ptr->hdice * (r_ptr->hside + 1);
-		if (r_ptr->flags1 & RF1_FORCE_MAXHP)
-		{
-			/* hp x2 */
-			hp = r_ptr->hdice * r_ptr->hside * 2;
-		}
-
-		/* Output the flags one by one */
-		outflagmatlab(r_ptr->flags1 & ~(0x00000020F), fff);
-		outflagmatlab(r_ptr->flags2, fff);
-		outflagmatlab(r_ptr->flags3, fff);
-		outflagmatlab2(r_ptr->flags4, fff, hp);
-		outflagmatlab2(r_ptr->flags5, fff, r_ptr->level);
-		outflagmatlab2(r_ptr->flags6, fff, r_ptr->level);
-		outflagmatlab2(r_ptr->flags8, fff, r_ptr->level);
-
-		/* Numerical flags */
-		sprintf(buf2, "%d", r_ptr->speed);
-
-		sprintf(buf2, "%s %d", buf2, hp);
-		sprintf(buf2, "%s %d", buf2, r_ptr->aaf);
-		sprintf(buf2, "%s %d", buf2, r_ptr->ac);
-		sprintf(buf2, "%s %d", buf2, r_ptr->sleep);
-		sprintf(buf2, "%s %d", buf2, r_ptr->freq_inate + r_ptr->freq_spell);
-
-		/* The blows table */
-		outblowsmatlab(r_ptr, buf2);
-		sprintf(buf2, "%s];\nxx=[xx;x];\n", buf2);
-
-		fprintf(fff, "%s", buf2);
-	}
-
-	/* Output the power information */
-	fprintf(fff, "y=[");
-
-	for (i = min; i < max; i++)
-	{
-		/* Get race */
-		r_ptr = &r_info[i];
-
-		/* Output the level */
-		sprintf(buf2, "%d ", monster_power_mat(r_ptr->level));
-
-		fprintf(fff, "%s", buf2);
-	}
-
-	fprintf(fff, "];\n");
-
-	/* Output the XP information */
-	fprintf(fff, "xp=[");
-
-	for (i = min; i < max; i++)
-	{
-		/* Get race */
-		r_ptr = &r_info[i];
-
-		/* Output the experience for a kill */
-		sprintf(buf2, "%ld ", r_ptr->mexp);
-
-		fprintf(fff, "%s", buf2);
-	}
-
-	fprintf(fff, "];");
-
-	my_fclose(fff);
-}
-#endif /* MATLAB */
-
-/*
  * Ask for and parse a "debug command"
  * The "command_arg" may have been set.
  */
@@ -1766,20 +1494,10 @@ void do_cmd_debug(void)
 		}
 #endif /* ALLOW_SPOILERS */
 
-#ifdef MATLAB
-		case '=':
-		{
-			output_monster_matlab();
-			break;
-		}
-#endif /* MATLAB */
-
 		case '?':
 		{
 			/* Hack -- Help */
-			screen_save();
 			(void)show_file("wizard.txt", NULL, 0, 0);
-			screen_load();
 			break;
 		}
 
@@ -1793,7 +1511,7 @@ void do_cmd_debug(void)
 		case 'A':
 		{
 			/* Know alignment */
-			msg_format("Your alignment is %d.", p_ptr->align);
+			msgf("Your alignment is %d.", p_ptr->align);
 			break;
 		}
 
@@ -2026,7 +1744,7 @@ void do_cmd_debug(void)
 				}
 			}
 
-			msg_format("%i towns, %i stairs", towns, stairs);
+			msgf("%i towns, %i stairs", towns, stairs);
 			break;
 		}
 
@@ -2104,7 +1822,7 @@ void do_cmd_debug(void)
 		default:
 		{
 			/* Not a Debug Command */
-			msg_print("That is not a valid debug command.");
+			msgf("That is not a valid debug command.");
 			break;
 		}
 	}

@@ -139,7 +139,7 @@ void delete_object(int x, int y)
 	cave_type *c_ptr;
 
 	/* Refuse "illegal" locations */
-	if (!in_bounds(x, y)) return;
+	if (!in_bounds2(x, y)) return;
 
 	/* Grid */
 	c_ptr = area(x, y);
@@ -171,6 +171,14 @@ static void delete_static_object(object_type *o_ptr)
 void delete_object_list(s16b *o_idx_ptr)
 {
 	object_type *o_ptr;
+
+	/*
+	 * Special exception: if the first object is (nothing),
+	 * just zero the index.
+	 * This happens when loading savefiles.
+	 */
+	if (!o_list[*o_idx_ptr].k_idx)
+		*o_idx_ptr = 0;
 
 	/* Scan all objects in the grid */
 	OBJ_ITT_START (*o_idx_ptr, o_ptr)
@@ -241,7 +249,7 @@ void compact_objects(int size)
 	if (size)
 	{
 		/* Message */
-		msg_print("Compacting objects...");
+		msgf("Compacting objects...");
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
@@ -469,8 +477,7 @@ static s16b o_pop(void)
 	bool wrapped = FALSE;
 
 	/* Wrap counter */
-	if (o_cur > o_max) o_cur = 1;
-
+	if (o_cur >= o_max) o_cur = 1;
 
 	/*
 	 * If the number remaining is less than one third of the
@@ -532,7 +539,7 @@ static s16b o_pop(void)
 
 
 	/* Warn the player (except during dungeon creation) */
-	if (character_dungeon) msg_print("Too many objects!");
+	if (character_dungeon) msgf("Too many objects!");
 
 	/* Oops */
 	return (0);
@@ -598,7 +605,7 @@ void swap_objects(object_type *o1_ptr, object_type *o2_ptr)
 {
 	object_type temp;
 
-	/* Copy the objcet */
+	/* Copy the object */
 	object_copy(&temp, o2_ptr);
 
 	/* Copy the object */
@@ -676,7 +683,7 @@ errr get_obj_store_prep(void)
 	s16b *fld_ptr = &area(p_ptr->px, p_ptr->py)->fld_idx;
 
 	/* Thing to pass to the action functions */
-	field_obj_test f_o_t;
+	bool result;
 
 	/* Get the entry */
 	alloc_entry *table = alloc_kind_table;
@@ -692,17 +699,14 @@ errr get_obj_store_prep(void)
 		o_ptr->tval = k_info[table[i].index].tval;
 		o_ptr->sval = k_info[table[i].index].sval;
 
-		/* Save information to pass to the field action function */
-		f_o_t.o_ptr = o_ptr;
-
 		/* Default is to reject this rejection */
-		f_o_t.result = FALSE;
+		result = FALSE;
 
 		/* Will the store !not! buy this item? */
-		field_hook(fld_ptr, FIELD_ACT_STORE_ACT1, (vptr)&f_o_t);
+		field_hook(fld_ptr, FIELD_ACT_STORE_ACT1, o_ptr, &result);
 
 		/* We don't want this item type? */
-		if (f_o_t.result == TRUE)
+		if (result == TRUE)
 		{
 			/* Clear the probability */
 			table[i].prob2 = 0;
@@ -710,13 +714,13 @@ errr get_obj_store_prep(void)
 		}
 
 		/* Change the default to acceptance */
-		f_o_t.result = TRUE;
+		result = TRUE;
 
 		/* Will the store buy this item? */
-		field_hook(fld_ptr, FIELD_ACT_STORE_ACT2, (vptr)&f_o_t);
+		field_hook(fld_ptr, FIELD_ACT_STORE_ACT2, o_ptr, &result);
 
 		/* We don't want this item type? */
-		if (f_o_t.result == FALSE)
+		if (result == FALSE)
 		{
 			/* Clear the probability */
 			table[i].prob2 = 0;
@@ -1282,7 +1286,16 @@ s32b object_value_real(const object_type *o_ptr)
 		case TV_RING:
 		case TV_AMULET:
 		{
-			/* Rings/Amulets */
+            /* Rings/Amulets */
+
+            /* Hack -- special handling for amulets of Berserk Strength */
+            if (o_ptr->sval == SV_AMULET_BERSERK)
+            {
+                value += (bonus_value(o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 20);
+
+                /* Done */
+                break;
+            }
 
 			/* Hack -- negative bonuses are bad */
 			if (o_ptr->to_a < 0) return (0L);
@@ -1310,7 +1323,7 @@ s32b object_value_real(const object_type *o_ptr)
 			/* Armour */
 
 			/* Factor in the bonuses */
-			value += (bonus_value(o_ptr->to_h - k_ptr->to_a +
+			value += (bonus_value(o_ptr->to_h - k_ptr->to_h +
 								  o_ptr->to_d - k_ptr->to_d) * 20);
 			value += (bonus_value((o_ptr->to_a - k_ptr->to_a) * 2) * 10);
 
@@ -1740,7 +1753,12 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	o_ptr->kn_flags3 |= j_ptr->kn_flags3;
 
 	/* Hack -- blend "inscriptions" */
-	if (j_ptr->inscription) o_ptr->inscription = j_ptr->inscription;
+    if (j_ptr->inscription)
+    {
+        quark_remove(&o_ptr->inscription);
+        o_ptr->inscription = j_ptr->inscription;
+        quark_dup(j_ptr->inscription);
+    }
 
 	/* Hack -- blend "feelings" */
 	if (j_ptr->feeling) o_ptr->feeling = j_ptr->feeling;
@@ -1808,7 +1826,7 @@ s16b lookup_kind(int tval, int sval)
 	}
 
 	/* Oops */
-	msg_format("No object (%d,%d)", tval, sval);
+	msgf("No object (%d,%d)", tval, sval);
 
 	/* Oops */
 	return (0);
@@ -2026,10 +2044,7 @@ static s16b w_bonus(int max, int lev_dif)
  */
 static void object_mention(object_type *o_ptr)
 {
-	char o_name[256];
-
-	/* Describe */
-	object_desc_store(o_name, o_ptr, FALSE, 0, 256);
+	cptr type;
 
 	/* Artifact */
 	if (o_ptr->flags3 & TR3_INSTA_ART)
@@ -2037,12 +2052,12 @@ static void object_mention(object_type *o_ptr)
 		if (o_ptr->activate > 127)
 		{
 			/* Silly message */
-			msg_format("Artifact (%s)", o_name);
+			type = "Artifact (";
 		}
 		else
 		{
 			/* Silly message */
-			msg_format("Random artifact (%s)", o_name);
+			type = "Random artifact (";
 		}
 	}
 
@@ -2050,15 +2065,17 @@ static void object_mention(object_type *o_ptr)
 	else if (ego_item_p(o_ptr))
 	{
 		/* Silly message */
-		msg_format("Ego-item (%s)", o_name);
+		type = "Ego-item (";
 	}
 
 	/* Normal item */
 	else
 	{
 		/* Silly message */
-		msg_format("Object (%s)", o_name);
+		type = "Object (";
 	}
+	
+	msgf("%s%v)", type, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
 }
 
 
@@ -3575,7 +3592,31 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					}
 
 					break;
-				}
+                }
+
+                case SV_AMULET_BERSERK:
+                {
+                    /* Amulet of Berserk Strength */
+
+                    /* Bonus to damage and to hit */
+                    o_ptr->to_d = randint1(7) + m_bonus(10, level);
+                    o_ptr->to_h = randint1(7) + m_bonus(10, level);
+
+                    /* Penalty to AC */
+                    o_ptr->to_a = -(rand_range(5, 10));
+
+                    /* Curse */
+                    if (flags & OC_FORCE_BAD)
+                    {
+                        /* Cursed */
+                        o_ptr->flags3 |= (TR3_CURSED);
+
+                        /* Larger AC penalty */
+                        o_ptr->to_a -= rand_range(10, 20);
+                    }
+
+                    break;
+                }
 
 				case SV_AMULET_THE_MAGI:
 				{
@@ -3744,7 +3785,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, byte flags)
 
 			if (cheat_peek)
 			{
-				msg_format("Figurine of %s", r_name + r_ptr->name);
+				msgf("Figurine of %s", r_name + r_ptr->name);
 			}
 
 			break;
@@ -3773,7 +3814,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, byte flags)
 
 			if (cheat_peek)
 			{
-				msg_format("Statue of %s", r_name + r_ptr->name);
+				msgf("Statue of %s", r_name + r_ptr->name);
 			}
 
 			break;
@@ -4013,10 +4054,10 @@ void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags)
 	if (o_ptr->flags3 & TR3_INSTA_ART)
 	{
 		/* Paranoia - we have an artifact!!! */
-		msg_print("Error Condition - artifact passed to apply_magic");
-		msg_format("Object sval:%d Object flags3:%d",
+		msgf("Error Condition - artifact passed to apply_magic");
+		msgf("Object sval:%d Object flags3:%d",
 				   o_ptr->sval, o_ptr->flags3);
-		msg_print("Submit a bugreport please. :-)");
+		msgf("Submit a bugreport please. :-)");
 		return;
 	}
 
@@ -4339,6 +4380,10 @@ object_type *make_object(u16b delta_level, obj_theme theme)
 }
 
 
+/* Hack - predeclare for debug code below */
+static s16b *look_up_list(object_type *o_ptr);
+
+
 /*
  * Put an object on the ground.
  * We assume the grid is in bounds.
@@ -4371,12 +4416,15 @@ static bool put_object(object_type *o_ptr, int x, int y)
 
 		/* Notice + Redraw */
 		note_spot(x, y);
+		
+		/* Debug - scan player list for this item and complain if we find it */
+		look_up_list(j_ptr);
 
 		return (TRUE);
 	}
 
 	/* Warn the player */
-	msg_print("Failed to place object!");
+	msgf("Failed to place object!");
 
 	/* Paranoia - preserve artifacts */
 	if ((preserve_mode) && (o_ptr->flags3 & TR3_INSTA_ART) &&
@@ -4481,7 +4529,7 @@ void place_object(int x, int y, bool good, bool great)
 	object_type *o_ptr;
 
 	/* Paranoia -- check bounds */
-	if (!in_bounds(x, y)) return;
+	if (!in_bounds2(x, y)) return;
 
 	/* Acquire grid */
 	c_ptr = area(x, y);
@@ -4566,7 +4614,7 @@ void place_gold(int x, int y)
 /*
  * Let an object fall to the ground at or near a location.
  *
- * The initial location is assumed to be "in_bounds()".
+ * The initial location is assumed to be "in_bounds2()".
  *
  * This function takes a parameter "chance".  This is the percentage
  * chance that the item will "disappear" instead of drop.  If the object
@@ -4610,10 +4658,10 @@ void drop_near(object_type *j_ptr, int chance, int x, int y)
 	if (!(j_ptr->flags3 & TR3_INSTA_ART) && (randint0(100) < chance))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
+		msgf("The %s disappear%s.", o_name, (plural ? "" : "s"));
 
 		/* Debug */
-		if (p_ptr->wizard) msg_print("(breakage)");
+		if (p_ptr->wizard) msgf("(breakage)");
 
 		/* Failure */
 		return;
@@ -4649,7 +4697,7 @@ void drop_near(object_type *j_ptr, int chance, int x, int y)
 			tx = x + dx;
 
 			/* Skip illegal grids */
-			if (!in_bounds(tx, ty)) continue;
+			if (!in_bounds2(tx, ty)) continue;
 
 			/* Require line of sight */
 			if (!los(x, y, tx, ty)) continue;
@@ -4723,10 +4771,10 @@ void drop_near(object_type *j_ptr, int chance, int x, int y)
 	if (!flag && !(j_ptr->flags3 & TR3_INSTA_ART))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
+		msgf("The %s disappear%s.", o_name, (plural ? "" : "s"));
 
 		/* Debug */
-		if (p_ptr->wizard) msg_print("(no floor space)");
+		if (p_ptr->wizard) msgf("(no floor space)");
 
 		/* Failure */
 		return;
@@ -4788,12 +4836,12 @@ void drop_near(object_type *j_ptr, int chance, int x, int y)
 			if (!chance)
 			{
 				/* Message */
-				msg_format("The %s%s burns in the lava.",
+				msgf("The %s%s burns in the lava.",
 						   o_name, (plural ? "" : "s"));
 			}
 
 			/* Debug */
-			if (p_ptr->wizard) msg_print("(contact with lava)");
+			if (p_ptr->wizard) msgf("(contact with lava)");
 
 			/* Failure */
 			return;
@@ -4806,11 +4854,11 @@ void drop_near(object_type *j_ptr, int chance, int x, int y)
 			if (!chance)
 			{
 				/* Message */
-				msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
+				msgf("The %s disappear%s.", o_name, (plural ? "" : "s"));
 			}
 
 			/* Debug */
-			if (p_ptr->wizard) msg_print("(contact with water)");
+			if (p_ptr->wizard) msgf("(contact with water)");
 
 			/* Failure */
 			return;
@@ -4842,10 +4890,10 @@ void drop_near(object_type *j_ptr, int chance, int x, int y)
 		if (!put_object(j_ptr, bx, by))
 		{
 			/* Message */
-			msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
+			msgf("The %s disappear%s.", o_name, (plural ? "" : "s"));
 
 			/* Debug */
-			if (p_ptr->wizard) msg_print("(too many objects)");
+			if (p_ptr->wizard) msgf("(too many objects)");
 
 			/* Failure */
 			return;
@@ -4859,11 +4907,11 @@ void drop_near(object_type *j_ptr, int chance, int x, int y)
 	/* Message when an object falls under the player */
 	if (chance && (by == p_ptr->py) && (bx == p_ptr->px))
 	{
-		msg_print("You feel something roll beneath your feet.");
+		msgf("You feel something roll beneath your feet.");
 	}
 
 	/* Fields may interact with an object in some way */
-	field_hook(&area(bx, by)->fld_idx, FIELD_ACT_OBJECT_DROP, (vptr)o_ptr);
+	field_hook(&area(bx, by)->fld_idx, FIELD_ACT_OBJECT_DROP, o_ptr);
 }
 
 
@@ -4905,7 +4953,10 @@ void acquirement(int x1, int y1, int num, bool great, bool known)
 
 				/* Paranoia */
 				if (!o_ptr) continue;
-			}
+            }
+
+            /* Skip cursed items */
+            if (cursed_p(o_ptr)) continue;
 
 			/* Check to see if the object is worth anything */
 			if (object_value_real(o_ptr) > 0) break;
@@ -4944,6 +4995,19 @@ static s16b *look_up_list(object_type *o_ptr)
 
 	/* Some objects have no list */
 	if (!o_ptr->allocated) return (NULL);
+	
+	/* Scan player inventory */
+	OBJ_ITT_START (p_ptr->inventory, j_ptr)
+	{
+		if (o_ptr == j_ptr) return (&p_ptr->inventory);
+		
+		/* Debug - make sure we don't have a corrupted inventory */
+		if (j_ptr->ix || j_ptr->iy) quit("Corrupted inventory contains dungeon objects!");
+		
+		/* Debug - test array bounds */
+		if (GET_ARRAY_INDEX(o_list, j_ptr) >= o_max) quit("Inven outside bounds!");
+	}
+	OBJ_ITT_END;
 
 	/* Scan dungeon */
 	if (o_ptr->ix || o_ptr->iy)
@@ -4957,13 +5021,6 @@ static s16b *look_up_list(object_type *o_ptr)
 		}
 		OBJ_ITT_END;
 	}
-
-	/* Scan player inventory */
-	OBJ_ITT_START (p_ptr->inventory, j_ptr)
-	{
-		if (o_ptr == j_ptr) return (&p_ptr->inventory);
-	}
-	OBJ_ITT_END;
 
 	/* Scan stores */
 	for (i = 0; i < pl_ptr->numstores; i++)
@@ -5089,7 +5146,7 @@ void item_charges(object_type *o_ptr)
 	if (!object_known_p(o_ptr)) return;
 
 	/* Print a message */
-	msg_format("%s %d charge%s remaining.",
+	msgf("%s %d charge%s remaining.",
 			   floor_item(o_ptr) ? "It has" : "You have", o_ptr->pval,
 			   (o_ptr->pval != 1) ? "s" : "");
 }
@@ -5111,27 +5168,54 @@ void item_describe(object_type *o_ptr)
 
 	/* Get a description */
 	object_desc(o_name, o_ptr, TRUE, 3, 256);
-
-	if (!list)
+	
+	if (o_ptr->number <= 0)
 	{
-		/* Item is in the equipment */
-		item = GET_ARRAY_INDEX(p_ptr->equipment, o_ptr);
-
-		msg_format("%^s: %s (%c).", describe_use(item), o_name, I2A(item));
+		if (!list)
+		{
+			/* Hack XXX XXX pretend there is one item */
+			int num = o_ptr->number;
+			o_ptr->number = 1;
+			
+			/* Get a (new) description */
+			object_desc(o_name, o_ptr, TRUE, 3, 256);
+			
+			/* Item is in the equipment */
+			item = GET_ARRAY_INDEX(p_ptr->equipment, o_ptr);
+			
+			/* No more items? */
+			msgf("You were %s: %s (%c).", describe_use(item), o_name, I2A(item));
+			
+			/* Restore old number of items */
+			o_ptr->number = num;
+		}
+		else if (list == &p_ptr->inventory)
+		{
+			/* No more items? */
+			msgf("There are %s.", o_name);
+		}
 	}
-	else if (list == &p_ptr->inventory)
+	else
 	{
-		/* Get number of item in inventory */
-		item = get_item_position(p_ptr->inventory, o_ptr);
+		if (!list)
+		{
+			/* Item is in the equipment */
+			item = GET_ARRAY_INDEX(p_ptr->equipment, o_ptr);
 
-		msg_format("In your pack: %s (%c).", o_name, I2A(item));
-	}
-	else if (list == &c_ptr->o_idx)
-	{
-		msg_format("On the ground: %s.", o_name);
-	}
+			msgf("%^s: %s (%c).", describe_use(item), o_name, I2A(item));
+		}
+		else if (list == &p_ptr->inventory)
+		{
+			/* Get number of item in inventory */
+			item = get_item_position(p_ptr->inventory, o_ptr);
 
-	/* Elsewhere??? */
+			msgf("In your pack: %s (%c).", o_name, I2A(item));
+		}
+		else if (list == &c_ptr->o_idx)
+		{
+			msgf("On the ground: %s.", o_name);
+		}
+	}
 }
 
 
@@ -5142,8 +5226,15 @@ static void item_optimize(object_type *o_ptr)
 {
 	s16b *list;
 
+	/* Default to looking under the player */
 	cave_type *c_ptr = area(p_ptr->px, p_ptr->py);
-
+	
+	/* The player could have moved due to a phase door scroll */
+	if (in_bounds2(o_ptr->ix, o_ptr->iy))
+	{
+		c_ptr = area(o_ptr->ix, o_ptr->iy);
+	}
+	
 	/* Only optimize real items */
 	if (!o_ptr->k_idx) return;
 
@@ -5501,13 +5592,9 @@ object_type *inven_takeoff(object_type *o_ptr)
 {
 	int item;
 
-	char o_name[256];
 	object_type *q_ptr;
 
 	cptr act;
-
-	/* Describe the object */
-	object_desc(o_name, o_ptr, TRUE, 3, 256);
 
 	/* Look up item number */
 	item = GET_ARRAY_INDEX(p_ptr->equipment, o_ptr);
@@ -5542,12 +5629,12 @@ object_type *inven_takeoff(object_type *o_ptr)
 	/* Paranoia */
 	if (!q_ptr)
 	{
-		msg_print("You cannot take off the item - too many dungeon objects!");
+		msgf("You cannot take off the item - too many dungeon objects!");
 		return (NULL);
 	}
-
+	
 	/* Message */
-	msg_format("%s %s (%c).", act, o_name, I2A(item));
+	msgf("%s %v (%c).", act, OBJECT_FMT(q_ptr, TRUE, 3), I2A(item));
 
 	/* Wipe the old object */
 	object_wipe(o_ptr);
@@ -5580,8 +5667,6 @@ void inven_drop(object_type *o_ptr, int amt)
 {
 	object_type *q_ptr;
 
-	char o_name[256];
-
 	int slot;
 
 	s16b *list;
@@ -5611,11 +5696,8 @@ void inven_drop(object_type *o_ptr, int amt)
 	/* Get local object */
 	q_ptr = item_split(o_ptr, amt);
 
-	/* Describe local object */
-	object_desc(o_name, q_ptr, TRUE, 3, 256);
-
 	/* Message */
-	msg_format("You drop %s (%c).", o_name, I2A(slot));
+	msgf("You drop %v (%c).", OBJECT_FMT(q_ptr, TRUE, 3), I2A(slot));
 
 	/* Drop it near the player */
 	drop_near(q_ptr, 0, p_ptr->px, p_ptr->py);
@@ -5633,9 +5715,8 @@ void combine_pack(void)
 	object_type *o_ptr;
 	object_type *j_ptr;
 	bool flag = FALSE;
-
-
-	/* Combine the pack (backwards) */
+	
+	/* Combine the pack */
 	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
 		/* Scan the items above that item */
@@ -5648,10 +5729,10 @@ void combine_pack(void)
 				flag = TRUE;
 
 				/* Add together the item counts */
-				object_absorb(o_ptr, j_ptr);
+				object_absorb(j_ptr, o_ptr);
 
 				/* Delete the item */
-				delete_held_object(&p_ptr->inventory, j_ptr);
+				delete_held_object(&p_ptr->inventory, o_ptr);
 
 				/* Window stuff */
 				p_ptr->window |= (PW_INVEN);
@@ -5665,7 +5746,7 @@ void combine_pack(void)
 	OBJ_ITT_END;
 
 	/* Message */
-	if (flag) msg_print("You combine some items in your pack.");
+	if (flag) msgf("You combine some items in your pack.");
 }
 
 
@@ -5721,19 +5802,11 @@ bool can_player_destroy_object(object_type *o_ptr)
  */
 void display_koff(int k_idx)
 {
-	int y;
-
 	/* Get local object */
 	object_type *q_ptr;
 
-	char o_name[256];
-
 	/* Erase the window */
-	for (y = 0; y < Term->hgt; y++)
-	{
-		/* Erase the line */
-		Term_erase(0, y, 255);
-	}
+    clear_from(0);
 
 	/* No info */
 	if (!k_idx) return;
@@ -5741,11 +5814,8 @@ void display_koff(int k_idx)
 	/* Prepare the object */
 	q_ptr = object_prep(k_idx);
 
-	/* Describe */
-	object_desc_store(o_name, q_ptr, FALSE, 0, 256);
-
 	/* Mention the object name */
-	Term_putstr(0, 0, -1, TERM_WHITE, o_name);
+	prtf(0, 0, "%v", OBJECT_STORE_FMT(q_ptr, FALSE, 0));
 
 	/* Warriors are illiterate */
 	if (!(p_ptr->realm1 || p_ptr->realm2)) return;

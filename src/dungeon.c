@@ -105,13 +105,11 @@ static byte value_check_aux2(const object_type *o_ptr)
 /*
  * Psuedo-id the item
  */
-static void sense_item(object_type *o_ptr, bool heavy, bool wield)
+void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg)
 {
 	byte feel;
 
 	int slot;
-
-	char o_name[256];
 
 	bool okay = FALSE;
 
@@ -159,7 +157,7 @@ static void sense_item(object_type *o_ptr, bool heavy, bool wield)
 	if (object_known_p(o_ptr)) return;
 
 	/* Occasional failure on inventory items */
-	if (wield && !one_in_(5)) return;
+	if (!wield && !one_in_(5)) return;
 
 	/* Good luck */
 	if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && !one_in_(13))
@@ -170,8 +168,8 @@ static void sense_item(object_type *o_ptr, bool heavy, bool wield)
 	/* Check for a feeling */
 	feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 
-	/* Skip non-feelings */
-	if (!feel) return;
+	/* Skip non-changes */
+	if (feel == o_ptr->feeling) return;
 
 	/* Bad luck */
 	if ((p_ptr->muta3 & MUT3_BAD_LUCK) && !one_in_(13))
@@ -220,29 +218,31 @@ static void sense_item(object_type *o_ptr, bool heavy, bool wield)
 	/* Stop everything */
 	if (disturb_minor) disturb(FALSE);
 
-	/* Get an object description */
-	object_desc(o_name, o_ptr, FALSE, 0, 256);
-
-	/* Message (equipment) */
-	if (wield)
+	/* Message */
+	if (msg)
 	{
-		slot = GET_ARRAY_INDEX(p_ptr->equipment, o_ptr);
+		/* Message (equipment) */
+		if (wield)
+		{
+			slot = GET_ARRAY_INDEX(p_ptr->equipment, o_ptr);
 
-		msg_format("You feel the %s (%c) you are %s %s %s...",
-				   o_name, I2A(slot), describe_use(slot),
+			msgf("You feel the %v (%c) you are %s %s %s...",
+				   OBJECT_FMT(o_ptr, FALSE, 0), I2A(slot),
+				   describe_use(slot),
 				   ((o_ptr->number == 1) ? "is" : "are"),
 				   game_inscriptions[feel]);
-	}
+		}
 
-	/* Message (inventory) */
-	else
-	{
-		slot = get_item_position(p_ptr->inventory, o_ptr);
+		/* Message (inventory) */
+		else
+		{
+			slot = get_item_position(p_ptr->inventory, o_ptr);
 
-		msg_format("You feel the %s (%c) in your pack %s %s...",
-				   o_name, I2A(slot),
+			msgf("You feel the %v (%c) in your pack %s %s...",
+				   OBJECT_FMT(o_ptr, FALSE, 0), I2A(slot),
 				   ((o_ptr->number == 1) ? "is" : "are"),
 				   game_inscriptions[feel]);
+		}
 	}
 
 	/* We have "felt" it */
@@ -283,7 +283,7 @@ static void sense_inventory(void)
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
-
+	
 	/* Analyze the class */
 	switch (p_ptr->pclass)
 	{
@@ -291,7 +291,6 @@ static void sense_inventory(void)
 		{
 			/* Good (heavy) sensing */
 			difficulty = 9000L;
-			heavy = TRUE;
 
 			/* Done */
 			break;
@@ -302,7 +301,6 @@ static void sense_inventory(void)
 		{
 			/* Very bad (light) sensing */
 			difficulty = 240000L;
-			heavy = FALSE;
 
 			/* Done */
 			break;
@@ -312,7 +310,6 @@ static void sense_inventory(void)
 		{
 			/* Good (light) sensing */
 			difficulty = 10000L;
-			heavy = FALSE;
 
 			/* Done */
 			break;
@@ -322,7 +319,6 @@ static void sense_inventory(void)
 		{
 			/* Okay sensing */
 			difficulty = 20000L;
-			heavy = TRUE;
 
 			/* Done */
 			break;
@@ -332,7 +328,6 @@ static void sense_inventory(void)
 		{
 			/* Bad (heavy) sensing */
 			difficulty = 95000L;
-			heavy = TRUE;
 
 			/* Done */
 			break;
@@ -342,7 +337,6 @@ static void sense_inventory(void)
 		{
 			/* Bad (heavy) sensing */
 			difficulty = 77777L;
-			heavy = TRUE;
 
 			/* Done */
 			break;
@@ -352,7 +346,6 @@ static void sense_inventory(void)
 		{
 			/* Bad sensing */
 			difficulty = 75000L;
-			heavy = FALSE;
 
 			/* Done */
 			break;
@@ -362,8 +355,7 @@ static void sense_inventory(void)
 		{
 			/* Bad sensing */
 			difficulty = 55000L;
-			heavy = FALSE;
-
+	
 			/* Done */
 			break;
 		}
@@ -372,7 +364,6 @@ static void sense_inventory(void)
 		{
 			/* Bad (heavy) sensing */
 			difficulty = 80000L;
-			heavy = TRUE;
 
 			/* Done */
 			break;
@@ -392,7 +383,6 @@ static void sense_inventory(void)
 		{
 			/* Paranoia */
 			difficulty = 0;
-			heavy = FALSE;
 		}
 	}
 
@@ -410,7 +400,9 @@ static void sense_inventory(void)
 
 	/* Does it work? */
 	if (!(one_in_(difficulty))) return;
-
+	
+	/* Heavy sensing? */
+	heavy = class_info[p_ptr->pclass].heavy_sense;
 
 	/*** Sense everything ***/
 
@@ -422,13 +414,13 @@ static void sense_inventory(void)
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
 
-		sense_item(o_ptr, heavy, TRUE);
+		sense_item(o_ptr, heavy, TRUE, TRUE);
 	}
 
 	/* Scan inventory */
 	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
-		sense_item(o_ptr, heavy, FALSE);
+		sense_item(o_ptr, heavy, FALSE, TRUE);
 	}
 	OBJ_ITT_END;
 }
@@ -445,7 +437,6 @@ static void pattern_teleport(void)
 	/* Ask for level */
 	if (get_check("Teleport level? "))
 	{
-		char ppp[80];
 		char tmp_val[160];
 
 		/* Only downward in ironman mode */
@@ -458,14 +449,12 @@ static void pattern_teleport(void)
 		else if (p_ptr->depth == 100)
 			max_level = 100;
 
-		/* Prompt */
-		sprintf(ppp, "Teleport to level (%d-%d): ", min_level, max_level);
-
 		/* Default */
-		sprintf(tmp_val, "%d", p_ptr->depth);
+		strnfmt(tmp_val, 160, "%d", p_ptr->depth);
 
 		/* Ask for a level */
-		if (!get_string(ppp, tmp_val, 11)) return;
+		if (!get_string(tmp_val, 11, "Teleport to level (%d-%d): ",
+						min_level, max_level)) return;
 
 		/* Extract request */
 		p_ptr->command_arg = atoi(tmp_val);
@@ -487,7 +476,7 @@ static void pattern_teleport(void)
 	if (p_ptr->command_arg > max_level) p_ptr->command_arg = max_level;
 
 	/* Accept request */
-	msg_format("You teleport to dungeon level %d.", p_ptr->command_arg);
+	msgf("You teleport to dungeon level %d.", p_ptr->command_arg);
 
 	if (autosave_l) do_cmd_save_game(TRUE);
 
@@ -512,8 +501,8 @@ static void wreck_the_pattern(void)
 		return;
 	}
 
-	msg_print("You bleed on the Pattern!");
-	msg_print("Something terrible happens!");
+	msgf("You bleed on the Pattern!");
+	msgf("Something terrible happens!");
 
 	if (!p_ptr->invuln)
 		take_hit(damroll(10, 8), "corrupting the Pattern");
@@ -568,7 +557,7 @@ static bool pattern_effect(void)
 		(void)restore_level();
 		(void)hp_player(1000);
 		cave_set_feat(p_ptr->px, p_ptr->py, FEAT_PATTERN_OLD);
-		msg_print("This section of the Pattern looks less powerful.");
+		msgf("This section of the Pattern looks less powerful.");
 	}
 
 
@@ -765,7 +754,7 @@ void notice_lite_change(object_type *o_ptr)
 	else if (o_ptr->timeout == 0)
 	{
 		disturb(FALSE);
-		msg_print("Your light has gone out!");
+		msgf("Your light has gone out!");
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);
@@ -775,30 +764,36 @@ void notice_lite_change(object_type *o_ptr)
 	else if ((o_ptr->timeout < 100) && (!(o_ptr->timeout % 10)))
 	{
 		if (disturb_minor) disturb(FALSE);
-		msg_print("Your light is growing faint.");
+		msgf("Your light is growing faint.");
 	}
+}
+
+static bool item_tester_unsensed(const object_type *o_ptr)
+{
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	/* Check to see if we have identified the item */
+	if (object_known_p(o_ptr)) return (FALSE);
+	
+	/* Cannot sense flavoured items */
+	if (k_ptr->flavor) return (FALSE);
+
+	return (TRUE);
 }
 
 
 /*
  * Forcibly pseudo-identify an object in the inventory
  * (or on the floor)
- *
- * note: currently this function allows pseudo-id of any object,
- * including silly ones like potions & scrolls, which always
- * get '{average}'. This should be changed, either to stop such
- * items from being pseudo-id'd, or to allow psychometry to
- * detect whether the unidentified potion/scroll/etc is
- * good (Cure Light Wounds, Restore Strength, etc) or
- * bad (Poison, Weakness etc) or 'useless' (Slime Mold Juice, etc).
  */
 bool psychometry(void)
 {
 	object_type *o_ptr;
-	char o_name[256];
 	byte feel;
 	cptr q, s;
-
+	
+	/* Only un-id'ed items */
+	item_tester_hook = item_tester_unsensed;
 
 	/* Get an item */
 	q = "Meditate on which item? ";
@@ -809,29 +804,20 @@ bool psychometry(void)
 	/* Not a valid item */
 	if (!o_ptr) return (FALSE);
 
-	/* It is fully known, no information needed */
-	if (object_known_p(o_ptr))
-	{
-		msg_print("You cannot find out anything more about that.");
-		return TRUE;
-	}
-
 	/* Check for a feeling */
 	feel = value_check_aux1(o_ptr);
-
-	/* Get an object description */
-	object_desc(o_name, o_ptr, FALSE, 0, 256);
 
 	/* Skip non-feelings */
 	if (!feel)
 	{
-		msg_format("You do not perceive anything unusual about the %s.",
-				   o_name);
+		msgf("You do not perceive anything unusual about the %v.",
+				   OBJECT_FMT(o_ptr, FALSE, 0));
 		return TRUE;
 	}
 
-	msg_format("You feel that the %s %s %s...",
-			   o_name, ((o_ptr->number == 1) ? "is" : "are"),
+	msgf("You feel that the %v %s %s...",
+			   OBJECT_FMT(o_ptr, FALSE, 0),
+			   ((o_ptr->number == 1) ? "is" : "are"),
 			   game_inscriptions[feel]);
 
 	/* We have "felt" it */
@@ -857,8 +843,6 @@ bool psychometry(void)
  */
 static void recharged_notice(const object_type *o_ptr)
 {
-	char o_name[256];
-
 	cptr s;
 
 	/* No inscription */
@@ -873,14 +857,9 @@ static void recharged_notice(const object_type *o_ptr)
 		/* Find another '!' */
 		if (s[1] == '!')
 		{
-			/* Describe (briefly) */
-			object_desc(o_name, o_ptr, FALSE, 0, 256);
-
 			/* Notify the player */
-			if (o_ptr->number > 1)
-				msg_format("Your %s are recharged.", o_name);
-			else
-				msg_format("Your %s is recharged.", o_name);
+			msgf("Your %v %s recharged.", OBJECT_FMT(o_ptr, FALSE, 0),
+				(o_ptr->number > 1) ? "are" : "is");
 
 			/* Done. */
 			return;
@@ -935,15 +914,15 @@ static void process_world(void)
 				closing_flag++;
 
 				/* Message */
-				msg_print("The gates to ANGBAND are closing...");
-				msg_print("Please finish up and/or save your game.");
+				msgf("The gates to ANGBAND are closing...");
+				msgf("Please finish up and/or save your game.");
 			}
 
 			/* Slam the gate */
 			else
 			{
 				/* Message */
-				msg_print("The gates to ANGBAND are now closed.");
+				msgf("The gates to ANGBAND are now closed.");
 
 				/* Stop playing */
 				p_ptr->playing = FALSE;
@@ -963,7 +942,7 @@ static void process_world(void)
 
 	if (p_ptr->mon_fight)
 	{
-		msg_print("You hear noise.");
+		msgf("You hear noise.");
 	}
 
 	/*** Handle the wilderness/town (sunshine) ***/
@@ -983,12 +962,12 @@ static void process_world(void)
 			if (dawn)
 			{
 				/* Message */
-				msg_print("The sun has risen.");
+				msgf("The sun has risen.");
 			}
 			else
 			{
 				/* Message */
-				msg_print("The sun has fallen.");
+				msgf("The sun has fallen.");
 			}
 
 			/* Light up or darken the area */
@@ -1001,7 +980,7 @@ static void process_world(void)
 			}
 
 			/* Update the monsters */
-			p_ptr->update |= (PU_MONSTERS);
+			p_ptr->update |= (PU_MONSTERS | PU_VIEW);
 
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
@@ -1044,7 +1023,7 @@ static void process_world(void)
 			if (c_ptr->info & CAVE_GLOW)
 			{
 				/* Take damage */
-				msg_print("The sun's rays scorch your undead flesh!");
+				msgf("The sun's rays scorch your undead flesh!");
 				take_hit(1, "sunlight");
 				cave_no_regen = TRUE;
 			}
@@ -1062,14 +1041,14 @@ static void process_world(void)
 			/* Get an object description */
 			object_desc(o_name, o_ptr, FALSE, 0, 256);
 
-			msg_format("The %s scorches your undead flesh!", o_name);
+			msgf("The %s scorches your undead flesh!", o_name);
 
 			cave_no_regen = TRUE;
 
 			/* Get an object description */
 			object_desc(o_name, o_ptr, TRUE, 0, 256);
 
-			sprintf(ouch, "wielding %s", o_name);
+			strnfmt(ouch, 280, "wielding %s", o_name);
 			if (!p_ptr->invuln) take_hit(1, ouch);
 		}
 	}
@@ -1085,7 +1064,7 @@ static void process_world(void)
 		if (damage)
 		{
 			/* Take damage */
-			msg_print("The lava burns you!");
+			msgf("The lava burns you!");
 			take_hit(damage, "shallow lava");
 			cave_no_regen = TRUE;
 		}
@@ -1117,7 +1096,7 @@ static void process_world(void)
 		if (damage)
 		{
 			/* Take damage */
-			msg_print(message);
+			msgf(message);
 			take_hit(damage, hit_from);
 
 			cave_no_regen = TRUE;
@@ -1135,7 +1114,7 @@ static void process_world(void)
 		if (damage)
 		{
 			/* Take damage */
-			msg_print("The acid burns you!");
+			msgf("The acid burns you!");
 			take_hit(damage, "shallow acid");
 			cave_no_regen = TRUE;
 		}
@@ -1167,7 +1146,7 @@ static void process_world(void)
 		if (damage)
 		{
 			/* Take damage */
-			msg_print(message);
+			msgf(message);
 			take_hit(damage, hit_from);
 
 			cave_no_regen = TRUE;
@@ -1184,7 +1163,7 @@ static void process_world(void)
 		if (damage)
 		{
 			/* Take damage */
-			msg_print("The plants poison you!");
+			msgf("The plants poison you!");
 			take_hit(damage, "swamp");
 			cave_no_regen = TRUE;
 		}
@@ -1215,7 +1194,7 @@ static void process_world(void)
 		if (damage)
 		{
 			/* Take damage */
-			msg_print(message);
+			msgf(message);
 			take_hit(damage, hit_from);
 
 			cave_no_regen = TRUE;
@@ -1229,7 +1208,7 @@ static void process_world(void)
 			((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
 		{
 			/* Take damage */
-			msg_print("You are drowning!");
+			msgf("You are drowning!");
 			take_hit(randint1(p_ptr->lev), "drowning");
 			cave_no_regen = TRUE;
 		}
@@ -1253,12 +1232,12 @@ static void process_world(void)
 
 			if (p_ptr->pass_wall)
 			{
-				msg_print("Your molecules feel disrupted!");
+				msgf("Your molecules feel disrupted!");
 				dam_desc = "density";
 			}
 			else
 			{
-				msg_print("You are being crushed!");
+				msgf("You are being crushed!");
 				dam_desc = "solid rock";
 			}
 
@@ -1269,7 +1248,7 @@ static void process_world(void)
 	/* 
 	 * Fields you are standing on may do something.
 	 */
-	field_hook(&c_ptr->fld_idx, FIELD_ACT_PLAYER_ON, NULL);
+	field_hook(&c_ptr->fld_idx, FIELD_ACT_PLAYER_ON);
 
 	/* Nightmare mode activates the TY_CURSE at midnight */
 	if (ironman_nightmare)
@@ -1294,22 +1273,22 @@ static void process_world(void)
 				{
 					case 0:
 					{
-						msg_print("You hear a distant bell toll ominously.");
+						msgf("You hear a distant bell toll ominously.");
 						break;
 					}
 					case 1:
 					{
-						msg_print("A distant bell sounds twice.");
+						msgf("A distant bell sounds twice.");
 						break;
 					}
 					case 2:
 					{
-						msg_print("A distant bell sounds three times.");
+						msgf("A distant bell sounds three times.");
 						break;
 					}
 					case 3:
 					{
-						msg_print("A distant bell tolls four times.");
+						msgf("A distant bell tolls four times.");
 						break;
 					}
 				}
@@ -1321,7 +1300,7 @@ static void process_world(void)
 				int count = 0;
 
 				disturb(TRUE);
-				msg_print
+				msgf
 					("A distant bell tolls many times, fading into an deathly silence.");
 				(void)activate_ty_curse(FALSE, &count);
 			}
@@ -1428,7 +1407,7 @@ static void process_world(void)
 			if (!p_ptr->paralyzed && (randint0(100) < 10))
 			{
 				/* Message */
-				msg_print("You faint from the lack of food.");
+				msgf("You faint from the lack of food.");
 				disturb(TRUE);
 
 				/* Hack -- faint (bypass free action) */
@@ -1593,7 +1572,7 @@ static void process_world(void)
 		if ((p_ptr->equipment[EQUIP_LITE].tval) && !p_ptr->invuln &&
 			(p_ptr->equipment[EQUIP_LITE].sval == SV_LITE_THRAIN))
 		{
-			msg_print("The Jewel of Judgement drains life from you!");
+			msgf("The Jewel of Judgement drains life from you!");
 			take_hit(MIN(p_ptr->lev, 50), "the Jewel of Judgement");
 		}
 	}
@@ -1624,7 +1603,7 @@ static void process_world(void)
 		{
 			char noise[1024];
 			if (!get_rnd_line("chainswd.txt", 0, noise))
-				msg_print(noise);
+				msgf(noise);
 			disturb(FALSE);
 		}
 
@@ -1648,7 +1627,7 @@ static void process_world(void)
 										(quark_str(o_ptr->inscription), '.'))))
 				{
 					/* Do nothing */
-					/* msg_print("Teleport aborted.") */ ;
+					/* msgf("Teleport aborted.") */ ;
 				}
 				else if (get_check("Teleport? "))
 				{
@@ -1764,7 +1743,7 @@ static void process_world(void)
 		if (!(o_ptr->ix || o_ptr->iy)) continue;
 
 		field_hook(&area(o_ptr->ix, o_ptr->iy)->fld_idx,
-				   FIELD_ACT_OBJECT_ON, (vptr)o_ptr);
+				   FIELD_ACT_OBJECT_ON, o_ptr);
 
 		if (!o_ptr->timeout) continue;
 
@@ -1817,13 +1796,13 @@ static void process_world(void)
 			/* Determine the level */
 			if (p_ptr->depth)
 			{
-				msg_print("You feel yourself yanked upwards!");
+				msgf("You feel yourself yanked upwards!");
 
 				p_ptr->depth = 0;
 			}
 			else
 			{
-				msg_print("You feel yourself yanked downwards!");
+				msgf("You feel yourself yanked downwards!");
 
 				/* New depth */
 				p_ptr->depth = p_ptr->max_depth;
@@ -1869,8 +1848,8 @@ static bool enter_wizard_mode(void)
 #endif
 	{
 		/* Mention effects */
-		msg_print("Wizard mode is for debugging and experimenting.");
-		msg_print("The game will not be scored if you enter wizard mode.");
+		msgf("Wizard mode is for debugging and experimenting.");
+		msgf("The game will not be scored if you enter wizard mode.");
 		message_flush();
 
 		/* Verify request */
@@ -1903,8 +1882,8 @@ static bool enter_debug_mode(void)
 #endif
 	{
 		/* Mention effects */
-		msg_print("The debug commands are for debugging and experimenting.");
-		msg_print("The game will not be scored if you use debug commands.");
+		msgf("The debug commands are for debugging and experimenting.");
+		msgf("The game will not be scored if you use debug commands.");
 		message_flush();
 
 		/* Verify request */
@@ -1940,8 +1919,8 @@ static bool enter_borg_mode(void)
 	if (!(p_ptr->noscore & 0x0040))
 	{
 		/* Mention effects */
-		msg_print("The borg commands are for debugging and experimenting.");
-		msg_print("The game will not be scored if you use borg commands.");
+		msgf("The borg commands are for debugging and experimenting.");
+		msgf("The game will not be scored if you use borg commands.");
 		message_flush();
 
 		/* Verify request */
@@ -1997,12 +1976,12 @@ static void process_command(void)
 			if (p_ptr->wizard)
 			{
 				p_ptr->wizard = FALSE;
-				msg_print("Wizard mode off.");
+				msgf("Wizard mode off.");
 			}
 			else if (enter_wizard_mode())
 			{
 				p_ptr->wizard = TRUE;
-				msg_print("Wizard mode on.");
+				msgf("Wizard mode on.");
 			}
 
 			/* Update monsters */
@@ -2257,7 +2236,7 @@ static void process_command(void)
 				else if (mp_ptr->spell_book == TV_LIFE_BOOK)
 					which_power = "prayer";
 
-				msg_format("An anti-magic shell disrupts your %s!",
+				msgf("An anti-magic shell disrupts your %s!",
 						   which_power);
 
 				p_ptr->energy_use = 0;
@@ -2499,13 +2478,6 @@ static void process_command(void)
 			break;
 		}
 
-		case KTRL('O'):
-		{
-			/* Show previous message */
-			do_cmd_message_one();
-			break;
-		}
-
 		case KTRL('P'):
 		{
 			/* Show previous messages */
@@ -2589,10 +2561,10 @@ static void process_command(void)
 				char error_m[1024];
 				sound(SOUND_ILLEGAL);
 				if (!get_rnd_line("error.txt", 0, error_m))
-					msg_print(error_m);
+					msgf(error_m);
 			}
 			else
-				prt("Type '?' for help.", 0, 0);
+				prtf(0, 0, "Type '?' for help.");
 			break;
 		}
 	}
@@ -2614,7 +2586,7 @@ static void process_player(void)
 
 	if (hack_mutation)
 	{
-		msg_print("You feel different!");
+		msgf("You feel different!");
 		(void)gain_mutation(0);
 		hack_mutation = FALSE;
 	}
@@ -2669,7 +2641,7 @@ static void process_player(void)
 			disturb(FALSE);
 
 			/* Hack -- Show a Message */
-			msg_print("Cancelled.");
+			msgf("Cancelled.");
 		}
 	}
 
@@ -2711,7 +2683,7 @@ static void process_player(void)
 					disturb(FALSE);
 
 					/* Warning */
-					msg_print("Your pack overflows!");
+					msgf("Your pack overflows!");
 
 					/* Drop the excess item(s) */
 					inven_drop(o_ptr, o_ptr->number);
@@ -2778,7 +2750,7 @@ static void process_player(void)
 			msg_flag = FALSE;
 
 			/* Clear the top line */
-			prt("", 0, 0);
+			clear_msg();
 
 			/* Process the command */
 			process_command();
@@ -3248,42 +3220,30 @@ FALSE;
  */
 static void load_all_pref_files(void)
 {
-	char buf[1024];
+	/* Process global pref file */
+	(void)process_pref_file("player.prf");
+	
+	/* Process race pref file */
+	(void)process_pref_file("%s.prf", rp_ptr->title);
 
-	/* Access the "race" pref file */
-	sprintf(buf, "%s.prf", rp_ptr->title);
+	/* Process class pref file */
+	(void)process_pref_file("%s.prf", cp_ptr->title);
 
-	/* Process that file */
-	(void)process_pref_file(buf);
-
-	/* Access the "class" pref file */
-	sprintf(buf, "%s.prf", cp_ptr->title);
-
-	/* Process that file */
-	(void)process_pref_file(buf);
-
-	/* Access the "character" pref file */
-	sprintf(buf, "%s.prf", player_base);
-
-	/* Process that file */
-	(void)process_pref_file(buf);
+	/* Process character file */
+	(void)process_pref_file("%s.prf", player_base);
 
 	/* Access the "realm 1" pref file */
 	if (p_ptr->realm1 != REALM_NONE)
 	{
-		sprintf(buf, "%s.prf", realm_names[p_ptr->realm1]);
-
 		/* Process that file */
-		(void)process_pref_file(buf);
+		(void)process_pref_file("%s.prf", realm_names[p_ptr->realm1]);
 	}
 
 	/* Access the "realm 2" pref file */
 	if (p_ptr->realm2 != REALM_NONE)
 	{
-		sprintf(buf, "%s.prf", realm_names[p_ptr->realm2]);
-
 		/* Process that file */
-		(void)process_pref_file(buf);
+		(void)process_pref_file("%s.prf", realm_names[p_ptr->realm2]);
 	}
 }
 
@@ -3451,7 +3411,7 @@ void play_game(bool new_game)
 	}
 
 	/* Flash a message */
-	prt("Please wait...", 0, 0);
+	prtf(0, 0, "Please wait...");
 
 	/* Flush the message */
 	Term_fresh();
@@ -3574,7 +3534,7 @@ void play_game(bool new_game)
 				p_ptr->noscore |= 0x0001;
 
 				/* Message */
-				msg_print("You invoke wizard mode and cheat death.");
+				msgf("You invoke wizard mode and cheat death.");
 				message_flush();
 
 				/* Restore hit points */
@@ -3602,7 +3562,7 @@ void play_game(bool new_game)
 				if (p_ptr->word_recall)
 				{
 					/* Message */
-					msg_print("A tension leaves the air around you...");
+					msgf("A tension leaves the air around you...");
 					message_flush();
 
 					/* Hack -- Prevent recall */

@@ -12,7 +12,7 @@
 #
 #
 # USAGE:  Simply type in "make portname" where portname is the name
-#         of your port.  ie. "make open_bsd".  The default port can
+#         of your port.  ie. "make openbsd".  The default port can
 #         be changed by editing the DEFAULT variable.
 #
 #
@@ -35,9 +35,12 @@
 
 
 ##
-## This is my compiler of choice, it seems to work most everywhere
+## The list of ports available
 ##
-CC := gcc
+PORTS := default_port linux linux-svga linux-no-gtk openbsd freebsd main-cap \
+		 vt100 solaris sgi dec isc next aix dos ibm borland gcu
+
+OTHER_PORTS := amiga cygwin emx lcc linux-tk freebsd-tk
 
 ##
 ## This is the default port to compile.
@@ -45,6 +48,19 @@ CC := gcc
 ## Change this to your favourite port if you compile the game often.
 ##
 DEFAULT := linux
+
+
+##
+## This is my compiler of choice, it seems to work most everywhere
+##
+CC := gcc
+
+
+## Generic compile flags used by most ports.
+CFLAGS := -Wall -O2 -g
+
+## Variation
+# CFLAGS := -O1 -g
 
 ##
 ## Default Lua location
@@ -75,7 +91,7 @@ ANGOBJS := $(LUAWOBJS) \
 	xtra1.o xtra2.o spells1.o spells2.o \
 	melee1.o melee2.o save.o files.o fields.o\
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-	store.o birth.o load.o\
+	store.o birth.o load.o ui.o\
 	wizard1.o wizard2.o grid.o streams.o rooms.o \
 	generate.o dungeon.o init1.o init2.o \
 	effects.o quest.o racial.o script.o \
@@ -85,7 +101,7 @@ ANGOBJS := $(LUAWOBJS) \
 	main-cap.o main-gcu.o main-x11.o main-xaw.o main-xpj.o\
 	main-lsl.o main-vcs.o main-gtk.o main-win.o main.o \
 	maid-grf.o main-dos.o main-ibm.o main-acn.o main-emx.o \
-	main-ami.o
+	main-ami.o main-tnb.o
 
 ##
 ## The "Utility" files
@@ -101,12 +117,78 @@ BORGOBJS := \
 	zborg1.o zborg2.o zborg3.o zborg4.o zborg5.o \
 	zborg6.o zborg7.o zborg8.o zborg9.o \
 
+
 ##
-## The list of ports available
+## The Tk port files
 ##
-PORTS := default_port linux linux_svga openbsd freebsd main-cap vt100 \
-         solaris sgi dec isc next aix cygwin dos ibm lcc risc emx \
-		 amiga borland gcu
+TKOBJS := \
+	tk/canv.o tk/cmdinfo.o tk/icon.o \
+	tk/describe.o tk/interp.o tk/plat.o \
+	tk/widget.o tk/tk-util.o tk/tcltk.o
+
+##
+## The "source" and "object" files.
+##
+
+##
+## Lua Object Files
+##
+
+LUAOBJS := $(addprefix $(LUA), \
+  lapi.o ldebug.o lmem.o lstrlib.o lvm.o \
+  tolua_lb.o lauxlib.o ldo.o lobject.o ltable.o \
+  lzio.o tolua_rg.o lbaselib.o lfunc.o lparser.o \
+  ltests.o tolua_bd.o tolua_tm.o lcode.o lgc.o \
+  lstate.o ltm.o tolua_eh.o tolua_tt.o ldblib.o \
+  llex.o lstring.o lundump.o tolua_gp.o)
+
+
+TOLUAOBJS := \
+  $(addprefix $(LUA), tolua.o tolualua.o liolib.o) $(LUAOBJS)
+
+##
+## Get the list of .c files from the .o files
+##
+
+ANGSRCS := $(ANGOBJS:.o=.c)
+ZUTILSRCS := $(ZUTILOBJS:.o=.c)
+BORGSRCS := $(BORGOBJS:.o=.c)
+LUAWSRCS := $(LUAWOBJS:.o=.c)
+
+##
+## Main list of objects and source files.
+##
+
+SRCS := $(ANGSRCS) $(ZUTILSRCS) $(BORGSRCS)
+
+OBJS = $(ANGOBJS) $(ZUTILOBJS) $(BORGOBJS) $(LUAOBJS)
+
+
+##
+## Select the default port to use.
+##
+default_port: $(DEFAULT)
+
+##
+## (Installing directly is much nicer if you don't use the
+## autoconf generated makefile system.)
+##
+## Do not call this directly - you need to specify a port.
+## (This is why this isn't called "install".)
+##
+install_game: zangband
+	$(INSTALL)
+
+
+##
+## Build the "ZAngband" program
+##
+
+MAKE-ZANGBAND = $(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
+
+zangband: $(OBJS)
+	$(MAKE-ZANGBAND)
+
 
 ##
 ## Following are some "system" definitions
@@ -134,21 +216,10 @@ PORTS := default_port linux linux_svga openbsd freebsd main-cap vt100 \
 ## attempt to "guess" at many of these flags based on your system.
 ##
 
-## Generic compile flags used by most ports.
-CFLAGS := -Wall -O2 -g
-
-## Variation
-# CFLAGS := -O1 -g
 
 ##
-## Select the default port to use.
-##
-default_port: $(DEFAULT)
-
-
-##
-## Hack -- "install_game" dependancy as the target
-## to get them to compile properly.
+## All 'Ports' depend on install_game so they get compiled.
+## All 'Other-ports' must install themselves manually.
 ##
 $(PORTS): install_game
 
@@ -171,7 +242,7 @@ linux: CFLAGS += -D"USE_GCU" -D"USE_VCS" -D"USE_XPJ" -D"USE_X11" \
                  -D"USE_XAW" `gtk-config --cflags` -D"USE_GTK" \
                  -pedantic -W -Wmissing-prototypes -Wmissing-declarations \
 				 -Wno-long-long -Wwrite-strings -Wpointer-arith \
-				 -Wbad-function-cast -Wsign-compare \
+				 -Wbad-function-cast -Wsign-compare -DHAVE_MKSTEMP\
 				 -Waggregate-return -Wstrict-prototypes \
 				 -Wredundant-decls #-Wunreachable-code
  
@@ -179,14 +250,47 @@ linux: LIBS := -lX11 -lcurses -lncurses -L/usr/X11R6/lib \
                -lXaw -lXext -lSM -lICE -lXmu -lXt -lgtk `gtk-config --libs`
 
 ##
+## Variation -- All X11 ports for linux except gtk
+##
+linux-no-gtk: CFLAGS += -D"USE_GCU" -D"USE_XPJ" -D"USE_X11" -D"USE_XAW" \
+                 -pedantic -W -Wmissing-prototypes -Wmissing-declarations \
+				 -Wno-long-long -Wwrite-strings -Wpointer-arith \
+				 -Wbad-function-cast -Wsign-compare -DHAVE_MKSTEMP\
+				 -Waggregate-return -Wstrict-prototypes \
+				 -Wredundant-decls #-Wunreachable-code
+ 
+linux-no-gtk: LIBS := -lX11 -lcurses -lncurses -L/usr/X11R6/lib \
+               -lXaw -lXext -lSM -lICE -lXmu -lXt
+
+##
+## Variation -- tk port to linux
+##
+linux-tk: CFLAGS += -D"USE_TNB" -D"USE_X11" -D"PLATFORM_X11"\
+				 -I/usr/include/tcl8.4 \
+				 -I/usr/include/tcl8.4/tk-private/unix \
+				 -I/usr/include/tcl8.4/tk-private/generic \
+				 -I/usr/include/tcl8.4/tcl-private/generic \
+                 -pedantic -W -Wmissing-prototypes -Wmissing-declarations \
+				 -Wno-long-long -Wwrite-strings -Wpointer-arith \
+				 -Wbad-function-cast -Wsign-compare -DHAVE_MKSTEMP\
+				 -Waggregate-return -Wstrict-prototypes \
+				 -Wredundant-decls #-Wunreachable-code
+ 
+linux-tk: LIBS := -lX11 -lcurses -lncurses -L/usr/X11R6/lib \
+               -lXaw -lXext -lSM -lICE -lXmu -lXt -ltcl8.4 -ltk8.4
+linux-tk: tk-objs
+	cp $^ ../zangband
+
+
+##
 ## Linux with the (depreciated) svga port.
 ##
-linux_svga: CFLAGS += -Wno-long-long -D"USE_GCU" -D"USE_VCS" -D"USE_XPJ"\
-                 -D"USE_X11" -D"USE_XAW" -D"USE_LSL"\
-                  `gtk-config --cflags` -D"USE_GTK" \
+linux-svga: CFLAGS += -Wno-long-long -D"USE_GCU" -D"USE_VCS" -D"USE_XPJ"\
+                 -D"USE_X11" -D"USE_XAW" -D"USE_LSL" \
+                  `gtk-config --cflags` -D"USE_GTK" -DHAVE_MKSTEMP\
                  -pedantic -W -Wmissing-prototypes -Wmissing-declarations
  
-linux_svga: LIBS := -lX11 -lcurses -lncurses -L/usr/X11R6/lib -lz -lvgagl \
+linux-svga: LIBS := -lX11 -lcurses -lncurses -L/usr/X11R6/lib -lz -lvgagl \
                     -lvga -lXaw -lXext -lSM -lICE -lXmu -lXt \
 					-lgtk `gtk-config --libs`
 
@@ -199,16 +303,16 @@ cygwin: LIBS := -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
 cygwin: INSTALL := mv -f zangband.exe ../zangband.exe
 cygwin: RES := windres
 cygwin: RESCMD = $< -O coff -o $@
-cygwin: OTHEROBJS := angband.res readdib.o
-cygwin: angband.res readdib.o
-	# Blank line required here
-
+cygwin-objs: $(OBJS) angband.res readdib.o
+	$(MAKE-ZANGBAND)
+cygwin: cygwin-objs
+	cp $^ ../zangband
 
 ##
 ## Variation -- OpenBSD 
 ##
 
-openbsd: CFLAGS += -I/usr/x11r6/include  -D"USE_X11" -D"USE_GCU"
+openbsd: CFLAGS += -I/usr/X11R6/include  -D"USE_X11" -D"USE_GCU"
 openbsd: LIBS := -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 
 ##
@@ -221,6 +325,24 @@ freebsd: CFLAGS += -D"USE_GCU" -D"USE_XPJ" -D"USE_X11" -D"USE_XAW" \
 freebsd: LIBS := -lX11 -lncurses -L/usr/X11R6/lib \
 				 -lXaw -lXext -lSM -lICE -lXmu -lXt `gtk12-config --libs`
 
+##
+## Variation -- tk port to FreeBSD
+##
+freebsd-tk: CFLAGS += -D"USE_TNB" -D"USE_X11" -D"PLATFORM_X11"\
+				 -I/usr/local/include/tcl8.4/generic \
+				 -I/usr/local/include/tk8.4/generic \
+				 -I/usr/local/include/tk8.4/unix \
+				 -I/usr/X11R6/include \
+                 -pedantic -W -Wmissing-prototypes -Wmissing-declarations \
+				 -Wno-long-long -Wwrite-strings -Wpointer-arith \
+				 -Wbad-function-cast -Wsign-compare -DHAVE_MKSTEMP\
+				 -Waggregate-return -Wstrict-prototypes \
+				 -Wredundant-decls #-Wunreachable-code
+ 
+freebsd-tk: LIBS := -lX11 -lcurses -lncurses -L/usr/X11R6/lib -L/usr/local/lib \
+               -lXaw -lXext -lSM -lICE -lXmu -lXt -ltcl84 -ltk84
+freebsd-tk: tk-objs
+	cp $^ ../zangband
 
 ##
 ## Variation -- Use "main-cap.c" instead of "main-gcu.c"
@@ -320,30 +442,12 @@ lcc: LIBS := $(LCC_PATH)\lib\winmm.lib -I$(LCC_PATH)\include
 lcc: LDFLAGS := -s -subsystem windows
 lcc: RES := $(LCC_PATH)\bin\lrc.exe
 lcc: RESCMD := -I$(LCC_PATH)\include angband.rc
-lcc: INSTALL := copy zangband ..\zangband.exe
 lcc: LUA := $(subst /, \, $(LUA))
 lcc: EXEC := .exe
-lcc: OTHEROBJS := angband.res readdib.o
-lcc: angband.res readdib.o
-	# Blank line required here
-
-
-##
-## Variation -- Compile for Risc OS 3.10 or later  (Acorn)
-##
-## Remove the #s to generate a debug version
-##
-## (This is awaiting a newer working version from takkaria)
-##
-
-risc: CC := cc
-risc: LD := link
-risc: CFLAGS := -IOS:,C: -throwback -depend !Depend -Wan -ff -zps1 #-g
-risc: LDFLAGS := -s symbols #-d
-risc: INSTALL := Squeeze zangband ^.!RunImage
-risc: OTHEROBJS := o.Stubs o.OSLib o.eventlib
-risc: o.Stubs o.OSLib o.eventlib
-	# Blank line required here
+lcc-objs: $(OBJS) angband.res readdib.o
+	$(MAKE-ZANGBAND)
+lcc: lcc-objs
+	copy $^ ..\zangband.exe
 
 
 ##
@@ -356,14 +460,13 @@ emx: CFLAGS := -MMD -O3 -DUSE_EMX -Zmt -Wall
 emx: LDFLAGS := -lvideo
 emx: AR := ar
 emx: EXEC := .exe
-emx: INSTALL := \
-	copy zangband.exe ..\
-	emxbind -s ..\zangband.exe\
-	copy aclient.exe ..\
+emx-objs: $(OBJS) main-epm.o zangband.a
+	$(MAKE-ZANGBAND)
+emx: emx-objs
+	copy $^.exe ..\zangband.exe 
+	emxbind -s ..\zangband.exe
+	copy aclient.exe ..
 	emxbind -s ..\aclient.exe
-emx: OTHEROBJS := main-epm.o zangband.a
-emx: main-epm.o zangband.a
-	# Blank line required here
 
 
 ##
@@ -387,10 +490,11 @@ zangband.a: $(OBJS)
 amiga: LD := slink QUIET WITH zangband.lnk
 amiga: CC := sc
 amiga: CFLAGS := DEFINE AMIGA DEFINE USE_AMI
-amiga: INSTALL :=  # Fixme
-amiga: OTHEROBJS := sound-ami.o
-amiga: sound-ami.o
-	# Blank line required here
+amiga-objs: $(OBJS) sound-ami.o
+	$(MAKE-ZANGBAND)
+amiga: amiga-objs
+	cp $^ ../zangband #Fixme
+	rm -f zangband
 
 
 ##
@@ -414,68 +518,11 @@ borland: EXEC := .exe
 ##########################################################
 
 ##
-## The "source" and "object" files.
-##
-
-##
-## Lua Object Files
-##
-
-LUAOBJS := $(addprefix $(LUA), \
-  lapi.o ldebug.o lmem.o lstrlib.o lvm.o \
-  tolua_lb.o lauxlib.o ldo.o lobject.o ltable.o \
-  lzio.o tolua_rg.o lbaselib.o lfunc.o lparser.o \
-  ltests.o tolua_bd.o tolua_tm.o lcode.o lgc.o \
-  lstate.o ltm.o tolua_eh.o tolua_tt.o ldblib.o \
-  llex.o lstring.o lundump.o tolua_gp.o)
-
-
-TOLUAOBJS := \
-  $(addprefix $(LUA), tolua.o tolualua.o liolib.o) $(LUAOBJS)
-
-##
-## Get the list of .c files from the .o files
-##
-
-ANGSRCS := $(ANGOBJS:.o=.c)
-ZUTILSRCS := $(ZUTILOBJS:.o=.c)
-BORGSRCS := $(BORGOBJS:.o=.c)
-LUAWSRCS := $(LUAWOBJS:.o=.c)
-
-##
-## Main list of objects and source files.
-##
-
-SRCS = $(ANGSRCS) $(ZUTILSRCS) $(BORGSRCS)
-
-OBJS = $(ANGOBJS) $(ZUTILOBJS) $(BORGOBJS) $(LUAOBJS) $(OTHEROBJS)
-
-##
 ## Hack - GCC requires other flags
 ##
 ifeq (gcc, $(findstring gcc, $(CC)))
 	CFLAGS += -fno-strength-reduce
 endif
-
-##
-## (Installing directly is much nicer if you don't use the
-## autoconf generated makefile system.)
-##
-## Do not call this directly - you need to specify a port.
-## (This is why this isn't called "install".)
-##
-install_game: zangband$(EXEC)
-	$(INSTALL)
-
-
-##
-## Build the "ZAngband" program
-##
-
-zangband$(EXEC): $(OBJS)
-	$(CC) $(CFLAGS) -o zangband$(EXEC) $(OBJS) $(LDFLAGS) $(LIBS)
-
-
 
 ##
 ## Clean up old junk
@@ -486,6 +533,9 @@ clean:
 	-$(RM) ./lua/*.bak ./lua/*.o
 	-$(RM) ./l-*.c
 	-$(RM) ./lua/tolua
+	-$(RM) ./tk/*.bak ./tk/*.o
+	-$(RM) *-objs zangband
+
 ##
 ## Generate dependencies automatically
 ##
@@ -498,7 +548,7 @@ depend:
 ## Lua stuff
 ##
 
-$(LUA)tolua$(EXEC): $(TOLUAOBJS)
+$(LUA)tolua: $(TOLUAOBJS)
 	$(CC) $(CFLAGS) -o $(LUA)tolua$(EXEC) $(TOLUAOBJS) $(LDFLAGS) $(LIBS)
 
 ##
@@ -542,6 +592,7 @@ maid-grf.o: maid-grf.h
 maid-x11.o: maid-grf.h
 main-acn.o: maid-grf.h
 main-gtk.o: maid-grf.h
+main-tnb.o: maid-grf.h
 main-win.o: maid-grf.h
 main-x11.o: maid-grf.h maid-x11.h
 main-xaw.o: maid-grf.h maid-x11.h
@@ -595,10 +646,27 @@ $(LUAWSRCS): %.c: %.pkg $(LUA)tolua$(EXEC)
 	$(LUA)tolua -n $(subst l-,,$*) -o $@ $<
 
 ##
+## Extra dependancies for the tk port
+##
+$(TKOBJS): $(INCS) tk/tnb.h
+main-tnb.o: tk/tnb.h
+
+TKICONOBJS := \
+	tk/canv.o tk/icon.o tk/interp.o
+
+$(TKICONOBJS): tk/icon.h
+
+##
+## Compile the tk stuff
+##
+tk-objs: $(TKOBJS) $(OBJS)
+	$(MAKE-ZANGBAND)
+
+##
 ## Hack... .o files can be created from .obj files
 ##
-#%.o:%.obj
-#	move $@ $<
+%.o:%.obj
+	move $@ $<
 
 #LUALIST := basic.lua feature.lua verbatim.lua code.lua typedef.lua \
 #	container.lua package.lua module.lua define.lua enumerate.lua \
@@ -618,4 +686,4 @@ $(LUAWSRCS): %.c: %.pkg $(LUA)tolua$(EXEC)
 ##
 ## Phony targets
 ##
-.PHONY: install_game clean depend $(PORTS)
+.PHONY: install_game clean depend $(PORTS) $(OTHER-PORTS)

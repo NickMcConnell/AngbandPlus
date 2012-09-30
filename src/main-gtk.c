@@ -1622,7 +1622,7 @@ static gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event,
 		&& (event->keyval >= GDK_KP_0) && (event->keyval <= GDK_KP_9))
 	{
 		/* Build the macro trigger string */
-		sprintf(msg, "%cS_%X%c", 31, event->keyval, 13);
+		strnfmt(msg, 128, "%cS_%X%c", 31, event->keyval, 13);
 	
 		/* Enqueue the "macro trigger" string */
 		for (i = 0; msg[i]; i++) Term_keypress(msg[i]);
@@ -1722,7 +1722,7 @@ static gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event,
 	}
 
 	/* Build the macro trigger string */
-	sprintf(msg, "%c%s%s%s%s_%X%c", 31,
+	strnfmt(msg, 128, "%c%s%s%s%s_%X%c", 31,
 	        mc ? "N" : "", ms ? "S" : "",
 	        mo ? "O" : "", mx ? "M" : "",
 	        event->keyval, 13);
@@ -2805,7 +2805,7 @@ errr init_gtk(int argc, char **argv, unsigned char *new_game)
 	init_angband();
 	
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 17, 23);
+	prtf(17, 23, "[Choose 'New' or 'Open' from the 'File' menu]");
 	Term_fresh();
 	
 	while (!game_in_progress)

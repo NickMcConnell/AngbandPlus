@@ -774,7 +774,7 @@ D:A small black and orange lizard.
 N:51:White harpy
 G:H:w
 I:110:2d5:16:18:10
-W:7:1:0:44
+W:5:1:0:44
 O:0:0:0
 B:CLAW:HURT:1d1
 B:CLAW:HURT:1d1
@@ -2114,7 +2114,7 @@ D:It is a rodent of unusual size.
 N:157:Black harpy
 G:H:D
 I:120:2d9:16:11:10
-W:16:1:0:310
+W:8:1:0:155
 O:0:0:0
 B:CLAW:HURT:1d2
 B:CLAW:HURT:1d2
@@ -2912,8 +2912,8 @@ D:the air, you....
 
 N:214:Abyss worm mass
 G:w:D
-I:100:4d7:10:7:3
-W:16:4:0:81
+I:100:5d7:10:7:3
+W:28:4:0:110
 O:0:0:0
 B:CRAWL:EXP_10
 F:RAND_50 | RAND_25 |
@@ -3654,7 +3654,7 @@ D:It doesn't move very fast, but when it does - watch out!
 N:267:Magic mushroom patch
 G:,:B
 I:130:1d1:40:10:0
-W:23:2:0:2350
+W:23:2:0:1100
 O:0:0:0
 F:WILD_DUNGEON_01 | WILD_FOREST2
 F:FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW | FRIENDS | 
@@ -5216,7 +5216,7 @@ D:reptilian head.
 N:375:Dark elven warlock
 G:h:v
 I:120:5d10:20:8:20
-W:29:1:0:2050
+W:37:1:0:6150
 O:0:0:100
 B:HIT:HURT:1d3
 B:HIT:HURT:1d3
@@ -5370,7 +5370,7 @@ D:An agent of supernatural beings, this creature looks like a
 D:huge eagle.
 
 N:385:Phantom beast
-G:G:B
+G:G:b
 I:110:8d12:20:20:40
 W:37:1:0:2350
 O:0:0:0
@@ -14152,7 +14152,7 @@ S:BO_ICEE | BO_MANA | BO_PLAS |
 S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | 
 S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_HI_DRAGON |
 S:HAND_DOOM | ANIM_DEAD
-D:Mighty in spells and enchantments,
+D:Mighty in spells and enchantments, 
 D:he created the One Ring.  His eyes glow with power and his gaze seeks to 
 D:destroy your soul.  He has many servants, and rarely fights without them.
 
@@ -14690,3 +14690,18 @@ F:RAND_50 | ATTR_MULTI | CAN_SWIM |
 F:STUPID | WEIRD_MIND | MULTIPLY | BASH_DOOR | LITE_1
 F:ANIMAL | NO_FEAR
 D:This mass of worms seems to shimmer with strange power.
+
+N:888:Giant time fly
+G:F:G
+I:130:3d8:12:10:50
+W:31:3:0:1800
+O:0:0:0
+B:BITE:PARALYZE
+F:FORCE_SLEEP | 
+F:RAND_50 | RAND_25 | WILD_DUNGEON_01 | WILD_MOUNT2 |
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | CAN_FLY
+S:1_IN_5 | 
+S:BR_TIME | HASTE | SLOW
+D:It wasn't there a second ago....
+

@@ -1024,7 +1024,7 @@ static void save_prefs(void)
 	char buf[128];
 
 	/* Save the "arg_graphics" flag */
-	sprintf(buf, "%d", arg_graphics);
+	strnfmt(buf, 128, "%d", arg_graphics);
 	WritePrivateProfileString("Angband", "Graphics", buf, ini_file);
 
 	/* Save the "arg_sound" flag */
@@ -1036,7 +1036,7 @@ static void save_prefs(void)
 	{
 		term_data *td = &data[i];
 
-		sprintf(buf, "Term-%d", i);
+		strnfmt(buf, 128, "Term-%d", i);
 
 		save_prefs_aux(td, buf);
 	}
@@ -1120,7 +1120,7 @@ static void load_prefs(void)
 	{
 		term_data *td = &data[i];
 
-		sprintf(buf, "Term-%d", i);
+		strnfmt(buf, 1024, "Term-%d", i);
 
 		load_prefs_aux(td, buf);
 	}
@@ -3131,7 +3131,7 @@ static void display_help(cptr filename)
 
 		char buf[1024];
 
-		sprintf(buf, "winhelp.exe %s", tmp);
+		strnfmt(buf, 1024, "winhelp.exe %s", tmp);
 		WinExec(buf, SW_NORMAL);
 
 #endif /* HTML_HELP */
@@ -3260,7 +3260,7 @@ static void process_menus(WORD wCmd)
 			/* Paranoia -- No score file */
 			if (highscore_fd < 0)
 			{
-				msg_print("Score file unavailable.");
+				msgf("Score file unavailable.");
 			}
 			else
 			{
@@ -4619,7 +4619,7 @@ static void init_stuff(void)
 
 		GetPrivateProfileString("Angband", "AngbandPath", "", tmp, 1024, path);
 
-		sprintf(path, "%szangband.ini", tmp);
+		strnmt(path, 1024, "%szangband.ini", tmp);
 	}
 
 #endif /* USE_SAVER */
@@ -4907,7 +4907,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	check_for_save_file(lpCmdLine);
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 17, 23);
+	prtf(17, 23, "[Choose 'New' or 'Open' from the 'File' menu]");
 	Term_fresh();
 
 	/* Process messages forever */

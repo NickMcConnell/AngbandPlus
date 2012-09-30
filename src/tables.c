@@ -70,20 +70,6 @@ const char hexsym[16] =
 
 
 /*
- * Global array for converting numbers to a logical list symbol
- */
-const char listsym[] =
-{
-	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-	'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-	'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-	'\0'
-};
-
-
-/*
  * Encode the screen colors
  */
 cptr color_char = "dwsorgbuDWvyRGBU";
@@ -2153,7 +2139,7 @@ player_class class_info[MAX_CLASS] =
 		{ 5, -2, -2, 2, 2, -1},
 		25, 18, 18, 1,  14, 2, 25, 17,
 		12, 7,  10, 0,  0,  0,  100, 55,
-		9,  0, 20
+		9,  0, 20, TRUE
 	},
 
 	{
@@ -2161,7 +2147,7 @@ player_class class_info[MAX_CLASS] =
 		{-5, 3, 0, 1, -2, 1},
 		30, 36, 30, 2,  16, 20, 10, 10,
 		7,  13, 9,  0,  0,  0,  25, 14,
-		0, 30, 15
+		0, 30, 15, FALSE
 	},
 
 	{
@@ -2169,7 +2155,7 @@ player_class class_info[MAX_CLASS] =
 		{-1, -3, 3, -1, 0, 2},
 		25, 30, 32, 2,  16, 8, 16, 7,
 		7,  10, 12, 0,  0,  0, 50, 18,
-		2, 20, 20
+		2, 20, 20, FALSE
 	},
 
 	{
@@ -2177,7 +2163,7 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 1, -2, 3, 1, -1},
 		45, 32, 28, 5, 32, 24, 15, 20,
 		15, 10, 10, 0,  0,  0, 70, 40,
-		6, 25, 20
+		6, 25, 20, TRUE
 	},
 
 	{
@@ -2185,7 +2171,7 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 2, 0, 1, 1, 1},
 		30, 32, 28, 3,  24, 16, 15, 20,
 		8,  10, 10, 0,  0,  0,  65, 63,
-		4, 30, 20
+		4, 30, 20, TRUE
 	},
 
 	{
@@ -2193,7 +2179,7 @@ player_class class_info[MAX_CLASS] =
 		{ 3, -3, 1, 0, 2, 2},
 		20, 24, 26, 1,  12, 2, 19, 10,
 		7,  10, 11, 0,  0,  0,  76, 14,
-		6, 35, 20
+		6, 35, 20, TRUE
 	},
 
 	{
@@ -2201,7 +2187,7 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 2, 0, 1, 0, 1},
 		30, 30, 28, 2,  18, 16, 20, 20,
 		7,  10,  9, 0,  0,  0,  75, 50,
-		4, 50, 20
+		4, 50, 20, FALSE
 	},
 
 	{
@@ -2209,7 +2195,7 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 1, 0, 1, 2, -2},
 		20, 25, 25, 1,  14, 12, 23, 7,
 		7,  11, 10, 0,  0,  0,  90, 40,
-		6, 35, 20
+		6, 35, 20, TRUE
 	},
 
 	{
@@ -2217,7 +2203,7 @@ player_class class_info[MAX_CLASS] =
 		{ 2, -1, 1, 3, 2, 1},
 		45, 32, 28, 5, 16, 24, 12, 14,
 		15, 11, 10, 0,  0,  0, 30, 25,
-		6, 40, 20
+		6, 40, 20, FALSE
 	},
 
 	{
@@ -2225,7 +2211,7 @@ player_class class_info[MAX_CLASS] =
 		{-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
 		30, 30, 30, 3,  22, 16, 15, 15,
 		10, 10, 10, 0,   0,  0, 30, 20,
-		2, 25, 20
+		2, 25, 20, FALSE
 	},
 
 	{
@@ -2233,7 +2219,7 @@ player_class class_info[MAX_CLASS] =
 		{-5, 4, 0, 0, -2, 1},
 		30, 36, 30, 2,  16, 20, 10, 10,
 		7,  13, 9,  0,  0,  0,  15, 10,
-		0, 30, 12
+		0, 30, 12, FALSE
 	},
 };
 
@@ -6020,6 +6006,31 @@ cptr color_names[16] =
 	"Light Umber",
 };
 
+
+/*
+ * Table of colour escape sequences for string formatting
+ */
+cptr color_seq[16] =
+{
+	CLR_DARK,
+	CLR_WHITE,
+	CLR_SLATE,
+	CLR_ORANGE,
+	CLR_RED,
+	CLR_GREEN,
+	CLR_BLUE,
+	CLR_UMBER,
+	CLR_L_DARK,
+	CLR_L_WHITE,
+	CLR_VIOLET,
+	CLR_YELLOW,
+	CLR_L_RED,
+	CLR_L_GREEN,
+	CLR_L_BLUE,
+	CLR_L_UMBER,
+};
+
+
 /*
  * Hack -- the message colour names (MSG_* in defines.h)
  * Several are unused, although the corresponding sounds are not.
@@ -6312,7 +6323,7 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 5, "center_player",			"Always center on the player (*slow*)" },
 	{FALSE, 5, "avoid_center",			"Avoid centering while running" },
 	{TRUE,  0, NULL,					"Number 172" },
-	{TRUE,  0, NULL,					"Number 173" },
+	{TRUE,  5, "limit_messages",			"Only display last 50 messages in dumps" },
 	{TRUE,  0, NULL,					"Number 174" },
 	{TRUE,  0, NULL,					"Number 175" },
 	{TRUE,  0, NULL,					"Number 176" },

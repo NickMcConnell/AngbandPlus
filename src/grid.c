@@ -236,7 +236,7 @@ void vault_objects(int x, int y, int num)
 			{
 				if (cheat_room)
 				{
-					msg_print("Warning! Could not place vault object!");
+					msgf("Warning! Could not place vault object!");
 				}
 			}
 
@@ -292,7 +292,7 @@ static void vault_trap_aux(int x, int y, int xd, int yd)
 		{
 			if (cheat_room)
 			{
-				msg_print("Warning! Could not place vault trap!");
+				msgf("Warning! Could not place vault trap!");
 			}
 
 			return;

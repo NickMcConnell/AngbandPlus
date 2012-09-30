@@ -237,7 +237,7 @@ static void alloc_object(int set, int typ, int num)
 		{
 			if (cheat_room)
 			{
-				msg_print("Warning! Could not place object!");
+				msgf("Warning! Could not place object!");
 			}
 			return;
 		}
@@ -430,7 +430,7 @@ static bool cave_gen(void)
 		empty_level = TRUE;
 
 		if (cheat_room)
-			msg_print("Arena level.");
+			msgf("Arena level.");
 	}
 
 
@@ -472,7 +472,7 @@ static bool cave_gen(void)
 		if (laketype != 0)
 		{
 			if (cheat_room)
-				msg_print("Lake on the level.");
+				msgf("Lake on the level.");
 			build_lake(laketype);
 		}
 	}
@@ -485,7 +485,7 @@ static bool cave_gen(void)
 		/* make a large fractal cave in the middle of the dungeon */
 
 		if (cheat_room)
-			msg_print("Cavern on level.");
+			msgf("Cavern on level.");
 
 		build_cavern();
 	}
@@ -544,7 +544,7 @@ static bool cave_gen(void)
 					else
 					{
 						if (cheat_room)
-							msg_format("Refusing a greater vault. %d",
+							msgf("Refusing a greater vault. %d",
 									   max_vault_ok);
 					}
 				}
@@ -558,7 +558,7 @@ static bool cave_gen(void)
 					}
 					else
 					{
-						if (cheat_room) msg_print("Refusing a lesser vault.");
+						if (cheat_room) msgf("Refusing a lesser vault.");
 					}
 				}
 
@@ -578,7 +578,7 @@ static bool cave_gen(void)
 					}
 					else
 					{
-						if (cheat_room) msg_print("Refusing a random vault.");
+						if (cheat_room) msgf("Refusing a random vault.");
 					}
 				}
 #endif
@@ -848,7 +848,7 @@ static bool cave_gen(void)
 		if (i > small_tester) i = small_tester;
 		else if (cheat_hear)
 		{
-			msg_format("Reduced monsters base from %d to %d", small_tester, i);
+			msgf("Reduced monsters base from %d to %d", small_tester, i);
 		}
 	}
 
@@ -969,7 +969,7 @@ static bool level_gen(cptr *why)
 	if (ironman_small_levels || (one_in_(SMALL_LEVEL) && small_levels))
 	{
 		if (cheat_room)
-			msg_print("A 'small' dungeon level.");
+			msgf("A 'small' dungeon level.");
 
 		while (TRUE)
 		{
@@ -990,7 +990,7 @@ static bool level_gen(cptr *why)
 		p_ptr->max_wid = level_width * BLOCK_WID;
 
 		if (cheat_room)
-			msg_format("X:%d, Y:%d.", p_ptr->max_wid, p_ptr->max_hgt);
+			msgf("X:%d, Y:%d.", p_ptr->max_wid, p_ptr->max_hgt);
 	}
 	else
 	{
@@ -1275,7 +1275,7 @@ int create_region(int x, int y, byte flags)
 	}
 
 	/* Warn the player */
-	msg_print("Too many regions!");
+	msgf("Too many regions!");
 
 	/* Oops */
 	return (0);
@@ -1383,7 +1383,7 @@ void generate_cave(void)
 		if (okay) break;
 
 		/* Message */
-		if (why) msg_format("Generation restarted (%s)", why);
+		if (why) msgf("Generation restarted (%s)", why);
 
 		/* Delete the level - not good enough */
 		dun_ptr->region = unref_region(dun_ptr->region);

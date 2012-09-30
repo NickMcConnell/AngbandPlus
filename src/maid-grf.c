@@ -160,7 +160,7 @@ cptr get_default_font(int term_num)
 	char buf[80];
 
 	/* Window specific font name */
-	sprintf(buf, "ANGBAND_X11_FONT_%d", term_num);
+	strnfmt(buf, 80, "ANGBAND_X11_FONT_%d", term_num);
 
 	/* Check environment for that font */
 	font = getenv(buf);
@@ -288,15 +288,15 @@ bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
 /*
  * The callbacks
  */
-static callback_type *callbacks;
+static callback_list *callbacks[CALL_MAX];
 
 /*
  * Initialise the callbacks
  */
 void init_term_callbacks(void)
 {
-	/* Create and wipe the array */
-	C_MAKE(callbacks, CALL_MAX, callback_type);
+	/* Wipe the array */
+	(void) C_WIPE(callbacks, CALL_MAX, callback_list *);
 }
 
 /*
@@ -304,23 +304,67 @@ void init_term_callbacks(void)
  */
 void free_term_callbacks(void)
 {
-	/* Deallocate the array */
-	FREE(callbacks);
+	int i;
+	callback_list *p, *p_next;
+	
+	for (i = 0; i < CALL_MAX; i++)
+	{
+		p = callbacks[i];
+		
+		while (p)
+		{
+			p_next = p->next;
+			FREE(p);
+			p = p_next;
+		}
+	}
 }
 
 /*
  * Register a callback
  */
-callback_type set_callback(callback_type call_func, int number)
+void set_callback(callback_type call_func, int number, vptr data)
 {
-	/* Save the old callback */
-	callback_type temp = callbacks[number];
+	/* Create a new callback */
+	callback_list *node;
+	
+	MAKE(node, callback_list);
+	
+	/* Save information into node */
+	node->next = callbacks[number];
+	node->data = data;
+	node->func = call_func;
+	
+	/* Insert at the head of the list */
+	callbacks[number] = node;
+}
 
-	/* Register the new callback */
-	callbacks[number] = call_func;
-
-	/* Return the old callback to chain into */
-	return (temp);
+void del_callback(int number, vptr data)
+{
+	callback_list **p;
+	callback_list *temp;
+	
+	p = &callbacks[number];
+	
+	/* Scan the list */
+	while (*p)
+	{
+		/* A match? */
+		if ((*p)->data == data)
+		{
+			/* Delete this node */
+			temp = *p;
+			*p = (*p)->next;
+			FREE(temp);
+		
+			return;
+		}
+	
+		/* Point to next node */
+		p = &((*p)->next);
+	}
+	
+	quit("Callback does not exist");
 }
 
 #else  /* TERM_USE_CALLBACKS */
@@ -600,6 +644,8 @@ static void save_map_location(int x, int y, term_map *map)
 	int y1 = y / WILD_BLOCK_SIZE;
 
 	int block_num;
+	
+	callback_list *callback;
 
 	/* Does the location exist? */
 	if (!map_in_bounds(x, y))
@@ -649,11 +695,10 @@ static void save_map_location(int x, int y, term_map *map)
 		}
 	}
 
-	/* Remember info by calling hook */
-	if (callbacks[CALL_MAP_INFO])
+	for (callback = callbacks[CALL_MAP_INFO]; callback; callback = callback->next)
 	{
 		/* Execute the callback */
-		((map_info_hook_type)callbacks[CALL_MAP_INFO]) (mb_ptr, map);
+		((map_info_hook_type)callback->func) (mb_ptr, map, callback->data);
 	}
 
 	/* Save the flags */
@@ -680,15 +725,16 @@ static void save_map_location(int x, int y, term_map *map)
  */
 static void set_player_location(int x, int y)
 {
+	callback_list *callback;
+
 	player_x = x;
 	player_y = y;
-
+	
 	/* Tell the port that the player has moved */
-	/* Remember info by calling hook */
-	if (callbacks[CALL_PLAYER_MOVE])
+	for (callback = callbacks[CALL_PLAYER_MOVE]; callback; callback = callback->next)
 	{
 		/* Execute the callback */
-		((player_move_hook_type) callbacks[CALL_PLAYER_MOVE]) (x, y);
+		((player_move_hook_type)callback->func) (x, y, callback->data);
 	}
 }
 
@@ -848,6 +894,13 @@ void Term_write_map(int x, int y, cave_type *c_ptr, pcave_type *pc_ptr)
 	/* Save location */
 	map.x = x;
 	map.y = y;
+	
+#ifdef TERM_MAP_INFO
+
+	/* Hack - the tk port wants the map_info() information */
+	map_info(c_ptr, pc_ptr, &map.a, &map.c, &map.ta, &map.tc);
+	
+#endif /* TERM_MAP_INFO */
 
 	/* Save information in map */
 	save_map_location(x, y, &map);
@@ -858,14 +911,16 @@ void Term_write_map(int x, int y, cave_type *c_ptr, pcave_type *pc_ptr)
  */
 void Term_erase_map(void)
 {
+	callback_list *callback;
+
 	/* Paranoia */
 	if (!map_init) return;
 
 	/* Notify erasure of the map */
-	if (callbacks[CALL_MAP_ERASE])
+	for (callback = callbacks[CALL_MAP_ERASE]; callback; callback = callback->next)
 	{
 		/* Execute the callback */
-		((map_erase_hook_type)callbacks[CALL_MAP_ERASE]) ();
+		((map_erase_hook_type)callback->func) (callback->data);
 	}
 
 	/* Actually clear the map */
@@ -1029,6 +1084,8 @@ static void copy_list(term_list *t_ptr, int num1, list_item **l_ptr_ptr,
  */
 static void save_object_list(term_list *l_ptr, int num, byte list_type)
 {
+	callback_list *callback;
+
 	if (list_type == LIST_INVEN)
 	{
 		/* Delete old inventory list */
@@ -1057,10 +1114,10 @@ static void save_object_list(term_list *l_ptr, int num, byte list_type)
 	}
 
 	/* Notify port */
-	if (callbacks[CALL_OBJECT_LIST])
+	for (callback = callbacks[CALL_OBJECT_LIST]; callback; callback = callback->next)
 	{
 		/* Execute the callback */
-		((list_notice_hook_type)callbacks[CALL_OBJECT_LIST]) (list_type);
+		((list_notice_hook_type)callback->func) (list_type, callback->data);
 	}
 }
 

@@ -45,7 +45,7 @@ u16b q_pop(void)
 	}
 
 	/* Warn the player */
-	msg_print("Too many quests!");
+	msgf("Too many quests!");
 
 	/* Oops */
 	return (0);
@@ -243,8 +243,11 @@ errr init_quests(void)
 
 /*
  * Quests
+ *
+ * q_num is the number of random quests to use.
+ * If it is -1, then we ask how many to use.
  */
-void get_player_quests(void)
+void get_player_quests(int q_num)
 {
 	char inp[80];
 
@@ -265,50 +268,53 @@ void get_player_quests(void)
 	{
 		quest_wipe(i);
 	}
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-				"You can enter the number of quests you'd like to perform in addition");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-				"to the two obligatory ones ( Oberon and the Serpent of Chaos )");
-	Term_putstr(5, 17, -1, TERM_WHITE,
-				"In case you do not want any additional quests, just enter 0");
-
-	Term_putstr(5, 18, -1, TERM_WHITE,
+	
+	if (q_num == -1)
+	{
+		/* Extra info */
+		put_fstr(5, 15,
+				"You can enter the number of quests you'd like to perform in addition\n"
+				"to the two obligatory ones ( Oberon and the Serpent of Chaos )\n"
+				"In case you do not want any additional quests, just enter 0\n"
 				"If you want a random number of random quests, just enter *");
 
-	/* Ask the number of additional quests */
-	while (TRUE)
-	{
-		put_str("Number of additional quests? (<50) ", 2, 20);
-
-		/* Get a the number of additional quest */
+		/* Ask the number of additional quests */
 		while (TRUE)
 		{
-			/* Move the cursor */
-			put_str("", 37, 20);
+			put_fstr(2, 20, "Number of additional quests? (<50) ");
 
-			/* Default */
-			strcpy(inp, "20");
-
-			/* Get a response (or escape) */
-			if (!askfor_aux(inp, 3)) inp[0] = '\0';
-
-			/* Check for random number of quests */
-			if (inp[0] == '*')
+			/* Get a the number of additional quest */
+			while (TRUE)
 			{
-				/* 0 to 49 random quests */
-				v = randint0(50);
-			}
-			else
-			{
-				v = atoi(inp);
-			}
+				/* Move the cursor */
+				Term_gotoxy(37, 20);
 
-			/* Break on valid input */
-			if ((v < 50) && (v >= 0)) break;
+				/* Default */
+				strcpy(inp, "20");
+
+				/* Get a response (or escape) */
+				if (!askfor_aux(inp, 3)) inp[0] = '\0';
+
+				/* Check for random number of quests */
+				if (inp[0] == '*')
+				{
+					/* 0 to 49 random quests */
+					v = randint0(50);
+				}
+				else
+				{
+					v = atoi(inp);
+				}
+
+				/* Break on valid input */
+				if ((v < 50) && (v >= 0)) break;
+			}
+			break;
 		}
-		break;
+	}
+	else
+	{
+		v = q_num;
 	}
 #if 0
 
@@ -480,7 +486,7 @@ void quest_discovery(void)
 				if (r_ptr->flags1 & RF1_UNIQUE)
 				{
 					/* Unique */
-					msg_format("%s: Beware, this level is protected by %s!",
+					msgf("%s: Beware, this level is protected by %s!",
 							   find_quest[rand_range(0, 5)], name);
 				}
 				else
@@ -488,7 +494,7 @@ void quest_discovery(void)
 					/* Normal monsters */
 					if (q_num > 1) plural_aux(name);
 
-					msg_format("%s: Be warned, this level is guarded by %d %s!",
+					msgf("%s: Be warned, this level is guarded by %d %s!",
 							   find_quest[rand_range(0, 5)], q_num, name);
 				}
 
@@ -500,7 +506,7 @@ void quest_discovery(void)
 
 			case QUEST_TYPE_WILD:
 			{
-				msg_print("You discover something unusual in the wilderness.");
+				msgf("You discover something unusual in the wilderness.");
 
 				/* Disturb */
 				disturb(FALSE);
@@ -633,13 +639,13 @@ static void create_stairs(int x, int y)
 		i++;
 
 		/* paranoia */
-		if (!in_bounds(x, y)) continue;
+		if (!in_bounds2(x, y)) continue;
 
 		c_ptr = area(x, y);
 	}
 
 	/* Explain the staircase */
-	msg_print("A magical staircase appears...");
+	msgf("A magical staircase appears...");
 
 	/* Create stairs down */
 	cave_set_feat(x, y, FEAT_MORE);
@@ -872,9 +878,9 @@ void trigger_quest_complete(byte x_type, vptr data)
 						p_ptr->redraw |= (PR_TITLE);
 
 						/* Congratulations */
-						msg_print("*** CONGRATULATIONS ***");
-						msg_print("You have won the game!");
-						msg_print
+						msgf("*** CONGRATULATIONS ***");
+						msgf("You have won the game!");
+						msgf
 							("You may retire (commit suicide) when you are ready.");
 					}
 					else
@@ -882,9 +888,9 @@ void trigger_quest_complete(byte x_type, vptr data)
 						/* Oberon */
 
 						/* A message */
-						msg_print("Well done!");
-						msg_print("You have beaten Oberon.");
-						msg_print
+						msgf("Well done!");
+						msgf("You have beaten Oberon.");
+						msgf
 							("You now can meet the final challenge of the Serpent of Chaos.");
 					}
 
@@ -921,17 +927,13 @@ void trigger_quest_complete(byte x_type, vptr data)
 			/* Take note */
 			if (auto_notes)
 			{
-				char note[80];
-
-				sprintf(note, "Finished quest: %d %s",
+				add_note('Q', "Finished quest: %d %s",
 						quest[i].max_num,
 						(r_name + r_info[quest[i].r_idx].name));
-
-				add_note(note, 'Q');
 			}
 #endif /* 0 */
 
-			msg_print("You just completed your quest!");
+			msgf("You just completed your quest!");
 		}
 
 	}
@@ -956,15 +958,14 @@ static void get_questinfo(int questnum)
 
 
 	/* Print the quest info */
-	sprintf(tmp_str, "Quest Information (Danger level: %d)",
+	prtf(0, 5, "Quest Information (Danger level: %d)",
 			quest[questnum].level);
-	prt(tmp_str, 0, 5);
 
-	prt(quest[questnum].name, 0, 7);
+	prtf(0, 7, quest[questnum].name);
 
 	for (i = 0; i < 10; i++)
 	{
-		c_put_str(TERM_YELLOW, quest_text[i], 0, i + 8);
+		put_fstr(0, i + 8, CLR_YELLOW "%s", quest_text[i]);
 	}
 }
 
@@ -991,7 +992,7 @@ static void castle_quest(void)
 	/* Is there a quest available at the building? */
 	if (!q_index)
 	{
-		put_str("I don't have a quest for you at the moment.", 0, 8);
+		put_fstr(0, 8, "I don't have a quest for you at the moment.");
 		return;
 	}
 
@@ -1016,9 +1017,9 @@ static void castle_quest(void)
 	/* Quest is still unfinished */
 	else if (q_ptr->status == QUEST_STATUS_TAKEN)
 	{
-		put_str("You have not completed your current quest yet!", 0, 8);
-		put_str("Use CTRL-Q to check the status of your quest.", 0, 9);
-		put_str("Return when you have completed your quest.", 0, 12);
+		put_fstr(0, 8, "You have not completed your current quest yet!");
+		put_fstr(0, 9, "Use CTRL-Q to check the status of your quest.");
+		put_fstr(0, 12, "Return when you have completed your quest.");
 	}
 	/* No quest yet */
 	else if (q_ptr->status == QUEST_STATUS_UNTAKEN)
@@ -1053,7 +1054,7 @@ static void castle_quest(void)
 
 			q_ptr->cur_num = 0;
 			name = (r_name + r_ptr->name);
-			msg_format("Your quest: kill %d %s", q_ptr->max_num, name);
+			msgf("Your quest: kill %d %s", q_ptr->max_num, name);
 			message_flush();
 		}
 		else
@@ -1069,7 +1070,7 @@ static void castle_quest(void)
 /*
  * Print quest status of all active quests
  */
-void do_cmd_knowledge_quests(void)
+bool do_cmd_knowledge_quests(int dummy)
 {
 	FILE *fff;
 	char file_name[1024];
@@ -1078,12 +1079,15 @@ void do_cmd_knowledge_quests(void)
 
 	quest_type *q_ptr;
 	int i;
+	
+	/* Hack - ignore parameter */
+	(void) dummy;
 
 	/* Open a temporary file */
 	fff = my_fopen_temp(file_name, 1024);
 
 	/* Failure */
-	if (!fff) return;
+	if (!fff) return (FALSE);
 
 	for (i = 0; i < q_max; i++)
 	{
@@ -1176,7 +1180,7 @@ void do_cmd_knowledge_quests(void)
 			default:
 			{
 				/* Paranoia */
-				return;
+				strnfmt(tmp_str, 256, "Invalid quest type!");
 			}
 		}
 
@@ -1192,6 +1196,8 @@ void do_cmd_knowledge_quests(void)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
+	
+	return (FALSE);
 }
 
 

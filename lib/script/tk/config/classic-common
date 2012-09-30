@@ -1,0 +1,43 @@
+# File: classic-common
+
+# Purpose: common icon configuration settings
+
+#
+# Copyright (c) 1997-2001 Tim Baker
+#
+# This software may be copied and distributed for educational, research, and
+# not for profit purposes provided that this copyright and statement are
+# included in all such copies.
+#
+
+### MERGE+ start
+
+# We choose the largest font for which "font metrics $font -linespace"
+# is <= the icon height.
+
+switch -- [icon size] {
+	16 {
+		if {[Platform unix]} {set size 12}
+		if {[Platform windows]} {set size 10}
+	}
+	24 {
+		if {[Platform unix]} {set size 18}
+		if {[Platform windows]} {set size 16}
+	}
+	32 {
+		if {[Platform unix]} {set size 24}
+		if {[Platform windows]} {set size 21}
+	}
+}
+
+
+### MERGE+ stop
+
+# Standard 16 colors
+set color {255 0 250 17 217 196 199 101 129 247 30 5 35 185 180 52}
+
+
+
+# Attribute characters used by monsters and objects
+# set attrStr "dwsorgbuDWvyRGBU"
+

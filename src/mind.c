@@ -34,13 +34,13 @@ void mindcraft_info(char *p, int power)
 {
 	int plev = p_ptr->lev;
 
-	strcpy(p, "");
+	p[0] = 0;
 
 	switch (power)
 	{
 		case MINDCRAFT_NEURAL_BLAST:
 		{
-			sprintf(p, " dam %dd%d", 3 + ((plev - 1) / 4), 3 + plev / 15);
+			strnfmt(p, 80, " dam %dd%d", 3 + ((plev - 1) / 4), 3 + plev / 15);
 			break;
 		}
 		case MINDCRAFT_PRECOGNITION:
@@ -49,12 +49,12 @@ void mindcraft_info(char *p, int power)
 		}
 		case MINDCRAFT_MINOR_DISPLACEMENT:
 		{
-			sprintf(p, " range %d", (plev < 40 ? 10 : plev + 2));
+			strnfmt(p, 80, " range %d", (plev < 40 ? 10 : plev + 2));
 			break;
 		}
 		case MINDCRAFT_MAJOR_DISPLACEMENT:
 		{
-			sprintf(p, " range %d", plev * 5);
+			strnfmt(p, 80, " range %d", plev * 5);
 			break;
 		}
 		case MINDCRAFT_DOMINATION:
@@ -63,12 +63,12 @@ void mindcraft_info(char *p, int power)
 		}
 		case MINDCRAFT_PULVERISE:
 		{
-			sprintf(p, " dam %dd8", 8 + ((plev - 5) / 4));
+			strnfmt(p, 80, " dam %dd8", 8 + ((plev - 5) / 4));
 			break;
 		}
 		case MINDCRAFT_CHARACTER_ARMOUR:
 		{
-			sprintf(p, " dur %d", plev);
+			strnfmt(p, 80, " dur %d", plev);
 			break;
 		}
 		case MINDCRAFT_PSYCHOMETRY:
@@ -77,22 +77,22 @@ void mindcraft_info(char *p, int power)
 		}
 		case MINDCRAFT_MIND_WAVE:
 		{
-			sprintf(p, " dam %d", plev * ((plev - 5) / 10 + 1));
+			strnfmt(p, 80, " dam %d", plev * ((plev - 5) / 10 + 1));
 			break;
 		}
 		case MINDCRAFT_ADRENALINE_CHANNELING:
 		{
-			sprintf(p, " dur 11-%d", plev + plev / 2 + 10);
+			strnfmt(p, 80, " dur 11-%d", plev + plev / 2 + 10);
 			break;
 		}
 		case MINDCRAFT_PSYCHIC_DRAIN:
 		{
-			sprintf(p, " dam %dd6", plev / 2);
+			strnfmt(p, 80, " dam %dd6", plev / 2);
 			break;
 		}
 		case MINDCRAFT_TELEKINETIC_WAVE:
 		{
-			sprintf(p, " dam %d", plev * (plev > 39 ? 4 : 3));
+			strnfmt(p, 80, " dam %d", plev * (plev > 39 ? 4 : 3));
 			break;
 		}
 	}
@@ -130,7 +130,7 @@ static int get_mindcraft_power(int *sn)
 	char comment[80];
 	cptr p = "power";
 	mindcraft_power spell;
-	bool flag, redraw;
+	bool flag;
 
 	/* Assume cancelled */
 	*sn = (-1);
@@ -149,9 +149,6 @@ static int get_mindcraft_power(int *sn)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
-
 	for (i = 0; i < MINDCRAFT_MAX; i++)
 	{
 		if (mindcraft_powers[i].min_lev <= plev)
@@ -161,95 +158,66 @@ static int get_mindcraft_power(int *sn)
 	}
 
 	/* Build a prompt (accept all spells) */
-	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
+	(void)strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit) Use which %s? ",
 				  p, I2A(0), I2A(num - 1), p);
+	
+	/* Save the screen */
+	screen_save();
+
+	/* Display a list of spells */
+	prtf(x, y, "");
+	put_fstr(x + 5, y, "Name");
+	put_fstr(x + 35, y, "Lv Mana Fail Info");
+
+	/* Dump the spells */
+	for (i = 0; i < MINDCRAFT_MAX; i++)
+	{
+		/* Access the spell */
+		spell = mindcraft_powers[i];
+		if (spell.min_lev > plev) break;
+
+		chance = spell.fail;
+
+		/* Reduce failure rate by "effective" level adjustment */
+		chance -= 3 * (plev - spell.min_lev);
+
+		/* Reduce failure rate by INT/WIS adjustment */
+		chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+
+		/* Not enough mana to cast */
+		if (spell.mana_cost > p_ptr->csp)
+		{
+			chance += 5 * (spell.mana_cost - p_ptr->csp);
+		}
+
+		/* Extract the minimum failure rate */
+		minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+
+		/* Minimum failure rate */
+		if (chance < minfail) chance = minfail;
+
+		/* Stunning makes spells harder */
+		if (p_ptr->stun > 50) chance += 25;
+		else if (p_ptr->stun) chance += 15;
+
+		/* Always a 5 percent chance of working */
+		if (chance > 95) chance = 95;
+
+		/* Get info */
+		mindcraft_info(comment, i);
+
+		/* Dump the spell --(-- */
+		prtf(x, y + i + 1, "  %c) %-30s%2d %4d %3d%%%s",
+				I2A(i), spell.name,
+				spell.min_lev, spell.mana_cost, chance, comment);
+	}
+
+	/* Clear the bottom line */
+	prtf(x, y + i + 1, "");
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
-		{
-			/* Show the list */
-			if (!redraw)
-			{
-				char psi_desc[80];
-
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save the screen */
-				screen_save();
-
-				/* Display a list of spells */
-				prt("", x, y);
-				put_str("Name", x + 5, y);
-				put_str("Lv Mana Fail Info", x + 35, y);
-
-				/* Dump the spells */
-				for (i = 0; i < MINDCRAFT_MAX; i++)
-				{
-					/* Access the spell */
-					spell = mindcraft_powers[i];
-					if (spell.min_lev > plev) break;
-
-					chance = spell.fail;
-
-					/* Reduce failure rate by "effective" level adjustment */
-					chance -= 3 * (plev - spell.min_lev);
-
-					/* Reduce failure rate by INT/WIS adjustment */
-					chance -=
-						3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] -
-							 1);
-
-					/* Not enough mana to cast */
-					if (spell.mana_cost > p_ptr->csp)
-					{
-						chance += 5 * (spell.mana_cost - p_ptr->csp);
-					}
-
-					/* Extract the minimum failure rate */
-					minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
-
-					/* Minimum failure rate */
-					if (chance < minfail) chance = minfail;
-
-					/* Stunning makes spells harder */
-					if (p_ptr->stun > 50) chance += 25;
-					else if (p_ptr->stun) chance += 15;
-
-					/* Always a 5 percent chance of working */
-					if (chance > 95) chance = 95;
-
-					/* Get info */
-					mindcraft_info(comment, i);
-
-					/* Dump the spell --(-- */
-					sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
-							I2A(i), spell.name,
-							spell.min_lev, spell.mana_cost, chance, comment);
-					prt(psi_desc, x, y + i + 1);
-				}
-
-				/* Clear the bottom line */
-				prt("", x, y + i + 1);
-			}
-
-			/* Hide the list */
-			else
-			{
-				/* Hide list */
-				redraw = FALSE;
-
-				/* Restore the screen */
-				screen_load();
-			}
-
-			/* Redo asking */
-			continue;
-		}
-
 		/* Note verify */
 		ask = isupper(choice);
 
@@ -272,13 +240,8 @@ static int get_mindcraft_power(int *sn)
 		/* Verify it */
 		if (ask)
 		{
-			char tmp_val[160];
-
-			/* Prompt */
-			(void)strnfmt(tmp_val, 78, "Use %s? ", mindcraft_powers[i].name);
-
 			/* Belay that order */
-			if (!get_check(tmp_val)) continue;
+			if (!get_check("Use %s? ", mindcraft_powers[i].name)) continue;
 		}
 
 		/* Stop the loop */
@@ -286,7 +249,7 @@ static int get_mindcraft_power(int *sn)
 	}
 
 	/* Restore the screen */
-	if (redraw) screen_load();
+	screen_load();
 
 	/* Show choices */
 	/* Update */
@@ -362,7 +325,7 @@ static bool cast_mindcrafter_spell(int spell)
 				(void)set_tim_esp(p_ptr->tim_esp + plev);
 			}
 
-			if (!b) msg_print("You feel safe.");
+			if (!b) msgf("You feel safe.");
 			break;
 		case MINDCRAFT_MINOR_DISPLACEMENT:
 			/* Minor displace */
@@ -372,7 +335,7 @@ static bool cast_mindcrafter_spell(int spell)
 			}
 			else
 			{
-				msg_print("You open a dimensional gate. Choose a destination.");
+				msgf("You open a dimensional gate. Choose a destination.");
 				return dimension_door();
 			}
 			break;
@@ -419,7 +382,7 @@ static bool cast_mindcrafter_spell(int spell)
 				return ident_spell();
 		case MINDCRAFT_MIND_WAVE:
 			/* Mindwave */
-			msg_print("Mind-warping forces emanate from your brain!");
+			msgf("Mind-warping forces emanate from your brain!");
 			if (plev < 25)
 				(void)project(0, 2 + plev / 10, p_ptr->px, p_ptr->py,
 							  (plev * 3) / 2, GF_PSI, PROJECT_KILL);
@@ -462,14 +425,14 @@ static bool cast_mindcrafter_spell(int spell)
 			break;
 		case MINDCRAFT_TELEKINETIC_WAVE:
 			/* Telekinesis */
-			msg_print
+			msgf
 				("A wave of pure physical force radiates out from your body!");
 			(void)project(0, 3 + plev / 10, p_ptr->px, p_ptr->py,
 						  plev * (plev > 39 ? 4 : 3), GF_TELEKINESIS,
 						  PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID);
 			break;
 		default:
-			msg_print("Unknown Mindcrafter power!");
+			msgf("Unknown Mindcrafter power!");
 	}
 
 	return TRUE;
@@ -494,7 +457,7 @@ void do_cmd_mindcraft(void)
 	/* not if confused */
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		msgf("You are too confused!");
 		return;
 	}
 
@@ -507,7 +470,7 @@ void do_cmd_mindcraft(void)
 	if (spell.mana_cost > p_ptr->csp)
 	{
 		/* Warning */
-		msg_print("You do not have enough mana to use this power.");
+		msgf("You do not have enough mana to use this power.");
 
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
@@ -545,7 +508,7 @@ void do_cmd_mindcraft(void)
 	if (randint0(100) < chance)
 	{
 		if (flush_failure) flush();
-		msg_format("You failed to concentrate hard enough!");
+		msgf("You failed to concentrate hard enough!");
 		sound(SOUND_FAIL);
 
 		/* Backfire */
@@ -555,17 +518,17 @@ void do_cmd_mindcraft(void)
 
 			if (b < 5)
 			{
-				msg_print("Oh, no! Your mind has gone blank!");
+				msgf("Oh, no! Your mind has gone blank!");
 				(void)lose_all_info();
 			}
 			else if (b < 15)
 			{
-				msg_print("Weird visions seem to dance before your eyes...");
+				msgf("Weird visions seem to dance before your eyes...");
 				(void)set_image(p_ptr->image + rand_range(5, 15));
 			}
 			else if (b < 45)
 			{
-				msg_print("Your brain is addled!");
+				msgf("Your brain is addled!");
 				(void)set_confused(p_ptr->confused + randint1(8));
 			}
 			else if (b < 90)
@@ -575,7 +538,7 @@ void do_cmd_mindcraft(void)
 			else
 			{
 				/* Mana storm */
-				msg_print
+				msgf
 					("Your mind unleashes its power in an uncontrollable storm!");
 				(void)project(1, 2 + plev / 10, p_ptr->px, p_ptr->py, plev * 2,
 							  GF_MANA,
@@ -618,7 +581,7 @@ void do_cmd_mindcraft(void)
 		p_ptr->csp_frac = 0;
 
 		/* Message */
-		msg_print("You faint from the effort!");
+		msgf("You faint from the effort!");
 
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
@@ -629,7 +592,7 @@ void do_cmd_mindcraft(void)
 			bool perm = (randint0(100) < 25);
 
 			/* Message */
-			msg_print("You have damaged your mind!");
+			msgf("You have damaged your mind!");
 
 			/* Reduce constitution */
 			(void)dec_stat(A_WIS, rand_range(15, 25), perm);

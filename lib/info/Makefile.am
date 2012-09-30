@@ -3,6 +3,9 @@
 angband_files = \
   delete.me
 
+delete.me:
+	touch delete.me
+
 EXTRA_DIST = \
   $(angband_files)
 
