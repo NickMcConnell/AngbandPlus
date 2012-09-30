@@ -213,7 +213,7 @@ function get_level_device(s, max, min)
 	lvl = lvl + (get_level_use_stick * SKILL_STEP)
 
 	-- Sticks are limited
-	if lvl - ((spell(s).skill_level + 1) * SKILL_STEP) > get_level_max_stick * SKILL_STEP then
+	if lvl - ((spell(s).skill_level + 1) * SKILL_STEP) >= get_level_max_stick * SKILL_STEP then
 		lvl = (get_level_max_stick + spell(s).skill_level - 1) * SKILL_STEP
 	end
 

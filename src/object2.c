@@ -2693,7 +2693,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				o_ptr->pval2 = randint(70) + (randint(70) << 8);
 			}
 			else
-				o_ptr->art_flags5 |= TR5_SPELL_CONTAIN;
+				o_ptr->art_flags5 |= (TR5_SPELL_CONTAIN | TR5_WIELD_CAST);
 			break;
 		}
 	case TV_BOLT:

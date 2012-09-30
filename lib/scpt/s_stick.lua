@@ -312,10 +312,6 @@ DEVICE_ETERNAL_FLAME = add_spell
 			)
 			if ret == FALSE then return FALSE end
 
-			inven_item_increase(flame_item, -1)
-			inven_item_describe(flame_item)
-			inven_item_optimize(flame_item)
-
 			obj = get_object(item)
 
 			if (obj.tval == TV_SWORD) and (obj.sval == SV_LONG_SWORD) then
@@ -328,6 +324,12 @@ DEVICE_ETERNAL_FLAME = add_spell
 				obj.name1 = 17
 			end
 			apply_magic(obj, -1, TRUE, TRUE, TRUE)
+
+			obj.found = OBJ_FOUND_SELFMADE
+
+			inven_item_increase(flame_item, -1)
+			inven_item_describe(flame_item)
+			inven_item_optimize(flame_item)
 
 			return TRUE
 	end,
@@ -394,7 +396,7 @@ DEVICE_THUNDERLORDS = add_spell
 	},
 	["spell"] = 	function()
 			if dun_level > 0 then
-				msg_print("As you blow the horn a thunderlords pops out of nowhere and grabs you.")
+				msg_print("As you blow the horn a thunderlord pops out of nowhere and grabs you.")
 				recall_player(0, 1)
 			else
 				msg_print("You cannot use it there.")
@@ -405,7 +407,7 @@ DEVICE_THUNDERLORDS = add_spell
 			return ""
 	end,
 	["desc"] =	{
-			"A thunderlords will appear to transport you quickly to the town.",
+			"A thunderlord will appear to transport you quickly to the town.",
 	}
 }
 

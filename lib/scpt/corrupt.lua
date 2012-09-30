@@ -316,7 +316,7 @@ CORRUPT_VAMPIRE_TEETH = add_corruption
 	["lose_text"]   = "BUG! this should not happen",
 	["desc"]	=
 	{
-			  "  Your teeth allows you to drain blood to feed yourself",
+			  "  Your teeth allow you to drain blood to feed yourself",
 			  "  However your stomach now only accepts blood.",
 	},
 	["allow"]       = function()

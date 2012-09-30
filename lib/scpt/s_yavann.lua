@@ -46,7 +46,7 @@ YAVANNA_GROW_GRASS = add_spell
 			return "rad "..(get_level(YAVANNA_GROW_GRASS, 4))
 	end,
 	["desc"] =      {
-			"Create a floor of grass around you. While a grass and praying",
+			"Create a floor of grass around you. While on grass and praying",
 			"a worshipper of Yavanna will know a greater regeneration rate"
 	}
 }

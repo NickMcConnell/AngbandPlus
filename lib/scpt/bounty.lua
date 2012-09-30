@@ -49,7 +49,7 @@ add_building_action
 	
 			-- Ask for an item
 			ret, item = get_item("What corpse to return?",
-					     "You have no corpse to return",
+					     "You have no corpse to return.",
 					     bor(USE_INVEN),
 					     function (obj)
 					     	if (obj.tval == TV_CORPSE) and (obj.pval2 == bounty_quest_monster) then

@@ -341,7 +341,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 					do_dec_stat(A_DEX, STAT_DEC_NORMAL);
 					do_dec_stat(A_CON, STAT_DEC_NORMAL);
 					do_dec_stat(A_CHR, STAT_DEC_NORMAL);
-					o_ptr->pval = 0;
+					o_ptr->pval = 1;
 
 					break;
 				}
@@ -380,7 +380,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 						}
 					}
 
-					o_ptr->pval = 0;
+					o_ptr->pval = 1;
 
 					break;
 				}
@@ -410,7 +410,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 						}
 					}
 
-					o_ptr->pval = 0;
+					o_ptr->pval = 1;
 
 					break;
 				}
@@ -440,7 +440,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 						}
 					}
 
-					o_ptr->pval = 0;
+					o_ptr->pval = 1;
 
 					break;
 				}
@@ -470,7 +470,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 						}
 					}
 
-					o_ptr->pval = 0;
+					o_ptr->pval = 1;
 
 					break;
 				}
@@ -500,7 +500,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 			acid_dam(brdam, "a gush of acid");
 			harmful = TRUE;
 		}
-		o_ptr->pval = 0;
+		o_ptr->pval = 1;
 	}
 	else if (r_ptr->flags4 & RF4_BR_ACID)
 	{
@@ -543,7 +543,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 			fire_dam(brdam, "an explosion");
 			harmful = TRUE;
 		}
-		o_ptr->pval = 0;
+		o_ptr->pval = 1;
 	}
 	else if (r_ptr->flags4 & RF4_BR_FIRE)
 	{
@@ -688,7 +688,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 
 		/* Take damage */
 		take_hit(brdam, "chaotic forces");
-		o_ptr->pval = 0;
+		o_ptr->pval = 1;
 	}
 
 	/* Disenchantment */
@@ -710,7 +710,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 
 		/* Take damage */
 		take_hit(brdam, "raw mana");
-		o_ptr->pval = 0;
+		o_ptr->pval = 1;
 	}
 
 	/* Plasma */
@@ -732,7 +732,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 		/* Take damage */
 		take_hit(brdam, "an explosion");
 		harmful = TRUE;
-		o_ptr->pval = 0;
+		o_ptr->pval = 1;
 	}
 
 	/* Hack -- Jellies are immune to acid only if they are already acidic */

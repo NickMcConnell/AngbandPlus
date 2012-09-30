@@ -861,6 +861,8 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define OBJ_FOUND_RUBBLE        5
 #define OBJ_FOUND_REWARD        6
 #define OBJ_FOUND_STORE         7
+#define OBJ_FOUND_STOLEN        8
+#define OBJ_FOUND_SELFMADE      9
 
 struct obj_theme
 {

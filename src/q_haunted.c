@@ -125,7 +125,7 @@ bool quest_haunted_finish_hook(char *fmt)
 	if (q_idx != QUEST_HAUNTED) return FALSE;
 
 	c_put_str(TERM_YELLOW, "Thank you for saving us!", 8, 0);
-	c_put_str(TERM_YELLOW, "You can use the cave as your house as a reward.", 9, 0);
+	c_put_str(TERM_YELLOW, "You can use the building as your house as a reward.", 9, 0);
 
 	/* Continue the plot */
 	*(quest[q_idx].plot) = QUEST_BETWEEN;

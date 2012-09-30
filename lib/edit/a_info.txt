@@ -2713,9 +2713,9 @@ W:55:30:2:50000
 P:0:6d5:20:15:0
 F:ESP_DEMON | ESP_UNDEAD | LITE1 |
 F:BRAND_FIRE | KILL_DEMON | KILL_UNDEAD |
-D:This silver-tipped bolt, ablaze with undying celestial fire,
-D:is especially potent against undead and creatures of the
-D:netherworld; it even points the way to places where such
+D:This silver-tipped bolt, ablaze with undying celestial fire, 
+D:is especially potent against undead and creatures of the 
+D:netherworld; it even points the way to places where such 
 D:enemies lurk.
 
 N:210:'Stone-biter'
@@ -2725,10 +2725,10 @@ P:0:6d5:20:15:0
 F:ESP_ORC | ESP_TROLL |
 F:INFRA | SEARCH | TUNNEL | LUCK
 F:BRAND_ACID | SLAY_ORC | SLAY_TROLL |
-D:Wherever it strikes, this silver-tipped bolt eats through rock
-D:and metal as easily as through flesh.  The dwarf-smith who
-D:crafted Stone-biter also inscribed the shaft with powerful
-D:doom-spells against the orcs and trolls who had destroyed his
+D:Wherever it strikes, this silver-tipped bolt eats through rock 
+D:and metal as easily as through flesh.  The dwarf-smith who 
+D:crafted Stone-biter also inscribed the shaft with powerful 
+D:doom-spells against the orcs and trolls who had destroyed his 
 D:ancestral home.
 
 N:211:'Heart's Blood'
@@ -2736,8 +2736,8 @@ I:18:2:5
 W:85:40:3:35000
 P:0:8d5:15:20:0
 F:VORPAL | WOUNDING | CRIT |
-D:The barbed head of this bolt glows deep red with terrible runes
-D:of destruction; legend has it that Heart's Blood cannot hit its
+D:The barbed head of this bolt glows deep red with terrible runes 
+D:of destruction; legend has it that Heart's Blood cannot hit its 
 D:mark without causing a mortal wound.
 
 N:212:'Scale-piercer'
@@ -2746,7 +2746,7 @@ W:85:40:3:35000
 P:0:8d5:15:20:0
 F:ESP_DRAGON | RES_FEAR |
 F:KILL_DRAGON |
-D:This bolt, crafted from the bones of a Great Wyrm, is less famous
-D:and less powerful than Bard's black arrow.  Nonetheless it enables
-D:the owner to find dragons unerringly, face them bravely, and kill
+D:This bolt, crafted from the bones of a Great Wyrm, is less famous 
+D:and less powerful than Bard's black arrow.  Nonetheless it enables 
+D:the owner to find dragons unerringly, face them bravely, and kill 
 D:them swiftly.

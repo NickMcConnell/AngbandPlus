@@ -45,7 +45,7 @@ very lucky          more than 9
 extremely lucky     more than 18
 incredibly lucky    more than 27
 
-Luck < 30 is treated as -30 and luck > 30 is treated as +30.
+Luck < -30 is treated as -30 and luck > 30 is treated as +30.
 
 #####G3. Items affecting luck
 Elven cloaks give a bonus to luck.
@@ -101,7 +101,7 @@ It affects the chance of an item being good or great.
 
 It affects the chance of creating a special object.
 
-It prevents the death fate if your are lucky.
+It prevents the death fate if you are lucky.
 
 It affects the number of skill points you receive when quaffing the Potion of
 Learning.

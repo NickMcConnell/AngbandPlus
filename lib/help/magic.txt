@@ -90,8 +90,8 @@ will augment the spells you already have access to. The distinction between this
 and the others, is that it will not grant you new spells, but instead increases
 the levels of spells. At level 50 it grants 20 extra spell levels. [[[[[BThis skill ]
 [[[[[Bonly affects the 11 primary schools] (Mana, Earth, Air, Fire, Water, Meta, 
-Mind, Temporal, Conveyance, Divination and Nature) as well as the Udun School,
-the Demonology School and the spells granted by the Gods.
+Mind, Temporal, Conveyance, Divination and Nature) as well as Geomancy and the
+spells granted by the Gods.
 
 There is also the Magic-Device skill which affects your ability to use wands,
 staves, rods and to activate special objects. It also affects the spell-levels

@@ -3847,6 +3847,10 @@ void do_cmd_alchemist(void)
 			{
 				o_ptr->pval = pval;
 			}
+			else if ((o_ptr->tval == TV_BOOK) && (o_ptr->sval == 255))
+			{
+				o_ptr->pval = pval;
+			}
 			else if (o_ptr->tval == TV_SHOT
 			                || o_ptr->tval == TV_ARROW
 			                || o_ptr->tval == TV_BOLT)
@@ -4204,6 +4208,11 @@ void do_cmd_alchemist(void)
 							s_ptr->pval = o_ptr->pval;
 							s_ptr->pval2 = o_ptr->pval2;
 							s_ptr->pval3 = o_ptr->pval3;
+						}
+						/* Restore the spell stored in a random book */
+						else if ((o_ptr->tval == TV_BOOK) && (o_ptr->sval == 255))
+						{
+							s_ptr->pval = o_ptr->pval;
 						}
 						/* Restore the type of explosive ammo */
 						else if (o_ptr->tval == TV_SHOT || o_ptr->tval == TV_ARROW

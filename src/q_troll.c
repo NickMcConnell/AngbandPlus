@@ -128,6 +128,7 @@ bool quest_troll_death_hook(char *fmt)
 	if (r_idx == test_monster_name("Tom the Stone Troll"))
 	{
 		cave_set_feat(3, 3, FEAT_LESS);
+		cave[3][3].special = 0;
 
 		cmsg_print(TERM_YELLOW, "Without Tom the trolls wont be able to do much.");
 		cquest.status = QUEST_STATUS_COMPLETED;

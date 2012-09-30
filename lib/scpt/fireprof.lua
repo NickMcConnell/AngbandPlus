@@ -99,7 +99,7 @@ add_quest
 				print_hook("should see about a reward.\n")
 				print_hook("\n")
 			-- essence returned, not all books fireproofed
-			elseif (quest(FIREPROOF_QUEST).status == QUEST_STATUS_FINISHED) then
+			elseif (quest(FIREPROOF_QUEST).status == QUEST_STATUS_FINISHED) and (fireproof_quest.item_points_remaining > 0) then
 				print_hook("#####yAn Old Mages Quest!\n")
 				print_hook("You have retrieved the essence for the old mage in Lothlorien. He will still \n")
 				print_hook("fireproof "..num_books.." book(s) or "..num_staff.." staff/staves or "..num_scroll.." scroll(s) for you.\n")

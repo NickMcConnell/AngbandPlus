@@ -45,6 +45,6 @@ Spread-blows                25
 
 #####GStarting Equipment
 An axemaster begins the game with:
-    A ring of resist fear
+    A ring of fear resistance
     A suit of chainmail
-    A beaked axe
+    A hatchet

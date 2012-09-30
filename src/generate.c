@@ -7000,6 +7000,9 @@ void set_bounders(bool empty_level)
 	}
 }
 
+/* Needed to refill empty levels */
+static void fill_level(bool use_floor, byte smooth);
+
 /*
  * Generate a normal dungeon level
  */
@@ -7034,6 +7037,9 @@ bool level_generate_dungeon(cptr name)
 		{
 			msg_print("Arena level.");
 		}
+
+		/* Refill the level with floor tiles */
+		fill_level(empty_level, d_ptr->fill_method);
 	}
 
 	/* Possible cavern */

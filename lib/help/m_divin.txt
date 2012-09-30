@@ -4,9 +4,9 @@
 ~~~~~03|Skills|Divination - Spell Info
 #####R === ToME Magic - Divination School ===
 
-The mana school of magic contains spells where magic is used to psychically
-gain information about things. There are rumours of a "Tome of Knowledge" 
-which contains all the divination school spells within it's bindings.
+The divination school of magic contains spells where magic is used to 
+psychically gain information about things. There are rumours of a "Tome of 
+Knowledge" which contains all the divination school spells within it's bindings.
 
 Worshipping the God Eru Iluvatar also gives the ability to cast spells from
 the divination school at a level of 2/3 of your prayer level. e.g. If the 

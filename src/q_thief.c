@@ -102,6 +102,7 @@ bool quest_thieves_hook(char *fmt)
 	{
 		msg_print("The magic hiding the stairs is now gone.");
 		cave_set_feat(23, 4, FEAT_LESS);
+		cave[23][4].special = 0;
 
 		quest[p_ptr->inside_quest].status = QUEST_STATUS_COMPLETED;
 		del_hook(HOOK_END_TURN, quest_thieves_hook);

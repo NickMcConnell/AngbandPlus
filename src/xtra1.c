@@ -1947,6 +1947,7 @@ void calc_hitpoints(void)
 	{
 		mhp += mhp * p_ptr->to_l / 10;
 	}
+	if (mhp < 1) mhp = 1;
 
 	if (p_ptr->body_monster)
 	{
@@ -1980,6 +1981,9 @@ void calc_hitpoints(void)
 	{
 		mhp = process_hooks_return[0].num;
 	}
+
+	/* Never less than 1 */
+	if (mhp < 1) mhp = 1;
 
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
@@ -4571,8 +4575,8 @@ void gain_fate(byte fate)
 			if (fate)
 				fates[i].fate = fate;
 			else
-				/* If lucky avoid death fate */
-				switch (rand_int(18 - luck(0, 1)))
+				/* If lucky (current luck > 0) avoid death fate */
+				switch (rand_int(p_ptr->luck_cur > 0 ? 17 : 18))
 				{
 				case 6:
 				case 2:

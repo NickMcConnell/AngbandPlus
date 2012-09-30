@@ -1,39 +1,80 @@
-T.o.M.E 2.2.6 aka "Won't Get Fooled Again" changes
+T.o.M.E. 2.2.7 aka "Stoke Me A Clipper" changes
 
-Interface changes:
-- Pressing Escape gets you out of the pet dismissal list -- neil
+Gameplay changes:
+- No more nuke traps -- neil
+
+Object changes:
+- The activation of an items with the ACTIVATE_NO_WIELD flag is described
+  without the line "if it is being worn. " -- masmarangio
+- object1.c: Added descriptions for SENS_FIRE (thanks to Scott Bigham)
+  and IMMOVABLE, removed IM_NETHER from the resistances -- masmarangio
+- Show "to damage" and "to accuracy" messages for yet more confusing items
+  -- neil
 
 Misc changes:
-- Helpfiles: bearform combat help, music typos, barbarian revisions.
-  -- fearoffours
- - Typos in the description of arrows, shots, bolts; punctuation in the
-   mushroom quest -- masmarangio
-- HOOK_CALC_BONUS_END hooks
-- Helpfiles: corrected starting equipment of mindcrafters -- masmarangio
- - Backport of old helpfile updates: no Geomancy for Alchemists and Rune-
-   crafters, updated luck spoiler, corruption spoiler in crpt_aux.lua, a
-   link in skills.txt, an example in automatizer.txt.
-   monsters3.c: changed 'golem' to 'creature', since the Mind Steal Spell
-   also allows to control a monster. -- masmarangio
-- Typo (massage -> message) from the forum -- masmarangio
-- Capitalisation in the names of junkarts -- masmarangio
-- mindcraft_info: Corrected and expanded the info for mindcraft powers
+- Missing space in the description of Vecna -- masmarangio
+- Corrected some typos (mostly from the forum, thanks to Carg85)
+  s_yavann.lua: spell 'grow grass' description: 'a grass' -> on grass
+  q_haunted.c: cave -> building
+  a_info.txt: some missing spaces in the description of artifact bolts
+  corrupt.lua, corspoil.txt: 'teeth allows' -> 'teeth allow'
+  k_info.txt: missing space (Golden Horn of the Thunderlords)
+  s_stick.lua: 'a thunderlords' -> 'a thunderlord'
+  d_info.txt: 'the the land of Rhun' -> 'the land of Rhun'
   -- masmarangio
-- Small corrections in luck spoiler, description of Manwe's Blessing and
-  m_mimic.txt -- masmarangio
-
+- Updated luck spoiler -- masmarangio
+- The Old Mage's quest will erase from your quest screen when fully rewarded.
+  -- fearoffours
+-  Backport of mostly old helpfile updates: wrong school in m_divin.txt,
+   comments in spells.lua, deleted hint about shoes in r_hobbit.txt,
+   ability.txt, ab_info.txt: updated Ammo-creation and Far-reaching attack,
+   c_axemas.txt: starting weapon is a hatchet,
+   magic.txt, skills.txt: Updated schools improved by Spell-power,
+   corspoil.txt: Updated the info about permanent corruptions,
+   birth.txt: removed corrupted subrace, vampires are a normal subrace,
+   m_air.txt: Updated description of Noxious Cloud -- masmarangio
+- Corrected Alchemist, Assassin, Axemaster, Rogue helpfiles -- masmarangio
+- skills.txt: Corrected information about Spell-power -- masmarangio
+- Capitalisation: Metal Boomerang, Lay of Protection.
+  r_pettyd.txt: magic items -> magically enchanted items -- masmarangio
+- bounty.lua: Added a period -- masmarangio
+- spells2.c: Typo (vulerable -> vulnerable) -- masmarangio
+- skills.txt: Fixed broken link -- masmarangio
+- Added new help file for the debug commands -- iain_mac
 
 Bug fixes:
-- Prevent recall to Lost Temple before getting the quest -- neil
-- Automatizer now accepts TV_TOTEM -- neil
-- Some vaults incorrectly named -- fearoffours
-- Wight quest crash fix by 'amaurea' -- neil
-- God choosen at random was broken -- masmarangio
-- Typo in q_one.c (or -> of)
-- Don't use a turn when cancelling a possessor action -- neil
- - summon_true crashed the game with a summon skill < 1 -- masmarangio
- - test_object_wish: aware status is saved and restored -- masmarangio
-- God quest will no longer give inaccurate or misleading directions. It
-  also will now give directions from two static features, and an
-  approximate, relative distance from each of those points.
+- Eating some corpses produced a division by 0 error -- masmarangio
+- Wearing an item of life (-100%) reduced the mhp to 0, causing a
+  division by 0 error in cave.c -- masmarangio
+- Corrected the spell selection for monsters:
+  defines.h: Added RF6_S_ANIMALS in RF6_SUMMON_MASK.
+  melee2.c: Updated comments in monst_spell_monst and make_attack_spell.
+  Removed the spells RF4_MULTIPLY, RF4_S_ANIMAL, RF5_SCARE from spell_attack.
+  Corrected the spell numbers of RF6_TELE_AWAY and RF6_TELE_LEVEL in
+  spell_escape (formerly RF6_DARKNESS and RF6_TRAPS were used).
+  Corrected the spell numbers of RF6_TELE_TO, RF6_DARKNESS, RF6_TRAPS,
+  RF6_FORGET in spell_annoy (formerly RF6_RAISE_DEAD, RF6_S_BUG, RF6_S_RNG
+  were used).
+  Added RF4_S_ANIMAL and RF6_S_ANIMALS and limited the spell number to
+  160 + 31 in spell_summon. -- masmarangio
+- Barad-dur doesn't exist, it is still Mordor. Corrected god quest directions
+  to reflect this. -- fearoffours
+- Fixed the speed of Bearform combat -- masmarangio
+- Fix for Flame Imperishable from the forum -- masmarangio
+- You should now receieve a message about failing the god quest at the
+  correct moment, and not when in a random dungeon.  -- fearoffours
+- Further measures taken to ensure god quest relic is created appropriately.
   -- fearoffours
+- Scumming for god quests (by losing and regaining xp) is now prevented.
+  -- fearoffours
+- Fixed device trapkits loaded with rods -- masmarangio
+- Exploding ammo used in trapkits will explode after hitting a monster.
+  -- masmarangio
+- Mage staves were without the WIELD_CAST flag -- masmarangio
+- Between quest crash fix, also for Thieves and Trolls quests -- masmarangio
+- god.lua: The relic could be created in a wrong position -- masmarangio
+- cmd7.c: Preserve the spell stored in random spellbooks --masmarangio
+- xtra1.c: Lucky characters (current luck > 0) don't get death fates;
+  fixed a typo in luckspoi.txt (from the forum) -- masmarangio
+- generate.c: Fixed arena levels by refilling the level -- masmarangio
+- Correctly cap the spell levels of wands (patch by 'Sumendar') -- neil

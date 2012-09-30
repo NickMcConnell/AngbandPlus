@@ -111,7 +111,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*43[x  Engrave the floor]                    X  (unused)
  *****command.txt*44[y  Give item to monster]                 *****command.txt*96[Y  Chat]
  *****command.txt*45[z  Zap a rod]                            *****command.txt*46[Z  Steal]
- *****command.txt*47[!  Interact with system]                ^A  (special - debug command)
+ *****command.txt*47[!  Interact with system]                *****debug.txt*101[^A  (special - debug command)]
  *****command.txt*49[@  Interact with macros]                ^B  (unused)
  #  (unused)                            ^C  (special - break)
  *****command.txt*97[$  Record macros]                       ^D  (unused)

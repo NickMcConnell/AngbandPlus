@@ -9,7 +9,7 @@ would be no way that these abilities can improve. They are a "one-off
 purchase".
 As a consequence of this, they are often quite powerful abilities and can 
 cost quite a few skill points to buy.
-Most abilities have a prequisite skill or stat level which you must reach 
+Most abilities have a prerequisite skill or stat level which you must reach 
 before being able to buy.
 
 For instance, you can invest in the *****ability.txt*03[Tree walking] ability. This will allow 
@@ -70,6 +70,9 @@ Warriors (of all types) are born with this ability.
 ~~~~~07|Abilities|Ammo creation
 [[[[[BAmmo creation]
 Allows you to create shots, arrows and bolts from various materials.
+You can always make shots.
+At Archery level 10 you can start making arrows.
+At Archery level 20 you can start making bolts.
 #####UPrereq: Archery skill@10
 #####rCost: 8
 Archers (of all types) gain this ability for free at character level 2.
@@ -88,8 +91,8 @@ Prereq: Alchemy@40, INT@35, WIS@35
 #####rCost: 70
 ~~~~~10|Abilities|Far reaching attack
 [[[[[BFar reaching attack]
-You can attack an enemy one square far using a polearm.
-At high levels of polearm skill, you can even hit two enemies at once.
+You can attack an enemy one square far using a long polearm.
+At high levels of Polearm-mastery skill, you can even hit two enemies at once.
 #####UPrereq: Combat@15, Polearm-mastery@15
 #####rCost: 10
 ~~~~~11|Abilities|Trapping

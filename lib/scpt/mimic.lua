@@ -170,7 +170,7 @@ add_mimic_shape
 	["duration"] =  {50, 200},
 	["limit"] =     TRUE,
 	["calc"] =      function ()
-			player.pspeed = player.pspeed - 5 - (player.mimic_level / 5)
+			player.pspeed = player.pspeed - 5 + (player.mimic_level / 5)
 
 			player.to_a = player.to_a + 5 + ((player.mimic_level * 2) / 3)
 			player.dis_to_a = player.dis_to_a + 5 + ((player.mimic_level * 2) / 3)

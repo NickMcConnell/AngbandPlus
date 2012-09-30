@@ -2105,7 +2105,7 @@ void wiz_place_trap(int y, int x, int idx)
  */
 static bool item_tester_hook_device(object_type *o_ptr)
 {
-	if ((o_ptr->tval == TV_ROD) ||
+	if (((o_ptr->tval == TV_ROD_MAIN) && (o_ptr->pval != 0)) ||
 	                (o_ptr->tval == TV_STAFF) ||
 	                (o_ptr->tval == TV_WAND)) return (TRUE);
 
@@ -2289,10 +2289,6 @@ bool mon_hit_trap_aux_rod(int m_idx, object_type *o_ptr)
 	monster_type *m_ptr = &m_list[m_idx];
 	int y = m_ptr->fy;
 	int x = m_ptr->fx;
-	u32b f1, f2, f3, f4, f5, esp;
-	object_kind *tip_ptr = &k_info[lookup_kind(TV_ROD, o_ptr->pval)];
-
-	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* Depend on rod type */
 	switch (o_ptr->pval)
@@ -2389,15 +2385,11 @@ bool mon_hit_trap_aux_rod(int m_idx, object_type *o_ptr)
 
 	/* Actually hit the monster */
 	if (typ) (void) project( -2, rad, y, x, dam, typ, PROJECT_KILL | PROJECT_ITEM | PROJECT_JUMP);
-
-	/* Set rod recharge time */
-	o_ptr->timeout -= (f4 & TR4_CHEAPNESS) ? tip_ptr->pval / 2 : tip_ptr->pval;
-
 	return (cave[y][x].m_idx == 0 ? TRUE : FALSE);
 }
 
 /*
- * Monster hitting a device trap -MWK-
+ * Monster hitting a staff trap -MWK-
  *
  * Return TRUE if the monster died
  */
@@ -2955,6 +2947,9 @@ bool mon_hit_trap(int m_idx)
 
 	int dam, chance, shots;
 	int mul = 0;
+	int breakage = -1;
+
+	int cost = 0;
 
 	/* Get the trap objects */
 	kit_o_ptr = &o_list[cave[my][mx].special2];
@@ -3181,6 +3176,38 @@ bool mon_hit_trap(int m_idx)
 
 					}
 
+					/* Exploding ammo */
+					if (load_o_ptr->pval2 != 0)
+					{
+						int rad = 0;
+						int dam = (damroll(load_o_ptr->dd, load_o_ptr->ds) + load_o_ptr->to_d)*2;
+						int flag = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL |
+						           PROJECT_JUMP;
+
+						switch (load_o_ptr->sval)
+						{
+						case SV_AMMO_LIGHT:
+							rad = 2;
+							dam /= 2;
+							break;
+						case SV_AMMO_NORMAL:
+							rad = 3;
+							break;
+						case SV_AMMO_HEAVY:
+							rad = 4;
+							dam *= 2;
+							break;
+						}
+
+						project(0, rad, my, mx, dam, load_o_ptr->pval2, flag);
+
+						breakage = 100;
+					}
+					else
+					{
+						breakage = breakage_chance(load_o_ptr);
+					}
+
 					/* Copy and decrease ammo */
 					object_copy(j_ptr, load_o_ptr);
 
@@ -3196,7 +3223,7 @@ bool mon_hit_trap(int m_idx)
 					}
 
 					/* Drop (or break) near that location */
-					drop_near(j_ptr, breakage_chance(j_ptr), my, mx);
+					drop_near(j_ptr, breakage, my, mx);
 
 				}
 
@@ -3289,18 +3316,30 @@ bool mon_hit_trap(int m_idx)
 
 		case SV_TRAPKIT_DEVICE:
 			{
+				if (load_o_ptr->tval == TV_ROD_MAIN)
+				{
+					/* Extract mana cost of the rod tip */
+					u32b tf1, tf2, tf3, tf4, tf5, tesp;
+					object_kind *tip_o_ptr = &k_info[lookup_kind(TV_ROD, load_o_ptr->pval)];
+					object_flags(load_o_ptr, &tf1, &tf2, &tf3, &tf4, &tf5, &tesp);
+					cost = (tf4 & TR4_CHEAPNESS) ? tip_o_ptr->pval / 2 : tip_o_ptr->pval;
+					if (cost <= 0) cost = 1;
+				}
+
 				/* Get number of shots */
 				shots = 1;
-				if (load_o_ptr->tval == TV_ROD)
+				if (f3 & TR3_XTRA_SHOTS) shots += kit_o_ptr->pval;
+				if (shots <= 0) shots = 1;
+
+				if (load_o_ptr->tval == TV_ROD_MAIN)
 				{
-					if (load_o_ptr->pval) shots = 0;
+					if (shots > load_o_ptr->timeout / cost) shots = load_o_ptr->timeout / cost;
 				}
 				else
 				{
-					if (f3 & TR3_XTRA_SHOTS) shots += kit_o_ptr->pval;
-					if (shots <= 0) shots = 1;
 					if (shots > load_o_ptr->pval) shots = load_o_ptr->pval;
 				}
+
 				while (shots-- && !dead)
 				{
 #if 0
@@ -3317,7 +3356,7 @@ bool mon_hit_trap(int m_idx)
 					/* Get the effect effect */
 					switch (load_o_ptr->tval)
 					{
-					case TV_ROD:
+					case TV_ROD_MAIN:
 						dead = mon_hit_trap_aux_rod(m_idx, load_o_ptr);
 						break;
 					case TV_WAND:
@@ -3327,9 +3366,15 @@ bool mon_hit_trap(int m_idx)
 						dead = mon_hit_trap_aux_staff(m_idx, load_o_ptr);
 						break;
 					}
-					/* Decrease charges */
-					if (load_o_ptr->tval != TV_ROD)
+
+					if (load_o_ptr->tval == TV_ROD_MAIN)
 					{
+						/* decrease stored mana (timeout) for rods */
+						load_o_ptr->timeout -= cost;
+					}
+					else
+					{
+						/* decrease charges for wands and staves */
 						load_o_ptr->pval--;
 					}
 				}

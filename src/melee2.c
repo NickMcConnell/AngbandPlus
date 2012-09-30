@@ -644,14 +644,14 @@ static void bolt(int m_idx, int typ, int dam_hp)
  */
 static bool spell_attack(byte spell)
 {
-	/* All RF4 spells hurt (except for shriek) */
-	if (spell < 128 && spell > 96) return (TRUE);
+	/* All RF4 spells hurt (except for shriek, multiply, summon animal) */
+	if (spell >= 96 + 3 && spell <= 96 + 31) return (TRUE);
 
 	/* Various "ball" spells */
 	if (spell >= 128 && spell <= 128 + 8) return (TRUE);
 
 	/* "Cause wounds" and "bolt" spells */
-	if (spell >= 128 + 12 && spell <= 128 + 27) return (TRUE);
+	if (spell >= 128 + 12 && spell <= 128 + 26) return (TRUE);
 
 	/* Hand of Doom */
 	if (spell == 160 + 1) return (TRUE);
@@ -670,7 +670,7 @@ static bool spell_escape(byte spell)
 	if (spell == 160 + 4 || spell == 160 + 5) return (TRUE);
 
 	/* Teleport the player away */
-	if (spell == 160 + 9 || spell == 160 + 10) return (TRUE);
+	if (spell == 160 + 7 || spell == 160 + 8) return (TRUE);
 
 	/* Isn't good for escaping */
 	return (FALSE);
@@ -691,7 +691,7 @@ static bool spell_annoy(byte spell)
 	if (spell >= 128 + 27 && spell <= 128 + 31) return (TRUE);
 
 	/* Teleport to */
-	if (spell == 160 + 8) return (TRUE);
+	if (spell == 160 + 6) return (TRUE);
 
 #if 0
 	/* Hand of Doom */
@@ -699,7 +699,7 @@ static bool spell_annoy(byte spell)
 #endif
 
 	/* Darkness, make traps, cause amnesia */
-	if (spell >= 160 + 12 && spell <= 160 + 14) return (TRUE);
+	if (spell >= 160 + 9 && spell <= 160 + 11) return (TRUE);
 
 	/* Doesn't annoy */
 	return (FALSE);
@@ -710,8 +710,10 @@ static bool spell_annoy(byte spell)
  */
 static bool spell_summon(byte spell)
 {
-	/* All summon spells */
-	if (spell >= 160 + 13) return (TRUE);
+	/* RF4_S_ANIMAL, RF6_S_ANIMALS */
+	if (spell == 96 + 2 || spell == 160 + 3) return (TRUE);
+	/* All other summon spells */
+	if (spell >= 160 + 13 && spell <= 160 + 31) return (TRUE);
 
 	/* Doesn't summon */
 	return (FALSE);
@@ -1159,7 +1161,7 @@ static bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX2X4 */
+			/* RF4_MULTIPLY */
 		case 96 + 1:
 			{
 				break;
@@ -1182,7 +1184,7 @@ static bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX4X4 */
+			/* RF4_ROCKET */
 		case 96 + 3:
 			{
 				if (disturb_other) disturb(1, 0);
@@ -1503,7 +1505,7 @@ static bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX5X4 */
+			/* RF4_BA_NUKE */
 		case 96 + 28:
 			{
 				if (disturb_other) disturb(1, 0);
@@ -1516,7 +1518,7 @@ static bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX6X4 */
+			/* RF4_BR_NUKE */
 		case 96 + 29:
 			{
 				if (disturb_other) disturb(1, 0);
@@ -1529,7 +1531,7 @@ static bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX7X4 */
+			/* RF4_BA_CHAO */
 		case 96 + 30:
 			{
 				if (disturb_other) disturb(1, 0);
@@ -1542,7 +1544,7 @@ static bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX8X4 -> Breathe Disintegration */
+			/* RF4_BR_DISI -> Breathe Disintegration */
 		case 96 + 31:
 			{
 				if (disturb_other) disturb(1, 0);
@@ -3177,13 +3179,13 @@ bool make_attack_spell(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX2X4 */
+			/* RF4_MULTIPLY */
 		case 96 + 1:
 			{
 				break;
 			}
 
-			/* RF6_S_ANIMALS */
+			/* RF4_S_ANIMAL */
 		case 96 + 2:
 			{
 				disturb(1, 0);
@@ -3197,7 +3199,7 @@ bool make_attack_spell(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX4X4 */
+			/* RF4_ROCKET */
 		case 96 + 3:
 			{
 				disturb(1, 0);
@@ -3488,7 +3490,7 @@ bool make_attack_spell(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX5X4 */
+			/* RF4_BA_NUKE */
 		case 96 + 28:
 			{
 				disturb(1, 0);
@@ -3499,7 +3501,7 @@ bool make_attack_spell(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX6X4 */
+			/* RF4_BR_NUKE */
 		case 96 + 29:
 			{
 				disturb(1, 0);
@@ -3511,7 +3513,7 @@ bool make_attack_spell(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX7X4 */
+			/* RF4_BA_CHAO */
 		case 96 + 30:
 			{
 				disturb(1, 0);
@@ -3522,7 +3524,7 @@ bool make_attack_spell(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX8X4 -> Disintegration breath! */
+			/* RF4_BR_DISI -> Disintegration breath! */
 		case 96 + 31:
 			{
 				disturb(1, 0);

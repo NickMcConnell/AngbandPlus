@@ -14722,7 +14722,7 @@ S:1_IN_3 |
 S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_FIRE | BA_NETH | 
 S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_KIN | HAND_DOOM | ANIM_DEAD
-D:The greatest of all undead sorcerers, even the gods once feared him.  This
+D:The greatest of all undead sorcerers, even the gods once feared him.  This 
 D:ancient shadow of death wilts every living thing it passes. 
 
 N:845:Yog-Sothoth, the All-in-One

@@ -38,7 +38,7 @@ Combat                  1.000           [0.700]
   Weaponmastery         0.700           [0.700]
 Sneakiness              1.000           [0.900]
 Magic                   3.000           [0.900]
-  Magic-Device          0.000           [0.250]
+  Magic-Device          1.000           [1.250]
   Geomancy
     Fire                0.000           [0.100]
     Water               0.000           [0.100]
@@ -67,7 +67,7 @@ Perfect-casting             1
 
 #####GStarting Equipment
 An alchemist begins the game with:
-    A small sword
+    A dagger
     Six essences of explosion
     An empty bottle
     A set of leather gloves
@@ -75,7 +75,7 @@ An alchemist begins the game with:
 ~~~~~05|Skills|Alchemy - Alchemy powers
 #####GAlchemy
 [[[[[BThe alchemical techniques are accessed using the 'm' key.]  
-Alchemists may then 'E'xtract power or 'A'dd power. The Alchemist [[[[[vmust]
+Alchemists may then 'E'xtract essences or add 'P'owers. The Alchemist [[[[[vmust]
 be wearing GLOVES to use their alchemy powers.
 
 Alchemist's are also capable of [[[[[Bcreating their own artifacts], but
@@ -92,7 +92,7 @@ exotic ingredients to add the abilities.
 
 Most (but not all) potions, scrolls, wands, staffs, rods, rings, and 
 amulets contain usable magical energies.  An alchemist taps that 
-energy, using the technique "'E'xtract power" to create one or more
+energy, using the technique "'E'xtract essences" to create one or more
 essences of a type appropriate to the original object.
 
 The drained object itself is now called "of nothing".  Unlike any
@@ -110,7 +110,7 @@ gold to improve the chances of his success.
 [[[[[BA few pointers:]
      -Recipes are (usually) logical. Acid essences don't make Dragon 
       Weapons. And you can always look at the recipes you know with
-      the 'B'ook command.
+      the "recipe 'B'ook" command.
      -Not all objects or ego-item types can be made using alchemy.
      -Alchemy is mostly reversible.  Most items that you can 
       'E'xtract from, you can later re-create, if you learn about
@@ -126,8 +126,8 @@ gold to improve the chances of his success.
 
 [[[[[BSome Recipes:]
 Any alchemist worth his salt knows lots of recipes.  By extracting from
-items in the dungeon, he learns to create more and more items. You
-can see the recipes you know using the 'B'ook command. The alchemist
+items in the dungeon, he learns to create more and more items. You can
+see the recipes you know using the "recipe 'B'ook" command. The alchemist
 starts off knowing some basic recipes, and gains more recipes as time 
 goes on.
 

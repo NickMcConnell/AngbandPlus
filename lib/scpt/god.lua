@@ -4,7 +4,7 @@
 god_quest = {}
 
 -- increase this number to make god quests more common, to a max value of 100
-god_quest.CHANCE_OF_GOD_QUEST = 20
+god_quest.CHANCE_OF_GOD_QUEST = 21
 
 -- increase this number to make more quests
 god_quest.MAX_NUM_GOD_QUESTS = 5
@@ -26,7 +26,6 @@ add_quest
 				print_hook("#####yGod quest!\n")
 				print_hook("Thou art to find the lost temple of thy God and\n");
 				print_hook("to retrieve the lost part of the relic for thy God! \n")
-				-- print_hook("home_axis = "..home_axis.." home2_axis = "..home2_axis)
 				if home_axis ~= "close" then
 					print_hook("The temple lies "..home_distance.." to the "..home_axis.." of "..home..", \n")
 				else
@@ -44,10 +43,10 @@ add_quest
 	["data"] =      {
 		["god_quest.relic_num"] = 1,
 		["god_quest.quests_given"] = 0,
-		["god_quest.relics_identified"] = 0,
+		["god_quest.relics_found"] = 0,
 		["god_quest.dun_mindepth"] = 1,
 		["god_quest.dun_maxdepth"] = 4,
-		["god_quest.dun_minplev"] = 1,
+		["god_quest.dun_minplev"] = 0,
 		["god_quest.relic_gen_tries"] = 0,
 		["god_quest.relic_generated"] = FALSE,
 		["god_quest.dung_x"] = 1,
@@ -63,10 +62,10 @@ add_quest
 			-- initialise save-file stored variables when new character is created
 			god_quest.relic_num = 1
 			god_quest.quests_given = 0
-			god_quest.relics_identified = 0
+			god_quest.relics_found = 0
 			god_quest.dun_mindepth = 1
 			god_quest.dun_maxdepth = 4
-			god_quest.dun_minplev = 1
+			god_quest.dun_minplev = 0
 			god_quest.relic_gen_tries = 0
 			god_quest.relic_generated = FALSE
 		end,
@@ -80,7 +79,7 @@ add_quest
 				-- check player is worshipping a god, not already on a god quest.
 				if (player.astral ~= FALSE) or (player.pgod <= 0) or (quest(GOD_QUEST).status == QUEST_STATUS_TAKEN)
 				or (god_quest.quests_given >= god_quest.MAX_NUM_GOD_QUESTS) or (give_god_quest == FALSE)
-				or ((current_dungeon_idx == god_quest.DUNGEON_GOD) and (dun_level > 0)) then
+				or ((current_dungeon_idx == god_quest.DUNGEON_GOD) and (dun_level > 0)) or (player.lev <= god_quest.dun_minplev) then
 					return
 				else
 					-- each god has different characteristics, so the quests are differnet depending on your god
@@ -143,9 +142,23 @@ add_quest
 			local chance
 
 			-- Check for dungeon
-			if (current_dungeon_idx ~= god_quest.DUNGEON_GOD) or (quest(GOD_QUEST).status == QUEST_STATUS_UNTAKEN)
-			or (god_quest.relic_generated == TRUE) then
+			if (current_dungeon_idx ~= god_quest.DUNGEON_GOD) or (quest(GOD_QUEST).status == QUEST_STATUS_UNTAKEN) then
 				return
+			-- if the relic has been created at this point, then it was created on the *PREVIOUS* call of HOOK_LEVEL_END_GEN, and 
+			-- therefore the player has caused another level generation in the temple and hence failed the quest.
+			elseif (god_quest.relic_generated == TRUE) and quest(GOD_QUEST).status ~= QUEST_STATUS_FAILED then 
+				
+					-- fail the quest, don't give another one, don't give this message again
+					quest(GOD_QUEST).status = QUEST_STATUS_FAILED
+					-- God issues instructions
+					cmsg_print(TERM_L_BLUE, "The voice of "..deity(player.pgod).name.." booms in your head:")
+
+					cmsg_print(TERM_YELLOW, "'Thou art a fool!")
+					cmsg_print(TERM_YELLOW, "I told thee to look carefully for the relic. It appears thou hast missed the")
+					cmsg_print(TERM_YELLOW, "opportunity to claim it in my name, as I sense that those monsters who ")
+					cmsg_print(TERM_YELLOW, "have overrun my temple have destroyed it themselves.")
+					cmsg_print(TERM_YELLOW, "I shall not ask thee to do such a thing again, as thou hast failed me in this")
+					cmsg_print(TERM_YELLOW, "simple task!'")					
 			else
 				-- Force relic generation on 5th attempt if others have been unsuccessful.
 				if (god_quest.relic_gen_tries == 4) and (god_quest.relic_generated == FALSE) then
@@ -188,7 +201,7 @@ add_quest
 		[HOOK_GET] = function(o_ptr, item)
 				-- Is it the relic, and check to make sure the relic hasn't already been identified
 			if (quest(GOD_QUEST).status == QUEST_STATUS_TAKEN) and (o_ptr.tval == TV_JUNK) and (o_ptr.sval == god_quest.relic_num)
-			and (o_ptr.pval ~= TRUE)  and (god_quest.relics_identified < god_quest.quests_given) then
+			and (o_ptr.pval ~= TRUE)  and (god_quest.relics_found < god_quest.quests_given) then
 
 				-- more God talky-talky
 				cmsg_print(TERM_L_BLUE, deity(player.pgod).name.." speaks to you:")
@@ -220,7 +233,7 @@ add_quest
 
 				-- relic piece has been identified
 				o_ptr.pval = TRUE
-				god_quest.relics_identified = god_quest.relics_identified + 1
+				god_quest.relics_found = god_quest.relics_found + 1
 
 				-- Make sure quests can be given again if neccesary
 				quest(GOD_QUEST).status = QUEST_STATUS_UNTAKEN
@@ -281,39 +294,47 @@ end
 
 -- this function generates the relic at a randomly determined place in the temple.
 function generate_relic()
-	local tries, grid, relic
+	local tries, grid, x, y, relic
 
 	-- initialise tries variable
-	tries = 0
+	tries = 1000
 
-	while (tries == 0) do
+	while (tries > 0) do
 
+		tries = tries - 1
 		-- get grid coordinates from current height/width, minus one to prevent relic being generated in outside wall. (would crash the game)
 		y = randint(cur_hgt-1)
 		x = randint(cur_wid-1)
 		grid = cave(y, x)
 
-		-- are the coordinates in a wall, ?
-		if (cave_is(grid, FF1_FLOOR) == 0) then
+		-- are the coordinates on a floor, not on a permanent feature (eg stairs), and not on a trap ?
+		if (cave_is(grid, FF1_FLOOR) == TRUE) and (cave_is(grid, FF1_PERMANENT) == FALSE) and (grid.t_idx == 0) then break end
 
-			-- try again
-			tries = 0
-
-		else
-			-- neither player, nor wall, then stop this 'while'
-			tries = 1
-
-		end
-	end
-
+	end 
+	
 	-- create relic
 	relic = create_object(TV_JUNK, god_quest.relic_num)
 
 	-- inscribe it to prevent automatizer 'accidents'
 	relic.note = quark_add("quest")
 
-	-- drop it
-	drop_near(relic, -1, y, x)
+	-- If no safe co-ords were found, put it in the players backpack
+	if tries == 0 then
+
+		-- explain it
+		msg_print(TERM_L_BLUE, "You luckily stumble across the relic on the stairs!")
+
+		if (inven_carry_okay(relic)) then
+			inven_carry(relic, FALSE)
+		else
+		-- no place found, drop it on the stairs
+			drop_near(relic, -1, player.py, player.px)
+		end
+
+	else
+		-- drop it
+		drop_near(relic, -1, y, x)
+	end
 
 	-- Only generate once!
 	god_quest.relic_generated = TRUE
@@ -578,9 +599,9 @@ function get_god_quest_axes()
 		home = "the Pits of Angband"
 		home_y_coord = 7
 		home_x_coord = 34
-		home2 = "the stronghold of Barad-Dur"
-		home2_y_coord = 51
-		home2_x_coord = 71	
+		home2 = "the Land of Mordor"
+		home2_y_coord = 58
+		home2_x_coord = 65	
 	end
 
 	home_axis = compass(home_y_coord, home_x_coord, god_quest.dung_y, god_quest.dung_x)

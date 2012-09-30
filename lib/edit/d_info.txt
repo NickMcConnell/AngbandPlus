@@ -406,7 +406,7 @@ M:IM_COLD
 # thunderlord armour.
 # Levels 45-70
 N:25:The Sacred Land Of Mountains
-D:LoM:the way to The Sacred Land Of Mountains.
+D:LoM:the way to the Sacred Land of Mountains.
 W:45:70:20:0:14:160
 L:89:100:89:0:89:0
 A:97:100:56:0:56:0:97:97
@@ -422,7 +422,7 @@ R:40:0
 # levels 26-40
 # Guarded by Ulfang the Black, Morgoth's first Easterling follower.
 N:26:The Land Of Rhun
-D:LoR:a way to the the Land Of Rhun.
+D:LoR:a way to the Land of Rhun.
 W:26:40:15:0:14:160
 L:89:100:1:0:1:0
 A:89:50:96:25:84:25:57:58

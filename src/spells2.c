@@ -856,7 +856,7 @@ void self_knowledge(FILE *fff)
 		if (r_ptr->flags3 & RF3_SUSCEP_FIRE)
 			info[i++] = "You are vulnerable to fire.";
 		if (r_ptr->flags3 & RF3_SUSCEP_COLD)
-			info[i++] = "You are vulerable to cold.";
+			info[i++] = "You are vulnerable to cold.";
 		if (r_ptr->flags3 & RF3_RES_TELE)
 			info[i++] = "You are resistant to teleportation.";
 		if (r_ptr->flags3 & RF3_RES_NETH)

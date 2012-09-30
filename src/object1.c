@@ -2297,7 +2297,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			t = object_desc_chr(t, ' ');
 			t = object_desc_chr(t, p1);
 			t = object_desc_int(t, o_ptr->to_h);
-			if (!(f3 & (TR3_HIDE_TYPE)))
+			if (!(f3 & (TR3_HIDE_TYPE)) || o_ptr->art_name)
 				t = object_desc_str(t, " to accuracy");
 			t = object_desc_chr(t, p2);
 		}
@@ -2308,7 +2308,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			t = object_desc_chr(t, ' ');
 			t = object_desc_chr(t, p1);
 			t = object_desc_int(t, o_ptr->to_d);
-			if (!(f3 & (TR3_HIDE_TYPE)))
+			if (!(f3 & (TR3_HIDE_TYPE)) || o_ptr->art_name)
 				t = object_desc_str(t, " to damage");
 			t = object_desc_chr(t, p2);
 		}
@@ -3113,11 +3113,11 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			else
 				text_out(item_activation(o_ptr, 0));
 
-			/* Mega-hack -- get rid of useless line for randarts */
-			if (o_ptr->tval != TV_RANDART)
-				text_out(" if it is being worn. ");
-			else
+			/* Mega-hack -- get rid of useless line for e.g. randarts */
+			if (f5 & (TR5_ACTIVATE_NO_WIELD))
 				text_out(".  ");
+			else
+				text_out(" if it is being worn. ");
 		}
 		/* Granted power */
 		if (object_power(o_ptr) != -1)
@@ -3577,10 +3577,6 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			vp[vn++] = "shards";
 		}
-		if (f4 & (TR4_IM_NETHER))
-		{
-			vp[vn++] = "nether";
-		}
 		if (f2 & (TR2_RES_NETHER))
 		{
 			vp[vn++] = "nether";
@@ -3619,6 +3615,10 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			text_out(".  ");
 		}
 
+		if (f2 & (TR2_SENS_FIRE))
+		{
+			text_out("It renders you especially vulnerable to fire.  ");
+		}
 		if (f3 & (TR3_WRAITH))
 		{
 			text_out("It renders you incorporeal.  ");
@@ -3642,6 +3642,10 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		if (f4 & (TR4_CLIMB))
 		{
 			text_out("It allows you to climb mountains.  ");
+		}
+		if (f5 & (TR5_IMMOVABLE))
+		{
+			text_out("It renders you immovable.  ");
 		}
 		if (f3 & (TR3_SEE_INVIS))
 		{
@@ -6540,7 +6544,7 @@ void py_pickup_floor(int pickup)
 		item_tester_hook = item_tester_hook_getable;
 
 		q = "Get which item? ";
-		s = "You see nothing you can pick up there.";
+		s = "You have no room in your pack for any of the items here.";
 		if (get_item(&item, q, s, (USE_FLOOR)))
 		{
 			this_o_idx = 0 - item;

@@ -108,7 +108,7 @@ ERU_UNDERSTAND = add_spell
 
 ERU_PROT = add_spell
 {
-	["name"] = 	"Lay of protection",
+	["name"] = 	"Lay of Protection",
 	["school"] = 	{SCHOOL_ERU},
 	["level"] = 	35,
 	["mana"] = 	400,

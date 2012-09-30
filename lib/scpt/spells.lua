@@ -131,7 +131,7 @@ SCHOOL_EARTH = add_school
 			["mul"] = 4,
 			["div"] = 5,
 		},
-		-- Yavanna Kementari provides the Water school at 1/2 the prayer skill
+		-- Yavanna Kementari provides the Earth school at 1/2 the prayer skill
 		[GOD_YAVANNA] =
 		{
 			["skill"] = SKILL_PRAY,
@@ -216,7 +216,7 @@ SCHOOL_NATURE = add_school
 	["sorcery"] = TRUE,
 	["gods"] =
 	{
-		-- Yavanna Kementari provides the Water school at 1/2 the prayer skill
+		-- Yavanna Kementari provides the Nature school at 1/2 the prayer skill
 		[GOD_YAVANNA] =
 		{
 			["skill"] = SKILL_PRAY,
@@ -257,7 +257,7 @@ SCHOOL_MIND = add_school
 			["mul"] = 1,
 			["div"] = 3,
 		},
-		-- Melkor Bauglir provides the Mind school at full prayer skill
+		-- Melkor Bauglir provides the Mind school at 1/3 the prayer skill
 		[GOD_MELKOR] =
 		{
 			["skill"] = SKILL_PRAY,

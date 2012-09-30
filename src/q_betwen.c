@@ -144,6 +144,7 @@ bool quest_between_death_hook(char *fmt)
 	{
 		cmsg_print(TERM_YELLOW, "You can escape now.");
 		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
+		cave[p_ptr->py][p_ptr->px].special = 0;
 
 		return FALSE;
 	}

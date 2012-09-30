@@ -231,7 +231,7 @@ on your Barehand-combat skill adds 0.5 bonus skill points to your Combat skill.
 [[[[[BBearform-combat]
 This skill is a sub-skill of the Combat skill. It affects your ability to fight 
 while in the form of a bear. In order to utilise it, you must be in bearform. 
-*****r_beorn*0[Beornings] are the adventurers most likely to use this form of skill.
+*****r_beorn.txt*0[Beornings] are the adventurers most likely to use this form of skill.
 ~~~~~58|Skills|Boulder-throwing
 [[[[[BBoulder-throwing]
 This skill is a sub-skill of the Combat skill. It affects your ability to
@@ -310,8 +310,8 @@ points to your Magic skill.
 ~~~~~22|Skills|Spell-power
 [[[[[BSpell-power]
 This skill is a sub-skill of the Magic skill. It boosts the casting level of
-any spell you are capable of casting. For example, if you have level one in
-the mana school, you could cast "Manathrust". For every two skill levels of
+most spells you are capable of casting. For example, if you have level one in
+the mana school, you could cast "Manathrust". For every 2.5 skill levels of
 Spell-power, Manathrust becomes more powerful, adding +1 casting level to the
 spell. Note that this is not exactly the same as certain magic items which 
 boost spell power. Spending 1 skill point on your Spell-power skill adds 0.2 
@@ -319,7 +319,7 @@ bonus skill points to your Magic skill.
 
 [[[[[BThis skill only affects the 11 primary schools] (Mana, Earth, Air, Fire, 
 Water, Meta, Mind, Temporal, Conveyance, Divination and Nature), as well as
-the Udun School, the Demonology School and the spells granted by the Gods.
+Geomancy and the spells granted by the Gods.
 ~~~~~23|Skills|Sorcery
 [[[[[BSorcery]
 This skill is a sub-skill of the Magic skill. It allows you to access any

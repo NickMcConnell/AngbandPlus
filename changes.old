@@ -5362,3 +5362,67 @@ becomes 0, allowing spells to summon fiery blades and such
 [M]- Drain attacks can't drain the one artifact wand, staff, or horn -- neil
 
 [V]  T.o.M.E 2.2.5 aka "Death of a Bug"
+
+23/12/2003
+[B]- Prevent recall to Lost Temple before getting the quest -- neil
+
+01/01/2004
+[I]- Pressing Escape gets you out of the pet dismissal list -- neil
+
+03/01/2004
+[B]- Automatizer now accepts TV_TOTEM -- neil
+
+08/01/2004
+[m]- Helpfiles: bearform combat help, music typos, barbarian revisions.
+     -- fearoffours
+[B]- Some vaults incorrectly named -- fearoffours
+
+15/01/2004
+[B]- Wight quest crash fix by 'amaurea' -- neil
+
+16/01/2004
+[B]- God choosen at random was broken -- masmarangio
+
+18/01/2004
+[B]- Typo in q_one.c (or -> of)
+
+20/01/2004
+[B]- Don't use a turn when cancelling a possessor action -- neil
+
+21/01/2004
+[B] - summon_true crashed the game with a summon skill < 1 -- masmarangio
+[B] - test_object_wish: aware status is saved and restored -- masmarangio
+
+27/01/2004
+[m] - Typos in the description of arrows, shots, bolts; punctuation in the
+      mushroom quest -- masmarangio
+
+30/01/2004
+[m]- HOOK_CALC_BONUS_END hooks
+
+06/02/2004
+[m]- Helpfiles: corrected starting equipment of mindcrafters -- masmarangio
+
+07/02/2004
+[m] - Backport of old helpfile updates: no Geomancy for Alchemists and Rune-
+      crafters, updated luck spoiler, corruption spoiler in crpt_aux.lua, a
+      link in skills.txt, an example in automatizer.txt. 
+      monsters3.c: changed 'golem' to 'creature', since the Mind Steal Spell
+      also allows to control a monster. -- masmarangio
+
+[m]- Typo (massage -> message) from the forum -- masmarangio
+[m]- Capitalisation in the names of junkarts -- masmarangio
+
+13/02/2004
+[m]- mindcraft_info: Corrected and expanded the info for mindcraft powers 
+     -- masmarangio
+[m]- Small corrections in luck spoiler, description of Manwe's Blessing and
+     m_mimic.txt -- masmarangio
+
+19/02/2004
+[B]- God quest will no longer give inaccurate or misleading directions. It 
+     also will now give directions from two static features, and an 
+     approximate, relative distance from each of those points. 
+     -- fearoffours
+
+[V]  T.o.M.E 2.2.6 "Won't Get Fooled Again"

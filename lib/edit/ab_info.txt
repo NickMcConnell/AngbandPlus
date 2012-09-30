@@ -93,8 +93,8 @@ S:35:INT
 S:35:WIS
 
 N:8:Far reaching attack
-D:You can attack an enemy one square far using a polearm.
-D:At high levels of polearm skill, you can even hit two enemies at once.
+D:You can attack an enemy one square far using a long polearm.
+D:At high levels of Polearm-mastery skill, you can even hit two enemies at once.
 D:Prereq: Combat@15, Polearm-mastery@15
 I:10
 A:102:Far reaching attack
