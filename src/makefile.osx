@@ -131,6 +131,23 @@ install: default
 	rsync ../lib/mods/*.lua $(RESOURCEDIR)/core
 	rsync ../lib/xtra/graf/*.png $(RESOURCEDIR)
 
+BUNDLEDIR := ../ToME.app
+APPVERSION := `carbon/getversion`
+IMAGENAME := ToME $(APPVERSION)
+IMAGEPATH := /Volumes/$(IMAGENAME)
+
+image: install
+	[ -d "$(IMAGEPATH)" ] && diskutil unmount "$(IMAGEPATH)" || true
+
+	hdiutil create -fs HFS+ -volname "$(IMAGENAME)" -ov -type SPARSE -attach "$(IMAGENAME)"
+	cp -r "$(BUNDLEDIR)" ../changes.txt ../credits.txt ../changes.old "$(IMAGEPATH)"
+	cp carbon/Image-DS_Store "$(IMAGEPATH)/.DS_Store"
+	diskutil unmount "$(IMAGEPATH)"
+
+	rm -f "$(IMAGENAME).dmg"
+	hdiutil convert "$(IMAGENAME).sparseimage" -format UDZO -o "$(IMAGENAME)"
+	rm "$(IMAGENAME).sparseimage"
+
 #
 # Clean up old junk
 #

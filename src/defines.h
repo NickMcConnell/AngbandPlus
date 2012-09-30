@@ -37,8 +37,8 @@
  */
 
 #ifndef IS_CVS
-/*#define IS_CVS          ""*/
 #define IS_CVS          ""
+/*#define IS_CVS          ""*/
 #endif
 
 #define USER_PATH_VERSION "/2.3"

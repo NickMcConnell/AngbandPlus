@@ -5911,3 +5911,101 @@ becomes 0, allowing spells to summon fiery blades and such
 
 2005/07/27
 [V]  T.o.M.E 2.3.2 aka "Unrealized Reality"
+
+28/07/2005
+[G]- Lost sword quest rewards always give a minimum skill modifier of 0.3.
+     -- gwooledge
+
+29/07/2005
+[D]- Edit one vault to open up some inaccessible rooms -- Neil
+
+11/08/2005
+[B]- Alchemy: disallow repowering double-ego items, unless the character has
+     the artifact creation ability.  Based on patch by Andrey Egoshin.
+     -- gwooledge
+[B]- Lost sword quest skill reward probabilities were computed incorrectly.
+     Fix suggested by Dan Rosenberry. -- gwooledge
+[I]- Miscellaneous documentation, spelling and grammar fixes. -- gwooledge
+
+12/08/2005
+[B]- Don't let a player trick the Valar by getting drained and re-gaining
+     levels -- Neil
+[I]- Update AC display after fixing armor in the buildings. -- gwooledge
+
+16/08/2005
+[B]- Don't allow Runecraft and Thaumaturgy spells to go explode inside walls
+     and seep through --  Neil
+
+17/08/2005
+[I]- Fix damage display for Thaumaturgy ball spells. -- gwooledge
+[O]- Removed pointless slays, brands, and bonuses on Pick of Erebor --  Neil
+
+19/08/2005
+[B]- When consuming magic essences, don't stop prematurely.  Based on patch
+     by Andrey Egoshin. -- gwooledge
+
+30/08/2005
+[B]- Upkeep cost for partial summons was not always charged. -- gwooledge
+
+05/09/2005
+[B]- Some staves were being generated with the wrong tval, causing several bugs
+     including (but not limited to) staves being unrechargeable. -- gwooledge
+
+11/09/2005
+[B]- Saving throw was not calculated correctly. -- gwooledge
+
+14/09/2005
+[P]- All new partial summon upkeep formula -- neil
+
+26/09/2005
+[B]- Disallow negative experience alchemy abuses.  Based on patch by Andrey
+     Egoshin. -- gwooledge
+[O]- When examining books, demonology equipment and instruments in stores, show
+     both the object's powers and its spells. -- gwooledge
+[B]- Nonliving and undead pets won't be angered by lack of breathable air.
+     -- gwooledge
+[D]- A certain early trap should be less deadly (and appear a bit later).
+     -- gwooledge
+[I]- Honor exp_need option when displaying object experience. -- gwooledge
+
+27/09/2005
+[I]- Restored and updated some missing help files. -- gwooledge
+[G]- (Mass) Genocide damage is applied all at once to avoid bug #228.
+     -- gwooledge
+
+28/09/2005
+[B]- Don't use the "POSIX" setuid calls on Mac OS X, as they apparently break
+     compilation -- neil
+
+29/09/2005
+[O]- Junk should stack just like skeletons.  Patch by StarweaverBlue.
+     -- gwooledge
+[M]- Kavlax should be many-headed. -- gwooledge
+
+14/10/2005
+[B]- Certain monster spells were hard-coded for the wrong number of equipment
+     slots. -- gwooledge
+
+18/10/2005
+[B]- Incorrect operator used in cave generation code.  Effect unknown, but it
+     *might* possibly fix some of the Orc cave crashes.-- gwooledge
+
+26/10/2005
+[M]- Regular (non-Joke, non-Cth, non-Z) monsters should not breathe nuke,
+     because it has a side effect we don't want in ToME -- Neil
+
+29/10/2005
+[O]- Mac OS X builds now put all the game data into the bundle, storing all
+     user data in the user's Library (some preferences in
+     Library/Preferences/net.t-o-m-e.tome.plist, the rest in
+     Library/Application Support/ToME. -- Neil
+
+16/11/2005
+[I]- Handling of Command key modified in Mac OS X UI.  It should be accessible
+     in macros now if it wasn't before -- Neil
+
+26/11/2005
+[B]- Don't allow uniques or quest monsters to just disappear to the move of
+     another monster -- Neil
+
+14/12/2005 - ToME 2.3.3 "Realized Unreality"

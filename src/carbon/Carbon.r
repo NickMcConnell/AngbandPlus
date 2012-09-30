@@ -37,7 +37,7 @@ type AngbandSignature as 'STR ';
 
 resource AngbandSignature (0, "Owner resource", purgeable)
 {
-	"T.o.M.E. 2.3.3"
+	"T.o.M.E. 2.3.4"
 };
 
 

@@ -3457,6 +3457,20 @@ static void cf_save_prefs()
 	{
 		term_data *td = &data[i];
 
+		save_pref_short(format("term%d.font_mono", i), td->font_mono); 
+		save_pref_short(format("term%d.font_o_x", i), td->font_o_x);
+		save_pref_short(format("term%d.font_o_y", i), td->font_o_y);
+		save_pref_short(format("term%d.font_wid", i), td->font_wid);
+		save_pref_short(format("term%d.font_hgt", i), td->font_hgt);
+		save_pref_short(format("term%d.tile_o_x", i), td->tile_o_x);
+		save_pref_short(format("term%d.tile_o_y", i), td->tile_o_y);
+		save_pref_short(format("term%d.right", i), td->r.right);
+		save_pref_short(format("term%d.bottom", i), td->r.bottom);
+		save_pref_short(format("term%d.ow1", i), td->size_ow1);
+		save_pref_short(format("term%d.oh1", i), td->size_oh1);
+		save_pref_short(format("term%d.ow2", i), td->size_ow2);
+		save_pref_short(format("term%d.oh2", i), td->size_oh2);
+
 		save_pref_short(format("term%d.mapped", i), td->mapped);
 
 		save_pref_short(format("term%d.font_id", i), td->font_id);
@@ -3570,6 +3584,20 @@ static void cf_load_prefs()
 		load_pref_short(format("term%d.rows", i), &td->rows);
 		load_pref_short(format("term%d.left", i), &td->r.left);
 		load_pref_short(format("term%d.top", i), &td->r.top);
+
+		load_pref_short(format("term%d.font_mono", i), &td->font_mono); 
+		load_pref_short(format("term%d.font_o_x", i), &td->font_o_x);
+		load_pref_short(format("term%d.font_o_y", i), &td->font_o_y);
+		load_pref_short(format("term%d.font_wid", i), &td->font_wid);
+		load_pref_short(format("term%d.font_hgt", i), &td->font_hgt);
+		load_pref_short(format("term%d.tile_o_x", i), &td->tile_o_x);
+		load_pref_short(format("term%d.tile_o_y", i), &td->tile_o_y);
+		load_pref_short(format("term%d.right", i), &td->r.right);
+		load_pref_short(format("term%d.bottom", i), &td->r.bottom);
+		load_pref_short(format("term%d.ow1", i), &td->size_ow1);
+		load_pref_short(format("term%d.oh1", i), &td->size_oh1);
+		load_pref_short(format("term%d.ow2", i), &td->size_ow2);
+		load_pref_short(format("term%d.oh2", i), &td->size_oh2);
 	}
 }
 
@@ -3595,6 +3623,7 @@ static void term_data_hack(term_data *td)
 	/* Default borders */
 	td->size_ow1 = 2;
 	td->size_ow2 = 2;
+	td->size_oh1 = 2;
 	td->size_oh2 = 2;
 
 	/* Start hidden */

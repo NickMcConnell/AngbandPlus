@@ -4004,7 +4004,8 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 
 	if (fff)
 	{
-		if (!trim_down) fprintf(fff, "\n");
+		/* Flush the line position. */
+		text_out("\n");
 		text_out_file = NULL;
 	}
 	else

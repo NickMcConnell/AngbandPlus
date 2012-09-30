@@ -1,70 +1,11 @@
-T.o.M.E 2.3.3 aka "Realized Unreality" changes
+T.o.M.E 2.3.4 aka "An Unexpected Party" changes
 
 Interface changes:
-- Miscellaneous documentation, spelling and grammar fixes. -- gwooledge
-- Update AC display after fixing armor in the buildings. -- gwooledge
-- Fix damage display for Thaumaturgy ball spells. -- gwooledge
-- Honor exp_need option when displaying object experience. -- gwooledge
-- Restored and updated some missing help files. -- gwooledge
-- Handling of Command key modified in Mac OS X UI.  It should be accessible
-  in macros now if it wasn't before -- Neil
-
-Gameplay changes:
-- Lost sword quest rewards always give a minimum skill modifier of 0.3.
-  -- gwooledge
-- (Mass) Genocide damage is applied all at once to avoid bug #228.
-  -- gwooledge
-
-Monster changes:
-- Kavlax should be many-headed. -- gwooledge
-- Regular (non-Joke, non-Cth, non-Z) monsters should not breathe nuke,
-  because it has a side effect we don't want in ToME -- Neil
-
-Object changes:
-- Removed pointless slays, brands, and bonuses on Pick of Erebor --  Neil
-- When examining books, demonology equipment and instruments in stores, show
-  both the object's powers and its spells. -- gwooledge
-- Junk should stack just like skeletons.  Patch by StarweaverBlue.
-  -- gwooledge
-- Mac OS X builds now put all the game data into the bundle, storing all
-  user data in the user's Library (some preferences in
-  Library/Preferences/net.t-o-m-e.tome.plist, the rest in
-  Library/Application Support/ToME. -- Neil
-
-Player changes:
-- All new partial summon upkeep formula -- neil
-
-Dungeon changes:
-- Edit one vault to open up some inaccessible rooms -- Neil
-- A certain early trap should be less deadly (and appear a bit later).
-  -- gwooledge
+- Fix window position saving on Mac OS, patch by John Love-Jensen
+  -- Neil
 
 Bug fixes:
-- Alchemy: disallow repowering double-ego items, unless the character has
-  the artifact creation ability.  Based on patch by Andrey Egoshin.
-  -- gwooledge
-- Lost sword quest skill reward probabilities were computed incorrectly.
-  Fix suggested by Dan Rosenberry. -- gwooledge
-- Don't let a player trick the Valar by getting drained and re-gaining
-  levels -- Neil
-- Don't allow Runecraft and Thaumaturgy spells to go explode inside walls
-  and seep through --  Neil
-- When consuming magic essences, don't stop prematurely.  Based on patch
-  by Andrey Egoshin. -- gwooledge
-- Upkeep cost for partial summons was not always charged. -- gwooledge
-- Some staves were being generated with the wrong tval, causing several bugs
-  including (but not limited to) staves being unrechargeable. -- gwooledge
-- Saving throw was not calculated correctly. -- gwooledge
-- Disallow negative experience alchemy abuses.  Based on patch by Andrey
-  Egoshin. -- gwooledge
-- Nonliving and undead pets won't be angered by lack of breathable air.
-  -- gwooledge
-- Don't use the "POSIX" setuid calls on Mac OS X, as they apparently break
-  compilation -- neil
-- Certain monster spells were hard-coded for the wrong number of equipment
-  slots. -- gwooledge
-- Incorrect operator used in cave generation code.  Effect unknown, but it
-  *might* possibly fix some of the Orc cave crashes.-- gwooledge
-- Don't allow uniques or quest monsters to just disappear to the move of
-  another monster -- Neil
-- Attempt to work around some crashes in the fractal cave generator -- Neil
+- Remove buggy trap of Stair Movement -- Neil
+- Fix typo in one monster's flags - Iain
+- Fix word wrapping in character sheet, patch from "ZizzoTheInfinite"
+  -- Neil

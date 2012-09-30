@@ -276,7 +276,7 @@ D:You feel as if you've just lost something...
 F:FLOOR | CHEST | DOOR
 
 N:48:Trap of Stair Movement
-I:6:100:50:3:4:0d0:o
+I:6:0:50:3:4:0d0:o
 D:The dungeon seems different...
 F:FLOOR | CHEST | DOOR
 

@@ -3001,9 +3001,7 @@ void file_character_print_item(FILE *fff, char label, object_type *obj, bool ful
 	if ((artifact_p(obj) || ego_item_p(obj) || obj->tval == TV_RING || obj->tval == TV_AMULET || full) &&
 	                (obj->ident & IDENT_MENTAL))
 	{
-		fprintf(fff, "    ");
 		object_out_desc(obj, fff, TRUE, TRUE);
-		fprintf(fff, "\n");
 	}
 }
 

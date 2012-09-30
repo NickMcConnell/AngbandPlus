@@ -12,6 +12,8 @@
 
 #include "angband.h"
 
+#ifdef PRIVATE_USER_PATH
+
 static void module_reset_dir_aux(cptr dir, cptr new_path)
 {
 	char buf[1025];
@@ -27,6 +29,8 @@ static void module_reset_dir_aux(cptr dir, cptr new_path)
 	if (!private_check_user_directory(*d))
 		quit(format("Unable to create module dir %s\n", *d));
 }
+
+#endif
 
 void module_reset_dir(cptr dir, cptr new_path)
 {
