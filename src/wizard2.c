@@ -310,21 +310,21 @@ static void wiz_display_item(object_type *o_ptr)
 
 	prt_binary(f1, 9, j+2);
 	prt_binary(f3, 9, j+36);
-	prt("f .....AFFECT................SUST.  sfrtsig.LITEIGNRE.aiehs.dqtadlhp f", 10, j);
-	prt("l siwdcc..ssidsbsmhm........siwdcc  leeeenl.1234aefcd.cnzdh.ruegrccc l", 11, j);
-	prt("a tnieoh..trniplhaei........tnieoh  daglevo.....clioi.tskeo.nalgnuuu a", 12, j);
-	prt("g rtsxna..lcfgeoonlg........rtsxna  gteeiiw.....ierls.iantm.ikererrr g", 13, j);
-	prt("s ........t.r.ewtath..............  shnpns......dcede.vroyo.tepaxsss s", 14, j);
-	prt("1 ........h.a.dss.ht..............  tr..v...........n.atwpd.m..vpeee 3", 15, j);
+	prt("f .....AFFECT................SUST.  sfrtsig.LITEIGNRE.anehs.ddtadlhp f", 10, j);
+	prt("l siwdcc..ssidsbsmhm........siwdcc  leeeenl.1234aefcd.cozdh.riegrccc l", 11, j);
+	prt("a tnieoh..trniplhaei........tnieoh  daglevo.....clioi.trkeo.nslgnuuu a", 12, j);
+	prt("g rtsxna..lcfgeoonlg........rtsxna  gteeiiw.....ierls.iantm.irererrr g", 13, j);
+	prt("s ........t.r.ewtath..............  shnpns......dcede.vnoyo.tppaxsss s", 14, j);
+	prt("1 ........h.a.dss.ht..............  tr..v...........n.adwpd.mt.vpeee 3", 15, j);
 
 	prt_binary(f2, 17, j+2);
 	prt_binary(f4, 17, j+36);
 	prt("f IMMU........RESIST..............  ....SLAY................BRAND... f", 18, j);
-	prt("l aefcaefcfhbbpdldcsswnncdtm......  apecudotgdd.b...wt.....aefcvld.. l", 19, j);
-	prt("a cliocliorllroiiaonhtethiia......  nlvhnerrirr.l...or.....clioeia.. a", 20, j);
-	prt("g ierlierladiaistrndrrxhssmn......  iaiadmcoagg.e...ur.....ierlntr.. g", 21, j);
-	prt("s dceddcedclnvseekf.d..r.eea......  mnloeo.lnnn.s...no.....dcedoek.. s", 22, j);
-    prt("2 ........tfde.a.........n........  lt.sdn.lt.+.s...dr.........m.... 4", 23, j);
+	prt("l aefcaefcfhbbpdldcsswnncdtm......  apecudotgdd.b...wt..q..aefcvld.. l", 19, j);
+	prt("a cliocliorllroiiaonhtethiia......  nlvhnerrirr.l...or..u..clioeia.. a", 20, j);
+	prt("g ierlierladiaistrndrrxhssmn......  iaiadmcoagg.e...ur..a..ierlntr.. g", 21, j);
+	prt("s dceddcedclnvseekf.d..r.eea......  mnloeo.lnnn.s...no..k..dcedoek.. s", 22, j);
+    prt("2 ........tfde.a.........n........  lt.sdn.lt.+.s...dr..e......m.... 4", 23, j);
 }
 
 /*
@@ -448,8 +448,11 @@ static int wiz_create_itemtype(void)
 		/* Analyze matching items */
 		if (k_ptr->tval == tval)
 		{
-			/* Hack -- Skip instant artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			int j, k;
+
+			/* Skip items with no distribution (special artifacts) */
+			for (j = 0, k = 0; j < MAX_OBJ_ALLOC; j++) k += k_ptr->chance[j];
+			if (!(k))  continue; 
 
 			/* Prepare it */
 			row = 2 + (num % 21);

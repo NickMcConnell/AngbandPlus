@@ -1884,7 +1884,7 @@ static void calc_bonuses(void)
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
 	p_ptr->bless_blade = FALSE;
-	p_ptr->impact = FALSE;
+	p_ptr->disrupt = FALSE;
 	p_ptr->see_inv = FALSE;
 	p_ptr->free_act = FALSE;
 	p_ptr->slow_digest = FALSE;
@@ -1965,7 +1965,7 @@ static void calc_bonuses(void)
 	if (f4 & (TR4_BLESSED)) p_ptr->bless_blade = TRUE;
 
 	/* Bad flags */
-	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
+	if (f3 & (TR3_DISRUPT)) p_ptr->disrupt = TRUE;
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
@@ -2080,7 +2080,7 @@ static void calc_bonuses(void)
 		if (f4 & (TR4_BLESSED)) p_ptr->bless_blade = TRUE;
 
 		/* Bad flags */
-		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
+		if (f3 & (TR3_DISRUPT)) p_ptr->disrupt = TRUE;
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;

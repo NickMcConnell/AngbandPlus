@@ -858,7 +858,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 				break;
 			}
 
-			
 			sq_flag = ((k_info[o_ptr->k_idx].squelch) & (k_info[o_ptr->k_idx].aware));
 
 			if (!sq_flag) 

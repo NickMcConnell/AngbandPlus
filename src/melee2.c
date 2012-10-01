@@ -54,6 +54,41 @@ static bool int_outof(monster_race *r_ptr, int prob)
 }
 
 /*
+ * Check player invisibilty - Returns true if the player is not seen
+ * Might also mark monster memory
+ */
+static bool check_player_visibility(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+	int sk = p_ptr->skill[SK_STL];
+
+	/* Make monsters move stupidly if they can't see invisible, or they are blinded */
+	if ((m_ptr->blinded) || (!(r_ptr->flags2 & (RF2_SEE_INVIS)) && (p_ptr->invis)))
+	{
+		int chance = ((sk > 5) ? ((50+sk*5)/2)+1 : sk*5+1);
+
+		/* Always some chance of not being spotted */
+		if (chance < 9) chance = 9;
+
+		/* Chance of seeing player depends on stealth */
+ 		if (randint(chance) > 8)
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+	
+	if ((p_ptr->invis) && (r_ptr->flags2 & (RF2_SEE_INVIS)) && (m_ptr->ml))
+		l_ptr->r_flags2 |= (RF2_SEE_INVIS);
+
+	return FALSE;
+}
+
+/*
  * Remove the "bad" spells from a spell list
  */
 static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
@@ -344,8 +379,6 @@ static bool summon_possible(int y1, int x1)
 	return FALSE;
 }
 
-
-
 /*
  * Determine if a bolt spell will hit the player.
  *
@@ -508,14 +541,22 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	}
 
 	/* Limit spell choice if they can't see player (not LOS) */
-	if ((m_ptr->blinded) || (!(r_ptr->flags2 & (RF2_SEE_INVIS)) && (p_ptr->invis)))
+	if (check_player_visibility(m_idx))
 	{
-		/* Chance of seeing player depends on stealth */
-		if (randint(p_ptr->skill[SK_STL] * 5) + 1 > 8)
+		/* No spells that require targetting, and only a 50% chance of non-healing
+		   spells */
+		if (rand_int(100)<50)
 		{
 			f4 &= ~(RF4_SIGHT_MASK);
 			f5 &= ~(RF5_SIGHT_MASK);
 			f6 &= ~(RF6_SIGHT_MASK);
+		}
+		else
+		{
+			/* Always enable healing spells */
+			f4 &= (RF4_HEAL_MASK);
+			f5 &= (RF5_HEAL_MASK);
+			f6 &= (RF6_HEAL_MASK);
 		}
 	}
 
@@ -3682,20 +3723,8 @@ static void process_monster(int m_idx)
 	/* Attempt to cast a spell */
 	if (make_attack_spell(m_idx)) return;
 
-	/* Reset */
-	stagger = FALSE;
-
-	/* Make monsters move stupidly if they can't see invisible, or they are blinded */
-	if ((m_ptr->blinded) || (!(r_ptr->flags2 & (RF2_SEE_INVIS)) && (p_ptr->invis)))
-	{
-		/* Chance of seeing player depends on stealth */
-		if (randint(p_ptr->skill[SK_STL] * 5)+1 > 8)
-		{
-			stagger = TRUE;
-		}
-	}
-	else if ((r_ptr->flags2 & (RF2_SEE_INVIS)) && (p_ptr->invis) && (m_ptr->ml))
-		l_ptr->r_flags2 |= (RF2_SEE_INVIS);
+	/* Check for player invisibility/monster blindness*/
+	stagger = check_player_visibility(m_idx);
 
 	/* Confused */
 	if (m_ptr->confused)

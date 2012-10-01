@@ -845,7 +845,6 @@ errr process_pref_file(cptr name)
 			continue;
 		}
 
-
 		/* Process the line */
 		err = process_pref_file_aux(buf);
 
@@ -1817,7 +1816,7 @@ static flag_desc flag_list[3][18] =
 		{1, TR1_MANA,				 0, "     Mana:"},
 		{1, TR1_HEALTH,				 0, "   Health:"},
 		{1, TR1_MIGHT,				 0, "    Might:"},
-		{3,	TR3_IMPACT,				 0,	"   Impact:"},
+		{3,	TR3_DISRUPT,			 0, "  Disrupt:"},
 		{3, TR3_DRAIN_ITEM,			 0, "Drn Items:"},
 		{3, TR3_DRAIN_EXP,			 0, "Drn   Exp:"},
 		{3, TR3_TELEPORT,			 0, " Teleport:"},
@@ -2008,11 +2007,11 @@ static void display_player_flag_info(void)
 		}
 	}
 
-	prt("---SLAY---X b   wt     -BRAND-", 17, 46);
-	prt("apecudotgdd l   oe     aefcvld", 18, 46);
-	prt("nlvhnerrirr e   ur     clioeia", 19, 46);
-	prt("mniodmclngg s   no     ierlntr", 20, 46);
-	prt("ltlsdn.ltnn s   dr     dcedmek", 21, 46);
+	prt("---SLAY---X b   wt  q  -BRAND-", 17, 46);
+	prt("apecudotgdd l   oe  u  aefcvld", 18, 46);
+	prt("nlvhnerrirr e   ur  a  clioeia", 19, 46);
+	prt("mniodmclngg s   no  k  ierlntr", 20, 46);
+	prt("ltlsdn.ltnn s   dr  e  dcedmek", 21, 46);
 
 }
 
@@ -2106,7 +2105,6 @@ static void display_player_misc_info(void)
 	/* Status */
 	Term_putstr(col, 5, -1, TERM_WHITE, "Status");
 	Term_putstr(col+14, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
-
 }
 
 /*
@@ -2930,7 +2928,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
+		prt(format("[EyAngband %d.%d.%d, %s, Line %d/%d]",
 		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 		           caption, line, size), 0, 0);
 
@@ -3672,7 +3670,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Angband Hall of Fame", 0, 0);
+		put_str("              EyAngband Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)

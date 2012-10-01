@@ -12,8 +12,6 @@
 
 #include "z-util.h"
 
-
-
 /*
  * Global variables for temporary use
  */
@@ -25,15 +23,11 @@ long long_tmp = 0;
 huge huge_tmp = 0;
 errr errr_tmp = 0;
 
-
 /*
  * Global pointers for temporary use
  */
 cptr cptr_tmp = NULL;
 vptr vptr_tmp = NULL;
-
-
-
 
 /*
  * Constant bool meaning true
@@ -63,7 +57,6 @@ vptr vptr_null = NULL;
  * Global SELF vptr
  */
 vptr vptr_self = (vptr)(&vptr_self);
-
 
 
 /*

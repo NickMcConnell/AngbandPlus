@@ -801,7 +801,6 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_SCROLL:
 				case TV_POTION:
 				case TV_POWDER:
 				break;
@@ -1400,7 +1399,7 @@ static void display_entry(int item)
 		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
 		else
 		{
-			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].x_attr;
+			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].d_attr;
 			else attr = TERM_L_DARK;
 		}
 
@@ -3367,7 +3366,6 @@ void do_cmd_store(void)
 
 				char o_name[80];
 
-
 				/* Give a message */
 				msg_print("Your pack overflows!");
 
@@ -3413,7 +3411,6 @@ void do_cmd_store(void)
 		/* Hack -- get kicked out of the store */
 		if (st_ptr->store_open >= turn) leave_store = TRUE;
 	}
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;

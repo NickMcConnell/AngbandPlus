@@ -38,7 +38,6 @@ static void special_level(void)
 		p_ptr->racial_power = 0;
 	}
 	
-
 	p_ptr->redraw |= (PR_STATS | PR_MISC);
 	return;
 }
@@ -70,9 +69,8 @@ void check_experience(void)
 	handle_stuff();
 
 	/* Lose levels while possible */
-	while ((p_ptr->lev > 1) &&
-	       (p_ptr->exp < (player_exp[p_ptr->lev-2] *
-	                      p_ptr->expfact / 100L)))
+	while ((p_ptr->lev > 1) && 
+		(p_ptr->exp < (player_exp[p_ptr->lev-2] * p_ptr->expfact / 100L)))
 	{
 		/* Lose a level */
 		p_ptr->lev--;
@@ -89,7 +87,6 @@ void check_experience(void)
 		/* Handle stuff */
 		handle_stuff();
 	}
-
 
 	/* Gain levels while possible */
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
@@ -182,7 +179,7 @@ void monster_death(int m_idx)
 	int completed = 0;
 	int level_total = 0;
 
-	bool fixedquest;
+	bool fixedquest = FALSE;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -198,11 +195,8 @@ void monster_death(int m_idx)
 	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
 
-	int force_coin = get_coin_type(r_ptr);
-
 	object_type *i_ptr;
 	object_type object_type_body;
-
 
 	/* Get the location */
 	y = m_ptr->fy;
@@ -241,7 +235,6 @@ void monster_death(int m_idx)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 
-
 	/* Mega-Hack -- drop "winner" treasures */
 	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
 	{
@@ -260,7 +253,6 @@ void monster_death(int m_idx)
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
 
-
 		/* Get local object */
 		i_ptr = &object_type_body;
 
@@ -277,7 +269,6 @@ void monster_death(int m_idx)
 		drop_near(i_ptr, -1, y, x);
 	}
 
-
 	/* Determine how much we can drop */
 	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
 	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
@@ -287,7 +278,7 @@ void monster_death(int m_idx)
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
 
 	/* Hack -- handle creeping coins */
-	coin_type = force_coin;
+	coin_type = get_coin_type(r_ptr);
 
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
@@ -331,7 +322,6 @@ void monster_death(int m_idx)
 	/* Reset "coin" type */
 	coin_type = 0;
 
-
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
 	{
@@ -339,14 +329,8 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
-
 	/* Only process dungeon kills */
 	if (!p_ptr->depth) return;
-
-	/* Reset counters */
-	completed = 0;
-	level_total = 0;
-	fixedquest = FALSE;
 
 	/* Count incomplete quests */
 	for (i = 0; i < z_info->q_max; i++)
@@ -429,7 +413,6 @@ void monster_death(int m_idx)
 		/* Fully update the flow */
 		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 	}
-
 
 	/* Nothing left, game over... */
 	else 
@@ -533,13 +516,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Angels get less exp for non-evil non-uniques */
 		if  (!(r_ptr->flags1 & (RF1_UNIQUE)) && 
-			(rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags2 & (RF2_EVIL))) div *=3;
+			(rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags2 & (RF2_EVIL))) div *=2;
 		
 		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+		new_exp = (long)r_ptr->mexp / div;
 
 		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+		new_exp_frac = (((long)r_ptr->mexp % div)
 		                * 0x10000L / div) + p_ptr->exp_frac;
 
 		/* Keep track of experience */
@@ -561,7 +544,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
-
+		
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
@@ -1028,7 +1011,7 @@ sint motion_dir(int y1, int x1, int y2, int x2)
  */
 sint target_dir(char ch)
 {
-	int d;
+	int d = 0;
 
 	int mode;
 
@@ -1036,33 +1019,39 @@ sint target_dir(char ch)
 
 	cptr s;
 
-
-	/* Default direction */
-	d = (isdigit(ch) ? D2I(ch) : 0);
-
-	/* Roguelike */
-	if (rogue_like_commands)
-	{
-		mode = KEYMAP_MODE_ROGUE;
+	/* Already a direction? */
+	if (isdigit(ch))
+ 	{
+		d = D2I(ch);
 	}
 
-	/* Original */
 	else
 	{
-		mode = KEYMAP_MODE_ORIG;
-	}
-
-	/* Extract the action (if any) */
-	act = keymap_act[mode][(byte)(ch)];
-
-	/* Analyze */
-	if (act)
-	{
-		/* Convert to a direction */
-		for (s = act; *s; ++s)
+		/* Roguelike */
+		if (rogue_like_commands)
 		{
-			/* Use any digits in keymap */
-			if (isdigit(*s)) d = D2I(*s);
+			mode = KEYMAP_MODE_ROGUE;
+		}
+
+		/* Original */
+		else
+		{
+			mode = KEYMAP_MODE_ORIG;
+		}
+
+		/* Extract the action (if any) */
+		act = keymap_act[mode][(byte)(ch)];
+
+		/* Analyze */
+		if (act)
+
+		{
+			/* Convert to a direction */
+			for (s = act; *s; ++s)
+			{
+				/* Use any digits in keymap */
+				if (isdigit(*s)) d = D2I(*s);
+			}
 		}
 	}
 
@@ -1072,7 +1061,6 @@ sint target_dir(char ch)
 	/* Return direction */
 	return (d);
 }
-
 
 /*
  * Determine is a monster makes a reasonable target

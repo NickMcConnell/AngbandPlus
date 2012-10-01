@@ -21,6 +21,7 @@
 #   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
 #   Angel         --> 67 --> 68 --> 69
 #   Demon         --> 70 --> 71 --> (72) --> 73
+#   Nilbog        --> 74
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -28,7 +29,7 @@
 
 # Version stamp (required)
 
-V:0.2.0
+V:0.2.1
 
 N:1:2:10:25
 D:You are the illegitimate and unacknowledged child 
@@ -352,3 +353,10 @@ D:who arranged for your banishment due to some percieved trechery,
 
 N:73:0:100:50
 D:and now you seek revenge.
+
+N:74:75:100:75
+D:A creature spawned by the powers of unmagic for reasons unknown, 
+
+N:75:0:100:50
+D:your past is as mysterious as your true nature.
+

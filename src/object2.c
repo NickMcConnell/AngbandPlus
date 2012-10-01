@@ -1684,7 +1684,7 @@ static bool make_artifact_special(object_type *o_ptr)
 	if (!p_ptr->depth) return (FALSE);
 
 	/* Check the special artifacts */
-	for (i = 0; i < ART_MIN_NORMAL; ++i)
+	for (i = 0; i < z_info->a_min_normal; ++i)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
@@ -1755,7 +1755,7 @@ static bool make_artifact(object_type *o_ptr)
 	if (o_ptr->number != 1) return (FALSE);
 
 	/* Check the artifact list (skip the "specials") */
-	for (i = ART_MIN_NORMAL; i < z_info->a_max; i++)
+	for (i = z_info->a_min_normal; i < z_info->a_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
@@ -1884,11 +1884,20 @@ static void charge_staff(object_type *o_ptr)
  */
 static void a_m_aux_1(object_type *o_ptr, int level, int power)
 {
-	int tohit1 = randint(5) + m_bonus(5, level);
-	int todam1 = randint(5) + m_bonus(5, level);
+	int max_bonus = wgt_factor(o_ptr);
 
-	int tohit2 = m_bonus(10, level);
-	int todam2 = m_bonus(10, level);
+	int tohit1,todam1;
+	int tohit2,todam2;
+
+	/* Hack - ammo and shooters always gets max_bonus of 10 */
+	if ((o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_SHOT) ||
+		(o_ptr->tval == TV_BOW)) max_bonus = 10;
+
+	tohit1 = randint(5) + m_bonus(5, level);
+	todam1 = randint(max_bonus/2) + m_bonus(max_bonus/2, level);
+
+	tohit2 = m_bonus(10, level);
+	todam2 = m_bonus(max_bonus, level);
 
 	/* Good */
 	if (power > 0)

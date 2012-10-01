@@ -47,11 +47,11 @@ static s16b stat_use[6];
  */
 static start_item start_kit[5] =
 {
-	{TV_LITE, SV_LANTERN, 1, 1},
-	{TV_FLASK, SV_FLASK_LANTERN, 4, 4},
-	{TV_CLOAK, SV_CLOAK, 1, 1},
-	{TV_SCROLL, SV_SCROLL_PHASE_DOOR,1 ,1},
-	{TV_POTION, SV_POTION_CURE_LIGHT,1 ,1}
+	{TV_LITE, SV_LANTERN, 0, 1, 1},
+	{TV_FLASK, SV_FLASK_LANTERN, 0, 4, 4},
+	{TV_CLOAK, SV_CLOAK, 0, 1, 1},
+	{TV_SCROLL, SV_SCROLL_PHASE_DOOR, 0, 1, 1},
+	{TV_POTION, SV_POTION_CURE_LIGHT, 0, 1, 1}
 };
 
 /*
@@ -236,7 +236,6 @@ static void get_extra(void)
 	/* Pre-calculate level 1 hitdice */
 	p_ptr->player_hp[0] = p_ptr->hitdie;
 
-
 	/* Hack - Get the hitpoints for non-random hp characters.  
 	 * Each level provides exactly average hitpoints.
 	 * If the average is a fraction, alternate.
@@ -272,7 +271,8 @@ static void get_extra(void)
 			/* Acceptable */
 			break;
 		}
-	}}
+	}
+}
 
 /*
  * Get the racial history, and social class, using the "history charts".
@@ -434,10 +434,8 @@ static void player_wipe(void)
 {
 	int i;
 
-
 	/* Wipe the player */
 	(void)WIPE(p_ptr, player_type);
-
 
 	/* Clear the inventory */
 	for (i = 0; i < INVEN_MAX; i++)
@@ -570,7 +568,8 @@ static void player_outfit(void)
 				if ((e_ptr->tval == TV_LITE) && (e_ptr->sval == SV_LANTERN))
 					i_ptr->timeout = 7500;
 
-				i_ptr->number = rand_int(e_ptr->max - e_ptr->min) + e_ptr->min;;
+				i_ptr->number = rand_int(e_ptr->max - e_ptr->min) + e_ptr->min;
+
 				object_aware(i_ptr);
 				object_known(i_ptr);
 				(void)inven_carry(i_ptr);
@@ -604,6 +603,10 @@ static void player_outfit(void)
 		{
 			object_prep(i_ptr, lookup_kind(e_ptr->tval, e_ptr->sval));
 			i_ptr->number = rand_int(e_ptr->max - e_ptr->min + 1) + e_ptr->min;
+
+			/* make ego item if necessary */
+			if (e_ptr->ego) i_ptr->name2 = e_ptr->ego;
+
 			object_aware(i_ptr);
 			object_known(i_ptr);
 			(void)inven_carry(i_ptr);
@@ -644,7 +647,6 @@ static bool player_birth_aux_1(void)
 	            "some special responses, including 'Q' to quit, 'S' to restart,");
 	Term_putstr(5, 13, -1, TERM_WHITE,
 	            "and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
-
 
 	/*** Player sex ***/
 
@@ -692,7 +694,6 @@ static bool player_birth_aux_1(void)
 
 	/* Clean up */
 	clear_from(15);
-
 
 	/*** Player race ***/
 

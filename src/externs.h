@@ -57,6 +57,7 @@ extern player_sex sex_info[MAX_SEXES];
 extern spell_book instruments[SV_MAX_MUSIC];
 extern spell_book books[SV_MAX_BOOKS];
 extern player_race_special race_special_info[2][RACE_SPECIAL_LEVELS];
+extern byte max_item_plus[30];
 extern byte chest_traps[64];
 extern cptr color_names[16];
 extern cptr stat_names[6];

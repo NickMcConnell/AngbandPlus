@@ -167,6 +167,8 @@ struct maxima
 	u16b m_max;		/* Max size for "m_list[]" */
 
 	u16b q_max;		/* Max size for "q_info[]" */
+
+	u16b a_min_normal;	/* First normal artifact */
 };
 
 /*
@@ -196,53 +198,52 @@ struct feature_type
  */
 struct object_kind
 {
-	u32b name;			/* Name (offset) */
+	u32b name;					/* Name (offset) */
 
-	byte tval;			/* Object type */
-	byte sval;			/* Object sub type */
+	byte tval;					/* Object type */
+	byte sval;					/* Object sub type */
 
-	s16b pval;			/* Object extra info */
+	s16b pval;					/* Object extra info */
 
-	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to damage */
-	s16b to_a;			/* Bonus to armor */
+	s16b to_h;					/* Bonus to hit */
+	s16b to_d;					/* Bonus to damage */
+	s16b to_a;					/* Bonus to armor */
 
-	s16b ac;			/* Base armor */
+	s16b ac;					/* Base armor */
 
-	byte dd, ds;		/* Damage dice/sides */
+	byte dd, ds;				/* Damage dice/sides */
 
-	s16b weight;		/* Weight */
+	s16b weight;				/* Weight */
 
-	s32b cost;			/* Object "base cost" */
+	s32b cost;					/* Object "base cost" */
 
-	u32b flags1;		/* Flags, set 1 */
-	u32b flags2;		/* Flags, set 2 */
-	u32b flags3;		/* Flags, set 3 */
-	u32b flags4;		/* Flags, set 4 */
+	u32b flags1;				/* Flags, set 1 */
+	u32b flags2;				/* Flags, set 2 */
+	u32b flags3;				/* Flags, set 3 */
+	u32b flags4;				/* Flags, set 4 */
 
-	byte locale[4];		/* Allocation level(s) */
-	byte chance[4];		/* Allocation chance(s) */
+	byte locale[MAX_OBJ_ALLOC];	/* Allocation level(s) */
+	byte chance[MAX_OBJ_ALLOC];	/* Allocation chance(s) */
 
-	byte level;			/* Level */
-	byte extra;			/* Something */
+	byte level;					/* Level */
+	byte extra;					/* Something */
 
+	byte d_attr;				/* Default object attribute */
+	char d_char;				/* Default object character */
 
-	byte d_attr;		/* Default object attribute */
-	char d_char;		/* Default object character */
+	byte x_attr;				/* Desired object attribute */
+	char x_char;				/* Desired object character */
 
-	byte x_attr;		/* Desired object attribute */
-	char x_char;		/* Desired object character */
+	byte flavor;				/* Special object flavor (or zero) */
 
-	byte flavor;		/* Special object flavor (or zero) */
+	bool easy_know;				/* This object is always known (if aware) */
 
-	bool easy_know;		/* This object is always known (if aware) */
+	bool aware;					/* The player is "aware" of the item's effects */
 
-	bool aware;			/* The player is "aware" of the item's effects */
+	bool tried;					/* The player has "tried" one of the items */
 
-	bool tried;			/* The player has "tried" one of the items */
-
-	bool squelch;		/* squelch item if known            */
-	bool everseen;		/* Used to despoilify squelch menus */
+	bool squelch;				/* squelch item if known            */
+	bool everseen;				/* Used to despoilify squelch menus */
 };
 
 /*
@@ -767,6 +768,7 @@ struct start_item
 {
 	byte tval;	/* Item's Tval */
 	byte sval;	/* Item's Sval */
+	byte ego;   /* Item's Name2 */
 	byte min;	/* Minimum starting amount */
 	byte max;	/* Maximum starting amount */
 };
@@ -1118,7 +1120,7 @@ struct player_type
 	bool invis;			/* Invisible */
 	bool see_inv;		/* See invisible */
 
-	bool impact;		/* Earthquake blows */
+	bool disrupt;		/* Disrupt spells */
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */
 	bool exp_drain;		/* Experience draining */

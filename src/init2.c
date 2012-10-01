@@ -345,7 +345,7 @@ static errr init_z_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'z_info.txt'.", err, error_line);
@@ -559,7 +559,7 @@ static errr init_f_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'f_info.txt'.", err, error_line);
@@ -777,7 +777,7 @@ static errr init_k_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'k_info.txt'.", err, error_line);
@@ -997,7 +997,7 @@ static errr init_a_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'a_info.txt'.", err, error_line);
@@ -1216,7 +1216,7 @@ static errr init_e_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'e_info.txt'.", err, error_line);
@@ -1447,7 +1447,7 @@ static errr init_r_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'r_info.txt'.", err, error_line);
@@ -1676,7 +1676,7 @@ static errr init_v_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'v_info.txt'.", err, error_line);
@@ -1898,7 +1898,7 @@ static errr init_p_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'p_info.txt'.", err, error_line);
@@ -2127,7 +2127,7 @@ static errr init_c_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'c_info.txt'.", err, error_line);
@@ -2346,7 +2346,7 @@ static errr init_h_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'h_info.txt'.", err, error_line);
@@ -2561,7 +2561,7 @@ static errr init_b_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'b_info.txt'.", err, error_line);
@@ -2765,7 +2765,7 @@ static errr init_g_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'g_info.txt'.", err, error_line);
@@ -2977,7 +2977,7 @@ static errr init_q_info(void)
 		cptr oops;
 
 		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 		/* Oops */
 		msg_format("Error %d at line %d of 'q_info.txt'.", err, error_line);
@@ -3701,7 +3701,7 @@ static errr init_alloc(void)
 		k_ptr = &k_info[i];
 
 		/* Scan allocation pairs */
-		for (j = 0; j < 4; j++)
+		for (j = 0; j < MAX_OBJ_ALLOC; j++)
 		{
 			/* Count the "legal" entries */
 			if (k_ptr->chance[j])
@@ -3739,7 +3739,7 @@ static errr init_alloc(void)
 		k_ptr = &k_info[i];
 
 		/* Scan allocation pairs */
-		for (j = 0; j < 4; j++)
+		for (j = 0; j < MAX_OBJ_ALLOC; j++)
 		{
 			/* Count the "legal" entries */
 			if (k_ptr->chance[j])

@@ -1401,7 +1401,7 @@ static bool vault_aux_rodent(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Require icky thing, jelly, mold, or mushroom */
+	/* Require rodent */
 	if (!strchr("r", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
@@ -1420,6 +1420,23 @@ static bool vault_aux_jelly(int r_idx)
 
 	/* Require icky thing, jelly, mold, or mushroom */
 	if (!strchr("ijm,", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Helper function for "monster nest (rodent)"
+ */
+static bool vault_aux_treasure(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Require treasure */
+	if (!strchr("$", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1569,6 +1586,7 @@ static bool vault_aux_demon(int r_idx)
  * Currently, a monster nest is one of
  *   a nest of "rodent" monsters  (Dungeon level 5 and deeper)
  *   a nest of "jelly" monsters   (Dungeon level 10 and deeper)
+ *   a nest of "treasure" monsters(Dungeon level 15 and deeper)
  *   a nest of "animal" monsters  (Dungeon level 30 and deeper)
  *   a nest of "undead" monsters  (Dungeon level 50 and deeper)
  *
@@ -1631,13 +1649,23 @@ static void build_type5(int y0, int x0)
 	}
 
 	/* Monster nest (jelly) */
-	else if (tmp < 30)
+	else if (tmp < 15)
 	{
 		/* Describe */
 		name = "jelly";
 
 		/* Restrict to jelly */
 		get_mon_num_hook = vault_aux_jelly;
+	}
+
+	/* Monster nest (treasure) */
+	else if (tmp < 30)
+	{
+		/* Describe */
+		name = "treasure";
+
+		/* Restrict to jelly */
+		get_mon_num_hook = vault_aux_treasure;
 	}
 
 	/* Monster nest (animal) */

@@ -631,6 +631,9 @@ static void process_world(void)
 			msg_print("You suffer an attack of your disease -");
 			(void)do_dec_stat(i,10,FALSE,(bool)rand_int(1));
 			p_ptr->update |= (PU_BONUS);
+
+			/* Disturb */
+			if (disturb_state) disturb(0);
 		}
 		else if (i == A_MAX)
 		{
@@ -1054,7 +1057,7 @@ static void process_world(void)
 	/* Handle item draining */
 	if (p_ptr->item_drain)
 	{
-		if ((!p_ptr->resist_disen) && (rand_int(100) < 5))
+		if (rand_int(1000) < ((p_ptr->resist_disen) ? 1 : 50))
 		{
 			/* Ten attempts at disenchanting something */
 			for (i = 0; i<10 ; i++)

@@ -1601,7 +1601,7 @@ spell_book books[SV_MAX_BOOKS] =
 		{
 			{ SP_BRAND_AMMO_ANIMAL,	"Hunter's Arrows & Bolts",  18, 25, 60,	  6},
 			{ SP_CALM_ANIMALS,		"Calm Animals",				23, 35, 55,   8},
-			{ SP_BRAND_AMMO_WOUND,	"Enchant Arrows & Bolts",   28, 25, 70,   2},
+			{ SP_BRAND_AMMO_WOUND,	"Sharpen Arrows & Bolts",   28, 25, 70,   2},
 			{ SP_HASTE_SELF_1,		"Haste Self",				33, 12, 90,  10},
 			{ SP_BRAND_AMMO_ELEMNT,	"Elemental Arrows & Bolts", 43, 40, 80,  10},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
@@ -1807,6 +1807,16 @@ spell_book books[SV_MAX_BOOKS] =
 			{ 0, NULL, 99,  0, 0, 0}
 		}
 	}
+};
+
+/*
+ * The max plusses per item weight, in increments of 1 pound
+ */
+byte max_item_plus[30] =
+{
+	3,   4,  4,  5,  5,  6,  6,  7,  8,  8, 
+	9,  10, 10, 10, 10, 12, 12, 14, 14, 14,
+	16, 16, 16, 18, 18, 18, 18, 18, 20, 20
 };
 
 /*

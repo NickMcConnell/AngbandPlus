@@ -760,6 +760,7 @@ void reset_visuals(bool unused)
 	/* Extract default attr/char code for features */
 	for (i = 0; i < z_info->f_max; i++)
 	{
+
 		feature_type *f_ptr = &f_info[i];
 
 		/* Assume we will use the underlying values */
@@ -793,7 +794,6 @@ void reset_visuals(bool unused)
 		/* Default to white */
 		tval_to_attr[i] = TERM_WHITE;
 	}
-
 
 	/* Graphic symbols */
 	if (use_graphics)
@@ -1691,7 +1691,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		object_desc_str_macro(t, tail);
 	}
 
-
 	/* Display the item like a weapon */
 	if (f3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
 
@@ -1700,7 +1699,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	/* Display the item like armour */
 	if (o_ptr->ac) show_armour = TRUE;
-
 
 	/* Dump base weapon info */
 	switch (o_ptr->tval)
@@ -2069,7 +2067,6 @@ object_desc_done:
 	strcpy(buf, tmp_buf);
 }
 
-
 /*
  * Hack -- describe an item currently in a store's inventory
  * This allows an item to *look* like the player is "aware" of it
@@ -2084,7 +2081,6 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 
 	/* Save the "known" flag */
 	bool hack_known = (o_ptr->ident & (IDENT_KNOWN)) ? TRUE : FALSE;
-
 
 	/* Clear the flavor */
 	k_info[o_ptr->k_idx].flavor = FALSE;
@@ -2109,7 +2105,6 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Clear the known flag */
 	if (!hack_known) o_ptr->ident &= ~(IDENT_KNOWN);
 }
-
 
 static cptr act_description[ACT_MAX] =
 {
@@ -2492,6 +2487,10 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It strikes fear into the hearts of your foes.";
 	}
+	if (f4 & (TR4_IMPACT))
+	{
+		info[i++] = "It induces earthquakes.";
+	}
 	if (f4 & (TR4_BRAND_ACID))
 	{
 		info[i++] = "It does extra damage from acid.";
@@ -2652,9 +2651,9 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It provides resistance to life draining.";
 	}
-	if (f3 & (TR3_IMPACT))
+	if (f3 & (TR3_DISRUPT))
 	{
-		info[i++] = "It induces earthquakes.";
+		info[i++] = "It disrupts spellcasting.";
 	}
 	if (f3 & (TR3_TELEPORT))
 	{
@@ -2766,10 +2765,8 @@ bool identify_fully_aux(object_type *o_ptr)
 	prt("[Press any key to continue]", k, 0);
 	(void)inkey();
 
-
 	/* Load screen */
 	screen_load();
-
 
 	/* Gave knowledge */
 	return (TRUE);
@@ -3203,8 +3200,6 @@ void display_inven(void)
 	}
 }
 
-
-
 /*
  * Choice window "shadow" of the "show_equip()" function
  */
@@ -3217,7 +3212,6 @@ void display_equip(void)
 	char tmp_val[80];
 
 	char o_name[80];
-
 
 	/* Display the equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -3280,8 +3274,6 @@ void display_equip(void)
 		Term_erase(0, i, 255);
 	}
 }
-
-
 
 /*
  * Display the inventory.
@@ -3403,7 +3395,6 @@ void show_inven(void)
 	/* Make a "shadow" below the list (only if needed) */
 	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
 }
-
 
 /*
  * Display the equipment.
@@ -3527,7 +3518,6 @@ void show_equip(void)
 	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
 }
 
-
 /*
  * Display a list of the items on the floor at the given location.
  */
@@ -3545,7 +3535,6 @@ void show_floor(int *floor_list, int floor_num)
 	int out_index[24];
 	byte out_color[24];
 	char out_desc[24][80];
-
 
 	/* Default length */
 	len = 79 - 50;
@@ -3667,9 +3656,6 @@ void toggle_inven_equip(void)
 	}
 }
 
-
-
-
 /*
  * Verify the choice of an item.
  *
@@ -3704,7 +3690,6 @@ static bool verify_item(cptr prompt, int item)
 	/* Query */
 	return (get_check(out_val));
 }
-
 
 /*
  * Hack -- allow user to "prevent" certain choices.
@@ -3753,7 +3738,6 @@ static bool get_item_allow(int item)
 	return (TRUE);
 }
 
-
 /*
  * Verify the "okayness" of a given item.
  *
@@ -3779,8 +3763,6 @@ static bool get_item_okay(int item)
 	return (item_tester_okay(o_ptr));
 }
 
-
-
 /*
  * Find the "first" inventory object with the given "tag".
  *
@@ -3794,7 +3776,6 @@ static int get_tag(int *cp, char tag)
 {
 	int i;
 	cptr s;
-
 
 	/* Check every object */
 	for (i = 0; i < INVEN_TOTAL; ++i)
@@ -3841,8 +3822,6 @@ static int get_tag(int *cp, char tag)
 	/* No such tag */
 	return (FALSE);
 }
-
-
 
 /*
  * Let the user select an item, save its "index"
@@ -4072,7 +4051,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Save screen */
 		screen_save();
 	}
-
 
 	/* Repeat until done */
 	while (!done)

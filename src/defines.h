@@ -39,14 +39,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.2.0"
+#define VERSION_STRING	"0.2.1"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	2
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 /*
@@ -124,6 +124,10 @@
  */
 #define MAX_START_ITEMS	4
 
+/*
+ * Maximum amount of allocations for an object
+ */
+#define MAX_OBJ_ALLOC	4
 /*
  * Maximum number of high scores in the high score file
  */
@@ -875,13 +879,6 @@
 /* Digging Tools */
 #define ART_NAIN			163
 #define ART_GLOD			164
-
-/*
- * Hack -- first "normal" artifact in the artifact list.  All of
- * the artifacts with indexes from 1 to 20 are "special" (lights,
- * rings, amulets), and the ones from 21 to 132 are "normal".
- */
-#define ART_MIN_NORMAL		21
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
@@ -2092,7 +2089,7 @@
 #define TR3_SEE_INVIS		0x00000010L	/* See invis */
 #define TR3_INVIS			0x00000020L	/* Invisibility*/
 #define TR3_GLOW			0x00000040L	/* Perma-lite */
-#define TR3_XX1				0x00000080L
+#define TR3_XXX1			0x00000080L
 #define TR3_LITE1			0x00000100L
 #define TR3_LITE2			0x00000200L
 #define TR3_LITE3			0x00000400L
@@ -2104,13 +2101,13 @@
 #define TR3_IGNORE_DISEN	0x00010000L	/* Item ignores Disenchantment */  
 #define TR3_XXX2			0x00020000L	
 #define TR3_ACTIVATE		0x00040000L	/* Item can be activated */
-#define TR3_INSTA_ART		0x00080000L	/* Item makes an artifact */
+#define TR3_DONT_RANDOMIZE	0x00800000L /* Artifact will not become randart */
 #define TR3_EASY_KNOW		0x00100000L	/* Item is known if aware */
 #define TR3_HIDE_TYPE		0x00200000L	/* Item hides description */
 #define TR3_SHOW_MODS		0x00400000L	/* Item shows Tohit/Todam */
-#define TR3_XXX3			0x00800000L
+#define TR3_XXX3			0x00080000L	
 #define TR3_DRAIN_ITEM		0x01000000L	/* Drains other items */ 
-#define TR3_IMPACT			0x02000000L	/* Earthquake blows */
+#define TR3_DISRUPT			0x02000000L	/* Interferes with spellcasting */
 #define TR3_TELEPORT		0x04000000L	/* Random teleportation */
 #define TR3_AGGRAVATE		0x08000000L	/* Aggravate monsters */
 #define TR3_DRAIN_EXP		0x10000000L	/* Experience drain */
@@ -2138,9 +2135,9 @@
 #define TR4_TERROR			0x00020000L /* Weapon causes fear */ 
 #define TR4_XXX5			0x00040000L
 #define TR4_XXX6			0x00080000L
-#define TR4_XXX7			0x00100000L
-#define TR4_XXX8			0x00200000L
-#define TR4_XXX9			0x00400000L
+#define TR4_IMPACT			0x00100000L /* Earthquake blows */
+#define TR4_XXX7			0x00200000L
+#define TR4_XXX8			0x00400000L
 #define TR4_BRAND_ACID		0x00800000L	/* Weapon has cold brand */
 #define TR4_BRAND_ELEC		0x01000000L	/* Weapon has elec brand */
 #define TR4_BRAND_FIRE		0x02000000L	/* Weapon has fire brand */
@@ -2148,8 +2145,8 @@
 #define TR4_BRAND_VENOM		0x08000000L	/* Weapon has venom brand */
 #define TR4_BRAND_LITE		0x10000000L	/* Weapon has light brand */ 
 #define TR4_BRAND_DARK		0x20000000L	/* Weapon has darkness brand */
-#define TR4_XXX10			0x40000000L
-#define TR4_XXX11			0x80000000L
+#define TR4_XXX9			0x40000000L
+#define TR4_XXX10			0x80000000L
 
 /*
  * Hack -- flag set 1 -- mask for "pval-dependant" flags.
@@ -2961,6 +2958,13 @@
 	((T)->ident & (IDENT_CURSED))
 
 /*
+ * Weight factor for weapon plusses
+ */
+#define wgt_factor(T) \
+	(((T)->weight > 300) ? 20 : \
+	(((T)->weight < 10) ? 3 : max_item_plus[((T)->weight/10)-1]))
+
+/*
  * Convert an "attr"/"char" pair into a "pict" (P)
  */
 #define PICT(A,C) \
@@ -3197,7 +3201,6 @@ extern int PlayerUID;
  * Should be the same as MSG_MAX for compatibility reasons.
  */
 #define SOUND_MAX MSG_MAX
-
 
 /*** Hack ***/
 

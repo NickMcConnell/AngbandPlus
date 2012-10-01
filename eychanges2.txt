@@ -1,3 +1,128 @@
+Changes from 0.2.0 to 0.2.1:
+
+## General Changes ##
+
+- Graphic support now returned. 
+
+- Objects knowledge list replaced by an item "browser" similar to the monster browser.
+
+- You may no longer sell scrolls at the alchemist's.
+
+- Minimum normal artifact index now determined in z_info.txt.
+
+- Disenchantement resistance no longer completely nullifies DRAIN_ITEM, only significantly
+  reduces its chances of striking.
+
+- Player invisibility calculation changed and it is now slightly more effective for low
+  stealth, and somewhat less effective at very high stealths. Also, monsters that can't
+  see you less likely to summon creatures.
+
+- Angels now get 50% EXP for non-evil creatures instead of just 33%
+
+- Added new race - the Nilbog, which has great stats, and natural mana resistance, but 
+  suffers from innate spell disruption and item draining. Basically, you'll
+  only want to play a warrior with this.
+
+- Added new treasure nests that contain only creeping coins. As a result, jelly nests are
+  now rarer.
+
+- The ranger spell "Enchant Arrows & Bolts" renamed "Sharpen Arrows & Bolts" to match its
+  actual effect (turns ammo into ammo of wounding).
+
+- Disease stat lowering will now disturb you if you are set to disturb when stat changes.
+
+- You can now give characters ego items as starting equipment by modifying c_info.txt (due
+  to player request).
+
+- Monster experience no longer calculated by multiplying their EXP value by their level - 
+  now the full value appears in their EXP level in r_info. r_info.txt changed appropriately.
+
+## Item Changes ##
+
+- Weapon damage plusses now related to weapon weight. Light weapons get lower pluses to
+  damage than heavier ones. This also affects the max enchantement bonuses. Ego items can
+  now always be enchanted beyond normal items of the same kind. Note that to-hit plus 
+  range has not been affected.
+
+- Added a new DISRUPT flag, which significantly raises spell failure rates.
+
+- potions of life, *healing*, and healing and rods and staves of curing now cure disease.
+  Pints of nectar shorten disease duration.
+
+- The IMPACT flag is now limited to weapons.
+
+- Added a new DONT_RANDOMIZE flag - artifacts with this flag will not be randomized
+  if random artifacts are turned on. 
+
+- Items with no distribution (A:) line in k_info will no longer appear in spoilers,
+  squelch menus, or the object knowledge browser. To avoid problems, all food items may now
+  appear in the dungeon, though the hard biscuits, beef jerky, pints of ale and pints of 
+  wine are exceedingly rare.
+
+- The INSTA_ART flag, having been made obsolete by the previous change, has been removed. 
+
+- Amulets and Shields of unmagic now disrupt spellcasting.
+
+- The artifact club 'Skullbasher' no longer provides a mana bonus. Instead, it disrupts
+  spellcasting (this was a bug - it was always supposed to be bad for spellcasters).
+
+- Amulets of invisibility made more expensive and deeper.
+
+- Cloaks for Kings made considerably rarer.
+
+- The Jeweled Crown of the Fallen Star made rarer.
+
+- Rarities on several items tweaked - Musical instruments and some wands made slightly 
+  rarer and/or deeper, while magical lanterns made shallower and more common.
+
+- The PDSM 'Tortureskin' gained a new ability.
+
+## Monster Changes ##
+
+- Grip and Fang made slightly rarer.
+
+- All wraiths (but not wights) and several uniques and other monsters gain SEE_INVIS.
+
+- The group Gnome Mage has been replaced by the Gnome Mystic (still a group monster), with
+  a slightly different spell list.
+
+- The time fly is now light blue to match other time creatures, they are also more likely
+  to cast spells/breath and are also worth less EXP as their previous value was too high.
+
+- Cockatrices now move at normal speed.
+
+- The Great Sentient Treasure made more powerful and now worth considerably more EXP.
+
+- Blask-end Squerts now have more HP.
+
+- Earth, air, water and fire spirits/elementals are no longer evil (the other elementals
+  are as are the elemental uniques).
+
+- Carcharoth, the Jaws incorporated into Cerberus, who now lurks on level 92; a new unique
+  has been added for level 94 - The Behemoth.
+
+- Giant fireflies now have the HAS_LITE flag.
+
+## Bug fixes ##
+
+- Corrected a potential out-of-bounds error with items that had too many distribution
+  entires in k_info. 
+
+- Item and artifact spoilers now list mana resistance on the correct items.
+
+- Disease attacks will now properly be marked in the monster memory.
+
+- The Necronomicon will now be properly generated.
+
+- Fixed bug with redefining number keys (bug & fix inherited from Vanilla)
+
+- Colours for canines now correct.
+
+- Oils of burning properly removed when used.
+
+- The base AC of artifact shadow cloaks has been fixed; The cloak of Orodreth now properly
+  an elven cloak.
+
 Changes from 0.1.4 to 0.2.0:
 
 ## General Changes ##
@@ -328,3 +453,7 @@ Changes from 0.1.4 to 0.2.0:
 
 - In the adventurer's guild, you could accept choices not on the list, which can cause
   weird stuff to happen.
+
+---------------
+
+For changes to older versions, check the website at http://eyangband.sourceforge.net/

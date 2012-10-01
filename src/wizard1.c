@@ -210,7 +210,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
  */
 static void spoil_obj_desc(cptr fname)
 {
-	int i, k, s, t, n = 0;
+	int i, j, k, l, s, t, n = 0;
 
 	u16b who[200];
 
@@ -310,8 +310,9 @@ static void spoil_obj_desc(cptr fname)
 			/* Skip wrong tval's */
 			if (k_ptr->tval != group_item[i].tval) continue;
 
-			/* Hack -- Skip instant-artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			/* Skip items with no distribution (special artifacts) */
+			for (j = 0, l = 0; j < MAX_OBJ_ALLOC; j++) l += k_ptr->chance[j];
+			if (!(l))  continue; 
 
 			/* Save the index */
 			who[n++] = k;
@@ -462,16 +463,17 @@ static flag_desc slay_flags_desc[] =
  */
 static flag_desc brand_flags_desc[] =
 {
-	{ TR4_BLESSED,            "Blessed Blade" },
-	{ TR4_WOUNDING,           "Wounding" },
-	{ TR4_TERROR,	          "Terror" },
-	{ TR4_BRAND_ACID,         "Acid Brand" },
-	{ TR4_BRAND_ELEC,         "Lightning Brand" },
-	{ TR4_BRAND_FIRE,         "Flame Tongue" },
-	{ TR4_BRAND_COLD,         "Frost Brand" },
-	{ TR4_BRAND_VENOM,        "Venom Brand" },
-	{ TR4_BRAND_LITE,         "Light Brand" },
-	{ TR4_BRAND_DARK,         "Dark Brand" },
+	{ TR4_BLESSED,		"Blessed Blade" },
+	{ TR4_WOUNDING,		"Wounding" },
+	{ TR4_TERROR,		"Terror" },
+	{ TR4_IMPACT,		"Earthquake impact on hit" },
+	{ TR4_BRAND_ACID,	"Acid Brand" },
+	{ TR4_BRAND_ELEC,	"Lightning Brand" },
+	{ TR4_BRAND_FIRE,	"Flame Tongue" },
+	{ TR4_BRAND_COLD,	"Frost Brand" },
+	{ TR4_BRAND_VENOM,	"Venom Brand" },
+	{ TR4_BRAND_LITE,	"Light Brand" },
+	{ TR4_BRAND_DARK,	"Dark Brand" },
 };
 
 /*
@@ -496,7 +498,7 @@ static const flag_desc resist_flags_desc[] =
 	{ TR2_RES_CHAOS,  "Chaos" },
 	{ TR2_RES_DISEN,  "Disenchantment" },
 	{ TR2_RES_TIME,   "Time" },
-	{ TR2_RES_TIME,   "Mana" },
+	{ TR2_RES_MANA,   "Mana" },
 	{ TR2_HOLD_LIFE,  "Experience Drain" },
 
 };
@@ -538,18 +540,18 @@ static const flag_desc sustain_flags_desc[] =
  */
 static const flag_desc misc_flags3_desc[] =
 {
-	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
-	{ TR3_FEATHER,            "Feather Falling" },
-	{ TR3_GLOW,               "Permanent Light" },
-	{ TR3_REGEN,              "Regeneration" },
-	{ TR3_TELEPATHY,          "ESP" },
-	{ TR3_SEE_INVIS,          "See Invisible" },
-	{ TR3_INVIS,              "Invisibility" },
-	{ TR3_IMPACT,             "Earthquake impact on hit" },
-	{ TR3_AGGRAVATE,          "Aggravates" },
-	{ TR3_DRAIN_EXP,          "Drains Experience" },
-	{ TR3_DRAIN_ITEM,         "Drains Items" },
-	{ TR3_IGNORE_DISEN,       "Ignores Disenchantment" }
+	{ TR3_SLOW_DIGEST,	"Slow Digestion" },
+	{ TR3_FEATHER,		"Feather Falling" },
+	{ TR3_GLOW,			"Permanent Light" },
+	{ TR3_REGEN,		"Regeneration" },
+	{ TR3_TELEPATHY,	"ESP" },
+	{ TR3_SEE_INVIS,	"See Invisible" },
+	{ TR3_INVIS,		"Invisibility" },
+	{ TR3_DISRUPT,		"Disrupts spellcasting" },
+	{ TR3_AGGRAVATE,	"Aggravates" },
+	{ TR3_DRAIN_EXP,	"Drains Experience" },
+	{ TR3_DRAIN_ITEM,	"Drains Items" },
+	{ TR3_IGNORE_DISEN,	"Ignores Disenchantment" }
 };
 
 /*

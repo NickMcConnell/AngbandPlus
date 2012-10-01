@@ -72,27 +72,6 @@ R:0:0x8C/0x9C
 ?:[AND [EQU $CLASS Priest] [EQU $RACE High-Elf] ]
 R:0:0x8C/0x9D
 
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Human] ]
-R:0:0x8C/0x9E
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Half-Elf] ]
-R:0:0x8C/0x9F
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Elf] ]
-R:0:0x8D/0x80
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Hobbit] ]
-R:0:0x8D/0x81
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Gnome] ]
-R:0:0x8D/0x82
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Dwarf] ]
-R:0:0x8D/0x83
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Half-Orc] ]
-R:0:0x8D/0x84
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Half-Troll] ]
-R:0:0x8D/0x85
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Dunadan] ]
-R:0:0x8D/0x86
-?:[AND [EQU $CLASS Rogue] [EQU $RACE High-Elf] ]
-R:0:0x8D/0x87
-
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Human] ]
 R:0:0x8D/0x88
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Half-Elf] ]

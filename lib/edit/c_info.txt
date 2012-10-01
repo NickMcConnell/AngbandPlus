@@ -13,7 +13,7 @@
 # X:dis:dev:sav:stl:srh:fos:thn:thb:tht:dig:alc
 # I:hitdie:expbase:attackmax:minweight:multiplier:spellstat1:spellstat2:disturbweight
 # B:sval:handicap
-# E:tval:sval:min:max - starting equipment, up to 4 entries per class
+# E:tval:sval:ego:min:max - starting equipment, up to 4 entries per class
 # T:class titles - there must be exactly 10 of these per class
 # F:class flags 
 
@@ -39,8 +39,9 @@
 # 'B' is for spell book allowances. You must list the sval of the book, and its handicap.
 
 # 'E' lines are for equipment - you can have 0-4 of these lines. Tval and Sval determine
-# which object will be generated, and min and max determine the possible quantity of the 
-# item with which the character shall begin.
+# which object will be generated, an ego-item code (if any) and min and max determine the 
+# possible quantity of the item with which the character shall begin. Note that no check
+# is made that an ego item is appropriate to the item class, so be careful!
 
 # 'T' lines determine the class titles - the number of lines does not make a difference 
 # but there must be exactly 10 titles in all divided between them. The titles are seperated
@@ -71,16 +72,16 @@
 
 # Version stamp (required)
 
-V:0.2.0
+V:0.2.1
 
 N:0:Warrior
 S:5:-2:-2:2:2:-1
 C:25:18:18:1:14:2:70:55:65:0:26
 X:10:7:10:0:0:0:45:45:45:0:5
 I:9:0:6:30:5:0:0:0
-E:75:30:1:1
-E:23:16:1:1
-E:37:4:1:1
+E:75:30:0:1:1
+E:23:16:0:1:1
+E:37:4:0:1:1
 T:Rookie|Soldier|Mercenary|Veteran|Swordsman
 T:Champion|Hero|Baron|Duke|Lord
 F:BRAVERY_30|PSEUDO_ID5|PSEUDO_ID_HEAVY
@@ -101,9 +102,9 @@ B:7:1
 B:8:1
 B:22:1
 B:23:1
-E:90:0:1:1
-E:23:4:1:1
-E:70:11:1:1
+E:90:0:0:1:1
+E:23:4:0:1:1
+E:70:11:0:1:1
 T:Novice|Apprentice|Trickster|Illusionist|Spellbinder
 T:Evoker|Conjurer|Warlock|Sorcerer|Mage-Lord
 F:NO_GLOVE|ZERO_FAIL|BEAM|PSEUDO_ID1|CHOOSE_SPELLS
@@ -124,9 +125,9 @@ B:17:1
 B:18:1
 B:22:1
 B:23:1
-E:90:10:1:1
-E:21:5:1:1
-E:75:34:1:1
+E:90:10:0:1:1
+E:21:5:0:1:1
+E:75:34:0:1:1
 T:Believer|Acolyte|Adept|Curate|Canon
 T:Lama|Patriarch|Priest|High-Priest|Archpriest
 F:BLESS_WEAPON|ZERO_FAIL|PSEUDO_ID4
@@ -142,10 +143,10 @@ B:2:3
 B:4:3
 B:5:3
 B:9:3
-E:90:0:1:1
-E:23:16:1:1
-E:19:13:1:1
-E:17:1:8:12
+E:90:0:0:1:1
+E:23:16:0:1:1
+E:19:13:0:1:1
+E:17:1:0:8:12
 T:Runner|Strider|Scout|Courser|Tracker
 T:Guide|Pathfinder|Low-Ranger|High-Ranger|Ranger-Lord
 F:EXTRA_SHOT|PSEUDO_ID2|CHOOSE_SPELLS
@@ -164,9 +165,9 @@ B:15:5
 B:16:5
 B:17:5
 B:18:5
-E:34:3:1:1
-E:23:16:1:1
-E:70:37:1:1
+E:34:3:0:1:1
+E:23:16:0:1:1
+E:70:37:0:1:1
 T:Gallant|Keeper|Protector|Defender|Warder
 T:Knight|Guardian|Low-Paladin|High-Paladin|Paladin-Lord
 F:PSEUDO_ID3|PSEUDO_ID_HEAVY
@@ -187,9 +188,9 @@ B:20:1
 B:21:1
 B:22:1
 B:23:1
-E:90:0:1:1
-E:90:10:1:1
-E:76:10:2:3
+E:90:0:0:1:1
+E:90:10:0:1:1
+E:76:10:0:2:3
 T:Aspirant|Initiate|Mystic|Grand-Mystic|Seer
 T:Guru|Enlightened|Master|Grand-Master|Transcendent
 F:NO_GLOVE|ZERO_FAIL|POWER|PSEUDO_ID1
@@ -200,10 +201,10 @@ S:-1:1:-2:2:0:3
 C:25:30:25:3:18:8:55:45:35:0:40
 X:10:10:10:0:0:0:30:35:20:0:8
 I:3:15:5:35:4:5:5:300
-E:50:0:1:1
-E:50:1:1:1
-E:23:7:1:1
-E:36:4:1:1
+E:50:0:0:1:1
+E:50:1:0:1:1
+E:23:7:0:1:1
+E:36:4:0:1:1
 T:Performer|Entertainer|Musician|Trubador|Minstrel
 T:Courtier|Poet|Bard|Master-Bard|Maestro
 F:MUSIC|PSEUDO_ID5|PSEUDO_ID_HEAVY|NO_GLOVE|LORE

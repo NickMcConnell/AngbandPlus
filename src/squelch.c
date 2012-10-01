@@ -326,7 +326,12 @@ static int do_cmd_squelch_aux(void)
 		
 				if (tv_to_type[k_ptr->tval] == typeval) 
 				{
-					if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+					int j, k;
+
+					/* Skip items with no distribution (special artifacts) */
+					for (j = 0, k = 0; j < MAX_OBJ_ALLOC; j++) k += k_ptr->chance[j];
+					if (!(k))  continue; 
+
 					choice[num++] = i;
 				}
 			}

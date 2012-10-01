@@ -29,7 +29,7 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                Elves may choose any class except Paladin. They are resistant
                to attacks involving bright light.
  
-          Hobbits
+          Hobbit
                Hobbits, or Halflings, are very good at bows, throwing, and 
                have good saving throws.  They also are very good at searching,
                alchemy, disarming, perception, and stealth.  They will be
@@ -119,7 +119,7 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                so provides them with only minimal experience rewards. Angels
                can play all classes.
 
-          Demons
+          Demon
                Demons are the evil spawn of hell. Chaotic and unpredictable,
                some demons realize that the quickest path to promotion is by
                destroying all their rivals, and thus temporarily join the side
@@ -131,6 +131,19 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                stealth rapidly decreases. Death and mayhem being commonplace to
                them, they gain levels slowly. They can play warriors, mages and
                rangers.
+
+          Nilbog
+               The nilbog (sing. and plural) are a race shrouded in mystery. 
+               They are slightly shorter than humans and totally hairless. No 
+               one knowns whence they come from or why; even they themselves have
+               no memory of their past. They accept this calmly, confident that 
+               when the time will come for the purpose of their existance to be 
+               known they shall be up to the task. They are creatures of unmagic, 
+               and they disrupt the magic around them. This provides them with
+               innate protection from mana based attacks, but they are barred 
+               from most classes as spellcasting is incredibly difficult to them
+               and magical weapons and armor that they weild will quickly lose its
+               power.
 
  === Recommended combinations of Race and Class ===
 
@@ -148,6 +161,7 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
      High-Elf     Yes     Yes     No      Yes     No      No      Yes
      Angel        Yes     Yes     Yes     Yes     Yes     Yes     Yes
      Demon        Yes     Yes     No      Yes     No      No      No
+     Nilbog       Yes     No      No      No      No      No      No
 
 === Stat Bonus Tables ===
 
@@ -166,8 +180,10 @@ are listed in the following table.
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
            Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
            High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
-           Angel        *    *    *    *    *    *       8         +90%
-           Demon        *    *    *    *    *    *       9        +120%
+           Angel        *    *    *    *    *    *       9         +90%
+           Demon        *    *    *    *    *    *      10        +120%
+           Nilbog      +2   +1   +1   +3   +3    0      10         +20%
+
 		*see below           
 
 === Angel Progression chart ===

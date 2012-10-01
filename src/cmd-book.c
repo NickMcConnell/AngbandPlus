@@ -154,7 +154,7 @@ static spell_tip spell_tips[SPELLS_TOTAL] =
 	{SP_ENCHANT_WEAP,		"Adds plusses to Hit and Damage to weapons."},
 	{SP_ENCHANT_ARMR,		"Adds plusses to armour class to armour."},
 	{SP_BRAND_AMMO_ANIMAL,	"Makes arrows and bolts extra powerful against animals."},
-	{SP_BRAND_AMMO_WOUND,	"Strengthens arrows and bolts."},
+	{SP_BRAND_AMMO_WOUND,	"Makes arrows and bolts sharper and more powerful."},
 	{SP_BRAND_AMMO_ELEMNT,	"Imbues arrows and bolts with elemental power."},
 	{SP_BRAND_SHOT_HOLY,	"Makes your shots powerful against evil creatures."}
 };
@@ -269,7 +269,14 @@ static s16b spell_chance(int book, int spell, bool music)
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
 
-	/* Stunning makes spells harder (after minfail) */
+	/* Spell disruption (after minfail)*/
+	if (p_ptr->disrupt) 
+	{
+		if (chance < 15) chance = 25;
+		else chance+=10;
+	}
+
+	/* Stunning makes spells harder (after minfail and disruption) */
 	if (p_ptr->stun > 50) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
@@ -530,7 +537,7 @@ void print_spells(int book, bool music, int lev, int y, int x)
 	}
 
 	/* Choose appropriate spellbook color. */
-	attr_book = k_ptr->x_attr;
+	attr_book = k_ptr->d_attr;
 
 	if (!music)
 	{

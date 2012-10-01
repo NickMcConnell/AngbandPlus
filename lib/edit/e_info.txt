@@ -63,7 +63,7 @@
 
 # Version stamp (required)
 
-V:0.2.0
+V:0.2.1
 
 ### Body Armor ###
 
@@ -238,7 +238,7 @@ X:32:0:0
 W:30:5:0:0
 C:0:0:0:10
 T:34:0:99
-F:MANA | DRAIN_ITEM | RES_MANA | HIDE_TYPE | LIGHT_CURSE
+F:MANA | DRAIN_ITEM | DISRUPT | RES_MANA | HIDE_TYPE | LIGHT_CURSE
 
 ### Crowns and Helms ###
 
@@ -400,7 +400,7 @@ F:INT | SUST_INT | STEALTH | HIDE_TYPE
 #one random high resist
 N:45:of Kings
 X:31:25:5
-W:50:4:0:20000
+W:50:25:0:20000
 C:0:0:25:0
 T:35:0:99
 F:BRAVERY | TELEPATHY | RES_CONFU | FEATHER |

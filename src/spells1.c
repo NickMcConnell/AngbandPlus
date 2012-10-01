@@ -3463,13 +3463,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	/* Hack -- messages */
 	cptr act = NULL;
 
-
 	/* No player here */
 	if (!(cave_m_idx[y][x] < 0)) return (FALSE);
 
 	/* Never affect projector */
 	if (cave_m_idx[y][x] == who) return (FALSE);
-
 
 	/* Limit maximum damage XXX XXX XXX */
 	if (dam > 1600) dam = 1600;
@@ -3477,10 +3475,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
 
-
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
-
 
 	/* Get the source monster */
 	m_ptr = &m_list[who];
@@ -3490,7 +3486,6 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 	/* Get the monster's real name */
 	monster_desc(killer, m_ptr, 0x88);
-
 
 	/* Analyze the damage */
 	switch (typ)

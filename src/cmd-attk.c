@@ -1299,9 +1299,14 @@ void py_attack(int y, int x)
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
 			{
+				u32b f1, f2, f3, f4;
+
+				/* Extract the flags */
+				object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
 				k = damroll(o_ptr->dd, o_ptr->ds);
 				k = tot_dam_aux(o_ptr, k, m_ptr, &special);
-				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
+				if ((f4 & TR4_IMPACT) && (k > 50)) do_quake = TRUE;
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
 				k += o_ptr->to_d;
 			}

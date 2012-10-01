@@ -142,6 +142,13 @@ Abilities:
           Many creatures in the dungeons are invisible, and you will need to 
           keep some source of permanent or temporary see invisible handy if you  
           descend more than a few levels into the dungeon.
+     Invisible:
+          On the other hand, you too can gain invisibility, whether by temporary
+          means such as spells or potions, or by rare powerful magical items. 
+          When invisible, monsters will have a harder time finding you, and they
+          will be less likely to target you with spells. Note, though, that the
+          effectiveness of invisibility depends greatly on your stealth - and if
+          your stealth is very low, you might not benifit from it at all.
      Stealth :
           Items with this ability decrease the amount of noise your character 
           makes as he moves around the dungeon and performs actions.

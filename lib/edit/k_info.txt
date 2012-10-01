@@ -44,7 +44,8 @@
 # 'A' is for allocation - depth and rarity, in pairs. This allows an
 # item to have multiple natural depths and rarities. It is used to
 # ensure that certain vital items such as food and identify scrolls
-# are found throughout the dungeon.
+# are found throughout the dungeon. Up to 4 allocation pairs may
+# be given.
 
 # 'F' is for flags. These are fairly self-explanatory. As many F:
 # lines may be used as are needed to specify all the flags and flags
@@ -53,7 +54,7 @@
 
 # Version stamp (required)
 
-V:0.2.0
+V:0.2.1
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -67,7 +68,7 @@ N:1:Poison
 G:,:d
 I:80:0:500
 W:5:0:1:0
-A:5/1:5/1
+A:5/1
 
 N:2:Blindness
 G:,:d
@@ -203,11 +204,13 @@ N:26:& Hard Biscuit~
 G:,:U
 I:80:30:500
 W:0:0:2:1
+A:0/50
 
 N:27:& Strip~ of Beef Jerky
 G:,:u
 I:80:31:1500
 W:0:0:2:2
+A:0/50
 
 N:28:& Ration~ of Food
 G:,:U
@@ -231,11 +234,13 @@ N:31:& Pint~ of Fine Ale
 G:,:y
 I:80:35:500
 W:0:0:5:1
+A:0/50
 
 N:32:& Pint~ of Fine Wine
 G:,:r
 I:80:36:1000
 W:0:0:10:3
+A:0/50
 
 N:33:& Pint~ of Nectar
 G:,:r
@@ -1589,7 +1594,7 @@ G:":d
 I:41:2:-10
 W:50:0:3:0
 A:50/3
-F:LIGHT_CURSE | DRAIN_ITEM | RES_MANA | MANA | EASY_KNOW
+F:LIGHT_CURSE | DISRUPT | DRAIN_ITEM | RES_MANA | MANA | EASY_KNOW
 
 N:253:Adornment
 G:":d
@@ -1666,8 +1671,8 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:263:Invisibility
 G:":d
 I:41:13:0
-W:50:0:3:50000
-A:50/8
+W:50:0:3:750000
+A:60/8
 F:INVIS | EASY_KNOW
 
 N:264:Power
@@ -2725,14 +2730,14 @@ N:430:Calm Monster
 G:-:d
 I:65:30:0
 W:5:0:10:500
-A:5/1
+A:10/3
 P:0:1d1:0:0:0
 
 N:431:Blind Monster
 G:-:d
 I:65:31:0
 W:5:0:10:500
-A:5/1
+A:7/1
 P:0:1d1:0:0:0
 
 ##### Items 432-434 Unused #####
@@ -2861,7 +2866,7 @@ P:0:1d2:0:0:0
 N:452:Curing
 G:_:d
 I:55:17:0
-W:25:0:50:1000
+W:25:0:50:1500
 A:25/1
 P:0:1d2:0:0:0
 
@@ -3012,7 +3017,7 @@ P:0:1d1:0:0:0
 N:478:Curing
 G:-:d
 I:66:8:999
-W:65:0:15:15000
+W:65:0:15:17500
 A:65/8
 P:0:1d1:0:0:0
 
@@ -3397,7 +3402,7 @@ N:540:Sight
 G:~:d
 I:39:2:0
 W:12:0:50:600
-A:12/3
+A:8/3
 P:0:1d1:0:0:0
 F:EASY_KNOW | SEE_INVIS | NO_BLIND | IGNORE_FIRE | LITE2
 
@@ -3405,7 +3410,7 @@ N:541:Fearlessness
 G:~:d
 I:39:3:0
 W:15:0:50:800
-A:15/3
+A:8/3
 P:0:1d1:0:0:0
 F:EASY_KNOW | BRAVERY | LITE2
 
@@ -3413,7 +3418,7 @@ N:542:Intelligence
 G:~:d
 I:39:4:0
 W:20:0:50:600
-A:20/1
+A:12/3
 P:0:1d1:0:0:0
 F:INT | SUST_INT | HIDE_TYPE | LITE2
 
@@ -3421,7 +3426,7 @@ N:543:Wisdom
 G:~:d
 I:39:5:0
 W:20:0:50:600
-A:20/1
+A:12/3
 P:0:1d1:0:0:0
 F:WIS | SUST_WIS | HIDE_TYPE | LITE2 
 
@@ -3429,7 +3434,7 @@ N:544:Brightness
 G:~:d
 I:39:6:0
 W:15:0:50:1000
-A:15/3
+A:6/3
 P:0:1d1:0:0:0
 F:RES_DARK | EASY_KNOW | LITE3
 
@@ -3570,42 +3575,42 @@ N:568:& Lyre~
 G:/:R
 I:50:0:1
 W:1:0:60:150
-A:1/1:15/1:30/1:45/1:60/1
+A:1/2:20/1:40/1:60/1
 F:CHR
 
 N:569:& Horn~
 G:/:G
 I:50:1:1
 W:1:0:30:150
-A:1/1:15/1:30/1:45/1:60/1
+A:1/2:20/1:40/1:60/1
 F:CHR
 
 N:570:& Flute~
 G:/:g
 I:50:2:1
 W:1:0:15:250
-A:1/1:15/1:30/1:45/1:60/1
+A:1/2:20/1:40/1:60/1
 F:CHR
 
 N:571:& Lute~
 G:/:B
 I:50:3:1
 W:1:0:40:200
-A:1/1:15/1:30/1:45/1:60/1
+A:1/2:20/1:40/1:60/1
 F:CHR
 
 N:572:& Drum~
 G:/:b
 I:50:4:1
 W:1:0:80:150
-A:1/1:15/1:30/1:45/1:60/1
+A:1/2:20/1:40/1:60/1
 F:CHR
 
 N:573:& Harp~
 G:/:v
 I:50:5:1
 W:1:0:50:300
-A:1/1:15/1:30/1:45/1:60/1
+A:1/2:20/1:40/1:60/1
 F:CHR
 
 ##### Object 574 is unused #####
@@ -3621,14 +3626,13 @@ G:\:D
 I:21:50:0
 W:15:0:200:1000
 P:0:3d9:0:0:0
-F:SHOW_MODS | INSTA_ART
+F:SHOW_MODS 
 
 N:576:& Massive Iron Crown~
 G:]:D
 I:33:50:0
 W:44:0:20:1000
 P:0:1d1:0:0:0
-F:INSTA_ART
 
 ##### Objects 577 onwards are the "Special Artifacts" #####
 
@@ -3646,15 +3650,14 @@ F:INSTA_ART
 # Note that ALL artifacts are given "IGNORE_ACID/ELEC/FIRE/COLD",
 # so we do not need to specify that here.
 #
-# Note that the "INSTA_ART" flag is used to prevent these objects from
-# being created without also turning them into artifacts.  This flag
-# must be specified both here and in the artifact template.
+# Note that these items must not have a distribution (A:) line,
+# otherwise they might get generated without being turned into 
+# artifacts.
 #
 # The only reason for having several different "ring" templates and
 # "amulet" templates is to allow each "special artifact" to have 
 # a different "color" and "flavor", and also to allow the use of
 # special "base names" (such as "Necklace").
-
 
 # The Phial of Galadriel -- see artifact list
 
@@ -3663,7 +3666,6 @@ G:~:y
 I:40:1:0
 W:1:0:10:10000
 P:0:1d1:0:0:0
-F:INSTA_ART
 
 # The Beacon of Om -- see artifact list
 
@@ -3672,7 +3674,6 @@ G:~:y
 I:40:2:0
 W:30:0:300:10000
 P:0:1d1:0:0:0
-F:INSTA_ART
 
 # The Star of Elendil -- see artifact list
 
@@ -3681,7 +3682,6 @@ G:~:y
 I:40:3:0
 W:30:0:5:25000
 P:0:1d1:0:0:0
-F:INSTA_ART
 
 # The Arkenstone of Thrain -- see artifact list
 
@@ -3690,7 +3690,6 @@ G:~:y
 I:40:4:0
 W:60:0:5:60000
 P:0:1d1:0:0:0
-F:INSTA_ART
 
 # The Palantir of Westernesse -- see artifact list
 
@@ -3699,7 +3698,6 @@ G:~:y
 I:40:5:0
 W:75:0:200:100000
 P:0:10d10:0:0:0
-F:INSTA_ART
 
 # The Amulet of Carlammas -- see artifact list
 
@@ -3707,7 +3705,6 @@ N:583:& Amulet~
 G:":d
 I:41:15:0
 W:50:0:3:60000
-F:INSTA_ART
 
 # The Amulet of Ingwe -- see artifact list
 
@@ -3715,7 +3712,6 @@ N:584:& Amulet~
 G:":d
 I:41:16:0
 W:60:0:3:90000
-F:INSTA_ART
 
 # The Necklace of the Dwarves -- see artifact list
 
@@ -3723,7 +3719,6 @@ N:585:& Necklace~
 G:":d
 I:41:17:0
 W:70:0:3:75000
-F:INSTA_ART
 
 # The Ring of Barahir -- see artifact list
 
@@ -3731,7 +3726,6 @@ N:586:& Ring~
 G:=:d
 I:45:37:0
 W:50:0:2:65000
-F:INSTA_ART
 
 # The Ring of Tulkas -- see artifact list
 
@@ -3739,7 +3733,6 @@ N:587:& Ring~
 G:=:d
 I:45:38:0
 W:90:0:2:150000
-F:INSTA_ART
 
 # The Ring of Power (Narya) -- see artifact list
 
@@ -3747,7 +3740,6 @@ N:588:& Ring~
 G:=:d
 I:45:39:0
 W:80:0:2:100000
-F:INSTA_ART
 
 # The Ring of Power (Nenya) -- see artifact list
 
@@ -3755,7 +3747,6 @@ N:589:& Ring~
 G:=:d
 I:45:40:0
 W:90:0:2:200000
-F:INSTA_ART
 
 # The Ring of Power (Vilya) -- see artifact list
 
@@ -3763,7 +3754,6 @@ N:590:& Ring~
 G:=:d
 I:45:41:0
 W:100:0:2:300000
-F:INSTA_ART
 
 # The Ring of Power (The One Ring) -- see artifact list
 
@@ -3771,7 +3761,6 @@ N:591:& Ring~
 G:=:y
 I:45:42:0
 W:110:0:2:5000000
-F:INSTA_ART
 
 # The Codex of Ultimate Wisdom -- see artifact list
 
@@ -3780,7 +3769,6 @@ G:?:v
 I:90:22:0
 W:90:0:75:2500000
 P:0:1d1:0:0:0
-F:INSTA_ART
 
 # The Necronomicon -- see artifact list
 
@@ -3788,8 +3776,7 @@ N:593:[The Necronomicon]
 G:?:v
 I:90:23:0
 W:75:0:60:2500000
-P:0:1d1:0:0:0
-F:INSTA_ART 
+P:0:1d1:0:0:0 
 
 # The Great Lamp of Cheradenine-- see artifact list
 
@@ -3798,7 +3785,6 @@ G:~:d
 I:39:7:0
 W:40:0:75:10000
 P:0:1d1:0:0:0
-F:INSTA_ART
 
 # The Lantern of Eternity-- see artifact list
 
@@ -3807,7 +3793,6 @@ G:~:d
 I:39:8:0
 W:40:0:50:10000
 P:0:1d1:0:0:0
-F:INSTA_ART
 
 # The Amulet 'Heartstone' -- see artifact list
 
@@ -3815,7 +3800,6 @@ N:596:& Amulet~
 G:":d
 I:41:18:0
 W:65:0:3:75000
-F:INSTA_ART
 
 # The Ring of Calfin - see artifact list
 
@@ -3823,7 +3807,6 @@ N:597:& Ring~
 G:=:d
 I:45:43:0
 W:30:0:2:55000
-F:INSTA_ART
 
 # The Ring of Saturn - see artifact list
 
@@ -3831,4 +3814,3 @@ N:598:& Ring~
 G:=:d
 I:45:44:0
 W:50:0:2:70000
-F:INSTA_ART

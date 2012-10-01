@@ -18,7 +18,7 @@
 
 # Version stamp (required)
 
-V:0.2.0
+V:0.2.1
 
 N:0:Sauron
 W:99:665:1

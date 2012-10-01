@@ -1,7 +1,7 @@
 
 
           ***********************************************************
-          **  EyAngband 0.2.0   **   Please don't feed the Balrog  **
+          **  EyAngband 0.2.1   **   Please don't feed the Balrog  **
           ***********************************************************
                                By Eytan Zweig
 
@@ -10,7 +10,7 @@
        Angband 2.0 - 2.6.2:  Alex Cutler, Andy Astrand, Sean Marsh,
                              Geoff Hill, Charles Teague, Charles Swiger
      Angband 2.7.0 - 2.8.5:  Ben Harrison
-             Angband 2.9.1:  Robert Ruehlmann
+     Angband 2.9.0 - 2.9.1:  Robert Ruehlmann
 
 	
         Send comments, bug reports, and patches, to "eytanzw@yahoo.com"

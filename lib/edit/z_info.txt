@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:0.2.0
+V:0.2.1
 
 # Maximum number of feature types
 M:F:80
@@ -21,6 +21,9 @@ M:K:599
 
 # Maximum number of artifacts
 M:A:165
+
+# First Normal Artifact
+S:A:31
 
 # Maximum number of classes
 M:C:7
@@ -35,10 +38,10 @@ M:R:667
 M:V:35
 
 # Maximum number of player races
-M:P:12
+M:P:13
 
 # Maximum number of player history lines
-M:H:140
+M:H:142
 
 # Maximum number of owners per store
 M:B:5

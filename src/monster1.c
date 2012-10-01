@@ -344,6 +344,7 @@ void describe_mon_attacks(int method, int effect, cptr method_text[1], cptr effe
 	{
 		case RBE_HURT:		effect_text[0] = "attack"; break;
 		case RBE_POISON:	effect_text[0] = "poison"; break;
+		case RBE_DISEASE:	effect_text[0] = "spread disease"; break;
 		case RBE_UN_BONUS:	effect_text[0] = "disenchant"; break;
 		case RBE_UN_POWER:	effect_text[0] = "drain charges"; break;
 		case RBE_EAT_GOLD:	effect_text[0] = "steal gold"; break;
@@ -808,13 +809,13 @@ static void roff_aux(int r_idx)
 
 		/* Hack - angels get less exp for killing non-evil creatures */
 		if  (!(r_ptr->flags1 & (RF1_UNIQUE)) && 
-			(rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags2 & (RF2_EVIL))) div *=3;
+			(rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags2 & (RF2_EVIL))) div *=2;
 
-		i = (long)r_ptr->mexp * r_ptr->level / div;
+		i = (long)r_ptr->mexp / div;
 
 		/* calculate the fractional exp part scaled by 100, */
 		/* must use long arithmetic to avoid overflow  */
-		j = ((((long)r_ptr->mexp * r_ptr->level % div) *
+		j = ((((long)r_ptr->mexp % div) *
 			  (long)1000 / div + 5) / 10);
 
 		/* Mention the experience */

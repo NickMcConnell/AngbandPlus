@@ -105,6 +105,7 @@ techniques. Note that the class stat bonuses only affect character generation.
      High-Elf     Yes     Yes     No      Yes     No      No      Yes
      Angel        Yes     Yes     Yes     Yes     Yes     Yes     Yes
      Demon        Yes     Yes     No      Yes     No      No      No
+     Nilbog       Yes     No      No      No      No      No      No
  
 === Stat Bonus Tables ===
 

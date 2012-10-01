@@ -777,7 +777,7 @@ static void do_cmd_refill_lamp(void)
 	}
 
 	/* Use fuel from a lantern */
-	if (o_ptr->sval >= SV_LANTERN)
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval >= SV_LANTERN))
 	{
 		/* No more fuel */
 		o_ptr->timeout = 0;
@@ -1206,6 +1206,7 @@ void do_cmd_eat_food(void)
 		{
 			msg_print("That tastes good.");
 			(void)set_poisoned(0);
+			(void)set_diseased(p_ptr->diseased/2);
 			(void)set_afraid(0);
 			(void)hp_player(damroll(2, 4));
 			ident = TRUE;
@@ -1229,10 +1230,8 @@ void do_cmd_eat_food(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
 	/* Food can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
-
 
 	/* Destroy a food in the pack */
 	if (item >= 0)
@@ -1264,7 +1263,6 @@ void do_cmd_quaff_potion(void)
 
 	cptr q, s;
 
-
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
 
@@ -1284,7 +1282,6 @@ void do_cmd_quaff_potion(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
 
 	/* Sound */
 	sound(MSG_QUAFF);
@@ -1632,6 +1629,7 @@ void do_cmd_quaff_potion(void)
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
+			if (set_diseased(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -1643,6 +1641,7 @@ void do_cmd_quaff_potion(void)
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
+			if (set_diseased(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -1656,6 +1655,7 @@ void do_cmd_quaff_potion(void)
 			(void)set_poisoned(0);
 			(void)set_blind(0);
 			(void)set_confused(0);
+			(void)set_diseased(0);
 			(void)set_image(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
@@ -2712,6 +2712,7 @@ void do_cmd_use_staff(void)
 		{
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
+			if (set_diseased(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
@@ -3462,6 +3463,7 @@ void do_cmd_zap_rod(void)
 		{
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
+			if (set_diseased(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;

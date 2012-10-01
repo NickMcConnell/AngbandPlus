@@ -64,17 +64,6 @@ void identify_pack(void)
 }
 
 /*
- * Used by the "enchant" function (chance of failure)
- */
-static int enchant_table[16] =
-{
-	0, 10,  50, 100, 200,
-	300, 400, 500, 700, 950,
-	990, 992, 995, 997, 999,
-	1000
-};
-
-/*
  * Hack -- Removes curse from an object.
  */
 static void uncurse_object(object_type *o_ptr)
@@ -183,7 +172,6 @@ void self_knowledge(void)
 	object_type *o_ptr;
 
 	cptr info[128];
-
 
 	/* Get item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
@@ -632,17 +620,16 @@ void self_knowledge(void)
 			info[i++] = "Your weapon strikes fear in the hearts of your foes.";
 		}
 
-		/* Indicate Blessing */
+		if (f4 & (TR4_IMPACT))
+		{
+			info[i++] = "Your weapon can induce earthquakes.";
+		}
+
 		if (f4 & (TR4_BLESSED))
 		{
 			info[i++] = "Your weapon has been blessed by the gods.";
 		}
 
-		/* Hack */
-		if (f3 & (TR3_IMPACT))
-		{
-			info[i++] = "Your weapon can induce earthquakes.";
-		}
 	}
 
 	/* Save screen */
@@ -1514,12 +1501,31 @@ static bool item_tester_unknown_star(object_type *o_ptr)
 }
 
 /*
+ * Used by the "enchant" function (chance of failure)
+ */
+static int enchant_table[16] =
+{
+	0, 10,  50, 100, 200,
+	300, 400, 500, 700, 950,
+	990, 992, 995, 997, 999,
+	1000
+};
+
+/*
  * Enchant an item
  *
  * Revamped!  Now takes item pointer, number of times to try enchanting,
  * and a flag of what to try enchanting.  Artifacts resist enchantment
  * some of the time, and successful enchantment to at least +0 might
  * break a curse on the item.  -CFT
+ *
+ * Max to enchant hit/damage now dependant on item weight. Items weighing 
+ * between 100-200 get normal range, lighter items get half range, heavier
+ * items get twice the range. Ego items can always be enchanted higher than 
+ * non-ego items of the same weight (including artifacts!!). -EZ
+ *
+ * Note that wfactor is 2 normally, 1 for light weapons, and 4 for heavy
+ * weapons.
  *
  * Note that an item can technically be enchanted all the way to +15 if
  * you wait a very, very, long time.  Going from +9 to +10 only works
@@ -1532,9 +1538,12 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 {
 	int i, chance, prob;
 
+	int max_bonus = wgt_factor(o_ptr);
+
 	bool res = FALSE;
 
 	bool a = artifact_p(o_ptr);
+	bool e = ego_item_p(o_ptr);
 
 	u32b f1, f2, f3, f4;
 
@@ -1544,13 +1553,17 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
 
-	/* Missiles are easy to enchant */
-	if ((o_ptr->tval == TV_BOLT) ||
-	    (o_ptr->tval == TV_ARROW) ||
-	    (o_ptr->tval == TV_SHOT))
-	{
+
+	/* Hack - ammo and shooters always gets max_bonus of 10 */
+	if ((o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_SHOT) ||
+		(o_ptr->tval == TV_BOW)) max_bonus = 10;
+
+	/* Missiles are easy to enchant, and can always get to +10 */
+	if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_SHOT))
 		prob = prob / 20;
-	}
+		
+	/* Non-missile ego-items can be enchanted further */
+	else if (e) max_bonus += 5;
 
 	/* Try "n" times */
 	for (i=0; i<n; i++)
@@ -1590,8 +1603,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TODAM))
 		{
 			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_d];
+			else if (o_ptr->to_d > (max_bonus*3)/2) chance = 1000;
+			else chance = enchant_table[(o_ptr->to_d*10)/max_bonus];
 
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -1874,12 +1887,13 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 			break;
 		}
 		case EGO_WOUNDING:
+		case EGO_SHARPNESS:
 		{
 			/* Make sure you don't give an inappropriate brand */
 			if (ammo) brand_type = EGO_WOUNDING;
-			else brand_type = 0;
-			if (o_ptr->number > 1) act = "grow sleeker and deadlier!";
-			else (act = "grows sleeker and deadlier!"); 
+			else brand_type = EGO_SHARPNESS;
+			if (o_ptr->number > 1) act = "grow sharper and deadlier!";
+			else (act = "grows sharper and deadlier!"); 
 			break;
 		}
 	}

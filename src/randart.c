@@ -487,41 +487,18 @@ static int init_names(void)
 		names[i] = my_strdup(buf);
 	}
 
-	/* Special cases -- keep these names separate. */
-	free(names[ART_CODEX - 1]);
-	free(names[ART_NECRONOMICON - 1]);
-	free(names[ART_POWER - 1]);
-	free(names[ART_GROND - 1]);
-	free(names[ART_MORGOTH - 1]);
-
-	if ((names[ART_CODEX - 1] = my_strdup("[The Codex of Ultimate Wisdom]")) == NULL)
+	/* Return the "proper" names for the non-randomizable artifacts */
+	for (i = 1; i < z_info->a_max; i++)
 	{
-		msg_format("Memory allocation error");
-		return 1;
-	}
-
-	if ((names[ART_NECRONOMICON - 1] = my_strdup("[The Necronomicon]")) == NULL)
-	{
-		msg_format("Memory allocation error");
-		return 1;
-	}
-
-	if ((names[ART_POWER - 1] = my_strdup("of Power (The One Ring)")) == NULL)
-	{
-		msg_format("Memory allocation error");
-		return 1;
-	}
-
-	if ((names[ART_GROND - 1] = my_strdup("'Grond'")) == NULL)
-	{
-		msg_format("Memory allocation error");
-		return 1;
-	}
-
-	if ((names[ART_MORGOTH - 1] = my_strdup("of Morgoth")) == NULL)
-	{
-		msg_format("Memory allocation error");
-		return 1;
+		if (a_info[i].flags3 & TR3_DONT_RANDOMIZE) 
+		{
+			free(names[i-1]);
+			if ((names[i - 1] = my_strdup(a_name + a_info[i].name)) == NULL)
+			{	
+				msg_format("Memory allocation error");
+				return 1;
+			}
+		}
 	}
 
 	/* Convert our names array into an a_name structure for later use. */
@@ -1158,7 +1135,6 @@ static void add_ability(artifact_type *a_ptr)
 	}
 }
 
-
 /*
  * Calculate the multiplier we'll get with a given bow type.  This is done
  * differently in 2.8.2 than it was in 2.8.1.
@@ -1182,7 +1158,6 @@ static int bow_multiplier(int sval)
 	return 0;
 }
 
-
 /*
  * Evaluate the artifact's overall power level.
  */
@@ -1195,7 +1170,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 	int immunities = 0;
 
 	/* Start with a "power" rating derived from the base item's level. */
-	if (a_idx >= ART_MIN_NORMAL)
+	if (a_idx >= z_info->a_min_normal)
 	{
 		if (cannot_use_kind_cache)
 			k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -1421,6 +1396,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE) p -= 4;
 	if (a_ptr->flags3 & TR3_AGGRAVATE)   p -= 8;
 	if (a_ptr->flags3 & TR3_DRAIN_EXP)	 p -= 14;
+	if (a_ptr->flags3 & TR3_DISRUPT)	 p -= 16;
 	if (a_ptr->flags3 & TR3_TELEPORT)	 p -= 20;
 	if (a_ptr->flags3 & TR3_DRAIN_ITEM)  p -= 20;
 	if (a_ptr->flags3 & TR3_HEAVY_CURSE) p -= 20;
@@ -1492,7 +1468,6 @@ static void do_curse(artifact_type *a_ptr)
 	if (rand_int(4) == 0) a_ptr->flags3 |= TR3_HEAVY_CURSE;
 }
 
-
 /*
  * Note the three special cases (One Ring, Grond, Morgoth).  Note also that if
  * an artifact has an activation, it must be preserved by artifact number,
@@ -1509,11 +1484,7 @@ static int scramble_artifact(int a_idx)
 	bool aggravate_me = FALSE;
 
 	/* Special cases -- don't randomize these! */
-	if ((a_idx == ART_POWER)   ||
-	    (a_idx == ART_GROND)   ||
-	    (a_idx == ART_MORGOTH) ||
-		(a_ptr->tval == TV_MAGIC_BOOK))
-		return 0;
+	if (a_ptr->flags3 & TR3_DONT_RANDOMIZE)	return 0;
 
 	/* Skip unused artifacts, too! */
 	if (a_ptr->tval == 0) return 0;
@@ -1535,7 +1506,7 @@ static int scramble_artifact(int a_idx)
 		}
 	}
 
-	if (a_idx >= ART_MIN_NORMAL)
+	if (a_idx >= z_info->a_min_normal)
 	{
 		/* Normal artifact - choose a random base item type.  Not too
 		   powerful, so we'll have to add something to it.  Not too
@@ -1630,7 +1601,6 @@ static int scramble_artifact(int a_idx)
 	if (a_ptr->cost < 0) a_ptr->cost = 0;
 
 	if (activates) a_ptr->flags3 |= TR3_ACTIVATE;
-	if (a_idx < ART_MIN_NORMAL) a_ptr->flags3 |= TR3_INSTA_ART;
 
 	/* Add TR3_HIDE_TYPE to all artifacts with nonzero pval because we're
 	   too lazy to find out which ones need it and which ones don't. */
@@ -1657,7 +1627,7 @@ static bool scramble_restart(void)
 	}
 
 	/* Scan the artifacts */
-	for (i = ART_MIN_NORMAL; i < z_info->a_max; i++)
+	for (i = z_info->a_min_normal; i < z_info->a_max; i++)
 	{
 		/* Ignore zero tval artifacts (important) */
 		if (!a_info[i].tval) continue;
