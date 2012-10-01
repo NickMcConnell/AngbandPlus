@@ -18,7 +18,6 @@ void do_cmd_go_up(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-	int i;
 
 	/* Verify stairs */
 	if (cave_feat[py][px] != FEAT_LESS)
@@ -34,16 +33,16 @@ void do_cmd_go_up(void)
 	msg_print("You enter a maze of up staircases.");
 
 	/* if leave quest before complete - reset -KMW- */
-	for(i=0; i < MAX_QUESTS; i++) {
+/* 	for(i=0; i < MAX_QUESTS; i++) {
 		if ((p_ptr->rewards[i+QUEST_REWARD] == 1) && (q_list[i].quest_type == 5) &&
 		    (p_ptr->inside_special == 2)) {
 			q_list[i].cur_num = 0;
-			msg_print("Quest unfinished! You will have to restart when you enter again!");
+			msg_print("Quest unfinished!");
 			msg_print(NULL);
 			break;
 		}
 	}
-
+*/
 	if (p_ptr->inside_special == 2) {
 		p_ptr->depth = 1;
 		p_ptr->inside_special = 0;
@@ -328,7 +327,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("You are enveloped in a cloud of smoke!");
 		for (i = 0; i < num; i++)
 		{
-			(void)summon_specific(y, x, p_ptr->depth, 0);
+			(void)summon_specific(y, x, p_ptr->depth, 0, FALSE);
 		}
 	}
 
@@ -940,7 +939,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 	/* water, lava, & trees -KMW- */
 	else if (((cave_feat[y][x] >= FEAT_DEEP_WATER) &&
-	    (cave_feat[y][x] <= FEAT_SHAL_LAVA)) ||
+	    (cave_feat[y][x] <= FEAT_DARK_PIT)) ||
 	    (cave_feat[y][x] == FEAT_MOUNTAIN) ||
 	    ((cave_feat[y][x] >= FEAT_QUEST_ENTER) &&
 	    (cave_feat[y][x] <= FEAT_QUEST_EXIT)))
@@ -1761,7 +1760,7 @@ static bool get_spike(int *ip)
 /*
  * Determine if a given grid may be "spiked"
  */
-static bool do_cmd_spike_test(int y, int x)
+static bool do_cmd_spike_test(int y, int x, int spell)
 {
 	/* Must have knowledge */
 	if (!(cave_info[y][x] & (CAVE_MARK)))
@@ -1778,7 +1777,10 @@ static bool do_cmd_spike_test(int y, int x)
 	      (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
 	{
 		/* Message */
-		msg_print("You see nothing there to spike.");
+		if (spell)
+			msg_print("You see nothing there to lock.");
+		else
+			msg_print("You see nothing there to spike.");
 
 		/* Nope */
 		return (FALSE);
@@ -1794,7 +1796,7 @@ static bool do_cmd_spike_test(int y, int x)
  *
  * This command may NOT be repeated
  */
-void do_cmd_spike(void)
+void do_cmd_spike(bool spell)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1803,7 +1805,7 @@ void do_cmd_spike(void)
 
 
 	/* Get a spike */
-	if (!get_spike(&item))
+	if ((!get_spike(&item)) && !(spell))
 	{
 		/* Message */
 		msg_print("You have no spikes!");
@@ -1822,7 +1824,7 @@ void do_cmd_spike(void)
 
 
 	/* Verify legality */
-	if (!do_cmd_spike_test(y, x)) return;
+	if (!do_cmd_spike_test(y, x, spell)) return;
 
 
 	/* Take a turn */
@@ -1851,21 +1853,29 @@ void do_cmd_spike(void)
 	else
 	{
 		/* Verify legality */
-		if (!do_cmd_spike_test(y, x)) return;
+		if (!do_cmd_spike_test(y, x, spell)) return;
 
 		/* Successful jamming */
-		msg_print("You jam the door with a spike.");
+		if (spell)
+			msg_print("You magically lock the door.");
+		else
+			msg_print("You jam the door with a spike.");
 
 		/* Convert "locked" to "stuck" XXX XXX XXX */
 		if (cave_feat[y][x] < FEAT_DOOR_HEAD + 0x08) cave_feat[y][x] += 0x08;
 
-		/* Add one spike to the door */
-		if (cave_feat[y][x] < FEAT_DOOR_TAIL) cave_feat[y][x]++;
+		if (spell) {
+			/* Add jam to the door */
+			cave_feat[y][x] = FEAT_DOOR_TAIL - 1;
+		} else {
+			/* Add one spike to the door */
+			if (cave_feat[y][x] < FEAT_DOOR_TAIL) cave_feat[y][x]++;
 
-		/* Use up, and describe, a single spike, from the bottom */
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
+			/* Use up, and describe, a single spike, from the bottom */
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
 	}
 }
 
@@ -1880,7 +1890,10 @@ static bool do_cmd_walk_test(int y, int x)
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
 
 	/* Require open space */
-	else if (!cave_floor_bold(y, x))
+	else if ((!cave_floor_bold(y, x)) &&
+	    (!p_ptr->ghostly) &&
+	    (cave_feat[y][x] != FEAT_DIRT) &&
+	    (cave_feat[y][x] != FEAT_FOG))
 	{
 		/* Rubble */
 		if (cave_feat[y][x] == FEAT_RUBBLE)
@@ -1900,6 +1913,12 @@ static bool do_cmd_walk_test(int y, int x)
 		else if (cave_feat[y][x] == FEAT_TREES)
 		{
 			msg_print("The trees are in your way!");
+		}
+
+		/* Chasm -KMW- */
+		else if (cave_feat[y][x] == FEAT_DARK_PIT)
+		{
+			msg_print("The chasm can't be crossed.");
 		}
 
 		/* Mountains -KMW- */
@@ -2020,7 +2039,6 @@ void do_cmd_run(void)
 	int px = p_ptr->px;
 
 	int y, x, dir;
-
 
 	/* Hack XXX XXX XXX */
 	if (p_ptr->confused)
@@ -2558,7 +2576,7 @@ void do_cmd_fire(void)
 				}
 
 				/* Hit the monster, check for death */
-				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
+				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies, FALSE))
 				{
 					/* Dead monster */
 				}
@@ -2582,6 +2600,16 @@ void do_cmd_fire(void)
 
 						/* Message */
 						msg_format("%^s flees in terror!", m_name);
+					}
+
+					if ((m_ptr->is_pet) || (m_ptr->is_friendly)) {
+						char m_name[80];
+
+						monster_desc(m_name, m_ptr, 0x80);
+
+						msg_format("%^s howls in rebellion!", m_name);
+						m_ptr->is_pet = FALSE;
+						m_ptr->is_friendly = FALSE;
 					}
 				}
 			}
@@ -2846,7 +2874,7 @@ void do_cmd_throw(void)
 				}
 
 				/* Hit the monster, check for death */
-				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
+				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies, FALSE))
 				{
 					/* Dead monster */
 				}
@@ -2871,6 +2899,17 @@ void do_cmd_throw(void)
 						/* Message */
 						msg_format("%^s flees in terror!", m_name);
 					}
+
+					if ((m_ptr->is_pet) || (m_ptr->is_friendly)) {
+						char m_name[80];
+
+						monster_desc(m_name, m_ptr, 0x80);
+
+						msg_format("%^s howls in rebellion!", m_name);
+						m_ptr->is_pet = FALSE;
+						m_ptr->is_friendly = FALSE;
+					}
+
 				}
 			}
 

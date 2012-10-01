@@ -562,7 +562,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DETECT_INVIS:
 		{
-			if (set_tim_invis(p_ptr->tim_invis + 12 + randint(12)))
+			if (set_tim_s_invis(p_ptr->tim_s_invis + 12 + randint(12)))
 			{
 				ident = TRUE;
 			}
@@ -1134,7 +1134,7 @@ void do_cmd_read_scroll(void)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(py, px, p_ptr->depth, 0, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -1146,7 +1146,7 @@ void do_cmd_read_scroll(void)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
+				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -1583,7 +1583,7 @@ void do_cmd_use_staff(void)
 		{
 			for (k = 0; k < randint(4); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(py, px, p_ptr->depth, 0, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -3301,6 +3301,20 @@ void do_cmd_activate(void)
 				break;
 			}
 
+			/* From Jurriaan's Ang/64 - the Beaked Axe of Hurin */
+			case ART_HURIN:
+			{
+				if (!p_ptr->fast) {
+					(void)set_fast(randint(50) + 50);
+				} else {
+					(void)set_fast(p_ptr->fast + 5);
+				}
+				hp_player(30);
+				set_afraid(0);
+				set_shero(p_ptr->shero + randint(50) + 50);
+				o_ptr->timeout = rand_int(200) + 100;
+				break;
+			}
 
 			case ART_TOTILA:
 			{
@@ -3360,12 +3374,21 @@ void do_cmd_activate(void)
 				break;
 			}
 
-
 			case ART_CUBRAGOL:
 			{
 				msg_print("Your crossbow glows deep red...");
 				(void)brand_bolts();
 				o_ptr->timeout = 999;
+				break;
+			}
+
+			/* From Jurriaan's Ang/64 - the Black Axe of Gothmog */
+			case ART_GOTHMOG:
+			{
+				msg_print("Your lochaber axe erupts in fire...");
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FIRE, dir, 300, 4);
+				o_ptr->timeout = 200+rand_int(200);
 				break;
 			}
 		}

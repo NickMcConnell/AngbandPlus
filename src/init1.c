@@ -227,7 +227,7 @@ static cptr r_info_flags3[] =
 	"XXX1X3",
 	"XXX2X3",
 	"XXX3X3",
-	"XXX4X3",
+	"NONLIVING",
 	"HURT_LITE",
 	"HURT_ROCK",
 	"HURT_FIRE",
@@ -398,8 +398,8 @@ static cptr k_info_flags1[] =
 	"SLAY_GIANT",
 	"SLAY_DRAGON",
 	"KILL_DRAGON",
-	"XXX5",
-	"XXX6",
+	"VORPAL",
+	"FORCE",
 	"BRAND_POIS", /* from GJW -KMW- */
 	"BRAND_ACID",
 	"BRAND_ELEC",
@@ -460,9 +460,9 @@ static cptr k_info_flags3[] =
 	"FREE_ACT",
 	"HOLD_LIFE",
 	"QUESTITEM", /* -KMW- */
-	"XXX2",
-	"XXX3",
-	"XXX4",
+	"VAMPIRIC",
+	"CHAOTIC",
+	"LEVITATION",
 	"IMPACT",
 	"TELEPORT",
 	"AGGRAVATE",
@@ -524,11 +524,12 @@ static int color_char_to_attr(char c)
 /*
  * Initialize the "v_info" array, by parsing an ascii "template" file
  */
-errr init_v_info_txt(FILE *fp, char *buf)
+errr init_v_info_txt(FILE *fp, char *buf, bool start)
 {
-	int i; /* -KMW- */
-
+	int i,j; /* -KMW- */
 	char *s;
+	monster_race *r_ptr;
+	artifact_type *a_ptr;
 
 	/* Not ready yet */
 	bool okay = FALSE;
@@ -536,16 +537,17 @@ errr init_v_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	vault_type *v_ptr = NULL;
 
-
-	/* Just before the first record */
-	error_idx = -1;
-
-	/* Just before the first line */
-	error_line = -1;
-
-	/* Prepare the "fake" stuff */
-	v_head->name_size = 0;
-	v_head->text_size = 0;
+	if (start) {
+		/* Just before the first record */
+		error_idx = -1;
+	
+		/* Just before the first line */
+		error_line = -1;
+	
+		/* Prepare the "fake" stuff */
+		v_head->name_size = 0;
+		v_head->text_size = 0;
+	}
 
 	/* Parse */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -555,6 +557,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 
 		/* Skip comments and blank lines */
 		if (!buf[0] || (buf[0] == '#')) continue;
+		if ((buf[0] == 'Q') || (buf[0] == 'T')) continue;
 
 		/* Verify correct "colon" format */
 		if (buf[1] != ':') return (1);
@@ -646,21 +649,65 @@ errr init_v_info_txt(FILE *fp, char *buf)
 			    &mon9, &mon10,&item1,&item2,&item3,&item4, &item5)) return (1);
 
 			/* Save the values */
-			v_ptr->mon1 = mon1;
-			v_ptr->mon2 = mon2;
-			v_ptr->mon3 = mon3;
-			v_ptr->mon4 = mon4;
-			v_ptr->mon5 = mon5;
-			v_ptr->mon6 = mon6;
-			v_ptr->mon7 = mon7;
-			v_ptr->mon8 = mon8;
-			v_ptr->mon9 = mon9;
-			v_ptr->mon10 = mon10;
-			v_ptr->item1 = item1;
-			v_ptr->item2 = item2;
-			v_ptr->item3 = item3;
-			v_ptr->item4 = item4;
-			v_ptr->item5 = item5;
+			v_ptr->mon[0] = mon1;
+			v_ptr->mon[1] = mon2;
+			v_ptr->mon[2] = mon3;
+			v_ptr->mon[3] = mon4;
+			v_ptr->mon[4] = mon5;
+			v_ptr->mon[5] = mon6;
+			v_ptr->mon[6] = mon7;
+			v_ptr->mon[7] = mon8;
+			v_ptr->mon[8] = mon9;
+			v_ptr->mon[9] = mon10;
+
+			for (j = 0; j < 10; j++) {
+				r_ptr = &r_info[v_ptr->mon[j]];
+				if (r_ptr->flags1 & (RF1_UNIQUE))
+					r_ptr->flags2 |= RF2_QUESTOR2;
+			}
+
+			v_ptr->item[0] = item1;
+			v_ptr->item[1] = item2;
+			v_ptr->item[2] = item3;
+			v_ptr->item[3] = item4;
+			v_ptr->item[4] = item5;
+
+			for (j = 0; j < 5; j++) {
+				a_ptr = &a_info[v_ptr->item[j]];
+				a_ptr->flags3 |= TR3_QUESTITEM;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process Objects */
+		if (buf[0] == 'K')
+		{
+
+			/* Scan for the values */
+			if (10 != sscanf(buf+2,"%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+			    &v_ptr->kobjects[0], &v_ptr->kobjects[1], 
+			    &v_ptr->kobjects[2], &v_ptr->kobjects[3], 
+			    &v_ptr->kobjects[4], &v_ptr->kobjects[5], 
+			    &v_ptr->kobjects[6], &v_ptr->kobjects[7], 
+			    &v_ptr->kobjects[8], &v_ptr->kobjects[9])) return (1);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process Objects */
+		if (buf[0] == 'E')
+		{
+
+			/* Scan for the values */
+			if (10 != sscanf(buf+2,"%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+			    &v_ptr->eobjects[0], &v_ptr->eobjects[1], 
+			    &v_ptr->eobjects[2], &v_ptr->eobjects[3], 
+			    &v_ptr->eobjects[4], &v_ptr->eobjects[5], 
+			    &v_ptr->eobjects[6], &v_ptr->eobjects[7], 
+			    &v_ptr->eobjects[8], &v_ptr->eobjects[9])) return (1);
 
 			/* Next... */
 			continue;
@@ -708,14 +755,15 @@ errr init_v_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-
 		/* Oops */
 		return (6);
 	}
 
 	/* Complete the "name" and "text" sizes */
-	++v_head->name_size;
-	++v_head->text_size;
+	if (!start) {
+		++v_head->name_size;
+		++v_head->text_size;
+	}
 
 	/* No version yet */
 	if (!okay) return (2);
@@ -957,6 +1005,9 @@ errr init_q_info_txt(FILE *fp, char *buf)
 
 		/* Skip comments and blank lines */
 		if (!buf[0] || (buf[0] == '#')) continue;
+		if (buf[0] == 'V') continue;
+		if ((buf[0] == 'Y') || (buf[0] == 'X') ||
+		    (buf[0] == 'D')) continue;
 
 		/* Verify correct "colon" format */
 		if ((buf[1] != ':') && (buf[0] != 'T')) return (1);
@@ -1016,11 +1067,11 @@ errr init_q_info_txt(FILE *fp, char *buf)
 		/* Process 'Q' for Quest Details -KMW- */
 		if (buf[0] == 'Q')
 		{
-			int qtyp, nm, cn, mn, lv, ri, ii, qy, qx, qrd, vn;
+			int qtyp, nm, cn, mn, lv, ri, ii, qy, qx, qrvt, vn;
 
 			/* Scan for the values */
 			if (11 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-			    &qtyp, &nm, &cn, &mn, &lv, &ri, &ii, &qy, &qx, &qrd, &vn)) return (1);
+			    &qtyp, &nm, &cn, &mn, &lv, &ri, &ii, &qy, &qx, &qrvt, &vn)) return (1);
 
 			/* Save the values */
 			q_list[qidx].quest_type = qtyp;
@@ -1032,7 +1083,7 @@ errr init_q_info_txt(FILE *fp, char *buf)
 			q_list[qidx].k_idx = ii;
 			q_list[qidx].questy = qy;
 			q_list[qidx].questx = qx;
-			q_list[qidx].roadneed = qrd;
+			q_list[qidx].revert = qrvt;
 			q_list[qidx].vaultused = vn;
 
 			continue;
@@ -1044,6 +1095,25 @@ errr init_q_info_txt(FILE *fp, char *buf)
 	return (0);
 }
 
+
+/*
+ * Initialize the "w_info" array, by parsing an ascii "template" file
+ * -KMW-
+ */
+errr init_w_info_txt(FILE *fp, char *buf)
+{
+	int hgt,wid;
+
+	for (hgt = 0;hgt < DUNGEON_HGT;hgt++) {
+		my_fgets(fp, buf, 1024);
+		for (wid = 0;wid < DUNGEON_WID;wid++) {
+			wild_info[hgt][wid] = buf[wid];
+		}
+	}
+
+	/* Success */
+	return (0);
+}
 
 
 /*

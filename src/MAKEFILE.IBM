@@ -10,7 +10,7 @@ OBJS = \
   variable.o tables.o util.o cave.o \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
-  load1.o load2.o save.o files.o \
+  load.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o bldg.o birth.o wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
@@ -32,15 +32,15 @@ GLIBS= -lgrx20
 
 # Name of Program
 
-PROGRAM = angband.exe makepref.exe gredit.exe
+PROGRAM = kangband.exe makepref.exe gredit.exe
 
 
 all: $(PROGRAM)
 
 # Generate binary file
 
-angband.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o angband.bin $(OBJS) $(LIBS)
+kangband.exe: $(OBJS)
+	$(CC) $(CFLAGS) -o kangband.bin $(OBJS) $(LIBS)
 
 gredit.exe: gredit.o
 	$(CC) $(CFLAGS) -o gredit.bin gredit.o $(LIBS) $(GLIBS)

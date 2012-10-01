@@ -313,7 +313,8 @@ static tval_desc tvals[] =
 	{ TV_ROD,               "Rod"                  },
 	{ TV_PRAYER_BOOK,       "Priest Book"          },
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
-	{ TV_ILLUSION_BOOK,        "Illusion Book"           }, /* -KMW- */
+	{ TV_ILLUSION_BOOK,     "Illusion Book"        }, /* -KMW- */
+	{ TV_NATURE_BOOK,       "Druid Book"           }, /* -KMW- */
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -1025,6 +1026,7 @@ static void do_cmd_wiz_cure_all(void)
  */
 static void do_cmd_wiz_jump(void)
 {
+
 	/* Ask for level */
 	if (p_ptr->command_arg <= 0)
 	{
@@ -1156,7 +1158,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, p_ptr->depth, 0);
+		(void)summon_specific(py, px, p_ptr->depth, 0, FALSE);
 	}
 }
 
@@ -1189,7 +1191,7 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
+		if (place_monster_aux(y, x, r_idx, slp, TRUE, 0)) break;
 	}
 }
 
@@ -1277,8 +1279,7 @@ void do_cmd_debug(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 	int i2, i, x,y; /* -KMW- */
-	char tmp_str[80]; /* -KMW- */
-
+	char tmp_str[80];
 	char cmd;
 
 
@@ -1512,14 +1513,14 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* DEBUG -KMW- */
+		/* test for quest flags - temporary -KMW- */
 		case 'y':
 		{
-			sprintf(tmp_str,"py: %d, px: %d, oldpy: %d, oldpx: %d, leftbldg: %d, insspe: %d",
-                            p_ptr->py, p_ptr->px, p_ptr->oldpy, p_ptr->oldpx, p_ptr->leftbldg,
-                            p_ptr->inside_special);
-			msg_print(tmp_str);
-			msg_print(NULL);
+			for (i = 0; i < MAX_MON_QUEST; i++){
+				sprintf(tmp_str,"i:%d, cqmon:%d, cqmonc:%d",i,p_ptr->cqmon[i], p_ptr->cqmonc[i]);
+				msg_print(tmp_str);msg_print(NULL);
+			}
+			break;
 		}
 
 		/* Zap Monsters (Genocide) */

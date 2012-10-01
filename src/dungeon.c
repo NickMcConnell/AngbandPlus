@@ -767,15 +767,64 @@ static void process_world(void)
 	}
 
 	/* Times see-invisible */
+	if (p_ptr->tim_s_invis)
+	{
+		(void)set_tim_s_invis(p_ptr->tim_s_invis - 1);
+	}
+
+	/* time/space anchor */
+	if (p_ptr->ts_anchor)
+	{
+		(void)set_tim_tsanchor(p_ptr->ts_anchor - 1);
+	}
+
+	/* Times invisibility */
 	if (p_ptr->tim_invis)
 	{
 		(void)set_tim_invis(p_ptr->tim_invis - 1);
+	}
+
+	/* Times ghostliness */
+	if (p_ptr->tim_ghostly)
+	{
+		(void)set_tim_ghost(p_ptr->tim_ghostly - 1);
 	}
 
 	/* Timed infra-vision */
 	if (p_ptr->tim_infra)
 	{
 		(void)set_tim_infra(p_ptr->tim_infra - 1);
+	}
+
+	if (p_ptr->tim_sus_str) {
+		p_ptr->tim_sus_str--;
+		if (!p_ptr->tim_sus_str)
+			msg_print("Your strength is no longer protected.");
+	}
+	if (p_ptr->tim_sus_int) {
+		p_ptr->tim_sus_int--;
+		if (!p_ptr->tim_sus_int)
+			msg_print("Your intelligence is no longer protected.");
+	}
+	if (p_ptr->tim_sus_wis) {
+		p_ptr->tim_sus_wis--;
+		if (!p_ptr->tim_sus_wis)
+			msg_print("Your wisdom is no longer protected.");
+	}
+	if (p_ptr->tim_sus_dex) {
+		p_ptr->tim_sus_dex--;
+		if (!p_ptr->tim_sus_dex)
+			msg_print("Your dexterity is no longer protected.");
+	}
+	if (p_ptr->tim_sus_con) {
+		p_ptr->tim_sus_con--;
+		if (!p_ptr->tim_sus_con)
+			msg_print("Your constitution is no longer protected.");
+	}
+	if (p_ptr->tim_sus_chr) {
+		p_ptr->tim_sus_chr--;
+		if (!p_ptr->tim_sus_chr)
+			msg_print("Your charisma is no longer protected.");
 	}
 
 	/* Paralysis */
@@ -872,6 +921,36 @@ static void process_world(void)
 	if (p_ptr->oppose_pois)
 	{
 		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
+	}
+
+	/* Oppose Light & Dark */
+	if (p_ptr->oppose_ld)
+	{
+		(void)set_oppose_ld(p_ptr->oppose_ld - 1);
+	}
+
+	/* Oppose Chaos & Confusion */
+	if (p_ptr->oppose_cc)
+	{
+		(void)set_oppose_cc(p_ptr->oppose_cc - 1);
+	}
+
+	/* Oppose Sound & Shards */
+	if (p_ptr->oppose_ss)
+	{
+		(void)set_oppose_ss(p_ptr->oppose_ss - 1);
+	}
+
+	/* Oppose Nexus */
+	if (p_ptr->oppose_nex)
+	{
+		(void)set_oppose_nex(p_ptr->oppose_nex - 1);
+	}
+
+	/* Oppose Nether */
+	if (p_ptr->oppose_neth)
+	{
+		(void)set_oppose_neth(p_ptr->oppose_neth - 1);
 	}
 
 
@@ -1074,7 +1153,7 @@ static void process_world(void)
 				p_ptr->depth = 0;
 
 				/* if leave quest before complete - reset -KMW- */
-				for(i=0; i < MAX_QUESTS; i++) {
+/*				for(i=0; i < MAX_QUESTS; i++) {
 					if ((p_ptr->rewards[i+QUEST_REWARD] == 1) && 
 					    (q_list[i].quest_type == 5) &&
 					    (p_ptr->inside_special == 2)) {
@@ -1082,7 +1161,7 @@ static void process_world(void)
 						break;
 					}
 				}
-
+*/
 				p_ptr->inside_special = 0; /* -KMW- */
 				p_ptr->leaving = TRUE;
 			}
@@ -1487,7 +1566,7 @@ static void process_command(void)
 			/* Jam a door with spikes */
 		case 'j':
 		{
-			do_cmd_spike();
+			do_cmd_spike(FALSE);
 			break;
 		}
 
@@ -2362,7 +2441,6 @@ static void dungeon(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-
 	/* Hack -- enforce illegal panel */
 	p_ptr->wy = DUNGEON_HGT;
 	p_ptr->wx = DUNGEON_WID;
@@ -2678,7 +2756,6 @@ void play_game(bool new_game)
 	/* Hack -- Character is "icky" */
 	character_icky = TRUE;
 
-
 	/* Hack -- turn off the cursor */
 	(void)Term_set_cursor(0);
 
@@ -2752,7 +2829,6 @@ void play_game(bool new_game)
 		turn = 1;
 	}
 
-
 	/* Flash a message */
 	prt("Please wait...", 0, 0);
 
@@ -2784,6 +2860,14 @@ void play_game(bool new_game)
 	/* Process some user pref files */
 	process_some_user_pref_files();
 
+	/* Initialize vault info */
+	if (init_v_info()) quit("Cannot initialize vaults");
+
+	/* Initialize quest info */
+	if (init_q_info()) quit("Cannot initialize quests");
+
+	/* Initialize wilderness -KMW- */
+	if (init_w_info()) quit ("Cannot initialize wilderness");
 
 	/* Set or clear "rogue_like_commands" if requested */
 	if (arg_force_original) rogue_like_commands = FALSE;
@@ -2819,7 +2903,6 @@ void play_game(bool new_game)
 	{
 		/* Process the level */
 		dungeon();
-
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2918,7 +3001,7 @@ void play_game(bool new_game)
 				strcpy(p_ptr->died_from, "Cheating death");
 
 				/* New depth -KMW- */
-				p_ptr->depth = 0;
+				/* p_ptr->depth = 0; */
 				p_ptr->inside_special = 0;
 
 				/* Leaving */

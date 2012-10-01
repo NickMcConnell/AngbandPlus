@@ -1578,7 +1578,7 @@ static errr init_v_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_v_info(void)
+errr init_v_info(void)
 {
 	int fd;
 
@@ -1587,6 +1587,8 @@ static errr init_v_info(void)
 	errr err;
 
 	FILE *fp;
+
+	char tmp_str[80];
 
 	/* General buffer */
 	char buf[1024];
@@ -1620,7 +1622,8 @@ static errr init_v_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
 
 	/* Attempt to open the "raw" file */
-	fd = fd_open(buf, O_RDONLY);
+	/* fd = fd_open(buf, O_RDONLY); */
+	fd = -1;
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -1666,7 +1669,7 @@ static errr init_v_info(void)
 	if (!fp) quit("Cannot open 'v_info.txt' file.");
 
 	/* Parse the file */
-	err = init_v_info_txt(fp, buf);
+	err = init_v_info_txt(fp, buf, TRUE);
 
 	/* Close it */
 	my_fclose(fp);
@@ -1687,6 +1690,40 @@ static errr init_v_info(void)
 
 		/* Quit */
 		quit("Error in 'v_info.txt' file.");
+	}
+
+	/* Build the filename */
+	sprintf(tmp_str,"q_info%d.txt",p_ptr->plot_num);
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, tmp_str);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'q_info.txt' file.");
+
+	/* Parse the file */
+	err = init_v_info_txt(fp, buf, FALSE);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'q_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'q_info.txt' file.");
 	}
 
 	/*** Dump the binary image file ***/
@@ -1763,16 +1800,15 @@ static errr init_v_info(void)
 }
 
 
-
 /*
  * Initialize the "q_info" array -KMW-
  *
  * Note that we let each entry have a unique "name".
  */
-static errr init_q_info(void)
+errr init_q_info(void)
 {
 	errr err;
-
+	char tmp_str[80];
 	FILE *fp;
 
 	/* General buffer */
@@ -1781,13 +1817,17 @@ static errr init_q_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "q_info.txt");
+	sprintf(tmp_str,"q_info%d.txt",p_ptr->plot_num);
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, tmp_str);
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'q_info.txt' file.");
+	sprintf(tmp_str,"Cannot open 'q_info%d.txt' file.",p_ptr->plot_num);
+	
+	/* Parse it */
+	if (!fp) quit(tmp_str);
 
 	/* Parse the file */
 	err = init_q_info_txt(fp, buf);
@@ -1816,6 +1856,59 @@ static errr init_q_info(void)
 	return (0);
 }
 
+
+/*
+ * Initialize the "w_info" array -KMW-
+ *
+ */
+errr init_w_info(void)
+{
+	errr err;
+	char tmp_str[12];
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	sprintf(tmp_str,"w_info%d.txt",p_ptr->plot_num);
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, tmp_str);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'w_info.txt' file.");
+
+	/* Parse the file */
+	err = init_w_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'w_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'w_info.txt' file.");
+	}
+	/* Success */
+	return (0);
+}
 
 
 /*** Initialize others ***/
@@ -1952,13 +2045,11 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_QUARTERSTAFF },
 		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_MACE },
 		{ TV_HAFTED, SV_BALL_AND_CHAIN },
 		{ TV_HAFTED, SV_WAR_HAMMER },
 		{ TV_HAFTED, SV_LUCERN_HAMMER },
 		{ TV_HAFTED, SV_MORNING_STAR },
 
-		{ TV_HAFTED, SV_FLAIL },
 		{ TV_HAFTED, SV_FLAIL },
 		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
@@ -1976,14 +2067,16 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 0 },	/* added druid books -KMW- */
 		{ TV_PRAYER_BOOK, 0 },
 		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 1 },
 		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 3 }
+		{ TV_PRAYER_BOOK, 3 },
+		{ TV_NATURE_BOOK, 0 },
+		{ TV_NATURE_BOOK, 0 },
+		{ TV_NATURE_BOOK, 3 },
+		{ TV_NATURE_BOOK, 1 },
+		{ TV_NATURE_BOOK, 2 }
 	},
 
 	{
@@ -2052,15 +2145,15 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_DETECT_INVIS },
 		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 
 		/* Added Illusion books -KMW- */
 		{ TV_MAGIC_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 0 },
 		{ TV_MAGIC_BOOK, 1 },
 		{ TV_MAGIC_BOOK, 2 },
 		{ TV_MAGIC_BOOK, 3 },
+		{ TV_ILLUSION_BOOK, 0 },
 		{ TV_ILLUSION_BOOK, 0 },
 		{ TV_ILLUSION_BOOK, 1 },
 		{ TV_ILLUSION_BOOK, 2 },
@@ -2611,12 +2704,12 @@ void init_angband(void)
 	if (init_r_info()) quit("Cannot initialize monsters");
 
 	/* Initialize vault info */
-	note("[Initializing arrays... (vaults)]");
-	if (init_v_info()) quit("Cannot initialize vaults");
+	/* note("[Initializing arrays... (vaults)]"); */
+	/* if (init_v_info()) quit("Cannot initialize vaults"); */
 
 	/* Initialize quest info -KMW- */
-	note("[Initializing arrays... (quests)]");
-	if (init_q_info()) quit("Cannot initialize quests");
+	/* note("[Initializing arrays... (quests)]"); */
+	/* if (init_q_info()) quit("Cannot initialize quests"); */
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");

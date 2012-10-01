@@ -739,6 +739,112 @@ bool set_invuln(int v)
 
 
 /*
+ * Set "p_ptr->tim_s_invis", notice observable changes
+ */
+bool set_tim_s_invis(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_s_invis)
+		{
+			msg_print("Your eyes feel very sensitive!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_s_invis)
+		{
+			msg_print("Your eyes feel less sensitive.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_s_invis = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->ts_anchor", notice observable changes
+ */
+bool set_tim_tsanchor(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->ts_anchor)
+		{
+			msg_print("You temporarily stabilize local space!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->ts_anchor)
+		{
+			msg_print("Your time/space anchor ravels apart.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->ts_anchor = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
  * Set "p_ptr->tim_invis", notice observable changes
  */
 bool set_tim_invis(int v)
@@ -753,7 +859,7 @@ bool set_tim_invis(int v)
 	{
 		if (!p_ptr->tim_invis)
 		{
-			msg_print("Your eyes feel very sensitive!");
+			msg_print("You can see through yourself!");
 			notice = TRUE;
 		}
 	}
@@ -763,13 +869,67 @@ bool set_tim_invis(int v)
 	{
 		if (p_ptr->tim_invis)
 		{
-			msg_print("Your eyes feel less sensitive.");
+			msg_print("You become substantial again.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->tim_invis = v;
+	p_ptr->tim_s_invis = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_ghostly", notice observable changes
+ */
+bool set_tim_ghost(int v)
+{
+	bool notice = FALSE;
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_ghostly)
+		{
+			msg_print("You no longer feel solid");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_ghostly)
+		{
+			msg_print("You become solid again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_ghostly = v;
+	p_ptr->tim_s_invis = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1064,6 +1224,241 @@ bool set_oppose_pois(int v)
 
 	/* Use the value */
 	p_ptr->oppose_pois = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->oppose_ld", notice observable changes
+ */
+bool set_oppose_ld(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_ld)
+		{
+			msg_print("You feel resistant to light & dark!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_ld)
+		{
+			msg_print("You feel less resistant to light & dark.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_ld = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->oppose_cc", notice observable changes
+ */
+bool set_oppose_cc(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_cc)
+		{
+			msg_print("You feel resistant to chaos & confusion!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_cc)
+		{
+			msg_print("You feel less resistant to chaos & confusion.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_cc = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->oppose_ss", notice observable changes
+ */
+bool set_oppose_ss(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_ss)
+		{
+			msg_print("You feel resistant to sound & shards!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_ss)
+		{
+			msg_print("You feel less resistant to sound & shards.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_ss = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->oppose_nex", notice observable changes
+ */
+bool set_oppose_nex(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_nex)
+		{
+			msg_print("You feel resistant to nexus!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_nex)
+		{
+			msg_print("You feel less resistant to nexus.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_nex = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->oppose_neth", notice observable changes
+ */
+bool set_oppose_neth(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_neth)
+		{
+			msg_print("You feel resistant to life-draining forces!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_neth)
+		{
+			msg_print("You feel less resistant to life-draining forces.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_neth = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1860,6 +2255,8 @@ void monster_death(int m_idx)
 		p_ptr->exit_bldg = TRUE;
 		msg_print("Victorious! You're on your way to becoming Champion.");
 		p_ptr->arena_number++;
+		/* p_ptr->inside_special = 0; */
+		/* p_ptr->leaving = TRUE; */
 	}
 
 	/* Drop objects being carried */
@@ -1990,6 +2387,14 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
+	/* keep track of any quest activity */
+	if (p_ptr->inside_special == 2) {
+		for (i = 0; i < MAX_MON_QUEST; i++) {
+			if (m_ptr->r_idx == p_ptr->cqmon[i]) {
+				p_ptr->cqmonc[i]++;
+			}
+		}
+	}
 
 	/* Process "any level" quest monster completion -KMW- */
 	for(i=0; i < MAX_QUESTS; i++) {
@@ -2113,7 +2518,7 @@ void monster_death(int m_idx)
  * worth more than subsequent monsters.  This would also need to
  * induce changes in the monster recall code.  XXX XXX XXX
  */
-bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
+bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
@@ -2192,7 +2597,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* Gain experience */
-		gain_exp(new_exp);
+		if (!bypet)
+			gain_exp(new_exp);
 
 		/* Generate treasure */
 		monster_death(m_idx);
@@ -2354,7 +2760,7 @@ void verify_panel(void)
 	/* Scroll */
 	if (scroll)
 	{
-		/* Optional disturb on "panel change" */
+		/* Optional disturb on "panel chd.");*/
 		if (disturb_panel) disturb(0, 0);
 
 		/* Update stuff */
@@ -2766,6 +3172,9 @@ static bool target_set_accept(int y, int x)
 		if (cave_feat[y][x] == FEAT_SHAL_WATER) return (TRUE);
 		if (cave_feat[y][x] == FEAT_DEEP_LAVA) return (TRUE);
 		if (cave_feat[y][x] == FEAT_SHAL_LAVA) return (TRUE);
+		if (cave_feat[y][x] == FEAT_DIRT) return (TRUE);
+		if (cave_feat[y][x] == FEAT_FOG) return (TRUE);
+		if (cave_feat[y][x] == FEAT_DARK_PIT) return (TRUE);
 		if (cave_feat[y][x] == FEAT_TREES) return (TRUE);
 		if (cave_feat[y][x] == FEAT_MOUNTAIN) return (TRUE);
 
@@ -2890,7 +3299,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		/* Hack -- hallucination */
 		if (p_ptr->image)
 		{
-			cptr name = "something strange";
+			cptr name = "something strd.");;
 
 			/* Display a message */
 			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
@@ -3112,7 +3521,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			if (((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) ||
 			    ((feat >= FEAT_BLDG_HEAD) & (feat <= FEAT_BLDG_TAIL)))
 			{
-				s3 = "the entrance to the ";
+				s3 = "the entrd.ce to the ";
 			}
 
 			/* Display a message */
@@ -3550,8 +3959,8 @@ bool get_aim_dir(int *dp)
  *
  * This function should be used for all "repeatable" commands, such as
  * run, walk, open, close, bash, disarm, spike, tunnel, etc, as well
- * as all commands which must reference a grid adjacent to the player,
- * and which may not reference the grid under the player.
+ * as all commands which must refere.ce a grid adjacent to the player,
+ * and which may not refere.ce the grid under the player.
  *
  * Direction "5" (and "0") are illegal and will not be accepted.
  *
@@ -3639,5 +4048,56 @@ bool confuse_dir(int *dp)
 
 	/* Not confused */
 	return (FALSE);
+}
+
+/* From Psionic Angband by Aram Harrow */
+bool tgt_pt(int *x,int *y)
+{
+	char ch = 0;
+	int d,cu,cv;
+	bool success = FALSE;
+
+	*x = p_ptr->px;
+	*y = p_ptr->py;
+
+	cu = Term->scr->cu;
+	cv = Term->scr->cv;
+	Term->scr->cu = 0;
+	Term->scr->cv = 1;
+	msg_print("Select a point and press space.");
+
+	while ((ch != 27) && (ch != ' '))
+	{
+		move_cursor_relative(*y,*x);
+		ch = inkey();
+		switch (ch)
+		{
+			case 27: break;
+			case ' ': success = TRUE; break;
+			default:
+			{
+				d = keymap_dirs[ch & 127];
+				if (!d) break;
+				*x += ddx[d];
+				*y += ddy[d];
+
+				/* Hack -- Verify x */
+				if ((*x>=DUNGEON_WID-1) || (*x>=p_ptr->wx + SCREEN_WID)) (*x)--;
+				else if ((*x<=0) || (*x<=p_ptr->wx)) (*x)++;
+
+				/* Hack -- Verify y */
+				if ((*y>=DUNGEON_HGT-1) || (*y>=p_ptr->wy + SCREEN_HGT)) (*y)--;
+				else if ((*y<=0) || (*y<=p_ptr->wy)) (*y)++;
+
+				break;
+			}
+		}
+	}
+
+	Term->scr->cu = cu;
+	Term->scr->cv = cv;
+	Term_fresh();
+	return success;
+
 }
 

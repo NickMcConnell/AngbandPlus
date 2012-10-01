@@ -43,12 +43,12 @@
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	8
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 
 /*
  * This value is not currently used
  */
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	5 /* Kangband 2.8.2e */
 
 
 /*
@@ -130,6 +130,9 @@
 #define QUEST_REWARD_HEAD	100	/* -KMW- */
 #define QUEST_REWARD_TAIL	120	/* -KMW- */
 
+#define MAX_MON_QUEST		10
+#define MAX_ITEM_QUEST		5
+
 #define MAX_ARENA_MONS		29	/* -KMW- */
 
 
@@ -156,7 +159,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS		7	/* Added illusionist -KMW- */
+#define MAX_CLASS		8	/* Added illusionist & druid -KMW- */
 
 
 /*
@@ -166,10 +169,10 @@
  * and terrains. Also increased vault size. -KMW-
  */
 #define MAX_F_IDX		128	/* Max size for "f_info[]" -KMW- */
-#define MAX_K_IDX		512	/* Max size for "k_info[]" */
-#define MAX_A_IDX		128	/* Max size for "a_info[]" */
-#define MAX_E_IDX		128	/* Max size for "e_info[]" */
-#define MAX_R_IDX		549	/* Max size for "r_info[]" */
+#define MAX_K_IDX		612	/* Max size for "k_info[]" -KMW- */
+#define MAX_A_IDX		256	/* Max size for "a_info[]" -KMW- */
+#define MAX_E_IDX		256	/* Max size for "e_info[]" -KMW- */
+#define MAX_R_IDX		580	/* Max size for "r_info[]" -KMW- */
 #define MAX_V_IDX		128	/* Max size for "v_info[]" -KMW- */
 
 
@@ -194,6 +197,14 @@
 #define QUEST_OFFSET1	100	/* Quests start at 100 -KMW- */
 #define QUEST_REWARD	30	/* where quests stored in reward array -KMW- */
 #define QUEST_DIFF	70	/* diff between reward and quest array -KMW- */
+
+/* Plots - KMW-
+ * This can be changed to any value, within reason.  If you increase the number
+ * of plots, you must also create a respective q_info#.txt and w_info#.txt where
+ * the # symbol would be replaced by the plot number.  These files are in
+ * the LIB\EDIT directory 
+ */
+#define MAX_PLOTS		10
 
 /*
  * Maximum number of high scores in the high score file
@@ -465,6 +476,7 @@
 #define CLASS_RANGER		4
 #define CLASS_PALADIN		5
 #define CLASS_ILLUSIONIST	6	/* Added -KMW- */
+#define CLASS_DRUID		7	/* Added -KMW- */
 
 
 
@@ -566,8 +578,12 @@
 #define SUMMON_DEMON		16
 #define SUMMON_UNDEAD		17
 #define SUMMON_DRAGON		18
+#define SUMMON_WOLVES		19
+#define SUMMON_SHADOWS		20
 #define SUMMON_HI_UNDEAD	21
 #define SUMMON_HI_DRAGON	22
+#define SUMMON_ELEMENTAL	23
+#define SUMMON_ANIMALS		24
 #define SUMMON_WRAITH		31
 #define SUMMON_UNIQUE		32
 
@@ -595,10 +611,10 @@
 #define GF_FIRE		18
 #define GF_COLD		19
 #define GF_POIS		20
-#define GF_XXX2		21
+#define GF_BALEFIRE	21 /* -KMW- */
 #define GF_LITE		22
 #define GF_DARK		23
-#define GF_XXX3		24
+#define GF_TAME		24 /* -KMW- */
 #define GF_CONFUSION	25
 #define GF_SOUND		26
 #define GF_SHARD		27
@@ -606,15 +622,15 @@
 #define GF_NETHER		29
 #define GF_CHAOS		30
 #define GF_DISENCHANT	31
-#define GF_XXX4		32
+#define GF_FOG		32
 #define GF_KILL_WALL	33
 #define GF_KILL_DOOR	34
 #define GF_KILL_TRAP	35
 #define GF_MAKE_WALL	36
 #define GF_MAKE_DOOR	37
 #define GF_MAKE_TRAP	38
-#define GF_XXX5		39
-#define GF_XXX6		40
+#define GF_MAKE_PET	39 /* -KMW- */
+#define GF_TURN_ANIMALS	40 /* -KMW- */
 #define GF_AWAY_UNDEAD	41
 #define GF_AWAY_EVIL	42
 #define GF_AWAY_ALL	43
@@ -624,7 +640,7 @@
 #define GF_DISP_UNDEAD	47
 #define GF_DISP_EVIL	48
 #define GF_DISP_ALL	49
-#define GF_XXX7		50
+#define GF_DISP_DEMONS	50 /* -KMW- */
 #define GF_OLD_CLONE	51
 #define GF_OLD_POLY	52
 #define GF_OLD_HEAL	53
@@ -712,19 +728,25 @@
 
 /* Buildings -KMW- */
 #define FEAT_BLDG_HEAD		0x40
-#define FEAT_BLDG_TAIL		0x50
+#define FEAT_BLDG_TAIL		0x51
 
 /* Extra Terrain -KMW- */
 #define FEAT_DEEP_WATER		0x60
 #define FEAT_SHAL_WATER		0x61
 #define FEAT_DEEP_LAVA		0x62
 #define FEAT_SHAL_LAVA		0x63
-#define FEAT_TREES		0x64
+#define FEAT_DARK_PIT		0x64
+#define FEAT_DIRT			0x65
+#define FEAT_FOG			0x66
+#define FEAT_TREES		0x67
 #define FEAT_MOUNTAIN		0x6E
 
 /* Quest features -KMW- */
 #define FEAT_QUEST_ENTER	0x70
 #define FEAT_QUEST_EXIT		0x71
+#define FEAT_GQUEST_ENTER	0x72
+#define FEAT_QUEST_DOWN		0x73
+#define FEAT_QUEST_UP		0x74
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -835,6 +857,7 @@
 #define ART_DOOMCALLER		91
 
 /* Polearms */
+#define ART_MELKOR		92 /* from Jurriaan's Ang/64 */
 #define ART_THEODEN		93
 #define ART_PAIN			94
 #define ART_OSONDIR		95
@@ -852,6 +875,7 @@
 #define ART_WRATH			107
 #define ART_ULMO			108
 #define ART_AVAVIR		109
+#define ART_HURIN			110 /* from Jurriaan's Ang/64 */
 
 /* Hafted */
 #define ART_GROND			111
@@ -866,11 +890,14 @@
 #define ART_OLORIN		120
 #define ART_DEATHWREAKER	121
 #define ART_TURMIL		122
+#define ART_AZAGHAL		123 /* from Jurriaan's Ang/64 */
+
 
 /* Bows */
 #define ART_BELTHRONDING	124
 #define ART_BARD			125
 #define ART_CUBRAGOL		126
+#define ART_GOTHMOG		127 /* from Jurriaan's Ang/64 */
 
 
 /*
@@ -910,7 +937,7 @@
 #define EGO_ENDURE_FIRE		18
 #define EGO_ENDURE_COLD		19
 #define EGO_ENDURANCE		20
-/* xxx */
+#define EGO_REFLECTION		21
 /* xxx */
 /* xxx */
 
@@ -936,11 +963,11 @@
 #define EGO_PROTECTION		40
 #define EGO_STEALTH		41
 #define EGO_AMAN			42
-/* xxx */
+#define EGO_IMMOLATION		43
 #define EGO_ENVELOPING		44
 #define EGO_VULNERABILITY	45
 #define EGO_IRRITATION		46
-/* xxx */
+#define EGO_ELECTRIC		47
 
 /* Gloves */
 #define EGO_FREE_ACTION		48
@@ -957,7 +984,7 @@
 #define EGO_QUIET			57
 #define EGO_MOTION		58
 #define EGO_SPEED			59
-/* xxx */
+#define EGO_LEVITATION		60
 #define EGO_NOISE			61
 #define EGO_SLOWNESS		62
 #define EGO_ANNOYANCE		63
@@ -966,18 +993,18 @@
 #define EGO_HA			64
 #define EGO_DF			65
 #define EGO_BLESS_BLADE		66
-/* xxx */
+#define EGO_FORCE			67
 #define EGO_WEST			68
 #define EGO_ATTACKS		69
-/* xxx */
+#define EGO_W_SLAYING		70
 /* xxx */
 #define EGO_BRAND_ACID		72
 #define EGO_BRAND_ELEC		73
 #define EGO_BRAND_FIRE		74
 #define EGO_BRAND_COLD		75
 #define EGO_BRAND_POIS		76	/* Added from GJW -KMW- */
-/* xxx */
-/* xxx */
+#define EGO_CHAOTIC		77
+#define EGO_VORPAL		78
 /* xxx */
 #define EGO_SLAY_ANIMAL		80
 #define EGO_SLAY_EVIL		81
@@ -990,12 +1017,12 @@
 #define EGO_KILL_ANIMAL		88
 #define EGO_KILL_EVIL		89
 #define EGO_KILL_UNDEAD		90
-#define EGO_KILL_DEMON		83
-#define EGO_KILL_ORC		84
-#define EGO_KILL_TROLL		85
-#define EGO_KILL_GIANT		86
+#define EGO_KILL_DEMON		91
+#define EGO_KILL_ORC		92
+#define EGO_KILL_TROLL		93
+#define EGO_KILL_GIANT		94
 #define EGO_KILL_DRAGON		95
-/* xxx */
+#define EGO_VAMPIRIC		96
 /* xxx */
 /* xxx */
 /* xxx */
@@ -1023,7 +1050,7 @@
 #define EGO_HURT_TROLL		117
 #define EGO_HURT_GIANT		118
 #define EGO_HURT_DRAGON		119
-/* xxx */
+#define EGO_A_SLAY		120
 #define EGO_VENOM			121	/* Added from GJW -KMW- */
 #define EGO_FLAME			122
 #define EGO_FROST			123
@@ -1086,6 +1113,7 @@
 #define TV_MAGIC_BOOK	90
 #define TV_PRAYER_BOOK	91
 #define TV_ILLUSION_BOOK 92	/* added for illusionists -KMW- */
+#define TV_NATURE_BOOK	93	/* added for druids -KMW- */
 #define TV_GOLD		100	/* Gold can only be picked up by players */
 
 
@@ -1165,6 +1193,7 @@
 #define SV_SMALL_METAL_SHIELD		3
 #define SV_LARGE_LEATHER_SHIELD		4
 #define SV_LARGE_METAL_SHIELD		5
+#define SV_DRAGON_SHIELD		6
 #define SV_SHIELD_OF_DEFLECTION		10
 
 /* The "sval" codes for TV_HELM */
@@ -1172,6 +1201,7 @@
 #define SV_METAL_CAP			3
 #define SV_IRON_HELM			5
 #define SV_STEEL_HELM			6
+#define SV_DRAGON_HELM			7
 #define SV_IRON_CROWN			10
 #define SV_GOLDEN_CROWN			11
 #define SV_JEWELED_CROWN		12
@@ -1292,6 +1322,12 @@
 #define SV_RING_NENYA			35
 #define SV_RING_VILYA			36
 #define SV_RING_POWER			37
+#define SV_RING_RES_BLIND		38
+#define SV_RING_LORDLY			39
+#define SV_RING_ATTACKS			40
+#define SV_RING_RES_FEAR		41
+#define SV_RING_RES_NETHER		42
+#define SV_RING_RES_CONF		43
 
 
 /* The "sval" codes for TV_STAFF */
@@ -1495,7 +1531,7 @@
 #define SV_POTION_INC_DEX			51
 #define SV_POTION_INC_CON			52
 #define SV_POTION_INC_CHR			53
-/* xxx */
+#define SV_POTION_RESISTANCE			54
 #define SV_POTION_AUGMENTATION			55
 #define SV_POTION_ENLIGHTENMENT			56
 #define SV_POTION_STAR_ENLIGHTENMENT	57
@@ -1909,8 +1945,8 @@
 #define TR1_SLAY_GIANT		0x00400000L	/* Weapon slays giant */
 #define TR1_SLAY_DRAGON		0x00800000L	/* Weapon slays dragon */
 #define TR1_KILL_DRAGON		0x01000000L	/* Weapon kills dragon */
-#define TR1_XXX5			0x02000000L
-#define TR1_XXX6			0x04000000L
+#define TR1_VORPAL		0x02000000L
+#define TR1_FORCE			0x04000000L
 #define TR1_BRAND_POIS		0x08000000L /* added by GJW  -KMW- */
 #define TR1_BRAND_ACID		0x10000000L	/* Weapon has acid brand */
 #define TR1_BRAND_ELEC		0x20000000L	/* Weapon has elec brand */
@@ -1959,9 +1995,9 @@
 #define TR3_FREE_ACT		0x00000040L	/* Free action */
 #define TR3_HOLD_LIFE		0x00000080L	/* Hold life */
 #define TR3_QUESTITEM		0x00000100L	/* quest level item -KMW- */
-#define TR3_XXX2			0x00000200L
-#define TR3_XXX3			0x00000400L
-#define TR3_XXX4			0x00000800L
+#define TR3_VAMPIRIC			0x00000200L
+#define TR3_CHAOTIC			0x00000400L
+#define TR3_LEVITATION			0x00000800L
 #define TR3_IMPACT			0x00001000L	/* Earthquake blows */
 #define TR3_TELEPORT		0x00002000L	/* Random teleportation */
 #define TR3_AGGRAVATE		0x00004000L	/* Aggravate monsters */
@@ -2125,7 +2161,7 @@
 #define RF3_XXX1			0x00000100	/* (?) */
 #define RF3_XXX2			0x00000200	/* (?) */
 #define RF3_XXX3			0x00000400	/* Non-Vocal (?) */
-#define RF3_XXX4			0x00000800	/* Non-Living (?) */
+#define RF3_NONLIVING			0x00000800	/* Non-Living */
 #define RF3_HURT_LITE		0x00001000	/* Hurt by lite */
 #define RF3_HURT_ROCK		0x00002000	/* Hurt by rock remover */
 #define RF3_HURT_FIRE		0x00004000	/* Hurt badly by fire */
@@ -2570,7 +2606,7 @@
 #define cave_floor_bold(Y,X) \
 	((!(cave_feat[Y][X] & 0x20)) || \
 	((cave_feat[Y][X] >= FEAT_DEEP_WATER) && \
-	(cave_feat[Y][X] <= FEAT_SHAL_LAVA)))
+	(cave_feat[Y][X] <= FEAT_FOG)))
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid
@@ -2583,7 +2619,9 @@
 #define cave_clean_bold(Y,X) \
 	(((cave_feat[Y][X] == FEAT_FLOOR) || \
 	(cave_feat[Y][X] == FEAT_SHAL_WATER) || \
-	(cave_feat[Y][X] == FEAT_SHAL_LAVA)) && \
+	(cave_feat[Y][X] == FEAT_SHAL_LAVA) || \
+	(cave_feat[Y][X] == FEAT_DIRT) || \
+	(cave_feat[Y][X] == FEAT_FOG)) && \
 	(cave_o_idx[Y][X] == 0))
 
 /*
@@ -2606,7 +2644,9 @@
 #define cave_naked_bold(Y,X) \
 	(((cave_feat[Y][X] == FEAT_FLOOR) || \
 	(cave_feat[Y][X] == FEAT_SHAL_WATER) || \
-	(cave_feat[Y][X] == FEAT_SHAL_LAVA)) && \
+	(cave_feat[Y][X] == FEAT_SHAL_LAVA) || \
+	(cave_feat[Y][X] == FEAT_DIRT) || \
+	(cave_feat[Y][X] == FEAT_FOG)) && \
 	(cave_o_idx[Y][X] == 0) && \
 	(cave_m_idx[Y][X] == 0))
 

@@ -397,6 +397,13 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
 
+			/* Force -KMW- */
+			if (f1 & (TR1_FORCE))
+			{
+				/* There is no immunity */
+				if (mult < 4) mult = 4;
+			}
+
 			break;
 		}
 	}
@@ -597,6 +604,15 @@ void py_pickup(int pickup)
 					/* Message */
 					msg_format("You have %s (%c).", o_name, index_to_label(slot));
 
+					/* keep track of any quest activity */
+					if (p_ptr->inside_special == 2) {
+						for (i = 0; i < MAX_ITEM_QUEST; i++) {
+							if (o_ptr->name1 == p_ptr->cqitem[i]) {
+								p_ptr->cqitemc[i]++;
+							}
+						}
+					}
+
 					/* Check if completed a quest -KMW- */
 					for (i=0; i < MAX_QUESTS;i++)
 						if ((q_list[i].quest_type == 3) &&
@@ -781,7 +797,7 @@ void hit_trap(int y, int x)
 			num = 2 + randint(3);
 			for (i = 0; i < num; i++)
 			{
-				(void)summon_specific(y, x, p_ptr->depth, 0);
+				(void)summon_specific(y, x, p_ptr->depth, 0, FALSE);
 			}
 			break;
 		}
@@ -936,7 +952,11 @@ void py_attack(int y, int x)
 	bool fear = FALSE;
 
 	bool do_quake = FALSE;
-
+	bool vorpal_cut = FALSE, chaos_effect = FALSE, force_effect = FALSE;
+	bool drain_msg = TRUE;
+	int drain_result = 0, drain_heal = 0;
+	int drain_left = 100;
+	u32b f1, f2, f3; /* A massive hack -- life-draining weapons */
 
 	/* Access the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
@@ -992,6 +1012,21 @@ void py_attack(int y, int x)
 			/* Hack -- bare hands do one damage */
 			k = 1;
 
+			object_flags(o_ptr,&f1,&f2,&f3);
+
+			if ((f3 & TR3_CHAOTIC) && (randint(2) == 1))
+				chaos_effect = TRUE;
+			if ((f1 & TR1_FORCE) && (randint(2) == 1)) {
+				force_effect = TRUE;
+			}
+			if (f3 & TR3_VAMPIRIC) {
+				if (!((r_ptr->flags3 & RF3_UNDEAD) ||
+				     (r_ptr->flags3 & RF3_NONLIVING)))
+					drain_result = m_ptr->hp;
+			}
+			if (f1 & TR1_VORPAL)
+				vorpal_cut = TRUE;
+			
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
 			{
@@ -999,6 +1034,15 @@ void py_attack(int y, int x)
 				k = tot_dam_aux(o_ptr, k, m_ptr);
 				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, m_ptr);
+
+				if (vorpal_cut) {
+					int step_k = k;
+					
+					do { 
+						k += step_k;
+						msg_print("Your blade cuts deep!");
+					} while (randint(2) == 1);
+				}
 				/* factor in monster for critical_norm (GJW)		-KMW- */
 				k += o_ptr->to_d;
 			}
@@ -1016,19 +1060,42 @@ void py_attack(int y, int x)
 			}
 
 			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
+			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL, FALSE)) break;
 
 			/* Disturb the monster (AFTER damage is done -GJW) 	-KMW- */
 			m_ptr->csleep = 0;
 
+			if (drain_result) {
+				drain_result -= m_ptr->hp;
+				if (drain_result > 0) {
+					drain_heal = damroll(5,(drain_result / 5));
+					if (drain_left) {
+						if (drain_heal < drain_left)
+							drain_left -= drain_heal;
+						else {
+							drain_heal = drain_left;
+							drain_left = 0;
+						}
+						if (drain_msg) {
+							msg_format("Your weapon drains life from %s!", m_name);
+							drain_msg = FALSE;
+						}
+						hp_player(drain_heal);
+					}
+				}
+			}
+
 			/* Confusion attack */
-			if (p_ptr->confusing)
+			if ((p_ptr->confusing) || (chaos_effect && randint(4) == 1))
 			{
 				/* Cancel glowing hands */
 				p_ptr->confusing = FALSE;
 
 				/* Message */
-				msg_print("Your hands stop glowing.");
+				if (!chaos_effect)
+					msg_print("Your hands stop glowing.");
+				else
+					chaos_effect = FALSE;
 
 				/* Confuse the monster */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -1049,6 +1116,29 @@ void py_attack(int y, int x)
 					msg_format("%^s appears confused.", m_name);
 					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
 				}
+			}
+
+			else if (chaos_effect && (randint(10) == 1)) {
+				chaos_effect = FALSE;
+				msg_format("%^s disappears!",m_name);
+				teleport_away(cave_m_idx[y][x], 50);
+				num = p_ptr->num_blow + 1;
+			} else if (chaos_effect && (randint(10) == 1) &&
+			     (!(r_ptr->flags1 & RF1_UNIQUE))) {
+				int tmp = poly_r_idx(m_ptr->r_idx);
+
+				chaos_effect = FALSE;
+				if (tmp != m_ptr->r_idx) {
+					msg_format("%^s changes!", m_name);
+					delete_monster_idx(cave_m_idx[y][x]);
+					(void) place_monster_aux(y, x, tmp, FALSE, FALSE, 0);
+					m_ptr = &m_list[cave_m_idx[y][x]];
+					monster_desc(m_name, m_ptr, 0);
+					r_ptr = &r_info[m_ptr->r_idx];
+				}
+			} else if (force_effect) {
+				fire_ball(GF_FORCE, 5,10 + (p_ptr->lev / 2), 2);
+				msg_print("Your weapon radiates force!");
 			}
 		}
 
@@ -1074,6 +1164,15 @@ void py_attack(int y, int x)
 		msg_format("%^s flees in terror!", m_name);
 	}
 
+	if ((m_ptr->is_pet) || (m_ptr->is_friendly)) {
+		char m_name[80];
+
+		monster_desc(m_name, m_ptr, 0x80);
+
+		msg_format("%^s howls in rebellion!", m_name);
+		m_ptr->is_pet = FALSE;
+		m_ptr->is_friendly = FALSE;
+	}
 
 	/* Mega-Hack -- apply earthquake brand */
 	if (do_quake)
@@ -1122,7 +1221,7 @@ void move_player(int dir, int do_pickup)
 	else if (cave_feat[y][x] == FEAT_DEEP_WATER)
 	{
 		wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
-		if (p_ptr->total_weight < wt)
+		if ((p_ptr->total_weight < wt) || (p_ptr->levitate))
 			oktomove = TRUE;
 		else {
 			msg_print("You can't swim with that much weight.");
@@ -1132,7 +1231,8 @@ void move_player(int dir, int do_pickup)
 
 	else if (cave_feat[y][x] == FEAT_SHAL_LAVA)
 	{
-		if ((p_ptr->resist_fire) || (p_ptr->immune_fire))
+		if ((p_ptr->resist_fire) || (p_ptr->immune_fire) || 
+		    (p_ptr->oppose_fire) || (p_ptr->levitate))
 			oktomove = TRUE;
 		else {
 			msg_print("You aren't able to resist the heat!");
@@ -1140,21 +1240,42 @@ void move_player(int dir, int do_pickup)
 		}
 	}
 
-	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) ||
-	    (cave_feat[y][x] == FEAT_MOUNTAIN))
+	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && !p_ptr->levitate)
 	{
 		msg_print("You can't move through that!");
 		oktomove = FALSE;
 	}
 
-        else if ((cave_feat[y][x] >= FEAT_QUEST_ENTER) &&
-            (cave_feat[y][x] <= FEAT_QUEST_EXIT))
+	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && p_ptr->levitate && 
+	    !((p_ptr->resist_fire) || (p_ptr->oppose_fire) || 
+	    (p_ptr->immune_fire)))
 	{
-                oktomove = TRUE;
+		msg_print("The heat is too intense to move over it.");
+		oktomove = FALSE;
+	}
+
+	else if ((cave_feat[y][x] == FEAT_DARK_PIT) && !p_ptr->levitate)
+	{
+		msg_print("You can't cross the chasm.");
+		oktomove = FALSE;
+	}
+
+	else if (cave_feat[y][x] == FEAT_MOUNTAIN)
+	{
+		msg_print("You can't move through that!");
+		oktomove = FALSE;
+	}
+
+	else if ((cave_feat[y][x] >= FEAT_QUEST_ENTER) &&
+		(cave_feat[y][x] <= FEAT_QUEST_EXIT))
+	{
+		oktomove = TRUE;
 	}
 
 	/* Player can not walk through "walls" */
-	else if (!cave_floor_bold(y, x))
+	else if ((!cave_floor_bold(y, x)) &&
+	    (!p_ptr->ghostly) &&
+	    (cave_feat[y][x] != FEAT_FOG))
 	{
 		oktomove = FALSE;
 
@@ -1299,16 +1420,19 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* handle shallow water -KMW- */
-		if (cave_feat[y][x] == FEAT_SHAL_WATER)
+		if ((cave_feat[y][x] == FEAT_SHAL_WATER) & !p_ptr->levitate)
 			msg_print("You stride through the water.");
 
 		/* handle deep water -KMW- */
-		if (cave_feat[y][x] == FEAT_DEEP_WATER)
+		if ((cave_feat[y][x] == FEAT_DEEP_WATER) & !p_ptr->levitate)
 			msg_print("You swim through the water.");
 
 		/* handle shallow water -KMW- */
-		if (cave_feat[y][x] == FEAT_SHAL_LAVA)
+		if ((cave_feat[y][x] == FEAT_SHAL_LAVA) && !p_ptr->levitate)
 			msg_print("You walk through the lava.");
+
+		if ((cave_feat[y][x] == FEAT_FOG) & !p_ptr->levitate)
+			msg_print("You walk through the fog.");
 
 		/* Discover invisible traps */
 		else if (cave_feat[y][x] == FEAT_INVIS)
@@ -1354,6 +1478,9 @@ static int see_wall(int dir, int y, int x)
 
 	/* Non-wall grids are not known walls */
 	if (cave_feat[y][x] < FEAT_SECRET) return (FALSE);
+
+	if ((cave_feat[y][x] >= FEAT_DEEP_WATER) &&
+	    (cave_feat[y][x] <= FEAT_FOG)) return (FALSE);
 
 	/* Unknown walls are not known walls */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (FALSE);
@@ -1771,8 +1898,11 @@ static bool run_test(void)
 				/* water, lava, & trees -KMW- */
 				case FEAT_DEEP_WATER:
 				case FEAT_SHAL_WATER:
+				case FEAT_DIRT:
 				case FEAT_DEEP_LAVA:
 				case FEAT_SHAL_LAVA:
+				case FEAT_FOG:
+				case FEAT_DARK_PIT:
 				case FEAT_TREES:
 				case FEAT_MOUNTAIN:
 				/* quest features -KMW- */
@@ -1893,7 +2023,9 @@ static bool run_test(void)
 
 			/* Unknown grid or non-wall XXX XXX XXX cave_floor_bold(row, col)) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (cave_feat[row][col] < FEAT_SECRET))
+			    ((cave_feat[row][col] < FEAT_SECRET) ||
+			     ((cave_feat[row][col] > FEAT_DEEP_WATER) &&
+				(cave_feat[row][col] <= FEAT_FOG))))
 			{
 				/* Looking to break right */
 				if (p_ptr->run_break_right)
@@ -1923,7 +2055,9 @@ static bool run_test(void)
 
 			/* Unknown grid or non-wall XXX XXX XXX cave_floor_bold(row, col)) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (cave_feat[row][col] < FEAT_SECRET))
+			    ((cave_feat[row][col] < FEAT_SECRET) ||
+			     ((cave_feat[row][col] > FEAT_DEEP_WATER) &&
+				(cave_feat[row][col] <= FEAT_FOG))))
 			{
 				/* Looking to break left */
 				if (p_ptr->run_break_left)

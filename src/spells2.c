@@ -755,6 +755,36 @@ void self_knowledge(void)
 			info[i++] = "Your weapon poisons your foes.";
 		}
 
+		/* Added from Zangband by Topi Ylinen -KMW- */
+		if (f3 & (TR3_CHAOTIC))
+		{
+		    info[i++] = "Your weapon spreads chaos.";
+		}
+
+		/* Added from Zangband by Topi Ylinen -KMW- */
+		if (f1 & (TR1_VORPAL))
+		{
+			info[i++] = "Your weapon is magically sharp.";
+		}
+
+		/* Added from Zangband by Topi Ylinen -KMW- */
+		if (f3 & (TR3_VAMPIRIC))
+		{
+			info[i++] = "It drains life from others into you.";
+		}
+
+		/* -KMW- */
+		if (f1 & (TR1_FORCE))
+		{
+			info[i++] = "It ripples with force.";
+		}
+
+		/* -KMW- */
+		if (f3 & (TR3_LEVITATION))
+		{
+			info[i++] = "It floats you above the floor.";
+		}
+
 		/* Special "slay" flags */
 		if (f1 & (TR1_SLAY_ANIMAL))
 		{
@@ -1263,7 +1293,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
 		    (tv == TV_MAGIC_BOOK) || (tv == TV_ILLUSION_BOOK) || /* -KMW- */
-		    (tv == TV_PRAYER_BOOK) ||
+		    (tv == TV_PRAYER_BOOK) || (tv == TV_NATURE_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -2235,6 +2265,15 @@ bool turn_undead(void)
 
 
 /*
+ * Turn animals
+ */
+bool turn_animals(void)
+{
+	return (project_hack(GF_TURN_ANIMALS, p_ptr->lev));
+}
+
+
+/*
  * Dispel undead monsters
  */
 bool dispel_undead(int dam)
@@ -2258,6 +2297,13 @@ bool dispel_monsters(int dam)
 	return (project_hack(GF_DISP_ALL, dam));
 }
 
+/*
+ * Dispel undead monsters
+ */
+bool dispel_demons(int dam)
+{
+	return (project_hack(GF_DISP_DEMONS, dam));
+}
 
 
 
@@ -2937,6 +2983,391 @@ void earthquake(int cy, int cx, int r)
 }
 
 
+/* flood -KMW- */
+void flood(int cy, int cx, int r, int typ)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int i, t, y, x, yy, xx, dy, dx;
+
+	int sn = 0, sy = 0, sx = 0;
+
+	bool map[32][32];
+	bool floor;
+
+	/* Paranoia -- Enforce maximum range */
+	if (r > 12) r = 12;
+
+	/* Clear the "maximal blast" area */
+	for (y = 0; y < 32; y++)
+	{
+		for (x = 0; x < 32; x++)
+		{
+			map[y][x] = FALSE;
+		}
+	}
+
+	/* Check around the epicenter */
+	for (dy = -r; dy <= r; dy++)
+	{
+		for (dx = -r; dx <= r; dx++)
+		{
+			/* Extract the location */
+			yy = cy + dy;
+			xx = cx + dx;
+			floor = cave_floor_bold(yy, xx);
+
+			/* Skip illegal grids */
+			if (!in_bounds_fully(yy, xx)) continue;
+
+			/* Skip distant grids */
+			if (distance(cy, cx, yy, xx) > r) continue;
+
+			/* Skip the epicenter */
+			/* if (!dx && !dy) continue; */
+
+			/* Skip some grids for forest */
+			if ((rand_int(100) < 50) &&
+			   (typ == 2)) continue;
+
+			if ((typ == 2) && !floor) continue;
+
+			/* Damage this grid */
+			map[16+yy-cy][16+xx-cx] = TRUE;
+
+		}
+	}
+
+
+	/* Examine the quaked region */
+	for (dy = -r; dy <= r; dy++)
+	{
+		for (dx = -r; dx <= r; dx++)
+		{
+			/* Extract the location */
+			yy = cy + dy;
+			xx = cx + dx;
+
+			/* Skip unaffected grids */
+			if (!map[16+yy-cy][16+xx-cx]) continue;
+
+			/* Process monsters */
+			if (cave_m_idx[yy][xx] > 0)
+			{
+				monster_type *m_ptr = &m_list[cave_m_idx[yy][xx]];
+				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+				/* Most monsters cannot co-exist with rock */
+				if (!(r_ptr->flags2 & (RF2_SWIM)) &&
+				    !(r_ptr->flags2 & (RF2_FLY)) &&
+				    !(r_ptr->flags2 & (RF2_PASS_WALL)) &&
+				    (typ == 1))
+				{
+					char m_name[80];
+
+					/* Assume not safe */
+					sn = 0;
+
+					/* Monster can move to escape the wall */
+					if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))
+					{
+						/* Look for safety */
+						for (i = 0; i < 8; i++)
+						{
+							/* Access the grid */
+							y = yy + ddy[i];
+							x = xx + ddx[i];
+
+							/* Skip non-empty grids */
+							if (!cave_empty_bold(y, x)) continue;
+
+							/* Hack -- no safety on glyph of warding */
+							if (cave_feat[y][x] == FEAT_GLYPH) continue;
+
+							/* Important -- Skip "quake" grids */
+							if (map[16+y-cy][16+x-cx]) continue;
+
+							/* Count "safe" grids */
+							sn++;
+
+							/* Randomize choice */
+							if (rand_int(sn) > 0) continue;
+
+							/* Save the safe grid */
+							sy = y;
+							sx = x;
+						}
+					}
+
+					/* Describe the monster */
+					monster_desc(m_name, m_ptr, 0);
+
+					/* Monster is certainly awake */
+					m_ptr->csleep = 0;
+
+					msg_format("%^s sinks below the surface!", m_name);
+
+					/* Delete the monster */
+					delete_monster(yy, xx);
+
+					/* No longer safe */
+					sn = 0;
+
+					/* Hack -- Escape from the flood */
+					if (sn)
+					{
+						/* Move the monster */
+						monster_swap(yy, xx, sy, sx);
+					}
+				}
+			}
+		}
+	}
+
+
+	/* XXX XXX XXX */
+
+	/* New location */
+	py = p_ptr->py;
+	px = p_ptr->px;
+
+	/* Important -- no wall on player */
+	map[16+py-cy][16+px-cx] = FALSE;
+
+
+	/* Examine the quaked region */
+	for (dy = -r; dy <= r; dy++)
+	{
+		for (dx = -r; dx <= r; dx++)
+		{
+			/* Extract the location */
+			yy = cy + dy;
+			xx = cx + dx;
+
+			/* Skip unaffected grids */
+			if (!map[16+yy-cy][16+xx-cx]) continue;
+
+			/* Paranoia -- never affect player */
+			if ((yy == py) && (xx == px)) continue;
+
+			/* Destroy location (if valid) */
+			if (cave_valid_bold(yy, xx))
+			{
+				bool floor = cave_floor_bold(yy, xx);
+
+				/* Delete objects */
+				delete_object(yy, xx);
+
+				/* Wall (or floor) type */
+				t = (floor ? rand_int(100) : 200);
+
+				if (typ == 1) {
+					if (t < 100)
+						cave_feat[yy][xx] = FEAT_DEEP_WATER;
+					else
+						cave_feat[yy][xx] = FEAT_SHAL_WATER;
+				} else if (typ == 2)
+						cave_feat[yy][xx] = FEAT_TREES;
+			}
+		}
+	}
+
+
+	/* Mega-Hack -- Forget the view and lite */
+/*	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE); */
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_DISTANCE);
+
+	/* Update the health bar */
+	p_ptr->redraw |= (PR_HEALTH);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+}
+
+
+
+/*
+ * Places "streamers" of rock through dungeon
+ *
+ * Note that their are actually six different terrain features used
+ * to represent streamers.  Three each of magma and quartz, one for
+ * basic vein, one with hidden gold, and one with known gold.  The
+ * hidden gold types are currently unused.
+ */
+void fissure(int feat)
+{
+	int i, tx, ty;
+	int y, x, dir;
+
+
+	/* Hack -- Choose starting point */
+	y = p_ptr->py;
+	x = p_ptr->px;
+
+	/* Choose a random compass direction */
+	dir = ddd[rand_int(8)];
+
+	/* Place streamer into dungeon */
+	while (TRUE)
+	{
+		/* One grid per density */
+		for (i = 0; i < 7; i++)
+		{
+			int d = 1;
+
+			/* Pick a nearby grid */
+			while (1)
+			{
+				ty = rand_spread(y, d);
+				tx = rand_spread(x, d);
+				if (!in_bounds(ty, tx)) continue;
+				break;
+			}
+
+			/* Only convert non-permanent features */
+			if ((cave_feat[ty][tx] >= FEAT_PERM_EXTRA) &&
+			   (cave_feat[ty][tx] <= FEAT_PERM_SOLID)) continue;
+			if (cave_feat[ty][tx] == FEAT_LESS) continue;
+			if (cave_feat[ty][tx] == FEAT_MORE) continue;
+
+			/* Clear previous contents, add proper vein type */
+			cave_feat[ty][tx] = feat;
+
+		}
+
+		/* Advance the streamer */
+		y += ddy[dir];
+		x += ddx[dir];
+
+		/* Stop at dungeon edge */
+		if (!in_bounds(y, x)) break;
+	}
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+}
+
+
+void alter_terrain(int cy, int cx, int r, int typ)
+{
+	int y, x, yy, xx, dy, dx;
+
+	bool map[32][32];
+	bool floor;
+
+	/* Paranoia -- Enforce maximum range */
+	if (r > 12) r = 12;
+
+	/* Clear the "maximal blast" area */
+	for (y = 0; y < 32; y++)
+	{
+		for (x = 0; x < 32; x++)
+		{
+			map[y][x] = FALSE;
+		}
+	}
+
+	/* Check around the epicenter */
+	for (dy = -r; dy <= r; dy++)
+	{
+		for (dx = -r; dx <= r; dx++)
+		{
+			/* Extract the location */
+			yy = cy + dy;
+			xx = cx + dx;
+			floor = cave_floor_bold(yy, xx);
+
+			/* Skip illegal grids */
+			if (!in_bounds_fully(yy, xx)) continue;
+
+			/* Skip distant grids */
+			if (distance(cy, cx, yy, xx) > r) continue;
+
+			/* Skip the epicenter */
+			/* if (!dx && !dy) continue; */
+
+			/* Damage this grid */
+			map[16+yy-cy][16+xx-cx] = TRUE;
+
+		}
+	}
+
+	/* Examine the quaked region */
+	for (dy = -r; dy <= r; dy++)
+	{
+		for (dx = -r; dx <= r; dx++)
+		{
+			/* Extract the location */
+			yy = cy + dy;
+			xx = cx + dx;
+
+			/* Skip unaffected grids */
+			if (!map[16+yy-cy][16+xx-cx]) continue;
+
+			if (typ == 1) {
+				if (cave_feat[yy][xx] == FEAT_DEEP_LAVA)
+					cave_feat[yy][xx] = FEAT_SHAL_LAVA;
+				else if (cave_feat[yy][xx] == FEAT_SHAL_LAVA)
+					cave_feat[yy][xx] = FEAT_FLOOR;
+			} else if (typ == 2) {
+				if (cave_feat[yy][xx] == FEAT_DEEP_WATER)
+					cave_feat[yy][xx] = FEAT_SHAL_WATER;
+				else if (cave_feat[yy][xx] == FEAT_SHAL_WATER)
+					cave_feat[yy][xx] = FEAT_FLOOR;
+				else if (cave_feat[yy][xx] == FEAT_FOG)
+					cave_feat[yy][xx] = FEAT_FLOOR;
+			} else if (typ == 3) {
+				if ((cave_feat[yy][xx] != FEAT_MOUNTAIN) &&
+				    (cave_feat[yy][xx] != FEAT_PERM_EXTRA) &&
+				    (cave_feat[yy][xx] != FEAT_PERM_INNER) &&
+				    (cave_feat[yy][xx] != FEAT_PERM_OUTER) &&
+				    (cave_feat[yy][xx] != FEAT_PERM_SOLID))
+					cave_feat[yy][xx] = FEAT_FLOOR;
+			} else if (typ == 4) {
+				if ((cave_feat[yy][xx] == FEAT_FLOOR) ||
+				    (cave_feat[yy][xx] == FEAT_DEEP_WATER) ||
+				    (cave_feat[yy][xx] == FEAT_SHAL_WATER))
+					cave_feat[yy][xx] = FEAT_TREES;
+			} else if (typ == 5) {
+				if ((cave_feat[yy][xx] != FEAT_MOUNTAIN) &&
+				    (cave_feat[yy][xx] != FEAT_PERM_EXTRA) &&
+				    (cave_feat[yy][xx] != FEAT_PERM_INNER) &&
+				    (cave_feat[yy][xx] != FEAT_PERM_OUTER) &&
+				    (cave_feat[yy][xx] != FEAT_PERM_SOLID))
+					cave_feat[yy][xx] = FEAT_DEEP_LAVA;
+			}
+		}
+	}
+
+
+	/* Mega-Hack -- Forget the view and lite */
+/*	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE); */
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_DISTANCE);
+
+	/* Update the health bar */
+	p_ptr->redraw |= (PR_HEALTH);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+}
+
 
 /*
  * This routine clears the entire "temp" set.
@@ -3266,6 +3697,46 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 
 
 /*
+ * Imprision
+* Allow "target" mode to pass over monsters
+ * Affect grids, objects, and monsters
+ */
+bool imprision(int typ, int dir, int rad)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int x,y,ty, tx;
+
+	int flg = PROJECT_GRID | PROJECT_ITEM;
+
+	/* Use the given direction */
+	ty = py + 99 * ddy[dir];
+	tx = px + 99 * ddx[dir];
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		flg &= ~(PROJECT_STOP);
+		tx = p_ptr->target_col;
+		ty = p_ptr->target_row;
+	}
+
+	for (x = tx - rad;x <= tx + rad; x++) 
+		for (y = ty - rad; y <= ty + rad; y++) 
+			if (cave_empty_bold(y,x))  {
+				cave_feat[y][x] = typ;
+				cave_info[y][x] |= (CAVE_GLOW | CAVE_MARK);
+			}
+/*	Term_fresh(); */
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	return(TRUE);
+}
+
+
+/*
  * Hack -- apply a "projection()" in a direction (or at the target)
  */
 static bool project_hook(int typ, int dir, int dam, int flg)
@@ -3432,6 +3903,18 @@ bool fear_monsters_touch(void)
 	    GF_TURN_ALL, flg));
 }
 
+bool charm_monster(int dir, int plev)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_TAME, dir, plev, flg));
+}
+
+bool pet_monster(int dir, int plev)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_MAKE_PET, dir, plev, flg));
+}
+
 bool teleport_monster(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_KILL;
@@ -3480,4 +3963,61 @@ bool sleep_monsters_touch(void)
 	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
 }
 
+/* From Zangband by Topi Ylinen */
+void rustproof(void)
+{
+	int item;
+	object_type *o_ptr;
+	char o_name[80];
+	cptr q,s;
+	object_kind *k_ptr;
+	item_tester_hook = item_tester_hook_armour;
+
+	/* Get an item */
+	q = "Rustproof which item? ";
+	s = "You have no items to rustproof.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	object_desc(o_name, o_ptr, FALSE, 0);
+	k_ptr = &k_info[o_ptr->k_idx];
+	k_ptr->flags3 |= TR3_IGNORE_ACID;
+
+	if ((o_ptr->to_a < 0) && !(o_ptr->ident & IDENT_CURSED)) {
+		msg_format("%s %s look%s as good as new!", ((item >= 0) ? "Your" : "The"), o_name, ((o_ptr->number > 1) ? "" : "s"));
+		o_ptr->to_a = 0;
+	}
+
+	msg_format("%s %s %s now protected against corrosion.",
+	    ((item >= 0) ? "Your" : "The"), o_name, ((o_ptr->number > 1) ? "are" : "is"));
+}
+
+
+/* From Kamband by Ivan Tkatchev */
+void summon_monster(int sumtype)
+{
+	p_ptr->energy_use = 100;
+
+	if (p_ptr->inside_special == 1) {
+		msg_print("This place seems devoid of life.");
+		msg_print(NULL);
+		return;
+	}
+
+	if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+randint(5), sumtype, TRUE))
+		msg_print("You summon some help.");
+	else
+		msg_print("You called, but no help came.");
+}
 
