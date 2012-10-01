@@ -2415,9 +2415,9 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXx
 	};
 
 	/* don't dump ghosts */
-    if(p_ptr->alive) { 
+    if(p_ptr->alive || (p_ptr->total_winner && p_ptr->retire_timer == 0)) { 
 		/* Character dump here, before we start dropping items */
-		sprintf(dumpname,"%s-%i.txt",p_ptr->name,turn);
+		sprintf(dumpname,"%s-%llu.txt",p_ptr->name,turn);
 		file_character_server(Ind,dumpname);
     }
 
@@ -2462,15 +2462,15 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXx
 		if (!p_ptr->alive && !artifact_p(&p_ptr->inventory[i])) continue;
 
 		/* hack -- total winners do not drop artifacts when they suicide */
+		/* If we committed suicide, and we're on the town level, don't even drop artifacts */
 #if !defined( PKILL )
-		if (!p_ptr->alive && p_ptr->total_winner && artifact_p(&p_ptr->inventory[i])) 
+		if ((!p_ptr->alive && p_ptr->total_winner && artifact_p(&p_ptr->inventory[i])) ||
+			(!p_ptr->alive && !p_ptr->dun_depth && artifact_p(&p_ptr->inventory[i]))
 #else
 		/* hack -- neither do pkills */
-		if (
-			(!p_ptr->alive && p_ptr->total_winner && artifact_p(&p_ptr->inventory[i])) ||
-			(!pkill && p_ptr->total_winner && artifact_p(&p_ptr->inventory[i])) 
-		   )
+			|| (!pkill && p_ptr->total_winner && artifact_p(&p_ptr->inventory[i]))
 #endif
+			)
 		{
 			/* set the artifact as unfound */
 			a_info[p_ptr->inventory[i].name1].cur_num = 0;
@@ -2496,9 +2496,8 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXx
 		else
 		{
 			/* We dropped the item on the floor, forget about it */
-			p_ptr->inventory[i].k_idx = 0;
-			p_ptr->inventory[i].tval = 0;
 			inven_item_increase(Ind, i, -p_ptr->inventory[i].number);
+			WIPE(&p_ptr->inventory[i], object_type);			
 		}
 	}
 
@@ -2513,6 +2512,10 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXx
 			if (!(r_ptr->flags1 & RF1_UNIQUE))
 				continue;
 
+			/* Never respawn Morgoth */
+			if (r_ptr->flags1 & RF1_DROP_CHOSEN)
+				continue;
+				
 			/* If we have killed this unique, bring it back */
 			if (p_ptr->r_killed[i])
 			{
@@ -2745,6 +2748,8 @@ bool mon_take_hit(int Ind, int m_idx, int dam, bool *fear, cptr note)
     /* Killing an unique multiple times is cheezy! */
     bool cheeze = ((r_ptr->flags1 & RF1_UNIQUE) && p_ptr->r_killed[m_ptr->r_idx]);
 
+	/* Handle calling this when the monster is no longer there */
+	if (m_idx == 0) return TRUE;
 
 	/* Redraw (later) if needed */
 	update_health(m_idx);
@@ -3170,7 +3175,7 @@ int player_wounded(s16b ind)
 {
 	player_type *p_ptr = Players[ind];
 	
-	return (p_ptr->mhp * 100) / p_ptr->chp;
+	return ((p_ptr->mhp+1) * 100) / (p_ptr->chp+1);
 }
 
 /* this should probably be somewhere more logical, but I should probably be

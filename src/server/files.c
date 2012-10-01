@@ -945,10 +945,12 @@ void display_player_server(int Ind, char buffer[100][82])
 	int i;
 	char buf[80];
 	cptr desc;
-	bool hist;
+	bool hist = FALSE;
 	player_type *p_ptr = Players[Ind];
 
-    hist = FALSE;
+    int show_tohit = p_ptr->dis_to_h;
+    int show_todam = p_ptr->dis_to_d;
+    object_type *o_ptr = &p_ptr->inventory[INVEN_WIELD];
 
         /* Name, Sex, Race, Class */
         put_str_b(buffer,"Name        :", 2, 1);
@@ -1064,8 +1066,13 @@ void display_player_server(int Ind, char buffer[100][82])
 		put_str_b(buffer,format("%d feet", p_ptr->see_infra * 10), 19, 69);
 
         /* Dump the bonuses to hit/dam */
-        prt_num_b(buffer,"+ To Hit    ", p_ptr->dis_to_h, 9, 1, TERM_L_BLUE);
-        prt_num_b(buffer,"+ To Damage ", p_ptr->dis_to_d, 10, 1, TERM_L_BLUE);
+        if (o_ptr->k_idx)
+        {
+        	show_tohit += o_ptr->to_h;
+        	show_todam += o_ptr->to_d;
+        }
+        prt_num_b(buffer,"+ To Hit    ", show_tohit, 9, 1, TERM_L_BLUE);
+        prt_num_b(buffer,"+ To Damage ", show_todam, 10, 1, TERM_L_BLUE);
 
         /* Dump the armor class bonus */
         prt_num_b(buffer,"+ To AC     ", p_ptr->dis_to_a, 11, 1, TERM_L_BLUE);
@@ -1145,9 +1152,9 @@ void display_player_server(int Ind, char buffer[100][82])
  */
 errr file_character_server(int Ind, cptr name)
 {
-	int			i, j, x, y;
+	int			i, j, x, y, x1, x2, y1, y2;
 	byte		a;
-	char		c;
+	char		c, attr;
 	cptr		paren = ")";
 	int			fd = -1;
 	FILE		*fff = NULL;
@@ -1293,6 +1300,84 @@ errr file_character_server(int Ind, cptr name)
 		i++;
 	}
 	fprintf(fff, "\n\n");
+
+	/* Dump the scene of death */
+	fprintf(fff, "  [Scene of Death]\n\n");
+	/* Get an in bounds area */
+	x1 = p_ptr->px - 39;
+	x2 = p_ptr->px + 39;
+	y1 = p_ptr->py - 10;
+	y2 = p_ptr->py + 10;
+	if (y1 < 0)
+	{
+		y2 = y2-y1;
+		y1 = 0;
+	}
+	if (x1 < 0)
+	{
+		x2 = x2-x1;
+		x1 = 0;
+	}
+	if (y2 > MAX_HGT-1)
+	{
+		y1 = y1 - (y2-(MAX_HGT-1));
+		y2 = MAX_HGT-1;
+	}
+	if (x2 > MAX_WID-1)
+	{
+		x1 = x1 - (x2-(MAX_WID-1));
+		x2 = MAX_WID-1;
+	}
+	/* Describe each row */
+	for(y=y1;y<=y2;y++)
+	{
+		for(x=x1;x<=x2;x++)
+		{
+			/* Get the features */
+			map_info(Ind, y, x, &a, &c, TRUE);
+			/* Hack for the player who is already dead and gone */
+			if( (x == p_ptr->px) && (y == p_ptr->py))
+			{
+				c = '@';
+				a = 'W';
+			}
+			/* translate the attr */
+			attr = 'w';
+			switch (a)
+			{
+				case TERM_DARK: attr = 'd'; break;
+				case TERM_WHITE: attr = 'w'; break;
+				case TERM_SLATE: attr = 's'; break;
+				case TERM_ORANGE: attr = 'o'; break;
+				case TERM_RED: attr = 'r'; break;
+				case TERM_GREEN: attr = 'g'; break;
+				case TERM_BLUE: attr = 'b'; break;
+				case TERM_UMBER: attr = 'u'; break;
+				case TERM_L_DARK: attr = 'D'; break;
+				case TERM_L_WHITE: attr = 'W'; break;
+				case TERM_VIOLET: attr = 'v'; break;
+				case TERM_YELLOW: attr = 'y'; break;
+				case TERM_L_RED: attr = 'R'; break;
+				case TERM_L_GREEN: attr = 'G'; break;
+				case TERM_L_BLUE: attr = 'B'; break;
+				case TERM_L_UMBER: attr = 'U'; break;
+			}
+			/* Config file controls if we output with color codes */
+			if(cfg_chardump_color)
+			{
+				/* Output with attr colour code */
+				fprintf(fff,"%c%c",attr,c);
+			}
+			else
+			{
+				/* Output plain ASCII */
+				fprintf(fff,"%c",c);
+			}
+		}
+		fprintf(fff,"\n");
+	}
+	fprintf(fff, "\n\n");
+
 	
 	/* Close it */
 	my_fclose(fff);
@@ -2459,6 +2544,13 @@ static void display_scores_aux(int Ind, int line, int note, high_score *score)
 	/* Open the temp file */
 	fff = my_fopen(file_name, "w");
 
+	/* Paranoia */
+	if (!fff) 
+	{
+		plog(format("ERROR! %s (writing %s)", strerror(errno), file_name));
+		return;
+	}
+
 	/* Assume we will show the first 20 */
 	from = 0;
 	to = 20;
@@ -2672,7 +2764,7 @@ static errr top_twenty(int Ind)
 	the_score.gold[9] = '\0';
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn);
+	sprintf(the_score.turns, "%9llu", turn);
 	the_score.turns[9] = '\0';
 
 #ifdef HIGHSCORE_DATE_HACK
@@ -2764,7 +2856,7 @@ static errr predict_score(int Ind, int line)
 	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn);
+	sprintf(the_score.turns, "%9llu", turn);
 
 	/* Hack -- no time needed */
 	strcpy(the_score.day, "TODAY");
@@ -2834,6 +2926,9 @@ void kingly(int Ind)
 
 	/* Hack -- Player gets an XP bonus for beating the game */
 	p_ptr->exp = p_ptr->max_exp += 10000000L;
+
+	/* Hack -- Ensure we are retired */
+	p_ptr->retire_timer = 0;
 }
 
 
@@ -3172,22 +3267,10 @@ void exit_game_panic()
 		/* Indicate panic save */
 		(void)strcpy(p_ptr->died_from, "(panic save)");
 
-		/* Panic save, or get worried */
-		if (!save_player(i))
-		{
-			if (!Destroy_connection(p_ptr->conn, "panic save failed!"))
-			{
-				/* Something extremely bad is going on, try to recover anyway */
-				i++;
-			}
-		}
-
-		/* Successful panic save */
-		if (!Destroy_connection(p_ptr->conn, "panic save succeeded!"))
-		{
-			/* Something very bad happened, skip to next player */
-			i++;
-		}
+		/* Try to save the player, don't worry if this fails because there
+		 * is nothing we can do now anyway */
+		save_player(i++);
+		
 	}
 
 	/* Clear objects so that artifacts get saved.

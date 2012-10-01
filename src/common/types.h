@@ -199,7 +199,7 @@ struct party_type
 	char name[80];		/* Name of the party */
 	char owner[20];		/* Owner's name */
 	s32b num;		/* Number of people in the party */
-	s32b created;		/* Creation (or disband-tion) time */
+	huge created;		/* Creation (or disband-tion) time */
 };
 
 /*
@@ -909,7 +909,7 @@ struct store_type
 	s16b good_buy;			/* Number of "good" buys */
 	s16b bad_buy;			/* Number of "bad" buys */
 
-	s32b store_open;		/* Closed until this turn */
+	huge store_open;		/* Closed until this turn */
 
 	s32b store_wrap;		/* Unused for now */
 
@@ -1337,6 +1337,8 @@ struct player_type
 	char char_hist[MAX_CHAR_HIST][MAX_CHARS];	/* Character event history */
 	s16b char_hist_ptr;	/* Where will the next event be stored */
 	
+	char main_channel[MAX_CHAN_LEN]; /* main chat channel the player is in */
+	
 	u16b total_winner;	/* Is this guy the winner */
 	u16b retire_timer;	/* The number of minutes this guy can play until
 				   he will be forcibly retired.
@@ -1543,9 +1545,9 @@ struct player_type
 	
     s16b r_killed[MAX_R_IDX];	/* Monsters killed */
     
-	u32b birth_turn;	/* Server turn on which player was born */
-	u32b turn;			/* Actual player turns */
-	u32b old_turn;		/* Turn when player entered current level */
+	huge birth_turn;	/* Server turn on which player was born */
+	huge turn;			/* Actual player turns */
+	huge old_turn;		/* Turn when player entered current level */
 };
 
 

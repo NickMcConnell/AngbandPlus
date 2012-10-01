@@ -672,8 +672,10 @@ static void Contact(int fd, int arg)
 	{
 		if ((newsock = SocketAccept(fd)) == -1)
 		{
-			plog("Dropped TCP Connection");
-			return;
+			/* We couldn't accept the socket connection. This is bad because we can't
+			 * handle this situation correctly yet.  For the moment, we just log the
+			 * error and quit */
+			plog(format("Could not accept TCP Connection, socket error = %d",errno));
 			quit("Couldn't accept TCP connection.");
 		}
 		install_input(Contact, newsock, 2);
@@ -1511,7 +1513,7 @@ static int Handle_login(int ind)
 	{
 		errno = 0;
 		plog(format("Id too big (%d)", Id));
-		return -1;
+		return -2;
 	}
 
 	for (i = 1; i < NumPlayers + 1; i++)
@@ -1528,7 +1530,7 @@ static int Handle_login(int ind)
 	if (!player_birth(NumPlayers + 1, connp->nick, connp->pass, ind, connp->race, connp->class, connp->sex, connp->stat_order))
 	{
 		/* Failed, connection destroyed */
-		return -1;
+		return -2;
 	}
 
 	p_ptr = Players[NumPlayers + 1];
@@ -2209,7 +2211,13 @@ static int Receive_play(int ind)
 	}
 
 	Sockbuf_clear(&connp->w);
-	if (Handle_login(ind) == -1)
+	if ((n = Handle_login(ind)) == -2)
+	{
+		errno = 0;
+		plog(format("Could not login player (%02x)", connp->state));
+		Destroy_connection(ind, "cant handle");
+	}
+	if (n < 0)
 	{
 		/* The connection has already been destroyed */
 		return -1;

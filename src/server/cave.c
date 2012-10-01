@@ -610,12 +610,22 @@ static byte player_color(int Ind)
  * Note the assumption that doing "x_ptr = &x_info[x]" plus a few of
  * "x_ptr->xxx", is quicker than "x_info[x].xxx", if this is incorrect
  * then a whole lot of code should be changed...  XXX XXX
+ *
+ * For MAngband, if server is true, we default back to the locally defined 
+ * char/attr values on the server to allow server side rendering of scenes.
+ * Without this ability server side renders would use client localised 
+ * char/attr values which may not makes sense in the context of the server.
  */
-void map_info(int Ind, int y, int x, byte *ap, char *cp)
+void map_info(int Ind, int y, int x, byte *ap, char *cp, bool server)
 {
 	player_type *p_ptr = Players[Ind];
 	int Depth = p_ptr->dun_depth;
 	int kludge; /* for displaying chars with lowered hp's */
+
+	char *f_char_ptr;
+	byte *f_attr_ptr;
+	char *r_char_ptr;
+	byte *r_attr_ptr;
 
 	cave_type *c_ptr;
 	byte *w_ptr;
@@ -631,6 +641,22 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 	c_ptr = &cave[Depth][y][x];
 	w_ptr = &p_ptr->cave_flag[y][x];
 
+	/* Should we override the clients attr/char settings? */
+	if (server)
+	{
+		/* We have initialised a global array of server char/attr elsewhere for speed */
+		f_attr_ptr = &f_attr_s;
+		f_char_ptr = &f_char_s;
+		r_attr_ptr = &r_attr_s;
+		r_char_ptr = &r_char_s;
+	}
+	else
+	{
+		f_attr_ptr = &p_ptr->f_attr;
+		f_char_ptr = &p_ptr->f_char;
+		r_attr_ptr = &p_ptr->r_attr;
+		r_char_ptr = &p_ptr->r_char;
+	}
 
 	/* Feature code */
 	feat = c_ptr->feat;
@@ -651,10 +677,10 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 			f_ptr = &f_info[FEAT_FLOOR];
 
 			/* Normal char */
-			(*cp) = p_ptr->f_char[c_ptr->feat];
+			(*cp) = f_char_ptr[c_ptr->feat];
 
 			/* Normal attr */
-			a = p_ptr->f_attr[c_ptr->feat];
+			a = f_attr_ptr[c_ptr->feat];
 
 			/* Special lighting effects */
 			if (p_ptr->view_special_lite && (a == TERM_WHITE))
@@ -709,11 +735,11 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 
 			/* Normal attr */
 			/* (*ap) = f_ptr->f_attr; */
-			(*ap) = p_ptr->f_attr[FEAT_NONE];
+			(*ap) = f_attr_ptr[FEAT_NONE];
 
 			/* Normal char */
 			/* (*cp) = f_ptr->f_char; */
-			(*cp) = p_ptr->f_char[FEAT_NONE];
+			(*cp) = f_char_ptr[FEAT_NONE];
 		}
 	}
 
@@ -732,11 +758,11 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 
 			/* Normal char */
 			/* (*cp) = f_ptr->f_char; */
-			(*cp) = p_ptr->f_char[feat];
+			(*cp) = f_char_ptr[feat];
 
 			/* Normal attr */
 			/* a = f_ptr->f_attr; */
-			a = p_ptr->f_attr[feat];
+			a = f_attr_ptr[feat];
 
 			/* Special lighting effects */
 			if (p_ptr->view_granite_lite && (a == TERM_WHITE) && (feat >= FEAT_SECRET))
@@ -808,11 +834,11 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 
 			/* Normal attr */
 			/* (*ap) = f_ptr->f_attr; */
-			(*ap) = p_ptr->f_attr[FEAT_NONE];
+			(*ap) = f_attr_ptr[FEAT_NONE];
 
 			/* Normal char */
 			/* (*cp) = f_ptr->f_char; */
-			(*cp) = p_ptr->f_char[FEAT_NONE];
+			(*cp) = f_char_ptr[FEAT_NONE];
 		}
 	}
 
@@ -858,11 +884,11 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 
 			/* Desired attr */
 			/* a = r_ptr->x_attr; */
-			a = p_ptr->r_attr[m_ptr->r_idx];
+			a = r_attr_ptr[m_ptr->r_idx];
 
 			/* Desired char */
 			/* c = r_ptr->x_char; */
-			c = p_ptr->r_char[m_ptr->r_idx];
+			c = r_char_ptr[m_ptr->r_idx];
 
 			/* Ignore weird codes */
 			if (avoid_other)
@@ -1152,7 +1178,7 @@ void lite_spot(int Ind, int y, int x)
 		else
 		{
 			/* Examine the grid */
-			map_info(Ind, y, x, &a, &c);
+			map_info(Ind, y, x, &a, &c, FALSE);
 		}
 
 		/* Hack -- fake monochrome */
@@ -1216,7 +1242,7 @@ void prt_map(int Ind)
 			char c;
 
 			/* Determine what is there */
-			map_info(Ind, y, x, &a, &c);
+			map_info(Ind, y, x, &a, &c, FALSE);
 
 			/* Hack -- fake monochrome */
 			if (!use_color) a = TERM_WHITE;
@@ -1252,8 +1278,8 @@ void prt_map(int Ind)
 /*
  * Display the entire map
  */
-#define MAP_HGT (MAX_HGT / RATIO)
-#define MAP_WID (MAX_WID / RATIO)
+#define MAP_HGT 66
+#define MAP_WID 198
 
 /*
  * Hack -- priority array (see below)
@@ -1302,6 +1328,25 @@ static byte priority_table[][2] =
 	/* Hidden gold */
 	{ FEAT_QUARTZ_K, 19 },
 	{ FEAT_MAGMA_K, 19 },
+
+	/* NPC Shops */
+	{ FEAT_SHOP_HEAD + 0x00, 21 },
+	{ FEAT_SHOP_HEAD + 0x01, 21 },
+	{ FEAT_SHOP_HEAD + 0x02, 21 },
+	{ FEAT_SHOP_HEAD + 0x03, 21 },
+	{ FEAT_SHOP_HEAD + 0x04, 21 },
+	{ FEAT_SHOP_HEAD + 0x05, 21 },
+	{ FEAT_SHOP_HEAD + 0x06, 21 },
+	{ FEAT_SHOP_HEAD + 0x07, 21 },
+	
+	/* Player Shops */
+	{ FEAT_HOME_HEAD + 0x01, 21 },
+	{ FEAT_HOME_HEAD + 0x02, 21 },
+	{ FEAT_HOME_HEAD + 0x03, 21 },
+	{ FEAT_HOME_HEAD + 0x04, 21 },
+	{ FEAT_HOME_HEAD + 0x05, 21 },
+	{ FEAT_HOME_HEAD + 0x06, 21 },
+	{ FEAT_HOME_HEAD + 0x07, 21 },
 
 	/* Stairs */
 	{ FEAT_LESS, 25 },
@@ -1360,25 +1405,44 @@ static byte priority(byte a, char c)
  */
  
  
-void display_map(int Ind, int *cy, int *cx)
+void display_map(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
+	monster_race *r_ptr = &r_info[0];
 
 	int i, j, x, y;
+
+	int map_hgt, map_wid;
+	int dungeon_hgt, dungeon_wid;
+	int row, col;
 
 	byte ta;
 	char tc;
 
 	byte tp;
 
-	byte ma[MAP_HGT + 2][MAP_WID + 2];
-	char mc[MAP_HGT + 2][MAP_WID + 2];
-
-	byte mp[MAP_HGT + 2][MAP_WID + 2];
-
 	bool old_view_special_lite;
 	bool old_view_granite_lite;
 
+	/* Large array on the stack */
+	byte ma[SCREEN_HGT + 2][78 + 2];
+	char mc[SCREEN_HGT + 2][78 + 2];
+
+	byte mp[SCREEN_HGT + 2][78 + 2];
+
+	/* Desired map height */
+	map_hgt = SCREEN_HGT;
+	map_wid = 78;
+	
+	dungeon_hgt = MAX_HGT;//p_ptr->cur_hgt;
+	dungeon_wid = MAX_WID;//p_ptr->cur_wid;
+
+	/* Prevent accidents */
+	if (map_hgt > dungeon_hgt) map_hgt = dungeon_hgt;
+	if (map_wid > dungeon_wid) map_wid = dungeon_wid;
+ 
+	/* Prevent accidents */
+	if ((map_wid < 1) || (map_hgt < 1)) return;
 
 	/* Save lighting effects */
 	old_view_special_lite = p_ptr->view_special_lite;
@@ -1390,9 +1454,9 @@ void display_map(int Ind, int *cy, int *cx)
 
 
 	/* Clear the chars and attributes */
-	for (y = 0; y < MAP_HGT+2; ++y)
+	for (y = 0; y < map_hgt+2; ++y)
 	{
-		for (x = 0; x < MAP_WID+2; ++x)
+		for (x = 0; x < map_wid+2; ++x)
 		{
 			/* Nothing here */
 			ma[y][x] = TERM_WHITE;
@@ -1403,66 +1467,66 @@ void display_map(int Ind, int *cy, int *cx)
 		}
 	}
 
-	/* Fill in the map */
-	for (i = 0; i < p_ptr->cur_wid; ++i)
+	/* Analyze the actual map */
+	for (y = 0; y < dungeon_hgt; y++)
 	{
-		for (j = 0; j < p_ptr->cur_hgt; ++j)
+		for (x = 0; x < dungeon_wid; x++)
 		{
-			/* Location */
-			x = i / RATIO + 1;
-			y = j / RATIO + 1;
+			row = (y * map_hgt / dungeon_hgt);
+			col = (x * map_wid / dungeon_wid);
 
 			/* Extract the current attr/char at that map location */
-			map_info(Ind, j, i, &ta, &tc);
+			map_info(Ind, y, x, &ta, &tc, FALSE);
 
 			/* Extract the priority of that attr/char */
 			tp = priority(ta, tc);
 
 			/* Save "best" */
-			if (mp[y][x] < tp)
+			if (mp[row][col] < tp)
 			{
 				/* Save the char */
-				mc[y][x] = tc;
+				mc[row+1][col+1] = tc;
 
 				/* Save the attr */
-				ma[y][x] = ta;
+				ma[row+1][col+1] = ta;
 
 				/* Save priority */
-				mp[y][x] = tp;
+				mp[row][col] = tp;
 			}
 		}
 	}
 
 
 	/* Corners */
-	x = MAP_WID + 1;
-	y = MAP_HGT + 1;
+	x = map_wid+1;
+	y = map_hgt+1;
 
 	/* Draw the corners */
 	mc[0][0] = mc[0][x] = mc[y][0] = mc[y][x] = '+';
 
 	/* Draw the horizontal edges */
-	for (x = 1; x <= MAP_WID; x++) mc[0][x] = mc[y][x] = '-';
+	for (x = 1; x <= map_wid; x++) mc[0][x] = mc[y][x] = '-';
 
 	/* Draw the vertical edges */
-	for (y = 1; y <= MAP_HGT; y++) mc[y][0] = mc[y][x] = '|';
+	for (y = 1; y <= map_hgt; y++) mc[y][0] = mc[y][x] = '|';
 
+	/* Player location */
+	y = (p_ptr->py * map_hgt / dungeon_hgt) + 1;
+	x = (p_ptr->px * map_wid / dungeon_wid) + 1;
+	
+	/*** Make sure the player is visible ***/
+ 
+	/* Set the "player" attr */
+	ma[y][x] = r_ptr->x_attr;
+
+	/* Set the "player" char */
+	mc[y][x] = r_ptr->x_char;
 
 	/* Display each map line in order */
-	for (y = 0; y < MAP_HGT+2; ++y)
+	for (y = 0; y < map_hgt+2; ++y)
 	{
-		/* Start a new line */
-		/*Term_gotoxy(0, y);*/
-
-		/* Clear the old info first */
-		for (x = 0; x < 80; x++)
-		{
-			p_ptr->scr_info[y][x].c = 0;
-			p_ptr->scr_info[y][x].a = 0;
-		}
-
 		/* Display the line */
-		for (x = 0; x < MAP_WID+2; ++x)
+		for (x = 0; x < 80; ++x)
 		{
 			ta = ma[y][x];
 			tc = mc[y][x];
@@ -1471,13 +1535,8 @@ void display_map(int Ind, int *cy, int *cx)
 			if (!use_color) ta = TERM_WHITE;
 
 			/* Add the character */
-			/* Efficiency -- Redraw that grid of the map */
-
-			if (p_ptr->scr_info[y][x].c != tc || p_ptr->scr_info[y][x].a != ta)
-			{
-				p_ptr->scr_info[y][x].c = tc;
-				p_ptr->scr_info[y][x].a = ta;
-			} 
+			p_ptr->scr_info[y][x].c = tc;
+			p_ptr->scr_info[y][x].a = ta;
 		}
 
 		/* Send that line of info */
@@ -1492,9 +1551,6 @@ void display_map(int Ind, int *cy, int *cx)
 	}
 
 
-	/* Player location */
-	(*cy) = p_ptr->py / RATIO + 1;
-	(*cx) = p_ptr->px / RATIO + 1;
 
 
 	/* Restore lighting effects */
@@ -1507,52 +1563,57 @@ void wild_display_map(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
 
+	int i, j;
 	int world_x,world_y, x,y, wild_idx, type;
+
+	int map_hgt, map_wid;
+	int dungeon_hgt, dungeon_wid;
+	int row, col;
 
 	byte ta;
 	char tc;
 
-	byte ma[MAP_HGT + 2][MAP_WID + 2];
-	char mc[MAP_HGT + 2][MAP_WID + 2];
+	char buf[80];
 
-	byte mp[MAP_HGT + 2][MAP_WID + 2];
+	/* Large array on the stack */
+	byte ma[SCREEN_HGT + 2][78 + 2];
+	char mc[SCREEN_HGT + 2][78 + 2];
 
-	bool old_view_special_lite;
-	bool old_view_granite_lite;
+	/* Desired map height */
+	map_hgt = SCREEN_HGT;
+	map_wid = 78;
+	
+	dungeon_hgt = MAX_HGT;//p_ptr->cur_hgt;
+	dungeon_wid = MAX_WID;//p_ptr->cur_wid;
 
-
-	/* Save lighting effects */
-	old_view_special_lite = p_ptr->view_special_lite;
-	old_view_granite_lite = p_ptr->view_granite_lite;
-
-	/* Disable lighting effects */
-	p_ptr->view_special_lite = FALSE;
-	p_ptr->view_granite_lite = FALSE;
-
+	/* Prevent accidents */
+	if (map_hgt > dungeon_hgt) map_hgt = dungeon_hgt;
+	if (map_wid > dungeon_wid) map_wid = dungeon_wid;
+ 
+	/* Prevent accidents */
+	if ((map_wid < 1) || (map_hgt < 1)) return;
 
 	/* Clear the chars and attributes */
-	for (y = 0; y < MAP_HGT+2; y++)
+	for (y = 0; y < map_hgt+2; ++y)
 	{
-		for (x = 0; x < MAP_WID+2; x++)
+		for (x = 0; x < map_wid+2; ++x)
 		{
 			/* Nothing here */
 			ma[y][x] = TERM_WHITE;
 			mc[y][x] = ' ';
-
-			/* No priority */
-			mp[y][x] = 0;
 		}
 	}
 
+	/* Analyze the actual map */
 	/* for each row */
-	for (y = 0; y < MAP_HGT+2; y++)
+	for (y = 1; y < map_hgt+1; y++)
 	{
 		/* for each column */
-		for (x = 0; x < MAP_WID+2; x++)
+		for (x = 1; x < map_wid+1; x++)
 		{
 			/* Location */
-			world_y = p_ptr->world_y + (MAP_HGT+2)/2 - y;
-			world_x = p_ptr->world_x - (MAP_WID+2)/2 + x;
+			world_y = p_ptr->world_y + (map_hgt+2)/2 - y;
+			world_x = p_ptr->world_x - (map_wid+2)/2 + x;
 			wild_idx = world_index(world_x, world_y);
 		
 			/* figure out what char to display */
@@ -1577,12 +1638,12 @@ void wild_display_map(int Ind)
 				case WILD_WASTELAND: tc = '.'; ta=TERM_UMBER; break;
 				case WILD_TOWN: tc = 'T'; ta = TERM_YELLOW; break;
 				case WILD_CLONE: tc = 'C'; ta = TERM_RED; break;
-				case -1: tc = ' '; ta = TERM_DARK; break;
+				case -1: tc = ' '; ta = TERM_WHITE; break;
 				default: tc = 'O'; ta = TERM_YELLOW; break;
 			} 
 			
 			/* put the @ in the center */
-			if ((y == (MAP_HGT+2)/2) && (x == (MAP_WID+2)/2))
+			if ((y == (map_hgt+2)/2) && (x == (map_wid+2)/2))
 			{
 				tc = '@'; ta = TERM_WHITE; 
 			}
@@ -1597,34 +1658,41 @@ void wild_display_map(int Ind)
 
 
 	/* Corners */
-	x = MAP_WID + 1;
-	y = MAP_HGT + 1;
+	x = map_wid+1;
+	y = map_hgt+1;
 
 	/* Draw the corners */
 	mc[0][0] = mc[0][x] = mc[y][0] = mc[y][x] = '+';
 
 	/* Draw the horizontal edges */
-	for (x = 1; x <= MAP_WID; x++) mc[0][x] = mc[y][x] = '-';
+	for (x = 1; x <= map_wid; x++) mc[0][x] = mc[y][x] = '-';
 
 	/* Draw the vertical edges */
-	for (y = 1; y <= MAP_HGT; y++) mc[y][0] = mc[y][x] = '|';
+	for (y = 1; y <= map_hgt; y++) mc[y][0] = mc[y][x] = '|';
+	
+	/* Prepare bottom string */
+	/* [-12,10] */
+	//sprintf(buf, " [%d, %d] ", p_ptr->world_y * -1, p_ptr->world_x);
+	/* [12N, 10E] */
+	buf[0] = '\0';
+	strcat(buf, " [");
+	if (p_ptr->world_y) strcat(buf, format("%d%c", abs(p_ptr->world_y), (p_ptr->world_y > 0 ? 'N' : 'S')));
+	if (p_ptr->world_y && p_ptr->world_x) strcat(buf, ", ");
+	if (p_ptr->world_x) strcat(buf, format("%d%c", abs(p_ptr->world_x), (p_ptr->world_x > 0 ? 'E' : 'W')));
+	strcat(buf, "] ");
 
+	/* Print string at the bottom */
+	col = map_wid - strlen(buf);
+	for (x = col; x < map_wid; x++)
+	{
+		mc[y][x] = buf[x-col];
+	}
 
 	/* Display each map line in order */
-	for (y = 0; y < MAP_HGT+2; ++y)
+	for (y = 0; y < map_hgt+2; ++y)
 	{
-		/* Start a new line */
-		/*Term_gotoxy(0, y);*/
-
-		/* Clear the old info first */
-		for (x = 0; x < 80; x++)
-		{
-			p_ptr->scr_info[y][x].c = 0;
-			p_ptr->scr_info[y][x].a = 0;
-		}
-
 		/* Display the line */
-		for (x = 0; x < MAP_WID+2; ++x)
+		for (x = 0; x < 80; ++x)
 		{
 			ta = ma[y][x];
 			tc = mc[y][x];
@@ -1633,13 +1701,8 @@ void wild_display_map(int Ind)
 			if (!use_color) ta = TERM_WHITE;
 
 			/* Add the character */
-			/* Efficiency -- Redraw that grid of the map */
-
-			if (p_ptr->scr_info[y][x].c != tc || p_ptr->scr_info[y][x].a != ta)
-			{
-				p_ptr->scr_info[y][x].c = tc;
-				p_ptr->scr_info[y][x].a = ta;
-			} 
+			p_ptr->scr_info[y][x].c = tc;
+			p_ptr->scr_info[y][x].a = ta;
 		}
 
 		/* Send that line of info */
@@ -1653,9 +1716,6 @@ void wild_display_map(int Ind)
 		}
 	}
 
-	/* Restore lighting effects */
-	p_ptr->view_special_lite = old_view_special_lite;
-	p_ptr->view_granite_lite = old_view_granite_lite;
 }
 
 
@@ -1674,7 +1734,7 @@ void do_cmd_view_map(int Ind)
 	/* Display the map */
 	
 	/* if not in town or the dungeon, do normal map */
-	if (Players[Ind]->dun_depth >= 0) display_map(Ind, &cy, &cx);
+	if (Players[Ind]->dun_depth >= 0) display_map(Ind);
 	/* do wilderness map */
 	else wild_display_map(Ind);
 }

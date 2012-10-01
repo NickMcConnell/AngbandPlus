@@ -612,7 +612,7 @@ static errr init_info(cptr filename, header *head)
 		fp = my_fopen(buf, "r");
 
 		/* Parse it */
-		if (!fp) quit(format("Cannot open '%s.txt' file.", filename));
+		if (!fp) quit(format("Cannot open '%s' file.", buf));
 
 		/* Parse the file */
 		err = init_info_txt(fp, buf, head, head->parse_info_txt);
@@ -803,6 +803,7 @@ static errr init_z_info(void)
  */
 static errr init_f_info(void)
 {
+	int i;
 	errr err;
 
 	FILE *fp;
@@ -878,6 +879,14 @@ static errr init_f_info(void)
 
 		/* Quit */
 		quit("Error in 'terrain.txt' file.");
+	}
+
+	/* Keep a copy of server side char/attrs in the same format as in  the player 
+	 * structure for use later in map_info() rendering server side scenes */
+	for(i=0; i<MAX_F_IDX; i++)
+	{
+		f_char_s[i] = f_info[i].f_char;
+		f_attr_s[i] = f_info[i].f_attr;
 	}
 
 	/* Success */
@@ -1222,7 +1231,7 @@ static errr init_e_info(void)
 static errr init_r_info(void)
 {
 	errr err;
-
+	int i;
 	FILE *fp;
 
 	/* General buffer */
@@ -1296,6 +1305,14 @@ static errr init_r_info(void)
 
 		/* Quit */
 		quit("Error in 'monster.txt' file.");
+	}
+
+	/* Keep a copy of server side char/attrs in the same format as in  the player 
+	 * structure for use later in map_info() rendering server side scenes */
+	for(i=0; i<MAX_R_IDX; i++)
+	{
+		r_char_s[i] = r_info[i].d_char;
+		r_attr_s[i] = r_info[i].d_attr;
 	}
 
 	/* Success */
@@ -2346,6 +2363,18 @@ void set_server_option(char * option, char * value)
 	{
 		cfg_report_to_meta = str_to_boolean(value);
 	}
+	else if (!strcmp(option,"DATA_DIR"))
+	{
+		ANGBAND_DIR_DATA = strdup(value);
+	}
+	else if (!strcmp(option,"EDIT_DIR"))
+	{
+		ANGBAND_DIR_EDIT = strdup(value);
+	}
+	else if (!strcmp(option,"SAVE_DIR"))
+	{
+		ANGBAND_DIR_SAVE = strdup(value);
+	}
 	else if (!strcmp(option,"META_ADDRESS"))
 	{
 		cfg_meta_address = strdup(value);
@@ -2398,6 +2427,10 @@ void set_server_option(char * option, char * value)
 	{
 		cfg_newbies_cannot_drop = str_to_boolean(value);
 	}
+	else if (!strcmp(option,"GHOST_DIVING"))
+	{
+		cfg_ghost_diving = str_to_boolean(value);
+	}
 	else if (!strcmp(option,"DOOR_BUMP_OPEN"))
 	{
 		cfg_door_bump_open = str_to_boolean(value);
@@ -2437,6 +2470,14 @@ void set_server_option(char * option, char * value)
     else if (!strcmp(option,"MAX_TREES"))
     {
         cfg_max_trees = atoi(value);
+    }
+    else if (!strcmp(option,"MAX_HOUSES"))
+    {
+        cfg_max_houses = atoi(value);
+    }
+    else if (!strcmp(option,"CHARACTER_DUMP_COLOR"))
+    {
+        cfg_chardump_color = str_to_boolean(value);
     }
 
 
@@ -2501,24 +2542,33 @@ void load_server_cfg_aux(FILE * cfg)
 /* Load in the mangband.cfg file.  This is a file that holds many
  * options thave have historically been #defined in config.h.
  */
-
+cptr possible_cfg_dir[] = 
+{
+	"mangband.cfg",
+	"/etc/mangband.cfg",
+	"/usr/local/etc/mangband.cfg",
+	"/usr/etc/mangband.cfg",
+	NULL
+};
 void load_server_cfg(void)
 {
-	FILE * cfg;
+	FILE * cfg = 0;
+	int i = 0;
 
 	/* Attempt to open the file */
-	cfg = fopen("mangband.cfg", "r");
+	while (cfg <= 0 && possible_cfg_dir[i++])
+	{
+		cfg = fopen(possible_cfg_dir[i-1], "r");
+	}
 
-	/* Failure, try /etc then stop trying */
+	/* Failure, try several dirs, then stop trying */
 	if (cfg <= 0)
 	{
-		cfg = fopen("/etc/mangband.cfg", "r");
-		if (cfg <= 0)
-	    	{
-			plog("Error : cannot open file mangband.cfg");
-			return;
-		}
+		plog("Error : cannot open file mangband.cfg");
+		return;
 	}
+
+	plog(format("Loading %s", possible_cfg_dir[i-1]));
 
 	/* Actually parse the file */
 	load_server_cfg_aux(cfg);

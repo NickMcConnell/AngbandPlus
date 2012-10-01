@@ -587,6 +587,36 @@ void search(int Ind)
 }
 
 
+/*
+ * Determine if the object can be picked up, and has "=g" in its inscription.
+ */
+static bool auto_pickup_okay(const object_type *o_ptr)
+{
+	cptr s;
+
+	/* It can't be carried */
+	//if (!inven_carry_okay(o_ptr)) return (FALSE);
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+		/* Auto-pickup on "=g" */
+		if (s[1] == 'g') return (TRUE);
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+	/* Don't auto pickup */
+	return (FALSE);
+}
+
 
 
 /*
@@ -619,6 +649,9 @@ void carry(int Ind, int pickup, int confirm)
 
 	/* Describe the object */
 	object_desc(Ind, o_name, o_ptr, TRUE, 3);
+	
+	/* Check for auto-pickup */
+	if (auto_pickup_okay(o_ptr)) pickup = 1;
 
 	/* Pick up gold */
 	if (o_ptr->tval == TV_GOLD)
@@ -1576,6 +1609,9 @@ void move_player(int Ind, int dir, int do_pickup)
 			/* update the wilderness map */
 			p_ptr->wild_map[(-p_ptr->dun_depth)/8] |= (1<<((-p_ptr->dun_depth)%8));
 			
+			/* disturb if necessary */
+			if (p_ptr->disturb_panel) disturb(Ind, 0, 0);
+						
 			players_on_depth[p_ptr->dun_depth]++;
 			p_ptr->new_level_flag = TRUE;
 			p_ptr->new_level_method = LEVEL_OUTSIDE;
@@ -1604,6 +1640,9 @@ void move_player(int Ind, int dir, int do_pickup)
 	{
 		player_type *q_ptr = Players[0 - c_ptr->m_idx];
 		int Ind2 = 0 - c_ptr->m_idx;
+		
+	if (Ind2 != Ind)
+	{
 
 		/* Check for an attack */
 		if (check_hostile(Ind, Ind2))
@@ -1655,6 +1694,7 @@ void move_player(int Ind, int dir, int do_pickup)
 			disturb(Ind, 1, 0);
 			disturb(Ind2, 1, 0);
 		}
+	}
 	}
 
 	/* Hack -- attack monsters */

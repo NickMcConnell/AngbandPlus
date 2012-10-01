@@ -3595,23 +3595,26 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 	/* Player cannot hurt himself */
 	if (0 - who == Ind) return (FALSE);
 
+	/* Hack -- Never do excessive damage */
+	if (dam > 1600) dam = 1600;
+
 	/* Extract radius */
 	div = r + 1;
 
 	/* Decrease damage */
-	dam = dam / div;
-
+	dam = (dam + r) / div;
 
 	/* Hack -- always do at least one point of damage */
 	if (dam <= 0) dam = 1;
-
-	/* Hack -- Never do excessive damage */
-	if (dam > 1600) dam = 1600;
 
 
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
 
+	/* Mega-Hack */
+	project_m_n++;
+	project_m_x = x;
+	project_m_y = y;
 
 	if (who > 0)
 	{
@@ -4419,10 +4422,10 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 			if (typ == GF_HEAL_PLAYER) break;
 			
 			/* neutral people hit each other */			
-			if (!Players[0 - who]->party) break;
+			if (who < 0 && !Players[0 - who]->party) break;
 			
 			/* people not in the same party hit each other */			
-			if (!player_in_party(Players[0 - who]->party, 0 - c_ptr->m_idx)) break;	
+			if (who < 0 && !player_in_party(Players[0 - who]->party, 0 - c_ptr->m_idx)) break;	
 		}
 
 
@@ -4699,7 +4702,7 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 		}
 
 		/* Mega-Hack */
-		if ((who < 0) && (project_m_n == 1))
+		if ((who < 0) && (project_m_n == 1) && !(flg & PROJECT_JUMP))
 		{
 			/* Location */
 			x = project_m_x;
@@ -4716,10 +4719,6 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 				{
 					if (p_ptr->mon_vis[m_idx]) health_track(0 - who, m_idx);
 				}
-				else
-				{
-					if (p_ptr->play_vis[0 - m_idx]) health_track(0 - who, m_idx);
-				}
 			}
 		}
 	}
@@ -4730,6 +4729,11 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 	{
 		/* Start with "dist" of zero */
 		dist = 0;
+
+		/* Mega-Hack */
+		project_m_n = 0;
+		project_m_x = 0;
+		project_m_y = 0;
 
 		/* Now see if the player gets hurt */
 		for (i = 0; i < grids; i++)
@@ -4750,6 +4754,27 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 			/* Affect the player */
 			if (project_p(player_idx, who, dist, Depth, y, x, dam, typ)) notice = TRUE;
 		}
+
+		/* Mega-Hack */
+		if ((who < 0) && (project_m_n == 1) && !(flg & PROJECT_JUMP))
+		{
+			/* Location */
+			x = project_m_x;
+			y = project_m_y;
+
+			/* Still here */
+			if (who < 0)
+			{
+				player_type *p_ptr = Players[0 - who];
+				int m_idx = cave[Depth][y][x].m_idx;
+
+				/* Hack - auto-track player */
+				if (m_idx < 0)
+				{
+					if (p_ptr->play_vis[0 - m_idx]) health_track(0 - who, m_idx);
+				}
+			}
+		}		
 	}
 
 

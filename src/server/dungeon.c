@@ -1694,6 +1694,9 @@ static void process_various(void)
 			if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
 			if (r_ptr->max_num > 0) continue;
 
+			/* Never respawn Morgoth */
+			if (r_ptr->flags1 & RF1_DROP_CHOSEN) continue;
+
 			/* Hack -- Initially set a newly killed uniques respawn timer */
 			/* -1 denotes that the respawn timer is unset */
    			if (r_ptr->respawn_timer < 0) 
@@ -1906,6 +1909,8 @@ void dungeon(void)
 		/* Check for death */
 		if (Players[i]->death)
 		{
+			/* Paranoia -- postpone death if no level -- THIS HACK IS DANGEROUS */
+			if (players_on_depth[Players[i]->dun_depth])
 			/* Kill him */
 			player_death(i);
 		}

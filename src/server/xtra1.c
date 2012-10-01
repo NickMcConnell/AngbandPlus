@@ -702,7 +702,14 @@ static void prt_player_flag_info(int Ind)
 
 				/* Fill in Known flags */
 				if (o_ptr->k_idx) /* don't waste time */
-				object_flags_known(Ind, o_ptr, &f[1], &f[2], &f[3]);
+				{
+					object_flags_known(Ind, o_ptr, &f[1], &f[2], &f[3]);
+
+					/* Hack -- additional lite flag */				
+					if (i == INVEN_LITE)
+						if (artifact_p(o_ptr) || k_info[o_ptr->k_idx].sval == SV_LITE_DWARVEN || k_info[o_ptr->k_idx].sval == SV_LITE_FEANOR)
+							f[3] |= TR3_LITE;
+				}
 
 				/* Color columns by parity */
 				if (n % 2) attr = TERM_L_WHITE;
@@ -1236,11 +1243,13 @@ static void fix_spell(int Ind)
 	if (!p_ptr->cp_ptr->spell_book)
 		return;
 
+#if 0
 	/* Check for blindness and no lite and confusion */
 	if (p_ptr->blind || no_lite(Ind) || p_ptr->confused)
 	{
 		return;
 	}
+#endif
 
 	/* Scan for appropriate books */
 	for (i = 0; i < INVEN_WIELD; i++)
@@ -2810,6 +2819,12 @@ static void calc_bonuses(int Ind)
 		p_ptr->window |= (PW_PLAYER);
 	}
 
+	/* Redraw To-Hit and To-Dim (if needed) */
+	if ((p_ptr->dis_to_h != old_dis_to_h) || (p_ptr->dis_to_d != old_dis_to_d))
+	{
+		/* Redraw */
+		p_ptr->redraw |= (PR_PLUSSES);
+	}
 
 	/* Hack -- handle "xtra" mode */
 	/*if (character_xtra) return;*/

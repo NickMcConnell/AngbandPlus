@@ -53,6 +53,12 @@ static void write_uint(char* name, unsigned int value)
 	fprintf(file_handle,"%s%s = %u\n",xml_prefix,name,value);
 }
 
+/* Write an signed long value */
+static void write_huge(char* name, huge value)
+{
+	fprintf(file_handle,"%s%s = %llu\n",xml_prefix,name,value);
+}
+
 /* Write a string */
 static void write_str(char* name, char* value)
 {
@@ -92,6 +98,7 @@ static void write_binary(char* name, char* data)
 static void wr_item(object_type *o_ptr)
 {
 	char obj_name[80];
+	int tmp = 0;
 	
 	start_section("item");
 
@@ -141,7 +148,10 @@ static void wr_item(object_type *o_ptr)
 	}
 	
 	/* Held by monster index */ 
-   write_int("held_m_idx", o_ptr->held_m_idx);
+	/* FIXME: we disable this here because it's broken and can cause the server save
+	 * file to fail to load due to invalid monster indexes */
+	/* write_int("held_m_idx", o_ptr->held_m_idx); */
+	write_int("held_m_idx", tmp);
 	
 	end_section("item");
 }
@@ -259,7 +269,7 @@ static void wr_store(store_type *st_ptr)
 	start_section("store");
 
 	/* Save the "open" counter */
-	write_uint("store_open",st_ptr->store_open);
+	write_huge("store_open",st_ptr->store_open);
 
 	/* Save the "insults" */
 	write_uint("insult_cur",st_ptr->insult_cur);
@@ -297,7 +307,7 @@ static void wr_party(party_type *party_ptr)
 
 	/* Save the number of people and creation time */
 	write_int("num",party_ptr->num);
-	write_uint("created",party_ptr->created);
+	write_huge("created",party_ptr->created);
 	
 	end_section("party");
 }
@@ -709,13 +719,13 @@ static bool wr_savefile_new(int Ind)
 	write_int("sf_saves",sf_saves);
 	
 	/* Write the server turn */
-	write_int("turn",turn);
+	write_huge("turn",turn);
 
 	/* Write the players birth turn */
-	write_uint("birth_turn",p_ptr->birth_turn);
+	write_huge("birth_turn",p_ptr->birth_turn);
 
 	/* Write the players turn */
-	write_uint("player_turn",p_ptr->turn);
+	write_huge("player_turn",p_ptr->turn);
 
 	/* Dump the object memory */
 	start_section("object_memory");
@@ -1343,7 +1353,7 @@ static bool wr_server_savefile(void)
 	write_uint("seed_town",seed_town);
 
 	write_uint("player_id",player_id);
-	write_uint("turn",turn);
+	write_huge("turn",turn);
 
 	end_section("mangband_server_save");
 
@@ -1489,7 +1499,7 @@ bool load_server_info(void)
         }
 
 	/* Message */
-	plog(format("Error (%s) reading server savefile.", what));
+	plog(format("Error (%s,%d) reading server savefile.", what, err));
 
 	return (FALSE);
 }

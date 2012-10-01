@@ -73,6 +73,9 @@ void init_stuff(void)
 
 #endif /* AMIGA / VM */
 
+			/* Read/Write path from config file */
+			if (ANGBAND_DIR) strncpy(path, ANGBAND_DIR, 1024);
+
         /* Initialize */
         init_file_paths(path);
 }
@@ -437,10 +440,8 @@ void client_init(char *argv1)
 		   to support both ways for now.
 		*/
 
-		lag_ok=0;
 		if(reply_to == 254) { 
 			c_msg_print("Lag Meter Enabled");
-			lag_ok=1; 
 		};
 
 		break;

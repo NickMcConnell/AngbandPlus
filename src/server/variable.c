@@ -117,8 +117,8 @@ s16b special_levels[MAX_SPECIAL_LEVELS]; /* List of depths which are special sta
 
 char summon_kin_type;		/* Hack -- See summon_specific() */
 
-s32b turn;			/* Current game turn */
-s32b old_turn;			/* Turn when level began (feelings) */
+huge turn;			/* Current game turn */
+huge old_turn;			/* Turn when level began (feelings) */
 
 s32b player_id;			/* Current player ID */
 
@@ -181,6 +181,7 @@ s16b cfg_tcp_port = 18346;
 bool cfg_mage_hp_bonus = 1;
 bool cfg_no_steal = 0;
 bool cfg_newbies_cannot_drop = 0;
+bool cfg_ghost_diving = 0;
 bool cfg_door_bump_open = 1;
 s32b cfg_level_unstatic_chance = 60;
 bool cfg_random_artifacts = 0; /* No randarts by default */
@@ -191,7 +192,8 @@ s32b cfg_unique_respawn_time = 300;
 s32b cfg_unique_max_respawn_time = 50000;
 s16b cfg_max_townies = 100;
 s16b cfg_max_trees = 100;
-
+s16b cfg_max_houses = 0;
+bool cfg_chardump_color = FALSE;
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
@@ -671,6 +673,8 @@ header *f_head;
 feature_type *f_info;
 char *f_name;
 char *f_text;
+char f_char_s[MAX_F_IDX];
+char f_attr_s[MAX_F_IDX];
 
 /*
  * The object kind arrays
@@ -704,6 +708,8 @@ header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
+char r_char_s[MAX_R_IDX];
+char r_attr_s[MAX_R_IDX];
 
 
 /*
