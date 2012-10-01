@@ -101,8 +101,10 @@ void do_cmd_change_name(void)
 
 	cptr p;
 
+	store_type *st_ptr = &store[STORE_HOME];
+
 	/* Prompt */
-	p = "['c' - change name, f to file, '(+/-)' toggle display modes, or ESC]";
+	p = "['c' - change name, f - file, '(+/-)' toggle display modes, or ESC]";
 
 	/* Save screen */
 	screen_save();
@@ -158,13 +160,20 @@ void do_cmd_change_name(void)
 
 			/*loop through the four screens*/
 			if (mode == 4) mode = 0;
+			/*don't display home if empty*/
+			else if ((!st_ptr->stock_num) && (mode == 2)) mode = 0;
 		}
 
 		/* Toggle mode */
 		else if (ch == '-')
 		{
 			/*loop through the four screens*/
-			if (mode == 0) mode = 3;
+			if (mode == 0)
+			{
+				/*don't display home if empty*/
+				if (st_ptr->stock_num) mode = 3;
+				else mode = 1;
+			}
 
 			else mode -= 1;
 		}

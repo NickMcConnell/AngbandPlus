@@ -750,18 +750,14 @@ startover:
 	return (word_buf);
 }
 
-void make_random_name(void)
+void make_random_name(char *random_name, size_t max)
 {
-	char *temporary;
 
 	/*build the database of letter frequency*/
 	build_prob(names_list);
 
 	/*get the randomly generated word*/
-	temporary = make_word();
-
-	/* Hack - assume name will be accepted. */
-	my_strcpy(op_ptr->full_name, temporary, sizeof(op_ptr->full_name));
+	my_strcpy(random_name, make_word(), max);
 
 	return;
 }

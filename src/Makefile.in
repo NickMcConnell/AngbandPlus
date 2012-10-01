@@ -104,7 +104,7 @@ angband_SOURCES = \
   melee1.c melee2.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c load.c \
-  wizard1.c wizard2.c \
+  wizard1.c wizard2.c quest.c squelch.c \
   main-cap.c main-gcu.c main-x11.c main-xaw.c main.c \
   main-win.c main-xpj.c main-vcs.c main-gtk.c \
   generate.c dungeon.c init1.c init2.c randart.c \
@@ -147,8 +147,8 @@ am_angband_OBJECTS = z-util.$(OBJEXT) z-virt.$(OBJEXT) z-form.$(OBJEXT) \
 	melee2.$(OBJEXT) save.$(OBJEXT) files.$(OBJEXT) cmd1.$(OBJEXT) \
 	cmd2.$(OBJEXT) cmd3.$(OBJEXT) cmd4.$(OBJEXT) cmd5.$(OBJEXT) \
 	cmd6.$(OBJEXT) store.$(OBJEXT) birth.$(OBJEXT) load.$(OBJEXT) \
-	wizard1.$(OBJEXT) wizard2.$(OBJEXT) main-cap.$(OBJEXT) \
-	main-gcu.$(OBJEXT) main-x11.$(OBJEXT) main-xaw.$(OBJEXT) \
+	wizard1.$(OBJEXT) wizard2.$(OBJEXT) quest.$(OBJEXT) squelch.$(OBJEXT) \
+	main-cap.$(OBJEXT) main-gcu.$(OBJEXT) main-x11.$(OBJEXT) main-xaw.$(OBJEXT) \
 	main.$(OBJEXT) main-win.$(OBJEXT) main-xpj.$(OBJEXT) \
 	main-vcs.$(OBJEXT) main-gtk.$(OBJEXT) generate.$(OBJEXT) \
 	dungeon.$(OBJEXT) init1.$(OBJEXT) init2.$(OBJEXT) \
@@ -196,7 +196,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/store.Po ./$(DEPDIR)/tables.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/use-obj.Po ./$(DEPDIR)/util.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/variable.Po ./$(DEPDIR)/wizard1.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/wizard2.Po ./$(DEPDIR)/x-spell.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/wizard2.Po ./$(DEPDIR)/quest.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/squelch.Po ./$(DEPDIR)/x-spell.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/xtra1.Po ./$(DEPDIR)/xtra2.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/z-form.Po ./$(DEPDIR)/z-rand.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/z-term.Po ./$(DEPDIR)/z-util.Po \
@@ -338,6 +339,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/variable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wizard1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wizard2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/quest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/squelch.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/x-spell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xtra1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xtra2.Po@am__quote@

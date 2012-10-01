@@ -154,7 +154,7 @@ cptr describe_quest(s16b level, int mode)
 	/* Vault quests */
 	if (q_ptr->type == QUEST_VAULT)
 	{
-		strcpy(intro, "To fulfill your task, you must retrieve the fabled treasure");
+		strcpy(intro, "Return to the Guild a large, sealed jeweled chest from a vault");
 
 		/* The location of the quest */
 		if (!depth_in_feet) strcpy(where, format("on dungeon level %d.", level));
@@ -246,9 +246,15 @@ static void grant_reward(byte type)
 	/* Create a gold reward */
 	if (type == REWARD_GOLD)
 	{
+		/*base amount of gold on fame*/
+		int repeats = p_ptr->fame / 4;
+
+		/*but put in a minimum*/
+		if (repeats < 3) repeats = 3;
+
 		/* Give a good gold type for the level */
 
-		for (i = 0; i < 3; i++)
+		for (i = 0; i < repeats; i++)
 		{
 			/* Get local object */
 			i_ptr = &object_type_body;
@@ -277,6 +283,9 @@ static void grant_reward(byte type)
 			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 		}
+
+		/*undo special item level creation*/
+		chest_or_quest = FALSE;
 
 		return;
 	}
@@ -355,71 +364,31 @@ static void grant_reward(byte type)
 			}
 		}
 
-		/* Maybe we want to give a potion of stat */
-		if (!got_item && (rand_int(100) < 10))
+
+		/* Maybe we want to give a potion of augmentation */
+
+		/*clear the counter*/
+		x = 0;
+
+		/* Add up the base stats */
+		for (i = 0; i < A_MAX; i++)
 		{
-			bool found_stat = FALSE;
+			x += p_ptr->stat_max[i];
+		}
 
-			/* Find an unmaxxed stat */
-			for (i = 0; i < 100; i++)
-			{
-				x = rand_int(A_MAX);
+		/*greater chance of augmentation if stats are lower.*/
+		if ((!got_item) && (rand_int(150) > (x-50)))
+		{
+			/* Get local object */
+			i_ptr = &object_type_body;
 
-				/* Hack - reduce chance of potion of charisma */
-				if ((x == A_CHR) && (rand_int(100) >= 30)) continue;
+			/* Wipe the object */
+			object_wipe(i_ptr);
 
-				/* Check if a random stat is maxxed */
-				if (p_ptr->stat_max[x] < (18 + 100))
-				{
-					found_stat = TRUE;
-					break;
-				}
-			}
+			/* Make a potion of augmentation */
+			object_prep(i_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
 
-			/* Generate the potion */
-			if (found_stat)
-			{
-				byte sval;
-
-				/* Small chance of potion of augmentation */
-				if (rand_int(100) < 10)
-				{
-					sval = SV_POTION_AUGMENTATION;
-				}
-				/* Small chance of potions of *enlightenment* */
-				else if (((x == A_INT) || (x == A_WIS)) && (rand_int(100) < 10))
-				{
-					sval = SV_POTION_STAR_ENLIGHTENMENT;
-				}
-				else
-				{
-					switch (x)
-					{
-						case A_STR: sval = SV_POTION_INC_STR; break;
-						case A_INT: sval = SV_POTION_INC_INT; break;
-						case A_WIS: sval = SV_POTION_INC_WIS; break;
-						case A_DEX: sval = SV_POTION_INC_DEX; break;
-						case A_CON: sval = SV_POTION_INC_CON; break;
-						case A_CHR: sval = SV_POTION_INC_CHR; break;
-						/* Paranoia */
-						default: sval = 0;
-					}
-				}
-
-				if (sval)
-				{
-					/* Get local object */
-					i_ptr = &object_type_body;
-
-					/* Wipe the object */
-					object_wipe(i_ptr);
-
-					/* Make the object */
-					object_prep(i_ptr, lookup_kind(TV_POTION, sval));
-
-					got_item = TRUE;
-				}
-			}
+			got_item = TRUE;
 		}
 
 		/* We didn't find anything else, so lets find something to wear */
@@ -429,6 +398,7 @@ static void grant_reward(byte type)
 			s32b val[INVEN_TOTAL];
 			s32b diff = 1;
 			int droptype = 0;
+			st_ptr = &store[STORE_HOME];
 
 			/* First, figure out the best price for each slot */
 			for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -505,9 +475,13 @@ static void grant_reward(byte type)
  				}
 			}
 
-			/* 10 attempts at an item */
-			for (x = 0; x < 10; x++)
+			/* attempts at an item based on p_ptr fame, but fame is a minimum of 20*/
+			for (x = 0; x < (p_ptr->fame / 5); x++)
 			{
+				/*create the items in the guild....*/
+				store_type *st_ptr = &store[STORE_GUILD];
+				/* Get the existing object */
+				j_ptr = &st_ptr->stock[1];
 
 				/* Now, produce items */
 				i = rand_int(INVEN_TOTAL - INVEN_WIELD) + INVEN_WIELD;
@@ -538,7 +512,11 @@ static void grant_reward(byte type)
 						/*note:  this theme can produce "&nothing" if object level
 						 * isn't high enough
 						 */
-						if (object_level < 60) continue;
+						if (object_level < 60)
+						{
+							x--;
+							continue;
+						}
 						else droptype = DROP_TYPE_JEWELRY;
 						break;
 					}
@@ -573,6 +551,7 @@ static void grant_reward(byte type)
 						break;
 					}
 
+					/*paranoia*/
 					default: droptype = DROP_TYPE_UNTHEMED;
 				}
 
@@ -594,15 +573,6 @@ static void grant_reward(byte type)
 					a_info[j_ptr->name1].cur_num = 0;
 				}
 
-				/* Hack -- no ammo */
-				if ((j_ptr->tval == TV_BOLT) || (j_ptr->tval == TV_ARROW) ||
-					(j_ptr->tval == TV_SHOT))
-			 	{
-					/*don't count this one*/
-				    x--;
-					continue;
-				}
-
 				/* Make sure weapon isn't too heavy */
 				if ((i == INVEN_WIELD) &&
 					(adj_str_hold[p_ptr->stat_ind[A_STR]] < j_ptr->weight / 10))
@@ -616,11 +586,13 @@ static void grant_reward(byte type)
 
 				/*blessed weapons only for priests*/
 				if ((i == INVEN_WIELD) && (cp_ptr->flags & CF_BLESS_WEAPON) &&
+					((j_ptr->tval == TV_SWORD) || (j_ptr->tval == TV_POLEARM)) &&
 					(!is_blessed(j_ptr)))
 				{
 
 					/*don't count this one*/
 					x--;
+					continue;
 				}
 
 				/* Make sure gloves won't ruin spellcasting */
@@ -801,7 +773,6 @@ static void grant_reward(byte type)
 
 	/*undo special item level creation*/
 	chest_or_quest = FALSE;
-
 
 }
 
@@ -1080,7 +1051,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 		else
 		{
 			/* Maybe a tailored reward */
-			if (10 + rand_int(50) < p_ptr->fame) q_info[q].reward = REWARD_TAILORED;
+			if (20 + rand_int(50) < p_ptr->fame) q_info[q].reward = REWARD_TAILORED;
 			else q_info[q].reward = REWARD_GREAT_ITEM;
 		}
 	}
@@ -1166,7 +1137,7 @@ void display_guild(void)
 			p_ptr->fame += 5;
 
 			/* Write note */
-            sprintf(note, "Quest: Returned fabled treasure to the Guild.");
+            sprintf(note, "Quest: Return a large, sealed jeweled chest to the Guild.");
 
  		  	do_cmd_note(note, q_info[i].active_level);
 
@@ -1431,7 +1402,7 @@ void guild_purchase(void)
 	/*nowhere to quest*/
 	if (qlev >= MAX_DEPTH)
 	{
-		msg_print("You have reached the lower depths of the dungeon!");
+		msg_print("You have completely conquered the dungeon!");
 		return;
 	}
 

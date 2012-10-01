@@ -270,7 +270,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	if (o_ptr->sval == SV_CHEST_JEWELED_LARGE) number += randint (3);
 
 	/* Zero pval means empty chest */
-	if (!o_ptr->pval) number = 0;
+	if (!o_ptr->pval) return;
 
 	/* Opening a chest */
 	chest_or_quest = OPEN_CHEST;
@@ -444,8 +444,16 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
+	/*never open quest chests*/
+	if(o_ptr->ident & IDENT_QUEST)
+	{
+		msg_print("This chest is to be opened by the Guild!");
+
+		flag = FALSE;
+	}
+
 	/* Attempt to unlock it */
-	if (o_ptr->pval > 0)
+	else if (o_ptr->pval > 0)
 	{
 		/* Assume locked, and thus not open */
 		flag = FALSE;
@@ -493,7 +501,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		/*squelch chest if autosquelch calls for it*/
 		if ((squelch_level[CHEST_INDEX]) == SQUELCH_OPENED_CHESTS)
 		{
-			/*but don't squelch a quest item!*/
+			/*paranioa, should never happen.*/
 			if(o_ptr->ident & IDENT_QUEST)
 			{
 				msg_print("You avoid squelching the chest so that you may complete your quest.");
@@ -1970,7 +1978,7 @@ void do_cmd_alter(void)
 	}
 
 	/* ONly rogues can modify basic monster traps */
-	else if ((feat == FEAT_MTRAP_HEAD) && (cp_ptr->flags & CF_ROGUE_COMBAT))
+	else if ((feat == FEAT_MTRAP_HEAD) && (cp_ptr->flags & CF_SET_TRAPS))
 	{
 		/* Modify */
 		py_modify_trap(y, x);
@@ -2656,14 +2664,12 @@ void do_cmd_fire(void)
 	/* Sound */
 	sound(MSG_SHOOT);
 
-
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
-
 
 	/* Use the proper number of shots */
 	thits = p_ptr->num_fire;
@@ -2917,7 +2923,6 @@ void do_cmd_throw(void)
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -3001,7 +3006,6 @@ void do_cmd_throw(void)
 
 	/* Calculate the path */
 	path_n = project_path(path_g, tdis, p_ptr->py, p_ptr->px, ty, tx, 0);
-
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -3119,7 +3123,7 @@ void do_cmd_throw(void)
 			if (f3 & (TR3_THROWING))
 			{
 				/* Perfectly balanced weapons do even more damage. */
-				if (o_ptr->ident & IDENT_PERFECT_BALANCE) tdam *= 2;
+				if (i_ptr->ident & IDENT_PERFECT_BALANCE) tdam *= 2;
 
 				/* Critical hits may add damage dice. */
 				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
@@ -3127,7 +3131,7 @@ void do_cmd_throw(void)
 				/*
 				 * Double the damage for throwing weapons
 				 */
-				tdam *= tdam * 2 ;
+				tdam *= 2;
 			}
 
 
@@ -3174,7 +3178,7 @@ void do_cmd_throw(void)
 	}
 
 	/* Chance of breakage (during attacks) */
-	if (o_ptr->ident & IDENT_PERFECT_BALANCE) j = 0;
+	if (i_ptr->ident & IDENT_PERFECT_BALANCE) j = 0;
 	else if (f3 & (TR3_THROWING)) j = (hit_body ? 1 : 0);
 	else j = (hit_body ? breakage_chance(i_ptr) : 0);
 

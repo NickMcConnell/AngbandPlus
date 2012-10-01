@@ -1108,7 +1108,7 @@ static void wr_extra(void)
 	wr_byte(0);
 
 	/* Squelch bytes */
-	for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
+	for (i = 0; i < SQUELCH_BYTES; i++) wr_byte(squelch_level[i]);
 	wr_byte(auto_destroy);
 
 	/* Store the number of thefts on the level. -LM- */

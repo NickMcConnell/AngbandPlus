@@ -9,7 +9,7 @@ SRCS = \
   xtra1.c xtra2.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load.c \
+  store.c birth.c load.c quest.c squelch.c \
   wizard1.c wizard2.c obj-info.c \
   generate.c dungeon.c init1.c init2.c randart.c \
   main-lsl.c main.c
@@ -33,7 +33,7 @@ OBJS = \
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load.o \
+  store.o birth.o load.o quest.o squelch.o \
   wizard1.o wizard2.o obj-info.o \
   generate.o dungeon.o init1.o init2.o randart.o \
   main-lsl.o main.o \
@@ -134,12 +134,14 @@ monster2.o: monster2.c $(INCS)
 obj-info.o: obj-info.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
+quest.o: quest.c $(INCS)
 save.o: save.c $(INCS)
 script.o: script.c $(INCS) script.h \
 		lua/lauxlib.h lua/lua.h lua/luadebug.h lua/lualib.h lua/tolua.h \
 		lua/luadebug.h
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
+squelch.o: squelch.c $(INCS)
 store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 use-obj.o: use-obj.c $(INCS)

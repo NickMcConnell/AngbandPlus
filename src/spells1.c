@@ -1524,7 +1524,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			    (cave_feat[y][x] == FEAT_BROKEN) ||
 			    (cave_feat[y][x] == FEAT_INVIS) ||
 			    ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_TRAP_TAIL)))
+			     (cave_feat[y][x] <= FEAT_TRAP_TAIL)) ||
+			    ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
+			     (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
 
 			{
 				/* Check line of sight */
@@ -3159,6 +3161,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 		/* Set fear */
 		m_ptr->monfear = (tmp < 200) ? tmp : 200;
+
+		/*a monster can't be wary and afraid*/
+		m_ptr->mflag &= ~(MFLAG_WARY);
+
 	}
 
 

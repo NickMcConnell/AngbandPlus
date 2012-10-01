@@ -865,16 +865,19 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 
 			/*autosquelch insert*/
-			sq_flag = ((k_info[o_ptr->k_idx].squelch) &
+			sq_flag = ((mark_squelch_items) && (k_info[o_ptr->k_idx].squelch) &&
  			(k_info[o_ptr->k_idx].aware));
 
-			if (!sq_flag) {
+			if (!sq_flag)
+			{
 				/* Normal attr */
 				a = object_attr(o_ptr);
 
 				/* Normal char */
 				c = object_char(o_ptr);
-			} else {
+			}
+			else
+			{
 				/* Special squelch character HACK */
 				/* Colour of Blade of Chaos */
 				a = k_info[36].x_attr;

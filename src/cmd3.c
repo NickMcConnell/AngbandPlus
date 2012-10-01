@@ -3630,10 +3630,10 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 		/*(player knows more than one creature saw the trap
 		 *besides the one who hit it.
 		 */
-		if (observed >= 2) msg_print("You hear shouts of warning about the monster trap.");
+		if (observed >= 2) msg_print("Several creatures take heed of the monster trap.");
 
 		/*player knows one creature saw the trap besides the one who hit it*/
-		else if (observed == 1) msg_print("You hear a shout of warning about the monster trap.");
+		else if (observed == 1) msg_print("A creature takes heed of the monster trap.");
 
 		}
 
@@ -3959,7 +3959,6 @@ static void process_monster(int m_idx)
 
 	/* Attempt to cast a spell */
 	if (make_attack_spell(m_idx)) return;
-
 
 	/* Reset */
 	stagger = FALSE;

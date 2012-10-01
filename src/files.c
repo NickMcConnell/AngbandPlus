@@ -371,12 +371,17 @@ errr process_pref_file_command(char *buf)
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
 			sq = strtol(zz[3], NULL, 0);
-			if ((k_info[i].tval == n1) && (k_info[i].sval == n2)) {
+			if ((k_info[i].tval == n1) && (k_info[i].sval == n2))
+			{
 				k_info[i].squelch = (sq ? TRUE : FALSE);
 				return(0);
-			} else {
-				for (i = 1; i < z_info->k_max; i++) {
-					if ((k_info[i].tval == n1) && (k_info[i].sval == n2)) {
+			}
+			else
+			{
+				for (i = 1; i < z_info->k_max; i++)
+				{
+					if ((k_info[i].tval == n1) && (k_info[i].sval == n2))
+					{
 						k_info[i].squelch = (sq ? TRUE : FALSE);
 						return(0);
 					}
@@ -2070,7 +2075,6 @@ static void display_player_sust_info(void)
 	byte a;
 	char c;
 
-
 	/* Row */
 	row = 3;
 
@@ -2216,8 +2220,6 @@ static void display_home_equipment_info(int mode)
 
 	/* Column */
 	col = 7;
-
-
 
 	/* Equippy */
 	display_home_equippy(row-2, col);
@@ -2465,31 +2467,6 @@ void display_player(int mode)
 	else display_home_equipment_info(mode);
 }
 
-static void dump_player_equippy(FILE *fff)
-{
-	int i;
-
-	object_type *o_ptr;
-
-	/* Print it out */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
-	{
-
-		/* Object */
-		o_ptr = &inventory[i];
-
-		/* empty objects */
-		if (!o_ptr->k_idx)
-		{
-			/*Make it a space*/
-			fprintf(fff," ");
-
-		}
-
-		/* Get attr/char for display */
-		else fprintf(fff,"%c", object_char(o_ptr));
-	}
-}
 
 
 
@@ -2501,7 +2478,7 @@ static void dump_player_plus_minus(FILE *fff)
 
 	object_type *o_ptr;
 
-	/* Print it out */
+		/* Print it out */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
 	{
 
@@ -2548,12 +2525,38 @@ static void dump_player_plus_minus(FILE *fff)
 
 static void dump_player_stat_info(FILE *fff)
 {
-	int x, y, stats;
+	int i, x, y, stats;
 
 	u32b f1, f2, f3;
 	u32b ignore_f2, ignore_f3;
 
+	object_type *o_ptr;
+
 	char c;
+
+	char equippy[20];
+
+	/* Build the equippy */
+	for (x = 0,i = INVEN_WIELD; i < INVEN_TOTAL; ++i,++x)
+	{
+
+		/* Object */
+		o_ptr = &inventory[i];
+
+		/* empty objects */
+		if (!o_ptr->k_idx)
+		{
+			/*Make it a space*/
+			equippy[x] = ' ';
+
+		}
+
+		/* Get attr/char for display */
+		else equippy[x] = object_char(o_ptr);
+	}
+
+	/*finish off the string*/
+	equippy[x] = '\0';
 
 	/*Hack - record spaces for the character*/
 
@@ -2561,17 +2564,7 @@ static void dump_player_stat_info(FILE *fff)
 
 	dump_player_plus_minus(fff);
 
-	fprintf(fff,"\n");
-
-	fprintf(fff,"      ");
-
-	dump_player_equippy(fff);
-
-	fprintf(fff,"               ");
-
-	dump_player_equippy(fff);
-
-	fprintf(fff,"\n");
+	fprintf(fff,"\n      %s               %s\n",equippy, equippy);
 
 	fprintf(fff,"      abcdefghijkl@              abcdefghijkl@\n");
 
@@ -2671,34 +2664,6 @@ static void dump_player_stat_info(FILE *fff)
 }
 
 
-static void dump_home_equippy(FILE *fff)
-{
-	int i;
-
-	object_type *o_ptr;
-	store_type *st_ptr = &store[STORE_HOME];
-
-	/* Print it out */
-	for (i = 0; i < MAX_INVENTORY_HOME; ++i)
-	{
-
-		/* Object */
-		o_ptr = &st_ptr->stock[i];
-
-		/* empty objects */
-		if (!o_ptr->k_idx)
-		{
-			/*Make it a space*/
-			fprintf(fff," ");
-
-		}
-
-		/* Get attr/char for display */
-		else fprintf(fff,"%c", object_char(o_ptr));
-	}
-}
-
-
 static void dump_home_plus_minus(FILE *fff)
 {
 	int i, stats, modifier;
@@ -2763,6 +2728,29 @@ static void dump_home_stat_info(FILE *fff)
 	u32b ignore_f2, ignore_f3;
 
 	char c;
+	char equippy[30];
+
+	/* Print it out */
+	for (i = 0; i < MAX_INVENTORY_HOME; ++i)
+	{
+
+		/* Object */
+		o_ptr = &st_ptr->stock[i];
+
+		/* empty objects */
+		if (!o_ptr->k_idx)
+		{
+			/*Make it a space*/
+			equippy[i] = ' ';
+
+		}
+
+		/* Get attr/char for display */
+		else equippy[i] = object_char(o_ptr);
+	}
+
+	/*finish off the string*/
+	equippy[i] = '\0';
 
 	/*Hack - record spaces for the character*/
 
@@ -2770,17 +2758,7 @@ static void dump_home_stat_info(FILE *fff)
 
 	dump_home_plus_minus(fff);
 
-	fprintf(fff,"\n");
-
-	fprintf(fff,"       ");
-
-	dump_home_equippy(fff);
-
-	fprintf(fff,"        ");
-
-	dump_home_equippy(fff);
-
-	fprintf(fff,"\n");
+	fprintf(fff,"\n       %s        %s\n", equippy, equippy);
 
 	fprintf(fff,"       abcdefghijklmnopqrstuvwx        abcdefghijklmnopqrstuvwx\n");
 
@@ -3185,19 +3163,19 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "  [Options]\n");
 
 	/* Dump options */
-	for (i = 0; i < OPT_SCORE; i++)
+	for (i = 0; i < OPT_MAX; i++)
 	{
 		/*hack - use game play options*/
 		if (i < OPT_GAME_PLAY) continue;
-		if ((i >= OPT_EFFICIENCY) && (i < OPT_CHEAT) &&
-		    (!(i == OPT_smart_monsters) || (i == OPT_smart_packs)))
+		if ((i >= OPT_EFFICIENCY) && (i < OPT_ADULT) &&
+		    (!((i == OPT_smart_monsters) || (i == OPT_smart_packs))))
 			continue;
 
 		/*print the labels*/
 		if (i == OPT_GAME_PLAY) fprintf(fff, "\nGAME PLAY OPTIONS:\n\n");
 		if (i == OPT_CHEAT) fprintf(fff, "\nCHEAT OPTIONS:\n\n");
 		if (i == OPT_ADULT) fprintf(fff, "\nBIRTH OPTIONS:\n\n");
-		if (i == OPT_SCORE) fprintf(fff, "\nSCORE OPTIONS:\n\n");
+		if (i == OPT_SCORE) fprintf(fff, "\nCHEAT OPTIONS:\n\n");
 
 		if (option_desc[i])
 		{
@@ -3804,12 +3782,11 @@ void get_name(void)
 {
 	char tmp[32];
 	char query, query2;
-	char buf[128];
 	int testloop = TRUE;
 	int loopagain = TRUE;
 
-	/*clear first*/
-	put_str("                                                 ", 23, 10);
+	/* Erase line 23 */
+	clear_from(23);
 
 	/* Prompt */
 	put_str("Select Name Using Random Name Generator? (y/n)", 23, 10);
@@ -3834,14 +3811,17 @@ void get_name(void)
 		{
 
 			/*get the random name, display for approval. */
-			make_random_name();
+
+			make_random_name(tmp, sizeof(tmp));
+
+			/* Erase line 22 */
+			clear_from(22);
 
 			put_str("Random name:", 22, 10);
 
-			/*clear old random name*/
-			put_str("                       ", 22, 25);
+			put_str(tmp, 22, 25);
 
-			put_str(op_ptr->full_name, 22, 25);
+			put_str("Enter (y) to accept, (m) to manually enter name, all other keys reroll: ", 23, 1);
 
 			/* Query */
 			query2 = inkey();
@@ -3851,6 +3831,10 @@ void get_name(void)
 
 				/* got a name*/
 				loopagain = FALSE;
+
+				/* Use the name */
+				my_strcpy(op_ptr->full_name, tmp, sizeof(op_ptr->full_name));
+
 			}
 
 			else if ((query2 == 'm') || (query2 == 'M'))
@@ -3858,14 +3842,10 @@ void get_name(void)
 				/* Switch to manual name */
 				query = 'n';
 
-				/*hack - clear the name*/
-				op_ptr->full_name[0] = '\0';
+				/* Erase line 22 on down*/
+				clear_from(22);
 
-				/*clear the line (aesthetics)*/
-				put_str("                                             ", 23, 0);
-				put_str("                                             ", 22, 10);
-
-				/* don't want a random a name*/
+				/* don't want a random name*/
 				loopagain = FALSE;
 			}
 
@@ -3876,8 +3856,6 @@ void get_name(void)
 
 	if ((query == 'n') || (query == 'N'))
 	{
-		/* Restore */
-		prt(buf, 0, 0);
 
 		/* Save the player name */
 		my_strcpy(tmp, op_ptr->full_name, sizeof(tmp));

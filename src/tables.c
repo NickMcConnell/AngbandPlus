@@ -1471,8 +1471,8 @@ cptr option_text[OPT_MAX] =
 	"smart_monsters",			/* OPT_smart_monsters */
 	"smart_packs",				/* OPT_smart_packs */
 	"hp_changes_color",			/* OPT_hp_changes_color*/
-	"verify_leave_quests",		/*verify before descending from quest level*/
-	NULL,						/* xxx */
+	"verify_leave_quests",		/* OPT_verify_leave_quests*/
+	"mark_squelch_items",		/* opt_mark_squelch_items */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1535,7 +1535,7 @@ cptr option_text[OPT_MAX] =
 	"birth_no_stacking",		/* OPT_birth_no_stacking */
  	"birth_take_notes",			/* OPT_birth_auto_notes */
  	"birth_force_small_lev",	/* OPT_birth_force_small_lev */
-	NULL,						/* xxx */
+	"birth_retain_squelch", 	/* OPT_birth_retain_squelch */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1599,7 +1599,7 @@ cptr option_text[OPT_MAX] =
 	"adult_no_stacking",		/* OPT_adult_no_stacking */
 	"adult_take_notes",			/* OPT_adult_auto_notes */
 	"adult_force_small_lev",	/* OPT_adult_force_small_lev*/
-	NULL,						/* xxx */
+	"adult_retain_squelch",		/* OPT_adult_retain_squelch */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1736,7 +1736,7 @@ cptr option_desc[OPT_MAX] =
 	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
 	"Player color indicates low hit points",	/* OPT_hp_changes_color */
 	"Verify before descending from quest level",/* OPT_verify_leave_quest */
-	NULL,										/* xxx */
+	"Items marked for squelch appear as dot",   /* OPT_mark_squelch_items */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1799,7 +1799,7 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Never stack objects on the floor",	/* OPT_birth_no_stacking */
  	"Birth: Have notes written to a file",		/* OPT_birth_take_notes */
  	"Birth: All levels will be generated as small",	/* OPT_birth_force_small_lev */
-	NULL,										/* xxx */
+	"Birth: Retain squelch settings",			/*OPT_birth_retain_squelch*/
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1860,10 +1860,10 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
 	"Adult: Randomize some of the artifacts (beta)",	/* OPT_adult_rand_artifacts */
-	"Adult: Don't stack objects on the floor",	/* OPT_adult_adult_no_stacking */
+	"Adult: Never stack objects on the floor",	/* OPT_adult_adult_no_stacking */
 	"Adult: Have notes to written to a file",	/* OPT_adult_take_notes */
 	"Adult: All levels generated small",		/* OPT_adult_force_small_lev */
-	NULL,										/* xxx */
+	"Adult: Retain squelch settings",			/* OPT_adult_retain_squelch*/
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1999,7 +1999,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_smart_monsters */
 	FALSE,		/* OPT_smart_packs */
 	TRUE,		/* OPT_verify_leave_quests */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_mark_squelch_items */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2063,7 +2063,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_birth_no_stacking */
 	TRUE,		/* OPT_birth_take_notes */
 	FALSE,		/* OPT_birth_force_small_lev */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_retain_squelch */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2127,7 +2127,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_adult_no_stacking */
 	TRUE,		/* OPT_adult_take_notes */
 	FALSE,		/* OPT_adult_force_small_lev*/
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_retain_squelch */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2307,7 +2307,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_piles,
 		OPT_hp_changes_color,
 		OPT_verify_leave_quest,
-		OPT_NONE,
+		OPT_mark_squelch_items,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE
@@ -2327,7 +2327,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stacking,
 	 	OPT_birth_take_notes,
 		OPT_birth_force_small_lev,
-		OPT_NONE,
+		OPT_birth_retain_squelch,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,

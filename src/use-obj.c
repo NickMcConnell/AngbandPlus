@@ -986,7 +986,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_CREATE_MONSTER_TRAP:
 		{
 			if (make_monster_trap()) *ident = TRUE;
-			else uped_up = FALSE;
+			else used_up = FALSE;
 			break;
 		}
 

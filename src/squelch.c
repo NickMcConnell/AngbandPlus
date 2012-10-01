@@ -10,7 +10,7 @@ static int do_qual_squelch(void);
  * applicable tvals there shouldn't be a problem.
  */
 
-byte squelch_level[24];
+byte squelch_level[SQUELCH_BYTES];
 byte auto_destroy;
 
 
@@ -41,6 +41,8 @@ byte auto_destroy;
 #define TYPE_BOOK    18
 #define TYPE_FOOD    19
 #define TYPE_MISC    20
+
+
 
 /*
  * This (admittedly hacky) stores the mapping from tval to typeval
@@ -253,218 +255,254 @@ static int do_cmd_squelch_aux(void)
 
 	if (ch=='Q')
 	{
-	  /* Switch to secondary squelching menu */
-	  do_qual_squelch();
-	} else if (ch=='A') {
-	  auto_destroy = 1-auto_destroy;
-	} else if (ch=='S') {
-	  /* Prompt */
-	  prt("Command: Dump Squelch Info", 12, 30);
+	  	/* Switch to secondary squelching menu */
+	  	do_qual_squelch();
+	}
 
-	  /* Prompt */
-	  prt("File: ", 13, 30);
+	/*toggle the auto-destroy*/
+	else if (ch=='A')
+	{
+		auto_destroy = 1-auto_destroy;
+	}
 
-	  /* Default filename */
-	  sprintf(ftmp, "%s.squ", op_ptr->base_name);
+	else if (ch=='S')
+	{
+	 	/* Prompt */
+	  	prt("Command: Dump Squelch Info", 12, 30);
 
-	  /* Get a filename */
-	  if (askfor_aux(ftmp, 80))
+	  	/* Prompt */
+	  	prt("File: ", 13, 30);
+
+	  	/* Default filename */
+	  	sprintf(ftmp, "%s.squ", op_ptr->base_name);
+
+	  	/* Get a filename */
+	  	if (askfor_aux(ftmp, 80))
 	    {
 
-	      /* Build the filename */
-	      path_build(buf, 1024, ANGBAND_DIR_USER, ftmp);
+	      	/* Build the filename */
+	      	path_build(buf, 1024, ANGBAND_DIR_USER, ftmp);
 
-	      /* Drop priv's */
-	      safe_setuid_drop();
+	      	/* Drop priv's */
+	      	safe_setuid_drop();
 
-	      /* Append to the file */
-	      fff = my_fopen(buf, "a");
+	      	/* Append to the file */
+	      	fff = my_fopen(buf, "a");
 
-	      /* Grab priv's */
-	      safe_setuid_grab();
+	      	/* Grab priv's */
+	      	safe_setuid_grab();
 
-	      /* Test for success */
-	      if (fff)
+	      	/* Test for success */
+	      	if (fff)
+			{
+
+		  		/* Skip some lines */
+		  		fprintf(fff, "\n\n");
+
+		  		/* Start dumping */
+		  		fprintf(fff, "# Squelch bits\n\n");
+
+		  		/* Dump squelch bits */
+		  		for (i = 1; i < z_info->k_max; i++)
+		 		{
+		      		tval = k_info[i].tval;
+		      		sval = k_info[i].sval;
+		      		squelch = (k_info[i].squelch ? 1 : 0);
+
+		     		 /* Dump the squelch info */
+		      		if (tval || sval)
+						fprintf(fff, "Q:%d:%d:%d:%d\n", i, tval, sval, squelch);
+		 		 }
+
+		 		 fprintf(fff, "\n\n# squelch_level array\n\n");
+
+		  		 for(i = 0 ; i < SQUELCH_BYTES; i++)
+			  		fprintf(fff, "Q:%d:%d\n", i, squelch_level[i]);
+
+		  		 fprintf(fff, "\n\n# auto_destroy bit\n\n");
+
+		  		 fprintf(fff, "Q:%d\n", auto_destroy);
+
+
+		  		 /* All done */
+		  		 fprintf(fff, "\n\n\n\n");
+
+		  		 /* Close */
+		  		 my_fclose(fff);
+
+		  		 /* Ending message */
+		  		 prt("Squelch file saved successfully.  (Hit a key.)", 15, 30);
+		  		 get_com("", &sq);
+			}
+
+	    }
+	}
+
+	else if (ch=='L')
+	{
+	 	/* Prompt */
+	 	prt("Command: Load squelch info from file", 12, 30);
+
+	 	/* Prompt */
+	 	prt("File: ", 13, 30);
+
+	 	/* Default filename */
+	 	sprintf(ftmp, "%s.squ", op_ptr->base_name);
+
+	 	/* Ask for a file (or cancel) */
+	 	if (askfor_aux(ftmp, 80))
+	  	{
+	    	/* Process the given filename */
+	    	if (process_pref_file(ftmp))
+	    	{
+	    		/* Mention failure */
+	      		prt("Failed to load squelch file!  (Hit a key.)", 15, 30);
+	      		get_com("", &sq);
+	    	}
+
+	    	else
+	    	{
+	      		/* Mention success */
+	      		prt("Squelch data loaded!  (Hit a key.)", 15, 30);
+	      		get_com("", &sq);
+	    	}
+	  	}
+
+	}
+
+	else
+	{
+
+	  	/* Analyze choice */
+	  	num = ch-'a';
+
+	  	/* Bail out if choice is illegal */
+	  	if ((num < 0) || (num >= max_num)) return (0);
+
+	  	/* Base object type chosen, fill in tval */
+	  	typeval = typevals[num].tval;
+	  	tval_desc = typevals[num].desc;
+
+
+	  	/*** And now we go for k_idx ***/
+
+	  	/* Clear screen */
+
+	  	while (1)
 		{
+	    	Term_clear();
 
-		  /* Skip some lines */
-		  fprintf(fff, "\n\n");
+	    	/* First sort based on value */
+	    	/* Step 1: Read into choice array */
 
-		  /* Start dumping */
-		  fprintf(fff, "# Squelch bits\n\n");
+	    	for (num = 0, i = 1; (num < 63) && (i < z_info->k_max); i++)
+	      	{
+				object_kind *k_ptr = &k_info[i];
 
-		  /* Dump squelch bits */
-		  for (i = 1; i < z_info->k_max; i++)
-		    {
-		      tval = k_info[i].tval;
-		      sval = k_info[i].sval;
-		      squelch = (k_info[i].squelch ? 1 : 0);
+				if (tv_to_type[k_ptr->tval] == typeval)
+				{
+		  			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
 
-		      /* Dump the squelch info */
-		      if (tval || sval)
-			fprintf(fff, "Q:%d:%d:%d:%d\n", i, tval, sval, squelch);
-		    }
+					/*skip empty objects*/
+					if (!k_ptr->name) continue;
 
-		  fprintf(fff, "\n\n# squelch_level array\n\n");
+					/*haven't seen the item yet*/
+					if (!k_ptr->aware) continue;
 
-		  for(i=0; i<24; i++)
-		    fprintf(fff, "Q:%d:%d\n", i, squelch_level[i]);
+		  			choice[num++] = i;
+				}
+	      	}
 
-		  fprintf(fff, "\n\n# auto_destroy bit\n\n");
+	    	max_num = num;
 
-		  fprintf(fff, "Q:%d\n", auto_destroy);
+	    	/* Step 2: Simple bubble sort */
+	    	for (i=0; i<max_num; i++)
+			{
+	      		for (j=i; j<max_num; j++)
+				{
+					if ((k_info[choice[i]].tval>k_info[choice[j]].tval) ||
+		    		((k_info[choice[i]].tval==k_info[choice[j]].tval) &&
+		     		(k_info[choice[i]].cost>k_info[choice[j]].cost)))
+					{
+		  				temp = choice[i];
+		  				choice[i] = choice[j];
+		  				choice[j] = temp;
+					}
+	      		}
+			}
 
+			if (!max_num) c_put_str(TERM_RED, "No known objects of this type.", 3, 0);
 
-		  /* All done */
-		  fprintf(fff, "\n\n\n\n");
+			else
+			{
+	    		for (num = 0; num < max_num; num++)
+	    		{
+	    			object_kind *k_ptr = &k_info[choice[num]];
 
-		  /* Close */
-		  my_fclose(fff);
+					k_ptr->everseen |= k_ptr->aware;
 
-		  /* Ending message */
-		  prt("Squelch file saved successfully.  (Hit a key.)", 15, 30);
-		  get_com("", &sq);
+	      			/* Prepare it */
+	      			row = 3 + (num % 20);
+	      			col = 30 * (num / 20);
+	      			ch = head[num/26] + (num%26);
 
+	      			/* Acquire the "name" of object "i" */
+	      			strip_name(buf, choice[num]);
 
-		}
+	      			/* Get the squelch character */
+	      			sq = (k_ptr->squelch ? '*' : ' ');
 
-	    }
-	} else if (ch=='L') {
-	  /* Prompt */
-	  prt("Command: Load squelch info from file", 12, 30);
+	      			/* Get the color */
+	      			color = (k_ptr->squelch ?
+		       		(k_ptr->aware ? TERM_RED : TERM_L_UMBER) :
+		       		(k_ptr->aware ? TERM_L_GREEN : TERM_GREEN));
 
-	  /* Prompt */
-	  prt("File: ", 13, 30);
+	      			/* Print it */
+	      			prt(format("[%c%c] ", ch, sq), row, col);
+	      			c_put_str(color, buf, row, col+5);
+	    		}
 
-	  /* Default filename */
-	  sprintf(ftmp, "%s.squ", op_ptr->base_name);
+	    		/* Print the legend */
+	    		prt("'*': Squelch (ided)     '.': Squelch (not ided)     ' ': Allow generation", 1, 0);
+			}
 
-	  /* Ask for a file (or cancel) */
-	  if (askfor_aux(ftmp, 80))
-	  {
-	    /* Process the given filename */
-	    if (process_pref_file(ftmp))
-	    {
-	      /* Mention failure */
-	      prt("Failed to load squelch file!  (Hit a key.)", 15, 30);
-	      get_com("", &sq);
-	    }
-	    else
-	    {
-	      /* Mention success */
-	      prt("Squelch data loaded!  (Hit a key.)", 15, 30);
-	      get_com("", &sq);
-	    }
-	  }
+			/* Choose! */
+	    	if (!get_com(format("%s : Command? (^A: Squelch all   ^U: Unsquelch all)", tval_desc), &ch)) return (1);
 
-	} else
-	  {
+	    	if (ch==KTRL('A'))
+			{
+	      		/* ^A --> Squelch all items */
+	      		for (i=0; i<max_num; i++)
+				{
+					k_info[choice[i]].squelch = TRUE;
+	      		}
+	    	}
 
-	  /* Analyze choice */
-	  num = ch-'a';
+			else if (ch==KTRL('U'))
+			{
+	      		/* ^U --> Unsquelch all items */
+	      		for (i=0; i<max_num; i++)
+				{
+					k_info[choice[i]].squelch = FALSE;
+	      		}
+	    	}
 
-	  /* Bail out if choice is illegal */
-	  if ((num < 0) || (num >= max_num)) return (0);
+			else
+			{
+	      		/* Analyze choice */
+	      		num = -1;
+	      		if ((ch >= head[0]) && (ch < head[0] + 26)) num = ch - head[0];
+	      		if ((ch >= head[1]) && (ch < head[1] + 26)) num = ch - head[1] + 26;
+	      		if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 52;
 
-	  /* Base object type chosen, fill in tval */
-	  typeval = typevals[num].tval;
-	  tval_desc = typevals[num].desc;
+	     		/* Bail out if choice is "illegal" */
+	      		if ((num < 0) || (num >= max_num)) return (1);
 
-
-	  /*** And now we go for k_idx ***/
-
-	  /* Clear screen */
-
-	  while (1) {
-	    Term_clear();
-
-	    /* First sort based on value */
-	    /* Step 1: Read into choice array */
-
-	    for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
-	      {
-		object_kind *k_ptr = &k_info[i];
-
-		if (tv_to_type[k_ptr->tval] == typeval) {
-		  if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
-		  choice[num++] = i;
-		}
-	      }
-
-	    max_num = num;
-
-	    /* Step 2: Simple bubble sort */
-	    for (i=0; i<max_num; i++)
-	      for (j=i; j<max_num; j++) {
-		if ((k_info[choice[i]].tval>k_info[choice[j]].tval) ||
-		    ((k_info[choice[i]].tval==k_info[choice[j]].tval) &&
-		     (k_info[choice[i]].cost>k_info[choice[j]].cost))) {
-		  temp = choice[i];
-		  choice[i] = choice[j];
-		  choice[j] = temp;
-		}
-	      }
-
-	    for (num = 0; num<max_num; num++)
-	    {
-	      object_kind *k_ptr = &k_info[choice[num]];
-
-	      k_ptr->everseen |= k_ptr->aware;
-
-	      /* Prepare it */
-	      row = 3 + (num % 20);
-	      col = 30 * (num / 20);
-	      ch = head[num/26] + (num%26);
-
-	      /* Acquire the "name" of object "i" */
-	      strip_name(buf, choice[num]);
-
-	      /* Get the squelch character */
-	      sq = (k_ptr->squelch ? (k_ptr->aware ? '*' : '.') : ' ');
-
-	      /* Get the color */
-	      color = (k_ptr->squelch ?
-		       (k_ptr->aware ? TERM_RED : TERM_L_UMBER) :
-		       (k_ptr->aware ? TERM_L_GREEN : TERM_GREEN));
-
-	      /* Print it */
-	      prt(format("[%c%c] ", ch, sq), row, col);
-	      c_put_str(color,
-			((k_ptr->everseen) ? buf : ".........."),
-			row, col+5);
-	    }
-
-	    /* Print the legend */
-	    prt("'*': Squelch (ided)     '.': Squelch (not ided)     ' ': Allow generation", 1, 0);
-
-	    /* Choose! */
-	    if (!get_com(format("%s : Command? (^A: Squelch all   ^U: Unsquelch all)", tval_desc), &ch)) return (1);
-
-	    if (ch==KTRL('A')) {
-	      /* ^A --> Squelch all items */
-	      for (i=0; i<max_num; i++) {
-		k_info[choice[i]].squelch = TRUE;
-	      }
-	    } else if (ch==KTRL('U')) {
-	      /* ^U --> Unsquelch all items */
-	      for (i=0; i<max_num; i++) {
-		k_info[choice[i]].squelch = FALSE;
-	      }
-	    } else {
-	      /* Analyze choice */
-	      num = -1;
-	      if ((ch >= head[0]) && (ch < head[0] + 26)) num = ch - head[0];
-	      if ((ch >= head[1]) && (ch < head[1] + 26)) num = ch - head[1] + 26;
-	      if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 52;
-
-	      /* Bail out if choice is "illegal" */
-	      if ((num < 0) || (num >= max_num)) return (1);
-
-	      /* Toggle */
-	      k_info[choice[num]].squelch =
-		(k_info[choice[num]].squelch ? FALSE : TRUE);
-	    }
-	  }
+	      		/* Toggle */
+	      		k_info[choice[num]].squelch =
+				(k_info[choice[num]].squelch ? FALSE : TRUE);
+	    	}
+	  	}
 	}
 	/* And return successful */
 	return (1);
@@ -544,7 +582,7 @@ static int do_qual_squelch(void)
 			}
 	    	case 'N':
 			{
-	      		for (i=0; i<24; i++)
+	      		for (i=0; i < SQUELCH_BYTES; i++)
 		  		{
 					squelch_level[i] = SQUELCH_NONE;
 	      		}
@@ -559,7 +597,7 @@ static int do_qual_squelch(void)
 
 	    	case 'C':
 			{
-	      		for (i=0; i < 24; i++)
+	      		for (i = 0; i < SQUELCH_BYTES; i++)
 			  	{
 					/*HACK - don't check chests as cursed*/
 					if (i != CHEST_INDEX) squelch_level[i] = SQUELCH_CURSED;
@@ -576,7 +614,7 @@ static int do_qual_squelch(void)
 
 	    	case 'V':
 			{
-	      		for (i=0; i<24; i++)
+	      		for (i = 0; i < SQUELCH_BYTES ; i++)
 				{
 					if ((i != CHEST_INDEX) && (i != AMULET_INDEX)
 						&& (i != RING_INDEX)) squelch_level[i] = SQUELCH_AVERAGE;
@@ -593,7 +631,7 @@ static int do_qual_squelch(void)
 
 	    	case 'G':
 			{
-	      		for (i=0; i<24; i++)
+	      		for (i = 0; i < SQUELCH_BYTES; i++)
 				{
 					if ((i != CHEST_INDEX) && (i != AMULET_INDEX)
 						&& (i != RING_INDEX)) squelch_level[i] = SQUELCH_GOOD;
@@ -609,7 +647,7 @@ static int do_qual_squelch(void)
 
 	    	case 'A':
 			{
-	      		for (i=0; i < 24; i++)
+	      		for (i = 0; i < SQUELCH_BYTES; i++)
 			  	{
 					/*HACK - don't check chests as destroy all*/
 					if (i != CHEST_INDEX) squelch_level[i] = SQUELCH_ALL;
@@ -621,8 +659,8 @@ static int do_qual_squelch(void)
 			case 'O':
 			case 'o':
 			{
-			squelch_level[(CHEST_INDEX)] = SQUELCH_OPENED_CHESTS;
-			break;
+				squelch_level[(CHEST_INDEX)] = SQUELCH_OPENED_CHESTS;
+				break;
 			}
 
 	    	case '-':
@@ -765,14 +803,19 @@ void do_cmd_squelch(void)
 	flag=1;
 
 	/* Simple loop */
-	while (flag)  {
-	  flag = do_cmd_squelch_aux();
+	while (flag)
+	{
+		flag = do_cmd_squelch_aux();
 	}
 
 	/* Rearrange all the stacks to reflect squelch menus were touched. */
 	for(x = 0; x < p_ptr->cur_map_wid; x++)
-	  for(y = 0; y < p_ptr->cur_map_hgt; y++)
-	    rearrange_stack(y, x);
+	{
+	  	for(y = 0; y < p_ptr->cur_map_hgt; y++)
+		{
+	    	rearrange_stack(y, x);
+		}
+	}
 
 
 	/* Restore the screen */
@@ -811,12 +854,13 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
   /*never squelch quest items*/
   if (o_ptr->ident & IDENT_QUEST) return result;
 
-
   /* Check to see if the object is eligible for squelching on id. */
   num=-1;
-  for (i=0; tvals[i].tval; i++) {
-    if (tvals[i].tval==o_ptr->tval) {
-      num=i;
+  for (i=0; tvals[i].tval; i++)
+  {
+  	if (tvals[i].tval==o_ptr->tval)
+	{
+      	num=i;
     }
   }
   if (num==-1) return result;
@@ -826,51 +870,62 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
    * get the feeling returned by a heavy pseudoid.
    */
   feel = feeling;
-  if (fullid==1)
-    feel = value_check_aux1(o_ptr);
+  if (fullid==1)  feel = value_check_aux1(o_ptr);
 
 
   /* Get result based on the feeling and the squelch_level */
   switch (squelch_level[num])
-    {
-    case SQUELCH_NONE:
-      return result;
-      break;
-    case SQUELCH_CURSED:
-      result = (((feel==INSCRIP_BROKEN) ||
-		 (feel==INSCRIP_TERRIBLE) ||
-		 (feel==INSCRIP_WORTHLESS) ||
-		 (feel==INSCRIP_CURSED)) ? SQUELCH_YES : SQUELCH_NO);
-      break;
-    case SQUELCH_AVERAGE:
-      result = (((feel==INSCRIP_BROKEN) ||
-		 (feel==INSCRIP_TERRIBLE) ||
-		 (feel==INSCRIP_WORTHLESS) ||
-		 (feel==INSCRIP_CURSED) ||
-		 (feel==INSCRIP_AVERAGE)) ? SQUELCH_YES : SQUELCH_NO);
-      break;
-    case SQUELCH_GOOD:
-      result = (((feel==INSCRIP_BROKEN) ||
-		 (feel==INSCRIP_TERRIBLE) ||
-		 (feel==INSCRIP_WORTHLESS) ||
-		 (feel==INSCRIP_CURSED) ||
-		 (feel==INSCRIP_AVERAGE) ||
-		 (feel==INSCRIP_GOOD)) ? SQUELCH_YES : SQUELCH_NO);
-      break;
-    case SQUELCH_ALL:
-      result = SQUELCH_YES;
-      break;
+  {
+   		case SQUELCH_NONE:
+		{
+      		return result;
+      		break;
+		}
+
+    	case SQUELCH_CURSED:
+		{
+      		result = (((feel==INSCRIP_BROKEN) ||
+		 	(feel==INSCRIP_TERRIBLE) ||
+		 	(feel==INSCRIP_WORTHLESS) ||
+		 	(feel==INSCRIP_CURSED)) ? SQUELCH_YES : SQUELCH_NO);
+      		break;
+		}
+
+   		case SQUELCH_AVERAGE:
+		{
+     		result = (((feel==INSCRIP_BROKEN) ||
+		 	(feel==INSCRIP_TERRIBLE) ||
+		 	(feel==INSCRIP_WORTHLESS) ||
+		 	(feel==INSCRIP_CURSED) ||
+		 	(feel==INSCRIP_AVERAGE)) ? SQUELCH_YES : SQUELCH_NO);
+      		break;
+		}
+
+    	case SQUELCH_GOOD:
+		{
+      		result = (((feel==INSCRIP_BROKEN) ||
+		 	(feel==INSCRIP_TERRIBLE) ||
+		 	(feel==INSCRIP_WORTHLESS) ||
+		 	(feel==INSCRIP_CURSED) ||
+		 	(feel==INSCRIP_AVERAGE) ||
+		 	(feel==INSCRIP_GOOD)) ? SQUELCH_YES : SQUELCH_NO);
+     		 break;
+		}
+
+    	case SQUELCH_ALL:
+		{
+      		result = SQUELCH_YES;
+      		break;
+		}
     }
 
 
-  if (result==SQUELCH_NO) return result;
+  	if (result==SQUELCH_NO) return result;
 
-  /* Squelching will fail on an artifact */
-  if ((artifact_p(o_ptr)) || (o_ptr->note))
-    result = SQUELCH_FAILED;
+  	/* Squelching will fail on an artifact */
+  	if ((artifact_p(o_ptr)) || (o_ptr->note)) result = SQUELCH_FAILED;
 
-  return result;
-
+  	return result;
 }
 
 /*

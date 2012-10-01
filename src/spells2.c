@@ -1928,8 +1928,7 @@ bool ident_spell(void)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Squelch it? */
-	if (item < INVEN_WIELD)
-		squelch = squelch_itemp(o_ptr, 0, 1);
+	if (item < INVEN_WIELD) squelch = squelch_itemp(o_ptr, 0, 1);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2108,12 +2107,16 @@ bool identify_fully(void)
          }
 
 	/* Now squelch it if needed */
-    if (squelch == 1) {
-             do_squelch_item(squelch, item, o_ptr);
-        } else {
-                /* Describe it fully */
-                object_info_screen(o_ptr);
-        }
+    if (squelch == 1)
+	{
+    	do_squelch_item(squelch, item, o_ptr);
+    }
+
+	else
+	{
+    	/* Describe it fully */
+    	object_info_screen(o_ptr);
+   	}
 
 	/* Success */
 	return (TRUE);

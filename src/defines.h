@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.2.1"
+#define VERSION_STRING	"0.2.2"
 
 
 /*
@@ -92,11 +92,18 @@
  */
 #define PANEL_HGT	11
 
+/*since dungeon generation uses PANEL wid to generate dungeons,
+ *the width there can't be dependent on bigtile mode.
+ */
+
+#define PANEL_WID_FIXED	33
 /*
  * Number of grids in each panel (horizontally)
  * Must be a multiple of BLOCK_WID
  */
-#define PANEL_WID	(use_bigtile ? 16 : 33)
+#define PANEL_WID	(use_bigtile ? 16 : PANEL_WID_FIXED)
+
+
 
 #define ROW_MAP			1
 #define COL_MAP			13
@@ -1530,6 +1537,11 @@
  *but this one is used in chest opening. JG*/
 #define CHEST_INDEX 	19
 
+/*number of bytes used in squelch sub-quality array*/
+#define SQUELCH_BYTES    24
+
+
+
 
 /*
  * Special "sval" value -- unknown "sval"
@@ -2635,7 +2647,7 @@
 #define OPT_smart_packs				73
 #define OPT_hp_changes_color  		74
 #define OPT_verify_leave_quest		75
-/* xxx */
+#define OPT_mark_squelch_items		76
 /* xxx */
 /* xxx */
 /* xxx */
@@ -2651,7 +2663,7 @@
 #define OPT_birth_no_stacking       (OPT_BIRTH+8)
 #define OPT_birth_take_notes        (OPT_BIRTH+9)
 #define OPT_birth_force_small_lev	(OPT_BIRTH+10)
-
+#define OPT_birth_retain_squelch	(OPT_BIRTH+11)
 
 
 /* xxx xxx */
@@ -2673,6 +2685,7 @@
 #define OPT_adult_no_stacking		(OPT_ADULT+8)
 #define OPT_adult_take_notes        (OPT_ADULT+9)
 #define OPT_adult_force_small_lev   (OPT_ADULT+10)
+#define OPT_adult_retain_squelch	(OPT_ADULT+11)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -2778,6 +2791,7 @@
 #define birth_no_stacking       op_ptr->opt[OPT_birth_no_stacking]
 #define birth_take_notes        op_ptr->opt[OPT_birth_take_notes]
 #define	birth_force_small_lev	op_ptr->opt[OPT_birth_force_small_lev]
+#define birth_retain_squelch	op_ptr->opt[OPT_birth_retain_squelch]
 
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
@@ -2797,9 +2811,11 @@
 #define adult_rand_artifacts	op_ptr->opt[OPT_adult_rand_artifacts]
 #define adult_no_stacking		op_ptr->opt[OPT_adult_no_stacking]
 #define adult_take_notes		op_ptr->opt[OPT_adult_take_notes]
-#define	adult_force_small_lev	op_ptr->opt[OPT_birth_force_small_lev]
+#define	adult_force_small_lev	op_ptr->opt[OPT_adult_force_small_lev]
+#define adult_retain_squelch	op_ptr->opt[OPT_adult_retain_squelch]
 #define hp_changes_color  		op_ptr->opt[OPT_hp_changes_color]
 #define verify_leave_quest 		op_ptr->opt[OPT_verify_leave_quest]
+#define mark_squelch_items		op_ptr->opt[OPT_mark_squelch_items]
 #define score_peek				op_ptr->opt[OPT_score_peek]
 #define score_hear				op_ptr->opt[OPT_score_hear]
 #define score_room				op_ptr->opt[OPT_score_room]

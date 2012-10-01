@@ -1099,7 +1099,7 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);	/* oops */
 
 	/* Squelch bytes */
- 	for (i = 0; i < 24; i++) rd_byte(&squelch_level[i]);
+ 	for (i = 0; i < SQUELCH_BYTES; i++) rd_byte(&squelch_level[i]);
  	rd_byte(&auto_destroy);
 
 	/* Find out how many thefts have recently occured. */

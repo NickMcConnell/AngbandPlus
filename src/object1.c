@@ -491,6 +491,9 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		if (!(o_ptr->ident & IDENT_MENTAL)) return;
 	}
 
+	/*hack - chests use xtra1 to store the theme, don't give additional powers to chests*/
+	if (o_ptr->tval == TV_CHEST) return;
+
 	/* Extra powers */
 	switch (o_ptr->xtra1)
 	{
@@ -1125,7 +1128,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/*may be a quest item*/
 		if(o_ptr->ident & IDENT_QUEST)
 		{
-			tail = " (QUEST_OBJECT!)";
+			tail = " (Sealed by Guild Magic)";
 		}
 
 		/* Not searched yet */

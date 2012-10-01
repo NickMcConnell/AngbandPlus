@@ -801,7 +801,7 @@ extern bool confuse_dir(int *dp);
 
 
 /* squlech.c */
-extern byte squelch_level[24];
+extern byte squelch_level[SQUELCH_BYTES];
 extern byte auto_destroy;
 extern void do_cmd_squelch(void);
 extern int squelch_itemp(object_type *, byte, int);
@@ -843,7 +843,7 @@ extern void show_floor(const int *floor_list, int floor_num);
 extern errr do_randart(u32b randart_seed, bool full);
 #endif /* GJW_RANDART */
 
-extern void make_random_name(void);
+extern void make_random_name(char *random_name, size_t max);
 
 #ifdef RISCOS
 /* main-ros.c */

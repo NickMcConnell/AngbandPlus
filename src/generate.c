@@ -3225,10 +3225,10 @@ static bool cave_gen(void)
 		while (TRUE)
 		{
 			l = randint(MAX_DUNGEON_HGT / (2 * PANEL_HGT));
-			m = randint(MAX_DUNGEON_WID / (2 * PANEL_WID));
+			m = randint(MAX_DUNGEON_WID / (2 * PANEL_WID_FIXED));
 
 			p_ptr->cur_map_hgt = l * (2 * PANEL_HGT);
-			p_ptr->cur_map_wid = m * (2 * PANEL_WID);
+			p_ptr->cur_map_wid = m * (2 * PANEL_WID_FIXED);
 
 			/* Exit if less than normal dungeon */
 			if ((p_ptr->cur_map_hgt < MAX_DUNGEON_HGT) || (p_ptr->cur_map_wid < MAX_DUNGEON_WID)) break;
@@ -3788,7 +3788,7 @@ static void town_gen(void)
 
 	/* Restrict to single-screen size */
 	p_ptr->cur_map_hgt = (2 * PANEL_HGT);
-	p_ptr->cur_map_wid = (2 * PANEL_WID);
+	p_ptr->cur_map_wid = (2 * PANEL_WID_FIXED);
 
 	/* Day time */
 	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))

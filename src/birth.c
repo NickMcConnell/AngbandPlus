@@ -1118,6 +1118,19 @@ static bool player_birth_aux_1(void)
 		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
 	}
 
+	/* Unless otherwise instructed, reset squelch bits */
+	if (!adult_retain_squelch)
+	{
+		for (i = 0; i < z_info->k_max; i++)
+		{
+			k_info[i].squelch = FALSE;
+		}
+		for (i = 0; i < SQUELCH_BYTES; i++)
+		{
+			squelch_level[i] = 0;
+		}
+	}
+
 	/* Clear */
 	Term_clear();
 

@@ -1561,7 +1561,6 @@ void py_steal(int y, int x)
 		else teststeal = TRUE;
 	}
 
-
 	/*not all monsters have treasure drops*/
 	else if (r_ptr->flags1 & (RF1_DROP_1D2))	teststeal = TRUE;
  	else if (r_ptr->flags1 & (RF1_DROP_2D2))	teststeal = TRUE;
@@ -1569,7 +1568,7 @@ void py_steal(int y, int x)
 	else if (r_ptr->flags1 & (RF1_DROP_4D2))	teststeal = TRUE;
 
 	/* Pockets are empty. */
-	else 	msg_print("You find nothing to steal");
+	else msg_print("You find nothing to steal");
 
 	/* Determine the cunning of the thief, based on level & disarming skill. */
 	filching_power = (2 * p_ptr->lev) +  (p_ptr->skill_dis / 2);
@@ -1601,7 +1600,10 @@ void py_steal(int y, int x)
 		theft_protection /= 2;
 	}
 
+	/*speeling, stunned, o rconfused monsters are harder to steal from*/
 	if (m_ptr->csleep) theft_protection /= 2;
+	if (m_ptr->confused) theft_protection /= 3;
+	if (m_ptr->stunned) theft_protection /= 5;
 
 	/* now adjust for speed*/
 	theft_protection += (m_ptr->mspeed - p_ptr->pspeed);
@@ -1774,17 +1776,16 @@ int count_monsters_made_wary (int y, int x, int player_sees)
 		/* Check range */
 		if (m_ptr->cdis > MAX_RANGE) continue;
 
-		/*confused only notice some of the times*/
-		if ((m_ptr->confused) && (rand_int (4) > 1)) continue;
-
 		/*Sleeping monsters never notice either*/
 		if (m_ptr->csleep) continue;
 
 		/* Check path, can monster see trap? */
 		if (!projectable(m_ptr->fy, m_ptr->fx, y, x)) continue;
 
-		/*Confused monsters don't know what is going on*/
-		if (m_ptr->confused) continue;
+		/*Confused monsters don't know what is going on
+		 Afraid monsters are too scared
+		 */
+		if ((m_ptr->confused) || (m_ptr->monfear))continue;
 
 		/* May become wary if not dumb, or always if smart */
 		if ((!(r_ptr->flags2 & (RF2_STUPID)) && (rand_int(2) == 1)) ||
@@ -1807,31 +1808,27 @@ bool make_monster_trap(void)
 {
 	int y, x, dir;
 
-	while (1)
+	/* Get a direction */
+	if (!get_rep_dir(&dir)) return (FALSE);
+
+	/* Get location */
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
+
+	if (cave_naked_bold(y, x))
 	{
-		/* Get a direction */
-		if (!get_rep_dir(&dir)) return (FALSE);
+		py_set_trap(y, x, FALSE);
 
-		/* Get location */
-		y = p_ptr->py + ddy[dir];
-		x = p_ptr->px + ddx[dir];
-
-		if (cave_naked_bold(y, x))
-		{
-			py_set_trap(y, x, FALSE);
-
-			return(TRUE);
-
-		}
-
-		else
-		{
-			msg_print ("You can only make a trap on an empty floor space.");
-
-		}
+		return(TRUE);
 	}
 
-	return(TRUE);
+	else
+	{
+		msg_print ("You can only make a trap on an empty floor space.");
+	}
+
+	return (FALSE);
+
 }
 
 /*
@@ -1878,10 +1875,10 @@ void py_set_trap(int y, int x, bool count_trap)
 	observed = count_monsters_made_wary (p_ptr->py, p_ptr->px, TRUE);
 
 	/*(player knows more than one creature saw him set the trap*/
-	if (observed >1) msg_print("You hear creatures shouting warnings about the monster trap.");
+	if (observed >1) msg_print("Several creatures take heed of the monster trap.");
 
 	/*player knows one creature saw him set the trap*/
-	else if (observed == 1) msg_print("You hear a cretaure shout a warning about the monster trap.");
+	else if (observed == 1) msg_print("A creature takes heed of the monster trap.");
 
 	/* Notify the player. */
 	else msg_print("You set a monster trap.");
@@ -1992,10 +1989,10 @@ void py_modify_trap(int y, int x)
 	observed = count_monsters_made_wary (p_ptr->py, p_ptr->px, TRUE);
 
 	/*(player knows more than one creature saw him modify the trap*/
-	if (observed > 1) msg_print("You hear creatures shouting warnings about the monster trap.");
+	if (observed > 1) msg_print("Several creatures take heed of the monster trap.");
 
 	/*player knows one creature saw him set the trap*/
-	else if (observed == 1) msg_print("You hear a creature shouting a warning about the monster trap.");
+	else if (observed == 1) msg_print("A creature takes heed of the monster trap.");
 
 	/* Notify the player. */
 	else msg_print("You modify the monster trap.");

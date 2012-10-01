@@ -356,6 +356,11 @@ Verify before descending from quest level     [verify_leave_quest]     (on) :
     Asks for confirmation when you try to leave a quest level using down 
 stairs (thereby risking quest failure).
 
+Items marked for squelch appear as dot        [mark_squelch_items]    (off) :
+    Any item that is marked for squelching on the dungeon floor or ground 
+appears as a purple dot on-screen, allowing the player to easily ignore that
+item.
+
 --- Option Set #6:  Birth ---
 
      You may only change birth options when starting up a new character.
@@ -429,6 +434,11 @@ player birth, death, and the killing of Morgoth.
 Adult:  All Levels Will Be Generates As Small [birth_force_small_lev] (off) :
     All levels will be generated as small levels, giving you less space to 
     which you can run...
+
+Adult: 	Retain squelch settings		      [birth_retain_squelch]  (off) :
+    If this option is set, the new character will keep the squelch settings of
+    his immediate ancestor. If it is not set, the character's squelch settings
+    will revert to the defaults.
 
 --- Option Set #7:  Cheat ---
 

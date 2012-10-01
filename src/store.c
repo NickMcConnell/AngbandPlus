@@ -3410,7 +3410,6 @@ void store_maint(int which)
 
 	int old_rating = rating;
 
-
 	/* Ignore home */
 	if ((which == STORE_HOME) || (which == STORE_GUILD)) return;
 
@@ -3423,10 +3422,8 @@ void store_maint(int which)
 	/* Activate the owner */
 	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
 
-
 	/* Store keeper forgives the player */
 	st_ptr->insult_cur = 0;
-
 
 	/* Mega-Hack -- prune the black market */
 	if (store_num == STORE_B_MARKET)
@@ -3446,7 +3443,6 @@ void store_maint(int which)
 		}
 	}
 
-
 	/* Choose the number of slots to keep */
 	j = st_ptr->stock_num;
 
@@ -3465,7 +3461,6 @@ void store_maint(int which)
 	/* Destroy objects until only "j" slots are left */
 	while (st_ptr->stock_num > j) store_delete();
 
-
 	/* Choose the number of slots to fill */
 	j = st_ptr->stock_num;
 
@@ -3483,7 +3478,6 @@ void store_maint(int which)
 
 	/* Create some new items */
 	while (st_ptr->stock_num < j) store_create();
-
 
 	/* Hack -- Restore the rating */
 	rating = old_rating;
@@ -3504,13 +3498,11 @@ void store_init(int which)
 	/* Activate that store */
 	st_ptr = &store[store_num];
 
-
 	/* Pick an owner */
 	st_ptr->owner = (byte)rand_int(z_info->b_max);
 
 	/* Activate the new owner */
 	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
-
 
 	/* Initialize the store */
 	st_ptr->store_open = 0;

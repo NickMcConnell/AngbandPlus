@@ -787,9 +787,12 @@ void object_aware(object_type *o_ptr)
  	k_info[o_ptr->k_idx].aware = TRUE;
 
 	/* If newly aware and squelched, must rearrange stacks */
-	if (!flag && (k_info[o_ptr->k_idx].squelch)) {
-		for (x = 0; x < p_ptr->cur_map_wid; x++) {
-			for (y = 0; y < p_ptr->cur_map_hgt; y++) {
+	if (!flag && (k_info[o_ptr->k_idx].squelch))
+	{
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
+		{
+			for (y = 0; y < p_ptr->cur_map_hgt; y++)
+			{
 				rearrange_stack(y, x);
 			}
 		}
@@ -3286,10 +3289,18 @@ static bool kind_is_bow(int k_idx)
 
 		/* All firing weapons and Ammo are suitable  */
 		case TV_BOW:
-		case TV_BOLT:
-		case TV_ARROW:
 		{
 			return (TRUE);
+		}
+
+		/*hack - don't allow ammo as a quest reward*/
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			if (chest_or_quest == QUEST_ITEM) return (FALSE);
+			else return (TRUE);
+
 		}
 
 	}
@@ -3797,6 +3808,9 @@ bool make_quest_chest(object_type *j_ptr, bool good, bool great)
 
 	/*no items inside, you just return it*/
 	j_ptr->xtra1 = 0;
+
+	/*don't allow to open, no traps*/
+	j_ptr->pval = 0;
 
 	/*mark the chest as a quest chest*/
 	j_ptr->ident |= (IDENT_QUEST);

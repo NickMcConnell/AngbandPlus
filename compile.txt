@@ -78,13 +78,12 @@ All other Compilers and Operating Systems
 ===============================================
 
 The Angband source code contains many other makefiles and has been ported to 
-many other different platforms besides Windows. These files have been included 
-with the NPPAngband Source code, but have not been updated, with the exception 
-of cygwin's makefile.cyg file. All other makefiles will need one or two changes 
-before they can work properly: 
-1) Add the file "squelch.o" for compiling (versions 0.1.1 and below). For 
+many other different platforms besides Windows. I took my best guess at
+updating them  If there are any problems, here is a list
+of changes I made that may affect compiling on other platforms:
+1) Add the file "squelch.o" for compiling (all versions of NPPAngband). For 
 versions 0.2.0 and above, the file "quest.o" should also be added. 
-2) Change the name of the executable file to NPPAngband (optional).
+2) Change the name of the executable file to NPPAngband (if it was obvious).
 As for porting to other operating systems, only one change has been made to two 
 of the main.* files (main-win and main-ami), changing the name of the 2 defined 
 constants (DUNGEON_HGT to MAX_DUNGEON_HGT and DUNGEON_WID to MAX_DUNGEON_WID), 

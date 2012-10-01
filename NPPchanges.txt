@@ -1,16 +1,51 @@
+Version 0.2.2
+
+Bugfix:  ability to modify traps based on rogue_combat flag, should have
+	 been set_traps flag.
+Bugfix:  The option smart_packs was not showing up in the character dump option.
+Bugfix:  Calling the change player name command erased the old name.
+Bugfix:  The home equipment display mode was displaying if the home was empty.
+Bugfix:  Quest reward generation code was using last space in home to store generated objects.
+Bugfix:  Tailored Quest rewards needed further fixing.
+Bugfix:  Chests were occasionally having sustains, abilities, and high
+	 resists attached to them.
+Bugfix:  Reading a make monster trap scroll locked up if not pointed to an
+	 empty floor space.
+Bugfix:  Trap/Door destruction wasn't destroying doors, just unlocking them.
+Bugfix:  The quest reward code was causing to much gold to be produced.
+Bugfix:  re-set # of items generated in quest reward code.
+Bugfix:  Ammunition was being given out as quest reward.
+Bugfix:  Level generation was wrong when in bigtile mode.
+Bugfix:  Damage calculations from thrown weapons was wrong (Tony Holmes fixed this).
+Bugfix:  Player Dump was list cheat options instead of score options.
+Bugfix:  Adult_force_small_lev was pointing to wrong option
+
+
+plus some misc. code cleanup.....
+
+updated all makefiles to include the proper files.
+
+Added an option to retain squelch settings on new character.
+
+Made it an option for a to-be-squelched item to appear as a purple dot.
+Made the chests lighter
+Changed the message when monsters see a playet trap or theft.
+Changed the messages that describe the special quests.
+
+
 Version 0.2.1
 
 New feature:
 
 Quest rewards are now handed directly to the player, rather than
-      dropped on the floor ourside the Guild.
+      dropped on the floor outside the Guild.
 
 Fixed Bugs:
 
 Bugfix:  The startup screen referred to a help file that no longer existed.
-Bugfix:  Separated recall depth from recall depth.  This was messing
+Bugfix:  Separated recall depth from max depth.  This was messing
          up the quest generation code.
-Bugfix:  Fixed the quest reward code, which has numerous bugs.
+Bugfix:  Fixed the quest reward code, which had numerous bugs.
 Bugfix:  Updated tiles to reflect the monsters and items I added.
 	(Although all the tilesets are still incomplete from V 3.0.3).
 Bugfix:  The game would crash when a charging rod was dropped in the home.
