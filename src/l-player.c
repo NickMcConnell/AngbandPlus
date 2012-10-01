@@ -1527,43 +1527,23 @@ static int toluaI_set_player_player_type_leaving(lua_State* tolua_S)
  return 0;
 }
 
-/* get function: create_up_stair of class  player_type */
-static int toluaI_get_player_player_type_create_up_stair(lua_State* tolua_S)
+/* get function: create_stair of class  player_type */
+static int toluaI_get_player_player_type_create_stair(lua_State* tolua_S)
 {
   player_type* self = (player_type*)  tolua_getusertype(tolua_S,1,0);
  if (!self) TOLUA_ERR_SELF;
- tolua_pushbool(tolua_S,(int)self->create_up_stair);
+ tolua_pushbool(tolua_S,(int)self->create_stair);
  return 1;
 }
 
-/* set function: create_up_stair of class  player_type */
-static int toluaI_set_player_player_type_create_up_stair(lua_State* tolua_S)
+/* set function: create_stair of class  player_type */
+static int toluaI_set_player_player_type_create_stair(lua_State* tolua_S)
 {
   player_type* self = (player_type*)  tolua_getusertype(tolua_S,1,0);
  if (!self) TOLUA_ERR_SELF;
  if (!tolua_istype(tolua_S,2,tolua_tag(tolua_S,"bool"),0))
  TOLUA_ERR_ASSIGN;
-  self->create_up_stair = ((bool)  tolua_getbool(tolua_S,2,0));
- return 0;
-}
-
-/* get function: create_down_stair of class  player_type */
-static int toluaI_get_player_player_type_create_down_stair(lua_State* tolua_S)
-{
-  player_type* self = (player_type*)  tolua_getusertype(tolua_S,1,0);
- if (!self) TOLUA_ERR_SELF;
- tolua_pushbool(tolua_S,(int)self->create_down_stair);
- return 1;
-}
-
-/* set function: create_down_stair of class  player_type */
-static int toluaI_set_player_player_type_create_down_stair(lua_State* tolua_S)
-{
-  player_type* self = (player_type*)  tolua_getusertype(tolua_S,1,0);
- if (!self) TOLUA_ERR_SELF;
- if (!tolua_istype(tolua_S,2,tolua_tag(tolua_S,"bool"),0))
- TOLUA_ERR_ASSIGN;
-  self->create_down_stair = ((bool)  tolua_getbool(tolua_S,2,0));
+  self->create_stair = ((bool)  tolua_getbool(tolua_S,2,0));
  return 0;
 }
 
@@ -6477,8 +6457,7 @@ int tolua_player_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"player_type","wizard",toluaI_get_player_player_type_wizard,toluaI_set_player_player_type_wizard);
  tolua_tablevar(tolua_S,"player_type","playing",toluaI_get_player_player_type_playing,toluaI_set_player_player_type_playing);
  tolua_tablevar(tolua_S,"player_type","leaving",toluaI_get_player_player_type_leaving,toluaI_set_player_player_type_leaving);
- tolua_tablevar(tolua_S,"player_type","create_up_stair",toluaI_get_player_player_type_create_up_stair,toluaI_set_player_player_type_create_up_stair);
- tolua_tablevar(tolua_S,"player_type","create_down_stair",toluaI_get_player_player_type_create_down_stair,toluaI_set_player_player_type_create_down_stair);
+ tolua_tablevar(tolua_S,"player_type","create_stair",toluaI_get_player_player_type_create_stair,toluaI_set_player_player_type_create_stair);
  tolua_tablevar(tolua_S,"player_type","wy",toluaI_get_player_player_type_wy,toluaI_set_player_player_type_wy);
  tolua_tablevar(tolua_S,"player_type","wx",toluaI_get_player_player_type_wx,toluaI_set_player_player_type_wx);
  tolua_tablevar(tolua_S,"player_type","cur_map_hgt",toluaI_get_player_player_type_cur_map_hgt,toluaI_set_player_player_type_cur_map_hgt);

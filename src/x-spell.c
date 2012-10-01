@@ -84,8 +84,8 @@
 #define PRAYER_BLESS                    2
 #define PRAYER_REMOVE_FEAR              3
 #define PRAYER_CALL_LIGHT               4
-#define PRAYER_FIND_TRAPS               5
-#define PRAYER_DETECT_DOORS_STAIRS      6
+#define PRAYER_FIND_TRAPS_DOORS_STAIRS  5
+#define PRAYER_BOLT_OF_DRAINING	        6
 #define PRAYER_SLOW_POISON              7
 
 /* Words of Wisdom */
@@ -280,8 +280,8 @@ static const u32b spell_flags[2][10][2] =
 			 PRAYER_BLESS,
 			 PRAYER_REMOVE_FEAR,
 			 PRAYER_CALL_LIGHT,
-			 PRAYER_FIND_TRAPS,
-			 PRAYER_DETECT_DOORS_STAIRS,
+			 PRAYER_FIND_TRAPS_DOORS_STAIRS,
+			 PRAYER_BOLT_OF_DRAINING,
 			 PRAYER_SLOW_POISON,
 			 -1),
 		BOOK(PRAYER_SCARE_MONSTER,
@@ -444,8 +444,8 @@ static cptr spell_names[2][PY_MAX_SPELLS] =
 		"Bless",
 		"Remove Fear",
 		"Call Light",
-		"Find Traps",
-		"Detect Doors/Stairs",
+		"Find Doors/Stairs/Traps",
+		"Bolt of Draining",
 		"Slow Poison",
 
 		/* Words of Wisdom (sval 1) */
@@ -592,7 +592,7 @@ cptr get_spell_info(int tval, int spell)
 			sprintf(p, " range 10");
 			break;
 		case SPELL_CURE_LIGHT_WOUNDS:
-			sprintf(p, " heal 2d8");
+			sprintf(p, " heal 2d10");
 			break;
 		case SPELL_STINKING_CLOUD:
 			sprintf(p, " dam %d", 10 + (plev / 2));
@@ -687,7 +687,7 @@ cptr get_spell_info(int tval, int spell)
 		switch (spell)
 		{
 			case PRAYER_CURE_LIGHT_WOUNDS:
-				strcpy(p, " heal 2d10");
+				strcpy(p, " heal 3d8");
 				break;
 			case PRAYER_BLESS:
 				strcpy(p, " dur 12+d12");
@@ -696,7 +696,7 @@ cptr get_spell_info(int tval, int spell)
 				sprintf(p, " range %d", 3 * plev);
 				break;
 			case PRAYER_CURE_SERIOUS_WOUNDS:
-				strcpy(p, " heal 4d10");
+				strcpy(p, " heal 5d10");
 				break;
 			case PRAYER_CHANT:
 				strcpy(p, " dur 24+d24");
@@ -706,10 +706,10 @@ cptr get_spell_info(int tval, int spell)
 				break;
 			case PRAYER_ORB_OF_DRAINING:
 				sprintf(p, " %d+3d6", plev +
-				        (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4)));
+        				(plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4)));
 				break;
 			case PRAYER_CURE_CRITICAL_WOUNDS:
-				strcpy(p, " heal 6d10");
+				strcpy(p, " heal 8d10");
 				break;
 			case PRAYER_SENSE_INVISIBLE:
 				strcpy(p, " dur 24+d24");
@@ -718,7 +718,7 @@ cptr get_spell_info(int tval, int spell)
 				sprintf(p, " dur %d+d25", 3 * plev);
 				break;
 			case PRAYER_CURE_MORTAL_WOUNDS:
-				strcpy(p, " heal 8d10");
+				strcpy(p, " heal 12d10");
 				break;
 			case PRAYER_PRAYER:
 				strcpy(p, " dur 48+d48");
@@ -727,19 +727,19 @@ cptr get_spell_info(int tval, int spell)
 				sprintf(p, " dam d%d", 3 * plev);
 				break;
 			case PRAYER_HEAL:
-				strcpy(p, " heal 300");
+				strcpy(p, " heal 325");
 				break;
 			case PRAYER_DISPEL_EVIL:
 				sprintf(p, " dam d%d", 3 * plev);
 				break;
 			case PRAYER_HOLY_WORD:
-				strcpy(p, " heal 1000");
+				strcpy(p, " heal 1500");
 				break;
 			case PRAYER_CURE_SERIOUS_WOUNDS2:
-				strcpy(p, " heal 4d10");
+				strcpy(p, " heal 5d15");
 				break;
 			case PRAYER_CURE_MORTAL_WOUNDS2:
-				strcpy(p, " heal 8d10");
+				strcpy(p, " heal 12d15");
 				break;
 			case PRAYER_HEALING:
 				strcpy(p, " heal 2000");
@@ -792,7 +792,7 @@ static void spell_wonder(int dir)
 		msg_print("You feel a surge of power!");
 	if (die < 8) clone_monster(dir);
 	else if (die < 14) speed_monster(dir);
-	else if (die < 26) heal_monster(dir);
+	else if (die < 26) heal_monster(dir, damroll(4, 6));
 	else if (die < 31) poly_monster(dir);
 	else if (die < 36)
 		fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
@@ -824,8 +824,8 @@ static void spell_wonder(int dir)
 	else /* RARE */
 	{
 		dispel_monsters(150);
-		slow_monsters();
-		sleep_monsters();
+		slow_monsters(damroll (2, p_ptr->lev));
+		sleep_monsters(damroll (2, p_ptr->lev));
 		hp_player(300);
 	}
 }
@@ -883,7 +883,7 @@ static bool cast_mage_spell(int spell)
 		case SPELL_CURE_LIGHT_WOUNDS:
 		{
 
-			(void)hp_player(damroll(2, 8));
+			(void)hp_player(damroll(2, 10));
 			(void)set_cut(p_ptr->cut - 15);
 			break;
 		}
@@ -968,7 +968,7 @@ static bool cast_mage_spell(int spell)
 		case SPELL_TURN_STONE_TO_MUD:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)wall_to_mud(dir);
+			(void)wall_to_mud(dir, 20 + randint(30));
 			break;
 		}
 
@@ -1006,7 +1006,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_MASS_SLEEP:
 		{
-			(void)sleep_monsters();
+			(void)sleep_monsters(damroll (2, p_ptr->lev));
 			break;
 		}
 
@@ -1048,7 +1048,7 @@ static bool cast_mage_spell(int spell)
 		case SPELL_BEDLAM:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_OLD_CONF, dir, plev, 4);
+			fire_ball(GF_OLD_CONF, dir, damroll(2, plev), 4);
 			break;
 		}
 
@@ -1309,7 +1309,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_LIGHT_WOUNDS:
 		{
-			(void)hp_player(damroll(2, 10));
+			(void)hp_player(damroll(3, 8));
 			(void)set_cut(p_ptr->cut - 10);
 			break;
 		}
@@ -1332,16 +1332,19 @@ static bool cast_priest_spell(int spell)
 			break;
 		}
 
-		case PRAYER_FIND_TRAPS:
+		case PRAYER_FIND_TRAPS_DOORS_STAIRS:
 		{
 			(void)detect_traps();
+			(void)detect_doors();
+			(void)detect_stairs();
 			break;
 		}
 
-		case PRAYER_DETECT_DOORS_STAIRS:
+		case PRAYER_BOLT_OF_DRAINING:
 		{
-			(void)detect_doors();
-			(void)detect_stairs();
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_bolt(GF_HOLY_ORB, dir,
+			          (damroll(2, 4) + (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 3))))
 			break;
 		}
 
@@ -1366,7 +1369,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_SERIOUS_WOUNDS:
 		{
-			(void)hp_player(damroll(4, 10));
+			(void)hp_player(damroll(5, 10));
 			(void)set_cut((p_ptr->cut / 2) - 20);
 			break;
 		}
@@ -1411,7 +1414,7 @@ static bool cast_priest_spell(int spell)
 		case PRAYER_ORB_OF_DRAINING:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_HOLY_ORB, dir,
+			fire_orb(GF_HOLY_ORB, dir,
 			          (damroll(3, 6) + plev +
 			           (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4))),
 			          ((plev < 30) ? 2 : 3));
@@ -1420,7 +1423,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_CRITICAL_WOUNDS:
 		{
-			(void)hp_player(damroll(6, 10));
+			(void)hp_player(damroll(8, 10));
 			(void)set_cut(0);
 			break;
 		}
@@ -1451,7 +1454,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_MORTAL_WOUNDS:
 		{
-			(void)hp_player(damroll(8, 10));
+			(void)hp_player(damroll(12, 10));
 			(void)set_stun(0);
 			(void)set_cut(0);
 			break;
@@ -1459,7 +1462,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_TURN_UNDEAD:
 		{
-			(void)turn_undead();
+			(void)turn_undead(p_ptr->lev);
 			break;
 		}
 
@@ -1477,7 +1480,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_HEAL:
 		{
-			(void)hp_player(300);
+			(void)hp_player(325);
 			(void)set_stun(0);
 			(void)set_cut(0);
 			break;
@@ -1498,7 +1501,7 @@ static bool cast_priest_spell(int spell)
 		case PRAYER_HOLY_WORD:
 		{
 			(void)dispel_evil(randint(plev * 4));
-			(void)hp_player(1000);
+			(void)hp_player(1500);
 			(void)set_afraid(0);
 			(void)set_poisoned(0);
 			(void)set_stun(0);
@@ -1538,14 +1541,14 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_SERIOUS_WOUNDS2:
 		{
-			(void)hp_player(damroll(4, 10));
+			(void)hp_player(damroll(5, 15));
 			(void)set_cut(0);
 			break;
 		}
 
 		case PRAYER_CURE_MORTAL_WOUNDS2:
 		{
-			(void)hp_player(damroll(8, 10));
+			(void)hp_player(damroll(12, 15));
 			(void)set_stun(0);
 			(void)set_cut(0);
 			break;

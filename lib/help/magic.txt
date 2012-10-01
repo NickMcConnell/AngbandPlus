@@ -64,8 +64,8 @@ enough at it.
 
      - Sleep : Sleeping monsters can't hurt you - until they wake up again.
      - Slow : If you can slow a monster, you are well on the way to killing it.
-     - Stun : Sound blasts and ice can stun monsters, effectively paralyzing
-       them.
+     - Stun : Sound blasts and ice can stun monsters, reducing their danger 
+       to you.
      - Confuse : Monsters may be confused by bright light (blinding), confusion
        attacks, or spells of confuse monster.  They move randomly about and
        cannot cast any spells until the effects wear off.

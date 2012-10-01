@@ -61,23 +61,23 @@ static cptr r_info_blow_method[] =
 	"CLAW",
 	"BITE",
 	"STING",
+	"PECK",
 	"XXX1",
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
-	"XXX2",
 	"CRAWL",
 	"DROOL",
 	"SPIT",
-	"XXX3",
+	"SLIME",
 	"GAZE",
 	"WAIL",
 	"SPORE",
 	"XXX4",
 	"BEG",
 	"INSULT",
-	"MOAN",
 	"XXX5",
+	"XXX6",
 	NULL
 };
 
@@ -89,13 +89,18 @@ static cptr r_info_blow_effect[] =
 {
 	"",
 	"HURT",
-	"POISON",
+	"WOUND",
+	"BATTER",
+	"SHATTER",
 	"UN_BONUS",
 	"UN_POWER",
+	"LOSE_MANA",
 	"EAT_GOLD",
 	"EAT_ITEM",
 	"EAT_FOOD",
 	"EAT_LITE",
+	"HUNGER",
+	"POISON",
 	"ACID",
 	"ELEC",
 	"FIRE",
@@ -104,6 +109,8 @@ static cptr r_info_blow_effect[] =
 	"CONFUSE",
 	"TERRIFY",
 	"PARALYZE",
+	"HALLU",
+	"DISEASE",
 	"LOSE_STR",
 	"LOSE_INT",
 	"LOSE_WIS",
@@ -111,17 +118,16 @@ static cptr r_info_blow_effect[] =
 	"LOSE_CON",
 	"LOSE_CHR",
 	"LOSE_ALL",
-	"SHATTER",
 	"EXP_10",
 	"EXP_20",
 	"EXP_40",
 	"EXP_80",
-	"HALLU",
 	NULL
 };
 
 
 typedef struct flag_name flag_name;
+
 
 struct flag_name
 {
@@ -140,8 +146,9 @@ struct flag_name
 #define RF4 6
 #define RF5 7
 #define RF6 8
-#define CF1 9
-#define MAX_FLAG_SETS	10
+#define RF7 9
+#define CF1 10
+#define MAX_FLAG_SETS	11
 
 
 
@@ -160,7 +167,7 @@ static flag_name info_flags[] =
 	{"MALE", RF1, RF1_MALE},
 	{"FEMALE", RF1, RF1_FEMALE},
 	{"CHAR_CLEAR", RF1, RF1_CHAR_CLEAR},
-	{"CHAR_MULTI", RF1, RF1_CHAR_MULTI},
+	{"CHAR_MIMIC", RF1, RF1_CHAR_MIMIC},
 	{"ATTR_CLEAR", RF1, RF1_ATTR_CLEAR},
 	{"ATTR_MULTI", RF1, RF1_ATTR_MULTI},
 	{"FORCE_DEPTH", RF1, RF1_FORCE_DEPTH},
@@ -197,6 +204,7 @@ static flag_name info_flags[] =
 	{"DROP_UP_TO_20", RF1, RF1_DROP_UP_TO_20},
 
 
+
 /*
  * Monster race flags 2
  */
@@ -212,8 +220,8 @@ static flag_name info_flags[] =
 	{"MULTIPLY", RF2, RF2_MULTIPLY},
 	{"REGENERATE", RF2, RF2_REGENERATE},
 	{"RF2XXX3", RF2, RF2_RF2XXX3},
-	{"RF2XXX4", RF2, RF2_RF2XXX4},
-	{"POWERFUL", RF2, RF2_POWERFUL},
+	{"EVASIVE", RF2, RF2_EVASIVE},
+	{"CLOUD_SURROUND", RF2, RF2_CLOUD_SURROUND},
 	{"RF2XXX5", RF2, RF2_RF2XXX5},
 	{"RF2XXX7", RF2, RF2_RF2XXX7},
 	{"RF2XXX6", RF2, RF2_RF2XXX6},
@@ -221,18 +229,19 @@ static flag_name info_flags[] =
 	{"BASH_DOOR", RF2, RF2_BASH_DOOR},
 	{"PASS_WALL", RF2, RF2_PASS_WALL},
 	{"KILL_WALL", RF2, RF2_KILL_WALL},
-	{"MOVE_BODY", RF2, RF2_MOVE_BODY},
+	{"RF2XXX8", RF2, RF2_RF2XXX8},
 	{"KILL_BODY", RF2, RF2_KILL_BODY},
 	{"TAKE_ITEM", RF2, RF2_TAKE_ITEM},
 	{"KILL_ITEM", RF2, RF2_KILL_ITEM},
 	{"BRAIN_1", RF2, RF2_BRAIN_1},
+	{"LOW_MANA_RUN", RF2, RF2_LOW_MANA_RUN},
 	{"BRAIN_2", RF2, RF2_BRAIN_2},
+	{"POWERFUL", RF2, RF2_POWERFUL},
+	{"RF2XXX1", RF2, RF2_RF2XXX1},
+	{"RF2XXX9", RF2, RF2_RF2XXX9},
+	{"RF2XX10", RF2, RF2_RF2XX10},
 	{"BRAIN_3", RF2, RF2_BRAIN_3},
-	{"BRAIN_4", RF2, RF2_BRAIN_4},
-	{"BRAIN_5", RF2, RF2_BRAIN_5},
-	{"BRAIN_6", RF2, RF2_BRAIN_6},
-	{"BRAIN_7", RF2, RF2_BRAIN_7},
-	{"BRAIN_8", RF2, RF2_BRAIN_8},
+
 
 
 /*
@@ -260,102 +269,109 @@ static flag_name info_flags[] =
 	{"IM_FIRE", RF3, RF3_IM_FIRE},
 	{"IM_COLD", RF3, RF3_IM_COLD},
 	{"IM_POIS", RF3, RF3_IM_POIS},
-	{"RF3XXX5", RF3, RF3_RF3XXX5},
-	{"RES_NETH", RF3, RF3_RES_NETH},
-	{"RES_WATE", RF3, RF3_RES_WATE},
+	{"RES_CHAOS", RF3, RF3_RES_CHAOS},
+	{"RES_NETHR", RF3, RF3_RES_NETHR},
+	{"RES_WATER", RF3, RF3_RES_WATER},
 	{"RES_PLAS", RF3, RF3_RES_PLAS},
-	{"RES_NEXU", RF3, RF3_RES_NEXU},
-	{"RES_DISE", RF3, RF3_RES_DISE},
-	{"RF3XXX6", RF3, RF3_RF3XXX6},
+	{"RES_NEXUS", RF3, RF3_RES_NEXUS},
+	{"RES_DISEN", RF3, RF3_RES_DISEN},
+	{"NO_SLOW", RF3, RF3_NO_SLOW},
 	{"NO_FEAR", RF3, RF3_NO_FEAR},
 	{"NO_STUN", RF3, RF3_NO_STUN},
 	{"NO_CONF", RF3, RF3_NO_CONF},
 	{"NO_SLEEP", RF3, RF3_NO_SLEEP},
 
+
 	/*RF3 uber-flags*/
 	{"IM_ELEM", RF3, RF3_IM_ELEM},
 	{"IM_ALL", RF3, RF3_IM_ALL},
 	{"NO_CHARM", RF3, RF3_NO_CHARM},
+
+
+/*
+ * Object flags 1
+ */
 /*
  * Monster race flags 4
  */
 
 
 	{"SHRIEK", RF4, RF4_SHRIEK},
+	{"LASH", RF4, RF4_LASH},
+	{"BOULDER", RF4, RF4_BOULDER},
+	{"SHOT", RF4, RF4_SHOT},
+	{"ARROW", RF4, RF4_ARROW},
+	{"BOLT", RF4, RF4_BOLT},
+	{"MISSL", RF4, RF4_MISSL},
+	{"PMISSL", RF4, RF4_PMISSL},
+	{"BRTH_ACID", RF4, RF4_BRTH_ACID},
+	{"BRTH_ELEC", RF4, RF4_BRTH_ELEC},
+	{"BRTH_FIRE", RF4, RF4_BRTH_FIRE},
+	{"BRTH_COLD", RF4, RF4_BRTH_COLD},
+	{"BRTH_POIS", RF4, RF4_BRTH_POIS},
+	{"BRTH_PLAS", RF4, RF4_BRTH_PLAS},
+	{"BRTH_LITE", RF4, RF4_BRTH_LITE},
+	{"BRTH_DARK", RF4, RF4_BRTH_DARK},
+	{"BRTH_CONFU", RF4, RF4_BRTH_CONFU},
+	{"BRTH_SOUND", RF4, RF4_BRTH_SOUND},
+	{"BRTH_SHARD", RF4, RF4_BRTH_SHARD},
+	{"BRTH_INER", RF4, RF4_BRTH_INER},
+	{"BRTH_GRAV", RF4, RF4_BRTH_GRAV},
+	{"BRTH_WIND", RF4, RF4_BRTH_WIND},
+	{"BRTH_FORCE", RF4, RF4_BRTH_FORCE},
+	{"BRTH_NEXUS", RF4, RF4_BRTH_NEXUS},
+	{"BRTH_NETHR", RF4, RF4_BRTH_NETHR},
+	{"BRTH_CHAOS", RF4, RF4_BRTH_CHAOS},
+	{"BRTH_DISEN", RF4, RF4_BRTH_DISEN},
+	{"BRTH_TIME", RF4, RF4_BRTH_TIME},
+	{"BRTH_MANA", RF4, RF4_BRTH_MANA},
+	{"RF4XXX1", RF4, RF4_RF4XXX1},
 	{"RF4XXX2", RF4, RF4_RF4XXX2},
 	{"RF4XXX3", RF4, RF4_RF4XXX3},
-	{"RF4XXX4", RF4, RF4_RF4XXX4},
-	{"ARROW_1", RF4, RF4_ARROW_1},
-	{"ARROW_2", RF4, RF4_ARROW_2},
-	{"ARROW_3", RF4, RF4_ARROW_3},
-	{"ARROW_4", RF4, RF4_ARROW_4},
-	{"BR_ACID", RF4, RF4_BR_ACID},
-	{"BR_ELEC", RF4, RF4_BR_ELEC},
-	{"BR_FIRE", RF4, RF4_BR_FIRE},
-	{"BR_COLD", RF4, RF4_BR_COLD},
-	{"BR_POIS", RF4, RF4_BR_POIS},
-	{"BR_NETH", RF4, RF4_BR_NETH},
-	{"BR_LITE", RF4, RF4_BR_LITE},
-	{"BR_DARK", RF4, RF4_BR_DARK},
-	{"BR_CONF", RF4, RF4_BR_CONF},
-	{"BR_SOUN", RF4, RF4_BR_SOUN},
-	{"BR_CHAO", RF4, RF4_BR_CHAO},
-	{"BR_DISE", RF4, RF4_BR_DISE},
-	{"BR_NEXU", RF4, RF4_BR_NEXU},
-	{"BR_TIME", RF4, RF4_BR_TIME},
-	{"BR_INER", RF4, RF4_BR_INER},
-	{"BR_GRAV", RF4, RF4_BR_GRAV},
-	{"BR_SHAR", RF4, RF4_BR_SHAR},
-	{"BR_PLAS", RF4, RF4_BR_PLAS},
-	{"BR_WALL", RF4, RF4_BR_WALL},
-	{"BR_MANA", RF4, RF4_BR_MANA},
-	{"RF4XXX5", RF4, RF4_RF4XXX5},
-	{"RF4XXX6", RF4, RF4_RF4XXX6},
-	{"RF4XXX7", RF4, RF4_RF4XXX7},
-	{"BOULDER", RF4, RF4_BOULDER},
 
 	/*RF4 uber-flags*/
-	{"BR_ELEM", RF4, RF4_BR_ELEM},
-	{"BR_POWER", RF4, RF4_BR_POWER},
-	{"BR_ALL", RF4, RF4_BR_ALL},
+	{"BRTH_ELEM", RF4, RF4_BRTH_ELEM},
+	{"BRTH_POWER", RF4, RF4_BRTH_POWER},
+	{"BRTH_ALL", RF4, RF4_BRTH_ALL},
+
 
 /*
  * Monster race flags 5
  */
 
 
-	{"BA_ACID", RF5, RF5_BA_ACID},
-	{"BA_ELEC", RF5, RF5_BA_ELEC},
-	{"BA_FIRE", RF5, RF5_BA_FIRE},
-	{"BA_COLD", RF5, RF5_BA_COLD},
-	{"BA_POIS", RF5, RF5_BA_POIS},
-	{"BA_NETH", RF5, RF5_BA_NETH},
-	{"BA_WATE", RF5, RF5_BA_WATE},
-	{"BA_MANA", RF5, RF5_BA_MANA},
-	{"BA_DARK", RF5, RF5_BA_DARK},
-	{"DRAIN_MANA", RF5, RF5_DRAIN_MANA},
-	{"MIND_BLAST", RF5, RF5_MIND_BLAST},
-	{"BRAIN_SMASH", RF5, RF5_BRAIN_SMASH},
-	{"CAUSE_1", RF5, RF5_CAUSE_1},
-	{"CAUSE_2", RF5, RF5_CAUSE_2},
-	{"CAUSE_3", RF5, RF5_CAUSE_3},
-	{"CAUSE_4", RF5, RF5_CAUSE_4},
-	{"BO_ACID", RF5, RF5_BO_ACID},
-	{"BO_ELEC", RF5, RF5_BO_ELEC},
-	{"BO_FIRE", RF5, RF5_BO_FIRE},
-	{"BO_COLD", RF5, RF5_BO_COLD},
-	{"BO_POIS", RF5, RF5_BO_POIS},
-	{"BO_NETH", RF5, RF5_BO_NETH},
-	{"BO_WATE", RF5, RF5_BO_WATE},
-	{"BO_MANA", RF5, RF5_BO_MANA},
-	{"BO_PLAS", RF5, RF5_BO_PLAS},
-	{"BO_ICEE", RF5, RF5_BO_ICEE},
-	{"MISSILE", RF5, RF5_MISSILE},
-	{"SCARE", RF5, RF5_SCARE},
-	{"BLIND", RF5, RF5_BLIND},
-	{"CONF", RF5, RF5_CONF},
-	{"SLOW", RF5, RF5_SLOW},
-	{"HOLD", RF5, RF5_HOLD},
+	{"BALL_ACID", RF5, RF5_BALL_ACID},
+	{"BALL_ELEC", RF5, RF5_BALL_ELEC},
+	{"BALL_FIRE", RF5, RF5_BALL_FIRE},
+	{"BALL_COLD", RF5, RF5_BALL_COLD},
+	{"BALL_POIS", RF5, RF5_BALL_POIS},
+	{"BALL_LITE", RF5, RF5_BALL_LITE},
+	{"BALL_DARK", RF5, RF5_BALL_DARK},
+	{"BALL_CONFU", RF5, RF5_BALL_CONFU},
+	{"BALL_SOUND", RF5, RF5_BALL_SOUND},
+	{"BALL_SHARD", RF5, RF5_BALL_SHARD},
+	{"BALL_WIND", RF5, RF5_BALL_WIND},
+	{"BALL_STORM", RF5, RF5_BALL_STORM},
+	{"BALL_NETHR", RF5, RF5_BALL_NETHR},
+	{"BALL_CHAOS", RF5, RF5_BALL_CHAOS},
+	{"BALL_MANA", RF5, RF5_BALL_MANA},
+	{"BALL_WATER", RF5, RF5_BALL_WATER},
+	{"BOLT_ACID", RF5, RF5_BOLT_ACID},
+	{"BOLT_ELEC", RF5, RF5_BOLT_ELEC},
+	{"BOLT_FIRE", RF5, RF5_BOLT_FIRE},
+	{"BOLT_COLD", RF5, RF5_BOLT_COLD},
+	{"BOLT_POIS", RF5, RF5_BOLT_POIS},
+	{"BOLT_PLAS", RF5, RF5_BOLT_PLAS},
+	{"BOLT_ICE", RF5, RF5_BOLT_ICE},
+	{"BOLT_WATER", RF5, RF5_BOLT_WATER},
+	{"BOLT_NETHR", RF5, RF5_BOLT_NETHR},
+	{"BOLT_MANA", RF5, RF5_BOLT_MANA},
+	{"RF5XXX3", RF5, RF5_RF5_XXX3},
+	{"BEAM_ELEC", RF5, RF5_BEAM_ELEC},
+	{"BEAM_ICE", RF5, RF5_BEAM_ICE},
+	{"BEAM_NETHR", RF5, RF5_BEAM_NETHR},
+	{"RF5XXX4", RF5, RF5_RF5_XXX4},
+	{"HOLY_ORB", RF5, RF5_HOLY_ORB},
 
 
 /*
@@ -363,41 +379,77 @@ static flag_name info_flags[] =
  */
 
 	{"HASTE", RF6, RF6_HASTE},
-	{"RF6XXX1", RF6, RF6_RF6XXX1},
+	{"ADD_MANA", RF6, RF6_ADD_MANA},
 	{"HEAL", RF6, RF6_HEAL},
-	{"RF6XXX2", RF6, RF6_RF6XXX2},
+	{"CURE", RF6, RF6_CURE},
 	{"BLINK", RF6, RF6_BLINK},
 	{"TPORT", RF6, RF6_TPORT},
-	{"RF6XXX3", RF6, RF6_RF6XXX3},
-	{"RF6XXX4", RF6, RF6_RF6XXX4},
+	{"RF6_XXX1", RF6, RF6_RF6XXX1},
+	{"TELE_SELF_TO", RF6, RF6_TELE_SELF_TO},
 	{"TELE_TO", RF6, RF6_TELE_TO},
 	{"TELE_AWAY", RF6, RF6_TELE_AWAY},
 	{"TELE_LEVEL", RF6, RF6_TELE_LEVEL},
-	{"RF6XXX5", RF6, RF6_RF6XXX5},
+	{"RF6_RF6XXX1", RF6, RF6_RF6XXX1},
 	{"DARKNESS", RF6, RF6_DARKNESS},
 	{"TRAPS", RF6, RF6_TRAPS},
 	{"FORGET", RF6, RF6_FORGET},
+	{"DRAIN_MANA", RF6, RF6_DRAIN_MANA},
+	{"RF6XXX4", RF6, RF6_RF6XXX4},
+	{"RF6XXX5", RF6, RF6_RF6XXX5},
+	{"MIND_BLAST", RF6, RF6_MIND_BLAST},
+	{"BRAIN_SMASH", RF6, RF6_BRAIN_SMASH},
+	{"WOUND", RF6, RF6_WOUND},
 	{"RF6XXX6", RF6, RF6_RF6XXX6},
-	{"S_KIN", RF6, RF6_S_KIN},
-	{"S_HI_DEMON", RF6, RF6_S_HI_DEMON},
-	{"S_MONSTER", RF6, RF6_S_MONSTER},
-	{"S_MONSTERS", RF6, RF6_S_MONSTERS},
-	{"S_ANIMAL", RF6, RF6_S_ANIMAL},
-	{"S_SPIDER", RF6, RF6_S_SPIDER},
-	{"S_HOUND", RF6, RF6_S_HOUND},
-	{"S_HYDRA", RF6, RF6_S_HYDRA},
-	{"S_AINUR", RF6, RF6_S_AINUR},
-	{"S_DEMON", RF6, RF6_S_DEMON},
-	{"S_UNDEAD", RF6, RF6_S_UNDEAD},
-	{"S_DRAGON", RF6, RF6_S_DRAGON},
-	{"S_HI_UNDEAD", RF6, RF6_S_HI_UNDEAD},
-	{"S_HI_DRAGON", RF6, RF6_S_HI_DRAGON},
-	{"S_WRAITH", RF6, RF6_S_WRAITH},
-	{"S_UNIQUE", RF6, RF6_S_UNIQUE},
+	{"RF6XXX7", RF6, RF6_RF6XXX7},
+	{"RF6XXX8", RF6, RF6_RF6XXX8},
+	{"RF6XXX9", RF6, RF6_RF6XXX9},
+	{"HUNGER", RF6, RF6_HUNGER},
+	{"RF6XX11", RF6, RF6_RF6XX11},
+	{"SCARE", RF6, RF6_SCARE},
+	{"BLIND", RF6, RF6_BLIND},
+	{"CONF", RF6, RF6_CONF},
+	{"SLOW", RF6, RF6_SLOW},
+	{"HOLD", RF6, RF6_HOLD},
+
 
 /*
- * Object flags 1
+ * Monster summon flags 7
  */
+
+	{"S_KIN", RF7, RF7_S_KIN},
+	{"RF7XXX1", RF7, RF7_RF7XXX1},
+	{"RF7XXX2", RF7, RF7_RF7XXX2},
+	{"S_MONSTER", RF7, RF7_S_MONSTER},
+	{"S_MONSTERS", RF7, RF7_S_MONSTERS},
+	{"RF7XXX3", RF7, RF7_RF7XXX3},
+	{"RF7XXX4", RF7, RF7_RF7XXX4},
+	{"RF7XXX5", RF7, RF7_RF7XXX5},
+	{"S_ANT", RF7, RF7_S_ANT},
+	{"S_SPIDER", RF7, RF7_S_SPIDER},
+	{"S_HOUND", RF7, RF7_S_HOUND},
+	{"S_ANIMAL", RF7, RF7_S_ANIMAL},
+	{"S_HYDRA", RF7, RF7_S_HYDRA},
+	{"RF7XXX7", RF7, RF7_RF7XXX7},
+	{"S_THIEF", RF7, RF7_S_THIEF},
+	{"S_BERTBILLTOM", RF7, RF7_S_BERTBILLTOM},
+	{"RF7XXX7", RF7, RF7_RF7XXX7},
+	{"S_AINU", RF7, RF7_S_AINU},
+	{"RF7XX10", RF7, RF7_RF7XX10},
+	{"RF7XX11", RF7, RF7_RF7XX11},
+	{"S_DRAGON", RF7, RF7_S_DRAGON},
+	{"S_HI_DRAGON", RF7, RF7_S_HI_DRAGON},
+	{"RF7XX12", RF7, RF7_RF7XX12},
+	{"RF7XX13", RF7, RF7_RF7XX13},
+	{"S_DEMON", RF7, RF7_S_DEMON},
+	{"S_HI_DEMON", RF7, RF7_S_HI_DEMON},
+	{"RF7XX14", RF7, RF7_RF7XX14},
+	{"RF7XX15", RF7, RF7_RF7XX15},
+	{"S_UNDEAD", RF7, RF7_S_UNDEAD},
+	{"S_HI_UNDEAD", RF7, RF7_S_HI_UNDEAD},
+	{"S_WRAITH", RF7, RF7_S_WRAITH},
+	{"S_UNIQUE", RF7, RF7_S_UNIQUE},
+
+/*object_flags*/
 
 	{"STR", TR1, TR1_STR},
 	{"INT", TR1, TR1_INT},
@@ -514,6 +566,7 @@ static flag_name info_flags[] =
 	{"PERMA_CURSE",  TR3, TR3_PERMA_CURSE},
 
 	{"IGNORE_ALL",  TR3, TR3_IGNORE_ALL},
+
 
 /*
  * Class flags
@@ -1898,6 +1951,7 @@ static errr grab_one_spell_flag(monster_race *ptr, cptr what)
 	f[RF4] = &(ptr->flags4);
 	f[RF5] = &(ptr->flags5);
 	f[RF6] = &(ptr->flags6);
+	f[RF7] = &(ptr->flags7);
 	return grab_one_flag(f, "monster", what);
 }
 
@@ -2031,7 +2085,7 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int lev, rar, pad;
+		int lev, rar, mana;
 		long exp;
 
 		/* There better be a current r_ptr */
@@ -2039,12 +2093,12 @@ errr parse_r_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &lev, &rar, &pad, &exp)) return (PARSE_ERROR_GENERIC);
+			            &lev, &rar, &mana, &exp)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->level = lev;
 		r_ptr->rarity = rar;
-		r_ptr->extra = pad;
+		r_ptr->mana = mana;
 		r_ptr->mexp = exp;
 	}
 
@@ -2156,14 +2210,30 @@ errr parse_r_info(char *buf, header *head)
 			}
 
 			/* XXX Hack -- Read spell frequency */
-			if (1 == sscanf(s, "1_IN_%d", &i))
+			if ((r_ptr->freq_ranged == 0) &&
+			    (1 == sscanf(s, "SPELL_PCT_%d", &i)))
 			{
 				/* Sanity check */
 				if ((i < 1) || (i > 100))
 					return (PARSE_ERROR_INVALID_SPELL_FREQ);
 
 				/* Extract a "frequency" */
-				r_ptr->freq_spell = r_ptr->freq_innate = 100 / i;
+				r_ptr->freq_ranged = i;
+
+				/* Start at next entry */
+				s = t;
+
+				/* Continue */
+				continue;
+			}
+
+			/* Read spell power. */
+			if ((r_ptr->spell_power == 0) &&
+			    (1 == sscanf(s, "POW_%d", &i)))
+			{
+				/* Save spell power. */
+				r_ptr->spell_power = i;
+
 
 				/* Start at next entry */
 				s = t;

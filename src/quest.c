@@ -146,8 +146,10 @@ cptr describe_quest(s16b level, int mode)
 	char targets[80];
 	char where[80];
 	char race_name[80];
+	char what[25];
 
 	quest_type *q_ptr = &q_info[q_idx];
+	monster_race *r_ptr = &r_info[q_ptr->mon_idx];
 
 	if (!p_ptr->cur_quest > 0) return "none";
 
@@ -198,6 +200,9 @@ cptr describe_quest(s16b level, int mode)
 		}
 	}
 
+	if (monster_nonliving(r_ptr)) strcpy(what, "destroy");
+	else strcpy(what, "kill");
+
 	/* The type of the quest */
 	if (q_ptr->type == QUEST_FIXED) strcpy(intro, "For eternal glory, you must");
 	else if (q_ptr->type == QUEST_FIXED_U) strcpy(intro, "For eternal glory, you must");
@@ -208,9 +213,9 @@ cptr describe_quest(s16b level, int mode)
 	else strcpy(where, format("at a depth of %d feet.", level * 50));
 
 	/* Output */
-	if (mode == QMODE_SHORT) return (format("%s kill %s.", intro, targets));
-	else if (mode == QMODE_FULL) return (format("%s kill %s %s", intro, targets, where));
-	else if (mode == QMODE_HALF_1) return (format("%s kill %s", intro, targets));
+	if (mode == QMODE_SHORT) return (format("%s %s %s.", intro, what, targets));
+	else if (mode == QMODE_FULL) return (format("%s %s %s %s", intro, what, targets, where));
+	else if (mode == QMODE_HALF_1) return (format("%s %s %s", intro, what, targets));
 	else if (mode == QMODE_HALF_2) return (format("%s", where));
 
 	/* Paranoia */
@@ -236,6 +241,9 @@ static void grant_reward(byte type)
 	object_type *i_ptr, *j_ptr;
  	object_type object_type_body;
 	store_type *st_ptr = &store[STORE_HOME];
+
+	/* Get local object */
+	i_ptr = &object_type_body;
 
 	/* No reward */
 	if (!type) return;
@@ -303,10 +311,9 @@ static void grant_reward(byte type)
 		if ((cp_ptr->spell_book) &&
 			(rand_int(100) < (cp_ptr->flags & CF_ZERO_FAIL ? 10 : 5)))
 		{
-			/* 25 attempts to find a useful book */
-			for (i = 0; i < 25; i++)
+			/*50 tries at a book*/
+			for (i = 0; i < 50; i++)
 			{
-
 				bool already_own = FALSE;
 
 				/* Get local object */
@@ -316,11 +323,21 @@ static void grant_reward(byte type)
 				object_wipe(i_ptr);
 
 				/* Valid item exists? */
-				if ((cp_ptr->spell_book == TV_MAGIC_BOOK) &&
-					(!make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_MAGIC_BOOK))) break;
+				if (cp_ptr->spell_book == TV_MAGIC_BOOK)
+				{
+					/*try to make a spellbook, frequently returns nothing*/
+					(void)make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_MAGIC_BOOK);
 
-				else if ((cp_ptr->spell_book == TV_PRAYER_BOOK) &&
-					(!make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_PRAYER_BOOK))) break;
+					if (!i_ptr->k_idx) continue;
+				}
+
+				if (cp_ptr->spell_book == TV_PRAYER_BOOK)
+				{
+					/*try to make a spellbook, frequently returns nothing*/
+					(void)make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_PRAYER_BOOK);
+
+					if (!i_ptr->k_idx) continue;
+				}
 
 				/* Was this already a reward (marked tried) */
 				if (k_info[i_ptr->k_idx].tried) continue;
@@ -334,6 +351,7 @@ static void grant_reward(byte type)
 					/* Nothing here */
 					if (!j_ptr->k_idx) continue;
 
+					/*Is it the same spellbook?*/
 					if ((j_ptr->tval == i_ptr->tval) && (j_ptr->sval == i_ptr->sval))
 						already_own = TRUE;
 				}
@@ -353,11 +371,13 @@ static void grant_reward(byte type)
 					}
  				}
 
-				if (already_own) continue;
-
 				/* Hack - Mark as tried */
 				k_info[i_ptr->k_idx].tried = TRUE;
 
+				/*we already have a book*/
+				if (already_own) continue;
+
+				/*we found a book we can use as a reward*/
 				got_item = TRUE;
 
 				break;
@@ -478,8 +498,10 @@ static void grant_reward(byte type)
 			/* attempts at an item based on p_ptr fame, but fame is a minimum of 20*/
 			for (x = 0; x < (p_ptr->fame / 5); x++)
 			{
+
 				/*create the items in the guild....*/
 				store_type *st_ptr = &store[STORE_GUILD];
+
 				/* Get the existing object */
 				j_ptr = &st_ptr->stock[1];
 
@@ -559,10 +581,12 @@ static void grant_reward(byte type)
 				object_wipe(j_ptr);
 
 				/* Valid item exists?  If not, don't count it*/
-				if (!make_object(j_ptr, FALSE, TRUE, droptype))
+				(void)make_object(j_ptr, FALSE, TRUE, droptype);
+
+				/* hopefully eliminate the &nothing bug*/
+				if (!j_ptr->k_idx)
 				{
-					/*don't count this one*/
-				    x--;
+					x--;
 					continue;
 				}
 
@@ -571,6 +595,7 @@ static void grant_reward(byte type)
 
 			 	{
 					a_info[j_ptr->name1].cur_num = 0;
+
 				}
 
 				/* Make sure weapon isn't too heavy */
@@ -659,8 +684,15 @@ static void grant_reward(byte type)
 						got_item = TRUE;
 					}
 				}
+
 			}
 		}
+		/* hopefully eliminate the &nothing bug*/
+		if (!i_ptr->k_idx)
+		{
+			got_item = FALSE;
+		}
+
 	}
 
 	/* We don't have a tailored item, or the reward is good or great*/
@@ -674,7 +706,7 @@ static void grant_reward(byte type)
 		/*but if it's great, 4 artifact rolls*/
 		if ((type == REWARD_TAILORED) || (REWARD_GREAT_ITEM)) good = TRUE;
 
-		while (TRUE)
+		while (!got_item)
 		{
 
 			/* Get local object */
@@ -684,9 +716,12 @@ static void grant_reward(byte type)
 			object_wipe(i_ptr);
 
 			/* Make an appropriate object (if possible) */
-			if (!make_object(i_ptr, good, great, DROP_TYPE_UNTHEMED)) continue;
+			(void)make_object(i_ptr, good, great, DROP_TYPE_UNTHEMED);
 
-			break;
+			/* hopefully eliminate the &nothing bug*/
+			if (!i_ptr->k_idx) continue;
+
+			got_item = TRUE;
 		}
 	}
 
@@ -710,8 +745,8 @@ static void grant_reward(byte type)
    		 if (adult_take_notes)
 		{
 			int artifact_depth;
-    	    char note[160];
-			char shorter_desc[160];
+    	    char note[120];
+			char shorter_desc[100];
 
 			/* Get a shorter description to fit the notes file */
 			object_desc(shorter_desc, sizeof(shorter_desc), i_ptr, TRUE, 0);
@@ -809,7 +844,6 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 
 	{
 		unique = TRUE;
-
 	}
 
 	/*process the table for uniques*/
@@ -934,6 +968,10 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			/* No uniques*/
 			if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
+			/*no quests for certain kinds of animals the guild wouldn't care about*/
+			if ((strchr("BFIJKSXabcejlrmwj,", r_ptr->d_char)) &&
+				(!r_ptr->flags2 & (RF2_SMART))) continue;
+
 			/* Hack -- No town monsters in quests */
 			if (table[i].level <= 0) continue;
 
@@ -948,11 +986,8 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			{
 				bool okay = FALSE;
 
-				/* Allow if the monster can summon */
-				if ((r_ptr->flags4 & (RF4_SUMMON_MASK)) ||
-				    (r_ptr->flags5 & (RF5_SUMMON_MASK)) ||
-					(r_ptr->flags6 & (RF6_SUMMON_MASK)))
-					okay = TRUE;
+				/* Allow if the monster has at least one summon spell*/
+				if (r_ptr->flags7)	okay = TRUE;
 
 				/* Allow if the monster can attack */
 				if ((r_ptr->flags4 & (RF4_ATTACK_MASK)) ||
@@ -1071,8 +1106,8 @@ static bool place_vault_quest(int q, int lev)
 	q_info[q].active_level = lev;
 	if (10 + rand_int(50) < p_ptr->fame) q_info[q].reward = REWARD_TAILORED;
 	else q_info[q].reward = REWARD_GREAT_ITEM;
-	q_info[q].cur_num = q_info[q].max_num = 0;
-	q_info[q].started = 0;
+	q_info[q].cur_num = q_info[q].mon_idx = q_info[q].max_num = 0;
+	q_info[q].started = FALSE;
 
 	/* Set current quest */
 	p_ptr->cur_quest = lev;
@@ -1119,7 +1154,7 @@ void display_guild(void)
 
 		else if (q_info[i].type == QUEST_VAULT)
 		{
-			char note[80];
+			char note[120];
 
 			/* Check to see if there's a reward */
 			if (!q_info[i].reward) continue;
@@ -1136,10 +1171,15 @@ void display_guild(void)
 			/* Grant fame bonus */
 			p_ptr->fame += 5;
 
-			/* Write note */
-            sprintf(note, "Quest: Return a large, sealed jeweled chest to the Guild.");
+			/*if using notes file, make a note*/
+			if (adult_take_notes)
+			{
+				/* Make note */
+            	sprintf(note, "Quest: Retrieved a special jeweled chest for the Adventurer's Guild.");
 
- 		  	do_cmd_note(note, q_info[i].active_level);
+				/*write note*/
+ 		  		do_cmd_note(note, q_info[i].active_level);
+			}
 
 			/* Finish the quest */
 			q_info[i].active_level = 0;

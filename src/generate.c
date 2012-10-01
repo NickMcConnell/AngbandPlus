@@ -13,6 +13,7 @@
 #include "script.h"
 
 
+
 /*
  * Note that Level generation is *not* an important bottleneck,
  * though it can be annoyingly slow on older machines...  Thus
@@ -189,8 +190,6 @@ static int next_to_walls(int y, int x); /*prototype for next_to_walls*/
 #define ROOM_MAX	10
 #define ROOM_MIN     2
 
-
-
 /*
  * Simple structure to hold a map location
  */
@@ -323,38 +322,60 @@ static void rand_dir(int *rdir, int *cdir)
  */
 static bool new_player_spot(void)
 {
-	int y, x;
 	int i = 0;
 
-	/* Place the player */
-	while (i < 1000)
+	int yy, xx;
+
+	int x_location_tables [40];
+	int y_location_tables [40];
+	int rand_spot;
+
+	/*  */
+	for (yy = 0; yy < p_ptr->cur_map_hgt; yy++)
 	{
-		i++;
+		for (xx = 0; xx < p_ptr->cur_map_wid; xx++)
+		{
 
-		/* Pick a legal spot */
-		y = rand_range(1, p_ptr->cur_map_hgt - 2);
-		x = rand_range(1, p_ptr->cur_map_wid - 2);
+			/* Must be a "naked" floor grid */
+			if (!cave_naked_bold(yy, xx)) continue;
 
-		/* Refuse to start on anti-teleport grids */
-		if (cave_info[y][x] & (CAVE_ICKY)) continue;
+			/* Refuse to start on anti-teleport grids */
+			if (cave_info[yy][xx] & (CAVE_ICKY)) continue;
 
-		/*stairs are always good*/
-		if (cave_feat[y][x] == FEAT_LESS) break;
-		if (cave_feat[y][x] == FEAT_MORE) break;
+			/*we like to be next to walls*/
+			if ((next_to_walls(yy,xx) < 3) && (!cave_stair_bold(yy, xx))) continue;
 
-		/* else must be a "naked" floor grid */
-		if (!cave_naked_bold(y, x)) continue;
+			/*don't go over size of array*/
+			if (i < 40)
+			{
+				x_location_tables[i] = xx;
+				y_location_tables[i] = yy;
 
-		/* Player prefers to be near walls. */
-		if (i < 500 && (next_to_walls(y, x) < 2)) continue;
-		else if (next_to_walls(y, x) < 1) continue;
+				/*increase the counter*/
+				i++;
+			}
 
-		break;
+			/*put it in a random slot*/
+			else
+			{
+				rand_spot = rand_int(40);
 
+				x_location_tables[rand_spot] = xx;
+				y_location_tables[rand_spot] = yy;
+			}
+
+		}
 	}
 
+
+	/*paranoia*/
+	if (i == 0) return (FALSE);
+
+	/*select a location*/
+	rand_spot = rand_int (i);
+
 	/* Place the player, check for failure */
-	if (player_place(y, x) == 0)
+	if (player_place(y_location_tables[rand_spot], x_location_tables[rand_spot]) == 0)
 	{
 		return (FALSE);
 	}
@@ -368,7 +389,7 @@ static bool new_player_spot(void)
  *
  * Note -- Assumes "in_bounds_fully(y, x)"
  *
- * We count only granite walls and permanent walls.
+ * We count only granite walls and permanent walls, and stairs.
  */
 static int next_to_walls(int y, int x)
 {
@@ -395,27 +416,34 @@ static void place_rubble(int y, int x)
 
 
 
+
 /*
- * Convert existing terrain type to "up stairs"
+ * Pick either an ordinary up staircase or an up shaft.
  */
-static void place_up_stairs(int y, int x)
+static int pick_up_stairs(void)
 {
-	/* Create up stairs */
-	cave_set_feat(y, x, FEAT_LESS);
+	if ((p_ptr->depth >= 5) && (!quest_check(p_ptr->depth - 1)))
+	{
+		if (one_in_(2)) return (FEAT_LESS_SHAFT);
+	}
+
+	return (FEAT_LESS);
 }
 
 
 /*
- * Convert existing terrain type to "down stairs"
+ * Pick either an ordinary down staircase or an down shaft.
  */
-static void place_down_stairs(int y, int x)
+static int pick_down_stairs(void)
 {
-	/* Create down stairs */
-	cave_set_feat(y, x, FEAT_MORE);
+	if ((p_ptr->depth >= 5) && (p_ptr->depth < MAX_DEPTH - 2) &&
+	    (!quest_check(p_ptr->depth + 1)))
+	{
+		if (one_in_(2)) return (FEAT_MORE_SHAFT);
+	}
+
+	return (FEAT_MORE);
 }
-
-
-
 
 
 /*
@@ -426,25 +454,30 @@ static void place_random_stairs(int y, int x)
 	/* Paranoia */
 	if (!cave_clean_bold(y, x)) return;
 
-	/* Choose a staircase */
+	/* Create a staircase */
 	if (!p_ptr->depth)
 	{
-		place_down_stairs(y, x);
+		cave_set_feat(y, x, FEAT_MORE);
 	}
 	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
 			 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
 			 (p_ptr->depth >= MAX_DEPTH-1))
-
 	{
-		place_up_stairs(y, x);
+		if (one_in_(2))	cave_set_feat(y, x, FEAT_LESS);
+		else cave_set_feat(y, x, FEAT_LESS_SHAFT);
 	}
-	else if (rand_int(100) < 50)
+	else if (one_in_(2))
 	{
-		place_down_stairs(y, x);
+		if ((quest_check(p_ptr->depth + 1) == QUEST_FIXED) ||
+			 (quest_check(p_ptr->depth + 1) == QUEST_FIXED_U))
+			cave_set_feat(y, x, FEAT_MORE);
+		else if (one_in_(2)) cave_set_feat(y, x, FEAT_MORE);
+		else cave_set_feat(y, x, FEAT_MORE_SHAFT);
 	}
 	else
 	{
-		place_up_stairs(y, x);
+		if (one_in_(2))	cave_set_feat(y, x, FEAT_LESS);
+		else cave_set_feat(y, x, FEAT_LESS_SHAFT);
 	}
 }
 
@@ -452,66 +485,94 @@ static void place_random_stairs(int y, int x)
 /*
  * Places some staircases near walls
  */
-static bool alloc_stairs(int feat, int num, int walls)
+static bool alloc_stairs(int feat, int num)
 {
-	int y, x, i, j, flag;
-
-	int old_walls = walls;
+	int x;
 
 	/* Place "num" stairs */
-	for (i = 0; i < num; i++)
+	for (x = 0; x < num; x++)
 	{
-		/*re-set the walls*/
-		walls = old_walls;
+		int i = 0;
 
-		/* Place some stairs */
-		for (flag = FALSE; !flag; )
+		int yy, xx;
+
+		int x_location_tables [40];
+		int y_location_tables [40];
+		int rand_spot;
+
+		/*  */
+		for (yy = 0; yy < p_ptr->cur_map_hgt; yy++)
 		{
-
-			/* Try several times, then decrease "walls" */
-			for (j = 0; !flag && j <= 3000; j++)
+			for (xx = 0; xx < p_ptr->cur_map_wid; xx++)
 			{
-				/* Pick a random grid */
-				y = rand_int(p_ptr->cur_map_hgt);
-				x = rand_int(p_ptr->cur_map_wid);
 
-				/* Require "naked" floor grid */
-				if (!cave_naked_bold(y, x)) continue;
+				/* Must be a "naked" floor grid */
+				if (!cave_naked_bold(yy, xx)) continue;
 
-				/* Require a certain number of adjacent walls */
-				if (next_to_walls(y, x) < walls) continue;
+				/*we like to be next to walls*/
+				if ((next_to_walls(yy,xx) < 3) && (!cave_stair_bold(yy, xx))) continue;
 
-				/* Town -- must go down */
-				if (!p_ptr->depth)
+				/*don't go over size of array*/
+				if (i < 40)
 				{
-					/* Clear previous contents, add down stairs */
-					cave_set_feat(y, x, FEAT_MORE);
+					x_location_tables[i] = xx;
+					y_location_tables[i] = yy;
+
+					/*increase the counter*/
+					i++;
 				}
 
-				/* Quest -- must go up */
-				else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
-						 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
-						 (p_ptr->depth >= MAX_DEPTH-1))
-				{
-					/* Clear previous contents, add up stairs */
-					cave_set_feat(y, x, FEAT_LESS);
-				}
-
-				/* Requested type */
+				/*put it in a random slot*/
 				else
 				{
-					/* Clear previous contents, add stairs */
-					cave_set_feat(y, x, feat);
+					rand_spot = rand_int(40);
+
+					x_location_tables[rand_spot] = xx;
+					y_location_tables[rand_spot] = yy;
 				}
 
-				/* All done */
-				flag = TRUE;
+			}
+		}
+
+
+		/*paranoia*/
+		if (i == 0) return (FALSE);
+
+		/*select a location*/
+		rand_spot = rand_int (i);
+
+		/*get the coordinates*/
+		yy = y_location_tables[rand_spot];
+		xx = x_location_tables[rand_spot];
+
+		/* Town -- must go down */
+		if (!p_ptr->depth)
+		{
+			/* Clear previous contents, add down stairs */
+			cave_set_feat(yy, xx, FEAT_MORE);
+		}
+
+		/* Quest -- must go up */
+		else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
+				 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
+				 (p_ptr->depth >= MAX_DEPTH-1))
+		{
+			/* Clear previous contents, add up stairs */
+			cave_set_feat(yy, xx, pick_up_stairs());
+		}
+
+		/* Requested type */
+		else
+		{
+			/* Allow shafts, but guarantee the first one is an ordinary stair */
+			if (x != 0)
+			{
+				if      (feat == FEAT_LESS) feat = pick_up_stairs();
+				else if (feat == FEAT_MORE) feat = pick_down_stairs();
 			}
 
-			/* Require fewer walls */
-			if (walls) walls--;
-
-			else return(FALSE);
+			/* Clear previous contents, add stairs */
+			cave_set_feat(yy, xx, feat);
 		}
 	}
 
@@ -1548,9 +1609,9 @@ static bool vault_aux_jelly(int r_idx)
 }
 
 /*
- * Helper function for "monster nest (kobolds, orcs and yeeks)"
+ * Helper function for "monster nest (kobolds, orcs, nagas and yeeks)"
  */
-static bool vault_aux_kobold_yeek_orc(int r_idx)
+static bool vault_aux_kobold_yeek_orc_naga(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1558,7 +1619,7 @@ static bool vault_aux_kobold_yeek_orc(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Hack -- Require "k", "o", or "y" monsters */
-	if (!strchr("koy", r_ptr->d_char)) return (FALSE);
+	if (!strchr("koyn", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1876,8 +1937,8 @@ static void build_type5(int y0, int x0)
 			/* Describe */
 			name = "kobold yeek orc";
 
-			/* Restrict to kobolds, yeeks, orcs */
-			get_mon_num_hook = vault_aux_kobold_yeek_orc;
+			/* Restrict to kobolds, yeeks, orcs and nagas*/
+			get_mon_num_hook = vault_aux_kobold_yeek_orc_naga;
 		}
 	}
 
@@ -1940,7 +2001,7 @@ static void build_type5(int y0, int x0)
 	for (i = 0; i < 64; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth + 10);
+		what[i] = get_mon_num(p_ptr->depth + 5);
 
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
@@ -2193,7 +2254,7 @@ static void build_type6(int y0, int x0)
 				name = "acid dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_ACID;
+				vault_aux_dragon_mask4 = RF4_BRTH_ACID;
 
 				/* Done */
 				break;
@@ -2206,7 +2267,7 @@ static void build_type6(int y0, int x0)
 				name = "electric dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_ELEC;
+				vault_aux_dragon_mask4 = RF4_BRTH_ELEC;
 
 				/* Done */
 				break;
@@ -2219,7 +2280,7 @@ static void build_type6(int y0, int x0)
 				name = "fire dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_FIRE;
+				vault_aux_dragon_mask4 = RF4_BRTH_FIRE;
 
 				/* Done */
 				break;
@@ -2232,7 +2293,7 @@ static void build_type6(int y0, int x0)
 				name = "cold dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_COLD;
+				vault_aux_dragon_mask4 = RF4_BRTH_COLD;
 
 				/* Done */
 				break;
@@ -2245,7 +2306,7 @@ static void build_type6(int y0, int x0)
 				name = "poison dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_POIS;
+				vault_aux_dragon_mask4 = RF4_BRTH_POIS;
 
 				/* Done */
 				break;
@@ -2258,9 +2319,9 @@ static void build_type6(int y0, int x0)
 				name = "multi-hued dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC |
-				                          RF4_BR_FIRE | RF4_BR_COLD |
-				                          RF4_BR_POIS);
+				vault_aux_dragon_mask4 = (RF4_BRTH_ACID | RF4_BRTH_ELEC |
+				                          RF4_BRTH_FIRE | RF4_BRTH_COLD |
+				                          RF4_BRTH_POIS);
 
 				/* Done */
 				break;
@@ -2298,7 +2359,7 @@ static void build_type6(int y0, int x0)
 	for (i = 0; i < 16; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth + 10);
+		what[i] = get_mon_num(p_ptr->depth + 6);
 
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
@@ -2559,7 +2620,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Monster */
 				case '&':
 				{
-					monster_level = p_ptr->depth + 5;
+					monster_level = p_ptr->depth + 4;
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					break;
@@ -2568,7 +2629,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Meaner monster */
 				case '@':
 				{
-					monster_level = p_ptr->depth + 11;
+					monster_level = p_ptr->depth + 8;
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					break;
@@ -2577,7 +2638,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Meaner monster, plus treasure */
 				case '9':
 				{
-					monster_level = p_ptr->depth + 9;
+					monster_level = p_ptr->depth + 7;
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					object_level = p_ptr->depth + 7;
@@ -2589,10 +2650,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Nasty monster and treasure */
 				case '8':
 				{
-					monster_level = p_ptr->depth + 40;
+					monster_level = p_ptr->depth + 20;
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 20;
+					object_level = p_ptr->depth + 15;
 					place_object(y, x, TRUE, TRUE, DROP_TYPE_UNTHEMED);
 					object_level = p_ptr->depth;
 					break;
@@ -2601,10 +2662,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Nasty monster and a chest */
 				case '~':
 				{
-					monster_level = p_ptr->depth + 40;
+					monster_level = p_ptr->depth + 20;
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 20;
+					object_level = p_ptr->depth + 15;
 					place_object(y, x, FALSE, FALSE, DROP_TYPE_CHEST);
 					object_level = p_ptr->depth;
 					break;
@@ -2614,9 +2675,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case 'Q':
 				{
 
-					object_level = p_ptr->depth + 20;
 					place_quest_chest(y, x, TRUE, TRUE);
-					object_level = p_ptr->depth;
 					break;
 				}
 
@@ -2631,7 +2690,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					}
 					if (rand_int(100) < 50)
 					{
-						object_level = p_ptr->depth + 7;
+						object_level = p_ptr->depth + 5;
 						place_object(y, x, FALSE, FALSE, DROP_TYPE_UNTHEMED);
 						object_level = p_ptr->depth;
 					}
@@ -2704,7 +2763,7 @@ static void build_type8(int y0, int x0)
     if (adult_take_notes)
 
 		{
-        	char note[80];
+        	char note[120];
 
            	/* Build note and write */
            	sprintf(note, "(%s)", v_name + v_ptr->name);
@@ -3386,7 +3445,7 @@ static bool cave_gen(void)
 	}
 
 
-	/*start over on all levels with less than two rooms crash*/
+	/*start over on all levels with less than two rooms due to inevitable crash*/
 	if (dun->cent_n < ROOM_MIN)
 	{
 		if (cheat_room) msg_format("not enough rooms");
@@ -3459,7 +3518,7 @@ static bool cave_gen(void)
 	if (destroyed) destroy_level();
 
 	/* Place 3 or 4 down stairs near some walls */
-	if (!(alloc_stairs(FEAT_MORE, rand_range(3, 4), 3)))
+	if (!(alloc_stairs(FEAT_MORE, rand_range(3, 4))))
 	{
 		if (cheat_room) msg_format("failed to place down stairs");
 
@@ -3467,13 +3526,12 @@ static bool cave_gen(void)
 	}
 
 	/* Place 1 or 2 up stairs near some walls */
-	if (!(alloc_stairs(FEAT_LESS, rand_range(1, 2), 3)))
+	if (!(alloc_stairs(FEAT_LESS, rand_range(1, 2))))
 	{
 		if (cheat_room) msg_format("failed to place down stairs");
 
 		return(FALSE);
 	}
-
 
 	/* Basic "amount" */
 	k = (p_ptr->depth / 3);
@@ -3518,14 +3576,7 @@ static bool cave_gen(void)
 	for (i = mon_gen + k; i > 0; i--)
 	{
 
-		if (!(alloc_monster(0, TRUE)))
-		{
-		if (cheat_room) msg_format("failed to place monster");
-
-		return(FALSE);
-
-		}
-
+		(void)alloc_monster(0, TRUE);
 	}
 
 	/* Ensure quest monsters */
@@ -3926,6 +3977,9 @@ void generate_cave(void)
 			{
 				/* Make a town */
 				town_gen();
+
+				/* Hack -- Clear stairs request */
+				p_ptr->create_stair = 0;
 			}
 
 			/* Build a real level */

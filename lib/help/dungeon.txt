@@ -21,12 +21,14 @@ surrounded by these kinds of walls and some special rooms are made of them.
 
 Staircases:
      Staircases allow your character to ascend or descend from one level to
-another, and are represented by "<" (up) and ">" (down).  Each level has at
+another, and are represented by white "<" (up) and ">" (down).  Each level has at
 least one up staircase, and two down staircases, unless it is the home of Sauron
 (level 99/4950') or Morgoth (level 100/5000'), whom you must kill before
 staircases will appear.  Otherwise, the staircases are guaranteed, but they may
 be difficult to find.  Once you leave a level, you can never return to it.
-Watch out for spells and traps that can suddenly force you off the level.
+Watch out for spells and traps that can suddenly force you off the level.  "Shafts"
+are represented by light brown "<" (up) and ">" (down) and may take you up or down 
+two levels instead of one.
 
 Secret doors:
      Many secret doors exist in the dungeon, and may lead to anything from a new

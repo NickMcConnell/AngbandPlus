@@ -10,7 +10,7 @@ Angband resources:
      The Angband home page at "http://www.thangorodrim.net/" contains the
 current source and executables, special files, helpful comments, hints, and
 links, and the latest Angband news.  The NPPAngband home page is 
-"http://mywebpages.comcast.net/NPPAngband/"
+"http://home.comcast.net/~nppangband/"
      The current maintainer of NPPAngband is Jeff Greene.  If you want to 
 send him comments, or make sure your bug report gets heard, email 
 "nppangband@comcast.net".
@@ -38,7 +38,8 @@ as your speed, ailments, depth, and so on.
 
      The character information display you see when first starting the game can
 be recalled by typing 'C'.  Here you can review your attributes, change names,
-and save character dumps to file (which appear in the "lib/user" directory).
+save character dumps to file (which appear in the "lib/user" directory), and
+view your resists and abilities.
 
 
 --- The help screen  ('?') ---
@@ -67,8 +68,9 @@ slain character one last time.  Here you can:
      - display the character screen and see your possessions,
      - review the final messages,
      - save information in a character dump,
-     - see the high score table, and
-     - fully identify individual items.
+     - see the high score table, 
+     - fully identify individual items, and
+     - make final notes to the character dump.
 
 
 

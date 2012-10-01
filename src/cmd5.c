@@ -990,7 +990,6 @@ void do_cmd_pray(void)
 		if (!get_check("Attempt it anyway? ")) return;
 	}
 
-
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 

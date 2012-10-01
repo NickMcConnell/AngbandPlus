@@ -84,11 +84,15 @@ of changes I made that may affect compiling on other platforms:
 1) Add the file "squelch.o" for compiling (all versions of NPPAngband). For 
 versions 0.2.0 and above, the file "quest.o" should also be added. 
 2) Change the name of the executable file to NPPAngband (if it was obvious).
+
+3) version 3.0.0 and above gets rid of the monster.pkg and associated lua file
+
 As for porting to other operating systems, only one change has been made to two 
 of the main.* files (main-win and main-ami), changing the name of the 2 defined 
 constants (DUNGEON_HGT to MAX_DUNGEON_HGT and DUNGEON_WID to MAX_DUNGEON_WID), 
 so at least in theory the NPPAngband source code should compile and work on any 
 system where Angband -3.0.3 works. 
+
 
 
 ======================

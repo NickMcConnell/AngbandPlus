@@ -71,7 +71,7 @@ EXOBJS = \
 	script.o \
 	use-obj.o \
 	x-spell.o \
-	l-monst.o l-object.o l-player.o l-random.o l-ui.o l-misc.o l-spell.o \
+	l-object.o l-player.o l-random.o l-ui.o l-misc.o l-spell.o \
 	$(LUAOBJS)
 
 HDRS = \
@@ -113,9 +113,6 @@ clean:	cleanobjs cleanbin
 
 lua/tolua: $(TOLUAOBJS)
 	$(CC) -o lua/tolua $(TOLUAOBJS) $(LUALIBS)
-
-l-monst.c: lua/tolua l-monst.pkg
-	lua/tolua -n monster -o l-monst.c l-monst.pkg
 
 l-object.c: lua/tolua l-object.pkg
 	lua/tolua -n object -o l-object.c l-object.pkg
@@ -201,9 +198,6 @@ init2.o: init2.c $(INCS) init.h script.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 l-misc.o: l-misc.c $(INCS) lua/tolua.h
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
-l-monst.o: l-monst.c $(INCS) lua/tolua.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 l-object.o: l-object.c $(INCS) lua/tolua.h

@@ -194,30 +194,6 @@ Generate dungeons with connected stairs       [dungeon_stair]        (on) :
      When entering a level using a staircase, it remains in place.  This allows
 you to beat a hasty retreat if necessary.
 
-Monsters chase current location (v.slow)      [flow_by_sound]        (off) :
-     Allows monsters to navigate around obstacles between you and them.  This
-option will substantially slow down the game on older machines, but makes
-monsters behave much more intelligently.
-
-Monsters chase recent locations (v.slow)      [flow_by_smell]        (off) :
-     Allows monsters to track you down by following your footsteps.  The same
-comments apply here.
-
-Monsters behave more intelligently            [smart_monsters]       (off) :
-     Monsters choose spells depending on tactical situation (for example, they
-are more likely to use a healing spell when badly wounded).  They breath less
-often (sometimes much less often), but cast spells almost twice as frequently.
-They do not cast bolt spells if another monster blocks the way, and can find
-hiding places to run away to.
-
-Monsters act smarter in groups (v.slow)       [smart_packs]          (off) :
-     Monster packs attempt to ambush the character.  Monster groups are better
-at surrounding him.
-
-Monsters learn from their mistakes            [smart_learn]          (off) :
-     Allows monsters to learn about your resistances by observation, and to use
-this knowledge to avoid making further mistakes.
-
 Monsters exploit players weaknesses           [smart_cheat]          (off) :
      Monsters instantly know all your resistances, and need spend no time
 learning.

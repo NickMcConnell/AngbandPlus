@@ -4485,6 +4485,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_POTION_CONFUSION",SV_POTION_CONFUSION);
  tolua_constant(tolua_S,NULL,"SV_POTION_SLEEP",SV_POTION_SLEEP);
  tolua_constant(tolua_S,NULL,"SV_POTION_LOSE_MEMORIES",SV_POTION_LOSE_MEMORIES);
+ tolua_constant(tolua_S,NULL,"SV_POTION_DRAIN_MANA",SV_POTION_DRAIN_MANA);
  tolua_constant(tolua_S,NULL,"SV_POTION_RUINATION",SV_POTION_RUINATION);
  tolua_constant(tolua_S,NULL,"SV_POTION_DEC_STR",SV_POTION_DEC_STR);
  tolua_constant(tolua_S,NULL,"SV_POTION_DEC_INT",SV_POTION_DEC_INT);
@@ -4529,6 +4530,10 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_POTION_STAR_ENLIGHTENMENT",SV_POTION_STAR_ENLIGHTENMENT);
  tolua_constant(tolua_S,NULL,"SV_POTION_SELF_KNOWLEDGE",SV_POTION_SELF_KNOWLEDGE);
  tolua_constant(tolua_S,NULL,"SV_POTION_EXPERIENCE",SV_POTION_EXPERIENCE);
+ tolua_constant(tolua_S,NULL,"SV_POTION_RESIST_ACID",SV_POTION_RESIST_ACID);
+ tolua_constant(tolua_S,NULL,"SV_POTION_RESIST_ELECTRICITY",SV_POTION_RESIST_ELECTRICITY);
+ tolua_constant(tolua_S,NULL,"SV_POTION_RESIST_POISON",SV_POTION_RESIST_POISON);
+ tolua_constant(tolua_S,NULL,"SV_POTION_RESISTANCE",SV_POTION_RESISTANCE);
  tolua_constant(tolua_S,NULL,"SV_FOOD_POISON",SV_FOOD_POISON);
  tolua_constant(tolua_S,NULL,"SV_FOOD_BLINDNESS",SV_FOOD_BLINDNESS);
  tolua_constant(tolua_S,NULL,"SV_FOOD_PARANOIA",SV_FOOD_PARANOIA);
@@ -5440,6 +5445,7 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_CONFUSION");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_SLEEP");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_LOSE_MEMORIES");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DRAIN_MANA");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RUINATION");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DEC_STR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DEC_INT");
@@ -5484,6 +5490,10 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_STAR_ENLIGHTENMENT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_SELF_KNOWLEDGE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_EXPERIENCE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RESIST_ACID");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RESIST_ELECTRICITY");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RESIST_POISON");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RESISTANCE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_POISON");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_BLINDNESS");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_PARANOIA");

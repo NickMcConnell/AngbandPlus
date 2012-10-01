@@ -1105,6 +1105,7 @@ void hit_trap(int y, int x)
 void py_attack(int y, int x)
 {
 	int num = 0, k, bonus, chance;
+	int hits = 0;
 
 	int sleeping_bonus = 0;
 
@@ -1122,17 +1123,50 @@ void py_attack(int y, int x)
 
 	bool was_asleep = FALSE;
 
-
 	/* Get the monster */
 	m_ptr = &mon_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
+
+	/* Reveal minics (note: mimics cannot be sneak-attacked) */
+	if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
+	{
+		/* Mimic no longer acts as a detected object */
+		m_ptr->mflag &= ~(MFLAG_MIMIC);
+
+		/*no longer a mimic*/
+		m_ptr->mimic_k_idx = 0;
+
+		/* Get monster name ("a kobold") */
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0x88);
+
+		/* Redraw */
+		lite_spot(m_ptr->fy, m_ptr->fx);
+
+		/* Message */
+		if (!p_ptr->afraid)
+		{
+			msg_format("You find yourself fighting %s!", m_name);
+
+		}
+		else
+		{
+
+			msg_format("%^s appears, but you are too frightened to fight it!",
+				m_name);
+			return;
+		}
+
+	}
 
 	/*record if monster was sleeping before waking*/
 	if (m_ptr->csleep) was_asleep = TRUE;
 
 	/* Disturb the monster */
 	m_ptr->csleep = 0;
+
+	/*possibly update the monster health bar*/
+	if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
 
 	/* Disturb the player */
 	disturb(0, 0);
@@ -1146,7 +1180,6 @@ void py_attack(int y, int x)
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 
-
 	/* Handle player fear */
 	if (p_ptr->afraid)
 	{
@@ -1156,7 +1189,6 @@ void py_attack(int y, int x)
 		/* Done */
 		return;
 	}
-
 
 	/* Get the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -1185,11 +1217,24 @@ void py_attack(int y, int x)
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
 	{
-
 		message_flush();
 
+		/* Some monsters are great at dodging  -EZ- */
+		if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!m_ptr->csleep) &&
+			(!m_ptr->stunned) && (!m_ptr->confused) && (!m_ptr->monfear)
+			&& (one_in_(2)))
+		{
+			message_format(MSG_MISS, 0, "%^s evades your blow!",
+				m_name);
+
+			/* Learn that monster can dodge */
+			l_ptr->flags2 |= (RF2_EVASIVE);
+
+			continue;
+		}
+
 		/* Test for hit */
-		if (test_hit(chance, r_ptr->ac, m_ptr->ml))
+		else if (test_hit(chance, r_ptr->ac, m_ptr->ml))
 		{
 			if (was_asleep)
 			{
@@ -1210,6 +1255,12 @@ void py_attack(int y, int x)
 				/* Message */
 				message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
 			}
+
+			message_flush();
+
+			/* If this was the first hit, make some noise */
+			hits++;
+			if (hits == 1) add_wakeup_chance += p_ptr->base_wakeup_chance;
 
 			/* Hack -- bare hands do one damage */
 			k = 1;
@@ -1272,6 +1323,7 @@ void py_attack(int y, int x)
 				{
 					msg_format("%^s appears confused.", m_name);
 					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
+
 				}
 			}
 		}
@@ -1279,11 +1331,11 @@ void py_attack(int y, int x)
 		/* Player misses */
 		else
 		{
+
 			/* Message */
 			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
 		}
 	}
-
 
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)
@@ -1291,7 +1343,6 @@ void py_attack(int y, int x)
 		/* Message */
 		message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
 	}
-
 
 	/* Mega-Hack -- apply earthquake brand */
 	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
@@ -1316,15 +1367,14 @@ void move_player(int dir, int jumping)
 
 	int y, x;
 
-
 	/* Find the result of moving */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
-
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
+
 		/* Attack */
 		py_attack(y, x);
 	}
@@ -1332,10 +1382,10 @@ void move_player(int dir, int jumping)
 #ifdef ALLOW_EASY_ALTER
 
 	/* Optionally alter known traps/doors on (non-jumping) movement */
-	else if (easy_alter && !jumping &&
+	else if ((easy_alter) && (!jumping) &&
 	         (cave_info[y][x] & (CAVE_MARK)) &&
-	         (cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-	         (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+	         ((cave_trap_bold(y,x)) || (cave_known_door(y,x))))
+
 	{
 		/* Not already repeating */
 		if (!p_ptr->command_rep)
@@ -1353,14 +1403,15 @@ void move_player(int dir, int jumping)
 
 		/* Alter */
 		do_cmd_alter();
+
 	}
 
 #endif /* ALLOW_EASY_ALTER */
 
 	/* Player can not walk through "walls", but can go through traps */
 	else if (!cave_floor_bold(y, x))
-
 	{
+
 		/* Disturb the player */
 		disturb(0, 0);
 
@@ -1418,6 +1469,7 @@ void move_player(int dir, int jumping)
 	/* Normal movement */
 	else
 	{
+
 		/* Sound XXX XXX XXX */
 		/* sound(MSG_WALK); */
 
@@ -1427,7 +1479,6 @@ void move_player(int dir, int jumping)
 		/* New location */
 		y = py = p_ptr->py;
 		x = px = p_ptr->px;
-
 
 		/* Spontaneous Searching */
 		if ((p_ptr->skill_fos >= 50) ||
@@ -1446,8 +1497,7 @@ void move_player(int dir, int jumping)
 		py_pickup(jumping != always_pickup);
 
 		/* Handle "store doors" */
-		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_SHOP_TAIL))
+		if cave_shop_bold(y,x)
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -1476,8 +1526,7 @@ void move_player(int dir, int jumping)
 		}
 
 		/* Set off an visible trap */
-		else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-		         (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+		else if (cave_trap_bold(y,x))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -1487,8 +1536,7 @@ void move_player(int dir, int jumping)
 		}
 
 		/* Walk on a monster trap */
-		else if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) &&
-				  (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
+		else if (cave_mon_trap_bold(y,x))
 		{
 			msg_print("You inspect your cunning trap.");
 		}
@@ -1510,7 +1558,7 @@ static int see_wall(int dir, int y, int x)
 	if (!in_bounds(y, x)) return (FALSE);
 
 	/* Non-wall grids are not known walls */
-	if (cave_feat[y][x] < FEAT_SECRET) return (FALSE);
+	if (!cave_wall_bold(y,x)) return (FALSE);
 
 	/* Unknown walls are not known walls */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (FALSE);
@@ -1730,7 +1778,6 @@ static void run_init(int dir)
 	bool deepleft, deepright;
 	bool shortleft, shortright;
 
-
 	/* Save the direction */
 	p_ptr->run_cur_dir = dir;
 
@@ -1844,16 +1891,13 @@ static bool run_test(void)
 	/* Where we came from */
 	prev_dir = p_ptr->run_old_dir;
 
-
 	/* Range of newly adjacent grids */
 	max = (prev_dir & 0x01) + 1;
-
 
 	/* Look at every newly adjacent square. */
 	for (i = -max; i <= max; i++)
 	{
 		object_type *o_ptr;
-
 
 		/* New direction */
 		new_dir = cycle[chome[prev_dir] + i];
@@ -1862,7 +1906,6 @@ static bool run_test(void)
 		row = py + ddy[new_dir];
 		col = px + ddx[new_dir];
 
-
 		/* Visible monsters abort running */
 		if (cave_m_idx[row][col] > 0)
 		{
@@ -1870,6 +1913,7 @@ static bool run_test(void)
 
 			/* Visible monster */
 			if (m_ptr->ml) return (TRUE);
+
 		}
 
 		/* Visible objects abort running */
@@ -1878,7 +1922,6 @@ static bool run_test(void)
 			/* Visible object */
 			if (o_ptr->marked) return (TRUE);
 		}
-
 
 		/* Assume unknown */
 		inv = TRUE;
@@ -1939,6 +1982,8 @@ static bool run_test(void)
 				/* Stairs */
 				case FEAT_LESS:
 				case FEAT_MORE:
+				case FEAT_LESS_SHAFT:
+				case FEAT_MORE_SHAFT:
 				{
 					/* Option -- ignore */
 					if (run_ignore_stairs) notice = FALSE;
@@ -2033,7 +2078,7 @@ static bool run_test(void)
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (cave_feat[row][col] < FEAT_SECRET))
+			    (!cave_wall_bold(row,col)))
 			{
 				/* Looking to break right */
 				if (p_ptr->run_break_right)
@@ -2064,7 +2109,7 @@ static bool run_test(void)
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (cave_feat[row][col] < FEAT_SECRET))
+			    (!cave_wall_bold(row,col)))
 			{
 				/* Looking to break left */
 				if (p_ptr->run_break_left)

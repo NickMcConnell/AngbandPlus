@@ -155,7 +155,6 @@ void do_cmd_quaff_potion(void)
 	object_type *o_ptr;
 	cptr q, s;
 
-
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
 
@@ -176,10 +175,8 @@ void do_cmd_quaff_potion(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Sound */
 	sound(MSG_QUAFF);
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;

@@ -611,7 +611,7 @@ typedef int errr;
 #define SV_POTION_SLEEP				11
 /* xxx */
 #define SV_POTION_LOSE_MEMORIES		13
-/* xxx */
+#define SV_POTION_DRAIN_MANA		14
 #define SV_POTION_RUINATION			15
 #define SV_POTION_DEC_STR			16
 #define SV_POTION_DEC_INT			17
@@ -657,6 +657,10 @@ typedef int errr;
 #define SV_POTION_STAR_ENLIGHTENMENT	57
 #define SV_POTION_SELF_KNOWLEDGE		58
 #define SV_POTION_EXPERIENCE			59
+#define SV_POTION_RESIST_ACID			60
+#define SV_POTION_RESIST_ELECTRICITY	61
+#define SV_POTION_RESIST_POISON			62
+#define SV_POTION_RESISTANCE			63
 
 /* The "sval" codes for TV_FOOD */
 #define SV_FOOD_POISON			0
@@ -702,7 +706,7 @@ typedef int errr;
 /*
  * Special "sval" limit -- first "large" chest
  */
-#define SV_CHEST_MIN_LARGE	4
+#define SV_CHEST_MIN_LARGE	5
 
 /*
  * Special "sval" limit -- first "good" magic/prayer book

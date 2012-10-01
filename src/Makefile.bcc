@@ -72,7 +72,7 @@ OBJ = \
   xtra2.obj z-form.obj z-rand.obj z-term.obj \
   z-util.obj z-virt.obj \
   script.obj \
-  l-monst.obj l-object.obj l-player.obj l-random.obj l-random.obj \
+  l-object.obj l-player.obj l-random.obj l-random.obj \
   l-ui.obj l-misc.obj l-spell.obj \
   use-obj.obj x-spell.obj \
   obj-info.obj \
@@ -104,9 +104,6 @@ lua\tolua.exe: $(TOLUAOBJS)
 
 angband.res: angband.rc
 	$(RC) -r angband.rc
-
-l-monst.c: lua\tolua.exe l-monst.pkg
-	lua\tolua.exe -n monster -o l-monst.c l-monst.pkg
 
 l-object.c: lua\tolua.exe l-object.pkg
 	lua\tolua.exe -n object -o l-object.c l-object.pkg

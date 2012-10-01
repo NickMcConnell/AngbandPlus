@@ -86,7 +86,6 @@ OBJS=\
 	l-player.obj \
 	l-object.obj \
 	load.obj \
-	l-monst.obj \
 	l-misc.obj \
 	init2.obj \
 	init1.obj \
@@ -1595,32 +1594,6 @@ LOAD_C=\
 load.obj: $(LOAD_C) $(SRCDIR)\load.c
 	$(CC) -c $(CFLAGS) $(SRCDIR)\load.c
 
-# Build L-MONST.C
-L-MONST_C=\
-	$(SRCDIR)\lua\tolua.h\
-	$(SRCDIR)\angband.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\h-config.h\
-	$(SRCDIR)\h-system.h\
-	$(SRCDIR)\h-type.h\
-	$(SRCDIR)\h-define.h\
-	$(SRCDIR)\z-util.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\z-virt.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\z-form.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\z-rand.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\z-term.h\
-	$(SRCDIR)\h-basic.h\
-	$(SRCDIR)\config.h\
-	$(SRCDIR)\defines.h\
-	$(SRCDIR)\types.h\
-	$(SRCDIR)\externs.h\
-
-l-monst.obj: $(L-MONST_C) $(SRCDIR)\l-monst.c
-	$(CC) -c $(CFLAGS) $(SRCDIR)\l-monst.c
 
 # Build L-MISC.C
 L-MISC_C=\

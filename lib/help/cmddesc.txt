@@ -192,8 +192,16 @@ Alter (+) :
      This special command allows the use of a single keypress to select any of
 the dungeon alteration commands above (attack, tunnel, bash, open, disarm,
 close), and, by using macros or keymaps, to combine this keypress with
-directions.  This command takes a full turn.  For Rogues, this command is also
-used to attempt to steal from a creature, set a trap, or make an advanced trap.
+directions.  This command takes a full turn.  
+
+Steal (Pilfer) from a Monster (P) / (^O):
+	For rogues only, this command can be used to attempt to steal from 
+a creature.
+
+Organize (set) a trap (O):
+For rogues only, turn an empty dungeon floor space into
+a trap.  Can also be used by rogues to make a normal monster trap into an 
+advanced trap if their level is high enough.
 
 
 --- Special Action Commands ---

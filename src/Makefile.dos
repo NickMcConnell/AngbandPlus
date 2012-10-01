@@ -69,7 +69,7 @@ OBJS = \
   z-virt.o \
   z-util.o \
   script.o \
-  l-monst.o l-object.o l-player.o l-random.o l-ui.o l-misc.o l-spell.o \
+  l-object.o l-player.o l-random.o l-ui.o l-misc.o l-spell.o \
   use-obj.o \
   x-spell.o \
   $(LUAOBJS)
@@ -120,9 +120,6 @@ lua\tolua: $(TOLUAOBJS)
 #
 # Build wrappers
 #
-
-l-monst.c: lua\tolua l-monst.pkg
-	lua\tolua -n monster -o l-monst.c l-monst.pkg
 
 l-object.c: lua\tolua l-object.pkg
 	lua\tolua -n object -o l-object.c l-object.pkg

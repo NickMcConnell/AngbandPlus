@@ -80,6 +80,8 @@ pay an extra 10% when buying, and get 10% less when selling.
 Otherwise, you haggle for everything that isn't marked as being fixed price.
 
 Haggling:
+Note: Most players choose to play with haggling off.
+
      If you are selling something, a typical haggling session starts with the
 shopkeeper assuring you that a good price is maybe 1-25% of what the item is
 really worth.  You demand many times this, and the bargaining begins.  You bring

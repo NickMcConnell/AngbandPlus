@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:3.0.6
+V:3.0.8
 
 
 # 0x00 --> <darkness>
@@ -472,3 +472,12 @@ G:<:w
 N:81:down staircase
 G:>:w
 
+# 0x52 --> up shaft (perm)
+
+N:82:up shaft
+G:<:U
+
+# 0x53 --> down shaft (perm)
+
+N:83:down shaft
+G:>:U

@@ -210,6 +210,10 @@ C:1:X
 A:^V
 C:1:'
 
+# Steal from monster
+A:P
+C:1:^O
+
 
 # Message colors
 %:message.prf

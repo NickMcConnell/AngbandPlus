@@ -38,7 +38,7 @@ OBJS = \
   generate.o dungeon.o init1.o init2.o randart.o \
   main-lsl.o main.o \
   script.o use-obj.o x-spell.o \
-  l-monst.o l-object.o l-player.o l-random.o l-ui.o \
+  l-object.o l-player.o l-random.o l-ui.o \
   l-misc.o l-spell.o \
   $(LUAOBJS)
 
@@ -113,7 +113,6 @@ generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS) init.h
 init2.o: init2.c $(INCS) init.h script.h
 l-misc.o: l-misc.c $(INCS) lua/tolua.h
-l-monst.o: l-monst.c $(INCS) lua/tolua.h
 l-object.o: l-object.c $(INCS) lua/tolua.h
 l-player.o: l-player.c $(INCS) lua/tolua.h
 l-random.o: l-random.c $(INCS) lua/tolua.h
@@ -161,9 +160,6 @@ z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
 #
 # Build wrappers
 #
-
-l-monst.c: lua/tolua l-monst.pkg
-	lua/tolua -n monster -o l-monst.c l-monst.pkg
 
 l-object.c: lua/tolua l-object.pkg
 	lua/tolua -n object -o l-object.c l-object.pkg

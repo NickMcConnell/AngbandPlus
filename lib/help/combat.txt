@@ -122,7 +122,8 @@ less time, making monsters appear to move in slow motion.
      Melee weapons also do (some) damage when thrown, and there are potions and
 mushrooms that can be deadly.  There are special throwing weapons that do extra
 damage when thrown.  "Well Balanced" weapons do even more damage and are 
-never destroyed when thrown.
+never destroyed when thrown.  Throwing certain potions will produce special effects
+on a monster if the potion hits them.
 
 Basic Calculation:
      1) Roll the object's base damage dice.

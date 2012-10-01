@@ -1735,7 +1735,6 @@ void check_experience(void)
 	/* Hack -- upper limit */
 	if (p_ptr->max_exp > PY_MAX_EXP) p_ptr->max_exp = PY_MAX_EXP;
 
-
 	/* Hack -- maintain "max" experience */
 	if (p_ptr->exp > p_ptr->max_exp) p_ptr->max_exp = p_ptr->exp;
 
@@ -1744,7 +1743,6 @@ void check_experience(void)
 
 	/* Handle stuff */
 	handle_stuff();
-
 
 	/* Lose levels while possible */
 	while ((p_ptr->lev > 1) &&
@@ -1766,7 +1764,6 @@ void check_experience(void)
 		/* Handle stuff */
 		handle_stuff();
 	}
-
 
 	/* Gain levels while possible */
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
@@ -1836,6 +1833,7 @@ void check_experience(void)
 		/* Handle stuff */
 		handle_stuff();
 	}
+
 }
 
 
@@ -1857,6 +1855,7 @@ void gain_exp(s32b amount)
 
 	/* Check Experience */
 	check_experience();
+
 }
 
 
@@ -1941,8 +1940,6 @@ static void build_quest_stairs(int y, int x)
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 }
 
 
@@ -1973,6 +1970,7 @@ void monster_death(int m_idx)
 	bool questlevel = FALSE;
 	bool completed = FALSE;
 	bool fixedquest = FALSE;
+	bool writenote = TRUE;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -2121,7 +2119,6 @@ void monster_death(int m_idx)
 	/* Reset "coin" type */
 	coin_type = 0;
 
-
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
 	{
@@ -2173,7 +2170,7 @@ void monster_death(int m_idx)
 					 */
 					if ((adult_take_notes) && (!fixedquest))
 					{
-						char note[80];
+						char note[120];
 
 						/* Multiple quest monsters */
 						if (q_ptr->max_num > 1)
@@ -2183,21 +2180,29 @@ void monster_death(int m_idx)
 
 						if (r_ptr->flags1 & (RF1_UNIQUE))
 						{
-							sprintf(note, "Quest: Killed %s", race_name);
+							/*write note*/
+							if monster_nonliving(r_ptr)
+								sprintf(note, "Quest: Destroyed %s", race_name);
+							else sprintf(note, "Quest: Killed %s", race_name);
 						}
 
 						else
 						{
 							/* Write note */
-            				sprintf(note, "Quest: Killed %d %s", q_ptr->max_num, race_name);
+							if monster_nonliving(r_ptr)
+            					sprintf(note, "Quest: Destroyed %d %s", q_ptr->max_num, race_name);
+							else sprintf(note, "Quest: Killed %d %s", q_ptr->max_num, race_name);
 						}
 
  		  				do_cmd_note(note, p_ptr->depth);
+
+						/*don't double-write uniques*/
+						writenote = FALSE;
 					}
 				}
 
 				/*let the player know how many left*/
-				else
+				else if (q_ptr->type == QUEST_GUILD)
 				{
 						int remaining = q_ptr->max_num - q_ptr->cur_num;
 
@@ -2211,11 +2216,31 @@ void monster_death(int m_idx)
 								remaining, race_name);
 				}
 			}
+
 		}
 
 		/* Count incomplete fixed quests */
 		if (q_ptr->active_level && (fixedquest)) total++;
 	}
+
+	/* If the player kills a Unique, and the notes option is on, write a note.
+	 * The quest section will write the note if the unique is a quild questor*/
+   	if ((r_ptr->flags1 & RF1_UNIQUE) && (adult_take_notes) && (writenote))
+	{
+
+		char note2[120];
+ 		char real_name[120];
+
+		/* Get the monster's real name for the notes file */
+		monster_desc(real_name, sizeof(real_name), m_ptr, 0x80);
+
+		/* Write note */
+       	if monster_nonliving(r_ptr) sprintf(note2, "Destroyed %s", real_name);
+		else sprintf(note2, "Killed %s", real_name);
+
+ 		do_cmd_note(note2, p_ptr->depth);
+	}
+
 	/* Require a quest level */
 	if (!questlevel) return;
 
@@ -2311,6 +2336,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
+	/* Allow the debugging of damage done. */
+	if ((dam > 0) && (p_ptr->wizard))
+	{
+		msg_format("You do %d (out of %d) damage.", dam, m_ptr->hp);
+	}
+
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
@@ -2325,10 +2356,23 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Extract monster name */
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
+		/* Increase the noise level slightly. */
+		if (add_wakeup_chance <= 8000) add_wakeup_chance += 300;
+
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
+			/* Hack -- allow message suppression */
+			if (strlen(note) <= 1)
+			{
+				/* Be silent */
+			}
+
+			else
+			{
+				message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
+			}
+
 		}
 
 		/* Death by physical attack -- invisible monster */
@@ -2338,10 +2382,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* Death by Physical attack -- non-living monster */
-		else if ((r_ptr->flags3 & (RF3_DEMON)) ||
-		         (r_ptr->flags3 & (RF3_UNDEAD)) ||
-		         (r_ptr->flags2 & (RF2_STUPID)) ||
-		         (strchr("Evg", r_ptr->d_char)))
+		else if (monster_nonliving(r_ptr))
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}
@@ -2351,6 +2392,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
 		}
+
 
 		/* Player level */
 		div = p_ptr->lev;
@@ -2371,6 +2413,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		else
 		{
 			p_ptr->exp_frac = (u16b)new_exp_frac;
+
 		}
 
 		/* Gain experience */
@@ -2387,24 +2430,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			/* reputation bonus */
  			if (r_ptr->level) p_ptr->fame++;
 		}
-
-		/* If the player kills a Unique, and the notes option is on, write a note.
-	   	 * The quest section will write the note if the unique is a questor*/
-       	if ((r_ptr->flags1 & RF1_UNIQUE) && (adult_take_notes))
-		{
-
-   			char note[160];
-			char real_name[120];
-
-			/* Get the monster's real name for the notes file */
-			monster_desc(real_name, sizeof(real_name), m_ptr, 0x80);
-
-       	 	/* Write note */
-           	sprintf(note, "Killed %s", real_name);
-
- 		  	do_cmd_note(note, p_ptr->depth);
-		}
-
 
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
@@ -2428,9 +2453,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Monster is dead */
 		return (TRUE);
 	}
-
-
-#ifdef ALLOW_FEAR
 
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
@@ -2468,20 +2490,30 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		 * or (usually) when hit for half its current hit points
 		 */
 		if ((randint(10) >= percentage) ||
-		    ((dam >= m_ptr->hp) && (rand_int(100) < 80)))
+		    ((dam >= m_ptr->hp) && (!one_in_(5))))
 		{
+			int fear_amt;
+
 			/* Hack -- note fear */
 			(*fear) = TRUE;
 
 			/* Hack -- Add some timed fear */
-			m_ptr->monfear = (randint(10) +
-			                  (((dam >= m_ptr->hp) && (percentage > 7)) ?
-			                   20 : ((11 - percentage) * 5)));
+			fear_amt = rand_range(20, 30);
+
+			/* Get frightened */
+			set_mon_fear(m_ptr, fear_amt, TRUE);
+
+			/*a monster can't be wary and afraid*/
+			m_ptr->mflag &= ~(MFLAG_WARY);
+
 		}
 	}
 
-#endif /* ALLOW_FEAR */
+	/* Monster will always go active */
+	m_ptr->mflag |= (MFLAG_ACTV);
 
+	/* Recalculate desired minimum range */
+	if (dam > 0) m_ptr->min_range = 0;
 
 	/* Not dead yet */
 	return (FALSE);
@@ -2639,12 +2671,8 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 
 	bool living = TRUE;
 
-
 	/* Determine if the monster is "living" (vs "undead") */
-	if (r_ptr->flags3 & (RF3_UNDEAD)) living = FALSE;
-	if (r_ptr->flags3 & (RF3_DEMON)) living = FALSE;
-	if (strchr("Egv", r_ptr->d_char)) living = FALSE;
-
+	if (monster_nonliving(r_ptr)) living = FALSE;
 
 	/* Healthy monsters */
 	if (m_ptr->hp >= m_ptr->maxhp)
@@ -2667,6 +2695,8 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 			my_strcpy(buf, (living ? "almost dead" : "almost destroyed"), max);
 	}
 
+	if (m_ptr->mflag & (MFLAG_TOWN)) strcat(buf, ", town");
+	if (m_ptr->mflag & (MFLAG_WARY)) strcat(buf, ", wary");
 	if (m_ptr->csleep) my_strcat(buf, ", asleep", max);
 	if (m_ptr->confused) my_strcat(buf, ", confused", max);
 	if (m_ptr->monfear) my_strcat(buf, ", afraid", max);
@@ -2739,10 +2769,8 @@ void ang_sort(void *u, void *v, int n)
 }
 
 
-
-
-
 /*** Targetting Code ***/
+
 
 
 /*
@@ -2847,8 +2875,6 @@ int target_dir(char ch)
  */
 bool target_able(int m_idx)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
 
 	monster_type *m_ptr;
 
@@ -2864,8 +2890,11 @@ bool target_able(int m_idx)
 	/* Monster must be visible */
 	if (!m_ptr->ml) return (FALSE);
 
+	/*monster is an undiscovered mimic*/
+	if (m_ptr->mimic_k_idx) return (FALSE);
+
 	/* Monster must be projectable */
-	if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) return (FALSE);
+	if (!player_can_fire_bold(m_ptr->fy, m_ptr->fx)) return (FALSE);
 
 	/* Hack -- no targeting hallucinations */
 	if (p_ptr->image) return (FALSE);
@@ -3101,7 +3130,6 @@ static bool target_set_interactive_accept(int y, int x)
 	/* Handle hallucination */
 	if (p_ptr->image) return (FALSE);
 
-
 	/* Visible monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
@@ -3129,20 +3157,16 @@ static bool target_set_interactive_accept(int y, int x)
 		if (cave_feat[y][x] == FEAT_BROKEN) return (TRUE);
 
 		/* Notice stairs */
-		if (cave_feat[y][x] == FEAT_LESS) return (TRUE);
-		if (cave_feat[y][x] == FEAT_MORE) return (TRUE);
+		if (cave_stair_bold(y,x)) return (TRUE);
 
 		/* Notice shops */
-		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_SHOP_TAIL)) return (TRUE);
+		if (cave_shop_bold(y,x)) return (TRUE);
 
 		/* Notice traps */
-		if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_TRAP_TAIL)) return (TRUE);
+		if (cave_trap_bold(y,x)) return (TRUE);
 
 		/*notice monster traps*/
-	   	if 	((cave_feat[y][x] >= FEAT_MTRAP_HEAD) &&
-	        (cave_feat[y][x] <= FEAT_MTRAP_TAIL)) return (TRUE);
+	   	if (cave_mon_trap_bold(y,x)) return (TRUE);
 
 		/* Notice doors */
 		if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
@@ -3250,7 +3274,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 	char out_val[256];
 
-
 	/* Repeat forever */
 	while (1)
 	{
@@ -3322,23 +3345,35 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Not boring */
 				boring = FALSE;
 
-				/* Get the monster name ("a kobold") */
-				monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
+				if (m_ptr->mimic_k_idx)
+				{
 
-				/* Hack -- track this monster race */
-				monster_race_track(m_ptr->r_idx);
+					/*get the description*/
+					mimic_desc_object(m_name, sizeof(m_name), m_ptr->mimic_k_idx);
 
-				/* Hack -- health bar for this monster */
-				health_track(cave_m_idx[y][x]);
+				}
 
-				/* Hack -- handle stuff */
-				handle_stuff();
+				else
+				{
+					/* Get the monster name ("a kobold") */
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
+
+					/* Hack -- track this monster race */
+					monster_race_track(m_ptr->r_idx);
+
+					/* Hack -- health bar for this monster */
+					health_track(cave_m_idx[y][x]);
+
+					/* Hack -- handle stuff */
+					handle_stuff();
+
+				}
 
 				/* Interact */
 				while (1)
 				{
-					/* Recall */
-					if (recall)
+					/* Recall, but not mimics */
+					if ((recall) && (!(m_ptr->mimic_k_idx)))
 					{
 						/* Save screen */
 						screen_save();
@@ -3359,24 +3394,49 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					/* Normal */
 					else
 					{
-						char buf[80];
 
-						/* Describe the monster */
-						look_mon_desc(buf, sizeof(buf), cave_m_idx[y][x]);
-
-						/* Describe, and prompt for recall */
-						if (p_ptr->wizard)
+						/* Describe the monster, unless a mimic */
+						if (!m_ptr->mflag & (MFLAG_MIMIC))
 						{
-							strnfmt(out_val, sizeof(out_val),
-							        "%s%s%s%s (%s) [r,%s] (%d:%d)",
-						            s1, s2, s3, m_name, buf, info, y, x);
+							char buf[80];
+
+							look_mon_desc(buf, sizeof(buf), cave_m_idx[y][x]);
+
+
+							/* Describe, and prompt for recall */
+							if (p_ptr->wizard)
+							{
+								strnfmt(out_val, sizeof(out_val),
+						    	    "%s%s%s%s (%s) [r,%s] (%d:%d)",
+					        	    s1, s2, s3, m_name, buf, info, y, x);
+							}
+							else
+							{
+								strnfmt(out_val, sizeof(out_val),
+						    	    "%s%s%s%s (%s) [r,%s]",
+						    	    s1, s2, s3, m_name, buf, info);
+							}
 						}
+
 						else
+
 						{
-							strnfmt(out_val, sizeof(out_val),
-							        "%s%s%s%s (%s) [r,%s]",
-							        s1, s2, s3, m_name, buf, info);
+
+							/* Describe, and prompt for recall */
+							if (p_ptr->wizard)
+							{
+								strnfmt(out_val, sizeof(out_val),
+						    	    "%s%s%s%s [%s] (%d:%d)",
+					        	    s1, s2, s3, m_name, info, y, x);
+							}
+							else
+							{
+								strnfmt(out_val, sizeof(out_val),
+						    	    "%s%s%s%s [%s]",
+						    	    s1, s2, s3, m_name, info);
+							}
 						}
+
 
 						prt(out_val, 0, 0);
 
@@ -3407,8 +3467,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				if (r_ptr->flags1 & (RF1_FEMALE)) s1 = "She is ";
 				else if (r_ptr->flags1 & (RF1_MALE)) s1 = "He is ";
 
-#if 1
-
 				/* Use a preposition */
 				s2 = "carrying ";
 
@@ -3432,13 +3490,13 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					if (p_ptr->wizard)
 					{
 						strnfmt(out_val, sizeof(out_val),
-						        "%s%s%s%s [%s] (%d:%d)",
-						        s1, s2, s3, o_name, info, y, x);
+					        "%s%s%s%s [%s] (%d:%d)",
+					        s1, s2, s3, o_name, info, y, x);
 					}
 					else
 					{
 						strnfmt(out_val, sizeof(out_val),
-						        "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+					        "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
 					}
 
 					prt(out_val, 0, 0);
@@ -3458,10 +3516,9 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Double break */
 				if (this_o_idx) break;
 
-#endif
-
 				/* Use a preposition */
 				s2 = "on ";
+
 			}
 		}
 
@@ -3624,7 +3681,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		}
 
 		/* Terrain feature if needed */
-		if (boring || (feat > FEAT_INVIS))
+		if (boring || ((feat > FEAT_INVIS) && (!cave_stair_bold(y,x))))
 		{
 			cptr name = f_name + f_info[feat].name;
 

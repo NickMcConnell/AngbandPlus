@@ -72,10 +72,16 @@
 #define rand_spread(A,D) \
 	((A) + (rand_int(1+(D)+(D))) - (D))
 
+/*
+ * An alternative method of calling "rand_int()".
+ * From Zangband.
+ * note, function could crash if (X < 1), hence the check
+ */
+#define one_in_(X) \
+	(rand_int(X > 0 ? X : 1) == 0)
 
 
 /**** Available Variables ****/
-
 
 extern bool Rand_quick;
 extern u32b Rand_value;
@@ -90,6 +96,7 @@ extern void Rand_state_init(u32b seed);
 extern u32b Rand_div(u32b m);
 extern s16b Rand_normal(int mean, int stand);
 extern u32b Rand_simple(u32b m);
+extern s32b div_round(s32b n, s32b d);
 
 
 #endif /* INCLUDED_Z_RAND_H */

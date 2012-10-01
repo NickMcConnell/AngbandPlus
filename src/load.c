@@ -492,6 +492,8 @@ static void rd_monster(monster_type *m_ptr)
 {
 	byte tmp8u;
 
+	bool update = older_than(3,0,7);
+
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
 
@@ -506,7 +508,52 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
-	rd_byte(&tmp8u);
+
+	if (update)
+	{
+
+		const monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/*strip the byte*/
+		rd_byte(&tmp8u);
+
+		/*2 new flags that should be clear from pre-4gai*/
+		m_ptr->mflag = 0L;
+		m_ptr->smart = 0L;
+
+		/*monsters don't start with a target*/
+		m_ptr->ty = 0L;
+		m_ptr->tx = 0L;
+
+		m_ptr->mana = r_ptr->mana;
+
+		/*don't try to re-do the mimics - too complicated*/
+		m_ptr->mimic_k_idx = 0;
+	}
+
+	else
+	{
+
+		/* This might become a u16b at some point */
+		rd_u32b(&m_ptr->mflag);
+		rd_u32b(&m_ptr->smart);
+		rd_byte(&m_ptr->ty);
+		rd_byte(&m_ptr->tx);
+		rd_byte(&m_ptr->mana);
+		if (older_than(3,0,8))
+		{
+			/*don't try to re-do the mimics - too complicated*/
+			m_ptr->mimic_k_idx = 0;
+
+
+		}
+
+		else rd_s16b(&m_ptr->mimic_k_idx);
+
+		strip_bytes(1);
+
+	}
+
 }
 
 
@@ -518,12 +565,14 @@ static void rd_monster(monster_type *m_ptr)
  */
 static void rd_lore(int r_idx)
 {
-	int i;
 	byte tmp8u;
+
+	bool update = older_than(3,0,7);
+
+	int i;
 
 	monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
-
 
 	/* Count sights/deaths/kills */
 	rd_s16b(&l_ptr->sights);
@@ -543,9 +592,26 @@ static void rd_lore(int r_idx)
 	rd_byte(&l_ptr->drop_gold);
 	rd_byte(&l_ptr->drop_item);
 
-	/* Count spells */
-	rd_byte(&l_ptr->cast_innate);
-	rd_byte(&l_ptr->cast_spell);
+	/*convert the number of spells seen*/
+	if (update)
+	{
+
+		/* Was l_ptr inate, no longer used */
+		rd_byte(&tmp8u);
+
+		/*reminder - update this*/
+		l_ptr->ranged = tmp8u;
+
+		/* Was l_ptr spell, no longer used */
+		rd_byte(&tmp8u);
+
+		/*combine the two, but don't exceed MAX_UCHAR*/
+		if ((l_ptr->ranged + tmp8u) > MAX_UCHAR) l_ptr->ranged = MAX_UCHAR;
+		else l_ptr->ranged += tmp8u;
+
+	}
+
+	else rd_byte(&l_ptr->ranged);
 
 	/* Count blows of each type */
 	for (i = 0; i < MONSTER_BLOW_MAX; i++)
@@ -559,6 +625,10 @@ static void rd_lore(int r_idx)
 	rd_u32b(&l_ptr->flags5);
 	rd_u32b(&l_ptr->flags6);
 
+	/*flags 7 started with incorporation of 4gai*/
+	if (update) l_ptr->flags7 = 0;
+	else rd_u32b(&l_ptr->flags7);
+
 
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
@@ -568,7 +638,6 @@ static void rd_lore(int r_idx)
 	rd_byte(&tmp8u);
 	rd_byte(&tmp8u);
 
-
 	/* Repair the lore flags */
 	l_ptr->flags1 &= r_ptr->flags1;
 	l_ptr->flags2 &= r_ptr->flags2;
@@ -576,6 +645,7 @@ static void rd_lore(int r_idx)
 	l_ptr->flags4 &= r_ptr->flags4;
 	l_ptr->flags5 &= r_ptr->flags5;
 	l_ptr->flags6 &= r_ptr->flags6;
+	l_ptr->flags7 &= r_ptr->flags7;
 }
 
 
@@ -1097,6 +1167,13 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
+
+	if (!older_than(3,0,7))
+	{
+		rd_s16b(&p_ptr->base_wakeup_chance);
+		rd_s16b(&total_wakeup_chance);
+
+	}
 
 	/* Squelch bytes */
  	for (i = 0; i < SQUELCH_BYTES; i++) rd_byte(&squelch_level[i]);

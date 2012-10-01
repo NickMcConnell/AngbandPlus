@@ -201,18 +201,6 @@
  */
 #define ALLOW_AUTOROLLER
 
-
-/*
- * OPTION: Allow monsters to "flee" when hit hard
- */
-#define ALLOW_FEAR
-
-/*
- * OPTION: Allow monsters to "flee" from strong players
- */
-#define ALLOW_TERROR
-
-
 /*
  * OPTION: Allow parsing of the ascii template files in "init.c".
  * This must be defined if you do not have valid binary image files.
@@ -265,28 +253,13 @@
 /* #define SCORE_CHEATERS */
 
 
-
 /*
- * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
- * software options, which enable "monster flowing".
- */
+* OPTION: Allow monsters to use noise and scent information to better
+* track the character.  This feature requires a significant amount of
+* memory, but makes monsters behave much more intelligently.
+*/
 #define MONSTER_FLOW
 
-
-/*
- * OPTION: Maximum flow depth when using "MONSTER_FLOW"
- */
-#define MONSTER_FLOW_DEPTH 32
-
-
-/*
- * OPTION: Allow use of the "smart_monsters" and "smart_packs"
- * software options, which attempt to make monsters smarter.
- *
- * AI code by Keldon Jones (keldon@umr.edu), modified by Julian
- * Lighton (jl8e@fragment.com).
- */
-#define MONSTER_AI
 
 
 /*
@@ -311,21 +284,6 @@
  * OPTION: Check the modification time of *_info.raw files
  */
 #define CHECK_MODIFICATION_TIME
-
-
-/*
- * OPTION: Enable the "smart_learn" and "smart_cheat" options.
- * They let monsters make more "intelligent" choices about attacks
- * (including spell attacks) based on their observations of the
- * player's reactions to previous attacks.  The "smart_cheat" option
- * lets the monster know how the player would react to an attack
- * without actually needing to make the attack.  The "smart_learn"
- * option requires that a monster make a "failed" attack before
- * learning that the player is not harmed by that attack.
- *
- * This adds about 3K to the memory and about 5K to the executable.
- */
-#define DRS_SMART_OPTIONS
 
 
 /*
@@ -511,19 +469,17 @@
 /*
  * Hack -- React to the "ANGBAND_LITE" flag
  */
-#ifdef ANGBAND_LITE
+# ifdef ANGBAND_LITE
 # undef ALLOW_COLORS
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
 # undef ALLOW_TERROR
-# undef DRS_SMART_OPTIONS
 # undef GJW_RANDART
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
-# undef MONSTER_AI
 #endif
 
 
@@ -549,6 +505,6 @@
  */
 #ifdef ALLOW_BORG
 # ifdef USE_GRAPHICS
-#  define ALLOW_BORG_GRAPHICS
+#  /* define ALLOW_BORG_GRAPHICS */
 # endif /* USE_GRAPHICS */
 #endif /* ALLOW_BORG */

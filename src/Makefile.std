@@ -67,7 +67,7 @@ SRCS = \
   main-gtk.c main-lsl.c main-sla.c main-vcs.c main-xpj.c \
   maid-x11.c \
   script.c use-obj.c x-spell.c \
-  l-monst.c l-object.c l-player.c l-random.c l-ui.c \
+  l-object.c l-player.c l-random.c l-ui.c \
   l-misc.c l-spell.c
 
 OBJS = \
@@ -84,7 +84,7 @@ OBJS = \
   main-gtk.o main-lsl.o main-sla.o main-vcs.o main-xpj.o \
   maid-x11.o \
   script.o use-obj.o x-spell.o \
-  l-monst.o l-object.o l-player.o l-random.o l-ui.o \
+  l-object.o l-player.o l-random.o l-ui.o \
   l-misc.o l-spell.o \
   $(LUAOBJS)
 
@@ -358,7 +358,6 @@ generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS) init.h
 init2.o: init2.c $(INCS) init.h script.h
 l-misc.o: l-misc.c $(INCS) lua/tolua.h
-l-monst.o: l-monst.c $(INCS) lua/tolua.h
 l-object.o: l-object.c $(INCS) lua/tolua.h
 l-player.o: l-player.c $(INCS) lua/tolua.h
 l-random.o: l-random.c $(INCS) lua/tolua.h
@@ -411,9 +410,6 @@ z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
 #
 # Build wrappers
 #
-
-l-monst.c: lua/tolua l-monst.pkg
-	lua/tolua -n monster -o l-monst.c l-monst.pkg
 
 l-object.c: lua/tolua l-object.pkg
 	lua/tolua -n object -o l-object.c l-object.pkg

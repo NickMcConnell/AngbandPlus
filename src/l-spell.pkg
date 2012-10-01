@@ -9,22 +9,28 @@ typedef int errr;
 /*
  * Legal restrictions for "summon_specific()"
  */
-#define SUMMON_ANIMAL		11
-#define SUMMON_SPIDER		12
-#define SUMMON_HOUND		13
-#define SUMMON_HYDRA		14
-#define SUMMON_AINUR		15
-#define SUMMON_DEMON		16
-#define SUMMON_UNDEAD		17
-#define SUMMON_DRAGON		18
+#define SUMMON_ANT	        11
+#define SUMMON_SPIDER       12
+#define SUMMON_HOUND        13
+#define SUMMON_HYDRA        14
+#define SUMMON_AINU	        15
+#define SUMMON_DEMON        16
+#define SUMMON_UNDEAD       17
+#define SUMMON_DRAGON       18
 /* xxx */
-#define SUMMON_HI_DEMON		26
-#define SUMMON_HI_UNDEAD	27
-#define SUMMON_HI_DRAGON	28
+#define SUMMON_HI_DEMON     26
+#define SUMMON_HI_UNDEAD    27
+#define SUMMON_HI_DRAGON    28
 /* xxx */
-#define SUMMON_WRAITH		31
-#define SUMMON_UNIQUE		32
-#define SUMMON_KIN			33
+#define SUMMON_WRAITH       31
+#define SUMMON_UNIQUE       32
+#define SUMMON_KIN          33
+
+#define SUMMON_ANIMAL      50
+#define SUMMON_BERTBILLTOM 51
+#define SUMMON_THIEF       53
+
+#define SUMMON_INDEX       60
 
 
 
@@ -62,7 +68,7 @@ typedef int errr;
 #define GF_NETHER       29
 #define GF_CHAOS        30
 #define GF_DISENCHANT   31
-#define GF_XXX4			32
+#define GF_WIND			32
 #define GF_KILL_WALL	33
 #define GF_KILL_DOOR	34
 #define GF_KILL_TRAP	35
@@ -80,7 +86,7 @@ typedef int errr;
 #define GF_DISP_UNDEAD	47
 #define GF_DISP_EVIL	48
 #define GF_DISP_ALL		49
-#define GF_XXX7			50
+#define GF_MAKE_WARY	50
 #define GF_OLD_CLONE	51
 #define GF_OLD_POLY		52
 #define GF_OLD_HEAL		53
@@ -89,7 +95,7 @@ typedef int errr;
 #define GF_OLD_CONF		56
 #define GF_OLD_SLEEP	57
 #define GF_OLD_DRAIN	58
-#define GF_XXX8			59
+#define GF_SPORE		59
 
 
 /***** Types *****/
@@ -116,8 +122,8 @@ extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
 extern bool apply_disenchant(int mode);
-extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
-
+extern bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
+			 u32b flg, int degrees, byte source_diameter);
 extern void warding_glyph(void);
 extern bool make_monster_trap(void);
 extern void identify_pack(void);
@@ -144,10 +150,10 @@ extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool recharge(int num);
 extern bool speed_monsters(void);
-extern bool slow_monsters(void);
-extern bool sleep_monsters(void);
+extern bool slow_monsters(int power);
+extern bool sleep_monsters(int power);
 extern bool banish_evil(int dist);
-extern bool turn_undead(void);
+extern bool turn_undead(int power);
 extern bool dispel_undead(int dam);
 extern bool dispel_evil(int dam);
 extern bool dispel_monsters(int dam);
@@ -162,19 +168,30 @@ extern void lite_room(int y1, int x1);
 extern void unlite_room(int y1, int x1);
 extern bool lite_area(int dam, int rad);
 extern bool unlite_area(int dam, int rad);
+extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
+extern bool fire_bolt_beam_special(int typ, int dir, int dam, int rad, u32b flg);
 extern bool fire_ball(int typ, int dir, int dam, int rad);
+extern bool fire_orb(int typ, int dir, int dam, int rad);
+extern bool fire_ball_special(int typ, int dir, int dam, int rad, u32b flg,
+	int source_diameter);
+extern bool fire_arc(int typ, int dir, int dam, int rad, int degrees);
 extern bool fire_swarm(int num, int typ, int dir, int dam, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
 extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
+extern bool project_arc(int who, int rad, int y0, int x0, int y1, int x1,
+	int dam, int typ, u32b flg, int degrees);
+extern bool project_star(int who, int rad, int y0, int x0, int dam, int typ,
+	u32b flg);
 extern bool project_los(int typ, int dam);
+extern bool explosion(int who, int rad, int y0, int x0, int dam, int typ);
 extern bool lite_line(int dir);
 extern bool strong_lite_line(int dir);
 extern bool drain_life(int dir, int dam);
-extern bool wall_to_mud(int dir);
+extern bool wall_to_mud(int dir, int dam);
 extern bool destroy_door(int dir);
 extern bool disarm_trap(int dir);
-extern bool heal_monster(int dir);
+extern bool heal_monster(int dir, int dam);
 extern bool speed_monster(int dir);
 extern bool slow_monster(int dir);
 extern bool sleep_monster(int dir);
@@ -199,3 +216,46 @@ extern void ring_of_power(int dir);
 extern void map_area(void);
 extern void wiz_lite(void);
 extern void wiz_dark(void);
+
+
+/***** Variables *****/
+
+extern s16b mon_max;
+extern s16b mon_cnt;
+
+
+/***** Functions *****/
+
+/* monster1.c */
+extern void roff_top(int r_idx);
+extern void screen_roff(int r_idx);
+extern void display_roff(int r_idx);
+
+/* monster2.c */
+extern void delete_monster_idx(int i);
+extern void delete_monster(int y, int x);
+extern void compact_monsters(int size);
+extern void wipe_mon_list(void);
+extern s16b mon_pop(void);
+extern errr get_mon_num_prep(void);
+extern s16b get_mon_num(int level);
+extern void monster_desc(char *desc, size_t max, const monster_type *m_ptr, int mode);
+extern void lore_do_probe(int m_idx);
+extern void lore_treasure(int m_idx, int num_item, int num_gold);
+extern void update_mon(int m_idx, bool full);
+extern void update_monsters(bool full);
+extern s16b monster_carry(int m_idx, object_type *j_ptr);
+extern void monster_swap(int y1, int x1, int y2, int x2);
+extern s16b player_place(int y, int x);
+extern s16b monster_place(int y, int x, monster_type *n_ptr);
+extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp);
+extern bool place_monster(int y, int x, bool slp, bool grp);
+extern bool alloc_monster(int dis, bool slp);
+extern bool summon_specific(int y1, int x1, int lev, int type);
+extern bool multiply_monster(int m_idx);
+extern void message_pain(int m_idx, int dam);
+extern void update_smart_learn(int m_idx, int what);
+
+extern void monster_death(int m_idx);
+extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note);
+

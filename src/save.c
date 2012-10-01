@@ -742,11 +742,20 @@ static void wr_item(const object_type *o_ptr)
 }
 
 
+
+/*
+ * Special monster flags that get saved in the savefile
+ */
+#define SAVE_MON_FLAGS (MFLAG_MIMIC | MFLAG_ACTV | MFLAG_TOWN | MFLAG_WARY)
+
+
 /*
  * Write a "monster" record
  */
 static void wr_monster(const monster_type *m_ptr)
 {
+	u32b tmp32u;
+
 	wr_s16b(m_ptr->r_idx);
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
@@ -758,6 +767,16 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+
+	/*save the temporary flags*/
+	tmp32u = m_ptr->mflag & (SAVE_MON_FLAGS);
+	wr_u32b(tmp32u);
+
+	wr_u32b(m_ptr->smart);
+	wr_byte(m_ptr->ty);
+	wr_byte(m_ptr->tx);
+	wr_byte(m_ptr->mana);
+	wr_s16b(m_ptr->mimic_k_idx);
 	wr_byte(0);
 }
 
@@ -791,8 +810,7 @@ static void wr_lore(int r_idx)
 	wr_byte(l_ptr->drop_item);
 
 	/* Count spells */
-	wr_byte(l_ptr->cast_innate);
-	wr_byte(l_ptr->cast_spell);
+	wr_byte(l_ptr->ranged);
 
 	/* Count blows of each type */
 	for (i = 0; i < MONSTER_BLOW_MAX; i++)
@@ -805,7 +823,7 @@ static void wr_lore(int r_idx)
 	wr_u32b(l_ptr->flags4);
 	wr_u32b(l_ptr->flags5);
 	wr_u32b(l_ptr->flags6);
-
+	wr_u32b(l_ptr->flags7);
 
 	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
@@ -1107,6 +1125,10 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 	wr_byte(0);
 
+	/* Demoband use */
+	wr_s16b(p_ptr->base_wakeup_chance);
+	wr_s16b(total_wakeup_chance);
+
 	/* Squelch bytes */
 	for (i = 0; i < SQUELCH_BYTES; i++) wr_byte(squelch_level[i]);
 	wr_byte(auto_destroy);
@@ -1116,6 +1138,8 @@ static void wr_extra(void)
 
 	/* Store number of monster traps on this level. -LM- */
 	wr_byte(num_trap_on_level);
+
+
 
 	/* Future use */
 	for (i = 0; i < 13; i++) wr_byte(0);

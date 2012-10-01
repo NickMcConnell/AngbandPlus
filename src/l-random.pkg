@@ -17,7 +17,7 @@ extern s32b rand_die(u32b m);
 extern s32b rand_range(u32b A, u32b B);
 extern s32b rand_spread(u32b A, u32b D);
 extern int damroll(int num, int sides);
-extern int maxroll(int num, int sides);
+
 
 extern void Rand_state_init(u32b seed);
 extern u32b Rand_div(u32b m);

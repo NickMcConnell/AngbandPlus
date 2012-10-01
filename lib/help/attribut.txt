@@ -109,7 +109,8 @@ is a vital stat for any character.
 Charisma:
      Charisma represents a character's ability to influence others.  A character
 with a high charisma will receive better prices from store owners, whereas a
-character with a very low charisma will be robbed blind.
+character with a very low charisma will be robbed blind.  Charisma also affects
+the character's ability to use magic to sleep, scare, or confuse a monster.
 
 
 --- Abilities ---

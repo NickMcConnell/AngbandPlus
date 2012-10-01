@@ -34,7 +34,7 @@ TOLUAOBJS = lua.tolua.o lua.tolualua.o lua.liolib.o \
 
 # Lua package files:
 LUAPKGS = \
-  l-monst.c l-object.c l-player.c l-random.c l-ui.c l-misc.c l-spell.c
+  l-object.c l-player.c l-random.c l-ui.c l-misc.c l-spell.c
 
 # The standard object files:
 OBJS = z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -75,8 +75,6 @@ lua/tolua: $(TOLUAOBJS)
 	$(LD) -o lua.tolua $(TOLUAOBJS) $(LDFLAGS) $(LIBS)
 
 # Lua packages
-l-monst.c: $(tolua) pkg.l-monst
-	$(tolua) -n monster -o @.c.l-monst pkg.l-monst
 
 l-object.c: $(tolua) pkg.l-object
 	$(tolua) -n object -o c.l-object pkg.l-object

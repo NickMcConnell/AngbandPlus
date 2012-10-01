@@ -87,6 +87,9 @@ bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
 bool use_bigtile = FALSE;
 
+s16b image_count;  		/* Grids until next random image    */
+                  		/* Optimizes the hallucination code */
+
 s16b signal_count;		/* Hack -- Count interrupts */
 
 bool msg_flag;			/* Player has pending message */
@@ -102,8 +105,6 @@ bool chest_or_quest;		/* Hack -- use different depth check, prevent embedded che
 
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
-
-bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
 bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
 bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
 
@@ -271,7 +272,7 @@ byte *temp_x;
  * This array is padded to a width of 256 to allow fast access to elements
  * in the array via "grid" values (see the GRID() macros).
  */
-byte (*cave_info)[256];
+u16b (*cave_info)[256];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
@@ -317,8 +318,38 @@ byte (*cave_cost)[MAX_DUNGEON_WID];
  */
 byte (*cave_when)[MAX_DUNGEON_WID];
 
+/*
+ * Current scent age marker.  Counts down from 250 to 0 and then loops.
+ */
+int scent_when = 250;
+
+
+/*
+ * Centerpoints of the last flow (noise) rebuild and the last flow update.
+ */
+int flow_center_y;
+int flow_center_x;
+int update_center_y;
+int update_center_x;
+
+/*
+ * Flow cost at the center grid of the current update.
+ */
+int cost_at_center = 0;
+
+
 #endif	/* MONSTER_FLOW */
 
+/*
+ * The character generates both directed (extra) noise (by doing noisy
+ * things) and ambient noise (the combination of directed and innate
+ * noise).
+ *
+ * Noise builds up as the character does certain things, and diminishes
+ * over time.
+ */
+s16b add_wakeup_chance = 0;
+s16b total_wakeup_chance = 0;
 
 /*
  * Array[z_info->o_max] of dungeon objects

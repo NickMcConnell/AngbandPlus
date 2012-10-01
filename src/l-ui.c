@@ -613,8 +613,6 @@ int tolua_ui_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"PU_SPELLS",PU_SPELLS);
  tolua_constant(tolua_S,NULL,"PU_FORGET_VIEW",PU_FORGET_VIEW);
  tolua_constant(tolua_S,NULL,"PU_UPDATE_VIEW",PU_UPDATE_VIEW);
- tolua_constant(tolua_S,NULL,"PU_FORGET_FLOW",PU_FORGET_FLOW);
- tolua_constant(tolua_S,NULL,"PU_UPDATE_FLOW",PU_UPDATE_FLOW);
  tolua_constant(tolua_S,NULL,"PU_MONSTERS",PU_MONSTERS);
  tolua_constant(tolua_S,NULL,"PU_DISTANCE",PU_DISTANCE);
  tolua_constant(tolua_S,NULL,"PU_PANEL",PU_PANEL);
@@ -633,6 +631,7 @@ int tolua_ui_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"PR_CUT",PR_CUT);
  tolua_constant(tolua_S,NULL,"PR_STUN",PR_STUN);
  tolua_constant(tolua_S,NULL,"PR_HUNGER",PR_HUNGER);
+ tolua_constant(tolua_S,NULL,"PR_MON_MANA",PR_MON_MANA);
  tolua_constant(tolua_S,NULL,"PR_BLIND",PR_BLIND);
  tolua_constant(tolua_S,NULL,"PR_CONFUSED",PR_CONFUSED);
  tolua_constant(tolua_S,NULL,"PR_AFRAID",PR_AFRAID);
@@ -742,8 +741,6 @@ void tolua_ui_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PU_SPELLS");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PU_FORGET_VIEW");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PU_UPDATE_VIEW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PU_FORGET_FLOW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PU_UPDATE_FLOW");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PU_MONSTERS");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PU_DISTANCE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PU_PANEL");
@@ -762,6 +759,7 @@ void tolua_ui_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PR_CUT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PR_STUN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PR_HUNGER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PR_MON_MANA");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PR_BLIND");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PR_CONFUSED");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PR_AFRAID");

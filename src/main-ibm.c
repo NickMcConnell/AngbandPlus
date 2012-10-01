@@ -1144,10 +1144,12 @@ extern void _farnspokeb(unsigned long offset, unsigned char value);
  */
 void enable_graphic_font(const char *font)
 {
-	__dpmi_regs dblock = {{0}};
+	__dpmi_regs dblock;
 
 	unsigned int seg, i;
 	int sel;
+
+	(void)WIPE(&dblock, __dpmi_regs);
 
 	/*
 	 * Allocate a block of memory 4096 bytes big in `low memory' so a real

@@ -64,7 +64,7 @@ similar fashion if you have the "easy_floor" option set.
 Burden:
      Carry too much weight, and you will begin to slow down, making it easier
 for monsters to kill you.  The point at which your load thus hinders you depends
-on your strength.
+on your strength.  You begin to slow down at 60% of your max carrying capacity.
 
 Floor items:
      If objects are allowed to stack (which they are by default), up to 23
@@ -179,10 +179,17 @@ The Monster Health Bar:
 do so, its health bar appears on the left side of the main screen, just below
 the hitpoint and mana indicators.  Similar health bars are also used when
 looking around and when displaying the closest monsters.
-     The health bar uses several colors to tell you more about the monster.
-Frightened - violet, Confused - brown, Stunned - light blue, Sleeping - dark
-blue, Otherwise - green when healthy, and yellow, orange, and red when wounded.
+The health bar uses several letter and colors to tell you more about the monster.
+Confused - "c", Stunned - "s", Sleeping - "z", and "* when
+the monster is none of the above.  Otherwise - green when healthy, and yellow, 
+orange, and red when wounded, and if frightened - violet,.
 
+The Monster Mana Bar:
+     A good way to keep track of a specific monster is to target it.  When you
+do so, its health bar appears on the left side of the main screen, just below
+the hitpoint and mana indicators.  Similar health bars are also used when
+looking around and when displaying the closest monsters.
+ 
 Monster attributes:
      The special attributes of monsters can make all the difference to the
 danger they pose to you.  Some of the more interesting are listed and described.
@@ -209,13 +216,12 @@ danger they pose to you.  Some of the more interesting are listed and described.
      - Drops : Monsters may drop anything from nothing at all to many excellent
        objects.
      - Experience : The experience you get from killing monsters varies greatly.
-
+     - Evasive: They can frequently dodge an attack or spell cast at them.
      - Bash Door : Most monsters (but not all) can either bash down or open
        doors.  Everyone can close doors, and some characters can spike doors to
        delay their foes.
      - Pass Wall : Ghosts and some other creatures can float right through
        ordinary walls.
-
      - Hurt by ... : Monsters may be especially susceptible to light or rock
        remover.
      - Resistant to ... : Monsters can be especially resistant to any or all of
@@ -223,17 +229,19 @@ danger they pose to you.  Some of the more interesting are listed and described.
      - Cannot be ... : Monsters may be immune to fear, slowing, stunning,
        sleeping, or confusion.
      - Regenerate : Recovers battle damage unusually quickly.
-
      - Spells : Monsters may fire physical missiles, breathe, cast spells to
        hurt and hinder you, blink and teleport you and themselves, heal them-
        selves, haste themselves or other monsters, summon more opponents,
        and many other things!
      - Casting speed : Be careful of monsters that cast spells very often,
        especially if they also move quickly.
+     - Mana - monsters have mana limitations.  When they are out, they can't
+       cast most spells.
+     - Spell power - affects how much damage a monster spell does	
      - Smart : Monsters may be skilled at choosing spells, somewhat skilled, or
        unskilled
-     - Breath Powerfully : Dragon breaths have a larger blast radius.
-
+     - Breath Powerfully : Dragon breaths have a larger blast radius, and do.
+       a hihger amount of damage per monster HP with certain kinds of breaths.
      - Blows : Monsters can do great damage and inflict nasty effects in melee.
 
 

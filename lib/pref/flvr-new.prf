@@ -904,3 +904,24 @@ L:301:0x83/0x9D
 # Scroll
 L:302:0x83/0x9D
 
+# Sparkling Red potion
+L:303:0x85/0x83
+
+# Sky Blue potion
+L:304:0x85/0x8D
+
+# Bubbling Yellow potion
+L:305:0x85/0x8A
+
+# Sparkling Green potion
+L:306:0x85/0x84
+
+# Sparkling Gold potion
+L:307:0x85/0x8A
+
+# Dark Purple potion
+L:308:0x85/0x89
+
+# Silver Speckled potion
+L:309:0x85/0x81
+

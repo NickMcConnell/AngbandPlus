@@ -166,7 +166,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) *ident = TRUE;
+			if (hp_player(damroll(6, 8))) *ident = TRUE;
 			break;
 		}
 
@@ -313,6 +313,19 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			{
 				msg_print("You feel your memories fade.");
 				lose_exp(p_ptr->exp / 4);
+				*ident = TRUE;
+			}
+			break;
+		}
+
+		case SV_POTION_DRAIN_MANA:
+		{
+			if (p_ptr->csp)
+			{
+				p_ptr->csp /= 2;
+				msg_print("Your feel your head cloud up.");
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				*ident = TRUE;
 			}
 			break;
@@ -471,7 +484,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(damroll(2, 8))) *ident = TRUE;
+			if (hp_player(damroll(3, 8))) *ident = TRUE;
 			if (set_blind(0)) *ident = TRUE;
 			if (set_cut(p_ptr->cut - 10)) *ident = TRUE;
 			break;
@@ -479,7 +492,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) *ident = TRUE;
+			if (hp_player(damroll(5, 10))) *ident = TRUE;
 			if (set_blind(0)) *ident = TRUE;
 			if (set_confused(0)) *ident = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 50)) *ident = TRUE;
@@ -488,7 +501,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			if (hp_player(damroll(6, 8))) *ident = TRUE;
+			if (hp_player(damroll(8, 10))) *ident = TRUE;
 			if (set_blind(0)) *ident = TRUE;
 			if (set_confused(0)) *ident = TRUE;
 			if (set_poisoned(0)) *ident = TRUE;
@@ -499,7 +512,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_HEALING:
 		{
-			if (hp_player(300)) *ident = TRUE;
+			if (hp_player(325)) *ident = TRUE;
 			if (set_blind(0)) *ident = TRUE;
 			if (set_confused(0)) *ident = TRUE;
 			if (set_poisoned(0)) *ident = TRUE;
@@ -510,7 +523,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_STAR_HEALING:
 		{
-			if (hp_player(1200)) *ident = TRUE;
+			if (hp_player(1500)) *ident = TRUE;
 			if (set_blind(0)) *ident = TRUE;
 			if (set_confused(0)) *ident = TRUE;
 			if (set_poisoned(0)) *ident = TRUE;
@@ -696,6 +709,48 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			}
 			break;
 		}
+
+		case SV_POTION_RESIST_ACID:
+		{
+			if (set_oppose_acid(p_ptr->oppose_acid + randint(10) + 10))
+			{
+				*ident = TRUE;
+			}
+			break;
+		}
+
+		case SV_POTION_RESIST_ELECTRICITY:
+		{
+			if (set_oppose_elec(p_ptr->oppose_elec + randint(10) + 10))
+			{
+				*ident = TRUE;
+			}
+			break;
+		}
+
+		case SV_POTION_RESIST_POISON:
+		{
+			if (set_oppose_pois(p_ptr->oppose_pois + randint(15) + 15))
+			{
+				*ident = TRUE;
+			}
+			break;
+		}
+
+		case SV_POTION_RESISTANCE:
+		{
+			if((set_oppose_acid(p_ptr->oppose_acid + randint(30) + 30)) ||
+			   (set_oppose_elec(p_ptr->oppose_elec + randint(30) + 30)) ||
+			   (set_oppose_fire(p_ptr->oppose_fire + randint(30) + 30)) ||
+			   (set_oppose_cold(p_ptr->oppose_cold + randint(30) + 30)) ||
+			   (set_oppose_pois(p_ptr->oppose_pois + randint(30) + 30)))
+
+			{
+				*ident = TRUE;
+			}
+			break;
+		}
+
 	}
 
 	return (TRUE);
@@ -1166,7 +1221,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_CURE_LIGHT:
 		{
-			if (hp_player(randint(8))) *ident = TRUE;
+			if (hp_player(damroll(2, 10))) *ident = TRUE;
 			break;
 		}
 
@@ -1182,7 +1237,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_HEALING:
 		{
-			if (hp_player(300)) *ident = TRUE;
+			if (hp_player(325)) *ident = TRUE;
 			if (set_stun(0)) *ident = TRUE;
 			if (set_cut(0)) *ident = TRUE;
 			break;
@@ -1205,13 +1260,13 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
-			if (sleep_monsters()) *ident = TRUE;
+			if (sleep_monsters(damroll (2, p_ptr->lev))) *ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_SLOW_MONSTERS:
 		{
-			if (slow_monsters()) *ident = TRUE;
+			if (slow_monsters(damroll (2, p_ptr->lev))) *ident = TRUE;
 			break;
 		}
 
@@ -1254,7 +1309,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			if (set_protevil(p_ptr->protevil + randint(25) + k)) *ident = TRUE;
 			if (set_poisoned(0)) *ident = TRUE;
 			if (set_afraid(0)) *ident = TRUE;
-			if (hp_player(50)) *ident = TRUE;
+			if (hp_player(75)) *ident = TRUE;
 			if (set_stun(0)) *ident = TRUE;
 			if (set_cut(0)) *ident = TRUE;
 			break;
@@ -1353,7 +1408,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	{
 		case SV_WAND_HEAL_MONSTER:
 		{
-			if (heal_monster(dir)) *ident = TRUE;
+			if (heal_monster(dir, damroll(4, 6))) *ident = TRUE;
 			break;
 		}
 
@@ -1389,7 +1444,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 		case SV_WAND_STONE_TO_MUD:
 		{
-			if (wall_to_mud(dir)) *ident = TRUE;
+			if (wall_to_mud(dir, 20 + randint(30))) *ident = TRUE;
 			break;
 		}
 
@@ -1415,7 +1470,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 		case SV_WAND_CONFUSE_MONSTER:
 		{
-			if (confuse_monster(dir, 10)) *ident = TRUE;
+			if (confuse_monster(dir, (p_ptr->lev * 2 / 3))) *ident = TRUE;
 			break;
 		}
 
@@ -1713,7 +1768,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 		case SV_ROD_HEALING:
 		{
-			if (hp_player(500)) *ident = TRUE;
+			if (hp_player(550)) *ident = TRUE;
 			if (set_stun(0)) *ident = TRUE;
 			if (set_cut(0)) *ident = TRUE;
 			break;
@@ -2201,7 +2256,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("Your %s pulsates...", o_name);
 				if (!get_aim_dir(&dir)) return FALSE;
-				wall_to_mud(dir);
+				wall_to_mud(dir, 20 + randint(30));
 				break;
 			}
 
@@ -2215,7 +2270,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_CURE_WOUNDS:
 			{
 				msg_format("Your %s radiates deep purple...", o_name);
-				hp_player(damroll(4, 8));
+				hp_player(damroll(6, 10));
 				(void)set_cut((p_ptr->cut / 2) - 50);
 				break;
 			}
@@ -2239,7 +2294,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("Your %s glows in scintillating colours...", o_name);
 				if (!get_aim_dir(&dir)) return FALSE;
-				confuse_monster(dir, 20);
+				confuse_monster(dir, (p_ptr->lev * 2 / 3));
 				break;
 			}
 

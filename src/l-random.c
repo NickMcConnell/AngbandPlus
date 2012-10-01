@@ -175,30 +175,6 @@ tolua_lerror:
  return 0;
 }
 
-/* function: maxroll */
-static int toluaI_random_maxroll00(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,3)
- )
- goto tolua_lerror;
- else
- {
-  int num = ((int)  tolua_getnumber(tolua_S,1,0));
-  int sides = ((int)  tolua_getnumber(tolua_S,2,0));
- {
-  int toluaI_ret = (int)  maxroll(num,sides);
- tolua_pushnumber(tolua_S,(long)toluaI_ret);
- }
- }
- return 1;
-tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'maxroll'.");
- return 0;
-}
-
 /* function: Rand_state_init */
 static int toluaI_random_Rand_state_init00(lua_State* tolua_S)
 {
@@ -300,7 +276,6 @@ int tolua_random_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"rand_range",toluaI_random_rand_range00);
  tolua_function(tolua_S,NULL,"rand_spread",toluaI_random_rand_spread00);
  tolua_function(tolua_S,NULL,"damroll",toluaI_random_damroll00);
- tolua_function(tolua_S,NULL,"maxroll",toluaI_random_maxroll00);
  tolua_function(tolua_S,NULL,"Rand_state_init",toluaI_random_Rand_state_init00);
  tolua_function(tolua_S,NULL,"Rand_div",toluaI_random_Rand_div00);
  tolua_function(tolua_S,NULL,"Rand_normal",toluaI_random_Rand_normal00);
@@ -319,7 +294,6 @@ void tolua_random_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"rand_range");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"rand_spread");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"damroll");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"maxroll");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"Rand_state_init");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"Rand_div");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"Rand_normal");

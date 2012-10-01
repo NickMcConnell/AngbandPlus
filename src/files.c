@@ -1345,32 +1345,23 @@ static void display_player_xtra_info(void)
 	Term_putstr(col, 6, -1, TERM_WHITE, "Status");
 	Term_putstr(col+7, 6, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
 
-	/* Maximize */
-	Term_putstr(col, 7, -1, TERM_WHITE, "Maximize");
-	Term_putstr(col+10, 7, -1, TERM_L_BLUE, adult_maximize ? "Y" : "N");
+	/* Empty Space */
 
-	/* Preserve */
-	Term_putstr(col, 8, -1, TERM_WHITE, "Preserve");
-	Term_putstr(col+10, 8, -1, TERM_L_BLUE, adult_preserve ? "Y" : "N");
+	/* char level */
+	Term_putstr(col, 8, -1, TERM_WHITE, "Level");
+	Term_putstr(col+8, 8, -1, ((p_ptr->lev >= p_ptr->max_lev) ? TERM_L_BLUE : TERM_YELLOW),
+			format("%3d", p_ptr->lev));
+
+
 
 
 	/* Left */
 	col = 1;
 
-
-	/* Level */
-	Term_putstr(col, 10, -1, TERM_WHITE, "Level");
-	if (p_ptr->lev >= p_ptr->max_lev)
-	{
-		Term_putstr(col+8, 10, -1, TERM_L_GREEN,
-		            format("%10d", p_ptr->lev));
-	}
-	else
-	{
-		Term_putstr(col+8, 10, -1, TERM_YELLOW,
-		            format("%10d", p_ptr->lev));
-	}
-
+	/* Game Turn */
+	Term_putstr(col, 10, -1, TERM_WHITE, "GameTurn");
+	Term_putstr(col+8, 10, -1, TERM_L_GREEN,
+		            format("%10ld", turn));
 
 	/* Current Experience */
 	Term_putstr(col, 11, -1, TERM_WHITE, "Cur Exp");
@@ -1384,7 +1375,6 @@ static void display_player_xtra_info(void)
 		Term_putstr(col+8, 11, -1, TERM_YELLOW,
 		            format("%10ld", p_ptr->exp));
 	}
-
 
 	/* Maximum Experience */
 	Term_putstr(col, 12, -1, TERM_WHITE, "Max Exp");
@@ -1803,6 +1793,7 @@ static void display_player_flag_info(void)
 	/* Four columns */
 	for (x = 0; x < 4; x++)
 	{
+
 		/* Reset */
 		row = 11;
 		col = 20 * x - 2;
@@ -1814,6 +1805,7 @@ static void display_player_flag_info(void)
 		for (y = 0; y < 8; y++)
 		{
 			bool hack_aggravate = FALSE;
+			byte name_attr = TERM_WHITE;
 
 			/* Extract set */
 			set = display_player_flag_set[x];
@@ -1838,9 +1830,6 @@ static void display_player_flag_info(void)
 				set  = 3;
 			}
 
-			/* Header */
-			c_put_str(TERM_WHITE, name, row, col+2);
-
 			/* Check equipment */
 			for (n = 8, i = INVEN_WIELD; i < INVEN_TOTAL; ++i, ++n)
 			{
@@ -1864,13 +1853,15 @@ static void display_player_flag_info(void)
 				if ((x == 0) && (y < 4) &&
 				    (f[set] & ((TR2_IM_ACID) << y)))
 				{
-					c_put_str(TERM_WHITE, "*", row, col+n);
+					c_put_str(TERM_L_GREEN, "*", row, col+n);
+					name_attr = TERM_L_GREEN;
 				}
 
 				/* Check flags */
 				else if (f[set] & flag)
 				{
-					c_put_str(TERM_WHITE, "+", row, col+n);
+					c_put_str(TERM_L_BLUE, "+", row, col+n);
+					if (name_attr != TERM_L_GREEN) name_attr = TERM_L_BLUE;
 				}
 
 				/* Default */
@@ -1890,11 +1881,19 @@ static void display_player_flag_info(void)
 			if ((x == 0) && (y < 4) &&
 			    (f[set] & ((TR2_IM_ACID) << y)))
 			{
-				c_put_str(TERM_WHITE, "*", row, col+n);
+				c_put_str(TERM_L_GREEN, "*", row, col+n);
+				name_attr = TERM_L_GREEN;
 			}
 
 			/* Check flags */
-			else if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+			else if (f[set] & flag)
+			{
+			    c_put_str(TERM_L_BLUE, "+", row, col+n);
+				if (name_attr != TERM_L_GREEN) name_attr = TERM_L_BLUE;
+			}
+
+			/* Header */
+			c_put_str(name_attr, name, row, col+2);
 
 			/* Advance */
 			row++;
@@ -2345,6 +2344,7 @@ static void display_home_equipment_info(int mode)
 		for (y = 0; y < 8; y++)
 		{
 			bool hack_aggravate = FALSE;
+			byte name_attr = TERM_WHITE;
 
 			/* Extract set */
 			set = display_player_flag_set[xmin];
@@ -2369,9 +2369,6 @@ static void display_home_equipment_info(int mode)
 				set  = 3;
 			}
 
-			/* Header */
-			c_put_str(TERM_WHITE, name, row, col);
-
 			/* Check equipment */
 			for (n = 7, i = 0; i < MAX_INVENTORY_HOME; ++i, ++n)
 			{
@@ -2395,13 +2392,15 @@ static void display_home_equipment_info(int mode)
 				if ((xmin == 0) && (y < 4) &&
 				    (f[set] & ((TR2_IM_ACID) << y)))
 				{
-					c_put_str(TERM_WHITE, "*", row, col+n);
+					c_put_str(TERM_L_GREEN, "*", row, col+n);
+					name_attr = TERM_L_GREEN;
 				}
 
 				/* Check flags */
 				else if (f[set] & flag)
 				{
-					c_put_str(TERM_WHITE, "+", row, col+n);
+					c_put_str(TERM_L_BLUE, "+", row, col+n);
+					if (name_attr != TERM_L_GREEN) name_attr = TERM_L_BLUE;
 				}
 
 				/* Default */
@@ -2410,6 +2409,9 @@ static void display_home_equipment_info(int mode)
 					c_put_str(attr, ".", row, col+n);
 				}
 			}
+
+			/* Header */
+			c_put_str(name_attr, name, row, col);
 
 			/* Advance */
 			row++;
@@ -2896,10 +2898,8 @@ errr file_character(cptr name, bool full)
 	/* Open the non-existing file */
 	if (fd < 0) fff = my_fopen(buf, "w");
 
-
 	/* Invalid file */
 	if (!fff) return (-1);
-
 
 	text_out_hook = text_out_to_file;
 	text_out_file = fff;
@@ -3167,9 +3167,7 @@ errr file_character(cptr name, bool full)
 	{
 		/*hack - use game play options*/
 		if (i < OPT_GAME_PLAY) continue;
-		if ((i >= OPT_EFFICIENCY) && (i < OPT_ADULT) &&
-		    (!((i == OPT_smart_monsters) || (i == OPT_smart_packs))))
-			continue;
+		if ((i >= OPT_EFFICIENCY) && (i < OPT_ADULT)) continue;
 
 		/*print the labels*/
 		if (i == OPT_GAME_PLAY) fprintf(fff, "\nGAME PLAY OPTIONS:\n\n");
@@ -5035,6 +5033,10 @@ static void close_game_aux(void)
 	while (!wants_to_quit)
 	{
 		/* Describe options */
+		if (adult_take_notes) Term_putstr(1, 22, -1, TERM_WHITE,
+			"[(a)dd a comment to the notes file]");
+
+		/* Describe options */
 		Term_putstr(1, 23, -1, TERM_WHITE, p);
 
 		/* Query */
@@ -5155,6 +5157,18 @@ static void close_game_aux(void)
 
 				/* Load screen */
 				screen_load();
+
+				break;
+			}
+
+			/* Last words to notes file, if notes are applicable */
+			case 'a':
+			case 'A':
+			{
+				if (adult_take_notes)
+				{
+					do_cmd_note("",  p_ptr->depth);
+				}
 
 				break;
 			}

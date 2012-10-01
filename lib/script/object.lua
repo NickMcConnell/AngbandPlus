@@ -33,7 +33,7 @@ function eat_food(object)
 	elseif object.sval == SV_FOOD_RESTORE_STR then
 		if do_res_stat(A_STR) then ident = TRUE end
 	elseif object.sval == SV_FOOD_CURE_SERIOUS then
-		if hp_player(damroll(4, 8)) then ident = TRUE end
+		if hp_player(damroll(6, 8)) then ident = TRUE end
 	elseif object.sval == SV_FOOD_CURE_CONFUSION then
 		if set_confused(0) then ident = TRUE end
 	elseif object.sval == SV_FOOD_CURE_PARANOIA then
@@ -157,6 +157,14 @@ function quaff_potion(object)
 			lose_exp(player.exp / 4)
 			ident = TRUE
 		end
+	elseif object.sval == SV_POTION_DRAIN_MANA then
+		if player.csp then
+			player.csp = player.csp / 2
+			msg_print("Your feel your head cloud up.")
+			player.redraw = bOr(player.redraw, PR_MANA)
+			player.window = bOr(player.window, PW_PLAYER_0, PW_PLAYER_1)
+			ident = TRUE
+		end
 	elseif object.sval == SV_POTION_RUINATION then
 		msg_print("Your nerves and muscles feel weak and lifeless!")
 		take_hit(damroll(10, 10), "a potion of Ruination")
@@ -217,6 +225,26 @@ function quaff_potion(object)
 		if set_oppose_cold(player.oppose_cold + randint(10) + 10) then
 			ident = TRUE
 		end
+	elseif object.sval == SV_POTION_RESIST_ACID then
+		if set_oppose_acid(player.oppose_acid + randint(10) + 10) then
+			ident = TRUE
+		end
+	elseif object.sval == SV_POTION_RESIST_ELECTRICITY then
+		if set_oppose_elec(player.oppose_elec + randint(10) + 10) then
+			ident = TRUE
+		end
+	elseif object.sval == SV_POTION_RESIST_POISON then
+		if set_oppose_pois(player.oppose_pois + randint(15) + 15) then
+			ident = TRUE
+		end
+	elseif object.sval == SV_POTION_RESISTANCE  then
+		if (set_oppose_cold(player.oppose_cold + randint(30) + 30)) or
+		   (set_oppose_fire(player.oppose_fire + randint(30) + 30)) or	
+	 	   (set_oppose_acid(player.oppose_acid + randint(30) + 30)) or
+		   (set_oppose_elec(player.oppose_elec + randint(30) + 30)) or 
+		   (set_oppose_pois(player.oppose_pois + randint(30) + 30)) then
+		   ident = TRUE
+		end
 	elseif object.sval == SV_POTION_HEROISM then
 		if hp_player(10) then ident = TRUE end
 		if set_afraid(0) then ident = TRUE end
@@ -226,30 +254,30 @@ function quaff_potion(object)
 		if set_afraid(0) then ident = TRUE end
 		if set_shero(player.shero + randint(25) + 25) then ident = TRUE end
 	elseif object.sval == SV_POTION_CURE_LIGHT then
-		if hp_player(damroll(2, 8)) then ident = TRUE end
+		if hp_player(damroll(3, 8)) then ident = TRUE end
 		if set_blind(0) then ident = TRUE end
 		if set_cut(player.cut - 10) then ident = TRUE end
 	elseif object.sval == SV_POTION_CURE_SERIOUS then
-		if hp_player(damroll(4, 8)) then ident = TRUE end
+		if hp_player(damroll(5, 10)) then ident = TRUE end
 		if set_blind(0) then ident = TRUE end
 		if set_confused(0) then ident = TRUE end
 		if set_cut((player.cut / 2) - 50) then ident = TRUE end
 	elseif object.sval == SV_POTION_CURE_CRITICAL then
-		if hp_player(damroll(6, 8)) then ident = TRUE end
+		if hp_player(damroll(8, 10)) then ident = TRUE end
 		if set_blind(0) then ident = TRUE end
 		if set_confused(0) then ident = TRUE end
 		if set_poisoned(0) then ident = TRUE end
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
 	elseif object.sval == SV_POTION_HEALING then
-		if hp_player(300) then ident = TRUE end
+		if hp_player(325) then ident = TRUE end
 		if set_blind(0) then ident = TRUE end
 		if set_confused(0) then ident = TRUE end
 		if set_poisoned(0) then ident = TRUE end
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
 	elseif object.sval == SV_POTION_STAR_HEALING then
-		if hp_player(1200) then ident = TRUE end
+		if hp_player(1500) then ident = TRUE end
 		if set_blind(0) then ident = TRUE end
 		if set_confused(0) then ident = TRUE end
 		if set_poisoned(0) then ident = TRUE end
@@ -387,7 +415,7 @@ function read_scroll(object)
 		end
 	elseif object.sval == SV_SCROLL_SUMMON_UNDEAD then
 		for k = 0, randint(3) do
-			if summon_specific(player.py, player.px, player.depth, SUMMON_UNDEAD) then
+			if summon_specific(player.py, player.px, player.depth, 					SUMMON_UNDEAD) then
 				ident = TRUE
 			end
 		end
@@ -563,7 +591,7 @@ function use_staff(object)
 	elseif object.sval == SV_STAFF_DETECT_EVIL then
 		if detect_monsters_evil() then ident = TRUE end
 	elseif object.sval == SV_STAFF_CURE_LIGHT then
-		if hp_player(randint(8)) then ident = TRUE end
+		if hp_player(damroll(2, 10)) then ident = TRUE end
 	elseif object.sval == SV_STAFF_CURING then
 		if set_blind(0) then ident = TRUE end
 		if set_poisoned(0) then ident = TRUE end
@@ -571,7 +599,7 @@ function use_staff(object)
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
 	elseif object.sval == SV_STAFF_HEALING then
-		if hp_player(300) then ident = TRUE end
+		if hp_player(325) then ident = TRUE end
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
 	elseif object.sval == SV_STAFF_THE_MAGI then
@@ -586,9 +614,9 @@ function use_staff(object)
 			ident = TRUE
 		end
 	elseif object.sval == SV_STAFF_SLEEP_MONSTERS then
-		if sleep_monsters() then ident = TRUE end
+		if sleep_monsters(damroll(2, player.lev)) then ident = TRUE end
 	elseif object.sval == SV_STAFF_SLOW_MONSTERS then
-		if slow_monsters() then ident = TRUE end
+		if slow_monsters(damroll(2, player.lev)) then ident = TRUE end
 	elseif object.sval == SV_STAFF_SPEED then
 		if player.fast == 0 then
 			if set_fast(randint(30) + 15) then ident = TRUE end
@@ -609,7 +637,7 @@ function use_staff(object)
 		end
 		if set_poisoned(0) then ident = TRUE end
 		if set_afraid(0) then ident = TRUE end
-		if hp_player(50) then ident = TRUE end
+		if hp_player(75) then ident = TRUE end
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
 	elseif object.sval == SV_STAFF_BANISHMENT then
@@ -689,7 +717,7 @@ function aim_wand(object)
 	if sval == SV_WAND_WONDER then sval = rand_int(SV_WAND_WONDER) end
 
 	if sval == SV_WAND_HEAL_MONSTER then
-		if heal_monster(dir) then ident = TRUE end
+		if heal_monster(dir, damroll(4, 6)) then ident = TRUE end
 	elseif sval == SV_WAND_HASTE_MONSTER then
 		if speed_monster(dir) then ident = TRUE end
 	elseif sval == SV_WAND_CLONE_MONSTER then
@@ -701,7 +729,7 @@ function aim_wand(object)
 	elseif sval == SV_WAND_TRAP_DOOR_DEST then
 		if destroy_door(dir) then ident = TRUE end
 	elseif sval == SV_WAND_STONE_TO_MUD then
-		if wall_to_mud(dir) then ident = TRUE end
+		if wall_to_mud(dir, 20 + randint(30)) then ident = TRUE end
 	elseif sval == SV_WAND_LITE then
 		msg_print("A line of blue shimmering light appears.")
 		lite_line(dir)
@@ -711,7 +739,7 @@ function aim_wand(object)
 	elseif sval == SV_WAND_SLOW_MONSTER then
 		if slow_monster(dir) then ident = TRUE end
 	elseif sval == SV_WAND_CONFUSE_MONSTER then
-		if confuse_monster(dir, 10) then ident = TRUE end
+		if confuse_monster(dir, player.lev * 2 / 3) then ident = TRUE end
 	elseif sval == SV_WAND_FEAR_MONSTER then
 		if fear_monster(dir, 10) then ident = TRUE end
 	elseif sval == SV_WAND_DRAIN_LIFE then
@@ -884,7 +912,7 @@ function zap_rod(object)
 		if set_cut(0) then ident = TRUE end
 		object.timeout = object.timeout + 999
 	elseif sval == SV_ROD_HEALING then
-		if hp_player(500) then ident = TRUE end
+		if hp_player(550) then ident = TRUE end
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
 		object.timeout = object.timeout + 999
@@ -1160,13 +1188,13 @@ function activate_object(object)
 			msg_print(format("Your %s pulsates...", o_name))
 			success, dir = get_aim_dir()
 			if not success then return FALSE, FALSE end
-			wall_to_mud(dir)
+			wall_to_mud(dir, 20 + randint(30))
 		elseif artifact.activation == ACT_MASS_BANISHMENT then
 			msg_print(format("Your %s lets out a long, shrill note...", o_name))
 			mass_banishment()
 		elseif artifact.activation == ACT_CURE_WOUNDS then
 			msg_print(format("Your %s radiates deep purple...", o_name))
-			hp_player(damroll(4, 8))
+			hp_player(damroll(6, 10))
 			set_cut((player.cut / 2) - 50)
 		elseif artifact.activation == ACT_TELE_AWAY then
 			msg_print(format("Your %s glows deep red...", o_name))
@@ -1180,7 +1208,7 @@ function activate_object(object)
 			msg_print(format("Your %s glows in scintillating colours...", o_name))
 			success, dir = get_aim_dir()
 			if not success then return FALSE, FALSE end
-			confuse_monster(dir, 20)
+			confuse_monster(dir, player.lev * 2 / 3)
 		elseif artifact.activation == ACT_IDENTIFY then
 			msg_print(format("Your %s glows yellow...", o_name))
 			if not ident_spell() then return FALSE, FALSE end

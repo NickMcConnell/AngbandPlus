@@ -785,24 +785,113 @@ static void health_redraw(void)
 		/* Afraid */
 		if (m_ptr->monfear) attr = TERM_VIOLET;
 
-		/* Confused */
-		if (m_ptr->confused) attr = TERM_UMBER;
-
-		/* Stunned */
-		if (m_ptr->stunned) attr = TERM_L_BLUE;
-
-		/* Asleep */
-		if (m_ptr->csleep) attr = TERM_BLUE;
-
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
 
 		/* Default to "unknown" */
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
 
-		/* Dump the current "health" (use '*' symbols) */
-		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
+		/* Dump the current "health" (handle monster stunning, confusion) */
+		if (m_ptr->confused)
+			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "cccccccccc");
+		else if (m_ptr->stunned)
+			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "ssssssssss");
+		else if (m_ptr->csleep)
+			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "zzzzzzzzzz");
+		else
+			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
+
 	}
+}
+
+
+/*
+ * Redraw the "monster mana bar"
+ *
+ * The "monster mana bar" provides visual feedback on the "mana"
+ * of the monster currently being "tracked".  It follows the lead of the monster
+ * health bar for who to track.
+ */
+static void mana_redraw(void)
+{
+
+	/* Not tracking, or hiding a mimic */
+	if (!p_ptr->health_who)
+	{
+
+		/* Erase the health bar */
+		Term_erase(COL_MON_MANA, ROW_MON_MANA, 12);
+	}
+
+	/* Tracking an unseen monster */
+	else if (!mon_list[p_ptr->health_who].ml)
+	{
+
+		/* Indicate that the monster health is "unknown" */
+		Term_putstr(COL_MON_MANA, ROW_MON_MANA, 12, TERM_WHITE, "[----------]");
+	}
+
+	/* Tracking a hallucinatory monster */
+	else if (p_ptr->image)
+	{
+		/* Indicate that the monster health is "unknown" */
+		Term_putstr(COL_MON_MANA, ROW_MON_MANA, 12, TERM_WHITE, "[----------]");
+	}
+
+	/* Tracking a dead monster (?) */
+	else if (!mon_list[p_ptr->health_who].hp < 0)
+	{
+
+		/* Indicate that the monster health is "unknown" */
+		Term_putstr(COL_MON_MANA, ROW_MON_MANA, 12, TERM_WHITE, "[----------]");
+	}
+
+	/* Tracking a visible monster */
+	else
+	{
+		int pct, len;
+
+		monster_type *m_ptr = &mon_list[p_ptr->health_who];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Default to out of mana*/
+		byte attr = TERM_RED;
+
+		/*no mana, stop here*/
+		if (!r_ptr->mana)
+		{
+			/* Erase the health bar */
+			Term_erase(COL_MON_MANA, ROW_MON_MANA, 12);
+
+			return;
+		}
+
+		/* Extract the "percent" of health */
+		pct = 100L * m_ptr->mana / r_ptr->mana;
+
+		/* almost no mana */
+		if (pct >= 10) attr = TERM_L_RED;
+
+		/* some mana */
+		if (pct >= 25) attr = TERM_ORANGE;
+
+		/* most mana */
+		if (pct >= 60) attr = TERM_YELLOW;
+
+		/* full mana */
+		if (pct >= 100) attr = TERM_L_GREEN;
+
+		/* Convert percent into "health" */
+		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
+
+		/* Default to "unknown" */
+		Term_putstr(COL_MON_MANA, ROW_MON_MANA, 12, TERM_WHITE, "[----------]");
+
+		/* Dump the current "mana"*/
+		Term_putstr(COL_MON_MANA + 1, ROW_MON_MANA, len, attr, "**********");
+
+	}
+
 }
 
 
@@ -846,8 +935,11 @@ static void prt_frame_basic(void)
 	/* Current depth */
 	prt_depth();
 
-	/* Special */
+	/* redraw monster health */
 	health_redraw();
+
+	/* redraw monster mana*/
+	mana_redraw();
 }
 
 
@@ -1687,6 +1779,7 @@ static void calc_bonuses(void)
 
 	int old_telepathy;
 	int old_see_inv;
+	int old_skill_stl;
 
 	int old_dis_ac;
 	int old_dis_to_a;
@@ -1712,6 +1805,9 @@ static void calc_bonuses(void)
 
 	/* Save the old speed */
 	old_speed = p_ptr->pspeed;
+
+	/* Save the old stealth */
+	old_skill_stl = p_ptr->skill_stl;
 
 	/* Save the old vision stuff */
 	old_telepathy = p_ptr->telepathy;
@@ -2482,6 +2578,26 @@ static void calc_bonuses(void)
 		}
 	}
 
+	/* Recalculate stealth when needed */
+	if ((p_ptr->skill_stl != old_skill_stl) || (!p_ptr->skill_stl))
+	{
+		/* Assume character is extremely noisy. */
+		p_ptr->base_wakeup_chance = 100 * WAKEUP_ADJ;
+
+		/* For every increase in stealth past 0, multiply wakeup chance by 0.8. */
+		for (i = 0; i < p_ptr->skill_stl; i++)
+		{
+			p_ptr->base_wakeup_chance = 4 * p_ptr->base_wakeup_chance / 5;
+
+			/* Always make at least some innate noise */
+			if (p_ptr->base_wakeup_chance < 100)
+			{
+				p_ptr->base_wakeup_chance = 100;
+				break;
+			}
+		}
+	}
+
 	/* Hack -- Telepathy Change */
 	if (p_ptr->telepathy != old_telepathy)
 	{
@@ -2659,18 +2775,6 @@ void update_stuff(void)
 		update_view();
 	}
 
-	if (p_ptr->update & (PU_FORGET_FLOW))
-	{
-		p_ptr->update &= ~(PU_FORGET_FLOW);
-		forget_flow();
-	}
-
-	if (p_ptr->update & (PU_UPDATE_FLOW))
-	{
-		p_ptr->update &= ~(PU_UPDATE_FLOW);
-		update_flow();
-	}
-
 	if (p_ptr->update & (PU_DISTANCE))
 	{
 		p_ptr->update &= ~(PU_DISTANCE);
@@ -2701,10 +2805,8 @@ void redraw_stuff(void)
 	/* Redraw stuff */
 	if (!p_ptr->redraw) return;
 
-
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
-
 
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
@@ -2723,7 +2825,7 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_MISC | PR_TITLE | PR_STATS);
 		p_ptr->redraw &= ~(PR_LEV | PR_EXP | PR_GOLD);
 		p_ptr->redraw &= ~(PR_ARMOR | PR_HP | PR_MANA);
-		p_ptr->redraw &= ~(PR_DEPTH | PR_HEALTH);
+		p_ptr->redraw &= ~(PR_DEPTH | PR_HEALTH | PR_MON_MANA);
 		prt_frame_basic();
 	}
 
@@ -2817,6 +2919,11 @@ void redraw_stuff(void)
 		health_redraw();
 	}
 
+	if (p_ptr->redraw & (PR_MON_MANA))
+	{
+		p_ptr->redraw &= ~(PR_MON_MANA);
+		mana_redraw();
+	}
 
 	if (p_ptr->redraw & (PR_EXTRA))
 	{

@@ -395,6 +395,13 @@ static void process_world(void)
 
 	store_type *st_ptr = &store[STORE_HOME];
 
+	/* We decrease noise slightly every game turn */
+	total_wakeup_chance -= 400;
+
+	/* But the character always makes some noise */
+	if (total_wakeup_chance < p_ptr->base_wakeup_chance)
+	    total_wakeup_chance = p_ptr->base_wakeup_chance;
+
 	/* Every 10 game turns */
 	if (turn % 10) return;
 
@@ -481,9 +488,6 @@ static void process_world(void)
 		}
 	}
 
-
-
-
 	/* While in the dungeon */
 	else
 	{
@@ -530,7 +534,6 @@ static void process_world(void)
 			if (cheat_xtra) msg_print("Done.");
 		}
 	}
-
 
 	/*** Process the monsters ***/
 
@@ -594,7 +597,6 @@ static void process_world(void)
 		/* Take damage */
 		take_hit(i, "a fatal wound");
 	}
-
 
 	/*** Check the Food, and Regenerate ***/
 
@@ -860,8 +862,6 @@ static void process_world(void)
 		(void)set_cut(p_ptr->cut - adjust);
 	}
 
-
-
 	/*** Process Light ***/
 
 	/* Check for light being wielded */
@@ -1070,7 +1070,6 @@ static void process_world(void)
 
 	}
 
-
 	/*** Involuntary Movement ***/
 
 	/* Mega-Hack -- Random teleportation XXX XXX XXX */
@@ -1119,6 +1118,46 @@ static void process_world(void)
 			}
 		}
 	}
+
+#ifdef ALLOW_BORG
+	if (count_stop)
+	{
+		/* The borg is always in perfect health */
+
+		/* Remove curses */
+		(void)remove_all_curse();
+
+		/* Restore stats */
+		(void)res_stat(A_STR);
+		(void)res_stat(A_INT);
+		(void)res_stat(A_WIS);
+		(void)res_stat(A_CON);
+		(void)res_stat(A_DEX);
+		(void)res_stat(A_CHR);
+
+		/* Restore experience. */
+		p_ptr->exp = p_ptr->max_exp;
+
+		/* No maladies */
+		p_ptr->blind = 0;
+		p_ptr->confused = 0;
+		p_ptr->poisoned = 0;
+		p_ptr->afraid = 0;
+		p_ptr->paralyzed = 0;
+		p_ptr->image = 0;
+		p_ptr->slow = 0;
+		p_ptr->stun = 0;
+		p_ptr->cut = 0;
+
+		/* Fully healed */
+		p_ptr->chp = p_ptr->mhp;
+		p_ptr->chp_frac = 0;
+
+		/* No longer hungry */
+		p_ptr->food = PY_FOOD_MAX - 1;
+	}
+#endif  /* ALLOW_BORG */
+
 }
 
 
@@ -1368,6 +1407,20 @@ static void process_command(void)
 		case '+':
 		{
 			do_cmd_alter();
+			break;
+		}
+
+		/* Alter a grid */
+		case 'O':
+		{
+			do_cmd_make_trap();
+			break;
+		}
+
+		/* Alter a grid */
+		case 'P':
+		{
+			do_cmd_steal();
 			break;
 		}
 
@@ -1849,11 +1902,11 @@ static void process_player_aux(void)
 	static u32b	old_flags4 = 0L;
 	static u32b	old_flags5 = 0L;
 	static u32b	old_flags6 = 0L;
+	static u32b	old_flags7 = 0L;
 
 	static byte old_blows[MONSTER_BLOW_MAX];
 
-	static byte	old_cast_innate = 0;
-	static byte	old_cast_spell = 0;
+	static byte	old_ranged = 0;
 
 
 	/* Tracking a monster */
@@ -1880,8 +1933,9 @@ static void process_player_aux(void)
 		    (old_flags4 != l_ptr->flags4) ||
 		    (old_flags5 != l_ptr->flags5) ||
 		    (old_flags6 != l_ptr->flags6) ||
-		    (old_cast_innate != l_ptr->cast_innate) ||
-		    (old_cast_spell != l_ptr->cast_spell))
+			(old_flags7 != l_ptr->flags7) ||
+		    (old_ranged != l_ptr->ranged))
+
 		{
 			/* Memorize old race */
 			old_monster_race_idx = p_ptr->monster_race_idx;
@@ -1893,14 +1947,14 @@ static void process_player_aux(void)
 			old_flags4 = l_ptr->flags4;
 			old_flags5 = l_ptr->flags5;
 			old_flags6 = l_ptr->flags6;
+			old_flags7 = l_ptr->flags7;
 
 			/* Memorize blows */
 			for (i = 0; i < MONSTER_BLOW_MAX; i++)
 				old_blows[i] = l_ptr->blows[i];
 
 			/* Memorize castings */
-			old_cast_innate = l_ptr->cast_innate;
-			old_cast_spell = l_ptr->cast_spell;
+			old_ranged = l_ptr->ranged;
 
 			/* Window stuff */
 			p_ptr->window |= (PW_MONSTER);
@@ -2012,13 +2066,11 @@ static void process_player(void)
 		/* Redraw stuff (if needed) */
 		if (p_ptr->window) window_stuff();
 
-
 		/* Place the cursor on the player */
 		move_cursor_relative(p_ptr->py, p_ptr->px);
 
 		/* Refresh (optional) */
 		if (fresh_before) Term_fresh();
-
 
 		/* Hack -- Pack Overflow */
 		if (inventory[INVEN_PACK].k_idx)
@@ -2065,14 +2117,11 @@ static void process_player(void)
 			if (p_ptr->window) window_stuff();
 		}
 
-
 		/* Hack -- cancel "lurking browse mode" */
 		if (!p_ptr->command_new) p_ptr->command_see = FALSE;
 
-
 		/* Assume free turn */
 		p_ptr->energy_use = 0;
-
 
 		/* Paralyzed or Knocked Out */
 		if ((p_ptr->paralyzed) || (p_ptr->stun >= 100))
@@ -2105,6 +2154,13 @@ static void process_player(void)
 			run_step(0);
 		}
 
+		#ifdef ALLOW_BORG
+
+ 		/* Using the borg. */
+		else if (count_stop) do_cmd_borg();
+
+		#endif /* ALLOW_BORG */
+
 		/* Repeated command */
 		else if (p_ptr->command_rep)
 		{
@@ -2134,6 +2190,7 @@ static void process_player(void)
 		/* Normal command */
 		else
 		{
+
 			/* Check monster recall */
 			process_player_aux();
 
@@ -2145,8 +2202,8 @@ static void process_player(void)
 
 			/* Process the command */
 			process_command();
-		}
 
+		}
 
 		/*** Clean up ***/
 
@@ -2190,28 +2247,6 @@ static void process_player(void)
 
 					/* Redraw regardless */
 					lite_spot(m_ptr->fy, m_ptr->fx);
-				}
-			}
-
-			/* Repair "nice" flags */
-			if (repair_mflag_nice)
-			{
-				/* Clear flag */
-				repair_mflag_nice = FALSE;
-
-				/* Process monsters */
-				for (i = 1; i < mon_max; i++)
-				{
-					monster_type *m_ptr;
-
-					/* Get the monster */
-					m_ptr = &mon_list[i];
-
-					/* Skip dead monsters */
-					/* if (!m_ptr->r_idx) continue; */
-
-					/* Clear "nice" flag */
-					m_ptr->mflag &= ~(MFLAG_NICE);
 				}
 			}
 
@@ -2278,8 +2313,46 @@ static void process_player(void)
 		}
 	}
 	while (!p_ptr->energy_use && !p_ptr->leaving);
-}
 
+	/* Get base noise increase -- less when resting */
+	if (p_ptr->resting)
+		total_wakeup_chance += p_ptr->base_wakeup_chance / 2;
+	else
+		total_wakeup_chance += p_ptr->base_wakeup_chance;
+
+	/* Increase noise if necessary */
+	if (add_wakeup_chance)
+	{
+		total_wakeup_chance += add_wakeup_chance;
+		add_wakeup_chance = 0;
+	}
+
+	/* Limit on noise (100% effective in disturbing monsters) */
+	if (total_wakeup_chance > 10000)
+	{
+		total_wakeup_chance = 10000;
+	}
+
+	/* Update noise flow information */
+	update_noise(FALSE);
+
+	/* Update scent trail */
+	update_smell();
+
+	/*
+	 * Reset character vulnerability if appropriate.  Will be calculated
+	 * by the first member of an animal pack that has a use for it.
+	 */
+	if (p_ptr->vulnerability == 100)
+	{
+		/* Reset vulnerability only if the character is fully healed */
+		if (p_ptr->chp >= p_ptr->mhp) p_ptr->vulnerability = 0;
+	}
+	else
+	{
+		p_ptr->vulnerability = 0;
+	}
+}
 
 
 /*
@@ -2290,8 +2363,6 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
-	monster_type *m_ptr;
-	int i;
 
 	/* Hack -- enforce illegal panel */
 	p_ptr->wy = p_ptr->cur_map_hgt;
@@ -2319,7 +2390,6 @@ static void dungeon(void)
 	shimmer_objects = TRUE;
 
 	/* Reset repair flags */
-	repair_mflag_nice = TRUE;
 	repair_mflag_show = TRUE;
 	repair_mflag_mark = TRUE;
 
@@ -2348,17 +2418,19 @@ static void dungeon(void)
 	if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
 		(quest_check(p_ptr->depth) == QUEST_FIXED_U))
 	{
-		p_ptr->create_down_stair = FALSE;
+		if ((p_ptr->create_stair == FEAT_MORE) ||
+			(p_ptr->create_stair == FEAT_MORE_SHAFT))
+	   		 p_ptr->create_stair = FALSE;
 	}
 
 	/* No stairs from town or if not allowed */
-	if (!p_ptr->depth || !dungeon_stair)
+	if ((!p_ptr->depth) || (!dungeon_stair))
 	{
-		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
+		p_ptr->create_stair = FALSE;
 	}
 
 	/* Make a staircase */
-	if (p_ptr->create_down_stair || p_ptr->create_up_stair)
+	if (p_ptr->create_stair)
 	{
 		/* Place a staircase */
 		if (cave_valid_bold(p_ptr->py, p_ptr->px))
@@ -2366,22 +2438,14 @@ static void dungeon(void)
 			/* XXX XXX XXX */
 			delete_object(p_ptr->py, p_ptr->px);
 
-			/* Make stairs */
-			if (p_ptr->create_down_stair)
-			{
-				cave_set_feat(p_ptr->py, p_ptr->px, FEAT_MORE);
-			}
-			else
-			{
-				cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
-			}
+			cave_set_feat(p_ptr->py, p_ptr->px, p_ptr->create_stair);
 
 			/* Mark the stairs as known */
 			cave_info[p_ptr->py][p_ptr->px] |= (CAVE_MARK);
 		}
 
 		/* Cancel the stair request */
-		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
+		p_ptr->create_stair = FALSE;
 	}
 
 	/* Choose panel */
@@ -2407,9 +2471,6 @@ static void dungeon(void)
 
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
-
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 	/* Redraw dungeon */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
@@ -2462,6 +2523,8 @@ static void dungeon(void)
 	/* Mark quest as started */
 	if (p_ptr->cur_quest == p_ptr->depth)
 	{
+		int i;
+
 		/* Check quests */
 		for (i = 0; i < z_info->q_max; i++)
 		{
@@ -2507,27 +2570,13 @@ static void dungeon(void)
 		/* Give the player some energy */
 		p_ptr->energy += extract_energy[p_ptr->pspeed];
 
-		/* Give energy to all monsters */
-		for (i = mon_max - 1; i >= 1; i--)
-		{
-			/* Access the monster */
-			m_ptr = &mon_list[i];
-
-			/* Ignore "dead" monsters */
-			if (!m_ptr->r_idx) continue;
-
-			/* Give this monster some energy */
-			m_ptr->energy += extract_energy[m_ptr->mspeed];
-		}
-
-
 		/* Can the player move? */
 		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
 		{
-			/* process monster with even more energy first */
+			/* Process monster with even more energy first */
 			process_monsters((byte)(p_ptr->energy + 1));
 
-			/* if still alive */
+			/* If still alive */
 			if (!p_ptr->leaving)
 			{
 				/* Process the player */
@@ -2556,9 +2605,11 @@ static void dungeon(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
+		/* Process monsters (any that haven't had a chance to move yet) */
+		process_monsters(0);
 
-		/* Process all of the monsters */
-		process_monsters(100);
+		/* Reset monsters */
+		reset_monsters();
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2580,7 +2631,6 @@ static void dungeon(void)
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
-
 
 		/* Process the world */
 		process_world();

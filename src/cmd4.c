@@ -10,7 +10,8 @@
 
 #include "angband.h"
 
-
+/*max length of note output*/
+#define LINEWRAP	75
 
 /*
  * Hack -- redraw the screen
@@ -603,7 +604,7 @@ static void do_cmd_options_aux(int page, cptr info)
 
 			case '?':
 			{
-				strnfmt(buf, sizeof(buf), "option.txt#%s", option_text[opt[k]]);
+				strnfmt(buf, sizeof(buf), "options.txt#%s", option_text[opt[k]]);
 				show_file(buf, NULL, 0, 0);
 				Term_clear();
 				break;
@@ -2537,7 +2538,7 @@ void do_cmd_colors(void)
   */
  void do_cmd_note(char *note, int what_depth)
  {
- 	char buf[80];
+ 	char buf[120];
 
  	/* Default */
  	strcpy(buf, "");
@@ -2546,11 +2547,11 @@ void do_cmd_colors(void)
  	if (streq(note, ""))
 	{
 
- 	  	if (!get_string("Note: ", buf, 60)) return;
+ 	  	if (!get_string("Note: ", buf, 70)) return;
 
  	}
 
- 	else strncpy(buf, note, 60);
+	else my_strcpy(buf, note, sizeof(buf));
 
  	/* Ignore empty notes */
  	if (!buf[0] || (buf[0] == ' ')) return;
@@ -2560,9 +2561,9 @@ void do_cmd_colors(void)
  	 */
  	if (adult_take_notes)
 	{
-
-        char final_note[160];
- 	  	char depths[32];
+		int length, length_info;
+        char info_note[40];
+ 	  	char depths[10];
 
 		/*Artifacts use depth artifact created.  All others
 	 	 *use player depth.
@@ -2592,11 +2593,90 @@ void do_cmd_colors(void)
  		sprintf(depths, " %4d", what_depth);
 		}
 
- 	  	/* Make note */
-     	sprintf(final_note, "%9lu| %s | %2d  | %s \n", turn, depths, p_ptr->lev, buf);
+ 	  	/* Make preliminary part of note */
+     	sprintf(info_note, "|%9lu| %s | %2d  | ", turn, depths, p_ptr->lev);
+
+		/*write the info note*/
+		fprintf(notes_file, info_note);
+
+		/*get the length of the notes*/
+		length_info = strlen(info_note);
+		length = strlen(buf);
+
+		/*break up long notes*/
+		if((length + length_info) > LINEWRAP)
+		{
+			bool keep_going = TRUE;
+			int startpoint = 0;
+			int endpoint, n;
+
+			while (keep_going)
+			{
+
+				/*don't print more than the set linewrap amount*/
+				endpoint = startpoint + LINEWRAP - strlen(info_note) + 1;
+
+				/*find a breaking point*/
+				while (TRUE)
+				{
+					/*are we at the end of the line?*/
+					if (endpoint >= length)
+					{
+						/*print to the end*/
+						endpoint = length;
+						keep_going = FALSE;
+						break;
+					}
+
+					/* Mark the most recent space or dash in the string */
+					else if ((buf[endpoint] == ' ') ||
+				    		 (buf[endpoint] == '-')) break;
+
+					/*no spaces in the line, so break in the middle of text*/
+					else if (endpoint == startpoint)
+					{
+						endpoint = startpoint + LINEWRAP - strlen(info_note) + 1;
+						break;
+					}
+
+					/* check previous char */
+					endpoint--;
+				}
+
+				/*make a continued note if applicable*/
+				if (startpoint) fprintf(notes_file, "|  continued...   |     |  ");
+
+				/* Write that line to file */
+				for (n = startpoint; n <= endpoint; n++)
+				{
+					char ch;
+
+					/* Ensure the character is printable */
+					ch = (isprint(buf[n]) ? buf[n] : ' ');
+
+					/* Write out the character */
+					fprintf(notes_file, "%c", ch);
+
+				}
+
+				/*break the line*/
+				fprintf(notes_file, "\n");
+
+				/*prepare for the next line*/
+				startpoint = endpoint + 1;
+			}
+
+		}
 
  	 	/* Add note to buffer */
- 	 	fprintf(notes_file, final_note);
+ 	 	else
+		{
+			fprintf(notes_file, buf);
+
+			/*break the line*/
+			fprintf(notes_file, "\n");
+		}
+
 
  	}
 
@@ -2794,6 +2874,35 @@ void do_cmd_load_screen(void)
 	screen_load();
 }
 
+
+/*display the notes file*/
+static void do_cmd_knowledge_notes(void)
+{
+	char buff[1024];
+  	char fname[80];
+
+	/*close the notes file for writing*/
+	my_fclose(notes_file);
+
+	/*the name of the notes file is based on character name*/
+	sprintf(fname, "%s.txt", op_ptr->full_name);
+
+	/*get the path for the notes file*/
+	path_build(buff, sizeof(buff), ANGBAND_DIR_SAVE, fname);
+
+	/*open notes file for reading*/
+	notes_file = my_fopen(buff, "r");
+
+	/* Display the file contents */
+	show_file(buff, "Notes", 0, 0);
+
+	/*close it for reading*/
+	my_fclose(notes_file);
+
+	/*re-open for appending*/
+	notes_file = my_fopen(buff, "a");
+
+}
 
 /*
  * Hack -- save a screen dump to a file
@@ -3026,6 +3135,63 @@ static void do_cmd_knowledge_uniques(void)
 	fd_kill(file_name);
 }
 
+/*
+ * Display contents of the Home. Code taken from the player death interface
+ * and the show known objects function. -LM-
+ */
+static void do_cmd_knowledge_home(void)
+{
+	int k;
+
+	store_type *st_ptr = &store[STORE_HOME];
+
+	FILE *fp;
+
+	object_type *o_ptr;
+	char o_name[120];
+
+	char file_name[1024];
+
+	/* Temporary file */
+	fp = my_fopen_temp(file_name, sizeof(file_name));
+
+	/* Failure */
+	if (!fp)
+	{
+		msg_print("Could not open a temporary file to show the contents of your	home.");
+	return;
+	}
+
+
+	/* Home -- if anything there */
+	if (st_ptr->stock_num)
+	{
+		/* Display contents of the home */
+		for (k = 0; k < st_ptr->stock_num; k++)
+		{
+
+			/* Acquire item */
+			o_ptr = &st_ptr->stock[k];
+
+			/* Acquire object description */
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+			/* Print a message */
+			fprintf(fp, "     %s\n", o_name);
+		}
+	}
+
+	/* Close the file */
+	my_fclose(fp);
+
+	/* Display the file contents */
+	show_file(file_name, "Contents of Your Home", 0, 2);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
 
 /*
  * Display known objects
@@ -3105,6 +3271,9 @@ void do_cmd_knowledge(void)
 	/* Interact until done */
 	while (1)
 	{
+
+		store_type *st_ptr = &store[STORE_HOME];
+
 		/* Clear screen */
 		Term_clear();
 
@@ -3116,8 +3285,16 @@ void do_cmd_knowledge(void)
 		prt("(2) Display known uniques", 5, 5);
 		prt("(3) Display known objects", 6, 5);
 
+		/*allow the player to see the notes taken if that option is selected*/
+		c_put_str((adult_take_notes ? TERM_WHITE : TERM_SLATE) ,
+					"(4) Display character notes file", 7, 5);
+
+		/*give player option to see home inventory if there is anything in the house*/
+		c_put_str((st_ptr->stock_num ? TERM_WHITE : TERM_SLATE) ,
+				 	"(5) Display contents of your home", 8, 5);
+
 		/* Prompt */
-		prt("Command: ", 8, 0);
+		prt("Command: ", 10, 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -3144,6 +3321,20 @@ void do_cmd_knowledge(void)
 		{
 			/* Spawn */
 			do_cmd_knowledge_objects();
+		}
+
+		/* Ntoes file, if one exists */
+		else if ((ch == '4') && (adult_take_notes))
+		{
+			/* Spawn */
+			do_cmd_knowledge_notes();
+		}
+
+		/* Home inventory, if there is anything in the house */
+		else if ((ch == '5') && (st_ptr->stock_num))
+		{
+			/* Spawn */
+			do_cmd_knowledge_home();
 		}
 
 		/* Unknown option */

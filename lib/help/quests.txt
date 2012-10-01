@@ -21,7 +21,9 @@ which work as follows:
 
 FIXED UNIQUE QUESTS: 
 
-This is unchanged from Angband. The player always has two fixed quests, defeat Sauron and Morgoth, in order to win the game. The player cannot dive deeper than their native depths before completing these quests. 
+This is unchanged from Angband. The player always has two fixed quests, 
+defeat Sauron and Morgoth, in order to win the game. The player cannot dive 
+deeper than their native depths before completing these quests. 
 
 FIXED QUESTS:
 

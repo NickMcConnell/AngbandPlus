@@ -2128,6 +2128,18 @@ R:627:0x8c:0x90
 # Half ogre
 R:628:0x8d:0x90
 
+# Rod mimic
+R:629:0x00:0x2D
+
+# Staff mimic
+R:630:0x00:0x5F
+
+# Wand mimic
+R:631:0x00:0x2D
+
+# vorpal bunny
+R:632:0x8d:0x99
+
 # Object attr/char definitions
 
 # <pile>

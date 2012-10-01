@@ -1,4 +1,104 @@
+Version 0.3.0
+
+New features:
+
+Added Demoband/Sangband 4gai, which includes (as done by Leon Marrick):
+- The "basic code":  4GAI monster ranges, spellcasting, learning, 
+  mana and spellpower, movement, flow, processing, terrain-handling.
+- The "associated code":  Oangband-style noise, monster spells, multi-hued 
+  monsters, fewer wimpy monsters, monster polymorphing, compacting, etc.
+- EyAngband-style monster lifepoint ratings  (by Eytan Zwieg)
+- Sangband-style monster melee attack code and town monsters, 
+  various Sangband updates to the above, 
+- Some changes to randomizing functions to accomodate the above, more correct rounding
+- New and more varied monster attack messages, some from Moria and early Angband
+- smaller monster groups and escorts, careful control of nests, pits, and similar
+- new limits on summoning level, much fewer monsters summoned
+- new limits on OoD monsters, whether randomly generated, summoned, or placed in vaults.
+- arc spells and breaths for the monsters.
+- Sangband project functions (this means no more hockey-stick corridors)
+- Sangband update_view and line-of-sight functions
+- many new types of monster resistances
+- Evasive Monsters (Sangband, EYAngband)
+- monsters surrounded by clouds (UnAngband, Sangband)
+- True "Mimics" (Zangband, Sangband)
+
+
+Note: The breath spells still do Angband-type damage, based on hitpoints rather than spell power.
+And have about the same maximums as Angband.  I made some minor changes to some breaths, such as 
+gravity, inertia, and time.  Example:  depending on whether the creature breathes powerfully or 
+not, gravity breath has different maximum HP damage, and the breath damage-per-hp is also different.
+This allows gravity wyrms to do some real damage while slightly reducing the danger from gravity hounds.
+Instead of reducing HP and armor class as Sangband/Oangband do, the monsters have a smaller
+amount of max_mana, and spell power is adjusted so the damage is similar to that by Angband
+Monsters.  They do more damage in some spells than Angband, but I made the sources of healing
+a little more common and just a little more powerful to compensate.
+
+Other minor new features:
+Player given chance to add last words to notes file upon dying.
+Made most sources healing a little more powerful and common.
+Made scrolls of mass banishment and banishment more common.
+Limited the types of creatures available for quests (no insects, flies, rodents, etc...)
+The "make monsters wary" code now works better, as it is based on the project functions.
+Got rid of the monster.pkg and associated monster-lua files.  
+   The other lua files are still working.
+Added monster mana bar to go with the monster hit-point bar.
+Changed name of staffs and rods of enlightenment to magic mapping.
+Added several new potions and potion flavors.
+Added separate commands for stealing (P) and setting traps (O)
+aborting the alter trap command no longer takes a turn
+slightly revised character screen
+removed unused monster options
+Made monster spell frequency based on straight percentages rather than the one_in_X scheme
+Removed option to occasionally go down another flight of stairs
+Added shafts in addition to stairs, which take the player up or down 2 levels.
+Made some of the more valuable rods immune to destruction by electricity.
+When re-charging, a single rod can no longer be destroyed.
+In the knowledge screen, player can now view notes file 
+	and home inventory (code provided by Jean-Pierre Hamel)
+Made it slightly more likely to sleep, confuse, and slow monsters.
+Some potions have affect the monster when thrown (ex. potion of confusion confuses monster)
+Two prayer changes in beginners handbook:
+1)  Combined find traps and detect doors/stairs into one spell.
+2)  Added a weak, low-level attack spell, bolt of draining.
+
+
+
+Bugfix: Guild rewards that are chests no longer have traps on them
+Bugfix: The guild should no longer give & nothing as a quest reward
+Bugfix: Trap doors were being allowed at the bottom of dungeon, quest levels.
+Bugfix: Stairs and walls were being treated as walls in wiz_lite.
+Bugfix: Cursed artifacts are no longer given as quest rewards.
+Bugfix: Deaths of quest uniques were having 2 notes written to the notes file.
+Bugfix: Notes written to the notes file now "wrap" to next line with formatting if too long.
+Bugfix: Fixed potential buffer overflow problems with note taking.
+Bugfix: Upon completing special quests, a note was written to file if take notes option was not on.
+Bugfix: Quest chests cannot be autosquelched.
+Bugfix: Player no longer gets ammunition as a quest reward
+Bugfix: Player now can get shots in a ammunition themed chest.
+Bugfix: Monster traps can now kill uniques.
+Bugfix: The dungeon stair option was being negated by some changed level generation code.
+Bugfix: The "show squelched item as dot" option was overriding the "show piles with special character" option.
+Bugfix: The counter that tracked failed thefts was not cleared with a new game.
+Bugfix: 3 of the source code files had a capital C as the extension.
+Bugfix: Player can now access the help files from the birth menu.
+Bugfix: Darkness was causing player to forget stairs.
+Bugfix: Quest descriptions now say "destroy" instead of "kill" for undead and 
+	other non-living monsters.
+
+
+
 Version 0.2.2
+
+New features:
+
+Added an option to retain squelch settings on new character.
+Made it an option for a to-be-squelched item to appear as a purple dot.
+Made the chests lighter
+Changed the message when monsters see a playet trap or theft.
+Changed the messages that describe the special quests.
+Updated all makefiles to include the proper files.
+
 
 Bugfix:  ability to modify traps based on rogue_combat flag, should have
 	 been set_traps flag.
@@ -22,15 +122,6 @@ Bugfix:  Adult_force_small_lev was pointing to wrong option
 
 
 plus some misc. code cleanup.....
-
-updated all makefiles to include the proper files.
-
-Added an option to retain squelch settings on new character.
-
-Made it an option for a to-be-squelched item to appear as a purple dot.
-Made the chests lighter
-Changed the message when monsters see a playet trap or theft.
-Changed the messages that describe the special quests.
 
 
 Version 0.2.1

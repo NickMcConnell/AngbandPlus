@@ -431,10 +431,10 @@ and not for profit purposes provided that this copyright and statement
 are included in all such copies.  Other copyrights may also apply.
 
 
-All changes made by Ben Harrison and Robert Ruehlmann are also available
-under the GNU GENERAL PUBLIC LICENSE.  Note that this doesn't influence
-the current distribution, since parts of the source are still only
-available under the old Moria/Angband license.  Until all parts of
+All changes made by Jeff Greene (NPPAngband) Ben Harrison and Robert Ruehlmann
+are also available under the GNU GENERAL PUBLIC LICENSE.  Note that this 
+doesn't influence the current distribution, since parts of the source are 
+still only available under the old Moria/Angband license.  Until all parts of
 Angband are distributed under the GPL the only valid license remains
 the original Moria/Angband license.
 
@@ -448,7 +448,6 @@ Alexander Wilkins, Mauro Scarpa, John I'anson-Holton, "facade",
 Dennis van Es, Kenneth A. Strom, Wei-Hwa Huang, Nikodemus, Timo Pietilä,
 Greg Wooledge, Keldon Jones, Shayne Steele, Dr. Andrew White, Musus Umbra,
 Jonathan Ellis
-
 
 
 

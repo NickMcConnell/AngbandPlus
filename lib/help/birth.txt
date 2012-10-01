@@ -386,7 +386,9 @@ have intrinsic abilities.
                Charisma represents a character's personality and physical
                appearance.  A character with a high charisma will receive
                better prices from store owners, whereas a character with a
-               very low charisma may be robbed blind. 
+               very low charisma may be robbed blind. Charisma also affects the
+               character's ability to use magic to sleep, confuse, or scare a 
+               monster
  
 
 === Abilities ===

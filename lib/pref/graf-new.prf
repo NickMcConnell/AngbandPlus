@@ -3756,6 +3756,18 @@ R:627:0xA6/0x91
 # Half ogre
 R:628:0xA1/0x8D
 
+# Rod mimic
+R:629:0x86/0x83
+
+# Staff mimic
+R:630:0x87/0x92
+
+# Wand mimic
+R:631:0x86/0x93
+
+# vorpal bunny
+R:632:0x91/0x87
+
 # Load the special player pictures
 %:xtra-new.prf
 

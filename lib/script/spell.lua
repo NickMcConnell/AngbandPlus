@@ -151,10 +151,10 @@ SPELL_CURE_LIGHT_WOUNDS = add_magic_spell
 {
 	name = "Cure Light Wounds",
 	info = function()
-			return " heal 2d8"
+			return " heal 2d10"
 		end,
 	effect = function()
-			hp_player(damroll(2, 8))
+			hp_player(damroll(2, 10))
 			set_cut(player.cut - 15)
 			return TRUE
 		end,
@@ -280,7 +280,7 @@ SPELL_WONDER = add_magic_spell
 			elseif (die < 14) then
 				speed_monster(dir)
 			elseif (die < 26) then
-				heal_monster(dir)
+				heal_monster(dir, damroll(4, 6))
 			elseif (die < 31) then
 				poly_monster(dir)
 			elseif (die < 36) then
@@ -325,8 +325,8 @@ SPELL_WONDER = add_magic_spell
 				dispel_monsters(120)
 			else -- RARE
 				dispel_monsters(150)
-				slow_monsters()
-				sleep_monsters()
+				slow_monsters(damroll (2, player.lev))
+				sleep_monsters(damroll(2, player.lev))
 				hp_player(300)
 			end
 
@@ -414,7 +414,7 @@ SPELL_TURN_STONE_TO_MUD = add_magic_spell
 			local success, dir = get_aim_dir()
 			if not success then return FALSE end
 
-			wall_to_mud(dir)
+			wall_to_mud(dir, 20 + randint(30))
 			return TRUE
 		end,
 }
@@ -623,7 +623,7 @@ SPELL_MASS_SLEEP = add_magic_spell
 {
 	name = "Mass Sleep",
 	effect = function()
-			sleep_monsters()
+			sleep_monsters(damroll (2, player.lev))
 			return TRUE
 		end,
 }
@@ -635,7 +635,7 @@ SPELL_BEDLAM = add_magic_spell
 			local success, dir = get_aim_dir()
 			if not success then return FALSE end
 
-			fire_ball(GF_OLD_CONF, dir, player.lev, 4)
+			fire_ball(GF_OLD_CONF, dir, damroll(2, player.lev), 4)
 			return TRUE
 		end,
 }
@@ -1046,10 +1046,10 @@ PRAYER_CURE_LIGHT_WOUNDS = add_prayer
 {
 	name = "Cure Light Wounds",
 	info = function()
-			return " heal 2d10"
+			return " heal 3d8"
 		end,
 	effect = function()
-			hp_player(damroll(2, 10))
+			hp_player(damroll(3, 8))
 			set_cut(player.cut - 10)
 			return TRUE
 		end,
@@ -1085,23 +1085,45 @@ PRAYER_CALL_LIGHT = add_prayer
 		end,
 }
 
-PRAYER_FIND_TRAPS = add_prayer
+PRAYER_FIND_TRAPS_DOORS_STAIRS = add_prayer
 {
-	name = "Find Traps",
+	name = "Find Doors/Stairs/Traps ",
 	effect = function()
 			detect_traps()
-			return TRUE
-		end,
-}
-
-PRAYER_DETECT_DOORS_STAIRS = add_prayer
-{
-	name = "Detect Doors/Stairs",
-	effect = function()
 			detect_doors()
 			detect_stairs()
 			return TRUE
 		end,
+}
+
+PRAYER_BOLT_OF_DRAINING = add_prayer
+{
+	name = "Bolt of Draining",
+	info = function()
+			local div
+			if bAnd(cp_ptr.flags, CF_BLESS_WEAPON) ~= 0 then
+				div = 2
+			else
+				div = 4
+			end
+			return format(" %d+2d4", (player.lev / div))
+		end,
+	effect = function()
+			local success, dir = get_aim_dir()
+			if not success then return FALSE end
+
+			local div
+			if bAnd(cp_ptr.flags, CF_BLESS_WEAPON) ~= 0 then
+				div = 2
+			else
+				div = 3
+			end
+
+			fire_bolt(GF_HOLY_ORB, dir, (damroll(2, 4) + (player.lev / 				div)))
+
+			return TRUE
+		end,
+
 }
 
 PRAYER_SLOW_POISON = add_prayer
@@ -1141,10 +1163,10 @@ PRAYER_CURE_SERIOUS_WOUNDS = add_prayer
 {
 	name = "Cure Serious Wounds",
 	info = function()
-			return " heal 4d10"
+			return " heal 5d10"
 		end,
 	effect = function()
-			hp_player(damroll(4, 10))
+			hp_player(damroll(5, 10))
 			set_cut((player.cut / 2) - 20)
 			return TRUE
 		end,
@@ -1237,7 +1259,7 @@ PRAYER_ORB_OF_DRAINING = add_prayer
 			local rad
 			if player.lev < 30 then rad = 2 else rad = 3 end
 
-			fire_ball(GF_HOLY_ORB, dir,
+			fire_orb(GF_HOLY_ORB, dir,
 			          (damroll(3, 6) + player.lev + (player.lev / div)), rad)
 
 			return TRUE
@@ -1248,10 +1270,10 @@ PRAYER_CURE_CRITICAL_WOUNDS = add_prayer
 {
 	name = "Cure Critical Wounds",
 	info = function()
-			return " heal 6d10"
+			return " heal 8d10"
 		end,
 	effect = function()
-			hp_player(damroll(6, 10))
+			hp_player(damroll(8, 10))
 			set_cut(0)
 			return TRUE
 		end,
@@ -1303,10 +1325,10 @@ PRAYER_CURE_MORTAL_WOUNDS = add_prayer
 {
 	name = "Cure Mortal Wounds",
 	info = function()
-			return " heal 8d10"
+			return " heal 12d10"
 		end,
 	effect = function()
-			hp_player(damroll(8, 10))
+			hp_player(damroll(12, 10))
 			set_stun(0)
 			set_cut(0)
 			return TRUE
@@ -1317,7 +1339,7 @@ PRAYER_TURN_UNDEAD = add_prayer
 {
 	name = "Turn Undead",
 	effect = function()
-			turn_undead()
+			turn_undead(player.lev)
 			return TRUE
 		end,
 }
@@ -1350,10 +1372,10 @@ PRAYER_HEAL = add_prayer
 {
 	name = "Heal",
 	info = function()
-			return " heal 300"
+			return " heal 325"
 		end,
 	effect = function()
-			hp_player(300)
+			hp_player(325)
 			set_stun(0)
 			set_cut(0)
 			return TRUE
@@ -1385,11 +1407,11 @@ PRAYER_HOLY_WORD = add_prayer
 {
 	name = "Holy Word",
 	info = function()
-			return " heal 1000"
+			return " heal 1500"
 		end,
 	effect = function()
 			dispel_evil(randint(player.lev * 4))
-			hp_player(1000)
+			hp_player(1500)
 			set_afraid(0)
 			set_poisoned(0)
 			set_stun(0)
@@ -1447,10 +1469,10 @@ PRAYER_CURE_SERIOUS_WOUNDS2 = add_prayer
 {
 	name = "Cure Serious Wounds",
 	info = function()
-			return " heal 4d10"
+			return " heal 5d15"
 		end,
 	effect = function()
-			hp_player(damroll(4, 10))
+			hp_player(damroll(5, 15))
 			set_cut(0)
 			return TRUE
 		end,
@@ -1460,10 +1482,10 @@ PRAYER_CURE_MORTAL_WOUNDS2 = add_prayer
 {
 	name = "Cure Mortal Wounds",
 	info = function()
-			return " heal 8d10"
+			return " heal 12d15"
 		end,
 	effect = function()
-			hp_player(damroll(8, 10))
+			hp_player(damroll(12, 15))
 			set_stun(0)
 			set_cut(0)
 			return TRUE
@@ -1695,8 +1717,8 @@ add_book(prayers, 0,
           PRAYER_BLESS,
           PRAYER_REMOVE_FEAR,
           PRAYER_CALL_LIGHT,
-          PRAYER_FIND_TRAPS,
-          PRAYER_DETECT_DOORS_STAIRS,
+          PRAYER_FIND_TRAPS_DOORS_STAIRS,
+          PRAYER_BOLT_OF_DRAINING,
           PRAYER_SLOW_POISON})
 
 -- Words of Wisdom
@@ -1803,3 +1825,4 @@ add_event_handler("get_spell_index", get_spell_index_hook)
 add_event_handler("get_spell_info", get_spell_info_hook)
 add_event_handler("get_spell_name", get_spell_name_hook)
 add_event_handler("cast_spell", cast_spell_hook)
+

@@ -530,6 +530,8 @@ static void player_wipe(void)
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
+	/*re-set the thefts counter*/
+	recent_failed_thefts = 0;
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
@@ -686,7 +688,7 @@ static void clear_question(void)
  * Generic "get choice from menu" function
  */
 static int get_player_choice(birth_menu *choices, int num, int col, int wid,
-                             cptr helpfile, void (*hook)(birth_menu))
+                             void (*hook)(birth_menu))
 {
 	int top = 0, cur = 0;
 	int i, dir;
@@ -824,11 +826,7 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 		/* Help */
 		else if (c == '?')
 		{
-			strnfmt(buf, sizeof(buf), "%s#%s", helpfile, choices[cur].name);
-
-			screen_save();
-			(void)show_file(buf, NULL, 0, 0);
-			screen_load();
+			do_cmd_help();
 		}
 
 		/* Options */
@@ -906,7 +904,7 @@ static bool get_player_race(void)
 	}
 
 	p_ptr->prace = get_player_choice(races, z_info->p_max, RACE_COL, 15,
-		"races.txt", race_aux_hook);
+		race_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->prace == INVALID_CHOICE)
@@ -1002,7 +1000,7 @@ static bool get_player_class(void)
 	}
 
 	p_ptr->pclass = get_player_choice(classes, z_info->c_max, CLASS_COL, 20,
-		"classes.txt", class_aux_hook);
+		class_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->pclass == INVALID_CHOICE)
@@ -1040,7 +1038,7 @@ static bool get_player_sex(void)
 		genders[i].ghost = FALSE;
 	}
 
-	p_ptr->psex = get_player_choice(genders, MAX_SEXES, SEX_COL, 15, "birth.hlp", NULL);
+	p_ptr->psex = get_player_choice(genders, MAX_SEXES, SEX_COL, 15, NULL);
 
 	/* No selection? */
 	if (p_ptr->psex == INVALID_CHOICE)
@@ -1775,10 +1773,10 @@ void player_birth(void)
  	  	fprintf(notes_file, "%s the %s %s\n", op_ptr->full_name,
 								p_name + rp_ptr->name,
 								c_name + cp_ptr->name);
- 	  	fprintf(notes_file, "Born on %s\n",long_day);
+ 	  	fprintf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
  	  	fprintf(notes_file, "============================================================\n");
-		fprintf(notes_file, "                  CHAR.  \n");
-		fprintf(notes_file, "   TURN  | DEPTH |LEVEL| EVENT\n");
+		fprintf(notes_file, "                   CHAR.  \n");
+		fprintf(notes_file, "|   TURN  | DEPTH |LEVEL| EVENT\n");
 		fprintf(notes_file, "============================================================\n");
 
  	}

@@ -1048,11 +1048,6 @@ void do_squelch_pile(int y, int x)
 		{
       		delete_object_idx(o_idx);
 		}
-
-    	if (sq_flag)
-		{
-      		delete_object_idx(o_idx);
-    	}
   	}
 }
 

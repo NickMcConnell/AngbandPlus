@@ -14,7 +14,7 @@
 
 # Version stamp (required)
 
-V:3.0.6
+V:3.0.8
 
 
 ##### Rings #####
@@ -1203,3 +1203,32 @@ G:?:w
 N:302:70
 G:?:w
 
+####### A couple more potions#######
+
+N:303:75
+G:!:r
+D:Sparkling Red
+
+N:304:75
+G:!:B
+D:Sky Blue
+
+N:305:75
+G:!:y
+D:Bubbling Yellow
+
+N:306:75
+G:!:g
+D:Sparkling Green
+
+N:307:75
+G:!:y
+D:Sparkling Gold
+
+N:308:75
+G:!:v
+D:Dark Purple
+
+N:309:75
+G:!:W
+D:Metallic Silver

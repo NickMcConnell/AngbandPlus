@@ -610,6 +610,7 @@ errr get_obj_num_prep(void)
  *
  * Note that if no objects are "appropriate", then this function will
  * fail, and return zero, but this should *almost* never happen.
+ * (but it does happen with certain themed items occasionally). -JG
  */
 s16b get_obj_num(int level)
 {
@@ -1582,7 +1583,6 @@ static s16b m_bonus(int max, int level)
 	/* Hack -- simulate floating point computations */
 	if (rand_int(MAX_DEPTH) < extra) bonus++;
 
-
 	/* The "stand" is equal to one quarter of the max */
 	stand = (max / 4);
 
@@ -1727,7 +1727,6 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 	/* No legal ego-items -- create a normal unenchanted one */
 	if (total == 0) return (0);
 
-
 	/* Pick an ego-item */
 	value = rand_int(total);
 
@@ -1786,6 +1785,14 @@ static bool make_artifact_special(object_type *o_ptr)
 
 		/* Cannot make an artifact twice */
 		if (a_ptr->cur_num) continue;
+
+		/*Hack - don't allow cursed artifacts as quest items*/
+		if (chest_or_quest == QUEST_ITEM)
+		{
+			if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) continue;
+			if (a_ptr->flags3 & (TR3_HEAVY_CURSE)) continue;
+			if (a_ptr->flags3 & (TR3_PERMA_CURSE)) continue;
+		}
 
 		/* Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > depth_check)
@@ -1864,6 +1871,14 @@ static bool make_artifact(object_type *o_ptr)
 		/* Must have the correct fields */
 		if (a_ptr->tval != o_ptr->tval) continue;
 		if (a_ptr->sval != o_ptr->sval) continue;
+
+		/*Hack - don't allow cursed artifacts as quest items*/
+		if (chest_or_quest == QUEST_ITEM)
+		{
+			if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) continue;
+			if (a_ptr->flags3 & (TR3_HEAVY_CURSE)) continue;
+			if (a_ptr->flags3 & (TR3_PERMA_CURSE)) continue;
+		}
 
 		/* XXX XXX Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > depth_check)
@@ -2058,7 +2073,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 				/* Hack -- Super-charge the damage dice */
 				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(15) == 0))
+				       (one_in_(15)))
 				{
 					o_ptr->dd++;
 				}
@@ -2068,7 +2083,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 				/* Hack -- Super-charge the damage sides */
 				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(15) == 0))
+				       (one_in_(15)))
 				{
 					o_ptr->ds++;
 				}
@@ -2089,9 +2104,19 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			/* Very good */
 			if (power > 1)
 			{
+				/* Hack -- Super-charge the damage dice */
+				while ((o_ptr->dd * o_ptr->ds > 0) &&
+				       (one_in_(25)))
+				{
+					o_ptr->dd++;
+				}
+
+				/* Hack -- Limit the damage dice to max of 9*/
+				if (o_ptr->dd > 9) o_ptr->dd = 9;
+
 				/* Hack -- super-charge the damage side */
 				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(25) == 0))
+				       (one_in_(25)))
 				{
 					o_ptr->ds++;
 				}
@@ -2193,7 +2218,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_INT:
 				{
 					/* Stat bonus */
-					o_ptr->pval = 1 + m_bonus(5, level);
+					o_ptr->pval = 1 + m_bonus(5 + (level / 35), level);
+
+					/*cut it off at 6*/
+					if (o_ptr->pval > 6) o_ptr->pval = 6;
 
 					/* Cursed */
 					if (power < 0)
@@ -2218,7 +2246,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->pval = randint(5) + m_bonus(5, level);
 
 					/* Super-charge the ring */
-					while (rand_int(100) < 50) o_ptr->pval++;
+					while (one_in_(2)) o_ptr->pval++;
 
 					/* Cursed Ring */
 					if (power < 0)
@@ -2273,7 +2301,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_LIGHTNING:
 				{
 					/* Bonus to armor class */
-					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
+					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level) + (level / 10);
 					break;
 				}
 
@@ -2313,7 +2341,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_DAMAGE:
 				{
 					/* Bonus to damage */
-					o_ptr->to_d = 5 + randint(3) + m_bonus(7, level);
+					o_ptr->to_d = 5 + randint(3) + m_bonus(7, level) + (level / 10);
 
 					/* Cursed */
 					if (power < 0)
@@ -2335,7 +2363,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_ACCURACY:
 				{
 					/* Bonus to hit */
-					o_ptr->to_h = 5 + randint(3) + m_bonus(7, level);
+					o_ptr->to_h = 5 + randint(3) + m_bonus(7, level) + (level / 10);
 
 					/* Cursed */
 					if (power < 0)
@@ -2357,7 +2385,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_PROTECTION:
 				{
 					/* Bonus to armor class */
-					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
+					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level) + (level / 5);
 
 					/* Cursed */
 					if (power < 0)
@@ -2379,8 +2407,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_SLAYING:
 				{
 					/* Bonus to damage and to hit */
-					o_ptr->to_d = randint(5) + m_bonus(5, level);
-					o_ptr->to_h = randint(5) + m_bonus(5, level);
+					o_ptr->to_d = randint(5) + m_bonus(5, level) + (level / 10);
+					o_ptr->to_h = randint(5) + m_bonus(5, level) + (level / 10);
 
 					/* Cursed */
 					if (power < 0)
@@ -2413,7 +2441,11 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_AMULET_CHARISMA:
 				case SV_AMULET_INFRAVISION:
 				{
-					o_ptr->pval = 1 + m_bonus(5, level);
+					/* Stat bonus */
+					o_ptr->pval = 1 + m_bonus(5 + (level / 35), level);
+
+					/*cut it off at 6*/
+					if (o_ptr->pval > 6) o_ptr->pval = 6;
 
 					/* Cursed */
 					if (power < 0)
@@ -2617,6 +2649,9 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, bool good, bool 
 
 			/*a minimum pval of 1, or else it will be empty in the town*/
 			if (o_ptr->pval < 1) o_ptr->pval = 1;
+
+			/*a guild reward chest shouldn't be trapped*/
+			if (chest_or_quest == QUEST_ITEM) o_ptr->pval = (0 - o_ptr->pval);
 
 			/*save the chest theme in xtra1, used in chest death*/
 			o_ptr->xtra1 = choose_chest_contents ();
@@ -3055,7 +3090,9 @@ static bool kind_is_great(int k_idx)
 		/* Ammo -- Arrows/Bolts are great */
 		case TV_BOLT:
 		case TV_ARROW:
+		case TV_SHOT:
 		{
+			if (chest_or_quest == QUEST_ITEM) return (FALSE);
 			return (TRUE);
 		}
 
@@ -3299,7 +3336,7 @@ static bool kind_is_bow(int k_idx)
 		case TV_SHOT:
 		{
 			if (chest_or_quest == QUEST_ITEM) return (FALSE);
-			else return (TRUE);
+			return (TRUE);
 
 		}
 
@@ -3381,9 +3418,11 @@ static bool kind_is_scroll(int k_idx)
 			if (k_ptr->sval == SV_SCROLL_BANISHMENT) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_MASS_BANISHMENT) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_RUNE_OF_PROTECTION) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_TELEPORT) return (TRUE);
+			if ((k_ptr->sval == SV_SCROLL_TELEPORT) &&
+				((k_ptr->level + 15) >= object_level )) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_RECHARGING) return (TRUE);
+			if ((k_ptr->sval == SV_SCROLL_RECHARGING) &&
+				((k_ptr->level + 15) >= object_level )) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_CREATE_MONSTER_TRAP) return (TRUE);
 
 			return (FALSE);
@@ -3423,7 +3462,8 @@ static bool kind_is_potion(int k_idx)
 
 		{
 			if (k_ptr->sval == SV_POTION_SPEED) return (TRUE);
-			if (k_ptr->sval == SV_POTION_HEALING) return (TRUE);
+			if ((k_ptr->sval == SV_POTION_HEALING) &&
+				((k_ptr->level + 20) >= object_level )) return (TRUE);
 			if (k_ptr->sval == SV_POTION_STAR_HEALING) return (TRUE);
 			if (k_ptr->sval == SV_POTION_LIFE) return (TRUE);
 			if ((k_ptr->sval == SV_POTION_INC_STR) &&
@@ -3442,6 +3482,7 @@ static bool kind_is_potion(int k_idx)
 				((k_ptr->level + 10) >= object_level )) return (TRUE);
 			if (k_ptr->sval == SV_POTION_EXPERIENCE) return (TRUE);
 			if (k_ptr->sval == SV_POTION_ENLIGHTENMENT) return (TRUE);
+			if (k_ptr->sval == SV_POTION_RESISTANCE) return (TRUE);
 
 			return (FALSE);
 		}
@@ -3449,7 +3490,8 @@ static bool kind_is_potion(int k_idx)
 		case TV_FOOD:
 		/* HACK -  Mushrooms of restoring can be with potions */
 		{
-			if (k_ptr->sval == SV_FOOD_RESTORING) return (TRUE);
+			if ((k_ptr->sval == SV_FOOD_RESTORING) &&
+				((k_ptr->level + 25) >= object_level )) return (TRUE);
 			return (FALSE);
 		}
 
@@ -3475,8 +3517,10 @@ static bool kind_is_rod_wand_staff(int k_idx)
 		case TV_WAND:
 
 		{
-			if (k_ptr->sval == SV_WAND_TELEPORT_AWAY) return (TRUE);
-			if (k_ptr->sval == SV_WAND_STONE_TO_MUD) return (TRUE);
+			if ((k_ptr->sval == SV_WAND_TELEPORT_AWAY) &&
+				((k_ptr->level + 20) >= object_level )) return (TRUE);
+			if ((k_ptr->sval == SV_WAND_STONE_TO_MUD) &&
+				((k_ptr->level + 20) >= object_level )) return (TRUE);
 			if (k_ptr->sval == SV_WAND_ANNIHILATION) return (TRUE);
 			if (k_ptr->sval == SV_WAND_DRAGON_FIRE) return (TRUE);
 			if (k_ptr->sval == SV_WAND_DRAGON_COLD) return (TRUE);
@@ -3490,14 +3534,16 @@ static bool kind_is_rod_wand_staff(int k_idx)
 		case TV_STAFF:
 
 		{
-			if (k_ptr->sval == SV_STAFF_TELEPORTATION) return (TRUE);
+			if ((k_ptr->sval == SV_STAFF_TELEPORTATION) &&
+				((k_ptr->level + 20) >= object_level )) return (TRUE);
 			if (k_ptr->sval == SV_STAFF_THE_MAGI) return (TRUE);
 			if (k_ptr->sval == SV_STAFF_SPEED) return (TRUE);
 			if (k_ptr->sval == SV_STAFF_DISPEL_EVIL) return (TRUE);
 			if (k_ptr->sval == SV_STAFF_POWER) return (TRUE);
 			if (k_ptr->sval == SV_STAFF_HOLINESS) return (TRUE);
 			if (k_ptr->sval == SV_STAFF_BANISHMENT) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_DESTRUCTION) return (TRUE);
+			if ((k_ptr->sval == SV_STAFF_DESTRUCTION) &&
+				((k_ptr->level + 20) >= object_level )) return (TRUE);
 			return (FALSE);
 		}
 
@@ -3505,12 +3551,15 @@ static bool kind_is_rod_wand_staff(int k_idx)
 		case TV_ROD:
 
 		{
-			if (k_ptr->sval == SV_ROD_IDENTIFY) return (TRUE);
-			if (k_ptr->sval == SV_ROD_DETECTION) return (TRUE);
+			if ((k_ptr->sval == SV_ROD_IDENTIFY) &&
+				((k_ptr->level + 20) >= object_level )) return (TRUE);
+			if ((k_ptr->sval == SV_ROD_DETECTION) &&
+				((k_ptr->level + 20) >= object_level )) return (TRUE);
 			if (k_ptr->sval == SV_ROD_HEALING) return (TRUE);
 			if (k_ptr->sval == SV_ROD_RESTORATION) return (TRUE);
 			if (k_ptr->sval == SV_ROD_SPEED) return (TRUE);
-			if (k_ptr->sval == SV_ROD_TELEPORT_AWAY) return (TRUE);
+			if ((k_ptr->sval == SV_ROD_TELEPORT_AWAY) &&
+				((k_ptr->level + 20) >= object_level )) return (TRUE);
 			return (FALSE);
 		}
 
@@ -3537,7 +3586,6 @@ static bool kind_is_jewelry(int k_idx)
 			if (k_ptr->to_a < 0) return (FALSE);
 			return (TRUE);
 		}
-
 
 		/*  Rings of Speed are suitable for a chest */
 		case TV_RING:
@@ -3612,7 +3660,9 @@ static bool kind_is_good(int k_idx)
 		/* Ammo -- Arrows/Bolts are good */
 		case TV_BOLT:
 		case TV_ARROW:
+		case TV_SHOT:
 		{
+			if (chest_or_quest == QUEST_ITEM) return (FALSE);
 			return (TRUE);
 		}
 
@@ -4309,11 +4359,11 @@ void pick_trap(int y, int x)
 		feat = FEAT_TRAP_HEAD + rand_int(17);
 
 		/* HACK - no trap doors on a fixed quest level  */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
+		if ((feat == FEAT_TRAP_HEAD + 0x01) && ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
 			(quest_check(p_ptr->depth) == QUEST_FIXED_U))) continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
+		if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
 
 		/* Done */
 		break;

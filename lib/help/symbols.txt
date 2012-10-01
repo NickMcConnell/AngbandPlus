@@ -35,7 +35,7 @@ Objects
 
 Monsters
      $   Creeping Coins                   ,   Mushroom Patch
-     !   Mimic (also ?, =, and ~)
+     !   Mimic (also ?, =, _. - and ~)
      a   Giant Ant                        A   Ainu/Maia
      b   Giant Bat                        B   Bird
      c   Giant Centipede                  C   Canine (Dog)

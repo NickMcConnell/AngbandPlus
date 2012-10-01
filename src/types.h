@@ -46,6 +46,11 @@
  */
 typedef byte byte_256[256];
 
+/*
+ * An array of 256 u16b's
+ */
+typedef u16b u16b_256[256];
+
 
 /*
  * An array of MAX_DUNGEON_WID byte's
@@ -335,8 +340,11 @@ struct monster_race
 
 	s16b extra;				/* Unused (for now) */
 
-	byte freq_innate;		/* Innate spell frequency */
-	byte freq_spell;		/* Other spell frequency */
+	byte freq_ranged;		/* Ranged attack frequency */
+	byte mana;				/* Max mana */
+	byte spell_power;		/* Power of (damage-dealing) spells */
+	byte unused;        	/* Not currently used */
+
 
 	u32b flags1;			/* Flags 1 (general) */
 	u32b flags2;			/* Flags 2 (abilities) */
@@ -344,6 +352,7 @@ struct monster_race
 	u32b flags4;			/* Flags 4 (inate/breath) */
 	u32b flags5;			/* Flags 5 (normal spells) */
 	u32b flags6;			/* Flags 6 (special spells) */
+	u32b flags7;			/* Flags 7 (summon spells) */
 
 	monster_blow blow[MONSTER_BLOW_MAX]; /* Up to four blows per round */
 
@@ -387,8 +396,11 @@ struct monster_lore
 	byte drop_gold;			/* Max number of gold dropped at once */
 	byte drop_item;			/* Max number of item dropped at once */
 
-	byte cast_innate;		/* Max number of innate spells seen */
-	byte cast_spell;		/* Max number of other spells seen */
+	byte ranged;			/* Observed ranged attacks */
+	byte mana;				/* Max mana */
+	byte spell_power;		/* Power of (damage-dealing) spells */
+
+	byte xtra3;				/* Something (unused) */
 
 	byte blows[MONSTER_BLOW_MAX]; /* Number of times each blow type was seen */
 
@@ -398,6 +410,7 @@ struct monster_lore
 	u32b flags4;			/* Observed racial flags */
 	u32b flags5;			/* Observed racial flags */
 	u32b flags6;			/* Observed racial flags */
+	u32b flags7;			/* Observed racial flags */
 };
 
 
@@ -523,17 +536,27 @@ struct monster_type
 
 	byte cdis;			/* Current dis from player */
 
-	byte mflag;			/* Extra monster flags */
+	u32b mflag;			/* Extra monster flags */
 
 	bool ml;			/* Monster is "visible" */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
-#ifdef DRS_SMART_OPTIONS
 
 	u32b smart;			/* Field for "smart_learn" */
 
-#endif /* DRS_SMART_OPTIONS */
+	byte ty;			/* Monster target */
+	byte tx;
+
+	/* Harrassment spells are more likely early in a battle */
+	byte harass;
+
+	byte min_range;		/* What is the closest we want to be? */  /* Not saved */
+	byte best_range;	/* How close do we want to be? */  /* Not saved */
+
+	byte mana;          /* Current mana level */
+
+	s16b mimic_k_idx;	/*type of mimic code*/
 
 };
 
@@ -894,6 +917,8 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
+	s16b base_wakeup_chance;	/* Base amount of character noise */
+
 	byte spell_flags[PY_MAX_SPELLS]; /* Spell flags */
 
 	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
@@ -919,8 +944,7 @@ struct player_type
 
 	bool leaving;			/* True if player is leaving */
 
-	bool create_up_stair;	/* Create up stair on next level */
-	bool create_down_stair;	/* Create down stair on next level */
+	s16b create_stair;		/* Create a staircase on next level */
 
 	s16b wy;				/* Dungeon panel */
 	s16b wx;				/* Dungeon panel */
@@ -1070,6 +1094,8 @@ struct player_type
 	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
+
+	byte vulnerability;	/* Used to make animal packs charge and retreat */
 
 	u16b cur_quest;		/* Current quest */
 };
