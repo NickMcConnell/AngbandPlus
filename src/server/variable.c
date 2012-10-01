@@ -173,12 +173,13 @@ s32b m_top = 0;			/* Monster top size */
 
 bool cfg_report_to_meta = 0;
 char * cfg_meta_address;
+char * cfg_report_address = NULL;
 char * cfg_console_password = "change_me";
-char * cfg_admin_wizard = "Serverchez";
 char * cfg_dungeon_master = "DungeonMaster";
 bool cfg_secret_dungeon_master = 0;
 s16b cfg_fps = 12;
 bool cfg_mage_hp_bonus = 1;
+bool cfg_no_steal = 0;
 bool cfg_newbies_cannot_drop = 0;
 bool cfg_door_bump_open = 1;
 s32b cfg_unique_respawn_time = 300;
@@ -286,7 +287,6 @@ bool view_bright_lite;		/* Use special colors for 'viewable' grids */
 
 bool view_granite_lite;		/* Use special colors for wall grids (slow) */
 bool view_special_lite;		/* Use special colors for floor grids (slow) */
-
 
 /* Option Set 99 -- Obsolete but needed for savefile parsing */
 

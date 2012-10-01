@@ -25,6 +25,11 @@ extern cptr stat_names_reduced[6];
 extern cptr ang_term_name[8];
 extern cptr window_flag_desc[32];
 
+/* set_focus.c */
+extern void set_chat_focus( void );
+extern void unset_chat_focus( void );
+extern void stretch_chat_ctrl( void );
+
 
 
 
@@ -45,7 +50,7 @@ extern int store_prices[24];
 extern char store_names[24][80];
 extern s16b store_num;
 
-extern char spell_info[9][9][80];
+extern char spell_info[26][9][80];
 
 extern char party_info[160];
 
@@ -351,6 +356,7 @@ extern void prt_state(bool paralyzed, bool searching, bool resting);
 extern void prt_speed(int speed);
 extern void prt_study(bool study);
 extern void prt_cut(int cut);
+extern void prt_lag(u32b mark, u32b num);
 extern void prt_stun(int stun);
 extern void prt_basic(void);
 extern void health_redraw(int num, byte attr);
@@ -366,7 +372,9 @@ extern void do_cmd_messages(void);
 /* client.c */
 
 /* netclient.c */
+extern sockbuf_t rbuf, cbuf, wbuf, qbuf;
 extern int ticks;
+extern int lag_ok;
 extern void update_ticks();
 extern void do_keepalive();
 extern int Net_setup(void);
@@ -377,6 +385,7 @@ extern int Net_flush(void);
 extern int Net_fd(void);
 extern int Net_start(void);
 extern int Net_input(void);
+extern int Net_packet(void);
 extern int Flush_queue(void);
 
 extern int Send_search(void);

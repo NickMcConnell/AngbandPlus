@@ -1,23 +1,19 @@
-
-                    :::!~!!!!!:.
-                  .xUHWH!! !!?M88WHX:.               Mangband 0.7.0b
-                .X*#M@$!!  !X!M$$$$$$WWx:.     
-               :!!!!!!?H! :!$!$$$$$$$$$$8X:    Developer and Server Admin :
-              !!~  ~:~!! :~!$!#$$$$$$$$$$8X:        adingle@crud.net
-             :!~::!H!<   ~.U$X!?R$$$$$$$$MM!  
-             ~!~!!!!~~ .:XW$$$U!!?$$$$$$RMM!  See Code for other Copyrights!
-               !:~~~ .:!M"T#$$$$WX??#MRRMMM!   
-               ~?WuxiW*`   `"#$$$$8!!!!??!!!   Added recently : 
-             :X- M$$$$       `"T#$T~!8$WUXU~     New Ego Items. 
-            :  ~#$$$m:        ~!~ ?$$$$$$        All New Networking Code.
-          :!`.-   ~T$$$$8xx.  .xWW- ~""##*"      Many Bug Fixes.
-.....   -~~:<` !    ~?T#$$@@W@*?$$      /`       
-W$@@M!!! .!~~ !!     .:XUW$W!~ `"~:    :     	
-:::~:!!`:X~ .: ?H.!u "$$$B$$$!W:U!T$$M~         
-.~~   :X@!.-~   ?@WTWo("*$$$W$TH$! `
-Wi.~!X$?!-~    : ?$$$B$Wu("**$RM!               Newbies : Hit '?' for help
-$R@i.~~ !     :   ~$$$$$B$$en:``                          Hit ':' to talk
-?MXT@Wx.~    :     ~"##*$$$$M~			    
-                                               /*/*/* We miss you Oqo! */*/*/
-
-
+                    :::!~!!!!!:.                Server: Refugee
+                  .xUHWH!! !!?M88WHX:.             Mangband 0.7.2
+                .X*#M@$!!  !X!M$$$$$$WWx:.          www.mangband.org 
+               :!!!!!!?H! :!$!$$$$$$$$$$8X:         
+              !!~  ~:~!! :~!$!#$$$$$$$$$$8X:         Current Server Admin: 
+             :!~::!H!<   ~.U$X!?R$$$$$$$$MM!          crimson@mangband.org 
+             ~!~!!!!~~ .:XW$$$U!!?$$$$$$RMM!                                
+               !:~~~ .:!M"T#$$$$WX??#MRRMMM!        Ported to multiplayer 
+               ~?WuxiW*`   `"#$$$$8!!!!??!!!           by Keldon Jones.
+             :X- M$$$$       `"T#$T~!8$WUXU~                                                  
+            :  ~#$$$m:        ~!~ ?$$$$$$          Based on Angband 2.7.2.                        
+          :!`.-   ~T$$$$8xx.  .xWW- ~""##*"           by Ben Harrison.                     
+.....   -~~:<` !    ~?T#$$@@W@*?$$      /`                                  
+W$@@M!!! .!~~ !!     .:XUW$W!~ `"~:    :          Newbies : Hit '?' for help
+:::~:!!`:X~ .: ?H.!u "$$$B$$$!W:U!T$$M~                     Hit ':' to talk
+.~~   :X@!.-~   ?@WTWo("*$$$W$TH$! `                                        
+Wi.~!X$?!-~    : ?$$$B$Wu("**$RM!               Be sure to check on mangband.org  
+$R@i.~~ !     :   ~$$$$$B$$en:``              for the new forums and information!
+?MXT@Wx.~    :     ~"##*$$$$M~                                              

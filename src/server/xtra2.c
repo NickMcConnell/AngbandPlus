@@ -31,7 +31,7 @@ bool set_blind(int Ind, int v)
 	bool notice = FALSE;
 
 	/* the admin wizard can not be blinded */
-	if (!strcmp(p_ptr->name, cfg_admin_wizard)) return 1;
+	if (!strcmp(p_ptr->name, cfg_dungeon_master)) return 1;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1160,7 +1160,7 @@ bool set_stun(int Ind, int v)
 
 
 	/* hack -- the admin wizard can not be stunned */
-	if (!strcmp(p_ptr->name, cfg_admin_wizard)) return TRUE;
+	if (!strcmp(p_ptr->name, cfg_dungeon_master)) return TRUE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1633,9 +1633,10 @@ bool set_food(int Ind, int v)
 			msg_print(Ind, "You are getting faint from hunger!");
 			/* Hack -- if the player is at full hit points, 
 			 * destroy his conneciton (this will hopefully prevent
-			 * people from starving while afk)
+			 * people from starving while afk, and not in the dungeon.)
 			 */
-			if (p_ptr->chp == p_ptr->mhp)
+
+			if ( (p_ptr->chp == p_ptr->mhp) /* && (p_ptr->dun_depth <=0) */ )
 			{
 				/* Use the value */
 				p_ptr->food = v;
@@ -2166,10 +2167,26 @@ void player_death(int Ind)
 	player_type *p_ptr = Players[Ind];
 	char buf[1024];
 	int i;
+	int tmp;  /* used to check for pkills */
+	int pkill=0;  /* verifies we have a pkill */
 
 	/* Get rid of him if he's a ghost */
 	if (p_ptr->ghost)
 	{
+
+		/* hack, account for keys ghosts can carry */
+		for (i = 0; i < INVEN_TOTAL; i++)
+		{
+			/* Make sure we have an object */
+			if (p_ptr->inventory[i].k_idx == 0) continue;
+			if (p_ptr->inventory[i].k_idx == 0) continue;
+
+			/* no chance to drop */
+
+			delete_object_ptr(&p_ptr->inventory[i]);
+
+		}
+
 		/* Tell players */
 		sprintf(buf, "%s's ghost was destroyed by %s.",
 				p_ptr->name, p_ptr->died_from);
@@ -2233,7 +2250,6 @@ void player_death(int Ind)
 	
 	if (p_ptr->fruit_bat == -1)
 		sprintf(buf, "%s was turned into a fruit bat by %s!", p_ptr->name, p_ptr->died_from);
-	
 	else if (p_ptr->alive)
 		sprintf(buf, "%s was killed by %s.", p_ptr->name, p_ptr->died_from);
 	else if (!p_ptr->total_winner)
@@ -2241,10 +2257,56 @@ void player_death(int Ind)
 	else
 		sprintf(buf, "The unbeatable %s has retired to a warm, sunny climate.", p_ptr->name);
 
+#if defined( PKILL )
+/****************
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXx
+**********************/
+
+	/* 
+		Check for, and handle player killing player here.
+		NB: doesn't check for players named after monsters, or common deaths.
+		(e.g. Player naming themselves "Starved to Death");
+
+		--Crimson
+	*/
+	if(tmp = lookup_player_id(p_ptr->died_from)) { 
+
+		player_type *ptmp = Players[tmp];
+
+		pkill++; 	/* he was pkilled.... Drop an ear(?) */
+		if( ptmp != NULL) { /* Safty First! */
+			if (!strcasecmp(p_ptr->addr, ptmp->addr)) {
+
+				/* naughty, naughty... same player trying to cheat! */
+				/* kill both characters, dropping nothing */
+				/* note this means the offender drops nothing too! */
+				/* we do this in an offhand way, allowing the main
+				   dungeon loop to carry it out, so we don't end up
+				   tripping on our toes on the way out */
+				   This process reduces the killer to a ghost, and
+				   the character that got killed to rubble.
+				/* Crimson... */
+
+				strcpy(ptmp->died_from, p_ptr->name);
+				ptmp->total_winner = FALSE;
+				ptmp->death = TRUE;
+
+			} else {
+				sprintf(buf, "%s just got his butt kicked by %s.", p_ptr->name, p_ptr->died_from);
+			};
+		};
+	};
+#endif
+	
+
 	/* Tell the players */
 	/* handle the secret_dungeon_master option */
-	if ((strcmp(p_ptr->name,cfg_dungeon_master)) || (!cfg_secret_dungeon_master)) 
-		msg_broadcast(Ind, buf);
+	if ((strcmp(p_ptr->name,cfg_dungeon_master)) || (!cfg_secret_dungeon_master)) {
+		/* RLS: Don't broadcast level 1 suicides */
+		if((!strstr(buf,"suicide")) || (p_ptr->lev > 1)) {
+			msg_broadcast(Ind, buf);
+		};
+	};
 
 	/* Drop gold if player has any */
 	if (p_ptr->alive && p_ptr->au)
@@ -2275,24 +2337,44 @@ void player_death(int Ind)
 		/* Make sure we have an object */
 		if (p_ptr->inventory[i].k_idx == 0)
 			continue;
+		if (p_ptr->inventory[i].k_idx == 0)
+			continue;
+#if defined( PKILL )
+
+		/* hack: pkills drop *nothing* */
+		if (pkill && !artifact_p(&p_ptr->inventory[i])) continue;
+#endif
 
 		/* If we committed suicide, only drop artifacts */
 		if (!p_ptr->alive && !artifact_p(&p_ptr->inventory[i])) continue;
 
+		/* do not drop keys */
+
+		if (p_ptr->inventory[i].tval == TV_KEY) continue;
+
 		/* hack -- total winners do not drop artifacts when they suicide */
+#if !defined( PKILL )
 		if (!p_ptr->alive && p_ptr->total_winner && artifact_p(&p_ptr->inventory[i])) 
+#else
+		/* hack -- neither do pkills */
+		if (
+			(!p_ptr->alive && p_ptr->total_winner && artifact_p(&p_ptr->inventory[i])) ||
+			(!pkill && p_ptr->total_winner && artifact_p(&p_ptr->inventory[i])) 
+		   )
+#endif
 		{
 			/* set the artifact as unfound */
 			a_info[p_ptr->inventory[i].name1].cur_num = 0;
 			
 			/* Don't drop the artifact */
 			continue;
-		}
+		};
 
 		/* Drop this one */
 		drop_near(&p_ptr->inventory[i], 0, p_ptr->dun_depth, p_ptr->py, p_ptr->px);
 
 		/* No more item */
+
 		p_ptr->inventory[i].k_idx = 0;
 		p_ptr->inventory[i].tval = 0;
 		inven_item_increase(Ind, i, -p_ptr->inventory[i].number);
@@ -2423,7 +2505,7 @@ void player_death(int Ind)
     
     -APD-
     
-    hmm, haven't gotten aroudn to doing this yet...
+    Hmm, haven't gotten around to doing this yet...
  */
  
 void resurrect_player(int Ind)
@@ -2436,8 +2518,6 @@ void resurrect_player(int Ind)
 	/* Reset ghost flag */
 	p_ptr->ghost = 0;
 	
-	
-
 	/* Lose some experience */
 	p_ptr->max_exp -= p_ptr->max_exp / 2;
 	p_ptr->exp -= p_ptr->exp / 2;
@@ -2455,7 +2535,6 @@ void resurrect_player(int Ind)
 	/* Window */
 	p_ptr->window |= (PW_SPELL);
 }
-
 
 
 /*
@@ -3285,8 +3364,10 @@ bool target_set(int Ind, int dir)
 			/* Don't target yourself */
 			if (i == Ind) continue;
 
+#if 0
 			/* Skip unconnected players */
 			if (q_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 			/* Ignore players we aren't hostile to */
 			if (!check_hostile(Ind, i)) continue;
@@ -3470,20 +3551,15 @@ bool target_set_friendly(int Ind, int dir)
 	int		y;
 	int		x;
 
-	bool	flag = TRUE;
-
 	char	out_val[160];
 
 	cave_type		*c_ptr;
-
-	monster_type	*m_ptr;
-	monster_race	*r_ptr;
 
 		x = p_ptr->px;
 		y = p_ptr->py;
 
 		/* Go ahead and turn off target mode */
-		p_ptr->target_who = 0;
+		/* p_ptr->target_who = 0; */
 
 		/* Turn off health tracking */
 		health_track(Ind, 0);
@@ -3502,8 +3578,10 @@ bool target_set_friendly(int Ind, int dir)
 			/* Don't target yourself */
 			if (i == Ind) continue;
 
+#if 0
 			/* Skip unconnected players */
 			if (q_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 			/* Ignore players we aren't friends with */
 			/* if (!check_hostile(Ind, i)) continue; */
@@ -3511,6 +3589,9 @@ bool target_set_friendly(int Ind, int dir)
 
 			/* Ignore "unreasonable" players */
 			if (!target_able(Ind, 0 - i)) continue;
+
+			/* Ignore already targeted player */
+			if ((0 - i)==p_ptr->target_who) continue;
 
 			/* Save the player index */
 			p_ptr->target_x[p_ptr->target_n] = q_ptr->px;
@@ -3529,6 +3610,7 @@ bool target_set_friendly(int Ind, int dir)
 		/* start at weakest */
 		
 		m = 0;
+		p_ptr->target_who = 0;
 	
 	/* too lazy to handle dirs right now */
 	
@@ -3551,6 +3633,7 @@ bool target_set_friendly(int Ind, int dir)
 
 		/* Describe */
 		sprintf(out_val, "%s targetted.", q_ptr->name);
+		msg_print(Ind, out_val);
 
 		/* Tell the client about it */
 		Send_target_info(Ind, x - p_ptr->panel_col_prt, y - p_ptr->panel_row_prt, out_val);
@@ -3570,7 +3653,7 @@ bool target_set_friendly(int Ind, int dir)
 	p_ptr->target_n = 0;
 
 	/* Success */
-	return (TRUE);
+	return (p_ptr->target_who);
 }
 
 
@@ -3689,7 +3772,7 @@ bool get_rep_dir(int *dp)
    Setting negative levels is now legal, assuming that the player has explored
    the respective wilderness level.
 */
-void set_recall_depth(player_type * p_ptr, object_type * o_ptr)
+bool set_recall_depth(player_type * p_ptr, object_type * o_ptr)
 {
 	int recall_depth = 0;
 	
@@ -3709,32 +3792,40 @@ void set_recall_depth(player_type * p_ptr, object_type * o_ptr)
 		{
 			inscription++;
 			
-			/* a valid @R has been located */
 			if (*inscription == 'R')
 			{			
+				/* a valid @R has been located */
+
 				inscription++;
 				/* convert the inscription into a level index */
-				recall_depth = atoi(inscription) / 50;
+				recall_depth = atoi(inscription);
+				/* help avoid typos */
+				if(recall_depth %50) { p_ptr->recall_depth=0; return FALSE; }
+				recall_depth/=50;
 			}
 		}
 		inscription++;
 	}
 	
 	/* do some bounds checking / sanity checks */
-	if ((recall_depth > p_ptr->max_dlv) || (!recall_depth)) recall_depth = p_ptr->max_dlv;
+	if((recall_depth > p_ptr->max_dlv) || (!recall_depth)) recall_depth = p_ptr->max_dlv;
 	
 	/* if a wilderness level, verify that the player has visited here before */
 	if (recall_depth < 0)
 	{
 		/* if the player has not visited here, set the recall depth to the town */
-		if (!(p_ptr->wild_map[-recall_depth/8] & (1 << -recall_depth%8))) 		
-			recall_depth = 1;
+               if ((strcmp(p_ptr->name,cfg_dungeon_master)))
+                    if (!(p_ptr->wild_map[-recall_depth/8] & (1 << -recall_depth%8)))
+                        recall_depth = 1;
+
 	}
 	
 	p_ptr->recall_depth = recall_depth;
+	return TRUE;
 }
 
 /* this has finally earned its own function, to make it easy for restoration to do this also */
+
 bool do_scroll_life(int Ind)
 {
 	int x,y;
@@ -3823,8 +3914,10 @@ bool master_level(int Ind, char * parms)
 			num_on_depth = 0;
 			for (i = 1; i <= NumPlayers; i++)
 			{
+#if 0
 				if (p_ptr->conn == NOT_CONNECTED) continue;
 				if (Players[i]->dun_depth == p_ptr->dun_depth) num_on_depth++;
+#endif
 			}
 			/* set the number of players on the level equal to the numer of 
 			 * currently connected players on the level.
@@ -3995,9 +4088,9 @@ u16b master_summon_aux_monster_type( char monster_type, char * monster_parms)
 		case 'd':
 		{
 			return get_mon_num(monster_parms[0]);
+			break;
 		}
 
-		default : break;
 	}
 
 	/* failure */
@@ -4011,6 +4104,7 @@ bool master_acquire(int Ind, char * parms)
 {
 	player_type * p_ptr = Players[Ind];
 	acquirement(p_ptr->dun_depth, p_ptr->py, p_ptr->px, 1, TRUE);
+	return TRUE;
 }
 
 /* Monster summoning options. More documentation on this later. */
@@ -4018,7 +4112,6 @@ bool master_summon(int Ind, char * parms)
 {
 	int c;
 	player_type * p_ptr = Players[Ind];
-	cave_type * c_ptr;
 
 	static char monster_type = 0;  /* What type of monster we are -- specific, random orc, etc */
 	static char monster_parms[80];

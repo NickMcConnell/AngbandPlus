@@ -617,6 +617,7 @@ static errr Infowin_set_icon_name(cptr name)
 
 
 
+
 /*
  * Nuke Infowin
  */

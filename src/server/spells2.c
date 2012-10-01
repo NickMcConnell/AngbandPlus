@@ -457,12 +457,8 @@ void self_knowledge(int Ind)
 
 	cptr	*info = p_ptr->info;
 
-        /* Clear info Area First. */
-
-        for(i=0;i<128;i++) {
-                p_ptr->info[i]=0;
-        };
-        i=0;
+	/* Clear the info area first. */
+	memset(p_ptr->info,0,sizeof(p_ptr->info));
 
 	/* Let the player scroll through the info */
 	p_ptr->special_file_type = TRUE;
@@ -1147,8 +1143,10 @@ bool detect_invisible(int Ind)
 		int py = q_ptr->py;
 		int px = q_ptr->px;
 
+#if 0
 		/* Skip disconnected players */
 		if (q_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 		/* Skip visible players */
 		if (p_ptr->dun_depth != q_ptr->dun_depth) continue;
@@ -1293,8 +1291,10 @@ bool detect_creatures(int Ind)
 		int py = q_ptr->py;
 		int px = q_ptr->px;
 
+#if 0
 		/* Skip disconnected players */
 		if (q_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 		/* Skip visible players */
 		if (p_ptr->play_vis[i]) continue;
@@ -1542,6 +1542,8 @@ void stair_creation(int Ind)
 
 	/* Access the grid */
 	cave_type *c_ptr;
+
+	if(p_ptr->dun_depth == 0 ) { return;};
 
 	/* Access the player grid */
 	c_ptr = &cave[Depth][p_ptr->py][p_ptr->px];
@@ -3687,6 +3689,9 @@ bool poly_monster(int Ind, int dir)
 bool clone_monster(int Ind, int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
+	player_type *p_ptr = Players[Ind];
+	if(p_ptr->lev > 10) return 0;
+
 	return (project_hook(Ind, GF_OLD_CLONE, dir, 0, flg));
 }
 
@@ -3723,6 +3728,12 @@ bool cure_critical_wounds_proj(int Ind, int dir)
 bool heal_other_proj(int Ind, int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(Ind, GF_HEAL_PLAYER, dir, 300, flg));
+}
+
+bool heal_other_heavy_proj(int Ind, int dir)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(Ind, GF_HEAL_PLAYER, dir, 2000, flg));
 }
 
@@ -3737,6 +3748,7 @@ bool door_creation(int Ind)
 	player_type *p_ptr = Players[Ind];
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+	if(p_ptr->dun_depth == 0 ) { return 0;};
 	return (project(0 - Ind, 1, p_ptr->dun_depth, p_ptr->py, p_ptr->px, 0, GF_MAKE_DOOR, flg));
 }
 
@@ -3745,6 +3757,7 @@ bool trap_creation(int Ind)
 	player_type *p_ptr = Players[Ind];
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+	if(p_ptr->dun_depth == 0 ) { return 0;};
 	return (project(0 - Ind, 1, p_ptr->dun_depth, p_ptr->py, p_ptr->px, 0, GF_MAKE_TRAP, flg));
 }
 

@@ -162,7 +162,7 @@ static void Input_loop(void)
 	for (;;)
 	{
 		// Send out a keepalive packet if need be
-		do_keepalive();
+		// do_keepalive();
 
 		if (Net_flush() == -1)
 		{
@@ -227,6 +227,7 @@ static void Input_loop(void)
 		{
 			window_stuff();
 		}
+		do_keepalive(); // [grk] - wasn't keeping connection alive
 
 	}
 }	
@@ -265,9 +266,9 @@ void client_init(char *argv1)
 	sockbuf_t ibuf;
 	unsigned magic = 12345;
 	unsigned char reply_to, status;
-	int login_port;
+	int login_port, trycount;
 	int bytes, retries;
-	char host_name[80];
+	char host_name[80], trymsg[80], c;
 	u16b version = MY_VERSION;
 	s32b temp;
 
@@ -280,7 +281,12 @@ void client_init(char *argv1)
 	GetLocalHostName(host_name, 80);
 
 	/* Set the "quit hook" */
+	// Hmm trapping this here, overwrites any quit_hook that the main-xxx.c code
+	// may have. So for the windows client, we disable this. The main-win.c file
+	// does this stuff anyway [grk]
+#ifndef __MSVC__
 	quit_aux = quit_hook;
+#endif
 
 #ifndef UNIX_SOCKETS
 	/* Check whether we should query the metaserver */
@@ -311,7 +317,30 @@ void client_init(char *argv1)
 	// Create the net socket and make the TCP connection
 	if ((Socket = CreateClientSocket(server_name, 18346)) == -1)
 	{
-		quit("That server either isn't up, or you mistyped the hostname.\n");
+		/* Prompt for auto-retry [grk] */
+		put_str("Couldn't connect to server, keep trying? [Y/N]", 21, 1);
+		/* Make sure the message is shown */
+		Term_fresh();
+		c = 0;
+		while (c != 'Y' && c!='y' && c != 'N' && c != 'n')
+			/* Get a key */
+			c = inkey();
+
+		/* If we dont want to retry, exit with error */
+		if(c=='N' || c=='n')
+			quit("That server either isn't up, or you mistyped the hostname.\n");
+
+		/* ...else, keep trying until socket connected */
+		trycount = 1;
+		while( (Socket = CreateClientSocket(server_name, 18346)) == -1)
+		{
+			/* Progress Message */
+			sprintf(trymsg, "Connecting to server [%i]                      ",trycount++);
+			put_str(trymsg, 21, 1);
+			/* Make sure the message is shown */
+			Term_redraw(); /* Hmm maybe not the proper way to force an os poll */
+			Term_flush();
+		}
 	}
 
 	/* Create a socket buffer */
@@ -396,6 +425,17 @@ void client_init(char *argv1)
 
 		/* Hack -- set the login port correctly */
 		login_port = (int) temp;
+
+		/* massive hack alert.  We change reply to on lag-check enabled servers so the 
+		   client knows to send the tick count along.  Bad, ugly hack, but the only way
+		   to support both ways for now.
+		*/
+
+		lag_ok=0;
+		if(reply_to == 254) { 
+			c_msg_print("Lag Meter Enabled");
+			lag_ok=1; 
+		};
 
 		break;
 	}

@@ -421,7 +421,7 @@ static s32b price_item(int Ind, object_type *o_ptr, int greed, bool flip)
 		if (adjust > 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (p_ptr->store_num == 6) price = price / 2;
+		if (p_ptr->store_num == 6) price = price / 3;
 	}
 
 	/* Shop is selling */
@@ -434,7 +434,7 @@ static s32b price_item(int Ind, object_type *o_ptr, int greed, bool flip)
 		if (adjust < 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (p_ptr->store_num == 6) price = price * 2;
+		if (p_ptr->store_num == 6) price = price * 3;
 	}
 
 	/* Compute the final price (with rounding) */
@@ -1169,6 +1169,32 @@ static void store_create(int st)
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return;
 
+	/* Hack -- BM should 'Normally' carry Healing pots and
+	 * *ID* scrolls.
+	 */
+
+        if(store_num==6) {
+                invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_HEALING));
+                o_ptr->number=1;
+                object_known(o_ptr);
+                (void)store_carry(st, o_ptr);
+
+                invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_SPEED));
+                o_ptr->number=1;
+                object_known(o_ptr);
+                (void)store_carry(st, o_ptr);
+
+                invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY));
+                o_ptr->number=1;
+                object_known(o_ptr);
+                (void)store_carry(st, o_ptr);
+
+                invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_ENLIGHTENMENT));
+                o_ptr->number=1;
+                object_known(o_ptr);
+                (void)store_carry(st, o_ptr);
+        };                                                                                    
+
 
 	/* Hack -- consider up to four items */
 	for (tries = 0; tries < 4; tries++)
@@ -1177,7 +1203,8 @@ static void store_create(int st)
 		if (store_num == 6)
 		{
 			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+			level = 30 + rand_int(25);
+			//level = 25;
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1225,6 +1252,7 @@ static void store_create(int st)
 
 			/* Hack -- No "cheap" items */
 			if (object_value(0, o_ptr) < 10) continue;
+			//if (object_value(0, o_ptr) < 3000) continue;
 
 			/* No "worthless" items */
 			/* if (object_value(o_ptr) <= 0) continue; */
@@ -1440,10 +1468,7 @@ static void display_store(int Ind)
 	/* Clear screen */
 	/*Term_clear();*/
 
-	/* Display the current gold */
-	store_prt_gold(Ind);
-
-	/* Draw in the inventory */
+	/* Send the inventory */
 	display_inventory(Ind);
 
 	/* The "Home" is special */
@@ -1895,6 +1920,12 @@ void store_sell(int Ind, int item, int amt)
 
 #endif
 
+	/* Make sure he hasn't protected it*/
+	if( check_guard_inscription( o_ptr->note, 's' )) {
+	    msg_print(Ind, "The item's inscription prevents it");
+	    return;
+	};
+
 	/* Create the object to be sold (structure copy) */
 	sold_obj = *o_ptr;
 	sold_obj.number = amt;
@@ -1916,6 +1947,7 @@ void store_sell(int Ind, int item, int amt)
 	/* Real store */
 	if (p_ptr->store_num != 7)
 	{
+
 		/* Describe the transaction */
 		msg_format(Ind, "Selling %s (%c).", o_name, index_to_label(item));
 		/*msg_print(NULL);*/

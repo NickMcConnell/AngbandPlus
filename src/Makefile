@@ -80,7 +80,7 @@ CLI_SRCS = \
   client/c-files.c client/c-tables.c client/c-store.c client/c-init.c \
   client/variable.c client/main-ibm.c client/main-cap.c client/main-gcu.c \
   client/main-x11.c client/main-xaw.c client/netclient.c client/c-birth.c \
-  client/c-xtra1.c client/c-xtra2.c client/c-spell.c client/client.c
+  client/c-xtra1.c client/c-xtra2.c client/c-spell.c client/client.c client/set_focus.c
 
 CLI_OBJS = \
   common/z-util.o common/z-virt.o common/z-form.o common/z-rand.o \
@@ -89,7 +89,7 @@ CLI_OBJS = \
   client/c-files.o client/c-tables.o client/c-store.o client/c-init.o \
   client/variable.o client/main-ibm.o client/main-cap.o client/main-gcu.o \
   client/main-x11.o client/main-xaw.o client/netclient.o client/c-birth.o \
-  client/c-xtra1.o client/c-xtra2.o client/c-spell.o client/client.o
+  client/c-xtra1.o client/c-xtra2.o client/c-spell.o client/client.o client/set_focus.o
 
 
 CONS_SRCS = \
@@ -155,22 +155,21 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
+
+# support both Xwindows, and Terminal (telnet) mode
 CFLAGS = -Wall -g -pipe -D"USE_X11" -D"USE_GCU" -I/usr/include/ncurses
 LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 
 
-##
-## Variation -- Only support "main-x11.c" (not "main-gcu.c")
-##
+# only support Terminal mode.
+#CFLAGS = -Wall -g -pipe -D"USE_GCU" -I/usr/include/ncurses
+#LIBS = -lncurses
+
+
+
+# Only support Xwindows (and not terminal mode) 
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11"
 #LIBS = -lX11
-
-
-##
-## Variation -- Only support "main-gcu.c" (not "main-x11.c")
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU"
-#LIBS = -lcurses -ltermcap
 
 
 ## Added by thaler, 6/28/97

@@ -15,6 +15,9 @@
 /* netserver.c */
 extern long Id;
 extern int NumPlayers;
+#ifdef NEW_SERVER_CONSOLE
+extern int ConsoleSocket;
+#endif
 
 /* tables.c */
 extern s16b ddd[9];

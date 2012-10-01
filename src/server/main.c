@@ -184,7 +184,10 @@ int main(int argc, char *argv[])
 	bool new_game = FALSE;
 	char buf[1024];
 	int catch_signals = TRUE;
+	time_t blah;
 
+	blah=time(NULL);
+	fprintf(stderr,"Game Restarted %s\n", ctime(&blah));
 
 	/* Save the "program name" */
 	argv0 = argv[0];
@@ -514,10 +517,8 @@ int main(int argc, char *argv[])
 
 
 	/* Catch nasty signals */
-#if 0
 	if (catch_signals == TRUE)
 		signals_init();
-#endif
 
 	/* Display the 'news' file */
 	show_news();

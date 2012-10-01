@@ -1028,11 +1028,6 @@ int cmd_target(void)
 
 int cmd_target_friendly(void)
 {
-	bool done = FALSE;
-	bool position = FALSE;
-	int d;
-	char ch;
-
 	/* Tell the server to init targetting */
 	Send_target_friendly(0);
 	return TRUE;
@@ -1172,12 +1167,21 @@ void cmd_help(void)
 
 void cmd_message(void)
 {
-	char buf[60];
 
-	buf[0] = '\0';
+# define PMSG_TERM 4
 
-	if (get_string("Message: ", buf, 59))
-		Send_msg(buf);
+	// [hack] hack to just change the window focus in WIN32 client
+
+	if (ang_term[PMSG_TERM]) {
+		set_chat_focus();
+	} else {
+		char buf[60];
+
+		buf[0] = '\0';
+
+		if (get_string("Message: ", buf, 59))
+			Send_msg(buf);
+	};
 }
 
 void cmd_party(void)

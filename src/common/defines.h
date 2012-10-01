@@ -32,12 +32,12 @@
  */
 
 /*
- * Current version number of MAngband: 0.6.0
+ * Current version number of MAngband: 0.7.0
  */
  
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	7
-#define VERSION_PATCH	0
+#define VERSION_PATCH	2
 
 /*
  * This value specifys the suffix to the version info sent to the metaserver.
@@ -47,7 +47,7 @@
  * 2 - "beta"
  * 3 - "development"
  */
-#define VERSION_EXTRA	2
+#define VERSION_EXTRA	1
 
 
 /*
@@ -350,7 +350,8 @@
  */
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
 #define STORE_CHOICES	32		/* Number of items to choose stock from */
-#define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
+#define STORE_OBJ_LEVEL	7		/* Magic Level for normal stores */
+///#define STORE_OBJ_LEVEL	25		/* Magic Level for normal stores */
 #define STORE_TURNOVER	9		/* Normal shop turnover, per day */
 #define STORE_MIN_KEEP	6		/* Min slots to "always" keep full */
 #define STORE_MAX_KEEP	18		/* Max slots to "always" keep full */
@@ -361,8 +362,8 @@
 /*
  * Misc constants
  */
-#define SERVER_SAVE	2		/* Minutes between server saves */
-#define TOWN_DAWN		10000	/* Number of turns from dawn to dawn XXX */
+#define SERVER_SAVE	1		/* Minutes between server saves */
+#define TOWN_DAWN		50000	/* Number of turns from dawn to dawn XXX */
 #define GROW_TREE	5000		/* How often to grow a new tree in town */
 #define BREAK_GLYPH		550		/* Rune of protection resistance */
 #define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */
@@ -568,8 +569,13 @@
 #define ROW_GOLD		6
 #define COL_GOLD		0	/* "AU xxxxxxxxx" */
 
+#define ROW_LAG			7
+#define COL_LAG			0	/* "LAG xxxxxxxx" */
+
 #define ROW_STAT		8
 #define COL_STAT		0	/* "xxx   xxxxxx" */
+
+/* takes up 6 rows... */
 
 #define ROW_AC			15
 #define COL_AC			0	/* "Cur AC xxxxx" */
@@ -588,6 +594,10 @@
 
 #define ROW_INFO		20
 #define COL_INFO		0	/* "xxxxxxxxxxxx" */
+
+
+
+
 
 #define ROW_CUT			21
 #define COL_CUT			0	/* <cut> */
@@ -2677,13 +2687,13 @@ extern int PlayerUID;
 #define TERM_BLUE		6	/* 'b' */	/* 0,0,4 */
 #define TERM_UMBER		7	/* 'u' */	/* 2,1,0 */
 #define TERM_L_DARK		8	/* 'D' */	/* 1,1,1 */
-#define TERM_L_WHITE	9	/* 'W' */	/* 3,3,3 */
+#define TERM_L_WHITE		9	/* 'W' */	/* 3,3,3 */
 #define TERM_VIOLET		10	/* 'v' */	/* 4,0,4 */
 #define TERM_YELLOW		11	/* 'y' */	/* 4,4,0 */
 #define TERM_L_RED		12	/* 'R' */	/* 4,0,0 */
-#define TERM_L_GREEN	13	/* 'G' */	/* 0,4,0 */
+#define TERM_L_GREEN		13	/* 'G' */	/* 0,4,0 */
 #define TERM_L_BLUE		14	/* 'B' */	/* 0,4,4 */
-#define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
+#define TERM_L_UMBER		15	/* 'U' */	/* 3,2,1 */
 
 
 /*** Sound constants ***/

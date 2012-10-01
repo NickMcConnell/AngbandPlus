@@ -18,7 +18,7 @@ int store_prices[24];			/* The prices of the items in the store */
 char store_names[24][80];		/* The names of the stuff in the store */
 s16b store_num;				/* The current store number */
 
-char spell_info[9][9][80];		/* Spell information */
+char spell_info[26][9][80];		/* Spell information */
 
 char party_info[160];			/* Information about your party */
 
@@ -30,6 +30,8 @@ bool shopping;				/* Are we in a store? */
 s16b last_line_info;			/* Last line of info we've received */
 s16b max_line;				/* Maximum amount of "special" info */
 s16b cur_line;				/* Current displayed line of "special" info */
+
+int lag_ok;				/* server understands lag-check packets */
 
 player_type player;			/* The client-side copy of some of the player information */
 player_type *p_ptr = &player;

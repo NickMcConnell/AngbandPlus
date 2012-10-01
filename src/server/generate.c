@@ -4078,7 +4078,7 @@ static void town_gen_hack(void)
  
 static void town_gen(void)
 { 
-	int        i, y, x;
+	int	y, x;
 	cave_type *c_ptr;
 
 
@@ -4229,7 +4229,7 @@ void dealloc_dungeon_level(int Depth)
  */
  
  
-void generate_cave(int Depth)
+void generate_cave(int Depth,int auto_scum)
 {
 	int i, num;
 
@@ -4335,6 +4335,7 @@ void generate_cave(int Depth)
 		else if (rating > 10) feeling = 8;
 		else if (rating > 0) feeling = 9;
 		else feeling = 10;
+		fprintf(stderr," New Level %d Rating %d\n",Depth*50,rating);
 
 		/* Hack -- Have a special feeling sometimes */
 		if (good_item_flag) feeling = 1;
@@ -4369,6 +4370,7 @@ void generate_cave(int Depth)
 		/* Mega-Hack -- "auto-scum" */
 		if (auto_scum && (num < 100))
 		{
+			fprintf(stderr,"auto_scum in on for this level\n");
 			/* Require "goodness" */
 			if ((feeling > 9) ||
 			    ((Depth >= 5) && (feeling > 8)) ||

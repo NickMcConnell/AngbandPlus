@@ -1,4 +1,4 @@
-/* $Id: sockbuf.h,v 1.3 2000/08/05 20:18:15 mangadm Exp $
+/* $Id: sockbuf.h,v 1.2 2000/06/14 02:07:02 adingle Exp $
  *
  * XPilot, a multiplayer gravity war game.  Copyright (C) 1991-95 by
  *

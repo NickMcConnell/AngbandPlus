@@ -402,7 +402,17 @@ void display_store(void)
 
                 /* Label the asking price (in stores) */
                 put_str("Price", 5, 72);
+
+		/* Display the players remaining gold */
+		prt("Gold Remaining: ", 19, 53);
+
+		sprintf(buf, "%9ld", (long) p_ptr->au);
+		prt(buf, 19, 68);
+
 	}
+
+	/* Start at the top */
+	store_top = 0;
 
 	/* Display the inventory */
 	display_inventory();
@@ -410,9 +420,6 @@ void display_store(void)
 	/* Don't leave */
 	leave_store = FALSE;
 
-	/* Start at the top */
-	store_top = 0;
-	
         /* Interact with player */
         while (!leave_store)
         {
@@ -469,7 +476,7 @@ void display_store(void)
 			}
 
 			/* Set the timeout */
-			SetTimeout(0, 1000000 / Setup.frames_per_second);
+			SetTimeout(0, 1000);
 
 			/* Only take input if we got some */
 			if (SocketReadable(Net_fd()))

@@ -1,0 +1,23 @@
+for n in `echo "birth.c.merge
+cave.c.merge
+cmd1.c.merge
+cmd2.c.merge
+cmd5.c.merge
+dungeon.c.merge
+externs.h.merge
+generate.c.merge
+init2.c.merge
+main.c.merge
+melee2.c.merge
+monster2.c.merge
+netserver.c.merge
+object2.c.merge
+spells2.c.merge
+"`
+do 
+ echo $n
+ file=`basename $n ".merge"`
+ echo $file;
+ mv $file $file.old
+ mv $n $file
+done

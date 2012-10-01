@@ -1,10 +1,163 @@
-8/08/00:
-	Added SO_REUSEADDR so the server doesn't hang on startup
-	Fixed many occasions where Players[] was being accessed when
-		that players ->conn == NOT_CONNECTED, which was causing
-		many cores
-	Shop 4 will now (properly ) buy any Blessed Weapon.
+
+1/13/03: 
+	Changed 0 exp character joins to say "begins a new game" 
+	  so that they won't be picked up by client color-coding
+	fixed client word-wrap.
+	fixed client privmsg word wrap
+	impoved win32 client color coding (thanks to Berendol)
+	fixed horrible bug in DM commands that re-enabled them (?!)
+	latency measurements changed to be more consistant
+	"last chance" latency recovery added
+	no longer report level 1 suicides.
+
+
+1/09/03: 
+	----- MAngband 0.7.2a released -----
+
+	Where to even begin.
+
+	"Half Connected" bug fixed
+	throwing "nothings" bug fixed.
+	firing "nothings" bug fixed.
+	Checknames now checkes machine@ip to determine dups
+	Brought back Battle Scared Vets. (yeay)
+	Many vaults fixed (Thanks to Jube/Maegdae/Ashiki)
+	players can no longer close doors they're standing on.
+	Ghosts can no longer go down.  This is reversible in 
+	    src/server/cmd1.c (do_cmd_down).
+	Fixed keys, artifacts getting "lost"
+	Players no longer drop keys on death.  Instead, the Ghost
+	    carries that singular item.
+	auto_scum now reflects user preference.
+	maximize mode forced on.
+	players can no longer close doors when other players are
+	    standing on them.
+	cfg_adm_wizard and cfg_dungeon_master combined.
+	(adingle) heal_other added as a projectable spell
+	scheduler fixed to skip disconnecting players during
+	    the turn they disconnect.
+	food no longer consumed in/around town.
+	scheduler fix to skip empty levels during processing
+	cave_bold check added in scatter to avoid blowing up
+	    when the player can't see.
+	many changes to netserver.c to support latency reporting
+	fixed bug where differently charged ego items could stack
+	fixed bug where upstairs created in town/wilderness
+	fixed bug where downstairs created in wilderness
+	disabled clone_monster above level 10 (abuse)
+	disabled creating traps in town (abuse)
+	added enl pots and heal pots to bm
+	increased bm sell prices, decreased sell prices
+	increased store magic (slightly)
+	(re) added !s as guard inscription against selling
+	removed s as a default (*) enscription protection
+	(adingle) added support for ./tmp, avoiding /tmp
+	added logging for player->player messages (disable in server/util.c)
+	(adingle) fixed party vs player msg bug
+	added ( (friendly target) announcement and cycling
+	recalling no longer resets DM's recall level
+	Isuldir changed in price from 50k to 125k
+	Rohirrim changed in price from 30k to 130k
+	Celegorm changed in price from 12k(!) to 120k
+	Resistance armor changed in price from 10k(!) to 50k
+	elvenkind armor changed in price from 15k(!) to 150k
+	Permanence armor changed in price from 30k to 300k
+	Resistance shields changed in price from 12,500 to 50k
+	Aman changed in price from 4k to 50k
+	Resistance cloaks changed in price from 30k to 50k
+	Agillity gloves changed in price from 1k to 10k
+	Gloves of Power changed in price from 2,500 to 25k
+	Istari gloves changed in stats from -5,-5 to 5,5 (BUGFIX)
+	Gloves of FA changed in price from 2,000 to 1,500
+	Potions of speed changed in price from 75 to 1500
+	    (in combination with being in BM..)
+	P&H had inverted price with HI, P&H moved from 100k to 50k
+	.... HI moved from 50k to 100k
+
 	
+	
+1/11/01:
+	Fixed a glitch that was preventing the server from dumping core
+		when it crashed.
+	Fixed a bug that was crashing the server when a private message
+		was sent out that matched the names of multiple parties of
+		people in game.	
+
+1/06/01:
+	----- MAngband 0.7.0 released -----
+
+12/31/00:
+	Made healing potions more expensive.
+	Priests now start with a potion of cure critical wounds instead of
+		a potion of healing.
+		
+12/27/00:
+	*ID* scrolls are now sold in the black market.
+	
+12/23/00:
+	Fixed the "repeating twice" party messaging bug.
+
+12/17/00:
+	Fixed a bug which would very rarely crash the server when ghostly
+		powers were used.
+	Added the option NO_STEAL to mangband.cfg which disables stealing
+		from other players.
+
+12/09/00:
+	Applied Toshi Tanaka's patch to prevent the client from freezing 
+		on startup on machines without DNS.
+	Applied Lee's patch which adds the config option REPORT_ADDRESS to
+		mangband.cfg. This option lets you set the hostname to send to
+		the metaserver.  This is useful if your IP has more than one
+		domain ascociated with it.
+12/07/00:
+	Fixed a problem that was causing players with lots of packet loss
+		to drop.
+
+10/19/00:
+	Level 0 (town) monsters no longer disturb running.
+
+10/13/00:
+
+	Healing potions are now sold in the BM. (thanks to Crimson's patch)
+	Fixed a bug in r_info.txt that was causing multiple Morgoths to
+		appear.
+
+9/16/00:
+
+	Made it so unresolved messages no longer bounce back to the sender.
+		(thanks to Crimson's patch)
+
+8/11/00:
+
+	Fixed some portability problems in init2.c, replacing the use of 
+		strsep with strtok.
+
+8/08/00: Crimson (crimson@pobox.com)
+
+        Added SO_REUSEADDR so the server doesn't hang on startup
+	Shop 4 will now (properly ) buy any Blessed Weapon.
+
+7/13/00:
+	Fixed a bug that caused the server to crash when destroying items.
+
+7/11/00:
+	Fixed a bug that was preventing detected monsters from disapearing after
+		the player finished detecting them.
+6/26/00:
+	Fixed a bug that prevented the server from instantly restarting after
+		it crashed.
+6/24/00:
+	Fixed a bug in clearing out wilderness houses that would crash the
+		server under the right circumstances.
+
+6/15/00:
+        Fixed another bug that caused the game to freeze when someone tried to
+		log back into an unstaticed level.
+
+6/13/00:
+	----- MAngband 0.7.0-beta released -----
+
 6/10/00:
 	Fixed a bug that caused a player to become a *KING* after killing Sauron,
 		and revised the winning code to make anyone >= level 40 in the same
@@ -43,11 +196,12 @@
 	
 
 6/07/00:
-	The client and server networking code has been rewritten.  All
-		communications between client and server now use TCP.  The old
-		code was using a guarenteed delivery transmittion scheme
-		piggybacked on top of UDP to transmit all the game data.  TCP
-		not surprisingly appears to do a better job of this.
+	The client, server, and console networking code has been rewritten.
+		All communications between the client, server, and console now
+		use TCP.  The old code was using a guarenteed delivery
+		transmittion scheme piggybacked on top of UDP to transmit all
+		the game data.  TCP not surprisingly appears to do a better job
+		of this.
 	A proper command queue has been added for each player.  When the server
 		receives an "important" command from a player and the player
 		doesn't have enough energy to execute it, the command will be
@@ -57,9 +211,9 @@
 	The time system has been revised so that resting rates and spell durations
 		scale to the speed of the level a player is on.
 	The autoattacker has been changed to be more intelligent in selecting
-		its target.  It has also been changed to "take effect" as soon
+		its target.  It has also been changed to take effect as soon
 		as possobile.
-	In order to make game motion more smooth, the games FPS has been increased
+	In order to make game motion more smooth, the game's FPS has been increased
 		by a factor of 5 and the other game constants scaled accordingly.
 	Changed the mage spell GOI so that it lasts longer but doesn't stack.
 

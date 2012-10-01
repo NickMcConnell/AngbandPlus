@@ -17,8 +17,10 @@
 /* netserver.c */
 extern long Id;
 extern int NumPlayers;
+extern int process_pending_commands(int Ind);
+#ifdef NEW_SERVER_CONSOLE
 extern int ConsoleSocket;
-extern void process_pending_commands(int Ind);
+#endif
 
 /* tables.c */
 extern s16b ddd[9];
@@ -161,12 +163,13 @@ extern s32b m_top;
 
 extern bool cfg_report_to_meta;
 extern char * cfg_meta_address;
+extern char * cfg_report_address;
 extern char * cfg_console_password;
-extern char * cfg_admin_wizard;
 extern char * cfg_dungeon_master;
 extern bool cfg_secret_dungeon_master;
 extern s16b cfg_fps;
 extern bool cfg_mage_hp_bonus;
+extern bool cfg_no_steal;
 extern bool cfg_newbies_cannot_drop;
 extern bool cfg_door_bump_open;
 extern s32b cfg_unique_respawn_time;
@@ -564,7 +567,8 @@ extern void kingly(int Ind);
 /* generate.c */
 extern void alloc_dungeon_level(int Depth);
 extern void dealloc_dungeon_level(int Depth);
-extern void generate_cave(int Depth);
+extern void generate_cave(int Depth,int auto_scum);
+extern void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr data);
 
 /* wilderness.c */
 extern int world_index(int world_x, int world_y);
@@ -726,6 +730,7 @@ extern void show_equip(void);
 extern void toggle_inven_equip(void);
 extern bool get_item(int Ind, int *cp, cptr pmt, bool equip, bool inven, bool floor);*/
 extern void delete_object_idx(int i);
+extern void delete_object_ptr(object_type * o_ptr);
 extern void delete_object(int Depth, int y, int x);
 extern void compact_objects(int size);
 extern void wipe_o_list(int Depth);
@@ -885,6 +890,7 @@ extern bool cure_light_wounds_proj(int Ind, int dir);
 extern bool cure_serious_wounds_proj(int Ind, int dir);
 extern bool cure_critical_wounds_proj(int Ind, int dir);
 extern bool heal_other_proj(int Ind, int dir);
+extern bool heal_other_heavy_proj(int Ind, int dir);
 extern bool door_creation(int Ind);
 extern bool trap_creation(int Ind);
 extern bool destroy_doors_touch(int Ind);
@@ -975,7 +981,7 @@ extern bool set_oppose_pois(int Ind, int v);
 extern bool set_stun(int Ind, int v);
 extern bool set_cut(int Ind, int v);
 extern bool set_food(int Ind, int v);
-void set_recall_depth(player_type * p_ptr, object_type * o_ptr);
+extern bool set_recall_depth(player_type * p_ptr, object_type * o_ptr);
 extern void check_experience(int Ind);
 extern void gain_exp(int Ind, s32b amount);
 extern void lose_exp(int Ind, s32b amount);
@@ -996,7 +1002,7 @@ extern bool target_able(int Ind, int m_idx);
 extern bool target_okay(int Ind);
 extern s16b target_pick(int Ind, int y1, int x1, int dy, int dx);
 extern bool target_set(int Ind, int dir);
-extern bool target_friendly(int Ind, int dir);
+extern bool target_set_friendly(int Ind, int dir);
 extern bool get_aim_dir(int Ind/*, int *dp*/);
 extern bool get_item(int Ind);
 extern bool do_scroll_life(int Ind);

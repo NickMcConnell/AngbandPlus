@@ -2589,6 +2589,11 @@ cptr window_flag_desc[32] =
 	NULL
 };
 
+#if 0
+
+Uncomment this when we are ready to redefine the interface for sending options
+to the server. (the useless options have been removed)  Uncommenting it prior to
+this would break the option reading on the server.
 
 /*
  * Available Options
@@ -2612,9 +2617,6 @@ option_type option_info[] =
 	{ &quick_messages,	 	FALSE,	1,	0, 1,
 	"quick_messages",		"Activate quick messages" },
 
-	{ &other_query_flag,	FALSE,	1,	0, 2,
-	"other_query_flag",		"Prompt for various information" },
-
 	{ &carry_query_flag,	FALSE,	1,	0, 3,
 	"carry_query_flag",		"Prompt before picking things up" },
 
@@ -2623,9 +2625,6 @@ option_type option_info[] =
 
 	{ &always_pickup,		TRUE,	1,	0, 5,
 	"always_pickup",		"Pick things up by default" },
-
-	{ &always_repeat,		TRUE,	1,	0, 6,
-	"always_repeat",		"Repeat obvious commands" },
 
 	{ &depth_in_feet,		FALSE,	1,	0, 7,
 	"depth_in_feet",		"Show dungeon level in feet" },
@@ -2636,17 +2635,8 @@ option_type option_info[] =
 	{ &stack_force_costs,	FALSE,	1,	0, 9,
 	"stack_force_costs",	"Merge discounts when stacking" },
 
-	{ &show_labels,			TRUE,	1,	0, 10,
-	"show_labels",			"Show labels in object listings" },
-
 	{ &show_weights,		FALSE,	1,	0, 11,
 	"show_weights",			"Show weights in object listings" },
-
-	{ &show_choices,		FALSE,	1,	0, 12,
-	"show_choices",			"Show choices in certain sub-windows" },
-
-	{ &show_details,		FALSE,	1,	0, 13,
-	"show_details",			"Show details in certain sub-windows" },
 
 	{ &ring_bell,			TRUE,	1,	0, 14,
 	"ring_bell",			"Audible bell (on errors, etc)" },
@@ -2687,20 +2677,8 @@ option_type option_info[] =
 	{ &disturb_other,		TRUE,	2,	0, 25,
 	"disturb_other",		"Disturb whenever various things happen" },
 
-	{ &alert_hitpoint,		FALSE,	2,	0, 26,
-	"alert_hitpoint",		"Alert user to critical hitpoints" },
-
-	{ &alert_failure,		FALSE,	2,	0, 27,
-	"alert_failure",		"Alert user to various failures" },
-
 
 	/*** Game-Play ***/
-
-	{ &auto_haggle,			FALSE,	3,	1, 0,
-	"auto_haggle",			"Auto-haggle in stores" },
-
-	{ &auto_scum,			FALSE,	3,	1, 1,
-	"auto_scum",			"Auto-scum for good levels" },
 
 	{ &stack_allow_items,	TRUE,	3,	1, 2,
 	"stack_allow_items",	"Allow weapons and armor to stack" },
@@ -2708,42 +2686,11 @@ option_type option_info[] =
 	{ &stack_allow_wands,	TRUE,	3,	1, 3,
 	"stack_allow_wands",	"Allow wands/staffs/rods to stack" },
 
-	{ &expand_look,			FALSE,	3,	1, 4,
-	"expand_look",			"Expand the power of the look command" },
-
-	{ &expand_list,			FALSE,	3,	1, 5,
-	"expand_list",			"Expand the power of the list commands" },
-
 	{ &view_perma_grids,	TRUE,	3,	1, 6,
 	"view_perma_grids",		"Map remembers all perma-lit grids" },
 
 	{ &view_torch_grids,	FALSE,	3,	1, 7,
 	"view_torch_grids",		"Map remembers all torch-lit grids" },
-
-	{ &dungeon_align,		TRUE,	3,	1, 8,
-	"dungeon_align",		"Generate dungeons with aligned rooms" },
-
-	{ &dungeon_stair,		TRUE,	3,	1, 9,
-	"dungeon_stair",		"Generate dungeons with connected stairs" },
-
-	{ &flow_by_sound,		FALSE,	3,	1, 10,
-	"flow_by_sound",		"Monsters chase current location (v.slow)" },
-
-	{ &flow_by_smell,		FALSE,	3,	1, 11,
-	"flow_by_smell",		"Monsters chase recent locations (v.slow)" },
-
-	{ &track_follow,		FALSE,	3,	1, 12,
-	"track_follow",			"Monsters follow the player (broken)" },
-
-	{ &track_target,		FALSE,	3,	1, 13,
-	"track_target",			"Monsters target the player (broken)" },
-
-	{ &smart_learn,			FALSE,	3,	1, 14,
-	"smart_learn",			"Monsters learn from their mistakes" },
-
-	{ &smart_cheat,			FALSE,	3,	1, 15,
-	"smart_cheat",			"Monsters exploit players weaknesses" },
-
 
 	/*** Efficiency ***/
 
@@ -2752,36 +2699,6 @@ option_type option_info[] =
 
 	{ &view_reduce_view,	FALSE,	4,	1, 17,
 	"view_reduce_view",		"Reduce view-radius in town" },
-
-	{ &avoid_abort,			FALSE,	4,	1, 18,
-	"avoid_abort",			"Avoid checking for user abort" },
-
-	{ &avoid_other,			FALSE,	4,	1, 19,
-	"avoid_other",			"Avoid processing special colors" },
-
-	{ &flush_failure,		TRUE,	4,	1, 20,
-	"flush_failure",		"Flush input on various failures" },
-
-	{ &flush_disturb,		FALSE,	4,	1, 21,
-	"flush_disturb",		"Flush input whenever disturbed" },
-
-	{ &flush_command,		FALSE,	4,	1, 22,
-	"flush_command",		"Flush input before every command" },
-
-	{ &fresh_before,		TRUE,	4,	1, 23,
-	"fresh_before",			"Flush output before every command" },
-
-	{ &fresh_after,			FALSE,	4,	1, 24,
-	"fresh_after",			"Flush output after every command" },
-
-	{ &fresh_message,		FALSE,	4,	1, 25,
-	"fresh_message",		"Flush output after every message" },
-
-	{ &compress_savefile,	TRUE,	4,	1, 26,
-	"compress_savefile",	"Compress messages in savefiles" },
-
-	{ &hilite_player,		FALSE,	4,	1, 27,
-	"hilite_player",		"Hilite the player with the cursor" },
 
 	{ &view_yellow_lite,	FALSE,	4,	1, 28,
 	"view_yellow_lite",		"Use special colors for torch-lit grids" },
@@ -2801,5 +2718,219 @@ option_type option_info[] =
 	{ NULL,			0, 0, 0, 0,
 	NULL,			NULL }
 };
+#endif
+
+/*
+ * Available Options
+ *
+ * Option Screen Sets:
+ *
+ *	Set 1: User Interface
+ *	Set 2: Disturbance
+ *	Set 3: Inventory
+ *	Set 4: Game Play
+ *
+ * Note that bits 28-31 of set 0 are currently unused.
+ */
+option_type option_info[] =
+{
+	/*** User-Interface ***/
+
+/* 00 */{ &rogue_like_commands,	FALSE,	1,	0, 0,
+	"rogue_like_commands",	"Rogue-like commands" },
+
+/* 01 */{ &quick_messages,	 	FALSE,	1,	0, 1,
+	"quick_messages",		"Activate quick messages" },
+
+/* 02 */{ &other_query_flag,	FALSE,	1,	0, 2,
+	"other_query_flag",		"Prompt for various information" },
+
+/* 03 */{ &carry_query_flag,	FALSE,	1,	0, 3,
+	"carry_query_flag",		"Prompt before picking things up" },
+
+/* 04 */{ &use_old_target,		FALSE,	1,	0, 4,
+	"use_old_target",		"Use old target by default" },
+
+/* 05 */{ &always_pickup,		TRUE,	1,	0, 5,
+	"always_pickup",		"Pick things up by default" },
+
+/* 06 */{ &always_repeat,		TRUE,	1,	0, 6,
+	"always_repeat",		"Repeat obvious commands" },
+
+/* 07 */{ &depth_in_feet,		FALSE,	1,	0, 7,
+	"depth_in_feet",		"Show dungeon level in feet" },
+
+/* 08 */{ &stack_force_notes,	FALSE,	1,	0, 8,
+	"stack_force_notes",	"Merge inscriptions when stacking" },
+
+/* 09 */{ &stack_force_costs,	FALSE,	1,	0, 9,
+	"stack_force_costs",	"Merge discounts when stacking" },
+
+/* 10 */{ &show_labels,			TRUE,	1,	0, 10,
+	"show_labels",			"Show labels in object listings" },
+
+/* 11 */{ &show_weights,		FALSE,	1,	0, 11,
+	"show_weights",			"Show weights in object listings" },
+
+/* 12 */{ &show_choices,		FALSE,	1,	0, 12,
+	"show_choices",			"Show choices in certain sub-windows" },
+
+/* 13 */{ &show_details,		FALSE,	1,	0, 13,
+	"show_details",			"Show details in certain sub-windows" },
+
+/* 14 */{ &ring_bell,			TRUE,	1,	0, 14,
+	"ring_bell",			"Audible bell (on errors, etc)" },
+
+/* 15 */{ &use_color,			TRUE,	1,	0, 15,
+	"use_color",			"Use color if possible (slow)" },
+
+
+	/*** Disturbance ***/
+
+/* 16 */{ &find_ignore_stairs,	TRUE,	2,	0, 16,
+	"find_ignore_stairs",	"Run past stairs" },
+
+/* 17 */{ &find_ignore_doors,	TRUE,	2,	0, 17,
+	"find_ignore_doors",	"Run through open doors" },
+
+/* 18 */{ &find_cut,			TRUE,	2,	0, 18,
+	"find_cut",				"Run past known corners" },
+
+/* 19 */{ &find_examine,		TRUE,	2,	0, 19,
+	"find_examine",			"Run into potential corners" },
+
+/* 20 */{ &disturb_move,		TRUE,	2,	0, 20,
+	"disturb_move",			"Disturb whenever any monster moves" },
+
+/* 21 */{ &disturb_near,		TRUE,	2,	0, 21,
+	"disturb_near",			"Disturb whenever viewable monster moves" },
+
+/* 22 */{ &disturb_panel,		TRUE,	2,	0, 22,
+	"disturb_panel",		"Disturb whenever map panel changes" },
+
+/* 23 */{ &disturb_state,		TRUE,	2,	0, 23,
+	"disturb_state",		"Disturb whenever player state changes" },
+
+/* 24 */{ &disturb_minor,		TRUE,	2,	0, 24,
+	"disturb_minor",		"Disturb whenever boring things happen" },
+
+/* 25 */{ &disturb_other,		TRUE,	2,	0, 25,
+	"disturb_other",		"Disturb whenever various things happen" },
+
+/* 26 */{ &alert_hitpoint,		FALSE,	2,	0, 26,
+	"alert_hitpoint",		"Alert user to critical hitpoints" },
+
+/* 27 */{ &alert_failure,		FALSE,	2,	0, 27,
+	"alert_failure",		"Alert user to various failures" },
+
+
+	/*** Game-Play ***/
+
+/* 28 */{ &auto_haggle,			FALSE,	3,	1, 0,
+	"auto_haggle",			"Auto-haggle in stores" },
+
+/* 29 */{ &auto_scum,			FALSE,	3,	1, 1,
+	"auto_scum",			"Auto-scum for good levels" },
+
+/* 30 */{ &stack_allow_items,	TRUE,	3,	1, 2,
+	"stack_allow_items",	"Allow weapons and armor to stack" },
+
+/* 31 */{ &stack_allow_wands,	TRUE,	3,	1, 3,
+	"stack_allow_wands",	"Allow wands/staffs/rods to stack" },
+
+/* 32 */{ &expand_look,			FALSE,	3,	1, 4,
+	"expand_look",			"Expand the power of the look command" },
+
+/* 33 */{ &expand_list,			FALSE,	3,	1, 5,
+	"expand_list",			"Expand the power of the list commands" },
+
+/* 34 */{ &view_perma_grids,	TRUE,	3,	1, 6,
+	"view_perma_grids",		"Map remembers all perma-lit grids" },
+
+/* 35 */{ &view_torch_grids,	FALSE,	3,	1, 7,
+	"view_torch_grids",		"Map remembers all torch-lit grids" },
+
+/* 36 */{ &dungeon_align,		TRUE,	3,	1, 8,
+	"dungeon_align",		"Generate dungeons with aligned rooms" },
+
+/* 38 */{ &dungeon_stair,		TRUE,	3,	1, 9,
+	"dungeon_stair",		"Generate dungeons with connected stairs" },
+
+/* 39 */{ &flow_by_sound,		FALSE,	3,	1, 10,
+	"flow_by_sound",		"Monsters chase current location (v.slow)" },
+
+/* 40 */{ &flow_by_smell,		FALSE,	3,	1, 11,
+	"flow_by_smell",		"Monsters chase recent locations (v.slow)" },
+
+/* 41 */{ &track_follow,		FALSE,	3,	1, 12,
+	"track_follow",			"Monsters follow the player (broken)" },
+
+/* 42 */{ &track_target,		FALSE,	3,	1, 13,
+	"track_target",			"Monsters target the player (broken)" },
+
+/* 43 */{ &smart_learn,			FALSE,	3,	1, 14,
+	"smart_learn",			"Monsters learn from their mistakes" },
+
+/* 44 */{ &smart_cheat,			FALSE,	3,	1, 15,
+	"smart_cheat",			"Monsters exploit players weaknesses" },
+
+
+	/*** Efficiency ***/
+
+/* 45 */{ &view_reduce_lite,	FALSE,	4,	1, 16,
+	"view_reduce_lite",		"Reduce lite-radius when running" },
+
+/* 46 */{ &view_reduce_view,	FALSE,	4,	1, 17,
+	"view_reduce_view",		"Reduce view-radius in town" },
+
+/* 47 */{ &avoid_abort,			FALSE,	4,	1, 18,
+	"avoid_abort",			"Avoid checking for user abort" },
+
+/* 48 */{ &avoid_other,			FALSE,	4,	1, 19,
+	"avoid_other",			"Avoid processing special colors" },
+
+/* 49 */{ &flush_failure,		TRUE,	4,	1, 20,
+	"flush_failure",		"Flush input on various failures" },
+
+/* 50 */{ &flush_disturb,		FALSE,	4,	1, 21,
+	"flush_disturb",		"Flush input whenever disturbed" },
+
+/* 51 */{ &flush_command,		FALSE,	4,	1, 22,
+	"flush_command",		"Flush input before every command" },
+
+/* 52 */{ &fresh_before,		TRUE,	4,	1, 23,
+	"fresh_before",			"Flush output before every command" },
+
+/* 53 */{ &fresh_after,			FALSE,	4,	1, 24,
+	"fresh_after",			"Flush output after every command" },
+
+/* 54 */{ &fresh_message,		FALSE,	4,	1, 25,
+	"fresh_message",		"Flush output after every message" },
+
+/* 55 */{ &compress_savefile,	TRUE,	4,	1, 26,
+	"compress_savefile",	"Compress messages in savefiles" },
+
+/* 56 */{ &hilite_player,		FALSE,	4,	1, 27,
+	"hilite_player",		"Hilite the player with the cursor" },
+
+/* 57 */{ &view_yellow_lite,	FALSE,	4,	1, 28,
+	"view_yellow_lite",		"Use special colors for torch-lit grids" },
+
+/* 58 */{ &view_bright_lite,	FALSE,	4,	1, 29,
+	"view_bright_lite",		"Use special colors for 'viewable' grids" },
+
+/* 59 */{ &view_granite_lite,	FALSE,	4,	1, 30,
+	"view_granite_lite",	"Use special colors for wall grids (slow)" },
+
+/* 60 */{ &view_special_lite,	FALSE,	4,	1, 31,
+	"view_special_lite",	"Use special colors for floor grids (slow)" },
+
+
+	/*** End of Table ***/
+
+	{ NULL,			0, 0, 0, 0,
+	NULL,			NULL }
+};
+
 
 

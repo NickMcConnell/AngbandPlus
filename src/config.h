@@ -29,6 +29,91 @@
  * important compile time options, like what visual module to use.
  */
 
+/* 
+ * define this if you wish to limit players to one character playing
+ * at a time on the server.  Note this doesn't stop them from just
+ * using two computers side by side, but most won't have this.
+#define LIMIT_PLAYER_CONNECTIONS
+ */
+
+/*
+ * OPTION: Person to bother if something goes wrong.
+ */
+#define MAINTAINER	"crimson@mangband.org"
+
+/*
+ * OPTION: Set the metaserver address.  The metaserver keeps track of
+ * all running servers so people can find an active server with other
+ * players on.  Define this to be an empty string if you don't want to
+ * report to a metaserver.
+ */
+#define	META_ADDRESS "mangband.org"  
+
+
+/*
+ * OPTION: Set a vhost bind address.  This is used in two ways.
+ * For one, it sets the name the metaserver will list for the IP.
+ * This is useful if your IP has a different reverse address (or no 
+ * reverse address), and you'd like the metaserver to list you by 
+ * the established name here.  
+ *
+ * This is also useful if you have multiple IP's on a single box, 
+ * and care which one the server binds too, (for name purposes, perhaps).
+ * Note that this would allow multiple servers to run on a single
+ * machine as well.
+ *
+#define	BIND_NAME "mangband.org"
+#define	BIND_IP "64.53.71.113"
+*/
+
+/*
+ * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
+ */
+#define USE_NCURSES
+
+
+
+/*
+ * OPTION: Allow the use of "sound" in various places.
+ */
+#define USE_SOUND
+
+/*
+ * OPTION: Allow the use of "graphics" in various places
+ */
+#define USE_GRAPHICS
+
+/*
+ * OPTION: Default fonts (when using X11)
+ */
+#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
+
+
+
+/*
+ * OPTION: Hack -- Macintosh stuff
+ */
+#ifdef MACINTOSH
+
+/* Do not handle signals */
+/* also available using the -Z switch on startup for mangband */
+# undef HANDLE_SIGNALS
+
+#endif
+
+
+/*
+ * OPTION: Hack -- Windows stuff
+ */
+#ifdef WINDOWS
+
+/* Do not handle signals */
+# undef HANDLE_SIGNALS
+
+#endif
 
 /*
  * OPTION: See the Makefile(s), where several options may be declared.
@@ -56,20 +141,6 @@
  */
 
 /*
- * OPTION: Break graphics on the client side.  Due to a very bad
- * network design, sending the character definitions needed for
- * graphics may cause clients to not be able to connect.  This
- * disables this, which may help in resolving connection problems.
- * Note that you will need to connect to an 0.5.4 or later server
- * for this to work.
- *
- * This option will be taken out in 0.6.0, which will have a
- * completely different network design, thus alleviating this and
- * other problems.
- */
-/* #define BREAK_GRAPHICS */
-
-/*
  * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
  * that use the 4.4BSD Lite version of Curses in "main-gcu.c"
  */
@@ -92,31 +163,21 @@
 /* #define USE_TCHARS */
 
 
-/*
- * OPTION: Use "blocking getch() calls" in "main-gcu.c".
- * Hack -- Note that this option will NOT work on many BSD machines
- * Currently used whenever available, if you get a warning about
- * "nodelay()" undefined, then make sure to undefine this.
- */
-#if defined(SYS_V) || defined(AMIGA)
-# define USE_GETCH
-#endif
-
 
 /*
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
  * Hack -- This option will not work on most BSD machines
  */
-#ifdef SYS_V
+#if defined(SYS_V) || defined(linux)
 # define USE_CURS_SET
 #endif
 
 
-/*
- * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
- */
-#define USE_NCURSES
 
+/*
+ * OPTION: Default font (when using X11).
+ */
+#define DEFAULT_X11_FONT		"9x15"
 
 /*
  * OPTION: for multi-user machines running the game setuid to some other
@@ -126,6 +187,7 @@
  * concerns.  There should not be any side effects on any machines.
  *
  * This will handle "gids" correctly once the permissions are set right.
+ * --VERY DANGEROUS IN MANGBAND.
  */
 #define SAFE_SETUID
 
@@ -145,22 +207,6 @@
 #if defined(sun) && !defined(SOLARIS)
 # undef SAFE_SETUID_POSIX
 #endif
-
-
-
-
-/*
- * OPTION: for the AFS distributed file system, define this to ensure that
- * the program is secure with respect to the setuid code.  This option has
- * not been tested (to the best of my knowledge).  This option may require
- * some weird tricks with "player_uid" and such involving "defines".
- * Note that this option used the AFS library routines Authenticate(),
- * bePlayer(), beGames() to enforce the proper priviledges.
- * You may need to turn "SAFE_SETUID" off to use this option.
- */
-/* #define SECURE */
-
-
 
 
 /*
@@ -192,62 +238,6 @@
  * the use of the savefile until the file is deleted.  Not ready yet.
  */
 /* #define VERIFY_SAVEFILE */
-
-
-/*
- * OPTION: Set the metaserver address.  The metaserver keeps track of
- * all running servers so people can find an active server with other
- * players on.  Define this to be an empty string if you don't want to
- * report to a metaserver.
- */
-/* #define META_ADDRESS "mangband.mit.edu" */
-//#define	META_ADDRESS "mangband.mit.edu"  
-//#define		META_ADDRESS ""
-#define	META_ADDRESS "mangband.org"  
-
-/*
- * OPTION: Set a vhost bind address.  This is only used if you have
- * multiple IP's on a single box, and care which one the server
- * binds too, ( for name purposes, perhaps ).
- * Note that this allows multiple servers to run on a single
- * machine as well.
- * Probably almost never used.
- * **** EXCEPT ON MANGBAND.ORG WHERE IT MUST BE USED :)
- * -- Crimson
-#define	BIND_NAME "mangband.org" 
-#define	BIND_IP "198.252.166.15" 
-*/
-
-
-/* Define the password for the server console, used if NEW_SERVER_CONSOLE
- * is defined below.  Provides authentication for the mangconsole program.
- */
-#define		CONSOLE_PASSWORD	"testingabc"
-
-
-/* Define the name of a special administration character who gets
- * special powers, and will hopefully eventually get wizard mode.
- * Better documentation of this feature is needed.
- * In the future these two characters will probably be combined.
- */
-
-#define 	ADMIN_WIZARD	"Serverchez"
-#define		DUNGEON_MASTER	"DungeonMaster"
-
-/* for the unique respawn... */
-#define COME_BACK_TIME 480
-
-/* Base probability of a level unstaticing */
-/* Roughly once an hour (10 fps, 3600 seconds in an hour) */
-#define LEVEL_UNSTATIC_PROB 36000
-
-
-/* OPTION : Keep the town backwards compatible with some previous development
- * versions, specifically those that have a broken auction house.  You probably
- * don't want to enable this unless you have been running a development version of
- * the code that has a 'store 9' in it.
- */
- /* #define	DEVEL_TOWN_COMPATIBILITY */ 
 
 
 /*
@@ -296,6 +286,7 @@
 
 /*
  * OPTION: Allow characteres to be "auto-rolled"
+ * --broken in mangband.
  */
 /* #define ALLOW_AUTOROLLER */
 
@@ -322,6 +313,7 @@
  * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
  * about 15K of code in "save-old.c" to parse the old savefile format.
  * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
+ * --broken in mangband.
  */
 /* #define ALLOW_OLD_SAVEFILES */
 
@@ -329,36 +321,42 @@
 /*
  * OPTION: Delay the loading of the "f_text" array until it is actually
  * needed, saving ~1K, since "feature" descriptions are unused.
+ * --broken in mangband.
  */
 /* #define DELAY_LOAD_F_TEXT */
 
 /*
  * OPTION: Delay the loading of the "k_text" array until it is actually
  * needed, saving ~1K, since "object" descriptions are unused.
+ * --broken in mangband.
  */
 /* #define DELAY_LOAD_K_TEXT */
 
 /*
  * OPTION: Delay the loading of the "a_text" array until it is actually
  * needed, saving ~1K, since "artifact" descriptions are unused.
+ * --broken in mangband.
  */
 /* #define DELAY_LOAD_A_TEXT */
 
 /*
  * OPTION: Delay the loading of the "e_text" array until it is actually
  * needed, saving ~1K, since "ego-item" descriptions are unused.
+ * --broken in mangband.
  */
 /* #define DELAY_LOAD_E_TEXT */
 
 /*
  * OPTION: Delay the loading of the "r_text" array until it is actually
  * needed, saving ~60K, but "simplifying" the "monster" descriptions.
+ * --broken in mangband.
  */
 /* #define DELAY_LOAD_R_TEXT */
 
 /*
  * OPTION: Delay the loading of the "v_text" array until it is actually
  * needed, saving ~1K, but "destroying" the "vault" generation.
+ * --broken in mangband.
  */
 /* #define DELAY_LOAD_V_TEXT */
 
@@ -371,16 +369,19 @@
 
 /*
  * Allow "Wizards" to yield "high scores"
+ * --broken in mangband.
  */
 /* #define SCORE_WIZARDS */
 
 /*
  * Allow "Borgs" to yield "high scores"
+ * --broken in mangband.
  */
 /* #define SCORE_BORGS */
 
 /*
  * Allow "Cheaters" to yield "high scores"
+ * --broken in mangband.
  */
 /* #define SCORE_CHEATERS */
 
@@ -390,6 +391,7 @@
 /*
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
  * software options, which enable "monster flowing".
+ * --broken in mangband.
  */
 /* #define MONSTER_FLOW */
 
@@ -423,6 +425,7 @@
  * learning that the player is not harmed by that attack.
  *
  * This adds about 3K to the memory and about 5K to the executable.
+ * --broken in mangband.
  */
 /* #define DRS_SMART_OPTIONS */
 
@@ -434,42 +437,11 @@
  * the player's recent locations.  This code has been removed from
  * the current version because it is being rewritten by Billy, and
  * until it is ready, it will not work.  Do not define this option.
+ * --broken in mangband.
  */
 /* #define WDT_TRACK_OPTIONS */
 
 
-
-/*
- * OPTION: Allow the use of "sound" in various places.
- */
-#define USE_SOUND
-
-/*
- * OPTION: Allow the use of "graphics" in various places
- */
-#define USE_GRAPHICS
-
-
-/*
- * OPTION: Hack -- Macintosh stuff
- */
-#ifdef MACINTOSH
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
-
-
-/*
- * OPTION: Hack -- Windows stuff
- */
-#ifdef WINDOWS
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
 
 
 
@@ -505,12 +477,14 @@
 
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
+ * --not used in mangband
  */
 /* #define CHECK_TIME */
 
 /*
  * OPTION: Check the "load" against "lib/file/load.txt"
  * This may require the 'rpcsvs' library
+ * --not used in mangband
  */
 /* #define CHECK_LOAD */
 
@@ -546,11 +520,6 @@
 #define SHIMMER_OBJECTS
 
 
-/*
- * OPTION: Person to bother if something goes wrong.
- */
-#define MAINTAINER	"adingle@crud.net"
-
 
 /*
  * OPTION: Have the server respond to commands typed in on its tty.
@@ -562,18 +531,6 @@
  */
 #define NEW_SERVER_CONSOLE
 
-/*
- * OPTION: Default font (when using X11).
- */
-#define DEFAULT_X11_FONT		"9x15"
-
-/*
- * OPTION: Default fonts (when using X11)
- */
-#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
 
 
 
@@ -628,5 +585,27 @@
 # define VERIFY_CHECKSUMS
 # define VERIFY_TIMESTAMPS
 #endif
+
+
+/*
+ * OPTION: Use "blocking getch() calls" in "main-gcu.c".
+ * Hack -- Note that this option will NOT work on many BSD machines
+ * Currently used whenever available, if you get a warning about
+ * "nodelay()" undefined, then make sure to undefine this.
+ */
+#if defined(SYS_V) || defined(AMIGA) || defined(linux)
+# define USE_GETCH
+#endif
+
+/*
+ * OPTION: for the AFS distributed file system, define this to ensure that
+ * the program is secure with respect to the setuid code.  This option has
+ * not been tested (to the best of my knowledge).  This option may require
+ * some weird tricks with "player_uid" and such involving "defines".
+ * Note that this option used the AFS library routines Authenticate(),
+ * bePlayer(), beGames() to enforce the proper priviledges.
+ * You may need to turn "SAFE_SETUID" off to use this option.
+ */
+/* #define SECURE */
 
 

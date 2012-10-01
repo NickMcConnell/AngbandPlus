@@ -721,18 +721,9 @@ static void get_money(int Ind)
 	/* Save the gold */
 	p_ptr->au = gold;
 	
-	if (!strcmp(p_ptr->name,cfg_admin_wizard)) 
-	{
-		/* the admin wizard can basically do what he wants */
-		p_ptr->au = 50000000;
-		p_ptr->lev = 50;
-		p_ptr->exp = 15000000;
-		p_ptr->noscore = 1;
-		/* permanent invulnerability */
-		p_ptr->invuln = -1;
-	}
 	if (!strcmp(p_ptr->name,cfg_dungeon_master))
 	{
+		p_ptr->au = 50000000;
 		p_ptr->lev = 50;
 		p_ptr->exp = 15000000;
 		p_ptr->invuln = -1;
@@ -850,7 +841,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Priest */
 		{ TV_PRAYER_BOOK, 0 },
 		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_HEALING }
+		{ TV_POTION, SV_POTION_CURE_CRITICAL }
 	},
 
 	{
@@ -888,9 +879,6 @@ static void player_outfit(int Ind)
 	int		i, tv, sv;
 
 	object_type	forge;
-	artifact_type	* a_ptr; // APD XXX FOR WARRIOR 
-	int		k_idx;	// APD XXX FOR WARRIOR
-
 	object_type	*o_ptr = &forge;
 
 
@@ -908,18 +896,22 @@ static void player_outfit(int Ind)
 	object_known(o_ptr);
 	(void)inven_carry(Ind, o_ptr);
 
-#if 0
+
 	/* 
-	 * Give the cfg_admin_wizard some interesting stuff.
+	 * Give the DM some interesting stuff, for quests, etc
 	 */
-	 if (!strcmp(p_ptr->name,cfg_admin_wizard))
+
+	 if (!strcmp(p_ptr->name,cfg_dungeon_master))
 	{ 
-		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_INC_INT));
+		artifact_type	* a_ptr;
+		int		k_idx;
+
+	/*
+		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_LIFE));
 		o_ptr->number = 99;
 		o_ptr->discount = 100;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-
 		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY));
 		o_ptr->number = 99;
 		o_ptr->discount = 100;
@@ -998,14 +990,13 @@ static void player_outfit(int Ind)
 		o_ptr->to_a = 10;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-	}
 
 		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
 		o_ptr->number = 20;
 		o_ptr->discount = 100;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-/*
+
 		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_HEALING));
 		o_ptr->number = 18;
 		o_ptr->discount = 0;
@@ -1029,7 +1020,6 @@ static void player_outfit(int Ind)
 		o_ptr->discount = 0;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-		*/
 
 		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY));
 		o_ptr->number = 99;
@@ -1037,7 +1027,6 @@ static void player_outfit(int Ind)
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-	/*	
 		invcopy(o_ptr, lookup_kind(TV_PRAYER_BOOK, 5));
 		o_ptr->number = 1;
 		object_known(o_ptr);
@@ -1057,7 +1046,6 @@ static void player_outfit(int Ind)
 		o_ptr->number = 1;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-	*/
 
 		invcopy(o_ptr, lookup_kind(TV_BOW, SV_HEAVY_XBOW));
 		o_ptr->number = 1;
@@ -1082,7 +1070,6 @@ static void player_outfit(int Ind)
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		/*
 		invcopy(o_ptr, lookup_kind(TV_CLOAK, SV_CLOAK));
 		o_ptr->number = 1;
 		o_ptr->name2 = EGO_AMAN;
@@ -1092,7 +1079,6 @@ static void player_outfit(int Ind)
 		o_ptr->pval = 3; // plus 3 to stealth (hopefully...)
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-		*/
 
 		invcopy(o_ptr, lookup_kind(TV_CLOAK, SV_CLOAK));
 		o_ptr->number = 1;
@@ -1104,7 +1090,6 @@ static void player_outfit(int Ind)
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		/*
 		invcopy(o_ptr, lookup_kind(TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS));
 		o_ptr->number = 1;
 		o_ptr->name2 = EGO_SPEED;
@@ -1112,7 +1097,6 @@ static void player_outfit(int Ind)
 		o_ptr->pval = 10; // plus 10 to speed (hopefully...)
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-		*/
 
 		invcopy(o_ptr, lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
 		o_ptr->number = 1;
@@ -1149,7 +1133,6 @@ static void player_outfit(int Ind)
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		/*
 		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_SLAYING));
 		o_ptr->number = 1;
 		o_ptr->to_h = 9;
@@ -1162,7 +1145,6 @@ static void player_outfit(int Ind)
 		o_ptr->pval = 6;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-		*/
 
 		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_SPEED));
 		o_ptr->number = 1;
@@ -1182,13 +1164,11 @@ static void player_outfit(int Ind)
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		/*
 		invcopy(o_ptr, lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_CHAOS));
 		o_ptr->number = 1;
 		o_ptr->to_a = 23;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-		*/
 
 		invcopy(o_ptr, lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_BALANCE));
 		o_ptr->number = 1;
@@ -1204,8 +1184,8 @@ static void player_outfit(int Ind)
 		apply_magic(0,o_ptr,0,0,0,0);
 		object_known(o_ptr);
 		inven_carry(Ind, o_ptr);
+	*/
 	}
-#endif
 	
 	/* Hack -- Give the player three useful objects */
 	for (i = 0; i < 3; i++)
@@ -1234,9 +1214,11 @@ static void player_setup(int Ind)
 		/* Skip this player */
 		if (i == Ind) continue;
 
+#if 0
 		/* Skip disconnected players */
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
+#endif
 
 		/* Count */
 		if (Players[i]->dun_depth == Depth)
@@ -1272,13 +1254,15 @@ static void player_setup(int Ind)
 		{
 			/* Build a new level and put him on it */
 			alloc_dungeon_level(Depth);
-			generate_cave(Depth);
+			/* option 29 is auto_scum for the player */
+			generate_cave(Depth,p_ptr->options[29]);
 		}
 		else
 		/* rebuild the wilderness level */
 		{
 			alloc_dungeon_level(Depth);
-			generate_cave(Depth);
+			/* NB: Wilderness levels do not currently honor auto_scum */
+			generate_cave(Depth,0);
 			/* hack -- this is important */
 			if (!players_on_depth[Depth]) players_on_depth[Depth] = 1;
 			
@@ -1462,9 +1446,7 @@ bool player_birth(int Ind, cptr name, cptr pass, int conn, int race, int class, 
 	p_ptr->conn = conn;
 
 	/* Verify his name and create a savefile name */
-	if (!process_player_name(Ind, TRUE)) {
-		return FALSE;
-	}
+	if (!process_player_name(Ind, TRUE)) return FALSE;
 
 	/* Attempt to load from a savefile */
 	character_loaded = FALSE;
@@ -1512,6 +1494,10 @@ bool player_birth(int Ind, cptr name, cptr pass, int conn, int race, int class, 
 
 	/* Actually Generate */
 
+ 	/* This enables maximize mode for new characters. --RLS */
+
+	p_ptr->maximize=1;
+
 	/* No autoroller */
 	get_stats(Ind, stat_order);
 
@@ -1533,8 +1519,8 @@ bool player_birth(int Ind, cptr name, cptr pass, int conn, int race, int class, 
 	/* Set his location, panel, etc. */
 	player_setup(Ind);
 
-	return  TRUE;
-
+	/* Success */
+	return TRUE;
 }
 
 

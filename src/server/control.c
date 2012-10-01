@@ -25,8 +25,10 @@ static void console_status()
 	{
 		player_type *p_ptr = Players[k];
 
+#if 0
 		/* Skip disconnected players */
 		if (p_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 		/* Add an entry */
 		Packet_printf(&console_buf, "%s%s%s%d%d",
@@ -333,27 +335,6 @@ static void console_shutdown(void)
 
 	/* Shutdown */
 	shutdown_server();
-}
-
-static bool console_bad_name(cptr name)
-{
-	char localname[1024];
-
-	/* Acquire local host name */
-	GetLocalHostName(localname, 1024);
-
-	/* Check local host name */
-	/* XXX XXX we desperately need some authentication here... */
-	if ((strcasecmp(name, localname) && strcasecmp(name, "localhost") &&
-			strcmp(name, "127.0.0.1")))
-	{
-		s_printf("Illegal console command from %s.\n", name);
-
-		return TRUE;
-	}
-	
-	/* Assume OK */
-	return FALSE;
 }
 
 /*

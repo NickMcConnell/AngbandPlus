@@ -2592,7 +2592,7 @@ static void process_monster(int Ind, int m_idx)
 			}
 
 			/* Hack -- multiply slower in crowded areas */
-			if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
+			if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)) && (m_ptr->energy >= level_speed(m_ptr->dun_depth)))
 			{
 				/* Try to multiply */
 				if (multiply_monster(m_idx))
@@ -2609,7 +2609,7 @@ static void process_monster(int Ind, int m_idx)
 		}
 						
 	/* Attempt to cast a spell */
-	if (make_attack_spell(Ind, m_idx)) 
+	if (make_attack_spell(Ind, m_idx) && (m_ptr->energy >= level_speed(m_ptr->dun_depth))) 
 	{
 		m_ptr->energy -= level_speed(m_ptr->dun_depth);
 		return;
@@ -2918,14 +2918,19 @@ static void process_monster(int Ind, int m_idx)
 		/* The player is in the way.  Attack him. */
 		if (do_move && (c_ptr->m_idx < 0))
 		{
-			/* Do the attack */
-			(void)make_attack_normal(0 - c_ptr->m_idx, m_idx);
+			if (m_ptr->energy >= level_speed(m_ptr->dun_depth))
+			{
+				/* Do the attack */
+				(void)make_attack_normal(0 - c_ptr->m_idx, m_idx);
 
-			/* Do not move */
-			do_move = FALSE;
+				/* Do not move */
+				do_move = FALSE;
 
-			/* Took a turn */
-			do_turn = TRUE;
+				/* Took a turn */
+				do_turn = TRUE;
+				m_ptr->energy -= level_speed(m_ptr->dun_depth);
+			}
+			else return;
 		}
 
 
@@ -3280,9 +3285,11 @@ void process_monsters(void)
 
 			p_ptr = Players[pl];
 
+#if 0
 			/* Only check him if he is playing */
 		     	if (p_ptr->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* Make sure he's on the same dungeon level */
 			if (p_ptr->dun_depth != m_ptr->dun_depth)

@@ -21,7 +21,7 @@
 
 # Version stamp (required)
 
-V:0.7.0
+V:0.7.2
 
 
 # The Phial of Galadriel
@@ -211,7 +211,7 @@ F:ACTIVATE
 
 N:20:of Isildur
 I:37:15:1
-W:30:3:300:50000
+W:30:3:300:125000
 P:25:2d4:0:0:25
 F:CON | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
@@ -222,7 +222,7 @@ F:RES_SOUND | RES_CONF | RES_NEXUS
 
 N:21:of the Rohirrim
 I:37:9:2
-W:30:3:200:30000
+W:30:3:200:130000
 P:19:1d4:0:0:15
 F:STR | DEX | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONF | RES_SOUND
@@ -310,7 +310,7 @@ F:RES_CHAOS
 
 N:31:of Celegorm
 I:34:4:0
-W:30:3:60:12000
+W:30:3:60:120000
 P:4:1d2:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK
 
@@ -1217,7 +1217,7 @@ F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN |
 F:ACTIVATE | SHOW_MODS
 
 
-# Artifact 123 is unused
+# 123 is unused
 
 
 # The Long Bow 'Belthronding'

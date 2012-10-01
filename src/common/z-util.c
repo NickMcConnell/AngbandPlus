@@ -216,28 +216,29 @@ void (*quit_aux)(cptr) = NULL;
  */
 void quit(cptr str)
 {
-	char buf[1024];
+        char buf[1024];
 
-	/* Save exit string */
-	if (str)
-		strncpy(buf, str, 1024);
+        /* Save exit string */
+        if (str)
+                strncpy(buf, str, 1024);
 
-	/* Attempt to use the aux function */
-	if (quit_aux) (*quit_aux)(buf);
+        /* Attempt to use the aux function */
+        /* This was passing buf, which is a bad idea if quit() is called with
+         * NULL [grk] */
+        if (quit_aux) (*quit_aux)(str);
 
-	/* Success */
-	if (!str) (void)(exit(0));
+        /* Success */
+        if (!str) (void)(exit(0));
 
-	/* Extract a "special error code" */
-	if ((buf[0] == '-') || (buf[0] == '+')) (void)(exit(atoi(buf)));
+        /* Extract a "special error code" */
+        if ((buf[0] == '-') || (buf[0] == '+')) (void)(exit(atoi(buf)));
 
-	/* Send the string to plog() */
-	plog(buf);
+        /* Send the string to plog() */
+        plog(buf);
 
-	/* Failure */
-	(void)(exit(-1));
+        /* Failure */
+        (void)(exit(-1));
 }
-
 
 
 /*

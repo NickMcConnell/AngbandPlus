@@ -948,7 +948,7 @@ struct house_type
 	byte strength;		/* Strength of door (unused) */
 	byte owned;		/* Currently owned? */
 
-	int depth;
+	s32b depth;
 
 	s32b price;		/* Cost of buying */
 };

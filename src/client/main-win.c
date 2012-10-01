@@ -75,7 +75,7 @@
 
 #define MNU_SUPPORT
 #define GRAPHICS
-
+#define GFXD "16x16.BMP"
 
 /*
  * Extract the "WIN32" flag from the compiler
@@ -129,12 +129,14 @@
 
 #define IDM_HELP_GENERAL		901
 #define IDM_HELP_SPOILERS		902
-
+#define IDM_HELP_ABOUT			903
 
 /*
  * This may need to be removed for some compilers XXX XXX XXX
  */
-#define STRICT
+#ifndef __MSVC__
+# define STRICT
+#endif
 
 /*
  * exclude parts of WINDOWS.H that are not needed
@@ -354,6 +356,16 @@ static term_data data[MAX_TERM_DATA];
 static term_data *td_ptr;
 
 /*
+ * Even bigger hack than the above -- global edit control handle [grk]
+ */
+#ifdef __MSVC__
+static HWND editmsg;
+static HWND old_focus = NULL;
+LONG FAR PASCAL SubClassFunc(HWND hWnd,WORD Message,WORD wParam, LONG lParam);
+FARPROC lpfnOldWndProc;
+#endif
+
+/*
  * Various boolean flags
  */
 bool game_in_progress  = FALSE;  /* game in progress */
@@ -416,6 +428,7 @@ static cptr AngList  = "AngList";
 static cptr ANGBAND_DIR_XTRA_FONT;
 static cptr ANGBAND_DIR_XTRA_GRAF;
 static cptr ANGBAND_DIR_XTRA_SOUND;
+#define ANGBAND_DIR_XTRA_HELP ".\\lib\\text"
 
 /*
  * The Angband color set:
@@ -434,6 +447,26 @@ static cptr ANGBAND_DIR_XTRA_SOUND;
  */
 static COLORREF win_clr[16] =
 {
+    PALETTERGB(0x00, 0x00, 0x00),  /* 0 0 0  Dark */
+    PALETTERGB(0xFF, 0xFF, 0xFF),  /* 4 4 4  White */
+    PALETTERGB(0x90, 0x90, 0x90),  /* 2 2 2  Slate */
+    PALETTERGB(0xFF, 0x80, 0x00),  /* 4 2 0  Orange */
+    PALETTERGB(0xFF, 0x20, 0x20),  /* 3 0 0  Red (was 2,0,0) */
+    PALETTERGB(0x20, 0x8D, 0x44),  /* 0 2 1  Green */
+    PALETTERGB(0x20, 0x50, 0xC0),  /* 0 0 4  Blue */
+    PALETTERGB(0x8D, 0x44, 0x20),  /* 2 1 0  Umber */
+    PALETTERGB(0x60, 0x60, 0x60),  /* 1 1 1  Lt. Dark */
+    PALETTERGB(0xC0, 0xC0, 0xC0),  /* 3 3 3  Lt. Slate */
+    PALETTERGB(0xB0, 0x30, 0xFF),  /* 4 0 4  Violet (was 2,0,2) */
+    PALETTERGB(0xEF, 0xDF, 0x40),  /* 4 4 0  Yellow */
+    // PALETTERGB(0xFF, 0x70, 0x50),  /* 4 0 0  Lt. Red (was 4,1,3) */
+    PALETTERGB(0xFF, 0x80, 0x80),  /* 4 0 0  Lt. Red (was 4,1,3) */
+    PALETTERGB(0x30, 0xFF, 0x30),  /* 0 4 0  Lt. Green */
+    PALETTERGB(0x30, 0xD0, 0xFF),  /* 0 4 4  Lt. Blue */
+    PALETTERGB(0xFF, 0xA8, 0x20)   /* 3 2 1  Lt. Umber */
+
+
+#if 0
 	PALETTERGB(0x00, 0x00, 0x00),  /* 0 0 0  Dark */
 	PALETTERGB(0xFF, 0xFF, 0xFF),  /* 4 4 4  White */
 	PALETTERGB(0x8D, 0x8D, 0x8D),  /* 2 2 2  Slate */
@@ -442,14 +475,15 @@ static COLORREF win_clr[16] =
 	PALETTERGB(0x00, 0x8D, 0x44),  /* 0 2 1  Green */
 	PALETTERGB(0x00, 0x00, 0xFF),  /* 0 0 4  Blue */
 	PALETTERGB(0x8D, 0x44, 0x00),  /* 2 1 0  Umber */
-	PALETTERGB(0x44, 0x44, 0x44),  /* 1 1 1  Lt. Dark */
+	PALETTERGB(0x54, 0x54, 0x54),  /* 1 1 1  Lt. Dark */
 	PALETTERGB(0xD7, 0xD7, 0xD7),  /* 3 3 3  Lt. Slate */
 	PALETTERGB(0xFF, 0x00, 0xFF),  /* 4 0 4  Violet (was 2,0,2) */
 	PALETTERGB(0xFF, 0xFF, 0x00),  /* 4 4 0  Yellow */
-	PALETTERGB(0xFF, 0x00, 0x00),  /* 4 0 0  Lt. Red (was 4,1,3) */
+	PALETTERGB(0xFF, 0x44, 0xD7),  /* 4 0 0  Lt. Red (was 4,1,3) */
 	PALETTERGB(0x00, 0xFF, 0x00),  /* 0 4 0  Lt. Green */
 	PALETTERGB(0x00, 0xFF, 0xFF),  /* 0 4 4  Lt. Blue */
 	PALETTERGB(0xD7, 0x8D, 0x44)   /* 3 2 1  Lt. Umber */
+#endif
 };
 
 
@@ -482,7 +516,40 @@ static BYTE win_pal[16] =
 	VID_YELLOW			/* Light Umber XXX */
 };
 
+/* [grk]
+ * A gross hack to allow the client to scroll the dungeon display.
+ * This is required for large graphical tiles where we cant have an
+ * 66x22 tile display except in very high screen resolutions.
+ * When the server supports player recentering this can go.
+ *
+ * When we receive a request to plot a tile at a location, we
+ * shift the x-coordinate by this value. If the resultant
+ * x-coordinate is negative we just ignore it and plot nothing.
+ *
+ * We only need scrolling along the x axis.
+ */
+static x_offset = 0;
 
+/* Hack -- set focus to chat message control */
+void set_chat_focus( void )
+{
+	old_focus = GetFocus();
+	SetFocus(editmsg);
+}
+
+void unset_chat_focus( void )
+{
+	/* Set focus back to original window */
+	if(old_focus) SetFocus(old_focus);
+}
+
+void stretch_chat_ctrl( void )
+{
+	/* Resize the edit control */
+	SetWindowPos(editmsg, 0, 2, data[4].client_hgt-21,
+	             data[4].client_wid-6, 20,
+	             SWP_NOZORDER);
+}
 
 /*
  * Hack -- given a pathname, point at the filename
@@ -787,7 +854,7 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 	td->font_want = string_make(extract_file_name(tmp));
 
 	/* Desired graf, with default */
-	GetPrivateProfileString(sec_name, "Graf", "8X13.BMP", tmp, 127, ini_file);
+	GetPrivateProfileString(sec_name, "Graf", GFXD, tmp, 127, ini_file);
 	td->graf_want = string_make(extract_file_name(tmp));
 
 	/* Window size */
@@ -804,6 +871,8 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
  * Hack -- load a "sound" preference by index and name
  */
 #ifdef USE_SOUND
+
+extern cptr sound_names[SOUND_MAX];
 static void load_prefs_sound(int i)
 {
 	char aux[128];
@@ -1193,7 +1262,12 @@ static errr term_force_graf(term_data *td, cptr name)
 
 	char buf[1024];
 
-
+	HBITMAP scaled_gfx; 
+	HDC  hdc;
+	HDC hdcSrc;
+	HDC hdcDest;
+	HBITMAP hbmSrcOld;
+	
 	/* Forget old stuff */
 	if (td->graf_file)
 	{
@@ -1267,6 +1341,42 @@ static errr term_force_graf(term_data *td, cptr name)
 	/* Save the new sizes */
 	td->infGraph.CellWidth = wid;
 	td->infGraph.CellHeight = hgt;
+                 
+                 
+	/* More info */
+////	hdcSrc = CreateCompatibleDC(hdc);
+////	hbmSrcOld = SelectObject(hdcSrc, td->infGraph.hBitmap);
+
+	/* Copy the picture from the bitmap to the window */
+//	BitBlt(hdc, x2, y2, w1, h1, hdcSrc, x1, y1, SRCCOPY);
+
+
+	/* Pre-scale the gfx, so we don't need to scale each time a tile */
+	/* is plotted. [grk] */
+/*	hdc = GetDC(td->w);
+	hdcSrc = CreateCompatibleDC(hdc);
+	scaled_gfx = CreateCompatibleBitmap( hdcSrc, 8*32, 13*60);
+
+	hdcDest = CreateCompatibleDC(hdc);
+	hbmSrcOld = SelectObject(hdcDest, td->infGraph.hBitmap);
+	SelectObject(hdcSrc, scaled_gfx);
+
+	SetStretchBltMode(hdcSrc, COLORONCOLOR);
+	StretchBlt(hdcSrc, 0, 0, 8*32, 13*60, hdcDest, 0, 0, 16*32, 16*60, SRCCOPY);
+	td->infGraph.hBitmap = scaled_gfx;
+*/	
+	
+	/* Release */
+/*	SelectObject(hdcSrc, scaled_gfx);
+	DeleteDC(hdcSrc);
+	SelectObject(hdcDest, hbmSrcOld);
+	DeleteDC(hdcDest);
+*/
+	/* Release */
+/*	ReleaseDC(td->w, hdc);
+*/
+	// FIXME
+
 
 	/* Activate a palette */
 	new_palette();
@@ -1360,7 +1470,7 @@ static void term_change_bitmap(term_data *td)
 			(void)term_force_font(td, "8X13.FON");
 
 			/* Force the "standard" bitmap */
-			(void)term_force_graf(td, "8X13.BMP");
+			(void)term_force_graf(td, GFXD);
 		}
 	}
 }
@@ -1466,8 +1576,10 @@ static errr Term_xtra_win_react(void)
 	if (use_graphics && !old_use_graphics)
 	{
 		/* Hack -- set the player picture */
-		r_info[0].x_attr = 0x87;
-		r_info[0].x_char = 0x80 | (10 * p_ptr->pclass + p_ptr->prace);
+		Client_setup.r_attr[0] = 0x81;
+		Client_setup.r_char[0] = 0x81;
+//		r_info[0].x_attr = 0x87;
+//		r_info[0].x_char = 0x80 | (10 * p_ptr->pclass + p_ptr->prace);
 	}
 
 	/* Remember */
@@ -1490,7 +1602,7 @@ static errr Term_xtra_win_react(void)
 		Term_activate(&td->t);
 
 		/* Hack -- Resize the term */
-		Term_resize(td->cols, td->rows);
+		//Term_resize(td->cols, td->rows);
 
 		/* Redraw the contents */
 		Term_redraw();
@@ -1726,6 +1838,18 @@ static errr Term_wipe_win(int x, int y, int n)
 	HDC  hdc;
 	RECT rc;
 
+#ifdef USE_GRAPHICS
+	/* [grk] Client-side scrolling support 
+	 * This is a kludge see declaration of x_offset */
+//	if(td == &data[0]){
+//		x = x - x_offset;
+//		if(x+n<13) return 0; 
+//		if(x<13){
+//			n = n + (x-13);
+//			x = 13;
+//		}
+//	}
+#endif
 	/* Rectangle to erase in client coords */
 	rc.left   = x * td->font_wid + td->size_ow1;
 	rc.right  = rc.left + n * td->font_wid;
@@ -1812,6 +1936,15 @@ static errr Term_pict_win(int x, int y, byte a, char c)
 	}
 #endif
 
+#ifdef USE_GRAPHICS
+	/* [grk] Client-side scrolling support 
+	 * This is a kludge see declaration of x_offset */
+//	if(td == &data[0]){
+//		x = x - x_offset;
+//		if(x<13) return 0; 
+//	}
+#endif
+
 	/* Extract picture info */
 	row = (a & 0x7F);
 	col = (c & 0x7F);
@@ -1835,6 +1968,8 @@ static errr Term_pict_win(int x, int y, byte a, char c)
 	/* Info */
 	hdc = GetDC(td->w);
 
+/* [grk] We don't use this, we scale the bitmap */
+#ifdef USEBUGGYCODE 
 	/* Handle small bitmaps */
 	if ((w1 < w2) || (h1 < h2))
 	{
@@ -1855,13 +1990,21 @@ static errr Term_pict_win(int x, int y, byte a, char c)
 		x2 += (w2 - w1) >> 1;
 		y2 += (h2 - h1) >> 1;
 	}
+#endif
 
 	/* More info */
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, td->infGraph.hBitmap);
 
 	/* Copy the picture from the bitmap to the window */
-	BitBlt(hdc, x2, y2, w1, h1, hdcSrc, x1, y1, SRCCOPY);
+//	BitBlt(hdc, x2, y2, w1, h1, hdcSrc, x1, y1, SRCCOPY);
+
+/* [grk] Stretch the 16x16 tiles to current font size */
+	/* Set the correct mode for stretching the tiles */
+	SetStretchBltMode(hdc, COLORONCOLOR);
+	/* Copy the terrain picture from the bitmap to the window */
+	StretchBlt(hdc, x2, y2, w2, h2, hdcSrc, x1, y1, w1, h1, SRCCOPY);
+/* end stretch [grk] */
 
 	/* Release */
 	SelectObject(hdcSrc, hbmSrcOld);
@@ -1900,6 +2043,22 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 	RECT rc;
 	HDC  hdc;
 
+#ifdef USE_GRAPHICS
+	/* [grk] Client-side scrolling support 
+	 * This is a kludge see declaration of x_offset */
+//	if(td == &data[0] && (y!=0) ){
+//		if(x>13){ 
+//			x = x - x_offset;
+//			if(x<13) return 0;
+//		}
+//	}
+
+//	if(*s == '@'){
+//		 Term_pict_win(x,y,0x82,0x82);
+//		 return 0;
+//	}
+		
+#endif
 
 	/* Location */
 	rc.left   = x * td->font_wid + td->size_ow1;
@@ -1990,7 +2149,7 @@ static void init_windows(void)
 	int i;
 	static char version[20];
 	term_data *td;
-
+	HFONT editfont;
 
 	/* Main window */
 	td = &data[0];
@@ -2024,7 +2183,9 @@ static void init_windows(void)
 		td->size_ow1 = 1;
 		td->size_ow2 = 1;
 		td->size_oh1 = 1;
-		td->size_oh2 = 1;
+		/* Hack - give term4 space for edit control [grk] */
+		if(i!=4) td->size_oh2 = 1;
+		else td->size_oh2 = 30;
 		td->pos_x = 0;
 		td->pos_y = 0;
 	}
@@ -2091,6 +2252,15 @@ static void init_windows(void)
 		ang_term[i] = &data[i].t;
 	}
 
+	/* hack [grk] */
+	editmsg = CreateWindowEx(WS_EX_STATICEDGE,"EDIT",NULL,WS_CHILD|ES_AUTOHSCROLL|ES_OEMCONVERT|WS_VISIBLE,
+						 2,data[4].client_hgt-24,data[4].client_wid-8,20,data[4].w,NULL,hInstance,NULL);
+	editfont=CreateFont(16,0,0,0,FW_NORMAL,FALSE,FALSE,FALSE,ANSI_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,PROOF_QUALITY,DEFAULT_PITCH,"Arial");  
+	SendMessage(editmsg, WM_SETFONT, editfont, NULL );
+	stretch_chat_ctrl();
+
+	SendMessage(editmsg, EM_LIMITTEXT, 590, 0L);
+	lpfnOldWndProc = (FARPROC)SetWindowLong(editmsg, GWL_WNDPROC, (DWORD) SubClassFunc);
 
 	/* Activate the screen window */
 	SetActiveWindow(data[0].w);
@@ -2111,7 +2281,7 @@ static void init_windows(void)
 			(void)term_force_font(&data[0], "8X13.FON");
 
 			/* XXX XXX XXX Force the "standard" bitmap */
-			(void)term_force_graf(&data[0], "8X13.BMP");
+			(void)term_force_graf(&data[0], GFXD);
 		}
 
 #ifdef FULL_GRAPHICS
@@ -2126,7 +2296,7 @@ static void init_windows(void)
 				(void)term_force_font(&data[i], "8X13.FON");
 
 				/* XXX XXX XXX Force the "standard" bitmap */
-				(void)term_force_graf(&data[i], "8X13.BMP");
+				(void)term_force_graf(&data[i], GFXD);
 			}
 		}
 
@@ -2147,6 +2317,102 @@ static void init_windows(void)
 
 	/* Process pending messages */
 	(void)Term_xtra_win_flush();
+}
+
+/* hack - edit control subclass [grk] */
+LONG FAR PASCAL SubClassFunc(   HWND hWnd,
+               WORD Message,
+               WORD wParam,
+               LONG lParam)
+{
+	char pmsgbuf[1000]; /* overkill */
+	char pmsg[60];
+	char nickbuf[30];
+
+	/* Allow ESCAPE to return focus to main window. */
+	if( Message == WM_KEYDOWN )
+		if( wParam == VK_ESCAPE ){
+		unset_chat_focus();
+		return 0;
+	}
+       
+	if ( Message == WM_CHAR ) {
+		/* Is this RETURN ? */
+		if( wParam == 13 || wParam == 10000) {
+			int msglen=0;
+			memset(nickbuf,0,22);
+
+			/* Get the controls text and send it */
+			msglen = GetWindowText(editmsg, pmsgbuf, 999); 
+
+			/* Send the text in chunks of 58 characters, 
+			   or nearest break before 58 chars */
+
+			if( msglen == 0 ){
+			    unset_chat_focus();
+			    return 0;
+			}
+/*RLS*/
+			if( msglen < 58 ){
+				Send_msg(pmsgbuf); 
+			} else{ 
+				int offset,breakpoint,nicklen;
+				char * startmsg;
+				offset = 0;
+
+				/* see if this was a privmsg, if so, pull off the nick */
+
+				for(startmsg=pmsgbuf; *startmsg ; startmsg++ ) {
+					if( *startmsg==':' ) break;
+				};
+				if( *startmsg  && (startmsg-pmsgbuf<29) ) {
+					strncpy(nickbuf,pmsgbuf,(startmsg-pmsgbuf)+1);
+					nicklen=strlen(nickbuf);
+					startmsg+=2;
+				} else {
+					startmsg=pmsgbuf;
+					nicklen=0;
+				};
+
+				/* now deal with what's left */
+
+				while(msglen>0){
+					memset(pmsg,0,60);
+
+					if(msglen<(58-nicklen)){
+						breakpoint=msglen;
+					} else{
+						/* try to find a breaking char */
+						for(breakpoint=58-nicklen; breakpoint>0; breakpoint--) {
+							if( startmsg[offset+breakpoint] == ' ' ) break;
+							if( startmsg[offset+breakpoint] == ',' ) break;
+							if( startmsg[offset+breakpoint] == '.' ) break;
+							if( startmsg[offset+breakpoint] == ';' ) break;
+						};
+						if(!breakpoint) breakpoint=58-nicklen; 	/* nope */
+					}
+
+					/* if we pulled off a nick above, prepend it. */
+					if(nicklen) strncpy(pmsg,nickbuf,nicklen);
+
+					/* stash in this part of the msg */
+					strncat(pmsg, startmsg+offset, breakpoint);
+					msglen -= breakpoint;
+					offset += breakpoint;
+					Send_msg(pmsg);
+					Net_flush();
+				}
+			}
+
+			/* Clear the message box */
+			pmsgbuf[0] = 0;
+			SetWindowText(editmsg, pmsgbuf);
+			unset_chat_focus();
+			return 0;
+		}
+	}
+	return CallWindowProc(lpfnOldWndProc, hWnd, Message, wParam, lParam);
+	
 }
 
 
@@ -2178,12 +2444,12 @@ static void setup_menus(void)
 #ifdef MNU_SUPPORT
 	/* Save player */
 	EnableMenuItem(hm, IDM_FILE_SAVE,
- 	               MF_BYCOMMAND | MF_ENABLED | MF_GRAYED));
+ 	               MF_BYCOMMAND | MF_ENABLED | MF_GRAYED);
  
 
 	/* Exit with save */
 	EnableMenuItem(hm, IDM_FILE_EXIT,
- 	               MF_BYCOMMAND | MF_ENABLED | MF_GRAYED));
+ 	               MF_BYCOMMAND | MF_ENABLED | MF_GRAYED);
  
 
 	/* Window font options */
@@ -2268,6 +2534,19 @@ static void check_for_save_file(LPSTR cmd_line)
 /*	play_game(FALSE);	-changed to network call -GP */
 }
 
+BOOL CALLBACK dDialogProc(
+  HWND hwndDlg,  // handle to dialog box
+  UINT uMsg,     // message
+  WPARAM wParam, // first message parameter
+  LPARAM lParam  // second message parameter
+)
+{
+	switch( uMsg ){
+		case WM_COMMAND:
+			EndDialog(hwndDlg,0);
+	}
+	return 0;
+}
 
 /*
  * Process a menu command
@@ -2282,139 +2561,24 @@ static void process_menus(WORD wCmd)
 	/* Analyze */
 	switch (wCmd)
 	{
-		/* New game */
-		case IDM_FILE_NEW:
-		{
-#if 0
-			if (!initialized)
-			{
-				MessageBox(data[0].w, "You cannot do that yet...",
-				           "Warning", MB_ICONEXCLAMATION | MB_OK);
-			}
-			else if (game_in_progress)
-			{
-				MessageBox(data[0].w,
-				           "You can't start a new game while you're still playing!",
-				           "Warning", MB_ICONEXCLAMATION | MB_OK);
-			}
-			else
-			{
-				game_in_progress = TRUE;
-				disable_start();
-				Term_flush();
-				play_game(TRUE);
-				quit(NULL);
-			}
-#endif
-			break;
-		}
-
-		// Open game
-		case IDM_FILE_OPEN:
-		{
-#if 0
-			if (!initialized)
-			{
-				MessageBox(data[0].w, "You cannot do that yet...",
-				           "Warning", MB_ICONEXCLAMATION | MB_OK);
-			}
-			else if (game_in_progress)
-			{
-				MessageBox(data[0].w,
-				           "You can't open a new game while you're still playing!",
-				           "Warning", MB_ICONEXCLAMATION | MB_OK);
-			}
-			else
-			{
-				memset(&ofn, 0, sizeof(ofn));
-				ofn.lStructSize = sizeof(ofn);
-				ofn.hwndOwner = data[0].w;
-				ofn.lpstrFilter = "Save Files (*.)\0*\0";
-				ofn.nFilterIndex = 1;
-				ofn.lpstrFile = savefile;
-				ofn.nMaxFile = 1024;
-				ofn.lpstrInitialDir = ANGBAND_DIR_SAVE;
-				ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-
-				if (GetOpenFileName(&ofn))
-				{
-					// Load 'savefile'
-					validate_file(savefile);
-					game_in_progress = TRUE;
-					disable_start();
-					Term_flush();
-					play_game(FALSE);
-					quit(NULL);
-				}
-			}
-#endif
-			break;
-		}
-
-		/* Save game */
-		case IDM_FILE_SAVE:
-		{
-#if 0
-			if (!game_in_progress)
-			{
-				MessageBox(data[0].w, "No game in progress.",
-				           "Warning", MB_ICONEXCLAMATION | MB_OK);
-			}
-			else
-			{
-				// Save the game
-				do_cmd_save_game();
-			}
-#endif
-			break;
-		}
-
-
 		/* Save and Exit */
 		case IDM_FILE_EXIT:
 		{
-#if 0
-			if (game_in_progress && character_generated)
-			{
-				// Hack -- Forget messages
-				msg_flag = FALSE;
-
-				// Save the game
-				do_cmd_save_game();
-			}
-#endif
 			quit(NULL);
 			break;
 		}
 
-		/* Quit (no save) */
-		case IDM_FILE_QUIT:
-		{
-#if 0
-			if (game_in_progress && character_generated)
-			{
-				if (MessageBox(data[0].w,
-				               "Your character will be not saved!",
-				               "Warning", MB_ICONEXCLAMATION | MB_OKCANCEL) == IDCANCEL)
-				{
-					break;
-				}
-			}
-#endif
-			quit(NULL);
-			break;
-		}
 
 		case IDM_TEXT_SCREEN:
 		{
 
 #ifdef USE_GRAPHICS
 			/* XXX XXX XXX */
-			if (use_graphics)
-			{
-				term_change_bitmap(&data[0]);
-				break;
-			}
+			//if (use_graphics)
+			//{
+			//	term_change_bitmap(&data[0]);
+			//	break;
+			//}
 #endif
 
 			term_change_font(&data[0]);
@@ -2480,13 +2644,16 @@ static void process_menus(WORD wCmd)
 			char buf[1024];
 
 			/* XXX XXX XXX  */
-			Term_activate(term_screen);
+			//Term_activate(term_screen);
 
 			/* Reset the visuals */
-			reset_visuals();
+			//reset_visuals();
 
 			/* Toggle "graphics" */
 			use_graphics = !use_graphics;
+			save_prefs();
+			MessageBox(NULL, "You need to restart MAangband in order for the changes to take effect","MAngband",MB_OK);
+			return 0;
 
 			/* Access the "graphic" mappings */
 			sprintf(buf, "%s-%s.prf", (use_graphics ? "graf" : "font"), ANGBAND_SYS);
@@ -2506,7 +2673,7 @@ static void process_menus(WORD wCmd)
 					(void)term_force_font(&data[0], "8X13.FON");
 
 					/* XXX XXX XXX Force a "usable" graf */
-					(void)term_force_graf(&data[0], "8X13.BMP");
+					(void)term_force_graf(&data[0], GFXD);
 				}
 
 #ifdef FULL_GRAPHICS
@@ -2521,7 +2688,7 @@ static void process_menus(WORD wCmd)
 						(void)term_force_font(&data[i], "8X13.FON");
 
 						/* XXX XXX XXX Force a "usable" graf */
-						(void)term_force_graf(&data[i], "8X13.BMP");
+						(void)term_force_graf(&data[i], GFXD);
 					}
 				}
 
@@ -2547,21 +2714,6 @@ static void process_menus(WORD wCmd)
 			break;
 		}
 
-#ifdef ALLOW_SCRSAVER
-		case IDM_OPTIONS_SAVER:
-		{
-			hwndSaver = CreateWindowEx(WS_EX_TOPMOST, "WindowsScreenSaverClass", "Borg",
-			                           WS_POPUP | WS_MAXIMIZE | WS_VISIBLE,
-			                           0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
-			                           NULL, NULL, hInstance, NULL);
-			if (!hwndSaver)
-			{
-				MessageBox(data[0].w, "Failed to create saver window", NULL, MB_OK);
-			}
-			break;
-		}
-#endif
-
 		case IDM_HELP_GENERAL:
 		{
 			char buf[1024];
@@ -2581,11 +2733,19 @@ static void process_menus(WORD wCmd)
 			WinExec(buf, SW_NORMAL);
 			break;
 		}
+		case IDM_HELP_ABOUT:
+		{
+			/*x_offset += 1;
+			Term_redraw();*/
+
+			DialogBox(hInstance, "ABOUT" ,data[0].w, dDialogProc );
+
+			break;
+		}
+
 	}
 #endif	/* MNU_SUPPORT */
 }
-
-
 
 #ifdef BEN_HACK
 LRESULT FAR PASCAL _export AngbandWndProc(HWND hWnd, UINT uMsg,
@@ -2849,7 +3009,8 @@ LRESULT FAR PASCAL _export AngbandListProc(HWND hWnd, UINT uMsg,
 	RECT            rc;
 	PAINTSTRUCT     ps;
 	HDC             hdc;
-	int             i;
+	int             i,j;
+	char		pmsg[60];
 
 
 	/* Acquire proper "term_data" info */
@@ -2871,6 +3032,25 @@ LRESULT FAR PASCAL _export AngbandListProc(HWND hWnd, UINT uMsg,
 			return 0;
 		}
 
+		case 0x133: /* WM_CTLCOLOREDIT */
+		{
+			SetTextColor(wParam,0x00ffffff);
+			SetBkColor(wParam, 0);
+			return CreateSolidBrush(0);
+		}
+
+                /* GRK, wasn't trapping this so vis menus got messed up */
+                /* We fake a click on the visibilty menu when the close icon is clicked */
+
+                case WM_CLOSE:
+                        /* Which term is closing ? */
+                        j=-1;
+                        for(i=0; i<MAX_TERM_DATA;i++)
+                          if(&data[i] == td) j = i;
+                        /* Click its menu entry */
+                        if(j != -1) process_menus(211+j);
+                        return 0; 
+                        
 		case WM_GETMINMAXINFO:
 		{
 			if (!td) return 1;  /* this message was sent before WM_NCCREATE */
@@ -2928,6 +3108,7 @@ LRESULT FAR PASCAL _export AngbandListProc(HWND hWnd, UINT uMsg,
 			term_getsize(td);
 
 			MoveWindow(hWnd, td->pos_x, td->pos_y, td->size_wid, td->size_hgt, TRUE);
+			if(td == &data[4]) stretch_chat_ctrl();
 
 			td->size_hack = FALSE;
 
@@ -2951,6 +3132,22 @@ LRESULT FAR PASCAL _export AngbandListProc(HWND hWnd, UINT uMsg,
 			bool ms = FALSE;
 			bool ma = FALSE;
 
+            /* Which term getting the keypress ? */
+            j=-1;
+            for(i=0; i<MAX_TERM_DATA;i++)
+              if(&data[i] == td) j = i;
+              /* If this is term7 we are sending a player message */
+              if(j == 7){
+				/* Is this RETURN ? */
+				if( wParam == 13){
+					/* Get the controls text and send it */
+					GetWindowText(editmsg, pmsg, 59);
+					Send_msg(pmsg);
+				}
+				/* If not return, ignore key */
+				return 0;
+			}
+			
 			/* Extract the modifiers */
 			if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
 			if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
@@ -3150,8 +3347,32 @@ static void hack_plog(cptr str)
  */
 static void hack_quit(cptr str)
 {
+    int i;
+    
+	/* Force saving of preferences on any quit [grk] */
+	save_prefs();
+	
 	/* Give a warning */
 	if (str) MessageBox(NULL, str, "Error", MB_OK | MB_ICONSTOP);
+
+	/* Sub-Windows */
+	for (i = MAX_TERM_DATA - 1; i >= 1; i--)
+	{
+		term_force_font(&data[i], NULL);
+		if (data[i].font_want) string_free(data[i].font_want);
+		if (data[i].graf_want) string_free(data[i].graf_want);
+		if (data[i].w) DestroyWindow(data[i].w);
+		data[i].w = 0;
+	}
+
+#ifdef USE_GRAPHICS
+	term_force_graf(&data[0], NULL);
+#endif
+	term_force_font(&data[0], NULL);
+	if (data[0].font_want) string_free(data[0].font_want);
+	if (data[0].graf_want) string_free(data[0].graf_want);
+	if (data[0].w) DestroyWindow(data[0].w);
+	data[0].w = 0;
 
 	/* Unregister the classes */
 	UnregisterClass(AppName, hInstance);
@@ -3335,7 +3556,7 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_XTRA_GRAF);
 
 	/* Build the filename */
-	path_build(path, 1024, ANGBAND_DIR_XTRA_GRAF, "8X13.BMP");
+	path_build(path, 1024, ANGBAND_DIR_XTRA_GRAF, GFXD);
 
 	/* Hack -- Validate the basic graf */
 	validate_file(path);

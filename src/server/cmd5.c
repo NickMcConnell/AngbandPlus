@@ -1835,6 +1835,13 @@ void do_cmd_pray(int Ind, int book, int spell)
 				(void)set_cut(Ind, 0);
 				break;
 			}
+			/* Heal other projectile */
+			case 27+64:
+			{
+				p_ptr->current_spell = 27;
+				get_aim_dir(Ind);
+				return;
+			}
 
 			case 28:
 			{
@@ -2201,9 +2208,15 @@ void do_cmd_pray_aux(int Ind, int dir)
 			break;	
 		}
 
-		case 38:
+		case 27:
 		{
 			heal_other_proj(Ind,dir);
+			break;
+		}
+
+		case 38:
+		{
+			heal_other_heavy_proj(Ind,dir);
 			break;
 		}
 

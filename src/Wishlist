@@ -1,0 +1,194 @@
+
+From ta_rodrigues@yahoo.com  Sat Sep 28 19:19:03 2002
+Return-Path: <ta_rodrigues@yahoo.com>
+Delivered-To: crimson@mangband.org
+Received: from web12306.mail.yahoo.com (web12306.mail.yahoo.com [216.136.173.104])
+	by forsaken.mangband.org (Postfix) with SMTP id 11CD4138E3
+	for <crimson@mangband.org>; Sat, 28 Sep 2002 19:19:03 -0400 (EDT)
+Message-ID: <20020928231852.12600.qmail@web12306.mail.yahoo.com>
+Received: from [63.224.203.79] by web12306.mail.yahoo.com via HTTP; Sat, 28 Sep 2002 16:18:52 PDT
+Date: Sat, 28 Sep 2002 16:18:52 -0700 (PDT)
+From: Todd <ta_rodrigues@yahoo.com>
+Subject: Fwd: Mangband stuff
+To: crimson@mangband.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Status: RO
+
+
+--- Todd <ta_rodrigues@yahoo.com> wrote:
+> Date: Mon, 2 Sep 2002 01:24:16 -0700 (PDT)
+> From: Todd <ta_rodrigues@yahoo.com>
+> Subject: Mangband
+> To: joseph.spiros@ithinksw.com
+> 
+> Hello!
+> 
+> I am one of the dedicated Mangband fans and am realy
+> happy to know that there is or will soon be an
+> official maintainer again.  There has been little to
+> no news from Alex Dingle in quite some time. 
+> Currently there seem to be a few servers up and
+> running with the 0.7.0 code but the only public
+> server
+> with any real player base is the original
+> Mangband.org
+> server.  Several of us are curious to know if you
+> are
+> going to be maintaining the software only or are
+> also
+> going to be hosting a game as well.  I also know of
+> several bugs that need to be addressed ranging from
+> several 'broken' greater vaults with no entrances
+> (which are _EXTREMELY_ annoying..I realy hope that's
+> not thier entire purpose) to no less than 3 ways a
+> player can crash the server from the client side. 
+> As
+> well as many ideas that may be of interest if you
+> would like input from an experienced player (My
+> character Angus was a paladin that beat the game and
+> retired with a high score of 110,012,699!)  Also
+> there
+> are at least 2 bugs that were patched in the version
+> that is running at Mangband.org but never made it
+> into
+> the source code that is posted on the site. 
+> 
+> 1. First bug is with Istari gloves/gauntlets/cesti. 
+> With the source from Mangband.org they can be
+> generated with obscene bonuses to hit and to damage
+> up
+> to several hundred plusses.  This was fixed for the
+> server running at Mangband.org but the current
+> source
+> still has this error.  I believe there is a fix
+> posted
+> to the Mangband-d list.
+> 
+> 2. Second bug is a strange one where Morgoth will
+> summon multiple instances of himself and does not
+> grant *King* status when you kill him.  Was fixed on
+> Mangband.org but never made it into the source. 
+> Don't
+> know how to fix this one but it is there.  Ran into
+> it
+> while playing in Wizard mode.  Not the granting of
+> *King* status (heard about that side-effect) but did
+> observe Morgoth to summon 3 other 'Morgoths'.
+> 
+> 3. Server Crashing Bugs.  These are strange and
+> annoying.  Especialy when vindictive people like to
+> crash the server when you're deep in the dungeon or
+> have just found something _REALY_NICE_.  Anyway
+> first
+> and simplest.  The server will crash if you
+> successfully polymorph a ghost character either into
+> a
+> fruit bat or from a fruit bat back to normal.
+> 
+> 4. If you create a character say 'Character' and
+> then
+> create a group named 'Character's group' now try to
+> private message either 'Character' or 'Character's
+> group' with the shortened version 'Char' and it will
+> immediately crash the server.  Doesn't work if there
+> are multiple characters with similar names only
+> seems
+> to kick in when the name is exact in it's entirety.
+> 
+> 5. If three players all drop 1 coin at the same time
+> the server will crash.  Ie: 3 guys hit $ <enter>
+> <enter> a bunch it will crash.
+> 
+> 6. There's a lovely bug with objects.  If you can
+> manage to obtain a <nothing> object (which only
+> seems
+> to show up when the server has been crashing often)
+> you can throw or drop it somewhere.  The object will
+> only go away completely when the server next crashes
+> or is re-set.  Now this object gains some
+> interesting
+> properties.  It will randomly 'grab' an object that
+> has been dropped by a player and make it appear in
+> the
+> location that the <nothing> object was dropped. 
+> Doesn't matter WHERE the player that's doing the
+> dropping of the normal objects is.  I've experienced
+> this when dropping a piece of armor at 6350' and the
+> <nothing> object was in town, as well as when
+> dropping
+> something while IN town and having it vanish and
+> appear wherever the <nothing> object is.  I have yet
+> to have it grab something that I'm dropping in a
+> house
+> but that is my major concern with this one.  Just
+> remembered another time that <nothing> objects seem
+> to
+> occur.  When you die _EXTREMELY_ fast sometimes you
+> do
+> not always correctly drop the gear that you were
+> wearing.  And when you go to regenerate you are then
+> carrying <nothing> objects in your equipped
+> inventory.
+>  These fall to the ground when you quit or are
+> killed
+> again. 
+> 
+> Well thats it for bugs that I am certain of.  As for
+> the GV's well I will have to go through and check my
+> screen shots against the list of vaults so I can
+> send
+> you a vault # to check (Now where did I hide those
+> pesky Screenies...).  I mailed Alex and Crimson a
+> couple different times and got no response so I
+> never
+> finished compiling a list of these.
+> 
+> If you are interested in ideas and/or requests from
+> players let me know.  Although I can say that the
+> major consensus for at least one request seems to be
+> this: Please add either random artifacts or
+> seriously
+> expand the current artifacts.  With more than just a
+> couple players it becomes _extremely_ difficult to
+> acquire an equipment setup that will allow one even
+> a
+> chance to win.  Especially if people no-longer play.
+> 
+> I know of several players that have high level
+> artifacts that no-longer play and have not released
+> thier Arts.  Nor do I or most of the people I've
+> spoken to feel that it is fair to have Artifacts
+> have
+> a 'half-life' where they will dissapear if someone
+> doesn't log in for a period as has been suggested
+> before.  If someone has worked to obtain something
+> they should be allowed to keep it.  For myself,
+> personaly I would love to see random artifacts with
+> the caveat that the 'old' arts be removed.  I saw
+> the
+> addition of random artifacts to PernMangband
+> (currently T.o.M.E.) and people STILL fought and
+> killed each other over thier favorite 'old' or
+> 'static' arts.
+> 
+> Thanks for taking an interest in my favorite
+> pastime!
+> 
+> -Todd Rodrigues
+> 
+> A.k.A. Angus the Paladin Lord and *KING* of Mangband
+> 
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Yahoo! Finance - Get real-time stock quotes
+> http://finance.yahoo.com
+> 
+
+
+__________________________________________________
+Do you Yahoo!?
+New DSL Internet Access from SBC & Yahoo!
+http://sbc.yahoo.com
+

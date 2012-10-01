@@ -615,7 +615,7 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 {
 	player_type *p_ptr = Players[Ind];
 	int Depth = p_ptr->dun_depth;
-	int kludge; /* You don't want to know what this is for.... -APD */
+	int kludge; /* for displaying chars with lowered hp's */
 
 	cave_type *c_ptr;
 	byte *w_ptr;
@@ -627,9 +627,11 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 	byte a;
 	char c;
 
+#if 0
 	if (Players[Ind]->conn == NOT_CONNECTED) {
 		return;
 	}
+#endif
 
 
 	/* Get the cave */
@@ -678,7 +680,8 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 					if (p_ptr->view_yellow_lite)
 					{
 						/* Use "yellow" */
-						a = TERM_YELLOW;
+						/* a = TERM_YELLOW; */
+						a = TERM_ORANGE;
 					}
 				}
 
@@ -759,7 +762,8 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 					if (p_ptr->view_yellow_lite)
 					{
 						/* Use "yellow" */
-						a = TERM_YELLOW;
+						/* a = TERM_YELLOW; */
+						a = TERM_ORANGE;
 					}
 				}
 
@@ -962,7 +966,7 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 			else 
 			{
 				sprintf((unsigned char *)&kludge,"%d", ((Players[0 - c_ptr->m_idx]->chp * 95) / (Players[0 - c_ptr->m_idx]->mhp*10)));
-				c = kludge;
+				c = (char)kludge;
 			}			
 
 			a = player_color(0 - c_ptr->m_idx);
@@ -1068,8 +1072,10 @@ void note_spot_depth(int Depth, int y, int x)
 
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
+#if 0
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
+#endif
 
 		if (Players[i]->dun_depth == Depth)
 		{
@@ -1086,8 +1092,10 @@ void everyone_lite_spot(int Depth, int y, int x)
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
 		/* If he's not playing, skip him */
+#if 0
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
+#endif
 
 		/* If he's not here, skip him */
 		if (Players[i]->dun_depth != Depth)
@@ -1109,8 +1117,10 @@ void everyone_forget_spot(int Depth, int y, int x)
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
 		/* If he's not playing, skip him */
+#if 0
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
+#endif
 
 		/* If he's not here, skip him */
 		if (Players[i]->dun_depth != Depth)
@@ -1580,8 +1590,8 @@ void wild_display_map(int Ind)
 			else type = -1;
 			
 			/* if the player hasnt been here, dont show him the terrain */
-			/* Hack -- serverchez has knowledge of the full world */
-			if (strcmp(p_ptr->name,cfg_admin_wizard))
+			/* Hack -- DM has knowledge of the full world */
+			if (strcmp(p_ptr->name,cfg_dungeon_master))
 			if (!(p_ptr->wild_map[-wild_idx / 8] & (1 << (-wild_idx % 8)))) type = -1;
 			/* hack --  the town is always known */
 			if (!wild_idx) type = WILD_TOWN;
@@ -1948,8 +1958,10 @@ void forget_lite(int Ind)
 		for (j = 1; j <= NumPlayers; j++)
 		{
 			/* Make sure player is connected */
+#if 0
 			if (Players[j]->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* Make sure player is on the level */
 			if (Players[j]->dun_depth != Depth)
@@ -2061,8 +2073,10 @@ void update_lite(int Ind)
 		for (j = 1; j <= NumPlayers; j++)
 		{
 			/* Make sure player is connected */
+#if 0
 			if (Players[j]->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* Make sure player is on the level */
 			if (Players[j]->dun_depth != Depth)
@@ -3646,8 +3660,10 @@ void update_health(int m_idx)
 		p_ptr = Players[i];
 
 		/* Check connection */
+#if 0
 		if (p_ptr->conn == NOT_CONNECTED)
 			continue;
+#endif
 
 		/* See if he is tracking this monster */
 		if (p_ptr->health_who == m_idx)

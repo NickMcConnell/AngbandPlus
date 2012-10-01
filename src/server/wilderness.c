@@ -99,7 +99,6 @@ int neighbor_index(int Depth, char dir)
 void init_wild_info_aux(int x, int y)
 {
 	int depth = world_index(x,y), neigh_idx;
-	char dir;
 	
 	/* if we are a valid index, initialize */
 	if (depth > -MAX_WILD)
@@ -483,7 +482,7 @@ void reserve_building_plot(int Depth, int *x1, int *y1, int *x2, int *y2, int xl
 
 static void wild_add_garden(int Depth, int x, int y)
 {
-	int x1, y1, x2, y2, type, xlen, ylen, attempts = 0;
+	int x1, y1, x2, y2, type, xlen, ylen;
 	char orientation;	
 	object_type food;
 	wilderness_type *w_ptr = &wild_info[Depth];
@@ -499,24 +498,7 @@ static void wild_add_garden(int Depth, int x, int y)
 	xlen = rand_int(rand_int(60)) + 15;
 	ylen = rand_int(rand_int(20)) + 7;
 
-#ifdef DEVEL_TOWN_COMPATIBILITY
-	/* hack -- maximum distance to house -- 30 */
-	while (attempts < 100)
-	{
-#endif
-		
-		reserve_building_plot(Depth, &x1,&y1, &x2,&y2, xlen, ylen, -1, -1);
-#ifdef DEVEL_TOWN_COMPATIBILITY
-		/* we have obtained a valid plot */
-		if (x1 > 0)
-		{
-			 /* maximum distance to field of 40 */
-			if ( ((x1-x)*(x1-x) + (y1-y)*(y1-y) <= 40*40) ||
-			     ((x2-x)*(x2-x) + (y2-y)*(y2-y) <= 40*40) ) break;
-		}
-		attempts++;
-	}
-#endif
+	reserve_building_plot(Depth, &x1,&y1, &x2,&y2, xlen, ylen, -1, -1);
 	
 	/* if we failed to obtain a valid plot */
 	if (x1 < 0) return;
@@ -1174,7 +1156,6 @@ static void wild_add_dwelling(int Depth, int x, int y)
 int wild_clone_closed_loop_total(int cur_depth)
 {
 	int start_depth, total_depth, neigh_idx;
-	wilderness_type *w_ptr = &wild_info[cur_depth];
 		
 	total_depth = 0;
 	
@@ -1227,7 +1208,7 @@ int wild_clone_closed_loop_total(int cur_depth)
 
 int determine_wilderness_type(int Depth)
 {
-	int neighbor_idx, dir, closed_loop = -0xFFF;
+	int neighbor_idx, closed_loop = -0xFFF;
 	wilderness_type *w_ptr = &wild_info[Depth];
 	bool rand_old = Rand_quick;
 	u32b old_seed = Rand_value;	
@@ -1706,7 +1687,7 @@ void wild_gen_bleedmap(int *bleedmap, char dir, int start, int end)
 
 void wild_bleed_level(int bleed_to, int bleed_from, char dir, int start, int end)
 {
-	int x, y, c;
+	int x, y;
 	int bleedmap[256+1], bleed_begin[MAX_WID], bleed_end[MAX_WID];
 	terrain_type terrain;
 	
@@ -1785,7 +1766,6 @@ void wild_bleed_level(int bleed_to, int bleed_from, char dir, int start, int end
 bool should_we_bleed(int Depth, char dir)
 {
 	int neigh_idx = 0, tmp;
-	wilderness_type *w_ptr = &wild_info[Depth];	
 	
 	/* get our neighbors index */
 	neigh_idx = neighbor_index(Depth, dir);

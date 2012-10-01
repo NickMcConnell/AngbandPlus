@@ -138,6 +138,10 @@ struct sockaddr_un	sl_dgram_lastaddr;
 struct sockaddr_in	sl_dgram_lastaddr;
 #endif
 
+#ifdef NEW_SERVER_CONSOLE
+int ConsoleSocket;
+#endif
+
 /* Global broadcast enable variable (super-user only), default disabled */
 int			sl_broadcast_enabled = 0;
 
@@ -291,10 +295,10 @@ int	port;
     memset((char *)&addr_in, 0, sizeof(addr_in));
     addr_in.sin_family		= AF_INET;
 #ifdef BIND_IP
-    addr_in.sin_addr.s_addr	= inet_addr( BIND_IP); /* RLS */
-    /* fprintf( stderr, "Server Socket Binding By Request to %s\n",inet_ntoa(addr_in.sin_addr)); -RLS*/
+    	addr_in.sin_addr.s_addr	= inet_addr( BIND_IP); /* RLS */
+    	/* fprintf( stderr, "Server Socket Binding By Request to %s\n",inet_ntoa(addr_in.sin_addr)); -RLS*/
 #else
-    addr_in.sin_addr.s_addr	= INADDR_ANY;
+    	addr_in.sin_addr.s_addr	= INADDR_ANY;
 #endif
     addr_in.sin_port		= htons(port);
     fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -645,10 +649,22 @@ int	fd;
 #endif /* __STDC__ */
 {
     int		retval;
-
-    cmw_priv_assert_netaccess();
-    retval = accept(fd, NULL, 0);
-    cmw_priv_deassert_netaccess();
+    int maxloop;
+    /* Added this loop to prevent accept from failing when
+     * interrupted by MAngbands alarm handler. -APD
+     *
+     * Hack -- This was causing the game to freze so I have added a max count
+     * as a quick fix until I reaxamine this more thoroughly.
+     */
+    maxloop = 0;
+    do
+    {
+	    cmw_priv_assert_netaccess();
+	    retval = accept(fd, NULL, 0);
+	    cmw_priv_deassert_netaccess();
+	    maxloop++;
+    }
+    while ((errno == EINTR) && (retval == -1) && (maxloop < 10));
 
     return retval;
 } /* SocketAccept */
@@ -691,7 +707,6 @@ SocketLinger(fd)
 int	fd;
 #endif /* __STDC__ */
 {
-    int option=1;
 #if defined(LINUX0) || !defined(SO_LINGER)
     /*
      * As of 0.99.12 Linux doesn't have LINGER stuff.
@@ -1421,10 +1436,10 @@ int	port;
     struct sockaddr_in	addr_in;
     memset((char *)&addr_in, 0, sizeof(addr_in));
     addr_in.sin_family		= AF_INET;
-    addr_in.sin_addr.s_addr	= INADDR_ANY;
 #ifdef BIND_IP
     addr_in.sin_addr.s_addr	= inet_addr( BIND_IP); /* RLS */
-    /* fprintf( stderr, "Dgram Socket Binding By Request to %s\n",inet_ntoa(addr_in.sin_addr)); -RLS*/
+/* XXX */
+    fprintf( stderr, "Dgram Socket Binding By Request to %s\n",inet_ntoa(addr_in.sin_addr));
 #else
     addr_in.sin_addr.s_addr	= INADDR_ANY;
 #endif
@@ -1878,6 +1893,7 @@ int	size;
     cmw_priv_assert_netaccess();
     retval = recvfrom(fd, rbuf, size, 0, (struct sockaddr *)&sl_dgram_lastaddr,
 	&addrlen);
+    getpeername (fd, (struct sockaddr*)&sl_dgram_lastaddr, &addrlen);
     cmw_priv_deassert_netaccess();
     return retval;
 } /* DgramReceiveAny */
@@ -2290,6 +2306,7 @@ DgramLastaddr()
 #ifdef UNIX_SOCKETS
     return "localhost";
 #else
+
     return (inet_ntoa(sl_dgram_lastaddr.sin_addr));
 #endif
 } /* DgramLastaddr */
@@ -2491,31 +2508,19 @@ void GetLocalHostName(name, size)
 {
 #ifdef UNIX_SOCKETS
    strcpy(name, "localhost");
-#else
-    struct hostent	*he, *xpilot_he, tmp;
-    int			xpilot_len;
-    char		*alias, *dot;
-    char		xpilot_hostname[MAXHOSTNAMELEN];
-    static const char	xpilot[] = "xpilot";
+#else /* UNIX_SOCKETS */
+    struct hostent	*he;
 #ifdef VMS
     char                vms_inethost[MAXHOSTNAMELEN]   = "UCX$INET_HOST";
     char                vms_inetdomain[MAXHOSTNAMELEN] = "UCX$INET_DOMAIN";
     char                vms_host[MAXHOSTNAMELEN];
     char                vms_domain[MAXHOSTNAMELEN];
     int                 namelen;
-#endif
+#endif /* VMS */
 
-    xpilot_len = strlen(xpilot);
-
-    /* Make a wild guess that a "xpilot" hostname or alias is in this domain */
-    if ((xpilot_he = gethostbyname(xpilot)) != NULL) {
-	if (strcmp(xpilot_he->h_name, "prince.mc.bio.uva.nl")) {
-	    strcpy(xpilot_hostname, xpilot_he->h_name);	/* copy data to buffer */
-	    tmp = *xpilot_he;
-	    xpilot_he = &tmp;
-	}
-    }
-
+#ifdef BIND_NAME
+    strcpy(name,BIND_NAME);
+#else /* BIND_NAME */
     gethostname(name, size);
     if ((he = gethostbyname(name)) == NULL) {
 	return;
@@ -2555,56 +2560,18 @@ void GetLocalHostName(name, size)
 		}
 		fclose(fp);
 	    }
-#else
+#else /* VMS */
             vms_trnlnm(vms_inethost, namelen, vms_host);
             vms_trnlnm(vms_inetdomain, namelen, vms_domain);
             strcpy(name, vms_host);
             strcat(name, ".");
             strcat(name, vms_domain);
-#endif
+#endif /* VMS */
 	    return;
 	}
     }
-
-    /*
-     * If a "xpilot" host is found compare if it's this one.
-     * and if so, make the local name as "xpilot.*"
-     */
-    if (xpilot_he != NULL) {               /* host xpilot was found */
-	if (strcmp(he->h_name, xpilot_hostname) == 0) {
-	   /*
-	    * Identical official names. Can they be different hosts after this?
-	    * Find out the name which starts with "xpilot" and use it:
-	    */
-	    xpilot_he = gethostbyname(xpilot); /* read again the aliases info */
-	    if (xpilot_he == NULL)       /* shouldn't happen */
-		return;
-
-	    if (strncmp(xpilot, xpilot_he->h_name, xpilot_len) != 0) {
-		/*
-		 * the official hostname doesn't begin "xpilot"
-		 * so we'll find the alias:
-		 */
-		int i;
-		for (i = 0; xpilot_he->h_aliases[i] != NULL; i++) {
-		    alias = xpilot_he->h_aliases[i];
-		    if (!strncmp(xpilot, alias, xpilot_len)) {
-			strcpy(xpilot_hostname, alias);
-			if (!strchr(alias, '.') && (dot = strchr(name, '.'))) {
-			    strcat(xpilot_hostname + strlen(xpilot_hostname), dot);
-			}
-			strncpy(name, xpilot_hostname, size);
-			return;
-		    }
-		}
-	    } else {
-		strncpy(name, xpilot_he->h_name, size);
-		return;
-	    }
-	}
-	/* NOT REATCHED */
-    }
-#endif
+#endif /* UNIX_SOCKETS */
+#endif /* BIND_NAME */
 } /* GetLocalHostName */
 
 

@@ -499,8 +499,53 @@ void prt_basic(void)
 }
 
 /*
+ * Redraw the lag bar
+ */
+
+void prt_lag(u32b mark, u32b num)
+{
+	int attr=0;
+	static int flipper =0;
+	static u32b last=0;
+
+	/* Default to "unknown" */
+
+	num/=10;
+	if(num>30000) return; // sometimes we catch a negative flip, just ignore it.
+
+
+	Term_erase(COL_LAG, ROW_LAG, 12);
+	/* Term_putstr(COL_LAG, ROW_LAG, 12, (flipper%2)?TERM_WHITE:TERM_L_DARK, "LAG: [-----]"); */
+
+	Term_putstr(COL_LAG, ROW_LAG, 12, TERM_L_DARK, "LAG:[------]"); 
+
+	if( mark == 999999999L ) {
+		c_msg_print(format("Time out Mark: %lu, Last: %lu", mark,last));
+		if( num < last ) {
+			num=last;
+		} else {
+			last=num;
+		};
+		attr=TERM_VIOLET;
+	} 
+
+	// if(!(++flipper%1)) c_msg_print(format("Ticks %lu Mark %lu, Last: %lu, New: %lu, Latency %lu.", ticks,mark,last,num,(num+last)/2L));
+
+	num=last=(num+last)/2L;
+		
+	num /= (500/6);
+	if(!attr) {
+		attr=TERM_L_GREEN;
+		if(num > 3L) attr=TERM_YELLOW;
+		if(num > 5L) attr=TERM_RED;
+	};
+	Term_putstr(COL_LAG + 5, ROW_LAG, num, attr, "******");
+}
+
+/*
  * Redraw the monster health bar
  */
+
 void health_redraw(int num, byte attr)
 {
 	/* Not tracking */
@@ -985,11 +1030,21 @@ void fix_player(void)
  *
  * XXX XXX XXX Adjust for width and split messages
  */
+
+// [grk] Gross hack to display messages in seperate term
+
+#define PMSG_TERM 4
+
 void fix_message(void)
 {
-        int j, i;
-        int w, h;
+        int j, c, i,ii, pmdone, mdone;
+        int w, h, pmw, pmh;
         int x, y;
+        term *oldt;
+	char from_us[30];
+
+	/* Determine what messages from us are prefixed with */
+	sprintf(from_us,"[%s]",nick);
 
         /* Scan windows */
         for (j = 0; j < 8; j++)
@@ -1009,25 +1064,54 @@ void fix_message(void)
                 Term_get_size(&w, &h);
 
                 /* Dump messages */
-                for (i = 0; i < h; i++)
+                i=0; c=0;
+                while(i<h)
                 {
 			byte a;
 			cptr msg;
 
-			msg = message_str(i);
+			msg = message_str(c++);
 
-			if (msg[0] == '[')
+			if (ang_term[PMSG_TERM]) {
+
+				if (msg[0] == '[') continue;
+				else if(strstr(msg, "has entered the game")!=NULL) continue;
+				else if(strstr(msg, "has left the game")!=NULL) continue;
+				else if(strstr(msg, "committed suicide.")!=NULL) continue;
+				else if(strstr(msg, "was killed by")!=NULL) continue;
+				else if(strstr(msg, "was slain by")!=NULL) continue;
+				else if(strstr(msg, "rises from the dead")!=NULL) continue;
+				else if(strstr(msg, "ghost was destroyed by")!=NULL) continue;
+
+			} 
+
+			a = TERM_WHITE;
+
+			if(msg[0] == '['){
 				a = TERM_L_BLUE;
-			else a = TERM_WHITE;
+				if( (strstr(msg, nick)!=NULL) && (strstr(msg, from_us)==NULL) ) a = TERM_L_GREEN;
+			} else {
+				a=TERM_WHITE;
 
-                        /* Dump the message on the appropriate line */
-                        Term_putstr(0, (h - 1) - i, -1, a, msg);
+				if( (strstr(msg, "has entered the game")!=NULL)) a=TERM_L_DARK;
+				if( (strstr(msg, "has left the game")!=NULL)) a=TERM_L_DARK;
+				if( (strstr(msg, "committed suicide")!=NULL)) a=TERM_L_DARK;
+				if( (strstr(msg, "ghost was destroyed by")!=NULL)) a=TERM_RED; 
+				if( (strstr(msg, "was slain by")!=NULL)) a=TERM_YELLOW;
+				if( (strstr(msg, "rises from the dead")!=NULL)) a=TERM_ORANGE;
+				if( (strstr(msg, "was killed by")!=NULL)) a=TERM_RED;
+			};
 
-                        /* Cursor */
-                        Term_locate(&x, &y);
+			/* Dump the message on the appropriate line */
+			Term_putstr(0, (h - 1) - i, -1, a, msg);
 
-                        /* Clear to end of line */
-                        Term_erase(x, y, 255);
+			/* Cursor */
+			Term_locate(&x, &y);
+
+			/* Clear to end of line */
+			Term_erase(x, y, 255);
+		
+			i++;
                 }
 
                 /* Fresh */
@@ -1036,6 +1120,67 @@ void fix_message(void)
                 /* Restore */
                 Term_activate(old);
         }
+
+        // Display player messages in term 4
+                
+	oldt = Term;
+
+	/* No window */
+	if (ang_term[PMSG_TERM]) {
+
+		/* Activate */
+		Term_activate(ang_term[PMSG_TERM]);
+
+		/* Get size */
+		Term_get_size(&w, &h);
+
+		/* Dump messages */
+		i=0; c=0;
+		while(i<h) {
+			byte a;
+			cptr msg;
+
+			msg = message_str(c++);
+
+			if(msg[0] == 0) { i++; continue; };
+
+			if(msg[0] == '['){
+				a = TERM_L_BLUE;
+				if( (strstr(msg, nick)!=NULL) && (strstr(msg, from_us)==NULL) ) a = TERM_L_GREEN;
+			} else {
+				a=TERM_WHITE;
+
+				if( (strstr(msg, "has entered the game")!=NULL)) a=TERM_L_DARK;
+				if( (strstr(msg, "has left the game")!=NULL)) a=TERM_L_DARK;
+				if( (strstr(msg, "committed suicide")!=NULL)) a=TERM_L_DARK;
+				if( (strstr(msg, "ghost was destroyed by")!=NULL)) a=TERM_RED; 
+				if( (strstr(msg, "was slain by")!=NULL)) a=TERM_YELLOW;
+				if( (strstr(msg, "rises from the dead")!=NULL)) a=TERM_ORANGE;
+				if( (strstr(msg, "was killed by")!=NULL)) a=TERM_RED;
+			};
+
+			if(a != TERM_WHITE) {
+
+				/* Dump the message on the appropriate line */
+				Term_putstr(0, (h - 1) - i, -1, a, msg);
+
+				/* Cursor */
+				Term_locate(&x, &y);
+
+				/* Clear to end of line */
+				Term_erase(x, y, 255);
+			
+				i++;
+			};
+		}
+
+                /* Fresh */
+                Term_fresh();
+
+		/* Restore */
+		Term_activate(oldt);
+	}
+
 }
 
 /*

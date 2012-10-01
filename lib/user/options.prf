@@ -4,19 +4,19 @@
 # Remember that "X" turns an option OFF, while "Y" turns an option ON.
 # Also remember that not all options are used.
 
-Y:rogue_like_commands
-X:quick_messages
+X:rogue_like_commands
+Y:quick_messages
 X:other_query_flag
 X:carry_query_flag
 Y:use_old_target
-Y:always_pickup
+X:always_pickup
 Y:always_repeat
 Y:depth_in_feet
-X:stack_force_notes
+Y:stack_force_notes
 X:stack_force_costs
 Y:show_labels
 Y:show_weights
-X:show_choices
+Y:show_choices
 Y:show_details
 Y:ring_bell
 Y:use_color
@@ -28,19 +28,20 @@ Y:find_examine
 X:disturb_move
 X:disturb_near
 X:disturb_panel
-X:disturb_state
+Y:disturb_state
 X:disturb_minor
 X:disturb_other
-X:alert_hitpoint
-X:alert_failure
+Y:alert_hitpoint
+Y:alert_failure
 
-X:auto_haggle
-X:auto_scum
+Y:auto_haggle
+Y:auto_scum
 Y:stack_allow_items
 Y:stack_allow_wands
 X:expand_look
 X:expand_list
 Y:view_perma_grids
+Y:view_torch_grids
 Y:dungeon_align
 Y:dungeon_stair
 X:flow_by_sound
@@ -64,6 +65,6 @@ Y:compress_savefile
 X:hilite_player
 Y:view_yellow_lite
 Y:view_bright_lite
-X:view_granite_lite
+Y:view_granite_lite
 Y:view_special_lite
 

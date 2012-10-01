@@ -34,7 +34,7 @@ void do_cmd_go_up(int Ind)
 	c_ptr = &cave[Depth][p_ptr->py][p_ptr->px];
 
 	/* Verify stairs if not a ghost, or admin wizard */
-	if (!p_ptr->ghost && (strcmp(p_ptr->name,cfg_admin_wizard)) && c_ptr->feat != FEAT_LESS)
+	if (!p_ptr->ghost && (strcmp(p_ptr->name,cfg_dungeon_master)) && c_ptr->feat != FEAT_LESS)
 	{
 		msg_print(Ind, "I see no up staircase here.");
 		return;
@@ -107,7 +107,13 @@ void do_cmd_go_down(int Ind)
 	c_ptr = &cave[Depth][p_ptr->py][p_ptr->px];
 
 	/* Verify stairs */
-	if (!p_ptr->ghost && (strcmp(p_ptr->name,cfg_admin_wizard)) && c_ptr->feat != FEAT_MORE)
+
+	if (p_ptr->ghost && (strcmp(p_ptr->name,cfg_dungeon_master))) {
+		msg_print(Ind, "You seem unable to go down.  Try going up.");
+		return;
+	};
+
+	if (!p_ptr->ghost && (strcmp(p_ptr->name,cfg_dungeon_master)) && c_ptr->feat != FEAT_MORE)
 	{
 		msg_print(Ind, "I see no down staircase here.");
 		return;
@@ -649,7 +655,7 @@ void do_cmd_open(int Ind, int dir)
 				object_type *o_ptr = &p_ptr->inventory[j];
 
 				/* Check for a key */
-				if ( (o_ptr->tval == TV_KEY && o_ptr->pval == i) || (!(strcmp(p_ptr->name,cfg_admin_wizard))) )
+				if ( (o_ptr->tval == TV_KEY && o_ptr->pval == i) || (!(strcmp(p_ptr->name,cfg_dungeon_master))) )
 				{
 					/* Open the door */
 					c_ptr->feat = FEAT_HOME_OPEN;
@@ -667,7 +673,7 @@ void do_cmd_open(int Ind, int dir)
 					if (!houses[i].owned)
 					{
 						/* Assume one key */
-						if (strcmp(p_ptr->name, cfg_admin_wizard)) houses[i].owned = 1;
+						if (strcmp(p_ptr->name, cfg_dungeon_master)) houses[i].owned = 1;
 					} 
 
 					/* Update some things */
@@ -681,7 +687,11 @@ void do_cmd_open(int Ind, int dir)
 			/* He's not the owner, check if owned */
 			if (houses[i].owned)
 			{
-				msg_format(Ind, "This house is already owned.");
+				if(strcmp(p_ptr->name,cfg_dungeon_master))  {
+					msg_format(Ind, "This house is already owned.");
+				} else {
+					msg_format(Ind, "house (%d) is already owned.",i);
+				};
 			}
 			else
 			{
@@ -689,7 +699,7 @@ void do_cmd_open(int Ind, int dir)
 
 				/* Take CHR into account */
 				factor = adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-				price = houses[i].price * factor / 100;
+				price = (unsigned long long) houses[i].price * factor / 100;
 
 				/* Tell him the price */
 				msg_format(Ind, "This house costs %ld gold.", price);
@@ -738,8 +748,10 @@ void do_cmd_close(int Ind, int dir)
 	/* Ghosts cannot close */
 	if ( (p_ptr->ghost) || (p_ptr->fruit_bat) )
 	{
-		msg_print(Ind, "You cannot close things!");
-		return;
+		if(strcmp(p_ptr->name,cfg_dungeon_master))  {
+			msg_print(Ind, "You cannot close things!");
+			return;
+		};
 	}
 
 	/* Allow repeated command */
@@ -790,6 +802,16 @@ void do_cmd_close(int Ind, int dir)
 
 			/* Attack */
 			py_attack(Ind, y, x);
+		}
+		/* Player in the way */
+		else if (c_ptr->m_idx < 0)
+		{
+			/* Take a turn */
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
+
+			/* Message */
+			msg_print(Ind, "There is a player in the way!");
+
 		}
 
 		/* House door, close it */
@@ -1759,7 +1781,6 @@ int do_cmd_run(int Ind, int dir)
 {
 	player_type *p_ptr = Players[Ind];
 	cave_type *c_ptr;
-	int i;
 
 	/* Get a "repeated" direction */
 	if (dir)
@@ -2072,6 +2093,12 @@ void do_cmd_fire(int Ind, int dir, int item)
 	/* Require proper missile */
 	item_tester_tval = p_ptr->tval_ammo;
 
+	if (!item_tester_tval)
+	{
+		msg_print(Ind, "You have nothing to fire.");
+		return;
+	}
+
 	/* Access the item (if in the pack) */
 	if (item >= 0)
 	{
@@ -2089,6 +2116,12 @@ void do_cmd_fire(int Ind, int dir, int item)
 
 
 	if (o_ptr->tval != p_ptr->tval_ammo)
+	{
+		msg_print(Ind, "You cannot fire that!");
+		return;
+	}
+
+	if (!o_ptr->tval)
 	{
 		msg_print(Ind, "You cannot fire that!");
 		return;
@@ -2250,9 +2283,11 @@ void do_cmd_fire(int Ind, int dir, int item)
 			/* Use this player */
 			p_ptr = Players[i];
 
+#if 0
 			/* If he's not playing, skip him */
 			if (p_ptr->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* If he's not here, skip him */
 			if (p_ptr->dun_depth != Depth)
@@ -2525,6 +2560,10 @@ void do_cmd_throw(int Ind, int dir, int item)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+	if(!o_ptr->tval) {
+      		msg_print(Ind, "There is nothing there to throw");
+                return;
+	};
 
         if( check_guard_inscription( o_ptr->note, 'v' )) {
       		msg_print(Ind, "The item's inscription prevents it");
@@ -2625,7 +2664,6 @@ void do_cmd_throw(int Ind, int dir, int item)
 		x = nx;
 		y = ny;
 
-
 		/* Save the old "player pointer" */
 		q_ptr = p_ptr;
 
@@ -2637,9 +2675,11 @@ void do_cmd_throw(int Ind, int dir, int item)
 			/* Use this player */
 			p_ptr = Players[i];
 
+#if 0
 			/* If he's not playing, skip him */
 			if (p_ptr->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* If he's not here, skip him */
 			if (p_ptr->dun_depth != Depth)
@@ -2868,20 +2908,20 @@ void do_cmd_purchase_house(int Ind, int dir)
 	player_type *p_ptr = Players[Ind];
 	int Depth = p_ptr->dun_depth;
 
-	int y, x, i, j;
-	int factor;
-	long long price; // I'm hoping this will be 64 bits.  I dont know if it will be portable.
+	int y, x, i, j, factor, price;
 	cave_type *c_ptr;
 	object_type key;
 
 	/* Ghosts cannot buy houses */
-	if ( (p_ptr->ghost) || (p_ptr->fruit_bat) )
-	{
-		/* Message */
-		msg_print(Ind, "You cannot buy a house.");
+	if(strcmp(p_ptr->name,cfg_dungeon_master))  {
+		if ( (p_ptr->ghost) || (p_ptr->fruit_bat) )
+		{
+			/* Message */
+			msg_print(Ind, "You cannot buy a house.");
 
-		return;
-	}	
+			return;
+		}	
+	}
 
 	/* Be sure we have a direction */
 	if (dir)
@@ -2903,22 +2943,12 @@ void do_cmd_purchase_house(int Ind, int dir)
 
 		/* Take player's CHR into account */
 		factor = adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-		//if (houses[i].price < 3000000)
-			price = houses[i].price * factor / 100;
-		/* Hack -- ignore CHR to prevent overflow */
-		//else price = houses[i].price;
+		price = (unsigned long long) houses[i].price * factor / 100;
 
 		/* Check for already-owned house */
 		if (houses[i].owned)
 		{
-			/*
-			
-			NO MORE DUPLICATE KEYS HAHAHHA
-			
-			OK, so now this sells the house
-			*/
-			
-			 /* See if he has the key in his inventory */
+			/* See if he has the key in his inventory */
 			for (j = 0; j < INVEN_PACK; j++)
 			{
 				object_type *o_ptr = &p_ptr->inventory[j];
@@ -2957,7 +2987,7 @@ void do_cmd_purchase_house(int Ind, int dir)
 				
 			}
 		
-			if (!strcmp(p_ptr->name,cfg_admin_wizard))
+			if (!strcmp(p_ptr->name,cfg_dungeon_master))
 			{
 				houses[i].owned = 0;
 				

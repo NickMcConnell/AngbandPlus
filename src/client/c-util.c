@@ -216,6 +216,27 @@ static char inkey_aux(void)
 	}
 	else
 	{
+		/* Hack -- initially process any data that is stil in rbuf, so it won't be
+		 * wiped in Net_read if more data arrives.  Data still might be in rbuf
+		 * since we may have been called from a Receive handler such as
+		 * Receive_pause.
+		 */
+		Sockbuf_advance(&rbuf, rbuf.ptr - rbuf.buf);
+		if (Sockbuf_write(&cbuf, rbuf.ptr, rbuf.len) != rbuf.len)
+		{
+			plog("Can't copy reliable data to buffer in Net_input");
+			return -1;
+		}
+		Net_packet();
+		/* Update the screen */
+		Term_fresh();
+		/* Redraw windows if necessary */
+		if (p_ptr->window)
+		{
+			window_stuff();
+		}
+
+
 		/* Wait for keypress, while also checking for net input */
 		do
 		{
@@ -1611,7 +1632,7 @@ static void msg_flush(int x)
  */
 void c_msg_print(cptr msg)
 {
-	static p = 0;
+	static int p = 0;
 
 	int n;
 
@@ -2547,7 +2568,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("MAngband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);

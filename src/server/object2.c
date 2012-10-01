@@ -73,6 +73,45 @@ void delete_object_idx(int o_idx)
 	everyone_lite_spot(Depth, y, x);
 }
 
+void delete_object_ptr(object_type * o_ptr)
+{
+	/* special function to deal with inventory items being destoryed, instead of just wiping them */
+
+	int i,j;
+
+	int y = o_ptr->iy;
+	int x = o_ptr->ix;
+	int Depth = o_ptr->dun_depth;
+
+	/* First, if this is a key, we need to reset the house */
+	/* it belongs to.  This is probably a hack. */
+
+	if (o_ptr->tval == TV_KEY)
+	{		
+		/* Disown the house */
+		
+		/* Hack -- do not clear house if houses[o_ptr->pval].owned = 2 */
+		if (houses[o_ptr->pval].owned)
+		{
+			if (houses[o_ptr->pval].owned != 2)
+			{
+				for (i = houses[o_ptr->pval].y_1; i <= houses[o_ptr->pval].y_2; i++)
+				{
+					for (j = houses[o_ptr->pval].x_1; j <= houses[o_ptr->pval].x_2; j++)
+					{
+						delete_object(houses[o_ptr->pval].depth,i,j);
+					}
+				}
+			}
+		
+			houses[o_ptr->pval].owned--;
+		}
+	}
+
+	/* Wipe the object */
+	WIPE(o_ptr, object_type);
+
+}
 
 /*
  * Deletes object from given location
@@ -83,6 +122,13 @@ void delete_object(int Depth, int y, int x)
 
 	/* Refuse "illegal" locations */
 	if (!in_bounds(Depth, y, x)) return;
+
+	/* Paranoia -- make sure the level has been allocated */
+	if (!cave[Depth])
+	{
+		printf("Error : tried to delete object on unallocated level %d",Depth);
+		return;
+	}
 
 	/* Find where it was */
 	c_ptr = &cave[Depth][y][x];
@@ -216,7 +262,9 @@ void compact_objects(int size)
 			/* Copy the visiblity flags for each player */
 			for (Ind = 1; Ind < NumPlayers + 1; Ind++)
 			{
+#if 0
 				if (Players[Ind]->conn == NOT_CONNECTED) continue;
+#endif
 
 				Players[Ind]->obj_vis[i] = Players[Ind]->obj_vis[o_max];
 			}
@@ -253,7 +301,7 @@ void compact_objects(int size)
 
 void wipe_o_list(int Depth)
 {
-	int i, x, y;
+	int i, x, y, house_depth;
 
 	/* Delete the existing objects */
 	for (i = 1; i < o_max; i++)
@@ -289,14 +337,26 @@ void wipe_o_list(int Depth)
 			/* delete the objects inside it. -APD*/
 			if (houses[o_ptr->pval].owned)
 			{
+				/* First, make sure that the wilderness level
+				 * that the house is on is currently allocated.
+				 * If neccecary, allocate it.
+				 */
+				house_depth = houses[o_ptr->pval].depth;
+				if (!cave[house_depth])
+				{
+					/* Allocate the wilderness level.  It will
+					 * be automatically deallocated in dungeon. */
+					alloc_dungeon_level(house_depth);
+					generate_cave(house_depth,0);
+				}
 				for (y = houses[o_ptr->pval].y_1; y <= houses[o_ptr->pval].y_2; y++)
 				{
 					for (x = houses[o_ptr->pval].x_1; x <= houses[o_ptr->pval].x_2; x++)
 					{
-						delete_object(houses[o_ptr->pval].depth,y,x); 
+						delete_object(house_depth,y,x); 
 					}
 				}
-			houses[o_ptr->pval].owned--;			
+				houses[o_ptr->pval].owned--;
 			}			
 			
 		}
@@ -1071,6 +1131,10 @@ bool object_similar(int Ind, object_type *o_ptr, object_type *j_ptr)
 			/* if ((o_ptr->ident & ID_SENSE) != */
 			/*     (j_ptr->ident & ID_SENSE)) return (0); */
 
+			/* require identical bonuses */
+
+			if (o_ptr->pval != j_ptr->pval) return (0);
+
 			/* Fall through */
 		}
 
@@ -1401,7 +1465,9 @@ static bool make_artifact_special(int Depth, object_type *o_ptr)
 	int			i;
 
 	int			k_idx = 0;
+	char o_name[80];
 
+	fprintf(stderr,"Try to Create Artifact on level %d\n",Depth*50);
 
 	/* No artifacts in the town */
 	if (!Depth) return (FALSE);
@@ -1427,11 +1493,36 @@ static bool make_artifact_special(int Depth, object_type *o_ptr)
 			if (rand_int(d) != 0) continue;
 		}
 
+		/* XXX XXX Enforce maximum "depth" (loosely) */
+		if (Depth > (a_ptr->level +20))
+		{
+			/* Acquire the "out-of-depth factor" */
+			int d = (a_ptr->level - Depth) * 2;
+
+			/* Roll for out-of-depth creation */
+			if (rand_int(d) != 0) continue;
+		}
+
 		/* Artifact "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) return (0);
+		if(a_ptr->rarity != 1) {
+			if (rand_int(a_ptr->rarity*100) != 0) return (0);
+		} else {
+			/* the special artifacts (crown, etc) must not fail */
+			if (rand_int(a_ptr->rarity) != 0) return (0);
+		};
 
 		/* Find the base object */
 		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+		/* XXX XXX Enforce minimum "object" level (loosely) */
+		if (k_info[k_idx].level > object_level)
+		{
+			/* Acquire the "out-of-depth factor" */
+			int d = (k_info[k_idx].level - object_level) * 5;
+
+			/* Roll for out-of-depth creation */
+			if (rand_int(d) != 0) continue;
+		}
 
 		/* XXX XXX Enforce minimum "object" level (loosely) */
 		if (k_info[k_idx].level > object_level)
@@ -1448,6 +1539,10 @@ static bool make_artifact_special(int Depth, object_type *o_ptr)
 
 		/* Mega-Hack -- mark the item as an artifact */
 		o_ptr->name1 = i;
+		object_desc(0, o_name, o_ptr, TRUE, 3);
+		fprintf(stderr,"Artifact %s created on level %d\n",o_name,Depth*50);
+
+
 
 		/* Success */
 		return (TRUE);
@@ -3425,8 +3520,10 @@ void place_object(int Depth, int y, int x, bool good, bool great)
 		/* Make sure no one sees it at first */
 		for (i = 1; i < NumPlayers + 1; i++)
 		{
+#if 0
 			if (Players[i]->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* He can't see it */
 			Players[i]->obj_vis[o_idx] = FALSE;
@@ -3580,7 +3677,9 @@ void place_gold(int Depth, int y, int x)
 		/* No one can see it */
 		for (j = 1; j <= NumPlayers; j++)
 		{
+#if 0
 			if (Players[j]->conn == NOT_CONNECTED) continue;
+#endif
 
 			/* This player can't see it */
 			Players[j]->obj_vis[o_idx] = FALSE;
@@ -3613,6 +3712,8 @@ void drop_near(object_type *o_ptr, int chance, int Depth, int y, int x)
 	cave_type	*c_ptr;
 
 	bool flag = FALSE;
+
+	if(o_ptr == NULL) return;
 
 
 	/* Start at the drop point */
@@ -3757,11 +3858,17 @@ void drop_near(object_type *o_ptr, int chance, int Depth, int y, int x)
 	if (!flag)
 	{
 		/* Describe */
-		/*object_desc(o_name, o_ptr, FALSE, 0);*/
 
 		/* Message */
-		/*msg_format("The %s disappear%s.",
-		           o_name, ((o_ptr->number == 1) ? "s" : ""));*/
+		/* 
+		 *
+		object_desc(o_name, o_ptr, FALSE, 0);
+		msg_format(Ind,"The %s disappear%s.",
+		           o_name, ((o_ptr->number == 1) ? "s" : ""));
+
+		*/
+
+		delete_object_ptr(o_ptr);
 	}
 }
 
@@ -3903,7 +4010,7 @@ void inven_item_increase(int Ind, int item, int num)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-	}
+	} 
 }
 
 

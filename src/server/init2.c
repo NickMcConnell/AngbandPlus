@@ -387,10 +387,6 @@ static cptr err_str[8] =
  */
 static errr init_f_info(void)
 {
-	int fd;
-
-	int mode = 0644;
-
 	errr err;
 
 	FILE *fp;
@@ -483,10 +479,6 @@ static errr init_f_info(void)
  */
 static errr init_k_info(void)
 {
-	int fd;
-
-	int mode = 0644;
-
 	errr err;
 
 	FILE *fp;
@@ -577,10 +569,6 @@ static errr init_k_info(void)
  */
 static errr init_a_info(void)
 {
-	int fd;
-
-	int mode = 0644;
-
 	errr err;
 
 	FILE *fp;
@@ -671,10 +659,6 @@ static errr init_a_info(void)
  */
 static errr init_e_info(void)
 {
-	int fd;
-
-	int mode = 0644;
-
 	errr err;
 
 	FILE *fp;
@@ -764,10 +748,6 @@ static errr init_e_info(void)
  */
 static errr init_r_info(void)
 {
-	int fd;
-
-	int mode = 0644;
-
 	errr err;
 
 	FILE *fp;
@@ -860,10 +840,6 @@ static errr init_r_info(void)
  */
 static errr init_v_info(void)
 {
-	int fd;
-
-	int mode = 0644;
-
 	errr err;
 
 	FILE *fp;
@@ -1187,6 +1163,35 @@ static byte store_table[MAX_STORES-3][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
+
+		/*
+		{ TV_RING, SV_RING_RESIST_FIRE },
+		{ TV_RING, SV_RING_RESIST_COLD },
+		{ TV_RING, SV_RING_PROTECTION },
+		{ TV_RING, SV_RING_FREE_ACTION },
+		{ TV_RING, SV_RING_SEE_INVIS},
+		{ TV_RING, SV_RING_STR},
+		{ TV_RING, SV_RING_INT},
+		{ TV_RING, SV_RING_DEX},
+		{ TV_RING, SV_RING_CON},
+		{ TV_RING, SV_RING_ACCURACY},
+		{ TV_RING, SV_RING_DAMAGE},
+		{ TV_AMULET, SV_AMULET_CHARISMA },
+		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
+		{ TV_AMULET, SV_AMULET_RESIST_ACID },
+
+		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
+		{ TV_STAFF, SV_STAFF_LITE },
+		{ TV_STAFF, SV_STAFF_MAPPING },
+		{ TV_STAFF, SV_STAFF_DETECT_DOOR },
+
+		{ TV_STAFF, SV_STAFF_DETECT_ITEM },
+		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
+		{ TV_STAFF, SV_STAFF_TELEPORTATION },
+		{ TV_STAFF, SV_STAFF_TELEPORTATION },
+		{ TV_STAFF, SV_STAFF_IDENTIFY },
+		{ TV_STAFF, SV_STAFF_IDENTIFY },
+		*/
 
 		{ TV_MAGIC_BOOK, 0 },
 		{ TV_MAGIC_BOOK, 0 },
@@ -1614,13 +1619,13 @@ void set_server_option(char * option, char * value)
 	{
 		cfg_meta_address = strdup(value);
 	}
+	else if (!strcmp(option,"REPORT_ADDRESS"))
+	{
+		cfg_report_address = strdup(value);
+	}
 	else if (!strcmp(option,"CONSOLE_PASSWORD"))
 	{
 		cfg_console_password = strdup(value);
-	}
-	else if (!strcmp(option,"ADMIN_WIZARD_NAME"))
-	{
-		cfg_admin_wizard = strdup(value);
 	}
 	else if (!strcmp(option,"DUNGEON_MASTER_NAME"))
 	{
@@ -1639,6 +1644,10 @@ void set_server_option(char * option, char * value)
 	else if (!strcmp(option,"MAGE_HITPOINT_BONUS"))
 	{
 		cfg_mage_hp_bonus = str_to_boolean(value);
+	}
+	else if (!strcmp(option,"NO_STEAL"))
+	{
+		cfg_no_steal = str_to_boolean(value);
 	}
 	else if (!strcmp(option,"NEWBIES_CANNOT_DROP"))
 	{
@@ -1670,19 +1679,15 @@ void set_server_option(char * option, char * value)
 
 /* Parse the loaded mangband.cfg file, and if a valid expression was found
  * try to set it using set_server_option.
- *
- * Note that this function uses strsep. I don't think this is an ANSI C function.
- * If you have any problems compiling this, please let me know and I will change this.
- * -Alex 
  */
 void load_server_cfg_aux(FILE * cfg)
 {
 	char line[256];
-	char * lineofs;
 
 	char * newword;
 	char * option;
 	char * value;
+	bool first_token;
 
 	/* Read in lines until we hit EOF */
 	while (fgets(line, 256, cfg) != NULL)
@@ -1699,12 +1704,13 @@ void load_server_cfg_aux(FILE * cfg)
 		value = NULL;
 		
 		// Split the line up into words
-		// strsep is a really cool function... its neat, we don't have
-		// to dynamically allocate any memory because we apply our null
-		// terminations directly to line.
-		lineofs = line;
-		while ((newword = strsep(&lineofs, " ")))
+		// We pass the string to be parsed to strsep on the first call,
+		// and subsequently pass it null.
+		first_token = 1;
+		while ((newword = strtok(first_token ? line : NULL, " ")))
 		{
+			first_token = 0;
+
 			/* Set the option or value */
 			if (!option) option = newword;
 			else if ((!value) && (newword[0] != '=')) 

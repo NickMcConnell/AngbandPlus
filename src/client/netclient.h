@@ -4,7 +4,7 @@
 extern int	receive_window_size;
 //extern long	last_turns;
 
-static int Net_packet();
+int Net_packet();
 int Net_setup(void);
 int Net_verify(char *real, char *nick, char *pass, int sex, int race, int class);
 int Net_init(char *server, int fd);
@@ -45,6 +45,7 @@ int Receive_food(void);
 int Receive_fear(void);
 int Receive_speed(void);
 int Receive_cut(void);
+int Receive_keepalive(void);
 int Receive_blind(void);
 int Receive_stun(void);
 int Receive_item(void);
