@@ -239,6 +239,13 @@ static void spell_info(char *p, int spell_index)
 	bool holy = ((cp_ptr->flags & CF_BLESS_WEAPON) ? TRUE : FALSE);
 	int beam_low = (beam > 10 ? beam - 10 : 0);
 
+	int dur1 = 0;
+	int dur2 = 0;
+	int dam1 = 0;
+	int dam2 = 0;
+	int dam3 = 0;
+	int rad = 0;
+
 	/* Some more calculations for beam chance */
 	if (beam < 0) beam = 0;
 
@@ -275,50 +282,55 @@ static void spell_info(char *p, int spell_index)
 		case POW_BOLT_NEXUS_X: 
 			sprintf(p, " beam %d%%", beam); break;
 		case POW_BOLT_SOUND: 
-			sprintf(p, " dam %dd3, beam %d%%", (3 + ((damlev-1) / 5)), beam_low); break;
+			sprintf(p, " dam %dd%d, beam %d%%", 
+				3 + ((damlev - 1) / 5), apply_sp_mod(3, p_ptr->sp_dam), beam_low); break;
 		case POW_BOLT_FORCE_1: 
-			sprintf(p, " dam %dd6, beam %d%%", (2 + ((damlev-5) / 4)), beam); break;
+			sprintf(p, " dam %dd%d, beam %d%%", 
+				2 + ((damlev - 5) / 4), apply_sp_mod(6, p_ptr->sp_dam), beam); break;
 		case POW_BOLT_MANA: 
-			sprintf(p, " dam %dd6, beam %d%%", (6 + ((damlev-5) / 4)), beam); break;
+			sprintf(p, " dam %dd%d, beam %d%%",
+				6 + ((damlev - 5) / 4),	apply_sp_mod(6, p_ptr->sp_dam), beam); break;
 		case POW_BEAM_WEAK_LITE: 
-			strcpy(p, " dam 9d8"); break;
+			sprintf(p, " dam %dd%d", 9, apply_sp_mod(8, p_ptr->sp_dam)); break;
 		case POW_BEAM_NETHER:
-			sprintf(p, " dam %dd4", damlev * 8); break;
+			sprintf(p, " dam %dd%d", damlev * 8, apply_sp_mod(4, p_ptr->sp_dam)); break;
 		case POW_BALL_POISON:
-			sprintf(p, " dam 15, rad 2"); break;
+			sprintf(p, " dam %d, rad 2", apply_sp_mod(15, p_ptr->sp_dam)); break;
 		case POW_BALL_SOUND: 
-			sprintf(p, " dam %d, rad 2", 25 + damlev); break;
+			sprintf(p, " dam %d, rad 2", apply_sp_mod(25 + damlev, p_ptr->sp_dam)); break;
 		case POW_BALL_MANA: 
-			sprintf(p, " dam %d, rad 3", 270 + (damlev * 2)); break;
+			sprintf(p, " dam %d, rad 3", apply_sp_mod(270 + (damlev * 2), p_ptr->sp_dam)); break;
 		case POW_BALL_ANNIHILATION: 
-			sprintf(p, " dam 800, rad 1"); break;
+			sprintf(p, " dam %d, rad 1", apply_sp_mod(800, p_ptr->sp_dam)); break;
 		case POW_BALL_HOLY_2:
 			{
 				int x = (p_ptr->lev + (p_ptr->lev / ((holy) ? 3 : 5)));
 				int y = (((p_ptr->lev >= 30) && (holy)) ? 3 : 2);
-				sprintf(p, " dam %d+3d6, rad %d", x, y);
+				sprintf(p, " dam %d + %dd%d, rad %d", apply_sp_mod(x, p_ptr->sp_dam), 
+					3, apply_sp_mod(6, p_ptr->sp_dam), y);
 				break;
 			}
 		case POW_BURST_ASTRAL: 
 			sprintf(p, " dam 25%%"); break;
 		case POW_DRAIN_LIFE_3:
-			strcpy(p, " dam 180"); break;
+			sprintf(p, " dam %d", apply_sp_mod(180, p_ptr->sp_dam)); break;
 		case POW_BLIGHT: 
-			sprintf(p, " dam %d (%d plants)", (3 * damlev) / 2, damlev * 6); break;
+			sprintf(p, " dam %d (%d plants)", apply_sp_mod((3 * damlev) / 2, p_ptr->sp_dam),
+				apply_sp_mod(damlev * 6, p_ptr->sp_dam)); break;
 		case POW_DISPEL_UNDEAD_1:
-			sprintf(p, " dam d%d", 3 * damlev); break;
+			sprintf(p, " dam d%d", apply_sp_mod(3 * damlev, p_ptr->sp_dam)); break;
 		case POW_DISPEL_UNDEAD_2:
-			sprintf(p, " dam d%d", 4 * damlev); break;
+			sprintf(p, " dam d%d", apply_sp_mod(4 * damlev, p_ptr->sp_dam)); break;
 		case POW_DISPEL_DEMON:
-			sprintf(p, " dam d%d", 3 * damlev); break;
+			sprintf(p, " dam d%d", apply_sp_mod(3 * damlev, p_ptr->sp_dam)); break;
 		case POW_DISPEL_NON_EVIL:
-			sprintf(p, " dam d%d", 5 * damlev); break;
+			sprintf(p, " dam d%d", apply_sp_mod(5 * damlev, p_ptr->sp_dam)); break;
 		case POW_DISPEL_EVIL_3:
-			sprintf(p, " dam d%d", 3 * damlev); break;
+			sprintf(p, " dam d%d", apply_sp_mod(3 * damlev, p_ptr->sp_dam)); break;
 		case POW_DISPEL_EVIL_4:
-			sprintf(p, " dam d%d", 4 * damlev); break;
+			sprintf(p, " dam d%d", apply_sp_mod(4 * damlev, p_ptr->sp_dam)); break;
 		case POW_HOLY_2:
-			sprintf(p, " dam d%d, heal 1000", damlev * 4); break;
+			sprintf(p, " dam d%d, heal 1000", apply_sp_mod(4 * damlev, p_ptr->sp_dam)); break;
 		case POW_GENOCIDE: 
 			strcpy(p, " hurt 1d4 per kill"); break;
 		case POW_MASS_GENOCIDE: 
@@ -329,41 +341,44 @@ static void spell_info(char *p, int spell_index)
 			strcpy(p, " rad 15"); break;
 		case POW_LIGHT_AREA_2:
 		case POW_DARK_AREA:
-			sprintf(p, " dam 2d%d, rad %d", (damlev / 2), (damlev / 10) + 1); break;
+			sprintf(p, " dam %dd%d, rad %d", 2,
+				apply_sp_mod((damlev / 2), p_ptr->sp_dam), (damlev / 10) + 1); break;
 		case POW_ABSORB_HIT: 
-			sprintf(p, " dur %d+d32", durlev * 2); break;
+			dur1 = durlev * 2; dur2 = 32; break;
 		case POW_BLESS_1:
-			strcpy(p, " dur 12+d12"); break;
+			dur1 = 12; dur2 = 12; break;
 		case POW_BLESS_2:
-			strcpy(p, " dur 30+d30"); break;
+			dur1 = 30; dur2 = 30; break;
 		case POW_BLESS_3:
-			strcpy(p, " dur 75+d75"); break;
+			dur1 = 75; dur2 = 75; break;
 		case POW_HEROISM: 
-			strcpy(p, " dur 25+d25"); break;
+			dur1 = 25; dur2 = 25; break;
 		case POW_BOLDNESS: 
-			strcpy(p, " dur 10+d10"); break;
+			dur1 = 10; dur2 = 10; break;
 		case POW_STABILITY: 
-			strcpy(p, " dur 16+d16"); break;
+			dur1 = 16; dur2 = 16; break;
+		case POW_SAFETY: 
+			dur1 = (durlev > 20) ? (durlev + (durlev / 5)) : (durlev + 4); dur2 = 5; break;
 		case POW_RAGE_1: 
-			strcpy(p, " dur 25+d25"); break;
+			dur1 = 25; dur2 = 25; break;
 		case POW_SHIELD: 
-			strcpy(p, " dur 30+d20"); break;
+			dur1 = 30; dur2 = 20; break;
 		case POW_INFRAVISION: 
-			strcpy(p, " dur 50+d50"); break;
+			dur1 = 50; dur2 = 50; break;
 		case POW_INVIS_2: 
-			strcpy(p, " dur 25+d25"); break;
+			dur1 = 25; dur2 = 25; break;
 		case POW_RESILIENCE: 
-			strcpy(p, " dur 8+d8"); break;
+			dur1 = 8; dur2 = 8; break;
 		case POW_SEE_INVIS:
-			strcpy(p, " dur 24+d24"); break;
+			dur1 = 24; dur2 = 24; break;
 		case POW_PROT_EVIL_2:
-			sprintf(p, " dur %d+d25", durlev * 3); break;
+			dur1 = durlev * 3; dur2 = 25; break;
 		case POW_MAGIC_LOCK: 
 			strcpy(p, " rad 3"); break;
 		case POW_HASTE_SELF_1: 
-			sprintf(p, " dur %d+d20", durlev); break;
+			dur1 = durlev; dur2 = 20; break;
 		case POW_HASTE_SELF_2	: 
-			sprintf(p, " dur %d+d30", durlev + 30); break;
+			dur1 = durlev + 30; dur2 = 30; break;
 		case POW_RES_ACID: 
 		case POW_RES_ELEC: 
 		case POW_RES_FIRE: 
@@ -372,19 +387,35 @@ static void spell_info(char *p, int spell_index)
 		case POW_RES_DISEASE: 
 		case POW_RES_LITE_DARK:
 		case POW_RES_CHAOS_NEXUS:
-			strcpy(p, " dur 20+d20"); break;
+			dur1 = 20; dur2 = 20; break;
 		case POW_RES_FIRE_COLD:
 		case POW_RES_ACID_ELEC: 
-			strcpy(p, " dur 10+d10"); break;
+			dur1 = 10; dur2 = 10; break;
 		case POW_RES_SOUND: 
-			strcpy(p, " dur 40+d40"); break;
+			dur1 = 40; dur2 = 40; break;
 		case POW_RES_ELEMENTS:
-			sprintf(p, " dur %d+d%d", durlev / 2, durlev / 2); break;
+			dur1 = durlev / 2; dur2 = durlev / 2; break;
 		case POW_RES_GREATER:
-			sprintf(p, " dur %d+d%d", durlev / 3, durlev / 3); break;
+			dur1 = durlev / 3; dur2 = durlev / 3; break;
 		case POW_RESISTANCE: 
-			strcpy(p, " dur 20+d20"); break;
+			dur1 = 20; dur2 = 20; break;
+		case POW_SPELL_DURATION: 
+		case POW_SPELL_DAMAGE: 
+		case POW_SPELL_INFLUENCE: 
+			strcpy(p, " dur 77"); break;
 	}
+
+	/* Print the duration for relevant spells */
+	if (dur1 || dur2)
+	{
+		dur1 = apply_sp_mod(dur1, p_ptr->sp_dur);
+		dur2 = apply_sp_mod(dur2, p_ptr->sp_dur);
+
+		if (dur1 && dur2) sprintf(p, " dur %d+d%d", dur1, dur2);
+		else if (dur1) sprintf(p, " dur %d", dur1);
+		else sprintf(p, " dur d%d", dur2);
+	}
+
 }
 
 /*
@@ -488,16 +519,18 @@ void print_spells(int book, bool music, int lev, int y, int x)
 			
 			if (ss_ptr->ds && ss_ptr->dd)
 			{
-				if (ss_ptr->bonus) sprintf(comment1, " dam %d+%dd%d", ss_ptr->bonus,
-					ss_ptr->dd, ss_ptr->ds + dlev / ss_ptr->lev_inc);
-				else sprintf(comment1, " dam %dd%d", ss_ptr->dd, 
-					ss_ptr->ds + dlev / ss_ptr->lev_inc);
+				if (ss_ptr->bonus) sprintf(comment1, " dam %d+%dd%d", 
+					apply_sp_mod(ss_ptr->bonus, p_ptr->sp_dam),
+					ss_ptr->dd, apply_sp_mod(ss_ptr->ds + dlev / ss_ptr->lev_inc, p_ptr->sp_dam));
+				else sprintf(comment1, " dam %dd%d", 					
+					ss_ptr->dd, apply_sp_mod(ss_ptr->ds + dlev / ss_ptr->lev_inc, p_ptr->sp_dam));
 			}
-			else sprintf(comment1, " dam %d", ss_ptr->bonus);
+			else sprintf(comment1, " dam %d", apply_sp_mod(ss_ptr->bonus, p_ptr->sp_dam));
 			if (ss_ptr->radius) sprintf(comment2, ", rad %d", ss_ptr->radius);
+			else strcpy(comment2, " ");	
 		}
 
-				/* Vivid color for known, cast spells */
+		/* Vivid color for known, cast spells */
 		attr_name = attr_book;
 
 		/* Analyze the spell */
@@ -621,12 +654,13 @@ static void print_sub_spells(int book, int spell, int from, int to, int y, int x
 			attr = k_ptr->d_attr;
 			if (ss_ptr->ds && ss_ptr->dd)
 			{
-				if (ss_ptr->bonus) sprintf(comment1, "dam %d+%dd%d", ss_ptr->bonus,
-					ss_ptr->dd, ss_ptr->ds + dlev / ss_ptr->lev_inc);
-				else sprintf(comment1, "dam %dd%d", ss_ptr->dd, 
-					ss_ptr->ds + dlev / ss_ptr->lev_inc);
+				if (ss_ptr->bonus) sprintf(comment1, " dam %d+%dd%d", 
+					apply_sp_mod(ss_ptr->bonus, p_ptr->sp_dam),
+					ss_ptr->dd, apply_sp_mod(ss_ptr->ds + dlev / ss_ptr->lev_inc, p_ptr->sp_dam));
+				else sprintf(comment1, " dam %dd%d", 					
+					ss_ptr->dd, apply_sp_mod(ss_ptr->ds + dlev / ss_ptr->lev_inc, p_ptr->sp_dam));
 			}
-			else sprintf(comment1, "dam %d", ss_ptr->bonus);
+			else sprintf(comment1, " dam %d", apply_sp_mod(ss_ptr->bonus, p_ptr->sp_dam));
 			if (ss_ptr->radius) sprintf(comment2, ", rad %d", ss_ptr->radius);
 			else strcpy(comment2, " ");	
 		}
@@ -1393,7 +1427,7 @@ static bool aux_spell_cast(int index, int sub)
 	bool ignore_me;
 
 	/* A spell was cast */
-	return do_power(index, sub, 0, beam, damlev, durlev, inflev, &ignore_me);
+	return do_power(index, sub, 0, beam, damlev, durlev, inflev, TRUE, &ignore_me);
 }
 
 static bool sub_spell_menu(int book, int spell, int *ss, int from, int to)
@@ -1648,6 +1682,7 @@ static void do_cast(int book, bool force_menu)
 				break;
 			}
 			case SBF_CODEX:
+			case SBF_MATHEMAGIC:
 			{
 				message(MSG_SPELL_FAIL, 0, 
 					"Your mind is overwhelmed by the magnitude of ancient mystery!");

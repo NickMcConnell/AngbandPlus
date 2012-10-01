@@ -446,6 +446,7 @@ static void wr_options(void)
 static void wr_extra(void)
 {
 	int i;
+	byte tmp8u = 0;
 
 	wr_string(op_ptr->full_name);
 
@@ -463,7 +464,9 @@ static void wr_extra(void)
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
+	wr_s16b(p_ptr->ht_birth);
 	wr_s16b(p_ptr->wt);
+	wr_s16b(p_ptr->wt_birth);
 
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < A_MAX; ++i) 
@@ -520,6 +523,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->shield);
 	wr_s16b(p_ptr->blessed);
 	wr_s16b(p_ptr->tim_see_invis);
+	wr_s16b(p_ptr->safety);
+	wr_s16b(p_ptr->tim_sp_dam);
+	wr_s16b(p_ptr->tim_sp_dur);
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
@@ -532,7 +538,10 @@ static void wr_extra(void)
 	/* Write resistances */
 	for (i = 0; i < RS_MAX; i++) wr_s16b(p_ptr->tim_res[i]);
 
-	wr_byte(p_ptr->searching);
+	if (p_ptr->searching) tmp8u |= 0x01;
+	if (p_ptr->hear_invis) tmp8u |= 0x02;
+
+	wr_byte(tmp8u);
 
 	/* Write the "object seeds" */
 	wr_u32b(seed_flavor);

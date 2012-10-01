@@ -159,6 +159,7 @@ info_entry power_info[POW_MAX] =
 	{POW_HEROISM,			"temporarily raises fighting skill and makes you immune to fear"},
 	{POW_BOLDNESS,			"temporarily makes you immune to fear"},
 	{POW_STABILITY,			"temporarily makes you immune to confusion and stunning"},
+	{POW_SAFETY,			"temporarily protects you from dungeon traps"},
 	{POW_RAGE_1,			"causes temporary berserk rage"},
 	{POW_RAGE_2,			"causes temporary berserk rage"},
 	{POW_RAGE_BLESS_RESIST,	"causes temporary berserk rage, blessing, and resistance"},
@@ -277,6 +278,9 @@ info_entry power_info[POW_MAX] =
 	{POW_RUINATION,			"lowers your stats permanently and damages you"},
 	{POW_DETONATE,			"damages you"},
 	{POW_KILL_SELF,			"kills you"},
+	{POW_SPELL_DURATION,	"provides a bonus to the duration of spells"},
+	{POW_SPELL_DAMAGE,		"provides a bonus to the damage inflicted by spells"},
+	{POW_SPELL_INFLUENCE,	"makes monster condition spells more effective"},
 	{POW_DRAGON_BLACK,		"breathes acid (125+)"},
 	{POW_DRAGON_BLUE,		"breathes lightning (125+)"},
 	{POW_DRAGON_WHITE,		"breathes frost (125+)"},
@@ -300,6 +304,18 @@ info_entry power_info[POW_MAX] =
 	{POW_MUSIC_DRUM,		"Emulate the rousing tempos of a drum"},
 	{POW_MUSIC_HARP,		"Emulate the soothing songs of a harp"}
 };
+
+/*
+ * Calculate a spell's duration
+ */
+int apply_sp_mod(int value, int modifier)
+{
+	/* No modifier, do nothing */
+	if (!modifier) return (value);
+
+	/* Calculate duration bonus */
+	return ((value * (modifier + 10)) + 9) / 10;
+}
 
 /*
  * Hack -- activate the ring of power
@@ -365,18 +381,39 @@ static void ring_of_power(int dir)
 	}
 }
 
-/*
+/* 
+ * Spell damage calculation macro for use in do_power
+ */
+#define calc_damage(DD, DS, B) \
+	damroll((DD), apply_sp_mod((DS), mdam)) + apply_sp_mod((B), mdam)
+
+ /*
  * Actually use a power
  * beam is the base chance of beaming, dlev is the base level of damage, llev is the base
  * duration level, ilev is the base level for influence spells. obvious determines if the 
  * effect of the spell can be seen by the player.
  */
-bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev, bool *obvious)
+bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev, bool mods, bool *obvious)
 {
-	int durat, i;
+	int i;
+	int durat;
+	int mdur, mdam;
 	bool holy = ((cp_ptr->flags & CF_BLESS_WEAPON) ? TRUE : FALSE);
 
 	if (p_ptr->taint) holy = FALSE;
+
+	/* Assign modifiers, if allowed */
+	if (mods)
+	{
+		mdur = p_ptr->sp_dur;
+		mdam = p_ptr->sp_dam;
+		ilev = apply_sp_mod(ilev, p_ptr->sp_inf);
+	}
+	else 
+	{
+		mdur = 0;
+		mdam = 0;
+	}
 
 	/* We haven't seen anything yet */
 	*obvious = FALSE;
@@ -744,9 +781,9 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 
-			(void)fire_bolt_or_beam(beam, GF_ACID, dir,
-				damroll(sub_spell_list[sub].dd, 
-				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			(void)fire_bolt_or_beam(beam, GF_ACID, dir, 
+				calc_damage(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc), 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -754,9 +791,9 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 
-			(void)fire_bolt_or_beam(beam, GF_ELEC, dir,
-				damroll(sub_spell_list[sub].dd, 
-				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			(void)fire_bolt_or_beam(beam, GF_ELEC, dir, 
+				calc_damage(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc), 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -764,9 +801,9 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 
-			(void)fire_bolt_or_beam(beam, GF_FIRE, dir,
-				damroll(sub_spell_list[sub].dd, 
-				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			(void)fire_bolt_or_beam(beam, GF_FIRE, dir, 
+				calc_damage(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc), 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -774,9 +811,9 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 
-			(void)fire_bolt_or_beam(beam, GF_COLD, dir,
-				damroll(sub_spell_list[sub].dd, 
-				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			(void)fire_bolt_or_beam(beam, GF_FIRE, dir, 
+				calc_damage(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc), 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -784,8 +821,9 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 
-			(void)fire_bolt(GF_MISSILE, dir, damroll(sub_spell_list[sub].dd, 
-				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			(void)fire_bolt(GF_MISSILE, dir, 
+				calc_damage(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc), 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -794,8 +832,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 
 			(void)fire_bolt_or_beam(beam, GF_POIS, dir,
-				damroll(sub_spell_list[sub].dd, 
-				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+				calc_damage(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc), 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -804,8 +842,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 
 			(void)fire_bolt_or_beam(beam, GF_MANA, dir,
-				damroll(sub_spell_list[sub].dd, 
-				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+				calc_damage(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc), 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -814,51 +852,57 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 
 			(void)fire_bolt_or_beam(beam, GF_NEXUS, dir,
-				damroll(sub_spell_list[sub].dd, 
-				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+				calc_damage(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc), 0));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_ACID_X:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_ACID, dir, sub_spell_list[sub].bonus, sub_spell_list[sub].radius);
+			(void)fire_ball(GF_ACID, dir, 
+				calc_damage(0, 0, sub_spell_list[sub].bonus), sub_spell_list[sub].radius);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_ELEC_X:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_ELEC, dir, sub_spell_list[sub].bonus, sub_spell_list[sub].radius);
+			(void)fire_ball(GF_ELEC, dir, 
+				calc_damage(0, 0, sub_spell_list[sub].bonus), sub_spell_list[sub].radius);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_FIRE_X:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_FIRE, dir, sub_spell_list[sub].bonus, sub_spell_list[sub].radius);
+			(void)fire_ball(GF_FIRE, dir, 
+				calc_damage(0, 0, sub_spell_list[sub].bonus), sub_spell_list[sub].radius);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_COLD_X:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_COLD, dir, sub_spell_list[sub].bonus, sub_spell_list[sub].radius);
+			(void)fire_ball(GF_COLD, dir, 
+				calc_damage(0, 0, sub_spell_list[sub].bonus), sub_spell_list[sub].radius);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_POISON_X:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_POIS, dir, sub_spell_list[sub].bonus, sub_spell_list[sub].radius);
+			(void)fire_ball(GF_POIS, dir, 
+				calc_damage(0, 0, sub_spell_list[sub].bonus), sub_spell_list[sub].radius);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_COLD_ELEC_X:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball_combo(GF_COLD, GF_ELEC, 0, 0, dir, 
-				sub_spell_list[sub].bonus / 2, sub_spell_list[sub].radius);
+			(void)fire_ball_combo(GF_COLD, GF_ELEC, 0, 0, dir,
+				calc_damage(0, 0, sub_spell_list[sub].bonus / 2), 
+				sub_spell_list[sub].radius);
 			*obvious = TRUE;
 			break;
 		}
@@ -866,7 +910,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_ball_combo(GF_FIRE, GF_ACID, 0, 0, dir, 
-				sub_spell_list[sub].bonus / 2, sub_spell_list[sub].radius);
+				calc_damage(0, 0, sub_spell_list[sub].bonus / 2), 
+				sub_spell_list[sub].radius);
 			*obvious = TRUE;
 			break;
 		}
@@ -874,21 +919,22 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_ball_combo(GF_COLD, GF_ELEC, GF_FIRE, GF_ACID, dir, 
-				sub_spell_list[sub].bonus / 4, sub_spell_list[sub].radius);
+				calc_damage(0, 0, sub_spell_list[sub].bonus / 4), 
+				sub_spell_list[sub].radius);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_ARROW:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt(GF_ARROW, dir, 125);
+			(void)fire_bolt(GF_ARROW, dir, calc_damage(0, 0, 125));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BOLT_MISSILE:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt(GF_MISSILE, dir, damroll(2, 6));
+			(void)fire_bolt(GF_MISSILE, dir, calc_damage(2, 6, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -896,7 +942,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
-				              damroll(3 + ((dlev - 5) / 4), 6));
+				calc_damage(3 + ((dlev - 5) / 4), 6, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -904,7 +950,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt_or_beam(beam - 10, GF_COLD, dir,
-				              damroll(5 + ((dlev - 5) / 4), 6));
+				calc_damage(5 + ((dlev - 5) / 4), 6, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -912,7 +958,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt_or_beam(beam - 10, GF_COLD, dir,
-				              damroll(10 + ((dlev - 5) / 4), 6));
+				calc_damage(10 + ((dlev - 5) / 4), 6, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -920,7 +966,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt_or_beam(beam, GF_ACID, dir,
-				              damroll(3 + ((dlev / 5)), 6));
+				calc_damage(3 + (dlev / 5), 6, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -928,15 +974,14 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt_or_beam(beam, GF_ACID, dir,
-				              damroll(6 + ((dlev - 5) / 4), 7));
+				calc_damage(3 + ((dlev - 5) / 4), 7, 0));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BOLT_FIRE_1:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt_or_beam(beam, GF_FIRE, dir,
-				              damroll(10, 6));
+			(void)fire_bolt_or_beam(beam, GF_FIRE, dir,	calc_damage(10, 6, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -944,7 +989,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt_or_beam(beam, GF_FIRE, dir,
-				              damroll(5 + (dlev / 5), 6));
+				calc_damage(5 + (dlev / 5), 6, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -952,7 +997,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt_or_beam(beam, GF_FIRE, dir,
-				              damroll(7 + ((dlev - 5) / 3), 7));
+				calc_damage(7 + ((dlev - 5) / 3), 7, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -960,7 +1005,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt_or_beam(beam - 10, GF_SOUND, dir,
-				              damroll(3 + ((dlev - 1) / 5), 3));
+				calc_damage(3 + ((dlev - 1) / 5), 3, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -968,7 +1013,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt_or_beam(beam, GF_FORCE, dir,
-				              damroll(2 + ((dlev - 5) / 4), 6));
+				calc_damage(2 + ((dlev - 5) / 4), 6, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -976,35 +1021,36 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt_or_beam(beam, GF_FORCE, dir,
-				              damroll(3 + (dlev / 5), 8));
+				calc_damage(3 + (dlev / 5), 8, 0));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BOLT_LITE:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt(GF_LITE, dir, damroll(4, 7));
+			(void)fire_bolt(GF_LITE, dir, calc_damage(4, 7, 0 ));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BOLT_DARK:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt(GF_DARK, dir, damroll(4, 7));
+			(void)fire_bolt(GF_DARK, dir, calc_damage(4, 7, 0 ));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BOLT_WATER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt(GF_WATER, dir, damroll(5, 6));
+			(void)fire_bolt(GF_WATER, dir, calc_damage(5, 6, 0 ));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BOLT_MANA:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt_or_beam(beam, GF_MANA, dir,	damroll(6 + ((dlev - 5) / 4), 6));
+			(void)fire_bolt_or_beam(beam, GF_MANA, dir,	
+ 				calc_damage(6 + ((dlev - 5) / 4), 6, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -1012,7 +1058,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{ 
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
-			lite_line(dir, damroll(9, 8));
+			lite_line(dir, calc_damage(9, 8, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -1020,98 +1066,98 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)set_taint(p_ptr->taint + 3000);
-			(void)fire_beam(GF_NETHER, dir,	damroll((8 * dlev), 4));
+			(void)fire_beam(GF_NETHER, dir,	calc_damage(8 * dlev, 4, 0));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_POISON:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_POIS, dir, 15, 2);
+			(void)fire_ball(GF_POIS, dir, calc_damage(0, 0, 15), 2);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_ACID:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_ACID, dir, 35 + (dlev * 2), 2);
+			(void)fire_ball(GF_ACID, dir, calc_damage(0, 0, 35 + (dlev * 2)), 2);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_ELEC_1:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_ELEC, dir, 35 + (dlev * 2), 2);
+			(void)fire_ball(GF_ELEC, dir, calc_damage(0, 0, 35 + (dlev * 2)), 2);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_ELEC_2:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_ELEC, dir, 210, 3);
+			(void)fire_ball(GF_ELEC, dir, calc_damage(0, 0, 210), 3);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_FIRE_1:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_FIRE, dir, 80, 2);;
+			(void)fire_ball(GF_FIRE, dir, calc_damage(0, 0, 80), 2);;
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_FIRE_2:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_FIRE, dir, 50 + (dlev), (dlev < 40) ? 2 : 3);
+			(void)fire_ball(GF_FIRE, dir, calc_damage(0, 0, 50 + (dlev)), (dlev < 40) ? 2 : 3);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_FIRE_3:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_FIRE, dir, 90 + (dlev * 2), (dlev < 40) ? 3 : 4);
+			(void)fire_ball(GF_FIRE, dir, calc_damage(0, 0, 90 + (dlev * 2)), (dlev < 40) ? 3 : 4);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_COLD_1:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_COLD, dir, 30 + (dlev), (dlev < 35) ? 2 : 3);
+			(void)fire_ball(GF_COLD, dir, calc_damage(0, 0, 30 + (dlev)), (dlev < 35) ? 2 : 3);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_COLD_2:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_COLD, dir, 60 + (dlev * 2), (dlev < 35) ? 3 : 4);
+			(void)fire_ball(GF_COLD, dir, calc_damage(0, 0, 60 + (dlev * 2)), (dlev < 35) ? 3 : 4);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_COLD_3:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_COLD, dir, 180, 4);
+			(void)fire_ball(GF_COLD, dir, calc_damage(0, 0, 180), 4);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_SOUND:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_SOUND, dir, 25 + (dlev), 2);
+			(void)fire_ball(GF_SOUND, dir, calc_damage(0, 0, 25 + (dlev)), 2);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_PLASMA:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_PLASMA, dir, damroll(4, 10) + 140, 3);
+			(void)fire_ball(GF_PLASMA, dir, calc_damage(4, 10, 140), 3);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BALL_MANA:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_MANA, dir, 270 + (dlev * 2), 3);
+			(void)fire_ball(GF_MANA, dir, calc_damage(0, 0, 270 + (dlev * 2)), 3);
 			*obvious = TRUE;
 			break;
 		}
@@ -1123,7 +1169,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			 * and the monsters won't be teleported until the end 
 			 */
 			   
-			(void)fire_ball_combo(GF_CHAOS, GF_LITE, GF_DARK, GF_NEXUS, dir, 200, 1);
+			(void)fire_ball_combo(GF_CHAOS, GF_LITE, GF_DARK, GF_NEXUS, dir, 
+				calc_damage(0, 0, 200), 1);
 			*obvious = TRUE;
 			break;
 		}
@@ -1131,7 +1178,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 
-			fire_ball(GF_HOLY_ORB, dir, damroll(3, 6) + 40, 3);
+			fire_ball(GF_HOLY_ORB, dir, calc_damage(3, 6, 40), 3);
 			*obvious = TRUE;
 			break;
 		}
@@ -1141,7 +1188,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			int y = (((p_ptr->lev >= 30) && (holy)) ? 3 : 2);
 
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_HOLY_ORB, dir, damroll(3, 6) + x, y); 
+			(void)fire_ball(GF_HOLY_ORB, dir, calc_damage(3, 6, x), y); 
 			*obvious = TRUE;
 			break;
 		}
@@ -1152,12 +1199,12 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				message(MSG_EFFECT, 0, "Light bursts out in all directions...");
 				*obvious = TRUE;
 			}
-			for (i = 0; i < 8; i++) lite_line(ddd[i], damroll(6,8));
+			for (i = 0; i < 8; i++) lite_line(ddd[i], calc_damage(6, 8, 0));
 			break;
 		}
 		case POW_STAR_BALL_ELEC:
 		{
-			for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 140, 3);
+			for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], calc_damage(0, 0, 140), 3);
 			*obvious = TRUE;
 			break;
 		}
@@ -1173,28 +1220,28 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_DRAIN_LIFE_1:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt(GF_DRAIN_ALL, dir, 50 + dlev);
+			fire_bolt(GF_DRAIN_ALL, dir, calc_damage(0, 0, 50 + dlev));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_DRAIN_LIFE_2:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt(GF_DRAIN_ALL, dir, 110);
+			fire_bolt(GF_DRAIN_ALL, dir, calc_damage(0, 0, 110));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_DRAIN_LIFE_3:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt(GF_DRAIN_ALL, dir, 180);
+			fire_bolt(GF_DRAIN_ALL, dir, calc_damage(0, 0, 180));
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BLIGHT:
 		{
-			if (project_los(GF_DISP_PLANT, dlev * 6)) *obvious = TRUE;
-			if (project_los(GF_DISP_ANIMAL, (3 * dlev) / 2)) *obvious = TRUE;
+			if (project_los(GF_DISP_PLANT, calc_damage(0, 0, dlev * 6))) *obvious = TRUE;
+			if (project_los(GF_DISP_ANIMAL, calc_damage(0, 0, (3 * dlev) / 2))) *obvious = TRUE;
 			break;
 		}
 		case POW_BURST_ASTRAL:
@@ -1204,43 +1251,43 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_DISPEL_ALL:
 		{
-			if (project_los(GF_DISP_ALL, dlev * 6)) *obvious = TRUE;
+			if (project_los(GF_DISP_ALL, calc_damage(0, 0, dlev * 6))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_UNDEAD_1:
 		{
-			if (project_los(GF_DISP_UNDEAD, randint(dlev * 3))) *obvious = TRUE;
+			if (project_los(GF_DISP_UNDEAD, calc_damage(1, dlev * 3, 0))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_UNDEAD_2:
 		{
-			if (project_los(GF_DISP_UNDEAD, randint(dlev * 4))) *obvious = TRUE;
+			if (project_los(GF_DISP_UNDEAD, calc_damage(1, dlev * 4, 0))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_DEMON:
 		{
-			if (project_los(GF_DISP_DEMON, randint(dlev * 3))) *obvious = TRUE;
+			if (project_los(GF_DISP_DEMON, calc_damage(1, dlev * 3, 0))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_NON_EVIL:
 		{
-			if (project_los(GF_DISP_NON_EVIL, randint(dlev * 5))) *obvious = TRUE;
+			if (project_los(GF_DISP_NON_EVIL, calc_damage(1, dlev * 5, 0))) *obvious = TRUE;
 			if (set_taint(p_ptr->taint + 2500)) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_EVIL_3:
 		{
-			if (project_los(GF_DISP_EVIL, randint(dlev * 3))) *obvious = TRUE;
+			if (project_los(GF_DISP_EVIL, calc_damage(1, dlev * 3, 0))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_EVIL_4:
 		{
-			if (project_los(GF_DISP_EVIL, randint(dlev * 4))) *obvious = TRUE;
+			if (project_los(GF_DISP_EVIL, calc_damage(1, dlev * 4, 0))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_EVIL_5:
 		{
-			if (project_los(GF_DISP_EVIL, randint(dlev * 5))) *obvious = TRUE;
+			if (project_los(GF_DISP_EVIL, calc_damage(1, dlev * 5, 0))) *obvious = TRUE;
 			break;
 		}
 		case POW_HOLY_1:
@@ -1253,14 +1300,16 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			}
 			else
 			{
-				if (project_los(GF_DISP_EVIL, randint(dlev * 6))) *obvious = TRUE;
-				if (set_protevil(p_ptr->protevil + randint(25) + (llev * 3))) *obvious = TRUE;
+				durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod((llev * 3), mdur);
+
+				if (project_los(GF_DISP_EVIL, calc_damage(1, dlev * 6, 0))) *obvious = TRUE;
 				if (heal_player(20, 20)) *obvious = TRUE;
 				if (set_afraid(0)) *obvious = TRUE;
 				if (set_diseased(0)) *obvious = TRUE;
 				if (set_poisoned(0)) *obvious = TRUE;
 				if (set_stun(0)) *obvious = TRUE;
 				if (set_cut(0)) *obvious = TRUE;
+				if (set_protevil(p_ptr->protevil + durat)) *obvious = TRUE;
 			}
 			break;
 		}
@@ -1274,7 +1323,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			}
 			else
 			{
-				if (project_los(GF_DISP_EVIL, randint(dlev * 4))) *obvious = TRUE;
+				if (project_los(GF_DISP_EVIL, calc_damage(1, dlev * 4, 0))) *obvious = TRUE;
 				if (hp_player(1000)) *obvious = TRUE;
 				if (set_afraid(0)) *obvious = TRUE;
 				if (set_diseased(0)) *obvious = TRUE;
@@ -1310,13 +1359,13 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_LIGHT_AREA_1: 
 		{
-			lite_area(damroll(2, 2), 2);
+			lite_area(calc_damage(2, 2, 0), 2);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_LIGHT_AREA_2: 
 		{
-			lite_area(damroll(2, (dlev / 2)), (dlev / 10) + 1);
+			lite_area(calc_damage(2, (dlev / 2), 0), (dlev / 10) + 1);
 			*obvious = TRUE;
 			break;
 		}
@@ -1326,7 +1375,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			{
 				(void)set_blind(p_ptr->blind + 3 + randint(5));
 			}
-			unlite_area(damroll(2, (dlev / 2)), (dlev / 10) + 1);
+			unlite_area(calc_damage(2, (dlev / 2), 0), (dlev / 10) + 1);
 			*obvious = TRUE;
 			break;
 		}
@@ -1386,27 +1435,36 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_ABSORB_HIT:
 		{
-			if (set_absorb(p_ptr->absorb + randint(36) + 2 * llev)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(36, mdur)) + apply_sp_mod((llev * 2), mdur);
+
+			if (set_absorb(p_ptr->absorb + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_BLESS_1:
 		{
-			if (set_blessed(p_ptr->blessed + randint(12) + 12)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(12, mdur)) + apply_sp_mod(12, mdur);
+
+			if (set_blessed(p_ptr->blessed + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_BLESS_2:
 		{
-			if (set_blessed(p_ptr->blessed + randint(30) + 30)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(30, mdur)) + apply_sp_mod(30, mdur);
+
+			if (set_blessed(p_ptr->blessed + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_BLESS_3:
 		{
-			if (set_blessed(p_ptr->blessed + randint(75) + 75)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(75, mdur)) + apply_sp_mod(75, mdur);
+
+			if (set_blessed(p_ptr->blessed + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_HEROISM:
 		{
-			durat = randint(10) + 10;
+			durat = randint(apply_sp_mod(10, mdur)) + apply_sp_mod(10, mdur);
+
 			if (hp_player(10)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
 			if (set_hero(p_ptr->hero + durat)) *obvious = TRUE;
@@ -1415,20 +1473,42 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_BOLDNESS:
 		{
+			durat = randint(apply_sp_mod(10, mdur)) + apply_sp_mod(10, mdur);
+
 			if (set_afraid(0)) *obvious = TRUE;
-			if (set_tim_bravery(p_ptr->tim_bravery + randint(10) + 10)) *obvious = TRUE;
+			if (set_tim_bravery(p_ptr->tim_bravery + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_STABILITY:
 		{
+			durat = randint(apply_sp_mod(16, mdur)) + apply_sp_mod(16, mdur);
+
 			if (set_confused(0)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
-			if (set_stability(p_ptr->stability + randint(16) + 16)) *obvious = TRUE;
+			if (set_stability(p_ptr->stability + durat)) *obvious = TRUE;
+			break;
+		}
+		case POW_SAFETY:
+		{
+			if (p_ptr->safety <= 0)
+			{
+				durat = randint(apply_sp_mod(5, mdur)) + 
+					apply_sp_mod(((llev > 20) ? (llev + (llev / 5)) : (llev + 4)), mdur);
+
+				if (set_safety(durat)) *obvious = TRUE;
+			}
+			else
+			{
+				durat = randint(apply_sp_mod(5, mdur));
+
+				if (set_safety(p_ptr->safety + durat)) *obvious = TRUE;
+			}
 			break;
 		}
 		case POW_RAGE_1:
 		{
-			durat = randint(25) + 25;
+			durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(25, mdur);
+
 			if (hp_player(20)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
 			if (set_rage(p_ptr->rage + durat)) *obvious = TRUE;
@@ -1437,7 +1517,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_RAGE_2:
 		{
-			durat = randint(50) + 50;
+			durat = randint(apply_sp_mod(50, mdur)) + apply_sp_mod(50, mdur);
+
 			if (hp_player(20)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
 			if (set_rage(p_ptr->rage + durat)) *obvious = TRUE;
@@ -1446,7 +1527,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_RAGE_BLESS_RESIST:
 		{
-			durat = randint(50) + 50;
+			durat = randint(apply_sp_mod(50, mdur)) + apply_sp_mod(50, mdur);
+
 			if (hp_player(30)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
 			if (set_rage(p_ptr->rage + durat)) *obvious = TRUE;
@@ -1462,18 +1544,24 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_SHIELD:
 		{
-			if (set_shield(p_ptr->shield + randint(20) + 30)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(30, mdur);
+
+			if (set_shield(p_ptr->shield + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_INVIS_1:
 		{
 			if (p_ptr->tim_invis <= 0)
 			{
-				if (set_tim_invis(randint(15) + llev)) *obvious = TRUE;
+				durat = randint(apply_sp_mod(15, mdur)) + apply_sp_mod(llev, mdur);
+
+				if (set_tim_invis(durat)) *obvious = TRUE;
 			}
 			else
 			{
-				if (set_tim_invis(p_ptr->tim_invis + randint(10))) *obvious = TRUE;
+				durat = randint(apply_sp_mod(10, mdur));
+
+				if (set_tim_invis(p_ptr->tim_invis + durat)) *obvious = TRUE;
 			}
 			break;
 		}
@@ -1481,84 +1569,114 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (p_ptr->tim_invis <= 0)
 			{
-				if (set_tim_invis(randint(25) + 25 + llev)) *obvious = TRUE;
+				durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(25 + llev, mdur);
+
+				if (set_tim_invis(durat)) *obvious = TRUE;
 			}
 			else
 			{
-				if (set_tim_invis(p_ptr->tim_invis + randint(10))) *obvious = TRUE;
+				durat = randint(apply_sp_mod(10, mdur));
+
+				if (set_tim_invis(p_ptr->tim_invis + durat)) *obvious = TRUE;
 			}
 			break;
 		}
 		case POW_RESILIENCE:
 		{
-			if (set_resilient(p_ptr->resilient + randint(8) + 8)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(8, mdur)) + apply_sp_mod(8, mdur);
+
+			if (set_resilient(p_ptr->resilient + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_INFRAVISION:
 		{
-			if (set_tim_infra(p_ptr->tim_infra + 50 + randint(50))) *obvious = TRUE;
+			durat = randint(apply_sp_mod(50, mdur)) + apply_sp_mod(50, mdur);
+
+			if (set_tim_infra(p_ptr->tim_infra + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_STEALTH:
 		{
 			if (p_ptr->tim_stealth <= 0)
 			{
-				if (set_tim_stealth(randint(25) + 25 + llev)) *obvious = TRUE;
+				durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(25 + llev, mdur);
+
+				if (set_tim_stealth(durat)) *obvious = TRUE;
 			}
 			else
 			{
-				if (set_tim_stealth(p_ptr->tim_stealth + randint(10))) *obvious = TRUE;
+				durat = randint(apply_sp_mod(10, mdur));
+				
+				if (set_tim_stealth(p_ptr->tim_stealth + durat)) *obvious = TRUE;
 			}
 			break;
 		}
 		case POW_SEE_INVIS:
 		{
-			if (set_tim_see_invis(p_ptr->tim_see_invis + randint(24) + 24)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(24, mdur)) + apply_sp_mod(24, mdur);
+
+			if (set_tim_see_invis(p_ptr->tim_see_invis + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_PROT_EVIL_1:
 		{
-			if (set_protevil(p_ptr->protevil + randint(25) + 30)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(30, mdur);
+
+			if (set_protevil(p_ptr->protevil + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_PROT_EVIL_2:
 		{
-			if (set_protevil(p_ptr->protevil + randint(25) + 3 * llev)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(3 * llev, mdur);
+
+			if (set_protevil(p_ptr->protevil + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_HASTE_SELF_1:
 		{
-			if (!p_ptr->fast)
+			if (p_ptr->fast <= 0)
 			{
-				if (set_fast(randint(20) + llev)) *obvious = TRUE;
+				durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(llev, mdur);
+
+				if (set_fast(durat)) *obvious = TRUE;
 			}
 			else
 			{
-				if (set_fast(p_ptr->fast + randint(5))) *obvious = TRUE;
+				durat = randint(apply_sp_mod(5, mdur));
+
+				if (set_fast(p_ptr->fast + durat)) *obvious = TRUE;
 			}
 			break;
 		}
 		case POW_HASTE_SELF_2:
 		{
-			if (!p_ptr->fast)
+			if (p_ptr->fast <= 0)
 			{
-				if (set_fast(randint(30) + 30 + llev)) *obvious = TRUE;
+				durat = randint(apply_sp_mod(30, mdur)) + apply_sp_mod(30 + llev, mdur);
+
+				if (set_fast(durat)) *obvious = TRUE;
 			}
 			else
 			{
-				if (set_fast(p_ptr->fast + randint(10))) *obvious = TRUE;
+				durat = randint(apply_sp_mod(10, mdur));
+
+				if (set_fast(p_ptr->fast + durat)) *obvious = TRUE;
 			}
 			break;
 		}
 		case POW_HASTE_SELF_3:
 		{
-			if (!p_ptr->fast)
+			if (p_ptr->fast <= 0)
 			{
-				if (set_fast(randint(75) + 75)) *obvious = TRUE;
+				durat = randint(apply_sp_mod(75, mdur)) + apply_sp_mod(75, mdur);
+
+				if (set_fast(durat)) *obvious = TRUE;
 			}
 			else
 			{
-				if (set_fast(p_ptr->fast + 5)) *obvious = TRUE;
+				durat = apply_sp_mod(5, mdur);
+
+				if (set_fast(p_ptr->fast + durat)) *obvious = TRUE;
 			}
 			break;
 		}
@@ -1799,70 +1917,89 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_RES_ACID:
 		{
-			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + randint(20) + 20)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
+
+			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_ELEC:
 		{
-			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + randint(20) + 20)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
+
+			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_FIRE:
 		{
-			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + randint(20) + 20)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
+
+			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_COLD:
 		{
-			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + randint(20) + 20)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
+
+			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_FIRE_COLD:
 		{
-			durat = randint(10) + 10;
+			durat = randint(apply_sp_mod(10, mdur)) + apply_sp_mod(10, mdur);
+
 			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_ACID_ELEC:
 		{
-			durat = randint(10) + 10;
+			durat = randint(apply_sp_mod(10, mdur)) + apply_sp_mod(10, mdur);
+
 			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_LITE_DARK:
 		{
-			durat = randint(20) + 20;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
+
 			if (set_tim_res(RS_LIT, p_ptr->tim_res[RS_LIT] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_DRK, p_ptr->tim_res[RS_DRK] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_CHAOS_NEXUS:
 		{
-			durat = randint(20) + 20;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
+
 			if (set_tim_res(RS_CHS, p_ptr->tim_res[RS_CHS] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_NEX, p_ptr->tim_res[RS_NEX] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_POISON:
 		{
-			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + randint(20) + 20)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
+
+			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_DISEASE:
 		{
-			if (set_tim_res(RS_DIS, p_ptr->tim_res[RS_DIS] + randint(20) + 20)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
+
+			if (set_tim_res(RS_DIS, p_ptr->tim_res[RS_DIS] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_SOUND:
 		{
-			if (set_tim_res(RS_SND, p_ptr->tim_res[RS_SND] + randint(20) + 20)) *obvious = TRUE;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
+
+			if (set_tim_res(RS_SND, p_ptr->tim_res[RS_SND] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_ELEMENTS:
 		{
-			durat = randint(llev/2) + llev/2;
+			durat = randint(apply_sp_mod(llev / 2, mdur)) + apply_sp_mod(llev / 2, mdur);
+
 			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
@@ -1871,7 +2008,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_RES_GREATER:
 		{
-			durat = randint(llev/3) + llev/3;
+			durat = randint(apply_sp_mod(llev / 3, mdur)) + apply_sp_mod(llev / 3, mdur);
+
 			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_DIS, p_ptr->tim_res[RS_DIS] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_LIT, p_ptr->tim_res[RS_LIT] + durat)) *obvious = TRUE;
@@ -1886,7 +2024,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_RESISTANCE:
 		{
-			durat = randint(20) + 20;
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
+
 			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
@@ -2306,6 +2445,21 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			message(MSG_EFFECT, 0, "A feeling of Death flows through your body.");
 			damage_player(5000, "a bad mistake");
 			*obvious = TRUE;
+			break;
+		}
+		case POW_SPELL_DURATION:
+		{
+			if (set_tim_sp_dur(77)) *obvious = TRUE;
+			break;
+		}
+		case POW_SPELL_DAMAGE:
+		{
+			if (set_tim_sp_dam(77)) *obvious = TRUE;
+			break;
+		}
+		case POW_SPELL_INFLUENCE:
+		{
+			if (set_tim_sp_inf(77)) *obvious = TRUE;
 			break;
 		}
 		case POW_DRAGON_BLACK:

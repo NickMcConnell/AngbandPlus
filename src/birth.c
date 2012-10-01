@@ -58,7 +58,7 @@ static byte stat_use[A_MAX];
 static start_item start_kit[5] =
 {
 	{TV_LITE, SV_LANTERN, 1, 1},
-	{TV_FLASK, SV_FLASK_LANTERN, 4, 4},
+	{TV_FLASK, SV_FLASK_LANTERN, 5, 5},
 	{TV_CLOAK, SV_CLOAK, 1, 1},
 	{TV_SCROLL, SV_SCROLL_PHASE_DOOR, 1, 1},
 	{TV_POTION, SV_POTION_CURE_LIGHT, 1, 1}
@@ -75,7 +75,7 @@ static int w_choice[18][2] =
 	{TV_POLEARM, SV_HATCHET}, 
 	{TV_POLEARM, SV_SHORTSPEAR}, 
 	{TV_POLEARM, SV_LONGSPEAR}, 
-	/* Weapons available to classes with WEAPON_GOOD*/
+	/* Weapons available to classes with WEAPON_GOOD */
 	{TV_SWORD, SV_LONG_SWORD}, 
 	{TV_SWORD, SV_BASTARD_SWORD}, 
 	{TV_SWORD, SV_TWO_HANDED_SWORD}, 
@@ -144,8 +144,8 @@ static void load_prev_data(void)
 
 	/* Load the data */
 	p_ptr->age = prev.age;
-	p_ptr->wt = prev.wt;
-	p_ptr->ht = prev.ht;
+	p_ptr->wt_birth = p_ptr->wt = prev.wt;
+	p_ptr->ht_birth = p_ptr->ht = prev.ht;
 	p_ptr->sc = prev.sc;
     p_ptr->au_birth = p_ptr->au = prev.au;
 
@@ -329,15 +329,15 @@ static void get_ahw(void)
 	/* Calculate the height/weight for males */
 	if (p_ptr->psex == SEX_MALE)
 	{
-		p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+		p_ptr->ht_birth = p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+		p_ptr->wt_birth = p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
 	}
 
 	/* Calculate the height/weight for females */
 	else if (p_ptr->psex == SEX_FEMALE)
 	{
-		p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+		p_ptr->ht_birth = p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+		p_ptr->wt_birth = p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
 	}
 }
 
@@ -351,27 +351,27 @@ static void get_money(void)
 	int gold;
 
 	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint(100) + ((adult_start_kit) ? 200 : 300);
+	gold = (p_ptr->sc * 3) + randint(50) + ((adult_start_kit) ? 50 : 100);
 
 	/* Process the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Mega-Hack -- reduce gold for high stats */
-		if (stat_use[i] >= 19) gold -= 300;
-		else if (stat_use[i] >= 17) gold -= 200;
-		else if (stat_use[i] > 15) gold -= 150;
-		else gold -= (stat_use[i] - 5) * 10;
+		if (stat_use[i] >= 19) gold -= 150;
+		else if (stat_use[i] >= 17) gold -= 100;
+		else if (stat_use[i] > 15) gold -= 75;
+		else gold -= (stat_use[i] - 5) * 5;
 	}
 
-	/* Minimum 100 gold (or 0 if using start kit)*/
+	/* Minimum 50 gold (or 0 if using start kit)*/
 	if (!adult_start_kit)
 	{
-		if (gold < 100) gold = 100;
+		if (gold < 50) gold = 50;
 	}
 	else if (gold < 0) gold = 0;
 
-	/* 500 Bonus gold coins for easy_mode */
-	if (adult_easy_mode) gold += 500;
+	/* 200 Bonus gold coins for easy_mode */
+	if (adult_easy_mode) gold += 200;
 
 	/* Save the gold */
 	p_ptr->au_birth = p_ptr->au = gold;
@@ -1147,8 +1147,8 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Gold is inversely proportional to cost */
-		p_ptr->au_birth = p_ptr->au = (25* (POINTS - cost)) + ((adult_start_kit) ? 0 : 100) 
-			+ ((adult_easy_mode) ? 500 : 0);
+		p_ptr->au_birth = p_ptr->au = (10 * (POINTS - cost)) + ((adult_start_kit) ? 0 : 50) 
+			+ ((adult_easy_mode) ? 200 : 0);
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);
@@ -1831,8 +1831,8 @@ static bool player_birth_quick(void)
 
 	old_char.age = p_ptr->age;
 	old_char.au = p_ptr->au_birth;
-	old_char.ht = p_ptr->ht;
-	old_char.wt = p_ptr->wt;
+	old_char.ht = p_ptr->ht_birth;
+	old_char.wt = p_ptr->wt_birth;
 	old_char.sc = p_ptr->sc;
 	
 	/* Save the stats */

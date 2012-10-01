@@ -8,6 +8,65 @@
 
 #include "angband.h"
 
+static char t_name[80];
+
+/*
+ * Efficient version of '(T) += strfmt((T), "%s", (S))'
+ */
+#define trap_desc_str_macro(T,S) do { \
+ \
+	cptr s = (S); \
+ \
+	/* Copy the string */ \
+	while (*s) *(T)++ = *s++; \
+ \
+} while (0)
+
+/*
+ * Return a trap's name, plus appropriate article.
+ *
+ * Modes -
+ *   0 -- Fire trap
+ *   1 -- A fire trap
+ *   2 -- The fire trap
+ */
+cptr trap_name(int w_idx, int mode)
+{
+	trap_widget *w_ptr = &w_info[w_idx];
+	
+	char *t, *s;
+
+	/* Paranoia - if this happens, we're in trouble */
+	if (!w_idx) return (NULL);
+
+	t = t_name;
+	s = w_name + w_ptr->name;
+
+	if (mode == 1)
+	{
+		if (is_a_vowel(s[0])) trap_desc_str_macro(t, "an ");
+		else trap_desc_str_macro(t, "a ");
+	}
+	else if (mode == 2)
+	{
+		trap_desc_str_macro(t, "the ");
+	}
+
+	/* Copy the string */
+	for (; *s; s++)
+	{
+		if (*s == '^') continue;
+
+		*t++ = *s;
+	}
+
+	/* Terminate string */
+	*t = '\0';	
+
+	/* Return name */
+	return (&t_name[0]);
+}
+
 /*
  * Wipe a trap clean.
  */
@@ -593,7 +652,7 @@ void hit_trap(int y, int x)
 			else
 			{
 				dam = damroll(2, 8);
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 			}
 
 			/* New depth */
@@ -615,7 +674,7 @@ void hit_trap(int y, int x)
 			else
 			{
 				dam = damroll(2, 6);
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 			}
 			break;
 		}
@@ -645,7 +704,7 @@ void hit_trap(int y, int x)
 				}
 
 				/* Take the damage */
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 			}
 			break;
 		}
@@ -677,7 +736,7 @@ void hit_trap(int y, int x)
 				if (!p_ptr->no_cut) (void)set_cut(p_ptr->cut + randint(dam));
 
 				/* Take the damage. */
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 			}
 
 			break;
@@ -719,7 +778,7 @@ void hit_trap(int y, int x)
 				}
 
 				/* Take the damage */
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 			}
 
 			break;
@@ -802,7 +861,7 @@ void hit_trap(int y, int x)
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are enveloped in flames!");
 			dam = damroll(4, 6);
-			fire_dam(dam, w_name + w_ptr->name);
+			fire_dam(dam, trap_name(t_ptr->w_idx, 1));
 			break;
 		}
 
@@ -810,7 +869,7 @@ void hit_trap(int y, int x)
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are splashed with acid!");
 			dam = damroll(4, 6);
-			acid_dam(dam, w_name + w_ptr->name);
+			acid_dam(dam, trap_name(t_ptr->w_idx, 1));
 			break;
 		}
 
@@ -818,7 +877,7 @@ void hit_trap(int y, int x)
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are struck by lightning!");
 			dam = damroll(4, 6);
-			elec_dam(dam, w_name + w_ptr->name);
+			elec_dam(dam, trap_name(t_ptr->w_idx, 1));
 			break;
 		}
 
@@ -836,7 +895,7 @@ void hit_trap(int y, int x)
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "A small dart hits you!");
 				dam = damroll(1, 4);
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 				(void)set_slow(p_ptr->slow + rand_int(20) + 20);
 			}
 			else
@@ -853,7 +912,7 @@ void hit_trap(int y, int x)
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "A small dart hits you!");
 				dam = damroll(1, 4);
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 				(void)do_dec_stat(A_STR, 1, FALSE, TRUE);
 			}
 			else
@@ -870,7 +929,7 @@ void hit_trap(int y, int x)
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "A small dart hits you!");
 				dam = damroll(1, 4);
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 				(void)do_dec_stat(A_DEX, 1, FALSE, TRUE);
 			}
 			else
@@ -887,7 +946,7 @@ void hit_trap(int y, int x)
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "A small dart hits you!");
 				dam = damroll(1, 4);
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 				(void)do_dec_stat(A_CON, 1, FALSE, TRUE);
 			}
 			else
@@ -957,7 +1016,7 @@ void hit_trap(int y, int x)
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "Large blades emerge from the wall and hit you!");
 				dam = damroll (1 + p_ptr->depth / 5, 6);
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 			}
 			else
 			{
@@ -976,7 +1035,7 @@ void hit_trap(int y, int x)
 				/* cut the player. */
 				if (!p_ptr->no_cut) (void)set_cut(p_ptr->cut + dam/2 + randint(dam/2));
 
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 			}
 			else
 			{
@@ -996,7 +1055,7 @@ void hit_trap(int y, int x)
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "A rock falls on your head.");
 			dam = damroll(2,10);
-				take_hit(dam, w_name + w_ptr->name);
+				take_hit(dam, trap_name(t_ptr->w_idx, 1));
 
 			if (!p_ptr->no_stun) (void)set_stun(p_ptr->stun + randint(10) + 10);
 			break;

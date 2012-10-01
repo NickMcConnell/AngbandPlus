@@ -44,14 +44,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.0"
+#define VERSION_STRING	"0.5.1"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	5
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 /*
@@ -292,6 +292,11 @@
 #define RST_IGNORE_ELEM		10
 
 /*
+ * Bonus to resistance given by temporary resistance 
+ */
+#define TEMP_RES_BONUS		33
+
+/*
  * There is a 1/20 (5%) chance of inflating the requested object_level
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
@@ -317,11 +322,11 @@
 #define GREAT_EGO	20
 
 /*
- * There is a 1/50 (2%) chance of inflating the requested monster_level
+ * There is a 2/40 (5%) chance of inflating the requested monster_level
  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
  * Lower values yield harder monsters more often.
  */
-#define NASTY_MON	50		/* 1/chance of inflated monster level */
+#define NASTY_MON	40		/* 1/chance of inflated monster level */
 
 /*
  * Refueling constants
@@ -515,18 +520,17 @@
 #define SK_DEV	2	/* Magical device */
 #define SK_SAV	3	/* Saving Throw */
 #define SK_STL	4	/* Stealth */
-#define SK_SRH	5	/* Search */
-#define SK_FOS	6	/* Frequency of Searching */
-#define SK_THN	7	/* To hit (melee) */
-#define SK_THB	8	/* To hit (bow) */
-#define SK_THT	9	/* To hit (throwing) */
-#define SK_DIG	10	/* Digging */
-#define SK_ALC	11	/* Alchemy */
+#define SK_PER	5	/* Perception */
+#define SK_THN	6	/* To hit (melee) */
+#define SK_THB	7	/* To hit (bow) */
+#define SK_THT	8	/* To hit (throwing) */
+#define SK_DIG	9	/* Digging */
+#define SK_ALC	10	/* Alchemy */
 
 /*
  * Total number of skills.
  */
-#define SK_MAX	12
+#define SK_MAX	11
 
 /* 
  * Indexes of the various "resistances" (hard-coded by savefiles, etc)
@@ -1003,10 +1007,11 @@
 
 /* Spell Books */
 #define ART_NECRONOMICON	20
-#define ART_CODEX           21
+#define ART_CODEX			21
+#define ART_MATHEMAGIC		22
 
 /* Instruments */
-#define ART_PAN				22
+#define ART_PAN				23
 
 /* Dragon Scale */
 #define ART_TORTURESKIN		31
@@ -1178,8 +1183,10 @@
 /* Robes */
 #define EGO_PERMANENCE			10
 #define EGO_MANA				11
-#define EGO_DWARVEN				12
-#define EGO_BLACKROCK_STUD		13
+#define EGO_ARCHMAGI			12
+/* Heavy Armor */
+#define EGO_DWARVEN				13
+#define EGO_BLACKROCK_STUD		14
 
 /* Shields */
 #define EGO_ENDURE_ACID			15
@@ -1619,9 +1626,9 @@
 #define SV_AMULET_SEARCHING		10
 #define SV_AMULET_INFRAVISION	11
 #define SV_AMULET_BRIGHTNESS	12
-#define SV_AMULET_WISDOM		13
-#define SV_AMULET_INTELLIGENCE	14
-#define SV_AMULET_CHARISMA		15
+#define SV_AMULET_WIS			13
+#define SV_AMULET_INT			14
+#define SV_AMULET_CHR			15
 #define SV_AMULET_POWER			16
 #define SV_AMULET_THE_MAGI		17
 #define SV_AMULET_SUSTENANCE	18
@@ -2003,9 +2010,10 @@
 #define SV_BOOK_MYSTIC2			21
 #define SV_BOOK_NECRONOMICON	22
 #define SV_BOOK_CODEX			23
+#define SV_BOOK_MATHEMAGIC		24
 
 /* "Sval" limit - maximum amount of spellbooks */
-#define SV_BOOK_MAX				24
+#define SV_BOOK_MAX				25
 
 /* 
  * Special "k_info" hard coded values - 
@@ -2151,11 +2159,12 @@
 #define SBF_PRAYER		0x04
 #define SBF_CODEX		0x08
 #define SBF_NECRONOM	0x10
-#define SBF_GOOD		0x20
-#define SBF_ARTIFACT	0x40
+#define SBF_MATHEMAGIC	0x20
+#define SBF_GOOD		0x40
+#define SBF_ARTIFACT	0x80
 
 #define SBF_TYPE_MASK \
-			(SBF_MYSTIC | SBF_MAGIC | SBF_PRAYER | SBF_CODEX | SBF_NECRONOM)
+			(SBF_MYSTIC | SBF_MAGIC | SBF_PRAYER | SBF_CODEX | SBF_NECRONOM | SBF_MATHEMAGIC)
 
 /*
  * Bit flags for the "enchant()" function
@@ -2426,7 +2435,7 @@
 #define TR1_XXX1			0x00000040L
 #define TR1_XXX2			0x00000080L
 #define TR1_STEALTH			0x00000100L	/* Stealth += "pval" */
-#define TR1_SEARCH			0x00000200L	/* Search += "pval" */
+#define TR1_PERCEPTION		0x00000200L	/* Perception += "pval" */
 #define TR1_INFRA			0x00000400L	/* Infra += "pval" */
 #define TR1_TUNNEL			0x00000800L	/* Tunnel += "pval" */
 #define TR1_SPEED			0x00001000L	/* Speed += "pval" */
@@ -2434,15 +2443,15 @@
 #define TR1_SHOTS			0x00004000L	/* Shots += "pval" */
 #define TR1_MANA			0x00008000L	/* Mana += "pval * 10" (at least )*/  
 #define TR1_HEALTH			0x00010000L	/* Health += "pval * 10" (at least) */
-#define TR1_MIGHT			0x00020000L	/* Bow Might += "pval" */
-#define TR1_RANGE			0x00040000L /* Bow Range += "pval" */
-#define TR1_XXX3			0x00080000L
-#define TR1_XXX4			0x00100000L
-#define TR1_XXX5			0x00200000L
-#define TR1_XXX6			0x00400000L
-#define TR1_XXX7			0x00800000L
-#define TR1_XXX8			0x01000000L
-#define TR1_XXX9			0x02000000L
+#define TR1_XXX3			0x00020000L
+#define TR1_SP_DUR			0x00040000L /* Increase spell duration */
+#define TR1_SP_DAM			0x00080000L	/* Increase spell damage */
+#define TR1_SP_INF			0x00100000L /* Increase spell influence */
+#define TR1_XXX4			0x00200000L
+#define TR1_XXX5			0x00400000L
+#define TR1_MIGHT			0x00800000L	/* Bow Might += "pval" */
+#define TR1_RANGE			0x01000000L /* Bow Range += "pval" */
+#define TR1_XXX6			0x02000000L
 #define TR1_SUST_STR		0x04000000L	/* Sustain STR */
 #define TR1_SUST_INT		0x08000000L	/* Sustain INT */
 #define TR1_SUST_WIS		0x10000000L	/* Sustain WIS */
@@ -2522,8 +2531,9 @@
  */
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR | \
-	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | TR1_MANA | \
-	 TR1_HEALTH | TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT | TR1_RANGE)
+	 TR1_STEALTH | TR1_PERCEPTION | TR1_INFRA | TR1_TUNNEL | TR1_MANA | \
+	 TR1_HEALTH | TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT | TR1_RANGE | \
+	 TR1_SP_DUR | TR1_SP_DAM )
 
 /*
  * Hack -- flag set 1 -- mask for "pval-dependant" flags, except might and range
@@ -2532,8 +2542,8 @@
  */
 #define TR1_PVAL_DISPLAY_FLAG \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR | \
-	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | TR1_MANA | \
-	 TR1_HEALTH | TR1_SPEED | TR1_BLOWS | TR1_SHOTS)
+	 TR1_STEALTH | TR1_PERCEPTION | TR1_INFRA | TR1_TUNNEL | TR1_MANA | \
+	 TR1_HEALTH | TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_SP_DUR | TR1_SP_DAM )
 
 /*
  * Flag set 3 -- mask for "lite" flags.
@@ -3911,149 +3921,153 @@ extern int PlayerUID;
 #define POW_HEROISM				138
 #define POW_BOLDNESS			139
 #define POW_STABILITY			140
-#define POW_RAGE_1				141
-#define POW_RAGE_2				142
-#define POW_RAGE_BLESS_RESIST	143
-#define POW_SHIELD				144
-#define POW_INVIS_1				145
-#define POW_INVIS_2				146
-#define POW_RESILIENCE			147
-#define POW_INFRAVISION			148
-#define POW_STEALTH				149
-#define POW_SEE_INVIS			150
-#define POW_PROT_EVIL_1			151
-#define POW_PROT_EVIL_2			152
-#define POW_HASTE_SELF_1		153
-#define POW_HASTE_SELF_2		154
-#define POW_HASTE_SELF_3		155
-#define POW_DISARM				156
-#define POW_DEST_TRAP_DOOR_1	157
-#define POW_DEST_TRAP_DOOR_2	158
-#define POW_STONE_TO_MUD		159
-#define POW_CREATE_WALL			160
-#define POW_CREATE_DOOR			161
-#define POW_CREATE_STAIR		162
-#define POW_CREATE_TRAP			163
-#define POW_MAGIC_LOCK			164
-#define POW_ACQUIRE_1			165
-#define POW_ACQUIRE_2			166
-#define POW_AGGRAVATE			167
-#define POW_AGGRAVATE_SAFE		168
-#define POW_CONFUSE_MONSTER		169
-#define POW_CONFUSE_ALL			170
-#define POW_SLEEP_MONSTER		171
-#define POW_SLEEP_ADJACENT		172
-#define POW_SLEEP_ALL			173
-#define POW_SLOW_MONSTER		174
-#define POW_SLOW_ALL			175
-#define POW_CALM_MONSTER		176
-#define POW_CALM_ANIMALS		177
-#define POW_CALM_NON_EVIL		178
-#define POW_CALM_NON_CHAOS		179
-#define POW_CALM_ALL			180
-#define POW_BLIND_MONSTER		181
-#define POW_SCARE_MONSTER		182
-#define POW_SCARE_ALL			183
-#define POW_CALL_MONSTER		184
-#define POW_POLY_MONSTER		185
-#define POW_HEAL_MONSTER		186
-#define POW_HASTE_MONSTER		187
-#define POW_CLONE_MONSTER		188
-#define POW_SATISFY_HUNGER		189
-#define POW_RECHARGE_1			190
-#define POW_RECHARGE_2			191
-#define POW_RECHARGE_3			192
-#define POW_HYPERCHARGE			193
-#define POW_IDENTIFY			194
-#define POW_IDENTIFY_PACK		195
-#define POW_IDENTIFY_FULL		196
-#define POW_RES_ACID			197
-#define POW_RES_ELEC			198
-#define POW_RES_FIRE			199
-#define POW_RES_COLD			200
-#define POW_RES_ACID_ELEC		201
-#define POW_RES_FIRE_COLD		202
-#define POW_RES_POISON			203
-#define POW_RES_DISEASE			204
-#define POW_RES_SOUND			205
-#define POW_RES_LITE_DARK		206
-#define POW_RES_CHAOS_NEXUS		207
-#define POW_RES_ELEMENTS		208
-#define POW_RES_GREATER			209
-#define POW_RESISTANCE			210
-#define POW_GLYPH_WARDING		211
-#define POW_GLYPH_LESSER		212
-#define POW_GLYPH_HOLY			213
-#define POW_REMOVE_CURSE_1		214
-#define POW_REMOVE_CURSE_2		215
-#define POW_MAP_1				216
-#define POW_MAP_2				217
-#define POW_MAP_3				218
-#define POW_PROBE_MONSTER		219
-#define POW_PROBE_ALL			220
-#define POW_KNOW_ALL			221
-#define POW_ENCHANT_WEAPON_1	222
-#define POW_ENCHANT_WEAPON_2	223
-#define POW_ENCHANT_ARMOR_1		224
-#define POW_ENCHANT_ARMOR_2		225
-#define POW_BRAND_WEAPON_ELMNT	226
-#define POW_BRAND_AMMO_ANML		227
-#define POW_BRAND_AMMO_WOUND	228
-#define POW_BRAND_AMMO_ELMNT	229
-#define POW_BRAND_AMMO_HOLY		230
-#define POW_BIZZARE				231
-#define POW_CURSE_EQUIP_1		232
-#define POW_CURSE_EQUIP_2		233
-#define POW_SUM_MONSTER			234
-#define POW_SUM_UNDEAD			235
-#define POW_SUM_DRAGON			236
-#define POW_NAUSEA				237
-#define POW_POISON_SELF			238
-#define POW_BLIND_SELF			239
-#define POW_CONFUSE_SELF		240
-#define POW_SCARE_SELF			241
-#define POW_SLOW_SELF			242
-#define POW_PARALYZE			243
-#define POW_HALLUCINATE			244
-#define POW_DISEASE				245
-#define POW_DEFORM				246
-#define POW_TAINT				247
-#define POW_AMNESIA				248
-#define POW_LOSE_STR			249
-#define POW_LOSE_INT			250
-#define POW_LOSE_WIS			251
-#define POW_LOSE_DEX			252
-#define POW_LOSE_CON			253
-#define POW_LOSE_CHR			254
-#define POW_LOSE_EXP			255
-#define POW_RUINATION			256
-#define POW_DETONATE			257
-#define POW_KILL_SELF			258
-#define POW_DRAGON_BLACK		259
-#define POW_DRAGON_BLUE			260
-#define POW_DRAGON_WHITE		261
-#define POW_DRAGON_RED			262
-#define POW_DRAGON_GREEN		263
-#define POW_DRAGON_GOLD			264
-#define POW_DRAGON_SILVER		265
-#define POW_DRAGON_MH			266
-#define POW_DRAGON_SPIRIT		267
-#define POW_DRAGON_SHADOW		268
-#define POW_DRAGON_ETHER		269
-#define POW_DRAGON_CHAOS		270
-#define POW_DRAGON_TIME			271
-#define POW_DRAGON_POWER		272
-#define POW_RISK_HACK			273
-#define POW_WONDER_HACK			274
-#define POW_MUSIC_LYRE			275
-#define POW_MUSIC_HORN			276
-#define POW_MUSIC_FLUTE			277
-#define POW_MUSIC_LUTE			278
-#define POW_MUSIC_DRUM			279
-#define POW_MUSIC_HARP			280
+#define POW_SAFETY				141
+#define POW_RAGE_1				142
+#define POW_RAGE_2				143
+#define POW_RAGE_BLESS_RESIST	144
+#define POW_SHIELD				145
+#define POW_INVIS_1				146
+#define POW_INVIS_2				147
+#define POW_RESILIENCE			148
+#define POW_INFRAVISION			149
+#define POW_STEALTH				150
+#define POW_SEE_INVIS			151
+#define POW_PROT_EVIL_1			152
+#define POW_PROT_EVIL_2			153
+#define POW_HASTE_SELF_1		154
+#define POW_HASTE_SELF_2		155
+#define POW_HASTE_SELF_3		156
+#define POW_DISARM				157
+#define POW_DEST_TRAP_DOOR_1	158
+#define POW_DEST_TRAP_DOOR_2	159
+#define POW_STONE_TO_MUD		160
+#define POW_CREATE_WALL			161
+#define POW_CREATE_DOOR			162
+#define POW_CREATE_STAIR		163
+#define POW_CREATE_TRAP			164
+#define POW_MAGIC_LOCK			165
+#define POW_ACQUIRE_1			166
+#define POW_ACQUIRE_2			167
+#define POW_AGGRAVATE			168
+#define POW_AGGRAVATE_SAFE		169
+#define POW_CONFUSE_MONSTER		170
+#define POW_CONFUSE_ALL			171
+#define POW_SLEEP_MONSTER		172
+#define POW_SLEEP_ADJACENT		173
+#define POW_SLEEP_ALL			174
+#define POW_SLOW_MONSTER		175
+#define POW_SLOW_ALL			176
+#define POW_CALM_MONSTER		177
+#define POW_CALM_ANIMALS		178
+#define POW_CALM_NON_EVIL		179
+#define POW_CALM_NON_CHAOS		180
+#define POW_CALM_ALL			181
+#define POW_BLIND_MONSTER		182
+#define POW_SCARE_MONSTER		183
+#define POW_SCARE_ALL			184
+#define POW_CALL_MONSTER		185
+#define POW_POLY_MONSTER		186
+#define POW_HEAL_MONSTER		187
+#define POW_HASTE_MONSTER		188
+#define POW_CLONE_MONSTER		189
+#define POW_SATISFY_HUNGER		190
+#define POW_RECHARGE_1			191
+#define POW_RECHARGE_2			192
+#define POW_RECHARGE_3			193
+#define POW_HYPERCHARGE			194
+#define POW_IDENTIFY			195
+#define POW_IDENTIFY_PACK		196
+#define POW_IDENTIFY_FULL		197
+#define POW_RES_ACID			198
+#define POW_RES_ELEC			199
+#define POW_RES_FIRE			200
+#define POW_RES_COLD			201
+#define POW_RES_ACID_ELEC		202
+#define POW_RES_FIRE_COLD		203
+#define POW_RES_POISON			204
+#define POW_RES_DISEASE			205
+#define POW_RES_SOUND			206
+#define POW_RES_LITE_DARK		207
+#define POW_RES_CHAOS_NEXUS		208
+#define POW_RES_ELEMENTS		209
+#define POW_RES_GREATER			210
+#define POW_RESISTANCE			211
+#define POW_GLYPH_WARDING		212
+#define POW_GLYPH_LESSER		213
+#define POW_GLYPH_HOLY			214
+#define POW_REMOVE_CURSE_1		215
+#define POW_REMOVE_CURSE_2		216
+#define POW_MAP_1				217
+#define POW_MAP_2				218
+#define POW_MAP_3				219
+#define POW_PROBE_MONSTER		220
+#define POW_PROBE_ALL			221
+#define POW_KNOW_ALL			222
+#define POW_ENCHANT_WEAPON_1	223
+#define POW_ENCHANT_WEAPON_2	224
+#define POW_ENCHANT_ARMOR_1		225
+#define POW_ENCHANT_ARMOR_2		226
+#define POW_BRAND_WEAPON_ELMNT	227
+#define POW_BRAND_AMMO_ANML		228
+#define POW_BRAND_AMMO_WOUND	229
+#define POW_BRAND_AMMO_ELMNT	230
+#define POW_BRAND_AMMO_HOLY		231
+#define POW_BIZZARE				232
+#define POW_CURSE_EQUIP_1		233
+#define POW_CURSE_EQUIP_2		234
+#define POW_SUM_MONSTER			235
+#define POW_SUM_UNDEAD			236
+#define POW_SUM_DRAGON			237
+#define POW_NAUSEA				238
+#define POW_POISON_SELF			239
+#define POW_BLIND_SELF			240
+#define POW_CONFUSE_SELF		241
+#define POW_SCARE_SELF			242
+#define POW_SLOW_SELF			243
+#define POW_PARALYZE			244
+#define POW_HALLUCINATE			245
+#define POW_DISEASE				246
+#define POW_DEFORM				247
+#define POW_TAINT				248
+#define POW_AMNESIA				249
+#define POW_LOSE_STR			250
+#define POW_LOSE_INT			251
+#define POW_LOSE_WIS			252
+#define POW_LOSE_DEX			253
+#define POW_LOSE_CON			254
+#define POW_LOSE_CHR			255
+#define POW_LOSE_EXP			256
+#define POW_RUINATION			257
+#define POW_DETONATE			258
+#define POW_KILL_SELF			259
+#define POW_SPELL_DURATION		260
+#define POW_SPELL_DAMAGE		261
+#define POW_SPELL_INFLUENCE		262
+#define POW_DRAGON_BLACK		263
+#define POW_DRAGON_BLUE			264
+#define POW_DRAGON_WHITE		265
+#define POW_DRAGON_RED			266
+#define POW_DRAGON_GREEN		267
+#define POW_DRAGON_GOLD			268
+#define POW_DRAGON_SILVER		269
+#define POW_DRAGON_MH			270
+#define POW_DRAGON_SPIRIT		271
+#define POW_DRAGON_SHADOW		272
+#define POW_DRAGON_ETHER		273
+#define POW_DRAGON_CHAOS		274
+#define POW_DRAGON_TIME			275
+#define POW_DRAGON_POWER		276
+#define POW_RISK_HACK			277
+#define POW_WONDER_HACK			278
+#define POW_MUSIC_LYRE			279
+#define POW_MUSIC_HORN			280
+#define POW_MUSIC_FLUTE			281
+#define POW_MUSIC_LUTE			282
+#define POW_MUSIC_DRUM			283
+#define POW_MUSIC_HARP			284
 
 /* Total number of powers in the game + 1 */
-#define POW_MAX					281
+#define POW_MAX					285
 
 /* 
  * Hack - variables defined in order to be compatible with the general main*.c files.

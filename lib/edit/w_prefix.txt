@@ -19,7 +19,7 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.5.1
 
 N:0:<none>
 W:0:1:100:100

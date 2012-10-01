@@ -408,6 +408,7 @@ static void rd_lore(bool unique, int idx)
 		l_ptr->flags1 &= r_ptr->flags1;
 		l_ptr->flags2 &= r_ptr->flags2;
 		l_ptr->flags3 &= r_ptr->flags3;
+		l_ptr->flags4 &= r_ptr->flags4;
 		l_ptr->s_flags1 &= r_ptr->s_flags1;
 		l_ptr->s_flags2 &= r_ptr->s_flags2;
 		l_ptr->s_flags3 &= r_ptr->s_flags3;
@@ -422,6 +423,7 @@ static void rd_lore(bool unique, int idx)
 		l_ptr->flags1 &= u_ptr->flags1;
 		l_ptr->flags2 &= u_ptr->flags2;
 		l_ptr->flags3 &= u_ptr->flags3;
+		l_ptr->flags4 &= u_ptr->flags4;
 		l_ptr->s_flags1 &= u_ptr->s_flags1;
 		l_ptr->s_flags2 &= u_ptr->s_flags2;
 		l_ptr->s_flags3 &= u_ptr->s_flags3;
@@ -701,7 +703,9 @@ static errr rd_extra(void)
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
 	rd_s16b(&p_ptr->ht);
+	rd_s16b(&p_ptr->ht_birth);
 	rd_s16b(&p_ptr->wt);
+	rd_s16b(&p_ptr->wt_birth);
 
 	/* Read the stat info */
 	for (i = 0; i < A_MAX; i++) 
@@ -772,23 +776,25 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->shield);
 	rd_s16b(&p_ptr->blessed);
 	rd_s16b(&p_ptr->tim_see_invis);
+	rd_s16b(&p_ptr->safety);
+	rd_s16b(&p_ptr->tim_sp_dam);
+	rd_s16b(&p_ptr->tim_sp_dur);
 	rd_s16b(&p_ptr->word_recall);
 	rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
 	rd_s16b(&p_ptr->tim_stealth);
 	rd_s16b(&p_ptr->tim_invis);
-	if (older_than(0,4,9)) 
-	{
-		p_ptr->tim_bravery = MAX(p_ptr->hero, p_ptr->rage);
-	}
-	else rd_s16b(&p_ptr->tim_bravery);
+	rd_s16b(&p_ptr->tim_bravery);
 	rd_s16b(&p_ptr->stability);
 	rd_s16b(&p_ptr->racial_power);
 
 	/* Read resistances */
 	for (i = 0; i < RS_MAX; i++) rd_s16b(&p_ptr->tim_res[i]);
 
-	rd_byte(&p_ptr->searching);
+	rd_byte(&tmp8u);
+
+	p_ptr->searching = (tmp8u & 0x01) ? TRUE: FALSE;
+	p_ptr->hear_invis = (tmp8u & 0x02) ? TRUE: FALSE;
 
 	/* Hack -- the three "special seeds" */
 	rd_u32b(&seed_flavor);
@@ -1339,12 +1345,11 @@ static errr rd_savefile_new_aux(void)
 	u32b o_x_check, o_v_check;
 
 	/* Mention the savefile version */
-	note(format("Loading a %d.%d.%d savefile...",
-	            sf_major, sf_minor, sf_patch));
+	note(format("Loading a %d.%d.%d savefile...", sf_major, sf_minor, sf_patch));
 
-	if (older_than(0,4,7))
+	if (older_than(0,5,1))
 	{
-		note("Not compatible with 0.4.6 or older savefiles!");
+		note("Not compatible with 0.5.0 or older savefiles!");
 		return (-1);
 	}
 

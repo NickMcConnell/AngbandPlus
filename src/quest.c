@@ -230,13 +230,16 @@ static void grant_reward(int reward_level, byte type)
 	/* Create a gold reward */
 	if (type == REWARD_GOLD) 
 	{
+		/* Give a good gold type for the level */
+		int coin_type = 5 + (object_level / 2);
+
 		for (i = 0; i < 5; i++)
 		{
 			/* Wipe the object */
 			object_wipe(i_ptr);
 
 			/* Make some gold */
-			if (!make_gold(i_ptr, 0)) continue;
+			if (!make_gold(i_ptr, coin_type)) continue;
 
 			/* Drop the object */
 			drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
@@ -922,7 +925,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 	/* Decide on reward type */
 
 	/* Chance of gold reward */
-	chance = 90 - ((difficulty - 1) * 20) - (lev * 2); 
+	chance = 95 - ((difficulty - 1) * 20) - (lev * 2); 
 	
 	/* Better rewards for unique quests */
 	if (unique_quest) chance -= 10;

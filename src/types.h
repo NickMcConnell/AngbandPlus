@@ -1146,6 +1146,10 @@ struct player_type
 	s16b tim_invis;		/* Timed -- Invisiblity */
 	s16b stability;		/* Timed -- Stability */
 	s16b tim_bravery;	/* Timed -- Stability */
+	s16b safety;		/* Timed -- Safety */
+	s16b tim_sp_dam;	/* Timed -- Spell damage bonus */
+	s16b tim_sp_dur;	/* Timed -- Spell duration bonus */
+	s16b tim_sp_inf;	/* Timed -- Spell influence bonus */
 
 	s16b tim_infra;		/* Timed -- Infra Vision */
 	s16b tim_stealth;	/* Timed -- Stealth */
@@ -1161,7 +1165,8 @@ struct player_type
 
 	s16b food;			/* Current nutrition */
 
-	byte searching;		/* Currently searching */
+	bool searching;		/* Currently searching */
+	bool hear_invis;	/* Currently hearing inivisible creatures */
 
 	u16b spell_learned[SV_BOOK_MAX];	/* Spell flags */
 	u16b spell_forgotten[SV_BOOK_MAX];	/* Spell flags */
@@ -1328,6 +1333,10 @@ struct player_type
 
 	u32b noise;			/* Derived from stealth */
 
+	s16b sp_dur;		/* Spell duration bonus */
+	s16b sp_dam;		/* Spell damage bonus */
+	s16b sp_inf;		/* Spell influence bonus */
+
 	byte num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */
 
@@ -1336,8 +1345,10 @@ struct player_type
 	u16b cur_quest;		/* Current quest */
 
 	/* Generation fields (for quick start) */
-	s32b au_birth;			/* Current Gold */
-	byte stat_birth[A_MAX];	/* Current "natural" stat values */
+	s32b au_birth;			/* Birth gold */
+	byte stat_birth[A_MAX];	/* Birth "natural" stat values */
+	s16b ht_birth;			/* Birth Height */
+	s16b wt_birth;			/* Birth Weight */
 
 	byte feeling;		/* Level feeling */
 	s32b feeling_cnt;	/* Hack - counter for level feeling */

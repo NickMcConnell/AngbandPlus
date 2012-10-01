@@ -487,6 +487,9 @@ static bool store_will_buy(const object_type *o_ptr)
 	/* Hack -- The Home is simple */
 	if (store_num == STORE_HOME) return (TRUE);
 
+	/* Ignore "worthless" items */
+	if (object_value(o_ptr) < 10) return (FALSE);
+
 	/* Switch on the store */
 	switch (store_num)
 	{
@@ -623,9 +626,6 @@ static bool store_will_buy(const object_type *o_ptr)
 			break;
 		}
 	}
-
-	/* Ignore "worthless" items XXX XXX XXX */
-	if (object_value(o_ptr) <= 0) return (FALSE);
 
 	/* Assume okay */
 	return (TRUE);
@@ -1150,9 +1150,11 @@ static void display_entry(int item)
 		/* Extract the "minimum" price */
 		x = price_item(o_ptr, FALSE);
 
-		attr = (x <= p_ptr->au ? TERM_WHITE : TERM_L_DARK);
-		/* Actually draw the price (with tax) */
-		sprintf(out_val, "%9ld  ", (long)x);
+		/* Actually draw the price */
+		attr = (((x + 9) / 10) <= p_ptr->au ? TERM_WHITE : TERM_L_DARK);
+		if (x > 5) sprintf(out_val, "%9ld  ", (long)(x + 9) / 10);
+		else sprintf(out_val, "%3d for 1", (long)(10 / x));
+
 		c_put_str(attr, out_val, y, 68);
 	}
 }
@@ -1230,7 +1232,6 @@ static void display_store(void)
 		{
 			put_str("Weight", 5, 70);
 		}
-
 	}
 
 	/* The "guild is special */
@@ -1287,9 +1288,7 @@ static bool get_stock(int *com_val, cptr pmt)
 	char which;
 
 	char buf[160];
-
 	char o_name[80];
-
 	char out_val[160];
 
 	object_type *o_ptr;
@@ -1406,34 +1405,47 @@ static int confirm_trade(void)
  */
 static bool do_purchase(const object_type *o_ptr, s32b *price)
 {
+	s32b value = *price;
+
 	/* Extract the starting offer and final offer */
-	*price = price_item(o_ptr, FALSE) * o_ptr->number;
+	value = ((price_item(o_ptr, FALSE) * o_ptr->number) + 9) / 10;
 
 	/* Display Offer */
-	put_str(format("Price :  %ld", (long)*price), 1, 0);
+	put_str(format("Price :  %ld", (long)value), 1, 0);
+
+	*price = value;
 
 	/* Return success */
 	return (confirm_trade());
 }
 
 /*
- * Sell an object
+ * Sell an object to the store
  */
 static bool do_sell(const object_type *o_ptr, s32b *price)
 {
+	s32b value = *price;
+
 	/* Get the owner's payout limit */
-	s32b purse = (s32b)(ot_ptr->max_cost);
+	s32b purse = (s32b)(ot_ptr->max_cost * 10);
 
 	/* Obtain the offer */
-	*price = price_item(o_ptr, TRUE);	
+	value = price_item(o_ptr, TRUE);	
 
-	if (*price >= purse) *price = purse;
+	if (value >= purse) value = purse;
 
 	/* Sell the whole pile */
-	*price *= o_ptr->number;
+	value *= o_ptr->number;
+
+	value /= 10;
+
+	/* Always at least one item */
+	if (value < 1) value = 1;
 
 	/* Display Offer */
-	put_str(format("Offer :  %ld", (long)*price), 1, 0);
+	put_str(format("Offer :  %ld", (long)value), 1, 0);
+
+	*price = value;
 
 	/* Return success */
 	return (confirm_trade());
@@ -1499,16 +1511,16 @@ static void store_purchase(void)
 	else
 	{
 		/* Can't afford any */
-		if (price_one > p_ptr->au)
+		if (price_one / 10 > p_ptr->au)
 		{
 			message(MSG_FAIL, 0, "You do not have enough gold.");
 			return;
 		}
 
 		/* Offer only what I can afford */
-		if (o_ptr->number * price_one > p_ptr->au)
+		if (((o_ptr->number * price_one) + 9) / 10 > p_ptr->au)
 		{
-			amt = get_quantity(NULL, (int)(p_ptr->au / price_one));
+			amt = get_quantity(NULL, (int)(p_ptr->au * 10 / price_one));
 		}
 		else
 		{

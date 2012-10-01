@@ -46,9 +46,9 @@ Generate hitpoints randomly [birth_random_hp] (default: yes)
 
 ***** <birth_start_kit>
 Pre-Shop for some basic items [birth_start_kit] (default: no)
-    The character starts with a lantern, 4 oil flasks, a scroll of phase door,
+    The character starts with a lantern, 5 oil flasks, a scroll of phase door,
     a cloak, and a potion of cure light wounds. On the other hand he starts 
-    with 100 gold less than without this option and no torches. Using this 
+    with 50 gold less than without this option and no torches. Using this 
     option allows you to save the tedium of early shopping but gives you a poor
     deal gold-wise.
 
@@ -67,7 +67,7 @@ these can result in a considerably different playing experience.
 Easy mode [birth_easy_mode] (default: no)
     If you wish to have an easier job, select this option and you shall face
     monsters with less hitpoints. In addition, you will get better prices at 
-    shops and get an extra 500 GP at the start of the game. You will also get
+    shops and get an extra 200 GP at the start of the game. You will also get
     easier quests, and other bonuses.
 
 ***** <birth_nightmare_mode>
@@ -162,4 +162,4 @@ Monsters chase recent locations [birth_flow_by_smell] (default: yes)
     in the dungeon.  This has no effect unless "flow_by_sound" is also set.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+======================= Last updated for EyAngband 0.5.1 ======================

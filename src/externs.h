@@ -408,6 +408,7 @@ extern bool set_fast(int v);
 extern bool set_slow(int v);
 extern bool set_shield(int v);
 extern bool set_blessed(int v);
+extern bool set_safety(int v);
 extern bool set_hero(int v);
 extern bool set_rage(int v);
 extern bool set_protevil(int v);
@@ -416,6 +417,9 @@ extern bool set_absorb(int v);
 extern bool set_tim_see_invis(int v);
 extern bool set_tim_invis(int v);
 extern bool set_stability(int v);
+extern bool set_tim_sp_dur(int v);
+extern bool set_tim_sp_dam(int v);
+extern bool set_tim_sp_inf(int v);
 extern bool set_tim_bravery(int v);
 extern void nullify_invis(void);
 extern bool set_tim_infra(int v);
@@ -640,7 +644,8 @@ extern bool object_hates_rot(const object_type *o_ptr);
 
 /* powers.c */
 extern info_entry power_info[POW_MAX];
-extern bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev, bool *obvious);
+extern int apply_sp_mod(int value, int modifier);
+extern bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev, bool mods, bool *obvious);
 
 /* quest.c */
 extern cptr describe_quest(s16b level, int mode);
@@ -740,6 +745,7 @@ extern void store_maint(int which);
 extern void store_init(int which);
 
 /* traps.c */
+extern cptr trap_name(int w_idx, int mode);
 extern void wipe_t_list(void);
 extern void delete_trap(int y, int x);
 extern void hit_trap(int y, int x);

@@ -1,8 +1,126 @@
+Changes from 0.5.0b to 0.5.1:
+
+## Gameplay Changes ##
+
+- Improved many typos and messages.
+
+- Temporary resistances are no longer noticed when they have no effect (say, if
+  you already have immunity to the element in question).
+
+- Improved the starting equipment for most classes.
+
+# Money #
+
+- Changed the price of most items in the game; overall, many items value 
+  reduced by half. Gold is now harder to find - each $ is worth less. Players 
+  also start with less gold. Also fixed some weird pricing imbalances.
+
+- Some items can now be bought many for 1 gold. Prices are always rounded up.
+  For instance, if apples are 10 for 1, you can buy 10 apples for 1 gold. 
+  Buying 1 apple will cost 1 gold as well, though, and buying 11 apples will 
+  cost 2 gold. You can no longer sell very cheap items; no more easy gold by
+  collecting slime molds.
+
+- Treasure dug out of walls will tend to be worth more than that found on the
+  floor on the same level.
+
+# Skills #
+
+- Searching and Frequency of searching united into a single skill - perception.
+  Characters with high perception skill now gain the ability to "hear" nearby
+  unseen creatures. If an invisible creature stands adjacent to the player,
+  he will have a chance to "hear" it. This will color the creature's square 
+  dark blue. The player will therefore know which direction to attack 
+  in (or run from), though no other information is made available. Note that
+  with a low perception skill, this will only happen very rarely, if at all.
+  Note that "unseen" creatures are invisble creatures, creatures in darkness,
+  or creatures near you while you are blind.
+
+- Class/race perception values tweaked somewhat from the old searching values.
+  Perception now improves to all classes over level.
+
+# Spells #
+
+- Stone-to-Mud now has a high chance of destroying treasure veins in the 
+  affected walls.
+
+- Priests and Paladins no longer have the ability to detect traps. Instead, 
+  they now have a spell that protects them from traps temporarily. Note that
+  this doesn't apply to chest traps. Also note that mystics also gain this
+  spell.
+
+# Monsters #
+
+- Changed the distribution of out of depth monsters somewhat; there now are 
+  more OOD monsters, but they are (usually) less deep. This doesn't affect
+  quest monsters.
+
+- The great fragment wyrm has been renamed to the more impressive "great
+  star wyrm".
+
+# Items #
+
+- New ego item: Robes of the Archmagi.
+
+- Shirts have been renamed "tunics".
+
+- All stat-increasing rings and amulets can now be bought in the magic shop.
+
+- Rods of trap/door location are slightly deeper, and no longer sold in the 
+  magic shop. Staves and scrolls of trap/door location are now shallower and
+  cheaper. This fixes the rather strange situation in which staves of trap 
+  detection were deeper than rods of trap detection.
+  
+- Rods of darkness now deeper.
+  
+- A new artifact spellbook, usable by mages, priests, and mystics.
+
+- Rods of healing and curing now recharge much faster.
+
+- The SEARCH flag renamed PERCEPTION. Rings and Amulets of searching renamed
+  Rings and amulets of perception.
+
+- New item flag, SP_DUR. Spellcasters wearing these items will get a 10% bonus 
+  to the duration of each of their spells, depending on pval. So, for instance, 
+  if normally bless lasts for 13-24 turns, wearing a +1 duration item makes it 
+  last for 14-26 turns. Note that this affects only spells, not spell-like 
+  effects from items (so a scroll of bless will still last as long as before).
+
+- Similarly, the flag SP_DAM provides a bonus to spell damage. Like SP_DUR, it 
+  does not affect item powers.
+
+- Finally, the flag SP_INF provides a bonus to spell influence. Like the other
+  two flags, it does not affect item powers.
+
+- Shirts now weigh (slightly) less than robes.
+
+## Bug Fixes ##
+
+- If you have a random quest active while descending to kill Morgoth, you can
+  still win the game.
+
+- The game will no longer warn you about leaving a vault quest level by stairs
+  if you have the treasure on you.
+
+- Cold and Acid branded weapons now work correctly.
+
+- Corrected ancient dragon attacks.
+
+- Demons height and weight now work correctly with quick-start.
+
+- Wizard mode no longer crashes when using absorb hit. (Thanks Kusunose Toru)
+
+- Priest spell "Sanctify ammo" now works.
+
+- Rings of element now have EASY_KNOW.
+
+- Fixed bug with earthquake and stacks of objects. (from Vanilla)
+
 Changes from 0.5.0 to 0.5.0b:
 
 ## Non-gameplay changes ##
 
-- Optimized monster name routine. (Thanks Kusunose Turo)
+- Optimized monster name routine. (Thanks Kusunose Toru)
 
 ## Bug Fixes ##
 
@@ -11,13 +129,13 @@ Changes from 0.5.0 to 0.5.0b:
 
 - Qlzqqlzuup was a quest monster, and Morgoth wasn't.
 
-- Some of the entries in rooms.txt were bad. (Thanks Kusunose Turo)
+- Some of the entries in rooms.txt were bad. (Thanks Kusunose Toru)
 
-- The Ether DSM activation could produce weird results. (Thanks Kusunose Turo)
+- The Ether DSM activation could produce weird results. (Thanks Kusunose Toru)
 
 - Fueling a lantern from a pile of lantern would empty all the lanterns in the 
   pile, but only give you fuel from a single lantern. Now the lantern you fill 
-  from unstacks first. (Thanks Kusunose Turo)
+  from unstacks first. (Thanks Kusunose Toru)
 
 - The boots of Thror are no longer cheaper than boots of speed +3 (note that
   in general, artifact/ego item prices still need major rework).

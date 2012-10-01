@@ -514,7 +514,7 @@ void take_hit(int damage, cptr ddesc)
 		if (p_ptr->absorb > damage)
 		{
 			/* Message */
-			if (cheat_wizard) message_format(MSG_EFFECT, 0, "You have absorbed %s damage.", damage);
+			if (cheat_wizard) message_format(MSG_EFFECT, 0, "You have absorbed %d damage.", damage);
 			else message(MSG_EFFECT, 0, "You have absorbed all the damage.");
 
 			hp_player(damage);
@@ -525,7 +525,7 @@ void take_hit(int damage, cptr ddesc)
 			int ab_limit = p_ptr->absorb * 2;
 
 			/* Message */
-			if (cheat_wizard) message_format(MSG_EFFECT, 0, "You have absorbed %s damage.", damage);
+			if (cheat_wizard) message_format(MSG_EFFECT, 0, "You have absorbed %d damage.", damage);
 			else message(MSG_EFFECT, 0, "You have absorbed some damage.");
 
 			if (damage > ab_limit) damage_player(damage - ab_limit, ddesc);
@@ -1249,22 +1249,47 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Quartz / Magma with treasure */
 			else if (cave_feat[y][x] >= FEAT_MAGMA_H)
 			{
-				/* Message */
-				if (cave_info[y][x] & (CAVE_MARK))
+				/* 90% chance of destroying the treasure */
+				if (rand_int(100) < 90)
 				{
-					message(MSG_EFFECT, 0, "The vein turns into mud!");
-					message(MSG_EFFECT, -1, "You have found something!");
-					obvious = TRUE;
+					/* Message */
+					if (cave_info[y][x] & (CAVE_MARK))
+					{
+						message(MSG_EFFECT, 0, "The vein turns into mud!");
+						message(MSG_EFFECT, -1, "The treasure is lost!");
+						obvious = TRUE;
+					}
+
+					/* Forget the wall */
+					cave_info[y][x] &= ~(CAVE_MARK);
+	
+					/* Destroy the wall */
+					cave_set_feat(y, x, FEAT_FLOOR);
 				}
+				else
+				{
+					/* Message */
+					if (cave_info[y][x] & (CAVE_MARK))
+					{
+						message(MSG_EFFECT, 0, "The vein turns into mud!");
+						message(MSG_EFFECT, -1, "You have found something!");
+						obvious = TRUE;
+					}
 
-				/* Forget the wall */
-				cave_info[y][x] &= ~(CAVE_MARK);
+					/* Forget the wall */
+					cave_info[y][x] &= ~(CAVE_MARK);
+	
+					/* Destroy the wall */
+					cave_set_feat(y, x, FEAT_FLOOR);
 
-				/* Destroy the wall */
-				cave_set_feat(y, x, FEAT_FLOOR);
+					/* Augment value */
+					object_level = p_ptr->depth + 5;
 
-				/* Place some gold */
-				place_gold(y, x);
+					/* Place some gold */
+					place_gold(y, x);
+
+					object_level = p_ptr->depth;
+				}
 			}
 
 			/* Quartz / Magma */
@@ -1316,7 +1341,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			/* Destroy doors (and secret doors) */
-			else /* if (cave_feat[y][x] >= FEAT_DOOR_HEAD) */
+			else 
 			{
 				/* Hack -- special message */
 				if (cave_info[y][x] & (CAVE_MARK))

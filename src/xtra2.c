@@ -432,8 +432,9 @@ void monster_death(int m_idx)
 			}
 		}
 
-		/* Count incomplete quests */
-		if (q_ptr->active_level) total++;
+		/* Count incomplete fixed quests */
+		if (q_ptr->active_level && 
+			((q_ptr->type == QUEST_FIXED) || (q_ptr->type == QUEST_FIXED_U))) total++;
 	}
 
 	/* Require a quest level */
@@ -2252,7 +2253,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			 */
 			if (t_ptr->visible && !trap_lock(y, x) && !trap_chest(y, x))
 			{
-				cptr t_name = w_name + w_ptr->name;
+				cptr t_name = trap_name(t_ptr->w_idx, 1);
 
 				if (!(cp_ptr->flags & CF_TRAP_KNOW))
 				{
@@ -2326,14 +2327,14 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			/* Hack - locks */
 			if (cave_t_idx[y][x] && trap_lock(y, x) && (feat == FEAT_CLOSED))
 			{
-				lock = w_name + w_info[t_list[cave_t_idx[y][x]].w_idx].name;
+				lock = trap_name(t_list[cave_t_idx[y][x]].w_idx, 0);
 			}
 
 			/* Hack - chests */
 			if (cave_t_idx[y][x] && trap_chest(y, x) && 
 				((feat == FEAT_CHEST) || (feat == FEAT_QST_CHEST)))
 			{
-				lock = w_name + w_info[t_list[cave_t_idx[y][x]].w_idx].name;
+				lock = trap_name(t_list[cave_t_idx[y][x]].w_idx, 0);
 			}
 
 			/* Display a message */

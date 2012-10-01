@@ -1404,16 +1404,6 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 			else act = "emits a halo of electrical sparks!";
 			break;
 		}
-		case EGO_SLAY_EVIL:
-		case EGO_HURT_EVIL:
-		{
-			/* Make sure you don't give an inappropriate brand */
-			if (o_ptr->tval == TV_ARROW) brand_type = EGO_HURT_EVIL;
-			else brand_type = EGO_SLAY_EVIL;
-			if (o_ptr->number > 1) act = "are covered in a holy aura!";
-			else (act = "is covered in a holy aura!"); 
-			break;
-		}
 		case EGO_SLAY_ANIMAL:
 		case EGO_HURT_ANIMAL:
 		{
@@ -1432,6 +1422,16 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 			else brand_type = EGO_SHARPNESS;
 			if (o_ptr->number > 1) act = "grow sharper and deadlier!";
 			else (act = "grows sharper and deadlier!"); 
+			break;
+		}
+		case EGO_HURT_HOLY_MIGHT:
+		case EGO_SLAY_EVIL:
+		{
+			/* Make sure you don't give an inappropriate brand */
+			if (o_ptr->tval == TV_ARROW) brand_type = EGO_HURT_HOLY_MIGHT;
+			else brand_type = EGO_SLAY_EVIL;
+			if (o_ptr->number > 1) act = "are covered in a holy aura!";
+			else (act = "is covered in a holy aura!"); 
 			break;
 		}
 		default:

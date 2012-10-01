@@ -710,6 +710,41 @@ static void process_world(void)
 
 	/*** Timeout Various Things ***/
 
+	/* High perception, sometimes notice nearby monsters */
+	if (p_ptr->hear_invis)
+	{
+		p_ptr->hear_invis = FALSE;
+
+		p_ptr->update |= PU_UPDATE_VIEW;
+
+		/* Redraw everything */
+		p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+	}
+
+	if (!p_ptr->resting && (p_ptr->skill[SK_PER] > 15))
+	{
+		if (rand_int(45) < (p_ptr->skill[SK_PER] - 15))
+		{
+ 			for (i = p_ptr->px - 1; i < p_ptr->px + 2; i++)
+			{
+				for (j = p_ptr->py - 1; j < p_ptr->py + 2; j++)
+				{
+					if (cave_m_idx[j][i])
+					{
+						if (!mon_list[cave_m_idx[j][i]].ml)
+						{
+							p_ptr->hear_invis = TRUE;
+							p_ptr->update |= PU_UPDATE_VIEW;
+
+							/* Redraw everything */
+							p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+						}
+					}
+				}
+			}
+		}
+	}
+		
 	/* Racial power recharge */
 	if (p_ptr->racial_power) 
 	{
@@ -739,9 +774,13 @@ static void process_world(void)
 	if (p_ptr->hero)			(void)set_hero(p_ptr->hero - 1);
 	if (p_ptr->rage)			(void)set_rage(p_ptr->rage - 1);
 	if (p_ptr->blessed)			(void)set_blessed(p_ptr->blessed - 1);
+	if (p_ptr->safety)			(void)set_safety(p_ptr->safety - 1);
 	if (p_ptr->shield)			(void)set_shield(p_ptr->shield - 1);
 	if (p_ptr->stability)		(void)set_stability(p_ptr->stability - 1);
 	if (p_ptr->tim_bravery)		(void)set_tim_bravery(p_ptr->tim_bravery - 1);
+	if (p_ptr->tim_sp_dur)		(void)set_tim_sp_dur(p_ptr->tim_sp_dur - 1);
+	if (p_ptr->tim_sp_dam)		(void)set_tim_sp_dam(p_ptr->tim_sp_dam - 1);
+	if (p_ptr->tim_sp_inf)		(void)set_tim_sp_inf(p_ptr->tim_sp_inf - 1);
 
 	/* Taint */
 	if (p_ptr->taint_inv)

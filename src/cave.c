@@ -976,6 +976,21 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				a = da;
 			}
 		}
+
+		/* Hack - hear nearby monsters sometimes */
+		else if (p_ptr->hear_invis)
+		{
+			if ((m_ptr->fx >= p_ptr->px - 1) && (m_ptr->fx <= p_ptr->px + 1) &&
+				(m_ptr->fy >= p_ptr->py - 1) && (m_ptr->fy <= p_ptr->py + 1))
+			{
+				/* Don't allow darkness squares */
+				if (c == f_info[FEAT_NONE].d_char) c = f_info[FEAT_FLOOR].d_char;
+
+				if (!use_graphics) a = TERM_BLUE; 
+				/* Note - this should definitely be reworked for graphics, when re-implemented */
+				else a = 0;
+			}
+		}
 	}
 
 	/* Handle "player" */
@@ -989,7 +1004,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		/* Get the "player" char */
 		c = r_ptr->x_char;
 	}
-
+	
 	/* Result */
 	(*ap) = a;
 	(*cp) = c;
@@ -1354,6 +1369,21 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			{
 				/* Normal attr */
 				a = da;
+			}
+		}
+
+		/* Hack - hear nearby monsters sometimes */
+		else if (p_ptr->hear_invis)
+		{
+			if ((m_ptr->fx >= p_ptr->px - 1) && (m_ptr->fx <= p_ptr->px + 1) &&
+				(m_ptr->fy >= p_ptr->py - 1) && (m_ptr->fy <= p_ptr->py + 1))
+			{
+				/* Don't allow darkness squares */
+				if (c == f_info[FEAT_NONE].d_char) c = f_info[FEAT_FLOOR].d_char;
+
+				if (!use_graphics) a = TERM_BLUE; 
+				/* Note - this should definitely be reworked for graphics, when re-implemented */
+				else a = 0;
 			}
 		}
 	}
@@ -2664,7 +2694,6 @@ void forget_view(void)
 	u16b *fast_view_g = view_g;
 
 	byte *fast_cave_info = &cave_info[0][0];
-
 
 	/* None to forget */
 	if (!fast_view_n) return;

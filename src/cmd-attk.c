@@ -524,7 +524,7 @@ static int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m
 			}
 
 			/* Brand (Cold) */
-			if (slays[SL_BRAND_ACID] > 10)
+			if (slays[SL_BRAND_COLD] > 10)
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_RES_COLD)) 
@@ -634,7 +634,7 @@ static void search(void)
 	int y, x, chance;
 
 	/* Start with base search ability */
-	chance = p_ptr->skill[SK_SRH];
+	chance = p_ptr->skill[SK_PER];
 
 	/* Penalize various conditions */
 	if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px)) chance = chance / 10;
@@ -1322,7 +1322,7 @@ static void move_player(int dir, int jumping)
 		x = p_ptr->px;
 
 		/* Spontaneous Searching */
-		if ((p_ptr->skill[SK_FOS] >= 50) || (0 == rand_int(50 - p_ptr->skill[SK_FOS])))	search();
+		if ((p_ptr->skill[SK_PER] >= 50) || (0 == rand_int(50 - p_ptr->skill[SK_PER])))	search();
 
 		/* Continuous Searching */
 		if (p_ptr->searching) search();
@@ -1359,16 +1359,25 @@ static void move_player(int dir, int jumping)
 			}
 			else if (!t_ptr->visible)
 			{
-				/* Message */
-				message(MSG_FIND, 0, "You found a trap!");
-
 				t_ptr->visible = TRUE;
-
-				/* Hit the trap */
-				hit_trap(y, x);
 
 				/* Hack - light the spot */
 				lite_spot(y, x);
+				
+				/* Protection from traps */
+				if (p_ptr->safety)
+				{
+					/* Message */
+					message(MSG_FIND, 0, "You feel a sudden sense of danger, and narrowly avoid a trap!");
+				}
+				else
+				{
+					/* Message */
+					message(MSG_FIND, 0, "You found a trap!");
+
+					/* Hit the trap */
+					hit_trap(y, x);
+				}
 			}
 			else
 			{
@@ -1389,10 +1398,15 @@ static void move_player(int dir, int jumping)
 				/* Extract power */
 				i -= diff;
 
-				/* Attempt bypass */
-				if (rand_int(100) < i)
+				/* Protection from traps */
+				if (p_ptr->safety)
 				{
-					message_format(MSG_RESIST, 0, "You have avoided the %s!", w_name + w_ptr->name);
+					message_format(MSG_RESIST, 0, "Through divine influence, %s fails to trigger!", trap_name(t_ptr->w_idx, 2));
+				}
+				/* Attempt bypass */
+				else if (rand_int(100) < i)
+				{
+					message_format(MSG_RESIST, 0, "You have avoided %s!", trap_name(t_ptr->w_idx, 2));
 				}
 				else 
 				{
@@ -2104,7 +2118,7 @@ void run_step(int dir)
 void do_cmd_go_up(void)
 {
 	char out_val[160];
-	byte quest_type;
+	byte quest;
 
 	/* Verify stairs */
 	if (cave_feat[p_ptr->py][p_ptr->px] != FEAT_LESS)
@@ -2115,8 +2129,8 @@ void do_cmd_go_up(void)
 
 	/* Verify leaving quest level */
 	if (verify_leave_quest && 
-		((quest_type = quest_check(p_ptr->depth)) == QUEST_GUILD ||
-		quest_type == QUEST_UNIQUE || quest_type == QUEST_VAULT)) 
+		((quest = quest_check(p_ptr->depth)) == QUEST_GUILD ||
+		quest == QUEST_UNIQUE || ((quest == QUEST_VAULT) && (quest_item_slot() == -1))))
 	{
 		sprintf(out_val, "Really risk failing your quest? ");
 		if (!get_check(out_val)) return;
@@ -2151,15 +2165,15 @@ void do_cmd_go_up(void)
 void do_cmd_go_down(void)
 {
 	char out_val[160];
-	byte quest_type;
+	byte quest;
 
 	/* Verify stairs */
-	if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_MORE)
+ 	if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_MORE)
 	{
 		/* Verify leaving quest level */
 		if (verify_leave_quest && 
-			((quest_type = quest_check(p_ptr->depth)) == QUEST_GUILD ||
-			quest_type == QUEST_UNIQUE || quest_type == QUEST_VAULT)) 
+		((quest = quest_check(p_ptr->depth)) == QUEST_GUILD ||
+		quest == QUEST_UNIQUE || ((quest == QUEST_VAULT) && (quest_item_slot() == -1))))
 		{
 			sprintf(out_val, "Really risk failing your quest? ");
 
@@ -2421,7 +2435,7 @@ static void do_cmd_hold_or_stay(int pickup)
 	p_ptr->energy_use = 100;
 
 	/* Spontaneous Searching */
-	if ((p_ptr->skill[SK_FOS] >= 50) || (0 == rand_int(50 - p_ptr->skill[SK_FOS])))	search();
+	if ((p_ptr->skill[SK_PER] >= 50) || (0 == rand_int(50 - p_ptr->skill[SK_PER])))	search();
 
 	/* Continuous Searching */
 	if (p_ptr->searching) search();
@@ -2775,7 +2789,7 @@ void do_cmd_fire(void)
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 				message_format(MSG_MISS, m_ptr->r_idx,
-					"%s magically evades your %s!", m_name, o_name);
+					"%^s magically evades your %s!", m_name, o_name);
 
 				/* Wake it up */
 				m_ptr->sleep = 0;

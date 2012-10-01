@@ -912,7 +912,7 @@ static void do_cmd_eat_food_aux(int item)
 	if (object_activation(o_ptr)) 
 	{
 		/* Actually use the power */
-		if (!do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 0, 0, 0, &ident)) 
+		if (!do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 0, 0, 0, FALSE, &ident)) 
 			return;
 	}
 	else
@@ -1104,14 +1104,14 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_STAR_RESISTANCE:
 		{
 			/* XXX XXX These potions are activated at a higher llev */
-			if (!do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 0, 40, 0, &ident)) 
+			if (!do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 0, 40, 0, FALSE, &ident)) 
 				return;
 			break;
 		}
 		default:
 		{
 			/* Other potions */
-			if (!do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 0, 15, 0, &ident)) 
+			if (!do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 0, 15, 0, FALSE, &ident)) 
 				return;
 		}
 	}
@@ -1248,7 +1248,7 @@ static void do_cmd_read_scroll_aux(int item)
 	p_ptr->energy_use = 100;
 
 	/* Assume the scroll will get used up */
-	used_up = do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 20, 30, 0, &ident);
+	used_up = do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 20, 30, 0, FALSE, &ident);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1448,7 +1448,7 @@ static void do_cmd_use_staff_aux(int item)
 	sound(MSG_ZAP);
 
 	/* Actually use the power */
-	use_charge = do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 20, 20, 15 + rand_int(10), &ident);
+	use_charge = do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 20, 20, 15 + rand_int(10), FALSE, &ident);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1628,7 +1628,7 @@ static void do_cmd_aim_wand_aux(int item)
 	plev = ((plev - 1) * check) / 100 + 1;
 	
 	/* Actually use the power */
-	if (!do_power(power, 0, dir, 20, plev, plev, 10 + plev/2, &ident)) 
+	if (!do_power(power, 0, dir, 20, plev, plev, 10 + plev/2, FALSE, &ident)) 
 		return;
 
 	/* Combine / Reorder the pack (later) */
@@ -1780,7 +1780,7 @@ static void do_cmd_zap_rod_aux(int item)
 	sound(MSG_ZAP);
 
 	/* Actually use the power */
-	use_charge = do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 10, 10, 10, &ident);
+	use_charge = do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 10, 10, 10, FALSE, &ident);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1884,7 +1884,7 @@ static void do_cmd_invoke_talisman_aux(int item)
 	sound(MSG_ZAP);
 
 	/* Actually use the power */
-	if (!do_power(k_info[o_ptr->k_idx].activation, 0, dir, 10, plev, plev, plev, &ident)) 
+	if (!do_power(k_info[o_ptr->k_idx].activation, 0, dir, 10, plev, plev, plev, FALSE, &ident)) 
 		return;
 
 	/* Combine / Reorder the pack (later) */
@@ -2016,7 +2016,7 @@ static void do_cmd_activate_aux(int item)
 		message_format(MSG_EFFECT, a_ptr->activation, "Your %s glows...", o_name);
 
 		/* Actually use the power */
-		if (!do_power(a_ptr->activation, 0, 0, 0, p_ptr->lev, p_ptr->lev, p_ptr->lev, &ident)) 
+		if (!do_power(a_ptr->activation, 0, 0, 0, p_ptr->lev, p_ptr->lev, p_ptr->lev, FALSE, &ident)) 
 			return;
 
 		/* Know the activation */
@@ -2041,7 +2041,7 @@ static void do_cmd_activate_aux(int item)
 
 		/* Actually use the power */
 		if (!do_power(object_activation(o_ptr), 0, 0, 0,
-			p_ptr->lev, p_ptr->lev, p_ptr->lev, &ignore_me)) return;
+			p_ptr->lev, p_ptr->lev, p_ptr->lev, FALSE, &ignore_me)) return;
 		
 		/* XXX XXX XXX DSM recharge times */
 		switch (o_ptr->sval)

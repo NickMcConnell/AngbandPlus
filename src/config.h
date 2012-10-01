@@ -356,3 +356,5 @@
  * Use the new XML help system by Antony Sidwell 
  */
 /* #define XML_HELP  */
+
+#define NEW_ECONOMY

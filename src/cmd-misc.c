@@ -836,8 +836,13 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			/* Found treasure */
 			if (gold)
 			{
+				/* Augment value */
+				object_level = p_ptr->depth + 5;
+
 				/* Place some gold */
 				place_gold(y, x);
+
+				object_level = p_ptr->depth;
 
 				/* Message */
 				message(MSG_DIG, 0, "You have found something!");
@@ -918,7 +923,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			/* Hack - Occasional chance of finding the door */
 			if (rand_int(100) < 25)
 			{
-				if (rand_int(100) < p_ptr->skill[SK_SRH])
+				if (rand_int(100) < (p_ptr->skill[SK_PER]))
 				{
 					/* Message */
 					message(MSG_FIND, 0, "You have found a secret door.");
@@ -1467,7 +1472,7 @@ void do_cmd_racial(void)
 	{
 		bool ignore_me;
 
-		do_power(rsp_ptr[p_ptr->max_lev / 5]->activation, 0, 0, 0, 0, 0, 0, &ignore_me);
+		do_power(rsp_ptr[p_ptr->max_lev / 5]->activation, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 
 		/* Delay */
 		p_ptr->racial_power = rsp_ptr[p_ptr->max_lev / 5]->turns;

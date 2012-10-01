@@ -403,25 +403,28 @@ s16b get_mon_num(int level)
 	/* Boost the level */
 	if (level > 0)
 	{
-		/* Occasional "nasty" monster */
+		int level_bonus = 0;
+
+		/* Occasional boost to maximum level */
 		if (rand_int(NASTY_MON) == 0)
 		{
-			/* Pick a level bonus */
-			int d = level / 4 + 2;
+			i = (level / 10) + 1;
 
-			/* Boost the level */
-			level += ((d < 5) ? d : 5);
+			/* Maximum increase of 5 */
+			level_bonus += (i < 5 ? i : 5);
 		}
 
-		/* Occasional "nasty" monster */
+		/* Occasional boost to maximum level */
 		if (rand_int(NASTY_MON) == 0)
 		{
-			/* Pick a level bonus */
-			int d = level / 4 + 2;
+			i = (level / 10) + 1;
 
-			/* Boost the level */
-			level += ((d < 5) ? d : 5);
+			/* Maximum increase of 5 */
+			level_bonus += (i < 5 ? i : 5);
 		}
+
+		/* Boost the level */
+		level += level_bonus;
 	}
 
 	/* Reset total */
@@ -878,7 +881,7 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * Note that this function is called once per monster every time the
  * player moves.  When the player is running, this function is one
  * of the primary bottlenecks, along with "update_view()" and the
- * "process_monsters()" code, so efficiency is important.
+ * "process_monsters_*()" code, so efficiency is important.
  *
  * Note the optimized "inline" version of the "distance()" function.
  *

@@ -2966,8 +2966,6 @@ errr predict_score(void)
 /*
  * Close up the current game (player may or may not be dead)
  *
- * This function is called only from "main.c" and "signals.c".
- *
  * Note that the savefile is not saved until the tombstone is
  * actually displayed and the player has a chance to examine
  * the inventory and such.  This allows cheating if the game
@@ -3159,8 +3157,12 @@ static void handle_signal_simple(int sig)
 		/* Mark the savefile */
 		strcpy(p_ptr->died_from, "Abortion");
 
-		/* Close stuff */
-		close_game();
+		/* HACK - Skip the tombscreen if it is already displayed */ 
+		if (score_idx == -1)
+		{
+			/* Close stuff */
+			close_game();
+		}
 
 		/* Quit */
 		quit("interrupt");

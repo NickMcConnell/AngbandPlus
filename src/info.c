@@ -330,8 +330,7 @@ static void display_player_skill_info(void)
 	xskill[SK_DEV] = p_ptr->skill[SK_DEV];
 	xskill[SK_SAV] = p_ptr->skill[SK_SAV];
 	xskill[SK_STL] = p_ptr->skill[SK_STL];
-	xskill[SK_SRH] = p_ptr->skill[SK_SRH];
-	xskill[SK_FOS] = p_ptr->skill[SK_FOS];
+	xskill[SK_PER] = p_ptr->skill[SK_PER];
 	xskill[SK_DIG] = p_ptr->skill[SK_DIG];
 	xskill[SK_ALC] = p_ptr->skill[SK_ALC];
 
@@ -367,21 +366,17 @@ static void display_player_skill_info(void)
 	desc = likert(xskill[SK_DEV], 6);
 	c_put_str(likert_color, format("%9s", desc), 17, col+13);
 
-	put_str("Searching", 18, col);
-	desc = likert(xskill[SK_SRH], 6);
+	put_str("Perception", 18, col);
+	desc = likert(xskill[SK_PER], 6);
 	c_put_str(likert_color, format("%9s", desc), 18, col+13);
 
-	put_str("Search Freq.", 19, col);
-	desc = likert(xskill[SK_FOS], 6);
+	put_str("Digging", 19, col);
+	desc = likert(xskill[SK_DIG], 10);
 	c_put_str(likert_color, format("%9s", desc), 19, col+13);
 
-	put_str("Digging", 20, col);
-	desc = likert(xskill[SK_DIG], 10);
-	c_put_str(likert_color, format("%9s", desc), 20, col+13);
-
-	put_str("Alchemy", 21, col);
+	put_str("Alchemy", 20, col);
 	desc = likert(xskill[SK_ALC], 7);
-	c_put_str(likert_color, format("%9s", desc), 21, col+13);
+	c_put_str(likert_color, format("%9s", desc), 20, col+13);
 }
 
 /*
@@ -456,7 +451,7 @@ typedef struct c_flag_desc
 /*
  * Hack -- see below
  */
-static const c_flag_desc flag_list[3][12] =
+static const c_flag_desc flag_list[3][13] =
 {
 	{
 		{2, TR2_NO_BLIND,			 0, "No  Blind:"},
@@ -470,28 +465,31 @@ static const c_flag_desc flag_list[3][12] =
 		{2, TR2_NO_CONF,			 0, "No   Conf:"},
 		{3, TR3_SLOW_DIGEST,		 0, "S. Digest:"},
 		{3, TR3_FEATHER,			 0, "Fthr Fall:"},
+		{3, TR3_GLOW,	 TR3_LITE_MASK, "    Light:"},
 		{99,0, 0,						"          "}
 	},
 	{
-		{3, TR3_GLOW,	 TR3_LITE_MASK, "    Light:"},
 		{3, TR3_REGEN,				 0, "    Regen:"},
 		{3, TR3_TELEPATHY,			 0, "Telepathy:"},
 		{3, TR3_SEE_INVIS,			 0, "See Invis:"},
 		{3, TR3_INVIS,				 0, "Invisible:"},
 		{3, TR3_LUCK,				 0,	"     Luck:"},
 		{1, TR1_STEALTH,			 0, "  Stealth:"},
-		{1, TR1_SEARCH,				 0, "   Search:"},
+		{1, TR1_PERCEPTION,			 0, " Percptn.:"},
 		{1, TR1_INFRA,				 0, "Infra-vsn:"},
 		{1, TR1_TUNNEL,				 0, "Tunneling:"},
-		{1, TR1_SPEED,				 0, "    Speed:"},
+		{1, TR1_BLOWS,				 0, "    Blows:"},
+		{1, TR1_SHOTS,				 0, "    Shots:"},
+		{1, TR1_MIGHT,				 0, "    Might:"},
 		{99,0, 0,						"          "}
 	},
 	{
-		{1, TR1_BLOWS,				 0, "    Blows:"},
-		{1, TR1_SHOTS,				 0, "    Shots:"},
+		{1, TR1_SPEED,				 0, "    Speed:"},
 		{1, TR1_MANA,				 0, "     Mana:"},
 		{1, TR1_HEALTH,				 0, "   Health:"},
-		{1, TR1_MIGHT,				 0, "    Might:"},
+		{1, TR1_SP_DUR,				 0, " Spl. Dur:"},
+		{1, TR1_SP_DAM,				 0, " Spl. Dam:"},
+		{1, TR1_SP_INF,				 0, " Spl. Inf:"},
 		{3, TR3_TAINT,				 0, "    Taint:"},
 		{3,	TR3_DISRUPT,			 0, "  Disrupt:"},
 		{3, TR3_DRAIN_ITEM,			 0, "Drn Items:"},
@@ -526,7 +524,7 @@ static void display_player_flag_info(void)
 		col = 2 + (26 * x);
 
 		/* Twelve rows */
-		for (y = 0; y < 12; y++)
+		for (y = 0; y < 13; y++)
 		{
 			if (flag_list[x][y].set == 99) break;
 				
@@ -1258,7 +1256,7 @@ static const o_flag_desc stat_flags_desc[A_MAX] =
 static const o_flag_desc pval_flags1_desc[] =
 {
 	{ TR1_STEALTH,    "stealth" },
-	{ TR1_SEARCH,     "searching" },
+	{ TR1_PERCEPTION, "perception" },
 	{ TR1_INFRA,      "infravision" },
 	{ TR1_TUNNEL,     "tunneling" },
 	{ TR1_SPEED,      "speed" },
@@ -1266,6 +1264,9 @@ static const o_flag_desc pval_flags1_desc[] =
 	{ TR1_SHOTS,      "shots" },
 	{ TR1_MIGHT,      "might" },
 	{ TR1_MANA,       "mana" },
+	{ TR1_SP_DUR,     "spell duration" },
+	{ TR1_SP_DAM,     "spell damage" },
+	{ TR1_SP_INF,     "spell influence" },
 	{ TR1_HEALTH,     "health" }
 };
 
@@ -1977,7 +1978,7 @@ void list_object(const object_type *o_ptr, int mode)
 		*list_ptr = NULL;
 		
 		/* Weapon flags */
-		anything |= outlist("It provides immunity to the effects of", list);
+		anything |= outlist("It provides protection from the effects of", list);
 	}
 
 	/* Miscellenious Abilities */

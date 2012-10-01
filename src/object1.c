@@ -1224,6 +1224,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		
 				case SBF_CODEX:
 				case SBF_NECRONOM:
+				case SBF_MATHEMAGIC:
 				{
 					basenm = "& Ancient tome";
 					break;
@@ -1595,7 +1596,10 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 					case TR1_DEX:		object_desc_str_macro(t, " dex"); break;
 					case TR1_CHR:		object_desc_str_macro(t, " chr"); break;
 					case TR1_STEALTH:	object_desc_str_macro(t, " stealth"); break;
-					case TR1_SEARCH:	object_desc_str_macro(t, " searching"); break;
+					case TR1_SP_DUR:	object_desc_str_macro(t, " spell dur."); break;
+					case TR1_SP_DAM:	object_desc_str_macro(t, " spell dam."); break;
+
+					case TR1_PERCEPTION:object_desc_str_macro(t, " perception"); break;
 					case TR1_HEALTH:	object_desc_str_macro(t, " health"); break;
 					case TR1_MANA:		object_desc_str_macro(t, " mana"); break;
 					case TR1_TUNNEL:	object_desc_str_macro(t, " tunneling"); break;

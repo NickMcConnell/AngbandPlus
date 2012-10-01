@@ -9,8 +9,8 @@
 # Format:
 # N:class number:class name
 # S:str:int:wis:dex:con:chr
-# C:dis:byp:dev:sav:stl:srh:fos:thn:thb:tht:dig:alc 
-# X:dis:byp:dev:sav:stl:srh:fos:thn:thb:tht:dig:alc
+# C:dis:byp:dev:sav:stl:per:thn:thb:tht:dig:alc 
+# X:dis:byp:dev:sav:stl:per:thn:thb:tht:dig:alc
 # O:acd:elc:fir:cld:wtr:poi:dis:lit:drk:snd:shr:nex:nth:chs:dsn:tim:mna
 # I:hitdie:expbase:spellstat1:spellstat2:disturbweight
 # B:sval:handicap
@@ -83,17 +83,18 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.5.1
 
 N:0:Warrior
 S:3:-2:-1:2:1:-2
-C:25:5:18:21:1:14:2:10:7:8:0:26
-X:10:1:7:11:0:0:0:7:6:6:0:5
+C:25:5:18:21:1:15:10:7:8:0:26
+X:10:1:7:11:0:2:7:6:6:0:5
 O:18:18:18:18:5:12:12:5:5:5:5:3:3:3:5:0:0
 I:9:0:0:0:0
-# Chain Mail, Potion of Berserk Strength
+# Chain Mail, Small leather Shield, Potion of Berserk Strength
 E:36:10:1:1
 E:75:30:1:1
+E:34:2:1:1
 T:Rookie
 T:Soldier
 T:Mercenary
@@ -109,13 +110,14 @@ F:WEAPON_GOOD
 
 N:1:Thief
 S:0:0:-2:3:0:-1
-C:40:30:30:30:3:25:20:7:4:7:0:40
-X:10:10:7:10:1:2:0:4:3:4:0:8
+C:40:30:30:30:3:25:7:4:7:0:40
+X:10:10:7:10:1:3:4:3:4:0:8
 O:10:10:10:10:5:5:15:5:10:15:5:3:3:3:0:0:0
 I:3:0:0:0:0
-# Soft Leather Armor, Potion of Stealth
+# Soft Leather Armor, 3 Potions of Stealth, 1 Potion of Invisibility
 E:36:3:1:1
-E:75:23:1:1
+E:75:23:3:3
+E:75:63:1:1
 T:Cutpurse
 T:Robber
 T:Burgler
@@ -131,8 +133,8 @@ F:APPRAISE
 
 N:2:Mage
 S:-3:2:0:1:-1:1
-C:30:0:36:30:2:16:20:3:2:2:0:45
-X:7:1:13:9:0:0:0:2:2:2:0:10
+C:30:0:36:30:2:14:3:2:2:0:45
+X:7:1:13:9:0:1:2:2:2:0:10
 O:15:15:15:15:5:5:5:5:5:5:5:10:10:10:0:0:3
 I:0:25:1:1:250
 B:0:1
@@ -146,9 +148,11 @@ B:7:1
 B:8:1
 B:22:1
 B:23:1
-# Scroll of WoR, [Elementary Incantations]
+B:24:1
+# Robes, Scroll of WoR, [Elementary Incantations]
 E:70:12:1:1
 E:90:0:1:1
+E:36:1:1:1
 T:Novice
 T:Apprentice
 T:Trickster
@@ -164,8 +168,8 @@ F:SUB_SPELLS | WORSE_BLOWS
 
 N:3:Spellsword
 S:2:1:-1:0:0:0
-C:25:3:30:25:1:12:5:8:4:4:0:30
-X:7:1:10:10:0:0:0:5:4:4:0:7
+C:25:3:30:25:1:12:8:4:4:0:30
+X:7:1:10:10:0:1:5:4:4:0:7
 O:13:13:13:13:5:10:10:5:5:5:5:3:3:5:0:0:0
 I:5:35:1:1:400
 B:0:5
@@ -177,7 +181,8 @@ B:5:5
 B:6:5
 B:7:5
 B:8:5
-# Hard Leather Armor, Scroll of Teleportation.
+# Hard Leather Armor, Wooden Shield, Scroll of Teleportation.
+E:34:1:1:1
 E:36:4:1:1
 E:70:10:1:1 
 T:Student
@@ -194,8 +199,8 @@ F:PSEUDO_ID2 | CHOOSE_SPELLS | SUB_SPELLS | WEAPON_GOOD
 
 N:4:Ranger
 S:1:1:0:2:0:0
-C:30:10:32:28:3:24:16:7:12:10:0:35
-X:8:3:10:10:0:0:0:4:6:5:0:8
+C:30:10:32:28:3:24:7:12:10:0:35
+X:8:3:10:10:0:3:4:6:5:0:8
 O:20:20:20:20:15:15:15:3:3:3:3:3:3:3:0:0:0
 I:4:25:1:1:350
 B:0:3
@@ -204,7 +209,8 @@ B:2:7
 B:4:5
 B:5:11
 B:9:3
-# Arrows, Hunting Bow
+# Soft Leather Armor, Arrows, Hunting Bow
+E:36:3:1:1
 E:15:0:15:20
 E:20:1:1:1
 T:Runner
@@ -221,8 +227,8 @@ F:EXTRA_SHOT | PSEUDO_ID2 | CHOOSE_SPELLS | BETTER_SHOT
 
 N:5:Priest
 S:-1:-2:2:-1:0:1
-C:25:0:30:32:2:16:8:5:4:4:0:30
-X:7:0:10:12:0:0:0:3:2:2:0:7
+C:25:0:30:32:2:15:5:4:4:0:30
+X:7:0:10:12:0:1:3:2:2:0:7
 O:10:10:10:10:5:5:5:10:15:5:5:10:15:10:0:0:0
 I:2:15:2:2:350
 B:10:1
@@ -236,7 +242,9 @@ B:17:1
 B:18:1
 B:22:1
 B:23:1
-# Potion of Healing, [Beginner's Handbook]
+B:24:1
+# Robes, Potion of Healing, [Beginner's Handbook]
+E:36:1:1:1
 E:75:34:1:1
 E:90:10:1:1
 T:Believer
@@ -253,8 +261,8 @@ F:BLESS_WEAPON | ZERO_FAIL | PSEUDO_ID4
 
 N:6:Paladin
 S:2:-2:1:0:1:1
-C:20:0:24:25:1:12:2:9:4:4:0:19
-X:7:0:10:11:0:0:0:5:4:4:0:5
+C:20:0:24:25:1:12:9:4:4:0:19
+X:7:0:10:11:0:1:5:4:4:0:5
 O:10:10:10:10:5:5:5:5:10:5:5:10:15:10:0:0:0
 I:6:30:2:2:400
 B:10:5
@@ -266,8 +274,9 @@ B:15:5
 B:16:5
 B:17:5
 B:18:5
-# Small Metal Shield, Scroll of Protection from Evil
+# Hard Leather Armor, Small Metal Shield, Scroll of Protection from Evil
 E:34:3:1:1
+E:36:4:1:1
 E:70:37:1:1
 T:Gallant
 T:Keeper
@@ -283,8 +292,8 @@ F:PSEUDO_ID3 | PSEUDO_ID_HEAVY | WEAPON_GOOD
 
 N:7:Mystic
 S:-4:3:3:0:0:0
-C:25:2:23:35:3:15:10:1:2:8:0:30
-X:6:1:4:10:0:0:0:1:1:4:0:5
+C:25:2:23:35:3:15:1:2:8:0:30
+X:6:1:4:10:0:2:1:1:4:0:5
 O:15:15:15:15:10:10:10:10:10:10:10:10:10:0:0:0:8
 I:1:27:1:2:180
 B:0:1
@@ -298,6 +307,7 @@ B:20:1
 B:21:1
 B:22:1
 B:23:1
+B:24:1
 # [Elementary Incantations], [Beginner's Handbook], Powder of Incineration
 E:76:13:1:1
 E:90:0:1:1
@@ -317,8 +327,8 @@ F:EXTRA_MANA | EXTRA_SPELL | MYSTIC_CAST | CHOOSE_SPELLS | WEAPON_NONE
 
 N:8:Bard
 S:0:1:-1:1:0:2
-C:25:10:30:25:3:18:8:7:5:4:0:40
-X:10:2:10:10:0:0:0:4:5:2:0:8
+C:25:10:30:25:3:18:7:5:4:0:40
+X:10:2:10:10:0:2:4:5:2:0:8
 O:10:10:10:10:5:5:5:5:10:15:5:3:3:5:0:0:0
 I:3:15:5:5:350
 # Hard Leather Armor, Lyre, Horn

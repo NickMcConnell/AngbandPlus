@@ -3,7 +3,7 @@
 #This file is currently in transition. Documentation will return in a future 
 #version.
 
-V:0.5.0
+V:0.5.1
 
 N:0:<player>
 G:@:w
@@ -566,7 +566,7 @@ S:1_IN_15 | DRAIN_MANA
 D:It is a large pile of silver jelly that sucks all light from its
 D: surroundings.
 
-N:63:kobold 
+N:63:kobold
 G:k:G
 I:110:22:20:20:10
 W:3:2:60
@@ -2281,7 +2281,7 @@ F:BASH_DOOR | DEMON | EVIL | NO_FEAR | OPEN_DOOR | RES_FIRE | NO_TRAP |
 F:PICK_LOCK
 D:It is a small demonic spirit full of malevolence.
 
-N:236:ancient harpy 
+N:236:ancient harpy
 G:H:w
 W:15:4:0
 F:UNIQUE
@@ -5550,7 +5550,7 @@ N:522:ancient red dragon
 G:D:r
 I:120:555:20:90:90
 W:42:2:120000
-B:BITE:COLD:5d8
+B:BITE:FIRE:5d8
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
 F:BASH_DOOR | DRAGON | DROP_3D2 | DROP_4D2 | EVIL | MOVE_BODY | NO_SLEEP | 
@@ -5563,7 +5563,7 @@ N:523:ancient green dragon
 G:D:g
 I:120:555:20:90:90
 W:42:2:120000
-B:BITE:COLD:5d8
+B:BITE:POISON:5d8
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
 F:BASH_DOOR | DRAGON | DROP_3D2 | DROP_4D2 | EVIL | MOVE_BODY | NO_SLEEP | 
@@ -5575,7 +5575,7 @@ N:524:ancient blue dragon
 G:D:b
 I:120:555:20:90:90
 W:42:2:120000
-B:BITE:COLD:5d8
+B:BITE:ELEC:5d8
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
 F:BASH_DOOR | DRAGON | DROP_3D2 | DROP_4D2 | EVIL | MOVE_BODY | NO_SLEEP | 
@@ -5587,7 +5587,7 @@ N:525:ancient silver dragon
 G:D:W
 I:120:555:20:90:90
 W:42:2:120000
-B:BITE:COLD:5d8
+B:BITE:HURT:5d8
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
 F:BASH_DOOR | DRAGON | DROP_3D2 | DROP_4D2 | EVIL | MOVE_BODY | NO_SLEEP | 
@@ -5599,7 +5599,7 @@ N:526:ancient black dragon
 G:D:s
 I:120:555:20:90:90
 W:42:2:120000
-B:BITE:COLD:5d8
+B:BITE:ACID:5d8
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
 F:BASH_DOOR | DRAGON | DROP_3D2 | DROP_4D2 | EVIL | MOVE_BODY | NO_SLEEP | 
@@ -5611,7 +5611,7 @@ N:527:ancient gold dragon
 G:D:y
 I:120:555:20:90:90
 W:42:2:120000
-B:BITE:COLD:5d8
+B:BITE:HURT:5d8
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
 F:BASH_DOOR | DRAGON | DROP_3D2 | DROP_4D2 | EVIL | MOVE_BODY | NO_SLEEP | 
@@ -6726,7 +6726,7 @@ D:A vast dragon of power.  Storms and lightning crash around its titanic
 D: form.  Deep blue scales reflect the flashes and highlight the creature's
 D: great muscles.  It regards you with contempt.
 
-N:616:great fragment wyrm
+N:616:great star wyrm
 G:D:W
 I:120:2400:30:150:90
 W:65:2:800000
@@ -7227,7 +7227,7 @@ G:s:w
 W:96:2:0
 F:UNIQUE
 
-N:663:The Shrike 
+N:663:The Shrike
 G:h:s
 W:97:1:0
 F:UNIQUE

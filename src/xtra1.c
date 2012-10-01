@@ -1973,6 +1973,11 @@ static void calc_bonuses(void)
 	p_ptr->dis_to_h = p_ptr->to_h = 0;
 	p_ptr->dis_to_a = p_ptr->to_a = 0;
 
+	/* Spell duration bonus */
+	p_ptr->sp_dur = 0;
+	p_ptr->sp_dam = 0;
+	p_ptr->sp_inf = 0;
+
 	/* Clear all the flags */
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
@@ -2111,10 +2116,7 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_STEALTH)) p_ptr->skill[SK_STL] += o_ptr->pval;
 
 		/* Affect searching ability (factor of five) */
-		if (f1 & (TR1_SEARCH)) p_ptr->skill[SK_SRH] += (o_ptr->pval * 5);
-
-		/* Affect searching frequency (factor of five) */
-		if (f1 & (TR1_SEARCH)) p_ptr->skill[SK_FOS] += (o_ptr->pval * 5);
+		if (f1 & (TR1_PERCEPTION)) p_ptr->skill[SK_PER] += (o_ptr->pval * 5);
 
 		/* Affect infravision */
 		if (f1 & (TR1_INFRA)) p_ptr->see_infra += o_ptr->pval;
@@ -2130,6 +2132,11 @@ static void calc_bonuses(void)
 
 		/* Affect Might */
 		if (f1 & (TR1_MIGHT)) extra_might += o_ptr->pval;
+
+		/* Affect Duration */
+		if (f1 & (TR1_SP_DUR)) p_ptr->sp_dur += o_ptr->pval;
+		if (f1 & (TR1_SP_DAM)) p_ptr->sp_dam += o_ptr->pval;
+		if (f1 & (TR1_SP_INF)) p_ptr->sp_inf += o_ptr->pval;
 
 		/* Good flags */
 		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
@@ -2258,18 +2265,18 @@ static void calc_bonuses(void)
 		/* Temporary resistance, add 33% */
 		if (p_ptr->tim_res[i]) 
 		{
-			/* If already higher than cap, ignore */
-			if (!(p_ptr->res[i] > resist_caps[i].temp))
+			/* If already higher or equal to cap, ignore */
+			if (p_ptr->res[i] < resist_caps[i].temp)
 			{
-				p_ptr->res[i] += 33;
+				p_ptr->res[i] += TEMP_RES_BONUS;
 				if (p_ptr->res[i] > resist_caps[i].temp) 
 					p_ptr->res[i] = resist_caps[i].temp;
 			}
 
-			/* If already higher than cap, ignore */
-			if (!(p_ptr->dis_res[i] > resist_caps[i].temp))
+			/* If already higher or equal to cap, ignore */
+			if (p_ptr->dis_res[i] < resist_caps[i].temp)
 			{
-				p_ptr->dis_res[i] += 33;
+				p_ptr->dis_res[i] += TEMP_RES_BONUS;
 				if (p_ptr->dis_res[i] > resist_caps[i].temp) 
 					p_ptr->dis_res[i] = resist_caps[i].temp;
 			}
@@ -2398,6 +2405,27 @@ static void calc_bonuses(void)
 	{
 		p_ptr->tim_flag1 |= TR1_STEALTH;
 		/* Actual stealth affect appears later */
+	}
+
+	/* Temporary spell duration boost */
+	if (p_ptr->tim_sp_dur)
+	{
+		p_ptr->tim_flag1 |= TR1_SP_DUR;
+		p_ptr->sp_dur += 6;
+	}
+
+	/* Temporary spell damage boost */
+	if (p_ptr->tim_sp_dam)
+	{
+		p_ptr->tim_flag1 |= TR1_SP_DAM;
+		p_ptr->sp_dam += 3;
+	}
+
+	/* Temporary spell damage boost */
+	if (p_ptr->tim_sp_inf)
+	{
+		p_ptr->tim_flag1 |= TR1_SP_INF;
+		p_ptr->sp_inf += 3;
 	}
 
 	/* Temporary taint */

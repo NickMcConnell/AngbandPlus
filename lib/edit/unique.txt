@@ -12,7 +12,7 @@
 # index pointing to the entry in monster.txt that the unique is based on, and a colour that
 # superceeds the color in monster.txt. 
 
-V:0.5.0
+V:0.5.1
 
 N:1:Farmer Maggot
 R:2:w
@@ -981,7 +981,7 @@ S:CAUSE_4 | HOLD | SCARE | S_KIN | S_UNDEAD | TELE_LEVEL
 D:A warrior-king of the East.  Khamul is a powerful opponent, his skill in
 D: combat awesome and his form twisted by evil cunning.
 
-N:72:Scintillating serpent
+N:72:The Scintillating serpent
 R:534:v
 I:130:2500:20:120:10
 W:54:3:240000

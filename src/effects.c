@@ -477,7 +477,7 @@ bool do_res_stat(int stat)
 	if (res_stat(stat))
 	{
 		/* Message */
-		message_format(MSG_EFFECT, 0, "You feel less %s.", desc_stat_neg[stat]);
+		message_format(MSG_EFFECT, 0, "You no longer feel as %s.", desc_stat_neg[stat]);
 
 		/* Notice */
 		return (TRUE);
@@ -1207,7 +1207,6 @@ bool set_fast(int v)
 	return (TRUE);
 }
 
-
 /*
  * Set "p_ptr->slow", notice observable changes
  */
@@ -1260,7 +1259,6 @@ bool set_slow(int v)
 	return (TRUE);
 }
 
-
 /*
  * Set "p_ptr->shield", notice observable changes
  */
@@ -1312,8 +1310,6 @@ bool set_shield(int v)
 	/* Result */
 	return (TRUE);
 }
-
-
 
 /*
  * Set "p_ptr->blessed", notice observable changes
@@ -1642,6 +1638,58 @@ bool set_absorb(int v)
 }
 
 /*
+ * Set "p_ptr->safety", notice observable changes
+ */
+bool set_safety(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->safety)
+		{
+			message(MSG_EFFECT, 0, "You feel secure from traps!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->safety)
+		{
+			message(MSG_EFFECT, 0, "You no longer feel secure from traps.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->safety = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
  * Set "p_ptr->tim_see_invis", notice observable changes
  *
  * Note the use of "PU_MONSTERS", which is needed because
@@ -1805,6 +1853,162 @@ bool set_stability(int v)
 }
 
 /*
+ * Set "p_ptr->tim_sp_dur", notice observable changes
+ */
+bool set_tim_sp_dur(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values. Note that it can be negative */
+	v = (v > 10000) ? 10000 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sp_dur <= 0)
+		{
+			message(MSG_EFFECT, 0, "You have gained understanding of the nature of magic!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sp_dur)
+		{
+			message(MSG_EFFECT, 0, "Your feel your enhanced understanding of magic fade away...");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sp_dur = v;
+
+	/* Nothing to notice */
+	if (!notice) return(FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_sp_dam", notice observable changes
+ */
+bool set_tim_sp_dam(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values. Note that it can be negative */
+	v = (v > 10000) ? 10000 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sp_dam <= 0)
+		{
+			message(MSG_EFFECT, 0, "You have gained understanding of the nature of magic!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sp_dam)
+		{
+			message(MSG_EFFECT, 0, "Your feel your enhanced understanding of magic fade away...");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sp_dam = v;
+
+	/* Nothing to notice */
+	if (!notice) return(FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_sp_dam", notice observable changes
+ */
+bool set_tim_sp_inf(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values. Note that it can be negative */
+	v = (v > 10000) ? 10000 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sp_inf <= 0)
+		{
+			message(MSG_EFFECT, 0, "You have gained understanding of the nature of magic!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sp_inf)
+		{
+			message(MSG_EFFECT, 0, "Your feel your enhanced understanding of magic fade away...");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sp_inf = v;
+
+	/* Nothing to notice */
+	if (!notice) return(FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
  * Set "p_ptr->tim_bravery", notice observable changes
  */
 bool set_tim_bravery(int v)
@@ -1819,7 +2023,7 @@ bool set_tim_bravery(int v)
 	{
 		if (p_ptr->tim_bravery <= 0)
 		{
-			message(MSG_EFFECT, 0, "You feel like nothing can scare you!");
+			message(MSG_EFFECT, 0, "You forget the meaning of fear!");
 			notice = TRUE;
 		}
 	}
@@ -1995,8 +2199,18 @@ bool set_tim_res(int type, int v)
 	{
 		if (!p_ptr->tim_res[type])
 		{
-			message_format(MSG_EFFECT, 0, "You feel resistant to %s!", resist_names[type]);
-			notice = TRUE;
+			/* Only notice if it makes some difference */
+			if (p_ptr->dis_res[type] < resist_caps[type].temp)
+			{
+				if (p_ptr->dis_res[type])
+					message_format(MSG_EFFECT, 0, 
+					"You feel more resistant to %s!", resist_names[type]);
+				else
+					message_format(MSG_EFFECT, 0, 
+					"You feel resistant to %s!", resist_names[type]);
+
+				notice = TRUE;
+			}
 		}
 	}
 
@@ -2005,8 +2219,18 @@ bool set_tim_res(int type, int v)
 	{
 		if (p_ptr->tim_res[type])
 		{
-			message_format(MSG_EFFECT, 0, "You feel less resistant to %s.", resist_names[type]);
-			notice = TRUE;
+			/* Only notice if it makes some difference */
+			if (p_ptr->dis_res[type] <= resist_caps[type].temp)
+			{
+				if (p_ptr->dis_res[type] <= TEMP_RES_BONUS)
+					message_format(MSG_EFFECT, 0, 
+					"You no longer feel resistant to %s.", resist_names[type]);
+				else
+					message_format(MSG_EFFECT, 0, 
+					"You feel less resistant to %s.", resist_names[type]);
+				
+				notice = TRUE;
+			}
 		}
 	}
 
@@ -2631,6 +2855,7 @@ void display_player_status(void)
 	if (p_ptr->stability)	conds[i++] = "Stability";
 	if (p_ptr->rage)		conds[i++] = "Berserk";
 	if (p_ptr->protevil)	conds[i++] = "Prot. Evil";
+	if (p_ptr->safety)		conds[i++] = "Prot. Traps";
 	if (p_ptr->absorb)		conds[i++] = "Absorb Hit";
 	if (p_ptr->resilient)	conds[i++] = "Resilient";
 	if (p_ptr->fast)		conds[i++] = "Hasted";
@@ -2638,6 +2863,9 @@ void display_player_status(void)
 	if (p_ptr->tim_infra)	conds[i++] = "Infravision Bonus";
 	if (p_ptr->tim_stealth)	conds[i++] = "Stealth Bonus";
 	if (p_ptr->tim_see_invis) conds[i++] = "Sense Invisible";
+	if (p_ptr->sp_dam) 		conds[i++] = "Spell Dam. Bonus";
+	if (p_ptr->sp_dur)		conds[i++] = "Spell Dur. Bonus";
+	if (p_ptr->sp_inf) 		conds[i++] = "Spell Inf. Bonus";
 
 	for (j = 0; j < i; j++)
 	{

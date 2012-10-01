@@ -169,14 +169,22 @@ void delete_object_idx(int o_idx)
  */
 void delete_object(int y, int x)
 {
-	object_type *o_ptr;
+	s16b this_o_idx, next_o_idx = 0;
 
 	/* Paranoia */
 	if (!in_bounds(y, x)) return;
 
 	/* Scan all objects in the grid */
-	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
+		object_type *o_ptr; 
+
+		/* Get the object */ 
+		o_ptr = &o_list[this_o_idx]; 
+
+		/* Get the next object */ 
+		next_o_idx = o_ptr->next_o_idx; 
+
 		/* Wipe the object */
 		object_wipe(o_ptr);
 
@@ -792,37 +800,37 @@ static s32b object_value_base(const object_type *o_ptr)
 		switch (o_ptr->tval)
 		{
 			/* Un-aware Food */
-			case TV_FOOD: value = 5L; break;
+			case TV_FOOD: value = 20L; break;
 
 			/* Un-aware Potions */
-			case TV_POTION: value = 20L; break;
+			case TV_POTION: value = 100L; break;
 
 			/* Un-aware Scrolls */
-			case TV_SCROLL: value = 20L; break;
+			case TV_SCROLL: value = 100L; break;
 
 			/* Un-aware Powders */
-			case TV_POWDER: value = 25L; break;
+			case TV_POWDER: value = 100L; break;
 
 			/* Un-aware Staffs */
-			case TV_STAFF: value = 70L; break;
+			case TV_STAFF: value = 375L; break;
 
 			/* Un-aware Wands */
-			case TV_WAND: value = 50L; break;
+			case TV_WAND: value = 250L; break;
 
 			/* Un-aware Talismans */
-			case TV_TALISMAN: value = 90L; break;
+			case TV_TALISMAN: value = 450L; break;
 			
 			/* Un-aware Rods */
-			case TV_ROD: value = 90L; break;
+			case TV_ROD: value = 450L; break;
 			
 			/* Un-aware Rings */
-			case TV_RING: value = 45L; break;
+			case TV_RING: value = 235L; break;
 
 			/* Un-aware Amulets */
-			case TV_AMULET: value = 45L; break;
+			case TV_AMULET: value = 240L; break;
 
 			/* Un-aware lites */
-			case TV_LITE: value = 45L; break;
+			case TV_LITE: value = 230L; break;
 		}
 	}
 
@@ -927,8 +935,8 @@ static s32b object_value_real(const object_type *o_ptr)
 				{
 					switch (o_ptr->xtra2)
 					{
-						case 0: case 1: case 2: case 3: case 4: value += 450; break;
-						case 5: value += 350; break; 
+						case 0: case 1: case 2: case 3: case 4: value += 2250; break;
+						case 5: value += 1750; break; 
 					}
 
 					break;
@@ -939,18 +947,18 @@ static s32b object_value_real(const object_type *o_ptr)
 				{
 					switch (o_ptr->xtra2) 
 					{
-						case RS_WTR: value += 600;  break; /* Resist Water */
-						case RS_PSN: value += 1200; break; /* Resist Poison */
-						case RS_DIS: value += 1000; break; /* Resist Disease */
-						case RS_LIT: value += 500;  break; /* Resist Lite */
-						case RS_DRK: value += 500;  break; /* Resist Dark */
-						case RS_SND: value += 600;  break; /* Resist Sound */
-						case RS_SHR: value += 500;  break; /* Resist Shards */
-						case RS_NEX: value += 800;  break; /* Resist Nexus */
-						case RS_NTH: value += 2000; break; /* Resist Nether */
-						case RS_CHS: value += 1600; break; /* Resist Chaos */
-						case RS_DSN: value += 1600; break; /* Resist Disenchantment */
-						case RS_TIM: value += 2000; break; /* Resist Time */
+						case RS_WTR: value += 3000;  break; /* Resist Water */
+						case RS_PSN: value += 6000; break; /* Resist Poison */
+						case RS_DIS: value += 5000; break; /* Resist Disease */
+						case RS_LIT: value += 2500;  break; /* Resist Lite */
+						case RS_DRK: value += 2500;  break; /* Resist Dark */
+						case RS_SND: value += 3000;  break; /* Resist Sound */
+						case RS_SHR: value += 2500;  break; /* Resist Shards */
+						case RS_NEX: value += 4000;  break; /* Resist Nexus */
+						case RS_NTH: value += 10000; break; /* Resist Nether */
+						case RS_CHS: value += 8000; break; /* Resist Chaos */
+						case RS_DSN: value += 8000; break; /* Resist Disenchantment */
+						case RS_TIM: value += 10000; break; /* Resist Time */
 					}
 					break;
 				}
@@ -959,14 +967,14 @@ static s32b object_value_real(const object_type *o_ptr)
 				{
 					switch (o_ptr->xtra2) 
 					{
-						case 0: value += 250;  break; /* Slow digest */
-						case 1: value += 200;  break; /* Feather Falling */
-						case 2: value += 600;  break; /* Regeneration */
-						case 3: value += 3000; break; /* Telepathy */
-						case 4: value += 600;  break; /* See invis */
-						case 5: value += 3000; break; /* Invisibility*/
-						case 6: value += 300;  break; /* Perma-lite */
-						case 7: value += 1000; break; /* Luck */
+						case 0: value += 1250;  break; /* Slow digest */
+						case 1: value += 1000;  break; /* Feather Falling */
+						case 2: value += 3000;  break; /* Regeneration */
+						case 3: value += 15000; break; /* Telepathy */
+						case 4: value += 3000;  break; /* See invis */
+						case 5: value += 15000; break; /* Invisibility*/
+						case 6: value += 1500;  break; /* Perma-lite */
+						case 7: value += 5000; break; /* Luck */
 					} 
 					break;
 				}
@@ -1001,37 +1009,41 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (!o_ptr->pval) break;
 
 			/* Give credit for stat bonuses */
-			if (f1 & (TR1_STR)) value += (o_ptr->pval * 250L);
-			if (f1 & (TR1_INT)) value += (o_ptr->pval * 250L);
-			if (f1 & (TR1_WIS)) value += (o_ptr->pval * 250L);
-			if (f1 & (TR1_DEX)) value += (o_ptr->pval * 250L);
-			if (f1 & (TR1_CON)) value += (o_ptr->pval * 250L);
-			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 250L);
+			if (f1 & (TR1_STR)) value += (o_ptr->pval * 1250L);
+			if (f1 & (TR1_INT)) value += (o_ptr->pval * 1250L);
+			if (f1 & (TR1_WIS)) value += (o_ptr->pval * 1250L);
+			if (f1 & (TR1_DEX)) value += (o_ptr->pval * 1250L);
+			if (f1 & (TR1_CON)) value += (o_ptr->pval * 1250L);
+			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 1250L);
 
 			/* Give credit for health and mana bonusees */
-			if (f1 & (TR1_HEALTH)) value += (o_ptr->pval * 350L);
-			if (f1 & (TR1_MANA)) value += (o_ptr->pval * 350L);
+			if (f1 & (TR1_HEALTH)) value += (o_ptr->pval * 1750L);
+			if (f1 & (TR1_MANA)) value += (o_ptr->pval * 1750L);
+
+			/* Give credit for duration bonuses */
+			if (f1 & (TR1_SP_DUR)) value += (o_ptr->pval * 2000L);
+			if (f1 & (TR1_SP_DAM)) value += (o_ptr->pval * 4000L);
 
 			/* Give credit for stealth and searching */
-			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 150L);
-			if (f1 & (TR1_SEARCH)) value += (o_ptr->pval * 100L);
+			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 750L);
+			if (f1 & (TR1_PERCEPTION)) value += (o_ptr->pval * 500L);
 
 			/* Give credit for infra-vision and tunneling */
-			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 50L);
-			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 50L);
+			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 250L);
+			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 250L);
 
 			/* Give credit for extra attacks */
-			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 2000L);
+			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 10000L);
 
 			/* Give credit for speed bonus */
-			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 30000L);
+			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 150000L);
 
 			break;
 		}
 
 		case TV_MUSIC:
 		{
-			if (o_ptr->pval) value += ((o_ptr->pval-1) * 1000L);
+			if (o_ptr->pval) value += ((o_ptr->pval-1) * 5000L);
 			break;
 		}
 	}
@@ -1059,9 +1071,9 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (o_ptr->to_h < 0) return (0L);
 
 			/* Give credit for bonuses */
-			value += ((o_ptr->to_h) * 250L);
+			value += ((o_ptr->to_h) * 1250L);
 
-			value += (o_ptr->to_a * 120L);
+			value += (o_ptr->to_a * 600L);
 
 			/* Done */
 			break;
@@ -1077,10 +1089,10 @@ static s32b object_value_real(const object_type *o_ptr)
 		case TV_DRAG_ARMOR:
 		{
 			/* Give credit for hit bonus */
-			value += ((o_ptr->to_h - k_ptr->to_h) * 100L);
+			value += ((o_ptr->to_h - k_ptr->to_h) * 500L);
 
 			/* Give credit for armor bonus */
-			value += (o_ptr->to_a * 120L);
+			value += (o_ptr->to_a * 600L);
 
 			/* Done */
 			break;
@@ -1106,10 +1118,10 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (to_h_val < 0) to_h_val = 0;
 
 			/* Factor in the bonuses */
-			value += ((to_h_val + o_ptr->to_a) * 120L);
+			value += ((to_h_val + o_ptr->to_a) * 600L);
 
 			/* Small price increase for lower bonuses */
-			if (to_h_val < o_ptr->to_h) value += (o_ptr->to_h - to_h_val) * 10;
+			if (to_h_val < o_ptr->to_h) value += (o_ptr->to_h - to_h_val) * 50;
 
 			/* Done */
 			break;
@@ -1122,7 +1134,7 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (o_ptr->to_h < 0) return (0L);
 
 			/* Factor in the bonuses */
-			value += ((o_ptr->to_h) * 5L);
+			value += ((o_ptr->to_h) * 25L);
 
 			/* Done */
 			break;
@@ -2390,9 +2402,9 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			switch (o_ptr->sval)
 			{
 				/* Amulet of wisdom/intelligence/charisma */
-				case SV_AMULET_WISDOM:
-				case SV_AMULET_INTELLIGENCE:
-				case SV_AMULET_CHARISMA:
+				case SV_AMULET_WIS:
+				case SV_AMULET_INT:
+				case SV_AMULET_CHR:
 				{
 					o_ptr->pval = 1 + m_bonus(5, level);
 
@@ -3515,17 +3527,9 @@ bool make_gold(object_type *j_ptr, int coin_type)
 
 	s32b base;
 
-	/* Hack -- Pick a Treasure variety */
-	sval = ((randint(object_level + 2) + 2) / 2) - 1;
-
-	/* Apply "extra" magic */
-	if (rand_int(GREAT_OBJ) == 0)
-	{
-		sval += randint(object_level + 1);
-	}
-
-	/* Hack -- Creeping Coins only generate "themselves" */
+	/* Hack -- Choose type of coin */
 	if (coin_type) sval = coin_type;
+	else sval = (randint(object_level + 2) / 2) + 1;
 
 	/* Do not create "illegal" Treasure Types */
 	if (sval < 1) sval = 1;
@@ -3540,7 +3544,7 @@ bool make_gold(object_type *j_ptr, int coin_type)
 	base = k_info[k_idx].cost;
 
 	/* Determine how much the treasure is "worth" */
-	j_ptr->pval = (base + (8L * randint(base)) + randint(8));
+	j_ptr->pval = (s16b)(base + rand_int(4) + (4L * rand_int(base + 1)));
 
 	/* Success */
 	return (TRUE);
