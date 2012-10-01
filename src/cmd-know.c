@@ -922,7 +922,7 @@ static void display_artifact_list(int col, int row, int per_page, int object_idx
 		make_fake_artifact(o_ptr, a_idx);
 
 		/* Get its name */
-		object_desc(o_name, o_ptr, TRUE, 0);
+		object_desc_store(o_name, o_ptr, TRUE, 0);
 
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);

@@ -1620,13 +1620,26 @@ static void calc_mana(void)
  */
 static void calc_hitpoints(void)
 {
-	int bonus, mhp;
+	int bonus, hp_lev, mhp;
+	int bonus_sum = 0;
+	int i;
 
 	/* Un-inflate "half-hitpoint bonus per level" value */
 	bonus = ((int)(adj_con_mhp[p_stat(A_CON)]) - 128);
 
+	/* Make sure that you never get negative hp for any level */
+	if (bonus >= -1) bonus_sum = bonus * p_ptr->lev;
+	else for (i = 0; i < p_ptr->lev; i++)
+	{
+		if (i > 0) hp_lev = p_ptr->player_hp[i] - p_ptr->player_hp[i-1];
+		else hp_lev = p_ptr->player_hp[0];
+
+		if (bonus + hp_lev < 0) bonus_sum -= hp_lev;
+		else bonus_sum += bonus;
+	}
+
 	/* Calculate hitpoints */
-	mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 2);
+	mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus_sum / 2);
 
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
@@ -1777,6 +1790,7 @@ static void calc_bonuses(void)
 {
 	int i, j, hold;
 	int res, cur_cap;
+	int dis_res, dis_cap;
 
 	int old_speed;
 
@@ -1907,10 +1921,11 @@ static void calc_bonuses(void)
 		p_ptr->res[i] = ((rp_ptr->res[i] + cp_ptr->res[i]) * p_ptr->lev) / 50;
 
 		/* Boundary check */
-		if (p_ptr->res[i] > resist_caps[i].normal) p_ptr->res[i] = cur_cap;
+		if (p_ptr->res[i] > cur_cap) p_ptr->res[i] = cur_cap;
 
 		/* Display */
 		p_ptr->dis_res[i] = p_ptr->res[i];
+		dis_cap = cur_cap;
 	}
 
 	/*** Analyze player ***/
@@ -2067,22 +2082,26 @@ static void calc_bonuses(void)
 		for (j = 0 ; j < RS_MAX ; j++)
 		{
 			res = object_resist(o_ptr, j);
+			dis_res = object_resist_known(o_ptr, j);
 
 			/* Set current cap */
 			cur_cap = (p_ptr->res[j] > resist_caps[j].normal) ?
 				p_ptr->res[j] : resist_caps[j].normal;
+			dis_cap = (p_ptr->dis_res[j] > resist_caps[j].normal) ?
+				p_ptr->dis_res[j] : resist_caps[j].normal;
 
 			/* Base resistance = class + race */
 			p_ptr->res[j] += res;
 
 			/* Display */
-			p_ptr->dis_res[j] += object_resist_known(o_ptr, j);
+			p_ptr->dis_res[j] += dis_res;
 
 			if (res > cur_cap) cur_cap = res;
+			if (dis_res > dis_cap) dis_cap = dis_res;
 
 			/* Boundary check */
 			if (p_ptr->res[j] > cur_cap) p_ptr->res[j] = cur_cap;
-			if (p_ptr->dis_res[j] > cur_cap) p_ptr->dis_res[j] = cur_cap;
+			if (p_ptr->dis_res[j] > dis_cap) p_ptr->dis_res[j] = dis_cap;
 		}
 
 		/* Hack -- do not apply "weapon" bonuses */

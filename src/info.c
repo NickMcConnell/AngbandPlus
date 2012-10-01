@@ -2140,6 +2140,12 @@ void list_object(object_type *o_ptr, int mode)
 		}
 	}
 
+	/* Quest items */
+	if (!random && (o_ptr->tval == TV_QUEST))
+	{
+		text_out("An item of legend, it serves no practical use, but is of much value to collectors.  ");
+	}
+
 	/* Pval-affected flags */
 	if (f1)
 	{
@@ -2465,7 +2471,22 @@ void list_object(object_type *o_ptr, int mode)
 		if (do_act)
 		{
 			/* Activation */
-			if (artifact_p(o_ptr)) text_out("When worn and activated, it ");
+			if (artifact_p(o_ptr)) 
+			{
+				switch (o_ptr->tval)
+				{
+					case TV_BOW:
+					case TV_DIGGING:
+					case TV_SWORD:
+					case TV_HAFTED:
+					case TV_POLEARM:
+					{
+						text_out("When wielded and activated, it ");
+						break;
+					}
+					default: text_out("When worn and activated, it "); break;
+				}
+			}
 			else
 			{ 
 				switch (o_ptr->tval)
@@ -2567,7 +2588,7 @@ void display_object_history(object_type *o_ptr)
 		case ORIGIN_BIRTH:
 		{
 			text_out_c(TERM_YELLOW, format("%s ", intro));
-			text_out_c(TERM_YELLOW, "an inheritence from your family.\n");
+			text_out_c(TERM_YELLOW, "an inheritance from your family.\n");
 			break;
 		}
 		case ORIGIN_STORE:

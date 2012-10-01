@@ -144,11 +144,6 @@ Display inscriptions in messages       [display_insc_msg]
     If this is turned on, item inscriptions will appear in all messages. 
     Otherwise, they will only appear in messages in which they are relevant.
 
-***** <display_recharge_msg>
-Display messages upon recharge       [display_recharge_msg]
-    If this is turned on, you will get messages whenever an artifact, rod
-	or talisman recharges.
-
 ***** <show_piles>
 Show stacks using special attr/char    [show_piles]
      Stacks of items on the floor are shown using the "&" symbol.
@@ -257,6 +252,11 @@ Disturb whenever boring things happen    [disturb_minor]
     This option causes you to be disturbed by various bring things,
     including monsters bashing down doors, inventory feelings, and
     beginning to run out of fuel.
+
+***** <display_recharge_msg>
+Display messages upon recharge       [display_recharge_msg]
+    If this is turned on, you will get messages whenever an artifact, rod
+	or talisman recharges.
 
 ***** <alert_failure>
 Alert user to various failures    [alert_failure]

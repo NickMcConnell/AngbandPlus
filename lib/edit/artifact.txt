@@ -504,7 +504,7 @@ N:56:of Thranduil
 I:32:1:0:2
 W:20:2:15:50000
 P:1:0d0:0:0:6
-F:INT | WIS | NO_BLIND | TELEPATHY| NO_CONF
+F:INT | WIS | NO_BLIND | TELEPATHY | NO_CONF
 
 # The Metal Cap of Thengel
 

@@ -21,8 +21,8 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                and also have better wisdom and charisma.  Elves are better at 
                searching, disarming, perception, stealth, bows, and magic, but 
                they are not as good at hand weapons or digging. Elves may 
-               choose any class except Paladin. They are resistant
-               to attacks involving bright light.
+               choose any class. They are resistant to attacks involving 
+               bright light.
 
 ***** <Dwarf>
           Dwarf
@@ -50,8 +50,7 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                humans so they are not very good at fighting with hand weapons,
                but are quite capable of using ranged attacks.  Gnomes have
                fair infra-vision, so they can detect warm-blooded creatures
-               at a distance.  A gnome may choose between being a warrior,
-               mage, or priest.  Gnomes are intrinsically protected against
+               at a distance.  Gnomes are intrinsically protected against
                paralysis and some slowing effects.
 
 ***** <Grippli>
@@ -63,17 +62,22 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                alchemy, disarming, and perception.  They are normally much 
                weaker than humans, and no good at melee fighting.  Grippli 
                resist water attacks and have their dexterity sustained.
-               They tend not to be warriors, paladins or spellswords.
+               They tend not to be warriors, paladins or spellswords; but
+               they have large representations in many thief guilds and 
+               mystical monasteries. They are naturally protected against
+               water-based attacks.
  
 ***** <Lizardman>
           Lizardman
-               Lizardmen make excellent warriors and decent priests, but
-               are terrible at magic.  They are as bad as dwarves at stealth,
-               and horrible at searching, disarming, and perception.
-               Lizardmen are quite primative, and don't make friends often.
-               Lizardmen do make good warriors, for the simple reason that 
-               they tend to have great constitutions and lots of hit points.
-               Lizardmen naturally resist poison.
+               Lizardmen are bipedal reptiles, about the same height as a 
+               human, with long, versatile necks.  They tend to live in any
+               place where the air is warm, whether desert or jungle or
+               swamp. They are as bad as dwarves at stealth, and horrible at 
+               searching, disarming, and perception.  Lizardmen are quite 
+               primitive, and don't make friends often.  Lizardmen do make 
+               good warriors, for the simple reason that they tend to have 
+               great constitutions and lots of hit points. Lizardmen 
+               naturally resist poison.
  
 ***** <Rattikin>
           Rattikin
@@ -82,33 +86,37 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                clever, but not very strong. They are totally immune to the 
                diseases that plague other races, and also possess decent 
                infravision. They make good warriors and rangers, and decent 
-               mages and spellswords.
+               mages and spellswords, but their true calling is that of a
+               thief.
 
 ***** <Felpurr>
           Felpurr
-               The felpurr are a noble race of humanoid felines.  They are 
-               dexterous and smart, but lack muscle strength.  They also have 
-               limited infravision. They can play all classes well. Felpurr 
-               are legendary for their luck - it somehow always seems that 
-               they manage to find the best great during their travels and 
+               The most civilized of the animalistic races, the felpurr are a
+               noble race of humanoid felines, who live in large cities 
+               situated where the climate is warm.  They are dexterous and 
+               smart, but lack muscle strength.  They also have limited 
+               infravision. They can play all classes well. Felpurr are 
+               legendary for their luck - it somehow always seems that they 
+               manage to find the best great during their travels and 
                adventures.
 
 ***** <Ursa>
           Ursa
-               Large, lumbering, bear-people, the Ursa are incredibly strong, 
+               Large, lumbering, bear-people, they ursa are incredibly strong, 
                and have more hit points than any other character race.  They 
-               are also quite stupid and slow.  They will make great warriors 
-               and iffy priests.  They are quite bad at searching, disarming, 
+               are also quite stupid and slow.  They will make great warriors,
+               and often are quite religious, making good priests and better
+               paladins.  They are quite bad at searching, disarming, 
                perception, and stealth, but decent at digging.  An ursa's idea
-               of politness is not beating everyone around him to a pulp.  An
-               Ursa's thick fur protects it from cold attacks.
+               of politeness is not beating everyone around him to a pulp.  An
+               ursa's thick fur protects it from cold attacks.
 
 ***** <Vargr>
           Vargr
                Vargr are a race of intelligent, bipedal wolves. They have great
                stats, being strong, smart, and quick. They can be good in any
                class, but their natural obstinance makes them slow learners. 
-               The Vargr have good relationships with elves and Ursa, but are
+               The vargr have good relationships with elves and ursa, but are
                naturally suspicious of races that live underground. Vargr's 
                constitution is inherently sustained.
 
@@ -137,8 +145,9 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                and them and they gain levels slowly. In addition, killing non-
                evil creatures may sometimes be necessary for their survival,
                but it goes against the basic fibre of their being and doing
-               so provides them with only minimal experience rewards. Angels
-               can play all classes.
+               so provides them with only minimal experience rewards. During
+               thier time on this plane, they can choose to belong to any 
+               trade - except, of course, thievery.
 
 ***** <Demon>
           Demon
@@ -154,22 +163,22 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                them, they gain levels slowly. They can play warriors, mages and
                rangers.
 
- === Recommended combinations of Race and Class ===
+=== Recommended combinations of Race and Class ===
 
-          Warrior  Mage  Priest  Ranger  Paladin  Mystic  Bard  Spellsword
- Human      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
- Elf        Yes     Yes    Yes     Yes     No       Yes    Yes     Yes
- Dwarf      Yes     No     Yes     No      Yes      Yes    No      No
- Gnome      Yes     Yes    Yes     No      No       Yes    No      Yes
- Grippli    Yes     Yes    Yes     Yes     No       Yes    Yes     No
- Lizardman  Yes     No     No      Yes     No       No     No      Yes
- Rattikin   Yes     Yes    No      Yes     No       No     No      Yes
- Felpurr    Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
- Ursa       Yes     No     Yes     No      Yes      No     No      No
- Vargr      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
- Nilbog     Yes     No     No      No      No       No     No      No
- Angel      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
- Demon      Yes     Yes    No      Yes     No       No     No      Yes
+         Warrior Thief Mage Spellsword Ranger Priest Paladin Mystic Bard
+Human      Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
+Elf        Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
+Dwarf      Yes    Yes  No      No       No     Yes    Yes     Yes   No
+Gnome      Yes    Yes  Yes     Yes      No     Yes    No      Yes   No
+Grippli    No     Yes  Yes     No       Yes    Yes    No      Yes   Yes
+Lizardman  Yes    No   No      Yes      Yes    No     No      No    No
+Rattikin   Yes    Yes  Yes     Yes      Yes    No     No      No    No
+Felpurr    Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
+Ursa       Yes    No   No      No       No     Yes    Yes     No    No
+Vargr      Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
+Nilbog     Yes    Yes  No      No       No     No     No      No    No
+Angel      Yes    No   Yes     Yes      Yes    Yes    Yes     Yes   Yes
+Demon      Yes    Yes  Yes     Yes      Yes    No     No      No    No
 
 
 === Stat Bonus Tables ===
@@ -195,6 +204,25 @@ are listed in the following table.
 
            *see below           
 
+=== Racial resistance tables ===
+
+Note: This is the innate resistance for a level 50 member of this race.
+
+       acd elc fir cld wtr psn dis lit drk cnf snd shr nex nth chs dsn tim mna
+Human   10  10  10  10  10  20  20  10  10  20  10  10  10  10  10  -   -   -
+Elf     5   15  5   15  5   25  25  50  -   15  10  10  10  5   10  -   4   -
+Dwarf   15  15  15  15  10  25  25  -   20  5   5   10  10  10  5   -   -   -
+Gnome   10  10  10  10  10  10  10  -   20  10  5   10  -   5   5   4   -   4
+Grip.   20   5  10  5   66  30  25  10  5   10  10  10  10  10  10  -   -   -
+Lizard. 15  10  10  10  20  66  20  -   10  10  5   5   10  5   5   -   -   -
+Rat.    10  10  5   10  10  35  66  5   25  5   10  5   10  10  5   -   -   -
+Fel.     5   5  15  15  10  10  10  15  15  15  10  10  10  10  10  -   -   -
+Ursa    10  10  25  50  10  15  15  10  10  5   10  10  5   10  10  -   -   -
+Vargr   15  15  15  15  15  25  25  15  15  15  5   15  15  15  10  -   -   -
+Nilbog  10  10  10  10  10  20  20  10  10  20  10  10  10  10  10  5   -   66 
+Angel   40  40  40  30  35  35  35 100  20  35  35  35  20  35  -   7   7   7
+Demon   35  35 100  35  30  35  35  -   50  30  30  30  30  30  30  7   -   7
+
 === Angel Progression chart ===
 
              LEVEL   STR  INT  WIS  DEX  CON  CHR     ABILITY
@@ -211,10 +239,10 @@ Resistances and inherent abilties (cumulative):
 Cherub    - None.
 Seraph    - Sustain Wisdom, Permanent Light (radius 1).
 Deva      - Bravery, Feather Falling.
-Plaentar  - Resist Light, See Invisible, Sustain Charisma.
-Archon    - Resist Fire, Cold, Confusion, Free Action.
-Solar     - Resist Acid & Electricity, Regeneration, Slow digestion.
-Archangel - Resist Chaos, Hold Life.
+Plaentar  - See Invisible, Sustain Charisma.
+Archon    - Free Action.
+Solar     - Regeneration, Slow digestion.
+Archangel - Hold Life.
 
 
 === Demon Progression chart ===
@@ -236,12 +264,12 @@ Resistances and inherent abilties (cumulative):
 
 Lemure     - None.
 Quasit     - Bravery.
-Imp        - Resist Fire.
-Tengu      - Resist Blindness.
-Bodak      - Resist Darkness, Sustain strength.
-Vrock      - Resist Acid.
+Imp        - None.
+Tengu      - No Blindness.
+Bodak      - Sustain strength.
+Vrock      - None.
 Hezrou     - Sustain Constituion.
-Glabrezu   - Resist Nether.
+Glabrezu   - None.
 Nalfeshnee - Regeneration. 
-Pit Fiend  - Resist Chaos.
+Pit Fiend  - None.
 Balrog     - Immune to Fire.

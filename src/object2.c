@@ -879,6 +879,8 @@ static s32b object_value_real(object_type *o_ptr)
 		{
 			value = (value * apx_info[o_ptr->prefix_idx].cost) / 100;
 		}
+
+		if ((k_ptr->cost > 0) && (!value)) value = 1;
 	}
 
 	/* Extract some flags */
@@ -3971,6 +3973,9 @@ void place_random_door(int y, int x)
 {
 	int tmp;
 
+	/* Make sure there is no trap/lock here */
+	delete_trap(y, x);
+	
 	/* Choose an object */
 	tmp = rand_int(1000);
 
@@ -3992,7 +3997,7 @@ void place_random_door(int y, int x)
 	else if (tmp < 600)
 	{
 		/* Create secret door */
-		cave_set_feat(y, x, FEAT_SECRET);
+		place_secret_door(y, x);
 	}
 
 	/* Closed, locked, or stuck doors (400/1000) */
@@ -5202,7 +5207,7 @@ byte actual_ds(object_type *o_ptr)
 }
 
 /* 
- * Actual damage sides (including prefixes)
+ * Actual armor class (including prefixes)
  */
 s16b actual_ac(object_type *o_ptr)
 {
@@ -5211,7 +5216,7 @@ s16b actual_ac(object_type *o_ptr)
 		if (o_ptr->prefix_idx) 
 		{
 			int i = o_ptr->ac + apx_info[o_ptr->prefix_idx].ac;
-			return ((i > 0) ? i : 1);
+			return ((i >= 0) ? i : 0);
 		}
 	}
 

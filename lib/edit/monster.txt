@@ -46,7 +46,7 @@ B:DROOL
 F:MALE | PERSON | RAND_25 | TAKE_ITEM
 D:Drooling and comical, but then, what do you expect?
 
-N:6:pitiful looking beggar
+N:6:pitiful-looking beggar
 G:t:U
 I:110:1d4:10:1:40
 W:0:1:0:0
@@ -71,14 +71,14 @@ B:INSULT
 F:HAS_LITE | MALE | PERSON | RAND_25 | TAKE_ITEM
 D:A laborer taking a few hours off.
 
-N:9:squint eyed rogue
+N:9:squint-eyed rogue
 G:t:b
 I:110:2d8:10:8:99
 W:0:2:0:0
 B:HIT:HURT:1d6
 B:TOUCH:EAT_ITEM
 F:DROP_60 | EVIL | MALE | PERSON | TAKE_ITEM | ROGUE |
-D:A hardy, street-wise crook that knows an easy catch when it sees one.
+D:A hardy, street-wise crook that knows an easy catch when he sees one.
 
 N:10:singing, happy drunk
 G:t:y
@@ -88,14 +88,13 @@ B:BEG
 F:DROP_60 | HAS_LITE | MALE | ONLY_GOLD | PERSON | RAND_50 | TAKE_ITEM
 D:He makes you glad to be sober.
 
-N:11:aimless looking merchant
+N:11:aimless-looking merchant
 G:t:o
 I:110:3d3:10:1:255
 W:0:1:0:0
 B:HIT:HURT:1d3
 F:DROP_60 | HAS_LITE | MALE | ONLY_GOLD | PERSON | RAND_50 | TAKE_ITEM
-D:The typical ponce around town, with purse jingling, and looking for more
-D: amulets of adornment to buy.
+D:The typical ponce around town, with purse jingling, and looking for a bargain. 
 
 N:12:town bully
 G:t:R
@@ -105,7 +104,7 @@ B:HIT:HURT:2d6
 F:DROP_90 | HAS_LITE | MALE | PERSON | RAND_50 | TAKE_ITEM
 D:His blustering manner is repellant.
 
-N:13:battle scarred veteran
+N:13:battle-scarred veteran
 G:t:B
 I:110:5d8:10:30:250
 W:0:2:0:0
@@ -113,7 +112,7 @@ B:HIT:HURT:2d6
 F:DROP_90 | HAS_LITE | MALE | PERSON | RAND_50 | TAKE_ITEM | WARRIOR
 D:He doesn't take to strangers kindly.
 
-N:14:mean looking ^mercenary
+N:14:mean-looking ^mercenary
 G:t:r
 I:110:7d8:10:20:250
 W:0:3:0:0
@@ -148,7 +147,7 @@ I:110:1d4:10:3:10
 W:1:1:0:1
 B:BITE:HURT:1d1
 F:ANIMAL | FRIENDS | MANY
-D:It is a yapping snarling dog, dangerous when in a pack.
+D:It is a yapping, snarling canine, dangerous when in a pack.
 
 N:18:rock lizard
 G:R:U
@@ -295,7 +294,7 @@ W:2:1:0:1
 B:CRAWL:POISON:1d2
 F:ANIMAL | HURT_LITE | MULTIPLY | NO_FEAR | RAND_25 | RAND_50 | RES_POIS |
 F:STUPID | WEIRD_MIND
-D:It is a large slimy mass of worms.
+D:It is a large slimy mass of pale, stringy worms.
 
 N:35:brownie
 G:F:U
@@ -528,7 +527,7 @@ W:3:1:0:4
 B:CRAWL:ACID:1d3
 F:ANIMAL | HURT_LITE | MULTIPLY | NO_FEAR | RAND_25 | RAND_50 | RES_ACID |
 F:STUPID | WEIRD_MIND
-D:It is a large slimy mass of worms.
+D:It is a large mass of green worms, spreading foul-smelling slime as it goes.
 
 N:60:silver mouse
 G:r:W
@@ -583,7 +582,7 @@ W:3:2:0:12
 B:CRAWL:LOSE_DEX:1d3
 F:ANIMAL | HURT_LITE | MULTIPLY | NO_FEAR | RAND_25 | RAND_50 | STUPID |
 F:WEIRD_MIND
-D:It is a large slimy mass of worms.
+D:It is a large slimy mass of disgusting yellow worms.
 
 N:66:giant pack rat
 G:r:o
@@ -695,7 +694,8 @@ W:4:1:0:18
 B:CRAWL:COLD:1d4
 F:ANIMAL | COLD_BLOOD | HURT_LITE | MULTIPLY | NO_FEAR | RAND_25 |
 F:RAND_50 | RES_COLD | STUPID | WEIRD_MIND
-D:It is a large slimy mass of worms.
+D:It is a large mass of blue worms, leaving a trail of frosty slime behind
+D: them.
 
 N:78:blue ooze
 G:j:b
@@ -824,7 +824,7 @@ W:5:1:0:25
 B:CRAWL:FIRE:1d6
 F:ANIMAL | BASH_DOOR | EMPTY_MIND | HURT_LITE | MULTIPLY | NO_FEAR |
 F:RAND_25 | RAND_50 | RES_FIRE | STUPID
-D:It is a large slimy mass of worms.
+D:It is a large mass of worms, leaving a trail of burning slime in its path.
 
 N:92:grey icky thing
 G:i:s
@@ -1060,7 +1060,7 @@ B:BITE:ACID:2d6
 B:BITE:ACID:2d4
 F:ANIMAL | EMPTY_MIND | KILL_BODY | KILL_ITEM | STUPID | RES_ACID
 S:1_IN_10 | BR_ACID
-D:It is slowly making its way towards you, eating everything in
+D:It is slowly making its way towards you, consuming everything in
 D: its path.
 
 N:117:gremlin
@@ -1856,8 +1856,8 @@ W:12:3:0:750
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | MALE | OPEN_DOOR
-D:He is a hideous deformed cross-breed with man and orc, combining man's
-D: strength and cunning with orcish evil.
+D:One of the most powerful and vicious species of orc, the grey orcs
+D: have been bred to survive above ground.
 
 N:196:rimi
 G:y:W
@@ -2591,8 +2591,8 @@ B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
 F:BASH_DOOR | FORCE_SLEEP | FRIENDS | MANY | RES_ACID | ANIMAL
 S:1_IN_10 | BR_ACID
-D:Liquid footprints follow this hound as it pads around the dungeon.  An
-D: acrid smell of acid rises from the dog's pelt.
+D:Footprints are burned in the ground behind this hound as it
+D: pads around the dungeon. An acrid smell of acid rises from the dog's pelt. 
 
 N:267:black dragon bat
 G:b:s
@@ -2840,7 +2840,7 @@ B:ENGULF:ACID:3d3
 F:BASH_DOOR | EMPTY_MIND | FORCE_SLEEP | NO_BLIND | NO_CALM | NO_CUT |
 F:NO_FEAR | NO_SLEEP | WIDE_BREATH | RAND_50 | RES_ACID | RES_CONF | NO_TRAP 
 S:1_IN_6 | BR_ACID
-D:A caustic spinning whirlpool of acid.
+D:A caustic spinning whirlpool of foaming, steaming liquid.
 
 N:291:water hound
 G:Z:B
@@ -2852,6 +2852,8 @@ B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
 F:BASH_DOOR | FORCE_SLEEP | FRIENDS | MANY | RES_WATER | ANIMAL
 S:1_IN_11 | BR_WATER
+D:Liquid footprints follow this hound as it pads around the dungeon.
+D: Its dog-shaped body moves fluidly, its muscles flowing rather than bending.
 
 N:292:scroll mimic
 G:?:w
@@ -3646,13 +3648,13 @@ D:A strange reptilian hybrid with six heads dripping venom.
 N:368:giant purple worm
 G:w:v
 I:110:60d8:14:65:30
-W:29:3:0:9000
+W:29:3:0:15000
 B:BITE:ACID:2d8
 B:HIT:HURT:1d8
 B:STING:POISON:1d8
-F:ANIMAL | BASH_DOOR | NO_CALM | RES_ACID | RES_POIS
-D:It is a massive worm form, many feet in length.  Its vast maw drips acid
-D: and poison.
+F:ANIMAL | BASH_DOOR | NO_CALM | RES_ACID | RES_POIS | KILL_WALL
+D:Burrowing through the rock is is a massive worm form, many feet in length.  
+D: Its vast maw drips acid and poison.
 
 N:369:ring mimic
 G:=:w
@@ -5736,7 +5738,7 @@ F:UNIQUE
 N:537:werelion
 G:l:y
 I:110:10d100:30:50:20
-W:44:1:0:200000
+W:44:1:0:160000
 B:BITE:HURT:2d12
 B:CLAW:HURT:2d10
 B:CLAW:HURT:2d10
@@ -5749,7 +5751,7 @@ D: all beasts.
 N:538:11-headed hydra
 G:Y:R
 I:120:90d18:20:100:20
-W:44:2:0:300000
+W:44:2:0:250000
 B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
@@ -5794,7 +5796,7 @@ D: live to see another.
 N:541:mummy priest
 G:M:g
 I:110:50d20:20:70:50
-W:44:3:0:45000
+W:44:3:0:85000
 B:HIT:DISEASE:2d8
 B:HIT:DISEASE:2d8
 B:TOUCH:ROT:2d5
@@ -6236,7 +6238,7 @@ D:A lich who is partially immaterial, on its way to a new, ethereal form.
 N:578:12-headed dracohydra
 G:Y:y
 I:120:90d20:20:100:20
-W:54:3:0:125000
+W:54:3:0:400000
 B:BITE:FIRE:3d12
 B:BITE:ELEC:3d12
 B:BITE:HURT:3d12
@@ -6249,7 +6251,7 @@ D:The most powerful of the hydra sub-species, it has 12 draconic heads.
 N:579:eye druj
 G:s:r
 I:130:9d100:20:90:10
-W:54:4:0:200000
+W:54:4:0:250000
 B:GAZE:EXP_3
 B:GAZE:EXP_3
 F:COLD_BLOOD | EVIL | FORCE_MAXHP | FORCE_SLEEP | NEVER_MOVE | NO_BLIND |
@@ -6565,7 +6567,7 @@ F:UNDEAD | NO_TRAP
 S:1_IN_3 | BA_NETH | BLIND | BLINK | BRAIN_SMASH | CAUSE_3 | CAUSE_4 |
 S:CONF | DRAIN_MANA | FORGET | HEAL | HOLD | SCARE | S_DEMON |
 S:S_HI_UNDEAD | TELE_TO | TPORT
-D:A lich, who has reached its ultimate evolutionary stage: a completely
+D:A lich who has reached its ultimate evolutionary stage: a completely
 D: immaterial state.
 
 N:605:dark quylthulg

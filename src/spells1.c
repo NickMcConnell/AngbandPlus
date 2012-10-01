@@ -3674,7 +3674,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something strange!");
 
-			apply_resistance(dam, p_ptr->res[RS_NTH]);
+			dam = apply_resistance(dam, p_ptr->res[RS_NTH]);
 
 			if (!resist_effect(25, RS_NTH))
 			{
@@ -3702,7 +3702,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something!");
 
-			apply_resistance(dam, p_ptr->res[RS_WTR]);
+			dam = apply_resistance(dam, p_ptr->res[RS_WTR]);
 
 			if (!resist_effect(25, RS_WTR))
 			{
@@ -3724,7 +3724,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something strange!");
 
-			apply_resistance(dam, p_ptr->res[RS_CHS]);
+			dam = apply_resistance(dam, p_ptr->res[RS_CHS]);
 
 			if (!resist_effect(25, RS_CHS))
 			{
@@ -3761,7 +3761,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something sharp!");
 
-			apply_resistance(dam, p_ptr->res[RS_SHR]);
+			dam = apply_resistance(dam, p_ptr->res[RS_SHR]);
 
 			if (!p_ptr->no_cut && !resist_effect(15, RS_SHR))
 			{
@@ -3776,7 +3776,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something!");
 
-			apply_resistance(dam, p_ptr->res[RS_SND]);
+			dam = apply_resistance(dam, p_ptr->res[RS_SND]);
 
 			if (!p_ptr->no_stun && !resist_effect(20, RS_SND))
 			{
@@ -3792,7 +3792,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something!");
 
-			apply_resistance(dam, p_ptr->res[RS_CNF]);
+			dam = apply_resistance(dam, p_ptr->res[RS_CNF]);
 
 			if (!p_ptr->no_confuse && !resist_effect(25, RS_CNF))
 			{
@@ -3807,7 +3807,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something strange!");
 
-			apply_resistance(dam, p_ptr->res[RS_DSN]);
+			dam = apply_resistance(dam, p_ptr->res[RS_DSN]);
 
 			if (!resist_effect(20, RS_DSN))
 			{
@@ -3822,7 +3822,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something strange!");
 
-			apply_resistance(dam, p_ptr->res[RS_NEX]);
+			dam = apply_resistance(dam, p_ptr->res[RS_NEX]);
 
 			if (!resist_effect(25, RS_NEX))
 			{
@@ -3858,7 +3858,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something!");
 
-			apply_resistance(dam, p_ptr->res[RS_LIT]);
+			dam = apply_resistance(dam, p_ptr->res[RS_LIT]);
 
 			if (!resist_effect(20, RS_LIT))
 			{
@@ -3876,7 +3876,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something!");
 
-			apply_resistance(dam, p_ptr->res[RS_DRK]);
+			dam = apply_resistance(dam, p_ptr->res[RS_DRK]);
 
 			if (!resist_effect(20, RS_DRK))
 			{
@@ -3895,7 +3895,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something strange!");
 
-			apply_resistance(dam, p_ptr->res[RS_TIM]);
+			dam = apply_resistance(dam, p_ptr->res[RS_TIM]);
 
 			if (!resist_effect(30, RS_TIM)) switch (randint(10))
 			{
@@ -3951,7 +3951,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something!");
 
-			apply_resistance(dam, p_ptr->res[RS_MNA]);
+			dam = apply_resistance(dam, p_ptr->res[RS_MNA]);
 
 			take_hit(dam, killer);
 			break;

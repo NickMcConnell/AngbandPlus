@@ -1,3 +1,51 @@
+Changes from 0.4.0c to 0.4.0d:
+
+## Gameplay changes ##
+
+- The penalties for very low constitution slightly increased.
+
+- display_recharge_msg is now a disturbance option.
+
+# Help files #
+
+- Class and race help files have been updated.
+
+# Classes/Races #
+
+- Resistance levels for all classes and some races lowered. (Reason: they 
+  didn't do much, and no one noticed. So, now that they work, they can 
+  be lower)
+
+# Monsters #
+
+- Purple worms can now KILL_WALL, and they give more experience.
+
+- Several monsters got revised experience values.
+
+- Descriptions of many monsters changed.
+
+## Bug fixes ##
+
+- Non-elemental resistances didn't actually reduce the damage.
+
+- Characters with racial immunities got them too soon.
+
+- If you have an artifact that raises a resistance cap, you can see that 
+  without *ID*ing it.
+
+- I think I actually fixed the bug where broken/open/secret doors would 
+  sometimes appear to be closed doors (even though they'd behave 
+  more-or-less normally). Though, having said so twice before already, I'm
+  not promising anything.
+
+- Damaged armor can now have a base AC of 0 (so damaged shirts don't have a 
+  higher base AC than normal shirts).
+
+- You can no longer lose HP when gaining levels, no matter what your 
+  constitution is.
+
+- The artifact list no longer spoils ring, amulet and light-source flavors.
+
 Changes from 0.4.0b to 0.4.0c:
 
 ## Bug fixes ##
