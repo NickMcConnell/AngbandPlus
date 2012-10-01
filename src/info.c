@@ -11,324 +11,6 @@
 #include "angband.h"
 
 /*
- * Obtain the "flags" for an item
- */
-static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
-{
-	bool mental = (o_ptr->ident & IDENT_MENTAL);
-
-	object_kind *k_ptr;
-
-	/* Check artifact knowledge status */
-	if (artifact_p(o_ptr))
-	{
-		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
-
-		if (artifact_known_p(a_ptr)) mental = TRUE;
-	}
-
-	if (mode != OBJECT_INFO_FULL)
-	{
-		/* Clear */
-		(*f1) = (*f2) = (*f3) = 0L;
-
-		/* Must be identified */
-		if (!object_known_p(o_ptr)) 
-		{
-			/* Hack - know the light radius of lite items */
-			if (o_ptr->a_idx) 
-			{
-				(*f3) = (a_info[o_ptr->a_idx].flags3 & (TR3_LITE_MASK));
-			}
-			else (*f3) = (k_info[o_ptr->k_idx].flags3 & (TR3_LITE_MASK)); 
-
-			return;
-		}
-	}
-
-	if (mode != OBJECT_INFO_RANDOM)
-	{
-		k_ptr = &k_info[o_ptr->k_idx];
-
-		/* Base object */
-		(*f1) = k_ptr->flags1;
-		(*f2) = k_ptr->flags2;
-		(*f3) = k_ptr->flags3;
-
-		if (mode == OBJECT_INFO_FULL)
-		{
-			/* Artifact */
-			if (artifact_p(o_ptr))
-			{
-				artifact_type *a_ptr = &a_info[o_ptr->a_idx];
-
-				(*f1) = a_ptr->flags1;
-				(*f2) = a_ptr->flags2;
-				(*f3) = a_ptr->flags3;
-			}
-		}
-
-		/* Ego-item */
-		if (o_ptr->e_idx)
-		{
-			ego_item_type *e_ptr = &e_info[o_ptr->e_idx];
-
-			(*f1) |= e_ptr->flags1;
-			(*f2) |= e_ptr->flags2;
-			(*f3) |= e_ptr->flags3;
-		}
-
-		if (mode == OBJECT_INFO_KNOWN)
-		{
-			if (o_ptr->e_idx)
-			{
-				ego_item_type *e_ptr = &e_info[o_ptr->e_idx];
-
-				/* Obvious flags (pval) */
-				(*f1) = (e_ptr->flags1);
-			}
-
-			/* Obvious artifact flags */
-			if (o_ptr->a_idx)
-			{
-				artifact_type *a_ptr = &a_info[o_ptr->a_idx];
-
-				/* Obvious flags (pval, elemental ignores) */
-				(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
-
-				(*f3) = (a_ptr->flags3 & (TR3_IGNORE_ELEM | TR3_IGNORE_NON_ELEM));
-
-				/* Always know the radius of light sources */
-				(*f3) |= (a_ptr->flags3 & (TR3_LITE_MASK));
-
-			}
-		}
-	}
-
-	if (mode != OBJECT_INFO_FULL)
-	{
-		bool spoil = FALSE;
-
-#ifdef SPOIL_ARTIFACTS
-		/* Full knowledge for some artifacts */
-		if (artifact_p(o_ptr)) spoil = TRUE;
-#endif /* SPOIL_ARTIFACTS */
-
-#ifdef SPOIL_EGO_ITEMS
-		/* Full knowledge for some ego-items */
-		if (ego_item_p(o_ptr)) spoil = TRUE;
-#endif /* SPOIL_ARTIFACTS */
-
-		/* Need full knowledge or spoilers */
-		if (!spoil && !mental) return;
-
-		/* Artifact */
-		if (o_ptr->a_idx)
-		{
-			artifact_type *a_ptr = &a_info[o_ptr->a_idx];
-
-			(*f1) = a_ptr->flags1;
-			(*f2) = a_ptr->flags2;
-			(*f3) = a_ptr->flags3;
-
-			if (mode == OBJECT_INFO_RANDOM)
-			{
-				/* Hack - remove ALL flags, until random artifacts return */
-				(*f1) = 0;
-				(*f2) = 0;
-				(*f3) = 0;
-			}
-		}
-
-		/* Full knowledge for *identified* objects */
-		if (!mental) return;
-	}
-
-	/* Extra powers */
-	switch (o_ptr->xtra1)
-	{
-		case OBJECT_XTRA_TYPE_SUSTAIN:
-		{
-			(*f1) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
-			break;
-		}
-
-		case OBJECT_XTRA_TYPE_POWER:
-		{
-			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
-			break;
-		}
-	}
-}
-
-/*
- * Obtain the "flags" for an item
- */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
-{
-	object_flags_aux(OBJECT_INFO_FULL, o_ptr, f1, f2, f3);
-}
-
-/*
- * Obtain the "flags" for an item which are known to the player
- */
-static void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
-{
-	object_flags_aux(OBJECT_INFO_KNOWN, o_ptr, f1, f2, f3);
-}
-
-/*
- * Obtain the resistances from an item 
- */
-byte object_resist(object_type *o_ptr, int res_type)
-{
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	artifact_type *a_ptr = &a_info[o_ptr->a_idx];
-	ego_item_type *e_ptr = &e_info[o_ptr->e_idx];
-
-	int i = 0;
-
-	/* Random abilities for ego items */
-	if (ego_item_p(o_ptr))
-	{
-		if (((o_ptr->xtra1 == OBJECT_XTRA_TYPE_MID_RESIST) ||
-			(o_ptr->xtra1 == OBJECT_XTRA_TYPE_HIGH_RESIST)) &&
-			(o_ptr->xtra2 == res_type))
-			i = 25;
-	}
-
-	return (k_ptr->res[res_type] + a_ptr->res[res_type] + e_ptr->res[res_type] + i);
-}
-
-/*
- * Obtain the resistances from an item 
- */
-byte object_resist_known(object_type *o_ptr, int res_type)
-{
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	artifact_type *a_ptr = &a_info[o_ptr->a_idx];
-	ego_item_type *e_ptr = &e_info[o_ptr->e_idx];
-
-	int res = 0;
-
-	if (object_known_p(o_ptr)) 
-	{
-		res = k_ptr->res[res_type] + e_ptr->res[res_type];
-		if (artifact_known_p(a_ptr)) res += a_ptr->res[res_type];
-		/* Known random ego-item resists */
-		if (ego_item_p(o_ptr) && (o_ptr->ident & IDENT_MENTAL))
-		if (((o_ptr->xtra1 == OBJECT_XTRA_TYPE_MID_RESIST) ||
-			(o_ptr->xtra1 == OBJECT_XTRA_TYPE_HIGH_RESIST)) &&
-			(o_ptr->xtra2 == res_type))
-			res += 25;
-	}
-
-	return (res);
-}
-
-/*
- * Obtain the slays from an item 
- * The highest slay amout the possibilities.
- */
-void weapon_slays(object_type *o_ptr, byte *slays)
-{
-	int j;
-	byte slay;
-
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	artifact_type *a_ptr = &a_info[o_ptr->a_idx];
-	ego_item_type *e_ptr = &e_info[o_ptr->e_idx];
-	weapon_prefix_type *wpx_ptr = &wpx_info[o_ptr->prefix_idx];
-
-	/* Extract slays */
-	for (j = 0 ; j < SL_MAX ; j++)
-	{
-		slay = k_ptr->slays[j];
-
-		if (a_ptr->slays[j] > slay) slay = a_ptr->slays[j];
-		if (e_ptr->slays[j] > slay) slay = e_ptr->slays[j];
-		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) || 
-			(o_ptr->tval == TV_POLEARM))
-		{
-			if (wpx_ptr->slays[j] > slay) slay = wpx_ptr->slays[j];
-		}
-
-		slays[j] = slay;
-	}
-}
-
-/*
- * Obtain the slays from an item 
- * The highest slay amout the possibilities.
- */
-void weapon_slays_known(object_type *o_ptr, byte *slays)
-{
-	int j;
-	byte slay;
-
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	artifact_type *a_ptr = &a_info[o_ptr->a_idx];
-	ego_item_type *e_ptr = &e_info[o_ptr->e_idx];
-	weapon_prefix_type *wpx_ptr = &wpx_info[o_ptr->prefix_idx];
-
-	/* Extract slays */
-	for (j = 0 ; j < SL_MAX ; j++)
-	{
-		slay = k_ptr->slays[j];
-
-		if (object_known_p(o_ptr))
-		{
-			if (artifact_known_p(a_ptr) && (a_ptr->slays[j] > slay)) slay = a_ptr->slays[j];
-			if (e_ptr->slays[j] > slay) slay = e_ptr->slays[j];
-		}
-
-		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) || 
-			(o_ptr->tval == TV_POLEARM))
-		{
-			if (wpx_ptr->slays[j] > slay) slay = wpx_ptr->slays[j];
-		}
-
-		slays[j] = slay;
-	}
-}
-
-/*
- * Determine the "Activation" (if any) for an artifact
- */
-static bool item_activation(char *text, int *time1, int *time2, object_type *o_ptr)
-{
-	int j;
-	u16b act = object_activation(o_ptr);
-
-	/* No activation */
-	if (!act) return (FALSE);
-
-	/* Paranoia */
-	if (act >= POW_MAX) return (FALSE);
-
-	for (j = (POW_MAX - 1); j > 0; j--) 
-	{
-		if (power_info[j].index == act) break;
-	}
-
-	/* Display that spell's information. */
-	if (power_info[j].desc != NULL) strcpy(text, power_info[j].desc);
-
-	/* Artifact activations */
-	if (o_ptr->a_idx)
-	{
-		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
-
-		/* Some artifacts can be activated */
-		*time1 = a_ptr->time;
-		*time2 = a_ptr->randtime;
-	}
-	else (*time1 = *time2 = 0);
-
-	return (TRUE);
-}
-
-/*
  * Hack -- pass color info around this file
  */
 static byte likert_color = TERM_WHITE;
@@ -351,8 +33,7 @@ static cptr likert(int x, int y)
 	/* Analyze the value */
 	switch ((x / y))
 	{
-		case 0:
-		case 1:
+		case 0:	case 1:
 		{
 			likert_color = TERM_RED;
 			return ("Bad");
@@ -362,8 +43,7 @@ static cptr likert(int x, int y)
 			likert_color = TERM_RED;
 			return ("Poor");
 		}
-		case 3:
-		case 4:
+		case 3:	case 4:
 		{
 			likert_color = TERM_YELLOW;
 			return ("Fair");
@@ -378,25 +58,17 @@ static cptr likert(int x, int y)
 			likert_color = TERM_YELLOW;
 			return ("Very Good");
 		}
-		case 7:
-		case 8:
+		case 7:	case 8:
 		{
 			likert_color = TERM_L_GREEN;
 			return ("Excellent");
 		}
-		case 9:
-		case 10:
-		case 11:
-		case 12:
-		case 13:
+		case 9:	case 10: case 11: case 12: case 13:
 		{
 			likert_color = TERM_L_GREEN;
 			return ("Superb");
 		}
-		case 14:
-		case 15:
-		case 16:
-		case 17:
+		case 14: case 15: case 16: case 17:
 		{
 			likert_color = TERM_L_GREEN;
 			return ("Heroic");
@@ -414,82 +86,75 @@ static cptr likert(int x, int y)
  */
 static void display_player_race_power(int y, int x)
 {
-	int turns = 0;
 	int line = 0;
 
-	switch (rsp_ptr[(p_ptr->max_lev) / 5]->power)
+	/* No power */
+	if (!rp_ptr->special || !(rsp_ptr[p_ptr->max_lev / 5]->activation))
 	{
-		case 1:
+		Term_putstr(x, y, -1, TERM_L_BLUE, "None");
+		return;
+	}
+
+	switch (rsp_ptr[(p_ptr->max_lev) / 5]->activation)
+	{
+		case POW_DETECT_EVIL:
 		{
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Detect Evil");
-			turns = 50;
 			break;
 		}
-		case 2:
+		case POW_LIGHT_AREA_1:
 		{
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Call Light");
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 2d2)");
-			turns = 50;
 			break;
 		}
-		case 3:
+		case POW_BEAM_WEAK_LITE:
 		{
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Spear of Light");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 6d8)");
-			turns = 25;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 9d8)");
 			break;
 		}
-		case 4:
+		case POW_BALL_HOLY_1:
 		{
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Orb of Draining");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 3d6+50)");
-			turns = 15;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 3d6+40)");
 			break;
 		}
-		case 5:
+		case POW_PROT_EVIL_1:
 		{
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Prot. from Evil");
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dur. d25+30)");
-			turns = 150;
 			break;
 		}
-		case 6:
+		case POW_TELE_10:
 		{
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Blink");
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(radius 10)");
-			turns = 20;
 			break;
 		}
-		case 7:
+		case POW_BOLT_FIRE_1:
 		{
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Fire Bolt");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 10d8)");
-			turns = 20;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 10d6)");
 			break;
 		}
-		case 8:
+		case POW_BALL_FIRE_1:
 		{
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Fire Ball");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 85 rad 2)");
-			turns = 20;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 80 rad 2)");
 			break;
 		}
-		case 9:
+		case POW_BALL_PLASMA:
 		{
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Plasma Ball");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 4d7+100)");
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 4d10+140");
 			Term_putstr(x , y + line++, -1, TERM_L_BLUE, " rad 3)");
-			turns = 20;
 			break;
-		}
-		default:
-		{
-			/* Paranoia */
-			return;
 		}
 	}
 
-	if (line) Term_putstr(x, y + line , -1, TERM_L_BLUE, format("Every %d Turns", turns));
+	if (line) Term_putstr(x, y + line , -1, TERM_L_BLUE,
+		format("Every %d Turns", rsp_ptr[p_ptr->max_lev / 5]->turns));
 }
 
 /*
@@ -502,9 +167,8 @@ static void display_player_race_power(int y, int x)
 static void display_player_xtra_info(void)
 {
 	int col;
-	int hit, dam;
-	int base, plus;
-	int i;
+	int hit, base, plus;
+	byte attr;
 
 	object_type *o_ptr;
 
@@ -518,62 +182,43 @@ static void display_player_xtra_info(void)
 
 	/* Level */
 	Term_putstr(col, 10, -1, TERM_WHITE, "Level");
-	if (p_ptr->lev >= p_ptr->max_lev)
-	{
-		Term_putstr(col+8, 10, -1, TERM_L_GREEN,
-		            format("%10d", p_ptr->lev));
-	}
-	else
-	{
-		Term_putstr(col+8, 10, -1, TERM_YELLOW,
-		            format("%10d", p_ptr->lev));
-	}
+	if (p_ptr->lev >= p_ptr->max_lev) attr = TERM_L_GREEN;
+	else attr = TERM_YELLOW;
+
+	Term_putstr(col + 8, 10, -1, attr, format("%10d", p_ptr->lev));
 
 	/* Current Experience */
 	Term_putstr(col, 11, -1, TERM_WHITE, "Cur Exp");
-	if (p_ptr->exp >= p_ptr->max_exp)
-	{
-		Term_putstr(col+8, 11, -1, TERM_L_GREEN,
-		            format("%10ld", p_ptr->exp));
-	}
-	else
-	{
-		Term_putstr(col+8, 11, -1, TERM_YELLOW,
-		            format("%10ld", p_ptr->exp));
-	}
+	if (p_ptr->exp >= p_ptr->max_exp) attr = TERM_L_GREEN;
+	else attr = TERM_YELLOW;
+		
+	Term_putstr(col + 8, 11, -1, attr, format("%10ld", p_ptr->exp));
 
 	/* Maximum Experience */
 	Term_putstr(col, 12, -1, TERM_WHITE, "Max Exp");
-	Term_putstr(col+8, 12, -1, TERM_L_GREEN,
-	            format("%10ld", p_ptr->max_exp));
+	Term_putstr(col + 8, 12, -1, TERM_L_GREEN, format("%10ld", p_ptr->max_exp));
 
 	/* Advance Experience */
 	Term_putstr(col, 13, -1, TERM_WHITE, "Adv Exp");
 	if (p_ptr->lev < PY_MAX_LEVEL)
 	{
-		s32b advance = (player_exp[p_ptr->lev - 1] *
-		                p_ptr->expfact / 100L);
-		Term_putstr(col+8, 13, -1, TERM_L_GREEN,
-		            format("%10ld", advance));
+		s32b advance = ((player_exp[p_ptr->lev - 1] * p_ptr->expfact) / 100L);
+		Term_putstr(col + 8, 13, -1, TERM_L_GREEN, format("%10ld", advance));
 	}
-	else
-	{
-		Term_putstr(col+8, 13, -1, TERM_L_GREEN,
-		            format("%10s", "********"));
-	}
+	else Term_putstr(col+8, 13, -1, TERM_L_GREEN, format("%10s", "********"));
 
 	/* Gold */
 	Term_putstr(col, 15, -1, TERM_WHITE, "Gold");
-	Term_putstr(col+8, 15, -1, TERM_L_GREEN,
-	            format("%10ld", p_ptr->au));
+	Term_putstr(col + 8, 15, -1, TERM_L_GREEN,format("%10ld", p_ptr->au));
 
 	/* Burden */
-	sprintf(buf, "%ld.%ld lbs",
-	        p_ptr->total_weight / 10L,
-	        p_ptr->total_weight % 10L);
+	if (p_ptr->total_weight % 10)
+		sprintf(buf, "%ld.%ld/%ld", p_ptr->total_weight / 10L, p_ptr->total_weight % 10L,
+		adj_str_wgt[p_stat(A_STR)] * 6);
+	else 
+		sprintf(buf, "%ld/%ld", p_ptr->total_weight / 10L, adj_str_wgt[p_stat(A_STR)] * 6);
 	Term_putstr(col, 16, -1, TERM_WHITE, "Burden");
-	Term_putstr(col+8, 16, -1, TERM_L_GREEN,
-	            format("%10s", buf));
+	Term_putstr(col + 8, 16, -1, TERM_L_GREEN, format("%10s", buf));
 
 	/* Left Middle */
 	col = 21;
@@ -585,58 +230,45 @@ static void display_player_xtra_info(void)
 	/* Total Armor */
 	sprintf(buf, "[%d,%+d]", base, plus);
 	Term_putstr(col, 10, -1, TERM_WHITE, "Armor");
-	Term_putstr(col+5, 10, -1, TERM_L_BLUE, format("%13s", buf));
-
-	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = p_ptr->dis_to_d;
-
-	/* Basic fighting */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
-	Term_putstr(col, 11, -1, TERM_WHITE, "Fight");
-	Term_putstr(col+5, 11, -1, TERM_L_BLUE, format("%13s", buf));
+	Term_putstr(col + 5, 10, -1, TERM_L_BLUE, format("%13s", buf));
 
 	/* Melee weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Base skill */
 	hit = p_ptr->dis_to_h;
-	dam = p_ptr->dis_to_d;
 
 	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += actual_to_h(o_ptr);
-	if (object_known_p(o_ptr)) dam += actual_to_d(o_ptr);
+	if (object_known_p(o_ptr)) hit += object_to_h(o_ptr);
 
 	/* Melee attacks */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
+	sprintf(buf, "(%+d, %dd%d)", hit, p_ptr->dd, p_ptr->ds);
 	Term_putstr(col, 12, -1, TERM_WHITE, "Melee");
-	Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%13s", buf));
+	Term_putstr(col + 5, 12, -1, TERM_L_BLUE, format("%13s", buf));
+
+	/* Blows */
+	sprintf(buf, "%d/turn", p_ptr->num_blow);
+	Term_putstr(col, 13, -1, TERM_WHITE, "Blows");
+	Term_putstr(col + 5, 13, -1, TERM_L_BLUE, format("%13s", buf));
 
 	/* Range weapon */
 	o_ptr = &inventory[INVEN_BOW];
 
 	/* Base skill */
 	hit = p_ptr->dis_to_h;
-	dam = 0;
 
 	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += actual_to_h(o_ptr);
-	if (object_known_p(o_ptr)) dam += actual_to_d(o_ptr);
+	if (object_known_p(o_ptr)) hit += object_to_h(o_ptr);
 
 	/* Range attacks */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
-	Term_putstr(col, 13, -1, TERM_WHITE, "Shoot");
-	Term_putstr(col+5, 13, -1, TERM_L_BLUE, format("%13s", buf));
-
-	/* Blows */
-	sprintf(buf, "%d/turn", p_ptr->num_blow);
-	Term_putstr(col, 15, -1, TERM_WHITE, "Blows");
-	Term_putstr(col+5, 15, -1, TERM_L_BLUE, format("%13s", buf));
+	sprintf(buf, "(%+d)", hit);
+	Term_putstr(col, 15, -1, TERM_WHITE, "Shoot");
+	Term_putstr(col + 5, 15, -1, TERM_L_BLUE, format("%13s", buf));
 
 	/* Shots */
 	sprintf(buf, "%d/turn", p_ptr->num_fire);
 	Term_putstr(col, 16, -1, TERM_WHITE, "Shots");
-	Term_putstr(col+5, 16, -1, TERM_L_BLUE, format("%13s", buf));
+	Term_putstr(col + 5, 16, -1, TERM_L_BLUE, format("%13s", buf));
 
 	/* Right Middle */
 	col=41;
@@ -644,25 +276,26 @@ static void display_player_xtra_info(void)
 	/* Infra */
 	sprintf(buf, "%d ft", p_ptr->see_infra * 10);
 	Term_putstr(col, 10, -1, TERM_WHITE, "Infra");
-	Term_putstr(col+5, 10, -1, TERM_L_BLUE, format("%9s", buf));
+	Term_putstr(col + 5, 10, -1, TERM_L_BLUE, format("%9s", buf));
 
 	/* Racial Ability */
 	put_str("Racial Ability", 12, col);
-	if ((rp_ptr->special) && (rsp_ptr[(p_ptr->max_lev)/5]->power > 0))
-	{
-		display_player_race_power(13, col);
-	}
-	else
-	Term_putstr(col, 13, -1, TERM_L_BLUE, format("None", buf));
+	display_player_race_power(13, col);
 
 	/* Bottom */
 	col = 1;
 
-	/* History */
-	for (i = 0; i < 5; i++)
-	{
-		put_str(p_ptr->history[i], i + 18, col);
-	}
+	/* Output to the screen and wrap at column 55 */
+	text_out_wrap = 55;
+	text_out_indent = 1;
+ 
+	/* Print history */
+	Term_gotoxy(text_out_indent, 18);
+	text_out_to_screen(TERM_WHITE, p_ptr->history);
+
+	/* Reset text_out() vars */
+	text_out_wrap = 0;
+	text_out_indent = 0;
 }
 
 /*
@@ -682,11 +315,11 @@ static void display_player_skill_info(void)
 
 	/* Fighting Skill (with current weapon) */
 	o_ptr = &inventory[INVEN_WIELD];
-	xskill[SK_THN] = p_ptr->skill[SK_THN] + p_ptr->to_h + actual_to_h(o_ptr);
+	xskill[SK_THN] = p_ptr->skill[SK_THN] + p_ptr->to_h + object_to_h(o_ptr);
 
 	/* Shooting Skill (with current bow) */
 	o_ptr = &inventory[INVEN_BOW];
-	xskill[SK_THB] = p_ptr->skill[SK_THB] + p_ptr->to_h + actual_to_h(o_ptr);;
+	xskill[SK_THB] = p_ptr->skill[SK_THB] + p_ptr->to_h + object_to_h(o_ptr);;
 
 	/* Throwing Skill */
 	xskill[SK_THT] = p_ptr->skill[SK_THT] + p_ptr->to_h;
@@ -711,15 +344,15 @@ static void display_player_skill_info(void)
 	c_put_str(likert_color, format("%9s", desc), 11, col+13);
 
 	put_str("Fighting", 12, col);
-	desc = likert(xskill[SK_THN], 4);
+	desc = likert(xskill[SK_THN], 2);
 	c_put_str(likert_color, format("%9s", desc), 12, col+13);
 
 	put_str("Shooting", 13, col);
-	desc = likert(xskill[SK_THB], 4);
+	desc = likert(xskill[SK_THB], 2);
 	c_put_str(likert_color, format("%9s", desc), 13, col+13);
 
 	put_str("Throwing", 14, col);
-	desc = likert(xskill[SK_THT], 4);
+	desc = likert(xskill[SK_THT], 2);
 	c_put_str(likert_color, format("%9s", desc), 14, col+13);
 
 	put_str("Disarming", 15, col);
@@ -1003,14 +636,14 @@ static void display_player_resists_info(void)
 
 	for (i = 0, j = 0; i < RS_MAX; i++)
 	{
-		x = (j / (RS_MAX / 3));
+		x = (j / ((RS_MAX + 2) / 3));
 		col = 2 + (26 * x);
 		row = 14;
 
 		/* Display */
 		if (p_ptr->dis_res[i])
 		{
-			prt(format("%s:", resist_names_short[i]), row + (j % (RS_MAX / 3)), col);
+			prt(format("%s:", resist_names_short[i]), row + (j % ((RS_MAX + 2) / 3)), col);
 
 			/* Check equipment */
 			for (n = 10, k = INVEN_WIELD; k < INVEN_TOTAL; ++k, ++n)
@@ -1033,23 +666,23 @@ static void display_player_resists_info(void)
 				/* Check flags */
 				if (object_resist_known(o_ptr, i))
 				{
-					c_put_str(attr2, "+", row + (j % (RS_MAX / 3)), col + n);
+					c_put_str(attr2, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
 				}
 
 				/* Default */
 				else
 				{
-					c_put_str(attr1, ".", row + (j % (RS_MAX / 3)), col + n);
+					c_put_str(attr1, ".", row + (j % ((RS_MAX + 2) / 3)), col + n);
 				}
 			}
 
 			/* Default */
-			c_put_str(TERM_SLATE, ".", row + (j % (RS_MAX / 3)), col + n);
+			c_put_str(TERM_SLATE, ".", row + (j % ((RS_MAX + 2) / 3)), col + n);
 
 			/* Basic Resistance */
 			if ((((rp_ptr->res[i] + cp_ptr->res[i]) * p_ptr->lev) / 50) > 0)
 			{
-				c_put_str(TERM_WHITE, "+", row + (j % (RS_MAX / 3)), col + n);
+				c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
 			}
 
 			n++;
@@ -1057,12 +690,12 @@ static void display_player_resists_info(void)
 			/* Temporary Resist */
 
 			/* Default */
-			c_put_str(TERM_SLATE, ".", row + (j % (RS_MAX / 3)), col + n);
+			c_put_str(TERM_SLATE, ".", row + (j % ((RS_MAX + 2) / 3)), col + n);
 
 			/* Check flags */
 			if (p_ptr->tim_res[i])
 			{
-				c_put_str(TERM_WHITE, "+", row + (j % (RS_MAX / 3)), col + n);
+				c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
 			}
 
 			/* Resistance value */
@@ -1076,7 +709,7 @@ static void display_player_resists_info(void)
 			else if (p_ptr->dis_res[i] >= resist_caps[i].normal / 2) attr1 = TERM_L_GREEN;
 			else attr1 = TERM_YELLOW;
 
-			c_put_str(attr1, format("%d%%", p_ptr->dis_res[i]), row + (j % (RS_MAX / 3)), col + 6);
+			c_put_str(attr1, format("%d%%", p_ptr->dis_res[i]), row + (j % ((RS_MAX + 2) / 3)), col + 6);
 
 			j++;
 		}
@@ -1095,7 +728,7 @@ static void display_player_resists_info(void)
 }	
 
 /*
- * Special display, part 2a
+ * Normal display, part 2a
  */
 static void display_player_misc_info(void)
 {
@@ -1170,7 +803,7 @@ static void display_player_misc_info(void)
 
 	/* Status */
 	Term_putstr(col, 5, -1, TERM_WHITE, "Status");
-	Term_putstr(col+14, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
+	Term_putstr(col + 14, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
 
    	/* Deepest recall level */
    	Term_putstr(col, 7, -1, TERM_WHITE, "Max Depth");
@@ -1182,6 +815,50 @@ static void display_player_misc_info(void)
 	{
 		Term_putstr(col+11, 7, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->max_depth * 50));
 	}
+}
+
+/*
+ * Special display used for autorollers, part 2a
+ */
+static void display_player_basic_info(void)
+{
+	cptr p;
+
+	/* Sex */
+	put_str("Sex", 2, 1);
+	c_put_str(TERM_L_BLUE, sp_ptr->title, 2, 8);
+
+	/* Race */
+	put_str("Race", 3, 1);
+	if (!rp_ptr->special) p=p_name + rp_ptr->name;
+		else p=rsp_ptr[(p_ptr->max_lev)/5]->name;
+	c_put_str(TERM_L_BLUE, p, 3, 8);
+
+	/* Class */
+	put_str("Class", 4, 1);
+	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 4, 8);
+
+	/* Title */
+	put_str("Title", 5, 1);
+
+	/* Winner */
+	if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+	{
+		p = "***WINNER***";
+	}
+
+	/* Normal */
+	else
+	{
+#ifndef PREVENT_LOAD_C_TEXT
+		p = c_text+cp_ptr->title[(p_ptr->lev-1)/5];
+#else /* PREVENT_LOAD_C_TEXT */
+		p = " ";
+#endif /* PREVENT_LOAD_C_TEXT */
+	}
+
+	/* Dump it */
+	c_put_str(TERM_L_BLUE, p, 5, 8);
 }
 
 /*
@@ -1508,37 +1185,41 @@ static void display_player_stat_info(void)
  * Display the character on the screen (several different modes)
  *
  * The top two lines, and the bottom line (or two) are left blank.
- *
- * Mode 0 = display with skills/history
- * Mode 1 = display with resistances / equipment flags
- * Mode 98 = special display with equipment bonuses for char dumps
- * Mode 99 = special display with class bonuses for birth 
  */
 void display_player(byte mode)
 {
 	/* Erase screen */
-
 	clear_from(0);
 
 	/* Resistances */
-	if (mode == 1)
+	if (mode == CSCREEN_RESISTS)
 	{
 		display_player_flag_info();
 		display_player_resists_info();
+
+		return;
 	}
 
-	/* Standard */
-	else
+	/* Auto-roller (top-left corner only */
+	if (mode == CSCREEN_ROLLER)
 	{
-		if (mode == 99) display_player_stat_birth();
-		else if (mode == 98) display_player_stat_dump();
-		else display_player_stat_info();
-		display_player_misc_info();
+		display_player_basic_info();
 
-		/* Extra info */
-		display_player_xtra_info();
-		display_player_skill_info();
+		return;
 	}
+
+	/* Birth - no line for equipment bonuses */
+	if (mode == CSCREEN_BIRTH) display_player_stat_birth();
+	/* Dump - numberical display */
+	else if (mode == CSCREEN_DUMP) display_player_stat_dump();
+	/* Standard */
+	else display_player_stat_info();
+
+	display_player_misc_info();
+
+	/* Extra info */
+	display_player_xtra_info();
+	display_player_skill_info();
 }
 
 /*
@@ -1711,7 +1392,7 @@ static cptr *spoiler_flag_aux(const u32b art_flags, const o_flag_desc *flag_x_pt
 /*
  * Does an item ignore the damage from fire? 
  */
-static bool spoiler_ignore_damage(bool spoil, object_type *o_ptr, int res_type, int slay_type)
+static bool spoiler_ignore_damage(bool spoil, const object_type *o_ptr, int res_type, int slay_type)
 {
 	u32b f1, f2, f3;
 	byte slays[SL_MAX];
@@ -1740,7 +1421,7 @@ static bool spoiler_ignore_damage(bool spoil, object_type *o_ptr, int res_type, 
 /*  
  * This is a special function that lists what can damage an item 
  */
-static cptr *spoiler_damage_aux(bool spoil, object_type *o_ptr, cptr *desc_x_ptr)
+static cptr *spoiler_damage_aux(bool spoil, const object_type *o_ptr, cptr *desc_x_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -1748,16 +1429,16 @@ static cptr *spoiler_damage_aux(bool spoil, object_type *o_ptr, cptr *desc_x_ptr
 	if (spoil) object_flags(o_ptr, &f1, &f2, &f3);
 	else object_flags_known(o_ptr, &f1, &f2, &f3);
 
-	if (hates_acid(o_ptr) && !spoiler_ignore_damage(spoil, o_ptr, RS_ACD, SL_BRAND_ACID))
+	if (object_hates_acid(o_ptr) && !spoiler_ignore_damage(spoil, o_ptr, RS_ACD, SL_BRAND_ACID))
 		*desc_x_ptr++ = "acid";
-	if (hates_elec(o_ptr) && !spoiler_ignore_damage(spoil, o_ptr, RS_ELC, SL_BRAND_ELEC))
+	if (object_hates_elec(o_ptr) && !spoiler_ignore_damage(spoil, o_ptr, RS_ELC, SL_BRAND_ELEC))
 		*desc_x_ptr++ = "electricity";
-	if (hates_fire(o_ptr) && !spoiler_ignore_damage(spoil, o_ptr, RS_FIR, SL_BRAND_FIRE))
+	if (object_hates_fire(o_ptr) && !spoiler_ignore_damage(spoil, o_ptr, RS_FIR, SL_BRAND_FIRE))
 		*desc_x_ptr++ = "fire";
-	if (hates_cold(o_ptr) && !spoiler_ignore_damage(spoil, o_ptr, RS_CLD, SL_BRAND_COLD))
+	if (object_hates_cold(o_ptr) && !spoiler_ignore_damage(spoil, o_ptr, RS_CLD, SL_BRAND_COLD))
 		*desc_x_ptr++ = "cold";
-	if (hates_rust(o_ptr) && !(f3 & TR3_IGNORE_NON_ELEM)) *desc_x_ptr++ = "rusting attacks";
-	if (hates_rot(o_ptr) && !(f3 & TR3_IGNORE_NON_ELEM)) *desc_x_ptr++ = "rotting attacks";
+	if (object_hates_rust(o_ptr) && !(f3 & TR3_IGNORE_NON_ELEM)) *desc_x_ptr++ = "rusting attacks";
+	if (object_hates_rot(o_ptr) && !(f3 & TR3_IGNORE_NON_ELEM)) *desc_x_ptr++ = "rotting attacks";
 
 	if (wearable_p(o_ptr))
 	{
@@ -1773,12 +1454,12 @@ static cptr *spoiler_damage_aux(bool spoil, object_type *o_ptr, cptr *desc_x_ptr
 /*
  * Hack -- Display the "name" and "attr/chars" of a monster race
  */
-static void obj_top(object_type *o_ptr, bool real)
+static void obj_top(const object_type *o_ptr, bool real)
 {
 	char name[80];
 
-	if (real) object_desc(name, o_ptr, TRUE, 1);
-	else object_desc_store(name, o_ptr, FALSE, 0);
+	if (real) object_desc(name, sizeof(name), o_ptr, FALSE, 2);
+	else object_desc_store(name, sizeof(name), o_ptr, FALSE, 0);
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -1793,7 +1474,7 @@ static void obj_top(object_type *o_ptr, bool real)
 /*
  * Display an object at the top of the screen
  */
-void screen_object(object_type *o_ptr, bool real)
+void screen_object(const object_type *o_ptr, bool real)
 {
 	/* Set text_out hook */
 	text_out_hook = text_out_to_screen;
@@ -1811,8 +1492,8 @@ void screen_object(object_type *o_ptr, bool real)
 	if (real) 
 	{
 		/* Weapon Analysis */
-		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) ||
-			(o_ptr->tval == TV_POLEARM)) analyze_weapon(o_ptr);	
+		if (weapon_p(o_ptr) || (o_ptr->tval == TV_DIGGING)) analyze_weapon(o_ptr);
+		if (o_ptr->tval == TV_ARROW) analyze_ammo(o_ptr);
 
 		/* Display object history */
 		display_object_history(o_ptr);
@@ -1871,36 +1552,84 @@ static bool outlist(cptr header, const cptr *list)
 }
 
 /*
- * Hack -- display an object kind in the current window
- *
- * Include list of usable spells for readable books
+ * Determine the "Activation" (if any) for an artifact
  */
-void analyze_weapon(object_type *o_ptr)
+bool query_activation(char *text, size_t max, int *time1, int *time2, const object_type *o_ptr)
+{
+	int j;
+	u16b act = object_activation(o_ptr);
+
+	/* No activation */
+	if (!act) return (FALSE);
+
+	/* Paranoia */
+	if (act >= POW_MAX) return (FALSE);
+
+	for (j = (POW_MAX - 1); j > 0; j--) 
+	{
+		if (power_info[j].index == act) break;
+	}
+
+	/* Display that spell's information. */
+	if (power_info[j].desc != NULL) my_strcpy(text, power_info[j].desc, max);
+
+	/* Artifact activations */
+	if (o_ptr->a_idx)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
+
+		/* Some artifacts can be activated */
+		*time1 = a_ptr->time;
+		*time2 = a_ptr->randtime;
+	}
+	else (*time1 = *time2 = 0);
+
+	return (TRUE);
+}
+
+/*
+ * Display information about weapons
+ */
+void analyze_weapon(const object_type *o_ptr)
 {
 	int i;
 	int dam = 0;
-	int blows = calc_blows(o_ptr);
+
+	byte ds = object_ds(o_ptr);
+	byte dd = object_dd(o_ptr);
+	byte blows = calc_blows(o_ptr, FALSE);
+
 	byte slays[SL_MAX];
 	bool any_slay = FALSE;
 
-	dam = ((actual_ds(o_ptr) + 1) * 5 * actual_dd(o_ptr));
-	dam += (actual_to_d(o_ptr) + p_ptr->to_d) * 10;
+	/* Heavy weapons */
+	if (adj_str_hold[p_stat(A_STR)] < object_weight(o_ptr) / 10)
+	{
+		int penalty = (object_weight(o_ptr) / 10) - adj_str_hold[p_stat(A_STR)];
 
-	text_out("\nUsing this weapon, you will, in your current condition, be able to score ");
+		text_out_c(TERM_L_RED, "You are too weak to use this weapon effectively! ");
+
+		ds = (ds * 2) / (penalty + 2);
+		dd = (dd * 2) / (penalty + 2);
+	}
+
+	dam = ((ds + 1) * 5 * dd);
+
+	text_out("\nUsing this weapon, you are, in your current condition, able to score ");
 	text_out_c(TERM_L_GREEN, format("%d ", blows));
 	if (blows > 1) text_out("blows per round. Each blow will do an average damage of ");
 	else text_out("blow per round, averaging a damage of ");
 
-	/* No, do the slays */
+	/* First, the slays */
 	weapon_slays_known(o_ptr, slays);
 
 	/* Slays */
 	for (i = 0; i < SL_MAX; i++)
 	{
-		if (slays[i])
+		if (slays[i] > 10)
 		{
-			int dam_slay = dam * slays[i] / 10;
-
+			/* Adjust damage for slay - note the complicated rounding */
+			int dam_slay = dam + (((dam * (slays[i] - 10) + 90) / 100) * 10);
 			any_slay = TRUE;
 
 			if (dam_slay % 10)
@@ -1910,17 +1639,84 @@ void analyze_weapon(object_type *o_ptr)
 		}
 	}
 
+	/* Regular damage */
 	if (dam % 10) text_out_c(TERM_L_GREEN, format("%d.%d", dam / 10, dam % 10));
 	else text_out_c(TERM_L_GREEN, format("%d", dam / 10));
 		
-	if (any_slay) text_out(" vs. non-affected monsters.\n"); 
+	if (any_slay) text_out(" vs. unaffected monsters.\n"); 
 	else text_out(" vs. any monster.\n"); 
+}
+
+/*
+ * Display information about arrows
+ */
+void analyze_ammo(const object_type *o_ptr)
+{
+	int i;
+	int dam = 0;
+
+	object_type *j_ptr = &inventory[INVEN_BOW];
+
+	byte ds = object_ds(o_ptr);
+	byte dd = object_dd(o_ptr);
+
+	byte slays[SL_MAX];
+	byte slays_bow[SL_MAX];
+	bool any_slay = FALSE;
+
+	/* Wielding a bow */
+	if ((j_ptr->k_idx) && object_known_p(j_ptr))
+	{
+		text_out("\nFired from you current bow, this arrow will hit targets up to ");
+		text_out_c(TERM_L_GREEN, format("%d", (bow_range(j_ptr) + o_ptr->pval) * 10));
+		text_out(" feet away, inflicting an average damage of ");
+
+		dam = ((ds + 1) * 5 * dd) * bow_might(j_ptr);
+
+		/* First, the slays */
+		weapon_slays_known(o_ptr, slays);
+		weapon_slays_known(j_ptr, slays_bow);
+
+		/* Slays */
+		for (i = 0; i < SL_MAX; i++)
+		{
+			/* Add bow slays (ensuring that they're added correctly */
+			if (slays_bow[i] > 10)
+			{
+				if (slays[i] > 10) slays[i] -= 10;
+				slays[i] += slays_bow[i];
+			}
+
+			if (slays[i] > 10)
+			{
+				/* Adjust damage for slay - note the complicated rounding */
+				int dam_slay = dam + (((dam * (slays[i] - 10) + 90) / 100) * 10);
+				any_slay = TRUE;
+
+				if (dam_slay % 10)
+					text_out_c(TERM_L_GREEN, format("%d.%d", dam_slay / 10, dam_slay % 10));
+				else text_out_c(TERM_L_GREEN, format("%d", dam_slay / 10));
+				text_out(format(" %s, ",  slay_names[i]));
+			}
+		}
+
+		/* Regular damage */
+		if (dam % 10) text_out_c(TERM_L_GREEN, format("%d.%d", dam / 10, dam % 10));
+		else text_out_c(TERM_L_GREEN, format("%d", dam / 10));
+			
+		if (any_slay) text_out(" vs. unaffected monsters. "); 
+		else text_out(" vs. any monster. "); 
+	}
+
+	text_out("It has a ");
+	text_out_c(TERM_L_GREEN, format("%d%%", k_info[o_ptr->k_idx].breakage));
+	text_out(" chance of breaking on contact.\n");
 }
 
 /* 
  * Create a spoiler file entry for an artifact 
  */
-void list_object(object_type *o_ptr, int mode)
+void list_object(const object_type *o_ptr, int mode)
 {
 	bool spoil = (mode == OBJECT_INFO_FULL) ? TRUE : FALSE;
 	bool random = (mode == OBJECT_INFO_RANDOM) ? TRUE : FALSE;
@@ -1947,10 +1743,15 @@ void list_object(object_type *o_ptr, int mode)
 	u32b f1, f2, f3;
 
 	/* Extract the flags */
-	object_flags_aux(mode, o_ptr, &f1, &f2, &f3);
+	if (spoil) object_flags(o_ptr, &f1, &f2, &f3);
+	else if (random) object_flags_random(o_ptr, &f1, &f2, &f3);
+	else object_flags_known(o_ptr, &f1, &f2, &f3);
 
-	/* Hack - Never show ignores for artifacts, rods or talismans (they're assumed) */
-	if (artifact_p(o_ptr)) f3 &= ~(TR3_IGNORE_ELEM | TR3_IGNORE_NON_ELEM);
+	/* Quest items */
+	if (!random && (o_ptr->tval == TV_QUEST))
+	{
+		text_out("An item of legend, it serves no practical use, but is of much value to collectors.  ");
+	}
 
 	/* Light sources */
 	if (!random && ((o_ptr->tval == TV_LITE_SPECIAL) || (o_ptr->tval == TV_LITE)))
@@ -1971,12 +1772,6 @@ void list_object(object_type *o_ptr, int mode)
 			text_out(").  ");
 			anything = TRUE;
 		}
-	}
-
-	/* Quest items */
-	if (!random && (o_ptr->tval == TV_QUEST))
-	{
-		text_out("An item of legend, it serves no practical use, but is of much value to collectors.  ");
 	}
 
 	/* Pval-affected flags */
@@ -2221,18 +2016,14 @@ void list_object(object_type *o_ptr, int mode)
 		anything |= outlist("it burdens its wielder with", list);
 	}
 
-	/* Hack - curse spoiler items */
-	if (spoil)
-	{
-		if (f3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
-	}
-
 	/*
 	 * Handle cursed objects here to avoid redundancies such as noting
 	 * that a permanently cursed object is heavily cursed as well as
 	 * being "lightly cursed".
+	 *
+	 * Hack - curse spoiler items.
 	 */
-	if (!random && cursed_p(o_ptr))
+	if (!random && (cursed_p(o_ptr) || (spoil && (f3 & TR3_LIGHT_CURSE))))
 	{
 		if (f3 & (TR3_PERMA_CURSE))
 		{
@@ -2277,7 +2068,7 @@ void list_object(object_type *o_ptr, int mode)
 	}
 
 	/* Activations */
-	if (!random && item_activation(buf, &i, &j, o_ptr))
+	if (!random && query_activation(buf, sizeof(buf), &i, &j, o_ptr))
 	{
 		do_act = TRUE;
 
@@ -2288,12 +2079,12 @@ void list_object(object_type *o_ptr, int mode)
 		}
 		/* Unknown activation, print nothing */
 		else if (!(object_known_p(o_ptr) || object_aware_p(o_ptr)) ||
-			((artifact_p(o_ptr)) && !(a_info[o_ptr->a_idx].status & A_STATUS_ACTIVATE)))
+			(o_ptr->a_idx && !(a_info[o_ptr->a_idx].status & A_STATUS_ACTIVATE)))
 		{
 			do_act = FALSE;
 		}
 		/* Check if the activation is fully known (actifact only) */
-		else if ((artifact_p(o_ptr)))
+		else if (o_ptr->a_idx)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 
@@ -2304,7 +2095,7 @@ void list_object(object_type *o_ptr, int mode)
 				j = 0;
 			}
 		}
-		/* Hack - recharge times for rods/talismans */
+		/* Recharge times for rods/talismans */
 		else if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_TALISMAN))
 		{
 			i = o_ptr->pval;
@@ -2313,14 +2104,14 @@ void list_object(object_type *o_ptr, int mode)
 		if (do_act)
 		{
 			/* Activation */
-			if (artifact_p(o_ptr)) 
+			if (o_ptr->a_idx) 
 			{
 				switch (o_ptr->tval)
 				{
 					case TV_BOW:
 					case TV_DIGGING:
 					case TV_SWORD:
-					case TV_HAFTED:
+					case TV_BLUNT:
 					case TV_POLEARM:
 					{
 						text_out("When wielded and activated, it ");
@@ -2370,13 +2161,13 @@ void list_object(object_type *o_ptr, int mode)
 	}
 
 	/* Unknown extra powers (ego-item with random extras or artifact) */
-	if (!spoil && !random && (object_known_p(o_ptr) && ((o_ptr->xtra1) || artifact_p(o_ptr))))
+	if (!spoil && !random && (object_known_p(o_ptr) && ((o_ptr->xtra1) || o_ptr->a_idx)))
 	{
 		bool hidden = TRUE;
 	
-		if (!artifact_p(o_ptr) && (o_ptr->ident & IDENT_MENTAL)) hidden = FALSE;
+		if (!o_ptr->a_idx && (o_ptr->ident & IDENT_MENTAL)) hidden = FALSE;
 
-		if (artifact_p(o_ptr))
+		if (o_ptr->a_idx)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 
@@ -2420,7 +2211,7 @@ void list_object(object_type *o_ptr, int mode)
 				text_out_c(TERM_YELLOW,"\nKnown alchemical combinations:");
 				alch_title_out = TRUE;
 			}
-			alchemy_describe(line, o_ptr->sval);
+			alchemy_describe(line, sizeof(line), o_ptr->sval);
 			text_out_c(TERM_L_WHITE, format("\n%s",line));
 		}
  
@@ -2436,8 +2227,8 @@ void list_object(object_type *o_ptr, int mode)
 					text_out_c(TERM_YELLOW,"\nKnown alchemical combinations:");
 					alch_title_out = TRUE;
 				}
-				alchemy_describe(line, i);
-				text_out_c(TERM_L_WHITE, format("\n%s",line));
+				alchemy_describe(line, sizeof(line), i);
+				text_out_c(TERM_L_WHITE, format("\n%s", line));
 			}
 		}
 	
@@ -2472,7 +2263,7 @@ static void history_depth(s16b depth)
 /*
  * Display item history 
  */
-void display_object_history(object_type *o_ptr)
+void display_object_history(const object_type *o_ptr)
 {
 	char intro[10];
 
@@ -2500,7 +2291,7 @@ void display_object_history(object_type *o_ptr)
 		}
 		case ORIGIN_MORGOTH:
 		{
-			text_out_c(TERM_YELLOW, "It is one of your prizes for victory!.\n");
+			text_out_c(TERM_YELLOW, "It is one of your prizes for victory!\n");
  			break;
 		}
 		case ORIGIN_CHEAT:
@@ -2564,7 +2355,7 @@ void display_object_history(object_type *o_ptr)
 /*
  * Check whether the history is interesting 
  */
-bool history_interesting(object_type *o_ptr)
+bool history_interesting(const object_type *o_ptr)
 {
 	/* Empty slots are always boring */
 	if (!o_ptr->k_idx) return FALSE;
@@ -2573,10 +2364,10 @@ bool history_interesting(object_type *o_ptr)
 	if (!o_ptr->origin_nature || (o_ptr->origin_nature == ORIGIN_MIXED)) return FALSE;
 
 	/* Artifacts are always interesting */
-	if (artifact_p(o_ptr)) return TRUE;
+	if (o_ptr->a_idx) return TRUE;
 
 	/* Ego items are interesting if they're good */
-	if (ego_item_p(o_ptr) && (object_value(o_ptr) > 0)) return TRUE;
+	if (o_ptr->e_idx && (object_value(o_ptr) > 0)) return TRUE;
 
 	/* Objects dropped by uniques are always interesting */
 	if (o_ptr->origin_u_idx) return TRUE;
@@ -2594,92 +2385,12 @@ bool history_interesting(object_type *o_ptr)
 	return FALSE;
 }
 
-/* The possible actions */
-
-#define KEEP_O		1
-#define	KEEP_J		2
-#define LOSE_M_EGO	3
-#define MIX			4
-
-/* 
- * Try to stack item histories 
- */
-void stack_histories(object_type *o_ptr, object_type *j_ptr)
-{
-	int action = MIX;
-
-	/* Histories are identical anyway */
-	if ((o_ptr->origin_nature == j_ptr->origin_nature) &&
-		 (o_ptr->origin_dlvl == j_ptr->origin_dlvl) && 
-		 (o_ptr->origin_r_idx == j_ptr->origin_r_idx) &&
-  		 (o_ptr->origin_s_idx == j_ptr->origin_s_idx) &&
-  		 (o_ptr->origin_u_idx == j_ptr->origin_u_idx))
-	{
-		action = KEEP_O;
-	}
-
-	/* Allow yourself to lose "ego" monster names */
-	else if ((o_ptr->origin_nature == j_ptr->origin_nature) &&
-			 (o_ptr->origin_dlvl == j_ptr->origin_dlvl) && 
-			 (o_ptr->origin_r_idx == j_ptr->origin_r_idx) &&
-  			 (o_ptr->origin_u_idx == j_ptr->origin_u_idx))
-	{
-		action = LOSE_M_EGO;
-	}
-
-	/* If the first object has an exceptionally interesting history */
-	else if ((o_ptr->origin_u_idx + INTEREST_OFFSET) ||
-	    (o_ptr->origin_dlvl > k_info[o_ptr->k_idx].level))
-	{
-		/* Use the first item's history */
-		action = KEEP_O;
-	}
-
-	/* If the second object has an exceptionally interesting history */
-	else if ((j_ptr->origin_u_idx + INTEREST_OFFSET) ||
-	    (j_ptr->origin_dlvl > k_info[j_ptr->k_idx].level))
-	{
-		/* Use the second item's history */
-		action = KEEP_J;
-	}
-
-	/* Do it */
-	switch (action)
-	{
-		case (KEEP_O):
-		{
-			/* Nothing to do */
-			break;
-		}
-		case (KEEP_J):
-		{
-			/* Copy over the second object's history */
-			o_ptr->origin_nature = j_ptr->origin_nature;
-			o_ptr->origin_dlvl = j_ptr->origin_dlvl;
-			o_ptr->origin_r_idx = j_ptr->origin_r_idx;
-  			o_ptr->origin_s_idx = j_ptr->origin_s_idx;
-  			o_ptr->origin_u_idx = j_ptr->origin_u_idx;
-			break;
-		}
-		case (LOSE_M_EGO):
-		{
-			o_ptr->origin_s_idx = 0;
-			break;
-		}
-		case (MIX): default:
-		{
-			o_ptr->origin_nature = ORIGIN_MIXED;
-			break;
-		}
-	}
-}
-
 /*
  * Hack -- display an object kind in the current window
  *
  * Include list of usable spells for readable books
  */
-void display_koff(object_type *o_ptr)
+void display_koff(const object_type *o_ptr)
 {
 	int y, x;
 	
@@ -2725,8 +2436,16 @@ void display_koff(object_type *o_ptr)
 	/* Actually display the item */
 	list_object(o_ptr, OBJECT_INFO_KNOWN);
 
-	/* Display object history */
-	if (term_obj_real) display_object_history(o_ptr);
+	/* Things that need to appear for real objects */
+	if (term_obj_real)
+	{
+		/* Weapon Analysis */
+		if (weapon_p(o_ptr) || (o_ptr->tval == TV_DIGGING)) analyze_weapon(o_ptr);
+		if (o_ptr->tval == TV_ARROW) analyze_ammo(o_ptr);
+
+		/* Display object history */
+		display_object_history(o_ptr);
+	}
 
 	/* Display item name */
 	obj_top(o_ptr, term_obj_real);

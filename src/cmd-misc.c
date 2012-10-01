@@ -68,20 +68,20 @@ void do_cmd_locate(void)
 		}
 		else
 		{
-			sprintf(tmp_val, "%s%s of",
+			strnfmt(tmp_val, sizeof(tmp_val), "%s%s of",
 			        ((y2 < y1) ? " North" : (y2 > y1) ? " South" : ""),
 			        ((x2 < x1) ? " West" : (x2 > x1) ? " East" : ""));
 		}
 
 		/* Prepare to ask which way to look */
-		sprintf(out_val,
+		strnfmt(out_val, sizeof(out_val), 
 		        "Map sector [%d,%d], which is%s your sector.  Direction?",
 		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
 
 		/* More detail */
 		if (center_player)
 		{
-			sprintf(out_val,
+			strnfmt(out_val, sizeof(out_val),
 		        	"Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
 		        	(y2 / PANEL_HGT), (y2 % PANEL_HGT),
 		        	(x2 / PANEL_WID), (x2 % PANEL_WID), tmp_val);
@@ -265,7 +265,7 @@ static bool do_cmd_open_aux(int y, int x)
 		i = p_ptr->skill[SK_DIS];
 
 		/* Penalize some conditions */
-		if (p_ptr->blind || no_lite()) i = i / 10;
+		if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px)) i = i / 10;
 		if (p_ptr->confused || p_ptr->image) i = i / 10;
 
 		/* Extract the lock power */
@@ -374,11 +374,11 @@ static bool do_cmd_open_aux(int y, int x)
 					/* Warrior theme */
 					case 0:
 					{
-						switch(rand_int(24))
+						switch(rand_int(22))
 						{
 							case 0: case 1: tval = TV_SWORD; break;
 							case 2: case 3: tval = TV_POLEARM; break;
-							case 4: case 5: tval = TV_HAFTED; break;
+							case 4: case 5: tval = TV_BLUNT; break;
 							case 6: case 7: tval = TV_BODY_ARMOR; break;
 							case 8: case 9: tval = TV_BOW; break;	
 							case 10: case 11: tval = TV_BOOTS; break;
@@ -387,9 +387,7 @@ static bool do_cmd_open_aux(int y, int x)
 							case 16: case 17: tval = TV_SHIELD; break;
 							case 18: case 19: tval = TV_CLOAK; break;	
 							case 20: tval = TV_DRAG_ARMOR; break;
-							case 21: tval = TV_SHOT; break;	
-							case 22: tval = TV_ARROW; break;
-							case 23: tval = TV_BOLT; break;	
+							case 21: tval = TV_ARROW; break;
 						}
 						break;
 					}
@@ -414,7 +412,7 @@ static bool do_cmd_open_aux(int y, int x)
 					/* Misc theme */
 					case 2:
 					{
-						switch(rand_int(19))
+						switch(rand_int(17))
 						{
 							case 0: case 1: tval = TV_SCROLL; break;
 							case 2: case 3: tval = TV_POTION; break;
@@ -425,16 +423,14 @@ static bool do_cmd_open_aux(int y, int x)
 							case 13: tval = TV_FLASK; break;
 							case 14: tval = TV_CLOAK; break;
 							case 15: tval = TV_POWDER; break;	
-							case 16: tval = TV_SHOT; break;	
-							case 17: tval = TV_ARROW; break;
-							case 18: tval = TV_BOLT; break;	
+							case 16: tval = TV_ARROW; break;
 						}
 						break;
 					}
 				}
 
 				/* Increase item depth */
-				p_ptr->obj_depth  = p_ptr->depth + 10;
+				object_level = p_ptr->depth + 10;
 
 				/* Make a themed object (if possible) */
 				if (make_typed(i_ptr, tval, TRUE, FALSE, TRUE))
@@ -449,7 +445,7 @@ static bool do_cmd_open_aux(int y, int x)
 				}
 
 				/* Restore item depth */
-				p_ptr->obj_depth  = p_ptr->depth;
+				object_level = p_ptr->depth;
 			}				
 		}
 	}
@@ -919,8 +915,23 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			message(MSG_DIG, 0, "You tunnel into the granite wall.");
 			more = TRUE;
 
-			/* Occasional Search XXX XXX */
-			if (rand_int(100) < 25) search();
+			/* Hack - Occasional chance of finding the door */
+			if (rand_int(100) < 25)
+			{
+				if (rand_int(100) < p_ptr->skill[SK_SRH])
+				{
+					/* Message */
+					message(MSG_FIND, 0, "You have found a secret door.");
+
+					/* Create closed door */
+					cave_set_feat(y, x, FEAT_CLOSED);
+
+					if (trap_lock(y, x)) t_list[cave_t_idx[y][x]].visible = TRUE;
+
+					/* Stop tunneling */
+					more = FALSE;
+				}
+			}
 		}
 	}
 
@@ -1429,11 +1440,9 @@ void do_cmd_alter(void)
 /*
  * Use a racial ability
  */
-void do_cmd_use_racial(void)
+void do_cmd_racial(void)
 {
-	int dir;
-
-	if ((!rp_ptr->special) || (rsp_ptr[p_ptr->max_lev/5]->power == 0))
+	if ((!rp_ptr->special) || (!rsp_ptr[p_ptr->max_lev / 5]->activation))
 	{
 		message(MSG_FAIL, 0, "You have no racial powers!");
 		return;
@@ -1453,114 +1462,19 @@ void do_cmd_use_racial(void)
 		return;
 	}
 
-	switch (rsp_ptr[p_ptr->max_lev/5]->power)
+	/* Hack - angels can't use their powers while tainted */
+	if (!p_ptr->taint || (rp_ptr->special != RACE_SPECIAL_ANGEL))
 	{
-		/*Angel Powers*/
-		case 1: /* Cherub - Detect Evil */
-		{
-			if (p_ptr->taint)
-			{
-				message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
-			}
-			else
-			{
-				(void)detect_monsters_evil();
-				p_ptr->racial_power = 50;
-			}
-			break;
-		}			
+		bool ignore_me;
 
-		case 2: /* Seraph - Light area */
-		{
-			if (p_ptr->taint)
-			{
-				message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
-			}
-			else
-			{
-				lite_area(damroll(2, 2), 2);
-				p_ptr->racial_power = 50;
-			}
-			break;
-		}			
+		do_power(rsp_ptr[p_ptr->max_lev / 5]->activation, 0, 0, 0, 0, 0, 0, &ignore_me);
 
-		case 3: /* Deva/Planeter - Spear of Light */
-		{
-			if (p_ptr->taint)
-			{
-				message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
-			}
-			else
-			{
-				if (!get_aim_dir(&dir)) return;
-				message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
-				lite_line(dir, damroll(6, 8));
-				p_ptr->racial_power = 25;
-			}
-			break;
-		}			
-
-		case 4: /* Archon - Orb of Draining */
-		{
-			if (p_ptr->taint)
-			{
-				message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
-			}
-			else
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_HOLY_ORB, dir, damroll(3, 6) + 50, 3);
-				p_ptr->racial_power = 15;
-			}
-			break;
-		}			
-
-		case 5: /* Angel/Archangel - Protection From Evil */
-		{
-			if (p_ptr->taint)
-			{
-				message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
-			}
-			else
-			{
-				(void)set_protevil(p_ptr->protevil + randint(25) + 30);
-				p_ptr->racial_power = 150;
-			}
-			break;
-		}	
-		
-		/*Demon Powers*/
-
-		case 6: /* Tengu - Blink */
-		{
-			teleport_player(10);
-			p_ptr->racial_power = 20;
-			break;
-		}
-
-		case 7: /* Bodak/Vrock/Hezrou - Fire Bolt */
-		{
-			if (!get_aim_dir(&dir)) return;
-			fire_bolt(GF_FIRE, dir, damroll(10, 8));
-			p_ptr->racial_power = 20;
-			break;
-		}			
-
-		case 8: /* Glabrezu/Nalfeshnee/Pit Fiend - Fire Ball */
-		{
-			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_FIRE, dir, 85, 2);
-			p_ptr->racial_power = 20;
-			break;
-		}			
-
-		case 9: /* Balrog - Plasma ball */
-		{
-			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_PLASMA, dir, damroll(4, 7) + 80, 3);
-			p_ptr->racial_power = 20;
-			break;
-		}			
+		/* Delay */
+		p_ptr->racial_power = rsp_ptr[p_ptr->max_lev / 5]->turns;
+	}
+	else
+	{
+		message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
 	}
 
 	/* Take a turn */

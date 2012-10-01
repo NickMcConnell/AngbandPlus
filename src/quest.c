@@ -36,24 +36,25 @@ static s16b guild[GUILD_QUESTS] =
  *
  * Taken from PernAngband, modified to fit Ey monster list 
  */
-static void plural_aux(char * Name)
+static void plural_aux(char *name, size_t max)
 {
-	int NameLen = strlen(Name);
+	int name_len = strlen(name);
 
-	if (strstr(Name, " of "))
+	if (strstr(name, " of "))
 	{
-	        cptr aider = strstr(Name, " of ");
-	        char dummy[80];
-	        int i = 0;
-	        cptr ctr = Name;
+		cptr aider = strstr(name, " of ");
+		char dummy[80];
+		int i = 0;
+		cptr ctr = name;
 
-	        while (ctr < aider)
-	        {
-	            dummy[i] = *ctr;
-	            ctr++; i++;
-	        }
+		while (ctr < aider)
+		{
+			dummy[i] = *ctr;
+			ctr++; 
+			i++;
+		}
 
-		if (dummy[i-1] == 's')
+		if (dummy[i - 1] == 's')
 		{
 			strcpy (&(dummy[i]), "es");
 			i++;
@@ -63,61 +64,62 @@ static void plural_aux(char * Name)
 			strcpy (&(dummy[i]), "s");
 		}
 
-		strcpy(&(dummy[i+1]), aider);
-		strcpy(Name, dummy);
+		strcpy(&(dummy[i + 1]), aider);
+		my_strcpy(name, dummy, max);
 	}
-	else if ((strstr(Name, "coins")) || (strstr(Name, "gems")))
+	else if ((strstr(name, "coins")) || (strstr(name, "gems")))
 	{
 		char dummy[80];
 		strcpy (dummy, "Piles of c");
-		strcat (dummy, &(Name[1]));
-		strcpy (Name, dummy);
+		my_strcat (dummy, &(name[1]), sizeof(dummy));
+		my_strcpy (name, dummy, max);
 		return;
 	}
-	else if ((strstr(Name, "Manes")) || (Name[NameLen-1]=='u') || (strstr(Name, "Yeti"))
-		|| (streq(&(Name[NameLen-2]), "ua")) || (streq(&(Name[NameLen-3]), "nee")))
+	else if ((strstr(name, "Manes")) || (name[name_len-1] == 'u') || (strstr(name, "Yeti")) ||
+		(streq(&(name[name_len-2]), "ua")) || (streq(&(name[name_len-3]), "nee")) || 
+		(streq(&(name[name_len-4]), "idhe")))
 	{
 		return;
 	}
-	else if (Name[NameLen-1]=='y')
+	else if (name[name_len-1] == 'y')
 	{
-		strcpy(&(Name[NameLen-1]), "ies");
+		strcpy(&(name[name_len - 1]), "ies");
 	}
-	else if (streq(&(Name[NameLen-4]), "ouse"))
+	else if (streq(&(name[name_len - 4]), "ouse"))
 	{
-		strcpy (&(Name[NameLen-4]), "ice");
+		strcpy (&(name[name_len - 4]), "ice");
 	}
-	else if (streq(&(Name[NameLen-4]), "lung"))
+	else if (streq(&(name[name_len - 4]), "lung"))
 	{
-		strcpy (&(Name[NameLen-4]), "lungen");
+		strcpy (&(name[name_len - 4]), "lungen");
 	}
-	else if (streq(&(Name[NameLen-3]), "sus"))
+	else if (streq(&(name[name_len - 3]), "sus"))
 	{
-		strcpy (&(Name[NameLen-3]), "si");
+		strcpy (&(name[name_len - 3]), "si");
 	}	
-	else if (streq(&(Name[NameLen-3]), "ous"))
+	else if (streq(&(name[name_len - 3]), "ous"))
 	{
-		strcpy (&(Name[NameLen-3]), "i");
+		strcpy (&(name[name_len - 3]), "i");
 	}	
-	else if ((streq(&(Name[NameLen-4]), "lman")) || (streq(&(Name[NameLen-4]), "sman")))
+	else if ((streq(&(name[name_len - 4]), "lman")) || (streq(&(name[name_len - 4]), "sman")))
 	{
-		strcpy (&(Name[NameLen-3]), "men");
+		strcpy (&(name[name_len - 3]), "men");
 	}
-	else if (streq(&(Name[NameLen-2]), "ex"))
+	else if (streq(&(name[name_len - 2]), "ex"))
 	{
-		strcpy (&(Name[NameLen-2]), "ices");
+		strcpy (&(name[name_len - 2]), "ices");
 	}
-	else if ((Name[NameLen-1]=='f') && (!streq(&(Name[NameLen-2]), "ff")))
+	else if ((name[name_len - 1] == 'f') && (!streq(&(name[name_len - 2]), "ff")))
 	{
-		strcpy (&(Name[NameLen-1]), "ves");
+		strcpy (&(name[name_len - 1]), "ves");
 	}
-	else if ((streq(&(Name[NameLen-2]), "ch")) || (Name[NameLen-1] == 's'))
+	else if ((streq(&(name[name_len - 2]), "ch")) || (name[name_len - 1] == 's'))
 	{
-		strcpy (&(Name[NameLen]), "es");
+		strcpy (&(name[name_len]), "es");
 	}
 	else
 	{
-		strcpy (&(Name[NameLen]), "s");
+		strcpy (&(name[name_len]), "s");
 	}
 }
 
@@ -154,27 +156,29 @@ cptr describe_quest(s16b level, int mode)
 	if ((q_ptr->type == QUEST_UNIQUE) || (q_ptr->type == QUEST_FIXED_U))
 	{
 		/* Monster quests */
-		strcpy(targets, (monster_name_idx(u_info[q_ptr->mon_idx].r_idx, 0, q_ptr->mon_idx)));
+		my_strcpy(targets, 
+			(monster_name_idx(u_info[q_ptr->mon_idx].r_idx, 0, q_ptr->mon_idx)), sizeof(targets));
 		strcpy(intro, "To fulfill your task, you must");
 	}
 
 	else
 	{
 		/* Monster quests */
-		strcpy(name, (monster_name_race(q_ptr->mon_idx)));
+		my_strcpy(name, (monster_name_race(q_ptr->mon_idx)), sizeof(name));
 
 		/* Multiple quest monsters */
 		if ((q_ptr->max_num - q_ptr->cur_num) > 1)
 		{
-			plural_aux(name);
-			strcpy(targets, format("%d %s",(q_ptr->max_num - q_ptr->cur_num), name));
+			plural_aux(name, sizeof(name));
+			my_strcpy(targets, 
+				format("%d %s",(q_ptr->max_num - q_ptr->cur_num), name), sizeof(targets));
 		}
 
 		/* One quest monster */
 		else
 		{
-			if (is_a_vowel(name[0])) strcpy(targets, format("an %s", name));
-			else strcpy(targets, format("a %s", name));
+			if (is_a_vowel(name[0])) my_strcpy(targets, format("an %s", name), sizeof(targets));
+			else my_strcpy(targets, format("a %s", name), sizeof(targets));
 		}
 	}
 
@@ -261,7 +265,7 @@ static void grant_reward(int reward_level, byte type)
 				if (!make_typed(i_ptr, TV_MAGIC_BOOK, TRUE, FALSE, FALSE)) break;
 
 				/* Hack -- in case of artifact, mark it as not created yet */
-				if (artifact_p(i_ptr)) a_info[i_ptr->a_idx].status &= ~(A_STATUS_CREATED);
+				if (i_ptr->a_idx) a_info[i_ptr->a_idx].status &= ~(A_STATUS_CREATED);
 
 				/* Ensure correct tval */
 				if (i_ptr->tval != TV_MAGIC_BOOK) continue;
@@ -326,7 +330,7 @@ static void grant_reward(int reward_level, byte type)
 				if (!make_typed(i_ptr, TV_MUSIC, TRUE, FALSE, FALSE)) break;
 
 				/* Hack -- in case of artifact, mark it as not created yet */
-				if (artifact_p(i_ptr)) a_info[i_ptr->a_idx].status &= ~(A_STATUS_CREATED);
+				if (i_ptr->a_idx) a_info[i_ptr->a_idx].status &= ~(A_STATUS_CREATED);
 
 				/* Ensure correct tval */
 				if (i_ptr->tval != TV_MUSIC) continue;
@@ -440,7 +444,6 @@ static void grant_reward(int reward_level, byte type)
 			}
 		}
 
-
 		/* We didn't find anything else, so lets find something to wear */
 		if (!got_item)
 		{
@@ -448,7 +451,7 @@ static void grant_reward(int reward_level, byte type)
 			s32b price[INVEN_MUSIC];
 			s32b val[INVEN_MUSIC];
 			byte tval;
-			s32b diff = 0;
+			s32b diff = 1;
 
 			/* First, figure out the best price for each slot */
 			for (i = INVEN_WIELD; i < INVEN_MUSIC; i++)
@@ -542,7 +545,7 @@ static void grant_reward(int reward_level, byte type)
 						j = rand_int(3);
 
 						if (j == 0) tval = TV_SWORD;
-						else if (j == 1) tval = TV_HAFTED;
+						else if (j == 1) tval = TV_BLUNT;
 						else tval = TV_POLEARM;
 
 						break;
@@ -581,7 +584,7 @@ static void grant_reward(int reward_level, byte type)
 					}
 
 					/* Hack -- in case of artifact, mark it as not created yet */
-					if (artifact_p(j_ptr)) a_info[j_ptr->a_idx].status &= ~(A_STATUS_CREATED);
+					if (j_ptr->a_idx) a_info[j_ptr->a_idx].status &= ~(A_STATUS_CREATED);
 
 					/* 
 					 * Ensure correct tval.
@@ -591,26 +594,24 @@ static void grant_reward(int reward_level, byte type)
 						!((i == INVEN_LITE) && (j_ptr->tval == TV_LITE_SPECIAL))) continue;
 
 					/* No bad prefixes */
-					if (j_ptr->prefix_idx)
+					if (j_ptr->pfx_idx)
 					{
 						if ((tval == TV_BODY_ARMOR) && 
-							!(apx_info[j_ptr->prefix_idx].flags & PXF_GOOD)) continue;
-						else if (!(wpx_info[j_ptr->prefix_idx].flags & PXF_GOOD)) continue;
-					}
-
-					/* If you get extra shots with a bow, don't get other shooter types */
-					if ((tval == TV_BOW) && (cp_ptr->flags & CF_EXTRA_SHOT))
-					{
-						if ((!j_ptr->a_idx) &&
-							((j_ptr->sval <= SV_SLING) || (j_ptr->sval >= SV_LIGHT_XBOW)))
-							continue;
+							!(apx_info[j_ptr->pfx_idx].flags & PXF_GOOD)) continue;
+						else if (!(wpx_info[j_ptr->pfx_idx].flags & PXF_GOOD)) continue;
 					}
 
 					/* Make sure armor isn't too heavy */
 					if (i >= INVEN_BODY)
 					{
 						if ((cp_ptr->spell_weight) && 
-							(j_ptr->weight > cp_ptr->spell_weight / 2)) continue;
+							(object_weight(j_ptr) > cp_ptr->spell_weight / 2)) continue;
+					}
+
+					/* Make sure weapon isn't too heavy */
+					if (i == INVEN_WIELD)
+					{
+						if ((object_weight(j_ptr) / 10) > adj_str_hold[p_stat(A_STR)]) continue;
 					}
 
 					/* Make sure gloves won't ruin spellcasting */
@@ -706,13 +707,13 @@ static void grant_reward(int reward_level, byte type)
 	i_ptr->origin_dlvl = reward_level;
 
 	/* Handle Artifacts */
-	if (artifact_p(i_ptr))
+	if (i_ptr->a_idx)
 	{
 		artifact_type *a_ptr = &a_info[i_ptr->a_idx];
 
 		/* 
-		 * Artifact might not yet be marked as created (if it was chosen from tailored rewards),
-		 * so now it's the right time to mark it 
+		 * Artifact might not yet be marked as created (if it was chosen from tailored
+		 * rewards), so now it's the right time to mark it 
 		 */
 		a_ptr->status |= A_STATUS_CREATED;
  
@@ -744,10 +745,10 @@ static void grant_reward(int reward_level, byte type)
  */
 static bool place_mon_quest(int q, int lev, int number, int difficulty)
 {
-	int i, chance;
+	int i, j, chance;
 	int mcount = 0;
 
-	sint lev_diff;
+	int lev_diff;
 
 	monster_race *r_ptr;
 	monster_unique *u_ptr;
@@ -755,15 +756,16 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 	int *monster_idx;
 
 	bool unique_quest = FALSE;
+	bool okay;
 
 	/* Allocate the "monster_idx" array */
-	C_MAKE(monster_idx, M_LIST_ITEMS, int);
+	C_MAKE(monster_idx, MON_LIST_ITEMS, int);
 
 	/* Monsters can be up to 3 levels out of depth with difficulty 0 */
 	lev_diff = 3 + difficulty;
 
-	/* Try to place a unique quest, maybe (not for you first quest)*/
-	if ((lev > 1) && (rand_int(100) < 2 * (difficulty + (lev / 5))))
+	/* Try to place a unique quest, maybe (only after 250')*/
+	if ((lev >= 5) && (rand_int(100) < 2 * (difficulty + (lev / 5))))
 	{
 		/* Try to find a unique */
 		for (i = 0; i < z_info->u_max; i++)
@@ -779,13 +781,19 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			/* Not too deep */
 			if (u_ptr->level > (lev + difficulty + 2)) continue;
 
-			/*
-			 * No more than one unique on base monster.
-			 * This is necessary since there is currently no way to prevent the
-			 * wrong unique being generated when the level is entered 
-			 */
-			if (r_info[u_ptr->r_idx].max_unique > 1) continue;
-			
+			okay = TRUE;
+
+			/* Unique must not be part of a fixed quest */
+			for (j = 0; j < z_info->q_max ; j++)
+			{
+				if (q_info[j].type == QUEST_FIXED_U)
+				{
+					if (q_info[j].mon_idx == i) okay = FALSE;
+				}
+			}
+
+			if (!okay) continue;
+
 			/* Allow monster */
 			monster_idx[mcount++] = i;
 
@@ -1041,13 +1049,13 @@ void display_guild(void)
 		if (do_reward)
 		{
 			/* Generate object at quest level */
-			p_ptr->obj_depth = q_info[i].base_level;
+			object_level = q_info[i].base_level;
 
 			/* Create the reward */
 			grant_reward(q_info[i].base_level, q_info[i].reward);
 
 			/* Reset object level */
-			p_ptr->obj_depth = p_ptr->depth;
+			object_level = p_ptr->depth;
 
 			/* Reset the reward */
 			q_info[i].reward = 0;
@@ -1232,7 +1240,7 @@ static int get_quest(void)
 		if (!get_com(buf, &which)) return (-1);
 
 		/* Lowercase */
-		which = tolower(which);
+		which = tolower((unsigned char)which);
 
 		/* Convert response to item */
 		item = A2I(which);
@@ -1274,7 +1282,7 @@ void guild_purchase(void)
 	/* Quit if no quest chosen */
 	if (item == -1) return;
 	
-	/* Get level for quest - most likely on the next level but can be deeper */
+	/* Get level for quest - if never been in dungeon at 50', otherwise 2-3 levels deeper */
 	if (!p_ptr->max_depth) qlev = 1;
 	else qlev = p_ptr->max_depth + 1 + randint(2);
 
@@ -1322,7 +1330,6 @@ void guild_purchase(void)
 	Term_clear();
 
 	display_guild();
-
 }
 
 /*

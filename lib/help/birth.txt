@@ -1,31 +1,43 @@
 === Creating a Character ===
 
-Angband is a roleplaying game, in which you, the player, control a character
-in the world of Angband.  Perhaps the most important thing you control is the
-birth of your character, in which you choose or allow to be chosen various
-attributes that will affect the future life of your character.
+EyAngband is a roleplaying game, in which you, the player, control a character
+in the world of EyAngband. One of the most important things you control is the
+"birth" of your character, the process in which you choose - or let the game
+choose for you - various attributes that will affect the future life of your
+character.
 
-To create a character, you must first pick his or her gender - this has
-no real effect on the game. Next, you should choose (or let the computer 
-randomly assign you by pressing '*') the character's race. Then, you may
-choose what class you want to play. Note that not all race/class combinations
-are supported - those displayed in grey have either incompatible statistics
-or other attributes. You can recieve a random class (selected from the 
-supported choices) by pressing '*'.
+To create a character, you must first pick his or her gender, though it has no
+real effect on the game. Next, you need to choose (or let the computer randomly
+assign you by pressing '*') the character's race. Then, you choose what class
+you want to play. Note that not all race/class combinations are supported -
+those displayed in dark grey have either incompatible statistics or other 
+attributes. You can receive a random class (selected from the supported 
+choices) by pressing '*'.
 
 At any time when selecting your character's basic characteristics, you can
-change the birth options by pressing '='. Finally, you will have to generate 
-the character's attributes - the exact method used to do so depends on the 
-birth options (for additional help on these issues check the birth options 
-help file).
+recieve help and additional information about the choice by pressing '?', or
+change the birth options by pressing '='.
 
-You may start the entire process over at any time by pressing ESC, or quit
-the game by pressing CTRL-X. 
+Finally, you will have to generate the character's attributes. The exact method
+used to do so depends on the birth options (for additional help on these issues
+check the birth options help file).
+
+You may restart the entire process at any time by pressing ESC, or quit the 
+game by pressing CTRL-X. 
 
 Once you have accepted a character you will asked to provide a name for the
 character.  In general, the actual choice of a name is not important, but do
 keep in mind that it may have some effect on the game itself.  For example,
 on some machines, the chatacter name determines the filename that will be
 used to save the character to disk.  On others, the character name specifies
-special "pref" files.  Also, the character name is used on the high score 
-list.
+special "pref" files.  Also, the character name is used on the high score list.
+
+Whenever a character of yours dies, you have the option of "quickstarting" a 
+new character by loading the appropriate savefile and answering the prompt. 
+Quickstarting creates a character identical in all the above aspects to the one
+that just died. If you don't wish to create an identical character, just answer
+no when prompted, and you will be directed to the normal character creation
+process.
+
+
+======================= Last updated for EyAngband 0.5.0 ======================

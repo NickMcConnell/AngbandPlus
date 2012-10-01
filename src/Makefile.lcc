@@ -37,6 +37,7 @@ OBJS=\
 	readdib.obj \
 	quest.obj \
 	powers.obj \
+	object3.obj \
 	object2.obj \
 	object1.obj \
 	monster3.obj \
@@ -522,6 +523,32 @@ POWERS_C=\
 
 powers.obj: $(POWERS_C) powers.c
 	$(CC) -c $(CFLAGS) powers.c
+
+# Build OBJECT3.C
+OBJECT3_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	h-basic.h\
+	z-virt.h\
+	h-basic.h\
+	z-form.h\
+	h-basic.h\
+	z-rand.h\
+	h-basic.h\
+	z-term.h\
+	h-basic.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+object3.obj: $(OBJECT2_C) object3.c
+	$(CC) -c $(CFLAGS) object3.c
 
 # Build OBJECT2.C
 OBJECT2_C=\

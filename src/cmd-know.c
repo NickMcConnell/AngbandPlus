@@ -19,7 +19,7 @@ void do_cmd_display_character(void)
 {
 	char ch;
 
-	byte mode = 0;
+	byte mode = CSCREEN_MAIN;
 
 	cptr p;
 
@@ -59,9 +59,9 @@ void do_cmd_display_character(void)
 		{
 			char ftmp[80];
 
-			sprintf(ftmp, "%s.txt", op_ptr->base_name);
+			strnfmt(ftmp, sizeof(ftmp), "%s.txt", op_ptr->base_name);
 
-			if (get_string("File name: ", ftmp, 80))
+			if (get_string("File name: ", ftmp,  sizeof(ftmp)))
 			{
 				if (ftmp[0] && (ftmp[0] != ' '))
 				{
@@ -80,8 +80,8 @@ void do_cmd_display_character(void)
 		/* Toggle mode */
 		else if (ch == 'h')
 		{
-			if (mode < 1) mode++;
-			else mode = 0;
+			if (mode == CSCREEN_MAIN) mode = CSCREEN_RESISTS;
+			else mode = CSCREEN_MAIN;
 		}
 
 		/* Oops */
@@ -233,7 +233,7 @@ void do_cmd_messages(void)
 			prt("Show: ", hgt - 1, 0);
 
 			/* Get a "shower" string, or continue */
-			if (!askfor_aux(shower, 80)) continue;
+			if (!askfor_aux(shower, sizeof(shower))) continue;
 
 			/* Okay */
 			continue;
@@ -248,10 +248,10 @@ void do_cmd_messages(void)
 			prt("Find: ", hgt - 1, 0);
 
 			/* Get a "finder" string, or continue */
-			if (!askfor_aux(finder, 80)) continue;
+			if (!askfor_aux(finder, sizeof(finder))) continue;
 
 			/* Show it */
-			strcpy(shower, finder);
+			my_strcpy(shower, finder, sizeof(shower));
 
 			/* Scan messages */
 			for (z = i + 1; z < n; z++)
@@ -331,7 +331,7 @@ void do_cmd_note(void)
 	strcpy(tmp, "");
 
 	/* Input */
-	if (!get_string("Note: ", tmp, 80)) return;
+	if (!get_string("Note: ", tmp,  sizeof(tmp))) return;
 
 	/* Ignore empty notes */
 	if (!tmp[0] || (tmp[0] == ' ')) return;
@@ -395,18 +395,10 @@ void do_cmd_feeling(void)
 }
 
 /*
- * Note that "feeling" is set to zero unless some time has passed.
- * Note that this is done when the level is GENERATED, not entered.
+ * Show a room description.
  */
 void do_cmd_room_desc(void)
 {
-#if 0
-	int by = p_ptr->py / BLOCK_HGT;
-	int bx = p_ptr->px / BLOCK_WID;
-	int room = dun_room[by][bx];
-
-	screen_room_info(room);
-#endif
 	describe_room(TRUE);
 }
 
@@ -460,16 +452,15 @@ static cptr monster_group_text[] =
 	"Bats",
 	"Birds",
 	"Canines",
-	"Centipedes",
+	"Cats",
 	"Demons",
 	"Dragons",
 	"Elementals",
 	"Eyes/Beholders",
 	"Faeries",
-	"Felines",
 	"Ghosts",
 	"Giants",
-	"Hags/Harpies",
+	"Harpies",
 	"Humanoids",
 	"Hydras",
 	"Icky Things",
@@ -478,7 +469,6 @@ static cptr monster_group_text[] =
 	"Killer Beetles",
 	"Kobolds",
 	"Lichs",
-	"Lycanthropes",
 	"Mimics",
 	"Molds",
 	"Mushroom Patches",
@@ -488,7 +478,7 @@ static cptr monster_group_text[] =
 	"Ogres",
 	"Orcs",
 	"People",
-	"Quadropeds",
+	"Quadrupeds",
 	"Quylthulgs",
 	"Reptiles/Amphibians",
 	"Rodents",
@@ -497,11 +487,11 @@ static cptr monster_group_text[] =
 	"Snakes",
 	"Townspeople",
 	"Trolls",
-	"Vampires",
+	"Vampires/Wraiths",
 	"Vortices",
-	"Wights/Wraiths",
+	"Werebeasts",
 	"Worms/Worm Masses",
-	"Xorns/Xarens",
+	"Xorns/Hulks",
 	"Yeti",
 	"Zephyr Hounds",
 	"Zombies",
@@ -521,12 +511,11 @@ static cptr monster_group_char[] =
 	"B",
 	"C",
 	"c",
-	"Uu",
-	"Dd",
+	"uU",
+	"dD",
 	"E",
 	"e",
-	"F",
-	"f",
+	"fF",
 	"g",
 	"G",
 	"H",
@@ -538,7 +527,6 @@ static cptr monster_group_char[] =
 	"K",
 	"k",
 	"L",
-	"l",
 	"$!?=.|~[]",
 	"m",
 	",",
@@ -547,7 +535,7 @@ static cptr monster_group_char[] =
 	"N",
 	"O",
 	"o",
-	"pP",
+	"lpP",
 	"q",
 	"Q",
 	"R",
@@ -639,7 +627,7 @@ static cptr object_group_text[] =
 	"Rods",
 	"Talismans",
 	"Swords",
-	"Hafted Weapons",
+	"Blunt Weapons",
 	"Polearms",
 	"Diggers",
 	"Bows",
@@ -673,7 +661,7 @@ static byte object_group_tval[] =
 	TV_ROD,
 	TV_TALISMAN,
 	TV_SWORD,
-	TV_HAFTED,
+	TV_BLUNT,
 	TV_POLEARM,
 	TV_DIGGING,
 	TV_BOW,
@@ -924,7 +912,7 @@ static void display_artifact_list(int col, int row, int per_page, int object_idx
 		make_fake_artifact(o_ptr, a_idx);
 
 		/* Get its name */
-		object_desc_store(o_name, o_ptr, TRUE, 0);
+		object_desc_store(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);
@@ -1185,7 +1173,7 @@ static void do_cmd_knowledge_monsters(void)
 	bool redraw;
 
 	/* Allocate the "mon_idx" array */
-	C_MAKE(mon_idx, M_LIST_ITEMS, monster_list_entry);
+	C_MAKE(mon_idx, MON_LIST_ITEMS, monster_list_entry);
 
 	max = 0;
 	grp_cnt = 0;
@@ -1567,7 +1555,7 @@ static void do_cmd_knowledge_alchemy(void)
 	{
 		if ((potion_alch[i].known1) || (potion_alch[i].known2))
 		{
-			alchemy_describe(line, i);
+			alchemy_describe(line, sizeof(line), i);
 			
 			/* Print a message */
 			fprintf(fff, " %s\n", line);
@@ -1617,7 +1605,7 @@ static void do_cmd_knowledge_home(void)
 			o_ptr = &st_ptr->stock[k];
 
 			/* Acquire object description */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 			/* Print a message */
 			fprintf(fff, "     %s\n", o_name);
@@ -1743,7 +1731,6 @@ static cptr ident_info[] =
 	"-:A wand (or rod)",
 	".:Floor",
 	"/:A polearm (or musical instrument)",
-	/* "0:unused", */
 	"1:Entrance to General Store",
 	"2:Entrance to Armory",
 	"3:Entrance to Weaponsmith",
@@ -1752,7 +1739,8 @@ static cptr ident_info[] =
 	"6:Entrance to Magic store",
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
-	/* "9:unused", */
+	"9:Entrance to Bookshop",	
+	"0:Entrance to Adventurer's Guild",
 	"::Rubble",
 	";:A glyph of warding",
 	"<:An up staircase",
@@ -1767,7 +1755,7 @@ static cptr ident_info[] =
 	"E:Elemental",
 	"F:Faery",
 	"G:Giant",
-	"H:Hag/Harpy",
+	"H:Harpy",
 	"I:Insect",
 	"J:Snake",
 	"K:Killer Beetle",
@@ -1781,33 +1769,33 @@ static cptr ident_info[] =
 	"S:Spider/Scorpion/Tick",
 	"T:Troll",
 	"U:Major Demon",
-	"V:Vampire",
-	"W:Wight/Wraith/etc",
-	"X:Xorn/Xaren/etc",
+	"V:Vampire/Wraith",
+	"W:Werebeast",
+	"X:Xorn/Umber Hulk/etc",
 	"Y:Hydra",
 	"Z:Zephyr Hound",
 	"[:Hard armor",
-	"\\:A hafted weapon (mace/whip/etc)",
+	"\\:A Blunt weapon (mace/whip/etc)",
 	"]:Misc. armor",
 	"^:A trap",
 	"_:A staff",
-	/* "`:unused", */
+	"`:Talisman"
 	"a:Ant",
 	"b:Bat",
-	"c:Centipede",
+	"c:Cat",
 	"d:Dragon",
 	"e:Floating Eye",
-	"f:Feline",
+	"f:Faery",
 	"g:Ghost",
 	"h:Humanoids",
 	"i:Icky Thing",
 	"j:Jelly",
 	"k:Kobold",
-	"l:Lycanthrope",
+	"l:Low-Level Person",
 	"m:Mold",
 	"n:Naga",
 	"o:Orc",
-	"p:Low-Level Person",
+	"p:Medium-Level Person",
 	"q:Quadruped",
 	"r:Rodent",
 	"s:Skeleton",
@@ -1818,9 +1806,9 @@ static cptr ident_info[] =
 	/* "x:unused", */
 	"y:Yeti",
 	"z:Zombie",
-	"{:A missile (arrow/bolt/shot)",
+	"{:An arrow",
 	"|:An edged weapon (sword/dagger/etc)",
-	"}:A launcher (bow/crossbow/sling)",
+	"}:A bow",
 	"~:A light-source (or chest/spike)",
 	NULL
 };
@@ -1878,18 +1866,18 @@ void do_cmd_query_symbol(void)
 	}
 	else if (ident_info[i])
 	{
-		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
+		strnfmt(buf, sizeof(buf), "%c - %s.", sym, ident_info[i] + 2);
 	}
 	else
 	{
-		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
+		strnfmt(buf, sizeof(buf), "%c - %s.", sym, "Unknown Symbol");
 	}
 
 	/* Display the result */
 	prt(buf, 0, 0);
 
 	/* Allocate the "who" array */
-	C_MAKE(who, M_LIST_ITEMS, monster_list_entry);
+	C_MAKE(who, MON_LIST_ITEMS, monster_list_entry);
 
 	/* Collect matching monsters */
 	for (n = 0, i = 1; i < z_info->r_max; i++)

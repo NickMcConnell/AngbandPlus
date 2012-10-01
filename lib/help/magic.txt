@@ -1,0 +1,70 @@
+=== Magic and Magic types ===
+
+Most classes (except Warriors and thieves) can cast magic spells of one form or
+another.  Mages, mystics, priests, paladins, spellswords and rangers all cast 
+book-based spells, while bards use musical instruments.  Note that Paladins and
+spellswords can only gain spell abilities upon reaching levels 5, and rangers
+need to wait until level 3.
+
+All classes that can use magic have a selection of spells that they can use,
+though the sources of these spells may differ.  Each spell costs a certain 
+amount of mana to cast, which is taken out of your mana pool.  If you don't
+have enough mana to cast a spell, you can still try casting - but better do
+so only if you have no other choices because this is very risky, and liable to
+cause you to fall unconcious, and cause permanent damage to your statistics. 
+
+In addition to the mana cost, every spell has a chance of failure, which is
+determined by your class, level, and statistics.  Mages, priests, bards and 
+mystics may attain 0% failure on most spells, but Rangers, Paladins, and 
+spellswords always have some chance of failure. Mages, Bards and Mystics must
+not wear gloves, unless the gloves are of a magical that provides free action,
+or a bonus to dexterity or mana, or they suffer a severe penalty to spell 
+success rates. Also, every magic-using class suffers from wearing heavy armor,
+though different classes can wear different amounts of armor safely.  Finally,
+some magic items may hinder your spellcasting abilities.
+
+
+=== Book-Based Magic ===
+
+Each class has a list of books from which it can choose spells. You can tell 
+whether your character can use a specific book according to its color in the
+inventory - if it's gray, you can't use it. The same book always contains the
+same spell list for every class, though some classes might need to be a higher
+level than others to access certain spells, and spend more mana. 
+
+You can cast a spell from a book by pressing the 'm' command, then picking 
+the book and finally the spell. You must study spells before using them - 
+if you see the study display at the lower right corner of the screen, you 
+may study new spells by pressing 'G'. Priests and Paladins may not choose 
+their own spells, but rather gain a random one out of the chosen book, while 
+the other classes can pick which spell they wish to learn. 
+
+Mages, mystics, and spellswords ocasionally have to make a further choice.  
+In their books, some spells don't have a mana cost and fail rate, but rather 
+have asteriks ("*") in these columns.  These spells offer a variety of 
+power levels, and after choosing the spell you must choose what power you want
+to cast in.  The more mana you spend, the more effective the spell, though 
+there is usually an efficiency drop in the amount of effect you get per mana
+point.  There are shortcuts which allow you to save some keypresses, and they
+depend on the state of the "spellbook_menu" option.  If the option is off (as
+it is by default), you get the menu if you type a lower-case letter for the 
+spell: maaa, and the top level spell if you type a captial letter: maA.  If it
+is on, you get the lowest level power if you type a lower-case letter for the 
+spell: maa, the highest level power if you type a upper-case letter: maA, and a
+menu only if you type a captial letter for the spellbook: mAaa.
+
+
+=== Musical Instrument Magic ===
+
+Bards use musical instruments to cast their spells. They must wield an 
+instrument to be able to cast spells from it.  However, they do not need to 
+study spells - a bard can automatically cast any spell offered by the 
+instrument if he's of a high enough level.  However, musical instruments vary 
+by quality; and a low-level instrument will not offer the same selection of 
+spells as a higher-grade instrument of the same type.  A musical instrument +N
+can only offer spells up to level 10*N - so for instance, a horn (+2) can only
+offer spells up to level 20 - to cast better spells, you must find better
+quality musical instruments.
+
+
+======================= Last updated for EyAngband 0.5.0 ======================

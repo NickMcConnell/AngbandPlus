@@ -39,6 +39,7 @@ OBJS = &
   monster3.obj &
   object1.obj &
   object2.obj &
+  object3.obj &
   powers.obj &
   quest.obj &
   save.obj &

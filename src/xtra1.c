@@ -130,12 +130,17 @@ static void prt_level(void)
  */
 static void prt_exp(void)
 {
-	char out_val[32];
+	char out_val[8];
 
 	if (p_ptr->lev < PY_MAX_LEVEL)
 	{
-		sprintf(out_val, "%7ld", (long)((player_exp[p_ptr->lev - 1] 
-			* p_ptr->expfact / 100L)-p_ptr->exp));
+		long val = (long)(((player_exp[p_ptr->lev - 1] * p_ptr->expfact) / 100L) - p_ptr->exp);
+
+		/* Boundary check */
+		if (val < 0) val = 0;
+
+		sprintf(out_val, "%7ld", val);
+
 		if (p_ptr->exp >= p_ptr->max_exp)
 		{
 			put_str("NEXT ", ROW_EXP, 0);
@@ -706,7 +711,7 @@ static void health_redraw(void)
 	}
 
 	/* Tracking an unseen monster */
-	else if (!m_list[p_ptr->health_who].ml)
+	else if (!mon_list[p_ptr->health_who].ml)
 	{
 		/* Indicate that the monster health is "unknown" */
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
@@ -720,7 +725,7 @@ static void health_redraw(void)
 	}
 
 	/* Tracking a dead monster (???) */
-	else if (!m_list[p_ptr->health_who].hp < 0)
+	else if (!mon_list[p_ptr->health_who].hp < 0)
 	{
 		/* Indicate that the monster health is "unknown" */
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
@@ -731,7 +736,7 @@ static void health_redraw(void)
 	{
 		int pct, len;
 
-		monster_type *m_ptr = &m_list[p_ptr->health_who];
+		monster_type *m_ptr = &mon_list[p_ptr->health_who];
 
 		/* Default to almost dead */
 		byte attr = TERM_RED;
@@ -758,7 +763,7 @@ static void health_redraw(void)
 		if (m_ptr->calmed) attr = TERM_SLATE;
 
 		/* Asleep */
-		if (m_ptr->csleep) attr = TERM_BLUE;
+		if (m_ptr->sleep) attr = TERM_BLUE;
 
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
@@ -924,7 +929,7 @@ void object_kind_track(int k_idx)
 /*
  * Hack -- track the given object kind
  */
-void object_actual_track(object_type *j_ptr)
+void object_actual_track(const object_type *j_ptr)
 {
 	object_type *o_ptr = &term_object;
 
@@ -1024,7 +1029,7 @@ static void fix_player_0(void)
 		Term_activate(angband_term[j]);
 
 		/* Display player */
-		display_player(0);
+		display_player(CSCREEN_MAIN);
 
 		/* Fresh */
 		Term_fresh();
@@ -1056,7 +1061,7 @@ static void fix_player_1(void)
 		Term_activate(angband_term[j]);
 
 		/* Display flags */
-		display_player(1);
+		display_player(CSCREEN_RESISTS);
 
 		/* Fresh */
 		Term_fresh();
@@ -1795,31 +1800,20 @@ static void calc_torch(void)
 }
 
 /*
- * Computes current weight limit.
- */
-static int weight_limit(void)
-{
-	int i;
-
-	/* Weight limit based only on strength */
-	i = adj_str_wgt[p_stat(A_STR)] * 100;
-
-	/* Return the result */
-	return (i);
-}
-
-/*
  * Calculates the amount of blows achieved with a certain (normally the current) weapon.
  */
-int calc_blows(object_type *o_ptr)
+byte calc_blows(const object_type *o_ptr, bool full)
 {
+	int i;
 	int wgt_val = 0;
-	int wgt_index;
 
 	int blows;
+	u32b f1, f2, f3;
+
+	object_type *i_ptr;
 
 	/* Heavy weapons */
-	if (adj_str_hold[p_stat(A_STR)] < actual_weight(o_ptr) / 10)
+	if (adj_str_hold[p_stat(A_STR)] < object_weight(o_ptr) / 10)
 	{
 		return 1;
 	}
@@ -1827,24 +1821,49 @@ int calc_blows(object_type *o_ptr)
 	/* Enforce a minimum "weight" (tenth pounds) */
 	if (o_ptr->k_idx) 
 	{
-		wgt_val = (actual_weight(o_ptr) / 10);
+		wgt_val = (object_weight(o_ptr) / 10);
 
 		if (wgt_val > 29) wgt_val = 29;
 
-		/* Boost digging skill by weapon weight */
-		p_ptr->skill[SK_DIG] += (actual_weight(o_ptr) / 10);
+		/* Hack - Boost digging skill by weapon weight */
+		p_ptr->skill[SK_DIG] += (object_weight(o_ptr) / 10);
+
+		/* Hack - Now modify the value according to class */
+		if (cp_ptr->flags & CF_BETTER_BLOWS) wgt_val--;
+		if (cp_ptr->flags & CF_WORSE_BLOWS) wgt_val++;
+
+		if (wgt_val < 0) wgt_val = 0;
+		if (wgt_val > 29) wgt_val = 29;
 	}
 
-	/* Calculate weight index */
-	wgt_index = wght_str_blows[wgt_val][p_stat(A_STR)] + cp_ptr->attack_factor;
+	/* Calculate blows */
+	blows = adj_dex_blows[p_stat(A_DEX)];
 
-	blows = blows_table[wgt_index][p_stat(A_DEX)];
+	/* Cap according to weapon weight */
+	if (blows > weapon_wgt_blows[wgt_val]) blows = weapon_wgt_blows[wgt_val];
 
-	/* Require at least one blow */
-	if (blows < 1) blows = 1;
+	/* Mega hack - calculate extra blows */
+	if (full) object_flags(o_ptr, &f1, &f2, &f3);
+	else object_flags_known(o_ptr, &f1, &f2, &f3);
 
-	/* Add in the "bonus blows" */
-	blows += p_ptr->extra_blows;
+	/* Affect blows */
+	if (f1 & (TR1_BLOWS)) blows += o_ptr->pval;
+
+	/* Scan the equipment */
+	for (i = INVEN_BOW; i < INVEN_TOTAL; i++)
+	{
+		i_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+		/* Mega hack - calculate extra blows */
+		if (full) object_flags(i_ptr, &f1, &f2, &f3);
+		else object_flags_known(i_ptr, &f1, &f2, &f3);
+
+		/* Affect blows */
+		if (f1 & (TR1_BLOWS)) blows += i_ptr->pval;
+	}
 
 	/* If enraged, provide an extra blow */
 	if (p_ptr->rage) blows++;
@@ -1852,7 +1871,7 @@ int calc_blows(object_type *o_ptr)
 	/* Require at least one blow (Check again in case of negative extra blows) */
 	if (blows < 1) blows = 1;
 
-	return (blows);
+	return (byte)blows;
 }
 
 /*
@@ -1936,12 +1955,9 @@ static void calc_bonuses(void)
 
 	/* Reset "blow" info */
 	p_ptr->num_blow = 1;
-	p_ptr->extra_blows = 0;
 
 	/* Reset "fire" info */
 	p_ptr->num_fire = 0;
-	p_ptr->ammo_mult = 0;
-	p_ptr->ammo_tval = 0;
 	extra_shots = 0;
 	extra_might = 0;
 
@@ -1955,7 +1971,6 @@ static void calc_bonuses(void)
 
 	/* Clear the Displayed/Real Bonuses */
 	p_ptr->dis_to_h = p_ptr->to_h = 0;
-	p_ptr->dis_to_d = p_ptr->to_d = 0;
 	p_ptr->dis_to_a = p_ptr->to_a = 0;
 
 	/* Clear all the flags */
@@ -2110,9 +2125,6 @@ static void calc_bonuses(void)
 		/* Affect speed */
 		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
 
-		/* Affect blows */
-		if (f1 & (TR1_BLOWS)) p_ptr->extra_blows += o_ptr->pval;
-
 		/* Affect shots */
 		if (f1 & (TR1_SHOTS)) extra_shots += o_ptr->pval;
 
@@ -2160,10 +2172,10 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 		/* Modify the base armor class */
-		p_ptr->ac += actual_ac(o_ptr);
+		p_ptr->ac += object_ac(o_ptr);
 
 		/* The base armor class is always known */
-		p_ptr->dis_ac += actual_ac(o_ptr);
+		p_ptr->dis_ac += object_ac(o_ptr);
 
 		/* Apply the bonuses to armor class */
 		p_ptr->to_a += o_ptr->to_a;
@@ -2204,12 +2216,10 @@ static void calc_bonuses(void)
 		if (i == INVEN_BOW) continue;
 
 		/* Apply the bonuses to hit/damage */
-		p_ptr->to_h += actual_to_h(o_ptr);
-		p_ptr->to_d += actual_to_d(o_ptr);
+		p_ptr->to_h += object_to_h(o_ptr);
 
 		/* Apply the mental bonuses tp hit/damage, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_h += actual_to_h(o_ptr);
-		if (object_known_p(o_ptr)) p_ptr->dis_to_d += actual_to_d(o_ptr);
+		if (object_known_p(o_ptr)) p_ptr->dis_to_h += object_to_h(o_ptr);
 	}
 
 	/*** Handle stats ***/
@@ -2269,17 +2279,13 @@ static void calc_bonuses(void)
 	/* Apply temporary "stun" */
 	if (p_ptr->stun > PY_STUN_HEAVY)
 	{
-		p_ptr->to_h -= 20;
-		p_ptr->dis_to_h -= 20;
-		p_ptr->to_d -= 20;
-		p_ptr->dis_to_d -= 20;
+		p_ptr->to_h -= 15;
+		p_ptr->dis_to_h -= 15;
 	}
 	else if (p_ptr->stun)
 	{
 		p_ptr->to_h -= 5;
 		p_ptr->dis_to_h -= 5;
-		p_ptr->to_d -= 5;
-		p_ptr->dis_to_d -= 5;
 	}
 
 	/* Resilience */
@@ -2294,8 +2300,8 @@ static void calc_bonuses(void)
 	{
 		p_ptr->to_a += 5;
 		p_ptr->dis_to_a += 5;
-		p_ptr->to_h += 10;
-		p_ptr->dis_to_h += 10;
+		p_ptr->to_h += 4;
+		p_ptr->dis_to_h += 4;
 	}
 
 	/* Temprory shield */
@@ -2311,10 +2317,8 @@ static void calc_bonuses(void)
 	/* Temporary "Hero" */
 	if (p_ptr->hero)
 	{
-		p_ptr->to_h += 15;
-		p_ptr->dis_to_h += 15;
-		p_ptr->bravery = TRUE;
-		p_ptr->tim_flag2 |= TR2_BRAVERY;
+		p_ptr->to_h += 8;
+		p_ptr->dis_to_h += 8;
 	}
 
 	/* Temporary stability */
@@ -2322,8 +2326,13 @@ static void calc_bonuses(void)
 	{
 		p_ptr->no_stun = TRUE;
 		p_ptr->no_confuse = TRUE;
-		p_ptr->tim_flag2 |= TR2_NO_STUN;
-		p_ptr->tim_flag2 |= TR2_NO_CONF;
+	}
+
+	/* Termporary bravery */
+	if (p_ptr->tim_bravery)
+	{
+		p_ptr->bravery = TRUE;
+		p_ptr->tim_flag2 |= TR2_BRAVERY;
 	}
 
 	/* Temporary "Beserk" */
@@ -2333,15 +2342,11 @@ static void calc_bonuses(void)
 		 * Berserk also provides an extra blow, a penalty to magic item use,
 		 * a penalty to saving throws, and a penalty to stealth - see below 
 		 */
-		p_ptr->to_h += 15;
-		p_ptr->dis_to_h += 15;
-		p_ptr->to_d += 15;
-		p_ptr->dis_to_d += 15;
+		p_ptr->to_h += 8;
+		p_ptr->dis_to_h += 8;
 		p_ptr->to_a -= 20;
 		p_ptr->dis_to_a -= 20;
 		p_ptr->disrupt = TRUE;
-		p_ptr->bravery = TRUE;
-		p_ptr->tim_flag2 |= TR2_BRAVERY;
 		p_ptr->tim_flag3 |= TR3_DISRUPT;
 	}
 
@@ -2410,8 +2415,8 @@ static void calc_bonuses(void)
 		 * Minuses to hit - they are only relevent if the fear is very low (wary)
 		 * but are retained so that the display won't be weird
 		 */
-		p_ptr->to_h -= 10;
-		p_ptr->dis_to_h -= 10;
+		p_ptr->to_h -= 5;
+		p_ptr->dis_to_h -= 5;
 	}
 
 	/*** Analyze weight ***/
@@ -2420,10 +2425,10 @@ static void calc_bonuses(void)
 	j = p_ptr->total_weight;
 
 	/* Extract the "weight limit" (in tenth pounds) */
-	i = weight_limit();
+	i = adj_str_wgt[p_stat(A_STR)] * 100;
 
 	/* Apply "encumbrance" from weight */
-	if (j > i/2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));
+	if (j > i / 2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));
 
 	/* Bloating slows the player down (a little) */
 	if (p_ptr->food >= PY_FOOD_MAX) p_ptr->pspeed -= 10;
@@ -2439,13 +2444,11 @@ static void calc_bonuses(void)
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->to_a += ((int)(adj_dex_ta[p_stat(A_DEX)]) - 128);
-	p_ptr->to_d += ((int)(adj_str_td[p_stat(A_STR)]) - 128);
 	p_ptr->to_h += ((int)(adj_dex_th[p_stat(A_DEX)]) - 128);
 	p_ptr->to_h += ((int)(adj_str_th[p_stat(A_STR)]) - 128);
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_stat(A_DEX)]) - 128);
-	p_ptr->dis_to_d += ((int)(adj_str_td[p_stat(A_STR)]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_stat(A_DEX)]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_str_th[p_stat(A_STR)]) - 128);
 
@@ -2507,11 +2510,11 @@ static void calc_bonuses(void)
 	p_ptr->heavy_shoot = FALSE;
 
 	/* It is hard to hold a heavy bow */
-	if (hold < actual_weight(o_ptr) / 10)
+	if (hold < object_weight(o_ptr) / 10)
 	{
 		/* Hard to wield a heavy bow */
-		p_ptr->to_h += 2 * (hold - actual_weight(o_ptr) / 10);
-		p_ptr->dis_to_h += 2 * (hold - actual_weight(o_ptr) / 10);
+		p_ptr->to_h += 2 * (hold - object_weight(o_ptr) / 10);
+		p_ptr->dis_to_h += 2 * (hold - object_weight(o_ptr) / 10);
 
 		/* Heavy Bow */
 		p_ptr->heavy_shoot = TRUE;
@@ -2523,61 +2526,14 @@ static void calc_bonuses(void)
 		/* Get to shoot */
 		p_ptr->num_fire = 1;
 
-		/* Analyze the launcher */
-		switch (o_ptr->sval)
-		{
-			/* Sling and ammo */
-			case SV_SLING:
-			{
-				p_ptr->ammo_tval = TV_SHOT;
-				p_ptr->ammo_mult = 2;
-				break;
-			}
-
-			/* Short Bow and Arrow */
-			case SV_SHORT_BOW:
-			{
-				p_ptr->ammo_tval = TV_ARROW;
-				p_ptr->ammo_mult = 2;
-				break;
-			}
-
-			/* Long Bow and Arrow */
-			case SV_LONG_BOW:
-			{
-				p_ptr->ammo_tval = TV_ARROW;
-				p_ptr->ammo_mult = 3;
-				break;
-			}
-
-			/* Light Crossbow and Bolt */
-			case SV_LIGHT_XBOW:
-			{
-				p_ptr->ammo_tval = TV_BOLT;
-				p_ptr->ammo_mult = 3;
-				break;
-			}
-
-			/* Heavy Crossbow and Bolt */
-			case SV_HEAVY_XBOW:
-			{
-				p_ptr->ammo_tval = TV_BOLT;
-				p_ptr->ammo_mult = 4;
-				break;
-			}
-		}
-
 		/* Apply special flags */
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 		{
 			/* Extra shots */
 			p_ptr->num_fire += extra_shots;
 
-			/* Extra might */
-			p_ptr->ammo_mult += extra_might;
-
 			/* Hack -- Rangers love Bows */
-			if ((cp_ptr->flags & CF_EXTRA_SHOT) && (p_ptr->ammo_tval == TV_ARROW))
+			if (cp_ptr->flags & CF_EXTRA_SHOT)
 			{
 				/* Extra shot at level 20 */
 				if (p_ptr->lev >= 20) p_ptr->num_fire++;
@@ -2596,44 +2552,71 @@ static void calc_bonuses(void)
 	/* Examine the "current weapon" */
 	o_ptr = &inventory[INVEN_WIELD];
 
-	/* Assume not heavy */
-	p_ptr->heavy_wield = FALSE;
-
-	/* It is hard to hold a heavy weapon */
-	if (hold < actual_weight(o_ptr) / 10)
+	/* Real weapon */
+	if (o_ptr->k_idx)
 	{
-		/* Hard to wield a heavy weapon */
-		p_ptr->to_h += 2 * (hold - actual_weight(o_ptr) / 10);
-		p_ptr->dis_to_h += 2 * (hold - actual_weight(o_ptr) / 10);
+		/* Assume not heavy */
+		p_ptr->heavy_wield = FALSE;
 
-		/* Heavy weapon */
-		p_ptr->heavy_wield = TRUE;
+		/* Damage dice/sides */
+		p_ptr->ds = object_ds(o_ptr);
+		p_ptr->dd = object_dd(o_ptr);
+
+		/* It is hard to hold a heavy weapon */
+		if (hold < object_weight(o_ptr) / 10)
+		{
+			int penalty = (object_weight(o_ptr) / 10) - hold;
+
+			/* Hard to wield a heavy weapon */
+			p_ptr->to_h -= penalty;
+			p_ptr->dis_to_h -= penalty;
+
+			p_ptr->ds = (p_ptr->ds * 2) / (penalty + 2);
+			p_ptr->dd = (p_ptr->dd * 2) / (penalty + 2);
+
+			if (p_ptr->ds < 1) p_ptr->ds = 1;
+			if (p_ptr->dd < 1) p_ptr->dd = 1;
+
+			/* Heavy weapon */
+			p_ptr->heavy_wield = TRUE;
+		}
+
+		/* Normal weapons or Unarmed combat */
+		else 
+		{
+			/* Use the blows tables */
+			p_ptr->num_blow = calc_blows(o_ptr, TRUE);
+		}
+
+		/* Assume okay */
+		p_ptr->icky_wield = FALSE;
+
+		/* Priest weapon penalty for non-blessed edged weapons */
+		if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
+			((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
+		{
+			/* Reduce the real bonuses */
+			p_ptr->to_h -= 2;
+
+			/* Reduce the mental bonuses */
+			p_ptr->dis_to_h -= 2;
+
+			/* Icky weapon */
+			p_ptr->icky_wield = TRUE;
+		}
 	}
-
-	/* Normal weapons or Unarmed combat */
-	if (!p_ptr->heavy_wield)
+	/* Unarmed combat */
+	else
 	{
-		/* Use the blows tables */
-		p_ptr->num_blow = calc_blows(o_ptr);
-	}
+		/* Damage for unarmed combat */
+		p_ptr->dd = adj_str_unarmed[p_stat(A_STR)];
+		p_ptr->ds = 2;
 
-	/* Assume okay */
-	p_ptr->icky_wield = FALSE;
+		/* Use the blows tables (note that o_ptr here is always an empty object) */
+		p_ptr->num_blow = calc_blows(o_ptr, TRUE);
 
-	/* Priest weapon penalty for non-blessed edged weapons */
-	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
-	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
-	{
-		/* Reduce the real bonuses */
-		p_ptr->to_h -= 2;
-		p_ptr->to_d -= 2;
-
-		/* Reduce the mental bonuses */
-		p_ptr->dis_to_h -= 2;
-		p_ptr->dis_to_d -= 2;
-
-		/* Icky weapon */
-		p_ptr->icky_wield = TRUE;
+		/* No weapon */
+		p_ptr->heavy_wield = FALSE;
 	}
 
 	/*** Analyze armor ***/
@@ -2642,7 +2625,7 @@ static void calc_bonuses(void)
 	o_ptr = &inventory[INVEN_BODY];
 
 	p_ptr->cumber_armor_melee =
-		((actual_weight(o_ptr) / 10 > adj_str_armor[p_stat(A_STR)]) ? TRUE : FALSE);
+		((object_weight(o_ptr) / 10 > adj_str_armor[p_stat(A_STR)]) ? TRUE : FALSE);
 
 	/* Take note when "glove state" changes */
 	if (p_ptr->old_cumber_armor_melee != p_ptr->cumber_armor_melee)
@@ -2664,8 +2647,8 @@ static void calc_bonuses(void)
 	/* Reduce to-hit */
 	if (p_ptr->cumber_armor_melee)
 	{
-		p_ptr->to_h -= 1 + ((actual_weight(o_ptr) / 10) - adj_str_armor[p_stat(A_STR)]) / 3;
-		p_ptr->dis_to_h -= 1 + ((actual_weight(o_ptr) / 10) - adj_str_armor[p_stat(A_STR)]) / 3;
+		p_ptr->to_h -= 1 + ((object_weight(o_ptr) / 10) - adj_str_armor[p_stat(A_STR)]) / 4;
+		p_ptr->dis_to_h -= 1 + ((object_weight(o_ptr) / 10) - adj_str_armor[p_stat(A_STR)]) / 4;
 	}
 
 	/*** Analyze stuff that disturbs spellcasting ***/
@@ -2730,7 +2713,7 @@ static void calc_bonuses(void)
 		{
 			object_type *o_ptr = &inventory[i];
 
-			cur_wgt += actual_weight(o_ptr);
+			cur_wgt += object_weight(o_ptr);
 		}
 
 		/* Heavy armor penalty */

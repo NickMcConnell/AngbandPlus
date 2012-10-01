@@ -1,231 +1,237 @@
 === Conditions and effects ===
 
-As you play the game, you will inevitablly come under the effect of spells and
-attacks that may cause your character to exhibit certain conditions, both
-benificial and harmful. You can see what currently effects your character by
-displaying the by displaying the Character Screen ("C"), and then hitting "h"
-twice.
+As you play the game, you will inevitablly come under the effect of spells,
+magical items, and attacks that may cause your character to exhibit certain
+conditions, both beneficial and harmful.  Some of these conditions are 
+reported on the main playing screen, and others can be seen by turning on a
+special sub-window dedicated for that (see "specopt.txt").  All of them report
+a message when you are first affected, and when the effect ceases, so an 
+observant player can always know what his character's state is.
 
 Positive conditions:
-     Absorb Hit:
-         As long as this lasts, damage caused to your character will have an 
-         inverse effect, healing him instead. The more damage you absorb, the
-         shorter this will last.
-     Heroism:
-         Heroism makes you temporary immune to fear, and grants you a bonus
-         to hit.
-     Blessed:
-         Blessing provides you a small bonus to AC and to hit.
-     Berserk:
-         Berserk rage provides you a resistance to fear, extra blow, a bonus to 
-         damage, and bonus to damage, at a cost of penalties to AC, spell success
-         chances, and your saving throw, magic devices, and stealth skills.
-     Shield:
-         Shield adds to your AC, making it easier to avoid blows.
-     Prot. Evil:
-         Evil creatures have a chance of being repelled when attacking you, 
-         making their attack an instant miss.
-     Resilient:
-         Resilience is the most powerful temporary protection a character may 
-         acheive. It both signifiacntly raises your AC and also makes you 
-         only suffer 1/3 of any damage recieved.
+    Shield:
+        This effect provides a bonus to your AC, making you harder to hit.
+    Blessed:
+        Blessing provides you a small bonus to AC and to hit.  It also 
+        protects you from being tainted by malevolant creatures.
+    Boldness:
+        Boldness protects you from supernatural fear.
+    Heroism:
+        Heroism grants you a bonus to hit.  Usually accompanied by boldness.
+    Stability:
+        Stability protects you from confusion and stunning.
+    Berserk:
+        Berserk rage provides you an extra blow and a bonus to hit, at a cost
+        of penalties to AC, spell success chances, and your saving throw, 
+        magic devices, and stealth skills.  Usually accompanied by boldness.
+    Prot. Evil:
+        Evil creatures have a chance of being repelled when attacking you, 
+        making their attack an instant miss.
+    Absorb Hit:
+        As long as this lasts, damage caused to your character will have an 
+        inverse effect, healing him instead. The more damage you absorb, the
+        shorter this will last.
+    Resilient:
+        Resilience is the most powerful temporary protection a character may 
+        acheive. It both signifiacntly raises your AC and also makes you 
+        only suffer 1/3 of any damage recieved.
+    Hasted:
+        Temporarily increases your speed.
+    Invisible:
+        If you are invisible, monsters will have a tough time noticing you. 
+        See below for more details.  Invisibility is instantly cancelled if you
+        attack a monster in melee combat - even if your source of invisibility 
+        is a permanent one; in which case, it will be restored after a few turns.
+    Infravision Bonus:
+        Temporarily increases your infravision range by 30 feet.
+    Stealth Bonus:
+        Makes you a lot less likely to wake up sleeping monsters, and makes 
+        blinded monsters (or most monsters if you're invisible) much less
+        likely to spot you.
+    Sense Invisible:
+        Provides you with the temporary ability to see invisible creatures.
+    Resistance Bonuses:
+        Provides you with a temporary bonus to specific resistances (see below).
 
 Negative conditions:
-     Blind:
-         While blind, you can not see your surroundings, nor can your read
-         scrolls. Only bards and mystics may cast spells blinded.
-     Paralyzed:
-         Whole paralyzed, you may take no action at all - this is a very 
-         dangerous condition to be in!
-     Perplexed, Confused, Befuddled, Insane:
-         The more confused you get, the less control you have on your movement,
-         and casting spells and using items becomes more and more difficult. If
-         you become insane, you can not recover by non-magical means.
-     Wary. Afraid, Terrified, Panic:
-         Fear increases your armor class, but makes combat a lot more difficult. 
-         As you become more and more afraid, more and more actions become 
-         impossible.
-     Poisoned:
-         When poisoned, you will lose hit points every round until the poison
-         is cured (or it runs it course).
-     Diseased:
-         Disease slowly reduces your stats, and may cause attacks of blindness
-         or diziness (stunning/confusion). Only characters with very high 
-         constituion stand a chance of the disease ending on its own - others
-         must use magical healing.
-     Stunned, Heavily stunned, Knocked out:
-         When stunned, spell casting and combat become more difficult. Also,
-         your mana points won't regenerate. Stunning can lead to being knocked
-         out, which is similar to being paralyzed.
-     Hallucination:
-         Hallucination causes phantom monsters to appear on screen in addition
-         (and instead of) real monsters.
-     Graze, Light cut, Bad cut. Nasty cut, Severe cut, Deep gash, Mortal wound
-         If you are wounded, you will lose hit points consistently until healed. 
-         Mortal wounds never heal on their own accord - you have to use magical
-         healing to survive them.
+    Blind:
+        While blind, you can not see your surroundings, nor can your read
+        scrolls. Only bards and mystics may cast spells blinded.
+    Perplexed, Confused, Befuddled, Insane:
+        The more confused you get, the less control you have on your movement,
+        and casting spells and using items becomes more and more difficult. If
+        you become insane, you can not recover by non-magical means.
+    Poisoned:
+        When poisoned, you will lose hit points every round until the poison
+        is cured (or it runs it course).
+    Diseased:
+        Disease slowly reduces your stats, and may cause attacks of blindness
+        or diziness (stunning/confusion). Only characters with very high 
+        constituion stand a chance of the disease ending on its own - others
+        must use magical healing.
+    Wary, Afraid, Terrified, Panic:
+        Fear increases your armor class, but makes combat a lot more difficult. 
+        As you become more and more afraid, more and more actions become 
+        impossible.
+    Paralyzed:
+        Whole paralyzed, you may take no action at all - this is a very 
+        dangerous condition to be in!
+    Hallucination:
+        Hallucination causes phantom monsters to appear on screen in addition
+        to (and instead of) real monsters.
+    Slowed:
+        Temporarily decreases your speed.  If you are both slowed and hasted,
+        the two effects cancel each other out.
+    Stunned, Heavily stunned, Knocked out:
+        When stunned, spell casting and combat become more difficult. Also,
+        your mana points won't regenerate. Stunning can lead to being knocked
+        out, which is similar to being paralyzed.
+    Graze, Light cut, Bad cut. Nasty cut, Severe cut, Deep gash, Mortal wound
+        If you are wounded, you will lose hit points consistently until healed. 
+        Mortal wounds never heal on their own accord - you have to use magical
+        healing to survive them.
+    Tainted
+        A taint on your soul means you are incapable of being blessed, using 
+        some priestly magic, and most importantly, healing magic becomes less
+        effective.  There are numerous causes of taints - taints caused by
+        the touch of demonic creatures will wear off with time, but taints
+        caused by wielding or wearing items imbued with unholy magic will 
+        remain as long as the item is being used - and even beyond that.
+    Weak, Stupid, Naive, Clumsy, Sickly, Ugly:
+        Some monsters, traps, and items can cause you to lose some points in
+        your basic attributes.  You will function with the lower statistics
+        until they are magically restored.
+    Exp. Drained
+        Some monsters - mainly undead creatures - can drain your experience. 
+        Unless you magically restore it, new experience gained from killing
+        monsters and other endevours will mainly go to regain what was lost,
+        and only 10% will count as new experience.  If you are drained past
+        the point of level gain, you will lose a level - and all accompanying
+        abilities.  Beware!
+
 
 === The Special Qualities and Abilities that your Character may Possess === 
 
 After your character is born, you may discover what special qualities and 
-immunities he has - and that you know about - by displaying the Character Screen 
-(type "C"), and then hitting "h" three times to display a list.  This list is 
-very handy for finding out what you qualities you need and do not yet possess.  
+immunities he has - and that you know about - by displaying the character 
+screen (type 'C'), and then hitting 'h' to display a list.  This list is very 
+handy for finding out what you qualities you need and do not yet possess.  
 Because it only takes into account your racial intrinsics, and fully known 
 (*Identified*) or obvious items, consulting this list is not cheating. 
 
-The abilities screen is divided into three vertical columns and one horizontal
-one. Each of the three vertical columns is further divided into sub-columns,
-which stands for the various equipment slots (a-l or m depending on your class).
-In addition, the two rightmost sub-columns stand for character intrinsic 
-abilities (@) and temporary abilities granted by spells or items (*).
+The abilities screen is divided into several vertical columns, each of which
+is further divided into sub-columns, which stands for the various equipment 
+slots (a-l or m depending on your class).  In addition, the two rightmost 
+sub-columns stand for character intrinsic abilities (@) and temporary abilities
+granted by spells or items (*).
 
-A list of displayed qualities and their full names follows:
+A list of displayed qualities follows, starting with the top columns:
 
-Resistance:
-     The leftmost of the three vertical columns displays your resistances. If 
-     you have a '*' in one of the columns, that means that the item in question
-     grants you immunity to the attack in question. The list of possible 
-     resistances is as follows:
+No Blind:
+    Total immunity to blindness.
+Free Actn:
+    Some creatures are able to paralyze or slow you with melee attacks or 
+    spells.  Free Action is a survival essential deep in the dungeon.
+Hold Life:
+    Characters with Hold Life resist experience draining attacks, and may even
+    escape their effects entirely.
+Bravery:
+    Total immunity to fear.
+No Dsease:
+    You will not suffer the long-term effects of disease, though you may still
+    be damaged by disease attacks
+No Stun:
+    Total immunity to stunning.
+No Poison:
+    You will not suffer the long-term effects of disease, though you may still
+    be damaged by disease attacks
+No Cut:
+    Total immunity to bleeding damage.
+No Conf:
+    Total immunity to confusion.
+S. Digest:
+    Slow Digestion reduces the amount of food you consume.
+Fthr Fall:
+    Feather Fall lowers the damage from pits and trap doors.  Also prevents you
+    from being throw about by certain supernatural attacks.
+Light:
+    Light allows you to see in the dungeon. A '*' stands for the normal light 
+    source. Other items that grant light are marked with a '+'
+Regen:
+    Characters who regenerate regain hit points at twice the normal rate and 
+    mana faster than the normal rate.  However, they will also need to eat more
+    often.
+Telepathy:
+    Telepathy is an extremely useful ability, allowing you to sense most 
+    monsters (except mindless ones and some of those with weird thought 
+    patterns) even through walls.
+See Invisible:
+    Many creatures in the dungeons are invisible, and you will need to keep 
+    some source of permanent or temporary see invisible handy if you descend 
+    more than a few levels into the dungeon.
+Invisible:
+    On the other hand, you too can gain invisibility, whether by temporary
+    means such as spells or potions, or by rare powerful magical items. 
+    When invisible, monsters will have a harder time finding you, and they
+    will be less likely to target you with spells.  Note, though, that the
+    effectiveness of invisibility depends greatly on your stealth - and if
+    your stealth is very low, you might not benifit from it at all.  As 
+    mentioned above, if you attempt a melee attack on a monster, your 
+    invisiblity will be cancelled, at least temporarily.
+Luck:
+    Some items make you luckier, allowing you to find better items more often.
+Stealth :
+    Items with this ability decrease the amount of noise your character makes
+    as he moves around the dungeon and performs actions.
+Search:
+    Items with this ability allow your character to find traps and secret doors
+    more easily.
+Infra-vsn:
+    Some objects increase the range at which you may see warm-blooded beings,
+    regardless of whether they are illuminated or even visible to the unaided 
+    eye.  Some exceptionally cold creatures will also show up.
+Tunneling:
+    All shovels and picks and certain other weapons grant bonuses to tunnelling
+    skill.
+Speed:
+    The faster you move, the fewer dangerous things monsters can do to you 
+    before you get to take a turn.  Speed items are rare, but very effective.
+Blows:
+    Extra blows are one of the most useful abilities a melee fighter may ever 
+    recieve.
+Shots:
+    Some missile launchers allow you to spend less time firing each shot.
+Mana:
+    The object grants a direct bonus to mana.
+Health:
+    The object grants a direct bonus to health.
+Might:
+    Some missile launchers have a higher base damage multiplier than normal.
+Taint:
+    You are suffering from a tainted condition.  See above for more details.
+Disrupt:
+    Disruption dramatically reduces the chance of spell success.
+Drn Items:
+    The item slowly drains the magic out of your equipment.
+Drn Exp:
+    As long as you equip this item, you will slowly lose experience.
+Teleport:
+    You will randomly teleport without control.
+Aggravate:
+    Monsters around you will become aggravated at your every move - beware!
 
-     Acid, Elec, Fire, Cold:
-          Acid, electricity, fire, and cold resistance. Temporary resistance
-          to any of these attacks, unlike other kinds of temporary resistance, 
-          is cumulative with normal resistance - in effect you get double 
-          resistance. To mark this the temporary resistance is marked with an 
-          'x' rather than the normal '+'.
-     Poison:
-          Resistance to poison. Lowers damage from poison attacks and prevents 
-          you from becoming poisoned. Like the elemental resistances, temporary 
-          poison resistance is cumulative with other resistances.
-     Disease
-          Resistance to disease. Lowers damage from disease attacks + prevents 
-          you from becoming diseased.
-     Light, dark:
-          Resistance to light and darkness attacks. Lowers damage from the 
-          appropriate attack, and prevents you from being blinded by it.
-     Confus:
-          Resistance to confusion. Lowers damage from confusion attacks and 
-          prevents you from being confused.
-          You cannot fight hand-to-hand when panicking.  Some potions remove 
-          fear and you may obtain resist fear from various items of equipment.
-     Sound, Shard, Water, Nexus, Nether, Chaos, Disen, Time, Mana:
-          Resistance to sound, shards, water nexus, nether, chaos, time, mana
-          and disenchantment. Like other resistances, these both reduce damage
-          from the corrosponding attack type and prevent any other ill effects
-          it may have.
+The bottom columns work somewhat differently.  These are your resistances.
+In addition to the sub-columns detailing the items, there is also a percentile
+value to each row.  This is your level of resistance.  The percentile value is
+color coded - yellow means a low value, light green a high value; dark green
+means you have reached the maximum normally achievable.  Light blue means you
+have a temporary bonus, which may or may not exceed the normal maximum.  Violet
+means that you have some item which allows you to permanently attain a value
+which is higher than normal.
 
-Abilities:
-          The other two vertical columns display your characters abilities. 
-          These are as follows:
+All characters gain some resistances with level, depending on their class and 
+race.  Items can provide bonuses to these resistances.  Note that if you have 
+no resistance whatsoever to some effect, it will not show up.
 
-     Free Actn:
-          Some creatures are able to paralyze or slow you with melee attacks or 
-          spells.  Free Action is a survival essential deep in the dungeon.
-     Hold Life:
-          Characters with Hold Life resist experience draining attacks, and may 
-          even escape their effects entirely.
-     No Blind:
-          Total immunity to blindness.
-     Bravery:
-          Protects you from fear.
-     S. Digest:
-          Slow Digestion reduces the amount of food you consume.
-     Fthr Fall:
-          Feather Fall lowers the damage from pits and trap doors.
-     Light:
-          Light allows you to see in the dungeon. A '*' stands for the normal
-          light source. Other items that grant light are marked with a '+'
-     Regen:
-          Characters who regenerate regain hit points at twice the normal rate 
-          and mana at 1.5x the normal rate.  Characters who regenerate need to 
-          eat heartily.
-     Telepathy:
-          Telepathy is an extremely useful ability, allowing you to sense most
-          monsters (except mindless ones and some of those with weird thought 
-          patterns) even through walls.
-     See Invisible:
-          Many creatures in the dungeons are invisible, and you will need to 
-          keep some source of permanent or temporary see invisible handy if you  
-          descend more than a few levels into the dungeon.
-     Invisible:
-          On the other hand, you too can gain invisibility, whether by temporary
-          means such as spells or potions, or by rare powerful magical items. 
-          When invisible, monsters will have a harder time finding you, and they
-          will be less likely to target you with spells. Note, though, that the
-          effectiveness of invisibility depends greatly on your stealth - and if
-          your stealth is very low, you might not benifit from it at all.
-     Luck:
-          Some items make you luckier, allowing you to find better items more 
-          often.
-     Stealth :
-          Items with this ability decrease the amount of noise your character 
-          makes as he moves around the dungeon and performs actions.
-     Search:
-          Items with this ability allow your character to find traps and secret 
-          doors more easily.
-     Infra-vsn:
-          Some objects increase the range at which you may see warm-blooded 
-          creatures, regardless of whether they are illuminated or even visible 
-          to the unaided eye.
-     Tunneling:
-          All shovels and picks and certain other weapons grant bonuses to 
-          tunnelling skill.
-     Speed:
-          The faster you move, the fewer dangerous things monsters can do to 
-          you before you get to take a turn.  Speed items are rare for all but 
-          high-level characters.
-     Blows:
-          Extra blows are one of the most useful abilities a melee fighter may
-          ever recieve.
-     Shots:
-          Some missile launchers allow you to spend less time firing each shot.
-     Mana:
-          The object grants a direct bonus to mana.
-     Health:
-          The object grants a direct bonus to health.
-     Might:
-          Some missile launchers have a higher base damage multiplier than 
-          normal.
-     Disrupt:
-          Disruption dramatically reduces the chance of spell success.
-     Drn Items:
-          The item slowly drains the magic out of your equipment.
-     Drn Exp:
-          As long as you equip this item, you will slowly lose experience.
-     Teleport:
-          You will randomly teleport without control.
-     Aggravate:
-          Monsters around you will become aggravated at your every move - 
-          beware!
 
-Weapon Abilities:
-          The horizontal row depicts the special abilities possessed by your 
-          weapon. 
-     Slays:
-          The ten leftmost columns give your weapon damage bonuses against 
-          certain monster types. From left to right, they are-
-          Animals, Plants, Evil, Chaos, Undead, Demons, Humanoids, People
-          and Dragons. 
-     Xdragon: 
-          Some weapons have an even greater bonus against dragons.
-     Bless:
-          Priests may use blessed weapons without repercussion, even if they
-          are bladed.
-     Wound:
-          Only available for swords, monsters struck by this weapon receive
-          extra damage from bleeding.
-     Terror:
-          Monsters struck by this weapon have a greater chance of fleeing.
-     Quake:
-          This ability causes your blows occasionally to start earthquakes.
-     Brands:
-          The final seven columns stand for weapons branded with elemental or
-          other magical attacks. The four elemental attacks (acid, electricity,
-          fire, and cold) cause extra damage to monsters that aren't resistant.
-          Weapons branded with either light or darkness cause both extra
-          damage and have a chance of blinding the opponent, while venom-
-          branded weapons may cause a monster to be poisoned in addition to
-          the bonus damage.
-          
-
+======================= Last updated for EyAngband 0.5.0 ======================

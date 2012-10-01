@@ -25,14 +25,14 @@ mation about any command, consult the help file "cmddesc.txt".
  f  Fire an item                         F  Fuel your lantern/torch
  g  Stay still (flip pickup)             G  Gain new spells/prayers
  h  (unused)                             H  (unused)
- i  Inventory list                       I  Observe an item
+ i  Inventory list                       I  Inspect an item
  j  (unused)                             J  (unused)
  k  Destroy an item                      K  (unused)
  l  Look around                          L  Locate player on map
  m  Cast a spell                         M  Full dungeon map
  n  (unused)                             N  (unused)
  o  Open a door or chest                 O  (unused)
- p  Pray a prayer                        P  (unused)
+ p  Place a trap                         P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Toggle search mode
@@ -84,14 +84,14 @@ mation about any command, consult the help file "cmddesc.txt".
  f  Bash a door (force)                  F  Fuel your lantern/torch
  g  Stay still (flip pickup)             G  Gain new spells/prayers
  h  (walk - west)                        H  (run - west)
- i  Inventory list                       I  Observe an item
+ i  Inventory list                       I  Inspect an item
  j  (walk - south)                       J  (run - south)
  k  (walk - north)                       K  (run - north)
  l  (walk - east)                        L  (run - east)
  m  Cast a spell                         M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
  o  Open a door or chest                 O  Use racial ability
- p  Pray a prayer                        P  Browse a book
+ p  Place a trap                         P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Invoke a Talisman
@@ -133,5 +133,4 @@ mation about any command, consult the help file "cmddesc.txt".
  /  Identify symbol                      ?  Help
 
 
-
-
+======================= Last updated for EyAngband 0.5.0 ======================

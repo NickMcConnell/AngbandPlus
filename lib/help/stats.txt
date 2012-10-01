@@ -7,11 +7,14 @@ adventures.  It also tells you how to keep track of all this information.
 
 === Character Attributes Shown on the Left Side of the Main Window ===
      
-Experience:   Experience affects almost everything else about your character.  
+Level:        Your character's level.  It reflects how powerful you are; level
+              1 is a beginning character, while level 50 is the maximum you can
+              reach.
+Next:         The amount of experience necessary for the next level.  
+              Experience affects almost everything else about your character.  
               As he kills monsters, casts spells and prays prayers for the 
               first time, learns about an object kind by using it, disarms 
               traps, and unlocks doors.
-Next:         The amount of experience necessary for the next level.
 AU:           Represents your current gold supply. Gold is amazingly handy, 
               because everything the town can sell can be yours with enough of 
               the stuff.  
@@ -26,27 +29,27 @@ Vital Statistics (STR, INT, WIS, DEX, CON and CHR):
 AC:           Armor class helps prevent you getting killed.  It may be 
               increased by equipping more and better armor, and by increasing 
               your Dexterity.  
-Hit Points:   Each character has hit points, representing how much damage he 
+HP:           Each character has hit points, representing how much damage he 
               can sustain before he dies.  The maximum number of hit points is
               derived from race, class, level, and constitution.  Hit points 
               may be regained by resting, or by a variety of magical means.
-Mana:         Each character has spell points, or mana, which represents how 
+SP:           Each character has spell points, or mana, which represents how 
               many spells a character can cast (or tunes he can play). Mana may
               be regained by resting or some rare magical means.
 
 === Stats ===
 
 Strength:     Strength is critical to fighting effectively in melee and with 
-              missile weapons.  Increases in Strength increase damage, and 
-              allow players to get more blows with heavier weapons.  Strength 
+              missile weapons.  Increases in Strength allow you to use heavier
+              weapons, and make you more likely to hit through armor.  Strength
               is also useful in tunneling and for carrying heavy items without
               being slowed down.
-Intelligence: Intelligence affects the spellcasting abilities of mages, rangers
-              and mystics. For these classes, this stat will affect the number
-              of spells they may learn each level, the number of spell points 
-              they receive, and the chance for spells to fail. Intelligent 
-              characters also use magic devices, pick locks, mix potions, and 
-              disarm traps more effectively.
+Intelligence: Intelligence affects the spellcasting abilities of mages, as well
+              as spellswords, rangers and mystics. For these classes, this stat
+              will affect the number of spells they may learn each level, the 
+              number of spell points they receive, and the chance for spells to
+              fail. Intelligent characters also use magic devices, pick locks,
+              mix potions, and disarm traps more effectively.
 Wisdom:       Wisdom affects the spellcasting abilities of priests, paladins, 
               and mystics. For these classes, this stat will affect the number
               of spells they may learn each level, the number of spell points 
@@ -73,6 +76,7 @@ Charisma:     Charisma represents a character's personality and physical
               allow monsters that are magically calmed to remain non-agressive
               longer. 
 
+
 === Skills ===
 
 Characters possess various abilities which help them to survive and prosper.  
@@ -98,6 +102,9 @@ Throwing:     Using thrown weapons depends on this skill.  The higher your
               his target.  
 Disarming:    Disarming is the ability to safely remove traps and pick locks on 
               chests and doors. A trap must be found before it can be disarmed.  
+Bypass Trap:  If you are aware of a trap's location, there is a small chance 
+              (larger if you are a thief) that you can step into its square 
+              without triggering it.  This skill represents this ability.
 Magic Device: The chance of succesfully using a magical device such as a wand,
               staff, or any activatable object depends on this skill.
 Searching:    Searching affects the chance of success when actively looking for
@@ -106,13 +113,22 @@ Search Freq.: This determines the chance to find something when not actively
               searching.
 Digging:      Digging is a tedious art, but characters with a higher skill
               may do it much faster than others. 
-Alchemy:      Mixing potions is a hazardous art, and without a high alchemy
-              Skill it is likely to cause accidental explosions or no effect
-              At all. Character who excel in alchemy may learn alchemical 
+Alchemy:      Mixing potions is a hazardous art, and without a high alchemy 
+              skill it is likely to cause accidental explosions or no effect
+              at all.  Characters who excel in alchemy may learn alchemical 
               formulae by simply quaffing potions.
+
+
+=== Other abilities ===
 
 Infra-vision: Infra-vision is the ability to see heat sources.  It will allow 
               a character to see any warm-blooded creature up to a certain 
               distance. This ability works equally well with or without a light
-              source.  Many non-human races have innate infravision.
+              source.  Several of the playable races have innate infravision.
 
+Racial Ab.:   Angels and Demons, being more magical than the other races, may
+              have access to special, innate, magical spells.  These can be 
+              activated by the 'U' command, and need some time to recharge.
+
+
+======================= Last updated for EyAngband 0.5.0 ======================

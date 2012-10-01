@@ -207,14 +207,13 @@ struct object_kind
 	s16b pval;					/* Object extra info */
 
 	s16b to_h;					/* Bonus to hit */
-	s16b to_d;					/* Bonus to damage */
 	s16b to_a;					/* Bonus to armor */
 
 	s16b ac;					/* Base armor */
 
 	byte dd, ds;				/* Damage dice/sides */
 
-	s16b weight;				/* Weight */
+	u16b weight;				/* Weight */
 
 	byte qd, qs;				/* Quantity dice/sides */
 	
@@ -266,7 +265,6 @@ struct artifact_type
 	s16b pval;			/* Artifact extra info */
 
 	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
 
 	s16b ac;			/* Base armor */
@@ -309,14 +307,18 @@ struct ego_item_type
 	byte level;			/* Minimum level */
 	byte rarity;		/* Object rarity */
 
+	byte base_material;	/* Material this ego-type can be placed on */
+	u16b min_weight;	/* Minimum weight for item to be able to get this ego-type */
+	u16b max_weight;	/* Maximum weight for item to be able to get this ego-type */
+
 	byte tval[3];		/* Legal tval */
 	byte min_sval[3];	/* Minimum legal sval */
 	byte max_sval[3];	/* Maximum legal tval */
 	byte xtra;			/* Extra Sustain/Resist/Power */
 
 	byte max_to_h;		/* Maximum to-hit bonus */
-	byte max_to_d;		/* Maximum to-dam bonus */
 	byte max_to_a;		/* Maximum to-ac bonus */
+	byte d_perc;		/* Modifier to damage (percentage) */
 
 	byte max_pval;		/* Maximum pval */
 
@@ -336,23 +338,26 @@ struct ego_item_type
  */
 struct weapon_prefix_type
 {
-	u32b name;			/* Name (offset) */
+	u32b name;				/* Name (offset) */
 
-	byte rarity;		/* Rarity - the higher this is, the less chance of being generated */
-	byte material;		/* Material */
+	byte d_attr;			/* Default object attribute */
 
-	s16b to_h;			/* Modifier to hit */
-	s16b to_d;			/* Modifier to damage */
+	byte depth;				/* Depth (offset) */
+	byte rarity;			/* Rarity - the higher this is, the less chance of being generated */
+
+	byte base_material;		/* Material this prefix can be placed on */
+	byte actual_material;	/* Material this prefix is made from */
+
+	s16b to_h;				/* Modifier to hit */
 	
-	s16b dd;			/* Modifier to damage dice */
-	s16b ds;			/* Modifier to damage dice sides*/
+	byte d_perc;			/* Modifier to damage (percentage) */
 
-	byte slays[SL_MAX];	/* Slays and brands */
+	byte slays[SL_MAX];		/* Slays and brands */
 
-	u16b weight;		/* Weight (percentage) */
-	u16b cost;			/* Cost (percentage) */
+	u16b weight;			/* Weight (percentage) */
+	u16b cost;				/* Cost (percentage) */
 
-	byte flags;			/* Flags for prefixes */
+	byte flags;				/* Flags for prefixes */
 };
 
 /*
@@ -360,17 +365,22 @@ struct weapon_prefix_type
  */
 struct armor_prefix_type
 {
-	u32b name;			/* Name (offset) */
+	u32b name;				/* Name (offset) */
 
-	byte rarity;		/* Rarity - the higher this is, the less chance of being generated */
-	byte material;		/* Material */
+	byte d_attr;			/* Default object attribute */
 
-	s16b ac;			/* Modifier to base ac */
+	byte depth;				/* Depth (offset) */
+	byte rarity;			/* Rarity - the higher this is, the less chance of being generated */
 
-	u16b weight;		/* Weight (percentage) */
-	u16b cost;			/* Cost (percentage) */
+	byte base_material;		/* Material this prefix can be placed on */
+	byte actual_material;	/* Material this prefix is made from */
 
-	byte flags;			/* Flags for prefixes */
+	s16b ac;				/* Modifier to base ac */
+
+	u16b weight;			/* Weight (percentage) */
+	u16b cost;				/* Cost (percentage) */
+
+	byte flags;				/* Flags for prefixes */
 };
 
 /*
@@ -405,8 +415,7 @@ struct monster_unique
 	u32b name;				/* Name (offset) */
 	u32b text;				/* Text (offset) */
 
-	byte hdice;				/* Creatures hit dice count */
-	byte hside;				/* Creatures hit dice sides */
+	u16b life;				/* Creatures life value */
 
 	s16b ac;				/* Armour Class */
 
@@ -487,8 +496,7 @@ struct monster_race
 	u32b name;				/* Name (offset) */
 	u32b text;				/* Text (offset) */
 
-	byte hdice;				/* Creatures hit dice count */
-	byte hside;				/* Creatures hit dice sides */
+	u16b life;				/* Creatures life value */
 
 	s16b ac;				/* Armour Class */
 
@@ -660,22 +668,15 @@ struct object_type
 
 	byte number;		/* Number of items */
 
-	s16b weight;		/* Item weight */
-
 	byte a_idx;			/* Artifact type, if any */
 	byte e_idx;			/* Ego-Item type, if any */
-	byte prefix_idx;	/* Prefix type, if any */
+	byte pfx_idx;		/* Prefix type, if any */
 
 	byte xtra1;			/* Extra info type */
 	byte xtra2;			/* Extra info index */
 
 	s16b to_h;			/* Plusses to hit */
-	s16b to_d;			/* Plusses to damage */
 	s16b to_a;			/* Plusses to AC */
-
-	s16b ac;			/* Normal AC */
-
-	byte dd, ds;		/* Damage dice/sides */
 
 	s16b timeout;		/* Timeout Counter */
 
@@ -731,8 +732,6 @@ struct monster_type
 	s16b hp;			/* Current Hit points */
 	s16b maxhp;			/* Max Hit points */
 
-	s16b csleep;		/* Inactive counter */
-
 	byte mspeed;		/* Monster "speed" */
 	byte bspeed;		/* Monster "base speed" */
 
@@ -744,6 +743,7 @@ struct monster_type
 	byte blinded;		/* Monster is blinded */ 
 	byte calmed;		/* Monster is calmed */  
 
+	u16b sleep;			/* Monster is asleep */
 	u16b bleeding;		/* Monster is bleeding */ 
 	u16b poisoned;		/* Monster is poisoned */ 
 
@@ -977,7 +977,8 @@ struct player_race_special
 	u32b flags2;		/* Racial Flags, set 2 */
 	u32b flags3;		/* Racial Flags, set 3 */
 
-	u16b power;			/* Special power for that level */
+	u16b activation;	/* Special power for that level */
+	byte turns;
 };
 
 /*
@@ -987,7 +988,6 @@ struct start_item
 {
 	byte tval;	/* Item's Tval */
 	byte sval;	/* Item's Sval */
-	byte ego;   /* Item's Name2 */
 	byte min;	/* Minimum starting amount */
 	byte max;	/* Maximum starting amount */
 };
@@ -1010,8 +1010,6 @@ struct player_class
 	s16b c_exp;								/* Class experience factor */
 
 	u32b flags;								/* Class Flags */
-
-	byte attack_factor;						/* Factor for attack number */
 
 	byte res[RS_MAX];						/* Percentile Resistances */
 
@@ -1147,6 +1145,7 @@ struct player_type
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- Invisiblity */
 	s16b stability;		/* Timed -- Stability */
+	s16b tim_bravery;	/* Timed -- Stability */
 
 	s16b tim_infra;		/* Timed -- Infra Vision */
 	s16b tim_stealth;	/* Timed -- Stealth */
@@ -1172,7 +1171,7 @@ struct player_type
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
 	char died_from[80];		/* Cause of death */
-	char history[5][55];	/* Initial history */
+	char history[275];		/* Initial history */
 
 	u16b total_winner;		/* Total winner */
 	u16b panic_save;		/* Panic save */
@@ -1311,14 +1310,15 @@ struct player_type
 	bool bless_blade;	/* Blessed blade */
 
 	s16b dis_to_h;		/* Known bonus to hit */
-	s16b dis_to_d;		/* Known bonus to dam */
 	s16b dis_to_a;		/* Known bonus to ac */
 
 	s16b dis_ac;		/* Known base ac */
 
 	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to dam */
 	s16b to_a;			/* Bonus to ac */
+
+	byte dd;			/* Current weapon damage dice */
+	byte ds;			/* Current weapon damage sides */
 
 	s16b ac;			/* Base ac */
 
@@ -1328,13 +1328,8 @@ struct player_type
 
 	u32b noise;			/* Derived from stealth */
 
-	s16b extra_blows;	/* Number of extra blows */
-	s16b num_blow;		/* Number of blows */
+	byte num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */
-
-	byte ammo_mult;		/* Ammo multiplier */
-
-	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
 
@@ -1343,9 +1338,6 @@ struct player_type
 	/* Generation fields (for quick start) */
 	s32b au_birth;			/* Current Gold */
 	byte stat_birth[A_MAX];	/* Current "natural" stat values */
-
-	/* Other fields */
-	s16b obj_depth;		/* Depth for object generation purposes*/
 
 	byte feeling;		/* Level feeling */
 	s32b feeling_cnt;	/* Hack - counter for level feeling */

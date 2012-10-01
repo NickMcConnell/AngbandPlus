@@ -1,11 +1,14 @@
-Welcome to the EyAngband Online Help System.
+    Welcome to the EyAngband Online Help System.
 
 Please choose one of the following online help files:
 
-    (1) General Information        (general.hlp)
-    (2) Creating a Character       (birth.hlp)
-    (3) Commands and Options       (command.hlp)
-    (4) Exploring the Dungeon      (dungeon.hlp)
+    (1) General Information            (general.hlp)
+    (2) Playing the Game               (playing.hlp)
+    (3) Your Character                 (char.hlp)
+    (4) The Dungeon and its Contents   (dungeon.hlp)
+    (5) Options and Preferrences       (option.hlp)
+
+
 
 
 
@@ -15,7 +18,8 @@ Please choose one of the following online help files:
  ESC: leave help
 
 ***** [1] general.hlp
-***** [2] birth.hlp
-***** [3] command.hlp
+***** [2] playing.hlp
+***** [3] char.hlp
 ***** [4] dungeon.hlp
+***** [5] option.hlp
 

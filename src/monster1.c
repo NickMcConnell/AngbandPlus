@@ -47,7 +47,7 @@ static bool know_armour(monster_lore *l_ptr, int r_idx, int u_idx)
 	if (!u_idx) return (FALSE);
 
 	/* Unique monsters */
-	if (kills > 304 / (38 + (5*level) / 4)) return (TRUE);
+	if (kills > 304 / (38 + (5 * level) / 4)) return (TRUE);
 
 	/* Assume false */
 	return (FALSE);
@@ -144,7 +144,6 @@ static int collect_mon_breaths(u32b s_flags1, cptr vp[64])
 	if (s_flags1 & (SRF1_BR_DISEASE))	vp[n++] = "disease";
 	if (s_flags1 & (SRF1_BR_LITE))		vp[n++] = "light";
 	if (s_flags1 & (SRF1_BR_DARK))		vp[n++] = "darkness";
-	if (s_flags1 & (SRF1_BR_CONF))		vp[n++] = "confusion";
 	if (s_flags1 & (SRF1_BR_SOUN))		vp[n++] = "sound";
 	if (s_flags1 & (SRF1_BR_SHAR))		vp[n++] = "shards";
 	if (s_flags1 & (SRF1_BR_NEXU))		vp[n++] = "nexus";
@@ -183,7 +182,6 @@ static int collect_mon_resists(u32b flags3, cptr vp[64])
 	if (flags3 & (RF3_RES_DISEASE))		vp[n++] = "disease";
 	if (flags3 & (RF3_RES_LITE))		vp[n++] = "light";
 	if (flags3 & (RF3_RES_DARK))		vp[n++] = "darkness";
-	if (flags3 & (RF3_RES_CONF))		vp[n++] = "confusion";
 	if (flags3 & (RF3_RES_SOUN))		vp[n++] = "sound";
 	if (flags3 & (RF3_RES_SHAR))		vp[n++] = "shards";
 	if (flags3 & (RF3_RES_NEXU))		vp[n++] = "nexus";
@@ -235,15 +233,15 @@ static int collect_mon_immunes(u32b flags3, cptr vp[64])
 	if (flags3 & (RF3_NO_CUT))		vp[n++] = "made to bleed";
 	if (flags3 & (RF3_NO_BLIND))	vp[n++] = "blinded";
 	if (flags3 & (RF3_NO_CALM))		vp[n++] = "pacified";
+	if (flags3 & (RF3_NO_CONF))	vp[n++] = "confused";
 
 	/* 
-	 * Note - the following flags also appear under resistances/breaths which might be annoying 
+	 * Note - the following flag also appears under resistances which might be annoying 
 	 * to some players and takes screen real estate when displaying the monster memory
 	 * but is more intuitive for beginners.
 	 */
 
 	if (flags3 & (RF3_RES_POIS))	vp[n++] = "poisoned";
-	if (flags3 & (RF3_RES_CONF))	vp[n++] = "confused";
 
 	return n;
 }
@@ -371,6 +369,7 @@ static void describe_mon_attacks(int method, int effect, cptr method_text[1], cp
 		case RBE_RUST:		effect_text[0] = "rust"; break;
 		case RBE_ROT:		effect_text[0] = "rot"; break;
 		case RBE_HALLU:		effect_text[0] = "cause hallucinations"; break;
+		case RBE_TAINT:		effect_text[0] = "taint your soul"; break;
 		case RBE_BLIND:		effect_text[0] = "blind"; break;
 		case RBE_CONFUSE:	effect_text[0] = "confuse"; break;
 		case RBE_TERRIFY:	effect_text[0] = "terrify"; break;
@@ -463,9 +462,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 	int vn;
 	cptr vp[64];
 
-#ifndef PREVENT_LOAD_R_TEXT
 	char buf[2048];
-#endif
 
 	u32b i, j;
 
@@ -545,18 +542,16 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 	if (l_ptr->r_tkills)
 	{
 		/* Know "race" flags */
-		if (r_ptr->flags4 & (RF4_HUMANOID))	flags4 |= (RF4_HUMANOID);
-		if (r_ptr->flags4 & (RF4_PERSON))	flags4 |= (RF4_PERSON);
-		if (r_ptr->flags4 & (RF4_FAERY))	flags4 |= (RF4_FAERY);
-		if (r_ptr->flags4 & (RF4_DRAGON))	flags4 |= (RF4_DRAGON);
-		if (r_ptr->flags4 & (RF4_DEMON))	flags4 |= (RF4_DEMON);
-		if (r_ptr->flags4 & (RF4_UNDEAD))	flags4 |= (RF4_UNDEAD);
-		if (r_ptr->flags4 & (RF4_EVIL))		flags4 |= (RF4_EVIL);
-		if (r_ptr->flags4 & (RF4_ANIMAL))	flags4 |= (RF4_ANIMAL);
-		if (r_ptr->flags4 & (RF4_PLANT))	flags4 |= (RF4_PLANT);
-		if (r_ptr->flags4 & (RF4_CHAOTIC))	flags4 |= (RF4_CHAOTIC);
-
-		if (r_ptr->flags1 & (RF1_FORCE_MAXHP)) flags1 |= (RF1_FORCE_MAXHP);
+		if (r_ptr->flags4 & RF4_HUMANOID)	flags4 |= RF4_HUMANOID;
+		if (r_ptr->flags4 & RF4_PERSON)		flags4 |= RF4_PERSON;
+		if (r_ptr->flags4 & RF4_FAERY)		flags4 |= RF4_FAERY;
+		if (r_ptr->flags4 & RF4_DRAGON)		flags4 |= RF4_DRAGON;
+		if (r_ptr->flags4 & RF4_DEMON)		flags4 |= RF4_DEMON;
+		if (r_ptr->flags4 & RF4_UNDEAD)		flags4 |= RF4_UNDEAD;
+		if (r_ptr->flags4 & RF4_EVIL)		flags4 |= RF4_EVIL;
+		if (r_ptr->flags4 & RF4_ANIMAL)		flags4 |= RF4_ANIMAL;
+		if (r_ptr->flags4 & RF4_PLANT)		flags4 |= RF4_PLANT;
+		if (r_ptr->flags4 & RF4_CHAOTIC)	flags4 |= RF4_CHAOTIC;
 	}
 
 	/* Ancestor info */
@@ -572,8 +567,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 			if (l_ptr->r_deaths)
 			{
 				/* Killed ancestors */
-				text_out(format("%^s has slain ",
-							wd_he[msex], l_ptr->r_deaths));
+				text_out(format("%^s has slain ", wd_he[msex]));
 				text_out_c(TERM_L_GREEN,format("%d ",l_ptr->r_deaths));
 				text_out("of your ancestors");
 
@@ -656,16 +650,13 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 			}
 		}
 	}
-#ifndef PREVENT_LOAD_R_TEXT
 
 	/* Simple method */
-	strcpy(buf, monster_text(r_idx, u_idx));
+	my_strcpy(buf, monster_text(r_idx, u_idx), sizeof(buf));
 
 	/* Dump it */
 	text_out(buf);
 	text_out("  ");
-
-#endif /* PREVENT_LOAD_R_TEXT */
 
 	/* Nothing yet */
 	old = FALSE;
@@ -782,14 +773,12 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 	if (l_ptr->r_tkills)
 	{
 		/* Introduction */
-		if (flags1 & (RF1_UNIQUE))
-		{
-			text_out("Killing this");
-		}
-		else
-		{
-			text_out("A kill of this");
-		}
+		if (u_idx) text_out("Killing this");
+		else text_out("A kill of this");
+
+		/* Describe the "intelligence" */
+		if (flags1 & (RF1_SMART))	text_out(" intelligent");
+		if (flags1 & (RF1_STUPID))	text_out(" unintelligent");
 
 		/* Describe the "quality" */
 		if (flags4 & (RF4_CHAOTIC))	text_out(" chaotic");
@@ -829,8 +818,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
 		/* Mention the dependance on the player's level */
-		text_out(format(" for a%s %lu%s level character.  ",
-			        q, (long)i, p));
+		text_out(format(" for a%s %lu%s level character.  ", q, (long)i, p));
 	}
 
 	/* Collect monster associates */
@@ -931,7 +919,6 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		text_out(" magical, casting spells");
 
 		/* Adverb */
-		if (flags1 & (RF1_SMART)) text_out(" intelligently");
 		if (flags2 & (RF2_NEVER_FAIL)) text_out(" without chance of failure");
 
 		/* Scan */
@@ -983,21 +970,10 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		text_out(format("%^s has an armor rating of ",wd_he[msex]));
 		text_out_c (TERM_L_GREEN,format("%d", r_ptr->ac));
 
-		/* Maximized hitpoints */
-		if (flags1 & (RF1_FORCE_MAXHP))
-		{
-			text_out(" and a life rating of ");
-			text_out_c(TERM_L_GREEN,format("%d",r_ptr->hdice * r_ptr->hside));
-			text_out(".  ");
-		}
-
-		/* Variable hitpoints */
-		else
-		{
-			text_out(" and a life rating of ");
-			text_out_c(TERM_L_GREEN,format("%dd%d",r_ptr->hdice, r_ptr->hside));
-			text_out(".  ");
-		}
+		if (u_idx) text_out(" and a life rating of ");
+		else text_out(" and a average life rating of ");
+		text_out_c(TERM_L_GREEN,format("%d", r_ptr->life));
+		text_out(".  ");
 	}
 
 	/* Collect special abilities. */
@@ -1072,7 +1048,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) text_out(" is hurt by ");
+			if (n == 0) text_out(" is vulnerable to ");
 			else if (n < vn-1) text_out(", ");
 			else text_out(" and ");
 
@@ -1503,12 +1479,12 @@ void display_visible(void)
 	}
 
 	/* Allocate the "who" array */
-	C_MAKE(who, m_max, monster_list_entry);
+	C_MAKE(who, mon_max, monster_list_entry);
 
 	/* Count up the number visible in each race */
-	for (i = 1; i < m_max; i++)
+	for (i = 1; i < mon_max; i++)
 	{
-		monster_type *m_ptr = &m_list[i];
+		monster_type *m_ptr = &mon_list[i];
 
 		bool found = FALSE;
 
@@ -1575,22 +1551,15 @@ void display_visible(void)
 			byte attr = TERM_WHITE;
 
 			/* Uniques */
-			if (who[i].u_idx)
-			{
-				attr = TERM_L_RED;
-			}
+			if (who[i].u_idx) attr = TERM_L_RED;
 
 			/* Have we ever killed one? */
 			if (l_ptr->r_tkills)
 			{
 				if (r_ptr->level > p_ptr->depth)
 				{
-					attr = TERM_VIOLET;
-
-					if (who[i].u_idx)
-					{
-						attr = TERM_RED;
-					}
+					if (who[i].u_idx) attr = TERM_RED;
+					else attr = TERM_VIOLET;
 				}
 			}
 			else

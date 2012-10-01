@@ -45,7 +45,7 @@
 
 # Version stamp (required)
 
-V:0.4.6
+V:0.5.0
 
 N:1:2:5:5
 A:
@@ -107,7 +107,7 @@ N:1:2:31:4
 A:
 B:
 D:Scratch marks cover 
-G:f
+G:c
 S:YES
 
 N:1:2:39:3
@@ -193,7 +193,7 @@ K:23
 R:WARRIOR
 S:YES
 
-N:1:2:69:15
+N:1:2:70:15
 A:
 B:weapons room
 D:Weapon racks line 
@@ -201,21 +201,29 @@ K:23
 G:|
 S:YES
 
-N:1:2:71:3
+N:1:2:71:5
+A:
+B:weapons room
+D:Weapon racks line 
+K:20
+R:WARRIOR
+S:YES
+
+N:1:2:73:3
 A:
 B:cloakroom
 D:Cloaks hang from 
 K:35
 S:YES
 
-N:1:2:73:5
+N:1:2:75:5
 A:
 B:armoury
 D:Armour lines 
 K:36
 S:YES
 
-N:1:2:74:40
+N:1:2:76:40
 A:
 B:armoury
 D:Armour lines 
@@ -223,62 +231,62 @@ K:36
 G:[
 S:YES
 
-N:1:2:76:3
+N:1:2:78:3
 A:
 B:armoury
 D:Battered shields hang from 
 K:34
 S:YES
 
-N:1:2:78:3
+N:1:2:80:3
 A:
 B:
 D:Banners hang from 
 K:32
 S:YES
 
-N:1:2:80:30
+N:1:2:82:30
 A:
 B:
 D:Frost covers 
 R:RES_COLD
 S:YES
 
-N:1:2:82:10
+N:1:2:84:10
 A:
 B:
 D:Burn marks cover 
 R:BR_FIRE
 S:YES
 
-N:1:2:84:11
+N:1:2:86:11
 A:
 B:
 D:Acid marks cover 
 R:BR_ACID
 S:YES
 
-N:1:2:86:11
+N:1:2:88:11
 A:
 B:
 D:Frost covers 
 R:BR_COLD
 S:YES
 
-N:1:2:88:0
+N:1:2:90:0
 A:
 B:
 D:Slime covers 
 S:YES
 
-N:1:2:90:12
+N:1:2:92:12
 A:
 B:
 D:Slime covers 
 G:,
 S:YES
 
-N:1:2:93:11
+N:1:2:95:11
 A:
 B:
 D:Acid marks cover 
@@ -286,118 +294,118 @@ R:RES_ACID
 G:j
 S:YES
 
-N:1:2:96:17
+N:1:2:98:17
 A:
 B:
 D:Ancient statues line 
 G:A
 S:YES
 
-N:1:2:100:0
+N:1:2:102:0
 A:
 B:cell
 D:Rusted manacles hang from 
 S:YES
 
-N:1:2:105:1
+N:1:2:107:1
 A:
 B:
 D:Broken statues line 
 F:17
 S:YES
 
-N:1:2:110:0
+N:1:2:112:0
 A:
 B:
 D:Dusty cobwebs cover 
 S:YES
 
-N:1:2:115:14
+N:1:2:117:14
 A:
 B:
 D:Gold inlay covers 
 S:YES
 
-N:1:2:120:0
+N:1:2:122:0
 A:
 B:
 D:Wooden panels cover 
 S:YES
 
-N:1:2:122:0
+N:1:2:124:0
 A:
 B:kitchen
 D:Cupboards cover 
 K:80
 S:YES
 
-N:1:2:124:0
+N:1:2:126:0
 A:grafittied
 B:
 D:Crude grafitti covers 
 S:YES
 
-N:1:2:126:0
+N:1:2:128:0
 A:curtained
 B:
 D:Rotted curtains cover 
 S:YES
 
-N:1:2:128:0
+N:1:2:130:0
 A:curtained
 B:
 D:Thick curtains cover 
 S:YES
 
-N:1:2:130:0
+N:1:2:132:0
 A:frescoed
 B:
 D:Faded frescoes cover 
 S:YES
 
-N:1:2:133:0
+N:1:2:135:0
 A:painted
 B:
 D:Faded cave paintings 
 S:YES
 
-N:1:13:136:0
+N:1:13:138:0
 A:
 B:
 D:A worn 
 S:YES
 
-N:1:13:140:5
+N:1:13:142:5
 A:
 B:
 D:A mottled 
 S:YES
 
-N:1:13:145:10
+N:1:13:147:10
 A:
 B:
 D:A strange 
 S:YES
 
-N:1:13:150:15
+N:1:13:152:15
 A:
 B:
 D:A gleaming 
 S:YES
 
-N:1:13:155:20
+N:1:13:157:20
 A:
 B:
 D:A glistening 
 S:YES
 
-N:1:13:160:25
+N:1:13:162:25
 A:
 B:
 D:A glowing 
 S:YES
 
-N:1:2:165:0
+N:1:2:167:0
 A:
 B:
 D:Chains hang from 
@@ -608,7 +616,7 @@ N:4:5:48:1
 A:
 B:mine
 D:A deep shaft 
-K:20
+K:25
 S:YES
 
 N:4:5:51:40
@@ -831,7 +839,7 @@ N:6:7:125:2
 A:broken arrow
 B:
 D:littered with broken arrows.  
-K:17
+K:15
 S:YES
 
 N:6:7:130:1
@@ -1178,7 +1186,7 @@ S:NO
 N:12:15:100:10
 A:
 B:
-D:a faint laughter...
+D:faint laughter...
 R:FAERY
 S:NO
 

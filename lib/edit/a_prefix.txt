@@ -8,8 +8,9 @@
 
 # Format:
 # N: serial number : prefix name
-# W: rarity : material : weight % : cost % 
-# P: ac : to-hit
+# W: depth : rarity : weight % : cost % 
+# M: base material : material to use
+# P: ac 
 # F: flags 
 
 # Flags - SHOP, GOOD, determine whether the object is legal in stores and 
@@ -17,50 +18,57 @@
 
 # Version stamp (required)
 
-V:0.4.6
+V:0.5.0
 
 N:0:<none>
-W:1:0:100:100
+W:0:1:100:100
 P:0
 F:SHOP | GOOD
 
 # Armor prefixes
 
 N:1:Damaged
-W:20:0:90:1
+W:0:20:90:1
 P:-15
 
 N:2:Rusty
-W:15:12:100:50
+W:0:15:100:50
+M:12:0
 P:-2
 
 N:3:Quality
-W:30:0:90:130
+W:0:30:90:130
 P:0
 F:SHOP | GOOD
 
 N:4:Golden
-W:45:12:120:250
+G:y
+W:0:45:120:250
+M:12:17
 P:-2
 F:GOOD
 
 N:5:Mithril
-W:55:12:75:300
+W:0:55:75:300
+M:12:16
 P:2
 F:GOOD
 
 N:6:Adamantite
-W:65:12:130:350
+W:0:65:130:350
+M:12:16
 P:5
 F:GOOD
 
 N:7:Silk
-W:55:5:50:300
+G:b
+W:0:55:50:300
+M:5:0
 P:-1
 F:GOOD
 
 N:8:Studded
-W:20:11:115:125
+W:0:20:115:125
+M:11:0
 P:1
 F:GOOD | SHOP
-

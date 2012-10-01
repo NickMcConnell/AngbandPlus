@@ -1,13 +1,14 @@
-             -- Exploring the Dungeon --
+         -- The Dungeon and its Contents --
 
 Please choose one of the following online help files:
 
-    (1) Playing the Game           (playing.txt)
-    (2) Exploring the Dungeon      (dungeon.txt)
-    (3) Combat                     (cmbtmag.txt)
-    (4) Stats and Skills           (stats.txt)
-    (5) Abilities and Conditions   (condtion.txt)
-    (6) Items and Equipment        (items.hlp)
+    (1) Exploring the Dungeon          (dungeon.txt)
+    (2) Monsters                       (enemy.txt)
+    (3) Items and Equipment            (items.txt)
+
+
+
+
 
 
 
@@ -16,9 +17,6 @@ Please choose one of the following online help files:
  ?  : return to previous menu
  ESC: leave help
 
-***** [1] playing.txt
-***** [2] dungeon.txt
-***** [3] cmbtmag.txt
-***** [4] stats.txt
-***** [5] cond.txt
-***** [6] items.hlp
+***** [1] dungeon.txt
+***** [2] enemy.txt
+***** [3] items.txt

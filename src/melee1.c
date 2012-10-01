@@ -110,7 +110,7 @@ static cptr desc_moan[MAX_DESC_MOAN] =
  */
 bool make_attack_normal(int m_idx)
 {
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	int ap_cnt;
@@ -137,10 +137,10 @@ bool make_attack_normal(int m_idx)
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
 	/* Get the monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 	/* Get the "died from" information (i.e. "a kobold") */
-	monster_desc(ddesc, m_ptr, 0x88);
+	monster_desc(ddesc, sizeof(ddesc), m_ptr, 0x88);
 
 	/* Assume no blink */
 	blinked = FALSE;
@@ -179,12 +179,15 @@ bool make_attack_normal(int m_idx)
 		{
 			case RBE_HURT:		power = 30; break;
 			case RBE_SHATTER:	power = 30; break;
+			case RBE_TAINT: 	power = 20; break;
 			case RBE_UN_BONUS:	power = 15; break;
 			case RBE_UN_POWER:	power = 12; break;
 			case RBE_ACID:		power = 10; break;
 			case RBE_ELEC:		power = 10; break;
 			case RBE_FIRE:		power = 10; break;
 			case RBE_COLD:		power = 10; break;
+			case RBE_RUST:		power = 10; break;
+			case RBE_ROT:		power = 10; break;
 			case RBE_CONFUSE:	power = 10; break;
 			case RBE_TERRIFY:	power = 10; break;
 			case RBE_HALLU: 	power = 10; break;
@@ -197,8 +200,6 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_2:		power =  5; break;
 			case RBE_EXP_3:		power =  5; break;
 			case RBE_EXP_4:		power =  5; break;
-			case RBE_RUST:		power =  3; break;
-			case RBE_ROT:		power =  3; break;
 			case RBE_DISEASE:	power =  2; break;
 			case RBE_BLIND:		power =  2; break;
 			case RBE_PARALYZE:	power =  2; break;
@@ -613,10 +614,10 @@ bool make_attack_normal(int m_idx)
 						if (!o_ptr->k_idx) continue;
 
 						/* Skip artifacts */
-						if (artifact_p(o_ptr)) continue;
+						if (o_ptr->a_idx) continue;
 
 						/* Get a description */
-						object_desc(o_name, o_ptr, FALSE, 3);
+						object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 						/* Message */
 						message_format(MSG_THEFT, 0, "%sour %s (%c) was stolen!",
@@ -673,7 +674,7 @@ bool make_attack_normal(int m_idx)
 						if (o_ptr->tval != TV_FOOD) continue;
 
 						/* Get a description */
-						object_desc(o_name, o_ptr, FALSE, 0);
+						object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 						/* Message */
 						message_format(MSG_THEFT, 0, "%sour %s (%c) was eaten!",
@@ -703,7 +704,7 @@ bool make_attack_normal(int m_idx)
 					o_ptr = &inventory[INVEN_LITE];
 
 					/* Drain fuel */
-					if ((o_ptr->timeout > 0) && (!artifact_p(o_ptr)))
+					if ((o_ptr->timeout > 0) && (!o_ptr->a_idx))
 					{
 						/* Reduce fuel */
 						o_ptr->timeout -= (250 + randint(250));
@@ -833,6 +834,23 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				case RBE_TAINT:
+				{
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Taint player */
+					if (!p_ptr->blessed)
+					{
+						if(set_taint(p_ptr->taint + randint(5) + randint((rlev / 3) + 1))) 
+						{
+							obvious = TRUE;
+						}
+					}
+
+					break;
+				}
+
 				case RBE_BLIND:
 				{
 					/* Take damage */
@@ -859,7 +877,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "confused" */
-					if (!p_ptr->no_confuse && !resist_effect(RS_CNF))
+					if (!p_ptr->no_confuse)
 					{
 						if (set_confused(p_ptr->confused + randint(5) + randint((rlev / 5) + 1)))
 						{

@@ -26,27 +26,27 @@ static char head[4] = { 'a', 'A', '0', ':' };
  */
 static tval_desc_type typevals[MAX_SQ_TYPES + 1] =
 {
-	{SQ_TYPE_AMMO,		"Missiles"				},
-	{SQ_TYPE_BOW,		"Missile launchers"		},
-	{SQ_TYPE_WEAPON,	"Melee weapons"			},
-	{SQ_TYPE_BODY,		"Body armor"			},
-	{SQ_TYPE_CLOAK,		"Cloaks"				},
-	{SQ_TYPE_SHIELD,	"Shields"				},
-	{SQ_TYPE_HELM,		"Head gear"				},
-	{SQ_TYPE_BOOT,		"Gloves and boots"		},
-	{SQ_TYPE_AMULET,	"Amulets"				},
-	{SQ_TYPE_RING,		"Rings"					},
-	{SQ_TYPE_STAFF,		"Staves"				},
-	{SQ_TYPE_WAND,		"Wands"					},
-	{SQ_TYPE_ROD,		"Rods and talismans"	},
-	{SQ_TYPE_SCROLL,	"Scrolls"				},
-	{SQ_TYPE_POTION,	"Potions"				},
-	{SQ_TYPE_POWDER,	"Powders"				},
-	{SQ_TYPE_BOOK,		"Spellbooks"			},
-	{SQ_TYPE_MUSIC,		"Musical instruments"	},
-	{SQ_TYPE_FOOD,		"Food items"			},
-	{SQ_TYPE_LITE,		"Light sources"			},
-	{SQ_TYPE_MISC,		"Miscellaneous"			},
+	{SQ_TYPE_AMMO,		"Arrows"						},
+	{SQ_TYPE_BOW,		"Bows"							},
+	{SQ_TYPE_WEAPON1,	"Swords & Blunt weapons"		},
+	{SQ_TYPE_WEAPON2,	"Axes & Shovels"				},
+	{SQ_TYPE_BODY,		"Body Armor"					},
+	{SQ_TYPE_CLOAK,		"Cloaks & Shields"				},
+	{SQ_TYPE_HELM,		"Head Gear"						},
+	{SQ_TYPE_BOOT,		"Gloves & boots"				},
+	{SQ_TYPE_AMULET,	"Amulets"						},
+	{SQ_TYPE_RING,		"Rings"							},
+	{SQ_TYPE_STAFF,		"Staves"						},
+	{SQ_TYPE_WAND,		"Wands"							},
+	{SQ_TYPE_ROD,		"Rods & Talismans"				},
+	{SQ_TYPE_SCROLL,	"Scrolls"						},
+	{SQ_TYPE_POTION,	"Potions"						},
+	{SQ_TYPE_POWDER,	"Powders"						},
+	{SQ_TYPE_BOOK,		"Spellbooks"					},
+	{SQ_TYPE_MUSIC,		"Musical Instruments"			},
+	{SQ_TYPE_FOOD,		"Food Items"					},
+	{SQ_TYPE_LITE,		"Light Sources"					},
+	{SQ_TYPE_MISC,		"Miscellaneous"					},
 	{0, NULL}
 };
 
@@ -57,11 +57,9 @@ static tval_desc_type tvals_on_id[] =
 {
 	{ TV_SWORD,			"Sword"				},
 	{ TV_POLEARM,		"Polearm"			},
-	{ TV_HAFTED,		"Hafted Weapon"		},
+	{ TV_BLUNT,			"Blunt Weapon"		},
 	{ TV_BOW,			"Bow"				},
 	{ TV_ARROW,			"Arrows"			},
-	{ TV_BOLT,			"Bolts"				},
-	{ TV_SHOT,			"Shots"				},
 	{ TV_SHIELD,		"Shield"			},
 	{ TV_HEADGEAR,		"Head Gear"			},
 	{ TV_GLOVES,		"Gloves"			},
@@ -155,11 +153,10 @@ static int do_cmd_squelch_aux(void)
 		sprintf(ftmp, "%s.squ", op_ptr->base_name);
 	  
 		/* Get a filename */
-		if (askfor_aux(ftmp, 80))
+		if (askfor_aux(ftmp, sizeof(ftmp)))
 		{
-	      
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, ftmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
 	      
 			/* Drop priv's */
 			safe_setuid_drop();
@@ -172,8 +169,7 @@ static int do_cmd_squelch_aux(void)
 	      
 			/* Test for success */
 			if (fff) 
-			{
-	      
+			{      
 				/* Skip some lines */
 				fprintf(fff, "\n\n");
 		  
@@ -188,8 +184,7 @@ static int do_cmd_squelch_aux(void)
 					squelch = (k_info[i].squelch ? 1 : 0);
 
 					/* Dump the squelch info */		      
-					if (tval || sval)
-					fprintf(fff, "Q:%d:%d:%d:%d\n", i, tval, sval, squelch);
+					if (tval || sval) fprintf(fff, "Q:%d:%d:%d:%d\n", i, tval, sval, squelch);
 				}
 		  
 				fprintf(fff, "\n\n# squelch_level array\n\n");
@@ -221,7 +216,7 @@ static int do_cmd_squelch_aux(void)
 		sprintf(ftmp, "%s.squ", op_ptr->base_name);
 
 		/* Ask for a file (or cancel) */
-		if (askfor_aux(ftmp, 80)) 
+		if (askfor_aux(ftmp, sizeof(ftmp))) 
 		{
 			/* Process the given filename */
 			if (process_pref_file(ftmp))
@@ -260,7 +255,7 @@ static int do_cmd_squelch_aux(void)
 			/* First sort based on value */
 			/* Step 1: Read into choice array */
 
-			for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
+			for (num = 0, i = 1; (num < 63) && (i < z_info->k_max); i++)
 			{
 				object_kind *k_ptr = &k_info[i];
 		
@@ -534,18 +529,16 @@ static void do_qual_squelch(void)
  */
 static void init_tv_to_type(void) 
 {
-	  tv_to_type[TV_SHOT]			= SQ_TYPE_AMMO;
 	  tv_to_type[TV_ARROW]			= SQ_TYPE_AMMO;
-	  tv_to_type[TV_BOLT]			= SQ_TYPE_AMMO;
 	  tv_to_type[TV_BOW]			= SQ_TYPE_BOW;
-	  tv_to_type[TV_DIGGING]		= SQ_TYPE_WEAPON;
-	  tv_to_type[TV_HAFTED]			= SQ_TYPE_WEAPON;
-	  tv_to_type[TV_POLEARM]		= SQ_TYPE_WEAPON;
-	  tv_to_type[TV_SWORD]			= SQ_TYPE_WEAPON;
+	  tv_to_type[TV_SWORD]			= SQ_TYPE_WEAPON1;
+	  tv_to_type[TV_BLUNT]			= SQ_TYPE_WEAPON1;
+	  tv_to_type[TV_POLEARM]		= SQ_TYPE_WEAPON2;
+	  tv_to_type[TV_DIGGING]		= SQ_TYPE_WEAPON2;
 	  tv_to_type[TV_BOOTS]			= SQ_TYPE_BOOT;
 	  tv_to_type[TV_GLOVES]			= SQ_TYPE_BOOT;
 	  tv_to_type[TV_HEADGEAR]		= SQ_TYPE_HELM;
-	  tv_to_type[TV_SHIELD]			= SQ_TYPE_SHIELD;
+	  tv_to_type[TV_SHIELD]			= SQ_TYPE_CLOAK;
 	  tv_to_type[TV_CLOAK]			= SQ_TYPE_CLOAK;
 	  tv_to_type[TV_BODY_ARMOR]		= SQ_TYPE_BODY;
 	  tv_to_type[TV_DRAG_ARMOR]		= SQ_TYPE_BODY;
@@ -592,7 +585,7 @@ bool squelch_itemp(object_type *o_ptr)
 	/* Try to squelch junk */
 	if ((squelch_junk) && (object_value(o_ptr) == 0))
 	{
-		if (!artifact_p(o_ptr) && (o_ptr->tval != TV_QUEST)) result = TRUE;
+		if (!o_ptr->a_idx && (o_ptr->tval != TV_QUEST)) result = TRUE;
 	}
 
 	/* Try to squelch by type */
@@ -666,7 +659,7 @@ bool squelch_itemp(object_type *o_ptr)
 	if (result)
 	{
 		/* Squelching will fail on an artifact or if there is an inscription */
-		if (artifact_p(o_ptr))
+		if (o_ptr->a_idx)
 		{
 			result = FALSE;
 
@@ -717,7 +710,7 @@ void do_squelch_item(object_type *o_ptr)
 /*
  * An "item_tester_hook" for items marked squelch
  */
-static bool item_tester_squelched(object_type *o_ptr)
+static bool item_tester_squelched(const object_type *o_ptr)
 {
 	cptr s;
 
@@ -754,7 +747,7 @@ void destroy_squelched_items(void)
 			o_ptr = &o_list[floor_list[n]];
 
 			/* Hack -- skip artifacts */
-			if (artifact_p(o_ptr)) continue;
+			if (o_ptr->a_idx) continue;
 
 			/* Mega hack -- skip quest objects */
 			if (o_ptr->tval == TV_QUEST) continue;
@@ -780,7 +773,7 @@ void destroy_squelched_items(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Hack -- skip artifacts */
-		if (artifact_p(o_ptr)) continue;
+		if (o_ptr->a_idx) continue;
 
 		/* Mega hack -- skip quest objects */
 		if (o_ptr->tval == TV_QUEST) continue;

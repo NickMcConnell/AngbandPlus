@@ -24,7 +24,7 @@
  *
  * Algorithm: hypot(dy,dx) = max(dy,dx) + min(dy,dx) / 2
  */
-sint distance(int y1, int x1, int y2, int x2)
+int distance(int y1, int x1, int y2, int x2)
 {
 	int ay, ax;
 
@@ -284,14 +284,6 @@ bool los(int y1, int x1, int y2, int x2)
 }
 
 /*
- * Returns true if the player's grid is dark
- */
-bool no_lite(void)
-{
-	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
-}
-
-/*
  * Determine if a given location may be "destroyed"
  *
  * Used by destruction spells, and for placing stairs, etc.
@@ -307,7 +299,7 @@ bool cave_valid_bold(int y, int x)
 	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
 		/* Forbid artifact grids */
-		if (artifact_p(o_ptr)) return (FALSE);
+		if (o_ptr->a_idx) return (FALSE);
 	}
 
 	/* Accept */
@@ -801,98 +793,91 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	(*tap) = a;
 	(*tcp) = c;
 
-	/* Traps */
-	if (trap_under_object && (t_idx > 0))
+	/* Trap piles */
+	if (show_trap_piles && t_idx && t_list[t_idx].visible && cave_o_idx[y][x])
 	{
-		/* Memorized (or seen) floor */
-		if ((info & (CAVE_MARK)) || (info & (CAVE_SEEN)))
-		{
-			trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
-			trap_widget *w_ptr = &w_info[t_ptr->w_idx];
+		/* Special stack symbol */
+		object_kind *k_ptr;
 
-			/* Draw trap */
-			if (t_list[t_idx].visible) 
-			{
-				/* Normal trap (not "clear" in any way) */
-				if (!(w_ptr->flags & (WGF_ATTR_CLEAR)))
-				{
-					a = w_ptr->x_attr;
-					c = w_ptr->x_char;
-				}
-				else
-				{
-					c = w_ptr->x_char;
-				}
-			}
-		}
+		/* Get the "pile" feature */
+		k_ptr = &k_info[0];
+
+		/* Normal attr */
+		a = TERM_L_RED;
+
+		/* Normal char */
+		c = k_ptr->x_char;
+
 	}
-
-	/* Objects */
-	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+	else
 	{
-		/* Memorized objects */
-		if (o_ptr->marked)
+		/* Objects */
+		for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 		{
-			/* Hack -- object hallucination */
-			if (image)
+			/* Memorized objects */
+			if (o_ptr->marked)
 			{
-				int i = image_object();
+				/* Hack -- object hallucination */
+				if (image)
+				{
+					int i = image_object();
 
-				a = PICT_A(i);
-				c = PICT_C(i);
+					a = PICT_A(i);
+					c = PICT_C(i);
 
-				break;
-			}
-
-			/* Normal attr */
-			a = object_attr(o_ptr);
-			  
-			/* Normal char */
-			c = object_char(o_ptr);
-
-			/* First marked object */
-			if (!show_piles || sq_flag) break;
-
-			/* Special stack symbol */
-			if (++floor_num > 1)
-			{
-				object_kind *k_ptr;
-
-				/* Get the "pile" feature */
-				k_ptr = &k_info[0];
+					break;
+				}
 
 				/* Normal attr */
-				a = k_ptr->x_attr;
-
+				a = object_attr(o_ptr);
+				  
 				/* Normal char */
-				c = k_ptr->x_char;
+				c = object_char(o_ptr);
 
-				break;
+				/* First marked object */
+				if (!show_piles || sq_flag) break;
+
+				/* Special stack symbol */
+				if (++floor_num > 1)
+				{
+					object_kind *k_ptr;
+
+					/* Get the "pile" feature */
+					k_ptr = &k_info[0];
+
+					/* Normal attr */
+					a = TERM_WHITE;
+
+					/* Normal char */
+					c = k_ptr->x_char;
+
+					break;
+				}
 			}
 		}
-	}
 
-	/* Traps */
-	if (!trap_under_object && (t_idx > 0))
-	{
-		/* Memorized (or seen) floor */
-		if ((info & (CAVE_MARK)) || (info & (CAVE_SEEN)))
+		/* Traps */
+		if (t_idx > 0)
 		{
-			trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
-			trap_widget *w_ptr = &w_info[t_ptr->w_idx];
-
-			/* Draw trap */
-			if (t_list[t_idx].visible) 
+			/* Memorized (or seen) floor */
+			if ((info & (CAVE_MARK)) || (info & (CAVE_SEEN)))
 			{
-				/* Normal trap (not "clear" in any way) */
-				if (!(w_ptr->flags & (WGF_ATTR_CLEAR)))
+				trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
+				trap_widget *w_ptr = &w_info[t_ptr->w_idx];
+
+				/* Draw trap */
+				if (t_list[t_idx].visible) 
 				{
-					a = w_ptr->x_attr;
-					c = w_ptr->x_char;
-				}
-				else
-				{
-					c = w_ptr->x_char;
+					/* Normal trap (not "clear" in any way) */
+					if (!(w_ptr->flags & (WGF_ATTR_CLEAR)))
+					{
+						a = w_ptr->x_attr;
+						c = w_ptr->x_char;
+					}
+					else
+					{
+						c = w_ptr->x_char;
+					}
 				}
 			}
 		}
@@ -901,7 +886,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	/* Monsters */
 	if (m_idx > 0)
 	{
-		monster_type *m_ptr = &m_list[m_idx];
+		monster_type *m_ptr = &mon_list[m_idx];
 
 		/* Visible monster */
 		if (m_ptr->ml)
@@ -1187,98 +1172,91 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 		}
 	}
 
-	/* Traps */
-	if (trap_under_object && (t_idx > 0))
+	/* Trap piles */
+	if (show_trap_piles && t_idx && t_list[t_idx].visible && cave_o_idx[y][x])
 	{
-		/* Memorized (or seen) floor */
-		if ((info & (CAVE_MARK)) || (info & (CAVE_SEEN)))
-		{
-			trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
-			trap_widget *w_ptr = &w_info[t_ptr->w_idx];
+		/* Special stack symbol */
+		object_kind *k_ptr;
 
-			/* Draw trap */
-			if (t_list[t_idx].visible) 
-			{
-				/* Normal monster (not "clear" in any way) */
-				if (!(w_ptr->flags & (WGF_ATTR_CLEAR)))
-				{
-					a = w_ptr->x_attr;
-					c = w_ptr->x_char;
-				}
-				else
-				{
-					c = w_ptr->x_char;
-				}
-			}
-		}
+		/* Get the "pile" feature */
+		k_ptr = &k_info[0];
+
+		/* Normal attr */
+		a = TERM_L_RED;
+
+		/* Normal char */
+		c = k_ptr->x_char;
+
 	}
-
-	/* Objects */
-	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+	else
 	{
-		/* Memorized objects */
-		if (o_ptr->marked)
+		/* Objects */
+		for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 		{
-			/* Hack -- object hallucination */
-			if (image)
+			/* Memorized objects */
+			if (o_ptr->marked)
 			{
-				int i = image_object();
+				/* Hack -- object hallucination */
+				if (image)
+				{
+					int i = image_object();
 
-				a = PICT_A(i);
-				c = PICT_C(i);
+					a = PICT_A(i);
+					c = PICT_C(i);
 
-				break;
-			}
-
-			/* Normal attr */
-			a = object_attr(o_ptr);
-
-			/* Normal char */
-			c = object_char(o_ptr);
-
-			/* First marked object */
-			if (!show_piles) break;
-
-			/* Special stack symbol */
-			if (++floor_num > 1)
-			{
-				object_kind *k_ptr;
-
-				/* Get the "pile" feature */
-				k_ptr = &k_info[0];
+					break;
+				}
 
 				/* Normal attr */
-				a = k_ptr->d_attr;
+				a = object_attr(o_ptr);
 
 				/* Normal char */
-				c = k_ptr->d_char;
+				c = object_char(o_ptr);
 
-				break;
+				/* First marked object */
+				if (!show_piles) break;
+
+				/* Special stack symbol */
+				if (++floor_num > 1)
+				{
+					object_kind *k_ptr;
+
+					/* Get the "pile" feature */
+					k_ptr = &k_info[0];
+
+					/* Normal attr */
+					a = TERM_WHITE;
+
+					/* Normal char */
+					c = k_ptr->d_char;
+
+					break;
+				}
 			}
 		}
-	}
 
-	/* Traps */
-	if (!trap_under_object && (t_idx > 0))
-	{
-		/* Memorized (or seen) floor */
-		if ((info & (CAVE_MARK)) || (info & (CAVE_SEEN)))
+		/* Traps */
+		if (t_idx > 0)
 		{
-			trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
-			trap_widget *w_ptr = &w_info[t_ptr->w_idx];
-
-			/* Draw trap */
-			if (t_list[t_idx].visible) 
+			/* Memorized (or seen) floor */
+			if ((info & (CAVE_MARK)) || (info & (CAVE_SEEN)))
 			{
-				/* Normal trap (not "clear" in any way) */
-				if (!(w_ptr->flags & (WGF_ATTR_CLEAR)))
+				trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
+				trap_widget *w_ptr = &w_info[t_ptr->w_idx];
+
+				/* Draw trap */
+				if (t_list[t_idx].visible) 
 				{
-					a = w_ptr->x_attr;
-					c = w_ptr->x_char;
-				}
-				else
-				{
-					c = w_ptr->x_char;
+					/* Normal trap (not "clear" in any way) */
+					if (!(w_ptr->flags & (WGF_ATTR_CLEAR)))
+					{
+						a = w_ptr->x_attr;
+						c = w_ptr->x_char;
+					}
+					else
+					{
+						c = w_ptr->x_char;
+					}
 				}
 			}
 		}
@@ -1287,7 +1265,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	/* Monsters */
 	if (m_idx > 0)
 	{
-		monster_type *m_ptr = &m_list[m_idx];
+		monster_type *m_ptr = &mon_list[m_idx];
 
 		/* Visible monster */
 		if (m_ptr->ml)
@@ -1405,20 +1383,20 @@ void map_info_default(int y, int x, byte *ap, char *cp)
  */
 void move_cursor_relative(int y, int x)
 {
-	unsigned ky, kx;
-	unsigned vy, vx;
+	int ky, kx;
+	int vy, vx;
 
 	/* Location relative to panel */
-	ky = (unsigned)(y - p_ptr->wy);
+	ky = y - p_ptr->wy;
 
 	/* Verify location */
-	if (ky >= (unsigned)(SCREEN_HGT)) return;
+	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
 
 	/* Location relative to panel */
-	kx = (unsigned)(x - p_ptr->wx);
+	kx = x - p_ptr->wx;
 
 	/* Verify location */
-	if (kx >= (unsigned)(SCREEN_WID)) return;
+	if ((kx < 0) || (kx >= SCREEN_WID)) return;
 
 	/* Location in window */
 	vy = ky + ROW_MAP;
@@ -1427,7 +1405,7 @@ void move_cursor_relative(int y, int x)
 	vx = kx + COL_MAP;
 
 	/* Go there */
-	Term_gotoxy(vx, vy);
+	(void)Term_gotoxy(vx, vy);
 }
 
 /*
@@ -1441,20 +1419,20 @@ void move_cursor_relative(int y, int x)
  */
 void print_rel(char c, byte a, int y, int x)
 {
-	unsigned ky, kx;
-	unsigned vy, vx;
+	int ky, kx;
+	int vy, vx;
 
 	/* Location relative to panel */
-	ky = (unsigned)(y - p_ptr->wy);
+	ky = y - p_ptr->wy;
 
 	/* Verify location */
-	if (ky >= (unsigned)(SCREEN_HGT)) return;
+	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
 
 	/* Location relative to panel */
-	kx = (unsigned)(x - p_ptr->wx);
+	kx = x - p_ptr->wx;
 
 	/* Verify location */
-	if (kx >= (unsigned)(SCREEN_WID)) return;
+	if ((kx < 0) || (kx >= SCREEN_WID)) return;
 
 	/* Location in window */
 	vy = ky + ROW_MAP;
@@ -1464,7 +1442,6 @@ void print_rel(char c, byte a, int y, int x)
 
 	/* Hack -- Queue it */
 	Term_queue_char(vx, vy, a, c, 0, 0);
-
 }
 
 /*
@@ -1553,20 +1530,20 @@ void lite_spot(int y, int x)
 	byte a, ta;
 	char c, tc;
 
-	unsigned ky, kx;
-	unsigned vy, vx;
+	int ky, kx;
+	int vy, vx;
 
 	/* Location relative to panel */
-	ky = (unsigned)(y - p_ptr->wy);
+	ky = y - p_ptr->wy;
 
 	/* Verify location */
-	if (ky >= (unsigned)(SCREEN_HGT)) return;
+	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
 
 	/* Location relative to panel */
-	kx = (unsigned)(x - p_ptr->wx);
+	kx = x - p_ptr->wx;
 
 	/* Verify location */
-	if (kx >= (unsigned)(SCREEN_WID)) return;
+	if ((kx < 0) || (kx >= SCREEN_WID)) return;
 
 	/* Location in window */
 	vy = ky + ROW_MAP;
@@ -1623,7 +1600,7 @@ void prt_map(void)
  *
  * Note that all "walls" always look like "secret doors" (see "map_info()").
  */
-static byte priority_table[][2] =
+static byte priority_table[16][2] =
 {
 	/* Dark */
 	{ FEAT_NONE, 2 },
@@ -1695,12 +1672,6 @@ static byte priority(byte a, char c)
 	/* Default */
 	return (20);
 }
-
-/*
- * Maximum size of map.
- */
-#define MAP_HGT (DUNGEON_HGT / 3)
-#define MAP_WID (DUNGEON_WID / 3)
 
 /*
  * Display a "small-scale" map of the dungeon in the active Term.
@@ -2881,7 +2852,7 @@ void update_view(void)
 		for (k = 1; k < z_info->m_max; k++)
 		{
 			/* Check the k'th monster */
-			monster_type *m_ptr = &m_list[k];
+			monster_type *m_ptr = &mon_list[k];
 			monster_race *r_ptr;
 
 			/* Skip dead monsters */
@@ -3708,7 +3679,7 @@ void cave_set_feat(int y, int x, int feat)
  * This algorithm is similar to, but slightly different from, the one used
  * by "update_view_los()", and very different from the one used by "los()".
  */
-sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
+int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 {
 	int y, x;
 

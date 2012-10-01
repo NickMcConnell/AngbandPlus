@@ -136,7 +136,7 @@ void do_cmd_equip(void)
 /*
  * The "wearable" tester
  */
-static bool item_tester_hook_wear(object_type *o_ptr)
+static bool item_tester_hook_wear(const object_type *o_ptr)
 {
 	/* Hack - Deal with music items */
 	if ((o_ptr->tval == TV_MUSIC) && !(cp_ptr->flags & CF_MUSIC)) return (FALSE);
@@ -172,16 +172,10 @@ void do_cmd_wield(void)
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
+	if (item >= 0) o_ptr = &inventory[item];
+	
 	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	else o_ptr = &o_list[0 - item];
 
 	/* Assign slot */
 	slot = wield_slot(o_ptr);
@@ -193,7 +187,7 @@ void do_cmd_wield(void)
 	if (cursed_p(&inventory[slot]))
 	{
 		/* Describe it */
-		object_desc(o_name, &inventory[slot], FALSE, 0);
+		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
 
 		/* Message */
 		message_format(MSG_FAIL, 0, "The %s you are %s appears to be cursed.",
@@ -243,31 +237,19 @@ void do_cmd_wield(void)
 	object_copy(o_ptr, i_ptr);
 
 	/* Increase the weight */
-	p_ptr->total_weight += actual_weight(i_ptr);
+	p_ptr->total_weight += object_weight(i_ptr);
 
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
 
 	/* Where is the item now */
-	if (slot == INVEN_WIELD)
-	{
-		act = "You are wielding";
-	}
-	else if (slot == INVEN_BOW)
-	{
-		act = "You are shooting with";
-	}
-	else if (slot == INVEN_LITE)
-	{
-		act = "Your light source is";
-	}
-	else
-	{
-		act = "You are wearing";
-	}
+	if (slot == INVEN_WIELD) act = "You are wielding";
+	else if (slot == INVEN_BOW) act = "You are shooting with";
+	else if (slot == INVEN_LITE) act = "Your light source is";
+	else act = "You are wearing";
 
 	/* Describe the result */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name,  sizeof(o_name),o_ptr, TRUE, 3);
 
 	/* Message */
 	message_format(MSG_DESCRIBE, 0, "%s %s (%c).", act, o_name, index_to_label(slot));
@@ -321,16 +303,10 @@ void do_cmd_takeoff(void)
 	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	if (item >= 0) o_ptr = &inventory[item];
 
 	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	else o_ptr = &o_list[0 - item];
 
 	/* Item is cursed */
 	if (cursed_p(o_ptr))
@@ -455,13 +431,13 @@ void do_cmd_destroy(void)
 	/* Describe the object */
 	old_number = o_ptr->number;
 	o_ptr->number = amt;
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 	o_ptr->number = old_number;
 
 	/* Verify destruction */
 	if ((verify_destroy) && !((o_ptr->note) && (streq(quark_str(o_ptr->note), "squelch"))))
 	{
-		sprintf(out_val, "Really destroy %s? ", o_name);
+		strnfmt(out_val, sizeof(out_val), "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
 	}
 	/* Artifacts cannot be destroyed */
@@ -616,7 +592,7 @@ void do_cmd_inscribe(void)
 	}
 
 	/* Describe the activity */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Message */
 	message_format(MSG_GENERIC, 0, "Inscribing %s.", o_name);;
@@ -629,11 +605,11 @@ void do_cmd_inscribe(void)
 	if (o_ptr->note)
 	{
 		/* Start with the old inscription */
-		strnfmt(tmp, 80, "%s", quark_str(o_ptr->note));
+		strnfmt(tmp, sizeof(tmp), "%s", quark_str(o_ptr->note));
 	}
 
 	/* Get a new inscription (possibly empty) */
-	if (get_string("Inscription: ", tmp, 80))
+	if (get_string("Inscription: ", tmp, sizeof(tmp)))
 	{
 		/* Save the inscription */
 		o_ptr->note = quark_add(tmp);
@@ -649,21 +625,17 @@ void do_cmd_inscribe(void)
 /*
  * An "item_tester_hook" for refilling lanterns
  */
-static bool item_tester_refill_lantern(object_type *o_ptr)
+static bool item_tester_refill_lantern(const object_type *o_ptr)
 {
 	/* Flasks of oil are okay */
-	if (o_ptr->tval == TV_FLASK) return (TRUE);
+	if (o_ptr->tval == TV_FLASK) return TRUE;
 
 	/* Non-empty lanterns are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval >= SV_LANTERN) &&
-	    (o_ptr->timeout > 0))
-	{
-		return (TRUE);
-	}
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval >= SV_LANTERN) && (o_ptr->timeout > 0))
+		return TRUE;
 
 	/* Assume not okay */
-	return (FALSE);
+	return FALSE;
 }
 
 /*
@@ -760,14 +732,13 @@ static void do_cmd_refill_lamp(void)
 /*
  * An "item_tester_hook" for refilling torches
  */
-static bool item_tester_refill_torch(object_type *o_ptr)
+static bool item_tester_refill_torch(const object_type *o_ptr)
 {
 	/* Torches are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_TORCH)) return (TRUE);
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_TORCH)) return TRUE;
 
 	/* Assume not okay */
-	return (FALSE);
+	return FALSE;
 }
 
 /*
@@ -1175,7 +1146,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		if (learn)
 		{
 			message(MSG_STUDY, 0, "You have gained alchemical knowledge!");
-			alchemy_describe(line, o_ptr->sval);
+			alchemy_describe(line, sizeof(line), o_ptr->sval);
 			message_format(MSG_STUDY, -1, "%s", line);
 		}
 	}
@@ -1300,7 +1271,7 @@ void do_cmd_read_scroll(void)
 		message(MSG_FAIL, 0, "You can't see anything.");
 		return;
 	}
-	if (no_lite())
+	if (!player_can_see_bold(p_ptr->py, p_ptr->px))
 	{
 		message(MSG_FAIL, 0, "You have no light to read by.");
 		return;
@@ -1340,7 +1311,7 @@ static int check_item_success(int diff, int lev, bool binary)
 {
 	int chance;
 	
-	sint result, i;
+	int result, i;
 
 	/* Base chance of success */
 	chance = p_ptr->skill[SK_DEV];
@@ -1495,7 +1466,7 @@ static void do_cmd_use_staff_aux(int item)
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		p_ptr->total_weight -= actual_weight(i_ptr);
+		p_ptr->total_weight -= object_weight(i_ptr);
 		item = inven_carry(i_ptr);
 
 		/* Message */
@@ -1515,6 +1486,9 @@ static void do_cmd_use_staff_aux(int item)
 	}
 }
 
+/* 
+ * Use a staff
+ */
 void do_cmd_use_staff(void)
 {
 	int  item;
@@ -1670,7 +1644,7 @@ static void do_cmd_aim_wand_aux(int item)
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		p_ptr->total_weight -= actual_weight(i_ptr);
+		p_ptr->total_weight -= object_weight(i_ptr);
 		item = inven_carry(i_ptr);
 
 		/* Message */
@@ -1711,20 +1685,13 @@ void do_cmd_aim_wand(void)
 /*
  * Hook to determine if rechargeable object (rod, talisman) is ready for use
  */
-bool item_tester_hook_recharged(object_type *o_ptr)
+bool item_tester_hook_recharged(const object_type *o_ptr)
 {
 	/* Talisman */
 	if (o_ptr->tval == TV_TALISMAN || o_ptr->tval == TV_ROD)
 	{
-		/* is charging */
-		if (o_ptr->number == 1)
-		{
-			if (!o_ptr->timeout) return (TRUE);
-		}
-		else if (o_ptr->number > 1)
-		{
-			if (o_ptr->timeout <= o_ptr->pval - k_info[o_ptr->k_idx].pval) return (TRUE);
-		}
+		/* Check if there is at least one fully recharged rod/talismans */
+		if (o_ptr->timeout <= ((o_ptr->number - 1) * o_ptr->pval)) return (TRUE);
 	}
 
 	/* Assume not */
@@ -1732,10 +1699,10 @@ bool item_tester_hook_recharged(object_type *o_ptr)
 }
 
 /*
- * Activate (zap) a Rod.    Rods may be fully identified through use 
- * (although it's not easy).  Rods now use timeouts to determine charging 
- * status, and pvals have become the cost of zapping a rod (how long it 
- * takes between zaps).  Pvals are defined for each rod in k_info. -LM-
+ * Activate (zap) a Rod.    Rods may be fully identified through use.  
+ * Rods now use timeouts to determine charging status, and pvals have 
+ * become the cost of zapping a rod (how long it takes between zaps).  
+ * Pvals are defined for each rod in k_info. -LM-
  */
 static void do_cmd_zap_rod_aux(int item)
 {
@@ -1748,16 +1715,10 @@ static void do_cmd_zap_rod_aux(int item)
 	bool use_charge;
 
 	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	if (item >= 0) o_ptr = &inventory[item];
 
 	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	else o_ptr = &o_list[0 - item];
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -1782,7 +1743,8 @@ static void do_cmd_zap_rod_aux(int item)
 		return;
 	}
 
-	o_ptr->timeout += k_info[o_ptr->k_idx].pval;
+	/* Increase timeout */
+	o_ptr->timeout += o_ptr->pval;
 
 	/* Sound */
 	sound(MSG_ZAP);
@@ -1813,7 +1775,7 @@ static void do_cmd_zap_rod_aux(int item)
 	/* Hack -- deal with cancelled zap */
 	if (!use_charge)
 	{
-		o_ptr->timeout -= k_info[o_ptr->k_idx].pval;
+		o_ptr->timeout -= o_ptr->pval;
 		return;
 	}
 }
@@ -1882,7 +1844,8 @@ static void do_cmd_invoke_talisman_aux(int item)
 		return;
 	}
 
-	o_ptr->timeout += k_info[o_ptr->k_idx].pval;
+	/* Increase timeout by full amount (from k_info) */
+	o_ptr->timeout += o_ptr->pval;
 
 	/* Partial success */
 	plev = ((plev - 1) * check) / 100 + 1;
@@ -1939,7 +1902,7 @@ void do_cmd_invoke_talisman(void)
 /*
  * Hook to determine if an object is activatable
  */
-static bool item_tester_hook_activate(object_type *o_ptr)
+static bool item_tester_hook_activate(const object_type *o_ptr)
 {
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
@@ -1989,7 +1952,7 @@ static void do_cmd_activate_aux(int item)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Hack -- use artifact level instead */
-	if (artifact_p(o_ptr)) lev = a_info[o_ptr->a_idx].level;
+	if (o_ptr->a_idx) lev = a_info[o_ptr->a_idx].level;
 
 	/* Roll for usage */
 	if (!check_item_success(USAGE_ARTIFACT, k_info[o_ptr->k_idx].level, TRUE))
@@ -2017,7 +1980,7 @@ static void do_cmd_activate_aux(int item)
 		bool ident = FALSE;
 
 		/* Get the basic name of the object */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 		/* Give the appropriate message */
 		message_format(MSG_EFFECT, a_ptr->activation, "Your %s glows...", o_name);
@@ -2030,10 +1993,8 @@ static void do_cmd_activate_aux(int item)
 		if (ident) a_ptr->status |= A_STATUS_ACTIVATE;
 
 		/* Set the recharge time */
-		if (a_ptr->randtime)
-			o_ptr->timeout = a_ptr->time + (byte)randint(a_ptr->randtime);
-		else
-			o_ptr->timeout = a_ptr->time;
+		if (a_ptr->randtime) o_ptr->timeout = a_ptr->time + (byte)randint(a_ptr->randtime);
+		else o_ptr->timeout = a_ptr->time;
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -2106,7 +2067,7 @@ void do_cmd_activate(void)
 /*
  * Hook to determine if an object is useable
  */
-static bool item_tester_hook_use(object_type *o_ptr)
+static bool item_tester_hook_use(const object_type *o_ptr)
 {
 	/* Useable object */
 	switch (o_ptr->tval)
@@ -2152,9 +2113,9 @@ static bool item_tester_hook_use(object_type *o_ptr)
  */
 void do_cmd_use(void)
 {
-	int         item;
+	int item;
 	object_type *o_ptr;
-	cptr        q, s;
+	cptr q, s;
 
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_use;
@@ -2228,7 +2189,7 @@ void do_cmd_use(void)
 				message(MSG_FAIL, 0, "You can't see anything.");
 				return;
 			}
-			if (no_lite())
+			if (!player_can_see_bold(p_ptr->py, p_ptr->px))
 			{
 				message(MSG_FAIL, 0, "You have no light to read by.");
 				return;
@@ -2252,7 +2213,9 @@ void do_cmd_use(void)
 	}
 }
 
-/* Mix two potions to (maybe) create a third */
+/* 
+ * Mix two potions to (maybe) create a third 
+ */
 void do_cmd_mix(void)
 {
 	int item1, item2, k_idx;

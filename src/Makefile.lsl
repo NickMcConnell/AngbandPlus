@@ -5,7 +5,7 @@
 SRCS = \
   z-util.c z-virt.c z-form.c z-rand.c z-term.c \
   variable.c tables.c util.c cave.c \
-  object1.c object2.c monster1.c monster2.c monster3.c\
+  object1.c object2.c object3.c monster1.c monster2.c monster3.c\
   xtra1.c xtra2.c effects.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c squelch.c\
   cmd-attk.c cmd-book.c cmd-item.c cmd-know.c cmd-misc.c cmd-util.c \
@@ -17,7 +17,7 @@ SRCS = \
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
   variable.o tables.o util.o cave.o \
-  object1.o object2.o monster1.o monster2.o monster3.o\
+  object1.o object2.o object3.o monster1.o monster2.o monster3.o\
   xtra1.o xtra2.o effects.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o squelch.o\
   cmd-attk.o cmd-book.o cmd-item.o cmd-know.o cmd-misc.o cmd-util.o \
@@ -101,6 +101,7 @@ monster2.o: monster2.c $(INCS)
 monster3.o: monster3.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
+object3.o: object3.c $(INCS)
 powers.o: powers.c $(INCS)
 quest.o: quest.c $(INCS)
 randart.o: randart.c $(INCS)

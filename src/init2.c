@@ -148,21 +148,21 @@ void init_file_paths(char *path)
 	strcpy(tail, "pref");
 	ANGBAND_DIR_PREF = string_make(path);
 
-#ifdef SET_UID
+#ifdef PRIVATE_USER_PATH
 
 	/* Build the path to the user specific directory */
-	path_build(buf, 1024, USER_PREF_PATH, VERSION_NAME);
+	path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
 
 	/* Build a relative path name */
 	ANGBAND_DIR_USER = string_make(buf);
 
-#else /* SET_UID */
+#else /* PRIVATE_USER_PATH */
 
 	/* Build a path name */
  	strcpy(tail, "user");
  	ANGBAND_DIR_USER = string_make(path);
  
-#endif /* SET_UID */
+#endif /* PRIVATE_USER_PATH */
 
 	/* Build a path name */
 	strcpy(tail, "xtra");
@@ -236,7 +236,8 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"non-sequential quest levels",
 	"invalid number of items (0-99)",
 	"too many entries",
-	"invalid spell frequency"
+	"invalid spell frequency",
+	"vault too big"
 };
 
 #endif /* ALLOW_TEMPLATES */
@@ -387,7 +388,7 @@ static errr init_info(cptr filename, header *head)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -427,7 +428,7 @@ static errr init_info(cptr filename, header *head)
 		/*** Load the ascii template file ***/
 
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_EDIT, format("%s.txt", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, format("%s.txt", filename));
 
 		/* Open the file */
 		fp = my_fopen(buf, "r");
@@ -450,7 +451,7 @@ static errr init_info(cptr filename, header *head)
 		FILE_TYPE(FILE_TYPE_DATA);
 
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 
 		/* Attempt to open the file */
 		fd = fd_open(buf, O_RDONLY);
@@ -475,7 +476,7 @@ static errr init_info(cptr filename, header *head)
 				char why[1024];
 
 				/* Message */
-				sprintf(why, "Cannot create the '%s' file!", buf);
+				strnfmt(why, sizeof(why), "Cannot create the '%s' file!", buf);
 
 				/* Crash and burn */
 				quit(why);
@@ -530,7 +531,7 @@ static errr init_info(cptr filename, header *head)
 		/*** Load the binary image file ***/
 
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 
 		/* Attempt to open the "raw" file */
 		fd = fd_open(buf, O_RDONLY);
@@ -1106,24 +1107,20 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_FUR_CLOAK },
 		{ TV_CLOAK, SV_FUR_CLOAK },
-		{ TV_SHOT, SV_SHOT_NORMAL },
-		{ TV_SHOT, SV_SHOT_NORMAL },
 		{ TV_ARROW, SV_ARROW_NORMAL },
 		{ TV_ARROW, SV_ARROW_TOUGH },
+		{ TV_ARROW, SV_ARROW_FLIGHT },
 		{ TV_ARROW, SV_ARROW_BITER },
-
-		{ TV_BOLT, SV_BOLT_NORMAL },
-		{ TV_BOLT, SV_BOLT_BITER },
 		{ TV_DIGGING, SV_PICK },
+
 		{ TV_DIGGING, SV_PICK },
 		{ TV_DIGGING, SV_SHOVEL },
 		{ TV_DIGGING, SV_SHOVEL },
 		{ TV_MUSIC, SV_MUSIC_LYRE },
 		{ TV_MUSIC, SV_MUSIC_LYRE },
-
 		{ TV_MUSIC, SV_MUSIC_HORN },
 		{ TV_MUSIC, SV_MUSIC_FLUTE },
-		{ TV_MUSIC, SV_MUSIC_LUTE },
+		{ TV_MUSIC, SV_MUSIC_LUTE }
 	},
 
 	{
@@ -1171,16 +1168,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_SMALL_METAL_SHIELD }
-		/* Item */
-
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
+		{ TV_SHIELD, SV_SMALL_METAL_SHIELD },
 		/* Item */
 	},
 
@@ -1190,54 +1178,45 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_SWORD, SV_DAGGER },
-		{ TV_SWORD, SV_MAIN_GAUCHE },
-		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_SHORT_SWORD },
 		{ TV_SWORD, SV_SHORT_SWORD },
-		{ TV_SWORD, SV_SABRE },
-
-		{ TV_SWORD, SV_CUTLASS },
-		{ TV_SWORD, SV_TULWAR },
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SWORD, SV_LONG_SWORD },
-		{ TV_SWORD, SV_SCIMITAR },
-		{ TV_SWORD, SV_KATANA },
+
+		{ TV_SWORD, SV_TWO_HANDED_SWORD },
 		{ TV_SWORD, SV_BASTARD_SWORD },
-
-		{ TV_POLEARM, SV_SPEAR },
-		{ TV_POLEARM, SV_AWL_PIKE },
-		{ TV_POLEARM, SV_TRIDENT },
-		{ TV_POLEARM, SV_PIKE },
-		{ TV_POLEARM, SV_BEAKED_AXE },
-		{ TV_POLEARM, SV_BROAD_AXE },
+		{ TV_BLUNT, SV_BULLWHIP },
+		{ TV_BLUNT, SV_CLUB },
 		{ TV_POLEARM, SV_HATCHET },
-		{ TV_POLEARM, SV_BATTLE_AXE },
+		{ TV_POLEARM, SV_SHORTSPEAR },
+		{ TV_POLEARM, SV_SHORTSPEAR },
+		{ TV_POLEARM, SV_LONGSPEAR },
 
-		{ TV_POLEARM, SV_CLEAVER },
+		{ TV_POLEARM, SV_LONGSPEAR },
+		{ TV_POLEARM, SV_AWL_PIKE },
+		{ TV_POLEARM, SV_BROAD_AXE },
+		{ TV_POLEARM, SV_BROAD_AXE },
+		{ TV_POLEARM, SV_BROAD_AXE },
+		{ TV_POLEARM, SV_GLAIVE },
 		{ TV_BOW, SV_SHORT_BOW },
 		{ TV_BOW, SV_SHORT_BOW },
-		{ TV_BOW, SV_SLING },
-		{ TV_BOW, SV_SLING },
-		{ TV_BOW, SV_SLING },
+
+		{ TV_BOW, SV_SHORT_BOW },
+		{ TV_BOW, SV_HUNTING_BOW },
+		{ TV_BOW, SV_HUNTING_BOW },
 		{ TV_BOW, SV_LONG_BOW },
-		{ TV_BOW, SV_LIGHT_XBOW },
-
-		{ TV_SHOT, SV_SHOT_NORMAL },
-		{ TV_SHOT, SV_SHOT_NORMAL },
-		{ TV_SHOT, SV_SHOT_NORMAL },
 		{ TV_ARROW, SV_ARROW_NORMAL },
 		{ TV_ARROW, SV_ARROW_NORMAL },
 		{ TV_ARROW, SV_ARROW_NORMAL },
-		{ TV_BOLT, SV_BOLT_NORMAL },
-		{ TV_BOLT, SV_BOLT_NORMAL },
+		{ TV_ARROW, SV_ARROW_TOUGH },
 
 		{ TV_ARROW, SV_ARROW_TOUGH },
+		{ TV_ARROW, SV_ARROW_FLIGHT },
+		{ TV_ARROW, SV_ARROW_FLIGHT },
+		{ TV_ARROW, SV_ARROW_IRON_TIP },
+		{ TV_ARROW, SV_ARROW_SILVER_TIP },
 		{ TV_ARROW, SV_ARROW_BITER },
-		{ TV_BOLT, SV_BOLT_BITER },
-		{ TV_SHOT, SV_SHOT_BULLET },
-		{ TV_HAFTED, SV_WHIP },
-		/* Item */
 		/* Item */
 		/* Item */
 	},
@@ -1245,52 +1224,43 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 	{
 		/* Temple */
 
-		{ TV_HAFTED, SV_QUARTERSTAFF },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_WAR_HAMMER },
-		{ TV_HAFTED, SV_WAR_HAMMER },
-		{ TV_HAFTED, SV_MORNING_STAR },
-		{ TV_HAFTED, SV_FLAIL },
-		{ TV_HAFTED, SV_FLAIL },
+		{ TV_BLUNT, SV_QUARTERSTAFF },
+		{ TV_BLUNT, SV_QUARTERSTAFF },
+		{ TV_BLUNT, SV_MACE },
+		{ TV_BLUNT, SV_MACE },
+		{ TV_BLUNT, SV_MACE },
+		{ TV_BLUNT, SV_FLAIL },
+		{ TV_BLUNT, SV_FLAIL },
+		{ TV_BLUNT, SV_MORNING_STAR },
 
-		{ TV_HAFTED, SV_WOODEN_CLUB },
-		{ TV_HAFTED, SV_WOODEN_CLUB },
-		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
-		{ TV_HAFTED, SV_THREE_PIECE_STAFF },
 		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_BLESSING },
 		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
-
 		{ TV_SCROLL, SV_SCROLL_LIGHT },
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
+		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON },
+
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
-
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-		{ TV_POTION, SV_POTION_RESTORE_EXP }
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_CURE_POISON },
+		{ TV_POTION, SV_POTION_CURE_POISON },
+		{ TV_POTION, SV_POTION_CURE_POISON },
+		{ TV_POTION, SV_POTION_CURE_DISEASE },
 
-		/* Item */
+		{ TV_POTION, SV_POTION_CURE_DISEASE },
 		/* Item */
 		/* Item */
 		/* Item */
@@ -1304,14 +1274,14 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 	{
 		/* Alchemy shop */
 
-		{ TV_POTION, SV_POTION_SATISFY_HUNGER },
-		{ TV_POTION, SV_POTION_CURE_POISON },
-		{ TV_POTION, SV_POTION_CURE_POISON },
-		{ TV_POTION, SV_POTION_CURE_POISON },
 		{ TV_POTION, SV_POTION_STEALTH },
 		{ TV_POTION, SV_POTION_HEROISM },
 		{ TV_POTION, SV_POTION_BOLDNESS },
 		{ TV_POTION, SV_POTION_BOLDNESS },
+		{ TV_POTION, SV_POTION_CURE_POISON },
+		{ TV_POTION, SV_POTION_CURE_POISON },
+		{ TV_POTION, SV_POTION_CURE_DISEASE },
+		{ TV_POTION, SV_POTION_CURE_DISEASE },
 
 		{ TV_POTION, SV_POTION_RES_STR },
 		{ TV_POTION, SV_POTION_RES_STR },
@@ -1331,31 +1301,22 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_DETECT_INVIS },
 		{ TV_POTION, SV_POTION_DETECT_INVIS },
 
-		{ TV_POTION, SV_POTION_CURE_DISEASE },
-		{ TV_POTION, SV_POTION_CURE_DISEASE },
-		{ TV_POTION, SV_POTION_CURE_DISEASE },
-		{ TV_POTION, SV_POTION_CURE_DISEASE },
+		{ TV_POTION, SV_POTION_SATISFY_HUNGER },
 		{ TV_POWDER, SV_POWDER_STARTLE},
 		{ TV_POWDER, SV_POWDER_STARTLE},
 		{ TV_POWDER, SV_POWDER_SLEEP},
 		{ TV_POWDER, SV_POWDER_SLEEP},
-
 		{ TV_POWDER, SV_POWDER_CONFUSE},
 		{ TV_POWDER, SV_POWDER_FLASH},
 		{ TV_POWDER, SV_POWDER_FLASH},
+
 		{ TV_POWDER, SV_POWDER_FLASH},
 		{ TV_POWDER, SV_POWDER_DARKNESS},
 		{ TV_POWDER, SV_POWDER_DARKNESS},
 		{ TV_POWDER, SV_POWDER_DARKNESS},
 		{ TV_POWDER, SV_POWDER_POISON},
-
 		{ TV_POWDER, SV_POWDER_FIRE1},
 		{ TV_POWDER, SV_POWDER_COLD1},
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
 		/* Item */
 	},
 
@@ -1402,15 +1363,6 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
 		{ TV_AMULET, SV_AMULET_RESIST_ACID },
 		{ TV_AMULET, SV_AMULET_RESIST_ACID },
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
 		/* Item */
 		/* Item */
 		/* Item */
@@ -1465,15 +1417,6 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR }
-
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
 
 		/* Item */
 		/* Item */
@@ -1553,7 +1496,7 @@ static errr init_other(void)
 	C_MAKE(o_list, z_info->o_max, object_type);
 
 	/* Monsters */
-	C_MAKE(m_list, z_info->m_max, monster_type);
+	C_MAKE(mon_list, z_info->m_max, monster_type);
 
 	/* Monsters */
 	C_MAKE(t_list, z_info->t_max, trap_type);
@@ -1939,7 +1882,7 @@ static errr init_alloc(void)
 			p = (100 / e_ptr->rarity);
 
 			/* Skip entries preceding our locale */
-			y = (x > 0) ? num[x-1] : 0;
+			y = (x > 0) ? num[x - 1] : 0;
 
 			/* Skip previous entries at this locale */
 			z = y + aux[x];
@@ -2057,7 +2000,7 @@ void init_angband(void)
 	/*** Verify the "news" file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
 
 	/* Attempt to open the file */
 	fd = fd_open(buf, O_RDONLY);
@@ -2068,7 +2011,7 @@ void init_angband(void)
 		char why[1024];
 
 		/* Message */
-		sprintf(why, "Cannot access the '%s' file!", buf);
+		strnfmt(why, sizeof(why), "Cannot access the '%s' file!", buf);
 
 		/* Crash and burn */
 		init_angband_aux(why);
@@ -2083,7 +2026,7 @@ void init_angband(void)
 	Term_clear();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
 
 	/* Open the News file */
 	fp = my_fopen(buf, "r");
@@ -2110,7 +2053,7 @@ void init_angband(void)
 	/*** Verify (or create) the "high score" file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Attempt to open the high score file */
 	fd = fd_open(buf, O_RDONLY);
@@ -2136,7 +2079,7 @@ void init_angband(void)
 			char why[1024];
 
 			/* Message */
-			sprintf(why, "Cannot create the '%s' file!", buf);
+			strnfmt(why, sizeof(why), "Cannot create the '%s' file!", buf);
 
 			/* Crash and burn */
 			init_angband_aux(why);
@@ -2304,7 +2247,7 @@ void cleanup_angband(void)
 	FREE(lr_list);
 	FREE(lu_list);
 	FREE(t_list);
-	FREE(m_list);
+	FREE(mon_list);
 	FREE(o_list);
 
 #ifdef MONSTER_FLOW

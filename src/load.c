@@ -124,7 +124,7 @@ static void rd_s32b(s32b *ip)
 /*
  * Hack -- read a string
  */
-static void rd_string(char *str, int max)
+static void rd_string(char *str, size_t max)
 {
 	int i;
 
@@ -137,14 +137,14 @@ static void rd_string(char *str, int max)
 		rd_byte(&tmp8u);
 
 		/* Collect string while legal */
-		if (i < max) str[i] = tmp8u;
+		if (i < (int)max) str[i] = tmp8u;
 
 		/* End of string */
 		if (!tmp8u) break;
 	}
 
 	/* Terminate */
-	str[max-1] = '\0';
+	str[max - 1] = '\0';
 }
 
 /*
@@ -167,9 +167,6 @@ static void strip_bytes(int n)
  */
 static errr rd_item(object_type *o_ptr)
 {
-	byte old_dd = 0;
-	byte old_ds = 0;
-
 	u16b save_flags;
 
 	u32b f1, f2, f3;
@@ -201,23 +198,17 @@ static errr rd_item(object_type *o_ptr)
 
 	rd_byte(&o_ptr->number);
 
-	rd_byte(&o_ptr->a_idx); 
-	rd_byte(&o_ptr->e_idx);
-	rd_byte(&o_ptr->prefix_idx);
+	if (save_flags & 0x0004) rd_byte(&o_ptr->a_idx); 
+	if (save_flags & 0x0008) rd_byte(&o_ptr->e_idx);
+	if (save_flags & 0x0010) rd_byte(&o_ptr->pfx_idx);
 
-	if (save_flags & 0x0004) rd_s16b(&o_ptr->timeout);
+	if (save_flags & 0x0020) rd_s16b(&o_ptr->timeout);
 
-	if (save_flags & 0x0008) rd_s16b(&o_ptr->to_h);
-	if (save_flags & 0x0010) rd_s16b(&o_ptr->to_d);
+	if (save_flags & 0x0040) rd_s16b(&o_ptr->to_h);
 
-	if (save_flags & 0x0020) rd_s16b(&o_ptr->to_a);
+	if (save_flags & 0x0080) rd_s16b(&o_ptr->to_a);
 
-	if (save_flags & 0x0040) rd_s16b(&o_ptr->ac);
-
-	if (save_flags & 0x0080) rd_byte(&old_dd);
-	if (save_flags & 0x0100) rd_byte(&old_ds);
-
-	rd_byte(&o_ptr->ident);
+	if (save_flags & 0x0100) rd_byte(&o_ptr->ident);
 
 	rd_byte(&o_ptr->origin_nature);
 	rd_s16b(&o_ptr->origin_dlvl);
@@ -234,7 +225,7 @@ static errr rd_item(object_type *o_ptr)
 	if (save_flags & 0x8000) rd_byte(&o_ptr->xtra2);
 
 	/* Inscription */
-	rd_string(buf, 128);
+	rd_string(buf, sizeof(buf));
 
 	/* Save the inscription */
 	if (buf[0]) o_ptr->note = quark_add(buf);
@@ -246,21 +237,12 @@ static errr rd_item(object_type *o_ptr)
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
 	/* Repair simple items - non wearable, non ammo, not artifact books*/
-	if (!wearable_p(o_ptr) && !ammo_p(o_ptr) && 
+	if (!wearable_p(o_ptr) && (o_ptr->tval != TV_ARROW) && (o_ptr->tval != TV_QUEST) && 
 		!((o_ptr->tval==TV_MAGIC_BOOK) && books[o_ptr->sval].flags & SBF_ARTIFACT))
 	{
 		/* Get the correct fields */
 		o_ptr->to_h = k_ptr->to_h;
-		o_ptr->to_d = k_ptr->to_d;
 		o_ptr->to_a = k_ptr->to_a;
-
-		/* Get the correct fields */
-		o_ptr->ac = k_ptr->ac;
-		o_ptr->dd = k_ptr->dd;
-		o_ptr->ds = k_ptr->ds;
-
-		/* Get the correct weight */
-		o_ptr->weight = k_ptr->weight;
 
 		/* Paranoia */
 		o_ptr->a_idx = o_ptr->e_idx = 0;
@@ -281,7 +263,7 @@ static errr rd_item(object_type *o_ptr)
 		/* Obtain the artifact info */
 		a_ptr = &a_info[o_ptr->a_idx];
 
-		/* Hack - artifact was created */
+		/* Paranoia - artifact was created */
 		a_ptr->status |= A_STATUS_CREATED;
 
 		/* Verify that artifact */
@@ -303,16 +285,8 @@ static errr rd_item(object_type *o_ptr)
 		if (!e_ptr->name) o_ptr->e_idx = 0;
 	}
 
-	/* Get the standard fields */
-	o_ptr->ac = k_ptr->ac;
-	o_ptr->dd = k_ptr->dd;
-	o_ptr->ds = k_ptr->ds;
-
-	/* Get the standard weight */
-	o_ptr->weight = k_ptr->weight;
-
 	/* Hack -- extract the "broken" flag */
-	if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
+	if ((o_ptr->tval != TV_ARROW) && (o_ptr->pval < 0)) o_ptr->ident |= (IDENT_BROKEN);
 
 	/* Artifacts */
 	if (o_ptr->a_idx)
@@ -325,16 +299,8 @@ static errr rd_item(object_type *o_ptr)
 		/* Get the new artifact "pval" */
 		o_ptr->pval = a_ptr->pval;
 
-		/* Get the new artifact fields */
-		o_ptr->ac = a_ptr->ac;
-		o_ptr->dd = a_ptr->dd;
-		o_ptr->ds = a_ptr->ds;
-
 		/* Get the new artifact prefix */
-		o_ptr->prefix_idx = a_ptr->prefix_idx;
-
-		/* Get the new artifact weight */
-		o_ptr->weight = a_ptr->weight;
+		o_ptr->pfx_idx = a_ptr->prefix_idx;
 
 		/* Hack -- extract the "broken" flag */
 		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
@@ -348,13 +314,6 @@ static errr rd_item(object_type *o_ptr)
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->e_idx];
 
-		/* Hack -- keep some old fields */
-		if ((o_ptr->dd < old_dd) && (o_ptr->ds == old_ds))
-		{
-			/* Keep old boosted damage dice */
-			o_ptr->dd = old_dd;
-		}
-
 		/* Hack -- extract the "broken" flag */
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
@@ -363,15 +322,6 @@ static errr rd_item(object_type *o_ptr)
 		{
 			/* Force a meaningful pval */
 			if (!o_ptr->pval) o_ptr->pval = 1;
-		}
-
-		/* Mega-Hack - Enforce the special broken items */
-		if ((o_ptr->e_idx == EGO_BLASTED) || (o_ptr->e_idx == EGO_SHATTERED))
-		{
-			/* These were set to k_info values by preceding code */
-			o_ptr->ac = 0;
-			o_ptr->dd = 0;
-			o_ptr->ds = 0;
 		}
 	}
 
@@ -394,10 +344,8 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->fx);
 	rd_s16b(&m_ptr->hp);
 	rd_s16b(&m_ptr->maxhp);
-	rd_s16b(&m_ptr->csleep);
 	rd_byte(&m_ptr->mspeed);
-	if (older_than(0,4,6)) m_ptr->bspeed = m_ptr->mspeed;
-	else rd_byte(&m_ptr->bspeed);
+	rd_byte(&m_ptr->bspeed);
 	rd_byte(&m_ptr->energy);
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
@@ -405,6 +353,7 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->blinded);
 	rd_byte(&m_ptr->calmed);
 
+	rd_u16b(&m_ptr->sleep);
 	rd_u16b(&m_ptr->bleeding);
 	rd_u16b(&m_ptr->poisoned);
 }
@@ -718,14 +667,9 @@ static errr rd_extra(void)
 	byte tmp8u;
 	u16b tmp16u;
 
-	rd_string(op_ptr->full_name, 32);
-
-	rd_string(p_ptr->died_from, 80);
-
-	for (i = 0; i < 4; i++)
-	{
-		rd_string(p_ptr->history[i], 60);
-	}
+	rd_string(op_ptr->full_name, sizeof(op_ptr->full_name));
+	rd_string(p_ptr->died_from, sizeof(p_ptr->died_from));
+	rd_string(p_ptr->history, sizeof(p_ptr->history));
 
 	/* Player race */
  	rd_byte(&p_ptr->prace);
@@ -833,6 +777,11 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->tim_infra);
 	rd_s16b(&p_ptr->tim_stealth);
 	rd_s16b(&p_ptr->tim_invis);
+	if (older_than(0,4,9)) 
+	{
+		p_ptr->tim_bravery = MAX(p_ptr->hero, p_ptr->rage);
+	}
+	else rd_s16b(&p_ptr->tim_bravery);
 	rd_s16b(&p_ptr->stability);
 	rd_s16b(&p_ptr->racial_power);
 
@@ -981,7 +930,7 @@ static errr rd_inventory(void)
 			object_copy(&inventory[n], i_ptr);
 
 			/* Add the weight */
-			p_ptr->total_weight += (i_ptr->number * actual_weight(i_ptr));
+			p_ptr->total_weight += (i_ptr->number * object_weight(i_ptr));
 
 			/* One more item */
 			p_ptr->equip_cnt++;
@@ -1007,7 +956,7 @@ static errr rd_inventory(void)
 			object_copy(&inventory[n], i_ptr);
 
 			/* Add the weight */
-			p_ptr->total_weight += (i_ptr->number * actual_weight(i_ptr));
+			p_ptr->total_weight += (i_ptr->number * object_weight(i_ptr));
 
 			/* One more item */
 			p_ptr->inven_cnt++;
@@ -1036,7 +985,7 @@ static void rd_messages(void)
 	for (i = 0; i < num; i++)
 	{
 		/* Read the message */
-		rd_string(buf, 128);
+		rd_string(buf, sizeof(buf));
 
 		rd_u16b(&tmp16u);
 
@@ -1323,7 +1272,7 @@ static errr rd_dungeon(void)
 		}
 
 		/* Get the monster */
-		m_ptr = &m_list[o_ptr->held_m_idx];
+		m_ptr = &mon_list[o_ptr->held_m_idx];
 
 		/* Link the object to the pile */
 		o_ptr->next_o_idx = m_ptr->hold_o_idx;
@@ -1356,10 +1305,10 @@ static errr rd_dungeon(void)
 		/* Clear the trap */
 		(void)WIPE(t_ptr, trap_type);
 
-		/* Read the monster */
+		/* Read the trap */
 		rd_trap(t_ptr);
 
-		/* Place monster in dungeon */
+		/* Place trap in dungeon */
 		if (trap_place(t_ptr->fy, t_ptr->fx, t_ptr) != i)
 		{
 			note(format("Cannot place trap %d", i));
@@ -1393,9 +1342,9 @@ static errr rd_savefile_new_aux(void)
 	note(format("Loading a %d.%d.%d savefile...",
 	            sf_major, sf_minor, sf_patch));
 
-	if (older_than(0,4,4))
+	if (older_than(0,4,7))
 	{
-		note("Not compatible with 0.4.3 or older savefiles!");
+		note("Not compatible with 0.4.6 or older savefiles!");
 		return (-1);
 	}
 
@@ -1581,11 +1530,6 @@ static errr rd_savefile_new_aux(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		rd_byte(&a_info[i].status);
-		
-		/* Correct 0.4.5 artifact bug */
-		if (a_info[i].status & A_STATUS_AWARE) a_info[i].status |= A_STATUS_CREATED;
-		else a_info[i].status &= ~(A_STATUS_CREATED);
-
 	}
 	if (arg_fiddle) note("Loaded Artifacts");
 
@@ -1693,3 +1637,189 @@ errr rd_savefile(void)
 	/* Result */
 	return (err);
 }
+
+/*
+ * Attempt to Load a "savefile"
+ *
+ * On multi-user systems, you may only "read" a savefile if you will be
+ * allowed to "write" it later, this prevents painful situations in which
+ * the player loads a savefile belonging to someone else, and then is not
+ * allowed to save his game when he quits.
+ *
+ * We return "TRUE" if the savefile was usable, and we set the global
+ * flag "character_loaded" if a real, living, character was loaded.
+ *
+ * Note that we always try to load the "current" savefile, even if
+ * there is no such file, so we must check for "empty" savefile names.
+ */
+bool load_player(void)
+{
+	int fd = -1;
+
+	errr err = 0;
+
+	byte vvv[4];
+
+	cptr what = "generic";
+
+	/* Paranoia */
+	turn = 0;
+
+	/* Paranoia */
+	p_ptr->is_dead = FALSE;
+
+	/* Allow empty savefile name */
+	if (!savefile[0]) return (TRUE);
+
+	/* Grab permissions */
+	safe_setuid_grab();
+ 
+	/* Open the savefile */
+	fd = fd_open(savefile, O_RDONLY);
+ 
+	/* Drop permissions */
+	safe_setuid_drop();
+ 
+	/* No file */
+	if (fd < 0)
+
+	{
+		/* Give a message */
+		message(MSG_GENERIC, 0, "Savefile does not exist.");
+		message_flush();
+
+		/* Allow this */
+		return (TRUE);
+	}
+
+	/* Close the file */
+	fd_close(fd);
+
+	/* Okay */
+	if (!err)
+	{
+		/* Grab permissions */
+		safe_setuid_grab();
+
+ 		/* Open the savefile */
+ 		fd = fd_open(savefile, O_RDONLY);
+ 
+		/* Drop permissions */
+		safe_setuid_drop();
+
+		/* No file */
+		if (fd < 0) err = -1;
+
+		/* Message (below) */
+		if (err) what = "Cannot open savefile";
+	}
+
+	/* Process file */
+	if (!err)
+	{
+		/* Read the first four bytes */
+		if (fd_read(fd, (char*)(vvv), 4)) err = -1;
+
+		/* What */
+		if (err) what = "Cannot read savefile";
+
+		/* Close the file */
+		fd_close(fd);
+	}
+
+	/* Process file */
+	if (!err)
+	{
+		/* Extract version */
+		sf_major = vvv[0];
+		sf_minor = vvv[1];
+		sf_patch = vvv[2];
+		sf_extra = vvv[3];
+
+		/* Clear screen */
+		Term_clear();
+
+		err = rd_savefile();
+
+		/* Message (below) */
+		if (err) what = "Cannot parse savefile";
+	}
+
+	/* Paranoia */
+	if (!err)
+	{
+		/* Invalid turn */
+		if (!turn) err = -1;
+
+		/* Message (below) */
+		if (err) what = "Broken savefile";
+	}
+
+	/* Okay */
+	if (!err)
+	{
+		/* Give a conversion warning */
+		if ((version_major != sf_major) ||
+		    (version_minor != sf_minor) ||
+		    (version_patch != sf_patch))
+		{
+			/* Message */
+			message_format(MSG_GENERIC, 0, "Converted a %d.%d.%d savefile.",
+			           sf_major, sf_minor, sf_patch);
+			message_flush();
+		}
+
+		/* Player is dead */
+		if (p_ptr->is_dead)
+		{
+			/* In wizard mode, allow loading of tombstones */
+			if (cheat_wizard)
+			{
+				/* A character was loaded */
+				character_loaded = TRUE;
+
+				/* Done */
+				return (TRUE);
+			}
+
+			/* Forget death */
+			p_ptr->is_dead = FALSE;
+
+			/* Count lives */
+			sf_lives++;
+
+			/* Forget turns */
+			turn = 0;
+			
+			/* Reset feeling counter */
+			p_ptr->feeling_cnt = 0;
+
+			/* A character once existed on this savefile */
+			character_existed = TRUE;
+
+			/* Done */
+			return (TRUE);
+		}
+
+		/* A character was loaded */
+		character_loaded = TRUE;
+
+		/* Still alive */
+		if (p_ptr->chp >= 0)
+		{
+			/* Reset cause of death */
+			strcpy(p_ptr->died_from, "(alive and well)");
+		}
+
+		/* Success */
+		return (TRUE);
+	}
+
+	/* Message */
+		message_format(MSG_GENERIC, 0, "Error (%s) reading %d.%d.%d savefile.",
+			what, sf_major, sf_minor, sf_patch);	message_flush();
+
+	/* Oops */
+	return (FALSE);
+}
+

@@ -1,0 +1,24 @@
+              -- Playing the Game --
+
+Please choose one of the following online help files:
+
+    (1) Listing of Commands            (cmdlist.txt)
+    (2) Full Command Descriptions      (cmddesc.txt)
+    (3) How Commands Work              (playing.txt)
+    (4) Combat                         (combat.txt)
+    (5) Magic                          (magic.txt)
+
+
+
+
+
+
+
+ ?  : return to previous menu
+ ESC: leave help
+
+***** [1] cmdlist.txt
+***** [2] cmddesc.txt
+***** [3] playing.txt
+***** [4] combat.txt
+***** [5] magic.txt

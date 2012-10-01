@@ -197,11 +197,10 @@ cptr monster_name_idx(int r_idx, int s_idx, int u_idx)
  *
  * Note that this function must NEVER be called for a dead monster.
  */
-cptr monster_name(monster_type *m_ptr)
+cptr monster_name(const monster_type *m_ptr)
 {
 	return monster_name_aux(m_ptr->r_idx, m_ptr->s_idx, m_ptr->u_idx);
 }
-
 
 /*
  * The following functions return the pointer to where the actual monster information is
@@ -214,7 +213,7 @@ cptr monster_name(monster_type *m_ptr)
  *
  * Note that this function must NEVER be called for a dead monster.
  */
-monster_race *get_monster_real(monster_type *m_ptr)
+monster_race *get_monster_real(const monster_type *m_ptr)
 {
 	int i;
 
@@ -247,8 +246,7 @@ monster_race *get_monster_real(monster_type *m_ptr)
 			 */
 			monster_unique *u_ptr = &u_info[m_ptr->u_idx];
 
-			monster_temp.hdice = u_ptr->hdice;		
-			monster_temp.hside = u_ptr->hside;
+			monster_temp.life = u_ptr->life;		
 			monster_temp.ac = u_ptr->ac;
 			monster_temp.sleep = u_ptr->sleep;			
 			monster_temp.aaf = u_ptr->aaf;
@@ -276,7 +274,8 @@ monster_race *get_monster_real(monster_type *m_ptr)
 			/* Flags are a combination of both, except flags1 */
 			monster_temp.flags1 = (u_ptr->flags1);		
 			monster_temp.flags2 = (r_ptr->flags2 | u_ptr->flags2);		
-			monster_temp.flags3 = (r_ptr->flags3 | u_ptr->flags3);		
+			monster_temp.flags3 = (r_ptr->flags3 | u_ptr->flags3);
+			monster_temp.flags4 = (r_ptr->flags4 | u_ptr->flags4);
 			monster_temp.s_flags1 = (r_ptr->s_flags1 | u_ptr->s_flags1);		
 			monster_temp.s_flags2 = (r_ptr->s_flags2 | u_ptr->s_flags2);		
 			monster_temp.s_flags3 = (r_ptr->s_flags3 | u_ptr->s_flags3);		
@@ -324,8 +323,7 @@ monster_race *get_monster_fake(int r_idx, int s_idx, int u_idx)
 	 * Copy basic stats from u_ptr to the temporary monster. Note that name and text
 	 * are never derived from it so no need to copy them.
 	 */
-	monster_temp_fake.hdice = u_ptr->hdice;		
-	monster_temp_fake.hside = u_ptr->hside;
+	monster_temp_fake.life = u_ptr->life;		
 	monster_temp_fake.ac = u_ptr->ac;
 	monster_temp_fake.sleep = u_ptr->sleep;			
 	monster_temp_fake.aaf = u_ptr->aaf;
@@ -422,7 +420,7 @@ monster_lore *get_lore_idx(int r_idx, int u_idx)
  *
  * "unseen" allows updating the info for monsters you can't see
  */
-void lore_learn(monster_type *m_ptr, int mode, u32b what, bool unseen)
+void lore_learn(const monster_type *m_ptr, int mode, u32b what, bool unseen)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *lr_ptr = &lr_list[m_ptr->r_idx];

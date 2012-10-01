@@ -319,7 +319,7 @@ static void prt_alloc(byte tval, byte sval, int row, int col)
 /*
  * Output a long int in binary format.
  */
-static void prt_resists(object_type *o_ptr, byte from, byte to, int row, int col)
+static void prt_resists(const object_type *o_ptr, byte from, byte to, int row, int col)
 {
 	int i, j;
 	byte attr;
@@ -340,7 +340,7 @@ static void prt_resists(object_type *o_ptr, byte from, byte to, int row, int col
 /*
  * Output a long int in binary format.
  */
-static void prt_slays(object_type *o_ptr, byte from, byte to, int row, int col)
+static void prt_slays(const object_type *o_ptr, byte from, byte to, int row, int col)
 {
 	int i, j;
 	byte attr;
@@ -390,7 +390,7 @@ static void do_cmd_wiz_change_aux(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Prompt */
-		sprintf(ppp, "%s (0-20): ", stat_names[i]);
+		strnfmt(ppp, sizeof(ppp), "%s (3-20): ", stat_names[i]);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
@@ -413,7 +413,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
 
 	/* Query */
-	if (!get_string("Gold: ", tmp_val, 10)) return;
+	if (!get_string("Gold: ", tmp_val, sizeof(tmp_val))) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -428,7 +428,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->exp));
 
 	/* Query */
-	if (!get_string("Experience: ", tmp_val, 9)) return;
+	if (!get_string("Experience: ", tmp_val, 8)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -446,7 +446,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
 
 	/* Query */
-	if (!get_string("Max Exp: ", tmp_val, 9)) return;
+	if (!get_string("Max Exp: ", tmp_val, 8)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -525,7 +525,7 @@ static void do_cmd_wiz_change(void)
 /*
  * Display an item's properties
  */
-static void wiz_display_item(object_type *o_ptr)
+static void wiz_display_item(const object_type *o_ptr)
 {
 	int j = 0;
 
@@ -540,22 +540,22 @@ static void wiz_display_item(object_type *o_ptr)
 	Term_clear();
 
 	/* Describe fully */
-	object_desc_store(buf, o_ptr, TRUE, 3);
+	object_desc_store(buf, 80, o_ptr, TRUE, 3);
 	prt(buf, 2, j);
 
-	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
+	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d  material = %d",
 	           o_ptr->k_idx, k_info[o_ptr->k_idx].level,
-	           o_ptr->tval, o_ptr->sval), 4, j);
+	           o_ptr->tval, o_ptr->sval, object_material(o_ptr)), 4, j);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d  break = %d",
-	           o_ptr->number, actual_weight(o_ptr), actual_ac(o_ptr), 
-			   actual_dd(o_ptr), actual_ds(o_ptr), k_info[o_ptr->k_idx].breakage), 5, j);
+	           o_ptr->number, object_weight(o_ptr), object_ac(o_ptr), 
+			   object_dd(o_ptr), object_ds(o_ptr), k_info[o_ptr->k_idx].breakage), 5, j);
 
-	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d  timeout = %-d",
-	           o_ptr->pval, o_ptr->to_a, actual_to_h(o_ptr), actual_to_d(o_ptr), o_ptr->timeout), 6, j);
+	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  timeout = %-d",
+	           o_ptr->pval, o_ptr->to_a, object_to_h(o_ptr), o_ptr->timeout), 6, j);
 
 	prt(format("a_idx = %-4d  e_idx = %-4d  prefix = %-4d ident = %04x  cost = %ld",
-	           o_ptr->a_idx, o_ptr->e_idx, o_ptr->prefix_idx, o_ptr->ident, (long)object_value(o_ptr)) , 7, j);
+	           o_ptr->a_idx, o_ptr->e_idx, o_ptr->pfx_idx, o_ptr->ident, (long)object_value(o_ptr)) , 7, j);
 
 	prt_binary(f1, 9, j+2);
 	prt_binary(f3, 9, j+36);
@@ -575,15 +575,15 @@ static void wiz_display_item(object_type *o_ptr)
     prt("2 te..e.m.....................,,rt", 23, j);
 
 	prt("Resists:", 16, j+36);
-	prt_resists(o_ptr, 0, RS_MAX / 2, 16, j+44);
+	prt_resists(o_ptr, 0, (RS_MAX + 1) / 2, 16, j+44);
 	prt("ac el fr cl wt po ds lt dk", 17, j+44);
-	prt_resists(o_ptr, RS_MAX / 2, RS_MAX, 18, j+44);
-	prt("cn sn sh nx nt cs dn tm mn", 19, j+44);
+	prt_resists(o_ptr, (RS_MAX + 1) / 2, RS_MAX, 18, j+44);
+	prt("sn sh nx nt cs dn tm mn", 19, j+44);
 
 	prt("Slays:",   20, j+36);
-	prt_slays(o_ptr, 0, SL_MAX / 2, 20, j+44);
+	prt_slays(o_ptr, 0, (SL_MAX + 1) / 2, 20, j+44);
 	prt("ev cs an pl ud dm hm pl fr", 21, j+44);
-	prt_slays(o_ptr, SL_MAX / 2, SL_MAX, 22, j+44);
+	prt_slays(o_ptr, (SL_MAX + 1) / 2, SL_MAX, 22, j+44);
 	prt("dr ly ac el fr cl po lt dk", 23, j+44);
 
 	prt_alloc(o_ptr->tval, o_ptr->sval, 2, 70); 
@@ -596,11 +596,9 @@ static tval_desc_type tvals[31] =
 {
 	{ TV_SWORD,			"Sword"				},
 	{ TV_POLEARM,		"Polearm"			},
-	{ TV_HAFTED,		"Hafted Weapon"		},
+	{ TV_BLUNT,			"Blunt Weapon"		},
 	{ TV_BOW,			"Bow"				},
 	{ TV_ARROW,			"Arrows"			},
-	{ TV_BOLT,			"Bolts"				},
-	{ TV_SHOT,			"Shots"				},
 	{ TV_SHIELD,		"Shield"			},
 	{ TV_HEADGEAR,		"Head Gear"			},
 	{ TV_GLOVES,		"Gloves"			},
@@ -739,35 +737,29 @@ static void wiz_tweak_item(object_type *o_ptr)
 	char tmp_val[80];
 
 	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr)) return;
+	if (o_ptr->a_idx) return;
 
 	p = "Enter new 'pval' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->pval);
-	if (!get_string(p, tmp_val, 6)) return;
+	if (!get_string(p, tmp_val, sizeof(tmp_val))) return;
 	o_ptr->pval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_a' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_a);
-	if (!get_string(p, tmp_val, 6)) return;
+	if (!get_string(p, tmp_val, sizeof(tmp_val))) return;
 	o_ptr->to_a = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_h' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_h);
-	if (!get_string(p, tmp_val, 6)) return;
+	if (!get_string(p, tmp_val, sizeof(tmp_val))) return;
 	o_ptr->to_h = atoi(tmp_val);
-	wiz_display_item(o_ptr);
-
-	p = "Enter new 'to_d' setting: ";
-	sprintf(tmp_val, "%d", o_ptr->to_d);
-	if (!get_string(p, tmp_val, 6)) return;
-	o_ptr->to_d = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'timeout' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->timeout);
-	if (!get_string(p, tmp_val, 6)) return;
+	if (!get_string(p, tmp_val, sizeof(tmp_val))) return;
 	o_ptr->timeout = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 }
@@ -782,10 +774,9 @@ static void wiz_xtra_item(object_type *o_ptr)
 	int max;
 
 	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr)) return;
+	if (o_ptr->a_idx) return;
 
-	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) ||(o_ptr->tval == TV_POLEARM) ||
-		(o_ptr->tval == TV_BODY_ARMOR))
+	if (weapon_p(o_ptr) || (o_ptr->tval == TV_BODY_ARMOR))
 	{
 		if (o_ptr->tval == TV_BODY_ARMOR)
 		{
@@ -794,19 +785,19 @@ static void wiz_xtra_item(object_type *o_ptr)
 		else max = z_info->wpx_max;
 
 		p = "Enter new prefix index: ";
-		sprintf(tmp_val, "%d", o_ptr->prefix_idx);
-		if (!get_string(p, tmp_val, 6)) return;
+		sprintf(tmp_val, "%d", o_ptr->pfx_idx);
+		if (!get_string(p, tmp_val, sizeof(tmp_val))) return;
 
 		if (atoi(tmp_val) < max)
 		{
-			o_ptr->prefix_idx = atoi(tmp_val);
+			o_ptr->pfx_idx = atoi(tmp_val);
 			wiz_display_item(o_ptr);
 		}
 	}
 
 	p = "Enter new ego index: ";
 	sprintf(tmp_val, "%d", o_ptr->e_idx);
-	if (!get_string(p, tmp_val, 6)) return;
+	if (!get_string(p, tmp_val, sizeof(tmp_val))) return;
 
 	if (atoi(tmp_val) < z_info->e_max)
 	{
@@ -828,7 +819,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 	bool changed = FALSE;
 
 	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr)) return;
+	if (o_ptr->a_idx) return;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -930,7 +921,7 @@ static void wiz_statistics(object_type *o_ptr)
 	cptr q = "Rolls: %ld, Matches: %ld, Better: %ld, Worse: %ld, Other: %ld";
 
 	/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-	if (artifact_p(o_ptr)) a_info[o_ptr->a_idx].status &= ~A_STATUS_CREATED;
+	if (o_ptr->a_idx) a_info[o_ptr->a_idx].status &= ~A_STATUS_CREATED;
 
 	/* Interact */
 	while (TRUE)
@@ -1007,8 +998,8 @@ static void wiz_statistics(object_type *o_ptr)
 			/* Create an object */
 			make_object(i_ptr, good, great, TRUE);
 
-			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-			if (artifact_p(i_ptr)) a_info[i_ptr->a_idx].status &= ~A_STATUS_CREATED;
+			/* Mega-Hack -- don't count these as created artifacts */
+			if (i_ptr->a_idx) a_info[i_ptr->a_idx].status &= ~A_STATUS_CREATED;
 
 			/* Test for the same tval and sval. */
 			if ((o_ptr->tval) != (i_ptr->tval)) continue;
@@ -1018,8 +1009,7 @@ static void wiz_statistics(object_type *o_ptr)
 			if ((i_ptr->pval == o_ptr->pval) &&
 			    (i_ptr->to_a == o_ptr->to_a) &&
 			    (i_ptr->to_h == o_ptr->to_h) &&
-			    (i_ptr->to_d == o_ptr->to_d) &&
-				(i_ptr->prefix_idx == i_ptr->prefix_idx))
+				(i_ptr->pfx_idx == i_ptr->pfx_idx))
 			{
 				matches++;
 			}
@@ -1027,8 +1017,7 @@ static void wiz_statistics(object_type *o_ptr)
 			/* Check for better */
 			else if ((i_ptr->pval >= o_ptr->pval) &&
 			         (i_ptr->to_a >= o_ptr->to_a) &&
-			         (i_ptr->to_h >= o_ptr->to_h) &&
-			         (i_ptr->to_d >= o_ptr->to_d))
+			         (i_ptr->to_h >= o_ptr->to_h))
 			{
 				better++;
 			}
@@ -1036,8 +1025,7 @@ static void wiz_statistics(object_type *o_ptr)
 			/* Check for worse */
 			else if ((i_ptr->pval <= o_ptr->pval) &&
 			         (i_ptr->to_a <= o_ptr->to_a) &&
-			         (i_ptr->to_h <= o_ptr->to_h) &&
-			         (i_ptr->to_d <= o_ptr->to_d))
+			         (i_ptr->to_h <= o_ptr->to_h))
 			{
 				worse++;
 			}
@@ -1055,7 +1043,7 @@ static void wiz_statistics(object_type *o_ptr)
 	}
 
 	/* Hack -- Normally only make a single artifact */
-	if (artifact_p(o_ptr)) a_info[o_ptr->a_idx].status |= A_STATUS_CREATED;
+	if (o_ptr->a_idx) a_info[o_ptr->a_idx].status |= A_STATUS_CREATED;
 }
 
 /*
@@ -1068,13 +1056,13 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 	char tmp_val[3];
 
 	/* Never duplicate artifacts */
-	if (artifact_p(o_ptr)) return;
+	if (o_ptr->a_idx) return;
 
 	/* Default */
 	sprintf(tmp_val, "%d", o_ptr->number);
 
 	/* Query */
-	if (get_string("Quantity: ", tmp_val, 3))
+	if (get_string("Quantity: ", tmp_val, sizeof(tmp_val)))
 	{
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -1087,10 +1075,10 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 		if (carried)
 		{
 			/* Remove the weight of the old number of objects */
-			p_ptr->total_weight -= (o_ptr->number * actual_weight(o_ptr));
+			p_ptr->total_weight -= (o_ptr->number * object_weight(o_ptr));
 
 			/* Add the weight of the new number of objects */
-			p_ptr->total_weight += (tmp_int * actual_weight(o_ptr));
+			p_ptr->total_weight += (tmp_int * object_weight(o_ptr));
 		}
 
 		/* Accept modifications */
@@ -1298,14 +1286,9 @@ static void wiz_create_artifact(int a_idx)
 
 	/* Extract the fields */
 	i_ptr->pval = a_ptr->pval;
-	i_ptr->ac = a_ptr->ac;
-	i_ptr->dd = a_ptr->dd;
-	i_ptr->ds = a_ptr->ds;
 	i_ptr->to_a = a_ptr->to_a;
 	i_ptr->to_h = a_ptr->to_h;
-	i_ptr->to_d = a_ptr->to_d;
-	i_ptr->weight = a_ptr->weight;
-	i_ptr->prefix_idx = a_ptr->prefix_idx;
+	i_ptr->pfx_idx = a_ptr->prefix_idx;
 
 	/* Note Object history */
 	i_ptr->origin_nature = ORIGIN_CHEAT;
@@ -1387,7 +1370,7 @@ static void do_cmd_wiz_jump(void)
 		sprintf(tmp_val, "%d", p_ptr->depth);
 
 		/* Ask for a level */
-		if (!get_string(ppp, tmp_val, 4)) return;
+		if (!get_string(ppp, tmp_val, sizeof(tmp_val))) return;
 
 		/* Extract request */
 		p_ptr->command_arg = atoi(tmp_val);
@@ -1526,7 +1509,7 @@ static void do_cmd_wiz_named(int r_idx)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, TRUE, TRUE, 0)) break;
+		if (place_monster_aux(y, x, r_idx, 0, TRUE, TRUE, 0)) break;
 	}
 }
 
@@ -1555,7 +1538,7 @@ static void do_cmd_wiz_named_unique(int u_idx)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, TRUE, TRUE, PLACE_UNIQUE)) break;
+		if (place_monster_aux(y, x, r_idx, u_idx, TRUE, TRUE, PLACE_UNIQUE)) break;
 	}
 }
 
@@ -1567,9 +1550,9 @@ static void do_cmd_wiz_zap(int d)
 	int i;
 
 	/* Genocide everyone nearby */
-	for (i = 1; i < m_max; i++)
+	for (i = 1; i < mon_max; i++)
 	{
-		monster_type *m_ptr = &m_list[i];
+		monster_type *m_ptr = &mon_list[i];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1589,10 +1572,12 @@ static void do_cmd_wiz_unhide(int d)
 {
 	int i;
 
+	message_format(MSG_GENERIC, 0, "%d", damroll(2, 6));
+
 	/* Process monsters */
-	for (i = 1; i < m_max; i++)
+	for (i = 1; i < mon_max; i++)
 	{
-		monster_type *m_ptr = &m_list[i];
+		monster_type *m_ptr = &mon_list[i];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1742,15 +1727,13 @@ typedef struct
  */
 static grouper group_item[32] =
 {
-	{ TV_SHOT,		"Ammo" },
-	{ TV_ARROW,		  NULL },
-	{ TV_BOLT,		  NULL },
+	{ TV_ARROW,		"Arrows" },
 
-	{ TV_BOW,		"Shooters" },
+	{ TV_BOW,		"Bows" },
 
 	{ TV_SWORD,		"Weapons" },
 	{ TV_POLEARM,	  NULL },
-	{ TV_HAFTED,	  NULL },
+	{ TV_BLUNT,		  NULL },
 
 	{ TV_DIGGING,	"Diggers" },
 
@@ -1813,7 +1796,6 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	i_ptr->pval = 0;
 	i_ptr->to_a = 0;
 	i_ptr->to_h = 0;
-	i_ptr->to_d = 0;
 
 	/* Level */
 	(*lev) = k_ptr->level;
@@ -1825,7 +1807,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	if (!buf || !dam || !wgt) return;
 
 	/* Description (too brief) */
-	object_desc_store(buf, i_ptr, FALSE, 0);
+	object_desc_store(buf, 80, i_ptr, FALSE, 0);
 
 	/* Misc info */
 	strcpy(dam, "");
@@ -1840,21 +1822,19 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		}
 
 		/* Ammo */
-		case TV_SHOT:
-		case TV_BOLT:
 		case TV_ARROW:
 		{
-			sprintf(dam, "%dd%d", actual_dd(i_ptr), actual_ds(i_ptr));
+			sprintf(dam, "%dd%d", object_dd(i_ptr), object_ds(i_ptr));
 			break;
 		}
 
 		/* Weapons */
-		case TV_HAFTED:
+		case TV_BLUNT:
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			sprintf(dam, "%dd%d", actual_dd(i_ptr), actual_ds(i_ptr));
+			sprintf(dam, "%dd%d", object_dd(i_ptr), object_ds(i_ptr));
 			break;
 		}
 
@@ -1867,13 +1847,13 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_BODY_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
-			sprintf(dam, "%d", i_ptr->ac);
+			sprintf(dam, "%d", object_ac(i_ptr));
 			break;
 		}
 	}
 
 	/* Weight */
-	sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
+	sprintf(wgt, "%3d.%d", object_weight(i_ptr) / 10, object_weight(i_ptr) % 10);
 }
 
 /*
@@ -1896,7 +1876,7 @@ static void spoil_obj_desc(cptr fname)
 	C_MAKE(who, z_info->k_max, u16b);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2020,7 +2000,7 @@ static grouper group_artifact[19] =
 {
 	{ TV_SWORD,		"Edged Weapons" },
 	{ TV_POLEARM,	"Polearms" },
-	{ TV_HAFTED,	"Hafted Weapons" },
+	{ TV_BLUNT,		"Blunt Weapons" },
 	{ TV_BOW,		"Shooters" },
 	{ TV_DIGGING,	"Diggers" },
 
@@ -2083,7 +2063,7 @@ static void spoil_artifact(cptr fname)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2101,7 +2081,7 @@ static void spoil_artifact(cptr fname)
 	text_out_hook = text_out_to_file;
 	text_out_file = fff;
 
-	sprintf(buf, "Artifact Spoilers for %s Version %s",
+	strnfmt(buf, sizeof(buf), "Artifact Spoilers for %s Version %s",
 	        VERSION_NAME, VERSION_STRING);
 	spoiler_underline(buf);
 
@@ -2134,7 +2114,7 @@ static void spoil_artifact(cptr fname)
 			if (!make_fake_artifact(i_ptr, j)) continue;
 
 			/* Artifact name */
-			object_desc_store(buf, i_ptr, TRUE, 1);
+			object_desc_store(buf, sizeof(buf), i_ptr, TRUE, 1);
 			text_out("-- ");
 			text_out(buf);
 			text_out("\n");
@@ -2180,7 +2160,7 @@ static void spoil_mon_desc(cptr fname)
 	u16b why = 2;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2210,7 +2190,7 @@ static void spoil_mon_desc(cptr fname)
 	        "----", "---", "---", "---", "--", "--", "-----------");
 
 	/* Allocate the "who" array */
-	C_MAKE(who, M_LIST_ITEMS, monster_list_entry);
+	C_MAKE(who, MON_LIST_ITEMS, monster_list_entry);
 
 	/* Scan the monsters */
 	for (i = 1; i < z_info->r_max; i++)
@@ -2242,11 +2222,11 @@ static void spoil_mon_desc(cptr fname)
 		/* Get the "name" */
 		if (who[i].u_idx) 
 		{
-			sprintf(nam, "[U] %s", name);
+			strnfmt(nam, sizeof(nam), "[U] %s", name);
 		}
 		else
 		{
-			sprintf(nam, "The %s", name);
+			strnfmt(nam, sizeof(nam), "The %s", name);
 		}
 
 		/* Level */
@@ -2269,14 +2249,7 @@ static void spoil_mon_desc(cptr fname)
 		sprintf(ac, "%d", r_ptr->ac);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
-		{
-			sprintf(hp, "%d", r_ptr->hdice * r_ptr->hside);
-		}
-		else
-		{
-			sprintf(hp, "%dd%d", r_ptr->hdice, r_ptr->hside);
-		}
+		sprintf(hp, "%d", r_ptr->life);
 
 		/* Experience */
 		sprintf(exp, "%ld", (long)(r_ptr->mexp));
@@ -2287,7 +2260,7 @@ static void spoil_mon_desc(cptr fname)
 		else attr_desc = attr_to_text(r_ptr->d_attr);
 
 		/* Hack -- use visual instead */
-		sprintf(exp, "%s '%c'", attr_desc, r_ptr->d_char);
+		strnfmt(exp, sizeof(exp), "%s '%c'", attr_desc, r_ptr->d_char);
 
 		/* Dump the info */
 		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
@@ -2323,7 +2296,7 @@ static void spoil_mon_info(cptr fname)
 	int count = 0;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2342,13 +2315,13 @@ static void spoil_mon_info(cptr fname)
 	text_out_file = fff;
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for %s Version %s\n",
+	strnfmt(buf, sizeof(buf), "Monster Spoilers for %s Version %s\n",
 	        VERSION_NAME, VERSION_STRING);
 	text_out(buf);
 	text_out("------------------------------------------\n\n");
 
 	/* Allocate the "who" array */
-	C_MAKE(who, M_LIST_ITEMS, monster_list_entry);
+	C_MAKE(who, MON_LIST_ITEMS, monster_list_entry);
 
 	/* Scan the monsters */
 	for (i = 1; i < z_info->r_max; i++)
@@ -2387,7 +2360,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Name */
-		sprintf(buf, "%s  (", (monster_name_idx(who[i].r_idx, 0, who[i].u_idx)));	/* ---)--- */
+		strnfmt(buf, sizeof(buf), (monster_name_idx(who[i].r_idx, 0, who[i].u_idx))); /* --)-- */
 		text_out(buf);
 
 		/* Color */
@@ -2429,14 +2402,7 @@ static void spoil_mon_info(cptr fname)
 		text_out(buf);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
-		{
-			sprintf(buf, "Hp:%d  ", r_ptr->hdice * r_ptr->hside);
-		}
-		else
-		{
-			sprintf(buf, "Hp:%dd%d  ", r_ptr->hdice, r_ptr->hside);
-		}
+		sprintf(buf, "Hp:%d  ", r_ptr->life);
 		text_out(buf);
 
 		/* Armor Class */
@@ -2526,11 +2492,11 @@ static void spoil_mon_calc_aux(monster_list_entry *who, int n, int fset, u32b fl
 			/* Prefix */
 			if (who[i].u_idx) 
 			{
-				sprintf(nam, "[U] %s", name);
+				strnfmt(nam, sizeof(nam), "[U] %s", name);
 			}
 			else
 			{
-				sprintf(nam, "The %s", name);
+				strnfmt(nam, sizeof(nam), "The %s", name);
 			}
 
 			/* List monster */
@@ -2588,7 +2554,7 @@ static void spoil_mon_calc(cptr fname)
 	u16b why = 2;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2614,7 +2580,7 @@ static void spoil_mon_calc(cptr fname)
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Allocate the "who" array */
-	C_MAKE(who, M_LIST_ITEMS, monster_list_entry);
+	C_MAKE(who, MON_LIST_ITEMS, monster_list_entry);
 
 	/* Scan the monsters */
 	for (i = 1; i < z_info->r_max; i++)
@@ -2714,10 +2680,10 @@ static void spoil_mon_calc(cptr fname)
 	spoil_mon_calc_aux(who, n, 3, RF3_NO_FEAR, full);
 
 	fprintf(fff, "\n------------------\n");
-	fprintf(fff, "Res Conf\n");
+	fprintf(fff, "No Confusion\n");
 	fprintf(fff, "------------------\n");
 
-	spoil_mon_calc_aux(who, n, 3, RF3_RES_CONF, full);
+	spoil_mon_calc_aux(who, n, 3, RF3_NO_CONF, full);
 
 	fprintf(fff, "\n------------------\n");
 	fprintf(fff, "No Stun\n");

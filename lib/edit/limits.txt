@@ -8,7 +8,7 @@
 
 # Version stamp (required)
 
-V:0.4.6
+V:0.5.0
 
 # Maximum number of feature types
 M:F:42
@@ -17,7 +17,7 @@ M:F:42
 M:D:231
 
 # Maximum number of object kinds
-M:K:508
+M:K:545
 
 # Maximum number of artifacts
 M:A:167
@@ -29,10 +29,10 @@ S:A:31
 M:C:9
 
 # Maximum number of ego-item types
-M:E:145
+M:E:151
 
 # Maximum number of weapon prefix types
-M:X:25
+M:X:37
 
 # Maximum number of armor prefix types
 M:Y:9
@@ -47,10 +47,10 @@ M:R:667
 M:S:24
 
 # Maximum number of monster uniques
-M:U:112
+M:U:114
 
 # Maximum number of vaults
-M:V:38
+M:V:51
 
 # Maximum number of player races
 M:P:13

@@ -1,0 +1,290 @@
+Changes from 0.4.6 to 0.5.0:
+
+## Documentation ##
+
+- Complete updating and expansion of all in-game documentation.
+
+## Non-gameplay changes ##
+
+- Various coding improvements from Angband CVS.
+
+- General code cleanup.
+
+## Gameplay Changes ##
+
+- Character names can now be up to 31 letters long.
+
+- Changed the character display to show the current damage dice; also, the 
+  weight carried line shows maximum weight before slow down.
+
+- Limited the maximum size of floor stacks to 23, so that get_item() can
+  always display a list containing all objects. (Angband CVS)
+
+- Uniques won't show up as quest monsters before 250'.
+
+- The option to show either traps or objects when both are in the same
+  square removed. Instead, there is now an object to show either traps, or 
+  a special symbol ('&') which should make these squares easier to notice.
+
+- Many new vault types (mostly from Angband 3.0.1) added.
+
+- If the "display_recharge_msg" option is on, you will also get a message when
+  your racial ability (if any) is recharged.
+
+# Birth #
+
+- You now can see your race and class before setting up the autoroller (both
+  types). This makes it feasible to use the autorollers with random class
+  or race choice.
+
+- Weapons are no longer fixed per class; instead, you get the best weapon 
+  possible out of a small list, depending on your stats. Warriors, paladins
+  and spellswords get more choices; mystics still begin weaponless.
+   
+- Minor improvements to quick character generation - the prompt now accepts
+  upper-case responses, and if you reject the quick-generated character,
+  you are brought into the new character generation screen instead of being
+  asked again if you want a quick character.
+
+- You can no longer specify starting ego-items.
+
+# Races #
+
+- Some racial powers slightly modified.
+
+- Racial price adjustments in shops modified a bit.
+
+# Classes #
+
+- Two new class flags: BETTER_BLOWS, WORSE_BLOWS, which affect the amount of
+  blows a character gets with his weapon. BETTER_BLOWS is given to warriors,
+  WORSE_BLOWS to mages and mystics. All other classes get neither.
+
+- Priest spell selection modified slightly.
+
+- Some bard spells cost a little less mana.
+
+# Magic #
+
+- When learning spells, priests and paladins will no longer recieve spells that
+  cost more than their maximum mana.
+
+- New mage spell (in Kelek's) - Hypercharge. It reduces the recharge speed
+  for rods and talismans (permanently). You can only hypercharge single items,
+  not stacks.
+
+- Many spells toned down to reflect the lowered monster HPs.
+
+- Blight made more powerful.
+
+- Chant/Prayer now each last longer.
+
+- The priest spell "remove fear" replaced by "boldness", which now grants a
+  short-term protection from fear (in addition to removing fear).
+
+# Resistances #
+
+- Confusion is no longer a percentile resistance; the NO_CONF flag remains.
+
+# Combat #
+
+- Changed the chance to hit calculation. Now, a to-hit bonus on a weapon
+  is a lot more effective. 
+
+- Damage from unarmed combat now depends on your strength (number of blows 
+  depends on dexterity).
+
+- Brands/slays effect on damage are now rounded up. This makes them effective 
+  even on weapons with small damage dice.
+
+- The penalty for wiedling too-heavy weapons now increased - you also do 
+  less damage.
+
+- Plus to damage no longer exists. This involves major repurcussions in items,
+  and has major effects as to game balance.
+
+- Bow range is now a factor; arrows may modify the range avaiable. The ranges
+  for bows are much shorter than they used to be.
+
+- Bows can now have slays/brands, which are additively cumulative with arrow
+  slays/brands.
+
+- Confusion is no longer a damage type - it's only a status affecting attack.
+
+# Items #
+
+- Added new item flag - THROWING. Objects that have this flag do their 
+  full damage (as determined in the P: line) when thrown, as before. Objects
+  without this flag will do a small amount of damage based on their weight
+  when thrown. This is designed to prevent characters from throwing weapons
+  with huge damage dice, that they are not strong enough to wield, at monsters.
+
+- Bow tval is now 20; digger tval is now 25; and arrow tval is now 15.
+
+- Increased artifact saving throws to being smashes/blasted.
+
+- "Hafted" weapons are now referred to as "blunt" weapons, a more accurate
+  description, given that many polearms are also hafted.
+
+- Rings of resist disease and resist poison now provide immunity to the 
+  related effects as well as resistance to the appropriate damage.
+
+- Rings of resist confusion renamed rings of clarity; they no provide NO_CONF,
+  rather than (the now obsolete) confusion resistance.
+
+- Potions of neutralize potion and cure disease are now found in both 
+  the alchemist's shop and the temple.
+
+- Prefixes work differently. Now, they give a percentile modifier to average 
+  damage, and the game tries to give you as similar a weapon to the old one
+  that gives the new damage. This means that prefixes remain balanced and
+  meaningful for all weapon types. Also, prefixed items may now be of a 
+  different material than the base item (affects possible damage from
+  monster attacks), and they can affect item depth.
+
+- Prefixes can now alter the color of the prefixed items. Since this can 
+  cause some otherwise different items to have similar coloring (for 
+  instance, a sapphire hatchet will have the same symbol and color as a 
+  drum), it can be turned off by an option (allow_prefix_colors).
+
+- Crossbows, Slings, bolts and shots no longer exist.
+
+- Ego items can also modify damage dice by a percentile value.
+
+- Ego items can now be restricted to base items of a certain material, or 
+  weight range.
+
+- Many ego item types changed and added; some removed.
+
+- Many artifact weapons/shooters are now a different base type that they
+  used to be.
+
+- Many artifact/item activations powered down to reflect new monster HP 
+  levels.
+
+- If a weapon has slays/brands from multiple source (say, prefix and ego-type),
+  they are cumulative in an additive way - for example, a hunter's dagger 
+  gives x1.2 against animals, a weapon of slay animal gives x1.7 against 
+  animals, so a hunter's dagger of slay animal gives x1.9 against animals.
+
+- Talismans of rapid bolts slightly slowed up (from 2 turns to 3 turns).
+
+- If you are wielding an identified bow, 'I'nsepcting arrows will give you
+  information about their capabilites.
+
+- The format for displaying + to hit changed. Now, for weapons it appears in 
+  the same parantheses as the damage dice - (+1, 1d4). For bows, the display is 
+  (+0, x2, 8), where the last number is the bow's range in squares. Arrows are 
+  displayed as (+0, 1d4, +0), where the last plus is a range modifier.
+
+- Due to the above change, the SHOW_MODS flag was eliminated.
+
+- Rods/Talismans will *only* recharge when in your inventory. If left on the
+  ground, in your home, or sold to a shop, they will remain in their "charging"
+  state until you buy/pick them up again.
+
+- Elemental rings no longer give any AC bonus.
+
+- Add new mushroom types: amnesia, cure light wounds, stone skin.
+
+- Mushrooms of weakness/sickliness replaced my mushrooms of stupidity/naivity.
+
+- Cubragol, Sunstrike and Hellwind (both now bows) no longer allow branding of
+  arrows; instead, they offer the brands themselves.
+
+- Potions of boldness now grant a short-term protection from fear (in addition to
+  removing fear).
+
+# Monsters #
+
+- Monster letters re-organized.
+  - 'c'entipedes merged into 'I'nsects.
+  - 'f'elines are now 'c'ats.
+  - 'F'aeries now split into high level 'F'aeries and low level 'f'aeries.
+  - 'H'ags merged into the 'F'aeries. 'H'arpies remain.
+  - 'W'raiths/'W'ights mostly renamed into other undead types.
+  - 'l'ycanthropes are now 'W'erebeasts.
+  - 'p'eople reorganized; there are now 'l'ow level people, medium-level 
+    'p'eople, and high-level 'P'eople.
+
+- Many new monsters added, many monsters removed, and many monsters changed. 
+  Don't assume anything about monsters just because you know them in another 
+  variant (or an older version).
+
+- Since monster HPs have been reduced, increased that amount of damage caused
+  by most monster breaths relative to HP so that they still have approximately
+  the old damage levels. The caps remain unchanged.
+
+- Changed the way monster hit-points are derived. They no longer have hit dice.
+  Instead, they have a life-value, which is the average HP they get, and their
+  actual HP are generated within a normal distribution with the life as a mean.
+  Uniques always have the exact amount specified by their life rating. As a 
+  result, the FORCE_MAXHP flag has been eliminated (yes, this means that all
+  non-uniques with more than 1 life have variable HP).
+
+- Monsters in pits, and monster spawned while you're on the level, can now
+  be generated asleep.
+
+- Removed the FORCE_SLEEP flag - all monsters now follow this behavior. It was 
+  pointless because all monsters for whom it would have made a difference had
+  it.
+
+- SMART monsters are less likely to fall asleep after losing sight of you. 
+  STUPID monsters are more likely to do so. 
+
+- Since the STUPID and SMART flags affect several things besides spellcasting,
+  the monster memory has been changed to reflect this (it now tells you the 
+  monster is intelligent, rather than that it casts spells intelligently).
+
+- Rust and rot attacks made more dangerous.
+
+## Bug fixes ##
+
+- Fixed bugs which made uniques on the same base monster be generated in
+  order; also, fixed wizard command that summoned named unique (which 
+  would generate the wrong unique in the case of multiple ones on the 
+  same base). This fix also means that you can now get these uniques as 
+  quest monsters.
+
+- Some weirdness could occur when resizing the screen on small levels.
+
+- Monsters that KILL_WALL can no longer destroy quest chests.
+
+- Morgoth and Sauron cannot appear as the quest monster in guild quests.
+
+- Corrected which monsters are "destroyed".
+
+- Fixed bug with monsters being affected by more than one condition at once.
+
+- Fixed bug in squelch menus once you know more than 60 objects of the same 
+  type.
+
+- Trapdoors can no longer appear on fixed quest levels.
+
+- Display of charges for stacks of wands used different convention than 
+  staves.
+
+- Some deep pit types had incorrect descriptions.
+
+- Various bugfixes from Angband CVS.
+
+- Weapon damage calculations now correctly calculate blows for weapons with
+  extra blows.
+
+- Weapon damage calculations now appear in object recall term windows.
+
+- The damage calculation now appears for diggers.
+
+- Poison resistance didn't work correctly in some cases.
+
+- The message verifying leaving quest levels won't appear on special quests.
+
+- The weapon damage calculations no longer spoil un-ID'd items.
+
+- Some strangeness that could arise when selling/destroying rods/talismans
+  fixed.
+
+- Fixed display glitch if you get enough EXP to raise you more than one level
+  at once.
+
+- Fixed several minor bugs and typos.

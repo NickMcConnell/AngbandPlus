@@ -113,7 +113,7 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 	for (i = 0; i < OPT_PAGE_PER; i++)
 	{
 		/* Collect options on this "page" */
-		if (option_page[page][i] != 255)
+		if (option_page[page][i] != OPT_NONE)
 		{
 			opt[n++] = option_page[page][i];
 		}
@@ -140,13 +140,13 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 		/* Title */
 		if (type == OPT_TYPE_BIRTH) 
 		{
-			sprintf (buf1, "%s - Changes will only affect the next character.", info);
+			strnfmt(buf1, sizeof(buf1), "%s - Changes will only affect the next character.", info);
 			prt (buf1, 0, 0);
 		}
 		else if (type == OPT_TYPE_CHEAT) prt("Cheat options - These options affect scoring.",0,0);
 		else 
 		{
-			sprintf (buf1, "%s - ", info);
+			strnfmt(buf1, sizeof(buf1), "%s - ", info);
 			prt (buf1, 0, 0);
 		}
 
@@ -164,18 +164,18 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 			/* Display the option text */
 			if (type == OPT_TYPE_NORMAL) 
 			{
-				sprintf (buf1, "%s",options[opt[i]].descript);
-				sprintf(buf2, "(%s)", options[opt[i]].text);
+				strnfmt(buf1, sizeof(buf1), "%s",options[opt[i]].descript);
+				strnfmt(buf2, sizeof(buf2), "(%s)", options[opt[i]].text);
 			}
 			else if (type == OPT_TYPE_CHEAT) 
 			{
-				sprintf (buf1, "Cheat: %s",options_cheat[opt[i]].descript);
-				sprintf(buf2, "(%s)", options_cheat[opt[i]].text);
+				strnfmt(buf1, sizeof(buf1), "Cheat: %s",options_cheat[opt[i]].descript);
+				strnfmt(buf2, sizeof(buf2), "(%s)", options_cheat[opt[i]].text);
 			}
 			else 
 			{	
-				sprintf (buf1, "Birth: %s",options_birth[opt[i]].descript);
-				sprintf(buf2, "(%s)", options_birth[opt[i]].text);
+				strnfmt(buf1, sizeof(buf1), "Birth: %s",options_birth[opt[i]].descript);
+				strnfmt(buf2, sizeof(buf2), "(%s)", options_birth[opt[i]].text);
 			}
 
 			c_prt(a, buf1, i + 3, 0);
@@ -281,18 +281,18 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 				{
 					case (OPT_TYPE_CHEAT):
 					{
-						sprintf(buf1, "demo.xml", options_cheat[opt[k]].text);
+						strnfmt(buf1, sizeof(buf1), "demo.xml", options_cheat[opt[k]].text);
 						break;
 					}
 					case (OPT_TYPE_BIRTH):
 					case (OPT_TYPE_ADULT):
 					{
-						sprintf(buf1, "demo.xml", options_birth[opt[k]].text);
+						strnfmt(buf1, sizeof(buf1), "demo.xml", options_birth[opt[k]].text);
 						break;
 					}
 					default:
 					{
-						sprintf(buf1, "demo.xml", options[opt[k]].text);
+						strnfmt(buf1, sizeof(buf1), "demo.xml", options[opt[k]].text);
 						break;
 					}
 				}
@@ -304,18 +304,18 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 				{
 					case (OPT_TYPE_CHEAT):
 					{
-						sprintf(buf1, "cheatopt.txt#%s", options_cheat[opt[k]].text);
+						strnfmt(buf1, sizeof(buf1), "cheatopt.txt#%s", options_cheat[opt[k]].text);
 						break;
 					}
 					case (OPT_TYPE_BIRTH):
 					case (OPT_TYPE_ADULT):
 					{
-						sprintf(buf1, "birthopt.txt#%s", options_birth[opt[k]].text);
+						strnfmt(buf1, sizeof(buf1), "birthopt.txt#%s", options_birth[opt[k]].text);
 						break;
 					}
 					default:
 					{
-						sprintf(buf1, "option.txt#%s", options[opt[k]].text);
+						strnfmt(buf1, sizeof(buf1), "option.txt#%s", options[opt[k]].text);
 						break;
 					}
 				}
@@ -501,7 +501,7 @@ static errr option_dump(cptr fname)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -600,8 +600,7 @@ static errr option_dump(cptr fname)
 			if (!window_flag_desc[j]) continue;
 
 			/* Comment */
-			fprintf(fff, "# Window '%s', Flag '%s'\n",
-			        angband_term_name[i], window_flag_desc[j]);
+			fprintf(fff, "# Window '%s', Flag '%s'\n", angband_term_name[i], window_flag_desc[j]);
 
 			/* Dump the flag */
 			if (op_ptr->window_flag[i] & (1L << j))
@@ -724,10 +723,10 @@ static void do_cmd_pref_file_hack(int row)
 	prt("File: ", row + 2, 0);
 
 	/* Default filename */
-	sprintf(ftmp, "%s.prf", op_ptr->base_name);
+	strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 	/* Ask for a file (or cancel) */
-	if (!askfor_aux(ftmp, 80)) return;
+	if (!askfor_aux(ftmp, sizeof(ftmp))) return;
 
 	/* Process the given filename */
 	if (process_pref_file(ftmp))
@@ -788,7 +787,6 @@ void do_cmd_options(void)
 		/* Load and Append */
 		prt("(L) Load a user pref file", 18, 5);
 		prt("(A) Append options to a file", 19, 5);
-
 
 		/* Prompt */
 		prt("Command: ", 21, 0);
@@ -872,10 +870,10 @@ void do_cmd_options(void)
 			prt("File: ", 21, 0);
 
 			/* Default filename */
-			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80)) continue;
+			if (!askfor_aux(ftmp, sizeof(ftmp))) continue;
 
 			/* Drop priv's */
 			safe_setuid_drop();
@@ -913,7 +911,7 @@ void do_cmd_options(void)
 
 				cx = inkey();
 				if (cx == ESCAPE) break;
-				if (isdigit(cx)) op_ptr->delay_factor = D2I(cx);
+				if (isdigit((unsigned char)cx)) op_ptr->delay_factor = D2I(cx);
 				else bell("Illegal delay factor!");
 			}
 		}
@@ -934,7 +932,7 @@ void do_cmd_options(void)
 
 				cx = inkey();
 				if (cx == ESCAPE) break;
-				if (isdigit(cx)) op_ptr->hitpoint_warn = D2I(cx);
+				if (isdigit((unsigned char)cx)) op_ptr->hitpoint_warn = D2I(cx);
 				else bell("Illegal hitpoint warning!");
 			}
 		}
@@ -961,6 +959,9 @@ void do_cmd_options(void)
 
 	/* Load screen */
 	screen_load();
+
+	/* Hack - Redraw everything */
+	do_cmd_redraw();
 }
 
 /*
@@ -974,7 +975,7 @@ void do_cmd_pref(void)
 	strcpy(tmp, "");
 
 	/* Ask for a "user pref command" */
-	if (!get_string("Pref: ", tmp, 80)) return;
+	if (!get_string("Pref: ", tmp, sizeof(tmp))) return;
 
 	/* Process that pref command */
 	(void)process_pref_file_command(tmp);
@@ -993,9 +994,8 @@ static errr macro_dump(cptr fname)
 
 	char buf[1024];
 
-
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1005,7 +1005,6 @@ static errr macro_dump(cptr fname)
 
 	/* Failure */
 	if (!fff) return (-1);
-
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
@@ -1063,7 +1062,6 @@ static void do_cmd_macro_aux(char *buf)
 
 	char tmp[1024];
 
-
 	/* Flush */
 	flush();
 
@@ -1103,7 +1101,6 @@ static void do_cmd_macro_aux(char *buf)
 	Term_addstr(-1, TERM_WHITE, tmp);
 }
 
-
 /*
  * Hack -- ask for a keymap "trigger" (see below)
  *
@@ -1114,15 +1111,12 @@ static void do_cmd_macro_aux_keymap(char *buf)
 {
 	char tmp[1024];
 
-
 	/* Flush */
 	flush();
-
 
 	/* Get a key */
 	buf[0] = inkey();
 	buf[1] = '\0';
-
 
 	/* Convert to ascii */
 	ascii_to_text(tmp, sizeof(tmp), buf);
@@ -1130,11 +1124,9 @@ static void do_cmd_macro_aux_keymap(char *buf)
 	/* Hack -- display the trigger */
 	Term_addstr(-1, TERM_WHITE, tmp);
 
-
 	/* Flush */
 	flush();
 }
-
 
 /*
  * Hack -- Append all keymaps to the given file.
@@ -1152,19 +1144,13 @@ static errr keymap_dump(cptr fname)
 	int mode;
 
 	/* Roguelike */
-	if (rogue_like_commands)
-	{
-		mode = KEYMAP_MODE_ROGUE;
-	}
+	if (rogue_like_commands) mode = KEYMAP_MODE_ROGUE;
 
 	/* Original */
-	else
-	{
-		mode = KEYMAP_MODE_ORIG;
-	}
+	else mode = KEYMAP_MODE_ORIG;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1269,7 +1255,6 @@ void do_cmd_macros(void)
 		/* Describe */
 		prt("Interact with Macros", 2, 0);
 
-
 		/* Describe that action */
 		prt("Current action (if any) shown below:", 20, 0);
 
@@ -1279,10 +1264,11 @@ void do_cmd_macros(void)
 		/* Display the current action */
 		prt(tmp, 22, 0);
 
-
 		/* Selections */
 		prt("(1) Load a user pref file", 4, 5);
+
 #ifdef ALLOW_MACROS
+
 		prt("(2) Append macros to a file", 5, 5);
 		prt("(3) Query a macro", 6, 5);
 		prt("(4) Create a macro", 7, 5);
@@ -1292,6 +1278,7 @@ void do_cmd_macros(void)
 		prt("(8) Create a keymap", 11, 5);
 		prt("(9) Remove a keymap", 12, 5);
 		prt("(0) Enter a new action", 13, 5);
+
 #endif /* ALLOW_MACROS */
 
 		/* Prompt */
@@ -1324,10 +1311,10 @@ void do_cmd_macros(void)
 			prt("File: ", 18, 0);
 
 			/* Default filename */
-			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80)) continue;
+			if (!askfor_aux(ftmp, sizeof(ftmp))) continue;
 
 			/* Drop priv's */
 			safe_setuid_drop();
@@ -1370,7 +1357,7 @@ void do_cmd_macros(void)
 			else
 			{
 				/* Obtain the action */
-				strcpy(macro_buffer, macro__act[k]);
+				my_strcpy(macro_buffer, macro__act[k], sizeof(macro_buffer));
 
 				/* Analyze the current action */
 				ascii_to_text(tmp, sizeof(tmp), macro_buffer);
@@ -1405,7 +1392,7 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80))
+			if (askfor_aux(tmp, sizeof(tmp)))
 			{
 				/* Convert to ascii */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
@@ -1449,10 +1436,10 @@ void do_cmd_macros(void)
 			prt("File: ", 18, 0);
 
 			/* Default filename */
-			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
-			if (!askfor_aux(ftmp, 80)) continue;
+			if (!askfor_aux(ftmp, sizeof(ftmp))) continue;
 
 			/* Drop priv's */
 			safe_setuid_drop();
@@ -1495,7 +1482,7 @@ void do_cmd_macros(void)
 			else
 			{
 				/* Obtain the action */
-				strcpy(macro_buffer, act);
+				my_strcpy(macro_buffer, act, sizeof(macro_buffer));
 
 				/* Analyze the current action */
 				ascii_to_text(tmp, sizeof(tmp), macro_buffer);
@@ -1530,7 +1517,7 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80))
+			if (askfor_aux(tmp, sizeof(tmp)))
 			{
 				/* Convert to ascii */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
@@ -1581,7 +1568,7 @@ void do_cmd_macros(void)
 			ascii_to_text(tmp, sizeof(tmp), macro_buffer);
 
 			/* Get an encoded action */
-			if (askfor_aux(tmp, 80))
+			if (askfor_aux(tmp, sizeof(tmp)))
 			{
 				/* Extract an action */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
@@ -1680,13 +1667,13 @@ void do_cmd_visuals(void)
 			prt("File: ", 17, 0);
 
 			/* Default filename */
-			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 			/* Get a filename */
-			if (!askfor_aux(ftmp, 80)) continue;
+			if (!askfor_aux(ftmp, sizeof(ftmp))) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, ftmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
 
 			/* Drop priv's */
 			safe_setuid_drop();
@@ -1744,13 +1731,13 @@ void do_cmd_visuals(void)
 			prt("File: ", 17, 0);
 
 			/* Default filename */
-			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 			/* Get a filename */
-			if (!askfor_aux(ftmp, 80)) continue;
+			if (!askfor_aux(ftmp, sizeof(ftmp))) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, ftmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
 
 			/* Drop priv's */
 			safe_setuid_drop();
@@ -1763,7 +1750,6 @@ void do_cmd_visuals(void)
 
 			/* Failure */
 			if (!fff) continue;
-
 
 			/* Skip some lines */
 			fprintf(fff, "\n\n");
@@ -1809,13 +1795,13 @@ void do_cmd_visuals(void)
 			prt("File: ", 17, 0);
 
 			/* Default filename */
-			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 			/* Get a filename */
-			if (!askfor_aux(ftmp, 80)) continue;
+			if (!askfor_aux(ftmp, sizeof(ftmp))) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, ftmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
 
 			/* Drop priv's */
 			safe_setuid_drop();
@@ -1828,7 +1814,6 @@ void do_cmd_visuals(void)
 
 			/* Failure */
 			if (!fff) continue;
-
 
 			/* Skip some lines */
 			fprintf(fff, "\n\n");
@@ -2129,13 +2114,13 @@ void do_cmd_colors(void)
 			prt("File: ", 10, 0);
 
 			/* Default filename */
-			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
 
 			/* Get a filename */
-			if (!askfor_aux(ftmp, 80)) continue;
+			if (!askfor_aux(ftmp, sizeof(ftmp))) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, ftmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
 
 			/* Drop priv's */
 			safe_setuid_drop();
@@ -2148,7 +2133,6 @@ void do_cmd_colors(void)
 
 			/* Failure */
 			if (!fff) continue;
-
 
 			/* Skip some lines */
 			fprintf(fff, "\n\n");
@@ -2286,7 +2270,7 @@ void do_cmd_save_screen_text(void)
  
 	/* Ask for a file */ 
 	strcpy(tmp_val, "dump.txt");
-	if (!get_string("File: ", tmp_val, 80)) return;
+	if (!get_string("File: ", tmp_val, sizeof(tmp_val))) return;
 	text_screenshot(tmp_val);
 
 	/* Message */
@@ -2303,7 +2287,7 @@ void do_cmd_save_screen_html(void)
  
 	/* Ask for a file */ 
 	strcpy(tmp_val, "dump.html");
-	if (!get_string("File: ", tmp_val, 80)) return;
+	if (!get_string("File: ", tmp_val, sizeof(tmp_val))) return;
 	html_screenshot(tmp_val);
 
 	/* Message */

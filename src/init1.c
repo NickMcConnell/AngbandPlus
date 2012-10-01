@@ -48,7 +48,7 @@
 /*
  * Monster Blow Methods
  */
-static cptr r_info_blow_method[] =
+static cptr r_info_blow_method[RBM_MAX] =
 {
 	"",
 	"HIT",
@@ -71,15 +71,14 @@ static cptr r_info_blow_method[] =
 	"SPORE",
 	"BEG",
 	"INSULT",
-	"MOAN",
-	NULL
+	"MOAN"
 };
 
 
 /*
  * Monster Blow Effects
  */
-static cptr r_info_blow_effect[] =
+static cptr r_info_blow_effect[RBE_MAX] =
 {
 	"",
 	"HURT",
@@ -114,7 +113,7 @@ static cptr r_info_blow_effect[] =
 	"RUST",
 	"ROT",
 	"HALLU",
-	NULL
+	"TAINT"
 };
 
 
@@ -131,10 +130,10 @@ static cptr r_info_flags1[32] =
 	"CHAR_CLEAR",
 	"STUPID",
 	"SMART",	
-	"FORCE_MAXHP",
-	"FORCE_SLEEP",	
-	"MULTIPLY",
 	"XXX1",
+	"XXX2",	
+	"MULTIPLY",
+	"XXX3",
 	"COMPANION",
 	"GRP_9",	
 	"GRP_18",
@@ -211,6 +210,7 @@ static cptr r_info_flags3[32] =
 	"NO_SLEEP",
 	"NO_CUT",
 	"NO_CALM",
+	"NO_CONF",
 	"RES_ACID",
 	"RES_ELEC",
 	"RES_FIRE",
@@ -219,7 +219,6 @@ static cptr r_info_flags3[32] =
 	"RES_NETH",
 	"RES_LITE",
 	"RES_DARK",
-	"RES_CONF",
 	"RES_SOUN",
 	"RES_CHAO",
 	"RES_DISE",
@@ -295,7 +294,6 @@ static cptr r_info_s_flags1[32] =
 	"BR_NETH",
 	"BR_LITE",
 	"BR_DARK",
-	"BR_CONF",
 	"BR_SOUN",
 	"BR_CHAO",
 	"BR_DISE",
@@ -310,7 +308,8 @@ static cptr r_info_s_flags1[32] =
 	"BR_WATER",
 	"BR_DISEASE",
 	"XXX4",
-	"XXX5"
+	"XXX5",
+	"XXX6"
 };
 
 /*
@@ -408,7 +407,7 @@ static cptr c_info_flags[32] =
 	"EXTRA_SPELL",	
 	"PSEUDO_ID_HEAVY",	
 	"CHOOSE_SPELLS",			
-	"MUSIC",			
+	"SUB_SPELLS",			
 	"LORE",			
 	"BETTER_CRITICAL",			
 	"BETTER_SHOT",			
@@ -417,12 +416,12 @@ static cptr c_info_flags[32] =
 	"TRAP_KNOW",			
 	"TRAP_PLACE",
 	"APPRAISE",
-	"SUB_SPELL",			
-	"XXX1",			
-	"XXX2",		
-	"XXX3",	
-	"XXX4",	
-	"XXX5",	
+	"MUSIC",			
+	"BETTER_BLOWS",
+	"WORSE_BLOWS",		
+	"WEAPON_GOOD",
+	"WEAPON_NONE",	
+	"XXX1",	
 	"PSEUDO_ID1",
 	"PSEUDO_ID2",
 	"PSEUDO_ID3",
@@ -507,6 +506,7 @@ static cptr k_info_flags1[32] =
 	"MANA",
 	"HEALTH",
 	"MIGHT",
+	"RANGE",
 	"XXX3",
 	"XXX4",
 	"XXX5",
@@ -514,7 +514,6 @@ static cptr k_info_flags1[32] =
 	"XXX7",
 	"XXX8",
 	"XXX9",
-	"XXX10",
 	"SUST_STR",
 	"SUST_INT",
 	"SUST_WIS",
@@ -546,6 +545,7 @@ static cptr k_info_flags2[32] =
 	"XXX7",
 	"XXX8",
 	"XXX9",
+	"THROWING",
 	"XXX10",
 	"XXX11",
 	"XXX12",
@@ -555,7 +555,6 @@ static cptr k_info_flags2[32] =
 	"XXX16",
 	"XXX17",
 	"XXX18",
-	"XXX19",
 	"BLESSED",
 	"WOUNDING",
 	"TERROR",
@@ -586,10 +585,10 @@ static cptr k_info_flags3[32] =
 	"XXX2",
 	"EASY_KNOW",
 	"HIDE_TYPE",
-	"SHOW_MODS",
 	"XXX3",
 	"XXX4",
 	"XXX5",
+	"XXX6",
 	"TAINT",
 	"DRAIN_ITEM",
 	"DISRUPT",
@@ -636,7 +635,6 @@ static cptr k_info_act[POW_MAX] =
 	"GAIN_CHR",
 	"GAIN_ALL",
 	"GAIN_EXP",
-	"CURE_FEAR",
 	"CURE_CONFUSION",
 	"CURE_DISEASE",
 	"CURE_POISON",
@@ -665,6 +663,7 @@ static cptr k_info_act[POW_MAX] =
 	"BOLT_ELEC_X",
 	"BOLT_FIRE_1",
 	"BOLT_FIRE_2",
+	"BOLT_FIRE_3",
 	"BOLT_FIRE_X",
 	"BOLT_COLD_1",
 	"BOLT_COLD_2",
@@ -688,6 +687,7 @@ static cptr k_info_act[POW_MAX] =
 	"BALL_ELEC_X",
 	"BALL_FIRE_1",
 	"BALL_FIRE_2",
+	"BALL_FIRE_3",
 	"BALL_FIRE_X",
 	"BALL_COLD_1",
 	"BALL_COLD_2",
@@ -696,8 +696,10 @@ static cptr k_info_act[POW_MAX] =
 	"BALL_POISON",
 	"BALL_POISON_X",
 	"BALL_SOUND",
+	"BALL_PLASMA",
 	"BALL_MANA",
-	"BALL_HOLY",
+	"BALL_HOLY_1",
+	"BALL_HOLY_2",
 	"BALL_COLD_ELEC_X",
 	"BALL_FIRE_ACID_X",
 	"BALL_ELEM_X",
@@ -713,6 +715,7 @@ static cptr k_info_act[POW_MAX] =
 	"DISPEL_ALL",
 	"DISPEL_UNDEAD_1",
 	"DISPEL_UNDEAD_2",
+	"DISPEL_DEMON",
 	"DISPEL_NON_EVIL",
 	"DISPEL_EVIL_3",
 	"DISPEL_EVIL_4",
@@ -723,7 +726,8 @@ static cptr k_info_act[POW_MAX] =
 	"MASS_GENOCIDE",
 	"EARTHQUAKE",
 	"DESTRUCTION",
-	"LIGHT_AREA",
+	"LIGHT_AREA_1",
+	"LIGHT_AREA_2",
 	"DARK_AREA",
 	"DETECT_MONSTERS",
 	"DETECT_EVIL",
@@ -740,6 +744,7 @@ static cptr k_info_act[POW_MAX] =
 	"BLESS_2",
 	"BLESS_3",
 	"HEROISM",
+	"BOLDNESS",
 	"STABILITY",
 	"RAGE_1",
 	"RAGE_2",
@@ -751,7 +756,8 @@ static cptr k_info_act[POW_MAX] =
 	"INFRAVISION",
 	"STEALTH",
 	"SEE_INVIS",
-	"PROT_EVIL",
+	"PROT_EVIL_1",
+	"PROT_EVIL_2",
 	"HASTE_SELF_1",
 	"HASTE_SELF_2",
 	"HASTE_SELF_3",
@@ -782,7 +788,6 @@ static cptr k_info_act[POW_MAX] =
 	"CALM_ALL",
 	"BLIND_MONSTER",
 	"SCARE_MONSTER",
-	"SCARE_UNDEAD",
 	"SCARE_ALL",
 	"CALL_MONSTER",
 	"POLY_MONSTER",
@@ -793,7 +798,7 @@ static cptr k_info_act[POW_MAX] =
 	"RECHARGE_1",
 	"RECHARGE_2",
 	"RECHARGE_3",
-	"RECHARGE_4",
+	"HYPERCHARGE",
 	"IDENTIFY",
 	"IDENTIFY_PACK",
 	"IDENTIFY_FULL",
@@ -822,19 +827,15 @@ static cptr k_info_act[POW_MAX] =
 	"PROBE_MONSTER",
 	"PROBE_ALL",
 	"KNOW_ALL",
-	"ENCHANT_WEAPON_HIT",
-	"ENCHANT_WEAPON_DAM",
-	"ENCHANT_WEAPON",
+	"ENCHANT_WEAPON_1",
+	"ENCHANT_WEAPON_2",
 	"ENCHANT_ARMOR_1",
 	"ENCHANT_ARMOR_2",
 	"BRAND_WEAPON_ELMNT",
-	"BRAND_ARROW_ANML",
-	"BRAND_ARROW_WOUND",
-	"BRAND_ARROW_ELMNT",
-	"BRAND_BOLT_FIRE",
-	"BRAND_BOLT_LITE",
-	"BRAND_SHOT_POIS",
-	"BRAND_SHOT_HOLY",
+	"BRAND_AMMO_ANML",
+	"BRAND_AMMO_WOUND",
+	"BRAND_AMMO_ELMNT",
+	"BRAND_AMMO_HOLY",
 	"BIZZARE",
 	"CURSE_EQUIP_1",
 	"CURSE_EQUIP_2",
@@ -852,6 +853,7 @@ static cptr k_info_act[POW_MAX] =
 	"DISEASE",
 	"DEFORM",
 	"TAINT",
+	"AMNESIA",
 	"LOSE_STR",
 	"LOSE_INT",
 	"LOSE_WIS",
@@ -2067,20 +2069,19 @@ errr parse_k_info(char *buf, header *head)
 	/* Hack -- Process 'P' for "power" and such */
 	else if (buf[0] == 'P')
 	{
-		int ac, hd1, hd2, th, td, ta;
+		int ac, hd1, hd2, th, ta;
 
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &ac, &hd1, &hd2, &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%dd%d:%d:%d",
+			            &ac, &hd1, &hd2, &th, &ta)) return (PARSE_ERROR_GENERIC);
 
 		k_ptr->ac = ac;
 		k_ptr->dd = hd1;
 		k_ptr->ds = hd2;
 		k_ptr->to_h = th;
-		k_ptr->to_d = td;
 		k_ptr->to_a =  ta;
 	}
 
@@ -2124,16 +2125,16 @@ errr parse_k_info(char *buf, header *head)
 	else if (buf[0] == 'O')
 	{
 		int acd, elc, fir, cld, wtr, psn, dis, lit, drk;
-		int cnf, snd, shr, nex, nth, chs, dsn, tim, mna;
+		int snd, shr, nex, nth, chs, dsn, tim, mna;
 
 		/* There better be a current pr_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (18 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		if (17 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &acd, &elc, &fir, &cld, &wtr, &psn,
-						&dis, &lit, &drk, &cnf, &snd, &shr,
-						&nex, &nth, &chs, &dsn, &tim, &mna)) return (PARSE_ERROR_GENERIC);
+						&dis, &lit, &drk, &snd, &shr, &nex, 
+						&nth, &chs, &dsn, &tim, &mna)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		k_ptr->res[RS_ACD] = acd;
@@ -2145,7 +2146,6 @@ errr parse_k_info(char *buf, header *head)
 		k_ptr->res[RS_DIS] = dis;
 		k_ptr->res[RS_LIT] = lit;
 		k_ptr->res[RS_DRK] = drk;
-		k_ptr->res[RS_CNF] = cnf;
 		k_ptr->res[RS_SND] = snd;
 		k_ptr->res[RS_SHR] = shr;
 		k_ptr->res[RS_NEX] = nex;
@@ -2307,20 +2307,19 @@ errr parse_a_info(char *buf, header *head)
 	/* Process 'P' for "power" and such */
 	else if (buf[0] == 'P')
 	{
-		int ac, hd1, hd2, th, td, ta;
+		int ac, hd1, hd2, th, ta;
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &ac, &hd1, &hd2, &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%dd%d:%d:%d:",
+			            &ac, &hd1, &hd2, &th, &ta)) return (PARSE_ERROR_GENERIC);
 
 		a_ptr->ac = ac;
 		a_ptr->dd = hd1;
 		a_ptr->ds = hd2;
 		a_ptr->to_h = th;
-		a_ptr->to_d = td;
 		a_ptr->to_a = ta;
 	}
 
@@ -2364,16 +2363,16 @@ errr parse_a_info(char *buf, header *head)
 	else if (buf[0] == 'O')
 	{
 		int acd, elc, fir, cld, wtr, psn, dis, lit, drk;
-		int cnf, snd, shr, nex, nth, chs, dsn, tim, mna;
+		int snd, shr, nex, nth, chs, dsn, tim, mna;
 
 		/* There better be a current pr_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (18 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		if (17 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &acd, &elc, &fir, &cld, &wtr, &psn,
-						&dis, &lit, &drk, &cnf, &snd, &shr,
-						&nex, &nth, &chs, &dsn, &tim, &mna)) return (PARSE_ERROR_GENERIC);
+						&dis, &lit, &drk, &snd, &shr, &nex, 
+						&nth, &chs, &dsn, &tim, &mna)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		a_ptr->res[RS_ACD] = acd;
@@ -2385,7 +2384,6 @@ errr parse_a_info(char *buf, header *head)
 		a_ptr->res[RS_DIS] = dis;
 		a_ptr->res[RS_LIT] = lit;
 		a_ptr->res[RS_DRK] = drk;
-		a_ptr->res[RS_CNF] = cnf;
 		a_ptr->res[RS_SND] = snd;
 		a_ptr->res[RS_SHR] = shr;
 		a_ptr->res[RS_NEX] = nex;
@@ -2600,20 +2598,38 @@ errr parse_e_info(char *buf, header *head)
 		if (cur_t > EGO_TVALS_MAX) return (PARSE_ERROR_GENERIC);
 	}
 
+	/* Process 'M' (one line only) */
+	else if (buf[0] == 'M')
+	{
+		int bas, min_w, max_w;
+
+		/* There better be a current wpx_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the other values */
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+			            &bas, &min_w, &max_w)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		e_ptr->base_material = bas;
+		e_ptr->min_weight = min_w;
+		e_ptr->max_weight = max_w;
+	}
+
 	/* Hack -- Process 'C' for "creation" */
 	else if (buf[0] == 'C')
 	{
-		int th, td, ta, pv;
+		int th, perc, ta, pv;
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &th, &td, &ta, &pv)) return (PARSE_ERROR_GENERIC);
+			            &th, &perc, &ta, &pv)) return (PARSE_ERROR_GENERIC);
 
 		e_ptr->max_to_h = th;
-		e_ptr->max_to_d = td;
+		e_ptr->d_perc = perc;
 		e_ptr->max_to_a = ta;
 		e_ptr->max_pval = pv;
 	}
@@ -2658,16 +2674,16 @@ errr parse_e_info(char *buf, header *head)
 	else if (buf[0] == 'O')
 	{
 		int acd, elc, fir, cld, wtr, psn, dis, lit, drk;
-		int cnf, snd, shr, nex, nth, chs, dsn, tim, mna;
+		int snd, shr, nex, nth, chs, dsn, tim, mna;
 
 		/* There better be a current pr_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (18 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		if (17 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &acd, &elc, &fir, &cld, &wtr, &psn,
-						&dis, &lit, &drk, &cnf, &snd, &shr,
-						&nex, &nth, &chs, &dsn, &tim, &mna)) return (PARSE_ERROR_GENERIC);
+						&dis, &lit, &drk, &snd, &shr, &nex, 
+						&nth, &chs, &dsn, &tim, &mna)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		e_ptr->res[RS_ACD] = acd;
@@ -2679,7 +2695,6 @@ errr parse_e_info(char *buf, header *head)
 		e_ptr->res[RS_DIS] = dis;
 		e_ptr->res[RS_LIT] = lit;
 		e_ptr->res[RS_DRK] = drk;
-		e_ptr->res[RS_CNF] = cnf;
 		e_ptr->res[RS_SND] = snd;
 		e_ptr->res[RS_SHR] = shr;
 		e_ptr->res[RS_NEX] = nex;
@@ -2793,42 +2808,79 @@ errr parse_wpx_info(char *buf, header *head)
 		cur_t = 0;
 	}
 
+	/* Process 'G' for "Graphics" (one line only) */
+	else if (buf[0] == 'G')
+	{
+		int tmp;
+		byte clr;
+
+		/* There better be a current d_ptr */
+		if (!wpx_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (1 != sscanf(buf+2, "%c", &clr)) return (PARSE_ERROR_GENERIC);
+
+		/* Extract the attr */
+		tmp = color_char_to_attr(clr);
+
+		/* Paranoia */
+		if (tmp < 0) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		wpx_ptr->d_attr = tmp;
+	}
+
 	/* Process 'W' (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int rar, mat, cst, wgt;
+		int dep, rar, cst, wgt;
 
 		/* There better be a current wpx_ptr */
 		if (!wpx_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &rar, &mat, &wgt, &cst)) return (PARSE_ERROR_GENERIC);
+			            &dep, &rar, &wgt, &cst)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
+		wpx_ptr->depth = dep;
 		wpx_ptr->rarity = rar;
-		wpx_ptr->material = mat;
 		wpx_ptr->cost = cst;
 		wpx_ptr->weight = wgt;
+	}
+
+	/* Process 'M' (one line only) */
+	else if (buf[0] == 'M')
+	{
+		int bas, act;
+
+		/* There better be a current wpx_ptr */
+		if (!wpx_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the other values */
+		if (2 != sscanf(buf+2, "%d:%d",
+			            &bas, &act)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		wpx_ptr->base_material = bas;
+		wpx_ptr->actual_material = act;
 	}
 
 	/* Process 'P' (one line only) */
 	else if (buf[0] == 'P')
 	{
-		int th, td, dd, ds;
+		int th, prc;
 
 		/* There better be a current wpx_ptr */
 		if (!wpx_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &th, &td, &dd, &ds)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(buf+2, "%d:%d",
+			            &th, &prc)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		wpx_ptr->to_h = th;
-		wpx_ptr->to_d = td;
-		wpx_ptr->dd = dd;
-		wpx_ptr->ds = ds;
+		wpx_ptr->d_perc = prc;
 	}
 
 	/* Process 'K' for "Kill bonuses" (one line only) */
@@ -2972,23 +3024,62 @@ errr parse_apx_info(char *buf, header *head)
 		cur_t = 0;
 	}
 
+	/* Process 'G' for "Graphics" (one line only) */
+	else if (buf[0] == 'G')
+	{
+		int tmp;
+		byte clr;
+
+		/* There better be a current d_ptr */
+		if (!apx_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (1 != sscanf(buf+2, "%c", &clr)) return (PARSE_ERROR_GENERIC);
+
+		/* Extract the attr */
+		tmp = color_char_to_attr(clr);
+
+		/* Paranoia */
+		if (tmp < 0) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		apx_ptr->d_attr = tmp;
+	}
+
 	/* Process 'W' (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int rar, mat, cst, wgt;
+		int dep, rar, cst, wgt;
 
 		/* There better be a current wpx_ptr */
 		if (!apx_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &rar, &mat, &wgt, &cst)) return (PARSE_ERROR_GENERIC);
+			            &dep, &rar, &wgt, &cst)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
+		apx_ptr->depth = dep;
 		apx_ptr->rarity = rar;
-		apx_ptr->material = mat;
 		apx_ptr->cost = cst;
 		apx_ptr->weight = wgt;
+	}
+
+	/* Process 'M' (one line only) */
+	else if (buf[0] == 'M')
+	{
+		int bas, act;
+
+		/* There better be a current wpx_ptr */
+		if (!apx_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the other values */
+		if (2 != sscanf(buf+2, "%d:%d",
+			            &bas, &act)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		apx_ptr->base_material = bas;
+		apx_ptr->actual_material = act;
 	}
 
 	/* Process 'P' (one line only) */
@@ -3349,19 +3440,18 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int spd, hp1, hp2, aaf, ac, slp;
+		int spd, lif, aaf, ac, slp;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			            &spd, &lif, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->speed = spd;
-		r_ptr->hdice = hp1;
-		r_ptr->hside = hp2;
+		r_ptr->life = lif;
 		r_ptr->aaf = aaf;
 		r_ptr->ac = ac;
 		r_ptr->sleep = slp;
@@ -3370,15 +3460,15 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int lev, rar, pad;
+		int lev, rar;
 		long exp;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &lev, &rar, &pad, &exp)) return (PARSE_ERROR_GENERIC);
+		if (3 != sscanf(buf+2, "%d:%d:%ld",
+			            &lev, &rar, &exp)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->level = lev;
@@ -3407,7 +3497,7 @@ errr parse_r_info(char *buf, header *head)
 		if (*t == ':') *t++ = '\0';
 
 		/* Analyze the method */
-		for (n1 = 0; r_info_blow_method[n1]; n1++)
+		for (n1 = 0; n1 < RBM_MAX; n1++)
 		{
 			if (streq(s, r_info_blow_method[n1])) break;
 		}
@@ -3422,7 +3512,7 @@ errr parse_r_info(char *buf, header *head)
 		if (*t == ':') *t++ = '\0';
 
 		/* Analyze effect */
-		for (n2 = 0; r_info_blow_effect[n2]; n2++)
+		for (n2 = 0; n2 < RBE_MAX; n2++)
 		{
 			if (streq(s, r_info_blow_effect[n2])) break;
 		}
@@ -3660,19 +3750,18 @@ errr parse_u_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int spd, hp1, hp2, aaf, ac, slp;
+		int spd, lif, aaf, ac, slp;
 
 		/* There better be a current u_ptr */
 		if (!u_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-		                &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+		                &spd, &lif, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		u_ptr->speed = spd;
-		u_ptr->hdice = hp1;
-		u_ptr->hside = hp2;
+		u_ptr->life = lif;
 		u_ptr->aaf = aaf;
 		u_ptr->ac = ac;
 		u_ptr->sleep = slp;
@@ -3681,15 +3770,15 @@ errr parse_u_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int lev, rar, pad;
+		int lev, rar;
 		long exp;
 
 		/* There better be a current u_ptr */
 		if (!u_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-		                &lev, &rar, &pad, &exp)) return (PARSE_ERROR_GENERIC);
+		if (3 != sscanf(buf+2, "%d:%d:%ld",
+		                &lev, &rar, &exp)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		u_ptr->level = lev;
@@ -3718,7 +3807,7 @@ errr parse_u_info(char *buf, header *head)
 		if (*t == ':') *t++ = '\0';
 
 		/* Analyze the method */
-		for (n1 = 0; r_info_blow_method[n1]; n1++)
+		for (n1 = 0; n1 < RBM_MAX; n1++)
 		{
 			if (streq(s, r_info_blow_method[n1])) break;
 		}
@@ -3733,7 +3822,7 @@ errr parse_u_info(char *buf, header *head)
 		if (*t == ':') *t++ = '\0';
 
 		/* Analyze effect */
-		for (n2 = 0; r_info_blow_effect[n2]; n2++)
+		for (n2 = 0; n2 < RBE_MAX; n2++)
 		{
 			if (streq(s, r_info_blow_effect[n2])) break;
 		}
@@ -4153,16 +4242,16 @@ errr parse_p_info(char *buf, header *head)
 	else if (buf[0] == 'O')
 	{
 		int acd, elc, fir, cld, wtr, psn, dis, lit, drk;
-		int cnf, snd, shr, nex, nth, chs, dsn, tim, mna;
+		int snd, shr, nex, nth, chs, dsn, tim, mna;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (18 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		if (17 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &acd, &elc, &fir, &cld, &wtr, &psn,
-						&dis, &lit, &drk, &cnf, &snd, &shr,
-						&nex, &nth, &chs, &dsn, &tim, &mna)) return (PARSE_ERROR_GENERIC);
+						&dis, &lit, &drk, &snd, &shr, &nex, 
+						&nth, &chs, &dsn, &tim, &mna)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->res[RS_ACD] = acd;
@@ -4174,7 +4263,6 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->res[RS_DIS] = dis;
 		pr_ptr->res[RS_LIT] = lit;
 		pr_ptr->res[RS_DRK] = drk;
-		pr_ptr->res[RS_CNF] = cnf;
 		pr_ptr->res[RS_SND] = snd;
 		pr_ptr->res[RS_SHR] = shr;
 		pr_ptr->res[RS_NEX] = nex;
@@ -4496,16 +4584,16 @@ errr parse_c_info(char *buf, header *head)
 	else if (buf[0] == 'O')
 	{
 		int acd, elc, fir, cld, wtr, psn, dis, lit, drk;
-		int cnf, snd, shr, nex, nth, chs, dsn, tim, mna;
+		int snd, shr, nex, nth, chs, dsn, tim, mna;
 
 		/* There better be a current pr_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (18 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		if (17 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &acd, &elc, &fir, &cld, &wtr, &psn,
-						&dis, &lit, &drk, &cnf, &snd, &shr,
-						&nex, &nth, &chs, &dsn, &tim, &mna)) return (PARSE_ERROR_GENERIC);
+						&dis, &lit, &drk, &snd, &shr, &nex, 
+						&nth, &chs, &dsn, &tim, &mna)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->res[RS_ACD] = acd;
@@ -4517,7 +4605,6 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->res[RS_DIS] = dis;
 		pc_ptr->res[RS_LIT] = lit;
 		pc_ptr->res[RS_DRK] = drk;
-		pc_ptr->res[RS_CNF] = cnf;
 		pc_ptr->res[RS_SND] = snd;
 		pc_ptr->res[RS_SHR] = shr;
 		pc_ptr->res[RS_NEX] = nex;
@@ -4531,20 +4618,19 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'I' for "info" - 1 line only */
 	else if (buf[0] == 'I')
 	{
-		int mhp, exp, atk, sstat1, sstat2, dist;
+		int mhp, exp, sstat1, sstat2, dist;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
-		                &mhp, &exp, &atk, &sstat1, &sstat2, &dist))
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+		                &mhp, &exp, &sstat1, &sstat2, &dist))
 						return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->c_mhp = mhp;
 		pc_ptr->c_exp = exp;
-		pc_ptr->attack_factor = atk;
 		pc_ptr->spell_stat1 = sstat1;
 		pc_ptr->spell_stat2 = sstat2;
 		pc_ptr->spell_weight = dist;
@@ -4572,32 +4658,30 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'E' for "Starting Equipment" */
 	else if (buf[0] == 'E')
 	{
-		int tval, sval, ego, min, max;
+		int tval, sval, min, max;
 
 		start_item *e_ptr;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
+		/* Limit number of starting items */
+		if (cur_equip == MAX_START_ITEMS) return (PARSE_ERROR_GENERIC);
+
 		/* Access the item */
 		e_ptr = &pc_ptr->start_items[cur_equip];
 
 		/* Scan for the values */
-		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
-		                &tval, &sval, &ego, &min, &max)) return (PARSE_ERROR_GENERIC);
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+		                &tval, &sval, &min, &max)) return (PARSE_ERROR_GENERIC);
 
 		e_ptr->tval = tval;
 		e_ptr->sval = sval;
-		e_ptr->ego = ego;
 		e_ptr->min = min;
 		e_ptr->max = max;
 
 		/* Next item */
 		cur_equip++;
-
-		/* Limit number of starting items */
-		if (cur_equip > MAX_START_ITEMS)
-			return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'T' for "Titles" */

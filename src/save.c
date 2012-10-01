@@ -83,20 +83,20 @@ static void wr_string(cptr str)
 /*
  * Write an "item" record
  */
-static void wr_item(object_type *o_ptr)
+static void wr_item(const object_type *o_ptr)
 {
 	u16b save_flags = 0;
 
 	/* Don't waste space on "rare" fields */
 	if (o_ptr->pval)		 save_flags |= 0x0001;
 	if (o_ptr->discount)	 save_flags |= 0x0002;
-	if (o_ptr->timeout)		 save_flags |= 0x0004;
-	if (o_ptr->to_h)		 save_flags |= 0x0008;
-	if (o_ptr->to_d)		 save_flags |= 0x0010;
-	if (o_ptr->to_a)		 save_flags |= 0x0020;
-	if (o_ptr->ac)			 save_flags |= 0x0040;
-	if (o_ptr->dd)			 save_flags |= 0x0080;
-	if (o_ptr->ds)			 save_flags |= 0x0100;
+	if (o_ptr->a_idx)		 save_flags |= 0x0004;
+	if (o_ptr->e_idx)		 save_flags |= 0x0008;
+	if (o_ptr->pfx_idx)		 save_flags |= 0x0010;
+	if (o_ptr->timeout)		 save_flags |= 0x0020;
+	if (o_ptr->to_h)		 save_flags |= 0x0040;
+	if (o_ptr->to_a)		 save_flags |= 0x0080;
+	if (o_ptr->ident)		 save_flags |= 0x0100;
 	if (o_ptr->origin_r_idx) save_flags |= 0x0200;
 	if (o_ptr->origin_s_idx) save_flags |= 0x0400;
  	if (o_ptr->origin_u_idx) save_flags |= 0x0800;
@@ -122,20 +122,16 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->number);
 
-	wr_byte(o_ptr->a_idx); 
-	wr_byte(o_ptr->e_idx);
-	wr_byte(o_ptr->prefix_idx);
+	if (o_ptr->a_idx) wr_byte(o_ptr->a_idx); 
+	if (o_ptr->e_idx) wr_byte(o_ptr->e_idx);
+	if (o_ptr->pfx_idx) wr_byte(o_ptr->pfx_idx);
 
 	if (o_ptr->timeout) wr_s16b(o_ptr->timeout);
 
 	if (o_ptr->to_h) wr_s16b(o_ptr->to_h);
-	if (o_ptr->to_d) wr_s16b(o_ptr->to_d);
 	if (o_ptr->to_a) wr_s16b(o_ptr->to_a);
-	if (o_ptr->ac) wr_s16b(o_ptr->ac);
-	if (o_ptr->dd) wr_byte(o_ptr->dd);
-	if (o_ptr->ds) wr_byte(o_ptr->ds);
 
-	wr_byte(o_ptr->ident);
+	if (o_ptr->ident) wr_byte(o_ptr->ident);
 
 	wr_byte(o_ptr->origin_nature);
 	wr_s16b(o_ptr->origin_dlvl);
@@ -166,7 +162,7 @@ static void wr_item(object_type *o_ptr)
 /*
  * Write a "monster" record
  */
-static void wr_monster(monster_type *m_ptr)
+static void wr_monster(const monster_type *m_ptr)
 {
 	wr_s16b(m_ptr->r_idx);
 	wr_s16b(m_ptr->s_idx);
@@ -176,7 +172,6 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
 	wr_s16b(m_ptr->maxhp);
-	wr_s16b(m_ptr->csleep);
 	wr_byte(m_ptr->mspeed);
 	wr_byte(m_ptr->bspeed);
 	wr_byte(m_ptr->energy);
@@ -186,6 +181,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->blinded);
 	wr_byte(m_ptr->calmed);
 
+	wr_u16b(m_ptr->sleep);
 	wr_u16b(m_ptr->bleeding);
 	wr_u16b(m_ptr->poisoned);
 
@@ -455,10 +451,7 @@ static void wr_extra(void)
 
 	wr_string(p_ptr->died_from);
 
-	for (i = 0; i < 4; i++)
-	{
-		wr_string(p_ptr->history[i]);
-	}
+	wr_string(p_ptr->history);
 
 	/* Race/Class/Gender */
 	wr_byte(p_ptr->prace);
@@ -532,6 +525,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_infra);
 	wr_s16b(p_ptr->tim_stealth);
 	wr_s16b(p_ptr->tim_invis);
+	wr_s16b(p_ptr->tim_bravery);
 	wr_s16b(p_ptr->stability);
 	wr_s16b(p_ptr->racial_power);
 
@@ -761,12 +755,12 @@ static void wr_dungeon(void)
 	/*** Dump the monsters ***/
 
 	/* Total monsters */
-	wr_u16b(m_max);
+	wr_u16b(mon_max);
 
 	/* Dump the monsters */
-	for (i = 1; i < m_max; i++)
+	for (i = 1; i < mon_max; i++)
 	{
-		monster_type *m_ptr = &m_list[i];
+		monster_type *m_ptr = &mon_list[i];
 
 		/* Dump it */
 		wr_monster(m_ptr);
@@ -1082,12 +1076,12 @@ bool save_player(void)
 #endif
 
 	/* New savefile */
-	strcpy(safe, savefile);
+	my_strcpy(safe, savefile, sizeof(safe));
 	strcat(safe, ".new");
 
 #ifdef VM
 	/* Hack -- support "flat directory" usage on VM/ESA */
-	strcpy(safe, savefile);
+	my_strcpy(safe, savefile, sizeof(safe));
 	strcat(safe, "n");
 #endif /* VM */
 
@@ -1100,12 +1094,12 @@ bool save_player(void)
 		char temp[1024];
 
 		/* Old savefile */
-		strcpy(temp, savefile);
+		my_strcpy(temp, savefile, sizeof(temp));
 		strcat(temp, ".old");
 
 #ifdef VM
 		/* Hack -- support "flat directory" usage on VM/ESA */
-		strcpy(temp, savefile);
+		my_strcpy(temp, savefile, sizeof(temp));
 		strcat(temp, "o");
 #endif /* VM */
 
@@ -1148,189 +1142,3 @@ bool save_player(void)
 	/* Return the result */
 	return (result);
 }
-
-/*
- * Attempt to Load a "savefile"
- *
- * On multi-user systems, you may only "read" a savefile if you will be
- * allowed to "write" it later, this prevents painful situations in which
- * the player loads a savefile belonging to someone else, and then is not
- * allowed to save his game when he quits.
- *
- * We return "TRUE" if the savefile was usable, and we set the global
- * flag "character_loaded" if a real, living, character was loaded.
- *
- * Note that we always try to load the "current" savefile, even if
- * there is no such file, so we must check for "empty" savefile names.
- */
-bool load_player(void)
-{
-	int fd = -1;
-
-	errr err = 0;
-
-	byte vvv[4];
-
-	cptr what = "generic";
-
-	/* Paranoia */
-	turn = 0;
-
-	/* Paranoia */
-	p_ptr->is_dead = FALSE;
-
-	/* Allow empty savefile name */
-	if (!savefile[0]) return (TRUE);
-
-	/* Grab permissions */
-	safe_setuid_grab();
- 
-	/* Open the savefile */
-	fd = fd_open(savefile, O_RDONLY);
- 
-	/* Drop permissions */
-	safe_setuid_drop();
- 
-	/* No file */
-	if (fd < 0)
-
-	{
-		/* Give a message */
-		message(MSG_GENERIC, 0, "Savefile does not exist.");
-		message_flush();
-
-		/* Allow this */
-		return (TRUE);
-	}
-
-	/* Close the file */
-	fd_close(fd);
-
-	/* Okay */
-	if (!err)
-	{
-		/* Grab permissions */
-		safe_setuid_grab();
-
- 		/* Open the savefile */
- 		fd = fd_open(savefile, O_RDONLY);
- 
-		/* Drop permissions */
-		safe_setuid_drop();
-
-		/* No file */
-		if (fd < 0) err = -1;
-
-		/* Message (below) */
-		if (err) what = "Cannot open savefile";
-	}
-
-	/* Process file */
-	if (!err)
-	{
-		/* Read the first four bytes */
-		if (fd_read(fd, (char*)(vvv), 4)) err = -1;
-
-		/* What */
-		if (err) what = "Cannot read savefile";
-
-		/* Close the file */
-		fd_close(fd);
-	}
-
-	/* Process file */
-	if (!err)
-	{
-		/* Extract version */
-		sf_major = vvv[0];
-		sf_minor = vvv[1];
-		sf_patch = vvv[2];
-		sf_extra = vvv[3];
-
-		/* Clear screen */
-		Term_clear();
-
-		err = rd_savefile();
-
-		/* Message (below) */
-		if (err) what = "Cannot parse savefile";
-	}
-
-	/* Paranoia */
-	if (!err)
-	{
-		/* Invalid turn */
-		if (!turn) err = -1;
-
-		/* Message (below) */
-		if (err) what = "Broken savefile";
-	}
-
-	/* Okay */
-	if (!err)
-	{
-		/* Give a conversion warning */
-		if ((version_major != sf_major) ||
-		    (version_minor != sf_minor) ||
-		    (version_patch != sf_patch))
-		{
-			/* Message */
-			message_format(MSG_GENERIC, 0, "Converted a %d.%d.%d savefile.",
-			           sf_major, sf_minor, sf_patch);
-			message_flush();
-		}
-
-		/* Player is dead */
-		if (p_ptr->is_dead)
-		{
-			/* In wizard mode, allow loading of tombstones */
-			if (cheat_wizard)
-			{
-				/* A character was loaded */
-				character_loaded = TRUE;
-
-				/* Done */
-				return (TRUE);
-			}
-
-			/* Forget death */
-			p_ptr->is_dead = FALSE;
-
-			/* Count lives */
-			sf_lives++;
-
-			/* Forget turns */
-			turn = 0;
-			
-			/* Reset feeling counter */
-			p_ptr->feeling_cnt = 0;
-
-			/* A character once existed on this savefile */
-			character_existed = TRUE;
-
-			/* Done */
-			return (TRUE);
-		}
-
-		/* A character was loaded */
-		character_loaded = TRUE;
-
-		/* Still alive */
-		if (p_ptr->chp >= 0)
-		{
-			/* Reset cause of death */
-			strcpy(p_ptr->died_from, "(alive and well)");
-		}
-
-		/* Success */
-		return (TRUE);
-	}
-
-	/* Message */
-		message_format(MSG_GENERIC, 0, "Error (%s) reading %d.%d.%d savefile.",
-			what, sf_major, sf_minor, sf_patch);	message_flush();
-
-	/* Oops */
-	return (FALSE);
-}
-

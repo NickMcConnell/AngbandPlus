@@ -3,12 +3,12 @@
 Most of the "options" are accessible through the '=' command, which provides
 an interface to the various "sets" of options available to the player.
 
-In the decriptions below, each option is listed as the textual summary
-which is shown on the "options" screen, plus the internal name of the
-option in brackets, followed by a textual description of the option.
+In the decriptions below, each option is listed as the textual summary which 
+is shown on the "options" screen, plus the internal name of the option in 
+brackets, followed by a textual description of the option.
 
-Note that the internal name of the option can be used in user pref files
-to force the option to a given setting, see "command.txt" for more info.
+Note that the internal name of the option can be used in user pref files to 
+force the option to a given setting, see "macro.txt" for more info.
 
 Various concepts are mentioned in the descriptions below, including "disturb",
 (cancel any running, resting, or repeated commands, which are in progress),
@@ -21,102 +21,107 @@ macros in progress), "fresh" (dump any pending output to the screen), and
 These options determine the way the user interface works. 
 
 ***** <rogue_like_commands>
-Rogue-like commands    [rogue_like_commands]
-    Selects the "roguelike" command set (see "command.txt" for info).
+Rogue-like commands [rogue_like_commands] (default: no)
+    Selects the "roguelike" command set (see "cmddesc.txt" for info).
 
 ***** <use_command>
-Allow unified use command   [use_command]
-    Unifies the item commands like "zap a rod", "use a staff", "eat
-    food", "aim a wand", ... into a general "use object" command. The
-    command in the original keymap is "u", and "Z" in the roguelike
-    mode. The standard commands for eat, quaff, read, zap, aim, ... are
-    still available, to be used for macros.
+Allow unified use command [use_command] (default: no)
+    Unifies the item commands like "zap a rod", "use a staff", "eat food", "aim
+    a wand", ... into a general "use object" command. The command in the 
+    original keymap is "u", and "Z" in the roguelike mode. The standard 
+    commands for eat, quaff, read, zap, aim, ... are still available, to be 
+    used for macros.
 
 ***** <quick_messages>
-Activate quick messages    [quick_messages]
-    Allows the use of any keypress as a response to the "-more-" prompt
-    (useful for monster farming).  Allows most keys to mean "no" to any
-    "[y/n]" prompt.
+Activate quick messages [quick_messages] (default: yes)
+    Allows the use of any keypress as a response to the "-more-" prompt (useful
+    for monster farming).  Allows most keys to mean "no" to any "[y/n]" prompt.
+    Otherwise, "-more-" will respond only to pressing space and you'll 
+    explicity have to press 'y' or 'n' at prompts.
 
 ***** <other_query_flag>
-Prompt for floor item selection    [other_query_flag]
-    Allows the user to select objects from the center of stacks.  Without
-    this option, the uppermost appropriate object will always be selected.
+Prompt for floor item selection [other_query_flag] (default: no)
+    Allows the user to select objects from the center of stacks.  Without this 
+    option, the uppermost appropriate object will always be selected.
 
 ***** <carry_query_flag>
-Prompt before picking things up    [carry_query_flag]
+Prompt before picking things up [carry_query_flag] (default: yes)
     Forces the game to ask your permission before allowing you to pick up
     any object.
 
 ***** <carry_heavy_query>
-Verify before picking up heavy objects [carry_heavy_query]
+Verify before picking up heavy objects [carry_heavy_query] (default: yes)
     Asks you permission when picking up any object heavy enough to slow you
     down.
 
 ***** <use_old_target>
-Use old target by default    [use_old_target]
+Use old target by default [use_old_target] (default: no)
     Forces all commands which normally ask for a "direction" to use the
     current "target" if there is one.  Use of this option can be dangerous
     if you target locations on the ground, unless you clear them when done.
 
 ***** <always_pickup>
-Pick things up by default    [always_pickup]
+Pick things up by default [always_pickup] (default: yes)
     Tells the game that walking onto an item should attempt to pick it up.
     Picking up objects in the manner takes no additional energy.  Note the
     "g" and "-" commands, which can be used to "reverse" this option for a
     single turn.
 
 ***** <always_repeat>
-Repeat obvious commands    [always_repeat]
-    Tells the game that when you attempt to "open" a door or chest, "bash"
-    a door, "tunnel" through walls, "disarm" traps or chests, or "alter"
-    any grid, that you wish to automatically "repeat" the command 99 times
-    (see "command.txt"), unless an explicit repeat count was given.
+Repeat obvious commands [always_repeat] (default: yes)
+    Tells the game that when you attempt to "open" a door or chest, "bash" a 
+    door, "tunnel" through walls, "disarm" traps or chests, or "alter" any 
+    grid, that you wish to automatically "repeat" the command 99 times (see
+    "cmddesc.txt"), unless an explicit repeat count was given.  Note that in 
+    all cases, once the command succeeds, it will no longer repeat.
 
 ***** <verify_destroy>
-Verify destruction of objects    [verify_destroy]
+Verify destruction of objects [verify_destroy] (default: yes)
     Prompt for verification of the "destroy" command.
 
 ***** <verify_destroy_junk>
-Verify destruction of objects    [verify_destroy_junk]
+Verify destruction of objects [verify_destroy_junk] (default: yes)
     If destroy verification is on, prompt for verification when destroying 
     worthless objects. If this is off, then only "good" objects will 
     require verification.
 
 ***** <easy_direction>
-Open/Disarm/Close without direction    [easy_direction]
+Open/Disarm/Close without direction [easy_direction] (default: no)
     If there is only one closed door next to the character, the game will 
     not bother asking for a direction when the player asks to "o"pen 
     something. The same applies for "c"losing doors and "D"isarming traps.
 
 ***** <easy_alter>
-Open/Disarm doors/traps on movement.    [easy_alter]
+Open/Disarm doors/traps on movement. [easy_alter] (default: no)
     Moving into a closed door will attempt once to open it, and moving 
     into a trap will attempt once to disarm it. If the player ever wishes
     to leave a known teleport trap as a guaranteed escape route, this 
     option must therefore be off.
 
 ***** <easy_floor>
-Display floor stacks in a list    [easy_floor]
+Display floor stacks in a list [easy_floor] (default: no)
     When moving into a stack, if this option is *off*, the character will 
     attempt to pick up items from the stack, from top to bottom, until the 
     stack is gone or the inventory is full. This option allows the player
     to interact with other items than the one at the top of the stack.
 
 ***** <verify_leave_quest>
-Verify before descending from quest level    [verify_leave_quest]
+Verify before descending from quest level [verify_leave_quest] (default: yes)
     Asks for confirmation when you try to leave a quest level using down 
     stairs (thereby risking quest failure).
 
 ***** <spellbook_menu>
-Alternate spellbook interface    [spellbook_menu]
+Alternate spellbook interface [spellbook_menu] (default: no)
     Allows you to choose between the two methods of spell power selection.
     If the option is off, you get the menu if you type a lower-case letter
     for the spell: maaa, and the top level spell if you type a captial 
-    letter: maA. 
+    letter: maA.  If it is on, you get the lowest level power if you type a 
+    lower-case letter for the spell: maa, the highest level power if you type
+    a upper-case letter: maA, and a menu only if you type a captial letter
+    for the spellbook: mAaa.
 
 ***** <always_show_lists>
-Always show lists in item/spell selection    [always_show_lists]
+Always show lists in item/spell selection [always_show_lists] (default: yes)
     If this is turned on, item/spell lists will always be show when picking
     items/spells. Otherwise, they'll only appear if requested.
 
@@ -125,21 +130,21 @@ Always show lists in item/spell selection    [always_show_lists]
 These options effect display only, and have no real infulence on gameplay.
 
 ***** <depth_in_feet>
-Show dungeon level in feet    [depth_in_feet]
+Show dungeon level in feet [depth_in_feet] (default: no)
     Display dungeon depths in "feet" instead of "levels".
 
 ***** <show_labels>
-Show labels in equipment listings    [show_labels]
+Show labels in equipment listings [show_labels] (default: yes)
     Display "labels" (what an object is being used for) for objects in all
     "equipment" listings.
 
 ***** <show_weights>
-Show weights in all object listings    [show_weights]
+Show weights in all object listings [show_weights] (default: yes)
     Display "weights" (in pounds) of objects in all "inventory", "equipment",
     "store items", and "home items" listings.
 
 ***** <show_choices>
-Show choices in inven/equip listings    [show_choices]
+Show choices in inven/equip listings [show_choices] (default: yes)
     Display "choices" (legal responses) in any sub-windows which are being
     used to display your inventory or equipment.  Also, if one sub-window
     is being used to display your inventory or equipment, then this option
@@ -147,34 +152,40 @@ Show choices in inven/equip listings    [show_choices]
     "appropriate" set of objects (inventory or equipment).
 
 ***** <show_flavors>
-Show flavors in object descriptions    [show_flavors]
+Show flavors in object descriptions [show_flavors] (default: yes)
     Display "flavors" (color or variety) in object descriptions, even for
     objects whose type is known.  This does not affect objects in stores.
 
+***** <show_piles>
+Show stacks as white '&' [show_piles] (default: no)
+    Stacks of items on the floor are shown using the "&" symbol in white.
+    Otherwise, the top object is shown.
+
+***** <show_trap_piles>
+Show objects on traps as red '&' [show_trap_piles] (default: yes)
+    Items on top of traps are shown using the "&" symbol in red. Otherwise, the 
+    trap is shown.
+
 ***** <display_insc_msg>
-Display inscriptions in messages       [display_insc_msg]
+Display inscriptions in messages [display_insc_msg] (default: no)
     If this is turned on, item inscriptions will appear in all messages. 
     Otherwise, they will only appear in messages in which they are relevant.
 
-***** <show_piles>
-Show stacks using special attr/char    [show_piles]
-    Stacks of items on the floor are shown using the "&" symbol.
-
 ***** <hilite_player>
-Hilite the player with the cursor    [hilite_player]
+Hilite the player with the cursor [hilite_player] (default: no)
     Place the visible cursor on the player.  This looks fine on some Unix
     machines, but horrible on most graphics machines.  Note that only some
     machines are able to *not* show the cursor, but on those machines, hiding
     the cursor often speeds up the game and looks better.
 
 ***** <view_yellow_lite>
-Use special colors for torch-lit grids    [view_yellow_lite]
+Use special colors for torch-lit grids [view_yellow_lite] (default: yes)
     This option causes special colors to be used for "torch-lit" grids in
     certain situations (see "view_granite_lite" and "view_special_lite").
     Turning this option off will slightly improve game speed.
 
 ***** <view_bright_lite>
-Use special colors for 'viewable' grids    [view_bright_lite]
+Use special colors for 'viewable' grids [view_bright_lite] (default: yes)
     This option causes special colors to be used for non "viewable" grids
     in certain situations (see "view_granite_lite" and "view_special_lite").
     When this option is set, floor grids which are normally drawn in "white"
@@ -185,7 +196,7 @@ Use special colors for 'viewable' grids    [view_bright_lite]
     increase the speed of the game.
 
 ***** <view_granite_lite>
-Use special colors for wall grids (slow)    [view_granite_lite]
+Use special colors for wall grids (slow) [view_granite_lite] (default: no)
     This option activates a special color scheme for all "wall" grids which
     are normally drawn in "white" (as walls and rubble normally are).  When
     the player is blind, we use "dark gray", else if the grid is torch-lit,
@@ -198,7 +209,7 @@ Use special colors for wall grids (slow)    [view_granite_lite]
     if "graphics" are being used.
 
 ***** <view_special_lite>
-Use special colors for floor grids (slow)    [view_special_lite]
+Use special colors for floor grids (slow) [view_special_lite] (default: yes)
     This option activates a special color scheme for all "floor" grids which
     are normally drawn in "white" (as they normally are).  When the player is
     blind, we use "dark gray", else if the grid is torch-lit, we use "yellow"
@@ -210,83 +221,83 @@ Use special colors for floor grids (slow)    [view_special_lite]
     codes for walls/veins have been changed, or if "graphics" are being used.
 
 ***** <view_monster_lite>
-Allow monsters to have light radius    [view_monster_lite]
+Allow monsters to have light radius [view_monster_lite] (default: yes)
     This option allows certain monsters to produce their own light radius,
     which potentially can slow down the game on slower machines. If this 
     option is off, the relevant monsters will be visible even in darkness
     but will not light up the squares around them.
 
-***** <trap_under_object>
-Traps are hidden by objects    [trap_under_object]
-    If this option is turned on, and a trap and an object share a square, then
-    the object will hide the trap. If it is off, the trap will hide the object.
-
 ***** <view_player_color>
-Use special colors for the player    [view_player_color]
+Use special colors for the player [view_player_color] (default: yes)
     If this option is turned on, the player symbol (@) will change colors 
     to represent the player's health status.
 
-=== Option Set 3 -- Distrubance options ===
+***** <allow_prefix_colors>
+Allow prefixes to determine object color [allow_prefix_colors] (default: yes)
+    If this option is turned on, objects with prefixes may be a different
+    color than their base objects. This can cause overlap between item types.
+
+=== Option Set 3 -- Disturbance options ===
 
 These options affect what conditions will be handled automatically by the game 
 and which will cause it to stop for your intervention.
 
 ***** <run_ignore_stairs>
-Run past stairs    [run_ignore_stairs]
+Run past stairs [run_ignore_stairs] (default: yes)
     Ignore stairs when running.
 
 ***** <run_ignore_doors>
-Run through open doors    [run_ignore_doors]
+Run through open doors [run_ignore_doors] (default: yes)
     Ignore open doors when running.
 
 ***** <run_cut_corners>
-Run past known corners    [run_cut_corners]
+Run past known corners [run_cut_corners] (default: yes)
     Cut sharply around "known" corners when running.  This will result in
     "faster" running, but may cause you to run into a "lurking" monster.
 
 ***** <disturb_move>
-Disturb whenever any monster moves    [disturb_move]
-    Disturb the player when any monster moves, appears, or disappears.
-    This includes monsters which are only visible due to telepathy, so
-    you should probably turn this option off if you want to "rest" near
-    such monsters.
+Disturb whenever any monster moves [disturb_move] (default: yes)
+    Disturb the player when any monster moves, appears, or disappears.  This
+    includes monsters which are only visible due to telepathy, so you should 
+    probably turn this option off if you want to "rest" near such monsters.
 
 ***** <disturb_near>
-Disturb whenever viewable monster moves    [disturb_near]
+Disturb whenever viewable monster moves [disturb_near] (default: yes)
     Disturb the player when any viewable monster moves, whenever any
     monster becomes viewable for the first time, and also whenever any
-    viewable monster becomes no longer viewable.  This option ignores
-    the existance of "telepathy" for the purpose of determining whether
-    a monster is "viewable".  See also the "view_reduce_view" option.
+    viewable monster becomes no longer viewable.  This option ignores the 
+    existance of "telepathy" for the purpose of determining whether a monster
+    is "viewable". 
 
 ***** <disturb_panel>
-Disturb whenever map panel changes    [disturb_panel]
-    This option causes you to be disturbed by the screen "scrolling",
-    as it does when you get close to the "edge" of the screen.
+Disturb whenever map panel changes [disturb_panel] (default: yes)
+    This option causes you to be disturbed by the screen "scrolling", as it 
+    does when you get close to the "edge" of the screen.
 
 ***** <disturb_state>
-Disturb whenever player state changes    [disturb_state]
+Disturb whenever player state changes [disturb_state] (default: yes)
     This option causes you to be disturbed whenever the player state
     changes, including changes in hunger, resistance, confusion, etc.
 
 ***** <disturb_minor>
-Disturb whenever boring things happen    [disturb_minor]
+Disturb whenever boring things happen [disturb_minor] (default: yes)
     This option causes you to be disturbed by various bring things,
     including monsters bashing down doors, inventory feelings, and
     beginning to run out of fuel.
 
 ***** <display_recharge_msg>
-Display messages upon recharge       [display_recharge_msg]
-    If this is turned on, you will get messages whenever an artifact, rod
-	or talisman recharges.
+Display messages upon recharge [display_recharge_msg] (default: yes)
+    If this is turned on, you will get messages whenever an artifact, rod or 
+    talisman recharges.  Also, if you are playing an angel or demon, you'll
+    get a message when your racial power recharges.
 
 ***** <auto_more>
-Automatically clear -more- prompts    [auto_more]
-    The game does not wait for a keypress when it comes to a -more-
-    prompt, but carries on going.
+Automatically clear -more- prompts [auto_more] (default: no)
+    The game does not wait for a keypress when it comes to a -more- prompt,
+    but carries on going.
 
 ***** <ring_bell>
-Audible bell (on errors, etc)    [ring_bell]
+Audible bell (on errors, etc) [ring_bell] (default: yes)
     Attempt to make a "bell" noise when various "errors" occur.
 
 === Option Set 4 -- Game-play ===
@@ -294,27 +305,27 @@ Audible bell (on errors, etc)    [ring_bell]
 These options affect the way the game is played.
 
 ***** <expand_look>
-Expand the power of the look command    [expand_look]
+Expand the power of the look command [expand_look] (default: yes)
     Expand the "look" command to allow the user to "look" at grids which
     are not actually in view of the player, allowing the examination of
     objects/monsters which have only been detected by spells, or sensed
     via telepathy.
 
 ***** <expand_list>
-Expand the power of the list commands    [expand_list]
+Expand the power of the list commands [expand_list] (default: yes)
     Expand the "listing" commands so that they "wrap" at the "edges" of
     the appropriate list.  This allows the "look" and "target" commands
     to "cycle" through all appropriate grids forever, and the "identify
     symbol" to browse through all of the monsters of a given type.
 
 ***** <center_player>
-Center map continuously (very slow)    [center_player]
+Center map continuously (very slow) [center_player] (default: no)
     The map always centres on the player with this option on. With it off, it
     is divided into 25 sections, with coordinates (0,0) to (4,4), and will 
     show one section at a time.
 
 ***** <view_perma_grids>
-Map remembers all perma-lit grids    [view_perma_grids]
+Map remembers all perma-lit grids [view_perma_grids] (default: yes)
     Memorize all perma-lit floor grids which are seen by the player.
     This option allows you to keep track of which explored floor grids
     were perma-lit, but does not distinguish between dark floor grids,
@@ -326,7 +337,7 @@ Map remembers all perma-lit grids    [view_perma_grids]
     memorized independantly from the memorization of the grid itself.
 
 ***** <view_torch_grids>
-Map remembers all torch-lit grids    [view_torch_grids]
+Map remembers all torch-lit grids [view_torch_grids] (default: no)
     Memorize all (torch-lit) floor grids which are seen by the player.
     This option not only allows you to keep track of which floor grids
     have been explored, but also which ones are "dark", because the use
@@ -339,24 +350,38 @@ Map remembers all torch-lit grids    [view_torch_grids]
     option is set, in which case they are drawn in "yellow".
 
 ***** <dungeon_align>
-Generate dungeons with aligned rooms    [dungeon_align]
+Generate dungeons with aligned rooms [dungeon_align] (default: yes)
     Force all rooms to be "aligned" with the "panel" divisions.  This results
     in a much "prettier" dungeon, but may result in fewer greater vaults.
 
 ***** <stack_force_notes>
-Merge inscriptions when stacking    [stack_force_notes]
+Merge inscriptions when stacking [stack_force_notes] (default: yes)
     Force otherwise identical objects to merge, even if one has an empty
     inscription and the other does not.  The resulting stack keeps the 
     non-empty inscription.
 
 ***** <stack_force_costs>
-Merge discounts when stacking    [stack_force_costs]
+Merge discounts when stacking [stack_force_costs] (default: yes)
     Force otherwise identical objects to merge, even if they have different
     discounts.  The resulting stack keeps the largest discount.  This option
     may cause you to lose "value", but will give you optimal pack usage.
 
+***** <scroll_target>
+Scroll map while targetting [scroll_target] (default: yes)
+    This allows the player to target monsters which are off-screen from the 
+    player's point of view, as the view will scroll to show the whereabouts of 
+    all monsters in line of sight so the player can target them.
+
+***** <display_room_desc>
+Display room descriptions [display_room_desc] (default: no)
+    If this option is on, every time you enter a room you'll get a message
+    describing its contents.  This message may give you some warning of 
+    invisible monsters or traps.  If this option is off, your play will not be
+    interrupted by the messages, though you will still be able to see them on
+    a sub-window if you so choose.
+
 ***** <inscribe_unique>
-Auto-inscribe unique drops    [inscribe_unique]
+Auto-inscribe unique drops [inscribe_unique] (default: no)
     Automatically inscribes unique's drops with their name.
 
 === Option Set 5 -- Efficiency ===
@@ -364,29 +389,29 @@ Auto-inscribe unique drops    [inscribe_unique]
 These options may be used to optimize the game on slower machines.
 
 ***** <view_reduce_lite>
-Reduce lite-radius when running    [view_reduce_lite]
-    Reduce the "radius" of the player's "lite" to that of a "torch"
-    when the player is "running", which makes running more "efficient",
-    but is extremely annoying.
+Reduce lite-radius when running [view_reduce_lite] (default: no)
+    Reduce the "radius" of the player's "lite" to that of a "torch" when the 
+    player is "running", which makes running more "efficient", but can be 
+    disconcerting.
 
 ***** <hidden_player>
-Hide player symbol when running    [hidden_player]
-    Hide the player symbol when the player is "running", which makes the
-    game somewhat faster.
+Hide player symbol when running [hidden_player] (default: no)
+    Hide the player symbol when the player is "running", which makes the game 
+    somewhat faster.
 
 ***** <avoid_abort>
-Avoid checking for user abort    [avoid_abort]
-    Avoid checking to see if the user has pressed a key during resting
-    or running or repeated commands.  This not only makes the game much
-    more efficient (on many systems), but also allows the use of certain
-    obscure macro sequences, such as turning this option on, resting until
-    done, turning this option off, and casting a spell.  Note that the use
-    of this option may be dangerous on certain "graphic" machines.  Resting
-    for long periods of time with this option set is dangerous since the
-    resting may not stop until the user takes damage from starvation.
+Avoid checking for user abort [avoid_abort] (default: no)
+    Avoid checking to see if the user has pressed a key during resting or 
+    running or repeated commands.  This not only makes the game much more 
+    efficient (on many systems), but also allows the use of certain obscure 
+    macro sequences, such as turning this option on, resting until done, 
+    turning this option off, and casting a spell.  Note that the use of this 
+    option may be dangerous on certain "graphic" machines.  Resting for long 
+    periods of time with this option set is dangerous since the resting may 
+    not stop until the user takes damage from starvation.
 
 ***** <avoid_other>
-Avoid processing special colors    [avoid_other]
+Avoid processing special colors [avoid_other] (default: no)
     Avoid processing the "multi-hued" or "clear" attributes of monsters.
     This will cause all "multi-hued" monsters to appear "violet" and all
     "clear" monsters to appear "white", and will cause "trappers" and
@@ -401,7 +426,7 @@ Avoid processing special colors    [avoid_other]
     grids, then you can use the "special lighting effects" for floors.
 
 ***** <flush_failure>
-Flush input on various failures    [flush_failure]
+Flush input on various failures [flush_failure] (default: yes)
     This option forces the game to flush all pending input whenever various
     "failures" occur, such as failure to cast a spell, failure to use a wand,
     etc.  This is very useful if you use macros which include "directional"
@@ -409,14 +434,14 @@ Flush input on various failures    [flush_failure]
     walking towards monsters when your spells fail.
 
 ***** <flush_disturb>
-Flush input whenever disturbed    [flush_disturb]
+Flush input whenever disturbed [flush_disturb] (default: no)
     This option forces the game to flush all pending input whenever the
     character is "disturbed".  This is useful if you use macros which take
     time, since it will prevent you from continuing your macro while being
     attacked by a monster.
 
 ***** <fresh_before>
-Flush output before every command    [fresh_before]
+Flush output before every command [fresh_before] (default: yes)
     This option forces the game to flush all output before every command.
     This will give you maximal information, but may slow down the game
     somewhat.  Note that this option is only useful when using macros,
@@ -424,7 +449,7 @@ Flush output before every command    [fresh_before]
     flushed when the game is waiting for a keypress from the user.
 
 ***** <fresh_after>
-Flush output after certain things    [fresh_after]
+Flush output after certain things [fresh_after] (default: no)
     This option forces the game to flush all output after not only every
     player command, but also after every round of processing monsters and
     objects, and after every message, which will maximize your information,
@@ -432,18 +457,15 @@ Flush output after certain things    [fresh_after]
     faster machines you cannot see the results anyway.
 
 ***** <compress_savefile>
-Compress messages in savefiles    [compress_savefile]
+Compress messages in savefiles [compress_savefile] (default: yes)
     Compress the savefile, by only saving the most recent "messages" that
     the player has received.  This can cut the size of the savefile by a
     drastic amount, but will result in the loss of message information.
 
 ***** <run_avoid_center>
-Avoid centering while running    [run_avoid_center]
+Avoid centering while running [run_avoid_center] (default: no)
     The map does not centre on the player if the player moves with the "run" 
     command, only when the running finishes.
 
-***** <scroll_target>
-Scroll map while targetting    [scroll_target]
-    This allows the player to target monsters which are off-screen from the 
-    player's point of view, as the view will scroll to show the whereabouts of 
-    all monsters in line of sight so the player can target them.
+
+======================= Last updated for EyAngband 0.5.0 ======================

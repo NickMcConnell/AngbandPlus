@@ -12,7 +12,7 @@
 
 # Version stamp (required)
 
-V:0.4.6
+V:0.5.0
 
 # General Store
 N:0:0:Squeek the Sly

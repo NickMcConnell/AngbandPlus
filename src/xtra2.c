@@ -43,9 +43,11 @@ static void check_race_special(void)
 	}
 
 	/* Check to see if you got a new power */
-	if (rsp_ptr[(p_ptr->lev) / 5]->power != rsp_ptr[(p_ptr->lev-1)/5]->power)
+	if ((rsp_ptr[(p_ptr->lev) / 5]->activation != rsp_ptr[(p_ptr->lev-1)/5]->activation) &&
+		(rsp_ptr[(p_ptr->lev) / 5]->turns != rsp_ptr[(p_ptr->lev-1)/5]->turns))
 	{
-		if (!rsp_ptr[(p_ptr->lev-1)/5]->power) message(MSG_LEVEL, -1, "You gain a racial power!");
+		if (!rsp_ptr[(p_ptr->lev-1)/5]->activation) 
+			message(MSG_LEVEL, -1, "You gain a racial power!");
 		else message(MSG_LEVEL, -1, "Your racial power has changed!");
 
 		/* Reset power timer */
@@ -217,7 +219,7 @@ void monster_death(int m_idx)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *m_ptr = &mon_list[m_idx];
 
 	monster_race *r_ptr = get_monster_real(m_ptr);
 
@@ -276,7 +278,7 @@ void monster_death(int m_idx)
 		i_ptr = &object_type_body;
 
 		/* Mega-Hack -- Prepare to make "Grond" */
-		object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
+		object_prep(i_ptr, lookup_kind(TV_BLUNT, SV_GROND));
 
 		/* Mega-Hack -- Mark this item as "Grond" */
 		i_ptr->a_idx = ART_GROND;
@@ -318,7 +320,7 @@ void monster_death(int m_idx)
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
 
 	/* Average dungeon and monster levels */
-	p_ptr->obj_depth  = (p_ptr->depth + r_ptr->level) / 2;
+	object_level = (p_ptr->depth + r_ptr->level) / 2;
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
@@ -382,7 +384,7 @@ void monster_death(int m_idx)
 	}
 
 	/* Reset the object level */
-	p_ptr->obj_depth = p_ptr->depth;
+	object_level = p_ptr->depth;
 
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
@@ -502,7 +504,7 @@ void monster_death(int m_idx)
  */
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	u32b new_exp, new_exp_frac;
@@ -511,7 +513,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 	/* Wake it up */
-	m_ptr->csleep = 0;
+	m_ptr->sleep = 0;
 
 	/* Anger it */
 	m_ptr->calmed = 0;
@@ -525,7 +527,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		char m_name[80];
 
 		/* Extract monster name */
-		monster_desc(m_name, m_ptr, 0);
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 		/* Death by Missile/Spell attack */
 		if (note)
@@ -540,9 +542,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* Death by Physical attack -- non-living monster */
-		else if ((r_ptr->flags4 & (RF4_DEMON)) || (r_ptr->flags4 & (RF4_UNDEAD)) ||
-				 (r_ptr->flags4 & (RF4_PLANT)) || (r_ptr->flags1 & (RF1_STUPID)) ||
-		         (strchr("Evg$|!?~=", r_ptr->d_char)))
+		else if (!monster_alive(TRUE, m_ptr))
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}
@@ -679,12 +679,12 @@ static bool modify_panel(int wy, int wx)
 	/* Verify wy, adjust if needed */
 	if (p_ptr->cur_map_hgt < SCREEN_HGT) wy = 0;
 	else if (wy > p_ptr->cur_map_hgt - SCREEN_HGT) wy = p_ptr->cur_map_hgt - SCREEN_HGT;
-	else if (wy < 0) wy = 0;
+	if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
 	if (p_ptr->cur_map_wid < SCREEN_WID) wx = 0;
-	if (wx > p_ptr->cur_map_wid - SCREEN_WID) wx = p_ptr->cur_map_wid - SCREEN_WID;
-	else if (wx < 0) wx = 0;
+	else if (wx > p_ptr->cur_map_wid - SCREEN_WID) wx = p_ptr->cur_map_wid - SCREEN_WID;
+	if (wx < 0) wx = 0;
 
 	/* React to changes */
 	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))
@@ -744,13 +744,14 @@ static bool change_panel(int dir)
 }
 
 /* 
- * Hack - generate the current room description 
+ * Generate the current room description 
  */
-static void get_room_desc(int room, char *name, char *text_visible, char *text_always)
+static void get_room_desc(int room, char *name, size_t max_name, char *txt_v, size_t max_v, 
+						  char *txt_a, size_t max_a)
 {
 	/* Initialize text */
-	strcpy(text_always, "");
-	strcpy(text_visible, "");
+	strcpy(txt_a, "");
+	strcpy(txt_v, "");
 
 	/* Town or not in room */
 	if (!room)
@@ -759,12 +760,12 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 		{
 			/* Initialise town description */
 			strcpy(name, "town");
-			strcpy(text_always, "It feels like home.");
+			strcpy(txt_a, "It feels like home.");
 		}
 		else
 		{
 			strcpy(name, "the dungeon");
-			strcpy(text_visible, "It is a dangerous maze of corridors and rooms.");
+			strcpy(txt_a, "It is a dangerous maze of corridors and rooms.");
 		}
 
 		return;
@@ -776,110 +777,110 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 		case (ROOM_LARGE):
 		{
 			strcpy(name, "large chamber");
-			strcpy(text_visible, "This chamber contains an inner room with its own monsters, treasures and traps.");
+			strcpy(txt_v, "This chamber contains an inner room with its own monsters, treasures and traps.");
 			return;
 		}
 		case (ROOM_NEST_RODENT):
 		{
 			strcpy(name, "rodent warren");
-			strcpy(text_visible, "Many small creatures scurry around you, and the room is full of rodent hairs and droppings.");
+			strcpy(txt_v, "Many small creatures scurry around you, and the room is full of rodent hairs and droppings.");
 			return;
 		}
 		case (ROOM_NEST_JELLY):
 		{
 			strcpy(name, "jelly pit");
-			strcpy(text_always, "An overpowering stench pervades the air here, which is unnaturally humid.");
+			strcpy(txt_a, "An overpowering stench pervades the air here, which is unnaturally humid.");
 			return;
 		}
 		case (ROOM_NEST_TREASURE):
 		{
 			strcpy(name, "money pit");
-			strcpy(text_visible, "This room seems to have been designed to keep intruders out. Or perhaps it was meant to keep the treasure in?");
+			strcpy(txt_v, "This room seems to have been designed to keep intruders out. Or perhaps it was meant to keep the treasure in?");
 			return;
 		}
 		case (ROOM_NEST_VORTEX):
 		{
 			strcpy(name, "vortex rift");
-			strcpy(text_visible, "You feel a surge of elemental energies as you enter this room. ");
-			strcat(text_visible, "The boundaries between the planes have been stretched thin here.");  
+			strcpy(txt_v, "You feel a surge of elemental energies as you enter this room. ");
+			strcat(txt_v, "The boundaries between the planes have been stretched thin here.");  
 			return;
 		}
 		case (ROOM_NEST_ANIMAL):
 		{
 			strcpy(name, "zoo");
-			strcpy(text_visible, "This room contains a wide assortment of animals, probably collected by some mad spellcaster.");
+			strcpy(txt_v, "This room contains a wide assortment of animals, probably collected by some mad spellcaster.");
 			return;
 		}
 		case (ROOM_NEST_HORROR):
 		{
 			strcpy(name, "horror pit");
-			strcpy(text_visible, "You have entered a chamber full of pure horror. If the walls could talk, ");
-			strcat(text_visible, "they would tell of unspeakable acts. The shadows seem to move around you.");
+			strcpy(txt_v, "You have entered a chamber full of pure horror. If the walls could talk, ");
+			strcat(txt_v, "they would tell of unspeakable acts. The shadows seem to move around you.");
 			return;
 		}
 		case (ROOM_NEST_UNDEAD):
 		{
 			strcpy(name, "graveyard");
-			strcpy(text_visible, "This room is full of corpses. Some of them don't seem to be still.");
+			strcpy(txt_v, "This room is full of corpses. Some of them don't seem to be still.");
 			return;
 		}
 		case (ROOM_PIT_ORC):
 		{
 			strcpy(name, "orc pit");
-			strcpy(text_visible, "You have stumbled into the barracks of a group of war-hungry orcs.");
+			strcpy(txt_v, "You have stumbled into the barracks of a group of war-hungry orcs.");
 			return;
 		}
 		case (ROOM_PIT_TROLL):
 		{
 			strcpy(name, "troll pit");
-			strcpy(text_visible, "You have stumbled into a conclave of several troll clans. Filth lines the walls, ");
-			strcat(text_visible, "and the floor is covered with crushed bones and mangled equipment.");
-			strcpy(text_always, "The stink is unbearable.");
+			strcpy(txt_v, "You have stumbled into a conclave of several troll clans. Filth lines the walls, ");
+			strcat(txt_v, "and the floor is covered with crushed bones and mangled equipment.");
+			strcpy(txt_a, "The stench is unbearable.");
 			return;
 		}
 		case (ROOM_PIT_PERSON):
 		{
 			strcpy(name, "meeting area");
-			strcpy(text_visible, "You have stumbled into a meeting area of various servents of evil.");
+			strcpy(txt_v, "You have stumbled into a meeting area of various servents of evil.");
 			return;
 		}
 		case (ROOM_PIT_GIANT):
 		{
-			strcat(name, "dragon cavern");
-			strcpy(text_visible, "You have entered a room used as a breeding ground for dragons. ");
+			strcpy(name, "giant pit");
+			strcpy(txt_v, "You have stumbled into an immense cavern where giants dwell.");
 			return;
 		}
 		case (ROOM_PIT_DRAGON):
 		{
-			strcpy(name, "demon pit");
-			strcpy(text_visible, "You have entered a chamber full of arcane symbols, and an overpowering smell of brimstone.");
+			strcat(name, "dragon cavern");
+			strcpy(txt_v, "You have entered a room used as a breeding ground for dragons. ");
 			return;
 		}
 		case (ROOM_PIT_DEMON):
 		{
 			strcpy(name, "demon pit");
-			strcpy(text_visible, "You have entered a chamber full of arcane symbols, and an overpowering smell of brimstone.");
+			strcpy(txt_v, "You have entered a chamber full of arcane symbols, and an overpowering smell of brimstone.");
 			return;
 		}
 		case (ROOM_QUEST_VAULT):
 		{
 			strcpy(name, "mysterious vault");
-			strcpy(text_visible, "As you enter this sealed chamber, you feel a sudden moment of awe. ");
+			strcpy(txt_v, "As you enter this sealed chamber, you feel a sudden moment of awe. ");
 			return;
 		}
 		case (ROOM_GREATER_VAULT):
 		{
 			strcpy(name, "greater vault");
-			strcpy(text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
-			strcat(text_visible, "deadly monsters and rich treasure.");
-			strcpy(text_always, "Beware!");
+			strcpy(txt_v, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
+			strcat(txt_v, "deadly monsters and rich treasure.");
+			strcpy(txt_a, "Beware!");
 			return;
 		}
 		case (ROOM_LESSER_VAULT):
 		{
 			strcpy(name, "lesser vault");
-			strcpy(text_visible, "This vault is larger than most you have seen and contains more than ");
-			strcat(text_visible, "its share of monsters and treasure.");
+			strcpy(txt_v, "This vault is larger than most you have seen and contains more than ");
+			strcat(txt_v, "its share of monsters and treasure.");
 			return;
 		}
 		case (ROOM_NORMAL):
@@ -911,19 +912,21 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 				if (d_info[j].seen)
 				{
 					/* Get the textual history */
-					strcat(buf_text1, (d_text + d_info[j].text));
+					my_strcat(buf_text1, (d_text + d_info[j].text), sizeof(buf_text1));
 				}
 				else
 				{
 					/* Get the textual history */
-					strcat(buf_text2, (d_text + d_info[j].text));
+					my_strcat(buf_text2, (d_text + d_info[j].text), sizeof(buf_text2));
 				}
 
 				/* Get the name1 text if needed */
-				if (!strlen(buf_name1)) strcpy(buf_name1, (d_name + d_info[j].name1));
+				if (!strlen(buf_name1))
+					my_strcpy(buf_name1, (d_name + d_info[j].name1), sizeof(buf_name1));
 
 				/* Get the name2 text if needed */
-				if (!strlen(buf_name2)) strcpy(buf_name2, (d_name + d_info[j].name2));
+				if (!strlen(buf_name2)) 
+					my_strcpy(buf_name2, (d_name + d_info[j].name2), sizeof(buf_name2));
 			}
 
 			/* Skip leading spaces */
@@ -936,7 +939,7 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
 
 			/* Set the visible description */
-			strcpy(text_visible, s);
+			my_strcpy(txt_v, s, max_v);
 
 			/* Skip leading spaces */
 			for (s = buf_text2; *s == ' '; s++) /* loop */;
@@ -948,22 +951,22 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
 
 			/* Set the visible description */
-			strcpy(text_always, s);
+			my_strcpy(txt_a, s, max_a);
 
 			/* Set room name */
-			if (strlen(buf_name1)) strcpy(name, buf_name1);
+			if (strlen(buf_name1)) my_strcpy(name, buf_name1, max_name);
 
 			/* And add second room name if necessary */
 			if (strlen(buf_name2))
 			{
 				if (strlen(buf_name1))
 				{
-					strcat(name, " ");
-					strcat(name, buf_name2);
+					my_strcat(name, " ", max_name);
+					my_strcat(name, buf_name2, max_name);
 				}
 				else
 				{
-					strcpy(name, buf_name2);
+					my_strcpy(name, buf_name2, max_name);
 				}
 
 			}
@@ -981,7 +984,7 @@ void display_room_info(int room)
 	int y;
 	char first[2];
 	char name[32];
-	char text_visible[240];
+	char text_visible[240]; 
 	char text_always[240];
 
 	/* Hack -- handle "xtra" mode */
@@ -997,8 +1000,11 @@ void display_room_info(int room)
 	/* Begin recall */
 	Term_gotoxy(0, 1);
 
-	/* Get the actual room description */
-	get_room_desc(room, name, text_visible, text_always);
+	/* 
+	 * Get the actual room description 
+	 */
+	get_room_desc(room, name, sizeof(name), text_visible, sizeof(text_visible), 
+		text_always, sizeof(text_always));
 
 	/* Output to the screen */
 	text_out_hook = text_out_to_screen;
@@ -1062,7 +1068,8 @@ void describe_room(bool force_full)
 	if (!force_full && !display_room_desc) return;
 
 	/* Get the actual room description */
-	get_room_desc(room, name, text_visible, text_always);
+	get_room_desc(room, name, sizeof(name), text_visible, sizeof(text_visible), 
+		text_always, sizeof(text_always));
 
 	/* Display the room */
 	if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW)) && 
@@ -1171,25 +1178,19 @@ void verify_panel(void)
 /*
  * Monster health description
  */
-static void look_mon_desc(char *buf, int m_idx)
+static void look_mon_desc(char *buf, size_t max, int m_idx)
 {
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = get_monster_real(m_ptr);
 
-	bool living = TRUE;
+	bool living = monster_alive(TRUE, m_ptr);
 	int perc;
-
-	/* Determine if the monster is "living" (vs "undead") */
-	if (r_ptr->flags4 & (RF4_UNDEAD)) living = FALSE;
-	if (r_ptr->flags4 & (RF4_DEMON)) living = FALSE;
-	if (r_ptr->flags4 & (RF4_PLANT)) living = FALSE;
-	if (strchr("Evg$|!?~=", r_ptr->d_char)) living = FALSE;
 
 	/* Healthy monsters */
 	if (m_ptr->hp >= m_ptr->maxhp)
 	{
 		/* No damage */
-		strcpy(buf,(living ? "unhurt" : "undamaged"));
+		my_strcpy(buf, (living ? "unhurt" : "undamaged"), max);
 	}
 	else
 	{
@@ -1198,27 +1199,27 @@ static void look_mon_desc(char *buf, int m_idx)
 
 		if (perc >= 60)
 		{
-			strcpy(buf,(living ? "somewhat wounded" : "somewhat damaged"));
+			my_strcpy(buf, (living ? "somewhat wounded" : "somewhat damaged"), max);
 		}
 		else if (perc >= 25)
 		{
-			strcpy(buf,(living ? "wounded" : "damaged"));
+			my_strcpy(buf, (living ? "wounded" : "damaged"), max);
 		}
 		else if (perc >= 10)
 		{
-			strcpy(buf,(living ? "badly wounded" : "badly damaged"));
+			my_strcpy(buf, (living ? "badly wounded" : "badly damaged"), max);
 		}
-		else strcpy(buf,(living ? "almost dead" : "almost destroyed"));
+		else my_strcpy(buf, (living ? "almost dead" : "almost destroyed"), max);
 	}
 
-	if (m_ptr->csleep) strcat(buf, ", asleep");
-	if (m_ptr->bleeding) strcat(buf, ", bleeding");
-	if (m_ptr->poisoned) strcat(buf, ", poisoned");
-	if (m_ptr->blinded) strcat(buf, ", blinded");
-	if (m_ptr->confused) strcat(buf, ", confused");
-	if (m_ptr->monfear) strcat(buf, ", afraid");
-	if (m_ptr->calmed) strcat(buf, ", calmed");
-	if (m_ptr->stunned) strcat(buf, ", stunned");
+	if (m_ptr->sleep) my_strcat(buf, ", asleep", max);
+	if (m_ptr->bleeding) my_strcat(buf, ", bleeding", max);
+	if (m_ptr->poisoned) my_strcat(buf, ", poisoned", max);
+	if (m_ptr->blinded) my_strcat(buf, ", blinded", max);
+	if (m_ptr->confused) my_strcat(buf, ", confused", max);
+	if (m_ptr->monfear) my_strcat(buf, ", afraid", max);
+	if (m_ptr->calmed) my_strcat(buf, ", calmed", max);
+	if (m_ptr->stunned) my_strcat(buf, ", stunned", max);
 }
 
 /*
@@ -1379,7 +1380,7 @@ void saturate_mon_list(monster_list_entry *who, int *count, bool allow_base, boo
 	int counter = 0;
 	monster_list_entry *temp_list;
 
-	C_MAKE(temp_list, M_LIST_ITEMS, monster_list_entry);
+	C_MAKE(temp_list, MON_LIST_ITEMS, monster_list_entry);
 
 	for (i = 0;i < *count; i++)
 	{
@@ -1454,7 +1455,7 @@ void saturate_mon_list(monster_list_entry *who, int *count, bool allow_base, boo
  *
  * We return "5" if no motion is needed.
  */
-sint motion_dir(int y1, int x1, int y2, int x2)
+int motion_dir(int y1, int x1, int y2, int x2)
 {
 	/* No movement required */
 	if ((y1 == y2) && (x1 == x2)) return (5);
@@ -1478,7 +1479,7 @@ sint motion_dir(int y1, int x1, int y2, int x2)
 /*
  * Extract a direction (or zero) from a character
  */
-sint target_dir(char ch)
+int target_dir(char ch)
 {
 	int d = 0;
 
@@ -1488,7 +1489,7 @@ sint target_dir(char ch)
 	cptr s;
 
 	/* Already a direction? */
-	if (isdigit(ch))
+	if (isdigit((unsigned char)ch))
  	{
 		d = D2I(ch);
 	}
@@ -1511,7 +1512,7 @@ sint target_dir(char ch)
 			for (s = act; *s; ++s)
 			{
 				/* Use any digits in keymap */
-				if (isdigit(*s)) d = D2I(*s);
+				if (isdigit((unsigned char)*s)) d = D2I(*s);
 			}
 		}
 	}
@@ -1545,7 +1546,7 @@ static bool target_able(int m_idx)
 	if (m_idx <= 0) return (FALSE);
 
 	/* Get monster */
-	m_ptr = &m_list[m_idx];
+	m_ptr = &mon_list[m_idx];
 
 	/* Monster must be alive */
 	if (!m_ptr->r_idx) return (FALSE);
@@ -1587,7 +1588,7 @@ bool target_okay(void)
 		/* Accept reasonable targets */
 		if (target_able(m_idx))
 		{
-			monster_type *m_ptr = &m_list[m_idx];
+			monster_type *m_ptr = &mon_list[m_idx];
 
 			/* Get the monster location */
 			p_ptr->target_row = m_ptr->fy;
@@ -1610,7 +1611,7 @@ void target_set_monster(int m_idx)
 	/* Acceptable target */
  	if ((m_idx > 0) && target_able(m_idx))
 	{
-		monster_type *m_ptr = &m_list[m_idx];
+		monster_type *m_ptr = &mon_list[m_idx];
 
 		/* Save target info */
 		p_ptr->target_set = TRUE;
@@ -1775,7 +1776,7 @@ static bool target_set_interactive_accept(int y, int x)
 	/* Visible monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
-		monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+		monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 
 		/* Visible monsters */
 		if (m_ptr->ml) return (TRUE);
@@ -1940,10 +1941,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			cptr name = "something strange";
 
 			/* Display a message */
-			if (cheat_wizard)
-				sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
-			else
-				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if (cheat_wizard) strnfmt(out_val, sizeof(out_val), 
+				"%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
+			else strnfmt(out_val, sizeof(out_val), 
+				"%s%s%s%s [%s]", s1, s2, s3, name, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -1958,7 +1959,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Actual monsters */
 		if (cave_m_idx[y][x] > 0)
 		{
-			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = get_monster_real(m_ptr);
 
 			/* Visible */
@@ -1972,7 +1973,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				boring = FALSE;
 
 				/* Get the monster name ("a kobold") */
-				monster_desc(m_name, m_ptr, 0x08);
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
 
 				/* Hack -- track this monster race */
 				monster_track(m_ptr->r_idx, m_ptr->u_idx);
@@ -2011,21 +2012,22 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 						char buf[100];
 
 						/* Describe the monster */
-						look_mon_desc(buf, cave_m_idx[y][x]);
+						look_mon_desc(buf, sizeof(buf), cave_m_idx[y][x]);
 
 						/* Describe, and prompt for recall */
 						if (cheat_wizard)
 						{
-							sprintf(out_val, "%s%s%s%s (%s) [r,%s] (%d:%d)",
-						            s1, s2, s3, m_name, buf, info, y, x);
+							strnfmt(out_val, sizeof(out_val),
+								"%s%s%s%s (%s) [r,%s] (%d:%d)",
+								s1, s2, s3, m_name, buf, info, y, x);
 						}
 						else
 						{
-							sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
-							        s1, s2, s3, m_name, buf, info);
+							strnfmt(out_val, sizeof(out_val),
+								"%s%s%s%s (%s) [r,%s]",
+								s1, s2, s3, m_name, buf, info);
 						}
 
-				
 						prt(out_val, 0, 0);
 
 						/* Place cursor */
@@ -2072,10 +2074,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Obtain an object description */
-					object_desc(o_name, o_ptr, TRUE, 3);
+					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 					/* Describe the object */
-					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+					strnfmt(out_val, sizeof(out_val), "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
 					query = inkey();
@@ -2104,11 +2106,11 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Scan all objects in the grid */
 		if (easy_floor)
 		{
-			int floor_list[24];
+			int floor_list[MAX_FLOOR_STACK];
 			int floor_num;
 
 			/* Scan for floor objects */
-			floor_num = scan_floor(floor_list, 24, y, x, 0x02);
+			floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, y, x, 0x02);
 
 			/* Actual pile */
 			if (floor_num > 1)
@@ -2124,10 +2126,17 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				{
 					/* Describe the pile */
 					if (cheat_wizard)
-						sprintf(out_val, "%s%s%sa pile of %d objects [r,%s] (%d:%d)", s1, s2, s3, floor_num, info, y, x);
+					{
+						strnfmt(out_val, sizeof(out_val),
+							"%s%s%sa pile of %d objects [r,%s] (%d:%d)", 
+							s1, s2, s3, floor_num, info, y, x);
+					}
 					else
-						sprintf(out_val, "%s%s%sa pile of %d objects [r,%s]",
+					{
+						strnfmt(out_val, sizeof(out_val),
+							"%s%s%sa pile of %d objects [r,%s]",
 							s1, s2, s3, floor_num, info);
+					}
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
 					query = inkey();
@@ -2193,13 +2202,20 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				boring = FALSE;
 
 				/* Obtain an object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 				/* Describe the object */
 				if (cheat_wizard)
-					sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, o_name, info, y, x);
+				{
+					strnfmt(out_val, sizeof(out_val),
+						"%s%s%s%s [%s] (%d:%d)", s1, s2, s3, o_name, info, y, x);
+				}
 				else
-					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+				{
+					strnfmt(out_val, sizeof(out_val),
+						"%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+				}
+
 				prt(out_val, 0, 0);
 				move_cursor_relative(y, x);
 				query = inkey();
@@ -2253,10 +2269,15 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				}
 				
 				if (cheat_wizard)
-					sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", 
-							s1, s2, s3, t_name, info, y, x);
+				{
+					strnfmt(out_val, sizeof(out_val), 
+						"%s%s%s%s [%s] (%d:%d)", s1, s2, s3, t_name, info, y, x);
+				}
 				else
-					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, t_name, info);
+				{
+					strnfmt(out_val, sizeof(out_val),
+						"%s%s%s%s [%s]", s1, s2, s3, t_name, info);
+				}
 				prt(out_val, 0, 0);
 				move_cursor_relative(y, x);
 				query = inkey();
@@ -2317,9 +2338,15 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 			/* Display a message */
 			if (cheat_wizard)
-				sprintf(out_val, "%s%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, lock, info, y, x);
+			{
+				strnfmt(out_val, sizeof(out_val),
+					"%s%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, lock, info, y, x);
+			}
 			else
-				sprintf(out_val, "%s%s%s%s%s [%s]", s1, s2, s3, name, lock, info);
+			{
+				strnfmt(out_val, sizeof(out_val),
+					"%s%s%s%s%s [%s]", s1, s2, s3, name, lock, info);
+			}
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -2959,7 +2986,7 @@ bool confuse_dir(int *dp)
 /*
  * Centers a string within a 31 character string
  */
-static void center_string(char *buf, cptr str)
+static void center_string(char *buf, size_t max, cptr str)
 {
 	int i, j;
 
@@ -2970,7 +2997,7 @@ static void center_string(char *buf, cptr str)
 	j = 15 - i / 2;
 
 	/* Mega-Hack */
-	sprintf(buf, "%*s%s%*s", j, "", str, 31 - i - j, "");
+	strnfmt(buf, max, "%*s%s%*s", j, "", str, 31 - i - j, "");
 }
 
 /*
@@ -2990,7 +3017,7 @@ static void print_tomb(time_t death_time)
 	Term_clear();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "dead.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "dead.txt");
 
 	/* Open the News file */
 	fp = my_fopen(buf, "r");
@@ -3020,47 +3047,53 @@ static void print_tomb(time_t death_time)
 	/* Normal */
 	else
 	{
+
 #ifndef PREVENT_LOAD_C_TEXT
+
 		p = c_text+cp_ptr->title[(p_ptr->lev-1)/5];
+
 #else /* PREVENT_LOAD_C_TEXT */
+
 		p = " ";
+
 #endif /* PREVENT_LOAD_C_TEXT */
+
 	}
 
-	center_string(buf, op_ptr->full_name);
+	center_string(buf, sizeof(buf), op_ptr->full_name);
 	put_str(buf, 6, 11);
 
-	center_string(buf, "the");
+	center_string(buf, sizeof(buf), "the");
 	put_str(buf, 7, 11);
 
-	center_string(buf, p);
+	center_string(buf, sizeof(buf), p);
 	put_str(buf, 8, 11);
 
-	center_string(buf, c_name + cp_ptr->name);
+	center_string(buf, sizeof(buf), c_name + cp_ptr->name);
 	put_str(buf, 10, 11);
 
 	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
-	center_string(buf, tmp);
+	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 11, 11);
 
 	sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
-	center_string(buf, tmp);
+	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 12, 11);
 
 	sprintf(tmp, "AU: %ld", (long)p_ptr->au);
-	center_string(buf, tmp);
+	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 13, 11);
 
 	sprintf(tmp, "Killed on Level %d", p_ptr->depth);
-	center_string(buf, tmp);
+	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 14, 11);
 
-	sprintf(tmp, "by %s.", p_ptr->died_from);
-	center_string(buf, tmp);
+	strnfmt(tmp, sizeof(tmp), "by %s.", p_ptr->died_from);
+	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 15, 11);
 
-	sprintf(tmp, "%-.24s", ctime(&death_time));
-	center_string(buf, tmp);
+	strnfmt(tmp, sizeof(tmp), "%-.24s", ctime(&death_time));
+	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 17, 11);
 }
 
@@ -3126,7 +3159,7 @@ static void show_info(void)
 	store_type *st_ptr = &store[STORE_HOME];
 
 	/* Display player */
-	display_player(0);
+	display_player(CSCREEN_MAIN);
 
 	/* Prompt for inventory */
 	prt("Hit any key to see more information (ESC to abort): ", 23, 0);
@@ -3181,7 +3214,7 @@ static void show_info(void)
 				prt(tmp_val, j+2, 4);
 
 				/* Get the object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 				/* Get the inventory color */
 				attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
@@ -3233,7 +3266,7 @@ static void death_examine(void)
 		o_ptr->ident |= (IDENT_MENTAL);
  
 		/* Description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
  
 		/* Begin recall */
 		Term_gotoxy(0, 1);
@@ -3241,7 +3274,7 @@ static void death_examine(void)
 		/* Actually display the item */
 		list_object(o_ptr, OBJECT_INFO_KNOWN);
 
-		object_desc_store(o_name, o_ptr, TRUE, 3);
+		object_desc_store(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Clear the top line */
 		Term_erase(0, 0, 255);
@@ -3380,9 +3413,9 @@ void do_player_death(void)
  			{
 				char ftmp[80];
 
-				sprintf(ftmp, "%s.txt", op_ptr->base_name);
+				strnfmt(ftmp, sizeof(ftmp), "%s.txt", op_ptr->base_name);
 
-				if (get_string("File name: ", ftmp, 80))
+				if (get_string("File name: ", ftmp, sizeof(ftmp)))
 				{
 					if (ftmp[0] && (ftmp[0] != ' '))
 					{

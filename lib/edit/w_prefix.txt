@@ -9,8 +9,9 @@
 # Format:
 # N: serial number : prefix name
 # K: evl:chs:anl:plt:udd:dmn:hmn:ppl:fry:drg:lyc:acd:elc:fir:cld:psn:lit:drk
-# W: rarity : material : weight % : cost % 
-# P: + to hit, + to dam, + to dd, + to ds
+# W: depth : rarity : weight % : cost % 
+# M: base material : material to use
+# P: + to hit, damage percentile
 # F: flags 
 
 # Flags - SHOP, GOOD, determine whether the object is legal in stores and 
@@ -18,132 +19,244 @@
 
 # Version stamp (required)
 
-V:0.4.6
+V:0.5.0
 
 N:0:<none>
-W:1:0:100:100
-P:0:0:0:0
+W:0:1:100:100
+P:0:100
 F:SHOP | GOOD
 
-# Weapon prefixes
+### Racial Prefixes ###
 
-N:1:Broken
-W:10:0:50:1
-P:-5:-5:-9:-9
+# Player Races #
 
-N:2:Rusty
-W:10:12:100:50
-P:-2:-2:0:0
-
-N:3:Cheap
-W:15:0:100:85
-P:-1:0:0:0
-F:SHOP
-
-N:4:Hunter's
-W:15:0:100:110
-P:0:1:0:0
+N:1:Elven
+W:0:35:90:200
+P:2:100
 F:SHOP | GOOD
 
-N:5:Quality
-W:20:0:100:130
-P:1:1:0:0
+N:2:Dwarven
+W:0:35:110:150
+P:0:110
 F:SHOP | GOOD
 
-N:6:Orcish
-W:30:0:120:130
-P:0:2:0:0:0
+N:3:Gnomish
+W:0:45:80:90
+P:0:90
 F:SHOP | GOOD
 
-N:7:Dwarven
-W:40:0:110:150
-P:0:0:0:1
+N:4:Grippli
+W:0:45:70:100
+P:0:85
 F:SHOP | GOOD
 
-N:8:Elven
-W:40:0:90:200
-P:2:0:0:0
+N:5:Lizardman
+W:0:45:115:100
+P:0:120
 F:SHOP | GOOD
 
-N:9:Kobold
-W:40:0:80:80
-P:0:0:-1:-1:0
+N:6:Rattikin
+W:0:35:85:115
+P:1:90
 F:SHOP | GOOD
 
-N:10:Rattikin
-W:40:0:80:120
-P:1:0:-1:1
+N:7:Felpurr
+W:0:40:90:110
+P:0:100
 F:SHOP | GOOD
 
-N:11:Ursan
-W:45:0:160:200
-P:0:0:1:0
+N:8:Ursan
+W:0:40:160:200
+P:0:130
 F:SHOP | GOOD
 
-N:12:Felpurr
-W:45:0:90:110
-P:0:0:0:0
+N:9:Vargr
+W:0:40:95:150
+P:0:100
+K:0:0:0:0:0:0:11:11:0:0:0:0:0:0:0:0:0:0
 F:SHOP | GOOD
 
-N:13:Vargr
-W:45:0:90:140
-P:0:1:0:0
-F:SHOP | GOOD
-
-N:14:Grippli
-W:50:0:60:100
-P:0:0:0:-1
-F:SHOP | GOOD
-
-N:15:Gnomish
-W:50:0:50:65
-P:0:0:-1:0
-F:SHOP | GOOD
-
-N:16:Lizardman
-W:50:0:115:100
-P:0:1:0:0
-F:SHOP | GOOD
-
-N:17:Iron
-W:50:12:100:120
-P:0:0:0:0
-K:0:0:0:0:0:11:0:0:12:0:0:0:0:0:0:0:0:0
-F:GOOD | SHOP
-
-N:18:Ogrish
-W:60:0:250:200
-P:-2:0:1:1
-F:GOOD
-
-N:19:Kyrral
-W:60:0:110:125
-P:0:0:0:0
+N:10:Kyrral
+W:0:55:110:125
+P:0:100
 K:11:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOP | GOOD
 
-N:20:Runed
-W:75:0:100:200
-P:0:5:0:0
+# Other Races #
+
+N:11:Kobold
+W:0:35:80:80
+P:0:90
+F:SHOP | GOOD
+
+N:12:Orcish
+W:0:25:120:130
+P:0:120
+F:SHOP | GOOD
+
+N:13:Ogrish
+W:0:55:250:200
+P:-2:150
 F:GOOD
 
-N:21:Ornamental
-W:80:12:110:350
-P:-3:-3:-1:-1
+### Quality Prefixes ###
 
-N:22:Silver
-W:80:12:100:200
-P:0:0:0:0
+# Low quality #
+
+N:14:Broken
+W:0:10:50:1
+P:-5:10
+
+N:15:Rusty
+W:0:10:100:50
+M:12:0
+P:-2:75
+
+N:16:Cheap
+W:0:15:100:85
+P:-1:100
+F:SHOP
+
+N:17:Ornamental
+W:0:75:110:350
+M:12:0
+P:-3:80
+
+# High Quality #
+
+N:18:Hunter's
+W:0:15:100:120
+P:0:100
+K:0:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOP | GOOD
+
+N:19:Forester's
+W:0:15:100:120
+P:0:100
+K:0:0:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOP | GOOD
+
+N:20:Quality
+W:0:15:100:130
+P:1:110
+F:SHOP | GOOD
+
+N:21:Runed
+W:5:70:100:200
+P:5:110
+F:GOOD
+
+N:22:Majestic
+W:10:150:120:500
+P:2:175
+F:GOOD
+
+### Material Prefixes ###
+
+# New materials for wooden weapons #
+
+N:23:Bone
+G:W
+W:0:20:90:90
+P:0:100
+M:7:8
+F:GOOD 
+
+N:24:Stone
+G:W
+W:0:25:110:90
+P:0:105
+M:7:9
+F:GOOD 
+
+N:25:Metal
+G:s
+W:0:25:115:100
+P:0:110
+M:7:12
+F:GOOD | SHOP
+
+N:26:Dragonbone
+G:W
+W:5:50:100:150
+P:0:110
+M:7:8
+F:GOOD
+
+# New materials for metal weapons #
+
+N:27:Iron
+W:0:40:100:120
+P:0:100
+M:12:12
+K:0:0:0:0:0:11:0:0:12:0:0:0:0:0:0:0:0:0
+F:GOOD | SHOP
+
+N:28:Silver
+G:s
+W:0:60:100:200
+P:0:100
+M:12:17
 K:0:0:0:0:12:0:0:0:0:0:12:0:0:0:0:0:0:0
 F:GOOD
 
-N:23:Dark Elven
-W:90:0:90:250
-P:2:2:0:1
+N:29:Golden
+G:y
+W:5:100:140:300
+P:0:90
+M:12:17
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:12:0
 F:GOOD
 
-N:24:Majestic
-W:150:0:120:500
-P:2:2:1:2
+N:30:Crystal
+G:W
+W:2:90:100:150
+P:0:110
+M:12:10
 F:GOOD
 
+N:31:Emerald
+G:g
+W:5:100:100:350
+P:0:125
+K:0:0:0:0:0:0:0:0:0:0:0:13:0:0:0:0:0:0
+M:12:10
+F:GOOD
+
+N:32:Topaz
+G:y
+W:5:100:100:350
+P:0:125
+K:0:0:0:0:0:0:0:0:0:0:0:0:13:0:0:0:0:0
+M:12:10
+F:GOOD
+
+N:33:Ruby
+G:r
+W:5:100:100:350
+P:0:125
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:13:0:0:0:0
+M:12:10
+F:GOOD
+
+N:34:Sapphire
+G:b
+W:5:100:100:350
+P:0:125
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:13:0:0:0
+M:12:10
+F:GOOD
+
+N:35:Diamond
+G:w
+W:10:150:100:400
+P:0:160
+M:12:10
+F:GOOD
+
+N:36:Blackrock
+G:D
+W:10:150:175:350
+P:0:130
+M:0:14
+F:GOOD

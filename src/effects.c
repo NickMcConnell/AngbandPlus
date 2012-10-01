@@ -112,7 +112,7 @@ void damage_player(int dam, cptr kb_str)
 		message_flush();
 
 		/* Note cause of death */
-		strcpy(p_ptr->died_from, kb_str);
+		my_strcpy(p_ptr->died_from, kb_str, sizeof(p_ptr->died_from));
 
 		/* No longer a winner */
 		p_ptr->total_winner = FALSE;
@@ -1390,7 +1390,7 @@ bool set_hero(int v)
 	{
 		if (!p_ptr->hero)
 		{
-			message(MSG_EFFECT, 0, "You feel like a hero!");
+			message(MSG_EFFECT, 0, "You feel heroic!");
 			notice = TRUE;
 		}
 	}
@@ -1767,6 +1767,7 @@ bool set_stability(int v)
 	{
 		if (p_ptr->stability <= 0)
 		{
+			message(MSG_EFFECT, 0, "You feel a strong sense of stability");
 			notice = TRUE;
 		}
 	}
@@ -1776,12 +1777,65 @@ bool set_stability(int v)
 	{
 		if (p_ptr->stability)
 		{
+			message(MSG_EFFECT, 0, "Your sense of stability subsides");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->stability = v;
+
+	/* Nothing to notice */
+	if (!notice) return(FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_bravery", notice observable changes
+ */
+bool set_tim_bravery(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values. Note that it can be negative */
+	v = (v > 10000) ? 10000 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_bravery <= 0)
+		{
+			message(MSG_EFFECT, 0, "You feel like nothing can scare you!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_bravery)
+		{
+			message(MSG_EFFECT, 0, "You no longer feel as fearless.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_bravery = v;
 
 	/* Nothing to notice */
 	if (!notice) return(FALSE);
@@ -2572,13 +2626,14 @@ void display_player_status(void)
 	/* Good effects */
 	if (p_ptr->shield)		conds[i++] = "Shield";
 	if (p_ptr->blessed)		conds[i++] = "Blessed";
+	if (p_ptr->tim_bravery)	conds[i++] = "Boldness";
 	if (p_ptr->hero)		conds[i++] = "Heroism";
 	if (p_ptr->stability)	conds[i++] = "Stability";
 	if (p_ptr->rage)		conds[i++] = "Berserk";
 	if (p_ptr->protevil)	conds[i++] = "Prot. Evil";
+	if (p_ptr->absorb)		conds[i++] = "Absorb Hit";
 	if (p_ptr->resilient)	conds[i++] = "Resilient";
 	if (p_ptr->fast)		conds[i++] = "Hasted";
-	if (p_ptr->absorb)		conds[i++] = "Absorb Hit";
 	if (p_ptr->invis)		conds[i++] = "Invisible";
 	if (p_ptr->tim_infra)	conds[i++] = "Infravision Bonus";
 	if (p_ptr->tim_stealth)	conds[i++] = "Stealth Bonus";

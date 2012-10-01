@@ -1,0 +1,139 @@
+=== Townspeople ===
+
+The town contains many different kinds of people.  There are the street 
+urchins, young children who will mob an adventurer for money, and seem to come
+out of the woodwork when excited.  Beggars are a constant annoyance, but not 
+harmful.  Public drunks wander about the town singing, and are of no threat to
+anyone.  Sneaky rogues hang about watching for a likely victim to mug.  And 
+finally, what town would be complete without a swarm of half drunk warriors, 
+who take offense or become annoyed just for the fun of it.
+
+Most of the townspeople should be avoided by the largest possible distance
+when you wander from store to store.  Fights will break out, though, so be
+prepared.  Since your character grew up in this world of intrigue, no 
+experience is awarded for killing the town inhabitants, though you may acquire
+treasure.
+
+
+=== Monsters of the Dungeon ===
+
+If there's one thing the dungeons of EyAngband don't lack, its monsters.  As
+you travel down the murky depths, you will encounter many different types of 
+creatures, some very dangerous, while others only mildly annoying. 
+
+The following are some of the most important creature types:
+
+People
+    Not everything you encounter down in the dungeon will be of the strange or
+    monstrous variety.  Sometimes, your worst enemy can be someone just like 
+    you, only slightly more powerful and bearing a grudge.  There are many who
+    chose to ally themselves with the forces of darkness - take heed.
+
+Humanoids
+    Orcs, Ogre, Trolls and other humanoid types form the rank and file of the
+    armies of Morgoth.  They are brutish creatures, whose only purpose in life
+    is the spreading of violence.
+
+Animals
+    Not all animals are cute or docile.  Some of them are quick to attack, and
+    many have developed defences against the dangers of the world - from 
+    poisonous snakes and spiders to powerful bears and wolves.  And, deeper 
+    into the dungeon, lurk animals whose powers spread beyond those found
+    strictly in nature.
+
+Plants
+    Just like animals, the harmless plants of the surface world are replaced
+    by far deadlier varieties once you are in the dunegon.  Mushrooms and molds
+    may emit spores causing all manner of side-effects.  Primative plants, such
+    as jellies and oozes, may have evolved into many strange varieties, some of
+    which may even be mobile.
+
+Undead
+    Death isn't always the final word, at least not when necromantic magics are
+    involved.  There are many types of undead creatures that haunt the dungeon,
+    from mindless zombies and skeletons, to the restless ghosts of evildoers, 
+    to powerful vampires and liches.  
+
+Demons
+    Summoned forth from hell to do evil in our world, even the weakest of 
+    demons are a threat and the most powerful of them are terrifying opponents
+    indeed.  
+
+Faeries
+    Magical beings, Faeries are both mysterious and dangerous; even those among
+    them that don't mean to harm may do so when playing their strange games.
+    While there are hundreds of different Faery types, only those that delight
+    in trickery, or those that are plain-out malevolent, can be found in the 
+    dungeon.
+
+Lycanthropes
+    Lycanthropes, or werebeasts, shouldn't be confused with the animalistic 
+    races such as vargr or ursa.  They are cursed creatures, who have lost what
+    humanity they may have had and now exist for no purpose but to spread their
+    curse onwards to new victims.
+
+Dragons
+    Great, powerful reptiles, dragons live long lives and grow cunning and 
+    evil.  With their powerful breath attacks, and magical abilities, they can
+    pose a risk even to the most seasoned adventurers.
+
+In addition to these monster types, there are rumors of other creatures found
+deep in the dungeon: strange golems constructed by mages for purposes unknown,
+unspeakable and unnamable horrors that even the demons fear, elemntal beings
+and vortices, and many others.  Never let your guard down, as you travel the
+passageways of EyAngband, as you never know what you may encounter next.
+
+
+=== Monster Symbols ===
+
+  a  Giant Ant                                 A  Automaton
+  b  Giant Bat                                 B  Bird
+  c  Cat                                       C  Canine
+  d  Dragon                                    D  Ancient Dragon
+  e  Floating Eye                              E  Elemental
+  f  Lesser Faery                              F  Greater Faery
+  g  Ghost                                     G  Giant
+  h  Humanoids                                 H  Harpy
+  i  Icky-Thing                                I  Insect
+  j  Jelly                                     J  Snake
+  k  Kobold                                    K  Killer Beetle
+  l  Low-level person                          L  Lich
+  m  Mold                                      M  Mummy
+  n  Naga                                      N  Nameless Horror
+  o  Orc                                       O  Ogre
+  p  Medium-level person                       P  High-level person
+  q  Quadruped                                 Q  Quylthulg
+  r  Rodent                                    R  Reptile/Amphibian
+  s  Skeleton                                  S  Spider/Scorpion/Tick
+  t  Townsperson                               T  Troll
+  u  Minor demon                               U  Major demon
+  v  Vortex                                    V  Vampire/Wraith
+  w  Worm or Worm Mass                         W  Werebeast
+  x  (unused)                                  X  Xorn/Xaren
+  y  Yeti                                      Y  Hydra
+  z  Zombie                                    Z  Zephyr Hound
+  ,  Mushroom Patch
+
+
+=== Monster Memories ===
+
+There are hundreds of different creatures in the pits of EyAngband, many of
+which have the same letter symbol and color on the screen.  The exact species
+of a creature can be discovered by using the 'l'ook command.  It is also very
+difficult to keep track of the capabilities of various creatures.  Luckily, 
+EyAngband automatically keeps track of your experiences with a particular 
+creature.  This feature is called the monster memory.  You monster memory 
+recalls the particular attacks of each creature (whether or not technically a
+monster) which you have suffered, as well as recalling if you have observed 
+them to multiply or move erratically, or drop treasure, etc.  Otherwise you 
+would simply have to take notes, which is an unnecessary bother.
+
+If you have killed enough of a particular creature, or suffered enough attacks,
+recalling the monster memory may also provide you with information not 
+otherwise available, such as a armor class or hit dice.  These are not 
+explained, but may be useful to give the relative danger of each creature.
+This memory can be passed on to a new character even after you die by means
+of a reduced save file.
+
+
+======================= Last updated for EyAngband 0.5.0 ======================

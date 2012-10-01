@@ -1,0 +1,109 @@
+=== Attacking and Being Attacked ===
+ 
+Attacking is simple in EyAngband.  If you move into a creature, you attack him.
+You can attack from a distance by firing a missile or by magical means (such
+as aiming a wand).  Creatures attack in the same way.  If they move into you,
+they attack you.  Some creatures can also cast spells from a distance, and
+others can use various breath weapons (such as fire) on you from a distance.
+
+Creatures in walls can not be attacked by wands or other magic attacks
+normally stopped by walls, nor can they be shot at with bows and arrows.
+Tunnelling into the wall (using the "tunnel" or "alter" command) will allow 
+you to attack any creature in the wall. This applies to creatures which 
+"pass through" walls: if they "bore through" walls, the wall is no longer
+there, and the creature can be targetted normally.
+
+If you are wielding a weapon, the damage for the weapon is used when you hit
+a creature.  Otherwise you will do some damage based on your strength and
+dexterity - but fighting empty handed is never really worthwhile.
+
+You may wield both a primary weapon for melee combat, and a bow or other
+missile launcher for launching missiles at the same time (along with a
+light, an amulet, two rings, a helmet, boots, gloves, a shield, a cloak, and
+body armor).  Be sure not to try and kill a dragon with a shovel, it makes
+you look silly and probably won't work. (Note that "probably" is used 
+advisedly: it has actually been done...)
+ 
+Firing a missile (while wielding the appropriate launcher) is the only way to
+get the "full" power out of the missile.  You may of course throw an arrow at
+a monster without shooting it, but you will find the effects may not be what
+you had hoped.
+
+Hits and misses are determined by ability to hit versus armor class.  A hit
+is a strike that does some damage; a miss may in fact reach a target, but
+fails to do any damage.  Higher armor classes make it harder to do damage,
+and so lead to more misses.
+
+Ocasionally, for all combat types, you will score a critical hit - a hit so
+effective that it does extra damage.  Dependingon the type of weapon involved,
+this can have additional effects.  
+
+=== Your Melee Weapon ===
+
+Carrying a weapon in your backpack does you no good.  You must wield a weapon 
+before it can be used in a fight.  A secondary weapon (indeed, more than one)
+can be kept by keeping it in the backpack, and switching it with the primary 
+weapon when needed.
+
+Weapons have two main characteristics, their enchanted bonus to hit (if any)
+and their damage dice, expressed as `(+#, #d#)'.  The third major thing to know
+about your weapon is its weight.  The weapon's weight, and your dexterity, 
+determine how many blows you will get with it.  In addition, depending on your
+strength, some weapons will be too heavy for you.  Wielding a weapon that is 
+too heavy can seriously cripple your combat capabilities.  
+
+Fortunately, you don't have to do the math for each weapon you find, trying to
+figure out whether it is more or less effective than your current weapon.  To
+see how many blows you will get with a weapon, how much damage it will do on 
+average, and whether it is too heavy for you, all you need to do is 'I'nspect
+it.
+
+In addition to their basic characteristics, many weapons have additional 
+magical powers such as fire brands or extra damage vs. demons.  If you have 
+identified the weapon, you can see these effects as well when 'I'nspecting the
+waepon.  
+
+If you score a critical hit with a melee weapon, the effect depends on the 
+weapon type.  Swords will cause open wounds, making the enemy bleed, incurring
+additional wounds over time.  Blunt weapons can cause concussions, stunning and
+occasionally confusing your opponents.  Axes and polearms will simply provide a 
+greater amount of bonus damage.  Warriors, due to their extensive martial
+training, have a higher chance of scoring critical hits with melee weapons than
+any other class.  Priests will never score a critical hit with a weapon that
+displeases their god.
+
+=== Missile Weapons - Bow and Arrows ===
+
+Similarly to melee weapons, bows and arrows each have basic characteristics.
+Bows have three major characteristics - their to-hit bonus, their multiplier,
+and their range, displayed as (+#, x#, #). Arrows also have three attributes:
+their to-hit bonus, their damage dice, and their range modifier (+#, #d#, +#).
+
+When shooting an arrow with a bow, the to-hit bonuses of both bow and arrow are
+cumulative, and can have a major effect on your chance of hitting.  The damage
+done by an arrow is calculated by its damage die similarly to a melee weapon, 
+but is further multiplied by the bow's multiplier.  Finally, the range is the
+furthest, in dungeon squares, that you can reach with your current bow - the
+arrow's modifier may influence this, as some arrows can reach further than 
+others.
+
+If you are wielding a bow, all you need to do is 'I'nspect an arrow and you can
+see exactly how effective it is with your current bow.
+
+Like melee weapons, you will occasionally get critical hits with bows, 
+especially if you are playing a ranger.  These can cause additional damage, and
+sometimes can make an enemy bleed.
+
+=== Missile Weapons - Thrown ===
+
+Throwning things at your opponents is both simple and, for most objects, 
+ineffective.  The range traversed depends on your strength and the weight of 
+the object, and the damage done depends on the weight of the object, though 
+certain items (such as daggers) can be more effective thrown than their weight
+would indicate.  Some items, such as flasks of lantern oil, can indeed be quite
+effective thrown - the largest class of these are the powders, which can create
+many special effects upon an enemy, and some more powerful types can injure a 
+group of enemies.  
+
+
+======================= Last updated for EyAngband 0.5.0 ======================

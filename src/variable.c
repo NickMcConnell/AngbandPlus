@@ -71,6 +71,7 @@ u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
 
 s16b num_repro;			/* Current reproducer count */
+s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 
 char summon_kin_type;	/* Hack -- See summon_specific() */
@@ -99,8 +100,8 @@ bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
 s16b o_max = 1;			/* Number of allocated objects */
 s16b o_cnt = 0;			/* Number of live objects */
 
-s16b m_max = 1;			/* Number of allocated monsters */
-s16b m_cnt = 0;			/* Number of live monsters */
+s16b mon_max = 1;			/* Number of allocated monsters */
+s16b mon_cnt = 0;			/* Number of live monsters */
 
 s16b t_max = 1;			/* Number of allocated traps */
 s16b t_cnt = 0;			/* Number of live traps */
@@ -274,7 +275,7 @@ char angband_sound_name[MSG_MAX][16] =
 /*
  * Array[VIEW_MAX] used by "update_view()"
  */
-sint view_n = 0;
+int view_n = 0;
 u16b *view_g;
 
 /*
@@ -282,7 +283,7 @@ u16b *view_g;
  *
  * Note that temp_g shares memory with temp_x and temp_y.
  */
-sint temp_n = 0;
+int temp_n = 0;
 u16b *temp_g;
 byte *temp_y;
 byte *temp_x;
@@ -374,7 +375,7 @@ object_type *o_list;
 /*
  * Array[z_info->m_max] of dungeon monsters
  */
-monster_type *m_list;
+monster_type *mon_list;
 
 /*
  * Array[z_info->t_max] of dungeon monsters
@@ -691,7 +692,7 @@ byte item_tester_tval;
  * Here is a "hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
-bool (*item_tester_hook)(object_type*);
+bool (*item_tester_hook)(const object_type*);
 
 /*
  * Current "comp" function for ang_sort()
@@ -724,6 +725,18 @@ FILE *text_out_file = NULL;
  */
 void (*text_out_hook)(byte a, cptr str);
 
+/* Hack -- Where to wrap the text when using text_out().  Use the default 
+ * value (for example the screen width) when 'text_out_wrap' is 0. 
+ * 
+ */ 
+int text_out_wrap = 0; 
+    
+/* 
+ * Hack -- Indentation for the text when using text_out(). 
+ * 
+ */ 
+int text_out_indent = 0; 
+  
 /*
  * The "highscore" file descriptor, if available.
  */

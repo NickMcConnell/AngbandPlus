@@ -3,46 +3,49 @@
 Cheating options are there for those players who feel that the game is too 
 difficulty, or for those who want to know more about the internal machinations
 behind the game. Using any of these options marks the savefile, and will 
-prevent the character from ever achieving a high-score - even if the option
-is later turned off. So use these options with caution.
+prevent the character from ever achieving a high-score - even if the option is
+later turned off. So use these options with caution.
 
 === Cheating Options ===
 
 ***** <cheat_debug>
-Allow access to debug mode    [cheat_debug]
+Allow access to debug mode [cheat_debug] (default: no)
     By turing this option on you get access to the debug commands, which are
-    activated by pressing ^a. Make sure.you know what you are doing, since 
+    activated by pressing ctrl-a.  Make sure.you know what you are doing, since
     careless use of the debug commands can permanently damage your savefile.
 
 ***** <cheat_peek>
-Peek into object creation    [cheat_peek]
+Peek into object creation [cheat_peek] (default: no)
     Cheaters never win.  But they can peek at object creation.
 
 ***** <cheat_hear>
-Peek into monster creation    [cheat_hear]
+Peek into monster creation [cheat_hear] (default: no)
     Cheaters never win.  But they can peek at monster creation.
 
 ***** <cheat_room>
-Peek into dungeon creation    [cheat_room]
+Peek into dungeon creation [cheat_room] (default: no)
     Cheaters never win.  But they can peek at room creation.
 
 ***** <cheat_know>
-Know complete monster info    [cheat_know]
+Know complete monster info [cheat_know] (default: no)
     Cheaters never win.  But they can know all about monsters.
 
 ***** <cheat_live>
-Allow player to avoid death    [cheat_live]
+Allow player to avoid death [cheat_live] (default: no)
     Cheaters never win.  But they can cheat death.
 
 ***** <cheat_no_save>
-No save on death    [cheat_no_save]
+No save on death [cheat_no_save] (default: no)
     Cheaters never win.  But they don't have to save the game when they die.
 
 ***** <cheat_no_respawn> 
-No respawning monsters [cheat_no_respawn]
+No respawning monsters [cheat_no_respawn] (default: no)
     Cheaters never win.  But they can prevent monsters from respawning.
 
 ***** <cheat_wizard>
-Activate wizard mode    [cheat_wizard]
+Activate wizard mode [cheat_wizard] (default: no)
     Wizard mode allows you to receive a lot of information that is normally
     kept hidden from the player.
+
+
+======================= Last updated for EyAngband 0.5.0 ======================

@@ -14,9 +14,7 @@
  * whether you wish to keep, comment, or uncomment them.  You should not
  * have to modify any lines not indicated by "OPTION".
  *
- * Note: Also examine the "system" configuration file "h-config.h"
- * and the variable initialization file "variable.c".  If you change
- * anything in "variable.c", you only need to recompile that file.
+ * Note: Also examine the "system" configuration file "h-config.h".
  *
  * And finally, remember that the "Makefile" will specify some rather
  * important compile time options, like what visual module to use.
@@ -192,7 +190,7 @@
 /* #define USE_GRAPHICS */
 
 /*
- * OPTION: Hack -- Macintosh stuff
+ * Hack -- Macintosh stuff
  */
 #ifdef MACINTOSH
 
@@ -202,7 +200,7 @@
 #endif
 
 /*
- * OPTION: Hack -- Windows stuff
+ * Hack -- Windows stuff
  */
 #ifdef WINDOWS
 
@@ -212,7 +210,7 @@
 #endif
 
 /*
- * OPTION: Hack -- EMX stuff
+ * Hack -- EMX stuff
  */
 #ifdef USE_EMX
 
@@ -225,10 +223,14 @@
  * OPTION: Set the "default" path to the angband "lib" directory.
  *
  * See "main.c" for usage, and note that this value is only used on
- * certain machines, primarily Unix machines.  If this value is used,
- * it will be over-ridden by the "ANGBAND_PATH" environment variable,
- * if that variable is defined and accessable.  The final "slash" is
- * required if the value supplied is in fact a directory.
+ * certain machines, primarily Unix machines.
+ *
+ * The configure script overrides this value.  Check the "--prefix=<dir>"
+ * option of the configure script.
+ *
+ * This value will be over-ridden by the "ANGBAND_PATH" environment
+ * variable, if that variable is defined and accessable.  The final
+ * "slash" is required if the value supplied is in fact a directory.
  *
  * Using the value "./lib/" below tells Angband that, by default,
  * the user will run "angband" from the same directory that contains
@@ -240,14 +242,15 @@
  */
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
-#endif
+#endif /* DEAFULT_PATH */
 
 /*
- * OPTION: Path to the pref files of the user.
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref-files and character-dumps.
  */
 #ifdef SET_UID
-# define USER_PREF_PATH "~/.angband"
-#endif /* SETUID */
+# define PRIVATE_USER_PATH "~/.angband"
+#endif /* SET_UID */
 
 
 /*
@@ -255,7 +258,7 @@
  */
 #ifdef SET_UID
 # define SAVEFILE_USE_UID
-#endif
+#endif /* SET_UID */
 
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
@@ -277,7 +280,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"eytanzw@yahoo.com"
+#define MAINTAINER	"eytanz@oook.cz"
 
 /*
  * OPTION: Default font (when using X11).

@@ -1,0 +1,212 @@
+=== Interacting with Objects ===
+
+EyAngband features many different item types, all of which are at least 
+potentially useful for players.  This help file summarizes the various item 
+types and the means of interaction with them.
+
+
+=== Inspecting Objects ===
+
+One of the most useful commands when interacting with objects is the inspect 
+object command, 'I'.  This command provides you information about an object and
+its uses as well as information as to what attacks may damage or destroy the 
+object, where you obtained it, and various other data.  The type of information 
+given varies with the item type.  Only partial and unreliable information is 
+availble for unidentified objects.  If an object has been identified, but is 
+noted as having possible "hidden powers", you'll need to *identify* it to get 
+the full description.
+
+When 'I'nspecting objects, thieves get the additional ability to estimate its
+value.
+
+
+=== Object Identification ===
+
+When you go down into the dungeon, most objects will be unfamiliar to you.  If 
+you find a red potion, for instance, you can't tell what it's effect on you 
+will be - it could raise one of your stats, heal your wounds, or maybe kill 
+you.  Similarly, if you find a broad sword, you don't know if it's enchanted,
+cursed, or neither.  
+
+There are two ways to figure out what an item does.  You can try using it-
+which may or may not give you the information you need (if you drink a healing
+potion when unhurt, you'll feel no different), and can carry a significant 
+risk.  The safer way is via an identify spell - available to most spellcasters
+(except bards) at some point in the game, and via scrolls of identify and 
+rods and staves of perception for all classes.  
+
+There are four types of item in the game - those whose use is immediately 
+obvious and require no identification (torches, food rations) are few and 
+usually very basic.  The second class, which consists of weapon and armor, 
+require identification of each individual item you find.  The third, and
+largest, class, consists of the items such as potions, and scrolls - where,
+once you know what one particular item does, you'll automatically recognize 
+identical items when you meet them again.  So if you identify one potion of
+cure light wounds, the next one will not require identification.  The final
+class falls somewhere between the second and third types - items such as 
+wands and staves where some information (their effect) is available once you
+identify one, but the rest (number of charges) must be determined for each
+item.  Other items in this catagory are rings, amulets, and lanterns which
+affect your statistics - once you identify one ring of strength you'll 
+recognize when another ring modifies strength, but you won't know if it 
+raises or lowers it without further identification.
+
+Finally, for some rare artifacts found deep in the dungeon, simply identifying
+them may not be sufficient.  For these items, you may need a scroll of 
+*identify* to learn their full abilities - unless you possess the lore skill
+of a bard.
+
+
+=== Cursed Objects ===
+
+Some objects, mainly armor and weapons, have had curses laid upon them.
+These horrible objects will look like any other normal item, but will
+detract from your character's stats or abilities if worn.  They will also
+be impossible to remove until a remove curse is performed.  In fact some
+are so badly cursed that even this will not work, and more potent methods
+are needed.
+
+If you wear or wield a cursed item, you will immediately feel deathly cold,
+and the item will be marked with the fake inscription "cursed".
+
+Shopkeepers will refuse to buy any item which is known to be cursed.
+
+
+=== Object Inscriptions ===
+
+You may "inscribe" any object with a textual inscription of your choice. These
+inscriptions are not limited in length, though you may not be able to see the
+whole inscription on the item.  The game applies special meaning to 
+inscriptions containing any text of the form "@#", "@x#", "!x" or "!*"; see 
+"playing.txt".
+
+The game provides some "fake" inscriptions to help you keep track of your
+possessions.  Wands and staves which are known to be empty will be inscribed
+with "empty".  Objects which have been tried at least once but haven't been
+identified yet will be inscribed with "tried".  Cursed objects are inscribed
+with "cursed".  Broken objects may be inscribed with "broken".  Also, any
+item which was purchased at a discount, will be inscribed with the appropriate
+"discount", such as "25% off".  Note that these inscriptions are fake, and 
+cannot be removed.
+
+Also, occasionally you will notice that something in your inventory or 
+equipment list seems to be magical.  High level characters are much more likely
+to notice this than beginning characters.  When you do notice this, the item in
+question will be inscribed with "good" or "cursed" as is relevant.  
+
+Warriors, Bards, and Paladins have a special method of "sensing" their
+inventory/equipment items, which tells them not only if an item is "good" or
+"cursed", but also if it is "average", and if it is "special" or "excellent",
+or "terrible" or "worthless".
+
+
+=== Unified Use ===
+
+If you have the "use_command" option turned on (it is off by default), all the
+items listed below, plus a few other types, may be used with the 'u'se command
+in addition to the specialized commands necessary for them normally.  Whether 
+this is more or less convenient is debatable, as it makes command selection 
+simpler but also makes it a lot easier to use the wrong item by error. See
+"option.txt" for more details.
+
+
+=== Usable Item types ===
+
+Weapons, Armor, and other wearable items
+    The wide variety of weapons and armor usually is used by simply wielding 
+    them, and offer ongoing effect.  However, certain artifacts, as well as 
+    other rare armor types, can be 'A'ctivated to produce magic-like effects.
+    You need to be wearing the item to do so.  Once 'A'ctivated, most artifacts
+    require some time to recharge before they can be used again.
+
+Food
+    You must eat regularly to prevent starvation.  As you grow hungry, a 
+    message will appear at the bottom of the screen saying "Hungry".  If you go
+    hungry long enough, you will become weak, then start fainting, and 
+    eventually, you may die of starvation.  You can eat food with the 'E'at
+    command.
+
+    Many food types, especially mushrooms, have additional effects on your
+    character.  Depending on the food type, these can be very useful, or very
+    harmful.
+
+Potions
+    The dungeon features many potion types - more than any other item type, in
+    fact.  Whe 'Q'uaffed, potions can vary wildly in their effect - they can 
+    permanently raise you abilities, but they can also instantly kill you.  
+
+    Potions can be mixed in order to try to produce different potions.  The 
+    rules for alchemy are somewhat complex.  You must have either quaffed or
+    identified a potion in order in order to learn that it is a component in
+    an alchemy formula.  The formulas themselves are learnt by quaffing 
+    potions (the chance is based on your skill)- so, for instance, if a potion
+    of cure disease is composed of a potion of cure light wounds and a potion
+    of cure serious wounds, and you never saw a potion of CSW in the game yet,
+    you can learn, by quaffing potions of cure disease that it has CLW as one
+    of its components, but you won't be able to learn the other component until
+    you quaff or identify a potion of CSW (note that if you quaffed it, you 
+    don't have to have identified it - a {tried} potion can show up as a 
+    component).  When actually mixing potions, make sure you don't try potions
+    more complex than your skill in alchemy allows - failure will mean that you
+    can be severly damaged in the resulting explosion. 
+
+    Potions usually are vulnerable to cold attacks.
+
+Scrolls
+    Scrolls are an ubiquitous item type.  They can produce many different effects
+    when 'r'ead.  Reading a scroll causes the parchment to disintegrate as the
+    scroll takes effect.  Some scrolls which prompt for more information can be
+    aborted (by pressing ESCAPE), which will stop reading the scroll before it
+    disintegrates.  You cannot read a scroll while blinded or in darkness.
+
+    One scroll in particular will be discussed here.  The scroll of "Word of
+    Recall" can be found within the dungeon, or bought at the temple in town.
+    It acts in two manners, depending upon  your current  location.  If read
+    within the dungeon, it will teleport you back to town.  If read in town, it
+    will teleport you back down to the deepest level of the dungeon which your
+    character has previously been on.  This makes the scroll very useful for
+    getting back to the deeper levels of the dungeon.  Once the scroll has been
+    read it takes a while for the spell to act, so don't expect it to save you
+    in a crisis.  Reading a second scroll before the first has had a chance to
+    take effect will cancel both scrolls.
+
+    Scrolls may be destroyed by fire and acid attacks.
+
+Wands
+    Wands are short sticks imbued with magical power.  All wands have a limited
+    amount of charges, and you must identify them to know how much, though you
+    don't need this information to use them.  Wand abilities always require a 
+    target - whether a monster, or a dungeon feature, you must always choose 
+    where to apply the effect.  Wands may be used with the 'a'im command.
+
+    Wands usually are vulnerable to electrical attacks.
+
+Staves
+    Like wands, staves have a limited amount of charges, but while wands 
+    require a particular direction or target, staves have powers which either
+    affect you directly (such as healing), affect your inventory (such as 
+    identify) or affect everything in a particular radius (or, often, every 
+    creature you can see).  Staves may be used with the 'u'se command.
+
+    Staves are vulnerable to fire and rot attacks.
+
+Talismans
+    Talismans are small items imbued with magical powers.  Their abilities are
+    similar to those of wands, and they always require a direction or a target,
+    but unlike wands, they don't have a limited amount of charges.  Instead, 
+    once their ability is used, you will have to wait a certain amount of turns
+    before using it again - but you can use it an infinite number of times.
+    Up to 6 talismans of the same type can stack in any inventory slot.  To
+    access the power of a talisman, use the 'y' command. 
+    
+    Talismans are indestructible.
+
+Rods
+    Rods are similar to talismans, but instead of having wand-like effects they
+    have staff-like effects that target the player or a predetermined area.  To
+    use a rod, 'z'ap it.  Up to 5 rods can share an inventory slot.
+
+    Rods are indestructible.
+
+
+======================= Last updated for EyAngband 0.5.0 ======================

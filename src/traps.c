@@ -20,7 +20,7 @@ static void trap_wipe(trap_type *t_ptr)
 /*
  * Prepare a trap based on an existing trap
  */
-static void trap_copy(trap_type *t1_ptr, trap_type *t2_ptr)
+static void trap_copy(trap_type *t1_ptr, const trap_type *t2_ptr)
 {
 	/* Copy the structure */
 	COPY(t1_ptr, t2_ptr, trap_type);
@@ -263,7 +263,7 @@ static s16b t_pop(void)
 /*
  * Place a copy of a trap in the dungeon XXX XXX
  */
-s16b trap_place(int y, int x, trap_type *x_ptr)
+s16b trap_place(int y, int x, const trap_type *x_ptr)
 {
 	s16b t_idx;
 
@@ -317,7 +317,6 @@ bool place_trap_dungeon(int y, int x)
 	while (TRUE)
 	{
 		w_idx = randint(z_info->w_max - 1);
-
 		w_ptr = &w_info[w_idx];
 
 		/* Check if floor trap */
@@ -334,6 +333,10 @@ bool place_trap_dungeon(int y, int x)
 
 		/* HACK - no trap doors on the lowest level */
 		if ((w_idx == WG_TRAP_DOOR) && (p_ptr->depth == MAX_DEPTH - 1)) continue;
+
+		/* HACK - no trap doors on a fixed quest level  */
+		if ((w_idx == WG_TRAP_DOOR) && ((quest_check(p_ptr->depth) == QUEST_FIXED) || 
+			(quest_check(p_ptr->depth) == QUEST_FIXED_U))) continue;
 
 		/* Accept */
 		break;
@@ -391,6 +394,10 @@ bool place_trap_monster(u32b typ, int y, int x)
 
 		/* HACK - no trap doors on the lowest level */
 		if ((w_idx == WG_TRAP_DOOR) && (p_ptr->depth == MAX_DEPTH - 1)) continue;
+
+		/* HACK - no trap doors on a fixed quest level  */
+		if ((w_idx == WG_TRAP_DOOR) && ((quest_check(p_ptr->depth) == QUEST_FIXED) || 
+			(quest_check(p_ptr->depth) == QUEST_FIXED_U))) continue;
 
 		/* Accept */
 		break;
@@ -699,7 +706,7 @@ void hit_trap(int y, int x)
 					dam = dam * 2;
 					if (!p_ptr->no_cut) set_cut(p_ptr->cut + randint(dam));
 
-					if (!p_ptr->no_poison && !resist_effect(RS_PSN))
+					if (p_ptr->no_poison || resist_effect(RS_PSN))
 					{
 						message(MSG_RESIST, 0, "The poison does not affect you!");
 					}
@@ -904,7 +911,7 @@ void hit_trap(int y, int x)
 		case WG_GAS_CONF:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are surrounded by a gas of scintillating colors!");
-			if (!p_ptr->no_confuse && !resist_effect(RS_CNF))
+			if (!p_ptr->no_confuse)
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
@@ -1035,7 +1042,7 @@ bool do_disarm_trap(int y, int x)
 	i = p_ptr->skill[SK_DIS];
 
 	/* Penalize some conditions */
-	if (p_ptr->blind || no_lite()) i = i / 10;
+	if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px)) i = i / 10;
 	if (p_ptr->confused || p_ptr->image) i = i / 10;
 
 	/* Extract the difficulty */
@@ -1125,7 +1132,7 @@ bool warding_glyph(byte type)
  */
 bool mon_glyph_check(int m_idx, int y, int x)
 {
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	trap_type *t_ptr = &t_list[cave_t_idx[y][x]];

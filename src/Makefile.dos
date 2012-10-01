@@ -39,6 +39,7 @@ OBJS = \
   monster3.o \
   object1.o \
   object2.o \
+  object3.o \
   powers.o \
   quest.o \
   save.o \

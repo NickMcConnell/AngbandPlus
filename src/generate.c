@@ -820,7 +820,7 @@ static void vault_monsters(int y1, int x1, int num)
 
 			/* Place the monster (allow groups) */
 			monster_level = p_ptr->depth + 2;
-			(void)place_monster(y, x, TRUE, TRUE);
+			(void)place_monster(y, x);
 			monster_level = p_ptr->depth;
 
 			if (++k >= num) break;
@@ -1822,7 +1822,7 @@ static bool vault_aux_giant(int r_idx)
 	return (TRUE);
 }
 
-#define DRAGON_PIT_TYPES	9
+#define DRAGON_PIT_TYPES	8
 
 /*
  * Hack -- breath type for "vault_aux_dragon()"
@@ -2092,7 +2092,7 @@ static void build_type5(int y0, int x0)
 			int r_idx = what[rand_int(64)];
 
 			/* Place that "random" monster (no groups) */
-			(void)place_monster_aux(y, x, r_idx, FALSE, FALSE, PLACE_NO_UNIQUE);
+			(void)place_monster_aux(y, x, r_idx, 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 		}
 	}
 }
@@ -2319,21 +2319,8 @@ static void build_type6(int y0, int x0)
 				break;
 			}
 
-			/* Bronze */
-			case 5:
-			{
-				/* Message */
-				name = "confusion dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = SRF1_BR_CONF;
-
-				/* Done */
-				break;
-			}
-
 			/* Gold */
-			case 6:
+			case 5:
 			{
 				/* Message */
 				name = "sound dragon";
@@ -2346,7 +2333,7 @@ static void build_type6(int y0, int x0)
 			}
 
 			/* Silver */
-			case 7:
+			case 6:
 			{
 				/* Message */
 				name = "shard dragon";
@@ -2368,7 +2355,7 @@ static void build_type6(int y0, int x0)
 				vault_aux_dragon_mask4 = (SRF1_BR_ACID | SRF1_BR_ELEC |
 				                          SRF1_BR_FIRE | SRF1_BR_COLD |
 				                          SRF1_BR_POIS | SRF1_BR_SHAR |
-										  SRF1_BR_SOUN | SRF1_BR_CONF);
+										  SRF1_BR_SOUN);
 
 				/* Done */
 				break;
@@ -2466,51 +2453,51 @@ static void build_type6(int y0, int x0)
 	/* Top and bottom rows */
 	for (x = x0 - 9; x <= x0 + 9; x++)
 	{
-		place_monster_aux(y0 - 2, x, what[0], FALSE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y0 + 2, x, what[0], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y0 - 2, x, what[0], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y0 + 2, x, what[0], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 	}
 
 	/* Middle columns */
 	for (y = y0 - 1; y <= y0 + 1; y++)
 	{
-		place_monster_aux(y, x0 - 9, what[0], FALSE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 9, what[0], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 9, what[0], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 9, what[0], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 8, what[1], FALSE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 8, what[1], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 8, what[1], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 8, what[1], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 7, what[1], FALSE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 7, what[1], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 7, what[1], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 7, what[1], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 6, what[2], FALSE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 6, what[2], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 6, what[2], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 6, what[2], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 5, what[2], FALSE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 5, what[2], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 5, what[2], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 5, what[2], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 4, what[3], FALSE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 4, what[3], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 4, what[3], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 4, what[3], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 3, what[3], FALSE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 3, what[3], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 3, what[3], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 3, what[3], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 2, what[4], FALSE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 2, what[4], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 2, what[4], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 2, what[4], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 	}
 
 	/* Above/Below the center monster */
 	for (x = x0 - 1; x <= x0 + 1; x++)
 	{
-		place_monster_aux(y0 + 1, x, what[5], FALSE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y0 - 1, x, what[5], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y0 + 1, x, what[5], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y0 - 1, x, what[5], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 	}
 
 	/* Next to the center monster */
-	place_monster_aux(y0, x0 + 1, what[6], FALSE, FALSE, PLACE_NO_UNIQUE);
-	place_monster_aux(y0, x0 - 1, what[6], FALSE, FALSE, PLACE_NO_UNIQUE);
+	place_monster_aux(y0, x0 + 1, what[6], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+	place_monster_aux(y0, x0 - 1, what[6], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 
 	/* Center monster */
-	place_monster_aux(y0, x0, what[7], FALSE, FALSE, PLACE_NO_UNIQUE);
+	place_monster_aux(y0, x0, what[7], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
 }
 
 /*
@@ -2615,7 +2602,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '&':
 				{
 					monster_level = p_ptr->depth + 5;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(y, x);
 					monster_level = p_ptr->depth;
 					break;
 				}
@@ -2624,7 +2611,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '@':
 				{
 					monster_level = p_ptr->depth + 11;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(y, x);
 					monster_level = p_ptr->depth;
 					break;
 				}
@@ -2633,11 +2620,11 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '9':
 				{
 					monster_level = p_ptr->depth + 9;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(y, x);
 					monster_level = p_ptr->depth;
-					p_ptr->obj_depth  = p_ptr->depth + 7;
+					object_level = p_ptr->depth + 7;
 					place_object(y, x, TRUE, FALSE);
-					p_ptr->obj_depth  = p_ptr->depth;
+					object_level = p_ptr->depth;
 					break;
 				}
 
@@ -2645,11 +2632,11 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '8':
 				{
 					monster_level = p_ptr->depth + 40;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(y, x);
 					monster_level = p_ptr->depth;
-					p_ptr->obj_depth  = p_ptr->depth + 20;
+					object_level = p_ptr->depth + 20;
 					place_object(y, x, TRUE, TRUE);
-					p_ptr->obj_depth  = p_ptr->depth;
+					object_level = p_ptr->depth;
 					break;
 				}
 
@@ -2659,14 +2646,14 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					if (rand_int(100) < 50)
 					{
 						monster_level = p_ptr->depth + 3;
-						place_monster(y, x, TRUE, TRUE);
+						place_monster(y, x);
 						monster_level = p_ptr->depth;
 					}
 					if (rand_int(100) < 50)
 					{
-						p_ptr->obj_depth = p_ptr->depth + 7;
+						object_level = p_ptr->depth + 7;
 						place_object(y, x, FALSE, FALSE);
-						p_ptr->obj_depth  = p_ptr->depth;
+						object_level = p_ptr->depth;
 					}
 					break;
 				}
@@ -3514,7 +3501,7 @@ static void cave_gen(void)
 	/* Put some monsters in the dungeon */
 	for (i = mon_gen + k; i > 0; i--)
 	{
-		(void)alloc_monster(0, TRUE);
+		(void)alloc_monster(0);
 	}
 
 	/* Ensure quest monsters */
@@ -3548,7 +3535,7 @@ static void cave_gen(void)
 					}
 
 					/* Place the questor */
-					place_monster_aux(y, x, q_ptr->mon_idx, TRUE, TRUE, 0);
+					place_monster_aux(y, x, q_ptr->mon_idx, 0, TRUE, TRUE, 0);
 				}
 			}
 			else if ((q_ptr->type == QUEST_UNIQUE) || (q_ptr->type == QUEST_FIXED_U))
@@ -3563,7 +3550,8 @@ static void cave_gen(void)
 				}
 
 				/* Place the questor */
-				place_monster_aux(y, x, u_info[q_ptr->mon_idx].r_idx, TRUE, TRUE, PLACE_UNIQUE);
+				place_monster_aux(y, x, u_info[q_ptr->mon_idx].r_idx, 
+					q_ptr->mon_idx, TRUE, TRUE, PLACE_UNIQUE);
 			}
 		}
 	}
@@ -3820,7 +3808,7 @@ static void town_gen(void)
 	for (i = 0; i < residents; i++)
 	{
 		/* Make a resident */
-		(void)alloc_monster(3, TRUE);
+		(void)alloc_monster(3);
 	}
 }
 
@@ -3849,7 +3837,7 @@ void generate_cave(void)
 
 		/* Reset */
 		o_max = 1;
-		m_max = 1;
+		mon_max = 1;
 		t_max = 1;
 
 		/* Start with a blank cave */
@@ -3889,7 +3877,7 @@ void generate_cave(void)
 		monster_level = p_ptr->depth;
 
 		/* Reset the object generation level */
-		p_ptr->obj_depth = p_ptr->depth;
+		object_level = p_ptr->depth;
 
 		/* Nothing special here yet */
 		good_item_flag = FALSE;
@@ -3898,18 +3886,10 @@ void generate_cave(void)
 		rating = 0;
 
 		/* Build the town */
-		if (!p_ptr->depth)
-		{
-			/* Make a town */
-			town_gen();
-		}
+		if (!p_ptr->depth) town_gen();
 
 		/* Build a real level */
-		else
-		{
-			/* Make a dungeon */
-			cave_gen();
-		}
+		else cave_gen();
 
 		/* Extract the feeling */
 		if (rating > 100) p_ptr->feeling = 2;
@@ -3942,7 +3922,7 @@ void generate_cave(void)
 		}
 
 		/* Prevent monster over-flow */
-		if (m_max >= z_info->m_max)
+		if (mon_max >= z_info->m_max)
 		{
 			/* Message */
 			why = "too many monsters";
@@ -3986,7 +3966,7 @@ void generate_cave(void)
 		wipe_t_list();
 
 		/* Wipe the monsters */
-		wipe_m_list();
+		wipe_mon_list();
 	}
 
 	/* The dungeon is ready */

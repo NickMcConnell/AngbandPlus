@@ -67,60 +67,22 @@ byte adj_str_th[A_RANGE] =
 	128 + 0		/* 12 */,
 	128 + 0		/* 13 */,
 	128 + 0		/* 14 */,
-	128 + 1		/* 15 */,
+	128 + 0		/* 15 */,
 	128 + 1		/* 16 */,
 	128 + 1		/* 17 */,
-	128 + 1		/* 18 */,
-	128 + 3		/* 19 */,
-	128 + 5		/* 20 */,
-	128 + 7		/* 21 */,
-	128 + 9		/* 22 */,
-	128 + 10	/* 23 */,
-	128 + 11	/* 24 */,
-	128 + 12	/* 25 */,
-	128 + 13	/* 26 */,
-	128 + 14	/* 27 */,
-	128 + 15	/* 28 */,
-	128 + 15	/* 29 */,
-	128 + 15	/* 30 */
-};
-
-/*
- * Stat Table (STR) -- bonus to dam (plus 128)
- */
-byte adj_str_td[A_RANGE] =
-{
-	128 + -3	/* 0 */,
-	128 + -2	/* 1 */,
-	128 + -1	/* 2 */,
-	128 + -1	/* 3 */,
-	128 + 0		/* 4 */,
-	128 + 0		/* 5 */,
-	128 + 0		/* 6 */,
-	128 + 0		/* 7 */,
-	128 + 0		/* 8 */,
-	128 + 0		/* 9 */,
-	128 + 0		/* 10 */,
-	128 + 0		/* 11 */,
-	128 + 0		/* 12 */,
-	128 + 1		/* 13 */,
-	128 + 2		/* 14 */,
-	128 + 2		/* 15 */,
-	128 + 3		/* 16 */,
-	128 + 3		/* 17 */,
-	128 + 4		/* 18 */,
-	128 + 4		/* 19 */,
-	128 + 5		/* 20 */,
-	128 + 5		/* 21 */,
-	128 + 7		/* 22 */,
-	128 + 8 	/* 23 */,
-	128 + 9		/* 24 */,
-	128 + 10	/* 25 */,
-	128 + 11	/* 26 */,
-	128 + 12	/* 27 */,
-	128 + 13	/* 28 */,
-	128 + 14	/* 29 */,
-	128 + 15	/* 30 */
+	128 + 2		/* 18 */,
+	128 + 2		/* 19 */,
+	128 + 2		/* 20 */,
+	128 + 3		/* 21 */,
+	128 + 3		/* 22 */,
+	128 + 3		/* 23 */,
+	128 + 4		/* 24 */,
+	128 + 4		/* 25 */,
+	128 + 5		/* 26 */,
+	128 + 5		/* 27 */,
+	128 + 6		/* 28 */,
+	128 + 6		/* 29 */,
+	128 + 7		/* 30 */
 };
 
 /*
@@ -166,37 +128,37 @@ byte adj_str_wgt[A_RANGE] =
  */
 byte adj_str_hold[A_RANGE] =
 {
-	2		/* 0 */,
-	3		/* 1 */,
-	4		/* 2 */,
-	5		/* 3 */,
-	6		/* 4 */,
-	7		/* 5 */,
-	8		/* 6 */,
-	9		/* 7 */,
-	10		/* 8 */,
-	11		/* 9 */,
-	13		/* 10 */,
-	15		/* 11 */,
-	17		/* 12 */,
-	19		/* 13 */,
-	21		/* 14 */,
-	23		/* 15 */,
-	25		/* 16 */,
-	27		/* 17 */,
-	30		/* 18 */,
-	35		/* 19 */,
-	40		/* 20 */,
-	50		/* 21 */,
-	60		/* 22 */,
-	70		/* 23 */,
-	80		/* 24 */,
-	90		/* 25 */,
-	90		/* 26 */,
-	90		/* 27 */,
-	100		/* 28 */,
-	100		/* 29 */,
-	100		/* 30 */
+	1		/* 0 */,
+	1		/* 1 */,
+	2		/* 2 */,
+	3		/* 3 */,
+	4		/* 4 */,
+	5		/* 5 */,
+	6		/* 6 */,
+	7		/* 7 */,
+	8		/* 8 */,
+	9		/* 9 */,
+	10		/* 10 */,
+	12		/* 11 */,
+	14		/* 12 */,
+	15		/* 13 */,
+	16		/* 14 */,
+	19		/* 15 */,
+	20		/* 16 */,
+	21		/* 17 */,
+	22		/* 18 */,
+	23		/* 19 */,
+	24		/* 20 */,
+	25		/* 21 */,
+	26		/* 22 */,
+	27		/* 23 */,
+	28		/* 24 */,
+	29		/* 25 */,
+	30		/* 26 */,
+	35		/* 27 */,
+	40		/* 28 */,
+	45		/* 29 */,
+	50		/* 30 */
 };
 
 /*
@@ -238,7 +200,7 @@ byte adj_str_dig[A_RANGE] =
 };
 
 /*
- * Stat Table (STR) -- help index into the "blow" table
+ * Stat Table (STR) -- used for calcuating throw range and bashing strength
  */
 byte adj_str_blow[A_RANGE] =
 {
@@ -311,6 +273,44 @@ byte adj_str_armor[A_RANGE] =
 	70	/* 28 */,
 	80	/* 29 */,
 	90	/* 30 */
+};
+
+/*
+ * Stat Table (STR) - damage sides for unarmed combat
+ */
+byte adj_str_unarmed[A_RANGE] =
+{
+	1	/* 0 */,
+	1	/* 1 */,
+	1	/* 2 */,
+	1	/* 3 */,
+	1	/* 4 */,
+	1	/* 5 */,
+	1	/* 6 */,
+	1	/* 7 */,
+	1	/* 8 */,
+	2	/* 9 */,
+	2	/* 10 */,
+	2   /* 11 */,
+	2	/* 12 */,
+	2	/* 13 */,
+	2	/* 14 */,
+	3	/* 15 */,
+	3	/* 16 */,
+	3	/* 17 */,
+	3	/* 18 */,
+	4	/* 19 */,
+	4	/* 20 */,
+	5	/* 21 */,
+	5	/* 22 */,
+	6	/* 23 */,
+	7	/* 24 */,
+	8	/* 25 */,
+	9	/* 26 */,
+	10	/* 27 */,
+	12	/* 28 */,
+	15	/* 29 */,
+	20	/* 30 */
 };
 
 /*
@@ -548,7 +548,7 @@ byte adj_dex_th[A_RANGE] =
 {
 	128 + -3	/* 0 */,
 	128 + -2	/* 1 */,
-	128 + -2	/* 2 */,
+	128 + -1	/* 2 */,
 	128 + -1	/* 3 */,
 	128 + -1	/* 4 */,
 	128 + 0		/* 5 */,
@@ -559,24 +559,24 @@ byte adj_dex_th[A_RANGE] =
 	128 + 0		/* 10 */,
 	128 + 0		/* 11 */,
 	128 + 0		/* 12 */,
-	128 + 1		/* 13 */,
-	128 + 2		/* 14 */,
-	128 + 3		/* 15 */,
-	128 + 3		/* 16 */,
-	128 + 3		/* 17 */,
-	128 + 4		/* 18 */,
-	128 + 4		/* 19 */,
-	128 + 6		/* 20 */,
-	128 + 8		/* 21 */,
-	128 + 9		/* 22 */,
-	128 + 10	/* 23 */,
-	128 + 11	/* 24 */,
-	128 + 12	/* 25 */,
-	128 + 13	/* 26 */,
-	128 + 14	/* 27 */,
-	128 + 15	/* 28 */,
-	128 + 15	/* 29 */,
-	128 + 15	/* 30 */
+	128 + 0		/* 13 */,
+	128 + 1		/* 14 */,
+	128 + 1		/* 15 */,
+	128 + 1		/* 16 */,
+	128 + 2		/* 17 */,
+	128 + 2		/* 18 */,
+	128 + 2		/* 19 */,
+	128 + 3		/* 20 */,
+	128 + 3		/* 21 */,
+	128 + 4		/* 22 */,
+	128 + 4		/* 23 */,
+	128 + 5		/* 24 */,
+	128 + 5		/* 25 */,
+	128 + 6		/* 26 */,
+	128 + 6		/* 27 */,
+	128 + 7		/* 28 */,
+	128 + 7		/* 29 */,
+	128 + 8		/* 30 */
 };
 
 /*
@@ -596,18 +596,18 @@ byte adj_dex_safe[A_RANGE] =
 	7	/* 9 */,
 	7	/* 10 */,
 	8	/* 11 */,
-	8	/* 12 */,
-	9	/* 13 */,
-	9	/* 14 */,
-	10	/* 15 */,
-	15	/* 16 */,
-	20	/* 17 */,
+	9	/* 12 */,
+	10	/* 13 */,
+	12	/* 14 */,
+	14	/* 15 */,
+	18	/* 16 */,
+	22	/* 17 */,
 	30	/* 18 */,
 	40	/* 19 */,
 	50	/* 20 */,
 	70	/* 21 */,
-	90	/* 22 */,
-	100	/* 23 */,
+	80	/* 22 */,
+	90	/* 23 */,
 	100	/* 24 */,
 	100	/* 25 */,
 	100	/* 26 */,
@@ -615,6 +615,44 @@ byte adj_dex_safe[A_RANGE] =
 	100	/* 28 */,
 	100	/* 29 */,
 	100	/* 30 */
+};
+
+/*
+ * Stat Table (DEX) -- max number of blows you get in melee
+ */
+byte adj_dex_blows[A_RANGE] =
+{
+	1	/* 0 */,
+	1	/* 1 */,
+	1	/* 2 */,
+	1	/* 3 */,
+	1	/* 4 */,
+	1	/* 5 */,
+	1	/* 6 */,
+	1	/* 7 */,
+	1	/* 8 */,
+	2	/* 9 */,
+	2	/* 10 */,
+	2	/* 11 */,
+	2	/* 12 */,
+	2	/* 13 */,
+	3	/* 14 */,
+	3	/* 15 */,
+	3	/* 16 */,
+	3	/* 17 */,
+	3	/* 18 */,
+	4	/* 19 */,
+	4	/* 20 */,
+	4	/* 21 */,
+	4	/* 22 */,
+	4	/* 23 */,
+	5	/* 24 */,
+	5	/* 25 */,
+	5	/* 26 */,
+	6	/* 27 */,
+	6	/* 28 */,
+	6	/* 29 */,
+	7	/* 30 */
 };
 
 /*
@@ -960,89 +998,9 @@ byte adj_mag_stat[A_RANGE] =
 };
 
 /*
- * These tables are used to help calculate the number of blows the player can
- * make in a single round of attacks (one player turn) with a normal weapon.
+ * Maximum amount of blows does a weapon allows, by weight
  */
-
-/* 
- * The first table compares the weapon weight (/10) with the player's strength. 
- */
-byte wght_str_blows[30][A_RANGE] = 
-{
-/* W/S */
-
-/*  0 */ {5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5},
-/*  1 */ {4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5},
-/*  2 */ {3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5},
-/*  3 */ {3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5},
-/*  4 */ {2,2,2,2,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5},
-/*  5 */ {2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5},
-/*  6 */ {1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5},
-/*  7 */ {1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5},
-/*  8 */ {1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,5},
-/*  9 */ {1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,5},
-/* 10 */ {0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4},
-/* 11 */ {0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4},
-/* 12 */ {0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4},
-/* 13 */ {0,0,0,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4},
-/* 14 */ {0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4},
-/* 15 */ {0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4},
-/* 16 */ {0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4},
-/* 17 */ {0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4},
-/* 18 */ {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4},
-/* 19 */ {0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,4,4,4,4,4},
-/* 20 */ {0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,4,4,4,4},
-/* 21 */ {0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4},
-/* 22 */ {0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4},
-/* 23 */ {0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4},
-/* 24 */ {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4},
-/* 25 */ {0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,4},
-/* 26 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3},
-/* 27 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3},
-/* 28 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3},
-/* 29 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3}
-};
-
-/* 
- * The next table is then used to calculate the actual number of attacks.
- *
- * This number ranges from a single blow/round for weak players to up to six
- * blows/round for powerful warriors.
- *
- * Note that certain artifacts and ego-items give "bonus" blows/round.
- *
- * To get "P", we use the result of the previous table (modified by class).
- *
- * To get "D", we use dexterity
- *
- * The player gets "blows_table[P][D]" blows/round, as shown below,
- * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
- */
-byte blows_table[10][A_RANGE] =
-{
-/* P/D */
-                         
-/* 0 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,3},
-/* 1 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3},
-/* 2 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3},
-/* 3 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4},
-/* 4 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,3,3,3,3,3,4,4,4,4,4},
-/* 5 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,3,4,4,4,4,4,4},
-/* 6 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,4,5,5,5},
-/* 7 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5,5},
-/* 8 */ {1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,6,6,6,6},
-/* 9 */ {1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,6,6,6,6}
-};
-
-/*
- * The max plusses per item weight, in increments of 1 pound
- */
-byte max_item_plus[30] =
-{
-	3,   3,  4,  4,  5,  5,  6,  6,  7,  7, 
-	8,   9,  9, 10, 10, 11, 11, 12, 12, 12,
-	13, 13, 13, 14, 14, 14, 15, 15, 15, 15
-};
+byte weapon_wgt_blows[30] = { 7,7,6,6,5,5,4,4,3,3,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 };
 
 /*
  * This table allows quick conversion from "speed" to "energy"
@@ -1210,30 +1168,52 @@ player_race_special race_special_info[2][RACE_SPECIAL_LEVELS] =
 {
 /* Angels and Demons - each line is a 5-level bracket. Extra is the index of racial ability */
 	{ /*Angel*/
-		{ "Cherub",		{0,0,0,0,0,0}	,{0,0, 0, 0,0,0,0, 0,0,0,0,0},0x00000000L,0x00000000L,0x00000000L,1},
-		{ "Seraph",		{0,0,0,0,1,0}	,{0,0, 1, 1,0,0,0, 0,0,0,0,0},0x10000000L,0x00000000L,0x00000040L,2},
-		{ "Deva",		{2,0,1,0,2,1}	,{0,0, 3, 3,0,0,0, 1,0,0,0,0},0x10000000L,0x00000004L,0x00000042L,3},
-		{ "Deva",		{2,0,1,0,2,1}	,{0,0, 3, 3,0,0,0, 1,0,0,0,0},0x10000000L,0x00000004L,0x00000042L,3},
-		{ "Planetar",	{2,1,1,0,2,1}	,{0,0, 6, 7,0,0,0, 3,0,0,0,0},0x90000000L,0x00000004L,0x00000052L,3},
-		{ "Planetar",	{2,1,1,0,2,1}	,{0,0, 6, 7,0,0,0, 3,0,0,0,0},0x90000000L,0x00000004L,0x00000052L,3},
-		{ "Archon",		{3,1,2,0,3,2}	,{0,0, 9,11,0,0,0, 4,1,0,0,0},0x90000000L,0x00000005L,0x00000052L,4},
-		{ "Archon",		{3,1,2,0,3,2}	,{0,0, 9,11,0,0,0, 4,1,0,0,0},0x90000000L,0x00000005L,0x00000052L,4},
-		{ "Solar",		{3,2,2,0,3,2}	,{0,0,12,16,0,0,0, 5,2,0,0,0},0x90000000L,0x00000005L,0x00000057L,5},
-		{ "Solar",		{3,2,2,0,3,2}	,{0,0,12,16,0,0,0, 5,2,0,0,0},0x90000000L,0x00000005L,0x00000057L,5},
-		{ "Archangel",	{4,2,3,0,4,3}	,{0,0,16,22,0,0,0, 8,3,0,0,0},0x90000000L,0x00000007L,0x00000057L,5}
+		{ "Cherub",		{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			0x00000000L, 0x00000000L, 0x00000000L, POW_DETECT_EVIL, 50},
+		{ "Seraph",		{0, 0, 0, 0, 1, 0}, {0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+			0x10000000L, 0x00000000L, 0x00000040L, POW_LIGHT_AREA_1, 100},
+		{ "Deva",		{2, 0, 1, 0, 2, 1},	{0, 0, 3, 3, 0, 0, 0, 1, 0, 0, 0, 0},
+			0x10000000L, 0x00000004L, 0x00000042L, POW_BEAM_WEAK_LITE, 50},
+		{ "Deva",		{2, 0, 1, 0, 2, 1}, {0, 0, 3, 3, 0, 0, 0, 1, 0, 0, 0, 0},
+			0x10000000L, 0x00000004L, 0x00000042L, POW_BEAM_WEAK_LITE, 50},
+		{ "Planetar",	{2, 1, 1, 0, 2, 1},	{0, 0, 6, 7, 0, 0, 0, 1, 0, 0, 0, 0},
+			0x90000000L, 0x00000004L, 0x00000052L, POW_BEAM_WEAK_LITE, 25},
+		{ "Planetar",	{2, 1, 1, 0, 2, 1},	{0, 0, 6, 7, 0, 0, 0, 1, 0, 0, 0, 0},
+			0x90000000L, 0x00000004L, 0x00000052L, POW_BEAM_WEAK_LITE, 25},
+		{ "Archon",		{3, 1, 2, 0, 3, 2}, {0, 0, 9,11, 0, 0, 0, 2, 0, 0, 0, 0},
+			0x90000000L, 0x00000005L, 0x00000052L, POW_BALL_HOLY_1, 15},
+		{ "Archon",		{3, 1, 2, 0, 3, 2},	{0, 0, 9,11, 0, 0, 0, 2, 0, 0, 0, 0},
+			0x90000000L, 0x00000105L, 0x00000052L, POW_BALL_HOLY_1, 15},
+		{ "Solar",		{3, 2, 2, 0, 3, 2},	{0, 0,12,16, 0, 0, 0, 2, 0, 0, 0, 0},
+			0x90000000L, 0x00000105L, 0x00000057L, POW_PROT_EVIL_1, 200},
+		{ "Solar",		{3, 2, 2, 0, 3, 2}, {0, 0,12,16, 0, 0, 0, 2, 0, 0, 0, 0},
+			0x90000000L, 0x00000105L, 0x00000057L, POW_PROT_EVIL_1, 200},
+		{ "Archangel",	{4, 2, 3, 0, 4, 3},	{0, 0,16,22, 0, 0, 0, 3, 1, 0, 0, 0},
+			0x90000000L, 0x00000107L, 0x00000057L, POW_PROT_EVIL_1, 150}
 	},
 	{ /*Demon*/
-		{ "Lemure",		{0,0,0,0, 0, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000000L,0x00800000L,0},
-		{ "Quasit",		{1,0,0,1, 1, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000004L,0x00800000L,0},
-		{ "Imp",		{2,2,0,2, 2,-1}	,{0,0, 2, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000004L,0x00800000L,0},
-		{ "Tengu",		{3,3,0,3, 2,-1}	,{0,0, 4, 1, -1,0,0, 1, 1, 0,0,0},0x00000000L,0x0000000CL,0x00800000L,6},
-		{ "Bodak",      {3,3,0,3, 3,-1}	,{0,0, 6, 3, -2,0,0, 3, 1, 1,0,0},0x04000000L,0x0000000CL,0x00800000L,7},
-		{ "Vrock",      {3,3,1,3, 4,-1}	,{0,0, 8, 5, -4,0,0, 5, 2, 2,0,0},0x04000000L,0x0000000CL,0x00800000L,7},
-		{ "Hezrou",		{4,3,1,3, 5,-2}	,{0,0,10, 7, -5,0,0, 6, 3, 2,0,0},0x44000000L,0x0000000CL,0x00800000L,7},
-		{ "Glabrezu",   {4,3,1,3, 5,-2}	,{0,0,13, 9, -7,0,0, 7, 3, 3,0,0},0x44000000L,0x0000000CL,0x00800000L,8},
-		{ "Nalfeshnee", {5,4,2,3, 6,-2}	,{0,0,16,11, -8,0,0, 8, 4, 3,0,0},0x44000000L,0x0000000CL,0x00800004L,8},
-		{ "Pit Fiend",	{5,4,2,3, 6,-3}	,{0,0,19,13, -9,0,0, 9, 5, 4,0,0},0x44000000L,0x0000000CL,0x00800004L,8},
-		{ "Balrog",		{6,5,2,4, 7,-4}	,{0,0,22,15,-10,0,0,10, 5, 4,0,0},0x44000000L,0x0000000CL,0x00800004L,9}
+		{ "Lemure",		{0, 0, 0, 0, 0, 0} ,{0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0},
+			0x00000000L, 0x00000000L, 0x00800000L, 0, 0},
+		{ "Quasit",		{1, 0, 0, 1, 1, 0} ,{0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0},
+			0x00000000L, 0x00000004L, 0x00800000L, 0, 0},
+		{ "Imp",		{2, 2, 0, 2, 2,-1} ,{0, 0, 2, 0,  0, 0, 0, 0, 0, 0, 0, 0},
+			0x00000000L, 0x00000004L, 0x00800000L, 0, 0},
+		{ "Tengu",		{3, 3, 0, 3, 2,-1} ,{0, 0, 4, 1, -1, 0, 0, 0, 0, 0, 0, 0},
+			0x00000000L, 0x0000000CL, 0x00800000L, POW_TELE_10, 15},
+		{ "Bodak",      {3, 3, 0, 3, 3,-1} ,{0, 0, 6, 3, -2, 0, 0, 1, 0, 0, 0, 0},
+			0x04000000L, 0x0000000CL, 0x00800000L, POW_BOLT_FIRE_1, 30},
+		{ "Vrock",      {3, 3, 1, 3, 4,-1} ,{0, 0, 8, 5, -4, 0, 0, 2, 1, 0, 0, 0},
+			0x04000000L, 0x0000000CL, 0x00800000L, POW_BOLT_FIRE_1, 25},
+		{ "Hezrou",		{4, 3, 1, 3, 5,-2} ,{0, 0,10, 7, -5, 0, 0, 2, 1, 1, 0, 0},
+			0x44000000L, 0x0000000CL, 0x00800000L, POW_BOLT_FIRE_1, 20},
+		{ "Glabrezu",   {4, 3, 1, 3, 5,-2} ,{0, 0,13, 9, -7, 0, 0, 3, 1, 1, 0, 0},
+			0x44000000L, 0x0000000CL, 0x00800000L, POW_BALL_FIRE_1, 30},
+		{ "Nalfeshnee", {5, 4, 2, 3, 6,-2} ,{0, 0,16,11, -8, 0, 0, 3, 1, 1, 0, 0},
+			0x44000000L, 0x0000000CL, 0x00800004L, POW_BALL_FIRE_1, 25},
+		{ "Pit Fiend",	{5, 4, 2, 3, 6,-3} ,{0, 0,19,13, -9, 0, 0, 4, 2, 2, 0, 0},
+			0x44000000L, 0x0000010CL, 0x00800004L, POW_BALL_FIRE_1, 20},
+		{ "Balrog",		{6, 5, 2, 4, 7,-4} ,{0, 0,22,15,-10, 0, 0, 4, 2, 2, 0, 0},
+			0x44000000L, 0x0000010CL, 0x00800004L, POW_BALL_PLASMA, 30}
 	}	
 };
 
@@ -1243,7 +1223,7 @@ spell_book instruments[SV_MUSIC_MAX] =
 		/* Lyre (sval 0) */
 		0,
 		{
-			{ POW_LIGHT_AREA,		"Ballad of Light",				 1,  1, 25 },
+			{ POW_LIGHT_AREA_2,		"Ballad of Light",				 1,  1, 25 },
 			{ POW_HEROISM,			"Ballad of Heroism",			 5,  6, 60 },
 			{ POW_RAGE_1,			"Ballad of Rage",				15, 20, 60 },
 			{ POW_RES_SOUND,		"Ballad of Sound Deflection",	18, 30, 75 },
@@ -1317,7 +1297,7 @@ spell_book instruments[SV_MUSIC_MAX] =
 			{ POW_CALM_MONSTER,		"Song of Calmness",				 1,  3, 20 },
 			{ POW_CALL_MONSTER,		"Song of Attraction",			 4,  6, 20 },
 			{ POW_CALM_ANIMALS,		"Song of Soothing the Beast",	 8, 15, 60 },
-			{ POW_CALM_NON_EVIL,	"Song of Peace",				15, 35, 80 },
+			{ POW_CALM_NON_EVIL,	"Song of Peace",				15, 25, 80 },
 			{ POW_CALM_ALL,			"Song of Great Peace",			25, 45, 90 },
 			{ POW_HEAL_4,			"Song of Health",				40, 50, 85 },
 			{ POW_DISPEL_EVIL_4,	"Song of Holyness",				50,	30, 75 },
@@ -1358,16 +1338,16 @@ sub_spell_type sub_spell_list[MAX_SUB_SPELL] =
 {
 	{  0,  0, 0,  0, 0, 0, 0, 0 },
 	/* Fire, acid, elec, frost bolts */
-	{  1,  4, 3,  0, 0, 0, 9, 0 },
-	{  2,  7, 3,  0, 0, 4, 9, 1 },
-	{  5, 12, 3,  0, 0, 8, 9, 4 },
-	{ 10, 19, 4,  0, 0,16, 9,14 },
-	{ 20, 36, 4,  0, 0,32, 9,24 },
+	{  1,  4, 3,  0, 0, 0,10, 0 },
+	{  2,  7, 3,  0, 0, 4,10, 1 },
+	{  5, 12, 3,  0, 0, 8,10, 4 },
+	{ 10, 19, 4,  0, 0,16,10,14 },
+	{ 20, 36, 4,  0, 0,32,10,24 },
 	/* Magic missile */
-	{  1,  4, 4,  0, 0, 0, 9, 0 },
-	{  3,  8, 4,  0, 0,10, 9, 5 },
-	{  5, 12, 4,  0, 0,20, 9,10 },
-	{  7, 16, 4,  0, 0,40, 9,15 },
+	{  1,  4, 4,  0, 0, 0,10, 0 },
+	{  3,  8, 4,  0, 0,10,10, 5 },
+	{  5, 12, 4,  0, 0,20,10,10 },
+	{  7, 16, 4,  0, 0,40,10,15 },
 	/* Fire, acid, elec, frost, poison balls */
 	{ 10,  0, 0, 45, 2, 0, 0, 0 },
 	{ 20,  0, 0, 80, 2,20, 0, 5 },
@@ -1375,24 +1355,24 @@ sub_spell_type sub_spell_list[MAX_SUB_SPELL] =
 	{ 50,  0, 0,150, 3,55, 0,15 },
 	{ 60,  0, 0,200, 3,55, 0,20 },
 	/* Poison bolt */
-	{  5,  8, 6,  0, 0, 0, 6, 0 },
-	{ 10, 15, 6,  0, 0,10, 6, 5 },
-	{ 15, 21, 6,  0, 0,20, 6,10 },
-	{ 20, 27, 6,  0, 0,40, 6,15 },
-	{ 25, 33, 6,  0, 0,45, 6,20 },
+	{  5,  8, 6,  0, 0, 0, 8, 0 },
+	{ 10, 15, 6,  0, 0,10, 8, 5 },
+	{ 15, 21, 6,  0, 0,20, 8,10 },
+	{ 20, 27, 6,  0, 0,40, 8,15 },
+	{ 25, 33, 6,  0, 0,45, 8,20 },
 	/* Mana, Nexus bolt */
-	{  5, 11, 5,  0, 0, 0, 6, 0 },
-	{ 15, 22, 6,  0, 0,10, 6, 5 },
-	{ 30, 33, 7,  0, 0,20, 6,10 },
+	{  5, 11, 5,  0, 0, 0, 8, 0 },
+	{ 15, 22, 6,  0, 0,10, 8, 5 },
+	{ 30, 33, 7,  0, 0,20, 8,10 },
 	/* Blizzard */
-	{ 30,  0, 0,120, 3, 0, 0, 0 },
-	{ 55,  0, 0,120, 4,48, 0,10 },
+	{ 30,  0, 0,115, 3, 0, 0, 0 },
+	{ 55,  0, 0,115, 4,48, 0,10 },
 	/* Hell Storm */
-	{ 35,  0, 0,150, 3, 0, 0, 0 },
-	{ 65,  0, 0,150, 4,35, 0,10 },
+	{ 35,  0, 0,140, 3, 0, 0, 0 },
+	{ 65,  0, 0,140, 4,35, 0,10 },
 	/* Elemental Storm */
-	{ 40,  0, 0,180, 3, 0, 0, 0 },
-	{ 75,  0, 0,180, 4,17, 0,10 }
+	{ 40,  0, 0,175, 3, 0, 0, 0 },
+	{ 75,  0, 0,175, 4,17, 0,10 }
 };
 
 spell_book books[SV_BOOK_MAX] = 
@@ -1404,7 +1384,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_BOLT_ACID_X,		"Acid Bolt",				 1, -1, 22 },
 			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 1, -1, 22 },
 			{ POW_TELE_10,			"Phase Door",  				 1,  1, 24 },
-			{ POW_LIGHT_AREA,		"Light Area",				 1,  2, 26 },
+			{ POW_LIGHT_AREA_2,		"Light Area",				 1,  2, 26 },
 			{ POW_BOLT_FIRE_X,		"Fire Bolt",				 2, -1, 22 },
 			{ POW_BOLT_COLD_X,		"Frost Bolt",				 2, -1, 22 },
 			{ POW_DETECT_MONSTERS,	"Detect Monsters",			 2,  2, 23 },
@@ -1500,9 +1480,10 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_POLY_MONSTER,		"Polymorph Other",			15,  7, 45 },
 			{ POW_PROBE_MONSTER,	"Probe Monster",			20, 12, 80 },
 			{ POW_GENOCIDE,			"Genocide",					35, 50, 70 },
+			{ POW_HYPERCHARGE,		"Hypercharge",				40,150, 80 },
 			{ POW_MASS_GENOCIDE,	"Mass Genocide",			45, 75, 80 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
@@ -1539,11 +1520,11 @@ spell_book books[SV_BOOK_MAX] =
 		/* The Lore of the Hunter (sval 9) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{ POW_BRAND_ARROW_ANML,	"Hunter's Arrows",			18, 25, 60 },
+			{ POW_BRAND_AMMO_ANML,	"Hunter's Arrows",			18, 25, 60 },
 			{ POW_CALM_ANIMALS,		"Calm Animals",				23, 35, 55 },
-			{ POW_BRAND_ARROW_WOUND,"Sharpen Arrows",			28, 25, 70 },
+			{ POW_BRAND_AMMO_WOUND, "Sharpen Arrows",			28, 25, 70 },
 			{ POW_HASTE_SELF_1,		"Haste Self",				33, 12, 90 },
-			{ POW_BRAND_ARROW_ELMNT,"Elemental Arrows",			43, 40, 80 },
+			{ POW_BRAND_AMMO_ELMNT, "Elemental Arrows",			43, 40, 80 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1556,8 +1537,8 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_DETECT_EVIL,		"Detect Evil",				 1,  1, 10 },
 			{ POW_HEAL_1,			"Cure Light Wounds",		 1,  2, 15 },
 			{ POW_BLESS_1,			"Bless",					 1,  2, 20 },
-			{ POW_CURE_FEAR,		"Remove Fear",				 1,  2, 25 },
-			{ POW_LIGHT_AREA,		"Call Light",				 3,  2, 25 },
+			{ POW_BOLDNESS,			"Boldness",					 1,  2, 25 },
+			{ POW_LIGHT_AREA_2,		"Call Light",				 3,  2, 25 },
 			{ POW_DETECT_TRAP,		"Find Traps",				 3,  3, 27 },
 			{ POW_DETECT_DOOR_STAIR,"Detect Doors/Stairs",		 3,  3, 27 },
 			{ POW_CURE_TAINT,		"Cleanse Taint",			 3,  3, 28 },
@@ -1584,12 +1565,12 @@ spell_book books[SV_BOOK_MAX] =
 		SBF_PRAYER,
 		{
 			{ POW_CURE_POISON,		"Neutralize Poison",		 9,  6, 38 },
-			{ POW_BALL_HOLY,		"Orb of Draining",			 9,  7, 38 },
+			{ POW_BALL_HOLY_2,		"Orb of Draining",			 9,  7, 38 },
 			{ POW_HEAL_3,			"Cure Critical Wounds",		 9,  7, 40 },
 			{ POW_CURE_DISEASE,		"Cure Disease",				10,  7, 40 },
 			{ POW_GLYPH_HOLY,		"Holy Sigil",				10, 15, 50 },
 			{ POW_SEE_INVIS,		"Sense Invisible",			11,  8, 42 },
-			{ POW_PROT_EVIL,		"Protection from Evil",		11,  8, 42 },
+			{ POW_PROT_EVIL_2,		"Protection from Evil",		11,  8, 42 },
 			{ POW_EARTHQUAKE,		"Earthquake",				13,  9, 55 },
 			{ POW_MAP_1,			"Sense Surroundings",		13, 10, 45 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1599,14 +1580,15 @@ spell_book books[SV_BOOK_MAX] =
  		/* Exorcism and Dispelling (sval 13) */
 		SBF_PRAYER,
 		{
-			{ POW_SCARE_UNDEAD,		"Turn Undead",				15, 12, 50 },
 			{ POW_BLESS_3,			"Prayer",					15, 14, 50 },
-			{ POW_DISPEL_UNDEAD_1,	"Dispel Undead",			17, 14, 55 },
+			{ POW_CALM_NON_EVIL,	"Soothing Words",			16, 30, 80 },
+			{ POW_DISPEL_UNDEAD_1,	"Dispel Undead",			16, 14, 50 },
+			{ POW_DISPEL_DEMON,		"Dispel Demons",			17, 16, 55 },
 			{ POW_DISPEL_EVIL_3,	"Dispel Evil",				25, 20, 70 },
 			{ POW_GLYPH_WARDING,	"Glyph of Warding",			33, 55, 90 },
 			{ POW_HOLY_2,			"Holy Word",				39, 32, 95 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
@@ -1645,7 +1627,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_HEAL_5,			"Healing",					30, 50, 80 },
 			{ POW_RESTORE_STATS,	"Restoration",				35, 70, 90 },
 			{ POW_RESTORE_LEVEL,	"Remembrance",				35, 70, 90 },
-			{ POW_CALM_NON_EVIL,	"Holy Peace",				45, 50, 80 },
+			{ POW_CALM_ALL,			"Holy Peace",				45, 50, 80 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1658,9 +1640,9 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_DEST_TRAP_DOOR_2,	"Unbarring Ways",			 5,  6, 50 },
 			{ POW_RECHARGE_2,		"Recharging",				15, 20, 80 },
 			{ POW_REMOVE_CURSE_2,	"Dispel Curse",				25, 40, 80 },
-			{ POW_ENCHANT_WEAPON,	"Enchant Weapon",			35, 50, 80 },
+			{ POW_ENCHANT_WEAPON_2,	"Enchant Weapon",			35, 50, 80 },
 			{ POW_ENCHANT_ARMOR_2,	"Enchant Armour",			37, 60, 85 },
-			{ POW_BRAND_SHOT_HOLY,	"Sanctify Shots",			45, 95, 85 },
+			{ POW_BRAND_AMMO_HOLY,	"Sanctify Ammunition",		45, 95, 85 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
@@ -1762,7 +1744,6 @@ cptr resist_names[RS_MAX] =
 	"disease",
 	"light",
 	"dark",
-	"confusion",
 	"sound",
 	"shards",
 	"nexus",
@@ -1787,7 +1768,6 @@ cptr resist_names_short[RS_MAX] =
 	"Dises",
 	"Light",
 	"Dark ",
-	"Confu",
 	"Sound",
 	"Shard",
 	"Nexus",
@@ -1812,7 +1792,6 @@ res_cap resist_caps[RS_MAX] =
 	{55, 88},
 	{50, 66},
 	{50, 66},
-	{40, 50},
 	{40, 50},
 	{40, 50},
 	{40, 50},
@@ -1942,7 +1921,7 @@ option_type options[OPT_NORMAL] =
 	{"easy_direction",		"Open/Disarm/Close without direction",		FALSE},
 	{"easy_alter",			"Open/Disarm doors/traps on movement",		FALSE},
 	{"easy_floor",			"Display floor stacks in a list",   		FALSE},
-	{"show_piles",			"Show stacks using special attr/char",		FALSE},
+	{"show_piles",			"Show stacks as white '&'",					FALSE},
 	{"center_player",		"Center map continuously",					FALSE},
 	{"run_avoid_center",	"Avoid centering while running",			FALSE},
 	{"scroll_target",		"Scroll map while targetting",				TRUE },
@@ -1955,8 +1934,9 @@ option_type options[OPT_NORMAL] =
 	{"display_recharge_msg","Display messages upon recharge",			TRUE },
 	{"inscribe_unique",		"Auto-inscribe unique drops",				FALSE},
 	{"spellbook_menu",		"Alternate spellbook interface",			FALSE},
-	{"trap_under_object",	"Traps are hidden by objects",				TRUE },
+	{"show_trap_piles",		"Show objects on traps as red '&'",			TRUE },
 	{"view_player_color",	"Use special colors for the player",		TRUE },
+	{"allow_prefix_colors",	"Allow prefixes to determine object color",	TRUE }
 };
 
 option_type options_birth[OPT_BIRTH] =
@@ -1979,7 +1959,7 @@ option_type options_birth[OPT_BIRTH] =
 	{"birth_easy_mode",			"Easy mode",								FALSE},
 	{"birth_nightmare_mode",	"Nightmare mode",							FALSE},
 	{"birth_retain_squelch",	"Retain squelch settings",					FALSE},
-	{"birth_weighted_roller",	"Allow specification of stat weighings",	FALSE}
+	{"birth_weighted_roller",	"Allow specification of stat weighings",	FALSE},
 };
 
 option_type options_cheat[OPT_CHEAT] =
@@ -2003,8 +1983,6 @@ option_type options_squelch[OPT_SQUELCH] =
 
 /*
  * Option screen interface
- *
- * Note the special significance given to the constant "255".
  */
 byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 {
@@ -2037,6 +2015,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_weights,
 		OPT_show_flavors,
 		OPT_show_piles,
+		OPT_show_trap_piles,
 		OPT_display_insc_msg,
 		OPT_hilite_player,
 		OPT_view_yellow_lite,
@@ -2045,9 +2024,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_special_lite,
 		OPT_view_monster_lite,
 		OPT_view_player_color,
-		OPT_trap_under_object,
-		255,
-		255
+		OPT_allow_prefix_colors,
+		OPT_NONE
 	},
 
 	/*** Disturbance ***/
@@ -2064,11 +2042,11 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_display_recharge_msg,
 		OPT_auto_more,
 		OPT_ring_bell,
-		255,
-		255,
-		255,
-		255,
-		255
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Game-Play ***/
@@ -2085,11 +2063,11 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_scroll_target,
 		OPT_display_room_desc,
 		OPT_inscribe_unique,
-		255,
-		255,
-		255,
-		255,
-		255
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Efficiency ***/
@@ -2105,12 +2083,12 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_fresh_after,
 		OPT_compress_savefile,
  		OPT_run_avoid_center,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
 	},
 
 	/*** Cheat ***/
@@ -2119,7 +2097,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 #ifdef ALLOW_DEBUG
 		OPT_cheat_debug,
 #else /* ALLOW_DEBUG */
-		255,
+		OPT_NONE,
 #endif /* ALLOW_DEBUG */
 		OPT_cheat_peek,
 		OPT_cheat_hear,
@@ -2129,13 +2107,13 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_no_save,
 		OPT_cheat_no_respawn,
 		OPT_cheat_wizard,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Birth ***/
@@ -2147,16 +2125,16 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_random_hp,
 		OPT_birth_start_kit,
 		OPT_birth_retain_squelch,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Difficulty ***/
@@ -2171,13 +2149,13 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_feelings,
 		OPT_birth_no_artifacts,
 		OPT_birth_force_small_lev,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Monster AI ***/
@@ -2189,21 +2167,21 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_flow_by_sound,
 		OPT_birth_flow_by_smell,
 #else /* MONSTER_FLOW */
-		255,
-		255,
+		OPT_NONE,
+		OPT_NONE,
 #endif /* MONSTER_FLOW */
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	}
 };
 

@@ -149,7 +149,7 @@ static owner_type *ot_ptr = NULL;
  * to adjust (by 200) to extract a usable multiplier.  Note that the
  * "greed" value is always something (?).
  */
-static s32b price_item(object_type *o_ptr, bool flip)
+static s32b price_item(const object_type *o_ptr, bool flip)
 {
 	int factor;
 	int adjust;
@@ -233,7 +233,6 @@ static void mass_produce(object_type *o_ptr)
 
 	s32b cost = object_value(o_ptr);
 
-
 	/* Analyze the type */
 	switch (o_ptr->tval)
 	{
@@ -272,7 +271,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_HEADGEAR:
 		case TV_SWORD:
 		case TV_POLEARM:
-		case TV_HAFTED:
+		case TV_BLUNT:
 		case TV_DIGGING:
 		case TV_BOW:
 		{
@@ -282,9 +281,7 @@ static void mass_produce(object_type *o_ptr)
 			break;
 		}
 
-		case TV_SHOT:
 		case TV_ARROW:
-		case TV_BOLT:
 		{
 			if (cost <= 5L) size += mass_roll(5, 5);
 			if (cost <= 50L) size += mass_roll(5, 5);
@@ -294,30 +291,12 @@ static void mass_produce(object_type *o_ptr)
 	}
 
 	/* Pick a discount */
-	if (cost < 5)
-	{
-		discount = 0;
-	}
-	else if (rand_int(25) == 0)
-	{
-		discount = 10;
-	}
-	else if (rand_int(50) == 0)
-	{
-		discount = 25;
-	}
-	else if (rand_int(150) == 0)
-	{
-		discount = 50;
-	}
-	else if (rand_int(300) == 0)
-	{
-		discount = 75;
-	}
-	else if (rand_int(500) == 0)
-	{
-		discount = 90;
-	}
+	if (cost < 5) discount = 0;
+	else if (rand_int(25) == 0)	discount = 10;
+	else if (rand_int(50) == 0)	discount = 25;
+	else if (rand_int(150) == 0) discount = 50;
+	else if (rand_int(300) == 0) discount = 75;
+	else if (rand_int(500) == 0) discount = 90;
 
 	/* Save the discount */
 	o_ptr->discount = discount;
@@ -347,7 +326,7 @@ static s16b label_to_store(int c)
 	int i;
 
 	/* Convert */
-	i = (islower(c) ? A2I(c) : -1);
+	i = (islower((unsigned char)c) ? A2I(c) : -1);
 
 	/* Verify the index */
 	if ((i < 0) || (i >= st_ptr->stock_num)) return (-1);
@@ -365,60 +344,57 @@ static s16b label_to_store(int c)
  * since stores (but not the home) only get objects under certain
  * restricted circumstances.
  */
-static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
+static bool store_object_similar(const object_type *o_ptr, const object_type *j_ptr)
 {
 	/* Hack -- Identical items cannot be stacked */
-	if (o_ptr == j_ptr) return (0);
+	if (o_ptr == j_ptr) return FALSE;
 
 	/* Different objects cannot be stacked */
-	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
+	if (o_ptr->k_idx != j_ptr->k_idx) return FALSE;
 
 	/* Some special rules apply to rods and talismans */
 	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_TALISMAN))
 	{
 		/* Hack -- Never stack recharging rods/talismans */
-		if (o_ptr->timeout || j_ptr->timeout) return (0);
+		if (o_ptr->timeout || j_ptr->timeout) return FALSE;
+
+		/* Require identical recharge times */
+		if (o_ptr->pval != j_ptr->pval) return FALSE;
 	}
 
 	/* Different charges (etc) cannot be stacked, except for rods and talismans */
-	else if (o_ptr->pval != j_ptr->pval) return (0);
+	else if (o_ptr->pval != j_ptr->pval) return FALSE;
 	
 	/* Require many identical values */
-	if (o_ptr->to_h != j_ptr->to_h) return (0);
-	if (o_ptr->to_d != j_ptr->to_d) return (0);
-	if (o_ptr->to_a != j_ptr->to_a) return (0);
+	if (o_ptr->to_h != j_ptr->to_h) return FALSE;
+	if (o_ptr->to_a != j_ptr->to_a) return FALSE;
 
 	/* Require identical "artifact" names */
-	if (o_ptr->a_idx != j_ptr->a_idx) return (0);
+	if (o_ptr->a_idx != j_ptr->a_idx) return FALSE;
 
 	/* Require identical "ego-item" names */
-	if (o_ptr->e_idx != j_ptr->e_idx) return (0);
+	if (o_ptr->e_idx != j_ptr->e_idx) return FALSE;
 
 	/* Require identical "prefix" names */
-	if (o_ptr->prefix_idx != j_ptr->prefix_idx) return (0);
+	if (o_ptr->pfx_idx != j_ptr->pfx_idx) return FALSE;
 
 	/* Hack -- Never stack "powerful" items */
-	if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
+	if (o_ptr->xtra1 || j_ptr->xtra1) return FALSE;
 
 	/* Hack -- different light durations cannot be stacked */
-	if ((o_ptr->tval == TV_LITE) && (o_ptr->timeout != j_ptr->timeout)) return (0);
-
-	/* Require many identical values */
-	if (o_ptr->ac != j_ptr->ac) return (0);
-	if (o_ptr->dd != j_ptr->dd) return (0);
-	if (o_ptr->ds != j_ptr->ds) return (0);
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->timeout != j_ptr->timeout)) return FALSE;
 
 	/* Require matching "discount" fields */
-	if (o_ptr->discount != j_ptr->discount) return (0);
+	if (o_ptr->discount != j_ptr->discount) return FALSE;
 
 	/* They match, so they must be similar */
-	return (TRUE);
+	return TRUE;
 }
 
 /*
  * Allow a store object to absorb another object
  */
-static void store_object_absorb(object_type *o_ptr, object_type *j_ptr, bool player)
+static void store_object_absorb(object_type *o_ptr, const object_type *j_ptr, bool player)
 {
 	int total = o_ptr->number + j_ptr->number;
 	int max_num = MAX_STACK_SIZE;
@@ -428,9 +404,6 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr, bool pla
 	{
 		/* Find appropriate stack size */
 		max_num = ((o_ptr->tval == TV_ROD) ? MAX_STACK_ROD : MAX_STACK_TALIS);
-
-		/* Calculate number of charges */
-		o_ptr->pval = k_info[o_ptr->k_idx].pval * ((total >= max_num) ? (max_num - 1) : total);
 	}
 
 	/* Combine quantity, lose excess items */
@@ -450,7 +423,7 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr, bool pla
  * it cannot hold.  Before, one could "nuke" objects this way, by
  * adding them to a pile which was already full.
  */
-static bool store_check_num(object_type *o_ptr)
+static bool store_check_num(const object_type *o_ptr)
 {
 	int i;
 	object_type *j_ptr;
@@ -493,7 +466,7 @@ static bool store_check_num(object_type *o_ptr)
 /*
  * Determine if a weapon is 'blessed'
  */
-static bool is_blessed(object_type *o_ptr)
+static bool is_blessed(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -509,7 +482,7 @@ static bool is_blessed(object_type *o_ptr)
  *
  * Note that a shop-keeper must refuse to buy "worthless" objects
  */
-static bool store_will_buy(object_type *o_ptr)
+static bool store_will_buy(const object_type *o_ptr)
 {
 	/* Hack -- The Home is simple */
 	if (store_num == STORE_HOME) return (TRUE);
@@ -527,9 +500,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_LITE:
 				case TV_LITE_SPECIAL:
 				case TV_FLASK:
-				case TV_SHOT:
 				case TV_ARROW:
-				case TV_BOLT:
 				case TV_DIGGING:
 				case TV_CLOAK:
 				case TV_MUSIC:
@@ -566,12 +537,10 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_SHOT:
-				case TV_BOLT:
 				case TV_ARROW:
 				case TV_BOW:
 				case TV_DIGGING:
-				case TV_HAFTED:
+				case TV_BLUNT:
 				case TV_POLEARM:
 				case TV_SWORD:
 				break;
@@ -589,7 +558,7 @@ static bool store_will_buy(object_type *o_ptr)
 			{
 				case TV_SCROLL:
 				case TV_POTION:
-				case TV_HAFTED:
+				case TV_BLUNT:
 				break;
 				case TV_POLEARM:
 				case TV_SWORD:
@@ -672,7 +641,7 @@ static bool store_will_buy(object_type *o_ptr)
  * Also note that it may not correctly "adapt" to "knowledge" bacoming
  * known, the player may have to pick stuff up and drop it again.
  */
-static int home_carry(object_type *o_ptr)
+static int home_carry(const object_type *o_ptr)
 {
 	int i, slot;
 	s32b value, j_value;
@@ -894,7 +863,7 @@ static void store_item_optimize(int item)
  * Crap is defined as any object that is "available" elsewhere
  * Based on a suggestion by "Lee Vogt" <lvogt@cig.mcel.mot.com>
  */
-static bool black_market_crap(object_type *o_ptr)
+static bool black_market_crap(const object_type *o_ptr)
 {
 	int i, j;
 
@@ -904,7 +873,6 @@ static bool black_market_crap(object_type *o_ptr)
 	/* Good items are never crap */
 	if (o_ptr->to_a > 0) return (FALSE);
 	if (o_ptr->to_h > 0) return (FALSE);
-	if (o_ptr->to_d > 0) return (FALSE);
 
 	/* Check the other stores */
 	for (i = 0; i < MAX_STORES; i++)
@@ -1013,28 +981,27 @@ static void store_create(void)
 		object_prep(i_ptr, k_idx);
 
 		/* Store object creation level */
-		temp = p_ptr->obj_depth;
-		p_ptr->obj_depth = level;
+		temp = object_level;
+		object_level = level;
 
 		/* Apply some "low-level" magic (no artifacts) */
 		apply_magic(i_ptr, level, FALSE, FALSE, FALSE, TRUE);
 
 		/* Hack -- some prefixes don't belong in regular stores */
-		if ((store_num != STORE_B_MARKET) && i_ptr->prefix_idx)
+		if ((store_num != STORE_B_MARKET) && i_ptr->pfx_idx)
 		{
-			if ((i_ptr->tval == TV_SWORD) || (i_ptr->tval == TV_HAFTED) || 
-				(i_ptr->tval == TV_POLEARM))
+			if (weapon_p(i_ptr))
 			{
-				if (!(wpx_info[i_ptr->prefix_idx].flags & PXF_SHOP)) continue;
+				if (!(wpx_info[i_ptr->pfx_idx].flags & PXF_SHOP)) continue;
 			}
 			if (i_ptr->tval == TV_BODY_ARMOR)
 			{
-				if (!(apx_info[i_ptr->prefix_idx].flags & PXF_SHOP)) continue;
+				if (!(apx_info[i_ptr->pfx_idx].flags & PXF_SHOP)) continue;
 			}
 		}
 
 		/* Restore object creation level */
-		p_ptr->obj_depth = temp;
+		object_level = temp;
 
 		/* Hack -- Charge lite's */
 		if (i_ptr->tval == TV_LITE)
@@ -1047,7 +1014,7 @@ static void store_create(void)
 		object_known(i_ptr);
 		
 		/* Hack - *ID* ego items */
-		if (ego_item_p(i_ptr)) i_ptr->ident |= (IDENT_MENTAL);
+		if (i_ptr->e_idx) i_ptr->ident |= (IDENT_MENTAL);
 
 		/* Object history */
 		i_ptr->origin_nature = ORIGIN_STORE;
@@ -1118,7 +1085,7 @@ static void display_entry(int item)
 		if (show_weights) maxwid -= 10;
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
 
 		/* Get inventory color */
@@ -1136,7 +1103,7 @@ static void display_entry(int item)
 		if (show_weights)
 		{
 			/* Only show the weight of a single object */
-			int wgt = actual_weight(o_ptr);
+			int wgt = object_weight(o_ptr);
 			sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
 			put_str(out_val, y, 68);
 		}
@@ -1154,7 +1121,7 @@ static void display_entry(int item)
 		if (show_weights) maxwid -= 7;
 
 		/* Describe the object (fully) */
-		object_desc_store(o_name, o_ptr, TRUE, 3);
+		object_desc_store(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
 
 		/* Get inventory color */
@@ -1172,7 +1139,7 @@ static void display_entry(int item)
 		if (show_weights)
 		{
 			/* Only show the weight of a single object */
-			int wgt = actual_weight(o_ptr);
+			int wgt = object_weight(o_ptr);
 			sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
 			put_str(out_val, y, 61);
 		}
@@ -1281,11 +1248,11 @@ static void display_store(void)
 		cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
 
 		/* Put the owner name and race */
-		sprintf(buf, "%s (%s)", owner_name, race_name);
+		strnfmt(buf, sizeof(buf), "%s (%s)", owner_name, race_name);
 		put_str(buf, 3, 10);
 
 		/* Show the max price in the store (above prices) */
-		sprintf(buf, "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
+		strnfmt(buf, sizeof(buf), "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
 		prt(buf, 3, 50);
 
 		/* Label the object descriptions */
@@ -1347,7 +1314,7 @@ static bool get_stock(int *com_val, cptr pmt)
 	*com_val = (-1);
 
 	/* Build the prompt */
-	sprintf(buf, "(Items %c-%c, ESC to exit) %s",
+	strnfmt(buf, sizeof(buf), "(Items %c-%c, ESC to exit) %s",
 	        store_to_label(0), store_to_label(st_ptr->stock_num - 1),
 	        pmt);
 
@@ -1360,10 +1327,10 @@ static bool get_stock(int *com_val, cptr pmt)
 		if (!get_com(buf, &which)) return (FALSE);
 
 		/* Note verify */
-		verify = (isupper(which) ? TRUE : FALSE);
+		verify = (isupper((unsigned char)which) ? TRUE : FALSE);
 
 		/* Lowercase */
-		which = tolower(which);
+		which = tolower((unsigned char)which);
 
 		/* Convert response to item */
 		item = label_to_store(which);
@@ -1387,18 +1354,18 @@ static bool get_stock(int *com_val, cptr pmt)
 		if (store_num == STORE_HOME)
 		{
 			/* Describe */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 		}
 
 		/* Shop */
 		else
 		{
 			/* Describe */
-			object_desc_store(o_name, o_ptr, TRUE, 3);
+			object_desc_store(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 		}
 
 		/* Prompt */
-		sprintf(out_val, "Try %s? ", o_name);
+		strnfmt(out_val, sizeof(out_val), "Try %s? ", o_name);
 
 		/* Query */
 		if (!get_check(out_val)) return (FALSE);
@@ -1431,13 +1398,13 @@ static int confirm_trade(void)
 	strcpy(out_val, "");
 
 	/* Ask the user for a response */
-	return (get_string("Accept? ", out_val, 80));
+	return (get_string("Accept? ", out_val, sizeof(out_val)));
 }
 
 /*
  * Purchase an object
  */
-static bool do_purchase(object_type *o_ptr, s32b *price)
+static bool do_purchase(const object_type *o_ptr, s32b *price)
 {
 	/* Extract the starting offer and final offer */
 	*price = price_item(o_ptr, FALSE) * o_ptr->number;
@@ -1452,12 +1419,12 @@ static bool do_purchase(object_type *o_ptr, s32b *price)
 /*
  * Sell an object
  */
-static bool do_sell(object_type *o_ptr, s32b *price)
+static bool do_sell(const object_type *o_ptr, s32b *price)
 {
 	/* Get the owner's payout limit */
 	s32b purse = (s32b)(ot_ptr->max_cost);
 
-	/* Obtain the starting offer and the final offer */
+	/* Obtain the offer */
 	*price = price_item(o_ptr, TRUE);	
 
 	if (*price >= purse) *price = purse;
@@ -1572,7 +1539,7 @@ static void store_purchase(void)
 	if (store_num != STORE_HOME)
 	{
 		/* Describe the object (fully) */
-		object_desc_store(o_name, i_ptr, TRUE, 3);
+		object_desc_store(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 		/* Message */
 		message_format(MSG_STORE, 0, "Buying %s (%c).",
@@ -1602,12 +1569,11 @@ static void store_purchase(void)
 				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 				/* Describe the transaction */
-				object_desc(o_name, i_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 				/* Message */
 				message_format(MSG_STORE, 0, "You bought %s (%c) for %ld gold.",
-				           o_name, store_to_label(item),
-				           (long)price);
+				           o_name, store_to_label(item), (long)price);
 
 				/* Erase the inscription */
 				i_ptr->note = 0;
@@ -1619,7 +1585,7 @@ static void store_purchase(void)
 				item_new = inven_carry(i_ptr);
 
 				/* Describe the final result */
-				object_desc(o_name, &inventory[item_new], TRUE, 3);
+				object_desc(o_name, sizeof(o_name), &inventory[item_new], TRUE, 3);
 
 				/* Message */
 				message_format(MSG_STORE, 0, "You have %s (%c).",
@@ -1699,7 +1665,7 @@ static void store_purchase(void)
 		item_new = inven_carry(i_ptr);
 
 		/* Describe just the result */
-		object_desc(o_name, &inventory[item_new], TRUE, 3);
+		object_desc(o_name, sizeof(o_name), &inventory[item_new], TRUE, 3);
 
 		/* Message */
 		message_format(MSG_STORE, 0, "You have %s (%c).", o_name, index_to_label(item_new));
@@ -1813,7 +1779,7 @@ static void store_sell(void)
 	i_ptr->number = amt;
 
 	/* Get a full description */
-	object_desc(o_name, i_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 	/* Is there room in the store (or the home?) */
 	if (!store_check_num(i_ptr))
@@ -1880,11 +1846,14 @@ static void store_sell(void)
 			/* Modify quantity */
 			i_ptr->number = amt;
 
+			/* Distribute charges of wands or rods */
+			distribute_charges(o_ptr, i_ptr, amt);
+
 			/* Get the "actual" value */
 			value = object_value(i_ptr) * i_ptr->number;
 
 			/* Get the description all over again */
-			object_desc(o_name, i_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 			/* Describe the result (in message buffer) */
 			message_format(MSG_STORE, 0, "You sold %s (%c) for %ld gold.",
@@ -1916,6 +1885,9 @@ static void store_sell(void)
 	/* Player is at home */
 	else
 	{
+		/* Distribute charges of wands or rods */
+		distribute_charges(o_ptr, i_ptr, amt);
+
 		/* Describe */
 		message_format(MSG_STORE, 0, "You drop %s (%c).", o_name, index_to_label(item));
 
@@ -1944,10 +1916,10 @@ static void store_sell(void)
  */
 static void store_examine(void)
 {
-	int         item;
+	int item;
 	object_type *o_ptr;
-	char        o_name[80];
-	char        out_val[160];
+	char o_name[80];
+	char out_val[160];
 
 	/* Set text_out hook */
 	text_out_hook = text_out_to_screen;
@@ -1955,22 +1927,15 @@ static void store_examine(void)
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
-		if (store_num == STORE_HOME)
-		{
-			message(MSG_FAIL, 0, "Your home is empty.");
-		}
-		else
-		{
-			message(MSG_STORE, 0, "I am currently out of stock.");
-		}
+		if (store_num == STORE_HOME) message(MSG_FAIL, 0, "Your home is empty.");
+		else message(MSG_STORE, 0, "I am currently out of stock.");
+
 		return;
 	}
 
 	/* Prompt */
-	if (rogue_like_commands)
-		sprintf(out_val, "Which item do you want to examine? ");
-	else
-		sprintf(out_val, "Which item do you want to look at? ");
+	if (rogue_like_commands) sprintf(out_val, "Which item do you want to examine? ");
+	else sprintf(out_val, "Which item do you want to look at? ");
 
 	/* Get the item number to be examined */
 	if (!get_stock(&item, out_val)) return;
@@ -1988,21 +1953,20 @@ static void store_examine(void)
 	list_object(o_ptr, OBJECT_INFO_KNOWN);
 
 	/* Analyze the weapon */
-	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) 
-		analyze_weapon(o_ptr);	
-
+	if (weapon_p(o_ptr) || (o_ptr->tval == TV_DIGGING)) analyze_weapon(o_ptr);
+	if (o_ptr->tval == TV_ARROW) analyze_ammo(o_ptr);
 
 	/* History and description */
 	if (store_num == STORE_HOME)
 	{
 		display_object_history(o_ptr);
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 	}
 	else
 	{
 		/* Don't display history for store-generated items */
 		if (o_ptr->origin_nature != ORIGIN_STORE) display_object_history(o_ptr);
-		object_desc_store(o_name, o_ptr, TRUE, 3);
+		object_desc_store(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 	}
 
 	/* Clear the top line */
@@ -2105,15 +2069,7 @@ static void store_process_command(bool guild_cmd)
 			break;
 		}
 
-
-		/* Redraw */
-		case KTRL('R'):
-		{
-			do_cmd_redraw();
-			if (!guild_cmd) display_store();
-			else display_guild();
-			break;
-		}
+		/*** Store Commands ***/
 
 		/* Get (purchase) */
 		case 'g':
@@ -2141,202 +2097,57 @@ static void store_process_command(bool guild_cmd)
 
 		/*** Inventory Commands ***/
 
-		/* Wear/wield equipment */
-		case 'w':
-		{
-			do_cmd_wield();
-			break;
-		}
-
-		/* Take off equipment */
-		case 't':
-		{
-			do_cmd_takeoff();
-			break;
-		}
-
-		/* Destroy an item */
-		case 'k':
-		{
-			do_cmd_destroy();
-			break;
-		}
-
-		/* Equipment list */
-		case 'e':
-		{
-			do_cmd_equip();
-			break;
-		}
-
-		/* Inventory list */
-		case 'i':
-		{
-			do_cmd_inven();
-			break;
-		}
-
-		/*** Various commands ***/
-
-		/* Identify an object */
-		case 'I':
-		{
-			do_cmd_observe();
-			break;
-		}
-
-		/* Hack -- toggle windows */
-		case KTRL('E'):
-		{
-			toggle_inven_equip();
-			break;
-		}
-
-		/*** Use various objects ***/
-
-		/* Inscribe an object */
-		case '{':
-		{
-			do_cmd_inscribe();
-			break;
-		}
-
-		/* Uninscribe an object */
-		case '}':
-		{
-			do_cmd_uninscribe();
-			break;
-		}
+		case 'w': do_cmd_wield(); break;				/* Wear/wield equipment */
+		case 't': do_cmd_takeoff();	break;				/* Take off equipment */
+		case 'k': do_cmd_destroy();	break;				/* Destroy an item */
+		case 'e': do_cmd_equip(); break;				/* Equipment list */
+		case 'i': do_cmd_inven(); break;				/* Inventory list */
+		case KTRL('E'):	toggle_inven_equip(); break;	/* Hack -- toggle windows */
+		case 'I': do_cmd_observe(); break;				/* Identify an object */		
+		case '{': do_cmd_inscribe(); break;				/* Inscribe an object */
+		case '}': do_cmd_uninscribe(); break;			/* Uninscribe an object */
 
 		/*** Help and Such ***/
 
-		/* Help */
-		case '?':
-		{
-			do_cmd_help();
-			break;
-		}
-
-		/* Identify symbol */
-		case '/':
-		{
-			do_cmd_query_symbol();
-			break;
-		}
-
-		/* Character description */
-		case 'C':
-		{
-			do_cmd_display_character();
-			break;
-		}
+		case '?': do_cmd_help(); break;					/* Help */
+		case '/': do_cmd_query_symbol(); break;			/* Identify symbol */
+		case 'C': do_cmd_display_character(); break;	/* Character description */
 
 		/*** System Commands ***/
 
-		/* Hack -- User interface */
-		case '!':
-		{
-			(void)Term_user(0);
-			break;
-		}
-
-		/* Single line from a pref file */
-		case '"':
-		{
-			do_cmd_pref();
-			break;
-		}
-
-		/* Interact with macros */
-		case '@':
-		{
-			do_cmd_macros();
-			break;
-		}
-
-		/* Interact with visuals */
-		case '%':
-		{
-			do_cmd_visuals();
-			break;
-		}
-
-		/* Interact with colors */
-		case '&':
-		{
-			do_cmd_colors();
-			break;
-		}
-
+		case '!': (void)Term_user(0); break;			/* Hack -- User interface */
+		case '"': do_cmd_pref(); break;					/* Single line from a pref file */
+		case '@': do_cmd_macros(); break;				/* Interact with macros */
+		case '%': do_cmd_visuals();	break;				/* Interact with visuals */
+		case '&': do_cmd_colors(); break;				/* Interact with colors */
 		/* Interact with options */
 		case '=':
 		{
 			do_cmd_options();
-			do_cmd_redraw();
 			display_store();
 			break;
 		}
 
 		/*** Misc Commands ***/
 
-		/* Take notes */
-		case ':':
+		case ':': do_cmd_note(); break;					/* Take notes */
+		case 'V': do_cmd_version();	break;				/* Version info */		
+		case KTRL('O'):	do_cmd_message_one(); break;	/* Show previous message */
+		case KTRL('P'):	do_cmd_messages(); break;		/* Show previous messages */
+		case '~': case '|':	do_cmd_knowledge();	break; 	/* Check knowledge */
+		case '(': do_cmd_save_screen_text(); break; 	/* Text "screen dump" */
+		case ')': do_cmd_save_screen_html(); break;		/* HTML "screen dump" */
+		/* Redraw */
+		case KTRL('R'):
 		{
-			do_cmd_note();
+			do_cmd_redraw();
+			if (!guild_cmd) display_store();
+			else display_guild();
 			break;
 		}
 
-		/* Version info */
-		case 'V':
-		{
-			do_cmd_version();
-			break;
-		}
+		/*** Hack -- Unknown command ***/
 
-		/* Repeat level feeling */
-		case KTRL('F'):
-		{
-			do_cmd_feeling();
-			break;
-		}
-
-		/* Show previous message */
-		case KTRL('O'):
-		{
-			do_cmd_message_one();
-			break;
-		}
-
-		/* Show previous messages */
-		case KTRL('P'):
-		{
-			do_cmd_messages();
-			break;
-		}
-
-		/* Check knowledge */
-		case '~':
-		case '|':
-		{
-			do_cmd_knowledge();
-			break;
-		}
-
-		/* Load "screen dump" */
-		case '(':
-		{
-			do_cmd_save_screen_text();
-			break;
-		}
-
-		/* Save "screen dump" */
-		case ')':
-		{
-			do_cmd_save_screen_html();
-			break;
-		}
-
-		/* Hack -- Unknown command */
 		default:
 		{
 			legal = FALSE;
@@ -2517,7 +2328,7 @@ void do_cmd_store(void)
 				object_copy(i_ptr, o_ptr);
 
 				/* Describe it */
-				object_desc(o_name, i_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 				/* Message */
 				message_format(MSG_DROP, 0, "You drop %s (%c).", o_name, index_to_label(item));
