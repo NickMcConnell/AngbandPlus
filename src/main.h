@@ -13,6 +13,7 @@
 
 #include "angband.h"
 
+extern errr init_lfb(int argc, char **argv);
 extern errr init_gtk(int argc, char **argv);
 extern errr init_xaw(int argc, char **argv);
 extern errr init_x11(int argc, char **argv);
@@ -28,7 +29,7 @@ extern errr init_ami(int argc, char **argv);
 extern errr init_vme(int argc, char **argv);
 extern errr init_vcs(int argc, char **argv);
 
-
+extern const char help_lfb[];
 extern const char help_xpj[];
 extern const char help_xaw[];
 extern const char help_x11[];

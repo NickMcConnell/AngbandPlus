@@ -65,11 +65,15 @@
 # ends or the beginning of the next line to prevent words from running
 # together.
 
-
+# Accented characters may be used in an object's name or description.
+# Use the proper code, enclosed between square brackets, to enter an accented
+# character. For example: Palant['i]r or Palant[iacute]r are both valid ways to
+# get an acute accent on the i in Palantir. All valid codes can be found in
+# util.c.
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.5.0
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -174,7 +178,7 @@ P:0:0d0:0:0:0
 F:INSTA_ART
 
 
-N:7:& Palantir~
+N:7:& Palant['i]r~
 G:~:y
 I:39:7:0
 W:75:0:200:100000
@@ -247,7 +251,7 @@ F:INSTA_ART
 
 
 N:16:& Ring~
-G:=:y
+G:=:y2
 I:45:37:0
 W:100:0:2:5000000
 P:0:0d0:0:0:0
@@ -482,7 +486,7 @@ A:30/1:50/2
 
 
 N:45:& Shield~ of Deflection
-G:[:B
+G:):B
 I:34:10:0
 W:70:0:100:10000
 P:10:1d1:0:0:10
@@ -1034,7 +1038,7 @@ A:45/1
 
 
 N:104:& Golden Crown~
-G:]:y
+G:]:y2
 I:33:11:0
 W:45:0:30:1000
 P:0:1d1:0:0:0
@@ -1133,7 +1137,7 @@ G:{:s
 I:16:1:0
 W:3:0:5:2
 P:0:1d4:0:0:0
-A:3/1:40/2
+A:1/1:15/1:40/2
 F:SHOW_MODS
 D:It can be shot with a sling. 
 
@@ -2031,8 +2035,8 @@ W:70:0:50:3500
 P:0:1d2:0:0:0
 A:70/4
 D:It removes all monsters represented by a chosen symbol from the level.
-D:  Uniques are unaffected.  You take 1d4 points of damage for every
-D: monster removed. 
+D:  Quest monsters and uniques are unaffected.  You take 1d4 points of
+D: damage for every monster removed.
 
 
 N:208:Earthquakes
@@ -2060,7 +2064,7 @@ D: squares, randomly placing new walls and floor space (stairs are
 D: immune).  All monsters and objects (excluding artifacts) are removed
 D: from the affected area.  This effect will also cause blindness
 D: lasting for 10+1d10 turns unless you have resistance to either
-D: blindness or light. 
+D: blindness or light. Quest monsters are unaffected.
 
 
 
@@ -2676,7 +2680,7 @@ D: its center.
 ##### Scrolls #####
 
 N:267:Darkness
-G:?:d
+G:?:w
 I:70:0:0
 W:1:0:5:0
 P:0:0d0:0:0:0
@@ -2688,7 +2692,7 @@ D: you have resistance to blindness.
 
 
 N:268:Aggravate Monster
-G:?:d
+G:?:w
 I:70:1:0
 W:5:0:5:0
 P:0:0d0:0:0:0
@@ -2699,7 +2703,7 @@ D: all monsters within line of sight unless they are already hasted.
 
 
 N:269:Curse Armor
-G:?:d
+G:?:w
 I:70:2:0
 W:50:0:5:0
 P:0:0d0:0:0:0
@@ -2712,7 +2716,7 @@ D: chance to resist.
 
 
 N:270:Curse Weapon
-G:?:d
+G:?:w
 I:70:3:0
 W:50:0:5:0
 P:0:0d0:0:0:0
@@ -2724,7 +2728,7 @@ D: both to -2d5.  Artifacts have a 1 in 2 chance to resist.
 
 
 N:271:Summon Monster
-G:?:d
+G:?:w
 I:70:4:0
 W:1:0:5:0
 P:0:0d0:0:0:0
@@ -2737,7 +2741,7 @@ D: escorts.
 
 
 N:272:Summon Undead
-G:?:d
+G:?:w
 I:70:5:0
 W:15:0:5:0
 P:0:0d0:0:0:0
@@ -2750,7 +2754,7 @@ D: appear with escorts.
 
 
 N:273:Summon Unique
-G:?:d
+G:?:w
 I:70:6:0
 W:25:0:5:0
 P:0:0d0:0:0:0
@@ -2761,7 +2765,7 @@ D: normally has escorts, it will appear with escorts.
 
 
 N:274:Trap Creation
-G:?:d
+G:?:w
 I:70:7:0
 W:10:0:5:0
 P:0:0d0:0:0:0
@@ -2771,7 +2775,7 @@ D:It creates traps on all empty squares within a 1-square radius of you.
 
 
 N:275:Phase Door
-G:?:d
+G:?:w
 I:70:8:0
 W:1:0:5:15
 P:0:0d0:0:0:0
@@ -2781,7 +2785,7 @@ D:It teleports you randomly up to 10 squares away.
 
 
 N:276:Teleportation
-G:?:d
+G:?:w
 I:70:9:0
 W:10:0:5:40
 P:0:0d0:0:0:0
@@ -2791,7 +2795,7 @@ D:It teleports you randomly up to 100 squares away.
 
 
 N:277:Teleport Level
-G:?:d
+G:?:w
 I:70:10:0
 W:20:0:5:50
 P:0:0d0:0:0:0
@@ -2805,7 +2809,7 @@ D: effect when the "Ironman" option is set.
 
 
 N:278:Word of Recall
-G:?:d
+G:?:w
 I:70:11:0
 W:5:0:5:150
 P:0:0d0:0:0:0
@@ -2818,7 +2822,7 @@ D: spell can be canceled by reading a second scroll.
 
 
 N:279:Identify
-G:?:d
+G:?:w
 I:70:12:0
 W:1:0:5:50
 P:0:0d0:0:0:0
@@ -2829,7 +2833,7 @@ D: (The spell may be aborted without using up the scroll.)
 
 
 N:280:*Identify*
-G:?:d
+G:?:w
 I:70:13:0
 W:30:0:5:1000
 P:0:0d0:0:0:0
@@ -2842,7 +2846,7 @@ D: aborted without using up the scroll.)
 
 
 N:281:Remove Curse
-G:?:d
+G:?:w
 I:70:14:0
 W:10:0:5:100
 P:0:0d0:0:0:0
@@ -2853,7 +2857,7 @@ D: permanent curses are unaffected.
 
 
 N:282:*Remove Curse*
-G:?:d
+G:?:w
 I:70:15:0
 W:50:0:5:8000
 P:0:0d0:0:0:0
@@ -2864,7 +2868,7 @@ D: Permanent curses are unaffected.
 
 
 N:283:Enchant Armor
-G:?:d
+G:?:w
 I:70:16:0
 W:15:0:5:125
 P:0:0d0:0:0:0
@@ -2874,7 +2878,7 @@ D:It attempts to enchant a piece of armor once.
 
 
 N:284:Enchant Weapon To-Hit
-G:?:d
+G:?:w
 I:70:17:0
 W:15:0:5:125
 P:0:0d0:0:0:0
@@ -2884,7 +2888,7 @@ D:It attempts to magically enhance a weapon's to-hit bonus once.
 
 
 N:285:Enchant Weapon To-Dam
-G:?:d
+G:?:w
 I:70:18:0
 W:15:0:5:125
 P:0:0d0:0:0:0
@@ -2894,7 +2898,7 @@ D:It attempts to magically enhance a weapon's to-dam bonus once.
 
 
 N:286:*Enchant Armor*
-G:?:d
+G:?:w
 I:70:20:0
 W:50:0:5:500
 P:0:0d0:0:0:0
@@ -2904,7 +2908,7 @@ D:It attempts to enchant a piece of armor 2+1d3 times.
 
 
 N:287:*Enchant Weapon*
-G:?:d
+G:?:w
 I:70:21:0
 W:50:0:5:500
 P:0:0d0:0:0:0
@@ -2915,7 +2919,7 @@ D: 1d3 times each.
 
 
 N:288:Recharging
-G:?:d
+G:?:w
 I:70:22:0
 W:40:0:5:200
 P:0:0d0:0:0:0
@@ -2934,7 +2938,7 @@ D: re-charge attempt.
 
 
 N:289:*Recharging*
-G:?:d
+G:?:w
 I:70:23:0
 W:50:0:5:2000
 P:0:0d0:0:0:0
@@ -2947,7 +2951,7 @@ D: speed) to recharge fully.
 
 
 N:290:Light
-G:?:d
+G:?:w
 I:70:24:0
 W:0:0:5:15
 P:0:0d0:0:0:0
@@ -2959,7 +2963,7 @@ D: any light-sensitive creatures within the radius of the spell.
 
 
 N:291:Magic Mapping
-G:?:d
+G:?:w
 I:70:25:0
 W:5:0:5:40
 P:0:0d0:0:0:0
@@ -2969,7 +2973,7 @@ D:It maps out a portion of the level centered on you.
 
 
 N:292:Treasure Detection
-G:?:d
+G:?:w
 I:70:26:0
 W:0:0:5:15
 P:0:0d0:0:0:0
@@ -2979,7 +2983,7 @@ D:It detects all treasure in the immediate area.
 
 
 N:293:Object Detection
-G:?:d
+G:?:w
 I:70:27:0
 W:0:0:5:15
 P:0:0d0:0:0:0
@@ -2989,7 +2993,7 @@ D:It detects all objects in the immediate area.
 
 
 N:294:Trap Detection
-G:?:d
+G:?:w
 I:70:28:0
 W:5:0:5:35
 P:0:0d0:0:0:0
@@ -2999,7 +3003,7 @@ D:It detects all traps in the immediate area.
 
 
 N:295:Door/Stair Location
-G:?:d
+G:?:w
 I:70:29:0
 W:5:0:5:35
 P:0:0d0:0:0:0
@@ -3009,7 +3013,7 @@ D:It detects all stairs and doors in the immediate area.
 
 
 N:296:Detect Invisible
-G:?:d
+G:?:w
 I:70:30:0
 W:1:0:5:15
 P:0:0d0:0:0:0
@@ -3019,7 +3023,7 @@ D:It detects all invisible monsters in the immediate area.
 
 
 N:297:Satisfy Hunger
-G:?:d
+G:?:w
 I:70:32:0
 W:5:0:5:10
 P:0:0d0:0:0:0
@@ -3030,7 +3034,7 @@ D: cure a bloated stomach.
 
 
 N:298:Blessing
-G:?:d
+G:?:w
 I:70:33:0
 W:1:0:5:15
 P:0:0d0:0:0:0
@@ -3041,7 +3045,7 @@ D: 6+1d12 turns.
 
 
 N:299:Holy Chant
-G:?:d
+G:?:w
 I:70:34:0
 W:10:0:5:40
 P:0:0d0:0:0:0
@@ -3052,7 +3056,7 @@ D: 12+1d24 turns.
 
 
 N:300:Holy Prayer
-G:?:d
+G:?:w
 I:70:35:0
 W:25:0:5:80
 P:0:0d0:0:0:0
@@ -3063,7 +3067,7 @@ D: 24+1d48 turns.
 
 
 N:301:Monster Confusion
-G:?:d
+G:?:w
 I:70:36:0
 W:5:0:5:30
 P:0:0d0:0:0:0
@@ -3075,7 +3079,7 @@ D: at that moment an attempt is made to confuse the monster.
 
 
 N:302:Protection from Evil
-G:?:d
+G:?:w
 I:70:37:0
 W:30:0:5:50
 P:0:0d0:0:0:0
@@ -3086,7 +3090,7 @@ D: equal to 1d25 plus three times your character level.
 
 
 N:303:Rune of Protection
-G:?:d
+G:?:w
 I:70:38:0
 W:60:0:5:500
 P:0:0d0:0:0:0
@@ -3099,7 +3103,7 @@ D: still be attacked if you are standing on the glyph!
 
 
 N:304:Trap/Door Destruction
-G:?:d
+G:?:w
 I:70:39:0
 W:10:0:5:50
 P:0:0d0:0:0:0
@@ -3109,7 +3113,7 @@ D:It destroys all traps and doors within a 1-square radius of you.
 
 
 N:305:Create Monster Trap
-G:?:d
+G:?:w
 I:70:40:0
 W:40:0:5:1000
 P:0:0d0:0:0:0
@@ -3119,7 +3123,7 @@ D: It creates a trap that can cause damage to a monster.
 
 
 N:306:*Destruction*
-G:?:d
+G:?:w
 I:70:41:0
 W:40:0:5:250
 P:0:0d0:0:0:0
@@ -3130,11 +3134,11 @@ D: squares, randomly placing new walls and floor space (stairs are
 D: immune).  All monsters and objects (excluding artifacts) are removed
 D: from the affected area.  This effect will also cause blindness
 D: lasting for 10+1d10 turns unless you have resistance to either
-D: blindness or light. 
+D: blindness or light.  Quest monsters are unaffected.
 
 
 N:307:Dispel Undead
-G:?:d
+G:?:w
 I:70:42:0
 W:40:0:5:200
 P:0:0d0:0:0:0
@@ -3145,7 +3149,7 @@ D: sight.
 
 
 N:308:Create Artifact
-G:?:d
+G:?:w
 I:70:43:0
 W:20:0:32:150000
 P:0:0d0:0:0:0
@@ -3155,30 +3159,31 @@ D:It creates a random artifact on the ground near you.
 
 
 N:309:Banishment
-G:?:d
+G:?:w
 I:70:44:0
 W:40:0:5:750
 P:0:0d0:0:0:0
 A:40/4:80/2
 F:EASY_KNOW
 D:It removes all monsters represented by a chosen symbol from the level.
-D:  Uniques are unaffected.  You take 1d4 points of damage for every
-D: monster removed. 
+D:  Quest monsters and uniques are unaffected.  You take 1d4 points of
+D: damage for every monster removed.
 
 
 N:310:Mass Banishment
-G:?:d
+G:?:w
 I:70:45:0
 W:50:0:5:1000
 P:0:0d0:0:0:0
 A:50/4:95/2
 F:EASY_KNOW
-D:It removes all monsters within 20 squares of you.  Uniques are
-D: unaffected.  You take 1d3 points of damage for every monster removed. 
+D:It removes all monsters within 20 squares of you.  Quest monsters and
+D: uniques are unaffected.  You take 1d3 points of damage for every
+D: monster removed.
 
 
 N:311:Acquirement
-G:?:d
+G:?:w
 I:70:46:0
 W:20:0:5:100000
 P:0:0d0:0:0:0
@@ -3188,7 +3193,7 @@ D:It creates one good object on the floor near you.
 
 
 N:312:*Acquirement*
-G:?:d
+G:?:w
 I:70:47:0
 W:60:0:5:200000
 P:0:0d0:0:0:0
@@ -3849,7 +3854,7 @@ G:!:d
 I:75:63:0
 W:65:0:4:900
 P:0:1d1:0:0:0
-A:65/8
+A:25/4
 F:IGNORE_COLD | EASY_KNOW
 D:It grants you temporary resistance to fire, cold, acid, electricity,
 D: and  poison for 10+1d10 turns.  Temporary resistance is cumulative
@@ -4226,42 +4231,42 @@ D: spikes in one door will not have any further effect.
 ##### Gold/Gems #####
 
 N:404:copper
-G:$:u
+G:$:u2
 I:100:1:0
 W:1:0:0:3
 P:0:0d0:0:0:0
 
 
 N:405:copper
-G:$:u
+G:$:u2
 I:100:2:0
 W:1:0:0:4
 P:0:0d0:0:0:0
 
 
 N:406:copper
-G:$:u
+G:$:u2
 I:100:3:0
 W:1:0:0:5
 P:0:0d0:0:0:0
 
 
 N:407:silver
-G:$:s
+G:$:s2
 I:100:4:0
 W:1:0:0:5
 P:0:0d0:0:0:0
 
 
 N:408:silver
-G:$:s
+G:$:s2
 I:100:5:0
 W:1:0:0:6
 P:0:0d0:0:0:0
 
 
 N:409:silver
-G:$:s
+G:$:s2
 I:100:6:0
 W:1:0:0:7
 P:0:0d0:0:0:0
@@ -4282,21 +4287,21 @@ P:0:0d0:0:0:0
 
 
 N:412:gold
-G:$:y
+G:$:y2
 I:100:9:0
 W:1:0:0:10
 P:0:0d0:0:0:0
 
 
 N:413:gold
-G:$:y
+G:$:y2
 I:100:10:0
 W:1:0:0:11
 P:0:0d0:0:0:0
 
 
 N:414:gold
-G:$:y
+G:$:y2
 I:100:11:0
 W:1:0:0:12
 P:0:0d0:0:0:0
@@ -4405,7 +4410,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 N:427:[Raal's Tome of Destruction]
 G:?:r
 I:90:5:0
-W:30:0:30:60000
+W:30:0:30:20000
 P:0:1d1:0:0:0
 A:30/8
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
@@ -4440,7 +4445,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
 
 N:431:[Beginners Handbook]
-G:?:G
+G:?:B
 I:91:0:0
 W:5:0:30:25
 P:0:1d1:0:0:0
@@ -4449,7 +4454,7 @@ F:EASY_KNOW
 
 
 N:432:[Words of Wisdom]
-G:?:G
+G:?:B
 I:91:1:0
 W:10:0:30:100
 P:0:1d1:0:0:0
@@ -4458,7 +4463,7 @@ F:EASY_KNOW
 
 
 N:433:[Chants and Blessings]
-G:?:G
+G:?:B
 I:91:2:0
 W:20:0:30:300
 P:0:1d1:0:0:0
@@ -4467,7 +4472,7 @@ F:EASY_KNOW
 
 
 N:434:[Exorcism and Dispelling]
-G:?:G
+G:?:B
 I:91:3:0
 W:30:0:30:900
 P:0:1d1:0:0:0
@@ -4476,7 +4481,7 @@ F:EASY_KNOW
 
 
 N:435:[Ethereal Openings]
-G:?:g
+G:?:b
 I:91:4:0
 W:20:0:30:5000
 P:0:1d1:0:0:0
@@ -4485,7 +4490,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
 
 N:436:[Godly Insights]
-G:?:g
+G:?:b
 I:91:5:0
 W:30:0:30:10000
 P:0:1d1:0:0:0
@@ -4494,7 +4499,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
 
 N:437:[Purifications and Healing]
-G:?:g
+G:?:b
 I:91:6:0
 W:40:0:30:30000
 P:0:1d1:0:0:0
@@ -4503,7 +4508,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
 
 N:438:[Holy Infusions]
-G:?:g
+G:?:b
 I:91:7:0
 W:60:0:30:50000
 P:0:1d1:0:0:0
@@ -4513,7 +4518,7 @@ F:EASY_KNOW
 
 
 N:439:[Wrath of God]
-G:?:g
+G:?:b
 I:91:8:0
 W:70:0:30:100000
 P:0:1d1:0:0:0
@@ -4533,7 +4538,7 @@ N:441:Mass Identify
 G:_:d
 I:55:30:0
 W:40:0:50:1000
-P:0:1d2:0:0:0
+P:0:1d1:0:0:0
 A:40/1
 D:It reveals all normal (magical but non-hidden) powers of all the
 D: player's equipment, player inventory, and all objects on the floor
@@ -4563,5 +4568,86 @@ F:IGNORE_ELEC
 D:It reveals all normal (magical but non-hidden) powers of all the
 D: player's equipment, player inventory, and all objects on the floor
 D: within a 3 square radius.
+
+
+N:444:[Call of the Wild]
+G:?:G
+I:92:0:0
+W:5:0:30:25
+P:0:1d1:0:0:0
+A:5/1
+F:EASY_KNOW
+
+
+N:445:[Environmental Adjurations]
+G:?:G
+I:92:1:0
+W:10:0:30:100
+P:0:1d1:0:0:0
+A:10/1
+F:EASY_KNOW
+
+
+N:446:[Commanding Nature]
+G:?:G
+I:92:2:0
+W:20:0:30:300
+P:0:1d1:0:0:0
+A:20/1
+F:EASY_KNOW
+
+
+N:447:[Lore of Engagement]
+G:?:G
+I:92:3:0
+W:30:0:30:900
+P:0:1d1:0:0:0
+A:30/1
+F:EASY_KNOW
+
+
+N:448:[Radagast's Protections]
+G:?:g
+I:92:4:0
+W:20:0:30:5000
+P:0:1d1:0:0:0
+A:20/8
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+
+
+N:449:[Melian's Reformations]
+G:?:g
+I:92:5:0
+W:30:0:30:10000
+P:0:1d1:0:0:0
+A:30/8
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+
+
+N:450:[Arda's Habitats]
+G:?:g
+I:92:6:0
+W:40:0:30:30000
+P:0:1d1:0:0:0
+A:40/8
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+
+
+N:451:[Natural Infusions]
+G:?:g
+I:92:7:0
+W:60:0:30:50000
+P:0:1d1:0:0:0
+A:60/16
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW | IRONMAN_ONLY
+
+
+N:452:[Nature's Fury]
+G:?:g
+I:92:8:0
+W:70:0:30:100000
+P:0:1d1:0:0:0
+A:70/16
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
 

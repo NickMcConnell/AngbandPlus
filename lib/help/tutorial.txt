@@ -45,5 +45,3 @@ you can learn spells, practice them in safe places.  If you have questions, the
 '?' key is there to help.
 
 Have fun!
-
-

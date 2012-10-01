@@ -103,10 +103,10 @@ Display floor stacks in a list                [easy_floor]           (off):
      Displays items on the floor using a list similar to that used for
 inventory.  Allows you to comfortably handle large piles of floor items.
 
-***** <scroll_target>
-Scroll map while targetting                   [scroll_target]        (off):
-     When looking or targeting, the panel will shift as needed, allowing you to
-review everything you know about the dungeon.
+***** <expand_inscribe>
+Expand the power of the inscribe commands     [expand_inscribe]       (on):
+     Prompt for automatic addition and removal of inscriptions every time
+an object is inscribed.
 
 
 --- Option Set #2:  Disturbance ---
@@ -317,23 +317,6 @@ message information.
 Show dungeon level in feet                    [depth_in_feet]        (off):
      Displays dungeon level in feet, as opposed to level.
 
-***** <show_labels>
-Show labels in equipment listings             [show_labels]          (on) :
-    Display "labels" (what an object is being used for) for objects in all
-equipment listings.
-
-***** <show_weights>
-Show weights in all object listings           [show_weights]         (on) :
-     Display weights (in pounds) of objects in all inventory, equipment, store,
-and home listings.
-
-***** <show_choices>
-Show choices in inven/equip windows           [show_choices]         (on) :
-    Display choices (legal responses) in any sub-windows that are being used to
-display your inventory or equipment.  Also, if one sub-window is being used to
-display your inventory or equipment, then this option will cause it to be
-(temporarily) toggled as needed.
-
 ***** <show_details>
 Show details in monster descriptions          [show_details]         (on) :
      Display a description and number of kills for each monster in the monster
@@ -431,9 +414,13 @@ Reverse experience display		          [toggle_xp]		    (off) :
     option is off or if your character has reached the maximum character
     level, it will show your total experience.
 
-***** <auto_display_lists>
-Automatically display drop-down lists	    [auto_display_lists]   (off)  :	
+***** <always_show_list>
+Automatically display drop-down lists	    [always_show_list]   (off)  :	
     If selecting anything from a list, the list will automatically pop up.
+
+***** <xchars_to_file>
+Allow accents in output files		    [xchars_to_file]   	 (off)  :	
+    Allow non-ascii characters to be saved in output files.
 
 --- Option Set #6:  Birth ---
 
@@ -565,6 +552,11 @@ Peek into monster creation                    [cheat_hear]           (off) :
 Peek into dungeon creation                    [cheat_room]           (off) :
      Cheaters never win.  But they can peek at room creation.
 
+***** <cheat_xtra>
+Peek into something else                      [cheat_xtra]           (off) :
+     Cheaters never win.  But they can know when shopkeepers are shuffled, 
+dungeon level generation is restarted, or monsters can not be placed.
+
 ***** <cheat_know>
 Know complete monster info                    [cheat_know]           (off) :
      Cheaters never win.  But they can know all about monsters.
@@ -585,16 +577,25 @@ useful information.  The best thing about these windows is that they are
      equip/inven:       Display the player equipment (and inventory).
      player (basic):    Display the main character screen.
      player (extra):    Display the character screen's equipment flags section.
+     player (compact):  Display the player information such as name, class, 
+                             title, stats, ac, hp and sp.
+     view map:          Display the map.
      messages:          Display recent messages and notes.
      overhead view:     Display an overhead view of the dungeon.
      monster recall:    Display a description of the target monster.
      object recall:     Display a description of the most recently selected
-          object.  Currently this only affects spellbooks and prayerbooks.
+                           object.  Currently this only affects spellbooks 
+                           and prayerbooks.
+     monster list:      Display a list of monsters that are currently viewable 
+                            by the player.
+     status:            Display the status line.
      snap-shot:         This window flag is currently unused.
      script variables:  Used for debugging scripts.
      script source:     Used for debugging scripts.
      borg messages:     Used for the automatic Angband player (the borg).
      borg status:       Used for the automatic Angband player (the borg).
+     feature recall:    Display a description of the most recently selected
+                            feature.  
 
 --- Miscellaneous Options ---
 
@@ -622,14 +623,16 @@ Enter Autoinscription - An inscription can be entered for a specific object type
 
 Quality squelching sub menu:  Categories of items (shields, swords) can be 
 set to automatically be destroyed when either identified or pseudo-identified 
-as cursed, average or below, good or below, or all but artifacts.  The option
-to squelch open chests can also be set at this screen.  Note that items with
-an auto inscription are not quality squelched.
+as cursed, average or below, good or below (both strong and weak speugo id), 
+or all but artifacts.  The option to squelch open chests can also be set at 
+this screen.  Note that items with an auto inscription are not quality squelched.
 
-Ego-item squelching sub-menu: allows the player to set certain ego-items as 
-exempt from squelching if the object category is set to 'all but artifact'.
+Ego-item squelching sub-menu: allows the player to set certain ego-items to
+always squelch upon identification (ex. the player has little need for a 
+shield of resistance after they find their first shield of elvenkind).
 
-This screen also has options to load or append the squelch settings to a file.
+This screen also has options to load or append the squelch settings and
+autoinscriptions to a file.
 
 See options.txt for several game options that supplement the Squelch Menus.
 
@@ -656,5 +659,4 @@ them to a file that will.
 Append options to a file:
      Saves options to file.  See the preferences section for help on what
 filename to use (the file "user.prf" usually works).
-
 

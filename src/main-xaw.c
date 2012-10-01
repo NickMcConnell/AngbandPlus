@@ -8,6 +8,7 @@
  * are included in all such copies.
  */
 
+
 /*
  * This file helps Angband work with UNIX/X11 computers.
  *
@@ -661,14 +662,16 @@ static void Destroy(AngbandWidget widget)
 
 static void Resize_term(AngbandWidget wnew)
 {
-	int cols, rows, wid, hgt;
+	int cols, rows;
 
 	int ox = wnew->angband.internal_border;
 	int oy = wnew->angband.internal_border;
 
 	int i;
-	term_data *old_td = (term_data*)(Term->data);
 	term_data *td = &data[0];
+
+	/* Remember the old term */
+	term *old_term = Term;
 
 	/* Hack - Find the term to activate */
 	for (i = 0; i < num_term; i++)
@@ -700,15 +703,11 @@ static void Resize_term(AngbandWidget wnew)
 		if (rows < 24) rows = 24;
 	}
 
-	/* Desired size of window */
-	wid = cols * wnew->angband.fontwidth + (ox + ox);
-	hgt = rows * wnew->angband.fontheight + (oy + oy);
-
 	/* Resize the Term (if needed) */
-	(void) Term_resize(cols, rows);
+	(void)Term_resize(cols, rows);
 
 	/* Activate the old term */
-	Term_activate(&old_td->t);
+	if (old_term) Term_activate(old_term);
 }
 
 /*
@@ -1483,6 +1482,16 @@ static void term_raise(term_data *td)
 	XRaiseWindow(XtDisplay(XtParent(widget)), XtWindow(XtParent(widget)));
 }
 
+/*
+ * Given a position in the ISO Latin-1 character set, return
+ * the correct character on this system.
+ */
+static byte Term_xchar_xaw(byte c)
+{
+ 	/* The XAW port uses the Latin-1 standard */
+ 	return (c);
+}
+
 
 /*
  * Initialize a term_data
@@ -1564,6 +1573,7 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	t->bigcurs_hook = Term_bigcurs_xaw;
 	t->wipe_hook = Term_wipe_xaw;
 	t->text_hook = Term_text_xaw;
+	t->xchar_hook = Term_xchar_xaw;
 
 	/* Save the data */
 	t->data = td;
@@ -1661,6 +1671,14 @@ const char help_xaw[] = "X11 Athena Widget, subopts -d<display> -n<windows>"
                         "\n           and standard X11 toolkit options"
                         ;
 
+static void hook_quit(cptr str)
+{
+ 	/* Unused */
+ 	(void)str;
+
+ 	(void)unregister_angband_fonts();
+}
+
 
 /*
  * Initialization function for an X Athena Widget module to Angband
@@ -1751,6 +1769,9 @@ errr init_xaw(int argc, char **argv)
 
 	/* Close the local display */
 	XCloseDisplay(dpy);
+
+	/* Make the new angband fonts available */
+ 	(void)register_angband_fonts();
 
 
 #ifdef USE_XAW_LANG
@@ -1945,6 +1966,9 @@ errr init_xaw(int argc, char **argv)
 	}
 
 #endif /* USE_GRAPHICS */
+
+	/* Initialize hooks */
+ 	quit_aux = hook_quit;
 
 	/* Success */
 	return (0);

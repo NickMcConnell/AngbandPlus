@@ -4,6 +4,9 @@ Compiling Instructions
 which you 
 have chosen to download the source code.)
 
+USERS OF X11/XAW/GTK PORTS:
+
+GO TO THE "LIB/XTRA/FONT" FOLDER AN RUN THE "COMPILE_BDF_FONTS.SH" SCRIPT.
 
 ========================
 Windows & Cygwin by Robert Ruehlmann (edited for NPPAngband)
@@ -137,7 +140,13 @@ l-spell.c
 l-spell.pkg
 
 I updated the makefiles as best as I could, but I am sure it is inevitable that
-I didn't do some of them correctly.  The makefile.cyg has been tested.
+I didn't do some of them correctly. 
+
+NPP 0.5.0
+Added two new files:
+
+feature.c
+effects.c
 
 -Jeff Greene
 

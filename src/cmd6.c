@@ -94,13 +94,13 @@ void do_cmd_eat_food(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
 	/* Identity not known yet */
 	ident = FALSE;
 
 	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = k_info[o_ptr->k_idx].k_level;
 
 	/* Eat the food */
 	use_object(o_ptr, &ident);
@@ -116,6 +116,7 @@ void do_cmd_eat_food(void)
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		if (o_ptr->number > 1) apply_autoinscription(o_ptr);
 	}
 
 	/* Window stuff */
@@ -176,13 +177,13 @@ void do_cmd_quaff_potion(void)
 	sound(MSG_QUAFF);
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
 	/* Not identified yet */
 	ident = FALSE;
 
 	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = k_info[o_ptr->k_idx].k_level;
 
 	/* Quaff the potion */
 	use_object(o_ptr, &ident);
@@ -198,6 +199,7 @@ void do_cmd_quaff_potion(void)
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		if (o_ptr->number > 1) apply_autoinscription(o_ptr);
 	}
 
 	/* Window stuff */
@@ -278,13 +280,13 @@ void do_cmd_read_scroll(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
 	/* Not identified yet */
 	ident = FALSE;
 
 	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = k_info[o_ptr->k_idx].k_level;
 
 	/* Read the scroll */
 	used_up = use_object(o_ptr, &ident);
@@ -300,6 +302,7 @@ void do_cmd_read_scroll(void)
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		if (o_ptr->number > 1) apply_autoinscription(o_ptr);
 	}
 
 	/* Window stuff */
@@ -374,13 +377,13 @@ void do_cmd_use_staff(void)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
 	/* Not identified yet */
 	ident = FALSE;
 
 	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = k_info[o_ptr->k_idx].k_level;
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;
@@ -418,8 +421,7 @@ void do_cmd_use_staff(void)
 
 
 	/* Sound */
-	sound(MSG_ZAP);
-
+	sound(MSG_USE_STAFF);
 
 	/* Use the staff */
 	use_charge = use_object(o_ptr, &ident);
@@ -435,6 +437,7 @@ void do_cmd_use_staff(void)
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		apply_autoinscription(o_ptr);
 	}
 
 	/* Window stuff */
@@ -522,13 +525,14 @@ void do_cmd_aim_wand(void)
 	object_tried(o_ptr);
 
 	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = k_info[o_ptr->k_idx].k_level;
 
 	/* Apply identification */
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		apply_autoinscription(o_ptr);
 	}
 
 	/* Window stuff */
@@ -604,10 +608,11 @@ void do_cmd_zap_rod(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		/* Object level */
-		int lev = k_info[o_ptr->k_idx].level;
+		int lev = k_info[o_ptr->k_idx].k_level;
 
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		apply_autoinscription(o_ptr);
 	}
 
 	/* Window stuff */
@@ -621,15 +626,15 @@ void do_cmd_zap_rod(void)
 /*
  * Hook to determine if an object is activatable
  */
-static bool item_tester_hook_activate(const object_type *o_ptr)
+bool item_tester_hook_activate(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, fn;
 
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &fn);
 
 	/* Check activation flag */
 	if (f3 & (TR3_ACTIVATE)) return (TRUE);
@@ -677,13 +682,13 @@ void do_cmd_activate(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
 	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = k_info[o_ptr->k_idx].k_level;
 
 	/* Hack -- use artifact level instead */
-	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
+	if (artifact_p(o_ptr)) lev = a_info[o_ptr->art_num].a_level;
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;

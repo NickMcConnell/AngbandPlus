@@ -151,6 +151,8 @@ struct term_win
  *	- Hook for drawing a string of chars using an attr
  *
  *	- Hook for drawing a sequence of special attr/char pairs
+ *
+ *  - Hook for translating Latin-1 (8-bit) characters
  */
 
 typedef struct term term;
@@ -197,6 +199,10 @@ struct term
 	byte *x1;
 	byte *x2;
 
+	/* Offsets used by the map subwindows */
+	byte offset_x;
+	byte offset_y;
+
 	term_win *old;
 	term_win *scr;
 
@@ -219,6 +225,8 @@ struct term
 	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
 
 	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+
+ 	byte (*xchar_hook)(byte c);
 };
 
 
@@ -272,7 +280,10 @@ extern term *Term;
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
 
-extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
+extern const char seven_bit_translation[128];
+extern char xchar_trans(byte c);
+
+extern void Term_queue_char(term *t, int x, int y, byte a, char c, byte ta, char tc);
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
 
 extern errr Term_fresh(void);

@@ -10,9 +10,10 @@
 
 /* Purpose: a generic, efficient, terminal window package -BEN- */
 
+#include "z-util.h"
 #include "z-term.h"
-
 #include "z-virt.h"
+
 
 
 /*
@@ -473,6 +474,61 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, 
 }
 
 
+
+
+/*
+ * Translate from ISO Latin-1 characters 128+ to 7-bit ASCII.
+ *
+ * We use this table to maintain compatibility with systems that cannot
+ * display 8-bit characters.  We also use it whenever we wish to suppress
+ * accents or ensure that a character is 7-bit.
+ */
+const char seven_bit_translation[128] =
+{
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	'A', 'A', 'A', 'A', 'A', 'A', ' ', 'C',
+ 	'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I',
+ 	'D', 'N', 'O', 'O', 'O', 'O', 'O', ' ',
+ 	'O', 'U', 'U', 'U', 'U', 'Y', ' ', ' ',
+ 	'a', 'a', 'a', 'a', 'a', 'a', ' ', 'c',
+ 	'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i',
+ 	'o', 'n', 'o', 'o', 'o', 'o', 'o', ' ',
+	'o', 'u', 'u', 'u', 'u', 'y', ' ', 'y'
+};
+
+
+/*
+ * Given a position in the ISO Latin-1 character set (which Angband uses
+ * internally), return the correct display character on this system.
+ * Assume ASCII-only if no special hook is available.  -LM-
+ */
+char xchar_trans(byte c)
+{
+ 	char s;
+
+ 	/* Use the hook, if available */
+ 	if (Term->xchar_hook) return ((char)(Term->xchar_hook)(c));
+
+ 	/* 7-bit characters are not translated */
+ 	if (c < 128) return (c);
+
+ 	/* Translate to 7-bit (strip accent or convert to space) */
+ 	s = seven_bit_translation[c - 128];
+
+ 	if (s == 0) return (c);
+ 	else return (s);
+}
+
+
+
+
 /*** Efficient routines ***/
 
 
@@ -480,22 +536,24 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, 
  * Mentally draw an attr/char at a given location
  *
  * Assumes given location and values are valid.
+ *
+ * Make no character translations.
  */
-void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
+void Term_queue_char(term *t, int x, int y, byte a, char c, byte ta, char tc)
 {
-	byte *scr_aa = Term->scr->a[y];
-	char *scr_cc = Term->scr->c[y];
+	byte *scr_aa = t->scr->a[y];
+	char *scr_cc = t->scr->c[y];
 
 	byte oa = scr_aa[x];
 	char oc = scr_cc[x];
 
-	byte *scr_taa = Term->scr->ta[y];
-	char *scr_tcc = Term->scr->tc[y];
+	byte *scr_taa = t->scr->ta[y];
+	char *scr_tcc = t->scr->tc[y];
 
 	byte ota = scr_taa[x];
 	char otc = scr_tcc[x];
 
-	/* Don't change is the terrain value is 0 */
+	/* Don't change if the terrain value is 0 */
 	if (!ta) ta = ota;
 	if (!tc) tc = otc;
 
@@ -510,12 +568,12 @@ void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
 	scr_tcc[x] = tc;
 
 	/* Check for new min/max row info */
-	if (y < Term->y1) Term->y1 = y;
-	if (y > Term->y2) Term->y2 = y;
+	if (y < t->y1) t->y1 = y;
+	if (y > t->y2) t->y2 = y;
 
 	/* Check for new min/max col info for this row */
-	if (x < Term->x1[y]) Term->x1[y] = x;
-	if (x > Term->x2[y]) Term->x2[y] = x;
+	if (x < t->x1[y]) t->x1[y] = x;
+	if (x > t->x2[y]) t->x2[y] = x;
 }
 
 
@@ -526,6 +584,8 @@ void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
  * of the string "s" are all valid (non-zero), and that (x+n-1,y) is also
  * a valid location, so the first "n" characters of "s" can all be added
  * starting at (x,y) without causing any illegal operations.
+ *
+ * Translate to the character set of the given system.
  */
 void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 {
@@ -551,7 +611,7 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 
 		/* Save the "literal" information */
 		scr_aa[x] = a;
-		scr_cc[x] = *s;
+		scr_cc[x] = xchar_trans(*s);
 
 		scr_taa[x] = 0;
 		scr_tcc[x] = 0;
@@ -652,7 +712,7 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 			/* Skip */
 			continue;
 		}
-		
+
 		/* Save new contents */
 		old_aa[x] = na;
 		old_cc[x] = nc;
@@ -1430,7 +1490,7 @@ errr Term_draw(int x, int y, byte a, char c)
 	if (!c) return (-2);
 
 	/* Queue it for later */
-	Term_queue_char(x, y, a, c, 0, 0);
+	Term_queue_char(Term, x, y, a, c, 0, 0);
 
 	/* Success */
 	return (0);
@@ -1464,7 +1524,7 @@ errr Term_addch(byte a, char c)
 	if (!c) return (-2);
 
 	/* Queue the given character for display */
-	Term_queue_char(Term->scr->cx, Term->scr->cy, a, c, 0, 0);
+	Term_queue_char(Term, Term->scr->cx, Term->scr->cy, a, c, 0, 0);
 
 	/* Advance the cursor */
 	Term->scr->cx++;
@@ -1623,7 +1683,7 @@ errr Term_erase(int x, int y, int n)
 		/* Save the "literal" information */
 		scr_aa[x] = na;
 		scr_cc[x] = nc;
-		
+
 		scr_taa[x] = 0;
 		scr_tcc[x] = 0;
 
@@ -1719,7 +1779,7 @@ errr Term_redraw(void)
 	Term->total_erase = TRUE;
 
 	/* Hack -- Refresh */
-	Term_fresh();
+	(void)Term_fresh();
 
 	/* Success */
 	return (0);
@@ -1766,7 +1826,7 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 	}
 
 	/* Hack -- Refresh */
-	Term_fresh();
+	(void)Term_fresh();
 
 	/* Success */
 	return (0);

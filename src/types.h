@@ -36,6 +36,8 @@
  * other places, to prevent the creation of inconsistant data.
  */
 
+#ifndef INCLUDED_TYPES_H
+#define INCLUDED_TYPES_H
 
 
 /**** Available Types ****/
@@ -62,20 +64,31 @@ typedef byte byte_wid[MAX_DUNGEON_WID];
  */
 typedef s16b s16b_wid[MAX_DUNGEON_WID];
 
+/*
+ * A matrix of MAX_DUNGEON_HGT * MAX_DUNGEON_WID u16b's
+ */
+typedef u16b u16b_dungeon[MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
+
+
 
 
 /**** Available Structs ****/
 
 
 typedef struct maxima maxima;
+typedef struct feature_state feature_state;
 typedef struct feature_type feature_type;
+typedef struct feature_lore feature_lore;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
+typedef struct artifact_lore artifact_lore;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
+typedef struct monster_race_message monster_race_message;
 typedef struct monster_lore monster_lore;
 typedef struct vault_type vault_type;
+typedef struct effect_type effect_type;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
 typedef struct alloc_entry alloc_entry;
@@ -93,8 +106,14 @@ typedef struct player_type player_type;
 typedef struct start_item start_item;
 typedef struct names_type names_type;
 typedef struct flavor_type flavor_type;
-typedef struct editing_buffer editing_buffer;
 typedef struct autoinscription autoinscription;
+typedef struct move_moment_type move_moment_type;
+typedef struct dynamic_grid_type dynamic_grid_type;
+typedef struct quiver_group_type quiver_group_type;
+typedef struct option_type option_type;
+typedef struct dungeon_capabilities_type dungeon_capabilities_type;
+
+
 
 /**** Available structs ****/
 
@@ -122,11 +141,27 @@ struct maxima
 	u16b flavor_max; /* Max size for "flavor_info[]" */
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "mon_list[]" */
+	u16b x_max;		/* Max size for "x_info[]" */
 	u16b ghost_other_max;  /* number of maintainer player ghost templates*/
 	u16b art_spec_max; /* Max number of special artifacts*/
+
 	u16b art_norm_max; /* Max number for normal artifacts (special - normal)*/
 	u16b art_rand_max; /*max number of random artifacts*/
 };
+
+/*
+ * Feature state structure
+ *
+ *    - Action (FS_*)
+ *   - Result (FEAT_*)
+ */
+struct feature_state
+{
+	byte fs_action;
+	s16b fs_result;
+	u16b fs_power;
+};
+
 
 
 /*
@@ -135,22 +170,91 @@ struct maxima
 struct feature_type
 {
 	u32b name;			/* Name (offset) */
-	u32b text;			/* Text (offset) */
+	u32b f_text;			/* Text (offset) */
 
-	byte mimic;			/* Feature to mimic */
+	u16b f_mimic;	/* Feature to mimic */
 
-	byte extra;			/* Extra byte (unused) */
+	s16b f_edge;
 
-	s16b unused;		/* Extra bytes (unused) */
+	u32b f_flags1;
+	u32b f_flags2;
+	u32b f_flags3;
 
+	u16b f_level;     	/* Minimum level */
+	u16b f_rarity;    	/* 1/Rarity */
+
+	u16b priority;  /* Map priority */
+	s16b defaults;     /* Default state */
+
+	feature_state state[MAX_FEAT_STATES];
+
+	byte f_power;
+
+	u16b unused;		/* Unused */
 
 	byte d_attr;		/* Default feature attribute */
 	char d_char;		/* Default feature character */
 
-
 	byte x_attr;		/* Desired feature attribute */
 	char x_char;		/* Desired feature character */
+
+	bool f_everseen;	/* Used to despoilify knowledge screens */
+
+	/* Fields use donly by effects. */
+	u16b x_damage;				/* damage per 100 levels for a smart trap - or basic damage for an effect cloud*/
+	byte x_gf_type;			/* the force type of the effect - numbers are hard coded in source */
+	byte x_timeout_set; 	/*base time between effect instances */
+	byte x_timeout_rand; /*is the random time between effects */
+
+	/* Fields used only by terrain. */
+	u16b dam_non_native;		/*damage to non-native creatures existing in grid */
+	byte native_energy_move;	/*energy to move through for native creatures */
+	byte non_native_energy_move;	/*energy to move through for non-native creatures */
+	byte native_to_hit_adj;	/*combat bonus for being native (percentage)  */
+	byte non_native_to_hit_adj;	/*combat bonus for being native (percentage)*/
+	int f_stealth_adj;			/*Adjustment to stealth depending on terrain*/
+
 };
+
+/*
+ * Artifact "lore" information
+ *
+ */
+struct artifact_lore
+{
+        bool was_fully_identified;      /* Preserved between diferent games */
+};
+
+
+/*
+ * Feature "lore" information
+ *
+ * Note that these fields are related to the "feature recall".
+ *
+ */
+struct feature_lore
+{
+	byte f_l_sights;		/*Number of times seeing this terrain*/
+
+	u32b f_l_flags1;
+	u32b f_l_flags2;
+	u32b f_l_flags3;
+
+	byte f_l_defaults;     /* Default state */
+
+	byte f_l_state[MAX_FEAT_STATES];
+
+	byte f_l_power;		/*Number of observed usages of power (unlock, trap power, etc)*/
+
+	byte f_l_dam_non_native;		/*Number of observed damage to non-native creatures existing in grid*/
+	byte f_l_native_moves;		/* Number of observed native moves for this terrain */
+	byte f_l_non_native_moves;	/* Number of observed non-native moves for this terrain */
+	byte f_l_native_to_hit_adj;	/*Number of observed  for being native (percentage)*/
+	byte f_l_non_native_to_hit_adj;	/*Number of observed combat penalties for being non-native (percentage)*/
+	byte f_l_stealth_adj;			/*Number of observed adjustments to stealth depending on terrain*/
+
+};
+
 
 
 /*
@@ -180,14 +284,15 @@ struct object_kind
 
 	s32b cost;			/* Object "base cost" */
 
-	u32b flags1;		/* Flags, set 1 */
-	u32b flags2;		/* Flags, set 2 */
-	u32b flags3;		/* Flags, set 3 */
+	u32b k_flags1;		/* Flags, set 1 */
+	u32b k_flags2;		/* Flags, set 2 */
+	u32b k_flags3;		/* Flags, set 3 */
+	u32b k_native;		/* Flags, native */
 
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
 
-	byte level;			/* Level */
+	byte k_level;			/* Level */
 	byte extra;			/* Something */
 
 
@@ -242,15 +347,16 @@ struct artifact_type
 
 	s32b cost;			/* Artifact "cost" */
 
-	u32b flags1;		/* Artifact Flags, set 1 */
-	u32b flags2;		/* Artifact Flags, set 2 */
-	u32b flags3;		/* Artifact Flags, set 3 */
+	u32b a_flags1;		/* Artifact Flags, set 1 */
+	u32b a_flags2;		/* Artifact Flags, set 2 */
+	u32b a_flags3;		/* Artifact Flags, set 3 */
+	u32b a_native;		/* Flags, native */
 
-	byte level;			/* Artifact level */
-	byte rarity;		/* Artifact rarity */
+	byte a_level;			/* Artifact level */
+	byte a_rarity;		/* Artifact rarity */
 
-	byte cur_num;		/* Number created (0 or 1) */
-	byte max_num;		/* Unused (should be "1") */
+	byte a_cur_num;		/* Number created (0 or 1) */
+	byte a_max_num;		/* Unused (should be "1") */
 
 	byte activation;	/* Activation to use */
 	u16b time;			/* Activation time */
@@ -271,6 +377,7 @@ struct ego_item_type
 	u32b flags1;		/* Ego-Item Flags, set 1 */
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
+	u32b e_native;		/* Flags, native */
 
 	byte level;			/* Minimum level */
 	byte rarity;		/* Object rarity */
@@ -369,6 +476,8 @@ struct monster_race
 	u32b flags6;			/* Flags 6 (special spells) */
 	u32b flags7;			/* Flags 7 (summon spells) */
 
+	u32b r_native;			/*Terrains where monster is native*/
+
 	monster_blow blow[MONSTER_BLOW_MAX]; /* Up to four blows per round */
 
 	byte level;				/* Level of creature */
@@ -419,16 +528,16 @@ struct monster_lore
 
 	byte blows[MONSTER_BLOW_MAX]; /* Number of times each blow type was seen */
 
-	u32b flags1;			/* Observed racial flags */
-	u32b flags2;			/* Observed racial flags */
-	u32b flags3;			/* Observed racial flags */
-	u32b flags4;			/* Observed racial flags */
-	u32b flags5;			/* Observed racial flags */
-	u32b flags6;			/* Observed racial flags */
-	u32b flags7;			/* Observed racial flags */
+	u32b r_l_flags1;			/* Observed racial flags */
+	u32b r_l_flags2;			/* Observed racial flags */
+	u32b r_l_flags3;			/* Observed racial flags */
+	u32b r_l_flags4;			/* Observed racial flags */
+	u32b r_l_flags5;			/* Observed racial flags */
+	u32b r_l_flags6;			/* Observed racial flags */
+	u32b r_l_flags7;			/* Observed racial flags */
+
+	u32b r_l_native;			/* Observed Nativity Flags*/
 };
-
-
 
 /*
  * Information about "vault generation"
@@ -446,6 +555,28 @@ struct vault_type
 	byte wid;			/* Vault width */
 };
 
+struct effect_type
+{
+	byte x_type;            /* Effect Type */
+
+	u16b x_f_idx;           /* Effect Feature IDX */
+
+	byte x_cur_y;			/* Current y location, or countdown_base */
+	byte x_cur_x;			/* Current x location, or countdown_rand */
+
+	byte x_countdown;       /* Number of turns effect has left */
+	byte x_repeats;			/* Number of times the effect repeats*/
+
+	u16b x_power;           /* Strength of effect */
+
+	s16b x_source;          /* Source of effect - THIS MUST BE THE RACE of the monster, not the mon_idx of the creature. */
+
+	u16b x_flags;           /* Effect "memory" bitflags */
+
+	s16b next_x_idx;		/* Idx of next effect at this square. */
+
+	s16b x_r_idx;           /* Some monster race index. Used for inscriptions */
+};
 
 
 /*
@@ -493,8 +624,8 @@ struct object_type
 
 	s16b weight;		/* Item weight */
 
-	byte name1;			/* Artifact type, if any */
-	byte name2;			/* Ego-Item type, if any */
+	byte art_num;		/* Artifact type, if any */
+	byte ego_num;		/* Ego-Item type, if any */
 
 	byte xtra1;			/* Extra info type */
 	u32b xtra2;			/* Extra info index */
@@ -518,6 +649,13 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+
+        /* Object history - DRS */
+
+	byte origin_nature;	/* ORIGIN_* */
+	s16b origin_dlvl;	/* Depth */
+	s16b origin_r_idx;	/* Monster race */
+	s16b origin_m_name;	/* Index of monster name quark. Used only for player ghosts */
 };
 
 
@@ -543,7 +681,7 @@ struct monster_type
 	s16b csleep;		/* Inactive counter */
 
 	byte mspeed;		/* Monster "speed" */
-	byte energy;		/* Monster "energy" */
+	s16b m_energy;		/* Monster "energy" */
 
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
@@ -561,7 +699,7 @@ struct monster_type
 
 	u32b smart;			/* Field for "smart_learn" */
 
-	byte target_y;			/* Monster target */
+	byte target_y;		/* Monster target */
 	byte target_x;
 
 	byte min_range;		/* What is the closest we want to be? */  /* Not saved */
@@ -570,6 +708,8 @@ struct monster_type
 	byte mana;          /* Current mana level */
 
 	s16b mimic_k_idx;	/*type of mimic code*/
+
+	byte using_flow;	/*Which movement flow is the creature using?*/
 
 };
 
@@ -736,9 +876,10 @@ struct player_race
 
 	s16b hist;			/* Starting history index */
 
-	u32b flags1;		/* Racial Flags, set 1 */
-	u32b flags2;		/* Racial Flags, set 2 */
-	u32b flags3;		/* Racial Flags, set 3 */
+	u32b pr_flags1;		/* Racial Flags, set 1 */
+	u32b pr_flags2;		/* Racial Flags, set 2 */
+	u32b pr_flags3;		/* Racial Flags, set 3 */
+	u32b pr_native;		/* Player Native Flags, set 3 */
 };
 
 
@@ -787,13 +928,13 @@ struct player_class
 	s16b c_exp;			/* Class experience factor */
 
 	u32b flags;			/* Class Flags */
+	u32b c_native;		/* Class Native Flags*/
 
 	u16b max_attacks;	/* Maximum possible attacks */
 	u16b min_weight;	/* Minimum weapon weight for calculations */
 	u16b att_multiply;	/* Multiplier for attack calculations */
 
 	byte spell_book;	/* Tval of spell books (if any) */
-	u16b spell_stat;	/* Stat for spells (if any) */
 	u16b spell_first;	/* Level of first spell */
 	u16b spell_weight;	/* Weight that hurts spells */
 
@@ -803,6 +944,7 @@ struct player_class
 	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
 
 	player_magic spells; /* Magic spells */
+
 };
 
 
@@ -854,8 +996,14 @@ struct player_other
  */
 struct player_type
 {
-	s16b py;			/* Player location */
-	s16b px;			/* Player location */
+	byte py;			/* Player location */
+	byte px;			/* Player location */
+
+	byte flow_center_y;  /* Centerpoints of the last full flow rebuild. */
+	byte flow_center_x;
+
+	byte update_center_y; /* Centerpoints of the last partial flow rebuild. */
+	byte update_center_x;
 
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
@@ -915,6 +1063,7 @@ struct player_type
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
+	s16b slay_elements; /* Timed -- Temporary elemental damage */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -922,14 +1071,22 @@ struct player_type
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
 
+	s16b temp_native_lava;	/* Timed -- native to lava */
+	s16b temp_native_oil;	/* Timed -- native to oil */
+	s16b temp_native_sand;	/* Timed -- native to sand */
+	s16b temp_native_forest;	/* Timed -- native to forest */
+	s16b temp_native_water;	/* Timed -- native to water */
+	s16b temp_native_mud;	/* Timed -- native to mud */
+
 	s16b word_recall;	/* Word of recall counter */
 
-	s16b energy;		/* Current energy */
+	s16b p_energy;		/* Current energy */
 
 	s16b food;			/* Current nutrition */
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
+	byte flying;		/* Currently flying */
 
 	s16b base_wakeup_chance;	/* Base amount of character noise */
 
@@ -960,9 +1117,6 @@ struct player_type
 
 	s16b create_stair;		/* Create a staircase on next level */
 
-	s16b wy;				/* Dungeon panel */
-	s16b wx;				/* Dungeon panel */
-
 	byte cur_map_hgt;		/* Current dungeon level hight */
 	byte cur_map_wid;		/* Current dungeon level width */
 
@@ -970,6 +1124,8 @@ struct player_type
 
 	s16b inven_cnt;			/* Number of items in inventory */
 	s16b equip_cnt;			/* Number of items in equipment */
+	s16b pack_size_reduce;		/* Number of inventory slots used by
+					   the quiver */
 
 	s16b target_set;		/* Target flag */
 	s16b target_who;		/* Target identity */
@@ -982,7 +1138,9 @@ struct player_type
 
 	s16b object_kind_idx;	/* Object kind trackee */
 
-	s16b energy_use;		/* Energy use this turn */
+	s16b feature_kind_idx;	/* Feature kind tracker*/
+
+	byte p_energy_use;		/* Energy use this turn */
 
 	s16b resting;			/* Resting counter */
 	s16b running;			/* Running counter */
@@ -1051,6 +1209,9 @@ struct player_type
 	bool resist_chaos;	/* Resist chaos */
 	bool resist_disen;	/* Resist disenchant */
 
+	u32b p_native;  /* Lists terrains the player is native to*/
+	u32b p_native_known;  /* Lists terrains the player is known to be native to*/
+
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */
 	bool sustain_wis;	/* Keep wisdom */
@@ -1111,6 +1272,17 @@ struct player_type
 	byte vulnerability;	/* Used to make animal packs charge and retreat */
 
 	u16b cur_quest;		/* Current quest */
+
+	u16b cumulative_terrain_damage; /* How much damage we are taking from
+					   					terrain (multiplied by 10) */
+
+	s32b p_turn; /* Player turn */
+
+	bool cursed_quiver;	/* The quiver is cursed */
+
+	u16b dungeon_type;	/* One of the DUNGEON_TYPE_* constants */
+
+	u16b temp_call_huorns; /* Timed: duration of the call_huorns spell */
 };
 
 
@@ -1174,37 +1346,6 @@ struct flavor_type
 
 
 
-/*
- * The structure editing_buffer allows to quickly insert and delete text at
- * every position of a string. It is based on the Emacs editor.
- * It has a internal buffer, a fake "cursor" and a gap that begins at this
- * "cursor".
- * Maybe the most important operation is "set_position". It moves the gap
- * at any position of the buffer. Because of it, insertions and deletions
- * are really fast operations.
- *
- * This is a representation of the buffer:
- *
- * xxxxxxx.ooooxxxx             x: text
- *         |                    o: gap (it must be '\0')
- *         pos ("cursor")       .: the character before the "cursor"
- *
- * This is the same buffer after moving the "cursor" one position to the left:
- *
- * xxxxxxxoooo.xxxx             note the new position of "."
- *        |
- *        pos ("cursor")
- */
-struct editing_buffer
-{
-	/* Public fields, Read ONLY */
-	size_t pos;
-
-	/* Private fields */
-	size_t gap_size, max_size;
-	char *buf;
-};
-
 
 /*structure of letter probabilitiesfor the random name generator*/
 struct names_type
@@ -1220,4 +1361,162 @@ struct autoinscription
 	s16b	inscriptionIdx;
 };
 
+/*
+ * Structure for building monster "lists"
+ */
+struct move_moment_type
+{
+	s16b m_idx;
+	int moment;
+};
+
+
+/*
+ * Simple structure to hold a map location
+ */
+typedef struct coord coord;
+
+struct coord
+{
+	byte y;
+	byte x;
+};
+
+
+/*
+ * A circular queue of map locations.
+ * Check out defines.h and util.c for usage
+ */
+typedef struct
+{
+	/* Maximum number of grids in the queue */
+	size_t max_size;
+	/* Grid data */
+	coord *data;
+	/* Head and tail of the queue */
+	size_t head, tail;
+} grid_queue_type;
+
+
+/*
+ * The type definition of the entries of the "dyna_g" array
+ */
+struct dynamic_grid_type
+{
+	/* Coordinates */
+	byte y;
+	byte x;
+
+	/* DF1_* flags */
+	byte flags;
+
+	/*
+	 * Timed features use a counter. Each time the features are
+	 * proccesed this counter is decremented. The effect is applied when
+	 * the counter becomes 0.
+	 */
+	byte counter;
+};
+
+/*
+ * A stacked monster message entry
+ */
+struct monster_race_message
+{
+	s16b mon_race;		/* The race of the monster */
+	byte mon_flags;		/* Flags: 0x01 means hidden monster, 0x02 means offscreen monster */
+ 	byte msg_code;		/* The coded message */
+	byte mon_count;		/* How many monsters triggered this message */
+};
+
+/*
+ * Info used to manage quiver groups
+ */
+struct quiver_group_type
+{
+	char cmd;		/* The command used to perform an action with the objects in the group */
+	byte color;		/* The color of the pseudo-tag used for the group */
+};
+
+/*
+ * The descriptions and default values of the in-game options
+ */
+struct option_type
+{
+	cptr text;
+	cptr desc;
+	bool norm;
+};
+
+/*
+ * Set of custom predicates that modify the behavior of the game,
+ * specially dungeon generation. The predicates are assigned in generate.c
+ */
+struct dungeon_capabilities_type
+{
+	/*
+	 * Check if a monster of the given race can have escorts
+	 * Used only in alloc_monster
+	 */
+	bool (*can_place_escorts)(s16b r_idx);
+
+	/*
+	 * Check if the player must be placed over grids that use CAVE_ROOM
+	 */
+	bool (*can_place_player_in_rooms)(void);
+
+	/*
+	 * Check if stairs can be placed on the given location
+	 */
+	bool (*can_place_stairs)(int y, int x);
+
+	/*
+	 * Adjust the number of stairs in a level
+	 */
+	int (*adjust_stairs_number)(int initial_amount);
+
+
+	/*
+	 * Check if fog must be placed on rooms
+	 */
+	bool (*can_place_fog_in_rooms)(void);
+
+	/*
+	 * Check if the look command can stop in the given feature
+	 */
+	bool (*can_target_feature)(int f_idx);
+
+	/*
+	 * Check if regions and walls of the current dungeon can be transformed
+	 */
+	bool (*can_be_transformed)(void);
+
+	/*
+	 * Check if a non-native monsters can be placed in an elemental grid
+	 * Used in get_mon_num
+	 */
+	bool (*can_place_non_native_monsters)(void);
+
+	/*
+	 * Get the initial number of monsters in the level
+	 */
+	int (*get_monster_count)(void);
+
+	/*
+	 * Get the initial number of objects in the level (rooms only)
+	 */
+	int (*get_object_count)(void);
+
+	/*
+	 * Get the initial number of gold objects in the level (rooms and corridors)
+	 */
+	int (*get_gold_count)(void);
+
+	/*
+	 * Get the initial number of extra objects in the level (rooms and corridors)
+	 */
+	int (*get_extra_object_count)(void);
+};
+
+#endif /* INCLUDED_TYPES_H */
 

@@ -11,6 +11,8 @@
 /* Purpose: Low level utilities -BEN- */
 
 #include "z-util.h"
+#include "angband.h"
+
 
 
 
@@ -205,8 +207,7 @@ void plog(cptr str)
 void (*quit_aux)(cptr) = NULL;
 
 /*
- * Exit (ala "exit()").  If 'str' is NULL, do "exit(0)".
- * If 'str' begins with "+" or "-", do "exit(atoi(str))".
+ * Exit (ala "exit()").  If 'str' is NULL, do "exit(EXIT_SUCCESS)".
  * Otherwise, plog() 'str' and exit with an error code of -1.
  * But always use 'quit_aux', if set, before anything else.
  */
@@ -215,11 +216,11 @@ void quit(cptr str)
 	/* Attempt to use the aux function */
 	if (quit_aux) (*quit_aux)(str);
 
-	/* Success */
-	if (!str) (void)(exit(0));
+	/* Cleanup the generic angband stuff */
+	cleanup_angband();
 
-	/* Extract a "special error code" */
-	if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
+	/* Success */
+	if (!str) (void)(exit(EXIT_SUCCESS));
 
 	/* Send the string to plog() */
 	plog(str);
@@ -229,33 +230,47 @@ void quit(cptr str)
 }
 
 
-
 /*
- * Redefinable "core" action
+ * Fast string concatenation.
+ * Append the "src" string to "buf" given the address of the trailing null
+ * character of "buf" in "end". "end" can be NULL, in which the trailing null
+ * character is fetched from the beginning of "buf".
+ * "bufsize" is the maximum size of "buf" (including the trailing null character).
+ * It returns the -new- address of the trailing null character of "buf".
+ *
+ * Example of usage:
+ *
+ * char buf[100] = "", *end;
+ * int i;
+ *
+ * end = my_fast_strcat(buf, NULL, "START", sizeof(buf));
+ *
+ * for (i = 0; i < 5; i++)
+ * {
+ * 	end = my_fast_strcat(buf, end, "_", sizeof(buf));
+ * }
+ *
+ * end = my_fast_strcat(buf, end, "END", sizeof(buf));
+ *
+ * buf ==> "START_____END"
  */
-void (*core_aux)(cptr) = NULL;
-
-/*
- * Dump a core file, after printing a warning message
- * As with "quit()", try to use the "core_aux()" hook first.
- */
-void core(cptr str)
+char *my_fast_strcat(char *buf, char *end, const char *src, size_t bufsize)
 {
-	char *crash = NULL;
+	/* No end, go to the beginning of "buf" */
+	if (end == NULL) end = buf;
 
-	/* Use the aux function */
-	if (core_aux) (*core_aux)(str);
+	/* Find the trailing null character, if necessary */
+	while (*end) ++end;
 
-	/* Dump the warning string */
-	if (str) plog(str);
+	/* Make room for the trailing null character, if possible */
+	if (bufsize > 0) --bufsize;
 
-	/* Attempt to Crash */
-	(*crash) = (*crash);
+	/* Append "str" to "buf", if possible */
+	while (*src && ((size_t)(end - buf) < bufsize)) *end++ = *src++;
 
-	/* Be sure we exited */
-	quit("core() failed");
+	/* Terminate the string */
+	*end = '\0';
+
+	/* Return the new end of "buf" */
+	return end;
 }
-
-
-
-

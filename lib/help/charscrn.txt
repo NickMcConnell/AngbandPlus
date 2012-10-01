@@ -6,7 +6,7 @@ names, and save character dumps to file.  The save character to file command
 saves the character screen, character background, inventory and equipment, skill
 levels, and the contents of the home.
 
-     This interface has four modes, which you may cycle through by typing '+/-'.
+     This interface has five modes, which you may cycle through by typing '+/-'.
 
 
 --- Main character screen ---
@@ -35,6 +35,7 @@ Second row:
      - Adv Exp : total experience needed to advance to the next level.  With the 
                  toggle_xp option on, this line displays the total remaining
                  experience needed to gain the next level
+     - MaxDepth : The deepest the palyer has been in the dungeon
      - Gold : money on hand (in gold pieces)
      - Burden : total carried weight (equipment and backpack combined).  Helps
        you learn how much you can carry without being slowed down.  You begin
@@ -120,10 +121,6 @@ Attributes:
      - Shots : plus = affects the speed at which you fire missiles
      - Might : plus = increases your missile weapon damage multiplier
 
-
-
-
-
-
+The fifth mode tells you in which terrains you are native, and any temporary spell effects you may be under (such as being temporarily resistant to fire, cold, etc...).
 
 

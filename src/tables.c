@@ -280,6 +280,11 @@ const byte adj_chr_gold[] =
 
 /*
  * Stat Table (CHR) -- bonus to charm
+ *
+ * Boosted the bonuses significantly
+ * as a part in making charms better. -AR
+ * Notice the unlinear progression
+ * of the bonuses.
  */
 const s16b adj_chr_charm[] =
 {
@@ -292,35 +297,35 @@ const s16b adj_chr_charm[] =
 	0	/* 9 */,
 	0	/* 10 */,
 	0	/* 11 */,
-	0	/* 12 */,
-	0	/* 13 */,
-	0	/* 14 */,
-	0	/* 15 */,
-	1	/* 16 */,
-	1	/* 17 */,
-	1	/* 18/00-18/09 */,
-	2	/* 18/10-18/19 */,
-	2	/* 18/20-18/29 */,
-	2	/* 18/30-18/39 */,
-	2	/* 18/40-18/49 */,
-	3	/* 18/50-18/59 */,
-	3	/* 18/60-18/69 */,
-	3	/* 18/70-18/79 */,
-	4	/* 18/80-18/89 */,
-	4	/* 18/90-18/99 */,
-	4	/* 18/100-18/109 */,
-	5	/* 18/110-18/119 */,
-	5	/* 18/120-18/129 */,
-	6	/* 18/130-18/139 */,
-	7	/* 18/140-18/149 */,
-	8	/* 18/150-18/159 */,
-	9	/* 18/160-18/169 */,
-	10	/* 18/170-18/179 */,
-	11	/* 18/180-18/189 */,
-	12	/* 18/190-18/199 */,
-	13	/* 18/200-18/209 */,
-	14	/* 18/210-18/219 */,
-	15	/* 18/220+ */
+	1	/* 12 */,
+	1	/* 13 */,
+	2	/* 14 */,
+	2	/* 15 */,
+	3	/* 16 */,
+	4	/* 17 */,
+	6	/* 18/00-18/09 */,
+	8	/* 18/10-18/19 */,
+	10	/* 18/20-18/29 */,
+	12	/* 18/30-18/39 */,
+	15	/* 18/40-18/49 */,
+	16	/* 18/50-18/59 */,
+	18	/* 18/60-18/69 */,
+	20	/* 18/70-18/79 */,
+	22	/* 18/80-18/89 */,
+	24	/* 18/90-18/99 */,
+	26	/* 18/100-18/109 */,
+	29	/* 18/110-18/119 */,
+	32	/* 18/120-18/129 */,
+	36	/* 18/130-18/139 */,
+	40	/* 18/140-18/149 */,
+	45	/* 18/150-18/159 */,
+	46	/* 18/160-18/169 */,
+	45	/* 18/170-18/179 */,
+	46	/* 18/180-18/189 */,
+	47	/* 18/190-18/199 */,
+	48	/* 18/200-18/209 */,
+	49	/* 18/210-18/219 */,
+	50	/* 18/220+ */
 };
 
 
@@ -1258,11 +1263,11 @@ const player_sex sex_info[MAX_SEXES] =
 };
 
 /*
- * Spells in each book (mage spells then priest spells)
+ * Spells in each book (mage spells, priest and druid spells)
  */
-const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
+const s16b spell_list[3][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 {
-	{
+		{
 		/* Magic for Beginners */
 		{
 			SPELL_MAGIC_MISSILE,
@@ -1279,14 +1284,14 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 		/* Conjurings and Tricks */
 		{
 			SPELL_CONFUSE_MONSTER,
-			SPELL_LIGHTNING_BOLT,
+			SPELL_SHOCK_WAVE,
 			SPELL_TRAP_DOOR_DESTRUCTION,
 			SPELL_CURE_POISON,
 			SPELL_SLEEP_MONSTER,
 			SPELL_TELEPORT_SELF,
 			SPELL_SPEAR_OF_LIGHT,
-			SPELL_FROST_BOLT,
-			SPELL_WONDER,
+			SPELL_ICE_BOLT,
+			SPELL_WAIL_OF_THE_BANSHEE,
 		},
 
 		/* Incantations and Illusions */
@@ -1294,21 +1299,21 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 			SPELL_SATISFY_HUNGER,
 	    	SPELL_RECHARGE_ITEM_I,
 			SPELL_TURN_STONE_TO_MUD,
-			SPELL_FIRE_BOLT,
+			SPELL_SHARD_STORM,
 			SPELL_POLYMORPH_OTHER,
 			SPELL_IDENTIFY,
 			SPELL_DETECT_INVISIBLE,
-			SPELL_ACID_BOLT,
+			SPELL_HURRICANE,
 			SPELL_SLOW_MONSTER,
 		},
 
 		/* Sorcery and Evocations */
 		{
-			SPELL_FROST_BALL,
+			SPELL_CALL_LIGHTNING,
 			SPELL_TELEPORT_OTHER,
 			SPELL_HASTE_SELF,
 			SPELL_MASS_SLEEP,
-			SPELL_FIRE_BALL,
+			SPELL_WATER_BOLT,
 			SPELL_DETECT_ENCHANTMENT,
 			SPELL_MASS_IDENTIFY,
 			-1,
@@ -1330,14 +1335,14 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 
 		/* Raal's Tome of Destruction */
 		{
-			SPELL_SHOCK_WAVE,
-			SPELL_EXPLOSION,
+			SPELL_NOVA,
+			SPELL_REND_SOUL,
+			SPELL_PRISMATIC_SPRAY,
 			SPELL_CLOUD_KILL,
-			SPELL_ACID_BALL,
 			SPELL_ICE_STORM,
-			SPELL_METEOR_SWARM,
+			SPELL_PLASMA_BOLT,
+			SPELL_METEOR_STORM,
 			SPELL_RIFT,
-			-1,
 			-1,
 		},
 
@@ -1348,7 +1353,7 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 			SPELL_TELEPORT_LEVEL,
 			SPELL_WORD_OF_RECALL,
 			SPELL_RUNE_OF_PROTECTION,
-			-1,
+			SPELL_FLIGHT,
 			-1,
 			-1,
 			-1,
@@ -1356,12 +1361,12 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 
 		/* Tenser's transformations */
 		{
-			SPELL_HEROISM,
 			SPELL_BERSERKER,
 			SPELL_ENCHANT_ARMOR,
 			SPELL_ENCHANT_WEAPON,
 			SPELL_RECHARGE_ITEM_II,
 			SPELL_ELEMENTAL_BRAND,
+			-1,
 			-1,
 			-1,
 			-1,
@@ -1371,11 +1376,11 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 		{
 			SPELL_EARTHQUAKE,
 			SPELL_BEDLAM,
-			SPELL_REND_SOUL,
 			SPELL_BANISHMENT,
 			SPELL_WORD_OF_DESTRUCTION,
 			SPELL_MASS_BANISHMENT,
-			SPELL_CHAOS_STRIKE,
+			SPELL_DARKNESS_STORM,
+			SPELL_MANA_BOLT,
 			SPELL_MANA_STORM,
 			-1,
 		},
@@ -1392,7 +1397,7 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 			PRAYER_REMOVE_FEAR,
 			PRAYER_CALL_LIGHT,
 			PRAYER_FIND_TRAPS_DOORS_STAIRS,
-			PRAYER_BOLT_OF_DRAINING,
+			PRAYER_SHOCK_BOLT,
 			PRAYER_SLOW_POISON,
 			-1,
 		},
@@ -1413,7 +1418,6 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 		/*Chants and Blessings*/
 		{
 			PRAYER_NEUTRALIZE_POISON,
-			PRAYER_ORB_OF_DRAINING,
 			PRAYER_CURE_CRITICAL_WOUNDS,
 			PRAYER_SENSE_INVISIBLE,
 			PRAYER_PROTECTION_FROM_EVIL,
@@ -1421,12 +1425,13 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 			PRAYER_SENSE_SURROUNDINGS,
 			PRAYER_CURE_MORTAL_WOUNDS,
 			PRAYER_TURN_UNDEAD,
+			PRAYER_ORB_OF_DRAINING,
 		},
 
 		/*Exorcism and Dispelling*/
 		{
 			PRAYER_PRAYER,
-			PRAYER_DISPEL_UNDEAD,
+			PRAYER_SUN_BEAM,
 			PRAYER_HEAL,
 			PRAYER_DISPEL_EVIL,
 			PRAYER_GLYPH_OF_WARDING,
@@ -1490,204 +1495,142 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 
 		/*Wrath of God*/
 		{
-			PRAYER_DISPEL_UNDEAD2,
+			PRAYER_SUN_BURST,
 			PRAYER_DISPEL_EVIL2,
 			PRAYER_BANISH_EVIL,
 			PRAYER_WORD_OF_DESTRUCTION,
-			PRAYER_ANNIHILATION,
+			PRAYER_JUDGEMENT_OF_MANDOS,
+			-1,
+			-1,
+			-1,
+			-1,
+		}
+	},
+
+	{
+		/*** Druid spell books ***/
+
+		/*Call of the Wild*/
+		{
+			DRUID_ACID_BOLT,
+			DRUID_CURE_LIGHT_WOUNDS,
+			DRUID_DETECT_LIFE,
+			DRUID_CALL_LIGHT,
+			DRUID_FIND_TRAPS_DOORS,
+			DRUID_SLOW_POISON,
+			DRUID_POISON_CLOUD,
+			DRUID_NATURAL_ESCAPE,
+			DRUID_BARKSKIN,
+		},
+
+		/* Environmental Adjurations */
+		{
+			DRUID_NOURISHMENT,
+ 			DRUID_TURN_STONE_TO_MUD,
+ 			DRUID_FROST_BEAM,
+ 			DRUID_CURE_POISON,
+ 			DRUID_TRAP_DOOR_DESTRUCTION,
+ 			DRUID_RESIST_HEAT_COLD,
+ 			DRUID_SPEAR_OF_LIGHT,
+ 			DRUID_FIRE_BEAM,
+			DRUID_STERILIZE,
+		},
+
+		/* Commanding Nature */
+		{
+			DRUID_EXTINGUISH,
+			DRUID_CLEAR_AREA,
+			DRUID_CURE_CRITICAL_WOUNDS,
+			DRUID_IDENTIFY,
+			DRUID_CLEAR_AIR,
+			DRUID_DETECT_TERRAIN,
+			DRUID_EARTHQUAKE,
+			DRUID_LIFE_DRAIN_BURST,
+			-1,
+		},
+
+		/* Lore of Engagement */
+		{
+			DRUID_ELEMENTAL_BRAND,
+			DRUID_FROST_BALL,
+			DRUID_HEAL,
+			DRUID_DISPEL_LIFE,
+			DRUID_FIRE_BALL,
+			DRUID_DRAIN_LIFE_ARC,
+			DRUID_MASS_IDENTIFY,
+			-1,
+			-1,
+		},
+
+		/* Radagast's Protections */
+		{
+			DRUID_RESIST_ELEC,
+			DRUID_RESIST_ACID,
+			DRUID_RESIST_POISON,
+			DRUID_RESISTANCE,
+			DRUID_HASTE_SELF,
+			DRUID_GLACIER,
+			-1,
+			-1,
+			-1,
+		},
+
+		/* Melian's Reformations */
+		{
+			DRUID_FLICKER,
+			DRUID_WORD_OF_RECALL,
+			DRUID_HEALING,
+			DRUID_RESTORATION,
+			DRUID_REMEMBRANCE,
+			DRUID_SANDSTORM,
+			-1,
+			-1,
+			-1,
+		},
+
+		/* Arda's Habitats */
+		{
+			DRUID_NATIVE_SAND,
+			DRUID_NATIVE_MUD,
+			DRUID_NATIVE_WATER,
+			DRUID_NATIVE_OIL,
+			DRUID_NATIVE_LAVA,
+			DRUID_CHANNEL_LIGHTNING,
+			-1,
+			-1,
+			-1,
+		},
+
+		/* Natural Infusions */
+		{
+			DRUID_DISPEL_CURSE,
+			DRUID_RECHARGE_ITEM,
+			DRUID_BRAND_AMMUNITION,
+			DRUID_ENCHANT_ARMOUR,
+			DRUID_BRAND_WEAPON,
+			-1,
+			-1,
+			-1,
+			-1,
+		},
+
+
+		/* Nature's Fury */
+		{
+			DRUID_WATER_CHAIN,
+			DRUID_CALL_HUORNS,
+			DRUID_MASTER_ELEMENTS,
+			DRUID_STEAL_POWERS,
+			-1,
 			-1,
 			-1,
 			-1,
 			-1,
 		}
 	}
+
 };
 
-
-/*
- * Names of the spells (mage spells then priest spells)
- */
-cptr spell_names[2][PY_MAX_SPELLS] =
-{
-	/*** Mage Spells ***/
-
-	{
-		/*Magic for Beginners*/
-		"Magic Missile",
-		"Detect Monsters",
-		"Phase Door",
-		"Light Area",
-		"Detect Treasure",
-		"Cure Light Wounds",
-		"Detect Objects",
-		"Find Hidden Traps/Doors",
-		"Stinking Cloud",
-
-		/* Conjurings and Tricks */
-		"Confuse Monster",
-		"Lightning Bolt",
-		"Trap/Door Destruction",
-		"Cure Poison",
-		"Sleep Monster",
-		"Teleport Self",
-		"Spear of Light",
-		"Frost Bolt",
-		"Wonder",
-
-		/* Incantations and Illusions */
-		"Satisfy Hunger",
-		"Lesser Recharging",
-		"Turn Stone to Mud",
-		"Fire Bolt",
-		"Polymorph Other",
-		"Identify",
-		"Detect Invisible",
-		"Acid Bolt",
-		"Slow Monster",
-
-		/* Sorcery and Evocations */
-		"Frost Ball",
-		"Teleport Other",
-		"Haste Self",
-		"Mass Sleep",
-		"Fire Ball",
-		"Detect Enchantment",
-
-		/* Resistances of Scarabtarices */
-		"Resist Cold",
-		"Resist Fire",
-		"Resist Poison",
-		"Resistance",
-		"Shield",
-
-		/* Raal's Tome of Destruction */
-		"Shock Wave",
-		"Explosion",
-		"Cloudkill",
-		"Acid Ball",
-		"Ice Storm",
-		"Meteor Swarm",
-		"Rift",
-
-		/* Mordenkainen's Escapes */
-		"Door Creation",
-		"Stair Creation",
-		"Teleport Level",
-		"Word of Recall",
-		"Rune of Protection",
-
-		/* Tenser's transformations */
-		"Heroism",
-		"Berserker",
-		"Enchant Armor",
-		"Enchant Weapon",
-		"Greater Recharging",
-		"Elemental Brand",
-
-
-		/* Kelek's Grimoire of Power */
-		"Earthquake",
-		"Bedlam",
-		"Rend Soul",
-		"Banishment",
-		"Word of Destruction",
-		"Mass Banishment",
-		"Chaos Strike",
-		"Mana Storm",
-
-		/* Misc Spell in Sorcery and Evocations */
-		"Mass Identify",
-	},
-
-
-	/*** Priest Spells ***/
-
-	{
-		/* Beginners Handbook (sval 0) */
-		"Detect Evil",
-		"Cure Light Wounds",
-		"Bless",
-		"Remove Fear",
-		"Call Light",
-		"Find Doors/Stairs/Traps",
-		"Bolt of Draining",
-		"Slow Poison",
-
-		/* Words of Wisdom (sval 1) */
-		"Scare Monster",
-		"Portal",
-		"Cure Serious Wounds",
-		"Chant",
-		"Sanctuary",
-		"Satisfy Hunger",
-		"Remove Curse",
-		"Resist Heat and Cold",
-
-		/* Chants and Blessings (sval 2) */
-		"Neutralize Poison",
-		"Orb of Draining",
-		"Cure Critical Wounds",
-		"Sense Invisible",
-		"Protection from Evil",
-		"Earthquake",
-		"Sense Surroundings",
-		"Cure Mortal Wounds",
-		"Turn Undead",
-
-		/* Exorcism and Dispelling (sval 3) */
-		"Prayer",
-		"Dispel Undead",
-		"Heal",
-		"Dispel Evil",
-		"Glyph of Warding",
-		"Holy Word",
-
-		/* Godly Insights... (sval 5) */
-		"Detect Monsters",
-		"Detection",
-		"Perception",
-		"Probing",
-		"Clairvoyance",
-
-		/* Purifications and Healing (sval 6) */
-		"Cure Serious Wounds",
-		"Cure Mortal Wounds",
-		"Healing",
-		"Restoration",
-		"Remembrance",
-
-		/* Wrath of God (sval 8) */
-		"Dispel Undead",
-		"Dispel Evil",
-		"Banish Evil",
-		"Word of Destruction",
-		"Annihilation",
-
-		/* Holy Infusions (sval 7) */
-		"Unbarring Ways",
-		"Recharging",
-		"Dispel Curse",
-		"Enchant Weapon",
-		"Enchant Armour",
-		"Elemental Brand",
-
-		/* Ethereal openings (sval 4) */
-		"Blink",
-		"Teleport Self",
-		"Teleport Other",
-		"Teleport Level",
-		"Word of Recall",
-		"Alter Reality",
-
-		/* Misc spell in Godly Insights...*/
-		"Mass Identify",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
-	}
-};
 
 
 
@@ -1776,7 +1719,6 @@ cptr feeling_themed_level[LEV_THEME_TAIL] =
 	"troll",
 	"ogre",
 	"hound",
-	"hydra",
 	"giant",
 	"young dragon",
 	"acid dragon",
@@ -1795,7 +1737,8 @@ cptr feeling_themed_level[LEV_THEME_TAIL] =
 	"demon",
 	"major demon",
 	"cave dweller",
-	"undead"
+	"undead",
+	"elemental dragons"
 };
 
 
@@ -1869,19 +1812,19 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display player (basic)",
 	"Display player (extra)",
-	NULL,
-	NULL,
+	"Display player (compact)",
+	"Display map view",
 	"Display messages",
 	"Display overhead view",
 	"Display monster recall",
 	"Display object recall",
 	"Display monster list",
-	"Display snap-shot",
+	"Display status",
 	"Display script variables",
 	"Display script source",
 	"Display borg messages",
 	"Display borg status",
-	NULL,
+	"Display feature recall",
 	NULL,
 	NULL,
 	NULL,
@@ -1899,798 +1842,268 @@ cptr window_flag_desc[32] =
 	NULL
 };
 
-
 /*
- * Options -- textual names (where defined)
+ * Options -- definitions
  */
-cptr option_text[OPT_MAX] =
+option_type options[OPT_MAX] =
 {
-	"rogue_like_commands",		/* OPT_rogue_like_commands */
-	"quick_messages",			/* OPT_quick_messages */
-	"floor_query_flag",			/* OPT_floor_query_flag */
-	"carry_query_flag",			/* OPT_carry_query_flag */
-	"use_old_target",			/* OPT_use_old_target */
-	"always_pickup",			/* OPT_always_pickup */
-	"always_repeat",			/* OPT_always_repeat */
-	"depth_in_feet",			/* OPT_depth_in_feet */
-	"stack_force_notes",		/* OPT_stack_force_notes */
-	"stack_force_costs",		/* OPT_stack_force_costs */
-	"show_labels",				/* OPT_show_labels */
-	"show_weights",				/* OPT_show_weights */
-	"show_choices",				/* OPT_show_choices */
-	"show_details",				/* OPT_show_details */
-	"ring_bell",				/* OPT_ring_bell */
-	"show_flavors",				/* OPT_flavors */
-	"run_ignore_stairs",		/* OPT_run_ignore_stairs */
-	"run_ignore_doors",			/* OPT_run_ignore_doors */
-	"run_cut_corners",			/* OPT_run_cut_corners */
-	"run_use_corners",			/* OPT_run_use_corners */
-	"disturb_move",				/* OPT_disturb_move */
-	"disturb_near",				/* OPT_disturb_near */
-	"disturb_panel",			/* OPT_disturb_panel */
-	"disturb_state",			/* OPT_disturb_state */
-	"disturb_minor",			/* OPT_disturb_minor */
-	"disturb_wakeup",			/* OPT_disturb_wakeup */
-	NULL,						/* xxx alert_hitpoint */
-	NULL,						/* xxx alert_failure */
-	"verify_destroy",			/* OPT_verify_destroy */
-	"verify_special",			/* OPT_verify_special */
-	"allow_quantity",			/* OPT_allow_quantity */
-	NULL,						/* xxx */
-	"auto_haggle",				/* OPT_auto_haggle */
-	"auto_scum",				/* OPT_auto_scum */
-	"allow_themed_levels",		/* OPT_allow_themed_levels */
-	NULL,						/* xxx testing_carry */
-	"expand_look",				/* OPT_expand_look */
-	"expand_list",				/* OPT_expand_list */
-	"view_perma_grids",			/* OPT_view_perma_grids */
-	"view_torch_grids",			/* OPT_view_torch_grids */
-	"dungeon_align",			/* OPT_dungeon_align */
-	"dungeon_stair",			/* OPT_dungeon_stair */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx track_follow */
-	NULL,						/* xxx track_target */
-	NULL,						/* xxx track_target */
-	"smart_cheat",				/* OPT_smart_cheat */
-	"view_reduce_lite",			/* OPT_view_reduce_lite */
-	"hidden_player",			/* OPT_hidden_player */
-	"avoid_abort",				/* OPT_avoid_abort */
-	"avoid_other",				/* OPT_avoid_other */
-	"flush_failure",			/* OPT_flush_failure */
-	"flush_disturb",			/* OPT_flush_disturb */
-	NULL,						/* xxx flush_command */
-	"fresh_before",				/* OPT_fresh_before */
-	"fresh_after",				/* OPT_fresh_after */
-	NULL,						/* xxx fresh_message */
-	"compress_savefile",		/* OPT_compress_savefile */
-	"hilite_player",			/* OPT_hilite_player */
-	"view_yellow_lite",			/* OPT_view_yellow_lite */
-	"view_bright_lite",			/* OPT_view_bright_lite */
-	"view_granite_lite",		/* OPT_view_granite_lite */
-	"view_special_lite",		/* OPT_view_special_lite */
-	"easy_open",				/* OPT_easy_open */
-	"easy_alter",				/* OPT_easy_alter */
-	"easy_floor",				/* OPT_easy_floor */
-	"show_piles",				/* OPT_show_piles */
-	"center_player",			/* OPT_center_player */
-	"run_avoid_center",			/* OPT_run_avoid_center */
-	"scroll_target",			/* OPT_scroll_target */
-	"auto_more",				/* OPT_auto_more */
-	"toggle_xp",				/* OPT_toggle_exp*/
-	"always_show_list",			/* xxx */
-	"hp_changes_color",			/* OPT_hp_changes_color*/
-	"verify_leave_quests",		/* OPT_verify_leave_quests*/
-	"mark_squelch_items",		/* opt_mark_squelch_items */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	"birth_point_based",		/* OPT_birth_point_based */
-	"birth_auto_roller",		/* OPT_birth_auto_roller */
-	"birth_maximize",			/* OPT_birth_maximize */
-	"birth_preserve",			/* OPT_birth_preserve */
-	"birth_ironman",			/* OPT_birth_ironman */
-	"birth_no_stores",			/* OPT_birth_no_stores */
-	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
-	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
-	"birth_no_stacking",		/* OPT_birth_no_stacking */
- 	"birth_take_notes",			/* OPT_birth_auto_notes */
- 	"birth_force_small_lev",	/* OPT_birth_force_small_lev */
-	"birth_retain_squelch", 	/* OPT_birth_retain_squelch */
-	"birth_no_quests",			/* OPT_birth_no_quests*/
-	"birth_no_player ghosts",	/* OPT_birth_no_player ghosts*/
-	"birth_no_store_services",	/* OPT_birth_no_store_services*/
-	"birth_no_xtra_artifacts",	/* OPT_birth_no_xtra_artifacts*/
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	"cheat_peek",				/* OPT_cheat_peek */
-	"cheat_hear",				/* OPT_cheat_hear */
-	"cheat_room",				/* OPT_cheat_room */
-	"cheat_xtra",				/* OPT_cheat_xtra */
-	"cheat_know",				/* OPT_cheat_know */
-	"cheat_live",				/* OPT_cheat_live */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	"adult_point_based",		/* OPT_adult_point_based */
-	"adult_auto_roller",		/* OPT_adult_auto_roller */
-	"adult_maximize",			/* OPT_adult_maximize */
-	"adult_preserve",			/* OPT_adult_preserve */
-	"adult_ironman",			/* OPT_adult_ironman */
-	"adult_no_stores",			/* OPT_adult_no_stores */
-	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
-	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
-	"adult_no_stacking",		/* OPT_adult_no_stacking */
-	"adult_take_notes",			/* OPT_adult_auto_notes */
-	"adult_force_small_lev",	/* OPT_adult_force_small_lev*/
-	"adult_retain_squelch",		/* OPT_adult_retain_squelch */
-	"adult_no_quests",			/* OPT_adult_no_quests*/
-	"adult_no_player ghosts",	/* OPT_adult_no_player ghosts*/
-	"adult_no_store_services",	/* OPT_adult_no_store_services*/
-	"adult_no_xtra_artifacts",	/* OPT_adult_no_xtra_artifacts*/
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	"score_peek",				/* OPT_score_peek */
-	"score_hear",				/* OPT_score_hear */
-	"score_room",				/* OPT_score_room */
-	"score_xtra",				/* OPT_score_xtra */
-	"score_know",				/* OPT_score_know */
-	"score_live",				/* OPT_score_live */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL						/* xxx */
+	{"rogue_like_commands",	"Rogue-like commands",					FALSE},		/* OPT_rogue_like_commands */
+	{"quick_messages",		"Activate quick messages",				TRUE},		/* OPT_quick_messages */
+	{"floor_query_flag",	"Prompt for floor item selection",		FALSE},		/* OPT_floor_query_flag */
+	{"carry_query_flag",	"Prompt before picking things up",		TRUE},		/* OPT_carry_query_flag */
+	{"use_old_target",		"Use old target by default",			FALSE},		/* OPT_use_old_target */
+	{"always_pickup",		"Pick things up by default",			TRUE},		/* OPT_always_pickup */
+	{"always_repeat",		"Repeat obvious commands",				FALSE},		/* OPT_always_repeat */
+	{"depth_in_feet",		"Show dungeon level in feet",			FALSE},		/* OPT_depth_in_feet */
+	{"stack_force_notes",	"Merge inscriptions when stacking",		FALSE},		/* OPT_stack_force_notes */
+	{"stack_force_costs",	"Merge discounts when stacking",		FALSE},		/* OPT_stack_force_costs */
+	{"expand_inscribe",     "Expand the power of the inscribe commands", TRUE},	/* OPT_expand_inscribe */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{"show_details",		"Show details in monster descriptions",	TRUE},		/* OPT_show_details */
+	{"ring_bell",			"Audible bell (on errors, etc)",		TRUE},		/* OPT_ring_bell */
+	{"show_flavors",		"Show flavors in object descriptions",	TRUE},		/* OPT_flavors */
+	{"run_ignore_stairs",	"When running, ignore stairs",			TRUE},		/* OPT_run_ignore_stairs */
+	{"run_ignore_doors",	"When running, ignore doors",			TRUE},		/* OPT_run_ignore_doors */
+	{"run_cut_corners",		"When running, cut corners",			TRUE},		/* OPT_run_cut_corners */
+	{"run_use_corners",		"When running, use corners",			TRUE},		/* OPT_run_use_corners */
+	{"disturb_move",		"Disturb whenever any monster moves",	TRUE},		/* OPT_disturb_move */
+	{"disturb_near",		"Disturb whenever viewable monster moves",TRUE},	/* OPT_disturb_near */
+	{"disturb_panel",		"Disturb whenever map panel changes",	TRUE},		/* OPT_disturb_panel */
+	{"disturb_state",		"Disturb whenever player state changes",TRUE},		/* OPT_disturb_state */
+	{"disturb_minor",		"Disturb whenever boring things happen",TRUE},		/* OPT_disturb_minor */
+	{"disturb_wakeup",		"Disturb when a viewable monster wakes up",TRUE},	/* OPT_disturb_wakeup */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{"verify_destroy",		"Verify destruction of objects",		TRUE},		/* OPT_verify_destroy */
+	{"verify_special",		"Verify use of special commands",		TRUE},		/* OPT_verify_special */
+	{"allow_quantity",		"Allow quantity specification",			TRUE},		/* OPT_allow_quantity */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{"auto_haggle",			"Auto-haggle in stores",				TRUE},		/* OPT_auto_haggle */
+	{"auto_scum",			"Auto-scum for good levels",			FALSE},		/* OPT_auto_scum */
+	{"allow_themed_levels","Allow the generation of themed levels",TRUE},		/* OPT_allow_themed_levels */
+	{NULL,					NULL,										FALSE},		/* xxx testing_carry */
+	{"expand_look",			"Expand the power of the look command",	TRUE},		/* OPT_expand_look */
+	{"expand_list",			"Expand the power of the list commands",TRUE},		/* OPT_expand_list */
+	{"view_perma_grids",	"Map remembers all perma-lit grids",	TRUE},		/* OPT_view_perma_grids */
+	{"view_torch_grids",	"Map remembers all torch-lit grids",	FALSE},		/* OPT_view_torch_grids */
+	{"dungeon_align",		"Generate dungeons with aligned rooms",	TRUE},		/* OPT_dungeon_align */
+	{"dungeon_stair",		"Generate dungeons with connected stairs",TRUE},	/* OPT_dungeon_stair */
+	{NULL,					NULL,	FALSE},/* xxx */
+	{NULL,					NULL,	FALSE},/* xxx */
+	{NULL,					NULL,	FALSE},/* xxx track_follow */
+	{NULL,					NULL,	FALSE},/* xxx track_target */
+	{NULL,					NULL,	FALSE},/* xxx track_target */
+	{"smart_cheat",			"Monsters exploit players weaknesses",	FALSE},	/* OPT_smart_cheat */
+	{"view_reduce_lite",	"Reduce lite-radius when running",		FALSE},	/* OPT_view_reduce_lite */
+	{"hidden_player",		"Hide player symbol when running",		FALSE},	/* OPT_hidden_player */
+	{"avoid_abort",			"Avoid checking for user abort",		FALSE},	/* OPT_avoid_abort */
+	{"avoid_other",			"Avoid processing special colors",		FALSE},	/* OPT_avoid_other */
+	{"flush_failure",		"Flush input on various failures",		TRUE},	/* OPT_flush_failure */
+	{"flush_disturb",		"Flush input whenever disturbed",		FALSE},	/* OPT_flush_disturb */
+	{NULL,				NULL,										FALSE},	/* xxx flush_command */
+	{"fresh_before",		"Flush output before every command",	TRUE},	/* OPT_fresh_before */
+	{"fresh_after",			"Flush output after various things",	FALSE},	/* OPT_fresh_after */
+	{NULL,				NULL,									FALSE},
+	{"compress_savefile",	"Compress messages in savefiles",		TRUE},	/* OPT_compress_savefile */
+	{"hilite_player",		"Hilite the player with the cursor",	FALSE},	/* OPT_hilite_player */
+	{"view_yellow_lite",	"Use special colors for torch lite",	FALSE},	/* OPT_view_yellow_lite */
+	{"view_bright_lite",	"Use special colors for field of view",	FALSE},	/* OPT_view_bright_lite */
+	{"view_granite_lite",	"Use special colors for wall grids",	FALSE},	/* OPT_view_granite_lite */
+	{"view_special_lite",	"Use special colors for floor grids",	FALSE},	/* OPT_view_special_lite */
+	{"easy_open",			"Open/Disarm/Close without direction",	FALSE},	/* OPT_easy_open */
+	{"easy_alter",			"Open/Disarm doors/traps on movement",	FALSE},	/* OPT_easy_alter */
+	{"easy_floor",			"Display floor stacks in a list",		FALSE},	/* OPT_easy_floor */
+	{"show_piles",			"Show stacks using special attr/char",	FALSE},	/* OPT_show_piles */
+	{"center_player",		"Center map continuously (very slow)",	FALSE},	/* OPT_center_player */
+	{"run_avoid_center",	"Avoid centering while running",		FALSE},	/* OPT_run_avoid_center */
+	{"xchars_to_file",		"Allow accents in output files",		FALSE},	/* OPT_xchars_to_file */
+	{"auto_more",			"Automatically clear '-more-' prompts",	FALSE},	/* OPT_auto_more */
+	{"toggle_xp",			"Reverse experience display",			FALSE},	/* OPT_toggle_exp*/
+	{"always_show_list",	"Automatically display drop-down lists",FALSE},	/* OPT_auto_display_lists */
+	{"hp_changes_color",	"Player color indicates low hit points",FALSE},	/* OPT_hp_changes_color*/
+	{"verify_leave_quests",	"Verify before descending from quest level",TRUE},/* OPT_verify_leave_quests*/
+	{"mark_squelch_items",	"Items marked for squelch appear as dot",FALSE},/* opt_mark_squelch_items */
+	{NULL,				NULL,								FALSE},/* xxx */
+	{NULL,				NULL,								FALSE},/* xxx */
+	{NULL,				NULL,								FALSE},/* xxx */
+	{NULL,				NULL,								FALSE},/* xxx */
+	{NULL,				NULL,							FALSE},/* xxx */
+	{NULL,				NULL,							FALSE},/* xxx */
+	{NULL,				NULL,							FALSE},/* xxx */
+	{NULL,				NULL,							FALSE},/* xxx */
+	{NULL,				NULL,							FALSE},/* xxx */
+	{NULL,NULL,	FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,				NULL,												FALSE},/* xxx */
+	{"birth_point_based",		"Birth: Allow purchase of stats using points",	FALSE},	/* OPT_birth_point_based */
+	{"birth_auto_roller",		"Birth: Allow specification of minimal stats",	FALSE},	/* OPT_birth_auto_roller */
+	{"birth_maximize",			"Birth: Maximize effect of race/class bonuses",	TRUE},	/* OPT_birth_maximize */
+	{"birth_preserve",			"Birth: Preserve artifacts when leaving level",	TRUE},	/* OPT_birth_preserve */
+	{"birth_ironman",			"Birth: Restrict the use of stairs/recall",		FALSE},	/* OPT_birth_ironman */
+	{"birth_no_stores",			"Birth: Restrict the use of stores/home",		FALSE},	/* OPT_birth_no_stores */
+	{"birth_no_artifacts",		"Birth: Restrict creation of artifacts",		FALSE},	/* OPT_birth_no_artifacts */
+	{"birth_rand_artifacts",	"Birth: Randomize some of the artifacts",		FALSE},	/* OPT_birth_rand_artifacts */
+	{"birth_no_stacking",		"Birth: Never stack objects on the floor",		FALSE},	/* OPT_birth_no_stacking */
+	{"birth_take_notes",		"Birth: Have notes written to a file",			TRUE},	/* OPT_birth_auto_notes */
+	{"birth_force_small_lev",	"Birth: All levels will be generated as small",	FALSE},	/* OPT_birth_force_small_lev */
+	{"birth_retain_squelch", 	"Birth: Retain squelch settings",				FALSE},	/* OPT_birth_retain_squelch */
+	{"birth_no_quests",			"Birth: Disable quests",						FALSE},	/* OPT_birth_no_quests*/
+	{"birth_no_player ghosts",	"Birth: Disable player ghosts",					FALSE},	/* OPT_birth_no_player ghosts*/
+	{"birth_no_store_services",	"Birth: Disable store services",				FALSE},	/* OPT_birth_no_store_services*/
+	{"birth_no_xtra_artifacts","Birth: Disable extra artifacts",				FALSE},	/* OPT_birth_no_xtra_artifacts*/
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{"cheat_peek",			"Cheat: Peek into object creation",				FALSE},	/* OPT_cheat_peek */
+	{"cheat_hear",			"Cheat: Peek into monster creation",			FALSE},	/* OPT_cheat_hear */
+	{"cheat_room",			"Cheat: Peek into dungeon creation",			FALSE},	/* OPT_cheat_room */
+	{"cheat_xtra",			"Cheat: Peek into something else",				FALSE},	/* OPT_cheat_xtra */
+	{"cheat_know",			"Cheat: Know complete monster info",			FALSE},	/* OPT_cheat_know */
+	{"cheat_live",			"Cheat: Allow player to avoid death",			FALSE},	/* OPT_cheat_live */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{"adult_point_based",		"Adult: Allow purchase of stats using points",	FALSE},	/* OPT_adult_point_based */
+	{"adult_auto_roller",		"Adult: Allow specification of minimal stats",	FALSE},	/* OPT_adult_auto_roller */
+	{"adult_maximize",			"Adult: Maximize effect of race/class bonuses",	TRUE},	/* OPT_adult_maximize */
+	{"adult_preserve",			"Adult: Preserve artifacts when leaving level",	TRUE},	/* OPT_adult_preserve */
+	{"adult_ironman",			"Adult: Restrict the use of stairs/recall",		FALSE},	/* OPT_adult_ironman */
+	{"adult_no_stores",			"Adult: Restrict the use of stores/home",		FALSE},	/* OPT_adult_no_stores */
+	{"adult_no_artifacts",		"Adult: Restrict creation of artifacts",		FALSE},	/* OPT_adult_no_artifacts */
+	{"adult_rand_artifacts",	"Adult: Randomize some of the artifacts",		FALSE},	/* OPT_adult_rand_artifacts */
+	{"adult_no_stacking",		"Adult: Never stack objects on the floor",		FALSE},	/* OPT_adult_no_stacking */
+	{"adult_take_notes",		"Adult: Have notes to written to a file",		TRUE},	/* OPT_adult_auto_notes */
+	{"adult_force_small_lev",	"Adult: All levels generated small",			FALSE},	/* OPT_adult_force_small_lev*/
+	{"adult_retain_squelch",	"Adult: Retain squelch settings",				FALSE},	/* OPT_adult_retain_squelch */
+	{"adult_no_quests",			"Adult: Disable quests",						FALSE},	/* OPT_adult_no_quests*/
+	{"adult_no_player ghosts",	"Adult: Disable player ghosts",					FALSE},	/* OPT_adult_no_player ghosts*/
+	{"adult_no_store_services",	"Adult: Disable store services",				FALSE},	/* OPT_adult_no_store_services*/
+	{"adult_no_xtra_artifacts",	"Adult: Disable extra artifacts",				FALSE},	/* OPT_adult_no_xtra_artifacts*/
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{"score_peek",			"Score: Peek into object creation",				FALSE},	/* OPT_score_peek */
+	{"score_hear",			"Score: Peek into monster creation",			FALSE},	/* OPT_score_hear */
+	{"score_room",			"Score: Peek into dungeon creation",			FALSE},	/* OPT_score_room */
+	{"score_xtra",			"Score: Peek into something else",				FALSE},	/* OPT_score_xtra */
+	{"score_know",			"Score: Know complete monster info",			FALSE},	/* OPT_score_know */
+	{"score_live",			"Score: Allow player to avoid death",			FALSE},	/* OPT_score_live */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE} /* xxx */
 };
-
-
-/*
- * Options -- descriptions (where defined)
- */
-cptr option_desc[OPT_MAX] =
-{
-	"Rogue-like commands",						/* OPT_rogue_like_commands */
-	"Activate quick messages",					/* OPT_quick_messages */
-	"Prompt for floor item selection",			/* OPT_floor_query_flag */
-	"Prompt before picking things up",			/* OPT_carry_query_flag */
-	"Use old target by default",				/* OPT_use_old_target */
-	"Pick things up by default",				/* OPT_always_pickup */
-	"Repeat obvious commands",					/* OPT_always_repeat */
-	"Show dungeon level in feet",				/* OPT_depth_in_feet */
-	"Merge inscriptions when stacking",			/* OPT_stack_force_notes */
-	"Merge discounts when stacking",			/* OPT_stack_force_costs */
-	"Show labels in equipment listings",		/* OPT_show_labels */
-	"Show weights in all object listings",		/* OPT_show_weights */
-	"Show choices in inven/equip windows",		/* OPT_show_choices */
-	"Show details in monster descriptions",		/* OPT_show_details */
-	"Audible bell (on errors, etc)",			/* OPT_ring_bell */
-	"Show flavors in object descriptions",		/* OPT_show_flacors */
-	"When running, ignore stairs",				/* OPT_run_ignore_stairs */
-	"When running, ignore doors",				/* OPT_run_ignore_doors */
-	"When running, cut corners",				/* OPT_run_cut_corners */
-	"When running, use corners",				/* OPT_run_use_corners */
-	"Disturb whenever any monster moves",		/* OPT_disturb_move */
-	"Disturb whenever viewable monster moves",	/* OPT_disturb_near */
-	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
-	"Disturb whenever player state changes",	/* OPT_disturb_state */
-	"Disturb whenever boring things happen",	/* OPT_disturb_minor */
-	"Disturb when a viewable monster wakes up",	/* OPT_disturb_wakeup */
-	NULL,										/* xxx alert_hitpoint */
-	NULL,										/* xxx alert_failure */
-	"Verify destruction of objects",			/* OPT_verify_destroy */
-	"Verify use of special commands",			/* OPT_verify_special */
-	"Allow quantity specification",				/* OPT_allow_quantity */
-	NULL,										/* xxx */
-	"Auto-haggle in stores",					/* OPT_auto_haggle */
-	"Auto-scum for good levels",				/* OPT_auto_scum */
-	"Allow the generation of themed levels",	/* OPT_allow_themed_levels */
-	NULL,										/* xxx testing_carry */
-	"Expand the power of the look command",		/* OPT_expand_look */
-	"Expand the power of the list commands",	/* OPT_expand_list */
-	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
-	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
-	"Generate dungeons with aligned rooms",		/* OPT_dungeon_align */
-	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx track_follow */
-	NULL,										/* xxx track_target */
-	NULL,										/* xxx track_target */
-	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
-	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
-	"Hide player symbol when running",			/* OPT_hidden_player */
-	"Avoid checking for user abort",			/* OPT_avoid_abort */
-	"Avoid processing special colors",			/* OPT_avoid_other */
-	"Flush input on various failures",			/* OPT_flush_failure */
-	"Flush input whenever disturbed",			/* OPT_flush_disturb */
-	NULL,										/* xxx */
-	"Flush output before every command",		/* OPT_fresh_before */
-	"Flush output after various things",		/* OPT_fresh_after */
-	NULL,										/* xxx */
-	"Compress messages in savefiles",			/* OPT_compress_savefile */
-	"Hilite the player with the cursor",		/* OPT_hilite_player */
-	"Use special colors for torch lite",		/* OPT_view_yellow_lite */
-	"Use special colors for field of view",		/* OPT_view_bright_lite */
-	"Use special colors for wall grids",		/* OPT_view_granite_lite */
-	"Use special colors for floor grids",		/* OPT_view_special_lite */
-	"Open/Disarm/Close without direction",		/* OPT_easy_open */
-	"Open/Disarm doors/traps on movement",		/* OPT_easy_alter */
-	"Display floor stacks in a list",   		/* OPT_easy_floor */
-	"Show stacks using special attr/char",		/* OPT_show_piles */
-	"Center map continuously (very slow)",		/* OPT_center_player */
-	"Avoid centering while running",			/* OPT_run_avoid_center */
-	"Scroll map while targetting",				/* OPT_scroll_target */
-	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
-	"Reverse experience display",				/* OPT_toggle_xp */
-	"Automatically display drop-down lists",	/* OPT_auto_display_lists */
-	"Player color indicates low hit points",	/* OPT_hp_changes_color */
-	"Verify before descending from quest level",/* OPT_verify_leave_quest */
-	"Items marked for squelch appear as dot",   /* OPT_mark_squelch_items */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	"Birth: Allow purchase of stats using points",	/* OPT_birth_point_based */
-	"Birth: Allow specification of minimal stats",	/* OPT_birth_auto_roller */
-	"Birth: Maximize effect of race/class bonuses",	/* OPT_birth_maximize */
-	"Birth: Preserve artifacts when leaving level",	/* OPT_birth_preserve */
-	"Birth: Restrict the use of stairs/recall",	/* OPT_birth_ironman */
-	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
-	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
-	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
-	"Birth: Never stack objects on the floor",	/* OPT_birth_no_stacking */
- 	"Birth: Have notes written to a file",		/* OPT_birth_take_notes */
- 	"Birth: All levels will be generated as small",	/* OPT_birth_force_small_lev */
-	"Birth: Retain squelch settings",			/*OPT_birth_retain_squelch*/
-	"Birth: Disable quests",					/* OPT_birth_no_quests*/
-	"Birth: Disable player ghosts",				/* OPT_birth_no_player ghosts*/
-	"Birth: Disable store services",			/* OPT_birth_no_store_services*/
-	"Birth: Disable extra artifacts",			/* OPT_birth_no_xtra_artifacts*/
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	"Cheat: Peek into object creation",			/* OPT_cheat_peek */
-	"Cheat: Peek into monster creation",		/* OPT_cheat_hear */
-	"Cheat: Peek into dungeon creation",		/* OPT_cheat_room */
-	"Cheat: Peek into something else",			/* OPT_cheat_xtra */
-	"Cheat: Know complete monster info",		/* OPT_cheat_know */
-	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	"Adult: Allow purchase of stats using points",	/* OPT_adult_point_based */
-	"Adult: Allow specification of minimal stats",	/* OPT_adult_auto_roller */
-	"Adult: Maximize effect of race/class bonuses",	/* OPT_adult_maximize */
-	"Adult: Preserve artifacts when leaving level",	/* OPT_adult_preserve */
-	"Adult: Restrict the use of stairs/recall",	/* OPT_adult_ironman */
-	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
-	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
-	"Adult: Randomize some of the artifacts (beta)",	/* OPT_adult_rand_artifacts */
-	"Adult: Never stack objects on the floor",	/* OPT_adult_adult_no_stacking */
-	"Adult: Have notes to written to a file",	/* OPT_adult_take_notes */
-	"Adult: All levels generated small",		/* OPT_adult_force_small_lev */
-	"Adult: Retain squelch settings",			/* OPT_adult_retain_squelch*/
-	"Adult: Disable quests",					/* OPT_adult_no_quests*/
-	"Adult: Disable player ghosts",				/* OPT_adult_no_player ghosts*/
-	"Adult: Disable store services",			/* OPT_adult_no_store_services*/
-	"Adult: Disable extra artifacts",			/* OPT_adult_no_xtra_artifacts*/
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	"Score: Peek into object creation",			/* OPT_score_peek */
-	"Score: Peek into monster creation",		/* OPT_score_hear */
-	"Score: Peek into dungeon creation",		/* OPT_score_room */
-	"Score: Peek into something else",			/* OPT_score_xtra */
-	"Score: Know complete monster info",		/* OPT_score_know */
-	"Score: Allow player to avoid death",		/* OPT_score_live */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL										/* xxx */
-};
-
-
-/*
- * Options -- normal values
- */
-const bool option_norm[OPT_MAX] =
-{
-	FALSE,		/* OPT_rogue_like_commands */
-	TRUE,		/* OPT_quick_messages */
-	FALSE,		/* OPT_floor_query_flag */
-	TRUE,		/* OPT_carry_query_flag */
-	FALSE,		/* OPT_use_old_target */
-	TRUE,		/* OPT_always_pickup */
-	FALSE,		/* OPT_always_repeat */
-	FALSE,		/* OPT_depth_in_feet */
-	FALSE,		/* OPT_stack_force_notes */
-	FALSE,		/* OPT_stack_force_costs */
-	TRUE,		/* OPT_show_labels */
-	TRUE,		/* OPT_show_weights */
-	TRUE,		/* OPT_show_choices */
-	TRUE,		/* OPT_show_details */
-	TRUE,		/* OPT_ring_bell */
-	TRUE,		/* OPT_show_flavors */
-	TRUE,		/* OPT_run_ignore_stairs */
-	TRUE,		/* OPT_run_ignore_doors */
-	TRUE,		/* OPT_run_cut_corners */
-	TRUE,		/* OPT_run_use_corners */
-	TRUE,		/* OPT_disturb_move */
-	TRUE,		/* OPT_disturb_near */
-	TRUE,		/* OPT_disturb_panel */
-	TRUE,		/* OPT_disturb_state */
-	TRUE,		/* OPT_disturb_minor */
-	TRUE,		/* OPT_disturb_wakeup */
-	FALSE,		/* xxx alert_hitpoint */
-	FALSE,		/* xxx alert_failure */
-	TRUE,		/* OPT_verify_destroy */
-	TRUE,		/* OPT_verify_special */
-	TRUE,		/* OPT_allow_quantity */
-	FALSE,		/* xxx */
-	TRUE,		/* OPT_auto_haggle */
-	FALSE,		/* OPT_auto_scum */
-	TRUE,		/* OPT_allow_themed_levels */
-	FALSE,		/* xxx */
-	TRUE,		/* OPT_expand_look */
-	TRUE,		/* OPT_expand_list */
-	TRUE,		/* OPT_view_perma_grids */
-	FALSE,		/* OPT_view_torch_grids */
-	TRUE,		/* OPT_dungeon_align */
-	TRUE,		/* OPT_dungeon_stair */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx track_follow */
-	FALSE,		/* xxx track_target */
-	FALSE,		/* xxx */
-	FALSE,		/* OPT_smart_cheat */
-	FALSE,		/* OPT_view_reduce_lite */
-	FALSE,		/* OPT_hidden_player */
-	FALSE,		/* OPT_avoid_abort */
-	FALSE,		/* OPT_avoid_other */
-	TRUE,		/* OPT_flush_failure */
-	FALSE,		/* OPT_flush_disturb */
-	FALSE,		/* xxx */
-	TRUE,		/* OPT_fresh_before */
-	FALSE,		/* OPT_fresh_after */
-	FALSE,		/* xxx */
-	TRUE,		/* OPT_compress_savefile */
-	FALSE,		/* OPT_hilite_player */
-	FALSE,		/* OPT_view_yellow_lite */
-	FALSE,		/* OPT_view_bright_lite */
-	FALSE,		/* OPT_view_granite_lite */
-	FALSE,		/* OPT_view_special_lite */
-	FALSE,		/* OPT_easy_open */
-	FALSE,		/* OPT_easy_alter */
-	FALSE,		/* OPT_easy_floor */
-	FALSE,		/* OPT_show_piles */
-	FALSE,		/* OPT_center_player */
-	FALSE,		/* OPT_run_avoid_center */
-	FALSE,		/* OPT_scroll_target */
-	FALSE,		/* OPT_auto_more */
-	FALSE,		/* OPT_toggle_xp */
-	FALSE,		/* OPT_auto_display_lists */
-	TRUE,		/* OPT_verify_leave_quests */
-	FALSE,		/* OPT_mark_squelch_items */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* OPT_birth_point_based */
-	FALSE,		/* OPT_birth_auto_roller */
-	TRUE,		/* OPT_birth_maximize */
-	TRUE,		/* OPT_birth_preserve */
-	FALSE,		/* OPT_birth_ironman */
-	FALSE,		/* OPT_birth_no_stores */
-	FALSE,		/* OPT_birth_no_artifacts */
-	FALSE,		/* OPT_birth_rand_artifacts */
-	FALSE,		/* OPT_birth_no_stacking */
-	TRUE,		/* OPT_birth_take_notes */
-	FALSE,		/* OPT_birth_force_small_lev */
-	FALSE,		/* OPT_birth_retain_squelch */
-	FALSE,		/* OPT_birth_no_quests*/
-	FALSE,		/* OPT_birth_no_player ghosts*/
-	FALSE,		/* OPT_birth_no_store_services*/
-	FALSE,		/* OPT_birth_no_xtra_artifacts*/
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* OPT_cheat_peek */
-	FALSE,		/* OPT_cheat_hear */
-	FALSE,		/* OPT_cheat_room */
-	FALSE,		/* OPT_cheat_xtra */
-	FALSE,		/* OPT_cheat_know */
-	FALSE,		/* OPT_cheat_live */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* OPT_adult_point_based */
-	FALSE,		/* OPT_adult_auto_roller */
-	TRUE,		/* OPT_adult_maximize */
-	TRUE,		/* OPT_adult_preserve */
-	FALSE,		/* OPT_adult_ironman */
-	FALSE,		/* OPT_adult_no_stores */
-	FALSE,		/* OPT_adult_no_artifacts */
-	FALSE,		/* OPT_adult_rand_artifacts */
-	FALSE,		/* OPT_adult_no_stacking */
-	TRUE,		/* OPT_adult_take_notes */
-	FALSE,		/* OPT_adult_force_small_lev*/
-	FALSE,		/* OPT_adult_retain_squelch */
-	FALSE,		/* OPT_adult_no_quests */
-	FALSE,		/* OPT_adult_no_player ghosts */
-	FALSE,		/* OPT_adult_no_store_services */
-	FALSE,		/* OPT_adult_no_xtra_artifacts */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* OPT_score_peek */
-	FALSE,		/* OPT_score_hear */
-	FALSE,		/* OPT_score_room */
-	FALSE,		/* OPT_score_xtra */
-	FALSE,		/* OPT_score_know */
-	FALSE,		/* OPT_score_live */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE		/* xxx */
-};
-
 
 /*
  * Option screen interface
@@ -2713,7 +2126,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_open,
 		OPT_easy_alter,
 		OPT_easy_floor,
-		OPT_scroll_target,
+		OPT_expand_inscribe,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2801,9 +2214,6 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 
 	{
 		OPT_depth_in_feet,
-		OPT_show_labels,
-		OPT_show_weights,
-		OPT_show_choices,
 		OPT_show_details,
 		OPT_show_flavors,
 		OPT_hilite_player,
@@ -2819,7 +2229,10 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_mark_squelch_items,
 		OPT_toggle_xp,
 		OPT_auto_display_lists,
-		OPT_NONE
+		OPT_xchars_to_file,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
 	},
 
 	/*** Birth ***/
@@ -2998,7 +2411,7 @@ byte spell_info_RF6[32][5]=
 	{0,     0,     0,     0,     0},        /* RF6_XXX2 */
 	{1,     0,     0,     0,     0},        /* RF6_DARKNESS */
 	{2,     0,     0,     0,     0},        /* RF6_TRAPS */
-	{6,     0,     0,     0,     0},        /* RF6_FORGET */
+	{0,     0,     0,     0,     0},        /* RF6_XXX3 */
 	{2,     0,     0,     0,     0},        /* RF6_DRAIN_MANA */
 	{0,     0,     0,     0,     0},        /* RF6_XXX4 */
 	{0,     0,     0,     0,     0},        /* RF6_XXX5 */
@@ -3168,7 +2581,7 @@ byte spell_desire_RF6[32][8] =
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX3	    */
 	{ 20,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_DARKNESS  */
 	{ 25,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_TRAPS	    */
-	{ 25,  0,   0,   0,	5,   0, LRN_SAVE  ,  100}, /* RF6_FORGET    */
+	{  0,  0,   0,   0,	0,   0,    0      ,  100}, /* RF6_XXX3    */
 	{ 25,  0,   0,   15,	0,   0, LRN_MANA  ,  100}, /* RF6_DRAIN_MANA*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX4	    */
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX5	    */

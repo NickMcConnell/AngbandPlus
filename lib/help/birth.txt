@@ -144,7 +144,7 @@ have intrinsic abilities.
                not as wise or strong.  Half-elves are slightly better at magic,
                disarming, saving throws, stealth, bows and searching, but they
                are not as good at hand weapons.  Half-elves have their dexterity
-               sustained.
+               sustained, and are native to forest terrain.
  
           Elf
                Elves are better magicians then humans, but not as good at
@@ -153,7 +153,9 @@ have intrinsic abilities.
                Elves are better at searching, disarming, perception, stealth,
                bows and magic, but they are not as good at hand weapons.  
                Elves are resistant to attacks involving bright light, and have
-               their dexterity sustained.
+               their dexterity sustained, and are native 
+to forest terrain.
+
  
           Hobbits
                Hobbits, or Halflings, are very good at bows, throwing, and
@@ -232,7 +234,9 @@ have intrinsic abilities.
                and wraiths. However, they find new experience even harder 
                to come by than Dunedain: and their wisdom is still a 
                little suspect. And like normal Elves, they resist
-               attacks involving bright light.
+               attacks involving bright light, and are native 
+to forest terrain.
+
 
           Kobold
                Kobolds are a race of small dog-headed humanoids that dwell 
@@ -300,19 +304,20 @@ have intrinsic abilities.
                learn a few spells, but not the powerful offensive spells
                mages can use.  A rogue's primary stats are Dexterity and
                Intelligence.  He can set traps, and steal from monsters.  
-		   Failing to steal from a monster aggravates them.  Do it often
-		   enough, and you will aggravate the entire dungeon.
+               Failing to steal from a monster aggravates them.  Do it often
+               enough, and you will aggravate the entire dungeon.
  
           Ranger
-               A Ranger is a warrior/mage.  He is a good fighter, and the
+               A Ranger is a warrior/druid.  He is a good fighter, and the
                best of all the classes with a missile weapon such as a bow.
-               The ranger learns spells much more slowly than a mage, but
+               The ranger learns spells much more slowly than a druid, but
                is capable of learning all but the most powerful spells.
                Because a ranger is really a dual class character, more
                experience is required for him to advance.  A ranger has a
                good stealth, good perception, good searching, a good saving
-               throw,  and is good with magical devices.  His primary stats
-               are Strength, Intelligence and Dexterity.
+               throw,  are native to forest terrain, and is good 
+with magical devices.  His primary stats
+               are Strength, Intelligence, Wisdom and Dexterity.
  
           Paladin
                A Paladin is a warrior/priest.  He is a very good fighter,
@@ -327,7 +332,7 @@ have intrinsic abilities.
                are Strength and Charisma, although Wisdom is necessary for 
                his spells.
 
-          Brigand:
+          Brigand
                A Brigand is a thief, who simply wants to plunder the pits of 
                Angband to steal its greatest treasures.  He is close behind 
                the warrior in melee.  He is a very good at disarming of traps 
@@ -343,6 +348,18 @@ have intrinsic abilities.
                sling, and gets an extra shot with a sling when he reaches 
                level 26.
 
+          Druid
+               A Druid is a master of all things natural.  He cannot hope 
+               to simply hack his way through the dungeon, and so must 
+               therefore call upon the power of nature for attack and 
+               defense.  A druid is not really complete without an 
+               assortment of magical devices to use in addition to his 
+               spells.  He can master the higher level magical devices 
+               easily, and has a very good saving throw to resist effects 
+               of spells cast at him.  Intelligence and Wisdom are his 
+               primary stats.  He is the weakest fighter of all the 
+               classes, and spells are his true realm.
+
  
 
 === Stats ===
@@ -356,7 +373,7 @@ have intrinsic abilities.
  
           Intelligence
                Intelligence affects the spellcasting abilities of mage-like
-               spellcasters, mages, rangers, and rogues.  Intelligence
+               spellcasters, mages, druids, rangers, and rogues.  Intelligence
                will affect the number of spells you may learn each level as
                well as the number of spell points you receive.  A high
                intelligence may also improve your chances of successfully
@@ -366,13 +383,13 @@ have intrinsic abilities.
  
           Wisdom
                The primary function of wisdom is to determine the ability
-               of a priest or paladin to use prayers, just like intelligence
-               affects spellcasting.  Again, high wisdom will increase the
-               number of spell points you have and increase the number of
-               prayers you can learn each level, while improving the chance
-               that a prayer will be successful.  A good wisdom can also
-               help to improve your chances of resisting magical spells cast
-               upon you by monsters.
+               of a priest or paladin to use prayers, or a druid or ranger 
+               to cast spells, just like intelligence affects spellcasting.  
+               Again, high wisdom will increase the number of spell points 
+               you have and increase the number of prayers you can learn 
+               each level, while improving the chance that a prayer will 
+               be successful.  A good wisdom can also help to improve your 
+               chances of resisting magical spells cast upon you by monsters.
  
           Dexterity
                Dexterity is a combination of agility and quickness.  A high
@@ -514,7 +531,8 @@ level, adjusted for constitution) and an XP modifier of 20+20=40%.
       Rogue       +2   +1   -2   +3   +1   -1       6         +25%
       Ranger      +2   +2    0   +1   +1   +1       4         +30%
       Paladin     +3   -3   +1    0   +2   +2       6         +35%
-	Brigand     +3   -2   -2   +3   +2   -3       7         +15%
+      Brigand     +3   -2   -2   +3   +2   -3       7         +15%
+      Druid       -2   +3   +3   -2   -1   +1       1         +30%
 
  
  
@@ -542,6 +560,7 @@ level, adjusted for constitution) and an XP modifier of 20+20=40%.
   Ranger     30(+8)  32(+10) 28(+10)  3(+0)  24(+0)  16(+0)  56(+30) 72(+45)
   Paladin    20(+7)  25(+10) 25(+11)  1(+0)  12(+0)   2(+0)  68(+35) 40(+30)
   Brigand    45(+15) 24(+10) 28(+10)  7(+0)  22(+0)  14(+0)  70(+40) 60(+35)
+  Druid      25(+7)  33(+12) 30(+9)   2(+0)  16(+0)  16(+0)  28(+13) 20(+13)
 
 For character classes, there are two figures: the first figure is the base 
 level of the ability, while the second figure (in parentheses) is the bonus

@@ -40,7 +40,7 @@
  * If "USE_GRAPHICS" is defined, then "readdib.h" and "readdib.c" must
  * be placed into "src/", and the "8x8.bmp" bitmap file must be placed
  * into "lib/xtra/graf".  In any case, some "*.fon" files (including
- * "8X13.FON" if nothing else) must be placed into "lib/xtra/font/".
+ * "8x12x.fon" if nothing else) must be placed into "lib/xtra/font/".
  * If "USE_SOUND" is defined, then some special library (for example,
  * "winmm.lib") may need to be linked in, and desired "*.WAV" sound
  * files must be placed into "lib/xtra/sound/".  All of these extra
@@ -268,15 +268,6 @@
 #include <commdlg.h>
 
 /*
- * HTML-Help requires htmlhelp.h and htmlhelp.lib from Microsoft's
- * HTML Workshop < msdn.microsoft.com/workshop/author/htmlhelp/ >.
- */
-#ifdef HTML_HELP
-#include <htmlhelp.h>
-#endif /* HTML_HELP */
-
-
-/*
  * Include the support for loading bitmaps
  */
 #ifdef USE_GRAPHICS
@@ -342,6 +333,13 @@ unsigned _cdecl _dos_getfileattr(const char *, unsigned *);
  */
 #define VUD_BRIGHT	0x80
 
+/*
+ * Standard font.
+ */
+#define DEFAULT_FONT   "8x12x.fon"
+
+#define DEFAULT_FONT_WID   8
+#define DEFAULT_FONT_HGT  12
 
 /*
  * Forward declare
@@ -354,9 +352,9 @@ typedef struct _term_data term_data;
  * Note the use of "font_want" for the names of the font file requested by
  * the user, and the use of "font_file" for the currently active font file.
  *
- * The "font_file" is uppercased, and takes the form "8X13.FON", while
- * "font_want" can be in almost any form as long as it could be construed
- * as attempting to represent the name of a font.
+ * The "font_file" takes the form "8x12x.fon", while "font_want" can be in
+ * almost any form as long as it could be construed as attempting to
+ * represent the name of a font.
  */
 struct _term_data
 {
@@ -408,6 +406,7 @@ struct _term_data
 	uint map_tile_hgt;
 
 	bool map_active;
+	bool menubar;
 };
 
 
@@ -518,12 +517,12 @@ static DIBINIT infMask;
  */
 static bool can_use_sound = FALSE;
 
-#define SAMPLE_MAX 8
+#define SAMPLE_MAX 16
 
 /*
  * An array of sound file names
  */
-static cptr sound_file[SOUND_MAX][SAMPLE_MAX];
+static cptr sound_file[MSG_MAX][SAMPLE_MAX];
 
 #endif /* USE_SOUND */
 
@@ -906,7 +905,7 @@ static void term_getsize(term_data *td)
 	wid = td->cols * td->tile_wid + td->size_ow1 + td->size_ow2;
 	hgt = td->rows * td->tile_hgt + td->size_oh1 + td->size_oh2;
 
-	/* Fake window size */
+	/* Client window size */
 	rc.left = 0;
 	rc.right = rc.left + wid;
 	rc.top = 0;
@@ -916,8 +915,8 @@ static void term_getsize(term_data *td)
 	/* rc.right += 1; */
 	/* rc.bottom += 1; */
 
-	/* Adjust */
-	AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
+	/* Get total window size (without menu for sub-windows) */
+ 	AdjustWindowRectEx(&rc, td->dwStyle, td->menubar, td->dwExStyle);
 
 	/* Total size */
 	td->size_wid = rc.right - rc.left;
@@ -954,7 +953,7 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 	WritePrivateProfileString(sec_name, "Visible", buf, ini_file);
 
 	/* Font */
-	strcpy(buf, td->font_file ? td->font_file : "8X13.FON");
+	strcpy(buf, td->font_file ? td->font_file : DEFAULT_FONT);
 	WritePrivateProfileString(sec_name, "Font", buf, ini_file);
 
 	/* Bizarre */
@@ -1055,7 +1054,7 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 	td->maximized = (GetPrivateProfileInt(sec_name, "Maximized", td->maximized, ini_file) != 0);
 
 	/* Desired font, with default */
-	GetPrivateProfileString(sec_name, "Font", "8X13.FON", tmp, 127, ini_file);
+	GetPrivateProfileString(sec_name, "Font", DEFAULT_FONT, tmp, 127, ini_file);
 
 	/* Bizarre */
 	td->bizarre = (GetPrivateProfileInt(sec_name, "Bizarre", TRUE, ini_file) != 0);
@@ -1194,7 +1193,7 @@ static void load_sound_prefs(void)
 	/* Access the sound.cfg */
 	path_build(ini_path, sizeof(ini_path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
 
-	for (i = 0; i < SOUND_MAX; i++)
+	for (i = 0; i < MSG_MAX; i++)
 	{
 		/* Ignore empty sound strings */
 		if (!angband_sound_name[i][0]) continue;
@@ -1498,6 +1497,59 @@ static void term_window_resize(const term_data *td)
 }
 
 
+#if 0  /* Debugging code */
+/*
+ * This function is used for debugging.  It should be called immediately
+ * after the Windows API call you wish to test, and with a string indicating
+ * the location of the error.
+ */
+static void ErrorExit(LPTSTR lpszFunction)
+{
+     DWORD dw = GetLastError();
+
+ 	/* We have an non-zero error */
+ 	if (dw)
+ 	{
+ 		TCHAR szBuf[80];
+ 		LPVOID lpMsgBuf;
+
+ 		FormatMessage(
+ 			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+ 			FORMAT_MESSAGE_FROM_SYSTEM,
+ 			NULL,
+ 			dw,
+ 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+ 			(LPTSTR) &lpMsgBuf,
+ 			0, NULL );
+
+ 		wsprintf(szBuf,
+ 			"%s failed with error %d: %s",
+ 			lpszFunction, dw, lpMsgBuf);
+
+ 		MessageBox(NULL, szBuf, "Error", MB_OK);
+
+ 		LocalFree(lpMsgBuf);
+
+ 		/* ExitProcess(dw); */
+ 	}
+}
+#endif  /* Debugging code */
+
+
+/*
+ * Build a correct font path for a font resource and release it.
+ */
+static int my_RemoveFontResource(const char *font)
+{
+ 	char buf[1024];
+
+ 	my_strcpy(buf, ANGBAND_DIR_XTRA_FONT, 1024);
+ 	my_strcat(buf, "\\", 1024);
+ 	my_strcat(buf, font, 1024);
+
+ 	return (RemoveFontResource(buf));
+}
+
 /*
  * Force the use of a new "font file" for a term_data
  *
@@ -1529,9 +1581,6 @@ static errr term_force_font(term_data *td, cptr path)
 		/* Scan windows */
 		for (i = 0; i < MAX_TERM_DATA; i++)
 		{
-			/* Don't check when closing the application */
-			if (!path) break;
-
 			/* Check "screen" */
 			if ((td != &data[i]) &&
 			    (data[i].font_file) &&
@@ -1542,7 +1591,7 @@ static errr term_force_font(term_data *td, cptr path)
 		}
 
 		/* Remove unused font resources */
-		if (!used) RemoveFontResource(td->font_file);
+		if (!used) my_RemoveFontResource(td->font_file);
 
 		/* Free the old name */
 		string_free(td->font_file);
@@ -1550,11 +1599,6 @@ static errr term_force_font(term_data *td, cptr path)
 		/* Forget it */
 		td->font_file = NULL;
 	}
-
-
-	/* No path given */
-	if (!path) return (1);
-
 
 	/* Local copy */
 	my_strcpy(buf, path, sizeof(buf));
@@ -1570,6 +1614,9 @@ static errr term_force_font(term_data *td, cptr path)
 
 	/* Load the new font */
 	if (!AddFontResource(buf)) return (1);
+
+	/* Notify other applications that a new font is available  XXX */
+ 	SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 
 	/* Save new font name */
 	td->font_file = string_make(base);
@@ -1643,7 +1690,7 @@ static void term_change_font(term_data *td)
 		if (term_force_font(td, tmp))
 		{
 			/* Access the standard font file */
-			path_build(tmp, sizeof(tmp), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
+			path_build(tmp, sizeof(tmp), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT);
 
 			/* Force the use of that font */
 			(void)term_force_font(td, tmp);
@@ -2008,7 +2055,7 @@ static errr Term_xtra_win_sound(int v)
 	if (!use_sound) return (1);
 
 	/* Illegal sound */
-	if ((v < 0) || (v >= SOUND_MAX)) return (1);
+	if ((v < 0) || (v >= MSG_MAX)) return (1);
 
 #ifdef USE_SOUND
 
@@ -2027,7 +2074,7 @@ static errr Term_xtra_win_sound(int v)
 
 #ifdef WIN32
 
-	/* Play the sound, catch errors */
+	/* Play the sound, catch errors  (include "Winmm.lib") */
 	return (PlaySound(buf, 0, SND_FILENAME | SND_ASYNC));
 
 #else /* WIN32 */
@@ -2051,11 +2098,14 @@ static errr Term_xtra_win_sound(int v)
  */
 static int Term_xtra_win_delay(int v)
 {
-
 #ifdef WIN32
 
 	/* Sleep */
-	if (v > 0) Sleep(v);
+	if (v > 0)
+ 	{
+ 		Term_xtra_win_event(0);
+ 		Sleep(v);
+ 	}
 
 #else /* WIN32 */
 
@@ -2257,6 +2307,15 @@ static errr Term_wipe_win(int x, int y, int n)
 	return 0;
 }
 
+/*
+ * Given a position in the ISO Latin-1 character set, return
+ * the correct character on this system.
+ */
+ static byte Term_xchar_win(byte c)
+{
+ 	/* The Windows port uses the Latin-1 standard */
+ 	return (c);
+}
 
 /*
  * Low level graphics.  Assumes valid input.
@@ -2379,12 +2438,8 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	HDC hdcSrc;
 	HBITMAP hbmSrcOld;
 
-	/* Paranoia */
-	if (!use_graphics)
-	{
-		/* Erase the grids */
-		return (Term_wipe_win(x, y, n));
-	}
+	/* Erase the grids */
+	Term_wipe_win(x, y, n);
 
 	/* Size of bitmap cell */
 	w1 = infGraph.CellWidth;
@@ -2446,7 +2501,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 		y1 = row * h1;
 
 		if ((arg_graphics == GRAPHICS_ADAM_BOLT) ||
-	        (arg_graphics == GRAPHICS_DAVID_GERVAIS))
+		    (arg_graphics == GRAPHICS_DAVID_GERVAIS))
 		{
 			x3 = (tcp[i] & 0x7F) * w1;
 			y3 = (tap[i] & 0x7F) * h1;
@@ -2670,6 +2725,7 @@ static void term_data_link(term_data *td)
 	t->wipe_hook = Term_wipe_win;
 	t->text_hook = Term_text_win;
 	t->pict_hook = Term_pict_win;
+	t->xchar_hook = Term_xchar_win;
 
 	/* Remember where we came from */
 	t->data = td;
@@ -2702,10 +2758,10 @@ static void init_windows(void)
 	td->rows = 24;
 	td->cols = 80;
 	td->visible = TRUE;
-	td->size_ow1 = 2;
-	td->size_ow2 = 2;
-	td->size_oh1 = 2;
-	td->size_oh2 = 2;
+	td->size_ow1 = 1;
+ 	td->size_ow2 = 1;
+ 	td->size_oh1 = 1;
+ 	td->size_oh2 = 1;
 	td->pos_x = 30;
 	td->pos_y = 20;
 
@@ -2740,6 +2796,7 @@ static void init_windows(void)
 	if (td->maximized) td->dwStyle |= WS_MAXIMIZE;
 	td->dwExStyle = 0;
 	td->visible = TRUE;
+	td->menubar = TRUE;
 
 	/* Sub windows (need these before term_getsize gets called) */
 	for (i = 1; i < MAX_TERM_DATA; i++)
@@ -2747,6 +2804,7 @@ static void init_windows(void)
 		td = &data[i];
 		td->dwStyle = (WS_OVERLAPPED | WS_THICKFRAME | WS_SYSMENU | WS_CAPTION);
 		td->dwExStyle = (WS_EX_TOOLWINDOW);
+		td->menubar = FALSE;
 	}
 
 
@@ -2762,14 +2820,14 @@ static void init_windows(void)
 		if (term_force_font(td, buf))
 		{
 			/* Access the standard font file */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
+			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT);
 
 			/* Force the use of that font */
 			(void)term_force_font(td, buf);
 
 			/* Oops */
-			td->tile_wid = 8;
-			td->tile_hgt = 13;
+			td->tile_wid = DEFAULT_FONT_WID;
+ 			td->tile_hgt = DEFAULT_FONT_HGT;
 
 			/* HACK - Assume bizarre */
 			td->bizarre = TRUE;
@@ -2916,6 +2974,7 @@ static void setup_menus(void)
 	EnableMenuItem(hm, IDM_FILE_EXIT,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 
+
 	/* No character available */
 	if (!character_generated)
 	{
@@ -2938,6 +2997,7 @@ static void setup_menus(void)
 		/* Menu "File", Item "Exit" */
 		EnableMenuItem(hm, IDM_FILE_EXIT, MF_BYCOMMAND | MF_ENABLED);
 	}
+
 
 	/* Menu "Window::Visibility" */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -3144,7 +3204,7 @@ static void check_for_save_file(LPSTR cmd_line)
 	/* Game in progress */
 	game_in_progress = TRUE;
 
-	Term_fresh();
+	(void)Term_fresh();
 
 	/* Play game */
 	play_game(FALSE);
@@ -3212,7 +3272,7 @@ static void start_screensaver(void)
 	/* Game in progress */
 	game_in_progress = TRUE;
 
-	Term_fresh();
+	(void)Term_fresh();
 
 	/* Screensaver mode on */
 	SendMessage(data[0].w, WM_COMMAND, IDM_OPTIONS_SAVER, 0);
@@ -3315,19 +3375,10 @@ static void display_help(cptr filename)
 
 	if (check_file(tmp))
 	{
-#ifdef HTML_HELP
-
-		HtmlHelp(data[0].w, tmp, HH_DISPLAY_TOPIC, 0);
-
-#else /* HTML_HELP */
-
 		char buf[1024];
 
 		sprintf(buf, "winhelp.exe %s", tmp);
 		WinExec(buf, SW_NORMAL);
-
-#endif /* HTML_HELP */
-
 	}
 	else
 	{
@@ -4231,8 +4282,8 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 		{
 			if (wParam && !HIWORD(lParam))
 			{
-				/* Do something to sub-windows */
-				for (i = 1; i < MAX_TERM_DATA; i++)
+				/* Do something to sub-windows (reverse order) */
+ 				for (i = MAX_TERM_DATA - 1; i > 0; i--)
 				{
 					SetWindowPos(data[i].w, hWnd, 0, 0, 0, 0,
 					             SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
@@ -4721,13 +4772,20 @@ static void hook_quit(cptr str)
 	/* Destroy all windows */
 	for (i = MAX_TERM_DATA - 1; i >= 0; --i)
 	{
-		term_force_font(&data[i], NULL);
+		/* Remove all fonts from the system, free resources */
+ 		if (data[i].font_file) my_RemoveFontResource(data[i].font_file);
+ 		if (data[i].font_id) DeleteObject(data[i].font_id);
 		if (data[i].font_want) string_free(data[i].font_want);
+
+		/* Kill the window */
 		if (data[i].w) DestroyWindow(data[i].w);
 		data[i].w = 0;
 
 		term_nuke(&data[i].t);
 	}
+
+/* Notify other applications that some fonts are not available XXX */
+SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 
 #ifdef USE_GRAPHICS
 	/* Free the bitmap stuff */
@@ -4737,7 +4795,7 @@ static void hook_quit(cptr str)
 
 #ifdef USE_SOUND
 	/* Free the sound names */
-	for (i = 0; i < SOUND_MAX; i++)
+	for (i = 0; i < MSG_MAX; i++)
 	{
 		for (j = 0; j < SAMPLE_MAX; j++)
 		{
@@ -4766,11 +4824,6 @@ static void hook_quit(cptr str)
 	string_free(ANGBAND_DIR_XTRA_SOUND);
 	string_free(ANGBAND_DIR_XTRA_HELP);
 
-#ifdef HAS_CLEANUP
-	cleanup_angband();
-#endif /* HAS_CLEANUP */
-
-	exit(0);
 }
 
 
@@ -4848,6 +4901,8 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_BONE);
 	validate_dir(ANGBAND_DIR_DATA);
 	validate_dir(ANGBAND_DIR_EDIT);
+
+
 	validate_dir(ANGBAND_DIR_FILE);
 	validate_dir(ANGBAND_DIR_HELP);
 	validate_dir(ANGBAND_DIR_INFO);
@@ -4873,7 +4928,7 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_XTRA_FONT);
 
 	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
+	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT);
 
 	/* Hack -- Validate the basic font */
 	validate_file(path);
@@ -5017,7 +5072,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Temporary hooks */
 	plog_aux = hack_plog;
 	quit_aux = hack_quit;
-	core_aux = hack_quit;
 
 	/* Prepare the filepaths */
 	init_stuff();
@@ -5057,7 +5111,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Activate hooks */
 	plog_aux = hook_plog;
 	quit_aux = hook_quit;
-	core_aux = hook_quit;
 
 	/* Set the system suffix */
 	ANGBAND_SYS = "win";
@@ -5084,7 +5137,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 
 	/* Prompt the user */
 	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
-	Term_fresh();
+	(void)Term_fresh();
 
 	/* Process messages forever */
 	while (GetMessage(&msg, NULL, 0, 0))

@@ -96,29 +96,41 @@ int critical_norm(int weight, int plus, int dam)
 
 		if (k < 400)
 		{
+			sound(MSG_HIT_GOOD);
 			msg_print("It was a good hit!");
 			dam = 2 * dam + 5;
 		}
 		else if (k < 700)
 		{
+			sound(MSG_HIT_GREAT);
 			msg_print("It was a great hit!");
 			dam = 2 * dam + 10;
 		}
 		else if (k < 900)
 		{
+			sound(MSG_HIT_SUPERB);
 			msg_print("It was a superb hit!");
 			dam = 3 * dam + 15;
 		}
 		else if (k < 1300)
 		{
+			sound(MSG_HIT_HI_GREAT);
 			msg_print("It was a *GREAT* hit!");
 			dam = 3 * dam + 20;
 		}
 		else
 		{
+			sound(MSG_HIT_HI_SUPERB);
 			msg_print("It was a *SUPERB* hit!");
 			dam = ((7 * dam) / 2) + 25;
 		}
+
+
+	}
+
+	else
+	{
+		sound(MSG_HIT);
 	}
 
 	return (dam);
@@ -135,17 +147,31 @@ int critical_norm(int weight, int plus, int dam)
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
  */
-int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
+int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, bool is_weapon)
 {
 	int mult = 1;
+
+	int y = m_ptr->fy;
+	int x = m_ptr->fx;
+
+	int terrain_flag = 0;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, fn;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &fn);
+
+	/* Get the feature */
+	u32b element = cave_ff3_match(y, x, TERRAIN_MASK);
+
+	/* Find out if monster is native to terrain */
+	bool is_native = is_monster_native(y, x, r_ptr);
+
+	/* Find out if monster is flying over terrain */
+	bool is_flying = (m_ptr->mflag & (MFLAG_FLYING)) != 0;
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -164,7 +190,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_ANIMAL);
+					l_ptr->r_l_flags3 |= (RF3_ANIMAL);
 				}
 
 				if (mult < 2) mult = 2;
@@ -176,7 +202,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_EVIL);
+					l_ptr->r_l_flags3 |= (RF3_EVIL);
 				}
 
 				if (mult < 2) mult = 2;
@@ -188,7 +214,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_UNDEAD);
+					l_ptr->r_l_flags3 |= (RF3_UNDEAD);
 				}
 
 				if (mult < 3) mult = 3;
@@ -200,7 +226,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_DEMON);
+					l_ptr->r_l_flags3 |= (RF3_DEMON);
 				}
 
 				if (mult < 3) mult = 3;
@@ -212,7 +238,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_ORC);
+					l_ptr->r_l_flags3 |= (RF3_ORC);
 				}
 
 				if (mult < 3) mult = 3;
@@ -224,7 +250,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_TROLL);
+					l_ptr->r_l_flags3 |= (RF3_TROLL);
 				}
 
 				if (mult < 3) mult = 3;
@@ -236,7 +262,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_GIANT);
+					l_ptr->r_l_flags3 |= (RF3_GIANT);
 				}
 
 				if (mult < 3) mult = 3;
@@ -248,7 +274,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_DRAGON);
+					l_ptr->r_l_flags3 |= (RF3_DRAGON);
 				}
 
 				if (mult < 3) mult = 3;
@@ -260,7 +286,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_DRAGON);
+					l_ptr->r_l_flags3 |= (RF3_DRAGON);
 				}
 
 				if (mult < 5) mult = 5;
@@ -272,7 +298,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_DEMON);
+					l_ptr->r_l_flags3 |= (RF3_DEMON);
 				}
 
 				if (mult < 5) mult = 5;
@@ -284,10 +310,52 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_UNDEAD);
+					l_ptr->r_l_flags3 |= (RF3_UNDEAD);
 				}
 
 				if (mult < 5) mult = 5;
+			}
+
+			if ((p_ptr->slay_elements) && (is_weapon))
+			{
+				/*First, Mark all resists in the lore if applicable*/
+				if (r_ptr->flags3 & (RF3_IM_ELEM))
+				{
+					if (m_ptr->ml)
+					{
+						u32b flags = r_ptr->flags3;
+
+						/*Just the elemental flags*/
+						flags &= RF3_IM_ELEM;
+
+						l_ptr->r_l_flags3 |= flags;
+					}
+				}
+
+				/*Now increase the damage, but only by two if they don't resist any of the elements.*/
+				if ((r_ptr->flags3 & (RF3_IM_ELEM)) != (RF3_IM_ELEM))
+				{
+					if (mult < 2 ) mult = 2;
+				}
+			}
+
+			/* Brand (Poison) */
+			if (f1 & (TR1_BRAND_POIS))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_POIS))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_IM_POIS);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
 			}
 
 			/* Brand (Acid) */
@@ -298,11 +366,31 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						l_ptr->flags3 |= (RF3_IM_ACID);
+						l_ptr->r_l_flags3 |= (RF3_IM_ACID);
 					}
 				}
-
 				/* Otherwise, take the damage */
+				/* Increase damage when standing in acid */
+				else if (!is_native && !is_flying && (element == ELEMENT_ACID))
+				{
+					/* A deep feature increases damage even more */
+					if (cave_ff2_match(y, x, FF2_DEEP))
+					{
+						if (mult < 5)
+						{
+							mult = 5;
+							terrain_flag = 1;
+						}
+					}
+					else
+					{
+						if (mult < 4)
+						{
+						      	mult = 4;
+							terrain_flag = 1;
+						}
+					}
+				}
 				else
 				{
 					if (mult < 3) mult = 3;
@@ -317,11 +405,32 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						l_ptr->flags3 |= (RF3_IM_ELEC);
+						l_ptr->r_l_flags3 |= (RF3_IM_ELEC);
 					}
 				}
-
 				/* Otherwise, take the damage */
+				/* Water increases damage */
+				else if (!is_native && !is_flying &&
+					((element == ELEMENT_WATER) || (element == ELEMENT_BWATER)))
+				{
+					/* A deep feature increases damage even more */
+					if (cave_ff2_match(y, x, FF2_DEEP))
+					{
+						if (mult < 5)
+						{
+						      	mult = 5;
+							terrain_flag = 1;
+						}
+					}
+					else
+					{
+						if (mult < 4)
+						{
+						       	mult = 4;
+							terrain_flag = 1;
+						}
+					}
+				}
 				else
 				{
 					if (mult < 3) mult = 3;
@@ -331,57 +440,137 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			/* Brand (Fire) */
 			if (f1 & (TR1_BRAND_FIRE))
 			{
+				int my_mult = 0;
+				int my_terrain_flag = 0;
+
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
 				{
 					if (m_ptr->ml)
 					{
-						l_ptr->flags3 |= (RF3_IM_FIRE);
+						l_ptr->r_l_flags3 |= (RF3_IM_FIRE);
+					}
+				}
+				/* Flying monsters don't take damage from terrain */
+				else if (is_flying)
+				{
+					my_mult = 3;
+				}
+				/* Otherwise, take the damage */
+				/* Lava increases damage a lot */
+				else if (!is_native && (element == ELEMENT_LAVA))
+				{
+					my_mult = 5;
+					my_terrain_flag = 1;
+				}
+				/* Heat increases damage */
+				else if (!is_native &&
+					((element == ELEMENT_FIRE) || (element == ELEMENT_BMUD) ||
+						(element == ELEMENT_BWATER)))
+				{
+					my_mult = 4;
+					my_terrain_flag = 1;
+				}
+				/* Water decreases damage */
+				else if (element == ELEMENT_WATER)
+				{
+					my_mult = 2;
+					my_terrain_flag = -1;
+				}
+				/* Default damage increase */
+				else
+				{
+					my_mult = 3;
+				}
+
+				/* Succeptable */
+				if (r_ptr->flags3 & (RF3_HURT_FIRE))
+				{
+					/* Extra Damage */
+					if (my_mult > 0) ++my_mult;
+
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_HURT_FIRE);
 					}
 				}
 
-				/* Otherwise, take the damage */
-				else
+				/* Override multiplier if brand damage is bigger */
+				if (my_mult > mult)
 				{
-					if (mult < 3) mult = 3;
+					mult = my_mult;
+					terrain_flag = my_terrain_flag;
 				}
 			}
 
 			/* Brand (Cold) */
 			if (f1 & (TR1_BRAND_COLD))
 			{
+				int my_mult = 0;
+				int my_terrain_flag = 0;
+
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
 				{
 					if (m_ptr->ml)
 					{
-						l_ptr->flags3 |= (RF3_IM_COLD);
+						l_ptr->r_l_flags3 |= (RF3_IM_COLD);
 					}
 				}
-
+				/* Flying monsters don't take damage from terrain */
+				else if (is_flying)
+				{
+					my_mult = 3;
+				}
 				/* Otherwise, take the damage */
+				/* Ice increases damage a lot */
+				else if (!is_native && (element == ELEMENT_ICE))
+				{
+					my_mult = 5;
+					my_terrain_flag = 1;
+				}
+				/* Water increases damage */
+				else if (!is_native && (element == ELEMENT_WATER))
+				{
+					my_mult = 4;
+					my_terrain_flag = 1;
+				}
+				/* Lava nullifies cold brand  */
+				else if (element == ELEMENT_LAVA)
+				{
+					my_terrain_flag = -1;
+				}
+				/* Heat decreases damage */
+				else if ((element == ELEMENT_FIRE) ||
+					(element == ELEMENT_BMUD) ||
+					(element == ELEMENT_BWATER))
+				{
+					my_mult = 2;
+					my_terrain_flag = -1;
+				}
+				/* Default damage increase */
 				else
 				{
-					if (mult < 3) mult = 3;
+					my_mult = 3;
 				}
-			}
 
-			/* Brand (Poison) */
-			if (f1 & (TR1_BRAND_POIS))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_POIS))
+				/* Succeptable */
+				if (r_ptr->flags3 & (RF3_HURT_COLD))
 				{
+					/* Extra damage */
+					if (my_mult > 0) ++my_mult;
+
 					if (m_ptr->ml)
 					{
-						l_ptr->flags3 |= (RF3_IM_POIS);
+						l_ptr->r_l_flags3 |= (RF3_HURT_COLD);
 					}
 				}
 
-				/* Otherwise, take the damage */
-				else
+				/* Override multiplier if brand damage is bigger */
+				if (my_mult > mult)
 				{
-					if (mult < 3) mult = 3;
+				       	mult = my_mult;
+					terrain_flag = my_terrain_flag;
 				}
 			}
 
@@ -389,9 +578,111 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 		}
 	}
 
+	/* To emulate fractional multiplier due to brigand combat */
+	mult *= 100;
+
+	/* A brigand can poison shots sometimes, if monster is not immune */
+	if ((o_ptr->tval == TV_SHOT) &&
+		(cp_ptr->flags & (CF_BRIGAND_COMBAT)) &&
+		!(r_ptr->flags3 & (RF3_IM_POIS)))
+	{
+		int m = 0;
+		char *message = "Your killer arts allowed you to create a poisoned shot!";
+		
+		/* Bigger chance to get a poisoned shot if the monster is sleeping */
+		if (m_ptr->csleep > 0)
+		{
+			/* Chance and multiplier vary with player level */
+			if (rand_int(100) < (50 + 25 * p_ptr->lev / 25))
+			{
+				if (p_ptr->lev >= 50) m = 350;
+				else if (p_ptr->lev >= 47) m = 300;
+				else if (p_ptr->lev >= 40) m = 250;
+				else if (p_ptr->lev >= 25) m = 200;
+				else m = 150;
+
+				/* message = "Poison damage (SLEEP)!"; */
+			}
+		}
+		/* Monster is awake */
+		else if (rand_int(100) < p_ptr->lev)
+		{
+			/* Chance and multiplier vary with player level */
+			if (p_ptr->lev >= 35) m = 160;
+			else m = 140;
+		}
+
+		/* Multiplier is bigger than the current */
+		if ((m > 0) && (mult < m))
+		{
+			/* Save multiplier */
+			mult = m;
+			/* Cancel terrain bonuses */
+			terrain_flag = 0;
+			/* Message */
+			msg_print(message);
+			/* msg_format("%d %d.", tdam, (tdam * mult) / 100); */
+		}
+	}
+
+	/* Show a message if necessary */
+	if ((terrain_flag != 0) && player_can_see_bold(y, x) && !p_ptr->blind)
+	{
+		char name[80];
+
+		/* Get the feature's name */
+		feature_desc(name, sizeof(name), cave_feat[y][x], FALSE, TRUE);
+
+		/* Damage was increased */
+		if (terrain_flag > 0)
+		{
+			msg_format("The %s increased the damage of the weapon!", name);
+		}
+		/* Damage was decreased */
+		else
+		{
+			msg_format("The %s reduced the damage of the weapon!", name);
+		}
+	}
 
 	/* Return the total damage */
-	return (tdam * mult);
+	return ((tdam * mult) / 100);
+}
+
+/*
+ * Find a secret at the specified location and change it according to
+ * the state.
+ */
+void find_secret(int y, int x)
+{
+	feature_type *f_ptr;
+	feature_lore *f_l_ptr;
+
+	cptr text;
+
+	/* Get feature */
+	f_ptr = &f_info[cave_feat[y][x]];
+	f_l_ptr = &f_l_list[cave_feat[y][x]];
+
+	if (f_l_ptr->f_l_sights < MAX_UCHAR) f_l_ptr->f_l_sights++;
+
+	/* Get the feature description */
+	text = (f_text + f_ptr->f_text);
+
+	if (player_has_los_bold(y, x) && strlen(text))
+	{
+		/* You have found something */
+		msg_format("%s",text);
+	}
+
+	/* Change the location */
+	cave_alter_feat(y, x, FS_SECRET);
+
+
+	/*p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);*/
+
+	/* Disturb */
+	disturb(0, 0);
 }
 
 
@@ -423,30 +714,41 @@ void search(void)
 			/* Sometimes, notice things */
 			if (rand_int(100) < chance)
 			{
-				/* Invisible trap */
-				if (cave_feat[y][x] == FEAT_INVIS)
+				/* Get the feature */
+				int feat = cave_feat[y][x];
+
+				/* Reveal interesting secret features */
+				if (feat_ff1_match(feat, FF1_SECRET) &&
+					(feat_ff3_match(feat, FF3_PICK_TRAP |
+						FF3_PICK_DOOR) ||
+					 !feat_ff1_match(feat, FF1_MOVE)))
 				{
-					/* Pick a trap */
-					pick_trap(y, x);
+					find_secret(y, x);
+		   		}
 
-					/* Message */
-					msg_print("You have found a trap.");
-
-					/* Disturb */
-					disturb(0, 0);
-				}
-
-				/* Secret door */
-				if (cave_feat[y][x] == FEAT_SECRET)
+				/* Find hidden player traps */
+				if (cave_player_trap_bold(y, x))
 				{
-					/* Message */
-					msg_print("You have found a secret door.");
+					/* Get the trap */
+					effect_type *x_ptr = &x_list[cave_x_idx[y][x]];
 
-					/* Pick a door */
-					place_closed_door(y, x);
+					/* Ignore known traps */
+					if (x_ptr->x_flags & (EF1_HIDDEN))
+					{
+						/* Reveal the trap */
+						x_ptr->x_flags &= ~(EF1_HIDDEN);
 
-					/* Disturb */
-					disturb(0, 0);
+						/* Show the trap */
+						note_spot(y, x);
+
+						lite_spot(y, x);
+
+						/* Message */
+						msg_print("You have found a trap!");
+
+						/* Disturb the player */
+						disturb(0, 0);
+					}
 				}
 
 				/* Scan all objects in the grid */
@@ -481,20 +783,153 @@ void search(void)
 
 
 /*
- * Determine if the object can be picked up, and has "=g" in its inscription.
+ * Objects that combine with items already in the quiver get picked
+ * up, placed in the quiver, and combined automatically.
+ */
+static bool quiver_carry(object_type *o_ptr, int o_idx)
+{
+	int i;
+
+	object_type *i_ptr, *j_ptr = NULL;
+
+	char name[80];
+
+	/* Must be ammo. */
+	if (!ammo_p(o_ptr) && !is_throwing_weapon(o_ptr)) return (FALSE);
+
+	/* Known or sensed cursed ammo is avoided */
+	if (cursed_p(o_ptr) && ((o_ptr->ident & (IDENT_SENSE)) || object_known_p(o_ptr))) return (FALSE);
+
+	/* Check quiver space */
+	if (!quiver_carry_okay(o_ptr, o_ptr->number, -1)) return (FALSE);
+
+	/* Check quiver for similar objects. */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get object in that slot. */
+		i_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!i_ptr->k_idx)
+		{
+			/* But save first empty slot, see later */
+			if (!j_ptr) j_ptr = i_ptr;
+
+			continue;
+		}
+
+		/* Look for similar. */
+		if (object_similar(i_ptr, o_ptr))
+		{
+
+			/* Absorb floor object. */
+			object_absorb(i_ptr, o_ptr);
+
+			/* Remember this slot */
+			j_ptr = i_ptr;
+
+			/* Done */
+			break;
+		}
+	}
+
+	/* Can't combine the ammo. Search for the "=g" inscription */
+	if (i >= END_QUIVER)
+	{
+		char *s;
+
+		/* Full quiver or no inscription at all */
+		if (!j_ptr || !(o_ptr->obj_note)) return (FALSE);
+
+		/* Search the '=' character in the inscription */
+		s = strchr(quark_str(o_ptr->obj_note), '=');
+
+		while (TRUE)
+		{
+			/* We reached the end of the inscription */
+			if (!s) return (FALSE);
+
+			/* We found the "=g" inscription */
+			if (s[1] == 'g')
+			{
+				/* Put the ammo in the empty slot */
+				object_copy(j_ptr, o_ptr);
+
+				/* Done */
+				break;
+			}
+
+			/* Keep looking */
+			s = strchr(s + 1, '=');
+		}
+	}
+
+	/*
+	 * Increase carried weight.
+     * Note that o_ptr has the right number of missiles to add.
+	 */
+	p_ptr->total_weight += o_ptr->weight * o_ptr->number;
+
+	/* Reorder the quiver, track the index */
+	i = reorder_quiver(j_ptr - inventory);
+
+	/* Get the final slot */
+	j_ptr = &inventory[i];
+
+	/* Cursed! */
+	if (cursed_p(j_ptr))
+	{
+		/* Warn the player */
+		sound(MSG_CURSED);
+		msg_print("Oops! It feels deathly cold!");
+
+		/* Remove special inscription, if any */
+		if (j_ptr->discount >= INSCRIP_NULL) j_ptr->discount = 0;
+
+		/* Sense the object if allowed */
+		if (j_ptr->discount == 0) j_ptr->discount = INSCRIP_CURSED;
+
+		/* The object has been "sensed" */
+		j_ptr->ident |= (IDENT_SENSE);
+	}
+
+	/* Describe the object */
+	object_desc(name, sizeof(name), j_ptr, TRUE, 3);
+
+	/* Message */
+	msg_format("You have %s (%c).", name, index_to_label(i));
+
+	/* Delete the object */
+	delete_object_idx(o_idx);
+
+	/* Update "p_ptr->pack_size_reduce" */
+	find_quiver_size();
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS | PU_NATIVE);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP | PW_INVEN);
+
+	return (TRUE);
+}
+
+
+/*
+ * Determine if the object should be picked up -- "=g" or autopickup is set
  */
 static bool auto_pickup_okay(const object_type *o_ptr)
 {
 	cptr s;
 
-	/* It can't be carried */
-	if (!inven_carry_okay(o_ptr)) return (FALSE);
+	/* It can't be carried -- verify elsewhere for warnings. */
+	/* if (!inven_carry_okay(o_ptr)) return (FALSE); */
 
 	/*object is marked to not pickup*/
 	if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) &&
 	    object_aware_p(o_ptr)) return (FALSE);
 
-	/*object is marked to not pickup*/
+	/*object is marked for pickup*/
 	if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP) &&
 	    object_aware_p(o_ptr)) return (TRUE);
 
@@ -533,6 +968,8 @@ static void py_pickup_aux(int o_idx)
 	char o_name[80];
 	object_type *o_ptr;
 
+	u16b msgt = MSG_GENERIC;
+
 	o_ptr = &o_list[o_idx];
 
 	/*hack - don't pickup &nothings*/
@@ -548,8 +985,14 @@ static void py_pickup_aux(int o_idx)
 		/* Describe the object */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
+		if (artifact_known(o_ptr))
+		{
+			msgt = MSG_NOTICE;
+		}
+
 		/* Message */
-		msg_format("You have %s (%c).", o_name, index_to_label(slot));
+		msg_c_format(msgt, "You have %s (%c).", o_name, index_to_label(slot));
+
 	}
 
 	/* Delete the object */
@@ -589,8 +1032,12 @@ void do_cmd_pickup_from_pile(void)
 		/* No pile */
 		if (floor_num < 1)
 		{
-			if (picked_up_item) msg_format("There are no more objects where you are standing.");
-			else msg_format("There are no objects where you are standing.");
+			cptr player_status = "standing";
+
+			if (p_ptr->flying) player_status = "hovering";
+
+			if (picked_up_item) msg_format("There are no more objects where you are %s.", player_status);
+			else msg_format("There are no objects where you are %s.", player_status);
 			break;
 		}
 
@@ -647,6 +1094,11 @@ void do_cmd_pickup_from_pile(void)
 	/* Just be sure all inventory management is done. */
 	notice_stuff();
 
+	/* Use energy if we picked up something */
+	if (picked_up_item)
+	{
+		p_ptr->p_energy_use = BASE_ENERGY_MOVE;
+	}
 }
 
 /*
@@ -664,12 +1116,18 @@ void py_pickup(int pickup)
 	object_type *o_ptr;
 
 	char o_name[80];
+	u16b msgt = MSG_GENERIC;
+
+	int sound_msg;
 
 	int can_pickup = 0;
 	int not_pickup = 0;
 
 	int can_pickup_last_o_idx = 0;
 	int not_pickup_last_o_idx = 0;
+
+	/* Are we allowed to pick up anything here? */
+	if (!(f_info[cave_feat[py][px]].f_flags1 & (FF1_DROP))) return;
 
  	/* Automatically destroy squelched items in pile if necessary */
 	do_squelch_pile(py, px);
@@ -679,11 +1137,19 @@ void py_pickup(int pickup)
 	{
 		bool do_not_pickup = FALSE;
 
+		msgt = MSG_GENERIC;
+
 		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
 		/* Describe the object */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+		/* Prepare a colorful message */
+		if (artifact_known(o_ptr))
+		{
+			msgt = MSG_NOTICE;
+		}
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -691,23 +1157,22 @@ void py_pickup(int pickup)
 		/* Hack -- disturb */
 		disturb(0, 0);
 
-		/* End loop if squelched stuff reached */
-		if ((k_info[o_ptr->k_idx].squelch == SQUELCH_ALWAYS) &&
-	    	(k_info[o_ptr->k_idx].aware))
-		{
-			next_o_idx = 0;
-			continue;
-		}
-
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
 		{
+			long gold = (long)o_ptr->pval * o_ptr->number;
+
+			/* Determine which sound to play */
+			if (gold < 200) sound_msg = MSG_MONEY1;
+			else if (gold < 600) sound_msg = MSG_MONEY2;
+			else sound_msg = MSG_MONEY3;
+
 			/* Message */
-			msg_format("You have found %ld gold pieces worth of %s.",
-			           (long)o_ptr->pval, o_name);
+			message_format(sound_msg, 0, "You have found %ld gold pieces worth of %s.",
+			               gold, o_name);
 
 			/* Collect the gold */
-			p_ptr->au += o_ptr->pval;
+			p_ptr->au += gold;
 
 			/* Redraw gold */
 			p_ptr->redraw |= (PR_GOLD);
@@ -723,14 +1188,16 @@ void py_pickup(int pickup)
 		}
 
 		/*some items are marked to never pickup*/
-		if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP)
-		    && object_aware_p(o_ptr))
+		if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) && object_aware_p(o_ptr))
 		{
 			do_not_pickup = TRUE;
 		}
 
+		/* Test for quiver auto-pickup */
+		if (quiver_carry(o_ptr, this_o_idx)) continue;
+
 		/* Test for auto-pickup */
-		if (auto_pickup_okay(o_ptr))
+		if (auto_pickup_okay(o_ptr) && inven_carry_okay(o_ptr))
 		{
 			/* Pick up the object */
 			py_pickup_aux(this_o_idx);
@@ -780,7 +1247,7 @@ void py_pickup(int pickup)
 		/* Describe the object */
 		if ((!pickup) || (do_not_pickup))
 		{
-			msg_format("You see %s.", o_name);
+			msg_c_format(msgt, "You see %s.", o_name);
 
 			/* Check the next object */
 			continue;
@@ -789,9 +1256,12 @@ void py_pickup(int pickup)
 		/* Note that the pack is too full */
 		if (!inven_carry_okay(o_ptr))
 		{
-			if (o_ptr->k_idx) msg_format("You have no room for %s.", o_name);
+			if (o_ptr->k_idx)
+			{
+				if(auto_pickup_okay(o_ptr)) msgt = MSG_BELL;
+				msg_c_format(msgt, "You have no room for %s.", o_name);
+			}
 
-			/* Check the next object */
 			continue;
 		}
 
@@ -799,8 +1269,36 @@ void py_pickup(int pickup)
 		if (carry_query_flag)
 		{
 			char out_val[160];
+			int result;
+
+			/* Format the prompt */
 			strnfmt(out_val, sizeof(out_val), "Pick up %s? ", o_name);
-			if (!get_check(out_val)) continue;
+
+			/* Be careful with the destroy key */
+			result = get_check_other(out_val, rogue_like_commands ? 'd': 'k');
+
+			/* Player doesn't want to pick up or destroy the object */
+			if (!result) continue;
+
+			/* Player wants to destroy the object */
+			else if (result == 2)
+			{
+				/* Save the value of the verify_destroy option */
+				bool saved_verify = verify_destroy;
+
+				/* Turn it off */
+				verify_destroy = 0;
+
+				/* Destroy the object */
+				destroy_item(-this_o_idx);
+
+				/* Restore the option */
+				verify_destroy = saved_verify;
+
+				/* Done */
+				continue;
+			}
+
 		}
 
 		/* Pick up the object */
@@ -816,14 +1314,13 @@ void py_pickup(int pickup)
 			/* One object */
 			if (not_pickup == 1)
 			{
-				/* Get the object */
+				 /* Get the object */
 				o_ptr = &o_list[not_pickup_last_o_idx];
 
 				/* Describe the object */
 				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
-				/* Message */
-				msg_format("You see %s.", o_name);
+				msg_c_format(msgt, "You see %s.", o_name);
 			}
 
 			/* Multiple objects */
@@ -850,7 +1347,7 @@ void py_pickup(int pickup)
 				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 				/* Message */
-				if (o_ptr->k_idx) msg_format("You have no room for %s.", o_name);
+				if (o_ptr->k_idx) msg_c_format(msgt, "You have no room for %s.", o_name);
 			}
 
 			/* Multiple objects */
@@ -900,310 +1397,10 @@ void py_pickup(int pickup)
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match trap power against player armor.
  */
-static bool check_hit(int power)
+bool check_hit(int power)
 {
 	return test_hit(power, p_ptr->ac + p_ptr->to_a, TRUE);
 }
-
-
-/*
- * Handle player hitting a real trap
- */
-void hit_trap(int y, int x)
-{
-	int i, num, dam;
-
-	cptr name = "a trap";
-
-
-	/* Disturb the player */
-	disturb(0, 0);
-
-	/* Analyze XXX XXX XXX */
-	switch (cave_feat[y][x])
-	{
-		case FEAT_TRAP_HEAD + 0x00:
- 		{
-			if (p_ptr->ffall)
-			{
-				msg_print("You float gently to the floor of the pit.");
-				msg_print("You carefully avoid setting off the daggers.");
-			}
-
-			else
-			{
-				/* activate the ordinary daggers. */
-				msg_print("Daggers pierce you everywhere!");
-
-				/* Base damage */
-				dam = damroll(2, 6);
-
-				msg_print("You are impaled!");
-
-				for (i = 0; i < randint(5); i++)
-				{
-					dam += damroll(2, 3);
-				}
-
-				(void)set_cut(p_ptr->cut + randint(dam));
-
-				/* Take the damage */
-				take_hit(dam, name);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x01:
-		{
-			msg_print("You fall through a trap door!");
-			if (p_ptr->ffall)
-			{
-				msg_print("You float gently down to the next level.");
-			}
-			else
-			{
-				dam = damroll(2, 8);
-				take_hit(dam, name);
-			}
-
-			/* New depth */
-			p_ptr->depth++;
-
-			/* Leaving */
-			p_ptr->leaving = TRUE;
-
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x02:
-		{
-			msg_print("You fall into a pit!");
-			if (p_ptr->ffall)
-			{
-				msg_print("You float gently to the bottom of the pit.");
-			}
-			else
-			{
-				dam = damroll(2, 6);
-				take_hit(dam, name);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x03:
-		{
-			msg_print("You fall into a spiked pit!");
-
-			if (p_ptr->ffall)
-			{
-				msg_print("You float gently to the floor of the pit.");
-				msg_print("You carefully avoid touching the spikes.");
-			}
-
-			else
-			{
-				/* Base damage */
-				dam = damroll(2, 6);
-
-				/* Extra spike damage */
-				if (rand_int(100) < 50)
-				{
-					msg_print("You are impaled!");
-
-					dam = dam * 2;
-					(void)set_cut(p_ptr->cut + randint(dam));
-				}
-
-				/* Take the damage */
-				take_hit(dam, name);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x04:
-		{
-			msg_print("You fall into a spiked pit!");
-
-			if (p_ptr->ffall)
-			{
-				msg_print("You float gently to the floor of the pit.");
-				msg_print("You carefully avoid touching the spikes.");
-			}
-
-			else
-			{
-				/* Base damage */
-				dam = damroll(2, 6);
-
-				/* Extra spike damage */
-				if (rand_int(100) < 50)
-				{
-					msg_print("You are impaled on poisonous spikes!");
-
-					dam = dam * 2;
-					(void)set_cut(p_ptr->cut + randint(dam));
-
-					if (p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois)
-					{
-						msg_print("The poison does not affect you!");
-					}
-					else
-					{
-						dam = dam * 2;
-						(void)set_poisoned(p_ptr->poisoned + randint(dam));
-					}
-				}
-
-				/* Take the damage */
-				take_hit(dam, name);
-			}
-
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x05:
-		{
-			msg_print("You are enveloped in a cloud of smoke!");
-			cave_info[y][x] &= ~(CAVE_MARK);
-			cave_set_feat(y, x, FEAT_FLOOR);
-			num = 2 + randint(3);
-			for (i = 0; i < num; i++)
-			{
-				(void)summon_specific(y, x, p_ptr->depth, 0);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x06:
-		{
-			msg_print("You hit a teleport trap!");
-			teleport_player(100);
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x07:
-		{
-			msg_print("You are enveloped in flames!");
-			dam = damroll(4, 6);
-			fire_dam(dam, "a fire trap");
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x08:
-		{
-			msg_print("You are splashed with acid!");
-			dam = damroll(4, 6);
-			acid_dam(dam, "an acid trap");
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x09:
-		{
-			if (check_hit(125))
-			{
-				msg_print("A small dart hits you!");
-				dam = damroll(1, 4);
-				take_hit(dam, name);
-				(void)set_slow(p_ptr->slow + rand_int(20) + 20);
-			}
-			else
-			{
-				msg_print("A small dart barely misses you.");
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0A:
-		{
-			if (check_hit(125))
-			{
-				msg_print("A small dart hits you!");
-				dam = damroll(1, 4);
-				take_hit(dam, name);
-				(void)do_dec_stat(A_STR);
-			}
-			else
-			{
-				msg_print("A small dart barely misses you.");
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0B:
-		{
-			if (check_hit(125))
-			{
-				msg_print("A small dart hits you!");
-				dam = damroll(1, 4);
-				take_hit(dam, name);
-				(void)do_dec_stat(A_DEX);
-			}
-			else
-			{
-				msg_print("A small dart barely misses you.");
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0C:
-		{
-			if (check_hit(125))
-			{
-				msg_print("A small dart hits you!");
-				dam = damroll(1, 4);
-				take_hit(dam, name);
-				(void)do_dec_stat(A_CON);
-			}
-			else
-			{
-				msg_print("A small dart barely misses you.");
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0D:
-		{
-			msg_print("You are surrounded by a black gas!");
-			if (!p_ptr->resist_blind)
-			{
-				(void)set_blind(p_ptr->blind + rand_int(50) + 25);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0E:
-		{
-			msg_print("You are surrounded by a gas of scintillating colors!");
-			if (allow_player_confusion())
-			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0F:
-		{
-			msg_print("You are surrounded by a pungent green gas!");
-			if (!p_ptr->resist_pois && !p_ptr->oppose_pois && !p_ptr->immune_pois)
-			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x10:
-		{
-			msg_print("You are surrounded by a strange white mist!");
-			if (!p_ptr->free_act)
-			{
-				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
-			}
-			break;
-		}
-	}
-}
-
-
 
 /*
  * Attack the monster at the given location
@@ -1236,17 +1433,20 @@ void py_attack(int y, int x)
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
 
-	/* Reveal minics (note: mimics cannot be sneak-attacked) */
-	if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
+	/* Reveal minics and hidden creatures (note: mimics cannot be sneak-attacked) */
+	if (((m_ptr->mimic_k_idx) && (m_ptr->ml)) || (m_ptr->mflag & (MFLAG_HIDE)))
 	{
 		/* Mimic no longer acts as a detected object */
-		m_ptr->mflag &= ~(MFLAG_MIMIC);
+		m_ptr->mflag &= ~(MFLAG_MIMIC | MFLAG_HIDE);
 
 		/*no longer a mimic*/
 		m_ptr->mimic_k_idx = 0;
 
 		/* Get monster name ("a kobold") */
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0x88);
+
+		/* And reveal */
+		update_mon(cave_m_idx[m_ptr->fy][m_ptr->fx], FALSE);
 
 		/* Redraw */
 		lite_spot(m_ptr->fy, m_ptr->fx);
@@ -1311,7 +1511,7 @@ void py_attack(int y, int x)
 
 	if ((was_asleep) && (m_ptr->ml))
 	{
-		sleeping_bonus =  5 + 1 * p_ptr->lev / 5;
+		sleeping_bonus =  5 + p_ptr->lev / 5;
 
 		if (cp_ptr->flags & CF_ROGUE_COMBAT)
 		{
@@ -1328,6 +1528,11 @@ void py_attack(int y, int x)
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
 	{
+		/*Adjust for player terrain*/
+		chance = feat_adjust_combat_for_player(chance, FALSE);
+
+		/*Adjust for monster terrain*/
+		chance = feat_adjust_combat_for_monster(m_ptr, chance, TRUE);
 
 		/* Some monsters are great at dodging  -EZ- */
 		if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!was_asleep) &&
@@ -1338,7 +1543,7 @@ void py_attack(int y, int x)
 				m_name);
 
 			/* Learn that monster can dodge */
-			l_ptr->flags2 |= (RF2_EVASIVE);
+			l_ptr->r_l_flags2 |= (RF2_EVASIVE);
 
 			continue;
 		}
@@ -1346,16 +1551,17 @@ void py_attack(int y, int x)
 		/* Test for hit */
 		else if (test_hit(chance, r_ptr->ac, m_ptr->ml))
 		{
+
 			if (was_asleep)
 			{
 				if (cp_ptr->flags & CF_ROGUE_COMBAT)
 				{
-					message_format(MSG_HIT, m_ptr->r_idx,
+					message_format(MSG_GENERIC, m_ptr->r_idx,
 						"You ruthlessly sneak attack %s!", m_name);
 				}
 				else
 				{
-					message_format(MSG_HIT, m_ptr->r_idx,
+					message_format(MSG_GENERIC, m_ptr->r_idx,
 						"You sneak attack %s!", m_name);
 				}
 			}
@@ -1363,7 +1569,7 @@ void py_attack(int y, int x)
 			else
 			{
 				/* Message */
-				message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+				message_format(MSG_GENERIC, m_ptr->r_idx, "You hit %s.", m_name);
 			}
 
 			/* If this was the first hit, make some noise */
@@ -1376,8 +1582,9 @@ void py_attack(int y, int x)
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
 			{
+
 				k = damroll(o_ptr->dd, o_ptr->ds);
-				k = tot_dam_aux(o_ptr, k, m_ptr);
+				k = tot_dam_aux(o_ptr, k, m_ptr, TRUE);
 				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
 				k += o_ptr->to_d;
@@ -1396,13 +1603,13 @@ void py_attack(int y, int x)
 			}
 
 			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL, -1))
+			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL, SOURCE_PLAYER))
 			{
 				/*return energy from unused attacks*/
 				if (num < p_ptr->num_blow)
 				{
-					p_ptr->energy_use -= (((p_ptr->num_blow - (num)) * 100 ) /
-		  									p_ptr->num_blow);
+					p_ptr->p_energy_use -= (((p_ptr->num_blow - (num)) * BASE_ENERGY_MOVE ) /
+							p_ptr->num_blow);
 				}
 				break;
 			}
@@ -1419,7 +1626,7 @@ void py_attack(int y, int x)
 				{
 					if (m_ptr->ml)
 					{
-						l_ptr->flags3 |= (RF3_NO_CONF);
+						l_ptr->r_l_flags3 |= (RF3_NO_CONF);
 					}
 							msg_format("%^s is unaffected!", m_name);
 				}
@@ -1445,13 +1652,6 @@ void py_attack(int y, int x)
 		}
 	}
 
-	/* Hack -- delay fear messages */
-	if (fear && m_ptr->ml)
-	{
-		/* Message */
-		message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
-	}
-
 	/* Mega-Hack -- apply earthquake brand */
 	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
 }
@@ -1468,29 +1668,38 @@ void py_attack(int y, int x)
  * Note that this routine handles monsters in the destination grid,
  * and also handles attempting to move into walls/doors/rubble/etc.
  */
-void move_player(int dir, int jumping)
+s16b move_player(int dir, int jumping)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	s16b used_energy = BASE_ENERGY_MOVE;
+
 	int y, x;
+
+	char name[80];
+
+	feature_type *f_ptr;
 
 	/* Find the result of moving */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
+	/* Get the feature */
+	f_ptr = &f_info[cave_feat[y][x]];
+
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
-
 		/* Attack */
 		py_attack(y, x);
 	}
 
 	/* Optionally alter known traps/doors on (non-jumping) movement */
-	else if ((easy_alter) && (!jumping) &&
-	         (cave_info[y][x] & (CAVE_MARK)) &&
-	         ((cave_trap_bold(y,x)) || (cave_known_door(y,x))))
+	else if ((easy_alter) && (!jumping) && (cave_info[y][x] & (CAVE_MARK)) &&
+		 	 (_feat_ff1_match(f_ptr, FF1_CAN_OPEN | FF1_CAN_DISARM) ||
+			 (cave_player_trap_bold(y, x) &&
+			!(x_list[cave_x_idx[y][x]].x_flags & (EF1_HIDDEN)))))
 
 	{
 		/* Not already repeating */
@@ -1512,67 +1721,138 @@ void move_player(int dir, int jumping)
 
 	}
 
-	/* Player can not walk through "walls", but can go through traps */
-	else if (!cave_floor_bold(y, x))
+	/* Player can not walk through certain terrain */
+	else if (!cave_ff1_match(y, x, FF1_MOVE))
 	{
-
 		/* Disturb the player */
 		disturb(0, 0);
 
 		/* Notice unknown obstacles */
 		if (!(cave_info[y][x] & (CAVE_MARK)))
 		{
-			/* Rubble */
-			if (cave_feat[y][x] == FEAT_RUBBLE)
+			/* Get hit by traps */
+			if (cave_passive_trap_bold(y, x))
 			{
-				message(MSG_HITWALL, 0, "You feel a pile of rubble blocking your way.");
-				cave_info[y][x] |= (CAVE_MARK);
-				lite_spot(y, x);
+				/* Hit the trap */
+				hit_trap(x_list[cave_x_idx[y][x]].x_f_idx, y, x, MODE_ACTION);
 			}
 
-			/* Closed door */
-			else if (cave_feat[y][x] < FEAT_SECRET)
-			{
-				message(MSG_HITWALL, 0, "You feel a door blocking your way.");
-				cave_info[y][x] |= (CAVE_MARK);
-				lite_spot(y, x);
-			}
+			/* Get the feature name */
+			feature_desc(name, sizeof(name), f_ptr - f_info, TRUE, TRUE);
 
-			/* Wall (or secret door) */
-			else
-			{
-				message(MSG_HITWALL, 0, "You feel a wall blocking your way.");
-				cave_info[y][x] |= (CAVE_MARK);
-				lite_spot(y, x);
-			}
+			/* Tell the player */
+			msg_format("You feel %s blocking your way.", name);
+
+			cave_info[y][x] |= (CAVE_MARK);
+
+			lite_spot(y, x);
+
 		}
 
 		/* Mention known obstacles */
-		else
+		else if (!hit_wall(y, x, TRUE))
 		{
-			/* Rubble */
-			if (cave_feat[y][x] == FEAT_RUBBLE)
-			{
-				message(MSG_HITWALL, 0, "There is a pile of rubble blocking your way.");
-			}
+			/* Get the feature name */
+			feature_desc(name, sizeof(name), f_ptr - f_info,
+				TRUE, TRUE);
 
-			/* Closed door */
-			else if (cave_feat[y][x] < FEAT_SECRET)
-			{
-				message(MSG_HITWALL, 0, "There is a door blocking your way.");
-			}
-
-			/* Wall (or secret door) */
-			else
-			{
-				message(MSG_HITWALL, 0, "There is a wall blocking your way.");
-			}
+			/* Tell the player */
+			msg_format("There is %s blocking your way.", name);
 		}
+	}
+
+
+	/* There is some effect blocking movement */
+	else if (!cave_passable_bold(y, x))
+	{
+		int x_idx;
+
+		/* Discover unknown terrain */
+		if (!cave_flag_bold(y, x, CAVE_MARK))
+		{
+			/* Remember */
+			cave_info[y][x] |= (CAVE_MARK);
+
+			/* Redraw */
+			lite_spot(y, x);
+		}
+
+		/* Get the first effect */
+		x_idx = cave_x_idx[y][x];
+
+		/* Find the effect that disables movement */
+		while (x_idx)
+		{
+			u16b feat;
+
+			/* Get the effect */
+			effect_type *x_ptr = &x_list[x_idx];
+
+			/* Get the associated feature */
+			feat = x_ptr->x_f_idx;
+
+			/* Check the FF1_MOVE flag */
+			if (feat && !feat_ff1_match(feat, FF1_MOVE))
+			{
+				/* Get the feature name */
+				feature_desc(name, sizeof(name), feat, TRUE, TRUE);
+
+				/* Tell the player */
+				msg_format("There is %s blocking your way.", name);
+
+				/* Done */
+				break;
+			}
+
+			/* Point to the next effect */
+			x_idx = x_ptr->next_x_idx;
+		}
+
+		/* Paranoia */
+		if (!x_idx) msg_print("You cannot move into this grid.");
+	}
+
+	/* Some terrain prevents flying. */
+	else if (!(feat_ff2_match(cave_feat[y][x], FF2_CAN_FLY)) && (p_ptr->flying))
+	{
+		char out_val[80];
+		int feat = cave_feat[y][x];
+
+		/* Discover unknown terrain */
+		if (!cave_flag_bold(y, x, CAVE_MARK))
+		{
+			/* Remember */
+			cave_info[y][x] |= (CAVE_MARK);
+
+			/* Redraw */
+			lite_spot(y, x);
+		}
+
+
+		/* Get the feature name */
+		feature_desc(name, sizeof(name), feat, TRUE, TRUE);
+
+		/* Tell the player */
+		msg_format("There is %s blocking your way.", name);
+
+		/* Give the player the option to stop flying. */
+		sprintf(out_val, "So you want to stop flying? ");
+		if (get_check(out_val))
+		{
+			set_flying(0, FALSE);
+
+			msg_print("You land.");
+
+			/*Little energy used*/
+			used_energy = BASE_ENERGY_MOVE / 10;
+		}
+
 	}
 
 	/* Normal movement */
 	else
 	{
+		feature_lore *f_l_ptr;
 
 		/* Sound XXX XXX XXX */
 		/* sound(MSG_WALK); */
@@ -1583,6 +1863,33 @@ void move_player(int dir, int jumping)
 		/* New location */
 		y = py = p_ptr->py;
 		x = px = p_ptr->px;
+
+		/*Get ready to mark lore*/
+		f_l_ptr = &f_l_list[cave_feat[p_ptr->py][p_ptr->px]];
+
+		/*Check if the player is native*/
+		if (is_player_native(y, x))
+		{
+			if (!p_ptr->flying)
+			{
+				/*Mark the lore*/
+				if (f_l_ptr->f_l_native_moves < MAX_UCHAR) f_l_ptr->f_l_native_moves ++;
+
+				/*record the energy*/
+				used_energy = f_info[cave_feat[p_ptr->py][p_ptr->px]].native_energy_move;
+			}
+		}
+		else
+		{
+			if (!p_ptr->flying)
+			{
+				/*Mark the lore*/
+				if (f_l_ptr->f_l_non_native_moves < MAX_UCHAR) f_l_ptr->f_l_non_native_moves ++;
+
+				/*record the energy*/
+				used_energy = f_info[cave_feat[p_ptr->py][p_ptr->px]].non_native_energy_move;
+			}
+		}
 
 		/* Spontaneous Searching */
 		if ((p_ptr->skill_fos >= 50) ||
@@ -1601,7 +1908,7 @@ void move_player(int dir, int jumping)
 		py_pickup(jumping != always_pickup);
 
 		/* Handle "store doors" */
-		if cave_shop_bold(y,x)
+		if (cave_shop_bold(y, x))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -1610,44 +1917,56 @@ void move_player(int dir, int jumping)
 			p_ptr->command_new = '_';
 
 			/* Free turn XXX XXX XXX */
-			p_ptr->energy_use = 0;
+			p_ptr->p_energy_use = 0;
 		}
 
-		/* Discover invisible traps */
-		else if (cave_feat[y][x] == FEAT_INVIS)
+		/* Hit a trap */
+		else if (cave_passive_trap_bold(y, x))
 		{
-			/* Disturb */
-			disturb(0, 0);
-
-			/* Message */
-			msg_print("You found a trap!");
-
-			/* Pick a trap */
-			pick_trap(y, x);
-
 			/* Hit the trap */
-			hit_trap(y, x);
+ 			hit_trap(x_list[cave_x_idx[p_ptr->py][p_ptr->px]].x_f_idx, y, x, MODE_ACTION);
+
 		}
 
-		/* Set off an visible trap */
-		else if (cave_trap_bold(y,x))
+		/* Discover secrets */
+		else if (_feat_ff1_match(f_ptr, FF1_SECRET) && !p_ptr->flying)
 		{
-			/* Disturb */
-			disturb(0, 0);
+			/* Find the secret */
+			find_secret(y, x);
 
-			/* Hit the trap */
-			hit_trap(y, x);
+			/* Get the feature again */
+			f_ptr = &f_info[cave_feat[y][x]];
+		}
+
+		/* Record the energy for flying creatures.*/
+		if (p_ptr->flying)	used_energy = BASE_ENERGY_MOVE;
+
+		/* Reveal when you are on shallow or deep  terrain */
+		else if (!(cave_info[y][x] & (CAVE_MARK)) &&
+		     _feat_ff3_match(f_ptr, FF2_SHALLOW | FF2_DEEP))
+		{
+			/* Get the name */
+			feature_desc(name, sizeof(name), f_ptr - f_info,
+				FALSE, TRUE);
+
+			/* Tell the player */
+			msg_format("You feel you are in %s.", name);
+
+			cave_info[y][x] |= (CAVE_MARK);
+
+			lite_spot(y, x);
 		}
 
 		/* Walk on a monster trap */
-		else if (cave_mon_trap_bold(y,x))
+		else if (cave_monster_trap_bold(y,x))
 		{
 			msg_print("You inspect your cunning trap.");
 		}
 
 	}
-}
 
+	return (used_energy);
+}
 
 /*
  * Hack -- Check for a "known wall" (see below)
@@ -1658,14 +1977,14 @@ static int see_wall(int dir, int y, int x)
 	y += ddy[dir];
 	x += ddx[dir];
 
-	/* Illegal grids are not known walls XXX XXX XXX */
 	if (!in_bounds(y, x)) return (FALSE);
-
-	/* Non-wall grids are not known walls */
-	if (!cave_wall_bold(y,x)) return (FALSE);
 
 	/* Unknown walls are not known walls */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (FALSE);
+
+	/* Non-wall grids are not known walls */
+	/* Was !cave_ff1_match(y, x, FF1_WALL) -DG- */
+	if (cave_ff1_match(y, x, FF1_MOVE)) return (FALSE);
 
 	/* Default */
 	return (TRUE);
@@ -1987,6 +2306,7 @@ static bool run_test(void)
 	int i, max, inv;
 	int option, option2;
 
+	u16b feat;
 
 	/* No options yet */
 	option = 0;
@@ -2015,8 +2335,8 @@ static bool run_test(void)
 		{
 			monster_type *m_ptr = &mon_list[cave_m_idx[row][col]];
 
-			/* Visible monster */
-			if (m_ptr->ml) return (TRUE);
+			/* Visible monster, but not mimics, disturb run */
+			if ((m_ptr->ml) && (m_ptr->mimic_k_idx == 0)) return (TRUE);
 
 		}
 
@@ -2033,79 +2353,60 @@ static bool run_test(void)
 		/* Check memorized grids */
 		if (cave_info[row][col] & (CAVE_MARK))
 		{
-			bool notice = TRUE;
+			feature_type *f_ptr;
 
-			/* Examine the terrain */
-			switch (cave_feat[row][col])
+			s16b x_idx;
+
+			/* Get feature */
+			feat = cave_feat[row][col];
+
+			/* Get mimiced feature */
+			feat = f_info[feat].f_mimic;
+
+			/* Get fast pointer */
+			f_ptr = &f_info[feat];
+
+			/* Feature doesn't support running. Stop */
+			if (!_feat_ff1_match(f_ptr, FF1_RUN)) return (TRUE);
+
+			/* Feature is a door */
+			if (_feat_ff1_match(f_ptr, FF1_DOOR))
 			{
-				/* Floors */
-				case FEAT_FLOOR:
+				/* Doors must not be ignored. Stop */
+				if (!(run_ignore_doors)) return (TRUE);
 
-				/* Invis traps */
-				case FEAT_INVIS:
-
-				/* Secret doors */
-				case FEAT_SECRET:
-
-				/* Normal veins */
-				case FEAT_MAGMA:
-				case FEAT_QUARTZ:
-
-				/* Hidden treasure */
-				case FEAT_MAGMA_H:
-				case FEAT_QUARTZ_H:
-
-				/* Walls */
-				case FEAT_WALL_EXTRA:
-				case FEAT_WALL_INNER:
-				case FEAT_WALL_OUTER:
-				case FEAT_WALL_SOLID:
-				case FEAT_PERM_EXTRA:
-				case FEAT_PERM_INNER:
-				case FEAT_PERM_OUTER:
-				case FEAT_PERM_SOLID:
-				{
-					/* Ignore */
-					notice = FALSE;
-
-					/* Done */
-					break;
-				}
-
-				/* Open doors */
-				case FEAT_OPEN:
-				case FEAT_BROKEN:
-				{
-					/* Option -- ignore */
-					if (run_ignore_doors) notice = FALSE;
-
-					/* Done */
-					break;
-				}
-
-				/* Stairs */
-				case FEAT_LESS:
-				case FEAT_MORE:
-				case FEAT_LESS_SHAFT:
-				case FEAT_MORE_SHAFT:
-				{
-					/* Option -- ignore */
-					if (run_ignore_stairs) notice = FALSE;
-
-					/* Done */
-					break;
-				}
+				/* Ignore some doors. Closed doors are always noticeable */
+				if (!_feat_ff3_match(f_ptr, FF3_DOOR_OPEN | FF3_DOOR_BROKEN)) return (TRUE);
 			}
 
-			/* Interesting feature */
-			if (notice) return (TRUE);
+			/* Check if running should be stopped when reaching stairs */
+			if (!(run_ignore_stairs) && _feat_ff1_match(f_ptr, FF1_STAIRS))
+			{
+				return (TRUE);
+			}
+
+			/* Check visible effects */
+			x_idx = cave_x_idx[row][col];
+
+			/* Scan effects on that grid */
+			while (x_idx)
+			{
+				/* Get the effect */
+				effect_type *x_ptr = &x_list[x_idx];
+
+				/* Found a visible effect, stop */
+				if (!(x_ptr->x_flags & (EF1_HIDDEN))) return (TRUE);
+
+				/* Get the index of the next effect */
+				x_idx = x_ptr->next_x_idx;
+			}
 
 			/* The grid is "visible" */
 			inv = FALSE;
 		}
 
 		/* Analyze unknown grids and floors */
-		if (inv || cave_floor_bold(row, col))
+		if (inv || cave_los_bold(row, col))
 		{
 			/* Looking for open area */
 			if (p_ptr->run_open_area)
@@ -2167,7 +2468,6 @@ static bool run_test(void)
 		}
 	}
 
-
 	/* Looking for open area */
 	if (p_ptr->run_open_area)
 	{
@@ -2179,10 +2479,15 @@ static bool run_test(void)
 			row = py + ddy[new_dir];
 			col = px + ddx[new_dir];
 
+			/* Get feature */
+			feat = cave_feat[row][col];
+
+			/* Get mimiced feature */
+			feat = f_info[feat].f_mimic;
+
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
-			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (!cave_wall_bold(row,col)))
+			if (!(cave_info[row][col] & (CAVE_MARK)) || feat_ff1_match(feat, FF1_MOVE))
 			{
 				/* Looking to break right */
 				if (p_ptr->run_break_right)
@@ -2210,10 +2515,15 @@ static bool run_test(void)
 			row = py + ddy[new_dir];
 			col = px + ddx[new_dir];
 
+			/* Get feature */
+			feat = cave_feat[row][col];
+
+			/* Get mimiced feature */
+			feat = f_info[feat].f_mimic;
+
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
-			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (!cave_wall_bold(row,col)))
+			if (!(cave_info[row][col] & (CAVE_MARK)) || feat_ff1_match(feat, FF1_MOVE))
 			{
 				/* Looking to break left */
 				if (p_ptr->run_break_left)
@@ -2310,19 +2620,15 @@ static bool run_test(void)
 		}
 	}
 
-
 	/* About to hit a known wall, stop */
 	if (see_wall(p_ptr->run_cur_dir, py, px))
 	{
 		return (TRUE);
 	}
 
-
 	/* Failure */
 	return (FALSE);
 }
-
-
 
 /*
  * Take one step along the current "run" path
@@ -2362,11 +2668,9 @@ void run_step(int dir)
 	/* Decrease counter */
 	p_ptr->running--;
 
-	/* Take time */
-	p_ptr->energy_use = 100;
-
 	/* Move the player */
-	move_player(p_ptr->run_cur_dir, FALSE);
+	p_ptr->p_energy_use = move_player(p_ptr->run_cur_dir, FALSE);
+
 }
 
 

@@ -1,5 +1,6 @@
 /* File: main-crb.c */
 
+
 /*
  * Copyright (c) 1997 Ben Harrison, Keith Randall, Peter Ammon, Ron Anderson
  * and others
@@ -68,7 +69,7 @@
  * (List of changes made by "pelpel" follow)
  * Some API calls are updated to OS 8.x-- ones.
  *
- * Pixmap locking code in Term_pict_map() follows Carbon Porting Guide
+ * Pixmap locking code in Term_pict_mac() follows Carbon Porting Guide
  * by Apple.
  *
  * The idle loop in TERM_XTRA_DELAY is rewritten to sleep on WaitNextEvent
@@ -635,6 +636,7 @@ OSType _ftype;
  * Forward declare
  */
 typedef struct term_data term_data;
+static void create_map(TextEncoding);
 
 /*
  * Extra "term" data
@@ -780,8 +782,6 @@ static term_data data[MAX_TERM_DATA];
 static bool initialized = FALSE;
 
 
-
-
 #ifdef MACH_O_CARBON
 
 /* Carbon File Manager utilities by pelpel */
@@ -880,8 +880,6 @@ static void ptocstr(StringPtr src)
 	/* Hack -- terminate the string */
 	s[0] = '\0';
 }
-
-
 
 /*
  * Utility routines by Steve Linberg
@@ -1236,6 +1234,7 @@ static void term_data_check_font(term_data *td)
 	TextSize(td->font_size);
 	TextFace(td->font_face);
 
+
 	/* Extract the font info */
 	GetFontInfo(&info);
 
@@ -1330,7 +1329,7 @@ static void term_data_check_size(term_data *td)
 		/* Get current screen */
 		(void)GetQDGlobalsScreenBits(&tScreen);
 
-		/* Verify the top */
+		/* Verify the bottom */
 		if (td->r.top > tScreen.bounds.bottom - td->size_hgt)
 		{
 			td->r.top = tScreen.bounds.bottom - td->size_hgt;
@@ -1342,7 +1341,7 @@ static void term_data_check_size(term_data *td)
 			td->r.top = tScreen.bounds.top + GetMBarHeight();
 		}
 
-		/* Verify the left */
+		/* Verify the right */
 		if (td->r.left > tScreen.bounds.right - td->size_wid)
 		{
 			td->r.left = tScreen.bounds.right - td->size_wid;
@@ -1587,7 +1586,7 @@ static Boolean get_resource_spec(
 
 /*
  * (QuickTime)
- * Create a off-screen GWorld from contents of a file specified by a FSSpec.
+ * Create an off-screen GWorld from contents of a file specified by a FSSpec.
  * Based on BenSWCreateGWorldFromPict.
  *
  * Globals referenced: data[0], graf_height, graf_width
@@ -1732,7 +1731,7 @@ static errr globe_init(void)
 {
 	OSErr err;
 
-	GWorldPtr tempPictGWorldP;
+	GWorldPtr tempPictGWorldP = 0;
 
 #ifdef MACH_O_CARBON
 	FSSpec pict_spec;
@@ -1852,12 +1851,12 @@ static Boolean channel_initialised = FALSE;
 /*
  * Data handles containing sound samples
  */
-static SndListHandle samples[SOUND_MAX];
+static SndListHandle samples[MSG_MAX];
 
 /*
  * Reference counts of sound samples
  */
-static SInt16 sample_refs[SOUND_MAX];
+static SInt16 sample_refs[MSG_MAX];
 
 #define SOUND_VOLUME_MIN	0	/* Default minimum sound volume */
 #define SOUND_VOLUME_MAX	255	/* Default maximum sound volume */
@@ -1906,7 +1905,7 @@ static void load_sounds(void)
 	 *
 	 * We should use a progress dialog for this.
 	 */
-	for (i = 1; i < SOUND_MAX; i++)
+	for (i = 1; i < MSG_MAX; i++)
 	{
 		/* Apple APIs always give me headacke :( */
 		CFStringRef name;
@@ -2036,7 +2035,7 @@ static void cleanup_sound(void)
 	}
 
 	/* Free sound data */
-	for (i = 1; i < SOUND_MAX; i++)
+	for (i = 1; i < MSG_MAX; i++)
 	{
 		/* Still locked */
 		if ((sample_refs[i] > 0) && (samples[i] != NULL))
@@ -2141,7 +2140,7 @@ static void play_sound(int num, SInt16 vol)
 	}
 
 	/* Paranoia */
-	if ((num <= 0) || (num >= SOUND_MAX)) return;
+	if ((num <= 0) || (num >= MSG_MAX)) return;
 
 	/* Prepare volume command */
 	volume_cmd.param2 = ((SInt32)vol << 16) | vol;
@@ -2282,7 +2281,51 @@ static void play_sound(int num, SInt16 vol)
 #endif /* USE_ASYNC_SOUND */
 
 
+static void test_font()
+{
+	int i;
+	for(i = 0; i < 128; i++)
+		msg_format("%3d:%c; ", i+128, i+128);
+}
 
+/*
+ * Given a position in the ISO Latin-1 character set, return
+ * the correct character on this system.
+ */
+
+static byte latin1_inv[128+32];
+
+static byte Term_xchar_mac(byte c)
+{
+	/* OSX 1-byte encodings. */
+	return c < 128 ? c : latin1_inv[c-128];
+}
+
+static TextEncoding latin1_code;
+static void create_map(TextEncoding encoding)
+{
+	unsigned char ibuffer[1];
+	TECObjectRef encoder;
+	int i;
+	ByteCount nread, nwritten;
+	TextEncoding app_code;
+	static int old_encoding = -1;
+
+	if(old_encoding == encoding) return;
+	old_encoding = encoding;
+
+	/* Potential minor memory leak. Don't know how to fix! */
+	FMGetFontFamilyTextEncoding(encoding, &app_code);
+	TECCreateConverter(&encoder, latin1_code, app_code);
+
+    for(i = 0; i < 128; i++)
+	{
+		ibuffer[0] = i+128;
+		TECConvertText(encoder, ibuffer, 1, &nread, latin1_inv+i, 32, &nwritten);
+		if(nwritten != 1 || latin1_inv[i] == '?' || latin1_inv[i] == ' ')
+			latin1_inv[i] = seven_bit_translation[i];
+	}
+}
 
 /*** Support for the "z-term.c" package ***/
 
@@ -2297,12 +2340,20 @@ static void play_sound(int num, SInt16 vol)
  */
 static void Term_init_mac(term *t)
 {
+
 	term_data *td = (term_data*)(t->data);
 	WindowAttributes wattrs;
 	OSStatus err;
 
 	static RGBColor black = {0x0000,0x0000,0x0000};
 	static RGBColor white = {0xFFFF,0xFFFF,0xFFFF};
+
+
+	latin1_code = CreateTextEncoding (kTextEncodingISOLatin1,
+					kTextEncodingDefaultVariant, kTextEncodingDefaultFormat);
+
+	/* Initialize latin 1->mac encoding */
+	create_map(GetAppFont());
 
 #ifndef ALLOW_BIG_SCREEN
 
@@ -2581,7 +2632,6 @@ static errr Term_xtra_mac_react(void)
 		/* Reset visuals */
 		if (initialized && game_in_progress)
 		{
-
 #ifndef ANG281_RESET_VISUALS
 			reset_visuals(TRUE);
 #else
@@ -3247,6 +3297,7 @@ static void term_data_link(int i)
 #endif /* USE_DOUBLE_TILES */
 	td->t->text_hook = Term_text_mac;
 	td->t->pict_hook = Term_pict_mac;
+	td->t->xchar_hook = Term_xchar_mac;
 
 #if 0
 
@@ -3278,55 +3329,38 @@ static void term_data_link(int i)
  * Return a POSIX pathname of the lib directory, or NULL if it can't be
  * located.  Caller must supply a buffer along with its size in bytes,
  * where returned pathname will be stored.
- * I prefer use of goto's to several nested if's, if they involve error
- * handling.  Sorry if you are offended by their presence.  Modern
- * languages have neater constructs for this kind of jobs -- pelpel
  */
 static char *locate_lib(char *buf, size_t size)
 {
-	CFURLRef main_url = NULL;
-	CFStringRef main_str = NULL;
-	char *p;
-	char *res = NULL;
+	CFBundleRef main_bundle;
+	CFURLRef main_url;
+	bool success;
+
+	/* Get the application bundle (Angband.app) */
+	main_bundle = CFBundleGetMainBundle();
+
+	/* Oops */
+	if (!main_bundle) return (NULL);
 
 	/* Obtain the URL of the main bundle */
-	main_url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+	main_url = CFBundleCopyBundleURL(main_bundle);
 
 	/* Oops */
-	if (main_url == NULL) goto ret;
+	if (!main_url) return (NULL);
 
-	/* Convert it to POSIX pathname */
-	main_str = CFURLCopyFileSystemPath(main_url, kCFURLPOSIXPathStyle);
+	/* Get the URL in the file system's native string representation */
+	success = CFURLGetFileSystemRepresentation(main_url, TRUE, buf, size);
+
+	/* Free the url */
+	CFRelease(main_url);
 
 	/* Oops */
-	if (main_str == NULL) goto ret;
+	if (!success) return (NULL);
 
-	/* Convert it again from darn unisomething encoding to ASCII */
-	if (CFStringGetCString(main_str, buf, size, kTextEncodingUS_ASCII) == FALSE)
-		goto ret;
+	/* Append "/Contents/Resources/lib/" */
+	my_strcat(buf, "/Contents/Resources/lib/", size);
 
-	/* Find the last '/' in the pathname */
-	p = strrchr(buf, '/');
-
-	/* Paranoia - cannot happen */
-	if (p == NULL) goto ret;
-
-	/* Remove the trailing path */
-	*p = '\0';
-
-	my_strcat(buf, "/lib/", size);
-
-	/* Set result */
-	res = buf;
-
-ret:
-
-	/* Release objects allocated and implicitly retained by the program */
-	if (main_str) CFRelease(main_str);
-	if (main_url) CFRelease(main_url);
-
-	/* pathname of the lib folder or NULL */
-	return (res);
+	return (buf);
 }
 
 
@@ -3339,7 +3373,7 @@ ret:
  * Original code by: Maarten Hazewinkel (mmhazewi@cs.ruu.nl)
  *
  * Completely rewritten to use Carbon Process Manager.  It retrieves the
- * volume and direcotry of the current application and simply stores it
+ * volume and directory of the current application and simply stores it
  * in the (static) global variables app_vol and app_dir, but doesn't
  * mess with the "current working directory", because it has long been
  * an obsolete (and arcane!) feature.
@@ -3481,7 +3515,6 @@ static void load_pref_short(const char *key, short *vptr)
 	short tmp;
 
 	if (query_load_pref_short(key, &tmp)) *vptr = tmp;
-	return;
 }
 
 
@@ -3511,6 +3544,20 @@ static void cf_save_prefs()
 	{
 		term_data *td = &data[i];
 
+		save_pref_short(format("term%d.font_mono", i), td->font_mono);
+		save_pref_short(format("term%d.font_o_x", i), td->font_o_x);
+		save_pref_short(format("term%d.font_o_y", i), td->font_o_y);
+		save_pref_short(format("term%d.font_wid", i), td->font_wid);
+		save_pref_short(format("term%d.font_hgt", i), td->font_hgt);
+		save_pref_short(format("term%d.tile_o_x", i), td->tile_o_x);
+		save_pref_short(format("term%d.tile_o_y", i), td->tile_o_y);
+		save_pref_short(format("term%d.right", i), td->r.right);
+		save_pref_short(format("term%d.bottom", i), td->r.bottom);
+		save_pref_short(format("term%d.ow1", i), td->size_ow1);
+		save_pref_short(format("term%d.oh1", i), td->size_oh1);
+		save_pref_short(format("term%d.ow2", i), td->size_ow2);
+		save_pref_short(format("term%d.oh2", i), td->size_oh2);
+
 		save_pref_short(format("term%d.mapped", i), td->mapped);
 
 		save_pref_short(format("term%d.font_id", i), td->font_id);
@@ -3529,8 +3576,7 @@ static void cf_save_prefs()
 	/*
 	 * Make sure preferences are persistent
 	 */
-	CFPreferencesAppSynchronize(
-		kCFPreferencesCurrentApplication);
+	CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
 }
 
 
@@ -3542,6 +3588,7 @@ static void cf_load_prefs()
 {
 	bool ok;
 	short pref_major, pref_minor, pref_patch, pref_extra;
+	short valid;
 	int i;
 
 	/* Assume nothing is wrong, yet */
@@ -3556,11 +3603,9 @@ static void cf_load_prefs()
 	/* Any of the above failed */
 	if (!ok)
 	{
-
 #if 0
 		/* This may be the first run */
 		mac_warning("Preferences are not found.");
-
 #endif /* 0 */
 
 		/* Ignore the rest */
@@ -3585,6 +3630,18 @@ static void cf_load_prefs()
 	}
 
 #endif
+
+	/* HACK - Check for broken preferences */
+	load_pref_short("term0.mapped", &valid);
+
+	/* Ignore broken preferences */
+	if (!valid)
+	{
+		mac_warning("Ignoring broken preferences.");
+
+		/* Ignore */
+		return;
+	}
 
 	/* Gfx settings */
 	{
@@ -3628,6 +3685,21 @@ static void cf_load_prefs()
 		load_pref_short(format("term%d.rows", i), &td->rows);
 		load_pref_short(format("term%d.left", i), &td->r.left);
 		load_pref_short(format("term%d.top", i), &td->r.top);
+
+		load_pref_short(format("term%d.font_mono", i), &td->font_mono);
+		load_pref_short(format("term%d.font_o_x", i), &td->font_o_x);
+		load_pref_short(format("term%d.font_o_y", i), &td->font_o_y);
+		load_pref_short(format("term%d.font_wid", i), &td->font_wid);
+		load_pref_short(format("term%d.font_hgt", i), &td->font_hgt);
+		load_pref_short(format("term%d.tile_o_x", i), &td->tile_o_x);
+		load_pref_short(format("term%d.tile_o_y", i), &td->tile_o_y);
+		load_pref_short(format("term%d.right", i), &td->r.right);
+		load_pref_short(format("term%d.bottom", i), &td->r.bottom);
+		load_pref_short(format("term%d.ow1", i), &td->size_ow1);
+		load_pref_short(format("term%d.oh1", i), &td->size_oh1);
+		load_pref_short(format("term%d.ow2", i), &td->size_ow2);
+		load_pref_short(format("term%d.oh2", i), &td->size_oh2);
+
 	}
 }
 
@@ -3653,6 +3725,7 @@ static void term_data_hack(term_data *td)
 	/* Default borders */
 	td->size_ow1 = 2;
 	td->size_ow2 = 2;
+	td->size_oh1 = 2;
 	td->size_oh2 = 2;
 
 	/* Start hidden */
@@ -3770,8 +3843,6 @@ static void save_pref_file(void)
 }
 
 
-
-
 /*
  * Prepare savefile dialogue and set the variable
  * savefile accordingly. Returns true if it succeeds, false (or
@@ -3793,18 +3864,31 @@ static bool select_savefile(bool all)
 
 #ifdef MACH_O_CARBON
 
-	/* Find the save folder */
-	err = path_to_spec(ANGBAND_DIR_SAVE, &theFolderSpec);
+	short foundVRefNum;
+	long foundDirID;
+
+	/* Find the preferences folder */
+	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder,
+	                 &foundVRefNum, &foundDirID);
+
+	if (err != noErr) quit("Couldn't find the preferences folder!");
+
+	/* Look for the "Angband/save/" sub-folder */
+	err = FSMakeFSSpec(foundVRefNum, foundDirID, "\p:NPPAngband:save:", &theFolderSpec);
+
+	/* Oops */
+	if (err != noErr) quit_fmt("Unable to find the savefile folder! (Error %d)", err);
 
 #else
 
 	/* Find :lib:save: folder */
 	err = FSMakeFSSpec(app_vol, app_dir, "\p:lib:save:", &theFolderSpec);
 
-#endif
 
 	/* Oops */
 	if (err != noErr) quit("Unable to find the folder :lib:save:");
+
+#endif
 
 	/* Get default Navigator dialog options */
 	err = NavGetDefaultDialogOptions(&dialogOptions);
@@ -5003,6 +5087,7 @@ static void menu(long mc)
 #else
 						do_cmd_save_game(FALSE);
 #endif /* !ZANG_AUTO_SAVE */
+					close_game();
 					}
 
 					/* Quit */
@@ -5131,6 +5216,8 @@ static void menu(long mc)
 			/* Resize and Redraw */
 			term_data_resize(td);
 			term_data_redraw(td);
+			/* Only need a new converter for real windows, new font*/
+			create_map(td->font_id);
 
 			/* Restore the window */
 			activate(old_win);
@@ -5473,7 +5560,7 @@ static pascal OSErr AEH_Open(const AppleEvent *theAppleEvent, AppleEvent* reply,
 	err = FSpGetFInfo(&myFSS, &myFileInfo);
 	if (err)
 	{
-		strnfmt(msg, 128, "Argh!  FSpGetFInfo failed with code %d", err);
+		strnfmt(msg, sizeof(msg), "Argh!  FSpGetFInfo failed with code %d", err);
 		mac_warning(msg);
 		return err;
 	}
@@ -6150,6 +6237,8 @@ static void hook_quit(cptr str)
 	/* Warning if needed */
 	if (str) mac_warning(str);
 
+	cleanup_angband();
+
 #ifdef USE_ASYNC_SOUND
 
 	/* Clean up sound support */
@@ -6171,33 +6260,12 @@ static void hook_quit(cptr str)
 	}
 
 	/* Write a preference file */
-	save_pref_file();
+	if (initialized) save_pref_file();
 
 	/* All done */
 	ExitToShell();
 }
 
-
-/*
- * Hook to tell the user something, and then crash
- */
-static void hook_core(cptr str)
-{
-	/* XXX Use the debugger */
-	/* DebugStr(str); */
-
-	/* Warning */
-	if (str) mac_warning(str);
-
-	/* Warn, then save player */
-	mac_warning("Fatal error.\rI will now attempt to save and quit.");
-
-	/* Attempt to save */
-	if (!save_player()) mac_warning("Warning -- save failed!");
-
-	/* Quit */
-	quit(NULL);
-}
 
 
 
@@ -6266,6 +6334,9 @@ static void init_stuff(void)
 	/* Check until done */
 	while (1)
 	{
+		/* Create directories for the users files */
+		create_user_dirs();
+
 		/* Prepare the paths */
 		init_file_paths(path);
 
@@ -6320,10 +6391,15 @@ static void init_stuff(void)
 		/* Assume the player doesn't want to go on */
 		if ((err != noErr) || !theReply.validRecord) quit(NULL);
 
+
 		/* Retrieve FSSpec from the reply */
+
 		{
+
 			AEKeyword theKeyword;
+
 			DescType actualType;
+
 			Size actualSize;
 
 			/* Get a pointer to selected folder */
@@ -6467,7 +6543,6 @@ int main(void)
 	/* Hooks in some "z-util.c" hooks */
 	plog_aux = hook_plog;
 	quit_aux = hook_quit;
-	core_aux = hook_core;
 
 
 	/* Initialize colors */
@@ -6553,8 +6628,16 @@ int main(void)
 	/* Quit */
 	quit(NULL);
 
+
+
 	/* Since it's an int function */
+
 	return (0);
+
 }
 
+
+
 #endif /* MACINTOSH || MACH_O_CARBON */
+
+

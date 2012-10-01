@@ -7,7 +7,8 @@ quickly restore them.
 
 Escaping:
      A trapped adventurer is a dead adventurer.  Always have a way to get out of
-trouble.
+trouble.  Remember that creatures who are native to certain terrains can move 
+more quickly through those terrains than creatures who are not native.
 
 Detecting:
      The best defence is being prepared.  Don't get ambushed.  Detect often.
@@ -16,7 +17,8 @@ Defending against pure damage:
      Your armour class (AC) reduces the chance that melee attacks will hit you.
 It reduces the pure damage inflicted by ordinary melee attacks (those without
 any special effects), and protects against certain kinds of traps, but offers no
-defence against magic or ranged attacks.
+defence against magic or ranged attacks.  Standing in certain terrains where the 
+player is native will also reduce the chances of getting hit.
       Each piece of armour has a base AC value and possibly also a magical
 bonus.  Add the two together, and you have the total protective value of the
 item.  For example, a Chain Mail (-3) [14, +6] increases your AC by 20.  Note
@@ -44,6 +46,10 @@ resist, and be immune to the elements.  Double resistance is the combination of
 a permanent resistance (from equipment) and a temporary one (from a spell).
 Temporary resistances are also known as oppositions.  Immunity to any of the
 elements is hard to get.
+     Standing on certain terrains can either increase or decrease the damage
+of certain magical attacks. For melee and archery the damage is increased only if
+the target of the attack is not flying.
+For example, when standing on water the damage from a fire-based attack is reduced.
      Poison is deadly, and not so easy to gain resistance to.  You can double-
 resist (resist and oppose) poison.
      There are many kinds of magical attacks; most can be resisted, some can

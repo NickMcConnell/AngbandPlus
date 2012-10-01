@@ -79,6 +79,8 @@ s16b monster_level;		/* Current monster creation level */
 
 char summon_kin_type;		/* Hack -- See summon_specific() */
 
+monster_type *summoner; 	/*Track the current summoner*/
+
 s32b turn;				/* Current game turn */
 
 bool do_feeling;			/* Hack -- Level feeling counter */
@@ -114,6 +116,9 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b mon_max = 1;	/* Number of allocated monsters */
 s16b mon_cnt = 0;	/* Number of live monsters */
 
+s16b x_max = 1;	/* Number of allocated effects */
+s16b x_cnt = 0;	/* Number of live effects */
+
 
 /*
  * TRUE if process_command() is a repeated call.
@@ -127,6 +132,8 @@ bool command_repeating = FALSE;
 
 byte feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
+
+u32b  level_flag;		/* Level type */
 
 bool good_item_flag;	/* True if "Artifact" on this level */
 
@@ -200,29 +207,68 @@ cptr macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
  */
 byte angband_color_table[256][4] =
 {
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
-	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
-	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE */
-	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
-	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
-	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
-	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE */
-	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
-	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
-	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
-	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
-	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x40, 0x40},	/* TERM_L_RED */
-	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
-	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
-	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK - (black) - d */
+	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE - w */
+	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE (Dark Gray)- s */
+	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE - o */
+	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED - r*/
+	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN - g */
+	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE - b */
+	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER - u */
+	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK - D */
+	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE - W */
+	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET - v */
+	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW - Y*/
+	{0x00, 0xFF, 0x40, 0x40},	/* TERM_L_RED - R */
+	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN  - G*/
+	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE - B */
+	{0x00, 0xC0, 0x80, 0x40},	/* TERM_L_UMBER - U*/
+
+	/*
+	 * Values for shades at compile time, taken from shades.prf
+	 * Hack -- TERM_WHITE (Shade 1) comes from font-x11.prf, because
+	 * we must ensure that all colors are different.
+	 */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK	(Shade 1) */
+	{0x00, 0xFF, 0xFA, 0xFA},	/* TERM_WHITE 	(Shade 1 - Snow White - w1) */
+	{0x00, 0x70, 0x80, 0x90},	/* TERM_SLATE 	(Shade 1 - Slate Gray - s1) */
+	{0x00, 0xFF, 0x9F, 0x00},	/* TERM_ORANGE 	(Shade 1 - Orange Peel - o1) */
+	{0x00, 0xCF, 0x10, 0x20},	/* TERM_RED 	(Shade 1 - LAVA - r1) */
+	{0x00, 0x29, 0xAB, 0x87},	/* TERM_GREEN 	(Shade 1 - Jungle Green - g1) */
+	{0x00, 0x4C, 0x4C, 0xA6},	/* TERM_BLUE 	(Shade 1 - Navy Blue) b1 */
+	{0x00, 0x6D, 0x35, 0x1A},	/* TERM_UMBER 	(Shade 1 - Auburn - u1) */
+	{0x00, 0x8B, 0x85, 0x89},	/* TERM_L_DARK 	(Shade 1)- Taupe - D1 */
+	{0x00, 0xE8, 0xD0, 0xC0},	/* TERM_L_WHITE	(Shade 1) - light white 2 - W1 */
+	{0x00, 0xA5, 0x00, 0xFF},	/* TERM_VIOLET 	(Shade 1) - light violet v1*/
+	{0x00, 0xFB, 0xEC, 0x5D},	/* TERM_YELLOW 	(Shade 1 - Maize - Y1) */
+	{0x00, 0xE3, 0x0B, 0x5C},	/* TERM_L_RED 	(Shade 1- Raspberry - R1) */
+	{0x00, 0xBF, 0xFF, 0x00},	/* TERM_L_GREEN (Shade 1 - Lime Green - G1) */
+	{0x00, 0x00, 0xBF, 0xFF},	/* TERM_L_BLUE  (Shade 1 - Deep Sky Blue) B1 */
+	{0x00, 0xC1, 0x9A, 0x6B}, 	/* TERM_L_UMBER (Shade 1 - Fallow  (light brown) - U1) */
+
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK	(Shade 2) */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_WHITE 	(Shade 2) */
+	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_SLATE 	(shade 2 - Silver - s2) */
+	{0x00, 0xC0, 0x40, 0x00},	/* TERM_ORANGE 	(Shade 2 - Mahogany - o2) */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_RED 	(Shade 2 ) */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_GREEN 	(Shade 2) */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_BLUE 	(Shade 2) */
+	{0x00, 0xB8, 0x73, 0x33},	/* TERM_UMBER 	(Shade 2 - Copper - u2) */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_L_DARK 	(Shade 2) */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_L_WHITE	(Shade 2) */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_VIOLET 	(Shade 2) */
+	{0x00, 0xFF, 0xD7, 0x00},	/* TERM_YELLOW 	(Shade 2 - Gold - Y2) */
+	{0x00, 0xFF, 0x14, 0x93},	/* TERM_L_RED 	(Shade 2 - Pink - R2) */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_L_GREEN (Shade 2) */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_L_BLUE  (Shade 2) */
+	{0x00, 0xE1, 0xA9, 0x5F} 	/* TERM_L_UMBER (Shade 2 - Earth Yellow - U2) */
 };
 
 
 /*
  * Standard sound (and message) names
  */
-const cptr angband_sound_name[SOUND_MAX] =
+const cptr angband_sound_name[MSG_MAX] =
 {
 	"",
 	"hit",
@@ -236,7 +282,7 @@ const cptr angband_sound_name[SOUND_MAX] =
 	"teleport",
 	"shoot",
 	"quaff",
-	"zap",
+	"zap_rod",
 	"walk",
 	"tpother",
 	"hitwall",
@@ -252,9 +298,133 @@ const cptr angband_sound_name[SOUND_MAX] =
 	"bell",
 	"nothing_to_open",
 	"lockpick_fail",
-	"stairs",
+	"stairs_down",
 	"hitpoint_warn",
+	"act_artifact",
+	"use_staff",
+	"destroy",
+	"mon_hit",
+	"mon_touch",
+	"mon_punch",
+	"mon_kick",
+	"mon_claw",
+	"mon_bite",
+	"mon_sting",
+	"mon_butt",
+	"mon_crush",
+	"mon_engulf",
+	"mon_crawl",
+	"mon_drool",
+	"mon_spit",
+	"mon_gaze",
+	"mon_wail",
+	"mon_spore",
+	"mon_beg",
+	"mon_insult",
+	"mon_moan",
+	"recover",
+	"blind",
+	"confused",
+	"poisoned",
+	"afraid",
+	"paralyzed",
+	"drugged",
+	"speed",
+	"slow",
+	"shield",
+	"blessed",
+	"hero",
+	"berserk",
+	"prot_evil",
+	"invuln",
+	"see_invis",
+	"infrared",
+	"res_acid",
+	"res_elec",
+	"res_fire",
+	"res_cold",
+	"res_pois",
+	"stun",
+	"cut",
+	"stairs_up",
+	"store_enter",
+	"store_leave",
+	"store_home",
+	"money1",
+	"money2",
+	"money3",
+	"shoot_hit",
+	"store5",
+	"lockpick",
+	"disarm",
+	"identify_bad",
+	"identify_ego",
+	"identify_art",
+	"breathe_elements",
+	"breathe_frost",
+	"breathe_elec",
+	"breathe_acid",
+	"breathe_gas",
+	"breathe_fire",
+	"breathe_confusion",
+	"breathe_disenchant",
+	"breathe_chaos",
+	"breathe_shards",
+	"breathe_sound",
+	"breathe_light",
+	"breathe_dark",
+	"breathe_nether",
+	"breathe_nexus",
+	"breathe_time",
+	"breathe_inertia",
+	"breathe_gravity",
+	"breathe_plasma",
+	"breathe_force",
+	"summon_monster",
+	"summon_angel",
+	"summon_undead",
+	"summon_animal",
+	"summon_spider",
+	"summon_hound",
+	"summon_hydra",
+	"summon_demon",
+	"summon_dragon",
+	"summon_gr_undead",
+	"summon_gr_dragon",
+	"summon_gr_demon",
+	"summon_ringwraith",
+	"summon_unique",
+	"wield",
+	"cursed",
+	"pseudo_id",
+	"hungry",
+	"notice",
+	"ambient_day",
+	"ambient_nite",
+	"ambient_dng1",
+	"ambient_dng2",
+	"ambient_dng3",
+	"ambient_dng4",
+	"ambient_dng5",
+	"mon_create_trap",
+	"mon_shriek",
+	"mon_cast_fear",
+	"hit_good",
+	"hit_great",
+	"hit_superb",
+	"hit_hi_great",
+	"hit_hi_superb",
+	"cast_spell",
+	"pray_prayer",
+	"kill_unique",
+	"kill_king",
+	"drain_stat",
+	"multiply",
+	"losing_nativity",
+	"losing_flying",
+	"hide_unhide",
 };
+
 
 
 /*
@@ -262,6 +432,13 @@ const cptr angband_sound_name[SOUND_MAX] =
  */
 int view_n = 0;
 u16b *view_g;
+
+
+/*
+ * Array[VIEW_MAX] used by "update_view()"
+ */
+int fire_n = 0;
+u16b *fire_g;
 
 /*
  * Arrays[TEMP_MAX] used for various things
@@ -272,6 +449,14 @@ int temp_n = 0;
 u16b *temp_g;
 byte *temp_y;
 byte *temp_x;
+
+/* The counter for monster energy & the order in which it should be processed*/
+int *move_moment;
+
+/*
+ * Array[z_info->x_max] of dungeon effects
+ */
+effect_type *x_list;
 
 
 /*
@@ -314,6 +499,20 @@ s16b (*cave_o_idx)[MAX_DUNGEON_WID];
 s16b (*cave_m_idx)[MAX_DUNGEON_WID];
 
 /*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid effect indexes
+ *
+ * Note that this array yields the index of the top object in the stack of
+ * effects in a given grid, using the "next_x_idx" field in that effect to
+ * indicate the next effect in the stack, and so on, using zero to indicate
+ * "nothing".  This array replicates the information contained in the effect
+ * list, for efficiency, providing extremely fast determination of whether
+ * any effect is in a grid, and relatively fast determination of which effects
+ * are in a grid.
+ */
+
+s16b (*cave_x_idx)[MAX_DUNGEON_WID];
+
+/*
  * Table of avergae monster power.
  * Used to hep determine a suitable quest monster.
  */
@@ -321,13 +520,23 @@ s16b (*cave_m_idx)[MAX_DUNGEON_WID];
 u32b mon_power_ave[MAX_DEPTH][CREATURE_TYPE_MAX];
 
 
-#ifdef MONSTER_FLOW
+
 
 /*
  * Arrays[NUM_FLOWS][DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
  */
-byte cave_cost[MAX_FLOWS][MAX_DUNGEON_WID][MAX_DUNGEON_HGT];
+u16b cave_cost[MAX_FLOWS][MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
 
+
+/*
+ * Flow cost at the center grid of the current update.
+ */
+int cost_at_center[MAX_FLOWS];
+
+
+
+
+#ifdef	MONSTER_SMELL
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps
  */
@@ -338,22 +547,7 @@ byte (*cave_when)[MAX_DUNGEON_WID];
  */
 int scent_when = 250;
 
-
-/*
- * Centerpoints of the last flow (noise) rebuild and the last flow update.
- */
-byte flow_center_y[MAX_FLOWS];
-byte flow_center_x[MAX_FLOWS];
-byte update_center_y[MAX_FLOWS];
-byte update_center_x[MAX_FLOWS];
-
-/*
- * Flow cost at the center grid of the current update.
- */
-int cost_at_center[MAX_FLOWS];
-
-
-#endif	/* MONSTER_FLOW */
+#endif	/* MONSTER_SMELL */
 
 /*
  * The character generates both directed (extra) noise (by doing noisy
@@ -367,6 +561,14 @@ s16b add_wakeup_chance = 0;
 s16b total_wakeup_chance = 0;
 
 /*
+ * Projection path and information
+ */
+u16b path_g[120];  /* Grids in the projection path */
+byte path_gx[120];  /* Special information about each grid */
+int path_n = 0;   /* Number of grids in the path */
+
+
+/*
  * Array[z_info->o_max] of dungeon objects
  */
 object_type *o_list;
@@ -375,7 +577,6 @@ object_type *o_list;
  * Array[z_info->m_max] of dungeon monsters
  */
 monster_type *mon_list;
-
 
 /*
  * Array[z_info->r_max] of monster lore
@@ -414,6 +615,17 @@ s16b alloc_ego_size;
  * The array[alloc_ego_size] of entries in the "ego allocator table"
  */
 alloc_entry *alloc_ego_table;
+
+/*
+ * The size of "alloc_feat_table" (at most MAX_F_IDX * 4)
+ */
+s16b alloc_feat_size;
+
+/*
+ * The array[alloc_feat_size] of entries in the "feat allocator table"
+ */
+alloc_entry *alloc_feat_table;
+
 
 
 /*
@@ -506,6 +718,11 @@ char *f_name;
 char *f_text;
 
 /*
+ * The terrain lore arrays
+ */
+feature_lore *f_l_list;
+
+/*
  * The object kind arrays
  */
 object_kind *k_info;
@@ -516,6 +733,7 @@ char *k_text;
  * The artifact arrays
  */
 artifact_type *a_info;
+artifact_lore *a_l_list;
 char *a_text;
 
 /*
@@ -588,6 +806,9 @@ flavor_type *flavor_info;
 char *flavor_name;
 char *flavor_text;
 
+/*Monster_movement energy info*/
+move_moment_type *mon_moment_info;
+u16b move_moment_num;
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -674,13 +895,6 @@ cptr ANGBAND_DIR_USER;
 cptr ANGBAND_DIR_XTRA;
 
 /*
- * Script files
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_SCRIPT;
-
-
-/*
  * Total Hack -- allow all items to be listed (even empty ones)
  * This is only used by "do_cmd_inven_e()" and is cleared there.
  */
@@ -728,7 +942,13 @@ bool (*get_mon_num_hook)(int r_idx);
 bool (*get_obj_num_hook)(int k_idx);
 
 
-void (*object_info_out_flags)(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+void (*object_info_out_flags)(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *native);
+
+/*
+ * Hack -- function hook to restrict "get_feat_num_prep()" function
+ */
+bool (*get_feat_num_hook)(int f_idx);
+
 
 
 /*
@@ -818,3 +1038,80 @@ char ghost_string[80];
  * The name of the current greater vault, if any. -DG-
  */
 char g_vault_name[80];
+
+
+/*
+ * The array of dynamic grids. -DG-
+ */
+dynamic_grid_type *dyna_g = NULL;
+
+/*
+ * Current number of grids in dyna_g
+ */
+u16b dyna_cnt = 0;
+
+/*
+ * The index of the entry that is after the last entry of dyna_g
+ */
+u16b dyna_next = 0;
+
+/*
+ * If dyna_full is FALSE, all the dynamic grids on the level are stored in
+ * dyna_g. If it's TRUE, the contents of dyna_g are updated every certain
+ * number of steps (see process_dynamic_terrain for this)
+ */
+bool dyna_full = FALSE;
+
+/*
+ * When dyna_full is TRUE, we need to track the center of the last update
+ */
+byte dyna_center_y = 255;
+byte dyna_center_x = 255;
+
+/*
+ * The array used to store stacked monster messages
+ */
+monster_race_message *mon_msg;
+
+/*
+ * The current size of that array
+ */
+u16b size_mon_msg;
+
+/*
+ * Some static info used to manage quiver groups
+ */
+quiver_group_type quiver_group[MAX_QUIVER_GROUPS] =
+{
+	{'f', TERM_L_BLUE},
+	{'f', TERM_L_GREEN},
+	{'f', TERM_YELLOW},
+	{'v', TERM_ORANGE},
+};
+
+
+/*
+ * Number of player turns the quest indicator is displayed
+ * when the player fails or wins a quest.
+ */
+u16b quest_indicator_timer = 0;
+
+/*
+ * It's TRUE if the player won a quest.
+ */
+byte quest_indicator_complete = FALSE;
+
+/*
+ * Panel change offsets. See verify_panel
+ */
+u16b panel_change_offset_y = MIN_PANEL_CHANGE_OFFSET_Y;
+u16b panel_change_offset_x = MIN_PANEL_CHANGE_OFFSET_X;
+
+
+
+/*
+ * The current capabilities of the dungeon
+ */
+dungeon_capabilities_type *dun_cap = NULL;
+
+

@@ -18,7 +18,7 @@ LINKER = $(LCC_PATH)\bin\lcclnk.exe
 CC     = $(LCC_PATH)\bin\lcc.exe
 RC     = $(LCC_PATH)\bin\lrc.exe
 LIBS   = $(LCC_PATH)\lib\winmm.lib
-CFLAGS = -I$(LCC_PATH) 
+CFLAGS = -I$(LCC_PATH)
 
 
 OBJS=\
@@ -54,6 +54,8 @@ OBJS=\
 	init2.obj \
 	init1.obj \
 	generate.obj \
+	effects.obj \
+	feature.obj \
 	files.obj \
 	dungeon.obj \
 	cmd6.obj \
@@ -832,6 +834,60 @@ GENERATE_C=\
 
 generate.obj: $(GENERATE_C) $(SRCDIR)\generate.c
 	$(CC) -c $(CFLAGS) $(SRCDIR)\generate.c
+
+# Build FEATURE1.C
+FILES_C=\
+	$(SRCDIR)\angband.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\h-config.h\
+	$(SRCDIR)\h-system.h\
+	$(SRCDIR)\h-type.h\
+	$(SRCDIR)\h-define.h\
+	$(SRCDIR)\z-util.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-virt.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-form.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-rand.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-term.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\config.h\
+	$(SRCDIR)\defines.h\
+	$(SRCDIR)\types.h\
+	$(SRCDIR)\externs.h\
+
+effects.obj: $(FILES_C) $(SRCDIR)\effects.c
+	$(CC) -c $(CFLAGS) $(SRCDIR)\effects.c
+
+
+# Build FILES.C
+FILES_C=\
+	$(SRCDIR)\angband.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\h-config.h\
+	$(SRCDIR)\h-system.h\
+	$(SRCDIR)\h-type.h\
+	$(SRCDIR)\h-define.h\
+	$(SRCDIR)\z-util.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-virt.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-form.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-rand.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-term.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\config.h\
+	$(SRCDIR)\defines.h\
+	$(SRCDIR)\types.h\
+	$(SRCDIR)\externs.
+
+feature.obj: $(FILES_C) $(SRCDIR)\feature.c
+	$(CC) -c $(CFLAGS) $(SRCDIR)\feature.c
+
 
 # Build FILES.C
 FILES_C=\

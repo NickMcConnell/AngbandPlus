@@ -96,7 +96,6 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR_PREF);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
-	string_free(ANGBAND_DIR_SCRIPT);
 
 
 	/*** Prepare the "path" ***/
@@ -125,21 +124,12 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_PREF = string_make("");
 	ANGBAND_DIR_USER = string_make("");
 	ANGBAND_DIR_XTRA = string_make("");
-	ANGBAND_DIR_SCRIPT = string_make("");
 
 
 #else /* VM */
 
 
 	/*** Build the sub-directory names ***/
-
-	/* Build a path name */
-	strcpy(tail, "bone");
-	ANGBAND_DIR_BONE = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "data");
-	ANGBAND_DIR_DATA = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "edit");
@@ -177,7 +167,7 @@ void init_file_paths(char *path)
 
 #endif /* PRIVATE_USER_PATH */
 
-#ifdef USE_PRIVATE_SAVE_PATH
+#ifdef USE_PRIVATE_PATHS
 
 	/* Build the path to the user specific sub-directory */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
@@ -186,30 +176,48 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_APEX = string_make(buf);
 
 	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "bone");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_BONE = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "data");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_DATA = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "save");
 
 	/* Build a relative path name */
 	ANGBAND_DIR_SAVE = string_make(buf);
 
-#else /* USE_PRIVATE_SAVE_PATH */
+#else /* USE_PRIVATE_PATHS */
 
 	/* Build a path name */
 	strcpy(tail, "apex");
 	ANGBAND_DIR_APEX = string_make(path);
 
 	/* Build a path name */
+	strcpy(tail, "bone");
+	ANGBAND_DIR_BONE = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "data");
+	ANGBAND_DIR_DATA = string_make(path);
+
+	/* Build a path name */
 	strcpy(tail, "save");
 	ANGBAND_DIR_SAVE = string_make(path);
 
-#endif /* USE_PRIVATE_SAVE_PATH */
+#endif /* USE_PRIVATE_PATHS */
 
 	/* Build a path name */
 	strcpy(tail, "xtra");
 	ANGBAND_DIR_XTRA = string_make(path);
 
-	/* Build a path name */
-	strcpy(tail, "script");
-	ANGBAND_DIR_SCRIPT = string_make(path);
+
 
 #endif /* VM */
 
@@ -252,6 +260,62 @@ void init_file_paths(char *path)
 #endif /* NeXT */
 
 }
+
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+void create_user_dirs(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
+
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
+
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+
+#ifdef USE_PRIVATE_PATHS
+	/* Build the path to the scores sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "bone");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "data");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "save");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+#endif /* USE_PRIVATE_PATHS */
+}
+
+#endif /* PRIVATE_USER_PATH */
 
 
 
@@ -342,7 +406,6 @@ static errr init_info_raw(int fd, header *head)
 
 	/* Accept the header */
 	COPY(head, &test, header);
-
 
 	/* Allocate the "*_info" array */
 	C_MAKE(head->info_ptr, head->info_size, char);
@@ -568,13 +631,13 @@ static errr init_info(cptr filename, header *head)
 			fd_write(fd, (cptr)head, head->head_size);
 
 			/* Dump the "*_info" array */
-			fd_write(fd, head->info_ptr, head->info_size);
+			if (head->info_size > 0) fd_write(fd, head->info_ptr, head->info_size);
 
 			/* Dump the "*_name" array */
-			fd_write(fd, head->name_ptr, head->name_size);
+			if (head->name_size > 0) fd_write(fd, head->name_ptr, head->name_size);
 
 			/* Dump the "*_text" array */
-			fd_write(fd, head->text_ptr, head->text_size);
+			if (head->text_size > 0) fd_write(fd, head->text_ptr, head->text_size);
 
 			/* Close */
 			fd_close(fd);
@@ -638,6 +701,8 @@ static errr free_info(header *head)
 
 	if (head->text_size)
 		FREE(head->text_ptr);
+
+
 
 	/* Success */
 	return (0);
@@ -1111,14 +1176,24 @@ static errr init_other(void)
 	C_MAKE(view_g, VIEW_MAX, u16b);
 
 	/* Array of grids */
+	C_MAKE(fire_g, VIEW_MAX, u16b);
+
+	/* Array of grids */
 	C_MAKE(temp_g, TEMP_MAX, u16b);
 
-    /* has_lite patch causes both temp_g and temp_x/y to be used
-    in targetting mode: can't use the same memory any more. */
-    C_MAKE(temp_y, TEMP_MAX, byte);
-    C_MAKE(temp_x, TEMP_MAX, byte);
+	/* has_lite patch causes both temp_g and temp_x/y to be used
+	   in targetting mode: can't use the same memory any more. */
+	C_MAKE(temp_y, TEMP_MAX, byte);
+	C_MAKE(temp_x, TEMP_MAX, byte);
 
+	/* Array of dynamic grids */
+	C_MAKE(dyna_g, DYNA_MAX, dynamic_grid_type);
 
+	/* Array of stacked monster messages */
+	C_MAKE(mon_msg, MAX_STORED_MON_MSG, monster_race_message);
+
+	/* Prepare monster movement array*/
+	C_MAKE(mon_moment_info, z_info->m_max, move_moment_type);
 
 	/*** Prepare dungeon arrays ***/
 
@@ -1131,11 +1206,16 @@ static errr init_other(void)
 	/* Entity arrays */
 	C_MAKE(cave_o_idx, MAX_DUNGEON_HGT, s16b_wid);
 	C_MAKE(cave_m_idx, MAX_DUNGEON_HGT, s16b_wid);
+	C_MAKE(cave_x_idx, MAX_DUNGEON_HGT, s16b_wid);
 
-#ifdef MONSTER_FLOW
+#ifdef MONSTER_SMELL
 
 	/* Flow arrays */
 	C_MAKE(cave_when, MAX_DUNGEON_HGT, byte_wid);
+
+#endif /* MONSTER_SMELL */
+
+
 
 	/*start with cost at center 0*/
 	for (i = 0; i < MAX_FLOWS; i++)
@@ -1143,7 +1223,7 @@ static errr init_other(void)
 		cost_at_center[i] = 0;
 	}
 
-#endif /* MONSTER_FLOW */
+
 
 	/*** Prepare "vinfo" array ***/
 
@@ -1159,12 +1239,24 @@ static errr init_other(void)
 	/* Monsters */
 	C_MAKE(mon_list, z_info->m_max, monster_type);
 
+	/* Effects */
+	C_MAKE(x_list, z_info->x_max, effect_type);
 
-	/*** Prepare lore array ***/
+
+	/*** Prepare mosnter lore array ***/
 
 	/* Lore */
 	C_MAKE(l_list, z_info->r_max, monster_lore);
 
+	/*** Prepare terrain lore array ***/
+
+	/* Lore */
+	C_MAKE(f_l_list, z_info->f_max, feature_lore);
+
+	/*** Prepare artifact lore array ***/
+
+    /* Lore */
+    C_MAKE(a_l_list, z_info->art_max, artifact_lore);
 
 	/*** Prepare the inventory ***/
 
@@ -1199,7 +1291,7 @@ static errr init_other(void)
 	for (i = 0; i < OPT_MAX; i++)
 	{
 		/* Default value */
-		op_ptr->opt[i] = option_norm[i];
+		op_ptr->opt[i] = options[i].norm;
 	}
 
 	/* Initialize the window flags */
@@ -1208,6 +1300,12 @@ static errr init_other(void)
 		/* Assume no flags */
 		op_ptr->window_flag[i] = 0L;
 	}
+
+	/*Clear the update flags*/
+	p_ptr->notice = 0L;
+	p_ptr->update = 0L;
+	p_ptr->redraw = 0L;
+	p_ptr->window = 0L;
 
 
 	/*** Pre-allocate space for the "format()" buffer ***/
@@ -1230,6 +1328,8 @@ static errr init_alloc(void)
 	int i, j;
 
 	object_kind *k_ptr;
+
+	feature_type *f_ptr;
 
 	monster_race *r_ptr;
 
@@ -1332,6 +1432,86 @@ static errr init_alloc(void)
 		}
 	}
 
+	/*** Analyze feature allocation info ***/
+
+	/* Clear the "aux" array */
+	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
+
+	/* Clear the "num" array */
+	(void)C_WIPE(&num, MAX_DEPTH, s16b);
+
+	/* Size of "alloc_feat_table" */
+	alloc_feat_size = 0;
+
+	/* Scan the features */
+	for (i = 1; i < z_info->f_max; i++)
+	{
+		/* Get the i'th race */
+		f_ptr = &f_info[i];
+
+		/* Legal features */
+		if (f_ptr->f_rarity)
+		{
+			/* Count the entries */
+			alloc_feat_size++;
+
+			/* Group by level */
+			num[f_ptr->f_level]++;
+		}
+	}
+
+	/* Collect the level indexes */
+	for (i = 1; i < MAX_DEPTH; i++)
+	{
+		/* Group by level */
+		num[i] += num[i-1];
+	}
+
+	/* Paranoia - not really necessary */
+	if (!num[0]) quit("No town features!");
+
+	/*** Initialize feature allocation info ***/
+
+	/* Allocate the alloc_feat_table */
+	C_MAKE(alloc_feat_table, alloc_feat_size, alloc_entry);
+
+	/* Get the table entry */
+	table = alloc_feat_table;
+
+	/* Scan the features */
+	for (i = 1; i < z_info->f_max; i++)
+	{
+		/* Get the i'th feature */
+		f_ptr = &f_info[i];
+
+		/* Count valid pairs */
+		if (f_ptr->f_rarity)
+		{
+			int p, x, y, z;
+
+			/* Extract the base level */
+			x = f_ptr->f_level;
+
+			/* Extract the base probability */
+			p = (100 / f_ptr->f_rarity);
+
+			/* Skip entries preceding our locale */
+			y = (x > 0) ? num[x-1] : 0;
+
+			/* Skip previous entries at this locale */
+			z = y + aux[x];
+
+			/* Load the entry */
+			table[z].index = i;
+			table[z].level = x;
+			table[z].prob1 = p;
+			table[z].prob2 = p;
+			table[z].prob3 = p;
+
+			/* Another entry complete for this locale */
+			aux[x]++;
+		}
+	}
 
 	/*** Analyze monster allocation info ***/
 
@@ -1521,7 +1701,7 @@ static void note(cptr str)
 {
 	Term_erase(0, 23, 255);
 	Term_putstr(20, 23, -1, TERM_WHITE, str);
-	Term_fresh();
+	(void)Term_fresh();
 }
 
 
@@ -1650,7 +1830,7 @@ void init_angband(void)
 	}
 
 	/* Flush it */
-	Term_fresh();
+	(void)Term_fresh();
 
 
 	/*** Verify (or create) the "high score" file ***/
@@ -1785,6 +1965,14 @@ void cleanup_angband(void)
 {
 	int i;
 
+	static bool once = FALSE;
+	if(once) return;
+	once = TRUE;
+
+	delete_current_bones_file();
+
+    delete_notes_file();
+
 	/* Free the macros */
 	macro_free();
 
@@ -1793,6 +1981,7 @@ void cleanup_angband(void)
 
 	/* Free the allocation tables */
 	FREE(alloc_ego_table);
+	FREE(alloc_feat_table);
 	FREE(alloc_race_table);
 	FREE(alloc_kind_table);
 
@@ -1818,29 +2007,45 @@ void cleanup_angband(void)
 	/*Clean the Autoinscribe*/
 	autoinscribe_clean();
 
-	/* Free the lore, monster, and object lists */
+	/* Free the lore, monster, effects, and object lists */
 	FREE(l_list);
+	FREE(f_l_list);
+	FREE(a_l_list);
 	FREE(mon_list);
 	FREE(o_list);
+	FREE(x_list);
 
-#ifdef MONSTER_FLOW
+#ifdef MONSTER_SMELL
 
 	/* Flow arrays */
 	FREE(cave_when);
 
-#endif /* MONSTER_FLOW */
+#endif /* MONSTER_SMELL */
 
 	/* Free the cave */
 	FREE(cave_o_idx);
 	FREE(cave_m_idx);
+	FREE(cave_x_idx);
 	FREE(cave_feat);
 	FREE(cave_info);
+
+	/* Prepare monster movement array*/
+	FREE(mon_moment_info);
 
 	/* Free the "update_view()" array */
 	FREE(view_g);
 
+	/* Free the other "update_view()" array */
+	FREE(fire_g);
+
 	/* Free the temp array */
 	FREE(temp_g);
+
+	/* Free the dynamic features array */
+	FREE(dyna_g);
+
+	/* Free the stacked monster messages */
+	FREE(mon_msg);
 
 	/* Free the messages */
 	messages_free();
@@ -1883,6 +2088,5 @@ void cleanup_angband(void)
 	string_free(ANGBAND_DIR_PREF);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
-	string_free(ANGBAND_DIR_SCRIPT);
 }
 

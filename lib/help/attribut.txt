@@ -49,6 +49,18 @@ Score:
      Your score in Angband depends on how much experience you have earned and
 how deep in the dungeon you have ventured.
 
+Resistances:   
+     Some spells, potions and other dungeon objects can temporarily give 
+the player stronger resistance to the elemental attacks; fire, cold, acid, 
+electricity, and poison.  A line will show which temporary resistances the
+player currently has.
+
+Nativity:
+     The dungeon in NPPAngband is full of many new terrains.  What
+terrain you are in will affect your ability to move, and your
+ effectiveness in combat.  There is magical equipment in the dungeon 
+that will allow you to become native to various terrains, and give 
+you an advantage in moving and fighting in those terrains.
 
 --- Vital Statistics ---
 
@@ -67,7 +79,8 @@ you get a stat that high, further increases will greatly enhance your abilities,
 eventually making it possible to slay some truly formidable monsters.  Stats max
 out at 18/220.
      Stats depend on your internal stats, the equipment you are wearing, and
-various temporary conditions.
+various temporary conditions.  The color of the stat becomes a darker green when 
+sustained.
 
 Maximize mode:
      In maximize mode, racial and class adjustments to stats are adjustments to
@@ -220,9 +233,6 @@ learn the spells now.
 
 Depth:
      How deep in the dungeon you are.
-
-
-
 
 
 

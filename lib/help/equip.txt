@@ -5,6 +5,9 @@
      All effective combat methods require equipment, and all benefit greatly
 from various qualities that your equipped items may possess.  Defence is
 similarly equipment-dependent.
+     Attacks can also benefit or be hindered depending on the terrain in which 
+the player or creature is standing.
+
 
 
 --- Ordinary Attributes ---
@@ -60,7 +63,7 @@ Stealth:
      Certain cloaks, boots, and (more rarely) other items lessen the amount of
 noise you make when moving around the dungeon.  This is very handy for avoiding
 fights and getting in the first hit, which causes extra damage on a sleeping
-monster in NPPAngband.
+monster in NPPAngband.  If the player is flying, their stealth is also increased.
 
 Searching:
      Some rings, headgear, and various other items improve your chances to
@@ -212,6 +215,15 @@ attacks and renders your equipment immune to disenchantment.
 Ignore acid, electricity, fire, and cold:
      Some objects cannot be damaged or destroyed by elemental attacks.
 
+--- Nativities ---
+
+Certain equipment will make you native to the various types of terrain
+found in the Dugeon.  The types of terrain are Lava, Ice, Oil, Fire
+Sand, Forest, Water, Acid, and Mud.  If you are in a particular
+terrain type where you are native, you will be able to move more
+efficiently through that terrain, and you will be able to fight
+and defend better in combat.
+
 
 --- Survival Attributes ---
 
@@ -287,7 +299,4 @@ of Remove Cure fails, find and read one of *Remove Curse*.
 Permanent Curse:
      There is a great and terrible Ring, seen by perhaps one character in one
 thousand, that can never be removed once put on.
-
-
-
 

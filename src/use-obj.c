@@ -669,7 +669,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			(void)detect_treasure();
 			(void)detect_objects_gold();
 			(void)detect_objects_normal();
-			identify_pack();
+			identify_and_squelch_pack();
 			self_knowledge();
 			*ident = TRUE;
 			break;
@@ -767,7 +767,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_AGGRAVATE_MONSTER:
 		{
 			msg_print("There is a high pitched humming noise.");
-			aggravate_monsters(0);
+			aggravate_monsters(SOURCE_PLAYER);
 			*ident = TRUE;
 			break;
 		}
@@ -786,6 +786,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_SUMMON_MONSTER:
 		{
+			sound(MSG_SUM_MONSTER);
 			for (k = 0; k < randint(3); k++)
 			{
 				if (summon_specific(py, px, p_ptr->depth, 0))
@@ -798,6 +799,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_SUMMON_UNDEAD:
 		{
+			sound(MSG_SUM_UNDEAD);
 			for (k = 0; k < randint(3); k++)
 			{
 				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
@@ -821,7 +823,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_TRAP_CREATION:
 		{
-			if (trap_creation()) *ident = TRUE;
+			if (trap_creation(SOURCE_OTHER)) *ident = TRUE;
 			break;
 		}
 
@@ -841,7 +843,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_TELEPORT_LEVEL:
 		{
-			(void)teleport_player_level(-1);
+			(void)teleport_player_level(SOURCE_PLAYER);
 			*ident = TRUE;
 			break;
 		}
@@ -1022,7 +1024,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_RUNE_OF_PROTECTION:
 		{
-			warding_glyph();
+			if (!warding_glyph()) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
@@ -1055,11 +1057,23 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_CREATE_RANDART:
 		{
-			object_type *i_ptr;
-			object_type object_type_body;
+			object_type *o_ptr;
+
+			int item;
 
 			/*artifact power is based on depth*/
 			int randart_power = 10 + p_ptr->depth;
+
+			/* Get an item */
+			cptr q = "Choose an item to be made into an artifact. ";
+			cptr s = "You have no eligible item.";
+			/* Only accept legal items. */
+			item_tester_hook = item_tester_hook_randart;
+
+			if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) break;
+
+			/*Got the item*/
+			o_ptr = &inventory[item];
 
 			if ((adult_no_artifacts) || (adult_no_xtra_artifacts))
 			{
@@ -1070,16 +1084,23 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			/*occasional power boost*/
 			while (one_in_(25)) randart_power += 25;
 
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			if (make_one_randart(i_ptr, randart_power, FALSE))
+			if (make_one_randart(o_ptr, randart_power, FALSE))
 			{
 				*ident = TRUE;
 				used_up = TRUE;
 
-				/* Drop it near the player */
-				drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+				/* Identify it fully */
+				object_aware(o_ptr);
+				object_known(o_ptr);
+
+				/* Mark the item as fully known */
+				o_ptr->ident |= (IDENT_MENTAL);
+
+				object_history(o_ptr, ORIGIN_ACQUIRE, 0);
+
+				/*Let the player know what they just got*/
+				object_info_screen(o_ptr);
+
 			}
 			else msg_print("The Artifact creation failed");
 			break;
@@ -1154,6 +1175,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SUMMONING:
 		{
+			sound(MSG_SUM_MONSTER);
 			for (k = 0; k < randint(4); k++)
 			{
 				if (summon_specific(py, px, p_ptr->depth, 0))
@@ -1184,7 +1206,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			{
 				msg_print("The end of the staff glows brightly...");
 			}
-			for (k = 0; k < 8; k++) lite_line(ddd[k]);
+			for (k = 0; k < 8; k++) lite_line(ddd[k], damroll(6, 8));
 			*ident = TRUE;
 			break;
 		}
@@ -1281,7 +1303,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
-			if (sleep_monsters(damroll (2, p_ptr->lev))) *ident = TRUE;
+			if (sleep_monsters(damroll(2, p_ptr->lev))) *ident = TRUE;
 			break;
 		}
 
@@ -1375,17 +1397,23 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	int lev, chance, dir, sval;
 
 
+	/*Special allowance for disarming and traps*/
+	bool is_disarm = FALSE;
+
+	if ((object_aware_p(o_ptr)) && ((o_ptr->sval == SV_WAND_DISARMING) ||
+			(o_ptr->sval == SV_WAND_TRAP_DOOR_DEST))) is_disarm = TRUE;
+
 	/* Allow direction to be cancelled for free */
-	if (!get_aim_dir(&dir)) return (FALSE);
+	if (!get_aim_dir(&dir, is_disarm)) return (FALSE);
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
 	/* Not identified yet */
 	*ident = FALSE;
 
 	/* Get the level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = k_info[o_ptr->k_idx].k_level;
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;
@@ -1423,8 +1451,8 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 
 	/* Sound */
-	sound(MSG_ZAP);
-
+	/* TODO: Create wand sound?  Do the individual effects have sounds? */
+	/* sound(MSG_ZAP_ROD); */
 
 	/* XXX Hack -- Extract the "sval" effect */
 	sval = o_ptr->sval;
@@ -1480,7 +1508,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 		case SV_WAND_LITE:
 		{
 			msg_print("A line of blue shimmering light appears.");
-			lite_line(dir);
+			lite_line(dir, damroll(6, 8));
 			*ident = TRUE;
 			break;
 		}
@@ -1672,19 +1700,24 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		 (o_ptr->sval != SV_ROD_STAR_IDENTIFY) &&
 	 	 (o_ptr->sval != SV_ROD_MASS_IDENTIFY)) || !object_aware_p(o_ptr))
 	{
+		/*Special allowance for disarming and traps*/
+		bool is_disarm = FALSE;
+
+		if ((object_known_p(o_ptr)) && (o_ptr->sval == SV_ROD_DISARMING)) is_disarm = TRUE;
+
 		/* Get a direction, allow cancel */
-		if (!get_aim_dir(&dir)) return FALSE;
+		if (!get_aim_dir(&dir, is_disarm)) return FALSE;
 	}
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
 	/* Not identified yet */
 	*ident = FALSE;
 
 	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = k_info[o_ptr->k_idx].k_level;
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;
@@ -1722,7 +1755,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 	}
 
 	/* Sound */
-	sound(MSG_ZAP);
+	sound(MSG_ZAP_ROD);
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
@@ -1845,7 +1878,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		case SV_ROD_LITE:
 		{
 			msg_print("A line of blue shimmering light appears.");
-			lite_line(dir);
+			lite_line(dir, damroll(6, 8));
 			*ident = TRUE;
 			break;
 		}
@@ -1973,14 +2006,14 @@ static bool activate_object(object_type *o_ptr)
 	}
 
 	/* Activate the artifact */
-	message(MSG_ZAP, 0, "You activate it...");
+	message(MSG_ACT_ARTIFACT, 0, "You activate it...");
 
 	/* Artifacts, except for special artifacts with dragon scale mail*/
-	if ((o_ptr->name1) && (o_ptr->name1 < z_info->art_norm_max))
+	if ((o_ptr->art_num) && (o_ptr->art_num < z_info->art_norm_max))
 	{
 		bool did_activation = TRUE;
 
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr = &a_info[o_ptr->art_num];
 		char o_name[80];
 
 		/* Get the basic name of the object */
@@ -2044,7 +2077,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_FIRE3:
 			{
 				msg_format("The %s glows deep red...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_ball(GF_FIRE, dir, 120, 3);
 				break;
 			}
@@ -2052,7 +2085,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_FROST5:
 			{
 				msg_format("The %s glows bright white...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_ball(GF_COLD, dir, 200, 3);
 				break;
 			}
@@ -2060,7 +2093,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_ELEC2:
 			{
 				msg_format("The %s glows deep blue...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_ball(GF_ELEC, dir, 250, 3);
 				break;
 			}
@@ -2068,7 +2101,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_BIZZARE:
 			{
 				msg_format("The %s glows intensely black...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				ring_of_power(dir);
 				break;
 			}
@@ -2166,7 +2199,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_RECHARGE1:
 			{
 				msg_format("Your %s glows bright yellow...", o_name);
-				recharge(60, FALSE);
+				if (!recharge(60, FALSE)) return FALSE;
 				break;
 			}
 
@@ -2187,7 +2220,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_MISSILE:
 			{
 				msg_format("Your %s glows extremely brightly...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
 				break;
 			}
@@ -2195,7 +2228,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_FIRE1:
 			{
 				msg_format("Your %s is covered in fire...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_bolt(GF_FIRE, dir, damroll(9, 8));
 				break;
 			}
@@ -2203,7 +2236,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_FROST1:
 			{
 				msg_format("Your %s is covered in frost...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_bolt(GF_COLD, dir, damroll(6, 8));
 				break;
 			}
@@ -2211,7 +2244,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_LIGHTNING_BOLT:
 			{
 				msg_format("Your %s is covered in sparks...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_bolt(GF_ELEC, dir, damroll(4, 8));
 				break;
 			}
@@ -2219,7 +2252,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_ACID1:
 			{
 				msg_format("Your %s is covered in acid...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_bolt(GF_ACID, dir, damroll(5, 8));
 				break;
 			}
@@ -2227,7 +2260,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_ARROW:
 			{
 				msg_format("Your %s grows magical spikes...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_bolt(GF_ARROW, dir, 150);
 				break;
 			}
@@ -2257,7 +2290,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_STINKING_CLOUD:
 			{
 				msg_format("Your %s throbs deep green...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_ball(GF_POIS, dir, 12, 3);
 				break;
 			}
@@ -2265,7 +2298,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_FROST2:
 			{
 				msg_format("Your %s is covered in frost...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_ball(GF_COLD, dir, 48, 2);
 				break;
 			}
@@ -2273,7 +2306,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_FROST4:
 			{
 				msg_format("Your %s glows a pale blue...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_bolt(GF_COLD, dir, damroll(12, 8));
 				break;
 			}
@@ -2281,7 +2314,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_FROST3:
 			{
 				msg_format("Your %s glows a intense blue...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_ball(GF_COLD, dir, 100, 2);
 				break;
 			}
@@ -2289,7 +2322,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_FIRE2:
 			{
 				msg_format("Your %s rages in fire...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_ball(GF_FIRE, dir, 72, 2);
 				break;
 			}
@@ -2297,7 +2330,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_DRAIN_LIFE2:
 			{
 				msg_format("Your %s glows black...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				drain_life(dir, 120);
 				break;
 			}
@@ -2305,8 +2338,8 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_STONE_TO_MUD:
 			{
 				msg_format("Your %s pulsates...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
-				wall_to_mud(dir, 20 + randint(30));
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
+				(void)wall_to_mud(dir, 20 + randint(30));
 				break;
 			}
 
@@ -2328,7 +2361,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_TELE_AWAY:
 			{
 				msg_format("Your %s glows deep red...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				teleport_monster(dir);
 				break;
 			}
@@ -2343,7 +2376,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_CONFUSE:
 			{
 				msg_format("Your %s glows in scintillating colours...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				confuse_monster(dir, (p_ptr->lev * 2 / 3));
 				break;
 			}
@@ -2365,7 +2398,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_DRAIN_LIFE1:
 			{
 				msg_format("Your %s glows white...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				drain_life(dir, 90);
 				break;
 			}
@@ -2387,7 +2420,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_MANA_BOLT:
 			{
 				msg_format("Your %s glows white...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
+				if (!get_aim_dir(&dir, FALSE)) return FALSE;
 				fire_bolt(GF_MANA, dir, damroll(12, 8));
 				break;
 			}
@@ -2465,15 +2498,16 @@ static bool activate_object(object_type *o_ptr)
 		if (o_ptr->tval == TV_DRAG_ARMOR) value *= 2;
 
 		/* Get a direction for breathing (or abort) */
-		if (!get_aim_dir(&dir)) return FALSE;
+		if (!get_aim_dir(&dir, FALSE)) return FALSE;
 
 		/* Branch on the sub-type */
-		switch (o_ptr->name2)
+		switch (o_ptr->ego_num)
 		{
 			case EGO_DRAGON_BLUE:
 			{
 				value *= 50;
 
+				sound(MSG_BR_ELEC);
 				msg_print("You breathe lightning.");
 				fire_arc(GF_ELEC, dir, value, 0, 30);
 
@@ -2487,6 +2521,7 @@ static bool activate_object(object_type *o_ptr)
 			{
 				value *= 50;
 
+				sound(MSG_BR_FROST);
 				msg_print("You breathe frost.");
 				fire_arc(GF_COLD, dir, value, 0, 30);
 
@@ -2500,6 +2535,7 @@ static bool activate_object(object_type *o_ptr)
 			{
 				value *= 50;
 
+				sound(MSG_BR_ACID);
 				msg_print("You breathe acid.");
 				fire_arc(GF_ACID, dir, value, 0, 30);
 
@@ -2513,6 +2549,7 @@ static bool activate_object(object_type *o_ptr)
 			{
 				value *= 50;
 
+				sound(MSG_BR_GAS);
 				msg_print("You breathe poison gas.");
 				fire_arc(GF_POIS, dir, value, 0, 30);
 
@@ -2526,6 +2563,7 @@ static bool activate_object(object_type *o_ptr)
 			{
 				value *= 50;
 
+				sound(MSG_BR_FIRE);
 				msg_print("You breathe fire.");
 				fire_arc(GF_FIRE, dir, value, 0, 30);
 
@@ -2540,6 +2578,10 @@ static bool activate_object(object_type *o_ptr)
 				value *= 75;
 
 				chance = rand_int(5);
+				sound(((chance == 1) ? MSG_BR_ELEC :
+				       ((chance == 2) ? MSG_BR_FROST :
+				        ((chance == 3) ? MSG_BR_ACID :
+				         ((chance == 4) ? MSG_BR_GAS : MSG_BR_FIRE)))));
 				msg_format("You breathe %s.",
 				           ((chance == 1) ? "lightning" :
 				            ((chance == 2) ? "frost" :
@@ -2567,6 +2609,7 @@ static bool activate_object(object_type *o_ptr)
 			{
 				value *= 50;
 
+				sound(MSG_BR_CONF);
 				msg_print("You breathe confusion.");
 				fire_arc(GF_CONFUSION, dir, value, 0, 30);
 				o_ptr->timeout = rand_int(value) + value;
@@ -2577,6 +2620,7 @@ static bool activate_object(object_type *o_ptr)
 			{
 				value *= 50;
 
+				sound(MSG_BR_SOUND);
 				msg_print("You breathe sound.");
 				fire_arc(GF_SOUND, dir, value, 0, 30);
 				o_ptr->timeout = rand_int(value) + value;
@@ -2588,6 +2632,9 @@ static bool activate_object(object_type *o_ptr)
 				value *= 60;
 
 				chance = rand_int(2);
+
+				sound(((chance == 1 ? MSG_BR_CHAOS : MSG_BR_DISENCHANT)));
+
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_arc((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
@@ -2601,6 +2648,7 @@ static bool activate_object(object_type *o_ptr)
 				value *= 60;
 
 				chance = rand_int(2);
+				sound(((chance == 1 ? MSG_BR_SOUND : MSG_BR_SHARDS)));
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_arc((chance == 1 ? GF_SOUND : GF_SHARD),
@@ -2614,14 +2662,21 @@ static bool activate_object(object_type *o_ptr)
 				value *= 75;
 
 				chance = rand_int(4);
+
+				sound(((chance == 1) ? MSG_BR_CHAOS :
+				       ((chance == 2) ? MSG_BR_DISENCHANT :
+				        ((chance == 3) ? MSG_BR_SOUND : MSG_BR_SHARDS))));
+
 				msg_format("You breathe %s.",
 				           ((chance == 1) ? "chaos" :
 				            ((chance == 2) ? "disenchantment" :
 				             ((chance == 3) ? "sound" : "shards"))));
+
 				fire_arc(((chance == 1) ? GF_CHAOS :
 				           ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARD))),
 				          dir, value, 0, 30);
+
 				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
@@ -2631,9 +2686,14 @@ static bool activate_object(object_type *o_ptr)
 				value *= 65;
 
 				chance = rand_int(2);
+
+				sound(((chance == 0 ? MSG_BR_LIGHT : MSG_BR_DARK)));
+
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
+
 				fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir, value, 0, 30);
+
 				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
@@ -2642,6 +2702,7 @@ static bool activate_object(object_type *o_ptr)
 			{
 				value *= 100;
 
+				sound(MSG_BR_ELEMENTS);
 				msg_print("You breathe the elements.");
 				fire_arc(GF_MISSILE, dir, value, 0, 30);
 				o_ptr->timeout = rand_int(value) + value;
@@ -2660,7 +2721,7 @@ static bool activate_object(object_type *o_ptr)
 	if (o_ptr->tval == TV_RING)
 	{
 		/* Get a direction for firing (or abort) */
-		if (!get_aim_dir(&dir)) return FALSE;
+		if (!get_aim_dir(&dir, FALSE)) return FALSE;
 
 		/* Branch on the sub-type */
 		switch (o_ptr->sval)

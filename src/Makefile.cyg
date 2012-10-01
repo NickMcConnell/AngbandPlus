@@ -14,6 +14,7 @@ CFLAGS = -Wall -W -pedantic -mno-cygwin -O2 -fno-strength-reduce -DWINDOWS
 EXOBJS = \
 	angband.res \
 	birth.o \
+	dump_items.o \
 	cave.o \
 	cmd1.o \
 	cmd2.o \
@@ -22,6 +23,8 @@ EXOBJS = \
 	cmd5.o \
 	cmd6.o \
 	dungeon.o \
+	effects.o \
+	feature.o \
 	files.o \
 	generate.o \
 	init1.o \
@@ -123,6 +126,9 @@ angband.res : angband.rc
 birth.o: birth.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
+dump_items.o: dump_items.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
 cave.o: cave.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
@@ -147,6 +153,12 @@ cmd6.o: cmd6.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
+effects.o: effects.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+feature.o: feature.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
 files.o: files.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
@@ -156,7 +168,7 @@ generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS) init.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-init2.o: init2.c $(INCS) init.h 
+init2.o: init2.c $(INCS) init.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 load.o: load.c $(INCS)  init.h
@@ -230,13 +242,13 @@ variable.o: variable.c $(INCS)
 wizard1.o: wizard1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-wizard2.o: wizard2.c $(INCS) 
+wizard2.o: wizard2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 squelch.o: squelch.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-xtra1.o: xtra1.c $(INCS) 
+xtra1.o: xtra1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 xtra2.o: xtra2.c $(INCS)

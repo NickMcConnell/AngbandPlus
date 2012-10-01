@@ -12,12 +12,12 @@
 #
 #       'patches': If the original sources are located in "..\old\src",
 #                  then a file "..\patches.txt" will be created which contains
-#                  all changed files (diff -c). "..\exp\patches.uue" will 
+#                  all changed files (diff -c). "..\exp\patches.uue" will
 #                  contain the same file gziped and uuencodes. "..\exp\files.uue"
 #		   will contain the three emx-specific files tared, gziped and
 #                  uuencoded. Needs 4OS2.
 #
-#       'export': The file "..\exp\$(EXPORT)" is created so that it 
+#       'export': The file "..\exp\$(EXPORT)" is created so that it
 #                 can directly be uploaded as an official distribution archive.
 #		  Needs 4OS2.
 #
@@ -27,8 +27,8 @@ EXPORT          = angband-$(VERSION).os2.zip
 
 CC		= gcc
 AR		= ar
-CFLAGS		= -MMD -O3 -DUSE_EMX -Zmt 
-LFLAGS		= -lvideo 
+CFLAGS		= -MMD -O3 -DUSE_EMX -Zmt
+LFLAGS		= -lvideo
 
 # Uncomment this if you have nice installed
 NICE		= nice -i -n -30
@@ -52,7 +52,7 @@ clean:
 
 patches:  ..\patches.txt ..\exp\patches.uue ..\exp\files.uue
 
-export: ..\exp\$(EXPORT) 
+export: ..\exp\$(EXPORT)
 
 ####################################################################################
 ###   You don't have to change anything below.   ###################################
@@ -63,7 +63,7 @@ OBJS = \
 	variable.o tables.o util.o cave.o \
 	object1.o object2.o monster1.o monster2.o \
 	xtra1.o xtra2.o spells1.o spells2.o \
-	melee1.o melee2.o save.o files.o \
+	melee1.o melee2.o save.o effects.o feature.o files.o  \
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
 	store.o birth.o load.o quest.o squelch.o \
 	wizard1.o wizard2.o \
@@ -73,20 +73,20 @@ OBJS = \
 .c.o:
 	$(NICE) $(CC) $(CFLAGS) -c $*.c
 
-all .PHONY: angband.exe aclient.exe 
-	+@echo. 
-	+@echo Now type 
-	+@echo. 
+all .PHONY: angband.exe aclient.exe
+	+@echo.
+	+@echo Now type
+	+@echo.
 	+@echo       '$(MAKECMD) $(MFLAGS) $(MAKEFILE) install'
-	+@echo. 
+	+@echo.
 	+@echo to install Angband in the parent directory, and/or
-	+@echo. 
+	+@echo.
 	+@echo       '$(MAKECMD) $(MFLAGS) $(MAKEFILE) clean'
-	+@echo. 
+	+@echo.
 	+@echo to remove a bunch of temporary files used during compilation!
 	+@echo You may want to remove the src subdirectory, now that you have
 	+@echo working executables.
-	+@echo. 
+	+@echo.
 
 EXPFILES = angband.exe;aclient.exe;patches.txt;readme;startwnd.cmd
 
@@ -103,10 +103,10 @@ EXPFILES = angband.exe;aclient.exe;patches.txt;readme;startwnd.cmd
 		move $(EXPORT) ..                    ^ \
 		cd ..                                ^ \
 		del tmpdir /xsqy >& nul
-	
+
 PATCHFILES  = *.c *.h makefile* ..\lib\user\pref-emx.prf
 
-# Needs 4OS2! 
+# Needs 4OS2!
 ..\patches.txt .PHONY .IGNORE:
 	+@ echo These are the changes to the original source  > ..\patches.txt		^ \
 	echo archive ($(VERSION)). You don't need to apply them >> ..\patches.txt	^ \
@@ -124,10 +124,10 @@ PATCHFILES  = *.c *.h makefile* ..\lib\user\pref-emx.prf
 	gzip -f patches-$(VERSION).os2                           ^ \
 	uuencode patches-$(VERSION).os2.gz >& nul                ^ \
 	del patches-$(VERSION).os2.gz                            ^ \
-	move patches-$(VERSION).os2.gz.uue patches.uue           
+	move patches-$(VERSION).os2.gz.uue patches.uue
 
-FILES  = main-emx.c makefile.emx ..\lib\user\pref-emx.prf 
-FILESP = main-emx.c makefile.emx pref-emx.prf 
+FILES  = main-emx.c makefile.emx ..\lib\user\pref-emx.prf
+FILESP = main-emx.c makefile.emx pref-emx.prf
 
 # Needs 4OS2!
 ..\exp\files.uue: $(FILES)
@@ -139,7 +139,7 @@ FILESP = main-emx.c makefile.emx pref-emx.prf
 	gzip files.tar                                          ^ \
 	uuencode files.tar.gz                                   ^ \
 	del files.tar.gz >& nul                                 ^ \
-	move files.tar.gz.uue files.uue                          
+	move files.tar.gz.uue files.uue
 
 depends .IGNORE: $(OBJS)
 	+ echo. > depends
@@ -153,10 +153,10 @@ depends .IGNORE: $(OBJS)
 	+ copy aclient.exe ..
 	emxbind -s ..\aclient.exe
 
-EC=+@ echo 
+EC=+@ echo
 ECF=>> ..\startwnd.cmd
 
-..\startwnd.cmd: 
+..\startwnd.cmd:
 	$(EC) @echo off                                             > ..\startwnd.cmd
 	$(EC) REM This file starts up Angband and up to seven other views. The $(ECF)
 	$(EC) REM optional number behind the name sets the number of lines for $(ECF)
@@ -170,7 +170,7 @@ ECF=>> ..\startwnd.cmd
 	$(EC) angband %1 %2 %3 %4 %5 %6 %7 %8 %9                               $(ECF)
 
 angband.exe: angband.a main.o main-emx.o main-epm.o
-	$(CC) -o angband.exe main.o main-emx.o angband.a $(LFLAGS) 
+	$(CC) -o angband.exe main.o main-emx.o angband.a $(LFLAGS)
 
 angband.a: $(OBJS)
 	$(AR) r angband.a $(OBJS)

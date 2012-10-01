@@ -56,6 +56,16 @@ static birther prev;
  */
 static s16b stat_use[A_MAX];
 
+typedef struct stat_priority stat_priority;
+
+/*
+ * A structure to hold the stat priorities.
+ */
+struct stat_priority
+{
+	bool resolved;
+	int stat[A_MAX];
+};
 
 
 /*
@@ -208,28 +218,117 @@ static int adjust_stat(int value, int amount, int auto_roll)
 	return (value);
 }
 
+/*
+ * Helper function for get_stats
+ *
+ * Takes a "stat_priority" struct which is already loaded with
+ * priorities for each stat (lowest is best).  "Resolves" the struct
+ * by breaking ties and moving the priorities to the range 0 to
+ * A_MAX-1.  Makes the struct as "resolved".  Does nothing to already
+ * "resolved" structs. -BR-
+ *
+ * TODO:
+ * It should check for errors. (negative numbers)
+ */
+static void calc_stat_rank(stat_priority *priority)
+{
+	int i;
+	int resolved_priorities[A_MAX];
+
+	int current_priority = 0;
+	int resolved_count = 0;
+
+	/* Priority structure already marked as good - return */
+	if (priority->resolved) return;
+
+	/* Keep resolving until all are done. */
+	while (resolved_count < A_MAX)
+	{
+		/* Count and map of matches at current (unresolved) priority */
+		int current_count = 0;
+		bool current_matches[A_MAX] = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
+
+		/* Fill count and map */
+		for (i = 0; i < A_MAX; i++)
+		{
+			if (priority->stat[i] == current_priority)
+			{
+				current_count++;
+				current_matches[i] = TRUE;
+			}
+		}
+
+		/*
+		 * Randomly try assigning stats to the next resolved
+		 * priority until a legal choice is made. Note that
+		 * this block is grossly inefficient; that should be
+		 * OK, since it is called so rarely, and I don't have
+		 * a better way that is as compact.  -BR-
+		 */
+		while (current_count > 0)
+		{
+			int some_stat = rand_int(A_MAX);
+			if (current_matches[some_stat])
+			{
+				current_count--;
+				current_matches[some_stat] = FALSE;
+				resolved_priorities[some_stat] = resolved_count;
+				resolved_count++;
+			}
+		}
+
+		/* look for matches at next unresolved priority */
+		current_priority++;
+	}
+
+	/* Assign resolved priorities back to the original struct. */
+	for (i = 0; i < A_MAX; i++)
+	{
+		priority->stat[i] = resolved_priorities[i];
+	}
+
+	/* Mark as resolved and return */
+	priority->resolved = TRUE;
+	return;
+}
+
+
+
 
 
 
 /*
  * Roll for a characters stats
+ * Added ability to create an ordered list of stats. -CJN-
+ *
+ * The "priority" struct must contain a list of stat priorities (lower
+ * is better).  If the struct contains ties, or values above A_MAX - 1,
+ * these problems will be resolved by "calc_stat_rank"
+ *
  *
  * For efficiency, we include a chunk of "calc_bonuses()".
  */
-static void get_stats(void)
+static void get_stats(stat_priority *priority)
 {
-	int i, j;
+	int i, j, tmp;
 
 	int bonus;
 
-	int dice[18];
+	int dice[3 * A_MAX];
+	int stats[A_MAX];
+	int sorted_stats[A_MAX];
 
+	int min = 7 * A_MAX;
+	int max = 9 * A_MAX;
+
+	/* Generate clean priorities (0-5, no ties) */
+	calc_stat_rank(priority);
 
 	/* Roll and verify some stats */
 	while (TRUE)
 	{
 		/* Roll some dice */
-		for (j = i = 0; i < 18; i++)
+		for (j = i = 0; i < 3 * A_MAX; i++)
 		{
 			/* Roll the dice */
 			dice[i] = randint(3 + i % 3);
@@ -239,17 +338,42 @@ static void get_stats(void)
 		}
 
 		/* Verify totals */
-		if ((j > 42) && (j < 54)) break;
+		if ((j > min) && (j < max)) break;
 	}
 
-	/* Roll the stats */
+	/* Collect the stats for future manipulation */
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Extract 5 + 1d3 + 1d4 + 1d5 */
-		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
+		sorted_stats[i] = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
+	}
 
-		/* Save that value */
-		p_ptr->stat_max[i] = j;
+	/* Assign stats in order */
+
+	/* Produce sorted stat array ... */
+	for (i = 0; i < A_MAX; i++)
+	{
+		tmp = sorted_stats[i];
+		for (j = i; j > 0 && sorted_stats[j - 1] < tmp; j--)
+		{
+			sorted_stats[j] = sorted_stats[j - 1];
+		}
+		sorted_stats[j] = tmp;
+	}
+
+	/* ... and assign the stats in the order preference */
+	for (i = 0; i < A_MAX; i++)
+	{
+		stats[i] = sorted_stats[priority->stat[i]];
+	}
+
+
+	/* Save the stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+ 		/* Save that value */
+		p_ptr->stat_max[i] = stats[i];
+
 
 		/* Obtain a "bonus" for "race" and "class" */
 		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
@@ -470,7 +594,7 @@ static void player_wipe(void)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
-		a_ptr->cur_num = 0;
+		a_ptr->a_cur_num = 0;
 
 	}
 
@@ -522,12 +646,9 @@ static void player_wipe(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
 		/* Clear player kills */
+
 		l_ptr->pkills = 0;
 	}
-
-
-	/* Zero out the max_num */
-	r_info[z_info->r_max].max_num = 0;
 
 	/*No current player ghosts*/
 	bones_selector = 0;
@@ -586,13 +707,103 @@ static void player_outfit(void)
 
 			object_aware(i_ptr);
 			object_known(i_ptr);
+
+			apply_autoinscription(i_ptr);
+
+			/* Remember history */
+			object_history(i_ptr, ORIGIN_BIRTH, 0);
+		}
+
+		else
+		{
+			continue;
 		}
 
 		/* Check the slot */
 		slot = wield_slot(i_ptr);
 
+		/* Ammo gets special rules */
+		if (IS_QUIVER_SLOT(slot))
+		{
+			bool combined = FALSE;
+			int k;
+
+			/* Reset the slot. Check quiver space */
+			slot = -1;
+
+			if (quiver_carry_okay(i_ptr, i_ptr->number, -1))
+			{
+				/* Check quiver slots */
+				for (k = INVEN_QUIVER; k < END_QUIVER; k++)
+				{
+					/* Get the slot */
+					o_ptr = &inventory[k];
+
+					/* Empty slot */
+					if (!o_ptr->k_idx)
+					{
+						/* Remember the slot */
+						slot = k;
+					}
+					/* Occupied slot */
+					else if (object_similar(o_ptr, i_ptr))
+					{
+						/* Remember the slot */
+						slot = k;
+
+						/* Trigger object combination */
+						combined = TRUE;
+
+						/* Done */
+						break;
+					}
+				}
+			}
+
+ 			/* Found a slot */
+			if (slot != -1)
+ 			{
+				char o_name[80];
+
+				/* Get the slot again */
+				o_ptr = &inventory[slot];
+
+				/* Check insertion mode */
+				if (!combined)
+				{
+					/* Raw copy */
+					object_copy(o_ptr, i_ptr);
+				}
+				else
+				{
+					/* Combine */
+					object_absorb(o_ptr, i_ptr);
+				}
+
+				/* Increase the weight by hand */
+				p_ptr->total_weight += (i_ptr->weight * i_ptr->number);
+
+				/* Compute quiver size */
+				find_quiver_size();
+
+				/* Reorder quiver, refresh slot */
+				slot = reorder_quiver(slot);
+
+				/* Get the slot again */
+				o_ptr = &inventory[slot];
+
+				/* Describe the result */
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+				/* Message */
+				msg_format("You have readied %s (%c).", o_name,
+					index_to_label(slot));
+
+				message_flush();
+			}
+		}
 		/*if player can wield an item, do so*/
-		if (slot >= INVEN_WIELD)
+		else if (slot >= INVEN_WIELD)
 		{
 
 			cptr act;
@@ -635,21 +846,21 @@ static void player_outfit(void)
 			msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
 			message_flush();
-			}
+		}
 
-		else
-		{
+		/* Object cannot be wielded */
+		if (slot == -1)
+ 		{
 			/*put it in the inventory*/
 			(void)inven_carry(i_ptr);
 		}
 
 		/*Bugfix:  So we don't get duplicate objects*/
 		object_wipe (i_ptr);
-
 	}
 
 	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
+	p_ptr->update |= (PU_BONUS  | PU_NATIVE);
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
@@ -660,7 +871,7 @@ static void player_outfit(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
-	p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST);;
+	p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST | PR_EXP | PR_STATS);
 }
 
 /* Locations of the tables on the screen */
@@ -1158,7 +1369,16 @@ static bool player_birth_aux_1(void)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+#define MIN_POINT_STAT_VALUE 10 /* Minimum stat value - no points used */
+#define MAX_POINT_STAT_VALUE 18 /* Maximum stat value - full points used */
+#define BUY_POINTS 48 /* Number of points available to buy stats */
+#define GOLD_POINT 100 /* Each stat point is worth this much gold */
+
+/*
+ * Initial stat costs (initial stats always range from 10 to 18 inclusive).
+ */
+static const int birth_stat_costs[(MAX_POINT_STAT_VALUE-MIN_POINT_STAT_VALUE)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+
 
 
 /*
@@ -1167,8 +1387,8 @@ static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 }
  * This function handles "point-based" character creation.
  *
  * The player selects, for each stat, a value from 10 to 18 (inclusive),
- * each costing a certain amount of points (as above), from a pool of 48
- * available points, to which race/class modifiers are then applied.
+ * each costing a certain amount of points (as above), from a pool of
+ * BUY_POINTS available points, to which race/class modifiers are then applied.
  *
  * Each unused point is converted into 100 gold pieces.
  */
@@ -1176,7 +1396,7 @@ static bool player_birth_aux_2(void)
 {
 	int i;
 
-	int row = 3;
+	int row = 2;
 	int col = 42;
 
 	int stat = 0;
@@ -1194,7 +1414,7 @@ static bool player_birth_aux_2(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Initial stats */
-		stats[i] = 10;
+		stats[i] = MIN_POINT_STAT_VALUE;
 	}
 
 
@@ -1236,11 +1456,11 @@ static bool player_birth_aux_2(void)
 			}
 
 			/* Total cost */
-			cost += birth_stat_costs[stats[i] - 10];
+			cost += birth_stat_costs[stats[i] - MIN_POINT_STAT_VALUE];
 		}
 
 		/* Restrict cost */
-		if (cost > 48)
+		if (cost > BUY_POINTS)
 		{
 			/* Warning */
 			bell("Excessive stats!");
@@ -1253,10 +1473,10 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Gold is inversely proportional to cost */
-		p_ptr->au = (100 * (48 - cost)) + 100;
+		p_ptr->au = (GOLD_POINT * (BUY_POINTS - cost)) + 100;
 
 		/* Calculate the bonuses and hitpoints */
-		p_ptr->update |= (PU_BONUS | PU_HP);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_NATIVE);
 
 		/* Update stuff */
 		update_stuff();
@@ -1277,13 +1497,13 @@ static bool player_birth_aux_2(void)
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Display cost */
-			strnfmt(buf, sizeof(buf), "%4d", birth_stat_costs[stats[i] - 10]);
+			strnfmt(buf, sizeof(buf), "%4d", birth_stat_costs[stats[i] - MIN_POINT_STAT_VALUE]);
 			put_str(buf, row + i, col + 32);
 		}
 
 
 		/* Prompt XXX XXX XXX */
-		strnfmt(buf, sizeof(buf), "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost);
+		strnfmt(buf, sizeof(buf), "Total Cost %2d/%2d.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost, BUY_POINTS);
 		prt(buf, 0, 0);
 
 		/* Place cursor just after cost of current stat */
@@ -1314,13 +1534,13 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Decrease stat */
-		if ((ch == '4') && (stats[stat] > 10))
+		if ((ch == '4') && (stats[stat] > MIN_POINT_STAT_VALUE))
 		{
 			stats[stat]--;
 		}
 
 		/* Increase stat */
-		if ((ch == '6') && (stats[stat] < 18))
+		if ((ch == '6') && (stats[stat] < MAX_POINT_STAT_VALUE))
 		{
 			stats[stat]++;
 		}
@@ -1354,8 +1574,9 @@ static bool player_birth_aux_3(void)
 
 	char buf[80];
 
+	stat_priority priority;
 
-#ifdef ALLOW_AUTOROLLER
+	s16b max_requested_stat;
 
 	s16b stat_limit[A_MAX];
 
@@ -1530,8 +1751,6 @@ static bool player_birth_aux_3(void)
 		}
 	}
 
-#endif /* ALLOW_AUTOROLLER */
-
 	/* Clean up */
 	clear_from(10);
 
@@ -1542,6 +1761,24 @@ static bool player_birth_aux_3(void)
 	while (TRUE)
 	{
 		int col = 42;
+
+		/*
+		 * Initialize priority (autoroller may override)
+		 *
+		 * We must do this inside the loop or the user will
+		 * see a systematic bias when rerolling after the
+		 * priority array resolves
+		 */
+
+		/* Ties are not resolved */
+		priority.resolved = FALSE;
+
+		/* Set all priorities to 0 (max) */
+		for (i = 0; i < A_MAX; i++) priority.stat[i] = 0;
+
+		/* Set priority to 1 (not max) for Charisma */
+		priority.stat[A_CHR] = 1;
+
 
 		/* Feedback */
 		if (adult_auto_roller)
@@ -1577,13 +1814,39 @@ static bool player_birth_aux_3(void)
 			/* Indicate the state */
 			put_str("(Hit ESC to stop)", 12, col+13);
 
+			max_requested_stat = 0;
+
+			/* Find highest required stat */
+			for (i = 0; i < A_MAX; i++)
+			{
+				if (max_requested_stat < stat_base[i])
+				{
+					max_requested_stat = stat_base[i];
+				}
+			}
+
+			/*
+			 * Assign a temp priority to each stat (lowest
+			 * number is highest priority).
+			 */
+			for (i = 0; i < A_MAX; i++)
+			{
+				priority.stat[i] = max_requested_stat - stat_base[i];
+			}
+
+			/*
+			 * We may have generated ties or
+			 * non-consecutive priorities. Flag to fix
+			 */
+			priority.resolved = FALSE;
+
 			/* Auto-roll */
 			while (1)
 			{
 				bool accept = TRUE;
 
 				/* Get a new character */
-				get_stats();
+				get_stats(&priority);
 
 				/* Advance the round */
 				auto_round++;
@@ -1643,7 +1906,7 @@ static bool player_birth_aux_3(void)
 					put_str(format("%10ld", auto_round), 10, col+20);
 
 					/* Make sure they see everything */
-					Term_fresh();
+					(void)Term_fresh();
 
 					/* Do not wait for a key */
 					inkey_scan = TRUE;
@@ -1656,9 +1919,11 @@ static bool player_birth_aux_3(void)
 
 		/* Otherwise just get a character */
 		else
+
 		{
+
 			/* Get a new character */
-			get_stats();
+			get_stats(&priority);
 		}
 
 		/* Flush input */
@@ -1686,7 +1951,7 @@ static bool player_birth_aux_3(void)
 		while (TRUE)
 		{
 			/* Calculate the bonuses and hitpoints */
-			p_ptr->update |= (PU_BONUS | PU_HP);
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_NATIVE);
 
 			/* Update stuff */
 			update_stuff();
@@ -1824,6 +2089,7 @@ static void player_birth_done_hook(void)
 	i_ptr->number = (byte)rand_range(3, 7);
 	object_aware(i_ptr);
 	object_known(i_ptr);
+	object_history(i_ptr, ORIGIN_BIRTH, 0);
 	(void)inven_carry(i_ptr);
 
 
@@ -1836,6 +2102,7 @@ static void player_birth_done_hook(void)
 	i_ptr->timeout = rand_range(3, 7) * 500;
 	object_aware(i_ptr);
 	object_known(i_ptr);
+	object_history(i_ptr, ORIGIN_BIRTH, 0);
 	(void)inven_carry(i_ptr);
 }
 
@@ -1869,7 +2136,7 @@ void player_birth(void)
  	  	time_t ct = time((time_t*)0);
 
  	  	/* Open the file (notes_file and notes_fname are global) */
- 	  	notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
+ 	  	notes_file = create_notes_file(notes_fname, sizeof(notes_fname));
 
 		if (!notes_file) quit("Can't create the notes file");
 
@@ -1877,7 +2144,7 @@ void player_birth(void)
  	  	(void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
 
  	  	/* Add in "character start" information */
- 	  	fprintf(notes_file, "%s the %s %s\n", op_ptr->full_name,
+ 	  	fprintf(notes_file, "{{full_character_name}} the %s %s\n",
 								p_name + rp_ptr->name,
 								c_name + cp_ptr->name);
  	  	fprintf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
@@ -1886,6 +2153,8 @@ void player_birth(void)
 		fprintf(notes_file, "|   TURN  | DEPTH |LEVEL| EVENT\n");
 		fprintf(notes_file, "============================================================\n");
 
+		/* Paranoia. Remove the notes from memory */
+		fflush(notes_file);
  	}
 
 	/* Note player birth in the message recall */

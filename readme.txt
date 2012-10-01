@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   Angband 3.0.5   **   The Pits of Angband   **
+              **   Angband 3.0.6   **   The Pits of Angband   **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -13,7 +13,7 @@
 
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
 
-                 Angband 2.9.0 - 3.0.x by Robert Ruehlmann
+                 Angband 2.9.0 - 3.0.6 by Robert Ruehlmann
 
       Send comments, bug reports, and patches, to "rr9@thangorodrim.net"
          Visit the Angband Home Page at "http://www.thangorodrim.net/"
@@ -42,7 +42,7 @@ Contact Robert Ruehlmann < rr9@thangorodrim.net > to report bugs. Use the
 newsgroup "rec.games.roguelike.angband" to ask general questions about the
 game, including compilation questions.
 
-This version of Angband will run on Macintosh, Windows, Unix (X11/Curses), 
+This version of Angband will run on Macintosh, Windows, Unix (X11/Curses),
 Linux (X11/Curses), Acorn, Amiga, various DOS machines, and many others...
 
 See compile.txt, the Makefiles, h-config.h, and config.h for details on
@@ -103,7 +103,7 @@ different platform), you can "upgrade" (or "sidegrade") to the current
 Angband, bringing your old savefiles, high score list, and other files
 with you.
 
-Angband uses a platform independant file format for the binary files
+Angband uses a platform independent file format for the binary files
 that store information about games in progress, known as "savefiles", and
 is able to translate savefiles from all known versions of Angband.  To use
 an "old" savefile, simply copy it into the "lib/save" directory, changing
@@ -113,7 +113,7 @@ or "NNN" where "UUU" is the userid of the player (on "multiuser" systems),
 and "NNN" is the name of the "character" in the savefile.  Note that only
 "multiuser" platforms use the "UUU.NNN" form, and the "dot" is required.
 
-Angband uses a platform independant file format for the binary file
+Angband uses a platform independent file format for the binary file
 used to store the high score list.  This file is named "scores.raw".  To
 use an "old" high score list, simply copy it into the "lib/apex" directory.
 

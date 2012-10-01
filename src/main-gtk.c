@@ -87,10 +87,10 @@ static errr Term_clear_gtk(void)
 	g_assert(td->pixmap != NULL);
 	g_assert(td->drawing_area->window != 0);
 
-    /* Find proper dimensions for rectangle */
-    gdk_window_get_size(td->drawing_area->window, &width, &height);
+	/* Find proper dimensions for rectangle */
+	gdk_window_get_size(td->drawing_area->window, &width, &height);
 
-    /* Clear the area */
+	/* Clear the area */
 	gdk_draw_rectangle(td->pixmap, td->drawing_area->style->black_gc,
 	                   1, 0, 0, width, height);
 
@@ -114,7 +114,8 @@ static errr Term_wipe_gtk(int x, int y, int n)
 	g_assert(td->drawing_area->window != 0);
 
 	gdk_draw_rectangle(td->pixmap, td->drawing_area->style->black_gc,
-	                   TRUE, x * td->font_wid, y * td->font_hgt, n * td->font_wid, td->font_hgt);
+	                   TRUE, x * td->font_wid, y * td->font_hgt,
+	                   n * td->font_wid, td->font_hgt);
 
 	/* Copy it to the window */
 	gdk_draw_pixmap(td->drawing_area->window, td->gc, td->pixmap,
@@ -143,8 +144,7 @@ static void set_foreground_color(term_data *td, byte a)
 	g_assert(td->pixmap != NULL);
 	g_assert(td->drawing_area->window != 0);
 
-	if (gdk_colormap_alloc_color(gdk_colormap_get_system(), &color,
-								 FALSE, TRUE))
+	if (gdk_colormap_alloc_color(gdk_colormap_get_system(), &color, FALSE, TRUE))
 		gdk_gc_set_foreground(td->gc, &color);
 	else if (!failed++)
 		g_print("Couldn't allocate color.\n");
@@ -167,7 +167,10 @@ static errr Term_text_gtk(int x, int y, int n, byte a, cptr s)
 	/* Draw the text to the pixmap */
 	for (i = 0; i < n; i++)
 	{
-		gdk_draw_text(td->pixmap, td->font, td->gc, (x + i) * td->font_wid, td->font->ascent + y * td->font_hgt, s + i, 1);
+		gdk_draw_text(td->pixmap, td->font, td->gc,
+		              (x + i) * td->font_wid,
+			      td->font->ascent + y * td->font_hgt,
+			      s + i, 1);
 	}
 
 	/* Copy it to the window */
@@ -185,7 +188,7 @@ static errr CheckEvent(bool wait)
 {
 	if (wait)
 	{
- 		gtk_main_iteration();
+		gtk_main_iteration();
 	}
 	else
 	{
@@ -292,6 +295,8 @@ static void save_game_gtk(void)
 
 static void hook_quit(cptr str)
 {
+	(void)unregister_angband_fonts();
+
 	gtk_exit(0);
 }
 
@@ -327,9 +332,6 @@ static void new_event_handler(GtkButton *was_clicked, gpointer user_data)
 		game_in_progress = TRUE;
 		Term_flush();
 		play_game(TRUE);
-#ifdef HAS_CLEANUP
-		cleanup_angband();
-#endif /* HAS_CLEANUP */
 		quit(NULL);
 	}
 }
@@ -372,8 +374,8 @@ static void change_font_event_handler(GtkWidget *widget, gpointer user_data)
 
 	/* Filter to show only fixed-width fonts */
 	gtk_font_selection_dialog_set_filter(GTK_FONT_SELECTION_DIALOG(font_selector),
-	                                    GTK_FONT_FILTER_BASE, GTK_FONT_ALL,
-	                                    NULL, NULL, NULL, NULL, spacings, NULL);
+	                                     GTK_FONT_FILTER_BASE, GTK_FONT_ALL,
+	                                     NULL, NULL, NULL, NULL, spacings, NULL);
 
 	gtk_signal_connect(GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_selector)->ok_button),
 	                   "clicked", font_ok_callback, (gpointer)font_selector);
@@ -466,8 +468,8 @@ static gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event, gp
 	 * Hack XXX
 	 * Parse shifted numeric (keypad) keys specially.
 	 */
-	if ((event->state == GDK_SHIFT_MASK)
-		&& (event->keyval >= GDK_KP_0) && (event->keyval <= GDK_KP_9))
+	if ((event->state == GDK_SHIFT_MASK) &&
+	    (event->keyval >= GDK_KP_0) && (event->keyval <= GDK_KP_9))
 	{
 		/* Build the macro trigger string */
 		sprintf(msg, "%cS_%X%c", 31, event->keyval, 13);
@@ -586,6 +588,17 @@ static gboolean expose_event_handler(GtkWidget *widget, GdkEventExpose *event, g
 	return (TRUE);
 }
 
+/*
+ * Given a position in the ISO Latin-1 character set, return
+ * the correct character on this system.
+ */
+static byte Term_xchar_gtk(byte c)
+{
+ 	/* The GTK port uses the Latin-1 standard */
+ 	return (c);
+}
+
+
 
 static errr term_data_init(term_data *td, int i)
 {
@@ -609,8 +622,9 @@ static errr term_data_init(term_data *td, int i)
 
 	t->xtra_hook = Term_xtra_gtk;
 	t->text_hook = Term_text_gtk;
-    t->wipe_hook = Term_wipe_gtk;
+	t->wipe_hook = Term_wipe_gtk;
 	t->curs_hook = Term_curs_gtk;
+	t->xchar_hook = Term_xchar_gtk;
 
 	/* Save the data */
 	t->data = td;
@@ -707,13 +721,13 @@ static void init_gtk_window(term_data *td, int i)
 
 	/* Clear the pixmap */
 	gdk_draw_rectangle(td->pixmap, td->drawing_area->style->black_gc, TRUE,
-		                0, 0,
-		                td->cols * td->font_wid, td->rows * td->font_hgt);
+	                   0, 0,
+	                   td->cols * td->font_wid, td->rows * td->font_hgt);
 
 	/* Copy it to the window */
 	gdk_draw_pixmap(td->drawing_area->window, td->gc, td->pixmap,
 	                0, 0, 0, 0,
-					td->cols * td->font_wid, td->rows * td->font_hgt);
+	                td->cols * td->font_wid, td->rows * td->font_hgt);
 }
 
 
@@ -730,6 +744,9 @@ errr init_gtk(int argc, char **argv)
 
 	/* Initialize the environment */
 	gtk_init(&argc, &argv);
+
+	/* Make the new angband fonts available */
+ 	(void)register_angband_fonts();
 
 	/* Parse args */
 	for (i = 1; i < argc; i++)
@@ -765,7 +782,6 @@ errr init_gtk(int argc, char **argv)
 
 	/* Activate hooks */
 	quit_aux = hook_quit;
-	core_aux = hook_quit;
 
 	/* Set the system suffix */
 	ANGBAND_SYS = "gtk";

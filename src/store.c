@@ -10,6 +10,9 @@
 
 #include "angband.h"
 
+/* The maximum number of items per page in stores */
+#define MAX_ENTRIES (Term->hgt - 12)
+
 #define MAX_COMMENT_1	6
 
 static cptr comment_1[MAX_COMMENT_1] =
@@ -126,7 +129,7 @@ static cptr comment_6[MAX_COMMENT_6] =
  */
 static void say_comment_1(void)
 {
-	msg_print(comment_1[rand_int(MAX_COMMENT_1)]);
+	message(MSG_STORE5, 0, comment_1[rand_int(MAX_COMMENT_1)]);
 }
 
 
@@ -336,16 +339,13 @@ static owner_type *ot_ptr = NULL;
 #define SERVICE_RESTORE_STAT	12
 #define SERVICE_INCREASE_STAT	13
 #define SERVICE_CREATE_RANDART	14
-#define SERVICE_DUN_PRAYER_BOOK 15
-#define SERVICE_DUN_MAGIC_BOOK  16
-#define SERVICE_PROBE_QUEST_MON	17
-#define SERVICE_BUY_HEALING_POTION	18
-#define SERVICE_BUY_LIFE_POTION	19
-#define SERVICE_ABANDON_QUEST	20
-#define SERVICE_FIREPROOF_PBOOK 21
-#define SERVICE_FIREPROOF_MBOOK 22
+#define SERVICE_PROBE_QUEST_MON	15
+#define SERVICE_BUY_HEALING_POTION	16
+#define SERVICE_BUY_LIFE_POTION	17
+#define SERVICE_ABANDON_QUEST	18
+#define SERVICE_FIREPROOF_BOOK  19
 
-#define STORE_SERVICE_MAX 		23
+#define STORE_SERVICE_MAX 		20
 
 /* Indicates which store offers the service*/
 static byte service_store[STORE_SERVICE_MAX] =
@@ -365,14 +365,11 @@ static byte service_store[STORE_SERVICE_MAX] =
 	STORE_ALCHEMY, 		/*  SERVICE_RESTORE_STAT   		*/
 	STORE_ALCHEMY, 		/*  SERVICE_INCREASE_STAT   	*/
 	STORE_GUILD,		/*  SERVICE_CREATE_RANDART   	*/
-	STORE_TEMPLE,		/*	SERVICE_DUN_PRAYER_BOOK		*/
-	STORE_MAGIC,		/*	SERVICE_DUN_MAGIC_BOOK		*/
 	STORE_GUILD,		/*	SERVICE_PROBE_QUEST_MON		*/
 	STORE_TEMPLE,		/*	SERVICE_BUY_HEALING_POTION	*/
 	STORE_TEMPLE,		/*	SERVICE_BUY_LIFE_POTION		*/
 	STORE_GUILD,		/*	SERVICE_ABANDON_QUEST		*/
-	STORE_TEMPLE,		/*	SERVICE_FIREPROOF_PBOOK		*/
-	STORE_MAGIC			/*	SERVICE_FIREPROOF_MBOOK		*/
+	STORE_BOOKSHOP		/*	SERVICE_FIREPROOF_BOOK		*/
 };
 
 /* Indicates the base price of the service*/
@@ -393,14 +390,12 @@ static u32b service_price[STORE_SERVICE_MAX] =
 	700, 				/*  SERVICE_RESTORE_STAT   		*/
 	37500L, 			/*  SERVICE_INCREASE_STAT   	*/
 	750000L,			/*  SERVICE_CREATE_RANDART   	*/
-	25000L,				/*	SERVICE_DUN_PRAYER_BOOK		*/
-	25000L,				/*	SERVICE_DUN_MAGIC_BOOK		*/
 	150,				/*	SERVICE_PROBE_QUEST_MON		*/
 	20000L,				/*	SERVICE_BUY_HEALING_POTION	*/
 	125000L,			/*	SERVICE_BUY_LIFE_POTION		*/
 	0,					/*  SERVICE_ABANDON_QUEST */
-	100000L,			/*  SERVICE_FIREPROOF_PBOOK */
-	100000L				/*  SERVICE_FIREPROOF_MBOOK */
+	100000L				/*  SERVICE_FIREPROOF_BOOK */
+
 };
 
 /*
@@ -423,14 +418,11 @@ static cptr service_names[STORE_SERVICE_MAX] =
 	"Restore stat", 							/*  SERVICE_RESTORE_STAT   		*/
 	"Increase stat", 							/*  SERVICE_INCREASE_STAT   	*/
 	"Create Artifact[v]", 						/*  SERVICE_CREATE_RANDART   	*/
-	"Purchase Dungeon Prayer Book[v]",			/*	SERVICE_DUN_PRAYER_BOOK		*/
-	"Purchase Dungeon Spell Book[v]",			/*	SERVICE_DUN_MAGIC_BOOK		*/
 	"Inquire About Quest Monster[v]",			/*	SERVICE_PROBE_QUEST_MON		*/
 	"Purchase Potion of Healing",				/*	SERVICE_BUY_HEALING_POTION	*/
 	"Purchase Potion of Life",					/*	SERVICE_BUY_LIFE_POTION		*/
 	"Abandon Your Quest",						/* SERVICE_ABANDON_QUEST */
-	"Make a Prayer Book Fireproof[v]",			/* SERVICE_FIREPROOF_PBOOK */
-	"Make a Spell Book Fireproof[v]"			/* SERVICE_FIREPROOF_MBOOK */
+	"Make a Dungeon Spell Book Fireproof[v]",	/* SERVICE_FIREPROOF_BOOK */
 };
 
 
@@ -458,7 +450,6 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 	int factor;
 	int adjust;
 	s32b price;
-
 
 	/* Get the value of one of the items */
 	price = object_value(o_ptr);
@@ -547,6 +538,7 @@ static void mass_produce(object_type *o_ptr)
 
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_DRUID_BOOK:
 		{
 			if (cost <= 50L) size += damroll(2, 3);
 			if (cost <= 500L) size += damroll(1, 3);
@@ -567,7 +559,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_BOW:
 		{
-			if (o_ptr->name2) break;
+			if (o_ptr->ego_num) break;
 			if (cost <= 10L) size += damroll(2, 2);
 			if (cost <= 100L) size += damroll(2, 2);
 			break;
@@ -577,9 +569,9 @@ static void mass_produce(object_type *o_ptr)
 		case TV_BOLT:
 		case TV_SPIKE:
 		{
-			if (o_ptr->name2) size += damroll(3, 5);
+			if (o_ptr->ego_num) size += damroll(3, 5);
 			else if ((o_ptr->to_h > 0) || (o_ptr->to_d > 0)) size += damroll(4, 6);
-			else size += damroll(6, 7);
+			else size += damroll(8, 7);
 			break;
 		}
 
@@ -690,10 +682,10 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 	if (o_ptr->to_a != j_ptr->to_a) return (0);
 
 	/* Require identical "artifact" names */
-	if (o_ptr->name1 != j_ptr->name1) return (0);
+	if (o_ptr->art_num != j_ptr->art_num) return (0);
 
 	/* Require identical "ego-item" names */
-	if (o_ptr->name2 != j_ptr->name2) return (0);
+	if (o_ptr->ego_num != j_ptr->ego_num) return (0);
 
 	/* Hack -- Never stack "powerful" items */
 	if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
@@ -754,6 +746,8 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 		o_ptr->pval += j_ptr->pval;
 	}
 
+	/* Combine the histories */
+	stack_histories(o_ptr, j_ptr);
 }
 
 
@@ -889,7 +883,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_PRAYER_BOOK:
+
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
@@ -912,6 +906,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
+
 				case TV_SCROLL:
 				case TV_POTION:
 				break;
@@ -927,7 +922,6 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_MAGIC_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -940,6 +934,20 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 				return (FALSE);
 			}
 			break;
+		}
+
+		case STORE_BOOKSHOP:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_MAGIC_BOOK:
+				case TV_DRUID_BOOK:
+				case TV_PRAYER_BOOK:
+				break;
+				default:
+				return (FALSE);
+			}
 		}
 	}
 
@@ -1211,7 +1219,7 @@ static bool black_market_crap(const object_type *o_ptr)
 	int i, j;
 
 	/* Ego items are never crap */
-	if (o_ptr->name2) return (FALSE);
+	if (o_ptr->ego_num) return (FALSE);
 
 	/* Good items are never crap */
 	if (o_ptr->to_a > 0) return (FALSE);
@@ -1247,8 +1255,8 @@ static bool keep_in_stock(const object_type *o_ptr, int which)
 
 	/*Discounted items, ego items, or artifacts don't stay in stock*/
 	if (o_ptr->discount) return (FALSE);
-	if (o_ptr->name1) return (FALSE);
-	if (o_ptr->name2) return (FALSE);
+	if (o_ptr->art_num) return (FALSE);
+	if (o_ptr->ego_num) return (FALSE);
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -1313,6 +1321,7 @@ static bool keep_in_stock(const object_type *o_ptr, int which)
 		}
 		case TV_PRAYER_BOOK:
 		case TV_MAGIC_BOOK:
+		case TV_DRUID_BOOK:
 		{
 			if (k_ptr->sval < SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -1370,7 +1379,7 @@ static void store_delete(int which)
 	}
 
 	/*Wipe the randart if necessary*/
-	if (o_ptr->name1) artifact_wipe(o_ptr->name1, FALSE);
+	if (o_ptr->art_num) artifact_wipe(o_ptr->art_num, FALSE);
 
 	/* Actually destroy (part of) the object */
 	store_item_increase(what, -num);
@@ -1428,7 +1437,7 @@ static void store_create(void)
 		object_prep(i_ptr, k_idx);
 
 		/* Apply magic (dis-allow artifacts) */
-		apply_magic(i_ptr, magic_level, FALSE, FALSE, FALSE);
+		apply_magic(i_ptr, magic_level, FALSE, FALSE, FALSE, FALSE);
 
 		/* Hack -- Charge lite's */
 		if (i_ptr->tval == TV_LITE)
@@ -1442,6 +1451,9 @@ static void store_create(void)
 
 		/* Item belongs to a store */
 		i_ptr->ident |= IDENT_STORE;
+
+		/* Remember history */
+		object_history(i_ptr, ORIGIN_STORE, 0);
 
 		/* Prune the black market */
 		if (store_num == STORE_B_MARKET)
@@ -1549,14 +1561,13 @@ static void display_entry(int item)
 
 
 	/* Must be on current "page" to get displayed */
-	if (!((item >= store_top) && (item < store_top + 12))) return;
-
+	if (!((item >= store_top) && (item < store_top + MAX_ENTRIES))) return;
 
 	/* Get the object */
 	o_ptr = &st_ptr->stock[item];
 
 	/* Get the row */
-	y = (item % 12) + 6;
+	y = (item % MAX_ENTRIES) + 6;
 
 	/* Label it, clear the line --(-- */
 	sprintf(out_val, "%c) ", store_to_label(item));
@@ -1565,12 +1576,11 @@ static void display_entry(int item)
 	/* Describe an object in the home */
 	if (store_num == STORE_HOME)
 	{
+		int wgt;
+
 		byte attr;
 
-		maxwid = 75;
-
-		/* Leave room for weights, if necessary -DRS- */
-		if (show_weights) maxwid -= 10;
+		maxwid = 65;
 
 		/* Describe the object */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -1582,26 +1592,20 @@ static void display_entry(int item)
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
 
-		/* Show weights */
-		if (show_weights)
-		{
-			/* Only show the weight of a single object */
-			int wgt = o_ptr->weight;
-			sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(out_val, y, 68);
-		}
+		/* Only show the weight of a single object */
+		wgt = o_ptr->weight;
+		sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
+		put_str(out_val, y, 68);
 	}
 
 	/* Describe an object (fully) in a store */
 	else
 	{
 		byte attr;
+		int wgt;
 
 		/* Must leave room for the "price" */
-		maxwid = 65;
-
-		/* Leave room for weights, if necessary -DRS- */
-		if (show_weights) maxwid -= 7;
+		maxwid = 58;
 
 		/* Describe the object (fully) */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -1613,14 +1617,10 @@ static void display_entry(int item)
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
 
-		/* Show weights */
-		if (show_weights)
-		{
-			/* Only show the weight of a single object */
-			int wgt = o_ptr->weight;
-			sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
-			put_str(out_val, y, 61);
-		}
+		/* Only show the weight of a single object */
+		wgt = o_ptr->weight;
+		sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
+		put_str(out_val, y, 61);
 
 		/* Display a "fixed" cost */
 		if (o_ptr->ident & (IDENT_FIXED))
@@ -1630,7 +1630,6 @@ static void display_entry(int item)
 
 			/* Actually draw the price (not fixed) */
 			sprintf(out_val, "%9ld F", (long)x);
-			put_str(out_val, y, 68);
 		}
 
 		/* Display a "taxed" cost */
@@ -1646,8 +1645,6 @@ static void display_entry(int item)
 			if (((o_ptr->tval == TV_WAND)|| (o_ptr->tval == TV_STAFF))
 			    && (o_ptr->number > 1)) sprintf(out_val, "%9ld avg", (long)x);
 			else sprintf(out_val, "%9ld  ", (long)x);
-
-			put_str(out_val, y, 68);
 		}
 
 		/* Display a "haggle" cost */
@@ -1658,6 +1655,16 @@ static void display_entry(int item)
 
 			/* Actually draw the price (not fixed) */
 			sprintf(out_val, "%9ld  ", (long)x);
+
+		}
+
+		/* Print the price, gray if player can't afford it */
+		if ((long)x > (long)(p_ptr->au))
+		{
+			c_put_str(TERM_SLATE, out_val, y, 68);
+		}
+		else
+		{
 			put_str(out_val, y, 68);
 		}
 	}
@@ -1673,8 +1680,8 @@ static void display_inventory(void)
 {
 	int i, k;
 
-	/* Display the next 12 items */
-	for (k = 0; k < 12; k++)
+	/* Display the next group of items */
+	for (k = 0; k < MAX_ENTRIES; k++)
 	{
 		/* Stop when we run out of items */
 		if (store_top + k >= st_ptr->stock_num) break;
@@ -1684,19 +1691,19 @@ static void display_inventory(void)
 	}
 
 	/* Erase the extra lines and the "more" prompt */
-	for (i = k; i < 13; i++) prt("", i + 6, 0);
+	for (i = k; i < (MAX_ENTRIES + 1); i++) prt("", i + 6, 0);
 
 	/* Assume "no current page" */
 	put_str("        ", 5, 20);
 
 	/* Visual reminder of "more items" */
-	if (st_ptr->stock_num > 12)
+	if (st_ptr->stock_num > MAX_ENTRIES)
 	{
 		/* Show "more" reminder (after the last object ) */
 		prt("-more-", k + 6, 3);
 
 		/* Indicate the "current page" */
-		put_str(format("(Page %d)", store_top/12 + 1), 5, 20);
+		put_str(format("(Page %d)", store_top/MAX_ENTRIES + 1), 5, 20);
 	}
 }
 
@@ -1707,11 +1714,12 @@ static void display_inventory(void)
 static void store_prt_gold(void)
 {
 	char out_val[64];
+	int row = TERM_LAST_ROW - 4;
 
-	prt("Gold Remaining: ", 19, 53);
+	prt("Gold Remaining: ", row, 53);
 
 	sprintf(out_val, "%9ld", (long)p_ptr->au);
-	prt(out_val, 19, 68);
+	prt(out_val, row, 68);
 }
 
 
@@ -1766,9 +1774,13 @@ static void display_store_services(void)
 	byte col_name = 3;
 	byte col_price = 65;
 
-	cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + store_num].name);
+	char store_name[80];
 	cptr owner_name = &(b_name[ot_ptr->owner_name]);
 	cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
+
+	/* Get the name of the store */
+	feature_desc(store_name, sizeof(store_name),
+		cave_feat[p_ptr->py][p_ptr->px], FALSE, FALSE);
 
 	/* Clear screen */
 	Term_clear();
@@ -1877,19 +1889,20 @@ static void display_store_inventory(void)
 		/* Label the object descriptions */
 		put_str("Item Description", 5, 3);
 
-		/* If showing weights, show label */
-		if (show_weights)
-		{
-			put_str("Weight", 5, 70);
-		}
+		/* show label */
+		put_str("Weight", 5, 70);
 	}
 
 	/* Normal stores */
 	else
 	{
-		cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + store_num].name);
-		cptr owner_name = &(b_name[ot_ptr->owner_name]);
+		char store_name[80];
 		cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
+		cptr owner_name = &(b_name[ot_ptr->owner_name]);
+
+		/* Get the name of the store */
+		feature_desc(store_name, sizeof(store_name),
+			cave_feat[p_ptr->py][p_ptr->px], FALSE, FALSE);
 
 		/* Put the owner name and race */
 		strnfmt(buf, sizeof(buf), "%s (%s)", owner_name, race_name);
@@ -1902,11 +1915,8 @@ static void display_store_inventory(void)
 		/* Label the object descriptions */
 		put_str("Item Description", 5, 3);
 
-		/* If showing weights, show label */
-		if (show_weights)
-		{
-			put_str("Weight", 5, 60);
-		}
+		/* show label */
+		put_str("Weight", 5, 60);
 
 		/* Label the asking price (in stores) */
 		put_str("Price", 5, 72);
@@ -1969,7 +1979,6 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	object_type *o_ptr;
 
-#ifdef ALLOW_REPEAT
 
 	/* Get the item index */
 	if (repeat_pull(com_val))
@@ -1987,7 +1996,6 @@ static bool get_stock(int *com_val, cptr pmt)
 		}
 	}
 
-#endif /* ALLOW_REPEAT */
 
 	/* Assume failure */
 	*com_val = (-1);
@@ -2045,11 +2053,11 @@ static bool get_stock(int *com_val, cptr pmt)
 	/* Save item */
 	(*com_val) = item;
 
-#ifdef ALLOW_REPEAT
+
 
 	repeat_push(*com_val);
 
-#endif /* ALLOW_REPEAT */
+
 
 	/* Success */
 	return (TRUE);
@@ -2716,8 +2724,12 @@ bool item_tester_hook_randart(const object_type *o_ptr)
 
 	if (can_be_randart(o_ptr))
 	{
-		/*We don't use current artifacts or ego-items*/
-		if ((o_ptr->name1) || (o_ptr->name2)) return(FALSE);
+
+		/*We don't use current artifacts or ego-items, unless dragon armor*/
+		if ((o_ptr->tval != TV_DRAG_ARMOR) && (o_ptr->tval != TV_DRAG_SHIELD))
+		{
+			if ((o_ptr->art_num) || (o_ptr->ego_num)) return(FALSE);
+		}
 
 		/*don't make artifacts out of stacks of items*/
 		if (o_ptr->number > 1) return (FALSE);
@@ -2735,16 +2747,19 @@ bool item_tester_hook_randart(const object_type *o_ptr)
  */
 bool item_tester_hook_flammable_book(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, fn;
 
-	if 	((o_ptr->tval != TV_PRAYER_BOOK) &&
+	if 	((o_ptr->tval != TV_PRAYER_BOOK) && (o_ptr->tval != TV_DRUID_BOOK) &&
 	 	 (o_ptr->tval != TV_MAGIC_BOOK)) return (FALSE);
 
 	/* Get the "known" flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &fn);
 
 	/*already flammable*/
 	if (f3 & TR3_IGNORE_FIRE) return (FALSE);
+
+	/* Immune to lava, so they should resist fire. */
+	if (fn & ELEMENT_LAVA) return (FALSE);
 
 	/* Flammable spellbook */
 	return (TRUE);
@@ -2782,9 +2797,9 @@ static void store_service_aux(s16b choice)
 		case SERVICE_ENCHANT_TO_DAM:
 		{
 			s16b add_to;
-		    s16b counter = 1;
+			s16b counter = 1;
 
-			u32b f1, f2, f3;
+			u32b f1, f2, f3, fn;
 
 			/* Enchant armor if requested */
 			if (choice == SERVICE_ENCHANT_ARMOR)
@@ -2803,7 +2818,7 @@ static void store_service_aux(s16b choice)
 			k_ptr = &k_info[o_ptr->k_idx];
 
 			/* Extract the flags */
-			object_flags(o_ptr, &f1, &f2, &f3);
+			object_flags(o_ptr, &f1, &f2, &f3, &fn);
 
 			if (choice == SERVICE_ENCHANT_ARMOR) add_to = o_ptr->to_a;
 			else if (choice == SERVICE_ENCHANT_TO_HIT) add_to = o_ptr->to_h;
@@ -2811,7 +2826,7 @@ static void store_service_aux(s16b choice)
 			else add_to = o_ptr->to_d;
 
 			/* Description, shorten it for artifacts */
-			if (o_ptr->name1) object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
+			if (o_ptr->art_num) object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 			else object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 1);
 
 			/*
@@ -2846,7 +2861,7 @@ static void store_service_aux(s16b choice)
 			price *= o_ptr->number;
 
 			/*artifacts are double*/
-			if (o_ptr->name1) price *= 2;
+			if (o_ptr->art_num) price *= 2;
 
 			/*Too expensive*/
 			if (check_gold(price)) break;
@@ -2873,7 +2888,7 @@ static void store_service_aux(s16b choice)
 
 			/* Break curse */
 			if (cursed_p(o_ptr) &&
-				(!(k_ptr->flags3 & (TR3_PERMA_CURSE))) &&
+				(!(k_ptr->k_flags3 & (TR3_PERMA_CURSE))) &&
 				 (add_to >= 0) && (rand_int(100) < 25))
 			{
 				msg_print("The curse is broken!");
@@ -2907,11 +2922,11 @@ static void store_service_aux(s16b choice)
 			o_ptr = &inventory[item];
 
 			/* Description, shorten it for artifacts */
-			if (o_ptr->name1) object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
+			if (o_ptr->art_num) object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 			else object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 1);
 
 			/*If artifact, or ego item, don't bother*/
-			if ((o_ptr->name1) || (o_ptr->name2))
+			if ((o_ptr->art_num) || (o_ptr->ego_num))
 			{
 				msg_format("%^s cannot be branded!", o_name);
 
@@ -2977,7 +2992,7 @@ static void store_service_aux(s16b choice)
 			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 1);
 
 			/* Extract the object "level" */
-			lev = k_info[o_ptr->k_idx].level;
+			lev = k_info[o_ptr->k_idx].k_level;
 
 			/*base price on level*/
 			price += price * (lev / 2);
@@ -3208,7 +3223,7 @@ static void store_service_aux(s16b choice)
 				break;
 			}
 
-			/* Only accept legal items, which are wands and staffs */
+			/* Only accept legal items */
 			item_tester_hook = item_tester_hook_randart;
 
 			/* Get an item */
@@ -3266,131 +3281,7 @@ static void store_service_aux(s16b choice)
 			else msg_print("The attempt at making an artifact has failed");
 			break;
 		}
-		case SERVICE_DUN_PRAYER_BOOK:
-		case SERVICE_DUN_MAGIC_BOOK:
-		{
-			byte serv_tval;
 
-			u16b book_sval[BOOKS_PER_REALM - SV_BOOK_MIN_GOOD];
-			byte num_books = 0;
-
-			int i, k_idx;
-
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			i_ptr = &object_type_body;
-
-			/*Too expensive*/
-			if (check_gold(price)) break;
-
-			/*get the type*/
-			if (choice == SERVICE_DUN_MAGIC_BOOK) serv_tval = TV_MAGIC_BOOK;
-			/* SERVICE_DUN_PRAYER_BOOK */
-			else serv_tval = TV_PRAYER_BOOK;
-
-			/*make sure the charcter can actually read the spellbook*/
-			if (cp_ptr->spell_book != serv_tval)
-			{
-				msg_print("These books are illegible to you!");
-				break;
-			}
-
-			/* Check the stats for need */
-			for (i = SV_BOOK_MIN_GOOD; i < BOOKS_PER_REALM; i++)
-			{
-				u32b fakeprice = get_service_price(choice);
-
-				/*get the proper book*/
-				k_idx = lookup_kind(serv_tval, i);
-
-				/*make sure it is a book*/
-				if (!k_idx) continue;
-
-				/*get the book kind*/
-				k_ptr = &k_info[k_idx];
-
-				/*Don't allow books that shouldn't be in the game*/
-				if (k_ptr->flags3 & TR3_IRONMAN_ONLY) continue;
-
-				fakeprice += (k_ptr->cost * 8);
-
-				book_sval[num_books] = k_idx;
-
-				/*print out the book*/
-				c_put_str((serv_tval == TV_PRAYER_BOOK) ?
-				    TERM_L_GREEN: TERM_L_RED,
-				    format(" %c) %s ",
-				      store_to_label(num_books),
-				      k_name + k_ptr->name), 7 + num_books, 20);
-
-				/*print out the price*/
-				c_put_str((serv_tval == TV_PRAYER_BOOK) ?
-				    TERM_L_GREEN: TERM_L_RED,
-				    format("%10d", fakeprice), 7 + num_books, 60);
-
-				/*Increase book counter*/
-				num_books++;
-			}
-
-			strnfmt(prompt, sizeof(prompt), "Which book do you wish to purchase?");
-			/* Get the object number to be bought */
-			i = get_menu_choice(num_books, prompt);
-
-			/*player chose escape - do nothing */
-			if (i == -1) break;
-
-			/*get the book index*/
-			k_idx = book_sval[i];
-
-			/*get the book kind*/
-			k_ptr = &k_info[k_idx];
-
-			price += (k_ptr->cost * 8);
-
-			/*Too expensive*/
-			if (check_gold(price)) break;
-
-			/*confirm*/
-			strnfmt(prompt, sizeof(prompt), "Spend %d gold to purchase %s? ",
-							price, (k_name + k_ptr->name));
-			if (!get_check(prompt)) break;
-
-			/*charge the player*/
-			p_ptr->au -= price;
-
-			/* Make the book */
-			object_prep(i_ptr, k_idx);
-
-			/* Note that the pack is too full */
-			if (!inven_carry_okay(i_ptr))
-			{
-				msg_format("You have no room in your backpack for %s.", (k_name + k_ptr->name));
-
-				/* Drop the object */
-				drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
-
-				/* Inform the player */
-				msg_print("Your book is waiting outside!");
-
-			}
-
-			/* Give it to the player */
-			else
-			{
-				int item_new;
-
-				/* Give it to the player */
-				item_new = inven_carry(i_ptr);
-
-				/* Message */
-				msg_format("You have purchased %s (%c).", (k_name + k_ptr->name),
-							index_to_label(item_new));
-			}
-
-			message_flush();
-			break;
-		}
 		case SERVICE_PROBE_QUEST_MON:
 		{
 			char race_name[80];
@@ -3427,16 +3318,16 @@ static void store_service_aux(s16b choice)
 			p_ptr->au -= price;
 
 			/*learn something about the monster*/
-			lore_probe_aux(q_ptr->mon_idx);
+			lore_probe_monster_aux(q_ptr->mon_idx);
 
 			/* Hack -- Increse the sightings, and ranged attacks around 50% of the time */
 			l_ptr->sights = MAX_SHORT;
 			l_ptr->ranged = MAX_UCHAR;
 
 			/* Know "race" flags */
-			l_ptr->flags3 |= (r_ptr->flags3 & RF3_RACE_MASK);
+			l_ptr->r_l_flags3 |= (r_ptr->flags3 & RF3_RACE_MASK);
 			/* Know "forced" flags */
-			l_ptr->flags1 |= (r_ptr->flags1 & (RF1_FORCE_DEPTH | RF1_FORCE_MAXHP));
+			l_ptr->r_l_flags1 |= (r_ptr->flags1 & (RF1_FORCE_DEPTH | RF1_FORCE_MAXHP));
 
 			/* Save screen */
 			screen_save();
@@ -3489,7 +3380,7 @@ static void store_service_aux(s16b choice)
 			/*Too expensive*/
 			if (check_gold(price)) break;
 
-			strnfmt(prompt, sizeof(prompt), "Spend %d gold to purchase a %s? ",
+			strnfmt(prompt, sizeof(prompt), "Spend %d gold to purchase a potion of %s? ",
 							price, (k_name + k_ptr->name));
 			if (!get_check(prompt)) break;
 
@@ -3504,6 +3395,9 @@ static void store_service_aux(s16b choice)
 
 			/* Describe the result */
 			object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
+
+			/* Remember history */
+			object_history(i_ptr, ORIGIN_STORE, 0);
 
 			/* Note that the pack is too full */
 			if (!inven_carry_okay(i_ptr))
@@ -3559,7 +3453,7 @@ static void store_service_aux(s16b choice)
 
 			/*Get the new title, and give a message*/
 			get_title(title, sizeof(title));
-			msg_format("The guild is dissapointed in you, %s.", title);
+			msg_format("The guild is disappointed in you, %s.", title);
 			message_flush();
 
 			/* Apply a punishment if fame is low enough*/
@@ -3567,45 +3461,24 @@ static void store_service_aux(s16b choice)
 
 			break;
 		}
-		case SERVICE_FIREPROOF_PBOOK:
-		case SERVICE_FIREPROOF_MBOOK:
+		case SERVICE_FIREPROOF_BOOK:
 		{
-
-		  	byte serv_tval;
 
 		  	int i;
 
 		  	/*Too expensive*/
 		  	if (check_gold(price)) break;
 
-		  	/*get the type*/
-		  	if (choice == SERVICE_FIREPROOF_MBOOK)
-		  	{
-		    	serv_tval = TV_MAGIC_BOOK;
-		  	}
-
-		  	/* SERVICE_FIREPROOF_PBOOK */
-		  	else
-		  	{
-		    	serv_tval = TV_PRAYER_BOOK;
-		  	}
-
-			/*make sure the charcter can actually read the spellbook*/
-		  	if (cp_ptr->spell_book != serv_tval)
-		  	{
-		    	msg_print("These books are illegible to you!");
-		    	break;
-		  	}
-
 			/* Restrict choices to spell books */
-			item_tester_tval = serv_tval;
+			item_tester_tval = cp_ptr->spell_book;
 
 			/* Only accept legal items, which are burnable books */
 			item_tester_hook = item_tester_hook_flammable_book;
 
 			/* Get an item */
 			q = "Fireproof which book? ";
-			s = "You have no flammable spell books!";
+			if (cp_ptr->spell_book == TV_PRAYER_BOOK) s = "You have no flammable prayer books!";
+			else s = "You have no flammable spell books!";
 			if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 		  	/*Got the item*/
@@ -3640,7 +3513,7 @@ static void store_service_aux(s16b choice)
 					/*Confirm the right tval*/
 					for (j = 0; j < EGO_TVALS_MAX; j++)
 					{
-						if (e_ptr->tval[j] == serv_tval) right_type = TRUE;
+						if (e_ptr->tval[j] == cp_ptr->spell_book) right_type = TRUE;
 					}
 
 					/*We found it*/
@@ -3649,7 +3522,7 @@ static void store_service_aux(s16b choice)
 						/*charge the player*/
 		  				p_ptr->au -= price;
 
-						o_ptr->name2 = i;
+						o_ptr->ego_num = i;
 
 						/* Description */
 						object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -3752,7 +3625,6 @@ static void store_purchase(void)
 
 	char out_val[160];
 
-
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
@@ -3766,7 +3638,6 @@ static void store_purchase(void)
 		}
 		return;
 	}
-
 
 	/* Prompt */
 	if (store_num == STORE_HOME)
@@ -3785,7 +3656,32 @@ static void store_purchase(void)
 	o_ptr = &st_ptr->stock[item];
 
 	/* Get a quantity */
-	amt = get_quantity(NULL, o_ptr->number);
+	if ((auto_haggle && o_ptr->number > 1) && (store_num != STORE_HOME))
+	{
+		/* Get price */
+		long x;
+		x = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
+		/* Hack -- Apply Sales Tax if needed */
+		if (!noneedtobargain(x)) x += x / 10;
+
+		amt = (long)p_ptr->au / x;
+
+		if (amt > o_ptr->number) amt = o_ptr->number;
+
+		/* Can't afford it */
+		if (amt == 0)
+		{
+			msg_print("You cannot afford to buy this.");
+			return;
+		}
+	}
+	else
+	{
+		amt = o_ptr->number;
+	}
+
+	/* Get a quantity */
+	amt = get_quantity(NULL, amt);
 
 	/* Allow user abort */
 	if (amt <= 0) return;
@@ -3841,6 +3737,8 @@ static void store_purchase(void)
 			/* Player can afford it */
 			if (p_ptr->au >= price)
 			{
+				bool aware = FALSE;
+
 				/* Say "okay" */
 				say_comment_1();
 
@@ -3852,6 +3750,9 @@ static void store_purchase(void)
 
 				/* Update the display */
 				store_prt_gold();
+
+				/* Remember awareness */
+				if (object_aware_p(i_ptr)) aware = TRUE;
 
 				/* Buying an object makes you aware of it */
 				object_aware(i_ptr);
@@ -3881,6 +3782,9 @@ static void store_purchase(void)
 
 				/* Give it to the player */
 				item_new = inven_carry(i_ptr);
+
+				/* Hack -- Apply autoinscriptions if we become aware of the object */
+				if (!aware) apply_autoinscription(&inventory[item_new]);
 
 				/* Describe the final result */
 				object_desc(o_name, sizeof(o_name), &inventory[item_new], TRUE, 3);
@@ -3937,30 +3841,20 @@ static void store_purchase(void)
 
 					/* Start over */
 					store_top = 0;
-
-					/* Redraw everything */
-					display_inventory();
 				}
 
 				/* The object is gone */
 				else if (st_ptr->stock_num != n)
 				{
 					/* Only one screen left */
-					if (st_ptr->stock_num <= 12)
+					if (st_ptr->stock_num <= MAX_ENTRIES)
 					{
 						store_top = 0;
 					}
-
-					/* Redraw everything */
-					display_inventory();
 				}
 
-				/* The object is still here */
-				else
-				{
-					/* Redraw the object */
-					display_entry(item);
-				}
+				/* Redraw everything */
+				display_inventory();
 			}
 
 			/* Player cannot afford it */
@@ -4001,7 +3895,7 @@ static void store_purchase(void)
 		if (st_ptr->stock_num != n)
 		{
 			/* Only one screen left */
-			if (st_ptr->stock_num <= 12)
+			if (st_ptr->stock_num <= MAX_ENTRIES)
 			{
 				store_top = 0;
 			}
@@ -4143,6 +4037,7 @@ static void store_sell(void)
 		{
 			/*Do we squelch the item upon identification*/
 			int squelch = SQUELCH_NO;
+			bool aware = FALSE;
 
 			/* Say "okay" */
 			say_comment_1();
@@ -4165,12 +4060,21 @@ static void store_sell(void)
 			/* Remove special inscription, if any */
 			if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
+			/* Remember if we were aware of this object */
+			if (object_aware_p(o_ptr)) aware = TRUE;
+
 			/* Identify original object */
 			object_aware(o_ptr);
 			object_known(o_ptr);
 
 			/* Squelch it?  Important!!!  Only if there will be items left over! */
-			if (amt < o_ptr->number) squelch = squelch_itemp(o_ptr, 0, TRUE);
+			if (amt < o_ptr->number)
+			{
+				squelch = squelch_itemp(o_ptr, 0, TRUE);
+
+				/* Apply an autoiscription if the object survived */
+				if ((squelch == SQUELCH_NO) && !aware) apply_autoinscription(o_ptr);
+			}
 
 			/* Combine / Reorder the pack (later) */
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -4178,7 +4082,9 @@ static void store_sell(void)
 			/* Window stuff */
 			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
-			p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST);
+			p_ptr->update |= (PU_NATIVE);
+
+			p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST | PR_EXP | PR_STATS);
 
 			/* Get local object */
 			i_ptr = &object_type_body;
@@ -4229,11 +4135,11 @@ static void store_sell(void)
 			if (squelch == SQUELCH_YES)
 			{
 				msg_format("In your pack: %s (%c).  %s",
-          					 o_name, index_to_label(item),
-		   					squelch_to_label(squelch));
+					o_name, index_to_label(item),
+					squelch_to_label(squelch));
 
-    			do_squelch_item(squelch, item, o_ptr);
-    		}
+				do_squelch_item(squelch, item, o_ptr);
+			}
 			else
 			{
 				/* Take the object from the player */
@@ -4246,14 +4152,10 @@ static void store_sell(void)
 			handle_stuff();
 
 			/* The store gets that (known) object */
-			item_pos = store_carry(i_ptr);
+			store_carry(i_ptr);
 
-			/* Update the display */
-			if (item_pos >= 0)
-			{
-				/* Redisplay wares */
-				display_inventory();
-			}
+			/* Redisplay wares */
+			display_inventory();
 		}
 	}
 
@@ -4352,12 +4254,12 @@ static void store_process_command(bool guild_cmd)
 {
 	bool legal;
 
-#ifdef ALLOW_REPEAT
+
 
 	/* Handle repeating the last command */
 	repeat_check();
 
-#endif /* ALLOW_REPEAT */
+
 
 	legal = TRUE;
 
@@ -4367,7 +4269,19 @@ static void store_process_command(bool guild_cmd)
 		/* Leave */
 		case ESCAPE:
 		{
-			leave_store = TRUE;
+			/* Leave the store if we aren't asking for services */
+			if (!show_services)
+			{
+			       	leave_store = TRUE;
+			}
+			/* Hide services screen if necessary */
+			else
+			{	show_services = FALSE;
+				do_cmd_redraw();
+				if ((!guild_cmd) || (show_services)) display_store();
+				else display_guild();
+			}
+
 			break;
 		}
 
@@ -4383,7 +4297,7 @@ static void store_process_command(bool guild_cmd)
 			/*don't do anything if we are in service mode*/
 			if (show_services) break;
 
-			if (st_ptr->stock_num <= 12)
+			if (st_ptr->stock_num <= MAX_ENTRIES)
 			{
 				/* Nothing to see */
 				msg_print("Entire inventory is shown.");
@@ -4392,7 +4306,7 @@ static void store_process_command(bool guild_cmd)
 			else if (store_top == 0)
 			{
 				/* Page 2 */
-				store_top = 12;
+				store_top = MAX_ENTRIES;
 
 				/* Redisplay wares */
 				display_inventory();
@@ -4711,15 +4625,14 @@ void do_cmd_store(void)
 	store_has_services = FALSE;
 
 	/* Verify a store */
-	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
+	if (!(cave_shop_bold(py,px)))
 	{
 		msg_print("You see no store here.");
 		return;
 	}
 
-	/* Hack -- Extract the store code */
-	which = (cave_feat[py][px] - FEAT_SHOP_HEAD);
+	/* Hack -- Extract the store */
+	which = (f_info[cave_feat[py][px]].f_power);
 
 	/* Hack -- Check the "locked doors" */
 	if (adult_no_stores || store[which].store_open >= turn)
@@ -4768,6 +4681,15 @@ void do_cmd_store(void)
 	/* Do not leave */
 	leave_store = FALSE;
 
+	/*
+	 * Play a special sound if entering the
+	 * home, otherwise play a generic store sound.
+	 */
+	if (store_num == STORE_HOME)
+		sound(MSG_STORE_HOME);
+	else
+		sound(MSG_STORE_ENTER);
+
 	/* Interact with player */
 	while (!leave_store)
 	{
@@ -4778,15 +4700,15 @@ void do_cmd_store(void)
 		tmp_chr = p_ptr->stat_use[A_CHR];
 
 		/* Clear */
-		clear_from(21);
+		 clear_from(TERM_LAST_ROW - 2);
 
 		/* Basic commands */
-		prt(" ESC) Exit from Building.", 22, 0);
+		prt(" ESC) Exit from Building.", TERM_LAST_ROW - 1, 0);
 
 		/* Browse if necessary */
-		if ((!show_services) && (st_ptr->stock_num > 12))
+		if ((!show_services) && (st_ptr->stock_num > MAX_ENTRIES))
 		{
-			prt(" SPACE) Next page of stock.", 23, 0);
+			prt(" SPACE) Next page of stock.", TERM_LAST_ROW, 0);
 		}
 
 
@@ -4797,29 +4719,29 @@ void do_cmd_store(void)
 			if (!show_services)
 			{
 				/* Commands */
-				prt(" g) Get/Purchase an item.", 22, 29);
-				prt(" d) Drop/Sell an item.", 23, 29);
+				prt(" g) Get/Purchase an item.", TERM_LAST_ROW - 1, 29);
+				prt(" d) Drop/Sell an item.", TERM_LAST_ROW, 29);
 
 				/* Add in the eXamine option */
 				if (rogue_like_commands)
-					prt(" x) eXamine an item.", 23, 56);
+					prt(" x) eXamine an item.", TERM_LAST_ROW, 56);
 				else
-					prt(" l) Look at an item.", 23, 56);
+					prt(" l) Look at an item.", TERM_LAST_ROW, 56);
 
 				/*toggle to services*/
 				if (store_has_services)
 				{
-					prt(" v) View store services.", 22, 56);
+					prt(" v) View store services.", TERM_LAST_ROW - 1, 56);
 				}
 			}
 			/*display services*/
 			else
 			{
 				/* Commands */
-				prt(" g) Get/Purchase a service.", 22, 27);
+				prt(" g) Get/Purchase a service.", TERM_LAST_ROW - 1, 27);
 
 				/*toggle to inventory*/
-				prt(" v) View store inventory.", 22, 56);
+				prt(" v) View store inventory.", TERM_LAST_ROW - 1, 56);
 			}
 		}
 
@@ -4828,22 +4750,22 @@ void do_cmd_store(void)
 			/*display inventory*/
 			if (!show_services)
 			{
-				prt(" g) Get a quest.", 22, 29);
+				prt(" g) Get a quest.", TERM_LAST_ROW - 1, 29);
 				if (store_has_services)
 				{
-					prt(" v) View store services.", 22, 56);
+					prt(" v) View store services.", TERM_LAST_ROW - 1, 56);
 				}
 			}
 			else
 			{
-				prt(" g) Get/Purchase a service.", 22, 27);
-				prt(" v) View quest status.", 22, 56);
+				prt(" g) Get/Purchase a service.", TERM_LAST_ROW - 1, 27);
+				prt(" v) View quest status.", TERM_LAST_ROW - 1, 56);
 			}
 
 		}
 
 		/* Prompt */
-		prt("You may: ", 21, 0);
+		prt("You may: ", TERM_LAST_ROW - 2, 0);
 
 		/* Get a command */
 		request_command(TRUE);
@@ -4941,10 +4863,11 @@ void do_cmd_store(void)
 		if (st_ptr->store_open >= turn) leave_store = TRUE;
 	}
 
+	/* Leave the store sound */
+	sound(MSG_STORE_LEAVE);
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
-
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
 	/* Hack -- Cancel automatic command */
 	p_ptr->command_new = 0;
@@ -4972,7 +4895,7 @@ void do_cmd_store(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 }
 
 
@@ -5067,7 +4990,7 @@ void store_maint(int which)
 			if (black_market_crap(o_ptr))
 			{
 				/*Wipe a randart if necessary*/
-				if (o_ptr->name1) artifact_wipe(o_ptr->name1, FALSE);
+				if (o_ptr->art_num) artifact_wipe(o_ptr->art_num, FALSE);
 
 				/* Destroy the object */
 				store_item_increase(j, 0 - o_ptr->number);

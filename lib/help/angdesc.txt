@@ -1,20 +1,21 @@
 === Version Information ===
 
-This file was last updated for Angband 3.0.1. and NPPAngband 0.4.1
+This file was last updated for Angband 3.0.1. and NPPAngband 0.5.0
 
-Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
-the Official Angband Home Page ("http://www.thangorodrim.net") for the most
+Make sure to read the newsgroup ("http://angband.oook.cz/"), and to visit
+
+the Official Angband Home Page ("http://rephial.org/") for the most
 up to date information about Angband.  The NPPAngband home page is 
-http://home.comcast.net/~nppangband/, and the NPPAngband fan site is 
-http://www.tannert.net/nppangband.
+http://members.cox.net/nppangband/ and the NPPAngband fan site is 
+http://nppangband.kickshaws.org/index.php.
 
 Angband 3.0.1 has an incredibly complex history, and is the result of a
 lot of work by a lot of people, all of whom have contributed their time
 and energy for free, being rewarded only by the pleasure of keeping alive
 one of the best freeware games available anywhere.
 
-The version control files, if they existed, would span more than ten years
-time, and more than six different primary developers.  Without such files,
+The version control files, if they existed, would span almost twenty years
+time, and more than seven different primary developers.  Without such files,
 we must rely on simpler methods, such as change logs, source file diffs, and
 word of mouth.  Some of this information is summarized in this file.
 
@@ -523,6 +524,7 @@ Alexander Wilkins, Mauro Scarpa, John I'anson-Holton, "facade",
 Dennis van Es, Kenneth A. Strom, Wei-Hwa Huang, Nikodemus, Timo Pietilä,
 Greg Wooledge, Keldon Jones, Shayne Steele, Dr. Andrew White, Musus Umbra,
 Jonathan Ellis
+
 
 
 

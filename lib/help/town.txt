@@ -1,7 +1,7 @@
 
 ====== The Town ======
 
-     You begin your adventures in the town.  It consists of eight buildings,
+     You begin your adventures in the town.  It consists of ten buildings,
 each with a shop entranceway, and is well populated.  The first time you are in
 town it will be daytime, but the sun rises and sets as time passes.
 
@@ -45,31 +45,26 @@ The Weaponsmith's Shop ("3"):
      Offers a service to brand ammunition with either flame, frost, or poison brand.
 
 The Temple ("4"):
-     Buys and sells blunt weapons, healing and restoration supplies, prayer
-books, and various other holy items.
+     Buys and sells blunt weapons, healing and restoration supplies, and various 
+other holy items.
      Offers a service to cure critical wounds.
      Offers a service to restore life levels (restore current exp to maximum exp).
      Offers a service to remove light curses from all weapons and armor.
      Offers a service to remove heavy curses from all weapons and armor.
      Offers a service to create a potion of healing.
      Offers a service to create a potion of life.
-     Offers a service to create a dungeon prayer book.
-     Offers a service to make a prayer book fireproof.
-     
-
+ 
 The Alchemy Shop ("5"):
      Buys and sells potions and scrolls.
      Offers a service to restore any player stat.
      Offers a service to increase any player stat up to 18/100.
 
 The Magic Shop ("6"):
-     Buys and sells magic books, rings, amulets, wands, rods, and staffs.  Also
-buys potions and scrolls.
+     Buys and sells rings, amulets, wands, rods, and staffs.  Also
+     buys potions and scrolls.
      Offers a service to recharge a wand, staff, or rod with no chance of failure.
      Offers a service to identify any item.
      Offers a service to *identify* any item.
-     Offers a service to create a dungeon magic book.
-     Offers a service to make a spell book fireproof.
 
 The Black Market ("7"):
      The Black Market will buy and sell anything at extortionate prices.
@@ -86,6 +81,10 @@ a quest.
      Offers a service to create a random artifact for the player.
      Offers a service to give information about a quest monster.
      Offers a service to abandon (automatically fail) a quest.
+
+The Bookshop ("0"):
+     Buys and sells all kinds of spell and prayerbooks.
+     Offers a service to make a spell and prayer books fireproof.
 
 --- Buying and Selling ---
 
@@ -127,8 +126,8 @@ every time you buy or sell anything.
 Store Stocks:
      Stores never have everything in stock; as time passes, their inventory
 slowly changes (but only when you are in the dungeon).  The store owner fully
-identifies everything you sell him; you also become aware of objects of that
-type.
+identifies, but does not *identify* everything you sell him; you also become
+aware of objects of that type. 
 
 Shopkeepers can retire and be replaced:
      Shopkeepers do retire, but only rarely.  The new shopkeeper has no

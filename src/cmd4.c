@@ -17,7 +17,8 @@
 #define LINEWRAP	75
 
 /*used for knowledge display*/
-#define BROWSER_ROWS			16
+#define BROWSER_ROWS			(Term->hgt - 8)
+
 
 /*
  *  Header and footer marker string for pref file dumps
@@ -218,19 +219,19 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_NATIVE);
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY | PR_RESIST);
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 |
+	                  PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT |
+	                  PW_MAP | PW_MONLIST | PW_FEATURE);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
 
 	/* Clear screen */
 	Term_clear();
@@ -251,7 +252,7 @@ void do_cmd_redraw(void)
 		Term_redraw();
 
 		/* Refresh */
-		Term_fresh();
+		(void)Term_fresh();
 
 		/* Restore */
 		Term_activate(old);
@@ -328,17 +329,21 @@ void do_cmd_change_name(void)
 			mode += 1;
 
 			/*loop through the four screens*/
-			if (mode == 4) mode = 0;
+			if (mode == 5) mode = 0;
 			/*don't display home if empty*/
-			else if ((!st_ptr->stock_num) && (mode == 2)) mode = 0;
+			else if ((!st_ptr->stock_num) && (mode == 2)) mode = 4;
 		}
 
 		/* Toggle mode */
 		else if ((ch == '-') || (ch == 'h'))
 		{
 			/*loop through the four screens*/
-			if (mode == 0)
+			/*loop through the five screens*/
+ 			if (mode == 0) mode = 4;
+
+			else if (mode == 4)
 			{
+
 				/*don't display home if empty*/
 				if (st_ptr->stock_num) mode = 3;
 				else mode = 1;
@@ -649,7 +654,7 @@ static void do_cmd_pref_file_hack(int row)
 /*
  * Interact with some options
  */
-static void do_cmd_options_aux(int page, cptr info)
+static void do_cmd_options_aux(int page, cptr info, bool *modified)
 {
 	char ch;
 
@@ -661,7 +666,6 @@ static void do_cmd_options_aux(int page, cptr info)
 
 	int dir;
 
-
 	/* Scan the options */
 	for (i = 0; i < OPT_PAGE_PER; i++)
 	{
@@ -671,7 +675,6 @@ static void do_cmd_options_aux(int page, cptr info)
 			opt[n++] = option_page[page][i];
 		}
 	}
-
 
 	/* Clear screen */
 	Term_clear();
@@ -693,9 +696,9 @@ static void do_cmd_options_aux(int page, cptr info)
 
 			/* Display the option text */
 			strnfmt(buf, sizeof(buf), "%-48s: %s  (%s)",
-			        option_desc[opt[i]],
+			        options[opt[i]].desc,
 			        op_ptr->opt[opt[i]] ? "yes" : "no ",
-			        option_text[opt[i]]);
+			        options[opt[i]].text);
 			c_prt(a, buf, i + 2, 0);
 		}
 
@@ -751,12 +754,16 @@ static void do_cmd_options_aux(int page, cptr info)
 			case '5':
 			{
 				op_ptr->opt[opt[k]] = !op_ptr->opt[opt[k]];
+
+				*modified = TRUE;
 				break;
 			}
 
 			case 'y':
 			case '6':
 			{
+				if (op_ptr->opt[opt[k]] == FALSE) *modified = TRUE;
+
 				op_ptr->opt[opt[k]] = TRUE;
 				k = (k + 1) % n;
 				break;
@@ -765,6 +772,8 @@ static void do_cmd_options_aux(int page, cptr info)
 			case 'n':
 			case '4':
 			{
+				if (op_ptr->opt[opt[k]] == TRUE) *modified = TRUE;
+
 				op_ptr->opt[opt[k]] = FALSE;
 				k = (k + 1) % n;
 				break;
@@ -772,7 +781,7 @@ static void do_cmd_options_aux(int page, cptr info)
 
 			case '?':
 			{
-				strnfmt(buf, sizeof(buf), "options.txt#%s", option_text[opt[k]]);
+				strnfmt(buf, sizeof(buf), "options.txt#%s", options[opt[k]].text);
 				show_file(buf, NULL, 0, 0);
 				Term_clear();
 				break;
@@ -791,7 +800,7 @@ static void do_cmd_options_aux(int page, cptr info)
 /*
  * Modify the "window" options
  */
-static void do_cmd_options_win(void)
+static void do_cmd_options_win(bool *modified)
 {
 	int i, j, d;
 
@@ -834,7 +843,7 @@ static void do_cmd_options_win(void)
 		}
 
 		/* Display the options */
-		for (i = 0; i < 16; i++)
+		for (i = 0; i < MAX_DISPLAY_OPTIONS; i++)
 		{
 			byte a = TERM_WHITE;
 
@@ -907,8 +916,8 @@ static void do_cmd_options_win(void)
 		/* Move */
 		if (d != 0)
 		{
-			x = (x + ddx[d] + 8) % 8;
-			y = (y + ddy[d] + 16) % 16;
+			x = (x + ddx[d] + ANGBAND_TERM_MAX) % ANGBAND_TERM_MAX;
+			y = (y + ddy[d] + MAX_DISPLAY_OPTIONS) % MAX_DISPLAY_OPTIONS;
 		}
 
 		/* Oops */
@@ -936,10 +945,13 @@ static void do_cmd_options_win(void)
 		Term_clear();
 
 		/* Refresh */
-		Term_fresh();
+		(void)Term_fresh();
 
 		/* Restore */
 		Term_activate(old);
+
+		/* Note change */
+		*modified = TRUE;
 	}
 }
 
@@ -986,19 +998,19 @@ static errr option_dump(cptr fname)
 	for (i = 0; i < OPT_CHEAT; i++)
 	{
 		/* Require a real option */
-		if (!option_text[i]) continue;
+		if (!options[i].text) continue;
 
 		/* Comment */
-		fprintf(fff, "# Option '%s'\n", option_desc[i]);
+		fprintf(fff, "# Option '%s'\n", options[i].desc);
 
 		/* Dump the option */
 		if (op_ptr->opt[i])
 		{
-			fprintf(fff, "Y:%s\n", option_text[i]);
+			fprintf(fff, "Y:%s\n", options[i].text);
 		}
 		else
 		{
-			fprintf(fff, "X:%s\n", option_text[i]);
+			fprintf(fff, "X:%s\n", options[i].text);
 		}
 
 		/* Skip a line */
@@ -1057,10 +1069,11 @@ void do_cmd_options(void)
 {
 	char ch;
 
+	/* No options have been modified yet */
+	bool modified = FALSE;
 
 	/* Save screen */
 	screen_save();
-
 
 	/* Interact */
 	while (1)
@@ -1088,14 +1101,17 @@ void do_cmd_options(void)
 
 		/* Load and Append */
 		prt("(L) Load a user pref file", 14, 5);
-		prt("(A) Append options to a file", 15, 5);
+
+		if (!modified)	prt("(A) Append options to a file", 15, 5);
+		else c_prt(TERM_YELLOW ,"(A) Append option modifications to a file", 15, 5);
 
 		/* Special choices */
 		prt("(D) Base Delay Factor", 17, 5);
 		prt("(H) Hitpoint Warning", 18, 5);
+		prt("(P) Panel change offset", 19, 5);
 
 		/* Prompt */
-		prt("Command: ", 20, 0);
+		prt("Command: ", 21, 0);
 
 		/* Get command */
 		ch = inkey();
@@ -1106,49 +1122,49 @@ void do_cmd_options(void)
 		/* General Options */
 		else if (ch == '1')
 		{
-			do_cmd_options_aux(0, "User Interface Options");
+			do_cmd_options_aux(0, "User Interface Options", &modified);
 		}
 
 		/* Disturbance Options */
 		else if (ch == '2')
 		{
-			do_cmd_options_aux(1, "Disturbance Options");
+			do_cmd_options_aux(1, "Disturbance Options", &modified);
 		}
 
 		/* Inventory Options */
 		else if (ch == '3')
 		{
-			do_cmd_options_aux(2, "Game-Play Options");
+			do_cmd_options_aux(2, "Game-Play Options", &modified);
 		}
 
 		/* Efficiency Options */
 		else if (ch == '4')
 		{
-			do_cmd_options_aux(3, "Efficiency Options");
+			do_cmd_options_aux(3, "Efficiency Options", &modified);
 		}
 
 		/* Display Options */
 		else if (ch == '5')
 		{
-			do_cmd_options_aux(4, "Display Options");
+			do_cmd_options_aux(4, "Display Options", &modified);
 		}
 
 		/* Birth Options */
 		else if (ch == '6')
 		{
-			do_cmd_options_aux(5, "Birth Options");
+			do_cmd_options_aux(5, "Birth Options", &modified);
 		}
 
 		/* Cheating Options */
 		else if (ch == '7')
 		{
-			do_cmd_options_aux(6, "Cheat Options");
+			do_cmd_options_aux(6, "Cheat Options", &modified);
 		}
 
 		/* Window flags */
 		else if ((ch == 'W') || (ch == 'w'))
 		{
-			do_cmd_options_win();
+			do_cmd_options_win(&modified);
 		}
 
 		/* Squelching and autoinscription menus */
@@ -1161,7 +1177,10 @@ void do_cmd_options(void)
 		else if ((ch == 'L') || (ch == 'l'))
 		{
 			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(20);
+			do_cmd_pref_file_hack(21);
+
+			/* XXX XXX -- Assume no modifications remain */
+			modified = FALSE;
 		}
 
 		/* Append options to a file */
@@ -1170,10 +1189,10 @@ void do_cmd_options(void)
 			char ftmp[80];
 
 			/* Prompt */
-			prt("Command: Append options to a file", 20, 0);
+			prt("Command: Append options to a file", 21, 0);
 
 			/* Prompt */
-			prt("File: ", 21, 0);
+			prt("File: ", 22, 0);
 
 			/* Default filename */
 			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
@@ -1192,13 +1211,19 @@ void do_cmd_options(void)
 				/* Success */
 				msg_print("Done.");
 			}
+
+			/* All modified options have been saved */
+			modified = FALSE;
 		}
 
 		/* Hack -- Base Delay Factor */
 		else if ((ch == 'D') || (ch == 'd'))
 		{
+			/* Remember old value of delay factor */
+			int old_delay_factor = op_ptr->delay_factor;
+
 			/* Prompt */
-			prt("Command: Base Delay Factor", 20, 0);
+			prt("Command: Base Delay Factor", 21, 0);
 
 			/* Get a new value */
 			while (1)
@@ -1206,34 +1231,103 @@ void do_cmd_options(void)
 				char cx;
 				int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 				prt(format("Current base delay factor: %d (%d msec)",
-				           op_ptr->delay_factor, msec), 22, 0);
-				prt("New base delay factor (0-9 or ESC to accept): ", 21, 0);
+				           op_ptr->delay_factor, msec), 23, 0);
+				prt("New base delay factor (0-9 or ESC to accept): ", 22, 0);
 
 				cx = inkey();
 				if (cx == ESCAPE) break;
 				if (isdigit((unsigned char)cx)) op_ptr->delay_factor = D2I(cx);
 				else bell("Illegal delay factor!");
 			}
+
+			/* Note that a change was made */
+			if (op_ptr->delay_factor != old_delay_factor) modified = TRUE;
 		}
 
 		/* Hack -- hitpoint warning factor */
 		else if ((ch == 'H') || (ch == 'h'))
 		{
 			/* Prompt */
-			prt("Command: Hitpoint Warning", 20, 0);
+			prt("Command: Hitpoint Warning", 21, 0);
 
 			/* Get a new value */
 			while (1)
 			{
 				char cx;
 				prt(format("Current hitpoint warning: %2d%%",
-				           op_ptr->hitpoint_warn * 10), 22, 0);
-				prt("New hitpoint warning (0-9 or ESC to accept): ", 21, 0);
+				           op_ptr->hitpoint_warn * 10), 23, 0);
+				prt("New hitpoint warning (0-9 or ESC to accept): ", 22, 0);
 
 				cx = inkey();
 				if (cx == ESCAPE) break;
 				if (isdigit((unsigned char)cx)) op_ptr->hitpoint_warn = D2I(cx);
 				else bell("Illegal hitpoint warning!");
+			}
+		}
+
+		else if ((ch == 'P') || (ch == 'p'))
+		{
+			/* Prompt */
+			prt("Command: Panel change offset", 21, 0);
+
+			/* Get a new value */
+			while (1)
+			{
+				char buf[80];
+				char cx;
+
+				/* Show current settings */
+				prt(format("Current offsets: top/bottom = %d, sides = %d",
+				           (int)panel_change_offset_y, (int)panel_change_offset_x), 23, 0);
+				/* Show options */
+				prt("New offsets (y for top/bottom, x for sides or ESC to accept): ", 22, 0);
+
+				/* Get a key */
+				cx = inkey();
+				/* Process operations */
+				if (cx == ESCAPE) break;
+				else if ((cx == 'Y') || (cx == 'y'))
+				{
+					/* Get a default value */
+					strnfmt(buf, sizeof(buf), "%d", panel_change_offset_y);
+
+					/* Show prompt/set cursor location */
+					prt("New offset for top/bottom: ", 22, 0);
+
+					/* Get the new value */
+					if (askfor_aux(buf, sizeof(buf)))
+					{
+						/* Conver to number */
+						int new_value = atoi(buf);
+
+						/* Check bounds */
+						if (new_value < MIN_PANEL_CHANGE_OFFSET_Y) bell("Illegal offset!");
+
+						/* Assign */
+						else panel_change_offset_y = new_value;
+					}
+				}
+				else if ((cx == 'X') || (cx == 'x'))
+				{
+					/* Get a default value */
+					strnfmt(buf, sizeof(buf), "%d", panel_change_offset_x);
+
+					/* Show prompt/set cursor location */
+					prt("New offset for sides: ", 22, 0);
+
+					/* Get the new value */
+					if (askfor_aux(buf, sizeof(buf)))
+					{
+						/* Conver to number */
+						int new_value = atoi(buf);
+
+						/* Check bounds */
+						if (new_value < MIN_PANEL_CHANGE_OFFSET_X) bell("Illegal offset!");
+
+						/* Assign */
+						else panel_change_offset_x = new_value;
+					}
+				}
 			}
 		}
 
@@ -1248,14 +1342,14 @@ void do_cmd_options(void)
 		message_flush();
 	}
 
-
 	/* Load screen */
 	screen_load();
+
 }
 
 
 
-#ifdef ALLOW_MACROS
+
 
 /*
  * Hack -- append all current macros to the given file
@@ -1347,7 +1441,6 @@ static void do_cmd_macro_aux(char *buf)
 
 	char tmp[1024];
 
-
 	/* Flush */
 	flush();
 
@@ -1378,7 +1471,6 @@ static void do_cmd_macro_aux(char *buf)
 
 	/* Flush */
 	flush();
-
 
 	/* Convert the trigger */
 	ascii_to_text(tmp, sizeof(tmp), buf);
@@ -1520,7 +1612,7 @@ static errr keymap_dump(cptr fname)
 }
 
 
-#endif
+
 
 
 /*
@@ -1538,6 +1630,11 @@ void do_cmd_macros(void)
 
 	int mode;
 
+	/* No options have been modified yet */
+	bool modified_option = FALSE;
+
+	/* No keymaps have been modified yet */
+	bool modified_keymap = FALSE;
 
 	/* Roguelike */
 	if (rogue_like_commands)
@@ -1551,14 +1648,11 @@ void do_cmd_macros(void)
 		mode = KEYMAP_MODE_ORIG;
 	}
 
-
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-
 	/* Save screen */
 	screen_save();
-
 
 	/* Process requests until done */
 	while (1)
@@ -1581,17 +1675,22 @@ void do_cmd_macros(void)
 
 		/* Selections */
 		prt("(1) Load a user pref file", 4, 5);
-#ifdef ALLOW_MACROS
-		prt("(2) Append macros to a file", 5, 5);
+
+		if (!modified_option)	prt("(2) Append macros to a file", 5, 5);
+		else c_prt(TERM_YELLOW , "(2) Append macros to a file", 5, 5);
+
 		prt("(3) Query a macro", 6, 5);
 		prt("(4) Create a macro", 7, 5);
 		prt("(5) Remove a macro", 8, 5);
-		prt("(6) Append keymaps to a file", 9, 5);
+
+		if (!modified_keymap)	prt("(6) Append keymaps to a file", 9, 5);
+		else c_prt(TERM_YELLOW , "(6) Append keymaps to a file", 9, 5);
+
 		prt("(7) Query a keymap", 10, 5);
 		prt("(8) Create a keymap", 11, 5);
 		prt("(9) Remove a keymap", 12, 5);
 		prt("(0) Enter a new action", 13, 5);
-#endif /* ALLOW_MACROS */
+
 
 		/* Prompt */
 		prt("Command: ", 16, 0);
@@ -1607,9 +1706,10 @@ void do_cmd_macros(void)
 		{
 			/* Ask for and load a user pref file */
 			do_cmd_pref_file_hack(16);
-		}
 
-#ifdef ALLOW_MACROS
+			/*No current modifications*/
+			modified_option = FALSE;
+		}
 
 		/* Save macros */
 		else if (ch == '2')
@@ -1630,6 +1730,9 @@ void do_cmd_macros(void)
 
 			/* Dump the macros */
 			(void)macro_dump(ftmp);
+
+			/*No current modifications*/
+			modified_option = FALSE;
 
 			/* Prompt */
 			msg_print("Appended macros.");
@@ -1708,6 +1811,9 @@ void do_cmd_macros(void)
 
 				/* Prompt */
 				msg_print("Added a macro.");
+
+				/*We have a modification*/
+				modified_option = TRUE;
 			}
 		}
 
@@ -1725,6 +1831,9 @@ void do_cmd_macros(void)
 
 			/* Link the macro */
 			macro_add(pat, pat);
+
+			/*We have a modification*/
+			modified_option = TRUE;
 
 			/* Prompt */
 			msg_print("Removed a macro.");
@@ -1749,6 +1858,9 @@ void do_cmd_macros(void)
 
 			/* Dump the macros */
 			(void)keymap_dump(ftmp);
+
+			/*No current keymaps*/
+			modified_keymap = FALSE;
 
 			/* Prompt */
 			msg_print("Appended keymaps.");
@@ -1828,6 +1940,9 @@ void do_cmd_macros(void)
 				/* Make new keymap */
 				keymap_act[mode][(byte)(pat[0])] = string_make(macro_buffer);
 
+				/*There is a current keymaps*/
+				modified_keymap = TRUE;
+
 				/* Prompt */
 				msg_print("Added a keymap.");
 			}
@@ -1851,6 +1966,9 @@ void do_cmd_macros(void)
 			/* Make new keymap */
 			keymap_act[mode][(byte)(pat[0])] = NULL;
 
+			/*There is a current keymaps*/
+			modified_keymap = TRUE;
+
 			/* Prompt */
 			msg_print("Removed a keymap.");
 		}
@@ -1872,10 +1990,13 @@ void do_cmd_macros(void)
 			{
 				/* Extract an action */
 				text_to_ascii(macro_buffer, sizeof(macro_buffer), tmp);
+
+				/*There is a current keymaps*/
+				modified_keymap = TRUE;
 			}
 		}
 
-#endif /* ALLOW_MACROS */
+
 
 		/* Oops */
 		else
@@ -1893,143 +2014,6 @@ void do_cmd_macros(void)
 	screen_load();
 }
 
-/*
- * Asks to the player for an extended color. It is done in two steps:
- * 1. Asks for the base color.
- * 2. Asks for a specific shade.
- * It erases the given line.
- * If the user press ESCAPE no changes are made to attr.
- */
-static void askfor_shade(byte *attr, int y)
-{
- 	byte base, shade, temp;
-  	bool changed = FALSE;
-  	char *msg, *pos;
-  	int ch;
-
-  	/* Start with the given base color */
-  	base = GET_BASE_COLOR(*attr);
-
-  	/* 1. Query for base color */
-  	while (1)
-  	{
-    	/* Clear the line */
-    	Term_erase(0, y, 255);
-
-    	/* Format the query */
-    	msg = format("1. Choose base color (use arrows) " COLOR_SAMPLE
-					" %s (attr = %d) ", color_names[base], base);
-
-   	 	/* Display it */
-  	  	c_put_str(TERM_WHITE, msg, y, 0);
-
-    	/* Find the sample */
-    	pos = strstr(msg, COLOR_SAMPLE);
-
-    	/* Show it using the proper color */
-    	c_put_str(base, COLOR_SAMPLE, y, pos - msg);
-
-    	/* Place the cursor at the end of the message */
-    	Term_gotoxy(strlen(msg), y);
-
-    	/* Get a command */
-    	ch = inkey();
-
-    	/* Cancel */
-    	if (ch == ESCAPE)
-    	{
-      		/* Clear the line */
-      		Term_erase(0, y, 255);
-      		return;
-    	}
-
-    	/* Accept the current base color */
-    	if ((ch == '\r') || (ch == '\n')) break;
-
-    	/* Move to the previous color if possible */
-    	if ((ch == '4') && (base > 0))
-    	{
-     		--base;
-      		/* Reset the shade, see below */
-     	 	changed = TRUE;
-      		continue;
-    	}
-
-    	/* Move to the next color if possible */
-    	if ((ch == '6') && (base < MAX_BASE_COLORS - 1))
-    	{
-      		++base;
-      		/* Reset the shade, see below */
-      		changed = TRUE;
-      		continue;
-    	}
-  	}
-
-  	/* The player selected a different base color, start from shade 0 */
-  	if (changed)	shade = 0;
-  	/* We assume that the player is editing the current shade, go there */
-  	else		shade = GET_SHADE(*attr);
-
-  	/* 2. Query for specific shade */
-  	while (1)
-  	{
-    	/* Clear the line */
-    	Term_erase(0, y, 255);
-
-    	/* Create the real color */
-    	temp = MAKE_EXTENDED_COLOR(base, shade);
-
-    	/* Format the message */
-    	msg = format("2. Choose shade (use arrows) " COLOR_SAMPLE
-			" %s (attr = %d) ", get_ext_color_name(temp), temp);
-
-    	/* Display it */
-    	c_put_str(TERM_WHITE, msg, y, 0);
-
-    	/* Find the sample */
-    	pos = strstr(msg, COLOR_SAMPLE);
-
-    	/* Show it using the proper color */
-    	c_put_str(temp, COLOR_SAMPLE, y, pos - msg);
-
-    	/* Place the cursor at the end of the message */
-    	Term_gotoxy(strlen(msg), y);
-
-    	/* Get a command */
-    	ch = inkey();
-
-    	/* Cancel */
-    	if (ch == ESCAPE)
-    	{
-      		/* Clear the line */
-      		Term_erase(0, y, 255);
-      		return;
-    	}
-
-    	/* Accept the current shade */
-    	if ((ch == '\r') || (ch == '\n')) break;
-
-    	/* Move to the previous shade if possible */
-    	if ((ch == '4') && (shade > 0))
-    	{
-      		--shade;
-      		continue;
-    	}
-
-    	/* Move to the next shade if possible */
-    	if ((ch == '6') && (shade < MAX_SHADES - 1))
-    	{
-      		++shade;
-      		continue;
-    	}
- 	}
-
-  	/* Assign the selected shade */
-  	*attr = temp;
-
-  	/* Clear the line. It is needed to fit in the current UI */
-  	Term_erase(0, y, 255);
-}
 
 /*
  * Interact with "visuals"
@@ -2065,7 +2049,7 @@ void do_cmd_visuals(void)
 
 		/* Give some choices */
 		prt("(1) Load a user pref file", 4, 5);
-#ifdef ALLOW_VISUALS
+
 		prt("(2) Dump monster attr/chars", 5, 5);
 		prt("(3) Dump object attr/chars", 6, 5);
 		prt("(4) Dump feature attr/chars", 7, 5);
@@ -2074,7 +2058,7 @@ void do_cmd_visuals(void)
 		prt("(7) Change object attr/chars", 10, 5);
 		prt("(8) Change feature attr/chars", 11, 5);
 		prt("(9) Change flavor attr/chars", 12, 5);
-#endif
+
 		prt("(0) Reset visuals", 13, 5);
 
 		/* Prompt */
@@ -2093,7 +2077,7 @@ void do_cmd_visuals(void)
 			do_cmd_pref_file_hack(15);
 		}
 
-#ifdef ALLOW_VISUALS
+
 
 		/* Dump monster attr/chars */
 		else if (ch == '2')
@@ -2146,8 +2130,8 @@ void do_cmd_visuals(void)
 				fprintf(fff, "# %s\n", (r_name + r_ptr->name));
 
 				/* Dump the monster attr/char info */
-				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
+ 				fprintf(fff, "R:%d:%d:%d\n\n", i,
+  				        (byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
 			}
 
 			/* All done */
@@ -2214,8 +2198,8 @@ void do_cmd_visuals(void)
 				fprintf(fff, "# %s\n", (k_name + k_ptr->name));
 
 				/* Dump the object attr/char info */
-				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
+ 				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
+  				        (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
 			}
 
 			/* All done */
@@ -2274,16 +2258,22 @@ void do_cmd_visuals(void)
 			for (i = 0; i < z_info->f_max; i++)
 			{
 				feature_type *f_ptr = &f_info[i];
+				char name[80];
 
 				/* Skip non-entries */
 				if (!f_ptr->name) continue;
 
+				/* Get feature name */
+				feature_desc(name, sizeof(name),
+					f_ptr - f_info, FALSE, FALSE);
+
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (f_name + f_ptr->name));
+				fprintf(fff, "# %s\n", name);
 
 				/* Dump the feature attr/char info */
-				fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
+				fprintf(fff, "F:%d:%d:%d:%s\n\n", i,
+					(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char),
+					(f_ptr->f_flags2 & (FF2_ATTR_LITE)) ? "YES" : "NO");
 			}
 
 			/* All done */
@@ -2347,7 +2337,7 @@ void do_cmd_visuals(void)
 				fprintf(fff, "# %s\n", (flavor_text + flavor_ptr->text));
 
 				/* Dump the flavor attr/char info */
-				fprintf(fff, "L:%d:0x%02X:0x%02X\n\n", i,
+				fprintf(fff, "L:%d:%d:%d\n\n", i,
 				        (byte)(flavor_ptr->x_attr), (byte)(flavor_ptr->x_char));
 			}
 
@@ -2417,7 +2407,7 @@ void do_cmd_visuals(void)
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C/'s'hade): ");
+				            "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
 				cx = inkey();
@@ -2432,10 +2422,6 @@ void do_cmd_visuals(void)
 				if (cx == 'A') r_ptr->x_attr = (byte)(ca - 1);
 				if (cx == 'c') r_ptr->x_char = (byte)(cc + 1);
 				if (cx == 'C') r_ptr->x_char = (byte)(cc - 1);
-				if (cx == 's')
-				{
-				  askfor_shade(&r_ptr->x_attr, 22);
-				}
 			}
 		}
 
@@ -2492,7 +2478,7 @@ void do_cmd_visuals(void)
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C/'s'hade): ");
+				            "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
 				cx = inkey();
@@ -2507,10 +2493,6 @@ void do_cmd_visuals(void)
 				if (cx == 'A') k_info[k].x_attr = (byte)(ca - 1);
 				if (cx == 'c') k_info[k].x_char = (byte)(cc + 1);
 				if (cx == 'C') k_info[k].x_char = (byte)(cc - 1);
-				if (cx == 's')
-				{
-				  askfor_shade(&k_info[k].x_attr, 22);
-				}
 			}
 		}
 
@@ -2526,16 +2508,19 @@ void do_cmd_visuals(void)
 			while (1)
 			{
 				feature_type *f_ptr = &f_info[f];
+				char name[80];
 
 				byte da = (byte)(f_ptr->d_attr);
 				byte dc = (byte)(f_ptr->d_char);
 				byte ca = (byte)(f_ptr->x_attr);
 				byte cc = (byte)(f_ptr->x_char);
 
+				/* Get feature name */
+				feature_desc(name, sizeof(name), f, FALSE, FALSE);
+
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
-				            format("Terrain = %d, Name = %-40.40s",
-				                   f, (f_name + f_ptr->name)));
+				            format("Terrain = %d, Name = %-40.40s", f, name));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
@@ -2567,7 +2552,7 @@ void do_cmd_visuals(void)
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C/'s'hade): ");
+				            "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
 				cx = inkey();
@@ -2582,10 +2567,6 @@ void do_cmd_visuals(void)
 				if (cx == 'A') f_info[f].x_attr = (byte)(ca - 1);
 				if (cx == 'c') f_info[f].x_char = (byte)(cc + 1);
 				if (cx == 'C') f_info[f].x_char = (byte)(cc - 1);
-				if (cx == 's')
-				{
-				  askfor_shade(&f_info[f].x_attr, 22);
-				}
 			}
 		}
 
@@ -2643,7 +2624,7 @@ void do_cmd_visuals(void)
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C/'s'hade): ");
+				            "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
 				cx = inkey();
@@ -2658,14 +2639,10 @@ void do_cmd_visuals(void)
 				if (cx == 'A') flavor_info[f].x_attr = (byte)(ca - 1);
 				if (cx == 'c') flavor_info[f].x_char = (byte)(cc + 1);
 				if (cx == 'C') flavor_info[f].x_char = (byte)(cc - 1);
-				if (cx == 's')
-				{
-				  askfor_shade(&flavor_info[f].x_attr, 22);
-				}
 			}
 		}
 
-#endif /* ALLOW_VISUALS */
+
 
 		/* Reset visuals */
 		else if (ch == '0')
@@ -3182,10 +3159,10 @@ void do_cmd_colors(void)
 
 		/* Give some choices */
 		prt("(1) Load a user pref file", 4, 5);
-#ifdef ALLOW_COLORS
+
 		prt("(2) Dump colors", 5, 5);
 		prt("(3) Modify colors", 6, 5);
-#endif /* ALLOW_COLORS */
+
 
 		/* Prompt */
 		prt("Command: ", 8, 0);
@@ -3211,7 +3188,7 @@ void do_cmd_colors(void)
 			Term_redraw();
 		}
 
-#ifdef ALLOW_COLORS
+
 
 		/* Dump colors */
 		else if (ch == '2')
@@ -3295,7 +3272,7 @@ void do_cmd_colors(void)
 			modify_colors();
 		}
 
-#endif /* ALLOW_COLORS */
+
 
 		/* Unknown option */
 		else
@@ -3529,7 +3506,7 @@ void do_cmd_feeling(void)
 
 		my_strcpy(note, "You have entered ", sizeof(note));
 		my_strcpy(mon_theme, feeling_themed_level[feeling - LEV_THEME_HEAD], sizeof(mon_theme));
-		if (is_a_vowel(mon_theme[0])) my_strcat(note, "an ", sizeof(note));
+		if (my_is_vowel(mon_theme[0])) my_strcat(note, "an ", sizeof(note));
 		else my_strcat(note, "a ", sizeof(note));
 
 		my_strcat(note, format("%s stronghold.", mon_theme), sizeof(note));
@@ -3787,8 +3764,9 @@ static cptr object_group_text[] =
 	"Helms",
 	"Crowns",
 	"Boots",
-	"Spell books",
+	"Mage spell books",
 	"Prayer books",
+	"Druid spell books",
 	"Shots",
 	"Arrows",
 	"Bolts",
@@ -3829,6 +3807,7 @@ static byte object_group_tval[] =
 	TV_BOOTS,
 	TV_MAGIC_BOOK,
 	TV_PRAYER_BOOK,
+	TV_DRUID_BOOK,
 	TV_SHOT,
 	TV_ARROW,
 	TV_BOLT,
@@ -3905,7 +3884,7 @@ static bool is_artifact_fully_identified(byte art_num)
 		if (!o_ptr->k_idx) continue;
 
 		/* Go to next one if this is not the artifact */
-		if (o_ptr->name1 != art_num) continue;
+		if (o_ptr->art_num != art_num) continue;
 
 		/* We have a match, return the status*/
 		return (o_ptr->ident & (IDENT_MENTAL));
@@ -3926,7 +3905,7 @@ static bool is_artifact_fully_identified(byte art_num)
 		if (!(o_ptr->k_idx)) continue;
 
 		/* Go to next one if this is not the artifact */
-		if (o_ptr->name1 != art_num) continue;
+		if (o_ptr->art_num != art_num) continue;
 
 		/* We have a match, return the status*/
 		return (o_ptr->ident & (IDENT_MENTAL));
@@ -3956,7 +3935,7 @@ static bool is_artifact_fully_identified(byte art_num)
 				if (!(o_ptr->k_idx)) continue;
 
 				/* Go to next one if this is not the artifact */
-				if (o_ptr->name1 != art_num) continue;
+				if (o_ptr->art_num != art_num) continue;
 
 				/* We have a match, return the status*/
 				return (o_ptr->ident & (IDENT_MENTAL));
@@ -4006,7 +3985,7 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 		if (a_ptr->tval + a_ptr->sval == 0) continue;
 
 		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
+		if (!a_ptr->a_cur_num) continue;
 
 		/*assume all created artifacts are good at this point*/
 		okay[i] = TRUE;
@@ -4022,13 +4001,13 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 		if (!o_ptr->k_idx) continue;
 
 		/* Ignore non-artifacts */
-		if (!o_ptr->name1) continue;
+		if (!o_ptr->art_num) continue;
 
 		/* Ignore known items */
 		if (object_known_p(o_ptr)) continue;
 
 		/* We found a created, unidentified artifact */
-		okay[o_ptr->name1] = FALSE;
+		okay[o_ptr->art_num] = FALSE;
 
 	}
 
@@ -4045,13 +4024,13 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 		if (!(o_ptr->k_idx)) continue;
 
 		/* Ignore non-artifacts */
-		if (!o_ptr->name1) continue;
+		if (!o_ptr->art_num) continue;
 
 		/* Ignore known items */
 		if (object_known_p(o_ptr)) continue;
 
 		/* We found a created, unidentified artifact */
-		okay[o_ptr->name1] = FALSE;
+		okay[o_ptr->art_num] = FALSE;
 	}
 
 	/* Look for items in the home, if there is anything there */
@@ -4067,13 +4046,13 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 			if (!(o_ptr->k_idx)) continue;
 
 			/* Ignore non-artifacts */
-			if (!o_ptr->name1) continue;
+			if (!o_ptr->art_num) continue;
 
 			/* Ignore known items */
 			if (object_known_p(o_ptr)) continue;
 
 			/* We found a created, unidentified artifact */
-			okay[o_ptr->name1] = FALSE;
+			okay[o_ptr->art_num] = FALSE;
 		}
 
 	}
@@ -4243,11 +4222,11 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 /*
  * Hack -- Create a "forged" artifact
  */
-static bool prepare_fake_artifact(object_type *o_ptr, byte name1)
+static bool prepare_fake_artifact(object_type *o_ptr, byte art_num)
 {
 	s16b i;
 
-	artifact_type *a_ptr = &a_info[name1];
+	artifact_type *a_ptr = &a_info[art_num];
 
 	/* Ignore "empty" artifacts */
 	if (a_ptr->tval + a_ptr->sval == 0) return FALSE;
@@ -4262,7 +4241,7 @@ static bool prepare_fake_artifact(object_type *o_ptr, byte name1)
 	object_prep(o_ptr, i);
 
 	/* Save the name */
-	o_ptr->name1 = name1;
+	o_ptr->art_num = art_num;
 
 	/* Extract the fields */
 	o_ptr->pval = a_ptr->pval;
@@ -4281,13 +4260,13 @@ static bool prepare_fake_artifact(object_type *o_ptr, byte name1)
 	o_ptr->ident |= IDENT_STORE;
 
 	/* Set the "known" flag, but only if the artifact is *identified* */
-	if (is_artifact_fully_identified(name1))
+	if (is_artifact_fully_identified(art_num))
 	{
 		o_ptr->ident |= (IDENT_MENTAL);
 	}
 
 	/* Hack -- extract the "cursed" flag */
-	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+	if (a_ptr->a_flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
 	/* Success */
 	return (TRUE);
@@ -4363,8 +4342,8 @@ static void display_artifact_list(int col, int row, int per_page, int object_idx
 			artifact_type *a_ptr = &a_info[a_idx];
 
 			c_prt(attr, format ("%3d", a_idx), row + i, 68);
-			c_prt(attr, format ("%3d", a_ptr->level), row + i, 72);
-			c_prt(attr, format ("%3d", a_ptr->rarity), row + i, 76);
+			c_prt(attr, format ("%3d", a_ptr->a_level), row + i, 72);
+			c_prt(attr, format ("%3d", a_ptr->a_rarity), row + i, 76);
 
 		}
 
@@ -4476,7 +4455,7 @@ static void do_cmd_knowledge_artifacts(void)
 		display_artifact_list(max + 3, 6, BROWSER_ROWS, artifact_idx, artifact_cur, artifact_top);
 
 		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", 23, 0);
+		prt("<dir>, 'r' to recall, ESC", TERM_LAST_ROW, 0);
 
 		/* The "current" object changed */
 		if (artifact_old != artifact_idx[artifact_cur])
@@ -4653,7 +4632,7 @@ static cptr monster_group_char[] =
 	"z",
 	"Z",
 	",",
-	"$!?=._-",  /*Mimics*/
+	"$!?=._-~",  /*Mimics*/
 	NULL
 };
 
@@ -4801,6 +4780,19 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 		/* Display symbol */
 		Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
 
+		/* Beware of bigtile mode */
+		if (use_bigtile)
+		{
+			if (r_ptr->x_attr & 0x80)
+			{
+			  	Term_putch(69, row + i, 255, -1);
+		    	}
+			else
+			{
+			  	Term_putch(69, row + i, 0, ' ');
+			}
+		}
+
 		/* Display kills */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
@@ -4819,18 +4811,16 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 	}
 
 	/*Clear the monster count line*/
-	Term_erase(0, 22, 255);
+	Term_erase(0, TERM_LAST_ROW - 1, 255);
 
 	if (monster_group_char[grp_cur] != (char *) -1L)
    	{
-
-
-		c_put_str(TERM_L_BLUE, format("Total Creatures Slain: %8d.", slay_count), 22, col);
+		c_put_str(TERM_L_BLUE, format("Total Creatures Slain: %8d.", slay_count), TERM_LAST_ROW - 1, col);
 	}
 	else
 	{
 		c_put_str(TERM_L_BLUE, format("Known Uniques: %3d, Slain Uniques: %3d.", known_uniques, dead_uniques),
-						22, col);
+						TERM_LAST_ROW - 1, col);
 	}
 }
 
@@ -4933,7 +4923,7 @@ static void do_cmd_knowledge_monsters(void)
 		p_ptr->monster_race_idx = mon_idx[mon_cur].r_idx;
 
 		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", 23, 0);
+		prt("<dir>, 'r' to recall, ESC", TERM_LAST_ROW, 0);
 
 		/* Hack -- handle stuff */
 		handle_stuff();
@@ -5247,7 +5237,7 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		attr = ((i + object_top == object_cur) ? cursor : attr);
 
 		/* Acquire the basic "name" of the object*/
-	    strip_name(buf, k_idx);
+	    	strip_name(buf, k_idx);
 
 		/* Display the name */
 		c_prt(attr, buf, row + i, col);
@@ -5256,13 +5246,25 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 
 		if (k_ptr->aware)
 		{
-
 			/* Obtain attr/char */
-			byte a = k_ptr->flavor ? (flavor_info[k_ptr->flavor].x_attr): k_ptr->d_attr;
-			byte c = k_ptr->flavor ? (flavor_info[k_ptr->flavor].x_char): k_ptr->d_char;
+			byte a = k_ptr->flavor ? (flavor_info[k_ptr->flavor].x_attr): k_ptr->x_attr;
+			byte c = k_ptr->flavor ? (flavor_info[k_ptr->flavor].x_char): k_ptr->x_char;
 
 			/* Display symbol */
 			Term_putch(76, row + i, a, c);
+
+			/* Beware of bigtile mode */
+			if (use_bigtile)
+			{
+				if (a & 0x80)
+				{
+			  		Term_putch(77, row + i, 255, -1);
+		    		}
+				else
+				{
+			  		Term_putch(77, row + i, 0, ' ');
+				}
+			}
 		}
 	}
 
@@ -5272,6 +5274,441 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		Term_erase(col, row + i, 255);
 	}
 }
+
+/*
+ * The label of the group who collects miscellaneous features.
+ */
+#define MISC_GRP "Misc"
+
+
+/*
+ * Description of each feature group.
+ */
+static cptr feature_group_text[] =
+{
+	"Floors",
+	"Player Traps",
+	"Monster Traps",
+	"Runes",
+	"Doors",
+	"Stairs",
+	"Walls",
+	"Stores",
+	"Bridges",
+	"Water",
+	"Lava",
+	"Ice",
+	"Acid",
+	"Oil",
+	"Forest",
+	"Sand/Mud",
+	"Fire",
+	MISC_GRP,
+	NULL
+};
+
+/*
+ * Flags of features in each group.
+ * The misc. group must have all flags set to 0.
+ */
+static u32b feature_group_flag[] =
+{
+	FF1_FLOOR, 0, 0,
+	0, FF2_TRAP_PASSIVE, 0,
+	0, FF2_TRAP_MON, 0,
+	0, FF2_TRAP_SMART, 0,
+	FF1_DOOR, 0, 0,
+	FF1_STAIRS, 0, 0,
+	FF1_WALL, 0, 0,
+	FF1_SHOP, 0, 0,
+	0, FF2_BRIDGED, 0,
+	0, 0, FF3_WATER,
+	0, 0, FF3_LAVA,
+	0, 0, FF3_ICE,
+	0, 0, FF3_ACID,
+	0, 0, FF3_OIL,
+	0, 0, FF3_FOREST,
+	0, 0, FF3_SAND | FF3_MUD,
+	0, 0, FF3_FIRE,
+	0, 0, 0,   /*Misc Group*/
+	0, 0, 0
+};
+
+/*
+ * Build a list of feature indexes in the given group. Return the number
+ * of features in the group.
+ */
+static int collect_features(int grp_cur, int *feat_idx)
+{
+	int i, feat_cnt = 0;
+
+	u32b flags1 = feature_group_flag[grp_cur*3+0];
+	u32b flags2 = feature_group_flag[grp_cur*3+1];
+	u32b flags3 = feature_group_flag[grp_cur*3+2];
+
+	/*
+ 	 * We use the misc. group to collect features who don't match any
+ 	 * other group
+ 	 */
+ 	bool collecting_misc = streq(feature_group_text[grp_cur], MISC_GRP);
+
+ 	/* Special rules */
+ 	if (collecting_misc)
+ 	{
+ 		int grp;
+
+ 		/* We just collect the flags of the other groups here */
+ 		for (grp = 0; feature_group_text[grp]; grp++)
+ 		{
+ 			flags1 |= feature_group_flag[grp*3+0];
+ 			flags2 |= feature_group_flag[grp*3+1];
+ 			flags3 |= feature_group_flag[grp*3+2];
+ 		}
+	}
+
+	/*
+	 * We ignore feature #0 to avoid a crash since #0 is used to mark the
+	 * end of feat_idx
+	 */
+	for (i = 1; i < z_info->f_max; i++)
+	{
+		int idx, ii, tmp;
+
+		/* Access the features */
+		feature_type *f_ptr = &f_info[i];
+		feature_lore *f_l_ptr = &f_l_list[i];
+
+		/* Skip empty features */
+		if (!f_ptr->name) continue;
+
+		/* Skip features we never see */
+		if (f_ptr->f_mimic != i) continue;
+
+		/* Don't spoil terrain */
+		if (!f_ptr->f_everseen && !f_l_ptr->f_l_sights && !cheat_know) continue;
+
+		/* Check for any flags matching in the group */
+		if (_feat_ff1_match(f_ptr, flags1) ||
+ 			_feat_ff2_match(f_ptr, flags2) ||
+ 			_feat_ff3_match(f_ptr, flags3))
+		{
+			/*
+ 			 * Reject interesting features when collecting the
+ 			 * misc. group
+ 			 */
+ 			if (collecting_misc) continue;
+ 		}
+		/* No matching flags. Ignore boring feature */
+		else
+		{
+			/* Unless when collecting the misc. group */
+			if (!collecting_misc) continue;
+		}
+
+		for (ii = 0, idx = i; ii < feat_cnt; ii++)
+		{
+			char name1[80], name2[80];
+
+			feature_desc(name1, sizeof(name1), idx,
+				FALSE, FALSE);
+
+			feature_desc(name2, sizeof(name2), feat_idx[ii],
+				FALSE, FALSE);
+
+			if (strcmp(name1, name2) <= 0)
+			{
+				tmp = idx;
+				idx = feat_idx[ii];
+				feat_idx[ii] = tmp;
+			}
+		}
+
+		/* Add the feature */
+		feat_idx[feat_cnt++] = idx;
+
+	}
+
+	/* Terminate the list */
+	feat_idx[feat_cnt] = 0;
+
+	/* Return the number of races */
+	return feat_cnt;
+}
+
+
+/*
+ * Display the features in a group.
+ */
+static void display_feature_list(int col, int row, int per_page, int *feat_idx,
+	int feat_cur, int feat_top)
+{
+	int i;
+
+
+/* This Unangband code doesn't fit in NPP, yet. -DG- */
+#if 0
+
+
+	int col2 = 70;
+	int col3 = 72;
+
+	/* Correct columns 1 and 3 */
+	if (use_bigtile)
+	{
+		col2++; col3++; col3++;
+	}
+
+#endif /* 0 */
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && feat_idx[i]; i++)
+	{
+		byte attr;
+		char name[80];
+
+		/* Get the feature index */
+		int f_idx = feat_idx[feat_top + i];
+
+		/* Access the feature */
+		feature_type *f_ptr = &f_info[f_idx];
+
+		/* Choose a color */
+		attr = ((i + feat_top == feat_cur) ? TERM_L_BLUE : TERM_WHITE);
+
+		/* Get feature name */
+		feature_desc(name, sizeof(name), f_idx, FALSE, FALSE);
+
+		/* Display the name */
+		c_prt(attr, name, row + i, col);
+
+		/* Hack -- visual_list mode */
+		if (per_page == 1)
+		{
+			c_prt(attr, format(f_ptr->x_char >= 0 ? "%02x/%02x" :
+				"%02x/%d", f_ptr->x_attr, f_ptr->x_char),
+				row + i, 60);
+		}
+		else if (cheat_know)
+		{
+			c_prt(attr, format("%3d", f_idx), row + i, 60);
+		}
+
+		/* Display symbol */
+		Term_putch(68, row + i, f_ptr->x_attr, f_ptr->x_char);
+
+		if (use_bigtile)
+		{
+			if ((f_ptr->x_attr) & 0x80)
+			{
+				Term_putch(68 + 1, row + i, 255, -1);
+			}
+			else
+			{
+				Term_putch(68 + 1, row + i, 0, ' ');
+			}
+		}
+
+/* This Unangband code doesn't fit in NPP, yet. -DG- */
+#if 0
+
+
+		/* Tile supports special lighting? */
+		if (!(f_ptr->f_flags2 & (FF2_ATTR_LITE)))
+		{
+			prt("       ", row + i, col2);
+			continue;
+		}
+
+		Term_putch(col2, row + i, TERM_SLATE, '(');
+
+		Term_putch(col3, row + i, TERM_SLATE, '/');
+
+		if (use_bigtile)
+		{
+			Term_putch(col3 + 3, row + i, TERM_SLATE, ')');
+		}
+		else
+		{
+			Term_putch(col3 + 2, row + i, TERM_SLATE, ')');
+		}
+
+		/* Display Character */
+		Term_putch(col2+1, row + i, f_ptr->x_attr, f_ptr->x_char);
+
+		if (use_bigtile)
+		{
+			if ((f_ptr->x_attr) & 0x80)
+			{
+				Term_putch(col2 + 2, row + i, 255, -1);
+			}
+			else
+			{
+				Term_putch(col2 + 2, row + i, 0, ' ');
+			}
+		}
+
+#endif /* 0 */
+
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
+
+
+/*
+ * Interact with feature visuals.
+ */
+static void do_cmd_knowledge_features(void)
+{
+	int i, len, max;
+	int grp_cur, grp_top;
+	int feat_cur, feat_top;
+	int grp_cnt, grp_idx[100];
+	int feat_cnt;
+	int *feat_idx;
+
+	int column = 0;
+	bool flag;
+	bool redraw;
+
+	/* Allocate the "feat_idx" array */
+	C_MAKE(feat_idx, z_info->f_max, int);
+
+	max = 0;
+	grp_cnt = 0;
+
+	/* Check every group */
+	for (i = 0; feature_group_text[i] != NULL; i++)
+	{
+		/* Measure the label */
+		len = strlen(feature_group_text[i]);
+
+		/* Save the maximum length */
+		if (len > max) max = len;
+
+		/* See if any features are known */
+		if (collect_features(i, feat_idx))
+		{
+			/* Build a list of groups with known features */
+			grp_idx[grp_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	grp_cur = grp_top = 0;
+	feat_cur = feat_top = 0;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+
+		if (redraw)
+		{
+			clear_from(0);
+
+			prt("Knowledge - features", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+			if (cheat_know) prt("Idx", 4, 60);
+			prt("Sym", 4, 67);
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < BROWSER_ROWS; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
+
+		/* Scroll feature list */
+		if (feat_cur < feat_top) feat_top = feat_cur;
+		if (feat_cur >= feat_top + BROWSER_ROWS) feat_top = feat_cur - BROWSER_ROWS + 1;
+
+		/* Display a list of feature groups */
+		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, feature_group_text, grp_cur, grp_top);
+
+		/* Get a list of features in the current group */
+		feat_cnt = collect_features(grp_idx[grp_cur], feat_idx);
+
+		/* Display a list of features in the current group */
+		display_feature_list(max + 3, 6, BROWSER_ROWS, feat_idx, feat_cur, feat_top);
+
+		/* Mega Hack -- track this feature */
+		if (feat_cnt) feature_kind_track(feat_idx[feat_cur]);
+
+		/* Prompt */
+		prt("<dir>, 'r' to recall, ESC", TERM_LAST_ROW, 0);
+
+		/* Hack -- handle stuff */
+		handle_stuff();
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (feat_cur - feat_top));
+		}
+
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			case 'R':
+			case 'r':
+			{
+				/* Recall on screen */
+				if (f_info[feat_idx[feat_cur]].name)
+				{
+
+					screen_feature_roff(feat_idx[feat_cur]);
+
+					(void) inkey();
+
+					redraw = TRUE;
+				}
+				break;
+			}
+
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &feat_cur, feat_cnt);
+				break;
+			}
+		}
+	}
+
+	/* XXX XXX Free the "feat_idx" array */
+	KILL(feat_idx);
+}
+
 
 /*
  * Display contents of the Home. Code taken from the player death interface
@@ -5299,7 +5736,7 @@ static void do_cmd_knowledge_home(void)
 	if (!fp)
 	{
 		msg_print("Could not open a temporary file to show the contents of your	home.");
-	return;
+		return;
 	}
 
 
@@ -5427,7 +5864,7 @@ static void do_cmd_knowledge_objects(void)
 		display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
 
 		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", 23, 0);
+		prt("<dir>, 'r' to recall, ESC", TERM_LAST_ROW, 0);
 
 		/* Mega Hack -- track this monster race */
 		if (object_cnt) object_kind_track(object_idx[object_cur]);
@@ -5554,8 +5991,64 @@ static void do_cmd_knowledge_kills(void)
 	fd_kill(file_name);
 }
 
+/*
+ * Create and return an empty file in writing mode to append notes.
+ * It returns a copy of the file name in "path".
+ * "max" must be the maximum size in bytes of "path".
+ * Returns NULL on failure
+ */
+FILE *create_notes_file(char path[], size_t max)
+{
+	FILE *fp;
 
+#ifdef TEMPORARY_NOTES_FILES
 
+	/* Create a temporary file */
+	fp = my_fopen_temp(path, max);
+
+#else
+
+	/* Create the notes file in the lib/save folder */
+	char name[80];
+
+	/* Hack -- No base name yet */
+	if (!op_ptr->base_name[0]) process_player_name(FALSE);
+
+	/* Format the name of the notes file */
+	strnfmt(name, sizeof(name), "%s.nte", op_ptr->base_name);
+
+	/* Build the full path to the notes file */
+	path_build(path, max, ANGBAND_DIR_SAVE, name);
+
+	/* Create it */
+	fp = my_fopen(path, "w");
+
+#endif
+
+	return (fp);
+}
+
+/*
+ * Close and destroy the notes file. notes_file and notes_fname variables are cleared
+ */
+void delete_notes_file(void)
+{
+	/* Close the notes file */
+	if (notes_file)
+	{
+		my_fclose(notes_file);
+
+		notes_file = NULL;
+	}
+
+	/* Delete the notes file */
+	if (notes_fname[0])
+	{
+		fd_kill(notes_fname);
+
+		notes_fname[0] = '\0';
+	}
+}
 
 /*
  * Interact with "knowledge"
@@ -5586,19 +6079,20 @@ void do_cmd_knowledge(void)
 		prt("(1) Display known artifacts", 4, 5);
 		prt("(2) Display known monsters", 5, 5);
 		prt("(3) Display known objects", 6, 5);
-		prt("(4) Display hall of fame", 7, 5);
-		prt("(5) Display kill counts", 8, 5);
+		prt("(4) Display known features", 7,5);
+		prt("(5) Display hall of fame", 8, 5);
+		prt("(6) Display kill counts", 9, 5);
 
 		/*allow the player to see the notes taken if that option is selected*/
 		c_put_str((adult_take_notes ? TERM_WHITE : TERM_SLATE) ,
-					"(6) Display character notes file", 9, 5);
+					"(7) Display character notes file", 10, 5);
 
 		/*give player option to see home inventory if there is anything in the house*/
 		c_put_str((st_ptr->stock_num ? TERM_WHITE : TERM_SLATE) ,
-				 	"(7) Display contents of your home", 10, 5);
+				 	"(8) Display contents of your home", 11, 5);
 
 		/* Prompt */
-		prt("Command: ", 12, 0);
+		prt("Command: ", 13, 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -5623,28 +6117,32 @@ void do_cmd_knowledge(void)
 		{
 			do_cmd_knowledge_objects();
 		}
-
-		/* Scores */
+		/* Objects */
 		else if (ch == '4')
+		{
+			do_cmd_knowledge_features();
+		}
+		/* Scores */
+		else if (ch == '5')
 		{
 			show_scores();
 		}
 
 		/* Scores */
-		else if (ch == '5')
+		else if (ch == '6')
 		{
 			do_cmd_knowledge_kills();
 		}
 
 		/* Ntoes file, if one exists */
-		else if ((ch == '6') && (adult_take_notes))
+		else if ((ch == '7') && (adult_take_notes))
 		{
 			/* Spawn */
 			do_cmd_knowledge_notes();
 		}
 
 		/* Home inventory, if there is anything in the house */
-		else if ((ch == '7') && (st_ptr->stock_num))
+		else if ((ch == '8') && (st_ptr->stock_num))
 		{
 			/* Spawn */
 			do_cmd_knowledge_home();

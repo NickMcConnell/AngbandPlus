@@ -1,3 +1,169 @@
+NPP050
+
+New features:
+New Mage spellset by Anssi Ramela
+Implemented UnAngband terrain system, including many different terrain types, 
+dynamic terrain that changes over time, effects (temporary dungeon events that
+can last more than one turn).
+Themed terrain dungeon levels.
+Implemented new monster movement code.
+Added support for monsters to be susceptible to fire and cold.
+Made many monsters susceptible to fire and cold.
+Added 6 new vaults (5 designed by Roger Barnett)
+The symbol for Azathoth is now a jelly “J” instead of a demon “U”.
+Explosion and poison traps can affect the player as well.  The damage for these 
+   traps has been doubled.
+Oangband Quiver System
+A new player class, the druid, that emphasizes nature based attacks and defense.
+The ranger now uses spells from the druid class spellbooks.
+5 user interface patches provided by Pav (of angbang.oook.cz).
+A new book shop where magic and prayer books are sold.
+Removed hydra pits and nests.
+Updated 'graf-dvg.prf' tileset provided by "Damaniel" from the NPP Fan site.
+The latest of Leon Marrick's Project spells from Sangband.
+Updated and more sophisticaned monster movement code, in order that the monsters
+can move through all this new terrain in a sensible manner.
+Terrain lore and memory, to help the player understand all the new terrain types.
+8-bit character patch so non-ascii characters may be displayed.
+Fractal rooms and pools.
+Big-screen support for stores, knowledge screens and squelch menus
+Messages in color
+Monster messages from projection spells displayed by race.
+Stat sustains and hold life causes information to be displayed in different shade of green on main screen.
+Wall inscriptions for the player to read.
+2 new types of quest rewards - increase in max hit tpionts and increase to permanent speed.
+Certain Monsters can fly through the dungeon.
+Player can fly with the right type of magic.
+Object generation history displayed with the object description (taken from EYAngband).
+Better autoinscription support
+Some code cleanup in squelch.c
+Pattern substitution for inscriptions and autoinscriptions. Patterns are :all: and :random:
+Wall inscriptions and messages (suggested by Andrew Doull)
+Improved disturbance for monsters who can pass through or kill walls
+Added a quest indicator
+Monster list window is sorted by monster depth now
+Improved disturbance when monsters dig walls or bash/open doors
+Darkness effect on the dungeon floor (example: Nazgul aura) now disturbs the player (only in LOS)
+Code cleanup in project_m (removed duplicated code and mimicry code)
+Increased the frequency of iron shots.
+Gave the ring of tulkas combat bonuses for to-hit and to-damage.
+Improved how monsters act right after they are scared.
+Gold can merge with other gold while being dropped.
+Updated Monster list (by Anssi Ramela)
+New Druid class
+Imported the UNangband terrain system.
+Effects (spells that can last for a set duration)
+
+
+Added most changes from Angband 3.0.6, namely:
+- Renamed the artifact short sword 'Gilettar' to 'Dagmor' since that
+  name is mentioned for the sword of Beren in Tolkien's notes.
+  (suggested by Tyler Witter)
+- Added a new type of subwindow for displaying the dungeon area around
+  the player.
+- Added a new subwindow type "Display player (compact)" that displays
+  the left-hand-side of the main term (player stats, hitpoints, gold,
+  ...) in a separate window.
+- Added a new window type that displays the info from the status line.
+- Turned the "scroll map while targetting" option permanently on.
+- Identified scrolls can now look different from unidentified ones.
+  This allows the use of the individual scroll tiles created by David
+  Gervais.
+- Use actual monster and object symbols instead of a list of hardcoded
+  symbols when hallucinating.
+- Added Craig Oliver's Sound FX Patch version 1.1 that adds about 120
+  new sound events to the game.  COding Support for this feature only.  
+  The actual sound files are not included as the origin and conditions 
+  of use for these sound files were not certain.
+  (see also http://www.chambrook.org/angband/soundfx.php)
+- Scroll the map when the player is 1/4th of the visible grids away from
+  the edge of the map display.
+- Allow the OS X version to be started from a read-only medium, for
+  example from a disk image or a central installation under
+  'Applications'.  All user-specific files like savefiles, scores,
+  char-dumps, and saved preferences are stored in
+  'Library/Preferences/Angband/' and its subfolders inside the user's
+  home directory.
+- The Mac OS X application bundle now includes all the necessary files
+  from the lib folder.  The separate lib folder in the distribution is
+  no longer necessary.  This means that the OS X version can now be
+  installed by simply dragging the application icon to the target
+  directory.
+- The OS X version would crash when changing the sound or graphics
+  options before a character was created or loaded. (reported by Patrick
+  Hughes)
+- Don't save the Mac OS X preferences on exit if the game hasn't been
+  initialized properly to prevent corruption of the preference file in
+  case of an error at startup.  Skip loading the preference file if it
+  is broken. (problem reported by Matt Stone)
+- Include the basic Angband sound files per default in the OS X version.
+- Made the tile size independent of the font size in the X11 version.
+  Store various window settings like the window size between sessions.
+- Don't add a hardcoded 'games' subdirectory to the installation path on
+  multi-user machines.
+- Allow all user created files to be saved in subdirectories under
+  ~/.angband/Angband/ when PRIVATE_USER_PATH is defined.
+- Allow the use of the 'vcs' display module on systems with devfs-style
+  '/dev/vc/*' terminals.
+- The virtual console (vcs) front-end does now implement cursor
+  visibility and bigscreen support.  (Alexander Ulyanov)
+- Enable cursor visibility in the "gcu" front-end on Linux systems.
+  (Alexander Ulyanov)
+- Fixed a bug in the Xaw frontend, which made Angband crash if the main
+  window geometry was specified as an X resource. (Alexander Ulyanov)
+- Make X11 frontends show floors as centered dots, walls as blocks, and
+  treasures as diamonds. (Alexander Ulyanov)
+- Removed the restriction of bigtile mode to the main window in the X11
+  version.
+- Added Alexander Ulyanov's Linux framebuffer display module from:
+  http://posband.earthsea.org/misc/angband-lfb-20050220.tar.gz
+- Added compile instructions for MinGW/MSYS on Windows. (Tuomas
+  Härkönen)
+- Added compile instructions for gcc on Mac OS X.
+- Fixed a stupid bug that could cause the game to hang or crash when
+  killing quest monsters near the edge of the dungeon. (Ivan Tuckwell
+  and Dr. Andrew White)
+- Added missing tiles and tile assignments for the 32x32 tiles. (Ivan
+  Jekic and David Gervais)
+- Refresh the list of visible monsters after (Mass) Banishment,
+  Earthquake, and Destruction spells, when using the 'delete nearby
+  monsters' function in debug mode, as well as when pressing Ctrl-R.
+  ("Twilight")
+- Don't try to write zero-length blocks when saving the lib/data/*.raw
+  files. (suggested by Juha Niemimaki)
+- Fixed a Angband 3.0.6 alpha 1 specific crash with the Mac OS X 10.4
+  (Tiger) caused by releasing a reference that should not be released.
+  (reported by Harry Erwin)
+- The experience loss as a result of one of the One Ring's activations
+  is now 1/4 of both max and current experience instead of the
+  unintended reduction of max exp by 3/16 of the current experience.
+  (Hugo Kornelis)
+- Cleaned up the handling of experience draining when the player has
+  Hold Life. The fixed part of the exp drain by nether breaths is now
+  also reduced by Hold Life. (Hugo Kornelis)
+- The object description for the 'cure wounds' activation reads
+  "activates for cure wounds (4d7)", but it actually cures 4d8 points of
+  damage.  The description has been fixed. (Hugo Kornelis)
+- The "recharge item" artifact activation can now be canceled at the
+  "Recharge which item" prompt without draining the artifact's charge.
+  (Hugo Kornelis)
+- The symbol for the Shield of Deflection was a light blue [ instead of
+  a ) like all other shields. (Hugo Kornelis)
+- Reduced the price for "Raal's Tome of Destruction". (Hugo Kornelis and
+  Timo Pietila)
+
+
+
+Bugs:
+Fixed an error in calculating fractional experience
+Some hydras did not have the animal flag.
+Evil Iggy did not have the evil flag
+Azathoth could be summoned by the summon demon spells.
+Fixed bug where disconnected rooms can be generated.
+Dragon ARmor and Shields could not be chosen to be made into an artifact. 
+Corrected the description to the Palintir of Westernesse, since it no longer aggravates.
+
+
 NPPAngband 0.4.1
 
 New features:

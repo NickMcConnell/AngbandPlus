@@ -13,6 +13,7 @@
  * should not be defined by the user.
  */
 
+#include <limits.h>
 
 /*
  * OPTION: Compile on a Macintosh machine
@@ -176,8 +177,18 @@
  * OPTION: Define "L64" if a "long" is 64-bits.  See "h-types.h".
  * The only such platform that angband is ported to is currently
  * DEC Alpha AXP running OSF/1 (OpenVMS uses 32-bit longs).
+ *
+ * Try to use __WORDSIZE to test for 64-bit platforms.
+ * I don't know how portable this is.
+ * -CJN-
  */
-#if defined(__alpha) && defined(__osf__)
+#ifdef __WORDSIZE
+# if __WORDSIZE == 64
+#  define L64
+# endif
+#endif
+
+#if defined(__alpha) && defined(__osf__) && !defined(L64)
 # define L64
 #endif
 
@@ -198,23 +209,6 @@
     !defined(MSDOS) && !defined(USE_EMX) && \
     !defined(AMIGA) && !defined(RISCOS) && !defined(VM)
 # define SET_UID
-#endif
-
-
-/*
- * OPTION: Set "USG" for "System V" versions of Unix
- * This is used to choose a "lock()" function, and to choose
- * which header files ("string.h" vs "strings.h") to include.
- * It is also used to allow certain other options, such as options
- * involving userid's, or multiple users on a single machine, etc.
- */
-#ifdef SET_UID
-# if defined(SYS_III) || defined(SYS_V) || defined(SOLARIS) || \
-     defined(HPUX) || defined(SGI) || defined(ATARI)
-#  ifndef USG
-#   define USG
-#  endif
-# endif
 #endif
 
 
@@ -281,6 +275,14 @@
 # endif
 #endif
 
+/*
+ * On ports that use the "curses" library, hitting the escape key causes
+ * up to a one second delay.  On such machines, it is very helpful to
+ * provide an alternative.
+ */
+#ifdef USE_GCU
+# define USE_BACKQUOTE_AS_ESCAPE
+#endif /* USE_GCU */
 
 
 #endif

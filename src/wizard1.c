@@ -105,6 +105,7 @@ static const grouper group_item[] =
 
 	{ TV_MAGIC_BOOK,	"Books (Mage)" },
 	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_DRUID_BOOK,	"Books (Druid)" },
 
 	{ TV_CHEST,		"Chests" },
 
@@ -149,7 +150,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	i_ptr->to_d = 0;
 
 	/* Level */
-	(*lev) = k_ptr->level;
+	(*lev) = k_ptr->k_level;
 
 	/* Make known */
 	i_ptr->ident |= (IDENT_KNOWN);
@@ -233,6 +234,9 @@ static void spoil_obj_desc(cptr fname)
 
 	cptr format = "%-51s  %7s%6s%4s%9s\n";
 
+	/* We use either ascii or system-specific encoding */
+ 	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
+
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
@@ -300,7 +304,7 @@ static void spoil_obj_desc(cptr fname)
 				kind_info(buf, dam, wgt, &e, &v, who[s]);
 
 				/* Dump it */
-				fprintf(fff, "  %-51s%7s%6s%4d%9ld\n",
+				x_fprintf(fff, encoding, "  %-51s%7s%6s%4d%9ld\n",
 				        buf, dam, wgt, e, (long)(v));
 			}
 
@@ -311,7 +315,7 @@ static void spoil_obj_desc(cptr fname)
 			if (!group_item[i].tval) break;
 
 			/* Start a new set */
-			fprintf(fff, "\n\n%s\n\n", group_item[i].name);
+			x_fprintf(fff, encoding, "\n\n%s\n\n", group_item[i].name);
 		}
 
 		/* Get legal item types */
@@ -323,7 +327,7 @@ static void spoil_obj_desc(cptr fname)
 			if (k_ptr->tval != group_item[i].tval) continue;
 
 			/* Hack -- Skip instant-artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			if (k_ptr->k_flags3 & (TR3_INSTA_ART)) continue;
 
 			/* Save the index */
 			who[n++] = k;
@@ -385,11 +389,11 @@ static const grouper group_artifact[] =
 /*
  * Hack -- Create a "forged" artifact
  */
-bool make_fake_artifact(object_type *o_ptr, byte name1)
+bool make_fake_artifact(object_type *o_ptr, byte art_num)
 {
 	int i;
 
-	artifact_type *a_ptr = &a_info[name1];
+	artifact_type *a_ptr = &a_info[art_num];
 
 	/* Ignore "empty" artifacts */
 	if (a_ptr->tval + a_ptr->sval == 0) return FALSE;
@@ -404,7 +408,7 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 	object_prep(o_ptr, i);
 
 	/* Save the name */
-	o_ptr->name1 = name1;
+	o_ptr->art_num = art_num;
 
 	/* Extract the fields */
 	o_ptr->pval = a_ptr->pval;
@@ -417,7 +421,7 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 	o_ptr->weight = a_ptr->weight;
 
 	/* Hack -- extract the "cursed" flag */
-	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+	if (a_ptr->a_flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
 	/* Success */
 	return (TRUE);
@@ -507,7 +511,7 @@ static void spoil_artifact(cptr fname)
 			 * its weight, and its value in gold pieces.
 			 */
 			text_out(format("\nLevel %u, Rarity %u, %d.%d lbs, %ld AU\n",
-			                a_ptr->level, a_ptr->rarity, (a_ptr->weight / 10),
+			                a_ptr->a_level, a_ptr->a_rarity, (a_ptr->weight / 10),
 			                (a_ptr->weight % 10), ((long)a_ptr->cost)));
 
 			/* Terminate the entry */
@@ -550,6 +554,8 @@ static void spoil_mon_desc(cptr fname)
 	u16b *who;
 	u16b why = 2;
 
+	/* We use either ascii or system-specific encoding */
+ 	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
@@ -568,14 +574,14 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for %s Version %s\n",
+	x_fprintf(fff, encoding, "Monster Spoilers for %s Version %s\n",
 	        VERSION_NAME, VERSION_STRING);
-	fprintf(fff, "------------------------------------------\n\n");
+	x_fprintf(fff, encoding, "------------------------------------------\n\n");
 
 	/* Dump the header */
-	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
+	x_fprintf(fff, encoding, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
 	        "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
-	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
+	x_fprintf(fff, encoding, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
 	        "----", "---", "---", "---", "--", "--", "------------");
 
 	/* Allocate the "who" array */
@@ -656,7 +662,7 @@ static void spoil_mon_desc(cptr fname)
 		strnfmt(exp, sizeof(exp), "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
 
 		/* Dump the info */
-		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
+		x_fprintf(fff, encoding, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
 		        nam, lev, rar, spd, hp, ac, exp);
 	}
 
@@ -843,6 +849,115 @@ static void spoil_mon_info(cptr fname)
 	msg_print("Successfully created a spoiler file.");
 }
 
+/*
+ * Create a spoiler file for monsters (-SHAWN-)
+ */
+static void spoil_features(cptr fname)
+{
+	char buf[1024];
+	int i, n;
+	u16b why = 2;
+	u16b *who;
+	int count = 0;
+
+
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Open the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff)
+	{
+		msg_print("Cannot create spoiler file.");
+		return;
+	}
+
+	/* Dump to the spoiler file */
+	text_out_hook = text_out_to_file;
+	text_out_file = fff;
+
+	/* Dump the header */
+	strnfmt(buf, sizeof(buf), "Feature Spoilers for %s Version %s\n",
+	        VERSION_NAME, VERSION_STRING);
+	text_out(buf);
+	text_out("------------------------------------------\n\n");
+
+	/* Allocate the "who" array */
+	C_MAKE(who, z_info->f_max, u16b);
+
+	/* Scan thef features */
+	for (i = 1; i < z_info->f_max; i++)
+	{
+		feature_type *f_ptr = &f_info[i];
+
+		/* Use that feature */
+		if (f_ptr->name) who[count++] = (u16b)i;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of features */
+	ang_sort(who, &why, count);
+
+	/*
+	 * List all features in order.
+	 */
+	for (n = 0; n < count; n++)
+	{
+
+		int f_idx = who[n];
+		feature_type *f_ptr = &f_info[f_idx];
+
+		/*Output the name*/
+		feature_desc(buf, sizeof(buf), f_idx, TRUE, FALSE);
+
+		/* Name */
+		strnfmt(buf, sizeof(buf), "%s  (", (f_name + f_ptr->name));	/* ---)--- */
+		text_out(buf);
+
+		/* Color */
+		text_out(attr_to_text(f_ptr->d_attr));
+
+		/* Symbol --(-- */
+		sprintf(buf, " '%c')\n", f_ptr->d_char);
+		text_out(buf);
+
+
+		/* Indent */
+		sprintf(buf, "=== ");
+		text_out(buf);
+
+		/* Number */
+		sprintf(buf, "Num:%d  ", f_idx);
+		text_out(buf);
+
+		/* Describe */
+		describe_feature(f_idx, TRUE);
+
+		/* Terminate the entry */
+		text_out("\n");
+	}
+
+	/* Free the "who" array */
+	FREE(who);
+
+	/* Check for errors */
+	if (ferror(fff) || my_fclose(fff))
+	{
+		msg_print("Cannot close spoiler file.");
+		return;
+	}
+
+	msg_print("Successfully created a spoiler file.");
+}
+
 
 
 /*
@@ -871,6 +986,7 @@ void do_cmd_spoilers(void)
 		prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
 		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
 		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
+		prt("(5) Full Feature Info (feature.spo)", 9, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);
@@ -906,6 +1022,12 @@ void do_cmd_spoilers(void)
 		else if (ch == '4')
 		{
 			spoil_mon_info("mon-info.spo");
+		}
+
+		/* Option (4) */
+		else if (ch == '5')
+		{
+			spoil_features("feature.spo");
 		}
 
 		/* Oops */

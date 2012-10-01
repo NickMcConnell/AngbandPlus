@@ -120,7 +120,7 @@ Objects0 = ¶
 	{ObjDir}xtra1.o {ObjDir}xtra2.o ¶
 	{ObjDir}object1.o {ObjDir}object2.o {ObjDir}obj-info.o ¶
 	{ObjDir}monster1.o {ObjDir}monster2.o ¶
-	{ObjDir}spells1.o {ObjDir}spells2.o ¶
+	{ObjDir}spells1.o {ObjDir}spells2.o effects.o feature.o ¶
 	{ObjDir}files.o {ObjDir}save.o {ObjDir} squelch.o¶
 	{ObjDir}cmd1.o {ObjDir}cmd2.o {ObjDir}cmd3.o {ObjDir}cmd4.o ¶
 	{ObjDir}cmd5.o {ObjDir}cmd6.o ¶
@@ -474,12 +474,17 @@ LibsMPW = ¶
 {ObjDir}spells2.o Ä {SrcDir}spells2.c
 	{C} {SrcDir}spells2.c -o {ObjDir}spells2.o {CFlags} -i {SrcDir} {SegOpt01}
 
+{ObjDir}effects.o Ä {SrcDir}effects.c
+	{C} {SrcDir}effects.c -o {ObjDir}effects.o {CFlags} -i {SrcDir} {SegOpt01}
+
+{ObjDir}feature.o Ä {SrcDir}feature.c
+	{C} {SrcDir}feature.c -o {ObjDir}feature.o {CFlags} -i {SrcDir} {SegOpt01}
+
 {ObjDir}files.o Ä {SrcDir}files.c
 	{C} {SrcDir}files.c -o {ObjDir}files.o {CFlags} -i {SrcDir} {SegOpt01}
 
 {ObjDir}save.o Ä {SrcDir}save.c
 	{C} {SrcDir}save.c -o {ObjDir}save.o {CFlags} -i {SrcDir} {SegOpt01}
-
 
 {ObjDir}cmd1.o Ä {SrcDir}cmd1.c
 	{C} {SrcDir}cmd1.c -o {ObjDir}cmd1.o {CFlags} -i {SrcDir} {SegOpt01}

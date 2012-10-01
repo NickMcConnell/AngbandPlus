@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.5.0
 
 # General Store
 N:0:0:Bilbo the Friendly
@@ -75,7 +75,7 @@ N:5:1:Buggerby the Great
 I:4:20000:215:113:6:10
 N:5:2:Inglorian the Mage
 I:0:25000:200:110:7:10
-N:5:3:Luthien Starshine
+N:5:3:L['u]thien Starshine
 I:9:30000:175:110:5:11
 
 # Black Market
@@ -97,3 +97,14 @@ N:7:2:Your home
 I:99:0:100:100:0:99
 N:7:3:Your home
 I:99:0:100:100:0:99
+
+# Bookshop
+N:9:0:Nastra the Dusty
+I:5:20000:130:105:6:4
+N:9:1:Gabberam the Sage
+I:1:5000:190:115:5:8
+N:9:2:Barnus the Tome-master
+I:3:15000:150:115:3:12
+N:9:3:Hastiel the Encyclopedist
+I:9:30000:160:120:5:7
+

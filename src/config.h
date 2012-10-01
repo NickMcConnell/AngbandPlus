@@ -40,41 +40,6 @@
  */
 
 
-/*
- * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
- */
-/* #define USE_TPOSIX */
-
-/*
- * OPTION: Use the "termio" methods in "main-gcu.c"
- */
-/* #define USE_TERMIO */
-
-/*
- * OPTION: Use the icky BSD "tchars" methods in "main-gcu.c"
- */
-/* #define USE_TCHARS */
-
-
-/*
- * OPTION: Use "blocking getch() calls" in "main-gcu.c".
- * Hack -- Note that this option will NOT work on many BSD machines
- * Currently used whenever available, if you get a warning about
- * "nodelay()" undefined, then make sure to undefine this.
- */
-#if defined(SYS_V) || defined(AMIGA)
-# define USE_GETCH
-#endif
-
-
-/*
- * OPTION: Use the "curs_set()" call in "main-gcu.c".
- * Hack -- This option will not work on most BSD machines
- */
-#ifdef SYS_V
-# define USE_CURS_SET
-#endif
-
 
 /*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
@@ -136,6 +101,7 @@
 /* #define VERIFY_SAVEFILE */
 
 
+/* #define ALLOW_DATA_DUMP*/
 
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
@@ -153,26 +119,6 @@
  */
 #define ALLOW_SPOILERS
 
-/*
- * OPTION: Allow "do_cmd_colors" at run-time
- */
-#define ALLOW_COLORS
-
-/*
- * OPTION: Allow "do_cmd_visuals" at run-time
- */
-#define ALLOW_VISUALS
-
-/*
- * OPTION: Allow "do_cmd_macros" at run-time
- */
-#define ALLOW_MACROS
-
-
-/*
- * OPTION: Allow characteres to be "auto-rolled"
- */
-#define ALLOW_AUTOROLLER
 
 /*
  * OPTION: Allow parsing of the ascii template files in "init.c".
@@ -183,15 +129,14 @@
 
 
 /*
- * OPTION: Allow repeating of last command.
- */
-#define ALLOW_REPEAT
-
-
-/*
  * OPTION: Handle signals
  */
 #define HANDLE_SIGNALS
+
+/*
+ * OPTION: The notes files are created as temporary files
+ */
+#define TEMPORARY_NOTES_FILES
 
 /*
  * OPTION: Allow "Wizards" to yield "high scores"
@@ -208,23 +153,15 @@
  */
 /* #define SCORE_CHEATERS */
 
-/*
-* OPTION: Allow monsters to use noise and scent information to better
-* track the character.  This feature requires a significant amount of
-* memory, but makes monsters behave much more intelligently.
-*/
-#define MONSTER_FLOW
+
+/*#define ALLOW_DATA_DUMP*/
+
 
 /*
  * OPTION: Support multiple "player" grids in "map_info()"
  */
 /* #define MAP_INFO_MULTIPLE_PLAYERS */
 
-
-/*
- * OPTION: Use the "complex" wall illumination code
- */
-/* #define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION */
 
 
 /*
@@ -259,6 +196,7 @@
 /* Do not handle signals */
 # undef HANDLE_SIGNALS
 
+
 #endif
 
 
@@ -269,6 +207,9 @@
 
 /* Do not handle signals */
 # undef HANDLE_SIGNALS
+
+/* Windows Vista can't create temporary files */
+# undef TEMPORARY_NOTES_FILES
 
 #endif
 
@@ -315,9 +256,11 @@
  * for storing pref-files and character-dumps.
  */
 
-# ifdef PRIVATE_USER_PATH
-#  define PRIVATE_USER_PATH "~/.angband"
+#ifdef SET_UID
+# ifndef PRIVATE_USER_PATH
+#  define PRIVATE_USER_PATH "~/.angband/"
 # endif /* PRIVATE_USER_PATH */
+#endif /* SET_UID */
 
 
 /*
@@ -363,31 +306,31 @@
 /*
  * OPTION: Default font (when using X11).
  */
-#define DEFAULT_X11_FONT		"9x15"
+#define DEFAULT_X11_FONT		"-angband-8x12x-*-iso8859-1"
 
 
 /*
  * OPTION: Default fonts (when using X11)
  */
-#define DEFAULT_X11_FONT_0		"10x20"
-#define DEFAULT_X11_FONT_1		"9x15"
-#define DEFAULT_X11_FONT_2		"9x15"
-#define DEFAULT_X11_FONT_3		"5x8"
-#define DEFAULT_X11_FONT_4		"5x8"
-#define DEFAULT_X11_FONT_5		"5x8"
-#define DEFAULT_X11_FONT_6		"5x8"
-#define DEFAULT_X11_FONT_7		"5x8"
+#define DEFAULT_X11_FONT_0		"-angband-10x14x-*-iso8859-1"
+#define DEFAULT_X11_FONT_1		"-angband-8x12x-*-iso8859-1"
+#define DEFAULT_X11_FONT_2		"-angband-8x12x-*-iso8859-1"
+#define DEFAULT_X11_FONT_3		"-angband-5x8x-*-iso8859-1"
+#define DEFAULT_X11_FONT_4		"-angband-5x8x-*-iso8859-1"
+#define DEFAULT_X11_FONT_5		"-angband-5x8x-*-iso8859-1"
+#define DEFAULT_X11_FONT_6		"-angband-5x8x-*-iso8859-1"
+#define DEFAULT_X11_FONT_7		"-angband-5x8x-*-iso8859-1"
 
  /*
  * Hack -- Mach-O (native binary format of OS X) is basically a Un*x
  * but has Mac OS/Windows-like user interface
  */
 #ifdef MACH_O_CARBON
-# ifdef PRIVATE_USER_PATH
-#  undef PRIVATE_USER_PATH
-# endif
 # ifdef SAVEFILE_USE_UID
 #  undef SAVEFILE_USE_UID
+# endif
+# ifdef SET_UID
+#  undef SET_UID
 # endif
 #endif
 
@@ -412,11 +355,6 @@
  * Hack -- React to the "ANGBAND_LITE" flag
  */
 # ifdef ANGBAND_LITE
-# undef ALLOW_COLORS
-# undef ALLOW_VISUALS
-# undef ALLOW_MACROS
-# undef MONSTER_FLOW
-# undef ALLOW_TERROR
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
@@ -436,7 +374,6 @@
  */
 #ifdef VERIFY_HONOR
 # define VERIFY_SAVEFILE
-# define VERIFY_CHECKSUMS
 # define VERIFY_TIMESTAMP
 #endif
 

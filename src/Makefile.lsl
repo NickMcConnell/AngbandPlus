@@ -7,7 +7,7 @@ SRCS = \
   variable.c tables.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c \
   xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c save.c files.c \
+  melee1.c melee2.c save.c effects.c feature.c files.c  \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c load.c quest.c squelch.c \
   wizard1.c wizard2.c obj-info.c \
@@ -19,13 +19,13 @@ OBJS = \
   variable.o tables.o util.o cave.o \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o \
-  melee1.o melee2.o save.o files.o \
+  melee1.o melee2.o save.o effects.o feature.o files.o  \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o load.o quest.o squelch.o \
   wizard1.o wizard2.o obj-info.o \
   generate.o dungeon.o init1.o init2.o randart.o \
   main-lsl.o main.o \
-  use-obj.o 
+  use-obj.o
 
 
 CC = gcc
@@ -36,11 +36,11 @@ LIBS = -lz -lvgagl -lvga
 
 
 
-# 
-# Build the "Angband" program 
-# 
-angband: $(OBJS) 
-	$(CC) $(CFLAGS) -o angband $(OBJS) $(LDFLAGS) $(LIBS) 
+#
+# Build the "Angband" program
+#
+angband: $(OBJS)
+	$(CC) $(CFLAGS) -o angband $(OBJS) $(LDFLAGS) $(LIBS)
 
 
 #
@@ -84,15 +84,17 @@ cmd1.o: cmd1.c $(INCS)
 cmd2.o: cmd2.c $(INCS)
 cmd3.o: cmd3.c $(INCS)
 cmd4.o: cmd4.c $(INCS)
-cmd5.o: cmd5.c $(INCS) 
-cmd6.o: cmd6.c $(INCS) 
+cmd5.o: cmd5.c $(INCS)
+cmd6.o: cmd6.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
+effects.o: effects.c $(INCS)
+feature.o: feature.c $(INCS)
 files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS) init.h
-init2.o: init2.c $(INCS) init.h 
+init2.o: init2.c $(INCS) init.h
 randart.o: randart.c $(INCS) init.h
-load.o: load.c $(INCS)  init.h 
+load.o: load.c $(INCS)  init.h
 main-cap.o: main-cap.c $(INCS) main.h
 main-gcu.o: main-gcu.c $(INCS) main.h
 main-lsl.o: main-lsl.c $(INCS) main.h

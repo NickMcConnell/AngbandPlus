@@ -1356,12 +1356,12 @@ static Boolean channel_initialised = FALSE;
 /*
  * Data handles containing sound samples
  */
-static SndListHandle samples[SOUND_MAX];
+static SndListHandle samples[MSG_MAX];
 
 /*
  * Reference counts of sound samples
  */
-static SInt16 sample_refs[SOUND_MAX];
+static SInt16 sample_refs[MSG_MAX];
 
 
 /*
@@ -1403,7 +1403,7 @@ static void cleanup_sound(void)
 	}
 
 	/* Free sound data */
-	for (i = 1; i < SOUND_MAX; i++)
+	for (i = 1; i < MSG_MAX; i++)
 	{
 		/* Still locked */
 		if ((sample_refs[i] > 0) && (samples[i] != NULL))
@@ -1422,7 +1422,7 @@ static void cleanup_sound(void)
  * Play sound effects asynchronously -- pelpel
  *
  * I don't believe those who first started using the previous implementations
- * imagined this is *much* more complicated as it may seem.  Anyway, 
+ * imagined this is *much* more complicated as it may seem.  Anyway,
  * introduced round-robin scheduling of channels and made it much more
  * paranoid about HLock/HUnlock.
  *
@@ -1499,7 +1499,7 @@ static void play_sound(int num, SInt16 vol)
 	}
 
 	/* Paranoia */
-	if ((num <= 0) || (num >= SOUND_MAX)) return;
+	if ((num <= 0) || (num >= MSG_MAX)) return;
 
 	/* Prepare volume command */
 	volume_cmd.param2 = ((SInt32)vol << 16) | vol;
@@ -3235,7 +3235,7 @@ static void handle_open_when_ready(void)
 # define ITEM_8X8	2
 # define ITEM_16X16	3
 # define ITEM_32X32 4
-# define ITEM_BIGTILE 6	
+# define ITEM_BIGTILE 6
 
 /* TileWidth submenu */
 #define SUBMENU_TILEWIDTH	145
@@ -3394,7 +3394,7 @@ static void init_menubar(void)
 	/* Get graphics (sub)menu (id 144) */
 	m = GetMenu(SUBMENU_GRAPH);
 
-	/* Insert it as a submenu */		
+	/* Insert it as a submenu */
 	InsertMenu(m, hierMenu);
 
 
@@ -3698,7 +3698,7 @@ static void setup_menus(void)
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
 	}
-	
+
 	/* Item "None" */
 	EnableItem(m, ITEM_NONE);
 	CheckItem(m, ITEM_NONE, (graf_mode == GRAF_MODE_NONE));
@@ -4511,7 +4511,7 @@ static pascal OSErr AEH_Reopen(const AppleEvent *theAppleEvent,
  * as soon as they are no longer needed, to save space...',
  * but I don't know if this is still useful.
  *
- * Assume these files should be compiled as separate segments. 
+ * Assume these files should be compiled as separate segments.
  *
  * Only meaningful for 68K.  PPC header files define them to be no-op.
  */
@@ -5155,29 +5155,6 @@ static void hook_quit(cptr str)
 }
 
 
-/*
- * Hook to tell the user something, and then crash
- */
-static void hook_core(cptr str)
-{
-	/* XXX Use the debugger */
-	/* DebugStr(str); */
-
-	/* Warning */
-	if (str) mac_warning(str);
-
-	/* Warn, then save player */
-	mac_warning("Fatal error.\rI will now attempt to save and quit.");
-
-	/* Attempt to save */
-	if (!save_player()) mac_warning("Warning -- save failed!");
-
-	/* Quit */
-	quit(NULL);
-}
-
-
-
 /*** Main program ***/
 
 
@@ -5558,7 +5535,6 @@ int main(void)
 	/* Hooks in some "z-util.c" hooks */
 	plog_aux = hook_plog;
 	quit_aux = hook_quit;
-	core_aux = hook_core;
 
 
 #ifndef ANGBAND_LITE_MAC

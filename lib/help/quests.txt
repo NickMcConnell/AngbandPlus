@@ -1,5 +1,5 @@
 QUESTS:
-(This file was last edited for NPPAngband 0.4.0)
+(This file was last edited for NPPAngband 0.5.0)
 
 There are five different styles of quests in NPPAngband. There are two types of
 fixed quests and five types of optional quests.
@@ -126,6 +126,7 @@ potions, dungeon spellbooks, or guaranteed good or guaranteed great equipment.
 If a player's reputation at the guild is high enough, the guild may attempt 
 to tailor a great item to the player's biggest need, based on an evaluation 
 of the equipment the player is wearing, as well as the equipment in the 
-player's backpack and home.  The ultimate reward is for the guild to create 
-an artifact specifically as a quest reward.  The player will even be given 
+player's backpack and home.  The player can also receive permanent increases
+to their speed or maximum hit points.  The ultimate reward is for the guild to 
+create an artifact specifically as a quest reward.  The player will even be given 
 a chance to name the artifact.

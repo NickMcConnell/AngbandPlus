@@ -399,10 +399,10 @@ bool object_has_hidden_powers(const object_type *o_ptr)
   	/* Analyze xtra1 */
   	switch (o_ptr->xtra1)
   	{
-  		case OBJECT_XTRA_STAT_SUSTAIN:
-      	case OBJECT_XTRA_TYPE_HIGH_RESIST:
-      	case OBJECT_XTRA_TYPE_POWER:
-      	case OBJECT_XTRA_TYPE_IMMUNITY:
+		case OBJECT_XTRA_STAT_SUSTAIN:
+		case OBJECT_XTRA_TYPE_HIGH_RESIST:
+		case OBJECT_XTRA_TYPE_POWER:
+		case OBJECT_XTRA_TYPE_IMMUNITY:
 		{
 			return (TRUE);
 		}
@@ -449,14 +449,14 @@ static u32b add_xtra2_flags(u32b xtra_flags, byte xtra_size, u32b xtra_base)
 /*
  * Obtain the "flags" for an item
  */
-static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *native)
 {
 	object_kind *k_ptr;
 
 	if (mode == OBJECT_FLAGS_KNOWN)
 	{
 		/* Clear */
-		(*f1) = (*f2) = (*f3) = 0L;
+		(*f1) = (*f2) = (*f3) = (*native) = 0L;
 
 		/* Must be identified */
 		if (!object_known_p(o_ptr)) return;
@@ -465,43 +465,46 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Base object */
-	(*f1) = k_ptr->flags1;
-	(*f2) = k_ptr->flags2;
-	(*f3) = k_ptr->flags3;
+	(*f1) = k_ptr->k_flags1;
+	(*f2) = k_ptr->k_flags2;
+	(*f3) = k_ptr->k_flags3;
+	(*native) = k_ptr->k_native;
 
 	if (mode == OBJECT_FLAGS_FULL)
 	{
 		/* Artifact */
-		if (o_ptr->name1)
+		if (o_ptr->art_num)
 		{
-			artifact_type *a_ptr = &a_info[o_ptr->name1];
+			artifact_type *a_ptr = &a_info[o_ptr->art_num];
 
-			(*f1) = a_ptr->flags1;
-			(*f2) = a_ptr->flags2;
-			(*f3) = a_ptr->flags3;
+			(*f1) = a_ptr->a_flags1;
+			(*f2) = a_ptr->a_flags2;
+			(*f3) = a_ptr->a_flags3;
+			(*native) = a_ptr->a_native;
 		}
 	}
 
 	/* Ego-item */
-	if (o_ptr->name2)
+	if (o_ptr->ego_num)
 	{
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+		ego_item_type *e_ptr = &e_info[o_ptr->ego_num];
 
 		(*f1) |= e_ptr->flags1;
 		(*f2) |= e_ptr->flags2;
 		(*f3) |= e_ptr->flags3;
+		(*native) |= e_ptr->e_native;
 	}
 
 	if (mode == OBJECT_FLAGS_KNOWN)
 	{
 		/* Obvious artifact flags */
-		if (o_ptr->name1)
+		if (o_ptr->art_num)
 		{
-			artifact_type *a_ptr = &a_info[o_ptr->name1];
+			artifact_type *a_ptr = &a_info[o_ptr->art_num];
 
 			/* Obvious flags (pval) */
-			(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
-			(*f3) = (a_ptr->flags3 & (TR3_IGNORE_MASK));
+			(*f1) = (a_ptr->a_flags1 & (TR1_PVAL_MASK));
+			(*f3) = (a_ptr->a_flags3 & (TR3_IGNORE_MASK));
 		}
 	}
 
@@ -520,13 +523,14 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 #endif /* SPOIL_ARTIFACTS */
 
 		/* Artifact, *ID'ed or spoiled */
-		if ((o_ptr->name1) && (spoil || (o_ptr->ident & IDENT_MENTAL)))
+		if ((o_ptr->art_num) && (spoil || (o_ptr->ident & IDENT_MENTAL)))
 		{
-			artifact_type *a_ptr = &a_info[o_ptr->name1];
+			artifact_type *a_ptr = &a_info[o_ptr->art_num];
 
-			(*f1) = a_ptr->flags1;
-			(*f2) = a_ptr->flags2;
-			(*f3) = a_ptr->flags3;
+			(*f1) = a_ptr->a_flags1;
+			(*f2) = a_ptr->a_flags2;
+			(*f3) = a_ptr->a_flags3;
+			(*native) = a_ptr->a_native;
 
 		}
 
@@ -547,7 +551,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		{
 			/* Flag 2 */
 			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_SUSTAIN,
-												   OBJECT_XTRA_BASE_SUSTAIN);
+										OBJECT_XTRA_BASE_SUSTAIN);
 			break;
 		}
 
@@ -555,7 +559,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		{
 			/* Flag 2 */
 			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_HIGH_RESIST,
-												   OBJECT_XTRA_BASE_HIGH_RESIST);
+										OBJECT_XTRA_BASE_HIGH_RESIST);
 			break;
 		}
 
@@ -563,45 +567,45 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		{
 			/* Flag 3 */
 			(*f3) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_POWER,
-												   OBJECT_XTRA_BASE_POWER);
+										OBJECT_XTRA_BASE_POWER);
 			break;
 		}
 		case OBJECT_XTRA_TYPE_IMMUNITY:
 		{
 			/* Flag 2 */
 			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_IMMUNITY,
-												   OBJECT_XTRA_BASE_IMMUNITY);
+										OBJECT_XTRA_BASE_IMMUNITY);
 			break;
 		}
 		case OBJECT_XTRA_TYPE_STAT_ADD:
 		{
 			/* Flag 1 */
 			(*f1) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_STAT_ADD,
-												   OBJECT_XTRA_BASE_STAT_ADD);
+										OBJECT_XTRA_BASE_STAT_ADD);
 			/*Stat add Also sustains*/
 			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_SUSTAIN,
-												   OBJECT_XTRA_BASE_SUSTAIN);
+										OBJECT_XTRA_BASE_SUSTAIN);
 			break;
 		}
 		case OBJECT_XTRA_TYPE_SLAY:
 		{
 			/* Flag 1 */
 			(*f1) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_SLAY,
-												   OBJECT_XTRA_BASE_SLAY);
+										OBJECT_XTRA_BASE_SLAY);
 			break;
 		}
 		case OBJECT_XTRA_TYPE_KILL:
 		{
 			/* Flag 1 */
 			(*f1) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_KILL,
-												   OBJECT_XTRA_BASE_KILL);
+										OBJECT_XTRA_BASE_KILL);
 			break;
 		}
 		case OBJECT_XTRA_TYPE_BRAND:
 		{
 			/* Flag 1 */
 			(*f1) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_BRAND,
-												   OBJECT_XTRA_BASE_BRAND);
+										OBJECT_XTRA_BASE_BRAND);
 			/*
 			 * elemental brands also provide the appropriate resist
 			 * Note that the OBJECT_XTRA_SIZE_LOW_RESIST is not used.  There
@@ -609,7 +613,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			 * OBJECT_XTRA_SIZE_BRAND used here is deliberate and not a bug.
 			 */
 			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_BRAND,
-												   OBJECT_XTRA_BASE_LOW_RESIST);
+										OBJECT_XTRA_BASE_LOW_RESIST);
 
 			break;
 		}
@@ -617,7 +621,14 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		{
 			/* Flag 2 */
 			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_LOW_RESIST,
-												   OBJECT_XTRA_BASE_LOW_RESIST);
+										OBJECT_XTRA_BASE_LOW_RESIST);
+			break;
+		}
+		case OBJECT_XTRA_TYPE_NATIVE:
+		{
+			/* Flag native */
+			(*native) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_NATIVE,
+										OBJECT_XTRA_BASE_NATIVE);
 			break;
 		}
 	}
@@ -627,6 +638,9 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 	if ((*f2) & (TR2_RES_ELEC))	(*f3) |= TR3_IGNORE_ELEC;
 	if ((*f2) & (TR2_RES_FIRE))	(*f3) |= TR3_IGNORE_FIRE;
 	if ((*f2) & (TR2_RES_COLD))	(*f3) |= TR3_IGNORE_COLD;
+	if ((*native) & (TN1_NATIVE_LAVA | TN1_NATIVE_FIRE)) (*f3) |= TR3_IGNORE_FIRE;
+	if ((*native) & (TN1_NATIVE_ICE)) (*f3) |= TR3_IGNORE_COLD;
+	if ((*native) & (TN1_NATIVE_ACID)) (*f3) |= TR3_IGNORE_ACID;
 }
 
 
@@ -635,9 +649,9 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *native)
 {
-	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3);
+	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3, native);
 }
 
 
@@ -645,9 +659,9 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *native)
 {
-	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3);
+	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3, native);
 }
 
 
@@ -858,12 +872,12 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 	char tmp_buf[128];
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, fn;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &fn);
 
 	/* See if the object is "aware" */
 	aware = (object_aware_p(o_ptr) ? TRUE : FALSE);
@@ -876,9 +890,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 	/* Allow flavors to be hidden when aware */
 	if (aware && !show_flavors) flavor = FALSE;
-
-	/* We have seen the object */
-	if (aware) k_ptr->everseen = TRUE;
 
 	/* Object is in the inventory of a store */
 	if (o_ptr->ident & IDENT_STORE)
@@ -1065,7 +1076,15 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_MAGIC_BOOK:
 		{
 			modstr = basenm;
-			basenm = "& Book~ of Magic Spells #";
+			basenm = "& Book~ of Mage Spells #";
+			break;
+		}
+
+		/* Druid Books */
+		case TV_DRUID_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Druid Spells #";
 			break;
 		}
 
@@ -1135,7 +1154,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 
 		/* Hack -- A single one, and next character will be a vowel */
-		else if ((*s == '#') ? is_a_vowel(modstr[0]) : is_a_vowel(*s))
+		else if ((*s == '#') ? my_is_vowel(modstr[0]) : my_is_vowel(*s))
 		{
 			object_desc_str_macro(t, "an ");
 		}
@@ -1238,24 +1257,24 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (known)
 	{
 		/* Grab any artifact name */
-		if (o_ptr->name1)
+		if (o_ptr->art_num)
 		{
-			artifact_type *a_ptr = &a_info[o_ptr->name1];
+			artifact_type *a_ptr = &a_info[o_ptr->art_num];
 
 			object_desc_chr_macro(t, ' ');
 			object_desc_str_macro(t, a_ptr->name);
 		}
 
 		/* Grab any ego-item name */
-		else if (o_ptr->name2)
+		else if (o_ptr->ego_num)
 		{
-			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+			ego_item_type *e_ptr = &e_info[o_ptr->ego_num];
 
 			object_desc_chr_macro(t, ' ');
 			object_desc_str_macro(t, (e_name + e_ptr->name));
 
 			/* Hack - Now we know about the ego-item type */
-			e_info[o_ptr->name2].everseen = TRUE;
+			e_info[o_ptr->ego_num].everseen = TRUE;
 		}
 	}
 
@@ -1929,7 +1948,15 @@ void mimic_desc_object(char *buf, size_t max, s16b mimic_k_idx)
 		case TV_MAGIC_BOOK:
 		{
 			modstr = basenm;
-			basenm = "& Book~ of Magic Spells #";
+			basenm = "& Book~ of Mage Spells #";
+			break;
+		}
+
+		/* Druid Books */
+		case TV_DRUID_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Druid Spells #";
 			break;
 		}
 
@@ -1971,7 +1998,7 @@ void mimic_desc_object(char *buf, size_t max, s16b mimic_k_idx)
 		s += 2;
 
 		/* Hack -- A single one, and next character will be a vowel */
-		if ((*s == '#') ? is_a_vowel(modstr[0]) : is_a_vowel(*s))
+		if ((*s == '#') ? my_is_vowel(modstr[0]) : my_is_vowel(*s))
 		{
 			object_desc_str_macro(t, "an ");
 		}
@@ -2058,6 +2085,20 @@ void identify_random_gen(const object_type *o_ptr)
 	/* Dump the info */
 	if (object_info_out(o_ptr))
 		text_out("\n");
+
+	/* Dump object history if necessary */
+	if (history_interesting(o_ptr))
+	{
+		char buf[200];
+
+		/* Get the history and dump it */
+		if (format_object_history(buf, sizeof(buf), o_ptr))
+		{
+			text_out(buf);
+
+		       	text_out("\n");
+		}
+	}
 
 	/* Reset indent/wrap */
 	text_out_indent = 0;
@@ -2203,10 +2244,87 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			return (INVEN_FEET);
 		}
+
+		/* Ammo asks for first quiver slot */
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			return (INVEN_QUIVER);
+		}
 	}
 
 	/* No slot available */
 	return (-1);
+}
+
+
+/*
+ * Get the string that represents the pseudo-tag of the given quiver slot.
+ * The color of the pseudo-tag is also obtained.
+ * Returns the length of the pseudo-tag (0 on error).
+ */
+static int get_pseudo_tag(int slot, char tag[], int max_len, byte *color)
+{
+	byte tag_num = 0;
+	object_type *o_ptr, *i_ptr;
+	bool locked;
+	int i;
+	byte o_group;
+
+	/* Paranoia */
+	if (!IS_QUIVER_SLOT(slot)) return 0;
+
+	/* Get the object */
+	o_ptr = &inventory[slot];
+
+	/* Paranoia */
+	if (!o_ptr->k_idx) return 0;
+
+	/* Get the group of the object */
+	o_group = quiver_get_group(o_ptr);
+
+	/* Check if the ammo is locked */
+	locked = get_tag_num(slot, quiver_group[o_group].cmd, &tag_num);
+
+	/* We calculate the pseudo-tag if there is not a real one */
+	if (!locked)
+	{
+		/* Search the slots of the given ammo type */
+		for (i = INVEN_QUIVER; i < slot; i++)
+		{
+			byte i_group;
+
+			/* Get the object */
+			i_ptr = &inventory[i];
+
+			/* Paranoia */
+			if (!i_ptr->k_idx) continue;
+
+			/* Get the group of the object */
+			i_group = quiver_get_group(i_ptr);
+
+			/* The groups must be equal */
+			if (i_group != o_group) continue;
+
+			/*
+			 * A real tag overrides the current pseudo-tag when
+			 * we have many locked ammo with the same tag
+			 */
+			(void)get_tag_num(i, quiver_group[i_group].cmd, &tag_num);
+
+			/* But we always increment the pseudo-tag */
+			++tag_num;
+		}
+	}
+
+	/* Format the pseudo-tag */
+	strnfmt(tag, max_len, "%s%c%d", (locked ? "@": ""), quiver_group[o_group].cmd, tag_num);
+
+	/* Get the color of the group */
+	*color = quiver_group[o_group].color;
+
+	return strlen(tag);
 }
 
 
@@ -2233,6 +2351,12 @@ cptr mention_use(int i)
 		case INVEN_HANDS: p = "On hands"; break;
 		case INVEN_FEET:  p = "On feet"; break;
 		default:          p = "In pack"; break;
+	}
+
+	/* Hack -- Handle quiver */
+	if (IS_QUIVER_SLOT(i))
+	{
+		p = "In quiver";
 	}
 
 	/* Hack -- Heavy weapon */
@@ -2286,6 +2410,9 @@ cptr describe_use(int i)
 		case INVEN_FEET:  p = "wearing on your feet"; break;
 		default:          p = "carrying in your pack"; break;
 	}
+
+	/* Hack -- Handle quiver */
+	if (IS_QUIVER_SLOT(i)) p = "carrying in your quiver";
 
 	/* Hack -- Heavy weapon */
 	if (i == INVEN_WIELD)
@@ -2467,7 +2594,7 @@ void display_inven(void)
 		Term_erase(3+n, i, 255);
 
 		/* Display the weight if needed */
-		if (show_weights && o_ptr->weight)
+		if (o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
@@ -2475,8 +2602,68 @@ void display_inven(void)
 		}
 	}
 
+	/*
+	 * Add notes about slots used by the quiver, if we have space, want
+	 * to show all slots, and have items in the quiver.
+	 */
+	if ((p_ptr->pack_size_reduce) && (i <= (INVEN_PACK - p_ptr->pack_size_reduce)))
+	{
+		int ammo_num = 0, ammo_slot, j;
+
+		/* Count quiver ammo */
+		for (j = INVEN_QUIVER; j < END_QUIVER; j++)
+		{
+			/* Get the object */
+			o_ptr = &inventory[j];
+
+			/* Ignore empty objects */
+			if (!o_ptr->k_idx) continue;
+
+			/* Increment counter */
+			ammo_num += o_ptr->number * quiver_space_per_unit(o_ptr);
+		}
+
+		/* Leave out space till the bottom-most w) line */
+		for (i = z; i < (INVEN_PACK - p_ptr->pack_size_reduce); i++)
+		{
+			Term_erase(0, i, 255);
+		}
+
+		for (j = 0; j < p_ptr->pack_size_reduce; j++)
+		{
+
+			/* Get the number of missiles gathered in this slot */
+			if (j == 0)
+			{
+				ammo_slot = ammo_num -
+					99 * (p_ptr->pack_size_reduce - 1);
+			}
+			else
+			{
+				ammo_slot = 99;
+			}
+
+			/* Hack -- use "(QUIVER)" as a description. */
+			strnfmt(o_name, sizeof(o_name),
+				"   (QUIVER - %d missile%s)", ammo_slot,
+				(ammo_slot == 1) ? "": "s");
+
+			/* Obtain the length of the description */
+			n = strlen(o_name);
+
+			/* Display the entry itself */
+			Term_putstr(0, i, n, TERM_BLUE, o_name);
+
+			/* Erase the rest of the line */
+			Term_erase(n, i, 255);
+
+			/* Go to next line. */
+			i++;
+		}
+	}
+
 	/* Erase the rest of the window */
-	for (i = z; i < Term->hgt; i++)
+	for (; i < Term->hgt; i++)
 	{
 		/* Erase the line */
 		Term_erase(0, i, 255);
@@ -2498,12 +2685,60 @@ void display_equip(void)
 
 	char o_name[80];
 
+	char ptag_desc[MAX_QUIVER][10];
+	byte ptag_len[MAX_QUIVER];
+	byte ptag_color[MAX_QUIVER];
+	byte max_ptag_len = 0;
+	byte ptag_space;
+
+	/* Get the pseudo-tags of the quiver slots */
+	/* Calculate the maximum length of the pseudo-tags (for alignment) */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* The index in the temporary arrays */
+		int q = i - INVEN_QUIVER;
+
+		/* Paranoia */
+		ptag_len[q] = 0;
+
+		/* Get the object */
+		o_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Store pseudo-tag data in the arrays */
+		ptag_len[q] = get_pseudo_tag(i, ptag_desc[q],
+			sizeof(ptag_desc[q]), &ptag_color[q]);
+
+		/* Update the maximum length if necessary */
+		if (ptag_len[q] > max_ptag_len)
+		{
+			max_ptag_len = ptag_len[q];
+		}
+	}
 
 	/* Display the equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		/* Examine the item */
 		o_ptr = &inventory[i];
+
+		/* Hack -- Never show empty quiver slots */
+		if (!o_ptr->k_idx && IS_QUIVER_SLOT(i))
+		{
+			/* Clear that line */
+			Term_erase(0, i - INVEN_WIELD, 255);
+			continue;
+		}
+
+		/* Hack -- Never show the gap between equipment and quiver */
+		if (i == INVEN_BLANK)
+		{
+			/* Clear that line */
+			Term_erase(0, i - INVEN_WIELD, 255);
+			continue;
+		}
 
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
@@ -2530,24 +2765,44 @@ void display_equip(void)
 		/* Get inventory color */
 		attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 
-		/* Display the entry itself */
-		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
+		/* Regular slots don't have a pseudo-tag */
+		ptag_space = 0;
 
-		/* Erase the rest of the line */
-		Term_erase(3+n, i - INVEN_WIELD, 255);
-
-		/* Display the slot description (if needed) */
-		if (show_labels)
+		/* Show quiver slot pseudo-tag if needed */
+		if (IS_QUIVER_SLOT(i) &&
+			(ptag_len[i - INVEN_QUIVER] > 0))
 		{
-			Term_putstr(61, i - INVEN_WIELD, -1, TERM_WHITE, "<--");
-			Term_putstr(65, i - INVEN_WIELD, -1, TERM_WHITE, mention_use(i));
+			/* The index in the temporary arrays */
+			int q = i - INVEN_QUIVER;
+
+			/* Reserve space for the pseudo-tag in this case */
+			ptag_space = max_ptag_len + 1;
+
+			/* Hack -- Clear that space first */
+			Term_erase(3, i - INVEN_WIELD, ptag_space);
+
+			/* Show the pseudo-tag */
+			Term_putstr(3 + max_ptag_len - ptag_len[q],
+				i - INVEN_WIELD, ptag_len[q],
+				ptag_color[q], ptag_desc[q]);
 		}
 
+		/* Display the entry itself */
+		Term_putstr(3 + ptag_space , i - INVEN_WIELD, n, attr, o_name);
+
+		/* Erase the rest of the line */
+		Term_erase(3 + ptag_space + n, i - INVEN_WIELD, 255);
+
+		/* Display the slot description (if needed) */
+		Term_putstr(61, i - INVEN_WIELD, -1, TERM_WHITE, "<--");
+
+		Term_putstr(65, i - INVEN_WIELD, -1, TERM_WHITE, mention_use(i));
+
 		/* Display the weight (if needed) */
-		if (show_weights && o_ptr->weight)
+		if (o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			int col = (show_labels ? 52 : 71);
+			int col = 52;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			Term_putstr(col, i - INVEN_WIELD, -1, TERM_WHITE, tmp_val);
 		}
@@ -2588,11 +2843,7 @@ void show_inven(void)
 	len = 79 - 50;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
-
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
-
+	lim = 70 - 3;
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -2630,10 +2881,7 @@ void show_inven(void)
 		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
 
 		/* Find the predicted "line length" */
-		l = strlen(out_desc[k]) + 5;
-
-		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
+		l = strlen(out_desc[k]) + 14;
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -2648,6 +2896,8 @@ void show_inven(void)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
+		int wgt;
+
 		/* Get the index */
 		i = out_index[j];
 
@@ -2666,17 +2916,77 @@ void show_inven(void)
 		/* Display the entry itself */
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
-		/* Display the weight if needed */
-		if (show_weights)
+		/* Display the weight */
+		wgt = o_ptr->weight * o_ptr->number;
+		sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+		put_str(tmp_val, j + 1, 71);
+	}
+
+	/*
+	 * Add notes about slots used by the quiver, if we have space, want
+	 * to show all slots, and have items in the quiver.
+	 */
+	if ((p_ptr->pack_size_reduce) && (item_tester_full) &&
+		(j <= (INVEN_PACK - p_ptr->pack_size_reduce)))
+	{
+		int ammo_num = 0, ammo_slot;
+
+		/* Count quiver ammo */
+		for (i = INVEN_QUIVER; i < END_QUIVER; i++)
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, 71);
+			/* Get the object */
+			o_ptr = &inventory[i];
+
+			/* Ignore empty objects */
+			if (!o_ptr->k_idx) continue;
+
+			/* Increment counter */
+			ammo_num += o_ptr->number * quiver_space_per_unit(o_ptr);
+		}
+
+		/* Insert a blank dividing line, if we have the space. */
+		if (j <= ((INVEN_PACK - 1) - p_ptr->pack_size_reduce))
+		{
+			j++;
+
+			prt("", j, col ? col - 2 : col);
+		}
+
+		for (i = 0; i < p_ptr->pack_size_reduce; i++)
+		{
+			/* Go to next line. */
+			j++;
+
+			prt("", j, col ? col - 2 : col);
+
+			/* Determine index, print it out. */
+			sprintf(tmp_val, "%c)", index_to_label(INVEN_PACK -
+				p_ptr->pack_size_reduce + i));
+
+			put_str(tmp_val, j, col);
+
+			/* Get the number of missiles gathered in this slot */
+			if (i == 0)
+			{
+				ammo_slot = ammo_num -
+					99 * (p_ptr->pack_size_reduce - 1);
+			}
+			else
+			{
+				ammo_slot = 99;
+			}
+
+			/* Hack -- use "(QUIVER)" as a description. */
+			strnfmt(o_name, sizeof(o_name),
+				"(QUIVER - %d missile%s)", ammo_slot,
+				(ammo_slot == 1) ? "": "s");
+
+			c_put_str(TERM_BLUE, o_name, j, col + 3);
 		}
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+	if (j && (j < TERM_LAST_ROW)) prt("", j + 1, col ? col - 2 : col);
 }
 
 
@@ -2698,23 +3008,57 @@ void show_equip(void)
 	byte out_color[24];
 	char out_desc[24][80];
 
+	char ptag_desc[MAX_QUIVER][10];
+	byte ptag_len[MAX_QUIVER];
+	byte ptag_color[MAX_QUIVER];
+	byte max_ptag_len = 0;
+	byte ptag_space;
 
 	/* Default length */
 	len = 79 - 50;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = 79 - 28;
 
-	/* Require space for labels (if needed) */
-	if (show_labels) lim -= (14 + 2);
+	/*
+	 * Get the pseudo-tags of the quiver slots
+	 * Calculate the maximum length of the pseudo-tags
+	 */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* The index in the temporary arrays */
+		int q = i - INVEN_QUIVER;
 
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+		/* Paranoia */
+		ptag_len[q] = 0;
+
+		/* Get the object */
+		o_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Is this item acceptable? */
+		if (!item_tester_okay(o_ptr)) continue;
+
+		/* Store pseudo-tag data in the arrays */
+		ptag_len[q] = get_pseudo_tag(i, ptag_desc[q],
+			sizeof(ptag_desc[q]), &ptag_color[q]);
+
+		/* Update the maximum length if necessary */
+		if (ptag_len[q] > max_ptag_len)
+		{
+			max_ptag_len = ptag_len[q];
+		}
+	}
 
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
+
+		/* Don't show empty quiver slots */
+		if (!o_ptr->k_idx && IS_QUIVER_SLOT(i)) continue;
 
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
@@ -2722,8 +3066,11 @@ void show_equip(void)
 		/* Description */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
+		/* Regular slots don't have a pseudo-tag */
+		ptag_space = 0;
+
 		/* Truncate the description */
-		o_name[lim] = 0;
+		o_name[lim - ptag_space] = 0;
 
 		/* Save the index */
 		out_index[k] = i;
@@ -2735,13 +3082,7 @@ void show_equip(void)
 		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
 
 		/* Extract the maximal length (see below) */
-		l = strlen(out_desc[k]) + (2 + 3);
-
-		/* Increase length for labels (if needed) */
-		if (show_labels) l += (14 + 2);
-
-		/* Increase length for weight (if needed) */
-		if (show_weights) l += 9;
+		l = strlen(out_desc[k]) + (2 + 3) + ptag_space + 25 ;
 
 		/* Maintain the max-length */
 		if (l > len) len = l;
@@ -2756,6 +3097,8 @@ void show_equip(void)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
+		int wgt;
+
 		/* Get the index */
 		i = out_index[j];
 
@@ -2765,41 +3108,39 @@ void show_equip(void)
 		/* Clear the line */
 		prt("", j + 1, col ? col - 2 : col);
 
+		/* Show a blank line between "real" equipment and quiver */
+		if (i == INVEN_BLANK) continue;
+
 		/* Prepare an index --(-- */
 		sprintf(tmp_val, "%c)", index_to_label(i));
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j+1, col);
 
-		/* Use labels */
-		if (show_labels)
-		{
-			/* Mention the use */
-			strnfmt(tmp_val, sizeof(tmp_val), "%-14s: ", mention_use(i));
-			put_str(tmp_val, j+1, col + 3);
+		/* Mention the use */
+		strnfmt(tmp_val, sizeof(tmp_val), "%-14s: ", mention_use(i));
+		put_str(tmp_val, j+1, col + 3);
 
-			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, col + 3 + 14 + 2);
+		/* Show the pseudo-tag if needed */
+		if (IS_QUIVER_SLOT(i) &&
+			(ptag_len[i - INVEN_QUIVER] > 0))
+		{
+			int q = i - INVEN_QUIVER;
+			c_put_str(ptag_color[q], ptag_desc[q],
+				j+1, col + 3 + 13 - ptag_len[q]);
 		}
 
-		/* No labels */
-		else
-		{
-			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, col + 3);
-		}
+		/* Display the entry itself */
+		c_put_str(out_color[j], out_desc[j], j+1, col + 3 + 14 + 2);
 
-		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j+1, 71);
-		}
+		/* Display the weight */
+		wgt = o_ptr->weight * o_ptr->number;
+		sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
+		put_str(tmp_val, j+1, 71);
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+	if (j && (j < TERM_LAST_ROW)) prt("", j + 1, col ? col - 2 : col);
 }
 
 
@@ -2821,15 +3162,11 @@ void show_floor(const int *floor_list, int floor_num)
 	byte out_color[MAX_FLOOR_STACK];
 	char out_desc[MAX_FLOOR_STACK][80];
 
-
 	/* Default length */
 	len = 79 - 50;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
-
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+	lim = 79 - 12;
 
 	/* Display the inventory */
 	for (k = 0, i = 0; i < floor_num; i++)
@@ -2855,10 +3192,7 @@ void show_floor(const int *floor_list, int floor_num)
 		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
 
 		/* Find the predicted "line length" */
-		l = strlen(out_desc[k]) + 5;
-
-		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
+		l = strlen(out_desc[k]) + 14;
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -2873,6 +3207,8 @@ void show_floor(const int *floor_list, int floor_num)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
+		int wgt;
+
 		/* Get the index */
 		i = floor_list[out_index[j]];
 
@@ -2891,13 +3227,10 @@ void show_floor(const int *floor_list, int floor_num)
 		/* Display the entry itself */
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
-		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, 71);
-		}
+		/* Display the weight */
+		wgt = o_ptr->weight * o_ptr->number;
+		sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+		put_str(tmp_val, j + 1, 71);
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
@@ -3016,8 +3349,26 @@ static bool get_item_allow(int item)
 		/* Check the "restriction" */
 		if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
 		{
+			int y = p_ptr->py;
+			int x = p_ptr->px;
+
+			/* Special case. Drop/sell command */
+			if (p_ptr->command_cmd == 'd')
+			{
+				/* We are selling stuff in some shop */
+				if (cave_shop_bold(y, x) && (f_info[cave_feat[y][x]].f_power != STORE_HOME))
+				{
+					if (!verify_item("Really sell", item)) return (FALSE);
+				}
+				/* Just drop stuff */
+				else
+				{
+				      	if (!verify_item("Really drop", item)) return (FALSE);
+				}
+			}
+
 			/* Verify the choice */
-			if (!verify_item("Really try", item)) return (FALSE);
+			else if (!verify_item("Really try", item)) return (FALSE);
 		}
 
 		/* Find another '!' */
@@ -3070,6 +3421,59 @@ static int get_tag(int *cp, char tag)
 	int i;
 	cptr s;
 
+	/*
+	 * The 'f'ire and 't'hrow commands behave differently when we are using the
+	 * equipment (quiver)
+	 */
+	if (((p_ptr->command_cmd == 'f') || (p_ptr->command_cmd == 'v')) && (p_ptr->command_wrk == USE_EQUIP))
+	{
+		/* The pseudo-tag */
+		byte tag_num = 0;
+		object_type *o_ptr;
+		byte group;
+
+		/* Get the proper quiver group to determine which objects can be selected */
+		if (p_ptr->command_cmd == 'f')
+		{
+			/* Ammo groups are taken from the missile weapon */
+			switch (p_ptr->ammo_tval)
+			{
+				case TV_BOLT:	group = QUIVER_GROUP_BOLTS;	break;
+				case TV_ARROW:	group = QUIVER_GROUP_ARROWS;	break;
+				default:	group = QUIVER_GROUP_SHOTS;	break;
+			}
+		}
+		/* Hack - Everything else is a throwing weapon */
+		else
+		{
+		 	group = QUIVER_GROUP_THROWING_WEAPONS;
+		}
+
+		/* Iterate over the quiver */
+		for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+		{
+			o_ptr = &inventory[i];
+
+			/* (Paranoia) Ignore empty slots */
+			if (!o_ptr->k_idx) continue;
+
+			/* Groups must be equal */
+			if (quiver_get_group(o_ptr) != group) continue;
+
+			/* Allow pseudo-tag override */
+			(void)get_tag_num(i, quiver_group[group].cmd, &tag_num);
+
+			/* We have a match? */
+			if (I2D(tag_num) == tag)
+			{
+				*cp = i;
+				return TRUE;
+			}
+
+			/* Try with the next pseudo-tag */
+			++tag_num;
+		}
+	}
 
 	/* Check every object */
 	for (i = 0; i < INVEN_TOTAL; ++i)
@@ -3196,6 +3600,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool use_inven = ((mode & (USE_INVEN)) ? TRUE : FALSE);
 	bool use_equip = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
 	bool use_floor = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
+	bool use_quiver = ((mode & (USE_QUIVER)) ? TRUE: FALSE);
 
 	bool allow_inven = FALSE;
 	bool allow_equip = FALSE;
@@ -3210,9 +3615,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int floor_num;
 
 	bool allow_list;
-
-
-#ifdef ALLOW_REPEAT
 
 	/* Get the item index */
 	if (repeat_pull(cp))
@@ -3235,9 +3637,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			repeat_clear();
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
-
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
@@ -3262,12 +3661,18 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Accept inventory */
 	if (i1 <= i2) allow_inven = TRUE;
 
+	/* Hack -- The quiver is displayed in the equipment window */
+	if (use_quiver) use_equip = TRUE;
+
 	/* Full equipment */
 	e1 = INVEN_WIELD;
 	e2 = INVEN_TOTAL - 1;
 
 	/* Forbid equipment */
 	if (!use_equip) e2 = -1;
+
+	/* Restrict the beginning of the equipment */
+	if (use_quiver) e1 = INVEN_QUIVER;
 
 	/* Restrict equipment indexes */
 	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
@@ -3318,6 +3723,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			p_ptr->command_wrk = (USE_EQUIP);
 		}
 
+		/* Hack -- Start on equipment if shooting or throwing */
+		else if (((p_ptr->command_cmd == 'f') || (p_ptr->command_cmd == 'v')) && allow_equip)
+		{
+			p_ptr->command_wrk = (USE_EQUIP);
+		}
+
 		/* Use inventory if allowed */
 		else if (use_inven)
 		{
@@ -3361,42 +3772,38 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Repeat until done */
 	while (!done)
 	{
-		/* Show choices */
-		if (show_choices)
+		int ni = 0;
+		int ne = 0;
+
+		/* Scan windows */
+		for (j = 0; j < ANGBAND_TERM_MAX; j++)
 		{
-			int ni = 0;
-			int ne = 0;
+			/* Unused */
+			if (!angband_term[j]) continue;
 
-			/* Scan windows */
-			for (j = 0; j < ANGBAND_TERM_MAX; j++)
-			{
-				/* Unused */
-				if (!angband_term[j]) continue;
+			/* Count windows displaying inven */
+			if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
 
-				/* Count windows displaying inven */
-				if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
-
-				/* Count windows displaying equip */
-				if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
-			}
-
-			/* Toggle if needed */
-			if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
-			    ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
-			{
-				/* Toggle */
-				toggle_inven_equip();
-
-				/* Track toggles */
-				toggle = !toggle;
-			}
-
-			/* Update */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-			/* Redraw windows */
-			window_stuff();
+			/* Count windows displaying equip */
+			if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
 		}
+
+		/* Toggle if needed */
+		if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
+			    ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
+		{
+			/* Toggle */
+			toggle_inven_equip();
+
+			/* Track toggles */
+			toggle = !toggle;
+		}
+
+		/* Update */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Redraw windows */
+		window_stuff();
 
 		/* Viewing inventory */
 		if (p_ptr->command_wrk == (USE_INVEN))
@@ -3669,6 +4076,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					break;
 				}
 
+				/* Forbid classic equipment if using the quiver */
+				if (use_quiver && (k >= INVEN_WIELD) && !IS_QUIVER_SLOT(k))
+				{
+					bell("Illegal object choice (tag)!");
+					break;
+				}
+
 				/* Validate the item */
 				if (!get_item_okay(k))
 				{
@@ -3782,6 +4196,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 						bell("Illegal object choice (equip)!");
 						break;
 					}
+
+					/* Forbid classic equipment if using the quiver */
+					if (use_quiver && !IS_QUIVER_SLOT(k))
+					{
+						bell("Illegal object choice (equip)!");
+						break;
+					}
 				}
 
 				/* Convert letter to floor index */
@@ -3847,19 +4268,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
 
-	/* Clean up */
-	if (show_choices)
-	{
-		/* Toggle again if needed */
-		if (toggle) toggle_inven_equip();
+	/* 	Clean up */
+	/*	Toggle again if needed. */
+	if (toggle) toggle_inven_equip();
 
-		/* Update */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Update */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		/* Window stuff */
-		window_stuff();
-	}
-
+	/* Window stuff */
+	window_stuff();
 
 	/* Clear the prompt line */
 	prt("", 0, 0);
@@ -3867,12 +4284,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
 
-#ifdef ALLOW_REPEAT
-
 	/* Save item if available */
 	if (item) repeat_push(*cp);
-
-#endif /* ALLOW_REPEAT */
 
 	/* Result */
 	return (item);

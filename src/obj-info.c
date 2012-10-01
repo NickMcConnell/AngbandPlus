@@ -29,7 +29,7 @@ static void output_list(cptr list[], int n)
 {
 	int i;
 
-	char *conjunction = "and ";
+	cptr conjunction = "and ";
 	if (n < 0)
 	{
 		n = -n;
@@ -326,10 +326,9 @@ int get_num_blows(const object_type *o_ptr, u32b f1)
 	int dex_add = 0;
 
 	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
-
-		u32b wf1, wf2, wf3;
+		u32b wf1, wf2, wf3, wfn;
 		object_type *i_ptr = &inventory[i];
 
 		/* Hack -- do not apply wielded "weapon" bonuses */
@@ -339,7 +338,7 @@ int get_num_blows(const object_type *o_ptr, u32b f1)
 		if (!i_ptr->k_idx) continue;
 
 		/* Extract the item flags */
-		object_flags_known(i_ptr, &wf1, &wf2, &wf3);
+		object_flags_known(i_ptr, &wf1, &wf2, &wf3, &wfn);
 
 		/* Affect stats */
 		if (wf1 & (TR1_STR)) str_add += i_ptr->pval;
@@ -417,8 +416,10 @@ int get_num_blows(const object_type *o_ptr, u32b f1)
 	if (blows < 1) blows = 1;
 
 	/*add extra attack for those who have the flag*/
-	if ((p_ptr->lev > 25) && (cp_ptr->flags & CF_EXTRA_ATTACK))
+	if ((p_ptr->lev >= LEV_EXTRA_COMBAT) && (cp_ptr->flags & CF_EXTRA_ATTACK))
+	{
 		blows += 1;
+	}
 
 	return(blows);
 }
@@ -602,7 +603,7 @@ static cptr act_description[ACT_MAX] =
 	"dispel evil (x5)",
 	"heal (500)",
 	"heal (1000)",
-	"cure wounds (4d7)",
+	"cure wounds (4d8)",
 	"haste self (20+d20 turns)",
 	"haste self (75+d75 turns)",
 	"fire bolt (9d8)",
@@ -615,7 +616,7 @@ static cptr act_description[ACT_MAX] =
 	"large frost ball (200)",
 	"acid bolt (5d8)",
 	"recharge item I",
-	"sleep II",
+	"mass sleep",
 	"lightning bolt (4d8)",
 	"large lightning ball (250)",
 	"banishment",
@@ -657,20 +658,20 @@ static cptr act_description[ACT_MAX] =
  */
 static void describe_item_activation(const object_type *o_ptr, char *random_name, size_t max)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, fn;
 
 	u16b value;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &fn);
 
 	/* Require activation ability */
 	if (!(f3 & TR3_ACTIVATE)) return;
 
 	/* Artifact activations */
-	if ((o_ptr->name1) && (o_ptr->name1 < z_info->art_norm_max))
+	if ((o_ptr->art_num) && (o_ptr->art_num < z_info->art_norm_max))
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr = &a_info[o_ptr->art_num];
 
 		bool drag_armor = FALSE;
 
@@ -743,7 +744,7 @@ static void describe_item_activation(const object_type *o_ptr, char *random_name
 	if (o_ptr->tval == TV_DRAG_ARMOR) value *= 2;
 
 	/* Branch on the sub-type */
-	switch (o_ptr->name2)
+	switch (o_ptr->ego_num)
 	{
 
 		case EGO_DRAGON_BLUE:
@@ -851,6 +852,35 @@ static void describe_item_activation(const object_type *o_ptr, char *random_name
 	}
 }
 
+/*
+ * Describe object nativity.
+ */
+static bool describe_nativity(const object_type *o_ptr, u32b fn)
+{
+	cptr vp[NUM_NATIVE];
+	int vn = 0;
+
+	/* Unused parameter */
+	(void)o_ptr;
+
+	if (fn & (TN1_NATIVE_LAVA))  vp[vn++] = "lava";
+	if (fn & (TN1_NATIVE_ICE))  vp[vn++] = "ice";
+	if (fn & (TN1_NATIVE_OIL))  vp[vn++] = "oil";
+	if (fn & (TN1_NATIVE_FIRE)) vp[vn++] = "fire";
+	if (fn & (TN1_NATIVE_SAND)) vp[vn++] = "sand";
+	if (fn & (TN1_NATIVE_FOREST)) vp[vn++] = "forest";
+	if (fn & (TN1_NATIVE_WATER)) vp[vn++] = "water";
+	if (fn & (TN1_NATIVE_ACID)) vp[vn++] = "acid" ;
+	if (fn & (TN1_NATIVE_MUD)) vp[vn++] = "mud";
+
+	/* Describe nativities */
+	output_desc_list("It makes you native to terrains made of ", vp, vn);
+
+	/* We are done here */
+	return (vn ? TRUE : FALSE);
+}
+
+
 
 
 /*
@@ -895,11 +925,11 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
  */
 bool object_info_out(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, fn;
 	bool something = FALSE;
 
 	/* Grab the object flags */
-	object_info_out_flags(o_ptr, &f1, &f2, &f3);
+	object_info_out_flags(o_ptr, &f1, &f2, &f3, &fn);
 
 	/* Describe the object */
 	if (describe_stats(o_ptr, f1)) something = TRUE;
@@ -910,11 +940,10 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_resist(o_ptr, f2, f3)) something = TRUE;
 	if (describe_sustains(o_ptr, f2)) something = TRUE;
 	if (describe_misc_magic(o_ptr, f3)) something = TRUE;
+	if (describe_nativity(o_ptr, fn)) something = TRUE;
 	if (describe_activation(o_ptr, f3)) something = TRUE;
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
 	if (describe_attacks(o_ptr, f1)) something = TRUE;
-
-
 
 	/* Unknown extra powers (artifact) */
 	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
@@ -959,12 +988,12 @@ static bool screen_out_head(const object_type *o_ptr)
 	FREE(o_name);
 
 	/* Display the known artifact description */
-	if (!adult_rand_artifacts && o_ptr->name1 &&
-	    object_known_p(o_ptr) && a_info[o_ptr->name1].text)
+	if (!adult_rand_artifacts && o_ptr->art_num &&
+	    object_known_p(o_ptr) && a_info[o_ptr->art_num].text)
 
 	{
 		p_text_out("\n\n   ");
-		p_text_out(a_text + a_info[o_ptr->name1].text);
+		p_text_out(a_text + a_info[o_ptr->art_num].text);
 		has_description = TRUE;
 	}
 	/* Display the known object description */
@@ -978,10 +1007,10 @@ static bool screen_out_head(const object_type *o_ptr)
 		}
 
 		/* Display an additional ego-item description */
-		if (o_ptr->name2 && object_known_p(o_ptr) && e_info[o_ptr->name2].text)
+		if (o_ptr->ego_num && object_known_p(o_ptr) && e_info[o_ptr->ego_num].text)
 		{
 			p_text_out("\n\n   ");
-			p_text_out(e_text + e_info[o_ptr->name2].text);
+			p_text_out(e_text + e_info[o_ptr->ego_num].text);
 			has_description = TRUE;
 		}
 	}
@@ -996,6 +1025,7 @@ static bool screen_out_head(const object_type *o_ptr)
 void object_info_screen(const object_type *o_ptr)
 {
 	bool has_description, has_info;
+
 
 	/* Redirect output to the screen */
 	text_out_hook = text_out_to_screen;
@@ -1023,6 +1053,36 @@ void object_info_screen(const object_type *o_ptr)
 
 	if (o_ptr->tval != cp_ptr->spell_book)
 	{
+		char buf[200];
+		int price;
+
+		/* Show object history if possible */
+		if (format_object_history(buf, sizeof(buf), o_ptr))
+		{
+			p_text_out("\n\n   ");
+			text_out_c(TERM_YELLOW, buf);
+		}
+
+		/* Print resale value */
+		p_text_out("\n\n   ");
+		price = object_value(o_ptr);
+		if (price > 0)
+		{
+			if (o_ptr->number > 1)
+			{
+				text_out_c(TERM_YELLOW, format("They would fetch %i gold apiece in an average shop.", price));
+			}
+			else
+			{
+				text_out_c(TERM_YELLOW, format("It would fetch %i gold in an average shop.", price));
+			}
+		}
+		else
+		{
+			if (o_ptr->number > 1)	text_out_c(TERM_YELLOW, "They have no value.");
+			else 					text_out_c(TERM_YELLOW, "It has no value.");
+		}
+
 		text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
 
 		/* Wait for input */
@@ -1042,3 +1102,157 @@ void object_info_screen(const object_type *o_ptr)
 	return;
 }
 
+/* Append the depth of an history item to the given buffer */
+static void history_depth(char *buf, size_t max, s16b depth)
+{
+	if (depth == 0)
+	{
+		my_strcat(buf, " in the town.", max);
+	}
+	else if (depth_in_feet)
+	{
+		my_strcat(buf, format(" at a depth of %d ft.", depth * 50), max);
+	}
+	else
+	{
+		my_strcat(buf, format(" on dungeon level %d.", depth), max);
+	}
+}
+
+/*
+ * Format the item history as text and put it on the given buffer
+ */
+bool format_object_history(char *buf, size_t max, const object_type *o_ptr)
+{
+	*buf = '\0';
+
+	if (o_ptr->number > 1) my_strcat(buf, "They were", max);
+	else my_strcat(buf, "It was", max);
+
+	switch (o_ptr->origin_nature)
+	{
+		case ORIGIN_NONE: case ORIGIN_MIXED:
+		{
+			/* Don't display anything */
+			return (FALSE);
+		}
+		case ORIGIN_BIRTH:
+		{
+			my_strcat(buf, " an inheritance from your family.", max);
+			break;
+		}
+		case ORIGIN_STORE:
+		{
+			/* Hack -- Don't display store objects inside stores */
+			if (o_ptr->ident & (IDENT_STORE)) return (FALSE);
+
+			my_strcat(buf, " bought in a store.", max);
+			break;
+		}
+		case ORIGIN_MORGOTH:
+		{
+			my_strcpy(buf, "It is one of your prizes for victory!", max);
+			break;
+		}
+		case ORIGIN_CHEAT:
+		{
+			my_strcpy(buf, "-- Created by debug option --", max);
+			break;
+		}
+		case ORIGIN_FLOOR:
+		{
+			my_strcat(buf, " lying on the floor", max);
+			history_depth(buf, max, o_ptr->origin_dlvl);
+			break;
+		}
+		case ORIGIN_ACQUIRE:
+		{
+			my_strcat(buf, " conjured forth by magic", max);
+			history_depth(buf, max, o_ptr->origin_dlvl);
+			break;
+		}
+		case ORIGIN_CHEST:
+		{
+			my_strcat(buf, " found in a chest", max);
+			history_depth(buf, max, o_ptr->origin_dlvl);
+			break;
+		}
+		case ORIGIN_DROP_UNKNOWN:
+		{
+			my_strcat(buf, " dropped by an unknown monster", max);
+			history_depth(buf, max, o_ptr->origin_dlvl);
+			break;
+		}
+		case ORIGIN_REWARD:
+		{
+			my_strcat(buf, " a reward for your exploits", max);
+			history_depth(buf, max, o_ptr->origin_dlvl);
+			break;
+		}
+		case ORIGIN_DROP_KNOWN:
+		{
+			monster_race *r_ptr = &r_info[o_ptr->origin_r_idx];
+			cptr name = r_name + r_ptr->name;
+			cptr article = "";
+
+			/* Get an article for non-uniques */
+			if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+			{
+				article = (my_is_vowel(name[0]) ? "an " : "a ");
+			}
+
+			/* Stored name */
+			if (o_ptr->origin_m_name)
+			{
+				name = quark_str(o_ptr->origin_m_name);
+			}
+
+			my_strcat(buf, format(" dropped by %s%s", article, name), max);
+
+			history_depth(buf, max, o_ptr->origin_dlvl);
+			break;
+		}
+	}
+
+	return (TRUE);
+}
+
+
+/*
+ * Check whether the history is interesting
+ */
+bool history_interesting(const object_type *o_ptr)
+{
+	/* Empty slots are always boring */
+	if (!o_ptr->k_idx) return FALSE;
+
+	/* Items with no, or mixed, origins are always boring */
+	if (!o_ptr->origin_nature || (o_ptr->origin_nature == ORIGIN_MIXED)) return FALSE;
+
+	/* Artifacts are always interesting */
+	if (o_ptr->art_num) return TRUE;
+
+	/* Ego items are interesting if they're good */
+	/*if (o_ptr->name2 && (object_value(o_ptr) > 0)) return TRUE;*/
+
+	/* Hack -- Valuable objects are always interesting -DG */
+	if (object_value(o_ptr) >= 10000) return TRUE;
+
+	/* Objects dropped by uniques are always interesting */
+	if ((o_ptr->origin_r_idx > 0) && (r_info[o_ptr->origin_r_idx].flags1 & (RF1_UNIQUE))) return TRUE;
+
+	/* Cheat items are always interesting */
+	if (o_ptr->origin_nature == ORIGIN_CHEAT) return TRUE;
+
+	/* Rewards are always interesting */
+	if (o_ptr->origin_nature == ORIGIN_REWARD) return TRUE;
+
+	/* Some other origins usually are boring */
+	if ((o_ptr->origin_nature == ORIGIN_BIRTH) || (o_ptr->origin_nature == ORIGIN_STORE))
+		return FALSE;
+
+	/* Objects OOD by more than ten levels are interesting */
+	if ((o_ptr->origin_dlvl + INTEREST_OFFSET) < k_info[o_ptr->k_idx].k_level) return TRUE;
+
+	return FALSE;
+}

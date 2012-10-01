@@ -92,7 +92,8 @@ takes half a turn.
 Destroy an item (k) / (Ctrl-D) :
      Destroy an object in your inventory or on the dungeon floor.  If the
 "verify destroy" option is ON, you must verify this command.  This command takes
-a full turn.
+a full turn, and also gives you an option to squelch all of these object types
+in the future.
 
 Wear/Wield equipment (w) :
      Wear or wield an object in your inventory or from the floor.  Since only
@@ -288,8 +289,8 @@ more information.  This command takes no time.
 
 Check knowledge (~) :
      This command allows you to review what you know about artifacts, unique
-monsters, and objects.  You can also review the contents of your home, total
-kill count for each monster, view your player notes file, or view the 
+monsters, features, and objects.  You can also review the contents of your home, 
+total kill count for each monster, view your player notes file, or view the 
 player hall of fame.
 
 Identify Symbol (/) :
@@ -327,7 +328,8 @@ Repeat level feeling (Ctrl-F) :
      Displays your feeling about the dungeon level.  This command takes no time.
 
 Display Quest (CTRL-Q)
-	Displays the character's current quest, if they are on one.
+	Displays the character's current quest, if they are on one.  
+This command takes no time.
 
 View previous messages (Ctrl-P) :
      Shows you all the recent messages.  You can scroll through them or exit
@@ -434,14 +436,4 @@ game, and return you to the original command shell, until you resume the game
 with the "fg" command.  There is now a compilation option to force the game to
 prevent the "double ctrl-z escape death trick".  The Ctrl-\ and Ctrl-D and Ctrl-
 S keys should not be intercepted.
-
-Window-specific notes:
-     If you playing on Windows, you may need to turn off num lock in order to
-run.  If you are playing a IBM port under Windows, and see what appear to be
-very strange colors, right-click on the executable, go to "Program Properties ->
-Screen -> Usage, and make sure that the program runs in full-screen mode.
-
-
-
-
 

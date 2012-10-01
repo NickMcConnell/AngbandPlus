@@ -22,7 +22,7 @@ SRCS = \
   variable.c tables.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c \
   xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c save.c files.c \
+  melee1.c melee2.c save.c effects.c feature.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c load.c quest.c squelch.c\
   wizard1.c wizard2.c obj-info.c \
@@ -34,7 +34,7 @@ OBJS = \
   variable.obj tables.obj util.obj cave.obj \
   object1.obj object2.obj monster1.obj monster2.obj \
   xtra1.obj xtra2.obj spells1.obj spells2.obj \
-  melee1.obj melee2.obj save.obj files.obj \
+  melee1.obj melee2.obj save.obj effects.obj feature.obj files.obj \
   cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
   store.obj birth.obj load.obj quest.obj squelch.obj \
   wizard1.obj wizard2.obj obj-info.obj \
@@ -46,7 +46,7 @@ OBJS32 = \
   variable.o32 tables.o32 util.o32 cave.o32 \
   object1.o32 object2.o32 monster1.o32 monster2.o32 \
   xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 \
-  melee1.o32 melee2.o32 save.o32 files.o32 \
+  melee1.o32 melee2.o32 save.o32 effects.o32 feature.o32 files.o32 \
   cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 \
   store.o32 birth.o32 load.o32 quest.o32 squelch.o32\
   wizard1.o32 wizard2.o32 obj-info.o32 \
@@ -162,7 +162,7 @@ z-util z-virt z-form z-rand z-term +
 variable tables util cave +
 object1 object2 monster1 monster2 +
 xtra1 xtra2 spells1 spells2 +
-melee1 melee2 save files +
+melee1 melee2 save feature files +
 cmd1 cmd2 cmd3 cmd4 cmd5 cmd6 +
 store birth load quest squelch +
 wizard1 wizard2 obj-info +
@@ -193,7 +193,7 @@ z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 +
 variable.o32 tables.o32 util.o32 cave.o32 +
 object1.o32 object2.o32 monster1.o32 monster2.o32 +
 xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 +
-melee1.o32 melee2.o32 save.o32 files.o32 +
+melee1.o32 melee2.o32 save.o32 effects.o32 feature.o32 files.o32 +
 cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 +
 store.o32 birth.o32 load.o32 quest.o32 squelch.o32 +
 wizard1.o32 wizard2.o32 obj-info.o32 +

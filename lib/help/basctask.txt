@@ -1,7 +1,8 @@
 
-     Saving and loading your character should be easy.  So, sadly, is getting
-him killed.  Winning is a little harder, but the novice player can take
-advantage of various cheats to improve his chances down in the dungeon.
+     Saving and loading your character should be easy.  So, sadly, 
+is getting him killed.  Winning is a little harder, but the 
+novice player can take advantage of various cheats to improve 
+his chances down in the dungeon.
 
 
 --- Saving your Game ---
@@ -99,9 +100,5 @@ the game has a few answers for that too.  You may cheat death by:
        to learn the game.
      - Making backup savefiles.
      - Aborting the game just as the tombstone appears or before.
-
-
-
-
 
 

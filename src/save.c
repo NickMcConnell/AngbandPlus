@@ -321,7 +321,7 @@ static errr wr_savefile(void)
 	/* Dump the monster lore */
 	tmp16u = z_info->r_max;
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_lore(i);
+	for (i = 0; i < tmp16u; i++) wr_monster_lore(i);
 
 
 	/* Dump the object memory */
@@ -700,8 +700,8 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
 
-	wr_byte(o_ptr->name1);
-	wr_byte(o_ptr->name2);
+	wr_byte(o_ptr->art_num);
+	wr_byte(o_ptr->ego_num);
 
 	wr_s16b(o_ptr->timeout);
 
@@ -737,6 +737,19 @@ static void wr_item(const object_type *o_ptr)
 	{
 		wr_string("");
 	}
+
+	/* Object history */
+	wr_byte(o_ptr->origin_nature);
+	wr_s16b(o_ptr->origin_dlvl);
+	wr_s16b(o_ptr->origin_r_idx);
+	if (o_ptr->origin_m_name)
+	{
+		wr_string(quark_str(o_ptr->origin_m_name));
+	}
+	else
+	{
+		wr_string("");
+	}
 }
 
 
@@ -744,10 +757,11 @@ static void wr_item(const object_type *o_ptr)
 /*
  * Special monster flags that get saved in the savefile
  */
-#define SAVE_MON_FLAGS (MFLAG_MIMIC | MFLAG_ACTV | MFLAG_TOWN | MFLAG_WARY | \
+#define SAVE_MON_FLAGS (MFLAG_MIMIC | MFLAG_STERILE | MFLAG_ACTV | MFLAG_TOWN | MFLAG_WARY | \
 						MFLAG_SLOWER | MFLAG_FASTER | MFLAG_ALWAYS_CAST | \
 						MFLAG_AGGRESSIVE | MFLAG_ATTACKED_BAD | \
-						MFLAG_HIT_BY_RANGED | MFLAG_HIT_BY_MELEE | MFLAG_QUEST)
+						MFLAG_HIT_BY_RANGED | MFLAG_HIT_BY_MELEE | MFLAG_QUEST | \
+						MFLAG_NEED_PASS_WALL_FLOW | MFLAG_QUEST_SUMMON | MFLAG_JUST_SCARED)
 
 
 /*
@@ -764,7 +778,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_s16b(m_ptr->maxhp);
 	wr_s16b(m_ptr->csleep);
 	wr_byte(m_ptr->mspeed);
-	wr_byte(m_ptr->energy);
+	wr_s16b(m_ptr->m_energy);
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
@@ -783,11 +797,36 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(0);
 }
 
+/*
+ * Write an "item" record
+ */
+static void wr_effect(const effect_type *x_ptr)
+{
+
+	wr_byte(x_ptr->x_type);
+	wr_u16b(x_ptr->x_f_idx);
+
+	wr_byte(x_ptr->x_cur_y);
+	wr_byte(x_ptr->x_cur_x);
+
+
+	wr_byte(x_ptr->x_countdown);
+	wr_byte(x_ptr->x_repeats);
+
+	wr_u16b(x_ptr->x_power);
+
+	wr_s16b(x_ptr->x_source);
+
+	wr_u16b(x_ptr->x_flags);
+
+	wr_s16b(x_ptr->x_r_idx);
+}
+
 
 /*
  * Write a "lore" record
  */
-static void wr_lore(int r_idx)
+static void wr_monster_lore(int r_idx)
 {
 	int i;
 
@@ -820,13 +859,14 @@ static void wr_lore(int r_idx)
 		wr_byte(l_ptr->blows[i]);
 
 	/* Memorize flags */
-	wr_u32b(l_ptr->flags1);
-	wr_u32b(l_ptr->flags2);
-	wr_u32b(l_ptr->flags3);
-	wr_u32b(l_ptr->flags4);
-	wr_u32b(l_ptr->flags5);
-	wr_u32b(l_ptr->flags6);
-	wr_u32b(l_ptr->flags7);
+	wr_u32b(l_ptr->r_l_flags1);
+	wr_u32b(l_ptr->r_l_flags2);
+	wr_u32b(l_ptr->r_l_flags3);
+	wr_u32b(l_ptr->r_l_flags4);
+	wr_u32b(l_ptr->r_l_flags5);
+	wr_u32b(l_ptr->r_l_flags6);
+	wr_u32b(l_ptr->r_l_flags7);
+	wr_u32b(l_ptr->r_l_native);
 
 	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
@@ -890,6 +930,72 @@ static void wr_store(const store_type *st_ptr)
 		/* Save each item in stock */
 		wr_item(&st_ptr->stock[j]);
 	}
+}
+
+/*
+ * Write an "artifact lore" record
+ */
+static void wr_artifact_lore(int a_idx)
+{
+	byte tmp8u = 0;
+
+	/* We know about this artifact */
+	if (a_l_list[a_idx].was_fully_identified) tmp8u |= 0x01;
+
+	/* Write the flags */
+	wr_byte(tmp8u);
+
+	/* For future use */
+	wr_byte(0);
+	wr_byte(0);
+	wr_byte(0);
+}
+
+
+/*
+ * Write a "terrain lore" record
+ */
+static void wr_feature_lore(int f_idx)
+{
+	int i;
+
+	/* Get the feature */
+	feature_type *f_ptr = &f_info[f_idx];
+	feature_lore *f_l_ptr = &f_l_list[f_idx];
+	byte tmp8u = 0;
+
+	/* Save the "everseen flag" */
+	if (f_ptr->f_everseen) tmp8u |= 0x01;
+
+	wr_byte(tmp8u);
+
+	/* Write the terrain_lore memory*/
+	wr_byte(f_l_ptr->f_l_sights);
+
+	/*Write the lore flags*/
+	wr_u32b(f_l_ptr->f_l_flags1);
+	wr_u32b(f_l_ptr->f_l_flags2);
+	wr_u32b(f_l_ptr->f_l_flags3);
+
+	wr_byte(f_l_ptr->f_l_defaults);
+
+	/*record the max amount of feat states*/
+	wr_byte(MAX_FEAT_STATES);
+
+	for (i = 0; i < MAX_FEAT_STATES; i++)
+	{
+		wr_byte(f_l_ptr->f_l_state[i]);
+	}
+
+	wr_byte(f_l_ptr->f_l_power);
+
+	wr_byte(f_l_ptr->f_l_dam_non_native);
+	wr_byte(f_l_ptr->f_l_native_moves);
+	wr_byte(f_l_ptr->f_l_non_native_moves);
+	wr_byte(f_l_ptr->f_l_native_to_hit_adj);
+	wr_byte(f_l_ptr->f_l_non_native_to_hit_adj);
+	wr_byte(f_l_ptr->f_l_stealth_adj);
+
 }
 
 
@@ -963,7 +1069,7 @@ static void wr_options(void)
 		int ob = i % 32;
 
 		/* Process real entries */
-		if (option_text[i])
+		if (options[i].text)
 		{
 			/* Set flag */
 			if (op_ptr->opt[i])
@@ -1084,7 +1190,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->food);
 	wr_s16b(0);	/* old "food_digested" */
 	wr_s16b(0);	/* old "protection" */
-	wr_s16b(p_ptr->energy);
+	wr_s16b(p_ptr->p_energy);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
 	wr_s16b(p_ptr->afraid);
@@ -1108,10 +1214,16 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
 
+	wr_s16b(p_ptr->temp_native_lava);
+	wr_s16b(p_ptr->temp_native_oil);
+	wr_s16b(p_ptr->temp_native_sand);
+	wr_s16b(p_ptr->temp_native_forest);
+	wr_s16b(p_ptr->temp_native_water);
+	wr_s16b(p_ptr->temp_native_mud);
+
 	wr_byte(p_ptr->confusing);
-	wr_byte(0);	/* oops */
-	wr_byte(0);	/* oops */
-	wr_byte(0);	/* oops */
+	wr_s16b(p_ptr->slay_elements);
+	wr_byte(p_ptr->flying);
 	wr_byte(p_ptr->searching);
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
@@ -1169,15 +1281,20 @@ static void wr_extra(void)
 		/*something would have to be very strange for this not to be true*/
 		if (fp)
 		{
-			int		ghost_sex, ghost_race, ghost_class = 0;
+			int ghost_sex = 0, ghost_race = 0, ghost_class = 0;
 			bool err = FALSE;
 
-			/*Ghost name is a global viriable and is nto needed*/
+			/* Ghost name is a global variable and is not needed */
 			char dummy[80];
 
-			/* XXX XXX XXX Scan the file */
-			err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", dummy,
-						&ghost_sex, &ghost_race, &ghost_class) != 4);
+			/* XXX XXX XXX Scan the file to get the basic info of the ghost  */
+			if (my_fgets(fp, dummy, sizeof(dummy)) ||
+				next_line_to_number(fp, &ghost_sex) ||
+				next_line_to_number(fp, &ghost_race) ||
+				next_line_to_number(fp, &ghost_class))
+			{
+				err = TRUE;
+			}
 
 			/* Close the file */
 			my_fclose(fp);
@@ -1234,6 +1351,25 @@ static void wr_extra(void)
 
 	/* Current turn */
 	wr_s32b(turn);
+
+	/*Current Player Turn*/
+	wr_s32b(p_ptr->p_turn);
+
+	/* Turn counter for the quest indicator */
+	{
+		/* Get the timer value. Clear the last bit */
+		u16b tmp16u = quest_indicator_timer & ~(QUEST_INDICATOR_COMPLETE_BIT);
+
+		/* Turn on the last bit if the quest was completed */
+		if (quest_indicator_complete) tmp16u |= (QUEST_INDICATOR_COMPLETE_BIT);
+
+		/* Write timer + complete bit */
+		wr_u16b(tmp16u);
+	}
+
+	/* Panel change offsets */
+	wr_u16b(panel_change_offset_y);
+	wr_u16b(panel_change_offset_x);
 }
 
 
@@ -1274,12 +1410,13 @@ static void wr_randarts(void)
 
 		wr_s32b(a_ptr->cost);
 
-		wr_u32b(a_ptr->flags1);
-		wr_u32b(a_ptr->flags2);
-		wr_u32b(a_ptr->flags3);
+		wr_u32b(a_ptr->a_flags1);
+		wr_u32b(a_ptr->a_flags2);
+		wr_u32b(a_ptr->a_flags3);
+		wr_u32b(a_ptr->a_native);
 
-		wr_byte(a_ptr->level);
-		wr_byte(a_ptr->rarity);
+		wr_byte(a_ptr->a_level);
+		wr_byte(a_ptr->a_rarity);
 
 		wr_byte(a_ptr->activation);
 		wr_u16b(a_ptr->time);
@@ -1333,6 +1470,30 @@ static void wr_notes(void)
   	wr_string(end_note);
 }
 
+
+/*
+ * Write variable extensions to the savefile
+ */
+static void wr_extensions(void)
+{
+	/* Write call huorns time if present */
+	if (p_ptr->temp_call_huorns > 0)
+	{
+		/* Write extension id */
+		wr_s16b(EXTENSION_CALL_HUORNS);
+		/* Write field type */
+		wr_byte(EXTENSION_TYPE_U16B);
+		/* Write field value */
+		wr_u16b(p_ptr->temp_call_huorns);
+		/* Write end mark for fields */
+		wr_byte(EXTENSION_TYPE_END);
+	}
+
+	/* Write end mark for extensions */
+	wr_s16b(END_EXTENSIONS);
+}
+
+
 /*
  * The cave grid flags that get saved in the savefile
  */
@@ -1357,7 +1518,7 @@ static void wr_dungeon(void)
 
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
-	wr_u16b(0);
+	wr_u16b(p_ptr->dungeon_type);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
 	wr_byte(p_ptr->cur_map_hgt);
@@ -1481,6 +1642,20 @@ static void wr_dungeon(void)
 		/* Dump it */
 		wr_monster(m_ptr);
 	}
+
+	/*** Dump the effects ***/
+
+	/* Total Effects */
+	wr_u16b(x_max);
+
+	/* Dump the Effects */
+	for (i = 1; i < x_max; i++)
+	{
+		effect_type *x_ptr = &x_list[i];
+
+		/* Dump it */
+		wr_effect(x_ptr);
+	}
 }
 
 
@@ -1571,7 +1746,7 @@ static bool wr_savefile_new(void)
 	/* Dump the monster lore */
 	tmp16u = z_info->r_max;
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_lore(i);
+	for (i = 0; i < tmp16u; i++) wr_monster_lore(i);
 
 	/* Dump the object memory */
 	tmp16u = z_info->k_max;
@@ -1608,6 +1783,7 @@ static bool wr_savefile_new(void)
 			wr_byte(q_info[i].reward);
 			wr_byte(q_info[i].active_level);
 			wr_byte(q_info[i].base_level);
+			wr_byte(q_info[i].started);
 		}
 		else if ((q_info[i].type == QUEST_THEMED_LEVEL) ||
 			     (q_info[i].type == QUEST_NEST) ||
@@ -1630,7 +1806,7 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->cur_num);
+		wr_byte(a_ptr->a_cur_num);
 		wr_byte(0);
 		wr_byte(0);
 		wr_byte(0);
@@ -1648,7 +1824,6 @@ static bool wr_savefile_new(void)
 	{
 		wr_s16b(p_ptr->player_hp[i]);
 	}
-
 
 	/* Write spell data */
 	wr_u16b(PY_MAX_SPELLS);
@@ -1670,6 +1845,9 @@ static bool wr_savefile_new(void)
 
 	/*Copy the notes file into the savefile*/
 	wr_notes();
+
+	/* Extensions */
+	wr_extensions();
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1697,15 +1875,26 @@ static bool wr_savefile_new(void)
 	/* Dump the stores */
 	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
 
+	/* Dump the current number of terrain features */
+	tmp16u = z_info->f_max;
+	wr_u16b(tmp16u);
+
+	/* Dump terrain lore */
+	for (i = 0; i < tmp16u; i++) wr_feature_lore(i);
+
+	/* Dump the current number of artifacts (normal + special) */
+	tmp16u = z_info->art_norm_max;
+	wr_u16b(tmp16u);
+
+	/* Dump artifact lore */
+	for (i = 0; i < tmp16u; i++) wr_artifact_lore(i);
 
 	/* Player is not dead, write the dungeon */
 	if (!p_ptr->is_dead)
 	{
 		/* Dump the dungeon */
 		wr_dungeon();
-
 	}
-
 
 	/* Write the "value check-sum" */
 	wr_u32b(v_stamp);

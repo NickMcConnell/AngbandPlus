@@ -22,9 +22,6 @@
 
 %:font-xxx.prf
 
-##### Load the Shades #####
-%:shades.prf
-
 ##### System Specific Subfiles #####
 
 ?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj] [EQU $SYS gtk]]
@@ -32,6 +29,9 @@
 
 ?:[EQU $SYS gcu]
 %:font-gcu.prf
+
+?:[EQU $SYS lfb]
+%:font-lfb.prf
 
 ?:[EQU $SYS ami]
 %:font-ami.prf

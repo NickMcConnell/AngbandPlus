@@ -25,24 +25,15 @@ int usleep(unsigned long usecs)
 {
 	struct timeval      Timer;
 
-	int nfds = 0;
-
-#ifdef FD_SET
-	fd_set *no_fds = NULL;
-#else
-	int *no_fds = NULL;
-#endif
-
-
 	/* Paranoia -- No excessive sleeping */
-	if (usecs > 4000000L) core("Illegal usleep() call");
+	if (usecs > 4000000L) quit("Illegal usleep() call");
 
 	/* Wait for it */
 	Timer.tv_sec = (usecs / 1000000L);
 	Timer.tv_usec = (usecs % 1000000L);
 
 	/* Wait for it */
-	if (select(nfds, no_fds, no_fds, no_fds, &Timer) < 0)
+	if (select(0, NULL, NULL, NULL, &Timer) < 0)
 	{
 		/* Hack -- ignore interrupts */
 		if (errno != EINTR) return -1;
@@ -125,7 +116,7 @@ void user_name(char *buf, size_t len, int id)
 #else /* RISCOS */
 
 
-#ifdef SET_UID
+#if defined(SET_UID) || defined(MACH_O_CARBON)
 
 /*
  * Extract a "parsed" path from an initial filename
@@ -391,6 +382,7 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 	u16b i = 0;
 	char *s = buf;
 	int len;
+	bool check_encodes = FALSE;
 
 	/* Paranoia */
 	if (n <= 0) return (1);
@@ -418,17 +410,17 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 		{
 
 			/* No characters read -- signal error */
-			if (i == 0) break;
+ 			if (i == 0)
+ 			{
+ 				/* End of file error */
+ 				buf[0] = '\0';
 
-			/*
-			 * Be nice to DOS/Windows, where a last line of a file isn't
-			 * always \n terminated.
-			 */
-			*s = '\0';
+ 				/* Error */
+ 				return (1);
+ 			}
 
-
-			/* Success */
-			return (0);
+  			/* Success */
+ 			break;
 		}
 
 
@@ -445,14 +437,7 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 #endif /* MACINTOSH || MACH_O_CARBON */
 
 		/* End of line */
-		if (c == '\n')
-		{
-			/* Null terminate */
-			*s = '\0';
-
-			/* Success */
-			return (0);
-		}
+		if (c == '\n') break;
 
 		/* Expand a tab into spaces */
 		if (c == '\t')
@@ -463,7 +448,14 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 			tabstop = ((i + TAB_COLUMNS) / TAB_COLUMNS) * TAB_COLUMNS;
 
 			/* Bounds check */
-			if (tabstop >= len) break;
+			if (tabstop >= len)
+ 			{
+ 				/* Buffer overflow - return an empty string */
+ 				buf[0] = '\0';
+
+ 				/* Error */
+ 				return (1);
+ 			}
 
 			/* Convert it to spaces */
 			while (i < tabstop)
@@ -479,21 +471,27 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
  		}
 
 		/* Ignore non-printables */
-		else if (isprint(c))
-		{
-			/* Store character in the buffer */
-			*s++ = c;
+		else if (my_isprint((unsigned char)c))
+  		{
+  			/* Store character in the buffer */
+  			*s++ = c;
 
-			/* Count number of characters in the buffer */
-			i++;
-		}
- 	}
+  			/* Count number of characters in the buffer */
+  			i++;
 
-	/* Buffer overflow or EOF - return an empty string */
- 	buf[0] = '\0';
+ 			/* Notice possible encode */
+ 			if (c == '[') check_encodes = TRUE;
+  		}
+  	}
 
-	/* Error */
-	return (1);
+ 	/* Always terminate the string */
+ 	*s = '\0';
+
+ 	/* Translate encodes if necessary */
+ 	if (check_encodes) xstr_trans(buf, LATIN1);
+
+ 	/* Success */
+ 	return (0);
 }
 
 
@@ -549,11 +547,8 @@ errr fd_kill(cptr file)
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, sizeof(buf), file)) return (-1);
 
-	/* Remove */
-	(void)remove(buf);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
+	/* Remove, return 0 on success, non-zero on failure */
+	return (remove(buf));
 }
 
 
@@ -571,33 +566,8 @@ errr fd_move(cptr file, cptr what)
 	/* Hack -- Try to parse the path */
 	if (path_parse(aux, sizeof(aux), what)) return (-1);
 
-	/* Rename */
-	(void)rename(buf, aux);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to copy a file
- */
-errr fd_copy(cptr file, cptr what)
-{
-	char buf[1024];
-	char aux[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, sizeof(buf), file)) return (-1);
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(aux, sizeof(aux), what)) return (-1);
-
-	/* Copy XXX XXX XXX */
-	/* (void)rename(buf, aux); */
-
-	/* Assume success XXX XXX XXX */
-	return (1);
+	/* Rename, return 0 on success, non-zero on failure */
+	return (rename(buf, aux));
 }
 
 
@@ -675,52 +645,30 @@ int fd_open(cptr file, int flags)
  */
 errr fd_lock(int fd, int what)
 {
+#ifdef SET_UID
+
+	struct flock lock;
+#endif
+
+
+
 	/* Verify the fd */
 	if (fd < 0) return (-1);
 
 #ifdef SET_UID
 
-# ifdef USG
+	lock.l_type = what;
+	lock.l_start = 0; /* Lock the entire file */
+	lock.l_whence = SEEK_SET; /* Lock the entire file */
+	lock.l_len = 0; /* Lock the entire file */
 
-#  if defined(F_ULOCK) && defined(F_LOCK)
+	/* Wait for access and set lock status */
+	/*
+	 * Change F_SETLKW to F_SETLK it it's preferable to return
+	 * without locking and reporting an error instead of waiting.
+	 */
+	return (fcntl(fd, F_SETLKW, &lock));
 
-	/* Un-Lock */
-	if (what == F_UNLCK)
-	{
-		/* Unlock it, Ignore errors */
-		lockf(fd, F_ULOCK, 0);
-	}
-
-	/* Lock */
-	else
-	{
-		/* Lock the score file */
-		if (lockf(fd, F_LOCK, 0) != 0) return (1);
-	}
-
-#  endif /* defined(F_ULOCK) && defined(F_LOCK) */
-
-# else
-
-#  if defined(LOCK_UN) && defined(LOCK_EX)
-
-	/* Un-Lock */
-	if (what == F_UNLCK)
-	{
-		/* Unlock it, Ignore errors */
-		(void)flock(fd, LOCK_UN);
-	}
-
-	/* Lock */
-	else
-	{
-		/* Lock the score file */
-		if (flock(fd, LOCK_EX) != 0) return (1);
-	}
-
-#  endif /* defined(LOCK_UN) && defined(LOCK_EX) */
-
-# endif /* USG */
 
 #else /* SET_UID */
 
@@ -757,6 +705,11 @@ errr fd_seek(int fd, long n)
 	return (0);
 }
 
+#ifndef SET_UID
+ #define FILE_BUF_SIZE 16384
+#endif
+
+
 
 /*
  * Hack -- attempt to read data from a file descriptor
@@ -769,16 +722,16 @@ errr fd_read(int fd, char *buf, size_t n)
 #ifndef SET_UID
 
 	/* Read pieces */
-	while (n >= 16384)
+	while (n >= FILE_BUF_SIZE)
 	{
 		/* Read a piece */
-		if (read(fd, buf, 16384) != 16384) return (1);
+		if (read(fd, buf, FILE_BUF_SIZE) != FILE_BUF_SIZE) return (1);
 
 		/* Shorten the task */
-		buf += 16384;
+		buf += FILE_BUF_SIZE;
 
 		/* Shorten the task */
-		n -= 16384;
+		n -= FILE_BUF_SIZE;
 	}
 
 #endif
@@ -802,16 +755,16 @@ errr fd_write(int fd, cptr buf, size_t n)
 #ifndef SET_UID
 
 	/* Write pieces */
-	while (n >= 16384)
+	while (n >= FILE_BUF_SIZE)
 	{
 		/* Write a piece */
-		if (write(fd, buf, 16384) != 16384) return (1);
+		if (write(fd, buf, FILE_BUF_SIZE) != FILE_BUF_SIZE) return (1);
 
 		/* Shorten the task */
-		buf += 16384;
+		buf += FILE_BUF_SIZE;
 
 		/* Shorten the task */
-		n -= 16384;
+		n -= FILE_BUF_SIZE;
 	}
 
 #endif
@@ -832,11 +785,8 @@ errr fd_close(int fd)
 	/* Verify the fd */
 	if (fd < 0) return (-1);
 
-	/* Close */
-	(void)close(fd);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
+	/* Close, return 0 on success, -1 on failure */
+	return (close(fd));
 }
 
 
@@ -885,7 +835,29 @@ errr check_modification_date(int fd, cptr template_file)
 
 #endif /* RISCOS */
 
+/*
+ * Format and translate a string, then print it out to file.
+ */
+void x_fprintf(FILE *fff, int encoding, cptr fmt, ...)
+{
+	va_list vp;
 
+ 	char buf[1024];
+
+ 	/* Begin the Varargs Stuff */
+ 	va_start(vp, fmt);
+
+ 	/* Format the args, save the length */
+ 	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
+
+ 	/* End the Varargs Stuff */
+ 	va_end(vp);
+
+ 	/* Translate */
+ 	xstr_trans(buf, encoding);
+
+ 	fputs(buf, fff);
+}
 
 
 /*
@@ -1896,9 +1868,9 @@ char (*inkey_hack)(int flush_first) = NULL;
  * If we are waiting for a keypress, and no keypress is ready, then we will
  * refresh (once) the window which was active when this function was called.
  *
- * Note that "back-quote" is automatically converted into "escape" for
- * convenience on machines with no "escape" key.  This is done after the
- * macro matching, so the user can still make a macro for "backquote".
+ * If a compiler define is set, "back-quote" is automatically converted into
+ * "escape".  This is done after the macro matching, so the user can still
+ * make a macro for "backquote".
  *
  * Note the special handling of "ascii 30" (ctrl-caret, aka ctrl-shift-six)
  * and "ascii 31" (ctrl-underscore, aka ctrl-shift-minus), which are used to
@@ -1927,7 +1899,9 @@ char (*inkey_hack)(int flush_first) = NULL;
  */
 char inkey(void)
 {
-	bool cursor_state;
+	bool cursor_state[ANGBAND_TERM_MAX];
+
+	int j;
 
 	char kk;
 
@@ -1984,14 +1958,37 @@ char inkey(void)
 	}
 
 
-	/* Get the cursor state */
-	(void)Term_get_cursor(&cursor_state);
-
 	/* Show the cursor if waiting, except sometimes in "command" mode */
 	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
 	{
-		/* Show the cursor */
-		(void)Term_set_cursor(TRUE);
+		/* Scan windows */
+		for (j = 0; j < ANGBAND_TERM_MAX; j++)
+		{
+			term *t = angband_term[j];
+
+			/* No window */
+			if (!t) continue;
+
+			/* No relevant flags */
+			if ((j > 0) && !(op_ptr->window_flag[j] & (PW_MAP)))
+				continue;
+
+			/* Activate the map term */
+			Term_activate(t);
+
+			/* Get the cursor state */
+			(void)Term_get_cursor(&cursor_state[j]);
+
+			/* Show the cursor */
+			(void)Term_set_cursor(TRUE);
+
+			/* Refresh the term to draw the cursor */
+			/*
+			 * The main screen is ignored because of some screen
+			 * flickering when "auto_display_lists" is on. -DG-
+			 */
+			if ((j > 0) && !cursor_state[j]) (void)Term_fresh();
+		}
 	}
 
 
@@ -2017,7 +2014,7 @@ char inkey(void)
 			Term_activate(old);
 
 			/* Flush output */
-			Term_fresh();
+			(void)Term_fresh();
 
 			/* Hack -- activate main screen */
 			Term_activate(term_screen);
@@ -2095,10 +2092,12 @@ char inkey(void)
 			continue;
 		}
 
+#ifdef USE_BACKQUOTE_AS_ESCAPE
 
 		/* Treat back-quote as escape */
 		if (ch == '`') ch = ESCAPE;
 
+#endif /* USE_BACKQUOTE_AS_ESCAPE */
 
 		/* End "macro trigger" */
 		if (parse_under && (ch <= 32))
@@ -2136,13 +2135,40 @@ char inkey(void)
 		}
 	}
 
+	/* Hide the cursor again */
+	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+	{
+		/* Scan windows */
+		for (j = 0; j < ANGBAND_TERM_MAX; j++)
+		{
+			term *t = angband_term[j];
+
+			/* No window */
+			if (!t) continue;
+
+			/* No relevant flags */
+			if ((j > 0) && !(op_ptr->window_flag[j] & PW_MAP)) continue;
+
+			/* Activate the term */
+			Term_activate(t);
+
+			/* Restore the cursor */
+			(void)Term_set_cursor(cursor_state[j]);
+
+			/* Refresh to erase the cursor
+			 * The main screen is ignored because of some screen
+			 * flickering when "auto_display_lists" is on. -DG-
+			 */
+			if ((j > 0) && !cursor_state[j])
+ 			{
+ 				(void)Term_fresh();
+ 			}
+		}
+	}
+
 
 	/* Hack -- restore the term */
 	Term_activate(old);
-
-
-	/* Restore the cursor */
-	Term_set_cursor(cursor_state);
 
 
 	/* Cancel the various "global parameters" */
@@ -2156,13 +2182,14 @@ char inkey(void)
 
 
 
+
 /*
  * Flush the screen, make a noise
  */
 void bell(cptr reason)
 {
 	/* Mega-Hack -- Flush the output */
-	Term_fresh();
+	(void)Term_fresh();
 
 	if (character_generated && reason)
 	{
@@ -3030,7 +3057,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	message_column += n + 1;
 
 	/* Optional refresh */
-	if (fresh_after) Term_fresh();
+	if (fresh_after) (void)Term_fresh();
 }
 
 
@@ -3039,9 +3066,20 @@ static void msg_print_aux(u16b type, cptr msg)
  */
 void msg_print(cptr msg)
 {
+	 /* Flush all monster messages */
+	if (size_mon_msg > 0) flush_monster_messages();
+
 	msg_print_aux(MSG_GENERIC, msg);
 }
 
+/*
+ * Print a message in the default color (white)
+ * IMPORTANT: It doesn't flush merged monster messages
+ */
+void msg_print_raw(cptr msg)
+{
+       msg_print_aux(MSG_GENERIC, msg);
+}
 
 /*
  * Display a formatted message, using "vstrnfmt()" and "msg_print()".
@@ -3051,6 +3089,9 @@ void msg_format(cptr fmt, ...)
 	va_list vp;
 
 	char buf[1024];
+
+	/* Flush all monster messages */
+	if (size_mon_msg > 0) flush_monster_messages();
 
 	/* Begin the Varargs Stuff */
 	va_start(vp, fmt);
@@ -3065,6 +3106,27 @@ void msg_format(cptr fmt, ...)
 	msg_print_aux(MSG_GENERIC, buf);
 }
 
+void msg_c_format(u16b mtype, const char *fmt, ...)
+{
+	va_list vp;
+
+	char buf[1024];
+
+	/* Flush all monster messages */
+	if (size_mon_msg > 0) flush_monster_messages();
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Display */
+	msg_print_aux(mtype, buf);
+}
 
 /*
  * Display a message and play the associated sound.
@@ -3076,8 +3138,13 @@ void message(u16b message_type, s16b extra, cptr message)
 	/* Unused parameter */
 	(void)extra;
 
+	 /* Flush all monster messages */
+	if (size_mon_msg > 0) flush_monster_messages();
+
+	/* Play a sound, if specified */
 	sound(message_type);
 
+	/* Display the message */
 	msg_print_aux(message_type, message);
 }
 
@@ -3278,7 +3345,7 @@ void text_out_to_screen(byte a, cptr str)
 		}
 
 		/* Clean up the char */
-		ch = (isprint((unsigned char)*s) ? *s : ' ');
+		ch = (my_isprint((unsigned char)*s) ? *s : ' ');
 
 		/* Wrap words as needed */
 		if ((x >= wrap - 1) && (ch != ' '))
@@ -3353,17 +3420,29 @@ void text_out_to_screen(byte a, cptr str)
  */
 void text_out_to_file(byte a, cptr str)
 {
+	cptr s;
+ 	char buf[1024];
+
 	/* Current position on the line */
 	static int pos = 0;
 
 	/* Wrap width */
 	int wrap = (text_out_wrap ? text_out_wrap : 75);
 
-	/* Current location within "str" */
-	cptr s = str;
+	/* We use either ascii or system-specific encoding */
+ 	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
 	/* Unused parameter */
 	(void)a;
+
+	/* Copy to a rewriteable string */
+ 	my_strcpy(buf, str, 1024);
+
+ 	/* Translate it to 7-bit ASCII or system-specific format */
+ 	xstr_trans(buf, encoding);
+
+ 	/* Current location within "buf" */
+ 	s = buf;
 
 	/* Process the string */
 	while (*s)
@@ -3411,6 +3490,9 @@ void text_out_to_file(byte a, cptr str)
 			}
 			else
 			{
+				/* Skip newlines -DG- */
+				if (s[0] == '\n') s++;
+
 				/* Begin a new line */
 				fputc('\n', text_out_file);
 
@@ -3433,7 +3515,7 @@ void text_out_to_file(byte a, cptr str)
 		for (n = 0; n < len; n++)
 		{
 			/* Ensure the character is printable */
-			ch = (isprint(s[n]) ? s[n] : ' ');
+			ch = (my_isprint((unsigned char)s[n]) ? s[n] : ' ');
 
 			/* Write out the character */
 			fputc(ch, text_out_file);
@@ -3444,6 +3526,9 @@ void text_out_to_file(byte a, cptr str)
 
 		/* Move 's' past the stuff we've written */
 		s += len;
+
+		/* Skip whitespace -DG- */
+		while (*s == ' ') s++;
 
 		/* If we are at the end of the string, end */
 		if (*s == '\0') return;
@@ -3457,8 +3542,6 @@ void text_out_to_file(byte a, cptr str)
 		/* Reset */
 		pos = 0;
 
-		/* Skip whitespace */
-		while (*s == ' ') s++;
 	}
 
 	/* We are done */
@@ -3546,7 +3629,6 @@ bool askfor_aux(char *buf, size_t len)
 	/* Truncate the default entry */
 	buf[len-1] = '\0';
 
-
 	/* Display the default answer */
 	Term_erase(x, y, (int)len);
 	Term_putstr(x, y, -1, TERM_YELLOW, buf);
@@ -3587,7 +3669,7 @@ bool askfor_aux(char *buf, size_t len)
 
 			default:
 			{
-				if ((k < len-1) && (isprint((unsigned char)ch)))
+				if ((k < len-1) && (my_isprint((unsigned char)ch)))
 				{
 					buf[k++] = ch;
 				}
@@ -3633,6 +3715,9 @@ bool get_string(cptr prompt, char *buf, size_t len)
 	/* Ask the user for a string */
 	res = askfor_aux(buf, len);
 
+	/* Translate it to 8-bit (Latin-1) */
+ 	xstr_trans(buf, LATIN1);
+
 	/* Clear prompt */
 	prt("", 0, 0);
 
@@ -3662,7 +3747,7 @@ s16b get_quantity(cptr prompt, int max)
 		p_ptr->command_arg = 0;
 	}
 
-#ifdef ALLOW_REPEAT
+
 
 	/* Get the item index */
 	else if ((max != 1) && allow_quantity && repeat_pull(&amt))
@@ -3670,7 +3755,7 @@ s16b get_quantity(cptr prompt, int max)
 		/* nothing */
 	}
 
-#endif /* ALLOW_REPEAT */
+
 
 	/* Prompt if needed */
 	else if ((max != 1) && allow_quantity)
@@ -3708,11 +3793,10 @@ s16b get_quantity(cptr prompt, int max)
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;
 
-#ifdef ALLOW_REPEAT
+
 
 	if (amt) repeat_push(amt);
 
-#endif /* ALLOW_REPEAT */
 
 	/* Return the result */
 	return (amt);
@@ -3783,7 +3867,7 @@ int get_check_other(cptr prompt, char other)
  *
  * Note that "[y/n]" is appended to the prompt.
  */
-bool get_check(cptr prompt)
+bool get_c_check(u16b msgt, cptr prompt)
 {
 	char ch;
 
@@ -3796,7 +3880,7 @@ bool get_check(cptr prompt)
 	strnfmt(buf, 78, "%.70s[y/n] ", prompt);
 
 	/* Prompt for it */
-	prt(buf, 0, 0);
+	c_prt(message_type_color(msgt), buf, 0, 0);
 
 	/* Get an acceptable answer */
 	while (TRUE)
@@ -3817,6 +3901,12 @@ bool get_check(cptr prompt)
 	/* Success */
 	return (TRUE);
 }
+
+bool get_check(cptr prompt)
+{
+	return get_c_check(MSG_GENERIC, prompt);
+}
+
 
 /*
  * Give a prompt, then get a choice withing a certain range.
@@ -4194,7 +4284,7 @@ void request_command(bool shopping)
 
 
 	/* Hack -- Scan equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		cptr s;
 
@@ -4256,31 +4346,6 @@ int damroll(int num, int sides)
 
 	return (sum);
 }
-
-
-/*
- * Check a char for "vowel-hood"
- */
-bool is_a_vowel(int ch)
-{
-	switch (ch)
-	{
-		case 'a':
-		case 'e':
-		case 'i':
-		case 'o':
-		case 'u':
-		case 'A':
-		case 'E':
-		case 'I':
-		case 'O':
-		case 'U':
-		return (TRUE);
-	}
-
-	return (FALSE);
-}
-
 
 /*
  * Convert a "color letter" into an "actual" color
@@ -4376,7 +4441,7 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 #endif
 
 
-#ifdef ALLOW_REPEAT
+
 
 #define REPEAT_MAX 20
 
@@ -4477,7 +4542,20 @@ void repeat_check(void)
 	}
 }
 
-#endif /* ALLOW_REPEAT */
+/*
+ * Remove all parameters saved for the last command if it matches the given
+ * command, leaving only the command trigger in the queue. If the given
+ * command is 0 then any command in the queue is reset. -DG-
+ */
+void repeat_reset_command(int cmd)
+{
+	if ((repeat__cnt > 0) && ((cmd == 0) || (repeat__key[0] == cmd)))
+	{
+		repeat__cnt = repeat__idx = 1;
+	}
+}
+
+
 
 
 #ifdef SUPPORT_GAMMA
@@ -4792,225 +4870,6 @@ void get_grid_using_angle(int angle, int y0, int x0, int *ty, int *tx)
 }
 
 /*
- * Initialize a editing_buffer structure. It takes a pointer to a valid
- * structure, an optional string used to initialize the contents of the
- * buffer and a maximum buffer size (it must include an extra space for an
- * ending '\0').
- */
-void editing_buffer_init(editing_buffer *eb_ptr, const char *buf,
-    size_t max_size)
-{
-  	size_t len = 0;
-
-  	if (!eb_ptr) return;
-
-  	if (buf) len = strlen(buf);
-
-  	/* Alloc a clean buffer */
-  	C_MAKE(eb_ptr->buf, max_size, char);
-
-  	/* Copy the initial string, if any */
-  	if (len > 0) strcpy(eb_ptr->buf, buf);
-
-  	/* Initialize the remaining fields */
-  	eb_ptr->pos = len;
-
-  	/* Important, we keep one space unused to ensure the correctness of the
-   	 * "print" function */
-  	eb_ptr->max_size = max_size - 1;
-  	eb_ptr->gap_size = eb_ptr->max_size - len;
-}
-
-/*
- * Free the resources used by the editing_buffer structure.
- */
-void editing_buffer_destroy(editing_buffer *eb_ptr)
-{
-  	/* Destroy the buffer */
-  	if (eb_ptr && eb_ptr->buf)
-  	{
-    	FREE(eb_ptr->buf);
-    	eb_ptr->buf = NULL;
-  	}
-}
-
-/*
- * Puts a character on the buffer. Returns a non-zero value if it succeds.
- */
-int editing_buffer_put_chr(editing_buffer *eb_ptr, char ch)
-{
-  	if (!eb_ptr) return 0;
-
-  	/* Do not have space */
-  	if (eb_ptr->gap_size < 1) return 0;
-
-  	/* Copy the character. Advance the "cursor" */
-  	eb_ptr->buf[eb_ptr->pos++] = ch;
-
-  	/* We have less space */
-  	--eb_ptr->gap_size;
-
-  	return 1;
-}
-/*
- * Changes the position of the "cursor" in the buffer.
- * Valid values for "new_pos" are from 0 to EDITING_BUFFER_LEN(eb_ptr).
- * BEWARE: the type of "new_pos" is "size_t" (unsigned).
- * Returns a non-zero value if it succeds.
- */
-int editing_buffer_set_position(editing_buffer *eb_ptr, size_t new_pos)
-{
-  	if (!eb_ptr) return 0;
-
-  	/* Valid position? */
-  	if (new_pos > EDITING_BUFFER_LEN(eb_ptr)) return 0;
-
-  	/* Trivial */
-  	if (new_pos == eb_ptr->pos) return 1;
-
-  	/* Easy case, we change only the "cursor" */
-  	if (eb_ptr->gap_size < 1)
- 	{
-    	eb_ptr->pos = new_pos;
-    	return 1;
-  	}
-
-  	/* Move the gap. Note that if "new_pos" defers of "pos" by +-1, only
-   	 * one character is moved (fast keyboard arrows) */
-
-  	/* First case. "new_pos" is after the gap */
-  	while (eb_ptr->pos < new_pos)
-  	{
-    	eb_ptr->buf[eb_ptr->pos] = eb_ptr->buf[eb_ptr->pos + eb_ptr->gap_size];
-
-		/* Important, keep the gap clean */
-    	eb_ptr->buf[eb_ptr->pos + eb_ptr->gap_size] = '\0';
-    	++eb_ptr->pos;
-  	}
-
-  	/* Second case. "new_pos" is before the gap */
-  	while (eb_ptr->pos > new_pos)
-  	{
-    	--eb_ptr->pos;
-    	eb_ptr->buf[eb_ptr->pos + eb_ptr->gap_size] = eb_ptr->buf[eb_ptr->pos];
-
-		/* Important, keep the gap clean */
-    	eb_ptr->buf[eb_ptr->pos] = '\0';
-  	}
-
-  	return 1;
-}
-
-/*
- * Hack - Efficient printing function.
- */
-void editing_buffer_display(editing_buffer *eb_ptr, int x, int y, byte col)
-{
-  	if (!eb_ptr) return;
-
-  	Term_erase(x, y, (int)eb_ptr->max_size);
-
-  	/* Print the beginning of the buffer */
-  	/* In many cases, it is all we have to do */
-
-  	/* Here is the reason why the gap should be "clean" */
-  	/* It ensures an ending '\0' */
-  	Term_putstr(x, y, -1, col, eb_ptr->buf);
-
-  	/* Unless this happens */
-
-  	/* Here is the reason why we reserved one space in editing_buffer_init */
-  	/* Again, it ensures an ending '\0' */
-  	if ((eb_ptr->pos < EDITING_BUFFER_LEN(eb_ptr)) && (eb_ptr->gap_size > 0))
-    	Term_putstr(x + eb_ptr->pos, y, -1, col,
-					eb_ptr->buf + eb_ptr->pos + eb_ptr->gap_size);
-}
-
-/*
- * Deletes the character under the "cursor". Returns 1 if it succeds.
- */
-int editing_buffer_delete(editing_buffer *eb_ptr)
-{
-  	if (!eb_ptr) return 0;
-
-  	/* We are at the end of the buffer */
-  	if (eb_ptr->pos == EDITING_BUFFER_LEN(eb_ptr))  return 0;
-
- 	/* Important, keep the gap clean */
-  	eb_ptr->buf[eb_ptr->pos + eb_ptr->gap_size] = '\0';
-
-  	/* We have more space */
-  	++eb_ptr->gap_size;
-
-  	return 1;
-}
-
-/*
- * Removes all the contents of the buffer.
- */
-void editing_buffer_clear(editing_buffer *eb_ptr)
-{
-  	if (!eb_ptr) return;
-
-  	/* Clear the buffer */
-  	C_WIPE(eb_ptr->buf, eb_ptr->max_size, char);
-
-  	/* Reinitialize the remaining fields but "max_size" */
-  	eb_ptr->pos = 0;
-  	eb_ptr->gap_size = eb_ptr->max_size;
-}
-
-/*
- * Obtains a copy of the contents of the buffer.
- */
-void editing_buffer_get_all(editing_buffer *eb_ptr, char buf[], size_t max_size)
-{
-  	size_t i, n = EDITING_BUFFER_LEN(eb_ptr);
-  	if (!eb_ptr) return;
-
-  	/* Note the use of EDITING_BUFFER_GET to ignore the gap */
-  	for (i = 0; (i < n) && (i < max_size - 1); i++)
-	{
-    	buf[i] = EDITING_BUFFER_GET(eb_ptr, i);
-	}
-
-  	/* Terminate the string */
-  	buf[i] = '\0';
-}
-
-
-
-
-/*
- * Inserts a string in the buffer. Returns the number of written characters.
- * "n" is the maximum number of characters to write, -1 means all the string.
- */
-int editing_buffer_put_str(editing_buffer *eb_ptr, const char *str, int n)
-{
-	const char *p_str;
-
-	if (!eb_ptr || !str) return 0;
-
-	for (p_str = str; *p_str; p_str++)
-	{
-   		/* We do not have space */
-    	if (eb_ptr->gap_size < 1) break;
-
-    	/* Check max input size */
-   		if ((n >= 0) && (p_str - str >= n)) break;
-
-    	/* Insert the character. Advance the cursor */
-    	eb_ptr->buf[eb_ptr->pos++] = *p_str;
-
-		/* We have less space */
-    	--eb_ptr->gap_size;
-  	}
-
-  	return (p_str - str);
-}
-
-
-/*
  * Returns a string which contains the name of a extended color.
  * Examples: "Dark", "Red1", "Yellow5", etc.
  * IMPORTANT: the returned string is statically allocated so it must *not* be
@@ -5155,4 +5014,155 @@ cptr attr_to_text(byte a)
 
   return (base);
 }
+
+
+/*
+ * Create a new grid queue. "q" must be a pointer to an unitialized
+ * grid_queue_type structure. That structure must be already allocated
+ * (it can be in the system stack).
+ * You must supply the maximum number of grids for the queue
+ */
+void grid_queue_create(grid_queue_type *q, size_t max_size)
+{
+	/* Remember the maximum size */
+	q->max_size = max_size;
+
+	/* Allocate the grid storage */
+	C_MAKE(q->data, max_size, coord);
+
+	/* Initialize head and tail of the queue */
+	q->head = q->tail = 0;
+}
+
+/*
+ * Free the resources used by a queue
+ */
+void grid_queue_destroy(grid_queue_type *q)
+{
+	/* Free the allocated grid storage */
+	if (q->data)
+	{
+		FREE(q->data);
+	}
+
+	/* Clear all */
+	WIPE(q, grid_queue_type);
+}
+
+/*
+ * Append a grid at the tail of the queue, given the coordinates of that grid.
+ * Returns FALSE if the queue is full, or TRUE on success.
+ */
+bool grid_queue_push(grid_queue_type *q, byte y, byte x)
+{
+	/* Check space */
+	if (GRID_QUEUE_FULL(q)) return (FALSE);
+
+	/* Append the grid */
+	q->data[q->tail].y = y;
+	q->data[q->tail].x = x;
+
+	/*
+	 * Update the tail of the queue.
+	 * The queue is circular, note tail adjustment
+	 */
+	q->tail = (q->tail + 1) % q->max_size;
+
+	/* Success */
+	return (TRUE);
+}
+
+/*
+ * Remove the grid at the front of the queue
+ */
+void grid_queue_pop(grid_queue_type *q)
+{
+	/* Something to pop? */
+	if (GRID_QUEUE_EMPTY(q)) return;
+
+	/*
+	 * Update the head of the queue.
+	 * The queue is circular, note head adjustment
+	 */
+	q->head = (q->head + 1) % q->max_size;
+}
+
+
+/*
+ * Return a random index of the given array based on the weights contained in it
+ * Each index can have a different weight and bigger values are more probable
+ * to be picked
+ * Return -1 on error
+ */
+int pick_random_item(int chance_values[], int max)
+{
+	int total_chance = 0;
+	int rand_chance;
+	int i;
+
+	/* Paranoia */
+	if (max < 1) return (-1);
+
+	/* Get the sum of the chances */
+	for (i = 0; i < max; i++)
+	{
+		/* Paranoia */
+		if (chance_values[i] < 0) chance_values[i] = 0;
+
+		/* Update the total */
+		total_chance += chance_values[i];
+	}
+
+	/* Paranoia */
+	if (total_chance == 0) return (0);
+
+	/* Get a random chance value */
+	rand_chance = rand_int(total_chance);
+
+	/* Reset the counter */
+	total_chance = 0;
+
+	/* Get the respective index of that chance */
+	for (i = 0; i < max; i++)
+	{
+		/* Update the total chance again */
+		total_chance += chance_values[i];
+
+		/* The random chance is contained in this entry */
+		if (rand_chance < total_chance) break;
+	}
+
+	/* Paranoia */
+	if (i >= max) i = max - 1;
+
+	/* Return the index */
+	return (i);
+}
+
+/*
+ * Read a whole line from fff and try to get a number from it.
+ * The number is stored in dest.
+ * Return TRUE on error.
+ */
+errr next_line_to_number(FILE *fff, int *dest)
+{
+	char buf[1024], *end;
+	int number;
+
+	/* Read the line */
+	if (my_fgets(fff, buf, sizeof(buf))) return (1);
+
+	/* Convert to number */
+	number = (int)strtol(buf, &end, 10);
+
+	/* Check success */
+	if (end == buf) return (1);
+
+	/* Store the number */
+	*dest = number;
+
+	/* Done */
+	return (0);
+}
+
 
