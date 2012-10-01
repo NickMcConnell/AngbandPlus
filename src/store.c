@@ -1153,7 +1153,7 @@ static void display_entry(int item)
 		/* Actually draw the price */
 		attr = (((x + 9) / 10) <= p_ptr->au ? TERM_WHITE : TERM_L_DARK);
 		if (x > 5) sprintf(out_val, "%9ld  ", (long)(x + 9) / 10);
-		else sprintf(out_val, "%3d for 1", (long)(10 / x));
+		else sprintf(out_val, "%3ld for 1", (long)(10 / x));
 
 		c_put_str(attr, out_val, y, 68);
 	}

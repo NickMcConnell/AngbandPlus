@@ -188,14 +188,14 @@ static void prt_binary(u32b flags, int row, int col)
 	}
 }
 
- /*
+/*
  * Output a rarity graph for a type of object.
  */
 static void prt_alloc(byte tval, byte sval, int row, int col)
 {
-	int i, j;
+	int i, j, k, l;
 
-	int home, lev;
+	int home, lev1, lev2, chance1, chance2;
 
 	u32b maxd = 1, maxr = 1, maxt = 1;
 
@@ -208,9 +208,6 @@ static void prt_alloc(byte tval, byte sval, int row, int col)
 
 	object_kind *k_ptr;
 
-	/* Get the entry */
-	alloc_entry *table = alloc_kind_table;
-
 	/* Wipe the tables */
 	(void)C_WIPE(rarity, MAX_DEPTH, u32b);
 	(void)C_WIPE(total, MAX_DEPTH, u32b);
@@ -219,25 +216,67 @@ static void prt_alloc(byte tval, byte sval, int row, int col)
 	/* Scan all entries */
 	for (i = 0; i < MAX_DEPTH; i++)
 	{
-		/* Base level */
-		lev = ((i * (GREAT_OBJ - 1)) + (1 + i * 5433L / 1000)) / GREAT_OBJ;
-
-		for (j = 0; j < alloc_kind_size; j++)
+		for (j = 0; j < z_info->k_max; j++)
 		{
-			/* Objects are sorted by depth */
-			if (table[j].level > lev) break;
-
 			/* Acquire this kind */
-			k_ptr = &k_info[table[j].index];
+			k_ptr = &k_info[j];
+
+			lev1 = -1;
+			lev2 = MAX_DEPTH + 1;
+
+			/* Scan allocation pairs */
+			for (k = 0; k < MAX_OBJ_ALLOC; k++)
+			{
+				/* Stop when you first encounter a non-chance */
+				if (!k_ptr->chance[k]) break;
+				
+				/* Look for the closest allocation <= than the current depth */
+				if ((k_ptr->locale[k] <= i) && (lev1 <= k_ptr->locale[k]))
+				{
+					lev1    = k_ptr->locale[k];
+					chance1 = k_ptr->chance[k];
+				}
+
+				/* Look for the closest allocation > than the current depth */
+				else if ((k_ptr->locale[k] > i) && (lev2 > k_ptr->locale[k]))
+				{
+					lev2    = k_ptr->locale[k];
+					chance2 = k_ptr->chance[k];
+				}
+			}
+
+			/* Simple case - object is too high-level */
+			if (lev1 < 0)
+			{
+				l = 0;
+			}
+
+			/* Simple case - no allocations exceed the current depth */
+			else if (lev2 == MAX_DEPTH + 1)
+			{
+				l = chance1;
+			}
+
+			/* Simple case - current depth matches an allocation entry */
+			else if ((lev1 == i) || (lev2 == lev1))
+			{
+				l = chance1;
+			}
+
+			/* Usual case - apply the weighted average of two allocations */
+			else
+			{
+				l = chance1 + (i - lev1) * (chance2 - chance1) / (lev2 - lev1);
+			}
 
 			/* Accumulate probabilities */
-			total[i] += table[j].prob1;
+			total[i] += l;
 
 			/* Accumulate probabilities */
 			if ((k_ptr->tval == tval) && (k_ptr->sval == sval))
 			{
 				home = k_ptr->level;
-				rarity[i] += table[j].prob1;
+				rarity[i] += l;
 			}
 		}
 	}
@@ -255,12 +294,12 @@ static void prt_alloc(byte tval, byte sval, int row, int col)
 		c = TERM_L_WHITE;
 		r = "+-common-+";
 	}
-	if (maxt / maxr > 1024)
+	if (maxt / maxr > 512)
 	{
 		c = TERM_SLATE;
 		r = "+--rare--+";
 	}
-	if (maxt / maxr > 32768L)
+	if (maxt / maxr > 4096)
 	{
 		c = TERM_L_DARK;
 		r = "+-v.rare-+";
@@ -390,7 +429,7 @@ static void do_cmd_wiz_change_aux(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Prompt */
-		strnfmt(ppp, sizeof(ppp), "%s (3-20): ", stat_names[i]);
+		strnfmt(ppp, sizeof(ppp), "%s (0-20): ", stat_names[i]);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
@@ -1945,7 +1984,8 @@ static void spoil_obj_desc(cptr fname)
 				kind_info(buf, dam, wgt, &e, &v, who[s]);
 
 				/* Dump it */
-				fprintf(fff, " %-54s%7s%6s%4d%9ld\n", buf, dam, wgt, e, (long)(v));
+				fprintf(fff, " %-54s%7s%6s%4d%8ld.%1ld\n", 
+					buf, dam, wgt, e, (long)(v / 10), (long)(v % 10));
 			}
 
 			/* Start a new set */
@@ -2124,7 +2164,7 @@ static void spoil_artifact(cptr fname)
 
 			text_out(format("Level %u, Rarity %u, %d.%d lbs, %ld Gold.\n\n",
 				a_ptr->level, a_ptr->rarity,
-				a_ptr->weight / 10, a_ptr->weight % 10, (long)a_ptr->cost));
+				a_ptr->weight / 10, a_ptr->weight % 10, (long)(a_ptr->cost / 10)));
 		}
 	}
 
@@ -2518,7 +2558,6 @@ static void spoil_mon_calc_aux(monster_list_entry *who, int n, int fset, u32b fl
 	fprintf(fff, "\n       |     Non-uniques     |        Uniques\n");
 	fprintf(fff, "Levels | + | - |Distrib|Total| + | - |Distrib|Total\n");
 	fprintf(fff, "-------+---+---+-------+-----+---+---+-------+-----\n");
-	fprintf(fff, "");
 
 	/* Print summary */
 	for (i = 0; i < 11; i++)

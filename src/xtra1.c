@@ -317,6 +317,54 @@ static void prt_depth(void)
 }
 
 /*
+ * Prints experience point graphical bar
+ */
+static void prt_exp_bar(void)
+{
+	int len, i;
+	byte attr = ((p_ptr->exp >= p_ptr->max_exp) ? TERM_L_GREEN : TERM_YELLOW);
+
+	/* Experience bar on the bottom of the screen */
+	len = Term->wid - 80;
+
+	if (len > 1)
+	{
+		int exp_this, exp_next, exp_step, exp_cur_pos, exp_max_pos;
+
+		if (p_ptr->lev <= 1) exp_this = 0;
+		else exp_this = (long)(player_exp[p_ptr->lev - 2] * p_ptr->expfact / 100L);
+
+		exp_next = (long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L);
+
+		/* Calculate how many 1/100 exp points necessary for a '*' */
+		exp_step = exp_next - exp_this;
+		exp_step = (100 * exp_step) / len;
+
+		/* Where does the current EXP end? */
+		exp_cur_pos = ((p_ptr->exp - exp_this) * 100) / exp_step;
+		exp_max_pos = ((p_ptr->max_exp - exp_this) * 100) / exp_step;
+
+		c_put_str(TERM_WHITE, "[", ROW_EXP_BAR, COL_EXP_BAR);
+		for (i = 1; i <= len; i++)
+		{
+			if (i <= exp_cur_pos)
+			{
+				c_put_str(attr, "*", ROW_EXP_BAR, COL_EXP_BAR + i);
+			}
+			else if (i <= exp_max_pos)
+			{
+				c_put_str(TERM_SLATE, "*", ROW_EXP_BAR, COL_EXP_BAR + i);
+			}
+			else
+			{
+				c_put_str(TERM_SLATE, "-", ROW_EXP_BAR, COL_EXP_BAR + i);
+			}
+		}
+		c_put_str(TERM_WHITE, "]", ROW_EXP_BAR, COL_EXP_BAR + len + 1);
+	}
+}
+
+/*
  * Prints status of hunger
  */
 static void prt_hunger(void)
@@ -812,7 +860,7 @@ static void prt_frame_basic(void)
 	/* Level/Experience */
 	prt_level();
 	prt_exp();
-
+	
 	/* All Stats */
 	for (i = 0; i < A_MAX; i++) prt_stat(i);
 
@@ -865,6 +913,9 @@ static void prt_frame_extra(void)
 
 	/* Study spells */
 	prt_study();
+
+	/* Experience bar */
+	prt_exp_bar();
 }
 
 /*
@@ -1674,21 +1725,39 @@ static void calc_hitpoints(void)
 	/* Un-inflate "half-hitpoint bonus per level" value */
 	bonus = ((int)(adj_con_mhp[p_stat(A_CON)]) - 128);
 
-	/* Make sure that you never get negative hp for any level */
+	/* 
+	 * Make sure that you never get negative hp for any level 
+	 * 
+	 * This is a bit confusing, so here is the explanation. Each level you gain
+	 * at least one base hp. Therefore, if the bonus is -1 (or above), you'll never
+	 * do worse than 0 hp per level, which is what we want. If the bonus is -2, 
+	 * however, there's a chance that you'll get only 1 hp, thereby losing a hp in
+	 * total. To prevent this, if the bonus is -2 or worse, each level is checked,
+	 * and there will never be more than the hp rolled for that level subtracted from
+	 * the total. 
+	 */
 	if (bonus >= -1) bonus_sum = bonus * p_ptr->lev;
 	else for (i = 0; i < p_ptr->lev; i++)
 	{
-		if (i > 0) hp_lev = p_ptr->player_hp[i] - p_ptr->player_hp[i-1];
+		if (i > 0) hp_lev = p_ptr->player_hp[i] - p_ptr->player_hp[i - 1];
 		else hp_lev = p_ptr->player_hp[0];
 
+		/* 
+		 * Note that the bonus is always negative here, so either way bonus_sum is 
+		 * lowered.
+		 */
 		if (bonus + hp_lev < 0) bonus_sum -= hp_lev;
 		else bonus_sum += bonus;
 	}
 
 	/* Calculate hitpoints */
-	mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus_sum / 2);
+	mhp = p_ptr->player_hp[p_ptr->lev - 1] + ((bonus_sum + 3) / 4);
 
-	/* Always have at least one hitpoint per level */
+	/* 
+	 * Always have at least one hitpoint per level. This is a seperate issue than
+	 * above; if for instance you already had 5 hp at level 3, level 4 could very
+	 * well add no hp.
+	 */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
 	/* HP bonuses */
@@ -2661,7 +2730,7 @@ static void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->cumber_armor_melee)
 		{
-			message(MSG_EFFECT, 0, "You are not strong enough to fight well with this armor");
+			message(MSG_EFFECT, 0, "Your armor constrians your fighting abilities.");
 		}
 		else
 		{
@@ -2715,11 +2784,11 @@ static void calc_bonuses(void)
 			/* Message */
 			if (p_ptr->cumber_glove)
 			{
-				message_format(MSG_EFFECT, 0, "Your covered hands feel unsuitable for %s.", act);
+				message_format(MSG_EFFECT, 0, "Your covered hands feel unsuited for %s.", act);
 			}
 			else
 			{
-				message_format(MSG_EFFECT, 0, "Your hands feel more suitable for %s.",act);
+				message_format(MSG_EFFECT, 0, "Your hands feel better suited for %s.",act);
 			}
 
 			/* Save it */
@@ -3124,6 +3193,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_EXP))
 	{
 		p_ptr->redraw &= ~(PR_EXP);
+		prt_exp_bar();
 		prt_exp();
 	}
 

@@ -635,7 +635,6 @@ static int check_hit(int power)
 void hit_trap(int y, int x)
 {
 	trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
-	trap_widget *w_ptr = &w_info[t_ptr->w_idx];
 
 	int dam, num, i;
 

@@ -241,10 +241,6 @@ static void spell_info(char *p, int spell_index)
 
 	int dur1 = 0;
 	int dur2 = 0;
-	int dam1 = 0;
-	int dam2 = 0;
-	int dam3 = 0;
-	int rad = 0;
 
 	/* Some more calculations for beam chance */
 	if (beam < 0) beam = 0;

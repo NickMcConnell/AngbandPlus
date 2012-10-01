@@ -539,168 +539,181 @@ object_type* get_next_object(const object_type *o_ptr)
 	return (NULL);
 }
 
+
 /*
  * Apply a "object restriction function" to the "object allocation table"
+ *
+ * Now, applying an object allocation restriction is a matter of toggling 
+ * permissions for individual allocations, which are ordered not by level, 
+ * but by object index. (From Sangband)
  */
-void get_obj_num_prep(void)
+errr get_obj_num_prep(void)
 {
 	int i;
 
-	/* Get the entry */
-	alloc_entry *table = alloc_kind_table;
-
-	/* Scan the allocation table */
-	for (i = 0; i < alloc_kind_size; i++)
+	/* Clear restrictions */
+	if (get_obj_num_hook == NULL)
 	{
-		/* Accept objects which pass the restriction, if any */
-		if (!get_obj_num_hook || (*get_obj_num_hook)(table[i].index))
-		{
-			/* Accept this object */
-			table[i].prob2 = table[i].prob1;
-		}
+		/* Accept all objects */
+		for (i = 0; i < z_info->k_max; i++) permit_kind_table[i] = TRUE;
+	}
 
-		/* Do not use this object */
-		else
+	/* Apply restrictions */
+	else
+	{
+		/* Scan all objects */
+		for (i = 0; i < z_info->k_max; i++)
 		{
-			/* Decline this object */
-			table[i].prob2 = 0;
+			/* Apply the restriction */
+			permit_kind_table[i] = (*get_obj_num_hook)(i);
 		}
 	}
 
 	/* Success */
-	return;
+	return (0);
 }
 
 /*
  * Choose an object kind that seems "appropriate" to the given level
  *
- * This function uses the "prob2" field of the "object allocation table",
- * and various local information, to calculate the "prob3" field of the
- * same table, which is then used to choose an "appropriate" object, in
- * a relatively efficient manner.
+ * This function calculates level-dependant probabilities for all allowed
+ * objects, sums them up, and chooses among them.
  *
- * It is (slightly) more likely to acquire an object of the given level
- * than one of a lower level.  This is done by choosing several objects
- * appropriate to the given level and keeping the "hardest" one.
- *
- * Note that if no objects are "appropriate", then this function will
+ * If no objects match the restrictions laid down, this function will
  * fail, and return zero, but this should *almost* never happen.
+ *
+ * This is very slow code.  XXX XXX (From Sangband)
  */
 s16b get_obj_num(int level)
 {
-	int i, j, p;
-
-	int k_idx;
-
-	long value, total;
+	int i, j, z;
+	int lev1, lev2, chance1, chance2;
 
 	object_kind *k_ptr;
 
-	alloc_entry *table = alloc_kind_table;
+	s32b value;
+	bool quick = FALSE;
 
-	/* Boost level */
-	if (level > 0)
+	/* Sometimes boost object level */
+	if ((level > 0) && (rand_int(GREAT_OBJ) == 0))
 	{
-		/* Occasional "boost" */
-		if (rand_int(GREAT_OBJ) == 0)
+		/* Boost on 20th level can (rarely) be 16 + 4 * 20 / 3, or 42 */
+		int boost = ABS(Rand_normal(0, 4 + level / 3));
+
+		/* Boost the depth */
+		level += boost;
+	}
+
+	/* Restrict level */
+	if (level > MAX_DEPTH) level = MAX_DEPTH;
+
+	/* We are using the same generation level as last time */
+	if (level == old_object_level) 
+	{
+		/* We are using the same generation restrictions as last time */
+		if (get_obj_num_hook == old_get_obj_num_hook)
 		{
-			/* What a bizarre calculation */
-			level = 1 + (level * MAX_DEPTH / randint(MAX_DEPTH));
+			/* There is no need to rebuild the generation table */
+			if (alloc_kind_total) quick = TRUE;
 		}
 	}
 
-	/* Reset total */
-	total = 0L;
-
-	/* Process probabilities */
-	for (i = 0; i < alloc_kind_size; i++)
+	/* We are not using quick generation */
+	if (!quick)
 	{
-		/* Objects are sorted by depth */
-		if (table[i].level > level) break;
+		/* Remember the generation level we are using */
+		old_object_level = level;
 
-		/* Default */
-		table[i].prob3 = 0;
+		/* Remember the restrictions we are using */
+		old_get_obj_num_hook = get_obj_num_hook;
 
-		/* Get the index */
-		k_idx = table[i].index;
+		/* Clear generation total */
+		alloc_kind_total = 0L;
 
-		/* Get the actual kind */
-		k_ptr = &k_info[k_idx];
+		/* Scan all objects */
+		for (i = 0; i < z_info->k_max; i++)
+		{
+			/* Assume that object cannot be made */
+			chance_kind_table[i] = 0;
 
-		/* Accept */
-		table[i].prob3 = table[i].prob2;
+			/* Object is forbidden */
+			if (!permit_kind_table[i]) continue;
 
-		/* Total */
-		total += table[i].prob3;
+			/* Clear some variables */
+			lev1 = -1; lev2 = MAX_DEPTH + 1; chance1 = 0; chance2 = 0;
+
+			/* Get the object index */
+			k_ptr = &k_info[i];
+
+			/* Scan allocation pairs */
+			for (j = 0; j < MAX_OBJ_ALLOC; j++)
+			{
+				/* Stop when you first encounter a non-chance */
+				if (!k_ptr->chance[j]) break;
+				
+				/* Look for the closest allocation <= than the current depth */
+				if ((k_ptr->locale[j] <= level) && (lev1 <= k_ptr->locale[j]))
+				{
+					lev1    = k_ptr->locale[j];
+					chance1 = k_ptr->chance[j];
+				}
+
+				/* Look for the closest allocation > than the current depth */
+				else if ((k_ptr->locale[j] > level) && (lev2 > k_ptr->locale[j]))
+				{
+					lev2    = k_ptr->locale[j];
+					chance2 = k_ptr->chance[j];
+				}
+			}
+
+			/* Simple case - object is too high-level */
+			if (lev1 < 0)
+			{
+				continue;
+			}
+
+			/* Simple case - no allocations exceed the current depth */
+			else if (lev2 == MAX_DEPTH + 1)
+			{
+				chance_kind_table[i] = chance1;
+			}
+
+			/* Simple case - current depth matches an allocation entry */
+			else if ((lev1 == level) || (lev2 == lev1))
+			{
+				chance_kind_table[i] = chance1;
+			}
+
+			/* Usual case - apply the weighted average of two allocations */
+			else
+			{
+				z = chance1 + (level - lev1) * (chance2 - chance1) / (lev2 - lev1);
+				chance_kind_table[i] = (byte)z;
+			}
+
+			/* Sum up allocation chances */
+			alloc_kind_total += chance_kind_table[i];
+		}
 	}
 
 	/* No legal objects */
-	if (total <= 0) return (0);
+	if (alloc_kind_total <= 0L) return (0);
 
 	/* Pick an object */
-	value = rand_int(total);
+	value = rand_int(alloc_kind_total);
 
 	/* Find the object */
-	for (i = 0; i < alloc_kind_size; i++)
+	for (i = 0; i < z_info->k_max; i++)
 	{
 		/* Found the entry */
-		if (value < table[i].prob3) break;
+		if (value < chance_kind_table[i]) break;
 
 		/* Decrement */
-		value = value - table[i].prob3;
+		value -= chance_kind_table[i];
 	}
 
-	/* Power boost */
-	p = rand_int(100);
-
-	/* Try for a "better" object once (50%) or twice (10%) */
-	if (p < 60)
-	{
-		/* Save old */
-		j = i;
-
-		/* Pick a object */
-		value = rand_int(total);
-
-		/* Find the monster */
-		for (i = 0; i < alloc_kind_size; i++)
-		{
-			/* Found the entry */
-			if (value < table[i].prob3) break;
-
-			/* Decrement */
-			value = value - table[i].prob3;
-		}
-
-		/* Keep the "best" one */
-		if (table[i].level < table[j].level) i = j;
-	}
-
-	/* Try for a "better" object twice (10%) */
-	if (p < 10)
-	{
-		/* Save old */
-		j = i;
-
-		/* Pick a object */
-		value = rand_int(total);
-
-		/* Find the object */
-		for (i = 0; i < alloc_kind_size; i++)
-		{
-			/* Found the entry */
-			if (value < table[i].prob3) break;
-
-			/* Decrement */
-			value = value - table[i].prob3;
-		}
-
-		/* Keep the "best" one */
-		if (table[i].level < table[j].level) i = j;
-	}
-
-	/* Result */
-	return (table[i].index);
+	/* Return the object index */
+	return (i);
 }
 
 /*
@@ -3172,7 +3185,7 @@ static bool kind_is_good(int k_idx)
 		case TV_RING:
 		case TV_AMULET:
 		{
-			if (k_ptr->cost >= 1000 + object_level * 200) return (TRUE);
+			if (k_ptr->cost >= 2000 + object_level * 1000) return (TRUE);
 			return (FALSE);
 		}
 
@@ -3182,14 +3195,14 @@ static bool kind_is_good(int k_idx)
 		case TV_ROD:
 		case TV_TALISMAN:
 		{
-			if (k_ptr->cost >= 1500 + object_level * 100) return (TRUE);
+			if (k_ptr->cost >= 3000 + object_level * 500) return (TRUE);
 			return (FALSE);
 		}
 
 		/* Lights - depends on cost/depth */
 		case TV_LITE:
 		{
-			if (k_ptr->cost >= 500 + object_level * 50) return (TRUE);
+			if (k_ptr->cost >= 2000 + object_level * 300) return (TRUE);
 			return (FALSE);
 		}
 	}

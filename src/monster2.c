@@ -1549,7 +1549,7 @@ static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, byte
 	if (!r_ptr->name) return FALSE;
 
 	/* Try to place a unique */
-	if ((r_ptr->cur_unique) && (mode != PLACE_NO_UNIQUE))
+	if ((r_ptr->cur_unique) && ((!mode) || (mode == PLACE_UNIQUE)))
 	{
 		/* Force a unique */
 		if ((base_unique) || (mode == PLACE_UNIQUE))
@@ -1755,6 +1755,9 @@ static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, byte
 
 	/* Force monster to wait for player */
 	n_ptr->mflag |= (MFLAG_NICE);
+
+	/* Mark as a clone (if relevant) */
+	if (mode == PLACE_CLONE) n_ptr->mflag |= (MFLAG_CLON);
 
 	/* Optimize -- Repair flags */
 	repair_mflag_nice = TRUE;
@@ -2480,17 +2483,21 @@ bool summon_specific(int y1, int x1, int lev, int type)
 }
 
 /*
- * Let the given monster attempt to reproduce.
+ * Let the given monster attempt to reproduce. 
+ *
+ * The "cloned" flag determines whether the new monster will be marked as 
+ * cloned.
  *
  * Note that "reproduction" REQUIRES empty space.
  */
-bool multiply_monster(int m_idx)
+bool multiply_monster(int m_idx, bool clone)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 
 	int i, y, x;
 
 	bool result = FALSE;
+	bool mode = (clone ? PLACE_CLONE : PLACE_NO_UNIQUE);
 
 	/* Try up to 18 times */
 	for (i = 0; i < 18; i++)
@@ -2502,7 +2509,7 @@ bool multiply_monster(int m_idx)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Create a new monster (awake, no groups) */
-		result = place_monster_aux(y, x, m_ptr->r_idx, 0, FALSE, FALSE, PLACE_NO_UNIQUE);
+		result = place_monster_aux(y, x, m_ptr->r_idx, 0, FALSE, FALSE, mode);
 
 		/* Done */
 		break;

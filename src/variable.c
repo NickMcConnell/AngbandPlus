@@ -72,6 +72,7 @@ u32b seed_town;			/* Hack -- consistent town layout */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
+s16b old_object_level;	/* Old object creation level */
 s16b monster_level;		/* Current monster creation level */
 
 char summon_kin_type;	/* Hack -- See summon_specific() */
@@ -403,14 +404,12 @@ store_type *store;
 object_type *inventory;
 
 /*
- * The size of "alloc_kind_table" (at most z_info->k_max * 4)
+ * The arrays of entries in the "kind allocator tables".
+ * The first is used for allocation permissions, and the second for final
+ * allocation chances.
  */
-s16b alloc_kind_size;
-
-/*
- * The array[alloc_kind_size] of entries in the "kind allocator table"
- */
-alloc_entry *alloc_kind_table;
+bool *permit_kind_table;
+byte *chance_kind_table;
 
 /*
  * The size of the "alloc_ego_table"
@@ -431,6 +430,11 @@ s16b alloc_race_size;
  * The array[alloc_race_size] of entries in the "race allocator table"
  */
 alloc_entry *alloc_race_table;
+
+/*
+ * The total of all final monster and object generation probabilities
+ */
+u32b alloc_kind_total;
 
 /*
  * Specify attr/char pairs for visual special effects
@@ -713,6 +717,7 @@ bool (*get_mon_num_hook)(int r_idx);
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
+bool(*old_get_obj_num_hook)(int k_idx);
 
 /*
  * Hack - the destination file for text_out_to_file.

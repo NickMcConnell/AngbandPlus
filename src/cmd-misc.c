@@ -113,12 +113,12 @@ void do_cmd_locate(void)
 		x2 += (ddx[dir] * PANEL_WID);
 
 		/* Verify the row */
-		if (y2 < 0) y2 = 0;
 		if (y2 > p_ptr->cur_map_hgt - SCREEN_HGT) y2 = p_ptr->cur_map_hgt - SCREEN_HGT;
+		if (y2 < 0) y2 = 0;
 
 		/* Verify the col */
-		if (x2 < 0) x2 = 0;
 		if (x2 > p_ptr->cur_map_wid - SCREEN_WID) x2 = p_ptr->cur_map_wid - SCREEN_WID;
+		if (x2 < 0) x2 = 0;
 
 		/* Handle "changes" */
 		if ((p_ptr->wy != y2) || (p_ptr->wx != x2))

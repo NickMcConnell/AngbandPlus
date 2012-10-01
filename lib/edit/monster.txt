@@ -3,7 +3,7 @@
 #This file is currently in transition. Documentation will return in a future 
 #version.
 
-V:0.5.1
+V:0.5.2
 
 N:0:<player>
 G:@:w
@@ -498,8 +498,7 @@ W:3:1:80
 B:HIT:HURT:1d8
 F:BASH_DOOR | DROP_60 | EVIL | GRP_18 | HUMANOID | HURT_LITE | MALE |
 F:OPEN_DOOR | EGO
-D:He is one of the many weaker 'slave' orcs, often mistakenly known as a
-D: goblin.
+D:He is one of the many weaker 'slave' orcs, often serving as an advance scout.
 
 N:56:yellow mold
 G:m:y
@@ -801,15 +800,15 @@ B:BITE:DISEASE:2d3
 F:ANIMAL | EGO | NO_FEAR | WEIRD_MIND
 D:A large dog, foaming at the mouth.
 
-N:88:nibelung
-G:h:D
+N:88:goblin
+G:h:g
 I:110:20:20:12:5
 W:4:3:42
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
 F:BASH_DOOR | DROP_60 | EVIL | GRP_9 | HURT_LITE | MALE | OPEN_DOOR |
-F:RES_DISE | TAKE_ITEM | PICK_LOCK | HURT_FIRE | RES_COLD
-D:Night dwarfs collecting new riches for their master, Alberich.
+F:RES_DISE | TAKE_ITEM | PICK_LOCK | HURT_FIRE | RES_COLD | HUMANOID
+D:The greed of these crafty humanoids is legendary.
 
 N:89:Smeagol
 G:h:B
@@ -872,7 +871,7 @@ B:HIT:HURT:1d10
 F:BASH_DOOR | DROP_60 | EVIL | GRP_18 | HUMANOID | MALE | OPEN_DOOR | EGO
 D:He is a hardy well-weathered survivor.
 
-N:96:skeleton kobold
+N:96:kobold skeleton
 G:s:w
 I:110:23:20:26:40
 W:5:1:80
@@ -1033,13 +1032,13 @@ B:STING:POISON:1d4
 F:ANIMAL | GRP_18 | WEIRD_MIND | NO_TRAP | HURT_FIRE | HURT_ELEC
 D:It is poisonous and aggressive.
 
-N:113:diseased rat
+N:113:plague rat
 G:r:g
 I:110:6:8:10:25
 W:6:2:12
 B:BITE:DISEASE:2d2
 F:ANIMAL | MULTIPLY | RAND_25 | RES_DISEASE | HURT_ELEC
-D:It bears the plague.
+D:Vermin, deadly not on its own account, but because of the disease it carries.
 
 N:114:purple mushroom patch
 G:,:v
@@ -1207,7 +1206,7 @@ F:ANIMAL | EGO | HAS_LITE | RAND_25 | RES_FIRE | HURT_COLD | STUPID
 S:1_IN_9 | BR_FIRE
 D:A large black and yellow lizard.  You'd better run away!
 
-N:131:skeleton orc
+N:131:orc skeleton
 G:s:w
 I:110:40:20:35:40
 W:8:1:275
@@ -1633,7 +1632,7 @@ B:HIT:HURT:2d5
 F:ANIMAL | BASH_DOOR | EGO
 D:A huge, beastly bear, more savage than most of its kind.
 
-N:174:skeleton human
+N:174:human skeleton
 G:s:w
 I:110:41:20:30:30
 W:11:1:450
@@ -2539,8 +2538,8 @@ S:1_IN_7 | BLINK | ARROW_2 | TRAPS2
 D:One of the most despicable of the evil faeries, he gets his name as
 D: he dyes his cap in the blood of his victims.
 
-N:261:Nar, the dwarf
-G:p:y
+N:261:Nod, the goblin assassin
+G:h:G
 W:17:3:0
 F:UNIQUE
 
@@ -3150,7 +3149,7 @@ G:p:u
 W:24:2:0
 F:UNIQUE
 
-N:319:son of Mim
+N:319:rattikin brother
 G:p:o
 W:24:4:0
 F:UNIQUE
@@ -3472,8 +3471,8 @@ F:NO_SLEEP | NO_CONF | RES_ELEC | RES_POIS | DROP_MIMIC
 D:It is a pile of precious mithril coins, rolling forward on thousands of
 D: tiny legs.
 
-N:349:Mim, betrayer of Turin
-G:p:o
+N:349:Dom, the black goblin
+G:h:D
 W:27:4:0
 F:UNIQUE
 
@@ -3625,7 +3624,7 @@ B:BITE:ELEC:5d5
 F:ANIMAL | BASH_DOOR | RAND_25 | RES_ELEC | WEIRD_MIND | HURT_FIRE
 D:It is a giant ant that crackles with energy.
 
-N:364:skeleton troll
+N:364:troll skeleton
 G:s:w
 I:110:90:20:55:20
 W:29:1:2500
@@ -4039,7 +4038,7 @@ F:ANIMAL | BASH_DOOR | GRP_18 | HAS_LITE | KILL_BODY | RES_FIRE | WEIRD_MIND |
 F:HURT_COLD
 D:A giant ant covered in shaggy fur.  Its powerful jaws glow with heat.
 
-N:398:skeleton ettin
+N:398:ettin skeleton
 G:s:w
 I:110:330:20:50:20
 W:32:1:9000
@@ -6394,12 +6393,12 @@ D: with disdainful ease.
 N:590:Minion of the Host
 G:F:w
 I:130:1000:20:80:10
-W:46:3:200000
+W:57:3:200000
 B:GRAB:CONFUSE:6d7
 B:GRAB:CONFUSE:6d7
 B:CLAW:PARALYZE:6d7
 B:CLAW:PARALYZE:6d7
-F:BASH_DOOR | DROP_2D2 | DROP_90 |  HAS_LITE | KILL_BODY | MALE | NO_CALM |
+F:BASH_DOOR | DROP_2D2 | DROP_90 | HAS_LITE | KILL_BODY | MALE | NO_CALM |
 F:NO_FEAR | NO_SLEEP | ONLY_ITEM | OPEN_DOOR | NO_CONF | EVASIVE | NEVER_FAIL |
 F:GRP_18 | NO_TRAP  | FAERY
 S:1_IN_4 | HASTE | SCARE | BLINK | CAUSE_4 | BRAIN_SMASH | HOLD | BA_DARK |

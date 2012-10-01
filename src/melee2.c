@@ -1285,10 +1285,12 @@ static bool make_attack_spell(int m_idx)
 		/* SRF2_BA_DARK */
 		case SRF2_OFFSET + 8:
 		{
+			int n = (rlev / 10) + 3;
+			if (n > 10) n = 10;
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles powerfully.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s invokes a darkness storm.", m_name);
-			breath(m_idx, GF_DARK, (rlev * 5) + damroll(10, 10));
+			breath(m_idx, GF_DARK, (rlev * 5) + damroll(n, n));
 			update_smart_learn(m_idx, DRS_RES_DARK);
 			break;
 		}
@@ -2857,7 +2859,6 @@ static bool get_moves(int m_idx, int mm[5])
 	int x2 = p_ptr->px;
 
 	bool done = FALSE;
-	bool pack = FALSE;
 
 #ifdef MONSTER_FLOW
 
@@ -3351,7 +3352,7 @@ static void monster_action(int m_idx)
 		if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
 		{
 			/* Try to multiply */
-			if (multiply_monster(m_idx))
+			if (multiply_monster(m_idx, FALSE))
 			{
 				/* Take note if visible */
 				lore_learn(m_ptr, LRN_FLAG1, RF1_MULTIPLY, FALSE);

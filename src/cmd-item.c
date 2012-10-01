@@ -2036,7 +2036,7 @@ static void do_cmd_activate_aux(int item)
 	/* Hack -- Dragon Scale Mail can be activated as well */
 	if (o_ptr->tval == TV_DRAG_ARMOR)
 	{
-		int j;
+		int j = 200;
 		bool ignore_me;
 
 		/* Actually use the power */

@@ -48,7 +48,7 @@
 # 'F' is for flags. As many F: lines may be used as are needed to specify all the flags
 # and flags are separated by the '|' symbol. The current possible flags are:
 #
-# PSEUDO_IDn - Where n is a value between 1 to 5. The higher n is, the faster the pseudo 
+# PSEUDO_IDn - Where n is a value between 1 to 4. The higher n is, the faster the pseudo 
 # id.
 # PSEDUO_ID_HEAVY - If a class has this flag it gets the "heavy" (more detailed) pseudo ID.
 # EXTRA_SHOT - The character shall gain extra shots at higher levels.
@@ -83,7 +83,7 @@
 
 # Version stamp (required)
 
-V:0.5.1
+V:0.5.2
 
 N:0:Warrior
 S:3:-2:-1:2:1:-2
@@ -91,10 +91,10 @@ C:25:5:18:21:1:15:10:7:8:0:26
 X:10:1:7:11:0:2:7:6:6:0:5
 O:18:18:18:18:5:12:12:5:5:5:5:3:3:3:5:0:0
 I:9:0:0:0:0
-# Chain Mail, Small leather Shield, Potion of Berserk Strength
-E:36:10:1:1
+# Leather Scale Mail, Small leather Shield, Potion of Berserk Strength
 E:75:30:1:1
-E:34:2:1:1
+E:36:6:1:1
+E:34:3:1:1
 T:Rookie
 T:Soldier
 T:Mercenary
@@ -105,7 +105,7 @@ T:Hero
 T:Baron
 T:Duke
 T:Lord
-F:BRAVERY_30 | PSEUDO_ID5 | BETTER_CRITICAL | PSEUDO_ID_HEAVY | BETTER_BLOWS |
+F:BRAVERY_30 | PSEUDO_ID4 | BETTER_CRITICAL | PSEUDO_ID_HEAVY | BETTER_BLOWS |
 F:WEAPON_GOOD
 
 N:1:Thief
@@ -128,7 +128,7 @@ T:Knave
 T:Thief
 T:Master-Thief
 T:Shadow
-F:PSEUDO_ID5 | PSEUDO_ID_HEAVY | TRAP_KNOW | TRAP_PLACE | BETTER_THROW |
+F:PSEUDO_ID4 | PSEUDO_ID_HEAVY | TRAP_KNOW | TRAP_PLACE | BETTER_THROW |
 F:APPRAISE
 
 N:2:Mage
@@ -345,6 +345,6 @@ T:Poet
 T:Bard
 T:Master-Bard
 T:Maestro
-F:MUSIC | PSEUDO_ID5 | PSEUDO_ID_HEAVY | NO_GLOVE | LORE | INFLUENCE |
+F:MUSIC | PSEUDO_ID4 | PSEUDO_ID_HEAVY | NO_GLOVE | LORE | INFLUENCE |
 F:ZERO_FAIL
 

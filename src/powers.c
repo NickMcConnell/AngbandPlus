@@ -46,6 +46,12 @@ info_entry power_info[POW_MAX] =
 	{POW_GAIN_DEX,			"permanently raises your dexterity"},		
 	{POW_GAIN_CON,			"permanently raises your constitution"},		
 	{POW_GAIN_CHR,			"permanently raises your charisma"},		
+	{POW_BRAWN,				"raises your strength at the expense of your intelligence"},
+	{POW_INTELLECT,			"raises your intelligence at the expense of your constitution"},
+	{POW_CONTEMPLATION,		"raises your wisdom at the expense of your dexterity"},
+	{POW_TOUGHNESS,			"raises your constitution at the expense of your charisma"},
+	{POW_NIMBLENESS,		"raises your dexterity at the expense of your strength"},
+	{POW_PLEASING,			"raises your charisma at the expense of your wisdom"},
 	{POW_GAIN_ALL,			"permanently raises all stats"},
 	{POW_GAIN_EXP,			"permanently raises your experience level"},
 	{POW_CURE_CONFUSION,	"removes any confusion you currently feel"},
@@ -598,6 +604,42 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (restore_exp()) *obvious = TRUE;
 			break;
 		}
+		case POW_BRAWN:
+		{
+			if (do_inc_stat(A_STR)) *obvious = TRUE;
+			if (do_dec_stat(A_INT, 1, TRUE, FALSE)) *obvious = TRUE;
+			break;
+		}
+		case POW_INTELLECT:
+		{
+			if (do_inc_stat(A_INT)) *obvious = TRUE;
+			if (do_dec_stat(A_CON, 1, TRUE, FALSE)) *obvious = TRUE;
+			break;
+		}
+		case POW_CONTEMPLATION:
+		{
+			if (do_inc_stat(A_WIS)) *obvious = TRUE;
+			if (do_dec_stat(A_DEX, 1, TRUE, FALSE)) *obvious = TRUE;
+			break;
+		}
+		case POW_NIMBLENESS:
+		{
+			if (do_inc_stat(A_DEX)) *obvious = TRUE;
+			if (do_dec_stat(A_STR, 1, TRUE, FALSE)) *obvious = TRUE;
+			break;
+		}
+		case POW_TOUGHNESS:
+		{
+			if (do_inc_stat(A_CON)) *obvious = TRUE;
+			if (do_dec_stat(A_CHR, 1, TRUE, FALSE)) *obvious = TRUE;
+			break;
+		}
+		case POW_PLEASING:
+		{
+			if (do_inc_stat(A_CHR)) *obvious = TRUE;
+			if (do_dec_stat(A_WIS, 1, TRUE, FALSE)) *obvious = TRUE;
+			break;
+		}
 		case POW_GAIN_STR:
 		{
 			if (do_inc_stat(A_STR)) *obvious = TRUE;
@@ -811,7 +853,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 
-			(void)fire_bolt_or_beam(beam, GF_FIRE, dir, 
+			(void)fire_bolt_or_beam(beam, GF_COLD, dir, 
 				calc_damage(sub_spell_list[sub].dd, 
 				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc), 0));
 			*obvious = TRUE;

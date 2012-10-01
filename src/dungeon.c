@@ -102,17 +102,19 @@ static void sense_inventory(void)
 
 	/*** Check for "sensing" ***/
 
+	/* No sensing while asleep */
+	if (p_ptr->resting) return;
+
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
 
 	/* Analyze the class */
 	switch (cp_ptr->flags & CF_PSEUDO_ID_MASK)
 	{
-		case CF_PSEUDO_ID1: delay1 = 240000L / (p_ptr->lev + 5); break;
-		case CF_PSEUDO_ID2: delay1 = 120000L / (p_ptr->lev + 5); break;
-		case CF_PSEUDO_ID3: delay1 = 80000L / ((p_ptr->lev * p_ptr->lev) + 40); break;
-		case CF_PSEUDO_ID4: delay1 = 10000L / ((p_ptr->lev * p_ptr->lev) + 40); break;
-		case CF_PSEUDO_ID5: delay1 = 9000L / ((p_ptr->lev * p_ptr->lev) + 40); break;
+		case CF_PSEUDO_ID1: delay1 = 150000L / (p_ptr->lev + 5); break;
+		case CF_PSEUDO_ID2: delay1 = 80000L / (p_ptr->lev + 5); break;
+		case CF_PSEUDO_ID3: delay1 = 80000L / ((p_ptr->lev * p_ptr->lev) + 50); break;
+		case CF_PSEUDO_ID4: delay1 = 10000L / ((p_ptr->lev * p_ptr->lev) + 50); break;
 		/* No pseudo-ID */
 		default: return;
 	}
@@ -125,12 +127,12 @@ static void sense_inventory(void)
 	heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
 
 	/* Check to see if detected anything worn */
-	if (!rand_int(delay2)) 
+	if (rand_int(delay2)) return;
 	{
-		/*** Sense your pack ***/
+		/*** Sense your wielded slots ***/
 
 		/* Check everything */
-		for (i = INVEN_WIELD; i < INVEN_MUSIC; i++)
+		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
 			o_ptr = &inventory[i];
 
@@ -142,7 +144,6 @@ static void sense_inventory(void)
 			/* Valid "tval" codes */
 			switch (o_ptr->tval)
 			{
-				case TV_ARROW:
 				case TV_BOW:
 				case TV_DIGGING:
 				case TV_BLUNT:
@@ -159,16 +160,61 @@ static void sense_inventory(void)
 					okay = TRUE;
 					break;
 				}
+				case TV_RING:
+				case TV_AMULET:
+				case TV_LITE:
+				case TV_LITE_SPECIAL:
+				case TV_MUSIC:
+				{
+					/* It has already been sensed, do not sense it again */
+					if (o_ptr->ident & (IDENT_SENSE))
+					{
+						/* Small chance of fully learning the item's abilities */
+						if ((!o_ptr->a_idx) && !(object_known_p(o_ptr)))
+						{
+							if(!rand_int(1000)) 
+							{
+								ident_aux(i);
+							
+								/* Recalculate bonuses */
+								p_ptr->update |= (PU_BONUS);
+
+								/* Window stuff */
+								p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+							}
+						}
+					}
+					else (o_ptr->ident |= (IDENT_SENSE));
+				
+					continue;
+				}
 			}
 
 			/* Skip irrelevant items */
 			if (!okay) continue;
 
+			/* It has already been sensed, do not sense it again */
+			if (o_ptr->ident & (IDENT_SENSE))
+			{
+				/* Small chance of fully learning the item's abilities */
+				if ((!o_ptr->a_idx) && !(object_known_p(o_ptr)))
+				{
+					if(!rand_int(1000)) 
+					{
+						ident_aux(i);
+					
+						/* Recalculate bonuses */
+						p_ptr->update |= (PU_BONUS);
+
+						/* Window stuff */
+						p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+					}
+				}
+				continue;
+			}
+
 			/* It already has a discount or special inscription, except "indestructible" */
 			if ((o_ptr->discount > 0) && !(o_ptr->discount == INSCRIP_INDESTRUCT)) continue;
-
-			/* It has already been sensed, do not sense it again */
-			if (o_ptr->ident & (IDENT_SENSE)) continue;
 
 			/* It is fully known, no information needed */
 			if (object_known_p(o_ptr)) continue;
@@ -205,9 +251,6 @@ static void sense_inventory(void)
 
 	/* Check to see if detected anything in the pack */
 	if (rand_int(delay1)) return;
-
-	/* Heavy sensing */
-	if (cp_ptr->flags & CF_PSEUDO_ID_HEAVY) heavy = TRUE;
 
 	/*** Sense your pack ***/
 

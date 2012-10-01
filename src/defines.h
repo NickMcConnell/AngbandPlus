@@ -44,14 +44,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.1"
+#define VERSION_STRING	"0.5.2"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	5
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 #define VERSION_EXTRA	0
 
 /*
@@ -138,7 +138,7 @@
 /*
  * Maximum amount of allocations for an object
  */
-#define MAX_OBJ_ALLOC	4
+#define MAX_OBJ_ALLOC	3
 
 /*
  * Maximum number of high scores in the high score file
@@ -459,7 +459,7 @@
 /*
  * Actual number of inventory slots used 
  */
-#define INVEN_TOTAL		((cp_ptr->flags & CF_MUSIC) ? INVEN_MAX : INVEN_MAX -1)
+#define INVEN_TOTAL		((cp_ptr->flags & CF_MUSIC) ? INVEN_MAX : INVEN_MAX - 1)
 
 /*
  * Special 'Item' Identifier corresponding to all Squelched items.
@@ -699,6 +699,9 @@
 
 #define ROW_DEPTH		(Term->hgt - 1)
 #define COL_DEPTH		70	/* "Lev NNN" / "NNNN ft" */
+
+#define ROW_EXP_BAR		(Term->hgt - 1)
+#define COL_EXP_BAR		78	/* "[***-]" */
 
 #define ROW_MAP			1
 #define COL_MAP			13
@@ -2619,14 +2622,14 @@
 #define CF_WEAPON_GOOD		0x01000000L /* Start with a "good" weapon */
 #define CF_WEAPON_NONE		0x02000000L /* Start with no weapon */
 #define CF_XXX1				0x04000000L 
-#define CF_PSEUDO_ID1		0x08000000L	/* Very slow light sensing */ 
-#define CF_PSEUDO_ID2		0x10000000L	/* Slow light sensing */
-#define CF_PSEUDO_ID3		0x20000000L	/* Fast light sensing */
-#define CF_PSEUDO_ID4		0x40000000L	/* Slow heavy sensing */
-#define CF_PSEUDO_ID5		0x80000000L	/* Fast heavy sensing */
+#define CF_XXX2				0x08000000L	
+#define CF_PSEUDO_ID1		0x10000000L	/* Very Slow sensing */
+#define CF_PSEUDO_ID2		0x20000000L	/* Slow sensing */
+#define CF_PSEUDO_ID3		0x40000000L	/* Very Fast sensing */
+#define CF_PSEUDO_ID4		0x80000000L	/* Fast heavy sensing */
 
 #define CF_PSEUDO_ID_MASK \
-	(CF_PSEUDO_ID1 | CF_PSEUDO_ID2 | CF_PSEUDO_ID3 | CF_PSEUDO_ID4 | CF_PSEUDO_ID5)
+	(CF_PSEUDO_ID1 | CF_PSEUDO_ID2 | CF_PSEUDO_ID3 | CF_PSEUDO_ID4)
 
 /*** Monster flags ***/
 
@@ -2636,11 +2639,13 @@
 #define PLACE_NO_UNIQUE	1	/* No uniques allowed */
 #define PLACE_UNIQUE	2	/* Force a unique */
 #define PLACE_LAST_EGO	3	/* Use the same ego-monster as last time */
+#define PLACE_CLONE		4	/* Place a non-unique, mark as cloned */
 
 /*
  * Special Monster Flags (all temporary)
  */
 #define MFLAG_VIEW	0x01	/* Monster is in line of sight */
+#define MFLAG_CLON	0x02	/* Monster is a clone */
 /* xxx */
 #define MFLAG_NICE	0x20	/* Monster is still being nice */
 #define MFLAG_SHOW	0x40	/* Monster is recently memorized */
@@ -4065,9 +4070,15 @@ extern int PlayerUID;
 #define POW_MUSIC_LUTE			282
 #define POW_MUSIC_DRUM			283
 #define POW_MUSIC_HARP			284
+#define POW_BRAWN				285
+#define POW_INTELLECT			286
+#define POW_CONTEMPLATION		287
+#define POW_NIMBLENESS			288
+#define POW_TOUGHNESS			289
+#define POW_PLEASING			290
 
 /* Total number of powers in the game + 1 */
-#define POW_MAX					285
+#define POW_MAX					291
 
 /* 
  * Hack - variables defined in order to be compatible with the general main*.c files.

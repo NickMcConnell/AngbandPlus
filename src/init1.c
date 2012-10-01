@@ -397,36 +397,36 @@ static cptr c_info_flags[32] =
 {
 	"EXTRA_SHOT",
 	"BRAVERY_30",
-	"BLESS_WEAPON",	
-	"NO_GLOVE",	
-	"POWER",		
+	"BLESS_WEAPON",
+	"NO_GLOVE",
+	"POWER",
 	"EXTRA_MANA",
 	"ZERO_FAIL",
-	"BEAM",	
+	"BEAM",
 	"MYSTIC_CAST",
-	"EXTRA_SPELL",	
-	"PSEUDO_ID_HEAVY",	
-	"CHOOSE_SPELLS",			
-	"SUB_SPELLS",			
-	"LORE",			
-	"BETTER_CRITICAL",			
-	"BETTER_SHOT",			
-	"BETTER_THROW",			
+	"EXTRA_SPELL",
+	"PSEUDO_ID_HEAVY",
+	"CHOOSE_SPELLS",
+	"SUB_SPELLS",
+	"LORE",
+	"BETTER_CRITICAL",
+	"BETTER_SHOT",
+	"BETTER_THROW",
 	"INFLUENCE",
-	"TRAP_KNOW",			
+	"TRAP_KNOW",
 	"TRAP_PLACE",
 	"APPRAISE",
-	"MUSIC",			
+	"MUSIC",
 	"BETTER_BLOWS",
-	"WORSE_BLOWS",		
+	"WORSE_BLOWS",
 	"WEAPON_GOOD",
-	"WEAPON_NONE",	
-	"XXX1",	
+	"WEAPON_NONE",
+	"XXX1",
+	"XXX2",
 	"PSEUDO_ID1",
 	"PSEUDO_ID2",
 	"PSEUDO_ID3",
-	"PSEUDO_ID4",
-	"PSEUDO_ID5"
+	"PSEUDO_ID4"
 };
 
 /*
@@ -889,7 +889,13 @@ static cptr k_info_act[POW_MAX] =
 	"MUSIC_FLUTE",	
 	"MUSIC_LUTE",
 	"MUSIC_DRUM",
-	"MUSIC_HARP"
+	"MUSIC_HARP",
+	"BRAWN",
+	"INTELLECT",
+	"CONTEMPLATION",
+	"NIMBLENESS",
+	"TOUGHNESS",
+	"PLEASING"
 };
 
 /*** Initialize from ascii template files ***/
@@ -2002,7 +2008,6 @@ errr parse_k_info(char *buf, header *head)
 		k_ptr->qd = qd;
 		k_ptr->qs = qs;
 		k_ptr->breakage = breakage;
-
 	}
 
 	/* Process 'A' for "Allocation" (one line only) */
@@ -2022,7 +2027,7 @@ errr parse_k_info(char *buf, header *head)
 			k_ptr->chance[i] = 1;
 
 			/* Store the locale */
-			k_ptr->locale[i] = atoi(s+1);
+			k_ptr->locale[i] = atoi(s + 1);
 
 			/* Find the slash */
 			t = strchr(s+1, '/');

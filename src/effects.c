@@ -289,14 +289,14 @@ static bool inc_stat(int stat)
 		/* Gain one (sometimes two) points */
 		if (value < 15)
 		{
-			gain = ((rand_int(100) < 75) ? 1 : 2);
+			gain = ((rand_int(100) < 80) ? 1 : 2);
 			value += gain;
 		}
 
 		/* Gain one (rarely two) points */
 		else if (value < 18)
 		{
-			gain = ((rand_int(100) < 95) ? 1 : 2);
+			gain = ((rand_int(100) < 97) ? 1 : 2);
 			value += gain;
 		}
 

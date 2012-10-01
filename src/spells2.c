@@ -280,17 +280,76 @@ bool curse_minor(void)
 bool lose_all_info(void)
 {
 	int i;
+	object_type *o_ptr;
 
-	/* Forget info about objects */
+	/* Forget info about objects in the inventory/equipment */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		object_type *o_ptr = &inventory[i];
+		o_ptr = &inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
 		/* Allow "protection" by the MENTAL flag */
 		if (o_ptr->ident & (IDENT_MENTAL)) continue;
+
+		/* Allow saving throw */
+		if (rand_int(50) < p_stat(A_INT)) continue;
+
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
+		/* Hack -- Clear the "felt" flag */
+		o_ptr->ident &= ~(IDENT_SENSE);
+
+		/* Hack -- Clear the "known" flag */
+		o_ptr->ident &= ~(IDENT_KNOWN);
+
+		/* Hack -- Clear the "empty" flag */
+		o_ptr->ident &= ~(IDENT_EMPTY);
+	}
+
+	/* Check all the objects at home*/
+	for (i = 0; i < store[STORE_HOME].stock_num; i++)
+	{
+		/* Get the existing object */
+		o_ptr = &(store[STORE_HOME].stock[i]);
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Allow "protection" by the MENTAL flag */
+		if (o_ptr->ident & (IDENT_MENTAL)) continue;
+
+		/* Allow saving throw */
+		if (rand_int(50) < p_stat(A_INT)) continue;
+
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
+		/* Hack -- Clear the "felt" flag */
+		o_ptr->ident &= ~(IDENT_SENSE);
+
+		/* Hack -- Clear the "known" flag */
+		o_ptr->ident &= ~(IDENT_KNOWN);
+
+		/* Hack -- Clear the "empty" flag */
+		o_ptr->ident &= ~(IDENT_EMPTY);
+	}
+
+	/* Forget info about objects in the dungeon */
+	for (i = 0; i < o_max; i++)
+	{
+		o_ptr = &o_list[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Allow "protection" by the MENTAL flag */
+		if (o_ptr->ident & (IDENT_MENTAL)) continue;
+
+		/* Allow saving throw */
+		if (rand_int(50) < p_stat(A_INT)) continue;
 
 		/* Remove special inscription, if any */
 		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
@@ -1462,7 +1521,7 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 /* 
  * Actually identify an item 
  */
-static void ident_aux(int item)
+void ident_aux(int item)
 {
 	int squelch=0;
 

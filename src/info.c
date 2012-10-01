@@ -214,9 +214,9 @@ static void display_player_xtra_info(void)
 	/* Burden */
 	if (p_ptr->total_weight % 10)
 		sprintf(buf, "%ld.%ld/%ld", p_ptr->total_weight / 10L, p_ptr->total_weight % 10L,
-		adj_str_wgt[p_stat(A_STR)] * 6);
+		adj_str_wgt[p_stat(A_STR)] * 6L);
 	else 
-		sprintf(buf, "%ld/%ld", p_ptr->total_weight / 10L, adj_str_wgt[p_stat(A_STR)] * 6);
+		sprintf(buf, "%ld/%ld", p_ptr->total_weight / 10L, adj_str_wgt[p_stat(A_STR)] * 6L);
 	Term_putstr(col, 16, -1, TERM_WHITE, "Burden");
 	Term_putstr(col + 8, 16, -1, TERM_L_GREEN, format("%10s", buf));
 
@@ -336,47 +336,58 @@ static void display_player_skill_info(void)
 
 	put_str("Saving Throw", 10, col);
 	desc = likert(xskill[SK_SAV] - 10, 5);  
-	c_put_str(likert_color, format("%9s", desc), 10, col+13);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_SAV]), 10, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 10, col+13);
 
 	put_str("Stealth", 11, col);
 	desc = likert(xskill[SK_STL], 1);
-	c_put_str(likert_color, format("%9s", desc), 11, col+13);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_STL]), 11, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 11, col+13);
 
 	put_str("Fighting", 12, col);
 	desc = likert(xskill[SK_THN], 2);
-	c_put_str(likert_color, format("%9s", desc), 12, col+13);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THN]), 12, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 12, col+13);
 
 	put_str("Shooting", 13, col);
 	desc = likert(xskill[SK_THB], 2);
-	c_put_str(likert_color, format("%9s", desc), 13, col+13);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THB]), 13, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 13, col+13);
 
 	put_str("Throwing", 14, col);
 	desc = likert(xskill[SK_THT], 2);
-	c_put_str(likert_color, format("%9s", desc), 14, col+13);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THT]), 14, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 14, col+13);
 
 	put_str("Disarming", 15, col);
 	desc = likert(xskill[SK_DIS], 8);
-	c_put_str(likert_color, format("%9s", desc), 15, col+13);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_DIS]), 15, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 15, col+13);
 
 	put_str("Bypass Trap", 16, col);
 	desc = likert(xskill[SK_BYP], 5);
-	c_put_str(likert_color, format("%9s", desc), 16, col+13); 
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_BYP]), 16, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 16, col+13); 
 
 	put_str("Magic Device", 17, col);
 	desc = likert(xskill[SK_DEV], 6);
-	c_put_str(likert_color, format("%9s", desc), 17, col+13);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_DEV]), 17, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 17, col+13);
 
 	put_str("Perception", 18, col);
-	desc = likert(xskill[SK_PER], 6);
-	c_put_str(likert_color, format("%9s", desc), 18, col+13);
+	desc = likert(xskill[SK_PER], 5);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_PER]), 18, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 18, col+13);
 
 	put_str("Digging", 19, col);
 	desc = likert(xskill[SK_DIG], 10);
-	c_put_str(likert_color, format("%9s", desc), 19, col+13);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_DIG]), 19, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 19, col+13);
 
 	put_str("Alchemy", 20, col);
 	desc = likert(xskill[SK_ALC], 7);
-	c_put_str(likert_color, format("%9s", desc), 20, col+13);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_ALC]), 20, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 20, col+13);
 }
 
 /*
@@ -2187,12 +2198,13 @@ void list_object(const object_type *o_ptr, int mode)
 	{
 		i = object_value(o_ptr);
 
-		if (i)
+		if (i >= 10)
 		{
 			text_out("\nYou think it values at around ");
-			text_out_c(TERM_ORANGE, format("%d", i));
+			text_out_c(TERM_ORANGE, format("%d", i / 10));
 			text_out(" gp.  ");
 		}
+		else if (i) text_out("\nIt appears to be of little value.  ");
 		else text_out("\nIt appears to be totally worthless.  ");
 
 		anything = TRUE;

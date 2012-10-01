@@ -2289,16 +2289,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (seen) obvious = TRUE;
 
-			/* Heal fully */
-			m_ptr->hp = m_ptr->maxhp;
-
-			/* Speed up */
-			if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
-
 			/* Attempt to clone. */
-			if (multiply_monster(cave_m_idx[y][x]))
+			if (multiply_monster(cave_m_idx[y][x], TRUE))
 			{
-				note = " spawns!";
+				note = " is cloned!";
 			}
 
 			/* No "real" damage */

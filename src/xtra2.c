@@ -319,6 +319,9 @@ void monster_death(int m_idx)
 	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
 
+	/* Hack - clones never drop stuff */
+   	if (m_ptr->mflag & (MFLAG_CLON)) number = 0;
+
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
 
@@ -530,8 +533,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Extract monster name */
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
+		/* Clone deaths */
+		if (m_ptr->mflag & MFLAG_CLON)
+		{
+			message_format(MSG_KILL, m_ptr->r_idx, "%^s clone melts into nothingness.", m_name);
+		}
+
 		/* Death by Missile/Spell attack */
-		if (note)
+		else if (note)
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
 		}
@@ -1182,7 +1191,6 @@ void verify_panel(void)
 static void look_mon_desc(char *buf, size_t max, int m_idx)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	bool living = monster_alive(TRUE, m_ptr);
 	int perc;

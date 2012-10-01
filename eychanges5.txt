@@ -1,3 +1,93 @@
+Changes from 0.5.1 to 0.5.2:
+
+## Gameplay Changes ##
+
+- Slightly modified the effect of constitution on hp.
+
+- Characters now start with all wieldable equipment (except music instruments
+  and light sources) already wielded.
+
+- Warriors now start with leather scale mail instead of chain mail, and a 
+  small metal shield instead of a small leather shield.
+
+- Changed the message for wearing armor heavy enough to encumber your fighting,
+  since it was too severe.
+
+- Changed the display of the perception skill slightly (lower values now get
+  better descriptions).
+
+- Pseudo-ID changed. Now, it no longer works while you are resting - you need 
+  to be using an item to learn about it. To compensate, the pseudo-ID rates for
+  all classes were increased. 
+
+- Amnesia changed. Now, items get a saving throw (based on your intelligence). 
+  However, amnesia will also make you forget items in your home or on the 
+  dungeon floor.
+
+- Also, if you equipt an unidentified item, it will eventually get identified 
+  on its own. It must be worn, though - items in your pack are not subject to 
+  this. The rate this happens at depends partially on the pseudo-ID rate, so 
+  classes with very slow pseduo-ID will probably not be affected much by this
+  change (except if they wear something unidentified for a very long time).
+  Note that this won't happen with artifacts - they must be identified the old
+  fasioned way.
+
+- Wizard mode now gives the numberical values of skills instead of the 
+  descriptions. (note - each skill is on a different scale, so the values are
+  meaningless without cross-reference to the source, which is why I'm not 
+  displaying this information for all players).
+
+- Added a bar graph to the corner of the screen in bigscreen mode that shows
+  experience progress. This bar graph does not appear if the window isn't
+  large enough to contain it. (Thanks Pav Lucistnik)
+
+# Races #
+
+- Demon experience penalty reduced to 180%. 
+
+- Vargr experience penalty reduced to 160%.
+
+# Monsters #
+
+- Cloning monsters no longer heals or hastes the target monster. The cloned 
+  monster will no longer be hasted, but it will be fully healthy. Cloned 
+  monsters will never drop any treasure or items.
+
+- Some monster renamings: skeletons changed from "skeleton XXX" to 
+  "XXX skeleton", diseased rats changed to plague rats, nibelungs are now 
+  goblins. Some of the Tolkeinian 'p' uniques have been renamed, some of 
+  their abilities changed slightly, and some became 'h's.
+
+- Changed the way that the damage from darkness storm is calculated. It's the
+  same as before for all monsters native to level 70 or deeper (where darkness 
+  storm begins to be available in Vanilla), but it's less in earlier levels.
+
+# Items #
+
+- Potions of lose stat have been replaced by potions which permanently reduce
+  one stat and raise another.
+
+- Switched to the Sangband method of item rarity. It's a bit slower, but allows
+  much more control over object allocation.
+
+## Bug fixes ##
+
+- "Frost bolt" now works correctly.
+
+- Fixed the Behemoth's experience value.
+
+- Corrected prices in spoiler files.
+
+- Fixed bug with thief's appraise skill.
+
+- Corrected which items count as "good" for drops.
+
+- Fixed bug with 'L'ocate on bigscreen mode. (Thanks Pav Lucistnik)
+
+- Several compiler warnings fixed (Thanks Pav Lucistnik)
+
+- Minions of the Host are now at their proper level.
+
 Changes from 0.5.0b to 0.5.1:
 
 ## Gameplay Changes ##

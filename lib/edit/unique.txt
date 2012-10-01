@@ -10,9 +10,9 @@
 # unique.txt is arranged in exactly the same way as monster.txt, with the exception
 # of the R: line which replaces the G: line. The R: line contains two values - a monster
 # index pointing to the entry in monster.txt that the unique is based on, and a colour that
-# superceeds the color in monster.txt. 
+# superceeds the colour in monster.txt. 
 
-V:0.5.1
+V:0.5.2
 
 N:1:Farmer Maggot
 R:2:w
@@ -220,20 +220,20 @@ F:BASH_DOOR | DROP_90 | DROP_GOOD | EVIL | HAS_LITE | MALE | NO_CALM |
 F:ONLY_ITEM | OPEN_DOOR | PERSON | TAKE_ITEM | WARRIOR
 D:A short and swarthy Easterling.
 
-N:19:Nar, the dwarf
-R:261:y
+N:19:Nod, the goblin assassin
+R:261:G
 I:110:333:25:60:25
 W:17:2:9000
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
+B:HIT:POISON:3d4
+B:HIT:POISON:3d4
+B:HIT:POISON:3d4
+B:HIT:POISON:3d4
 F:BASH_DOOR | DROP_1D2 | DROP_GOOD | HAS_LITE | MALE | NO_CALM | NO_SLEEP | 
-F:ONLY_ITEM | OPEN_DOOR | PERSON | RES_COLD | RES_FIRE | RES_POIS | WARRIOR |
-F:PICK_LOCK
+F:ONLY_ITEM | OPEN_DOOR | HUMANOID | RES_COLD | RES_FIRE | RES_POIS | WARRIOR |
+F:PICK_LOCK | EVIL
 S:1_IN_6 | BLIND | CAUSE_2 | CONF | HEAL | MIND_BLAST
-D:This dwarf became so obsessed by gold that Morgoth tricked him into
-D: betraying his friends.
+D:A legend among goblinkind, Nod's poisoned blade is always for hire to the
+D: greatest bidder.
 
 N:20:Shagrat, the Orc Captain
 R:246:g
@@ -325,7 +325,7 @@ S:S_MONSTER | S_FAERY | S_DEMON
 D:A green hag with long flowing hair and sharp teeth, she drags her victims to a
 D: watery grave.
 
-N:27:Mime, the nibelung
+N:27:Mome, the Blue Goblin
 R:88:b
 I:110:600:20:80:10
 W:23:2:10000
@@ -336,7 +336,8 @@ B:TOUCH:EAT_GOLD
 F:BASH_DOOR | DROP_1D2 | DROP_GOOD | EVIL | MALE | NO_CALM | ROGUE | RES_FIRE |
 F:ONLY_ITEM | OPEN_DOOR | PERSON | RES_COLD | NO_CONF | RES_DISE | PICK_LOCK
 S:1_IN_8 | BO_FIRE | HASTE | HEAL
-D:This tiny night dwarf is as greedy for gold as his brother, Alberich.
+D:An outcast from his race due to his strange colouring, Mome is even greedier
+D: than his kin.
 
 N:28:Sangahyando of Umbar
 R:318:u
@@ -364,7 +365,7 @@ F:NO_SLEEP | ONLY_ITEM | OPEN_DOOR | PERSON | RES_ELEC | RES_FIRE | WARRIOR
 S:1_IN_4 | FORGET | SLOW
 D:A Black Numenorean who hates the men of the west.
 
-N:30:Ibun, Son of Mim
+N:30:Tiktik, Sister of Frit
 R:319:o
 I:110:635:20:70:10
 W:24:2:12000
@@ -372,13 +373,13 @@ B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 B:HIT:UN_BONUS
-F:BASH_DOOR | DROP_1D2 | DROP_GOOD | MALE | NO_CALM | ONLY_ITEM | OPEN_DOOR |
+F:BASH_DOOR | DROP_1D2 | DROP_GOOD | FEMALE | NO_CALM | ONLY_ITEM | OPEN_DOOR |
 F:PERSON | RES_COLD | RES_FIRE | MAGE | PICK_LOCK
 S:1_IN_8 | BO_FIRE | HEAL | SLOW
-D:One of the last of the petty dwarves.  Ibun is a tricky sorcerous little
-D: being, full of mischief.
+D:A notorious rattikin sorceror known for her wile and trickery, Tiktik is
+D: forever in competition with her sibling, Frit.
 
-N:31:Khim, Son of Mim
+N:31:Frit, Brother of Tiktik
 R:319:o
 I:110:635:20:70:10
 W:24:2:12000
@@ -389,8 +390,8 @@ B:HIT:UN_BONUS
 F:BASH_DOOR | DROP_1D2 | DROP_GOOD | MALE | NO_CALM | ONLY_ITEM | OPEN_DOOR |
 F:PERSON | RES_COLD | RES_FIRE | MAGE | PICK_LOCK
 S:1_IN_8 | BO_FIRE | HEAL | SLOW
-D:One of the last of the petty dwarves.  Khim is a tricky sorcerous little
-D: being, full of mischief.
+D:A notorious rattikin sorceror known for his cunning and guile, Frit is
+D: forever in competition with his sibling, Tiktik.
 
 N:32:Ulwarth, son of Ulfang
 R:339:U
@@ -414,8 +415,8 @@ F:BASH_DOOR | OPEN_DOOR | RES_COLD | KILL_BODY | MALE | NO_SLEEP | DROP_90 |
 F:ONLY_ITEM | HURT_FIRE 
 D:A legendary sasquatch, Bigfoot is the largest of his species. 
 
-N:34:Mim, betrayer of Turin
-R:349:o
+N:34:Dom, the Black Goblin
+R:349:D
 I:120:810:20:80:20
 W:27:4:35000
 B:HIT:HURT:3d8
@@ -423,12 +424,12 @@ B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 B:HIT:UN_BONUS
 F:BASH_DOOR | DROP_2D2 | DROP_GOOD | DROP_GREAT | EVIL | MALE | NO_CALM |
-F:NO_SLEEP | ONLY_ITEM | OPEN_DOOR | PERSON | RES_ACID | RES_COLD | NO_CONF |
-F:RES_ELEC | RES_FIRE | RES_POIS | WARRIOR | PICK_LOCK
+F:NO_SLEEP | ONLY_ITEM | OPEN_DOOR | RES_ACID | RES_COLD | NO_CONF | RES_ELEC |
+F:RES_FIRE | RES_POIS | PICK_LOCK | HUMANOID | TAKE_ITEM
 S:1_IN_6 | BA_ACID | BO_ACID | HEAL | SCARE
-D:The last of his race, Mim is a Petty-Dwarf.  Petty-dwarves are strange
-D: creatures, powerful in sorcery and originating in the East.  They have
-D: been hunted to extinction by high elves.
+D:Unlike most of his goblin bretheren, Dom was greedy for power rather than 
+D: gold. Experimenting with dark magic to achieve his evil aims, he has grown
+D: to be a menace to all that stand in his way.
 
 N:35:Beorn, the Shape-Changer
 R:360:D
@@ -1337,7 +1338,7 @@ D: as he decides your fate.
 N:93:The Behemoth
 R:646:r
 I:120:14500:100:200:10
-W:80:2:100000
+W:80:2:1000000
 B:CRUSH:HURT:14d12
 B:CRUSH:HURT:14d12
 B:BUTT:HURT:12d10

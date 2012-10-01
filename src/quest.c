@@ -213,7 +213,6 @@ static void grant_reward(int reward_level, byte type)
 	int i, j;
 	bool great = ((type == REWARD_GOOD_ITEM) ? FALSE : TRUE);
 	u32b f1, f2, f3;
-	int min_price = -1;
 
 	bool got_item = FALSE;
 

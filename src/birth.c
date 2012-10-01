@@ -237,9 +237,6 @@ static void get_extra(void)
 	/* Pre-calculate level 1 hitdice */
 	p_ptr->player_hp[0] = p_ptr->hitdie;
 
-	/* Pre-calculate level 1 hitdice */
-	p_ptr->player_hp[0] = p_ptr->hitdie;
-
 	/* Old style, rolled hitpoints */
 	if (adult_random_hp)
 	{
@@ -630,6 +627,56 @@ static void player_outfit(void)
 			object_known(i_ptr);
 			(void)inven_carry(i_ptr);
 		}
+	}
+
+	/* 
+	 * Hack - wield all wieldable items.
+	 * Start from the end since we're emptying slots 
+	 */
+	for (i = INVEN_PACK; i >= 0 ; i--)
+	{
+		/* Get the item (in the pack) */
+		object_type *o_ptr = &inventory[i];
+
+		/* Assign slot */
+		s16b slot = wield_slot(o_ptr);
+
+		/* Not wieldable */
+		if (!slot) continue;
+
+		/* Hack - don't do anything if slot is already full */
+		if ((&inventory[slot])->k_idx) continue;
+
+		/* Hack - don't auto-wield music instruments */
+		if (o_ptr->tval == TV_MUSIC) continue;
+
+		/* Hack - don't auto-wield light sources */
+		if (o_ptr->tval == TV_LITE) continue;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Obtain local object */
+		object_copy(i_ptr, o_ptr);
+
+		/* Modify quantity */
+		i_ptr->number = 1;
+
+		/* Decrease the item (from the pack) */
+		inven_item_increase(i, -1);
+		inven_item_optimize(i);
+
+		/* Get the wield slot */
+		o_ptr = &inventory[slot];
+
+		/* Wear the new stuff */
+		object_copy(o_ptr, i_ptr);
+
+		/* Increase the weight */
+		p_ptr->total_weight += object_weight(i_ptr);
+
+		/* Increment the equip counter by hand */
+		p_ptr->equip_cnt++;
 	}
 }
 
