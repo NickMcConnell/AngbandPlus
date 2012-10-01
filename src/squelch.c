@@ -89,13 +89,13 @@ static tval_desc typevals[] =
 	{TYPE_BODY,		"Body Armor"			},
 	{TYPE_CLOAK,	"Cloaks"				},
 	{TYPE_SHIELD,	"Shields"				},
-	{TYPE_HELM,		"Helmets"				},
+	{TYPE_HELM,		"Head gear"				},
 	{TYPE_BOOT,		"Gloves and boots"		},
 	{TYPE_AMULET,	"Amulets"				},
 	{TYPE_RING,		"Rings"					},
 	{TYPE_STAFF,	"Staves"				},
 	{TYPE_WAND,		"Wands"					},
-	{TYPE_ROD,		"Rods"					},
+	{TYPE_ROD,		"Rods and Talismans"	},
 	{TYPE_SCROLL,	"Scrolls"				},
 	{TYPE_POTION,	"Potions"				},
 	{TYPE_POWDER,	"Powders"				},
@@ -108,8 +108,6 @@ static tval_desc typevals[] =
 
 /*
  * Here are the categories for squelch-on-identification.
- * This array is lifted (and edited_ from wizard2.c, hence 
- * the spacy formatting.
  */
 
 static tval_desc tvals[] =
@@ -122,14 +120,12 @@ static tval_desc tvals[] =
 	{ TV_BOLT,			"Bolts"				},
 	{ TV_SHOT,			"Shots"				},
 	{ TV_SHIELD,		"Shield"			},
-	{ TV_CROWN,			"Crown"				},
-	{ TV_HELM,			"Helm"				},
+	{ TV_HEADGEAR,		"Head Gear"			},
 	{ TV_GLOVES,		"Gloves"			},
 	{ TV_BOOTS,			"Boots"				},
 	{ TV_CLOAK,			"Cloak"				},
 	{ TV_DRAG_ARMOR,	"Dragon Scale Mail"	},
-	{ TV_HARD_ARMOR,	"Hard Armor"		},
-	{ TV_SOFT_ARMOR,	"Soft Armor"		},
+	{ TV_BODY_ARMOR,	"Body Armor"		},
 	{ TV_DIGGING,		"Diggers"			},
 	{ 0,				NULL }
 };
@@ -597,7 +593,6 @@ static int do_qual_squelch(void)
  */
 void init_tv_to_type(void) 
 {
-	  tv_to_type[TV_SPIKE]			=TYPE_MISC;
 	  tv_to_type[TV_CHEST]			=TYPE_MISC;
 	  tv_to_type[TV_SHOT]			=TYPE_AMMO;
 	  tv_to_type[TV_ARROW]			=TYPE_AMMO;
@@ -609,12 +604,10 @@ void init_tv_to_type(void)
 	  tv_to_type[TV_SWORD]			=TYPE_WEAPON1;
 	  tv_to_type[TV_BOOTS]			=TYPE_BOOT;
 	  tv_to_type[TV_GLOVES]			=TYPE_BOOT;
-	  tv_to_type[TV_HELM]			=TYPE_HELM;
-	  tv_to_type[TV_CROWN]			=TYPE_HELM;
+	  tv_to_type[TV_HEADGEAR]		=TYPE_HELM;
 	  tv_to_type[TV_SHIELD]			=TYPE_SHIELD;
 	  tv_to_type[TV_CLOAK]			=TYPE_CLOAK;
-	  tv_to_type[TV_SOFT_ARMOR]		=TYPE_BODY;
-	  tv_to_type[TV_HARD_ARMOR]		=TYPE_BODY;
+	  tv_to_type[TV_BODY_ARMOR]		=TYPE_BODY;
 	  tv_to_type[TV_DRAG_ARMOR]		=TYPE_BODY;
 	  tv_to_type[TV_LITE]			=TYPE_MISC;
 	  tv_to_type[TV_LITE_SPECIAL]	=TYPE_MISC;
@@ -623,6 +616,7 @@ void init_tv_to_type(void)
 	  tv_to_type[TV_STAFF]			=TYPE_STAFF;
 	  tv_to_type[TV_WAND]			=TYPE_WAND;
 	  tv_to_type[TV_ROD]			=TYPE_ROD;
+	  tv_to_type[TV_TALISMAN]		=TYPE_ROD;
 	  tv_to_type[TV_SCROLL]			=TYPE_SCROLL;
 	  tv_to_type[TV_POTION]			=TYPE_POTION;
 	  tv_to_type[TV_FLASK]			=TYPE_MISC;

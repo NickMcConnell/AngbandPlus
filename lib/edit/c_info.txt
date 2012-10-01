@@ -74,7 +74,7 @@
 
 # Version stamp (required)
 
-V:0.2.3
+V:0.3.0
 
 N:0:Warrior
 S:5:-2:-2:2:2:-1
@@ -83,7 +83,7 @@ X:10:7:10:0:0:0:45:45:45:0:5
 I:9:0:6:30:5:0:0:0
 E:75:30:0:1:1
 E:23:16:0:1:1
-E:37:4:0:1:1
+E:36:24:0:1:1
 T:Rookie|Soldier|Mercenary|Veteran|Swordsman
 T:Champion|Hero|Baron|Duke|Lord
 F:BRAVERY_30|PSEUDO_ID5|BETTER_CRITICAL|PSEUDO_ID_HEAVY
@@ -210,3 +210,24 @@ E:36:4:0:1:1
 T:Performer|Entertainer|Musician|Trubador|Minstrel
 T:Courtier|Poet|Bard|Master-Bard|Maestro
 F:MUSIC|PSEUDO_ID5|PSEUDO_ID_HEAVY|NO_GLOVE|LORE
+
+N:7:Spellsword
+S:3:2:-2:0:1:0
+C:25:30:25:1:12:5:65:38:40:0:30
+X:7:10:10:0:0:0:35:28:30:0:7
+I:5:45:5:30:4:1:1:400
+B:0:5
+B:1:5
+B:2:5
+B:3:5
+B:4:5
+B:5:5
+B:6:5
+B:7:5
+B:8:5
+E:36:6:0:1:1
+E:23:16:0:1:1
+E:70:9:0:1:1        
+T:Student|Journeyman|Spellslinger|Wizard|Warrior-Mage
+T:Knight-Mage|Spellsword|Battlemage|Scourge|Wizard-Lord
+F:PSEUDO_ID2|CHOOSE_SPELLS|BEAM

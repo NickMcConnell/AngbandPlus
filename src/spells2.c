@@ -47,7 +47,10 @@ void identify_pack(void)
 		object_known(o_ptr);
 
 		/* Lore ability*/
-		if ((cp_ptr->flags & CF_LORE) && o_ptr->name1) o_ptr->ident |= (IDENT_MENTAL);
+		if ((cp_ptr->flags & CF_LORE) && artifact_p(o_ptr)) artifact_known(&a_info[o_ptr->a_idx]);
+
+		/* Mark the artifact as "aware" */
+		if (artifact_p(o_ptr)) artifact_aware(&a_info[o_ptr->a_idx]);
 	}
 
 	/* Recalculate bonuses */
@@ -236,7 +239,7 @@ void self_knowledge(void)
 	}
 	if (p_ptr->blessed)
 	{
-		info[i++] = "You feel rightous.";
+		info[i++] = "You feel righteous.";
 	}
 	if (p_ptr->hero)
 	{
@@ -721,6 +724,8 @@ void set_recall(void)
 	if (adult_ironman && !p_ptr->total_winner)
 	{
 		message(MSG_FAIL, 0, "Nothing happens.");
+
+		/* something happened */
 		return;
 	}
 
@@ -737,6 +742,8 @@ void set_recall(void)
 		p_ptr->word_recall = 0;
 		message(MSG_EFFECT, 0, "A tension leaves the air around you...");
 	}
+
+	return;
 }
 
 /*
@@ -1032,7 +1039,7 @@ bool detect_objects_normal(void)
  *
  * This will light up all spaces with "magic" items, including artifacts,
  * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
- * and "enchanted" items of the "good" variety.
+ * and "enchanted" items.
  *
  * It can probably be argued that this function is now too powerful.
  */
@@ -1043,7 +1050,6 @@ bool detect_objects_magic(void)
 	bool found;
 	bool detect = FALSE;
 	
-
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
 	{
@@ -1076,24 +1082,28 @@ bool detect_objects_magic(void)
 			case TV_STAFF:
 			case TV_WAND:
 			case TV_ROD:
+			case TV_TALISMAN:
 			case TV_SCROLL:
 			case TV_POTION:
 			case TV_MAGIC_BOOK:
 			case TV_POWDER:
 			case TV_LITE_SPECIAL:
+			case TV_DRAG_ARMOR:
 			{
 				found = TRUE;
 				break;
 			}
 			case TV_LITE:
 			{
-				if (sv >= SV_LANTERN_SIGHT) found = TRUE;
+				if (sv >= SV_LANTERN_FIRST_MAGIC) found = TRUE;
 				break;
 			}
 			default:
 			{
 				if (artifact_p(o_ptr) || ego_item_p(o_ptr)) found = TRUE;
-				if ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)) found = TRUE;
+				if ((o_ptr->to_a > 0) || (o_ptr->to_h > 0) || (o_ptr->to_d > 0)) found = TRUE;
+				/* Also, cursed items */
+				if (cursed_p(o_ptr)) found = TRUE;
 				break;
 			}
 		}
@@ -1134,10 +1144,12 @@ bool detect_monsters_normal(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_race *r_ptr;
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+		r_ptr = get_monster_full(m_ptr);
 
 		/* Location */
 		y = m_ptr->fy;
@@ -1187,11 +1199,13 @@ bool detect_monsters_invis(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_race *r_ptr;
 		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+		r_ptr = get_monster_full(m_ptr);
 
 		/* Location */
 		y = m_ptr->fy;
@@ -1251,11 +1265,13 @@ bool detect_monsters_evil(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_race *r_ptr;
 		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+		r_ptr = get_monster_full(m_ptr);
 
 		/* Location */
 		y = m_ptr->fy;
@@ -1440,12 +1456,10 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 		case TV_DRAG_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
+		case TV_BODY_ARMOR:
 		case TV_SHIELD:
 		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
+		case TV_HEADGEAR:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		{
@@ -1506,7 +1520,7 @@ static int enchant_table[16] =
  * Note that this function can now be used on "piles" of items, and
  * the larger the pile, the lower the chance of success.
  */
-bool enchant(object_type *o_ptr, int n, int eflag)
+static bool enchant(object_type *o_ptr, int n, int eflag)
 {
 	int i, chance, prob;
 
@@ -1525,18 +1539,12 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
 
-
 	/* Hack - ammo and shooters always gets max_bonus of 10 */
-	if ((o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_SHOT) ||
-		(o_ptr->tval == TV_BOW)) max_bonus = 10;
+	if (ammo_p(o_ptr) || (o_ptr->tval == TV_BOW)) max_bonus = 10;
 
 	/* Missiles are easy to enchant, and can always get to +10 */
-	if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_SHOT))
-		prob = prob / 20;
+	if (ammo_p(o_ptr)) prob = prob / 20;
 		
-	/* Non-missile ego-items can be enchanted further */
-	else if (e) max_bonus += 5;
-
 	/* Try "n" times */
 	for (i=0; i<n; i++)
 	{
@@ -1630,6 +1638,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 	/* Failure */
 	if (!res) return (FALSE);
+
+	/* Mark object */
+	o_ptr->ident |= IDENT_MODIFIED;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1740,14 +1751,14 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 		o_ptr = &o_list[0 - item];
 	}
 
-	ammo = ((o_ptr->tval == TV_SHOT) || (o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_BOLT));
+	ammo = (ammo_p(o_ptr));
 
     /*
 	 * Don't enchant artifacts, ego-items, cursed or broken items, or piles of anything except
 	 * arrows, bolts, and shots
 	 */
 	if (artifact_p(o_ptr) || ego_item_p(o_ptr) || cursed_p(o_ptr) || broken_p(o_ptr) ||
-		((o_ptr->number > 1) && !(ammo)))
+		((o_ptr->number > 1) && !ammo))
 	{
 		/* Flush */
 		if (flush_failure) flush();
@@ -1763,12 +1774,12 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 
 	switch (brand_type)
 	{
-		case EGO_BRAND_VENOM:
+		case EGO_BRAND_POIS:
 		case EGO_POISON:
 		{
 			/* Make sure you don't give an inappropriate brand */
 			if (ammo) brand_type = EGO_POISON;
-			else brand_type = EGO_BRAND_VENOM;
+			else brand_type = EGO_BRAND_POIS;
 			if (o_ptr->number > 1) act = "are covered in a noxious coating!";
 			else act = "is covered in a noxious coating!";
 			break;
@@ -1864,11 +1875,16 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 			break;
 		}
 	}
-	o_ptr->name2 = brand_type;
+
+	o_ptr->e_idx = brand_type;
 	message_format(MSG_ITEM_BONUS, o_ptr->k_idx, "Your %s %s", o_name, act);
 
 	if (add_plus) enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
 
+	/* Mark object */
+	o_ptr->ident |= IDENT_MODIFIED;
+
+	/* Something happened */
 	return (TRUE);
 }
 
@@ -1913,7 +1929,10 @@ bool ident_spell(void)
 	object_known(o_ptr);
 
 	/* Mark the item as fully known */
-	if ((cp_ptr->flags & CF_LORE) && o_ptr->name1) o_ptr->ident |= (IDENT_MENTAL);
+	if ((cp_ptr->flags & CF_LORE) && artifact_p(o_ptr)) artifact_known(&a_info[o_ptr->a_idx]);
+
+	/* Mark the artifact as "aware" */
+	if (artifact_p(o_ptr)) artifact_aware(&a_info[o_ptr->a_idx]);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1939,24 +1958,26 @@ bool ident_spell(void)
 	else if (item >= 0)
 	{
 		message_format(MSG_DESCRIBE, 0, "In your pack: %s (%c).  %s", o_name, index_to_label(item), 
-			((squelch==1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
+			((squelch == 1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
 	}
 	else
 	{
 		message_format(MSG_DESCRIBE, 0, "On the ground: %s.  %s", o_name, ((squelch==1) ? "(Squelched)" :
-			((squelch==-1) ? "(Squelch Failed)" : "")));
+			((squelch == -1) ? "(Squelch Failed)" : "")));
 		
 	}
 
 	/* Now squelch it if needed */
-	if (squelch==1) 
+	if (squelch == 1) 
 	{
 		do_squelch_item(squelch, item, o_ptr);
 	} 
-	else if ((cp_ptr->flags & CF_LORE) && o_ptr->name1)
+	else if (artifact_p(o_ptr))
 	{
+		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
+
 		/* Describe it fully */
-		identify_fully_aux(o_ptr);
+		if artifact_known_p(a_ptr) identify_fully_aux(o_ptr);
 	}
 
 	/* Something happened */
@@ -2010,7 +2031,7 @@ bool identify_fully(void)
 		potion_alch[o_ptr->sval].known1=TRUE;
 		potion_alch[o_ptr->sval].known2=TRUE;
 
-		for (i = 0; i < SV_MAX_POTIONS; i++)
+		for (i = 0; i < SV_POTION_MAX; i++)
 		{
 			if (potion_alch[i].sval1 == o_ptr->sval) potion_alch[i].known1 = TRUE;
 			if (potion_alch[i].sval2 == o_ptr->sval) potion_alch[i].known2 = TRUE;
@@ -2018,10 +2039,20 @@ bool identify_fully(void)
 	}
 
 	/* Squelch it? */
-	if (item<INVEN_WIELD) squelch=squelch_itemp(o_ptr, 0, 1);
+	if (item < INVEN_WIELD) squelch = squelch_itemp(o_ptr, 0, 1);
 
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
+
+	/* Mark the artifact as "aware" */
+	if (artifact_p(o_ptr)) 
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
+
+		/* Aware of the artifact and its abilities */
+		artifact_aware(a_ptr);
+		artifact_known(a_ptr);
+	}
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -2085,6 +2116,9 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
 	/* Hack -- Recharge rods */
 	if (o_ptr->tval == TV_ROD) return (TRUE);
 
+	/* Hack -- Recharge talismans */
+	if (o_ptr->tval == TV_TALISMAN) return (TRUE);
+
 	/* Nope */
 	return (FALSE);
 }
@@ -2105,7 +2139,7 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
  *
  * It is harder to recharge high level, and highly charged wands.
  *
- * XXX XXX XXX Beware of "sliding index errors".
+ * XXX XXX XXX Beware of "sliding index errors".	
  *
  * Should probably not "destroy" over-charged items, unless we
  * "replace" them by, say, a broken stick or some such.  The only
@@ -2124,7 +2158,6 @@ bool recharge(int num)
 	object_type *o_ptr;
 
 	cptr q, s;
-
 
 	/* Only accept legal items */
 	item_tester_hook = item_tester_hook_recharge;
@@ -2146,16 +2179,14 @@ bool recharge(int num)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Extract the object "level" */
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Recharge a rod */
-	if (o_ptr->tval == TV_ROD)
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_TALISMAN))
 	{
 		/* Extract a recharge strength by comparing object level to power. */
 		recharge_strength = ((num > lev) ? (num - lev) : 0) / 5;
-
 
 		/* Back-fire */
 		if (rand_int(recharge_strength) == 0)
@@ -2407,10 +2438,12 @@ void aggravate_monsters(int who)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_race *r_ptr;
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+		r_ptr = get_monster_full(m_ptr);
 
 		/* Skip aggravating monster (or player) */
 		if (i == who) continue;
@@ -2470,13 +2503,15 @@ bool genocide(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_race *r_ptr;
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		r_ptr = get_monster_full(m_ptr);
+
 		/* Hack -- Skip Unique Monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+		if (m_ptr->u_idx) continue;
 
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
@@ -2507,13 +2542,12 @@ bool mass_genocide(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
 		/* Hack -- Skip unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+		if (m_ptr->u_idx) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
@@ -2876,7 +2910,7 @@ void earthquake(int cy, int cx, int r)
 			if (cave_m_idx[yy][xx] > 0)
 			{
 				monster_type *m_ptr = &m_list[cave_m_idx[yy][xx]];
-				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+				monster_race *r_ptr = get_monster_full(m_ptr);
 
 				/* Most monsters cannot co-exist with rock */
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
@@ -3084,7 +3118,7 @@ static void cave_temp_room_lite(void)
 			int chance = 25;
 
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *r_ptr = get_monster_full(m_ptr);
 
 			/* Stupid monsters rarely wake up */
 			if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
@@ -3196,7 +3230,7 @@ static void cave_temp_room_aux(int y, int x)
 /*
  * Illuminate any room containing the given location.
  */
-void lite_room(int y1, int x1)
+static void lite_room(int y1, int x1)
 {
 	int i, x, y;
 
@@ -3223,44 +3257,6 @@ void lite_room(int y1, int x1)
 		cave_temp_room_aux(y - 1, x + 1);
 		cave_temp_room_aux(y + 1, x - 1);
 	}
-
-	/* Now, lite them all up at once */
-	cave_temp_room_lite();
-}
-
-/*
- * Darken all rooms containing the given location
- */
-void unlite_room(int y1, int x1)
-{
-	int i, x, y;
-
-	/* Add the initial grid */
-	cave_temp_room_aux(y1, x1);
-
-	/* Spread, breadth first */
-	for (i = 0; i < temp_n; i++)
-	{
-		x = temp_x[i], y = temp_y[i];
-
-		/* Walls get dark, but stop darkness */
-		if (!cave_floor_bold(y, x)) continue;
-
-		/* Spread adjacent */
-		cave_temp_room_aux(y + 1, x);
-		cave_temp_room_aux(y - 1, x);
-		cave_temp_room_aux(y, x + 1);
-		cave_temp_room_aux(y, x - 1);
-
-		/* Spread diagonal */
-		cave_temp_room_aux(y + 1, x + 1);
-		cave_temp_room_aux(y - 1, x - 1);
-		cave_temp_room_aux(y - 1, x + 1);
-		cave_temp_room_aux(y + 1, x - 1);
-	}
-
-	/* Now, darken them all at once */
-	cave_temp_room_unlite();
 }
 
 /*
@@ -3282,6 +3278,9 @@ bool lite_area(int dam, int rad)
 
 	/* Lite up the room */
 	lite_room(p_ptr->py, p_ptr->px);
+
+	/* Now, lite them all up at once */
+	cave_temp_room_lite();
 
 	/* Assume seen */
 	return (TRUE);
@@ -3305,7 +3304,10 @@ bool unlite_area(int dam, int rad)
 	(void)project(-1, rad, p_ptr->py, p_ptr->px, dam, GF_DARK_WEAK, flg);
 
 	/* Lite up the room */
-	unlite_room(p_ptr->py, p_ptr->px);
+	lite_room(p_ptr->py, p_ptr->px);
+
+	/* Now, darken them all at once */
+	cave_temp_room_unlite();
 
 	/* Assume seen */
 	return (TRUE);

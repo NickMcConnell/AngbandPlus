@@ -904,15 +904,20 @@ void map_info(int y, int x, byte *ap, char *cp)
 		if (m_ptr->ml)
 		{
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_unique *u_ptr = &u_info[m_ptr->u_idx];
 
 			byte da;
 			char dc;
 
+			u32b f1;
+
 			/* Desired attr */
-			da = r_ptr->x_attr;
+			da = ((m_ptr->u_idx) ? u_ptr->x_attr : r_ptr->x_attr);
 
 			/* Desired char */
-			dc = r_ptr->x_char;
+			dc = ((m_ptr->u_idx) ? u_ptr->x_char : r_ptr->x_char);
+
+			f1 = ((m_ptr->u_idx) ? (u_ptr->flags1 | r_ptr->flags1) : r_ptr->flags1);
 
 			/* Hack -- monster hallucination */
 			if (image)
@@ -944,7 +949,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 
 			/* Multi-hued monster */
-			else if (r_ptr->flags1 & (RF1_ATTR_MULTI))
+			else if (f1 & (RF1_ATTR_MULTI))
 			{
 				/* Multi-hued attr */
 				a = randint(15);
@@ -954,7 +959,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 
 			/* Normal monster (not "clear" in any way) */
-			else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR)))
+			else if (!(f1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR)))
 			{
 				/* Use attr */
 				a = da;
@@ -974,14 +979,14 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 
 			/* Normal char, Clear attr, monster */
-			else if (!(r_ptr->flags1 & (RF1_CHAR_CLEAR)))
+			else if (!(f1 & (RF1_CHAR_CLEAR)))
 			{
 				/* Normal char */
 				c = dc;
 			}
 
 			/* Normal attr, Clear char, monster */
-			else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR)))
+			else if (!(f1 & (RF1_ATTR_CLEAR)))
 			{
 				/* Normal attr */
 				a = da;
@@ -2562,7 +2567,9 @@ void update_view(void)
 		{
 			/* Check the k'th monster */
 			monster_type *m_ptr = &m_list[k];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			u32b f2 = ((m_ptr->u_idx) ? 
+				(u_info[m_ptr->u_idx].flags2 | r_info[m_ptr->r_idx].flags2) :
+				r_info[m_ptr->r_idx].flags2);
 
 			/* Skip dead monsters */
 			if (!m_ptr->r_idx) continue;
@@ -2572,7 +2579,7 @@ void update_view(void)
 			fy = m_ptr->fy;
 
 			/* Carrying lite */
-			if (r_ptr->flags2 & (RF2_HAS_LITE))
+			if (f2 & (RF2_HAS_LITE))
 			{
 				for (i = -1; i <= 1; i++)
 				{

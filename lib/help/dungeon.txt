@@ -125,31 +125,9 @@ acquire treasure.
 Your character will begin his adventure with some basic supplies, and some
 extra gold with which to purchase more supplies at the town stores.
 
-You may enter any open store and barter with the owner for items you can
-afford.  When bartering, you enter prices you will pay (or accept) for some
-object.  You can either enter the absolute amount, or precede a number with
-a plus or minus sign to give a positive or negative increment on your
-previous offer.  But be warned that the owners can easily be insulted, and
-may even throw you out for a while if you insult them too often.  To enter
-a store, simply move onto the entrance, which is represented by a number
-from 1 to 9.
-
-If you consistently bargain well in a store, that is, you reach the final
-offer much more often than not, then the store owner will eventually
-recognize that you are a superb haggler, and will go directly to the final
-offer instead of haggling with you.  Items which cost less than 10 gold
-pieces do not count, as haggling well with these items is usually either
-very easy or almost impossible.  The more expensive the item is, the less
-likely the store owner is to assume that you are a good haggler.  Note that
-you may disable haggling with a software option, though this will inflict a
-10% "sales tax" on all purchases for which the store owner would have
-required you to haggle.
-
 Once inside a store, you will see the name and race of the store owner, the
-name of the store, the maximum amount of cash that the store owner will pay
-for any one item, and the store inventory, listed along with tentative
-prices, which will become "fixed" (at the "final offer") should you ever
-manage to haggle a store owner down to his final offer.
+name of the store, the amount of cash that the store owner will pay for any
+one item, and the store inventory, listed along with prices.
 
 You will also see an (incomplete) list of available commands.  Note that
 many of the commands which work in the dungeon work in the stores as well,
@@ -174,8 +152,8 @@ item if another is encountered.
 
 The General Store ("1")
      The General Store sells foods, drinks, some clothing, torches, lamps,
-     oil, shovels, picks, and spikes.  All of these items and some others
-     can be sold back to the General store for money.
+     oil, shovels, picks, and musical instruments.  All of these items and 
+     some others can be sold back to the General store for money.
 
 The Armoury ("2")
      The Armoury is where the town's armour is fashioned.  All sorts of

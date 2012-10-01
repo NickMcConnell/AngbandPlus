@@ -26,7 +26,7 @@ mation about any command, consult the help file "cmddesc.txt".
  g  Stay still (flip pickup)             G  Gain new spells/prayers
  h  (unused)                             H  (unused)
  i  Inventory list                       I  Observe an item
- j  Jam a door                           J  (unused)
+ j  (unused)                             J  (unused)
  k  Destroy an item                      K  (unused)
  l  Look around                          L  Locate player on map
  m  Cast a spell                         M  Full dungeon map
@@ -41,7 +41,7 @@ mation about any command, consult the help file "cmddesc.txt".
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  (unused)
  x  Mix potions                          X  (unused)
- y  (unused)                             Y  (unused)
+ y  Invoke a Talisman                    Y  (unused)
  z  Zap a rod                            Z  (unused)
  !  Interact with system                ^A  (special - debug command)
  @  Interact with macros                ^B  (unused)
@@ -65,7 +65,7 @@ mation about any command, consult the help file "cmddesc.txt".
  :  Take notes                          ^T  (unused)
  '  (unused)                            ^U  (unused)
  "  Enter a user pref command           ^V  Repeat last command
- ,  Stay still (with pickup)            ^W  (special - wizard mode)
+ ,  Stay still (with pickup)            ^W  (unused)
  <  Go up staircase                     ^X  Save and quit
  .  Run                                 ^Y  (unused)
  >  Go down staircase                   ^Z  (special - borg command)
@@ -94,7 +94,7 @@ mation about any command, consult the help file "cmddesc.txt".
  p  Pray a prayer                        P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
- s  Search for traps/doors               S  Jam a door (Spike)
+ s  Search for traps/doors               S  Invoke a Talisman
  t  Fire an item                         T  Take off equipment
  u  (walk - north east)                  U  (run - north east)
  v  Throw an item                        V  Version info
@@ -124,7 +124,7 @@ mation about any command, consult the help file "cmddesc.txt".
  :  Take notes                          ^T  Dig a Tunnel
  '  (unused)                            ^U  (alter - north east)
  "  Enter a user pref command           ^V  Repeat last command
- ,  Run                                 ^W  (special - wizard mode)
+ ,  Run                                 ^W  (unused)
  <  Go up staircase                     ^X  Save and quit
  .  Stay still (with pickup)            ^Y  (alter - north west)
  >  Go down staircase                   ^Z  (special - borg command)

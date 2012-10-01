@@ -115,12 +115,28 @@ Mages, mystics, priests, paladins and rangers all cast book-based spells, while
 bards use musical instruments. Note that Paladins and Rangers only gain spell 
 abilities upon reaching levels 5 and 3 respectively.
 
+All classes that can use magic have a selection of spells that they can use,
+though the sources of these spells may differ. Each spell costs a certain 
+amount of mana to cast, which is taken out of your mana pool. If you don't
+have enough mana to cast a spell, you can still try casting - but better do
+so only if you have no other choices because this is very risky, and liable to
+cause you to fall unconcious, and cause permanent damage to your statistics. 
+
+In addition to the mana cost, every spell has a chance of failure, which is
+determined by your class, level, and statistics. Mages, priests and mystics 
+may attain 0% failure on most spells, but Rangers, Paladins, and Bards always
+have some chance of failure. Mages, Bards and Mystics must not wear gloves
+(except a few special types), otherwise they suffer a severe penalty to spell
+success rates. Also, every magic-using class suffers from wearing heavy
+armor, though different classes can wear different amounts of armor safely. 
+Finally, some magic items may hinder your spellcasting abilities.
+
 === Book-Based Magic ===
 
 Each class has a list of books from which it can choose spells. You can tell 
 whether your character can use a specific book according to its color in the
 inventory - if it's gray, you can't use it. The same book always contains the
-same spell list for every class, though some calsses might need to be a higher
+same spell list for every class, though some classes might need to be a higher
 level for certain spells, and have a lower fail rate. 
 
 You can cast a spell from a book by pressing the 'm' or 'p' commands, then 

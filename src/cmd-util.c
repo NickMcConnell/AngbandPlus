@@ -315,7 +315,7 @@ static void do_cmd_options_win(void)
 	Term_clear();
 
 	/* Interact */
-	while (1)
+	while (TRUE)
 	{
 		/* Prompt */
 		prt("Window flags (<dir> to move, 't' to toggle, or ESC)", 0, 0);
@@ -1550,7 +1550,6 @@ void do_cmd_visuals(void)
 {
 	int ch;
 
-
 #ifdef ALLOW_VISUALS
 	int cx;
 	int i;
@@ -1559,14 +1558,11 @@ void do_cmd_visuals(void)
 	char buf[1024];
 #endif
 
-
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-
 	/* Save screen */
 	screen_save();
-
 
 	/* Interact until done */
 	while (1)

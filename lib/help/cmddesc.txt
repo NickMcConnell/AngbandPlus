@@ -202,15 +202,6 @@ Close a door (c)
         is affected by the "always_repeat" option, requires a direction, and 
         takes some energy.
 
-Jam a door (j) or Spike a door (S)
-        Many monsters can simply open closed doors, and can eventually
-        get through a locked door.  You may therefore occasionally want
-        to jam a door shut with iron spikes.  Each spike used on the door
-        will make it harder to bash down the door, up to a certain limit.
-        Smaller monsters are less able to bash down doors.  In order to
-        use this command, you must be carrying iron spikes.  This command
-        requires a direction, and takes some energy.
-
 Bash a door (B) or Force a door (f)
         This command allows you to bash down jammed doors.  Your bashing
         ability increases with strength.  Bashing open a door can (briefly)
@@ -375,9 +366,12 @@ Zap a rod (z) or Activate a rod (a)
         Instead, they draw on the ambient magical energy to recharge
         themselves, and therefore can only be activated once every few
         turns.  The recharging time varies depending on the type of rod.
-        This command may require a direction (depending on the type of
-        rod, and whether you are aware of its type) and can use a target.
-        This command takes some energy.
+        This command requires a direction and can use a target. This 
+        command takes some energy.
+
+Invoke a talisman (y) or (S)
+        Talismans are identical in their operations to rods, but do not
+        require directions.
 
 --- Throwing and Missile Weapons ---
 

@@ -10,7 +10,6 @@
 
 #include "angband.h"
 
-
 /*
  * Some "local" parameters, used to help write savefiles
  */
@@ -21,7 +20,6 @@ static byte	xor_byte;	/* Simple encryption */
 
 static u32b	v_stamp = 0L;	/* A simple "checksum" on the actual values */
 static u32b	x_stamp = 0L;	/* A simple "checksum" on the encoded bytes */
-
 
 /*
  * These functions place information into a savefile a byte at a time
@@ -92,8 +90,8 @@ static void wr_item(object_type *o_ptr)
 	/* Don't waste space on "rare" fields */
 	if (o_ptr->pval)		save_flags |= 0x0001;
 	if (o_ptr->discount)	save_flags |= 0x0002;
-	if (o_ptr->name1)		save_flags |= 0x0004;
-	if (o_ptr->name2)		save_flags |= 0x0008;
+	if (o_ptr->a_idx)		save_flags |= 0x0004;
+	if (o_ptr->e_idx)		save_flags |= 0x0008;
 	if (o_ptr->timeout)		save_flags |= 0x0010;
 	if (o_ptr->to_h)		save_flags |= 0x0020;
 	if (o_ptr->to_d)		save_flags |= 0x0040;
@@ -125,8 +123,8 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
 
-	if (o_ptr->name1) wr_byte(o_ptr->name1); 
-	if (o_ptr->name2) wr_byte(o_ptr->name2);
+	if (o_ptr->a_idx) wr_byte(o_ptr->a_idx); 
+	if (o_ptr->e_idx) wr_byte(o_ptr->e_idx);
 
 	if (o_ptr->timeout) wr_s16b(o_ptr->timeout);
 
@@ -159,13 +157,13 @@ static void wr_item(object_type *o_ptr)
 	}
 }
 
-
 /*
  * Write a "monster" record
  */
 static void wr_monster(monster_type *m_ptr)
 {
 	wr_s16b(m_ptr->r_idx);
+	wr_s16b(m_ptr->u_idx);
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
@@ -184,14 +182,13 @@ static void wr_monster(monster_type *m_ptr)
 
 }
 	
-
 /*
  * Write a "lore" record
  */
 static void wr_lore(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
+	monster_race *r_ptr = &r_info[r_idx];
 
 	u16b save_flags = 0;
 
@@ -247,11 +244,8 @@ static void wr_lore(int r_idx)
 	if (l_ptr->r_flags5) wr_u32b(l_ptr->r_flags5);
 	if (l_ptr->r_flags6) wr_u32b(l_ptr->r_flags6);
 
-	/* Monster limit per level */
-	wr_byte(r_ptr->max_num);
-
+	wr_byte (r_ptr->num_unique);
 }
-
 
 /*
  * Write an item memory record
@@ -270,7 +264,6 @@ static void wr_item_memory(int k_idx)
 	wr_byte(tmp8u);
 }
 
-
 /*
  * Write a "store" record
  */
@@ -278,21 +271,11 @@ static void wr_store(store_type *st_ptr)
 {
 	int j;
 
-	/* Save the "open" counter */
-	wr_u32b(st_ptr->store_open);
-
-	/* Save the "insults" */
-	wr_s16b(st_ptr->insult_cur);
-
 	/* Save the current owner */
 	wr_byte(st_ptr->owner);
 
 	/* Save the stock size */
 	wr_byte(st_ptr->stock_num);
-
-	/* Save the "haggle" info */
-	wr_s16b(st_ptr->good_buy);
-	wr_s16b(st_ptr->bad_buy);
 
 	/* Save the stock */
 	for (j = 0; j < st_ptr->stock_num; j++)
@@ -301,7 +284,6 @@ static void wr_store(store_type *st_ptr)
 		wr_item(&st_ptr->stock[j]);
 	}
 }
-
 
 /*
  * Write RNG state
@@ -414,7 +396,6 @@ static void wr_options(void)
 
 	/* Dump the flags */
 	for (i = 0; i < ANGBAND_TERM_MAX; i++) wr_u16b(flag16[i]);
-
 }
 
 /*
@@ -439,7 +420,7 @@ static void wr_extra(void)
 	wr_byte(p_ptr->psex);
 
 	wr_byte(p_ptr->hitdie);
-	wr_byte(p_ptr->expfact);
+	wr_u16b(p_ptr->expfact);
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
@@ -523,9 +504,6 @@ static void wr_extra(void)
 	for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
 	wr_byte(auto_destroy);
 
-	/* Random artifact version */
-	if (adult_rand_artifacts) wr_u32b(RANDART_VERSION);
-
 	/* Random artifact seed */
 	if (adult_rand_artifacts) wr_u32b(seed_randart);
 
@@ -543,10 +521,10 @@ static void wr_extra(void)
 	wr_byte(p_ptr->is_dead);
 
 	/* Write feeling */
-	wr_byte(feeling);
+	wr_byte(p_ptr->feeling);
 
 	/* Turn of last "feeling" */
-	wr_s32b(old_turn);
+	wr_s32b(p_ptr->feeling_cnt);
 
 	/* Current turn */
 	wr_s32b(turn);
@@ -562,7 +540,7 @@ static void wr_spells(void)
 	u16b tmp16u1 = 0; /* Number of legal spellbooks */
 	u16b tmp16u2 = 0; /* Number of legal spells */
 
-	for (i = 0; i < SV_MAX_BOOKS; i++)
+	for (i = 0; i < SV_BOOK_MAX; i++)
 	{
 		if (cp_ptr->spell_book[i]) 
 		{
@@ -574,7 +552,7 @@ static void wr_spells(void)
 	wr_u16b(tmp16u1); /* Number of legal spellbooks */
 	wr_u16b(tmp16u2); /* Number of legal spells */
 
-	for (i =0; i < SV_MAX_BOOKS; i++)
+	for (i =0; i < SV_BOOK_MAX; i++)
 	{
 		if (cp_ptr->spell_book[i]) 
 		{
@@ -597,7 +575,6 @@ static void wr_spells(void)
  * The cave grid flags that get saved in the savefile
  */
 #define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_ROOM)
-
 
 /*
  * Write the current dungeon
@@ -658,7 +635,6 @@ static void wr_dungeon(void)
 		wr_byte((byte)prev_char);
 	}
 
-
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
 	/* Note that this will induce two wasted bytes */
@@ -697,7 +673,6 @@ static void wr_dungeon(void)
 		wr_byte((byte)prev_char);
 	}
 
-
 	/*** Compact ***/
 
 	/* Compact the objects */
@@ -720,7 +695,6 @@ static void wr_dungeon(void)
 		wr_item(o_ptr);
 	}
 
-
 	/*** Dump the monsters ***/
 
 	/* Total monsters */
@@ -735,8 +709,6 @@ static void wr_dungeon(void)
 		wr_monster(m_ptr);
 	}
 }
-
-
 
 /*
  * Actually write a save-file
@@ -806,6 +778,21 @@ static bool wr_savefile_new(void)
 		wr_u16b(message_type((s16b)i));
 	}
 
+	/* Dump the unique info */
+	tmp16u = z_info->u_max;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+		monster_unique *u_ptr = &u_info[i];
+
+		tmp8u = 0;
+
+		if (u_ptr->dead) tmp8u |= 0x01;
+		wr_byte(tmp8u);
+
+		if (u_ptr->dead) wr_s16b(u_ptr->depth);
+	}
+
 	/* Dump the monster lore */
 	tmp16u = z_info->r_max;
 	wr_u16b(tmp16u);
@@ -817,7 +804,7 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++) wr_item_memory(i);
 
 	/* Dump the alchemy info */
-	tmp16u = SV_MAX_POTIONS;
+	tmp16u = SV_POTION_MAX;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
@@ -850,6 +837,7 @@ static bool wr_savefile_new(void)
 
 			wr_s16b(q_info[i].cur_num);
 			wr_s16b(q_info[i].max_num);
+			wr_byte(q_info[i].started);
 		}
 	}
 
@@ -859,7 +847,7 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->cur_num);
+		wr_byte(a_ptr->status);
 	}
 
 	/* Write the "extra" information */
@@ -916,7 +904,6 @@ static bool wr_savefile_new(void)
 	/* Successful save */
 	return TRUE;
 }
-
 
 /*
  * Medium level player saver
@@ -1077,8 +1064,6 @@ bool save_player(void)
 	return (result);
 }
 
-
-
 /*
  * Attempt to Load a "savefile"
  *
@@ -1213,10 +1198,7 @@ bool load_player(void)
 		/* Player is dead */
 		if (p_ptr->is_dead)
 		{
-			/* Forget death */
-			p_ptr->is_dead = FALSE;
-
-			/* Cheat death */
+			/* In wizard mode, allow loading of tombstones */
 			if (cheat_wizard)
 			{
 				/* A character was loaded */
@@ -1226,11 +1208,17 @@ bool load_player(void)
 				return (TRUE);
 			}
 
+			/* Forget death */
+			p_ptr->is_dead = FALSE;
+
 			/* Count lives */
 			sf_lives++;
 
 			/* Forget turns */
-			turn = old_turn = 0;
+			turn = 0;
+			
+			/* Reset feeling counter */
+			p_ptr->feeling_cnt = 0;
 
 			/* Done */
 			return (TRUE);
@@ -1257,5 +1245,4 @@ bool load_player(void)
 	/* Oops */
 	return (FALSE);
 }
-
 

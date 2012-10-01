@@ -22,6 +22,7 @@ void delete_monster_idx(int i)
 	monster_type *m_ptr = &m_list[i];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_unique *u_ptr = &u_info[m_ptr->u_idx];
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -31,6 +32,13 @@ void delete_monster_idx(int i)
 
 	/* Hack -- Reduce the racial counter */
 	r_ptr->cur_num--;
+
+	/* Hack -- Make unique available again, unless dead */
+	if (m_ptr->u_idx && !u_ptr->dead)
+	{
+		r_ptr->num_unique++;
+		u_ptr->depth = -1;
+	}
 
 	/* Hack -- count the number of "reproducers" */
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro--;
@@ -95,10 +103,8 @@ static void compact_monsters_aux(int i1, int i2)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-
 	/* Do nothing */
 	if (i1 == i2) return;
-
 
 	/* Old monster */
 	m_ptr = &m_list[i1];
@@ -173,10 +179,12 @@ void compact_monsters(int size)
 		{
 			monster_type *m_ptr = &m_list[i];
 
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *r_ptr;
 
 			/* Paranoia -- skip "dead" monsters */
 			if (!m_ptr->r_idx) continue;
+
+			r_ptr = get_monster_full(m_ptr);
 
 			/* Hack -- High level monsters start out "immune" */
 			if (r_ptr->level > cur_lev) continue;
@@ -188,10 +196,11 @@ void compact_monsters(int size)
 			chance = 90;
 
 			/* Only compact "Quest" Monsters in emergencies */
-			if ((r_ptr->flags1 & (RF1_QUESTOR)) && (cnt < 1000)) chance = 100;
+			if ((cnt < 1000) && (q_info[quest_num(p_ptr->depth)].r_idx == m_ptr->r_idx)) 
+				chance = 100;
 
 			/* Try not to compact Unique Monsters */
-			if (r_ptr->flags1 & (RF1_UNIQUE)) chance = 99;
+			if (m_ptr->u_idx) chance = 99;
 
 			/* All monsters get a saving throw */
 			if (rand_int(100) < chance) continue;
@@ -237,11 +246,17 @@ void wipe_m_list(void)
 		monster_type *m_ptr = &m_list[i];
 
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_unique *u_ptr = &u_info[m_ptr->u_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Mega-Hack -- preserve Unique's XXX XXX XXX */
+		/* Make unique available again */
+		if (m_ptr->u_idx) 
+		{
+			r_ptr->num_unique++;
+			u_ptr->depth = -1;
+		}
 
 		/* Hack -- Reduce the racial counter */
 		r_ptr->cur_num--;
@@ -431,8 +446,7 @@ s16b get_mon_num(int level)
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- "unique" monsters must be "unique" */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
-		    (r_ptr->cur_num >= r_ptr->max_num))
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->num_unique != 1))
 		{
 			continue;
 		}
@@ -452,7 +466,6 @@ s16b get_mon_num(int level)
 
 	/* No legal monsters */
 	if (total <= 0) return (0);
-
 
 	/* Pick a monster */
 	value = rand_int(total);
@@ -571,12 +584,27 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 {
 	cptr res;
 
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	cptr name;
 
-	cptr name = (r_name + r_ptr->name);
+	bool seen, pron, male, female;
 
-	bool seen, pron;
+	if (m_ptr->u_idx)
+	{
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_unique *u_ptr = &u_info[m_ptr->u_idx];
 
+		name = (u_name + u_ptr->name);
+		female = (((u_info->flags1 & RF1_FEMALE) || (r_info->flags1 & RF1_FEMALE)) ? TRUE : FALSE);
+		male = (((u_info->flags1 & RF1_MALE) || (r_info->flags1 & RF1_MALE)) ? TRUE : FALSE);
+	}
+	else
+	{
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		name = (r_name + r_ptr->name);
+		female = ((r_info->flags1 & RF1_FEMALE) ? TRUE : FALSE);
+		male = ((r_info->flags1 & RF1_MALE) ? TRUE : FALSE);
+	}
 
 	/* Can we "see" it (forced, or not hidden + visible) */
 	seen = ((mode & (0x80)) || (!(mode & (0x40)) && m_ptr->ml));
@@ -591,12 +619,11 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 		int kind = 0x00;
 
 		/* Extract the gender (if applicable) */
-		if (r_ptr->flags1 & (RF1_FEMALE)) kind = 0x20;
-		else if (r_ptr->flags1 & (RF1_MALE)) kind = 0x10;
+		if (female) kind = 0x20;
+		else if (male) kind = 0x10;
 
 		/* Ignore the gender (if desired) */
 		if (!m_ptr || !pron) kind = 0x00;
-
 
 		/* Assume simple result */
 		res = "it";
@@ -644,17 +671,16 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	else if ((mode & 0x02) && (mode & 0x01))
 	{
 		/* The monster is visible, so use its gender */
-		if (r_ptr->flags1 & (RF1_FEMALE)) strcpy(desc, "herself");
-		else if (r_ptr->flags1 & (RF1_MALE)) strcpy(desc, "himself");
+		if (female) strcpy(desc, "herself");
+		else if (male) strcpy(desc, "himself");
 		else strcpy(desc, "itself");
 	}
-
 
 	/* Handle all other visible monster requests */
 	else
 	{
 		/* It could be a Unique */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
+		if (m_ptr->u_idx)
 		{
 			/* Start with the name (thus nominative and objective) */
 			strcpy(desc, name);
@@ -702,9 +728,8 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 void lore_do_probe(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
 
 	/* Hack -- Memorize some flags */
 	l_ptr->r_flags1 = r_ptr->flags1;
@@ -718,7 +743,6 @@ void lore_do_probe(int m_idx)
 		p_ptr->window |= (PW_MONSTER);
 	}
 }
-
 
 /*
  * Take note that the given monster just dropped some treasure
@@ -736,9 +760,8 @@ void lore_do_probe(int m_idx)
 void lore_treasure(int m_idx, int num_item, int num_gold)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
 
 	/* Note the number of things dropped */
 	if (num_item > l_ptr->r_drop_item) l_ptr->r_drop_item = num_item;
@@ -755,8 +778,6 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 		p_ptr->window |= (PW_MONSTER);
 	}
 }
-
-
 
 /*
  * This function updates the monster record of the given monster
@@ -820,9 +841,7 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 void update_mon(int m_idx, bool full)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
+	monster_race *r_ptr;
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int d;
@@ -836,6 +855,12 @@ void update_mon(int m_idx, bool full)
 
 	/* Seen by vision */
 	bool easy = FALSE;
+
+	/* Skip dead monster */
+	if (!m_ptr->r_idx) return; 
+
+	/* Get monster stats */
+	r_ptr = get_monster_full(m_ptr);
 
 	/* Compute distance */
 	if (full)
@@ -907,8 +932,8 @@ void update_mon(int m_idx, bool full)
 			}
 		}
 
-		/* Normal line of sight, and not blind */
-		if (player_has_los_bold(fy, fx) && !p_ptr->blind)
+		/* Normal line of sight, and not blind or hallucinating*/
+		if (player_has_los_bold(fy, fx) && !p_ptr->blind && !p_ptr->image)
 		{
 			bool do_invisible = FALSE;
 			bool do_cold_blood = FALSE;
@@ -969,7 +994,6 @@ void update_mon(int m_idx, bool full)
 			}
 		}
 	}
-
 
 	/* The monster is now visible */
 	if (flag)
@@ -1073,9 +1097,6 @@ void update_monsters(bool full)
 	}
 }
 
-
-
-
 /*
  * Make a monster carry an object
  */
@@ -1086,7 +1107,6 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &m_list[m_idx];
-
 
 	/* Scan objects already being held for combination */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1109,7 +1129,6 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 			return (this_o_idx);
 		}
 	}
-
 
 	/* Make an object */
 	o_idx = o_pop();
@@ -1145,7 +1164,6 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 	return (o_idx);
 }
 
-
 /*
  * Swap the players/monsters (if any) at two locations XXX XXX XXX
  */
@@ -1155,16 +1173,13 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 	monster_type *m_ptr;
 
-
 	/* Monsters */
 	m1 = cave_m_idx[y1][x1];
 	m2 = cave_m_idx[y2][x2];
 
-
 	/* Update grids */
 	cave_m_idx[y1][x1] = m2;
 	cave_m_idx[y2][x2] = m1;
-
 
 	/* Monster 1 */
 	if (m1 > 0)
@@ -1232,12 +1247,10 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->window |= (PW_OVERHEAD);
 	}
 
-
 	/* Redraw */
 	lite_spot(y1, x1);
 	lite_spot(y2, x2);
 }
-
 
 /*
  * Place the player in the dungeon XXX XXX
@@ -1258,7 +1271,6 @@ s16b player_place(int y, int x)
 	return (-1);
 }
 
-
 /*
  * Place a copy of a monster in the dungeon XXX XXX
  */
@@ -1269,10 +1281,8 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
-
 	/* Paranoia XXX XXX */
 	if (cave_m_idx[y][x] != 0) return (0);
-
 
 	/* Get a new record */
 	m_idx = m_pop();
@@ -1297,7 +1307,7 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 		update_mon(m_idx, TRUE);
 
 		/* Get the new race */
-		r_ptr = &r_info[m_ptr->r_idx];
+		r_ptr = get_monster_full(m_ptr);
 
 		/* Hack -- Notice new multi-hued monsters */
 		if (r_ptr->flags1 & (RF1_ATTR_MULTI)) shimmer_monsters = TRUE;
@@ -1306,7 +1316,7 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 		if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro++;
 
 		/* Count racial occurances */
-		r_ptr->cur_num++;
+		r_info[m_ptr->r_idx].cur_num++;
 	}
 
 	/* Result */
@@ -1334,14 +1344,21 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
  */
 static bool place_monster_one(int y, int x, int r_idx, bool slp)
 {
-	int i;
+	int i,u_idx;
 
 	monster_race *r_ptr;
-
 	monster_type *n_ptr;
+	monster_unique *u_ptr;
+
 	monster_type monster_type_body;
 
+	u32b f1;
+	s16b sleep;
+	byte speed, hdice, hside;				
+
 	cptr name;
+
+	bool unique;
 
 	/* Paranoia */
 	if (!in_bounds(y, x)) return (FALSE);
@@ -1358,21 +1375,56 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Race */
 	r_ptr = &r_info[r_idx];
 
+	/* Is it a unique? */
+	unique = ((r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE);
+
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
 
 	/* Name */
 	name = (r_name + r_ptr->name);
 
+	if (unique)
+	{
+		for (u_idx = 0; u_idx < z_info->u_max ; u_idx++)
+		{
+			u_ptr = &u_info[u_idx];
+
+			if (u_ptr->r_idx == r_idx) break;
+		}
+
+		/* Paranoia */
+		if (u_idx == z_info->u_max) return (FALSE);
+
+		/* Use values in u_ptr */
+		sleep = u_ptr->sleep;
+		speed = u_ptr->speed;
+		hdice = u_ptr->hdice;
+		hside = u_ptr->hside;
+
+		/* Flags */
+		f1 = (u_ptr->flags1 | r_ptr->flags1);
+
+	}
+	else
+	{
+		/* Use values in r_ptr */
+		sleep = r_ptr->sleep;
+		speed = r_ptr->speed;
+		hdice = r_ptr->hdice;
+		hside = r_ptr->hside;
+		f1 = r_ptr->flags1;
+	}
+
 	/* Hack -- "unique" monsters must be "unique" */
-	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
+	if (unique && (r_ptr->num_unique != 1))
 	{
 		/* Cannot create */
 		return (FALSE);
 	}
 
 	/* Depth monsters may NOT be created out of depth */
-	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
+	if ((f1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
 	{
 		/* Cannot create */
 		return (FALSE);
@@ -1382,7 +1434,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	if (r_ptr->level > p_ptr->depth)
 	{
 		/* Unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
+		if (unique)
 		{
 			/* Message for cheaters */
 			if (cheat_hear) message_format(MSG_CHEAT, 0, "Deep Unique (%s).", name);
@@ -1403,7 +1455,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	}
 
 	/* Note the monster */
-	else if (r_ptr->flags1 & (RF1_UNIQUE))
+	else if (unique)
 	{
 		/* Unique monsters induce message */
 		if (cheat_hear) message_format(MSG_CHEAT, 0, "Unique (%s).", name);
@@ -1418,21 +1470,31 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Save the race */
 	n_ptr->r_idx = r_idx;
 
-	/* Enforce sleeping if needed */
-	if (slp && r_ptr->sleep)
+	if (unique)
 	{
-		int val = r_ptr->sleep;
+		/* Mark as unique */
+		n_ptr->u_idx = u_idx;
+		/* Mark unique's location */
+		u_ptr->depth = p_ptr->depth;
+		/* One less unique available */
+		r_ptr->num_unique--;
+	}
+
+	/* Enforce sleeping if needed */
+	if (slp && sleep)
+	{
+		int val = sleep;
 		n_ptr->csleep = ((val * 2) + randint(val * 10));
 	}
 
 	/* Assign maximal hitpoints */
-	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
+	if (f1 & (RF1_FORCE_MAXHP))
 	{
-		n_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
+		n_ptr->maxhp = maxroll(hdice, hside);
 	}
 	else
 	{
-		n_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
+		n_ptr->maxhp = damroll(hdice, hside);
 	}
 
 	if (adult_easy_mode) n_ptr->maxhp = n_ptr->maxhp/2 + 1;
@@ -1441,13 +1503,13 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr->hp = n_ptr->maxhp;
 
 	/* Extract the monster base speed */
-	n_ptr->mspeed = r_ptr->speed;
+	n_ptr->mspeed = speed;
 
 	/* Hack -- small racial variety */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+	if (!unique)
 	{
 		/* Allow some small variation per monster */
-		i = extract_energy[r_ptr->speed] / 10;
+		i = extract_energy[speed] / 10;
 		if (i) n_ptr->mspeed += rand_spread(0, i);
 	}
 
@@ -1455,7 +1517,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr->energy = (byte)rand_int(100);
 
 	/* Force monster to wait for player */
-	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
+	if (f1 & (RF1_FORCE_SLEEP))
 	{
 		/* Monster is still being nice */
 		n_ptr->mflag |= (MFLAG_NICE);
@@ -1644,8 +1706,11 @@ static bool place_companion_okay(int r_idx)
 bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 {
 	int i;
+	u32b f1;
 
 	monster_race *r_ptr = &r_info[r_idx];
+
+	bool unique = ((r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE);
 
 	/* Place one monster, or fail */
 	if (!place_monster_one(y, x, r_idx, slp)) return (FALSE);
@@ -1653,8 +1718,29 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	/* Require the "group" flag */
 	if (!grp) return (TRUE);
 
+	/* Get all flags for uniques */
+	if (unique)
+	{
+		monster_unique *u_ptr;
+
+		for (i = 0; i < z_info->u_max ; i++)
+		{
+			u_ptr = &u_info[i];
+
+			if (u_ptr->r_idx == r_idx) break;
+		}
+
+		/* Paranoia */
+		if (i == z_info->u_max) return (TRUE);
+
+		/* Flags */
+		f1 = (u_ptr->flags1 | r_ptr->flags1);
+
+	}
+	else f1 = r_ptr->flags1;
+
 	/* Companions for certain monsters */
-	if (r_ptr->flags1 & (RF1_COMPANION))
+	if (f1 & (RF1_COMPANION))
 	{
 		/* Try to place a "companions" (several times) */
 		for (i = 0; i < 10; i++)
@@ -1697,18 +1783,18 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	}
 
 	/* Friends for certain monsters */
-	if ((r_ptr->flags1 & RF1_FRIENDS) || (r_ptr->flags1 & RF1_FRIEND))
+	if ((f1 & RF1_FRIENDS) || (f1 & RF1_FRIEND))
 	{
 		bool big = FALSE;
 
-		if (r_ptr->flags1 & RF1_FRIENDS) big = TRUE;
+		if (f1 & RF1_FRIENDS) big = TRUE;
 
 		/* Attempt to place a group */
 		(void)place_monster_group(y, x, r_idx, slp, big);
 	}
 
 	/* Escorts for certain monsters */
-	if ((r_ptr->flags1 & (RF1_ESCORT)) || (r_ptr->flags1 & (RF1_ESCORTS)))
+	if ((f1 & (RF1_ESCORT)) || (f1 & (RF1_ESCORTS)))
 	{
 		/* Try to place several "escorts" */
 		for (i = 0; i < 50; i++)
@@ -1747,7 +1833,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & RF1_FRIENDS) || (r_info[z].flags1 & RF1_FRIEND)
-				|| (r_ptr->flags1 & (RF1_ESCORTS)))
+				|| (f1 & (RF1_ESCORTS)))
 			{
 				/* Place a group of monsters */
 				(void)place_monster_group(ny, nx, z, slp, FALSE);
@@ -1793,9 +1879,10 @@ bool place_monster(int y, int x, bool slp, bool grp)
 bool alloc_monster(int dis, bool slp)
 {
 	int y, x;
-
+	int	attempts_left = 10000;
+ 
 	/* Find a legal, distant, unoccupied, space */
-	while (1)
+	while (--attempts_left)
 	{
 		/* Pick a location */
 		y = rand_int(p_ptr->cur_hgt);
@@ -1806,6 +1893,16 @@ bool alloc_monster(int dis, bool slp)
 
 		/* Accept far away grids */
 		if (distance(y, x, p_ptr->py, p_ptr->px) > dis) break;
+	}
+
+	if (!attempts_left)
+	{
+		if (cheat_wizard || cheat_hear)
+		{
+			message(MSG_CHEAT, 0, "Warning! Could not allocate a new monster.");
+		}
+
+		return FALSE;
 	}
 
 	/* Attempt to place the monster, allow groups */
@@ -2062,10 +2159,9 @@ void message_pain(int m_idx, int dam)
 	int percentage;
 
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	char m_name[80];
-
 
 	/* Get the monster name */
 	monster_desc(m_name, m_ptr, 0);
@@ -2166,7 +2262,7 @@ void message_pain(int m_idx, int dam)
 void update_smart_learn(int m_idx, int what)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	/* Too stupid to learn anything */
 	if (r_ptr->flags2 & (RF2_STUPID)) return;
@@ -2321,3 +2417,77 @@ void update_smart_learn(int m_idx, int what)
 		}
 	}
 }
+
+/* Hack - variables for optimizing get_monster_full */
+
+static s16b stored_unique;
+
+/* 
+ * This function returns the pointer to where the actual monster information is
+ * stored. If the monster is a normal monster, this is in r_info. If the monster is
+ * a unique, our lives are a bit more complicated. 
+ *
+ * Note that this function must NEVER be called for a dead monster.
+ */
+monster_race *get_monster_full(monster_type *m_ptr)
+{
+	int i;
+
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Paranoia - if this happens, we're in trouble */
+	if (!m_ptr->r_idx) quit(format("Error obtaining monster attributes code"));
+
+	/* Simple monster */
+	if (!m_ptr->u_idx) return (r_ptr);
+
+	/* It's a unique */
+
+	/* Optimization - check to see if the unique is already stored */
+	if (stored_unique != m_ptr->u_idx)
+	{
+		/*
+		 * Copy basic stats from u_ptr to the temporary monster. Note that name, text,
+		 * x_attr and x_char are never derived from it so no need to copy them.
+		 */
+		monster_unique *u_ptr = &u_info[m_ptr->u_idx];
+
+		monster_temp.hdice = u_ptr->hdice;		
+		monster_temp.hside = u_ptr->hside;
+		monster_temp.ac = u_ptr->ac;
+		monster_temp.sleep = u_ptr->sleep;			
+		monster_temp.aaf = u_ptr->aaf;
+		monster_temp.speed = u_ptr->speed;			
+		monster_temp.mexp = u_ptr->mexp;
+		monster_temp.freq_spell = u_ptr->freq_spell;	
+		monster_temp.level = u_ptr->level;			
+		monster_temp.rarity = u_ptr->rarity;		
+		monster_temp.d_attr = u_ptr->d_attr;		
+
+		for (i = 0; i < 4; i++)
+		{
+			monster_temp.blow[i].method = u_ptr->blow[i].method;
+			monster_temp.blow[i].effect = u_ptr->blow[i].effect;
+			monster_temp.blow[i].d_dice = u_ptr->blow[i].d_dice;
+			monster_temp.blow[i].d_side = u_ptr->blow[i].d_side;
+		}
+
+		/* d_char copied from r_ptr */
+		monster_temp.d_char = r_ptr->d_char;		
+
+		/* Flags are a combination of both */
+		monster_temp.flags1 = (r_ptr->flags1 | u_ptr->flags1);		
+		monster_temp.flags2 = (r_ptr->flags2 | u_ptr->flags2);		
+		monster_temp.flags3 = (r_ptr->flags3 | u_ptr->flags3);		
+		monster_temp.flags4 = (r_ptr->flags4 | u_ptr->flags4);		
+		monster_temp.flags5 = (r_ptr->flags5 | u_ptr->flags5);		
+		monster_temp.flags6 = (r_ptr->flags6 | u_ptr->flags6);		
+
+		/* Remember the unique for next time */
+		stored_unique = m_ptr->u_idx;
+	}
+
+	/* Success */
+	return (&monster_temp);
+}
+

@@ -17,7 +17,6 @@
 #define QMODE_SHORT  3
 #define QMODE_FULL   4
 
-static s16b current;
 static int avail_quest;
 
 /*
@@ -25,16 +24,13 @@ static int avail_quest;
  */
 static s16b guild[GUILD_QUESTS] = 
 {
-	{0},
-	{2},
-	{5},
-	{8},
+	0,	2,	5,	8,
 };
 
 /*
  * Fix plural names of monsters
  *
- * Taken from PernAngband 
+ * Taken from PernAngband, modified to fit Ey monster list 
  */
 static void plural_aux(char * Name)
 {
@@ -114,63 +110,57 @@ static void plural_aux(char * Name)
  */
 cptr describe_quest(s16b level, int mode)
 {
-	int i;
+	int q_idx = quest_num(level);
 	char name[80];
 	char intro[80];
 	char targets[80];
 	char where[80];
 
-	/* Check quests */
-	for (i = 0; i < z_info->q_max; i++)
+	quest_type *q_ptr = &q_info[q_idx];
+	monster_race *r_ptr = &r_info[q_ptr->r_idx];
+
+	if (!q_idx) return NULL;
+
+	strcpy(name, (r_name + r_ptr->name));
+
+	/* Unique quest monster */
+	if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
-		quest_type *q_ptr = &q_info[i];
-
-		/* Check for quest */
-		if (q_ptr->active_level == level)
-		{
-			monster_race *r_ptr = &r_info[q_ptr->r_idx];
-
-			strcpy(name, (r_name + r_ptr->name));
-
-			/* Unique quest monster */
-			if (r_ptr->flags1 & (RF1_UNIQUE))
-			{
-				strcpy(targets,name);
-			}
-
-			/* Multiple quest monsters */
-			else if ((q_ptr->max_num - q_ptr->cur_num) > 1)
-			{
-				plural_aux(name);
-				strcpy(targets,format("%d %s",(q_ptr->max_num - q_ptr->cur_num), name));
-			}
-
-			/* One quest monster */
-			else
-			{
-				if (is_a_vowel(name[0])) strcpy(targets,format("an %s", name));
-				else strcpy(targets,format("a %s", name));
-			}
-
-			/* The type of the quest */
-			if (q_ptr->type == QUEST_FIXED) strcpy(intro,"For eternal glory, you must");
-			else if (q_ptr->type == QUEST_GUILD) strcpy(intro,"To fulfill your task, you must");
-
-			/* Paranoia */
-			else strcpy(intro,"For some unexplainable reason, you should");
-			
-			/* The location of the quest */
-			if (!depth_in_feet) strcpy(where,format("on dungeon level %d.", level));
-			else strcpy(where,format("at a depth of %d feet.", level*50));
-
-			if (mode == QMODE_SHORT) return (format("%s kill %s.",intro,targets));
-			else if (mode == QMODE_FULL) return (format("%s kill %s %s", intro, targets, where));
-			else if (mode == QMODE_HALF_1) return (format("%s kill %s",intro,targets));
-			else if (mode == QMODE_HALF_2) return (format("%s", where));
-		}
+		strcpy(targets, name);
 	}
+
+	/* Multiple quest monsters */
+	else if ((q_ptr->max_num - q_ptr->cur_num) > 1)
+	{
+		plural_aux(name);
+		strcpy(targets, format("%d %s",(q_ptr->max_num - q_ptr->cur_num), name));
+	}
+
+	/* One quest monster */
+	else
+	{
+		if (is_a_vowel(name[0])) strcpy(targets, format("an %s", name));
+		else strcpy(targets, format("a %s", name));
+	}
+
+	/* The type of the quest */
+	if (q_ptr->type == QUEST_FIXED) strcpy(intro, "For eternal glory, you must");
+	else if (q_ptr->type == QUEST_GUILD) strcpy(intro, "To fulfill your task, you must");
+
+	/* Paranoia */
+	else strcpy(intro, "For some bizzare reason, you should");
+			
+	/* The location of the quest */
+	if (!depth_in_feet) strcpy(where, format("on dungeon level %d.", level));
+	else strcpy(where, format("at a depth of %d feet.", level * 50));
+
+	/* Output */
+	if (mode == QMODE_SHORT) return (format("%s kill %s.", intro, targets));
+	else if (mode == QMODE_FULL) return (format("%s kill %s %s", intro, targets, where));
+	else if (mode == QMODE_HALF_1) return (format("%s kill %s", intro, targets));
+	else if (mode == QMODE_HALF_2) return (format("%s", where));
 	
-	/* No quest */
+	/* Paranoia */
 	return NULL;
 }
 
@@ -179,17 +169,18 @@ cptr describe_quest(s16b level, int mode)
  */
 static void grant_reward(byte reward_level, byte type)
 {
-	int oldlevel,i;
+	int i;
+	bool great = ((type == REWARD_GREAT_ITEM) ? TRUE : FALSE);
 
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	oldlevel = object_level;
-	object_level = reward_level;
+	/* Generate object at quest level */
+	p_ptr->obj_depth  = reward_level;
 
 	if (type == REWARD_GOLD) 
 	{
-		for (i = 0;i < 5;i++)
+		for (i = 0; i < 5; i++)
 		{
 			/* Get local object */
 			i_ptr = &object_type_body;
@@ -205,9 +196,10 @@ static void grant_reward(byte reward_level, byte type)
 		}
 	}
 
-	else acquirement(p_ptr->py,p_ptr->px,1,(bool)(type == REWARD_GREAT_ITEM));
+	else acquirement(p_ptr->py, p_ptr->px, 1, great, FALSE);
 
-	object_level = oldlevel;
+	/* Reset object level */
+	p_ptr->obj_depth  = p_ptr->depth;
 }
 
 /*
@@ -235,22 +227,22 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 		}
 
 		/* There's a chance of climbing up */
-		if ((lev_diff<(difficulty-3)) || lev+lev_diff<=1) chance = 0;
-		else if (lev_diff>difficulty) chance = 80;
+		if ((lev_diff < (difficulty - 3)) || lev+lev_diff <= 1) chance = 0;
+		else if (lev_diff > difficulty) chance = 80;
 		else chance = 20;
 
 		if (rand_int(100) < chance) 
 		{
-			if (lev_diff<=difficulty) number += (damroll(2,2)-1);
+			if (lev_diff <= difficulty) number += (damroll(2,2) - 1);
 			lev_diff--;
 			continue;
 		}
 
 		/* Paranoia */
-		if (lev+lev_diff <= 0) lev_diff = 1-lev;
+		if (lev + lev_diff <= 0) lev_diff = 1-lev;
 
 		/* Count possible monsters */
-		for (i = 0; i < z_info->r_max;i++)
+		for (i = 0; i < z_info->r_max; i++)
 		{
 			r_ptr = &r_info[i];
 			l_ptr = &l_list[i];
@@ -270,13 +262,13 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 				if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
 				if (l_ptr->r_pkills) continue;
 
-				if (r_ptr->level == (lev+lev_diff)) mcount++;
+				if (r_ptr->level == (lev + lev_diff)) mcount++;
 			}
 			else 
 			{
 				if (r_ptr->flags1 & RF1_UNIQUE) continue;
 
-				if (r_ptr->level == (lev+lev_diff)) mcount++;
+				if (r_ptr->level == (lev + lev_diff)) mcount++;
 			}
 		}
 
@@ -284,7 +276,7 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 		if (mcount == 0)
 		{
 			/* Add some monsters to balance difficulty (sort-of) */
-			number += (damroll(2,2)-1);
+			number += (damroll(2,2) - 1);
 			lev_diff--;
 		}
 	}
@@ -336,24 +328,28 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 	q_info[q].active_level = lev;
 	q_info[q].r_idx = i-1;
 	q_info[q].max_num = (unique) ? 1 : number;
+	q_info[q].started = FALSE;
+
+	/* Set current quest */
+	p_ptr->cur_quest = lev;
 
 	/* Decide on reward type */
 
 	/* 100% for gold reward, modified by difficulty and dlev*/
-	chance = 100 - (difficulty*15) - (lev/3); 
+	chance = 100 - (difficulty * 15) - (lev / 3); 
 	
 	/* No negative chances */
 	if (chance < 0) chance = 0;
 
-	if (rand_int(100)<chance) q_info[q].reward = REWARD_GOLD;
+	if (rand_int(100) < chance) q_info[q].reward = REWARD_GOLD;
 	else
 	{
 		/* 85% for good item reward, modified by difficulty and dlev*/
-		chance = 85 - (difficulty*5) - (lev/5); 
+		chance = 85 - (difficulty * 5) - (lev / 5); 
 
 		if (chance < 0) chance = 0;
 
-		if (rand_int(100)<chance) q_info[q].reward = REWARD_GOOD_ITEM;
+		if (rand_int(100) < chance) q_info[q].reward = REWARD_GOOD_ITEM;
 
 		/* Otherwise - a great item reward */
 		else q_info[q].reward = REWARD_GREAT_ITEM;
@@ -370,13 +366,11 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 void display_guild(void)
 {
 	int i, j;
-	cptr curquest;
+	cptr q_out;
 	bool legal = TRUE;
 
 	/* Describe the guild */
 	put_str("The Adventurer's Guild", 3, 30);
-
-	current = FALSE;
 
 	/* Check for outstanding rewards */
 	for (i = 0; i < z_info->q_max ; i++)
@@ -394,31 +388,18 @@ void display_guild(void)
 				message(MSG_STORE, 0, "A reward for your efforts is waiting outside!");
 				
 				/* Create the reward */
-				grant_reward(q_info[i].base_level,q_info[i].reward);
+				grant_reward(q_info[i].base_level, q_info[i].reward);
 
 				/* Reset the reward */
 				q_info[i].reward = 0;
+
+				p_ptr->cur_quest = 0;
 			}
 		}
 	}
 
-	/* Check if there are no current quests */
-	for (i = 0; i < z_info->q_max ; i++)
-	{
-		if (q_info[i].type == QUEST_GUILD)
-		{
-			/* skip completed random quests */
-			if (!q_info[i].active_level) continue;
-			else 
-			{
-				current = q_info[i].active_level;
-				break;
-			}
-		}
-	}
-
-	/* Label the object descriptions */
-	if (!current) 
+	/* Label the quest descriptions */
+	if (!p_ptr->cur_quest)
 	{
 		/* Not Currently in a quest */
 		put_str("Available Quests:", 5, 3);
@@ -466,16 +447,16 @@ void display_guild(void)
 	else 
 	{
 		put_str("Your Quest:", 5, 3);
-		curquest = describe_quest(current,QMODE_FULL);
+		q_out = describe_quest(p_ptr->cur_quest, QMODE_FULL);
 
 		/* Break into two lines if necessary */
-		if (strlen(curquest) < 70) put_str(curquest, 7, 3);
+		if (strlen(q_out) < 70) put_str(q_out, 7, 3);
 		else 
 		{
-			curquest = describe_quest(current,QMODE_HALF_1);
-			put_str(curquest, 7, 3);
-			curquest = describe_quest(current,QMODE_HALF_2);
-			put_str(curquest, 8, 3);
+			q_out = describe_quest(p_ptr->cur_quest, QMODE_HALF_1);
+			put_str(q_out, 7, 3);
+			q_out = describe_quest(p_ptr->cur_quest, QMODE_HALF_2);
+			put_str(q_out, 8, 3);
 		}
 	}
 }
@@ -483,29 +464,11 @@ void display_guild(void)
 /*
  * Choose a quest from the list
  */
-static bool get_quest(int *com_val)
+static int get_quest(void)
 {
 	int item;
 	char which;
 	char buf[160];
-
-#ifdef ALLOW_REPEAT
-
-	/* Get the item index */
-	if (repeat_pull(com_val))
-	{
-		/* Verify the item */
-		if ((*com_val >= 0) && (*com_val <= (avail_quest - 1)))
-		{
-			/* Success */
-			return (TRUE);
-		}
-	}
-
-#endif /* ALLOW_REPEAT */
-
-	/* Assume failure */
-	*com_val = (-1);
 
 	/* Build the prompt */
 	sprintf(buf, "(Items %c-%c, ESC to exit)", I2A(0), I2A(avail_quest - 1));
@@ -513,13 +476,8 @@ static bool get_quest(int *com_val)
 	/* Ask until done */
 	while (TRUE)
 	{
-		bool verify;
-
 		/* Escape */
-		if (!get_com(buf, &which)) return (FALSE);
-
-		/* Note verify */
-		verify = (isupper(which) ? TRUE : FALSE);
+		if (!get_com(buf, &which)) return (-1);
 
 		/* Lowercase */
 		which = tolower(which);
@@ -532,25 +490,14 @@ static bool get_quest(int *com_val)
 		{
 			/* Oops */
 			bell("Illegal guild quest choice!");
-
 			continue;
 		}
 
-		/* No verification */
-		if (!verify) break;
+		break;
 	}
 
-	/* Save item */
-	(*com_val) = item;
-
-#ifdef ALLOW_REPEAT
-
-	repeat_push(*com_val);
-
-#endif /* ALLOW_REPEAT */
-
 	/* Success */
-	return (TRUE);
+	return (item);
 }
 
 /*
@@ -564,14 +511,17 @@ void guild_purchase(void)
 	bool found = FALSE;
 
 	/* In a current quest */
-	if (current)
+	if (p_ptr->cur_quest)
 	{
 		message(MSG_FAIL, 0, "Finish your current quest first!");
 		return;
 	}
 
-	/* Get the object number to be bought */
-	if (!get_quest(&item)) return;
+	/* Get the quest number */
+	item = get_quest();
+		
+	/* Quit if no quest chosen */
+	if (item == -1) return;
 	
 	/* Get level for quest - most likely on the next level but can be deeper */
 	qlev = p_ptr->max_depth+1+rand_int(5)-2;
@@ -616,7 +566,7 @@ void guild_purchase(void)
 
 		if (unique) num = 1;
 		else num = damroll(4,4)+2;
-		if (!place_quest(slot,qlev,num,(unique) ? 0 : guild[item],unique)) return;
+		if (!place_quest(slot, qlev, num, (unique) ? 0 : guild[item], unique)) return;
 	}
 
 	else message(MSG_FAIL, 0, "You can't accept any more quests!");
@@ -631,20 +581,41 @@ void guild_purchase(void)
 /*
  * Hack -- Check if a level is a "quest" level - returns quest type
  */
-byte quest_check(int level)
+byte quest_check(int lev)
 {
 	int i;
 
 	/* Town is never a quest */
-	if (!level) return (FALSE);
+	if (!lev) return 0;
 
 	/* Check quests */
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		/* Check for quest */
-		if (q_info[i].active_level == level) return (q_info[i].type);
+		if (q_info[i].active_level == lev) return (q_info[i].type);
 	}
 
 	/* Nope */
+	return 0;
+}
+
+/*
+ * Return the index of the quest for current level 
+ */
+int quest_num(int lev)
+{
+	int i;
+
+	/* Town is never a quest */
+	if (!lev) return 0;
+
+	/* Count incomplete quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		/* Quest level? */
+		if (q_info[i].active_level == lev) return i;
+	}
+
+	/* No quest */
 	return 0;
 }

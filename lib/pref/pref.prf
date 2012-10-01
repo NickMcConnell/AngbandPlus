@@ -162,10 +162,6 @@ C:1:W
 A:b
 C:1:P
 
-# Jam a door (Spike)
-A:j
-C:1:S
-
 # Toggle search mode
 A:S
 C:1:#
@@ -173,6 +169,10 @@ C:1:#
 # Use a staff (Zap)
 A:u
 C:1:Z
+
+# Invoke a talisman
+A:y
+C:1:S
 
 # Take off equipment
 A:t

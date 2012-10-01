@@ -12,11 +12,13 @@ Birth options are divided into three sub-sets -
 
 These are options that directly affect the creation of a character.
 
+***** <birth_point_based>
 Allow purchase of stats using points [birth_point_based]
     Allows the player to determine exactly what stats the character will 
     start with, but will lead to creation of weaker characters than by other 
     methods.
 
+***** <birth_auto_roller>
 Allow specification of minimal stats    [birth_auto_roller]
     If point based creation is turned off, this allows the player to set 
     minimum stats (within reason) and ask the game to keep on rolling until a 
@@ -24,6 +26,7 @@ Allow specification of minimal stats    [birth_auto_roller]
     to better characters than point-based creation, but totally random rolling
     can create even better ones (though rarely). 
 
+***** <birth_random_hp>
 Generate hitpoints randomly [birth_random_hp]
     If this option is turned on, the amount of hit points gained with each 
     level will be randomly determined from a range determined by the class and
@@ -32,6 +35,7 @@ Generate hitpoints randomly [birth_random_hp]
     variation and a chance for higher hit points, but bear the risk of gaining
     fewer hit points as well.
 
+***** <birth_start_kit>
 Pre-Shop for some basic items [birth_start_kit]
     The character starts with a lantern, 4 oil flasks, a scroll of phase door,
     a cloak, and a potion of cure light wounds. On the other hand he starts 
@@ -44,6 +48,13 @@ Pre-Shop for some basic items [birth_start_kit]
 These are options that influence the difficulty of the game. Changing any of
 these can result in a considerably different playing experience.
 
+***** <birth_easy_mode>
+Easy mode    [birth_esay_mode]
+    If you wish to have an easier job, select this option and you shall face
+    monsters with less hitpoints. In addition, you will get better prices at 
+    shops and get an extra 500 GP at the start of the game.
+
+***** <birth_autoscum>
 Generate better (harder) levels    [birth_autoscum]
     Allows you to force the generation of "good" levels in the dungeon.  
     This option may be extremely slow on some machines, especially deep in
@@ -52,6 +63,7 @@ Generate better (harder) levels    [birth_autoscum]
     Note that better levels also include tougher monsters so this makes the
     game both more challanging and more rewarding.
 
+***** <birth_preserve>
 Preserve artifacts on leaving level    [birth_preserve]
     If preserve mode is "off", you can get a level feeling that you *NEVER*
     get with preserve mode "on": a "special" feeling. This means that there 
@@ -68,12 +80,14 @@ Preserve artifacts on leaving level    [birth_preserve]
     the first time (in which case there is no excuse for losing it.) But 
     you don't get the "special" feeling. 
 
+***** <birth_rand_artifacts>
 Randomize some of the artifacts    [birth_rand_artifacts]
     A different set of artifacts will be created, in place of the standard 
     ones from a_info.txt/a_info.raw. This is intended primarily for people
     who have played enough to know what most of the standard artifacts do
     and have got bored with them. 
 
+***** <birth_ironman>
 Restrict the use of stairs/recall    [birth_ironman]
     This option, not recommended for non-advanced players, prevents the 
     generation of up staircases, and makes the scroll and effect of Word 
@@ -81,6 +95,7 @@ Restrict the use of stairs/recall    [birth_ironman]
     the spell of stair-creation, except on the quest levels of Sauron and 
     Morgoth.
 
+***** <birth_no_stores>
 Restrict the use of stores/home    [birth_no_stores]
     The stores are all closed. The home is someone else's, and locked. You 
     can keep nothing but what you carry with you, and get nothing but what 
@@ -88,13 +103,20 @@ Restrict the use of stores/home    [birth_no_stores]
     restore stat... Not recommended for new players, or indeed for 
     sane players.
 
+***** <birth_no_feelings>
 No level feelings [birth_no_feelings]
     You will no longer get a descriptive feeling when entering a level - 
     you'll have to explore it yourself to discover what it contains, with
     no prior warning. Recommended only for advanced players.
 
+***** <birth_no_artifacts>
 Restrict the creation of artifacts    [birth_no_artifacts]
     No artifacts will be created. Ever. Just *how* masochistic are you?
+
+***** <birth_force_small_lev>
+All levels will be generated as small    [birth_force_small_lev]
+    All levels will be generated as small levels, giving you less space
+    to run to...
 
 ==== Sub-Set 3 - Monster AI options ====
 
@@ -103,6 +125,7 @@ these may influence what strategies and tactics will work best against your
 opponents. (note to those familiar with other varients - EyAngband monsters
 always use basic AI to determine spell choices).
 
+***** <birth_smart_packs>
 Monsters act smarter in groups    [birth_smart_packs]
      "group" monsters will use tactics that groups of monsters might 
      reasonably employ - such as hiding out of sight around a corner, 
@@ -110,16 +133,19 @@ Monsters act smarter in groups    [birth_smart_packs]
      can surround him and all attack at once, rather than chasing one
      by one down a corridor.
 
+***** <birth_smart_cheat>
 Monsters exploit players weaknesses    [birth_smart_cheat]
     Allow monsters to know what spell attacks you are resistant tom, without
     having to make mistakes (normally, a monster will learn this information
     by casting spells and remembering their effectiveness).
 
+***** <birth_flow_by_sound>
 Monsters chase current location    [birth_flow_by_sound]
     Allow monsters to make paths to the player when they are nearby.  This
     option may be extremely slow on older machines, but can produce viciously
     smart monsters.
 
+***** <birth_flow_by_smell>
 Monsters chase recent locations    [birth_flow_by_smell]
     Allow monsters to take advantage of "old" trails that you may have left
     in the dungeon.  This has no effect unless "flow_by_sound" is also set.

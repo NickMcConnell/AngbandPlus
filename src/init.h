@@ -26,8 +26,9 @@
 #define PARSE_ERROR_OUT_OF_BOUNDS			 8
 #define PARSE_ERROR_TOO_FEW_ARGUMENTS		 9
 #define PARSE_ERROR_TOO_MANY_ARGUMENTS		10
+#define PARSE_ERROR_TOO_MANY_QUESTS			11
 
-#define PARSE_ERROR_MAX						11
+#define PARSE_ERROR_MAX						12
 
 /*
  * error tracking
@@ -100,6 +101,7 @@ extern errr init_k_info_txt(FILE *fp, char *buf, header *head);
 extern errr init_a_info_txt(FILE *fp, char *buf, header *head);
 extern errr init_e_info_txt(FILE *fp, char *buf, header *head);
 extern errr init_r_info_txt(FILE *fp, char *buf, header *head);
+extern errr init_u_info_txt(FILE *fp, char *buf, header *head);
 extern errr init_p_info_txt(FILE *fp, char *buf, header *head);
 extern errr init_c_info_txt(FILE *fp, char *buf, header *head);
 extern errr init_h_info_txt(FILE *fp, char *buf, header *head);
@@ -118,6 +120,7 @@ extern header k_head;
 extern header a_head;
 extern header e_head;
 extern header r_head;
+extern header u_head;
 extern header p_head;
 extern header c_head;
 extern header h_head;

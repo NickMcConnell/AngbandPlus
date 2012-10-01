@@ -73,14 +73,11 @@ u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
 
 s16b num_repro;			/* Current reproducer count */
-s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 
-char summon_kin_type;		/* Hack -- See summon_specific() */
+char summon_kin_type;	/* Hack -- See summon_specific() */
 
 s32b turn;				/* Current game turn */
-
-s32b old_turn;			/* Hack -- Level feeling counter */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
@@ -112,21 +109,20 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
+/* Hack - a temporary monster race for holding uniques */
+monster_race monster_temp;
+monster_lore lore_temp;
 
 /*
  * TRUE if process_command() is a repeated call.
  */
 bool command_repeating = FALSE;
 
-
 /*
  * Dungeon variables
  */
-byte feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
-
 bool good_item_flag;	/* True if "Artifact" on this level */
-
 bool closing_flag;		/* Dungeon is closing */
 
 /*
@@ -536,6 +532,13 @@ char *r_name;
 char *r_text;
 
 /*
+ * The monster unique arrays
+ */
+monster_unique *u_info;
+char *u_name;
+char *u_text;
+
+/*
  * The player class arrays
  */
 player_class *c_info;
@@ -705,4 +708,4 @@ bool can_save = TRUE;
 /*
  * The alchemy information
  */
-alchemy_info potion_alch[SV_MAX_POTIONS];
+alchemy_info potion_alch[SV_POTION_MAX];

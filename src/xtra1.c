@@ -1165,7 +1165,7 @@ static void fix_m_list(void)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Skip dead monsters */
-			if (m_ptr->hp < 0) continue;
+			if (!m_ptr->r_idx) continue;
 
 			/* Skip unseen monsters */
 			if (!m_ptr->ml) continue;
@@ -1276,7 +1276,7 @@ static void calc_spells(void)
 	levels=0;
 
 	/* Determine the number of spells allowed - according to the lowest possible handicap */
-	for (h = 0; h<SV_MAX_BOOKS; h++)
+	for (h = 0; h < SV_BOOK_MAX; h++)
 	{
 		/* Skip books we can't use */
 		if (!cp_ptr->spell_book[h]) continue;
@@ -1287,27 +1287,25 @@ static void calc_spells(void)
 	/* Hack -- no negative spells */
 	if (levels < 0) levels = 0;
 
-	/* Extract total allowed spells - Hack - Mystics get spells 1.5 times as fast */
+	/* Extract total allowed spells - Hack - Mystics get spells faster */
 	stat_factor = (p_ptr->stat_ind[cp_ptr->spell_stat1] + p_ptr->stat_ind[cp_ptr->spell_stat2])/2;
-	num_allowed = ((adj_mag_study[stat_factor] * levels *
-	               ((cp_ptr->flags & CF_EXTRA_SPELL) ? 3: 2)) / 4);
-	
+	num_allowed = ((adj_mag_study[stat_factor] * 
+		levels) / ((cp_ptr->flags & CF_EXTRA_SPELL) ? 33: 50));
+		
 	max_available = 0;
 
-	for (h = 0; h < SV_MAX_BOOKS; h++)
+	for (h = 0; h < SV_BOOK_MAX; h++)
 	{
 		if (cp_ptr->spell_book[h]) max_available += count_spells(h);
-
 	}
 
 	/* Boundary control. -LM- */
-
 	if (num_allowed > max_available) num_allowed = max_available;
 
 	/* Assume none known */
 	num_known = 0;
 
-	for (h = 0; h < SV_MAX_BOOKS; h++)
+	for (h = 0; h < SV_BOOK_MAX; h++)
 	{ 
 
 		/* Skip books we can't use */
@@ -1325,7 +1323,7 @@ static void calc_spells(void)
 	p_ptr->new_spells = num_allowed - num_known;
 
 	/* Forget spells that are too hard */
-	for (i = (SV_MAX_BOOKS * MAX_BOOK_SPELLS) - 1; i >=0 ; i--)
+	for (i = (SV_BOOK_MAX * MAX_BOOK_SPELLS) - 1; i >=0 ; i--)
 	{ 
 		/* Access the book */
 		h = p_ptr->spell_order[i][0];
@@ -1369,7 +1367,7 @@ static void calc_spells(void)
 	}
 
 	/* Forget spells if we know too many spells */
-	for (i = (SV_MAX_BOOKS * MAX_BOOK_SPELLS) - 1; i >=0 ; i--)
+	for (i = (SV_BOOK_MAX * MAX_BOOK_SPELLS) - 1; i >=0 ; i--)
 	{ 
 		/* Stop when possible */
 		if (p_ptr->new_spells >= 0) break;
@@ -1413,7 +1411,7 @@ static void calc_spells(void)
 	}
 
 	/* Check for spells to remember */
-	for (i = 0; i <(SV_MAX_BOOKS * MAX_BOOK_SPELLS) ; i++)
+	for (i = 0; i < (SV_BOOK_MAX * MAX_BOOK_SPELLS) ; i++)
 	{ 
 		/* None left to remember */
 		if (p_ptr->new_spells <= 0) break;
@@ -1463,7 +1461,7 @@ static void calc_spells(void)
 	k = 0;
 
 	/* Count available spells */
-	for (h = 0; h < SV_MAX_BOOKS; h++)
+	for (h = 0; h < SV_BOOK_MAX; h++)
 	{ 
 
 		/* Skip books we can't use */
@@ -1505,16 +1503,13 @@ static void calc_spells(void)
 
 /*
  * Calculate maximum mana.  You do not need to know any spells.
- * Note that mana is lowered by heavy (or inappropriate) armor.
  *
  * This function induces status messages.
  */
 static void calc_mana(void)
 {
-	int h, msp, levels, cur_wgt, max_wgt;
+	int h, msp, levels, bonus;
 	int stat_factor;
-
-	object_type *o_ptr;
 
 	/* Hack -- Must be literate */
 	if (!spellcaster()) return;
@@ -1522,13 +1517,14 @@ static void calc_mana(void)
 	levels=0;
 
 	/* Extract "effective" player level */
-	if (cp_ptr->flags & CF_MUSIC) levels=p_ptr->lev;
-	else for (h = 0; h<SV_MAX_BOOKS; h++)
+	if (cp_ptr->flags & CF_MUSIC) levels = p_ptr->lev;
+	else for (h = 0; h < SV_BOOK_MAX; h++)
 	{
 		/* Skip books we can't use */
 		if (!cp_ptr->spell_book[h]) continue;
 
-		if ((p_ptr->lev - cp_ptr->spell_handicap[h] + 1)>levels) levels=(p_ptr->lev - cp_ptr->spell_handicap[h] + 1);
+		if ((p_ptr->lev - cp_ptr->spell_handicap[h] + 1)>levels) 
+			levels = (p_ptr->lev - cp_ptr->spell_handicap[h] + 1);
 	}
 
 	/* Hack -- no negative mana */
@@ -1536,67 +1532,32 @@ static void calc_mana(void)
 
 	/* Extract total mana */
 	stat_factor = (p_ptr->stat_ind[cp_ptr->spell_stat1] + p_ptr->stat_ind[cp_ptr->spell_stat2])/2;
-	msp = adj_mag_mana[stat_factor] * levels / 2;
-	if (cp_ptr->flags & CF_EXTRA_MANA) msp+=adj_mag_extra_mana[stat_factor] * levels / 2;
+	if (cp_ptr->flags & CF_EXTRA_MANA) 
+		msp = (adj_mag_mana[stat_factor] + adj_mag_extra_mana[stat_factor]) * levels / 25;
+	else msp = adj_mag_mana[stat_factor] * levels / 25;
 	
-
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
-	/* Mages, bards and mystics are affected */
-	if (cp_ptr->flags & CF_NO_GLOVE)
+	/* Mana bonuses */
+	if (p_ptr->mana_add)
 	{
-		u32b f1, f2, f3, f4;
+		/* Each point of bonus = 5% of hitpoint (note - redefinition of bonus) */
+		bonus = (p_ptr->mana_add * msp * 5) / 100;
 
-		/* Assume player is not encumbered by gloves */
-		p_ptr->cumber_glove = FALSE;
-
-		/* Get the gloves */
-		o_ptr = &inventory[INVEN_HANDS];
-
-		/* Examine the gloves */
-		object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
-		/* Normal gloves hurt mage-type spells */
-		if (o_ptr->k_idx &&
-		    !(f2 & (TR2_FREE_ACT)) &&
-		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)) &&
-		    !((f1 & (TR1_MANA)) && (o_ptr->pval > 0)))
+		if (p_ptr->mana_add > 0)
 		{
-			/* Encumbered */
-			p_ptr->cumber_glove = TRUE;
-
-			/* Reduce mana */
-			msp = (3 * msp) / 4;
+			/* If the bonus is too low, increase */
+			if (bonus < (p_ptr->mana_add * 10)) bonus = p_ptr->mana_add * 10;
 		}
+		else
+		{
+			/* If the penalty is too low, increase */
+			if (bonus > (p_ptr->mana_add * 10)) bonus = p_ptr->mana_add * 10;
+		}
+
+		msp += bonus;
 	}
-
-	/* Assume player not encumbered by armor */
-	p_ptr->cumber_armor = FALSE;
-
-	/* Weigh the armor */
-	cur_wgt = 0;
-	cur_wgt += inventory[INVEN_BODY].weight;
-	cur_wgt += inventory[INVEN_HEAD].weight;
-	cur_wgt += inventory[INVEN_ARM].weight;
-	cur_wgt += inventory[INVEN_OUTER].weight;
-	cur_wgt += inventory[INVEN_HANDS].weight;
-	cur_wgt += inventory[INVEN_FEET].weight;
-
-	/* Determine the weight allowance */
-	max_wgt = cp_ptr->spell_weight;
-
-	/* Heavy armor penalizes mana */
-	if (((cur_wgt - max_wgt) / 10) > 0)
-	{
-		/* Encumbered */
-		p_ptr->cumber_armor = TRUE;
-
-		/* Reduce mana */
-		msp -= ((cur_wgt - max_wgt) / 10);
-	}
-
-	msp += p_ptr->mana_add;
 
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
@@ -1620,48 +1581,6 @@ static void calc_mana(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
-
-	/* Hack -- handle "xtra" mode */
-	if (character_xtra) return;
-
-	/* Take note when "glove state" changes */
-	if (p_ptr->old_cumber_glove != p_ptr->cumber_glove)
-	{
-		cptr act;
-
-		if (!(cp_ptr->flags & CF_MUSIC)) act = "spellcasting";
-		else act = "playing a musical instrument";
-
-		/* Message */
-		if (p_ptr->cumber_glove)
-		{
-			message_format(MSG_EFFECT, 0, "Your covered hands feel unsuitable for %s.", act);
-		}
-		else
-		{
-			message_format(MSG_EFFECT, 0, "Your hands feel more suitable for %s.",act);
-		}
-
-		/* Save it */
-		p_ptr->old_cumber_glove = p_ptr->cumber_glove;
-	}
-
-	/* Take note when "armor state" changes */
-	if (p_ptr->old_cumber_armor != p_ptr->cumber_armor)
-	{
-		/* Message */
-		if (p_ptr->cumber_armor)
-		{
-			message(MSG_EFFECT, 0, "The weight of your armor encumbers your movement.");
-		}
-		else
-		{
-			message(MSG_EFFECT, 0, "You feel able to move more freely.");
-		}
-
-		/* Save it */
-		p_ptr->old_cumber_armor = p_ptr->cumber_armor;
-	}
 }
 
 /*
@@ -1682,7 +1601,25 @@ static void calc_hitpoints(void)
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
-	mhp += p_ptr->hp_add;
+	/* HP bonuses */
+	if (p_ptr->hp_add)
+	{
+		/* Each point of bonus = 5% of hitpoint (note - redefinition of bonus) */
+		bonus = (p_ptr->hp_add * mhp * 5) / 100;
+
+		if (p_ptr->hp_add > 0)
+		{
+			/* If the bonus is too low, increase */
+			if (bonus < (p_ptr->hp_add * 10)) bonus = p_ptr->hp_add * 10;
+		}
+		else
+		{
+			/* If the penalty is too low, increase */
+			if (bonus > (p_ptr->hp_add * 10)) bonus = p_ptr->hp_add * 10;
+		}
+
+		mhp += bonus;
+	}
 
 	/* Make sure you have at least one hp */
 	if (mhp < 1) mhp = 1;
@@ -1827,6 +1764,8 @@ static void calc_bonuses(void)
 	int old_stat_use[A_MAX];
 	int old_stat_ind[A_MAX];
 
+	int old_mana_add, old_hp_add;
+
 	object_type *o_ptr;
 
 	u32b f1, f2, f3, f4;
@@ -1844,6 +1783,10 @@ static void calc_bonuses(void)
 	/* Save the old armor class */
 	old_dis_ac = p_ptr->dis_ac;
 	old_dis_to_a = p_ptr->dis_to_a;
+
+	/* Save the old health bonus */
+	old_hp_add = p_ptr->hp_add;
+	old_mana_add = p_ptr->mana_add;
 
 	/* Save the old stats */
 	for (i = 0; i < A_MAX; i++)
@@ -2008,7 +1951,6 @@ static void calc_bonuses(void)
 	if (f1 & (TR1_SUST_CON)) p_ptr->sustain_con = TRUE;
 	if (f1 & (TR1_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
-
 	/*** Analyze equipment ***/
 
 	/* Scan the equipment */
@@ -2034,8 +1976,8 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
 
 		/* Affect mana and health */
-		if (f1 & (TR1_MANA)) p_ptr->mana_add += o_ptr->pval*10;
-		if (f1 & (TR1_HEALTH)) p_ptr->hp_add += o_ptr->pval*10;
+		if (f1 & (TR1_MANA)) p_ptr->mana_add += o_ptr->pval;
+		if (f1 & (TR1_HEALTH)) p_ptr->hp_add += o_ptr->pval;
 
 		/* Affect stealth */
 		if (f1 & (TR1_STEALTH)) p_ptr->skill[SK_STL] += o_ptr->pval;
@@ -2150,7 +2092,6 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
-
 	/*** Handle stats ***/
 
 	/* Calculate stats */
@@ -2190,7 +2131,6 @@ static void calc_bonuses(void)
 		/* Save the new index */
 		p_ptr->stat_ind[i] = ind;
 	}
-
 
 	/*** Temporary flags ***/
 
@@ -2236,17 +2176,29 @@ static void calc_bonuses(void)
 	/* Temporary "Hero" */
 	if (p_ptr->hero)
 	{
-		p_ptr->to_h += 12;
-		p_ptr->dis_to_h += 12;
+		p_ptr->to_h += 15;
+		p_ptr->dis_to_h += 15;
+		p_ptr->bravery = TRUE;
+		p_ptr->tim_flag2 |= TR2_BRAVERY;
 	}
 
 	/* Temporary "Beserk" */
 	if (p_ptr->rage)
 	{
-		p_ptr->to_h += 24;
-		p_ptr->dis_to_h += 24;
-		p_ptr->to_a -= 10;
-		p_ptr->dis_to_a -= 10;
+		/* 
+		 * Berserk also provides an extra blow, a penalty to magic item use,
+		 * a penalty to saving throws, and a penalty to stealth - see below 
+		 */
+		p_ptr->to_h += 15;
+		p_ptr->dis_to_h += 15;
+		p_ptr->to_d += 15;
+		p_ptr->dis_to_d += 15;
+		p_ptr->to_a -= 25;
+		p_ptr->dis_to_a -= 25;
+		p_ptr->disrupt = TRUE;
+		p_ptr->bravery = TRUE;
+		p_ptr->tim_flag2 |= TR2_BRAVERY;
+		p_ptr->tim_flag3 |= TR3_DISRUPT;
 	}
 
 	/* Temporary "fast" */
@@ -2280,7 +2232,7 @@ static void calc_bonuses(void)
 	/* Temporary infravision boost */
 	if (p_ptr->tim_infra)
 	{
-		p_ptr->see_infra++;
+		p_ptr->see_infra += 3;
 		p_ptr->tim_flag1 |= TR1_INFRA;
 	}
 
@@ -2371,15 +2323,6 @@ static void calc_bonuses(void)
 		p_ptr->tim_flag2 |= TR2_RES_DISEASE;
 	}
 
-	/*** Special flags ***/
-
-	/* Hack -- Hero/Rage -> Bravery */
-	if (p_ptr->hero || p_ptr->rage)
-	{
-		p_ptr->bravery = TRUE;
-		p_ptr->tim_flag2 |= TR2_BRAVERY;
-	}
-
 	/*** Analyze weight ***/
 
 	/* Extract the current weight (in tenth pounds) */
@@ -2438,6 +2381,14 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- by level, class */
 	for (i = 0; i < SK_MAX; i++) p_ptr->skill[i] += (cp_ptr->x_skill[i] * p_ptr->lev / 10);
+
+	/* Affect Skill -- Berserk rage */
+	if (p_ptr->rage)
+	{
+		p_ptr->skill[SK_DEV] = (p_ptr->skill[SK_DEV] * 8) / 10;
+		p_ptr->skill[SK_SAV] = (p_ptr->skill[SK_SAV] * 8) / 10;
+		p_ptr->skill[SK_STL] = (p_ptr->skill[SK_STL] * 8) / 10;
+	}
 
 	/* Limit Skill -- digging from 1 up */
 	if (p_ptr->skill[SK_DIG] < 1) p_ptr->skill[SK_DIG] = 1;
@@ -2531,8 +2482,7 @@ static void calc_bonuses(void)
 			p_ptr->ammo_mult += extra_might;
 
 			/* Hack -- Rangers love Bows */
-			if ((cp_ptr->flags & CF_EXTRA_SHOT) &&
-			    (p_ptr->ammo_tval == TV_ARROW))
+			if ((cp_ptr->flags & CF_EXTRA_SHOT) && (p_ptr->ammo_tval == TV_ARROW))
 			{
 				/* Extra shot at level 20 */
 				if (p_ptr->lev >= 20) p_ptr->num_fire++;
@@ -2565,24 +2515,24 @@ static void calc_bonuses(void)
 		p_ptr->heavy_wield = TRUE;
 	}
 
-	/* Normal weapons */
-	if (o_ptr->k_idx && !p_ptr->heavy_wield)
+	/* Normal weapons or Unarmed combat */
+	if (!p_ptr->heavy_wield)
 	{
 		int str_index, dex_index;
-
-		int num = 0, wgt = 0, mul = 0;
 		int div;
 
-		/* Analyze the class */
-		num = cp_ptr->max_attacks;
-		wgt = cp_ptr->min_weight;
-		mul = cp_ptr->att_multiply;
-
 		/* Enforce a minimum "weight" (tenth pounds) */
-		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
+		if (o_ptr->k_idx) 
+		{
+			div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+
+			/* Boost digging skill by weapon weight */
+			p_ptr->skill[SK_DIG] += (o_ptr->weight / 10);
+		}
+		else div = cp_ptr->min_weight;
 
 		/* Get the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
+		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
 
 		/* Maximal value */
 		if (str_index > 11) str_index = 11;
@@ -2597,16 +2547,16 @@ static void calc_bonuses(void)
 		p_ptr->num_blow = blows_table[str_index][dex_index];
 
 		/* Maximal value */
-		if (p_ptr->num_blow > num) p_ptr->num_blow = num;
+		if (p_ptr->num_blow > cp_ptr->max_attacks) p_ptr->num_blow = cp_ptr->max_attacks;
 
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
 
+		/* If enraged, provide an extra blow */
+		if (p_ptr->rage) p_ptr->num_blow++;
+
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
-
-		/* Boost digging skill by weapon weight */
-		p_ptr->skill[SK_DIG] += (o_ptr->weight / 10);
 	}
 
 	/* Assume okay */
@@ -2628,6 +2578,103 @@ static void calc_bonuses(void)
 		p_ptr->icky_wield = TRUE;
 	}
 
+	/*** Analyze stuff that disturbs spellcasting ***/
+
+	/* Process gloves for those disturbed by them */
+	if (cp_ptr->flags & CF_NO_GLOVE)
+	{
+		u32b f1, f2, f3, f4;
+
+		/* Assume player is not encumbered by gloves */
+		p_ptr->cumber_glove = FALSE;
+
+		/* Get the gloves */
+		o_ptr = &inventory[INVEN_HANDS];
+
+		/* Examine the gloves */
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+		/* Normal gloves hurt mage-type spells */
+		if (o_ptr->k_idx &&
+		    !(f2 & (TR2_FREE_ACT)) &&
+		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)) &&
+		    !((f1 & (TR1_MANA)) && (o_ptr->pval > 0)))
+		{
+			/* Encumbered */
+			p_ptr->cumber_glove = TRUE;
+		}
+
+		/* Take note when "glove state" changes */
+		if (p_ptr->old_cumber_glove != p_ptr->cumber_glove)
+		{
+			cptr act;
+
+			if (!(cp_ptr->flags & CF_MUSIC)) act = "spellcasting";
+			else act = "playing a musical instrument";
+
+			/* Message */
+			if (p_ptr->cumber_glove)
+			{
+				message_format(MSG_EFFECT, 0, "Your covered hands feel unsuitable for %s.", act);
+			}
+			else
+			{
+				message_format(MSG_EFFECT, 0, "Your hands feel more suitable for %s.",act);
+			}
+
+			/* Save it */
+			p_ptr->old_cumber_glove = p_ptr->cumber_glove;
+		}
+	}
+
+	if (cp_ptr->spell_weight)
+	{
+		int  cur_wgt, max_wgt;
+
+		/* Assume player not encumbered by armor */
+		p_ptr->cumber_armor = 0;
+
+		/* Weigh the armor */
+		cur_wgt = 0;
+		cur_wgt += inventory[INVEN_BODY].weight;
+		cur_wgt += inventory[INVEN_HEAD].weight;
+		cur_wgt += inventory[INVEN_ARM].weight;
+		cur_wgt += inventory[INVEN_OUTER].weight;
+		cur_wgt += inventory[INVEN_HANDS].weight;
+		cur_wgt += inventory[INVEN_FEET].weight;
+
+		/* Determine the weight allowance */
+		max_wgt = cp_ptr->spell_weight;
+
+		/* Heavy armor penalty */
+		if ((cur_wgt - max_wgt) > 0) p_ptr->cumber_armor = cur_wgt - max_wgt;
+
+		/* Take note when "armor state" changes */
+		if (p_ptr->old_cumber_armor != p_ptr->cumber_armor)
+		{
+			/* Message */
+			if (p_ptr->old_cumber_armor == 0)
+			{
+				message(MSG_EFFECT, 0, "The weight of your armor encumbers your movement.");
+			}
+			else if (p_ptr->cumber_armor > p_ptr->old_cumber_armor)
+			{
+				message(MSG_EFFECT, 0, "The weight of your armor encumbers you further.");
+			}
+			else if (p_ptr->cumber_armor == 0)
+			{
+				message(MSG_EFFECT, 0, "You feel able to move completely freely.");
+			}
+			else
+			{
+				message(MSG_EFFECT, 0, "You feel able to move more freely.");
+			}
+
+			/* Save it */
+			p_ptr->old_cumber_armor = p_ptr->cumber_armor;
+		}
+	}
+	
 	/*** Notice changes ***/
 
 	/* Analyze stats */
@@ -2668,6 +2715,18 @@ static void calc_bonuses(void)
 				p_ptr->update |= (PU_MANA | PU_SPELLS);
 			}
 		}
+	}
+
+	/* HP bonuses */
+	if (p_ptr->hp_add != old_hp_add)
+	{
+		p_ptr->update |= (PU_HP);
+	}
+
+	/* Mana bonuses */
+	if (p_ptr->mana_add != old_mana_add)
+	{
+		p_ptr->update |= (PU_MANA);
 	}
 
 	/* Hack -- Telepathy Change */
@@ -2780,8 +2839,6 @@ static void calc_bonuses(void)
 		p_ptr->old_icky_wield = p_ptr->icky_wield;
 	}
 }
-
-
 
 /*
  * Handle "p_ptr->notice"
@@ -3006,7 +3063,6 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_HEALTH);
 		health_redraw();
 	}
-
 
 	if (p_ptr->redraw & (PR_EXTRA))
 	{

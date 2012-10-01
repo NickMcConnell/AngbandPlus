@@ -795,7 +795,6 @@ bool set_paralyzed(int v)
 	return (TRUE);
 }
 
-
 /*
  * Set "p_ptr->image", notice observable changes
  *
@@ -844,13 +843,15 @@ bool set_image(int v)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 
+	/* Update the monsters XXX */
+	p_ptr->update |= (PU_MONSTERS);
+
 	/* Handle stuff */
 	handle_stuff();
 
 	/* Result */
 	return (TRUE);
 }
-
 
 /*
  * Set "p_ptr->fast", notice observable changes
@@ -1052,7 +1053,6 @@ bool set_blessed(int v)
 	return (TRUE);
 }
 
-
 /*
  * Set "p_ptr->hero", notice observable changes
  */
@@ -1101,7 +1101,6 @@ bool set_hero(int v)
 	/* Result */
 	return (TRUE);
 }
-
 
 /*
  * Set "p_ptr->rage", notice observable changes
@@ -1152,7 +1151,6 @@ bool set_rage(int v)
 	return (TRUE);
 }
 
-
 /*
  * Set "p_ptr->protevil", notice observable changes
  */
@@ -1198,7 +1196,6 @@ bool set_protevil(int v)
 	/* Result */
 	return (TRUE);
 }
-
 
 /*
  * Set "p_ptr->resilent", notice observable changes
@@ -1248,7 +1245,6 @@ bool set_resilient(int v)
 	/* Result */
 	return (TRUE);
 }
-
 
 /*
  * Set "p_ptr->absorb", notice observable changes
@@ -1434,7 +1430,6 @@ bool set_tim_infra(int v)
 	return (TRUE);
 }
 
-
 /*
  * Set "p_ptr->oppose_acid", notice observable changes
  */
@@ -1480,7 +1475,6 @@ bool set_oppose_acid(int v)
 	/* Result */
 	return (TRUE);
 }
-
 
 /*
  * Set "p_ptr->oppose_elec", notice observable changes

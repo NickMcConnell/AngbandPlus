@@ -148,11 +148,6 @@
 #define ALLOW_MACROS
 
 /*
- * OPTION: Allow monsters to "flee" from strong players
- */
-#define ALLOW_TERROR
-
-/*
  * OPTION: Allow parsing of the ascii template files in "init.c".
  * This must be defined if you do not have valid binary image files.
  * It should be usually be defined anyway to allow easy "updating".
@@ -163,6 +158,11 @@
  * OPTION: Allow repeating of last command.
  */
 #define ALLOW_REPEAT
+
+/*
+ * OPTION: Allow "haggling" in stores
+ */
+/* #define ALLOW_HAGGLE */
 
 /*
  * OPTION: Prevent the loading of the "c_text" array. saving some memory, 
@@ -176,11 +176,6 @@
  */
 /* #define PREVENT_LOAD_R_TEXT */
 
-/*
- * OPTION: Delay the loading of the "r_text" array until it is actually
- * needed, instead of preventing it. Saving ~60K, but slows down the "monster" descriptions.
- */
-/* #define DELAY_LOAD_R_TEXT */
 
 /*
  * OPTION: Handle signals
@@ -198,7 +193,7 @@
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
  * software options, which enable "monster flowing".
  */
-#define MONSTER_FLOW
+#define MONSTER_FLOW 
 
 /*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
@@ -348,7 +343,7 @@
  * OPTION: Attempt to minimize the size of the game
  */
 #ifndef ANGBAND_LITE
-/*# define ANGBAND_LITE */
+/* # define ANGBAND_LITE */
 #endif
 
 /*
@@ -359,15 +354,16 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
-# undef ALLOW_TERROR
 # undef GJW_RANDART
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
 # undef CHECK_MODIFICATION_TIME
-# undef DELAY_LOAD_R_TEXT
-# define DELAY_LOAD_R_TEXT
+# undef PREVENT_LOAD_R_TEXT
+# define PREVENT_LOAD_R_TEXT
+# undef PREVENT_LOAD_C_TEXT
+# define PREVENT_LOAD_C_TEXT
 #endif
 
 /*
@@ -395,3 +391,4 @@
  * HACK - define if the source contains the cleanup_angband() function.
  */
 #define HAS_CLEANUP 
+

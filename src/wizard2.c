@@ -125,13 +125,11 @@ static void do_cmd_wiz_bamf(void)
 static void do_cmd_wiz_change_aux(void)
 {
 	int i;
-
 	int tmp_int;
 
 	long tmp_long;
 
 	char tmp_val[160];
-
 	char ppp[80];
 
 	/* Query the stats */
@@ -302,8 +300,8 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d  timeout = %-d",
 	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d, o_ptr->timeout), 6, j);
 
-	prt(format("name1 = %-4d  name2 = %-4d  ident = %04x  cost = %ld",
-	           o_ptr->name1, o_ptr->name2, o_ptr->ident, (long)object_value(o_ptr)) , 7, j);
+	prt(format("a_idx = %-4d  e_idx = %-4d  ident = %04x  cost = %ld",
+	           o_ptr->a_idx, o_ptr->e_idx, o_ptr->ident, (long)object_value(o_ptr)) , 7, j);
 
 	prt_binary(f1, 9, j+2);
 	prt_binary(f3, 9, j+36);
@@ -346,27 +344,25 @@ static tval_desc tvals[] =
 	{ TV_BOLT,			"Bolts"				},
 	{ TV_SHOT,			"Shots"				},
 	{ TV_SHIELD,		"Shield"			},
-	{ TV_CROWN,			"Crown"				},
-	{ TV_HELM,			"Helm"				},
+	{ TV_HEADGEAR,		"Head Gear"			},
 	{ TV_GLOVES,		"Gloves"			},
 	{ TV_BOOTS,			"Boots"				},
 	{ TV_CLOAK,			"Cloak"				},
 	{ TV_DRAG_ARMOR,	"Dragon Scale Mail"	},
-	{ TV_HARD_ARMOR,	"Hard Armor"		},
-	{ TV_SOFT_ARMOR,	"Soft Armor"		},
+	{ TV_BODY_ARMOR,	"Body Armor"		},
 	{ TV_RING,			"Ring"				},
 	{ TV_AMULET,		"Amulet"			},
-	{ TV_LITE,			"Lite"				},
-/*	{ TV_LITE_SPECIAL,	"Permanent Lite"	}, */
+	{ TV_LITE,			"Light Source"		},
+/*	{ TV_LITE_SPECIAL,	"Permanent Lite"	}, No non-artifacts of this type */
 	{ TV_POTION,		"Potion"			},
 	{ TV_POWDER,		"Powder"			},
 	{ TV_SCROLL,		"Scroll"			},
 	{ TV_WAND,			"Wand"				},
 	{ TV_STAFF,			"Staff"				},
 	{ TV_ROD,			"Rod"				},
+	{ TV_TALISMAN,		"Talisman"			},
 	{ TV_MAGIC_BOOK,	"Spellbook"			},
 	{ TV_MUSIC,			"Musical Instrument"},
-	{ TV_SPIKE,			"Spikes"			},
 	{ TV_DIGGING,		"Digger"			},
 	{ TV_CHEST,			"Chest"				},
 	{ TV_FOOD,			"Food"				},
@@ -526,9 +522,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 	if (!get_string(p, tmp_val, 5)) return;
 	o_ptr->timeout = atoi(tmp_val);
 	wiz_display_item(o_ptr);
-
 }
-
 
 /*
  * Apply magic to an item or turn it into an artifact. -Bernd-
@@ -572,21 +566,21 @@ static void wiz_reroll_item(object_type *o_ptr)
 		else if (ch == 'n' || ch == 'N')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+			apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE, TRUE);
 		}
 
 		/* Apply good magic, but first clear object */
 		else if (ch == 'g' || ch == 'g')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, FALSE);
+			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, FALSE, TRUE);
 		}
 
 		/* Apply great magic, but first clear object */
 		else if (ch == 'e' || ch == 'e')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
+			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE, TRUE);
 		}
 	}
 
@@ -642,7 +636,7 @@ static void wiz_statistics(object_type *o_ptr)
 	cptr q = "Rolls: %ld, Matches: %ld, Better: %ld, Worse: %ld, Other: %ld";
 
 	/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
+	if (artifact_p(o_ptr)) a_info[o_ptr->a_idx].status &= ~A_STATUS_CREATED;
 
 	/* Interact */
 	while (TRUE)
@@ -710,7 +704,6 @@ static void wiz_statistics(object_type *o_ptr)
 				Term_fresh();
 			}
 
-
 			/* Get local object */
 			i_ptr = &object_type_body;
 
@@ -718,12 +711,10 @@ static void wiz_statistics(object_type *o_ptr)
 			object_wipe(i_ptr);
 
 			/* Create an object */
-			make_object(i_ptr, good, great);
-
+			make_object(i_ptr, good, great, TRUE);
 
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-			if (artifact_p(i_ptr)) a_info[i_ptr->name1].cur_num = 0;
-
+			if (artifact_p(i_ptr)) a_info[i_ptr->a_idx].status &= ~A_STATUS_CREATED;
 
 			/* Test for the same tval and sval. */
 			if ((o_ptr->tval) != (i_ptr->tval)) continue;
@@ -769,7 +760,7 @@ static void wiz_statistics(object_type *o_ptr)
 	}
 
 	/* Hack -- Normally only make a single artifact */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
+	if (artifact_p(o_ptr)) a_info[o_ptr->a_idx].status |= A_STATUS_CREATED;
 }
 
 /*
@@ -961,7 +952,7 @@ static void wiz_create_item(void)
 	object_prep(i_ptr, k_idx);
 
 	/* Apply magic (no messages, no artifacts) */
-	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE, TRUE);
 
 	/* Drop the object from heaven */
 	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
@@ -1000,7 +991,7 @@ static void wiz_create_artifact(int a_idx)
 	object_prep(i_ptr, k_idx);
 
 	/* Save the name */
-	i_ptr->name1 = a_idx;
+	i_ptr->a_idx = a_idx;
 
 	/* Extract the fields */
 	i_ptr->pval = a_ptr->pval;
@@ -1050,6 +1041,7 @@ static void do_cmd_wiz_cure_all(void)
 	(void)set_blind(0);
 	(void)set_confused(0);
 	(void)set_poisoned(0);
+	(void)set_diseased(0);
 	(void)set_afraid(0);
 	(void)set_paralyzed(0);
 	(void)set_image(0);
@@ -1105,7 +1097,6 @@ static void do_cmd_wiz_jump(void)
 	p_ptr->leaving = TRUE;
 }
 
-
 /*
  * Become aware of a lot of objects
  */
@@ -1140,7 +1131,6 @@ static void do_cmd_wiz_learn(void)
 	}
 }
 
-
 /*
  * Hack -- Rerate Hitpoints
  */
@@ -1157,7 +1147,7 @@ static void do_cmd_rerate(void)
 	p_ptr->player_hp[0] = p_ptr->hitdie;
 
 	/* Rerate */
-	while (1)
+	while (TRUE)
 	{
 		/* Collect values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
@@ -1188,7 +1178,6 @@ static void do_cmd_rerate(void)
 	message_format(MSG_CHEAT, 0, "Current Life Rating is %d/100.", percent);
 }
 
-
 /*
  * Summon some creatures
  */
@@ -1201,7 +1190,6 @@ static void do_cmd_wiz_summon(int num)
 		(void)summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0);
 	}
 }
-
 
 /*
  * Summon a creature of the specified type
@@ -1232,8 +1220,6 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 	}
 }
 
-
-
 /*
  * Hack -- Delete all nearby monsters
  */
@@ -1256,7 +1242,6 @@ static void do_cmd_wiz_zap(int d)
 		delete_monster_idx(i);
 	}
 }
-
 
 /*
  * Un-hide all monsters
@@ -1286,7 +1271,6 @@ static void do_cmd_wiz_unhide(int d)
 		update_mon(i, FALSE);
 	}
 }
-
 
 /*
  * Query the dungeon
@@ -1399,7 +1383,6 @@ void do_cmd_debug(void)
 
 #endif
 
-
 		/* Hack -- Help */
 		case '?':
 		{
@@ -1460,7 +1443,7 @@ void do_cmd_debug(void)
 		case 'g':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(p_ptr->py, p_ptr->px, p_ptr->command_arg, FALSE);
+			acquirement(p_ptr->py, p_ptr->px, p_ptr->command_arg, FALSE, TRUE);
 			break;
 		}
 
@@ -1562,7 +1545,7 @@ void do_cmd_debug(void)
 		case 'v':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(p_ptr->py, p_ptr->px, p_ptr->command_arg, TRUE);
+			acquirement(p_ptr->py, p_ptr->px, p_ptr->command_arg, TRUE, TRUE);
 			break;
 		}
 

@@ -8,24 +8,37 @@ is later turned off. So use these options with caution.
 
 === Cheating Options ===
 
+***** <cheat_debug>
+Allow access to debug mode    [cheat_debug]
+    By turing this option on you get access to the debug commands, which are
+    activated by pressing ^a. Make sure.you know what you are doing, since 
+    careless use of the debug commands can permanently damage your savefile.
+
+***** <cheat_peek>
 Peek into object creation    [cheat_peek]
     Cheaters never win.  But they can peek at object creation.
 
+***** <cheat_hear>
 Peek into monster creation    [cheat_hear]
     Cheaters never win.  But they can peek at monster creation.
 
+***** <cheat_room>
 Peek into dungeon creation    [cheat_room]
     Cheaters never win.  But they can peek at room creation.
 
-Peek into something else    [cheat_xtra]
-    Cheaters never win.  But they can see debugging messages.
-
+***** <cheat_know>
 Know complete monster info    [cheat_know]
     Cheaters never win.  But they can know all about monsters.
 
+***** <cheat_live>
 Allow player to avoid death    [cheat_live]
     Cheaters never win.  But they can cheat death.
 
-No autosave. [cheat_no_autosave]
-    Cheaters never win.  But they don't have to save if you don't want to.
-    (note - this option might not work in certain ports)
+***** <cheat_no_save>
+No save on death    [cheat_no_save]
+    Cheaters never win.  But they don't have to save the game when they die.
+
+***** <cheat_wizard>
+Activate wizard mode    [cheat_wizard]
+    Wizard mode allows you to receive a lot of information that is normally
+    kept hidden from the player.

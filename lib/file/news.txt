@@ -1,8 +1,8 @@
 
 
-          ***********************************************************
-          **  EyAngband 0.2.3   **   Please don't feed the Balrog  **
-          ***********************************************************
+                           ***********************
+                           **  EyAngband 0.3.0  **
+                           ***********************
                                By Eytan Zweig
 
             Based on Moria:  Copyright (c) 1985 Robert Alan Koeneke

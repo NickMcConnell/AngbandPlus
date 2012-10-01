@@ -60,24 +60,25 @@ static bool int_outof(monster_race *r_ptr, int prob)
 static bool check_player_visibility(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	int sk = p_ptr->skill[SK_STL];
-
-	/* Make monsters move stupidly if they can't see invisible, or they are blinded */
-	if ((m_ptr->blinded) || (!(r_ptr->flags2 & (RF2_SEE_INVIS)) && (p_ptr->invis)))
+	if ((m_ptr->blinded) || ((p_ptr->invis) && !(r_ptr->flags2 & (RF2_SEE_INVIS))))
 	{
-		int chance = ((sk > 5) ? ((50+sk*5)/2)+1 : sk*5+1);
-
-		/* Always some chance of not being spotted */
-		if (chance < 9) chance = 9;
-
 		/* Chance of seeing player depends on stealth */
- 		if (randint(chance) > 8)
+		int skill = p_ptr->skill[SK_STL];
+	
+		if (!m_ptr->blinded) 
 		{
-			return TRUE;
+			/* Reduce skill rate by lite radius */
+			skill -= p_ptr->cur_lite;
+
+			/* No negative skills */
+			if (skill < 0) skill = 0;
 		}
+		
+		/* Check for success */
+ 		if (randint(invis_chance[skill]) >= 10)	return TRUE;
 
 		return FALSE;
 	}
@@ -94,7 +95,7 @@ static bool check_player_visibility(int m_idx)
 static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	u32b f4 = (*f4p);
 	u32b f5 = (*f5p);
@@ -376,7 +377,7 @@ static bool summon_possible(int y1, int x1)
 		}
 	}
 
-	return FALSE;
+	return (FALSE);
 }
 
 /*
@@ -439,7 +440,7 @@ static void breath(int m_idx, int typ, int dam_hp)
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	/* Determine the radius of the blast */
 	rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
@@ -463,11 +464,16 @@ static void breath(int m_idx, int typ, int dam_hp)
  *
  * This function could be an efficiency bottleneck.
  */
-static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
+static int choose_attack_spell(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
+	/* Extract the racial spell flags */
+	u32b f4 = r_ptr->flags4;
+	u32b f5 = r_ptr->flags5;
+	u32b f6 = r_ptr->flags6;
+	
 	u32b f4_mask = 0L;
 	u32b f5_mask = 0L;
 	u32b f6_mask = 0L;
@@ -493,10 +499,13 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	}
 
 	/* Remove the "ineffective" spells */
-	remove_bad_spells(m_idx, &f4, &f5, &f6);
+	if (m_ptr->smart)
+	{
+		remove_bad_spells(m_idx, &f4, &f5, &f6);
 
-	/* No spells left */
-	if (!(f4 || f5 || f6)) return (0);
+		/* No spells left */
+		if (!(f4 || f5 || f6)) return (0);
+	}
 
 	/* Check whether summons and bolts are worth it. */
 	if (!(r_ptr->flags2 & (RF2_STUPID)))
@@ -532,6 +541,9 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		f4 &= (RF4_INNATE_MASK);
 		f5 &= (RF5_INNATE_MASK);
 		f6 &= (RF6_INNATE_MASK);
+
+		/* No spells left */
+		if (!(f4 || f5 || f6)) return (0);
 	}
 
 	/* Limit spell choice if they can't see player (not LOS) */
@@ -552,6 +564,9 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 			f5 &= (RF5_HEAL_MASK);
 			f6 &= (RF6_HEAL_MASK);
 		}
+
+		/* No spells left */
+		if (!(f4 || f5 || f6)) return (0);
 	}
 
 	/* If the monster is calmed, monster will only use heal/escape spells */
@@ -560,6 +575,9 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		f4 &= ((RF4_HEAL_MASK) | (RF4_ESCAPE_MASK));
 		f5 &= ((RF5_HEAL_MASK) | (RF5_ESCAPE_MASK));
 		f6 &= ((RF6_HEAL_MASK) | (RF6_ESCAPE_MASK));
+
+		/* No spells left */
+		if (!(f4 || f5 || f6)) return (0);
 	}
 
 	/* Smart monsters restrict their spell choices. */
@@ -718,22 +736,12 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	for (i = 0; i < 32; i++)
 	{
 		if (f4 & (1L << i)) spells[num++] = i + RF4_OFFSET;
-	}
-
-	/* Extract the "normal" spells */
-	for (i = 0; i < 32; i++)
-	{
 		if (f5 & (1L << i)) spells[num++] = i + RF5_OFFSET;
-	}
-
-	/* Extract the "bizarre" spells */
-	for (i = 0; i < 32; i++)
-	{
 		if (f6 & (1L << i)) spells[num++] = i + RF6_OFFSET;
 	}
 
 	/* Paranoia */
-	if (num == 0) return 0;
+	if (num == 0) return (0);
 
 	/* Pick at random */
 	return (spells[rand_int(num)]);
@@ -784,16 +792,14 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
  * Note the special "MFLAG_NICE" flag, which prevents a monster from using
  * any spell attacks until the player has had a single chance to move.
  */
-bool make_attack_spell(int m_idx)
+static bool make_attack_spell(int m_idx)
 {
-	int k, chance, thrown_spell, rlev;
+	int k, thrown_spell, rlev;
 
 	int failrate;
 
-	u32b f4, f5, f6;
-
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	char m_name[80];
@@ -826,14 +832,8 @@ bool make_attack_spell(int m_idx)
 	/* Cannot cast spells when nice */
 	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
 
-	/* Hack -- Extract the spell probability */
-	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
-
-	/* Not allowed to cast spells */
-	if (!chance) return (FALSE);
-
 	/* Only do spells occasionally */
-	if (rand_int(100) >= chance) return (FALSE);
+	if (rand_int(100) >= r_ptr->freq_spell) return (FALSE);
 
 	/* Hack -- require projectable player */
 	if (normal)
@@ -848,16 +848,11 @@ bool make_attack_spell(int m_idx)
 	/* Extract the monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
-	/* Extract the racial spell flags */
-	f4 = r_ptr->flags4;
-	f5 = r_ptr->flags5;
-	f6 = r_ptr->flags6;
-
 	/* Handle "leaving" */
 	if (p_ptr->leaving) return (FALSE);
 
 	/* Choose a spell to cast */
-	thrown_spell = choose_attack_spell(m_idx, f4, f5, f6);
+	thrown_spell = choose_attack_spell(m_idx);
 
 	/* Abort if no spell was chosen */
 	if (!thrown_spell) return (FALSE);
@@ -2356,24 +2351,18 @@ static int mon_will_run(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
-#ifdef ALLOW_TERROR
-
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	u16b p_lev, m_lev;
 	u16b p_chp, p_mhp;
 	u16b m_chp, m_mhp;
 	u32b p_val, m_val;
 
-#endif /* ALLOW_TERROR */
-
 	/* Keep monsters from running too far away */
 	if (m_ptr->cdis > MAX_SIGHT + 5) return (FALSE);
 
 	/* All "afraid" monsters will run away */
 	if (m_ptr->monfear) return (TRUE);
-
-#ifdef ALLOW_TERROR
 
 	/* Nearby monsters will not become terrified */
 	if (m_ptr->cdis <= 5) return (FALSE);
@@ -2402,8 +2391,6 @@ static int mon_will_run(int m_idx)
 
 	/* Strong players scare strong monsters */
 	if (p_val * m_mhp > m_val * p_mhp) return (TRUE);
-
-#endif /* ALLOW_TERROR */
 
 	/* Assume no terror */
 	return (FALSE);
@@ -2441,7 +2428,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	int cost = 999;
 
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	/* Monster flowing disabled */
 	if (!adult_flow_by_sound) return (FALSE);
@@ -2517,7 +2504,7 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 	int i;
 
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	/* Monster flowing disabled */
 	if (!adult_flow_by_sound) return (FALSE);
@@ -2904,7 +2891,7 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
 static bool get_moves(int m_idx, int mm[5])
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	int y, ay, x, ax;
 
@@ -3225,13 +3212,13 @@ static int compare_monsters(monster_type *m_ptr, monster_type *n_ptr)
 	u32b mexp1, mexp2;
 
 	/* Race 1 */
-	r_ptr = &r_info[m_ptr->r_idx];
+	r_ptr = get_monster_full(m_ptr);
 
 	/* Extract mexp */
 	mexp1 = r_ptr->mexp;
 
 	/* Race 2 */
-	r_ptr = &r_info[n_ptr->r_idx];
+	r_ptr = get_monster_full(m_ptr);
 
 	/* Extract mexp */
 	mexp2 = r_ptr->mexp;
@@ -3270,7 +3257,7 @@ static int compare_monsters(monster_type *m_ptr, monster_type *n_ptr)
 static void process_monster(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int i, d, oy, ox, ny, nx;
@@ -3299,8 +3286,8 @@ static void process_monster(int m_idx)
 	/* Handle "bleeding" */
 	if (m_ptr->bleeding)
 	{
-		int d = (m_ptr->maxhp)/100; 
-		if (d < 1) d = 1;
+		int d = 1 + (m_ptr->maxhp / 50); 
+		if (d > m_ptr->bleeding) d = m_ptr->bleeding;
 
 		/* Exit if the monster dies */
 		if (mon_take_hit(m_idx, d, &xxx," bleeds to death.")) return;
@@ -3338,7 +3325,7 @@ static void process_monster(int m_idx)
 	/* Handle "poisoned" */
 	if (m_ptr->poisoned)
 	{
-		int d = (m_ptr->poisoned)/10; 
+		int d = (m_ptr->poisoned) / 10; 
 		if (d < 1) d = 1;
 
 		/* Exit if the monster dies */
@@ -3796,7 +3783,6 @@ static void process_monster(int m_idx)
 		ny = oy + ddy[d];
 		nx = ox + ddx[d];
 
-
 		/* Floor is open? */
 		if (cave_floor_bold(ny, nx))
 		{
@@ -3908,7 +3894,6 @@ static void process_monster(int m_idx)
 				}
 			}
 
-
 			/* Deal with doors in the way */
 			if (did_open_door || did_bash_door)
 			{
@@ -3928,7 +3913,6 @@ static void process_monster(int m_idx)
 				if (player_has_los_bold(ny, nx)) do_view = TRUE;
 			}
 		}
-
 
 		/* Hack -- check for Glyph of Warding */
 		if (do_move && (cave_feat[ny][nx] == FEAT_GLYPH))
@@ -3974,7 +3958,6 @@ static void process_monster(int m_idx)
 			do_move = FALSE;
 		}
 
-
 		/* The player is in the way.  Attack him. */
 		if (do_move && (cave_m_idx[ny][nx] < 0))
 		{
@@ -3987,7 +3970,6 @@ static void process_monster(int m_idx)
 			/* Took a turn */
 			do_turn = TRUE;
 		}
-
 
 		/* Some monsters never move */
 		if (do_move && (r_ptr->flags1 & (RF1_NEVER_MOVE)))
@@ -4045,7 +4027,6 @@ static void process_monster(int m_idx)
 				did_move_body = TRUE;
 			}
 		}
-
 
 		/* Creature has been allowed move */
 		if (do_move)
@@ -4234,7 +4215,6 @@ static void process_monster(int m_idx)
 		if (did_kill_wall) l_ptr->r_flags2 |= (RF2_KILL_WALL);
 	}
 
-
 	/* Hack -- get "bold" if out of options */
 	if (!do_turn && !do_move && m_ptr->monfear)
 	{
@@ -4254,9 +4234,6 @@ static void process_monster(int m_idx)
 		}
 	}
 }
-
-
-
 
 /*
  * Process all the "live" monsters, once per game turn.
@@ -4294,7 +4271,6 @@ void process_monsters(byte minimum_energy)
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
-
 	/* Repair "born" flags */
 	if (repair_mflag_born)
 	{
@@ -4314,7 +4290,6 @@ void process_monsters(byte minimum_energy)
 			m_ptr->mflag &= ~(MFLAG_BORN);
 		}
 	}
-
 
 	/* Process the monsters (backwards) */
 	for (i = m_max - 1; i >= 1; i--)
@@ -4340,7 +4315,7 @@ void process_monsters(byte minimum_energy)
 		/* Heal monster? XXX XXX XXX */
 
 		/* Get the race */
-		r_ptr = &r_info[m_ptr->r_idx];
+		r_ptr = get_monster_full(m_ptr);
 
 		/* Monsters is bleeding or poisoned */
 		if ((m_ptr->bleeding) || (m_ptr->poisoned))

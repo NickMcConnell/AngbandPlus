@@ -174,7 +174,6 @@ static s16b chest_check(int y, int x)
 	return (0);
 }
 
-
 /*
  * Allocate objects upon opening a chest
  *
@@ -197,7 +196,6 @@ static void chest_death(int y, int x, s16b o_idx)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-
 	/* Get the chest */
 	o_ptr = &o_list[o_idx];
 
@@ -214,7 +212,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	opening_chest = TRUE;
 
 	/* Determine the "value" of the items */
-	object_level = ABS(o_ptr->pval) + 10;
+	p_ptr->obj_depth = ABS(o_ptr->pval) + 10;
 
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
@@ -236,7 +234,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		else
 		{
 			/* Make an object */
-			if (!make_object(i_ptr, FALSE, FALSE)) continue;
+			if (!make_object(i_ptr, FALSE, FALSE, TRUE)) continue;
 		}
 
 		/* Drop it in the dungeon */
@@ -244,7 +242,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	p_ptr->obj_depth  = p_ptr->depth;
 
 	/* No longer opening a chest */
 	opening_chest = FALSE;
@@ -255,7 +253,6 @@ static void chest_death(int y, int x, s16b o_idx)
 	/* Known */
 	object_known(o_ptr);
 }
-
 
 /*
  * Chests have traps too.
@@ -332,7 +329,6 @@ static void chest_trap(int y, int x, s16b o_idx)
 	}
 }
 
-
 /*
  * Attempt to open the given chest at the given location
  *
@@ -345,11 +341,9 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 	int i, j;
 
 	bool flag = TRUE;
-
 	bool more = FALSE;
 
 	object_type *o_ptr = &o_list[o_idx];
-
 
 	/* Attempt to unlock it */
 	if (o_ptr->pval > 0)
@@ -402,7 +396,6 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 	return (more);
 }
 
-
 /*
  * Attempt to disarm the chest at the given location
  *
@@ -417,7 +410,6 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	bool more = FALSE;
 
 	object_type *o_ptr = &o_list[o_idx];
-
 
 	/* Get the "disarm" factor */
 	i = p_ptr->skill[SK_DIS];
@@ -515,7 +507,6 @@ static int count_feats(int *y, int *x, byte f1, byte f2)
 	return count;
 }
 
-
 /*
  * Return the number of chests around (or under) the character.
  * If requested, count only trapped chests.
@@ -546,10 +537,8 @@ static int count_chests(int *y, int *x, bool trapped)
 		if (o_ptr->pval == 0) continue;
 
 		/* No (known) traps here */
-		if (trapped &&
-		    (!object_known_p(o_ptr) ||
-		     (o_ptr->pval < 0) ||
-		     !chest_traps[o_ptr->pval]))
+		if (trapped && (!object_known_p(o_ptr) ||
+		     (o_ptr->pval < 0) || !chest_traps[o_ptr->pval]))
 		{
 			continue;
 		}
@@ -566,7 +555,6 @@ static int count_chests(int *y, int *x, bool trapped)
 	return count;
 }
 
-
 /*
  * Extract a "direction" which will move one step from the player location
  * towards the given "target" location (or "5" if no motion necessary).
@@ -575,7 +563,6 @@ static int coords_to_dir(int y, int x)
 {
 	return (motion_dir(p_ptr->py, p_ptr->px, y, x));
 }
-
 
 /*
  * Determine if a given grid may be "opened"
@@ -607,7 +594,6 @@ static bool do_cmd_open_test(int y, int x)
 	return (TRUE);
 }
 
-
 /*
  * Perform the basic "open" command on doors
  *
@@ -621,10 +607,8 @@ static bool do_cmd_open_aux(int y, int x)
 
 	bool more = FALSE;
 
-
 	/* Verify legality */
 	if (!do_cmd_open_test(y, x)) return (FALSE);
-
 
 	/* Jammed door */
 	if (cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x08)
@@ -699,8 +683,6 @@ static bool do_cmd_open_aux(int y, int x)
 	return (more);
 }
 
-
-
 /*
  * Open a closed/locked/jammed door or a closed/locked chest.
  *
@@ -735,10 +717,8 @@ void do_cmd_open(void)
 	/* Check for chests */
 	o_idx = chest_check(y, x);
 
-
 	/* Verify legality */
 	if (!o_idx && !do_cmd_open_test(y, x)) return;
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -795,7 +775,6 @@ void do_cmd_open(void)
 	/* Cancel repeat unless we may continue */
 	if (!more) disturb(0);
 }
-
 
 /*
  * Determine if a given grid may be "closed"
@@ -943,8 +922,6 @@ void do_cmd_close(void)
 	if (!more) disturb(0);
 }
 
-
-
 /*
  * Determine if a given grid may be "tunneled"
  */
@@ -973,7 +950,6 @@ static bool do_cmd_tunnel_test(int y, int x)
 	/* Okay */
 	return (TRUE);
 }
-
 
 /*
  * Tunnel through wall.  Assumes valid location.
@@ -1009,7 +985,6 @@ static bool twall(int y, int x)
 	return (TRUE);
 }
 
-
 /*
  * Perform the basic "tunnel" command
  *
@@ -1023,13 +998,8 @@ static bool do_cmd_tunnel_aux(int y, int x)
 {
 	bool more = FALSE;
 
-
 	/* Verify legality */
 	if (!do_cmd_tunnel_test(y, x)) return (FALSE);
-
-
-	/* Sound XXX XXX XXX */
-	/* sound(MSG_DIG); */
 
 	/* Titanium */
 	if (cave_feat[y][x] >= FEAT_PERM_EXTRA)
@@ -1198,7 +1168,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	return (more);
 }
 
-
 /*
  * Tunnel through "walls" (including rubble and secret doors)
  *
@@ -1266,7 +1235,6 @@ void do_cmd_tunnel(void)
 	if (!more) disturb(0);
 }
 
-
 /*
  * Determine if a given grid may be "disarmed"
  */
@@ -1297,7 +1265,6 @@ static bool do_cmd_disarm_test(int y, int x)
 	return (TRUE);
 }
 
-
 /*
  * Perform the basic "disarm" command
  *
@@ -1313,10 +1280,8 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 	bool more = FALSE;
 
-
 	/* Verify legality */
 	if (!do_cmd_disarm_test(y, x)) return (FALSE);
-
 
 	/* Get the trap name */
 	name = (f_name + f_info[cave_feat[y][x]].name);
@@ -1381,7 +1346,6 @@ static bool do_cmd_disarm_aux(int y, int x)
 	/* Result */
 	return (more);
 }
-
 
 /*
  * Disarms a trap, or a chest
@@ -1473,7 +1437,6 @@ void do_cmd_disarm(void)
 	if (!more) disturb(0);
 }
 
-
 /*
  * Determine if a given grid may be "bashed"
  */
@@ -1503,7 +1466,6 @@ static bool do_cmd_bash_test(int y, int x)
 	/* Okay */
 	return (TRUE);
 }
-
 
 /*
  * Perform the basic "bash" command
@@ -1584,7 +1546,6 @@ static bool do_cmd_bash_aux(int y, int x)
 	return (more);
 }
 
-
 /*
  * Bash open a door, success based on character strength
  *
@@ -1658,8 +1619,6 @@ void do_cmd_bash(void)
 		}
 	}
 }
-
-
 
 /*
  * Manipulate an adjacent grid in some way
@@ -1754,147 +1713,6 @@ void do_cmd_alter(void)
 
 	/* Cancel repetition unless we can continue */
 	if (!more) disturb(0);
-}
-
-/*
- * Find the index of some "spikes", if possible.
- *
- * XXX XXX XXX Let user choose a pile of spikes, perhaps?
- */
-static bool get_spike(int *ip)
-{
-	int i;
-
-	/* Check every item in the pack */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Check the "tval" code */
-		if (o_ptr->tval == TV_SPIKE)
-		{
-			/* Save the spike index */
-			(*ip) = i;
-
-			/* Success */
-			return (TRUE);
-		}
-	}
-
-	/* Oops */
-	return (FALSE);
-}
-
-/*
- * Determine if a given grid may be "spiked"
- */
-static bool do_cmd_spike_test(int y, int x)
-{
-	/* Must have knowledge */
-	if (!(cave_info[y][x] & (CAVE_MARK)))
-	{
-		/* Message */
-		message(MSG_FAIL, 0, "You see nothing there.");
-
-		/* Nope */
-		return (FALSE);
-	}
-
-	/* Require a door */
-	if (!((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-	      (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
-	{
-		/* Message */
-		message(MSG_FAIL, 0, "You see nothing there to spike.");
-
-		/* Nope */
-		return (FALSE);
-	}
-
-	/* Okay */
-	return (TRUE);
-}
-
-
-/*
- * Jam a closed door with a spike
- *
- * This command may NOT be repeated
- */
-void do_cmd_spike(void)
-{
-	int y, x, dir, item;
-
-	/* Get a spike */
-	if (!get_spike(&item))
-	{
-		/* Message */
-		message(MSG_FAIL, 0, "You have no spikes!");
-
-		/* Done */
-		return;
-	}
-
-	/* Get a direction (or abort) */
-	if (!get_rep_dir(&dir)) return;
-
-	/* Get location */
-	y = p_ptr->py + ddy[dir];
-	x = p_ptr->px + ddx[dir];
-
-	/* Verify legality */
-	if (!do_cmd_spike_test(y, x)) return;
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Confuse direction */
-	if (confuse_dir(&dir))
-	{
-		/* Get location */
-		y = p_ptr->py + ddy[dir];
-		x = p_ptr->px + ddx[dir];
-	}
-
-	/* Monster */
-	if (cave_m_idx[y][x] > 0)
-	{
-		/* Message */
-		message(MSG_FAIL, 0, "There is a monster in the way!");
-
-		/* Attack */
-		py_attack(y, x);
-	}
-
-	/* Go for it */
-	else
-	{
-		/* Verify legality */
-		if (!do_cmd_spike_test(y, x)) return;
-
-		/* Successful jamming */
-		message(MSG_SPIKE, 0, "You jam the door with a spike.");
-
-		/* Convert "locked" to "stuck" XXX XXX XXX */
-		if (cave_feat[y][x] < FEAT_DOOR_HEAD + 0x08)
-		{
-			cave_feat[y][x] += 0x08;
-		}
-
-		/* Add one spike to the door */
-		if (cave_feat[y][x] < FEAT_DOOR_TAIL)
-		{
-			cave_feat[y][x] += 0x01;
-		}
-
-		/* Use up, and describe, a single spike, from the bottom */
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
 }
 
 /*

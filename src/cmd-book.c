@@ -26,7 +26,7 @@ typedef struct spell_tip
  * Prints "User's tips" for various spells.  User's tips only appear after 
  * a learnt spell is browsed. -LM-
  */
-static spell_tip spell_tips[SPELLS_TOTAL] = 
+static spell_tip spell_tips[SP_MAX] = 
 {
 	{0, NULL},
 	{SP_HEAL_1,				"Reduces cuts and heals you a little."},
@@ -140,6 +140,7 @@ static spell_tip spell_tips[SPELLS_TOTAL] =
 	{SP_RES_FIRE_COLD,		"Opposition to fire and frost.  Cumulative with equipment."},
 	{SP_RES_ACID_ELEC,		"Opposition to acid & electricity.  Cumulative with equipment."},
 	{SP_RES_POISON,			"Opposition to poison. Cumulative with equipment."},
+	{SP_RES_DISEASE,		"Opposition to disease.."},
 	{SP_RES_SOUND,			"Opposition to sound."},
 	{SP_RES_ELEMENTS,		"Opposition to all elements. Cumulative with equipment."},
 	{SP_RES_GREATER,		"Resist many things. Poison resistance cumulative with equipment."},
@@ -166,7 +167,7 @@ bool literate(void)
 {
 	int j;
 
-	for (j = 0; j < SV_MAX_BOOKS; j++)
+	for (j = 0; j < SV_BOOK_MAX; j++)
 	{
 		if (cp_ptr->spell_book[j]) return TRUE;  
 	}
@@ -250,14 +251,9 @@ static s16b spell_chance(int book, int spell, bool music)
 	minfail = adj_mag_fail[stat_factor];
 
 	/* Non mage/priest/mystic characters never get better than 5 percent */
-	if (!cp_ptr->flags & CF_ZERO_FAIL)
+	if (!(cp_ptr->flags & CF_ZERO_FAIL))
 	{
-		int threshold;
-
-		if (!music) threshold = (cp_ptr->spell_handicap[book]+2);
-		else threshold = 5;
-
-		if (minfail < threshold) minfail = threshold;
+		if (minfail < 5) minfail = 5;
 	}
 
 	/* Priest prayer penalty for "edged" weapons (before minfail) */
@@ -276,7 +272,20 @@ static s16b spell_chance(int book, int spell, bool music)
 		else chance+=10;
 	}
 
-	/* Stunning makes spells harder (after minfail and disruption) */
+	/* Gloves (after minfail)*/
+	if (p_ptr->cumber_glove) 
+	{
+		if (chance < 10) chance = 25;
+		else chance+=15;
+	}
+
+	/* Heavy armor */
+	if (p_ptr->cumber_armor) 
+	{
+		chance += (p_ptr->cumber_armor / 20) + 1;
+	}
+
+	/* Stunning makes spells harder */
 	if (p_ptr->stun > 50) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
@@ -343,9 +352,7 @@ static bool tune_okay(int instrument, int lev, int tune)
  *
  * We can use up to 20 characters of the buffer 'p'
  *
- * The strings in this function were extracted from the code in the
- * functions "do_cmd_cast()" and "do_cmd_pray()" and are up to date 
- * (as of 0.4.0). -LM-
+ * Originally taken from Oangband -LM-
  */
 static void spell_info(char *p, int spell_index)
 {
@@ -387,19 +394,19 @@ static void spell_info(char *p, int spell_index)
 		case SP_TELE_MAJOR: 
 			sprintf(p, " range %d", plev * 5); break;
 		case SP_BOLT_MISSILE: 
-			sprintf(p, " dam %dd4, beam %d%%", 3+((plev-1)/5), beam_low); break;
+			sprintf(p, " dam %dd4", (3+((plev-1)/5))); break;
 		case SP_BOLT_ELEC: 
 			sprintf(p, " dam %dd8, beam %d%%", (3+((plev-5)/4)), beam_low); break;
 		case SP_BOLT_FROST: 
 			sprintf(p, " dam %dd8, beam %d%%", (5+((plev-5)/4)), beam_low); break;
 		case SP_BOLT_ACID: 
-			sprintf(p, " dam %dd8, beam %d%%", (6+((plev-5)/4)), beam); break;
+			sprintf(p, " dam %dd9, beam %d%%", (6+((plev-5)/4)), beam); break;
 		case SP_BOLT_FIRE: 
-			sprintf(p, " dam %dd8, beam %d%%", (8+((plev-5)/4)), beam); break;
+			sprintf(p, " dam %dd9, beam %d%%", (7+((plev-5)/3)), beam); break;
 		case SP_BOLT_SOUND: 
-			sprintf(p, " dam %dd4, beam %d%%", 3+((plev-1)/5), beam_low); break;
+			sprintf(p, " dam %dd4, beam %d%%", (3+((plev-1)/5)), beam_low); break;
 		case SP_BOLT_FORCE: 
-			sprintf(p, " dam %dd8, beam %d%%", (2+((plev-5)/4)), beam_low); break;
+			sprintf(p, " dam %dd8, beam %d%%", (2+((plev-5)/4)), beam); break;
 		case SP_BOLT_MANA: 
 			sprintf(p, " dam %dd8, beam %d%%", (6+((plev-5)/4)), beam); break;
 		case SP_BEAM_WEAK_LITE: 
@@ -411,11 +418,11 @@ static void spell_info(char *p, int spell_index)
 		case SP_BALL_POISON_2: 
 			sprintf(p, " dam %d, rad 3", 20 + (plev/2)); break;
 		case SP_BALL_ACID: 
-			sprintf(p, " dam %d, rad 3", 40 + (plev)); break;
+			sprintf(p, " dam %d, rad 3", 45 + (plev)); break;
 		case SP_BALL_FIRE: 
-			sprintf(p, " dam %d, rad 2", 55 + plev); break;
+			sprintf(p, " dam %d, rad 2", 60 + plev); break;
 		case SP_BALL_FROST_1: 
-			sprintf(p, " dam %d, rad 2", 30 + plev); break;
+			sprintf(p, " dam %d, rad 2", 35 + plev); break;
 		case SP_BALL_FROST_2: 
 			sprintf(p, " dam %d, rad 3", 70 + (plev)); break;
 		case SP_BALL_SOUND: 
@@ -489,6 +496,8 @@ static void spell_info(char *p, int spell_index)
 		case SP_RES_ACID_ELEC: 
 			strcpy(p, " dur 20+d20"); break;
 		case SP_RES_POISON: 
+			strcpy(p, " dur 20+d20"); break;
+		case SP_RES_DISEASE: 
 			strcpy(p, " dur 20+d20"); break;
 		case SP_RES_SOUND: 
 			strcpy(p, " dur 40+d40"); break;
@@ -574,7 +583,7 @@ void print_spells(int book, bool music, int lev, int y, int x)
 		j++;
 
 		/* Skip illegible spells. */
-		if ((s_ptr->slevel+handicap) >= 51)
+		if ((s_ptr->slevel + handicap) >= 51)
 		{
 			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
 			c_prt(TERM_L_DARK, out_val, y + j + 1, x);
@@ -1006,11 +1015,9 @@ static int get_tune(int *sn, int instrument, int lev)
  */
 static void do_browse_instrument(int instrument, int lev)
 {
-	int tune, lines;
+	int tune, lines, j;
 
 	magic_type *s_ptr;
-
-	int j;
 
 	/* Display the spells */
 	print_spells(instrument, TRUE, lev, 1, 14);
@@ -1045,7 +1052,7 @@ static void do_browse_instrument(int instrument, int lev)
 		/* Access the spell */
 		s_ptr = &instruments[instrument].contents[tune];
 
-		for (j = (SPELLS_TOTAL-1);j > 0; j--) 
+		for (j = (SP_MAX - 1); j > 0; j--) 
 		{
 			if (spell_tips[j].index == s_ptr->index) break;
 		}
@@ -1060,11 +1067,9 @@ static void do_browse_instrument(int instrument, int lev)
  */
 static void do_browse_book(int book)
 {
-	int spell, lines;
+	int spell, lines, j;
 
 	magic_type *s_ptr;
-
-	int j;
 
 	/* Display the spells */
 	print_spells(book, FALSE, 0, 1, 14);
@@ -1099,7 +1104,7 @@ static void do_browse_book(int book)
 		/* Access the spell */
 		s_ptr = &books[book].contents[spell];
 
-		for (j = (SPELLS_TOTAL-1);j > 0; j--) 
+		for (j = (SP_MAX - 1); j > 0; j--) 
 		{
 			if (spell_tips[j].index == s_ptr->index) break;
 		}
@@ -1296,7 +1301,7 @@ void do_cmd_study(void)
 	p_ptr->spell_learned[o_ptr->sval] |= (1L << spell);
 
 	/* Find the next open entry in "spell_order[]" */
-	for (i = 0; i < (SV_MAX_BOOKS * MAX_BOOK_SPELLS); i++)
+	for (i = 0; i < (SV_BOOK_MAX * MAX_BOOK_SPELLS); i++)
 	{
 		/* Stop at the first empty space */
 		if (p_ptr->spell_order[i][1] == 99) break;
@@ -1329,7 +1334,6 @@ void do_cmd_study(void)
 
 	/* Redraw Study Status */
 	p_ptr->redraw |= (PR_STUDY);
-
 }
 
 /*
@@ -1498,7 +1502,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		case SP_BOLT_MISSILE:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
+			fire_bolt_or_beam(0, GF_MISSILE, dir,
 				              damroll(3 + ((plev - 1) / 5), 4));
 			break;
 		}
@@ -1520,14 +1524,14 @@ static void aux_spell_cast(int index, int plev, int beam)
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam, GF_ACID, dir,
-				              damroll(6+((plev-5)/4), 8));
+				              damroll(6+((plev-5)/4), 9));
 			break;
 		}
 		case SP_BOLT_FIRE:
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam, GF_FIRE, dir,
-				              damroll(8+((plev-5)/4), 8));
+				              damroll(7+((plev-5)/3), 9));
 			break;
 		}
 		case SP_BOLT_SOUND:
@@ -1540,7 +1544,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		case SP_BOLT_FORCE:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_bolt_or_beam(beam-10, GF_FORCE, dir,
+			fire_bolt_or_beam(beam, GF_FORCE, dir,
 				              damroll(2+((plev-5)/4), 8));
 			break;
 		}
@@ -1555,7 +1559,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		{ 
 			if (!get_aim_dir(&dir)) return;
 			message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
-			lite_line(dir,damroll(9,8));
+			lite_line(dir, damroll(9,8));
 			break;
 		}
 		case SP_BEAM_NETHER:
@@ -1580,19 +1584,19 @@ static void aux_spell_cast(int index, int plev, int beam)
 		case SP_BALL_ACID:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_ACID, dir, 40 + (plev), 2);
+			fire_ball(GF_ACID, dir, 45 + (plev), 2);
 			break;
 		}
 		case SP_BALL_FIRE:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_FIRE, dir, 55 + (plev), 2);
+			fire_ball(GF_FIRE, dir, 60 + (plev), 2);
 			break;
 		}
 		case SP_BALL_FROST_1:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_COLD, dir, 30 + (plev), 2);
+			fire_ball(GF_COLD, dir, 35 + (plev), 2);
 			break;
 		}
 		case SP_BALL_FROST_2:
@@ -1795,7 +1799,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 			}
 			else
 			{
-				(void)set_tim_invis(p_ptr->tim_invis + randint(20));
+				(void)set_tim_invis(p_ptr->tim_invis + randint(10));
 			}
 			break;
 			break;
@@ -1862,7 +1866,9 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_AGGRAVATE:
 		{
+			if (!get_check("Are you sure you wish to aggravate nearby monsters? ")) break;
 			aggravate_monsters(0);
+			break;
 		}
 		case SP_CONFUSE_MONSTER:
 		{
@@ -2013,6 +2019,11 @@ static void aux_spell_cast(int index, int plev, int beam)
 		case SP_RES_POISON:
 		{
 			(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+			break;
+		}
+		case SP_RES_DISEASE:
+		{
+			(void)set_tim_res_disease(p_ptr->tim_res_disease + randint(20) + 20);
 			break;
 		}
 		case SP_RES_SOUND:
@@ -2239,7 +2250,6 @@ static void do_cast_or_pray(int book)
 				break;
 			}
 		}
-
 	}
 
 	/* Process spell */
@@ -2418,8 +2428,6 @@ void do_cmd_magic(void)
 		return;
 	}
 
-	item_tester_hook = item_tester_hook_bookmusic;
-
 	if (p_ptr->confused)
 	{
 		if (!(cp_ptr->flags & CF_MYSTIC_CAST))
@@ -2427,7 +2435,6 @@ void do_cmd_magic(void)
 			message(MSG_FAIL, 0, "You are too confused!");
 			return;
 		}
-		else item_tester_hook = item_tester_hook_bookmusic;
 	}
 
 	if (p_ptr->blind || no_lite())
@@ -2437,10 +2444,10 @@ void do_cmd_magic(void)
 			message(MSG_FAIL, 0, "You cannot see!");
 			return;
 		}
-		else item_tester_hook = item_tester_hook_bookmusic;
 	}
 
 	/* Get an item */
+	item_tester_hook = item_tester_hook_bookmusic;
 
 	/* Can use instruments, can't use books */
 	if (!literate() && ((cp_ptr->flags & CF_MUSIC))) 

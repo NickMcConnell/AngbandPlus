@@ -74,7 +74,8 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                goods in town.  Half-Orcs do make good warriors, for the 
                simple reason that Half-Orcs tend to have great constitutions
                and lots of hit points.  Because of their preference to living
-               underground to on the surface, half-orcs resist darkness attacks.
+               underground to on the surface, half-orcs resist darkness 
+               attacks.
  
           Half-Troll
                Half-Trolls are incredibly strong, and have more hit points
@@ -82,15 +83,15 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                slow.  They will make great warriors and iffy priests.  They
                are bad at searching, disarming, perception, and stealth, but
                decent at digging. They are so ugly that a Half-Orc grimaces in
-               their presence. They also happen to be fun to run...  Half-trolls
+               their presence. They also happen to be fun to run. Half-trolls
                always have their strength sustained.
  
           Dunadan
                Dunedain are a race of hardy men from the West.  This elder
                race surpasses human abilities in every field, especially
                constitution.  However, being men of the world, very little is
-               new to them, and levels are very hard to gain...  They can
-               play all classes.  Their constitution cannot be reduced.
+               new to them, and levels are very hard to gain. They can play
+               all classes.  Their constitution cannot be reduced.
  
           High-Elf
                High-Elves are descended from those among the Elves who heard 
@@ -123,10 +124,10 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                Demons are the evil spawn of hell. Chaotic and unpredictable,
                some demons realize that the quickest path to promotion is by
                destroying all their rivals, and thus temporarily join the side
-               of good in cleaning the dungeons of Angband. They are the weakest
+               of good to cleanse the dungeons of Angband. They are the weakest
                of the races at their creation, but their abilities grow with
                their levels and they eventually gain immense power. From a
-               certain level, Demons possess special racial abilities. Low level
+               certain level, Demons gain special racial abilities. Low level
                demons are quite stealthy, but as they grow more powerful their
                stealth rapidly decreases. Death and mayhem being commonplace to
                them, they gain levels slowly. They can play warriors, mages and
@@ -135,33 +136,32 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
           Nilbog
                The nilbog (sing. and plural) are a race shrouded in mystery. 
                They are slightly shorter than humans and totally hairless. No 
-               one knowns whence they come from or why; even they themselves have
-               no memory of their past. They accept this calmly, confident that 
-               when the time will come for the purpose of their existance to be 
-               known they shall be up to the task. They are creatures of unmagic, 
-               and they disrupt the magic around them. This provides them with
-               innate protection from mana based attacks, but they are barred 
-               from most classes as spellcasting is incredibly difficult to them
-               and magical weapons and armor that they weild will quickly lose its
-               power.
+               one knowns whence they come from or why; even they themselves 
+               have no memory of their past. They accept this calmly, confident
+               that when the time will come for the purpose of their existance
+               to be known they, shall be up to the task. They are creatures of
+               unmagic, and disrupt the magic around them. This provides them 
+               with innate protection from mana based attacks, but they are 
+               barred from most classes as spellcasting is incredibly difficult
+               to them and magical weapons and armor that they weild will 
+               quickly lose its power.
 
  === Recommended combinations of Race and Class ===
 
-                Warrior   Mage  Priest  Ranger  Paladin  Mystic  Bard
- 
-     Human        Yes     Yes     Yes     Yes     Yes     Yes     Yes
-     Half-Elf     Yes     Yes     Yes     Yes     Yes     Yes     Yes
-     Elf          Yes     Yes     Yes     Yes     No      Yes     Yes
-     Hobbit       Yes     Yes     No      No      No      No      Yes
-     Gnome        Yes     Yes     Yes     No      No      No      No
-     Dwarf        Yes     No      Yes     No      Yes     Yes     No
-     Half-Orc     Yes     No      Yes     No      No      No      No
-     Half-Troll   Yes     No      Yes     No      No      No      No
-     Dunadan      Yes     Yes     Yes     Yes     Yes     Yes     Yes
-     High-Elf     Yes     Yes     No      Yes     No      No      Yes
-     Angel        Yes     Yes     Yes     Yes     Yes     Yes     Yes
-     Demon        Yes     Yes     No      Yes     No      No      No
-     Nilbog       Yes     No      No      No      No      No      No
+          Warrior  Mage  Priest  Ranger  Paladin  Mystic  Bard  Spellsword
+ Human      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
+ Half-Elf   Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
+ Elf        Yes     Yes    Yes     Yes     No       Yes    Yes     Yes
+ Hobbit     Yes     Yes    No      No      No       No     Yes     No
+ Gnome      Yes     Yes    Yes     No      No       No     No      Yes
+ Dwarf      Yes     No     Yes     No      Yes      Yes    No      No
+ Half-Orc   Yes     No     Yes     No      No       No     No      Yes
+ Half-Troll Yes     No     Yes     No      No       No     No      No
+ Dunadan    Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
+ High-Elf   Yes     Yes    No      Yes     No       No     Yes     Yes
+ Angel      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
+ Demon      Yes     Yes    No      Yes     No       No     No      Yes
+ Nilbog     Yes     No     No      No      No       No     No      No
 
 === Stat Bonus Tables ===
 

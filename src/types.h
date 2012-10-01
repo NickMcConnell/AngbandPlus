@@ -65,6 +65,7 @@ typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
+typedef struct monster_unique monster_unique;
 typedef struct monster_race monster_race;
 typedef struct monster_lore monster_lore;
 typedef struct vault_type vault_type;
@@ -101,12 +102,14 @@ struct maxima
 	u32b fake_name_size;
 
 	u16b f_max;		/* Max size for "f_info[]" */
-	u16b k_max;		/* Max size for "k_info[]" */
 
+	u16b k_max;		/* Max size for "k_info[]" */
 	u16b a_max;		/* Max size for "a_info[]" */
 	u16b e_max;		/* Max size for "e_info[]" */
 
 	u16b r_max;		/* Max size for "r_info[]" */
+	u16b u_max;		/* Max size for "u_info[]" */
+	
 	u16b v_max;		/* Max size for "v_info[]" */
 
 	u16b p_max;		/* Max size for "p_info[]" */
@@ -204,10 +207,6 @@ struct object_kind
 
 /*
  * Information about "artifacts".
- *
- * Note that the save-file only writes "cur_num" to the savefile.
- *
- * Note that "max_num" is always "1" (if that artifact "exists")
  */
 struct artifact_type
 {
@@ -238,8 +237,7 @@ struct artifact_type
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
 
-	byte cur_num;		/* Number created (0 or 1) */
-	byte max_num;		/* Unused (should be "1") */
+	byte status;		/* Status of the artifact (created, etc.) */
 
 	byte activation;	/* Activation to use */
 	u16b time;			/* Activation time */
@@ -295,6 +293,58 @@ struct monster_blow
 };
 
 /*
+ * Monster "unique" information.
+ *
+ * Note that "d_attr" is used for MORE than "visual" stuff. There is no "d_char"
+ * since that must always be the same as the monster_race info.
+ *
+ * Note that "x_attr" and "x_char" are used ONLY for "visual" stuff.
+ *
+ */
+struct monster_unique
+{
+	s16b r_idx;				/* Monster race index */
+
+	u32b name;				/* Name (offset) */
+	u32b text;				/* Text (offset) */
+
+	byte hdice;				/* Creatures hit dice count */
+	byte hside;				/* Creatures hit dice sides */
+
+	s16b ac;				/* Armour Class */
+
+	s16b sleep;				/* Inactive counter (base) */
+	byte aaf;				/* Area affect radius (1-100) */
+	byte speed;				/* Speed (normally 110) */
+
+	s32b mexp;				/* Exp value for kill */
+
+	byte freq_spell;		/* Other spell frequency */
+
+	u32b flags1;			/* Flags 1 (general) */
+	u32b flags2;			/* Flags 2 (abilities) */
+	u32b flags3;			/* Flags 3 (race/resist) */
+	u32b flags4;			/* Flags 4 (inate/breath) */
+	u32b flags5;			/* Flags 5 (normal spells) */
+	u32b flags6;			/* Flags 6 (special spells) */
+
+	monster_blow blow[4];	/* Up to four blows per round */
+
+	byte level;				/* Level of creature */
+	byte rarity;			/* Rarity of creature */
+
+	byte d_attr;			/* Default monster attribute */
+
+	/* Calculated fields */
+
+	byte x_attr;			/* Desired monster attribute */
+	byte x_char;			/* Desired monster character */
+
+	s16b depth;				/* The unique's current depth (or depth it died in) */
+	bool dead;				/* Marked when dead */
+};
+
+/*
  * Monster "race" information, including racial memories
  *
  * Note that "d_attr" and "d_char" are used for MORE than "visual" stuff.
@@ -308,9 +358,6 @@ struct monster_blow
  * Note that "max_num" is reset when a new player is created.
  * Note that "cur_num" is reset when a new level is created.
  *
- * Maybe "x_attr", "x_char", "cur_num", and "max_num" should
- * be moved out of this array since they are not read from
- * "r_info.txt".
  */
 struct monster_race
 {
@@ -330,7 +377,6 @@ struct monster_race
 
 	s16b extra;				/* Unused (for now) */
 
-	byte freq_inate;		/* Inate spell frequency */
 	byte freq_spell;		/* Other spell frequency */
 
 	u32b flags1;			/* Flags 1 (general) */
@@ -351,9 +397,11 @@ struct monster_race
 	byte x_attr;			/* Desired monster attribute */
 	char x_char;			/* Desired monster character */
 
-	byte max_num;			/* Maximum population allowed per level */
+	/* Calculated fields */
 
 	byte cur_num;			/* Monster population on current level */
+
+	byte num_unique;		/* How many uniques exist for this monster */
 
 	byte total_visible;     /* Amount of this race that are visible */
 };
@@ -455,8 +503,8 @@ struct object_type
 
 	s16b weight;		/* Item weight */
 
-	byte name1;			/* Artifact type, if any */
-	byte name2;			/* Ego-Item type, if any */
+	byte a_idx;			/* Artifact type, if any */
+	byte e_idx;			/* Ego-Item type, if any */
 
 	byte xtra1;			/* Extra info type */
 	byte xtra2;			/* Extra info index */
@@ -495,6 +543,7 @@ struct object_type
 struct monster_type
 {
 	s16b r_idx;			/* Monster race index */
+	s16b u_idx;			/* Unique index (for uniques) */
 
 	byte fy;			/* Y location on map */
 	byte fx;			/* X location on map */
@@ -563,6 +612,8 @@ struct quest_type
 
 	s16b cur_num;		/* Number killed */
 	s16b max_num;		/* Number required */
+
+	bool started;			/* Has the player start the quest */
 };
 
 /*
@@ -571,18 +622,22 @@ struct quest_type
 struct owner_type
 {
 	u32b owner_name;	/* Name (offset) */
-	u32b unused;		/* Unused */
 
 	s16b max_cost;		/* Purse limit */
 
+	byte owner_race;	/* Owner race */
+
+#ifdef ALLOW_HAGGLE
 	byte max_inflate;	/* Inflation (max) */
 	byte min_inflate;	/* Inflation (min) */
 
 	byte haggle_per;	/* Haggle unit */
 
 	byte insult_max;	/* Insult limit */
+#else /* ALLOW_HAGGLE */
+	byte inflate;		/* Inflation */
+#endif /* ALLOW_HAGGLE */
 
-	byte owner_race;	/* Owner race */
 };
 
 /*
@@ -592,7 +647,8 @@ struct owner_type
 struct store_type
 {
 	byte owner;				/* Owner index */
-	byte extra;				/* Unused for now */
+
+#ifdef ALLOW_HAGGLE
 
 	s16b insult_cur;		/* Insult counter */
 
@@ -600,8 +656,7 @@ struct store_type
 	s16b bad_buy;			/* Number of "bad" buys */
 
 	s32b store_open;		/* Closed until this turn */
-
-	s32b store_wrap;		/* Unused for now */
+#endif
 
 	s16b table_num;			/* Table -- Number of entries */
 	s16b table_size;		/* Table -- Total Size of Array */
@@ -755,8 +810,8 @@ struct player_class
 	s16b spell_stat1;						/* First stat for spells (if any)  */
 	s16b spell_stat2;						/* Second stat for spells (if any)  */
 	s16b spell_weight;						/* Weight that hurts spells */
-	bool spell_book[SV_MAX_BOOKS];			/* The list of legal books */
-	s16b spell_handicap[SV_MAX_BOOKS];		/* Spell handicap per realm */
+	bool spell_book[SV_BOOK_MAX];			/* The list of legal books */
+	s16b spell_handicap[SV_BOOK_MAX];		/* Spell handicap per realm */
 
 	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
 };
@@ -830,7 +885,7 @@ struct player_type
 	byte oops;			/* unused */
 
 	byte hitdie;		/* Hit dice (sides) */
-	byte expfact;		/* Experience factor */
+	u16b expfact;		/* Experience factor */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -912,11 +967,11 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
-	u16b spell_learned[SV_MAX_BOOKS];	/* Spell flags */
-	u16b spell_worked[SV_MAX_BOOKS];	/* Spell flags */
-	u16b spell_forgotten[SV_MAX_BOOKS];	/* Spell flags */
+	u16b spell_learned[SV_BOOK_MAX];	/* Spell flags */
+	u16b spell_worked[SV_BOOK_MAX];		/* Spell flags */
+	u16b spell_forgotten[SV_BOOK_MAX];	/* Spell flags */
 
-	byte spell_order[SV_MAX_BOOKS * MAX_BOOK_SPELLS][2];	/* Spell order */
+	byte spell_order[SV_BOOK_MAX * MAX_BOOK_SPELLS][2];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
@@ -988,7 +1043,7 @@ struct player_type
 
 	s16b old_spells;
 
-	bool old_cumber_armor;
+	u16b old_cumber_armor; /* Amount */
 	bool old_cumber_glove;
 	bool old_heavy_wield;
 	bool old_heavy_shoot;
@@ -999,7 +1054,7 @@ struct player_type
 
 	s16b old_food_aux;	/* Old value of food */
 
-	bool cumber_armor;	/* Mana draining armor */
+	u16b cumber_armor;	/* Mana draining armor - amount */
 	bool cumber_glove;	/* Mana draining gloves */
 	bool heavy_wield;	/* Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
@@ -1108,6 +1163,15 @@ struct player_type
 	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
+
+	u16b cur_quest;		/* Current quest */
+
+	/* Other fields */
+	s16b obj_depth;		/* Depth for object generation purposes*/
+
+	byte feeling;		/* Level feeling */
+	s32b feeling_cnt;	/* Hack - counter for level feeling */
+
 };
 
 /*

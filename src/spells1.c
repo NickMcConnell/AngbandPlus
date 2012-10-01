@@ -549,14 +549,12 @@ static bool hates_acid(object_type *o_ptr)
 		case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
-		case TV_HELM:
-		case TV_CROWN:
+		case TV_HEADGEAR:
 		case TV_SHIELD:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
+		case TV_BODY_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
 			return (TRUE);
@@ -621,7 +619,7 @@ static bool hates_fire(object_type *o_ptr)
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
+		case TV_BODY_ARMOR:
 		{
 			return (TRUE);
 		}
@@ -1804,7 +1802,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* Obtain monster info */
 	m_ptr = &m_list[cave_m_idx[y][x]];
-	r_ptr = &r_info[m_ptr->r_idx];
+	r_ptr = get_monster_full(m_ptr);
 	l_ptr = &l_list[m_ptr->r_idx];
 	name = (r_name + r_ptr->name);
 	if (m_ptr->ml) seen = TRUE;
@@ -3827,7 +3825,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something strange!");
 			message(MSG_EFFECT, 0, "Gravity warps around you.");
-			teleport_player(5);
+			if (!p_ptr->ffall) teleport_player(5);
 			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
 			if (!p_ptr->resist_sound)
 			{
@@ -4452,9 +4450,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 }
 
 /*
- * Controlled teleportation.  -LM-
- * Idea from PsiAngband, through Zangband.
- * Copied from Oangband
+ * Controlled teleportation.  
+ * Idea from PsiAngband, through Zangband and finally Oangband.
  */
 void dimen_door(void)
 {

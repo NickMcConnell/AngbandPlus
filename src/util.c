@@ -1597,7 +1597,6 @@ char inkey(void)
 
 #endif /* ALLOW_BORG */
 
-
 	/* Hack -- handle delayed "flush()" */
 	if (inkey_xtra)
 	{
@@ -1610,7 +1609,6 @@ char inkey(void)
 		/* Forget old keypresses */
 		Term_flush();
 	}
-
 
 	/* Get the cursor state */
 	(void)Term_get_cursor(&v);
@@ -2438,36 +2436,6 @@ static void msg_print_aux(u16b type, cptr msg)
 }
 
 /*
- * Print a message in the default color (white)
- */
-void msg_print(cptr msg)
-{
-	msg_print_aux(MSG_GENERIC, msg);
-}
-
-/*
- * Display a formatted message, using "vstrnfmt()" and "msg_print()".
- */
-void msg_format(cptr fmt, ...)
-{
-	va_list vp;
-
-	char buf[1024];
-
-	/* Begin the Varargs Stuff */
-	va_start(vp, fmt);
-
-	/* Format the args, save the length */
-	(void)vstrnfmt(buf, 1024, fmt, vp);
-
-	/* End the Varargs Stuff */
-	va_end(vp);
-
-	/* Display */
-	msg_print_aux(MSG_GENERIC, buf);
-}
-
-/*
  * Display a message and play the associated sound.
  *
  * The "extra" parameter is currently unused.
@@ -2523,8 +2491,6 @@ void message_flush(void)
 	}
 }
 
-
-
 /*
  * Hack -- prevent "accidents" in "screen_save()" or "screen_load()"
  */
@@ -2547,7 +2513,6 @@ void screen_save(void)
 	character_icky++;
 }
 
-
 /*
  * Load the screen, and decrease the "icky" depth.
  *
@@ -2564,7 +2529,6 @@ void screen_load(void)
 	/* Decrease "icky" depth */
 	character_icky--;
 }
-
 
 /*
  * Display a string on the screen using an attribute.
@@ -2587,8 +2551,6 @@ void put_str(cptr str, int row, int col)
 	/* Spawn */
 	Term_putstr(col, row, -1, TERM_WHITE, str);
 }
-
-
 
 /*
  * Display a string on the screen using an attribute, and clear
@@ -2863,7 +2825,6 @@ bool askfor_aux(char *buf, int len)
 	return (ch != ESCAPE);
 }
 
-
 /*
  * Prompt for a string from the user.
  *
@@ -2891,8 +2852,6 @@ bool get_string(cptr prompt, char *buf, int len)
 	/* Result */
 	return (res);
 }
-
-
 
 /*
  * Request a "quantity" from the user

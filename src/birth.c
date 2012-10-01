@@ -449,7 +449,7 @@ static void player_wipe(void)
 	for (i = 0; i < z_info->a_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		a_ptr->cur_num = 0;
+		a_ptr->status &= ~(A_STATUS_CREATED | A_STATUS_AWARE | A_STATUS_KNOWN);
 	}
 
 	/* Reset the quests */
@@ -474,6 +474,9 @@ static void player_wipe(void)
 			q_ptr->reward = 0;
 		}
 	}
+	
+	/* No current quest */
+	p_ptr->cur_quest = 0;
 
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)
@@ -488,7 +491,7 @@ static void player_wipe(void)
 	}
 
 	/* Reset the "alchemy" knowledge */
-	for (i = 0; i < SV_MAX_POTIONS ; i++)
+	for (i = 0; i < SV_POTION_MAX ; i++)
 	{
 		potion_alch[i].known1 = FALSE;
 		potion_alch[i].known2 = FALSE;
@@ -503,21 +506,34 @@ static void player_wipe(void)
 		/* Hack -- Reset the counter */
 		r_ptr->cur_num = 0;
 
-		/* Hack -- Reset the max counter */
-		r_ptr->max_num = 100;
-
-		/* Hack -- Reset the max counter */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
+		/* Hack -- Reset the unique counter */
+		r_ptr->num_unique = 0;
 
 		/* Clear player kills */
 		l_ptr->r_pkills = 0;
+
+	}
+
+	/* Reset the "uniques" */
+	for (i = 1; i < z_info->u_max; i++)
+	{
+		monster_unique *u_ptr = &u_info[i];
+
+		/* Hack -- Reset the depth */
+		u_ptr->depth = -1;
+
+		/* Hack -- Reset the living */
+		u_ptr->dead = FALSE;
+
+		/* Hack -- Increment unique counter */
+		r_info[u_ptr->r_idx].num_unique++;
 	}
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
 	/* None of the spells have been learned yet */
-	for (i = 0;i < (SV_MAX_BOOKS * MAX_BOOK_SPELLS); i++)
+	for (i = 0;i < (SV_BOOK_MAX * MAX_BOOK_SPELLS); i++)
 	{
 		p_ptr->spell_order[i][0] = 99;
 		p_ptr->spell_order[i][1] = 99;
@@ -588,7 +604,6 @@ static void player_outfit(void)
 		object_aware(i_ptr);
 		object_known(i_ptr);
 		(void)inven_carry(i_ptr);
-
 	}
 
 	/* Hack -- Give the player his equipment */
@@ -607,7 +622,7 @@ static void player_outfit(void)
 			i_ptr->number = rand_int(e_ptr->max - e_ptr->min + 1) + e_ptr->min;
 
 			/* make ego item if necessary */
-			if (e_ptr->ego) i_ptr->name2 = e_ptr->ego;
+			if (e_ptr->ego) i_ptr->e_idx = e_ptr->ego;
 
 			object_aware(i_ptr);
 			object_known(i_ptr);
@@ -657,7 +672,7 @@ static bool player_birth_aux_1(void)
 		"Your 'sex' does not have any significant gameplay effects.");
 
 	/* Prompt for "Sex" */
-	for (n = 0; n < MAX_SEXES; n++)
+	for (n = 0; n < SEX_MAX; n++)
 	{
 		/* Analyze */
 		p_ptr->psex = n;
@@ -680,7 +695,7 @@ static bool player_birth_aux_1(void)
 		if (ch == 'S') return (FALSE);
 		k = (islower(ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
-		if (ch == '*') k = rand_int(MAX_SEXES);
+		if (ch == '*') k = rand_int(SEX_MAX);
 		if ((k >= 0) && (k < n)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal sex!");

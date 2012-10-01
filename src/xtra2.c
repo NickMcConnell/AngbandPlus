@@ -141,7 +141,7 @@ void check_experience(void)
 		p_ptr->max_lev++;
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS); +
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS); 
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
@@ -160,10 +160,16 @@ void check_experience(void)
  *
  * Note the use of actual "monster names".  XXX XXX XXX
  */
-static int get_coin_type(monster_race *r_ptr)
+static int get_coin_type(int m_idx)
 {
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
+
 	cptr name = (r_name + r_ptr->name);
 
+	/* Hack - don't restrict coin types for uniques */
+	if (m_ptr->u_idx) return (0);
+	
 	/* Analyze "coin" monsters */
 	if (r_ptr->d_char == '$')
 	{
@@ -247,16 +253,15 @@ void monster_death(int m_idx)
 	int number = 0;
 	int total = 0;
 
-	int completed = 0;
-	int level_total = 0;
-
+	bool questlevel = FALSE;
+	bool completed = FALSE;
 	bool fixedquest = FALSE;
 
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &m_list[m_idx];
 
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
 
@@ -316,10 +321,10 @@ void monster_death(int m_idx)
 		object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
 
 		/* Mega-Hack -- Mark this item as "Grond" */
-		i_ptr->name1 = ART_GROND;
+		i_ptr->a_idx = ART_GROND;
 
 		/* Mega-Hack -- Actually create "Grond" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE);
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
@@ -328,13 +333,13 @@ void monster_death(int m_idx)
 		i_ptr = &object_type_body;
 
 		/* Mega-Hack -- Prepare to make "Morgoth" */
-		object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
+		object_prep(i_ptr, lookup_kind(TV_HEADGEAR, SV_MORGOTH));
 
 		/* Mega-Hack -- Mark this item as "Morgoth" */
-		i_ptr->name1 = ART_MORGOTH;
+		i_ptr->a_idx = ART_MORGOTH;
 
 		/* Mega-Hack -- Actually create "Morgoth" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE);
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
@@ -349,10 +354,10 @@ void monster_death(int m_idx)
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
 
 	/* Hack -- handle creeping coins */
-	coin_type = get_coin_type(r_ptr);
+	coin_type = get_coin_type(m_idx);
 
 	/* Average dungeon and monster levels */
-	object_level = (p_ptr->depth + r_ptr->level) / 2;
+	p_ptr->obj_depth  = (p_ptr->depth + r_ptr->level) / 2;
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
@@ -377,7 +382,7 @@ void monster_death(int m_idx)
 		else
 		{
 			/* Make an object */
-			if (!make_object(i_ptr, good, great)) continue;
+			if (!make_object(i_ptr, good, great, TRUE)) continue;
 
 			/* Assume seen XXX XXX XXX */
 			dump_item++;
@@ -388,7 +393,7 @@ void monster_death(int m_idx)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	p_ptr->obj_depth  = p_ptr->depth;
 
 	/* Reset "coin" type */
 	coin_type = 0;
@@ -412,7 +417,7 @@ void monster_death(int m_idx)
 		if (q_ptr->active_level == p_ptr->depth)
 		{
 			/* One on the level */
-			level_total++;
+			questlevel = TRUE;
 
 			/* Require "Quest Monsters" */
 			if (q_ptr->r_idx == m_ptr->r_idx)
@@ -430,7 +435,7 @@ void monster_death(int m_idx)
 					if (q_ptr->type == QUEST_FIXED) fixedquest = TRUE;
 
 					/* One complete */
-					completed++;
+					completed = TRUE;
 				}
 			}
 		}
@@ -440,12 +445,12 @@ void monster_death(int m_idx)
 	}
 
 	/* Require a quest level */
-	if (!level_total) return;
+	if (!questlevel) return;
 
 	/* Require all quests on this level to be completed */
-	if (completed != level_total) return;
+	if (!completed) return;
 
-	/* Require at least one fixed quest on the level */
+	/* Check quest type */
 	if (!fixedquest) 
 	{
 		/* Give a message */
@@ -504,9 +509,7 @@ void monster_death(int m_idx)
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
+	monster_race *r_ptr = get_monster_full(m_ptr);
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	s32b div, new_exp, new_exp_frac;
@@ -591,7 +594,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+		if (r_ptr->flags1 & (RF1_UNIQUE)) u_info[m_ptr->u_idx].dead = TRUE;
 		
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
@@ -663,8 +666,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			(*fear) = TRUE;
 
 			/* Hack -- Add some timed fear */
-			m_ptr->monfear = (randint(10) +
-			                  (((dam >= m_ptr->hp) && (percentage > 7)) ?
+			m_ptr->monfear = (randint(10) + (((dam >= m_ptr->hp) && (percentage > 7)) ?
 			                   20 : ((11 - percentage) * 5)));
 		}
 	}
@@ -737,7 +739,6 @@ static bool adjust_panel(int y, int x)
 	return (modify_panel(wy, wx));
 }
 
-
 /*
  * Change the current panel to the panel lying in the given direction.
  *
@@ -751,7 +752,6 @@ static bool change_panel(int dir)
 	/* Use "modify_panel" */
 	return (modify_panel(wy, wx));
 }
-
 
 /*
  * Verify the current panel (relative to the player location).
@@ -810,7 +810,7 @@ void verify_panel(void)
 static void look_mon_desc(char *buf, int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	bool living = TRUE;
 	int perc;
@@ -922,7 +922,6 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 
 	int z1, z2;
 
-
 	/* Sort by player kills */
 	if (*why >= 4)
 	{
@@ -934,7 +933,6 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 		if (z1 < z2) return (TRUE);
 		if (z1 > z2) return (FALSE);
 	}
-
 
 	/* Sort by total kills */
 	if (*why >= 3)
@@ -948,7 +946,6 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 		if (z1 > z2) return (FALSE);
 	}
 
-
 	/* Sort by monster level */
 	if (*why >= 2)
 	{
@@ -961,7 +958,6 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 		if (z1 > z2) return (FALSE);
 	}
 
-
 	/* Sort by monster experience */
 	if (*why >= 1)
 	{
@@ -973,7 +969,6 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 		if (z1 < z2) return (TRUE);
 		if (z1 > z2) return (FALSE);
 	}
-
 
 	/* Compare indexes */
 	return (w1 <= w2);
@@ -1042,7 +1037,6 @@ sint motion_dir(int y1, int x1, int y2, int x2)
 	return (5);
 }
 
-
 /*
  * Extract a direction (or zero) from a character
  */
@@ -1053,7 +1047,6 @@ sint target_dir(char ch)
 	int mode;
 
 	cptr act;
-
 	cptr s;
 
 	/* Already a direction? */
@@ -1065,16 +1058,10 @@ sint target_dir(char ch)
 	else
 	{
 		/* Roguelike */
-		if (rogue_like_commands)
-		{
-			mode = KEYMAP_MODE_ROGUE;
-		}
+		if (rogue_like_commands) mode = KEYMAP_MODE_ROGUE;
 
 		/* Original */
-		else
-		{
-			mode = KEYMAP_MODE_ORIG;
-		}
+		else mode = KEYMAP_MODE_ORIG;
 
 		/* Extract the action (if any) */
 		act = keymap_act[mode][(byte)(ch)];
@@ -1142,9 +1129,6 @@ static bool target_able(int m_idx)
 	return (TRUE);
 }
 
-
-
-
 /*
  * Update (if necessary) and verify (if possible) the target.
  *
@@ -1181,7 +1165,6 @@ bool target_okay(void)
 	return (FALSE);
 }
 
-
 /*
  * Set the target to a monster (or nobody)
  */
@@ -1210,7 +1193,6 @@ void target_set_monster(int m_idx)
 	}
 }
 
-
 /*
  * Set the target to a location
  */
@@ -1236,7 +1218,6 @@ static void target_set_location(int y, int x)
 		p_ptr->target_col = 0;
 	}
 }
-
 
 /*
  * Sorting hook -- comp function -- by "distance to player"
@@ -1269,7 +1250,6 @@ static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
 	return (da <= db);
 }
 
-
 /*
  * Sorting hook -- swap function -- by "distance to player"
  *
@@ -1294,19 +1274,14 @@ static void ang_sort_swap_distance(vptr u, vptr v, int a, int b)
 	y[b] = temp;
 }
 
-
-
 /*
  * Hack -- help "select" a location (see below)
  */
 static s16b target_pick(int y1, int x1, int dy, int dx)
 {
 	int i, v;
-
 	int x2, y2, x3, y3, x4, y4;
-
 	int b_i = -1, b_v = 9999;
-
 
 	/* Scan the locations */
 	for (i = 0; i < temp_n; i++)
@@ -1346,7 +1321,6 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
 	/* Result */
 	return (b_i);
 }
-
 
 /*
  * Hack -- determine if a given location is "interesting"
@@ -1423,7 +1397,6 @@ static bool target_set_interactive_accept(int y, int x)
 	return (FALSE);
 }
 
-
 /*
  * Prepare the "temp" array for "target_interactive_set"
  *
@@ -1472,7 +1445,6 @@ static void target_set_interactive_prepare(int mode)
 	ang_sort(temp_x, temp_y, temp_n);
 }
 
-
 /*
  * Examine a grid, return a keypress.
  *
@@ -1497,16 +1469,9 @@ static void target_set_interactive_prepare(int mode)
 static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 {
 	s16b this_o_idx, next_o_idx = 0;
-
 	cptr s1, s2, s3;
-
-	bool boring;
-
-	bool floored;
-
-	int feat;
-
-	int query;
+	bool boring, floored;
+	int feat, query;
 
 	char out_val[256];
 
@@ -1523,7 +1488,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		s1 = "You see ";
 		s2 = "";
 		s3 = "";
-
 
 		/* The player */
 		if (cave_m_idx[y][x] < 0)
@@ -1560,7 +1524,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		if (cave_m_idx[y][x] > 0)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *r_ptr = get_monster_full(m_ptr);
 
 			/* Visible */
 			if (m_ptr->ml)
@@ -1585,7 +1549,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				handle_stuff();
 
 				/* Interact */
-				while (1)
+				while (TRUE)
 				{
 					/* Recall */
 					if (recall)
@@ -1825,7 +1789,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Double break */
 		if (this_o_idx) break;
 
-
 		/* Feature (apply "mimic") */
 		feat = f_info[cave_feat[y][x]].mimic;
 
@@ -1876,9 +1839,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 	/* Keep going */
 	return (query);
 }
-
-
-
 
 /*
  * Handle "target" and "look".
@@ -1931,7 +1891,6 @@ bool target_set_interactive(int mode)
 	int x = p_ptr->px;
 
 	bool done = FALSE;
-
 	bool flag = TRUE;
 
 	char query;
@@ -2292,9 +2251,7 @@ bool target_set_interactive(int mode)
 bool get_aim_dir(int *dp)
 {
 	int dir;
-
 	char ch;
-
 	cptr p;
 
 #ifdef ALLOW_REPEAT

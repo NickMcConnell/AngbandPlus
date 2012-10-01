@@ -40,15 +40,14 @@ Ego weapons are denoted by the following "names":
 
 Weapon of Westernesse.
      A Weapon of Westernesse is one of the more powerful weapons.  It slays
-     orcs, trolls, and giants, while increasing your strength, dexterity,
-     and constitution.  It also lets you see invisible creatures and protects
-     from paralyzation and some slowing attacks.  These blades were made by
-     the Dunedain.
+     humanoids, while increasing your strength, dexterity, and constitution.
+     It also lets you see invisible creatures and protects from paralyzation
+     and some slowing attacks.  These blades were made by the Dunedain.
 
 Weapon of Gondolin.
      A weapon of this kind, from the last kingdom of the High Elves to
      fall under Morgoth's yoke, provides power against all his living
-     servants - orcs, trolls, demons and dragons. It also gives off light
+     servants - humanoids, demons and dragons. It also gives off light
      when there are enemies around (which, in Angband, is all the time),
      and provides resistance to darkness, the ability to see invisible
      monsters, and one extra random power. These weapons are powerful
@@ -96,25 +95,30 @@ Weapon of the Day
      They cause extra damage to creatures not resistant to light, and even
      more damage to those creatures who are hurt by light - and sometimes,
      the monster may be blinded by the attack. In addition, they grant you
-     resistance to darkness attacks.
+     resistance to darkness attacks, and glow permanently.
 
 Weapon of the Night.
      The antithesis of the Weapons of the Day are the Weapons of the Night.
      Branded with the powers of darkness, they cause extra damage to non-
      resistant monsters and even further damage to monsters that are
      vulnerable, and stand a chance of blinding the target. In addition,
-     they grant resistance to light attacks.
+     they grant resistance to light attacks, and shroud you in shadows,
+     increasing your stealth.
 
 Weapons of Slaying enemies.
      These weapons do extra damage against creatures of a vulnerable type.
      Weapons of Slay Evil, Chaos, Plant and Animal do double the base damage,
-     while weapons of Slay Orc, Troll, Giant, Dragon, Demon and Undead do
+     while weapons of Slay Humanoid, Person, Dragon, Demon and Undead do
      triple the base damage. As with elemental branded weapons, the magical
      damage bonus is not affected.
 
 Weapons of Slay Nature -
      The bane of natural creatures, these weapons provide double damage to
      both animals and plants.
+
+Weapons of Carnage
+     Used in the great wars, these weapons provide triple damage to both
+     people and humanoids.
 
 Weapons of *Slaying* enemies.
      These weapons, in addition to doing extra damage to your enemies, have
@@ -132,10 +136,9 @@ Weapons of *Slaying* enemies.
      provide resistance to fire, the chief weapon of many demons, and grant
      intelligence: and weapons of *Slay Dragon* do five times their base
      damage, provide a constitution bonus, and resistance to fear. Weapons
-     of *Slay Orc* will increase and sustain the character's dexterity,
-     weapons of *Slay Giant* will grant the wielder the strength of a giant
-     and sustain it, and weapons of *Slay Troll* will impart the strength of
-     a Troll and give the trollish ability of regeneration.
+     of *Slay Preson* will increase and sustain the character's dexterity,
+     weapons of *Slay Humanoid* will increase and sustain the characer's 
+     strength.
 
 Weapon of Morgul.
      These blades are so foully cursed with evil, it is rumored that it is
@@ -152,8 +155,7 @@ Weapon of Morgul.
 
 Swords of Sharpness
      These swords are sharpened far beyond the level acheivable by normal means.
-     Wounds created by these weapons will be extra damaging, and cause
-additional
+     Wounds created by these weapons will be extra damaging, and cause additional
      bleeding damage over time.
 
 Shovels of Digging.
@@ -452,7 +454,7 @@ Gloves of Free Action.
      The wearer of these gloves will find himself resistant to paralyzing
      attacks as well as some slowing attacks.  Because of the special
      nature of these gloves, magic users may wear these gloves without
-     incurring a mana penalty.
+     incurring a spellcasting penalty.
 
 Gloves of Slaying.
      These gloves will increase the wearer's fighting ability by boosting
@@ -461,12 +463,12 @@ Gloves of Slaying.
 Gloves of Agility.
      These gloves will increase the wearer's dexterity.  Because of the
      special nature of these gloves, magic users may wear these gloves
-     without incurring a mana penalty.
+     without incurring a spellcasting penalty.
 
 Gloves of Spellcasting.
      These gloves are especially designed for use by wizards - not only do
-     they not incur a penalty to mana, they provide a bonus! Also, the
-     wearer can not be confused, and the gloves can not be harmed by
+     they not incur a penalty to spellcasting, they provide a bonus to mana!
+     Also, the wearer can not be confused, and the gloves can not be harmed by
      disenchantment. Only delicate silk gloves can have these powers.
 
 Gauntlets of Combat.

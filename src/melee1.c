@@ -49,7 +49,7 @@ static int monster_critical(int dice, int sides, int dam)
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match monster power against player armor.
  */
-static int check_hit(int power, int level)
+static int check_m_hit(int power, int level)
 {
 	int i, k, ac;
 
@@ -108,9 +108,7 @@ static cptr desc_moan[MAX_DESC_MOAN] =
 bool make_attack_normal(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
+	monster_race *r_ptr = get_monster_full(m_ptr);
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int ap_cnt;
@@ -182,7 +180,7 @@ bool make_attack_normal(int m_idx)
 		{
 			case RBE_HURT:		power = 60; break;
 			case RBE_POISON:	power =  5; break;
-			case RBE_DISEASE:	power =  5; break;
+			case RBE_DISEASE:	power =  2; break;
 			case RBE_UN_BONUS:	power = 20; break;
 			case RBE_UN_POWER:	power = 15; break;
 			case RBE_EAT_GOLD:	power =  5; break;
@@ -212,7 +210,7 @@ bool make_attack_normal(int m_idx)
 		}
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev))
+		if (!effect || check_m_hit(power, rlev))
 		{
 			/* Always disturbing */
 			disturb(1);

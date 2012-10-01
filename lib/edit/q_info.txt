@@ -17,10 +17,14 @@
 
 # Version stamp (required)
 
-V:0.2.3
+V:0.3.0
 
-N:0:Sauron
+N:0:Fake quest
+W:0:0:0
+
+N:1:Sauron
 W:99:665:1
 
-N:1:Morgoth
+N:2:Morgoth
 W:100:666:1
+

@@ -75,14 +75,12 @@ static grouper group_item[] =
 	{ TV_HAFTED,	  NULL },
 	{ TV_DIGGING,	  NULL },
 
-	{ TV_SOFT_ARMOR,	"Armour (Body)" },
-	{ TV_HARD_ARMOR,	  NULL },
+	{ TV_BODY_ARMOR,	"Armour (Body)" },
 	{ TV_DRAG_ARMOR,	  NULL },
 
 	{ TV_CLOAK,		"Armour (Misc)" },
 	{ TV_SHIELD,	  NULL },
-	{ TV_HELM,		  NULL },
-	{ TV_CROWN,		  NULL },
+	{ TV_HEADGEAR,	  NULL },
 	{ TV_GLOVES,	  NULL },
 	{ TV_BOOTS,		  NULL },
 
@@ -95,6 +93,7 @@ static grouper group_item[] =
 	{ TV_FOOD,		"Food" },
 
 	{ TV_ROD,		"Rods" },
+	{ TV_TALISMAN,	"Talismans" },
 	{ TV_WAND,		"Wands" },
 	{ TV_STAFF,		"Staffs" },
 
@@ -102,10 +101,9 @@ static grouper group_item[] =
 
 	{ TV_CHEST,		"Chests" },
 
-	{ TV_SPIKE,		"Various" },
+	{ TV_FLASK,		"Various" },
 	{ TV_LITE,		  NULL },
 	{ TV_LITE_SPECIAL,NULL },
-	{ TV_FLASK,		  NULL },
 
 	{ TV_MUSIC,		"Musical Instruments" },
 
@@ -187,11 +185,9 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
+		case TV_HEADGEAR:
 		case TV_SHIELD:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
+		case TV_BODY_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
 			sprintf(dam, "%d", i_ptr->ac);
@@ -217,6 +213,8 @@ static void spoil_obj_desc(cptr fname)
 	char wgt[80];
 	char dam[80];
 
+	cptr format = " %-54s%7s%6s%4s%9s\n";
+
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
@@ -238,11 +236,9 @@ static void spoil_obj_desc(cptr fname)
 	        VERSION_NAME, VERSION_STRING);
 
 	/* More Header */
-	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
-	        "Description", "Dam/AC", "Wgt", "Lev", "Cost");
-	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
-	        "----------------------------------------",
-	        "------", "---", "---", "----");
+	fprintf(fff, format, "Description", "Dam/AC", "Wgt", "Lev", "Cost");
+	fprintf(fff, format, "-------------------------------------------",
+ 	        "------", "---", "---", "----");
 
 	/* List the groups */
 	for (i = 0; TRUE; i++)
@@ -286,8 +282,7 @@ static void spoil_obj_desc(cptr fname)
 				kind_info(buf, dam, wgt, &e, &v, who[s]);
 
 				/* Dump it */
-				fprintf(fff, "     %-45s%8s%7s%5d%9ld\n",
-				        buf, dam, wgt, e, (long)(v));
+				fprintf(fff, " %-54s%7s%6s%4d%9ld\n", buf, dam, wgt, e, (long)(v));
 			}
 
 			/* Start a new set */
@@ -367,14 +362,12 @@ static grouper group_artifact[] =
 	{ TV_BOW,		"Shooters" },
 	{ TV_DIGGING,	"Diggers" },
 
-	{ TV_SOFT_ARMOR,	"Body Armor" },
-	{ TV_HARD_ARMOR,	  NULL },
+	{ TV_BODY_ARMOR,	"Body Armor" },
 	{ TV_DRAG_ARMOR,	  NULL },
 
 	{ TV_CLOAK,		"Cloaks" },
 	{ TV_SHIELD,	"Shields" },
-	{ TV_HELM,		"Helms/Crowns" },
-	{ TV_CROWN,		  NULL },
+	{ TV_HEADGEAR,	"Head Gear" },
 	{ TV_GLOVES,	"Gloves" },
 	{ TV_BOOTS,		"Boots" },
 
@@ -899,7 +892,7 @@ static void analyze_misc_magic(object_type *o_ptr, cptr *misc_list)
  */
 static void analyze_misc(object_type *o_ptr, char *misc_desc)
 {
-	artifact_type *a_ptr = &a_info[o_ptr->name1];
+	artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 
 	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
 	        a_ptr->level, a_ptr->rarity,
@@ -1117,45 +1110,6 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 }
 
 /*
- * Hack -- Create a "forged" artifact
- */
-static bool make_fake_artifact(object_type *o_ptr, int name1)
-{
-	int i;
-
-	artifact_type *a_ptr = &a_info[name1];
-
-
-	/* Ignore "empty" artifacts */
-	if (!a_ptr->name) return FALSE;
-
-	/* Get the "kind" index */
-	i = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-	/* Oops */
-	if (!i) return (FALSE);
-
-	/* Create the artifact */
-	object_prep(o_ptr, i);
-
-	/* Save the name */
-	o_ptr->name1 = name1;
-
-	/* Extract the fields */
-	o_ptr->pval = a_ptr->pval;
-	o_ptr->ac = a_ptr->ac;
-	o_ptr->dd = a_ptr->dd;
-	o_ptr->ds = a_ptr->ds;
-	o_ptr->to_a = a_ptr->to_a;
-	o_ptr->to_h = a_ptr->to_h;
-	o_ptr->to_d = a_ptr->to_d;
-	o_ptr->weight = a_ptr->weight;
-
-	/* Success */
-	return (TRUE);
-}
-
-/*
  * Create a spoiler file for artifacts
  */
 static void spoil_artifact(cptr fname)
@@ -1310,11 +1264,7 @@ static void spoil_mon_desc(cptr fname)
 		cptr name = (r_name + r_ptr->name);
 
 		/* Get the "name" */
-		if (r_ptr->flags1 & (RF1_QUESTOR))
-		{
-			sprintf(nam, "[Q] %s", name);
-		}
-		else if (r_ptr->flags1 & (RF1_UNIQUE))
+		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			sprintf(nam, "[U] %s", name);
 		}
@@ -1545,11 +1495,7 @@ static void spoil_mon_info(cptr fname)
 
 
 		/* Prefix */
-		if (flags1 & (RF1_QUESTOR))
-		{
-			spoil_out("[Q] ");
-		}
-		else if (flags1 & (RF1_UNIQUE))
+		if (flags1 & (RF1_UNIQUE))
 		{
 			spoil_out("[U] ");
 		}
@@ -1737,8 +1683,7 @@ static void spoil_mon_info(cptr fname)
 
 		if (breath || magic)
 		{
-			sprintf(buf, "; 1 time in %d.  ",
-			        200 / (r_ptr->freq_inate + r_ptr->freq_spell));
+			sprintf(buf, "; 1 time in %d.  ", 100 / r_ptr->freq_spell);
 			spoil_out(buf);
 		}
 

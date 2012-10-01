@@ -233,6 +233,7 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"value out of bounds",
 	"too few arguments",
 	"too many arguments",
+	"more than one quest per level",
 };
 
 #endif /* ALLOW_TEMPLATES */
@@ -247,6 +248,7 @@ header k_head;
 header a_head;
 header e_head;
 header r_head;
+header u_head;
 header p_head;
 header c_head;
 header h_head;
@@ -643,6 +645,19 @@ static errr init_r_info(void)
 }
 
 /*
+ * Initialize the "u_info" array
+ */
+static errr init_u_info(void)
+{
+	/* Init the header */
+	init_header(&u_head, z_info->u_max, sizeof(monster_unique),
+	            init_u_info_txt);
+
+	return init_info("u_info", &u_head,
+	                 (void*)&u_info, (void*)&u_name, (void*)&u_text);
+}
+
+/*
  * Initialize the "v_info" array
  */
 static errr init_v_info(void)
@@ -734,8 +749,8 @@ static errr init_q_info(void)
 }
 
 /*** Initialize others ***/
-
 /*
+
  * Hack -- Objects sold in the stores -- by tval/sval pair.
  */
 static byte store_table[MAX_STORES][STORE_CHOICES][2] =
@@ -761,36 +776,33 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_LITE, SV_TORCH },
 		{ TV_LITE, SV_TORCH },
 
-		{ TV_SPIKE, 0 },
-		{ TV_SPIKE, 0 },
-		{ TV_SPIKE, 0 },
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_BURNING },
+		{ TV_CLOAK, SV_CLOAK },
+		{ TV_CLOAK, SV_CLOAK },
+		{ TV_CLOAK, SV_CLOAK },
 
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_FUR_CLOAK },
 		{ TV_CLOAK, SV_FUR_CLOAK },
 		{ TV_SHOT, SV_SHOT_NORMAL },
 		{ TV_SHOT, SV_SHOT_NORMAL },
-
 		{ TV_ARROW, SV_ARROW_NORMAL },
 		{ TV_ARROW, SV_ARROW_TOUGH },
 		{ TV_ARROW, SV_ARROW_BITER },
+
 		{ TV_BOLT, SV_BOLT_NORMAL },
 		{ TV_BOLT, SV_BOLT_BITER },
 		{ TV_DIGGING, SV_PICK },
 		{ TV_DIGGING, SV_PICK },
 		{ TV_DIGGING, SV_SHOVEL },
-
 		{ TV_DIGGING, SV_SHOVEL },
 		{ TV_MUSIC, SV_MUSIC_LYRE },
 		{ TV_MUSIC, SV_MUSIC_LYRE },
+
 		{ TV_MUSIC, SV_MUSIC_HORN },
 		{ TV_MUSIC, SV_MUSIC_FLUTE },
 		{ TV_MUSIC, SV_MUSIC_LUTE },
@@ -804,32 +816,32 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_HELM, SV_HARD_LEATHER_CAP },
-		{ TV_HELM, SV_HARD_LEATHER_CAP },
-		{ TV_HELM, SV_METAL_CAP },
+		{ TV_HEADGEAR, SV_HARD_LEATHER_CAP },
+		{ TV_HEADGEAR, SV_HARD_LEATHER_CAP },
+		{ TV_HEADGEAR, SV_METAL_CAP },
 
-		{ TV_HELM, SV_IRON_HELM },
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
+		{ TV_HEADGEAR, SV_IRON_HELM },
+		{ TV_BODY_ARMOR, SV_ROBE },
+		{ TV_BODY_ARMOR, SV_ROBE },
+		{ TV_BODY_ARMOR, SV_ROBE },
+		{ TV_BODY_ARMOR, SV_ROBE },
+		{ TV_BODY_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_BODY_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_BODY_ARMOR, SV_HARD_LEATHER_ARMOR },
 
-		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
-		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
+		{ TV_BODY_ARMOR, SV_HARD_LEATHER_ARMOR },
+		{ TV_BODY_ARMOR, SV_HARD_STUDDED_LEATHER },
+		{ TV_BODY_ARMOR, SV_HARD_STUDDED_LEATHER },
+		{ TV_BODY_ARMOR, SV_LEATHER_SCALE_MAIL },
+		{ TV_BODY_ARMOR, SV_LEATHER_SCALE_MAIL },
+		{ TV_BODY_ARMOR, SV_METAL_SCALE_MAIL },
+		{ TV_BODY_ARMOR, SV_CHAIN_MAIL },
+		{ TV_BODY_ARMOR, SV_CHAIN_MAIL },
 
-		{ TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
+		{ TV_BODY_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
+		{ TV_BODY_ARMOR, SV_BAR_CHAIN_MAIL },
+		{ TV_BODY_ARMOR, SV_DOUBLE_CHAIN_MAIL },
+		{ TV_BODY_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
@@ -1072,7 +1084,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_AMULET, SV_AMULET_CHARISMA },
 		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
 		{ TV_AMULET, SV_AMULET_RESIST_ACID },
-		/* Item */
+		{ TV_AMULET, SV_AMULET_RESIST_ACID },
 		/* Item */
 		/* Item */
 		/* Item */
@@ -1160,7 +1172,6 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 		{ 0, 0 },
 	},
-
 };
 
 /*
@@ -1621,13 +1632,6 @@ static errr init_alloc(void)
 		{
 			/* Get the quest monster */
 			r_ptr = &r_info[q_ptr->r_idx];
-
-			/* Skip non-uniques */
-			if (r_ptr->flags1 & (RF1_UNIQUE))
-			{
-				/* Hack -- Set flag */
-				r_ptr->flags1 |= (RF1_QUESTOR);
-			}
 		}
 	}
 
@@ -1844,6 +1848,10 @@ void init_angband(void)
 	/* Initialize monster info */
 	note("[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
+
+	/* Initialize unique info */
+	note("[Initializing arrays... (uniques)]");
+	if (init_u_info()) quit("Cannot initialize uniques");
 
 	/* Initialize feature info */
 	note("[Initializing arrays... (vaults)]");

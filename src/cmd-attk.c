@@ -15,7 +15,6 @@
 /* 
  * hack - defines for weapons of bleeding, fear, and poisoning 
  */
-
 #define SPEC_CUT		0x01
 #define SPEC_CUT_STRONG	0x02
 #define SPEC_POIS		0x04
@@ -155,6 +154,9 @@ static sint critical_norm(int weight, int plus, int tval, byte *special, int dam
 	/* Extract "blow" power */
 	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
 
+	/* Improved critical hits for blessed blades */
+	if (p_ptr->bless_blade) i += 100;
+
 	/* Improved critical hits for some classes */
 	if (cp_ptr->flags & CF_BETTER_CRITICAL) i += 50 + (p_ptr->lev * 3);
 
@@ -166,6 +168,9 @@ static sint critical_norm(int weight, int plus, int tval, byte *special, int dam
 		/* Improved critical hits for some classes */
 		if (cp_ptr->flags & CF_BETTER_CRITICAL) k *= 2;
 
+		/* Improved critical hits for blessed blades */
+		if (p_ptr->bless_blade) k += 100;
+		
 		if (k < 400)
 		{
 			message(MSG_CRITICAL_HIT, 0,"It was a good hit!");
@@ -207,12 +212,15 @@ static sint critical_norm(int weight, int plus, int tval, byte *special, int dam
 	return (dam);
 }
 
+/*
+ * Apply the special effects of an attack
+ */
 static void attack_special(int m_idx, byte special, int dam)
 {
 	char m_name[80];
 	
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	/* Extract monster name (or "it") */
@@ -340,7 +348,7 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 {
 	int mult = 1;
 
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	u32b f1, f2, f3, f4;
@@ -493,7 +501,6 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 
 				if (mult < 5) mult = 5;
 			}
-
 
 			/* Brand (Acid) */
 			if (f4 & (TR4_BRAND_ACID))
@@ -1395,8 +1402,8 @@ void py_attack(int y, int x)
 {
 	int num = 0, k, bonus, chance;
 
-	monster_type *m_ptr;
-	monster_race *r_ptr;
+	monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+	monster_race *r_ptr = get_monster_full(m_ptr);
 
 	object_type *o_ptr;
 
@@ -1406,10 +1413,6 @@ void py_attack(int y, int x)
 
 	bool fear = FALSE;
 	bool do_quake = FALSE;
-
-	/* Get the monster */
-	m_ptr = &m_list[cave_m_idx[y][x]];
-	r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Disturb the player */
 	disturb(0);
@@ -2417,11 +2420,20 @@ void run_step(int dir)
  */
 void do_cmd_go_up(void)
 {
+	char out_val[160];
+
 	/* Verify stairs */
 	if (cave_feat[p_ptr->py][p_ptr->px] != FEAT_LESS)
 	{
 		message(MSG_FAIL, 0, "I see no up staircase here.");
 		return;
+	}
+
+	/* Verify leaving quest level */
+	if ((verify_leave_quest) && (quest_check(p_ptr->depth) == QUEST_GUILD))
+	{
+		sprintf(out_val, "Really risk failing your quest? ");
+		if (!get_check(out_val)) return;
 	}
 
 	/* Ironman */
@@ -2682,8 +2694,7 @@ void do_cmd_run(void)
 }
 
 /*
- * Stay still.  Search.  Enter stores.
- * Pick up treasure if "pickup" is true.
+ * Stay still.  Search.  Enter stores. Pick up treasure if "pickup" is true.
  */
 static void do_cmd_hold_or_stay(int pickup)
 {
@@ -3018,7 +3029,7 @@ void do_cmd_fire(void)
 		if (cave_m_idx[y][x] > 0)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *r_ptr = get_monster_full(m_ptr);
 
 			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 
@@ -3286,7 +3297,7 @@ void do_cmd_throw(void)
 		if (cave_m_idx[y][x] > 0)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *r_ptr = get_monster_full(m_ptr);
 
 			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 

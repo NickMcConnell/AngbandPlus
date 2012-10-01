@@ -1,0 +1,242 @@
+Changes from 0.2.3 to 0.3.0: 
+
+(Entries marked by '*' have changed since the 0.3.0 beta)
+
+## Gamplay Changes ##
+
+- 0.2.3 or older savefiles are not compatible. Also, 0.3.0 savefiles are not guarunteed
+  to be compatible with future versions.
+
+# Races/Classes #
+
+- New class: Spellsword. They are a "pure" mage/warrior hybrid; unlike rangers they can
+  use all mage books, but on the other hand have none of the ranger's special abilities,
+  and they start gaining spells later (level 5). They are similar in combat skills to 
+  paladins.
+
+- Hobbits now get intrinsic hold life instead of sustained dexterity.
+
+- Mages and rangers now gain a disease resistance spell in a dungeon book.
+
+* Some tweaking of early bard spells making them a little easier to start. Also, the bard
+  spell "Aggravation tempo" now asks for confirmation before casting (because you don't 
+  want to activate it by mistake). 
+
+* Several later mage attack spells strengthened. However, magic missile will no longer beam.
+
+- Bard and mage invisibility spells now cost more mana.
+
+# Stat/abilities #
+
+- The effects of stats on spell and mana acquiration is now more gradual - no huge jumps
+  at certain stats. (Taken from Zangband but altered to more closely match the old values).
+
+- Gloves and heavy armor no longer provide mana penalties but instead provide penalties to
+  fail rates - gloves provide a major penalty and heavy armor depends on how heavy it is.
+
+- Disease weakened - The power level for disease attacks reduced somewhat; disease slowed
+  down a bit; sustain now provides limited protection against disease drain. 
+
+# Combat #
+
+- You can now get extra blows when fighting unarmed (equivalent to a weightless weapon). 
+
+- Heroism and Berserk rage effects improved. Heroism now gives +15 to hit. Berserk rage
+  gives +15 to hit, +15 damage, 1 extra blow, -25 to ac, disrupts spellcasting, and 
+  reduces your saving throws, magic devices, and stealth skills.
+
+- Stealth effect on Invisiblity/Monster blindness rewritten. Also, invisibility is now 
+  adversly affected by your light radius - the brighter a light you make, the more likely
+  the monster is to spot you (realism would probably dictate having the player walk around
+  lightless in order to be invisible, but that would be unplayable).
+
+* Significantly increased the list of monsters that can't be cut to include all those that
+  made no sense - most molds and mushrooms, elementals, vortices, most undead, most golems,
+  creeping coins, and others. To compensate, bleeding has been made more powerful.
+
+# Interface #
+
+- Added new unified use command option (use_command), taken from Zangband. If turned on,
+  the 'u' key ('Z' for roguelike commands) will work not only for staves but also for 
+  actiavations, food, potions, scrolls, wands, rods and talismans. Unlike in Zangband, it
+  will not fire arrows. The unified use command is in the user interface options page 
+  and is turned off by default.
+
+# Items #
+
+Note - several of the changes below were inspired by Johnathan Ellis's edit patches, 
+though often further tweaks were made.
+
+* New items: 3 new rods (satisfy hunger, summoning, darkness), 2 new talismans (force bolts,
+  stone-to-mud), 4 new amulets (sustenance, resist water,  resistance, infravision), 3 new
+  lanterns (shadows, infravision, telepathy).
+
+- A few items have been changed -
+    - Amulet of the Magi made considerably more powerful (as in recent JLE patch).
+    - Wand of wonder can now imitate any wand, including the most powerful ones.
+    - Staff of holiness now cures disease.
+    - Potions of Infravision now provide radius +3 to infravision rather than +1. Their
+      duration, however, has been halved.
+
+- A few items have been removed: 
+  - 5 wands - disarming, acid balls, lightning balls, fire balls, and cold balls. These 
+    abilities are now exclusive to talismans.
+  - 2 rods - sleep monster, slow monster - already on wands and staves, no need for three way
+    to get them.
+  - Dwarven Shovel - too many similar diggers with no real use
+  - Ring of weakness, ring of Stupidity, ring of Slowness - these were totally pointless, as
+    identifying one meant that the rest were junk, and were redundant with negative pval rings. 
+	The ration for negative pvals on rings/amulets was raised, so the amount of bad rings of 
+	strength shouldn't drop by far from the old total of rings of strength + weakness.
+
+- The artifact list has been considerably modified, with an aim of giving more options in
+  the latter game, while removing some of the earlier artifacts to make ego items more
+  attractive. In order to achieve this, many artifacts have changed, some of them changing
+  base types, others gaining new abilities or losing them. Many also change depths and 
+  rarities. 9 new artifacts were introduces (7 out of the JLE patch, some of which come
+  from other variants originally), and 8 artifacts were removed. 
+
+- Ego items have also been altered, the "slay" weapons (not ammo) gain the abilities of the 
+  appropriate *slay* weapons, which have been removed (excpet *slay* dragon which was made
+  more powerful). Several other ego-weapons improved as well, while cloaks of kings have 
+  been weakened. 3 new ego types were added - Polearms of hacking, blunt weapons of crushing,
+  and gloves of combat (the old gloves of combat are now gloves of power, as per JLE patch). 
+  Also, ego items that grant one random ability no longer have an equal chance of each ability, 
+  instead a new system takes depth and relative usefulness into account (so harder to find a
+  blessed weapon that gives ESP or Invisiblity early on, while later there won't be many that
+  give slow digestion).
+
+- Several of the less powerful item abilities made more useful:
+  - Wielding blessed weapons now also improves chances of critical hits.
+  - Feather fall now prevents gravity attacks from moving you.
+  - The HEALTH and MANA flags will now provide larger bonuses to hp and mana if your stats
+    are high enough (it provides 10 points per pval OR 5% of the relevant stat per pval, 
+    whichever is more).
+
+- News handling for wands, staves, and rods -
+  - Rods split into rods and talismans (`). Talismans are directional, rods are not. 
+    Talismans are invoked by the new 'y' command ('S' in the roguelike keyset). They 
+    are also lighter than rods.
+  - A cap has been added on rod/talisman stacking - you can only have 3 rods or 
+    5 talismans in a single stack.
+  - Attack wands and talismans now allow partial failure - which decreases damage. Wands
+    have a lower chance of failure in general than talismans. This should make talismans
+    and wands somewhat more useful to characters with low-mediocre magic devices skill. 
+    Rod and staff failure rates not changed.
+  - The damage done by most offensive talismans and wands changed - it is now character 
+    level dependant, and will generally be better than before. Wands unaffected are the 
+    wand of magic missile, the wand of stinking cloud and the wand of light; neither 
+    is the talisman of light. 
+  - If the player is stunned, it reduces his chances of success using magic items.
+
+- Changed the calculation of what is a "good" item to be more dependant on player depth - 
+  early on many items are considered good that later on will not be.
+
+# Monsters #
+
+- Water hounds are now light blue to prevent confusion with the neighbouring acid hounds.
+  Mana hounds are now violet rather than multi-colour, to prevent confusion with chaos and
+  aether hounds.
+
+- "The Great Sentient Treasure" has been renamed "The Hoard".
+
+* The "rust monster" has been renamed "corroding monster" as its attacks are really acid
+  attacks.
+
+- Giants Mantises are now more powerful.
+
+- Bats gain SEE_INVIS and NO_BLIND (since they use sonar rather than sight). 
+
+# Other Changes #
+
+* Changed the way quest failure is calculated - now, once you visit the quest level, you
+  have a chance of failing it whenever you spend time off-level, even in the town or in 
+  above it. However, you can't fail it before visiting the quest level at least once.
+
+* Nests and Pits now provide different rating bonuses depending on their type and depth - 
+  an orc pit down below 1500' will not increase rating, but a demon pit will increase 
+  rating up to 5000'. OOD monsters within them still count, of course. Also, time spent in 
+  the town no longer counts against the level feeling counter (in other words, if you spend
+  the required 1000 turns on a level and recall out, you'll get a feeling no matter how 
+  long you were in town. If you didn't spend enough time in the dungeon and entered town,
+  you won't get a feeling no matter how long you spend there).
+
+* Several new nest and pit types: gold and bronze dragon pits, horror nests, and 
+  people pits.
+
+- Spikes have been completely removed from the game. The 'j'am command has been cancelled.
+
+* Added a compile-time option which controls whether haggling exists in the game. It 
+  defaults to off, so haggling is no longer officially present in Ey (it will return if 
+  and when I can do it right). This results in the (obvious) removal of the "auto_haggle"
+  option. The 10% "sales-tax" no longer exists as such, but the charisma table has been 
+  adjusted so most characters will have prices very similar to those they used to get with
+  auto_haggle on.
+
+- Artifact knowledge is replaced by a browser, similar to the object/monster browsers. 
+
+* Added artifact "memory" - now, if you *identify* an artifact, you don't have to 
+  *identify* it again in future games to know its abilities, just identify it. Note that
+  this is ignored in the case of randarts, obviously.
+
+- Change in the way alchemy knowledge is gained - when drinking potions, you can now only
+  gain info about its components if the component's flavor is already known to you. As 
+  compensation, the chances of getting knowledge are now higher. Note that *ID* can still
+  give you unknown components. Also, changed the way the alchemy table is determined to
+  be more balanced.
+
+- The "cheat_extra" option removed, having been incorporated into cheat_wizard.
+
+- If a character dies in wizard mode (cheat_wizard), upon loading the savefile you will get
+  the tombstone instead of a new character (allowing you to examine its equipment again). 
+  Pressing 'w' on the death menu disables wizard mode allowing you to create a new
+  character on the same savefile.
+
+- Turning on wizard mode via the command-line argument now turns on all cheat options
+  (except cheat_no_save), to make debugging easier.
+
+- Cheat wizard now shows the monster index when looking at monster memory; also, the 
+  object and monster browsers show the appropriate indexes.
+
+- It is now possible to turn on wizard and fiddle mode on using the .ini file in windows.
+
+- Improved ring wielding code; now know more cases in which not to ask.
+
+- To prevent over-long names, the mystics books have been renamed "books of mystic lore"
+  instead of "books of mystic teachings".
+
+## Non-Gameplay Affecting Changes ##
+
+- Impletemented a two-tier monster system. Uniques now get their abilities from a new
+  u_info.txt file, and have a base monster "race". Currently, this is only partially 
+  implemented (uniques can not be based on regular monsters, only on special placeholders),
+  and several aspects of this change have not been implemented (relating to monster memory
+  and graphics). There should currently be no gameplay differences from the old system.
+
+- The tvals for soft armor and hard armor combined (now both are 36). Svals for hard armors
+  changed to match. The tvals for helms and crowns combined (now 32). Svals for crowns
+  changed to match.
+
+- Cleaned up some code.
+
+- Corrected and updated some help files.
+
+## Bug fixes ##
+
+* Fixed bug which prevented the creation of OOD ego-items.
+
+* Fixed bug which made temporary resist water/disease permanent.
+
+* Fixed bug preventing artifacts being generated as quest rewards.
+
+- Fixed bug which allowed paladins/rangers to achieve 0% spell failure.
+
+- Fixed bug which prevented the creation of randart wizard robes.
+
+- Fixed selling of un-identified lanterns.
+
+* Lavender potions are now purple, not light green.
+
+---------------
+
+For changes to older versions, check the website at http://eyangband.sourceforge.net/

@@ -1,9 +1,9 @@
 === Classes ===
 
-Once a race has been chosen, you will need to pick a class. For the first 
-few adventures it is suggested that you run a warrior. Spell casting 
-generally requires a more experienced player that is familiar with survival
-techniques. Note that the class stat bonuses only affect character generation.
+Once a race has been chosen, you will need to pick a class. For the first few
+adventures  it is suggested that you  run a warrior.  Spell casting generally
+requires a more experienced player that is familiar with survival techniques.
+Note that the class stat bonuses only affect character generation.
  
           Warrior
                A Warrior is a hack-and-slash character, who solves most  of
@@ -21,9 +21,11 @@ techniques. Note that the class stat bonuses only affect character generation.
                to use in addition to his spells.  He can master the  higher
                level  magical  devices far easier than anyone else, and has
                the best saving throw to resist effects of  spells  cast  at
-               him.  Intelligence is his primary stat, and determines his 
-               spellcasting ability. There is no rule that says a mage 
-               cannot become a good fighter, but spells are his true realm.
+               him.  Intelligence is his primary stat,  and determines his 
+               spellcasting ability.  Wearing heavy armor, or most kinds of
+               gloves,  will severly damage his spellcasting abilities,  so
+               While there is no rule that says a mage cannot become a good 
+               fighter, most mages will prefer to rely on their spells.
  
           Priest
                A Priest is a character of holy devotion.  They explore  the
@@ -60,61 +62,73 @@ techniques. Note that the class stat bonuses only affect character generation.
                much in the way of abilities.  He is poor at  stealth,  per-
                ception,  searching,  and  magical devices.  He has a decent
                saving throw due to his divine alliance.  His primary  stats
-               are Wisom and Charisma, which combine to determine his magic
-               ability, and Strength which he uses for melee.
+               are Wisom , which determines his magic ability, and Strength
+               which he uses for melee.
  
 
           Mystic
-               A Mystic learns both the holy prayers of priests and the 
-               magic of mages. While he is the weakest fighter among all the 
-               classes, he gains spells the quickest, and has the most mana.
-               A mystic relies almost only on his spells, and is not very 
-               good at activating magical items. He is, however, moderatly
-               skilled at throwing weapons at his enemies from afar. There 
-               are said to be rare spellbooks in the dungeon that teach the
-               mystic discplines that lie beyond the scope of other classes.
-               His primary stats are Wisdom and Intelligence, which combine
-               to determine his spellcasting power.
+               A Mystic  learns both  the holy  prayers of priests  and the 
+               magic of mages.  While he is the  weakest fighter of all the 
+               classes, he gains spells the fastest, and has the most mana.
+               A mystic  relies almost only on his spells,  and is not very 
+               good at activating magical items.  He is, however, moderatly
+               skilled at throwing weapons at his enemies from afar.  There 
+               are said to be rare spellbooks in the dungeon that teach him
+               discplines  that lie beyond the scope of other classes.  His 
+               primary stats are Wisdom and Intelligence,  which combine to 
+               determine his spellcasting power.
 
           Bard
-               A bard is an artist. He adventures not for the riches or fame
-               but for the value of the experience. His fighting skills are 
-               decent, and he can use a variety of musical instruments to play
-               magic tunes. The deeper into the dungeon he delves, better 
-               quality instruments can be found which will enable him to play
-               more powerful melodies. The bard is a master of lore - he knows
-               many legends of powerful artifacts, and were he to find one of 
-               these, simple knowledge of the artifacts name will be sufficient
-               for him to know all its abilities. The bard's primary stat is
-               Charisma, which his musical abilities depend on, and he also 
-               benefits from good Dexterity and Intelligence. 
+               A bard is an artist. He adventures neither for gold nor fame
+               but for the value of the experience. His fighting skills are
+               decent, and he can use  a variety of musical  instruments to
+               play magic tunes. As he delves deeper in the dungeon, better
+               quality instruments can be  found which  he can  use to play
+               more powerful melodies. The bard is a  master of lore  -  he
+               knows many legends of powerful artifacts and were he to find
+               one of these, simple knowledge of the artifact's name can be
+               sufficient for him to know all of its abilities.  The bard's
+               primary stat is Charisma, which his musical abilities depend
+               on, and he can also use good Dexterity and Intelligence.
+
+         Spellsword
+               As indicated by his name,  the spellsword can both fight and
+               cast mage spells.  He has similar (though slightly inferior)
+               fighting and shooting skills to the paladin,  and unlike the
+               ranger can access the full range of mage spellbooks,  though
+               he starts receivnig them only at level 5.  He is the slowest
+               of all  classes to advance.  Like a paladin,  he has  lousey
+               stealth, perception, and searching,  though his skills  with
+               magical  devices and  alchemy are decent,  as is his  saving
+               throw.  His primary stats  are Strength,  which  he uses for 
+               fighting, and Intelligence, which he uses for spellcasting. 
 
  === Recommended combinations of Race and Class ===
 
-                Warrior   Mage  Priest  Ranger  Paladin  Mystic  Bard
+          Warrior  Mage  Priest  Ranger  Paladin  Mystic  Bard  Spellsword
+ Human      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
+ Half-Elf   Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
+ Elf        Yes     Yes    Yes     Yes     No       Yes    Yes     Yes
+ Hobbit     Yes     Yes    No      No      No       No     Yes     No
+ Gnome      Yes     Yes    Yes     No      No       No     No      Yes
+ Dwarf      Yes     No     Yes     No      Yes      Yes    No      No
+ Half-Orc   Yes     No     Yes     No      No       No     No      Yes
+ Half-Troll Yes     No     Yes     No      No       No     No      No
+ Dunadan    Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
+ High-Elf   Yes     Yes    No      Yes     No       No     Yes     Yes
+ Angel      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
+ Demon      Yes     Yes    No      Yes     No       No     No      Yes
+ Nilbog     Yes     No     No      No      No       No     No      No
  
-     Human        Yes     Yes     Yes     Yes     Yes     Yes     Yes
-     Half-Elf     Yes     Yes     Yes     Yes     Yes     Yes     Yes
-     Elf          Yes     Yes     Yes     Yes     No      Yes     Yes
-     Hobbit       Yes     Yes     No      No      No      No      Yes
-     Gnome        Yes     Yes     Yes     No      No      No      No
-     Dwarf        Yes     No      Yes     No      Yes     Yes     No
-     Half-Orc     Yes     No      Yes     No      No      No      No
-     Half-Troll   Yes     No      Yes     No      No      No      No
-     Dunadan      Yes     Yes     Yes     Yes     Yes     Yes     Yes
-     High-Elf     Yes     Yes     No      Yes     No      No      Yes
-     Angel        Yes     Yes     Yes     Yes     Yes     Yes     Yes
-     Demon        Yes     Yes     No      Yes     No      No      No
-     Nilbog       Yes     No      No      No      No      No      No
- 
-=== Stat Bonus Tables ===
+=== Stat and Other Bonuses Tables ===
 
-                         STR     INT     WIS     DEX     CON     CHR
+                STR    INT    WIS    DEX    CON    CHR  Hit Dice  EXP/Lev
+ Warrior        +5     -2     -2     +2     +2     -1      9        +0%
+ Mage           -5     +3      0     +1     -2     +1      0       +30%
+ Priest         -1     -3     +3     -1      0     +2      2       +20%
+ Ranger         +2     +2      0     +1      0      0      4       +30%
+ Paladin        +3     -3     +1      0     +2     +2      6       +35%
+ Mystic         -6     +4     +4      0      0      0      1       +32%
+ Bard           -1     +1     -2     +2      0     +3      3       +15%
+ Spellsword     +3     +2     -2      0     +1      0      5       +45%
 
-           Warrior       +5      -2      -2      +2      +2      -1
-           Mage          -5      +3       0      +1      -2      +1
-           Priest        -1      -3      +3      -1       0      +2
-           Ranger        +2      +2       0      +1      +1      +1
-           Paladin       +3      -3      +1       0      +2      +2
-           Mystic        -6      +4      +4       0       0       0
-           Bard          -1      +1      -2      +2       0      +3

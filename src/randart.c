@@ -46,14 +46,10 @@ struct rand_sv_type
 	int sv;					/* Object sval */
 };
 
-
 struct rand_tv_type
 {
 	int prob1;				/* Probability of choice */
 	int tv;					/* Object tval */
-	int tv2;				/* Object tval (alternate) */
-	int tv_prob;			/* Probability of selecting first tval */
-	cptr desc;				/* Description string */
 	int limit;				/* Need this many of these types */
 	int num;				/* Number of objects (placeholder) */
 	rand_sv_type *typ;		/* Pointer to array of possible svals */
@@ -80,8 +76,7 @@ static rand_sv_type rand_diggers[] =
 	{ 25, SV_PICK },
 	{ 50, SV_GNOMISH_SHOVEL },
 	{ 75, SV_ORCISH_PICK },
-	{ 100, SV_DWARVEN_SHOVEL },
-	{ 120, SV_DWARVEN_PICK },
+	{ 110, SV_DWARVEN_PICK },
 	{ -1, SV_MATTOCK},
 };
 
@@ -103,7 +98,6 @@ static rand_sv_type rand_blunts[] =
 	{ 120, SV_TWO_HANDED_FLAIL },
 	{ -1, SV_MACE_OF_DISRUPTION }
 };
-
 
 /*
  * Artifact types - long, sharp-edged weapons
@@ -160,7 +154,6 @@ static rand_sv_type rand_polearms[] =
  */
 static rand_sv_type rand_body_armor[] =
 {
-	/* Soft stuff */
 	{ 0, SV_FILTHY_RAG },
 	{ 5, SV_ROBE },
 	{ 10, SV_SOFT_LEATHER_ARMOR },
@@ -168,8 +161,6 @@ static rand_sv_type rand_body_armor[] =
 	{ 20, SV_HARD_LEATHER_ARMOR },
 	{ 30, SV_HARD_STUDDED_LEATHER },
 	{ 45, SV_LEATHER_SCALE_MAIL },
-
-	/* Hard stuff */
 	/* { 55, SV_RUSTY_CHAIN_MAIL },  <-  no rusty chain mail artifacts */
 	{ 60, SV_METAL_SCALE_MAIL },
 	{ 70, SV_CHAIN_MAIL },
@@ -182,7 +173,7 @@ static rand_sv_type rand_body_armor[] =
 	{ 130, SV_FULL_PLATE_ARMOUR },
 	{ 140, SV_RIBBED_PLATE_ARMOUR },
 	{ 150, SV_MITHRIL_CHAIN_MAIL },
-	{ 165, SV_WIZARD_ROBE }, /* Not hard but high-level */
+	{ 165, SV_WIZARD_ROBE },
 	{ 170, SV_MITHRIL_PLATE_MAIL },
 	{ -1, SV_ADAMANTITE_PLATE_MAIL }
 };
@@ -262,77 +253,18 @@ static rand_sv_type rand_cloaks[] =
  */
 static rand_tv_type rand_type[] =
 {
-	{
-		5, TV_BOW, 0, 0,
-		"bow", 3, 0,
-		&rand_bows[0]
-	},
-
-	{
-		9, TV_DIGGING, 0, 0,
-		"digger", 0, 0,
-		&rand_diggers[0]
-	},
-
-	{
-		19, TV_HAFTED, 0, 0,
-		"blunt", 5, 0,
-		&rand_blunts[0]
-	},
-
-	{
-		33, TV_SWORD, 0, 0,
-		"sword", 5, 0,
-		&rand_swords[0]
-	},
-
-	{
-		42, TV_POLEARM, 0, 0,
-		"polearm", 5, 0,
-		&rand_polearms[0]
-	},
-
-	{
-		64, TV_SOFT_ARMOR, TV_HARD_ARMOR, 45,
-		"body-armor", 5, 0,
-		&rand_body_armor[0]
-	},
-
-	{
-		71, TV_BOOTS, 0, 0,
-		"boot", 4, 0,
-		&rand_boots[0]
-	},
-
-	{
-		78, TV_GLOVES, 0, 0,
-		"glove", 4, 0,
-		&rand_gloves[0]
-	},
-
-	{
-		87, TV_HELM, TV_CROWN, 60,
-		"hat", 4, 0,
-		&rand_hats[0]
-	},
-
-	{
-		94, TV_SHIELD, 0, 0,
-		"shield", 3, 0,
-		&rand_shields[0]
-	},
-
-	{
-		100, TV_CLOAK, 0, 0,
-		"cloak", 3, 0,
-		&rand_cloaks[0]
-	},
-
-	{
-		0, 0, 0, 0,
-		NULL, 0, 0,
-		NULL
-	}
+	{ 5,	TV_BOW,			3, 0, &rand_bows[0]},
+	{ 9,	TV_DIGGING,		1, 0, &rand_diggers[0]},
+	{ 19,	TV_HAFTED,		5, 0, &rand_blunts[0]},
+	{ 33,	TV_SWORD,		5, 0, &rand_swords[0]},
+	{ 42,	TV_POLEARM,		5, 0, &rand_polearms[0]},
+	{ 64,	TV_BODY_ARMOR,	5, 0, &rand_body_armor[0]},
+	{ 71,	TV_BOOTS,		4, 0, &rand_boots[0]},
+	{ 78,	TV_GLOVES,		4, 0, &rand_gloves[0]},
+	{ 87,	TV_HEADGEAR,	4, 0, &rand_hats[0]},
+	{ 94,	TV_SHIELD,		4, 0, &rand_shields[0]},
+	{ 100,	TV_CLOAK,		4, 0, &rand_cloaks[0]},
+	{ 0,	0,				0, 0, NULL }
 };
 
 
@@ -426,7 +358,7 @@ startover:
 	cp = word_buf;
 	c_prev = c_cur = S_WORD;
 
-	while (1)
+	while (TRUE)
 	{
 	    getletter:
 		c_next = 0;
@@ -610,18 +542,7 @@ static void choose_item(int a_idx, u32b activates)
 	r2 = Rand_normal(target_level * 2, target_level);
 
 	/* Extract the tval */
-	if (!rand_type[i].tv2)
-	{
-		tval = rand_type[i].tv;
-	}
-	else if (r2 < rand_type[i].tv_prob)
-	{
-		tval = rand_type[i].tv;
-	}
-	else
-	{
-		tval = rand_type[i].tv2;
-	}
+	tval = rand_type[i].tv;
 
 	/* Get the table entry (treat zero specially) */
 	while ((r2 >= rand_type[i].typ[j].prob2) &&
@@ -672,8 +593,7 @@ static void choose_item(int a_idx, u32b activates)
 
 				break;
 		}
-		case TV_SOFT_ARMOR: 
-		case TV_HARD_ARMOR:
+		case TV_BODY_ARMOR:
 		{
 			/*
 			 * Make sure armor gets some resists!  Hard body armor
@@ -689,8 +609,7 @@ static void choose_item(int a_idx, u32b activates)
 		}
 		case TV_BOOTS:
 		case TV_GLOVES: 
-		case TV_HELM: 
-		case TV_CROWN:
+		case TV_HEADGEAR: 
 		case TV_SHIELD: 
 		case TV_CLOAK: 
 		{
@@ -904,8 +823,7 @@ static void add_ability(artifact_type *a_ptr)
 				}
 				break;
 			}
-			case TV_HELM:
-			case TV_CROWN:
+			case TV_HEADGEAR:
 			{
 				if (r < 13) a_ptr->flags2 |= TR2_NO_BLIND;
 				else if (r < 17) a_ptr->flags2 |= TR2_RES_LITE;
@@ -949,8 +867,7 @@ static void add_ability(artifact_type *a_ptr)
 				else a_ptr->to_a += (s16b)(3 + rand_int(3));
 				break;
 			}
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
+			case TV_BODY_ARMOR:
 			{
 				if (r < 8)
 				{
@@ -978,7 +895,7 @@ static void add_ability(artifact_type *a_ptr)
 	}
 	else			/* Pick something universally useful. */
 	{
-		r = rand_int(51);
+		r = rand_int(52);
 		switch (r)
 		{
 			case 0:
@@ -1013,7 +930,6 @@ static void add_ability(artifact_type *a_ptr)
 				do_pval(a_ptr);
 				if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SUST_CHR;
 				break;
-
 			case 6:
 				a_ptr->flags1 |= TR1_STEALTH;
 				do_pval(a_ptr);
@@ -1026,7 +942,6 @@ static void add_ability(artifact_type *a_ptr)
 				a_ptr->flags1 |= TR1_INFRA;
 				do_pval(a_ptr);
 				break;
-
 			case 9:
 				a_ptr->flags1 |= TR1_MANA;
 				do_pval(a_ptr);
@@ -1040,8 +955,14 @@ static void add_ability(artifact_type *a_ptr)
 				if (a_ptr->pval == 0) a_ptr->pval = (s16b)(3 + rand_int(3));
 				else do_pval(a_ptr);
 				break;
-
 			case 12:
+				if (rand_int(3) == 0)
+				{
+					a_ptr->flags1 |= TR1_BLOWS;
+					do_pval(a_ptr);
+				}
+				break;
+			case 13:
 				a_ptr->flags1 |= TR1_SUST_STR;
 				if (rand_int(2) == 0)
 				{
@@ -1049,7 +970,7 @@ static void add_ability(artifact_type *a_ptr)
 					do_pval(a_ptr);
 				}
 				break;
-			case 13:
+			case 14:
 				a_ptr->flags1 |= TR1_SUST_INT;
 				if (rand_int(2) == 0)
 				{
@@ -1057,7 +978,7 @@ static void add_ability(artifact_type *a_ptr)
 					do_pval(a_ptr);
 				}
 				break;
-			case 14:
+			case 15:
 				a_ptr->flags1 |= TR1_SUST_WIS;
 				if (rand_int(2) == 0)
 				{
@@ -1067,7 +988,7 @@ static void add_ability(artifact_type *a_ptr)
 						a_ptr->flags4 |= TR4_BLESSED;
 				}
 				break;
-			case 15:
+			case 16:
 				a_ptr->flags1 |= TR1_SUST_DEX;
 				if (rand_int(2) == 0)
 				{
@@ -1075,7 +996,7 @@ static void add_ability(artifact_type *a_ptr)
 					do_pval(a_ptr);
 				}
 				break;
-			case 16:
+			case 17:
 				a_ptr->flags1 |= TR1_SUST_CON;
 				if (rand_int(2) == 0)
 				{
@@ -1083,7 +1004,7 @@ static void add_ability(artifact_type *a_ptr)
 					do_pval(a_ptr);
 				}
 				break;
-			case 17:
+			case 18:
 				a_ptr->flags1 |= TR1_SUST_CHR;
 				if (rand_int(2) == 0)
 				{
@@ -1092,71 +1013,61 @@ static void add_ability(artifact_type *a_ptr)
 				}
 				break;
 
-			case 18:
-			{
+			case 19:
 				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_ACID;
 				break;
-			}
-			case 19:
-			{
+			case 20:
 				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_ELEC;
 				break;
-			}
-			case 20:
-			{
+			case 21:
 				if (rand_int(4) == 0) a_ptr->flags2 |= TR2_IM_FIRE;
 				break;
-			}
-			case 21:
-			{
+			case 22:
 				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_COLD;
 				break;
-			}
+			case 23: a_ptr->flags2 |= TR2_FREE_ACT; break;
+			case 24: a_ptr->flags2 |= TR2_HOLD_LIFE; break;
+			case 25: a_ptr->flags2 |= TR2_BRAVERY; break;
+			case 26: a_ptr->flags2 |= TR2_NO_BLIND; break;
 
-			case 22: a_ptr->flags2 |= TR2_FREE_ACT; break;
-			case 23: a_ptr->flags2 |= TR2_HOLD_LIFE; break;
-			case 24: a_ptr->flags2 |= TR2_BRAVERY; break;
-			case 25: a_ptr->flags2 |= TR2_NO_BLIND; break;
+			case 27: a_ptr->flags2 |= TR2_RES_ACID; break;
+			case 28: a_ptr->flags2 |= TR2_RES_ELEC; break;
+			case 29: a_ptr->flags2 |= TR2_RES_FIRE; break;
+			case 30: a_ptr->flags2 |= TR2_RES_COLD; break;
 
-			case 26: a_ptr->flags2 |= TR2_RES_ACID; break;
-			case 27: a_ptr->flags2 |= TR2_RES_ELEC; break;
-			case 28: a_ptr->flags2 |= TR2_RES_FIRE; break;
-			case 29: a_ptr->flags2 |= TR2_RES_COLD; break;
-
-			case 30: a_ptr->flags2 |= TR2_RES_POIS; break;
-			case 31: a_ptr->flags2 |= TR2_RES_DISEASE; break;
-			case 32: a_ptr->flags2 |= TR2_RES_LITE; break;
-			case 33: a_ptr->flags2 |= TR2_RES_DARK; break;
-			case 34: a_ptr->flags2 |= TR2_RES_WATER; break;
-			case 35: a_ptr->flags2 |= TR2_RES_CONFU; break;
-			case 36: a_ptr->flags2 |= TR2_RES_SOUND; break;
-			case 37: a_ptr->flags2 |= TR2_RES_SHARD; break;
-			case 38:
+			case 31: a_ptr->flags2 |= TR2_RES_POIS; break;
+			case 32: a_ptr->flags2 |= TR2_RES_DISEASE; break;
+			case 33: a_ptr->flags2 |= TR2_RES_LITE; break;
+			case 34: a_ptr->flags2 |= TR2_RES_DARK; break;
+			case 35: a_ptr->flags2 |= TR2_RES_WATER; break;
+			case 36: a_ptr->flags2 |= TR2_RES_CONFU; break;
+			case 37: a_ptr->flags2 |= TR2_RES_SOUND; break;
+			case 38: a_ptr->flags2 |= TR2_RES_SHARD; break;
+			case 39:
 				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_NETHR;
 				break;
-			case 39: a_ptr->flags2 |= TR2_RES_NEXUS; break;
-			case 40: a_ptr->flags2 |= TR2_RES_CHAOS; break;
-			case 41:
+			case 40: a_ptr->flags2 |= TR2_RES_NEXUS; break;
+			case 41: a_ptr->flags2 |= TR2_RES_CHAOS; break;
+			case 42:
 				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_DISEN;
 				else a_ptr->flags3 |= TR3_IGNORE_DISEN;
 				break;
-			case 42:
+			case 43:
 				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_RES_TIME;
 				break;
-			case 43:
+			case 44:
 				if (rand_int(5) == 0) a_ptr->flags2 |= TR2_RES_MANA;
 				break;
-			case 44: a_ptr->flags3 |= TR3_FEATHER; break;
-			case 45: a_ptr->flags3 |= TR3_GLOW; break;
-			case 46: a_ptr->flags3 |= TR3_SEE_INVIS; break;
-			case 47:
+			case 45: a_ptr->flags3 |= TR3_FEATHER; break;
+			case 46: a_ptr->flags3 |= TR3_GLOW; break;
+			case 47: a_ptr->flags3 |= TR3_SEE_INVIS; break;
+			case 48:
 				if (rand_int(3) == 0) a_ptr->flags3 |= TR3_TELEPATHY;
 				break;
-			case 48: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
-
-			case 49: a_ptr->flags3 |= TR3_REGEN; break;
-			case 50:
-				if (rand_int(3) == 0) a_ptr->flags3 |= TR3_INVIS;
+			case 49: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
+			case 50: a_ptr->flags3 |= TR3_REGEN; break;
+			case 51:
+				if (rand_int(4) == 0) a_ptr->flags3 |= TR3_INVIS;
 				break;
 		}
 	}
@@ -1257,22 +1168,12 @@ static s32b artifact_power(int a_idx)
 			if (a_ptr->flags4 & TR4_BRAND_POIS)  p = p * 2;
 			if (a_ptr->flags4 & TR4_BRAND_LITE)  p = (p * 3) / 2;
 			if (a_ptr->flags4 & TR4_BRAND_DARK)  p = (p * 3) / 2;
-			if (a_ptr->flags4 & TR4_BLESSED)	 p += 4;
+			if (a_ptr->flags4 & TR4_BLESSED)	 p += 5;
 
 			p += (a_ptr->to_d + 2 * SGN(a_ptr->to_d)) / 3;
 			if (a_ptr->to_d > 15) p += (a_ptr->to_d - 14) / 2;
 
-			if (a_ptr->flags1 & TR1_BLOWS)
-			{
-				if (a_ptr->pval > 3)
-					p += 20000;	/* inhibit */
-				else if (a_ptr->pval > 0)
-					p = (p * 6) / (4 - a_ptr->pval);
-			}
-
-			if ((a_ptr->flags1 & TR1_TUNNEL) &&
-			    (a_ptr->tval != TV_DIGGING))
-				p += a_ptr->pval * 3;
+			if ((a_ptr->flags1 & TR1_TUNNEL) && (a_ptr->tval != TV_DIGGING)) p += a_ptr->pval * 3;
 
 			p += (a_ptr->to_h + 3 * SGN(a_ptr->to_h)) / 4;
 
@@ -1284,12 +1185,10 @@ static s32b artifact_power(int a_idx)
 		}
 		case TV_BOOTS:
 		case TV_GLOVES:
-		case TV_HELM:
-		case TV_CROWN:
+		case TV_HEADGEAR:
 		case TV_SHIELD:
 		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
+		case TV_BODY_ARMOR:
 		{
 			p += (a_ptr->ac + 4 * SGN(a_ptr->ac)) / 5;
 			p += (a_ptr->to_h + SGN(a_ptr->to_h)) / 2;
@@ -1343,8 +1242,14 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags1 & TR1_INFRA) p += (a_ptr->pval + SGN(a_ptr->pval)) / 2;
 	if (a_ptr->flags1 & TR1_SPEED) p += (a_ptr->pval * 3) / 2;
 
-	if (a_ptr->flags1 & TR1_MANA)   p += (a_ptr->pval * 2);
-	if (a_ptr->flags1 & TR1_HEALTH) p += (a_ptr->pval * 3);
+	if (a_ptr->flags1 & TR1_BLOWS)
+	{
+		if (a_ptr->pval > 3) p += 20000;	/* inhibit */
+		else if (a_ptr->pval > 0) p = (p * 6) / (4 - a_ptr->pval);
+	}
+			
+	if (a_ptr->flags1 & TR1_MANA)   p += (a_ptr->pval * 4);
+	if (a_ptr->flags1 & TR1_HEALTH) p += (a_ptr->pval * 5);
 
 	if (a_ptr->flags1 & TR1_SUST_STR) p += 6;
 	if (a_ptr->flags1 & TR1_SUST_INT) p += 4;
@@ -1456,25 +1361,16 @@ static void remove_contradictory(artifact_type *a_ptr)
  */
 static void do_curse(artifact_type *a_ptr)
 {
-	if (rand_int(3) == 0)
-		a_ptr->flags3 |= TR3_AGGRAVATE;
-	if (rand_int(5) == 0)
-		a_ptr->flags3 |= TR3_DRAIN_EXP;
-	if (rand_int(7) == 0)
-		a_ptr->flags3 |= TR3_TELEPORT;
-	if (rand_int(7) == 0)
-		a_ptr->flags3 |= TR3_DISRUPT;
-	if (rand_int(8) == 0)
-		a_ptr->flags3 |= TR3_DRAIN_ITEM;
+	if (rand_int(3) == 0) a_ptr->flags3 |= TR3_AGGRAVATE;
+	if (rand_int(5) == 0) a_ptr->flags3 |= TR3_DRAIN_EXP;
+	if (rand_int(7) == 0) a_ptr->flags3 |= TR3_TELEPORT;
+	if (rand_int(7) == 0) a_ptr->flags3 |= TR3_DISRUPT;
+	if (rand_int(8) == 0) a_ptr->flags3 |= TR3_DRAIN_ITEM;
 
-	if ((a_ptr->pval > 0) && (rand_int(2) == 0))
-		a_ptr->pval = -a_ptr->pval;
-	if ((a_ptr->to_a > 0) && (rand_int(2) == 0))
-		a_ptr->to_a = -a_ptr->to_a;
-	if ((a_ptr->to_h > 0) && (rand_int(2) == 0))
-		a_ptr->to_h = -a_ptr->to_h;
-	if ((a_ptr->to_d > 0) && (rand_int(4) == 0))
-		a_ptr->to_d = -a_ptr->to_d;
+	if ((a_ptr->pval > 0) && (rand_int(2) == 0)) a_ptr->pval = -a_ptr->pval;
+	if ((a_ptr->to_a > 0) && (rand_int(2) == 0)) a_ptr->to_a = -a_ptr->to_a;
+	if ((a_ptr->to_h > 0) && (rand_int(2) == 0)) a_ptr->to_h = -a_ptr->to_h;
+	if ((a_ptr->to_d > 0) && (rand_int(4) == 0)) a_ptr->to_d = -a_ptr->to_d;
 
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE)
 	{
@@ -1487,9 +1383,8 @@ static void do_curse(artifact_type *a_ptr)
 }
 
 /*
- * Note the three special cases (One Ring, Grond, Morgoth).  Note also that if
- * an artifact has an activation, it must be preserved by artifact number,
- * since activations are hard-coded into the game.
+ * Scramble the artifacts. Note that if an artifact has an activation, it will be preserved by
+ * artifact number.
  */
 static void scramble_artifact(int a_idx)
 {
@@ -1507,8 +1402,7 @@ static void scramble_artifact(int a_idx)
 	/* Skip unused artifacts, too! */
 	if (a_ptr->tval == 0) return;
 
-	/* Evaluate the original artifact to determine the power
-	   level. */
+	/* Evaluate the original artifact to determine the power level. */
 	power = artifact_power(a_idx);
 	if (power < 0) curse_me = TRUE;
 
@@ -1542,14 +1436,16 @@ static void scramble_artifact(int a_idx)
 	}
 	else
 	{
-		/* Special artifact (light source, ring, or
-		   amulet).  Clear the following fields; leave
-		   the rest alone. */
+		/* 
+		 * Special artifact (light source, ring, or amulet). 
+		 * Clear the following fields; leave the rest alone. 
+		 */
 		a_ptr->pval = 0;
 		a_ptr->to_h = a_ptr->to_d = a_ptr->to_a = 0;
 		a_ptr->flags1 = a_ptr->flags2 = 0;
 		a_ptr->flags3 = TR3_IGNORE_MASK;
-		/* Give a light radius to lights */
+
+		/* Give lites a light radius */
 		if ((a_ptr->tval == TV_LITE) || (a_ptr->tval == TV_LITE_SPECIAL))
 		{
 			int n = rand_int(10);
@@ -1646,8 +1542,7 @@ static bool scramble_restart(void)
 		for (j = 0; rand_type[j].prob1 > 0; j++)
 		{
 			/* Found? */
-			if ((a_info[i].tval == rand_type[j].tv) ||
-			    (a_info[i].tval == rand_type[j].tv2))
+			if (a_info[i].tval == rand_type[j].tv)
 			{
 				/* Decrement counter */
 				rand_type[j].num--;
@@ -1659,31 +1554,19 @@ static bool scramble_restart(void)
 	}
 
 	/* Any remaining? */
-	if (cheat_wizard)
+	for (j = 0; rand_type[j].prob1 > 0; j++)
 	{
-		char buf[256] = "";
-		int n = 0;
-
-		for (j = 0; rand_type[j].prob1 > 0; j++)
+		if (rand_type[j].num > 0) 
 		{
-			if (rand_type[j].num > 0)
-			{
-				n += strnfmt(buf+n, 256-n, " %ss", rand_type[j].desc);
-				restart_flag = TRUE;
-			}
-		}
-
-		if (restart_flag)
-		{
-			message_format(MSG_GENERIC, 0, "Restarting generation process: not enough %s types", buf);
+			restart_flag = TRUE;
+			break;
 		}
 	}
-	else
+
+	if ((cheat_wizard) && (restart_flag))
 	{
-		for (j = 0; rand_type[j].prob1 > 0; j++)
-		{
-			if (rand_type[j].num > 0) restart_flag = TRUE;
-		}
+		message_format(MSG_CHEAT, 0, 
+			"Restarting generation process, not enough type %d artifacts", rand_type[j].tv);
 	}
 
 	/* Return failure */
@@ -1693,7 +1576,7 @@ static bool scramble_restart(void)
 static errr scramble(void)
 {
 	/* If our artifact set fails to meet certain criteria, we start over. */
-	do
+	while (TRUE)
 	{
 		int a_idx;
 
@@ -1702,7 +1585,10 @@ static errr scramble(void)
 		{
 			scramble_artifact(a_idx);
 		}
-	} while (scramble_restart());	/* end of all artifacts */
+
+		/* Check to see if all is ok */
+		if (!scramble_restart()) break;
+	} 
 
 	/* Success */
 	return (0);

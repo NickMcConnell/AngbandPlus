@@ -76,7 +76,6 @@ void do_cmd_inven(void)
 	/* Load screen */
 	screen_load();
 
-
 	/* Hack -- Process "Escape" */
 	if (p_ptr->command_new == ESCAPE)
 	{
@@ -121,7 +120,6 @@ void do_cmd_equip(void)
 	/* Load screen */
 	screen_load();
 
-
 	/* Hack -- Process "Escape" */
 	if (p_ptr->command_new == ESCAPE)
 	{
@@ -138,15 +136,175 @@ void do_cmd_equip(void)
 }
 
 /*
+ * Determine which equipment slot (if any) an item likes
+ */
+static s16b wield_slot(object_type *o_ptr)
+{
+	/* Slot for equipment */
+	switch (o_ptr->tval)
+	{
+		case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		{
+			return (INVEN_WIELD);
+		}
+
+		case TV_BOW:
+		{
+			return (INVEN_BOW);
+		}
+
+		case TV_RING:
+		{
+			int slot;
+
+			cptr q, s;
+			
+			object_type *i_ptr = &inventory[INVEN_RIGHT];
+			object_type *j_ptr = &inventory[INVEN_LEFT];
+	
+			/* Right hand is free - pick it first */
+			if (!i_ptr->k_idx) return (INVEN_RIGHT);
+
+			/* Left hand is free - pick it */
+			if (!j_ptr->k_idx) return (INVEN_LEFT);
+
+			/* 
+			 * Both hands are full - time to see if we can decide where to put it ourselves 
+			 * If not obvious, prefer left hand to right hand for swapping.
+			 */
+
+			/* Both rings are cursed, choose arbitrarily (will fail later anyway) */
+			if (cursed_p(i_ptr) && cursed_p(j_ptr)) return (INVEN_LEFT);
+
+			/* Left ring is cursed, but right one isn't */
+			if (!cursed_p(i_ptr) && cursed_p(j_ptr)) return (INVEN_RIGHT);
+
+			/* Right ring is cursed, but left one isn't */
+			if (cursed_p(i_ptr) && !cursed_p(j_ptr)) return (INVEN_LEFT);
+
+			/* Rings are of the same type, choice might be easy */
+			if ((i_ptr->sval == j_ptr->sval) && object_known_p(i_ptr) && object_known_p(j_ptr))
+			{
+				switch (i_ptr->sval)
+				{
+					case SV_RING_PROTECTION:
+					case SV_RING_LIGHTNING:
+					case SV_RING_ACID:
+					case SV_RING_FLAMES:
+					case SV_RING_ICE:
+					{
+						/* Prefer the ring with lower ac bonus */
+						if (i_ptr->to_a < j_ptr->to_a) return (INVEN_RIGHT);
+						else return (INVEN_LEFT);
+					}
+					case SV_RING_ACCURACY:
+					case SV_RING_DAMAGE:
+					case SV_RING_SLAYING:
+					{
+						/* Don't auto-choose ambiguous rings (only applies to slaying) */
+						if (((i_ptr->to_h < j_ptr->to_h) &&	(i_ptr->to_d > j_ptr->to_d)) ||
+							((i_ptr->to_h > j_ptr->to_h) && (i_ptr->to_d < j_ptr->to_d)))
+						{
+							break;
+						}
+						else
+						{
+							/* Prefer the ring with lower bonuses */
+							if ((i_ptr->to_h < j_ptr->to_h) || (i_ptr->to_d < j_ptr->to_d))
+								return (INVEN_RIGHT);
+							else return (INVEN_LEFT);
+						}
+					}
+					default:
+					{
+						/* 
+						 * For most cases, just prefer the ring with lower pval
+						 * Note that this works fine for rings with no pval
+						 */
+						if (i_ptr->pval < j_ptr->pval) return (INVEN_RIGHT);
+						else return (INVEN_LEFT);
+					}
+				}
+			}
+			
+			/* Since we haven't chosen automatically, choose interactively */
+
+			/* Restrict the choices */
+			item_tester_tval = TV_RING;
+
+			/* Choose a ring from the equipment only */
+			q = "Replace which ring? ";
+			s = "Oops.";
+			if (!get_item(&slot, q, s, USE_EQUIP)) return (0);
+			
+			return (slot);
+		}
+
+		case TV_AMULET:
+		{
+			return (INVEN_NECK);
+		}
+
+		case TV_LITE:
+		case TV_LITE_SPECIAL:
+		{
+			return (INVEN_LITE);
+		}
+
+		case TV_DRAG_ARMOR:
+		case TV_BODY_ARMOR:
+		{
+			return (INVEN_BODY);
+		}
+
+		case TV_CLOAK:
+		{
+			return (INVEN_OUTER);
+		}
+
+		case TV_SHIELD:
+		{
+			return (INVEN_ARM);
+		}
+
+		case TV_HEADGEAR:
+		{
+			return (INVEN_HEAD);
+		}
+
+		case TV_GLOVES:
+		{
+			return (INVEN_HANDS);
+		}
+
+		case TV_BOOTS:
+		{
+			return (INVEN_FEET);
+		}
+
+		case TV_MUSIC:
+		{
+			if (cp_ptr->flags & CF_MUSIC) return (INVEN_MUSIC);
+		}
+	}
+
+	/* No slot available */
+	return (0);
+}
+
+/*
  * The "wearable" tester
  */
 static bool item_tester_hook_wear(object_type *o_ptr)
 {
-	/* Check for a usable slot */
-	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
+	/* Hack - Deal with music items */
+	if ((o_ptr->tval == TV_MUSIC) && !(cp_ptr->flags & CF_MUSIC)) return (FALSE);
 
-	/* Assume not wearable */
-	return (FALSE);
+	/* return true if wearable */
+	return (wearable_p(o_ptr));
 }
 
 /*
@@ -189,134 +347,7 @@ void do_cmd_wield(void)
 	}
 
 	/* Check the slot */
-	slot = wield_slot(o_ptr);
-
-	/* Ask for ring to replace */
-	if ((o_ptr->tval == TV_RING) &&	inventory[INVEN_LEFT].k_idx && inventory[INVEN_RIGHT].k_idx)
-	{
-		/* Maybe we can find out which ring should be replaced */
-		if (object_known_p(&inventory[INVEN_LEFT]) && 
-			object_known_p(&inventory[INVEN_RIGHT])	&& 
-			(inventory[INVEN_LEFT].sval == inventory[INVEN_RIGHT].sval))
-		{
-			switch (inventory[INVEN_LEFT].sval)
-			{
-				case SV_RING_FEATHER_FALL:
-				case SV_RING_SUSTAIN_STR_CHR:
-				case SV_RING_SUSTAIN_CON_DEX:
-				case SV_RING_SUSTAIN_INT_WIS:
-				case SV_RING_SUSTAIN_ALL:
-				case SV_RING_RESIST_FIRE_COLD:
-				case SV_RING_RESIST_ACID_ELEC:
-				case SV_RING_FREE_ACTION:
-				case SV_RING_BRAVERY:
-				case SV_RING_RESIST_CONFU:
-				case SV_RING_RESIST_POIS:
-				case SV_RING_RESIST_DISEASE:
-				case SV_RING_RESIST_DISEN:
-				case SV_RING_SEE_INVIS:
-				{
-					/* Two simple rings, pick arbitrarily */
-					slot = INVEN_RIGHT;
-					ring_auto_choose = TRUE;
-					break;
-				}
-				case SV_RING_STR:
-				case SV_RING_CON:
-				case SV_RING_DEX:
-				case SV_RING_MANA:
-				case SV_RING_HEALTH:
-				case SV_RING_GREATNESS:
-				case SV_RING_SPEED:
-				case SV_RING_SEARCHING:
-				{
-					/* Prefer the ring with lower pval */
-					if (inventory[INVEN_LEFT].pval < inventory[INVEN_RIGHT].pval)
-						slot = INVEN_LEFT;
-					else
-						slot = INVEN_RIGHT;
-					ring_auto_choose = TRUE;
-					break;
-				}
-				case SV_RING_FLAMES:
-				case SV_RING_ACID:
-				case SV_RING_ICE:
-				case SV_RING_LIGHTNING:
-				case SV_RING_PROTECTION:
-				{
-					/* Prefer the ring with lower ac bonus */
-					if (inventory[INVEN_LEFT].to_a < inventory[INVEN_RIGHT].to_a)
-						slot = INVEN_LEFT;
-					else
-						slot = INVEN_RIGHT;
-					ring_auto_choose = TRUE;
-					break;
-				}
-				case SV_RING_DAMAGE:
-				{
-					/* Prefer the ring with lower damage bonus */
-					if (inventory[INVEN_LEFT].to_d < inventory[INVEN_RIGHT].to_d)
-						slot = INVEN_LEFT;
-					else
-						slot = INVEN_RIGHT;
-					ring_auto_choose = TRUE;
-					break;
-				}
-				case SV_RING_ACCURACY:
-				{
-					/* Prefer the ring with lower to-hit bonus */
-					if (inventory[INVEN_LEFT].to_h < inventory[INVEN_RIGHT].to_h)
-						slot = INVEN_LEFT;
-					else
-						slot = INVEN_RIGHT;
-					ring_auto_choose = TRUE;
-					break;
-				}
-				case SV_RING_SLAYING:
-				{
-					/* Don't auto-choose ambiguous rings */
-					if (((inventory[INVEN_LEFT].to_h < inventory[INVEN_RIGHT].to_h) &&
-						(inventory[INVEN_LEFT].to_d > inventory[INVEN_RIGHT].to_d)) ||
-						((inventory[INVEN_LEFT].to_h > inventory[INVEN_RIGHT].to_h) &&
-						(inventory[INVEN_LEFT].to_d < inventory[INVEN_RIGHT].to_d)))
-					{
-						break;
-					}
-					else
-					{
-						/* Prefer the ring with lower bonuses */
-						if ((inventory[INVEN_LEFT].to_h < inventory[INVEN_RIGHT].to_h) ||
-							(inventory[INVEN_LEFT].to_d < inventory[INVEN_RIGHT].to_d))
-						{
-							slot = INVEN_LEFT;
-						}
-						else slot = INVEN_RIGHT;
-						ring_auto_choose = TRUE;
-						break;
-					}
-				}
-				default:
-				{
-					/* Cursed rings - always prompt to prevent trouble */
-					ring_auto_choose = FALSE;
-					break;
-				}
-			}
-		}
-		
-		if (!ring_auto_choose)
-		{
-			{
-				/* Restrict the choices */
-				item_tester_tval = TV_RING;
-
-				/* Choose a ring from the equipment only */
-				q = "Replace which ring? ";
-				s = "Oops.";
-				if (!get_item(&slot, q, s, USE_EQUIP)) return;
-			}
-		}
-	}
+	if (!(slot = wield_slot(o_ptr))) return;
 
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
@@ -331,7 +362,6 @@ void do_cmd_wield(void)
 		/* Cancel the command */
 		return;
 	}
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -424,12 +454,6 @@ void do_cmd_wield(void)
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
 
-	/* Recalculate hitpoints */
-	p_ptr->update |= (PU_HP);
-
-	/* Recalculate mana */
-	p_ptr->update |= (PU_MANA);
-	
 	/* Redraw "equippy" */
 	p_ptr->redraw |= (PR_EQUIPPY);
 
@@ -474,7 +498,6 @@ void do_cmd_takeoff(void)
 		/* Nope */
 		return;
 	}
-
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
@@ -538,7 +561,6 @@ void do_cmd_drop(void)
 
 	/* Redraw "equippy" */
 	p_ptr->redraw |= (PR_EQUIPPY);
-
 }
 
 /*
@@ -552,11 +574,9 @@ void do_cmd_destroy(void)
 	object_type *o_ptr;
 
 	char o_name[80];
-
 	char out_val[160];
 
 	cptr q, s;
-
 
 	/* Get an item */
 	q = "Destroy which item? ";
@@ -588,7 +608,8 @@ void do_cmd_destroy(void)
 	o_ptr->number = old_number;
 
 	/* Verify destruction */
-	if (verify_destroy && (verify_destroy_junk || (object_value(o_ptr) >= 1)))
+	if (verify_destroy && 
+		((object_value(o_ptr) >= 1) || verify_destroy_junk))
 	{
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
@@ -674,7 +695,6 @@ void do_cmd_observe(void)
 
 	cptr q, s;
 
-
 	/* Get an item */
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
@@ -712,7 +732,6 @@ void do_cmd_uninscribe(void)
 	object_type *o_ptr;
 
 	cptr q, s;
-
 
 	/* Get an item */
 	q = "Un-inscribe which item? ";
@@ -765,7 +784,6 @@ void do_cmd_inscribe(void)
 	char tmp[80];
 
 	cptr q, s;
-
 
 	/* Get an item */
 	q = "Inscribe which item? ";
@@ -847,7 +865,6 @@ static void do_cmd_refill_lamp(void)
 
 	cptr q, s;
 
-
 	/* Restrict the choices */
 	item_tester_hook = item_tester_refill_lantern;
 
@@ -867,7 +884,6 @@ static void do_cmd_refill_lamp(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
@@ -953,7 +969,6 @@ static void do_cmd_refill_torch(void)
 
 	cptr q, s;
 
-
 	/* Restrict the choices */
 	item_tester_hook = item_tester_refill_torch;
 
@@ -973,7 +988,6 @@ static void do_cmd_refill_torch(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
@@ -1056,22 +1070,11 @@ void do_cmd_refill(void)
 /*
  * Eat some food (from the pack or floor)
  */
-void do_cmd_eat_food(void)
+static void do_cmd_eat_food_aux(int item)
 {
-	int item, ident, lev;
+	int ident, lev;
 
 	object_type *o_ptr;
-
-	cptr q, s;
-
-
-	/* Restrict choices to food */
-	item_tester_tval = TV_FOOD;
-
-	/* Get an item */
-	q = "Eat which item? ";
-	s = "You have nothing to eat.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1352,26 +1355,34 @@ void do_cmd_eat_food(void)
 	}
 }
 
+/* Eat some food */
+void do_cmd_eat_food(void)
+{
+	int         item;
+	cptr        q, s;
+
+	/* Restrict choices to food */
+	item_tester_tval = TV_FOOD;
+
+	/* Get an item */
+	q = "Eat which item? ";
+	s = "You have nothing to eat.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Eat the object */
+	do_cmd_eat_food_aux(item);
+}
+
 /*
  * Quaff a potion (from the pack or the floor)
  */
-void do_cmd_quaff_potion(void)
+static void do_cmd_quaff_potion_aux(int item)
 {
-	int item, ident, lev, time;
+	int ident, lev, time;
 
 	object_type *o_ptr;
 
 	char line[80];
-
-	cptr q, s;
-
-	/* Restrict choices to potions */
-	item_tester_tval = TV_POTION;
-
-	/* Get an item */
-	q = "Quaff which potion? ";
-	s = "You have no potions to quaff.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1601,7 +1612,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_INFRAVISION:
 		{
-			if (set_tim_infra(p_ptr->tim_infra + 100 + randint(100)))
+			if (set_tim_infra(p_ptr->tim_infra + 50 + randint(50)))
 			{
 				ident = TRUE;
 			}
@@ -1976,23 +1987,56 @@ void do_cmd_quaff_potion(void)
 		
 	/* Check if the alchemicl formula is learnt */
 	if (!((potion_alch[o_ptr->sval].known1) && (potion_alch[o_ptr->sval].known2)) &&
-		(rand_int(100) <= p_ptr->skill[SK_ALC] - 40))
+		(rand_int(100) <= p_ptr->skill[SK_ALC] - 30))
 	{
-		message(MSG_STUDY, 0, "You have gained alchemical knowledge!");
-		if (!(potion_alch[o_ptr->sval].known1)) potion_alch[o_ptr->sval].known1 = TRUE;
-		else potion_alch[o_ptr->sval].known2 = TRUE;
-		alchemy_describe(line, o_ptr->sval);
-		message_format(MSG_STUDY, -1, "%s", line);
+		object_kind *k_ptr;
+
+		int k;
+		bool p1, p2;
+
+		bool learn = FALSE;
+
+		/* Check if the components are known */
+		for (k = 1; k < z_info->k_max; k++)
+		{
+			k_ptr = &k_info[k];
+
+			/* Found a match */
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[o_ptr->sval].sval1)) 
+				p1 = k_ptr->aware;
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[o_ptr->sval].sval2)) 
+				p2 = k_ptr->aware;
+		}
+
+		/* 
+		 * Learn, if you are aware of the component potion, but
+		 * you are not yet aware it is part of the potion.
+		 */
+		if ((!(potion_alch[o_ptr->sval].known1)) && p1) 
+		{
+			potion_alch[o_ptr->sval].known1 = TRUE;
+			learn = TRUE;
+		}
+		else if ((!(potion_alch[o_ptr->sval].known2)) && p2) 
+		{
+			potion_alch[o_ptr->sval].known2 = TRUE;
+			learn = TRUE;
+		}
+
+		/* Message, if something new was learned */
+		if (learn)
+		{
+			message(MSG_STUDY, 0, "You have gained alchemical knowledge!");
+			alchemy_describe(line, o_ptr->sval);
+			message_format(MSG_STUDY, -1, "%s", line);
+		}
 	}
 		
-
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
 	/* Potions can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
-
 
 	/* Destroy a potion in the pack */
 	if (item >= 0)
@@ -2009,6 +2053,24 @@ void do_cmd_quaff_potion(void)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
+}
+
+/* Drink a potion */
+void do_cmd_quaff_potion(void)
+{
+	int  item;
+	cptr q, s;
+
+	/* Restrict choices to potions */
+	item_tester_tval = TV_POTION;
+
+	/* Get an item */
+	q = "Quaff which potion? ";
+	s = "You have no potions to quaff.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Quaff the potion */
+	do_cmd_quaff_potion_aux(item);
 }
 
 /*
@@ -2047,8 +2109,8 @@ static bool curse_armor(void)
 			"A terrible black aura blasts your %s!", o_name);
 
 		/* Blast the armor */
-		o_ptr->name1 = 0;
-		o_ptr->name2 = EGO_BLASTED;
+		o_ptr->a_idx = 0;
+		o_ptr->e_idx = EGO_BLASTED;
 		o_ptr->to_a = 0 - randint(5) - randint(5);
 		o_ptr->to_h = 0;
 		o_ptr->to_d = 0;
@@ -2064,9 +2126,6 @@ static bool curse_armor(void)
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
-
-		/* Recalculate mana */
-		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
@@ -2090,7 +2149,6 @@ static bool curse_weapon(void)
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
 
-
 	/* Describe */
 	object_desc(o_name, o_ptr, FALSE, 3);
 
@@ -2110,8 +2168,8 @@ static bool curse_weapon(void)
 			"A terrible black aura blasts your %s!", o_name);
 
 		/* Shatter the weapon */
-		o_ptr->name1 = 0;
-		o_ptr->name2 = EGO_SHATTERED;
+		o_ptr->a_idx = 0;
+		o_ptr->e_idx = EGO_SHATTERED;
 		o_ptr->to_h = 0 - randint(5) - randint(5);
 		o_ptr->to_d = 0 - randint(5) - randint(5);
 		o_ptr->to_a = 0;
@@ -2128,9 +2186,6 @@ static bool curse_weapon(void)
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
-		/* Recalculate mana */
-		p_ptr->update |= (PU_MANA);
-
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 	}
@@ -2146,38 +2201,11 @@ static bool curse_weapon(void)
  * include scrolls with no effects but recharge or identify, which are
  * cancelled before use.  XXX Reading them still takes a turn, though.
  */
-void do_cmd_read_scroll(void)
+static void do_cmd_read_scroll_aux(int item)
 {
-	int item, k, used_up, ident, lev;
+	int k, used_up, ident, lev;
 
 	object_type *o_ptr;
-
-	cptr q, s;
-
-	/* Check some conditions */
-	if (p_ptr->blind)
-	{
-		message(MSG_FAIL, 0, "You can't see anything.");
-		return;
-	}
-	if (no_lite())
-	{
-		message(MSG_FAIL, 0, "You have no light to read by.");
-		return;
-	}
-	if (p_ptr->confused)
-	{
-		message(MSG_FAIL, 0, "You are too confused!");
-		return;
-	}
-
-	/* Restrict choices to scrolls */
-	item_tester_tval = TV_SCROLL;
-
-	/* Get an item */
-	q = "Read which scroll? ";
-	s = "You have no scrolls to read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2190,7 +2218,6 @@ void do_cmd_read_scroll(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -2393,7 +2420,7 @@ void do_cmd_read_scroll(void)
 		{
 			/* Hack - choose random brand */
 			k = rand_int(4);
-			if (!brand_weapon(0,EGO_BRAND_ACID+k,TRUE)) used_up = FALSE;
+			if (!brand_weapon(0, EGO_BRAND_ACID+k, TRUE)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
@@ -2527,14 +2554,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ACQUIREMENT:
 		{
-			acquirement(p_ptr->py, p_ptr->px, 1, TRUE);
+			acquirement(p_ptr->py, p_ptr->px, 1, TRUE, TRUE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ACQUIREMENT:
 		{
-			acquirement(p_ptr->py, p_ptr->px, randint(2) + 1, TRUE);
+			acquirement(p_ptr->py, p_ptr->px, randint(2) + 1, TRUE, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -2578,6 +2605,93 @@ void do_cmd_read_scroll(void)
 	}
 }
 
+void do_cmd_read_scroll(void)
+{
+	int  item;
+	cptr q, s;
+
+	/* Check some conditions */
+	if (p_ptr->blind)
+	{
+		message(MSG_FAIL, 0, "You can't see anything.");
+		return;
+	}
+	if (no_lite())
+	{
+		message(MSG_FAIL, 0, "You have no light to read by.");
+		return;
+	}
+	if (p_ptr->confused)
+	{
+		message(MSG_FAIL, 0, "You are too confused!");
+		return;
+	}
+
+	/* Restrict choices to scrolls */
+	item_tester_tval = TV_SCROLL;
+
+	/* Get an item */
+	q = "Read which scroll? ";
+	s = "You have no scrolls to read.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Read the scroll */
+	do_cmd_read_scroll_aux(item);
+}
+
+#define USAGE_WAND		4		/* Difficulty for aiming wands */
+#define USAGE_STAFF		3		/* Difficulty for using staves */
+#define USAGE_TALISMAN	5		/* Difficulty for zapping rods */
+#define USAGE_ROD		3		/* Difficulty for invoking talismans */
+#define USAGE_ARTIFACT	3		/* Difficulty for activating artifacts */
+
+static int check_item_success(int diff, int lev, bool binary)
+{
+	int chance;
+	
+	sint result, i;
+
+	/* Base chance of success */
+	chance = p_ptr->skill[SK_DEV];
+
+	/* Confusion hurts skill */
+	if (p_ptr->confused) chance = chance / 2;
+
+	/* Stunning hurts skill */
+	if (p_ptr->stun) chance = chance / 2;
+
+	/* High level objects are harder */
+	chance = chance - ((lev > 50) ? 50 : lev);
+
+	/* Give everyone a (slight) chance */
+	if ((chance < diff) && (rand_int(diff - chance + 1) == 0))
+	{
+		chance = diff;
+	}
+	else if (chance < 0) return 0;
+
+	/* Check for success */
+	i = (randint(chance) - diff + 1);
+
+	/* Check exact failure percentage */
+	if (i < 0)
+	{
+		if (!binary)
+		{
+			int j = 0 - (10 * diff * i);
+
+			result = ((0 - randint(j)) * 5) + 100;
+
+			if (result < 0) result = 0;
+		}
+		/* If a binary check, ignore results below 0 */
+		else result = 0;
+	}
+	else if (i > 0) result = 100;
+
+	return (result);
+}
+
 /*
  * Use a staff
  *
@@ -2585,24 +2699,14 @@ void do_cmd_read_scroll(void)
  *
  * Hack -- staffs of identify can be "cancelled".
  */
-void do_cmd_use_staff(void)
+static void do_cmd_use_staff_aux(int item)
 {
-	int item, ident, chance, k, lev;
+	int ident, k;
 
 	object_type *o_ptr;
 
 	/* Hack -- let staffs of identify get aborted */
 	bool use_charge = TRUE;
-
-	cptr q, s;
-
-	/* Restrict choices to staves */
-	item_tester_tval = TV_STAFF;
-
-	/* Get an item */
-	q = "Use which staff? ";
-	s = "You have no staff to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2616,7 +2720,6 @@ void do_cmd_use_staff(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
@@ -2624,33 +2727,14 @@ void do_cmd_use_staff(void)
 		return;
 	}
 
-
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
 
-	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
-
-	/* Base chance of success */
-	chance = p_ptr->skill[SK_DEV];
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (!check_item_success(USAGE_STAFF, k_info[o_ptr->k_idx].level, TRUE))
 	{
 		if (flush_failure) flush();
 		message(MSG_FAIL, 0, "You failed to use the staff properly.");
@@ -2666,10 +2750,8 @@ void do_cmd_use_staff(void)
 		return;
 	}
 
-
 	/* Sound */
 	sound(MSG_ZAP);
-
 
 	/* Analyze the staff */
 	switch (o_ptr->sval)
@@ -2887,6 +2969,7 @@ void do_cmd_use_staff(void)
 			k = 3 * p_ptr->lev;
 			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
+			if (set_diseased(0)) ident = TRUE;
 			if (set_afraid(0)) ident = TRUE;
 			if (hp_player(50)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
@@ -2916,7 +2999,6 @@ void do_cmd_use_staff(void)
 		}
 	}
 
-
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -2927,12 +3009,11 @@ void do_cmd_use_staff(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+		gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
 
 	/* Hack -- some uses are "free" */
 	if (!use_charge) return;
@@ -2980,6 +3061,22 @@ void do_cmd_use_staff(void)
 	}
 }
 
+void do_cmd_use_staff(void)
+{
+	int  item;
+	cptr q, s;
+
+	/* Restrict choices to wands */
+	item_tester_tval = TV_STAFF;
+
+	/* Get an item */
+	q = "Use which staff? ";
+	s = "You have no staff to use.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	do_cmd_use_staff_aux(item);
+}
+
 /*
  * Aim a wand (from the pack or floor).
  *
@@ -3000,22 +3097,12 @@ void do_cmd_use_staff(void)
  * basic "bolt" rods, but the basic "ball" wands do the same damage
  * as the basic "ball" rods.
  */
-void do_cmd_aim_wand(void)
+static void do_cmd_aim_wand_aux(int item)
 {
-	int item, lev, ident, chance, dir, sval;
+	int ident, dir, sval, check;
+	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
-
-	cptr q, s;
-
-
-	/* Restrict choices to wands */
-	item_tester_tval = TV_WAND;
-
-	/* Get an item */
-	q = "Aim which wand? ";
-	s = "You have no wand to aim.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -3029,7 +3116,6 @@ void do_cmd_aim_wand(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Mega-Hack -- refuse to aim a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
@@ -3037,10 +3123,8 @@ void do_cmd_aim_wand(void)
 		return;
 	}
 
-
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return;
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -3048,26 +3132,10 @@ void do_cmd_aim_wand(void)
 	/* Not identified yet */
 	ident = FALSE;
 
-	/* Get the level */
-	lev = k_info[o_ptr->k_idx].level;
-
-	/* Base chance of success */
-	chance = p_ptr->skill[SK_DEV];
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
+	check = check_item_success(USAGE_WAND, k_info[o_ptr->k_idx].level, FALSE);
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (!check)
 	{
 		if (flush_failure) flush();
 		message(MSG_FAIL, 0, "You failed to use the wand properly.");
@@ -3083,10 +3151,8 @@ void do_cmd_aim_wand(void)
 		return;
 	}
 
-
 	/* Sound */
 	sound(MSG_ZAP);
-
 
 	/* XXX Hack -- Extract the "sval" effect */
 	sval = o_ptr->sval;
@@ -3094,6 +3160,9 @@ void do_cmd_aim_wand(void)
 	/* XXX Hack -- Wand of wonder can do anything before it */
 	if (sval == SV_WAND_WONDER) sval = rand_int(SV_WAND_WONDER);
 
+	/* Partial success */
+	plev = ((plev - 1) * check) / 100 + 1;
+	
 	/* Analyze the wand */
 	switch (sval)
 	{
@@ -3121,12 +3190,6 @@ void do_cmd_aim_wand(void)
 			break;
 		}
 
-		case SV_WAND_DISARMING:
-		{
-			if (disarm_trap(dir)) ident = TRUE;
-			break;
-		}
-
 		case SV_WAND_TRAP_DOOR_DEST:
 		{
 			if (destroy_door(dir)) ident = TRUE;
@@ -3149,13 +3212,13 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir,15)) ident = TRUE;
+			if (sleep_monster(dir, 15)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_SLOW_MONSTER:
 		{
-			if (slow_monster(dir,15)) ident = TRUE;
+			if (slow_monster(dir, 15)) ident = TRUE;
 			break;
 		}
 
@@ -3173,7 +3236,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 60 + (plev))) ident = TRUE;
 			break;
 		}
 
@@ -3199,76 +3262,42 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, damroll(3 + (plev / 5), 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3 + (plev / 5), 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(4 + (plev / 5), 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3 + (plev / 5), 8));
 			ident = TRUE;
-			break;
-		}
-
-		case SV_WAND_ACID_BALL:
-		{
-			fire_ball(GF_ACID, dir, 60, 2);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_WAND_ELEC_BALL:
-		{
-			fire_ball(GF_ELEC, dir, 32, 2);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_WAND_FIRE_BALL:
-		{
-			fire_ball(GF_FIRE, dir, 72, 2);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_WAND_COLD_BALL:
-		{
-			fire_ball(GF_COLD, dir, 48, 2);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_WAND_WONDER:
-		{
-			message(MSG_EFFECT, 0, "Oops.  Wand of wonder activated.");
 			break;
 		}
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_ball(GF_FIRE, dir, 100, 3);
+			fire_ball(GF_FIRE, dir, 80 + (plev * 2), 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 80, 3);
+			fire_ball(GF_COLD, dir, 80 + (plev * 2), 3);
 			ident = TRUE;
 			break;
 		}
@@ -3279,31 +3308,31 @@ void do_cmd_aim_wand(void)
 			{
 				case 1:
 				{
-					fire_ball(GF_ACID, dir, 100, 3);
+					fire_ball(GF_ACID, dir, 80 + (plev * 2), 3);
 					break;
 				}
 
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 80, 3);
+					fire_ball(GF_ELEC, dir, 60 + (plev * 2), 3);
 					break;
 				}
 
 				case 3:
 				{
-					fire_ball(GF_FIRE, dir, 100, 3);
+					fire_ball(GF_FIRE, dir, 80 + (plev * 2), 3);
 					break;
 				}
 
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 80, 3);
+					fire_ball(GF_COLD, dir, 60 + (plev * 2), 3);
 					break;
 				}
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 60, 3);
+					fire_ball(GF_POIS, dir, 50 + (plev * 2), 3);
 					break;
 				}
 			}
@@ -3314,7 +3343,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 125)) ident = TRUE;
+			if (drain_life(dir, 100 + (plev * 2))) ident = TRUE;
 			break;
 		}
 
@@ -3326,13 +3355,19 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_CALM_MONSTER:
 		{
-			if (calm_monster(dir,15)) ident = TRUE;
+			if (calm_monster(dir, 15)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_BLIND_MONSTER:
 		{
 			if (blind_monster(dir, 15)) ident = TRUE;
+			break;
+		}
+
+		case SV_WAND_WONDER:
+		{
+			message(MSG_EFFECT, 0, "Oops.  Wand of wonder activated.");
 			break;
 		}
 	}
@@ -3347,7 +3382,7 @@ void do_cmd_aim_wand(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+		gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
 	/* Window stuff */
@@ -3396,35 +3431,39 @@ void do_cmd_aim_wand(void)
 	}
 }
 
+/* Aim a wand */
+void do_cmd_aim_wand(void)
+{
+	int     item;
+	cptr    q, s;
+
+	/* Restrict choices to wands */
+	item_tester_tval = TV_WAND;
+
+	/* Get an item */
+	q = "Aim which wand? ";
+	s = "You have no wand to aim.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Aim the wand */
+	do_cmd_aim_wand_aux(item);
+}
+
 /*
  * Activate (zap) a Rod.    Rods may be fully identified through use 
  * (although it's not easy).  Rods now use timeouts to determine charging 
  * status, and pvals have become the cost of zapping a rod (how long it 
  * takes between zaps).  Pvals are defined for each rod in k_info. -LM-
- *
- * Hack -- rods of perception/genocide can be "cancelled"
- * All rods can be cancelled at the "Direction?" prompt
  */
-void do_cmd_zap_rod(void)
+static void do_cmd_zap_rod_aux(int item)
 {
-	int item, ident, chance, dir, lev;
+	int ident, k, chance;
 	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
 
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
-
-	cptr q, s;
-
-
-	/* Restrict choices to rods */
-	item_tester_tval = TV_ROD;
-
-	/* Get an item */
-	q = "Zap which rod? ";
-	s = "You have no rod to zap.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -3438,21 +3477,11 @@ void do_cmd_zap_rod(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Get a direction (unless KNOWN not to need it) */
-	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
-	{
-		/* Get a direction, allow cancel */
-		if (!get_aim_dir(&dir)) return;
-	}
-
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
-
-	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
 	chance = p_ptr->skill[SK_DEV];
@@ -3460,17 +3489,11 @@ void do_cmd_zap_rod(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
+	/* Stunning hurts skill */
+	if (p_ptr->confused) chance = chance / 2;
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (!check_item_success(USAGE_ROD, k_info[o_ptr->k_idx].level, TRUE))
 	{
 		if (flush_failure) flush();
 		message(MSG_FAIL, 0, "You failed to use the rod properly.");
@@ -3500,6 +3523,28 @@ void do_cmd_zap_rod(void)
 	/* Analyze the rod */
 	switch (o_ptr->sval)
 	{
+		case SV_ROD_SUMMON:
+		{
+			for (k = 0; k < randint(5); k++)
+			{
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0))
+				{
+					ident = TRUE;
+				}
+			}
+			break;
+		}
+
+		case SV_ROD_DARKNESS:
+		{
+			if (!p_ptr->no_blind)
+			{
+				if (set_blind(p_ptr->blind + 3 + randint(5))) ident = TRUE;
+			}
+			if (unlite_area(10, 3)) ident = TRUE;
+			break;
+		}
+
 		case SV_ROD_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
@@ -3565,6 +3610,13 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
+		case SV_ROD_SATISFY_HUNGER:
+		{
+			if (set_food(PY_FOOD_MAX - 1)) ident = TRUE;
+			break;
+		}
+
+
 		case SV_ROD_HEALING:
 		{
 			if (hp_player(500)) ident = TRUE;
@@ -3597,20 +3649,132 @@ void do_cmd_zap_rod(void)
 			}
 			break;
 		}
+	}
 
-		case SV_ROD_TELEPORT_AWAY:
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Tried the object */
+	object_tried(o_ptr);
+
+	/* Successfully determined the object function */
+	if (ident && !object_aware_p(o_ptr))
+	{
+		object_aware(o_ptr);
+		gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
+	}
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+	/* Hack -- deal with cancelled zap */
+	if (!use_charge)
+	{
+		o_ptr->timeout += k_info[o_ptr->k_idx].pval;
+		return;
+	}
+}
+
+/* Zap a rod */
+void do_cmd_zap_rod(void)
+{
+	int item;
+	cptr q, s;
+
+	/* Restrict choices to rods */
+	item_tester_tval = TV_ROD;
+
+	/* Get an item */
+	q = "Zap which rod? ";
+	s = "You have no rod to zap.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Zap the rod */
+	do_cmd_zap_rod_aux(item);
+}
+
+/*
+ * Activate (invoke) a Talisman. They act identically to rods but are
+ * directional.
+ */
+static void do_cmd_invoke_talisman_aux(int item)
+{
+	int ident, dir, check;
+	int plev = p_ptr->lev;
+
+	object_type *o_ptr;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Get a direction, allow cancel */
+	if (!get_aim_dir(&dir)) return;
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Not identified yet */
+	ident = FALSE;
+
+	check = check_item_success(USAGE_TALISMAN, k_info[o_ptr->k_idx].level, FALSE);
+
+	/* Roll for usage */
+	if (!check)
+	{
+		if (flush_failure) flush();
+		message(MSG_FAIL, 0, "You failed to use the talisman properly.");
+		return;
+	}
+
+	/* A single talisman is still charging */
+	if ((o_ptr->number == 1) && (o_ptr->timeout))
+	{
+		if (flush_failure) flush();
+		message(MSG_FAIL, 0, "The talisman is still charging.");
+		return;
+	}
+
+	/* A stack of talismans lacks enough energy. */
+	else if ((o_ptr->number > 1) && (o_ptr->timeout > o_ptr->pval - k_info[o_ptr->k_idx].pval))
+	{
+		if (flush_failure) flush();
+		message(MSG_FAIL, 0, "The talismans are all still charging.");
+		return;
+	}
+
+	o_ptr->timeout += k_info[o_ptr->k_idx].pval;
+
+	/* Partial success */
+	plev = ((plev - 1) * check) / 100 + 1;
+
+	/* Sound */
+	sound(MSG_ZAP);
+
+	/* Analyze the talisman */
+	switch (o_ptr->sval)
+	{
+		case SV_TALIS_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_DISARMING:
+		case SV_TALIS_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_LITE:
+		case SV_TALIS_LITE:
 		{
 			message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
 			lite_line(dir,damroll(6,8));
@@ -3618,83 +3782,84 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_SLEEP_MONSTER:
+		case SV_TALIS_DRAIN_LIFE:
 		{
-			if (sleep_monster(dir, p_ptr->lev)) ident = TRUE;
+			if (drain_life(dir, 60 + (plev))) ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_SLOW_MONSTER:
-		{
-			if (slow_monster(dir, p_ptr->lev)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_DRAIN_LIFE:
-		{
-			if (drain_life(dir, 75)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_POLYMORPH:
+		case SV_TALIS_POLYMORPH:
 		{
 			if (poly_monster(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_ACID_BOLT:
+		case SV_TALIS_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
+			fire_bolt_or_beam(10, GF_ACID, dir, damroll(3 + (plev / 5), 8));
 			ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_ELEC_BOLT:
+		case SV_TALIS_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3 + (plev / 5), 8));
 			ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_FIRE_BOLT:
+		case SV_TALIS_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
+			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(5 + (plev / 5), 8));
 			ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_COLD_BOLT:
+		case SV_TALIS_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
+			fire_bolt_or_beam(10, GF_COLD, dir, damroll(3 + (plev / 5), 8));
 			ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_ACID_BALL:
+		case SV_TALIS_FORCE_BOLT:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_bolt_or_beam(10, GF_FORCE, dir, damroll(3 + (plev / 5), 10));
 			ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_ELEC_BALL:
+		case SV_TALIS_ACID_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ACID, dir, 40 + (plev * 2), 2);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_FIRE_BALL:
+		case SV_TALIS_ELEC_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_ELEC, dir, 30 + (plev * 2), 2);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_ROD_COLD_BALL:
+		case SV_TALIS_FIRE_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_FIRE, dir, 45 + (plev * 2), 2);
 			ident = TRUE;
+			break;
+		}
+
+		case SV_TALIS_COLD_BALL:
+		{
+			fire_ball(GF_COLD, dir, 35 + (plev * 2), 2);
+			ident = TRUE;
+			break;
+		}
+
+		case SV_TALIS_STONE_TO_MUD:
+		{
+			if (wall_to_mud(dir)) ident = TRUE;
 			break;
 		}
 	}
@@ -3709,23 +3874,30 @@ void do_cmd_zap_rod(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+		gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-	/* Hack -- deal with cancelled zap */
-	if (!use_charge)
-	{
-		o_ptr->timeout += k_info[o_ptr->k_idx].pval;
-		return;
-	}
-
 }
 
+/* Invoke a Talisman */
+void do_cmd_invoke_talisman(void)
+{
+	int item;
+	cptr q, s;
 
+	/* Restrict choices to rods */
+	item_tester_tval = TV_TALISMAN;
 
+	/* Get an item */
+	q = "Invoke which talisman? ";
+	s = "You have no talisman to invoke.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Invoke the talisman */
+	do_cmd_invoke_talisman_aux(item);
+}
 
 /*
  * Hook to determine if an object is activatable
@@ -3746,8 +3918,6 @@ static bool item_tester_hook_activate(object_type *o_ptr)
 	/* Assume not */
 	return (FALSE);
 }
-
-
 
 /*
  * Hack -- activate the ring of power
@@ -3823,22 +3993,11 @@ static void ring_of_power(int dir)
  * Note that it always takes a turn to activate an artifact, even if
  * the user hits "escape" at the "direction" prompt.
  */
-void do_cmd_activate(void)
+static void do_cmd_activate_aux(int item)
 {
-	int item, i, k, dir, lev, chance;
+	int i, k, dir, lev, chance;
 
 	object_type *o_ptr;
-
-	cptr q, s;
-
-
-	/* Prepare the hook */
-	item_tester_hook = item_tester_hook_activate;
-
-	/* Get an item */
-	q = "Activate which item? ";
-	s = "You have nothing to activate.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -3860,25 +4019,10 @@ void do_cmd_activate(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Hack -- use artifact level instead */
-	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
-
-	/* Base chance of success */
-	chance = p_ptr->skill[SK_DEV];
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
+	if (artifact_p(o_ptr)) lev = a_info[o_ptr->a_idx].level;
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (!check_item_success(USAGE_ARTIFACT, k_info[o_ptr->k_idx].level, TRUE))
 	{
 		if (flush_failure) flush();
 		message(MSG_FAIL, 0, "You failed to activate it properly.");
@@ -3896,9 +4040,9 @@ void do_cmd_activate(void)
 	message(MSG_ZAP, TRUE, "You activate it...");
 
 	/* Artifacts */
-	if (o_ptr->name1)
+	if (o_ptr->a_idx)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 		char o_name[80];
 
 		/* Get the basic name of the object */
@@ -4387,15 +4531,24 @@ void do_cmd_activate(void)
 				message_format(MSG_EFFECT, 0, "Your %s shimmers brightly...", o_name);
 				(void)detect_traps();
 			}
+
 			case ACT_DETECT_TREASURE:
 			{
 				message_format(MSG_EFFECT, 0, "Your %s glows golden yellow...", o_name);
 				(void)detect_treasure();
 			}
+
 			case ACT_CALM_NON_CHAOS:
 			{
 				message_format(MSG_EFFECT, 0, "Your %s resonates with the voice of law...", o_name);
 				(void)calm_non_chaos();
+			}
+
+			case ACT_CALL_MONSTER:
+			{
+				message_format(MSG_EFFECT, 0, "Your %s vibrates slowly...", o_name);
+				if (!get_aim_dir(&dir)) return;
+				call_monster(dir);
 			}
 		}
 
@@ -4575,6 +4728,178 @@ void do_cmd_activate(void)
 	message(MSG_FAIL, 0, "Oops.  That object cannot be activated.");
 }
 
+/* Activate something */
+void do_cmd_activate(void)
+{
+	int     item;
+	cptr    q, s;
+
+	/* Prepare the hook */
+	item_tester_hook = item_tester_hook_activate;
+
+	/* Get an item */
+	q = "Activate which item? ";
+	s = "You have nothing to activate.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_FLOOR))) return;
+
+	/* Activate the item */
+	do_cmd_activate_aux(item);
+}
+
+
+/*
+ * Hook to determine if an object is useable
+ */
+static bool item_tester_hook_use(object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4;
+
+	/* Useable object */
+	switch (o_ptr->tval)
+	{
+		case TV_STAFF:
+		case TV_WAND:
+		case TV_ROD:
+		case TV_TALISMAN:
+		case TV_SCROLL:
+		case TV_POTION:
+		case TV_FOOD:
+		{
+			return (TRUE);
+		}
+
+		default:
+		{
+			int i;
+
+			/* Not known */
+			if (!object_known_p(o_ptr)) return (FALSE);
+
+			/* HACK - only items from the equipment can be activated */
+			for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+			{
+				if (&inventory[i] == o_ptr)
+				{
+					/* Extract the flags */
+					object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+					/* Check activation flag */
+					if (f3 & TR3_ACTIVATE) return (TRUE);
+				}
+			}
+		}
+	}
+
+	/* Assume not */
+	return (FALSE);
+}
+
+/*
+ * Unified use item - taken from Zangband.
+ */
+void do_cmd_use(void)
+{
+	int         item;
+	object_type *o_ptr;
+	cptr        q, s;
+
+	/* Prepare the hook */
+	item_tester_hook = item_tester_hook_use;
+
+	/* Get an item */
+	q = "Use which item? ";
+	s = "You have nothing to use.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	switch (o_ptr->tval)
+	{
+		/* Eat some food */
+		case TV_FOOD:
+		{
+			do_cmd_eat_food_aux(item);
+			break;
+		}
+
+		/* Aim a wand */
+		case TV_WAND:
+		{
+			do_cmd_aim_wand_aux(item);
+			break;
+		}
+
+		/* Use a staff */
+		case TV_STAFF:
+		{
+			do_cmd_use_staff_aux(item);
+			break;
+		}
+
+		/* Zap a rod */
+		case TV_ROD:
+		{
+			do_cmd_zap_rod_aux(item);
+			break;
+		}
+
+		/* Invoke a talisman */
+		case TV_TALISMAN:
+		{
+			do_cmd_invoke_talisman_aux(item);
+			break;
+		}
+
+		/* Quaff a potion */
+		case TV_POTION:
+		{
+			do_cmd_quaff_potion_aux(item);
+			break;
+		}
+
+		/* Read a scroll */
+		case TV_SCROLL:
+		{
+			/* Check some conditions */
+			if (p_ptr->blind)
+			{
+				message(MSG_FAIL, 0, "You can't see anything.");
+				return;
+			}
+			if (no_lite())
+			{
+				message(MSG_FAIL, 0, "You have no light to read by.");
+				return;
+			}
+			if (p_ptr->confused)
+			{
+				message(MSG_FAIL, 0, "You are too confused!");
+				return;
+			}
+
+		  do_cmd_read_scroll_aux(item);
+		  break;
+		}
+
+		/* Activate an artifact */
+		default:
+		{
+			do_cmd_activate_aux(item);
+			break;
+		}
+	}
+}
+
+/* Mix two potions to (maybe) create a third */
 void do_cmd_mix(void)
 {
 	int item1, item2, k_idx, penalty;
@@ -4629,7 +4954,7 @@ void do_cmd_mix(void)
 	p_ptr->energy_use = 100;
 	
 	/* Extract the tval/sval codes */
-	for (sv = 1; sv < SV_MAX_POTIONS; sv++)
+	for (sv = 0; sv < SV_POTION_MAX; sv++)
 	{
 		if (((potion_alch[sv].sval1 == o_ptr1->sval) && (potion_alch[sv].sval2 == o_ptr2->sval))
 			|| ((potion_alch[sv].sval2 == o_ptr1->sval) && (potion_alch[sv].sval1 == o_ptr2->sval)))
@@ -4644,6 +4969,7 @@ void do_cmd_mix(void)
 		for (k_idx = 1; k_idx < z_info->k_max; k_idx++)
 		{
 			k_ptr = &k_info[k_idx];
+
 			/* Found a match */
 			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == sv)) break;
 		}
@@ -4686,6 +5012,9 @@ void do_cmd_mix(void)
 	
 		/* Prepare the ojbect */
 		object_prep(to_ptr, k_idx);
+
+		/* Mark the potion */
+		to_ptr->ident |= IDENT_MODIFIED;
 
 		drop_near(to_ptr, -1, p_ptr->py, p_ptr->px); /* drop the object */
 		potion_alch[sv].known1 = TRUE;

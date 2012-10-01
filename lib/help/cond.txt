@@ -17,8 +17,9 @@ Positive conditions:
      Blessed:
          Blessing provides you a small bonus to AC and to hit.
      Berserk:
-         Berserk rage provides you a large bonus to hit, at a cost of an AC
-         penalty.
+         Berserk rage provides you a resistance to fear, extra blow, a bonus to 
+         damage, and bonus to damage, at a cost of penalties to AC, spell success
+         chances, and your saving throw, magic devices, and stealth skills.
      Shield:
          Shield adds to your AC, making it easier to avoid blows.
      Prot. Evil:
@@ -178,8 +179,8 @@ Abilities:
      Might:
           Some missile launchers have a higher base damage multiplier than 
           normal.
-     Impact:
-          This ability causes your blows occasionally to start earthquakes.
+     Disrupt:
+          Disruption dramatically reduces the chance of spell success.
      Drn Items:
           The item slowly drains the magic out of your equipment.
      Drn Exp:
@@ -196,7 +197,7 @@ Weapon Abilities:
      Slays:
           The ten leftmost columns give your weapon damage bonuses against 
           certain monster types. From left to right, they are-
-          Animals, Plants, Evil, Chaos, Undead, Demons, Orcs, Trolls, Giants
+          Animals, Plants, Evil, Chaos, Undead, Demons, Humanoids, People
           and Dragons. 
      Xdragon: 
           Some weapons have an even greater bonus against dragons.
@@ -208,6 +209,8 @@ Weapon Abilities:
           extra damage from bleeding.
      Terror:
           Monsters struck by this weapon have a greater chance of fleeing.
+     Quake:
+          This ability causes your blows occasionally to start earthquakes.
      Brands:
           The final seven columns stand for weapons branded with elemental or
           other magical attacks. The four elemental attacks (acid, electricity,
