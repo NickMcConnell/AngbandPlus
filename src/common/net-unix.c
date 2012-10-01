@@ -14,7 +14,7 @@
  *
  * This software is provided "as is" without any express or implied warranty.
  *
- * RCS:      $Id: net-unix.c,v 1.6 1999/12/13 19:06:40 crimson Exp $
+ * RCS:      $Id: net-unix.c,v 1.5 2000/08/08 16:27:54 mangadm Exp $
  *
  * Revision 1.1.1.1  1992/05/11  12:32:34  bjoerns
  * XPilot v1.0
@@ -33,7 +33,7 @@
 
 #ifndef lint
 static char sourceid[] =
-    "@(#)$Id: net-unix.c,v 1.6 1999/12/13 19:06:40 crimson Exp $";
+    "@(#)$Id: net-unix.c,v 1.5 2000/08/08 16:27:54 mangadm Exp $";
 #endif
 
 #ifdef TERMNET
@@ -260,6 +260,7 @@ int	port;
 {
     int			fd;
     int			retval;
+    int			option=1;
 
 #ifdef UNIX_SOCKETS     
     struct sockaddr_un  addr_in;
@@ -297,6 +298,8 @@ int	port;
 #endif
     addr_in.sin_port		= htons(port);
     fd = socket(AF_INET, SOCK_STREAM, 0);
+    /* Set this so we don't wait forever on startups */
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR , (void*)&option, sizeof(int)); 
     if (fd < 0)
     {
 	sl_errno = SL_ESOCKET;
@@ -309,7 +312,7 @@ int	port;
     if (retval < 0)
     {
 	sl_errno = SL_EBIND;
-	fprintf( stderr, " Server Socket Bind Error: %d,%d\n",retval,errno);
+	/* fprintf( stderr, " Server Socket Bind Error: %d,%d\n",retval,errno); */
 	(void) close(fd);
 	return (-1);
     }
@@ -643,9 +646,16 @@ int	fd;
 {
     int		retval;
 
-    cmw_priv_assert_netaccess();
-    retval = accept(fd, NULL, 0);
-    cmw_priv_deassert_netaccess();
+    /* Added this loop to prevent accept from failing when
+     * interrupted by MAngbands alarm handler. -APD
+     */
+    do
+    {
+	    cmw_priv_assert_netaccess();
+	    retval = accept(fd, NULL, 0);
+	    cmw_priv_deassert_netaccess();
+    }
+    while ((errno == EINTR) && (retval == -1));
 
     return retval;
 } /* SocketAccept */
@@ -1115,7 +1125,7 @@ int	fd;
     return (0);
 } /* SocketReadable */
 
-
+
 /*
  *******************************************************************************
  *
@@ -1190,6 +1200,10 @@ static inthandler()
  *
  * Originally coded by Arne Helme
  */
+
+ /* This function is not compatible with MAngband.  This is probably
+  * because it messes up the signals.
+  */
 int
 #ifdef __STDC__
 SocketRead(int fd, char *buf, int size)
@@ -2484,11 +2498,7 @@ void GetLocalHostName(name, size)
 #ifdef UNIX_SOCKETS
    strcpy(name, "localhost");
 #else
-    struct hostent	*he, *xpilot_he, tmp;
-    int			xpilot_len;
-    char		*alias, *dot;
-    char		xpilot_hostname[MAXHOSTNAMELEN];
-    static const char	xpilot[] = "xpilot";
+    struct hostent	*he;
 #ifdef VMS
     char                vms_inethost[MAXHOSTNAMELEN]   = "UCX$INET_HOST";
     char                vms_inetdomain[MAXHOSTNAMELEN] = "UCX$INET_DOMAIN";
@@ -2496,17 +2506,6 @@ void GetLocalHostName(name, size)
     char                vms_domain[MAXHOSTNAMELEN];
     int                 namelen;
 #endif
-
-    xpilot_len = strlen(xpilot);
-
-    /* Make a wild guess that a "xpilot" hostname or alias is in this domain */
-    if ((xpilot_he = gethostbyname(xpilot)) != NULL) {
-	if (strcmp(xpilot_he->h_name, "prince.mc.bio.uva.nl")) {
-	    strcpy(xpilot_hostname, xpilot_he->h_name);	/* copy data to buffer */
-	    tmp = *xpilot_he;
-	    xpilot_he = &tmp;
-	}
-    }
 
     gethostname(name, size);
     if ((he = gethostbyname(name)) == NULL) {
@@ -2556,45 +2555,6 @@ void GetLocalHostName(name, size)
 #endif
 	    return;
 	}
-    }
-
-    /*
-     * If a "xpilot" host is found compare if it's this one.
-     * and if so, make the local name as "xpilot.*"
-     */
-    if (xpilot_he != NULL) {               /* host xpilot was found */
-	if (strcmp(he->h_name, xpilot_hostname) == 0) {
-	   /*
-	    * Identical official names. Can they be different hosts after this?
-	    * Find out the name which starts with "xpilot" and use it:
-	    */
-	    xpilot_he = gethostbyname(xpilot); /* read again the aliases info */
-	    if (xpilot_he == NULL)       /* shouldn't happen */
-		return;
-
-	    if (strncmp(xpilot, xpilot_he->h_name, xpilot_len) != 0) {
-		/*
-		 * the official hostname doesn't begin "xpilot"
-		 * so we'll find the alias:
-		 */
-		int i;
-		for (i = 0; xpilot_he->h_aliases[i] != NULL; i++) {
-		    alias = xpilot_he->h_aliases[i];
-		    if (!strncmp(xpilot, alias, xpilot_len)) {
-			strcpy(xpilot_hostname, alias);
-			if (!strchr(alias, '.') && (dot = strchr(name, '.'))) {
-			    strcat(xpilot_hostname + strlen(xpilot_hostname), dot);
-			}
-			strncpy(name, xpilot_hostname, size);
-			return;
-		    }
-		}
-	    } else {
-		strncpy(name, xpilot_he->h_name, size);
-		return;
-	    }
-	}
-	/* NOT REATCHED */
     }
 #endif
 } /* GetLocalHostName */

@@ -54,8 +54,10 @@ void delete_monster_idx(int i)
 	/* Remove him from everybody's view */
 	for (Ind = 1; Ind < NumPlayers + 1; Ind++)
 	{
+#if 0
 		/* Skip this player if he isn't playing */
 		if (Players[Ind]->conn == NOT_CONNECTED) continue;
+#endif
 
 		Players[Ind]->mon_vis[i] = FALSE;
 		Players[Ind]->mon_los[i] = FALSE;
@@ -207,7 +209,9 @@ void compact_monsters(int size)
 			/* Copy the visibility and los flags for the players */
 			for (Ind = 1; Ind < NumPlayers + 1; Ind++)
 			{
+#if 0
 				if (Players[Ind]->conn == NOT_CONNECTED) continue;
+#endif
 
 				Players[Ind]->mon_vis[i] = Players[Ind]->mon_vis[m_max];
 				Players[Ind]->mon_los[i] = Players[Ind]->mon_los[m_max];
@@ -936,9 +940,11 @@ void update_mon(int m_idx, bool dist)
 		/* Reset the flags */
 		flag = easy = hard = FALSE;
 
+#if 0
 		/* If he's not playing, skip him */
 		if (p_ptr->conn == NOT_CONNECTED)
 			continue;
+#endif
 
 		/* If he's not on this depth, skip him */
 		if (p_ptr->dun_depth != Depth)
@@ -1192,8 +1198,10 @@ void update_player(int Ind)
 		/* Reset the flags */
 		flag = easy = hard = FALSE;
 
+#if 0
 		/* Skip disconnected players */
 		if (p_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 		/* Skip players not on this depth */
 		if (p_ptr->dun_depth != q_ptr->dun_depth) continue;
@@ -1342,10 +1350,12 @@ void update_players(void)
 	/* Update each player */
 	for (i = 1; i <= NumPlayers; i++)
 	{
+#if 0
 		player_type *p_ptr = Players[i];
 
 		/* Skip disconnected players */
 		if (p_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 		/* Update the player */
 		update_player(i);
@@ -1528,8 +1538,10 @@ static bool place_monster_one(int Depth, int y, int x, int r_idx, bool slp)
 
 	for (Ind = 1; Ind < NumPlayers + 1; Ind++)
 	{
+#if 0
 		if (Players[Ind]->conn == NOT_CONNECTED)
 			continue;
+#endif
 
 		Players[Ind]->mon_los[c_ptr->m_idx] = FALSE;
 		Players[Ind]->mon_vis[c_ptr->m_idx] = FALSE;
@@ -1901,9 +1913,11 @@ bool alloc_monster(int Depth, int dis, int slp)
 		{
 			p_ptr = Players[i];
 
+#if 0
 			/* Skip him if he's not playing */
 			if (p_ptr->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* Skip him if he's not on this depth */
 			if (p_ptr->dun_depth != Depth)
@@ -2177,9 +2191,8 @@ bool summon_specific_race(int Depth, int y1, int x1, int r_idx, unsigned char si
 /* summon a specific race at a random location */
 bool summon_specific_race_somewhere(int Depth, int r_idx, unsigned char size)
 {
-	int			y, x, i, d, min_dis = 999;
+	int			y, x;
 	int			tries = 0;
-	player_type *p_ptr;
 
 	/* paranoia, make sure the level is allocated */
 	if (!cave[Depth]) return (FALSE);
@@ -2502,7 +2515,7 @@ void setup_monsters(void)
 	}
 }
 
-/* takes a monster name and returns an index, or 0 if no such monster
+/* Takes a monster name and returns an index, or 0 if no such monster
  * was found.
  */
 int race_index(char * name)
@@ -2510,7 +2523,7 @@ int race_index(char * name)
 	int i;
 
 	/* for each monster race */
-	for (i = 1; i < alloc_race_size; i++)
+	for (i = 1; i <= alloc_race_size; i++)
 	{
 		if (!strcmp(&r_name[r_info[i].name],name)) return i;
 	}

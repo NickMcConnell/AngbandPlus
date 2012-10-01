@@ -19,11 +19,16 @@
 
 
 /*
- * Increase players hit points, notice effects
+ * Increase players hit points, notice effects, and tell the player about it.
  */
 bool hp_player(int Ind, int num)
 {
 	player_type *p_ptr = Players[Ind];
+
+	// The "number" that the character is displayed as before healing
+	int old_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+	int new_num; 
+
 
 	if (p_ptr->chp < p_ptr->mhp)
 	{
@@ -40,6 +45,14 @@ bool hp_player(int Ind, int num)
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
+
+		/* Figure out of if the player's "number" has changed */
+		new_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+		if (new_num >= 7) new_num = 10;
+
+		/* If so then refresh everyone's view of this player */
+		if (new_num != old_num)
+			everyone_lite_spot(p_ptr->dun_depth, p_ptr->py, p_ptr->px);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
@@ -73,6 +86,52 @@ bool hp_player(int Ind, int num)
 
 	return (FALSE);
 }
+
+/*
+ * Increase players hit points, notice effects, and don't tell the player it.
+ */
+bool hp_player_quiet(int Ind, int num)
+{
+	player_type *p_ptr = Players[Ind];
+
+	// The "number" that the character is displayed as before healing
+	int old_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+	int new_num; 
+
+
+	if (p_ptr->chp < p_ptr->mhp)
+	{
+		p_ptr->chp += num;
+
+		if (p_ptr->chp > p_ptr->mhp)
+		{
+			p_ptr->chp = p_ptr->mhp;
+			p_ptr->chp_frac = 0;
+		}
+
+		/* Update health bars */
+		update_health(0 - Ind);
+
+		/* Redraw */
+		p_ptr->redraw |= (PR_HP);
+
+		/* Figure out of if the player's "number" has changed */
+		new_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+		if (new_num >= 7) new_num = 10;
+
+		/* If so then refresh everyone's view of this player */
+		if (new_num != old_num)
+			everyone_lite_spot(p_ptr->dun_depth, p_ptr->py, p_ptr->px);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
 
 
 
@@ -398,6 +457,9 @@ void self_knowledge(int Ind)
 
 	cptr	*info = p_ptr->info;
 
+	/* Clear the info area first. */
+	memset(p_ptr->info,0,sizeof(p_ptr->info));
+
 	/* Let the player scroll through the info */
 	p_ptr->special_file_type = TRUE;
 
@@ -507,7 +569,7 @@ void self_knowledge(int Ind)
 	{
 		info[i++] = "You can see invisible creatures.";
 	}
-	if (p_ptr->ffall)
+	if (p_ptr->feather_fall)
 	{
 		info[i++] = "You land gently.";
 	}
@@ -1081,8 +1143,10 @@ bool detect_invisible(int Ind)
 		int py = q_ptr->py;
 		int px = q_ptr->px;
 
+#if 0
 		/* Skip disconnected players */
 		if (q_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 		/* Skip visible players */
 		if (p_ptr->dun_depth != q_ptr->dun_depth) continue;
@@ -1227,8 +1291,10 @@ bool detect_creatures(int Ind)
 		int py = q_ptr->py;
 		int px = q_ptr->px;
 
+#if 0
 		/* Skip disconnected players */
 		if (q_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 		/* Skip visible players */
 		if (p_ptr->play_vis[i]) continue;

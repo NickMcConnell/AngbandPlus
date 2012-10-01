@@ -494,7 +494,18 @@ static void health_redraw(int Ind)
 	/* Tracking a player */
 	else if (p_ptr->health_who < 0)
 	{
-		player_type *q_ptr = Players[0 - p_ptr->health_who];
+		player_type *q_ptr;
+		/* Make sure we have a valid index */
+		if (0 - p_ptr->health_who > NumPlayers)
+		{
+			/* Invalid index -- erase the health bar */
+			Send_monster_health(Ind, 0, 0);
+			/* Reset the index */
+			p_ptr->health_who = 0;
+			return;
+		}
+		
+		q_ptr = Players[0 - p_ptr->health_who];
 
 		/* Tracking a bad player (?) */
 		if (!q_ptr)
@@ -1250,9 +1261,10 @@ static void calc_mana(int Ind)
  * Adjust current hitpoints if necessary
  */
  
-/* An option of giving mages a bonus hitpoint per level has been added,
- * to hopefully facilitate them making it down to 1500 feet and finding
- * CON potions.
+/* An option of giving mages an extra hit point per level has been added,
+ * to hopefully facilitate them making it down to 1600ish and finding  
+ * Constitution potions.  This should probably be changed to stop after level
+ * 30.
  */
 
 static void calc_hitpoints(int Ind)
@@ -1429,6 +1441,8 @@ static void calc_bonuses(int Ind)
 	int			extra_shots;
 
 	object_type		*o_ptr;
+	object_kind		*k_ptr;
+	ego_item_type 		*e_ptr;
 
 	u32b		f1, f2, f3;
 
@@ -1475,7 +1489,7 @@ static void calc_bonuses(int Ind)
 	p_ptr->free_act = FALSE;
 	p_ptr->slow_digest = FALSE;
 	p_ptr->regenerate = FALSE;
-	p_ptr->ffall = FALSE;
+	p_ptr->feather_fall = FALSE;
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
 	p_ptr->lite = FALSE;
@@ -1629,12 +1643,70 @@ static void calc_bonuses(int Ind)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &p_ptr->inventory[i];
+		k_ptr = &k_info[o_ptr->k_idx];
+		e_ptr = &e_info[o_ptr->name2];
 
 		/* Skip missing items */
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the item flags */
 		object_flags(o_ptr, &f1, &f2, &f3);
+
+		/* Hack -- first add any "base bonuses" of the item.  A new
+		 * feature in MAngband 0.7.0 is that the magnitude of the
+		 * base bonuses is stored in bpval instead of pval, making the
+		 * magnitude of "base bonuses" and "ego bonuses" independent 
+		 * from each other.
+		 * An example of an item that uses this independency is an
+		 * Orcish Shield of the Avari that gives +1 to STR and +3 to
+		 * CON. (base bonus from the shield +1 STR,CON, ego bonus from
+		 * the Avari +2 CON).  
+		 * Of course, the proper fix would be to redesign the object
+		 * type so that each of the ego bonuses has its own independent
+		 * parameter.
+		 */
+		/* If we have any base bonuses to add, add them */
+		if (k_ptr->flags1 & TR1_PVAL_MASK)
+		{
+			/* Affect stats */
+			if (k_ptr->flags1 & TR1_STR) p_ptr->stat_add[A_STR] += o_ptr->bpval;
+			if (k_ptr->flags1 & TR1_INT) p_ptr->stat_add[A_INT] += o_ptr->bpval;
+			if (k_ptr->flags1 & TR1_WIS) p_ptr->stat_add[A_WIS] += o_ptr->bpval;
+			if (k_ptr->flags1 & TR1_DEX) p_ptr->stat_add[A_DEX] += o_ptr->bpval;
+			if (k_ptr->flags1 & TR1_CON) p_ptr->stat_add[A_CON] += o_ptr->bpval;
+			if (k_ptr->flags1 & TR1_CHR) p_ptr->stat_add[A_CHR] += o_ptr->bpval;
+
+			/* Affect stealth */
+			if (k_ptr->flags1 & TR1_STEALTH) p_ptr->skill_stl += o_ptr->bpval;
+
+			/* Affect searching ability (factor of five) */
+			if (k_ptr->flags1 & TR1_SEARCH) p_ptr->skill_srh += (o_ptr->bpval * 5);
+
+			/* Affect searching frequency (factor of five) */
+			if (k_ptr->flags1 & TR1_SEARCH) p_ptr->skill_fos += (o_ptr->bpval * 5);
+
+			/* Affect infravision */
+			if (k_ptr->flags1 & TR1_INFRA) p_ptr->see_infra += o_ptr->bpval;
+
+			/* Affect digging (factor of 20) */
+			if (k_ptr->flags1 & TR1_TUNNEL) p_ptr->skill_dig += (o_ptr->bpval * 20);
+
+			/* Affect speed */
+			if (k_ptr->flags1 & TR1_SPEED) p_ptr->pspeed += o_ptr->bpval;
+
+			/* Affect blows */
+			if (k_ptr->flags1 & TR1_BLOWS) extra_blows += o_ptr->bpval;
+		}
+
+		/* Next, add our ego bonuses */
+		/* Hack -- clear out any pval bonuses that are in the base item
+		 * bonus but not the ego bonus so we don't add them twice.
+		*/
+		if (o_ptr->name2)
+		{
+			f1 &= ~(k_ptr->flags1 & TR1_PVAL_MASK & ~e_ptr->flags1);
+		}
+
 
 		/* Affect stats */
 		if (f1 & TR1_STR) p_ptr->stat_add[A_STR] += o_ptr->pval;
@@ -1682,7 +1754,7 @@ static void calc_bonuses(int Ind)
 		if (f3 & TR3_TELEPATHY) p_ptr->telepathy = TRUE;
 		if (f3 & TR3_LITE) p_ptr->lite += 1;
 		if (f3 & TR3_SEE_INVIS) p_ptr->see_inv = TRUE;
-		if (f3 & TR3_FEATHER) p_ptr->ffall = TRUE;
+		if (f3 & TR3_FEATHER) p_ptr->feather_fall = TRUE;
 		if (f2 & TR2_FREE_ACT) p_ptr->free_act = TRUE;
 		if (f2 & TR2_HOLD_LIFE) p_ptr->hold_life = TRUE;
 

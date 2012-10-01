@@ -503,10 +503,15 @@ static void rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->tval);
 	rd_byte(&o_ptr->sval);
 
+	/* Base pval */
+	if (!older_than(0,7,0))
+		rd_s32b(&o_ptr->bpval);
+	else o_ptr->bpval = 0;
+
 	/* Special pval */
 	if (older_than(0,6,1))
 	{
-		rd_s16b(&o_ptr->pval);
+		rd_s16b((s16b*) &o_ptr->pval);
 	}
 	else	rd_s32b(&o_ptr->pval);
 
@@ -698,7 +703,7 @@ static void rd_monster(monster_type *m_ptr)
 	rd_s16b(&m_ptr->maxhp);
 	rd_s16b(&m_ptr->csleep);
 	rd_byte(&m_ptr->mspeed);
-	rd_byte(&m_ptr->energy);
+	rd_byte((byte *) &m_ptr->energy);
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
@@ -1108,7 +1113,6 @@ static bool rd_extra(int Ind)
 	int i;
 
 	byte tmp8u;
-	s16b tmps16b;
 
 	rd_string(p_ptr->name, 32);
 
@@ -1258,6 +1262,8 @@ static bool rd_extra(int Ind)
 	/* Special stuff */
 	rd_u16b(&panic_save);
 	rd_u16b(&p_ptr->total_winner);
+	if (!older_than(0,7,0))
+		rd_u16b(&p_ptr->retire_timer);
 	rd_u16b(&p_ptr->noscore);
 
 
@@ -1621,7 +1627,7 @@ static errr rd_savefile_new_aux(int Ind)
 
 	int i;
 
-	u16b tmp16u, y, x, ymax, xmax;
+	u16b tmp16u;
 	u32b tmp32u;
 
 

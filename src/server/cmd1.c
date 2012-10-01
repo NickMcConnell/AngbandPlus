@@ -731,7 +731,7 @@ static void hit_trap(int Ind)
 			}
 
 			msg_print(Ind, "You fell through a trap door!");
-			if (p_ptr->ffall)
+			if (p_ptr->feather_fall)
 			{
 				msg_print(Ind, "You float gently down to the next level.");
 			}
@@ -766,7 +766,7 @@ static void hit_trap(int Ind)
 		case FEAT_TRAP_HEAD + 0x01:
 		{
 			msg_print(Ind, "You fell into a pit!");
-			if (p_ptr->ffall)
+			if (p_ptr->feather_fall)
 			{
 				msg_print(Ind, "You float gently to the bottom of the pit.");
 			}
@@ -782,7 +782,7 @@ static void hit_trap(int Ind)
 		{
 			msg_print(Ind, "You fall into a spiked pit!");
 
-			if (p_ptr->ffall)
+			if (p_ptr->feather_fall)
 			{
 				msg_print(Ind, "You float gently to the floor of the pit.");
 				msg_print(Ind, "You carefully avoid touching the spikes.");
@@ -812,7 +812,7 @@ static void hit_trap(int Ind)
 		{
 			msg_print(Ind, "You fall into a spiked pit!");
 
-			if (p_ptr->ffall)
+			if (p_ptr->feather_fall)
 			{
 				msg_print(Ind, "You float gently to the floor of the pit.");
 				msg_print(Ind, "You carefully avoid touching the spikes.");
@@ -1477,7 +1477,7 @@ void move_player(int Ind, int dir, int do_pickup)
 			forget_view(Ind);			
 		
 			/* Hack -- take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 			
 			/* A player has left this depth */
 			players_on_depth[p_ptr->dun_depth]--;
@@ -1661,12 +1661,7 @@ void move_player(int Ind, int dir, int do_pickup)
 			else if ((c_ptr->feat < FEAT_SECRET && c_ptr->feat >= FEAT_DOOR_HEAD) || 
 			         (c_ptr->feat >= FEAT_HOME_HEAD && c_ptr->feat <= FEAT_HOME_TAIL))
 			{
-				/* auto door open if the option is set */
-				if (cfg_door_bump_open)
-				{
-					do_cmd_open(Ind, dir);
-				}
-				else msg_print(Ind, "There is a closed door blocking your way.");
+				msg_print(Ind, "There is a closed door blocking your way.");
 			}
 
 			/* Tree */
@@ -1812,7 +1807,7 @@ void move_player(int Ind, int dir, int do_pickup)
 /*
  * Hack -- Check for a "motion blocker" (see below)
  */
-static int see_wall(int Ind, int dir, int y, int x)
+int see_wall(int Ind, int dir, int y, int x)
 {
 	player_type *p_ptr = Players[Ind];
 	int Depth = p_ptr->dun_depth;
@@ -2531,8 +2526,8 @@ static bool run_test(int Ind)
  */
 void run_step(int Ind, int dir)
 {
-	cave_type *c_ptr;
 	player_type *p_ptr = Players[Ind];
+	cave_type *c_ptr;
 
 	/* Check for just changed level */
 	if (p_ptr->new_level_flag) return;
@@ -2540,6 +2535,8 @@ void run_step(int Ind, int dir)
 	/* Start running */
 	if (dir)
 	{
+		// Running into walls and doors is now checked in do_cmd_run.
+		#if 0
 		/* Hack -- do not start silly run */
 		if (see_wall(Ind, dir, p_ptr->py, p_ptr->px))
 		{
@@ -2549,12 +2546,12 @@ void run_step(int Ind, int dir)
 			if (cfg_door_bump_open)
 			{
 				/* Get requested grid */
-				c_ptr = &cave[p_ptr->dun_depth][p_ptr->py+ddy[dir]][p_ptr->px+ddy[dir]];
+				c_ptr = &cave[p_ptr->dun_depth][p_ptr->py+ddy[dir]][p_ptr->px+ddx[dir]];
 
 				/* If a door, open it */
-				if (((c_ptr->feat >= FEAT_DOOR_HEAD) || 
+				if (((c_ptr->feat >= FEAT_DOOR_HEAD) && 
 				      (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
-				    ((c_ptr->feat >= FEAT_HOME_HEAD) ||
+				    ((c_ptr->feat >= FEAT_HOME_HEAD) &&
 				      (c_ptr->feat <= FEAT_HOME_TAIL))) 
 					{
 						do_cmd_open(Ind, dir);
@@ -2571,6 +2568,7 @@ void run_step(int Ind, int dir)
 			/* Done */
 			return;
 		}
+		#endif
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);

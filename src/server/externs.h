@@ -12,9 +12,13 @@
  * Automatically generated "variable" declarations
  */
 
+/* #include "netserver.h" */
+
 /* netserver.c */
 extern long Id;
 extern int NumPlayers;
+extern int ConsoleSocket;
+extern void process_pending_commands(int Ind);
 
 /* tables.c */
 extern s16b ddd[9];
@@ -157,18 +161,20 @@ extern s32b m_top;
 
 extern bool cfg_report_to_meta;
 extern char * cfg_meta_address;
+extern char * cfg_report_address;
 extern char * cfg_console_password;
 extern char * cfg_admin_wizard;
 extern char * cfg_dungeon_master;
 extern bool cfg_secret_dungeon_master;
 extern s16b cfg_fps;
 extern bool cfg_mage_hp_bonus;
+extern bool cfg_no_steal;
 extern bool cfg_newbies_cannot_drop;
 extern bool cfg_door_bump_open;
 extern s32b cfg_unique_respawn_time;
 extern s32b cfg_unique_max_respawn_time;
 extern s32b cfg_level_unstatic_chance;
-
+extern s32b cfg_retire_timer;
 
 extern bool rogue_like_commands;
 extern bool quick_messages;
@@ -434,6 +440,7 @@ extern void carry(int Ind, int pickup, int confirm);
 extern void py_attack(int Ind, int y, int x);
 extern void move_player(int Ind, int dir, int do_pickup);
 extern void run_step(int Ind, int dir);
+extern int see_wall(int Ind, int dir, int y, int x);
 
 /* cmd2.c */
 extern void do_cmd_go_up(int Ind);
@@ -448,7 +455,7 @@ extern void do_cmd_bash(int Ind, int dir);
 extern void do_cmd_spike(int Ind, int dir);
 extern void do_cmd_walk(int Ind, int dir, int pickup);
 extern void do_cmd_stay(int Ind, int pickup);
-extern void do_cmd_run(int Ind, int dir);
+extern int do_cmd_run(int Ind, int dir);
 /*extern void do_cmd_rest(void);*/
 extern void do_cmd_fire(int Ind, int dir, int item);
 extern void do_cmd_throw(int Ind, int dir, int item);
@@ -560,6 +567,7 @@ extern void kingly(int Ind);
 extern void alloc_dungeon_level(int Depth);
 extern void dealloc_dungeon_level(int Depth);
 extern void generate_cave(int Depth);
+extern void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr data);
 
 /* wilderness.c */
 extern int world_index(int world_x, int world_y);
@@ -787,6 +795,8 @@ extern void install_timer_tick(void (*func)(void), int freq);
 extern void install_input(void (*func)(int, int), int fd, int arg);
 extern void remove_input(int fd);
 extern void sched(void);
+extern void block_timer(void);
+extern void allow_timer(void);
 
 /* spells1.c */
 extern s16b poly_r_idx(int r_idx);
@@ -807,6 +817,7 @@ extern bool project(int who, int rad, int Depth, int y, int x, int dam, int typ,
 
 /* spells2.c */
 extern bool hp_player(int Ind, int num);
+extern bool hp_player_quiet(int Ind, int num);
 extern void warding_glyph(int Ind);
 extern bool do_dec_stat(int Ind, int stat);
 extern bool do_res_stat(int Ind, int stat);
@@ -988,7 +999,7 @@ extern bool target_able(int Ind, int m_idx);
 extern bool target_okay(int Ind);
 extern s16b target_pick(int Ind, int y1, int x1, int dy, int dx);
 extern bool target_set(int Ind, int dir);
-extern bool target_friendly(int Ind, int dir);
+extern bool target_set_friendly(int Ind, int dir);
 extern bool get_aim_dir(int Ind/*, int *dp*/);
 extern bool get_item(int Ind);
 extern bool do_scroll_life(int Ind);
@@ -999,6 +1010,7 @@ extern bool master_level(int Ind, char * parms);
 extern bool master_build(int Ind, char * parms);
 extern bool master_summon(int Ind, char * parms);
 extern bool master_generate(int Ind, char * parms);
+extern bool master_acquire(int Ind, char * parms);
 
 /*extern bool get_rep_dir(int *dp);*/
 

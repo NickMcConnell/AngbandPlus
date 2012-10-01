@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:0.7.0
 
 
 ### Body Armor ###
@@ -114,7 +114,14 @@ C:0:0:10:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 21 (unused)
+# One high resist
+
+N:21:of the Avari
+X:32:20
+W:0:0:0:80000
+C:0:0:15:2
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | CON
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 22 (unused)
 
@@ -243,7 +250,11 @@ C:0:0:20:3
 F:STEALTH | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 43 (unused)
+N:43:of the Teleri
+X:31:20
+W:0:0:0:20000
+C:0:0:10:0
+F:HOLD_LIFE | FREE_ACT
 
 N:44:of Enveloping
 X:31:0
@@ -263,8 +274,12 @@ W:0:0:0:0
 C:15:15:0:0
 F:AGGRAVATE | SHOW_MODS
 
-# 47 (unused)
-
+N:47:of Resistance
+X:31:20
+W:0:0:0:30000
+C:0:0:10:0
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ### Gloves ###
 
@@ -291,7 +306,14 @@ W:0:0:0:2500
 C:5:5:0:5
 F:STR | SHOW_MODS | HIDE_TYPE
 
-# 52 (unused)
+# One high resist
+
+N:52:of the Istari
+X:34:20
+W:0:0:0:50000
+C:-5:-5:10:3
+F:INT | WIS | FREE_ACT
+F:SHOW_MODS | HIDE_TYPE
 
 # 53 (unused)
 
@@ -328,11 +350,14 @@ F:FREE_ACT
 
 N:59:of Speed
 X:35:25
-W:0:0:0:200000
+W:0:0:0:100000
 C:0:0:0:10
 F:SPEED | HIDE_TYPE
 
-# 60 (unused)
+N:60:of Mirkwood
+X:35:20
+W:0:0:0:15000
+F:FREE_ACT | RES_POIS
 
 N:61:of Noise
 X:35:0
@@ -361,7 +386,7 @@ X:24:30
 W:0:0:0:20000
 C:6:6:4:4
 F:WIS | 
-F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | SLAY_ORC | SLAY_TROLL |
 F:SEE_INVIS | BLESSED
 
 # OneSustain
@@ -371,7 +396,7 @@ X:24:25
 W:0:0:0:15000
 C:4:4:8:4
 F:STEALTH | 
-F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | 
+F:FREE_ACT | SEE_INVIS | REGEN | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -564,9 +589,17 @@ X:25:10
 W:0:0:0:1000
 C:5:15:0:0
 
-# 106 (unused)
+N:106:of Lothlorien
+X:25:20
+W:0:0:0:30000
+C:10:10:0:3
+F:STEALTH | XTRA_SHOTS
 
-# 107 (unused)
+N:107:of Numenor
+X:25:20
+W:0:0:0:50000
+C:10:10:0:0
+F:REGEN | XTRA_MIGHT
 
 N:108:of Extra Might
 X:25:20
@@ -597,7 +630,21 @@ X:23:10
 W:0:0:0:25
 F:SLAY_EVIL
 
-# 114 (unused)
+# Hack -- this item does not belong here.
+# Note -- this file is really lame.  The whole way that objects
+# are defined should be changed.  It is silly that we have to
+# manually number these items ourselves, and add specific code for
+# each item.  We should be able to completly define the objects externally
+# without hardcoding anything into the game engine.
+
+N:114:of Lordly Resistance
+X:31:20
+W:0:0:0:250000
+C:0:0:20:0
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | ACTIVATE |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+
 
 # 115 (unused)
 

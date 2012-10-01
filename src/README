@@ -1,87 +1,59 @@
-This is the README file for MAngband 0.6.1 (4/27/2000)
+This is the README file for MAngband 0.7.0 (1/6/2001)
 
-	New in this version of Mangband are several important features.  One
-is a mangband.cfg server configuration file which lets some server parameters
-be set without recompiling the server.  This file can be dynamically reloaded
-from mangconsole.  Another is an automatic level unstaticer which randomly
-unstatics the levels, more frequently for higher levels and less frequently for
-deeper levels.  
-	Unfortunatly, as in version 0.6.0, the server is still a bit unstable.  
-The game ocasionally gets a segmentation violation.  In the case that this
-happens, the server will try its best to save everything before crashing.
-If you plan on running a 0.6.1 server, I recomend using something such as the
-included runserv script which will immediatly restart the server when it
-crashes. 
+	After many months in beta the stable version MAngband 0.7.0 has finally
+been released.  The major goal in creating version 0.7.0 has been to make the
+game as smooth and responsive as possible.  To do this the network and timing
+code has been reworked.  As a result MAngband 0.7.0 is not backwards compatible
+with previous versions of the game : to play on a 0.7.0 server, you need a
+0.7.0 or later client, and the 0.7.0 client will not work on any servers older
+than version 0.7.0.
+	Unfortunately, as in version 0.6.1, the server is still a bit unstable,
+and occasionally receives a segmentation fault.  In the case that this happens,
+the server will try its best to save everything before crashing.  If you plan
+on running a 0.7.0 server, I recommend using something such as the included
+runserv script which will immediately restart the server when it crashes. 
+	Many people have contributed to MAngband 0.7.0.  Thanks to Crimson
+(crimson@pobox.com) for his various code additions, Warrior
+(mangband@hotmail.com) for his ego item suggestions, Dark God
+(darkgod@ifrance.com) for his ego item patch, Toshi Tanaka
+(t-tanaka@kuis.kyoto-u.ac.jp) for his client setup patch, and Lee
+(adamson@csee.wvu.edu) for his report_address patch.
 
-	Send bug reports or feature requests to adingle@crud.net, or to the
-mangband-d mailing list.  Information about and archives of the mailing list
-can be found on the official MAngband site at http://www.mangband.org.
+	Have fun, and good luck!
 
-New in .6.1 :
-
-  * The file mangband.cfg has been added, which defines many game options. 
-    This file can be dynamically reloaded through mangconsole.
-
-  * The MAngband lib directory system has been changed.  It has been simplified
-  to the following directorys : lib/data which holds the high scores and the
-  MAngband log, lib/game which holds the .txt template files, lib/save which
-  holds the save files, lib/text which holds the help and login message files,
-  and lib/user which holds the client configuration files.
-  
-  * Shop maximum selling prices have been increased by 25x in the Black Market,
-    and 15x everywhere else.
-
-  * An automatic level unstaticer has been added.
+	-Alex
 
 
-New in .6.0 :
+New in .7.0 : (for a complete list of changes check the ChangeLog)
 
-  * If you are in the wilderness, and check your map, you get a special
-      wilderness map.  Each character on this map represents an entire wilderness
-      level.
-  * There are now two administration characters, ADMIN_WIZARD, and DUNGEON_MASTER,
-      whose names are defined in config.h.  These characters will probably be
-      combined in the future.  The ADMIN_WIZARD always starts at level 50, is
-      invulnerable, and can open the doors to any house.  This character can
-      move up and down without any stairs, and starts with a fully explored
-      wilderness map.  This character can make owned houses unowned by
-      attempting to purchase them.  This is useful if the key to a house
-      disapears for some reason.  The DUNGEON_MASTER character is fast,
-      invisible, and has a list of dungeon master commands accessable by hitting
-      & that do such things as summon monsters and build walls.  Currently,
-      other players are not informed when he is in game, although this will
-      probably be changed in the future.  If you run a server, **BE SURE** that
-      as soon as you start it for the first time you create characters having
-      the DUNGEON_MASTER and ADMIN_WIZARD names that are defined in config.h,
-      and give these characters a hard to guess password (not mangband).  If you
-      don't do this, then anyone could connect as one of these characters and
-      start cheating or terrorizing your players.
-  * If you are being asked for a direction, say for a magic missile,
-      you can wait and watch your target as it moves.
-  * If you are looking at your inven/equip, the screen isn't updated,
-      so you could be getting attacked without your knowledge.
-  * Although the client options can be modifed from within the client by 
-      hitting =, these changes will not be saved.  The only way to 
-      permatly change these options is by editting the pref files.
-  * Macros/keymaps/options/visual info can only be set using the "pref
-      files".  After doing so, you must reload the pref file using the '"'
-      command (or by restarting your client).
-  * To select your recall depth, inscribe whatever scroll/rod/spellbook you
-    are using to recall @Rdepth_in_feet.
-  * The Home has been changed into the "Tavern", which is where you start.
-  * Resting takes no arguments, and you regenerate at triple speed.
-  * Try using the party commands with 'P'.
-  * The Angband macro interface has been added.  Try it with '%'.
-  * Buying houses can be done with the 'h' key.
-  * The high score list can be looked at with '#'.
-  * There is a "help" command '?'.
-  * Stealing is now possible: use the 'j' command ('S' for roguelike keys).
+  * The networking code has been modified to use TCP instead of UDP.  Because
+    of this all commands sent from the client are guaranteed to be performed
+    on the server.  Because of this and other changes, players should also
+    experience a much smoother game.
 
+  * Many new items and ego items have been added to the game.
+
+  * Shops should change their inventories much faster.
+
+  * The mage spell GOI no longer stacks.
+
+  * More mangband.cfg server options have been added.
+ 
+  * Many bug fixes.
+
+
+	Please send bug reports, questions, or any other feedback to the
+maintainer (adingle@crud.net), or to the mangband-d mailing list
+(mangband-d@crud.net).  Archives of the mailing list can be found at
+http://www.crud.net/Lists-Archives/.
+
+
+=== MAngband Information ===
 	
-Every server reports to a metaserver running at MIT.  To ask questions
-about it, send mail to hao@mit.edu.  To see a list of servers running and the
-number of people playing on each of them, telnet to mangband.mit.edu at port
-8801 (for example, type "telnet mangband.mit.edu 8801").  It should give you
+Every server reports to a metaserver running at mangband.org.  To ask questions
+about it, send mail to adingle@crud.net.  To see a list of servers running and the
+number of people playing on each of them, telnet to mangband.org at port
+8801 (for example, type "telnet mangband.org 8801").  It should give you
 a list of servers with number of people on each.
 
 Visit the MAngband Home Page "http://www.mangband.org" for
@@ -104,7 +76,7 @@ as the file "COPYING".
 
 
 
-=== General information ===
+=== General Information ===
 
 MAngband is a "graphical" dungeon adventure game using textual characters
 to represent the walls and floors of a dungeon and the inhabitants therein,
@@ -314,5 +286,3 @@ The "lib/xtra" directory contains special system files, if any.
 --- Ben ---
 
     Keldon 
-
-   -Alex

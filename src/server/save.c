@@ -688,6 +688,7 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
+	wr_s32b(o_ptr->bpval);
 	wr_s32b(o_ptr->pval);
 
 	wr_byte(o_ptr->discount);
@@ -1160,6 +1161,7 @@ static void wr_extra(int Ind)
 	/* Special stuff */
 	wr_u16b(panic_save);
 	wr_u16b(p_ptr->total_winner);
+	wr_u16b(p_ptr->retire_timer);
 	wr_u16b(p_ptr->noscore);
 
 

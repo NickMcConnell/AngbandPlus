@@ -14,6 +14,10 @@
 
 #include "angband.h"
 
+#ifdef HANDLE_SIGNALS
+#include <signal.h>
+#endif
+
 
 
 /*
@@ -2382,9 +2386,11 @@ void close_game(void)
 	{
 		player_type *p_ptr = Players[i];
 
+#if 0
 		/* Make sure the player is connected */
 		if (p_ptr->conn == NOT_CONNECTED)
 			continue;
+#endif
 
 		/* Handle stuff */
 		handle_stuff(i);
@@ -2583,8 +2589,10 @@ void exit_game_panic(void)
 
 
 	/* Dump a nice core - Chris */
+#ifdef	HANDLE_SIGNALS
 	signal(11, 0);
 	kill(getpid(), 11);
+#endif
 	
 	/* Successful panic save of server info */
 	quit("server panic info save succeeded!");
@@ -2593,9 +2601,6 @@ void exit_game_panic(void)
 
 
 #ifdef HANDLE_SIGNALS
-
-
-#include <signal.h>
 
 
 /*
@@ -2813,9 +2818,12 @@ void signals_init(void)
 	(void)signal(SIGTERM, handle_signal_abort);
 #endif
 
+	/*
+	 * This happens naturaly when clients disconnect.
 #ifdef SIGPIPE
 	(void)signal(SIGPIPE, handle_signal_abort);
 #endif
+*/
 
 #ifdef SIGEMT
 	(void)signal(SIGEMT, handle_signal_abort);

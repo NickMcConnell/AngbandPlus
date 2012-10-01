@@ -12,25 +12,25 @@ Y:use_old_target
 Y:always_pickup
 Y:always_repeat
 Y:depth_in_feet
-Y:stack_force_notes
+X:stack_force_notes
 X:stack_force_costs
 Y:show_labels
 Y:show_weights
 X:show_choices
-X:show_details
+Y:show_details
 Y:ring_bell
 Y:use_color
 
-Y:find_ignore_stairs
+X:find_ignore_stairs
 Y:find_ignore_doors
 Y:find_cut
 Y:find_examine
-Y:disturb_move
-Y:disturb_near
-Y:disturb_panel
-Y:disturb_state
-Y:disturb_minor
-Y:disturb_other
+X:disturb_move
+X:disturb_near
+X:disturb_panel
+X:disturb_state
+X:disturb_minor
+X:disturb_other
 X:alert_hitpoint
 X:alert_failure
 
@@ -41,7 +41,6 @@ Y:stack_allow_wands
 X:expand_look
 X:expand_list
 Y:view_perma_grids
-X:view_torch_grids
 Y:dungeon_align
 Y:dungeon_stair
 X:flow_by_sound
@@ -67,4 +66,3 @@ Y:view_yellow_lite
 Y:view_bright_lite
 X:view_granite_lite
 Y:view_special_lite
-

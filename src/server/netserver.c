@@ -90,7 +90,7 @@
 #define MAX_MOTD_LOOPS			120
 
 
-static connection_t	*Conn = NULL;
+connection_t	*Conn = NULL;
 static int		max_connections = 0;
 static setup_t		Setup;
 static int		(*playing_receive[256])(int ind),
@@ -101,16 +101,12 @@ static int		num_logins, num_logouts;
 static long		Id;
 int			NumPlayers;
 
-static int		MetaSocket = -1;
+int		MetaSocket = -1;
 
 #ifdef NEW_SERVER_CONSOLE
-static int		ConsoleSocket = -1;
+int		ConsoleSocket = -1;
 #endif
 
-static void Contact(int fd, int arg);
-static void Console(int fd, int arg);
-static int Enter_player(char *real, char *name, char *addr, char *host,
-				unsigned version, int port, int *login_port);
 
 char *showtime(void)
 {
@@ -162,6 +158,7 @@ static void Init_receive(void)
 	playing_receive[PKT_QUIT]		= Receive_quit;
 	playing_receive[PKT_PLAY]		= Receive_play;
 
+	playing_receive[PKT_KEEPALIVE]		= Receive_keepalive;
 	playing_receive[PKT_WALK]		= Receive_walk;
 	playing_receive[PKT_RUN]		= Receive_run;
 	playing_receive[PKT_TUNNEL]		= Receive_tunnel;
@@ -281,11 +278,18 @@ bool Report_to_meta(int flag)
 		init = 1;
 
 		/* Get our hostname */
+		if( cfg_report_address )
+		{
+			strncpy( local_name, cfg_report_address, 1024 );
+		}
+		else
+		{
 #ifdef BIND_NAME
-		strncpy( local_name, BIND_NAME, 1024);
+			strncpy( local_name, BIND_NAME, 1024);
 #else
-		GetLocalHostName(local_name, 1024);
+			GetLocalHostName(local_name, 1024);
 #endif
+		}
 	}
 
 	strcpy(buf, local_name);
@@ -329,7 +333,7 @@ bool Report_to_meta(int flag)
 
 		for (i = 1; i <= NumPlayers; i++)
 		{
-			if (!strcmp(Players[i]->name, cfg_dungeon_master)) hidden_dungeon_master = TRUE;
+			if (!strcmp(Players[i]->name, cfg_dungeon_master) && cfg_secret_dungeon_master) hidden_dungeon_master = TRUE;
 		}
 
 		/* tell the metaserver about everyone except hidden dungeon_masters */
@@ -423,18 +427,29 @@ int Setup_net_server(void)
 static int Socket;
 static sockbuf_t ibuf;
 
+/* The contact socket now uses TCP.  This breaks backwards
+ * compatibility, but is a good thing.
+ */
+
 void setup_contact_socket(void)
 {
-	if ((Socket = CreateDgramSocket(18346)) == -1)
+	plog("Create TCP socket..."); 
+	while ((Socket = CreateServerSocket(18346)) == -1)
 	{
-		quit("Could not create Dgram socket");
+		sleep(1);
 	}
+	plog("Set Non-Blocking..."); 
 	if (SetSocketNonBlocking(Socket, 1) == -1)
 	{
-		quit("Can't make contact socket non-blocking");
+		plog("Can't make contact socket non-blocking");
 	}
+	if (SocketLinger(Socket) == -1)
+	{
+		plog("Couldn't set SO_LINGER on the socket");
+	}
+
 	if (Sockbuf_init(&ibuf, Socket, SERVER_SEND_SIZE,
-		SOCKBUF_READ | SOCKBUF_WRITE | SOCKBUF_DGRAM) == -1)
+		SOCKBUF_READ | SOCKBUF_WRITE ) == -1)
 	{
 		quit("No memory for contact buffer");
 	}
@@ -447,10 +462,14 @@ void setup_contact_socket(void)
 #endif
 
 #ifdef NEW_SERVER_CONSOLE
-	if ((ConsoleSocket = CreateDgramSocket(18347)) == -1)
+	if ((ConsoleSocket = CreateServerSocket(18347)) == -1)
 	{
 		s_printf("Couldn't create console socket\n");
 		return;
+	}
+	if (SocketLinger(ConsoleSocket) == -1)
+	{
+		plog("Couldn't set SO_LINGER on the console socket");
 	}
 
 	if (!InitNewConsole(ConsoleSocket))
@@ -463,18 +482,14 @@ void setup_contact_socket(void)
 #endif
 }
 
-static int Reply(char *host_addr, int port)
+static int Reply(char *host_addr, int fd)
 {
-	int i, result;
+	int result;
 
-	for (i = 0; i < 3; i++)
+	if ((result = DgramWrite(fd, ibuf.buf, ibuf.len)) == -1)
 	{
-		if ((result = DgramSend(ibuf.sock, host_addr, port, ibuf.buf, ibuf.len)) == -1)
-		{
-			GetSocketError(ibuf.sock);
-		}
-		else break;
-	}
+		GetSocketError(ibuf.sock);
+	}	
 
 	return result;
 }
@@ -497,7 +512,7 @@ static int Check_names(char *nick_name, char *real_name, char *host_name, char *
 		else break;
 	}
 
-	for (i = 1; i < NumPlayers + 1; i++)
+	for (i = 1; i <= NumPlayers; i++)
 	{
 		p_ptr = Players[i];
 		if (strcasecmp(p_ptr->name, nick_name) == 0)
@@ -518,18 +533,18 @@ static int Check_names(char *nick_name, char *real_name, char *host_name, char *
 				Destroy_connection(p_ptr->conn, "resume connection");
 			else return E_IN_USE;
 		}
-		
+
 		/* All restrictions on the number of allowed players from one IP have 
-		 * been removed at this time. -APD
-		 *
-		
+		* been removed at this time. -APD
+		*
+
 		if (!strcasecmp(Players[i]->realname, real_name) &&
-		    !strcasecmp(Players[i]->addr, addr) &&
-		    strcasecmp(Players[i]->realname, "mangband"))
+		!strcasecmp(Players[i]->addr, addr) &&
+		strcasecmp(Players[i]->realname, cfg_admin_wizard) &&
+		strcasecmp(Players[i]->realname, cfg_dungeon_master))
 		{
 			return E_TWO_PLAYERS;
 		}
-		
 		*/
 	}
 
@@ -593,7 +608,7 @@ static void Console(int fd, int arg)
 		
 static void Contact(int fd, int arg)
 {
-	int bytes, login_port;
+	int bytes, login_port, newsock;
 	u16b version = 0;
 	unsigned magic;
 	unsigned short port;
@@ -604,17 +619,41 @@ static void Contact(int fd, int arg)
 		host_addr[24],
 		reply_to, status;
 
+	/* Create a TCP socket for communication with whoever contacted us */
+	/* Hack -- check if this data has arrived on the contact socket or not.
+	 * If it has, then we have not created a connection with the client yet, 
+	 * and so we must do so.
+	 */
+
+	if (fd == Socket)
+	{
+		if ((newsock = SocketAccept(fd)) == -1)
+		{
+			quit("Couldn't accept TCP connection.\n");
+		}
+		install_input(Contact, newsock, 2);
+
+		return;
+	}
+
 	/*
 	 * Someone connected to us, now try and decipher the message
 	 */
 	Sockbuf_clear(&ibuf);
-	if ((bytes = DgramReceiveAny(Socket, ibuf.buf, ibuf.size)) <= 8)
+	if ((bytes = DgramReceiveAny(fd, ibuf.buf, ibuf.size)) <= 8)
 	{
-		if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN &&
+		/* If 0 bytes have been sent than the client has probably closed
+		 * the connection
+		 */
+		if (bytes == 0)
+		{
+			remove_input(fd);
+		}
+		else if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN &&
 			errno != EINTR)
 		{
 			/* Clear the error condition for the contact socket */
-			GetSocketError(Socket);
+			GetSocketError(fd);
 		}
 		return;
 	}
@@ -654,7 +693,7 @@ static void Contact(int fd, int arg)
 
 
 	status = Enter_player(real_name, nick_name, host_addr, host_name,
-				version, port, &login_port);
+				version, port, &login_port, fd);
 
 	Sockbuf_clear(&ibuf);
 
@@ -662,11 +701,11 @@ static void Contact(int fd, int arg)
 
 	Packet_printf(&ibuf, "%c%c%d", reply_to, status, login_port);
 
-	Reply(host_addr, port);
+	Reply(host_addr, fd);
 }
 
 static int Enter_player(char *real, char *nick, char *addr, char *host,
-				unsigned version, int port, int *login_port)
+				unsigned version, int port, int *login_port, int fd)
 {
 	int status;
 
@@ -686,7 +725,7 @@ static int Enter_player(char *real, char *nick, char *addr, char *host,
 		return E_VERSION;
 	}
 
-	*login_port = Setup_connection(real, nick, addr, host, version);
+	*login_port = Setup_connection(real, nick, addr, host, version, fd);
 
 	if (*login_port == -1)
 		return E_SOCKET;
@@ -769,8 +808,10 @@ static void Delete_player(int Ind)
 	{
 		for (i = 1; i < NumPlayers + 1; i++)
 		{
+#if 0
 			if (Players[i]->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* Don't tell him about himself */
 			if (i == Ind) continue;
@@ -807,6 +848,10 @@ static void Delete_player(int Ind)
 		KILL(p_ptr, player_type);
 	}
 
+	/* Clear the player slot previously used */
+	Players[NumPlayers] = NULL;
+
+	/* Update the number of players */
 	NumPlayers--;
 
 	/* Tell the metaserver about the loss of a player */	
@@ -815,11 +860,10 @@ static void Delete_player(int Ind)
 
 
 /*
- * Cleanup a connection.  The client may not know yet that
- * it is thrown out of the game so we send it a quit packet.
- * We send it twice because of UDP it could get lost.
- * Since 3.0.6 the client receives a short message
- * explaining why the connection was terminated.
+ * Cleanup a connection.  The client may not know yet that it is thrown out of
+ * the game so we send it a quit packet if our connection to it has not already
+ * closed.  If our connection to it has been closed, then connp->w.sock will
+ * be set to -1.
  */
 bool Destroy_connection(int ind, char *reason)
 {
@@ -835,7 +879,10 @@ bool Destroy_connection(int ind, char *reason)
 	}
 
 	sock = connp->w.sock;
-	remove_input(sock);
+	if (sock != -1)
+	{
+		remove_input(sock);
+	}
 
 	strncpy(&pkt[1], reason, sizeof(pkt) - 3);
 	pkt[sizeof(pkt) - 2] = '\0';
@@ -844,10 +891,13 @@ bool Destroy_connection(int ind, char *reason)
 	pkt[len - 1] = PKT_END;
 	pkt[len] = '\0';
 	/*len++;*/
-	if (DgramWrite(sock, pkt, len) != len)
+	if (sock != -1)
 	{
-		GetSocketError(sock);
-		DgramWrite(sock, pkt, len);
+		if (DgramWrite(sock, pkt, len) != len)
+		{
+			GetSocketError(sock);
+			DgramWrite(sock, pkt, len);
+		}
 	}
 	s_printf("%s: Goodbye %s=%s@%s (\"%s\")\n",
 		showtime(),
@@ -881,12 +931,10 @@ bool Destroy_connection(int ind, char *reason)
 
 	num_logouts++;
 
-	if (DgramWrite(sock, pkt, len) != len)
+	if (sock != -1)
 	{
-		GetSocketError(sock);
-		DgramWrite(sock, pkt, len);
+		DgramClose(sock);
 	}
-	DgramClose(sock);
 
 	return TRUE;
 }
@@ -920,7 +968,7 @@ int Check_connection(char *real, char *nick, char *addr)
  * client connection is still in the CONN_LISTENING state.
  */
 int Setup_connection(char *real, char *nick, char *addr, char *host,
-			unsigned version)
+			unsigned version, int fd)
 {
 	int i, free_conn_index = max_connections, my_port, sock;
 	connection_t *connp;
@@ -951,18 +999,9 @@ int Setup_connection(char *real, char *nick, char *addr, char *host,
 	}
 	connp = &Conn[free_conn_index];
 
-	if ((sock = CreateDgramSocket(0)) == -1)
-	{
-		plog(format("Cannot create datagram socket (%d)", sl_errno));
-		return -1;
-	}
-	if (sock >= MAX_SELECT_FD)
-	{
-		errno = 0;
-		plog("Socket filedescriptor too big");
-		DgramClose(sock);
-		return -1;
-	}
+	// A TCP connection already exists with the client, use it.
+	sock = fd;
+
 	if ((my_port = GetPortNum(sock)) == 0)
 	{
 		plog("Cannot get port from socket");
@@ -972,16 +1011,22 @@ int Setup_connection(char *real, char *nick, char *addr, char *host,
 	if (SetSocketNonBlocking(sock, 1) == -1)
 	{
 		plog("Cannot make client socket non-blocking");
-		DgramClose(sock);
-		return -1;
+	}
+	if (SetSocketNoDelay(Socket, 1) == -1)
+	{
+		plog("Can't set TCP_NODELAY on the socket");
+	}
+	if (SocketLinger(sock) == -1)
+	{
+		plog("Couldn't set SO_LINGER on the socket");
 	}
 	if (SetSocketReceiveBufferSize(sock, SERVER_RECV_SIZE + 256) == -1)
 		plog(format("Cannot set receive buffer size to %d", SERVER_RECV_SIZE + 256));
 	if (SetSocketSendBufferSize(sock, SERVER_SEND_SIZE + 256) == -1)
 		plog(format("Cannot set send buffer size to %d", SERVER_SEND_SIZE + 256));
 
-	Sockbuf_init(&connp->w, sock, SERVER_SEND_SIZE, SOCKBUF_WRITE | SOCKBUF_DGRAM);
-	Sockbuf_init(&connp->r, sock, SERVER_RECV_SIZE, SOCKBUF_WRITE | SOCKBUF_READ | SOCKBUF_DGRAM);
+	Sockbuf_init(&connp->w, sock, SERVER_SEND_SIZE, SOCKBUF_WRITE);
+	Sockbuf_init(&connp->r, sock, SERVER_RECV_SIZE, SOCKBUF_WRITE | SOCKBUF_READ);
 	Sockbuf_init(&connp->c, -1, MAX_SOCKBUF_SIZE, SOCKBUF_WRITE | SOCKBUF_READ | SOCKBUF_LOCK);
 	Sockbuf_init(&connp->q, -1, MAX_SOCKBUF_SIZE, SOCKBUF_WRITE | SOCKBUF_READ | SOCKBUF_LOCK);
 
@@ -1014,7 +1059,10 @@ int Setup_connection(char *real, char *nick, char *addr, char *host,
 		Destroy_connection(free_conn_index, "no memory");
 		return -1;
 	}
-
+	
+	// Remove the contact input handler
+	remove_input(sock);
+	// Install the game input handler
 	install_input(Handle_input, sock, free_conn_index);
 
 	return my_port;
@@ -1078,7 +1126,8 @@ static int Handle_setup(int ind)
 	}
 
 	if (connp->setup >= Setup.setup_size)
-		Conn_set_state(connp, CONN_DRAIN, CONN_LOGIN);
+		//Conn_set_state(connp, CONN_DRAIN, CONN_LOGIN);
+		Conn_set_state(connp, CONN_LOGIN, CONN_LOGIN);
 
 	return 0;
 }
@@ -1091,7 +1140,7 @@ static int Handle_listening(int ind)
 {
 	connection_t *connp = &Conn[ind];
 	unsigned char type;
-	int i, n;
+	int i, n, oldlen;
 	s16b sex, race, class;
 	char nick[MAX_NAME_LEN], real[MAX_NAME_LEN], pass[MAX_NAME_LEN];
 
@@ -1100,9 +1149,129 @@ static int Handle_listening(int ind)
 		Destroy_connection(ind, "not listening");
 		return -1;
 	}
-	Sockbuf_clear(&connp->r);
+	//Sockbuf_clear(&connp->r);
 	errno = 0;
-	n = DgramReceiveAny(connp->r.sock, connp->r.buf, connp->r.size);
+
+	/* Some data has arrived on the socket.  Read this data into r.buf.
+	 */
+	//n = DgramReceiveAny(connp->r.sock, connp->r.buf, connp->r.size);
+	oldlen = connp->r.len;
+	n = Sockbuf_read(&connp->r);
+	if (n - oldlen <= 0)
+	{
+		//if (n == 0 || errno == EWOULDBLOCK || errno == EAGAIN)
+		//	n = 0;
+		if (n == 0)
+		{
+			/* Hack -- set sock to -1 so destroy connection doesn't
+			 * try to inform the client about its destruction
+			 */
+			remove_input(connp->w.sock);
+			connp->w.sock = -1;
+			Destroy_connection(ind, "TCP connection closed");
+		}
+		else 
+			Destroy_connection(ind, "read first packet error");
+		return -1;
+	}
+	connp->his_port = DgramLastport();
+
+	/* Do a sanity check and read in the some basic player information. */
+	if (connp->r.ptr[0] != PKT_VERIFY)
+	{
+		Send_reply(ind, PKT_VERIFY, PKT_FAILURE);
+		Send_reliable(ind);
+		Destroy_connection(ind, "not connecting");
+		return -1;
+	}
+	if ((n = Packet_scanf(&connp->r, "%c%s%s%s%hd%hd%hd", &type, real, nick, pass, &sex, &race, &class)) <= 0)
+	{
+		Send_reply(ind, PKT_VERIFY, PKT_FAILURE);
+		Send_reliable(ind);
+		Destroy_connection(ind, "verify broken");
+		return -1;
+	}
+
+	/* After the client sends the basic player information, it sends us a
+	 * large block of "verification" data.  Because this block may have
+	 * been broken up into several packets, we may only have the beginning
+	 * of it.  Check to see if we have all this data.  If we don't, then
+	 * exit this function.  It will be called again when more data has
+	 * arrived.
+	 */
+	// The verification block is 2654 bytes long.  Make sure we have this
+	// much data past the basic player information.  If we don't, then reset
+	// the read location and exit.
+	if (2654 > connp->r.len - (connp->r.ptr - connp->r.buf))
+	{
+		connp->r.ptr = connp->r.buf;
+		return 1;
+	}
+	
+	/* toast this after fix
+	*If we don't, then
+	* wait a bit for more to arrive.  Waiting causes the game to "freeze"
+	* for a bit.  This is really bad.  The connection code desperatly
+	* needs to be rewritten to prevent this from happening. -APD
+	*/
+
+	/* Log the players connection */
+	s_printf("%s: Welcome %s=%s@%s (%s/%d)", showtime(), connp->nick,
+		connp->real, connp->host, connp->addr, connp->his_port);
+	if (connp->version != MY_VERSION)
+		s_printf(" (version %04x)", connp->version);
+	s_printf("\n");
+
+
+	// The verification block is 2654 bytes long.  Make sure we have this
+	// much data past the basic player information.  If we don't, then do a
+	// blocking read while we try to get it.
+
+	/* If neccecary receive the rest of the verification data */
+	// note that connp->r.ptr is now pointing past the basic player information, and so
+	// connp->r.ptr - connp->r.buf is the length of the player information.
+	
+	// Mega-hack -- disable the timer interrupt so select isn't disturbed
+#if 0
+	block_timer();	
+
+	SetTimeout(1,0);	
+	while (2654 > connp->r.len - (connp->r.ptr - connp->r.buf))
+	{
+		// If we have data, read it
+		if ((result = SocketReadable(connp->r.sock)))
+		{
+			if (result == -1)
+			{
+				Destroy_connection(ind, "verification socket error");
+				return -1;
+			}
+			printf("Got verification data.\n");
+			n = DgramReceiveAny(connp->r.sock, connp->r.buf + connp->r.len, 
+					connp->r.size - connp->r.len);
+			if (n < 0)
+			{
+				Destroy_connection(ind, "verification packet error");
+				return -1;
+			}
+			if (n == 0)
+			{
+				Destroy_connection(ind, "TCP connection closed");
+				return -1;
+			}
+			connp->r.len += n;
+		}
+		// If we timed out, abort
+		else
+		{
+			Destroy_connection(ind, "verify incomplete");
+			return -1;
+		}
+	}
+	SetTimeout(0,0); 
+
+	allow_timer();
+#endif
 
 /*	s_printf("Listening on connection %d, received %d bytes.\n", ind, n);
 
@@ -1115,16 +1284,8 @@ static int Handle_listening(int ind)
 
 	printf("\n"); */
 
-	if (n <= 0)
-	{
-		if (n == 0 || errno == EWOULDBLOCK || errno == EAGAIN)
-			n = 0;
-		else if (n != 0)
-			Destroy_connection(ind, "read first packet error");
-		return n;
-	}
-	connp->r.len = n;
-	connp->his_port = DgramLastport();
+#if 0
+	//UDP stuff
 	if (DgramConnect(connp->w.sock, connp->addr, connp->his_port) == -1)
 	{
 		plog(format("Cannot connect datagram socket (%s,%d)",
@@ -1132,26 +1293,7 @@ static int Handle_listening(int ind)
 		Destroy_connection(ind, "connect error");
 		return -1;
 	}
-	s_printf("%s: Welcome %s=%s@%s (%s/%d)", showtime(), connp->nick,
-		connp->real, connp->host, connp->addr, connp->his_port);
-	if (connp->version != MY_VERSION)
-		s_printf(" (version %04x)", connp->version);
-	s_printf("\n");
-
-	if (connp->r.ptr[0] != PKT_VERIFY)
-	{
-		Send_reply(ind, PKT_VERIFY, PKT_FAILURE);
-		Send_reliable(ind);
-		Destroy_connection(ind, "not connecting");
-		return -1;
-	}
-	if ((n = Packet_scanf(&connp->r, "%c%s%s%s%hd%hd%hd", &type, real, nick, pass, &sex, &race, &class)) <= 0)
-	{
-		Send_reply(ind, PKT_VERIFY, PKT_FAILURE);
-		Send_reliable(ind);
-		Destroy_connection(ind, "verify incomplete");
-		return -1;
-	}
+#endif
 
 	/* Read the stat order */
 	for (i = 0; i < 6; i++)
@@ -1257,6 +1399,8 @@ static int Handle_listening(int ind)
 	connp->race = race;
 	connp->class = class;
 
+
+
 	Sockbuf_clear(&connp->w);
 	if (Send_reply(ind, PKT_VERIFY, PKT_SUCCESS) == -1
 		|| Packet_printf(&connp->c, "%c%u", PKT_MAGIC, connp->magic) <= 0
@@ -1266,7 +1410,8 @@ static int Handle_listening(int ind)
 		return -1;
 	}
 
-	Conn_set_state(connp, CONN_DRAIN, CONN_SETUP);
+	//Conn_set_state(connp, CONN_DRAIN, CONN_SETUP);
+	Conn_set_state(connp, CONN_SETUP, CONN_SETUP);
 
 	return -1;
 }
@@ -1333,6 +1478,7 @@ static int Handle_login(int ind)
 		{
 			errno = 0;
 			plog(format("Name already in use %s", connp->nick));
+			Destroy_connection(ind, "not login");
 			return -1;
 		}
 	}
@@ -1410,7 +1556,8 @@ static int Handle_login(int ind)
 	NumPlayers++;
 	connp->id = Id++;
 	
-	Conn_set_state(connp, CONN_READY, CONN_PLAYING);
+	//Conn_set_state(connp, CONN_READY, CONN_PLAYING);
+	Conn_set_state(connp, CONN_PLAYING, CONN_PLAYING);
 
 	if (Send_reply(ind, PKT_PLAY, PKT_SUCCESS) <= 0)
 	{
@@ -1420,6 +1567,13 @@ static int Handle_login(int ind)
 	
 	/* Send party information */
 	Send_party(NumPlayers);
+
+	/* Hack -- terminate the data stream sent to the client */
+	if (Packet_printf(&connp->c, "%c", PKT_END) <= 0)
+	{
+		Destroy_connection(p_ptr->conn, "write error");
+		return -1;
+	}
 
 	if (Send_reliable(ind) == -1)
 	{
@@ -1435,8 +1589,10 @@ static int Handle_login(int ind)
 	/* Tell everyone about our new player */
 	for (i = 1; i < NumPlayers; i++)
 	{
+#if 0
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
+#endif
 
 		msg_format(i, "%s has entered the game.", p_ptr->name);
 	}
@@ -1447,6 +1603,105 @@ static int Handle_login(int ind)
 	return 0;
 }
 
+/* Actually execute commands from the client command queue */
+void process_pending_commands(int ind)
+{
+	connection_t *connp = &Conn[ind];
+	player_type *p_ptr;	
+	int player, type, result, (**receive_tbl)(int ind) = playing_receive, old_energy = 0;
+	int num_players_start = NumPlayers; // Hack to see if we have quit in this function
+
+	// Hack -- take any pending commands from the command que connp->q
+	// and move them to connp->r, where the Receive functions get their
+	// data from.
+	Sockbuf_clear(&connp->r);
+	if (connp->q.len > 0)
+	{
+		if (Sockbuf_write(&connp->r, connp->q.ptr, connp->q.len) != connp->q.len)
+		{
+			errno = 0;
+			Destroy_connection(ind, "Can't copy queued data to buffer");
+			return;
+		}
+		//connp->q.ptr += connp->q.len;
+		//Sockbuf_advance(&connp->q, connp->q.ptr - connp->q.buf);
+		Sockbuf_clear(&connp->q);
+	}
+
+	// If we have no commands to execute return
+	if (connp->r.len <= 0)
+		return;
+
+	// Get the player pointer
+	if (connp->id != -1)
+	{
+		player = GetInd[connp->id];
+		p_ptr = Players[player];
+	}
+	// Hack -- if our player id has not been set then assume that Receive_play
+	// should be called.
+	else
+	{
+		Receive_play(ind);
+		return;
+	}
+
+	// Attempt to execute every pending command. Any command that fails due
+	// to lack of energy will be put into the queue for next turn by the
+	// respective receive function. 		
+
+	while ((connp->r.ptr < connp->r.buf + connp->r.len))
+	{
+		/* Make sure we don't do anything on an unallocated level. */
+		if (p_ptr->new_level_flag) return;
+
+		type = (connp->r.ptr[0] & 0xFF);
+		result = (*receive_tbl[type])(ind);
+		if (connp->state == CONN_PLAYING)
+		{
+			connp->start = turn;
+		}
+		if (result == -1)
+			return;
+
+		// We didn't have enough energy to execute an important command.
+		if (result == 0) 
+		{
+			/* Hack -- if we tried to do something while resting, wake us up.
+			 */
+			if (p_ptr->resting) disturb(player, 0, 0);
+
+			/* If we didn't have enough energy to execute this
+			 * command, in order to ensure that our important
+			 * commands execute in the proper order, stop
+			 * processing any commands that require energy. We
+			 * assume that any commands that don't require energy
+			 * (such as quitting, or talking) should be executed
+			 * ASAP.
+			 */
+			/* Mega-Hack -- save our old energy and set our energy
+			 * to 0.  This will allow us to execute "out of game"
+			 * actions such as talking while we wait for enough
+			 * energy to execute our next queued in game action.
+			 */
+			if (p_ptr->energy) 
+			{
+				old_energy = p_ptr->energy;
+				p_ptr->energy = 0;
+			}
+		}
+	}
+	/* Restore our energy if neccecary. */
+
+	/* Make sure that the player structure hasn't been deallocated in this
+	 * time due to a quit request.  Mega-Hack : to do this we check if the number
+	 * of players has changed while this loop has been executing.  This would be
+	 * a BAD thing to do if we ever went multithreaded.
+	 */
+	if (NumPlayers == num_players_start)
+		if (!p_ptr->energy) p_ptr->energy = old_energy;
+
+}
 
 /*
  * Process a client packet.
@@ -1454,12 +1709,15 @@ static int Handle_login(int ind)
  * therefore we use function dispatch tables for easy processing.
  * Some functions may process requests from clients being
  * in different states.
+ * The behavior of this function has been changed somewhat.  New commands are now
+ * put into a command queue, where they will be executed later.
  */
-static void Handle_input(int fd, int arg)
+void Handle_input(int fd, int arg)
 {
-	int ind = arg;
+	int ind = arg, player, old_numplayers = NumPlayers;
 	connection_t *connp = &Conn[ind];
-	int type, result, (**receive_tbl)(int ind);
+	player_type *p_ptr;
+	int (**receive_tbl)(int ind);
 
 	if (connp->state & (CONN_PLAYING | CONN_READY))
 		receive_tbl = &playing_receive[0];
@@ -1483,17 +1741,11 @@ static void Handle_input(int fd, int arg)
 		return;
 	}
 
-	/* Sockbuf_clear(&connp->r); */
+#if 0
+	/* Clear connp->r, which will be our new queue */
+	Sockbuf_clear(&connp->r);
 	
-	/* Mega-Hack */
-	if (connp->id != -1 && Players[GetInd[connp->id]]->new_level_flag) return;
-
-	if (Sockbuf_read(&connp->r) == -1)
-	{
-		Destroy_connection(ind, "input error");
-		return;
-	}
-
+	/* Put any old commands at the beginning of the new queue we are reading into */
 	if (connp->q.len > 0)
 	{
 		if (connp->r.ptr > connp->r.buf)
@@ -1507,33 +1759,91 @@ static void Handle_input(int fd, int arg)
 
 		connp->q.ptr += connp->q.len;
 		Sockbuf_advance(&connp->q, connp->q.ptr - connp->q.buf);
-
-		Sockbuf_clear(&connp->q);
 	}
+	Sockbuf_clear(&connp->q);
+#endif
 
-	if (connp->r.len <= 0)
-		return;
-	while (connp->r.ptr < connp->r.buf + connp->r.len)
-	{
-		type = (connp->r.ptr[0] & 0xFF);
-		result = (*receive_tbl[type])(ind);
-		if (connp->state == CONN_PLAYING)
-		{
-			connp->start = turn;
-		}
-		if (result == -1)
-			return;
-		if (result == 0)
-		{
-			Sockbuf_clear(&connp->r);
-			break;
-		}
-		if (result == 2)
-			return;
-	}
+	
+	/* Mega-Hack */
+	if (connp->id != -1 && Players[GetInd[connp->id]]->new_level_flag) return;
+
+	// Reset the buffer we are reading into
 	Sockbuf_clear(&connp->r);
+
+	// Read in the data
+	if (Sockbuf_read(&connp->r) <= 0)
+	{
+		// Check to make sure that an EAGAIN error didn't occur.  Sometimes on
+		// Linux when receiving a lot of traffic EAGAIN will occur on recv and
+		// Sockbuf_read will return 0.
+		if (errno != EAGAIN)
+		{
+			// If this happens, the the client has probably closed his TCP connection.
+			do_quit(ind, 0);
+		}
+		
+		//Destroy_connection(ind, "input error");
+		return;
+	}
+
+	// Add this new data to the command queue
+	if (Sockbuf_write(&connp->q, connp->r.ptr, connp->r.len) != connp->r.len)
+	{
+		errno = 0;
+		Destroy_connection(ind, "Can't copy queued data to buffer");
+		return;
+	}
+
+	// Execute any new commands immediatly if possobile
+	process_pending_commands(ind);
+
+	/* Experimental hack -- to reduce perceived latency, flush our network
+	 * info right now so the player sees the results of his actions as soon
+	 * as possobile.  Everyone else will see him move at most one game turn
+	 * later, which is usually < 100 ms.
+	 */
+
+	/* Hack -- don't update the player info if the number of players since
+	 * the beginning of this function call has changed, which might indicate
+	 * that our player has left the game.
+	 */
+	if ((old_numplayers == NumPlayers) && (connp->state == CONN_PLAYING))
+	{
+		// Update the players display if neccecary and possobile
+		if (connp->id != -1)
+		{
+			player = GetInd[connp->id];
+			p_ptr = Players[player];
+
+			/* Notice stuff */
+			if (p_ptr->notice) notice_stuff(player);
+
+			/* Update stuff */
+			if (p_ptr->update) update_stuff(player);
+
+			/* Redraw stuff */
+			if (p_ptr->redraw) redraw_stuff(player);
+
+			/* Window stuff */
+			if (p_ptr->window) window_stuff(player);
+		}
+	}
+	if (connp->c.len > 0)
+	{
+		if (Packet_printf(&connp->c, "%c", PKT_END) <= 0)
+		{
+			Destroy_connection(p_ptr->conn, "write error");
+			return;
+		}
+		Send_reliable(p_ptr->conn);
+	}
+
+//	Sockbuf_clear(&connp->r);
 }
 
+// This function is used for sending data to clients who do not yet have
+// Player structures allocated, and for timing out players who have been
+// idle for a while.
 int Net_input(void)
 {
 	int i, ind, num_reliable = 0, input_reliable[MAX_SELECT_FD];
@@ -1543,6 +1853,7 @@ int Net_input(void)
 	for (i = 0; i < max_connections; i++)
 	{
 		connp = &Conn[i];
+
 		if (connp->state == CONN_FREE)
 			continue;
 		if (connp->start + connp->timeout * cfg_fps < turn)
@@ -1557,6 +1868,11 @@ int Net_input(void)
 			Destroy_connection(i, msg);
 			continue;
 		}
+
+		// Make sure that the player we are looking at is not already in the
+		// game.  If he is already in the game then we will send him data
+		// in the function Net_output.
+		if (connp->id != -1) continue;
 
 /*		if (connp->r.len > 0)
 			Sockbuf_clear(&connp->r); */
@@ -1605,7 +1921,9 @@ int Net_output(void)
 	{
 		p_ptr = Players[i];
 
+#if 0
 		if (p_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 		if (p_ptr->new_level_flag) continue;
 
@@ -1632,28 +1950,37 @@ int Net_output(void)
 		 * synchronized way.
 		 */
 
+		/*
 		if (!((turn + i) % 4)) 
 		{
 			lite_spot(i, p_ptr->py, p_ptr->px); 
 			if (Send_reliable(p_ptr->conn) == -1)
 				return -1;	
 		}
+		*/
 
 		/* otherwise, send normal data if there is any */
-		else 
-		{
-			 /* Tell the client that this is the end  */
-			if (Packet_printf(&connp->w, "%c", PKT_END) <= 0)
+		//else 
+		//{
+	//		  Tell the client that this is the end  
+	//		  
+	//		If we have any data to send to the client, terminate it
+	//		and send it to the client.
+			if (connp->c.len > 0)
 			{
-				Destroy_connection(p_ptr->conn, "write error");
-				continue;
+				if (Packet_printf(&connp->c, "%c", PKT_END) <= 0)
+				{
+					Destroy_connection(p_ptr->conn, "write error");
+					continue;
+				}
+				Send_reliable(p_ptr->conn);
 			}
-			 /* Flush the output buffers */
-			if (Sockbuf_flush(&connp->w) == -1)
-				return -1;
-		}
+			// Flush the output buffers 
+		//	if (Sockbuf_flush(&connp->w) == -1)
+		//		return -1;
+		//}
 
-		Sockbuf_clear(&connp->w);
+		//Sockbuf_clear(&connp->w);
 	}
 
 	/* Every fifteen seconds, update the info sent to the metaserver */
@@ -1698,6 +2025,43 @@ int Send_leave(int ind, int id)
 	return Packet_printf(&connp->c, "%c%hd", PKT_LEAVE, id);
 }
 
+// Actually quit. This was seperated as a hack to allow us to
+// "quit" when a quit packet has not been received, such as when
+// our TCP connection is severed.  The tellclient argument
+// specifies whether or not we should try to send data to the
+// client informing it about the quit event.
+void do_quit(int ind, bool tellclient)
+{
+	int player, depth = 0;
+	connection_t * connp = &Conn[ind];
+
+	if (connp->id != -1) 
+	{
+		player = GetInd[connp->id];
+		depth = Players[player]->dun_depth;
+	}
+
+	if (!tellclient)
+	{
+		/* Close the socket */
+		close(connp->w.sock);
+
+		/* No more packets from a player who is quitting */
+		remove_input(connp->w.sock);
+
+		/* Disable all output and input to and from this player */
+		connp->w.sock = -1;
+	}
+
+	/* If we are close to the center of town, exit quickly. */
+	if (depth <= 0 ? wild_info[depth].radius <= 2 : 0)
+	{
+		Destroy_connection(ind, "client quit");
+	}
+	// Otherwise wait for the timeout
+}
+
+
 static int Receive_quit(int ind)
 {
 	int player, n, depth = 0;
@@ -1709,7 +2073,6 @@ static int Receive_quit(int ind)
 		player = GetInd[connp->id];
 		depth = Players[player]->dun_depth;
 	}
-	
 	if ((n = Packet_scanf(&connp->r, "%c", &ch)) != 1)
 	{
 		errno = 0;
@@ -1717,12 +2080,8 @@ static int Receive_quit(int ind)
 		return -1;
 	}
 	
-	/* If we are close to the center of town, exit quickly. */
-	if (depth <= 0 ? wild_info[depth].radius <= 2 : 0)
-	{
-		Destroy_connection(ind, "client quit");
-		return -1;
-	}
+	do_quit(ind, 0);
+	
 	return 1;
 }
 
@@ -1760,6 +2119,7 @@ static int Receive_play(int ind)
 			Destroy_connection(ind, "not login");
 			return -1;
 		}
+		//if (Send_reliable_old(ind) == -1)
 		if (Send_reliable(ind) == -1)
 			return -1;
 		return 0;
@@ -1778,95 +2138,29 @@ static int Receive_play(int ind)
 int Send_reliable(int ind)
 {
 	connection_t *connp = &Conn[ind];
-	char *read_buf;
-	int i, n, len, todo, max_todo;
-	long rel_off;
-	const int max_packet_size = MAX_RELIABLE_DATA_PACKET_SIZE,
-		min_send_size = 1;
+	int num_written;
 
-	if (connp->c.len <=0 || connp->last_send_loops == turn)
+	/* Hack -- make sure we have a valid socket to write to.  -1 is used to
+	 * specify a player that has disconnected but is still "in game".
+	 */
+	if (connp->w.sock == -1) return 0;
+
+	if (Sockbuf_write(&connp->w, connp->c.buf, connp->c.len) != connp->c.len)
 	{
-		connp->last_send_loops = turn;
-		return 0;
+		plog("Cannot write reliable data");
+		Destroy_connection(ind, "write error");
+		return -1;
 	}
-	read_buf = connp->c.buf;
-	max_todo = connp->c.len;
-	rel_off = connp->reliable_offset;
-	if (connp->w.len > 0)
+	if ((num_written = Sockbuf_flush(&connp->w)) < 0)
 	{
-		if (connp->w.len >= max_packet_size - min_send_size)
-		{
-			return 0;
-		}
-		if (max_todo > max_packet_size - connp->w.len)
-			max_todo = max_packet_size - connp->w.len;
+		plog(format("Cannot flush reliable data (%d)", num_written));
+		Destroy_connection(ind, "flush error");
+		return -1;
 	}
-	if (connp->retransmit_at_loop > turn)
-	{
-		if (max_todo <= connp->reliable_unsent - connp->reliable_offset
-			+ min_send_size || connp->w.len == 0)
-			return 0;
-	}
-	else if (connp->retransmit_at_loop != 0)
-		connp->acks >>= 1;
-
-	todo = max_todo;
-
-	for (i = 0; i <= connp->acks && todo > 0; i++)
-	{
-		len = (todo > max_packet_size) ? max_packet_size : todo;
-		if (Packet_printf(&connp->w, "%c%hd%ld%ld%ld", PKT_RELIABLE,
-			len, rel_off, turn, max_todo) <= 0
-			|| Sockbuf_write(&connp->w, read_buf, len) != len)
-		{
-			plog("Cannot write reliable data");
-			Destroy_connection(ind, "write error");
-			return -1;
-		}
-
-		if ((n = Sockbuf_flush(&connp->w)) < len)
-		{
-			if (n == 0 && (errno == EWOULDBLOCK
-				|| errno == EAGAIN))
-			{
-				connp->acks = 0;
-				break;
-			}
-			else
-			{
-				plog(format("Cannot flush reliable data (%d)", n));
-				Destroy_connection(ind, "flush error");
-				return -1;
-			}
-		}
-
-		todo -= len;
-		rel_off += len;
-		read_buf += len;
-	}
-
-	Sockbuf_clear(&connp->w);
-
-	connp->last_send_loops = turn;
-
-	if (max_todo - todo <= 0)
-		return 0;
-
-	if (connp->rtt_retransmit > MAX_RETRANSMIT)
-		connp->rtt_retransmit = MAX_RETRANSMIT;
-	if (connp->retransmit_at_loop <= turn)
-	{
-		connp->retransmit_at_loop = turn + connp->rtt_retransmit;
-		connp->rtt_retransmit <<= 1;
-		connp->rtt_timeouts++;
-	}
-	else connp->retransmit_at_loop = turn + connp->rtt_retransmit;
-
-	if (rel_off > connp->reliable_unsent)
-		connp->reliable_unsent = rel_off;
-
-	return (max_todo - todo);
+	Sockbuf_clear(&connp->c);
+	return num_written;
 }
+
 
 static int Receive_ack(int ind)
 {
@@ -2805,6 +3099,23 @@ int Send_monster_health(int ind, int num, byte attr)
  *  Every code except for 1 will cause the input handler to stop
  *  processing actions.
  */
+
+// This does absolutly nothing other than keep our connection active.
+static int Receive_keepalive(int ind)
+{
+	int n;
+	connection_t *connp = &Conn[ind];
+	char ch;
+
+	if ((n = Packet_scanf(&connp->r, "%c", &ch)) <= 0)
+	{
+		if (n == -1)
+			Destroy_connection(ind, "read error");
+		return n;
+	}
+	return 2;
+}
+
 static int Receive_walk(int ind)
 {
 	connection_t *connp = &Conn[ind];
@@ -2835,20 +3146,35 @@ static int Receive_walk(int ind)
 		return 1;
 	}
 
-	/* Hack -- handle confusion */
-	if (p_ptr->confused)
-	{
-		dir = 5;
-
-		/* Prevent walking nowhere */
-		while (dir == 5)
-			dir = rand_int(9) + 1;
-	}
 
 	if (player && p_ptr->energy >= level_speed(p_ptr->dun_depth))
 	{
 		do_cmd_walk(player, dir, p_ptr->always_pickup);
 		return 2;
+	}
+	else
+	{
+		// Otherwise discared the walk request.
+		//if (!connp->q.len && p_ptr->autoattack)
+		// If we have no commands queued, then queue our walk request.
+		// Note that ch might equal PKT_RUN, since Receive_run will
+		// sometimes call this function.
+		if (!connp->q.len)
+		{
+			Packet_printf(&connp->q, "%c%c", PKT_WALK, dir);
+			return 0;
+		}
+		else
+		{
+			// If we have a walk command queued at the end of the queue,
+			// then replace it with this queue request.  
+			if (connp->q.buf[connp->q.len - 2] == PKT_WALK)
+			{
+				connp->q.len -= 2;
+				Packet_printf(&connp->q, "%c%c", PKT_WALK, dir);
+				return 0;
+			}
+		}
 	}
 
 	return 1;
@@ -2861,13 +3187,30 @@ static int Receive_run(int ind)
 
 	char ch;
 
-	int n, player;
+	int i, n, player;
 	char dir;
 
 	if (connp->id != -1)
 	{
 		player = GetInd[connp->id];
 		p_ptr = Players[player];
+	}
+
+	/* If not the dungeon master, who can always run */
+	if (strcmp(p_ptr->name,cfg_dungeon_master)) 
+	{
+		/* Check for monsters in sight or confusion */
+		for (i = 0; i < m_max; i++)
+		{
+			/* Check this monster */
+			/* Level 0 monsters do not disturb */
+			if ((p_ptr->mon_los[i] && !m_list[i].csleep && r_info[m_list[i].r_idx].level) || (p_ptr->confused))
+			{
+				// Treat this as a walk request
+				// Hack -- send the same connp->r "arguments" to Receive_walk
+				return Receive_walk(ind);
+			}
+		}
 	}
 
 	if ((n = Packet_scanf(&connp->r, "%c%c", &ch, &dir)) <= 0)
@@ -2878,26 +3221,39 @@ static int Receive_run(int ind)
 	}
 
 	/* Disturb if we want to change directions */
-	if (dir != p_ptr->find_current) disturb(player, 0, 0);
+	//if (dir != p_ptr->find_current) disturb(player, 0, 0);
 
 	/* Hack -- Fix the running in '5' bug */
 	if (dir == 5)
 		return 1;
 
-	/* APD added the energy check after the running direction has
-	 * changed.
+#if 0
+	/* Only process the run command if we are not already running in
+	 * the direction requested.
 	 */
+	if (player && (!p_ptr->running || (dir != p_ptr->find_current)))
+	{
+#endif
+		// If we don't want to queue the command, return now.
+		if ((n = do_cmd_run(player,dir)) == 2)
+		{
+			return 2;
+		}
+		// If do_cmd_run returns a 0, then there wasn't enough energy
+		// to execute the run command.  Queue the run command if desired.
+		else if (n == 0)
+		{
+			// Only buffer a run request if we have no previous commands
+			// buffered, and it is a new direction or we aren't already
+			// running.
+			if (((!connp->q.len) && (dir != p_ptr->find_current)) || (!p_ptr->running))
+			{
+				Packet_printf(&connp->q, "%c%c", ch, dir);
 
-	if (connp->id != -1)
-	{
-		do_cmd_run(player, dir);
-		return 2;
-	}
-	else if (player)
-	{
-		Packet_printf(&connp->q, "%c%c", ch, dir);
-		return 0;
-	}
+				return 0;
+			}
+		}
+	//}
 
 	return 1;
 }
@@ -2928,11 +3284,6 @@ static int Receive_tunnel(int ind)
 	{
 		do_cmd_tunnel(player, dir);
 		return 2;
-	}
-	else if (player)
-	{
-		Packet_printf(&connp->q, "%c%c", ch, dir);
-		return 0;
 	}
 
 	return 1;
@@ -3112,6 +3463,17 @@ static int Receive_destroy(int ind)
 		do_cmd_destroy(player, item, amt);
 		return 2;
 	}
+	else if (player)
+	{
+		// I am immortalizing this commented out line so others can see
+		// the utter stupidity of the famous "destroying-things-ocasionally-
+		// crashesg- the-server" bug.  The horrobile thing is I didn't
+		// investigate this for several weeks. 
+		// The Moral : Listen seriously to bugreports
+		//Packet_printf(&connp->q, "%c%hd%hd", &ch, &item, &amt);
+		Packet_printf(&connp->q, "%c%hd%hd", ch, item, amt);
+		return 0;
+	}
 
 	return 1;
 }
@@ -3264,7 +3626,7 @@ static int Receive_ghost(int ind)
 
 	s16b ability;
 
-	if (connp->id != 1)
+	if (connp->id != -1)
 	{
 		player = GetInd[connp->id];
 		p_ptr = Players[player];
@@ -4283,12 +4645,16 @@ static int Receive_store_confirm(int ind)
 static int Receive_drop_gold(int ind)
 {
 	connection_t *connp = &Conn[ind];
+	player_type *p_ptr;
 	char ch;
 	int n, player;
 	s32b amt;
 
-	if (connp->id != -1) player = GetInd[connp->id];
-		else player = 0;
+	if (connp->id != -1) 
+	{
+		player = GetInd[connp->id];
+		p_ptr = Players[player];
+	}
 
 	if ((n = Packet_scanf(&connp->r, "%c%ld", &ch, &amt)) <= 0)
 	{
@@ -4297,10 +4663,16 @@ static int Receive_drop_gold(int ind)
 		return n;
 	}
 
-	if (!player)
+	if (connp->id != -1 && p_ptr->energy >= level_speed(p_ptr->dun_depth))
+	{
+		do_cmd_drop_gold(player, amt);
+		return 2;
+	}
+	else if (player)
+	{
+		Packet_printf(&connp->q, "%c%ld", &ch, &amt);
 		return 0;
-
-	do_cmd_drop_gold(player, amt);
+	}
 
 	return 1;
 }
@@ -4327,16 +4699,21 @@ static int Receive_steal(int ind)
 		return n;
 	}
 
-	if (connp->id != -1 && p_ptr->energy >= level_speed(p_ptr->dun_depth))
-	{
-		do_cmd_steal(player, dir);
-		return 2;
+	if (!cfg_no_steal) {
+		if (connp->id != -1 && p_ptr->energy >= level_speed(p_ptr->dun_depth))
+		{
+			do_cmd_steal(player, dir);
+			return 2;
+		}
+		else if (player)
+		{
+			Packet_printf(&connp->q, "%c%c", ch, dir);
+			return 0;
+		}
 	}
-	else if (player)
-	{
-		Packet_printf(&connp->q, "%c%c", ch, dir);
-		return 0;
-	}
+	else 
+		/* handle the option to disable player/player stealing */
+		msg_print(player, "Your pathetic attempts at stealing fail.\n");
 
 	return 1;
 }
@@ -4394,11 +4771,47 @@ static int Receive_rest(int ind)
 
 	if (player)
 	{
-		/* Set flag */
-		p_ptr->resting = TRUE;
+		/* If we are already resting, cancel the rest. */
+		/* Waking up takes no energy, although we will still be drowsy... */
+		if (p_ptr->resting)
+		{
+			disturb(player, 0, 0);
+			return 2;
+		}
 
-		/* Redraw */
-		p_ptr->redraw |= (PR_STATE);
+		/* Don't rest if we are poisoned or at max hit points and max spell points */
+		if ((p_ptr->poisoned) || ((p_ptr->chp == p_ptr->mhp) &&
+					(p_ptr->csp == p_ptr->msp)))
+		{
+			return 2;
+		}
+
+		/* Resting takes a lot of energy! */
+		if ((p_ptr->energy) >= (level_speed(p_ptr->dun_depth)*2)-1)
+		{
+
+			/* Set flag */
+			p_ptr->resting = TRUE;
+
+			/* Make sure we aren't running */
+			p_ptr->running = FALSE;
+
+			/* Take a lot of energy to enter "rest mode" */
+			p_ptr->energy -= (level_speed(p_ptr->dun_depth)*2)-1;
+
+			/* Redraw */
+			p_ptr->redraw |= (PR_STATE);
+			return 2;
+		}
+		/* If we don't have enough energy to rest, disturb us (to stop
+		 * us from running) and queue the command.
+		 */
+		else
+		{
+			disturb(player, 0, 0);
+			Packet_printf(&connp->q, "%c", ch);
+			return 0;
+		}
 	}
 
 	return 1;
@@ -4654,7 +5067,15 @@ static int Receive_master(int ind)
 	 * authentication schemes will be neccecary. -APD
 	 */
 
-	if (strcmp(Players[player]->name, cfg_dungeon_master)) return 0;
+	if (strcmp(Players[player]->name, cfg_dungeon_master)) 
+	{
+		/* Hack -- clear the receive and queue buffers since we won't be
+		 * reading in the dungeon master parameters that were sent.
+		 */
+		Sockbuf_clear(&connp->r);
+		Sockbuf_clear(&connp->c);
+		return 2;
+	}
 
 	if ((n = Packet_scanf(&connp->r, "%c%hd%s", &ch, &command, buf)) <= 0)
 	{
@@ -4693,7 +5114,7 @@ static int Receive_master(int ind)
 		}
 	}
 
-	return 1;
+	return 2;
 }
 
 /* automatic phase command, will try to phase door

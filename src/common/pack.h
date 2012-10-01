@@ -16,6 +16,7 @@
 
 #define PKT_START		10
 #define PKT_END			11
+#define PKT_KEEPALIVE		12
 
 
 /* Packet types 20-59 are info that is sent to the client */

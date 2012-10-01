@@ -352,7 +352,7 @@ void teleport_player_level(int Ind)
 	char *msg;
 
 	/* sometimes go down */
-	if ((!Depth) || ((rand_int(100) < 50) && (Depth > MAX_DEPTH-1)))
+	if ((!Depth) || ((rand_int(100) < 50) && (Depth < MAX_DEPTH-1)))
 	{
 		new_depth = Depth+1;
 		msg = "You sink through the floor.";
@@ -528,8 +528,14 @@ void take_hit(int Ind, int damage, cptr hit_from)
 {
 	player_type *p_ptr = Players[Ind];
 
+	// This is probably unused
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
 
+	// The "number" that the character is displayed as before the hit
+	int old_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+	int new_num; 
+
+	if (old_num >= 7) old_num = 10;
 
 	/* Paranoia */
 	if (p_ptr->death) return;
@@ -549,6 +555,14 @@ void take_hit(int Ind, int damage, cptr hit_from)
 
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
+
+	/* Figure out of if the player's "number" has changed */
+	new_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+	if (new_num >= 7) new_num = 10;
+
+	/* If so then refresh everyone's view of this player */
+	if (new_num != old_num)
+		everyone_lite_spot(p_ptr->dun_depth, p_ptr->py, p_ptr->px);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
@@ -3932,6 +3946,11 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 			int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
 			(void)set_stun(Ind, p_ptr->stun + k);
 		}
+		/* Feather fall lets us resist gravity */
+		if (p_ptr->feather_fall)
+		{
+			dam *= 6; dam /= (randint(6) + 6);
+		}
 		take_hit(Ind, dam, killer);
 		break;
 
@@ -4338,8 +4357,10 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 				int dispx, dispy;
 				byte attr;
 
+#if 0
 				if (p_ptr->conn == NOT_CONNECTED)
 					continue;
+#endif
 
 				if (p_ptr->dun_depth != Depth)
 					continue;
@@ -4414,8 +4435,10 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 				char ch;
 				byte attr;
 
+#if 0
 				if (p_ptr->conn == NOT_CONNECTED)
 					continue;
+#endif
 
 				if (p_ptr->dun_depth != Depth)
 					continue;
@@ -4527,8 +4550,10 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 					int k;
 					bool flag = TRUE;
 
+#if 0
 					if (p_ptr->conn == NOT_CONNECTED)
 						continue;
+#endif
 
 					if (p_ptr->dun_depth != Depth)
 						continue;

@@ -1881,6 +1881,7 @@ static int get_coin_type(monster_race *r_ptr)
 void monster_death(int Ind, int m_idx)
 {
 	player_type *p_ptr = Players[Ind];
+	player_type *q_ptr = Players[Ind];
 
 	int			i, j, y, x, ny, nx, Depth;
 
@@ -2051,12 +2052,53 @@ void monster_death(int Ind, int m_idx)
 
 		/* Drop it in the dungeon */
 		drop_near(&prize, -1, Depth, y, x);
+
+		/* Nothing left, game over... */
+		for (i = 1; i <= NumPlayers; i++)
+		{
+			q_ptr = Players[i];
+			/* Make everyone in the game in the same party on the
+			 * same level greater than or equal to level 40 total
+			 * winners.
+			 */
+			if ((((p_ptr->party) && (q_ptr->party == p_ptr->party)) ||
+			   (q_ptr == p_ptr) ) && q_ptr->lev >= 40 && p_ptr->dun_depth == q_ptr->dun_depth)
+			{
+				/* Total winner */
+				q_ptr->total_winner = TRUE;
+
+				/* Redraw the "title" */
+				q_ptr->redraw |= (PR_TITLE);
+
+				/* Congratulations */
+				msg_print(i, "*** CONGRATULATIONS ***");
+				msg_print(i, "You have won the game!");
+				msg_print(i, "You may retire (commit suicide) when you are ready.");
+
+				/* Set his retire_timer if neccecary */
+				if (cfg_retire_timer >= 0)
+				{
+					q_ptr->retire_timer = cfg_retire_timer;
+				}
+			}
+		}	
+		/* Hack -- instantly retire any new winners if neccecary */
+		if (cfg_retire_timer == 0)
+		{
+			for (i = 1; i <= NumPlayers; i++)
+			{
+				p_ptr = Players[i];
+				if (p_ptr->total_winner)
+					do_cmd_suicide(i);
+			}
+		}
+
+		return;
 	}
 
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & RF1_QUESTOR)) return;
-
 
 	/* Hack -- Mark quests as complete */
 	for (i = 0; i < MAX_Q_IDX; i++)
@@ -2104,22 +2146,6 @@ void monster_death(int Ind, int m_idx)
 
 		/* Remember to update everything */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
-	}
-
-
-	/* Nothing left, game over... */
-	else
-	{
-		/* Total winner */
-		p_ptr->total_winner = TRUE;
-
-		/* Redraw the "title" */
-		p_ptr->redraw |= (PR_TITLE);
-
-		/* Congratulations */
-		msg_print(Ind, "*** CONGRATULATIONS ***");
-		msg_print(Ind, "You have won the game!");
-		msg_print(Ind, "You may retire (commit suicide) when you are ready.");
 	}
 }
 
@@ -2397,7 +2423,7 @@ void player_death(int Ind)
     
     -APD-
     
-    hmm, haven't gotten aroudn to doing this yet...
+    Hmm, haven't gotten around to doing this yet...
  */
  
 void resurrect_player(int Ind)
@@ -2410,8 +2436,6 @@ void resurrect_player(int Ind)
 	/* Reset ghost flag */
 	p_ptr->ghost = 0;
 	
-	
-
 	/* Lose some experience */
 	p_ptr->max_exp -= p_ptr->max_exp / 2;
 	p_ptr->exp -= p_ptr->exp / 2;
@@ -2429,7 +2453,6 @@ void resurrect_player(int Ind)
 	/* Window */
 	p_ptr->window |= (PW_SPELL);
 }
-
 
 
 /*
@@ -3090,10 +3113,23 @@ bool target_okay(int Ind)
 	/* Check moving players */
 	if (p_ptr->target_who < 0)
 	{
+
 		/* Accept reasonable targets */
 		if (target_able(Ind, p_ptr->target_who))
 		{
 			player_type *q_ptr = Players[0 - p_ptr->target_who];
+
+			/* 
+			   Paranoia Check, require Valid Player.
+			   This was causing target_able to explode
+			   with a set, but invalid q_ptr...
+			   --Crimson
+			*/
+
+			if ((0 - p_ptr->target_who) >= MAX_PLAYERS)  {
+				return (FALSE);
+			}
+			if (!q_ptr) return (FALSE);
 
 			/* Acquire player location */
 			p_ptr->target_row = q_ptr->py;
@@ -3246,8 +3282,10 @@ bool target_set(int Ind, int dir)
 			/* Don't target yourself */
 			if (i == Ind) continue;
 
+#if 0
 			/* Skip unconnected players */
 			if (q_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 			/* Ignore players we aren't hostile to */
 			if (!check_hostile(Ind, i)) continue;
@@ -3431,14 +3469,9 @@ bool target_set_friendly(int Ind, int dir)
 	int		y;
 	int		x;
 
-	bool	flag = TRUE;
-
 	char	out_val[160];
 
 	cave_type		*c_ptr;
-
-	monster_type	*m_ptr;
-	monster_race	*r_ptr;
 
 		x = p_ptr->px;
 		y = p_ptr->py;
@@ -3463,8 +3496,10 @@ bool target_set_friendly(int Ind, int dir)
 			/* Don't target yourself */
 			if (i == Ind) continue;
 
+#if 0
 			/* Skip unconnected players */
 			if (q_ptr->conn == NOT_CONNECTED) continue;
+#endif
 
 			/* Ignore players we aren't friends with */
 			/* if (!check_hostile(Ind, i)) continue; */
@@ -3753,11 +3788,15 @@ bool do_restoreXP_other(int Ind)
   }
   
 
+/* Hack -- since the framerate has been boosted by five times since version
+ * 0.6.0 to make game movement more smooth, we return the old level speed
+ * times five to keep the same movement rate.
+ */
 
 int level_speed(int Ind)
 {
-	if ( Ind <= 0) return level_speeds[0];
-	else return level_speeds[Ind];
+	if ( Ind <= 0) return level_speeds[0]*5;
+	else return level_speeds[Ind]*5;
 }
 
 /* these Dungeon Master commands should probably be added somewhere else, but I am
@@ -3780,8 +3819,10 @@ bool master_level(int Ind, char * parms)
 			num_on_depth = 0;
 			for (i = 1; i <= NumPlayers; i++)
 			{
+#if 0
 				if (p_ptr->conn == NOT_CONNECTED) continue;
 				if (Players[i]->dun_depth == p_ptr->dun_depth) num_on_depth++;
+#endif
 			}
 			/* set the number of players on the level equal to the numer of 
 			 * currently connected players on the level.
@@ -3952,9 +3993,9 @@ u16b master_summon_aux_monster_type( char monster_type, char * monster_parms)
 		case 'd':
 		{
 			return get_mon_num(monster_parms[0]);
+			break;
 		}
 
-		default : break;
 	}
 
 	/* failure */
@@ -3962,12 +4003,20 @@ u16b master_summon_aux_monster_type( char monster_type, char * monster_parms)
 
 }
 
+/* Temporary debugging hack, to test the new excellents.
+ */
+bool master_acquire(int Ind, char * parms)
+{
+	player_type * p_ptr = Players[Ind];
+	acquirement(p_ptr->dun_depth, p_ptr->py, p_ptr->px, 1, TRUE);
+	return TRUE;
+}
+
 /* Monster summoning options. More documentation on this later. */
 bool master_summon(int Ind, char * parms)
 {
 	int c;
 	player_type * p_ptr = Players[Ind];
-	cave_type * c_ptr;
 
 	static char monster_type = 0;  /* What type of monster we are -- specific, random orc, etc */
 	static char monster_parms[80];

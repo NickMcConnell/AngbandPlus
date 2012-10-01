@@ -63,12 +63,16 @@ typedef struct {
 	client_setup_t	Client_setup;
 } connection_t;
 
+static void Contact(int fd, int arg);
+static void Console(int fd, int arg);
+static int Enter_player(char *real, char *name, char *addr, char *host,
+				unsigned version, int port, int *login_port, int fd);
 
 static int Handle_listening(int ind);
 static int Handle_setup(int ind);
 static int Handle_login(int ind);
-static void Handle_input(int fd, int arg);
-
+void Handle_input(int fd, int arg);
+void do_quit(int ind, bool tellclient);
 
 static int Receive_quit(int ind);
 static int Receive_play(int ind);
@@ -76,6 +80,7 @@ static int Receive_ack(int ind);
 static int Receive_discard(int ind);
 static int Receive_undefined(int ind);
 
+static int Receive_keepalive(int ind);
 static int Receive_walk(int ind);
 static int Receive_run(int ind);
 static int Receive_tunnel(int ind);
@@ -141,7 +146,7 @@ static void Handle_item(int Ind, int item);
 int Setup_net_server(void);
 bool Destroy_connection(int ind, char *reason);
 int Check_connection(char *real, char *nick, char *addr);
-int Setup_connection(char *real, char *nick, char *addr, char *host, unsigned version);
+int Setup_connection(char *real, char *nick, char *addr, char *host, unsigned version, int fd);
 int Input(void);
 int Send_reply(int ind, int replyto, int result);
 int Send_leave(int ind, int id);

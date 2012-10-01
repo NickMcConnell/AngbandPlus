@@ -551,7 +551,7 @@ void do_cmd_study(int Ind, int book, int spell)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Learn the spell */
 	if (j < 32)
@@ -1135,7 +1135,10 @@ void do_cmd_cast(int Ind, int book, int spell)
 
 			case 58:
 			{
-				(void)set_invuln(Ind, p_ptr->invuln + randint(8) + 8);
+				//(void)set_invuln(Ind, p_ptr->invuln + randint(8) + 8);
+				// GOI no longer stacks, as when it did it was vastly overpowered. 
+				if (!p_ptr->invuln)
+					set_invuln(Ind, 10 + randint(10));
 				break;
 			}
 		}
@@ -1166,7 +1169,7 @@ void do_cmd_cast(int Ind, int book, int spell)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
@@ -1405,7 +1408,7 @@ void do_cmd_cast_aux(int Ind, int dir)
 		p_ptr->window |= PW_SPELL;
 	}
 
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	if (s_ptr->smana <= p_ptr->csp)
 	{
@@ -2060,9 +2063,14 @@ void do_cmd_pray(int Ind, int book, int spell)
 
 			case 57:
 			{
+				// Temporily disabled until I have time to fix this.
+				// -APD
+				/*
 				msg_print(Ind, "The world changes!");
 				p_ptr->new_level_flag = TRUE;
 				p_ptr->new_level_method = LEVEL_RAND;
+				break;
+				*/
 				break;
 			}
 		}
@@ -2093,7 +2101,7 @@ void do_cmd_pray(int Ind, int book, int spell)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
@@ -2239,7 +2247,7 @@ void do_cmd_pray_aux(int Ind, int dir)
 		p_ptr->window |= PW_SPELL;
 	}
 
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	if (s_ptr->smana <= p_ptr->csp)
 	{
@@ -2403,7 +2411,7 @@ void do_cmd_ghost_power(int Ind, int ability)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Take some experience */
 	p_ptr->max_exp -= s_ptr->slevel * s_ptr->smana;
@@ -2473,7 +2481,7 @@ void do_cmd_ghost_power_aux(int Ind, int dir)
 	p_ptr->current_spell = -1;
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Take some experience */
 	p_ptr->max_exp -= s_ptr->slevel * s_ptr->smana;

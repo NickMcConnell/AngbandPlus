@@ -631,6 +631,9 @@ void cmd_inven(void)
 	/* The whole screen is "icky" */
 	screen_icky = TRUE;
 
+	/* First, erase our current location */
+
+	/* Then, save the screen */
 	Term_save();
 
 	command_gap = 50;
@@ -639,7 +642,9 @@ void cmd_inven(void)
 
 	(void)inkey();
 
+	/* restore the screen */
 	Term_load();
+	/* print our new location */
 
 	/* The screen is OK now */
 	screen_icky = FALSE;
@@ -1023,11 +1028,6 @@ int cmd_target(void)
 
 int cmd_target_friendly(void)
 {
-	bool done = FALSE;
-	bool position = FALSE;
-	int d;
-	char ch;
-
 	/* Tell the server to init targetting */
 	Send_target_friendly(0);
 	return TRUE;

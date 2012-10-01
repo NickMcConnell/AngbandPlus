@@ -489,7 +489,8 @@ struct object_type
 	byte tval;			/* Item type (from kind) */
 	byte sval;			/* Item sub-type (from kind) */
 
-	s32b pval;			/* Item extra-parameter */
+	s32b bpval;			/* Base item extra-parameter */
+	s32b pval;			/* Extra enchantment item extra-parameter */
 
 	byte discount;		/* Discount (if any) */
 
@@ -545,7 +546,7 @@ struct monster_type
 	s16b csleep;		/* Inactive counter */
 
 	byte mspeed;		/* Monster "speed" */
-	byte energy;		/* Monster "energy" */
+	s16b energy;		/* Monster "energy" */
 
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
@@ -947,7 +948,7 @@ struct house_type
 	byte strength;		/* Strength of door (unused) */
 	byte owned;		/* Currently owned? */
 
-	int depth;
+	s32b depth;
 
 	s32b price;		/* Cost of buying */
 };
@@ -1173,6 +1174,9 @@ struct player_type
 	s16b died_from_depth;	/* what depth we died on */
 
 	u16b total_winner;	/* Is this guy the winner */
+	u16b retire_timer;	/* The number of minutes this guy can play until
+				   he will be forcibly retired.
+				 */
 
 	u16b noscore;		/* Has he cheated in some way (hopefully not) */
 	s16b command_rep;	/* Command repetition */
@@ -1322,8 +1326,8 @@ struct player_type
 
 	bool exp_drain;		/* Experience draining */
 
-	bool ffall;			/* No damage falling */
-	bool lite;			/* Permanent light */
+	bool feather_fall;	/* No damage falling */
+	bool lite;		/* Permanent light */
 	bool free_act;		/* Never paralyzed */
 	bool see_inv;		/* Can see invisible */
 	bool regenerate;	/* Regenerate hit pts */

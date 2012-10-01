@@ -149,16 +149,6 @@ void initialize_all_pref_files(void)
 static void Input_loop(void)
 {
 	int	netfd, result;
-	int last_sent;
-
-	/* Initialize the last_sent variable */
-	last_sent = time(NULL);
-
-	if ((result = Net_input()) == -1)
-	{
-		plog("Bad server input");
-		return;
-	}
 
 	if (Net_flush() == -1)
 		return;
@@ -171,6 +161,9 @@ static void Input_loop(void)
 
 	for (;;)
 	{
+		// Send out a keepalive packet if need be
+		do_keepalive();
+
 		if (Net_flush() == -1)
 		{
 			plog("Bad net flush");
@@ -178,7 +171,14 @@ static void Input_loop(void)
 		}
 
 		/* Set the timeout on the network socket */
-		SetTimeout(0, 1000000 / Setup.frames_per_second);
+		/* This polling should probably be replaced with a select
+		 * call that combines the net and keyboard input.
+		 * This REALLY needs to be replaced since under my Linux
+		 * system calling usleep seems to have a 10 ms overhead
+		 * attached to it.
+		 */
+		//SetTimeout(0, 1000000 / Setup.frames_per_second);
+		SetTimeout(0, 1000000 / 1000);
 
 		/* Only take input if we got some */
 		if (SocketReadable(netfd))
@@ -193,9 +193,6 @@ static void Input_loop(void)
 		/* See if we have a command waiting */
 		request_command(FALSE);
 
-		/* Hack -- ignore any commands until the screen is redrawn */
-		if (last_line_info < 22) continue;
-
 		/* Process any commands we got */
 		while (command_cmd)
 		{
@@ -203,7 +200,7 @@ static void Input_loop(void)
 			process_command();
 
 			/* XXX Unused */
-			last_sent = time(NULL);
+			//last_sent = time(NULL);
 
 			/* Clear previous command */
 			command_cmd = 0;
@@ -211,6 +208,13 @@ static void Input_loop(void)
 			/* Ask for another command */
 			request_command(FALSE);
 		}
+
+		// Update our internal timer, which is used to figure out when
+		// to send keepalive packets.
+		update_ticks();
+
+		/* Hack -- don't redraw the screen until we have all of it */
+		if (last_line_info < 22) continue;
 
 		/* Flush input (now!) */
 		flush_now();
@@ -223,6 +227,7 @@ static void Input_loop(void)
 		{
 			window_stuff();
 		}
+
 	}
 }	
 
@@ -303,6 +308,28 @@ void client_init(char *argv1)
 	/* Capitalize the name */
 	nick[0] = toupper(nick[0]);
 
+	// Create the net socket and make the TCP connection
+	if ((Socket = CreateClientSocket(server_name, 18346)) == -1)
+	{
+		quit("That server either isn't up, or you mistyped the hostname.\n");
+	}
+
+	/* Create a socket buffer */
+	if (Sockbuf_init(&ibuf, Socket, CLIENT_SEND_SIZE,
+		SOCKBUF_READ | SOCKBUF_WRITE) == -1)
+	{
+		quit("No memory for socket buffer\n");
+	}
+
+	/* Make it non-blocking */
+	//if (SetSocketNonBlocking(Socket, 1) == -1)
+//	{	
+//		quit("Can't make socket non-blocking\n");
+//	}
+
+
+#if 0
+	// UDP code
 	/* Create net socket */
 	if ((Socket = CreateDgramSocket(0)) == -1)
 	{
@@ -321,6 +348,7 @@ void client_init(char *argv1)
 	{
 		quit("No memory for socket buffer\n");
 	}
+#endif
 
 	/* Clear it */
 	Sockbuf_clear(&ibuf);
@@ -335,11 +363,11 @@ void client_init(char *argv1)
 #ifdef UNIX_SOCKETS
 	if ((DgramConnect(Socket, server_name, 18346)) == -1)
 #else
-	if ((DgramConnect(Socket, server_name, 18346)) == -1)
+	// UDP stuffif ((DgramConnect(Socket, server_name, 18346)) == -1)
 #endif
-	{
-		quit("That server either isn't up, or you mistyped the host name.\n");
-	}
+	//{
+	//	quit("That server either isn't up, or you mistyped the host name.\n");
+	//}
 	
 	/* Send the info */
 	if ((bytes = DgramWrite(Socket, ibuf.buf, ibuf.len) == -1))
@@ -409,10 +437,11 @@ void client_init(char *argv1)
 	printf("Server sent status %u\n", status);  */
 
 	/* Close our current connection */
-	DgramClose(Socket);
+	// Dont close the TCP connection DgramClose(Socket);
 
 	/* Connect to the server on the port it sent */
-	if (Net_init(server_name, login_port) == -1)
+	//if (Net_init(server_name, login_port) == -1)
+	if (Net_init(server_name, Socket) == -1)
 	{
 		quit("Network initialization failed!\n");
 	}

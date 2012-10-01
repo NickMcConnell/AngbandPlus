@@ -2445,7 +2445,11 @@ static void process_monster(int Ind, int m_idx)
 		}
 
 		/* Still sleeping */
-		if (m_ptr->csleep) return;
+		if (m_ptr->csleep) 
+		{
+			m_ptr->energy -= level_speed(m_ptr->dun_depth);
+			return;
+		}
 	}
 
 
@@ -2488,7 +2492,11 @@ static void process_monster(int Ind, int m_idx)
 		}
 
 		/* Still stunned */
-		if (m_ptr->stunned) return;
+		if (m_ptr->stunned) 
+		{
+			m_ptr->energy -= level_speed(m_ptr->dun_depth);
+			return;
+		}
 	}
 
 
@@ -2561,7 +2569,6 @@ static void process_monster(int Ind, int m_idx)
 		}
 	}
 
-
 	/* Get the origin */
 	oy = m_ptr->fy;
 	ox = m_ptr->fx;
@@ -2585,7 +2592,7 @@ static void process_monster(int Ind, int m_idx)
 			}
 
 			/* Hack -- multiply slower in crowded areas */
-			if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
+			if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)) && (m_ptr->energy >= level_speed(m_ptr->dun_depth)))
 			{
 				/* Try to multiply */
 				if (multiply_monster(m_idx))
@@ -2594,13 +2601,19 @@ static void process_monster(int Ind, int m_idx)
 					if (p_ptr->mon_vis[m_idx]) r_ptr->r_flags2 |= RF2_MULTIPLY;
 
 					/* Multiplying takes energy */
+					m_ptr->energy -= level_speed(m_ptr->dun_depth);
+
 					return;
 				}
 			}
 		}
 						
 	/* Attempt to cast a spell */
-	if (make_attack_spell(Ind, m_idx)) return;
+	if (make_attack_spell(Ind, m_idx) && (m_ptr->energy >= level_speed(m_ptr->dun_depth))) 
+	{
+		m_ptr->energy -= level_speed(m_ptr->dun_depth);
+		return;
+	}
 
 
 	/* Hack -- Assume no movement */
@@ -2905,14 +2918,19 @@ static void process_monster(int Ind, int m_idx)
 		/* The player is in the way.  Attack him. */
 		if (do_move && (c_ptr->m_idx < 0))
 		{
-			/* Do the attack */
-			(void)make_attack_normal(0 - c_ptr->m_idx, m_idx);
+			if (m_ptr->energy >= level_speed(m_ptr->dun_depth))
+			{
+				/* Do the attack */
+				(void)make_attack_normal(0 - c_ptr->m_idx, m_idx);
 
-			/* Do not move */
-			do_move = FALSE;
+				/* Do not move */
+				do_move = FALSE;
 
-			/* Took a turn */
-			do_turn = TRUE;
+				/* Took a turn */
+				do_turn = TRUE;
+				m_ptr->energy -= (level_speed(m_ptr->dun_depth));
+			}
+			else return;
 		}
 
 
@@ -3111,9 +3129,12 @@ static void process_monster(int Ind, int m_idx)
 		}
 
 		/* Stop when done */
-		if (do_turn) break;
+		if (do_turn) 
+		{
+			m_ptr->energy -= level_speed(m_ptr->dun_depth);
+			break;
+		}
 	}
-
 
 	/* Notice changes in view */
 	if (do_view)
@@ -3250,12 +3271,12 @@ void process_monsters(void)
 		/* Give this monster some energy */
 		m_ptr->energy += e;
 
+		/* Make sure we don't store up too much energy */
+		if (m_ptr->energy > level_speed(m_ptr->dun_depth))
+			m_ptr->energy = level_speed(m_ptr->dun_depth);
 
 		/* Not enough energy to move */
 		if (m_ptr->energy < level_speed(m_ptr->dun_depth)) continue;
-
-		/* Use up "some" energy */
-		m_ptr->energy -= level_speed(m_ptr->dun_depth);
 
 		/* Find the closest player */
 		for (pl = 1; pl < NumPlayers + 1; pl++)
@@ -3264,9 +3285,11 @@ void process_monsters(void)
 
 			p_ptr = Players[pl];
 
+#if 0
 			/* Only check him if he is playing */
 		     	if (p_ptr->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* Make sure he's on the same dungeon level */
 			if (p_ptr->dun_depth != m_ptr->dun_depth)
@@ -3350,7 +3373,6 @@ void process_monsters(void)
 		}
 #endif
 
-
 		/* Do nothing */
 		if (!test) continue;
 
@@ -3362,9 +3384,8 @@ void process_monsters(void)
 		if (!p_ptr->alive || p_ptr->death || p_ptr->new_level_flag) break;
 	}
 
-
-	/* Only when needed, every ten game turns */
-	if (scan_monsters)
+	/* Only when needed, every five game turns */
+	if (scan_monsters && (!(turn%5)))
 	{
 		/* Shimmer multi-hued monsters */
 		for (i = 1; i < m_max; i++)

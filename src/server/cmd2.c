@@ -59,7 +59,7 @@ void do_cmd_go_up(int Ind)
 	forget_view(Ind);
 
 	/* Hack -- take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Success */
 	if (c_ptr->feat == FEAT_LESS)
@@ -140,7 +140,7 @@ void do_cmd_go_down(int Ind)
 	forget_view(Ind);
 
 	/* Hack -- take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Success */
 	if (c_ptr->feat == FEAT_MORE)
@@ -192,7 +192,7 @@ void do_cmd_search(int Ind)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Search */
 	search(Ind);
@@ -504,7 +504,7 @@ void do_cmd_open(int Ind, int dir)
 		else if (c_ptr->m_idx > 0)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Message */
 			msg_print(Ind, "There is a monster in the way!");
@@ -517,7 +517,7 @@ void do_cmd_open(int Ind, int dir)
 		else if (o_ptr->tval == TV_CHEST)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Assume opened successfully */
 			flag = TRUE;
@@ -574,7 +574,7 @@ void do_cmd_open(int Ind, int dir)
 		else if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x08)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Stuck */
 			msg_print(Ind, "The door appears to be stuck.");
@@ -584,7 +584,7 @@ void do_cmd_open(int Ind, int dir)
 		else if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x01)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Disarm factor */
 			i = p_ptr->skill_dis;
@@ -654,6 +654,9 @@ void do_cmd_open(int Ind, int dir)
 					/* Open the door */
 					c_ptr->feat = FEAT_HOME_OPEN;
 
+					/* Take half a turn */
+					p_ptr->energy -= level_speed(p_ptr->dun_depth)/2;
+
 					/* Notice */
 					note_spot_depth(Depth, y, x);
 
@@ -686,7 +689,7 @@ void do_cmd_open(int Ind, int dir)
 
 				/* Take CHR into account */
 				factor = adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-				price = houses[i].price * factor / 100;
+				price = (unsigned long long) houses[i].price * factor / 100;
 
 				/* Tell him the price */
 				msg_format(Ind, "This house costs %ld gold.", price);
@@ -696,6 +699,9 @@ void do_cmd_open(int Ind, int dir)
 		/* Closed door */
 		else
 		{
+			/* Take half a turn */
+			p_ptr->energy -= level_speed(p_ptr->dun_depth)/2;
+
 			/* Open the door */
 			c_ptr->feat = FEAT_OPEN;
 
@@ -777,7 +783,7 @@ void do_cmd_close(int Ind, int dir)
 		else if (c_ptr->m_idx > 0)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Message */
 			msg_print(Ind, "There is a monster in the way!");
@@ -793,7 +799,7 @@ void do_cmd_close(int Ind, int dir)
 			i = pick_house(Depth, y, x);
 
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Close the door */
 			c_ptr->feat = FEAT_HOME_HEAD + houses[i].strength;
@@ -812,7 +818,7 @@ void do_cmd_close(int Ind, int dir)
 		else
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Close the door */
 			c_ptr->feat = FEAT_DOOR_HEAD + 0x00;
@@ -952,7 +958,7 @@ void do_cmd_tunnel(int Ind, int dir)
 		else if (c_ptr->m_idx > 0)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Message */
 			msg_print(Ind, "There is a monster in the way!");
@@ -965,7 +971,7 @@ void do_cmd_tunnel(int Ind, int dir)
 		else
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Titanium */
 			if (c_ptr->feat >= FEAT_PERM_EXTRA)
@@ -1229,7 +1235,7 @@ void do_cmd_disarm(int Ind, int dir)
 		else if (c_ptr->m_idx > 0)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Message */
 			msg_print(Ind, "There is a monster in the way!");
@@ -1242,7 +1248,7 @@ void do_cmd_disarm(int Ind, int dir)
 		else if (o_ptr->tval == TV_CHEST)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Get the "disarm" factor */
 			i = p_ptr->skill_dis;
@@ -1306,7 +1312,7 @@ void do_cmd_disarm(int Ind, int dir)
 			cptr name = (f_name + f_info[c_ptr->feat].name);
 
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Get the "disarm" factor */
 			i = p_ptr->skill_dis;
@@ -1393,7 +1399,7 @@ void do_cmd_disarm(int Ind, int dir)
  * faster! You move into the door way. To open a stuck door, it must
  * be bashed. A closed door can be jammed (see do_cmd_spike()).
  *
- * Creatures can also open or bash doors, see elsewhere.
+ * Breatures can also open or bash doors, see elsewhere.
  *
  * We need to use character body weight for something, or else we need
  * to no longer give female characters extra starting gold.
@@ -1456,7 +1462,7 @@ void do_cmd_bash(int Ind, int dir)
 		else if (c_ptr->m_idx > 0)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Message */
 			msg_print(Ind, "There is a monster in the way!");
@@ -1469,7 +1475,7 @@ void do_cmd_bash(int Ind, int dir)
 		else
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Message */
 			msg_print(Ind, "You smash into the door!");
@@ -1634,7 +1640,7 @@ void do_cmd_spike(int Ind, int dir)
 		else if (c_ptr->m_idx > 0)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Message */
 			msg_print(Ind, "There is a monster in the way!");
@@ -1647,7 +1653,7 @@ void do_cmd_spike(int Ind, int dir)
 		else
 		{
 			/* Take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 			/* Successful jamming */
 			msg_print(Ind, "You jam the door with a spike.");
@@ -1674,6 +1680,7 @@ void do_cmd_spike(int Ind, int dir)
 void do_cmd_walk(int Ind, int dir, int pickup)
 {
 	player_type *p_ptr = Players[Ind];
+	cave_type *c_ptr;
 
 	bool more = FALSE;
 
@@ -1697,11 +1704,37 @@ void do_cmd_walk(int Ind, int dir, int pickup)
 	/* Get a "repeated" direction */
 	if (dir)
 	{
-		/* Take a turn */
-		p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+		/* Hack -- handle confusion */
+		if (p_ptr->confused)
+		{
+			dir = 5;
+
+			/* Prevent walking nowhere */
+			while (dir == 5)
+				dir = rand_int(9) + 1;
+		}
+
+		/* Handle the cfg_door_bump_open option */
+		if (cfg_door_bump_open)
+		{
+			/* Get requested grid */
+			c_ptr = &cave[p_ptr->dun_depth][p_ptr->py+ddy[dir]][p_ptr->px+ddx[dir]];
+
+			if (((c_ptr->feat >= FEAT_DOOR_HEAD) && 
+			      (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
+			    ((c_ptr->feat >= FEAT_HOME_HEAD) &&
+			      (c_ptr->feat <= FEAT_HOME_TAIL))) 
+			{
+				do_cmd_open(Ind, dir);
+				return;
+			}
+		}
 
 		/* Actually move the character */
 		move_player(Ind, dir, pickup);
+
+		/* Take a turn */
+		p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 		/* Allow more walking */
 		more = TRUE;
@@ -1716,50 +1749,73 @@ void do_cmd_walk(int Ind, int dir, int pickup)
 /*
  * Start running.
  */
-void do_cmd_run(int Ind, int dir)
+/* Hack -- since this command has different cases of energy requirements and
+ * if we don't have enough energy sometimes we want to queue and sometimes we
+ * don't, we do all of the energy checking within this function.  If after all
+ * is said and done we want to queue the command, we return a 0.  If we don't,
+ * we return a 2.
+ */
+int do_cmd_run(int Ind, int dir)
 {
 	player_type *p_ptr = Players[Ind];
-	int i;
-
-	/*printf("Starting run for player %d with direction %d.\n", Ind, dir);*/
-
-	/* Hack -- no running when confused */
-	if (p_ptr->confused)
-	{
-		msg_print(Ind, "You are too confused!");
-		return;
-	}
-
-	/* Check for monsters in sight */
-	for (i = 0; i < m_max; i++)
-	{
-		/* Hack -- the dungeon master can always run */
-		if (!strcmp(p_ptr->name,cfg_dungeon_master)) break;
-
-		/* Check this monster */
-		if (p_ptr->mon_los[i] && !m_list[i].csleep)
-		{
-			/* If we have enough energy, pretend we are walking */
-			if (p_ptr->energy >= level_speed(p_ptr->dun_depth))
-				do_cmd_walk(Ind, dir, p_ptr->always_pickup);
-		
-			/* Leave */
-			return;
-		}
-	}
+	cave_type *c_ptr;
 
 	/* Get a "repeated" direction */
 	if (dir)
 	{
-		/* Hack -- Set the run counter */
-		p_ptr->running = (command_arg ? command_arg : 1000);
+		/* Make sure we have an empty space to run into */
+		if (see_wall(Ind, dir, p_ptr->py, p_ptr->px))
+		{
+			/* Handle the cfg_door_bump option */
+			if (cfg_door_bump_open)
+			{
+				/* Get requested grid */
+				c_ptr = &cave[p_ptr->dun_depth][p_ptr->py+ddy[dir]][p_ptr->px+ddx[dir]];
 
-		/* First step */
-		run_step(Ind, dir);
+				if (((c_ptr->feat >= FEAT_DOOR_HEAD) && 
+				      (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
+				    ((c_ptr->feat >= FEAT_HOME_HEAD) &&
+				      (c_ptr->feat <= FEAT_HOME_TAIL))) 
+				{
+					/* Check if we have enough energy to open the door */
+					if (p_ptr->energy >= level_speed(p_ptr->dun_depth))
+					{
+						/* If so, open it. */
+						do_cmd_open(Ind, dir);
+					}
+					return 2;
+				}
+			}
 
-		/* Reset player's energy */
-		p_ptr->energy = 0;
+			/* Message */
+			msg_print(Ind, "You cannot run in that direction.");
+
+			/* Disturb */
+			disturb(Ind, 0, 0);
+
+			return 2;
+		}
+
+		/* Make sure we have enough energy to start running */
+		if (p_ptr->energy >= (level_speed(p_ptr->dun_depth)*6)/5)
+		{
+			/* Hack -- Set the run counter */
+			p_ptr->running = (command_arg ? command_arg : 1000);
+
+			/* First step */
+			run_step(Ind, dir);
+
+			/* Reset the player's energy so he can't sprint several spaces
+			 * in the first round of running.  */
+			p_ptr->energy = level_speed(p_ptr->dun_depth);
+			return 2;
+		}
+		/* If we don't have enough energy to run and monsters aren't around,
+		 * try to queue the run command.
+		 */
+		else return 0;
 	}
+	return 2;
 }
 
 
@@ -1796,7 +1852,7 @@ void do_cmd_stay(int Ind, int pickup)
 /* We don't want any of this */
 #if 0
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 
 	/* Spontaneous Searching */
@@ -1879,7 +1935,7 @@ void do_cmd_rest(void)
 
 
 	/* Take a turn XXX XXX XXX (?) */
-	energy_use = level_speed(p_ptr->dun_depth);
+	energy -= level_speed(p_ptr->dun_depth);
 
 	/* Save the rest code */
 	resting = command_arg;
@@ -2138,7 +2194,7 @@ void do_cmd_fire(int Ind, int dir, int item)
 
 
 	/* Take a (partial) turn */
-	p_ptr->energy_use = (level_speed(p_ptr->dun_depth) / thits);
+	p_ptr->energy -= (level_speed(p_ptr->dun_depth) / thits);
 
 
 	/* Start at the player */
@@ -2193,9 +2249,11 @@ void do_cmd_fire(int Ind, int dir, int item)
 			/* Use this player */
 			p_ptr = Players[i];
 
+#if 0
 			/* If he's not playing, skip him */
 			if (p_ptr->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* If he's not here, skip him */
 			if (p_ptr->dun_depth != Depth)
@@ -2524,7 +2582,7 @@ void do_cmd_throw(int Ind, int dir, int item)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 
 	/* Start at the player */
@@ -2568,7 +2626,6 @@ void do_cmd_throw(int Ind, int dir, int item)
 		x = nx;
 		y = ny;
 
-
 		/* Save the old "player pointer" */
 		q_ptr = p_ptr;
 
@@ -2580,9 +2637,11 @@ void do_cmd_throw(int Ind, int dir, int item)
 			/* Use this player */
 			p_ptr = Players[i];
 
+#if 0
 			/* If he's not playing, skip him */
 			if (p_ptr->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* If he's not here, skip him */
 			if (p_ptr->dun_depth != Depth)
@@ -2811,9 +2870,7 @@ void do_cmd_purchase_house(int Ind, int dir)
 	player_type *p_ptr = Players[Ind];
 	int Depth = p_ptr->dun_depth;
 
-	int y, x, i, j;
-	int factor;
-	long long price; // I'm hoping this will be 64 bits.  I dont know if it will be portable.
+	int y, x, i, j, factor, price;
 	cave_type *c_ptr;
 	object_type key;
 
@@ -2846,22 +2903,12 @@ void do_cmd_purchase_house(int Ind, int dir)
 
 		/* Take player's CHR into account */
 		factor = adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-		//if (houses[i].price < 3000000)
-			price = houses[i].price * factor / 100;
-		/* Hack -- ignore CHR to prevent overflow */
-		//else price = houses[i].price;
+		price = (unsigned long long) houses[i].price * factor / 100;
 
 		/* Check for already-owned house */
 		if (houses[i].owned)
 		{
-			/*
-			
-			NO MORE DUPLICATE KEYS HAHAHHA
-			
-			OK, so now this sells the house
-			*/
-			
-			 /* See if he has the key in his inventory */
+			/* See if he has the key in his inventory */
 			for (j = 0; j < INVEN_PACK; j++)
 			{
 				object_type *o_ptr = &p_ptr->inventory[j];

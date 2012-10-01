@@ -84,6 +84,13 @@ void delete_object(int Depth, int y, int x)
 	/* Refuse "illegal" locations */
 	if (!in_bounds(Depth, y, x)) return;
 
+	/* Paranoia -- make sure the level has been allocated */
+	if (!cave[Depth])
+	{
+		printf("Error : tried to delete object on unallocated level %d",Depth);
+		return;
+	}
+
 	/* Find where it was */
 	c_ptr = &cave[Depth][y][x];
 
@@ -216,7 +223,9 @@ void compact_objects(int size)
 			/* Copy the visiblity flags for each player */
 			for (Ind = 1; Ind < NumPlayers + 1; Ind++)
 			{
+#if 0
 				if (Players[Ind]->conn == NOT_CONNECTED) continue;
+#endif
 
 				Players[Ind]->obj_vis[i] = Players[Ind]->obj_vis[o_max];
 			}
@@ -253,7 +262,7 @@ void compact_objects(int size)
 
 void wipe_o_list(int Depth)
 {
-	int i, x, y;
+	int i, x, y, house_depth;
 
 	/* Delete the existing objects */
 	for (i = 1; i < o_max; i++)
@@ -289,14 +298,26 @@ void wipe_o_list(int Depth)
 			/* delete the objects inside it. -APD*/
 			if (houses[o_ptr->pval].owned)
 			{
+				/* First, make sure that the wilderness level
+				 * that the house is on is currently allocated.
+				 * If neccecary, allocate it.
+				 */
+				house_depth = houses[o_ptr->pval].depth;
+				if (!cave[house_depth])
+				{
+					/* Allocate the wilderness level.  It will
+					 * be automatically deallocated in dungeon. */
+					alloc_dungeon_level(house_depth);
+					generate_cave(house_depth);
+				}
 				for (y = houses[o_ptr->pval].y_1; y <= houses[o_ptr->pval].y_2; y++)
 				{
 					for (x = houses[o_ptr->pval].x_1; x <= houses[o_ptr->pval].x_2; x++)
 					{
-						delete_object(houses[o_ptr->pval].depth,y,x); 
+						delete_object(house_depth,y,x); 
 					}
 				}
-			houses[o_ptr->pval].owned--;			
+				houses[o_ptr->pval].owned--;
 			}			
 			
 		}
@@ -797,9 +818,20 @@ static s32b object_value_real(object_type *o_ptr)
 			/* Give credit for extra attacks */
 			if (f1 & TR1_BLOWS) value += (o_ptr->pval * 2000L);
 
-			/* Give credit for speed bonus */
-			if (f1 & TR1_SPEED) value += (o_ptr->pval * 30000L);
-
+			/* Hack -- amulets of speed and rings of speed are
+			 * cheaper than other tiems of speed.
+			 */
+			if (o_ptr->tval == TV_AMULET)
+			{
+				/* Give credit for speed bonus */
+				if (f1 & TR1_SPEED) value += (o_ptr->pval * 25000L);
+			}
+			else if (o_ptr->tval == TV_RING)
+			{
+				/* Give credit for speed bonus */
+				if (f1 & TR1_SPEED) value += (o_ptr->pval * 50000L);
+			}
+			else if (f1 & TR1_SPEED) value += (o_ptr->pval * 100000L);
 			break;
 		}
 	}
@@ -1808,29 +1840,43 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for ego-item */
-				switch (randint(10))
+                                switch (randint(33)) 
 				{
-					case 1:
+					case 1: case 2: case 3: case 4:
 					{
 						o_ptr->name2 = EGO_EXTRA_MIGHT;
 						break;
 					}
 
-					case 2:
+					case 5: case 6: case 7: case 8:
 					{
 						o_ptr->name2 = EGO_EXTRA_SHOTS;
 						break;
 					}
 
-					case 3: case 4: case 5: case 6:
+					case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16: 
+					case 17: case 18:
 					{
 						o_ptr->name2 = EGO_VELOCITY;
 						break;
 					}
 
-					case 7: case 8: case 9: case 10:
+					case 19: case 20: case 21: case 22: case 23: case 24: case 25: case 26: 
+					case 27: case 28:
 					{
 						o_ptr->name2 = EGO_ACCURACY;
+						break;
+					}
+
+					case 29: case 30: case 31:
+					{
+                                                o_ptr->name2 = EGO_LORIEN;
+						break;
+					}
+
+					case 32: case 33:
+					{
+                                                o_ptr->name2 = EGO_NUMENOR;
 						break;
 					}
 				}
@@ -2020,39 +2066,55 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 		case TV_SHIELD:
 		{
+			/* Set the orcish shield's STR and CON bonus
+			 */
+                        if(o_ptr->sval == SV_ORCISH_SHIELD)
+                        {
+                                o_ptr->bpval = randint(2);
+
+				/* Cursed orcish shield */
+				if (power < 0) o_ptr->bpval = -o_ptr->bpval;
+                        }
+
 			/* Very good */
 			if (power > 1)
 			{
 				/* Roll for ego-item */
-				switch (randint(10))
+                                switch (randint(20))
 				{
-					case 1:
+					case 1: case 2: case 3:
 					{
 						o_ptr->name2 = EGO_ENDURE_ACID;
 						break;
 					}
 
-					case 2: case 3: case 4:
+					case 4: case 5: case 6: case 7: case 8:
 					{
 						o_ptr->name2 = EGO_ENDURE_ELEC;
 						break;
 					}
 
-					case 5: case 6:
+					case 9: case 10: case 11: case 12:
 					{
 						o_ptr->name2 = EGO_ENDURE_FIRE;
 						break;
 					}
 
-					case 7: case 8: case 9:
+					case 13: case 14: case 15: case 16: case 17:
 					{
 						o_ptr->name2 = EGO_ENDURE_COLD;
 						break;
 					}
 
-					default:
+					case 18: case 19:
 					{
 						o_ptr->name2 = EGO_ENDURANCE;
+						break;
+					}
+
+					default:
+					{
+                                                o_ptr->name2 = EGO_AVARI;
 						break;
 					}
 				}
@@ -2068,29 +2130,35 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for ego-item */
-				switch (randint(10))
+                                switch (randint(15))
 				{
-					case 1: case 2: case 3: case 4:
+					case 1: case 2: case 3: case 4: case 5: 
 					{
 						o_ptr->name2 = EGO_FREE_ACTION;
 						break;
 					}
 
-					case 5: case 6: case 7:
+                                        case 6: case 7: case 8: case 9: 
 					{
 						o_ptr->name2 = EGO_SLAYING;
 						break;
 					}
 
-					case 8: case 9:
+                                        case 10: case 11: case 12: 
 					{
 						o_ptr->name2 = EGO_AGILITY;
 						break;
 					}
 
-					case 10:
+                                        case 13: case 14: 
 					{
 						o_ptr->name2 = EGO_POWER;
+						break;
+					}
+
+                                        case 15:
+					{
+                                                o_ptr->name2 = EGO_ISTARI;
 						break;
 					}
 				}
@@ -2121,6 +2189,12 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 		case TV_BOOTS:
 		{
+			/* Set the Witan Boots stealth penalty */
+                        if(o_ptr->sval == SV_PAIR_OF_WITAN_BOOTS)
+                        {
+                                o_ptr->bpval = -2;
+                        }
+
 			/* Very good */
 			if (power > 1)
 			{
@@ -2143,6 +2217,12 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					case 10: case 11: case 12: case 13:
 					{
 						o_ptr->name2 = EGO_QUIET;
+						break;
+					}
+
+                         		case 14: case 15:
+					{
+                                                o_ptr->name2 = EGO_MIRKWOOD;
 						break;
 					}
 
@@ -2342,24 +2422,43 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 		case TV_CLOAK:
 		{
+                        /* Set the Kolla cloak's base bonuses*/
+                        if(o_ptr->sval == SV_KOLLA)
+                        {
+                                o_ptr->bpval = randint(2);
+                                rating += 20;
+                        }
+
 			/* Very good */
 			if (power > 1)
 			{
 				/* Roll for ego-item */
-				switch (randint(17))
+				switch (randint(34))
 				{
-					case 1: case 2: case 3: case 4:
-					case 5: case 6: case 7: case 8:
+					case 1: case 2: case 3: case 4: case 5:
+					case 6: case 7: case 8: case 9: case 10:
 					o_ptr->name2 = EGO_PROTECTION;
 					break;
 
-					case 9: case 10: case 11: case 12:
-					case 13: case 14: case 15: case 16:
+                                   	case 11: case 12: case 13: case 14: case 15: 
+					case 16: case 17: case 18: case 19: case 20: case 21:
 					o_ptr->name2 = EGO_STEALTH;
 					break;
 
-					case 17:
-					o_ptr->name2 = EGO_AMAN;
+					case 22: case 23: case 24: case 25: case 26:
+					o_ptr->name2 = EGO_CLOAK_RES;
+					break;
+
+					case 27: case 28: case 29: case 30:
+	 				o_ptr->name2 = EGO_TELERI;
+					break;
+
+					case 31: case 32:
+                                        o_ptr->name2 = EGO_CLOAK_LORDLY_RES;
+					break;
+
+					case 33: case 34:
+                                        o_ptr->name2 = EGO_AMAN;
 					break;
 				}
 			}
@@ -2671,6 +2770,67 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
+				/* Amulet of speed */
+				case SV_AMULET_SPEED:
+				{
+					// Amulets of speed can't give very
+					// much, and are rarely +3.
+					o_ptr->pval = randint(randint(3)); 
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= ID_BROKEN;
+
+						/* Cursed */
+						o_ptr->ident |= ID_CURSED;
+
+						/* Reverse bonuses */
+						o_ptr->pval = 0 - (o_ptr->pval);
+					}
+
+					break;
+				}
+
+         			/* Amulet of Terken -- never cursed */
+                                case SV_AMULET_TERKEN:
+				{
+					o_ptr->pval = randint(5) + m_bonus(5, level);
+                                        //o_ptr->to_h = randint(5);
+                                        //o_ptr->to_d = randint(5);
+
+					/* Boost the rating */
+					rating += 15;
+
+                                        o_ptr->xtra1 = EGO_XTRA_ABILITY;
+                                        o_ptr->xtra2 = randint(256);
+
+					/* Mention the item */
+					/*if (cheat_peek) object_mention(o_ptr);*/
+
+					break;
+				}
+
+         			/* Amulet of the Moon -- never cursed */
+                                case SV_AMULET_THE_MOON:
+				{
+					o_ptr->pval = randint(5) + m_bonus(5, level);
+                                        o_ptr->to_h = randint(5);
+                                        o_ptr->to_d = randint(5);
+
+					/* Boost the rating */
+					rating += 15;
+
+                                       // o_ptr->xtra1 = EGO_XTRA_ABILITY;
+                                        //o_ptr->xtra2 = randint(256);
+
+					/* Mention the item */
+					/*if (cheat_peek) object_mention(o_ptr);*/
+
+					break;
+				}
+
 				/* Amulet of the Magi -- never cursed */
 				case SV_AMULET_THE_MAGI:
 				{
@@ -2679,6 +2839,9 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					/* Boost the rating */
 					rating += 25;
+
+                 			o_ptr->xtra1 = EGO_XTRA_POWER;
+                                        o_ptr->xtra2 = randint(256);
 
 					/* Mention the item */
 					/*if (cheat_peek) object_mention(o_ptr);*/
@@ -2936,7 +3099,11 @@ void apply_magic(int Depth, object_type *o_ptr, int lev, bool okay, bool good, b
 		case TV_GLOVES:
 		case TV_BOOTS:
 		{
-			if (power) a_m_aux_2(o_ptr, lev, power);
+			// Power is no longer required since things such as
+			// Kollas need magic applied to finish their normal
+			// generation.
+			//if (power) a_m_aux_2(o_ptr, lev, power);
+			a_m_aux_2(o_ptr, lev, power);
 			break;
 		}
 
@@ -3010,6 +3177,20 @@ void apply_magic(int Depth, object_type *o_ptr, int lev, bool okay, bool good, b
 			case EGO_AMAN:
 			{
 				o_ptr->xtra1 = EGO_XTRA_POWER;
+				break;
+			}
+
+                        /* Shield of the Avari */
+                        case EGO_AVARI:
+			{
+				o_ptr->xtra1 = EGO_XTRA_POWER;
+				break;
+			}
+
+                        /* Gloves of the Istari */
+                        case EGO_ISTARI:
+			{
+                                o_ptr->xtra1 = EGO_XTRA_POWER;
 				break;
 			}
 		}
@@ -3265,8 +3446,10 @@ void place_object(int Depth, int y, int x, bool good, bool great)
 		/* Make sure no one sees it at first */
 		for (i = 1; i < NumPlayers + 1; i++)
 		{
+#if 0
 			if (Players[i]->conn == NOT_CONNECTED)
 				continue;
+#endif
 
 			/* He can't see it */
 			Players[i]->obj_vis[o_idx] = FALSE;
@@ -3420,7 +3603,9 @@ void place_gold(int Depth, int y, int x)
 		/* No one can see it */
 		for (j = 1; j <= NumPlayers; j++)
 		{
+#if 0
 			if (Players[j]->conn == NOT_CONNECTED) continue;
+#endif
 
 			/* This player can't see it */
 			Players[j]->obj_vis[o_idx] = FALSE;

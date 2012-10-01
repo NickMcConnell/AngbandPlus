@@ -1762,65 +1762,79 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 	/* Dump "pval" flags for wearable items */
 	if (known && (f1 & TR1_PVAL_MASK))
 	{
-		/* Start the display */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
-
-		/* Dump the "pval" itself */
-		t = object_desc_int(t, o_ptr->pval);
-
-		/* Do not display the "pval" flags */
-		if (f3 & TR3_HIDE_TYPE)
+		/* Hack -- first display any base pval bonuses.  
+		 * The "bpval" flags are never displayed.  */
+		if (o_ptr->bpval)
 		{
-			/* Nothing */
+			t = object_desc_chr(t, ' ');
+			t = object_desc_chr(t, p1);
+			/* Dump the "pval" itself */
+			t = object_desc_int(t, o_ptr->bpval);
+			t = object_desc_chr(t, p2);
 		}
-
-		/* Speed */
-		else if (f1 & TR1_SPEED)
+		/* Next, display any pval bonuses. */
+		if (o_ptr->pval)
 		{
-			/* Dump " to speed" */
-			t = object_desc_str(t, " to speed");
+			/* Start the display */
+			t = object_desc_chr(t, ' ');
+			t = object_desc_chr(t, p1);
+
+			/* Dump the "pval" itself */
+			t = object_desc_int(t, o_ptr->pval);
+
+			/* Do not display the "pval" flags */
+			if (f3 & TR3_HIDE_TYPE)
+			{
+				/* Nothing */
+			}
+
+			/* Speed */
+			else if (f1 & TR1_SPEED)
+			{
+				/* Dump " to speed" */
+				t = object_desc_str(t, " to speed");
+			}
+
+			/* Attack speed */
+			else if (f1 & TR1_BLOWS)
+			{
+				/* Add " attack" */
+				t = object_desc_str(t, " attack");
+
+				/* Add "attacks" */
+				if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
+			}
+
+			/* Stealth */
+			else if (f1 & TR1_STEALTH)
+			{
+				/* Dump " to stealth" */
+				t = object_desc_str(t, " to stealth");
+			}
+
+			/* Search */
+			else if (f1 & TR1_SEARCH)
+			{
+				/* Dump " to searching" */
+				t = object_desc_str(t, " to searching");
+			}
+
+			/* Infravision */
+			else if (f1 & TR1_INFRA)
+			{
+				/* Dump " to infravision" */
+				t = object_desc_str(t, " to infravision");
+			}
+
+			/* Tunneling */
+			else if (f1 & TR1_TUNNEL)
+			{
+				/* Nothing */
+			}
+
+			/* Finish the display */
+			t = object_desc_chr(t, p2);
 		}
-
-		/* Attack speed */
-		else if (f1 & TR1_BLOWS)
-		{
-			/* Add " attack" */
-			t = object_desc_str(t, " attack");
-
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
-		}
-
-		/* Stealth */
-		else if (f1 & TR1_STEALTH)
-		{
-			/* Dump " to stealth" */
-			t = object_desc_str(t, " to stealth");
-		}
-
-		/* Search */
-		else if (f1 & TR1_SEARCH)
-		{
-			/* Dump " to searching" */
-			t = object_desc_str(t, " to searching");
-		}
-
-		/* Infravision */
-		else if (f1 & TR1_INFRA)
-		{
-			/* Dump " to infravision" */
-			t = object_desc_str(t, " to infravision");
-		}
-
-		/* Tunneling */
-		else if (f1 & TR1_TUNNEL)
-		{
-			/* Nothing */
-		}
-
-		/* Finish the display */
-		t = object_desc_chr(t, p2);
 	}
 
 
@@ -2174,6 +2188,19 @@ cptr item_activation(object_type *o_ptr)
 		}
 	}
 
+	/* Some ego items can be activated */
+	switch (o_ptr->name2)
+	{
+		case EGO_CLOAK_LORDLY_RES:
+		{
+			return "resistance every 150+d50 turns";
+		}
+	}
+
+	/* The amulet of the moon can be activated for sleep */
+	if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_THE_MOON))
+		return "sleep monsters every 100+d100 turns";
+
 
 	/* Require dragon scale mail */
 	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
@@ -2247,19 +2274,20 @@ cptr item_activation(object_type *o_ptr)
 bool identify_fully_aux(int Ind, object_type *o_ptr)
 {
 	player_type *p_ptr = Players[Ind];
-	int			i = 0;
+	int i = 0;
 
 	u32b f1, f2, f3;
 
 	cptr		*info = p_ptr->info;
 
+	/* Clear the info area first. */
+	memset(p_ptr->info,0,sizeof(p_ptr->info));
 
 	/* Let the player scroll through this info */
 	p_ptr->special_file_type = TRUE;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
-
 
 	/* Mega-Hack -- describe activation */
 	if (f3 & TR3_ACTIVATE)
@@ -2604,8 +2632,8 @@ bool identify_fully_aux(int Ind, object_type *o_ptr)
 		info[i++] = "It cannot be harmed by cold.";
 	}
 
-
 	/* No special effects */
+
 	if (!i) return (FALSE);
 
 	/* Let the client know it's about to get some info */

@@ -1,5 +1,5 @@
                          **********************
-                         **  MAngband 0.6.1  **
+                         **  MAngband 0.7.0  **
                          **********************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -15,9 +15,9 @@
  
        MAngband 0.1 - 0.5: Keldon Jones (keldon@umr.edu)
 
-             MAngband 0.6: Alex Dingle (adingle@crud.net) 	   
+       MAngband 0.6 - 0.7: Alex Dingle (adingle@crud.net) 	   
 
-  NEW in MAngband 0.6.1 -- Level unstaticer, increased shop prices, bugfixes.
+       NEW in MAngband 0.7.0 -- Revised networking, new ego items.
 
        Visit the MAngband Home Page at "http://www.mangband.org/".
    Send all comments, bug reports, patches, etc, to "adingle@crud.net".

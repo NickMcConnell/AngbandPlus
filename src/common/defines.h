@@ -32,12 +32,12 @@
  */
 
 /*
- * Current version number of MAngband: 0.6.0
+ * Current version number of MAngband: 0.7.0
  */
  
 #define VERSION_MAJOR	0
-#define VERSION_MINOR	6
-#define VERSION_PATCH	1
+#define VERSION_MINOR	7
+#define VERSION_PATCH	0
 
 /*
  * This value specifys the suffix to the version info sent to the metaserver.
@@ -351,6 +351,7 @@
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
 #define STORE_CHOICES	32		/* Number of items to choose stock from */
 #define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
+///#define STORE_OBJ_LEVEL	25		/* Magic Level for normal stores */
 #define STORE_TURNOVER	9		/* Normal shop turnover, per day */
 #define STORE_MIN_KEEP	6		/* Min slots to "always" keep full */
 #define STORE_MAX_KEEP	18		/* Max slots to "always" keep full */
@@ -361,8 +362,8 @@
 /*
  * Misc constants
  */
-#define SERVER_SAVE	1000		/* How often to save the server state */
-#define TOWN_DAWN		10000	/* Number of turns from dawn to dawn XXX */
+#define SERVER_SAVE	2		/* Minutes between server saves */
+#define TOWN_DAWN		50000	/* Number of turns from dawn to dawn XXX */
 #define GROW_TREE	5000		/* How often to grow a new tree in town */
 #define BREAK_GLYPH		550		/* Rune of protection resistance */
 #define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */
@@ -874,7 +875,7 @@ that keeps many algorithms happy.
 #define EGO_ENDURE_FIRE		18
 #define EGO_ENDURE_COLD		19
 #define EGO_ENDURANCE		20
-/* xxx */
+#define EGO_AVARI               21
 /* xxx */
 /* xxx */
 
@@ -892,47 +893,48 @@ that keeps many algorithms happy.
 #define EGO_REGENERATION	34
 #define EGO_TELEPORTATION	35
 #define EGO_STUPIDITY		36
-#define EGO_NAIVETY			37
+#define EGO_NAIVETY		37
 #define EGO_UGLINESS		38
 #define EGO_SICKLINESS		39
 
 /* Cloaks */
 #define EGO_PROTECTION		40
-#define EGO_STEALTH			41
-#define EGO_AMAN			42
-/* xxx */
+#define EGO_STEALTH		41
+#define EGO_AMAN		42
+#define EGO_TELERI              43
 #define EGO_ENVELOPING		44
 #define EGO_VULNERABILITY	45
 #define EGO_IRRITATION		46
-/* xxx */
+#define EGO_CLOAK_RES           47
+#define EGO_CLOAK_LORDLY_RES	114 
 
 /* Gloves */
 #define EGO_FREE_ACTION		48
-#define EGO_SLAYING			49
-#define EGO_AGILITY			50
-#define EGO_POWER			51
-/* xxx */
+#define EGO_SLAYING		49
+#define EGO_AGILITY		50
+#define EGO_POWER		51
+#define EGO_ISTARI              52
 /* xxx */
 #define EGO_WEAKNESS		54
 #define EGO_CLUMSINESS		55
 
 /* Boots */
 #define EGO_SLOW_DESCENT	56
-#define EGO_QUIET			57
-#define EGO_MOTION			58
-#define EGO_SPEED			59
-/* xxx */
-#define EGO_NOISE			61
+#define EGO_QUIET		57
+#define EGO_MOTION		58
+#define EGO_SPEED		59
+#define EGO_MIRKWOOD            60
+#define EGO_NOISE		61
 #define EGO_SLOWNESS		62
 #define EGO_ANNOYANCE		63
 
 /* Weapons */
-#define EGO_HA				64
-#define EGO_DF				65
+#define EGO_HA			64
+#define EGO_DF			65
 #define EGO_BLESS_BLADE		66
 /* xxx */
-#define EGO_WEST			68
-#define EGO_ATTACKS			69
+#define EGO_WEST		68
+#define EGO_ATTACKS		69
 /* xxx */
 /* xxx */
 #define EGO_BRAND_ACID		72
@@ -971,8 +973,8 @@ that keeps many algorithms happy.
 /* Bows */
 #define EGO_ACCURACY		104
 #define EGO_VELOCITY		105
-/* xxx */
-/* xxx */
+#define EGO_LORIEN              106
+#define EGO_NUMENOR             107
 #define EGO_EXTRA_MIGHT		108
 #define EGO_EXTRA_SHOTS		109
 /* xxx */
@@ -981,7 +983,6 @@ that keeps many algorithms happy.
 /* Ammo */
 #define EGO_HURT_ANIMAL		112
 #define EGO_HURT_EVIL		113
-/* xxx */
 /* xxx */
 /* xxx */
 /* xxx */
@@ -1131,6 +1132,7 @@ that keeps many algorithms happy.
 #define SV_SMALL_METAL_SHIELD		3
 #define SV_LARGE_LEATHER_SHIELD		4
 #define SV_LARGE_METAL_SHIELD		5
+#define SV_ORCISH_SHIELD                7
 #define SV_SHIELD_OF_DEFLECTION		10
 
 /* The "sval" codes for TV_HELM */
@@ -1146,15 +1148,18 @@ that keeps many algorithms happy.
 /* The "sval" codes for TV_BOOTS */
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS	2
 #define SV_PAIR_OF_HARD_LEATHER_BOOTS	3
-#define SV_PAIR_OF_METAL_SHOD_BOOTS		6
+#define SV_PAIR_OF_METAL_SHOD_BOOTS     6
+#define SV_PAIR_OF_WITAN_BOOTS          8
 
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK					1
+#define SV_KOLLA                                        3
 #define SV_SHADOW_CLOAK				6
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES	1
 #define SV_SET_OF_GAUNTLETS			2
+#define SV_SET_OF_ELVEN_GLOVES			4
 #define SV_SET_OF_CESTI				5
 
 /* The "sval" codes for TV_SOFT_ARMOR */
@@ -1216,10 +1221,12 @@ that keeps many algorithms happy.
 #define SV_AMULET_WISDOM		6
 #define SV_AMULET_CHARISMA		7
 #define SV_AMULET_THE_MAGI		8
-/* xxx */
+#define SV_AMULET_THE_MOON              9
 #define SV_AMULET_CARLAMMAS		10
 #define SV_AMULET_INGWE			11
 #define SV_AMULET_DWARVES		12
+#define SV_AMULET_TERKEN		13
+#define SV_AMULET_SPEED			14
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE				0

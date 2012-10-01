@@ -1,4 +1,4 @@
-/* $Id: sockbuf.h,v 1.1.1.1 1999/10/26 19:20:49 root Exp $
+/* $Id: sockbuf.h,v 1.2 2000/06/14 02:07:02 adingle Exp $
  *
  * XPilot, a multiplayer gravity war game.  Copyright (C) 1991-95 by
  *
@@ -28,12 +28,12 @@
 #define MIN_SOCKBUF_SIZE	1024
 #define MAX_SOCKBUF_SIZE	(50*1024)
 
-#define SERVER_RECV_SIZE	(4*1024)
+#define SERVER_RECV_SIZE	(8*1024)
 #if defined(LINUX0)
 /* bwahg, linux tcp/ip still has silly limitations in 0.99.15 */
 #define SERVER_SEND_SIZE	(3*512 + 3*128)
 #else
-#define SERVER_SEND_SIZE	(16*1024)
+#define SERVER_SEND_SIZE	(64*1024)
 #endif
 
 #define CLIENT_SEND_SIZE	SERVER_RECV_SIZE

@@ -28,7 +28,7 @@ extern int s_setup(char *str)
 
 	if(init == FALSE)
 	{
-		if( (fp = fopen(str,"w")) == NULL )
+		if( (fp = fopen(str,"a")) == NULL )
 		{
 			quit("Cannot Open Log file\n");
 		}
@@ -51,7 +51,7 @@ extern int s_printf(char *str, ...)
 
 	if(init == FALSE)   /* in case we don't start her up properly */
 	{
-		fp = fopen("mangband.log","w");
+		fp = fopen("mangband.log","a");
 		init = TRUE;
 	}
 

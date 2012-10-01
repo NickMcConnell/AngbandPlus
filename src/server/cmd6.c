@@ -102,7 +102,7 @@ void do_cmd_eat_food(int Ind, int item)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Identity not known yet */
 	ident = FALSE;
@@ -398,7 +398,7 @@ void do_cmd_quaff_potion(int Ind, int item)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -1050,18 +1050,12 @@ static bool curse_weapon(int Ind)
  * cancelled before use.  XXX Reading them still takes a turn, though.
  */
  
- /*
- 
- Added scroll of Life... uses vars x,y
--AD-
- */
- 
+
 void do_cmd_read_scroll(int Ind, int item)
 {
 	player_type *p_ptr = Players[Ind];
-	cave_type * c_ptr;
 
-	int			k, used_up, ident, lev, x,y;
+	int			k, used_up, ident, lev;
 
 	object_type		*o_ptr;
 
@@ -1111,7 +1105,7 @@ void do_cmd_read_scroll(int Ind, int item)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -1595,7 +1589,7 @@ void do_cmd_use_staff(int Ind, int item)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -2014,7 +2008,7 @@ void do_cmd_aim_wand(int Ind, int item, int dir)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -2430,7 +2424,7 @@ void do_cmd_zap_rod(int Ind, int item)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -2708,7 +2702,7 @@ void do_cmd_zap_rod_dir(int Ind, int dir)
 	}*/
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -3237,7 +3231,7 @@ void do_cmd_activate(int Ind, int item)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
@@ -3761,6 +3755,39 @@ void do_cmd_activate(int Ind, int item)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
+		return;
+	}
+
+	/* Some ego items can be activated */
+	else if (o_ptr->name2)
+	{
+		switch (o_ptr->name2)
+		{
+			case EGO_CLOAK_LORDLY_RES:
+			{
+				msg_print(Ind, "Your cloak flashes many colors...");
+
+				(void)set_oppose_acid(Ind, p_ptr->oppose_acid + randint(40) + 40);
+				(void)set_oppose_elec(Ind, p_ptr->oppose_elec + randint(40) + 40);
+				(void)set_oppose_fire(Ind, p_ptr->oppose_fire + randint(40) + 40);
+				(void)set_oppose_cold(Ind, p_ptr->oppose_cold + randint(40) + 40);
+				(void)set_oppose_pois(Ind, p_ptr->oppose_pois + randint(40) + 40);
+
+				o_ptr->timeout = rand_int(50) + 150;
+				break;
+			}
+		}
+		/* Done ego item activation */
+		return;
+	}
+
+	/* Amulets of the moon can be activated for sleep monster */
+	if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_THE_MOON))
+	{
+		msg_print(Ind, "Your amulet glows a deep blue...");
+		sleep_monsters(Ind);
+
+		o_ptr->timeout = rand_int(100) + 100;
 		return;
 	}
 

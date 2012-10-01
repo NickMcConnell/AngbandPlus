@@ -850,7 +850,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Priest */
 		{ TV_PRAYER_BOOK, 0 },
 		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_HEALING }
+		{ TV_POTION, SV_POTION_CURE_CRITICAL }
 	},
 
 	{
@@ -888,9 +888,6 @@ static void player_outfit(int Ind)
 	int		i, tv, sv;
 
 	object_type	forge;
-	artifact_type	* a_ptr; // APD XXX FOR WARRIOR 
-	int		k_idx;	// APD XXX FOR WARRIOR
-
 	object_type	*o_ptr = &forge;
 
 
@@ -914,11 +911,94 @@ static void player_outfit(int Ind)
 #if 0
 	 if (!strcmp(p_ptr->name,cfg_admin_wizard))
 	{ 
-		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_EXPERIENCE));
+		artifact_type	* a_ptr;
+		int		k_idx;
+
+		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_LIFE));
 		o_ptr->number = 99;
 		o_ptr->discount = 100;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
+	}
+		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY));
+		o_ptr->number = 99;
+		o_ptr->discount = 100;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_AMULET, SV_AMULET_THE_MOON));
+		o_ptr->number = 1;
+//		o_ptr->pval = 6;
+		apply_magic(0,o_ptr,0,0,0,0);
+//		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_AMULET, SV_AMULET_THE_MAGI));
+		o_ptr->number = 1;
+//		o_ptr->pval = 6;
+		apply_magic(0,o_ptr,0,0,0,0);
+//		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_AMULET, SV_AMULET_TERKEN));
+		o_ptr->number = 1;
+		apply_magic(0,o_ptr,0,0,0,0);
+//		o_ptr->pval = 6;
+//		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_CLOAK, SV_KOLLA));
+		o_ptr->number = 1;
+		apply_magic(0,o_ptr,0,0,1,1);
+//		o_ptr->pval = 6;
+//		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_SHIELD, SV_ORCISH_SHIELD));
+		o_ptr->number = 1;
+		apply_magic(0,o_ptr,0,0,1,1);
+//		o_ptr->pval = 6;
+//		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_BOOTS, SV_PAIR_OF_WITAN_BOOTS));
+		o_ptr->number = 1;
+		apply_magic(0,o_ptr,0,0,1,1);
+//		o_ptr->pval = 6;
+//		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_GLOVES, SV_SET_OF_ELVEN_GLOVES));
+		o_ptr->number = 1;
+		apply_magic(0,o_ptr,0,0,1,1);
+//		o_ptr->pval = 6;
+//		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_AMULET, SV_AMULET_SPEED));
+		o_ptr->number = 1;
+		apply_magic(0,o_ptr,0,0,1,1);
+//		o_ptr->pval = 6;
+//		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_MAGIC_BOOK, 7));
+		o_ptr->number = 1;
+		apply_magic(0,o_ptr,0,0,0,0);
+//		o_ptr->pval = 6;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_CROWN, SV_GOLDEN_CROWN));
+		o_ptr->number = 2;
+		o_ptr->name2 = EGO_MAGI;
+		o_ptr->xtra1 = EGO_XTRA_ABILITY;
+		o_ptr->xtra2 = 3; // telepathy...
+		o_ptr->pval = 2; // plus 2 to INT
+		o_ptr->to_a = 10;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+	}
 
 		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
 		o_ptr->number = 20;
@@ -1146,7 +1226,7 @@ static void player_setup(int Ind)
 	int y, x, i, d, count = 0, Depth = p_ptr->dun_depth;
 	cave_type *c_ptr;
 
-	bool dawn = ((turn % (10L * TOWN_DAWN)) < (10L * TOWN_DAWN / 2)); 
+	bool dawn = ((turn % (10L * TOWN_DAWN)) < (10L * TOWN_DAWN / 2)), require_los = 1; 
 
 	/* Count players on this depth */
 	for (i = 1; i <= NumPlayers; i++)
@@ -1154,9 +1234,11 @@ static void player_setup(int Ind)
 		/* Skip this player */
 		if (i == Ind) continue;
 
+#if 0
 		/* Skip disconnected players */
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
+#endif
 
 		/* Count */
 		if (Players[i]->dun_depth == Depth)
@@ -1166,7 +1248,7 @@ static void player_setup(int Ind)
 	/* Make sure he's supposed to be here -- if not, then the level has
 	 * been unstaticed and so he should forget his memory of the old level.
 	 */
-	if (count >= players_on_depth[Depth])
+	if ((count >= players_on_depth[Depth]) || ((!cave[Depth]) && (Depth > 0)))
 	{
 		/* Clear the "marked" and "lit" flags for each cave grid */
 		for (y = 0; y < MAX_HGT; y++)
@@ -1176,8 +1258,10 @@ static void player_setup(int Ind)
 				p_ptr->cave_flag[y][x] = 0;
 			}
 		}
-		/* He is now on the level, so add him to the player_on_depth list */
-		players_on_depth[Depth]++;
+		/* He is now on the level, so add him to the player_on_depth list 
+		 * if neccecary. */
+		if (count >= players_on_depth[Depth])
+			players_on_depth[Depth]++;
 	}
 
 	/* Rebuild the level if neccecary */
@@ -1234,6 +1318,15 @@ static void player_setup(int Ind)
 	}
 
 	/* Re-Place the player correctly */
+
+	// Hack -- don't require line of sight if we are stuck in something 
+	// solid, such as rock.  This might happen if the level unstatics
+	// and then regenerates when we try to log back on.
+	if (cave_empty_bold(Depth, p_ptr->py, p_ptr->px))
+		require_los = TRUE;
+	else 
+		require_los = FALSE;
+
 	for (i = 0; i < 3000; i++)
 	{
 		d = (i + 4) / 10;
@@ -1243,7 +1336,9 @@ static void player_setup(int Ind)
 		   with a valid region */
 		if (!p_ptr->ghost)
 		{
-			scatter(Depth, &y, &x, p_ptr->py, p_ptr->px, d, 0);
+			// Hack -- invery require_los since scatter actually takes
+			// a "don't require line of sight" boolean parameter.
+			scatter(Depth, &y, &x, p_ptr->py, p_ptr->px, d, !require_los);
 
 			if (!in_bounds(Depth, y, x) || !cave_empty_bold(Depth, y, x)) continue;
 		}

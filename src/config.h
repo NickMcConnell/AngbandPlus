@@ -52,8 +52,8 @@
  * OPTION: Include some debugging code.  Note that this option may
  * result in a server that crashes more frequently, as a core dump
  * will be done instead of killing the bad connection.
+#define DEBUG
  */
-/* #define DEBUG */
 
 /*
  * OPTION: Break graphics on the client side.  Due to a very bad
@@ -98,7 +98,7 @@
  * Currently used whenever available, if you get a warning about
  * "nodelay()" undefined, then make sure to undefine this.
  */
-#if defined(SYS_V) || defined(AMIGA)
+#if defined(SYS_V) || defined(AMIGA) || defined(linux)
 # define USE_GETCH
 #endif
 
@@ -107,7 +107,7 @@
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
  * Hack -- This option will not work on most BSD machines
  */
-#ifdef SYS_V
+#if defined(SYS_V) || defined(linux)
 # define USE_CURS_SET
 #endif
 
@@ -201,7 +201,6 @@
  * report to a metaserver.
  */
 #define	META_ADDRESS "mangband.org"  
-//#define		META_ADDRESS ""
 
 /*
  * OPTION: Set a vhost bind address.  This is only used if you have
@@ -210,41 +209,11 @@
  * Note that this allows multiple servers to run on a single
  * machine as well.
  * Probably almost never used.
+ * **** EXCEPT ON MANGBAND.ORG WHERE IT MUST BE USED :)
+ * -- Crimson
+#define	BIND_NAME "mangband.org" 
+#define	BIND_IP "198.252.166.15" 
 */
-//#define	BIND_NAME "mangband.org" 
-//#define	BIND_IP "198.252.166.15" 
-
-
-/* Define the password for the server console, used if NEW_SERVER_CONSOLE
- * is defined below.  Provides authentication for the mangconsole program.
- */
-#define		CONSOLE_PASSWORD	"change_me"
-
-
-/* Define the name of a special administration character who gets
- * special powers, and will hopefully eventually get wizard mode.
- * Better documentation of this feature is needed.
- * In the future these two characters will probably be combined.
- */
-
-#define 	ADMIN_WIZARD	"Serverchez"
-#define		DUNGEON_MASTER	"DungeonMaster"
-
-/* for the unique respawn... */
-#define COME_BACK_TIME 480
-
-/* Base probability of a level unstaticing */
-/* Roughly once an hour (10 fps, 3600 seconds in an hour) */
-#define LEVEL_UNSTATIC_PROB 36000
-
-
-/* OPTION : Keep the town backwards compatible with some previous development
- * versions, specifically those that have a broken auction house.  You probably
- * don't want to enable this unless you have been running a development version of
- * the code that has a 'store 9' in it.
- */
- /* #define	DEVEL_TOWN_COMPATIBILITY */ 
-
 
 /*
  * OPTION: Use wider corrdiors (room for two people abreast).
@@ -438,12 +407,12 @@
 /*
  * OPTION: Allow the use of "sound" in various places.
  */
-/* #define USE_SOUND */
+#define USE_SOUND
 
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-/* #define USE_GRAPHICS */
+#define USE_GRAPHICS
 
 
 /*

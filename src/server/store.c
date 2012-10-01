@@ -690,6 +690,7 @@ static bool store_check_num(int st, object_type *o_ptr)
 static bool store_will_buy(int Ind, object_type *o_ptr)
 {
 	player_type *p_ptr = Players[Ind];
+	u32b            f1,f2,f3;
 
 	/* Switch on the store */
 	switch (p_ptr->store_num)
@@ -709,9 +710,9 @@ static bool store_will_buy(int Ind, object_type *o_ptr)
 				case TV_BOLT:
 				case TV_DIGGING:
 				case TV_CLOAK:
-				break;
+					break;
 				default:
-				return (FALSE);
+					return (FALSE);
 			}
 			break;
 		}
@@ -731,9 +732,9 @@ static bool store_will_buy(int Ind, object_type *o_ptr)
 				case TV_SOFT_ARMOR:
 				case TV_HARD_ARMOR:
 				case TV_DRAG_ARMOR:
-				break;
+					break;
 				default:
-				return (FALSE);
+					return (FALSE);
 			}
 			break;
 		}
@@ -752,9 +753,9 @@ static bool store_will_buy(int Ind, object_type *o_ptr)
 				case TV_HAFTED:
 				case TV_POLEARM:
 				case TV_SWORD:
-				break;
+					break;
 				default:
-				return (FALSE);
+					return (FALSE);
 			}
 			break;
 		}
@@ -769,7 +770,17 @@ static bool store_will_buy(int Ind, object_type *o_ptr)
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
-				break;
+					break;
+				case TV_POLEARM:
+                                case TV_SWORD:
+					/* if Known, aware, and Blessed, yes. */
+					if (object_aware_p(Ind, o_ptr)) {
+						if (object_known_p(Ind, o_ptr)){
+							object_flags(o_ptr, &f1, &f2, &f3);
+							if (f3 & TR3_BLESSED) break;
+						}
+					}
+					return FALSE;
 				default:
 				return (FALSE);
 			}
@@ -1158,6 +1169,22 @@ static void store_create(int st)
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return;
 
+	/* Hack -- BM should 'Normally' carry Healing pots and
+	 * *ID* scrolls.
+	 */
+
+        if(store_num==6) {
+                invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_HEALING));
+                o_ptr->number=1;
+                object_known(o_ptr);
+                (void)store_carry(st, o_ptr);
+
+                invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY));
+                o_ptr->number=1;
+                object_known(o_ptr);
+                (void)store_carry(st, o_ptr);
+        };                                                                                    
+
 
 	/* Hack -- consider up to four items */
 	for (tries = 0; tries < 4; tries++)
@@ -1167,6 +1194,7 @@ static void store_create(int st)
 		{
 			/* Pick a level for object/magic */
 			level = 25 + rand_int(25);
+			//level = 25;
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1214,6 +1242,7 @@ static void store_create(int st)
 
 			/* Hack -- No "cheap" items */
 			if (object_value(0, o_ptr) < 10) continue;
+			//if (object_value(0, o_ptr) < 3000) continue;
 
 			/* No "worthless" items */
 			/* if (object_value(o_ptr) <= 0) continue; */
@@ -1429,6 +1458,9 @@ static void display_store(int Ind)
 	/* Clear screen */
 	/*Term_clear();*/
 
+	/* Send the inventory */
+	display_inventory(Ind);
+
 	/* The "Home" is special */
 	if (p_ptr->store_num == 7)
 	{
@@ -1443,11 +1475,6 @@ static void display_store(int Ind)
 		Send_store_info(Ind, p_ptr->store_num, st_ptr->owner, st_ptr->stock_num);
 	}
 
-	/* Display the current gold */
-	store_prt_gold(Ind);
-
-	/* Draw in the inventory */
-	display_inventory(Ind);
 }
 
 
