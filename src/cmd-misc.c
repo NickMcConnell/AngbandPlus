@@ -598,6 +598,9 @@ static bool twall(int y, int x)
 	/* Remove the feature */
 	cave_set_feat(y, x, FEAT_FLOOR);
 
+	/* If there's a lock, delete it */
+	if (trap_lock(y, x)) delete_trap(y, x);
+
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
@@ -1304,14 +1307,14 @@ void do_cmd_use_racial(void)
 		case 1: /* Cherub - Detect Evil */
 		{
 			(void)detect_monsters_evil();
-			p_ptr->racial_power=50;
+			p_ptr->racial_power = 50;
 			break;
 		}			
 
 		case 2: /* Seraph - Light area */
 		{
-			lite_area(damroll(2,2),2);
-			p_ptr->racial_power=50;
+			lite_area(damroll(2, 2), 2);
+			p_ptr->racial_power = 50;
 			break;
 		}			
 
@@ -1319,23 +1322,23 @@ void do_cmd_use_racial(void)
 		{
 			if (!get_aim_dir(&dir)) return;
 			message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
-			lite_line(dir,damroll(6,8));
-			p_ptr->racial_power=25;
+			lite_line(dir, damroll(6, 8));
+			p_ptr->racial_power = 25;
 			break;
 		}			
 
 		case 4: /* Archon - Orb of Draining */
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_HOLY_ORB, dir, damroll(3, 6)+50, 3);
-			p_ptr->racial_power=15;
+			fire_ball(GF_HOLY_ORB, dir, damroll(3, 6) + 50, 3);
+			p_ptr->racial_power = 15;
 			break;
 		}			
 
 		case 5: /* Angel/Archangel - Protection From Evil */
 		{
 			(void)set_protevil(p_ptr->protevil + randint(25) + 30);
-			p_ptr->racial_power=150;
+			p_ptr->racial_power = 150;
 			break;
 		}	
 		
@@ -1344,15 +1347,15 @@ void do_cmd_use_racial(void)
 		case 6: /* Tengu - Blink */
 		{
 			teleport_player(10);
-			p_ptr->racial_power=20;
+			p_ptr->racial_power = 20;
 			break;
 		}
 
 		case 7: /* Bodak/Vrock/Hezrou - Fire Bolt */
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_bolt_or_beam(0, GF_FIRE, dir, damroll(10, 8));
-			p_ptr->racial_power=20;
+			fire_bolt(GF_FIRE, dir, damroll(10, 8));
+			p_ptr->racial_power = 20;
 			break;
 		}			
 
@@ -1360,15 +1363,15 @@ void do_cmd_use_racial(void)
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_FIRE, dir, 85, 2);
-			p_ptr->racial_power=20;
+			p_ptr->racial_power = 20;
 			break;
 		}			
 
 		case 9: /* Balrog - Plasma ball */
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_PLASMA, dir, damroll(4, 7)+80, 3);
-			p_ptr->racial_power=20;
+			fire_ball(GF_PLASMA, dir, damroll(4, 7) + 80, 3);
+			p_ptr->racial_power = 20;
 			break;
 		}			
 	}

@@ -45,7 +45,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 N:1:2:1:4
 A:
@@ -295,6 +295,7 @@ N:1:2:39:0
 A:
 B:cell
 D:Rusted manacles hang from 
+S:YES
 
 N:1:2:40:1
 A:

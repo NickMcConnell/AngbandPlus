@@ -971,7 +971,7 @@ byte adj_mag_stat[A_RANGE] =
  */
 
 /* 
- * The first table compares the weapon weight ( / 30) with the player's strength. 
+ * The first table compares the weapon weight (/10) with the player's strength. 
  */
 byte wght_str_blows[30][A_RANGE] = 
 {
@@ -994,15 +994,15 @@ byte wght_str_blows[30][A_RANGE] =
 /* 14 */ {0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4},
 /* 15 */ {0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4},
 /* 16 */ {0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4},
-/* 17 */ {0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4,4,4,4},
-/* 18 */ {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4,4,4},
-/* 19 */ {0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4,4},
-/* 20 */ {0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4},
-/* 21 */ {0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,4},
-/* 22 */ {0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3},
-/* 23 */ {0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3},
-/* 24 */ {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3},
-/* 25 */ {0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3},
+/* 17 */ {0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4},
+/* 18 */ {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4},
+/* 19 */ {0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,4,4,4,4,4},
+/* 20 */ {0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,4,4,4,4},
+/* 21 */ {0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4},
+/* 22 */ {0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4},
+/* 23 */ {0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4},
+/* 24 */ {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4},
+/* 25 */ {0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,4},
 /* 26 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3},
 /* 27 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3},
 /* 28 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3},
@@ -1036,8 +1036,8 @@ byte blows_table[10][A_RANGE] =
 /* 5 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,3,4,4,4,4,4,4},
 /* 6 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,4,5,5,5},
 /* 7 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5,5},
-/* 8 */ {1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5,6,6},
-/* 9 */ {1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5,6,6}
+/* 8 */ {1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,6,6,6,6},
+/* 9 */ {1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,6,6,6,6}
 };
 
 /*
@@ -1218,28 +1218,28 @@ player_race_special race_special_info[2][RACE_SPECIAL_LEVELS] =
 	{ /*Angel*/
 		{ "Cherub",		{0,0,0,0,0,0}	,{0,0, 0, 0,0,0,0, 0,0,0,0,0},0x00000000L,0x00000000L,0x00000000L,1},
 		{ "Seraph",		{0,0,0,0,1,0}	,{0,0, 1, 1,0,0,0, 0,0,0,0,0},0x10000000L,0x00000000L,0x00000040L,2},
-		{ "Deva",		{2,0,1,0,2,1}	,{0,0, 3, 3,0,0,0, 1,0,0,0,0},0x10000000L,0x00000008L,0x00000042L,3},
-		{ "Deva",		{2,0,1,0,2,1}	,{0,0, 3, 3,0,0,0, 1,0,0,0,0},0x10000000L,0x00000008L,0x00000042L,3},
-		{ "Planetar",	{2,1,1,0,2,1}	,{0,0, 6, 7,0,0,0, 3,0,0,0,0},0x90000000L,0x00000008L,0x00000052L,3},
-		{ "Planetar",	{2,1,1,0,2,1}	,{0,0, 6, 7,0,0,0, 3,0,0,0,0},0x90000000L,0x00000008L,0x00000052L,3},
-		{ "Archon",		{3,1,2,0,3,2}	,{0,0, 9,11,0,0,0, 4,1,0,0,0},0x90000000L,0x00000009L,0x00000052L,4},
-		{ "Archon",		{3,1,2,0,3,2}	,{0,0, 9,11,0,0,0, 4,1,0,0,0},0x90000000L,0x00000009L,0x00000052L,4},
-		{ "Solar",		{3,2,2,0,3,2}	,{0,0,12,16,0,0,0, 5,2,0,0,0},0x90000000L,0x00000009L,0x00000057L,5},
-		{ "Solar",		{3,2,2,0,3,2}	,{0,0,12,16,0,0,0, 5,2,0,0,0},0x90000000L,0x00000009L,0x00000057L,5},
-		{ "Archangel",	{4,2,3,0,4,3}	,{0,0,16,22,0,0,0, 8,3,0,0,0},0x90000000L,0x0000000BL,0x00000057L,5}
+		{ "Deva",		{2,0,1,0,2,1}	,{0,0, 3, 3,0,0,0, 1,0,0,0,0},0x10000000L,0x00000004L,0x00000042L,3},
+		{ "Deva",		{2,0,1,0,2,1}	,{0,0, 3, 3,0,0,0, 1,0,0,0,0},0x10000000L,0x00000004L,0x00000042L,3},
+		{ "Planetar",	{2,1,1,0,2,1}	,{0,0, 6, 7,0,0,0, 3,0,0,0,0},0x90000000L,0x00000004L,0x00000052L,3},
+		{ "Planetar",	{2,1,1,0,2,1}	,{0,0, 6, 7,0,0,0, 3,0,0,0,0},0x90000000L,0x00000004L,0x00000052L,3},
+		{ "Archon",		{3,1,2,0,3,2}	,{0,0, 9,11,0,0,0, 4,1,0,0,0},0x90000000L,0x00000005L,0x00000052L,4},
+		{ "Archon",		{3,1,2,0,3,2}	,{0,0, 9,11,0,0,0, 4,1,0,0,0},0x90000000L,0x00000005L,0x00000052L,4},
+		{ "Solar",		{3,2,2,0,3,2}	,{0,0,12,16,0,0,0, 5,2,0,0,0},0x90000000L,0x00000005L,0x00000057L,5},
+		{ "Solar",		{3,2,2,0,3,2}	,{0,0,12,16,0,0,0, 5,2,0,0,0},0x90000000L,0x00000005L,0x00000057L,5},
+		{ "Archangel",	{4,2,3,0,4,3}	,{0,0,16,22,0,0,0, 8,3,0,0,0},0x90000000L,0x00000007L,0x00000057L,5}
 	},
 	{ /*Demon*/
 		{ "Lemure",		{0,0,0,0, 0, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000000L,0x00000000L,0},
-		{ "Quasit",		{1,0,0,1, 1, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000008L,0x00000000L,0},
-		{ "Imp",		{2,2,0,2, 2,-1}	,{0,0, 2, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000008L,0x00000000L,0},
-		{ "Tengu",		{3,3,0,3, 2,-1}	,{0,0, 4, 1, -1,0,0, 1, 1, 0,0,0},0x00000000L,0x00000008L,0x00000000L,6},
-		{ "Bodak",      {3,3,0,3, 3,-1}	,{0,0, 6, 3, -2,0,0, 3, 1, 1,0,0},0x04000000L,0x00000008L,0x00000000L,7},
-		{ "Vrock",      {3,3,1,3, 4,-1}	,{0,0, 8, 5, -4,0,0, 5, 2, 2,0,0},0x04000000L,0x00000008L,0x00000000L,7},
-		{ "Hezrou",		{4,3,1,3, 5,-2}	,{0,0,10, 7, -5,0,0, 6, 3, 2,0,0},0x44000000L,0x00000008L,0x00000000L,7},
-		{ "Glabrezu",   {4,3,1,3, 5,-2}	,{0,0,13, 9, -7,0,0, 7, 3, 3,0,0},0x44000000L,0x00000008L,0x00000000L,8},
-		{ "Nalfeshnee", {5,4,2,3, 6,-2}	,{0,0,16,11, -8,0,0, 8, 4, 3,0,0},0x44000000L,0x00000008L,0x00000004L,8},
-		{ "Pit Fiend",	{5,4,2,3, 6,-3}	,{0,0,19,13, -9,0,0, 9, 5, 4,0,0},0x44000000L,0x00000008L,0x00000004L,8},
-		{ "Balrog",		{6,5,2,4, 7,-4}	,{0,0,22,15,-10,0,0,10, 5, 4,0,0},0x44000000L,0x00000008L,0x00000004L,9}
+		{ "Quasit",		{1,0,0,1, 1, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000004L,0x00000000L,0},
+		{ "Imp",		{2,2,0,2, 2,-1}	,{0,0, 2, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000004L,0x00000000L,0},
+		{ "Tengu",		{3,3,0,3, 2,-1}	,{0,0, 4, 1, -1,0,0, 1, 1, 0,0,0},0x00000000L,0x0000000CL,0x00000000L,6},
+		{ "Bodak",      {3,3,0,3, 3,-1}	,{0,0, 6, 3, -2,0,0, 3, 1, 1,0,0},0x04000000L,0x0000000CL,0x00000000L,7},
+		{ "Vrock",      {3,3,1,3, 4,-1}	,{0,0, 8, 5, -4,0,0, 5, 2, 2,0,0},0x04000000L,0x0000000CL,0x00000000L,7},
+		{ "Hezrou",		{4,3,1,3, 5,-2}	,{0,0,10, 7, -5,0,0, 6, 3, 2,0,0},0x44000000L,0x0000000CL,0x00000000L,7},
+		{ "Glabrezu",   {4,3,1,3, 5,-2}	,{0,0,13, 9, -7,0,0, 7, 3, 3,0,0},0x44000000L,0x0000000CL,0x00000000L,8},
+		{ "Nalfeshnee", {5,4,2,3, 6,-2}	,{0,0,16,11, -8,0,0, 8, 4, 3,0,0},0x44000000L,0x0000000CL,0x00000004L,8},
+		{ "Pit Fiend",	{5,4,2,3, 6,-3}	,{0,0,19,13, -9,0,0, 9, 5, 4,0,0},0x44000000L,0x0000000CL,0x00000004L,8},
+		{ "Balrog",		{6,5,2,4, 7,-4}	,{0,0,22,15,-10,0,0,10, 5, 4,0,0},0x44000000L,0x0000000CL,0x00000004L,9}
 	}	
 };
 
@@ -1249,432 +1249,492 @@ spell_book instruments[SV_MUSIC_MAX] =
 		/* Lyre (sval 0) */
 		0,
 		{
-			{POW_LIGHT_AREA,		"Ballad of Light",				 1,  1, 25,   0},	
-			{POW_HEROISM,			"Ballad of Heroism",			 5,  6, 60,   0},	
-			{POW_RAGE_1,			"Ballad of Rage",				15, 20, 60,   0},	
-			{POW_RES_SOUND,			"Ballad of Sound Deflection",	18, 30, 75,   0},	
-			{POW_DEST_TRAP_DOOR_2,	"Ballad of Unbarring",			22, 20, 60,   0},	
-			{POW_RESISTANCE,		"Ballad of Resistance",			33, 30, 75,   0},	
-			{POW_RESILIENCE,		"Ballad of Resilience",			50, 80, 80,   0},	
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_LIGHT_AREA,		"Ballad of Light",				 1,  1, 25 },
+			{ POW_HEROISM,			"Ballad of Heroism",			 5,  6, 60 },
+			{ POW_RAGE_1,			"Ballad of Rage",				15, 20, 60 },
+			{ POW_RES_SOUND,		"Ballad of Sound Deflection",	18, 30, 75 },
+			{ POW_DEST_TRAP_DOOR_2,	"Ballad of Unbarring",			22, 20, 60 },
+			{ POW_RESISTANCE,		"Ballad of Resistance",			33, 30, 75 },
+			{ POW_RESILIENCE,		"Ballad of Resilience",			50, 80, 80 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Horn (sval 1) */
 		0,
 		{
-			{POW_BOLT_SOUND,		"Stunning Note",				 2,  2, 26,   0},	
-			{POW_BOLT_FORCE_1,		"Crushing Note",				 5,  5, 40,   0},	
-			{POW_STONE_TO_MUD,		"Bring Down Walls",				10, 10, 60,   0},	
-			{POW_EARTHQUAKE,		"Call Earthquake",				20, 25, 60,   0},	
-			{POW_DESTRUCTION,		"Tone of Destruction",			40, 45, 75,   0},	
-			{POW_MASS_GENOCIDE,		"Tone of Death",				50,100, 80,   0},	
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_BOLT_SOUND,		"Stunning Note",				 2,  2, 26 },
+			{ POW_BOLT_FORCE_1,		"Crushing Note",				 5,  5, 40 },
+			{ POW_STONE_TO_MUD,		"Bring Down Walls",				10, 10, 60 },
+			{ POW_EARTHQUAKE,		"Call Earthquake",				20, 25, 60 },
+			{ POW_DESTRUCTION,		"Tone of Destruction",			40, 45, 75 },
+			{ POW_MASS_GENOCIDE,	"Tone of Death",				50,100, 80 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Flute (sval 2) */
 		0,
 		{
-			{POW_HEAL_1,			"Lesser Healing Melody",		 2,  2, 20,   0},	
-			{POW_POLY_MONSTER,		"Changing Melody",				15, 10, 40,   0},	
-			{POW_HEAL_3,			"Greater Healing Melody",		20, 14, 40,   0},	
-			{POW_CURE_POIS_DISE,	"Curing Melody",				35, 50, 90,   0}, 
-			{POW_WORD_RECALL,		"Recall Melody",				40, 75, 80,   0},	
-			{POW_INVIS_2,			"Unseen Melody",				45,	45, 80,   0},	
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_HEAL_1,			"Lesser Healing Melody",		 2,  2, 20 },
+			{ POW_POLY_MONSTER,		"Changing Melody",				15, 10, 40 },
+			{ POW_HEAL_3,			"Greater Healing Melody",		20, 14, 40 },
+			{ POW_CURE_POIS_DISE,	"Curing Melody",				35, 50, 90 },
+			{ POW_WORD_RECALL,		"Recall Melody",				40, 75, 80 },
+			{ POW_INVIS_2,			"Unseen Melody",				45, 45, 80 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Lute (sval 3) */
 		0,
 		{
-			{POW_TELE_10,			"Dance of Dislocation",			 5,  3, 20,   0},	
-			{POW_CONFUSE_ALL,		"Dance of Confusion",			10, 30, 30,   0},	
-			{POW_BALL_SOUND,		"Dance of Damaging",			18, 15, 40,   0},	
-			{POW_TELE_MAJOR,		"Dance of Teleportation",		25, 15, 50,   0},	
-			{POW_TELE_LEVEL,		"Dance of Teleport Level",		40, 50, 60,   0},	
-			{POW_ALTER_REALITY,		"Dance of Alter Reality",		50,	50, 70,   0},	
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_TELE_10,			"Dance of Dislocation",			 5,  3, 20 },
+			{ POW_CONFUSE_ALL,		"Dance of Confusion",			10, 30, 30 },
+			{ POW_BALL_SOUND,		"Dance of Damaging",			18, 15, 40 },
+			{ POW_TELE_MAJOR,		"Dance of Teleportation",		25, 15, 50 },
+			{ POW_TELE_LEVEL,		"Dance of Teleport Level",		40, 50, 60 },
+			{ POW_ALTER_REALITY,	"Dance of Alter Reality",		50, 50, 70 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Drum (sval 4) */
 		0,
 		{
-			{POW_AGGRAVATE_SAFE,	"Aggravation Tempo",			 1,  1, 10,   0},	
-			{POW_SCARE_ALL,			"Fear Tempo",					 8, 15, 30,   0},	
-			{POW_HASTE_SELF_1,		"Fast Tempo",					15, 15, 40,   0},	
-			{POW_SLOW_ALL,			"Slow Tempo",					28, 40, 60,   0},	
-			{POW_TELE_OTHER,		"Away Tempo",					32, 25, 60,   0},	
-			{POW_BANISH,			"Banish Tempo",					45,	40, 70,   0},	
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_AGGRAVATE_SAFE,	"Aggravation Tempo",			 1,  1, 10 },
+			{ POW_SCARE_ALL,		"Fear Tempo",					 8, 15, 30 },
+			{ POW_HASTE_SELF_1,		"Fast Tempo",					15, 15, 40 },
+			{ POW_SLOW_ALL,			"Slow Tempo",					28, 40, 60 },
+			{ POW_TELE_OTHER,		"Away Tempo",					32, 25, 60 },
+			{ POW_BANISH,			"Banish Tempo",					45, 40, 70 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Harp (sval 5) */
 		0,
 		{
-			{POW_CALM_MONSTER,		"Song of Calmness",				 1,  4, 20,   0},	
-			{POW_CALM_ANIMALS,		"Song of Soothing the Beast",	10, 30, 60,   0},	
-			{POW_CALM_NON_EVIL,		"Song of Peace",				20, 45, 80,   0},	
-			{POW_CALM_ALL,			"Song of Great Peace",			30, 65, 90,   0},	
-			{POW_HEAL_4,			"Song of Health",				45, 85, 85,   0},	
-			{POW_DISPEL_EVIL_3,		"Song of Holyness",				50,	30, 75,   0},	
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_CALM_MONSTER,		"Song of Calmness",				 1,  4, 20 },
+			{ POW_CALM_ANIMALS,		"Song of Soothing the Beast",	10, 30, 60 },
+			{ POW_CALM_NON_EVIL,	"Song of Peace",				20, 45, 80 },
+			{ POW_CALM_ALL,			"Song of Great Peace",			30, 65, 90 },
+			{ POW_HEAL_4,			"Song of Health",				45, 85, 85 },
+			{ POW_DISPEL_EVIL_3,	"Song of Holyness",				50,	30, 75 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	}
+};
+
+byte sub_spell_idx[MAX_SUB_TYPE][2] =
+{
+	{ 0, 0},
+	{ 1, 5},	/* Fire, acid, elec, frost bolts */
+	{ 6, 9},	/* Magic missile */
+	{10,14},	/* Fire, acid, elec, frost, poison balls */
+	{15,19},	/* Poison bolt */
+	{20,22},	/* Mana, Nexus Bolt */
+	{23,24},	/* Blizzard */
+	{25,26},	/* Hell Storm */
+	{27,28}		/* Elemental Storm */
+};
+
+sub_spell_type sub_spell_list[MAX_SUB_SPELL] = 
+{
+	{  0,  0, 0,  0, 0, 0, 0, 0 },
+	/* Fire, acid, elec, frost bolts */
+	{  1,  4, 3,  0, 0, 0, 9, 0 },
+	{  2,  7, 3,  0, 0, 4, 9, 1 },
+	{  5, 12, 3,  0, 0, 8, 9, 4 },
+	{ 10, 19, 4,  0, 0,16, 9,14 },
+	{ 20, 36, 4,  0, 0,32, 9,24 },
+	/* Magic missile */
+	{  1,  4, 4,  0, 0, 0, 9, 0 },
+	{  3,  8, 4,  0, 0,10, 9, 5 },
+	{  5, 12, 4,  0, 0,20, 9,10 },
+	{  7, 16, 4,  0, 0,40, 9,15 },
+	/* Fire, acid, elec, frost, poison balls */
+	{ 10,  0, 0, 45, 2, 0, 0, 0 },
+	{ 20,  0, 0, 80, 2,20, 0, 5 },
+	{ 40,  0, 0,150, 2,35, 0,10 },
+	{ 50,  0, 0,150, 3,55, 0,15 },
+	{ 60,  0, 0,200, 3,55, 0,20 },
+	/* Poison bolt */
+	{  5,  8, 6,  0, 0, 0, 6, 0 },
+	{ 10, 15, 6,  0, 0,10, 6, 5 },
+	{ 15, 21, 6,  0, 0,20, 6,10 },
+	{ 20, 27, 6,  0, 0,40, 6,15 },
+	{ 25, 33, 6,  0, 0,45, 6,20 },
+	/* Mana, Nexus bolt */
+	{  5, 11, 5,  0, 0, 0, 6, 0 },
+	{ 15, 22, 6,  0, 0,10, 6, 5 },
+	{ 30, 33, 7,  0, 0,20, 6,10 },
+	/* Blizzard */
+	{ 30,  0, 0,120, 3, 0, 0, 0 },
+	{ 55,  0, 0,120, 4,48, 0,10 },
+	/* Hell Storm */
+	{ 35,  0, 0,150, 3, 0, 0, 0 },
+	{ 65,  0, 0,150, 4,35, 0,10 },
+	/* Elemental Storm */
+	{ 40,  0, 0,180, 3, 0, 0, 0 },
+	{ 75,  0, 0,180, 4,17, 0,10 }
 };
 
 spell_book books[SV_BOOK_MAX] = 
 {
 	{
-		/* Magic for Beginners (sval 0) */
+		/* Elementary Incantations (sval 0) */
 		SBF_MAGIC,
 		{
-			{POW_BOLT_MISSILE_2,	"Magic Missile",			 1,  1, 22,   4},
-			{POW_TELE_10,			"Phase Door",  				 1,  1, 24,   4},	
-			{POW_LIGHT_AREA,		"Light Area",				 1,  2, 26,   4},	
-			{POW_DETECT_MONSTERS,	"Detect Monsters",			 2,  2, 23,   4},
-			{POW_BALL_POISON_1,		"Stinking Cloud",			 3,  3, 27,   3},  
-			{POW_CONFUSE_MONSTER,	"Confuse Monster",			 3,  3, 30,   1},
-			{POW_DETECT_TRAP_DOOR,	"Find Traps, Doors & Stairs",4,  3, 25,   1},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_BOLT_ACID_X,		"Acid Bolt",				 1, -1, 22 },
+			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 1, -1, 22 },
+			{ POW_TELE_10,			"Phase Door",  				 1,  1, 24 },
+			{ POW_LIGHT_AREA,		"Light Area",				 1,  2, 26 },
+			{ POW_BOLT_FIRE_X,		"Fire Bolt",				 2, -1, 22 },
+			{ POW_BOLT_COLD_X,		"Frost Bolt",				 2, -1, 22 },
+			{ POW_DETECT_MONSTERS,	"Detect Monsters",			 2,  2, 23 },
+			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 27 },
+			{ POW_DETECT_TRAP_DOOR,	"Find Traps, Doors & Stairs",3,  4, 25 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-		/* Conjurings and Tricks (sval 1) */
+		/* Sorcerous Adjurations (sval 1) */
 		SBF_MAGIC,
 		{
-			{POW_ABSORB_HIT,		"Absorb hit",				 4,  4, 25,   3},	
-			{POW_BOLT_ELEC,			"Lightning Bolt",			 4,  4, 30,   4},
-			{POW_DEST_TRAP_DOOR_2,	"Trap/Door Destruction",	 5,  5, 30,   6},
-			{POW_SLEEP_MONSTER,		"Sleep Monster",			 5,  5, 30,   4},
-			{POW_BOLT_FROST_1,		"Frost Bolt",				 6,  5, 40,   6},
-			{POW_TELE_MAJOR,		"Teleport Self",			 7,  6, 35,   5},
-			{POW_BEAM_WEAK_LITE,	"Spear of Light",			 8,  7, 30,   5},
-			{POW_STONE_TO_MUD,		"Turn Stone to Mud",		 9,  7, 44,   8},
-			{POW_SLEEP_ALL,			"Sleep All",				 9,  7, 45,   8},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_CONFUSE_MONSTER,	"Confuse Monster",			 4,  3, 26 },
+			{ POW_SLEEP_MONSTER,	"Sleep Monster",			 4,  5, 26 },
+			{ POW_INFRAVISION,		"Infravision",				 4,  4, 35 },
+			{ POW_BOLT_MISSILE_X,	"Magic Missile",			 5, -2, 25 },
+			{ POW_SHIELD,			"Shield",					 5,  7, 60 },
+			{ POW_TELE_MAJOR,		"Teleport Self",			 7,  6, 35 },
+			{ POW_BEAM_WEAK_LITE,	"Spear of Light",			 7,  7, 35 },
+			{ POW_STONE_TO_MUD,		"Turn Stone to Mud",		 9,  7, 44 },
+			{ POW_SATISFY_HUNGER,	"Satisfy Hunger",			 9,  8, 45 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-			/* Incantations and Illusions (sval 2) */
+		/* Thaumaturgic Conjurations (sval 2) */
 		SBF_MAGIC,
 		{
-			{POW_SATISFY_HUNGER,	"Satisfy Hunger",			 9,  7, 45,   8},
-			{POW_CREATE_DOOR,		"Create Doors",				 9,  7, 25,  10},	
-			{POW_BOLT_ACID_2,		"Acid Bolt",				10,  7, 50,   8},	
-			{POW_IDENTIFY,			"Identify Item",			11,  7, 75,   6},
-			{POW_SLOW_MONSTER,		"Slow Monster",				11,  7, 50,  10},	
-			{POW_DETECT_ENCHANT,	"Detect Enchantment",		12,	 7,	40,   6},
-			{POW_BOLT_FIRE_2,		"Fire Bolt",				14,  9, 50,   8},	
-			{POW_GLYPH_LESSER,		"Barrier",					15, 35, 90,  10}, 
-			{POW_RECHARGE_1,		"Recharge Item",			15, 10, 75,  10},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_SLEEP_ALL,		"Sleep All",				11,  9, 45 },
+			{ POW_CREATE_DOOR,		"Create Doors",				11, 13, 35 },
+			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  9, 50 },
+			{ POW_IDENTIFY,			"Identify Item",			11,  8, 75 },
+			{ POW_BALL_FIRE_X,		"Fire Ball",				13, -3, 33 },
+			{ POW_BALL_COLD_X,		"Frost Ball",				13, -3, 33 },
+			{ POW_BALL_ACID_X,		"Acid Ball",				14, -3, 33 },
+			{ POW_BALL_ELEC_X,		"Lightning Ball",			14, -3, 33 },
+			{ POW_DETECT_ENCHANT,	"Detect Enchantment",		15, 10, 40 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{		
-			/* Sorcery and Evocations (sval 3) */
+		/* Evocations of Power (sval 3) */
 		SBF_MAGIC,
 		{
-			{POW_BALL_FROST_1,		"Frost Ball",				17, 12, 55,   8},	
-			{POW_BLIND_MONSTER,		"Blind Monster",			19, 12, 60,   8},
-			{POW_MAGIC_LOCK,		"Magic Lock",				21,	20,	50,	 10},
-			{POW_IDENTIFY_PACK,		"Identify Pack",			22, 21, 80,   6},	
-			{POW_TELE_OTHER,		"Teleport Others",			23, 12, 60,   8},	
-			{POW_BALL_FIRE_1,		"Fire Ball",				25, 18, 65,  12},	
-			{POW_HASTE_SELF_1,		"Haste Self",				29, 12, 65,  10},	
-			{POW_DESTRUCTION,		"Word of Destruction",		35, 21, 80,  15},	
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_GLYPH_LESSER,		"Barrier",					17, 35, 90 },
+			{ POW_RECHARGE_1,		"Recharge Item",			17, 12, 75 },
+			{ POW_BLIND_MONSTER,	"Blind Monster",			19, 12, 60 },
+			{ POW_SLOW_ALL,			"Slow All",					19, 20, 33 },
+			{ POW_MAGIC_LOCK,		"Magic Lock",				21, 25, 50 },
+			{ POW_IDENTIFY_PACK,	"Identify Pack",			21, 24, 80 },
+			{ POW_TELE_OTHER,		"Teleport Others",			23, 12, 60 },
+			{ POW_EARTHQUAKE,		"Earthquake",				25, 18, 60 },
+			{ POW_HASTE_SELF_1,		"Haste Self",				30, 12, 65 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-			/* Resistance of Scarabtarices (sval 4) */
+		/* Resistance of Scarabtarices (sval 4) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{POW_RES_FIRE,			"Resist Fire",				 4,  5, 50,  20},
-			{POW_RES_COLD,			"Resist Cold",				 4,  5, 50,  20},
-			{POW_RES_ACID_ELEC,		"Resist Acid & Electricity", 4,  5, 50,  20},
-			{POW_RES_POISON,		"Resist Poison",			 8, 10, 75,  40},
-			{POW_RES_DISEASE,		"Resist Disease",			 8, 10, 75,  40},
-			{POW_RESISTANCE,		"Resistance",				15, 20, 85,  60},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_RES_FIRE,			"Resist Fire",				 5,  5, 50 },
+			{ POW_RES_COLD,			"Resist Cold",				 5,  5, 50 },
+			{ POW_RES_ACID,			"Resist Acid",				 5,  5, 50 },
+			{ POW_RES_ELEC,			"Resist Electricity",		 5,  5, 50 },
+			{ POW_RES_POISON,		"Resist Poison",			10, 10, 75 },
+			{ POW_RES_DISEASE,		"Resist Disease",			10, 10, 75 },
+			{ POW_RES_LITE_DARK,	"Resist Light & Darkness",	12, 15, 80 },
+			{ POW_RESISTANCE,		"Resistance",				20, 25, 85 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-			/* Mordenkainen's Escapes (sval 5) */
+		/* Mordenkainen's Escapes (sval 5) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{POW_CREATE_STAIR,		"Stair Creation",			 9, 12, 40,  20},	
-			{POW_TELE_LEVEL,		"Teleport Level",			15, 17, 60,  29},	
-			{POW_TELE_CONTROL,		"Dimension Door",			15, 25, 70,  30},	
-			{POW_EARTHQUAKE,		"Earthquake",				20, 18, 60,  24},	
-			{POW_WORD_RECALL,		"Word of Recall",			25, 25, 75,  19},   
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_ABSORB_HIT,		"Absorb Hit",				 5,  5, 25 },
+			{ POW_CREATE_STAIR,		"Create Stairs",			10, 15, 40 },
+			{ POW_TELE_LEVEL,		"Teleport Level",			15, 17, 60 },
+			{ POW_TELE_CONTROL,		"Dimension Door",			20, 25, 70 },
+			{ POW_CREATE_WALL,		"Create Walls",				30, 40, 80 },
+			{ POW_WORD_RECALL,		"Word of Recall",			35, 25, 75 },
+			{ POW_DESTRUCTION,		"Word of Destruction",		40, 21, 80 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Kelek's Grimoire of Power (sval 6) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{POW_DETECT_EVIL,		"Detect Evil",				 5,  5, 50,   8},
-			{POW_POLY_MONSTER,		"Polymorph Other",			11,  7, 45,   9},
-			{POW_RECHARGE_4,		"Greater Recharge Item",	25, 30, 95, 160},	
-			{POW_GENOCIDE,			"Genocide",					30, 50, 70,  40},	
-			{POW_MASS_GENOCIDE,		"Mass Genocide",			40, 75, 80, 100},	
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_DETECT_EVIL,		"Detect Evil",				 5,  5, 50 },
+			{ POW_BLIGHT,			"Blight",					10, 13, 60 },
+			{ POW_POLY_MONSTER,		"Polymorph Other",			15,  7, 45 },
+			{ POW_PROBE_MONSTER,	"Probe Monster",			20, 12, 80 },
+			{ POW_GENOCIDE,			"Genocide",					35, 50, 70 },
+			{ POW_MASS_GENOCIDE,	"Mass Genocide",			45, 75, 80 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-		/* Tenser's transformations... (sval 7) */
+		/* Raal's Tome of Destruction (sval 7) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{POW_HEROISM,			"Heroism",					 5,  5, 50,  80},
-			{POW_SHIELD,			"Shield",					10, 12, 75, 120},	
-			{POW_INVIS_2,			"Temporary Invisibility",	22, 35,	60,  50},
-			{POW_HASTE_SELF_2,		"Essence of Speed",			26, 30, 50, 250},	
-			{POW_RESILIENCE,		"Globe of Resilience",		46, 70, 75, 250},	
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_BOLT_POISON_X,	"Poison Bolt",				 5, -4, 50 },
+			{ POW_BOLT_MANA_X,		"Mana Bolt",				10, -5, 50 },
+			{ POW_BOLT_NEXUS_X,		"Nexus Bolt",				10, -5, 50 },
+			{ POW_BALL_POISON_X,	"Cloud Kill",				15, -3, 60 },
+			{ POW_BALL_COLD_ELEC_X,	"Blizzard",					25, -6, 85 },
+			{ POW_BALL_FIRE_ACID_X,	"Hell Storm",				30, -7, 85 },
+			{ POW_BALL_ELEM_X,		"Elemental Storm",			35, -8, 90 },
+			{ POW_BALL_MANA,		"Mana Storm",				40, 50, 95 },
+			{ POW_BALL_ANNIHILATION,"Sphere of Annihilation",	50, 75, 70 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-		/* Raal's Tome of Destruction (sval 8) */
+		/* Tenser's transformations (sval 8) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{POW_BOLT_MANA,			"Mana Bolt",				10,  4, 50,  12},	
-			{POW_BLIGHT,			"Blight",					13,	13,	60,	 20},
-			{POW_BALL_POISON_2,		"Cloud Kill",				16, 15, 60,  16},	
-			{POW_BALL_FROST_2,		"Ice Storm",				25, 25, 85,  34},	
-			{POW_BALL_FIRE_2,		"Hell Storm",				33, 30, 85,  45},	
-			{POW_BALL_MANA,			"Mana Storm",				42, 45, 95, 200},	
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_HEROISM,			"Heroism",					 5,  5, 50 },
+			{ POW_STABILITY,		"Stability",				10, 18, 35 },
+			{ POW_INVIS_2,			"Temporary Invisibility",	20, 35, 60 },
+			{ POW_RES_CHAOS_NEXUS,	"Resist Chaos & Nexus",		30, 25, 35 },
+			{ POW_RESILIENCE,		"Globe of Resilience",		45, 70, 75 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* The Lore of the Hunter (sval 9) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{POW_BRAND_ARROW_ANML,	"Hunter's Arrows",			18, 25, 60,	  6},
-			{POW_CALM_ANIMALS,		"Calm Animals",				23, 35, 55,   8},
-			{POW_BRAND_ARROW_WOUND,	"Sharpen Arrows",			28, 25, 70,   2},
-			{POW_HASTE_SELF_1,		"Haste Self",				33, 12, 90,  10},
-			{POW_BRAND_ARROW_ELMNT, "Elemental Arrows",			43, 40, 80,  10},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_BRAND_ARROW_ANML,	"Hunter's Arrows",			18, 25, 60 },
+			{ POW_CALM_ANIMALS,		"Calm Animals",				23, 35, 55 },
+			{ POW_BRAND_ARROW_WOUND,"Sharpen Arrows",			28, 25, 70 },
+			{ POW_HASTE_SELF_1,		"Haste Self",				33, 12, 90 },
+			{ POW_BRAND_ARROW_ELMNT,"Elemental Arrows",			43, 40, 80 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Novice's Handbook (sval 10) */
 		SBF_PRAYER,
 		{
-			{POW_DETECT_EVIL,		"Detect Evil",				 1,  1, 10,   4}, 
-			{POW_HEAL_1,			"Cure Light Wounds",		 1,  2, 15,   4}, 
-			{POW_BLESS_1,			"Bless",					 1,  2, 20,   4}, 
-			{POW_CURE_FEAR,			"Remove Fear",				 1,  2, 25,   4}, 
-			{POW_LIGHT_AREA,		"Call Light",				 3,  2, 25,   1}, 
-			{POW_DETECT_TRAP,		"Find Traps",				 3,  3, 27,   2}, 
-			{POW_DETECT_DOOR_STAIR,	"Detect Doors/Stairs",		 3,  3, 27,   2}, 
-			{POW_CURE_POISON_1,		"Slow Poison",				 3,  3, 28,   4}, 
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_DETECT_EVIL,		"Detect Evil",				 1,  1, 10 },
+			{ POW_HEAL_1,			"Cure Light Wounds",		 1,  2, 15 },
+			{ POW_BLESS_1,			"Bless",					 1,  2, 20 },
+			{ POW_CURE_FEAR,		"Remove Fear",				 1,  2, 25 },
+			{ POW_LIGHT_AREA,		"Call Light",				 3,  2, 25 },
+			{ POW_DETECT_TRAP,		"Find Traps",				 3,  3, 27 },
+			{ POW_DETECT_DOOR_STAIR,"Detect Doors/Stairs",		 3,  3, 27 },
+			{ POW_CURE_POISON_1,	"Slow Poison",				 3,  3, 28 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Words of Wisdom (sval 11) */
 		SBF_PRAYER,
 		{
-			{POW_SCARE_MONSTER,		"Scare Monster",			 5,  4, 29,   3},
-			{POW_TELE_MINOR,		"Portal",					 5,  4, 30,   4},
-			{POW_HEAL_2,			"Cure Serious Wounds",		 5,  4, 32,   4},
-			{POW_BLESS_2,			"Chant",					 5,  5, 34,   4},
-			{POW_SLEEP_ADJACENT,	"Sanctuary",				 7,  5, 36,   3},
-			{POW_SATISFY_HUNGER,	"Satisfy Hunger",			 7,  5, 38,   4},
-			{POW_REMOVE_CURSE_1,	"Remove Curse",				 7,  6, 38,   5},
-			{POW_RES_FIRE_COLD,		"Resist Heat and Cold",		 7,  7, 38,   5},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_SCARE_MONSTER,	"Scare Monster",			 5,  4, 29 },
+			{ POW_TELE_MINOR,		"Portal",					 5,  4, 30 },
+			{ POW_HEAL_2,			"Cure Serious Wounds",		 5,  4, 32 },
+			{ POW_BLESS_2,			"Chant",					 5,  5, 34 },
+			{ POW_SLEEP_ADJACENT,	"Sanctuary",				 7,  5, 36 },
+			{ POW_SATISFY_HUNGER,	"Satisfy Hunger",			 7,  5, 38 },
+			{ POW_REMOVE_CURSE_1,	"Remove Curse",				 7,  6, 38 },
+			{ POW_RES_FIRE_COLD,	"Resist Heat and Cold",		 7,  7, 38 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Chants and Blessings (sval 12) */
 		SBF_PRAYER,
 		{
-			{POW_CURE_POISON_2,		"Neutralize Poison",		 9,  6, 38,   4}, 
-			{POW_BALL_HOLY,			"Orb of Draining",			 9,  7, 38,   4}, 
-			{POW_HEAL_3,			"Cure Critical Wounds",		 9,  7, 40,   4}, 
-			{POW_CURE_DISEASE,		"Cure Disease",				10,  7, 40,   4}, 
-			{POW_GLYPH_HOLY,		"Holy Sigil",				10,	15, 50,	  5},
-			{POW_SEE_INVIS,			"Sense Invisible",			11,  8, 42,   4}, 
-			{POW_PROT_EVIL,			"Protection from Evil",		11,  8, 42,   4}, 
-			{POW_EARTHQUAKE,		"Earthquake",				13,  9, 55,   5}, 
-			{POW_MAP_1,				"Sense Surroundings",		13, 10, 45,   4}, 
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_CURE_POISON_2,	"Neutralize Poison",		 9,  6, 38 },
+			{ POW_BALL_HOLY,		"Orb of Draining",			 9,  7, 38 },
+			{ POW_HEAL_3,			"Cure Critical Wounds",		 9,  7, 40 },
+			{ POW_CURE_DISEASE,		"Cure Disease",				10,  7, 40 },
+			{ POW_GLYPH_HOLY,		"Holy Sigil",				10, 15, 50 },
+			{ POW_SEE_INVIS,		"Sense Invisible",			11,  8, 42 },
+			{ POW_PROT_EVIL,		"Protection from Evil",		11,  8, 42 },
+			{ POW_EARTHQUAKE,		"Earthquake",				13,  9, 55 },
+			{ POW_MAP_1,			"Sense Surroundings",		13, 10, 45 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
  		/* Exorcism and Dispelling (sval 13) */
 		SBF_PRAYER,
 		{
-			{POW_SCARE_UNDEAD,		"Turn Undead",				15, 12, 50,   5}, 
-			{POW_BLESS_3,			"Prayer",					15, 14, 50,   5}, 
-			{POW_DISPEL_UNDEAD_1,	"Dispel Undead",			17, 14, 55,   7}, 
-			{POW_DISPEL_EVIL_3,		"Dispel Evil",				25, 20, 70,  12}, 
-			{POW_GLYPH_WARDING,		"Glyph of Warding",			33, 55, 90,  15}, 
-			{POW_HOLY_2,			"Holy Word",				39, 32, 95,  20}, 
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_SCARE_UNDEAD,		"Turn Undead",				15, 12, 50 },
+			{ POW_BLESS_3,			"Prayer",					15, 14, 50 },
+			{ POW_DISPEL_UNDEAD_1,	"Dispel Undead",			17, 14, 55 },
+			{ POW_DISPEL_EVIL_3,	"Dispel Evil",				25, 20, 70 },
+			{ POW_GLYPH_WARDING,	"Glyph of Warding",			33, 55, 90 },
+			{ POW_HOLY_2,			"Holy Word",				39, 32, 95 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Ethereal openings (sval 14) */
 		(SBF_PRAYER | SBF_GOOD),
-		{
-			{POW_TELE_10,			"Blink",					 3,  3, 50,   6}, 
-			{POW_TELE_MAJOR,		"Teleport Self",			10, 10, 50,   8}, 
-			{POW_TELE_OTHER,		"Teleport Other",			20, 20, 80,  16}, 
-			{POW_TELE_LEVEL,		"Teleport Level",			30, 40, 75, 133}, 
-			{POW_WORD_RECALL,		"Word of Recall",			35, 50, 75,  11}, 
-			{POW_ALTER_REALITY,		"Alter Reality",			40, 60, 75, 250}, 
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		{ 
+			{ POW_TELE_10,			"Blink",					 3,  3, 50 },
+			{ POW_TELE_MAJOR,		"Teleport Self",			10, 10, 50 },
+			{ POW_TELE_OTHER,		"Teleport Other",			20, 20, 80 },
+			{ POW_TELE_LEVEL,		"Teleport Level",			30, 40, 75 },
+			{ POW_WORD_RECALL,		"Word of Recall",			35, 50, 75 },
+			{ POW_ALTER_REALITY,	"Alter Reality",			40, 60, 75 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Godly Insights (sval 15) */
 		(SBF_PRAYER | SBF_GOOD),
 		{
-			{POW_DETECT_MONSTERS,	"Detect Monsters",			 3,  3, 50,   2}, 
-			{POW_DETECT_ALL,		"Detection",				10,  8, 80,  20}, 
-			{POW_IDENTIFY,			"Perception",				20, 20, 80,  20}, 
-			{POW_PROBE,				"Probing",					25, 20, 80, 150}, 
-			{POW_MAP_2,				"Clairvoyance",				35, 50, 80, 230}, 
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_DETECT_MONSTERS,	"Detect Monsters",			 3,  3, 50 },
+			{ POW_DETECT_ALL,		"Detection",				10,  8, 80 },
+			{ POW_IDENTIFY,			"Perception",				20, 20, 80 },
+			{ POW_PROBE_ALL,		"Probing",					25, 20, 80 },
+			{ POW_MAP_2,			"Clairvoyance",				35, 50, 80 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Purifications and Healing (sval 16) */
 		(SBF_PRAYER | SBF_GOOD),
 		{
-			{POW_HEAL_4,			"Cure Mortal Wounds",		17,  7, 60,  45}, 
-			{POW_HEAL_5,			"Healing",					30, 50, 80, 130}, 
-			{POW_RESTORE_STATS,		"Restoration",				35, 70, 90, 230}, 
-			{POW_RESTORE_LEVEL,		"Remembrance",				35, 70, 90, 250}, 
-			{POW_CALM_NON_EVIL,		"Holy Peace",				45, 50, 80, 200}, 
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_HEAL_4,			"Cure Mortal Wounds",		17,  7, 60 },
+			{ POW_HEAL_5,			"Healing",					30, 50, 80 },
+			{ POW_RESTORE_STATS,	"Restoration",				35, 70, 90 },
+			{ POW_RESTORE_LEVEL,	"Remembrance",				35, 70, 90 },
+			{ POW_CALM_NON_EVIL,	"Holy Peace",				45, 50, 80 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Holy Infusions (sval 17) */
 		(SBF_PRAYER | SBF_GOOD),
 		{
-			{POW_DEST_TRAP_DOOR_2,	"Unbarring Ways",			 5,  6, 50,  40}, 
-			{POW_RECHARGE_2,		"Recharging",				15, 20, 80,  25}, 
-			{POW_REMOVE_CURSE_2,	"Dispel Curse",				25, 40, 80, 160}, 
-			{POW_ENCHANT_WEAPON,	"Enchant Weapon",			35, 50, 80, 230}, 
-			{POW_ENCHANT_ARMOR_2,	"Enchant Armour",			37, 60, 85, 250}, 
-			{POW_BRAND_SHOT_HOLY,	"Sanctify Shots",			45, 95, 85, 250}, 
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_DEST_TRAP_DOOR_2,	"Unbarring Ways",			 5,  6, 50 },
+			{ POW_RECHARGE_2,		"Recharging",				15, 20, 80 },
+			{ POW_REMOVE_CURSE_2,	"Dispel Curse",				25, 40, 80 },
+			{ POW_ENCHANT_WEAPON,	"Enchant Weapon",			35, 50, 80 },
+			{ POW_ENCHANT_ARMOR_2,	"Enchant Armour",			37, 60, 85 },
+			{ POW_BRAND_SHOT_HOLY,	"Sanctify Shots",			45, 95, 85 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Wrath of God (sval 18) */
 		(SBF_PRAYER | SBF_GOOD),
-		{
-			{POW_DISPEL_UNDEAD_2,	"Dispel Undead",			15,  7, 70,  25}, 
-			{POW_DISPEL_EVIL_4,		"Dispel Evil",				20, 10, 75,  60}, 
-			{POW_BANISH,			"Banishment",				25, 25, 80, 250}, 
-			{POW_DESTRUCTION,		"Word of Destruction",		35, 35, 80, 115}, 
-			{POW_DRAIN_LIFE_3,		"Annihilation",				45, 60, 75, 250}, 
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+		{  
+			{ POW_DISPEL_UNDEAD_2,	"Dispel Undead",			15,  7, 70 },
+			{ POW_DISPEL_EVIL_4,	"Dispel Evil",				20, 10, 75 },
+			{ POW_BANISH,			"Banishment",				25, 25, 80 },
+			{ POW_DESTRUCTION,		"Word of Destruction",		35, 35, 80 },
+			{ POW_DRAIN_LIFE_3,		"Annihilation",				45, 60, 75 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		0,
 		{
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* The Seven steps to transcendence (sval 20) */
 		(SBF_MYSTIC | SBF_GOOD),
 		{
-			{POW_CLEAR_MIND,		"Clarity of Mind",			 5,  5, 10,   4},
-			{POW_TELE_CONTROL,		"Mastery of Space",			10, 25, 60,   8}, 
-			{POW_RES_ELEMENTS,		"Power over Elements",		15, 30, 70,  16}, 
-			{POW_DETECT_ALL,		"Purity of vision",			20, 35, 80,  32},
-			{POW_CURE_BODY,			"Control of the Body",		30, 40, 90,  64}, 
-			{POW_RES_GREATER,		"One with the world",		40, 45,100, 128}, 
-			{POW_RESILIENCE,		"Mind over Matter",			50, 50,110, 250}, 
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_CLEAR_MIND,		"Clarity of Mind",			 5,  5, 10 },
+			{ POW_TELE_CONTROL,		"Mastery of Space",			10, 25, 60 },
+			{ POW_RES_ELEMENTS,		"Power over Elements",		15, 30, 70 },
+			{ POW_DETECT_ALL,		"Purity of vision",			20, 35, 80 },
+			{ POW_CURE_BODY,		"Control of the Body",		30, 40, 90 },
+			{ POW_RES_GREATER,		"One with the world",		40, 45,100 },
+			{ POW_RESILIENCE,		"Mind over Matter",			50, 50,110 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* The Teachings of the Ninth Master (sval 21) */
 		(SBF_MYSTIC | SBF_GOOD),
 		{
-			{POW_POLY_MONSTER,		"Change Other",				 5, 10, 45,  10},
-			{POW_BOLT_MANA,			"Mana Bolt",				10,  5, 50,  15},	
-			{POW_INVIS_2,			"Vanish from Sight",		20, 20,	60,  50},
-			{POW_BANISH,			"Banish Enemies",			25, 30, 80, 200}, 
-			{POW_HEAL_4,			"Heal",						30, 20, 60,  20}, 
-			{POW_HASTE_SELF_2,		"Essence of Speed",			35, 60, 50, 200},	
-			{POW_ALTER_REALITY,		"Alter Reality",			40, 80, 75, 200}, 
-			{POW_GLYPH_WARDING,		"Glyph of Warding",			45, 60, 90,  20}, 
-			{POW_BURST_ASTRAL,		"Astral Burst",				50, 80, 50, 100},	
-			{ 0, NULL, 99,  0, 0, 0}
+			{ POW_POLY_MONSTER,		"Change Other",				 5, 10, 45 },
+			{ POW_BOLT_MANA,		"Mana Bolt",				10,  5, 50 },
+			{ POW_INVIS_2,			"Vanish from Sight",		20, 20, 60 },
+			{ POW_BANISH,			"Banish Enemies",			25, 30, 80 },
+			{ POW_HEAL_4,			"Heal",						30, 20, 60 },
+			{ POW_HASTE_SELF_2,		"Essence of Speed",			35, 60, 50 },
+			{ POW_ALTER_REALITY,	"Alter Reality",			40, 80, 75 },
+			{ POW_GLYPH_WARDING,	"Glyph of Warding",			45, 60, 90 },
+			{ POW_BURST_ASTRAL,		"Astral Burst",				50, 80, 50 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 			/* The Necronomicon (sval 22) */
 		(SBF_NECRONOM | SBF_GOOD | SBF_ARTIFACT),
-		{
-			{POW_DARK_AREA,			"Unlight Area",				 1,  1, 15,   1}, 
-			{POW_DISPEL_NON_EVIL,	"Wave of Evil",			    25, 15,132,   4}, 
-			{POW_BEAM_NETHER,		"Ray of Evil",              40, 50, 97,   5}, 
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+		{ 
+			{ POW_DARK_AREA,		"Unlight Area",				 1,  1, 15 },
+			{ POW_DISPEL_NON_EVIL,	"Wave of Evil",				25, 15,132 },
+			{ POW_BEAM_NETHER,		"Ray of Evil",				40, 50, 97 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* The Codex of Ultimate Wisdom (sval 23) */
 		(SBF_CODEX | SBF_GOOD | SBF_ARTIFACT),
 		{
-			{POW_IDENTIFY,			"Perception",				 1, 15, 50,   1}, 
-			{POW_IDENTIFY_PACK,		"Greater Perception",		20, 20, 90,   2},	
-			{POW_IDENTIFY_FULL,		"Revelation",				50,100, 72,   8},
-			{POW_MAP_2,				"Clairvoyance",				50,100, 10,   2}, 
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ POW_IDENTIFY,			"Perception",				 1, 15, 50 },
+			{ POW_IDENTIFY_PACK,	"Greater Perception",		20, 20, 90 },
+			{ POW_IDENTIFY_FULL,	"Revelation",				50,100, 72 },
+			{ POW_MAP_2,			"Clairvoyance",				50,100, 10 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	}
 };
@@ -1845,7 +1905,7 @@ option_type options[OPT_NORMAL] =
 	{"run_ignore_doors",	"When running, ignore doors",				TRUE },
 	{"run_cut_corners",		"When running, cut corners",				TRUE },
 	{"disturb_move",		"Disturb whenever any monster moves",		TRUE },
-	{"disturb_near",		"Disturb whenever viewable monster moves",	TRUE },	
+	{"disturb_near",		"Disturb whenever viewable monster moves",	TRUE },
 	{"disturb_panel",		"Disturb whenever map panel changes",		TRUE },
 	{"disturb_state",		"Disturb whenever player state changes",	TRUE },
 	{"disturb_minor",		"Disturb whenever boring things happen",	TRUE },
@@ -1854,21 +1914,21 @@ option_type options[OPT_NORMAL] =
 	{"use_command",			"Allow unified use command",				FALSE},
 	{"expand_look",			"Expand the power of the look command",		TRUE },
 	{"expand_list",			"Expand the power of the list commands",	TRUE },
-	{"view_perma_grids",	"Map remembers all perma-lit grids",		TRUE },	
-	{"view_torch_grids",	"Map remembers all torch-lit grids",		FALSE},	
+	{"view_perma_grids",	"Map remembers all perma-lit grids",		TRUE },
+	{"view_torch_grids",	"Map remembers all torch-lit grids",		FALSE},
 	{"dungeon_align",		"Generate dungeons with aligned rooms",		TRUE },
-	{"view_reduce_lite",	"Reduce lite-radius when running",			FALSE},	
+	{"view_reduce_lite",	"Reduce lite-radius when running",			FALSE},
 	{"hidden_player",		"Hide player symbol when running",			FALSE},
 	{"avoid_abort",			"Avoid checking for user abort",			FALSE},
 	{"avoid_other",			"Avoid processing special colors",			FALSE},
 	{"flush_failure",		"Flush input on various failures",			TRUE },
 	{"flush_disturb",		"Flush input whenever disturbed",			FALSE},
-	{"fresh_before",		"Flush output before every command",		TRUE },	
+	{"fresh_before",		"Flush output before every command",		TRUE },
 	{"fresh_after",			"Flush output after various things",		FALSE},
 	{"compress_savefile",	"Compress messages in savefiles",			TRUE },
 	{"hilite_player",		"Hilite the player with the cursor",		FALSE},
-	{"view_yellow_lite",	"Use special colors for torch lite",		TRUE },	
-	{"view_bright_lite",	"Use special colors for field of view",		TRUE },	
+	{"view_yellow_lite",	"Use special colors for torch lite",		TRUE },
+	{"view_bright_lite",	"Use special colors for field of view",		TRUE },
 	{"view_granite_lite",	"Use special colors for wall grids",		FALSE},
 	{"view_special_lite",	"Use special colors for floor grids",		TRUE },
 	{"easy_direction",		"Open/Disarm/Close without direction",		FALSE},
@@ -1876,7 +1936,7 @@ option_type options[OPT_NORMAL] =
 	{"easy_floor",			"Display floor stacks in a list",   		FALSE},
 	{"show_piles",			"Show stacks using special attr/char",		FALSE},
 	{"center_player",		"Center map continuously",					FALSE},
-	{"run_avoid_center",	"Avoid centering while running",			FALSE},	
+	{"run_avoid_center",	"Avoid centering while running",			FALSE},
 	{"scroll_target",		"Scroll map while targetting",				TRUE },
 	{"auto_more",			"Automatically clear '-more-' prompts",		FALSE},
 	{"view_monster_lite",	"Allow monsters to have light radius",		TRUE },
@@ -1885,7 +1945,9 @@ option_type options[OPT_NORMAL] =
 	{"display_room_desc",	"Display room descriptions",				FALSE},
 	{"display_insc_msg",	"Display inscriptions in messages",			FALSE},
 	{"display_recharge_msg","Display messages upon recharge",			TRUE },
-	{"inscribe_unique",		"Auto-inscribe unique drops",				FALSE} 
+	{"inscribe_unique",		"Auto-inscribe unique drops",				FALSE},
+	{"spellbook_menu1",		"TEST: alternate spellbook interface",		FALSE},
+	{"spellbook_menu2",		"TEST: inverse behavior in book selection", FALSE}
 };
 
 option_type options_birth[OPT_BIRTH] =
@@ -1953,8 +2015,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_alter,
 		OPT_easy_floor,
 		OPT_verify_leave_quest,
-		255,
-		255
+		OPT_spellbook_menu1,
+		OPT_spellbook_menu2
 	},
 
 	/*** Display ***/

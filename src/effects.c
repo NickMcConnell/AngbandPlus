@@ -1550,7 +1550,7 @@ bool set_absorb(int v)
 		}
 	}
 
-	/* Use the value. HACK - Note that it caps at 150. */
+	/* Use the value. HACK - Note that it caps at 490. */
 	p_ptr->absorb = (v > 400) ? 400 : v;
 
 	/* Nothing to notice */
@@ -1625,7 +1625,7 @@ bool set_tim_see_invis(int v)
 }
 
 /*
- * Set "p_ptr->temp_invis", notice observable changes
+ * Set "p_ptr->tim_invis", notice observable changes
  * (Temporary invisibility)
  */
 bool set_tim_invis(int v)
@@ -1655,6 +1655,53 @@ bool set_tim_invis(int v)
 
 	/* Use the value */
 	p_ptr->tim_invis = v;
+
+	/* Nothing to notice */
+	if (!notice) return(FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->stability", notice observable changes
+ */
+bool set_stability(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values. Note that it can be negative */
+	v = (v > 10000) ? 10000 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->stability <= 0)
+		{
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->stability)
+		{
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->stability = v;
 
 	/* Nothing to notice */
 	if (!notice) return(FALSE);

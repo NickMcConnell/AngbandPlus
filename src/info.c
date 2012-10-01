@@ -1579,6 +1579,13 @@ void display_player_status(void)
 		row++;
 	}
 
+	/* Stability */
+	if (p_ptr->stability)
+	{
+		c_put_str(TERM_L_GREEN, "Stability", row, col);
+		row++;
+	}
+
 	/* Berserk */
 	if (p_ptr->rage)
 	{
@@ -2385,6 +2392,12 @@ void list_object(object_type *o_ptr, int mode)
 		anything |= outlist("it burdens its wielder with", list);
 	}
 
+	/* Hack - curse spoiler items */
+	if (spoil)
+	{
+		if (f3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+	}
+
 	/*
 	 * Handle cursed objects here to avoid redundancies such as noting
 	 * that a permanently cursed object is heavily cursed as well as
@@ -2511,11 +2524,15 @@ void list_object(object_type *o_ptr, int mode)
 				text_out_c(TERM_L_GREEN, format ("d%d", j));
 				text_out(" turns.  ");
 			}
-			else if (i > 0)
+			else if (i > 1)
 			{
 				text_out(", recharging every ");
 				text_out_c(TERM_L_GREEN, format ("%d", i));
 				text_out(" turns.  ");
+			}
+			else if (i > 0)
+			{
+				text_out(", recharging every turn.");
 			}
 			else text_out(".  ");
 			anything = TRUE;
@@ -2538,9 +2555,63 @@ void list_object(object_type *o_ptr, int mode)
 	    
 		if (hidden)
 		{
-			text_out_c(TERM_VIOLET,"\nIt may have undiscovered powers.  ");
+			if (anything) text_out("\n");
+			text_out_c(TERM_VIOLET,"It may have undiscovered powers.  ");
 			anything = TRUE;
 		}
+	}
+
+	if (!random && !spoil && (cp_ptr->flags & CF_APPRAISE))
+	{
+		i = object_value(o_ptr);
+
+		if (i)
+		{
+			text_out("\nYou think it values at around ");
+			text_out_c(TERM_ORANGE, format("%d", i));
+			text_out(" gp.  ");
+		}
+		else text_out("\nIt appears to be totally worthless.  ");
+
+		anything = TRUE;
+	}
+	
+	/* New line: show alchemy combination if known */
+	if ((!random) && (!spoil) && o_ptr->tval == TV_POTION)
+	{
+		char line[80];
+		bool alch_title_out = FALSE;
+
+		/* Target of mix */
+		if ((potion_alch[o_ptr->sval].known1) || (potion_alch[o_ptr->sval].known2))
+		{
+			if (!alch_title_out)
+			{
+				text_out_c(TERM_YELLOW,"\nKnown alchemical combinations:");
+				alch_title_out = TRUE;
+			}
+			alchemy_describe(line, o_ptr->sval);
+			text_out_c(TERM_L_WHITE, format("\n%s",line));
+		}
+ 
+		/* Components */
+		for (i = 0; i < SV_POTION_MAX; i++)
+		{
+			if ((potion_alch[i].sval1 == o_ptr->sval && 
+				potion_alch[i].known1) || (potion_alch[i].sval2 == o_ptr->sval && 
+				potion_alch[i].known2))
+			{
+				if (!alch_title_out)
+				{
+					text_out_c(TERM_YELLOW,"\nKnown alchemical combinations:");
+					alch_title_out = TRUE;
+				}
+				alchemy_describe(line, i);
+				text_out_c(TERM_L_WHITE, format("\n%s",line));
+			}
+		}
+	
+		anything |= alch_title_out;
 	}
 
 	/* Nothing was printed */

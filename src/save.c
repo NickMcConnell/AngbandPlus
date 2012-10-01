@@ -530,6 +530,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_infra);
 	wr_s16b(p_ptr->tim_stealth);
 	wr_s16b(p_ptr->tim_invis);
+	wr_s16b(p_ptr->stability);
 	wr_s16b(p_ptr->racial_power);
 
 	/* Write resistances */
@@ -588,7 +589,6 @@ static void wr_spells(void)
 		{
 			wr_byte(i); /* The book index */
 			wr_u16b(p_ptr->spell_learned[i]);
-			wr_u16b(p_ptr->spell_worked[i]);
 			wr_u16b(p_ptr->spell_forgotten[i]);
 		}
 	}

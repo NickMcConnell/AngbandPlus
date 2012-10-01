@@ -9,22 +9,23 @@ To create a character, you must first pick his or her gender - this has
 no real effect on the game. Next, you should choose (or let the computer 
 randomly assign you by pressing '*') the character's race. Then, you may
 choose what class you want to play. Note that not all race/class combinations
-are supported - those marked by parantheses have either incompatible statistics
-or other attributes. You can recieve a random class by pressing '*', and 
-pressing '!' will allow you a truely random class, with the unsupported 
-combinations being possible outcomes as well.
+are supported - those displayed in grey have either incompatible statistics
+or other attributes. You can recieve a random class (selected from the 
+supported choices) by pressing '*'.
 
-Once you have chosen your character's basic characteristics, you are given
-the option to change birth options. Finally, you will have to generate the
-characters attributes - the exact method used to do so depends on the birth
-options (for additional help on these issues check the birth options help
-file).
+At any time when selecting your character's basic characteristics, you can
+change the birth options by pressing '='. Finally, you will have to generate 
+the character's attributes - the exact method used to do so depends on the 
+birth options (for additional help on these issues check the birth options 
+help file).
 
-You may start the entire process over at any time.
+You may start the entire process over at any time by pressing ESC, or quit
+the game by pressing CTRL-X. 
 
 Once you have accepted a character you will asked to provide a name for the
 character.  In general, the actual choice of a name is not important, but do
 keep in mind that it may have some effect on the game itself.  For example,
 on some machines, the chatacter name determines the filename that will be
 used to save the character to disk.  On others, the character name specifies
-special "pref" files.  And the character name is used on the high score list.
+special "pref" files.  Also, the character name is used on the high score 
+list.

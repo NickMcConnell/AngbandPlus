@@ -13,7 +13,7 @@
 # index pointing to the entry in monster.txt that the unique is based on, and a colour that
 # superceeds the color in monster.txt. 
 
-V:0.4.0
+V:0.4.1
 
 N:1:Farmer Maggot
 R:2:w
@@ -972,7 +972,7 @@ S:CAUSE_4 | HOLD | SCARE | S_KIN | S_UNDEAD | TELE_LEVEL
 D:A warrior-king of the East.  Khamul is a powerful opponent, his skill in
 D: combat awesome and his form twisted by evil cunning.
 
-N:70:Thuringwethil
+N:70:Thuringwethil, the vampire messenger
 R:580:D
 I:130:40d100:20:145:10
 W:55:4:0:400000
@@ -988,9 +988,9 @@ S:1_IN_3 | BA_NETH | BLIND | BRAIN_SMASH | CAUSE_3 | CAUSE_4 |
 S:DRAIN_MANA | HOLD | SCARE | S_KIN
 D:Chief messenger between Sauron and Morgoth, she is surely the most deadly
 D: of her vampire race.  At first she is charming to meet, but her wings and
-D: eyes give away her true form.
+D: eyes give away her true nature.
 
-N:71:The Lernean Hydra
+N:71:The Lernaean Hydra
 R:583:w
 I:120:45d100:20:140:20
 W:55:2:0:550000
@@ -1005,7 +1005,7 @@ S:1_IN_3 | BA_FIRE | BA_POIS | BO_FIRE | BO_PLAS | BR_FIRE | BR_POIS |
 S:SCARE | S_HYDRA
 D:A massive legendary hydra.  It has twelve powerful heads.  Its many eyes
 D: stare at you as clouds of smoke and poisonous vapour rise from its
-D: seething form.
+D: seething form. It grows new heads as fast as you chop them off.
 
 N:72:First True Horror
 R:586:r
@@ -1377,9 +1377,8 @@ B:CLAW:HURT:9d12
 B:BITE:POISON:9d12
 B:BITE:POISON:9d12
 F:ANIMAL | BASH_DOOR | DROP_1D2 | DROP_GOOD | EVIL | FORCE_MAXHP |
-F:FORCE_SLEEP | MALE | MOVE_BODY | NO_CALM | NO_SLEEP | ONLY_ITEM |
-F:OPEN_DOOR | RAND_25 | RES_CONF | RES_FIRE | RES_POIS | SMART |
-F:TAKE_ITEM 
+F:FORCE_SLEEP | MOVE_BODY | NO_CALM | NO_SLEEP | ONLY_ITEM | OPEN_DOOR |
+F:RAND_25 | RES_CONF | RES_FIRE | RES_POIS | SMART | TAKE_ITEM 
 S:1_IN_4 | BRAIN_SMASH | BR_FIRE | BR_POIS | HEAL | SCARE | S_HOUND
 D:A three-headed hell hound of fearsome aspect.  Flame burns merrily from its
 D: hide as it snarls and roars its defiance.
@@ -1554,10 +1553,10 @@ B:HIT:LOSE_DEX:7d12
 B:HIT:UN_POWER:7d12
 B:HIT:UN_POWER:7d12
 F:BASH_DOOR | COLD_BLOOD | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD |
-F:DROP_GREAT | ESCORTS | EVIL | FORCE_MAXHP | FORCE_SLEEP | MALE |
-F:NO_BLIND | NO_CALM | NO_SLEEP | ONLY_ITEM | OPEN_DOOR | RES_CHAO |
-F:RES_COLD | RES_CONF | RES_ELEC | RES_FIRE | RES_NETH | RES_POIS |
-F:SEE_INVIS | SMART | UNDEAD | NO_CUT | NO_TRAP
+F:DROP_GREAT | ESCORTS | EVIL | FORCE_MAXHP | FORCE_SLEEP | NO_BLIND | 
+F:NO_CALM | NO_SLEEP | ONLY_ITEM | OPEN_DOOR | RES_CHAO | RES_COLD | 
+F:RES_CONF | RES_ELEC | RES_FIRE | RES_NETH | RES_POIS | SEE_INVIS | 
+F:SMART | UNDEAD | NO_CUT | NO_TRAP
 S:1_IN_2 | BA_FIRE | BA_MANA | BA_NETH | BLIND | BO_MANA | BRAIN_SMASH |
 S:CAUSE_4 | SCARE | S_HI_DEMON | S_HI_UNDEAD | S_KIN | S_MONSTERS |
 S:TPORT

@@ -42,25 +42,29 @@ bool spellcaster(void)
 /*
  * Returns mana cost for a spell
  */
-static s16b spell_mana(int book, int spell, bool music)
+static s16b spell_mana(int book, int spell, int sub, bool music)
 {
 	int mana, handicap;
 
 	magic_type *s_ptr;
+	sub_spell_type *ss_ptr;
 
 	/* Get the spell */
 	if (!music) s_ptr = &books[book].contents[spell];
 	else s_ptr = &instruments[book].contents[spell];
 
+	ss_ptr = &sub_spell_list[sub];
+
 	/* Extract the base spell mana */
-	mana = s_ptr->smana;
+	if (!sub) mana = s_ptr->smana;
+	else mana = ss_ptr->smana;
 
 	/* Extract the base handicap */
 	if (music) handicap = 0;
 	else handicap = (cp_ptr->spell_handicap[book] - 1);
 
 	/* Modify for handicap */
-	mana += ((s_ptr->slevel/6) * handicap);
+	mana += ((mana / 6) * handicap);
 
 	return mana;
 }
@@ -68,9 +72,9 @@ static s16b spell_mana(int book, int spell, bool music)
 /*
  * Returns chance of failure for a spell
  */
-static s16b spell_chance(int book, int spell, bool music)
+static s16b spell_chance(int book, int spell, int sub, bool music)
 {
-	int chance, minfail;
+	int chance, minfail, mana;
 	int handicap;
 	byte stat_factor;
 
@@ -86,21 +90,26 @@ static s16b spell_chance(int book, int spell, bool music)
 	/* Extract the base spell failure rate */
 	chance = s_ptr->sfail;
 
+	/* Increase for some sub spells */
+	if (sub) chance += sub_spell_list[sub].sfail;
+
 	/* Extract handicap */
 	if (!music) handicap = cp_ptr->spell_handicap[book]-1;
 	else handicap = 0;
 	
 	/* Reduce failure rate by "effective" level adjustment */
-	chance -= 3 * (p_ptr->lev - (s_ptr->slevel+handicap));
+	chance -= 3 * (p_ptr->lev - (s_ptr->slevel + handicap));
 	
 	/* Reduce failure rate by stat adjustment */
-	stat_factor = (p_stat(cp_ptr->spell_stat1) + p_stat(cp_ptr->spell_stat2))/2;
+	stat_factor = (p_stat(cp_ptr->spell_stat1) + p_stat(cp_ptr->spell_stat2)) / 2;
 	chance -= 3 * (adj_mag_stat[stat_factor] - 1);
 
+	mana = spell_mana(book, spell, sub, FALSE);
+
 	/* Not enough mana to cast */
-	if (spell_mana(book, spell, music) > p_ptr->csp)
+	if (mana > p_ptr->csp)
 	{
-		chance += 5 * (spell_mana(book, spell, music) - p_ptr->csp);
+		chance += 5 * (mana - p_ptr->csp);
 	}
 
 	/* Extract the minimum failure rate */
@@ -176,7 +185,7 @@ static bool spell_okay(int book, int spell, bool known)
 	s_ptr = &books[book].contents[spell];
 
 	/* Spell is illegal */
-	if ((s_ptr->slevel+(cp_ptr->spell_handicap[book]-1)) > p_ptr->lev) return (FALSE);
+	if ((s_ptr->slevel+(cp_ptr->spell_handicap[book] - 1)) > p_ptr->lev) return (FALSE);
 
 	/* Spell is forgotten */
 	if (p_ptr->spell_forgotten[book] & (1L << spell))
@@ -224,12 +233,14 @@ static bool tune_okay(int instrument, int lev, int tune)
 static void spell_info(char *p, int spell_index)
 {
 	/* Various class flags influence things */
-	int	beam = ((cp_ptr->flags & CF_BEAM) ? p_ptr->lev : (p_ptr->lev / 2));
+	int	beam = ((cp_ptr->flags & CF_BEAM) ? ((p_ptr->lev - 10) * 2) : (p_ptr->lev - 10));
 	int damlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
 	int durlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
 	bool holy = ((cp_ptr->flags & CF_BLESS_WEAPON) ? TRUE : FALSE);
+	int beam_low = (beam > 10 ? beam - 10 : 0);
 
-	int beam_low = (beam - 10 > 0 ? beam - 10 : 0);
+	/* Some more calculations for beam chance */
+	if (beam < 0) beam = 0;
 
 	/* Default */
 	strcpy(p, "");
@@ -257,16 +268,14 @@ static void spell_info(char *p, int spell_index)
 			strcpy(p, " range 20"); break;
 		case POW_TELE_MAJOR: 
 			sprintf(p, " range %d", damlev * 5); break;
-		case POW_BOLT_MISSILE_2: 
-			sprintf(p, " dam %dd4", (3+((damlev-1)/5))); break;
-		case POW_BOLT_ELEC: 
-			sprintf(p, " dam %dd8, beam %d%%", (3 + ((damlev-5) / 4)), beam_low); break;
-		case POW_BOLT_FROST_1: 
-			sprintf(p, " dam %dd8, beam %d%%", (5 + ((damlev-5) / 4)), beam_low); break;
-		case POW_BOLT_ACID_2: 
-			sprintf(p, " dam %dd9, beam %d%%", (6 + ((damlev-5) / 4)), beam); break;
-		case POW_BOLT_FIRE_2: 
-			sprintf(p, " dam %dd9, beam %d%%", (7 + ((damlev-5) / 3)), beam); break;
+		case POW_BOLT_ACID_X: 
+		case POW_BOLT_ELEC_X: 
+		case POW_BOLT_FIRE_X: 
+		case POW_BOLT_COLD_X: 
+		case POW_BOLT_POISON_X: 
+		case POW_BOLT_MANA_X: 
+		case POW_BOLT_NEXUS_X: 
+			sprintf(p, " beam %d%%", beam); break;
 		case POW_BOLT_SOUND: 
 			sprintf(p, " dam %dd4, beam %d%%", (3 + ((damlev-1) / 5)), beam_low); break;
 		case POW_BOLT_FORCE_1: 
@@ -277,22 +286,14 @@ static void spell_info(char *p, int spell_index)
 			strcpy(p, " dam 9d8"); break;
 		case POW_BEAM_NETHER:
 			sprintf(p, " dam %dd4", damlev * 8); break;
-		case POW_BALL_POISON_1:
-			sprintf(p, " dam %d, rad 2", 10 + (damlev / 2)); break;
-		case POW_BALL_POISON_2: 
-			sprintf(p, " dam %d, rad 3", 20 + damlev); break;
-		case POW_BALL_FIRE_1: 
-			sprintf(p, " dam %d, rad %d", 60 + damlev, (p_ptr->lev < 40) ? 2 : 3); break;
-		case POW_BALL_FIRE_2: 
-			sprintf(p, " dam %d, rad %d", 100 + (damlev * 2), (p_ptr->lev < 40) ? 3 : 4); break;
-		case POW_BALL_FROST_1: 
-			sprintf(p, " dam %d, rad %d", 35 + damlev, (p_ptr->lev < 35) ? 2 : 3); break;
-		case POW_BALL_FROST_2: 
-			sprintf(p, " dam %d, rad %d", 60 + (damlev * 2), (p_ptr->lev < 35) ? 3 : 4); break;
+		case POW_BALL_POISON:
+			sprintf(p, " dam 15, rad 2"); break;
 		case POW_BALL_SOUND: 
 			sprintf(p, " dam %d, rad 2", 30 + damlev); break;
 		case POW_BALL_MANA: 
 			sprintf(p, " dam %d, rad 3", 300 + (damlev * 2)); break;
+		case POW_BALL_ANNIHILATION: 
+			sprintf(p, " dam 800, rad 1"); break;
 		case POW_BALL_HOLY:
 			{
 				int x = (p_ptr->lev + (p_ptr->lev / ((holy) ? 2 : 4)));
@@ -327,7 +328,6 @@ static void spell_info(char *p, int spell_index)
 		case POW_DESTRUCTION: 
 			strcpy(p, " rad 15"); break;
 		case POW_LIGHT_AREA:
-			sprintf(p, " dam 2d%d, rad %d", (damlev / 2), (damlev / 10) + 1); break;
 		case POW_DARK_AREA:
 			sprintf(p, " dam 2d%d, rad %d", (damlev / 2), (damlev / 10) + 1); break;
 		case POW_ABSORB_HIT: 
@@ -340,10 +340,14 @@ static void spell_info(char *p, int spell_index)
 			strcpy(p, " dur 48+d48"); break;
 		case POW_HEROISM: 
 			strcpy(p, " dur 25+d25"); break;
+		case POW_STABILITY: 
+			strcpy(p, " dur 16+d16"); break;
 		case POW_RAGE_1: 
 			strcpy(p, " dur 25+d25"); break;
 		case POW_SHIELD: 
 			strcpy(p, " dur 30+d20"); break;
+		case POW_INFRAVISION: 
+			strcpy(p, " dur 50+d50"); break;
 		case POW_INVIS_2: 
 			strcpy(p, " dur 25+d25"); break;
 		case POW_RESILIENCE: 
@@ -358,18 +362,18 @@ static void spell_info(char *p, int spell_index)
 			sprintf(p, " dur %d+d20", durlev); break;
 		case POW_HASTE_SELF_2	: 
 			sprintf(p, " dur %d+d30", durlev + 30); break;
+		case POW_RES_ACID: 
+		case POW_RES_ELEC: 
 		case POW_RES_FIRE: 
-			strcpy(p, " dur 20+d20"); break;
 		case POW_RES_COLD: 
+		case POW_RES_POISON: 
+		case POW_RES_DISEASE: 
+		case POW_RES_LITE_DARK:
+		case POW_RES_CHAOS_NEXUS:
 			strcpy(p, " dur 20+d20"); break;
 		case POW_RES_FIRE_COLD:
-			strcpy(p, " dur 10+d10"); break;
 		case POW_RES_ACID_ELEC: 
-			strcpy(p, " dur 20+d20"); break;
-		case POW_RES_POISON: 
-			strcpy(p, " dur 20+d20"); break;
-		case POW_RES_DISEASE: 
-			strcpy(p, " dur 20+d20"); break;
+			strcpy(p, " dur 10+d10"); break;
 		case POW_RES_SOUND: 
 			strcpy(p, " dur 40+d40"); break;
 		case POW_RES_ELEMENTS:
@@ -394,12 +398,14 @@ void print_spells(int book, bool music, int lev, int y, int x)
 	int i, left_justi;
 	int j = 0;
 	int handicap;
+	int mana;
 
 	magic_type *s_ptr;
 
 	byte attr_book, attr_name;
 
-	cptr comment;
+	char comment1[20];
+	char comment2[20];
 	char info[80];
 	char out_val[160];
 
@@ -454,7 +460,7 @@ void print_spells(int book, bool music, int lev, int y, int x)
 		j++;
 
 		/* Skip illegible spells. */
-		if ((s_ptr->slevel + handicap) >= 51)
+		if ((s_ptr->slevel + handicap) > PY_MAX_LEVEL)
 		{
 			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
 			c_prt(TERM_L_DARK, out_val, y + j + 1, x);
@@ -465,9 +471,31 @@ void print_spells(int book, bool music, int lev, int y, int x)
 		spell_info(info, s_ptr->index);
 
 		/* Use that info */
-		comment = info;
+		strcpy (comment1, "");
+		strcpy (comment2, info);
 
-		/* Vivid color for known, cast spells */
+		mana = spell_mana(book, i, 0, music);
+
+		/* Hack - handle comments for people with no sub spells */
+		if ((s_ptr->smana < 0) && !(cp_ptr->flags & CF_SUB_SPELL))
+		{
+			sub_spell_type *ss_ptr = &sub_spell_list[sub_spell_idx[0 - s_ptr->smana][0]];
+			int dlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
+
+			mana = spell_mana(book, i, sub_spell_idx[0 - s_ptr->smana][0], music);
+			
+			if (ss_ptr->ds && ss_ptr->dd)
+			{
+				if (ss_ptr->bonus) sprintf(comment1, " dam %d+%dd%d", ss_ptr->bonus,
+					ss_ptr->dd, ss_ptr->ds + dlev / ss_ptr->lev_inc);
+				else sprintf(comment1, " dam %dd%d", ss_ptr->dd, 
+					ss_ptr->ds + dlev / ss_ptr->lev_inc);
+			}
+			else sprintf(comment1, " dam %d", ss_ptr->bonus);
+			if (ss_ptr->radius) sprintf(comment2, ", rad %d", ss_ptr->radius);
+		}
+
+				/* Vivid color for known, cast spells */
 		attr_name = attr_book;
 
 		/* Analyze the spell */
@@ -475,33 +503,32 @@ void print_spells(int book, bool music, int lev, int y, int x)
 		{
 			if (p_ptr->spell_forgotten[book] & (1L << i))
 			{
-				comment = " forgotten";
+				strcpy (comment1, "");
+				strcpy (comment2, " forgotten");
 				attr_name = TERM_L_WHITE;
 			}
 			else if (!(p_ptr->spell_learned[book] & (1L << i)))
 			{
 				if ((s_ptr->slevel+(cp_ptr->spell_handicap[book]-1)) <= p_ptr->lev)
 				{
-					comment = " unknown";
+					strcpy (comment1, "");
+					strcpy (comment2, " unknown");
 					attr_name = TERM_SLATE;
 				}
 				else
 				{
-					comment = " too high";
+					strcpy (comment1, "");
+					strcpy (comment2, " too high");
 					attr_name = TERM_L_DARK;
 				}
-			}
-			else if (!(p_ptr->spell_worked[book] & (1L << i)))
-			{
-				comment = " untried";
-				attr_name = TERM_WHITE;
 			}
 		}
 		else
 		{
 			if (s_ptr->slevel > p_ptr->lev)
 			{
-				comment = " too high";
+				strcpy (comment1, "");
+				strcpy (comment2, " too high");
 				attr_name = TERM_L_DARK;
 			}
 		}
@@ -513,9 +540,103 @@ void print_spells(int book, bool music, int lev, int y, int x)
 		put_str(format("  %c) ", I2A(i)), y + j + 1, x);
 		c_put_str(attr_name, format("%-30s", s_ptr->sname), 
 			y + j + 1, x + 5);
-		c_put_str(attr_name, format("%2d %4d %3d%%", (s_ptr->slevel+handicap), 
-			spell_mana(book, i, music), spell_chance(book, i, music)), y + j + 1, x + 35);
-		c_put_str(attr_name, format("%s", comment), y + j + 1, x + 47);
+		if (mana > 0) 
+			c_put_str(attr_name, format("%2d %4d %3d%%", (s_ptr->slevel+handicap), 
+			mana, spell_chance(book, i, 0, music)), y + j + 1, x + 35);
+		else
+		{
+			if (cp_ptr->flags & CF_SUB_SPELL)
+			{
+				c_put_str(attr_name, format("%2d    *   *", (s_ptr->slevel+handicap)),
+				y + j + 1, x + 35);
+			}
+			else 
+			{
+				sub_spell_type *ss_ptr = &sub_spell_list[sub_spell_idx[0 - s_ptr->smana][0]];
+				c_put_str(attr_name, format("%2d %4d %3d%%", 
+				(ss_ptr->lev + s_ptr->slevel + handicap), ss_ptr->smana, 
+				spell_chance(book, i, sub_spell_idx[0 - mana][0], music)), 
+				y + j + 1, x + 35);
+			}
+		}
+
+		c_put_str(attr_name, format("%s%s", comment1, comment2), y + j + 1, x + 47);
+	}
+
+	/* Clear the bottom line */
+	prt("", y + j + 2, x);
+}
+
+/*
+ * Print out a list of available spells for any spellbook given.
+ * Revised by -LM-
+ *
+ * Input y controls lines from top for list, and input x controls columns 
+ * from left. 
+ *
+ */
+static void print_sub_spells(int book, int spell, int from, int to, int y, int x)
+{
+	int i;
+	int j = 0;
+	byte attr;
+	char comment1[10];
+	char comment2[10];
+
+	int dlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
+
+	sub_spell_type *ss_ptr;
+	magic_type *s_ptr = &books[book].contents[spell];
+
+	int handicap = cp_ptr->spell_handicap[book]-1;
+
+	object_kind *k_ptr;
+
+	k_ptr = &k_info[lookup_kind(TV_MAGIC_BOOK, book)];
+
+	/* Title the list */
+	prt("", y + 1, x);
+	put_str("Lv Mana Fail Info", y + 1, x + 5);
+
+	/* Dump the spells in the book. */
+	for (i = from; i <= to; i++)
+	{
+		/* Get the spell */
+		ss_ptr = &sub_spell_list[i];
+
+		/* Increment the current line */
+		j++;
+
+		/* Clear line */
+		prt("", y + j + 1, x);
+
+		if (s_ptr->slevel + ss_ptr->lev + handicap > p_ptr->lev) 
+		{
+			strcpy(comment1, "too");
+			strcpy(comment2, " high");
+			attr = TERM_L_DARK;
+		}
+		else 
+		{
+			attr = k_ptr->d_attr;
+			if (ss_ptr->ds && ss_ptr->dd)
+			{
+				if (ss_ptr->bonus) sprintf(comment1, "dam %d+%dd%d", ss_ptr->bonus,
+					ss_ptr->dd, ss_ptr->ds + dlev / ss_ptr->lev_inc);
+				else sprintf(comment1, "dam %dd%d", ss_ptr->dd, 
+					ss_ptr->ds + dlev / ss_ptr->lev_inc);
+			}
+			else sprintf(comment1, "dam %d", ss_ptr->bonus);
+			if (ss_ptr->radius) sprintf(comment2, ", rad %d", ss_ptr->radius);
+			else strcpy(comment2, " ");	
+		}
+
+		/* Print out (colored) information about a single spell. */
+		put_str(format("  %c) ", I2A(j - 1)), y + j + 1, x);
+		c_put_str(attr, format(" %2d %4d  %2d%% %s%s", s_ptr->slevel + ss_ptr->lev + handicap,
+			spell_mana(book, spell, i, FALSE), spell_chance(book, spell, i, FALSE), 
+			comment1, comment2), 
+			y + j + 1, x + 4);
 	}
 
 	/* Clear the bottom line */
@@ -559,22 +680,16 @@ byte count_spells(int book)
 /*
  * Get a spell out of a book/instrument
  */
-static int get_spell(int *sn, cptr prompt, int book, bool known)
+static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool allow_all)
 {
 	int i;
 
 	int spell = -1;
 
-	int ver;
-
 	bool flag, redraw, okay;
 	char choice;
 
-	magic_type *s_ptr;
-
 	char out_val[160];
-
-#ifdef ALLOW_REPEAT /* TNB */
 
 	/* Get the spell, if available */
 	if (repeat_pull(sn)) 
@@ -582,27 +697,30 @@ static int get_spell(int *sn, cptr prompt, int book, bool known)
 		/* Verify the spell is okay */
 		if (spell_okay(book, *sn, known)) 
 		{
+			if (ss) repeat_pull(ss);
+
 			/* Success */
 			return (TRUE);
 		}
 	}
 
-#endif /* ALLOW_REPEAT */
-
-	okay = FALSE;
-
-	/* Assume no spells available */
-	(*sn) = -2;
-
-	/* Check for "okay" spells */
-	for (i = 0; i < MAX_BOOK_SPELLS; i++)
+	if (!allow_all)
 	{
-		/* Look for "okay" spells */
-		if (spell_okay(book, i, known)) okay = TRUE;
-	}
+		okay = FALSE;
 
-	/* No "okay" spells */
-	if (!okay) return (FALSE);
+		/* Assume no spells available */
+		(*sn) = -2;
+
+		/* Check for "okay" spells */
+		for (i = 0; i < MAX_BOOK_SPELLS; i++)
+		{
+			/* Look for "okay" spells */
+			if (spell_okay(book, i, known)) okay = TRUE;
+		}
+
+		/* No "okay" spells */
+		if (!okay) return (FALSE);
+	}
 
 	/* Assume cancelled */
 	*sn = (-1);
@@ -620,6 +738,8 @@ static int get_spell(int *sn, cptr prompt, int book, bool known)
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
+		okay = TRUE;
+
 		/* Request redraw */
 		if ((choice == ' ') || (choice == '*') || (choice == '?'))
 		{
@@ -650,8 +770,17 @@ static int get_spell(int *sn, cptr prompt, int book, bool known)
 			continue;
 		}
 
-		/* Note verify */
-		ver = (isupper(choice));
+		/* Force high sub-spell */
+		if (ss && !spellbook_menu1)
+		{
+			if ((ss) && isupper(choice)) *ss = -1;
+		}
+		else if (ss)
+		/* Alternate interface */
+		{
+			if (isupper(choice)) *ss = -1;
+			else *ss = -2;
+		}
 
 		/* Lowercase */
 		choice = tolower(choice);
@@ -670,28 +799,24 @@ static int get_spell(int *sn, cptr prompt, int book, bool known)
 		spell = i;
 
 		/* Require "okay" spells */
-		if (!spell_okay(book, spell, known))
+		if (!allow_all && !spell_okay(book, spell, known))
+		{
+			okay = FALSE;			
+		}
+		else if (allow_all)
+		{
+			/* Even if all spells are allowed, you need to account for illegible spells */
+			magic_type *s_ptr = &books[book].contents[spell];
+
+			/* Spell is illegal */
+			if ((s_ptr->slevel + (cp_ptr->spell_handicap[book] - 1)) > PY_MAX_LEVEL) okay = FALSE;
+		}
+
+		if (!okay)
 		{
 			bell("Illegal spell choice!");
 			message_format(MSG_FAIL, 0, "You may not %s that spell.", prompt);
 			continue;
-		}
-
-		/* Verify it */
-		if (ver)
-		{
-			char tmp_val[160];
-
-			/* Get the spell */
-			s_ptr = &books[book].contents[i];
-
-			/* Prompt */
-			strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
-			        prompt, s_ptr->sname,
-			        spell_mana(book, spell, FALSE), spell_chance(book, spell, FALSE));
-
-			/* Belay that order */
-			if (!get_check(tmp_val)) continue;
 		}
 
 		/* Stop the loop */
@@ -711,10 +836,8 @@ static int get_spell(int *sn, cptr prompt, int book, bool known)
 	/* Save the choice */
 	(*sn) = spell;
 
-#ifdef ALLOW_REPEAT /* TNB */
 	repeat_push(*sn);
-
-#endif /* ALLOW_REPEAT */
+	if (ss) repeat_push(*ss);
 
 	/* Success */
 	return (TRUE);
@@ -723,22 +846,16 @@ static int get_spell(int *sn, cptr prompt, int book, bool known)
 /*
  * Get a spell out of a book/instrument
  */
-static int get_tune(int *sn, cptr prompt, int instrument, int lev)
+static int get_tune(int *sn, cptr prompt, int instrument, int lev, bool allow_all)
 {
 	int i;
 
 	int tune = -1;
 
-	int ver;
-
 	bool flag, redraw, okay;
 	char choice;
 
-	magic_type *s_ptr;
-
 	char out_val[160];
-
-#ifdef ALLOW_REPEAT /* TNB */
 
 	/* Get the spell, if available */
 	if (repeat_pull(sn)) 
@@ -751,22 +868,23 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev)
 		}
 	}
 
-#endif /* ALLOW_REPEAT */
-
-	okay = FALSE;
-
-	/* Assume no spells available */
-	(*sn) = -2;
-
-	/* Check for "okay" spells */
-	for (i = 0; i < MAX_BOOK_SPELLS; i++)
+	if (!allow_all)
 	{
-		/* Look for "okay" spells */
-		if (tune_okay(instrument, lev, i)) okay = TRUE;
-	}
+		okay = FALSE;
 
-	/* No "okay" spells */
-	if (!okay) return (FALSE);
+		/* Assume no spells available */
+		(*sn) = -2;
+
+		/* Check for "okay" spells */
+		for (i = 0; i < MAX_BOOK_SPELLS; i++)
+		{
+			/* Look for "okay" spells */
+			if (tune_okay(instrument, lev, i)) okay = TRUE;
+		}
+	
+		/* No "okay" spells */
+		if (!okay) return (FALSE);
+	}
 
 	/* Assume cancelled */
 	*sn = (-1);
@@ -814,9 +932,6 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev)
 			continue;
 		}
 
-		/* Note verify */
-		ver = (isupper(choice));
-
 		/* Lowercase */
 		choice = tolower(choice);
 
@@ -833,27 +948,11 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev)
 		/* Convert spellbook number to spell index. */
 		tune = i;
 
-		if (!tune_okay(instrument, lev, tune))
+		if (!allow_all && !tune_okay(instrument, lev, tune))
 		{
 			bell("Illegal tune choice!");
 			message_format(MSG_FAIL, 0, "You may not %s that tune.", prompt);
 			continue;
-		}
-
-		/* Verify it */
-		if (ver)
-		{
-			char tmp_val[160];
-
-			/* Get the spell */
-			s_ptr = &instruments[instrument].contents[i];
-
-			/* Prompt */
-			strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ", prompt, s_ptr->sname,
-			        spell_mana(instrument, tune, TRUE), spell_chance(instrument, tune, TRUE));
-
-			/* Belay that order */
-			if (!get_check(tmp_val)) continue;
 		}
 
 		/* Stop the loop */
@@ -873,16 +972,14 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev)
 	/* Save the choice */
 	(*sn) = tune;
 
-#ifdef ALLOW_REPEAT /* TNB */
 	repeat_push(*sn);
-#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
 }
 
 /*
- *  Actually browse a spellbook
+ *  Actually browse an instrument
  */
 static void do_browse_instrument(int instrument, int lev)
 {
@@ -902,7 +999,7 @@ static void do_browse_instrument(int instrument, int lev)
 	while(TRUE)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_tune(&tune, "browse", instrument, lev))
+		if (!get_tune(&tune, "browse", instrument, lev, TRUE))
 		{
 			/* If cancelled, leave immediately. */
 			if (tune == -1) break;
@@ -939,6 +1036,7 @@ static void do_browse_instrument(int instrument, int lev)
 static void do_browse_book(int book)
 {
 	int spell, lines, j;
+	bool redraw = FALSE;
 
 	magic_type *s_ptr;
 
@@ -955,7 +1053,7 @@ static void do_browse_book(int book)
 	while(TRUE)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "browse", book, TRUE))
+		if (!get_spell(&spell, NULL, "browse", book, TRUE, TRUE))
 		{
 			/* If cancelled, leave immediately. */
 			if (spell == -1) break;
@@ -966,6 +1064,20 @@ static void do_browse_book(int book)
 			/* Any key cancels if no spells are available. */
 			if (inkey()) break;
 		}				  
+
+		/* Maybe we need to redraw */
+		if (redraw)
+		{
+			/* Redraw everyting */
+			screen_load();
+
+			/* Remember the screen again */
+			screen_save();
+
+			print_spells(book, FALSE, 0, 1, 14);
+
+			redraw = FALSE;
+		}
 
 		/* Clear lines, position cursor  (really should use strlen here) */
 		Term_erase(14, lines + 3, 255);
@@ -982,7 +1094,18 @@ static void do_browse_book(int book)
 		text_out_hook = text_out_to_screen;
 		
 		/* Display that spell's information. */
-		if (power_info[j].desc != NULL) text_out_c(TERM_L_BLUE, format("%^s.",power_info[j].desc));
+		if (power_info[j].desc != NULL)
+			c_put_str(TERM_L_BLUE, format("%^s.",power_info[j].desc), lines + 3, 14);
+
+		/* Display possible powers */
+		if ((cp_ptr->flags & CF_SUB_SPELL) && (s_ptr->smana < 0) && 
+			(p_ptr->spell_learned[book] & (1L << spell)))
+		{
+			byte k = (0 - s_ptr->smana);
+			redraw = TRUE;
+			print_sub_spells(book, spell, sub_spell_idx[k][0], sub_spell_idx[k][1],
+				lines + 3, 14);
+		}
 	}
 }
 
@@ -1130,7 +1253,7 @@ void do_cmd_study(void)
 	if (cp_ptr->flags & CF_CHOOSE_SPELLS)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "study", o_ptr->sval, FALSE) && (spell == -1)) return;
+		if (!get_spell(&spell, NULL, "study", o_ptr->sval, FALSE, FALSE) && (spell == -1)) return;
 	}
 	/* Priest -- Learn a random prayer */
 	else
@@ -1211,10 +1334,10 @@ void do_cmd_study(void)
 /*
  * Actual spell effect 
  */
-static bool aux_spell_cast(int index)
+static bool aux_spell_cast(int index, int sub)
 {
 	/* Various class flags influence things */
-	int	beam = ((cp_ptr->flags & CF_BEAM) ? p_ptr->lev : (p_ptr->lev / 2));
+	int	beam = ((cp_ptr->flags & CF_BEAM) ? ((p_ptr->lev - 10) * 2) : (p_ptr->lev - 10));
 	int damlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
 	int durlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
 	int inflev = ((cp_ptr->flags & CF_INFLUENCE) ? p_ptr->lev + (p_ptr->lev / 2) :
@@ -1222,21 +1345,146 @@ static bool aux_spell_cast(int index)
 	bool ignore_me;
 
 	/* A spell was cast */
-	return do_power(index, 0, beam, damlev, durlev, inflev, &ignore_me);
+	return do_power(index, sub, 0, beam, damlev, durlev, inflev, &ignore_me);
+}
+
+static bool sub_spell_menu(int book, int spell, int *ss, int from, int to)
+{
+	int i, max;
+
+	char out_val[160];
+
+	char choice;
+
+	/* Nothing chosen yet */
+	bool flag = FALSE;
+
+	/* No redraw yet */
+	bool redraw = FALSE;
+
+	magic_type *s_ptr = &books[book].contents[spell];
+
+	int handicap = cp_ptr->spell_handicap[book]-1;
+
+	/* Get the spell, if available */
+	if (repeat_pull(ss)) 
+	{
+		/* Success */
+		return (TRUE);
+	}
+
+	/* Find maximum power */
+	for (max = to; sub_spell_list[max].lev + s_ptr->slevel + handicap > p_ptr->lev; max--);
+
+	max -= from;
+
+	/* Erase memorized sub-spell */
+	*ss = 0;
+
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(spells %c-%c, *=List, ESC=exit) What spell power? ",
+		I2A(0), I2A(max));
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		{
+			/* Hide the list */
+			if (redraw)
+			{
+				/* Load screen */
+				screen_load();
+
+				/* Hide list */
+				redraw = FALSE;
+			}
+
+			/* Show the list */
+			else
+			{
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save screen */
+				screen_save();
+
+				/* Display a list of spells */
+				print_sub_spells(book, spell, from, to, 0, 30);
+			}
+
+			/* Ask again */
+			continue;
+		}
+
+		/* Lowercase */
+		choice = tolower(choice);
+
+		/* Extract request */
+		i = (islower(choice) ? A2I(choice) : -1);
+
+		/* Totally Illegal */
+		if ((i < 0) || (i > to - from) || (sub_spell_list[i + 1].lev > p_ptr->lev))
+		{
+			bell("Illegal spell power choice!");
+			continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+	/* Restore the screen */
+	if (redraw)
+	{
+		/* Load screen */
+		screen_load();
+	}
+
+	/* Abort if needed */
+	if (!flag) return (FALSE);
+
+	/* Save the choice */
+	(*ss) = i + from;
+
+	repeat_push(*ss);
+
+	return TRUE;
 }
 
 /*
+ * Get the maximum sub spell
+ */
+static int max_sub_spell(int book, int spell, int from, int to)
+{
+	int i;
+
+	magic_type *s_ptr = &books[book].contents[spell];
+
+	int handicap = cp_ptr->spell_handicap[book]-1;
+
+	for (i = to; i >= from ; i--)
+	{
+		if (sub_spell_list[i].lev + s_ptr->slevel + handicap <= p_ptr->lev) break;
+	}
+
+	return i;
+}
+/*
  * Cast a spell or pray a prayer.
  */
-static void do_cast_or_pray(int book)
+static void do_cast(int book, bool force_menu)
 {
 	int spell;
 	int chance;
+	int mana;
+	int sub = 0;
 
 	magic_type *s_ptr;
 
 	/* Ask for a spell */
-	if (!get_spell(&spell, "cast", book, TRUE))
+	if (!get_spell(&spell, &sub, "cast", book, TRUE, FALSE))
 	{
 		if (spell == -2) 
 		{
@@ -1245,11 +1493,39 @@ static void do_cast_or_pray(int book)
 		return;
 	}
 
+	/* Ensure a menu */
+	if (force_menu && !spellbook_menu2) sub = 0;
+	if (!force_menu && spellbook_menu2) sub = 0;
+
 	/* Access the spell */
 	s_ptr = &books[book].contents[spell];
 
+	/* Requires a sub-spell */
+	if (s_ptr->smana < 0)
+	{
+		byte k = 0 - s_ptr->smana;
+
+		if (cp_ptr->flags & CF_SUB_SPELL)
+		{
+			/* Auto choose sub-spell */
+			if (sub == -1) 
+				sub = max_sub_spell(book, spell, sub_spell_idx[k][0], sub_spell_idx[k][1]);
+			else if (sub == -2)
+				sub = sub_spell_idx[k][0];
+			else if (!sub_spell_menu(book, spell, &sub, sub_spell_idx[k][0], sub_spell_idx[k][1])) 
+				return;
+		}
+		else
+		{
+			sub = sub_spell_idx[k][0];
+		}
+	}
+	else sub = 0;
+
+	mana = spell_mana(book, spell, sub, FALSE);
+
 	/* Verify "dangerous" spells */
-	if (spell_mana(book, spell, FALSE) > p_ptr->csp)
+	if (mana > p_ptr->csp)
 	{
 		/* Warning */
 		message(MSG_GENERIC, 0, "You do not have enough mana to cast this spell.");
@@ -1262,7 +1538,7 @@ static void do_cast_or_pray(int book)
 	}
 
 	/* Spell failure chance */
-	chance = spell_chance(book, spell, FALSE);
+	chance = spell_chance(book, spell, sub, FALSE);
 
 	/* Failed spell */
 	if (rand_int(100) < chance)
@@ -1336,35 +1612,23 @@ static void do_cast_or_pray(int book)
 	else
 	{
 		/* Allow cancelling directional spells */
-		if (!aux_spell_cast(s_ptr->index)) return;
-
-		/* A spell was cast or a prayer prayed */
-		if (!(p_ptr->spell_worked[book] & (1L << spell)))
-		{
-			int e = s_ptr->sexp;
-
-			/* The spell or prayer worked */
-			p_ptr->spell_worked[book] |= (1L << spell);
-
-			/* Gain experience */
-			gain_exp(e * (s_ptr->slevel + (cp_ptr->spell_handicap[book]-1)));
-		}
+		if (!aux_spell_cast(s_ptr->index, sub)) return;
 	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Sufficient mana */
-	if (spell_mana(book, spell, FALSE) <= p_ptr->csp)
+	if (mana <= p_ptr->csp)
 	{
 		/* Use some mana */
-		p_ptr->csp -= spell_mana(book, spell, FALSE);
+		p_ptr->csp -= mana;
 	}
 
 	/* Over-exert the player */
 	else
 	{
-		int oops = spell_mana(book, spell, FALSE) - p_ptr->csp;
+		int oops = mana - p_ptr->csp;
 
 		/* No mana left */
 		p_ptr->csp = 0;
@@ -1407,7 +1671,7 @@ static void do_play(int instrument, int lev)
 	magic_type *s_ptr;
 
 	/* Ask for a spell */
-	if (!get_tune(&tune, "play", instrument, lev))
+	if (!get_tune(&tune, "play", instrument, lev, FALSE))
 	{
 		if (tune == -2) 
 		{
@@ -1420,7 +1684,7 @@ static void do_play(int instrument, int lev)
 	s_ptr = &instruments[instrument].contents[tune];
 
 	/* Verify "dangerous" spells */
-	if (spell_mana(instrument, tune, TRUE) > p_ptr->csp)
+	if (spell_mana(instrument, tune, 0, TRUE) > p_ptr->csp)
 	{
 		/* Warning */
 		message(MSG_GENERIC, 0, "You do not have enough mana to play this tune.");
@@ -1433,7 +1697,7 @@ static void do_play(int instrument, int lev)
 	}
 
 	/* Spell failure chance */
-	chance = spell_chance(instrument, tune, TRUE);
+	chance = spell_chance(instrument, tune, 0, TRUE);
 
 	/* Failed spell */
 	if (rand_int(100) < chance)
@@ -1446,23 +1710,23 @@ static void do_play(int instrument, int lev)
 	else
 	{
 		/* Allow cancelling directional spells */
-		if (!aux_spell_cast(s_ptr->index)) return;
+		if (!aux_spell_cast(s_ptr->index, 0)) return;
 	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Sufficient mana */
-	if (spell_mana(instrument, tune, TRUE) <= p_ptr->csp)
+	if (spell_mana(instrument, tune, 0, TRUE) <= p_ptr->csp)
 	{
 		/* Use some mana */
-		p_ptr->csp -= spell_mana(instrument, tune, TRUE);
+		p_ptr->csp -= spell_mana(instrument, tune, 0, TRUE);
 	}
 
 	/* Over-exert the player */
 	else
 	{
-		int oops = spell_mana(instrument, tune, TRUE) - p_ptr->csp;
+		int oops = spell_mana(instrument, tune, 0, TRUE) - p_ptr->csp;
 
 		/* No mana left */
 		p_ptr->csp = 0;
@@ -1500,6 +1764,7 @@ static void do_play(int instrument, int lev)
 void do_cmd_magic(void)
 {
 	int item;
+	bool force_menu = FALSE;
 
 	object_type *o_ptr;
 
@@ -1555,16 +1820,29 @@ void do_cmd_magic(void)
 	}
 	else
 	{
+		int flg;
+
+		if (literate() && (!(cp_ptr->flags & CF_MUSIC))) flg = (USE_INVEN | USE_FLOOR);
+		if (literate() && (cp_ptr->flags & CF_MUSIC)) flg = (USE_INVEN | USE_FLOOR | USE_EQUIP); 
+
+		if (spellbook_menu1 && (cp_ptr->flags & CF_SUB_SPELL)) flg |= CAPITAL_HACK;
+
 		/* Can read books, can't use instruments */
 		if (literate() && (!(cp_ptr->flags & CF_MUSIC))) 
 			if (!get_item(&item, "Use which book? ", "You have no books that you can use.", 
-			(USE_INVEN | USE_FLOOR))) return;
+			flg)) return;
 
 		/* Can use both instruments and books */
 		if (literate() && ((cp_ptr->flags & CF_MUSIC))) 
 			if (!get_item(&item, "Use which book or musical instrument? ", 
-				"You have no books or musical instruments that you can use.", 
-				(USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
+				"You have no books or musical instruments that you can use.", flg)) return;
+
+		/* Hack - capital letters */
+		if (spellbook_menu1 && (item >= 100))
+		{
+			item -= 100;
+			force_menu = TRUE;
+		}
 
 		/* Get the item (in the pack) */
 		if (item >= 0)
@@ -1585,6 +1863,6 @@ void do_cmd_magic(void)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-	if (o_ptr->tval == TV_MAGIC_BOOK) do_cast_or_pray(o_ptr->sval);
+	if (o_ptr->tval == TV_MAGIC_BOOK) do_cast(o_ptr->sval, force_menu);
 	else do_play(o_ptr->sval, o_ptr->pval);
 }

@@ -508,6 +508,20 @@ static void prt_state(void)
 		{
 			text[4] = text[5] = text[6] = text[7] = text[8] = '&';
 		}
+
+		 /* Rest for HPs */
+		else if (n == -3)
+		{
+			text[7] = 'H';
+			text[8] = 'P';
+		}
+	
+		/* Rest for SPs */
+		else if (n == -4)
+		{
+			text[7] = 'S';
+			text[8] = 'P';
+		}
 	}
 
 	/* Repeating */
@@ -2192,8 +2206,8 @@ static void calc_bonuses(void)
 	/* Resilience */
 	if (p_ptr->resilient)
 	{
-		p_ptr->to_a += 100;
-		p_ptr->dis_to_a += 100;
+		p_ptr->to_a += 50;
+		p_ptr->dis_to_a += 50;
 	}
 
 	/* Temporary blessing */
@@ -2208,8 +2222,11 @@ static void calc_bonuses(void)
 	/* Temprory shield */
 	if (p_ptr->shield)
 	{
-		p_ptr->to_a += 50;
-		p_ptr->dis_to_a += 50;
+		if (p_ptr->to_a < 10) p_ptr->to_a = 25;
+		else p_ptr->to_a += 15;
+
+		if (p_ptr->dis_to_a < 10) p_ptr->dis_to_a = 25;
+		else p_ptr->dis_to_a += 15;
 	}
 
 	/* Temporary "Hero" */
@@ -2219,6 +2236,15 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h += 15;
 		p_ptr->bravery = TRUE;
 		p_ptr->tim_flag2 |= TR2_BRAVERY;
+	}
+
+	/* Temporary stability */
+	if (p_ptr->stability)
+	{
+		p_ptr->no_stun = TRUE;
+		p_ptr->no_confuse = TRUE;
+		p_ptr->tim_flag2 |= TR2_NO_STUN;
+		p_ptr->tim_flag2 |= TR2_NO_CONF;
 	}
 
 	/* Temporary "Beserk" */
@@ -2232,8 +2258,8 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h += 15;
 		p_ptr->to_d += 15;
 		p_ptr->dis_to_d += 15;
-		p_ptr->to_a -= 25;
-		p_ptr->dis_to_a -= 25;
+		p_ptr->to_a -= 20;
+		p_ptr->dis_to_a -= 20;
 		p_ptr->disrupt = TRUE;
 		p_ptr->bravery = TRUE;
 		p_ptr->tim_flag2 |= TR2_BRAVERY;
@@ -2296,7 +2322,7 @@ static void calc_bonuses(void)
 		p_ptr->to_a += 5;
 		p_ptr->dis_to_a += 5;
 		/* 
-		 * Minuses to hit - they are only relevent if the fear is very low (wary 
+		 * Minuses to hit - they are only relevent if the fear is very low (wary)
 		 * but are retained so that the display won't be weird
 		 */
 		p_ptr->to_h -= 10;

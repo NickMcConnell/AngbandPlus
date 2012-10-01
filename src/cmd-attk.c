@@ -110,16 +110,37 @@ static sint critical_shot(object_type *o_ptr, byte *special, int dam)
  */
 static sint critical_throw(object_type *o_ptr, int dam)
 {
-	int i;
+	int i, k;
 
 	/* Extract "shot" power */
 	i = ((p_ptr->to_h + actual_to_h(o_ptr)) * 4) + (p_ptr->lev * 2);
 
+	/* Improved critical hits for some classes */
+	if (cp_ptr->flags & CF_BETTER_THROW) i += 10 + (p_ptr->lev * 2);
+
 	/* Critical hit */
 	if (randint(5000) <= i)
 	{
-		message(MSG_CRITICAL_HIT, 0,"It was a good hit!");
-		dam = 2 * dam;
+		k = p_ptr->lev + randint(500);
+		
+		/* Improved critical hits for some classes */
+		if (cp_ptr->flags & CF_BETTER_THROW) k *= 2;
+
+		if (k < 400)
+		{
+			message(MSG_CRITICAL_HIT, 0,"It was a good hit!");
+			dam = 2 * dam;
+		}
+		else if (k < 850)
+		{
+			message(MSG_CRITICAL_HIT, 0,"It was a great hit!");
+			dam = ((5 * dam) / 2) + 5;
+		}
+		else
+		{
+			message(MSG_CRITICAL_HIT, 0,"It was a superb hit!");
+			dam = 3 * dam + 10;
+		}
 	}
 
 	return (dam);
@@ -161,24 +182,28 @@ static sint critical_norm(object_type *o_ptr, byte *special, int dam)
 		{
 			message(MSG_CRITICAL_HIT, 0,"It was a good hit!");
 			if (o_ptr->tval == TV_POLEARM) dam = 2 * dam + 5;
+			else if (o_ptr->tval == TV_SWORD) dam = ((6 * dam) / 5) + 5;
 		}
 		else if (k < 700)
 		{
 			message(MSG_CRITICAL_HIT, 0, "It was a great hit!");
-			if (o_ptr->tval == TV_POLEARM) dam = 2 * dam + 10;
+			if (o_ptr->tval == TV_POLEARM) dam = ((11 * dam) / 5) + 10;
+			else if (o_ptr->tval == TV_SWORD) dam = ((3 * dam) / 2) + 5;
 			else dam = dam + 5;
 		}
 		else if (k < 900)
 		{
 			message(MSG_CRITICAL_HIT, 0, "It was a superb hit!");
 			if (o_ptr->tval == TV_POLEARM) dam = 3 * dam + 15;
+			else if (o_ptr->tval == TV_SWORD) dam = ((8 * dam) / 5) + 8;
 			else dam = ((3 * dam) / 2) + 8;
 		}
 		else if (k < 1300)
 		{
 			message(MSG_CRITICAL_HIT, 0, "It was a *GREAT* hit!");
-			if (o_ptr->tval == TV_POLEARM) dam = 3 * dam + 20;
-			else dam = ((3 * dam) / 2) + 10;
+			if (o_ptr->tval == TV_POLEARM) dam = ((16 * dam) / 5) + 20;
+			else if (o_ptr->tval == TV_SWORD) dam = 2 * dam + 13;
+			else dam = ((8 * dam) / 5) + 13;
 
 			if ((o_ptr->tval == TV_HAFTED) && (rand_int(100) < 10)) (*special) |= SPEC_CONF;
 		}
@@ -186,7 +211,8 @@ static sint critical_norm(object_type *o_ptr, byte *special, int dam)
 		{
 			message(MSG_CRITICAL_HIT, 0, "It was a *SUPERB* hit!");
 			if (o_ptr->tval == TV_POLEARM) dam = ((7 * dam) / 2) + 25;
-			else dam = 2 * dam + 13;
+			if (o_ptr->tval == TV_SWORD) dam = ((12 * dam) / 5) + 16;
+			else dam = 2 * dam + 16;
 
 			if ((o_ptr->tval == TV_HAFTED) && (rand_int(100) < 25)) (*special) |= SPEC_CONF;
 		}
@@ -318,6 +344,12 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_FIRE, FALSE);
 				mult = 0;
 			}
+			else if (r_ptr->flags2 & (RF2_HURT_FIRE))
+			{
+				mult = 15;
+				lore_learn(m_ptr, LRN_FLAG2, RF2_HURT_FIRE, FALSE);
+			}
+
 			break;
 		}
 
@@ -410,6 +442,14 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 				if (r_ptr->flags3 & (RF3_RES_ACID)) 
 					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_ACID, FALSE);
 
+				/* Notice vulnerabilitiy */
+				else if (r_ptr->flags2 & (RF2_HURT_ACID)) 
+				{
+					lore_learn(m_ptr, LRN_FLAG2, RF2_HURT_ACID, FALSE);
+					if (mult < (3 * slays[SL_BRAND_ACID]) / 2)
+						mult = (3 * slays[SL_BRAND_ACID]) / 2;
+				}
+
 				/* Otherwise, take the damage */
 				else if (mult < slays[SL_BRAND_ACID]) mult = slays[SL_BRAND_ACID];
 			}
@@ -420,6 +460,14 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_RES_ELEC)) 
 					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_ELEC, FALSE);
+
+				/* Notice vulnerabilitiy */
+				else if (r_ptr->flags2 & (RF2_HURT_ELEC)) 
+				{
+					lore_learn(m_ptr, LRN_FLAG2, RF2_HURT_ELEC, FALSE);
+					if (mult < (3 * slays[SL_BRAND_ELEC]) / 2) 
+						mult = (3 * slays[SL_BRAND_ELEC]) / 2;
+				}
 
 				/* Otherwise, take the damage */
 				else if (mult < slays[SL_BRAND_ELEC]) mult = slays[SL_BRAND_ELEC];
@@ -432,6 +480,14 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 				if (r_ptr->flags3 & (RF3_RES_FIRE)) 
 					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_FIRE, FALSE);
 
+				/* Notice vulnerabilitiy */
+				else if (r_ptr->flags2 & (RF2_HURT_FIRE)) 
+				{
+					lore_learn(m_ptr, LRN_FLAG2, RF2_HURT_FIRE, FALSE);
+					if (mult < (3 * slays[SL_BRAND_FIRE]) / 2)
+						mult = (3 * slays[SL_BRAND_FIRE]) / 2;
+				}
+
 				/* Otherwise, take the damage */
 				else if (mult < slays[SL_BRAND_FIRE]) mult = slays[SL_BRAND_FIRE];
 			}
@@ -442,6 +498,14 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_RES_COLD)) 
 					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_COLD, FALSE);
+
+				/* Notice vulnerabilitiy */
+				else if (r_ptr->flags2 & (RF2_HURT_COLD)) 
+				{
+					lore_learn(m_ptr, LRN_FLAG2, RF2_HURT_COLD, FALSE);
+					if (mult < (3 * slays[SL_BRAND_COLD]) / 2) 
+						mult = (3 * slays[SL_BRAND_COLD]) / 2;
+				}
 
 				/* Otherwise, take the damage */
 				else if (mult < slays[SL_BRAND_COLD]) mult = slays[SL_BRAND_COLD];
@@ -470,12 +534,12 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_LITE, FALSE);
 
 				/* Otherwise, take the damage */
-				else if (r_ptr->flags3 & (RF3_HURT_LITE))
+				else if (r_ptr->flags2 & (RF2_HURT_LITE))
 				{
 					if (mult < slays[SL_BRAND_LITE] * 2) mult = slays[SL_BRAND_LITE] * 2;
 					if (rand_int(100) < 50) (*special) |= SPEC_BLIND;
 
-					lore_learn(m_ptr, LRN_FLAG3, RF3_HURT_LITE, FALSE);
+					lore_learn(m_ptr, LRN_FLAG2, RF2_HURT_LITE, FALSE);
 				}
 				else 
 				{
@@ -492,12 +556,12 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_DARK, FALSE);
 
 				/* Otherwise, take the damage */
-				else if (r_ptr->flags3 & (RF3_HURT_DARK))
+				else if (r_ptr->flags2 & (RF2_HURT_DARK))
 				{
 					if (mult < slays[SL_BRAND_DARK] * 2) mult = slays[SL_BRAND_DARK] * 2;
 					if (rand_int(100) < 50) (*special) |= SPEC_BLIND;
 
-					lore_learn(m_ptr, LRN_FLAG3, RF3_HURT_DARK, FALSE);
+					lore_learn(m_ptr, LRN_FLAG2, RF2_HURT_DARK, FALSE);
 				}
 				else 
 				{
@@ -579,6 +643,9 @@ void search(void)
 						message(MSG_FIND, 0, "You found a trap!");
 
 						t_ptr->visible = TRUE;
+
+						/* Show trap */
+						lite_spot(y, x);
 
 						/* Disturb */
 						disturb(0);
@@ -1279,7 +1346,7 @@ static void move_player(int dir, int jumping)
 				message(MSG_FIND, 0, "You found a trap!");
 
 				t_ptr->visible = TRUE;
-				
+
 				/* Hit the trap */
 				hit_trap(y, x);
 			}
@@ -2384,7 +2451,7 @@ void do_cmd_rest(void)
 	/* Prompt for time if needed */
 	if (p_ptr->command_arg <= 0)
 	{
-		cptr p = "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
+		cptr p = "Rest (0-9999, h for HP, s for SP, * HP/SP, & full): ";
 
 		char out_val[80];
 
@@ -2400,10 +2467,22 @@ void do_cmd_rest(void)
 			p_ptr->command_arg = (-2);
 		}
 
-		/* Rest a lot */
+		/* Rest hit points and spell points */
 		else if (out_val[0] == '*')
 		{
 			p_ptr->command_arg = (-1);
+		}
+
+		/* Rest hit points */
+		else if (out_val[0] == 'h')
+		{
+			p_ptr->command_arg = (-3);
+		}
+
+		/* Rest spell points */
+		else if (out_val[0] == 's')
+		{
+			p_ptr->command_arg = (-4);
 		}
 
 		/* Rest some */
@@ -3007,100 +3086,100 @@ void do_cmd_throw(void)
 					{
 						case SV_POWDER_SLEEP:
 						{
-							if (sleep_monster(dir, 20)) aware=TRUE;
+							if (strike(GF_OLD_SLEEP, y, x, 20, 0)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_CONFUSE:
 						{
-							if (confuse_monster(dir, 20)) aware=TRUE;
+							if (strike(GF_OLD_CONF, y, x, 20, 0)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_STARTLE:
 						{
-							if (fear_monster(dir, 20)) aware=TRUE;
+							if (strike(GF_TURN_ALL, y, x, 20, 0)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_FLASH:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts in a bright flash of light.");
-							(void)blind_monster(dir, 12);
-							(void)fire_bolt_or_beam(0, GF_LITE_WEAK, dir, damroll(5 , 7));
-							aware=TRUE;
+							(void)strike(GF_OLD_BLIND, y, x, 12, 0);
+							(void)strike(GF_LITE_WEAK, y, x, damroll(5 , 7), 0);
+							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_DARKNESS:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts into a cloud of darkness.");
-							(void)blind_monster(dir, 12);
-							(void)fire_bolt_or_beam(0, GF_DARK_WEAK, dir, damroll(5 , 7));
-							aware=TRUE;
+							(void)strike(GF_OLD_BLIND, y, x, 12, 0);
+							(void)strike(GF_DARK_WEAK, y, x, damroll(5 , 7), 0);
+							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_FIRE1:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts in a firey explosion.");
-							(void)fire_bolt_or_beam(0, GF_FIRE,	dir, 2*damroll(3 , 8));
-							aware=TRUE;
+							(void)strike(GF_FIRE, y, x, 2 * damroll(3 , 8), 0);
+							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_FIRE2:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts in a firey inferno.");
-							(void)fire_ball(GF_FIRE, dir, 60+2*damroll(8 , 8), 2);
-							aware=TRUE;
+							(void)strike(GF_FIRE, y, x, 60 + 2 * damroll(8 , 8), 2);
+							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_COLD1:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts into an icy mist.");
-							(void)fire_bolt_or_beam(0, GF_COLD,	dir, 2*damroll(3 , 8));
-							aware=TRUE;
+							(void)strike(GF_COLD, y, x, 2 * damroll(3 , 8), 0);
+							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_COLD2:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts in an explosion of frost.");
-							(void)fire_ball(GF_ICE , dir, 60+2*damroll(8 , 8), 2);
-							aware=TRUE;
+							(void)strike(GF_ICE , y, x, 60 + 2 * damroll(8 , 8), 2);
+							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_ENERGY:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts in an explosion of pure energy.");
-							(void)fire_ball(GF_MANA, dir, 100+4*damroll(10 , 10), 2);
-							aware=TRUE;
+							(void)strike(GF_MANA, y, x, 100 + 4 * damroll(10 , 10), 2);
+							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_POISON:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts into noxius vapours.");
-							(void)fire_bolt_or_beam(0, GF_POIS, dir, 2*damroll(3 , 7));
-							aware=TRUE;
+							(void)strike(GF_POIS, y, x, 2 * damroll(3 , 7), 0);
+							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_HASTE:
 						{
-							if (speed_monster(dir)) aware=TRUE;
+							if (strike(GF_OLD_SPEED, y, x, 0, 0)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_HEAL:
 						{
-							if (heal_monster(dir)) aware=TRUE;
+							if (strike(GF_OLD_HEAL, y, x, damroll(4, 8), 0)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_SLOW:
 						{
-							if (slow_monster(dir, 20)) aware=TRUE;
+							if (strike(GF_OLD_SLOW, y, x, 20, 0)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_CALM:
 						{
-							if (calm_monster(dir, 20)) aware=TRUE;
+							if (strike(GF_OLD_CALM, y, x, 20, 0)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_POLYMORPH:
 						{
-							if (poly_monster(dir, 20)) aware=TRUE;
+							if (strike(GF_OLD_POLY, y, x, 20, 0)) aware = TRUE;
 							break;
 						}
 					}

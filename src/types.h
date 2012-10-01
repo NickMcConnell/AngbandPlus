@@ -80,6 +80,7 @@ typedef struct quest_type quest_type;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct magic_type magic_type;
+typedef struct sub_spell_type sub_spell_type;
 typedef struct alchemy_info alchemy_info;
 typedef struct spell_book spell_book;
 typedef struct res_cap res_cap;
@@ -137,7 +138,7 @@ struct maxima
  */
 struct info_entry
 {
-	byte	index;
+	u16b	index;
 	cptr	desc;
 };
 
@@ -222,7 +223,7 @@ struct object_kind
 
 	s32b cost;					/* Object "base cost" */
 
-	byte activation;			/* Object "activation" */
+	u16b activation;			/* Object "activation" */
 
 	u32b flags1;				/* Flags, set 1 */
 	u32b flags2;				/* Flags, set 2 */
@@ -292,7 +293,7 @@ struct artifact_type
 
 	byte prefix_idx;	/* Prefix type, if any */
 
-	byte activation;	/* Activation to use */
+	u16b activation;	/* Activation to use */
 	u16b time;			/* Activation time */
 	u16b randtime;		/* Activation time dice */
 };
@@ -895,12 +896,30 @@ struct store_type
  */
 struct magic_type
 {
-	byte index;			/* The internal spell index. */
+	u16b index;			/* The internal spell index. */
 	cptr sname;			/* The name of the spell in the spellbook */
 	byte slevel;		/* Required level (to learn) */
-	byte smana;			/* Required mana (to cast) */
+	s16b smana;			/* Required mana (to cast) */
 	byte sfail;			/* Minimum chance of failure */
-	byte sexp;			/* Encoded experience bonus */
+};
+
+/*
+ * The "name" of spell 'N' is stored as spell_names[X][N],
+ * where X is 0 for mage-spells and 1 for priest-spells.
+ */
+struct sub_spell_type
+{
+	s16b smana;			/* Required mana (to cast) */
+	byte dd;			/* Damage dice */
+	byte ds;			/* Damage sides */
+	byte bonus;			/* Bonus */
+	byte radius;		/* Radius */
+
+	byte sfail;			/* Minimum chance of failure */
+
+	byte lev_inc;		/* Levels to increase die */
+
+	byte lev;			/* Minimum level */
 };
 
 /*
@@ -1169,6 +1188,7 @@ struct player_type
 	s16b shield;		/* Timed -- Shield Spell */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- Invisiblity */
+	s16b stability;		/* Timed -- Stability */
 
 	s16b tim_infra;		/* Timed -- Infra Vision */
 	s16b tim_stealth;	/* Timed -- Stealth */
@@ -1187,7 +1207,6 @@ struct player_type
 	byte searching;		/* Currently searching */
 
 	u16b spell_learned[SV_BOOK_MAX];	/* Spell flags */
-	u16b spell_worked[SV_BOOK_MAX];		/* Spell flags */
 	u16b spell_forgotten[SV_BOOK_MAX];	/* Spell flags */
 
 	byte spell_order[SV_BOOK_MAX * MAX_BOOK_SPELLS][2];	/* Spell order */

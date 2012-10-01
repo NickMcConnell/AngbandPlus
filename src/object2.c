@@ -827,6 +827,8 @@ static s32b object_value_base(object_type *o_ptr)
 		{
 			value = (value * apx_info[o_ptr->prefix_idx].cost) / 100;
 		}
+
+		if ((k_ptr->cost > 0) && (!value)) value = 1;
 	}
 	
 	/* Return value */
@@ -879,8 +881,6 @@ static s32b object_value_real(object_type *o_ptr)
 		{
 			value = (value * apx_info[o_ptr->prefix_idx].cost) / 100;
 		}
-
-		if ((k_ptr->cost > 0) && (!value)) value = 1;
 	}
 
 	/* Extract some flags */
@@ -4929,6 +4929,9 @@ void create_quest_item(int ny, int nx)
 	i_ptr->to_h = (byte)rand_int(QUEST_NAME_3);
 
 	i_ptr->weight = 5 + (byte)rand_int(20);
+
+	/* Identify it */
+	object_known(i_ptr);
 
 	/* Drop the artifact from heaven */
 	drop_near(i_ptr, -1, ny, nx);

@@ -55,6 +55,8 @@ extern byte invis_chance[31];
 extern s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[SEX_MAX];
 extern spell_book instruments[SV_MUSIC_MAX];
+extern byte sub_spell_idx[MAX_SUB_TYPE][2];
+extern sub_spell_type sub_spell_list[MAX_SUB_SPELL];
 extern spell_book books[SV_BOOK_MAX];
 extern player_race_special race_special_info[2][RACE_SPECIAL_LEVELS];
 extern cptr resist_names[RS_MAX];
@@ -415,6 +417,7 @@ extern bool set_resilient(int v);
 extern bool set_absorb(int v);
 extern bool set_tim_see_invis(int v);
 extern bool set_tim_invis(int v);
+extern bool set_stability(int v);
 extern void nullify_invis(void);
 extern bool set_tim_infra(int v);
 extern bool set_tim_stealth(int v);
@@ -496,7 +499,7 @@ extern s16b m_pop(void);
 extern errr get_mon_num_prep(void);
 extern s16b get_mon_num(int level);
 extern void monster_desc(char *desc, monster_type *m_ptr, int mode);
-extern void lore_do_probe(int m_idx);
+extern void lore_do_probe(monster_type *m_ptr);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
 extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
@@ -613,7 +616,7 @@ extern s16b actual_ac(object_type *o_ptr);
 
 /* powers.c */
 extern info_entry power_info[POW_MAX];
-extern bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *obvious);
+extern bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev, bool *obvious);
 
 /* quest.c */
 extern cptr describe_quest(s16b level, int mode);
@@ -629,7 +632,7 @@ extern bool save_player(void);
 extern bool load_player(void);
 
 /* spells1.c */
-extern bool resist_effect(byte factor, byte res);
+extern bool resist_effect(byte res);
 extern void teleport_away(int m_idx, int dis);
 extern void teleport_player(int dis);
 extern void teleport_player_to(int ny, int nx);
@@ -678,53 +681,26 @@ extern bool brand_weapon(byte weapon_type, int brand_type, bool add_plus);
 extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool recharge(int num);
-extern bool speed_monsters(void);
-extern bool slow_monsters(int power);
-extern bool sleep_monsters(int power);
-extern bool confuse_monsters(int power);
-extern bool banish_evil(int dist);
-extern bool turn_undead(int power);
-extern bool scare_monsters(int power);
-extern bool blight(int dam);
-extern bool astral_burst(int perc);
-extern bool dispel_undead(int dam);
-extern bool dispel_evil(int dam);
-extern bool dispel_non_evil(int dam);
-extern bool dispel_monsters(int dam);
-extern bool calm_animals(int power);
-extern bool calm_non_evil(int power);
-extern bool calm_non_chaos(int power);
-extern bool calm_monsters(int power);
+extern bool project_all(int typ, int dam);
 extern void aggravate_monsters(int who);
 extern void genocide(void);
 extern void mass_genocide(void);
-extern bool probing(void);
 extern void destroy_area(int y1, int x1, int r, bool full);
 extern void earthquake(int cy, int cx, int r);
 extern void lite_area(int dam, int rad);
 extern void unlite_area(int dam, int rad);
+extern bool strike(int typ, int y, int x, int dam, int rad);
 extern bool fire_ball(int typ, int dir, int dam, int rad);
+extern void fire_ball_combo(int t1, int t2, int t3, int t4, int dir, int dam, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
 extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
 extern bool lite_line(int dir, int dam);
-extern bool drain_life(int dir, int dam);
 extern bool wall_to_mud(int dir);
 extern bool destroy_door(int dir);
 extern bool disarm_trap(int dir);
-extern bool heal_monster(int dir);
-extern bool speed_monster(int dir);
-extern bool slow_monster(int dir, int plev);
-extern bool sleep_monster(int dir, int plev);
-extern bool confuse_monster(int dir, int plev);
-extern bool blind_monster(int dir, int plev);
-extern bool calm_monster(int dir, int plev);
-extern bool poly_monster(int dir, int plev);
-extern bool clone_monster(int dir);
-extern bool fear_monster(int dir, int plev);
-extern bool teleport_monster(int dir);
-extern bool call_monster(int dir);
 extern bool door_creation(void);
+extern bool wall_creation(void);
 extern bool trap_creation(int power);
 extern bool magic_lock(void);
 extern bool destroy_doors_touch(void);
@@ -759,6 +735,9 @@ extern bool warding_glyph(byte type);
 extern bool mon_glyph_check(int m_idx, int y, int x);
 
 /* util.c */
+extern void repeat_push(int what);
+extern bool repeat_pull(int *what);
+extern void repeat_check(void);
 extern errr path_parse(char *buf, int max, cptr file);
 extern errr path_build(char *buf, int max, cptr path, cptr file);
 extern FILE *my_fopen(cptr file, cptr mode);
@@ -868,6 +847,17 @@ extern bool confuse_dir(int *dp);
  * Hack -- conditional (or "bizarre") externs
  */
  
+#ifdef XML_HELP
+
+/* xmlbulp.c */
+extern int bulp_stricmp(char *s1, char *s2);
+
+/* help.c */
+extern u32b open_help(char *file);
+extern u32b render_xml_file(char *file, bool clear, bool help_text, bool persist);
+
+#endif 
+
 #ifdef SET_UID
 # ifndef HAS_USLEEP
 /* util.c */
@@ -876,15 +866,6 @@ extern int usleep(huge usecs);
 extern void user_name(char *buf, int id);
 extern errr user_home(char *buf, int len);
 #endif
-
-#ifdef ALLOW_REPEAT
-
-/* util.c */
-extern void repeat_push(int what);
-extern bool repeat_pull(int *what);
-extern void repeat_check(void);
-
-#endif /* ALLOW_REPEAT */
 
 #ifdef ALLOW_DEBUG
 

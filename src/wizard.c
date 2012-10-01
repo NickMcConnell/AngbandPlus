@@ -2212,6 +2212,7 @@ static void spoil_mon_desc(cptr fname)
 		monster_race *r_ptr = get_monster_fake(who[i].r_idx, 0, who[i].u_idx);
 
 		cptr name = (monster_name_idx(who[i].r_idx, 0, who[i].u_idx));
+		cptr attr_desc;
 
 		/* Get the "name" */
 		if (who[i].u_idx) 
@@ -2260,8 +2261,13 @@ static void spoil_mon_desc(cptr fname)
 		/* Experience */
 		sprintf(exp, "%ld", (long)(r_ptr->mexp));
 
+		if (r_ptr->flags1 & RF1_ATTR_MULTI) attr_desc = "M. hued";
+		else if (r_ptr->flags1 & RF1_ATTR_MIMIC) attr_desc = "Mimic";
+		else if (r_ptr->flags1 & RF1_ATTR_CLEAR) attr_desc = "Clear";
+		else attr_desc = attr_to_text(r_ptr->d_attr);
+
 		/* Hack -- use visual instead */
-		sprintf(exp, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
+		sprintf(exp, "%s '%c'", attr_desc, r_ptr->d_char);
 
 		/* Dump the info */
 		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
@@ -2365,7 +2371,10 @@ static void spoil_mon_info(cptr fname)
 		text_out(buf);
 
 		/* Color */
-		text_out(attr_to_text(r_ptr->d_attr));
+		if (r_ptr->flags1 & RF1_ATTR_MULTI) text_out("Multi-hued");
+		else if (r_ptr->flags1 & RF1_ATTR_MIMIC) text_out("Mimic");
+		else if (r_ptr->flags1 & RF1_ATTR_CLEAR) text_out("Clear");
+		else text_out(attr_to_text(r_ptr->d_attr));
 
 		/* Symbol --(-- */
 		sprintf(buf, " '%c')\n", r_ptr->d_char);

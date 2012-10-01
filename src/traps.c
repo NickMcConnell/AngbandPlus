@@ -645,7 +645,7 @@ void hit_trap(int y, int x)
 					dam = dam * 2;
 					if (!p_ptr->no_cut) set_cut(p_ptr->cut + randint(dam));
 
-					if (!p_ptr->no_poison && !resist_effect(20, RS_PSN))
+					if (!p_ptr->no_poison && !resist_effect(RS_PSN))
 					{
 						message(MSG_RESIST, 0, "The poison does not affect you!");
 					}
@@ -842,7 +842,7 @@ void hit_trap(int y, int x)
 		case WG_GAS_CONF:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are surrounded by a gas of scintillating colors!");
-			if (!p_ptr->no_confuse && !resist_effect(25, RS_CNF))
+			if (!p_ptr->no_confuse && !resist_effect(RS_CNF))
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
@@ -852,7 +852,7 @@ void hit_trap(int y, int x)
 		case WG_GAS_POISON:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are surrounded by a pungent green gas!");
-			if (!p_ptr->no_poison && !resist_effect(20, RS_PSN))
+			if (!p_ptr->no_poison && !resist_effect(RS_PSN))
 			{
 				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
 			}
@@ -872,7 +872,7 @@ void hit_trap(int y, int x)
 		case WG_GAS_HALLUC:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are surrounded by a strange multi-hued mist!");
-			if (!resist_effect(25, RS_CHS))
+			if (!resist_effect(RS_CHS))
 			{
 				(void)set_image(p_ptr->image + rand_int(20) + 20);
 			}

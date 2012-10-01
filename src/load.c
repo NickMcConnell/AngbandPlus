@@ -818,6 +818,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->tim_infra);
 	rd_s16b(&p_ptr->tim_stealth);
 	rd_s16b(&p_ptr->tim_invis);
+	if (!older_than(0,4,1)) rd_s16b(&p_ptr->stability);
 	rd_s16b(&p_ptr->racial_power);
 
 	/* Read resistances */
@@ -895,16 +896,28 @@ static errr rd_spells(void)
 	for (i =0; i < tmp16u1; i++)
 	{
 		rd_byte(&tmp8u); /* The spellbook's index */
-		rd_u16b(&p_ptr->spell_learned[tmp8u]);
-		rd_u16b(&p_ptr->spell_worked[tmp8u]);
-		rd_u16b(&p_ptr->spell_forgotten[tmp8u]);
+		if (older_than(0, 4, 1)) strip_bytes(6);
+		else
+		{
+			rd_u16b(&p_ptr->spell_learned[tmp8u]);
+			rd_u16b(&p_ptr->spell_forgotten[tmp8u]);
+		}
 	}
 	for (i = 0; i < SV_BOOK_MAX * MAX_BOOK_SPELLS; i++)
 	{
 		if (i<tmp16u2) 
 		{
-			rd_byte(&p_ptr->spell_order[i][0]);
-			rd_byte(&p_ptr->spell_order[i][1]);
+			if (older_than(0, 4, 1))
+			{
+				strip_bytes(2);
+				p_ptr->spell_order[i][0] = 99;
+				p_ptr->spell_order[i][1] = 99;
+			}
+			else
+			{
+				rd_byte(&p_ptr->spell_order[i][0]);
+				rd_byte(&p_ptr->spell_order[i][1]);
+			}
 		}
 		else 
 		/* Fill in the array */

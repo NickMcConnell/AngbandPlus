@@ -68,11 +68,10 @@ info_entry power_info[POW_MAX] =
 	{POW_WORD_RECALL,		"recalls you to the town, or back into the dungeon"},
 	{POW_ALTER_REALITY,		"regenerates the dungeon level"},
 	{POW_ARROW,				"fires a magical arrow"},
-	{POW_BOLT_MISSILE_1,	"fires a single, unresistable, bolt of mana"},
-	{POW_BOLT_MISSILE_2,	"fires a single, unresistable, bolt of mana"},
+	{POW_BOLT_MISSILE,		"fires a single, unresistable, bolt of mana"},
 	{POW_BOLT_ELEC,			"fires a bolt or beam of lightning"},	
-	{POW_BOLT_FROST_1,		"fires a bolt or beam of cold"},
-	{POW_BOLT_FROST_2,		"fires a powerful bolt or beam of cold"},
+	{POW_BOLT_COLD_1,		"fires a bolt or beam of cold"},
+	{POW_BOLT_COLD_2,		"fires a powerful bolt or beam of cold"},
 	{POW_BOLT_ACID_1,		"fires a bolt or beam of acid"},
 	{POW_BOLT_ACID_2,		"fires a bolt or beam of acid"},
 	{POW_BOLT_FIRE_1,		"fires a bolt or beam of fire"},
@@ -84,20 +83,36 @@ info_entry power_info[POW_MAX] =
 	{POW_BOLT_DARK,			"fires a bolt of darkness"},
 	{POW_BOLT_WATER,		"fires a bolt of water"},
 	{POW_BOLT_MANA,			"fires a bolt or beam of pure mana"},
+	{POW_BOLT_ACID_X,		"fires a bolt or beam of acid"},
+	{POW_BOLT_ELEC_X,		"fires a bolt or beam of lightning"},
+	{POW_BOLT_FIRE_X,		"fires a bolt or beam of fire"},
+	{POW_BOLT_COLD_X,		"fires a bolt or beam of frost"},
+	{POW_BOLT_MISSILE_X,	"fires a single, unresistable, bolt of mana"},
+	{POW_BOLT_POISON_X,		"fires a bolt or beam of poison"},
+	{POW_BOLT_MANA_X,		"fires a bolt or beam of pure mana"},
+	{POW_BOLT_NEXUS_X,		"fires a bolt or beam of nexus"},
 	{POW_BEAM_WEAK_LITE,	"fires a line of light, damaging light-hating creatures"},
 	{POW_BEAM_NETHER,		"fires an ultra-powerful beam of nether (does not hurt undead)"},
-	{POW_BALL_POISON_1,		"fires a ball of poison"},
-	{POW_BALL_POISON_2,		"fires a large poison ball"},
+	{POW_BALL_ACID_X,		"fires a ball of acid"},
+	{POW_BALL_ELEC_X,		"fires a ball of lightning"},
+	{POW_BALL_FIRE_X,		"fires a ball of fire"},
+	{POW_BALL_COLD_X,		"fires a ball of frost"},
+	{POW_BALL_POISON_X,		"fires a ball of poison"},
+	{POW_BALL_COLD_ELEC_X,	"fires a large ball of frost and lightning"},
+	{POW_BALL_FIRE_ACID_X,	"fires a large ball of fire and acid"},
+	{POW_BALL_ELEM_X,		"fires a large ball of all four elements"},
+	{POW_BALL_ANNIHILATION,	"fires a small, very powerful ball of chaos, nexus, light & dark"},
+	{POW_BALL_POISON,		"fires a weak ball of poison"},
 	{POW_BALL_ACID,			"fires a ball of acid"},
 	{POW_BALL_ELEC_1,		"fires a ball of lightning"},
 	{POW_BALL_ELEC_2,		"fires a powrful ball of lightning"},
 	{POW_BALL_FIRE_1,		"fires a ball of fire"},
 	{POW_BALL_FIRE_2,		"fires a large fire ball"},
-	{POW_BALL_FROST_1,		"fires a ball of frost"},
-	{POW_BALL_FROST_2,		"fires a large frost ball"},
-	{POW_BALL_FROST_3,		"fires a large, powerful, frost ball"},
+	{POW_BALL_COLD_1,		"fires a ball of frost"},
+	{POW_BALL_COLD_2,		"fires a large frost ball"},
+	{POW_BALL_COLD_3,		"fires a large, powerful, frost ball"},
 	{POW_BALL_SOUND,		"fires a ball of sound"},
-	{POW_BALL_MANA,			"fires a large, very powerful mana ball"},
+	{POW_BALL_MANA,			"fires a very powerful mana ball"},
 	{POW_BALL_HOLY,			"fires a ball of holy force"},
 	{POW_STAR_BEAM_W_LITE,	"fires beams of light in all directions"},
 	{POW_STAR_BALL_ELEC,	"fires electricity in all directions"},
@@ -137,13 +152,14 @@ info_entry power_info[POW_MAX] =
 	{POW_BLESS_2,			"provides a medium-duration bonus to fighting ability and ac"},
 	{POW_BLESS_3,			"provides a long-duration bonus to fighting ability and ac"},
 	{POW_HEROISM,			"temporarily raises fighting skill and makes you immune to fear"},
+	{POW_STABILITY,			"temporarily makes you immune to confusion and stunning"},
 	{POW_RAGE_1,			"causes temporary berserk rage"},
 	{POW_RAGE_2,			"causes temporary berserk rage"},
 	{POW_RAGE_BLESS_RESIST,	"causes temporary berserk rage, blessing, and resistance"},
-	{POW_SHIELD,			"temporarily increases armour class by 50"},
+	{POW_SHIELD,			"temporarily increases armour class"},
 	{POW_INVIS_1,			"temporarily turns you invisible"},
 	{POW_INVIS_2,			"temporarily turns you invisible"},
-	{POW_RESILIENCE,		"temporarily raises your AC by 100 and reduces all damage by 66%"},
+	{POW_RESILIENCE,		"temporarily raises your AC by 50 and reduces all damage by 66%"},
 	{POW_INFRAVISION,		"temporarily increases the range of your infravision"},
 	{POW_STEALTH,			"temporarily increases your stealth"},
 	{POW_SEE_INVIS,			"provides temporary see invisible"},
@@ -156,6 +172,7 @@ info_entry power_info[POW_MAX] =
 	{POW_DEST_TRAP_DOOR_2,	"destroys all doors and traps next to you"},
 	{POW_STONE_TO_MUD,		"melts a wall square to floor"},
 	{POW_CREATE_DOOR,		"creates a barrier of doors around you"},
+	{POW_CREATE_WALL,		"creates a barrier of walls around you"},
 	{POW_CREATE_STAIR,		"creates a randomly oriented staircase nearby"},
 	{POW_CREATE_TRAP,		"creates traps around you"},
 	{POW_MAGIC_LOCK,		"magically locks all nearby closed doors"},
@@ -192,16 +209,20 @@ info_entry power_info[POW_MAX] =
 	{POW_IDENTIFY,			"identifies an object"},
 	{POW_IDENTIFY_PACK,		"identifies everything being carried"},
 	{POW_IDENTIFY_FULL,		"reveals all information about a specific object"},
-	{POW_RES_FIRE,			"protects from fire, cumulative with equipment"},
-	{POW_RES_COLD,			"protects from cold, cumulative with equipment"},
-	{POW_RES_FIRE_COLD,		"protects from fire & frost, cumulative with equipment"},
-	{POW_RES_ACID_ELEC,		"protects from acid & elec, cumulative with equipment"},
-	{POW_RES_POISON,		"protects from poison, cumulative with equipment"},
-	{POW_RES_DISEASE,		"protects from disease, cumulative with equipment"},
-	{POW_RES_SOUND,			"protects from sound"},
-	{POW_RES_ELEMENTS,		"protects from all elements, cumulative with equipment"},
-	{POW_RES_GREATER,		"protects from many things"},
-	{POW_RESISTANCE,		"protects from all elements & poison, cumulative with equipment"},
+	{POW_RES_ACID,			"temporarily protects from acid"},
+	{POW_RES_ELEC,			"temporarily protects from electricity"},
+	{POW_RES_FIRE,			"temporarily protects from fire"},
+	{POW_RES_COLD,			"temporarily protects from cold"},
+	{POW_RES_FIRE_COLD,		"temporarily protects from fire & frost"},
+	{POW_RES_ACID_ELEC,		"temporarily protects from acid & electricity"},
+	{POW_RES_LITE_DARK,		"temporarily protects from light & darkness"},
+	{POW_RES_CHAOS_NEXUS,	"temporarily protects from chaos & nexus"},
+	{POW_RES_POISON,		"temporarily protects from poison"},
+	{POW_RES_DISEASE,		"temporarily protects from disease"},
+	{POW_RES_SOUND,			"temporarily protects from sound"},
+	{POW_RES_ELEMENTS,		"temporarily protects from all four elements"},
+	{POW_RES_GREATER,		"temporarily protects from many things"},
+	{POW_RESISTANCE,		"temporarily protects from all elements & poison"},
 	{POW_GLYPH_WARDING,		"puts a strong glyph on the floor that monsters cannot pass over"},
 	{POW_GLYPH_LESSER,		"puts a glyph on the floor that monsters cannot pass over"},
 	{POW_GLYPH_HOLY,		"puts a sigil that blocks undead & demons and prevents summoning"},
@@ -210,7 +231,8 @@ info_entry power_info[POW_MAX] =
 	{POW_MAP_1,				"maps the local area"},
 	{POW_MAP_2,				"permanently lights and detects objects on the entire level"},
 	{POW_MAP_3,				"permanently lights and detects all on the entire level"},
-	{POW_PROBE,				"teaches about a monster's attributes and resistances"},
+	{POW_PROBE_MONSTER,		"teaches about the attributes of a monster"},
+	{POW_PROBE_ALL,			"teaches about the attributes of all visible monsters"},
 	{POW_KNOW_ALL,			"reveals the entire map, IDs your pack, and raises your stats"},
 	{POW_ENCHANT_WEAPON_HIT,"adds a plus to hit to weapons"},
 	{POW_ENCHANT_WEAPON_DAM,"adds a plus to damage to weapons"},
@@ -306,7 +328,7 @@ static void ring_of_power(int dir)
 			message(MSG_EFFECT, 0, "You are surrounded by a powerful aura.");
 
 			/* Dispel monsters */
-			dispel_monsters(1000);
+			project_all(GF_DISP_ALL, 1000);
 
 			break;
 		}
@@ -340,7 +362,7 @@ static void ring_of_power(int dir)
  * duration level, ilev is the base level for influence spells. obvious determines if the 
  * effect of the spell can be seen by the player.
  */
-bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *obvious)
+bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev, bool *obvious)
 {
 	int durat, i;
 	bool holy = ((cp_ptr->flags & CF_BLESS_WEAPON) ? TRUE : FALSE);
@@ -605,6 +627,12 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			if (set_diseased(0)) *obvious = TRUE;
 			break;
 		}
+		 case POW_CURE_FEAR_POIS:
+		{
+			if (set_afraid(0)) *obvious = TRUE;
+			if (set_poisoned(0)) *obvious = TRUE;
+			break;
+		}
 		case POW_CURE_ALL:
 		{
 			if (set_blind(0)) *obvious = TRUE;
@@ -656,7 +684,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		case POW_TELE_OTHER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (teleport_monster(dir)) *obvious = TRUE;
+			if (fire_bolt(GF_AWAY_ALL, dir, MAX_SIGHT * 5)) *obvious = TRUE;
 			break;
 		}
 		case POW_TELE_LEVEL:
@@ -696,40 +724,171 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			*obvious = TRUE;
 			break;
 		}
-		case POW_BOLT_MISSILE_1:
+		case POW_BOLT_ACID_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+
+			(void)fire_bolt_or_beam(beam, GF_ACID, dir,
+				damroll(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BOLT_ELEC_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+
+			(void)fire_bolt_or_beam(beam, GF_ELEC, dir,
+				damroll(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BOLT_FIRE_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+
+			(void)fire_bolt_or_beam(beam, GF_FIRE, dir,
+				damroll(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BOLT_COLD_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+
+			(void)fire_bolt_or_beam(beam, GF_COLD, dir,
+				damroll(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BOLT_MISSILE_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+
+			(void)fire_bolt(GF_MISSILE, dir, damroll(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BOLT_POISON_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+
+			(void)fire_bolt_or_beam(beam, GF_POIS, dir,
+				damroll(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BOLT_MANA_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+
+			(void)fire_bolt_or_beam(beam, GF_MANA, dir,
+				damroll(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BOLT_NEXUS_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+
+			(void)fire_bolt_or_beam(beam, GF_NEXUS, dir,
+				damroll(sub_spell_list[sub].dd, 
+				sub_spell_list[sub].ds + (dlev / sub_spell_list[sub].lev_inc)));
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BALL_ACID_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			(void)fire_ball(GF_ACID, dir, sub_spell_list[sub].bonus, sub_spell_list[sub].radius);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BALL_ELEC_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			(void)fire_ball(GF_ELEC, dir, sub_spell_list[sub].bonus, sub_spell_list[sub].radius);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BALL_FIRE_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			(void)fire_ball(GF_FIRE, dir, sub_spell_list[sub].bonus, sub_spell_list[sub].radius);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BALL_COLD_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			(void)fire_ball(GF_COLD, dir, sub_spell_list[sub].bonus, sub_spell_list[sub].radius);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BALL_POISON_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			(void)fire_ball(GF_POIS, dir, sub_spell_list[sub].bonus, sub_spell_list[sub].radius);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BALL_COLD_ELEC_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			(void)fire_ball_combo(GF_COLD, GF_ELEC, 0, 0, dir, 
+				sub_spell_list[sub].bonus / 2, sub_spell_list[sub].radius);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BALL_FIRE_ACID_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			(void)fire_ball_combo(GF_FIRE, GF_ACID, 0, 0, dir, 
+				sub_spell_list[sub].bonus / 2, sub_spell_list[sub].radius);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BALL_ELEM_X:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			(void)fire_ball_combo(GF_COLD, GF_ELEC, GF_FIRE, GF_ACID, dir, 
+				sub_spell_list[sub].bonus / 4, sub_spell_list[sub].radius);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BOLT_MISSILE:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_bolt(GF_MISSILE, dir, damroll(2, 6));
 			*obvious = TRUE;
 			break;
 		}
-		case POW_BOLT_MISSILE_2:
-		{
-			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt(GF_MISSILE, dir, damroll(3 + ((dlev - 1) / 5), 4));
-			*obvious = TRUE;
-			break;
-		}
 		case POW_BOLT_ELEC:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt_or_beam(beam-10, GF_ELEC, dir,
+			(void)fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
 				              damroll(3 + ((dlev - 5) / 4), 8));
 			*obvious = TRUE;
 			break;
 		}
-		case POW_BOLT_FROST_1:
+		case POW_BOLT_COLD_1:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt_or_beam(beam-10, GF_COLD, dir,
+			(void)fire_bolt_or_beam(beam - 10, GF_COLD, dir,
 				              damroll(5 + ((dlev - 5) / 4), 8));
 			*obvious = TRUE;
 			break;
 		}
-		case POW_BOLT_FROST_2:
+		case POW_BOLT_COLD_2:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt_or_beam(beam-10, GF_COLD, dir,
+			(void)fire_bolt_or_beam(beam - 10, GF_COLD, dir,
 				              damroll(10 + ((dlev - 5) / 4), 8));
 			*obvious = TRUE;
 			break;
@@ -769,7 +928,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		case POW_BOLT_SOUND:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt_or_beam(beam-10, GF_SOUND, dir,
+			(void)fire_bolt_or_beam(beam - 10, GF_SOUND, dir,
 				              damroll(3 + ((dlev - 1) / 5), 4));
 			*obvious = TRUE;
 			break;
@@ -829,22 +988,14 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		case POW_BEAM_NETHER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_bolt_or_beam(100, GF_NETHER, dir,
-				damroll((8 * dlev), 4));
+			(void)fire_beam(GF_NETHER, dir,	damroll((8 * dlev), 4));
 			*obvious = TRUE;
 			break;
 		}
-		case POW_BALL_POISON_1:
+		case POW_BALL_POISON:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_POIS, dir, 10 + (dlev / 2), 2);
-			*obvious = TRUE;
-			break;
-		}
-		case POW_BALL_POISON_2:
-		{
-			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fire_ball(GF_POIS, dir, 20 + dlev, 3);
+			(void)fire_ball(GF_POIS, dir, 15, 2);
 			*obvious = TRUE;
 			break;
 		}
@@ -883,21 +1034,21 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			*obvious = TRUE;
 			break;
 		}
-		case POW_BALL_FROST_1:
+		case POW_BALL_COLD_1:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_ball(GF_COLD, dir, 35 + (dlev), (dlev < 35) ? 2 : 3);
 			*obvious = TRUE;
 			break;
 		}
-		case POW_BALL_FROST_2:
+		case POW_BALL_COLD_2:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_ball(GF_COLD, dir, 60 + (dlev * 2), (dlev < 35) ? 3 : 4);
 			*obvious = TRUE;
 			break;
 		}
-		case POW_BALL_FROST_3:
+		case POW_BALL_COLD_3:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_ball(GF_COLD, dir, 200, 4);
@@ -915,6 +1066,18 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fire_ball(GF_MANA, dir, 300 + (dlev * 2), 3);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_BALL_ANNIHILATION:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			/* 
+			 * Note the ordering of attacks means that the squares will end up dark,
+			 * and the monsters won't be teleported until the end 
+			 */
+			   
+			(void)fire_ball_combo(GF_CHAOS, GF_LITE, GF_DARK, GF_NEXUS, dir, 200, 1);
 			*obvious = TRUE;
 			break;
 		}
@@ -945,7 +1108,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_BANISH:
 		{
-			if (banish_evil(100))
+			if (project_all(GF_AWAY_EVIL, 100))
 			{
 				message(MSG_EFFECT, 0, "The power of your god banishes evil!");
 				*obvious = TRUE;
@@ -955,72 +1118,73 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		case POW_DRAIN_LIFE_1:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			drain_life(dir, 60 + dlev);
+			fire_bolt(GF_OLD_DRAIN, dir, 60 + dlev);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_DRAIN_LIFE_2:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			drain_life(dir, 120);
+			fire_bolt(GF_OLD_DRAIN, dir, 120);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_DRAIN_LIFE_3:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			drain_life(dir, 200);
+			fire_bolt(GF_OLD_DRAIN, dir, 200);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_BLIGHT:
 		{
-			if (blight(dlev * 8)) *obvious = TRUE;
+			if (project_all(GF_DISP_PLANT, dlev * 8)) *obvious = TRUE;
+			if (project_all(GF_DISP_ANIMAL, dlev / 10)) *obvious = TRUE;
 			break;
 		}
 		case POW_BURST_ASTRAL:
 		{
-			if (astral_burst(25)) *obvious = TRUE;
+			if (project_all(GF_ASTRAL, 25)) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_ALL:
 		{
-			if (dispel_monsters(dlev * 6)) *obvious = TRUE;
+			if (project_all(GF_DISP_ALL, dlev * 6)) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_UNDEAD_1:
 		{
-			if (dispel_undead(randint(dlev * 3))) *obvious = TRUE;
+			if (project_all(GF_DISP_UNDEAD, randint(dlev * 3))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_UNDEAD_2:
 		{
-			if (dispel_undead(randint(dlev * 4))) *obvious = TRUE;
+			if (project_all(GF_DISP_UNDEAD, randint(dlev * 4))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_NON_EVIL:
 		{
-			if (dispel_non_evil(randint(dlev * 5))) *obvious = TRUE;
+			if (project_all(GF_DISP_NON_EVIL, randint(dlev * 5))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_EVIL_3:
 		{
-			if (dispel_evil(randint(dlev * 3))) *obvious = TRUE;
+			if (project_all(GF_DISP_EVIL, randint(dlev * 3))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_EVIL_4:
 		{
-			if (dispel_evil(randint(dlev * 4))) *obvious = TRUE;
+			if (project_all(GF_DISP_EVIL, randint(dlev * 4))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_EVIL_5:
 		{
-			if (dispel_evil(randint(dlev * 5))) *obvious = TRUE;
+			if (project_all(GF_DISP_EVIL, randint(dlev * 5))) *obvious = TRUE;
 			break;
 		}
 		case POW_HOLY_1:
 		{
-			if (dispel_evil(randint(dlev * 6))) *obvious = TRUE;
+			if (project_all(GF_DISP_EVIL, randint(dlev * 6))) *obvious = TRUE;
 			if (set_protevil(p_ptr->protevil + randint(25) + (llev * 3))) *obvious = TRUE;
 			if (hp_player(50)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
@@ -1032,7 +1196,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_HOLY_2:
 		{
-			if (dispel_evil(randint(dlev * 4))) *obvious = TRUE;
+			if (project_all(GF_DISP_EVIL, randint(dlev * 4))) *obvious = TRUE;
 			if (hp_player(1000)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
 			if (set_diseased(0)) *obvious = TRUE;
@@ -1160,6 +1324,15 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			if (hp_player(10)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
 			if (set_hero(p_ptr->hero + randint(25) + 25)) *obvious = TRUE;
+			break;
+		}
+		case POW_STABILITY:
+		{
+			durat = randint(16) + 16;
+			if (set_confused(0)) *obvious = TRUE;
+			if (set_stun(0)) *obvious = TRUE;
+			if (set_tim_res(RS_CNF, durat));
+			if (set_stability(p_ptr->stability + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RAGE_1:
@@ -1316,6 +1489,11 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			if (door_creation()) *obvious = TRUE;
 			break;
 		}
+		case POW_CREATE_WALL:
+		{
+			if (wall_creation()) *obvious = TRUE;
+			break;
+		}
 		case POW_CREATE_STAIR:
 		{
 			stair_creation();
@@ -1362,18 +1540,18 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		case POW_CONFUSE_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (confuse_monster(dir, ilev)) *obvious = TRUE;
+			if (fire_bolt(GF_OLD_CONF, dir, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_CONFUSE_ALL:
 		{
-			if (confuse_monsters(ilev)) *obvious = TRUE;
+			if (project_all(GF_OLD_CONF, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_SLEEP_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (sleep_monster(dir, ilev)) *obvious = TRUE;
+			if (fire_bolt(GF_OLD_SLEEP, dir, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_SLEEP_ADJACENT:
@@ -1383,97 +1561,97 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_SLEEP_ALL:
 		{
-			if (sleep_monsters(ilev)) *obvious = TRUE;
+			if (project_all(GF_OLD_SLEEP, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_SLOW_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (slow_monster(dir, ilev)) *obvious = TRUE;
+			if (fire_bolt(GF_OLD_SLOW, dir, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_SLOW_ALL:
 		{
-			if (slow_monsters(ilev)) *obvious = TRUE;
+			if (project_all(GF_OLD_SLOW, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_CALM_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (calm_monster(dir, ilev)) *obvious = TRUE;
+			if (fire_bolt(GF_OLD_CALM, dir, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_CALM_ANIMALS:
 		{
-			if (calm_animals(ilev)) *obvious = TRUE;
+			if (project_all(GF_CALM_ANIMALS, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_CALM_NON_EVIL:
 		{
-			if (calm_non_evil(ilev)) *obvious = TRUE;
+			if (project_all(GF_CALM_NON_EVIL, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_CALM_NON_CHAOS:
 		{
-			if (calm_non_chaos(100)) *obvious = TRUE;
+			if (project_all(GF_CALM_NON_CHAOS, 100)) *obvious = TRUE;
 		}
 		case POW_CALM_ALL:
 		{
-			if (calm_monsters(ilev)) *obvious = TRUE;
+			if (project_all(GF_OLD_CALM, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_BLIND_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (blind_monster(dir, ilev)) *obvious = TRUE;
+			if (fire_bolt(GF_OLD_BLIND, dir, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_SCARE_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (fear_monster(dir, ilev)) *obvious = TRUE;
+			if (fire_bolt(GF_TURN_ALL, dir, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_SCARE_UNDEAD:
 		{
-			if (turn_undead(ilev)) *obvious = TRUE;
+			if (project_all(GF_TURN_UNDEAD, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_SCARE_ALL:
 		{
-			if (scare_monsters(ilev)) *obvious = TRUE;
+			if (project_all(GF_TURN_ALL, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_CALL_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (call_monster(dir)) *obvious = TRUE;
+			if (fire_bolt(GF_CALL_ALL, dir, 0)) *obvious = TRUE;
 			break;
 		}
 		case POW_POLY_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (poly_monster(dir, ilev)) *obvious = TRUE;
+			if (fire_bolt(GF_OLD_POLY, dir, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_HEAL_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (heal_monster(dir)) *obvious = TRUE;
+			if (fire_bolt(GF_OLD_HEAL, dir, damroll(4, 8))) *obvious = TRUE;
 			break;
 		}
 
 		case POW_HASTE_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (speed_monster(dir)) *obvious = TRUE;
+			if (fire_bolt(GF_OLD_SPEED, dir, 0)) *obvious = TRUE;
 			break;
 		}
 
 		case POW_CLONE_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (clone_monster(dir)) *obvious = TRUE;
+			if (fire_bolt(GF_OLD_CLONE, dir, 0)) *obvious = TRUE;
 			break;
 		}
 		case POW_SATISFY_HUNGER:
@@ -1523,6 +1701,16 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			if (!identify_fully()) return (FALSE);
 			break;
 		}
+		case POW_RES_ACID:
+		{
+			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + randint(20) + 20)) *obvious = TRUE;
+			break;
+		}
+		case POW_RES_ELEC:
+		{
+			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + randint(20) + 20)) *obvious = TRUE;
+			break;
+		}
 		case POW_RES_FIRE:
 		{
 			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + randint(20) + 20)) *obvious = TRUE;
@@ -1542,9 +1730,23 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_RES_ACID_ELEC:
 		{
-			durat = randint(20) + 20;
+			durat = randint(10) + 10;
 			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
 			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
+			break;
+		}
+		case POW_RES_LITE_DARK:
+		{
+			durat = randint(20) + 20;
+			if (set_tim_res(RS_LIT, p_ptr->tim_res[RS_LIT] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_DRK, p_ptr->tim_res[RS_DRK] + durat)) *obvious = TRUE;
+			break;
+		}
+		case POW_RES_CHAOS_NEXUS:
+		{
+			durat = randint(20) + 20;
+			if (set_tim_res(RS_CHS, p_ptr->tim_res[RS_CHS] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_NEX, p_ptr->tim_res[RS_NEX] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_POISON:
@@ -1663,9 +1865,19 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			*obvious = TRUE;
 			break;
 		}
-		case POW_PROBE:
+		case POW_PROBE_MONSTER:
 		{
-			if (probing()) *obvious = TRUE;
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			if (fire_bolt(GF_PROBE, dir, 0)) *obvious = TRUE;
+			break;
+		}
+		case POW_PROBE_ALL:
+		{
+			if (project_all(GF_PROBE, 0))
+			{
+				message(MSG_GENERIC, 0, "That's all.");
+				*obvious = TRUE;
+			}
 			break;
 		}
 		case POW_KNOW_ALL:
@@ -1833,7 +2045,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_POISON_SELF:
 		{
-			if (!p_ptr->no_poison && !resist_effect(20, RS_PSN))
+			if (!p_ptr->no_poison && !resist_effect(RS_PSN))
 			{
 				if (set_poisoned(p_ptr->poisoned + rand_int(15) + 10))
 				{
@@ -1866,7 +2078,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_CONFUSE_SELF:
 		{
-			if (!p_ptr->no_confuse && !resist_effect(25, RS_CNF))
+			if (!p_ptr->no_confuse && !resist_effect(RS_CNF))
 			{
 				if (set_confused(p_ptr->confused + rand_int(10) + 20))
 				{
@@ -1877,7 +2089,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_HALLUCINATE:
 		{
-			if (!resist_effect(25, RS_CHS))
+			if (!resist_effect(RS_CHS))
 			{
 				if (set_image(p_ptr->image + rand_int(250) + 250))
 				{
@@ -1904,7 +2116,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_DISEASE:
 		{
-			if (!p_ptr->no_disease && !resist_effect(20, RS_DIS))
+			if (!p_ptr->no_disease && !resist_effect(RS_DIS))
 			{
 				if(set_diseased(p_ptr->diseased + rand_int(30) + 80)) *obvious = TRUE;
 			}

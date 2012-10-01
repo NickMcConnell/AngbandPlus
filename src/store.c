@@ -1599,8 +1599,6 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	object_type *o_ptr;
 
-#ifdef ALLOW_REPEAT
-
 	/* Get the item index */
 	if (repeat_pull(com_val))
 	{
@@ -1611,8 +1609,6 @@ static bool get_stock(int *com_val, cptr pmt)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 	/* Assume failure */
 	*com_val = (-1);
@@ -1681,11 +1677,8 @@ static bool get_stock(int *com_val, cptr pmt)
 	/* Save item */
 	(*com_val) = item;
 
-#ifdef ALLOW_REPEAT
-
 	repeat_push(*com_val);
 
-#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -2998,12 +2991,8 @@ static void store_process_command(bool guild_cmd)
 {
 	bool legal;
 
-#ifdef ALLOW_REPEAT
-
 	/* Handle repeating the last command */
 	repeat_check();
-
-#endif /* ALLOW_REPEAT */
 
 	legal = TRUE;
 

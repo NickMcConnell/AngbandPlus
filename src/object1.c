@@ -49,7 +49,7 @@ static cptr ring_adj[SV_RING_MAX] =
 	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite" /*, "Wedding", "Lead", "Double-banded" */
+	"Engagement", "Adamantite" , "Wedding" /*, "Lead", "Double-banded" */
 };
 
 byte ring_col[SV_RING_MAX] =
@@ -62,7 +62,7 @@ byte ring_col[SV_RING_MAX] =
 	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
 	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
-	TERM_YELLOW, TERM_L_GREEN /* , TERM_YELLOW, TERM_SLATE, TERM_YELLOW */
+	TERM_YELLOW, TERM_L_GREEN, TERM_YELLOW /*, TERM_SLATE, TERM_YELLOW */
 };
 
 /*
@@ -177,8 +177,8 @@ static cptr talis_adj[SV_TALIS_MAX] =
 
 static byte talis_col[SV_TALIS_MAX] =
 {
-	TERM_UMBER, TERM_ORANGE, TERM_L_UMBER, TERM_L_UMBER, TERM_WHITE,
-	TERM_GREEN, TERM_GREEN, TERM_SLATE, TERM_L_WHITE, TERM_L_DARK,
+	TERM_UMBER, TERM_ORANGE, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE,
+	TERM_GREEN, TERM_GREEN, TERM_SLATE, TERM_WHITE, TERM_L_DARK,
 	TERM_UMBER, TERM_L_UMBER, TERM_WHITE, TERM_YELLOW, TERM_L_GREEN,
 	TERM_YELLOW, TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE
 };
@@ -2993,6 +2993,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool use_equip = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
 	bool use_floor = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
 	bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE);
+	bool capital_hack = ((mode & (CAPITAL_HACK)) ? TRUE : FALSE);
 
 	bool allow_inven = FALSE;
 	bool allow_equip = FALSE;
@@ -3006,14 +3007,23 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int floor_list[24];
 	int floor_num;
 
-#ifdef ALLOW_REPEAT
-
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
+		bool capital = FALSE;
+
+		/* Hack - handle capitals if necessary */
+		if (capital_hack && (*cp >= 100))
+		{
+			*cp -= 100;
+			capital = TRUE;
+		}
+
 		/* Verify the item */
 		if (get_item_okay(*cp))
 		{
+			if (capital) *cp += 100;
+
 			/* Forget the item_tester_tval restriction */
 			item_tester_tval = 0;
 
@@ -3024,8 +3034,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
@@ -3605,7 +3613,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				}
 
 				/* Verify the item */
-				if (verify && !verify_item("Try", k))
+				if (!capital_hack && verify && !verify_item("Try", k))
 				{
 					done = TRUE;
 					break;
@@ -3620,6 +3628,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 				/* Accept that choice */
 				(*cp) = k;
+				/* Hack - treat capitals differently */
+				if (capital_hack && verify) (*cp) = k + 100;
 				item = TRUE;
 				done = TRUE;
 				break;
@@ -3658,12 +3668,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Warning if needed */
 	if (oops && str) message(MSG_GENERIC, 0, str);
 
-#ifdef ALLOW_REPEAT
-
 	/* Save item if available */
 	if (item) repeat_push(*cp);
-
-#endif /* ALLOW_REPEAT */
 
 	/* Result */
 	return (item);

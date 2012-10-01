@@ -411,7 +411,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Take "poison" effect */
-					if (!p_ptr->no_poison && !resist_effect(20, RS_PSN))
+					if (!p_ptr->no_poison && !resist_effect(RS_PSN))
 					{
 						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
 						{
@@ -431,7 +431,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Take "disease" effect */
-					if (!p_ptr->no_disease && !resist_effect(20, RS_DIS))
+					if (!p_ptr->no_disease && !resist_effect(RS_DIS))
 					{
 						if (set_diseased(p_ptr->diseased + randint(rlev) + 5))
 						{
@@ -451,7 +451,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Allow complete resist */
-					if (!resist_effect(20, RS_DSN))
+					if (!resist_effect(RS_DSN))
 					{
 						/* Apply disenchantment */
 						if (apply_disenchant()) obvious = TRUE;
@@ -834,7 +834,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "confused" */
-					if (!p_ptr->no_confuse && !resist_effect(25, RS_CNF))
+					if (!p_ptr->no_confuse && !resist_effect(RS_CNF))
 					{
 						if (set_confused(p_ptr->confused + randint(5) + randint((rlev / 5) + 1)))
 						{

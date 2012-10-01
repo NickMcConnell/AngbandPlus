@@ -8,7 +8,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 # Maximum number of feature types
 M:F:42
@@ -17,7 +17,7 @@ M:F:42
 M:D:231
 
 # Maximum number of object kinds
-M:K:506
+M:K:507
 
 # First gold entry
 S:G:464

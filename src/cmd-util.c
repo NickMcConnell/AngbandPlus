@@ -266,6 +266,30 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 
 			case '?':
 			{
+
+#ifdef NEW_HELP
+				switch (type)
+				{
+					case (OPT_TYPE_CHEAT):
+					{
+						sprintf(buf1, "demo.xml", options_cheat[opt[k]].text);
+						break;
+					}
+					case (OPT_TYPE_BIRTH):
+					{
+						sprintf(buf1, "demo.xml", options_birth[opt[k]].text);
+						break;
+					}
+					default:
+					{
+						sprintf(buf1, "demo.xml", options[opt[k]].text);
+						break;
+					}
+				}
+
+				open_help(buf1); 
+
+#else /* NEW_HELP */
 				switch (type)
 				{
 					case (OPT_TYPE_CHEAT):
@@ -284,7 +308,9 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 						break;
 					}
 				}
+
 				show_file(buf1, NULL, 0, 0); 
+#endif
 				Term_clear(); 
 				break;
 			}
@@ -2434,6 +2460,13 @@ void do_cmd_save_screen(void)
  */
 void do_cmd_help(void)
 {
+
+#ifdef XML_HELP
+
+	 open_help(NULL);
+
+#else /* NEW_HELP */
+
 	/* Save screen */
 	screen_save();
 
@@ -2442,6 +2475,8 @@ void do_cmd_help(void)
 
 	/* Load screen */
 	screen_load();
+#endif
+
 }
 
 /*

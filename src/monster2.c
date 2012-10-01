@@ -723,9 +723,8 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 /*
  * Learn about a monster (by "probing" it)
  */
-void lore_do_probe(int m_idx)
+void lore_do_probe(monster_type *m_ptr)
 {
-	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	/* Hack -- Memorize some flags */

@@ -1386,7 +1386,7 @@ static bool make_attack_spell(int m_idx)
 			else
 			{
 				message(MSG_EFFECT, 0, "Your mind is blasted by psionic energy.");
-				if (!p_ptr->no_confuse && !resist_effect(25, RS_CNF))
+				if (!p_ptr->no_confuse && !resist_effect(RS_CNF))
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
@@ -1420,7 +1420,7 @@ static bool make_attack_spell(int m_idx)
 				{
 					(void)set_blind(p_ptr->blind + 8 + rand_int(8));
 				}
-				if (!p_ptr->no_confuse && !resist_effect(25, RS_CNF))
+				if (!p_ptr->no_confuse && !resist_effect(RS_CNF))
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
@@ -1682,7 +1682,7 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles, and you hear puzzling noises.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s creates a mesmerising illusion.", m_name);
-			if (!p_ptr->no_confuse && !resist_effect(25, RS_CNF))
+			if (p_ptr->no_confuse || resist_effect(RS_CNF))
 			{
 				message(MSG_RESIST, 0, "You disbelieve the feeble spell.");
 			}
@@ -1913,7 +1913,7 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles strangely.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s gestures at your feet.", m_name);
-			if (!resist_effect(25, RS_NEX))
+			if (!resist_effect(RS_NEX))
 			{
 				message(MSG_RESIST, 0, "You are unaffected!");
 			}
@@ -3778,6 +3778,12 @@ static void process_monster(int m_idx)
 			/* Notice */
 			cave_set_feat(ny, nx, FEAT_FLOOR);
 
+			/* Check line of sight */
+			if (trap_lock(ny, nx))
+			{
+				delete_trap(ny, nx);
+			}
+
 			/* Note changes to viewable region */
 			if (player_has_los_bold(ny, nx)) do_view = TRUE;
 		}
@@ -4100,7 +4106,7 @@ static void process_monster(int m_idx)
 
 						message_format(MSG_HIT, m_ptr->r_idx, "%s sets off your cunning trap!", m_name);
 
-						t_list[cave_t_idx[ny][nx]].visible;
+						t_list[cave_t_idx[ny][nx]].visible = TRUE;
 					}
 
 					/* Monster is not in LOS */
@@ -4145,17 +4151,13 @@ static void process_monster(int m_idx)
 				if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
 				    (r_ptr->flags2 & (RF2_KILL_ITEM)))
 				{
-					u32b f1, f2, f3;
 					byte slays[SL_MAX];
 
-					u32b flg3 = 0L;
+					u32b flg2 = 0L;
 					u32b flg4 = 0L;
 
 					char m_name[80];
 					char o_name[80];
-
-					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
 
 					/* Get the object name */
 					object_desc(o_name, o_ptr, TRUE, (display_insc_msg ? 3 : 2));
@@ -4177,12 +4179,16 @@ static void process_monster(int m_idx)
 					if (slays[SL_ANTI_DEMON]) flg4 |= (RF4_DEMON);
 					if (slays[SL_ANTI_CHAOS]) flg4 |= (RF4_CHAOTIC);
 					if (slays[SL_ANTI_EVIL]) flg4 |= (RF4_EVIL);
-					if (slays[SL_BRAND_LITE]) flg3 |= (RF3_HURT_LITE);
-					if (slays[SL_BRAND_DARK]) flg3 |= (RF3_HURT_DARK);
+					if (slays[SL_BRAND_ELEC]) flg2 |= (RF2_HURT_ELEC);
+					if (slays[SL_BRAND_ACID]) flg2 |= (RF2_HURT_ACID);
+					if (slays[SL_BRAND_FIRE]) flg2 |= (RF2_HURT_FIRE);
+					if (slays[SL_BRAND_COLD]) flg2 |= (RF2_HURT_COLD);
+					if (slays[SL_BRAND_LITE]) flg2 |= (RF2_HURT_LITE);
+					if (slays[SL_BRAND_DARK]) flg2 |= (RF2_HURT_DARK);
 
 					/* The object cannot be picked up by the monster */
 					if (artifact_p(o_ptr) || (o_ptr->tval == TV_QUEST) || (r_ptr->flags4 & flg4)
-						|| (r_ptr->flags3 & flg3))
+						|| (r_ptr->flags2 & flg2))
 					{
 						/* Only give a message for "take_item" */
 						if (r_ptr->flags2 & (RF2_TAKE_ITEM))

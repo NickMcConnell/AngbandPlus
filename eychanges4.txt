@@ -1,7 +1,189 @@
-Changes from 0.4.0c to 0.4.0d:
+Changes from 0.4.1 to 0.4.1b:
+
+- Fully compatible with 0.4.0/b/c/d savefiles, same caveats apply as for 0.4.1.
+
+- Fully compatible with 0.4.1 savefiles.
+
+## Interface changes ##
+
+- There are now three alternate interfaces for spell power selection, toggled by
+  an option:
+  - The first, if the option spellbook_menu1 is off (default), means that if you 
+    type a lower-case letter for the spell: maaa, and the top level spell if you 
+    type a captial letter: maA.
+  - The second, if the option spellbook_menu is on, and spellbook_menu2 is off,
+    gives you the lowest level spell if you type a low-case letter: maa, the top 
+    level spell if you type a capital: maA, and a menu if you type a capital for 
+    the spellbook: mAaa or mAAa.
+  - The third, if the option spellbook_menu is on, and spellbook_menu2 is on,
+    reverses the capital behavior on spellbook selection, so maa gives you the
+    menu, mAa gives you the lowest level, and mAA, the highest level.
+  Note that if you inscribe the spellbook with a comment such as @m1, you'll 
+  get the lower-case behavior when typing 1.
+
+## Balance changes ##
+
+- Spell damage levels/mana costs tweaked.
+
+- Rangers will no longer get to choose spell powers from menus - they will 
+  only have the lowest power level available to them.
+
+- Spellsword subspells now given at higher levels than mages, and cost more 
+  mana, like other spells.
+
+- Spellswords now have lowered chances of their spells beaming.
+
+## Bug fixes ##
+
+- Minor typos fixed.
+
+- Mana cost for infravision spell corrected.
+
+- Fixed several bugs in the sub-spell selection.
+
+- Magic missile spell now works correctly.
+
+- Browsing/learning spells can no longer crash the game if you press a capital
+  letter.
+
+- You can no longer browse illegible spells.
+
+- The ring of Hades has been removed (a bug because it was not supposed to be
+  in the release version).
+
+- Artifact spoilers now correctly display curse information.
+
+Changes from 0.4.0d to 0.4.1:
+
+- 0.4.0/b/c/d savefiles are compatible, with the following exceptions:
+  - Spellcasters will have to re-learn all their spells.
+  - Spellcasters who use mage books will have their books replaced by the new
+    ones; this means they'll have a different spell selection.
 
 ## Gameplay changes ##
 
+- Amnesia attacks now make you forget trap locations.
+
+- You can now rest until your hit points or your spell point are full (thanks 
+  to Pav Lucistnik).
+
+- More documentation updated.
+
+- Maximum amount of rods in a stack increased to 4. Rod weight increased 
+  slightly.
+
+- Totally reworked how resistances affect effects. Now, the progression is no
+  longer linear and it depends on the specific resistance cap. For example. an
+  8% confusion resistance gives you no resistance to the confusion effect, a
+  16% confusion resistance give 5% chance of not being confused, a 30%
+  confusion resistance gives 50% chance, and a 40% confusion resistance makes
+  you immune to the confusion effect. Damage reduction is still simple, 
+  though - so an 8% confusion resist reduced confusion damage by 8%. This will
+  hopefully balance the resistances.
+
+- Unresisting monsters hit by nexus attacks might now be teleported a small
+  distance.
+
+# Combat #
+
+- Critical hits improved a bit.
+
+- Very high strength (25+) will allow for more blows with heavy weapons.
+
+# Magic #
+
+- The 9 mage (red) spellbooks have been totally revised. This affects mages, 
+  rangers, spellswords and mystics.
+
+- Spells no longer give experience the first time they are cast. Also, the
+  "untried" status has been removed from spells since it's now unimportant.
+
+- Some spells now allow you to choose a power level, where, for different
+  amounts of mana, you get different effects. If you press a capital letter in
+  the spell selection, it will automatically cast the most mana-intensive 
+  version of the spell available.
+
+- Browsing now allows you to see info for spells you haven't yet learnt (as 
+  long as they are available to your class).
+
+# Classes #
+
+- The experience penalty for mystics, mages, priests, paladins and rangers
+  reduced to account for their losing the spell experience bonus. Spellsword's
+  penalty remaines the same.
+
+- The thief class has been improved:
+  - They advance levels quicker.
+  - They get more attacks - they now have the best number of attacks except 
+    warriors. Their melee skill, however, is still lower than most fighter
+	classes.
+  - They get better critical hits when throwing stuff.
+  - They now get an approximation of an item's worth when "I"nspecting it.
+  - They get better saving throws.
+
+- Warriors have been improved:
+  - They now need dexterity 27 to get 6 attacks, instead of 29.
+  - Better resistances.
+  - Saving throws improved somewhat.
+  - They get an extra point of dexterity at startup.
+
+- Very slight reduction of spellsword melee and resistances.
+
+# Items #
+
+- You can now see alchemical information on potions when 'I'nspecting them
+  (thanks to Pav Lucistnik).
+
+- Rarities for the more powerful DSMs increased.
+
+- New artifact: the Ring of Hades. 
+
+- The Elven Cloak of Orodreth now gives +2 stealth.
+
+- Potions of *resistance* now worth less money (though they're still very 
+  expensive).
+
+# Monsters #
+
+- Monster spoilers now correctly list the colors of multi-hued, mimic and 
+  clear monsters.
+
+- Vampire bats are now hurt by light.
+
+- Dzoo-noo-qua are now light red (to avoid confusion with other troll types).
+
+- Orange and blue icky things modified slightly to make their EXP values make
+  sense.
+
+## Non-gameplay changes ##
+
+- General cleanup of spell effects, removing many unnecessary and inconsistent
+  function layers.
+
+## Bug fixes ##
+
+- Trap/door/wall destruction spells will no longer leave "phantom" doors.
+
+- Monsters with KILL_WALL will no longer leave "phantom" doors after killing doors.
+
+- Players will no longer leave "phantom" door when tunneling.
+
+- Searching now properly displays found traps.
+
+- Cure fear/poison power did nothing. 
+
+- Cancallable rods and staves (such as perception) now work correctly.
+
+- Demons and angels now get the correct abilities when levelling.
+
+- Confusion spells could affect you even if you had resistance.
+
+- You will no longer see two "shots" when throwing a powder.
+
+Changes from 0.4.0c to 0.4.0d:
+
+## Gameplay changes ##
+ 
 - The penalties for very low constitution slightly increased.
 
 - display_recharge_msg is now a disturbance option.

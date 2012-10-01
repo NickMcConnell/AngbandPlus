@@ -139,12 +139,12 @@ inventory - if it's gray, you can't use it. The same book always contains the
 same spell list for every class, though some classes might need to be a higher
 level for certain spells, and have a lower fail rate. 
 
-You can cast a spell from a book by pressing the 'm' or 'p' commands, then 
-picking the book and finally the spell. You must study spells before using
-them - if you see the study display at the lower right corner of the screen,
-you may study new spells by pressing 'G'. Priests and Paladins may not
-choose their own spells, but rather gain a random one out of the chosen book,
-while the other classes can pick which spell they wish to learn. 
+You can cast a spell from a book by pressing the 'm' command, then picking 
+the book and finally the spell. You must study spells before using them - 
+if you see the study display at the lower right corner of the screen, you 
+may study new spells by pressing 'G'. Priests and Paladins may not choose 
+their own spells, but rather gain a random one out of the chosen book, while 
+the other classes can pick which spell they wish to learn. 
 
 === Musical Instrument Magic ===
 

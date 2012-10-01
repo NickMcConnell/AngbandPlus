@@ -314,6 +314,13 @@ bool lose_all_info(void)
 		o_ptr->ident &= ~(IDENT_EMPTY);
 	}
 
+	/* Forget all traps */
+	for (i = 0; i < t_max; i++)
+	{
+		if (!w_info[t_list[i].w_idx].flags & WGF_GLYPH) 
+			t_list[i].visible = FALSE;
+	}
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -1950,7 +1957,7 @@ bool recharge(int num)
  *
  * Note that affected monsters are NOT auto-tracked by this usage.
  */
-static bool project_hack(int typ, int dam)
+bool project_all(int typ, int dam)
 {
 	int i, x, y;
 
@@ -1979,147 +1986,6 @@ static bool project_hack(int typ, int dam)
 
 	/* Result */
 	return (obvious);
-}
-
-/*
- * Speed monsters
- */
-bool speed_monsters(void)
-{
-	return (project_hack(GF_OLD_SPEED, 0));
-}
-
-/*
- * Slow monsters
- */
-bool slow_monsters(int power)
-{
-	return (project_hack(GF_OLD_SLOW, power));
-}
-
-/*
- * Sleep monsters
- */
-bool sleep_monsters(int power)
-{
-	return (project_hack(GF_OLD_SLEEP, power));
-}
-
-/*
- * Confuse monsters
- */
-bool confuse_monsters(int power)
-{
-	return (project_hack(GF_OLD_CONF, power));
-}
-
-/*
- * Banish evil monsters
- */
-bool banish_evil(int dist)
-{
-	return (project_hack(GF_AWAY_EVIL, dist));
-}
-
-/*
- * Turn undead
- */
-bool turn_undead(int power)
-{
-	return (project_hack(GF_TURN_UNDEAD, power));
-}
-
-/*
- * Scare all
- */
-bool scare_monsters(int power )
-{
-	return (project_hack(GF_TURN_ALL, power));
-}
-
-/*
- * Blight
- */
-bool blight(int dam)
-{
-	bool result = FALSE;
-
-	if (project_hack(GF_DISP_PLANT, dam)) result = TRUE;
-	if (project_hack(GF_DISP_ANIMAL, dam / 10)) result = TRUE;
-	
-	return (result);
-}
-
-/*
- * Astral burst
- */
-bool astral_burst(int perc)
-{
-	return (project_hack(GF_ASTRAL, perc));
-}
-
-/*
- * Dispel undead monsters
- */
-bool dispel_undead(int dam)
-{
-	return (project_hack(GF_DISP_UNDEAD, dam));
-}
-
-/*
- * Dispel evil monsters
- */
-bool dispel_evil(int dam)
-{
-	return (project_hack(GF_DISP_EVIL, dam));
-}
-
-/*
- * Dispel non-evil monsters
- */
-bool dispel_non_evil(int dam)
-{
-	return (project_hack(GF_DISP_NON_EVIL, dam));
-}
-
-/*
- * Dispel all monsters
- */
-bool dispel_monsters(int dam)
-{
-	return (project_hack(GF_DISP_ALL, dam));
-}
-
-/*
- * Calm Animals
- */
-bool calm_animals(int power)
-{
-	return (project_hack(GF_CALM_ANIMALS, power));
-}
-
-/*
- * Calm non-evil
- */
-bool calm_non_evil(int power)
-{
-	return (project_hack(GF_CALM_NON_EVIL, power));
-}
-
-/*
- * Calm non-chaos
- */
-bool calm_non_chaos(int dam)
-{
-	return (project_hack(GF_CALM_NON_CHAOS, dam));
-}
-
-/*
- * Calm monsters
- */
-bool calm_monsters(int dam)
-{
-	return (project_hack(GF_OLD_CALM, dam));
 }
 
 /*
@@ -2250,58 +2116,6 @@ void mass_genocide(void)
 }
 
 /*
- * Probe nearby monsters
- */
-bool probing(void)
-{
-	int i;
-
-	bool probe = FALSE;
-
-	/* Probe all (nearby) monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-
-		/* Paranoia -- Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Require line of sight */
-		if (!player_has_los_bold(m_ptr->fy, m_ptr->fx)) continue;
-
-		/* Probe visible monsters */
-		if (m_ptr->ml)
-		{
-			char m_name[80];
-
-			/* Start the message */
-			if (!probe) message(MSG_GENERIC, 0, "Probing...");
-
-			/* Get "the monster" or "something" */
-			monster_desc(m_name, m_ptr, 0x04);
-
-			/* Describe the monster */
-			message_format(MSG_DESCRIBE, 0, "%^s has %d hit points.", m_name, m_ptr->hp);
-
-			/* Learn all of the non-spell, non-treasure flags */
-			lore_do_probe(i);
-
-			/* Probe worked */
-			probe = TRUE;
-		}
-	}
-
-	/* Done */
-	if (probe)
-	{
-		message(MSG_GENERIC, 0, "That's all.");
-	}
-
-	/* Result */
-	return (probe);
-}
-
-/*
  * The spell of destruction
  *
  * This spell "deletes" monsters (instead of "killing" them).
@@ -2396,7 +2210,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 		message(MSG_EFFECT, 0, "There is a searing blast of light!");
 
 		/* Blind the player */
-		if (!p_ptr->no_blind && !resist_effect(20, RS_LIT))
+		if (!p_ptr->no_blind && !resist_effect(RS_LIT))
 		{
 			/* Become blind */
 			(void)set_blind(p_ptr->blind + 10 + randint(10));
@@ -3002,6 +2816,15 @@ void unlite_area(int dam, int rad)
 }
 
 /*
+ * Affect a monster in a specific location (not grids or objects)
+ */
+bool strike(int typ, int y, int x, int dam, int rad)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_JUMP;
+	return (project(-1, rad, y, x, dam, typ, flg));
+}
+
+/*
  * Cast a ball spell
  * Stop if we hit a monster, act as a "ball"
  * Allow "target" mode to pass over monsters
@@ -3028,6 +2851,69 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
 	return (project(-1, rad, ty, tx, dam, typ, flg));
+}
+
+/*
+ * Cast a ball spell which combines several attack types
+ * Mega hack - Use same target for all types
+ * Another mega hack guaruntees that only one "missile" will be drawn
+ */
+void fire_ball_combo(int t1, int t2, int t3, int t4, int dir, int dam, int rad)
+{
+	int i;
+	int ty, tx;
+
+	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		ty = p_ptr->target_row;
+		tx = p_ptr->target_col;
+	}
+	/* 
+	 * No "target" - HACK - find the stopping point here, and not in project(),
+	 * to ensure all spells end up at the same place.
+	 */
+	else
+	{
+		for (i = 1; i < 99; i++)
+		{
+			/* Use the given direction */
+			ty = p_ptr->py + i * ddy[dir];
+			tx = p_ptr->px + i * ddx[dir];
+
+			/* Always stop at non-initial wall grids */
+			if (!cave_floor_bold(ty, tx)) break;
+
+			/* Otherwise, stop on a monster */
+			if (cave_m_idx[ty][tx] != 0) break;
+		}
+	}
+
+	/* Analyze the "dir" and the "target".  Hurt items on floor. */
+	if (t1)
+	{
+		(void)project(-1, rad, ty, tx, dam, t1, flg);
+		/* Hack - now you can jump there */
+		flg |= (PROJECT_JUMP);
+	}
+	if (t2)
+	{
+		(void)project(-1, rad, ty, tx, dam, t2, flg);
+		/* Hack - now you can jump there */
+		flg |= (PROJECT_JUMP);
+	}
+	if (t3)
+	{
+		(void)project(-1, rad, ty, tx, dam, t3, flg);
+		/* Hack - now you can jump there */
+		flg |= (PROJECT_JUMP);
+	}
+	if (t4)
+	{
+		(void)project(-1, rad, ty, tx, dam, t4, flg);
+	}
 }
 
 /*
@@ -3102,12 +2988,6 @@ bool lite_line(int dir, int dam)
 	return (project_hook(GF_LITE_WEAK, dir, dam, flg));
 }
 
-bool drain_life(int dir, int dam)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_DRAIN, dir, dam, flg));
-}
-
 bool wall_to_mud(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
@@ -3126,78 +3006,6 @@ bool disarm_trap(int dir)
 	return (project_hook(GF_KILL_TRAP, dir, 0, flg));
 }
 
-bool heal_monster(int dir)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_HEAL, dir, damroll(4, 6), flg));
-}
-
-bool speed_monster(int dir)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SPEED, dir, 0, flg));
-}
-
-bool slow_monster(int dir, int plev)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLOW, dir, plev, flg));
-}
-
-bool sleep_monster(int dir, int plev)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLEEP, dir, plev, flg));
-}
-
-bool confuse_monster(int dir, int plev)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_CONF, dir, plev, flg));
-}
-
-bool blind_monster(int dir, int plev)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_BLIND, dir, plev, flg));
-}
-
-bool calm_monster(int dir, int plev)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_CALM, dir, plev, flg));
-}
-
-bool poly_monster(int dir, int plev)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_POLY, dir, plev, flg));
-}
-
-bool clone_monster(int dir)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_CLONE, dir, 0, flg));
-}
-
-bool fear_monster(int dir, int plev)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_TURN_ALL, dir, plev, flg));
-}
-
-bool teleport_monster(int dir)
-{
-	int flg = PROJECT_BEAM | PROJECT_KILL;
-	return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
-}
-
-bool call_monster(int dir)
-{
-	int flg = PROJECT_STOP| PROJECT_KILL;
-	return (project_hook(GF_CALL_ALL, dir, MAX_SIGHT, flg));
-}
-
 /*
  * Hooks -- affect adjacent grids (radius 1 ball attack)
  */
@@ -3205,6 +3013,12 @@ bool door_creation(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
 	return (project(-1, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_DOOR, flg));
+}
+
+bool wall_creation(void)
+{
+	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+	return (project(-1, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_WALL, flg));
 }
 
 bool trap_creation(int power)

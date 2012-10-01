@@ -203,15 +203,19 @@ static int collect_mon_resists(u32b flags3, cptr vp[64])
 /*
  * Collect the resist names - seperate function so it can also be used in spoiler creation
  */ 
-static int collect_mon_vulnerabilities(u32b flags3, cptr vp[64])
+static int collect_mon_vulnerabilities(u32b flags2, cptr vp[64])
 {
 	int n;
 
 	/* Collect vulnerabilities */
 	n = 0;
-	if (flags3 & (RF3_HURT_ROCK)) vp[n++] = "rock remover";
-	if (flags3 & (RF3_HURT_LITE)) vp[n++] = "bright light";
-	if (flags3 & (RF3_HURT_DARK)) vp[n++] = "darkness";
+	if (flags2 & (RF2_HURT_ROCK)) vp[n++] = "rock remover";
+	if (flags2 & (RF2_HURT_ACID)) vp[n++] = "acid";
+	if (flags2 & (RF2_HURT_ELEC)) vp[n++] = "electricity";
+	if (flags2 & (RF2_HURT_FIRE)) vp[n++] = "fire";
+	if (flags2 & (RF2_HURT_COLD)) vp[n++] = "cold";
+	if (flags2 & (RF2_HURT_LITE)) vp[n++] = "bright light";
+	if (flags2 & (RF2_HURT_DARK)) vp[n++] = "darkness";
 
 	return n;
 }
@@ -1044,7 +1048,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		text_out(format("%^s can evade attacks.  ", wd_he[msex]));
 	}
 	/* Collect susceptibilities */
-	vn = collect_mon_vulnerabilities(flags3, vp);
+	vn = collect_mon_vulnerabilities(flags2, vp);
 
 	/* Describe susceptibilities */
 	if (vn)

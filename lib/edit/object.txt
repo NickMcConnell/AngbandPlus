@@ -66,7 +66,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -1295,7 +1295,7 @@ G:[:v
 I:38:9:0
 W:70:0:200:200000
 X:15:1d1:0
-A:75/25
+A:75/30
 P:20:2d4:-2:0:10
 O:40:40:40:40:0:40:0:40:40:40:0:0:0:0:0:0:0:0
 F:BRAVERY | IGNORE_ELEM | IGNORE_NON_ELEM 
@@ -1306,7 +1306,7 @@ G:[:o
 I:38:10:2
 W:75:0:200:100000
 X:15:1d1:0
-A:80/16
+A:80/24
 P:25:2d4:-2:0:10
 O:0:0:0:0:0:0:0:0:0:00:0:0:0:50:0:0:0:0
 F:STEALTH | IGNORE_ELEM | IGNORE_NON_ELEM | INVIS
@@ -1317,7 +1317,7 @@ G:[:o
 I:38:11:0
 W:75:0:200:100000
 X:15:1d1:0
-A:80/16
+A:80/24
 P:25:2d4:-2:0:10
 O:0:0:0:0:0:0:0:0:0:0:50:0:0:0:0:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | INVIS | LUCK
@@ -1328,7 +1328,7 @@ G:[:o
 I:38:12:0
 W:75:0:200:100000
 X:15:1d1:0
-A:80/16
+A:80/24
 P:25:2d4:-2:0:10
 O:0:0:0:0:0:0:0:40:40:40:0:0:0:0:0:0:0:0
 F:NO_BLIND | IGNORE_ELEM | IGNORE_NON_ELEM | INVIS
@@ -1339,7 +1339,7 @@ G:[:v
 I:38:13:0
 W:75:0:200:80000
 X:15:1d1:0
-A:80/16
+A:80/24
 P:25:2d4:-2:0:10
 O:0:0:0:0:0:0:0:0:0:0:40:0:0:0:40:40:0:0
 F:BRAVERY | IGNORE_ELEM | IGNORE_NON_ELEM 
@@ -1350,7 +1350,7 @@ G:[:o
 I:38:14:0
 W:75:0:200:80000
 X:15:1d1:0
-A:80/16
+A:80/24
 P:25:2d4:-2:0:10
 O:0:0:0:0:0:0:0:0:0:0:0:0:40:40:0:0:40:0
 F:BRAVERY | IGNORE_ELEM | IGNORE_NON_ELEM 
@@ -1361,7 +1361,7 @@ G:[:v
 I:38:15:0
 W:80:0:200:300000
 X:15:1d1:0
-A:95/32
+A:95/40
 P:30:2d4:-3:0:15
 O:30:30:30:30:30:30:30:30:30:30:30:30:30:30:30:0:0:0
 F:BRAVERY | NO_BLIND | IGNORE_ELEM | IGNORE_NON_ELEM 
@@ -2954,7 +2954,7 @@ U:RES_ELEMENTS
 N:315:*Resistance*
 G:!:d
 I:75:62:10
-W:90:0:4:80000
+W:90:0:4:40000
 X:3:1d1:100
 A:90/2
 P:0:1d1:0:0:0
@@ -3270,7 +3270,7 @@ W:5:0:10:400
 X:13:1d1:25
 A:5/1
 P:0:1d1:0:0:0
-U:BALL_POISON_1
+U:BALL_POISON
 
 N:350:Magic Missile
 G:-:d
@@ -3279,7 +3279,7 @@ W:3:0:10:200
 X:13:1d1:25
 A:3/1
 P:0:1d1:0:0:0
-U:BOLT_MISSILE_1
+U:BOLT_MISSILE
 
 N:351:Acid Bolts
 G:-:d
@@ -3315,7 +3315,7 @@ W:20:0:10:900
 X:13:1d1:25
 A:20/1
 P:0:1d1:0:0:0
-U:BOLT_FROST_1
+U:BOLT_COLD_1
 
 N:355:Annihilation
 G:-:d
@@ -3583,7 +3583,7 @@ W:30:0:50:2000
 X:7:1d1:10
 A:30/1
 P:0:1d2:0:0:0
-U:PROBE
+U:PROBE_ALL
 
 N:384:Dispel Evil
 G:_:d
@@ -3654,7 +3654,7 @@ N:391:Summoning
 G:-:d
 I:67:0:100
 X:13:1d1:10
-W:15:0:15:0
+W:15:0:17:0
 A:15/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
@@ -3663,7 +3663,7 @@ U:SUM_MONSTER
 N:392:Darkness
 G:-:d
 I:67:1:25
-W:7:0:15:0
+W:7:0:17:0
 X:13:1d1:10
 A:7/1
 P:0:1d1:0:0:0
@@ -3673,7 +3673,7 @@ U:DARK_AREA
 N:393:Trap Location
 G:-:d
 I:67:2:50
-W:5:0:15:850
+W:5:0:17:850
 X:13:1d1:10
 A:5/1
 P:0:1d1:0:0:0
@@ -3683,7 +3683,7 @@ U:DETECT_TRAP
 N:394:Door/Stair Location
 G:-:d
 I:67:3:70
-W:15:0:15:850
+W:15:0:17:850
 X:13:1d1:10
 A:15/1
 P:0:1d1:0:0:0
@@ -3693,7 +3693,7 @@ U:DETECT_DOOR_STAIR
 N:395:Perception
 G:-:d
 I:67:4:10
-W:50:0:15:13000
+W:50:0:17:13000
 X:13:1d1:10
 A:50/8
 P:0:1d1:0:0:0
@@ -3703,7 +3703,7 @@ U:IDENTIFY
 N:396:Recall
 G:-:d
 I:67:5:60
-W:30:0:15:4500
+W:30:0:17:4500
 X:13:1d1:10
 A:30/4
 P:0:1d1:0:0:0
@@ -3713,7 +3713,7 @@ U:WORD_RECALL
 N:397:Illumination
 G:-:d
 I:67:6:30
-W:20:0:15:800
+W:20:0:17:800
 X:13:1d1:10
 A:20/1
 P:0:1d1:0:0:0
@@ -3723,7 +3723,7 @@ U:LIGHT_AREA
 N:398:Enlightenment
 G:-:d
 I:67:7:99
-W:65:0:15:10000
+W:65:0:17:10000
 X:13:1d1:10
 A:65/4
 P:0:1d1:0:0:0
@@ -3733,7 +3733,7 @@ U:MAP_1
 N:399:Detection
 G:-:d
 I:67:8:99
-W:30:0:15:7500
+W:30:0:17:7500
 X:13:1d1:10
 A:30/8
 P:0:1d1:0:0:0
@@ -3743,17 +3743,17 @@ U:DETECT_ALL
 N:400:Probing
 G:-:d
 I:67:9:50
-W:40:0:15:2000
+W:40:0:17:2000
 X:13:1d1:10
 A:40/4
 P:0:1d1:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
-U:PROBE
+U:PROBE_ALL
 
 N:401:Curing
 G:-:d
 I:67:10:999
-W:65:0:15:17500
+W:65:0:17:17500
 X:13:1d1:10
 A:65/8
 P:0:1d1:0:0:0
@@ -3763,7 +3763,7 @@ U:CURE_ALL
 N:402:Satisfy Hunger
 G:-:d
 I:67:11:2000
-W:70:0:15:20000
+W:70:0:17:20000
 X:13:1d1:10
 A:70/8
 P:0:1d1:0:0:0
@@ -3773,7 +3773,7 @@ U:SATISFY_HUNGER
 N:403:Healing
 G:-:d
 I:67:12:999
-W:80:0:15:20000
+W:80:0:17:20000
 X:13:1d1:10
 A:80/8
 P:0:1d1:0:0:0
@@ -3783,7 +3783,7 @@ U:HEAL_4
 N:404:Restoration
 G:-:d
 I:67:13:999
-W:80:0:15:25000
+W:80:0:17:25000
 X:13:1d1:10
 A:80/16
 P:0:1d1:0:0:0
@@ -3793,7 +3793,7 @@ U:RESTORE_ALL
 N:405:Speed
 G:-:d
 I:67:14:99
-W:95:0:15:50000
+W:95:0:17:50000
 X:13:1d1:10
 A:95/16
 P:0:1d1:0:0:0
@@ -3900,7 +3900,7 @@ X:8:1d1:10
 A:25/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
-U:BOLT_FROST_1
+U:BOLT_COLD_1
 
 N:416:Force Bolts
 G:`:d
@@ -3950,7 +3950,7 @@ X:8:1d1:10
 A:40/3
 P:0:1d1:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
-U:BOLT_FROST_1
+U:BOLT_COLD_1
 
 N:421:Acid Balls
 G:`:d
@@ -3990,11 +3990,11 @@ X:8:1d1:10
 A:60/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
-U:BALL_FROST_1
+U:BALL_COLD_1
 
 ##### Mage Books #####
 
-N:425:[Magic for Beginners]
+N:425:[Elementary Incantations]
 G:?:R
 I:90:0:0
 W:5:0:30:25
@@ -4003,7 +4003,7 @@ A:5/1
 F:EASY_KNOW
 P:0:1d1:0:0:0
 
-N:426:[Conjurings and Tricks]
+N:426:[Sorcerous Adjurations]
 G:?:R
 I:90:1:0
 W:10:0:30:100
@@ -4012,7 +4012,7 @@ A:10/1
 F:EASY_KNOW
 P:0:1d1:0:0:0
 
-N:427:[Incantations and Illusions]
+N:427:[Thaumaturgic Conjurations]
 G:?:R
 I:90:2:0
 W:20:0:30:400
@@ -4021,7 +4021,7 @@ A:20/1
 F:EASY_KNOW
 P:0:1d1:0:0:0
 
-N:428:[Sorcery and Evocations]
+N:428:[Evocations of Power]
 G:?:R
 I:90:3:0
 W:30:0:30:800
@@ -4057,7 +4057,7 @@ A:60/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
 
-N:432:[Tenser's Transformations]
+N:432:[Raal's Tome of Destruction]
 G:?:r
 I:90:7:0
 W:80:0:30:50000
@@ -4066,7 +4066,7 @@ A:80/2
 P:0:1d1:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
 
-N:433:[Raal's Tome of Destruction]
+N:433:[Tenser's Transformations]
 G:?:r
 I:90:8:0
 W:100:0:30:100000
@@ -4171,7 +4171,7 @@ F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
 
 ##### Mystic Spellbooks #####
 
-N:444::[The Seven Steps to Transcendence]
+N:444:[The Seven Steps to Transcendence]
 G:?:b
 I:90:20:0
 W:40:0:30:5000
@@ -4675,3 +4675,4 @@ I:5:0:0
 W:0:0:10:0
 X:16:1d1:0
 P:0:1d1:0:0:0
+

@@ -844,7 +844,7 @@ static void process_world(void)
 	/* Handle item draining */
 	if (p_ptr->item_drain)
 	{
-		if (rand_int(1000) < (resist_effect(20, RS_DSN) ? 1 : 50))
+		if (rand_int(1000) < (resist_effect(RS_DSN) ? 1 : 50))
 		{
 			/* Ten attempts at disenchanting something */
 			for (i = 0; i<10 ; i++)
@@ -1063,12 +1063,8 @@ static bool verify_borg_mode(void)
 static void process_command(void)
 {
 
-#ifdef ALLOW_REPEAT
-
 	/* Handle repeating the last command */
 	repeat_check();
-
-#endif /* ALLOW_REPEAT */
 
 #ifdef DEBUG_SAVE
 
@@ -1786,6 +1782,23 @@ static void process_player(void)
 			    !p_ptr->blind && !confused && !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !cut && !p_ptr->slow && !p_ptr->paralyzed &&
 			    !p_ptr->image && !p_ptr->word_recall)
+			{
+				disturb(0);
+			}
+		}
+		/* Rest hit points */
+		else if (p_ptr->resting == -3)
+		{
+			if (p_ptr->chp == p_ptr->mhp)
+			{
+				disturb(0);
+			}
+		}
+
+		/* Rest spell points */
+		else if (p_ptr->resting == -4)
+		{
+			if (p_ptr->csp == p_ptr->msp)
 			{
 				disturb(0);
 			}

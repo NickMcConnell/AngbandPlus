@@ -59,14 +59,18 @@ Display inven/equip
 Display equip/inven
     Display the player equipment (and sometimes the inventory).
 
-Display player (basic)
+Display player (basic info)
     Display a brief description of the character, including a breakdown
     of the current player "skills" (including attacks/shots per round).
 
-Display player (extra)
-    Display a brief description of the character, including a breakdown
-    of the contributions of each equipment item to various resistances
-    and stats.
+Display player (flags & resists)
+    Display a brief description of the character's special abilities,
+	including a breakdown of the contributions of each equipment item 
+	to the various resistances and other abilities.
+
+Display current player condition
+    Display a list of temporary effects such as poisoning and protection from 
+	evil.
 
 Display visible monsters
     Displays a color-coded list of all monsters in LOS. "Unknown" (no similar
@@ -88,17 +92,12 @@ Display monster recall
     attacked, targetted, or examined in some way.
 
 Display object recall
-    Display a description of the most recently selected object.  Currently
-    this only affects spellbooks and prayerbooks.  This window flag may be
-    usefully combined with others, such as "monster recall".
+    Display a description of the most recently selected object.  This window 
+	flag may be usefully combined with others, such as "monster recall".
 
-Display snap-shot
-    This window flag is currently unused.
-
-Display borg messages
-    This window flag is currently used only by the Borg.
-
-Display borg status
-    This window flag is currently used only by the Borg.
+Display room descriptions
+    Whenever you enter a room, a short description of it will appear in this
+	window. It has no real game effect, though it can provide you with some
+	hints of the room's contents.
 
 

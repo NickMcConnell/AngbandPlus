@@ -149,11 +149,6 @@
 #define ALLOW_TEMPLATES
 
 /*
- * OPTION: Allow repeating of last command.
- */
-#define ALLOW_REPEAT
-
-/*
  * OPTION: Allow "haggling" in stores
  */
 /* #define ALLOW_HAGGLE */
@@ -187,7 +182,7 @@
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
  * software options, which enable "monster flowing".
  */
-#define MONSTER_FLOW 
+#define MONSTER_FLOW
 
 /*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
@@ -380,3 +375,8 @@
  * HACK - Defines turned off for now for implementation of things that aren't ready yet 
  */
 /* define EGO_MONSTER_DEV ego monsters */
+
+/*
+ * Use the new XML help system by Antony Sidwell 
+ */
+/* #define XML_HELP  */

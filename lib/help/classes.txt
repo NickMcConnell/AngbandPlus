@@ -142,12 +142,12 @@ Demon      Yes    Yes  Yes     Yes      Yes    No     No      No    No
                STR    INT    WIS    DEX    CON    CHR  Hit Dice  EXP/Lev
 Warrior        +3     -1     -1     +1     +1     -1      9        +0%
 Thief           0      0     -2     +3      0     -1      3       +10%
-Mage           -3     +2      0     +1     -1     +1      0       +30%
-Spellsword     +2     +1     -1      0      0      0      5       +45%
-Ranger         +1     +1      0     +2      0      0      4       +30%
-Priest         -1     -2     +2     -1      0     +1      2       +20%
-Paladin        +2     -2     +1      0     +1     +1      6       +35%
-Mystic         -4     +3     +3      0      0      0      1       +32%
+Mage           -3     +2      0     +1     -1     +1      0       +25%
+Spellsword     +2     +1     -1      0      0      0      5       +35%
+Ranger         +1     +1      0     +2      0      0      4       +25%
+Priest         -1     -2     +2     -1      0     +1      2       +15%
+Paladin        +2     -2     +1      0     +1     +1      6       +30%
+Mystic         -4     +3     +3      0      0      0      1       +27%
 Bard           +0     +1     -1     +1      0     +2      3       +15%
 
 

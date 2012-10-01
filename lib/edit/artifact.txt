@@ -50,7 +50,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 ## Artifact Perma-Lights ##
 
@@ -212,7 +212,7 @@ P:0:0d0:6:6:0
 O:0:0:0:100:0:0:0:0:0:50:0:0:0:0:0:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | REGEN | SUST_INT | SUST_WIS | SUST_CHR | NO_BLIND 
-U:BALL_FROST_3:25:25
+U:BALL_COLD_3:25:25
 
 # The Ring of Power 'Vilya'
 
@@ -335,7 +335,7 @@ W:25:5:220:43000
 P:10:1d4:-2:0:8
 O:0:0:0:100:30:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:FREE_ACT | NO_STUN
-U:BALL_FROST_1:10:15
+U:BALL_COLD_1:10:15
 
 # The Augmented Chain Mail of Caspanion
 
@@ -706,7 +706,7 @@ I:35:3:0:2
 W:30:15:5:40000
 P:3:0d0:0:0:8
 O:0:0:30:0:30:0:0:0:0:0:30:0:0:0:0:0:0:0
-F:SUST_STR | SUST_CON | SUST_DEX | NO_BLIND
+F:SUST_STR | SUST_CON | SUST_DEX | NO_BLIND | STEALTH
 U:DETECT_TRAP:30:5
 
 ## Gloves ##
@@ -728,7 +728,7 @@ I:31:1:0:0
 W:6:2:5:12000
 P:1:1d1:0:0:10
 O:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-U:BOLT_FROST_1:7:7
+U:BOLT_COLD_1:7:7
 
 # The Set of Leather Gloves 'Pauraegen'
 
@@ -855,7 +855,7 @@ W:15:30:20:20000
 P:0:2d5:10:12:0
 K:0:0:0:0:0:0:20:20:0:0:0:0:0:0:0:0:0:0
 F:INT | DEX | SPEED | FREE_ACT | SEE_INVIS | SHOW_MODS 
-U:BOLT_MISSILE_1:5:5
+U:BOLT_MISSILE:5:5
 
 # The Dagger 'Angrist'
 
@@ -887,7 +887,7 @@ P:0:2d4:4:3:0
 K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:25:0:0
 O:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:20:0:0
 F:SHOW_MODS
-U:BALL_POISON_1:4:4
+U:BALL_POISON:4:4
 
 # The Dagger 'Idrost'
 
@@ -930,7 +930,7 @@ P:0:3d5:20:12:0
 K:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0:0
 O:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:DEX | FREE_ACT | FEATHER | SLOW_DIGEST | SHOW_MODS
-U:BOLT_FROST_2:50:20
+U:BOLT_COLD_2:50:20
 
 # The Broad Sword 'Glamdring'
 
@@ -1027,7 +1027,7 @@ P:0:4d5:20:20:0
 O:0:0:0:25:0:0:0:20:0:0:0:0:0:0:0:0:0:0
 K:15:0:0:0:20:20:0:0:0:0:0:0:0:0:20:0:0:0
 F:SPEED | BRAVERY | FREE_ACT | SEE_INVIS | SLOW_DIGEST | REGEN | SHOW_MODS
-U:BALL_FROST_2:80:10
+U:BALL_COLD_2:80:10
 
 # The Long Sword 'Anduril'
 
@@ -1187,7 +1187,7 @@ P:0:3d6:15:20:5
 O:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 K:15:0:0:0:20:0:20:0:0:0:0:0:0:0:20:0:0:0
 F:WIS | DEX | BRAVERY | FREE_ACT | SLOW_DIGEST | BLESSED | SHOW_MODS
-U:BALL_FROST_2:350:0
+U:BALL_COLD_2:350:0
 
 # The Spear of Orome
 
@@ -1459,7 +1459,7 @@ P:0:2d9:10:10:0
 O:0:0:20:0:0:0:0:0:0:0:0:0:0:25:0:0:0:0
 K:15:0:0:0:0:0:20:0:0:0:0:0:0:20:0:0:0:0
 F:INT | WIS | CHR | BRAVERY | HOLD_LIFE | SEE_INVIS | SHOW_MODS
-U:PROBE:20:0
+U:PROBE_ALL:20:0
 
 # The Mace of Disruption 'Deathwreaker'
 

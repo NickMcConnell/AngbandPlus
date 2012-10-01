@@ -44,9 +44,8 @@ something you are more comfortable with.
 
   #   A secret door                   #   A wall
   +   A closed door                   %   A mineral vein
-  +   A locked door                   *   A mineral vein with treasure
-  +   A jammed door                   :   A pile of rubble
-
+  :   A pile of rubble                *   A mineral vein with treasure
+  
 
                              Objects
  
