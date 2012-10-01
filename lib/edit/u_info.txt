@@ -8,7 +8,7 @@
 # index pointing to the entry in r_info.txt that the unique is based on, and a colour that
 # superceeds the color in r_info.txt. 
 #
-V:0.3.1
+V:0.3.2
 #
 N:1:Farmer Maggot
 R:2:w

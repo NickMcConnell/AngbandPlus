@@ -64,6 +64,7 @@ typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
 typedef struct ego_item_type ego_item_type;
+typedef struct item_prefix_type item_prefix_type;
 typedef struct monster_blow monster_blow;
 typedef struct monster_unique monster_unique;
 typedef struct monster_race monster_race;
@@ -273,6 +274,27 @@ struct ego_item_type
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
 	u32b flags4;		/* Ego-Item Flags, set 4 */
+};
+
+/*
+ * Information about "ego-items".
+ */
+struct item_prefix_type
+{
+	cptr name;			/* Name */
+
+	byte rarity;		/* Rarity - the higher this is, the less chance of being generated */
+
+	s16b mod_th;		/* Modifer to hit */
+	s16b mod_td;		/* Modifer to damage */
+	
+	s16b mod_dd;		/* Modifer to damage dice */
+	s16b mod_ds;		/* Modifer to damage dice sides*/
+
+	u16b weight;		/* Weight (percentage) */
+	u16b cost;			/* Cost (percentage) */
+
+	bool store;			/* If true, this object can be generated in stores */
 };
 
 /*
@@ -516,6 +538,7 @@ struct object_type
 
 	byte a_idx;			/* Artifact type, if any */
 	byte e_idx;			/* Ego-Item type, if any */
+	byte prefix_idx;	/* Prefix type, if any */
 
 	byte xtra1;			/* Extra info type */
 	byte xtra2;			/* Extra info index */
@@ -626,7 +649,7 @@ struct quest_type
 	s16b cur_num;		/* Number killed */
 	s16b max_num;		/* Number required */
 
-	bool started;			/* Has the player start the quest */
+	bool started;		/* Has the player start the quest */
 };
 
 /*
@@ -923,8 +946,8 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
-	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
-	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
+	byte stat_max[A_MAX];	/* Current "maximal" stat values */
+	byte stat_cur[A_MAX];	/* Current "natural" stat values */
 
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
@@ -1078,13 +1101,12 @@ struct player_type
 	u32b redraw;		/* Normal Redraws (bit flags) */
 	u32b window;		/* Window Redraws (bit flags) */
 
-	s16b stat_use[A_MAX];	/* Current modified stats */
-	s16b stat_top[A_MAX];	/* Maximal modified stats */
+	byte stat_use[A_MAX];	/* Current modified stats */
+	byte stat_top[A_MAX];	/* Maximal modified stats */
 
 	/*** Extracted fields ***/
 
 	s16b stat_add[A_MAX];	/* Equipment stat bonuses */
-	s16b stat_ind[A_MAX];	/* Indexes into stat tables */
 
 	s16b mana_add; /* Equipment mana bonus */
 	s16b hp_add; /*Equipment health bonus */

@@ -44,15 +44,15 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.3.1"
+#define VERSION_STRING	"0.3.2"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	3
-#define VERSION_PATCH	1
-#define VERSION_EXTRA	1
+#define VERSION_PATCH	2
+#define VERSION_EXTRA	0
 
 /*
  * Maximum value storable in a "byte" (hard-coded)
@@ -226,6 +226,11 @@
 #define QUEST_TURNS		1200	/* Number of turns between quest failure checks */
 #define FEELING_RATE	100		/* Amount of turns needed to get a level feeling */
 #define BREAK_GLYPH		(adult_nightmare_mode ? 250 : 550)	/* Rune of protection resistance */
+
+/*
+ * Constants relating to player "conditions" 
+ */
+
 #define DISEASE_RATE	(adult_nightmare_mode ? 500 : 1000)	/* High value slows disease */
 
 /*
@@ -326,6 +331,35 @@
 #define PY_REGEN_HPBASE		1442	/* Min amount hp regen*2^16 */
 #define PY_REGEN_MNBASE		524		/* Min amount mana regen*2^16 */
 
+/*
+ * Player stunning constants 
+ */
+#define PY_STUN_KO			120 	/* Amount of stunning that knocks a player out */
+#define PY_STUN_HEAVY		60		/* Amount of stunning that counts as "heavy" */
+
+/*
+ * Player cut constants 
+ */
+#define PY_CUT_MORTAL		1000	/* Mortal cut */
+#define PY_CUT_DEEP			200		/* Deep gash */
+#define PY_CUT_SEVERE		100		/* Severe cut */
+#define PY_CUT_NASTY		50		/* Nasty cut */
+#define PY_CUT_BAD			25		/* Bad cut */
+#define PY_CUT_LIGHT		10		/* Light cut */
+
+/*
+ * Player fear constants 
+ */
+#define PY_FEAR_PANIC		75		/* Panicking */
+#define PY_FEAR_TERROR		25		/* Terrified */
+#define PY_FEAR_AFRAID		10		/* Afraid */
+
+/*
+ * Player confusion constants 
+ */
+#define PY_CONF_INSANE		200		/* Insane */
+#define PY_CONF_BEFUDDLE	50		/* Befuddled */
+#define PY_CONF_CONFUSE		25		/* Confused */
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -386,6 +420,16 @@
  * Total number of stats.
  */
 #define A_MAX	6
+
+/*
+ * The highest meaningful stat value + 1 
+ */
+#define A_RANGE	31
+
+/*
+ * Macro for "current" stat values 
+ */
+#define p_stat(X) (p_ptr->stat_use[X] > (A_RANGE - 1) ? (A_RANGE - 1) : p_ptr->stat_use[X])
 
 /* 
  * Indexes of the various "skills" (hard-coded by savefiles, etc)
@@ -499,13 +543,13 @@
 #define COL_CONFUSED	13	/* "Confused" */
 
 #define ROW_AFRAID		23
-#define COL_AFRAID		22	/* "Afraid" */
+#define COL_AFRAID		23	/* "Afraid" */
 
 #define ROW_POISONED	23
-#define COL_POISONED	29	/* "Poisoned" */
+#define COL_POISONED	30	/* "Poisoned" */
 
 #define ROW_STATE		23
-#define COL_STATE		38	/* <state> */
+#define COL_STATE		39	/* <state> */
 
 #define ROW_SPEED		23
 #define COL_SPEED		49	/* "Slow (-NN)" or "Fast (+NN)" */
@@ -1565,7 +1609,7 @@
 #define SV_POTION_DISEASE				 8
 #define SV_POTION_CONFUSION				 9
 #define SV_POTION_SLEEP					10
-#define SV_POTION_LOSE_MEMORIES			11
+#define SV_POTION_LOSE_EXP				11
 #define SV_POTION_DEFORM				12
 #define SV_POTION_RUINATION				13
 #define SV_POTION_DEC_STR				14
@@ -1710,6 +1754,11 @@
  */
 #define OBJ_GOLD_LIST	501	/* First "gold" entry */
 #define MAX_GOLD		18	/* Number of "gold" entries */
+
+/*
+ * Maximum number of item "prefixes"
+ */
+#define PREFIX_MAX		21
 
 /*** Monster blow constants ***/
 
@@ -1962,6 +2011,7 @@
 #define A_STATUS_KNOWN			0x04	/* Artifact was *identified* this game */
 #define A_STATUS_HISTORY		0x08	/* Artifact was seen in an historical game */
 #define A_STATUS_MEMORY			0x10	/* Artifact was *identified* in a previous game */
+#define A_STATUS_LOST			0x20	/* Artifact was lost in non-perserve mode */
 
 /*
  * Special Object Flags
@@ -2061,8 +2111,8 @@
 #define TR1_SPEED			0x00001000L	/* Speed += "pval" */
 #define TR1_BLOWS			0x00002000L	/* Blows += "pval" */
 #define TR1_SHOTS			0x00004000L	/* Shots += "pval" */
-#define TR1_MANA			0x00008000L	/* Mana += "pval*10" */  
-#define TR1_HEALTH			0x00010000L	/* Health += "pval*10" */
+#define TR1_MANA			0x00008000L	/* Mana += "pval * 10" (at least )*/  
+#define TR1_HEALTH			0x00010000L	/* Health += "pval * 10" (at least) */
 #define TR1_MIGHT			0x00020000L	/* Might += "pval" */
 #define TR1_XXX3			0x00040000L	
 #define TR1_XXX4			0x00080000L	
@@ -2730,7 +2780,7 @@
  *
  * These values are hard-coded by savefiles (and various pieces of code).
  */
-#define OPT_NORMAL					57 /* Regular options */
+#define OPT_NORMAL					58 /* Regular options */
 #define OPT_BIRTH					18 /* Birth/adult options */
 #define OPT_CHEAT					8  /* Cheat/score options */
 
@@ -2796,6 +2846,7 @@
 #define OPT_verify_leave_quest		54
 #define OPT_carry_heavy_query		55
 #define OPT_auto_haggle				56
+#define OPT_inscribe_unique			57
 
 /*
  * Option indexes (birth and adult)
@@ -2891,6 +2942,7 @@
 #define verify_leave_quest		op_ptr->opt[OPT_verify_leave_quest]
 #define carry_heavy_query		op_ptr->opt[OPT_carry_heavy_query]
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
+#define inscribe_unique			op_ptr->opt[OPT_inscribe_unique]
 #define birth_point_based		op_ptr->opt_birth[OPT_birth_point_based]
 #define birth_auto_roller		op_ptr->opt_birth[OPT_birth_auto_roller]
 #define birth_preserve			op_ptr->opt_birth[OPT_birth_preserve]
@@ -3529,7 +3581,8 @@ extern int PlayerUID;
 #define ANGBAND_DIR_BONE ANGBAND_DIR_SAVE
 #define ANGBAND_DIR_INFO ANGBAND_DIR_SAVE
 
-/*
- * Maximum known sounds - Should be the same as MSG_MAX for compatibility reasons.
- */
+/* Maximum known sounds - Should be the same as MSG_MAX for compatibility reasons */
 #define SOUND_MAX MSG_MAX
+
+/* Old message print command */
+#define msg_print(X)	message(MSG_GENERIC, 0, X)

@@ -55,6 +55,10 @@ C:0:^C
 A:w0
 C:0:X
 
+# Hack -- Pray 
+A:m
+C:0:p
+
 # Original keymap: Repeat last command
 A:^V
 C:0:n
@@ -205,6 +209,10 @@ C:1:^C
 # Hack -- Swap equipment
 A:w0
 C:1:X
+
+# Hack -- Pray 
+A:m
+C:1:p
 
 # Roguelike keymap: Repeat last command
 A:^V

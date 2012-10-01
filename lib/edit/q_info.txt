@@ -17,7 +17,7 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.3.2
 
 N:0:Fake quest
 W:0:0:0

@@ -248,7 +248,7 @@ byte angband_color_table[256][4] =
 /*
  * Standard sound (and message) names
  */
-char angband_sound_name[SOUND_MAX][16] =
+char angband_sound_name[MSG_MAX][16] =
 {
 	"generic",
 	"fail",
@@ -625,12 +625,6 @@ cptr ANGBAND_DIR_FILE;
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_HELP;
-
-/*
- * Help files (spoilers) for the online help (ascii)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_INFO;
 
 /*
  * Savefiles for current characters (binary)

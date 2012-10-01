@@ -340,7 +340,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
 
 	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	factor += adj_chr_gold[p_stat(A_CHR)];
 
 	if (adult_easy_mode) factor = (factor * 4) / 5; 
 
@@ -1173,6 +1173,10 @@ static void store_create(void)
 
 		/* Apply some "low-level" magic (no artifacts) */
 		apply_magic(i_ptr, level, FALSE, FALSE, FALSE, TRUE);
+
+		/* Hack -- some prefixes don't belong in regular stores */
+		if ((store_num != STORE_B_MARKET) && i_ptr->prefix_idx && 
+			!item_prefix[i_ptr->prefix_idx].store) continue;
 
 		/* Restore object creation level */
 		p_ptr->obj_depth = temp;
@@ -3268,7 +3272,7 @@ void do_cmd_store(void)
 {
 	int which;
 
-	int tmp_chr;
+	byte tmp_chr;
 
 	/* Verify a store */
 	if (!((cave_feat[p_ptr->py][p_ptr->px] >= FEAT_SHOP_HEAD) &&

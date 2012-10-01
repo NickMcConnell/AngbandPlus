@@ -99,7 +99,7 @@ static void wr_item(object_type *o_ptr)
 	if (o_ptr->ac)			save_flags |= 0x0100;
 	if (o_ptr->dd)			save_flags |= 0x0200;
 	if (o_ptr->ds)			save_flags |= 0x0400;
- 	if (o_ptr->ident)		save_flags |= 0x0800;
+ 	if (o_ptr->prefix_idx)	save_flags |= 0x0800;
 	if (o_ptr->marked)		save_flags |= 0x1000;
 	if (o_ptr->held_m_idx)	save_flags |= 0x2000;
 	if (o_ptr->xtra1)		save_flags |= 0x4000;
@@ -125,6 +125,7 @@ static void wr_item(object_type *o_ptr)
 
 	if (o_ptr->a_idx) wr_byte(o_ptr->a_idx); 
 	if (o_ptr->e_idx) wr_byte(o_ptr->e_idx);
+	if (o_ptr->prefix_idx) wr_byte(o_ptr->prefix_idx);
 
 	if (o_ptr->timeout) wr_s16b(o_ptr->timeout);
 
@@ -135,7 +136,7 @@ static void wr_item(object_type *o_ptr)
 	if (o_ptr->dd) wr_byte(o_ptr->dd);
 	if (o_ptr->ds) wr_byte(o_ptr->ds);
 
-	if (o_ptr->ident) wr_byte(o_ptr->ident);
+	wr_byte(o_ptr->ident);
 
 	if (o_ptr->marked) wr_byte(o_ptr->marked);
 
@@ -428,8 +429,8 @@ static void wr_extra(void)
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < A_MAX; ++i) 
 	{
-		wr_s16b(p_ptr->stat_max[i]);
-		wr_s16b(p_ptr->stat_cur[i]);
+		wr_byte(p_ptr->stat_max[i]);
+		wr_byte(p_ptr->stat_cur[i]);
 	}
 
 	wr_u32b(p_ptr->au);

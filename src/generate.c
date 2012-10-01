@@ -246,7 +246,7 @@ static room_data room[ROOM_MAX] =
 	{ 0, 0, -1, 1, 3 },		/* 4 = Large (33x11) */
 	{ 0, 0, -1, 1, 5 },		/* 5 = Monster nest (33x11) */
 	{ 0, 0, -1, 1, 5 },		/* 6 = Monster pit (33x11) */
-	{ 0, 1, -1, 1, 5 },		/* 7 = Lesser vault (33x22) */
+	{ 0, 1, -1, 1, 5 },		/* 7 = Lesser vault (44x22) */
 	{ -1, 2, -2, 3, 10 }	/* 8 = Greater vault (66x44) */
 };
 
@@ -1305,7 +1305,6 @@ static void build_type4(int y0, int x0)
 			break;
 		}
 
-
 		/* An inner room with a checkerboard */
 		case 4:
 		{
@@ -1337,7 +1336,6 @@ static void build_type4(int y0, int x0)
 
 			break;
 		}
-
 
 		/* Four small rooms. */
 		case 5:
@@ -2207,17 +2205,30 @@ static void build_type6(int y0, int x0)
 static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 {
 	int dx, dy, x, y;
+	int ax, ay;
+	bool flip_v = FALSE;
+	bool flip_h = FALSE;
 
 	cptr t;
+
+	/* Flip the vault (sometimes) */
+	if (rand_int(2) == 0) flip_v = TRUE;
+	if (rand_int(2) == 0) flip_h = TRUE;
 
 	/* Place dungeon features and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
+		if (flip_v) ay = ymax - dy;
+		else ay = dy;
+
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
+			if (flip_h) ax = xmax - dx;
+			else ax = dx;
+
 			/* Extract the location */
-			x = x0 - (xmax / 2) + dx;
-			y = y0 - (ymax / 2) + dy;
+			x = x0 - (xmax / 2) + ax;
+			y = y0 - (ymax / 2) + ay;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
@@ -2286,11 +2297,17 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 	/* Place dungeon monsters and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
+		if (flip_v) ay = ymax - dy;
+		else ay = dy;
+
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
-			/* Extract the grid */
-			x = x0 - (xmax/2) + dx;
-			y = y0 - (ymax/2) + dy;
+			if (flip_h) ax = xmax - dx;
+			else ax = dx;
+
+			/* Extract the location */
+			x = x0 - (xmax / 2) + ax;
+			y = y0 - (ymax / 2) + ay;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
@@ -2403,7 +2420,7 @@ static void build_type8(int y0, int x0)
 {
 	vault_type *v_ptr;
 
-	/* Pick a lesser vault */
+	/* Pick a greater vault */
 	while (TRUE)
 	{
 		/* Get a random vault record */

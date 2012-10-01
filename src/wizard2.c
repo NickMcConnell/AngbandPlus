@@ -106,6 +106,135 @@ static void prt_binary(u32b flags, int row, int col)
 	}
 }
 
+ /*
+ * Output a rarity graph for a type of object.
+ */
+static void prt_alloc(byte tval, byte sval, int row, int col)
+{
+	int i, j;
+
+	int home, lev;
+
+	u32b maxd = 1, maxr = 1, maxt = 1;
+
+	u32b rarity[MAX_DEPTH];
+	u32b total[MAX_DEPTH];
+	u32b display[20];
+
+	byte c = TERM_WHITE;
+	cptr r = "+--common--+";
+
+	object_kind *k_ptr;
+
+	/* Get the entry */
+	alloc_entry *table = alloc_kind_table;
+
+	/* Wipe the tables */
+	C_WIPE(rarity, MAX_DEPTH, u32b);
+	C_WIPE(total, MAX_DEPTH, u32b);
+	C_WIPE(display, 20, u32b);
+
+	/* Scan all entries */
+	for (i = 0; i < MAX_DEPTH; i++)
+	{
+		/* Base level */
+		lev = ((i * (GREAT_OBJ - 1)) + (1 + i * 5433L / 1000)) / GREAT_OBJ;
+
+		for (j = 0; j < alloc_kind_size; j++)
+		{
+			/* Objects are sorted by depth */
+			if (table[j].level > lev) break;
+
+			/* Acquire this kind */
+			k_ptr = &k_info[table[j].index];
+
+			/* Accumulate probabilities */
+			total[i] += table[j].prob1;
+
+			/* Accumulate probabilities */
+			if ((k_ptr->tval == tval) && (k_ptr->sval == sval))
+			{
+				home = k_ptr->level;
+				rarity[i] += table[j].prob1;
+			}
+		}
+	}
+
+	/* Find maxima */
+	for (i = 0; i < MAX_DEPTH; i++)
+	{
+		if (rarity[i] > maxr) maxr = rarity[i];
+		if (total[i] > maxt) maxt = total[i];
+	}
+
+	/* Simulate a log graph */
+	if (maxt / maxr > 32)
+	{
+		c = TERM_L_WHITE;
+		r = "+-common-+";
+	}
+	if (maxt / maxr > 1024)
+	{
+		c = TERM_SLATE;
+		r = "+--rare--+";
+	}
+	if (maxt / maxr > 32768L)
+	{
+		c = TERM_L_DARK;
+		r = "+-v.rare-+";
+	}
+
+	/* Calculate probabilities for each range */
+	for (i = 0; i < 20; i++)
+	{
+		/* Shift the values into view */
+		for (j = i * MAX_DEPTH / 20; j < (i + 1) * MAX_DEPTH / 20; j++)
+		{
+			display[i] += rarity[j] * maxt * 10 / total[j];
+		}
+
+		/* Correct proportions */
+		display[i] /= maxr;
+
+		/* Track maximum */
+		if (display[i] > maxd) maxd = display[i];
+	}
+
+	/* Normalize */
+	for (i = 0; i < 20; i++)
+	{
+		display[i] = display[i] * 9 / maxd;
+	}
+
+	/* Graph the rarities */
+	for (i = 0; i < 20; i++)
+	{
+		Term_putch(col, row + i + 1, TERM_WHITE,  '|');
+
+		/* Note the level */
+		if ((i * MAX_DEPTH / 20 <= home) && (home < (i + 1) * MAX_DEPTH / 20))
+		{
+			c_prt(TERM_RED, format("%.*s", display[i], "*********"), row + i + 1, col + 1);
+		}
+		else
+		{
+			c_prt(c, format("%.*s", display[i], "*********"), row + i + 1, col + 1);
+		}
+	}
+
+	/* Make it look nice */
+	prt(r, row, col);
+
+	Term_putch(col, row + 8, TERM_WHITE,  'A');
+	Term_putch(col, row + 9, TERM_WHITE,  'L');
+	Term_putch(col, row + 10, TERM_WHITE, 'L');
+	Term_putch(col, row + 11, TERM_WHITE, 'O');
+	Term_putch(col, row + 12, TERM_WHITE, 'C');
+
+	prt("+", row + 21, col);
+}
+ 
+
 /*
  * Hack -- Teleport to the target
  */
@@ -136,7 +265,7 @@ static void do_cmd_wiz_change_aux(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Prompt */
-		sprintf(ppp, "%s (3-118): ", stat_names[i]);
+		sprintf(ppp, "%s (0-20): ", stat_names[i]);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
@@ -148,8 +277,8 @@ static void do_cmd_wiz_change_aux(void)
 		tmp_int = atoi(tmp_val);
 
 		/* Verify */
-		if (tmp_int > 18+100) tmp_int = 18+100;
-		else if (tmp_int < 3) tmp_int = 3;
+		if (tmp_int > 20) tmp_int = 20;
+		else if (tmp_int < 0) tmp_int = 0;
 
 		/* Save it */
 		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = tmp_int;
@@ -320,6 +449,8 @@ static void wiz_display_item(object_type *o_ptr)
 	prt("g ierlierladiaistrndrrxhssmn......  iaiadmnrgg..e...ur..a..ierlntr.. g", 21, j);
 	prt("s dceddcedclnvseekf.d..r.eea......  mnloeoosnn..s...no..k..dcedoek.. s", 22, j);
     prt("2 ........tfde.a.........n........  lt.sdndn.+..s...dr..e......m.... 4", 23, j);
+
+ 	prt_alloc(o_ptr->tval, o_ptr->sval, 2, 70); 
 }
 
 /*

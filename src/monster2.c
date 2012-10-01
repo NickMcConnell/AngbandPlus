@@ -1350,10 +1350,10 @@ static byte get_attr_mimic(char r_char)
 		{
 			switch (rand_int(100))
 			{
-			case 0: case 1: case 2: case 3: case 4: case 5: return TERM_L_DARK;
-			case 6: case 7: case 8: return TERM_RED;
-			case 9: return TERM_BLUE;
-			case 10: return TERM_VIOLET;
+			case 0: case 1: case 2: return TERM_RED;
+			case 3: case 4: return TERM_L_DARK;
+			case 5: return TERM_BLUE;
+			case 6: return TERM_VIOLET;
 			default : return TERM_L_WHITE; /* Usually */
 			}
 

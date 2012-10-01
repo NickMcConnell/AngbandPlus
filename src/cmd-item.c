@@ -616,46 +616,11 @@ void do_cmd_destroy(void)
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
 	}
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr))
+	if (!destroy_check(o_ptr))
 	{
 		/* Message */
 		message_format(MSG_FAIL, 0, "You cannot destroy %s.", o_name);
-
-		/* Remove special inscription, if any */
-		if (!object_known_p(o_ptr)) switch (o_ptr->discount)
-		{
-			case 0:
-			case INSCRIP_NULL:
-			case INSCRIP_UNCURSED:
-			case INSCRIP_INDESTRUCT:
-			{
-				o_ptr->discount = INSCRIP_INDESTRUCT;
-				break;
-			}
-			case INSCRIP_TERRIBLE:
-			case INSCRIP_CURSED:
-			{
-				o_ptr->discount = INSCRIP_TERRIBLE;
-				break;
-			}
-			case INSCRIP_GOOD:
-			case INSCRIP_SPECIAL:
-			{
-				o_ptr->discount = INSCRIP_SPECIAL;
-				break;
-			}
-		}
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
 		return;
@@ -1133,7 +1098,7 @@ static void do_cmd_eat_food_aux(int item)
 		{
 			if (!p_ptr->bravery)
 			{
-				if (set_afraid(p_ptr->afraid + rand_int(10) + 10))
+				if (set_afraid(p_ptr->afraid + rand_int(10) + 20))
 				{
 					ident = TRUE;
 				}
@@ -1145,7 +1110,7 @@ static void do_cmd_eat_food_aux(int item)
 		{
 			if (!p_ptr->resist_confu)
 			{
-				if (set_confused(p_ptr->confused + rand_int(10) + 10))
+				if (set_confused(p_ptr->confused + rand_int(10) + 20))
 				{
 					ident = TRUE;
 				}
@@ -1180,7 +1145,7 @@ static void do_cmd_eat_food_aux(int item)
 		case SV_FOOD_WEAKNESS:
 		{
 			take_hit(damroll(6, 6), "poisonous food");
-			(void)do_dec_stat(A_STR,10,FALSE,TRUE);
+			(void)do_dec_stat(A_STR, 1, FALSE, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -1188,7 +1153,7 @@ static void do_cmd_eat_food_aux(int item)
 		case SV_FOOD_SICKNESS:
 		{
 			take_hit(damroll(6, 6), "poisonous food");
-			(void)do_dec_stat(A_CON,10,FALSE,TRUE);
+			(void)do_dec_stat(A_CON, 1, FALSE, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -1323,8 +1288,8 @@ static void do_cmd_eat_food_aux(int item)
 /* Eat some food */
 void do_cmd_eat_food(void)
 {
-	int         item;
-	cptr        q, s;
+	int	item;
+	cptr	q, s;
 
 	/* Restrict choices to food */
 	item_tester_tval = TV_FOOD;
@@ -1438,10 +1403,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		{
 			if (!p_ptr->resist_confu)
 			{
-				if (set_confused(p_ptr->confused + rand_int(20) + 15))
-				{
-					ident = TRUE;
-				}
+				if (set_confused(p_ptr->confused + rand_int(20) + 15)) ident = TRUE;
 			}
 			break;
 		}
@@ -1450,15 +1412,12 @@ static void do_cmd_quaff_potion_aux(int item)
 		{
 			if (!p_ptr->free_act)
 			{
-				if (set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4))
-				{
-					ident = TRUE;
-				}
+				if (set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4)) ident = TRUE;
 			}
 			break;
 		}
 
-		case SV_POTION_LOSE_MEMORIES:
+		case SV_POTION_LOSE_EXP:
 		{
 			if (!p_ptr->hold_life && (p_ptr->exp > 0))
 			{
@@ -1473,49 +1432,49 @@ static void do_cmd_quaff_potion_aux(int item)
 		{
 			message(MSG_EFFECT, 0, "Your nerves and muscles feel weak and lifeless!");
 			take_hit(damroll(10, 10), "a potion of Ruination");
-			(void)do_dec_stat(A_STR, 25, TRUE, FALSE);
-			(void)do_dec_stat(A_WIS, 25, TRUE, FALSE);
-			(void)do_dec_stat(A_INT, 25, TRUE, FALSE);
-			(void)do_dec_stat(A_DEX, 25, TRUE, FALSE);
-			(void)do_dec_stat(A_CON, 25, TRUE, FALSE);
-			(void)do_dec_stat(A_CHR, 25, TRUE, FALSE);
+			(void)do_dec_stat(A_STR, 3, TRUE, FALSE);
+			(void)do_dec_stat(A_WIS, 3, TRUE, FALSE);
+			(void)do_dec_stat(A_INT, 3, TRUE, FALSE);
+			(void)do_dec_stat(A_DEX, 3, TRUE, FALSE);
+			(void)do_dec_stat(A_CON, 3, TRUE, FALSE);
+			(void)do_dec_stat(A_CHR, 3, TRUE, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_STR:
 		{
-			if (do_dec_stat(A_STR, 10, FALSE, TRUE)) ident = TRUE;
+			if (do_dec_stat(A_STR, 1, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_INT:
 		{
-			if (do_dec_stat(A_INT, 10, FALSE, TRUE)) ident = TRUE;
+			if (do_dec_stat(A_INT, 1, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_WIS:
 		{
-			if (do_dec_stat(A_WIS, 10, FALSE, TRUE)) ident = TRUE;
+			if (do_dec_stat(A_WIS, 1, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_DEX:
 		{
-			if (do_dec_stat(A_DEX, 10, FALSE, TRUE)) ident = TRUE;
+			if (do_dec_stat(A_DEX, 1, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_CON:
 		{
-			if (do_dec_stat(A_CON, 10, FALSE, TRUE)) ident = TRUE;
+			if (do_dec_stat(A_CON, 1, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_CHR:
 		{
-			if (do_dec_stat(A_CHR, 10, FALSE, TRUE)) ident = TRUE;
+			if (do_dec_stat(A_CHR, 1, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
@@ -1957,7 +1916,8 @@ static void do_cmd_quaff_potion_aux(int item)
 		object_kind *k_ptr;
 
 		int k;
-		bool p1, p2;
+		bool item_known1 = FALSE;
+		bool item_known2 = FALSE;
 
 		bool learn = FALSE;
 
@@ -1968,21 +1928,21 @@ static void do_cmd_quaff_potion_aux(int item)
 
 			/* Found a match */
 			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[o_ptr->sval].sval1)) 
-				p1 = k_ptr->aware;
+				item_known1 = k_ptr->aware;
 			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[o_ptr->sval].sval2)) 
-				p2 = k_ptr->aware;
+				item_known2 = k_ptr->aware;
 		}
 
 		/* 
 		 * Learn, if you are aware of the component potion, but
 		 * you are not yet aware it is part of the potion.
 		 */
-		if ((!(potion_alch[o_ptr->sval].known1)) && p1) 
+		if ((!(potion_alch[o_ptr->sval].known1)) && item_known1) 
 		{
 			potion_alch[o_ptr->sval].known1 = TRUE;
 			learn = TRUE;
 		}
-		else if ((!(potion_alch[o_ptr->sval].known2)) && p2) 
+		else if ((!(potion_alch[o_ptr->sval].known2)) && item_known2) 
 		{
 			potion_alch[o_ptr->sval].known2 = TRUE;
 			learn = TRUE;
@@ -2683,7 +2643,8 @@ static int check_item_success(int diff, int lev, bool binary)
 	if (p_ptr->confused) chance = chance / 2;
 
 	/* Stunning hurts skill */
-	if (p_ptr->stun) chance = chance / 2;
+	if (p_ptr->stun > PY_STUN_HEAVY) chance = chance / 2;
+	else if (p_ptr->stun) chance = (chance * 2) / 3;
 
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
@@ -2696,7 +2657,8 @@ static int check_item_success(int diff, int lev, bool binary)
 	else if (chance < 0) return 0;
 
 	/* Check for success */
-	i = (randint(chance) - diff + 1);
+	if (chance > 0) i = (randint(chance) - diff + 1);
+	else i = (1 - diff);
 
 	/* Check exact failure percentage */
 	if (i < 0)
@@ -2712,7 +2674,7 @@ static int check_item_success(int diff, int lev, bool binary)
 		/* If a binary check, ignore results below 0 */
 		else result = 0;
 	}
-	else if (i > 0) result = 100;
+	else result = 100;
 
 	return (result);
 }
@@ -2772,6 +2734,9 @@ static void do_cmd_use_staff_aux(int item)
 		if (flush_failure) flush();
 		message(MSG_FAIL, 0, "The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
 		return;
 	}
 
@@ -3173,6 +3138,9 @@ static void do_cmd_aim_wand_aux(int item)
 		if (flush_failure) flush();
 		message(MSG_FAIL, 0, "The wand has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	
 		return;
 	}
 
@@ -3958,12 +3926,12 @@ static void ring_of_power(int dir)
 			message(MSG_EFFECT, 0, "You are surrounded by a malignant aura.");
 
 			/* Decrease all stats (permanently) */
-			(void)do_dec_stat(A_STR, 50, TRUE, FALSE);
-			(void)do_dec_stat(A_INT, 50, TRUE, FALSE);
-			(void)do_dec_stat(A_WIS, 50, TRUE, FALSE);
-			(void)do_dec_stat(A_DEX, 50, TRUE, FALSE);
-			(void)do_dec_stat(A_CON, 50, TRUE, FALSE);
-			(void)do_dec_stat(A_CHR, 50, TRUE, FALSE);
+			(void)do_dec_stat(A_STR, 5, TRUE, FALSE);
+			(void)do_dec_stat(A_INT, 5, TRUE, FALSE);
+			(void)do_dec_stat(A_WIS, 5, TRUE, FALSE);
+			(void)do_dec_stat(A_DEX, 5, TRUE, FALSE);
+			(void)do_dec_stat(A_CON, 5, TRUE, FALSE);
+			(void)do_dec_stat(A_CHR, 5, TRUE, FALSE);
 
 			/* Lose some experience (permanently) */
 			p_ptr->exp -= (p_ptr->exp / 4);
@@ -4034,7 +4002,6 @@ static void do_cmd_activate_aux(int item)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -4747,6 +4714,12 @@ static void do_cmd_activate_aux(int item)
 				power = 400;
 				break;
 			}
+
+			/* Paranoia */
+			default:
+			{
+				quit("Unknown item used");	
+			}
 		}
 		
 		time = 100 + (power / 4);
@@ -4949,9 +4922,11 @@ void do_cmd_use(void)
 /* Mix two potions to (maybe) create a third */
 void do_cmd_mix(void)
 {
-	int item1, item2, k_idx, penalty;
+	int item1, item2, k_idx;
 	int i1, i2, sv;
-	int chance, roll;
+	int chance = 0;
+	int penalty = 0;
+	int roll;
 
 	bool found = FALSE;
 
@@ -5010,6 +4985,7 @@ void do_cmd_mix(void)
 		if (found) break;
 	}
 
+	/* Found a potion? */
 	if (found)
 	{
 		/* Look for it */
@@ -5020,28 +4996,17 @@ void do_cmd_mix(void)
 			/* Found a match */
 			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == sv)) break;
 		}
-		
-		if (k_idx == z_info->k_max) found = FALSE;
-	}
-	
-	/* Check again if found */
-	if (found)
-	{
-		chance = 25 + (p_ptr->skill[SK_ALC]) - ((k_ptr->cost) / 250);
-		penalty = (k_ptr->cost) / 800;
 
-		/* Always 5% chance of success or failure*/
+		/* If there's no potion, always fail */
+		if (k_idx != z_info->k_max) 
+		{
+			chance = 25 + (p_ptr->skill[SK_ALC]) - ((k_ptr->cost) / 250);
+			penalty = (k_ptr->cost) / 800;
 
-		if (chance < 5) chance = 5;
-
-		if (chance > 96) chance = 96;
-	}
-
-	/* If there's no potion, always fail */
-	else 
-	{
-		chance = 0;
-		penalty = 0;
+			/* Always 5% chance of success or failure*/
+			if (chance < 5) chance = 5;
+			if (chance > 96) chance = 96;
+		}
 	}
 
 	/*** Skill check ***/
@@ -5067,18 +5032,19 @@ void do_cmd_mix(void)
 		potion_alch[sv].known1 = TRUE;
 		potion_alch[sv].known2 = TRUE;
 	}
-
-	else if ((roll < chance+30) && (roll < 99)) message(MSG_FAIL, 0, "You have wasted the potions.");
+	else if ((roll < chance + 30) && (roll < 99)) 
+	{
+		message(MSG_FAIL, 0, "You have wasted the potions.");
+	}
 	else 
 	{
 		message(MSG_FAIL, 0, "The potions explode in your hands!");
-		take_hit(damroll(4,8)+penalty, "carelessly mixing potions");
+		take_hit(damroll(4,8) + penalty, "carelessly mixing potions");
 	}
 
 	/* Hack - make sure the potions are destroyed in order */
-
-	i1= (item1>item2) ? item1 : item2;
-	i2= (item1>item2) ? item2 : item1;
+	i1= (item1 > item2) ? item1 : item2;
+	i2= (item1 > item2) ? item2 : item1;
 
 	/* Destroy a potion in the pack */
 	if (i1 >= 0)

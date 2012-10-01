@@ -13,15 +13,14 @@
 #include "angband.h"
 
 /* 
- * hack - defines for weapons of bleeding, fear, and poisoning 
+ * hack - defines for weapons with "special" attacks
  */
 #define SPEC_CUT		0x01
-#define SPEC_CUT_STRONG	0x02
-#define SPEC_POIS		0x04
-#define SPEC_FEAR		0x08
-#define SPEC_BLIND		0x10
-#define SPEC_STUN		0x20
-#define SPEC_CONF		0x40
+#define SPEC_POIS		0x02
+#define SPEC_FEAR		0x04
+#define SPEC_BLIND		0x08
+#define SPEC_STUN		0x10
+#define SPEC_CONF		0x20
 
 /*
  * Determine if the player "hits" a monster (normal combat).
@@ -111,7 +110,7 @@ static sint critical_shot(int plus, int tval, byte *special, int dam)
 			dam = ((5 * dam) / 2) + 10;
 		}
 	
-		if ((tval == TV_ARROW) || (tval == TV_BOLT)) (*special) |= SPEC_CUT_STRONG;
+		if ((tval == TV_ARROW) || (tval == TV_BOLT)) (*special) |= SPEC_CUT;
 		if (tval == TV_SHOT) (*special) |= SPEC_STUN;
 	}
 
@@ -226,7 +225,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Special - Cut monster */
-	if ((special & SPEC_CUT) || (special & SPEC_CUT_STRONG))
+	if (special & SPEC_CUT)
 	{
 		/* Cut the monster */
 		if (r_ptr->flags3 & (RF3_NO_CUT)) lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CUT, FALSE);
@@ -237,7 +236,6 @@ static void attack_special(int m_idx, byte special, int dam)
 			/* Was not poisoned */
 			else message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s is bleeding.", m_name);
 
-			if (special & SPEC_CUT_STRONG) m_ptr->bleeding += dam*5;
 			m_ptr->bleeding += dam*2;
 		}
 	}
@@ -531,7 +529,7 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 				else if (r_ptr->flags3 & (RF3_HURT_DARK))
 				{
 					if (mult < 5) mult = 5;
-					if (rand_int(100)<50) (*special) |= SPEC_BLIND;
+					if (rand_int(100) < 50) (*special) |= SPEC_BLIND;
 
 					lore_learn(m_ptr, LRN_FLAG3, RF3_HURT_DARK, FALSE);
 				}
@@ -539,7 +537,7 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 				else 
 				{
 					if (mult < 2) mult = 2;
-					if (rand_int(100)<20) (*special) |= SPEC_BLIND;  
+					if (rand_int(100) < 20) (*special) |= SPEC_BLIND;  
 				}
 			}
 
@@ -549,24 +547,15 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_NO_CUT))
 					lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CUT, FALSE);
-				else if (rand_int(100)<50) 
-				{
-					/* Hack - bolts and arrows do more cutting damage */
-					if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW)) 
-						(*special) |= SPEC_CUT_STRONG;
-					else (*special) |= SPEC_CUT;
-				}
+				else if (rand_int(100) < 50) (*special) |= SPEC_CUT;
 			}
 
 			/* Terror */
 			if (f4 & (TR4_TERROR))
 			{
-				/* Hack - undead creatures aren't affected unless the blade also
-				   has slay undead */
 				if (r_ptr->flags3 & (RF3_NO_FEAR)) 
 					lore_learn(m_ptr, LRN_FLAG3, RF3_NO_FEAR, FALSE);
-				else if ((!(r_ptr->flags2 & (RF2_UNDEAD))) || (f4 & (TR4_SLAY_UNDEAD)))
-					(*special) |= SPEC_FEAR;
+				else if (rand_int(100) < 10) (*special) |= SPEC_FEAR;
 			}
 
 			break;
@@ -814,7 +803,7 @@ static void py_pickup(int pickup)
 			int new_enc = 0;
 
 			/* Extract the "weight limit" (in tenth pounds) */
-			i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
+			i = adj_str_wgt[p_stat(A_STR)] * 100;
 
 			/* Calculate current encumbarance */
 			j = p_ptr->total_weight;
@@ -894,14 +883,55 @@ static void py_pickup(int pickup)
 
 		if (pickup_query)
 		{
+			int i;
 			char out_val[160];
-			if (!heavy) sprintf(out_val, "Pick up %s? ", o_name);
-			else sprintf (out_val, "Pick up %s (heavy)? ", o_name);
-			if (!get_check(out_val)) continue;
+			
+			if (!heavy) sprintf(out_val, "Pick up %s? [y/n/k] ", o_name);
+			else sprintf (out_val, "Pick up %s (heavy)? [y/n/k] ", o_name);
+			
+			/* Prompt for it */
+			prt(out_val, 0, 0);
+
+			/* Get an acceptable answer */
+			while (TRUE)
+			{
+				i = inkey();
+				if (quick_messages) break;
+				if (i == ESCAPE) break;
+				if (strchr("YyNnKk", i)) break;
+				bell("Illegal response to question!");
+			}
+
+			/* Erase the prompt */
+			prt("", 0, 0);
+			
+			if ((i == 'Y') || (i == 'y'))
+			{
+				/* Pick up the object */
+				py_pickup_aux(this_o_idx);
+			}
+			
+			if ((i == 'K') || (i == 'k'))
+			{
+				/* Artifact? */
+				if (!destroy_check(o_ptr))
+				{
+					/* Describe the object (with {terrible/special}) */
+					object_desc(o_name, o_ptr, TRUE, 3);
+
+					/* Message */
+					message_format(MSG_FAIL, 0, "You cannot destroy the %s.", o_name);
+				}
+				else
+				{
+					/* Destroy the object */
+					delete_object_idx(this_o_idx);
+				}
+			}
 		}
 
 		/* Pick up the object */
-		py_pickup_aux(this_o_idx);
+		else py_pickup_aux(this_o_idx);
 	}
 
 	/* Easy floor, objects left */
@@ -1190,7 +1220,7 @@ void hit_trap(int y, int x)
 				message(MSG_TRAP, cave_feat[y][x], "A small dart hits you!");
 				dam = damroll(1, 4);
 				take_hit(dam, name);
-				(void)do_dec_stat(A_STR,10,FALSE,TRUE);
+				(void)do_dec_stat(A_STR, 1, FALSE, TRUE);
 			}
 			else
 			{
@@ -1206,7 +1236,7 @@ void hit_trap(int y, int x)
 				message(MSG_TRAP, cave_feat[y][x], "A small dart hits you!");
 				dam = damroll(1, 4);
 				take_hit(dam, name);
-				(void)do_dec_stat(A_DEX,10,FALSE,TRUE);
+				(void)do_dec_stat(A_DEX, 1, FALSE, TRUE);
 			}
 			else
 			{
@@ -1222,7 +1252,7 @@ void hit_trap(int y, int x)
 				message(MSG_TRAP, cave_feat[y][x], "A small dart hits you!");
 				dam = damroll(1, 4);
 				take_hit(dam, name);
-				(void)do_dec_stat(A_CON,10,FALSE,TRUE);
+				(void)do_dec_stat(A_CON, 1, FALSE, TRUE);
 			}
 			else
 			{
@@ -1313,7 +1343,7 @@ void py_attack(int y, int x)
 	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 
 	/* Handle player fear */
-	if (p_ptr->afraid)
+	if (p_ptr->afraid > PY_FEAR_AFRAID)
 	{
 		/* Message */
 		message_format(MSG_FAIL, 0, "You are too afraid to attack %s!", m_name);
@@ -1895,7 +1925,6 @@ static bool run_test(void)
 	int i, max, inv;
 	int option, option2;
 
-
 	/* No options yet */
 	option = 0;
 	option2 = 0;
@@ -1903,16 +1932,13 @@ static bool run_test(void)
 	/* Where we came from */
 	prev_dir = p_ptr->run_old_dir;
 
-
 	/* Range of newly adjacent grids */
 	max = (prev_dir & 0x01) + 1;
-
 
 	/* Look at every newly adjacent square. */
 	for (i = -max; i <= max; i++)
 	{
 		s16b this_o_idx, next_o_idx = 0;
-
 
 		/* New direction */
 		new_dir = cycle[chome[prev_dir] + i];
@@ -2759,6 +2785,16 @@ void do_cmd_fire(void)
 		return;
 	}
 
+	/* Handle player fear */
+	if (p_ptr->afraid > PY_FEAR_TERROR)
+	{
+		/* Message */
+		message(MSG_FAIL, 0, "You are too afraid!");
+
+		/* Done */
+		return;
+	}
+	
 	/* Require proper missile */
 	item_tester_tval = p_ptr->ammo_tval;
 
@@ -3090,7 +3126,7 @@ void do_cmd_throw(void)
 	div = ((i_ptr->weight > 10) ? i_ptr->weight : 10);
 
 	/* Hack -- Distance -- Reward strength, penalize weight */
-	tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
+	tdis = (adj_str_blow[p_stat(A_STR)] + 20) * mul / div;
 
 	/* Max distance of 10 */
 	if (tdis > 10) tdis = 10;
@@ -3322,6 +3358,9 @@ void do_cmd_throw(void)
 					{
 						object_aware(i_ptr);
 					}
+
+					/* Combine / Reorder the pack (later) */
+					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 				}
 
 				else
@@ -3381,6 +3420,8 @@ void do_cmd_throw(void)
 			break;
 		}
 	}
+
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	/* Reduce and describe inventory */
 	if (item >= 0)

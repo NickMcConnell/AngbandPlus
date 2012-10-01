@@ -157,7 +157,8 @@ static cptr desc_stat_neg[] =
  */
 void scramble_stats(void)
 {
-	int max1, cur1, max2, cur2, ii, jj;
+	int ii, jj;
+	byte max1, cur1, max2, cur2;
 
     /* Pick a pair of stats */
 	ii = rand_int(A_MAX);
@@ -187,35 +188,27 @@ void scramble_stats(void)
  */
 static bool inc_stat(int stat)
 {
-	int value, gain;
+	int gain;
+	byte value;
 
 	/* Then augment the current/max stat */
 	value = p_ptr->stat_cur[stat];
 
 	/* Cannot go above 18/100 */
-	if (value < 18+100)
+	if (value < 20)
 	{
 		/* Gain one (sometimes two) points */
-		if (value < 18)
+		if (value < 15)
 		{
 			gain = ((rand_int(100) < 75) ? 1 : 2);
 			value += gain;
 		}
 
-		/* Gain 1/6 to 1/3 of distance to 18/100 */
-		else if (value < 18+98)
+		/* Gain one (rarely two) points */
+		else if (value < 18)
 		{
-			/* Approximate gain value */
-			gain = (((18+100) - value) / 2 + 3) / 2;
-
-			/* Paranoia */
-			if (gain < 1) gain = 1;
-
-			/* Apply the bonus */
-			value += randint(gain) + gain / 2;
-
-			/* Maximal value */
-			if (value > 18+99) value = 18 + 99;
+			gain = ((rand_int(100) < 95) ? 1 : 2);
+			value += gain;
 		}
 
 		/* Gain one point at a time */
@@ -255,8 +248,8 @@ static bool inc_stat(int stat)
  */
 static bool dec_stat(int stat, int amount, bool permanent)
 {
-	int cur, max, loss, same, res = FALSE;
-
+	byte cur, max;
+	int same, res = FALSE;
 
 	/* Get the current value */
 	cur = p_ptr->stat_cur[stat];
@@ -266,77 +259,22 @@ static bool dec_stat(int stat, int amount, bool permanent)
 	same = (cur == max);
 
 	/* Damage "current" value */
-	if (cur > 3)
+	if (cur > 0)
 	{
-		/* Handle "low" values */
-		if (cur <= 18)
-		{
-			if (amount > 90) cur--;
-			if (amount > 50) cur--;
-			if (amount > 20) cur--;
-			cur--;
-		}
-
-		/* Handle "high" values */
-		else
-		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((cur-18) / 2 + 1) / 2 + 1);
-
-			/* Paranoia */
-			if (loss < 1) loss = 1;
-
-			/* Randomize the loss */
-			loss = ((randint(loss) + loss) * amount) / 100;
-
-			/* Maximal loss */
-			if (loss < amount/2) loss = amount/2;
-
-			/* Lose some points */
-			cur = cur - loss;
-
-			/* Hack -- Only reduce stat to 17 sometimes */
-			if (cur < 18) cur = (amount <= 20) ? 18 : 17;
-		}
-
 		/* Prevent illegal values */
-		if (cur < 3) cur = 3;
+		if (cur > amount) cur -= amount;
+		else cur = 0;
 
 		/* Something happened */
 		if (cur != p_ptr->stat_cur[stat]) res = TRUE;
 	}
 
 	/* Damage "max" value */
-	if (permanent && (max > 3))
+	if (permanent && (max > 0))
 	{
-		/* Handle "low" values */
-		if (max <= 18)
-		{
-			if (amount > 90) max--;
-			if (amount > 50) max--;
-			if (amount > 20) max--;
-			max--;
-		}
-
-		/* Handle "high" values */
-		else
-		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((max-18) / 2 + 1) / 2 + 1);
-			if (loss < 1) loss = 1;
-			loss = ((randint(loss) + loss) * amount) / 100;
-			if (loss < amount/2) loss = amount/2;
-
-			/* Lose some points */
-			max = max - loss;
-
-			/* Hack -- Only reduce stat to 17 sometimes */
-			if (max < 18) max = (amount <= 20) ? 18 : 17;
-		}
+		/* Prevent illegal values */
+		if (max > amount) max -= amount;
+		else max = 0;
 
 		/* Hack -- keep it clean */
 		if (same || (max < cur)) max = cur;
@@ -548,35 +486,131 @@ bool set_blind(int v)
 	return (TRUE);
 }
 
-
 /*
  * Set "p_ptr->confused", notice observable changes
  */
 bool set_confused(int v)
 {
+	int old_aux, new_aux;
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	/* Open */
-	if (v)
+	/* Insane */
+	if (p_ptr->confused > PY_CONF_INSANE)
 	{
-		if (!p_ptr->confused)
-		{
-			message(MSG_EFFECT, 0, "You are confused!");
-			notice = TRUE;
-		}
+		old_aux = 4;
 	}
 
-	/* Shut */
+	/* Terrified */
+	else if (p_ptr->confused > PY_CONF_BEFUDDLE)
+	{
+		old_aux = 3;
+	}
+	
+	/* Afraid */
+	else if (p_ptr->confused > PY_CONF_CONFUSE)
+	{
+		old_aux = 2;
+	}
+
+	/* Wary */
+	else if (p_ptr->confused > 0)
+	{
+		old_aux = 1;
+	}
+
 	else
 	{
-		if (p_ptr->confused)
+		old_aux = 0;
+	}
+
+	/* Insane */
+	if (v > PY_CONF_INSANE)
+	{
+		new_aux = 4;
+	}
+
+	/* Terrified */
+	else if (v > PY_CONF_BEFUDDLE)
+	{
+		new_aux = 3;
+	}
+
+	/* Afraid */
+	else if (v > PY_CONF_CONFUSE)
+	{
+		new_aux = 2;
+	}
+
+	/* Wary */
+	else if (v > 0)
+	{
+		new_aux = 1;
+	}
+
+	else
+	{
+		new_aux = 0;
+	}
+
+	/* Increase confusion */
+	if (new_aux > old_aux)
+	{
+		/* Describe the state */
+		switch (new_aux)
 		{
-			message(MSG_EFFECT, 0, "You feel less confused now.");
-			notice = TRUE;
+			/* Perplexed */
+			case 1:
+			{
+				message(MSG_EFFECT, 0, "You feel somewhat perplexed.");
+				break;
+			}
+
+			/* Confused */
+			case 2:
+			{
+				message(MSG_EFFECT, 0, "You are confused.");
+				break;
+			}
+
+			/* Befuddled */
+			case 3:
+			{
+				message(MSG_EFFECT, 0, "You feel totally befuddled!");
+				break;
+			}
+
+			/* Insane */
+			case 4:
+			{
+				message(MSG_EFFECT, 0, "You have lost your grip on sanity!");
+				break;
+			}
 		}
+
+		/* Notice */
+		notice = TRUE;
+	}
+
+	/* Decrease cut */
+	else if (new_aux < old_aux)
+	{
+		/* Describe the state */
+		switch (new_aux)
+		{
+			/* None */
+			case 0:
+			{
+				message(MSG_EFFECT, 0, "You feel less confused now.");
+				if (disturb_state) disturb(0);
+				break;
+			}
+		}
+
+		/* Notice */
+		notice = TRUE;
 	}
 
 	/* Use the value */
@@ -703,29 +737,126 @@ bool set_diseased(int v)
  */
 bool set_afraid(int v)
 {
+	int old_aux, new_aux;
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	/* Open */
-	if (v)
+	/* Panic */
+	if (p_ptr->afraid > PY_FEAR_PANIC)
 	{
-		if (!p_ptr->afraid)
-		{
-			message(MSG_EFFECT, 0, "You are terrified!");
-			notice = TRUE;
-		}
+		old_aux = 4;
 	}
 
-	/* Shut */
+	/* Terrified */
+	else if (p_ptr->afraid > PY_FEAR_TERROR)
+	{
+		old_aux = 3;
+	}
+	
+	/* Afraid */
+	else if (p_ptr->afraid > PY_FEAR_AFRAID)
+	{
+		old_aux = 2;
+	}
+
+	/* Wary */
+	else if (p_ptr->afraid > 0)
+	{
+		old_aux = 1;
+	}
+
 	else
 	{
-		if (p_ptr->afraid)
+		old_aux = 0;
+	}
+
+	/* PANIC */
+	if (v > PY_FEAR_PANIC)
+	{
+		new_aux = 4;
+	}
+
+	/* Terrified */
+	else if (v > PY_FEAR_TERROR)
+	{
+		new_aux = 3;
+	}
+
+	/* Afraid */
+	else if (v > PY_FEAR_AFRAID)
+	{
+		new_aux = 2;
+	}
+
+	/* Wary */
+	else if (v > 0)
+	{
+		new_aux = 1;
+	}
+
+	else
+	{
+		new_aux = 0;
+	}
+
+	/* Increase cut */
+	if (new_aux > old_aux)
+	{
+		/* Describe the state */
+		switch (new_aux)
 		{
-			message(MSG_EFFECT, 0, "You feel bolder now.");
-			notice = TRUE;
+			/* Wary */
+			case 1:
+			{
+				message(MSG_EFFECT, 0, "You feel wary.");
+				break;
+			}
+
+			/* Afraid */
+			case 2:
+			{
+				message(MSG_EFFECT, 0, "You are afraid.");
+				break;
+			}
+
+			/* Terror */
+			case 3:
+			{
+				message(MSG_EFFECT, 0, "You are terrified.");
+				break;
+			}
+
+			/* Terror */
+			case 4:
+			{
+				message(MSG_EFFECT, 0, "You are in total panic!");
+				break;
+			}
 		}
+
+		/* Notice */
+		notice = TRUE;
+	}
+
+	/* Decrease cut */
+	else if (new_aux < old_aux)
+	{
+		/* Describe the state */
+		switch (new_aux)
+		{
+			/* None */
+			case 0:
+			{
+				message(MSG_EFFECT, 0, "You feel bolder now.");
+				if (disturb_state) disturb(0);
+				break;
+			}
+		}
+
+		/* Notice */
+		notice = TRUE;
 	}
 
 	/* Use the value */
@@ -736,6 +867,9 @@ bool set_afraid(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
 
 	/* Redraw the "afraid" */
 	p_ptr->redraw |= (PR_AFRAID);
@@ -1355,11 +1489,34 @@ bool set_tim_see_invis(int v)
  */
 bool set_tim_invis(int v)
 {
+	bool notice = FALSE;
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_invis)
+		{
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_invis)
+		{
+			notice = TRUE;
+		}
+	}
+
 	/* Use the value */
 	p_ptr->tim_invis = v;
+
+	/* Nothing to notice */
+	if (!notice) return(FALSE);
 
 	/* Disturb */
 	if (disturb_state) disturb(0);
@@ -2167,13 +2324,13 @@ bool set_stun(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	/* Knocked out */
-	if (p_ptr->stun > 100)
+	if (p_ptr->stun > PY_STUN_KO)
 	{
 		old_aux = 3;
 	}
 
 	/* Heavy stun */
-	else if (p_ptr->stun > 50)
+	else if (p_ptr->stun > PY_STUN_HEAVY)
 	{
 		old_aux = 2;
 	}
@@ -2191,13 +2348,13 @@ bool set_stun(int v)
 	}
 
 	/* Knocked out */
-	if (v > 100)
+	if (v > PY_STUN_KO)
 	{
 		new_aux = 3;
 	}
 
 	/* Heavy stun */
-	else if (v > 50)
+	else if (v > PY_STUN_HEAVY)
 	{
 		new_aux = 2;
 	}
@@ -2302,37 +2459,37 @@ bool set_cut(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	/* Mortal wound */
-	if (p_ptr->cut > 1000)
+	if (p_ptr->cut > PY_CUT_MORTAL)
 	{
 		old_aux = 7;
 	}
 
 	/* Deep gash */
-	else if (p_ptr->cut > 200)
+	else if (p_ptr->cut > PY_CUT_DEEP)
 	{
 		old_aux = 6;
 	}
 
 	/* Severe cut */
-	else if (p_ptr->cut > 100)
+	else if (p_ptr->cut > PY_CUT_SEVERE)
 	{
 		old_aux = 5;
 	}
 
 	/* Nasty cut */
-	else if (p_ptr->cut > 50)
+	else if (p_ptr->cut > PY_CUT_NASTY)
 	{
 		old_aux = 4;
 	}
 
 	/* Bad cut */
-	else if (p_ptr->cut > 25)
+	else if (p_ptr->cut > PY_CUT_BAD)
 	{
 		old_aux = 3;
 	}
 
 	/* Light cut */
-	else if (p_ptr->cut > 10)
+	else if (p_ptr->cut > PY_CUT_LIGHT)
 	{
 		old_aux = 2;
 	}
@@ -2350,37 +2507,37 @@ bool set_cut(int v)
 	}
 
 	/* Mortal wound */
-	if (v > 1000)
+	if (v > PY_CUT_MORTAL)
 	{
 		new_aux = 7;
 	}
 
 	/* Deep gash */
-	else if (v > 200)
+	else if (v > PY_CUT_DEEP)
 	{
 		new_aux = 6;
 	}
 
 	/* Severe cut */
-	else if (v > 100)
+	else if (v > PY_CUT_SEVERE)
 	{
 		new_aux = 5;
 	}
 
 	/* Nasty cut */
-	else if (v > 50)
+	else if (v > PY_CUT_NASTY)
 	{
 		new_aux = 4;
 	}
 
 	/* Bad cut */
-	else if (v > 25)
+	else if (v > PY_CUT_BAD)
 	{
 		new_aux = 3;
 	}
 
 	/* Light cut */
-	else if (v > 10)
+	else if (v > PY_CUT_LIGHT)
 	{
 		new_aux = 2;
 	}

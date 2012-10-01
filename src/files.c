@@ -1289,85 +1289,82 @@ static cptr likert(int x, int y)
  */
 static void display_player_race_power(int y, int x)
 {
-	int l;
-	int i=1;
+	int turns = 0;
+	int line = 0;
 
-	switch (rsp_ptr[(p_ptr->max_lev)/5]->power)
+	switch (rsp_ptr[(p_ptr->max_lev) / 5]->power)
 	{
 		case 1:
 		{
-			Term_putstr(x,y,-1, TERM_L_BLUE,"Detect Evil");
-			l=50;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Detect Evil");
+			turns = 50;
 			break;
 		}
 		case 2:
 		{
-			Term_putstr(x,y,-1, TERM_L_BLUE,"Call Light");
-			Term_putstr(x,y+1,-1,TERM_L_BLUE,"(dam. 2d2)");
-			i=2;
-			l=50;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Call Light");
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 2d2)");
+			turns = 50;
 			break;
 		}
 		case 3:
 		{
-			Term_putstr(x,y,-1, TERM_L_BLUE,"Spear of Light");
-			Term_putstr(x,y+1,-1,TERM_L_BLUE,"(dam. 6d8)");
-			i=2;
-			l=25;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Spear of Light");
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 6d8)");
+			turns = 25;
 			break;
 		}
 		case 4:
 		{
-			Term_putstr(x,y,-1, TERM_L_BLUE,"Orb of Draining");
-			Term_putstr(x,y+1,-1,TERM_L_BLUE,"(dam. 3d6+50)");
-			i=2;
-			l=15;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Orb of Draining");
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 3d6+50)");
+			turns = 15;
 			break;
 		}
 		case 5:
 		{
-			Term_putstr(x,y,-1, TERM_L_BLUE,"Prot. from Evil");
-			Term_putstr(x,y+1,-1,TERM_L_BLUE,"(dur. d25+30)");
-			i=2;
-			l=150;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Prot. from Evil");
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dur. d25+30)");
+			turns = 150;
 			break;
 		}
 		case 6:
 		{
-			Term_putstr(x,y,-1, TERM_L_BLUE,"Blink");
-			Term_putstr(x,y+1,-1,TERM_L_BLUE,"(radius 10)");
-			i=2;
-			l=20;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Blink");
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(radius 10)");
+			turns = 20;
 			break;
 		}
 		case 7:
 		{
-			Term_putstr(x,y,-1, TERM_L_BLUE,"Fire Bolt");
-			Term_putstr(x,y+1,-1,TERM_L_BLUE,"(dam. 10d8)");
-			i=2;
-			l=20;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Fire Bolt");
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 10d8)");
+			turns = 20;
 			break;
 		}
 		case 8:
 		{
-			Term_putstr(x,y,-1, TERM_L_BLUE,"Fire Ball");
-			Term_putstr(x,y+1,-1,TERM_L_BLUE,"(dam. 85 rad 2)");
-			i=2;
-			l=20;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Fire Ball");
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 85 rad 2)");
+			turns = 20;
 			break;
 		}
 		case 9:
 		{
-			Term_putstr(x,y,-1, TERM_L_BLUE,"Plasma Ball");
-			Term_putstr(x,y+1,-1,TERM_L_BLUE,"(dam. 4d7+100");
-			Term_putstr(x,y+2,-1,TERM_L_BLUE," rad 3)");
-			i=3;
-			l=20;
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Plasma Ball");
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 4d7+100)");
+			Term_putstr(x , y + line++, -1, TERM_L_BLUE, " rad 3)");
+			turns = 20;
 			break;
+		}
+		default:
+		{
+			/* Paranoia */
+			return;
 		}
 	}
 
-	Term_putstr(x,y+i,-1,TERM_L_BLUE,format("Every %d Turns",l));
+	if (line) Term_putstr(x, y + line , -1, TERM_L_BLUE, format("Every %d Turns", turns));
 }
 
 /*
@@ -1698,15 +1695,45 @@ static void display_player_status_info(void)
 		row++;
 	}
 
-	if (p_ptr->confused) 
+	if (p_ptr->confused > PY_CONF_INSANE)
+	{
+		c_put_str(TERM_L_RED, "Insane", row, col);
+		row++;
+	}
+	else if (p_ptr->confused > PY_CONF_BEFUDDLE)
+	{
+		c_put_str(TERM_L_RED, "Befuddled", row, col);
+		row++;
+	}
+	else if (p_ptr->confused > PY_CONF_CONFUSE)
 	{
 		c_put_str(TERM_L_RED, "Confused", row, col);
 		row++;
 	}
+	else if (p_ptr->confused)
+	{
+		c_put_str(TERM_L_RED, "Perplexed", row, col);
+		row++;
+	}
 
-	if (p_ptr->afraid)
+	if (p_ptr->afraid > PY_FEAR_PANIC)
+	{
+		c_put_str(TERM_L_RED, "Panic", row, col);
+		row++;
+	}
+	else if (p_ptr->afraid > PY_FEAR_TERROR)
+	{
+		c_put_str(TERM_L_RED, "Terrified", row, col);
+		row++;
+	}
+	else if (p_ptr->afraid > PY_FEAR_AFRAID)
 	{
 		c_put_str(TERM_L_RED, "Afraid", row, col);
+		row++;
+	}
+	else if (p_ptr->afraid)
+	{
+		c_put_str(TERM_L_RED, "Wary", row, col);
 		row++;
 	}
 
@@ -1722,7 +1749,17 @@ static void display_player_status_info(void)
 		row++;
 	}
 
-	if (p_ptr->stun)
+	if (p_ptr->stun > PY_STUN_KO)
+	{
+		c_put_str(TERM_L_RED, "Knocked Out", row, col);
+		row++;
+	}
+	else if (p_ptr->stun > PY_STUN_HEAVY)
+	{
+		c_put_str(TERM_L_RED, "Heavy Stun", row, col);
+		row++;
+	}
+	else if (p_ptr->stun)
 	{
 		c_put_str(TERM_L_RED, "Stunned", row, col);
 		row++;
@@ -1734,32 +1771,32 @@ static void display_player_status_info(void)
 		row++;
 	}
 
-	if (p_ptr->cut > 1000)
+	if (p_ptr->cut > PY_CUT_MORTAL)
 	{
 		c_put_str(TERM_L_RED, "Mortal wound", row, col);
 		row++;
 	}
-	else if (p_ptr->cut > 200)
+	else if (p_ptr->cut > PY_CUT_DEEP)
 	{
 		c_put_str(TERM_L_RED, "Deep gash   ", row, col);
 		row++;
 	}
-	else if (p_ptr->cut > 100)
+	else if (p_ptr->cut > PY_CUT_SEVERE)
 	{
 		c_put_str(TERM_L_RED, "Severe cut  ", row, col);
 		row++;
 	}
-	else if (p_ptr->cut > 50)
+	else if (p_ptr->cut > PY_CUT_NASTY)
 	{
 		c_put_str(TERM_L_RED, "Nasty cut   ", row, col);
 		row++;
 	}
-	else if (p_ptr->cut > 25)
+	else if (p_ptr->cut > PY_CUT_BAD)
 	{
 		c_put_str(TERM_L_RED, "Bad cut     ", row, col);
 		row++;
 	}
-	else if (p_ptr->cut > 10)
+	else if (p_ptr->cut > PY_CUT_LIGHT)
 	{
 		c_put_str(TERM_L_RED, "Light cut   ", row, col);
 		row++;
@@ -2220,14 +2257,14 @@ static void display_player_stat_info(void)
 		}
 
 		/* Indicate natural maximum */
-		if (p_ptr->stat_max[i] == 18+100)
+		if (p_ptr->stat_max[i] == 20)
 		{
 			put_str("!", row+i, col+3);
 		}
 
 		/* Internal "natural" maximum value */
-		cnv_stat(p_ptr->stat_max[i], buf);
-		c_put_str(TERM_L_GREEN, buf, row+i, col+4);
+		sprintf(buf, "%2d", p_ptr->stat_max[i]);
+		c_put_str(TERM_L_GREEN, buf, row+i, col+8);
 
 		/* Class Bonus */
 		sprintf(buf, "(%+d)", cp_ptr->c_adj[i]);
@@ -2244,15 +2281,8 @@ static void display_player_stat_info(void)
 		c_put_str(TERM_L_BLUE, buf, row+i, col+20);
 
 		/* Resulting "modified" maximum value */
-		cnv_stat(p_ptr->stat_top[i], buf);
-		c_put_str(TERM_L_GREEN, buf, row+i, col+24);
-
-		/* Only display stat_use if not maximal */
-		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
-		{
-			cnv_stat(p_ptr->stat_use[i], buf);
-			c_put_str(TERM_YELLOW, buf, row+i, col+31);
-		}
+		sprintf(buf, "%2d", p_ptr->stat_top[i]);
+		c_put_str(TERM_L_GREEN, buf, row+i, col+28);
 	}
 }
 
@@ -2311,24 +2341,27 @@ static void display_player_sust_info(void)
 		}
 
 		/* Indicate natural maximum */
-		if (p_ptr->stat_max[i] == 18+100)
+		if (p_ptr->stat_max[i] == 20)
 		{
 			put_str("!", row+i, col+3);
 		}
 
 		/* Internal "natural" maximum value */
-		cnv_stat(p_ptr->stat_max[i], buf);
-		c_put_str(TERM_L_GREEN, buf, row+i, col+4);
+		sprintf(buf, "%2d", p_ptr->stat_max[i]);
+		c_put_str(TERM_L_GREEN, buf, row+i, col+7);
 
 		/* Resulting "modified" maximum value */
-		cnv_stat(p_ptr->stat_top[i], buf);
-		c_put_str(TERM_L_GREEN, buf, row+i, col+26);
+		sprintf(buf, "%2d", p_ptr->stat_top[i]);
+		c_put_str(TERM_L_GREEN, buf, row+i, col+28);
 
 		/* Only display stat_use if not maximal */
 		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
 		{
-			cnv_stat(p_ptr->stat_use[i], buf);
-			c_put_str(TERM_YELLOW, buf, row+i, col+33);
+			byte a = ((p_ptr->stat_use[i] > 0) && (p_ptr->stat_cur[i] > 0)) 
+				? TERM_YELLOW : TERM_RED;
+
+			sprintf(buf, "%2d", p_ptr->stat_use[i]);
+			c_put_str(a, buf, row+i, col+33);
 		}
 	}
 		
@@ -2381,7 +2414,7 @@ static void display_player_sust_info(void)
 			}
 
 			/* Sustain */
-			if (f1 & (1<<(stat+26)))
+			if (f1 & (1 << (stat + 26)))
 			{
 				/* Dark green */
 				a = TERM_GREEN;
@@ -2412,8 +2445,8 @@ static void display_player_sust_info(void)
 		c = '.';
 
 		/* Race bonus */
-		if (!rp_ptr->special) n=rp_ptr->r_adj[stat];
-		else n=rsp_ptr[(p_ptr->max_lev)/5]->r_adj[stat]+rp_ptr->r_adj[stat];
+		if (!rp_ptr->special) n = rp_ptr->r_adj[stat];
+		else n = rsp_ptr[(p_ptr->max_lev) / 5]->r_adj[stat] + rp_ptr->r_adj[stat];
 	
 		/* Good */
 		if (n > 0)
@@ -2600,7 +2633,7 @@ errr file_character(cptr name, bool full)
 	display_player(2);
 
 	/* Dump part of the screen */
-	for (y = 2; y < 23; y++)
+	for (y = 1; y < 23; y++)
 	{
 		/* Dump each row */
 		for (x = 0; x < 79; x++)

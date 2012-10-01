@@ -215,8 +215,9 @@ static s16b spell_mana(int book, int spell, bool music)
  */
 static s16b spell_chance(int book, int spell, bool music)
 {
-	int chance, minfail, stat_factor;
+	int chance, minfail;
 	int handicap;
+	byte stat_factor;
 
 	magic_type *s_ptr;
 
@@ -237,8 +238,8 @@ static s16b spell_chance(int book, int spell, bool music)
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (p_ptr->lev - (s_ptr->slevel+handicap));
 	
-	/* Reduce failure rate by INT/WIS adjustment */
-	stat_factor = (p_ptr->stat_ind[cp_ptr->spell_stat1] + p_ptr->stat_ind[cp_ptr->spell_stat2])/2;
+	/* Reduce failure rate by stat adjustment */
+	stat_factor = (p_stat(cp_ptr->spell_stat1) + p_stat(cp_ptr->spell_stat2))/2;
 	chance -= 3 * (adj_mag_stat[stat_factor] - 1);
 
 	/* Not enough mana to cast */
@@ -286,8 +287,15 @@ static s16b spell_chance(int book, int spell, bool music)
 	}
 
 	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
+	if (p_ptr->stun > PY_STUN_HEAVY) chance += 25;
 	else if (p_ptr->stun) chance += 15;
+
+	if (p_ptr->confused)	
+	{
+		/* Confusion makes spells harder */
+		if (!(books[book].flags & SBF_MYSTIC) || !(cp_ptr->flags & CF_MYSTIC_CAST)) 
+			chance += 20;
+	}
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
@@ -1343,7 +1351,7 @@ void do_cmd_study(void)
 /*
  * Actual spell effect 
  */
-static void aux_spell_cast(int index)
+static bool aux_spell_cast(int index)
 {
 	int dir;
 	int durat;
@@ -1481,7 +1489,7 @@ static void aux_spell_cast(int index)
 		}
 		case SP_TELE_OTHER:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			(void)teleport_monster(dir);
 			break;
 		}
@@ -1513,125 +1521,125 @@ static void aux_spell_cast(int index)
 		}
 		case SP_BOLT_MISSILE:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(0, GF_MISSILE, dir,
 				              damroll(3 + ((damlev - 1) / 5), 4));
 			break;
 		}
 		case SP_BOLT_ELEC:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam-10, GF_ELEC, dir,
 				              damroll(3 + ((damlev - 5) / 4), 8));
 			break;
 		}
 		case SP_BOLT_FROST:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam-10, GF_COLD, dir,
 				              damroll(5 + ((damlev - 5) / 4), 8));
 			break;
 		}
 		case SP_BOLT_ACID:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam, GF_ACID, dir,
 				              damroll(6+((damlev-5)/4), 9));
 			break;
 		}
 		case SP_BOLT_FIRE:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam, GF_FIRE, dir,
 				              damroll(7+((damlev-5)/3), 9));
 			break;
 		}
 		case SP_BOLT_SOUND:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam-10, GF_SOUND, dir,
 				              damroll(3 + ((damlev - 1) / 5), 4));
 			break;
 		}
 		case SP_BOLT_FORCE:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam, GF_FORCE, dir,
 				              damroll(2+((damlev-5)/4), 8));
 			break;
 		}
 		case SP_BOLT_MANA:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam, GF_MANA, dir,
 				              damroll(6+((damlev-5)/4), 8));
 			break;
 		}
 		case SP_BEAM_WEAK_LITE:
 		{ 
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
 			lite_line(dir, damroll(9,8));
 			break;
 		}
 		case SP_BEAM_NETHER:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(100, GF_NETHER, dir,
 				              damroll((8 * damlev), 4));				
 			break;
 		}
 		case SP_BALL_POISON_1:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_POIS, dir, 10 + (damlev / 2), 2);
 			break;
 		}
 		case SP_BALL_POISON_2:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_POIS, dir, 20 + (damlev / 2), 3);
 			break;
 		}
 		case SP_BALL_ACID:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_ACID, dir, 45 + (damlev), 2);
 			break;
 		}
 		case SP_BALL_FIRE:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_FIRE, dir, 60 + (damlev), 2);
 			break;
 		}
 		case SP_BALL_FROST_1:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_COLD, dir, 35 + (damlev), 2);
 			break;
 		}
 		case SP_BALL_FROST_2:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_COLD, dir, 70 + (damlev), 3);
 			break;
 		}
 		case SP_BALL_SOUND:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_SOUND, dir, 30 + (damlev), 2);
 			break;
 		}
 		case SP_BALL_METEOR:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_METEOR, dir, 65 + (damlev), 3);
 			break;
 		}
 		case SP_BALL_MANA:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_MANA, dir, 300 + (damlev * 2), 3);
 			break;
 		}
@@ -1640,7 +1648,7 @@ static void aux_spell_cast(int index)
 			int x = (p_ptr->lev + (p_ptr->lev / ((holy) ? 2 : 4)));
 			int y = (((p_ptr->lev >= 30) && (holy)) ? 3 : 2);
 
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_HOLY_ORB, dir, damroll(3, 6) + x, y);
 			break;
 		}
@@ -1654,7 +1662,7 @@ static void aux_spell_cast(int index)
 		}
 		case SP_ANNIHILATION:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			drain_life(dir, 200);
 			break;
 		}
@@ -1863,7 +1871,7 @@ static void aux_spell_cast(int index)
 		}
 		case SP_STONE_TO_MUD:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			(void)wall_to_mud(dir);
 			break;
 		}
@@ -1885,7 +1893,7 @@ static void aux_spell_cast(int index)
 		}
 		case SP_CONFUSE_MONSTER:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			(void)confuse_monster(dir, inflev);
 			break;
 		}
@@ -1896,7 +1904,7 @@ static void aux_spell_cast(int index)
 		}
 		case SP_SLEEP_MONSTER:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			(void)sleep_monster(dir, inflev);
 			break;
 		}
@@ -1912,7 +1920,7 @@ static void aux_spell_cast(int index)
 		}
 		case SP_SLOW_MONSTER:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			(void)slow_monster(dir, inflev);
 			break;
 		}
@@ -1923,7 +1931,7 @@ static void aux_spell_cast(int index)
 		}
 		case SP_CALM_MONSTER:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			(void)calm_monster(dir, inflev);
 			break;
 		}
@@ -1944,13 +1952,13 @@ static void aux_spell_cast(int index)
 		}
 		case SP_BLIND_MONSTER:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			blind_monster(dir, inflev);
 			break;
 		}
 		case SP_SCARE_MONSTER:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			(void)fear_monster(dir, inflev);
 			break;
 		}
@@ -1966,7 +1974,7 @@ static void aux_spell_cast(int index)
 		}
 		case SP_POLY_MONSTER:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			(void)poly_monster(dir, inflev);
 			break;
 		}
@@ -2153,6 +2161,9 @@ static void aux_spell_cast(int index)
 			break;
 		}
 	}
+
+	/* A spell was cast */
+	return (TRUE);
 }
 
 /*
@@ -2222,8 +2233,9 @@ static void do_cast_or_pray(int book)
 				/* Lose your spell-casting stats */
 				if (rand_int(100) < chance) 
 				{ 
-					if (rand_int(2) == 0) do_dec_stat(cp_ptr->spell_stat1, rand_int(10)+20, TRUE, FALSE);
-					else do_dec_stat(cp_ptr->spell_stat2, rand_int(10)+20, TRUE, FALSE);
+					if (rand_int(2) == 0) 
+						do_dec_stat(cp_ptr->spell_stat1, randint(2) + 1, TRUE, FALSE);
+					else do_dec_stat(cp_ptr->spell_stat2, randint(2) + 1, TRUE, FALSE);
 				}
 				/* Lose your memories */
 				lose_all_info();
@@ -2264,7 +2276,8 @@ static void do_cast_or_pray(int book)
 	/* Process spell */
 	else
 	{
-		aux_spell_cast(s_ptr->index);
+		/* Allow cancelling directional spells */
+		if (!aux_spell_cast(s_ptr->index)) return;
 
 		/* A spell was cast or a prayer prayed */
 		if (!(p_ptr->spell_worked[book] & (1L << spell)))
@@ -2313,7 +2326,7 @@ static void do_cast_or_pray(int book)
 			message(MSG_EFFECT, 0, "You have damaged your health!");
 
 			/* Reduce constitution */
-			(void)do_dec_stat(A_CON, 15 + randint(10), perm, FALSE);
+			(void)do_dec_stat(A_CON, randint(2), perm, FALSE);
 		}
 	}
 
@@ -2371,7 +2384,11 @@ static void do_play(int instrument, int lev)
 	}
 
 	/* Process spell */
-	else aux_spell_cast(s_ptr->index);
+	else
+	{
+		/* Allow cancelling directional spells */
+		if (!aux_spell_cast(s_ptr->index)) return;
+	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -2407,7 +2424,7 @@ static void do_play(int instrument, int lev)
 			message(MSG_EFFECT, 0, "You overtax your muscles!");
 
 			/* Reduce constitution */
-			(void)do_dec_stat(A_DEX, 15 + randint(10), perm, FALSE);
+			(void)do_dec_stat(A_DEX, randint(2), perm, FALSE);
 		}
 	}
 
@@ -2433,7 +2450,7 @@ void do_cmd_magic(void)
 		return;
 	}
 
-	if (p_ptr->confused)
+	if (p_ptr->confused > PY_CONF_CONFUSE)
 	{
 		if (!(cp_ptr->flags & CF_MYSTIC_CAST))
 		{
@@ -2451,6 +2468,16 @@ void do_cmd_magic(void)
 		}
 	}
 
+	/* Handle player fear */
+	if (p_ptr->afraid > PY_FEAR_PANIC)
+	{
+		/* Message */
+		message(MSG_FAIL, 0, "You are too afraid!");
+
+		/* Done */
+		return;
+	}
+	
 	/* Get an item */
 	item_tester_hook = item_tester_hook_bookmusic;
 

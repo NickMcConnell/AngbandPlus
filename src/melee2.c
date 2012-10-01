@@ -1675,7 +1675,7 @@ static bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				(void)set_afraid(p_ptr->afraid + rand_int(4) + 4);
+				(void)set_afraid(p_ptr->afraid + 5 + randint((rlev / 10) + 1));
 			}
 			update_smart_learn(m_idx, DRS_BRAVE);
 			break;
@@ -3590,7 +3590,7 @@ static void process_monster(int m_idx)
 	if (m_ptr->calmed)
 	{
 		/* Amount of "anger" */
-		int d = randint(r_ptr->level/10 + adj_chr_calm[p_ptr->stat_ind[A_CHR]]);
+		int d = randint(r_ptr->level/10 + adj_chr_calm[p_stat(A_CHR)]);
 
 		/* Handle aggravate */
 		if (p_ptr->aggravate) d = m_ptr->calmed;

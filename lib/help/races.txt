@@ -187,19 +187,19 @@ are listed in the following table.
 
            Human        0    0    0    0    0    0      10          +0%
            Half-Elf    -1   +1    0   +1   -1   +1       9         +10%
-           Elf         -1   +2   +1   +1   -2   +1       8         +20%
-           Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
-           Gnome       -1   +2    0   +2   +1   -2       8         +25%
-           Dwarf       +2   -3   +2   -2   +2   -3      11         +20%
-           Half-Orc    +2   -1    0    0   +1   -4      10         +10%
-           Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
-           Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
-           High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
+           Elf         -1   +1   +1   +1   -1   +1       8         +20%
+           Hobbit      -2   +1   +1   +2   +1   +1       7         +10%
+           Gnome       -1   +1    0   +2   +1   -1       8         +20%
+           Dwarf       +1   -2   +1   -1   +1   -2      11         +20%
+           Half-Orc    +1   -1    0    0   +1   -2      10         +10%
+           Half-Troll  +2   -2   -1   -2   +1   -3      12         +20%
+           Dunadan      0   +1   +1   +1   +2   +1      10         +80%
+           High-Elf    +1   +2   -1   +2   +1   +3      10        +100%
            Angel        *    *    *    *    *    *       9         +90%
            Demon        *    *    *    *    *    *      10        +120%
-           Nilbog      +2   +1   +1   +3   +3    0      10         +20%
-           Rattikin    -2   +2   -1   +4   -1   -4       7         +10%
-           Felpurr     -1   +2    0   +2   -2    0       8         +20%
+           Nilbog      +1   +1   +1   +2   +2    0      10         +20%
+           Rattikin    -2   +1   -1   +3   -1   -2       7         +10%
+           Felpurr     -1   +1    0   +1   -1    0       8         +25%
 
            *see below           
 
@@ -207,13 +207,13 @@ are listed in the following table.
 
              LEVEL   STR  INT  WIS  DEX  CON  CHR     ABILITY
 
-Cherub        1- 4   -3    0   +1    0   -4   +1      Detect Evil
-Seraph        5- 9   -2    0   +2    0   -2   +1      Call Light 
-Deva         10-19    0   +1   +3    0    0   +2      Spear of Light
-Planetar     20-29    0   +1   +3    0    0   +3      Spear of Light
-Archon       30-39   +1   +2   +4    0   +1   +4      Orb of Draining
-Solar        40-49   +2   +3   +5    0   +2   +5      Prot. from Evil
-Archangel       50   +3   +3   +5    0   +3   +6      Prot. from Evil
+Cherub        1- 4   -2    0   +1    0   -2   +1      Detect Evil
+Seraph        5- 9   -2    0   +1    0   -1   +1      Call Light 
+Deva         10-19    0    0   +2    0    0   +2      Spear of Light
+Planetar     20-29    0   +1   +2    0    0   +2      Spear of Light
+Archon       30-39   +1   +1   +3    0   +1   +3      Orb of Draining
+Solar        40-49   +1   +2   +3    0   +1   +3      Prot. from Evil
+Archangel       50   +2   +2   +4    0   +2   +4      Prot. from Evil
 
 Resistances and inherent abilties (cumulative):
 Cherub    - None.
@@ -228,17 +228,17 @@ Archangel - Resist Chaos, Hold Life.
 === Demon Progression chart ===
              LEVEL   STR  INT  WIS  DEX  CON  CHR     ABILITY
 
-Lemure        1- 4   -4   -4   -6   -4   -4   -6      
-Quasit        5- 9   -2   -4   -6   -2   -2   -6      
-Imp          10-14   -1   -2   -6   -1   -1   -7        
-Tengu        15-19    0    0   -5    0   -1   -7      Blink
-Bodak        20-24    0    0   -5    0    0   -7      Fire Bolt
-Vrock        25-29    0    0   -4    0   +1   -8      Fire Bolt
-Hezrou       30-34   +1    0   -4    0   +2   -8      Fire Bolt
-Glabrezu     35-39   +2   +1   -3    0   +3   -8      Fire Ball
-Nalfeshnee   40-44   +3   +2   -3    0   +4   -9      Fire Ball
-Pit Fiend    45-49   +4   +2   -2    0   +5   -9      Fire Ball
-Balrog          50   +5   +3   -2   +1   +6  -10      Plasma Ball
+Lemure        1- 4   -3   -3   -5   -3   -3   -5      
+Quasit        5- 9   -2   -3   -5   -2   -2   -5      
+Imp          10-14   -1   -1   -5   -1   -1   -6        
+Tengu        15-19    0    0   -5    0   -1   -6      Blink
+Bodak        20-24    0    0   -5    0    0   -6      Fire Bolt
+Vrock        25-29    0    0   -4    0   +1   -6      Fire Bolt
+Hezrou       30-34   +1    0   -4    0   +2   -7      Fire Bolt
+Glabrezu     35-39   +1    0   -4    0   +2   -7      Fire Ball
+Nalfeshnee   40-44   +2   +1   -3    0   +3   -7      Fire Ball
+Pit Fiend    45-49   +2   +1   -3    0   +3   -8      Fire Ball
+Balrog          50   +3   +2   -3   +1   +4   -9      Plasma Ball
 
 Resistances and inherent abilties (cumulative):
 

@@ -423,7 +423,11 @@ void wipe_o_list(void)
 
 		/* If it wasn't perserved, we saw it */
 		if (artifact_p(o_ptr) && (a_info[o_ptr->a_idx].status & A_STATUS_CREATED))
+		{
+			if (!(a_info[o_ptr->a_idx].status & A_STATUS_AWARE))
+				a_info[o_ptr->a_idx].status |= (A_STATUS_LOST);
 			artifact_aware(&a_info[o_ptr->a_idx]);
+		}
 
 		/* Monster */
 		if (o_ptr->held_m_idx)
@@ -769,46 +773,56 @@ void object_tried(object_type *o_ptr)
 static s32b object_value_base(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	long value = 0L;
 
 	/* Use template cost for aware objects */
-	if (object_aware_p(o_ptr)) return (k_ptr->cost);
+	if (object_aware_p(o_ptr)) value = k_ptr->cost;
 
-	/* Analyze the type */
-	switch (o_ptr->tval)
+	else
 	{
-		/* Un-aware Food */
-		case TV_FOOD: return (5L);
+		/* Analyze the type */
+		switch (o_ptr->tval)
+		{
+			/* Un-aware Food */
+			case TV_FOOD: value = 5L; break;
 
-		/* Un-aware Potions */
-		case TV_POTION: return (20L);
+			/* Un-aware Potions */
+			case TV_POTION: value = 20L; break;
 
-		/* Un-aware Scrolls */
-		case TV_SCROLL: return (20L);
+			/* Un-aware Scrolls */
+			case TV_SCROLL: value = 20L; break;
 
-		/* Un-aware Powders */
-		case TV_POWDER: return (25L);
+			/* Un-aware Powders */
+			case TV_POWDER: value = 25L; break;
 
-		/* Un-aware Staffs */
-		case TV_STAFF: return (70L);
+			/* Un-aware Staffs */
+			case TV_STAFF: value = 70L; break;
 
-		/* Un-aware Wands */
-		case TV_WAND: return (50L);
+			/* Un-aware Wands */
+			case TV_WAND: value = 50L; break;
 
-		/* Un-aware Rods */
-		case TV_TALISMAN: case TV_ROD: return (90L);
-		
-		/* Un-aware Rings */
-		case TV_RING: return (45L);
+			/* Un-aware Talismans */
+			case TV_TALISMAN: value = 90L; break;
+			
+			/* Un-aware Rods */
+			case TV_ROD: value = 90L; break;
+			
+			/* Un-aware Rings */
+			case TV_RING: value = 45L; break;
 
-		/* Un-aware Amulets */
-		case TV_AMULET: return (45L);
+			/* Un-aware Amulets */
+			case TV_AMULET: value = 45L; break;
 
-		/* Un-aware lites */
-		case TV_LITE: return (45L);
+			/* Un-aware lites */
+			case TV_LITE: value = 45L; break;
+		}
 	}
 
-	/* Paranoia -- Oops */
-	return (0L);
+	/* Modify according to prefix */
+	if (o_ptr->prefix_idx) value = (value * item_prefix[o_ptr->prefix_idx].cost) / 100;
+
+	/* Return value */
+	return (value);
 }
 
 /*
@@ -844,6 +858,9 @@ static s32b object_value_real(object_type *o_ptr)
 
 	/* Base cost */
 	value = k_ptr->cost;
+
+	/* Modify according to prefix */
+	if (o_ptr->prefix_idx) value = (value * item_prefix[o_ptr->prefix_idx].cost) / 100;
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -1063,16 +1080,21 @@ static s32b object_value_real(object_type *o_ptr)
 		case TV_SWORD:
 		case TV_POLEARM:
 		{
+			/* Hack - ignore prefix values */
+			int	calc_h = o_ptr->to_h - item_prefix[o_ptr->prefix_idx].mod_th;
+			int calc_d = o_ptr->to_d - item_prefix[o_ptr->prefix_idx].mod_td;
+			int calc_dd = o_ptr->dd - item_prefix[o_ptr->prefix_idx].mod_dd;
+
 			/* Hack -- negative hit/damage bonuses */
-			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
+			if (calc_h + calc_d < 0) return (0L);
 
 			/* Factor in the bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+			value += ((calc_h + calc_d + o_ptr->to_a) * 100L);
 
 			/* Hack -- Factor in extra damage dice */
-			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
+			if ((calc_dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
 			{
-				value += (o_ptr->dd - k_ptr->dd) * o_ptr->ds * 100L;
+				value += (calc_dd - k_ptr->dd) * o_ptr->ds * 100L;
 			}
 
 			/* Done */
@@ -1108,8 +1130,52 @@ static s32b object_value_real(object_type *o_ptr)
 	return (value);
 }
 
+/* Check if a player can destroy an item - and update the inscription accordingly*/
+bool destroy_check(object_type *o_ptr)
+{
+	/* Artifacts cannot be destroyed */
+	if (artifact_p(o_ptr))
+	{
+		/* Remove special inscription, if any */
+		if (!object_known_p(o_ptr)) switch (o_ptr->discount)
+		{
+			case 0:
+			case INSCRIP_NULL:
+			case INSCRIP_UNCURSED:
+			case INSCRIP_INDESTRUCT:
+			{
+				o_ptr->discount = INSCRIP_INDESTRUCT;
+				break;
+			}
+			case INSCRIP_TERRIBLE:
+			case INSCRIP_CURSED:
+			{
+				o_ptr->discount = INSCRIP_TERRIBLE;
+				break;
+			}
+			case INSCRIP_GOOD:
+			case INSCRIP_SPECIAL:
+			{
+				o_ptr->discount = INSCRIP_SPECIAL;
+				break;
+			}
+		}
+
+		/* Combine the pack */
+		p_ptr->notice |= (PN_COMBINE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Done */
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 /*
- * Distribute charges of rods or wands.
+ * Distribute charges of rods or talismanss.
  *
  * o_ptr = source item
  * q_ptr = target item, must be of the same type as o_ptr
@@ -1129,7 +1195,7 @@ void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt)
 		if (amt < o_ptr->number)
 			o_ptr->pval -= q_ptr->pval;
 
-		/* Hack -- Rods also need to have their timeouts distributed.  The
+		/* Hack -- Rods need to have their timeouts distributed.  The
 		 * dropped stack will accept all time remaining to charge up to its
 		 * maximum.
 		 */
@@ -1370,6 +1436,11 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		return (FALSE);
 	}
 
+	/* Hack -- Require compatible prefixs */
+	if (o_ptr->prefix_idx != j_ptr->prefix_idx)
+	{
+		return (FALSE);
+	}
 	/* Hack -- Require compatible inscriptions */
 	if (o_ptr->note != j_ptr->note)
 	{
@@ -2991,12 +3062,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		/* Cheat -- describe the item */
 		if (cheat_peek) object_mention(o_ptr);
 
-		/* Done */
-		return;
 	}
-
 	/* Examine real objects */
-	if (o_ptr->k_idx)
+	else if (o_ptr->k_idx)
 	{
 		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -3005,6 +3073,45 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 
 		/* Hack -- acquire "cursed" flag */
 		if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+	}
+
+	/* Try to attach a prefix - for now, only for weapons */
+	if (o_ptr->k_idx && 
+		((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) ||(o_ptr->tval == TV_POLEARM)))
+	{
+		int k, l;
+
+		/* Ten tries */
+		for (k = 1;k < 10; k++)
+		{
+			item_prefix_type *px_ptr;
+
+			/* Try to apply a random prefix */
+			l = randint(PREFIX_MAX - 1);
+			px_ptr = &item_prefix[l];
+
+			if (!px_ptr->rarity) continue;
+
+			if (rand_int(px_ptr->rarity) == 0)
+			{
+				int temp_dd, temp_ds;
+
+				o_ptr->prefix_idx = l;
+
+				o_ptr->weight = (o_ptr->weight * px_ptr->weight) / 100;
+
+				o_ptr->to_d += px_ptr->mod_td;
+				o_ptr->to_h += px_ptr->mod_th;
+
+				temp_dd = o_ptr->dd + px_ptr->mod_dd;
+				temp_ds = o_ptr->ds + px_ptr->mod_ds;
+
+				o_ptr->dd = ((temp_dd > 0) ? temp_dd : 1);
+				o_ptr->ds = ((temp_ds > 0) ? temp_ds : 1);
+
+				break;
+			}
+		}
 	}
 }
 
@@ -3873,8 +3980,8 @@ void place_random_door(int y, int x)
 void alchemy_describe(char *buf, int sval)
 {
 	int k;
-	char o_a_idx[80];
-	char o_e_idx[80];
+	char o_name1[80];
+	char o_name2[80];
 	char o_name3[80];
 
 	object_kind *k_ptr;
@@ -3890,6 +3997,9 @@ void alchemy_describe(char *buf, int sval)
 		if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == sval)) break;
 	}
 
+	/* Paranoia */
+	if (k == z_info->k_max) return;
+
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -3897,8 +4007,8 @@ void alchemy_describe(char *buf, int sval)
 	object_prep(i_ptr, k);
 
 	/* Describe the object */
-	if (k_ptr->aware) strcpy (o_a_idx,(k_name + k_ptr->name));
-	else object_desc(o_a_idx, i_ptr, FALSE, 0);
+	if (k_ptr->aware) strcpy (o_name1,(k_name + k_ptr->name));
+	else object_desc(o_name1, i_ptr, FALSE, 0);
 
 	/* Look for first component */
 	if (potion_alch[sval].known1)
@@ -3917,21 +4027,22 @@ void alchemy_describe(char *buf, int sval)
 		object_prep(i_ptr, k);
 
 		/* Describe the object */
-		if (k_ptr->aware) strcpy (o_e_idx,(k_name + k_ptr->name));
-		else object_desc(o_e_idx, i_ptr, FALSE, 0);
+		if (k_ptr->aware) strcpy (o_name2,(k_name + k_ptr->name));
+		else object_desc(o_name2, i_ptr, FALSE, 0);
 	}
 	else
 	{
-		strcpy (o_e_idx,"????");
+		strcpy (o_name2,"????");
 	}
 
 	/* Look for first component */
 	if (potion_alch[sval].known2)
 	{
-	/* Look for second component */
+		/* Look for second component */
 		for (k = 1; k < z_info->k_max; k++)
 		{
 			k_ptr = &k_info[k];
+
 			/* Found a match */
 			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[sval].sval2)) break;
 		}
@@ -3952,7 +4063,7 @@ void alchemy_describe(char *buf, int sval)
 	}
 
 	/* Print a message */
-	sprintf(buf, "%s = %s + %s", o_a_idx, o_e_idx, o_name3);
+	sprintf(buf, "%s = %s + %s", o_name1, o_name2, o_name3);
 
 	buf[79] = '\0';
 
@@ -3985,11 +4096,23 @@ void inven_item_describe(int item)
 
 	char o_name[80];
 
-	/* Get a description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	if (artifact_p(o_ptr) && object_known_p(o_ptr))
+	{
+		/* Get a description */
+		object_desc(o_name, o_ptr, FALSE, 3);
+ 
+		/* Print a message */
+		message_format(MSG_DESCRIBE, 0,
+			"You no longer have the %s (%c).", o_name, index_to_label(item));
+	}
+	else
+	{
+		/* Get a description */
+		object_desc(o_name, o_ptr, TRUE, 3);
 
-	/* Print a message */
-	message_format(MSG_DESCRIBE, 0, "You have %s (%c).", o_name, index_to_label(item));
+		/* Print a message */
+		message_format(MSG_DESCRIBE, 0, "You have %s (%c).", o_name, index_to_label(item));
+	}
 }
 
 /*
@@ -4205,7 +4328,6 @@ s16b inven_carry(object_type *o_ptr)
 	int n = -1;
 
 	object_type *j_ptr;
-
 
 	/* Check for combining */
 	for (j = 0; j < INVEN_PACK; j++)

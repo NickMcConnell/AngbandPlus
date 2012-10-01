@@ -328,6 +328,10 @@ Merge discounts when stacking    [stack_force_costs]
     discounts.  The resulting stack keeps the largest discount.  This option
     may cause you to lose "value", but will give you optimal pack usage.
 
+***** <inscribe_unique>
+Auto-inscribe unique drops    [inscribe_unique]
+    Automatically inscribes unique's drops with their name.
+
 === Option Set 5 -- Efficiency ===
 
 These options may be used to optimize the game on slower machines.

@@ -277,7 +277,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 		message(MSG_TRAP, (s16b)trap, "A small needle has pricked you!");
 		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_STR, 10, FALSE, TRUE);
+		(void)do_dec_stat(A_STR, 1, FALSE, TRUE);
 	}
 
 	/* Lose constitution */
@@ -285,7 +285,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 		message(MSG_TRAP, (s16b)trap, "A small needle has pricked you!");
 		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_CON, 10, FALSE, TRUE);
+		(void)do_dec_stat(A_CON, 1, FALSE, TRUE);
 	}
 
 	/* Poison */
@@ -1528,7 +1528,7 @@ static bool do_cmd_bash_aux(int y, int x)
 
 	/* Hack -- Bash power based on strength */
 	/* (Ranges from 3 to 20 to 100 to 200) */
-	bash = adj_str_blow[p_ptr->stat_ind[A_STR]];
+	bash = adj_str_blow[p_stat(A_STR)];
 
 	/* Extract door power */
 	temp = ((cave_feat[y][x] - FEAT_DOOR_HEAD) & 0x07);
@@ -1562,8 +1562,7 @@ static bool do_cmd_bash_aux(int y, int x)
 	}
 
 	/* Saving throw against stun */
-	else if (rand_int(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-	         p_ptr->lev)
+	else if (rand_int(100) < adj_dex_safe[p_stat(A_DEX)] + p_ptr->lev)
 	{
 		/* Message */
 		message(MSG_FAIL, 0, "The door holds firm.");

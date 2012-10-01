@@ -952,7 +952,7 @@ void cold_dam(int dam, cptr kb_str)
  *
  * Return "TRUE" if the player notices anything.
  */
-bool apply_disenchant(int mode)
+bool apply_disenchant(void)
 {
 	int t = 0;
 	u32b f1, f2, f3, f4;
@@ -960,7 +960,6 @@ bool apply_disenchant(int mode)
 	object_type *o_ptr;
 
 	char o_name[80];
-
 
 	/* Pick a random slot */
 	switch (randint(8))
@@ -3567,29 +3566,30 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_confu)
-			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
-			}
-			if (!p_ptr->resist_chaos)
+			else
 			{
 				(void)set_image(p_ptr->image + randint(10));
-			}
-			if (!p_ptr->resist_nethr && !p_ptr->resist_chaos)
-			{
-				if (p_ptr->hold_life && (rand_int(100) < 75))
+
+				if (!p_ptr->resist_confu)
 				{
-					message(MSG_RESIST, 0, "You keep hold of your life force!");
+					(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 				}
-				else if (p_ptr->hold_life)
+				if (!p_ptr->resist_nethr)
 				{
-					message(MSG_EFFECT, 0, "You feel your life slipping away!");
-					lose_exp(500 + (p_ptr->exp/500));
-				}
-				else
-				{
-					message(MSG_EFFECT, 0, "You feel your life draining away!");
-					lose_exp(5000 + (p_ptr->exp/50));
+					if (p_ptr->hold_life && (rand_int(100) < 75))
+					{
+						message(MSG_RESIST, 0, "You keep hold of your life force!");
+					}
+					else if (p_ptr->hold_life)
+					{
+						message(MSG_EFFECT, 0, "You feel your life slipping away!");
+						lose_exp(500 + (p_ptr->exp/500));
+					}
+					else
+					{
+						message(MSG_EFFECT, 0, "You feel your life draining away!");
+						lose_exp(5000 + (p_ptr->exp/50));
+					}
 				}
 			}
 			take_hit(dam, killer);
@@ -3655,7 +3655,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			else
 			{
-				(void)apply_disenchant(0);
+				(void)apply_disenchant();
 			}
 			take_hit(dam, killer);
 			break;
@@ -3750,32 +3750,18 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 				case 6: case 7: case 8: case 9:
 				{
-					switch (randint(6))
-					{
-						case 1: k = A_STR; act = "strong"; break;
-						case 2: k = A_INT; act = "bright"; break;
-						case 3: k = A_WIS; act = "wise"; break;
-						case 4: k = A_DEX; act = "agile"; break;
-						case 5: k = A_CON; act = "hale"; break;
-						case 6: k = A_CHR; act = "beautiful"; break;
-					}
+					k = rand_int(A_MAX);
 
-					message_format(MSG_EFFECT, 0, "You're not as %s as you used to be...", act);
-
-					p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
-					if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+					do_dec_stat(k, 1 + (p_ptr->stat_cur[k] / 4), FALSE, FALSE);
 					p_ptr->update |= (PU_BONUS);
 					break;
 				}
 
 				case 10:
 				{
-					message(MSG_EFFECT, 0, "You're not as powerful as you used to be...");
-
 					for (k = 0; k < A_MAX; k++)
 					{
-						p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
-						if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+						do_dec_stat(k, 1 + (p_ptr->stat_cur[k] / 4), FALSE, FALSE);
 					}
 					p_ptr->update |= (PU_BONUS);
 					break;

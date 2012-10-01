@@ -755,7 +755,6 @@ bool detect_traps(void)
 
 	bool detect = FALSE;
 
-
 	/* Scan the current panel */
 	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
 	{
@@ -1055,6 +1054,10 @@ bool detect_objects_magic(void)
 	{
 		object_type *o_ptr = &o_list[i];
 
+		/* Ignore prefix modifiers */
+		int calc_h = o_ptr->to_h - item_prefix[o_ptr->prefix_idx].mod_th;
+		int calc_d = o_ptr->to_d - item_prefix[o_ptr->prefix_idx].mod_td;
+
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
@@ -1101,7 +1104,7 @@ bool detect_objects_magic(void)
 			default:
 			{
 				if (artifact_p(o_ptr) || ego_item_p(o_ptr)) found = TRUE;
-				if ((o_ptr->to_a > 0) || (o_ptr->to_h > 0) || (o_ptr->to_d > 0)) found = TRUE;
+				if ((o_ptr->to_a > 0) || (calc_h > 0) || (calc_d > 0)) found = TRUE;
 				/* Also, cursed items */
 				if (cursed_p(o_ptr)) found = TRUE;
 				break;
@@ -1428,7 +1431,7 @@ bool item_tester_hook_spellbooks(object_type *o_ptr)
  */
 bool item_tester_hook_bookmusic(object_type *o_ptr)
 {
-	if (p_ptr->confused) 
+	if (p_ptr->confused > PY_CONF_CONFUSE) 
 	{
 		return ((o_ptr->tval == TV_MAGIC_BOOK) && (cp_ptr->spell_book[o_ptr->sval])
 		&& (books[o_ptr->sval].flags & SBF_MYSTIC));
@@ -1522,13 +1525,13 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 {
 	int i, chance, prob;
 
-	int max_bonus = wgt_factor(o_ptr);
-
 	bool res = FALSE;
 
 	bool a = artifact_p(o_ptr);
 
 	u32b f1, f2, f3, f4;
+
+	int calc_h, calc_d;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -1536,12 +1539,16 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
 
-	/* Hack - ammo and shooters always gets max_bonus of 10 */
-	if (ammo_p(o_ptr) || (o_ptr->tval == TV_BOW)) max_bonus = 10;
-
-	/* Missiles are easy to enchant, and can always get to +10 */
+	/* Missiles are easy to enchant */
 	if (ammo_p(o_ptr)) prob = prob / 20;
-		
+	
+	/* Ignore prefix modifiers */
+	calc_h = o_ptr->to_h - item_prefix[o_ptr->prefix_idx].mod_th;
+	calc_d = o_ptr->to_d - item_prefix[o_ptr->prefix_idx].mod_td;
+
+	/* Weight affects damage enchantment, except for bows or ammo */
+	if (!(ammo_p(o_ptr) || (o_ptr->tval == TV_BOW))) calc_d = (calc_d * 10) / wgt_factor(o_ptr);
+
 	/* Try "n" times */
 	for (i=0; i<n; i++)
 	{
@@ -1551,9 +1558,9 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to hit */
 		if (eflag & (ENCH_TOHIT))
 		{
-			if (o_ptr->to_h < 0) chance = 0;
-			else if (o_ptr->to_h > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_h];
+			if (calc_h < 0) chance = 0;
+			else if (calc_h > 15) chance = 1000;
+			else chance = enchant_table[calc_h];
 
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -1579,9 +1586,9 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to damage */
 		if (eflag & (ENCH_TODAM))
 		{
-			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > (max_bonus*3)/2) chance = 1000;
-			else chance = enchant_table[(o_ptr->to_d*10)/max_bonus];
+			if (calc_d < 0) chance = 0;
+			else if (calc_d > 15) chance = 1000;
+			else chance = enchant_table[calc_d];
 
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -1869,6 +1876,14 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 			else brand_type = EGO_SHARPNESS;
 			if (o_ptr->number > 1) act = "grow sharper and deadlier!";
 			else (act = "grows sharper and deadlier!"); 
+			break;
+		}
+		default:
+		{
+			/* Paranoia */
+			brand_type = 0;
+			if (o_ptr->number > 1) act = "is unaffected!";
+			else (act = "are unaffected!"); 
 			break;
 		}
 	}

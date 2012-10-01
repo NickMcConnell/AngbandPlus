@@ -28,7 +28,7 @@ static s16b guild[GUILD_QUESTS] =
 };
 
 /*
- * Fix plural names of monsters
+ * Mega-hack - Fix plural names of monsters
  *
  * Taken from PernAngband, modified to fit Ey monster list 
  */
@@ -71,7 +71,7 @@ static void plural_aux(char * Name)
 		return;
 	}
 	else if ((strstr(Name, "Manes")) || (Name[NameLen-1]=='u') || (strstr(Name, "Yeti"))
-		|| (streq(&(Name[NameLen-2]), "ua")))
+		|| (streq(&(Name[NameLen-2]), "ua")) || (streq(&(Name[NameLen-3]), "nee")))
 	{
 		return;
 	}
@@ -83,6 +83,18 @@ static void plural_aux(char * Name)
 	{
 		strcpy (&(Name[NameLen-4]), "ice");
 	}
+	else if (streq(&(Name[NameLen-4]), "lung"))
+	{
+		strcpy (&(Name[NameLen-4]), "lungen");
+	}
+	else if (streq(&(Name[NameLen-3]), "sus"))
+	{
+		strcpy (&(Name[NameLen-3]), "si");
+	}	
+	else if (streq(&(Name[NameLen-3]), "ous"))
+	{
+		strcpy (&(Name[NameLen-3]), "i");
+	}	
 	else if ((streq(&(Name[NameLen-4]), "lman")) || (streq(&(Name[NameLen-4]), "sman")))
 	{
 		strcpy (&(Name[NameLen-3]), "men");
@@ -334,7 +346,6 @@ static bool place_quest(int q, int lev, int number, int difficulty)
 /*
  * Display the "contents" of the adventurer's guild 
  */
-
 void display_guild(void)
 {
 	int i, j;
@@ -355,16 +366,20 @@ void display_guild(void)
 			if (q_info[i].reward == 0) continue;
 			else
 			{
-				/* Inform the player */
-				message(MSG_STORE, 0, "A reward for your efforts is waiting outside!");
-				
 				/* Create the reward */
 				grant_reward(q_info[i].base_level, q_info[i].reward);
 
 				/* Reset the reward */
 				q_info[i].reward = 0;
 
+				/* Reset the quest */
 				p_ptr->cur_quest = 0;
+
+				/* Clear the screen */
+				Term_clear();
+
+				/* Inform the player */
+				message(MSG_STORE, 0, "A reward for your efforts is waiting outside!");
 			}
 		}
 	}
@@ -523,8 +538,10 @@ void guild_purchase(void)
 			}
 		}
 
-		if (!found) slot = i;
+		slot = i;
 		found = TRUE;
+		
+		break;
 	}
 
 	if (found)

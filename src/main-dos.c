@@ -1030,7 +1030,7 @@ static errr Term_user_dos(int n)
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
 
 	/* Redraw it */
@@ -1445,8 +1445,8 @@ static void dos_dump_screen(void)
 	if (bmp) destroy_bitmap(bmp);
 
 	/* Success message */
-	msg_print("Screen dump saved.");
-	msg_print(NULL);
+	message(MSG_GENERIC, 0, "Screen dump saved.");
+	message_flush();
 }
 
 

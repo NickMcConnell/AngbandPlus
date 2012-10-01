@@ -167,8 +167,8 @@ static void strip_bytes(int n)
  */
 static errr rd_item(object_type *o_ptr)
 {
-	byte old_dd;
-	byte old_ds;
+	byte old_dd = 0;
+	byte old_ds = 0;
 
 	u16b save_flags;
 
@@ -204,6 +204,10 @@ static errr rd_item(object_type *o_ptr)
 
 	if (save_flags & 0x0004) rd_byte(&o_ptr->a_idx); 
 	if (save_flags & 0x0008) rd_byte(&o_ptr->e_idx);
+	if (!older_than(0,3,2))
+	{
+		if (save_flags & 0x0800) rd_byte(&o_ptr->prefix_idx);
+	}
 
 	if (save_flags & 0x0010) rd_s16b(&o_ptr->timeout);
 
@@ -216,7 +220,11 @@ static errr rd_item(object_type *o_ptr)
 	if (save_flags & 0x0200) rd_byte(&old_dd);
 	if (save_flags & 0x0400) rd_byte(&old_ds);
 
-	if (save_flags & 0x0800) rd_byte(&o_ptr->ident);
+	if (older_than(0,3,2))
+	{
+		if (save_flags & 0x0800) rd_byte(&o_ptr->ident);
+	}
+	else rd_byte(&o_ptr->ident);
 
 	if (save_flags & 0x1000) rd_byte(&o_ptr->marked);
 
@@ -303,6 +311,21 @@ static errr rd_item(object_type *o_ptr)
 
 	/* Hack -- extract the "broken" flag */
 	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
+
+	/* Prefixed items */
+	if (o_ptr->prefix_idx)
+	{
+		int temp_dd, temp_ds;
+		item_prefix_type *px_ptr = &item_prefix[o_ptr->prefix_idx];
+
+		o_ptr->weight = (o_ptr->weight * px_ptr->weight) / 100;
+
+		temp_dd = o_ptr->dd + px_ptr->mod_dd;
+		temp_ds = o_ptr->ds + px_ptr->mod_ds;
+
+		o_ptr->dd = ((temp_dd > 0) ? temp_dd : 1);
+		o_ptr->ds = ((temp_ds > 0) ? temp_ds : 1);
+	}
 
 	/* Artifacts */
 	if (o_ptr->a_idx)
@@ -592,7 +615,7 @@ static void rd_options(void)
 			else op_ptr->opt_birth[i] = FALSE;
 
 			/* Set flag */
-			if (flag16[os+2] & (1L << ob)) op_ptr->opt_adult[i] = TRUE;
+			if (flag16[os + 2] & (1L << ob)) op_ptr->opt_adult[i] = TRUE;
 			/* Clear flag */
 			else op_ptr->opt_adult[i] = FALSE;
 		}
@@ -643,6 +666,22 @@ static void rd_options(void)
 			}
 		}
 	}
+}
+
+/*
+ * Fix an old stat value 
+ */
+static byte fix_stat(s16b old)
+{
+	if (old <= 3) return 0;
+	if (old < 18) return (old - 3);
+	if (old < 18 + 10) return 15;
+	if (old < 18 + 30) return 16;
+	if (old < 18 + 50) return 17;
+	if (old < 18 + 70) return 18;
+	if (old < 18 + 90) return 19;
+	
+	return (20);
 }
 
 /*
@@ -699,8 +738,21 @@ static errr rd_extra(void)
 	/* Read the stat info */
 	for (i = 0; i < A_MAX; i++) 
 	{
-		rd_s16b(&p_ptr->stat_max[i]);
-		rd_s16b(&p_ptr->stat_cur[i]);
+		if (older_than(0,3,2))
+		{
+			s16b temp_max, temp_cur;
+
+			rd_s16b(&temp_max);
+			rd_s16b(&temp_cur);
+
+			p_ptr->stat_max[i] = fix_stat(temp_max);
+			p_ptr->stat_cur[i] = fix_stat(temp_max);
+		}
+		else
+		{
+			rd_byte(&p_ptr->stat_max[i]);
+			rd_byte(&p_ptr->stat_cur[i]);
+		}
 	}
 
 	rd_s32b(&p_ptr->au);
@@ -1472,7 +1524,9 @@ static errr rd_savefile_new_aux(void)
 			rd_s16b(&q_info[i].r_idx);
 			rd_s16b(&q_info[i].cur_num);
 			rd_s16b(&q_info[i].max_num);
-			rd_byte(&q_info[i].started);
+
+			rd_byte(&tmp8u);
+			q_info[i].started = (tmp8u) ? TRUE : FALSE;
 
 			/* Set current quest */
 			if (q_info[i].active_level || q_info[i].reward) 

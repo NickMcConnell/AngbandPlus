@@ -38,12 +38,12 @@ static void special_level(void)
 
 		/* Message */
 		message_format(MSG_LEVEL, -1, "A wave of %s passes through your body",
-			((rp_ptr->special == RACE_SPECIAL_DEMON) ? "great evil":"holiness"));
-		message_format(MSG_LEVEL, -1, "You have grown into %s %s!",t,levname);
+			((rp_ptr->special == RACE_SPECIAL_DEMON) ? "great evil" : "holiness"));
+		message_format(MSG_LEVEL, -1, "You have grown into %s %s!", t, levname);
 	}
 
 	/* Check to see if you got a new power */
-	if (rsp_ptr[(p_ptr->lev)/5]->power != rsp_ptr[(p_ptr->lev-1)/5]->power)
+	if (rsp_ptr[(p_ptr->lev) / 5]->power != rsp_ptr[(p_ptr->lev-1)/5]->power)
 	{
 		if (!rsp_ptr[(p_ptr->lev-1)/5]->power) message(MSG_LEVEL, -1, "You gain a racial power!");
 		else message(MSG_LEVEL, -1, "Your racial power has changed!");
@@ -356,6 +356,9 @@ void monster_death(int m_idx)
 			/* Make an object */
 			if (!make_object(i_ptr, good, great, TRUE)) continue;
 
+			/* Hack - if a unique, inscribe with his name */
+			if (inscribe_unique && m_ptr->u_idx) i_ptr->note = quark_add(monster_name(m_ptr));
+
 			/* Assume seen XXX XXX XXX */
 			dump_item++;
 		}
@@ -602,20 +605,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Sometimes a monster gets scared by damage */
 	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)))
 	{
-		int percentage, chance;
+		int chance = 0;
 
 		/* Percentage of fully healthy */
-		percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
+		int percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
 
 		/*
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 * or sometimes when hit by a weapon of fear XXX XXX
 		 */
-		chance = 0;
-		if (percentage <= 10) chance = (percentage*10);
+		if (dam && (percentage <= 10)) chance = (105 - (percentage * 10));
 		if ((dam >= m_ptr->hp) && (chance < 80)) chance = 80;
-		if ((*fear) && (chance < 90)) chance += 10;
+		if (*fear) chance = 100;
 
 		if (rand_int(100) < chance)
 		{
@@ -2461,19 +2463,28 @@ bool get_rep_dir(int *dp)
  * Apply confusion, if needed, to a direction
  *
  * Display a message and return TRUE if direction changes.
+ *
+ * Note - this function also applies "panic", which is treated just like confusion
  */
 bool confuse_dir(int *dp)
 {
 	int dir;
+	int chance = 0;
 
 	/* Default */
 	dir = (*dp);
 
+	/* Chance of random movement, based on confusion level */
+	if ((chance < 75) && (p_ptr->confused > PY_CONF_BEFUDDLE)) chance = 75;
+	if ((chance < 50) && (p_ptr->afraid > PY_FEAR_PANIC)) chance = 50;
+	if ((chance < 50) && (p_ptr->confused > PY_CONF_CONFUSE)) chance = 50;
+	if ((chance < 25) && (p_ptr->confused)) chance = 25;
+
 	/* Apply "confusion" */
-	if (p_ptr->confused)
+	if (chance)
 	{
 		/* Apply confusion XXX XXX XXX */
-		if ((dir == 5) || (rand_int(100) < 75))
+		if ((dir == 5) || (rand_int(100) < chance))
 		{
 			/* Random direction */
 			dir = ddd[rand_int(8)];
@@ -2484,7 +2495,8 @@ bool confuse_dir(int *dp)
 	if ((*dp) != dir)
 	{
 		/* Warn the user */
-		message(MSG_EFFECT, 0, "You are confused.");
+		if (p_ptr->confused) message(MSG_EFFECT, 0, "You are confused.");
+		else message(MSG_EFFECT, 0, "You are panicking!");
 
 		/* Save direction */
 		(*dp) = dir;

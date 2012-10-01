@@ -1,4 +1,126 @@
-Changes from 0.3.0 to 0.3.1:
+Changes from 0.3.1b to 0.3.2:
+
+## Gamplay Changes ##
+
+- Compatible with 0.3.1b (and 0.3.1) savefiles, but broken swords/daggers will mysteriously
+  disappear, and perhaps be replaced by blank items. 
+
+# Stats #
+
+- Major change to the stat system. Stats no longer go from 3-18/220, but go linearly from 0-30.
+  Stat 15 equals to old stat 18, and is the max for non-modified starting characters. Stat 20
+  is the max possible value for an unmodified stat. The main difference, except in the display,
+  is that the 16-22 range, equivalent to the 18/01-18/140 range, advances much quicker, allowing
+  for quicker stat gain and a larger influence of stats on the game.
+
+# Races/Classes #
+
+- Race/class stat bonuses scaled down to fit new stat system.
+
+- The experience factor for Felpurrs increased to +25%. Note that this does not affect 
+  existing characters.
+
+# Interface # 
+
+- Destroying items no longer takes any game turns.
+
+- Zangband style "y/n/k" prompt for item pickup.
+
+- In non-perserve mode, artifacts that are "lost" now appear in red in the artifact browser
+  instead of white; this enables you to tell them apart from artifacts you found. 
+
+# Combat #
+
+- Changed stunning. Now when the player is stunned, it no longer prevents regeneration of HP,
+  but rather it prevents mana regeneration. Also, it takes a bit longer to knock out a player.
+  Finally, the degree in which stunning reduces item success chance has been lowered for 
+  non-heavy stuns.
+
+- Confusion now gradual, like stunning or cuts. A few confusion attacks leave you perplexed which
+  still lets you cast spells (though the fail rates are higher), and usually allows you to 
+  control your movement. Then you become confused, which forbids spellcasting and makes movement
+  more erratic. Then you become befuddled, and movement is very erratic. Finally, you become
+  insane, which is the same as befuddled but will not cure over time - you must use an external
+  healing source such as a potion.
+
+- Fear also made gradual. You begin wary, which reduces your chances to hit and raises your AC as
+  you are more on guard. Then you become afraid which prohibits melee combat, then terrified which 
+  also prevents shooting, and finally panicked, which also prevents spellcasting and makes you
+  move errtically.
+
+- New option: "inscribe_unique", which automatically inscribes all the items dropped by a unique
+  with his name (to allow you to know who dropped what in big battles).
+
+- Removed the hack that prevented weapons of terror from affecting undead creatures - now, undead
+  that aren't immune to fear can be scared by these weapons.
+
+- Arrows and bolts of wounding reduced in power.
+
+# Items #
+
+- Items removed: broken sword, broken dagger. They have been replaced by the new prefix system.
+
+- Weapons now sometimes get a prefix, like "broken" or "dwarven" which affect their various
+  statistics. Prefixs come in addition to any other properties an item may have, so you can 
+  have, for instance, an "Orcish broad sword of melting". Some prefixs contain a modifier to
+  hit or to damage - in those cases, the modifiers do not count against enchantment - for 
+  instance, an "Elvish" weapon can be enchanted up to +17 to hit instead of +15. For now the
+  prefixs are hard-coded but I'll eventually move them to an *_info.txt file.
+
+# Monsters #
+
+- Giant slugs are now STUPID.
+
+- Blink dogs and phase spiders now NEVER_FAIL.
+
+- Greedy Little Gnome renamed Gnome Thief.
+
+- Rattikin monster description corrected.
+
+# Other changes #
+
+- Vault may now be generated flipped and rotated. This allows for greater variety in vaults
+  found. 
+
+- Added a new, L-Shaped vault (replacing the now-obsolete diagonal R-L vault).
+
+- Implemented Eric Bock's item distribution graph patch for debug mode.
+
+## Non-Gameplay Affecting Changes ##
+
+- 'p' is no longer hard-coded as a synonym for 'm'; instead, it is now keymapped to 'm' (no 
+  direct effect on gameplay).
+
+## Bug fixes ##
+
+- If you cancelled a directional spell, a turn was still spent.
+
+- Temporary invisibility prevented resting/running.
+
+- Mystics were getting powder vials of poisoning instead of incineration as starting 
+  equipment.
+
+- Non-random hp were miscalculated, shorting the player on a hp every two levels.
+
+- Monster fear calculations were weird (related to the similar bugs in Vanilla but not quite
+  the same).
+
+- Chaos resistance now protects against confusion from chaos attacks.
+
+- Artifacts brands and slays didn't appear on *ID* or character screen (they were calculated 
+  into combat, though).
+
+- Solved some weirdness when culculating item usage success.
+
+- Powders wouldn't be properly sorted in the inventory if you identify them by use.
+
+- Fixed minor display glitch when receiving rewards in adventurer's guild.
+
+- When dumping the character to a file, the top line of the resistances was cut.
+
+- From Vanilla: The message when dropping a known artifact looks weird.
+
+Changes from 0.3.0 to 0.3.1b:
 
 ## Gamplay Changes ##
 
@@ -177,6 +299,8 @@ Changes from 0.3.0 to 0.3.1:
   now function properly (i.e. without the hacks used before). 
 
 ## Bug fixes ## 
+
+- Fixed a bug which spoiled the random sustains of ego items.
 
 - Fixed a bug which caused completed quests to "fail" after a while.
 

@@ -891,8 +891,10 @@ static void display_artifact_list(int col, int row, int per_page, int object_idx
 		artifact_type *a_ptr = &a_info[a_idx];
 
 		/* Choose a color */
-		byte attr = ((a_ptr->status & (A_STATUS_AWARE)) ? TERM_WHITE : TERM_SLATE);
-		byte cursor = ((a_ptr->status & (A_STATUS_AWARE)) ? TERM_L_BLUE : TERM_BLUE);
+		byte attr = (((a_ptr->status & (A_STATUS_LOST)) ? TERM_RED : 
+			((a_ptr->status & (A_STATUS_AWARE)) ? TERM_WHITE : TERM_SLATE)));
+		byte cursor = (((a_ptr->status & (A_STATUS_LOST)) ? TERM_VIOLET : 
+			((a_ptr->status & (A_STATUS_AWARE)) ? TERM_L_BLUE : TERM_BLUE)));
 		attr = ((i + object_top == object_cur) ? cursor : attr);
 
 		/* Get local object */
@@ -1125,10 +1127,8 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 		Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
 
 		/* Display kills */
-		if (!u_idx)
-			put_str(format("%5d", lr_ptr->r_pkills), row + i, 73);
-		else
-			put_str(format("%s", (u_ptr->dead) ? "dead" : "alive"), row + i, 73);
+		if (!u_idx)	put_str(format("%5d", lr_ptr->r_pkills), row + i, 73);
+		else put_str(format("%s", (u_ptr->dead) ? "dead" : "alive"), row + i, 73);
 	
 	}
 

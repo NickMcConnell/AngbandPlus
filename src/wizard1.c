@@ -858,15 +858,15 @@ static void analyze_misc_magic(object_type *o_ptr, cptr *misc_list)
 	 */
 	if ((o_ptr->tval == TV_LITE_SPECIAL) || (o_ptr->tval == TV_LITE))
 	{
-		byte rad;
+		byte rad = 0;
 
 		if (f3 & TR3_LITE1) rad = 1;
 		else if (f3 & TR3_LITE2) rad = 2;
 		else if (f3 & TR3_LITE3) rad = 3;
 		else if (f3 & TR3_LITE4) rad = 4;
 
-		if (o_ptr->tval == TV_LITE_SPECIAL) *misc_list++ = format("Permanent Light(%d)",rad);
-		else *misc_list++ = format("Refuelable Light(%d)",rad);
+		if (o_ptr->tval == TV_LITE_SPECIAL) *misc_list++ = format("Permanent Light(%d)", rad);
+		else *misc_list++ = format("Refuelable Light(%d)", rad);
 	}
 
 	/*

@@ -1,6 +1,6 @@
 #File: r_info.txt
 #
-V:0.3.1
+V:0.3.2
 #
 N:0:<player>
 G:@:w
@@ -1028,7 +1028,7 @@ I:100:12d9:10:25:25
 W:6:2:0:200
 B:BITE:ACID:2d6
 B:BITE:ACID:2d4
-F:ANIMAL | EMPTY_MIND | KILL_BODY | KILL_ITEM
+F:ANIMAL | EMPTY_MIND | KILL_BODY | KILL_ITEM | STUPID
 S:1_IN_10 | BR_ACID
 D:It is slowly making its way towards you, eating everything in
 D: its path.
@@ -1831,7 +1831,7 @@ F:RES_CONF | UNDEAD
 S:1_IN_15 | SCARE | TPORT
 D:A ghostly apparition that shrieks horribly.
 #
-N:200:Greedy Little Gnome
+N:200:Gnome Thief
 G:h:b
 I:120:4d12:20:20:2
 W:12:3:0:600
@@ -2220,7 +2220,7 @@ G:C:B
 I:120:8d8:20:20:10
 W:15:2:0:900
 B:BITE:HURT:1d8
-F:ANIMAL | BASH_DOOR | FRIEND | RAND_25
+F:ANIMAL | BASH_DOOR | FRIEND | RAND_25 | NEVER_FAIL
 S:1_IN_4 | BLINK | BLINK_TO
 D:A strange magical member of the canine race, its form seems to shimmer and
 D: fade in front of your very eyes.
@@ -2254,10 +2254,10 @@ B:BITE:HURT:2d6
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
 F:HUMANOID | BASH_DOOR | DROP_60 | EVIL | FORCE_SLEEP | ONLY_GOLD | MALE |
-F:OPEN_DOOR
+F:OPEN_DOOR | HUMANOID
 S:1_IN_9 | BA_POIS | BLINK | BO_COLD | CAUSE_2
-D:A large rat with glowing red eyes.  The wererat is a disgusting creature,
-D: relishing in filth and disease.
+D:A large, bipedal rat, who survives in the dungeon by ambushing those
+D: less powerful than itself.
 #
 N:243:Giant tarantula
 G:S:o
@@ -2499,7 +2499,7 @@ W:17:2:0:1350
 B:BITE:HURT:1d8
 B:BITE:POISON:1d6
 B:BITE:POISON:1d6
-F:ANIMAL | BASH_DOOR | FRIEND | RES_POIS | WEIRD_MIND
+F:ANIMAL | BASH_DOOR | FRIEND | RES_POIS | WEIRD_MIND | NEVER_FAIL
 S:1_IN_5 | BLINK | BLINK_TO | TELE_TO
 D:A spider that never seems quite there.  Everywhere you look it is just
 D: half-seen in the corner of one eye.

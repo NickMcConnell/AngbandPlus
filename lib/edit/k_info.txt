@@ -60,7 +60,7 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.3.2
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -228,25 +228,9 @@ W:10:0:3:20
 X:1d1:100
 A:10/2:20/2
 
-##### Items 25 - 30 unused #####
+##### Items 25 - 32 unused #####
 
 ##### Edged Weapons #####
-
-N:31:& Broken Dagger~
-G:|:D
-I:23:1:0
-W:0:0:5:1
-A:0/1
-P:0:1d1:-2:-4:0
-F:SHOW_MODS
-
-N:32:& Broken Sword~
-G:|:D
-I:23:2:0
-W:0:0:30:2
-A:0/1
-P:0:1d2:-2:-4:0
-F:SHOW_MODS
 
 N:33:& Dagger~
 G:|:W

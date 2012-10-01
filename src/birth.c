@@ -27,7 +27,7 @@ struct birther
 
 	s32b au;
 
-	s16b stat[A_MAX];
+	byte stat[A_MAX];
 
 	char history[5][55];
 };
@@ -40,7 +40,7 @@ static birther prev;
 /*
  * Current stats (when rolling a character).
  */
-static s16b stat_use[A_MAX];
+static byte stat_use[A_MAX];
 
 /*
  * Additional items in the "start kit"
@@ -159,17 +159,16 @@ static void load_prev_data(void)
 
 /*
  * Roll for a characters stats
- *
- * For efficiency, we include a chunk of "calc_bonuses()".
  */
 static void get_stats(void)
 {
-	int i, j;
+	int i;
+	int j = 0;
 
 	int dice[18];
 
 	/* Roll and verify some stats */
-	while (TRUE)
+	while ((j < 42) || (j > 54))
 	{
 		/* Roll some dice */
 		for (j = i = 0; i < 18; i++)
@@ -180,25 +179,16 @@ static void get_stats(void)
 			/* Collect the maximum */
 			j += dice[i];
 		}
-
-		/* Verify totals */
-		if ((j > 42) && (j < 54)) break;
 	}
 
 	/* Roll the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		/* Extract 5 + 1d3 + 1d4 + 1d5 */
-		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
-
-		/* Save that value */
-		p_ptr->stat_max[i] = j;
-
-		/* Start fully healed */
-		p_ptr->stat_cur[i] = p_ptr->stat_max[i];
+		/* Extract 2 + 1d3 + 1d4 + 1d5 */
+		j = 2 + dice[3 * i] + dice[3 * i + 1] + dice[3 * i + 2];
 
 		/* Apply the class bonus */
-		stat_use[i] = modify_stat_value(p_ptr->stat_max[i], cp_ptr->c_adj[i]);
+		stat_use[i] = modify_stat_value((byte)j, cp_ptr->c_adj[i]);
 		
 		/* Save the resulting stat maximum */
 		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
@@ -244,8 +234,8 @@ static void get_extra(void)
 	{
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
-			p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + p_ptr->hitdie/2;
-			if (((p_ptr->hitdie % 2) == 1) & ((i % 2) == 1)) p_ptr->player_hp[i]++;
+			p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + (p_ptr->hitdie + 1) / 2;
+            if (((p_ptr->hitdie % 2) == 0) & ((i % 2) == 1)) p_ptr->player_hp[i]++;
 		}
 
 	}
@@ -410,10 +400,10 @@ static void get_money(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Mega-Hack -- reduce gold for high stats */
-		if (stat_use[i] >= 18+50) gold -= 300;
-		else if (stat_use[i] >= 18+20) gold -= 200;
-		else if (stat_use[i] > 18) gold -= 150;
-		else gold -= (stat_use[i] - 8) * 10;
+		if (stat_use[i] >= 19) gold -= 300;
+		else if (stat_use[i] >= 17) gold -= 200;
+		else if (stat_use[i] > 15) gold -= 150;
+		else gold -= (stat_use[i] - 5) * 10;
 	}
 
 	/* Minimum 100 gold (or 0 if using start kit)*/
@@ -449,7 +439,7 @@ static void player_wipe(void)
 	for (i = 0; i < z_info->a_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		a_ptr->status &= ~(A_STATUS_CREATED | A_STATUS_AWARE | A_STATUS_KNOWN);
+		a_ptr->status &= ~(A_STATUS_CREATED | A_STATUS_AWARE | A_STATUS_KNOWN | A_STATUS_LOST);
 	}
 
 	/* Reset the quests */
@@ -686,10 +676,11 @@ static bool player_birth_aux_1(void)
 	/* Choose */
 	while (TRUE)
 	{
-		sprintf(buf, "Choose a sex (%c-%c, or * for random): ",
-		        I2A(0), I2A(n-1));
+		sprintf(buf, "Choose a sex (%c-%c, or * for random): ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
+
 		ch = inkey();
+
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
 		k = (islower(ch) ? A2I(ch) : -1);
@@ -878,23 +869,23 @@ static bool player_birth_aux_1(void)
 }
 
 /*
- * Initial stat costs (initial stats always range from 9 to 18 inclusive).
+ * Initial stat costs (initial stats always range from 6 to 15 inclusive).
  */
-static int birth_stat_costs[(18-9)+1] = { 0, 1, 2, 3, 5, 8, 12, 17, 23, 31 };
+static int birth_stat_costs[(15-6)+1] = { 0, 1, 2, 3, 5, 8, 12, 17, 23, 31 };
 
 /*
  * Helper function for 'player_birth()'.
  *
  * This function handles "point-based" character creation.
  *
- * The player selects, for each stat, a value from 10 to 18 (inclusive),
+ * The player selects, for each stat, a value from 6 to 15 (inclusive),
  * each costing a certain amount of points (as above), from a pool of 50
  * available points, to which race/class modifiers are then applied.
  *
  * Each unused point is converted into 50 gold pieces.
  */
 #define POINTS		55
-#define BASE_STAT	9
+#define BASE_STAT	6
 
 static bool player_birth_aux_2(void)
 {
@@ -903,9 +894,9 @@ static bool player_birth_aux_2(void)
 	int row = 2;
 	int col = 42;
 
-	int stat = 0;
+	byte stat = 0;
 
-	int stats[A_MAX];
+	byte stats[A_MAX];
 
 	int cost;
 
@@ -1026,7 +1017,7 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Increase stat */
-		if ((ch == '6') && (stats[stat] < 18))
+		if ((ch == '6') && (stats[stat] < 15))
 		{
 			stats[stat]++;
 		}
@@ -1059,7 +1050,7 @@ static bool player_birth_aux_3(void)
 
 	char buf[80];
 
-	s16b stat_limit[A_MAX];
+	byte stat_limit[A_MAX];
 
 	s32b stat_match[A_MAX];
 
@@ -1072,7 +1063,7 @@ static bool player_birth_aux_3(void)
 	/* Initialize */
 	if (adult_auto_roller)
 	{
-		int mval[A_MAX];
+		byte mval[A_MAX];
 
 		char inp[80];
 
@@ -1097,25 +1088,13 @@ static bool player_birth_aux_3(void)
 			stat_match[i] = 0;
 
 			/* Calculate race bonus */
-			m = modify_stat_value(17, rp_ptr->r_adj[i]+cp_ptr->c_adj[i]);
+			m = modify_stat_value(14, rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
 
 			/* Save the maximum */
 			mval[i] = m;
 
 			/* Extract a textual format */
-			/* cnv_stat(m, inp); */
-
-			/* Above 18 */
-			if (m > 18)
-			{
-				sprintf(inp, "(Max of 18/%02d):", (m - 18));
-			}
-
-			/* From 3 to 18 */
-			else
-			{
-				sprintf(inp, "(Max of %2d):", m);
-			}
+			sprintf(inp, "(Max of %2d):", m);
 
 			/* Prepare a prompt */
 			sprintf(buf, "%-5s%-20s", stat_names[i], inp);
@@ -1130,8 +1109,6 @@ static bool player_birth_aux_3(void)
 			/* Get a minimum stat */
 			while (TRUE)
 			{
-				char *s;
-
 				/* Move the cursor */
 				put_str("", 16 + i, 30);
 
@@ -1141,24 +1118,15 @@ static bool player_birth_aux_3(void)
 				/* Get a response (or escape) */
 				if (!askfor_aux(inp, 8)) inp[0] = '\0';
 
-				/* Hack -- add a fake slash */
-				strcat(inp, "/");
-
-				/* Hack -- look for the "slash" */
-				s = strchr(inp, '/');
-
-				/* Hack -- Nuke the slash */
-				*s++ = '\0';
-
 				/* Hack -- Extract an input */
-				v = atoi(inp) + atoi(s);
+				v = atoi(inp);
 
 				/* Break on valid input */
 				if (v <= mval[i]) break;
 			}
 
 			/* Save the minimum stat - the stat as selected minus the race bonus*/
-			stat_limit[i] = (v > 0) ? modify_stat_value(v, -(rp_ptr->r_adj[i])) : 0;
+			stat_limit[i] = (v > 0) ? modify_stat_value((byte)v, -(rp_ptr->r_adj[i])) : 0;
 		}
 	}
 
@@ -1193,8 +1161,8 @@ static bool player_birth_aux_3(void)
 				put_str(stat_names[i], 3+i, col);
 
 				/* Put the stat */
-				cnv_stat(stat_limit[i], buf);
-				c_put_str(TERM_L_BLUE, buf, 3+i, col+5);
+				sprintf(buf, "%2d", stat_limit[i]);
+				c_put_str(TERM_L_BLUE, buf, 3+i, col+9);
 			}
 
 			/* Note when we started */
@@ -1249,8 +1217,8 @@ static bool player_birth_aux_3(void)
 					for (i = 0; i < A_MAX; i++)
 					{
 						/* Put the stat */
-						cnv_stat(stat_use[i], buf);
-						c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
+						sprintf(buf, "%2d", stat_use[i]);
+						c_put_str(TERM_L_GREEN, buf, 3+i, col+28);
 
 						/* Put the percent */
 						if (stat_match[i])

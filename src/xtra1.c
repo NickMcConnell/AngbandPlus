@@ -11,74 +11,18 @@
 #include "angband.h"
 
 /*
- * Converts stat num into a six-char (right justified) string
- */
-void cnv_stat(int val, char *out_val)
-{
-	/* Above 18 */
-	if (val > 18)
-	{
-		int bonus = (val - 18);
-
-		if (bonus >= 100)
-		{
-			sprintf(out_val, "18/%03d", bonus);
-		}
-		else
-		{
-			sprintf(out_val, " 18/%02d", bonus);
-		}
-	}
-
-	/* From 3 to 18 */
-	else
-	{
-		sprintf(out_val, "    %2d", val);
-	}
-}
-
-/*
  * Modify a stat value by a "modifier", return new value
- *
- * Stats go up: 3,4,...,17,18,18/10,18/20,...,18/220
- * Or even: 18/13, 18/23, 18/33, ..., 18/220
- *
- * Stats go down: 18/220, 18/210,..., 18/10, 18, 17, ..., 3
- * Or even: 18/13, 18/03, 18, 17, ..., 3
  */
-s16b modify_stat_value(int value, int amount)
+byte modify_stat_value(byte value, int amount)
 {
-	int i;
+	if (amount > 0) value += amount;
 
-	/* Reward */
-	if (amount > 0)
+	if (amount < 0)
 	{
-		/* Apply each point */
-		for (i = 0; i < amount; i++)
-		{
-			/* One point at a time */
-			if (value < 18) value++;
-
-			/* Ten "points" at a time */
-			else value += 10;
-		}
-	}
-
-	/* Penalty */
-	else if (amount < 0)
-	{
-		/* Apply each point */
-		for (i = 0; i < (0 - amount); i++)
-		{
-			/* Ten points at a time */
-			if (value >= 18+10) value -= 10;
-
-			/* Hack -- prevent weirdness */
-			else if (value > 18) value = 18;
-
-			/* One point at a time */
-			else if (value > 3) value--;
-		}
+		/* Use absolute value */
+		amount *= -1; 
+		if (amount >= value) value = 0;
+		else value -= amount;
 	}
 
 	/* Return new value */
@@ -103,25 +47,32 @@ static void prt_field(cptr info, int row, int col)
 static void prt_stat(int stat)
 {
 	char tmp[32];
+	byte a = TERM_L_GREEN;
+	int offset = 0;
 
 	/* Display "injured" stat */
 	if (p_ptr->stat_use[stat] < p_ptr->stat_top[stat])
 	{
+		a = ((p_ptr->stat_use[stat] >0) && (p_ptr->stat_cur[stat] > 0)) ? 
+			TERM_YELLOW : TERM_RED;
 		put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
-		cnv_stat(p_ptr->stat_use[stat], tmp);
-		c_put_str(TERM_YELLOW, tmp, ROW_STAT + stat, COL_STAT + 6);
 	}
 
 	/* Display "healthy" stat */
 	else
 	{
 		put_str(stat_names[stat], ROW_STAT + stat, 0);
-		cnv_stat(p_ptr->stat_use[stat], tmp);
-		c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
 	}
 
+	/* Right-justify */
+	if (p_ptr->stat_use[stat] < 10) offset++;
+	if (p_ptr->stat_top[stat] < 10) offset++;
+
+	sprintf(tmp, "  %d/%d", p_ptr->stat_use[stat], p_ptr->stat_top[stat]);
+	c_put_str(a, tmp, ROW_STAT + stat, COL_STAT + 5 + offset);
+
 	/* Indicate natural maximum */
-	if (p_ptr->stat_max[stat] == 18+100)
+	if (p_ptr->stat_max[stat] == 20)
 	{
 		put_str("!", ROW_STAT + stat, 3);
 	}
@@ -394,13 +345,25 @@ static void prt_blind(void)
  */
 static void prt_confused(void)
 {
-	if (p_ptr->confused)
+	if (p_ptr->confused > PY_CONF_INSANE)
 	{
-		c_put_str(TERM_ORANGE, "Confused", ROW_CONFUSED, COL_CONFUSED);
+		c_put_str(TERM_L_RED, "Insane   ", ROW_CONFUSED, COL_CONFUSED);
+	}
+	else if (p_ptr->confused > PY_CONF_BEFUDDLE)
+	{
+		c_put_str(TERM_RED, "Befuddled", ROW_CONFUSED, COL_CONFUSED);
+	}
+	else if (p_ptr->confused > PY_CONF_CONFUSE)
+	{
+		c_put_str(TERM_ORANGE, "Confused ", ROW_CONFUSED, COL_CONFUSED);
+	}
+	else if (p_ptr->confused)
+	{
+		c_put_str(TERM_YELLOW, "Perplexed", ROW_CONFUSED, COL_CONFUSED);
 	}
 	else
 	{
-		put_str("        ", ROW_CONFUSED, COL_CONFUSED);
+		put_str("         ", ROW_CONFUSED, COL_CONFUSED);
 	}
 }
 
@@ -409,9 +372,21 @@ static void prt_confused(void)
  */
 static void prt_afraid(void)
 {
-	if (p_ptr->afraid)
+	if (p_ptr->afraid > PY_FEAR_PANIC)
+	{
+		c_put_str(TERM_L_RED, "Panic ", ROW_AFRAID, COL_AFRAID);
+	}
+	else if (p_ptr->afraid > PY_FEAR_TERROR)
+	{
+		c_put_str(TERM_RED, "Terror", ROW_AFRAID, COL_AFRAID);
+	}
+	else if (p_ptr->afraid > PY_FEAR_AFRAID)
 	{
 		c_put_str(TERM_ORANGE, "Afraid", ROW_AFRAID, COL_AFRAID);
+	}
+	else if (p_ptr->afraid)
+	{
+		c_put_str(TERM_YELLOW, "Wary  ", ROW_AFRAID, COL_AFRAID);
 	}
 	else
 	{
@@ -467,7 +442,7 @@ static void prt_state(void)
 	{
 		attr = TERM_RED;
 
-		strcpy(text, "Paralyzed!");
+		strcpy(text, "Paralyzed");
 	}
 
 	/* Resting */
@@ -477,22 +452,22 @@ static void prt_state(void)
 		int n = p_ptr->resting;
 
 		/* Start with "Rest" */
-		strcpy(text, "Rest      ");
+		strcpy(text, "Rest     ");
 
 		/* Extensive (timed) rest */
 		if (n >= 1000)
 		{
 			i = n / 100;
-			text[9] = '0';
 			text[8] = '0';
-			text[7] = I2D(i % 10);
+			text[7] = '0';
+			text[6] = I2D(i % 10);
 			if (i >= 10)
 			{
 				i = i / 10;
-				text[6] = I2D(i % 10);
+				text[5] = I2D(i % 10);
 				if (i >= 10)
 				{
-					text[5] = I2D(i / 10);
+					text[4] = I2D(i / 10);
 				}
 			}
 		}
@@ -501,37 +476,37 @@ static void prt_state(void)
 		else if (n >= 100)
 		{
 			i = n;
-			text[9] = I2D(i % 10);
-			i = i / 10;
 			text[8] = I2D(i % 10);
-			text[7] = I2D(i / 10);
+			i = i / 10;
+			text[7] = I2D(i % 10);
+			text[6] = I2D(i / 10);
 		}
 
 		/* Medium (timed) rest */
 		else if (n >= 10)
 		{
 			i = n;
-			text[9] = I2D(i % 10);
-			text[8] = I2D(i / 10);
+			text[8] = I2D(i % 10);
+			text[7] = I2D(i / 10);
 		}
 
 		/* Short (timed) rest */
 		else if (n > 0)
 		{
 			i = n;
-			text[9] = I2D(i);
+			text[8] = I2D(i);
 		}
 
 		/* Rest until healed */
 		else if (n == -1)
 		{
-			text[5] = text[6] = text[7] = text[8] = text[9] = '*';
+			text[4] = text[5] = text[6] = text[7] = text[8] = '*';
 		}
 
 		/* Rest until done */
 		else if (n == -2)
 		{
-			text[5] = text[6] = text[7] = text[8] = text[9] = '&';
+			text[4] = text[5] = text[6] = text[7] = text[8] = '&';
 		}
 	}
 
@@ -540,24 +515,24 @@ static void prt_state(void)
 	{
 		if (p_ptr->command_rep > 999)
 		{
-			sprintf(text, "Rep. %3d00", p_ptr->command_rep / 100);
+			sprintf(text, "Rep %3d00", p_ptr->command_rep / 100);
 		}
 		else
 		{
-			sprintf(text, "Repeat %3d", p_ptr->command_rep);
+			sprintf(text, "Rep.  %3d", p_ptr->command_rep);
 		}
 	}
 
 	/* Searching */
 	else if (p_ptr->searching)
 	{
-		strcpy(text, "Searching ");
+		strcpy(text, "Searching");
 	}
 
 	/* Nothing interesting */
 	else
 	{
-		strcpy(text, "          ");
+		strcpy(text, "         ");
 	}
 
 	/* Display the info (or blanks) */
@@ -611,27 +586,27 @@ static void prt_cut(void)
 {
 	int c = p_ptr->cut;
 
-	if (c > 1000)
+	if (c > PY_CUT_MORTAL)
 	{
 		c_put_str(TERM_L_RED, "Mortal wound", ROW_CUT, COL_CUT);
 	}
-	else if (c > 200)
+	else if (c > PY_CUT_DEEP)
 	{
 		c_put_str(TERM_RED, "Deep gash   ", ROW_CUT, COL_CUT);
 	}
-	else if (c > 100)
+	else if (c > PY_CUT_SEVERE)
 	{
 		c_put_str(TERM_RED, "Severe cut  ", ROW_CUT, COL_CUT);
 	}
-	else if (c > 50)
+	else if (c > PY_CUT_NASTY)
 	{
 		c_put_str(TERM_ORANGE, "Nasty cut   ", ROW_CUT, COL_CUT);
 	}
-	else if (c > 25)
+	else if (c > PY_CUT_BAD)
 	{
 		c_put_str(TERM_ORANGE, "Bad cut     ", ROW_CUT, COL_CUT);
 	}
-	else if (c > 10)
+	else if (c > PY_CUT_LIGHT)
 	{
 		c_put_str(TERM_YELLOW, "Light cut   ", ROW_CUT, COL_CUT);
 	}
@@ -649,11 +624,11 @@ static void prt_stun(void)
 {
 	int s = p_ptr->stun;
 
-	if (s > 100)
+	if (s > PY_STUN_KO)
 	{
 		c_put_str(TERM_RED, "Knocked out ", ROW_STUN, COL_STUN);
 	}
-	else if (s > 50)
+	else if (s > PY_STUN_HEAVY)
 	{
 		c_put_str(TERM_ORANGE, "Heavy stun  ", ROW_STUN, COL_STUN);
 	}
@@ -1289,7 +1264,7 @@ static void calc_spells(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total allowed spells - Hack - Mystics get spells faster */
-	stat_factor = (p_ptr->stat_ind[cp_ptr->spell_stat1] + p_ptr->stat_ind[cp_ptr->spell_stat2])/2;
+	stat_factor = (p_stat(cp_ptr->spell_stat1) + p_stat(cp_ptr->spell_stat2))/2;
 	num_allowed = ((adj_mag_study[stat_factor] * 
 		levels) / ((cp_ptr->flags & CF_EXTRA_SPELL) ? 33: 50));
 		
@@ -1532,7 +1507,7 @@ static void calc_mana(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	stat_factor = (p_ptr->stat_ind[cp_ptr->spell_stat1] + p_ptr->stat_ind[cp_ptr->spell_stat2])/2;
+	stat_factor = (p_stat(cp_ptr->spell_stat1) + p_stat(cp_ptr->spell_stat2))/2;
 	if (cp_ptr->flags & CF_EXTRA_MANA) 
 		msp = (adj_mag_mana[stat_factor] + adj_mag_extra_mana[stat_factor]) * levels / 25;
 	else msp = adj_mag_mana[stat_factor] * levels / 25;
@@ -1594,7 +1569,7 @@ static void calc_hitpoints(void)
 	int bonus, mhp;
 
 	/* Un-inflate "half-hitpoint bonus per level" value */
-	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128);
+	bonus = ((int)(adj_con_mhp[p_stat(A_CON)]) - 128);
 
 	/* Calculate hitpoints */
 	mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 2);
@@ -1718,7 +1693,7 @@ static int weight_limit(void)
 	int i;
 
 	/* Weight limit based only on strength */
-	i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
+	i = adj_str_wgt[p_stat(A_STR)] * 100;
 
 	/* Return the result */
 	return (i);
@@ -1763,7 +1738,6 @@ static void calc_bonuses(void)
 
 	int old_stat_top[A_MAX];
 	int old_stat_use[A_MAX];
-	int old_stat_ind[A_MAX];
 
 	int old_mana_add, old_hp_add;
 
@@ -1794,7 +1768,6 @@ static void calc_bonuses(void)
 	{
 		old_stat_top[i] = p_ptr->stat_top[i];
 		old_stat_use[i] = p_ptr->stat_use[i];
-		old_stat_ind[i] = p_ptr->stat_ind[i];
 	}
 
 	/*** Reset ***/
@@ -2101,7 +2074,7 @@ static void calc_bonuses(void)
 	/* Calculate stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		int add, top, use, ind;
+		int add, top, use;
 
 		/* Extract modifier */
 		add = p_ptr->stat_add[i];
@@ -2109,7 +2082,7 @@ static void calc_bonuses(void)
 		/* Modify the stats for races */
 		add += (rp_ptr->r_adj[i]);
 
-		if (rp_ptr->special) add+=rsp_ptr[(p_ptr->max_lev)/5]->r_adj[i];
+		if (rp_ptr->special) add += rsp_ptr[(p_ptr->max_lev)/5]->r_adj[i];
 
 		/* Extract the new "stat_top" value for the stat */
 		top = modify_stat_value(p_ptr->stat_max[i], add);
@@ -2122,24 +2095,12 @@ static void calc_bonuses(void)
 
 		/* Save the new value */
 		p_ptr->stat_use[i] = use;
-
-		/* Values: 3, 4, ..., 17 */
-		if (use <= 18) ind = (use - 3);
-
-		/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
-		else if (use <= 18+219) ind = (15 + (use - 18) / 10);
-
-		/* Range: 18/220+ */
-		else ind = (37);
-
-		/* Save the new index */
-		p_ptr->stat_ind[i] = ind;
 	}
 
 	/*** Temporary flags ***/
 
 	/* Apply temporary "stun" */
-	if (p_ptr->stun > 50)
+	if (p_ptr->stun > PY_STUN_HEAVY)
 	{
 		p_ptr->to_h -= 20;
 		p_ptr->dis_to_h -= 20;
@@ -2238,6 +2199,19 @@ static void calc_bonuses(void)
 	{
 		p_ptr->see_infra += 3;
 		p_ptr->tim_flag1 |= TR1_INFRA;
+	}
+
+	/* Fear */
+	if (p_ptr->afraid)
+	{
+		p_ptr->to_a += 5;
+		p_ptr->dis_to_a += 5;
+		/* 
+		 * Minuses to hit - they are only relevent if the fear is very low (wary 
+		 * but are retained so that the display won't be weird
+		 */
+		p_ptr->to_h -= 10;
+		p_ptr->dis_to_h -= 10;
 	}
 
 	/*** Temporary resistances ***/
@@ -2350,16 +2324,16 @@ static void calc_bonuses(void)
 	/*** Apply modifier bonuses ***/
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+	p_ptr->to_a += ((int)(adj_dex_ta[p_stat(A_DEX)]) - 128);
+	p_ptr->to_d += ((int)(adj_str_td[p_stat(A_STR)]) - 128);
+	p_ptr->to_h += ((int)(adj_dex_th[p_stat(A_DEX)]) - 128);
+	p_ptr->to_h += ((int)(adj_str_th[p_stat(A_STR)]) - 128);
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_stat(A_DEX)]) - 128);
+	p_ptr->dis_to_d += ((int)(adj_str_td[p_stat(A_STR)]) - 128);
+	p_ptr->dis_to_h += ((int)(adj_dex_th[p_stat(A_DEX)]) - 128);
+	p_ptr->dis_to_h += ((int)(adj_str_th[p_stat(A_STR)]) - 128);
 
 	/*** Modify skills ***/
 
@@ -2367,20 +2341,20 @@ static void calc_bonuses(void)
 	p_ptr->skill[SK_STL] += 1;
 
 	/* Affect Skill -- disarming (DEX and INT) */
-	p_ptr->skill[SK_DIS] += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
-	p_ptr->skill[SK_DIS] += adj_int_dis[p_ptr->stat_ind[A_INT]];
+	p_ptr->skill[SK_DIS] += adj_dex_dis[p_stat(A_DEX)];
+	p_ptr->skill[SK_DIS] += adj_int_dis[p_stat(A_INT)];
 
 	/* Affect Skill -- magic devices (INT) */
-	p_ptr->skill[SK_DEV] += adj_int_dev[p_ptr->stat_ind[A_INT]];
+	p_ptr->skill[SK_DEV] += adj_int_dev[p_stat(A_INT)];
 
 	/* Affect Skill -- aclhemy (INT) */
-	p_ptr->skill[SK_ALC] += adj_int_alc[p_ptr->stat_ind[A_INT]];
+	p_ptr->skill[SK_ALC] += adj_int_alc[p_stat(A_INT)];
 
 	/* Affect Skill -- saving throw (WIS) */
-	p_ptr->skill[SK_SAV] += adj_wis_sav[p_ptr->stat_ind[A_WIS]];
+	p_ptr->skill[SK_SAV] += adj_wis_sav[p_stat(A_WIS)];
 
 	/* Affect Skill -- digging (STR) */
-	p_ptr->skill[SK_DIG] += adj_str_dig[p_ptr->stat_ind[A_STR]];
+	p_ptr->skill[SK_DIG] += adj_str_dig[p_stat(A_STR)];
 
 	/* Affect Skill -- by level, class */
 	for (i = 0; i < SK_MAX; i++) p_ptr->skill[i] += (cp_ptr->x_skill[i] * p_ptr->lev / 10);
@@ -2404,7 +2378,7 @@ static void calc_bonuses(void)
 	p_ptr->noise = (1L << (30 - p_ptr->skill[SK_STL]));
 
 	/* Obtain the "hold" value */
-	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
+	hold = adj_str_hold[p_stat(A_STR)];
 
 	/*** Analyze current bow ***/
 
@@ -2535,13 +2509,13 @@ static void calc_bonuses(void)
 		else div = cp_ptr->min_weight;
 
 		/* Get the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
+		str_index = (adj_str_blow[p_stat(A_STR)] * cp_ptr->att_multiply / div);
 
 		/* Maximal value */
 		if (str_index > 11) str_index = 11;
 
 		/* Index by dexterity */
-		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+		dex_index = (adj_dex_blow[p_stat(A_DEX)]);
 
 		/* Maximal value */
 		if (dex_index > 11) dex_index = 11;
@@ -2701,11 +2675,7 @@ static void calc_bonuses(void)
 
 			/* Window stuff */
 			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-		}
 
-		/* Notice changes */
-		if (p_ptr->stat_ind[i] != old_stat_ind[i])
-		{
 			/* Change in CON affects Hitpoints */
 			if (i == A_CON)
 			{
@@ -3245,7 +3215,7 @@ void window_stuff(void)
 void handle_stuff(void)
 {
 	/* Update stuff */
-	update_stuff();
+	if (p_ptr->update) update_stuff();
 
 	/* Redraw stuff */
 	if (p_ptr->redraw) redraw_stuff();

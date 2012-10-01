@@ -450,7 +450,7 @@ bool make_attack_normal(int m_idx)
 					if (!p_ptr->resist_disen)
 					{
 						/* Apply disenchantment */
-						if (apply_disenchant(0)) obvious = TRUE;
+						if (apply_disenchant()) obvious = TRUE;
 					}
 
 					/* Learn about the player */
@@ -521,8 +521,7 @@ bool make_attack_normal(int m_idx)
 
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+					    (rand_int(100) < (adj_dex_safe[p_stat(A_DEX)] + p_ptr->lev)))
 					{
 						/* Saving throw message */
 						message(MSG_RESIST, 0, "You quickly protect your money pouch!");
@@ -574,8 +573,7 @@ bool make_attack_normal(int m_idx)
 
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+					    (rand_int(100) < (adj_dex_safe[p_stat(A_DEX)] + p_ptr->lev)))
 					{
 						/* Saving throw message */
 						message(MSG_RESIST, 0, "You grab hold of your backpack!");
@@ -812,7 +810,7 @@ bool make_attack_normal(int m_idx)
 					/* Increase "confused" */
 					if (!p_ptr->resist_confu)
 					{
-						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
+						if (set_confused(p_ptr->confused + randint(5) + randint((rlev / 5) + 1)))
 						{
 							obvious = TRUE;
 						}
@@ -842,7 +840,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (set_afraid(p_ptr->afraid + 3 + randint(rlev)))
+						if (set_afraid(p_ptr->afraid + randint(6) + randint((rlev / 5) + 1)))
 						{
 							obvious = TRUE;
 						}
@@ -893,7 +891,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_STR, 10, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_STR, 1, FALSE, TRUE)) obvious = TRUE;
 
 					break;
 				}
@@ -904,7 +902,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_INT, 10, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_INT, 1, FALSE, TRUE)) obvious = TRUE;
 
 					break;
 				}
@@ -915,7 +913,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_WIS, 10, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_WIS, 1, FALSE, TRUE)) obvious = TRUE;
 
 					break;
 				}
@@ -926,7 +924,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_DEX, 10, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_DEX, 1, FALSE, TRUE)) obvious = TRUE;
 
 					break;
 				}
@@ -937,7 +935,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CON, 10, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_CON, 1, FALSE, TRUE)) obvious = TRUE;
 
 					break;
 				}
@@ -948,7 +946,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CHR, 10, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_CHR, 1, FALSE, TRUE)) obvious = TRUE;
 
 					break;
 				}
@@ -959,12 +957,12 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stats) */
-					if (do_dec_stat(A_STR, 10, FALSE, TRUE)) obvious = TRUE;
-					if (do_dec_stat(A_DEX, 10, FALSE, TRUE)) obvious = TRUE;
-					if (do_dec_stat(A_CON, 10, FALSE, TRUE)) obvious = TRUE;
-					if (do_dec_stat(A_INT, 10, FALSE, TRUE)) obvious = TRUE;
-					if (do_dec_stat(A_WIS, 10, FALSE, TRUE)) obvious = TRUE;
-					if (do_dec_stat(A_CHR, 10, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_STR, 1, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_DEX, 1, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_CON, 1, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_INT, 1, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_WIS, 1, FALSE, TRUE)) obvious = TRUE;
+					if (do_dec_stat(A_CHR, 1, FALSE, TRUE)) obvious = TRUE;
 
 					break;
 				}

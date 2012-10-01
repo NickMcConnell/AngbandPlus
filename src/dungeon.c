@@ -15,6 +15,10 @@
  */
 int value_check_aux1(object_type *o_ptr)
 {
+	/* Ignore prefix modifiers */
+	int calc_h = o_ptr->to_h - item_prefix[o_ptr->prefix_idx].mod_th;
+	int calc_d = o_ptr->to_d - item_prefix[o_ptr->prefix_idx].mod_td;
+
 	/* Artifacts */
 	if (artifact_p(o_ptr))
 	{
@@ -45,7 +49,7 @@ int value_check_aux1(object_type *o_ptr)
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
 
 	/* Good "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
+	if (calc_h + calc_d > 0) return (INSCRIP_GOOD);
 
 	/* Default to "average" */
 	return (INSCRIP_AVERAGE);
@@ -56,6 +60,10 @@ int value_check_aux1(object_type *o_ptr)
  */
 static int value_check_aux2(object_type *o_ptr)
 {
+	/* Ignore prefix modifiers */
+	int calc_h = o_ptr->to_h - item_prefix[o_ptr->prefix_idx].mod_th;
+	int calc_d = o_ptr->to_d - item_prefix[o_ptr->prefix_idx].mod_td;
+
 	/* Cursed items (all of them) */
 	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
 
@@ -72,7 +80,7 @@ static int value_check_aux2(object_type *o_ptr)
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
 
 	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
+	if (calc_h + calc_d > 0) return (INSCRIP_GOOD);
 
 	/* No feeling */
 	return (0);
@@ -575,10 +583,10 @@ static void process_world(void)
 	if (p_ptr->cut)
 	{
 		/* Mortal wound or Deep Gash */
-		if (p_ptr->cut > 200) i = 3;
+		if (p_ptr->cut > PY_CUT_DEEP) i = 3;
 
 		/* Severe cut */
-		else if (p_ptr->cut > 100) i = 2;
+		else if (p_ptr->cut > PY_CUT_SEVERE) i = 2;
 
 		/* Other cuts */
 		else i = 1;
@@ -595,7 +603,7 @@ static void process_world(void)
 		if (i<A_MAX)
 		{
 			message(MSG_EFFECT, 0, "You suffer an attack of your disease -");
-			(void)do_dec_stat(i,10,FALSE,(bool)rand_int(2));
+			(void)do_dec_stat(i, 1, FALSE, (bool)rand_int(2));
 			p_ptr->update |= (PU_BONUS);
 
 			/* Disturb */
@@ -606,13 +614,13 @@ static void process_world(void)
 			if (rand_int(2) == 0)
 			{
 				message(MSG_EFFECT, 0, "Your disease clouds your vision!");
-				(void)set_blind(rand_int(10)+10);
+				(void)set_blind(rand_int(10) + 10);
 			}
 			else
 			{
 				message(MSG_EFFECT, 0, "You suffer a dizzy spell!");
-				(void)set_stun(rand_int(25)+25);
-				(void)set_confused(rand_int(5)+5);
+				(void)set_stun(rand_int(25) + 25);
+				(void)set_confused(rand_int(5) + 5);
 			}
 		}
 	}
@@ -701,15 +709,14 @@ static void process_world(void)
 	/* Searching or Resting */
 	if (p_ptr->searching || p_ptr->resting)	regen_amount = regen_amount * 2;
 
-	/* Regenerate the mana */
-	if (p_ptr->csp < p_ptr->msp)
+	/* Regenerate the mana  - Stunning interferes with mana regeneration*/
+	if ((p_ptr->csp < p_ptr->msp) && !p_ptr->stun)
 	{
 		regenmana(regen_amount);
 	}
 
 	/* Various things interfere with healing */
 	if (p_ptr->poisoned) regen_amount = 0;
-	if (p_ptr->stun) regen_amount = 0;
 	if (p_ptr->cut) regen_amount = 0;
 	if (p_ptr->paralyzed) regen_amount = 0;
 
@@ -734,7 +741,6 @@ static void process_world(void)
 	if (p_ptr->tim_invis) (void)set_tim_invis(p_ptr->tim_invis - 1);
 	if (p_ptr->tim_infra) (void)set_tim_infra(p_ptr->tim_infra - 1);
 	if (p_ptr->paralyzed) (void)set_paralyzed(p_ptr->paralyzed - 1);
-	if (p_ptr->confused) (void)set_confused(p_ptr->confused - 1);
 	if (p_ptr->afraid) (void)set_afraid(p_ptr->afraid - 1);
 	if (p_ptr->fast) (void)set_fast(p_ptr->fast - 1);
 	if (p_ptr->slow) (void)set_slow(p_ptr->slow - 1);
@@ -745,6 +751,10 @@ static void process_world(void)
 	if (p_ptr->rage) (void)set_rage(p_ptr->rage - 1);
 	if (p_ptr->blessed) (void)set_blessed(p_ptr->blessed - 1);
 	if (p_ptr->shield) (void)set_shield(p_ptr->shield - 1);
+
+	/* Hack - don't heal confusion if "insane" */
+	if ((p_ptr->confused) && (p_ptr->confused <= PY_CONF_INSANE))
+		(void)set_confused(p_ptr->confused - 1);
 
 	/* Timed Resistances */
 	if (p_ptr->oppose_acid) (void)set_oppose_acid(p_ptr->oppose_acid - 1);
@@ -767,7 +777,7 @@ static void process_world(void)
 
 	if (p_ptr->poisoned || p_ptr->stun || p_ptr->cut || p_ptr->diseased) 
 	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+		int adjust = (adj_con_fix[p_stat(A_CON)] + 1);
 
 		if (p_ptr->poisoned) (void)set_poisoned(p_ptr->poisoned - adjust);
 		if (p_ptr->stun) (void)set_stun(p_ptr->stun - adjust);
@@ -776,7 +786,7 @@ static void process_world(void)
 		if (p_ptr->cut)
 		{
 			/* Hack -- Don't heal a truly "mortal" wound */
-			if (p_ptr->cut <= 1000) (void)set_cut(p_ptr->cut - adjust);
+			if (p_ptr->cut <= PY_CUT_MORTAL) (void)set_cut(p_ptr->cut - adjust);
 		}
 
 		/* Disease */
@@ -858,7 +868,7 @@ static void process_world(void)
 			/* Ten attempts at disenchanting something */
 			for (i = 0; i<10 ; i++)
 			{
-				if (apply_disenchant(0)) break;
+				if (apply_disenchant()) break;
 			}
 		}
 	}
@@ -1296,7 +1306,6 @@ static void process_command(void)
 
 		/* Cast a spell */
 		case 'm':
-		case 'p':
 		{
 			do_cmd_magic();
 			break;
@@ -1735,10 +1744,20 @@ static void process_player(void)
 		/* Complete resting */
 		else if (p_ptr->resting == -2)
 		{
+			bool cut = FALSE;
+			bool confused = FALSE; 
+
+			/*
+			 * Hack - cuts and confusions might not heal if too high 
+		     * in which case, they should be ignored for the purposes of resting.
+			 */
+			if (p_ptr->confused && (p_ptr->confused <= PY_CONF_INSANE)) confused = TRUE;
+			if (p_ptr->cut && (p_ptr->cut <= PY_CUT_MORTAL)) cut = TRUE;
+
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) && (p_ptr->csp == p_ptr->msp) &&
-			    !p_ptr->blind && !p_ptr->confused && !p_ptr->poisoned && !p_ptr->afraid &&
-			    !p_ptr->stun && !p_ptr->cut && !p_ptr->slow && !p_ptr->paralyzed &&
+			    !p_ptr->blind && !confused && !p_ptr->poisoned && !p_ptr->afraid &&
+			    !p_ptr->stun && !cut && !p_ptr->slow && !p_ptr->paralyzed &&
 			    !p_ptr->image && !p_ptr->word_recall)
 			{
 				disturb(0);
@@ -1846,7 +1865,7 @@ static void process_player(void)
 		p_ptr->energy_use = 0;
 
 		/* Paralyzed or Knocked Out */
-		if ((p_ptr->paralyzed) || (p_ptr->stun >= 100))
+		if ((p_ptr->paralyzed) || (p_ptr->stun >= PY_STUN_KO))
 		{
 			/* Take a turn */
 			p_ptr->energy_use = 100;

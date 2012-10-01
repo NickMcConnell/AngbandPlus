@@ -908,7 +908,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 			char dc;
 
 			/* Desired attr */
-			da = m_ptr->attr;
+			if (!use_graphics) da = m_ptr->attr; 
+			else da = r_ptr->x_attr;
 
 			/* Desired char */
 			dc = r_ptr->x_char;
@@ -2249,7 +2250,6 @@ errr vinfo_init(void)
 	{
 		int e;
 
-
 		/* Index */
 		e = queue_head++;
 
@@ -2260,7 +2260,6 @@ errr vinfo_init(void)
 		y = GRID_Y(g);
 		x = GRID_X(g);
 
-
 		/* Compute grid offsets */
 		vinfo[e].grid_0 = GRID(+y,+x);
 		vinfo[e].grid_1 = GRID(+x,+y);
@@ -2270,7 +2269,6 @@ errr vinfo_init(void)
 		vinfo[e].grid_5 = GRID(-x,-y);
 		vinfo[e].grid_6 = GRID(-x,+y);
 		vinfo[e].grid_7 = GRID(-y,+x);
-
 
 		/* Analyze slopes */
 		for (i = 0; i < hack->num_slopes; ++i)

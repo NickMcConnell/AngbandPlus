@@ -105,7 +105,7 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 	char buf1[80];
 	char buf2[80];
 
-	bool *opt_set;
+	bool *opt_set = NULL;
 
 	/* Scan the options */
 	for (i = 0; i < OPT_PAGE_PER; i++)
@@ -117,10 +117,17 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 		}
 	}
 
-	if (type == OPT_TYPE_NORMAL) opt_set = op_ptr->opt;
-	if (type == OPT_TYPE_BIRTH)	opt_set = op_ptr->opt_birth;
-	if (type == OPT_TYPE_ADULT)	opt_set = op_ptr->opt_birth;
-	if (type == OPT_TYPE_CHEAT) opt_set = op_ptr->opt_cheat;
+	switch (type)
+	{
+		case OPT_TYPE_NORMAL: opt_set = op_ptr->opt; break;
+		case OPT_TYPE_BIRTH: opt_set = op_ptr->opt_birth; break;
+		case OPT_TYPE_ADULT: opt_set = op_ptr->opt_birth; break;
+		case OPT_TYPE_CHEAT: opt_set = op_ptr->opt_cheat; break;
+
+		/* Paranoia */
+		default: return; 
+	}
+
 
 	/* Clear screen */
 	Term_clear();

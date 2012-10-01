@@ -17,12 +17,11 @@ AU:           Represents your current gold supply. Gold is amazingly handy,
               the stuff.  
 Vital Statistics (STR, INT, WIS, DEX, CON and CHR):
               Your character has six primary statistics, or stats. The lowest 
-              any stat can go is 3, a level which greatly reduces any abilities
-              that stat influences.  Once a stat reaches 18, it no longer 
-              progresses in single increments but rather in percentiles - for 
-              instance, 18/04 or 18/220. The lowest "safe" figure for most 
-              stats is 7, but you can't expect any significant bonuses until 
-              the stat reaches 18 or higher. More information on individual
+              any stat can go is 0, a level which greatly reduces any abilities
+              that stat influences. The lowest "safe" figure for most stats is
+              4, but you can't expect any significant bonuses until the stat
+              reaches 15 or higher. The highest a stat can rise without 
+              equipment or race bonuses is 20. More information on individual 
               stats is available below.
 AC:           Armor class helps prevent you getting killed.  It may be 
               increased by equipping more and better armor, and by increasing 

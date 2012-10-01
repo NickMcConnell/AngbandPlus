@@ -789,14 +789,14 @@ void alchemy_init(void)
 /*
  * Obtain the "flags" for an item
  */
-static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3 , u32b *f4)
+static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	bool mental = (o_ptr->ident & IDENT_MENTAL);
 
 	object_kind *k_ptr;
 
 	/* Check artifact knowledge status */
-		if (artifact_p(o_ptr))
+	if (artifact_p(o_ptr))
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 
@@ -909,6 +909,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 			(*f1) = a_ptr->flags1;
 			(*f2) = a_ptr->flags2;
 			(*f3) = a_ptr->flags3;
+			(*f4) = a_ptr->flags4;
 
 			if (mode == OBJECT_FLAGS_RANDOM)
 			{
@@ -1511,8 +1512,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
-	/* Paranoia XXX XXX XXX */
-	/* ASSERT(*s != '~'); */
+	/* Item prefixs */
+	if (o_ptr->prefix_idx)
+	{
+		object_desc_str_macro(t, item_prefix[o_ptr->prefix_idx].name);
+		object_desc_chr_macro(t, ' ');
+	}
 
 	/* Copy the string */
 	for (; *s; s++)
@@ -1521,7 +1526,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		if (*s == '~')
 		{
 			/* Add a plural if needed */
-			if (o_ptr->number != 1)
+			if ((o_ptr->number != 1) && !(known && artifact_p(o_ptr)))
 			{
 				char k = t[-1];
 
@@ -2962,7 +2967,7 @@ cptr mention_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[p_stat(A_STR)] < o_ptr->weight / 10)
 		{
 			p = "Just lifting";
 		}
@@ -2973,7 +2978,7 @@ cptr mention_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[p_stat(A_STR)] < o_ptr->weight / 10)
 		{
 			p = "Just holding";
 		}
@@ -3013,7 +3018,7 @@ cptr describe_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[p_stat(A_STR)] < o_ptr->weight / 10)
 		{
 			p = "just lifting";
 		}
@@ -3024,7 +3029,7 @@ cptr describe_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[p_stat(A_STR)] < o_ptr->weight / 10)
 		{
 			p = "just holding";
 		}
