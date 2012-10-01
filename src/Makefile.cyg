@@ -221,7 +221,7 @@ load2.o: load2.c $(INCS)
 main.o: main.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-monmove.o: monmovee.c $(INCS)
+monmove.o: monmove.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 main-win.o: main-win.c $(INCS)

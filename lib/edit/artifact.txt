@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.6.0
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -39,7 +39,7 @@ V:0.5.2
 #F: All item-specific flags (special qualities).  Some use the pval number.
 #D: Artifact descriptions.
 
-# The Phial of Galadriel
+# The Phial of Galadriel (Set Item)
 
 N:1:of Galadriel
 I:39:4:0
@@ -75,7 +75,7 @@ D:Mountain, which splinters the light that falls upon it into a thousand
 D:glowing shards.
 
 
-# The Amulet of Carlammas
+# The Amulet of Carlammas (Set Item)
 
 N:4:of Carlammas
 I:40:10:2
@@ -322,7 +322,7 @@ D:A gleaming steel suit covering the wearer from neck to foot, with runes of
 D:warding and stability deeply engraved into its surface.
 
 
-# The Metal Brigandine Armour of the Rohirrim
+# The Metal Brigandine Armour of the Rohirrim (Set Item)
 
 N:28:of the Rohirrim
 I:37:9:2
@@ -404,7 +404,7 @@ D:Contained within this studded cuirass of pliable leather is the memory of
 D:unvanquished Himring, defiant fortress surrounded by the legions of Morgoth.
 
 
-# The Soft Leather Armour 'Hithlomir'
+# The Soft Leather Armour 'Hithlomir' (Set Item)
 
 N:37:'Hithlomir'
 I:36:4:4
@@ -494,7 +494,7 @@ D:A shining shield, once borne by the great mariner Earendil, "scored with
 D:runes to keep all wounds and harm from him".
 
 
-# The Shield of Deflection of Gil-Galad
+# The Shield of Deflection of Gil-Galad (Set Item)
 
 N:48:of Gil-Galad
 I:34:10:3
@@ -755,7 +755,7 @@ F:FREE_ACT | SHOW_MODS
 D:A hero's handgear that lends great prowess in battle.
 
 
-# The Set of Leather Gloves 'Cammithrim'
+# The Set of Leather Gloves 'Cammithrim' (Set Item)
 
 N:78:'Cammithrim'
 I:31:1:0
@@ -1222,7 +1222,7 @@ D:An heirloom of the dauntless Lords of Rhun far to the east, and a name
 D:of dismay to creatures natural and unnatural.
 
 
-# The Small Sword 'Sting'
+# The Small Sword 'Sting' (Set Item)
 
 N:121:'Sting'
 I:23:8:2
@@ -1344,7 +1344,7 @@ D:Within this long two-handed spear dwell the spirits of frost giants and
 D:fire demons, who war forever, fettered in sorcerous binds.
 
 
-# The Spear 'Aeglos'
+# The Spear 'Aeglos' (Set Item)
 
 N:137:'Aeglos'
 I:22:2:4
@@ -1385,7 +1385,7 @@ D:cold into the breasts of your enemies lay upon this perfectly balanced
 D:spear.
 
 
-# The Lance of the Eorlingas
+# The Lance of the Eorlingas (Set Item)
 
 N:140:of the Eorlingas
 I:22:20:2
@@ -1605,7 +1605,7 @@ D:You feel strong and firm of foot as you whip the chain-suspended spiked orb
 D:this weapon bears around - and bathe it in the blood of your foes.
 
 
-# The Morning Star 'Firestar'
+# The Morning Star 'Firestar' (Set Item)
 
 N:162:'Firestar'
 I:21:12:0

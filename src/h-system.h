@@ -52,6 +52,8 @@
 
 #ifdef MACINTOSH
 # include <unix.h>
+/* # include <unistd.h> *//* For CodeWarrior 6 -pelpel- */
+/* # include <fcntl.h>  *//* For CodeWarrior 6 -pelpel- */
 #endif
 
 #if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)

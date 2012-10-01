@@ -91,6 +91,7 @@ typedef struct magic_type magic_type;
 typedef struct player_magic player_magic;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
+typedef struct player_weapon player_weapon;
 typedef struct player_class player_class;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
@@ -292,11 +293,9 @@ struct set_element
 /* Information about items sets -GS- */
 struct set_type 
 {
-	cptr set_name;			/* The name of the set */
-	/*u16b name;*/			/* Name (offset) */
-	/*u16b text;*/			/* Text (offset) */
+	u16b name;			/* Name (offset) */
+	u16b text;			/* Text (offset) */
 	byte no_of_items;		/* The number of items in the set */
-	cptr set_desc;			/* Description of set shown when an object is *identified* */
 	set_element set_items[6];	/* the artifact no and extra powers. */	
 };
 
@@ -747,7 +746,8 @@ struct player_magic
 	byte spell_stat;		/* Stat for spells (if any) */
 	byte spell_realm;		/* Spell Realm (if any)  */
 	byte spell_first;		/* Level of first spell */
-	s16b spell_weight;	/* Max armour weight to avoid mana penalties */
+	s16b spell_weight1;	/* Max armour weight to avoid mana penalties */
+	s16b spell_weight2;	/* Additional armour weight to lose all mana */
 	byte spell_number;		/* Total available spells for that class. */
 	byte book_start_index[11];	/* Index of 1st spell for all books. */
 	magic_type info[64];	/* The available spells */
@@ -796,7 +796,7 @@ struct player_race
 	s16b rx_thb;		/* extra to hit (missile and throwing) */
 
 	byte r_mhp;			/* Race hit-dice modifier */
-	byte r_exp;			/* Race experience factor */
+	byte difficulty;		/* Race difficulty factor */
 
 	u16b b_age;			/* base age */
 	u16b m_age;			/* mod age */
@@ -854,7 +854,22 @@ struct player_class
 	s16b cx_thb;		/* extra to hit (missile and throwing) */
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
-	s16b c_exp;			/* Class experience factor */
+};
+
+
+/*
+ * Player weapon info
+ */
+struct player_weapon
+{
+	u16b max_1;		/* Max Weight (decipounds) at level 1 */
+	u16b max_50;		/* Max Weight (decipounds) at level 50 */
+	byte penalty;		/* Penalty per 10 pounds over */
+	byte max_penalty;	/* Max Penalty */
+	byte bonus;		/* Bonus per 10 pounds under */
+	byte max_bonus;		/* Max Bonus */
+	bool no_edged;		/* Edged Weapon Penalty */
+	bool bare_handed;	/* Bare-handed skill */
 };
 
 
@@ -927,7 +942,6 @@ struct player_type
 	byte oops;			/* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
-	byte expfact;		/* Experience factor */
 
 	byte schange;		/* Character's new shape, if any. */
 	s16b age;			/* Character's age */
@@ -1194,11 +1208,19 @@ struct player_type
 
 	byte vulnerability;	/* Used to make animal packs charge and retreat */
 
+	byte specialty_order[CLASS_SPECIALTIES]; /* Order of specialty abilities */
+	s16b new_specialties;		/* Number of specialties available */
+	s16b old_specialties;
+	s16b specialties_allowed;	/* Number we can use right now */
+
         /* Add some variables for disturb_trap_detect.  Not saved.  -BR- */
         byte dtrap_x;           /* X location of last trap detection */
         byte dtrap_y;           /* Y location of last trap detection */
         byte dtrap_rad;         /* radius of last trap detection */
 
+	/* Helper variables for some specialty abilities */
+	s16b energy_gain;		/* Energy gained by special means this turn */
+	s16b mana_gain;			/* Mana gained by special means this turn */
 };
 
 /*

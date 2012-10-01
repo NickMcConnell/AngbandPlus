@@ -861,6 +861,19 @@ void take_hit(int dam, cptr kb_str)
 	/* Hurt the player */
 	p_ptr->chp -= dam;
 
+	/* Specialty Ability Fury (not already maxxed) */
+	if (check_specialty(SP_FURY) && (p_ptr->energy_gain < 50))
+	{
+		/* Add energy */
+		p_ptr->energy_gain += (dam * 200) / p_ptr->mhp;
+
+		/* Cap of 50 from Fury */
+		if (p_ptr->energy_gain > 50)
+		{
+			p_ptr->energy_gain = 50;
+		}
+	}
+
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
 
@@ -1799,18 +1812,37 @@ static void apply_nexus(monster_type *m_ptr)
 	{
 		case 1: case 2: case 3:
 		{
-			teleport_player(200, FALSE);
+			if ((check_specialty(SP_TELEPORT_RESIST)) && (rand_int(100) < p_ptr->skill_sav))
+			{
+				msg_print("Teleport Resistance!");
+			}
+			else
+			{
+				teleport_player(200, FALSE);
+			}
 			break;
 		}
 
 		case 4: case 5:
 		{
-			teleport_player_to(m_ptr->fy, m_ptr->fx);
+			if ((check_specialty(SP_TELEPORT_RESIST)) && (rand_int(100) < p_ptr->skill_sav))
+			{
+				msg_print("Teleport Resistance!");
+			}
+			else
+			{
+				teleport_player_to(m_ptr->fy, m_ptr->fx);
+			}
 			break;
 		}
 
 		case 6:
 		{
+                        if (check_specialty(SP_TELEPORT_RESIST))
+                        {
+                                msg_print("Teleport Resistance!");
+				break;
+                        }
 			if (rand_int(100) < p_ptr->skill_sav)
 			{
 				msg_print("You resist the effects!");
@@ -2638,7 +2670,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		/* Monsters can duck behind rubble, or take only partial damage. */
 		case FEAT_RUBBLE:
 		{
-			if (rand_int(4) == 0)
+			if ((rand_int(4) == 0) && (!((r_ptr->flags1) & RF1_NEVER_MOVE)))
 			{
 				msg_format("%^s ducks behind a boulder!", m_name);
 				return (FALSE);
@@ -2671,7 +2703,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		/* Monsters can duck, or take only partial damage. */
 		case FEAT_TREE:
 		{
-			if (randint(4) == 1)
+			if ((rand_int(4) == 0) && (!((r_ptr->flags1) & RF1_NEVER_MOVE)))
 			{
 				msg_format("%^s hides behind a tree!", m_name);
 				return(FALSE);
@@ -3418,6 +3450,8 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			}
 			else if (randint(6) == 1) dam += dam / 3;
 
+			/* Beguiling specialty ability */
+			if (check_specialty(SP_BEGUILE)) dam += dam / 2;
 
 			/* Determine monster's power to resist. */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3463,6 +3497,8 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			}
 			else if (randint(6) == 1) dam += dam / 3;
 
+			/* Beguiling specialty ability */
+			if (check_specialty(SP_BEGUILE)) dam += dam / 2;
 
 			/* Determine monster's power to resist. */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3510,6 +3546,8 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			}
 			else if (randint(6) == 1) dam += dam / 3;
 
+			/* Beguiling specialty ability */
+			if (check_specialty(SP_BEGUILE)) dam += dam / 2;
 
 			/* Determine monster's power to resist.   */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3677,6 +3715,8 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 				}
 				else if (randint(6) == 1) dam += dam / 3;
 
+				/* Beguiling specialty ability */
+				if (check_specialty(SP_BEGUILE)) dam += dam / 2;
 
 				/* Determine monster's power to resist. */
 				if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 10;
@@ -3737,6 +3777,8 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 				}
 				else if (randint(6) == 1) dam += dam / 3;
 
+				/* Beguiling specialty ability */
+				if (check_specialty(SP_BEGUILE)) dam += dam / 2;
 
 				/* Determine monster's power to resist.   */
 				if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3784,15 +3826,17 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			if (seen) obvious = TRUE;
 
 
-				/* Sometimes super-charge the spell. */
+			/* Sometimes super-charge the spell. */
 
-				if ((p_ptr->pclass == CLASS_PRIEST) && 
-					(randint(3) == 1))
-				{
-					dam += dam / 3;
-				}
-				else if (randint(6) == 1) dam += dam / 3;
+			if ((p_ptr->pclass == CLASS_PRIEST) && 
+				(randint(3) == 1))
+			{
+				dam += dam / 3;
+			}
+			else if (randint(6) == 1) dam += dam / 3;
 
+			/* Beguiling specialty ability */
+			if (check_specialty(SP_BEGUILE)) dam += dam / 2;
 
 			/* Determine monster's power to resist.   */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -4351,7 +4395,6 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	if (((rp_ptr->flags_special) & PS_SHADOW) && (typ == GF_LITE)) dam += dam / 3;
 	if (((rp_ptr->flags_special) & PS_WOODEN) && (typ == GF_FIRE)) dam += dam / 3;
 
-
 	/* Limit maximum damage XXX XXX XXX */
 	if (dam > 1600) dam = 1600;
 
@@ -4558,7 +4601,8 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			/* Test for a deflection. */
 			else if ((inventory[INVEN_ARM].k_idx) && 
 				(!p_ptr->shield_on_back) &&
-				(inventory[INVEN_ARM].ac > rand_int(MAX_SHIELD_BASE_AC * 4)))
+				(inventory[INVEN_ARM].ac  + (check_specialty(SP_SHIELD_MAST) ? 3 : 0) > 
+				 rand_int(MAX_SHIELD_BASE_AC * 4)))
 			{
 				msg_print("The missile ricochets off your shield.");
 
@@ -4922,13 +4966,17 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Poison the player. */
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (p_ptr->poisoned)
 			{
-				(void)set_poisoned(p_ptr->poisoned + randint(dam));
+				/* 1/3 to 2/3 damage. */
+				set_poisoned(p_ptr->poisoned + randint((dam + 2) / 3) + 
+					     (dam / 3));
 			}
-			else if (!p_ptr->resist_pois || !p_ptr->oppose_pois)
+			else 
 			{
-				(void)set_poisoned(p_ptr->poisoned + randint(dam/3));
+				/* 1/2 to whole damage, plus 4. */
+				set_poisoned(p_ptr->poisoned + 4 + randint((dam + 1) / 2) + 
+					     (dam / 2));
 			}
 
 			/* Some nasty possible side-effects of Morgul-poison.  Poison 
@@ -5041,7 +5089,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + randint(5) + dam > 40 ? 2 : 0);
+				(void)set_blind(p_ptr->blind + randint(5) + ((dam > 40) ? 2 : 0));
 			}
 			take_hit(dam, killer);
 			break;
@@ -5285,8 +5333,8 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			/* Test for partial shield protection. */
 			if ((inventory[INVEN_ARM].k_idx) && 
 				(!p_ptr->shield_on_back) && 
-				(inventory[INVEN_ARM].ac > 
-				rand_int(MAX_SHIELD_BASE_AC * 2)))
+				(inventory[INVEN_ARM].ac + (check_specialty(SP_SHIELD_MAST) ? 3 : 0) > 
+				 rand_int(MAX_SHIELD_BASE_AC * 2)))
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
@@ -6661,7 +6709,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 			move_cursor_relative(y0, x0);
 
 			/* New radius is about to be drawn */
-			if ((i < grids - 1) && (gd[i + 1] > gd[i]))
+			if ((i == grids) || (gd[i + 1] > gd[i]))
 			{
 				/* Flush each radius seperately */
 				if ((op_ptr->delay_factor) || (fresh_before)) Term_fresh();

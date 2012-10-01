@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.6.0
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -49,28 +49,28 @@ N:1:Blindness
 G:,:d
 I:80:1:500
 W:5:0:1:0
-A:5/2
+A:5/3
 D:A small, ground-living fungus that looks about as ugly as it will taste nasty.
 
 N:2:Paranoia
 G:,:d
 I:80:2:500
 W:5:0:1:0
-A:5/2
+A:5/3
 D:A small, ground-living fungus that looks about as ugly as it will taste nasty.
 
 N:3:Confusion
 G:,:d
 I:80:3:500
 W:5:0:1:0
-A:5/2
+A:5/3
 D:A small, ground-living fungus that looks about as ugly as it will taste nasty.
 
 N:4:Hallucination
 G:,:d
 I:80:4:500
 W:10:0:1:0
-A:10/2
+A:10/3
 D:A small, ground-living fungus that looks about as ugly as it will taste nasty.
 
 N:5:Cure Poison
@@ -105,7 +105,7 @@ N:9:Weakness
 G:,:d
 I:80:6:500
 W:10:0:1:0
-A:10/2
+A:10/3
 D:A small, ground-living fungus that looks about as ugly as it will taste nasty.
 
 N:10:Unhealth
@@ -121,7 +121,7 @@ N:11:Restore Constitution
 G:,:d
 I:80:18:500
 W:22:0:1:350
-A:22/1
+A:22/2
 D:It may not look like much, but looks can be deceiving.
 
 N:12:Restoring
@@ -135,42 +135,42 @@ N:13:Stupidity
 G:,:d
 I:80:8:500
 W:15:0:1:0
-A:15/2
+A:15/3
 D:A small, ground-living fungus that looks about as ugly as it will taste nasty.
 
 N:14:Naivety
 G:,:d
 I:80:9:500
 W:15:0:1:0
-A:15/2
+A:15/3
 D:A small, ground-living fungus that looks about as ugly as it will taste nasty.
 
 N:15:Poison
 G:,:d
 I:80:0:500
 W:5:0:1:0
-A:5/2
+A:5/3
 D:A small, ground-living fungus that looks about as ugly as it will taste nasty.
 
 N:16:Sickness
 G:,:d
 I:80:7:500
 W:10:0:1:0
-A:10/2
+A:10/3
 D:A small, ground-living fungus that looks about as ugly as it will taste nasty.
 
 N:17:Paralysis
 G:,:d
 I:80:5:500
 W:22:0:1:0
-A:22/2
+A:22/3
 D:A small, ground-living fungus that looks about as ugly as it will taste nasty.
 
 N:18:Restore Strength
 G:,:d
 I:80:17:500
 W:22:0:1:350
-A:22/1
+A:22/2
 D:It may not look like much, but looks can be deceiving.
 
 N:19:Disease
@@ -186,7 +186,7 @@ N:20:Cure Serious Wounds
 G:,:d
 I:80:16:500
 W:15:0:2:50
-A:15/2
+A:15/3
 D:A small, ground-living fungus that forms part of any respectable healer's stock.
 
 ## XXX 21 XXX ##
@@ -287,7 +287,7 @@ N:42:& Broken Sword~
 G:|:D
 I:23:2:0
 W:0:0:30:2
-A:0/1
+A:0/2
 P:0:1d2:-2:-4:0
 F:SHOW_MODS
 D:Above the hilt, a foot of steel rises, ending in a jagged edge.
@@ -581,7 +581,15 @@ D:landing crushing blows.
 
 ## XXX 86 XXX ##
 
-## XXX 87 XXX ##
+N:87:& Storm Hammer~
+G:\:b
+I:21:17:0
+W:50:0:125:950
+A:50/3
+P:0:1d11:0:0:0
+F:THROWING | SHOW_MODS
+D:A heavy throwing hammer, carved with runes of Air.  Only the very 
+D:strong can hurl it any great distance.
 
 N:88:& Two-Handed Flail~
 G:\:y
@@ -828,7 +836,7 @@ D:The traditional hunter's weapon, this light bow is easily drawn.
 N:131:& Long Bow~
 G:}:U
 I:19:13:0
-W:18:0:40:120
+W:18:0:40:350
 A:18/1:50/2
 P:0:3d1:0:0:0
 F:SHOW_MODS
@@ -871,7 +879,7 @@ N:138:& Lead Shot~
 G:{:s
 I:16:1:0
 W:1:0:2:2
-A:1/1:30/1
+A:1/1:30/2
 P:0:1d3:0:0:0
 F:SHOW_MODS
 D:A grapestone-shaped slug of lead, the right heft for hurling from a sling.
@@ -893,7 +901,7 @@ N:142:& Arrow~
 G:{:U
 I:17:1:0
 W:3:0:2:4
-A:3/1:15/1:55/1
+A:3/1:15/1:55/2
 P:0:1d4:0:0:0
 F:SHOW_MODS
 D:A standard clothyard arrow, straight and cleanly fletched.
@@ -916,7 +924,7 @@ N:146:& Bolt~
 G:{:s
 I:18:1:0
 W:3:0:3:5
-A:3/1:25/1:65/1
+A:3/1:25/1:65/2
 P:0:1d5:0:0:0
 F:SHOW_MODS
 D:A short, heavy arrow shot from a crossbow.
@@ -1150,7 +1158,7 @@ N:180:& Filthy Rag~
 G:(:D
 I:36:1:0
 W:0:0:20:1
-A:0/1
+A:0/2
 P:1:0d0:0:0:-1
 D:This tattered rag appears to once have been a robe, but has been patched 
 D:and re-patched so many times that you can't be sure.
@@ -1711,7 +1719,7 @@ N:260:Woe
 G:=:d
 I:45:0:-5
 W:50:0:2:0
-A:50/1
+A:50/3
 F:LIGHT_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
 F:RES_NEXUS | FREE_ACT
 D:with dreadful hexes of wretchedness and wandering laid upon it.  You 
@@ -1721,7 +1729,7 @@ N:261:Aggravation
 G:=:d
 I:45:1:0
 W:5:0:2:100
-A:5/1
+A:5/2
 F:RES_FEAR | AGGRAVATE | EASY_KNOW
 D:that fills you and the monsters with the urge to fight.
 
@@ -1729,7 +1737,7 @@ N:262:Weakness
 G:=:d
 I:45:2:-5
 W:5:0:2:0
-A:5/1
+A:5/3
 F:LIGHT_CURSE | STR | HIDE_TYPE
 D:that saps your strength.
 
@@ -1737,7 +1745,7 @@ N:263:Stupidity
 G:=:d
 I:45:3:-5
 W:5:0:2:0
-A:5/1
+A:5/3
 F:LIGHT_CURSE | INT | HIDE_TYPE
 D:that renders you slow-witted.
 
@@ -1745,7 +1753,7 @@ N:264:Teleportation
 G:=:d
 I:45:4:0
 W:5:0:2:0
-A:5/1
+A:5/3
 F:LIGHT_CURSE | TELEPORT | EASY_KNOW
 D:that seizes control of your movement.
 
@@ -1761,7 +1769,7 @@ N:266:Slow Digestion
 G:=:d
 I:45:6:0
 W:5:0:2:250
-A:5/1
+A:5/2
 F:SLOW_DIGEST | EASY_KNOW
 D:that reduces the number of meals you must eat.
 
@@ -1769,7 +1777,7 @@ N:267:Feather Falling
 G:=:d
 I:45:7:0
 W:5:0:2:200
-A:5/1
+A:5/2
 F:FEATHER | EASY_KNOW
 D:that makes you light on your feet.
 
@@ -1777,7 +1785,7 @@ N:268:Resist Fire
 G:=:d
 I:45:8:0
 W:10:0:2:250
-A:10/1
+A:10/2
 F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
 D:that protects you from fire.
 
@@ -1785,7 +1793,7 @@ N:269:Resist Cold
 G:=:d
 I:45:9:0
 W:10:0:2:250
-A:10/1
+A:10/2
 F:RES_COLD | IGNORE_COLD | EASY_KNOW
 D:that protects you from frost.
 
@@ -1793,7 +1801,7 @@ N:270:Sustain Str & Chr
 G:=:d
 I:45:10:0
 W:38:0:2:500
-A:38/1
+A:38/2
 F:SUST_STR | SUST_CHR | EASY_KNOW
 D:that sustains your strength and charisma.
 
@@ -1801,7 +1809,7 @@ N:271:Sustain Int & Wis
 G:=:d
 I:45:11:0
 W:38:0:2:500
-A:38/1
+A:38/2
 F:SUST_INT | SUST_WIS | EASY_KNOW
 D:that sustains your intelligence and wisdom.
 
@@ -1809,7 +1817,7 @@ N:272:Sustain Dex & Con
 G:=:d
 I:45:12:0
 W:38:0:2:500
-A:38/1
+A:38/2
 F:SUST_DEX | SUST_CON | EASY_KNOW
 D:that sustains your dexterity and constitution.
 
@@ -1888,7 +1896,7 @@ N:281:Free Action
 G:=:d
 I:45:21:0
 W:20:0:2:1500
-A:20/1
+A:18/2
 F:FREE_ACT | EASY_KNOW
 D:that protects you from becoming paralyzed.
 
@@ -1896,7 +1904,7 @@ N:282:See Invisible
 G:=:d
 I:45:22:0
 W:34:0:2:340
-A:34/1
+A:28/2
 F:SEE_INVIS | EASY_KNOW
 D:that grants sight beyond sight.
 
@@ -1904,7 +1912,7 @@ N:283:Searching
 G:=:d
 I:45:23:0
 W:5:0:2:250
-A:5/1
+A:5/2
 F:SEARCH | HIDE_TYPE
 D:that affects your ability to find traps and secret doors.
 
@@ -1993,7 +2001,7 @@ N:302:DOOM
 G:":d
 I:40:0:-5
 W:50:0:3:0
-A:50/1
+A:50/3
 F:LIGHT_CURSE | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
 D:that calls a terrible curse upon you.
 
@@ -2001,7 +2009,7 @@ N:303:Teleportation
 G:":d
 I:40:1:0
 W:15:0:3:0
-A:15/1
+A:15/3
 F:LIGHT_CURSE | TELEPORT | EASY_KNOW
 D:that seizes control of your movement.
 
@@ -2025,7 +2033,7 @@ N:306:Resist Acid
 G:":d
 I:40:4:0
 W:15:0:3:300
-A:15/1
+A:15/2
 F:RES_ACID | EASY_KNOW
 D:that provides protection from acid.
 
@@ -2102,42 +2110,42 @@ N:320:Darkness
 G:?:d
 I:70:0:0
 W:1:0:5:0
-A:1/1
+A:1/3
 D:that robs you of light.
 
 N:321:Aggravate Monster
 G:?:d
 I:70:1:0
 W:5:0:5:0
-A:5/1
+A:5/3
 D:that provokes enemies to seek you out.
 
 N:322:Curse Armor
 G:?:d
 I:70:2:0
 W:60:0:5:0
-A:60/1
+A:60/3
 D:that devastates a worn peice of armor.
 
 N:323:Curse Weapon
 G:?:d
 I:70:3:0
 W:60:0:5:0
-A:60/1
+A:60/3
 D:that devastates your weapon.
 
 N:324:Summon Monster
 G:?:d
 I:70:4:0
 W:1:0:5:0
-A:1/1
+A:1/3
 D:that brings unwelcome visitors.
 
 N:325:Summon Undead
 G:?:d
 I:70:5:0
 W:15:0:5:0
-A:15/1
+A:15/3
 D:that calls dark forces after you.
 
 ## XXX 326 XXX ##
@@ -2146,7 +2154,7 @@ N:327:Trap Creation
 G:?:d
 I:70:7:0
 W:10:0:5:0
-A:10/1
+A:10/3
 D:that lays traps to ensare you.
 
 N:328:Phase Door
@@ -2160,7 +2168,7 @@ N:329:Teleportation
 G:?:d
 I:70:9:0
 W:10:0:5:75
-A:10/1:40/1
+A:10/1:40/2
 D:that teleports you a long distance.
 
 N:330:Teleport Level
@@ -2181,15 +2189,15 @@ D:  There is a delay before it takes effect.
 N:332:Identify
 G:?:d
 I:70:12:0
-W:1:0:5:50
-A:1/1:5/1:10/1:30/1
+W:1:0:5:40
+A:1/1:5/1:10/1:30/2
 D:that reveals the name and obvious powers of an object.
 
 N:333:*Identify*
 G:?:d
 I:70:13:0
 W:35:0:5:1000
-A:35/1:50/1:65/1:80/1
+A:35/1:50/1:65/2:80/2
 D:that reveal in full detail the true nature of an oject.  Such can
 D:not be forgotten.
 
@@ -2197,7 +2205,7 @@ N:334:Remove Curse
 G:?:d
 I:70:14:0
 W:10:0:5:100
-A:10/1
+A:10/2
 D:that frees you from the grip of a lightly cursed item.
 
 N:335:*Remove Curse*
@@ -2211,7 +2219,7 @@ N:336:Enchant Armor
 G:?:d
 I:70:16:0
 W:15:0:5:150
-A:5/2:15/1
+A:5/2:15/2
 D:that improves a piece of armour.  It is less likely to succeed on
 D:strongly enchanted items.
 
@@ -2219,7 +2227,7 @@ N:337:Enchant Weapon (Skill)
 G:?:d
 I:70:17:0
 W:15:0:5:150
-A:5/2:15/1
+A:5/2:15/2
 D:that makes a weapon more accurate.  It is less likely to succeed on
 D:strongly enchanted items.
 
@@ -2227,7 +2235,7 @@ N:338:Enchant Weapon (Deadliness)
 G:?:d
 I:70:18:0
 W:15:0:5:150
-A:5/2:15/1
+A:5/2:15/2
 D:that makes a weapon more damaging.  It is less likely to succeed on
 D:strongly enchanted items.
 
@@ -2243,7 +2251,7 @@ N:340:*Enchant Armor*
 G:?:d
 I:70:20:0
 W:60:0:5:500
-A:60/1:70/1
+A:60/1:70/2
 D:that greatly improves a piece of armour.  It is less likely to
 D:succeed on strongly enchanted items.
 
@@ -2259,7 +2267,7 @@ N:342:Recharging
 G:?:d
 I:70:22:0
 W:15:0:5:180
-A:15/1:25/1:40/1:60/1
+A:15/1:25/1:40/2:60/2
 D:that recharges a magic item.  The item may be destroyed, especially
 D:if it is very strong.
 
@@ -2274,7 +2282,7 @@ N:344:Light
 G:?:d
 I:70:24:0
 W:0:0:5:15
-A:0/1:3/1:10/1
+A:0/1:5/2
 D:that lights up the area.
 
 N:345:Magic Mapping
@@ -2288,28 +2296,28 @@ N:346:Treasure Detection
 G:?:d
 I:70:26:0
 W:0:0:5:15
-A:0/1
+A:0/2
 D:that reaveals nearby precious metals and gems.
 
 N:347:Object Detection
 G:?:d
 I:70:27:0
 W:0:0:5:15
-A:0/1
+A:0/2
 D:that reveals nearby objects.
 
 N:348:Trap Detection
 G:?:d
 I:70:28:0
 W:5:0:5:35
-A:5/1:10/1
+A:5/1:10/2
 D:that reveal neary traps.
 
 N:349:Door/Stair Location
 G:?:d
 I:70:29:0
 W:5:0:5:25
-A:5/1:10/1:15/1
+A:5/1:10/2
 D:that reveals nearby doors and stairs.
 
 N:350:Detect Invisible
@@ -2325,42 +2333,42 @@ N:352:Satisfy Hunger
 G:?:d
 I:70:32:0
 W:25:0:5:40
-A:25/1
+A:25/2
 D:that sates you completely.
 
 N:353:Blessing
 G:?:d
 I:70:33:0
 W:1:0:5:20
-A:1/1
+A:1/2
 D:that grants you a breif bonus to combat skills.
 
 N:354:Holy Chant
 G:?:d
 I:70:34:0
 W:10:0:5:50
-A:10/1
+A:10/2
 D:that grants you a bonus to combat skills.
 
 N:355:Holy Prayer
 G:?:d
 I:70:35:0
 W:25:0:5:140
-A:25/1
+A:25/2
 D:that grants you a long lasting bonus to combat skills.
 
 N:356:Monster Confusion
 G:?:d
 I:70:36:0
 W:5:0:5:30
-A:5/1
+A:5/2
 D:that may confuse the next monster you strike.
 
 N:357:Protection from Evil
 G:?:d
 I:70:37:0
 W:30:0:5:100
-A:30/1
+A:30/2
 D:that wards of some of the blows of evil enemies.
 
 N:358:Rune of Protection
@@ -2375,14 +2383,14 @@ N:359:Door Destruction
 G:?:d
 I:70:39:0
 W:10:0:5:10
-A:10/1
+A:10/4
 D:that vaporizes adjacent doors.
 
 N:360:Frightening
 G:?:d
 I:70:40:0
 W:10:0:5:100
-A:10/1
+A:10/2
 D:that sends a terrifying apparition after a foe.
 
 N:361:*Destruction*
@@ -2397,7 +2405,7 @@ N:362:Dispel Undead
 G:?:d
 I:70:42:0
 W:45:0:5:200
-A:45/1
+A:45/2
 D:that withers all undead within line of sight.
 
 ## XXX 363 XXX ##
@@ -2469,7 +2477,7 @@ N:380:Water
 G:!:d
 I:75:0:200
 W:0:0:4:1
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:that is thirst quenching.
 
@@ -2477,7 +2485,7 @@ N:381:Apple Juice
 G:!:d
 I:75:1:250
 W:0:0:4:1
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:that is tasty and full of vitamins.
 
@@ -2485,7 +2493,7 @@ N:382:Slime Mold Juice
 G:!:d
 I:75:2:400
 W:0:0:4:2
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:that is marginally drinkable.
 
@@ -2495,7 +2503,7 @@ N:384:Slowness
 G:!:d
 I:75:4:50
 W:1:0:4:0
-A:1/1
+A:1/3
 P:0:1d1:0:0:0
 D:that slows you down.
 
@@ -2503,7 +2511,7 @@ N:385:Salt Water
 G:!:d
 I:75:5:0
 W:0:0:4:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:that seems unwise to drink.
 
@@ -2511,7 +2519,7 @@ N:386:Poison
 G:!:d
 I:75:6:0
 W:3:0:4:0
-A:3/1
+A:3/3
 P:0:1d1:0:0:0
 D:that gives off bitter fumes.
 
@@ -2519,7 +2527,7 @@ N:387:Blindness
 G:!:d
 I:75:7:0
 W:0:0:4:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:that is unnaturally opaque.
 
@@ -2529,7 +2537,7 @@ N:389:Confusion
 G:!:d
 I:75:9:50
 W:0:0:4:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:that swirls in hypnotic patterns.
 
@@ -2539,7 +2547,7 @@ N:391:Sleep
 G:!:d
 I:75:11:100
 W:0:0:4:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:that smells like poppies.
 
@@ -2549,7 +2557,7 @@ N:393:Lose Life Force
 G:!:d
 I:75:13:0
 W:10:0:4:0
-A:10/1
+A:10/3
 P:0:5d5:0:0:0
 D:that weakens your spirit.
 
@@ -2567,7 +2575,7 @@ N:396:Weakness
 G:!:d
 I:75:16:0
 W:3:0:4:0
-A:3/1
+A:3/3
 P:0:1d1:0:0:0
 D:that saps your strength.
 
@@ -2575,7 +2583,7 @@ N:397:Stupidity
 G:!:d
 I:75:17:0
 W:20:0:4:0
-A:20/1
+A:20/3
 P:0:1d1:0:0:0
 D:that dulls your mind.
 
@@ -2583,7 +2591,7 @@ N:398:Naivety
 G:!:d
 I:75:18:0
 W:20:0:4:0
-A:20/1
+A:20/3
 P:0:1d1:0:0:0
 D:that breaks down your will.
 
@@ -2591,7 +2599,7 @@ N:399:Clumsiness
 G:!:d
 I:75:19:0
 W:5:0:4:0
-A:5/1
+A:5/3
 P:0:1d1:0:0:0
 D:that attacks your coordination.
 
@@ -2599,7 +2607,7 @@ N:400:Sickliness
 G:!:d
 I:75:20:0
 W:10:0:4:0
-A:10/1
+A:10/3
 P:0:1d1:0:0:0
 D:that ravages your body.
 
@@ -2607,7 +2615,7 @@ N:401:Ugliness
 G:!:d
 I:75:21:0
 W:20:0:4:0
-A:10/1
+A:10/3
 P:0:1d1:0:0:0
 D:that scars you form and dulls your charm.
 
@@ -2631,7 +2639,7 @@ N:404:Infra-vision
 G:!:d
 I:75:24:0
 W:3:0:4:20
-A:3/1
+A:3/2
 P:0:1d1:0:0:0
 D:that enhanses your nightvision.
 
@@ -2639,7 +2647,7 @@ N:405:Detect Invisible
 G:!:d
 I:75:25:0
 W:3:0:4:50
-A:10/1:18/1
+A:10/1:18/2
 P:0:1d1:0:0:0
 D:that reveals the unseen.
 
@@ -2647,7 +2655,7 @@ N:406:Slow Poison
 G:!:d
 I:75:26:0
 W:1:0:4:25
-A:1/1
+A:1/2
 P:0:1d1:0:0:0
 D:that weakens any poisons in your body.
 
@@ -2663,7 +2671,7 @@ N:408:Boldness
 G:!:d
 I:75:28:0
 W:1:0:4:10
-A:1/1
+A:1/2
 P:0:1d1:0:0:0
 D:that restores your courage.
 
@@ -2679,7 +2687,7 @@ N:410:Resist Fire and Cold
 G:!:d
 I:75:30:0
 W:35:0:4:175
-A:20/2:50/1:70/1
+A:20/2:50/2:70/2
 P:0:1d1:0:0:0
 D:that protects you from extreme temperatures.
 
@@ -2687,7 +2695,7 @@ N:411:Resist Acid and Electricity
 G:!:d
 I:75:31:0
 W:35:0:4:175
-A:20/2:50/1:70/1
+A:20/2:50/2:70/2
 P:0:1d1:0:0:0
 D:that protects you from lightning and acid.
 
@@ -2695,7 +2703,7 @@ N:412:Heroism
 G:!:d
 I:75:32:0
 W:10:0:4:150
-A:10/1:55/1
+A:10/2:55/2
 P:0:1d1:0:0:0
 D:that makes you fearless and skilled in combat.
 
@@ -2703,7 +2711,7 @@ N:413:Berserk Strength
 G:!:d
 I:75:33:0
 W:20:0:4:175
-A:20/1:70/1
+A:20/2:70/1
 P:0:1d1:0:0:0
 D:that makes you fearless and ferocious in hand to hand combat.
 
@@ -2711,7 +2719,7 @@ N:414:Cure Light Wounds
 G:!:d
 I:75:34:50
 W:0:0:4:15
-A:0/1:1/1:3/1
+A:0/2:1/2
 P:0:1d1:0:0:0
 D:that heals small wounds.
 
@@ -2719,7 +2727,7 @@ N:415:Cure Serious Wounds
 G:!:d
 I:75:35:100
 W:3:0:4:40
-A:3/1
+A:3/2
 P:0:1d1:0:0:0
 D:that heals wounds and cures some of your ills.
 
@@ -2767,7 +2775,7 @@ N:421:Restore Life Levels
 G:!:d
 I:75:41:0
 W:48:0:4:400
-A:48/1
+A:48/2
 P:0:1d1:0:0:0
 D:that restores your stolen life force.
 
@@ -2775,7 +2783,7 @@ N:422:Restore Strength
 G:!:d
 I:75:42:0
 W:25:0:4:300
-A:25/1
+A:25/2
 P:0:1d1:0:0:0
 D:that restores your stolen strength.
 
@@ -2783,7 +2791,7 @@ N:423:Restore Intelligence
 G:!:d
 I:75:43:0
 W:25:0:4:300
-A:25/1
+A:25/2
 P:0:1d1:0:0:0
 D:that restores your stolen intellect.
 
@@ -2791,7 +2799,7 @@ N:424:Restore Wisdom
 G:!:d
 I:75:44:0
 W:25:0:4:300
-A:25/1
+A:25/2
 P:0:1d1:0:0:0
 D:that restores your stolen wisdom.
 
@@ -2799,7 +2807,7 @@ N:425:Restore Dexterity
 G:!:d
 I:75:45:0
 W:25:0:4:300
-A:25/1
+A:25/2
 P:0:1d1:0:0:0
 D:that restores your stolen agility.
 
@@ -2807,7 +2815,7 @@ N:426:Restore Constitution
 G:!:d
 I:75:46:0
 W:25:0:4:300
-A:25/1
+A:25/2
 P:0:1d1:0:0:0
 D:that restores your stolen health.
 
@@ -2815,7 +2823,7 @@ N:427:Restore Charisma
 G:!:d
 I:75:47:0
 W:20:0:4:300
-A:20/1
+A:20/2
 P:0:1d1:0:0:0
 D:that restores your stolen charm.
 
@@ -2824,7 +2832,7 @@ N:428:Strength
 G:!:d
 I:75:48:0
 W:26:0:4:6000
-A:30/6:40/2:50/1
+A:30/6:40/2:50/2
 P:0:1d1:0:0:0
 D:that makes you permanently stronger.
 
@@ -2832,7 +2840,7 @@ N:429:Intelligence
 G:!:d
 I:75:49:0
 W:26:0:4:6000
-A:35/6:45/2:55/1
+A:35/6:45/2:55/2
 P:0:1d1:0:0:0
 D:that makes you permanently smarter.
 
@@ -2840,7 +2848,7 @@ N:430:Wisdom
 G:!:d
 I:75:50:0
 W:26:0:4:6000
-A:35/6:45/2:55/1
+A:35/6:45/2:55/2
 P:0:1d1:0:0:0
 D:that makes you permanently wiser.
 
@@ -2848,7 +2856,7 @@ N:431:Dexterity
 G:!:d
 I:75:51:0
 W:26:0:4:6000
-A:30/6:40/2:50/1
+A:30/6:40/2:50/2
 P:0:1d1:0:0:0
 D:that makes you permanently more agile.
 
@@ -2856,7 +2864,7 @@ N:432:Constitution
 G:!:d
 I:75:52:0
 W:26:0:4:6000
-A:30/6:40/2:50/2:60/1
+A:30/6:40/2:50/2
 P:0:1d1:0:0:0
 D:that makes you permanently more healthy.
 
@@ -2864,7 +2872,7 @@ N:433:Charisma
 G:!:d
 I:75:53:0
 W:22:0:4:1500
-A:15/6:28/2:40/1
+A:15/6:28/2:40/2
 P:0:1d1:0:0:0
 D:that makes you permanently more charming.
 
@@ -2879,8 +2887,8 @@ D:that protects you from the elements.
 N:435:Augmentation
 G:!:d
 I:75:55:0
-W:65:0:4:40000
-A:65/2
+W:60:0:4:40000
+A:60/2
 P:0:1d1:0:0:0
 D:that improves your mind and body in every way.
 
@@ -2905,15 +2913,15 @@ N:438:Self Knowledge
 G:!:d
 I:75:58:0
 W:40:0:4:2000
-A:40/1
+A:40/2
 P:0:1d1:0:0:0
 D:that reveals your hidden strengths.
 
 N:439:Experience
 G:!:d
 I:75:59:0
-W:55:0:4:25000
-A:55/6
+W:40:0:4:25000
+A:40/20
 P:0:1d1:0:0:0
 D:that enhances your life force.
 
@@ -2962,7 +2970,7 @@ N:455:Heal Monster
 G:-:d
 I:65:0:15
 W:3:0:10:0
-A:3/1
+A:3/3
 P:0:1d1:0:0:0
 D:that heals a foe.
 
@@ -2970,7 +2978,7 @@ N:456:Haste Monster
 G:-:d
 I:65:1:15
 W:3:0:10:0
-A:3/1
+A:3/3
 P:0:1d1:0:0:0
 D:that energizes a foe.
 
@@ -2978,7 +2986,7 @@ N:457:Clone Monster
 G:-:d
 I:65:2:6
 W:15:0:10:0
-A:15/2
+A:15/4
 P:0:1d1:0:0:0
 D:that duplicates most foes.
 
@@ -2995,7 +3003,7 @@ N:459:Disarming
 G:-:d
 I:65:4:8
 W:30:0:10:700
-A:30/1
+A:30/2
 P:0:1d1:0:0:0
 D:that disarms an adjacent trap or chest~.
 
@@ -3003,7 +3011,7 @@ N:460:Door Destruction
 G:-:d
 I:65:5:18
 W:10:0:10:75
-A:10/1
+A:10/2
 P:0:1d1:0:0:0
 D:that destroys doors, even hidden ones.
 
@@ -3019,7 +3027,7 @@ N:462:Light
 G:-:d
 I:65:7:12
 W:3:0:10:200
-A:3/1
+A:3/2
 P:0:1d1:0:0:0
 D:that shoots beams of light~.
 
@@ -3067,7 +3075,7 @@ N:468:Polymorph
 G:-:d
 I:65:13:9
 W:20:0:10:400
-A:20/1
+A:20/2
 P:0:1d1:0:0:0
 D:that strangely alters a monster.
 
@@ -3218,7 +3226,13 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:that unleashes water and lightning balls~.
 
-## XXX 486 XXX ##
+N:486:Shrapnel
+G:-:d
+I:65:31:10
+W:20:0:10:800
+A:20/2
+P:0:1d1:0:0:0
+D:that shoots a blast of razor sharp shards~.
 
 ## XXX 487 XXX ##
 
@@ -3294,7 +3308,7 @@ N:500:Darkness
 G:_:d
 I:55:0:20
 W:5:0:50:0
-A:5/1:50/1
+A:5/3
 P:0:1d2:0:0:0
 D:that douses the lights in the immediate area.
 
@@ -3302,7 +3316,7 @@ N:501:Slowness
 G:_:d
 I:55:1:20
 W:48:0:50:0
-A:48/1
+A:48/3
 P:0:1d2:0:0:0
 D:that temporarily saps your energy.
 
@@ -3310,7 +3324,7 @@ N:502:Haste Monsters
 G:_:d
 I:55:2:20
 W:10:0:50:0
-A:10/1
+A:10/3
 P:0:1d2:0:0:0
 D:that energizes all nearby opponents.
 
@@ -3318,7 +3332,7 @@ N:503:Summoning
 G:_:d
 I:55:3:4
 W:50:0:50:0
-A:50/1
+A:50/3
 P:0:1d2:0:0:0
 D:that summons more enemies for you to fight.
 
@@ -3326,14 +3340,14 @@ N:504:Teleportation
 G:_:d
 I:55:4:10
 W:40:0:50:1500
-A:40/1:70/1
+A:40/1:70/2
 P:0:1d2:0:0:0
 D:that can teleport you across the dungeon.
 
 N:505:Perception
 G:_:d
 I:55:5:20
-W:10:0:50:400
+W:10:0:50:350
 A:10/1
 P:0:1d2:0:0:0
 D:that provides basic information about any object.
@@ -3375,7 +3389,7 @@ N:510:Treasure Location
 G:_:d
 I:55:10:36
 W:5:0:50:200
-A:5/1
+A:5/2
 P:0:1d2:0:0:0
 D:that makes mining very profitable.
 
@@ -3431,7 +3445,7 @@ N:517:Curing
 G:_:d
 I:55:17:9
 W:25:0:50:1000
-A:25/1
+A:25/2
 P:0:1d2:0:0:0
 D:that removes a variety of specialized ailments.
 
@@ -3479,7 +3493,7 @@ N:523:Probing
 G:_:d
 I:55:23:16
 W:30:0:50:1800
-A:30/1
+A:30/2
 P:0:1d2:0:0:0
 D:that reveals your opponents' hidden strengths and weaknesses.
 
@@ -3514,7 +3528,7 @@ N:528:Earthquakes
 G:_:d
 I:55:28:14
 W:40:0:50:350
-A:40/1
+A:40/2
 P:0:1d2:0:0:0
 D:that shakes the dungeon nearby.
 
@@ -3773,7 +3787,7 @@ N:587:Polymorph
 G:-:d
 I:66:19:25
 W:35:0:15:1200
-A:35/1
+A:35/2
 P:0:1d1:0:0:0
 D:that strangely alters a foe.
 
@@ -3881,7 +3895,7 @@ N:600:Aggravate Level
 G:-:d
 I:66:32:40
 W:30:0:15:0
-A:30/2
+A:30/3
 P:0:1d1:0:0:0
 D:Awake! Awake! Fear, Fire, Foes! Awake!  The Horn-call of Buckland rings out, 
 D:and everyone on the level knows where to find you!
@@ -4038,7 +4052,7 @@ N:626:& Iron Spike~
 G:`:W
 I:5:0:0
 W:1:0:6:1
-A:1/1
+A:1/3
 P:0:1d1:0:0:0
 D:A small pointed metal bar, suitable for wedging under doors to slow down pursuit.
 
@@ -4046,7 +4060,7 @@ N:627:& Wooden Torch~
 G:~:U
 I:39:0:4000
 W:1:0:30:2
-A:1/1
+A:1/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:A wooden firebrand well wrapped in oil-soaked rags.
@@ -4055,7 +4069,7 @@ N:628:& Brass Lantern~
 G:~:U
 I:39:1:7500
 W:3:0:50:35
-A:3/1
+A:3/2
 P:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE
 D:The standard portable light source; it requires oil to operate.
@@ -4064,7 +4078,7 @@ N:629:& Flask~ of oil
 G:!:y
 I:77:0:7500
 W:1:0:10:3
-A:1/1
+A:1/2
 P:0:2d6:0:0:0
 D:Useful along with lamps, or by itself as a homemade missile.
 
@@ -4072,7 +4086,7 @@ N:630:& Empty Bottle~
 G:!:w
 I:2:1:0
 W:0:0:2:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:Somebody's drunk the potion, and all you have is the bottle.
 
@@ -4098,7 +4112,7 @@ N:638:& Shard~ of Pottery
 G:`:r
 I:3:3:0
 W:0:0:5:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:A fragment of an old jug.  You think you catch a wiff of spoiled wine.
 
@@ -4106,7 +4120,7 @@ N:639:& Broken Stick~
 G:`:r
 I:3:6:0
 W:0:0:3:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:Perhaps it was once a staff or served as handle to the axe of a hero.  
 D:Now, it's kindling.
@@ -4121,7 +4135,7 @@ N:641:& Broken Skull~
 G:`:w
 I:1:1:0
 W:0:0:1:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:A musty skull that even the rats no longer investigate.
 
@@ -4129,7 +4143,7 @@ N:642:& Broken Bone~
 G:`:w
 I:1:2:0
 W:0:0:2:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
 D:A cracked bone from which all the marrow has been gnawed off.
 
@@ -4137,7 +4151,7 @@ N:643:& Rodent Skeleton~
 G:`:w
 I:1:3:0
 W:1:0:10:0
-A:1/1
+A:1/3
 P:0:1d1:0:0:0
 D:A little pile of bones with some fur still attached.
 
@@ -4145,7 +4159,7 @@ N:644:& Canine Skeleton~
 G:`:w
 I:1:4:0
 W:1:0:10:0
-A:1/1
+A:1/3
 P:0:1d1:0:0:0
 D:The pathetic remains of a jackal.
 
@@ -4153,7 +4167,7 @@ N:645:& Gnome Skeleton~
 G:`:w
 I:1:5:0
 W:5:0:30:0
-A:5/1
+A:5/3
 P:0:1d2:0:0:0
 D:This merry gnome's last trick failed him, and filthy kobolds now toss his 
 D:bones from hand to hand.
@@ -4162,7 +4176,7 @@ N:646:& Elf Skeleton~
 G:`:w
 I:1:6:0
 W:5:0:40:0
-A:5/1
+A:5/3
 P:0:1d2:0:0:0
 D:A wandering elf lies here, far from green glades or the haunting sound of the 
 D:sea.  His spirit rests in Valinor; his body is but food for jackals.
@@ -4171,7 +4185,7 @@ N:647:& Dwarf Skeleton~
 G:`:w
 I:1:7:0
 W:5:0:50:0
-A:5/1
+A:5/3
 P:0:1d2:0:0:0
 D:His axe broken, and his helm clove asunder, a brave dwarf has left his 
 D:last memorial here.
@@ -4180,7 +4194,7 @@ N:648:& Human Skeleton~
 G:`:w
 I:1:8:0
 W:5:0:60:0
-A:5/1
+A:5/3
 P:0:1d2:0:0:0
 D:Bones that might be the last earthly remains of a fallen hero - or of a town 
 D:fool that ventured too deep.
@@ -4195,7 +4209,7 @@ N:650:[Magic for Beginners]
 G:?:R
 I:90:0:0
 W:5:0:30:25
-A:5/1
+A:5/2
 P:0:0d0:0:0:0
 D:A book of simple spells for Mages and Rogues.
 
@@ -4203,7 +4217,7 @@ N:651:[Conjurings and Tricks]
 G:?:R
 I:90:1:0
 W:10:0:30:100
-A:10/1
+A:10/2
 P:0:0d0:0:0:0
 D:A book of spells for Mages and Rogues.
 
@@ -4211,7 +4225,7 @@ N:652:[Incantations and Illusions]
 G:?:R
 I:90:2:0
 W:20:0:30:400
-A:20/1
+A:20/2
 P:0:0d0:0:0:0
 D:A book of spells for Mages and Rogues.
 
@@ -4219,7 +4233,7 @@ N:653:[Sorcery and Evocations]
 G:?:R
 I:90:3:0
 W:30:0:30:1000
-A:30/1
+A:30/2
 P:0:0d0:0:0:0
 D:A spellbook for Mages.
 
@@ -4278,7 +4292,7 @@ N:660:[Novice's Handbook]
 G:?:B
 I:91:0:0
 W:5:0:30:25
-A:5/1
+A:5/2
 P:0:0d0:0:0:0
 D:A simple holy book for Priests and Paladins.
 
@@ -4286,7 +4300,7 @@ N:661:[Words of Wisdom]
 G:?:B
 I:91:1:0
 W:10:0:30:100
-A:10/1
+A:10/2
 P:0:0d0:0:0:0
 D:A holy book for Priests and Paladins.
 
@@ -4294,7 +4308,7 @@ N:662:[Chants and Blessings]
 G:?:B
 I:91:2:0
 W:20:0:30:400
-A:20/1
+A:20/2
 P:0:0d0:0:0:0
 D:A prayer book for Priests.
 
@@ -4302,7 +4316,7 @@ N:663:[Exorcism and Dispelling]
 G:?:B
 I:91:3:0
 W:30:0:30:1000
-A:30/1
+A:30/2
 P:0:0d0:0:0:0
 D:A holy book for Priests and Paladins.
 
@@ -4360,7 +4374,7 @@ N:670:[Call of the Wild]
 G:?:G
 I:92:0:0
 W:5:0:30:25
-A:5/1
+A:5/2
 P:0:0d0:0:0:0
 D:A stone carved with simple lore for Druids and Rangers.
 
@@ -4368,7 +4382,7 @@ N:671:[Communion with Nature]
 G:?:G
 I:92:1:0
 W:10:0:30:100
-A:10/1
+A:10/2
 P:0:0d0:0:0:0
 D:A stone carved with lore for Druids and Rangers.
 
@@ -4376,7 +4390,7 @@ N:672:[Gifts of Nature]
 G:?:G
 I:92:2:0
 W:20:0:30:400
-A:20/1
+A:20/2
 P:0:0d0:0:0:0
 D:A stone carved with lore for Druids and Rangers.
 
@@ -4384,7 +4398,7 @@ N:673:[Book of Combat]
 G:?:G
 I:92:3:0
 W:30:0:30:1000
-A:30/1
+A:30/2
 P:0:0d0:0:0:0
 D:A stone carved with lore for Druids.
 
@@ -4442,7 +4456,7 @@ N:680:[Beginner's Curses]
 G:?:D
 I:93:0:0
 W:5:0:30:25
-A:5/1
+A:5/2
 P:0:0d0:0:0:0
 D:A tome of simple curses for Necromancers and Assassins.
 
@@ -4450,7 +4464,7 @@ N:681:[Dark Initiation]
 G:?:D
 I:93:1:0
 W:10:0:30:100
-A:10/1
+A:10/2
 P:0:0d0:0:0:0
 D:A tome of curses for Necromancers.
 
@@ -4458,7 +4472,7 @@ N:682:[Blood Novitiate]
 G:?:D
 I:93:2:0
 W:20:0:30:400
-A:20/1
+A:20/2
 P:0:0d0:0:0:0
 D:A tome of curses for Necromancers and Assassins.
 
@@ -4466,7 +4480,7 @@ N:683:[Frightful Realms]
 G:?:D
 I:93:3:0
 W:30:0:30:1000
-A:30/1
+A:30/2
 P:0:0d0:0:0:0
 D:A tome of fell curses for Necromancers.
 

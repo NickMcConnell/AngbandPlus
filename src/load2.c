@@ -1306,8 +1306,12 @@ static void rd_monster(monster_type *m_ptr)
 	/* Oangband 0.5.0 saves 'smart learn' flags and
 	 * Black Breath state.
 	 */
-	if (!o_older_than(0, 5, 0)) rd_byte(&m_ptr->black_breath);
-	if (!o_older_than(0, 5, 0)) rd_s32b(&m_ptr->smart);
+	if (!o_older_than(0, 5, 0))
+	{
+		rd_byte(&tmp8u);
+		m_ptr->black_breath = tmp8u;
+	}
+	if (!o_older_than(0, 5, 0)) rd_u32b(&m_ptr->smart);
 
 	/* Oangband 0.5.0 saves some more data not yet in use */
 	if (!o_older_than(0, 5, 0))
@@ -1810,7 +1814,7 @@ static errr rd_extra(void)
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
-	rd_byte(&p_ptr->expfact);
+	strip_bytes(1);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
@@ -1915,13 +1919,13 @@ static errr rd_extra(void)
 
 	rd_byte(&p_ptr->searching);
 
+	/* Was maximize mode */
+	rd_byte(&tmp8u);
 
 	/* If using an old Angband or a version of O based on an old Angband,
-	 * use the old maximize and preserve bytes.
+	 * use the old preserve byte.
 	 */
 
-	rd_byte(&tmp8u);
-	if (older_than(2, 8, 5)) adult_maximize = tmp8u;
 	rd_byte(&tmp8u);
 	if (older_than(2, 8, 5)) adult_preserve = tmp8u;
 
@@ -1949,12 +1953,23 @@ static errr rd_extra(void)
 	/* What themed levels have already appeared? */
 	rd_u32b(&p_ptr->themed_level_appeared);
 
+	/* Item Squelch */
 	for (i = 0; i < 24; i++) rd_byte(&squelch_level[i]);
 	for (i = 0; i < 15; i++) rd_byte(&tmp8u);
 
-	/* Skip the flags */
-	strip_bytes(12);
+	/* Specialty Abilities -BR- */
+        if (!o_older_than(0, 5, 3))
+	{
+		for (i = 0; i < 10; i++) rd_byte(&p_ptr->specialty_order[i]);
+	}
+	else
+	{
+		for (i = 0; i < 10; i++) p_ptr->specialty_order[i] = SP_NO_SPECIALTY;
+		strip_bytes(10);
+	}
 
+	/* Skip the flags */
+	strip_bytes(2);
 
 	/* Hack -- the two "special seeds" */
 	rd_u32b(&seed_flavor);
@@ -2121,8 +2136,9 @@ static void rd_messages(void)
 {
 	int i;
 	char buf[128];
+	u16b tmp16u;
 
-	s16b num, tmp16u;
+	s16b num;
 
 	/* Total */
 	rd_s16b(&num);
@@ -3428,6 +3444,9 @@ static errr rd_savefile_new_aux(void)
 	/* Important -- Initialize the race/class */
 	rp_ptr = &p_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
+
+	/* Important -- Initialize the combat style */
+	wp_ptr = &weapon_info[p_ptr->pclass];
 
 	/* Important -- Initialize the magic */
 	mp_ptr = &magic_info[p_ptr->pclass];

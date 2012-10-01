@@ -679,7 +679,6 @@ s16b get_obj_num(int level)
 	 */
 	if ((opening_chest) || (required_tval == TV_CHEST))  p = 0;
 
-
 	/* Try for a "better" object once (60%) or twice (10%) */
 	if (p < 60)
 	{
@@ -3319,18 +3318,17 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
-
-	/* Base chance of being "good".   Reduced in Oangband. */
-	good_percent = 2 * lev / 3 + 10;
+	/* Base chance of being "good".  Reduced in Oangband. */
+	good_percent = 4 * lev / 5 + 10;
 
 	/* Maximal chance of being "good".  Reduced in Oangband. */
-	if (good_percent > 60) good_percent = 60;
+	if (good_percent > 65) good_percent = 65;
 
 	/* Base chance of being "great".  Increased in Oangband. */
 	great_percent = (good_percent / 2) + 5;
 
 	/* Maximal chance of being "great".  Increased in Oangband. */
-	if (great_percent > 30) great_percent = 30;
+	if (great_percent > 35) great_percent = 35;
 
 
 	/* Assume normal */
@@ -3915,8 +3913,14 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 
 	bool sq_flag = FALSE;
 
-	/* Chance of "special object" */
-	prob = ((good) ? 10 : 1000);
+	/* Chance of "special object" - now depth dependant */
+	prob = (1000 - (6 * object_level));
+
+	/* Limit base chance of "special object" */
+	if (prob < 700) prob = 700;
+
+	/* Increase chance of "special object" for good items */
+	if (good) prob = 10;
 
 	/* Base level for the object.  Only "great" objects get this bonus 
 	 * in Oangband.

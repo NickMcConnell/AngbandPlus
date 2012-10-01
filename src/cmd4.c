@@ -215,7 +215,7 @@ void do_cmd_change_name(void)
 
 			sprintf(tmp, "%s.txt", op_ptr->base_name);
 
-			if (get_string("File name: ", tmp, 80))
+			if (get_string("File name: ", tmp, 81))
 			{
 				if (tmp[0] && (tmp[0] != ' '))
 				{
@@ -626,7 +626,7 @@ void do_cmd_pref(void)
 	strcpy(tmp, "");
 
 	/* Ask for a "user pref command" */
-	if (!get_string("Pref: ", tmp, 80)) return;
+	if (!get_string("Pref: ", tmp, 81)) return;
 
 	/* Process that pref command */
 	(void)process_pref_file_aux(tmp);
@@ -975,11 +975,15 @@ static errr option_dump(cptr fname)
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Write to the file */
-	fff = my_fopen(buf, "w");
+	/* Append to the file */
+	fff = my_fopen(buf, "a");
 
 	/* Failure */
 	if (!fff) return (-1);
+
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
 
 	/* Start dumping */
 	fprintf(fff, "# Automatic option dump\n\n");
@@ -1091,8 +1095,8 @@ void do_cmd_options(void)
 		prt("(A) Autosave Options", 17, 5);
 
 		/* Load and Save */
-		prt("(R) Read options from a file", 4, 40);
-		prt("(S) Write options to a file", 5, 40);
+		prt("(R) Load a user pref file", 4, 40);
+		prt("(S) Append options to a file", 5, 40);
 
 		/* Prompt */
 		prt("Command: ", 19, 0);
@@ -2652,7 +2656,7 @@ void do_cmd_note(void)
 	strcpy(tmp, "");
 
 	/* Input */
-	if (!get_string("Note: ", tmp, 80)) return;
+	if (!get_string("Note: ", tmp, 81)) return;
 
 	/* Ignore empty notes */
 	if (!tmp[0] || (tmp[0] == ' ')) return;

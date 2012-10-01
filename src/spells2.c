@@ -210,16 +210,26 @@ bool do_dec_stat(int stat)
 {
 	bool sust = FALSE;
 
-	/* Access the "sustain" */
+	/* Access the "sustain" and specialty skills */
 	switch (stat)
 	{
-		case A_STR: if (p_ptr->sustain_str) sust = TRUE; break;
-		case A_INT: if (p_ptr->sustain_int) sust = TRUE; break;
-		case A_WIS: if (p_ptr->sustain_wis) sust = TRUE; break;
-		case A_DEX: if (p_ptr->sustain_dex) sust = TRUE; break;
-		case A_CON: if (p_ptr->sustain_con) sust = TRUE; break;
-		case A_CHR: if (p_ptr->sustain_chr) sust = TRUE; break;
-	}
+		case A_STR: if (p_ptr->sustain_str)
+				sust = TRUE; break;
+		case A_INT: if ((p_ptr->sustain_int) || 
+		     ((check_specialty(SP_CLARITY)) && (rand_int(2) != 0)))
+				sust = TRUE; break;
+		case A_WIS: if ((p_ptr->sustain_wis) || 
+		     ((check_specialty(SP_CLARITY)) && (rand_int(2) != 0)))
+				sust = TRUE; break;
+		case A_DEX: if ((p_ptr->sustain_dex) || 
+		     ((check_specialty(SP_ATHLETICS)) && (rand_int(2) != 0)))
+				sust = TRUE; break;
+		case A_CON: if ((p_ptr->sustain_con) || 
+		     ((check_specialty(SP_ATHLETICS)) && (rand_int(2) != 0)))
+				sust = TRUE; break;
+		case A_CHR: if (p_ptr->sustain_chr)
+				sust = TRUE; break;}
+			
 
 	/* Sustain */
 	if (sust)
@@ -3556,7 +3566,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 				delete_object(y, x);
 
 				/* Decrement the trap or glyph count. */
-				if (cave_feat[y][x] == FEAT_TRAP_HEAD + 0x0F)
+				if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) && (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
 					num_trap_on_level--;
 				else if (cave_feat[y][x] == FEAT_GLYPH)
 					num_glyph_on_level--;
@@ -3920,7 +3930,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 				delete_object(yy, xx);
 
 				/* Hack -- Increment the trap or glyph count. */
-				if (cave_feat[y][x] == FEAT_TRAP_HEAD + 0x0F)
+				if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) && (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
 					num_trap_on_level--;
 				else if (cave_feat[y][x] == FEAT_GLYPH)
 					num_glyph_on_level--;
@@ -4319,6 +4329,8 @@ bool fire_ball(int typ, int dir, int dam, int rad, bool jump)
 
 	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
+	if (jump) flg |= PROJECT_JUMP;
+
 	/* Use the given direction */
 	ty = py + 99 * ddy[dir];
 	tx = px + 99 * ddx[dir];
@@ -4413,7 +4425,7 @@ bool fire_cloud(int typ, int dir, int dam, int rad)
  */
 bool fire_meteor(int who, int typ, int y, int x, int dam, int rad, bool hurt_player)
 {
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP;
 
 	if (hurt_player) flg |= PROJECT_PLAY;
 

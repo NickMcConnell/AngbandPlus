@@ -752,7 +752,7 @@ errr fd_write(int fd, cptr buf, huge n)
 	while (n >= 16384)
 	{
 		/* Write a piece */
-		if (write(fd, buf, 16384) != 16384) return (1);
+		if (write(fd, (void *)buf, 16384) != 16384) return (1);
 
 		/* Shorten the task */
 		buf += 16384;
@@ -764,7 +764,7 @@ errr fd_write(int fd, cptr buf, huge n)
 #endif
 
 	/* Write the final piece */
-	if (write(fd, buf, n) != (long)n) return (1);
+	if (write(fd, (void *)buf, n) != (long)n) return (1);
 
 	/* Success */
 	return (0);
@@ -2785,7 +2785,7 @@ bool askfor_aux(char *buf, int len)
 
 
 	/* Paranoia -- Clip the default entry */
-	buf[len] = '\0';
+	buf[len-1] = '\0';
 
 
 	/* Display the default answer */
@@ -2829,7 +2829,7 @@ bool askfor_aux(char *buf, int len)
 
 			default:
 			{
-				if ((k < len) && (isprint(i)))
+				if ((k < len - 1) && (isprint(i)))
 				{
 					buf[k++] = i;
 				}

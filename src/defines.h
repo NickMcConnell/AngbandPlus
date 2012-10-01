@@ -48,7 +48,7 @@
 /*
  * Current version string - according to Oangband reckoning.
  */
-#define VERSION_STRING	"0.5.2"
+#define VERSION_STRING	"0.6.0"
 
 /*
  * Version of Angband from which this version of Oangband is derived.
@@ -66,8 +66,8 @@
  * Current Oangband version numbers.
  */
 #define O_VERSION_MAJOR	0
-#define O_VERSION_MINOR	5
-#define O_VERSION_PATCH	2
+#define O_VERSION_MINOR	6
+#define O_VERSION_PATCH	0
 
 /* Currently unused. */
 #define O_VERSION_EXTRA	0
@@ -164,11 +164,20 @@
  */
 #define MAX_REALM            4
 
+/*
+ * Maximum number of specialty abilities for a single character
+ */
+#define MAX_SPECIALTIES      10
+
+/*
+ * Number of specialty abilities available to a character class
+ */
+#define CLASS_SPECIALTIES      15
 
 /*
  * Maximum array bounds for template based arrays
  */
-#define MAX_F_IDX	73	/* Max size for "f_info[]" */
+#define MAX_F_IDX	96	/* Max size for "f_info[]" */
 #define MAX_K_IDX	755	/* Max size for "k_info[]" */
 #define MAX_A_IDX	250	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
@@ -365,7 +374,11 @@
  */
 #define NASTY_MON	40		/* 1/chance of inflated monster level */
 
-
+/*
+ * Fraction of turns in which the extend magic special ability causes timers to
+ * not decrement.
+ */
+#define EXTEND_MAGIC_FRACTION	3	/* Skip every 3rd turn -> 50% longer durations */
 
 /*
  * Refueling constants
@@ -801,10 +814,6 @@
 /* Traps */
 #define FEAT_TRAP_HEAD	0x10
 #define FEAT_TRAP_TAIL	0x1F
-#define FEAT_TRAP_ROGUE	0x1F
-
-/* Special trap that only effects monsters.  Created only by rogues. -LM- */
-#define FEAT_MONSTER_TRAP 0x1F
 
 /* Doors */
 #define FEAT_DOOR_HEAD	0x20
@@ -839,7 +848,19 @@
 #define FEAT_SHOP_HEAD 0x40
 #define FEAT_SHOP_TAIL 0x48
 
-
+/* Specials trap that only effects monsters.  Created only by rogues. -LM- */
+#define FEAT_MTRAP_HEAD		0x50
+#define FEAT_MTRAP_TAIL		0x5F
+#define FEAT_MTRAP_BASE		0x50 /* Level 1 */
+#define FEAT_MTRAP_STURDY	0x51 /* Level 1 */
+#define FEAT_MTRAP_NET		0x52 /* Level 6 */
+#define FEAT_MTRAP_CONF		0x53 /* Level 12 */
+#define FEAT_MTRAP_POISON	0x54 /* Level 18 */
+#define FEAT_MTRAP_SPIRIT	0x55 /* Level 24 */
+#define FEAT_MTRAP_ELEC		0x56 /* Level 30 */
+#define FEAT_MTRAP_EXPLOSIVE	0x57 /* Level 36 */
+#define FEAT_MTRAP_PORTAL	0x58 /* Level 42 */
+#define FEAT_MTRAP_STASIS	0x59 /* Level 48 */
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -1452,6 +1473,7 @@
 #define SV_MORNING_STAR			12	/* 2d6 */
 #define SV_FLAIL				13	/* 2d6 */
 #define SV_LEAD_FILLED_MACE		15	/* 3d4 */
+#define SV_STORM_HAMMER			17	/* 1d11 */
 #define SV_TWO_HANDED_FLAIL		18	/* 3d6 */
 #define SV_MACE_OF_DISRUPTION		20	/* 4d8 */
 #define SV_GROND				50	/* 3d4 */
@@ -1459,7 +1481,7 @@
 /* The "sval" values for TV_POLEARM */
 #define SV_SPEAR				2	/* 1d6 */
 #define SV_THRUSTING_SPEAR		3	/* 1d7 */
-#define SV_TRIDENT			5	/* 1d8 */
+#define SV_TRIDENT			5	/* 1d7 */
 #define SV_PIKE				8	/* 1d11 */
 #define SV_BEAKED_AXE			10	/* 2d6 */
 #define SV_BROAD_AXE			11	/* 2d6 */
@@ -1467,11 +1489,11 @@
 #define SV_THROWING_AXE			14	/* 2d3 */
 #define SV_HALBERD			15	/* 3d5 */
 #define SV_SCYTHE				17	/* 5d3 */
-#define SV_LANCE				20	/* 2d8 */
+#define SV_LANCE				20	/* 3d8 */
 #define SV_BATTLE_AXE			22	/* 2d8 */
 #define SV_GREAT_AXE			25	/* 4d4 */
 #define SV_DART				28	/* 1d5 */
-#define SV_SCYTHE_OF_SLICING		30	/* 7d3 */
+#define SV_SCYTHE_OF_SLICING		30	/* 6d4 */
 
 /* The "sval" codes for TV_SWORD */
 #define SV_BROKEN_SWORD			2	/* 1d2 */
@@ -1490,7 +1512,7 @@
 #define SV_BASTARD_SWORD		21	/* 3d4 */
 #define SV_TWO_HANDED_SWORD		25	/* 3d6 */
 #define SV_EXECUTIONERS_SWORD		28	/* 4d5 */
-#define SV_BLADE_OF_CHAOS		30	/* 6d5 */
+#define SV_BLADE_OF_CHAOS		30	/* 4d6 */
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_WICKER_SHIELD		1
@@ -1714,6 +1736,7 @@
 #define SV_WAND_DRAGON_BREATH		28
 #define SV_WAND_STRIKING		29
 #define SV_WAND_STORMS			30
+#define SV_WAND_SHARD_BOLT		31
 
 #define SV_WAND_ILKORIN		40
 #define SV_WAND_SARUMAN		41
@@ -2129,6 +2152,7 @@
 #define PU_HP		0x00000010L	/* Calculate chp and mhp */
 #define PU_MANA		0x00000020L	/* Calculate csp and msp */
 #define PU_SPELLS	0x00000040L	/* Calculate spells */
+#define PU_SPECIALTY	0x00000080L	/* Calculate spells */
 /* xxx (many) */
 #define PU_FORGET_VIEW	0x00010000L	/* Forget field of view */
 #define PU_UPDATE_VIEW	        0x00020000L	/* Update field of view */
@@ -2562,7 +2586,7 @@
 #define MFLAG_XXX1	0x02	/*  */
 #define MFLAG_XXX2	0x04	/*  */
 #define MFLAG_ACTV	0x08	/* Monster is in active mode */
-#define MFLAG_XXX4	0x10	/*  */
+#define MFLAG_WARY	0x10	/* Monster is wary of traps */
 #define MFLAG_XXX5	0x20	/*  */
 #define MFLAG_SHOW	0x40	/* Monster is recently memorized */
 #define MFLAG_MARK	0x80	/* Monster is currently memorized */
@@ -2862,6 +2886,9 @@
 /* Number of times harassment spells get special treatment */
 #define BASE_HARASS 5
 
+/* Number of times harassment spells get special treatment from weaker creatures */
+#define LOW_HARASS 2
+
 /*
  * Hack -- "bolt" spells that may hurt fellow monsters
  * Need special treatment in AI.
@@ -2915,16 +2942,14 @@
 
 
 /* Spell Desire Table Columns */
-#define D_SPOWER   0
-#define D_HPS      1
-#define D_RLEV     2
-#define D_SUMM     3
-#define D_HURT     4
-#define D_MANA     5
-#define D_ESC      6
-#define D_TACT     7
-#define D_RES      8
-#define D_RANGE    9
+#define D_BASE     0
+#define D_SUMM     1
+#define D_HURT     2
+#define D_MANA     3
+#define D_ESC      4
+#define D_TACT     5
+#define D_RES      6
+#define D_RANGE    7
 
 
 /*** Option Definitions ***/
@@ -3023,7 +3048,6 @@
 
 #define OPT_birth_point_based           128/*(OPT_BIRTH_START+0)*/
 #define OPT_birth_auto_roller           129/*(OPT_BIRTH_START+1)*/
-#define OPT_birth_maximize              130/*(OPT_BIRTH_START+2)*/
 #define OPT_birth_preserve              131/*(OPT_BIRTH_START+3)*/
 /* No Ironman options */
 #define OPT_cheat_peek                  160        /*(OPT_CHEAT+0)*/
@@ -3035,7 +3059,6 @@
 
 #define OPT_adult_point_based           192/*(OPT_ADULT_START+0)*/
 #define OPT_adult_auto_roller           193/*(OPT_ADULT_START+1)*/
-#define OPT_adult_maximize              194/*(OPT_ADULT_START+2)*/
 #define OPT_adult_preserve              195/*(OPT_ADULT_START+3)*/
 /* No Ironman options */
 /* xxx xxx */
@@ -3130,7 +3153,6 @@
 
 #define birth_point_based               op_ptr->opt[OPT_birth_point_based]          
 #define birth_auto_roller               op_ptr->opt[OPT_birth_auto_roller]          
-#define birth_maximize                  op_ptr->opt[OPT_birth_maximize]             
 #define birth_preserve                  op_ptr->opt[OPT_birth_preserve]        
 
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
@@ -3142,7 +3164,6 @@
 
 #define adult_point_based               op_ptr->opt[OPT_adult_point_based]          
 #define adult_auto_roller               op_ptr->opt[OPT_adult_auto_roller]          
-#define adult_maximize                  op_ptr->opt[OPT_adult_maximize]             
 #define adult_preserve                  op_ptr->opt[OPT_adult_preserve]        
 
 #define score_peek				op_ptr->opt[OPT_score_peek]
@@ -3561,6 +3582,46 @@ extern int PlayerUID;
 
 #define PARSE_ERROR_MAX                     11
 
+/*
+ * Specialty Abilities -BR-
+ */
+/* Defense/Armor */
+#define SP_ARMOR_MAST		0	/* Increased Body Armor AC */
+#define SP_SHIELD_MAST		1	/* Increased Shield AC, Deflection, and Bashing */
+#define SP_ARMOR_PROFICIENCY	2	/* Reduced mana penalty for armor */
+#define SP_EVASION		3	/* Chance to dodge attacks */
+#define SP_MAGIC_RESIST		4	/* Improved Saves */
+#define SP_TELEPORT_RESIST	5	/* Save vs Teleport Attacks; Immune to Teleport Level */
+#define SP_UNLIGHT		6	/* Improved Stealth, Res Dark, function w/o light, Reduced Light */
+
+/* Physical Attacks */
+#define SP_ARMSMAN		20	/* Extra Melee Crits */
+#define SP_FAST_ATTACK		21	/* Extra Melee Attacks */
+#define SP_MARKSMAN		22	/* Extra Ranged Crits */
+#define SP_PIERCE_SHOT		23	/* Ranged Attacks Pierce */
+#define SP_MIGHTY_THROW		24	/* Extend Range on Throwing Attacks */
+#define SP_POWER_STRIKE		25	/* More Confusion Attacks and Better Attacks (Druids) */
+#define SP_MARTIAL_ARTS		26	/* Druid-like Unarmed Combat */
+
+/* Magic and Mana */
+#define SP_BEGUILE		40	/* More effective monster status attacks */
+#define SP_EXTEND_MAGIC		41	/* Longer duration powerups */
+#define SP_FAST_CAST		42	/* Less energy to cast (low level) spells */
+#define SP_POWER_SIPHON		43	/* Gain mana when monsters cast */
+#define SP_HEIGHTEN_MAGIC	44	/* Cast spells at higher effective level */
+#define SP_SOUL_SIPHON		45	/* Gain mana when taking damage */
+#define SP_HARMONY		46	/* Gain hp when casting spells */
+
+/* Other */
+#define SP_ATHLETICS		60	/* Increase and Partial Sustain Dex/Con */
+#define SP_CLARITY		61	/* Increase and Partial Sustain Int/Wis */
+#define SP_FURY			63	/* Gain energy when taking damage */
+#define SP_MEDITATION		64	/* Faster Mana Regen */
+#define SP_REGENERATION		65	/* Faster HP Regen */
+#define SP_EXTRA_TRAP		66	/* Set more traps at once */
+#define SP_HOLY_LIGHT		67	/* Increased light radius, resist light, damage to undead */
+
+#define SP_NO_SPECIALTY		255
 
 
 

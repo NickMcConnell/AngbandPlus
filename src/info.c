@@ -253,7 +253,7 @@ cptr obj_special_info[6][50] =
 		"(damage: 180 - 210)",		/* Dragon's Breath */
 		"(damage: 10 - 234)",		/* Striking */
 		"(damage: 35 - 140)",		/* Storms */
-		"",		/*  */
+		"(damage: 4 - 56)",		/* Shrapnel */
 		"",		/*  */
 		"",		/*  */
 		"",		/*  */	"",		/*  */	"",		/*  */
@@ -580,6 +580,54 @@ cptr spell_tips[255] =
 	"Grants any non-artifact throwing weapon perfect balance.  Be careful about using this spell on weapons that have a hidden quality (use the 'I'nspect command)."
 };
 
+/*
+ * Prints information about specialty abilties
+ */
+cptr specialty_tips[255]=
+{
+	"Increases the effects of body armor.",
+	"Improves shield AC, chance of shield deflection, and damage from shield bashes.",
+	"Reduces mana penalties for armor use.",
+	"Increases your armor class when you wear light armor.  Allowed armor and maximum bonus increase with player level.",
+	"Increases your saving throws.",
+	"Gives a chance to resist hostile teleportation attacks; gives immunity to hostile teleport level.",
+	"Increases stealth, provides resistance to darkness, and allows you to take actions (like reading) without light.  Reduces light radius.",
+	"","","","","","","","","","","","","",
+	"Grants extra critical hits with melee weapons.",
+	"Gives you extra melee attacks; better when you have more attacks to begin with.  Works armed and unarmed.",
+	"Grants extra critical hits in ranged combat.",
+	"Gives your successful bow and crossbow attacks a chance of continuing to additional targets.",
+	"Allows you to hurl throwing weapons and other objects great distances.",
+	"Gives you a stronger barehanded attack.",
+	"Gives you a powerful unarmed attack.",
+	"","","","","","","","","","","","","",
+	"Enhances your power to slow, sleep, confuse, or turn your enemies.",
+	"Increases the duration of beneficial magic.",
+	"Increases spell casting speed, especially for low level spells from high level casters.",
+	"Gives you mana when monsters cast spells.",
+	"Increases the power of your caster-level dependent spells.",
+	"Gives you mana when you slay monsters.",
+	"Causes you to gain hit points when casting spells.",
+	"","","","","","","","","","","","","",
+	"Increases and partially sustains Dexterity and Constitution.",
+	"Increases and partially sustains Intelligence and Wisdom.",
+	"",
+	"Allows you to move faster immediately after being damaged.",
+	"Improves mana regeneration; cumulative with other forms of regneration.",
+	"Improves hit point regeneration; cumulative with other forms of regneration.",
+	"Allows you to have two monster traps at a time.",
+	"Increases light radius and damage dealt to undead creatures, and grants resistance to light.",
+	"","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","",""
+};
 
 /*
  * Output numerical values for magical device damages, healing, etc., for 
@@ -1193,15 +1241,15 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ACT_PAURNIMMEN:
 		{
-			return "frost bolt (6d8) every 6+d6 turns";
+			return "add cold damage to your melee attacks (50 turns) every 100+d50 turns";
 		}
 		case ACT_PAURAEGEN:
 		{
-			return "lightning bolt (4d8) every 4+d4 turns";
+			return "add lightning damage to your melee attacks (40 turns) every 100+d50 turns";
 		}
 		case ACT_PAURNEN:
 		{
-			return "acid bolt (5d8) every 5+d5 turns";
+			return "add acid damage to your melee attacks (30 turns) every 100+d50 turns";
 		}
 		case ACT_FINGOLFIN:
 		{
@@ -2524,6 +2572,119 @@ void self_knowledge(void)
 			break;
 	}
 
+	if (check_specialty(SP_ARMOR_MAST))
+	{
+		info[i++] = "You are very good with heavy armor.";
+	}
+	if (check_specialty(SP_SHIELD_MAST))
+	{
+		info[i++] = "You are very good with shields.";
+	}
+	if (check_specialty(SP_ARMOR_PROFICIENCY))
+	{
+		info[i++] = "You are reasonably able to cast spells in armor.";
+	}
+	if (check_specialty(SP_EVASION))
+	{
+		info[i++] = "You are hard to hit when wearing light armor.";
+	}
+	if (check_specialty(SP_MAGIC_RESIST))
+	{
+		info[i++] = "You resist magical effects.";
+	}
+	if (check_specialty(SP_TELEPORT_RESIST))
+	{
+		info[i++] = "You resist hostile teleportation.";
+	}
+	if (check_specialty(SP_ARMSMAN))
+	{
+		info[i++] = "You score deadly hits in melee combat.";
+	}
+	if (check_specialty(SP_FAST_ATTACK))
+	{
+		info[i++] = "You attack quickly.";
+	}
+	if (check_specialty(SP_MARKSMAN))
+	{
+		info[i++] = "You score deadly hits in archery.";
+	}
+	if (check_specialty(SP_PIERCE_SHOT))
+	{
+		info[i++] = "Your bow and crossbow shots can skewer multiple targets.";
+	}
+	if (check_specialty(SP_HOLY_LIGHT))
+	{
+		info[i++] = "You are surrounded by the Light of Anar.";
+	}
+	if (check_specialty(SP_UNLIGHT))
+	{
+		info[i++] = "You are surrounded by a veil of Night.";
+	}
+	if (check_specialty(SP_MIGHTY_THROW))
+	{
+		info[i++] = "You can throw objects exceptionally far.";
+	}
+	if (check_specialty(SP_POWER_STRIKE))
+	{
+		info[i++] = "Your empty hand druid strikes are extra strong.";
+	}
+	if (check_specialty(SP_MARTIAL_ARTS))
+	{
+		info[i++] = "You have powerful unarmed attacks.";
+	}
+	if (check_specialty(SP_BEGUILE))
+	{
+		info[i++] = "You can daunt and deceive your foes.";
+	}
+	if (check_specialty(SP_EXTEND_MAGIC))
+	{
+		info[i++] = "Benecial spells last longer on you.";
+	}
+	if (check_specialty(SP_FAST_CAST))
+	{
+		info[i++] = "You cast spells quickly.";
+	}
+	if (check_specialty(SP_POWER_SIPHON))
+	{
+		info[i++] = "You can steal mana used to cast hostile spells.";
+	}
+	if (check_specialty(SP_SOUL_SIPHON))
+	{
+		info[i++] = "You gain mana when injured.";
+	}
+	if (check_specialty(SP_HARMONY))
+	{
+		info[i++] = "You gain health when casting spells.";
+	}
+	if (check_specialty(SP_ATHLETICS))
+	{
+		info[i++] = "You are very limber and healthy.";
+	}
+	if (check_specialty(SP_CLARITY))
+	{
+		info[i++] = "Your mind is clear and sharp.";
+	}
+	if (check_specialty(SP_FURY))
+	{
+		info[i++] = "You move quickly after being injured.";
+	}
+	if (check_specialty(SP_MEDITATION))
+	{
+		info[i++] = "You recover mana quickly.";
+	}
+	if (check_specialty(SP_REGENERATION))
+	{
+		info[i++] = "You recover hit points quickly.";
+	}
+	if (check_specialty(SP_EXTRA_TRAP))
+	{
+		info[i++] = "You may have two monster traps set at once.";
+	}
+        if (check_specialty(SP_HEIGHTEN_MAGIC))
+	{
+		info[i++] = "Your spells are unusually effective.";
+	}
+
 	if (p_ptr->blind)
 	{
 		info[i++] = "You cannot see.";
@@ -2564,7 +2725,7 @@ void self_knowledge(void)
 
 	if (p_ptr->blessed)
 	{
-		info[i++] = "You feel rightous.";
+		info[i++] = "You feel righteous.";
 	}
 	if (p_ptr->hero)
 	{
@@ -2593,6 +2754,10 @@ void self_knowledge(void)
 	if (p_ptr->new_spells)
 	{
 		info[i++] = "You can learn some spells/prayers.";
+	}
+	if (p_ptr->new_specialties)
+	{
+		info[i++] = "You can learn some specialty abilities.";
 	}
 	if (p_ptr->word_recall)
 	{
@@ -3052,9 +3217,15 @@ void spell_info(char *p, int spell_index)
 {
 	int plev = p_ptr->lev;
 
-	int beam = (((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_NECRO)) 
+	int beam, beam_low;
+
+        /* Specialty Ability */
+        if (check_specialty(SP_HEIGHTEN_MAGIC)) plev += 4 + (plev / 12);
+
+	/* Beaming chance */
+	beam = (((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_NECRO)) 
 		? plev : (plev / 2));
-	int beam_low = (beam - 10 > 0 ? beam - 10 : 0);
+	beam_low = (beam - 10 > 0 ? beam - 10 : 0);
 
 	/* Default */
 	strcpy(p, "");
@@ -3172,7 +3343,7 @@ void spell_info(char *p, int spell_index)
 		case 175: sprintf(p, " dam %d+d%d, rad %d", 5 * plev / 2, plev * 3, 
 			plev / 10); break;
 		case 177: sprintf(p, " dur %d+d30", plev / 2); break;
-		case 178: sprintf(p, " dam d%d-%d", plev * 2, plev * 4); break;
+		case 178: sprintf(p, " dam d%d", plev * 2); break;
 		case 181: sprintf(p, " dam %dd8, beam %d%%", plev / 6, plev * 2); break;
 		case 182: sprintf(p, " dur %d+d10", plev / 2); break;
 		case 186: strcpy(p, " heal 500, dam 100"); break;

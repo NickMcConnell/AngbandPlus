@@ -70,6 +70,7 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
 	char m_name[], const object_type *o_ptr)
 {
 	bool vorpal = FALSE;
+	bool armsman = FALSE;
 
 	/* Extract melee power. */
 	int power = (chance + sleeping_bonus);
@@ -84,8 +85,14 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
 		vorpal = TRUE;
 	}*/
 
+	/* Specialty Ability */
+	if ((visible) && (check_specialty(SP_ARMSMAN)) && (rand_int(6) == 0))
+	{
+		armsman = TRUE;
+	}
+
 	/* Test for critical hit. */
-	if (randint(power + 240) <= power)
+	if ((armsman) || (randint(power + 240) <= power))
 	{
 		/* Determine level of critical hit. */
 		if      (rand_int(40) == 0) add_dice = 5;
@@ -108,6 +115,9 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
 				message(MSG_HIT, 0, "You rudely awaken the monster.");
 			}
 		}
+
+                /* Credit where credit is due - but not if we already have a special message */
+                else if (armsman) message(MSG_HIT, 0, "Armsman hit!");
 
 		/* Print special messages if monster is visible. */
 		if (visible)
@@ -207,12 +217,13 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 {
 	char o_name[80];
 
+	bool marksman = FALSE;
+
 	/* Extract missile power. */
 	int power = (chance + sleeping_bonus);
 
 	/* Assume no added dice */
 	int add_dice = 0;
-
 
 	/* Throwing weapons get lots of critical hits. */
 	if (thrown_weapon) power = power * 3 / 2;
@@ -224,19 +235,22 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 		vorpal = TRUE;
 	}*/
 
+	/* Specialty Ability */
+	if ((visible) && (check_specialty(SP_MARKSMAN)) && (rand_int(6) == 0))
+	{
+		marksman = TRUE;
+	}
 
 	/* Obtain an item description */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
-
 	/* Test for critical hit. */
-	if (randint(power + 360) <= power)
+	if (marksman || (randint(power + 360) <= power))
 	{
 		/* Determine level of critical hit. */
 		if (rand_int(50) == 0) add_dice = 3;
 		else if (rand_int(10) == 0) add_dice = 2;
 		else add_dice = 1;
-
 
 		/* Encourage the player to throw and shoot things at sleeping monsters. */
 		if ((sleeping_bonus) && (visible))
@@ -251,6 +265,9 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 				message(MSG_HIT, 0, "You rudely awaken the monster.");
 			}
 		}
+
+                /* Credit where credit is due - but not if we already have a special message */
+                else if (marksman) message(MSG_HIT, 0, "Marksmanship!");
 
 		/* Print special messages if monster is visible. */
 		if (visible)
@@ -284,10 +301,6 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 	{
 		message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 	}
-
-
-	/* Special case -- Throwing weapons get better criticals. */
-	if (thrown_weapon) add_dice += 2;
 
 	/* Return the number of damage dice to add. */
 	return (add_dice);
@@ -379,15 +392,25 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 			}
 
 			/* Slay Undead */
-			if ((f1 & (TR1_SLAY_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
+			if (((f1 & (TR1_SLAY_UNDEAD)) || check_specialty(SP_HOLY_LIGHT)) && 
+			    (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
 				if (m_ptr->ml)
 				{
 					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_UNDEAD) && (mul < 25)) mul = 25;
-				else if (mul < 20) mul = 20;
+				if (o_ptr->name2 == EGO_KILL_UNDEAD)
+				{
+					if ((check_specialty(SP_HOLY_LIGHT)) && (mul < 27)) mul = 27;
+					else if (mul < 25) mul = 25;
+				}
+				else if (f1 & (TR1_SLAY_UNDEAD))
+				{
+					if ((check_specialty(SP_HOLY_LIGHT)) && (mul < 22)) mul = 22;
+					else if (mul < 20) mul = 20;
+				}
+				else if (mul < 12) mul = 12;
 			}
 
 			/* Slay Demon */
@@ -501,7 +524,12 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 				}
 
 				/* Otherwise, take extra damage */
-				else if (mul < 17) mul = 17;
+				else
+				{
+					if ((o_ptr->name2 == EGO_BALROG) && 
+						(mul < 30)) mul = 30;
+					else if (mul < 17) mul = 17;
+				}
 			}
 
 			/* Brand (Cold) */
@@ -549,6 +577,9 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 	{
 		p_ptr->special_attack &= ~(ATTACK_HOLY);
 		msg_print("Your temporary Holy attack has dissipated.");
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATUS);
 	}
 
 
@@ -569,43 +600,91 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 
 
 
-/* Calculate the damage done by a druid fighting barehanded, display an
+/* 
+ * Calculate the damage done by a druid fighting barehanded, display an
  * appropriate message, and determine if the blow is capable of causing
  * monster confusion. -LM-
+ *
+ * Added minimum attack quality and a bonus for deadliness.  Also changed
+ * the chance of confusion to depend on skill rather than plev.
  */
-static int get_druid_damage(int plev, char m_name[])
+static int get_druid_damage(int plev, char m_name[], int power, int deadliness)
 {
 	cptr description;
 	int dd = 0, ds = 0;
-	int chance1, chance2, damage;
-	int b_select = 0;
+	int chance, n, n_chances, i;
+	int damage;
+	int b_select;
+	bool power_strike = FALSE;
 
-	/* Roll twice and keep the better of the two results, or the second
-	 * if equal.
+        /* Specialty Ability */
+        if ((check_specialty(SP_POWER_STRIKE) || check_specialty(SP_MARTIAL_ARTS))
+		&& (rand_int(6) == 0))
+	{
+		power_strike = TRUE;
+	}
+
+	/*
+	 * Minimum attack quality.
+	 * That this is not zero makes very little difference in
+	 * terms of mean damage.  It just makes players feel better
+	 * to not get the low end attacks at high plev. -BR-
 	 */
-	chance1 = randint(2 * plev / 5);
-	chance2 = randint(2 * plev / 5);
-	if (chance1 > chance2) b_select = chance1;
-	if (chance2 >= chance1) b_select = chance2;
+	b_select = 1 + (plev / 10);
+
+	/* 
+	 * How many chances we get to choose an attack is 
+	 * based on deadliness.  For each chance we will
+	 * choose an attack, and and keep the best one -BR-
+	 */
+
+	/* Minimum deadliness (No negative deadliness for druid blows) */
+	if (deadliness < 1) i = 0;
+
+	/* Otherwise */
+	else i = deadliness_conversion[deadliness];
+
+	/* Get between 2 and 5 chances */
+	n_chances = 2 + (i / 100);
+
+	/* Deal with fractional chances */
+	if (rand_int(100) < (i % 100)) n_chances++;
+
+	/* Loop over number of number of chances */
+	for (n=0; n < n_chances; n++)
+	{
+		/* Choose a (level restricted) attack */
+		chance = randint(2 * plev / 5);
+
+		/* Keep the best attack */
+		if (chance > b_select) b_select = chance;
+	}
+
+	/* Better Hits on a Power Strike - sometimes better than normally allowed */
+	if (power_strike && (b_select < NUM_D_BLOWS)) b_select++;
 
 	/* Just to make sure... */
 	if (b_select  > NUM_D_BLOWS) b_select = NUM_D_BLOWS;
 
-	/* Now, get the description and calculate the damage. */
+	/* 
+	 * Now, get the description and calculate the damage.
+	 * Maximize for power stikes.
+	 */
 	description = d_blow[b_select - 1].description;
 	dd = d_blow[b_select - 1].dd;
 	ds = d_blow[b_select - 1].ds;
-	damage = damroll(dd, ds);
-
+	if (power_strike) damage = (dd * ds);
+	else damage = damroll(dd, ds);
 
 	/* Druids can also confuse monsters. */
-	if (plev > rand_int(300)) 
+	if (power_strike || (power > rand_int(500) + 25))
 	{
 		/* Use the special druid confusion attack. */
 		p_ptr->special_attack |= (ATTACK_DRUID_CONFU);
 
-		/* And display the attack message. */
-		message_format(MSG_HIT, 0, "You %s and attempt to confuse %s.", description, m_name);
+		/* And display the attack message. Feedback for Power Strike Specialty */
+		if (power_strike) message_format(MSG_HIT, 0, "Power Strike! You attempt to confuse %s.", m_name);
+		else message_format(MSG_HIT, 0, "You %s and attempt to confuse %s.", description, m_name);
 	}
 	else
 	{
@@ -692,6 +771,7 @@ void py_attack(int y, int x)
 {
 	/* Damage */
 	long damage;
+	bool bonus_attack = FALSE;
 
 	/* blow count */
 	int num = 0;
@@ -826,10 +906,9 @@ void py_attack(int y, int x)
 	}
 
 	/* Players bash more often when they see a real need. */
-	if (bash_chance)
+	if ((bash_chance) && (p_ptr->pclass != CLASS_DRUID) && (!(check_specialty(SP_MARTIAL_ARTS))))
 	{
-		if ((!inventory[INVEN_WIELD].k_idx) && (p_ptr->pclass != CLASS_DRUID))
-			bash_chance *= 4;
+		if (!inventory[INVEN_WIELD].k_idx) bash_chance *= 4;
 		else if ((inventory[INVEN_WIELD].dd * inventory[INVEN_WIELD].ds * blows) 
 			< (inventory[INVEN_ARM].dd * inventory[INVEN_ARM].ds * 3))
 		{
@@ -846,6 +925,10 @@ void py_attack(int y, int x)
 		bash_quality = p_ptr->skill_thn + (p_ptr->wt / 8) + 
 			(p_ptr->total_weight / 80) + (inventory[INVEN_ARM].weight / 3);
 
+		/* Enhanced for shield masters */
+		if (check_specialty(SP_SHIELD_MAST)) 
+		        bash_quality += inventory[INVEN_ARM].weight / 5;
+
 		/* Calculate damage.  Big shields are deadly. */
 		bash_dam = damroll(inventory[INVEN_ARM].dd, inventory[INVEN_ARM].ds);
 
@@ -860,8 +943,9 @@ void py_attack(int y, int x)
 
 		/* Encourage the player to keep wearing that heavy shield. */
 		if (randint(bash_dam) > 30 + randint(bash_dam / 2)) 
+		{
 			message(MSG_HIT, 0, "WHAMM!");
-
+		}
 
 		/* Damage, check for fear and death. */
 		if (mon_take_hit(cave_m_idx[y][x], bash_dam, &fear, NULL))
@@ -907,10 +991,19 @@ void py_attack(int y, int x)
 	/* Paranoia.  Ensure legal table access. */
 	if (total_deadliness > 150) total_deadliness = 150;
 
+	/* Specialty Ability */
+	if ((check_specialty(SP_FAST_ATTACK)) && (randint(8) <= p_ptr->num_blow))
+	{
+		blows++;
+		bonus_attack = TRUE;
+	}
 
 	/* Attack once for each legal blow */
 	while (num++ < blows)
 	{
+		/* Credit where credit is due */
+		if (bonus_attack && (num == blows)) msg_print("Extra Attack!");
+
 		/* Test for hit */
 		if (test_hit_combat(chance + sleeping_bonus, r_ptr->ac + terrain_bonus, m_ptr->ml))
 		{
@@ -977,13 +1070,13 @@ void py_attack(int y, int x)
 
 			else
 			{
-				/* Hack - If no weapon is wielded, Druids are able to fight 
-				 * effectively.   All other classes only get 1 damage, plus 
+				/* Hack - If no weapon is wielded, Druids are 
+				 * able to fight effectively.   All other classes only get 1 damage, plus 
 				 * whatever bonus their strength gives them. -LM-
 				 */
-				if (p_ptr->pclass == CLASS_DRUID)
+				if (p_ptr->pclass == CLASS_DRUID || check_specialty(SP_MARTIAL_ARTS))
 				{
-					damage = get_druid_damage(p_ptr->lev, m_name);
+					damage = get_druid_damage(p_ptr->lev, m_name, chance + sleeping_bonus, total_deadliness);
 				}
 				else
 				{
@@ -1008,10 +1101,13 @@ void py_attack(int y, int x)
 				 * among weaker foes.
 				 */
 				if ((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->energy_use) && 
-				    (p_ptr->lev > 39) && (num < p_ptr->num_blow))
+				    (p_ptr->lev > 39) && (num < blows))
 				{
-					p_ptr->energy_use = p_ptr->energy_use * num / p_ptr->num_blow;
+					p_ptr->energy_use = p_ptr->energy_use * num / blows;
 				}
+
+				/* No "holding over" druid confusion attacks */
+				p_ptr->special_attack &= ~(ATTACK_DRUID_CONFU);
 
 				/* Fight's over. */
 				break;
@@ -1028,6 +1124,7 @@ void py_attack(int y, int x)
 				/* Cancel special confusion attack */
 				p_ptr->special_attack &= ~(ATTACK_CONFUSE);
 				p_ptr->special_attack &= ~(ATTACK_DRUID_CONFU);
+				p_ptr->redraw |= PR_STATUS;
 
 				/* Confuse the monster */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -1042,6 +1139,11 @@ void py_attack(int y, int x)
 				else if (rand_int(110) < r_ptr->level + randint(10))
 				{
 					msg_format("%^s is unaffected.", m_name);
+				}
+				else if (m_ptr->confused > 0)
+				{
+					message_format(MSG_HIT, 0, "%^s appears more confused.", m_name);
+					m_ptr->confused += 4 + rand_int(p_ptr->lev) / 12;
 				}
 				else
 				{
@@ -1058,6 +1160,9 @@ void py_attack(int y, int x)
 
 				/* Message */
 				msg_print("Your hands stop radiating Night.");
+
+				/* Redraw the state */
+				p_ptr->redraw |= (PR_STATUS);
 
 				/* The undead are immune */
 				if (r_ptr->flags3 & (RF3_UNDEAD))
@@ -1093,6 +1198,9 @@ void py_attack(int y, int x)
 
 				/* Teleport. */
 				teleport_player(6 + p_ptr->lev / 5, TRUE);
+
+				/* Redraw the state */
+				p_ptr->redraw |= (PR_STATUS);
 
 				/* Fight's over. */
 				return;
@@ -1216,7 +1324,7 @@ void do_cmd_fire(void)
 	int sleeping_bonus = 0;
 	int terrain_bonus = 0;
 
-	int damage;
+	int damage = 0;
 
 	/* Assume no weapon of velocity or accuracy bonus. */
 	int special_dam = 0;
@@ -1229,6 +1337,8 @@ void do_cmd_fire(void)
 	object_type object_type_body;
 
 	bool hit_body = FALSE;
+	bool did_pierce = FALSE;
+	bool did_miss = FALSE;
 
 	byte missile_attr;
 	char missile_char;
@@ -1389,7 +1499,7 @@ void do_cmd_fire(void)
 	}
 
 	/* Calculate the path */
-	path_n = project_path(path_g, tdis, py, px, ty, tx, 0);
+	path_n = project_path(path_g, tdis, py, px, ty, tx, PROJECT_THRU);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -1432,14 +1542,28 @@ void do_cmd_fire(void)
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			int chance2 = chance - distance(py, px, y, x);
+			bool fear = FALSE;
+			
+			int dice, add;
+			long die_average, temp, sides;
+			
+			/* Assume a default death */
+			cptr note_dies = " dies.";
 
+			/* Penalize Range */
+			int chance2 = chance - distance(py, px, y, x);
+			
 			/* Note the (attempted) collision */
 			hit_body = TRUE;
 
 			/* Get "the monster" or "it" */
 			monster_desc(m_name, m_ptr, 0);
 
+			/* 2nd hit on a pierce is easier */
+			if (did_pierce) chance2 += chance2/2;
+
+			/* Hard to hit after a miss */
+			else if (did_miss) chance2 -= chance2/3;
 
 			/* Sleeping, visible monsters are easier to hit. */
 			if ((m_ptr->csleep) && (m_ptr->ml)) 
@@ -1452,6 +1576,7 @@ void do_cmd_fire(void)
 			{
 				terrain_bonus = r_ptr->ac / 5 + 5;
 			}
+
 			/* Monsters in trees can take advantage of cover, except from 
 			 * players who know nature lore.
 			 */
@@ -1472,153 +1597,163 @@ void do_cmd_fire(void)
 			/* Weapons of velocity sometimes almost negate monster armour. */
 			if (special_hit) armour /= 3;
 
-			/* Did we hit it (penalize distance travelled) */
-			if (test_hit_combat(chance2 + sleeping_bonus, armour, m_ptr->ml))
+			/* Did we miss it (penalize distance travelled) */
+			if (!(test_hit_combat(chance2 + sleeping_bonus, armour, m_ptr->ml)))
 			{
-				bool fear = FALSE;
-
-				int dice, add;
-				long die_average, temp, sides;
-
-
-				/* Assume a default death */
-				cptr note_dies = " dies.";
-
-				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
-				{
-					/* Special note at death */
-					note_dies = " is destroyed.";
-				}
-
-
-				/* Make some noise.  Hack -- Assassins are silent 
-				 * missile weapon killers.
-				 */
-				if (p_ptr->pclass == CLASS_ASSASSIN) add_wakeup_chance = 
-					p_ptr->base_wakeup_chance / 4 + 600;
-				else add_wakeup_chance = 
-					p_ptr->base_wakeup_chance / 3 + 1200;
+				did_miss = TRUE;
 				
+				/* Keep Going */
+				continue;
+			}
+			
+			/* Some monsters get "destroyed" */
+			if ((r_ptr->flags3 & (RF3_DEMON)) ||
+			    (r_ptr->flags3 & (RF3_UNDEAD)) ||
+			    (r_ptr->flags2 & (RF2_STUPID)) ||
+			    (strchr("Evg", r_ptr->d_char)))
+			{
+				/* Special note at death */
+				note_dies = " is destroyed.";
+			}
+			
+			
+			/* Make some noise.  Hack -- Assassins are silent 
+			 * missile weapon killers.
+			 */
+			if (p_ptr->pclass == CLASS_ASSASSIN) add_wakeup_chance = 
+				p_ptr->base_wakeup_chance / 4 + 600;
+			else add_wakeup_chance = 
+				p_ptr->base_wakeup_chance / 3 + 1200;
+			
+			
+			/* Hack -- Track this monster race, if monster is visible */
+			if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+			
+			/* Hack -- Track this monster, if visible */
+			if (m_ptr->ml) health_track(cave_m_idx[y][x]);
+			
+			
+			/*
+			 * The basic damage-determination formula is the same in
+			 * archery as it is in melee (apart from the launcher mul-
+			 * tiplier).
+			 */
+			
+			/* base damage dice */
+			dice = i_ptr->dd;
+			
+			/* Critical hits may add damage dice. */
+			dice += critical_shot(chance2, sleeping_bonus, FALSE, m_ptr->ml, 
+			                       m_name, i_ptr);
+			
+			
+			/* Get the average value of a single damage die. (x10) */
+			die_average = (10 * (i_ptr->ds + 1)) / 2;
+			
+			/* Apply the launcher multiplier. */
+			die_average *= p_ptr->ammo_mult;
+			
+			/* Adjust the average for slays and brands. (10x inflation) */
+			add = adjust_dam(&die_average, i_ptr, m_ptr);
+			
+			/* Apply deadliness to average. (100x inflation) */
+			apply_deadliness(&die_average, total_deadliness);
+			
+			
+			/* Convert die average to die sides. */
+			temp = (2 * die_average) - 10000;
+			
+			/* Calculate the actual number of sides to each die. */
+			sides = (temp / 10000) + 
+			        (rand_int(10000) < (temp % 10000) ? 1 : 0);
+			
+			
+			/* Roll out the damage. */
+			damage = damroll(dice, (s16b)sides);
+			
+			/* Apply any special additions to damage. */
+			damage += add;
+			
+			
+			/* If a weapon of velocity activates, increase damage. */
+			if (special_dam)
+			{
+				damage += 15;
+			}
+			
+			/* If an "enhance missile" spell has been cast, increase 
+			 * the damage, and cancel the spell.
+			 */
+			if (p_ptr->special_attack & (ATTACK_SUPERSHOT))
+			{
+				damage = 5 * damage / 4 + 35;
+				p_ptr->special_attack &= ~(ATTACK_SUPERSHOT);
 
-				/* Hack -- Track this monster race, if monster is visible */
-				if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-				/* Hack -- Track this monster, if visible */
-				if (m_ptr->ml) health_track(cave_m_idx[y][x]);
-
-
-				/*
-				 * The basic damage-determination formula is the same in
-				 * archery as it is in melee (apart from the launcher mul-
-				 * tiplier).
-				 */
-
-				/* base damage dice */
-				dice = i_ptr->dd;
-
-				/* Critical hits may add damage dice. */
-				dice += critical_shot(chance2, sleeping_bonus, FALSE, m_ptr->ml, 
-				                       m_name, i_ptr);
-
-
-				/* Get the average value of a single damage die. (x10) */
-				die_average = (10 * (i_ptr->ds + 1)) / 2;
-
-				/* Apply the launcher multiplier. */
-				die_average *= p_ptr->ammo_mult;
-
-				/* Adjust the average for slays and brands. (10x inflation) */
-				add = adjust_dam(&die_average, i_ptr, m_ptr);
-
-				/* Apply deadliness to average. (100x inflation) */
-				apply_deadliness(&die_average, total_deadliness);
-
-
-				/* Convert die average to die sides. */
-				temp = (2 * die_average) - 10000;
-
-				/* Calculate the actual number of sides to each die. */
-				sides = (temp / 10000) + 
-				        (rand_int(10000) < (temp % 10000) ? 1 : 0);
-
-
-				/* Roll out the damage. */
-				damage = damroll(dice, (s16b)sides);
-
-				/* Apply any special additions to damage. */
-				damage += add;
-
-
-				/* If a weapon of velocity activates, increase damage. */
-				if (special_dam)
+				/* Redraw the state */
+				p_ptr->redraw |= (PR_STATUS);
+			}
+			
+			/* Hack - Assassins are deadly... */
+			if (p_ptr->pclass == CLASS_ASSASSIN)
+			{
+			/* Increase damage directly (to avoid excessive total
+			 * damage by granting too high a Deadliness).
+			 */
+				if (p_ptr->ammo_tval == TV_SHOT)
 				{
-					damage += 15;
+			
+					damage += p_ptr->lev / 2;
 				}
-
-				/* If an "enhance missile" spell has been cast, increase 
-				 * the damage, and cancel the spell.
-				 */
-				if (p_ptr->special_attack & (ATTACK_SUPERSHOT))
+				if (p_ptr->ammo_tval == TV_ARROW)
 				{
-					damage = 5 * damage / 4 + 35;
-					p_ptr->special_attack &= ~(ATTACK_SUPERSHOT);
+					damage += 2 * p_ptr->lev / 5;
 				}
-
-				/* Hack - Assassins are deadly... */
-				if (p_ptr->pclass == CLASS_ASSASSIN)
+				if (p_ptr->ammo_tval == TV_BOLT)
 				{
-				/* Increase damage directly (to avoid excessive total
-				 * damage by granting too high a Deadliness).
-				 */
-					if (p_ptr->ammo_tval == TV_SHOT)
-					{
-
-						damage += p_ptr->lev / 2;
-					}
-					if (p_ptr->ammo_tval == TV_ARROW)
-					{
-						damage += 2 * p_ptr->lev / 5;
-					}
-					if (p_ptr->ammo_tval == TV_BOLT)
-					{
-						damage += p_ptr->lev / 3;
-					}
-				}
-
-				/* No negative damage */
-				if (damage < 0) damage = 0;
-
-				/* Hit the monster, check for death. */
-				if (mon_take_hit(cave_m_idx[y][x], damage, &fear, note_dies))
-				{
-					/* Dead monster */
-				}
-
-				/* No death */
-				else
-				{
-					/* Message */
-					message_pain(cave_m_idx[y][x], damage);
-
-					/* Take note */
-					if (fear && m_ptr->ml)
-					{
-						/* Sound */
-						sound(SOUND_FLEE);
-
-						/* Message */
-						message_format(MSG_FLEE, m_ptr->r_idx,
-							       "%^s flees in terror!", m_name);
-					}
+					damage += p_ptr->lev / 3;
 				}
 			}
+			
+			/* No negative damage */
+			if (damage < 0) damage = 0;
+			
+			/* Hit the monster, check for death. */
+			if (mon_take_hit(cave_m_idx[y][x], damage, &fear, note_dies))
+			{
+				/* Dead monster */
+			}
+			
+			/* No death */
+			else
+			{
+				/* Message */
+				message_pain(cave_m_idx[y][x], damage);
+			
+				/* Take note */
+				if (fear && m_ptr->ml)
+				{
+					/* Sound */
+					sound(SOUND_FLEE);
+			
+					/* Message */
+					message_format(MSG_FLEE, m_ptr->r_idx,
+						       "%^s flees in terror!", m_name);
+				}
+			}			
 
-			/* Stop looking */
-			break;
+			/* Check for piercing */
+			if ((check_specialty(SP_PIERCE_SHOT)) && 
+			    (rand_int(2) == 0) && 
+			    ((p_ptr->ammo_tval == TV_ARROW) ||
+			     (p_ptr->ammo_tval == TV_BOLT)))
+			{
+				msg_print("Pierce!");
+				did_pierce = TRUE;
+				continue;			
+			}
+
+			/* Otherwise Stop looking */
+			else break;
 		}
 	}
 
@@ -1637,6 +1772,10 @@ void do_cmd_fire(void)
  * Now allows for throwing weapons.  Unlike all other thrown objects, 
  * throwing weapons can get critical hits and take advantage of bonuses to 
  * Skill and Deadliness from other equipped items.
+ *
+ * Unlikely shooting, thrown weapons do not continue on after a miss.
+ * It's too annoying to send your nice throwing weapons halfway across the
+ * dungeon.
  */
 void do_cmd_throw(void)
 {
@@ -1750,6 +1889,8 @@ void do_cmd_throw(void)
 	/* Max distance of 10 */
 	if (tdis > 10) tdis = 10;
 
+	/* Specialty Ability Mighty Throw */
+	if (check_specialty(SP_MIGHTY_THROW)) tdis *= 2;
 
 	/*
 	 * Other thrown objects are easier to use, but only throwing weapons 
@@ -1832,10 +1973,17 @@ void do_cmd_throw(void)
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+			bool fear = FALSE;
+			
+			int dice, add;
+			long die_average, temp, sides;
+
+			/* Assume a default death */
+			cptr note_dies = " dies.";
+			
 			/* Calculate the projectile accuracy, modified by distance. */
 			int chance2 = chance - distance(py, px, y, x);
-
-
+			
 			/* If the monster is sleeping, it'd better pray there are no 
 			 * Assassins with throwing weapons nearby. -LM-
 			 */
@@ -1873,140 +2021,135 @@ void do_cmd_throw(void)
 			/* Note the collision */
 			hit_body = TRUE;
 
-			/* Did we hit it (penalize range) */
-			if (test_hit_combat(chance2 + sleeping_bonus, r_ptr->ac + terrain_bonus, m_ptr->ml))
+			/* Did we miss it (penalize range)? */
+			if (!(test_hit_combat(chance2 + sleeping_bonus, r_ptr->ac + terrain_bonus, m_ptr->ml)))
 			{
-				bool fear = FALSE;
+				/* Keep Going */
+				break;
+			}
+			
+			/* Some monsters get "destroyed" */
+			if ((r_ptr->flags3 & (RF3_DEMON)) ||
+			    (r_ptr->flags3 & (RF3_UNDEAD)) ||
+			    (r_ptr->flags2 & (RF2_STUPID)) ||
+			    (strchr("Evg", r_ptr->d_char)))
+			{
+				/* Special note at death */
+				note_dies = " is destroyed.";
+			}
+			
+			
+			/* Make some noise.  Hack -- Assassins are silent 
+			 * missile weapon killers.
+			 */
+			if (p_ptr->pclass == CLASS_ASSASSIN) add_wakeup_chance = 
+				p_ptr->base_wakeup_chance / 4 + 300;
+			else add_wakeup_chance = 
+				p_ptr->base_wakeup_chance / 3 + 1200;
+			
+			
+			/* Hack -- Track this monster race, if critter is visible */
+			if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+			
+			/* Hack -- Track this monster, if visible */
+			if (m_ptr->ml) health_track(cave_m_idx[y][x]);
+			
+			
+			/*
+			 * The basic damage-determination formula is the same in
+			 * throwing as it is in melee (apart from the thrown weapon 
+			 * multiplier, and the ignoring of non-object bonuses to
+			 * Deadliness for objects that are not thrown weapons). 
+			 */
+			
+			/* Base damage dice */
+			dice = i_ptr->dd;
+			
+			/* Object is a throwing weapon. */
+			if (f1 & (TR1_THROWING))
+			{
+				/* Perfectly balanced weapons do even more damage. */
+				if (f1 & (TR1_PERFECT_BALANCE)) dice *= 2;
 
-				int dice, add;
-				long die_average, temp, sides;
-
-
-				/* Assume a default death */
-				cptr note_dies = " dies.";
-
-				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
-				{
-					/* Special note at death */
-					note_dies = " is destroyed.";
-				}
-
-
-				/* Make some noise.  Hack -- Assassins are silent 
-				 * missile weapon killers.
-				 */
-				if (p_ptr->pclass == CLASS_ASSASSIN) add_wakeup_chance = 
-					p_ptr->base_wakeup_chance / 4 + 300;
-				else add_wakeup_chance = 
-					p_ptr->base_wakeup_chance / 3 + 1200;
-
-
-				/* Hack -- Track this monster race, if critter is visible */
-				if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-				/* Hack -- Track this monster, if visible */
-				if (m_ptr->ml) health_track(cave_m_idx[y][x]);
-
+				/* Critical hits may add damage dice. */
+				dice += critical_shot(chance2, sleeping_bonus, TRUE, 
+				                      m_ptr->ml, m_name, i_ptr);
 
 				/*
-				 * The basic damage-determination formula is the same in
-				 * throwing as it is in melee (apart from the thrown weapon 
-				 * multiplier, and the ignoring of non-object bonuses to
-				 * Deadliness for objects that are not thrown weapons). 
+				 * Multiply the number of damage dice by the throwing 
+				 * weapon multiplier, if applicable.  This is not the 
+				 * prettiest equation, but it does at least try to keep 
+				 * throwing weapons competitive.
 				 */
-
-				/* Base damage dice */
-				dice = i_ptr->dd;
-
-				/* Object is a throwing weapon. */
-				if (f1 & (TR1_THROWING))
+				dice *= 2 + p_ptr->lev / 12;
+			}
+			
+			/* Ordinary thrown object */
+			else
+			{
+				/* Display a default hit message. */
+				if (m_ptr->ml)
 				{
-					/*
-					 * Multiply the number of damage dice by the throwing 
-					 * weapon multiplier, if applicable.  This is not the 
-					 * prettiest equation, but it does at least try to keep 
-					 * throwing weapons competitive.
-					 */
-					dice *= 2 + p_ptr->lev / 12;
-
-					/* Perfectly balanced weapons do even more damage. */
-					if (f1 & (TR1_PERFECT_BALANCE)) dice *= 2;
-
-					/* Critical hits may add damage dice. */
-					dice += critical_shot(chance2, sleeping_bonus, TRUE, 
-					                      m_ptr->ml, m_name, i_ptr);
+					message_format(MSG_HIT, 0, "The %s hits %s.", o_name, m_name);
 				}
-
-				/* Ordinary thrown object */
 				else
 				{
-					/* Display a default hit message. */
-					if (m_ptr->ml)
-					{
-						message_format(MSG_HIT, 0, "The %s hits %s.", o_name, m_name);
-					}
-					else
-					{
-						message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
-					}
-				}
-
-
-				/* Get the average value of a single damage die. (x10) */
-				die_average = (10 * (i_ptr->ds + 1)) / 2;
-
-				/* Adjust the average for slays and brands. (10x inflation) */
-				add = adjust_dam(&die_average, i_ptr, m_ptr);
-
-				/* Apply deadliness to average. (100x inflation) */
-				apply_deadliness(&die_average, total_deadliness);
-
-
-				/* Convert die average to die sides. */
-				temp = (2 * die_average) - 10000;
-
-				/* Calculate the actual number of sides to each die. */
-				sides = (temp / 10000) + 
-				        (rand_int(10000) < (temp % 10000) ? 1 : 0);
-
-
-				/* Roll out the damage. */
-				damage = damroll(dice, (s16b)sides);
-
-
-				/* Apply any special additions to damage. */
-				damage += add;
-
-				/* No negative damage */
-				if (damage < 0) damage = 0;
-
-				/* Hit the monster, check for death */
-				if (mon_take_hit(cave_m_idx[y][x], damage, &fear, note_dies))
-				{
-					/* Dead monster */
-				}
-
-				/* No death */
-				else
-				{
-					/* Message */
-					message_pain(cave_m_idx[y][x], damage);
-
-					/* Take note */
-					if (fear && m_ptr->ml)
-					{
-						/* Sound */
-						sound(SOUND_FLEE);
-
-						/* Message */
-						msg_format("%^s flees in terror!", m_name);
-					}
+					message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 				}
 			}
+			
+			
+			/* Get the average value of a single damage die. (x10) */
+			die_average = (10 * (i_ptr->ds + 1)) / 2;
+			
+			/* Adjust the average for slays and brands. (10x inflation) */
+			add = adjust_dam(&die_average, i_ptr, m_ptr);
+			
+			/* Apply deadliness to average. (100x inflation) */
+			apply_deadliness(&die_average, total_deadliness);
+			
+			
+			/* Convert die average to die sides. */
+			temp = (2 * die_average) - 10000;
+			
+			/* Calculate the actual number of sides to each die. */
+			sides = (temp / 10000) + 
+			        (rand_int(10000) < (temp % 10000) ? 1 : 0);
+			
+			
+			/* Roll out the damage. */
+			damage = damroll(dice, (s16b)sides);
+			
+			
+			/* Apply any special additions to damage. */
+			damage += add;
+			
+			/* No negative damage */
+			if (damage < 0) damage = 0;
+			
+			/* Hit the monster, check for death */
+			if (mon_take_hit(cave_m_idx[y][x], damage, &fear, note_dies))
+			{
+				/* Dead monster */
+			}
+			
+			/* No death */
+			else
+			{
+				/* Message */
+				message_pain(cave_m_idx[y][x], damage);
+			
+				/* Take note */
+				if (fear && m_ptr->ml)
+				{
+					/* Sound */
+					sound(SOUND_FLEE);
+			
+					/* Message */
+					msg_format("%^s flees in terror!", m_name);
+				}
+			}
+			
 
 			/* Object falls to the floor */
 			break;

@@ -1301,11 +1301,6 @@ static void store_create(void)
 		/* Mega-Hack -- no chests in stores */
 		if (i_ptr->tval == TV_CHEST) continue;
 
-		/* Mega-Hack -- No early Longbows. */
-		if ((i_ptr->tval == TV_BOW) && (i_ptr->sval == SV_LONG_BOW) &&
-			(p_ptr->lev < 10)) continue;
-
-
 		/* Prune the black market */
 		if (store_num == STORE_BLACKM)
 		{
@@ -1677,6 +1672,9 @@ static bool get_stock(int *com_val, cptr pmt)
 			/* Success */
 			return (TRUE);
 		}
+
+		/* Invalid repeat - reset it */
+		else repeat_clear();
 	}
 #endif /* ALLOW_REPEAT */
 
@@ -1876,7 +1874,7 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b price, int final)
 		strcpy(out_val, "");
 
 		/* Ask the user for a response */
-		if (!get_string(buf, out_val, 80)) return (FALSE);
+		if (!get_string(buf, out_val, 81)) return (FALSE);
 
 		/* Skip leading spaces */
 		for (p = out_val; *p == ' '; p++) /* loop */;

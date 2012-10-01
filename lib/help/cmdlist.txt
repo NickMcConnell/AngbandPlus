@@ -31,7 +31,7 @@ mation about any command, consult the help file "cmddesc.txt".
  l  Look around                          L  Locate player on map
  m  Cast a spell or pray a prayer        M  Full dungeon map
  n  Repeat last command                  N  (unused)
- o  Open a door or chest                 O  (unused)
+ o  Open a door or chest                 O  gain/list specialty abilities
  p  Pray a prayer or cast a spell        P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
@@ -92,7 +92,7 @@ mation about any command, consult the help file "cmddesc.txt".
  l  (walk - east)                        L  (run - east)
  m  Cast a spell                         M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
- o  Open a door or chest                 O  (unused)
+ o  Open a door or chest                 O  gain/list specialty abilities
  p  Pray a prayer                        P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
@@ -117,7 +117,7 @@ mation about any command, consult the help file "cmddesc.txt".
  {  Inscribe an object                  ^K  (alter - north)
  }  Uninscribe an object                ^L  (alter - east)
  [  Repeat last command                 ^M  (special - return)
- ]  end shapechange                     ^N  (alter - south east)
+ ]  end/default shapechange             ^N  (alter - south east)
  -  Walk (flip pickup)                  ^O  (unused)
  _  Enter store                         ^P  Show previous messages
  +  Alter grid*                         ^Q  (unused)

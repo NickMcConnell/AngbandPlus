@@ -517,6 +517,7 @@ cptr keymap_act[KEYMAP_MODES][256];
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
+player_weapon *wp_ptr;
 player_magic *mp_ptr;
 
 /*
@@ -591,6 +592,14 @@ header *a_head;
 artifact_type *a_info;
 char *a_name;
 char *a_text;
+
+/*
+ * The set item arrays
+ */
+header *s_head;
+set_type *s_info;
+char *s_name;
+char *s_text;
 
 /*
  * The ego-item arrays

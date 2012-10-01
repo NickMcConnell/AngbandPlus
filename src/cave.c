@@ -299,11 +299,15 @@ bool los(int y1, int x1, int y2, int x2)
 
 /*
  * Returns true if the player's grid is dark
+ * Players with the UNLIGHT ability don't need light and always
+ * return false.
  */
 bool no_lite(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+
+	if (check_specialty(SP_UNLIGHT)) return(FALSE);
 
 	return (!player_can_see_bold(py, px));
 }
@@ -3200,8 +3204,7 @@ void update_noise(void)
 	int this_cycle = 0;
 	int next_cycle = 1;
 
-	int flow_table_size = 8 * NOISE_STRENGTH;
-	byte flow_table[2][2][flow_table_size];
+	byte flow_table[2][2][8 * NOISE_STRENGTH];
 
 	/* The character's grid has no flow info.  Do a full rebuild. */
 	if (cave_cost[p_ptr->py][p_ptr->px] == 0) full = TRUE;

@@ -1876,14 +1876,13 @@ void check_experience(void)
 
 	/* Lose levels while possible */
 	while ((p_ptr->lev > 1) &&
-	       (p_ptr->exp < (player_exp[p_ptr->lev-2] *
-			      p_ptr->expfact / 100L)))
+	       (p_ptr->exp < (player_exp[p_ptr->lev-2])))
 	{
 		/* Lose a level */
 		p_ptr->lev--;
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
@@ -1898,8 +1897,7 @@ void check_experience(void)
 
 	/* Gain levels while possible */
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
-	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] *
-			       p_ptr->expfact / 100L)))
+	       (p_ptr->exp >= (player_exp[p_ptr->lev-1])))
 	{
 		/* Gain a level */
 		p_ptr->lev++;
@@ -1914,7 +1912,7 @@ void check_experience(void)
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
@@ -1929,14 +1927,13 @@ void check_experience(void)
 	/* Gain max levels while possible 
 	 * Called rarely - only when leveling while experience is drained.  */
 	while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
-	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1] *
-				   p_ptr->expfact / 100L)))
+	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1])))
 	{
 		/* Gain max level */
 		p_ptr->max_lev++;
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
@@ -2323,7 +2320,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	char	path[1024];
 
-
 	/* Hack - Monsters in stasis are invulnerable. */
 	if (m_ptr->stasis) return (FALSE);
 
@@ -2363,6 +2359,16 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Make a sound */
 		sound(SOUND_KILL);
+
+		/* Specialty Ability SOUL_SIPHON */
+		if ((check_specialty(SP_SOUL_SIPHON)) && 
+		    (p_ptr->csp < p_ptr->msp) && 
+		    (!((r_ptr->flags3 & (RF3_DEMON)) || 
+		       (r_ptr->flags3 & (RF3_UNDEAD)) || 
+		       (r_ptr->flags2 & (RF2_STUPID)))))
+		{
+			p_ptr->mana_gain += 2 + (r_ptr->level/20);
+		}
 
 		/* Increase the noise level slightly. */
 		if (add_wakeup_chance <= 8000) add_wakeup_chance += 500;
@@ -2926,7 +2932,7 @@ void ang_sort(vptr u, vptr v, int n)
  */
 sint target_dir(char ch)
 {
-	int d;
+	int d = 0;
 
 	int mode;
 
@@ -2935,32 +2941,40 @@ sint target_dir(char ch)
 	cptr s;
 
 
-	/* Default direction */
-	d = (isdigit(ch) ? D2I(ch) : 0);
-
-	/* Roguelike */
-	if (rogue_like_commands)
+	/* Already a direction? */
+	if (isdigit(ch))
 	{
-		mode = KEYMAP_MODE_ROGUE;
+		/* Use that */
+		d = D2I(ch);
 	}
 
-	/* Original */
+	/* Look up keymap */
 	else
 	{
-		mode = KEYMAP_MODE_ORIG;
-	}
-
-	/* Extract the action (if any) */
-	act = keymap_act[mode][(byte)(ch)];
-
-	/* Analyze */
-	if (act)
-	{
-		/* Convert to a direction */
-		for (s = act; *s; ++s)
+		/* Roguelike */
+		if (rogue_like_commands)
 		{
-			/* Use any digits in keymap */
-			if (isdigit(*s)) d = D2I(*s);
+			mode = KEYMAP_MODE_ROGUE;
+		}
+
+		/* Original */
+		else
+		{
+			mode = KEYMAP_MODE_ORIG;
+		}
+
+		/* Extract the action (if any) */
+		act = keymap_act[mode][(byte)(ch)];
+
+		/* Analyze */
+		if (act)
+		{
+			/* Convert to a direction */
+			for (s = act; *s; ++s)
+			{
+				/* Use any digits in keymap */
+				if (isdigit(*s)) d = D2I(*s);
+			}
 		}
 	}
 

@@ -1102,6 +1102,9 @@ void do_cmd_cast_or_pray(void)
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 
+	/* Specialty Ability */
+	if (check_specialty(SP_HEIGHTEN_MAGIC)) plev += 4 + (plev / 12);
+
 	/* Failed spell */
 	if (rand_int(100) < chance)
 	{
@@ -1525,6 +1528,10 @@ void do_cmd_cast_or_pray(void)
 			case 59:	/* Rogue Spell: Hit and Run */
 			{
 				p_ptr->special_attack |= (ATTACK_FLEE);
+
+				/* Redraw the state */
+				p_ptr->redraw |= (PR_STATUS);
+
 				break;
 			}
 			case 60:	/* Rogue Spell: Day of Misrule */
@@ -1963,9 +1970,16 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 123: /* Paladin Prayer: Sanctify for Battle */
 			{
+				/* Can't have black breath and holy attack (doesn't happen anyway) */
+				if (p_ptr->special_attack & ATTACK_BLKBRTH) p_ptr->special_attack &= ~ ATTACK_BLKBRTH;
+
 				if (!(p_ptr->special_attack & ATTACK_HOLY))
 					msg_print("Your blows will strike with Holy might!");
 				p_ptr->special_attack |= (ATTACK_HOLY);
+
+				/* Redraw the state */
+				p_ptr->redraw |= (PR_STATUS);
+
 				break;
 			}
 			case 124: /* Paladin Prayer: Horn of Wrath */
@@ -2546,8 +2560,8 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 215: /* death bolt */
 			{
-				take_hit(damroll(1, 6), "the dark arts");
 				if (!get_aim_dir(&dir)) return;
+				take_hit(damroll(1, 6), "the dark arts");
 				fire_bolt_or_beam(beam, GF_SPIRIT, dir,
 				       damroll(2 + plev / 3, 8));
 				break;
@@ -2679,8 +2693,8 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 236: /* orb of death */
 			{
-				take_hit(damroll(2, 8), "Death claiming his wages");
 				if (!get_aim_dir(&dir)) return;
+				take_hit(damroll(2, 8), "Death claiming his wages");
 				fire_sphere(GF_SPIRIT, dir, 15 + (7 * plev / 2), 1, 20);
 				break;
 			}
@@ -2734,8 +2748,16 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 244: /* prepare black breath */
 			{
-				msg_print("Your hands start to radiate Night.");
+				/* Can't have black breath and holy attack (doesn't happen anyway) */
+				if (p_ptr->special_attack & ATTACK_HOLY) p_ptr->special_attack &= ~ ATTACK_HOLY;
+
+				if (!(p_ptr->special_attack & ATTACK_BLKBRTH))
+				   msg_print("Your hands start to radiate Night.");				
 				p_ptr->special_attack |= (ATTACK_BLKBRTH);
+
+				/* Redraw the state */
+				p_ptr->redraw |= (PR_STATUS);
+
 				break;
 			}
 			case 245: /* word of destruction */
@@ -2839,14 +2861,21 @@ void do_cmd_cast_or_pray(void)
 		}
 	}
 
-	/* Take a turn */
+	/* Take a turn; reduced for fast casters */
 	p_ptr->energy_use = 100;
+	if (check_specialty(SP_FAST_CAST)) p_ptr->energy_use -= 5 + ((p_ptr->lev - s_ptr->slevel)/2);
+
+	/* Paranioa */
+	if (p_ptr->energy_use < 70) p_ptr->energy_use = 70;
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
 	{
 		/* Use some mana */
 		p_ptr->csp -= s_ptr->smana;
+
+		/* Specialty ability Harmony */
+		if (check_specialty(SP_HARMONY)) (void)hp_player(s_ptr->smana);
 	}
 
 	/* Over-exert the player */
@@ -2891,3 +2920,497 @@ void do_cmd_cast_or_pray(void)
 
 }
 
+/*
+ * Check if we have a specialty ability -BR-
+ */
+bool check_specialty(int specialty)
+{
+	int i;
+
+	/* 
+	 * Check to see if the queried specialty is
+	 * on the allowed part of the list 
+	 */
+	for (i = 0; i < p_ptr->specialties_allowed; i++)
+	{
+		if (p_ptr->specialty_order[i] == specialty) return(TRUE);
+	}
+
+	/* Assume false */
+	return(FALSE);
+}
+
+/*
+ * Check if we can gain a specialty ability -BR-
+ */
+bool check_specialty_gain(int specialty)
+{
+	int i;
+	bool allowed = FALSE;
+
+	/* Can't learn it if we already know it */
+	for (i = 0; i < MAX_SPECIALTIES; i++)
+	{
+		if (p_ptr->specialty_order[i] == specialty) return(FALSE);
+	}
+
+	/* Is it allowed for this class? */
+	for (i = 0; i < CLASS_SPECIALTIES; i++)
+	{
+		if (specialty_info[p_ptr->pclass][i] == specialty)
+		{
+			allowed = TRUE;
+			break;
+		}
+	}
+
+	/* return */
+	return (allowed);
+}
+
+/*
+ * Gain a new specialty ability
+ * Adapted from birth.c get_player_choice -BR-
+ */
+void do_cmd_gain_specialty(void)
+{
+	int top = 0, cur = 0;
+	int i, j, k, dir;
+	int choices[255];
+	int hgt;
+	char c;
+	char buf[80];
+	bool done_one, done_all, use_cur;
+
+        /* Find the next open entry in "specialty_order[]" */
+	for (k = 0; k < MAX_SPECIALTIES; k++)
+	{
+		/* Stop at the first empty space */
+		if (p_ptr->specialty_order[k] == SP_NO_SPECIALTY) break;
+	}
+
+	/* Check if specialty array is full */
+	if (k >= MAX_SPECIALTIES - 1)
+	{
+		msg_print("Maximum specialties known.");
+		return;
+	}
+
+	/* Save screen */
+	screen_save();
+
+	/* loop until done with all selections or user exit */
+	done_all = FALSE;
+	while (!done_all)
+	{
+		/* Clear screen */
+		Term_clear();
+
+		/* Find the learnable specialties */
+		for (j=0, i=0; i < 255; i++)
+		{
+			if (check_specialty_gain(i))
+			{
+				choices[j]=i;
+				j++;
+			}
+		}
+
+		/* We are out of specialties - should never happen */
+		if (!j)
+		{
+			msg_print("No specialties available.");
+			screen_load();
+			return;
+		}
+
+		/* Find height of selection interface */
+		hgt = Term->hgt - 6;
+		if (hgt > j) hgt = j;
+
+		/* Prompt choices */
+	        sprintf(buf, "(Specialties: %c-%c, ESC=exit) Gain which specialty (%d available)? ",
+				 I2A(0), I2A(j-1), p_ptr->new_specialties);
+		Term_putstr(5, 0, 66, TERM_WHITE, buf);
+
+		/* No valid selection yet */
+		use_cur = FALSE;
+
+		/* Make one choice; loop until done */		
+		done_one = FALSE;
+		while (!done_one)
+		{
+			/* Redraw the list */
+			for (i = 0; ((i + top < j) && (i < hgt)); i++)
+			{
+				if (i + top < 26)
+				{
+					sprintf(buf, "%c) %s", I2A(i + top), specialty_names[choices[i + top]]);
+				}
+				else
+				{
+					/* ToDo: Fix the ASCII dependency */
+					sprintf(buf, "%c) %s", 'A' + (i + top - 26), specialty_names[choices[i + top]]);
+				}
+
+				/* Clear */
+				Term_erase(5, i + 2, 66);
+			
+				/* Display */
+				Term_putstr(5, i + 2, 66, TERM_WHITE, buf);
+			}
+
+			/* Display that specialty's information. */
+			Term_erase(5, hgt + 4, 255);
+			Term_erase(5, hgt + 3, 255);
+			c_roff(TERM_L_BLUE, specialty_tips[choices[cur]], 5, 0);
+
+			/* Move the cursor */
+			put_str("", 2 + cur - top, 5);
+
+			/* get input */
+			c = inkey();
+
+			/* Numbers are used for scolling */
+			if (isdigit(c))
+			{
+				/* Get a direction from the key */
+				dir = target_dir(c);
+
+				/* Going up? */
+				if (dir == 8)
+				{
+					if (cur != 0)
+					{
+						/* Move selection */
+						cur--;
+					}
+
+					if ((top > 0) && ((cur - top) < 4))
+					{
+						/* Scroll up */
+						top--;
+					}
+				}
+
+				/* Going down? */
+				if (dir == 2)
+				{
+					if (cur != (j - 1))
+					{
+						/* Move selection */
+						cur++;
+					}
+
+					if ((top + hgt - 1 < (j - 1)) && ((top + hgt - 1 - cur) < 4))
+					{
+						/* Scroll down */
+						top++;
+					}
+				}
+			}
+
+			/* Letters are used for selection */
+			else if (isalpha(c))
+			{
+				int choice;
+
+				if (islower(c))
+				{
+					choice = A2I(c);
+				}
+				else
+				{
+					choice = c - 'A' + 26;
+				}
+
+				/* Validate input */
+				if ((choice > -1) && (choice < j))
+				{
+					cur = choice;
+
+					/* Use current */
+					use_cur = TRUE;
+
+					/* Done this selection */
+					done_one = TRUE;
+				}
+
+				else
+				{
+					bell("Illegal response to question!");
+				}
+
+			}
+
+			else if ((c == '\n') || (c == '\r'))
+			{
+				/* Use current */
+				use_cur = TRUE;
+
+				/* Done this selection */
+				done_one = TRUE;
+			}
+
+			/* Allow user to exit the fuction */
+			else if (c == ESCAPE)
+			{
+				done_one = TRUE;
+				done_all = TRUE;
+			}
+
+			/* Invalid input */
+			else bell("Illegal response to question!");
+		}
+
+
+		if (use_cur)
+		{
+			/* Add new specialty */
+			p_ptr->specialty_order[k] = choices[cur];
+
+			/* Increment next available slot */
+			k++;
+
+			/* Update specialties available count */
+			p_ptr->new_specialties--;
+			p_ptr->old_specialties = p_ptr->new_specialties;
+
+			/* Update some stuff */
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY | PU_TORCH);
+
+			/* Redraw Study Status */
+			p_ptr->redraw |= (PR_STUDY);
+
+			/* Check if we are completely done */
+			if ((p_ptr->new_specialties <= 0) || (k >= 9)) done_all = TRUE;
+		}
+
+	}
+
+	/* Load screen */
+	screen_load();
+
+	/* exit */
+	return;
+}
+
+
+/*
+ * Browse known specialty abilities -BR-
+ * Adapted from birth.c get_player_choice
+ */
+void do_cmd_view_specialties(void)
+{
+	int top = 0, cur = 0;
+	int i, num_known, dir;
+	char c;
+	int hgt;
+	char buf[80];
+	bool done;
+
+        /* Count the number of specialties we know */
+        for (i = 0, num_known = 0; i < MAX_SPECIALTIES; i++)
+        {
+                if (p_ptr->specialty_order[i] != SP_NO_SPECIALTY) num_known++;
+        }
+
+	/* Save and clear creen */
+	screen_save();
+	Term_clear();
+
+	/* Find height of selection interface */
+	hgt = Term->hgt - 6;
+	if (hgt > num_known) hgt = num_known;
+
+	/* Prompt choices */
+	sprintf(buf, "Specialties learned (%c-%c, ESC=exit): ",
+			 I2A(0), I2A(num_known-1));
+
+	Term_putstr(5, 0, 66, TERM_WHITE, buf);
+
+
+	/* View choices until user exits */
+	done = FALSE;
+	while (!done)
+	{
+		/* Redraw the list */
+		for (i = 0; ((i + top < num_known) && (i < hgt)); i++)
+		{
+			if (i + top < 26)
+			{
+				sprintf(buf, "%c) %s %s", I2A(i + top), specialty_names[p_ptr->specialty_order[i + top]],
+					     (p_ptr->new_specialties < i + top + 1 - num_known) ? "(forgotten)" : "");
+			}
+			else
+			{
+				/* ToDo: Fix the ASCII dependency */
+				sprintf(buf, "%c) %s %s", 'A' + (i + top - 26), specialty_names[p_ptr->specialty_order[i + top]],
+					     (p_ptr->new_specialties < i + top + 1 - num_known) ? "(forgotten)" : "");
+			}
+
+			/* Clear */
+			Term_erase(5, i + 2, 66);
+		
+			/* Display */
+			Term_putstr(5, i + 2, 66, TERM_WHITE, buf);
+		}
+
+		/* Display that specialty's information. */
+		Term_erase(5, hgt + 4, 255);
+		Term_erase(5, hgt + 3, 255);
+		c_roff(TERM_L_BLUE, specialty_tips[p_ptr->specialty_order[cur]], 5, 0);
+
+		/* Move the cursor */
+		put_str("", 2 + cur - top, 5);
+
+		/* get input */
+		c = inkey();
+
+		/* Numbers are used for scolling */
+		if (isdigit(c))
+		{
+			/* Get a direction from the key */
+			dir = target_dir(c);
+
+			/* Going up? */
+			if (dir == 8)
+			{
+				if (cur != 0)
+				{
+					/* Move selection */
+					cur--;
+				}
+
+				if ((top > 0) && ((cur - top) < 4))
+				{
+					/* Scroll up */
+					top--;
+				}
+			}
+
+			/* Going down? */
+			if (dir == 2)
+			{
+				if (cur != (num_known - 1))
+				{
+					/* Move selection */
+					cur++;
+				}
+
+				if ((top + hgt - 1 < (num_known - 1)) && ((top + hgt - 1 - cur) < 4))
+				{
+					/* Scroll down */
+					top++;
+				}
+			}
+		}
+
+		/* Letters are used for selection */
+		else if (isalpha(c))
+		{
+			int choice;
+
+			if (islower(c))
+			{
+				choice = A2I(c);
+			}
+			else
+			{
+				choice = c - 'A' + 26;
+			}
+
+			/* Validate input */
+			if ((choice > -1) && (choice < num_known))
+			{
+				cur = choice;
+			}
+
+			else
+			{
+				bell("Illegal response to question!");
+			}
+		}
+
+		/* Allow user to exit the fuction */
+		else if (c == ESCAPE)
+		{
+			done = TRUE;
+		}
+
+		/* Invalid input */
+		else bell("Illegal response to question!");
+	}
+
+	/* Load screen */
+	screen_load();
+
+	/* exit */
+	return;
+}
+
+
+/*
+ * Interact with specialty abilities -BR-
+ */
+void do_cmd_specialty(void)
+{
+	char answer;
+
+	/* Might want to gain a new ability or browse old ones */
+	if ((p_ptr->new_specialties > 0) && (p_ptr->specialty_order[0] != SP_NO_SPECIALTY))
+	{
+
+		/* Query */
+		msg_print("Would you like to 'L'earn a specialty or 'V'iew your specialties (l/v)?");
+
+		/* Interact and choose. */
+		while(1)
+		{
+			answer = inkey();
+
+			/* New ability */
+			if ((answer == 'L') || (answer == 'l'))
+			{
+				do_cmd_gain_specialty();
+				return;
+			}
+
+			/* View Current */
+			if ((answer == 'V') || (answer == 'v'))
+			{
+				do_cmd_view_specialties();
+				return;
+			}
+
+			/* Exit */
+			else if (answer == ESCAPE) return;
+
+			/* Reprompt */
+			else msg_print("Type 'l' to learn a specialty, 'v' to view your specialties, or ESC to cancel");
+		}
+
+	}
+
+	/* Gain new specialties is the only option*/
+	else if (p_ptr->new_specialties > 0)
+	{
+		do_cmd_gain_specialty();
+		return;
+	}
+
+	/* View existing specialties is the only option */
+	else if (p_ptr->specialty_order[0] != SP_NO_SPECIALTY)
+	{
+		do_cmd_view_specialties();
+		return;
+	}
+
+	/* No specialties and no potential to get them - should not happen */
+	else
+	{
+		msg_print("You have no specialty abilities.");
+	}
+
+	return;
+}

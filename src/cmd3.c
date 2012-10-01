@@ -171,6 +171,12 @@ void do_cmd_wield(void)
 
 	char o_name[120];
 
+        if (SCHANGE)
+        {
+                msg_print("You cannot wield equipment while shapechanged.");
+                msg_print("Use the ']' command to return to your normal form.");
+                return;
+        }
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -858,7 +864,8 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 			if (mental) 
 			{
 				set_type *s_ptr = &s_info[a_ptr->set_no];
-				c_roff(TERM_GREEN, s_ptr->set_desc,3,77);
+				strcpy(info_text, s_text + s_ptr->text);
+				c_roff(TERM_GREEN,info_text,3,77);
 			}
 
 			/* Generic describtion */
@@ -1015,7 +1022,7 @@ void do_cmd_inscribe(void)
 	}
 
 	/* Get a new inscription (possibly empty) */
-	if (get_string("Inscription: ", tmp, 80))
+	if (get_string("Inscription: ", tmp, 81))
 	{
 		/* Save the inscription */
 		o_ptr->note = quark_add(tmp);
@@ -1671,7 +1678,10 @@ void do_cmd_query_symbol(void)
 	int i, j, n, r_idx;
 	int start = 0, last_level = 0;
 	char sym, query;
+	char search_str[60] = "";
+	char monster_name[80];
 	char buf[128];
+	char *sp;
 
 	bool all = FALSE;
 	bool uniq = FALSE;
@@ -1708,6 +1718,16 @@ void do_cmd_query_symbol(void)
 		all = norm = TRUE;
 		strcpy(buf, "Non-unique monster list.");
 	}
+	else if (sym == KTRL('F'))
+	{
+		if (!get_string("Substring to search: ", search_str, sizeof(search_str)))
+		  return;
+
+		for(sp = search_str; *sp; sp++) *sp = tolower(*sp);
+
+		sprintf(buf, "Monsters matching '%s'", search_str);
+		all = FALSE;
+	}
 	else if (ident_info[i])
 	{
 		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
@@ -1742,6 +1762,14 @@ void do_cmd_query_symbol(void)
 		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
 
 		/* Collect "appropriate" monsters */
+		if (*search_str)
+		{
+			strncpy(monster_name, r_name + r_ptr->name,
+					      sizeof monster_name);
+			for(sp = monster_name; *sp; sp++) *sp = tolower(*sp);
+			if (strstr(monster_name, search_str)) who[n++] = i;
+			continue;
+		}
 		if (all || (r_ptr->d_char == sym)) who[n++] = i;
 	}
 
@@ -1955,6 +1983,9 @@ void py_steal(int y, int x)
 	/* Determine the cunning of the thief. */
 	filching_power = 2 * p_ptr->lev;
 
+	/* Penalize some conditions */
+	if (p_ptr->blind || no_lite()) filching_power = filching_power / 10;
+	if (p_ptr->confused || p_ptr->image) filching_power = filching_power / 10;
 
 	/* Determine how much protection the monster has. */
 	theft_protection = (7 * (r_ptr->level + 2) / 4);
@@ -2094,6 +2125,9 @@ void py_steal(int y, int x)
 
 		/* Teleport. */
 		teleport_player(6 + p_ptr->lev / 5, TRUE);
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATUS);
 	}
 }
 
@@ -2105,8 +2139,20 @@ void py_steal(int y, int x)
  */
 void py_set_trap(int y, int x)
 {
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You can not see to set a trap.");
+		return;
+	}
+
+	if (p_ptr->confused || p_ptr->image)
+	{
+		msg_print("You are too confused.");
+		return;
+	}
+
 	/* Paranoia -- Forbid more than one trap being set. */
-	if (num_trap_on_level > 0)
+	if (num_trap_on_level > (check_specialty(SP_EXTRA_TRAP) ? 1 : 0))
 	{
 		msg_print("You must disarm your existing trap to free up your equipment.");
 		return;
@@ -2121,12 +2167,118 @@ void py_set_trap(int y, int x)
 	}
 
 	/* Set the trap, and draw it. */
-	cave_set_feat(y, x, FEAT_MONSTER_TRAP);
+	cave_set_feat(y, x, FEAT_MTRAP_BASE);
 
 	/* Notify the player. */
 	msg_print("You set a monster trap.");
 
 	/* Increment the number of monster traps. */
 	num_trap_on_level++;
+}
+
+/*
+ * Choose advanced monster trap type
+ */
+byte choose_mtrap(void)
+{
+	int num, choice=0;
+
+	char c;
+
+	bool done=FALSE;
+
+	/* Save screen */
+	screen_save();
+
+	prt("        Choose an advanced monster trap (ESC to cancel):", 1, 8);
+
+	num = 1 + (p_ptr->lev / 6);
+
+        prt("        a) Sturdy Trap      (less likely to break)", 2, 8);
+	if (num >= 2) prt("        b) Netted Trap      (effective versus flyers)", 3, 8);
+	if (num >= 3) prt("        c) Confusion Trap   (confuses monsters)", 4, 8);
+	if (num >= 4) prt("        d) Poison Gas Trap  (creates a toxic cloud)", 5, 8);
+	if (num >= 5) prt("        e) Spirit Trap      (effective versus insubstantial monsters)", 6, 8);
+	if (num >= 6) prt("        f) Lightning Trap   (shoots a lightning bolt)", 7, 8);
+	if (num >= 7) prt("        g) Explosive Trap   (causes area damage)", 8, 8);
+	if (num >= 8) prt("        h) Portal Trap      (teleports monsters)", 9, 8);
+	if (num >= 9) prt("        i) Stasis Trap      (freezes time for a monster)", 10, 8);
+
+	while (!done)
+	{
+		c = inkey();
+
+		/* Letters are used for selection */
+		if (isalpha(c))
+		{
+			if (islower(c))
+			{
+				choice = A2I(c);
+			}
+			else
+			{
+				choice = c - 'A' + 26;
+			}
+	      
+			/* Validate input */
+			if ((choice > -1) && (choice < num))
+			{
+				done = TRUE;
+			}
+	      
+			else
+			{
+				bell("Illegal response to question!");
+			}
+		}
+
+		/* Allow user to exit the fuction */
+                else if (c == ESCAPE)
+                {
+			choice = 0;
+                        done = TRUE;
+                }
+
+                /* Invalid input */
+                else bell("Illegal response to question!");
+	}
+
+	/* Load screen */
+	screen_load();
+
+	/* Return */
+	return (choice);
+}
+
+/* 
+ * Turn a basic monster trap into an advanced one -BR-
+ */
+void py_modify_trap(int y, int x)
+{
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You can not see to modify your trap.");
+		return;
+	}
+
+	if (p_ptr->confused || p_ptr->image)
+	{
+		msg_print("You are too confused.");
+		return;
+	}
+
+	/* No setting traps while shapeshifted */
+	if (SCHANGE)
+	{
+		msg_print("You can not set traps while shapechanged.");
+		msg_print("Use the ']' command to return to your normal form.");
+		return;
+	}
+
+	/* Set the trap, and draw it. */
+	cave_set_feat(y, x, FEAT_MTRAP_BASE + 1 + choose_mtrap());
+
+	/* Notify the player. */
+	msg_print("You modify the monster trap.");
 }
 

@@ -4220,7 +4220,7 @@ extern bool check_set(byte s_idx)
 		}
 	}
 	
-	return (count==s_ptr->no_of_items);
+	return (count>=s_ptr->no_of_items);
 }
 
 /*

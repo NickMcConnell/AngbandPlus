@@ -31,15 +31,14 @@
  * There are three special flags to assist in the parsing of extremely old
  * savefiles, "arg_stupid", which allows parsing of certain "compressed"
  * fields, "arg_colour", which allows parsing of some obsolete "colour"
- * info, and "arg_crappy", which induces "maximize" mode, since some old
- * versions used something similar to this special mode.
+ * info.
  *
- * Old "PCAngband 1.4" savefiles need "arg_stupid" and "arg_colour" and
- * "arg_crappy".  Old "MacAngband 1.0" and "MacAngband 2.0.3" savefiles
- * need "arg_stupid" and "arg_colour".  Old "Archimedes Angband" savefiles
- * need "arg_stupid" and "arg_crappy".  These flags are extracted for the
- * savefiles which *might* need them by asking the user to identify the
- * origin of the savefile, if the savefile is extremely obsolete.
+ * Old "PCAngband 1.4" savefiles need "arg_stupid" and "arg_colour".
+ * Old "MacAngband 1.0" and "MacAngband 2.0.3" savefiles need
+ * "arg_stupid" and "arg_colour".  Old "Archimedes Angband" savefiles
+ * need "arg_stupid".  These flags are extracted for the savefiles
+ * which *might* need them by asking the user to identify the origin
+ * of the savefile, if the savefile is extremely obsolete.
  *
  * We attempt to prevent corrupt savefiles from inducing memory errors.
  *
@@ -48,8 +47,7 @@
  * is initialized *after* or *during* the "load character" function.
  *
  * This file assumes that many global variables, including the "dungeon"
- * arrays, are initialized to all zeros.
- */
+ * arrays, are initialized to all zeros.  */
 
 
 #ifdef ALLOW_OLD_SAVEFILES
@@ -75,12 +73,6 @@ static bool	arg_stupid;
  * Hack -- parse old "colour" info
  */
 static bool	arg_colour;
-
-/*
- * Hack -- force "maximize" mode
- */
-static bool	arg_crappy;
-
 
 
 /*
@@ -1732,7 +1724,7 @@ static void rd_extra_old(void)
 	rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->prace);
 	rd_byte(&p_ptr->hitdie);
-	rd_byte(&p_ptr->expfact);
+	strip_bytes(1);
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
 	rd_s16b(&p_ptr->chp);
@@ -2616,14 +2608,14 @@ static errr rd_savefile_old_aux(void)
 		else if (get_check("Are you using an old PC savefile? "))
 		{
 			/* Set a flag */
-			arg_stupid = arg_colour = arg_crappy = TRUE;
+			arg_stupid = arg_colour = TRUE;
 		}
 
 		/* Allow use of old Archimedes Angband 1.2 savefiles */
 		else if (get_check("Are you using an old Archimedes savefile? "))
 		{
 			/* Set a flag */
-			arg_stupid = arg_crappy = TRUE;
+			arg_stupid = TRUE;
 		}
 	}
 
@@ -2746,6 +2738,9 @@ static errr rd_savefile_old_aux(void)
 	rp_ptr = &p_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
 
+	/* Initialize the combat style */
+	wp_ptr = &weapon_info[p_ptr->pclass];
+
 	/* Initialize the magic */
 	mp_ptr = &magic_info[p_ptr->pclass];
 
@@ -2802,8 +2797,10 @@ static errr rd_savefile_old_aux(void)
 	/* Strip silly hitpoint information */
 	if (!older_than(2, 6, 2)) strip_bytes(98);
 
-	note("Loaded some more information");
+	/* Clear specialty abilities */
+	for (i = 0; i < 10; i++) p_ptr->specialty_order[i] = SP_NO_SPECIALTY;
 
+	note("Loaded some more information");
 
 	/* Read the stores */
 	for (i = 0; i < MAX_STORES; i++)
@@ -2876,11 +2873,6 @@ static errr rd_savefile_old_aux(void)
 
 	/* Reset fourth quest */
 	q_list[3].level = 0;
-
-
-	/* Hack -- maximize mode */
-	if (arg_crappy) adult_maximize = TRUE;
-
 
 	/* Assume success */
 	return (0);

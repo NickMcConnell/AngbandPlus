@@ -500,7 +500,7 @@ s16b get_mon_num(int level)
 			if (table[i].level > temp_level) continue;
 
 			/* Hack -- No town monsters in dungeon */
-			if ((p_ptr->depth != 0) && (table[i].level <= 0)) continue;
+			if ((p_ptr->depth != 0) && (table[i].level < 1)) continue;
 
 			/* Get the monster index */
 			r_idx = table[i].index;
@@ -1530,7 +1530,10 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr->min_range=0;
 
 	/* Monsters like to use harassment spells at first */
-	n_ptr->harass = BASE_HARASS;
+	if (r_ptr->level > 20) n_ptr->harass = BASE_HARASS;
+
+	/* Weaker monsters don't live long enough to spend forever harassing */
+	else n_ptr->harass = LOW_HARASS;
 
 	/* Initialize mana */
 	n_ptr->mana=r_ptr->mana;

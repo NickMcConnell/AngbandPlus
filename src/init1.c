@@ -1791,6 +1791,286 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 
 /*
+ * Grab one flag for a set item from a textual string
+ */
+static errr grab_one_set_element_flag(set_element *selement_ptr, cptr what)
+{
+	int i;
+
+	/* Check flags1 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags1[i]))
+		{
+			selement_ptr->flags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags2 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags2[i]))
+		{
+			selement_ptr->flags2 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags3 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags3[i]))
+		{
+			selement_ptr->flags3 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown set element flag '%s'.", what);
+
+	/* Error */
+	return (1);
+}
+
+
+
+
+/*
+ * Initialize the "s_info" array, by parsing an ascii "template" file
+ */
+errr init_s_info_txt(FILE *fp, char *buf)
+{
+	int i;
+
+	char *s, *t;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+	set_type *set_ptr = NULL;
+	set_element *selement_ptr = NULL;
+
+	/* No item in current set */
+	int item_number = -1;
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != a_head->v_major) ||
+			    (v2 != a_head->v_minor) ||
+			    (v3 != a_head->v_patch))
+			{
+				return (2);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (2);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (1);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (1);
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i < error_idx) return (4);
+
+			/* Verify information */
+			if (i >= s_head->info_num) return (2);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+			set_ptr = &s_info[i];
+
+			/* Hack -- Verify space */
+			if (s_head->name_size + strlen(s) + 8 > FAKE_NAME_SIZE) return (7);
+
+			/* Advance and Save the name index */
+			if (!set_ptr->name) set_ptr->name = ++s_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(s_name + s_head->name_size, s);
+
+			/* Advance the index */
+			s_head->name_size += strlen(s);
+
+			/* Currently no items in this set */
+			item_number = -1;
+
+			/* No current item */
+			selement_ptr = NULL;
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current set_ptr */
+		if (!set_ptr) return (3);
+
+		/* Process 'C' for "Count" */
+		if (buf[0] == 'C')
+		{
+			int number;
+
+			/* Scan for the values */
+			if (1 != sscanf(buf+2, "%d",
+					&number)) return (1);
+
+			/* Save the values */
+			set_ptr->no_of_items = number;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Acquire the text */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+			if (s_head->text_size + strlen(s) + 8 > FAKE_TEXT_SIZE) return (7);
+
+			/* Advance and Save the text index */
+			if (!set_ptr->text) set_ptr->text = ++s_head->text_size;
+
+			/* Append chars to the name */
+			strcpy(s_text + s_head->text_size, s);
+
+			/* Advance the index */
+			s_head->text_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'P' for "Power" (up to 6) */
+		if (buf[0] == 'P')
+		{
+			int a_idx, pval;
+
+			/* Scan for the values */
+			if (2 != sscanf(buf+2, "%d:%d",
+					&a_idx, &pval)) return (1);
+
+			/* We are on the next set item */
+			item_number++;
+
+			/* Max of 6 items per set */
+			if (item_number > 5) return(3);
+
+			/* Current set item */
+			selement_ptr = &set_ptr->set_items[item_number];
+
+			/* Save the values */
+			selement_ptr->a_idx = a_idx;
+			selement_ptr->pval = pval;
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current selement_ptr */
+		if (!selement_ptr) return (3);
+
+		/* Hack -- Process 'F' for flags */
+		if (buf[0] == 'F')
+		{
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while ((*t == ' ') || (*t == '|')) t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_set_element_flag(selement_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Oops */
+		return (6);
+	}
+
+
+	/* Complete the "name" and "text" sizes */
+	++a_head->name_size;
+	++a_head->text_size;
+
+
+	/* No version yet */
+	if (!okay) return (2);
+
+
+	/* Success */
+	return (0);
+}
+
+
+/*
  * Grab one flag in a ego-item_type from a textual string
  */
 static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
@@ -2700,7 +2980,7 @@ errr init_p_info_txt(FILE *fp, char *buf)
 		     i = atoi(buf+2);
 
 		     /* Verify information */
-		     if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+		     if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 		     /* Verify information */
 		     if (i >= p_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
@@ -2819,15 +3099,15 @@ errr init_p_info_txt(FILE *fp, char *buf)
 	      /* Process 'X' for "Extra Info" (one line only) */
 	      if (buf[0] == 'X')
 	      {
-		     int mhp, exp, infra;
+		     int mhp, diff, infra;
 
 		     /* Scan for the values */
 		     if (3 != sscanf(buf+2, "%d:%d:%d",
-				     &mhp, &exp, &infra)) return (PARSE_ERROR_GENERIC);
+				     &mhp, &diff, &infra)) return (PARSE_ERROR_GENERIC);
 
 		     /* Save the values */
 		     pr_ptr->r_mhp = mhp;
-		     pr_ptr->r_exp = exp;
+		     pr_ptr->difficulty = diff;
 		     pr_ptr->infra = infra;
 
 		     /* Next... */
@@ -3398,6 +3678,9 @@ errr init_g_info_txt(FILE *fp, char *buf)
 			 * It appears to have been setting off an odd
 			 * compiler bug in Borland C for the windows
 			 * version. -BR-
+			 * Vanilla 2.9.3 avoids this by removing the superfluous continue
+			 * at the end of the loop. I removed that here as well as
+			 * keeping BR's fix -pelpel-
 			 */
 			for (j=MAX_P_IDX; j > 0; j--)
 			{
@@ -3430,9 +3713,6 @@ errr init_g_info_txt(FILE *fp, char *buf)
 
 				/* Save the value */
 				*g_ptr = adj;
-
-				/* Next... */
-				continue;
 			}
 
 			/* Next... */

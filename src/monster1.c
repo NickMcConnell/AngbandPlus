@@ -170,7 +170,7 @@ static bool know_damage(int r_idx, int i)
  */
 static void roff_aux(int r_idx)
 {
-	monster_race *r_ptr;
+	const monster_race *r_ptr;
 	monster_lore *l_ptr;
 
 	bool old = FALSE;
@@ -200,7 +200,7 @@ static void roff_aux(int r_idx)
 	int vn = 0;
 	cptr vp[64];
 
-	monster_race save_mem;
+	monster_lore save_mem;
 
 #if 0
 
@@ -232,7 +232,7 @@ static void roff_aux(int r_idx)
 		/* XXX XXX XXX */
 
 		/* Hack -- save memory */
-		COPY(&save_mem, r_ptr, monster_race);
+		COPY(&save_mem, l_ptr, monster_lore);
 
 		/* Hack -- Maximal kills */
 		l_ptr->tkills = MAX_SHORT;
@@ -1066,6 +1066,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_CURE))		vp[vn++] = "cure what ails it";
 	if (flags6 & (RF6_BLINK))		vp[vn++] = "blink-self";
 	if (flags6 & (RF6_TPORT))		vp[vn++] = "teleport-self";
+	if (flags6 & (RF6_TELE_SELF_TO))	vp[vn++] = "teleport toward you";
 	if (flags6 & (RF6_TELE_TO))		vp[vn++] = "teleport to";
 	if (flags6 & (RF6_TELE_AWAY))		vp[vn++] = "teleport away";
 	if (flags6 & (RF6_TELE_LEVEL))	vp[vn++] = "teleport level";
@@ -1769,7 +1770,7 @@ static void roff_aux(int r_idx)
 	if ((cheat_know) || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
 	{
 		/* Hack -- restore memory */
-		COPY(r_ptr, &save_mem, monster_race);
+		COPY(l_ptr, &save_mem, monster_lore);
 	}
 }
 
@@ -2068,7 +2069,6 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			for (n = 0; n < 4; n++)
 			{
 				r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
-				break;
 			}
 
 			break;

@@ -1536,12 +1536,16 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		/* A Rogue's monster trap. */
+		/* undefined trap. */
 		case FEAT_TRAP_HEAD + 0x0F:
 		{
-			msg_print("You inspect your cunning trap.");
+			msg_print("A dagger is thrown at you from the shadows!");
+			dam = damroll(3,4);
+			take_hit(dam, name);
+
 			break;
 		}
+
 	}
 
 	/* Revert to usage of the complex RNG. */
@@ -1613,9 +1617,7 @@ void move_player(int dir, int do_pickup)
 		/* Hack - Rogues can walk over their own trap - BR */
 		if ((easy_disarm) && 
 			(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-			(cave_feat[y][x] <= FEAT_TRAP_TAIL) &&
-			(cave_feat[y][x] != FEAT_TRAP_ROGUE))
-
+			(cave_feat[y][x] <= FEAT_TRAP_TAIL))
 		{
 			/* Optional auto-repeat. */
 			if (always_repeat && (p_ptr->command_arg <= 0))
@@ -1867,6 +1869,13 @@ void move_player(int dir, int do_pickup)
 
 					/* Hit the floor trap. */
 					hit_trap(y, x);
+				}
+
+				/* Walk on a monster trap */
+				else if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) &&
+				  (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
+				{
+					msg_print("You inspect your cunning trap.");
 				}
 
 				/* Warn when leaving trap detected region */

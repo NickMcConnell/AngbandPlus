@@ -65,17 +65,17 @@ monsters.
      Attacking:
          If you move your character into a square containing a
          monster, you will attack that monster.  If you are wielding
-         no weapon, and are not a Druid (who actually much prefer to
-         fight barehanded), you will do very little damage.  If you
-         are wielding a weapon, things are a little diff- erent.
+         no weapon, and are not a Druid or a Warrior with the Martial
+         Arts specialty ability, you will do very little damage.  If
+	 you are wielding a weapon, things are a little different.
 
      Number of Blows:
          On your character screen ('C') is displayed the number of
          blows you can get per turn.  If you are wielding no weapon,
-         you get two blows.  If your weapon is too heavy for you to
-         wield properly, you get one blow.  Otherwise, you get between
-         two and six blows, depending solely on weapon weight,
-         Dexterity, and Strength.
+         you get between two and four blows, depending on your level.
+	 If your weapon is too heavy for you to wield properly, you
+         get one blow.  Otherwise, you get between two and six blows,
+         depending solely on weapon weight, Dexterity, and Strength.
 
      Your Weapon and its Damage Dice:
          All weapons have damage dice displayed after their name.
@@ -250,27 +250,61 @@ items do benefit from other Skill and Deadliness bonuses.
 
 === How to Steal and Set Traps ===
 
-     Only Rogues may steal and set traps.  If you type the alter command ('+' in 
-either keyset), enter a direction and target a visible monster, you will attempt 
-to steal.  If you target a totally bare floor square, you will set a monster 
-trap.  Rogues may not use these abilities when shapeshifted.
-     Stealing is lucrative but risky.  All monsters that drop anything will have 
-at least some treasure on them.  Humans, humanoids, and dragons are the juiciest 
-targets, and most other smart bipedal creatures, nagas, or wraiths are fairly 
-well-off too; the higher the monster level, the larger the purse.  Uniques are 
-especially rich.  High-level monsters and other thieves are harder to steal 
-from, but sleeping monsters are easier.  But burglary is not all fun and games.
-Every time you steal on a level, the monsters get warier.  Steal too often, 
-and you may very quickly get hunted down.
-     Monster traps are trivial to set and disarm.  They do a reasonable amount 
-of damage, increasing with player level and monster HPs, but seldom kill a 
-monster of any power outright.  Traps may be disarmed or flown over.  Only one 
-monster trap may exist on a level at any one time, so disarm an old trap to use 
-your trap gear elsewhere.  If your trap is buried in rubble, you will not be 
-able to make any more on that level.
+     Only Rogues may steal and set traps.  If you type the alter command ('+'
+in either keyset), enter a direction and target a visible monster, you will
+attempt to steal.  If you target a totally bare floor square, you will set a
+monster trap.  Rogues may not use these abilities when shapeshifted.
+     Stealing is lucrative but risky.  All monsters that drop anything will
+have at least some treasure on them.  Humans, humanoids, and dragons are the
+juiciest targets, and most other smart bipedal creatures, nagas, or wraiths
+are fairly well-off too; the higher the monster level, the larger the purse.
+Uniques are especially rich.  High-level monsters and other thieves are harder
+to steal from, but sleeping monsters are easier.  But burglary is not all fun
+and games.  Every time you steal on a level, the monsters get warier.  Steal
+too often, and you may very quickly get hunted down.
+     Monster traps are trivial to set and upgrade using the alter command '+'.
+They can be disarmed like any other trap.  The power of traps increases with
+player level and disarming skill.  Monsters may sometimes disarm traps, or
+they may be destroyed when they activate.  Monsters that trigger traps may
+temporarily become wary and less susceptible to further traps.  Only one
+monster trap may exist on a level at any one time, so disarm an old trap to
+use your trap gear elsewhere.  If your trap is buried in rubble, you will not
+be able to reset it on that level.
+     There are 10 types of monster trap: the basic trap, and 9 advanced traps.
+Advanced traps are created by updgrading a basic trap using the alter command.
+As your level increases, you gain access to more of the advanced traps.  Most
+traps are unreliable versus flying and insubstantial monsters.  The traps are
+as follows:
+	
+   Basic Monster Trap - This is the fastest to set, and does the most damage
+      of any trap.
+   Sturdy Trap - This trap is less likely to be destroyed after activation.
+   Netted Trap - Consistently affects flying monsters but is unreliable
+      against non-flying monsters.  (Requires level 6)
+   Confusion Trap - Confuses monsters but does not damage them.  (Requires
+      level 12)
+   Poison Gas Trap - Releases a cloud of poison gas.  Covers a good area, but
+      does the least damage of any damage dealing trap.  Though the gas can
+      affect any monster, flyers and insubstantial monsters will rarely
+      trigger it.  (Requires level 18)
+   Spirit Trap - Consistently affects insubstantial monsters such as ghosts
+      but never affects others.  (Requires level 24)
+   Lightning Trap - Shoots a bolt of lightning at the target.  May stun,
+      unless the target resists electricity.  Consistently triggered by flying
+      and non-flying monsters.  (Requires level 30)
+   Explosive Trap - Releases a burst of fire and shards.  Does damage over an
+      area.  Though the explosion can affect any monster, flyers and
+      insubstantial monsters will rarely trigger it. This trap is always
+      destroyed when it detonates.  (Requires level 36)
+   Portal Trap - Does not damage monsters, but teleports them away.
+      (Requires level 42)
+   Stasis Trap - Places a monsters in suspended animation, so they can take
+      no actions and can not be moved or harmed.  Does no damage.
+      Consistently triggered by all sorts of monsters.  This trap is always
+      destroyed when activated.  (Requires level 48)
 
 
-=== Listing of Druid Blows and their Damage Potential ===
+=== Listing of Druid/Martial Arts Blows and their Damage Potential ===
 
 Name        number of dice, sides to each die
 
@@ -295,7 +329,10 @@ Name        number of dice, sides to each die
 "tsunami whirl",         7,26
 "stormwind chop",       10,22
 
-There are twenty possible druid attacks.  The highest level attack a druid is 
-capable of depends on his experience level:  for example, a 25th level druid 
-can use the first 10 attack types.  In combat, druids will automatically pick 
-one at random, biased towards those with the largest damage.
+There are twenty possible barehanded attacks for druids (and warriors with
+the Martial Arts specialty ability).  The highest level attack a druid is
+capable of depends on his experience level:  for example, a 25th level druid
+can use the first 10 attack types.  In combat, druids will automatically pick
+one at random, biased towards those with the largest damage.  Deadliness does
+not affect the damage of these attacks, but increases the bias toward larger
+attacks.

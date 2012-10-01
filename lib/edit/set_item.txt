@@ -1,0 +1,81 @@
+# File: set_item.txt
+
+# This file is used to initialize the "lib/raw/set_item.raw" file, which is
+# used to initialize the "set item" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# Version stamp required
+
+V:0.6.0
+
+#N: set index:name
+#C: number of items to gain bonus
+#D: set describtion
+#P: artifact index:pval change
+#F: flags added
+
+# Holy Fire Set
+
+N:1:Flame of Wrath
+C:2
+D:It is part of a set of items infused with holy fire
+# The Amulet of Carlammas
+P:4:0
+F:WIS | IM_FIRE | RES_FEAR
+# The Morning Star 'Firestar'
+P:162:4
+F:STR | SLAY_EVIL | SLAY_UNDEAD
+
+
+# Light/Dark Set
+
+N:2:Shadow Ward
+C:2
+D:It is one of the Shadow Ward items
+# The Soft Leather Armour 'Hithlomir'
+P:37:0
+F:SEARCH | RES_BLIND
+# The Set of Leather Gloves 'Cammithrim'
+P:78:2
+F:DEX | MAGIC_MASTERY | SUST_DEX
+
+
+# Eorl/Rohan Set
+
+N:3:Eorl's Arms
+C:2
+D:It is part of the equipment of Eorl the Young
+# Lance of the Eorlingas
+P:28:1
+F:FREE_ACT
+# The Metal Brigandine Armour of the Rohirrim
+P:140:0
+F:CON | REGEN
+
+
+# Frodo's Set
+
+N:4:Elven Gifts
+C:2
+D:It is from a group of Elven items once entrusted to Hobbits
+# The Phial of Galadriel
+P:1:1
+F:WIS | CHR | RES_DARK
+# The Small Sword 'Sting'
+P:121:0
+F:STEALTH | REGEN | SLOW_DIGEST
+
+
+# Gil-Galad's Set
+
+N:5:Gil-Galad's Battle Gear
+C:2
+D:It is one of Gil-Galad's items
+# The Shield of Deflection of Gil-Galad
+P:48:0
+F:RES_FIRE | RES_POIS | SUST_DEX
+# The Spear 'Aeglos'
+P:137:0
+F:SLAY_DEMON | RES_DARK

@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.6.0
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol
@@ -179,10 +179,10 @@ G:^:g
 N:30:????
 G:^:g
 
-# 0x1F --> visible trap -- Created only by Rogues.  Only one may exist at a time.
+# 0x1F --> visible trap -- unused
 
-N:31:monster trap
-G:^:y
+N:31:????
+G:^:g
 
 # 0x20 --> locked door (power 0)
 
@@ -413,3 +413,84 @@ G:8:y
 
 N:72:Bookstore
 G:9:o
+
+# 0x50 --> monster trap -- basic
+
+N:80:monster trap (basic)
+G:^:y
+
+# 0x51 --> monster trap -- sturdy
+
+N:81:monster trap (sturdy)
+G:^:y
+
+# 0x52 --> monster trap -- netted
+
+N:82:monster trap (netted)
+G:^:y
+
+# 0x53 --> monster trap -- confusion
+
+N:83:monster trap (confusion)
+G:^:y
+
+# 0x54 --> monster trap -- poison
+
+N:84:monster trap (poison gas)
+G:^:y
+
+# 0x55 --> monster trap -- spirit
+
+N:85:monster trap (spirit)
+G:^:y
+
+# 0x56 --> monster trap -- shocking
+
+N:86:monster trap (lightning)
+G:^:y
+
+# 0x57 --> monster trap -- explosive
+
+N:87:monster trap (explosive)
+G:^:y
+
+# 0x58 --> monster trap -- portal
+
+N:88:monster trap (portal)
+G:^:y
+
+# 0x59 --> monster trap -- stasis
+
+N:89:monster trap (stasis)
+G:^:y
+
+# 0x5A --> monster trap -- unused
+
+N:90:monster trap
+G:^:y
+
+# 0x5B --> monster trap -- unused
+
+N:91:monster trap
+G:^:y
+
+# 0x5C --> monster trap -- unused
+
+N:92:monster trap
+G:^:y
+
+# 0x5D --> monster trap -- unused
+
+N:93:monster trap
+G:^:y
+
+# 0x5E --> monster trap -- unused
+
+N:94:monster trap
+G:^:y
+
+# 0x5F --> monster trap -- unused
+
+N:95:monster trap
+G:^:y
+

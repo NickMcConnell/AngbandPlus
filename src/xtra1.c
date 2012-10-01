@@ -1,3 +1,4 @@
+
 /* File: xtra1.c */
 
 /* Display of stats to the user from internal figures, char info shown on 
@@ -683,7 +684,11 @@ static void prt_dtrap(void)
 
 static void prt_study(void)
 {
-	if (p_ptr->new_spells)
+	if (p_ptr->new_specialties > 0)
+	{
+		c_put_str(TERM_VIOLET, "Spec.", Term->hgt - 1, COL_STUDY);
+	}
+	else if (p_ptr->new_spells)
 	{
 		put_str("Study", Term->hgt - 1, COL_STUDY);
 	}
@@ -879,6 +884,7 @@ enum {
 	STATUS_BLESSED,
 	STATUS_HERO,
 	STATUS_SHERO,
+	STATUS_SUPERSHOT,
 	STATUS_OPPOSE_ACID,
 	STATUS_OPPOSE_COLD,
 	STATUS_OPPOSE_ELEC,
@@ -893,7 +899,10 @@ enum {
 	STATUS_ESP,
 	STATUS_IMAGE,
 	STATUS_RECALL,
+	STATUS_ATT_CONF,
 	STATUS_ELE_ATTACK,
+	STATUS_HOLY_OR_BREATH,
+	STATUS_HIT_AND_RUN,
 	STATUS_MAGICDEF,
 	STATUS_STEALTH,
 	STATUS_MAX
@@ -920,26 +929,30 @@ typedef struct {
  * The attr field may be overridden in prt_status().
  */
 status_type status_info[] = {
-	{0, 0, TERM_L_WHITE, 7}, /* Blessed */
+	{0, 0, TERM_L_WHITE, 5}, /* Bless */
 	{0, 0, TERM_L_WHITE, 4}, /* Hero */
-	{0, 0, TERM_L_WHITE, 7}, /* Berserk */
-	{0, 0, TERM_SLATE, 7}, /* ResAcid */
-	{0, 0, TERM_WHITE, 7}, /* ResCold */
-	{0, 0, TERM_BLUE, 7}, /* ResElec */
-	{0, 0, TERM_RED, 7}, /* ResFire */
-	{0, 0, TERM_GREEN, 7}, /* ResPois */
-	{0, 0, TERM_L_BLUE, 8}, /* ProtEvil */
+	{0, 0, TERM_L_WHITE, 5}, /* Bersk */
+	{0, 0, TERM_WHITE, 6}, /* SpShot */
+	{0, 0, TERM_SLATE, 6}, /* RsAcid */
+	{0, 0, TERM_WHITE, 6}, /* RsCold */
+	{0, 0, TERM_BLUE, 6}, /* RsElec */
+	{0, 0, TERM_RED, 6}, /* RsFire */
+	{0, 0, TERM_GREEN, 6}, /* RsPois */
+	{0, 0, TERM_L_BLUE, 7}, /* PrtEvil */
 	{0, 0, TERM_L_BLUE, 6}, /* Shield */
-	{0, 0, TERM_L_GREEN, 6}, /* Faster */
+	{0, 0, TERM_L_GREEN, 5}, /* Haste */
 	{0, 0, TERM_L_UMBER, 6}, /* Slower */
 	{0, 0, TERM_L_BLUE, 5}, /* Infra */
-	{0, 0, TERM_L_BLUE, 8}, /* SeeInvis */
+	{0, 0, TERM_L_BLUE, 6}, /* SInvis */
 	{0, 0, TERM_L_GREEN, 3}, /* ESP */
 	{0, 0, TERM_YELLOW, 6}, /* Halluc */
 	{0, 0, TERM_L_BLUE, 6}, /* Recall */
+	{0, 0, TERM_SLATE, 7}, /* AttConf */
 	{0, 0, TERM_WHITE, 7}, /* Att1234 */
-	{0, 0, TERM_WHITE, 8}, /* MagicDef */
-	{0, 0, TERM_SLATE, 7}, /* Stealth */
+	{0, 0, TERM_WHITE, 7}, /* AttHoly or AttEvil */
+	{0, 0, TERM_BLUE, 6}, /* HitRun */
+	{0, 0, TERM_WHITE, 5}, /* MgDef */
+	{0, 0, TERM_L_DARK, 4}, /* Hide */
 };
 
 
@@ -1003,6 +1016,10 @@ static void prt_status(void)
 	/* Initialize */
 	init_status();
 
+	/* Clear the rows */
+	Term_erase(0, Term->hgt - 3, 255);
+	Term_erase(0, Term->hgt - 2, 255);
+
 	/* Check each status message */
 	for (i = 0; i < STATUS_MAX; i++)
 	{
@@ -1019,7 +1036,7 @@ static void prt_status(void)
 		switch (i)
 		{
 			case STATUS_BLESSED:
-				if (force || p_ptr->blessed) t = "Blessed";
+				if (force || p_ptr->blessed) t = "Bless";
 				break;
 
 			case STATUS_HERO:
@@ -1027,31 +1044,35 @@ static void prt_status(void)
 				break;
 
 			case STATUS_SHERO:
-				if (force || p_ptr->shero) t = "Berserk";
+				if (force || p_ptr->shero) t = "Bersk";
+				break;
+
+			case STATUS_SUPERSHOT:
+				if (force || p_ptr->special_attack & ATTACK_SUPERSHOT) t = "SpShot";
 				break;
 
 			case STATUS_OPPOSE_ACID:
-				if (force || p_ptr->oppose_acid) t = "ResAcid";
+				if (force || p_ptr->oppose_acid) t = "RsAcid";
 				break;
 
 			case STATUS_OPPOSE_COLD:
-				if (force || p_ptr->oppose_cold) t = "ResCold";
+				if (force || p_ptr->oppose_cold) t = "RsCold";
 				break;
 
 			case STATUS_OPPOSE_ELEC:
-				if (force || p_ptr->oppose_elec) t = "ResElec";
+				if (force || p_ptr->oppose_elec) t = "RsElec";
 				break;
 
 			case STATUS_OPPOSE_FIRE:
-				if (force || p_ptr->oppose_fire) t = "ResFire";
+				if (force || p_ptr->oppose_fire) t = "RsFire";
 				break;
 
 			case STATUS_OPPOSE_POIS:
-				if (force || p_ptr->oppose_pois) t = "ResPois";
+				if (force || p_ptr->oppose_pois) t = "RsPois";
 				break;
 
 			case STATUS_PROTEVIL:
-				if (force || p_ptr->protevil) t = "ProtEvil";
+				if (force || p_ptr->protevil) t = "PrtEvil";
 				break;
 
 			case STATUS_SHIELD:
@@ -1059,7 +1080,7 @@ static void prt_status(void)
 				break;
 
 			case STATUS_FAST:
-				if (force || p_ptr->fast) t = "Faster";
+				if (force || p_ptr->fast) t = "Haste";
 				break;
 
 			case STATUS_SLOW:
@@ -1068,10 +1089,11 @@ static void prt_status(void)
 
 			case STATUS_TIM_INFRA:
 				if (force || p_ptr->tim_infra) t = "Infra";
+				else t = "     ";
 				break;
 
 			case STATUS_SEE_INVIS:
-				if (force || p_ptr->tim_invis) t = "SeeInvis";
+				if (force || p_ptr->tim_invis) t = "SInvis";
 				break;
 
 			case STATUS_ESP:
@@ -1084,6 +1106,10 @@ static void prt_status(void)
 
 			case STATUS_IMAGE:
 				if (force || p_ptr->image) t = "Halluc";
+				break;
+
+			case STATUS_ATT_CONF:
+				if (force || p_ptr->special_attack & ATTACK_CONFUSE) t = "AttConf";
 				break;
 
 			case STATUS_ELE_ATTACK:
@@ -1117,12 +1143,28 @@ static void prt_status(void)
 				}
 				break;
 
+			case STATUS_HOLY_OR_BREATH:
+				if (force || (p_ptr->special_attack & ATTACK_HOLY))
+				{
+					t = "AttHoly";
+				}
+				else if (p_ptr->special_attack & ATTACK_BLKBRTH)
+                                {
+					attr = TERM_L_DARK;
+                                        t = "AttEvil";
+                                }
+				break;
+
+			case STATUS_HIT_AND_RUN:
+				if (force || (p_ptr->special_attack & ATTACK_FLEE)) t = "HitRun";
+				break;
+
 			case STATUS_MAGICDEF:
-				if (force || p_ptr->magicdef) t = "MagicDef";
+				if (force || p_ptr->magicdef) t = "MgDef";
 				break;
 
 			case STATUS_STEALTH:
-				if (force || p_ptr->superstealth) t = "Stealth";
+				if (force || p_ptr->superstealth) t = "Hidden";
 				break;
 		}
 
@@ -1793,6 +1835,59 @@ static void calc_spells(void)
 
 
 /*
+ * Calculate number of specialties player should have. -BR-
+ */
+static void calc_specialty(void)
+{
+	int i;
+	int num_known;
+
+	/* Calculate number allowed */
+        p_ptr->specialties_allowed = 1 + (p_ptr->lev / 20);
+        if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->specialties_allowed++;
+        if (p_ptr->specialties_allowed > 10) p_ptr->specialties_allowed = 10;
+
+	/* Assume none known */
+	num_known = 0;
+
+	/* Count the number of specialties we know */
+        for (i = 0; i < 10; i++)
+        {
+                if (p_ptr->specialty_order[i] != SP_NO_SPECIALTY) num_known++;
+        }
+
+	/* See how many spells we must forget or may learn */
+	p_ptr->new_specialties = p_ptr->specialties_allowed - num_known;
+
+	/* Check if specialty array is full */
+	if ((num_known == 10) && (p_ptr->new_specialties > 0)) p_ptr->new_specialties = 0;
+
+	/* More specialties are available (or fewer forgotten) */
+	if (p_ptr->old_specialties < p_ptr->new_specialties)
+	{
+		if (p_ptr->old_specialties < 0) msg_print("You have regained specialist abilities.");
+		if (p_ptr->new_specialties > 0) msg_print("You may learn a specialist ability using the 'O' key.");
+
+                /* Redraw Study Status */
+                p_ptr->redraw |= (PR_STUDY);
+	}
+
+	/* Fewer specialties are available (or more forgotten) */
+	if (p_ptr->old_specialties > p_ptr->new_specialties)
+	{
+		if (p_ptr->new_specialties < 0) msg_print("You have lost specialist abilities.");
+
+                /* Redraw Study Status */
+                p_ptr->redraw |= (PR_STUDY);
+	}
+
+	/* Save the new_spells value */
+	p_ptr->old_specialties = p_ptr->new_specialties;
+
+}
+
+
+/*
  * Calculate maximum mana.  You do not need to know any spells.
  * Note that mana is lowered by heavy (or inappropriate) armor, and
  * by a shapeshift.
@@ -1803,7 +1898,7 @@ static void calc_spells(void)
  */
 static void calc_mana(void)
 {
-	int msp, levels, cur_wgt, max_wgt;
+	int msp, levels, cur_wgt, max_wgt, penalty_wgt, armor_penalty;
 
 	object_type *o_ptr;
 
@@ -1884,60 +1979,32 @@ static void calc_mana(void)
 	cur_wgt += inventory[INVEN_FEET].weight;
 
 	/* Determine the weight allowance */
-	max_wgt = mp_ptr->spell_weight;
+	max_wgt = mp_ptr->spell_weight1;
+	penalty_wgt = mp_ptr->spell_weight2;
+
+	/* Specialist Ability */
+	if (check_specialty(SP_ARMOR_PROFICIENCY))
+	{
+		max_wgt += 50;
+		penalty_wgt += 150;
+	}
 
 	/* Heavy armor penalizes mana by a percentage. */
-	if (((cur_wgt - max_wgt) / 10) > 0)
+	if (cur_wgt > max_wgt)
 	{
-		/* Encumbered */
-		p_ptr->cumber_armor = TRUE;
+		/* Calculate Penalty */
+		armor_penalty = (msp * (cur_wgt - max_wgt)) / penalty_wgt;
 
-		/* Subtract a percentage of maximum mana. */
-		switch (p_ptr->pclass)
+		/* If non-zero */
+		if (armor_penalty)
 		{
-			/* For these classes, mana is halved if armour 
-			 * is 30 pounds over their weight limit. */
-			case CLASS_MAGE:
-			case CLASS_NECRO:
-			case CLASS_DRUID:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 600;
-				break;
-			}
-
-			/* Mana halved if armour is 40 pounds over weight limit. */
-			case CLASS_PRIEST:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 800;
-				break;
-			}
-
-			/* Mana halved if armour is 50 pounds over weight limit. */
-			case CLASS_ROGUE:
-			case CLASS_RANGER:
-			case CLASS_ASSASSIN:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 1000;
-				break;
-			}
-
-			/* Mana halved if armour is 60 pounds over weight limit. */
-			case CLASS_PALADIN:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 1200;
-				break;
-			}
-
-			/* For new classes created, but not yet added to this formula. */
-			default:
-			{
-				msp -= msp * (cur_wgt - max_wgt) / 800;
-				break;
-			}
+			/* Encumbered */
+			p_ptr->cumber_armor = TRUE;
+			msp -= armor_penalty;
 		}
 	}
 
-	/* Any non-humaniod shape penalizes mana. */
+	/* Any non-humaniod shape penalizes mana, unless prevented by specialty ability */
 	if (p_ptr->schange)
 	{
 		/* Chop mana to 2/3. */
@@ -2092,6 +2159,16 @@ static void calc_torch(void)
 	if ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev > 44))
 		p_ptr->cur_lite += 1;
 
+	/* Special ability Holy Light */
+	if (check_specialty(SP_HOLY_LIGHT)) p_ptr->cur_lite++;
+
+	/* Special ability Unlight */
+	if (check_specialty(SP_UNLIGHT))
+	{
+		if (p_ptr->cur_lite > 1) p_ptr->cur_lite--;
+		if (p_ptr->cur_lite > 2) p_ptr->cur_lite = 2;
+	}
+
 	/* Reduce lite when running if requested */
 	if (p_ptr->running && view_reduce_lite)
 	{
@@ -2134,130 +2211,48 @@ static int weight_limit(void)
 sint add_special_melee_skill (byte pclass, s16b weight, object_type *o_ptr)
 {
 	int add_skill = 0;
+	int max_weight = 0;
 
-	switch (pclass)
+	/* Druids and Martial Artists love to fight barehanded */
+	if (!o_ptr->k_idx)
 	{
-		/* Warrior.  Can use 15 lb weapons without penalty at level 1, and 45 lb weapons without penalty at 50th level. */
-		case CLASS_WARRIOR:
+		if (wp_ptr->bare_handed) add_skill = 14 + (p_ptr->lev);
+		else if (check_specialty(SP_MARTIAL_ARTS)) add_skill = p_ptr->lev / 2;
+	}
+
+
+
+	/* Otherwise, check weapon weight */
+	else
+	{
+		/* Maximum compfortable weight depends on class and level */
+		max_weight = wp_ptr->max_1 + ((p_ptr->lev * wp_ptr->max_50) / 50);
+
+		/* Too heavy */
+		if (weight > max_weight)
 		{
-			add_skill = 25 + p_ptr->lev - (weight / 6);
-			if (add_skill > 0) add_skill = 0;
-			if (add_skill < -10) add_skill = -10;
-			break;
+			/* Penalize */
+			add_skill = - ((weight - max_weight) * wp_ptr->penalty) / 100;
+			if (add_skill < - (wp_ptr->max_penalty)) add_skill = - (wp_ptr->max_penalty);
 		}
 
-		/* Mage.  Can use 6 lb weapons without penalty at level 1, and 16 lb weapons without penalty at 50th level. */
-		case CLASS_MAGE:
-		{
-			add_skill = 20 + (2 * p_ptr->lev / 3) - (weight / 3);
-			if (add_skill > 0) add_skill = 0;
-			if (add_skill < -30) add_skill = -30;
-			break;
-		}
+		/* Some classes (Rogues and Assasins) benefit from extra light weapons */
+		else if (wp_ptr->bonus)
+                {
+			/* Apply bonus */
+                        add_skill = ((max_weight - weight) * wp_ptr->bonus) / 100;
+                        if (add_skill > wp_ptr->max_bonus) add_skill = wp_ptr->max_bonus;
+                }
+	}
 
-		/* Priest.  Can use 12 lb weapons without penalty at level 1, and 22 lb weapons without penalty at 50th level. */
-		case CLASS_PRIEST:
-		{
-			add_skill = 30 + (1 * p_ptr->lev / 2) - (weight / 4);
-			if (add_skill > 0) add_skill = 0;
-			if (add_skill < -25) add_skill = -25;
+	/* Priest/Paladin penalty for non-blessed edged weapons. */
+	if ((wp_ptr->no_edged) && ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) && 
+			       (!p_ptr->bless_blade))
+	{
+		add_skill -= 10 + p_ptr->lev / 2;
 
-			/* Priest penalty for non-blessed edged weapons. */
-			if (((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) && ((!p_ptr->bless_blade)))
-			{
-				add_skill -= 10 + p_ptr->lev / 2;
-
-				/* Icky weapon */
-				p_ptr->icky_wield = TRUE;
-			}
-			break;
-		}
-
-		/* Rogue.  Can use 10 lb weapons without penalty at level 1, and 20 lb weapons without penalty at 50th level. Can get a bonus for using light weapons.  */
-		case CLASS_ROGUE:
-		{
-			if (!o_ptr->k_idx) add_skill = 0;
-
-			else
-			{
-				add_skill = 33 + (2 * p_ptr->lev / 3) - (weight / 3);
-				if (add_skill > 0) add_skill = add_skill / 2;
-				if (add_skill > 15) add_skill = 15;
-				if (add_skill < -25) add_skill = -25;
-			}
-			break;
-		}
-
-		/* Ranger.  Can use 12 lb weapons without penalty at level 1, and 25 lb weapons without penalty at 50th level. */
-		case CLASS_RANGER:
-		{
-			add_skill = 25 + (1 * p_ptr->lev / 2) - (weight / 5);
-			if (add_skill > 0) add_skill = 0;
-			if (add_skill < -20) add_skill = -20;
-			break;
-		}
-
-		/* Paladin.  Can use 15 lb weapons without penalty at level 1, and 45 lb weapons without penalty at 50th level. */
-		case CLASS_PALADIN:
-		{
-			add_skill = 25 + p_ptr->lev - (weight / 6);
-			if (add_skill > 0) add_skill = 0;
-			if (add_skill < -10) add_skill = -10;
-
-			/* Paladin penalty for non-blessed edged weapons. */
-			if (((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) 
-				&& ((!p_ptr->bless_blade)))
-			{
-				add_skill -= 10 + p_ptr->lev / 2;
-
-				/* Icky weapon */
-				p_ptr->icky_wield = TRUE;
-			}
-			break;
-		}
-
-		/* Druid.  Can use 5 lb weapons without penalty at level 1, and
-		 * slightly over 12 lb weapons without penalty at 50th level. Much
-		 * prefers to use hands and feet.
-		 */
-		case CLASS_DRUID:
-		{
-			if (!o_ptr->k_idx) add_skill = 14 + (p_ptr->lev);
-			else
-			{
-				add_skill = 16 + (p_ptr->lev / 2) - (weight / 3);
-				if (add_skill > 0) add_skill = 0;
-				if (add_skill < -30) add_skill = -30;
-			}
-			break;
-		}
-
-		/* Necromancer.   Can use 6 lb weapons without penalty at level 1, and 16 lb weapons without penalty at 50th level. */
-		case CLASS_NECRO:
-		{
-			add_skill = 20 + (2 * p_ptr->lev / 3) - (weight / 3);
-			if (add_skill > 0) add_skill = 0;
-			if (add_skill < -30) add_skill = -30;
-			break;
-		}
-
-		/* Assassin.  Can use 10 lb weapons without penalty at level 1, and 20 
-		 * lb weapons without penalty at 50th level. Can be quite dangerous with 
-		 * light weapons.
-		 */
-		case CLASS_ASSASSIN:
-		{
-			if (!o_ptr->k_idx) add_skill = 0;
-
-			else
-			{
-				add_skill = 33 + (2 * p_ptr->lev / 3) - (weight / 3);
-				if (add_skill > 0) add_skill = (2 * add_skill / 3);
-				if (add_skill > 20) add_skill = 20;
-				if (add_skill < -25) add_skill = -25;
-			}
-			break;
-		}
+		/* Icky weapon */
+		p_ptr->icky_wield = TRUE;
 	}
 
 	/* Now, special racial abilities and limitations are 
@@ -2287,7 +2282,6 @@ sint add_special_melee_skill (byte pclass, s16b weight, object_type *o_ptr)
 /* Calculate all class and race-based bonuses and 
  * penalties to missile Skill 
  */
-
 sint add_special_missile_skill (byte pclass, s16b weight, object_type *o_ptr)
 {
 	int add_skill = 0;
@@ -2748,7 +2742,6 @@ static void calc_bonuses(void)
 
 	u32b f1, f2, f3;
 
-
 	/*** Memorize ***/
 
 	/* Save the old speed */
@@ -3066,9 +3059,13 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 
-		/* Modify the base armor class.   Shields worn on back are penalized. */
-		if ((p_ptr->shield_on_back) && (i == INVEN_ARM)) 
-			temp_armour = o_ptr->ac / 3;
+		/* 
+		 * Modify the base armor class.   Shields worn on back are penalized. 
+		 * Shield and Armor masters benefit.
+		 */
+		if ((i == INVEN_ARM) && (p_ptr->shield_on_back)) temp_armour = o_ptr->ac / 3;
+		else if ((i == INVEN_ARM) && (check_specialty(SP_SHIELD_MAST))) temp_armour = o_ptr->ac * 2;
+		else if ((i == INVEN_BODY) && (check_specialty(SP_ARMOR_MAST))) temp_armour = (o_ptr->ac * 5)/ 3;
 		else temp_armour = o_ptr->ac;
 
 		p_ptr->ac += temp_armour;
@@ -3131,12 +3128,8 @@ static void calc_bonuses(void)
 		/* Extract modifier */
 		add = p_ptr->stat_add[i];
 
-		/* Maximize mode */
-		if (adult_maximize)
-		{
-			/* Modify the stats for race/class */
-			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
-		}
+		/* Modify the stats for race/class */
+		add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
 
 		/* Extract the new "stat_top" value for the stat */
 		top = modify_stat_value(p_ptr->stat_max[i], add);
@@ -3266,6 +3259,63 @@ static void calc_bonuses(void)
 		p_ptr->see_infra = p_ptr->see_infra + 3;
 	}
 
+
+	/*** Specialty Abilities ***/
+
+	/* Specialty magic resistance; gives great saving throws even above 100 */
+	if (check_specialty(SP_MAGIC_RESIST))
+	{
+		if (p_ptr->skill_sav <= 80) p_ptr->skill_sav += (100 - p_ptr->skill_sav) / 2;
+		else p_ptr->skill_sav += 10;		
+	}
+	if (check_specialty(SP_ATHLETICS))
+	{
+		p_ptr->stat_add[A_DEX]++;
+		p_ptr->stat_add[A_CON]++;
+	}
+	if (check_specialty(SP_CLARITY))
+	{
+		p_ptr->stat_add[A_INT]++;
+		p_ptr->stat_add[A_WIS]++;
+	}
+	if (check_specialty(SP_UNLIGHT))
+	{
+		p_ptr->skill_stl += 4;
+	}
+	if (check_specialty(SP_EVASION))
+	{
+		int cur_wgt = 0;
+		int evasion_wgt;
+		int max_bonus;
+
+		/* Weigh the armor */
+		cur_wgt += inventory[INVEN_BODY].weight;
+		cur_wgt += inventory[INVEN_HEAD].weight;
+		cur_wgt += inventory[INVEN_ARM].weight;
+		cur_wgt += inventory[INVEN_OUTER].weight;
+		cur_wgt += inventory[INVEN_HANDS].weight;
+		cur_wgt += inventory[INVEN_FEET].weight;
+
+		/* Highest weight to get any bonus */
+		evasion_wgt = 150 + (3 * p_ptr->lev);
+
+		/* Highest bonus we can get at this level */
+		max_bonus = 15 + (4 * p_ptr->lev);
+
+		/* Do we get the max bonus? */
+		if (cur_wgt < evasion_wgt / 2)
+		{
+			p_ptr->to_a += max_bonus;
+                        p_ptr->dis_to_a += max_bonus;
+		}
+
+		/* Do we get any bonus? */
+		else if (cur_wgt < evasion_wgt)
+		{
+			p_ptr->to_a += max_bonus * 2 - (max_bonus * 2 * cur_wgt)/evasion_wgt;
+			p_ptr->dis_to_a += max_bonus * 2 - (max_bonus * 2 * cur_wgt)/evasion_wgt;
+		}
+	}
 
 	/*** Special flags ***/
 
@@ -3586,8 +3636,8 @@ static void calc_bonuses(void)
 		p_ptr->skill_dig += (o_ptr->weight / 10);
 	}
 
-	/* Everyone gets two blows if not wielding a weapon. */
-	else if (!o_ptr->k_idx) p_ptr->num_blow = 2;
+	/* Everyone gets 2 to 4 blows if not wielding a weapon. */
+	else if (!o_ptr->k_idx) p_ptr->num_blow = 2 + (p_ptr->lev / 20);
 
 
 	/* Add all other class and race-specific adjustments to melee Skill. */
@@ -3720,6 +3770,9 @@ static void calc_bonuses(void)
 			}
 		}
 	}
+
+	/* Big Hack - make sure base_wakeup_chance has ever been set */
+	if (p_ptr->base_wakeup_chance == 0) p_ptr->base_wakeup_chance = 100 * WAKEUP_ADJ;
 
 	/* Redraw armor (if needed) */
 	if ((p_ptr->dis_ac != old_dis_ac) || (p_ptr->dis_to_a != old_dis_to_a))
@@ -3882,6 +3935,12 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_SPELLS);
 		calc_spells();
+	}
+
+	if (p_ptr->update & (PU_SPECIALTY))
+	{
+		p_ptr->update &= ~(PU_SPECIALTY);
+		calc_specialty();
 	}
 
 

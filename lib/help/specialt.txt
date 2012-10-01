@@ -1,0 +1,157 @@
+
+============================= Specialty Abilities =============================
+
+Specialty abilities are a way of ehancing and customizing characters.  Each
+character will gain only a few specialties, so choose the ones that are the
+most fun for you and best complement your playing style.
+
+By choosing specialties, you can make your Warrior a melee machine, an archer, 
+or high-AC  tank.  You can increase the mana and magical abilities of your 
+spellcasters or improve their normally weak defenses.  Classes with unique 
+abilites such as the Rogue's monster trap and the Druid's unarmed combat can
+choose specialties to further improve these abilities.
+
+Each character can gain a specialty ability at first level, and additional 
+abilities at level 20 and level 40.  Warriors gain an additional specialty at
+level 1.  Use the 'O' command to gain new specialties or view your current
+specialty list.
+
+=== The Specialties ===
+
+Armor Mastery: Increase body armor base AC.  Most effective with heavy body 
+armor.  Available to Warriors, and Paladins.
+
+Armor Proficiency: Reduced mana penalties for heavy armor.  Allows more armor 
+to be worn without penatly, and reduces the penalty per pound of additional 
+armor.  Available to Mages, Necromancers, and Druids.
+
+Armsman: More critical hits with melee weapons.  Reduces reliance on high
+combat skill  for criticals.  Available to Warriors, Paladins, Assassins,
+Rogues, Priests, and Rangers.
+
+Athletics: Increases Dexterity and Constitution and often prevents them from 
+being reduced.  Available to Warriors, Rogues, Paladins, Assassins, and
+Rangers.
+
+Beguile: Increases effectiveness of confusion, slow, sleep, fear, and turning
+attacks.  Works with spells and devices.  Available to Mages, Necromancers, 
+and Druids.
+
+Clarity: Increases Intellegency and Wisdom and often prevents them from being 
+reduced.  Available Mages, Priests, Necromancers, and Druids.
+
+Evasion: Increases armor class of characters wearing light armor.  The
+allowed weight and maximum bonus increase with player level.  Available to
+Rogues, Assassins, Warriors, and Rangers.
+
+Extend Magic: Beneficial magics last longer.  Includes all powerups from 
+spells and items (haste, elemental resistance, blessing, etc).  Available
+to Mages, Priests, Paladins, Druids, and Necromancers.
+
+Extra Trap: Allows a rogue to have two monster traps at once.  Available 
+only to Rogues.
+
+Fast Attacking: Gives a chance of an extra melee strike each round.  The
+chance goes up for characters that normally have more attacks.  Effective
+armed and unarmed.  Available to Warriors, Paladins, Assassins, Rogues, and
+Rangers.
+
+Fast Casting: Speeds the casting of all spells, but especially those well 
+below the caster's level.  Available to Mages, Priests, Necromancers, and
+Druids.
+
+Fury: Allows faster movement immediately after taking damage.  The benefit 
+is directly proportional to the total damage inflicted from all sources.
+Available to Warriors, Priests, Paladins, Assassins, and Rangers.
+
+Harmony: Gain hit points whenever you cast any spell.  Available to Priests
+and Druids.
+
+Heighten Magic: Increases the effects of caster-level dependent spells.
+Available to Mages, Priests, Necromancers, and Druids.
+
+Holy Light: Grants increased light radius, resistance to light, and extra
+damage to undead creatures.  Available to Priests and Paladins.
+
+Magic Resistance: Greatly improved saving throws.  Available to Mages,
+Necromancers, and Paladins.
+
+Marksmanship: More critical hits with archery and thrown weapons.  Reduces
+reliance on high ranged weapon skill for criticals.  Available to Warriors,
+Assassins, Rogues, and Rangers.
+
+Martial Arts: Gives a powerful unarmed attack (similar to a druid with the
+Power Strike specialty).  Available to only Warriors.
+
+Meditation: Increased mana regeneration.  Combines well with regeneration
+items (such as Defender weapons).  Available to Mages, Priests, Necromancers,
+and Druids.
+
+Mighty Throw: Doubles the range of throwing weapons and other thrown objects.
+Available to Assassins, Rangers, Rogues, and Warriors.
+
+Piercing Shot: Archery attacks may skewer multiple targets.  After a
+successful hit, an arrow or crossbow bolt will sometimes continue on; targets
+behind the original are very like to be hit.  Multiple pierces are possible.
+Available to Available to Warriors, Assassins, and Rangers.
+
+Power Siphon: Gain mana when monsters in line of sight cast spells.  Available
+only to Mages.
+
+Power Strike: Gives an empty handed druid a chance of an unusually strong
+attack followed by an attempt to confuse the target.  Available only to Druids.
+
+Regeneration: Increased HP regeneration.  Combines well with the regeneration
+items (such as Defender weapons).  Available to Warriors, Rogues, Paladins,
+Assassins, Rangers, and Druids.
+
+Shield Mastery: Increased shield base AC, deflection chance, and bashing
+damage.  Best with a large shield.  Ineffective when wielding a two-handed 
+weapon.  Available to Warriors, Rangers, and Paladins.
+
+Soul Siphon: Grants mana whenever a living monster is slain.  There is a chance
+of taking damage when aborbing too many souls at once.  Available only to
+Necromancers.
+
+Teleport Resistance: Allows a saving throw vs teleportation attacks and
+complete immunity to teleport level.  Does apply to Nexus effects.  Available
+to Mages, Priests, and Rogues.
+
+Unlight: Increases stealth, provides resist darkness, and allows various 
+actions such as reading without light, but limits light radius.  Available to
+Necromancers, Rogues, and Assassins.
+
+
+=== Allowed Specialty Abilities for Each Class ===
+
+               Warrior      Priest      Ranger      Druid      Assassin
+                       Mage       Rogue      Paladin      Necro
+
+Armour Mastery   Yes   No    No    No    No    Yes   No    No    No
+Armour Profiency No    Yes   No    No    No    No    Yes   Yes   No
+Armsman          Yes   No    Yes   Yes   Yes   Yes   No    No    Yes
+Athletics        Yes   No    No    Yes   Yes   Yes   No    No    Yes
+Beguile          No    Yes   No    No    No    No    Yes   Yes   No
+Clarity          No    Yes   Yes   No    No    No    Yes   Yes   No
+Evasion          Yes   No    No    Yes   Yes   No    No    No    Yes
+Extend Magic     No    Yes   Yes   No    No    Yes   Yes   Yes   No
+Extra Trap       No    No    No    Yes   No    No    No    No    No
+Fast Attacking   Yes   No    No    Yes   Yes   Yes   No    No    Yes
+Fast Casting     No    Yes   Yes   No    No    No    Yes   Yes   No
+Fury             Yes   No    Yes   No    Yes   Yes   No    No    Yes
+Harmony          No    No    Yes   No    No    No    Yes   No    No
+Heighten Magic   No    Yes   Yes   No    No    No    Yes   Yes   No
+Holy Light       No    No    Yes   No    No    Yes   No    No    No
+Magic Resistance No    Yes   No    No    No    Yes   No    Yes   No
+Marksmanship     Yes   No    No    Yes   Yes   No    No    No    Yes
+Martial Arts     Yes   No    No    No    No    No    No    No    No
+Meditation       No    Yes   Yes   No    No    No    Yes   Yes   No
+Mighty Throw     Yes   No    No    Yes   Yes   No    No    No    Yes
+Piercing Shot    Yes   No    No    No    Yes   No    No    No    Yes
+Power Siphon     No    Yes   No    No    No    No    No    No    No
+Power Strike     No    No    No    No    No    No    Yes   No    No
+Regeneration     Yes   No    No    Yes   Yes   Yes   Yes   No    Yes
+Shield Mastery   Yes   No    No    No    Yes   Yes   No    No    No
+Soul Siphon      No    No    No    No    No    No    No    Yes   No
+Teleport Resis.  No    Yes   Yes   Yes   No    No    No    No    No
+Unlight          No    No    No    Yes   No    No    No    Yes   Yes

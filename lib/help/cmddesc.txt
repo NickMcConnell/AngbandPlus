@@ -286,6 +286,15 @@ Alter (+)
      "always_repeat" option, requires a direction, and takes some energy.
 
 
+--- Specialty Ability Commands ---
+
+Learn New Specialty/View Specialty Abilities (O)
+     Use this command to learn specialty abilities or get information about your
+     existing abilities.  If both options are possible, you will be given a
+     choice.  When you are able to learn new specialty abilities, the word
+     "Spec." will appear on the status line at the bottom of the screen.
+
+
 --- Spell and Prayer Commands ---
 
 Browse a book (b) or Peruse a book (P)
@@ -302,6 +311,9 @@ Gain new spells or prayers (G)
      mancer, or assassin, you may actually choose which spell to study.  If you 
      are a priest or paladin, your gods will choose a prayer for you.  This 
      command takes some energy.
+     If you can learn new spells and you can also learn new specialty abilities
+     the "Study" notification will be replaced by the "Spec." notification.  You
+     can still gain spells, even if you choose not to specialize.
 
 Cast a spell or Pray a Prayer (m and p)
      To cast a spell, you must have previously learned the spell and must have 
@@ -324,6 +336,7 @@ End/Default shapechange (])
      transformed yourself into any creature.  In addition, if your character
      has an intrinsic ability to shapechange (ie the Beorning player race)
      this command will initiate the shape change.
+
 
 --- Object Manipulation Commands ---
 

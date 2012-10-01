@@ -59,12 +59,14 @@ static void find_range(monster_type *m_ptr)
 		/* Examine player power (level) */
 		p_lev = p_ptr->lev;
 
+		/* Hack - increase p_lev based on specialty abilities */
+
 		/* Examine monster power (level plus morale) */
 		m_lev = r_ptr->level + (cave_m_idx[m_ptr->fy][m_ptr->fx] & 0x08) + 25;
 
 		/* Optimize extreme cases below */
-		if (m_lev < p_lev + 4) m_ptr->min_range = FLEE_RANGE;
-		else if (m_lev + 3 < p_lev)
+		if (m_lev + 3 < p_lev) m_ptr->min_range = FLEE_RANGE;
+		else if (m_lev - 5 < p_lev)
 		{
 		  
 			/* Examine player health */
@@ -818,9 +820,11 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 	bool los = TRUE;
 
 	bool is_harass = FALSE;
+	bool is_best_harass = FALSE;
+	bool is_breath = FALSE;
 	
 	int i, py = p_ptr->py, px = p_ptr->px;
-	int spower, hp, rlev, path;
+	int breath_hp, breath_maxhp, path, spaces;
 
 	int want_hps=0, want_escape=0, want_mana=0, want_summon=0;
 	int want_tactic=0, cur_range=0;
@@ -929,25 +933,24 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 	else if (m_ptr->mana < r_ptr->mana/2) want_mana++;
 
 	/* Figure out if we want to scram */
-	want_escape = 0;
 	if (want_hps) want_escape = want_hps - 1;
-	if (r_ptr->flags2 & (RF2_LOW_MANA_RUN)) want_escape += want_mana;
 	if (m_ptr->min_range == FLEE_RANGE) want_escape++;
 
 	/* Desire to keep minimum distance */
-	want_tactic = 1;
-	if (!(m_ptr->min_range < m_ptr->cdis)) 
-		want_tactic += ((m_ptr->min_range - m_ptr->cdis) / 2) + 1;
+	if (m_ptr->cdis < m_ptr->best_range) want_tactic++;
+	if (m_ptr->cdis < m_ptr->min_range)
+		want_tactic += (m_ptr->min_range - m_ptr->cdis + 1) / 2;
 	if (want_tactic > 3) want_tactic=3;
 
 	/* Check terrain for purposes of summoning spells */
-	want_summon=(summon_possible(py,px)+2)/3;
-	if (want_summon > 2) want_summon=2;
+	spaces=summon_possible(py,px);
+	if (spaces > 10) want_summon=3;
+	else if (spaces > 3) want_summon=2;
+	else if (spaces > 0) want_summon=1;
 	
-	/* Find monster properties */
-	spower = ((r_ptr->spell_power >= 2) ? r_ptr->spell_power : 2);
-	hp = m_ptr->hp;
-	rlev=r_ptr->level;
+	/* Find monster properties; Add an offset so that things are OK near zero */
+	breath_hp = (m_ptr->hp > 2000 ? m_ptr->hp : 2000);
+	breath_maxhp = (m_ptr->maxhp > 2000 ? m_ptr->maxhp : 2000);
 
 	/* Cheat if requested, or if a player ghost. */
 	if ((smart_cheat) || (r_ptr->flags2 & (RF2_PLAYER_GHOST))) update_smart_cheat(m_idx);
@@ -960,71 +963,69 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 		if (i < 32)
 		{
 			if (!(f4 &(1L <<  i    ))) continue;
-			spell_desire=spell_desire_RF4[i];
+			spell_desire=&spell_desire_RF4[i][0];
 			spell_range=spell_range_RF4[i];
 			if (RF4_HARASS_MASK &(1L << (i	 ))) is_harass=TRUE;
 			else is_harass=FALSE;
+			if (RF4_BREATH_MASK &(1L << (i	 ))) is_breath=TRUE;
+			else is_breath=FALSE;
 		}
 		else if (i < 64)
 		{
 			if (!(f5 &(1L << (i-32)))) continue;
-			spell_desire=spell_desire_RF5[i-32];
+			spell_desire=&spell_desire_RF5[i-32][0];
 			spell_range=spell_range_RF5[i-32];
 			if (RF5_HARASS_MASK &(1L << (i-32))) is_harass=TRUE;
 			else is_harass=FALSE;
+			if (RF5_BREATH_MASK &(1L << (i-32))) is_breath=TRUE;
+			else is_breath=FALSE;
 		}
 		else if (i < 96)
 		{
 			if (!(f6 &(1L << (i-64)))) continue;
-			spell_desire=spell_desire_RF6[i-64];
+			spell_desire=&spell_desire_RF6[i-64][0];
 			spell_range=spell_range_RF6[i-64];
 			if (RF6_HARASS_MASK &(1L << (i-64))) is_harass=TRUE;
 			else is_harass=FALSE;
+			if (RF6_BREATH_MASK &(1L << (i-64))) is_breath=TRUE;
+			else is_breath=FALSE;
 		}
 		else
 		{
-			if (!(f7 &(1L << (i-64)))) continue;
-			spell_desire=spell_desire_RF7[i-96];
+			if (!(f7 &(1L << (i-96)))) continue;
+			spell_desire=&spell_desire_RF7[i-96][0];
 			spell_range=spell_range_RF7[i-96];
 			if (RF7_HARASS_MASK &(1L << (i-96))) is_harass=TRUE;
 			else is_harass=FALSE;
+			if (RF7_BREATH_MASK &(1L << (i-96))) is_breath=TRUE;
+			else is_breath=FALSE;
 		}
 
-		/* Desirability for spell power */
-		cur_spell_rating=spell_desire[D_SPOWER]*spower;
+		/* Base Desirability */
+		cur_spell_rating = spell_desire[D_BASE];
 
-		/* Bonus for hps (Breaths) */
-		if (spell_desire[D_HPS])
-		{
-			cur_spell_rating +=
-			  ((spell_desire[D_HPS]*((hp >= 2000) ? 2000 : hp))/10);
-
-			/* low level creatures need to be encouraged to breath more */
-			cur_spell_rating += 200;
-		}
-
-		/* Bonus for monster level */
-		if (spell_desire[D_RLEV]) cur_spell_rating += spell_desire[D_RLEV]*rlev; 
+		/* modified for breath weapons */
+		if (is_breath) cur_spell_rating = (cur_spell_rating * breath_hp) / breath_maxhp;
 
 		/* Bonus if want summon and this spell is helpful */
 		if (spell_desire[D_SUMM] && want_summon) cur_spell_rating +=
-						      (want_summon * rlev * spell_desire[D_SUMM]);
+						      want_summon * spell_desire[D_SUMM];
 
 		/* Bonus if wounded and this spell is helpful */
 		if (spell_desire[D_HURT] && want_hps) cur_spell_rating +=
-						      (want_hps * spell_desire[D_HURT] * spower);
+							want_hps * spell_desire[D_HURT];
 		
 		/* Bonus if low on mana and this spell is helpful */
 		if (spell_desire[D_MANA] && want_mana) cur_spell_rating +=
-						      (want_mana * spell_desire[D_MANA] * spower);
+							 want_mana * spell_desire[D_MANA];
 
 		/* Bonus if want to flee and this spell is helpful */
 		if (spell_desire[D_ESC] && want_escape) cur_spell_rating +=
-						      (want_escape * spell_desire[D_ESC] * rlev);
+							  want_escape * spell_desire[D_ESC];
 
 		/* Bonus if want a tactical move and this spell is helpful */
 		if (spell_desire[D_TACT] && want_tactic) cur_spell_rating +=
-						      (want_tactic * spell_desire[D_TACT] * rlev);
+							   want_tactic * spell_desire[D_TACT];
 
 		/* Penalty if this spell is resisted */
 		if (spell_desire[D_RES]) 
@@ -1042,14 +1043,18 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 		if (is_harass && m_ptr->harass) cur_spell_rating += 2*cur_spell_rating/3;
 
 		/* Random factor; less random for smart monsters */
-		if (r_ptr->flags2 & (RF2_SMART)) cur_spell_rating *= 8 + rand_int(5);
-		else cur_spell_rating *= 6 + rand_int(9);
+		if (r_ptr->flags2 & (RF2_SMART)) cur_spell_rating *= 16 + rand_int(9);
+		else cur_spell_rating *= 12 + rand_int(17);
+
+		/* Deflate for testing purposes */
+		cur_spell_rating /= 20;
 
 		/* Is this the best spell yet? */
 		if (cur_spell_rating > best_spell_rating)
 		{
 			best_spell_rating = cur_spell_rating;
 			best_spell = i + 96;
+			is_best_harass = is_harass;
 		}
 
 	}
@@ -1058,7 +1063,7 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 	  msg_format("Spell rating: %i.", best_spell_rating);
 
 	/* If we used a harassment spell, lower the bias to use them early */
-	if (is_harass && m_ptr->harass) m_ptr->harass--;
+	if (is_best_harass && m_ptr->harass) m_ptr->harass--;
 
 	/* Return Best Spell */
 	return(best_spell);
@@ -2248,6 +2253,10 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 					}
 				}
 
+
+				/* Dead ends are not all that safe */
+				if (p_ptr->vulnerability == 1) p_ptr->vulnerability++;
+
 				/*
 				 * Take character weakness into account (this 
 				 * always adds at least one)
@@ -3197,6 +3206,279 @@ static bool push_aside(monster_type *m_ptr, monster_type *n_ptr)
 }
 
 /*
+ * Check the effect of the Rogue's monster trap.  Certain traps may be avoided by
+ * certain monsters.  Traps may be disarmed by smart monsters.
+ * If the trap works, the effects vary depending on trap type. -BR-
+ *
+ * "death" tells the calling function if the monster is killed by the trap.
+ */
+static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	int dis_chance;
+
+	byte feat = cave_feat[y][x];
+
+	/* Assume monster not frightened by trap */
+	bool fear = FALSE;
+
+	/* Assume the trap works */
+	bool trap_hit = TRUE;
+
+	/* Assume trap is not destroyed */
+	bool trap_destroyed = FALSE;
+
+	/* Assume monster lives */
+	bool mon_dies = FALSE;
+
+	char m_name[80];
+
+	/* Sanity check */
+	if (!((feat >= FEAT_MTRAP_HEAD) && (feat<= FEAT_MTRAP_TAIL))) return;
+
+	/* Get "the monster" or "it" */
+	monster_desc(m_name, m_ptr, 0);
+
+	/* Non-flying monsters usually avoid netted traps */
+	if (feat == FEAT_MTRAP_NET)
+	{
+		if (!(r_ptr->flags2 & (RF2_FLYING)) && (rand_int(3) != 0 || (RF2_PASS_WALL)))
+		{
+			if (m_ptr->ml) msg_format("%s avoids your netted trap.", m_name);
+			trap_hit = FALSE;
+		}
+	}
+
+	/* Spirit traps only affect insubstantial creatures */
+	else if (feat == FEAT_MTRAP_SPIRIT)
+	{
+		if (!(r_ptr->flags2 & (RF2_PASS_WALL)))
+		{
+			if (m_ptr->ml) msg_format("%s ignores your spirit trap.", m_name);
+			trap_hit = FALSE;
+		}
+	}
+
+	/* Stasis traps affect everyone */
+	else if (feat == FEAT_MTRAP_STASIS)
+	{
+	}
+
+	/* Lightning traps affect all but ghosts */
+	else if (feat == FEAT_MTRAP_ELEC)
+	{
+		if ((r_ptr->flags2 & (RF2_PASS_WALL)) && (rand_int(4) != 0))
+		{
+			if (m_ptr->ml) msg_format("%s flies over your trap.", m_name);
+			trap_hit = FALSE;
+		}
+	}
+
+	/* Other traps seldom affect flying monsters or ghosts. */
+	else if (((r_ptr->flags2 & (RF2_PASS_WALL)) ||
+		  (r_ptr->flags2 & (RF2_FLYING))) &&
+	          (rand_int(4) != 0))
+	{
+		if (m_ptr->ml) msg_format("%s flies over your trap.", m_name);
+		trap_hit = FALSE;
+	}
+
+	/* Find the monsters base skill at disarming */
+	dis_chance = 40 + (2 * r_ptr->level);
+
+	/* Keep it in line for high level monsters */
+	if (dis_chance > 215) dis_chance = 215;
+
+	/* Smart monsters may attempts to disarm traps which would affect them */
+	if ((trap_hit) && (r_ptr->flags2 & (RF2_SMART)) && (randint(dis_chance) > p_ptr->skill_dis - 15))
+	{
+		if (m_ptr->ml) msg_format("%s finds your trap and disarms it.", m_name);
+
+		/* Trap is gone */
+		trap_destroyed = TRUE;
+
+		/* Didn't work */
+		trap_hit = FALSE;
+	}
+
+	/* Monsters can be wary of traps */
+	if ((trap_hit) && (m_ptr->mflag & (MFLAG_WARY)))
+	{
+		/* Check for avoidance */
+		if (randint(dis_chance) > (p_ptr->skill_dis - 15) / 2)
+		{
+			if (m_ptr->ml) msg_format("%s avoids your trap.", m_name);
+
+			/* Didn't work */
+			trap_hit = FALSE;
+		}
+	}
+
+	/* I thought traps only affected players!  Unfair! */
+	if (trap_hit)
+	{
+		/* Assume a default death */
+		cptr note_dies = " dies.";
+
+		int n, trap_power;
+
+		/* Some monsters get "destroyed" */
+		if ((r_ptr->flags3 & (RF3_DEMON)) ||
+		    (r_ptr->flags3 & (RF3_UNDEAD)) ||
+		    (r_ptr->flags2 & (RF2_STUPID)) ||
+		    (strchr("Evg", r_ptr->d_char)))
+		{
+			/* Special note at death */
+			note_dies = " is destroyed.";
+		}
+
+		/* Players sees the monster */
+		if (m_ptr->ml) msg_format("%s sets off your cunning trap!", m_name);
+
+		/* Not seen but in line of sight */
+		else if (player_has_los_bold(y, x)) msg_print("Something sets off your cunning trap!");
+
+		/* Monster is not seen or in LOS */
+		else
+		{
+			/* HACK - no message for non-damaging traps */
+			if (!(feat == FEAT_MTRAP_CONF) && !(feat == FEAT_MTRAP_PORTAL) &&
+				!(feat == FEAT_MTRAP_STASIS))
+			{
+				msg_print("You hear anguished yells in the distance.");
+			}
+		}
+
+		/* Explosion traps are always destroyed. */
+		if ((feat == FEAT_MTRAP_EXPLOSIVE) || (feat == FEAT_MTRAP_STASIS))
+		{
+			trap_destroyed = TRUE;
+		}
+
+		/* Some traps are rarely destroyed */
+		else if (feat == FEAT_MTRAP_STURDY)
+		{
+			if (rand_int(8) == 0) trap_destroyed = TRUE;
+		}
+
+		/* Most traps are destroyed 1 time in 3 */
+		else if (rand_int(3) == 0) trap_destroyed = TRUE;
+
+		/* Find the 'power' of the trap effect */
+		n = p_ptr->lev + ((p_ptr->lev * p_ptr->lev)/ 25);
+		trap_power = 3 + randint(n) + (n / 2);
+
+		/* Monsters can be wary of traps */
+		if (m_ptr->mflag & (MFLAG_WARY)) trap_power /= 3;
+
+		/* Trap 'critical' based on disarming skill (if not wary) */
+		else if (randint(p_ptr->skill_dis) > 50 + r_ptr->level) trap_power += trap_power / 2;
+
+		/* Affect the monster. */
+		/* The basic trap does full damage */
+		if (feat == FEAT_MTRAP_BASE)
+		{
+			if (mon_take_hit(cave_m_idx[y][x], trap_power, &fear, note_dies)) mon_dies = TRUE;
+		}
+
+		/* Confusion trap */
+		else if (feat == FEAT_MTRAP_CONF)
+		{
+			int tmp;
+			tmp = rand_int((3 * trap_power) / 2) - r_ptr->level - 10;
+
+			/* Confuse the monster */
+			if (r_ptr->flags3 & (RF3_NO_CONF))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_NO_CONF);
+					msg_format("%^s is unaffected.", m_name);
+				}
+			}
+			else if (tmp < 0)
+			{
+				if (m_ptr->ml) msg_format("%^s is unaffected.", m_name);
+			}
+			else
+			{
+				/* Confuse the target */
+				if (m_ptr->confused)
+				{
+					m_ptr->confused += 2 + tmp / 2;
+					if (m_ptr->ml) msg_format("%^s is more confused.", m_name);
+				}
+				else
+				{
+					m_ptr->confused += 4 + tmp;
+					if (m_ptr->ml) msg_format("%^s is confused.", m_name);
+				}
+			}
+		}
+
+		else if (feat == FEAT_MTRAP_POISON)
+		{
+			(void)fire_meteor(0, GF_POIS, y, x, trap_power / 2, 3, FALSE);
+			if (!(m_ptr->r_idx)) mon_dies = TRUE;
+		}
+
+		else if (feat == FEAT_MTRAP_ELEC)
+		{
+			(void)fire_meteor(0, GF_ELEC, y, x, (7 * trap_power) / 8, 0, FALSE);
+			if (!(m_ptr->r_idx)) mon_dies = TRUE;
+		}
+
+		else if (feat == FEAT_MTRAP_EXPLOSIVE)
+		{
+			(void)fire_meteor(0, GF_FIRE, y, x, (3 * trap_power) / 8, 1, FALSE);
+			(void)fire_meteor(0, GF_SHARD, y, x, (3 * trap_power) / 8, 1, FALSE);
+			if (!(m_ptr->r_idx)) mon_dies = TRUE;
+		}
+
+		else if (feat == FEAT_MTRAP_PORTAL)
+		{
+			if (m_ptr->ml) msg_format("%^s is teleported.", m_name);
+			teleport_away(cave_m_idx[y][x], 5 + (trap_power / 10));
+		}
+
+		else if (feat == FEAT_MTRAP_STASIS)
+		{
+			/* Stasis the target */
+			m_ptr->stasis = 3 + (trap_power / 12);
+			if (m_ptr->ml) msg_format("%^s is caught in stasis!", m_name);
+		}
+
+		/* Other traps (sturdy, net, spirit) default to 75% of normal damage */
+		else
+		{
+			if (mon_take_hit(cave_m_idx[y][x], (3 * trap_power) / 4, &fear, note_dies)) mon_dies = TRUE;
+		}
+
+		/* Take note */
+		if (!mon_dies && fear && m_ptr->ml) msg_format("%^s flees in terror!", m_name);
+
+		/* May become wary if not dumb */
+		if ((!(r_ptr->flags2 & (RF2_STUPID))) &&
+		    ((rand_int(4) == 0) || (m_ptr->hp < m_ptr->maxhp / 2))) m_ptr->mflag |= (MFLAG_WARY);
+	}
+
+	if (trap_destroyed)
+	{
+		/* Kill the trap, decrement the monster trap count. */
+		cave_set_feat(y, x, FEAT_FLOOR);
+		num_trap_on_level--;
+	}
+
+	/* Report death */
+	if (mon_dies) (*death) = TRUE;
+
+	/* Return */
+	return;
+}
+
+
+/*
  * Process a monster's move.
  *
  * All the plotting and planning has been done, and all this function 
@@ -3214,8 +3496,6 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
-	bool fear;
 
 	/* Existing monster location, proposed new location */
 	int oy, ox, ny, nx;
@@ -3364,6 +3644,11 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 		{
 		}
 
+		/* Trees */
+		else if (feat == FEAT_TREE)
+		{
+		}
+
 		/* Paranoia */
 		else return;
 	}
@@ -3442,117 +3727,17 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 			m_ptr->tx = 0;
 		}
 
-
-		/*
-		 * Rogues may set traps for monsters.  They can be fairly
-		 * deadly, but monsters can also sometimes disarm or fly
-		 * over them.
-		 */
-		if (cave_feat[ny][nx] == FEAT_MONSTER_TRAP)
+		/* Check for monster trap */
+		if ((cave_feat[ny][nx] >= FEAT_MTRAP_HEAD) && (cave_feat[ny][nx] <= FEAT_MTRAP_TAIL))
 		{
-			if ((r_ptr->flags2 & (RF2_SMART)) && (randint(3) == 1))
-			{
-				if (m_ptr->ml)
-				{
-					char m_name[80];
+			bool death = FALSE;
 
-					/* Acquire the monster name/poss */
-					monster_desc(m_name, m_ptr, 0);
+			/* Apply trap */
+			apply_monster_trap(m_ptr, ny, nx, &death);
 
-					msg_format("%s finds your trap and disarms it.", m_name);
-				}
-
-				/* Kill the trap, decrement the monster trap count. */
-				cave_set_feat(ny, nx, FEAT_FLOOR);
-				num_trap_on_level--;
-			}
-
-			/* Traps seldom affect flying monsters or ghosts. */
-			else if (((r_ptr->flags2 & (RF2_PASS_WALL)) ||
-			          (r_ptr->flags2 & (RF2_FLYING))) &&
-			          (rand_int(4) != 0))
-			{
-				if (m_ptr->ml)
-				{
-					char m_name[80];
-
-					/* Acquire the monster name/poss */
-					monster_desc(m_name, m_ptr, 0);
-
-					msg_format("%s flies over your trap.", m_name);
-				}
-			}
-
-			/* I thought traps only affected players!  Unfair! */
-			else
-			{
-				/* Assume a default death */
-				cptr note_dies = " dies.";
-
-				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
-				{
-					/* Special note at death */
-					note_dies = " is destroyed.";
-				}
-
-				/* Player is in line of sight */
-				if (player_has_los_bold(ny, nx))
-				{
-					char m_name[80];
-
-					/* Acquire the monster name/poss */
-					if (m_ptr->ml) monster_desc(m_name, m_ptr, 0);
-
-					/* Default name */
-					else strcpy(m_name, "Something");
-
-					msg_format("%s sets off your cunning trap!", m_name);
-				}
-
-				/* Monster is not in LOS */
-				else msg_print("You hear anguished yells in the distance.");
-
-				/* Sometimes the trap is destroyed. */
-				if (rand_int(3) == 0)
-				{
-					cave_set_feat(ny, nx, FEAT_FLOOR);
-					num_trap_on_level--;
-				}
-
-				/* Hurt the monster.  Big bruisers fall hard. */
-				/* 
-				 * Changed proportional damage
-				 * to be based on current
-				 * hitpoints but increased the 
-				 * fraction
-				 */
-				if (mon_take_hit(cave_m_idx[ny][nx], (1 + randint(p_ptr->lev * 3) 
-				    + m_ptr->hp / 15), &fear, note_dies))
-				{
-					return;
-				}
-
-				/* Take note */
-				if (fear && m_ptr->ml)
-				{
-					char m_name[80];
-
-					/* Sound */
-					sound(SOUND_FLEE);
-
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Message */
-					msg_format("%^s flees in terror!", m_name);
-				}
-			}
+			/* Return if dead */
+			if (death) return;
 		}
-
 
 		/*
 		 * If a member of a monster group capable of smelling hits a 
@@ -3924,6 +4109,11 @@ static void process_monster(monster_type *m_ptr)
 		ghost_has_spoken = TRUE;
 	}
 
+	/* Monsters may drop the 'wary of traps' state if they see the player */
+	if ((aware) && (player_has_los_bold(m_ptr->fy, m_ptr->fx)))
+	{
+		if (rand_int(4) == 0) m_ptr->mflag &= ~(MFLAG_WARY);
+	}
 
 	/*** Ranged attacks ***/
 
@@ -3947,7 +4137,7 @@ static void process_monster(monster_type *m_ptr)
 	}
 
 	/* Roll to use ranged attacks failed, but monster is an archer. */
-	if ((choice == 0) && (r_ptr->flags2 & (RF2_ARCHER)))
+	if ((choice == 0) && (r_ptr->flags2 & (RF2_ARCHER)) && (!(m_ptr->confused)))
 	{
 		/* Pick an archery attack (usually) */
 		if ((rand_int(8) != 0) && (m_ptr->cdis > 1)) choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx], TRUE);
@@ -4009,7 +4199,7 @@ static void process_monster(monster_type *m_ptr)
 	/*** Find a target to move to ***/
 
 	/* Monster is genuinely confused */
-	if (m_ptr->confused)
+	if ((m_ptr->confused) && (!(r_ptr->flags1 & (RF1_NEVER_MOVE))))
 	{
 		/* Choose any direction except five and zero */
 		dir = rand_int(8);
@@ -4429,8 +4619,13 @@ static void recover_monster(monster_type *m_ptr, bool regen)
 	 */
 	if ((m_ptr->mspeed > r_ptr->speed + 4) || (m_ptr->mspeed < r_ptr->speed - 4))
 	{
-		/* 1.5% chance that slowed monsters will return to normal speed. */
-		if ((m_ptr->mspeed < r_ptr->speed) && (rand_int(67) == 0))
+		int speedup_chance = 67 - (2 * r_ptr->level / 3);
+
+		/*
+		 * 1.5% - 3.0% chance (depending on level) that slowed monsters
+		 * will return to normal speed.
+		 */
+		if ((m_ptr->mspeed < r_ptr->speed) && (rand_int(67) == speedup_chance))
 		{
 			m_ptr->mspeed = r_ptr->speed;
 

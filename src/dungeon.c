@@ -476,9 +476,14 @@ static void process_world(void)
 
 	bool was_ghost=FALSE;
 
+	bool extend_magic = FALSE;
+
 	/* Every 10 game turns */
 	if (turn % 10) return;
 
+	/* Hack - beneficial effects timeout at half speed with EXTEND_MAGIC */
+	if ((check_specialty(SP_EXTEND_MAGIC)) && ((turn/10) % EXTEND_MAGIC_FRACTION))
+		extend_magic = TRUE;
 
 	/*** Check the Time and Load ***/
 
@@ -634,7 +639,7 @@ static void process_world(void)
 	if (p_ptr->poisoned)
 	{
 		/* Take damage */
-		take_hit(1+randint(p_ptr->poisoned > 400 ? 20 : p_ptr->poisoned / 20), "poison");
+		take_hit(randint(p_ptr->poisoned > 300 ? 20 : (p_ptr->poisoned + 14) / 15), "poison");
 	}
 
 	/* Take damage from cuts */
@@ -761,6 +766,10 @@ static void process_world(void)
 	/* Otherwise, the basic mana regen is the same as that of HPs. */
 	else	mana_regen_amount = regen_amount;
 
+	/* Consider specialty abilities */
+        if (check_specialty(SP_REGENERATION)) regen_amount *= 2;
+        if (check_specialty(SP_MEDITATION)) mana_regen_amount *= 2;
+
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
@@ -802,19 +811,19 @@ static void process_world(void)
 	}
 
 	/* Timed see-invisible */
-	if (p_ptr->tim_invis)
+	if ((p_ptr->tim_invis) && (!extend_magic))
 	{
 		(void)set_tim_invis(p_ptr->tim_invis - 1);
 	}
 
 	/* Timed Telepathy */
-	if (p_ptr->tim_esp)
+	if ((p_ptr->tim_esp) && (!extend_magic))
 	{
 		(void)set_tim_esp(p_ptr->tim_esp - 1);
 	}
 
 	/* Timed near-complete stealth -LM- */
-	if (p_ptr->superstealth)
+	if ((p_ptr->superstealth) && (!extend_magic))
 	{
 		(void)set_superstealth(p_ptr->superstealth - 1);
 
@@ -824,7 +833,7 @@ static void process_world(void)
 	}
 
 	/* Timed temporary elemental brands. -LM- */
-	if (p_ptr->ele_attack)
+	if ((p_ptr->ele_attack) && (!extend_magic))
 	{
 		p_ptr->ele_attack--;
 
@@ -839,7 +848,7 @@ static void process_world(void)
 	}
 
 	/* Timed infra-vision */
-	if (p_ptr->tim_infra)
+	if ((p_ptr->tim_infra) && (!extend_magic))
 	{
 		(void)set_tim_infra(p_ptr->tim_infra - 1);
 	}
@@ -875,7 +884,7 @@ static void process_world(void)
 	}
 
 	/* Fast */
-	if (p_ptr->fast)
+	if ((p_ptr->fast) && (!extend_magic))
 	{
 		(void)set_fast(p_ptr->fast - 1);
 	}
@@ -891,67 +900,67 @@ static void process_world(void)
 	}
 
 	/* Protection from evil. */
-	if (p_ptr->protevil)
+	if ((p_ptr->protevil) && (!extend_magic))
 	{
 		(void)set_protevil(p_ptr->protevil - 1);
 	}
 
 	/* Increased Magical Defences. -LM- */
-	if (p_ptr->magicdef)
+	if ((p_ptr->magicdef) && (!extend_magic))
 	{
 		(void)set_extra_defences(p_ptr->magicdef - 1);
 	}
 
 	/* Heroism. */
-	if (p_ptr->hero)
+	if ((p_ptr->hero) && (!extend_magic))
 	{
 		(void)set_hero(p_ptr->hero - 1);
 	}
 
 	/* Berserk. */
-	if (p_ptr->shero)
+	if ((p_ptr->shero) && (!extend_magic))
 	{
 		(void)set_shero(p_ptr->shero - 1);
 	}
 
 	/* Blessed */
-	if (p_ptr->blessed)
+	if ((p_ptr->blessed) && (!extend_magic))
 	{
 		(void)set_blessed(p_ptr->blessed - 1);
 	}
 
 	/* Shield */
-	if (p_ptr->shield)
+	if ((p_ptr->shield) && (!extend_magic))
 	{
 		(void)set_shield(p_ptr->shield - 1);
 	}
 
 	/* Oppose Cold. */
-	if (p_ptr->oppose_cold)
+	if ((p_ptr->oppose_cold) && (!extend_magic))
 	{
 		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
 	}
 
 	/* Oppose Acid. */
-	if (p_ptr->oppose_acid)
+	if ((p_ptr->oppose_acid) && (!extend_magic))
 	{
 		(void)set_oppose_acid(p_ptr->oppose_acid - 1);
 	}
 
 	/* Oppose Lightning */
-	if (p_ptr->oppose_elec)
+	if ((p_ptr->oppose_elec) && (!extend_magic))
 	{
 		(void)set_oppose_elec(p_ptr->oppose_elec - 1);
 	}
 
 	/* Oppose Fire */
-	if (p_ptr->oppose_fire)
+	if ((p_ptr->oppose_fire) && (!extend_magic))
 	{
 		(void)set_oppose_fire(p_ptr->oppose_fire - 1);
 	}
 
 	/* Oppose Poison */
-	if (p_ptr->oppose_pois)
+	if ((p_ptr->oppose_pois) && (!extend_magic))
 	{
 		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
 	}
@@ -1691,6 +1700,14 @@ static void process_command(void)
 			break;
 		}
 
+		/*** Specialty Abilities ***/
+
+		/* Interact with specialty abilities*/
+		case 'O':
+		{
+			do_cmd_specialty();
+			break;
+		}
 
 		/*** Use various objects ***/
 
@@ -2088,6 +2105,51 @@ static void process_player_aux(void)
 	}
 }
 
+/*
+ * Helper function for mana gained through special means
+ * (Power Siphon and Soul Siphon).
+ */
+static void special_mana_gain(void)
+{
+	if (p_ptr->mana_gain)
+	{
+		/* Message */
+		if (p_ptr->csp < p_ptr->msp) msg_print("You gain mana.");
+	
+		/* Partial fill */
+		if (p_ptr->mana_gain < p_ptr->msp - p_ptr->csp)
+		{
+			p_ptr->csp += p_ptr->mana_gain;
+			p_ptr->mana_gain = 0;
+		}
+		/* Complete Fill */
+		else
+		{
+                        p_ptr->mana_gain -= p_ptr->msp - p_ptr->csp;
+			p_ptr->csp = p_ptr->msp;
+		}
+		/*
+		 * Hack - If there is a lot of mana left, it can do damage
+		 * Mega-Hack - Restrict to Necromancers to make it affect Soul Siphon
+		 * and not Power Siphon.
+		 */
+		if ((p_ptr->mana_gain > p_ptr->lev) && (p_ptr->pclass == CLASS_MAGE))
+		{
+                        msg_print("You absorb too much mana!");
+			take_hit(randint(p_ptr->mana_gain), "mana burn");
+		}
+	
+		/* Paranioa */
+		if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+	
+		/* Clear mana gain */
+       		p_ptr->mana_gain = 0;
+	
+		/* Redraw */
+		p_ptr->redraw |= (PR_MANA);
+	}
+}
+
 
 /*
  * Process the player
@@ -2182,6 +2244,8 @@ static void process_player(void)
 		}
 	}
 
+	/*** Hack - handle special mana gain ***/
+	special_mana_gain();
 
 	/*** Handle actual user input ***/
 
@@ -2336,6 +2400,12 @@ static void process_player(void)
 			process_command();
 		}
 
+		/*** Hack - handle special mana gain ***/
+		special_mana_gain();
+
+		/* HACK - Apply and reset special energy gain */
+		p_ptr->energy += p_ptr->energy_gain;
+		p_ptr->energy_gain = 0;
 
 		/*** Clean up ***/
 
@@ -2571,6 +2641,9 @@ static void dungeon(void)
 			{
 				cave_set_feat(py, px, FEAT_LESS);
 			}
+
+			/* Mark the stairs as known */
+			cave_info[py][px] |= (CAVE_MARK);
 		}
 
 		/* Cancel the stair request */
@@ -2595,7 +2668,7 @@ static void dungeon(void)
 
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
 
 	/* Calculate torch radius */
 	p_ptr->update |= (PU_TORCH);
@@ -2633,7 +2706,7 @@ static void dungeon(void)
 
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
 
 	/* Combine / Reorder the pack */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2709,7 +2782,6 @@ static void dungeon(void)
 			{
 				/* Process the player */
 				process_player();
-
 			}
 		}
 

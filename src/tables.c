@@ -1112,60 +1112,60 @@ byte extract_energy[200] =
 
 
 /*
- * Base experience levels, may be adjusted up for race and/or class
+ * Experience levels
  */
 s32b player_exp[PY_MAX_LEVEL] =
 {
-	10,
+	10,		/* 1 */
 	25,
 	45,
 	70,
-	100,
-	140,
-	200,
-	280,
-	380,
-	500,
-	650,
-	850,
-	1100,
-	1400,
-	1800,
-	2300,
-	2900,
-	3600,
-	4400,
-	5400,
-	7000,
-	9000,
-	11500,
-	15000,
-	20000,
-	28000,
-	37500L,
-	55000L,
-	75000L,
-	100000L,
-	150000L,
-	200000L,
-	275000L,
+	105,
+	150,
+	210,
+	290,
+	390,
+	530,		/* 10 */
+	720,
+	960,
+	1270,
+	1700,
+	2250,
+	3000,
+	4000,
+	5300,
+	6900,
+	9100,		/* 20 */
+	12100,
+	16000,
+	21000,
+	27500,
+	36500,
+	48500,
+	64000,
+	84500L,
+	111000L,
+	144000L,	/* 30 */
+	183000L,
+	230000L,
+	285000L,
 	350000L,
-	450000L,
-	550000L,
-	700000L,
-	850000L,
-	1000000L,
-	1250000L,
-	1500000L,
-	1800000L,
-	2100000L,
+	430000L,
+	525000L,
+	640000L,
+	780000L,
+	945000L,
+	1140000L,	/* 40 */
+	1380000L,
+	1660000L,
+	2000000L,
 	2400000L,
-	2700000L,
-	3000000L,
+	2900000L,
 	3500000L,
-	4000000L,
-	4500000L,
-	5000000L
+	4200000L,
+	5000000L,
+	6000000L,
+	7200000L	/* 50 */
 };
 
 
@@ -1209,7 +1209,7 @@ player_class class_info[MAX_CLASS] =
 		{ 5, -2, -2, 2, 2, -1},
 		18, 18, 18, 1, 14,  5, 25, 25,
 		50, 35, 50, 0,  0,  0,100, 80,
-		9,  0
+		9
 	},
 
 	{	
@@ -1217,7 +1217,7 @@ player_class class_info[MAX_CLASS] =
 		{-4, 3, 0, 1, -2, 1},
 		14, 36, 30,  3, 16, 12, 10, 15,
 		30, 65, 45, -3,  0,  0, 25, 25,
-		0, 25
+		0
 	},
 
 	{
@@ -1225,7 +1225,7 @@ player_class class_info[MAX_CLASS] =
 		{-1, -3, 3, -1, 0, 2},
 		15, 32, 32,  2, 16,  8, 16, 15,
 		30, 50, 60,  0,  0,  0, 50, 25,
-		2, 20
+		2
 	},
 
 		/* A high-level rogue sees and disarms *everything*. */
@@ -1234,15 +1234,15 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 1, -2, 3, 1, -5},
 		45, 32, 28,  6, 36, 28, 15, 29,
 		90, 50, 50,  0, 40, 40, 70, 60,
-		5, 30
+		5
 	},
 
 	{
 		"Ranger",
-		{ 1, 0, 1, 1, 1, 0},
+		{ 1, 0, 1, 2, 1, 0},
 		22, 26, 28, 4, 24, 16, 15, 30,
 		50, 40, 50, 0,  0,  0, 65, 95,
-		5, 30
+		5
 	},
 
 	{
@@ -1250,15 +1250,15 @@ player_class class_info[MAX_CLASS] =
 		{ 2, -3, 1, 0, 1, 2},
 		14, 16, 25, 1, 12,  2, 19, 15,
 		30, 30, 55, 0,  0,  0, 76, 20,
-		7, 35
+		7
 	},
 
 	{
 		"Druid",
-		{ -2, -2, 3, 2, 0, 1},
+		{ -2, -2, 3, 1, 0, 1},
 		22, 26, 30, 4, 24, 16, 12, 21,
 		40, 45, 60, 0,  0,  0, 30, 40,
-		0, 20
+		0
 	},
 
 	{
@@ -1266,7 +1266,7 @@ player_class class_info[MAX_CLASS] =
 		{ -2, 3, -2, 1, 0, -2},
 		14, 32, 25,  2, 14,  6, 10, 15,
 		30, 50, 40,  0,  0,  0, 30, 30,
-		0, 25
+		0
 	},
 
 	{
@@ -1274,7 +1274,301 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 1, -3, 2, 0, -2},
 		35, 26, 20,  5, 30, 22, 20, 29,
 		70, 50, 40,  0, 10, 10, 85, 80,
-		4, 30
+		4
+	}
+};
+
+
+/*
+ * Bonuses to close combat skill based on class, weapon, and 
+ * weapon weight. -BR-
+ */
+player_weapon weapon_info[MAX_CLASS] =
+{
+	{
+		/* Warrior */
+		150,		/* Max Weight (decipounds) at level 1 */
+		450,		/* Max Weight (decipounds) at level 50 */
+		17,		/* Penalty per 10 pounds over */
+		10,		/* Max Penalty */
+		0,		/* Bonus per 10 pounds under */
+		0,		/* Max Bonus */
+		FALSE,		/* Edged Weapon Penalty */
+		FALSE		/* Bare-handed skill */
+	},
+
+	{
+		/* Mage */
+		60,		/* Max Weight (decipounds) at level 1 */
+		160,		/* Max Weight (decipounds) at level 50 */
+		33,		/* Penalty per 10 pounds over */
+		30,		/* Max Penalty */
+		0,		/* Bonus per 10 pounds under */
+		0,		/* Max Bonus */
+		FALSE,		/* Edged Weapon Penalty */
+		FALSE		/* Bare-handed skill */
+	},
+
+	{
+		/* Priest */
+		120,		/* Max Weight (decipounds) at level 1 */
+		220,		/* Max Weight (decipounds) at level 50 */
+		25,		/* Penalty per 10 pounds over */
+		25,		/* Max Penalty */
+		0,		/* Bonus per 10 pounds under */
+		0,		/* Max Bonus */
+		TRUE,		/* Edged Weapon Penalty */
+		FALSE		/* Bare-handed skill */
+	},
+
+	{
+		/* Rogue */
+		100,		/* Max Weight (decipounds) at level 1 */
+		200,		/* Max Weight (decipounds) at level 50 */
+		33,		/* Penalty per 10 pounds over */
+		25,		/* Max Penalty */
+		17,		/* Bonus per 10 pounds under */
+		15,		/* Max Bonus */
+		FALSE,		/* Edged Weapon Penalty */
+		FALSE		/* Bare-handed skill */
+	},
+
+	{
+		/* Ranger */
+		120,		/* Max Weight (decipounds) at level 1 */
+		250,		/* Max Weight (decipounds) at level 50 */
+		20,		/* Penalty per 10 pounds over */
+		20,		/* Max Penalty */
+		0,		/* Bonus per 10 pounds under */
+		0,		/* Max Bonus */
+		FALSE,		/* Edged Weapon Penalty */
+		FALSE		/* Bare-handed skill */
+	},
+
+	{
+		/* Paladin */
+		150,		/* Max Weight (decipounds) at level 1 */
+		450,		/* Max Weight (decipounds) at level 50 */
+		17,		/* Penalty per 10 pounds over */
+		10,		/* Max Penalty */
+		0,		/* Bonus per 10 pounds under */
+		0,		/* Max Bonus */
+		TRUE,		/* Edged Weapon Penalty */
+		FALSE		/* Bare-handed skill */
+	},
+
+	{
+		/* Druid */
+		50,		/* Max Weight (decipounds) at level 1 */
+		120,		/* Max Weight (decipounds) at level 50 */
+		33,		/* Penalty per 10 pounds over */
+		30,		/* Max Penalty */
+		0,		/* Bonus per 10 pounds under */
+		0,		/* Max Bonus */
+		FALSE,		/* Edged Weapon Penalty */
+		TRUE		/* Bare-handed skill */
+	},
+
+	{
+		/* Necromancer */
+		60,		/* Max Weight (decipounds) at level 1 */
+		160,		/* Max Weight (decipounds) at level 50 */
+		33,		/* Penalty per 10 pounds over */
+		30,		/* Max Penalty */
+		0,		/* Bonus per 10 pounds under */
+		0,		/* Max Bonus */
+		FALSE,		/* Edged Weapon Penalty */
+		FALSE		/* Bare-handed skill */
+	},
+
+	{
+		/* Assassin */
+		100,		/* Max Weight (decipounds) at level 1 */
+		200,		/* Max Weight (decipounds) at level 50 */
+		33,		/* Penalty per 10 pounds over */
+		25,		/* Max Penalty */
+		22,		/* Bonus per 10 pounds under */
+		20,		/* Max Bonus */
+		FALSE,		/* Edged Weapon Penalty */
+		FALSE		/* Bare-handed skill */
+	}
+};
+
+
+/*
+ * Specialty abilities available by class -BR-
+ */
+byte specialty_info [MAX_CLASS][CLASS_SPECIALTIES] =
+{
+	{
+		/* Warrior */
+		SP_ARMOR_MAST,
+		SP_ARMSMAN,
+		SP_ATHLETICS,
+		SP_MIGHTY_THROW,
+		SP_FAST_ATTACK,
+		SP_FURY,
+		SP_MARKSMAN,
+		SP_PIERCE_SHOT,
+		SP_REGENERATION,
+		SP_SHIELD_MAST,
+		SP_EVASION,
+		SP_MARTIAL_ARTS,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY
+	},
+
+	{
+		/* Mage */
+		SP_ARMOR_PROFICIENCY,
+		SP_BEGUILE,
+		SP_CLARITY,
+		SP_EXTEND_MAGIC,
+		SP_FAST_CAST,
+		SP_MEDITATION,
+		SP_POWER_SIPHON,
+		SP_MAGIC_RESIST,
+		SP_TELEPORT_RESIST,
+		SP_HEIGHTEN_MAGIC,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY
+	},
+
+	{
+		/* Priest */
+		SP_CLARITY,
+		SP_EXTEND_MAGIC,
+		SP_FAST_CAST,
+		SP_MEDITATION,
+		SP_ARMSMAN,
+		SP_TELEPORT_RESIST,
+		SP_HOLY_LIGHT,
+		SP_HARMONY,
+		SP_FURY,
+		SP_HEIGHTEN_MAGIC,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY
+	},
+
+	{
+		/* Rogue */
+		SP_ARMSMAN,
+		SP_ATHLETICS,
+		SP_EVASION,
+		SP_FAST_ATTACK,
+		SP_MARKSMAN,
+		SP_REGENERATION,
+		SP_MIGHTY_THROW,
+		SP_TELEPORT_RESIST,
+		SP_UNLIGHT,
+		SP_EXTRA_TRAP,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY
+	},
+
+	{
+		/* Ranger */
+		SP_ARMSMAN,
+		SP_ATHLETICS,
+		SP_EVASION,
+		SP_FAST_ATTACK,
+		SP_FURY,
+		SP_MARKSMAN,
+		SP_PIERCE_SHOT,
+		SP_REGENERATION,
+		SP_MIGHTY_THROW,
+		SP_SHIELD_MAST,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY
+	},
+
+	{
+		/* Paladin */
+		SP_ARMOR_MAST,
+		SP_ARMSMAN,
+		SP_ATHLETICS,
+		SP_FAST_ATTACK,
+		SP_FURY,
+		SP_REGENERATION,
+		SP_SHIELD_MAST,
+		SP_EXTEND_MAGIC,
+		SP_MAGIC_RESIST,
+		SP_HOLY_LIGHT,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY
+	},
+
+	{
+		/* Druid */
+		SP_ARMOR_PROFICIENCY,
+		SP_BEGUILE,
+		SP_CLARITY,
+		SP_FAST_CAST,
+		SP_MEDITATION,
+		SP_EXTEND_MAGIC,
+		SP_REGENERATION,
+		SP_HARMONY,
+		SP_POWER_STRIKE,
+		SP_HEIGHTEN_MAGIC,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY
+	},
+
+	{
+		/* Necromancer */
+		SP_UNLIGHT,
+		SP_ARMOR_PROFICIENCY,
+		SP_BEGUILE,
+		SP_CLARITY,
+		SP_EXTEND_MAGIC,
+		SP_FAST_CAST,
+		SP_MEDITATION,
+		SP_MAGIC_RESIST,
+		SP_SOUL_SIPHON,
+		SP_HEIGHTEN_MAGIC,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY
+	},
+
+	{
+		/* Assassin */
+		SP_ARMSMAN,
+		SP_ATHLETICS,
+		SP_EVASION,
+		SP_FAST_ATTACK,
+		SP_MARKSMAN,
+		SP_PIERCE_SHOT,
+		SP_REGENERATION,
+		SP_MIGHTY_THROW,
+		SP_UNLIGHT,
+		SP_FURY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY,
+		SP_NO_SPECIALTY
 	}
 };
 
@@ -1284,7 +1578,8 @@ player_class class_info[MAX_CLASS] =
  * organized into spellbooks. -LM-
  *
  *    Spell Book Tval, Spell Stat, Spell Realm, Level of first spell, 
- *    Max armour weight that avoids mana penalties.
+ *    Max armour weight that avoids mana penalties, Additional armour
+ *    weight to elminate all mana.
  *
  *    Number of spells (max is 64), array (not spell) index of first 
  *    spell in each of the nine books, listed by sval.
@@ -1298,7 +1593,7 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Warrior ***/
 
-		0,   A_STR,   REALM_NONE,   99,   0,
+		0,   A_STR,   REALM_NONE,   99,   0,   1,
 
 		/* Zero spells.  Spellbooks contain 0 spells each. */
 		0,	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -1342,22 +1637,22 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Mage ***/
 
-		TV_MAGIC_BOOK,   A_INT,   REALM_SORCERY,   1,   250,
+		TV_MAGIC_BOOK,   A_INT,   REALM_SORCERY,   1,   250,  600,
 
 		/* 59 spells in nine books. */
 		59,	{ 0, 9, 18, 26, 33, 38, 43, 48, 53, 59, 59 },
 
 		{
 			/* Magic for Beginners (sval 0) */
-			{   0,   1,  1, 22,   4}, /* Magic Missile */
-			{   1,	 1,  1, 23,   4}, /* Detect Monsters */
-			{   2,	 2,  1, 24,   4}, /* Phase Door */
-			{   3,	 3,  2, 25,   4}, /* Light Area */
-			{   4,	 3,  1, 25,   4}, /* Combat Poison */
-			{   5,	 4,  2, 25,   4}, /* Cure Light Wounds */
-			{  69,	 5,  3, 25,   4},       /* Find Traps */
-			{  70,	 5,  3, 25,   4},       /* Detect Doors/Stairs */
-			{   8,	 6,  3, 27,   5},	/* Stinking Cloud */
+			{   0,   1,  1, 22,   2}, /* Magic Missile */
+			{   1,	 1,  1, 23,   2}, /* Detect Monsters */
+			{   2,	 2,  1, 24,   2}, /* Phase Door */
+			{   3,	 3,  2, 25,   2}, /* Light Area */
+			{   4,	 3,  1, 25,   2}, /* Combat Poison */
+			{   5,	 4,  2, 25,   3}, /* Cure Light Wounds */
+			{  69,	 5,  3, 25,   3},       /* Find Traps */
+			{  70,	 5,  3, 25,   3},       /* Detect Doors/Stairs */
+			{   8,	 6,  3, 27,   4},	/* Stinking Cloud */
 
 			/* Conjurings and Tricks (sval 1) */
 			{   9,	 7,  3, 30,   5},	/* Confuse Monster */
@@ -1436,21 +1731,21 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Priest ***/
 
-		TV_PRAYER_BOOK,  A_WIS,  REALM_PIETY,  1,  350,
+		TV_PRAYER_BOOK,  A_WIS,  REALM_PIETY,  1,  350,  800,
 
 		/* 58 prayers in 9 books. */
 		58, { 0, 8, 16, 25, 31, 37, 42, 47, 53, 58, 58 },
 
 		{
 			/* Novice's Handbook (sval 0) */
-			{  64,	 1,  1, 10,   4}, /* Detect Evil */
-			{  65,	 1,  1, 15,   4}, /* Cure Light Wounds */
-			{  66,	 3,  2, 20,   4}, /* Bless */
-			{  67,	 3,  2, 25,   4}, /* Remove Fear */
-			{  68,	 3,  2, 25,   4}, /* Call Light */
-			{  69,	 5,  4, 25,   4}, /* Find Traps */
-			{  70,	 5,  4, 25,   4}, /* Detect Doors/Stairs */
-			{  71,	 6,  1, 30,   4}, /* Slow Poison */
+			{  64,	 1,  1, 10,   2}, /* Detect Evil */
+			{  65,	 1,  1, 15,   2}, /* Cure Light Wounds */
+			{  66,	 3,  2, 20,   2}, /* Bless */
+			{  67,	 3,  2, 25,   2}, /* Remove Fear */
+			{  68,	 3,  2, 25,   2}, /* Call Light */
+			{  69,	 5,  4, 25,   3}, /* Find Traps */
+			{  70,	 5,  4, 25,   3}, /* Detect Doors/Stairs */
+			{  71,	 6,  1, 30,   3}, /* Slow Poison */
 
 			/* Words of Wisdom (sval 1) */
 			{  72,	 7,  4, 28,   4}, /* Cure Serious Wounds */
@@ -1530,7 +1825,7 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Rogue ***/
 
-		TV_MAGIC_BOOK,  A_INT,  REALM_SORCERY,  5,  300,
+		TV_MAGIC_BOOK,  A_INT,  REALM_SORCERY,  5,  300,  1000,
 
 		/* 34 spells in five books */
 		34,	{ 0, 8, 15, 22, 22, 22, 28, 28, 34, 34, 34 },
@@ -1609,7 +1904,7 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Ranger ***/
 
-		TV_DRUID_BOOK,  A_WIS,  REALM_NATURE,  3,  300,
+		TV_DRUID_BOOK,  A_WIS,  REALM_NATURE,  3,  300,  1000,
 
 		/* 33 techniques in 5 books. */
 		33,	{ 0, 8, 15, 22, 22, 22, 28, 28, 33, 33, 33 },
@@ -1689,7 +1984,7 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Paladin ***/
 
-		TV_PRAYER_BOOK,  A_WIS,  REALM_PIETY,  3,  400,
+		TV_PRAYER_BOOK,  A_WIS,  REALM_PIETY,  3,  400,  1200,
 
 		/* 40 prayers in 6 books. */
 		40, { 0, 8, 16, 16, 25, 25, 30, 35, 35, 40, 40 },
@@ -1771,22 +2066,22 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Druid ***/
 
-		TV_DRUID_BOOK,  A_WIS,  REALM_NATURE,  1,  250,
+		TV_DRUID_BOOK,  A_WIS,  REALM_NATURE,  1,  250,  600,
 
 		/* 58 techniques in 9 books. */
 		58,	{ 0, 9, 17, 25, 32, 37, 42, 47, 52, 58, 58 },
 
 		{
 			/* Call of the Wild (sval 0) */
-			{ 128,	 1,  1, 22,   4}, /* detect life */
-			{ 129,	 1,  1, 23,   4}, /* call light */
-			{ 130,	 2,  1, 24,   4}, /* foraging */
-			{ 132,	 3,  1, 25,   4}, /* combat poison */
-			{ 131,	 3,  2, 25,   4}, /* blink */
-			{ 133,	 4,  2, 25,   4}, /* lightning spark */
-			{ 134,	 5,  3, 25,   4}, /* door destruction */
-			{ 135,	 5,  3, 25,   4}, /* turn stone to mud */
-			{ 136,	 6,  4, 27,   5}, /* ray of sunlight */
+			{ 128,	 1,  1, 22,   2}, /* detect life */
+			{ 129,	 1,  1, 23,   2}, /* call light */
+			{ 130,	 2,  1, 24,   2}, /* foraging */
+			{ 132,	 3,  1, 25,   2}, /* combat poison */
+			{ 131,	 3,  2, 25,   2}, /* blink */
+			{ 133,	 4,  2, 25,   3}, /* lightning spark */
+			{ 134,	 5,  3, 25,   3}, /* door destruction */
+			{ 135,	 5,  3, 25,   3}, /* turn stone to mud */
+			{ 136,	 6,  4, 27,   4}, /* ray of sunlight */
 
 			/* Communion with Nature (sval 1) */
 			{ 137,	 7,  4, 30,   5}, /* Cure poison */
@@ -1865,20 +2160,20 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Necromancer ***/
 
-		TV_NECRO_BOOK,  A_INT,  REALM_NECROMANTIC,  1,  200,
+		TV_NECRO_BOOK,  A_INT,  REALM_NECROMANTIC,  1,  200,  600,
 
 		/* 58 rituals in 9 books. */
 		58, { 0, 8, 16, 24, 30, 36, 42, 47, 53, 58, 58 },
 		{
 			/* Beginner's Curses (sval 0) */
-			{ 192,	 1,  1, 22,   4}, /* magic bolt */
-			{ 193,	 1,  1, 23,   4}, /* detect evil */
-			{ 194,	 3,  1, 24,   4}, /* enhanced infravision */
-			{ 195,	 3,  2, 25,   4}, /* break curse */
-			{ 196,	 4,  3, 25,   4}, /* slow monster */
-			{ 197,	 5,  3, 25,   4}, /* sleep monster */
-			{ 198,	 5,  3, 25,   4}, /* horrify */
-			{ 199,	 6,  3, 85,   6}, /* become bat */
+			{ 192,	 1,  1, 22,   2}, /* magic bolt */
+			{ 193,	 1,  1, 23,   2}, /* detect evil */
+			{ 194,	 3,  1, 24,   2}, /* enhanced infravision */
+			{ 195,	 3,  2, 25,   2}, /* break curse */
+			{ 196,	 4,  3, 25,   3}, /* slow monster */
+			{ 197,	 5,  3, 25,   3}, /* sleep monster */
+			{ 198,	 5,  3, 25,   3}, /* horrify */
+			{ 199,	 6,  3, 85,   5}, /* become bat */
 
 			/* Dark Initiation (sval 1) */
 			{ 200,	 7,  3, 27,   4}, /* door destruction */
@@ -1958,7 +2253,7 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Assassin ***/
 
-		TV_NECRO_BOOK,  A_INT,  REALM_NECROMANTIC,  3,  300,
+		TV_NECRO_BOOK,  A_INT,  REALM_NECROMANTIC,  3,  300, 1000,
 
 		/* 29 rituals in 4 books. */
 		29, { 0, 9, 9, 17, 17, 23, 23, 23, 29, 29, 29 },
@@ -2517,77 +2812,6 @@ int chest_traps[100] =
 };
 
 
-set_type s_info[MAX_S_IDX] =
-{
-
-	/* Blank Set */
-	{
-		"Dummy",0,"",
-		{}
-	},
- 
-	/* Holy Fire Set */ 
-	{
-		"Flame of Wrath",2,"It is part of a set of items infused with holy fire",
-		{ 
-			/* The Amulet of Carlammas */
-			{4,(TR1_WIS),(TR2_IM_FIRE | TR2_RES_FEAR),0,0},	
-
-			/* The Morning Star 'Firestar' */
-			{162,(TR1_STR | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD),0,0,4}
-		}
-	},
-
-	/* Shadow Set */ 
-	{
-		"Shadow Ward",2,"It is one of the Shadow Ward items",
-		{ 
-			/* The Soft Leather Armour 'Hithlomir' */
-			{37,(TR1_SEARCH),(TR2_RES_BLIND),0,0},
-
-			/* The Set of Leather Gloves 'Cammithrim' */
-			{78,(TR1_DEX | TR1_MAGIC_MASTERY),(TR2_SUST_DEX),0,2}
-		}
-	},
-
-	/* Eorl/Rohan Set */ 
-	{
-		"Eorl's Arms",2,"It is part of the equipment of Eorl the Young",
-		{
-			/* Lance of the Eorlingas */
-			{28,0,0,(TR3_FREE_ACT),1},
-
-			/* The Metal Brigandine Armour of the Rohirrim */
-			{140,(TR1_CON),0,(TR3_REGEN),0}
-		}
-	},
-
-	/* Elf-friend's Set */ 
-	{
-		"Elven Gifts",2,"It is from a group of Elven items once entrusted to Hobbits",
-		{
-			/* The Phial of Galadriel */
-			{1,(TR1_WIS | TR1_CHR),(TR2_RES_DARK),0,1},
-
-			/* The Small Sword 'Sting' */
-			{121,(TR1_STEALTH),0,(TR3_REGEN | TR3_SLOW_DIGEST),0}
-		}
-	},
-
-	/* Gil-Galad's Set */ 
-	{
-		"Gil-Galad's Battle Gear",2,"It is one of Gil-Galad's items",
-		{
-			/* The Shield of Deflection of Gil-Galad */
-			{48,0,(TR2_RES_FIRE | TR2_RES_POIS | TR2_SUST_DEX),0,0},	
-
-			/* The Spear 'Aeglos' */
-			{137,(TR1_SLAY_DEMON),(TR2_RES_DARK),0,0}	
-		}
-	}
-};
-
-
 /*
  * Class titles for the player.
  *
@@ -2902,7 +3126,7 @@ cptr option_text[OPT_MAX] =
 	NULL,
 	"birth_point_based",		      /* OPT_birth_point_based */
 	"birth_auto_roller",		/* OPT_birth_auto_roller */
-	"birth_maximize",		/* OPT_birth_maximize */	
+	NULL,	 
 	"birth_preserve",		/* OPT_birth_preserve */	   
 	NULL,	 
 	NULL,
@@ -2934,7 +3158,7 @@ cptr option_text[OPT_MAX] =
 	NULL,
 	"adult_point_based",		      /* OPT_adult_point_based */
 	"adult_auto_roller",		/* OPT_adult_auto_roller */	     
-	"adult_maximize",		/* OPT_adult_maximize */      
+	NULL,
 	"adult_preserve",		/* OPT_adult_preserve */
 	NULL,
 	NULL,
@@ -3054,7 +3278,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,
 	"Birth: Use point based character generation",		 /* OPT_birth_point_based */
 	"Birth: Use Autoroller if rolling for stats",		 /* OPT_birth_auto_roller */
-	"Birth: Race/Class bonuses effect maximum stats",	 /* OPT_birth_maximize */      
+	NULL,
 	"Birth: No special feelings/artifacts preserved",  /* OPT_birth_preserve */	 
 	NULL,
 	NULL,
@@ -3086,7 +3310,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,
 	"Adult: Use point based character generation",		 /* OPT_adult_point_based */
 	"Adult: Use Autoroller if rolling for stats",		 /* OPT_adult_auto_roller */
-	"Adult: Race/Class bonuses effect maximum stats",	 /* OPT_adult_maximize */	 
+	NULL,
 	"Adult: Artifacts preserved & no special feelings",  /* OPT_adult_preserve */	   
 	NULL,
 	NULL,
@@ -3204,9 +3428,9 @@ bool option_norm[OPT_MAX] =
 	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
 	FALSE,
 	FALSE,
-	FALSE,		 /* OPT_birth_point_based */
+	TRUE,		 /* OPT_birth_point_based */
 	TRUE,		 /* OPT_birth_auto_roller */
-	TRUE,	     /* OPT_birth_maximize */	     
+	FALSE,
 	FALSE,	/* OPT_birth_preserve */      
 	FALSE,
 	FALSE,
@@ -3233,9 +3457,9 @@ bool option_norm[OPT_MAX] =
 	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
 	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
 	FALSE,
-	FALSE,	/* OPT_adult_point_based */
+	TRUE,	/* OPT_adult_point_based */
 	TRUE,	/* OPT_adult_auto_roller */
-	TRUE,	/* OPT_adult_maximize */	
+	FALSE,
 	FALSE,	/* OPT_adult_preserve */      
 	FALSE,
 	FALSE,
@@ -3373,8 +3597,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_birth_point_based, 
 		OPT_birth_auto_roller,	      
-		OPT_birth_maximize,	    
 		OPT_birth_preserve, 
+		255,
 		255,
 		255,
 		255,
@@ -3603,322 +3827,250 @@ byte mana_cost_RF7[32]=
 };
 
 /*
- * d_spower:   desirability for AI per monster spell power.
- * d_hps:      desirability for AI per 10 monster hps.
- * d_rlev:     desirability for AI per monster level.
- * d_summ:     desriability for AI per monster level, modified 
- *                  by number of clear spaces for summoning.
- * d_hurt:     desirability for AI per monster spell power,
- *                 modified by degree of damage to monster.
- * d_mana:     desirability for AI per monster spell power,
- *                 modified by monster being low on mana.
- * d_esc:      desirability for AI per monster level, modified
- *                 by monster wanting to flee.
+ * d_base:     base desirability for AI.
+ * d_summ:     desriability for AI per monster level
+ *                  times 0-3 based on number of clear spaces
+ * d_hurt:     desirability for AI per monster spell power
+ *                  times 0-3 based on damage taken
+ * d_mana:     desirability for AI per monster spell power
+ *                  times 0-2 based on mana shortage
+ * d_esc:      desirability for AI per monster level
+ *                  times 0-3 based on fear, and damage taken
  * d_tact:     desirability for AI per monster level, modified
- *                 by monster wanting to reposition.
+ *                  times 0-3 based on proximity, min_range, and best_range
  * d_res:      category of 'resistability' checked by monster AI
  *                 for purposes of desirability.
  * d_range:    % of spell desirability retained for each step past 'range'
  */
 
-byte spell_desire_RF4[32][10] =
+byte spell_desire_RF4[32][8] =
 {
-/*     d_spower	  d_rlev    d_hurt    d_esc	 d_res				    */
-/*	     d_hps    d_summ	d_mana	  d_tact	   d_range		    */
-	{ 0,   0,   3,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_SHRIEK    */
-	{ 0,   0,   4,	 0,   0,   0,	0,   0,	   0	  ,    0}, /* RF4_LASH	    */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ARCH  ,  100}, /* RF4_BOULDER   */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ARCH  ,  100}, /* RF4_SHOT	    */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ARCH  ,  100}, /* RF4_ARROW	    */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ARCH  ,  100}, /* RF4_BOLT	    */
-	{ 3,   0,   0,	 0,   0,   0,	0,   0, LRN_ARCH  ,  100}, /* RF4_MISSL	    */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_PARCH ,  100}, /* RF4_PMISSL    */
-	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_ACID  ,   90}, /* RF4_BRTH_ACID */
-	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_ELEC  ,   90}, /* RF4_BRTH_ELEC */
-	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_FIRE  ,   90}, /* RF4_BRTH_FIRE */
-	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_COLD  ,   90}, /* RF4_BRTH_COLD */
-	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_POIS  ,   90}, /* RF4_BRTH_POIS */
-	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_PLAS  ,   90}, /* RF4_BRTH_PLAS */
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_LITE  ,   90}, /* RF4_BRTH_LITE */
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_DARK  ,   90}, /* RF4_BRTH_DARK */
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_CONFU ,   90}, /* RF4_BRTH_CONFU*/
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_SOUND ,   90}, /* RF4_BRTH_SOUND*/
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_SHARD ,   90}, /* RF4_BRTH_SHARD*/
-	{ 0,   4,   0,	 0,   0,   1,	0,   0,	   0	  ,   90}, /* RF4_BRTH_INER */
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_SOUND2,   90}, /* RF4_BRTH_GRAV */
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_SOUND2,   90}, /* RF4_BRTH_FORCE*/
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_NEXUS ,   90}, /* RF4_BRTH_NEXUS*/
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_NETHR ,   90}, /* RF4_BRTH_NETHR*/
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_CHAOS ,   90}, /* RF4_BRTH_CHAOS*/
-	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_DISEN ,   90}, /* RF4_BRTH_DISEN*/
-	{ 0,   4,   0,	 0,   0,   1,	0,   0,	   0	  ,   90}, /* RF4_BRTH_TIME */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX2 */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX3 */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX4 */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX5 */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100} /* RF4_XXX6 */
+/*     d_base	  d_hurt    d_esc	 d_res				    */
+/*	     d_summ	d_mana	  d_tact	   d_range		    */
+	{ 30,  0,   0,   5,	0,   0,	   0	  ,  100}, /* RF4_SHRIEK    */
+	{ 40,  0,   0,   5,	0,   0,	   0	  ,    0}, /* RF4_LASH	    */
+	{ 40,  0,   0,   5,	0,   0, LRN_ARCH  ,  100}, /* RF4_BOULDER   */
+	{ 40,  0,   0,   5,	0,   0, LRN_ARCH  ,  100}, /* RF4_SHOT	    */
+	{ 40,  0,   0,   5,	0,   0, LRN_ARCH  ,  100}, /* RF4_ARROW	    */
+	{ 40,  0,   0,   5,	0,   0, LRN_ARCH  ,  100}, /* RF4_BOLT	    */
+	{ 35,  0,   0,   5,	0,   0, LRN_ARCH  ,  100}, /* RF4_MISSL	    */
+	{ 40,  0,   0,   5,	0,   0, LRN_PARCH ,  100}, /* RF4_PMISSL    */
+	{ 65,  0,   0,   5,	0,   0, LRN_ACID  ,   90}, /* RF4_BRTH_ACID */
+	{ 65,  0,   0,   5,	0,   0, LRN_ELEC  ,   90}, /* RF4_BRTH_ELEC */
+	{ 65,  0,   0,   5,	0,   0, LRN_FIRE  ,   90}, /* RF4_BRTH_FIRE */
+	{ 65,  0,   0,   5,	0,   0, LRN_COLD  ,   90}, /* RF4_BRTH_COLD */
+	{ 65,  0,   0,   5,	0,   0, LRN_POIS  ,   90}, /* RF4_BRTH_POIS */
+	{ 65,  0,   0,   5,	0,   0, LRN_PLAS  ,   90}, /* RF4_BRTH_PLAS */
+	{ 50,  0,   0,   5,	0,   0, LRN_LITE  ,   90}, /* RF4_BRTH_LITE */
+	{ 50,  0,   0,   5,	0,   0, LRN_DARK  ,   90}, /* RF4_BRTH_DARK */
+	{ 50,  0,   0,   5,	0,   0, LRN_CONFU ,   90}, /* RF4_BRTH_CONFU*/
+	{ 50,  0,   0,   5,	0,   0, LRN_SOUND ,   90}, /* RF4_BRTH_SOUND*/
+	{ 50,  0,   0,   5,	0,   0, LRN_SHARD ,   90}, /* RF4_BRTH_SHARD*/
+	{ 50,  0,   0,   5,	0,   0,	   0	  ,   90}, /* RF4_BRTH_INER */
+	{ 50,  0,   0,   5,	0,   0, LRN_SOUND2,   90}, /* RF4_BRTH_GRAV */
+	{ 50,  0,   0,   5,	0,   0, LRN_SOUND2,   90}, /* RF4_BRTH_FORCE*/
+	{ 50,  0,   0,   5,	0,   0, LRN_NEXUS ,   90}, /* RF4_BRTH_NEXUS*/
+	{ 50,  0,   0,   5,	0,   0, LRN_NETHR ,   90}, /* RF4_BRTH_NETHR*/
+	{ 50,  0,   0,   5,	0,   0, LRN_CHAOS ,   90}, /* RF4_BRTH_CHAOS*/
+	{ 50,  0,   0,   5,	0,   0, LRN_DISEN ,   90}, /* RF4_BRTH_DISEN*/
+	{ 50,  0,   0,   5,	0,   0,	   0	  ,   90}, /* RF4_BRTH_TIME */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX2 */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX3 */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX4 */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX5 */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100} /* RF4_XXX6 */
 };
 
-byte spell_desire_RF5[32][10] =
+byte spell_desire_RF5[32][8] =
 {
-/*     d_spower	  d_rlev    d_hurt    d_esc	 d_res				    */
-/*	     d_hps    d_summ	d_mana	  d_tact	   d_range		    */
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_ACID  ,  100}, /* RF5_BALL_ACID */
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_ELEC  ,  100}, /* RF5_BALL_ELEC */
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_FIRE  ,  100}, /* RF5_BALL_FIRE */
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_COLD  ,  100}, /* RF5_BALL_COLD */
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_POIS  ,  100}, /* RF5_BALL_POIS */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_LITE  ,  100}, /* RF5_BALL_LITE */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_DARK  ,  100}, /* RF5_BALL_DARK */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_CONFU ,  100}, /* RF5_BALL_CONFU*/
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_SOUND ,  100}, /* RF5_BALL_SOUND*/
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_SHARD ,  100}, /* RF5_BALL_SHARD*/
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_STORM ,  100}, /* RF5_BALL_STORM*/
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_NETHR ,  100}, /* RF5_BALL_NETHR*/
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_CHAOS ,  100}, /* RF5_BALL_CHAOS*/
-	{ 4,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BALL_MANA */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX1 */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX2 */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ACID  ,  100}, /* RF5_BOLT_ACID */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ELEC  ,  100}, /* RF5_BOLT_ELEC */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_FIRE  ,  100}, /* RF5_BOLT_FIRE */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_COLD  ,  100}, /* RF5_BOLT_COLD */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_POIS  ,  100}, /* RF5_BOLT_POIS */
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_PLAS  ,  100}, /* RF5_BOLT_PLAS */
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_ICE	  ,  100}, /* RF5_BOLT_ICE  */
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_WATER ,  100}, /* RF5_BOLT_WATER*/
-	{ 3,   0,   0,	 0,   0,   0,	0,   0, LRN_NETHR ,  100}, /* RF5_BOLT_NETHR*/
-	{ 3,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BOLT_MANA */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX3	    */
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_ELEC  ,   90}, /* RF5_BEAM_ELEC */
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_ICE	  ,   90}, /* RF5_BEAM_ICE  */
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_NETHR ,   90}, /* RF5_BEAM_NETHR*/
-	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_FIRE  ,   95}, /* RF5_ARC__HFIRE*/
-	{ 4,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,   90} /* RF5_ARC__FORCE*/
+/*     d_base	  d_hurt    d_esc	 d_res				    */
+/*	     d_summ	d_mana	  d_tact	   d_range		    */
+	{ 50,  0,   0,   0,	0,   0, LRN_ACID  ,  100}, /* RF5_BALL_ACID */
+	{ 50,  0,   0,   0,	0,   0, LRN_ELEC  ,  100}, /* RF5_BALL_ELEC */
+	{ 50,  0,   0,   0,	0,   0, LRN_FIRE  ,  100}, /* RF5_BALL_FIRE */
+	{ 50,  0,   0,   0,	0,   0, LRN_COLD  ,  100}, /* RF5_BALL_COLD */
+	{ 50,  0,   0,   0,	0,   0, LRN_POIS  ,  100}, /* RF5_BALL_POIS */
+	{ 40,  0,   0,   0,	0,   0, LRN_LITE  ,  100}, /* RF5_BALL_LITE */
+	{ 40,  0,   0,   0,	0,   0, LRN_DARK  ,  100}, /* RF5_BALL_DARK */
+	{ 40,  0,   0,   0,	0,   0, LRN_CONFU ,  100}, /* RF5_BALL_CONFU*/
+	{ 40,  0,   0,   0,	0,   0, LRN_SOUND ,  100}, /* RF5_BALL_SOUND*/
+	{ 40,  0,   0,   0,	0,   0, LRN_SHARD ,  100}, /* RF5_BALL_SHARD*/
+	{ 40,  0,   0,   0,	0,   0, LRN_STORM ,  100}, /* RF5_BALL_STORM*/
+	{ 40,  0,   0,   0,	0,   0, LRN_NETHR ,  100}, /* RF5_BALL_NETHR*/
+	{ 40,  0,   0,   0,	0,   0, LRN_CHAOS ,  100}, /* RF5_BALL_CHAOS*/
+	{ 40,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BALL_MANA */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX1 */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX2 */
+	{ 40,  0,   0,   0,	0,   0, LRN_ACID  ,  100}, /* RF5_BOLT_ACID */
+	{ 40,  0,   0,   0,	0,   0, LRN_ELEC  ,  100}, /* RF5_BOLT_ELEC */
+	{ 40,  0,   0,   0,	0,   0, LRN_FIRE  ,  100}, /* RF5_BOLT_FIRE */
+	{ 40,  0,   0,   0,	0,   0, LRN_COLD  ,  100}, /* RF5_BOLT_COLD */
+	{ 40,  0,   0,   0,	0,   0, LRN_POIS  ,  100}, /* RF5_BOLT_POIS */
+	{ 50,  0,   0,   0,	0,   0, LRN_PLAS  ,  100}, /* RF5_BOLT_PLAS */
+	{ 50,  0,   0,   0,	0,   0, LRN_ICE	  ,  100}, /* RF5_BOLT_ICE  */
+	{ 35,  0,   0,   0,	0,   0, LRN_WATER ,  100}, /* RF5_BOLT_WATER*/
+	{ 35,  0,   0,   0,	0,   0, LRN_NETHR ,  100}, /* RF5_BOLT_NETHR*/
+	{ 30,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BOLT_MANA */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX3	    */
+	{ 50,  0,   0,   0,	0,   0, LRN_ELEC  ,   90}, /* RF5_BEAM_ELEC */
+	{ 50,  0,   0,   0,	0,   0, LRN_ICE	  ,   90}, /* RF5_BEAM_ICE  */
+	{ 50,  0,   0,   0,	0,   0, LRN_NETHR ,   90}, /* RF5_BEAM_NETHR*/
+	{ 50,  0,   0,   0,	0,   0, LRN_FIRE  ,   95}, /* RF5_ARC__HFIRE*/
+	{ 40,  0,   0,   0,	0,   0,	   0	  ,   90} /* RF5_ARC__FORCE*/
 };
 
-byte spell_desire_RF6[32][10] =
+byte spell_desire_RF6[32][8] =
 {
-/*     d_spower	  d_rlev    d_hurt    d_esc	 d_res				    */
-/*	     d_hps    d_summ	d_mana	  d_tact	   d_range		    */
-	{ 0,   0,   5,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_HASTE	    */
-	{ 1,   0,   0,	 0,   0,   2,	0,   0,	   0	  ,  100}, /* RF6_ADD_MANA  */
-	{ 0,   0,   0,	 0,   2,   0,	0,   0,	   0	  ,  100}, /* RF6_HEAL	    */
-	{ 0,   0,   5,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_CURE	    */
-	{ 0,   0,   1,	 0,   0,   0,	1,   2,	   0	  ,  100}, /* RF6_BLINK	    */
-	{ 0,   0,   1,	 0,   0,   0,	3,   1,	   0	  ,  100}, /* RF6_TPORT	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX1	    */
-	{ 0,   0,   3,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_TELE_SELF_TO*/
-	{ 0,   0,   2,	 0,   0,   0,	0,   1,	   0	  ,  100}, /* RF6_TELE_TO   */
-	{ 0,   0,   1,	 0,   0,   0,	3,   1,	   0	  ,  100}, /* RF6_TELE_AWAY */
-	{ 0,   0,   1,	 0,   0,   0,	3,   1, LRN_NEXUS_SAVE,	   100}, /* RF6_TELE_LEVEL */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX3	    */
-	{ 0,   0,   1,	 0,   0,   0,	1,   0,	   0	  ,  100}, /* RF6_DARKNESS  */
-	{ 0,   0,   2,	 0,   0,   0,	1,   0,	   0	  ,  100}, /* RF6_TRAPS	    */
-	{ 0,   0,   3,	 0,   0,   0,	1,   0, LRN_SAVE  ,  100}, /* RF6_FORGET    */
-	{ 0,   0,   2,	 0,   0,   1,	0,   0, LRN_MANA  ,  100}, /* RF6_DRAIN_MANA*/
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX4	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX5	    */
-	{ 0,   0,   3,	 0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_MIND_BLAST*/
-	{ 0,   0,   4,	 0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_BRAIN_SMASH*/
-	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_WOUND	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX6	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX7	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX8	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX9	    */
-	{ 0,   0,   3,	 0,   0,   0,	0,   0,	 LRN_SAVE ,  100}, /* RF6_HUNGER    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XX11	    */
-	{ 0,   0,   2,	 0,   0,   0,	0,   0, LRN_FEAR_SAVE,	  100}, /* RF6_SCARE	 */
-	{ 0,   0,   3,	 0,   0,   0,	0,   0, LRN_BLIND_SAVE,	   100}, /* RF6_BLIND	  */
-	{ 0,   0,   3,	 0,   0,   0,	0,   0, LRN_CONFU_SAVE,	   100}, /* RF6_CONF	  */
-	{ 0,   0,   4,	 0,   0,   0,	0,   0, LRN_FREE_SAVE,	  100}, /* RF6_SLOW	 */
-	{ 0,   0,   4,	 0,   0,   0,	0,   0, LRN_FREE_SAVE,	  100} /* RF6_HOLD	*/
+/*     d_base	  d_hurt    d_esc	 d_res				    */
+/*	     d_summ	d_mana	  d_tact	   d_range		    */
+	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_HASTE	    */
+	{ 15,  0,   0,   25,	0,   0,	   0	  ,  100}, /* RF6_ADD_MANA  */
+	{ 10,  0,   20,  0,	0,   0,	   0	  ,  100}, /* RF6_HEAL	    */
+	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_CURE	    */
+	{ 27,  0,   0,   0,	10,  15,   0	  ,  100}, /* RF6_BLINK	    */
+	{ 10,  0,   0,   0,	20,  10,   0	  ,  100}, /* RF6_TPORT	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX1	    */
+	{ 30,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_TELE_SELF_TO*/
+	{ 30,  0,   0,   0,	0,   10,   0	  ,  100}, /* RF6_TELE_TO   */
+	{ 10,  0,   0,   0,	20,  10,   0	  ,  100}, /* RF6_TELE_AWAY */
+	{ 10,  0,   0,   0,	20,  10,LRN_NEXUS_SAVE,	   100}, /* RF6_TELE_LEVEL */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX3	    */
+	{ 20,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_DARKNESS  */
+	{ 25,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_TRAPS	    */
+	{ 25,  0,   0,   0,	5,   0, LRN_SAVE  ,  100}, /* RF6_FORGET    */
+	{ 25,  0,   0,   15,	0,   0, LRN_MANA  ,  100}, /* RF6_DRAIN_MANA*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX4	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX5	    */
+	{ 30,  0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_MIND_BLAST*/
+	{ 40,  0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_BRAIN_SMASH*/
+	{ 40,  0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_WOUND	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX6	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX7	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX8	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX9	    */
+	{ 25,  0,   0,   0,	0,   0,	 LRN_SAVE ,  100}, /* RF6_HUNGER    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XX11	    */
+	{ 25,  0,   0,   0,	0,   0, LRN_FEAR_SAVE,	  100}, /* RF6_SCARE	 */
+	{ 30,  0,   0,   0,	0,   0, LRN_BLIND_SAVE,	   100}, /* RF6_BLIND	  */
+	{ 30,  0,   0,   0,	0,   0, LRN_CONFU_SAVE,	   100}, /* RF6_CONF	  */
+	{ 40,  0,   0,   0,	0,   0, LRN_FREE_SAVE,	  100}, /* RF6_SLOW	 */
+	{ 35,  0,   0,   0,	0,   0, LRN_FREE_SAVE,	  100} /* RF6_HOLD	*/
 };
 
-byte spell_desire_RF7[32][10] =
+byte spell_desire_RF7[32][8] =
 {
-/*     d_spower	  d_rlev    d_hurt    d_esc	 d_res				    */
-/*	     d_hps    d_summ	d_mana	  d_tact	   d_range		    */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_KIN	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX1	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX2	    */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_MONSTER */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_MONSTERS*/
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX3	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX4	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX5	    */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_ANT	    */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_SPIDER  */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_HOUND   */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_ANIMAL  */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX6	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7	    */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_THIEF   */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_BERTBILLTOM*/
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX8	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX9	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX10	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX11	    */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_DRAGON  */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_HI_DRAGON*/
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX12	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX13	    */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_DEMON   */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_HI_DEMON*/
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX14	    */
-	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX15	    */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_UNDEAD  */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_HI_UNDEAD*/
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_WRAITH  */
-	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}  /* RF7_S_UNIQUE  */
+/*     d_base	  d_hurt    d_esc	 d_res				    */
+/*	     d_summ	d_mana	  d_tact	   d_range		    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_KIN	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX1	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX2	    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONSTER */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONSTERS*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX3	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX4	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX5	    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ANT	    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_SPIDER  */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HOUND   */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ANIMAL  */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX6	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7	    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_THIEF   */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_BERTBILLTOM*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX8	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX9	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX10	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX11	    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_DRAGON  */
+	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_DRAGON*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX12	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX13	    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_DEMON   */
+	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_DEMON*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX14	    */
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX15	    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_UNDEAD  */
+	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_UNDEAD*/
+	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_WRAITH  */
+	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}  /* RF7_S_UNIQUE  */
 };
 
+/*
+ * Optimal Ranges for various spells.
+ * 6 is optimal for Breath Weapons, Beams, and Arcs.
+ * 3 is optimal for Lash/Spit.
+ * 0 indicates no range limitation for other spells.
+ *
+ * This range is considered a preference if d_range in spell_desire is > 0.
+ * It is a hard limit if d_range = 0.
+ */
 byte spell_range_RF4[32] =
 {
-	0,
-	3,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	6,
-	0,
-	0,
-	0,
-	0,
-	0
+	0,3,0,0,0,0,0,0,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,0,0,0,0,0
 };
 
 byte spell_range_RF5[32] =
 {
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	6,
-	6,
-	6,
-	6,
-	6,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6,6,6,6
 };
 
 byte spell_range_RF6[32] =
 {
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0, 
-	0,
-	0,
-	0,
-	0 
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 
 };
 
 byte spell_range_RF7[32] =
 {
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
-
-
-
-
-
+/*
+ * Names array for specialty abilites.
+ * The order here must match both the definition numbers in defines.h and
+ * the order of specialty_tips in info.c
+ */
+cptr specialty_names[255]=
+{
+	"Armor Mastery",			/* Defense */
+	"Shield Mastery",
+	"Armor Proficiency",
+	"Evasion",
+	"Magic Resistance",
+	"Teleport Resistance",
+	"Unlight",
+	"","","","","","","","","","","","","",
+	"Armsman",				/* Physical Offense */
+	"Fast Attacking",
+	"Marksman",
+	"Piercing Shot",
+	"Mighty Throw",
+	"Power Strike",
+	"Martial Arts",
+	"","","","","","","","","","","","","",
+	"Beguile",				/* Magic and Mana */
+	"Extend Magic",
+	"Fast Casting",
+	"Power Siphon",
+	"Heighten Magic",
+	"Soul Siphon",
+	"Harmony",
+	"","","","","","","","","","","","","",
+	"Athletics",				/* Others */
+	"Clarity",
+	"",
+	"Fury",
+	"Meditation",
+	"Regeneration",
+	"Extra Trap",
+	"Holy Light",
+	"","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","",""
+};

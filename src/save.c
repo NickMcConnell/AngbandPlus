@@ -763,8 +763,8 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stasis);
 
 	wr_byte(m_ptr->black_breath);
-	
-	wr_s32b(m_ptr->smart); /* Flags for 'smart-learn' */
+
+	wr_u32b(m_ptr->smart); /* Flags for 'smart-learn' */
 
 	/* Dummy writes for features soon to be implemented */
 	wr_byte(0);      
@@ -1050,7 +1050,7 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 
 	wr_byte(p_ptr->hitdie);
-	wr_byte(p_ptr->expfact);
+	wr_byte(0);
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
@@ -1151,16 +1151,15 @@ static void wr_extra(void)
 	/* Stores what themed levels have already appeared. -LM- */
 	wr_u32b(p_ptr->themed_level_appeared);
 
-
-	/* Future use */
+	/* Squelch */
 	for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
 	for (i = 0; i < 15; i++) wr_byte(0);
 
-	/* Ignore some flags */
-	wr_u32b(0L);	/* oops */
-	wr_u32b(0L);	/* oops */
-	wr_u32b(0L);	/* oops */
+	/* Specialty abilties */
+	for (i = 0; i < 10; i++) wr_byte(p_ptr->specialty_order[i]);
 
+	/* Ignore some flags */
+	wr_s16b(0L);	/* oops */
 
 	/* Write the "object seeds" */
 	wr_u32b(seed_flavor);

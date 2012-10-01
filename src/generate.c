@@ -1,4 +1,3 @@
-
 /* File: generate.c */
 
 /* 
@@ -6703,7 +6702,7 @@ static void cave_gen(void)
 			/* Ensure quest monsters */
 			if ((r_ptr->flags1 & (RF1_QUESTOR)) &&
 			    (r_ptr->level == p_ptr->depth) &&
-			    (r_ptr->cur_num <= 0))
+			    (r_ptr->cur_num < 1))
 			{
 				int y, x;
 

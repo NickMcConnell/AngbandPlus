@@ -345,7 +345,7 @@ static errr init_f_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "f_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "terrain.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -355,7 +355,7 @@ static errr init_f_info(void)
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-		err = check_modification_date(fd, "f_info.txt");
+		err = check_modification_date(fd, "terrain.txt");
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -370,7 +370,7 @@ static errr init_f_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'f_info.raw' file.");
+		msg_print("Ignoring obsolete/defective 'terrain.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -388,13 +388,13 @@ static errr init_f_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "f_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "terrain.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'f_info.txt' file.");
+	if (!fp) quit("Cannot open 'terrain.txt' file.");
 
 	/* Parse the file */
 	err = init_f_info_txt(fp, buf);
@@ -411,13 +411,13 @@ static errr init_f_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'f_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'terrain.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'f_info.txt' file.");
+		quit("Error in 'terrain.txt' file.");
 	}
 
 
@@ -427,7 +427,7 @@ static errr init_f_info(void)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "f_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "terrain.raw");
 
 	/* Kill the old file */
 	fd_kill(buf);
@@ -470,13 +470,13 @@ static errr init_f_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "f_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "terrain.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'f_info.raw' file.");
+	if (fd < 0) quit("Cannot load 'terrain.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_f_info_raw(fd);
@@ -485,7 +485,7 @@ static errr init_f_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'f_info.raw' file.");
+	if (err) quit("Cannot parse 'terrain.raw' file.");
 
 	/* Success */
 	return (0);
@@ -597,7 +597,7 @@ static errr init_k_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "k_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "object.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -607,7 +607,7 @@ static errr init_k_info(void)
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-		err = check_modification_date(fd, "k_info.txt");
+		err = check_modification_date(fd, "object.txt");
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -622,7 +622,7 @@ static errr init_k_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'k_info.raw' file.");
+		msg_print("Ignoring obsolete/defective 'object.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -640,13 +640,13 @@ static errr init_k_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "k_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "object.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'k_info.txt' file.");
+	if (!fp) quit("Cannot open 'object.txt' file.");
 
 	/* Parse the file */
 	err = init_k_info_txt(fp, buf);
@@ -663,13 +663,13 @@ static errr init_k_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'k_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'object.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'k_info.txt' file.");
+		quit("Error in 'object.txt' file.");
 	}
 
 
@@ -679,7 +679,7 @@ static errr init_k_info(void)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "k_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "object.raw");
 
 	/* Kill the old file */
 	fd_kill(buf);
@@ -722,13 +722,13 @@ static errr init_k_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "k_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "object.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'k_info.raw' file.");
+	if (fd < 0) quit("Cannot load 'object.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_k_info_raw(fd);
@@ -737,7 +737,7 @@ static errr init_k_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'k_info.raw' file.");
+	if (err) quit("Cannot parse 'object.raw' file.");
 
 	/* Success */
 	return (0);
@@ -832,7 +832,7 @@ static errr init_h_info(void)
 	/*** Load the binary image file ***/
 	
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "h_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_hist.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -842,7 +842,7 @@ static errr init_h_info(void)
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-	      err = check_modification_date(fd, "h_info.txt");
+	      err = check_modification_date(fd, "p_hist.txt");
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -870,13 +870,13 @@ static errr init_h_info(void)
 	/*** Load the ascii template file ***/
 	
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "h_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "p_hist.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'h_info.txt' file.");
+	if (!fp) quit("Cannot open 'p_hist.txt' file.");
 
 	/* Parse the file */
 	err = init_h_info_txt(fp, buf);
@@ -893,13 +893,13 @@ static errr init_h_info(void)
 	      oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 	      /* Oops */
-	      msg_format("Error %d at line %d of 'h_info.txt'.", err, error_line);
+	      msg_format("Error %d at line %d of 'p_hist.txt'.", err, error_line);
 	      msg_format("Record %d contains a '%s' error.", error_idx, oops);
 	      msg_format("Parsing '%s'.", buf);
 	      msg_print(NULL);
 
 	      /* Quit */
-	      quit("Error in 'h_info.txt' file.");
+	      quit("Error in 'p_hist.txt' file.");
 	}
 
 
@@ -909,7 +909,7 @@ static errr init_h_info(void)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "h_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_hist.raw");
 
 	/* Kill the old file */
 	fd_kill(buf);
@@ -948,13 +948,13 @@ static errr init_h_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "h_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_hist.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'h_info.raw' file.");
+	if (fd < 0) quit("Cannot load 'p_hist.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_h_info_raw(fd);
@@ -963,7 +963,7 @@ static errr init_h_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'h_info.raw' file.");
+	if (err) quit("Cannot parse 'p_hist.raw' file.");
 
 	/* Success */
 	return (0);
@@ -1060,7 +1060,7 @@ static errr init_b_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "b_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "cost_adj.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -1070,7 +1070,7 @@ static errr init_b_info(void)
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-	      err = check_modification_date(fd, "b_info.txt");
+	      err = check_modification_date(fd, "shop_own.txt");
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -1098,13 +1098,13 @@ static errr init_b_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "b_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "shop_own.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'b_info.txt' file.");
+	if (!fp) quit("Cannot open 'shop_own.txt' file.");
 
 	/* Parse the file */
 	err = init_b_info_txt(fp, buf);
@@ -1121,13 +1121,13 @@ static errr init_b_info(void)
 	      oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 	      /* Oops */
-	      msg_format("Error %d at line %d of 'b_info.txt'.", err, error_line);
+	      msg_format("Error %d at line %d of 'shop_own.txt'.", err, error_line);
 	      msg_format("Record %d contains a '%s' error.", error_idx, oops);
 	      msg_format("Parsing '%s'.", buf);
 	      msg_print(NULL);
 
 	      /* Quit */
-	      quit("Error in 'b_info.txt' file.");
+	      quit("Error in 'shop_own.txt' file.");
 	}
 
 
@@ -1137,7 +1137,7 @@ static errr init_b_info(void)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "b_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "cost_adj.raw");
 
 	/* Kill the old file */
 	fd_kill(buf);
@@ -1176,13 +1176,13 @@ static errr init_b_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "b_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "cost_adj.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'b_info.raw' file.");
+	if (fd < 0) quit("Cannot load 'cost_adj.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_b_info_raw(fd);
@@ -1191,7 +1191,7 @@ static errr init_b_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'b_info.raw' file.");
+	if (err) quit("Cannot parse 'cost_adj.raw' file.");
 
 	/* Success */
 	return (0);
@@ -1282,7 +1282,7 @@ static errr init_g_info(void)
 	/*** Load the binary image file ***/
 	
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "g_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "shop_own.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -1292,7 +1292,7 @@ static errr init_g_info(void)
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-	      err = check_modification_date(fd, "g_info.txt");
+	      err = check_modification_date(fd, "cost_adj.txt");
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -1315,13 +1315,13 @@ static errr init_g_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "g_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "cost_adj.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'g_info.txt' file.");
+	if (!fp) quit("Cannot open 'cost_adj.txt' file.");
 
 	/* Parse the file */
 	err = init_g_info_txt(fp, buf);
@@ -1338,13 +1338,13 @@ static errr init_g_info(void)
 	      oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 	      /* Oops */
-	      msg_format("Error %d at line %d of 'g_info.txt'.", err, error_line);
+	      msg_format("Error %d at line %d of 'cost_adj.txt'.", err, error_line);
 	      msg_format("Record %d contains a '%s' error.", error_idx, oops);
 	      msg_format("Parsing '%s'.", buf);
 	      msg_print(NULL);
 
 	      /* Quit */
-	      quit("Error in 'g_info.txt' file.");
+	      quit("Error in 'cost_adj.txt' file.");
 	}
 
 
@@ -1354,7 +1354,7 @@ static errr init_g_info(void)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "g_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "shop_own.raw");
 
 	/* Kill the old file */
 	fd_kill(buf);
@@ -1387,13 +1387,13 @@ static errr init_g_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "g_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "shop_own.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'g_info.raw' file.");
+	if (fd < 0) quit("Cannot load 'shop_own.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_g_info_raw(fd);
@@ -1402,7 +1402,7 @@ static errr init_g_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'g_info.raw' file.");
+	if (err) quit("Cannot parse 'shop_own.raw' file.");
 
 	/* Success */
 	return (0);
@@ -1597,7 +1597,7 @@ static errr init_a_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "artifact.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -1607,7 +1607,7 @@ static errr init_a_info(void)
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-		err = check_modification_date(fd, "a_info.txt");
+		err = check_modification_date(fd, "artifact.txt");
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -1622,7 +1622,7 @@ static errr init_a_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'a_info.raw' file.");
+		msg_print("Ignoring obsolete/defective 'artifact.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -1640,13 +1640,13 @@ static errr init_a_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "a_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "artifact.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'a_info.txt' file.");
+	if (!fp) quit("Cannot open 'artifact.txt' file.");
 
 	/* Parse the file */
 	err = init_a_info_txt(fp, buf);
@@ -1663,13 +1663,13 @@ static errr init_a_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'a_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'artifact.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'a_info.txt' file.");
+		quit("Error in 'artifact.txt' file.");
 	}
 
 
@@ -1679,7 +1679,7 @@ static errr init_a_info(void)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "artifact.raw");
 
 	/* Kill the old file */
 	fd_kill(buf);
@@ -1722,13 +1722,13 @@ static errr init_a_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "artifact.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot open 'a_info.raw' file.");
+	if (fd < 0) quit("Cannot open 'artifact.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_a_info_raw(fd);
@@ -1737,7 +1737,259 @@ static errr init_a_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'a_info.raw' file.");
+	if (err) quit("Cannot parse 'artifact.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "s_info" array, by parsing a binary "image" file
+ */
+static errr init_s_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != s_head->v_major) ||
+	    (test.v_minor != s_head->v_minor) ||
+	    (test.v_patch != s_head->v_patch) ||
+	    (test.v_extra != s_head->v_extra) ||
+	    (test.info_num != s_head->info_num) ||
+	    (test.info_len != s_head->info_len) ||
+	    (test.head_size != s_head->head_size) ||
+	    (test.info_size != s_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*s_head) = test;
+
+
+	/* Allocate the "s_info" array */
+	C_MAKE(s_info, s_head->info_num, set_type);
+
+	/* Read the "s_info" array */
+	fd_read(fd, (char*)(s_info), s_head->info_size);
+
+
+	/* Allocate the "s_name" array */
+	C_MAKE(s_name, s_head->name_size, char);
+
+	/* Read the "s_name" array */
+	fd_read(fd, (char*)(s_name), s_head->name_size);
+
+
+#ifndef DELAY_LOAD_A_TEXT
+
+	/* Allocate the "a_text" array */
+	C_MAKE(s_text, s_head->text_size, char);
+
+	/* Read the "s_text" array */
+	fd_read(fd, (char*)(s_text), s_head->text_size);
+
+#endif
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "s_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_s_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(s_head, header);
+
+	/* Save the "version" */
+	s_head->v_major = O_VERSION_MAJOR;
+	s_head->v_minor = O_VERSION_MINOR;
+	s_head->v_patch = O_VERSION_PATCH;
+	s_head->v_extra = 0;
+
+	/* Save the "record" information */
+	s_head->info_num = MAX_S_IDX;
+	s_head->info_len = sizeof(set_type);
+
+	/* Save the size of "a_head" and "a_info" */
+	s_head->head_size = sizeof(header);
+	s_head->info_size = s_head->info_num * s_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "set_item.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "set_item.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_s_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+		msg_print("Ignoring obsolete/defective 'set_item.raw' file.");
+		msg_print(NULL);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "a_info" array */
+	C_MAKE(s_info, s_head->info_num, set_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(s_name, FAKE_NAME_SIZE, char);
+	C_MAKE(s_text, FAKE_TEXT_SIZE, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "set_item.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'set_item.txt' file.");
+
+	/* Parse the file */
+	err = init_s_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'set_item.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'set_item.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "set_item.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(s_head), s_head->head_size);
+
+		/* Dump the "s_info" array */
+		fd_write(fd, (char*)(s_info), s_head->info_size);
+
+		/* Dump the "s_name" array */
+		fd_write(fd, (char*)(s_name), s_head->name_size);
+
+		/* Dump the "s_text" array */
+		fd_write(fd, (char*)(s_text), s_head->text_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "s_info" array */
+	C_KILL(s_info, s_head->info_num, set_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(s_name, FAKE_NAME_SIZE, char);
+	C_KILL(s_text, FAKE_TEXT_SIZE, char);
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "set_item.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 'set_item.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_s_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'set_item.raw' file.");
 
 	/* Success */
 	return (0);
@@ -1849,7 +2101,7 @@ static errr init_e_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "e_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "ego_item.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -1859,7 +2111,7 @@ static errr init_e_info(void)
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-		err = check_modification_date(fd, "e_info.txt");
+		err = check_modification_date(fd, "ego_item.txt");
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -1874,7 +2126,7 @@ static errr init_e_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'e_info.raw' file.");
+		msg_print("Ignoring obsolete/defective 'ego_item.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -1892,13 +2144,13 @@ static errr init_e_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "e_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "ego_item.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'e_info.txt' file.");
+	if (!fp) quit("Cannot open 'ego_item.txt' file.");
 
 	/* Parse the file */
 	err = init_e_info_txt(fp, buf);
@@ -1915,13 +2167,13 @@ static errr init_e_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'e_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'ego_item.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'e_info.txt' file.");
+		quit("Error in 'ego_item.txt' file.");
 	}
 
 
@@ -1931,7 +2183,7 @@ static errr init_e_info(void)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "e_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "ego_item.raw");
 
 	/* Kill the old file */
 	fd_kill(buf);
@@ -1974,13 +2226,13 @@ static errr init_e_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "e_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "ego_item.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'e_info.raw' file.");
+	if (fd < 0) quit("Cannot load 'ego_item.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_e_info_raw(fd);
@@ -1989,7 +2241,7 @@ static errr init_e_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'e_info.raw' file.");
+	if (err) quit("Cannot parse 'ego_item.raw' file.");
 
 	/* Success */
 	return (0);
@@ -2101,7 +2353,7 @@ static errr init_r_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "monster.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -2111,7 +2363,7 @@ static errr init_r_info(void)
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-		err = check_modification_date(fd, "r_info.txt");
+		err = check_modification_date(fd, "monster.txt");
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -2126,7 +2378,7 @@ static errr init_r_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'r_info.raw' file.");
+		msg_print("Ignoring obsolete/defective 'monster.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -2144,13 +2396,13 @@ static errr init_r_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "r_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "monster.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'r_info.txt' file.");
+	if (!fp) quit("Cannot open 'monster.txt' file.");
 
 	/* Parse the file (all monsters) */
 	err = init_r_info_txt(fp, buf);
@@ -2167,13 +2419,13 @@ static errr init_r_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'r_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'monster.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'r_info.txt' file.");
+		quit("Error in 'monster.txt' file.");
 	}
 
 
@@ -2183,7 +2435,7 @@ static errr init_r_info(void)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "monster.raw");
 
 	/* Kill the old file */
 	fd_kill(buf);
@@ -2226,13 +2478,13 @@ static errr init_r_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "monster.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'r_info.raw' file.");
+	if (fd < 0) quit("Cannot load 'monster.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_r_info_raw(fd);
@@ -2241,7 +2493,7 @@ static errr init_r_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'r_info.raw' file.");
+	if (err) quit("Cannot parse 'monster.raw' file.");
 
 	/* Success */
 	return (0);
@@ -2352,7 +2604,7 @@ static errr init_v_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "vault.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -2362,7 +2614,7 @@ static errr init_v_info(void)
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-		err = check_modification_date(fd, "v_info.txt");
+		err = check_modification_date(fd, "vault.txt");
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -2377,7 +2629,7 @@ static errr init_v_info(void)
 		if (!err) return (0);
 
 		/* Information */
-		msg_print("Ignoring obsolete/defective 'v_info.raw' file.");
+		msg_print("Ignoring obsolete/defective 'vault.raw' file.");
 		msg_print(NULL);
 	}
 
@@ -2395,13 +2647,13 @@ static errr init_v_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "v_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "vault.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'v_info.txt' file.");
+	if (!fp) quit("Cannot open 'vault.txt' file.");
 
 	/* Parse the file */
 	err = init_v_info_txt(fp, buf);
@@ -2418,13 +2670,13 @@ static errr init_v_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'v_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'vault.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'v_info.txt' file.");
+		quit("Error in 'vault.txt' file.");
 	}
 
 
@@ -2434,7 +2686,7 @@ static errr init_v_info(void)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "vault.raw");
 
 	/* Kill the old file */
 	fd_kill(buf);
@@ -2477,13 +2729,13 @@ static errr init_v_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "vault.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'v_info.raw' file.");
+	if (fd < 0) quit("Cannot load 'vault.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_v_info_raw(fd);
@@ -2492,7 +2744,7 @@ static errr init_v_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'v_info.raw' file.");
+	if (err) quit("Cannot parse 'vault.raw' file.");
 
 	/* Success */
 	return (0);
@@ -2602,7 +2854,7 @@ static errr init_p_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_race.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -2612,7 +2864,7 @@ static errr init_p_info(void)
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-	      err = check_modification_date(fd, "p_info.txt");
+	      err = check_modification_date(fd, "p_race.txt");
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -2641,13 +2893,13 @@ static errr init_p_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "p_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "p_race.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'p_info.txt' file.");
+	if (!fp) quit("Cannot open 'p_race.txt' file.");
 
 	/* Parse the file */
 	err = init_p_info_txt(fp, buf);
@@ -2664,13 +2916,13 @@ static errr init_p_info(void)
 	      oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 	      /* Oops */
-	      msg_format("Error %d at line %d of 'p_info.txt'.", err, error_line);
+	      msg_format("Error %d at line %d of 'p_race.txt'.", err, error_line);
 	      msg_format("Record %d contains a '%s' error.", error_idx, oops);
 	      msg_format("Parsing '%s'.", buf);
 	      msg_print(NULL);
 
 	      /* Quit */
-	      quit("Error in 'p_info.txt' file.");
+	      quit("Error in 'p_race.txt' file.");
 	}
 
 
@@ -2680,7 +2932,7 @@ static errr init_p_info(void)
 	FILE_TYPE(FILE_TYPE_DATA);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_race.raw");
 
 	/* Kill the old file */
 	fd_kill(buf);
@@ -2724,13 +2976,13 @@ static errr init_p_info(void)
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_race.raw");
 
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot open 'p_info.raw' file.");
+	if (fd < 0) quit("Cannot open 'p_race.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_p_info_raw(fd);
@@ -2739,7 +2991,7 @@ static errr init_p_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'p_info.raw' file.");
+	if (err) quit("Cannot parse 'p_race.raw' file.");
 
 	/* Success */
 	return (0);
@@ -2801,7 +3053,7 @@ errr init_t_info(byte chosen_level)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "t_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "themed.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -2824,8 +3076,8 @@ errr init_t_info(byte chosen_level)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Non-critical error: t_info.txt is unusable.");
-		msg_format("Error %d at line %d of 't_info.txt'.", err, error_line);
+		msg_format("Non-critical error: themed.txt is unusable.");
+		msg_format("Error %d at line %d of 'themed.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
@@ -3822,7 +4074,9 @@ void init_angband(void)
 	note("[Initializing arrays... (artifacts)]");
 	if (init_a_info()) quit("Cannot initialize artifacts");
 
-	/* Initialize set item artifacts. */
+	/* Initialize set item info */
+	note("[Initializing arrays... (set items)]");
+	if (init_s_info()) quit("Cannot initialize set items");
 	update_artifact_sets();
 
 	/* Initialize ego-item info */

@@ -802,7 +802,6 @@ void do_cmd_quaff_potion(void)
 		{
 			msg_print("You feel life flow through your body!");
 			restore_level();
-			hp_player(2000);
 			(void)set_poisoned(0);
 			(void)set_blind(0);
 			(void)set_confused(0);
@@ -815,6 +814,7 @@ void do_cmd_quaff_potion(void)
 			(void)do_res_stat(A_WIS);
 			(void)do_res_stat(A_INT);
 			(void)do_res_stat(A_CHR);
+			hp_player(2000);
 			if (p_ptr->black_breath)
 			{
 				msg_print("The hold of the Black Breath on you is broken!");
@@ -1402,6 +1402,7 @@ void do_cmd_read_scroll(void)
 				msg_print("Your hands begin to glow.");
 				p_ptr->special_attack |= (ATTACK_CONFUSE);
 				ident = TRUE;
+				p_ptr->redraw |= PR_STATUS;
 			}
 			break;
 		}
@@ -1614,6 +1615,10 @@ void do_cmd_use_staff(void)
 		if (flush_failure) flush();
 		msg_print("The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->window |= (PW_INVEN);
 		return;
 	}
 
@@ -1957,6 +1962,7 @@ void do_cmd_use_staff(void)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	p_ptr->window |= (PW_INVEN);
 
 	/* Tried the item */
 	object_tried(o_ptr);
@@ -2372,6 +2378,13 @@ void do_cmd_aim_wand(void)
 			break;
 		}
 
+
+		case SV_WAND_SHARD_BOLT:
+		{
+			fire_bolt(GF_SHARD, dir, damroll(4 + plev / 14, 8));
+			ident = TRUE;
+			break;
+		}
 
 		case SV_WAND_ILKORIN:
 		{
@@ -3471,25 +3484,22 @@ void do_cmd_activate(void)
 		case ACT_PAURNIMMEN:
 		{
 			msg_print("Your gauntlets are covered in frost...");
-			if (!get_aim_dir(&dir)) return;
-			fire_bolt(GF_COLD, dir, damroll(6, 8));
-			o_ptr->timeout = rand_int(6) + 6;
+			set_ele_attack(ATTACK_COLD, 50);
+			o_ptr->timeout = rand_int(50) + 100;
 			break;
 		}
 		case ACT_PAURAEGEN:
 		{
 			msg_print("Your gauntlets are covered in sparks...");
-			if (!get_aim_dir(&dir)) return;
-			fire_bolt(GF_ELEC, dir, damroll(4, 8));
-			o_ptr->timeout = rand_int(4) + 4;
+			set_ele_attack(ATTACK_ELEC, 40);
+			o_ptr->timeout = rand_int(50) + 100;
 			break;
 		}
 		case ACT_PAURNEN:
 		{
 			msg_print("Your gauntlets are covered in acid...");
-			if (!get_aim_dir(&dir)) return;
-			fire_bolt(GF_ACID, dir, damroll(5, 8));
-			o_ptr->timeout = rand_int(5) + 5;
+			set_ele_attack(ATTACK_ACID, 30);
+			o_ptr->timeout = rand_int(50) + 100;
 			break;
 		}
 		case ACT_FINGOLFIN:
@@ -3724,6 +3734,10 @@ void do_cmd_activate(void)
 			msg_print("The bolt you have ready to hand gleams with deadly power.");
 			p_ptr->special_attack |= (ATTACK_SUPERSHOT);
 			o_ptr->timeout = 200 + randint(200);
+
+			/* Redraw the state */
+			p_ptr->redraw |= (PR_STATUS);
+
 			break;
 		}
 		case ACT_CUBRAGOL:
@@ -4220,6 +4234,10 @@ void do_cmd_activate(void)
 			msg_format("The %s you have ready to hand gleams with deadly power.", missile_name);
 			p_ptr->special_attack |= (ATTACK_SUPERSHOT);
 			o_ptr->timeout = 200 + randint(200);
+
+			/* Redraw the state */
+			p_ptr->redraw |= (PR_STATUS);
+
 			break;
 		}
 		case ACT_RANDOM_DETECT_MONSTERS:

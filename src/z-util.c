@@ -219,7 +219,7 @@ void quit(cptr str)
 	plog(str);
 
 	/* Failure */
-	(void)(exit(-1));
+	(void)(exit(EXIT_FAILURE));
 }
 
 

@@ -986,12 +986,42 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 
 
 /*
- * Return the number of features around (or under) the character.
- * Usually look for doors and floor traps.
+ * Return TRUE if the given feature is an open door
  */
-static int count_feats(int *y, int *x, byte f1, byte f2)
+static bool is_open(int feat)
 {
-	int d, count;
+	return (feat == FEAT_OPEN);
+}
+
+
+/*
+ * Return TRUE if the given feature is a closed door
+ */
+static bool is_closed(int feat)
+{
+	return ((feat >= FEAT_DOOR_HEAD) &&
+	        (feat <= FEAT_DOOR_TAIL));
+}
+
+
+/*
+ * Return TRUE if the given feature is a trap
+ */
+static bool is_trap(int feat)
+{
+	return ((feat >= FEAT_TRAP_HEAD) &&
+	        (feat <= FEAT_TRAP_TAIL));
+}
+
+
+/*
+ * Return the number of doors/traps around (or under) the character
+ */
+static int count_feats(int *y, int *x, bool (*test)(int feat), bool under)
+{
+	int d;
+	int xx, yy;
+	int count;
 	
 	/* Count how many matches */
 	count = 0;
@@ -999,16 +1029,21 @@ static int count_feats(int *y, int *x, byte f1, byte f2)
 	/* Check around (and under) the character */
 	for (d = 0; d < 9; d++)
 	{
+		/* Not searching under the character */
+		if ((d == 8) && !under) continue;
+
 		/* Extract adjacent (legal) location */
-		int yy = p_ptr->py + ddy_ddd[d];
-		int xx = p_ptr->px + ddx_ddd[d];
+		yy = p_ptr->py + ddy_ddd[d];
+		xx = p_ptr->px + ddx_ddd[d];
+
+		/* Paranoia */
+		if (!in_bounds_fully(yy, xx)) continue;
 
 		/* Must have knowledge */
 		if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
 				
 		/* Not looking for this feature */
-		if (cave_feat[yy][xx] < f1) continue;
-		if (cave_feat[yy][xx] > f2) continue;
+		if (!(*test)(cave_feat[yy][xx])) continue;
 			
 		/* Count it */
 		++count;
@@ -1238,9 +1273,16 @@ void do_cmd_open(void)
 	/* Option: Pick a direction -TNB- */
 	if (easy_open) 
 	{
-		/* Handle a single closed door or locked chest */
-		if ((count_feats(&y, &x, FEAT_DOOR_HEAD, FEAT_DOOR_TAIL) +
-		     count_chests(&y, &x, FALSE)) == 1)
+		int num_doors, num_chests;
+
+		/* Count closed doors */
+		num_doors = count_feats(&y, &x, is_closed, FALSE);
+
+		/* Count chests (locked) */
+		num_chests = count_chests(&y, &x, FALSE);
+
+		/* See if there's only one target */
+		if ((num_doors + num_chests) == 1)
 		{
 			p_ptr->command_dir = coords_to_dir(y, x);
 		}
@@ -1403,14 +1445,10 @@ void do_cmd_close(void)
 	/* Option: Pick a direction -TNB- */
 	if (easy_open)
 	{
-		/* Handle a single open door */
-		if (count_feats(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1)
+		/* See if there's only one closeable door */
+		if (count_feats(&y, &x, is_open, FALSE) == 1)
 		{
-			/* Don't close door player is on */
-			if ((y != py) || (x != px))
-			{
-				p_ptr->command_dir = coords_to_dir(y, x);
-			}
+			p_ptr->command_dir = coords_to_dir(y, x);
 		}
 	}
 
@@ -1818,7 +1856,9 @@ static bool do_cmd_disarm_test(int y, int x)
 	/* Require an actual trap or glyph */
 	if (!((cave_feat[y][x] >= FEAT_TRAP_HEAD) && 
 	      (cave_feat[y][x] <= FEAT_TRAP_TAIL)) && 
-		cave_feat[y][x] != FEAT_GLYPH)
+		cave_feat[y][x] != FEAT_GLYPH &&
+	    !((cave_feat[y][x] >= FEAT_MTRAP_HEAD) &&
+              (cave_feat[y][x] <= FEAT_MTRAP_TAIL)))
 	{
 		/* Message */
 		msg_print("You see nothing there to disarm.");
@@ -1869,7 +1909,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 	power = 5 + p_ptr->depth / 4;
 
 	/* Prevent the player's own traps granting exp. */
-	if (cave_feat[y][x] == FEAT_MONSTER_TRAP) power = 0;
+	if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) && (cave_feat[y][x] <= FEAT_MTRAP_TAIL)) power = 0;
 
 	/* Prevent glyphs of warding granting exp. */
 	if (cave_feat[y][x] == FEAT_GLYPH) power = 0;
@@ -1891,7 +1931,8 @@ static bool do_cmd_disarm_aux(int y, int x)
 		else msg_format("You have disarmed the %s.", name);
 
 		/* If a Rogue's monster trap, decrement the trap count. */
-		if (cave_feat[y][x] == FEAT_MONSTER_TRAP) num_trap_on_level--;
+		if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) && (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
+			num_trap_on_level--;
 
 		/* If a glyph, decrement the glyph count. */
 		if (cave_feat[y][x] == FEAT_GLYPH) num_glyph_on_level--;
@@ -1951,12 +1992,21 @@ void do_cmd_disarm(void)
 	/* Option: Pick a direction -TNB- */
 	if (easy_disarm) 
 	{
-		/* Handle a single visible trap or trapped chest */
-		if ((count_feats(&y, &x, FEAT_TRAP_HEAD, FEAT_TRAP_TAIL) +
-		     count_chests(&y, &x, TRUE)) == 1)
+		int num_traps, num_chests;
+
+		/* Count visible traps */
+		num_traps = count_feats(&y, &x, is_trap, TRUE);
+
+		/* Count chests (trapped) */
+		num_chests = count_chests(&y, &x, TRUE);
+
+		/* See if there's only one target */
+		if (num_traps || num_chests)
 		{
-			p_ptr->command_dir = coords_to_dir(y, x);
+			if (num_traps + num_chests <= 1)
+				p_ptr->command_dir = coords_to_dir(y, x);
 		}
+
 	}
 
 	/* Get a direction (or abort) */
@@ -2322,11 +2372,25 @@ void do_cmd_alter(void)
 	 * too many do not exist on the level.  If there are too many, notify
 	 * the player. -LM-
 	 */
-	else if ((p_ptr->pclass == CLASS_ROGUE) && (!SCHANGE) && (cave_naked_bold(y, x)))
+	else if ((p_ptr->pclass == CLASS_ROGUE) && (cave_naked_bold(y, x)))
 	{
-		if (num_trap_on_level == 0) py_set_trap(y, x);
+		if (num_trap_on_level <= (check_specialty(SP_EXTRA_TRAP) ? 1 : 0)) py_set_trap(y, x);
 		else msg_print("You must disarm an existing trap to free up your equipment.");
 		did_nothing = FALSE;
+	}
+
+	/* Disarm advanced monster traps */
+	else if (feat > FEAT_MTRAP_HEAD)
+	{
+		/* Disarm */
+		more = do_cmd_disarm_aux(y, x);
+	}
+
+	/* Modify basic monster traps */
+	else if (feat == FEAT_MTRAP_HEAD)
+	{
+		/* Modify */
+		py_modify_trap(y, x);
 	}
 
 	/* Tunnel through walls */
@@ -2339,21 +2403,21 @@ void do_cmd_alter(void)
 	/* Bash jammed doors */
 	else if (feat >= FEAT_DOOR_HEAD + 0x08)
 	{
-		/* Tunnel */
+		/* Bash */
 		more = do_cmd_bash_aux(y, x);
 	}
 
 	/* Open closed doors */
 	else if (feat >= FEAT_DOOR_HEAD)
 	{
-		/* Tunnel */
+		/* Close */
 		more = do_cmd_open_aux(y, x);
 	}
 
 	/* Disarm traps */
 	else if (feat >= FEAT_TRAP_HEAD)
 	{
-		/* Tunnel */
+		/* Disarm */
 		more = do_cmd_disarm_aux(y, x);
 	}
 
@@ -2787,7 +2851,7 @@ void do_cmd_rest(void)
 		strcpy(out_val, "&");
 
 		/* Ask for duration */
-		if (!get_string(p, out_val, 4)) return;
+		if (!get_string(p, out_val, 5)) return;
 
 		/* Rest until done */
 		if (out_val[0] == '&')

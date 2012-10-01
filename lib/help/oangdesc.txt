@@ -7,10 +7,12 @@ in C programming, and to turn a new conception of non-magical combat into a
 game you can enjoy.  As you will shortly discover, however, this variant has 
 developed a life of its own.  A selection of features includes:
 
-- The elimination of years of slow HP and damage inflation, and a "tabula rasa" 
-approach to game balance in general.
+- The elimination of years of slow HP and damage inflation, and a "tabula
+rasa" approach to game balance in general.
 
 - A fundamentally altered conception of physical combat.
+
+- Specialty abilities alowing character customization.
 
 - A radically revised magical system, offering you the chance to play any of 
 four spellcasters, any of four warrior-spellcasters, or the pure warrior we 
@@ -59,9 +61,9 @@ Jeweled Chests, or activatable rings, Oangband has novelty enough for anyone.
 - And Angband-compatible savefiles.
 
 
-If you feel the need for more detail, I'd suggest just perusing the help files.  
-You will also find a file in the "lib/info/diffs" folder that lists (many) of 
-the changes between Oangband 0.5.1 and 0.5.2.
+If you feel the need for more detail, I'd suggest just perusing the help
+files.  You will also find a file in the "lib/info/diffs" folder that lists
+(many of) the changes between Oangband 0.5.2 and 0.6.0.
 
 
 === The Jaded Angband Player's Guide to Oangband ===
@@ -69,7 +71,8 @@ the changes between Oangband 0.5.1 and 0.5.2.
 -Don't think a whip will instantly make you a combat machine.
 -Don't ignore combat magic and spells that hinder monsters.
 -Melee requires as much backpack space as magic.
--Don't try to melee or shoot with the pros if you haven't the Skill to swing it.
+-Don't try to melee or shoot with the pros if you haven't the Skill to swing
+ it.
 -Forget about blows.  Most characters get two for a long time.
 -Don't ignore infravision, searching, and perception.
 -Don't go into autopilot and sell every damage-dealing wand, staff, or rod you 
@@ -91,7 +94,9 @@ Oangband Version 0.4  : 4/18/99  Leon Marrick
 
 Oangband Version 0.5  : 4/18/99  Bahman Rabii
 
-Copyright (c) 2000      Bahman Rabii, Leon Marrick, Robert Ruehlmann,
+Oangband Version 0.6  : 1/10/03  Bahman Rabii
+
+Copyright (c) 2003      Bahman Rabii, Leon Marrick, Robert Ruehlmann,
                         Ben Harrison, James E. Wilson, Robert A. Koeneke
 
 This software may be copied and distributed for educational, research,

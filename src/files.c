@@ -553,13 +553,13 @@ errr process_pref_file_aux(char *buf)
 		if (tokenize(buf+2, 2, zz) == 2)
 		{
 			u16b type = (u16b)strtol(zz[0], NULL, 0);
-			byte color = color_char_to_attr(zz[1][0]);
+			int color = color_char_to_attr(zz[1][0]);
 
 			/* Ignore illegal types */
 			if (type >= MSG_MAX) return (1);
 
 			/* Store the color */
-			message__color[type] = color;
+			message__color[type] = (byte)color;
 
 			/* Success */
 			return (0);
@@ -1252,7 +1252,7 @@ static void display_player_middle(void)
 	else
 	{
 		prt_lnum("Exp to Adv.   ",
-			 (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L),
+			 (s32b)(player_exp[p_ptr->lev - 1]),
 			 12, 27, TERM_L_GREEN);
 	}
 
@@ -1487,6 +1487,12 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
 	{
 		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
 		if (p_ptr->lev >= 40) (*f3) |= (TR3_REGEN);
+	}
+
+	/* Specialty ability Holy Light */
+	if (check_specialty(SP_HOLY_LIGHT))
+	{
+		p_ptr->resist_lite = TRUE;
 	}
 
 	if (shape)
@@ -1999,7 +2005,7 @@ static void display_player_stat_info(void)
 	/* Print out the labels for the columns */
 	c_put_str(TERM_WHITE, "Stat", row-1, stat_col);
 	c_put_str(TERM_BLUE, "Intrnl", row-1, stat_col+5);
-	c_put_str(TERM_L_BLUE, "Rce Cls Eqp", row-1, stat_col+12);
+	c_put_str(TERM_L_BLUE, "Rce Cls Oth", row-1, stat_col+12);
 	c_put_str(TERM_L_GREEN, "Actual", row-1, stat_col+24);
 	c_put_str(TERM_YELLOW, "Currnt", row-1, stat_col+31);
 
@@ -2398,6 +2404,21 @@ errr file_character(cptr name, bool full)
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
+
+	/* Dump specialties if any */
+	if (p_ptr->specialty_order[0] != SP_NO_SPECIALTY)
+	{
+		fprintf(fff, "  [Specialty Abilities]\n\n");
+		for (i = 0; i < 10; i++)
+		{
+			if (p_ptr->specialty_order[i] != SP_NO_SPECIALTY)
+			{
+				fprintf(fff, "%s %s\n", specialty_names[p_ptr->specialty_order[i]],
+					(i >= p_ptr->specialties_allowed) ? "(forgotten)" : ""); 
+			}
+		}
+		fprintf(fff, "\n\n");
+	}
 
 	/* If dead, dump last messages -- Prfnoff */
 	if (p_ptr->is_dead)
@@ -3178,9 +3199,6 @@ void do_cmd_save_game(bool autosave)
 long total_points(void)
 {
 	long score = (p_ptr->max_exp + (100 * p_ptr->max_depth));
-
-	/* Special Case -- Maiar get half the score of other races. -LM- */
-	if ((rp_ptr->flags_special) & PS_DIVINE) score /= 2;
 
 	return (score);
 }

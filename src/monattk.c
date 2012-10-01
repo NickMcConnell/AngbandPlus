@@ -83,7 +83,10 @@ static int check_hit(int power, int level, int terrain_bonus, int m_idx)
 	ac = p_ptr->ac + p_ptr->to_a + terrain_bonus;
 
 	/* Power and Level compete against Armor */
-	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
+	if ((i > 0) && (randint(i) > ((ac * 3) / 4)))
+	{
+		return (TRUE);
+	}
 
 	/* Assume miss */
 	return (FALSE);
@@ -1821,7 +1824,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int k, rlev, spower, rad;
+	int k, rlev, spower, rad, manacost;
 
 	int m_idx = cave_m_idx[m_ptr->fy][m_ptr->fx];
 
@@ -1849,11 +1852,12 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 
 	/* Hack - Spend mana */
 	if (attack >= 224) return (FALSE);
-	else if (attack >= 192) m_ptr->mana -= mana_cost_RF7[attack-192];
-	else if (attack >= 160) m_ptr->mana -= mana_cost_RF6[attack-160];
-	else if (attack >= 128) m_ptr->mana -= mana_cost_RF5[attack-128];
-	else if (attack >= 96)  m_ptr->mana -= mana_cost_RF4[attack-96];
+	else if (attack >= 192) manacost = mana_cost_RF7[attack-192];
+	else if (attack >= 160) manacost = mana_cost_RF6[attack-160];
+	else if (attack >= 128) manacost = mana_cost_RF5[attack-128];
+	else if (attack >= 96)  manacost = mana_cost_RF4[attack-96];
 	else return (FALSE);
+	m_ptr->mana -= manacost;
 
 	/*** Get some info. ***/
 
@@ -2212,7 +2216,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes gas.", m_name);
 			mon_arc(m_idx, GF_POIS, TRUE, 
-			       ((m_ptr->hp / 4) > 500 ? 500 : (m_ptr->hp / 4)), 
+			       ((m_ptr->hp / 3) > 500 ? 500 : (m_ptr->hp / 3)), 
 			       0, (r_ptr->flags2 & (RF2_POWERFUL) ? 50 : 30));
 			break;
 		}
@@ -2585,7 +2589,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				if (spower < 120) rad = 4;
 				else rad = 5;
 			}
-			mon_ball(m_idx, GF_POIS, get_dam(2 * spower, 8), rad);
+			mon_ball(m_idx, GF_POIS, get_dam(3 * spower, 8), rad);
 			break;
 		}
 
@@ -3136,13 +3140,16 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 160+0:
 		{
 			disturb(1, 0);
-			if (blind)	
+			if (seen)
 			{
-				msg_format("%^s mumbles.", m_name);
-			}
-			else
-			{
-				msg_format("%^s concentrates on %s body.", m_name, m_poss);
+				if (blind)	
+				{
+					msg_format("%^s mumbles.", m_name);
+				}
+				else
+				{
+					msg_format("%^s concentrates on %s body.", m_name, m_poss);
+				}
 			}
 
 			/* Allow a quick speed increase if not already greatly hasted. */
@@ -3192,6 +3199,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 160+2:
 		{
 			int cost;
+			int hp_gain = 0;
 
 			disturb(1, 0);
 
@@ -3212,22 +3220,31 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			if (((m_ptr->maxhp - m_ptr->hp) <= spower * 5) &&
 			    ((m_ptr->maxhp - m_ptr->hp) <= m_ptr->mana * 50))
 			{
-				m_ptr->hp = m_ptr->maxhp;
+				hp_gain = m_ptr->maxhp - m_ptr->hp;
 				cost = 1 + ((m_ptr->maxhp - m_ptr->hp) / 50);
 			}
 			else if (spower <= m_ptr->mana * 10)
 			{
-				m_ptr->hp += spower * 5;
+				hp_gain += spower * 5;
 				cost = (spower + 9)/10;
 			}
 			else
 			{
-				m_ptr->hp += m_ptr->mana * 50;
+				hp_gain += m_ptr->mana * 50;
 				cost = m_ptr->mana;
 			}
 
+			/* Black Breath slows healing */
+			if (m_ptr->black_breath)
+			{
+				msg_format("%^s is hindered by the Black Breath!", m_name);
+				hp_gain = 4 * hp_gain / 10;
+			}
+
+			/* Spend mana, gain hps */
 			if (cost > m_ptr->mana) m_ptr->mana=0;
 			else m_ptr->mana -= cost;
+			m_ptr->hp += hp_gain;
 
 			/* Fully healed */
 			if (m_ptr->hp >= m_ptr->maxhp)
@@ -3279,47 +3296,50 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		/* RF6_CURE */
 		case 160+3:
 		{
-			msg_format("%^s concentrates on %s ailments.", m_name, m_poss);
+			if (seen) msg_format("%^s concentrates on %s ailments.", m_name, m_poss);
 
-			/* Cancel stunning */
-			if (m_ptr->stunned)
-			{
-				/* Cancel stunning */
-				m_ptr->stunned = 0;
-
-				/* Message */
-				msg_format("%^s is no longer stunned.", m_name);
-			}
-
-			/* Cancel fear */
-			if (m_ptr->monfear)
-			{
-				/* Cancel fear */
-				m_ptr->monfear = 0;
-
-				/* Message */
-				msg_format("%^s recovers %s courage.", m_name, m_poss);
-
-			}
-
-			/* Cancel (major) slowing */
-			if (m_ptr->mspeed < r_ptr->speed - 5)
-			{
-				/* Cancel slowing */
-				m_ptr->mspeed = r_ptr->speed;
-
-				/* Message */
-				msg_format("%^s is no longer slowed.", m_name);
-			}
-
-			/* Cancel Black Breath sometimes. */
+			/*
+			 * Cancel Black Breath sometimes.
+			 * If we don't cure it there will be no further curing.
+			 */
 			if ((m_ptr->black_breath) && (rlev + 20 > rand_int(120)))
 			{
 				/* Cancel Black Breath */
 				m_ptr->black_breath = 0;
 
 				/* Message */
-				msg_format("The hold of the Black Breath on %s is broken.", m_name);
+				if (seen) msg_format("The hold of the Black Breath on %s is broken.", m_name);
+			}
+
+			/* Cancel stunning */
+			if ((m_ptr->stunned) && !(m_ptr->black_breath))
+			{
+				/* Cancel stunning */
+				m_ptr->stunned = 0;
+
+				/* Message */
+				if (seen) msg_format("%^s is no longer stunned.", m_name);
+			}
+
+			/* Cancel fear */
+			if ((m_ptr->monfear) && !(m_ptr->black_breath))
+			{
+				/* Cancel fear */
+				m_ptr->monfear = 0;
+
+				/* Message */
+				if (seen) msg_format("%^s recovers %s courage.", m_name, m_poss);
+
+			}
+
+			/* Cancel (major) slowing */
+			if ((m_ptr->mspeed < r_ptr->speed - 5) && !(m_ptr->black_breath))
+			{
+				/* Cancel slowing */
+				m_ptr->mspeed = r_ptr->speed;
+
+				/* Message */
+				if (seen) msg_format("%^s is no longer slowed.", m_name);
 			}
 
 			/* Redraw (later) if needed */
@@ -3332,8 +3352,18 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 160+4:
 		{
 			disturb(1, 0);
-			msg_format("%^s blinks away.", m_name);
+			if (seen) msg_format("%^s blinks away.", m_name);
 			teleport_away(m_idx, 10);
+			/* 
+			 * if it comes into view from around a corner (unlikely)
+			 * give a message and learn about the casting
+			 */
+			if (!seen && m_ptr->ml)
+			{
+                                monster_desc(ddesc, m_ptr, 0x08);
+				msg_format("%^s blinks.", ddesc);
+				seen = TRUE;
+			}
 			break;
 		}
 
@@ -3341,12 +3371,21 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 160+5:
 		{
 			disturb(1, 0);
-			msg_format("%^s teleports away.", m_name);
+			if (seen) msg_format("%^s teleports away.", m_name);
 			teleport_away(m_idx, MAX_SIGHT * 2 + 5);
-			
 			/* Hack - 'teleport stress' fatigues the monster */
 			/* m_ptr->mana -= m_ptr->mana/3; */
-
+			
+			/* 
+			 * if it comes into view from around a corner (VERY unlikely)
+			 * give a message and learn about the casting
+			 */
+			if (!seen && m_ptr->ml)
+			{
+				monster_desc(ddesc, m_ptr, 0x08);
+				msg_format("%^s teleports.", ddesc);
+				seen = TRUE;
+			}
 			break;
 		}
 
@@ -3385,7 +3424,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			}
 
 			/* Have we seen them at any point?  If so, we will learn about the spell. */
-			if (m_ptr->ml) seen = TRUE;
+			if (seen || m_ptr->ml) seen = TRUE;
 
 			break;
 		}
@@ -3394,7 +3433,14 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		{
 			disturb(1, 0);
 			msg_format("%^s commands you to return.", m_name);
-			teleport_player_to(m_ptr->fy, m_ptr->fx);
+			if ((check_specialty(SP_TELEPORT_RESIST)) && (rand_int(100) < p_ptr->skill_sav))
+			{
+				msg_print("Teleport Resistance!");
+			}
+			else
+			{
+				teleport_player_to(m_ptr->fy, m_ptr->fx);
+			}
 			break;
 		}
 
@@ -3403,7 +3449,14 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		{
 			disturb(1, 0);
 			msg_format("%^s teleports you away.", m_name);
-			teleport_player(100, TRUE);
+			if ((check_specialty(SP_TELEPORT_RESIST)) && (rand_int(100) < p_ptr->skill_sav))
+			{
+				msg_print("Teleport Resistance!");
+			}
+			else
+			{
+				teleport_player(100, TRUE);
+			}
 			break;
 		}
 
@@ -3413,7 +3466,11 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles strangely.", m_name);
 			else msg_format("%^s gestures at your feet.", m_name);
-			if (p_ptr->resist_nexus)
+			if (check_specialty(SP_TELEPORT_RESIST))
+			{
+				msg_print("Teleport Resistance!");
+			}
+			else if (p_ptr->resist_nexus)
 			{
 				msg_print("You are unaffected!");
 			}
@@ -3813,7 +3870,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s stares deep into your eyes!", m_name);
+			else msg_format("%^s stares deep into your eyes!", m_name);
 			if (p_ptr->free_act)
 			{
 					msg_print("You are unaffected!");
@@ -4156,6 +4213,12 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		{
 			msg_print("A monster tried to cast a spell that has not yet been defined.");
 		}
+	}
+
+	/* Power Siphon Specialty Ability */
+	if ((check_specialty(SP_POWER_SIPHON)) && (manacost) && m_ptr->ml)
+	{
+		p_ptr->mana_gain += manacost;
 	}
 
 	/* Learn Player Resists */

@@ -5,6 +5,8 @@
 the left side of the main window, the basic skills characters possess, and the 
 various special immunities and qualities that characters may acquire in their 
 adventures.  It also tells you how to keep track of all this information.
+     Your character may also gain one or more "specialty abilities", (described 
+in the file "specialt.txt") using the 'O' command.
 
 
 === Character Attributes Shown on the Left Side of the Main Window ===
@@ -22,9 +24,7 @@ adventures.  It also tells you how to keep track of all this information.
                heavier weapons, learn more effective spells and improve spells 
                already learnt.
               -adds entirely new abilities or benefits.
-         The maximum experience level is 50.  Depending on the class and race 
-         you choose, the number of exp points required to attain this level 
-         varies widely, which balances out more and less powerful combinations.
+         The maximum experience level is 50.
 
      Gold:
          Gold is amazingly handy, because everything the town can sell can be 
