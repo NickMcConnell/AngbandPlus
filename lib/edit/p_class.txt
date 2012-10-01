@@ -68,13 +68,9 @@
 # while blinded or confused.
 # MUSIC - Allows the character to use musical instruments.
 # LORE - Identifying an artifact reveals all info about it (acts as *identify*)
-# BETTER_CRITICAL - Improved critical hits in melee.
-# BETTER_SHOT - Improved critical hits with fire weapons.
-# BETTER_THROW	- Improved critical hits with throwen weapons.
-# TRAP_KNOW	- Allows accurate trap descriptions.
-# TRAP_PLACE - Allows placement of traps.
-# APPRAISE - Allows "sensing" item value.
-# SUB_SPELL	- Allows acces to sub-spell menus.
+# BETTER_CRITICAL - Improved critical hits.
+# BETTER_SHOT - Improved critical hits with shots.
+
 
 # Version stamp (required)
 
@@ -156,7 +152,7 @@ T:Conjurer
 T:Warlock
 T:Sorcerer
 T:Mage-Lord
-F:NO_GLOVE | ZERO_FAIL | BEAM | PSEUDO_ID1 | CHOOSE_SPELLS | SUB_SPELL 
+F:NO_GLOVE | ZERO_FAIL | BEAM | PSEUDO_ID1 | CHOOSE_SPELLS | SUB_SPELL
 
 N:3:Spellsword
 S:2:1:-1:0:0:0
@@ -248,7 +244,7 @@ T:Patriarch
 T:Priest
 T:High-Priest
 T:Archpriest
-F:BLESS_WEAPON | ZERO_FAIL | PSEUDO_ID4 
+F:BLESS_WEAPON | ZERO_FAIL | PSEUDO_ID4
 
 N:6:Paladin
 S:2:-2:1:0:1:1

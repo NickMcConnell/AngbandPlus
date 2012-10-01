@@ -82,6 +82,12 @@ void do_cmd_inven(void)
 		/* Reset stuff */
 		p_ptr->command_new = 0;
 	}
+	/* Hack -- Process normal keys */
+	else
+	{
+		/* Hack -- Use "display" mode */
+		p_ptr->command_see = TRUE;
+	}
 }
 
 /*
@@ -118,6 +124,12 @@ void do_cmd_equip(void)
 	{
 		/* Reset stuff */
 		p_ptr->command_new = 0;
+	}
+	/* Hack -- Process normal keys */
+	else
+	{
+		/* Hack -- Use "display" mode */
+		p_ptr->command_see = TRUE;
 	}
 }
 

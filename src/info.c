@@ -192,7 +192,7 @@ byte object_resist(object_type *o_ptr, int res_type)
 	if (ego_item_p(o_ptr))
 	{
 		if (((o_ptr->xtra1 == OBJECT_XTRA_TYPE_MID_RESIST) ||
-			(o_ptr->xtra1 == OBJECT_XTRA_TYPE_MID_RESIST)) &&
+			(o_ptr->xtra1 == OBJECT_XTRA_TYPE_HIGH_RESIST)) &&
 			(o_ptr->xtra2 == res_type))
 			i = 25;
 	}
@@ -218,7 +218,7 @@ byte object_resist_known(object_type *o_ptr, int res_type)
 		/* Known random ego-item resists */
 		if (ego_item_p(o_ptr) && (o_ptr->ident & IDENT_MENTAL))
 		if (((o_ptr->xtra1 == OBJECT_XTRA_TYPE_MID_RESIST) ||
-			(o_ptr->xtra1 == OBJECT_XTRA_TYPE_MID_RESIST)) &&
+			(o_ptr->xtra1 == OBJECT_XTRA_TYPE_HIGH_RESIST)) &&
 			(o_ptr->xtra2 == res_type))
 			res += 25;
 	}
@@ -2007,7 +2007,7 @@ void list_object(object_type *o_ptr, int mode)
 		if (random)
 		{
 			if (!(((o_ptr->xtra1 == OBJECT_XTRA_TYPE_MID_RESIST) ||
-			(o_ptr->xtra1 == OBJECT_XTRA_TYPE_MID_RESIST)) &&
+			(o_ptr->xtra1 == OBJECT_XTRA_TYPE_HIGH_RESIST)) &&
 			(o_ptr->xtra2 == i))) j = 0;
 		}
 
@@ -2574,7 +2574,7 @@ void stack_histories(object_type *o_ptr, object_type *j_ptr)
 
 	/* If the first object has an exceptionally interesting history */
 	else if ((o_ptr->origin_u_idx) ||
-	    (o_ptr->origin_dlvl > k_info[o_ptr->k_idx].level + 10))
+	    (o_ptr->origin_dlvl + 10 > k_info[o_ptr->k_idx].level))
 	{
 		/* Use the first item's history */
 		action = KEEP_O;
@@ -2582,7 +2582,7 @@ void stack_histories(object_type *o_ptr, object_type *j_ptr)
 
 	/* If the second object has an exceptionally interesting history */
 	else if ((j_ptr->origin_u_idx) ||
-	    (j_ptr->origin_dlvl > k_info[j_ptr->k_idx].level + 10))
+	    (j_ptr->origin_dlvl + 10> k_info[j_ptr->k_idx].level))
 	{
 		/* Use the second item's history */
 		action = KEEP_J;

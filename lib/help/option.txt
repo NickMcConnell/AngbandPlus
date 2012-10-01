@@ -104,16 +104,21 @@ Display floor stacks in a list    [easy_floor]
     to interact with other items than the one at the top of the stack.
 
 ***** <verify_leave_quest>
-Verify before descending from quest level [verify_leave_quest]
+Verify before descending from quest level    [verify_leave_quest]
     Asks for confirmation when you try to leave a quest level using down 
     stairs (thereby risking quest failure).
 
 ***** <spellbook_menu>
-Alternate spellbook interface [spellbook_menu1]
+Alternate spellbook interface    [spellbook_menu]
     Allows you to choose between the two methods of spell power selection.
     If the option is off, you get the menu if you type a lower-case letter
     for the spell: maaa, and the top level spell if you type a captial 
     letter: maA. 
+
+***** <always_show_lists>
+Always show lists in item/spell selection    [always_show_lists]
+    If this is turned on, item/spell lists will always be show when picking
+    items/spells. Otherwise, they'll only appear if requested.
 
 === Option Set 2 -- Display ===
 

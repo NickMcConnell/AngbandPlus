@@ -281,6 +281,9 @@ static errr rd_item(object_type *o_ptr)
 		/* Obtain the artifact info */
 		a_ptr = &a_info[o_ptr->a_idx];
 
+		/* Hack - artifact was created */
+		a_ptr->status |= A_STATUS_CREATED;
+
 		/* Verify that artifact */
 		if (!a_ptr->name) o_ptr->a_idx = 0;
 	}
@@ -1576,6 +1579,11 @@ static errr rd_savefile_new_aux(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		rd_byte(&a_info[i].status);
+		
+		/* Correct 0.4.5 artifact bug */
+		if (a_info[i].status & A_STATUS_AWARE) a_info[i].status |= A_STATUS_CREATED;
+		else a_info[i].status &= ~(A_STATUS_CREATED);
+
 	}
 	if (arg_fiddle) note("Loaded Artifacts");
 

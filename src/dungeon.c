@@ -137,6 +137,35 @@ static void sense_inventory(void)
 			/* Skip empty slots */
 			if (!o_ptr->k_idx) continue;
 
+			okay = FALSE;
+
+			/* Valid "tval" codes */
+			switch (o_ptr->tval)
+			{
+				case TV_SHOT:
+				case TV_ARROW:
+				case TV_BOLT:
+				case TV_BOW:
+				case TV_DIGGING:
+				case TV_HAFTED:
+				case TV_POLEARM:
+				case TV_SWORD:
+				case TV_BOOTS:
+				case TV_GLOVES:
+				case TV_HEADGEAR:
+				case TV_SHIELD:
+				case TV_CLOAK:
+				case TV_BODY_ARMOR:
+				case TV_DRAG_ARMOR:
+				{
+					okay = TRUE;
+					break;
+				}
+			}
+
+			/* Skip irrelevant items */
+			if (!okay) continue;
+
 			/* It already has a discount or special inscription, except "indestructible" */
 			if ((o_ptr->discount > 0) && !(o_ptr->discount == INSCRIP_INDESTRUCT)) continue;
 
@@ -191,6 +220,8 @@ static void sense_inventory(void)
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
+
+		okay = FALSE;
 
 		/* Valid "tval" codes */
 		switch (o_ptr->tval)
@@ -1917,6 +1948,9 @@ static void process_player(void)
 			/* Window stuff (if needed) */
 			if (p_ptr->window) window_stuff();
 		}
+
+		/* Hack -- cancel "lurking browse mode" */
+		if (!p_ptr->command_new) p_ptr->command_see = FALSE;
 
 		/* Assume free turn */
 		p_ptr->energy_use = 0;

@@ -1962,7 +1962,8 @@ option_type options[OPT_NORMAL] =
 	{"inscribe_unique",		"Auto-inscribe unique drops",				FALSE},
 	{"spellbook_menu",		"Alternate spellbook interface",			FALSE},
 	{"trap_under_object",	"Traps are hidden by objects",				TRUE },
-	{"view_player_color",	"Use special colors for the player",		TRUE }
+	{"view_player_color",	"Use special colors for the player",		TRUE },
+	{"always_show_lists",	"Always show lists in item/spell selection",TRUE }
 };
 
 option_type options_birth[OPT_BIRTH] =
@@ -2032,7 +2033,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_floor,
 		OPT_verify_leave_quest,
 		OPT_spellbook_menu,
-		255
+		OPT_always_show_lists
 	},
 
 	/*** Display ***/

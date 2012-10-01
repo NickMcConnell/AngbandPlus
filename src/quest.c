@@ -260,6 +260,9 @@ static void grant_reward(int reward_level, byte type)
 				/* Valid item exists? */
 				if (!make_typed(i_ptr, TV_MAGIC_BOOK, TRUE, FALSE, FALSE)) break;
 
+				/* Hack -- in case of artifact, mark it as not created yet */
+				if (artifact_p(i_ptr)) a_info[i_ptr->a_idx].status &= ~(A_STATUS_CREATED);
+
 				/* Ensure correct tval */
 				if (i_ptr->tval != TV_MAGIC_BOOK) continue;
 
@@ -321,6 +324,9 @@ static void grant_reward(int reward_level, byte type)
 
 				/* Valid item exists? */
 				if (!make_typed(i_ptr, TV_MUSIC, TRUE, FALSE, FALSE)) break;
+
+				/* Hack -- in case of artifact, mark it as not created yet */
+				if (artifact_p(i_ptr)) a_info[i_ptr->a_idx].status &= ~(A_STATUS_CREATED);
 
 				/* Ensure correct tval */
 				if (i_ptr->tval != TV_MUSIC) continue;
@@ -545,6 +551,8 @@ static void grant_reward(int reward_level, byte type)
 					case INVEN_FEET: tval = TV_BOOTS; break;
 				}
 
+				val[i] = 0;
+
 				/* 100 attempts per slot */
 				for (j = 0; j < 100; j++)
 				{
@@ -556,12 +564,15 @@ static void grant_reward(int reward_level, byte type)
 						break;
 					}
 
+					/* Hack -- in case of artifact, mark it as not created yet */
+					if (artifact_p(i_ptr)) a_info[i_ptr->a_idx].status &= ~(A_STATUS_CREATED);
+
 					/* 
 					 * Ensure correct tval.
 					 * hack - allow special lights for light slot.
 					 */
-					if ((i_ptr->tval != tval) &&
-						!((i == INVEN_LITE) && (i_ptr->tval == TV_LITE_SPECIAL))) continue;
+					if ((j_ptr->tval != tval) &&
+						!((i == INVEN_LITE) && (j_ptr->tval == TV_LITE_SPECIAL))) continue;
 
 					/* No bad prefixes */
 					if (j_ptr->prefix_idx)
@@ -592,7 +603,7 @@ static void grant_reward(int reward_level, byte type)
 						object_flags(j_ptr, &f1, &f2, &f3);
 
 						/* Limit to legal glove types */
-						if (!(f2 & (TR2_FREE_ACT)) && !((i_ptr->pval > 0) && 
+						if (!(f2 & (TR2_FREE_ACT)) && !((j_ptr->pval > 0) && 
 							((f1 & (TR1_DEX)) || (f1 & (TR1_MANA))))) continue;
 					}
 
@@ -604,6 +615,9 @@ static void grant_reward(int reward_level, byte type)
 
 						if (!(f2 & TR2_BLESSED)) continue;
 					}
+
+					/* No torches or brass lanterns */
+					if ((tval == TV_LITE) && (j_ptr->sval < SV_LANTERN_FIRST_MAGIC)) continue;
 
 					/* Hack - mark as identified */
 					object_known(j_ptr);
@@ -677,6 +691,12 @@ static void grant_reward(int reward_level, byte type)
 	{
 		artifact_type *a_ptr = &a_info[i_ptr->a_idx];
 
+		/* 
+		 * Artifact might not yet be marked as created (if it was chosen from tailored rewards),
+		 * so now it's the right time to mark it 
+		 */
+		a_ptr->status |= A_STATUS_CREATED;
+ 
 		/* Mark the item as fully known */
 		if (cp_ptr->flags & CF_LORE) artifact_known(&a_info[i_ptr->a_idx]);
 
@@ -922,7 +942,8 @@ static bool place_vault_quest(int q, int lev)
 	q_info[q].type = QUEST_VAULT;
 	q_info[q].base_level = lev;
 	q_info[q].active_level = lev;
-	q_info[q].reward = REWARD_GREAT_ITEM;
+	if (10 + rand_int(50) < p_ptr->fame) q_info[q].reward = REWARD_TAILORED;
+	else q_info[q].reward = REWARD_GREAT_ITEM;
 	q_info[q].cur_num = q_info[q].max_num = 0;
 	q_info[q].started = 0;
 

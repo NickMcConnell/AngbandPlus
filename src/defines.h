@@ -44,7 +44,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.4.5"
+#define VERSION_STRING	"0.4.5b"
 
 /*
  * Current version numbers
@@ -52,7 +52,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	4
 #define VERSION_PATCH	5
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	1
 
 /*
  * Maximum value storable in a "byte" (hard-coded)
@@ -3069,7 +3069,7 @@
  *
  * These values are hard-coded by savefiles (and various pieces of code).
  */
-#define OPT_NORMAL					62 /* Regular options */
+#define OPT_NORMAL					63 /* Regular options */
 #define OPT_BIRTH					19 /* Birth/adult options */
 #define OPT_CHEAT					9  /* Cheat/score options */
 #define OPT_SQUELCH					2  /* Squelch options */
@@ -3141,6 +3141,7 @@
 #define OPT_spellbook_menu			59
 #define OPT_trap_under_object		60
 #define OPT_view_player_color		61
+#define OPT_always_show_lists		62
 
 /*
  * Option indexes (birth and adult)
@@ -3248,6 +3249,7 @@
 #define spellbook_menu			op_ptr->opt[OPT_spellbook_menu]
 #define trap_under_object		op_ptr->opt[OPT_trap_under_object]
 #define view_player_color		op_ptr->opt[OPT_view_player_color]
+#define always_show_lists		op_ptr->opt[OPT_always_show_lists]
 #define birth_point_based		op_ptr->opt_birth[OPT_birth_point_based]
 #define birth_auto_roller		op_ptr->opt_birth[OPT_birth_auto_roller]
 #define birth_preserve			op_ptr->opt_birth[OPT_birth_preserve]

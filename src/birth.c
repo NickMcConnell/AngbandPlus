@@ -1307,7 +1307,7 @@ static bool player_birth_aux_3(void)
 	char buf[80];
 
 	s16b stat_auto[A_MAX];
-	s16b stat_match[A_MAX];
+	s32b stat_match[A_MAX];
 
 	s32b auto_round = 0L;
 

@@ -562,16 +562,14 @@ void print_spells(int book, bool music, int lev, int y, int x)
 	}
 
 	/* Clear the bottom line */
-	prt("", y + j + 2, x);
+	prt("", y + j + 2, x); 
 }
 
 /*
- * Print out a list of available spells for any spellbook given.
- * Revised by -LM-
+ * Print out a list of available sub-spells for any spell given.
  *
  * Input y controls lines from top for list, and input x controls columns 
  * from left. 
- *
  */
 static void print_sub_spells(int book, int spell, int from, int to, int y, int x)
 {
@@ -684,7 +682,7 @@ static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool a
 
 	int spell = -1;
 
-	bool flag, okay;
+	bool flag, redraw, okay;
 	char choice;
 
 	char out_val[160];
@@ -731,21 +729,53 @@ static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool a
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(spells %c-%c, ESC=exit) %^s which spell? ",
+	/* No redraw yet */
+	if (!always_show_lists) 
+	{
+		redraw = FALSE;
+
+		/* Build a prompt */
+		strnfmt(out_val, 78, "(spells %c-%c, *=List, ESC=exit) %^s which spell? ",
+			I2A(0), I2A(count_spells(book)-1), prompt);
+	}
+	/* Build a prompt (always how lists) */
+	else strnfmt(out_val, 78, "(spells %c-%c, ESC=exit) %^s which spell? ",
 		I2A(0), I2A(count_spells(book)-1), prompt);
-
-	/* Save screen */
-	screen_save();
-
-	/* Display a list of spells */
-	print_spells(book, FALSE, 0, 1, 14);
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
 		okay = TRUE;
 
+		/* Request redraw */
+		if (!always_show_lists && ((choice == ' ') || (choice == '*') || (choice == '?')))
+		{
+			/* Hide the list */
+			if (redraw)
+			{
+				/* Load screen */
+				screen_load();
+
+				/* Hide list */
+				redraw = FALSE;
+			}
+
+			/* Show the list */
+			else
+			{
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save screen */
+				screen_save();
+
+				/* Display a list of spells */
+				print_spells(book, FALSE, 0, 1, 14);
+			}
+
+			/* Ask again */
+			continue;
+		}
 		/* Force high sub-spell */
 		if (ss && !spellbook_menu)
 		{
@@ -799,8 +829,12 @@ static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool a
 		flag = TRUE;
 	}
 
-	/* Load screen */
-	screen_load();
+	/* Restore the screen */
+	if (!always_show_lists && redraw)
+	{
+		/* Load screen */
+		screen_load();
+	}
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);
@@ -824,7 +858,7 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev, bool allow_al
 
 	int tune = -1;
 
-	bool flag, okay;
+	bool flag, redraw, okay;
 	char choice;
 
 	char out_val[160];
@@ -869,19 +903,51 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev, bool allow_al
 	/* Nothing chosen yet */
 	flag = FALSE;
 
+	if (!always_show_lists)
+	{
+		/* No redraw yet */
+		redraw = FALSE;
+
+		/* Build a prompt (accept all spells) */
+		strnfmt(out_val, 78, "(spells %c-%c, *=List, ESC=exit) %^s which tune? ",
+			I2A(0), I2A(count_tunes(instrument, lev)-1), prompt);
+	}
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(spells %c-%c, *=List, ESC=exit) %^s which tune? ",
+	else strnfmt(out_val, 78, "(spells %c-%c, ESC=exit) %^s which tune? ",
 		I2A(0), I2A(count_tunes(instrument, lev)-1), prompt);
-
-	/* Save screen */
-	screen_save();
-
-	/* Display a list of spells */
-	print_spells(instrument, TRUE, lev, 1, 14);
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
+		/* Request redraw */
+		if (!always_show_lists && ((choice == ' ') || (choice == '*') || (choice == '?')))
+		{
+			/* Hide the list */
+			if (redraw)
+			{
+				/* Load screen */
+				screen_load();
+
+				/* Hide list */
+				redraw = FALSE;
+			}
+
+			/* Show the list */
+			else
+			{
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save screen */
+				screen_save();
+
+				/* Display a list of spells */
+				print_spells(instrument, TRUE, lev, 1, 14);
+			}
+
+			/* Ask again */
+			continue;
+		}
 
 		/* Lowercase */
 		choice = tolower(choice);
@@ -910,8 +976,12 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev, bool allow_al
 		flag = TRUE;
 	}
 
-	/* Load screen */
-	screen_load();
+	/* Restore the screen */
+	if (!always_show_lists && redraw)
+	{
+		/* Load screen */
+		screen_load();
+	}
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);
@@ -1199,8 +1269,32 @@ void do_cmd_study(void)
 	/* All but Priests -- Learn a selected spell */
 	if (cp_ptr->flags & CF_CHOOSE_SPELLS)
 	{
+		if (always_show_lists)
+		{
+			/* Save screen */
+			screen_save();
+
+			/* Display a list of spells */
+			print_spells(o_ptr->sval, FALSE, 0, 1, 14);
+		}
+
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, NULL, "study", o_ptr->sval, FALSE, FALSE) && (spell == -1)) return;
+		if (!get_spell(&spell, NULL, "study", o_ptr->sval, FALSE, FALSE) && (spell == -1))
+		{
+			if (always_show_lists)
+			{
+				/* Load screen */
+				screen_load();
+			}
+	
+			return;
+		}
+
+		if (always_show_lists)
+		{
+			/* Load screen */
+			screen_load();
+		}
 	}
 	/* Priest -- Learn a random prayer */
 	else
@@ -1399,14 +1493,36 @@ static void do_cast(int book, bool force_menu)
 
 	magic_type *s_ptr;
 
+	/* Save screen */
+	screen_save();
+
+	if (always_show_lists)
+	{
+		/* Display a list of spells */
+		print_spells(book, FALSE, 0, 1, 14);
+	}
+
 	/* Ask for a spell */
 	if (!get_spell(&spell, &sub, "cast", book, TRUE, FALSE))
 	{
 		if (spell == -2) 
 		{
-			message(MSG_FAIL, 0, "You don't know any spells in that books.");
+			message(MSG_FAIL, 0, "You don't know any spells in this book.");
 		}
+
+		if (always_show_lists)
+		{
+			/* Load screen */
+			screen_load();
+		}
+
 		return;
+	}
+
+	if (always_show_lists)
+	{
+		/* Load screen */
+		screen_load();
 	}
 
 	/* Ensure a menu */
@@ -1586,6 +1702,15 @@ void do_play(int instrument, int lev)
 
 	magic_type *s_ptr;
 
+	if (always_show_lists) 
+	{
+		/* Save screen */
+		screen_save();
+
+		/* Display a list of spells */
+		print_spells(instrument, TRUE, lev, 1, 14);
+	}
+
 	/* Ask for a spell */
 	if (!get_tune(&tune, "play", instrument, lev, FALSE))
 	{
@@ -1593,8 +1718,15 @@ void do_play(int instrument, int lev)
 		{
 			message(MSG_FAIL, 0, "You can't play any tunes with this instrument.");
 		}
+
+		/* Load screen */
+		if (always_show_lists) screen_load();
+
 		return;
 	}
+
+	/* Load screen */
+	if (always_show_lists) screen_load();
 
 	/* Access the spell */
 	s_ptr = &instruments[instrument].contents[tune];

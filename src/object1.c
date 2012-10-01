@@ -3002,6 +3002,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int floor_list[24];
 	int floor_num;
 
+	/* Always show lists */
+	if (always_show_lists)
+	{
+		p_ptr->command_see = TRUE;
+	}
+
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
@@ -3092,6 +3098,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Require at least one legal choice */
 	if (!allow_inven && !allow_equip && !allow_floor)
 	{
+		/* Cancel p_ptr->command_see */
+		if (!always_show_lists) p_ptr->command_see = FALSE;
+
 		/* Oops */
 		oops = TRUE;
 
@@ -3103,7 +3112,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	else
 	{
 		/* Hack - start on equipment screen */
-		if ((p_ptr->command_wrk == USE_EQUIP) && (use_equip))
+		if (p_ptr->command_see &&
+		    (p_ptr->command_wrk == (USE_EQUIP)) &&
+		    use_equip)
 		{
 			p_ptr->command_wrk = (USE_EQUIP);
 		}
@@ -3133,9 +3144,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 	}
 
-
-	/* Save screen */
-	screen_save();
+	/* Start out in "display" mode */
+	if (p_ptr->command_see)
+	{
+		/* Save screen */
+		screen_save();
+	}
 
 	/* Repeat until done */
 	while (!done)
@@ -3176,7 +3190,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Viewing inventory */
 		if (p_ptr->command_wrk == (USE_INVEN))
 		{
-			show_inven();
+			/* Redraw if needed */
+			if (p_ptr->command_see) show_inven();
 
 			/* Begin the prompt */
 			sprintf(out_val, "Inven:");
@@ -3192,6 +3207,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				strcat(out_val, tmp_val);
 			}
 
+			/* Indicate ability to "view" */
+			if (!p_ptr->command_see) strcat(out_val, " * to see,");
+
 			/* Indicate legality of "toggle" */
 			if (use_equip) strcat(out_val, " / for Equip,");
 
@@ -3205,8 +3223,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Viewing equipment */
 		else if (p_ptr->command_wrk == (USE_EQUIP))
 		{
-			/* Redraw */
-			show_equip();
+			/* Redraw if needed */
+			if (p_ptr->command_see) show_equip();
 
 			/* Begin the prompt */
 			sprintf(out_val, "Equip:");
@@ -3222,6 +3240,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				strcat(out_val, tmp_val);
 			}
 
+			/* Indicate ability to "view" */
+			if (!p_ptr->command_see) strcat(out_val, " * to see,");
+
 			/* Indicate legality of "toggle" */
 			if (use_inven) strcat(out_val, " / for Inven,");
 
@@ -3235,8 +3256,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Viewing floor */
 		else
 		{
-			/* Redraw */
-			show_floor(floor_list, floor_num);
+			/* Redraw if needed */
+			if (p_ptr->command_see) show_floor(floor_list, floor_num);
 
 			/* Begin the prompt */
 			sprintf(out_val, "Floor:");
@@ -3250,6 +3271,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				/* Append */
 				strcat(out_val, tmp_val);
 			}
+
+			/* Indicate ability to "view" */
+			if (!p_ptr->command_see) strcat(out_val, " * to see,");
 
 			/* Append */
 			if (use_inven) strcat(out_val, " / for Inven,");
@@ -3270,7 +3294,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Show the prompt */
 		prt(tmp_val, 0, 0);
 
-
 		/* Get a key */
 		which = inkey();
 
@@ -3287,11 +3310,28 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			case '?':
 			case ' ':
 			{
-				/* Load screen */
-				screen_load();
+				if (!always_show_lists)
+				{
+					/* Hide the list */
+					if (p_ptr->command_see)
+					{
+						/* Flip flag */
+						p_ptr->command_see = FALSE;
 
-				/* Save screen */
-				screen_save();
+						/* Load screen */
+						screen_load();
+					}
+
+					/* Show the list */
+					else
+					{
+						/* Save screen */
+						screen_save();
+
+						/* Flip flag */
+						p_ptr->command_see = TRUE;
+					}
+				}
 
 				break;
 			}
@@ -3317,11 +3357,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					break;
 				}
 
-				/* Load screen */
-				screen_load();
+				/* Hack -- Fix screen */
+				if (p_ptr->command_see)
+				{
+					/* Load screen */
+					screen_load();
 
-				/* Save screen */
-				screen_save();
+					/* Save screen */
+					screen_save();
+				}
 
 				/* Need to redraw */
 				break;
@@ -3363,11 +3407,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 						}
 					}
 
-					/* Load screen */
-					screen_load();
+					/* Hack -- Fix screen */
+					if (p_ptr->command_see)
+					{
+						/* Load screen */
+						screen_load();
 
-					/* Save screen */
-					screen_save();
+						/* Save screen */
+						screen_save();
+					}
 
 					p_ptr->command_wrk = (USE_FLOOR);
 
@@ -3595,8 +3643,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 	}
 
-	/* Load screen */
-	screen_load();
+	/* Fix the screen if necessary */
+	if (p_ptr->command_see)
+	{
+		/* Load screen */
+		screen_load();
+
+		/* Hack -- Cancel "display" */
+		p_ptr->command_see = FALSE;
+	}
 
 	/* Forget the item_tester_tval restriction */
 	item_tester_tval = 0;

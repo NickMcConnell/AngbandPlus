@@ -160,6 +160,9 @@ void gain_exp(s32b amount)
 
 	/* Check Experience */
 	check_experience();
+
+	/* Update condition window */
+	p_ptr->window |= (PW_CONDITION);
 }
 
 /*

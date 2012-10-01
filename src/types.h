@@ -1245,6 +1245,7 @@ struct player_type
 
 	s16b command_wrk;		/* Hack -- control get_item mode */
 	s16b command_new;		/* Hack -- command chaining XXX XXX */
+	bool command_see;		/* Hack -- show lists */
 
 	s16b new_spells;		/* Number of spells available */
 
