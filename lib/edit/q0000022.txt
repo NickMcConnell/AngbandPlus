@@ -36,6 +36,7 @@ F:b:1:8:25
 # Floor with Large Kobold
 F:c:1:8:82
 
+
 # Dungeon layout
 D:XXXXXXXXXXXXXXXXXX
 D:XXXX.a........**XX

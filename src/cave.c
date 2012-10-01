@@ -3397,13 +3397,13 @@ void town_illuminate(bool daytime)
 			/* Boring grids (dark) */
 			else
 			{
-				/* Darken the grid */
-				cave_info[y][x] &= ~(CAVE_GLOW);
-
-				/* Hack -- Forget grids */
-				if (view_perma_grids)
+				/* Darken "boring" features */
+				if ((cave_feat[y][x] <= FEAT_INVIS) ||
+				    ((cave_feat[y][x] >= FEAT_DEEP_WATER) &&
+					(cave_feat[y][x] <= FEAT_TREES)))
 				{
-					cave_info[y][x] &= ~(CAVE_MARK);
+					/* Forget the grid */
+					cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);
 				}
 			}
 		}

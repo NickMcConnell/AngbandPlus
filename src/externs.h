@@ -66,6 +66,8 @@ extern cptr option_desc[OPT_MAX];
 extern const bool option_norm[OPT_MAX];
 extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern cptr inscrip_text[MAX_INSCRIP];
+extern const char head[3];
+extern const tval_desc tvals[];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -353,6 +355,8 @@ extern void do_cmd_messages(void);
 extern void do_cmd_options(void);
 extern void do_cmd_pref(void);
 extern void do_cmd_macros(void);
+extern void strip_name(char *buf, int k_idx);
+extern void do_cmd_objects(void);
 extern void do_cmd_visuals(void);
 extern void do_cmd_colors(void);
 extern void do_cmd_note(void);
@@ -363,10 +367,11 @@ extern void do_cmd_save_screen(void);
 extern void plural_aux(char * Name);
 extern void do_cmd_knowledge(void);
 extern void do_cmd_checkquest(void); /* -KMW- */
+extern void do_cmd_time(void); /* -KMW- */
 
 /* cmd5.c */
 extern void do_cmd_browse(void);
-extern void do_cmd_study(bool in_bldg); /* -KMW- */
+extern void do_cmd_study();
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 
@@ -460,6 +465,7 @@ extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool 
 extern bool place_monster(int y, int x, bool slp, bool grp);
 extern bool alloc_monster(int dis, bool slp);
 extern bool summon_specific(int y1, int x1, int lev, int type, bool pet);
+extern void summon_monster(int type); /* From Kamband by Ivan Tkatchev */
 extern bool multiply_monster(int m_idx);
 extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
@@ -489,7 +495,6 @@ extern void show_inven(void);
 extern void show_equip(void);
 extern void toggle_inven_equip(void);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
-extern void create_named_art(int a_idx, int y, int x);
 
 /* object2.c */
 extern void excise_object_idx(int o_idx);
@@ -515,7 +520,7 @@ extern bool make_object(object_type *j_ptr, bool good, bool great);
 extern bool make_gold(object_type *j_ptr);
 extern s16b floor_carry(int y, int x, object_type *j_ptr);
 extern void drop_near(object_type *j_ptr, int chance, int y, int x);
-extern void acquirement(int y1, int x1, int num, bool great, bool known);
+extern void acquirement(int y1, int x1, int num, bool great);
 extern void place_object(int y, int x, bool good, bool great);
 extern void place_gold(int y, int x);
 extern void pick_trap(int y, int x);
@@ -542,7 +547,10 @@ extern s16b spell_chance(int spell);
 extern bool spell_okay(int spell, bool known);
 extern void spell_info(char *p, int spell);
 extern void print_spells(const byte *spells, int num, int y, int x);
+extern bool can_player_destroy_object(object_type *o_ptr);
 extern void display_koff(int k_idx);
+extern void create_named_art(int a_idx, int y, int x);
+extern void create_named_ego(object_type *o_ptr, int e_idx, int level);
 
 /* save.c */
 extern bool save_player(void);
@@ -553,6 +561,7 @@ extern s16b poly_r_idx(int r_idx);
 extern void teleport_away(int m_idx, int dis);
 extern void teleport_player(int dis);
 extern void teleport_player_to(int ny, int nx);
+extern void teleport_specific(void);
 extern void teleport_player_level(void);
 extern void take_hit(int dam, cptr kb_str);
 extern void acid_dam(int dam, cptr kb_str);
@@ -630,10 +639,8 @@ extern bool speed_monster(int dir);
 extern bool slow_monster(int dir);
 extern bool sleep_monster(int dir);
 extern bool confuse_monster(int dir, int plev);
-extern bool fear_monsters(void); /* new illusionist spell -KMW- */
-extern bool fear_monsters_touch(void); /* new illusionist spell -KMW- */
 extern bool charm_monster(int dir, int plev); /* new druid spell -KMW- */
-extern bool pet_monster(int dir, int plev); /* new druid spell -KMW- */
+extern bool tame_monster(int dir, int plev); /* new druid spell -KMW- */
 extern bool poly_monster(int dir);
 extern bool clone_monster(int dir);
 extern bool fear_monster(int dir, int plev);
@@ -642,19 +649,18 @@ extern bool door_creation(void);
 extern bool trap_creation(void);
 extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
+extern void do_sleep_monster(void);
+extern void do_fear_monster(void);
+extern void do_cure_wounds(void);
 
 /* spells3.c */
 extern void brand_ammo (int brand_type, int bolts_only); /* - KMW- */
 extern void fetch_item(int dir, int wgt);
-extern void do_sleep_monster(void);
-extern void do_fear_monster(void);
-extern void do_cure_wounds(void);
 extern void flood(int cy, int cx, int r, int typ);
 extern void fissure(int feat);
 extern void alter_terrain(int cy, int cx, int r, int typ);
 extern bool imprision(int typ, int dir, int rad);
 extern void rustproof(void); /* From Zangband by Topi Ylinen */
-extern void summon_monster(int type); /* From Kamband by Ivan Tkatchev */
 
 /* store.c */
 extern void do_cmd_store(void);
@@ -773,6 +779,21 @@ extern bool set_oppose_elec(int v);
 extern bool set_oppose_fire(int v);
 extern bool set_oppose_cold(int v);
 extern bool set_oppose_pois(int v);
+extern bool set_tim_ts_anchor(int v);
+extern bool set_tim_pl_invis(int v);
+extern bool set_tim_ghostly(int v);
+extern bool set_tim_levitate(int v);
+extern bool set_tim_sus_str(int v);
+extern bool set_tim_sus_int(int v);
+extern bool set_tim_sus_wis(int v);
+extern bool set_tim_sus_dex(int v);
+extern bool set_tim_sus_con(int v);
+extern bool set_tim_sus_chr(int v);
+extern bool set_oppose_ld(int v);
+extern bool set_oppose_cc(int v);
+extern bool set_oppose_ss(int v);
+extern bool set_oppose_nexus(int v);
+extern bool set_oppose_nethr(int v);
 extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
@@ -797,24 +818,6 @@ extern bool target_set_interactive(int mode);
 extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
-
-/* xtra3.c */
-extern bool set_tim_ts_anchor(int v);
-extern bool set_tim_pl_invis(int v);
-extern bool set_tim_ghostly(int v);
-extern bool set_tim_levitate(int v);
-extern bool set_tim_sus_str(int v);
-extern bool set_tim_sus_int(int v);
-extern bool set_tim_sus_wis(int v);
-extern bool set_tim_sus_dex(int v);
-extern bool set_tim_sus_con(int v);
-extern bool set_tim_sus_chr(int v);
-extern bool set_oppose_ld(int v);
-extern bool set_oppose_cc(int v);
-extern bool set_oppose_ss(int v);
-extern bool set_oppose_nexus(int v);
-extern bool set_oppose_nethr(int v);
-extern bool tgt_pt(int *x,int *y); /* From PSI-Angband by Aram Harrow */
 
 /*
  * Hack -- conditional (or "bizarre") externs

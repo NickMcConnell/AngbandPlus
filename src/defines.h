@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.9.2"
+#define VERSION_STRING	"2.9.2r1"
 
 /*
  * Current version numbers
@@ -55,7 +55,7 @@
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
 #define VERSION_PATCH	2
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	1
 
 
 /*
@@ -185,12 +185,12 @@
 #define BACT_ENCHANT_ARMOR	24
 #define BACT_RECHARGE		25
 #define BACT_IDENTS		26
-#define BACT_LEARN		27
+#define BACT_UNUSED_3		27
 #define BACT_HEALING		28
 #define BACT_RESTORE		29
 #define BACT_ENCHANT_ARROWS	30
 #define BACT_ENCHANT_BOW	31
-#define BACT_UNUSED_3		32
+#define BACT_UNUSED_4		32
 #define MAX_BACT			33
 
 /*
@@ -1358,7 +1358,7 @@
 #define EGO_RESIST_COLD		7
 #define EGO_RESISTANCE		8
 #define EGO_ELVENKIND		9
-/* xxx */
+#define EGO_DWARVEN		10
 #define EGO_PERMANENCE		11
 /* xxx */
 /* xxx */
@@ -1372,10 +1372,10 @@
 #define EGO_ENDURE_COLD		19
 #define EGO_ENDURANCE		20
 #define EGO_REFLECTION		21 /* -KMW- */
-/* xxx */
-/* xxx */
+#define EGO_NIGHT_DAY		22
 
 /* Crowns and Helms */
+#define EGO_SERENITY		23
 #define EGO_INTELLIGENCE	24
 #define EGO_WISDOM			25
 #define EGO_BEAUTY			26
@@ -1571,6 +1571,7 @@
 #define SV_PICK				4
 #define SV_ORCISH_PICK		5
 #define SV_DWARVEN_PICK		6
+#define SV_MATTOCK		7
 
 /* The "sval" values for TV_HAFTED */
 #define SV_WHIP					2	/* 1d6 */
@@ -1701,6 +1702,7 @@
 #define SV_LITE_GALADRIEL	4
 #define SV_LITE_ELENDIL		5
 #define SV_LITE_THRAIN		6
+#define SV_LITE_PALANTIR	7
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_DOOM			0
@@ -1712,10 +1714,12 @@
 #define SV_AMULET_WISDOM		6
 #define SV_AMULET_CHARISMA		7
 #define SV_AMULET_THE_MAGI		8
-/* xxx */
+#define SV_AMULET_SUSTAINING		9
 #define SV_AMULET_CARLAMMAS		10
 #define SV_AMULET_INGWE			11
 #define SV_AMULET_DWARVES		12
+#define SV_AMULET_PERCEIVING		13
+#define SV_AMULET_RESISTANCE		14
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE				0
@@ -2622,7 +2626,7 @@
  */
 #define RF2_STUPID			0x00000001	/* Monster is stupid */
 #define RF2_SMART			0x00000002	/* Monster is smart */
-#define RF2_XXX1			0x00000004	/* (?) */
+#define RF2_FRIENDLY		0x00000004	/* Monster is friendly */
 #define RF2_XXX2			0x00000008	/* (?) */
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
@@ -2664,7 +2668,7 @@
 #define RF3_UNDEAD			0x00000020	/* Undead */
 #define RF3_EVIL			0x00000040	/* Evil */
 #define RF3_ANIMAL			0x00000080	/* Animal */
-#define RF3_XXX1			0x00000100	/* (?) */
+#define RF3_GOOD			0x00000100	/* Good */
 #define RF3_XXX2			0x00000200	/* (?) */
 #define RF3_XXX3			0x00000400	/* Non-Vocal (?) */
 #define RF3_NONLIVING		0x00000800	/* Non-Living -KMW- */
@@ -3067,8 +3071,7 @@
 /* xxx */
 /* xxx */
 /* xxx xxx */
-#define OPT_auto_destroy		(OPT_KANGBAND+0)
-/* xxx xxx */
+#define OPT_destroy_worthless		(OPT_KANGBAND+0)
 
 #define OPT_birth_point_based		(OPT_BIRTH+0)
 #define OPT_birth_auto_roller		(OPT_BIRTH+1)
@@ -3190,7 +3193,7 @@
 /* xxx */
 /* xxx */
 /* xxx xxx */
-#define auto_destroy			op_ptr->opt[OPT_auto_destroy]
+#define destroy_worthless			op_ptr->opt[OPT_destroy_worthless]
 #define birth_point_based		op_ptr->opt[OPT_birth_point_based]
 #define birth_auto_roller		op_ptr->opt[OPT_birth_auto_roller]
 #define birth_maximize			op_ptr->opt[OPT_birth_maximize]

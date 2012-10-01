@@ -853,6 +853,9 @@ K:88:0x8E/0x8D
 # Dwarven Pick
 K:89:0x8E/0x91
 
+# Mattock
+# K:90:??/??
+
 # Pair of Soft Leather Boots
 K:91:0x88/0x8E
 
@@ -1975,6 +1978,8 @@ K:519:0x8D/0x83
 # [Commune with Nature]
 K:520:0x8D/0x83
 
+# Palantir
+K:560:??/??
 # 521 - 611 unused
 
 

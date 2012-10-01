@@ -1078,6 +1078,757 @@ bool set_oppose_pois(int v)
 
 
 /*
+ * Set "p_ptr->ts_anchor", notice observable changes
+ */
+bool set_tim_ts_anchor(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->ts_anchor)
+		{
+			msg_print("You temporarily stabilize local space!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->ts_anchor)
+		{
+			msg_print("Your time/space anchor ravels apart.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->ts_anchor = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_pl_invis", notice observable changes
+ */
+bool set_tim_pl_invis(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_pl_invis)
+		{
+			msg_print("You can see through yourself!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_pl_invis)
+		{
+			msg_print("You become substantial again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_pl_invis = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_ghostly", notice observable changes
+ */
+bool set_tim_ghostly(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_ghostly)
+		{
+			msg_print("You no longer feel solid");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_ghostly)
+		{
+			msg_print("You become solid again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_ghostly = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+ 	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_levitate", notice observable changes
+ */
+bool set_tim_levitate(int v)
+{
+	bool notice = FALSE;
+
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_levitate)
+		{
+			msg_print("You feel lighter than air!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_levitate)
+		{
+			msg_print("Your weight returns to normal.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_levitate = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_sus_str", notice observable changes
+ */
+bool set_tim_sus_str(int v)
+{
+	bool notice = FALSE;
+
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_sus_str)
+		{
+			msg_print("Your strength is temporarily sustained!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sus_str)
+		{
+			msg_print("Your strength is no longer protected.!");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sus_str = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_sus_int", notice observable changes
+ */
+bool set_tim_sus_int(int v)
+{
+	bool notice = FALSE;
+
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_sus_int)
+		{
+			msg_print("Your intelligence is temporarily sustained!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sus_int)
+		{
+			msg_print("Your intelligence is no longer protected.!");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sus_int = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_sus_wis", notice observable changes
+ */
+bool set_tim_sus_wis(int v)
+{
+	bool notice = FALSE;
+
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_sus_wis)
+		{
+			msg_print("Your wisdom is temporarily sustained!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sus_wis)
+		{
+			msg_print("Your wisdom is no longer protected.!");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sus_wis = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_sus_dex", notice observable changes
+ */
+bool set_tim_sus_dex(int v)
+{
+	bool notice = FALSE;
+
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_sus_dex)
+		{
+			msg_print("Your dexterity is temporarily sustained!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sus_dex)
+		{
+			msg_print("Your dexterity is no longer protected.!");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sus_dex = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_sus_con", notice observable changes
+ */
+bool set_tim_sus_con(int v)
+{
+	bool notice = FALSE;
+
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_sus_con)
+		{
+			msg_print("Your constitution is temporarily sustained!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sus_con)
+		{
+			msg_print("Your constitution is no longer protected.!");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sus_con = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_sus_chr", notice observable changes
+ */
+bool set_tim_sus_chr(int v)
+{
+	bool notice = FALSE;
+
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_sus_chr)
+		{
+			msg_print("Your charisma is temporarily sustained!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sus_chr)
+		{
+			msg_print("Your charisma is no longer protected.!");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sus_chr = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+* Set "p_ptr->oppose_ld", notice observable changes
+*/
+bool set_oppose_ld(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_ld)
+		{
+			msg_print("You feel resistant to light & dark!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_ld)
+		{
+			msg_print("You feel less resistant to light & dark.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_ld = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->oppose_cc", notice observable changes
+ */
+bool set_oppose_cc(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_cc)
+		{
+			msg_print("You feel resistant to chaos & confusion!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_cc)
+		{
+			msg_print("You feel less resistant to chaos & confusion.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_cc = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->oppose_ss", notice observable changes
+ */
+bool set_oppose_ss(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_ss)
+		{
+			msg_print("You feel resistant to sound & shards!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_ss)
+		{
+			msg_print("You feel less resistant to sound & shards.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_ss = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->oppose_nexus", notice observable changes
+ */
+bool set_oppose_nexus(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_nexus)
+		{
+			msg_print("You feel resistant to nexus!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_nexus)
+		{
+			msg_print("You feel less resistant to nexus.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_nexus = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->oppose_nethr", notice observable changes
+ */
+bool set_oppose_nethr(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_nethr)
+		{
+			msg_print("You feel resistant to life-draining forces!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_nethr)
+		{
+			msg_print("You feel less resistant to life-draining forces.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_nethr = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
  * Set "p_ptr->stun", notice observable changes
  *
  * Note the special code to only notice "range" changes.
@@ -2103,7 +2854,7 @@ void monster_death(int m_idx)
 
 					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
-						msg_print("You just completed your quest!");
+						msg_print("You have completed your quest!");
 						message_flush();
 					}
 
@@ -3575,7 +4326,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			/* Hack -- special handling for building doors */
 			if ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL))
 			{
-				name = building[feat - FEAT_BLDG_HEAD].name;
+				/* Handle gap in the building f_index no.s */
+				int which = (feat - FEAT_BLDG_HEAD);
+				if (which > 7) which = which -3;
+				name = building[which].name;
 			}
 
 			/* Hack -- special handling for quest entrances */

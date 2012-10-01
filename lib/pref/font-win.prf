@@ -51,3 +51,21 @@ F:61:1/127
 F:62:1/127
 F:63:1/127
 
+# Grass (l. green / centered dot)
+
+F:103:13/31
+
+# dirt (l. brown / centered dot)
+
+F:109:15/31
+
+
+#### Monsters ###
+
+# Lurker
+
+R:188:1/31
+
+# Trapper
+
+R:388:1/31

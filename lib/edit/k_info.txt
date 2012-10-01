@@ -730,7 +730,13 @@ A:50/1
 P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
 
-## XXX 90 XXX ##
+N:90:& Mattock~
+G:\:D
+I:20:7:3
+W:50:0:250:700
+A:50/2
+P:0:1d8:0:0:0
+F:SHOW_MODS | TUNNEL
 
 
 ##### Armor #####
@@ -1310,7 +1316,14 @@ W:15:0:3:20
 A:15/1
 F:EASY_KNOW
 
-## XXX 170 XXX ##
+N:170:of Sustaining
+G:":d
+I:40:9:0
+W:60:0:3:20000
+A:60/4
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | 
+F:HOLD_LIFE | SLOW_DIGEST | EASY_KNOW | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:171:the Magi
 G:":d
@@ -2987,7 +3000,7 @@ W:110:0:200:300000
 A:110/64
 P:40:2d4:-3:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
-F:RES_CONFU |
+F:RES_CONFU | RES_DISEN | RES_SOUND | RES_SHARD | RES_BLIND | 
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3065,9 +3078,23 @@ W:70:0:4:80000
 A:70/4
 P:0:1d1:0:0:0
 
-## XXX 423 XXX ##
+### Amulets ###
 
-## XXX 424 XXX ##
+N:423:of Perceiving
+G:":d
+I:40:13:0
+W:50:0:3:25000
+A:50/6
+F:TELEPATHY | SEE_INVIS | INFRA | SEARCH
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:424:Resistance
+G:":d
+I:40:14:0
+W:60:0:3:20000
+A:60/6
+F:RES_FIRE | RES_ACID | RES_ELEC | RES_COLD | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ### Added Illusion Books -KMW- ###
 
@@ -3180,8 +3207,6 @@ I:45:43:0
 W:22:0:2:3000
 A:22/2
 F:RES_CONFU | EASY_KNOW
-
-##### Items 434 to 439 unused #####
 
 ##### Items 440 to 444 reserved (old "fake" objects) #####
 
@@ -3500,8 +3525,19 @@ A:100/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 521 - 579 unused
+# 521 - 559 unused
+# 560 - 579 for 'special' artifacts
 # 580 - 611 for magical device artifacts
+
+
+# The Palantir of Westernesse -- see artifact list
+
+N:560:& Palantir~
+G:~:y
+I:39:7:0
+W:75:0:200:100000
+P:0:10d10:0:0:0
+F:INSTA_ART
 
 
 # The Rod of Delving -- see artifact list

@@ -349,10 +349,8 @@ void do_cmd_browse(void)
 
 /*
  * Study a book to gain a new spell/prayer
- *
- * Added building flag -KMW-
  */
-void do_cmd_study(bool in_bldg)
+void do_cmd_study(void)
 {
 	int i, item, sval;
 
@@ -371,8 +369,8 @@ void do_cmd_study(bool in_bldg)
 		return;
 	}
 
-	/* If in building - can see spellbooks -KMW- */
-	if ((p_ptr->blind || no_lite()) && (!in_bldg))	{
+	if (p_ptr->blind || no_lite())
+	{
 		msg_print("You cannot see!");
 		return;
 	}
@@ -908,20 +906,7 @@ static void do_cmd_cast_spell(void)
 
 			case SPELL_DIMENSION_DOOR:
 			{
-				int x, y;
-
-				msg_print("You open a dimensional gate. Choose a destination.");
-
-				if (!tgt_pt(&x, &y)) return;
-
-				if (!cave_empty_bold(y, x) || (cave_info[y][x] & CAVE_ICKY) ||
-				   (distance(y, x, py, px) > plev + 2) ||
-				   (!rand_int(plev * plev / 2)))
-				{
-					msg_print("You fail to exit the astral plane correctly!");
-					teleport_player(10);
-				}
-				else teleport_player_to(y, x);
+				teleport_specific();
 				break;
 			}
 
@@ -2887,7 +2872,7 @@ static void do_cmd_pray_druid(void)
 			case DRUID_FAITHFULNESS:
 			{
 				if (!get_aim_dir(&dir)) return;
-				pet_monster(dir, plev);
+				tame_monster(dir, plev);
 				break;
 			}
 

@@ -33,7 +33,7 @@ void quest_discovery(int q_idx)
 {
 	quest_type		*q_ptr = &quest[q_idx];
 	monster_race	*r_ptr = &r_info[q_ptr->r_idx];
-	int			q_num = q_ptr->max_num;
+	int			q_num = q_ptr->max_num - q_ptr->cur_num;
 	char			name[80];
 
 	/* No quest index */
@@ -44,15 +44,19 @@ void quest_discovery(int q_idx)
 	msg_print(find_quest[rand_range(0, 4)]);
 	message_flush();
 
-	if (q_num == 1)
+	/* Uniques */
+	if (r_ptr->flags1 & RF1_UNIQUE)
 	{
 		/* Unique */
 		msg_format("Beware, this level is protected by %s!", name);
 	}
+
+	/* Normal monsters */
 	else
 	{
-		/* Normal monsters */
-		plural_aux(name);
+		/* Multiple monsters remaining? */
+		if (q_num > 1)
+			plural_aux(name);
 
 		msg_format("Be warned, this level is guarded by %d %s!", q_num, name);
 	}
@@ -1208,7 +1212,7 @@ static void race_legends(void)
 /*
  * Display the damage figure of an object
  */
-static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, int mult, char attr[80], u32b f1, u32b f2, u32b f3, int color)
+static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, int mult, char attr[80], u32b f1, u32b f2, u32b f3, byte color)
 {
 	char tmp_str[80];
 
@@ -1661,9 +1665,6 @@ static void bldg_process_command(building_type *bldg, int i)
 				message_flush();
 				paid = TRUE;
 				break;
-			case BACT_LEARN:
-				do_cmd_study(TRUE);
-				break;
 			case BACT_HEALING: /* needs work */
 				hp_player(200);
 				set_poisoned(0);
@@ -1704,6 +1705,7 @@ static void bldg_process_command(building_type *bldg, int i)
 			case BACT_UNUSED_1:
 			case BACT_UNUSED_2:
 			case BACT_UNUSED_3:
+			case BACT_UNUSED_4:
 				msg_format("This function (%d) has not been implemented yet.", bact);
 				message_flush();
 				break;
@@ -1755,7 +1757,7 @@ void do_cmd_exit_quest(void)
 	if (quest[q_index].type == QUEST_TYPE_FIND_EXIT)
 	{
 		quest[q_index].status = QUEST_STATUS_COMPLETED;
-		msg_print("You accomplished your quest!");
+		msg_print("You have completed your quest!");
 		message_flush();
 	}
 
@@ -1824,10 +1826,6 @@ void do_cmd_bldg(void)
 		p_ptr->oldpx = p_ptr->px;
 	}
 
-#if 0
-	/* Forget the lite */
-	forget_lite();
-#endif
 
 	/* Forget the view */
 	forget_view();

@@ -3180,7 +3180,7 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
-	"auto_destroy",			/* OPT_auto_destroy */
+	"destroy_worthless",			/* OPT_destroy_worthless */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -3444,7 +3444,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-	"No query to destroy known worthless items",	/* OPT_auto_destroy */
+	"No query to destroy known worthless items",	/* OPT_destroy_worthless */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3708,7 +3708,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
-	FALSE,		/* OPT_auto_destroy */
+	FALSE,		/* OPT_destroy_worthless */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3918,7 +3918,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_disturb_other,
 		OPT_alert_hitpoint,
 		OPT_alert_failure,
-		OPT_auto_destroy,
+		OPT_destroy_worthless,
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
@@ -4043,5 +4043,62 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"special",
 	"uncursed",
 	"indestructible"
+};
+
+
+/*
+ * Hack -- title for each column
+ *
+ * This will not work with "EBCDIC", I would think.  XXX XXX XXX
+ *
+ * The third column head overlaps the first after 17 items are
+ * listed.  XXX XXX XXX
+ */
+const char head[3] =
+{ 'a', 'A', '0' };
+
+
+/*
+ * A list of tvals and their textual names
+ */
+const tval_desc tvals[] =
+{
+	{ TV_SWORD,             "Sword"                },
+	{ TV_POLEARM,           "Polearm"              },
+	{ TV_HAFTED,            "Hafted Weapon"        },
+	{ TV_BOW,               "Bow"                  },
+	{ TV_ARROW,             "Arrows"               },
+	{ TV_BOLT,              "Bolts"                },
+	{ TV_SHOT,              "Shots"                },
+	{ TV_SHIELD,            "Shield"               },
+	{ TV_CROWN,             "Crown"                },
+	{ TV_HELM,              "Helm"                 },
+	{ TV_GLOVES,            "Gloves"               },
+	{ TV_BOOTS,             "Boots"                },
+	{ TV_CLOAK,             "Cloak"                },
+	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
+	{ TV_HARD_ARMOR,        "Hard Armor"           },
+	{ TV_SOFT_ARMOR,        "Soft Armor"           },
+	{ TV_RING,              "Ring"                 },
+	{ TV_AMULET,            "Amulet"               },
+	{ TV_LITE,              "Lite"                 },
+	{ TV_POTION,            "Potion"               },
+	{ TV_SCROLL,            "Scroll"               },
+	{ TV_WAND,              "Wand"                 },
+	{ TV_STAFF,             "Staff"                },
+	{ TV_ROD,               "Rod"                  },
+	{ TV_PRAYER_BOOK,       "Priest Book"          },
+	{ TV_MAGIC_BOOK,        "Magic Book"           },
+	{ TV_ILLUSION_BOOK,     "Illusion Book"        }, /* -KMW- */
+	{ TV_NATURE_BOOK,       "Druid Book"           }, /* -KMW- */
+	{ TV_SPIKE,             "Spikes"               },
+	{ TV_DIGGING,           "Digger"               },
+	{ TV_CHEST,             "Chest"                },
+	{ TV_FOOD,              "Food"                 },
+	{ TV_FLASK,             "Flask"                },
+	{ TV_SKELETON,          "Skeletons"            },
+	{ TV_BOTTLE,            "Empty Bottle"         },
+	{ TV_JUNK,              "Junk"                 },
+	{ 0,                    NULL                   }
 };
 

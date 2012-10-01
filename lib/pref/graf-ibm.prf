@@ -553,6 +553,9 @@ K:88:5/-105
 # & Dwarven Pick~
 K:89:6/-105
 
+# & Mattock~
+# K:90:??/??
+
 # & Pair~ of Soft Leather Boots
 K:91:15/-122
 
@@ -1677,6 +1680,9 @@ K:519:15/-123
 
 # [Commune with Nature]
 K:520:15/-123
+
+# Mattock
+# K:520:15/-123
 
 
 # The following things should use the "S:<code>:<attr>/<char>" mechanism

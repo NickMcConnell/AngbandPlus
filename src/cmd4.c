@@ -1653,6 +1653,209 @@ void do_cmd_macros(void)
 }
 
 
+/*
+ * Strip an "object name" into a buffer
+ */
+void strip_name(char *buf, int k_idx)
+{
+	char *t;
+
+	object_kind *k_ptr = &k_info[k_idx];
+
+	cptr str = (k_name + k_ptr->name);
+
+
+	/* Skip past leading characters */
+	while ((*str == ' ') || (*str == '&')) str++;
+
+	/* Copy useful chars */
+	for (t = buf; *str; str++)
+	{
+		if (*str != '~') *t++ = *str;
+	}
+
+	/* Terminate the new name */
+	*t = '\0';
+}
+
+
+/*
+ * Interact with "objects" (set auto_dest and auto_pick flags)
+ */
+void do_cmd_objects(void)
+{
+	int i, num, max_num;
+	int col, row;
+	int tval;
+
+	cptr tval_desc;
+	char ch;
+
+	int choice[60];
+
+	object_kind *k_ptr;
+
+	char buf[160];
+
+	byte a;
+	cptr c;
+
+
+	/* Save screen */
+	screen_save();
+
+	while (TRUE)
+	{
+		/* Clear screen */
+		Term_clear();
+
+		/* Print all tval's and their descriptions */
+		for (num = 0; (num < 57) && tvals[num].tval; num++)
+		{
+			row = 2 + (num % 20);
+			col = 30 * (num / 20);
+			ch = head[num/20] + (num%20);
+			prt(format("[%c] %s", ch, tvals[num].desc), row, col);
+		}
+
+		/* We need to know the maximal possible tval_index */
+		max_num = num;
+
+		/* Choose! */
+		if (!get_com("Interact with which type of object? (Press ESC to exit)",
+		              &ch)) break;
+
+		/* Analyze choice */
+		num = -1;
+		if ((ch >= head[0]) && (ch < head[0] + 20))
+			num = ch - head[0];
+		if ((ch >= head[1]) && (ch < head[1] + 20))
+			num = ch - head[1] + 20;
+		if ((ch >= head[2]) && (ch < head[2] + 17))
+			num = ch - head[2] + 40;
+
+		/* Bail out if choice is illegal */
+		if ((num < 0) || (num >= max_num))
+		{
+			msg_print("Invalid selection");
+			message_flush();
+			continue;
+		}
+
+		/* Base object type chosen, fill in tval */
+		tval = tvals[num].tval;
+		tval_desc = tvals[num].desc;
+
+
+		/*** And now we go for k_idx ***/
+
+
+		while (TRUE)
+		{
+			/* Clear screen */
+			Term_clear();
+
+			/* We have to search the whole itemlist. */
+			for (num = 0, i = 1; (num < 57) && (i < z_info->k_max); i++)
+			{
+				object_kind *k_ptr = &k_info[i];
+
+				/* Analyze matching items */
+				if (k_ptr->tval == tval)
+				{
+					/* Hack -- Skip instant artifacts */
+					if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+
+					/* Skip if unaware */
+					if (!k_ptr->aware) continue;
+
+					/* Prepare it */
+					row = 3 + (num % 20);
+					col = 30 * (num / 20);
+					ch = head[num/20] + (num%20);
+
+					/* Get the "name" of object "i" */
+					strip_name(buf, i);
+
+					/* Determine attr/char */
+					a = TERM_WHITE;
+					c = "  ";
+
+					if (k_ptr->auto_dest)
+					{
+						a = TERM_RED;
+						c = ">k";
+					}
+					if (k_ptr->auto_pick)
+					{
+						a = TERM_L_GREEN;
+						c = ">g";
+					}
+
+					/* Print it */
+					prt(format("[%c%s] ", ch, c), row, col);
+					c_put_str(a, buf, row, col + 6);
+
+					/* Print the legend */
+					prt("'>k': auto_destroy   '>g': auto_pick", 1, 0);
+
+					/* Remember the object index */
+					choice[num++] = i;
+				}
+			}
+
+			/* We need to know the maximal possible */
+			/* remembered object_index */
+			max_num = num;
+
+			/* Choose! */
+			if (!get_com(format("What Kind of %s? (Press ESC to exit)",
+			                     tval_desc), &ch)) break;
+
+			/* Analyze choice */
+			num = -1;
+			if ((ch >= head[0]) && (ch < head[0] + 20))
+				num = ch - head[0];
+			if ((ch >= head[1]) && (ch < head[1] + 20))
+				num = ch - head[1] + 20;
+			if ((ch >= head[2]) && (ch < head[2] + 17))
+				num = ch - head[2] + 40;
+
+			/* Bail out if choice is "illegal" */
+			if ((num < 0) || (num >= max_num))
+			{
+				msg_print("Invalid selection.");
+				message_flush();
+				continue;
+			}
+
+			/* Get the object kind */
+			k_ptr = &k_info[choice[num]];
+
+			/* Set the new values */
+			if (k_ptr->auto_dest)
+			{
+				k_ptr->auto_dest = FALSE;
+				k_ptr->auto_pick = TRUE;
+			}
+			else if (k_ptr->auto_pick)
+			{
+				k_ptr->auto_pick = FALSE;
+			}
+			else
+			{
+				k_ptr->auto_dest = TRUE;
+			}
+		}
+	}
+
+	/* Load screen */
+	screen_load();
+
+	/* None chosen */
+	return;
+}
+
 
 /*
  * Interact with "visuals"
@@ -2369,6 +2572,20 @@ void do_cmd_feeling(void)
 {
 	/* Verify the feeling */
 	if (feeling > 10) feeling = 10;
+
+	/* No useful feeling in quests */
+	if (p_ptr->inside_quest)
+	{
+		msg_print("Looks like a typical quest level.");
+		return;
+	}
+
+	/* No useful feeling in arena */
+	if (p_ptr->inside_arena)
+	{
+		msg_print("Looks like a typical arena.");
+		return;
+	}
 
 	/* No useful feeling in town */
 	if (!p_ptr->depth)
@@ -3144,5 +3361,23 @@ void do_cmd_checkquest(void)
 	screen_load();
 }
 
+
+/*
+ * Display the time and date
+ */
+void do_cmd_time(void)
+{
+	s32b len = 10L * TOWN_DAWN;
+	s32b tick = turn % len + len / 4;
+
+	int day = turn / len + 1;
+	int hour = (24 * tick / len) % 24;
+	int min = (1440 * tick / len) % 60;
+
+	/* Message */
+	msg_format("This is day %d. The time is %d:%02d %s.",
+				  day, (hour % 12 == 0) ? 12 : (hour % 12),
+				  min, (hour < 12) ? "AM" : "PM");
+}
 
 

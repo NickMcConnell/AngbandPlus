@@ -2135,6 +2135,23 @@ bool summon_specific(int y1, int x1, int lev, int type, bool pet)
 }
 
 
+/*
+ * Summon a monster - from Kamband
+ */
+void summon_monster(int sumtype)
+{
+	if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth + randint(5),
+		 sumtype, TRUE))
+	{
+		msg_print("You summon some help.");
+	}
+	else
+	{
+		msg_print("You called, but no help came.");
+	}
+}
+
+
 
 
 

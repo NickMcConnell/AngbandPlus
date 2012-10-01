@@ -833,6 +833,8 @@ static void wr_xtra(int k_idx)
 
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
+	if (k_ptr->auto_dest) tmp8u |= 0x04;
+	if (k_ptr->auto_pick) tmp8u |= 0x08;
 
 	wr_byte(tmp8u);
 }
@@ -1194,6 +1196,7 @@ static void wr_dungeon(void)
 
 	byte count;
 	byte prev_char;
+	s16b prev_char2;
 
 
 	/*** Basic info ***/
@@ -1308,7 +1311,7 @@ static void wr_dungeon(void)
 			{
 				wr_byte((byte)count);
 				wr_s16b((byte)prev_char);
-				prev_char = tmp16s;
+				prev_char2 = tmp16s;
 				count = 1;
 			}
 
@@ -1324,7 +1327,7 @@ static void wr_dungeon(void)
 	if (count)
 	{
 		wr_byte((byte)count);
-		wr_s16b((byte)prev_char);
+		wr_s16b((s16b)prev_char2);
 	}
 
 

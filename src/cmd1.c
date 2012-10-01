@@ -506,6 +506,9 @@ static bool auto_pickup_okay(const object_type *o_ptr)
 	/* It can't be carried */
 	if (!inven_carry_okay(o_ptr)) return (FALSE);
 
+	/* We have auto_pick set */
+	if (k_info[o_ptr->k_idx].auto_pick) return (TRUE);
+
 	/* No inscription */
 	if (!o_ptr->note) return (FALSE);
 
@@ -564,13 +567,65 @@ static void py_pickup_aux(int o_idx)
 			   (quest[i].k_idx == o_ptr->name1))
 		{
 			quest[i].status = QUEST_STATUS_COMPLETED;
-			msg_print("You completed your quest!");
+			msg_print("You have completed your quest!");
 			msg_print(NULL);
 		}
 	}
 	
 	/* Delete the object */
 	delete_object_idx(o_idx);
+}
+
+
+/*
+ * Automatically destroy items in this grid.
+ */
+static void auto_destroy_items(int py, int px)
+{
+	s16b this_o_idx, next_o_idx = 0;
+
+	char o_name[80];
+
+
+	/* Scan the pile of objects */
+	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Acquire object */
+		object_type *o_ptr = &o_list[this_o_idx];
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+
+		/* Auto-destroy designated items */
+		if (k_ptr->auto_dest && k_ptr->aware)
+		{
+			/* Artifact? */
+			if (!can_player_destroy_object(o_ptr))
+			{
+				/* Describe the object (with {terrible/special}) */
+				object_desc(o_name, o_ptr, TRUE, 3);
+
+				/* Message */
+				msg_format("You cannot auto-destroy %s.", o_name);
+
+				/* Done */
+				return;
+			}
+
+			/* Describe the object */
+			object_desc(o_name, o_ptr, TRUE, 3);
+
+			/* Print a message */
+			msg_format("Auto-destroying %s.", o_name);
+
+			/* Destroy the item */
+			delete_object_idx(this_o_idx);
+
+			continue;
+		}
+	}
 }
 
 
@@ -599,6 +654,9 @@ void py_pickup(int pickup)
 
 #endif /* ALLOW_EASY_FLOOR */
 
+
+	/* Automatically destroy items */
+	auto_destroy_items(py, px);
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -711,13 +769,66 @@ void py_pickup(int pickup)
 		/* Query before picking up */
 		if (carry_query_flag)
 		{
+			int i;
 			char out_val[160];
-			sprintf(out_val, "Pick up %s? ", o_name);
-			if (!get_check(out_val)) continue;
-		}
 
-		/* Pick up the object */
-		py_pickup_aux(this_o_idx);
+			sprintf(out_val, "Pick up %s? [y/n/k]", o_name);
+
+			/* Prompt for it */
+			prt(out_val, 0, 0);
+
+			/* Get an acceptable answer */
+			while (TRUE)
+			{
+				i = inkey();
+				if (quick_messages) break;
+				if (i == ESCAPE) break;
+				if (strchr("YyNnKk", i)) break;
+				bell(NULL);
+			}
+
+			/* Erase the prompt */
+			prt("", 0, 0);
+
+			if ((i == 'Y') || (i == 'y'))
+			{
+				/* Pick up the object */
+				py_pickup_aux(this_o_idx);
+			}
+					
+			if ((i == 'K') || (i == 'k'))
+			{
+				/* Can the player destroy the object? */
+				if (!can_player_destroy_object(o_ptr))
+				{
+					/* Describe the object (with inscription) */
+					object_desc(o_name, o_ptr, TRUE, 3);
+
+					/* Message */
+					msg_format("You cannot destroy %s.", o_name);
+
+					/* Get the next object */
+					continue;
+				}
+
+				/* Describe the object */
+				object_desc(o_name, o_ptr, TRUE, 3);
+
+				/* Message */
+				msg_format("You destroy %s.", o_name);
+
+				/* Actually destroy the object */
+				delete_object_idx(this_o_idx);
+
+				/* Get the next object */
+				continue;
+			}
+		}
+		else
+		{
+			/* Pick up the object */
+			py_pickup_aux(this_o_idx);
+		}
 	}
 
 #ifdef ALLOW_EASY_FLOOR

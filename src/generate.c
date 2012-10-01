@@ -173,7 +173,7 @@ int template_race;
 /*
  * Maximal number of room types
  */
-#define ROOM_MAX	12
+#define ROOM_MAX	10
 
 
 
@@ -1294,7 +1294,7 @@ static void build_type3(int y0, int x0)
 
 
 	/* Special features */
-	switch (rand_int(4))
+	switch (randint(4))
 	{
 		/* Nothing */
 		case 1:
@@ -2554,15 +2554,13 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
  */
 static void build_type7(int y0, int x0)
 {
-	int v_idx;
 	vault_type *v_ptr;
 
 	/* Pick a lesser vault */
 	while (TRUE)
 	{
 		/* Get a random vault record */
-		v_idx = rand_int(z_info->v_max);
-		v_ptr = &v_info[v_idx];
+		v_ptr = &v_info[rand_int(z_info->v_max)];
 
 		/* Accept the first lesser vault */
 		if (v_ptr->typ == 7) break;
@@ -2592,15 +2590,13 @@ static void build_type7(int y0, int x0)
  */
 static void build_type8(int y0, int x0)
 {
-	int v_idx;
 	vault_type *v_ptr;
 
 	/* Pick a lesser vault */
 	while (TRUE)
 	{
 		/* Get a random vault record */
-		v_idx = rand_int(z_info->v_max);
-		v_ptr = &v_info[v_idx];
+		v_ptr = &v_info[rand_int(z_info->v_max)];
 
 		/* Accept the first greater vault */
 		if (v_ptr->typ == 8) break;
@@ -2638,9 +2634,9 @@ static void build_type9(int y0, int x0)
 
 	int light = FALSE;
 
+
 	/* Occasional light */
 	if (randint(p_ptr->depth) <= 5) light = TRUE;
-
 
 	rad = rand_int(10);
 	for (x = x0 - rad; x <= x0 + rad; x++)
@@ -3126,7 +3122,10 @@ static void place_quest_monster(void)
 			    (r_ptr->cur_num >= r_ptr->max_num))
 			{
 				/* The unique is already dead */
-				quest[i].status = QUEST_STATUS_FINISHED;
+				quest[i].status = QUEST_STATUS_COMPLETED;
+				msg_format("You have already killed %s",
+				             r_name + r_ptr->name);
+				message_flush();
 			}
 			else
 			{
@@ -3516,197 +3515,11 @@ static void cave_gen(void)
 }
 
 
-#ifdef VANILLA
-/*
- * Builds a store at a given pseudo-location
- *
- * As of 2.8.1 (?) the town is actually centered in the middle of a
- * complete level, and thus the top left corner of the town itself
- * is no longer at (0,0), but rather, at (qy,qx), so the constants
- * in the comments below should be mentally modified accordingly.
- *
- * As of 2.7.4 (?) the stores are placed in a more "user friendly"
- * configuration, such that the four "center" buildings always
- * have at least four grids between them, to allow easy running,
- * and the store doors tend to face the middle of town.
- *
- * The stores now lie inside boxes from 3-9 and 12-18 vertically,
- * and from 7-17, 21-31, 35-45, 49-59.  Note that there are thus
- * always at least 2 open grids between any disconnected walls.
- *
- * Note the use of "town_illuminate()" to handle all "illumination"
- * and "memorization" issues.
- */
-static void build_store(int n, int yy, int xx)
-{
-	int y, x, y0, x0, y1, x1, y2, x2, tmp;
-
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
-
-
-	/* Find the "center" of the store */
-	y0 = qy + yy * 9 + 6;
-	x0 = qx + xx * 14 + 12;
-
-	/* Determine the store boundaries */
-	y1 = y0 - randint((yy == 0) ? 3 : 2);
-	y2 = y0 + randint((yy == 1) ? 3 : 2);
-	x1 = x0 - randint(5);
-	x2 = x0 + randint(5);
-
-	/* Build an invulnerable rectangular building */
-	for (y = y1; y <= y2; y++)
-	{
-		for (x = x1; x <= x2; x++)
-		{
-			/* Create the building */
-			cave_set_feat(y, x, FEAT_PERM_EXTRA);
-		}
-	}
-
-	/* Pick a door direction (S,N,E,W) */
-	tmp = rand_int(4);
-
-	/* Re-roll "annoying" doors */
-	if (((tmp == 0) && (yy == 1)) ||
-	    ((tmp == 1) && (yy == 0)) ||
-	    ((tmp == 2) && (xx == 3)) ||
-	    ((tmp == 3) && (xx == 0)))
-	{
-		/* Pick a new direction */
-		tmp = rand_int(4);
-	}
-
-	/* Extract a "door location" */
-	switch (tmp)
-	{
-		/* Bottom side */
-		case 0:
-		{
-			y = y2;
-			x = rand_range(x1, x2);
-			break;
-		}
-
-		/* Top side */
-		case 1:
-		{
-			y = y1;
-			x = rand_range(x1, x2);
-			break;
-		}
-
-		/* Right side */
-		case 2:
-		{
-			y = rand_range(y1, y2);
-			x = x2;
-			break;
-		}
-
-		/* Left side */
-		default:
-		{
-			y = rand_range(y1, y2);
-			x = x1;
-			break;
-		}
-	}
-
-	/* Clear previous contents, add a store door */
-	cave_set_feat(y, x, FEAT_SHOP_HEAD + n);
-}
-
-
-
-
-/*
- * Generate the "consistent" town features, and place the player
- *
- * Hack -- play with the R.N.G. to always yield the same town
- * layout, including the size and shape of the buildings, the
- * locations of the doorways, and the location of the stairs.
- */
-static void town_gen_hack(void)
-{
-	int y, x, k, n;
-
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
-
-	int rooms[MAX_STORES];
-
-
-	/* Hack -- Use the "simple" RNG */
-	Rand_quick = TRUE;
-
-	/* Hack -- Induce consistant town layout */
-	Rand_value = seed_town;
-
-
-	/* Prepare an Array of "remaining stores", and count them */
-	for (n = 0; n < MAX_STORES; n++) rooms[n] = n;
-
-	/* Place two rows of stores */
-	for (y = 0; y < 2; y++)
-	{
-		/* Place four stores per row */
-		for (x = 0; x < 4; x++)
-		{
-			/* Pick a random unplaced store */
-			k = ((n <= 1) ? 0 : rand_int(n));
-
-			/* Build that store at the proper location */
-			build_store(rooms[k], y, x);
-
-			/* Shift the stores down, remove one store */
-			rooms[k] = rooms[--n];
-		}
-	}
-
-
-	/* Place the stairs */
-	while (TRUE)
-	{
-		/* Pick a location at least "three" from the outer walls */
-		y = qy + rand_range(3, SCREEN_HGT - 4);
-		x = qx + rand_range(3, SCREEN_WID - 4);
-
-		/* Require a "naked" floor grid */
-		if (cave_naked_bold(y, x)) break;
-	}
-
-	/* Clear previous contents, add down stairs */
-	cave_set_feat(y, x, FEAT_MORE);
-
-
-	/* Place the player */
-	player_place(y, x);
-
-
-	/* Hack -- use the "complex" RNG */
-	Rand_quick = FALSE;
-}
-
-
-
-
 /*
  * Town logic flow for generation of new town
  *
- * We start with a fully wiped cave of normal floors.
- *
- * Note that town_gen_hack() plays games with the R.N.G.
- *
  * This function does NOT do anything about the owners of the stores,
  * nor the contents thereof.  It only handles the physical layout.
- *
- * We place the player on the stairs at the same time we make them.
- *
- * Hack -- since the player always leaves the dungeon by the stairs,
- * he is always placed on the stairs, even if he left the dungeon via
- * word of recall or teleport level.
  */
 static void town_gen(void)
 {
@@ -3714,11 +3527,14 @@ static void town_gen(void)
 
 	int residents;
 
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
-
 	bool daytime;
 
+
+	/* Set the monster generation level */
+	monster_level = 0;
+
+	/* Set the object generation level */
+	object_level = 0;
 
 	/* Day time */
 	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
@@ -3750,20 +3566,18 @@ static void town_gen(void)
 		}
 	}
 
-	/* Then place some floors */
-	for (y = qy+1; y < qy+SCREEN_HGT-1; y++)
-	{
-		for (x = qx+1; x < qx+SCREEN_WID-1; x++)
-		{
-			/* Create empty floor */
-			cave_set_feat(y, x, FEAT_FLOOR);
-		}
-	}
+
+	/* Reset the buildings */
+	init_buildings();
+
+	/* Initialize the town */
+	init_flags = INIT_CREATE_DUNGEON;
 
 	/* Build stuff */
-	town_gen_hack();
+	process_dungeon_file("t_info.txt", 0, 0, DUNGEON_HGT, DUNGEON_WID);
 
-	/* Apply illumination */
+
+	/* Light up or darken the area */
 	town_illuminate(daytime);
 
 	/* Make some residents */
@@ -3772,131 +3586,14 @@ static void town_gen(void)
 		/* Make a resident */
 		(void)alloc_monster(3, TRUE);
 	}
-}
-#endif /* VANILLA */
-
-
-/*
- * Build the town.
- */
-static void town_gen(void)
-{
-	int x, y, i;
-	bool daytime;
-
-
-	/* Leaving the dungeon by stairs */
-	/* (needed before the town is loaded) */
-	if (p_ptr->leaving_dungeon)
-	{
-		p_ptr->oldpy = 0;
-		p_ptr->oldpx = 0;
-	}
-
-	/* Set the monster generation level */
-	monster_level = 0;
-
-	/* Set the object generation level */
-	object_level = 0;
-
-	/* Create the town */
-	if (p_ptr->plot_num)
-	{
-		/* Reset the buildings */
-		init_buildings();
-
-		/* Initialize the town */
-		init_flags = INIT_CREATE_DUNGEON;
-
-		process_dungeon_file("t_info.txt", 0, 0, DUNGEON_HGT, DUNGEON_WID);
-	}
-
-	/* Special boundary walls -- North */
-	for (i = 0; i < DUNGEON_WID; i++)
-	{
-		cave_set_feat(0, i, FEAT_PERM_SOLID);
-	}
-
-	/* Special boundary walls -- South */
-	for (i = 0; i < DUNGEON_WID; i++)
-	{
-		cave_set_feat(DUNGEON_HGT - 1, i, FEAT_PERM_SOLID);
-	}
-
-	/* Special boundary walls -- West */
-	for (i = 0; i < DUNGEON_HGT; i++)
-	{
-		cave_set_feat(i, 0, FEAT_PERM_SOLID);
-	}
-
-	/* Special boundary walls -- East */
-	for (i = 0; i < DUNGEON_HGT; i++)
-	{
-		cave_set_feat(i, DUNGEON_WID - 1, FEAT_PERM_SOLID);
-	}
-
-	/* North west corner */
-	cave_set_feat(0, 0, FEAT_PERM_SOLID);
-
-	/* North east corner */
-	cave_set_feat(0, DUNGEON_WID - 1, FEAT_PERM_SOLID);
-
-	/* South west corner */
-	cave_set_feat(DUNGEON_HGT - 1, 0, FEAT_PERM_SOLID);
-
-	/* South east corner */
-	cave_set_feat(DUNGEON_HGT - 1, DUNGEON_WID - 1, FEAT_PERM_SOLID);
-
-
-	/* Day time */
-	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
-		daytime = TRUE;
-	else
-		daytime = FALSE;
-
-	/* Light up or darken the area */
-	for (y = 0; y < DUNGEON_HGT; y++)
-	{
-		for (x = 0; x < DUNGEON_WID; x++)
-		{
-			/* Get the cave grid */
-			/* c_ptr = &cave[y][x]; */
-
-			if (daytime)
-			{
-				/* Assume lit */
-				cave_info[y][x] |= (CAVE_GLOW);
-
-				/* Hack -- Memorize lit grids if allowed */
-				if (view_perma_grids) cave_info[y][x] |= (CAVE_MARK);
-			}
-			else
-			{
-				/* Darken "boring" features */
-				if ((cave_feat[y][x] <= FEAT_INVIS) ||
-				    ((cave_feat[y][x] >= FEAT_DEEP_WATER) &&
-					(cave_feat[y][x] <= FEAT_TREES)))
-				{
-					/* Forget the grid */
-					cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);
-				}
-			}
-		}
-	}
-
-	player_place(p_ptr->oldpy, p_ptr->oldpx);
-	p_ptr->leftbldg = FALSE;
-	p_ptr->leaving_dungeon = FALSE;
 
 	/* Handle the quest monsters (if any) */
 	place_quest_monster();
 
-	/* Make some residents */
-	for (i = 0; i < MIN_M_ALLOC_TN; i++)
-	{
-		/* Make a resident */
-		(void)alloc_monster(3, TRUE);
-	}
+	/* Reset some values */
+	player_place(p_ptr->oldpy, p_ptr->oldpx);
+	p_ptr->leftbldg = FALSE;
+	p_ptr->leaving_dungeon = FALSE;
 
 	/* Set rewarded quests to finished */
 	for (i = 0; i < MAX_Q_IDX; i++)
@@ -4060,7 +3757,7 @@ void generate_cave(void)
 			quest_gen();
 		}
 
-		/* Build the wilderness & town */
+		/* Build the town */
 		else if (!p_ptr->depth)
 		{
 			/* Make a town */

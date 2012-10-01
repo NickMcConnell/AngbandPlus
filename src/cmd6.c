@@ -1401,14 +1401,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ACQUIREMENT:
 		{
-			acquirement(py, px, 1, TRUE, FALSE);
+			acquirement(py, px, 1, TRUE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ACQUIREMENT:
 		{
-			acquirement(py, px, randint(2) + 1, TRUE, FALSE);
+			acquirement(py, px, randint(2) + 1, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -1512,6 +1512,8 @@ void do_cmd_use_staff(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+	if (p_ptr->pclass == CLASS_PRIEST || p_ptr->pclass == CLASS_DRUID)
+		p_ptr->energy_use = 100 - (p_ptr->skill_dev / 4);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -1930,6 +1932,8 @@ void do_cmd_aim_wand(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+	if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_ILLUSIONIST)
+		p_ptr->energy_use = 100 - (p_ptr->skill_dev / 4);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -2331,6 +2335,8 @@ void do_cmd_zap_rod(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+	if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_ILLUSIONIST)
+		p_ptr->energy_use = 100 - (p_ptr->skill_dev / 4);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -2611,21 +2617,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_HIDDEN_WAYS:
 		{
-			int x, y;
-			int plev = p_ptr->lev;
-
-			msg_print("You open a dimensional gate. Choose a destination.");
-
-			if (!tgt_pt(&x, &y)) return;
-
-			if (!cave_empty_bold(y, x) || (cave_info[y][x] & CAVE_ICKY) ||
-			   (distance(y, x, p_ptr->py, p_ptr->px) > plev + 2) ||
-			   (!rand_int(plev * plev / 2)))
-			{
-				msg_print("You fail to exit the astral plane correctly!");
-				teleport_player(10);
-			}
-			else teleport_player_to(y, x);
+			teleport_specific();
 			ident = TRUE;
 			o_ptr->pval = 40;
 			break;

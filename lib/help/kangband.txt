@@ -12,7 +12,7 @@ do so.
 The main differences between Angband 2.9.2 and Kangband 2.9.2 are
 as follows:
 
-- Kangband introduces an extended town which includes additional
+- Kangband introduces an extended town level which includes additional
   terrain features (such as grass, trees, mountains, lakes and rivers)
   and additional buildings which provide services rather than sell
   goods. Each building and its services are themed and the prices the
@@ -31,19 +31,19 @@ as follows:
 - Kangband introduces new terrains into the dungeon. You may come
   across rivers of water and lava (of varying depths) and, at shallow
   levels, plantations of trees. Crossing these terrains poses certain
-  problems for both players and monsters.
+  problems for both players and monsters. Fog mists may also be found
+  on certain levels.
 
-- Kangband introduces several new monsters taken from other variants
-  as well as some specific to Kangband. Several of these are "Unique"
-  monsters.
+- Kangband introduces several new monsters and items.  These are taken
+  from a variety of sources inclusding other variants and Jonathan
+  Ellis' patch for Angband 2.9.2.  There are also many monsters and
+  items that are unique to Kangband.
 
-- Kangband includes a Kobold race.  Kobolds make reasonable fighters
-  and resist poison intrinsically.
-
-- Kangband includes the Maia race.  Maia are intended to be a training
-  race for inexperienced players.  They are highly skilled, have
-  excellent stats, gain levels quickly and recover quickly when their
-  hitpoints and spell points are depleted.
+- Kangband includes two new player races - Kobolds and Maia.  Kobolds
+  make reasonable fighters and resist poison intrinsically. Maia are
+  intended to be a training race for inexperienced players. They are
+  highly skilled, have excellent stats, gain levels quickly and
+  recover quickly when their hitpoints and spell points are depleted.
 
 - Kangband introduces the Illusionist and Druid classes.  Illusionists
   specialise in illusion and misdirection.  Druids are close to nature

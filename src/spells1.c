@@ -286,6 +286,82 @@ void teleport_player_to(int ny, int nx)
 }
 
 
+/*
+ * From Psionic Angband by Aram Harrow
+ * used by teleport_specific
+ */
+static bool tgt_pt(int *x,int *y)
+{
+	char ch = 0;
+	int d, cu, cv;
+	bool success = FALSE;
+
+	*x = p_ptr->px;
+	*y = p_ptr->py;
+
+	cu = Term->scr->cu;
+	cv = Term->scr->cv;
+	Term->scr->cu = 0;
+	Term->scr->cv = 1;
+	msg_print("Select a point and press space.");
+
+	while ((ch != 27) && (ch != ' '))
+	{
+		move_cursor_relative(*y,*x);
+		ch = inkey();
+		switch (ch)
+		{
+			case 27: break;
+			case ' ': success = TRUE; break;
+			default:
+			{
+				d = target_dir(ch);
+				if (!d) break;
+				*x += ddx[d];
+				*y += ddy[d];
+
+				/* Hack -- Verify x */
+				if ((*x>=DUNGEON_WID-1) || (*x>=p_ptr->wx + SCREEN_WID)) (*x)--;
+				else if ((*x<=0) || (*x<=p_ptr->wx)) (*x)++;
+
+				/* Hack -- Verify y */
+				if ((*y>=DUNGEON_HGT-1) || (*y>=p_ptr->wy + SCREEN_HGT)) (*y)--;
+				else if ((*y<=0) || (*y<=p_ptr->wy)) (*y)++;
+
+				break;
+			}
+		}
+	}
+
+	Term->scr->cu = cu;
+	Term->scr->cv = cv;
+	Term_fresh();
+	return success;
+}
+
+
+/*
+ * Teleport player to player-specified location
+ */
+void teleport_specific(void)
+{
+	int x, y;
+	int plev = p_ptr->lev;
+
+	msg_print("You open a dimensional gate. Choose a destination.");
+
+	if (!tgt_pt(&x, &y)) return;
+
+	if (!cave_empty_bold(y, x) || (cave_info[y][x] & CAVE_ICKY) ||
+	   (distance(y, x, p_ptr->py, p_ptr->px) > plev + 2) ||
+	   (!rand_int(plev * plev / 2)))
+	{
+		msg_print("You fail to exit the astral plane correctly!");
+		teleport_player(10);
+	}
+	else teleport_player_to(y, x);
+}
+
 
 /*
  * Teleport the player one level up or down (random when legal)
@@ -355,8 +431,6 @@ void teleport_player_level(void)
 		p_ptr->leaving = TRUE;
 	}
 }
-
-
 
 
 
@@ -2825,7 +2899,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Obvious */
 				if (seen) obvious = TRUE;
 
-				/* Apply some fear */
+				/* Apply some */
 				do_fear = damroll(3, (dam / 2)) + 1;
 
 				/* Attempt a saving throw. Changed by GJW -KMW- */
@@ -3300,9 +3374,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	else
 	{
 		bool fear = FALSE;
+		bool bypet = who ? TRUE : FALSE;
 
+		
 		/* Hurt the monster, check for fear and death */
-		if (mon_take_hit(cave_m_idx[y][x], dam, &fear, note_dies, who))
+		if (mon_take_hit(cave_m_idx[y][x], dam, &fear, note_dies, bypet))
 		{
 			/* Dead monster */
 		}

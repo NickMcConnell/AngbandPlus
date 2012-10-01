@@ -210,6 +210,10 @@ C:1:X
 A:^V
 C:1:'
 
+# Time of day
+A:^t
+C:1:[
+
 
 # Message colors
 %:message.prf

@@ -1657,7 +1657,7 @@ static void process_command(void)
 		/* Gain new spells/prayers */
 		case 'G':
 		{
-			do_cmd_study(TRUE);
+			do_cmd_study();
 			break;
 		}
 
@@ -1909,6 +1909,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Interact with objects */
+		case '#':
+		{
+			do_cmd_objects();
+			break;
+		}
+
 		/* Interact with visuals */
 		case '%':
 		{
@@ -1993,6 +2000,12 @@ static void process_command(void)
 		}
 
 #endif
+
+		case KTRL('T'):
+		{
+			do_cmd_time();
+			break;
+		}
 
 		/* Save and quit */
 		case KTRL('X'):
@@ -2602,6 +2615,9 @@ static void dungeon(void)
 			{
 				cave_set_feat(py, px, FEAT_LESS);
 			}
+
+			/* Mark the stairs as known */
+			cave_info[py][px] |= (CAVE_MARK);
 		}
 
 		/* Cancel the stair request */

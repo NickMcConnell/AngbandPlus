@@ -9,7 +9,7 @@ SRCS = \
   xtra1.c xtra2.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load2.c init3.c xtra3.c \
+  store.c birth.c load2.c init3.c \
   bldg.c spells3.c wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c randart.c \
   main-lsl.c main.c
@@ -21,7 +21,7 @@ OBJS = \
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load2.o init3.o xtra3.o \
+  store.o birth.o load2.o init3.o \
   bldg.o spells3.o wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o randart.o \
   main-lsl.o main.o
@@ -113,7 +113,6 @@ wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)
 xtra1.o: xtra1.c $(INCS)
 xtra2.o: xtra2.c $(INCS)
-xtra3.o: xtra3.c $(INCS)
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
 z-rand.o: z-rand.c $(HDRS) z-rand.h
 z-term.o: z-term.c $(HDRS) z-term.h z-virt.h

@@ -22,7 +22,7 @@ Q:49:T:constructed for you.
 ?:1
 
 # Floor with Sea Serpent
-F:a:1:8:571
+F:a:104:8:571
 
 
 # Dungeon layout

@@ -50,7 +50,6 @@ OBJS = \
   wizard2.o \
   xtra1.o \
   xtra2.o \
-  xtra3.o \
   z-term.o \
   z-rand.o \
   z-form.o \

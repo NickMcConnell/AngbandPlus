@@ -1,3 +1,47 @@
+Kangband 2.9.2r1:
+=================
+
+Codebase Updates
+----------------
+- Quest designers may now specify the generation of a random artifact,
+  a specific ego item, a specific item with an appropriate random ego
+  type or a totally random ego item.
+- Removed support for loading savefiles from versions of Kangband older
+  than 2.8.3(x).
+- Various tweaks/additions to the pref files.
+  
+
+New / Changed Features
+----------------------
+- Selectively implemented Jonathan Ellis' updates to the *_info.txt
+  files for objects and artifacts.
+- Added an auto-destoy item and auto-pick-up item feature (accessed via
+  the '#' command) which makes the game automatically destroy or
+  pick-up an item as the player moves over it. This is not the
+  "squelch" patch although some code was adapted from that in refining
+  the original implementation.
+- Added the [y/n/k] pick-up prompt from Zangband.
+- Added the "Time of day" command from Zangband ('[' in the roguelike
+  key set).
+- Studying spells is now done via the 'G' command rather than in the
+  buildings.
+- Items created via the debugging mode commands 'g' and 'v' will now
+  be created unid'd. Use cheat_iden if you want this functionality.
+- Mages and Illusionists now require progressively less energy to use
+  wands and rods. Priests and Druids require progressively less energy
+  to use staves.
+
+Bug Fixes
+---------
+- Patches for the latest bug fixes for Angband 2.9.2 applied where
+  aplicable.
+- You no longer receive inappropriate 'feeling' messages in the Arena
+  or in fixed quests.
+- Specified ego items (where sensible) are now generated in the fixed
+  quests.
+- Various problems with the towns/quests fixed.
+
+
 Kangband 2.9.2:
 ===============
 

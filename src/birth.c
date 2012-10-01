@@ -552,7 +552,7 @@ static void player_wipe(void)
 	p_ptr->arena_number = 0;
 	p_ptr->inside_arena = 0;
 	p_ptr->leftbldg = FALSE;
-	p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
+	p_ptr->exit_bldg = TRUE;
 
 	/* Reset building rewards */
 	for (i = 0; i < MAX_REWARDS; i++)
@@ -571,6 +571,12 @@ static void player_wipe(void)
 
 		/* Reset "aware" */
 		k_ptr->aware = FALSE;
+
+		/* Reset "auto_destroy" */
+		k_ptr->auto_dest = FALSE;
+
+		/* Reset "auto_pickup" */
+		k_ptr->auto_pick = FALSE;
 	}
 
 
@@ -937,9 +943,9 @@ static bool player_birth_aux_1(void)
 		"Your 'Plot' determines the series of quests you will be assigned.");
 	Term_putstr(5, 16, -1, TERM_WHITE,
 		"All plots ultimately lead to the quests to kill Sauron and Morgoth.");
-	Term_putstr(5, 17, -1, TERM_WHITE,
+	Term_putstr(5, 17, -1, TERM_YELLOW,
 		"Note that the quests for plots e) through h) are currently not.");
-	Term_putstr(5, 18, -1, TERM_WHITE,
+	Term_putstr(5, 18, -1, TERM_YELLOW,
 		"implemented and these plots are included for testing purposes only.");
 
 	/* Initialize plot names */

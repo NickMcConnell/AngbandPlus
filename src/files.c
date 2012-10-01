@@ -1717,7 +1717,7 @@ static void display_player_flag_info(void)
 			}
 
 			/* Check flags */
-			if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+			else if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
 
 			/* Advance */
 			row++;
@@ -3316,37 +3316,33 @@ static void death_examine(void)
 	/* Start out in "display" mode */
 	p_ptr->command_see = TRUE;
 
-	/* Get an item */
+	/* Prompts */
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
+	while (TRUE)
+	{	
+		/* Get an item */
+		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) break;
+
+		/* Get the item */
 		o_ptr = &inventory[item];
-	}
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+		/* Fully known */
+		o_ptr->ident |= (IDENT_MENTAL);
 
-	/* Fully known */
-	o_ptr->ident |= (IDENT_MENTAL);
+		/* Description */
+		object_desc(o_name, o_ptr, TRUE, 3);
 
-	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+		/* Describe */
+		msg_format("Examining %s...", o_name);
 
-	/* Describe */
-	msg_format("Examining %s...", o_name);
-
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr))
-	{
-		msg_print("You see nothing special.");
-		message_flush();
+		/* Describe it fully */
+		if (!identify_fully_aux(o_ptr))
+		{
+			msg_print("You see nothing special.");
+			message_flush();
+		}
 	}
 }
 
@@ -4008,7 +4004,7 @@ static void close_game_aux(void)
 	cptr p;
 
 	/* Prompt */
-	p = "['i' for info, 'f' to file, 't' for scores, 'x' to examine, or ESC]";
+	p = "[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]";
 
 	/* Handle retirement */
 	if (p_ptr->total_winner) kingly();
@@ -4042,7 +4038,7 @@ static void close_game_aux(void)
 	while (1)
 	{
 		/* Describe options */
-		Term_putstr(2, 23, -1, TERM_WHITE, p);
+		Term_putstr(1, 23, -1, TERM_WHITE, p);
 
 		/* Query */
 		ch = inkey();
@@ -4054,7 +4050,7 @@ static void close_game_aux(void)
 		}
 
 		/* File dump */
-		else if (ch == 'f')
+		else if (ch == 'f' || ch == 'F')
 		{
 			char ftmp[80];
 
@@ -4092,7 +4088,7 @@ static void close_game_aux(void)
 		}
 
 		/* Show more info */
-		else if (ch == 'i')
+		else if (ch == 'i' || ch == 'I')
 		{
 			/* Save screen */
 			screen_save();
@@ -4104,8 +4100,21 @@ static void close_game_aux(void)
 			screen_load();
 		}
 
+		/* Show last messages */
+		else if (ch == 'm' || ch == 'M')
+		{
+			/* Save screen */
+			screen_save();
+
+			/* Display messages */
+			do_cmd_messages();
+
+			/* Load screen */
+			screen_load();
+		}
+
 		/* Show top scores */
-		else if (ch == 't')
+		else if (ch == 'v' || ch == 'V')
 		{
 			/* Save screen */
 			screen_save();
@@ -4118,9 +4127,19 @@ static void close_game_aux(void)
 		}
 
 		/* Examine an item */
-		else if (ch == 'x')
+		else if (ch == 'x' || ch == 'X')
 		{
+			/* Save screen */
+			screen_save();
+
+			/* Clear the screen */
+			Term_clear();
+
+			/* Examine an item */
 			death_examine();
+
+			/* Load screen */
+			screen_load();
 		}
 	}
 

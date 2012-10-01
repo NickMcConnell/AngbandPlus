@@ -493,27 +493,27 @@ G:^:U
 # 0x67 --> terrain -- grass
 
 N:103:patch of grass
-G:::g
+G:.:g
 
 # 0x68 --> terrain -- deep water
 
 N:104:pool of deep water
-G:#:b
+G:~:b
 
 # 0x69 --> terrain -- shallow water
 
 N:105:stream of shallow water
-G:#:B
+G:~:B
 
 # 0x6A --> terrain -- deep lava
 
 N:106:pool of deep lava
-G:#:r
+G:~:r
 
 # 0x6B --> terrain -- shallow lava
 
 N:107:stream of shallow lava
-G:#:U
+G:~:U
 
 # 0x6C --> terrain -- chasm
 
@@ -523,7 +523,7 @@ G:#:D
 # 0x6D --> terrain -- dirt
 
 N:109:patch of dirt
-G:::u
+G:.:u
 
 
 # Using 112 - 114 for quest entrances/exits -KMW-

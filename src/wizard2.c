@@ -357,95 +357,6 @@ static void wiz_display_item(object_type *o_ptr)
 
 
 /*
- * A structure to hold a tval and its description
- */
-typedef struct tval_desc
-{
-	int tval;
-	cptr desc;
-} tval_desc;
-
-/*
- * A list of tvals and their textual names
- */
-static const tval_desc tvals[] =
-{
-	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
-	{ TV_BOW,               "Bow"                  },
-	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
-	{ TV_SHIELD,            "Shield"               },
-	{ TV_CROWN,             "Crown"                },
-	{ TV_HELM,              "Helm"                 },
-	{ TV_GLOVES,            "Gloves"               },
-	{ TV_BOOTS,             "Boots"                },
-	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
-	{ TV_RING,              "Ring"                 },
-	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
-	{ TV_POTION,            "Potion"               },
-	{ TV_SCROLL,            "Scroll"               },
-	{ TV_WAND,              "Wand"                 },
-	{ TV_STAFF,             "Staff"                },
-	{ TV_ROD,               "Rod"                  },
-	{ TV_PRAYER_BOOK,       "Priest Book"          },
-	{ TV_MAGIC_BOOK,        "Magic Book"           },
-	{ TV_ILLUSION_BOOK,     "Illusion Book"        }, /* -KMW- */
-	{ TV_NATURE_BOOK,       "Druid Book"           }, /* -KMW- */
-	{ TV_SPIKE,             "Spikes"               },
-	{ TV_DIGGING,           "Digger"               },
-	{ TV_CHEST,             "Chest"                },
-	{ TV_FOOD,              "Food"                 },
-	{ TV_FLASK,             "Flask"                },
-	{ 0,                    NULL                   }
-};
-
-
-/*
- * Strip an "object name" into a buffer
- */
-static void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-		if (*str != '~') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
-
-
-/*
- * Hack -- title for each column
- *
- * This will not work with "EBCDIC", I would think.  XXX XXX XXX
- *
- * The third column head overlaps the first after 17 items are
- * listed.  XXX XXX XXX
- */
-static char head[3] =
-{ 'a', 'A', '0' };
-
-
-/*
  * Get an object kind for creation (or zero)
  *
  * List up to 57 choices in three columns
@@ -1578,7 +1489,7 @@ void do_cmd_debug(void)
 		case 'g':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, FALSE, TRUE);
+			acquirement(py, px, p_ptr->command_arg, FALSE);
 			break;
 		}
 
@@ -1679,7 +1590,7 @@ void do_cmd_debug(void)
 		case 'v':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, TRUE, TRUE);
+			acquirement(py, px, p_ptr->command_arg, TRUE);
 			break;
 		}
 

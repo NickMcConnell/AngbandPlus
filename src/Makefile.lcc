@@ -21,7 +21,6 @@ OBJS=\
 	z-term.obj \
 	z-rand.obj \
 	z-form.obj \
-	xtra3.obj \
 	xtra2.obj \
 	xtra1.obj \
 	wizard2.obj \
@@ -139,27 +138,6 @@ Z-FORM_C=\
 
 z-form.obj: $(Z-FORM_C) z-form.c
 	$(CC) -c $(CFLAGS) z-form.c
-
-# Build XTRA3.C
-XTRA3_C=\
-	angband.h\
-	h-basic.h\
-	h-config.h\
-	h-system.h\
-	h-type.h\
-	h-define.h\
-	z-util.h\
-	z-virt.h\
-	z-form.h\
-	z-rand.h\
-	z-term.h\
-	config.h\
-	defines.h\
-	types.h\
-	externs.h\
-
-xtra3.obj: $(XTRA3_C) xtra3.c
-	$(CC) -c $(CFLAGS) xtra3.c
 
 # Build XTRA2.C
 XTRA2_C=\

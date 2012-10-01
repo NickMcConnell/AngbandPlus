@@ -182,73 +182,6 @@ void fetch_item(int dir, int wgt)
 
 
 /*
- * Incremental sleep spell - KMW -
- */
-void do_sleep_monster(void)
-{
-	int dir;
-
-	if (p_ptr->lev < 15)
-	{
-		if (!get_aim_dir(&dir)) return;
-		sleep_monster(dir);
-	}
-	else if (p_ptr->lev < 30)
-	{
-		sleep_monsters_touch();
-	}
-	else
-	{
-		sleep_monsters();
-	}
-}
-
-/*
- * Incremental fear spell - KMW -
- */
-void do_fear_monster(void)
-{
-	int dir;
-
-	if (p_ptr->lev < 15)
-	{
-		if (!get_aim_dir(&dir)) return;
-		fear_monster(dir,p_ptr->lev);
-	}
-	else if (p_ptr->lev < 30)
-	{
-		fear_monsters_touch();
-	}
-	else
-	{
-		fear_monsters();
-	}
-}
-
-/*
- * Incremental cure wounds spell - KMW -
- */
-void do_cure_wounds(void)
-{
-	if (p_ptr->lev < 15)
-	{
-		(void)hp_player(damroll(4, 10));
-	}
-	else if (p_ptr->lev < 30)
-	{
-		(void)hp_player(damroll(6, 10));
-		(void)set_cut(0);
-	}
-	else
-	{
-		(void)hp_player(damroll(8, 10));
-		(void)set_stun(0);
-		(void)set_cut(0);
-	}
-}
-
-
-/*
  * Flood -KMW-
  */
 void flood(int cy, int cx, int r, int typ)
@@ -757,29 +690,4 @@ void rustproof(void)
 		((o_ptr->number > 1) ? "are" : "is"));
 }
 
-
-/*
- * Summon a monster - from Kamband
- */
-void summon_monster(int sumtype)
-{
-	p_ptr->energy_use = 100;
-
-	if (p_ptr->inside_arena)
-	{
-		msg_print("This place seems devoid of life.");
-		message_flush();
-		return;
-	}
-
-	if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth + randint(5),
-		 sumtype, TRUE))
-	{
-		msg_print("You summon some help.");
-	}
-	else
-	{
-		msg_print("You called, but no help came.");
-	}
-}
 

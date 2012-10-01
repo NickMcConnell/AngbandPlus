@@ -174,7 +174,7 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"XXX1X2",
+	"FRIENDLY",
 	"XXX2X2",
 	"INVISIBLE",
 	"COLD_BLOOD",
@@ -219,7 +219,7 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"XXX1X3",
+	"GOOD",
 	"XXX2X3",
 	"XXX3X3",
 	"NONLIVING",
@@ -1761,7 +1761,7 @@ errr init_a_info_txt(FILE *fp, char *buf, header *head)
 			i = atoi(buf+2);
 
 			/* Verify information */
-			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
 			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
@@ -2095,7 +2095,7 @@ errr init_e_info_txt(FILE *fp, char *buf, header *head)
 			i = atoi(buf+2);
 
 			/* Verify information */
-			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
 			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
@@ -2464,7 +2464,7 @@ errr init_r_info_txt(FILE *fp, char *buf, header *head)
 			i = atoi(buf+2);
 
 			/* Verify information */
-			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
 			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
@@ -2907,7 +2907,7 @@ errr init_p_info_txt(FILE *fp, char *buf, header *head)
 			i = atoi(buf+2);
 
 			/* Verify information */
-			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
 			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);

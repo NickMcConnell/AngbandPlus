@@ -272,7 +272,7 @@ void do_cmd_wield(void)
 		    (quest[i].k_idx == o_ptr->name1))
 		{
 			quest[i].status = QUEST_STATUS_COMPLETED;
-			msg_print("You completed your quest!");
+			msg_print("You have completed your quest!");
 			message_flush();
 		}
 	}
@@ -444,7 +444,7 @@ void do_cmd_destroy(void)
 	/* Verify destruction */
 	if (verify_destroy)
 	{
-		if (!(auto_destroy && (object_value(o_ptr) < 1)))
+		if (!(destroy_worthless && (object_value(o_ptr) < 1)))
 		{
 			/* Make a verification */
 			sprintf(out_val, "Really destroy %s? ", o_name);

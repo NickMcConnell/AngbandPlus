@@ -93,6 +93,7 @@ typedef struct bldg_type bldg_type; /* From Kamband -KMW- */
 typedef struct building_type building_type; /* From Zangband */
 typedef struct plot_type plot_type;
 typedef struct quest_type quest_type;
+typedef struct tval_desc tval_desc;
 
 
 
@@ -206,6 +207,10 @@ struct object_kind
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
+
+	bool auto_dest;		/* The player automatically destroys the items */
+
+	bool auto_pick;		/* The player automatically picks up the items */
 };
 
 
@@ -431,18 +436,6 @@ struct vault_type
 
 	byte hgt;			/* Vault height */
 	byte wid;			/* Vault width */
-
-	int mon1;			/* monster index 1 -KMW- */
-	int mon2;			/* monster index 2 -KMW- */
-	int mon3;			/* monster index 3 -KMW- */
-	int mon4;			/* monster index 4 -KMW- */
-	int mon5;			/* monster index 5 -KMW- */
-	int mon6;			/* monster index 6 -KMW- */
-	int mon7;			/* monster index 7 -KMW- */
-	int mon8;			/* monster index 8 -KMW- */
-	int mon9;			/* monster index 9 -KMW- */
-	int mon10;			/* monster index 10 -KMW- */
-	int mon[10];		/* monster indices -KMW- */
 };
 
 
@@ -1216,3 +1209,13 @@ struct quest_type
 
 	byte flags;             /* quest flags */
 };
+
+/*
+ * A structure to hold a tval and its description
+ */
+struct tval_desc
+{
+	int tval;
+	cptr desc;
+};
+

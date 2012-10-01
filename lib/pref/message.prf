@@ -116,5 +116,8 @@ M:27:w
 # MSG_STAIRS
 M:28:w
 
+# MSG_HITPOINT_WARN
+M:29:o
+
 ?:1
 

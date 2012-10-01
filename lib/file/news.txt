@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **  Kangband 2.9.2   **   The Pits of Angband   **
+              **  Kangband 2.9.2r1  ***  The Pits of Angband  **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -15,7 +15,7 @@
                  Angband 2.9.0 - 2.9.2 by Robert Ruehlmann
             Old Kangband code (upto Kangband 2.8.3i) : Ken Wigle
                         Kangband 2.8.3j : Mark Howson
-               Kangband 2.9.1 - 2.9.2 by John I'anson-Holton
+              Kangband 2.9.1 - 2.9.2r1 by John I'anson-Holton
 
       Send comments, bug reports, and patches, to "jianson@milbank.com"
       Visit the Kangband Home Page at "http://kangband.sourceforge.net"

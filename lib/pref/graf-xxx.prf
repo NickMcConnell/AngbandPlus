@@ -847,6 +847,9 @@ K:88:0x8B/0x8D
 # & Dwarven Pick~
 K:89:0x8B/0x8E
 
+# & Mattock~
+K:90:0xCD:0x80
+
 # & Pair~ of Soft Leather Boots
 K:91:0x88/0x89
 
@@ -1971,6 +1974,9 @@ K:519:0x8A/0x89
 
 # [Commune with Nature]
 K:520:0x8A/0x89
+
+# Palantir
+# K:560:??/??
 
 ##### Monster attr/char definitions #####
 

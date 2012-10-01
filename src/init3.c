@@ -384,7 +384,54 @@ static errr parse_line_building(char *buf)
 
 
 /*
+ * Check for equipment
+ */
+static bool check_ego(int tval)
+{
+	switch (tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_BOW:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		case TV_HARD_ARMOR:
+		case TV_SOFT_ARMOR:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_CROWN:
+		case TV_HELM:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/*
  * Parse a sub-file of the "extra info"
+ * 
+ * Note in the placement of terrain, monsters, objects and traps a certain
+ * heirarchy has been implemented as follows:
+ * 
+ * 1. Monsters
+ * 2. Artifacts
+ * 3. Traps
+ * 4. Ego items
+ * 5. Other objects
+ * 6. Terrain
+ *
+ * Note that this order means that specifying an artifact index will override
+ * a trap designation or an object or ego type designation.  If no artifacts
+ * are present, placing a trap will prevent the placing of an object of any
+ * kind. Ego items have been coded to require an associated object. 
  */
 static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, int xmax, int *y, int *x)
 {
@@ -461,6 +508,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			int idx = s[0];
 
 			int object_index = letter[idx].object;
+			int ego_index = letter[idx].ego;
 			int monster_index = letter[idx].monster;
 			int random = letter[idx].random;
 			int artifact_index = letter[idx].artifact;
@@ -496,8 +544,46 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				place_monster_aux(*y, *x, monster_index, TRUE, FALSE, FALSE);
 			}
 
-			/* Object (and possible trap) */
-			if ((random & RANDOM_OBJECT) && (random & RANDOM_TRAP))
+			/* Random artifact */
+			if (random & RANDOM_ARTIFACT)
+			{
+				while (TRUE)
+				{
+					artifact_index = randint(z_info->a_max);
+
+					/* Ignore "empty" artifacts */
+					if (!a_info[artifact_index].name)
+						continue;
+
+					/* Must not be a quest item */
+					if (a_info[artifact_index].flags3 & TR3_QUESTITEM)
+						continue;
+
+					/* Artifact "rarity roll" */
+					if (rand_int(a_info[artifact_index].rarity) != 0)
+						continue;
+
+					/* Ignore artifacts already generated */
+					if (a_info[artifact_index].cur_num == 0)
+						break;
+				}
+
+				/* Create the artifact */
+				create_named_art(artifact_index, *y, *x);
+
+				a_info[artifact_index].cur_num = 1;
+			}
+			/* Specific artifact */
+			else if (artifact_index)
+			{
+				/* Create the artifact */
+				create_named_art(artifact_index, *y, *x);
+
+				a_info[artifact_index].cur_num = 1;
+			}
+
+			/* Random object or trap */
+			else if ((random & RANDOM_OBJECT) && (random & RANDOM_TRAP))
 			{
 				object_level = base_level + object_index;
 
@@ -516,6 +602,84 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 
 				object_level = base_level;
 			}
+			/* Random trap */
+			else if (random & RANDOM_TRAP)
+			{
+				place_trap(*y, *x);
+			}
+
+			/* Random ego with associated random object */
+			else if ((random & RANDOM_EGO) && (random & RANDOM_OBJECT))
+			{
+				/* Get local object */
+				object_type *o_ptr = &object_type_body;
+
+				while (TRUE)
+				{
+					object_index = randint(z_info->k_max);
+
+					if (check_ego(k_info[object_index].tval))
+						break;
+				}
+
+				/* Create the item */
+				object_prep(o_ptr, object_index);
+
+				/* Apply magic (no messages, no artifacts) */
+				apply_magic(o_ptr, base_level, FALSE, TRUE, TRUE);
+
+				(void)drop_near(o_ptr, -1, *y, *x);
+			}
+			/* Random ego for associated specific object */
+			else if ((random & RANDOM_EGO) && object_index)
+			{
+				/* Get local object */
+				object_type *o_ptr = &object_type_body;
+
+				/* Create the item */
+				object_prep(o_ptr, object_index);
+
+				if (o_ptr->tval == TV_GOLD)
+				{
+					coin_type = object_index - OBJ_GOLD_LIST;
+					make_gold(o_ptr);
+					coin_type = 0;
+				}
+
+				/* Apply magic (no messages, no artifacts) */
+				apply_magic(o_ptr, base_level, FALSE, TRUE, TRUE);
+
+				(void)drop_near(o_ptr, -1, *y, *x);
+			}
+			/* Specific ego for associated specific object */
+			/* Note that if the ego type isn't appropriate */
+			/* we simply create a normal object. */
+			else if (ego_index && object_index)
+			{
+				/* Get local object */
+				object_type *o_ptr = &object_type_body;
+
+				/* Create the item */
+				object_prep(o_ptr, object_index);
+
+				if (o_ptr->tval == TV_GOLD)
+				{
+					coin_type = object_index - OBJ_GOLD_LIST;
+					make_gold(o_ptr);
+					coin_type = 0;
+				}
+
+				/* Apply magic (no messages, no artifacts) */
+				/* Note that we may get inflated bonuses if this */
+				/* step independently creates an ego item */
+				apply_magic(o_ptr, base_level, FALSE, TRUE, FALSE);
+
+				/* Create the ego item */
+				create_named_ego(o_ptr, ego_index, base_level);
+
+				(void)drop_near(o_ptr, -1, *y, *x);
+			}
+			/* Random object */
 			else if (random & RANDOM_OBJECT)
 			{
 				object_level = base_level + object_index;
@@ -530,11 +694,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 
 				object_level = base_level;
 			}
-			/* Random trap */
-			else if (random & RANDOM_TRAP)
-			{
-				place_trap(*y, *x);
-			}
+			/* Specific object */
 			else if (object_index)
 			{
 				/* Get local object */
@@ -554,15 +714,6 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				apply_magic(o_ptr, base_level, FALSE, TRUE, FALSE);
 
 				(void)drop_near(o_ptr, -1, *y, *x);
-			}
-
-			/* Artifact */
-			if (artifact_index)
-			{
-				/* Create the artifact */
-				create_named_art(artifact_index, *y, *x);
-
-				a_info[artifact_index].cur_num = 1;
 			}
 
 			/* Terrain special */

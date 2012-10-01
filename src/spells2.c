@@ -481,7 +481,7 @@ void self_knowledge(void)
 
 	if (p_ptr->blessed)
 	{
-		info[i++] = "You feel rightous.";
+		info[i++] = "You feel righteous.";
 	}
 	if (p_ptr->hero)
 	{
@@ -3550,7 +3550,7 @@ bool charm_monster(int dir, int plev)
 	return (project_hook(GF_TAME, dir, plev, flg));
 }
 
-bool pet_monster(int dir, int plev)
+bool tame_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_MAKE_PET, dir, plev, flg));
@@ -3597,3 +3597,73 @@ bool sleep_monsters_touch(void)
 	int flg = PROJECT_KILL | PROJECT_HIDE;
 	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
 }
+
+
+/*
+ * Incremental sleep spell - KMW -
+ */
+void do_sleep_monster(void)
+{
+	int dir;
+
+	if (p_ptr->lev < 15)
+	{
+		if (!get_aim_dir(&dir)) return;
+		sleep_monster(dir);
+	}
+	else if (p_ptr->lev < 30)
+	{
+		sleep_monsters_touch();
+	}
+	else
+	{
+		sleep_monsters();
+	}
+}
+
+
+/*
+ * Incremental fear spell - KMW -
+ */
+void do_fear_monster(void)
+{
+	int dir;
+
+	if (p_ptr->lev < 15)
+	{
+		if (!get_aim_dir(&dir)) return;
+		fear_monster(dir,p_ptr->lev);
+	}
+	else if (p_ptr->lev < 30)
+	{
+		fear_monsters_touch();
+	}
+	else
+	{
+		fear_monsters();
+	}
+}
+
+
+/*
+ * Incremental cure wounds spell - KMW -
+ */
+void do_cure_wounds(void)
+{
+	if (p_ptr->lev < 15)
+	{
+		(void)hp_player(damroll(4, 10));
+	}
+	else if (p_ptr->lev < 30)
+	{
+		(void)hp_player(damroll(6, 10));
+		(void)set_cut(0);
+	}
+	else
+	{
+		(void)hp_player(damroll(8, 10));
+		(void)set_stun(0);
+		(void)set_cut(0);
+	}
+}
+

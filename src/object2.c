@@ -1571,7 +1571,7 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 	if (o_ptr->name1) return (FALSE);
 	if (o_ptr->name2) return (FALSE);
 
-	level = p_ptr->depth;
+	level = object_level;
 
 	/* Boost level (like with object base types) */
 	if (level > 0)
@@ -1591,7 +1591,7 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 	if (cursed)
 	{
 		/* Probability goes linear with level */
-		level = p_ptr->depth + rand_int(127);
+		level = object_level + rand_int(MAX_DEPTH - 1);
 	}
 
 	/* Reset total */
@@ -1658,6 +1658,7 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 
 	/* We have one */
 	o_ptr->name2 = (byte)table[i].index;
+
 	return (TRUE);
 }
 
@@ -1686,10 +1687,9 @@ static bool make_artifact_special(object_type *o_ptr)
 	if (adult_no_artifacts) return (FALSE);
 
 	/* No artifacts in the town */
-	/* if (!p_ptr->depth) return (FALSE); -KMW- */
+	if (!p_ptr->depth) return (FALSE);
 
 	/* Check the special artifacts */
-	/* for (i = 0; i < ART_MIN_NORMAL; ++i) */
 	for (i = 0; i < z_info->a_max; ++i)
 	{
 		artifact_type *a_ptr = &a_info[i];
@@ -1762,7 +1762,7 @@ static bool make_artifact(object_type *o_ptr)
 	if (adult_no_artifacts) return (FALSE);
 
 	/* No artifacts in the town */
-	/* if (!p_ptr->depth) return (FALSE); */
+	if (!p_ptr->depth) return (FALSE);
 
 	/* Paranoia -- no "plural" artifacts */
 	if (o_ptr->number != 1) return (FALSE);
@@ -2704,6 +2704,13 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			}
 		}
 
+		/* Hack - Dwarven armour is strong and light */
+		if (o_ptr->name2 == EGO_DWARVEN)
+		{
+			o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
+			o_ptr->ac = k_info[o_ptr->k_idx].ac + 5;
+		}
+
 		/* Hack -- acquire "broken" flag */
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
@@ -3287,7 +3294,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 /*
  * Scatter some "great" objects near the player
  */
-void acquirement(int y1, int x1, int num, bool great, bool known)
+void acquirement(int y1, int x1, int num, bool great)
 {
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -3303,12 +3310,6 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
 
 		/* Make a good (or great) object (if possible) */
 		if (!make_object(i_ptr, TRUE, great)) continue;
-
-		if (known)
-		{
-			object_aware(i_ptr);
-			object_known(i_ptr);
-		}
 
 		/* Drop the object */
 		drop_near(i_ptr, -1, y1, x1);
@@ -3401,8 +3402,11 @@ void pick_trap(int y, int x)
 		feat = FEAT_TRAP_HEAD + rand_int(16);
 
 		/* Hack -- no trap doors on special levels */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->inside_quest > 0) &&
-		    (p_ptr->inside_arena > 0))
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->inside_quest > 0))
+			continue;
+
+		/* Hack -- no trap doors on quest levels */
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && quest_number(p_ptr->depth))
 			continue;
 
 		/* Hack -- no trap doors on the deepest level */
@@ -4948,6 +4952,49 @@ void print_spells(const byte *spells, int num, int y, int x)
 }
 
 
+/*
+ * A check to see if an object can be destroyed (used by
+ * the various auto-destroy routines.
+ */
+bool can_player_destroy_object(object_type *o_ptr)
+{
+	/* Artifacts cannot be destroyed */
+	if (artifact_p(o_ptr))
+	{
+		/* Don't mark id'ed objects */
+		if (object_known_p(o_ptr)) return FALSE;
+
+		/* It has already been sensed */
+		if (o_ptr->ident & (IDENT_SENSE))
+		{
+			/* Already sensed objects always get improved feelings */
+			if (cursed_p(o_ptr) || broken_p(o_ptr))
+				o_ptr->discount = INSCRIP_TERRIBLE;
+			else
+				o_ptr->discount = INSCRIP_SPECIAL;
+		}
+		else
+		{
+			/* Mark the object as indestructible */
+			o_ptr->discount = INSCRIP_INDESTRUCTIBLE;
+		}
+
+		/* We have "felt" it (again) */
+		o_ptr->ident |= (IDENT_SENSE);
+
+		/* Combine the pack */
+		p_ptr->notice |= (PN_COMBINE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Done */
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 
 /*
  * Hack -- display an object kind in the current window
@@ -5027,4 +5074,158 @@ void display_koff(int k_idx)
 	}
 }
 
+
+
+
+/*
+ * Create the artifact of the specified number
+ */
+void create_named_art(int a_idx, int y, int x)
+{
+	object_type *o_ptr;
+	object_type object_type_body;
+	int k_idx;
+
+	artifact_type *a_ptr = &a_info[a_idx];
+
+	/* Ignore "empty" artifacts */
+	if (!a_ptr->name) return;
+
+	/* Get local object */
+	o_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(o_ptr);
+
+	/* Acquire the "kind" index */
+	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+	/* Oops */
+	if (!k_idx) return;
+
+	/* Create the artifact */
+	object_prep(o_ptr, k_idx);
+
+	/* Save the name */
+	o_ptr->name1 = a_idx;
+
+	/* Extract the fields */
+	o_ptr->pval = a_ptr->pval;
+	o_ptr->ac = a_ptr->ac;
+	o_ptr->dd = a_ptr->dd;
+	o_ptr->ds = a_ptr->ds;
+	o_ptr->to_a = a_ptr->to_a;
+	o_ptr->to_h = a_ptr->to_h;
+	o_ptr->to_d = a_ptr->to_d;
+	o_ptr->weight = a_ptr->weight;
+
+	/* Hack -- acquire "cursed" flag */
+	if (a_ptr->flags3 & TR3_LIGHT_CURSE) o_ptr->ident |= (IDENT_CURSED);
+
+	/* Drop the artifact from heaven */
+	(void)drop_near(o_ptr, -1, y, x);
+}
+
+
+/*
+ * Create an ego of the specified type
+ */
+void create_named_ego(object_type *o_ptr, int e_idx, int level)
+{
+	int j;
+
+	ego_item_type *e_ptr;
+
+
+	/* Get the actual kind */
+	e_ptr = &e_info[e_idx];
+
+	/* Check if legal ego-item type */
+	for (j = 0; j < 3; j++)
+	{
+		/* Require identical base type */
+		if (o_ptr->tval == e_ptr->tval[j])
+		{
+			/* Require sval in bounds, lower */
+			if (o_ptr->sval >= e_ptr->min_sval[j])
+			{
+				/* Require sval in bounds, upper */
+				if (o_ptr->sval <= e_ptr->max_sval[j])
+				{
+					/* We have one */
+					o_ptr->name2 = e_idx;
+				}
+			}
+		}
+	}
+
+	/* Hack -- analyze ego-items */
+	if (o_ptr->name2)
+	{
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+		/* Extra powers */
+		if (e_ptr->xtra)
+		{
+			o_ptr->xtra1 = e_ptr->xtra;
+			switch (o_ptr->xtra1)
+			{
+				case OBJECT_XTRA_TYPE_SUSTAIN:
+				{
+					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_SUSTAIN);
+					break;
+				}
+
+				case OBJECT_XTRA_TYPE_RESIST:
+				{
+					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
+					break;
+				}
+
+				case OBJECT_XTRA_TYPE_POWER:
+				{
+					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_POWER);
+					break;
+				}
+			}
+		}
+
+		/* Hack - Dwarven armour is strong and light */
+		if (o_ptr->name2 == EGO_DWARVEN)
+		{
+			o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
+			o_ptr->ac = k_info[o_ptr->k_idx].ac + 5;
+		}
+
+		/* Hack -- acquire "broken" flag */
+		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
+
+		/* Hack -- acquire "cursed" flag */
+		if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+
+		/* Hack -- apply penalties if needed */
+		if (cursed_p(o_ptr) || broken_p(o_ptr))
+		{
+			/* Hack -- obtain bonuses */
+			if (e_ptr->max_to_h > 0) o_ptr->to_h -= randint(e_ptr->max_to_h);
+			if (e_ptr->max_to_d > 0) o_ptr->to_d -= randint(e_ptr->max_to_d);
+			if (e_ptr->max_to_a > 0) o_ptr->to_a -= randint(e_ptr->max_to_a);
+
+			/* Hack -- obtain pval */
+			if (e_ptr->max_pval > 0) o_ptr->pval -= randint(e_ptr->max_pval);
+		}
+
+		/* Hack -- apply extra bonuses if needed */
+		else
+		{
+			/* Hack -- obtain bonuses */
+			if (e_ptr->max_to_h > 0) o_ptr->to_h += randint(e_ptr->max_to_h);
+			if (e_ptr->max_to_d > 0) o_ptr->to_d += randint(e_ptr->max_to_d);
+			if (e_ptr->max_to_a > 0) o_ptr->to_a += randint(e_ptr->max_to_a);
+
+			/* Hack -- obtain pval */
+			if (e_ptr->max_pval > 0) o_ptr->pval += randint(e_ptr->max_pval);
+		}
+	}
+}
 
