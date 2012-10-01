@@ -123,16 +123,10 @@ extern char *strrchr();
 
 #endif
 
-
-
 #if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN)
 extern long atol();
 #endif
 
-
 #include <stdarg.h>
 
-
 #endif
-
-

@@ -1,4 +1,4 @@
-/* File: cmd6.c */
+/* File: cmd-item.c */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -6,14 +6,9 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
- */
-
-#include "angband.h"
-
-
-
-/*
- * This file includes code for eating food, drinking potions,
+ *
+ * This file includes code for handling items. It includes all inventory 
+ * handling commands, plus commands for eating food, drinking potions,
  * reading scrolls, aiming wands, using staffs, zapping rods,
  * and activating artifacts.
  *
@@ -48,10 +43,902 @@
  * item causes the inducer of that action to "move", causing "o_ptr" to
  * no longer point at the correct item, with horrifying results.
  *
- * Note that food/potions/scrolls no longer use bit-flags for effects,
- * but instead use the "sval" (which is also used to sort the objects).
  */
 
+#include "angband.h"
+
+/*
+ * Display inventory
+ */
+void do_cmd_inven(void)
+{
+	/* Hack -- Start in "inventory" mode */
+	p_ptr->command_wrk = (USE_INVEN);
+
+	/* Save screen */
+	screen_save();
+
+	/* Hack -- show empty slots */
+	item_tester_full = TRUE;
+
+	/* Display the inventory */
+	show_inven();
+
+	/* Hack -- hide empty slots */
+	item_tester_full = FALSE;
+
+	/* Prompt for a command */
+	prt("(Inventory) Command: ", 0, 0);
+
+	/* Hack -- Get a new command */
+	p_ptr->command_new = inkey();
+
+	/* Load screen */
+	screen_load();
+
+
+	/* Hack -- Process "Escape" */
+	if (p_ptr->command_new == ESCAPE)
+	{
+		/* Reset stuff */
+		p_ptr->command_new = 0;
+	}
+
+	/* Hack -- Process normal keys */
+	else
+	{
+		/* Hack -- Use "display" mode */
+		p_ptr->command_see = TRUE;
+	}
+}
+
+/*
+ * Display equipment
+ */
+void do_cmd_equip(void)
+{
+	/* Hack -- Start in "equipment" mode */
+	p_ptr->command_wrk = (USE_EQUIP);
+
+	/* Save screen */
+	screen_save();
+
+	/* Hack -- show empty slots */
+	item_tester_full = TRUE;
+
+	/* Display the equipment */
+	show_equip();
+
+	/* Hack -- undo the hack above */
+	item_tester_full = FALSE;
+
+	/* Prompt for a command */
+	prt("(Equipment) Command: ", 0, 0);
+
+	/* Hack -- Get a new command */
+	p_ptr->command_new = inkey();
+
+	/* Load screen */
+	screen_load();
+
+
+	/* Hack -- Process "Escape" */
+	if (p_ptr->command_new == ESCAPE)
+	{
+		/* Reset stuff */
+		p_ptr->command_new = 0;
+	}
+
+	/* Hack -- Process normal keys */
+	else
+	{
+		/* Enter "display" mode */
+		p_ptr->command_see = TRUE;
+	}
+}
+
+/*
+ * The "wearable" tester
+ */
+static bool item_tester_hook_wear(object_type *o_ptr)
+{
+	/* Check for a usable slot */
+	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
+
+	/* Assume not wearable */
+	return (FALSE);
+}
+
+/*
+ * Wield or wear a single item from the pack or floor
+ */
+void do_cmd_wield(void)
+{
+	int item, slot;
+
+	object_type *o_ptr;
+
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	cptr act;
+
+	cptr q, s;
+
+	char o_name[80];
+
+	/* Restrict the choices */
+	item_tester_hook = item_tester_hook_wear;
+
+	/* Get an item */
+	q = "Wear/Wield which item? ";
+	s = "You have nothing you can wear or wield.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Check the slot */
+	slot = wield_slot(o_ptr);
+
+	/* Ask for ring to replace */
+	if ((o_ptr->tval == TV_RING) &&
+		inventory[INVEN_LEFT].k_idx &&
+		inventory[INVEN_RIGHT].k_idx)
+	{
+		/* Restrict the choices */
+		item_tester_tval = TV_RING;
+	
+		/* Choose a ring from the equipment only */
+		q = "Replace which ring? ";
+		s = "Oops.";
+		if (!get_item(&slot, q, s, USE_EQUIP)) return;
+	}
+
+	/* Prevent wielding into a cursed slot */
+	if (cursed_p(&inventory[slot]))
+	{
+		/* Describe it */
+		object_desc(o_name, &inventory[slot], FALSE, 0);
+
+		/* Message */
+		msg_format("The %s you are %s appears to be cursed.",
+		           o_name, describe_use(slot));
+
+		/* Cancel the command */
+		return;
+	}
+
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Obtain local object */
+	object_copy(i_ptr, o_ptr);
+
+	/* Modify quantity */
+	i_ptr->number = 1;
+
+	/* Decrease the item (from the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_optimize(item);
+	}
+
+	/* Decrease the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_optimize(0 - item);
+	}
+
+	/* Get the wield slot */
+	o_ptr = &inventory[slot];
+
+	/* Take off existing item */
+	if (o_ptr->k_idx)
+	{
+		/* Take off existing item */
+		(void)inven_takeoff(slot, 255);
+	}
+
+	/* Wear the new stuff */
+	object_copy(o_ptr, i_ptr);
+
+	/* Increase the weight */
+	p_ptr->total_weight += i_ptr->weight;
+
+	/* Increment the equip counter by hand */
+	p_ptr->equip_cnt++;
+
+	/* Where is the item now */
+	if (slot == INVEN_WIELD)
+	{
+		act = "You are wielding";
+	}
+	else if (slot == INVEN_BOW)
+	{
+		act = "You are shooting with";
+	}
+	else if (slot == INVEN_LITE)
+	{
+		act = "Your light source is";
+	}
+	else
+	{
+		act = "You are wearing";
+	}
+
+	/* Describe the result */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Message */
+	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+
+	/* Cursed! */
+	if (cursed_p(o_ptr))
+	{
+		/* Warn the player */
+		msg_print("Oops! It feels deathly cold!");
+
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
+		/* Sense the object if allowed */
+		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
+
+		/* The object has been "sensed" */
+		o_ptr->ident |= (IDENT_SENSE);
+	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Recalculate hitpoints */
+	p_ptr->update |= (PU_HP);
+
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA);
+	
+	/* Redraw "equippy" */
+	p_ptr->redraw |= (PR_EQUIPPY);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+/*
+ * Take off an item
+ */
+void do_cmd_takeoff(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+	/* Get an item */
+	q = "Take off which item? ";
+	s = "You are not wearing anything to take off.";
+	if (!get_item(&item, q, s, (USE_EQUIP))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Item is cursed */
+	if (cursed_p(o_ptr))
+	{
+		/* Oops */
+		msg_print("Hmmm, it seems to be cursed.");
+
+		/* Nope */
+		return;
+	}
+
+
+	/* Take a partial turn */
+	p_ptr->energy_use = 50;
+
+	/* Take off the item */
+	(void)inven_takeoff(item, 255);
+
+	/* Redraw "equippy" */
+	p_ptr->redraw |= (PR_EQUIPPY);
+}
+
+/*
+ * Drop an item
+ */
+void do_cmd_drop(void)
+{
+	int item, amt;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+	/* Get an item */
+	q = "Drop which item? ";
+	s = "You have nothing to drop.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Get a quantity */
+	amt = get_quantity(NULL, o_ptr->number);
+
+	/* Allow user abort */
+	if (amt <= 0) return;
+
+	/* Hack -- Cannot remove cursed items */
+	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	{
+		/* Oops */
+		msg_print("Hmmm, it seems to be cursed.");
+
+		/* Nope */
+		return;
+	}
+
+	/* Take a partial turn */
+	p_ptr->energy_use = 50;
+
+	/* Drop (some of) the item */
+	inven_drop(item, amt);
+
+	/* Redraw "equippy" */
+	p_ptr->redraw |= (PR_EQUIPPY);
+
+}
+
+/*
+ * Destroy an item
+ */
+void do_cmd_destroy(void)
+{
+	int item, amt;
+	int old_number;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	char out_val[160];
+
+	cptr q, s;
+
+
+	/* Get an item */
+	q = "Destroy which item? ";
+	s = "You have nothing to destroy.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Get a quantity */
+	amt = get_quantity(NULL, o_ptr->number);
+
+	/* Allow user abort */
+	if (amt <= 0) return;
+
+	/* Describe the object */
+	old_number = o_ptr->number;
+	o_ptr->number = amt;
+	object_desc(o_name, o_ptr, TRUE, 3);
+	o_ptr->number = old_number;
+
+	/* Verify destruction */
+	if (verify_destroy && (verify_destroy_junk || (object_value(o_ptr) >= 1)))
+	{
+		sprintf(out_val, "Really destroy %s? ", o_name);
+		if (!get_check(out_val)) return;
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Artifacts cannot be destroyed */
+	if (artifact_p(o_ptr))
+	{
+		/* Message */
+		msg_format("You cannot destroy %s.", o_name);
+
+		/* Remove special inscription, if any */
+		if (!object_known_p(o_ptr)) switch (o_ptr->discount)
+		{
+			case 0:
+			case INSCRIP_NULL:
+			case INSCRIP_UNCURSED:
+			case INSCRIP_INDESTRUCT:
+			{
+				o_ptr->discount = INSCRIP_INDESTRUCT;
+				break;
+			}
+			case INSCRIP_TERRIBLE:
+			case INSCRIP_CURSED:
+			{
+				o_ptr->discount = INSCRIP_TERRIBLE;
+				break;
+			}
+			case INSCRIP_GOOD:
+			case INSCRIP_SPECIAL:
+			{
+				o_ptr->discount = INSCRIP_SPECIAL;
+				break;
+			}
+		}
+
+		/* Combine the pack */
+		p_ptr->notice |= (PN_COMBINE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Done */
+		return;
+	}
+
+	/* Message */
+	msg_format("You destroy %s.", o_name);
+
+	/* Reduce the charges of rods */
+	reduce_charges(o_ptr, amt);
+
+	/* Eliminate the item (from the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -amt);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Eliminate the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item, -amt);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+}
+
+/*
+ * Observe an item which has been *identify*-ed
+ */
+void do_cmd_observe(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	cptr q, s;
+
+
+	/* Get an item */
+	q = "Examine which item? ";
+	s = "You have nothing to examine.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Description */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Describe */
+	msg_format("Examining %s...", o_name);
+
+	/* Describe it fully */
+	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+}
+
+/*
+ * Remove the inscription from an object
+ */
+void do_cmd_uninscribe(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+
+	/* Get an item */
+	q = "Un-inscribe which item? ";
+	s = "You have nothing to un-inscribe.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Nothing to remove */
+	if (!o_ptr->note)
+	{
+		msg_print("That item had no inscription to remove.");
+		return;
+	}
+
+	/* Message */
+	msg_print("Inscription removed.");
+
+	/* Remove the incription */
+	o_ptr->note = 0;
+
+	/* Combine the pack */
+	p_ptr->notice |= (PN_COMBINE);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+}
+
+/*
+ * Inscribe an object with a comment
+ */
+void do_cmd_inscribe(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	char tmp[80];
+
+	cptr q, s;
+
+
+	/* Get an item */
+	q = "Inscribe which item? ";
+	s = "You have nothing to inscribe.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Describe the activity */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Message */
+	msg_format("Inscribing %s.", o_name);
+	msg_print(NULL);
+
+	/* Start with nothing */
+	strcpy(tmp, "");
+
+	/* Use old inscription */
+	if (o_ptr->note)
+	{
+		/* Start with the old inscription */
+		strnfmt(tmp, 80, "%s", quark_str(o_ptr->note));
+	}
+
+	/* Get a new inscription (possibly empty) */
+	if (get_string("Inscription: ", tmp, 80))
+	{
+		/* Save the inscription */
+		o_ptr->note = quark_add(tmp);
+
+		/* Combine the pack */
+		p_ptr->notice |= (PN_COMBINE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	}
+}
+
+/*
+ * An "item_tester_hook" for refilling lanterns
+ */
+static bool item_tester_refill_lantern(object_type *o_ptr)
+{
+	/* Flasks of oil are okay */
+	if (o_ptr->tval == TV_FLASK) return (TRUE);
+
+	/* Non-empty lanterns are okay */
+	if ((o_ptr->tval == TV_LITE) &&
+	    (o_ptr->sval >= SV_LANTERN) &&
+	    (o_ptr->timeout > 0))
+	{
+		return (TRUE);
+	}
+
+	/* Assume not okay */
+	return (FALSE);
+}
+
+/*
+ * Refill the players lamp (from the pack or floor)
+ */
+static void do_cmd_refill_lamp(void)
+{
+	int item;
+
+	object_type *o_ptr;
+	object_type *j_ptr;
+
+	cptr q, s;
+
+
+	/* Restrict the choices */
+	item_tester_hook = item_tester_refill_lantern;
+
+	/* Get an item */
+	q = "Refill with which source of oil? ";
+	s = "You have no sources of oil.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Take a partial turn */
+	p_ptr->energy_use = 50;
+
+	/* Get the lantern */
+	j_ptr = &inventory[INVEN_LITE];
+
+	/* Refuel - use pval for flask, timeout for other light sources*/
+	if (o_ptr->tval == TV_FLASK) j_ptr->timeout += o_ptr->pval;
+	else j_ptr->timeout += o_ptr->timeout;
+
+	/* Message */
+	msg_print("You fuel your lamp.");
+
+	/* Comment */
+	if (j_ptr->timeout >= FUEL_LAMP)
+	{
+		j_ptr->timeout = FUEL_LAMP;
+		msg_print("Your lamp is full.");
+	}
+
+	/* Use fuel from a lantern */
+	if (o_ptr->sval >= SV_LANTERN)
+	{
+		/* No more fuel */
+		o_ptr->timeout = 0;
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN);
+	}
+
+	/* Decrease the item (from the pack) */
+	else if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Decrease the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Reclaculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
+}
+
+/*
+ * An "item_tester_hook" for refilling torches
+ */
+static bool item_tester_refill_torch(object_type *o_ptr)
+{
+	/* Torches are okay */
+	if ((o_ptr->tval == TV_LITE) &&
+	    (o_ptr->sval == SV_TORCH)) return (TRUE);
+
+	/* Assume not okay */
+	return (FALSE);
+}
+
+/*
+ * Refuel the players torch (from the pack or floor)
+ */
+static void do_cmd_refill_torch(void)
+{
+	int item;
+
+	object_type *o_ptr;
+	object_type *j_ptr;
+
+	cptr q, s;
+
+
+	/* Restrict the choices */
+	item_tester_hook = item_tester_refill_torch;
+
+	/* Get an item */
+	q = "Refuel with which torch? ";
+	s = "You have no extra torches.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Take a partial turn */
+	p_ptr->energy_use = 50;
+
+	/* Get the primary torch */
+	j_ptr = &inventory[INVEN_LITE];
+
+	/* Refuel */
+	j_ptr->timeout += o_ptr->timeout + 5;
+
+	/* Message */
+	msg_print("You combine the torches.");
+
+	/* Over-fuel message */
+	if (j_ptr->timeout >= FUEL_TORCH)
+	{
+		j_ptr->timeout = FUEL_TORCH;
+		msg_print("Your torch is fully fueled.");
+	}
+
+	/* Refuel message */
+	else
+	{
+		msg_print("Your torch glows more brightly.");
+	}
+
+	/* Decrease the item (from the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Decrease the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
+}
+
+/*
+ * Refill the players lamp, or restock his torches
+ */
+void do_cmd_refill(void)
+{
+	object_type *o_ptr;
+
+	/* Get the light */
+	o_ptr = &inventory[INVEN_LITE];
+
+	/* It is nothing */
+	if (o_ptr->tval != TV_LITE)
+	{
+		msg_print("You are not wielding a refuelable light.");
+	}
+
+	/* It's a lamp */
+	else if (o_ptr->sval >= SV_LANTERN)
+	{
+		do_cmd_refill_lamp();
+	}
+
+	/* It's a torch */
+	else 
+	{
+		do_cmd_refill_torch();
+	}
+
+}
 
 /*
  * Eat some food (from the pack or floor)
@@ -116,7 +1003,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_BLINDNESS:
 		{
-			if (!p_ptr->resist_blind)
+			if (!p_ptr->no_blind)
 			{
 				if (set_blind(p_ptr->blind + rand_int(200) + 200))
 				{
@@ -128,7 +1015,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_PARANOIA:
 		{
-			if (!p_ptr->resist_fear)
+			if (!p_ptr->bravery)
 			{
 				if (set_afraid(p_ptr->afraid + rand_int(10) + 10))
 				{
@@ -177,7 +1064,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_WEAKNESS:
 		{
 			take_hit(damroll(6, 6), "poisonous food");
-			(void)do_dec_stat(A_STR);
+			(void)do_dec_stat(A_STR,10,FALSE,TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -185,7 +1072,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_SICKNESS:
 		{
 			take_hit(damroll(6, 6), "poisonous food");
-			(void)do_dec_stat(A_CON);
+			(void)do_dec_stat(A_CON,10,FALSE,TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -193,7 +1080,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_STUPIDITY:
 		{
 			take_hit(damroll(8, 8), "poisonous food");
-			(void)do_dec_stat(A_INT);
+			(void)do_dec_stat(A_INT,10,FALSE,TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -201,30 +1088,38 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_NAIVETY:
 		{
 			take_hit(damroll(8, 8), "poisonous food");
-			(void)do_dec_stat(A_WIS);
+			(void)do_dec_stat(A_WIS,10,FALSE,TRUE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_UNHEALTH:
 		{
-			take_hit(damroll(10, 10), "poisonous food");
-			(void)do_dec_stat(A_CON);
-			ident = TRUE;
+			if (!(p_ptr->resist_disease))
+			{
+				if(set_diseased(p_ptr->diseased + rand_int(15) + 50)) ident = TRUE;
+			}
 			break;
 		}
 
 		case SV_FOOD_DISEASE:
 		{
-			take_hit(damroll(10, 10), "poisonous food");
-			(void)do_dec_stat(A_STR);
-			ident = TRUE;
+			if (!(p_ptr->resist_disease))
+			{
+				if(set_diseased(p_ptr->diseased + rand_int(30) + 100)) ident = TRUE;
+			}
 			break;
 		}
 
 		case SV_FOOD_CURE_POISON:
 		{
 			if (set_poisoned(0)) ident = TRUE;
+			break;
+		}
+
+		case SV_FOOD_CURE_DISEASE:
+		{
+			if (set_diseased(0)) ident = TRUE;
 			break;
 		}
 
@@ -318,7 +1213,6 @@ void do_cmd_eat_food(void)
 		}
 	}
 
-
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -356,9 +1250,6 @@ void do_cmd_eat_food(void)
 		floor_item_optimize(0 - item);
 	}
 }
-
-
-
 
 /*
  * Quaff a potion (from the pack or the floor)
@@ -449,12 +1340,21 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_BLINDNESS:
 		{
-			if (!p_ptr->resist_blind)
+			if (!p_ptr->no_blind)
 			{
 				if (set_blind(p_ptr->blind + rand_int(100) + 100))
 				{
 					ident = TRUE;
 				}
+			}
+			break;
+		}
+
+		case SV_POTION_DISEASE:
+		{
+			if (!(p_ptr->resist_disease))
+			{
+				if(set_diseased(p_ptr->diseased + rand_int(20) + 75)) ident = TRUE;
 			}
 			break;
 		}
@@ -498,49 +1398,49 @@ void do_cmd_quaff_potion(void)
 		{
 			msg_print("Your nerves and muscles feel weak and lifeless!");
 			take_hit(damroll(10, 10), "a potion of Ruination");
-			(void)dec_stat(A_DEX, 25, TRUE);
-			(void)dec_stat(A_WIS, 25, TRUE);
-			(void)dec_stat(A_CON, 25, TRUE);
-			(void)dec_stat(A_STR, 25, TRUE);
-			(void)dec_stat(A_CHR, 25, TRUE);
-			(void)dec_stat(A_INT, 25, TRUE);
+			(void)do_dec_stat(A_STR, 25, TRUE, FALSE);
+			(void)do_dec_stat(A_WIS, 25, TRUE, FALSE);
+			(void)do_dec_stat(A_INT, 25, TRUE, FALSE);
+			(void)do_dec_stat(A_DEX, 25, TRUE, FALSE);
+			(void)do_dec_stat(A_CON, 25, TRUE, FALSE);
+			(void)do_dec_stat(A_CHR, 25, TRUE, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_STR:
 		{
-			if (do_dec_stat(A_STR)) ident = TRUE;
+			if (do_dec_stat(A_STR, 10, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_INT:
 		{
-			if (do_dec_stat(A_INT)) ident = TRUE;
+			if (do_dec_stat(A_INT, 10, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_WIS:
 		{
-			if (do_dec_stat(A_WIS)) ident = TRUE;
+			if (do_dec_stat(A_WIS, 10, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_DEX:
 		{
-			if (do_dec_stat(A_DEX)) ident = TRUE;
+			if (do_dec_stat(A_DEX, 10, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_CON:
 		{
-			if (do_dec_stat(A_CON)) ident = TRUE;
+			if (do_dec_stat(A_CON, 10, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_CHR:
 		{
-			if (do_dec_stat(A_CHR)) ident = TRUE;
+			if (do_dec_stat(A_CHR, 10, FALSE, TRUE)) ident = TRUE;
 			break;
 		}
 
@@ -639,6 +1539,12 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
+		case SV_POTION_CURE_DISEASE:
+		{
+			if (set_diseased(0)) ident = TRUE;
+			break;
+		}
+
 		case SV_POTION_BOLDNESS:
 		{
 			if (set_afraid(0)) ident = TRUE;
@@ -688,7 +1594,7 @@ void do_cmd_quaff_potion(void)
 		{
 			if (hp_player(30)) ident = TRUE;
 			if (set_afraid(0)) ident = TRUE;
-			if (set_shero(p_ptr->shero + randint(25) + 25)) ident = TRUE;
+			if (set_rage(p_ptr->rage + randint(25) + 25)) ident = TRUE;
 			break;
 		}
 
@@ -745,7 +1651,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_LIFE:
 		{
 			msg_print("You feel life flow through your body!");
-			restore_level();
+			restore_exp();
 			hp_player(5000);
 			(void)set_poisoned(0);
 			(void)set_blind(0);
@@ -779,7 +1685,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_RESTORE_EXP:
 		{
-			if (restore_level()) ident = TRUE;
+			if (restore_exp()) ident = TRUE;
 			break;
 		}
 
@@ -927,7 +1833,22 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_STAR_RESISTANCE:
 		{
-			if (set_oppose_all(randint(15) + 10)) ident = TRUE;
+			time = randint(15) + 10;
+			if (set_oppose_acid(p_ptr->oppose_acid + time)) ident = TRUE;
+			if (set_oppose_elec(p_ptr->oppose_elec + time)) ident = TRUE;
+			if (set_oppose_fire(p_ptr->oppose_fire + time)) ident = TRUE;
+			if (set_oppose_cold(p_ptr->oppose_cold + time)) ident = TRUE;
+			if (set_oppose_pois(p_ptr->oppose_pois + time)) ident = TRUE;
+			if (set_tim_res_lite(p_ptr->tim_res_lite + time)) ident = TRUE;
+			if (set_tim_res_dark(p_ptr->tim_res_dark + time)) ident = TRUE;
+			if (set_tim_res_confu(p_ptr->tim_res_confu + time)) ident = TRUE;
+			if (set_tim_res_sound(p_ptr->tim_res_sound + time)) ident = TRUE;
+			if (set_tim_res_shard(p_ptr->tim_res_shard + time)) ident = TRUE;
+			if (set_tim_res_nexus(p_ptr->tim_res_nexus + time)) ident = TRUE;
+			if (set_tim_res_nethr(p_ptr->tim_res_nethr + time)) ident = TRUE;
+			if (set_tim_res_chaos(p_ptr->tim_res_chaos + time)) ident = TRUE;
+			if (set_tim_res_disease(p_ptr->tim_res_disease + time)) ident = TRUE;
+			if (set_tim_res_water(p_ptr->tim_res_water + time)) ident = TRUE;
 			break;
 		}
 
@@ -936,7 +1857,6 @@ void do_cmd_quaff_potion(void)
 			if (set_food(PY_FOOD_MAX - 1)) ident = TRUE;
 			break;
 		}
-
 	}
 
 	/* Combine / Reorder the pack (later) */
@@ -988,7 +1908,6 @@ void do_cmd_quaff_potion(void)
 		floor_item_optimize(0 - item);
 	}
 }
-
 
 /*
  * Curse the players armor
@@ -1053,7 +1972,6 @@ static bool curse_armor(void)
 	return (TRUE);
 }
 
-
 /*
  * Curse the players weapon
  */
@@ -1062,7 +1980,6 @@ static bool curse_weapon(void)
 	object_type *o_ptr;
 
 	char o_name[80];
-
 
 	/* Curse the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -1117,7 +2034,6 @@ static bool curse_weapon(void)
 	/* Notice */
 	return (TRUE);
 }
-
 
 /*
  * Read a scroll (from the pack or floor).
@@ -1194,7 +2110,7 @@ void do_cmd_read_scroll(void)
 	{
 		case SV_SCROLL_DARKNESS:
 		{
-			if (!p_ptr->resist_blind)
+			if (!p_ptr->no_blind)
 			{
 				(void)set_blind(p_ptr->blind + 3 + randint(5));
 			}
@@ -1525,7 +2441,6 @@ void do_cmd_read_scroll(void)
 		}
 	}
 
-
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -1563,12 +2478,6 @@ void do_cmd_read_scroll(void)
 		floor_item_optimize(0 - item);
 	}
 }
-
-
-
-
-
-
 
 /*
  * Use a staff
@@ -1672,7 +2581,7 @@ void do_cmd_use_staff(void)
 	{
 		case SV_STAFF_DARKNESS:
 		{
-			if (!p_ptr->resist_blind)
+			if (!p_ptr->no_blind)
 			{
 				if (set_blind(p_ptr->blind + 3 + randint(5))) ident = TRUE;
 			}
@@ -1975,7 +2884,6 @@ void do_cmd_use_staff(void)
 	}
 }
 
-
 /*
  * Aim a wand (from the pack or floor).
  *
@@ -2145,13 +3053,13 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir)) ident = TRUE;
+			if (sleep_monster(dir,15)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_SLOW_MONSTER:
 		{
-			if (slow_monster(dir)) ident = TRUE;
+			if (slow_monster(dir,15)) ident = TRUE;
 			break;
 		}
 
@@ -2313,8 +3221,25 @@ void do_cmd_aim_wand(void)
 			if (drain_life(dir, 125)) ident = TRUE;
 			break;
 		}
-	}
 
+		case SV_WAND_CALL_MONSTER:
+		{
+			if (call_monster(dir)) ident = TRUE;
+			break;
+		}
+
+		case SV_WAND_CALM_MONSTER:
+		{
+			if (calm_monster(dir,15)) ident = TRUE;
+			break;
+		}
+
+		case SV_WAND_BLIND_MONSTER:
+		{
+			if (blind_monster(dir, 15)) ident = TRUE;
+			break;
+		}
+	}
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2331,7 +3256,6 @@ void do_cmd_aim_wand(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
 
 	/* Use a single charge */
 	o_ptr->pval--;
@@ -2375,10 +3299,6 @@ void do_cmd_aim_wand(void)
 		floor_item_charges(0 - item);
 	}
 }
-
-
-
-
 
 /*
  * Activate (zap) a Rod.    Rods may be fully identified through use 
@@ -2558,7 +3478,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_RESTORATION:
 		{
-			if (restore_level()) ident = TRUE;
+			if (restore_exp()) ident = TRUE;
 			if (do_res_stat(A_STR)) ident = TRUE;
 			if (do_res_stat(A_INT)) ident = TRUE;
 			if (do_res_stat(A_WIS)) ident = TRUE;
@@ -2603,13 +3523,13 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir)) ident = TRUE;
+			if (sleep_monster(dir, p_ptr->lev)) ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_SLOW_MONSTER:
 		{
-			if (slow_monster(dir)) ident = TRUE;
+			if (slow_monster(dir, p_ptr->lev)) ident = TRUE;
 			break;
 		}
 
@@ -2715,13 +3635,13 @@ void do_cmd_zap_rod(void)
  */
 static bool item_tester_hook_activate(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Check activation flag */
 	if (f3 & (TR3_ACTIVATE)) return (TRUE);
@@ -2747,12 +3667,12 @@ static void ring_of_power(int dir)
 			msg_print("You are surrounded by a malignant aura.");
 
 			/* Decrease all stats (permanently) */
-			(void)dec_stat(A_STR, 50, TRUE);
-			(void)dec_stat(A_INT, 50, TRUE);
-			(void)dec_stat(A_WIS, 50, TRUE);
-			(void)dec_stat(A_DEX, 50, TRUE);
-			(void)dec_stat(A_CON, 50, TRUE);
-			(void)dec_stat(A_CHR, 50, TRUE);
+			(void)do_dec_stat(A_STR, 50, TRUE, FALSE);
+			(void)do_dec_stat(A_INT, 50, TRUE, FALSE);
+			(void)do_dec_stat(A_WIS, 50, TRUE, FALSE);
+			(void)do_dec_stat(A_DEX, 50, TRUE, FALSE);
+			(void)do_dec_stat(A_CON, 50, TRUE, FALSE);
+			(void)do_dec_stat(A_CHR, 50, TRUE, FALSE);
 
 			/* Lose some experience (permanently) */
 			p_ptr->exp -= (p_ptr->exp / 4);
@@ -2982,12 +3902,19 @@ void do_cmd_activate(void)
 				break;
 			}
 
+			case ACT_RAGE:
+			{
+				msg_format("Your %s glows blood-red...", o_name);
+				(void)set_rage(p_ptr->rage + randint(50) + 50);
+				break;
+			}
+
 			case ACT_RAGE_BLESS_RESIST:
 			{
 				msg_format("Your %s glows many colours...", o_name);
 				(void)hp_player(30);
 				(void)set_afraid(0);
-				(void)set_shero(p_ptr->shero + randint(50) + 50);
+				(void)set_rage(p_ptr->rage + randint(50) + 50);
 				(void)set_blessed(p_ptr->blessed + randint(50) + 50);
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
 				(void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);
@@ -3079,7 +4006,21 @@ void do_cmd_activate(void)
 			case ACT_RESTORE_LIFE:
 			{
 				msg_format("Your %s glows a deep red...", o_name);
-				restore_level();
+				restore_exp();
+				break;
+			}
+
+			case ACT_RESTORE_MANA:
+			{
+				msg_format("Your %s glows in all the colours of the rainbow...", o_name);
+				if (p_ptr->csp < p_ptr->msp)
+				{
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+					msg_print("Your feel your head clear.");
+					p_ptr->redraw |= (PR_MANA);
+					p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				}
 				break;
 			}
 
@@ -3088,6 +4029,15 @@ void do_cmd_activate(void)
 				msg_format("Your %s glows extremely brightly...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
+				break;
+			}
+
+			case ACT_DIMENSION_DOOR:
+			{
+				msg_format("Your %s opens a door in the fabric of reality...", o_name);
+				msg_print("Choose a location to teleport to.");
+				msg_print(NULL);
+				dimen_door();
 				break;
 			}
 
@@ -3112,6 +4062,38 @@ void do_cmd_activate(void)
 				msg_format("Your %s is covered in sparks...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+				break;
+			}
+
+			case ACT_LITE_BOLT:
+			{
+				msg_format("Your %s is covered in light...", o_name);
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_LITE, dir, damroll(4, 8));
+				break;
+			}
+
+			case ACT_DARK_BOLT:
+			{
+				msg_format("Your %s is covered in darkness...", o_name);
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_DARK, dir, damroll(4, 8));
+				break;
+			}
+
+			case ACT_WATER_BOLT:
+			{
+				msg_format("Your %s is covered in water...", o_name);
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_WATER, dir, damroll(5, 7));
+				break;
+			}
+
+			case ACT_MANA_BOLT:
+			{
+				msg_format("Your %s is covered in a purple aura...", o_name);
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_MANA, dir, damroll(8, 8));
 				break;
 			}
 
@@ -3275,6 +4257,49 @@ void do_cmd_activate(void)
 				(void)brand_weapon(TV_BOLT,EGO_FLAME,TRUE);
 				break;
 			}
+
+			case ACT_LITEBRAND:
+			{
+				msg_format("Your %s glows blinding white...", o_name);
+				(void)brand_weapon(TV_BOLT,EGO_AMMO_LITE,TRUE);
+				break;
+			}
+
+			case ACT_VENOMSHOT:
+			{
+				msg_format("Your %s glows sickly green...", o_name);
+				(void)brand_weapon(TV_SHOT,EGO_POISON,TRUE);
+				break;
+			}
+
+			case ACT_SATISFY_HUNGER:
+			{
+				msg_format("Your %s glow a soft, gentle red...", o_name);
+				(void)set_food(PY_FOOD_MAX - 1);
+				break;
+			}
+
+			case ACT_DETECT_ENCHANT:
+			{
+				msg_format("Your %s emits a low frequancy ringing...", o_name);
+				(void)detect_objects_magic();
+			}
+
+			case ACT_DETECT_TRAPS:
+			{
+				msg_format("Your %s shimmers brightly...", o_name);
+				(void)detect_traps();
+			}
+			case ACT_DETECT_TREASURE:
+			{
+				msg_format("Your %s glows golden yellow...", o_name);
+				(void)detect_treasure();
+			}
+			case ACT_CALM_NON_CHAOS:
+			{
+				msg_format("Your %s resonates with the voice of law...", o_name);
+				(void)calm_non_chaos();
+			}
 		}
 
 		/* Set the recharge time */
@@ -3289,7 +4314,6 @@ void do_cmd_activate(void)
 		/* Done */
 		return;
 	}
-
 
 	/* Hack -- Dragon Scale Mail can be activated as well */
 	if (o_ptr->tval == TV_DRAG_ARMOR)
@@ -3614,6 +4638,4 @@ void do_cmd_mix(void)
 		floor_item_describe(0 - i2);
 		floor_item_optimize(0 - i2);
 	}
-
-
 }

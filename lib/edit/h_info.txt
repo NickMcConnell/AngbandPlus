@@ -20,17 +20,15 @@
 #   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
 #   Angel         --> 67 --> 68 --> 69
-#   Demon         --> 70 --> 71 --> 72
+#   Demon         --> 70 --> 71 --> (72) --> 73
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
 # Note that the "spacing" in the "description" lines is very important!
 
-
 # Version stamp (required)
 
-V:0.1.4
-
+V:0.2.0
 
 N:1:2:10:25
 D:You are the illegitimate and unacknowledged child 
@@ -166,8 +164,10 @@ D:You are a well liked child.
 
 N:19:20:25:25
 D:Your mother was an Orc, but it is unacknowledged.  
-N:19:20:100:25
+N:19:20:80:25
 D:Your father was an Orc, but it is unacknowledged.  
+N:19:20:100:25
+D:Due to your orcish blood, you were abandoned by your real parents. 
 
 N:20:2:100:50
 D:You are the adopted child 
@@ -323,20 +323,32 @@ D:scabby skin.
 N:66:0:100:50
 D:leprous skin.
 
-N:67:68:100:50
+N:67:68:100:80
 D:You are of the blessed host of heaven. 
 
-N:68:69:100:50
+N:68:69:50:80
 D:You have been sent to earth to eradicate the wicked, 
+N:68:69:100:80
+D:You have been sent to earth to bring forth justice, 
 
-N:69:0:100:50
+N:69:0:100:80
 D:and shall not rest until you have succeeded.
 
 N:70:71:100:50
-D:You are of the cursed spawn of hell. 
+D:You are of the accursed spawn of hell. 
 
-N:71:72:100:50
+N:71:72:20:40
+D:You were the servant of a great demon lord, 
+# Note that the next line skips a stage
+N:71:73:80:50
 D:You have been cast out by the whim of the greater demons, 
+N:71:72:100:60
+D:You have allied yourself with a demon lord, 
 
-N:72:0:100:50
-D:and now seek revenge.
+N:72:73:80:50
+D:upon whose defeat in war you've been banished from your home, 
+N:72:73:100:50
+D:who arranged for your banishment due to some percieved trechery, 
+
+N:73:0:100:50
+D:and now you seek revenge.

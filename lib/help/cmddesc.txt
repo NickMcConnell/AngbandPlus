@@ -242,11 +242,11 @@ Alter (+)
 --- Spell and Prayer Commands ---
 
 Browse a book (b) or Peruse a book (P)
-        Only mages, rogues, and rangers can read magic books, and only
-        priests and paladins can read prayer books.  Warriors cannot read
-        any books.  When this command is used, all of the spells or prayers
-        contained in the selected book are displayed, along with information
-        such as their level, the amount of mana required to cast them, and
+        Each class except warriors has a limited selection of books it can 
+        use,or, in the case of bards, spells can be cast out of musical 
+        instruments. When this command is used, all of the spells or prayers
+        contained in the selected book are displayed, along with information 
+        such as their level, the amount of mana required to cast them, and 
         whether or not you know the spell or prayer.
 
 Gain new spells or prayers (G)
@@ -254,11 +254,10 @@ Gain new spells or prayers (G)
         are able to learn new spells or prayers, the word "Study" will appear
         on the status line at the bottom of the screen.  If you have a book
         in your possession, containing spells or prayers which you may learn,
-        then you may choose to study that book.  If you are a mage, rogue, or
-        ranger, you may actually choose which spell to study.  If you are a
-        priest or paladin, your gods will choose a prayer for you.  There are
-        nine books of each type, some normally found only in the dungeon.
-        This command takes some energy.
+        then you may choose to study that book. Priests and Paladins may not
+        choose their own spells, but rather gain a random one out of the 
+        chosen book. Other classes can pick which spell they wish to learn. 
+        Bards do not need to learn spells.
 
 Cast a spell (m) or (p)
         To cast a spell, you must have previously learned the spell and
@@ -271,6 +270,8 @@ Cast a spell (m) or (p)
         spell from a book, you cannot be blind or confused while casting,
         and there must be some light present (with the exception of mystics 
         casting spells from mystic books).  This command takes some energy.
+        Bards use a slightly different system, as they can only cast spells
+        from their currently wielded musical instrument.
 
 Use racial power (U)
         Use this command to use your racial power. Obviously, you can only
@@ -491,6 +492,9 @@ Repeat level feeling (^F)
 View previous messages (^P)
         This command shows you all the recent messages.  You can scroll
         through them, or exit with ESCAPE.
+
+View current quest (^Q)
+        This command shows you your current quest status.
 
 Take notes (:)
         This command allows you to take notes, which will then appear in

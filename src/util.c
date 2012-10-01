@@ -105,13 +105,11 @@ int usleep(huge usecs)
 
 # endif
 
-
 /*
  * Hack -- External functions
  */
 extern struct passwd *getpwuid();
 extern struct passwd *getpwnam();
-
 
 /*
  * Find a default user name from the system.
@@ -2451,7 +2449,6 @@ void msg_format(cptr fmt, ...)
 	msg_print_aux(MSG_GENERIC, buf);
 }
 
-
 /*
  * Display a message and play the associated sound.
  *
@@ -2463,8 +2460,6 @@ void message(u16b message_type, s16b extra, cptr message)
 
 	msg_print_aux(message_type, message);
 }
-
-
 
 /*
  * Display a formatted message and play the associated sound.
@@ -2490,13 +2485,10 @@ void message_format(u16b message_type, s16b extra, cptr fmt, ...)
 	message(message_type, extra, buf);
 }
 
-
-
 /*
  * Hack -- prevent "accidents" in "screen_save()" or "screen_load()"
  */
 static int screen_depth = 0;
-
 
 /*
  * Save the screen, and increase the "icky" depth.
@@ -3384,66 +3376,6 @@ bool is_a_vowel(int ch)
 
 	return (FALSE);
 }
-
-
-
-#if 0
-
-/*
- * Replace the first instance of "target" in "buf" with "insert"
- * If "insert" is NULL, just remove the first instance of "target"
- * In either case, return TRUE if "target" is found.
- *
- * Could be made more efficient, especially in the case where "insert"
- * is smaller than "target".
- */
-static bool insert_str(char *buf, cptr target, cptr insert)
-{
-	int i, len;
-	int b_len, t_len, i_len;
-
-	/* Attempt to find the target (modify "buf") */
-	buf = strstr(buf, target);
-
-	/* No target found */
-	if (!buf) return (FALSE);
-
-	/* Be sure we have an insertion string */
-	if (!insert) insert = "";
-
-	/* Extract some lengths */
-	t_len = strlen(target);
-	i_len = strlen(insert);
-	b_len = strlen(buf);
-
-	/* How much "movement" do we need? */
-	len = i_len - t_len;
-
-	/* We need less space (for insert) */
-	if (len < 0)
-	{
-		for (i = t_len; i < b_len; ++i) buf[i+len] = buf[i];
-	}
-
-	/* We need more space (for insert) */
-	else if (len > 0)
-	{
-		for (i = b_len-1; i >= t_len; --i) buf[i+len] = buf[i];
-	}
-
-	/* If movement occured, we need a new terminator */
-	if (len) buf[b_len+len] = '\0';
-
-	/* Now copy the insertion string */
-	for (i = 0; i < i_len; ++i) buf[i] = insert[i];
-
-	/* Successful operation */
-	return (TRUE);
-}
-
-
-#endif
-
 
 #ifdef ALLOW_REPEAT
 

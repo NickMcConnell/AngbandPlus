@@ -73,7 +73,4 @@ extern u32b Rand_mod(u32b m);
 extern u32b Rand_div(u32b m);
 extern s16b Rand_normal(int mean, int stand);
 
-
 #endif
-
-

@@ -10,9 +10,6 @@
 
 #include "angband.h"
 
-
-
-
 /*
  * Converts stat num into a six-char (right justified) string
  */
@@ -39,8 +36,6 @@ void cnv_stat(int val, char *out_val)
 		sprintf(out_val, "    %2d", val);
 	}
 }
-
-
 
 /*
  * Modify a stat value by a "modifier", return new value
@@ -90,8 +85,6 @@ s16b modify_stat_value(int value, int amount)
 	return (value);
 }
 
-
-
 /*
  * Print character info at given row, column in a 13 char field
  */
@@ -104,9 +97,6 @@ static void prt_field(cptr info, int row, int col)
 	c_put_str(TERM_L_BLUE, info, row, col);
 }
 
-
-
-
 /*
  * Print character stat in given row, column
  */
@@ -115,7 +105,7 @@ static void prt_stat(int stat)
 	char tmp[32];
 
 	/* Display "injured" stat */
-	if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
+	if (p_ptr->stat_use[stat] < p_ptr->stat_top[stat])
 	{
 		put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
 		cnv_stat(p_ptr->stat_use[stat], tmp);
@@ -136,9 +126,6 @@ static void prt_stat(int stat)
 		put_str("!", ROW_STAT + stat, 3);
 	}
 }
-
-
-
 
 /*
  * Prints "title", including "wizard" or "winner" as needed.
@@ -162,12 +149,15 @@ static void prt_title(void)
 	/* Normal */
 	else
 	{
+#ifndef PREVENT_LOAD_C_TEXT
 		p = c_text+cp_ptr->title[(p_ptr->lev-1)/5];
+#else /* PREVENT_LOAD_C_TEXT */
+		p = " ";
+#endif /* PREVENT_LOAD_C_TEXT */
 	}
 
 	prt_field(p, ROW_TITLE, COL_TITLE);
 }
-
 
 /*
  * Prints level
@@ -189,7 +179,6 @@ static void prt_level(void)
 		c_put_str(TERM_YELLOW, tmp, ROW_LEVEL, COL_LEVEL + 6);
 	}
 }
-
 
 /*
  * Display the experience
@@ -220,7 +209,6 @@ static void prt_exp(void)
 	}
 }
 
-
 /*
  * Prints current gold
  */
@@ -233,8 +221,6 @@ static void prt_gold(void)
 	c_put_str(TERM_L_GREEN, tmp, ROW_GOLD, COL_GOLD + 3);
 }
 
-
-
 /*
  * Prints current AC
  */
@@ -246,7 +232,6 @@ static void prt_ac(void)
 	sprintf(tmp, "%5d", p_ptr->dis_ac + p_ptr->dis_to_a);
 	c_put_str(TERM_L_GREEN, tmp, ROW_AC, COL_AC + 7);
 }
-
 
 /*
  * Prints Cur/Max hit points
@@ -285,7 +270,6 @@ static void prt_hp(void)
 
 }
 
-
 /*
  * Prints players max/cur spell points
  */
@@ -293,7 +277,6 @@ static void prt_sp(void)
 {
 	char tmp[32];
 	byte color, offset;
-
 
 	/* Do not show mana unless it matters */
 	if (p_ptr->msp>0)
@@ -331,7 +314,6 @@ static void prt_sp(void)
 	}
 }
 
-
 /*
  * Prints depth in stat area
  */
@@ -355,7 +337,6 @@ static void prt_depth(void)
 	/* Right-Adjust the "depth", and clear old values */
 	prt(format("%7s", depths), 23, COL_DEPTH);
 }
-
 
 /*
  * Prints status of hunger
@@ -399,7 +380,6 @@ static void prt_hunger(void)
 	}
 }
 
-
 /*
  * Prints Blind status
  */
@@ -414,7 +394,6 @@ static void prt_blind(void)
 		put_str("     ", ROW_BLIND, COL_BLIND);
 	}
 }
-
 
 /*
  * Prints Confusion status
@@ -431,7 +410,6 @@ static void prt_confused(void)
 	}
 }
 
-
 /*
  * Prints Fear status
  */
@@ -446,7 +424,6 @@ static void prt_afraid(void)
 		put_str("      ", ROW_AFRAID, COL_AFRAID);
 	}
 }
-
 
 /*
  * Prints Poisoned status
@@ -463,6 +440,20 @@ static void prt_poisoned(void)
 	}
 }
 
+/*
+ * Prints Diseased status
+ */
+static void prt_diseased(void)
+{
+	if (p_ptr->diseased)
+	{
+		c_put_str(TERM_ORANGE, "Diseased", ROW_DISEASED, COL_DISEASED);
+	}
+	else
+	{
+		put_str("        ", ROW_DISEASED, COL_DISEASED);
+	}
+}
 
 /*
  * Prints Searching, Resting, Paralysis, or 'count' status
@@ -476,7 +467,6 @@ static void prt_state(void)
 	byte attr = TERM_WHITE;
 
 	char text[16];
-
 
 	/* Paralysis */
 	if (p_ptr->paralyzed)
@@ -580,7 +570,6 @@ static void prt_state(void)
 	c_put_str(attr, text, ROW_STATE, COL_STATE);
 }
 
-
 /*
  * Prints the speed of a character.			-CJS-
  */
@@ -612,7 +601,6 @@ static void prt_speed(void)
 	c_put_str(attr, format("%-10s", buf), ROW_SPEED, COL_SPEED);
 }
 
-
 static void prt_study(void)
 {
 	if (p_ptr->new_spells)
@@ -624,7 +612,6 @@ static void prt_study(void)
 		put_str("          ", ROW_STUDY, COL_STUDY);
 	}
 }
-
 
 static void prt_cut(void)
 {
@@ -663,8 +650,6 @@ static void prt_cut(void)
 		put_str("            ", ROW_CUT, COL_CUT);
 	}
 }
-
-
 
 static void prt_stun(void)
 {
@@ -758,6 +743,9 @@ static void health_redraw(void)
 		/* Afraid */
 		if (m_ptr->monfear) attr = TERM_VIOLET;
 
+		/* calmed */
+		if (m_ptr->calmed) attr = TERM_SLATE;
+
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
 
@@ -767,15 +755,25 @@ static void health_redraw(void)
 		/* Default to "unknown" */
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
 
-		/* Dump the current "health" (handle monster stunning, confusion) */
+		/* Dump the current "health" (handle monster conditions) */
 		if (m_ptr->confused) 
 			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "cccccccccc");
 		else if (m_ptr->stunned) 
 			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "ssssssssss");
+		else if (m_ptr->blinded) 
+			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "bbbbbbbbbb");
+		else if (m_ptr->poisoned) 
+			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "pppppppppp");
+		else if (m_ptr->bleeding) 
+			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "BBBBBBBBBB");
 		else
 			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
 	}
-	
+}
+
+static void prt_equippy(void)
+{
+	display_player_equippy(ROW_EQUIPPY, COL_EQUIPPY);
 }
 
 /*
@@ -818,12 +816,11 @@ static void prt_frame_basic(void)
 	prt_depth();
 
 	/* Equippy chars */
-	print_equippy(); 
+	prt_equippy(); 
 
 	/* Special */
 	health_redraw();
 }
-
 
 /*
  * Display extra info (mostly below map)
@@ -833,6 +830,7 @@ static void prt_frame_extra(void)
 	/* Cut/Stun */
 	prt_cut();
 	prt_stun();
+	prt_diseased();
 
 	/* Food */
 	prt_hunger();
@@ -852,7 +850,6 @@ static void prt_frame_extra(void)
 	/* Study spells */
 	prt_study();
 }
-
 
 /*
  * Hack -- display inventory in sub-windows
@@ -886,8 +883,6 @@ static void fix_inven(void)
 	}
 }
 
-
-
 /*
  * Hack -- display equipment in sub-windows
  */
@@ -919,7 +914,6 @@ static void fix_equip(void)
 		Term_activate(old);
 	}
 }
-
 
 /*
  * Hack -- display player in sub-windows (mode 0)
@@ -953,8 +947,6 @@ static void fix_player_0(void)
 	}
 }
 
-
-
 /*
  * Hack -- display player in sub-windows (mode 1)
  */
@@ -986,7 +978,6 @@ static void fix_player_1(void)
 		Term_activate(old);
 	}
 }
-
 
 /*
  * Hack -- display recent messages in sub-windows
@@ -1039,7 +1030,6 @@ static void fix_message(void)
 	}
 }
 
-
 /*
  * Hack -- display overhead view in sub-windows.
  *
@@ -1079,7 +1069,6 @@ static void fix_overhead(void)
 	}
 }
 
-
 /*
  * Hack -- display monster recall in sub-windows
  */
@@ -1112,7 +1101,6 @@ static void fix_monster(void)
 	}
 }
 
-
 /*
  * Hack -- display object recall in sub-windows
  */
@@ -1135,7 +1123,7 @@ static void fix_object(void)
 		Term_activate(angband_term[j]);
 
 		/* Display monster race info */
-		if (p_ptr->object_kind_idx) display_koff(p_ptr->object_kind_idx);
+		if (p_ptr->object_kind_idx) display_koff(p_ptr->object_kind_idx, p_ptr->object_pval);
 
 		/* Fresh */
 		Term_fresh();
@@ -1251,10 +1239,9 @@ static void fix_m_list(void)
 				}
 
 				num++;
-
 			}
-
 		}
+
 		else
 		{
 			c_prt(TERM_WHITE,"You see no monsters.",0,0);
@@ -1267,7 +1254,6 @@ static void fix_m_list(void)
 		Term_activate(old);
 	}
 }
-
 
 /*
  * Calculate number of spells player should have, and forget,
@@ -1537,12 +1523,13 @@ static void calc_mana(void)
 	object_type *o_ptr;
 
 	/* Hack -- Must be literate */
-	if (!literate()) return;
+	if (!spellcaster()) return;
 
 	levels=0;
 
 	/* Extract "effective" player level */
-	for (h = 0; h<SV_MAX_BOOKS; h++)
+	if (cp_ptr->flags & CF_MUSIC) levels=p_ptr->lev;
+	else for (h = 0; h<SV_MAX_BOOKS; h++)
 	{
 		/* Skip books we can't use */
 		if (!cp_ptr->spell_book[h]) continue;
@@ -1562,10 +1549,10 @@ static void calc_mana(void)
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
-	/* Only mages and mystics are affected */
+	/* Mages, bards and mystics are affected */
 	if (cp_ptr->flags & CF_NO_GLOVE)
 	{
-		u32b f1, f2, f3;
+		u32b f1, f2, f3, f4;
 
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
@@ -1574,12 +1561,13 @@ static void calc_mana(void)
 		o_ptr = &inventory[INVEN_HANDS];
 
 		/* Examine the gloves */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
-		    !(f3 & (TR3_FREE_ACT)) &&
-		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
+		    !(f2 & (TR2_FREE_ACT)) &&
+		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)) &&
+		    !((f1 & (TR1_MANA)) && (o_ptr->pval > 0)))
 		{
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
@@ -1588,7 +1576,6 @@ static void calc_mana(void)
 			msp = (3 * msp) / 4;
 		}
 	}
-
 
 	/* Assume player not encumbered by armor */
 	p_ptr->cumber_armor = FALSE;
@@ -1615,6 +1602,7 @@ static void calc_mana(void)
 		msp -= ((cur_wgt - max_wgt) / 10);
 	}
 
+	msp += p_ptr->mana_add;
 
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
@@ -1639,27 +1627,30 @@ static void calc_mana(void)
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
-
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
 	/* Take note when "glove state" changes */
 	if (p_ptr->old_cumber_glove != p_ptr->cumber_glove)
 	{
+		cptr act;
+
+		if (!(cp_ptr->flags & CF_MUSIC)) act = "spellcasting";
+		else act = "playing a musical instrument";
+
 		/* Message */
 		if (p_ptr->cumber_glove)
 		{
-			msg_print("Your covered hands feel unsuitable for spellcasting.");
+			msg_print(format("Your covered hands feel unsuitable for %s.", act));
 		}
 		else
 		{
-			msg_print("Your hands feel more suitable for spellcasting.");
+			msg_print(format("Your hands feel more suitable for %s.",act));
 		}
 
 		/* Save it */
 		p_ptr->old_cumber_glove = p_ptr->cumber_glove;
 	}
-
 
 	/* Take note when "armor state" changes */
 	if (p_ptr->old_cumber_armor != p_ptr->cumber_armor)
@@ -1679,8 +1670,6 @@ static void calc_mana(void)
 	}
 }
 
-
-
 /*
  * Calculate the players (maximal) hit points
  *
@@ -1698,6 +1687,11 @@ static void calc_hitpoints(void)
 
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
+
+	mhp += p_ptr->hp_add;
+
+	/* Make sure you have at least one hp */
+	if (mhp < 1) mhp = 1;
 
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
@@ -1720,57 +1714,32 @@ static void calc_hitpoints(void)
 	}
 }
 
-
-
 /*
  * Extract and set the current "lite radius"
  */
 static void calc_torch(void)
 {
+	u32b f1, f2, f3, f4;
+
 	object_type *o_ptr = &inventory[INVEN_LITE];
 
 	/* Assume no light */
 	p_ptr->cur_lite = 0;
 
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
 	/* Player is glowing */
 	if (p_ptr->lite) p_ptr->cur_lite = 1;
 
-	/* Examine actual lites */
-	if (o_ptr->tval == TV_LITE)
+	/* Examine Refueling lites */
+	if ((o_ptr->tval == TV_LITE_SPECIAL) || ((o_ptr->tval == TV_LITE) && (o_ptr->timeout > 0)))
 	{
-		/* Torches (with fuel) provide some lite */
-		if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
-		{
-			p_ptr->cur_lite = 1;
-		}
-
-		/* Lanterns (with fuel) provide more lite */
-		if (((o_ptr->sval == SV_LITE_LANTERN) ||
-			(o_ptr->sval == SV_LITE_LANTERN_SEE)) && (o_ptr->pval > 0))
-		{
-			p_ptr->cur_lite = 2;
-		}
-
-		/* Artifact Lites provide permanent, bright, lite */
- 		if (artifact_p(o_ptr)) 
-		{
-			if ((o_ptr->sval == SV_LITE_BEACON))
-			{
-				p_ptr->cur_lite = 4;
-			}
-
-			else if ((o_ptr->sval == SV_LITE_CHERADENINE))
-			{
-				if (o_ptr->pval > 0) 
-				{
-					p_ptr->cur_lite = 4;
-				}
-				else p_ptr->cur_lite = 3;
-			}
-
-			else p_ptr->cur_lite = 3;
-		}
-
+		if (f3 & (TR3_LITE4)) p_ptr->cur_lite = 4;
+		else if (f3 & (TR3_LITE3)) p_ptr->cur_lite = 3;
+		else if (f3 & (TR3_LITE2)) p_ptr->cur_lite = 2;
+		else if (f3 & (TR3_LITE1)) p_ptr->cur_lite = 1;
+		else p_ptr->cur_lite = 1; /* Hack - paranoia */
 	}
 
 	/* Reduce lite when running if requested */
@@ -1800,8 +1769,6 @@ static void calc_torch(void)
 	}
 }
 
-
-
 /*
  * Computes current weight limit.
  */
@@ -1815,7 +1782,6 @@ static int weight_limit(void)
 	/* Return the result */
 	return (i);
 }
-
 
 /*
  * Calculate the players current "state", taking into account
@@ -1860,8 +1826,7 @@ static void calc_bonuses(void)
 
 	object_type *o_ptr;
 
-	u32b f1, f2, f3;
-
+	u32b f1, f2, f3, f4;
 
 	/*** Memorize ***/
 
@@ -1885,7 +1850,6 @@ static void calc_bonuses(void)
 		old_stat_ind[i] = p_ptr->stat_ind[i];
 	}
 
-
 	/*** Reset ***/
 
 	/* Reset player speed */
@@ -1904,6 +1868,8 @@ static void calc_bonuses(void)
 
 	/* Clear the stat modifiers */
 	for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] = 0;
+	p_ptr->mana_add = 0;
+	p_ptr->hp_add = 0;
 
 	/* Clear the Displayed/Real armor class */
 	p_ptr->dis_ac = p_ptr->ac = 0;
@@ -1928,6 +1894,8 @@ static void calc_bonuses(void)
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
 	p_ptr->lite = FALSE;
+	p_ptr->bravery = FALSE;
+	p_ptr->no_blind = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
 	p_ptr->sustain_wis = FALSE;
@@ -1939,22 +1907,27 @@ static void calc_bonuses(void)
 	p_ptr->resist_fire = FALSE;
 	p_ptr->resist_cold = FALSE;
 	p_ptr->resist_pois = FALSE;
-	p_ptr->resist_fear = FALSE;
+	p_ptr->resist_disease = FALSE;
 	p_ptr->resist_lite = FALSE;
 	p_ptr->resist_dark = FALSE;
-	p_ptr->resist_blind = FALSE;
 	p_ptr->resist_confu = FALSE;
 	p_ptr->resist_sound = FALSE;
 	p_ptr->resist_chaos = FALSE;
 	p_ptr->resist_disen = FALSE;
 	p_ptr->resist_shard = FALSE;
+	p_ptr->resist_water = FALSE;
 	p_ptr->resist_nexus = FALSE;
 	p_ptr->resist_nethr = FALSE;
+	p_ptr->resist_time = FALSE;
 	p_ptr->immune_acid = FALSE;
 	p_ptr->immune_elec = FALSE;
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
 
+	p_ptr->tim_flag1 = 0L;
+	p_ptr->tim_flag2 = 0L;
+	p_ptr->tim_flag3 = 0L;
+	p_ptr->tim_flag4 = 0L;
 
 	/*** Extract race/class info ***/
 
@@ -1971,27 +1944,32 @@ static void calc_bonuses(void)
 	/*** Analyze player ***/
 
 	/* Extract the player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, &f4);
 
 	/* Good flags */
 	if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
 	if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
-	if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
+	if (f3 & (TR3_GLOW)) p_ptr->lite = TRUE;
 	if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
 	if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
 	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
-	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
-	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 	if (f3 & (TR3_INVIS)) p_ptr->invis = TRUE;
 
+	/* "semi-immunities" */
+	if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
+	if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+	if (f2 & (TR2_BRAVERY)) p_ptr->bravery = TRUE;
+	if (f2 & (TR2_NO_BLIND)) p_ptr->no_blind = TRUE;
+
 	/* Weird flags */
-	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+	if (f4 & (TR4_BLESSED)) p_ptr->bless_blade = TRUE;
 
 	/* Bad flags */
 	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+	if (f3 & (TR3_DRAIN_ITEM)) p_ptr->item_drain = TRUE;
 
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2005,25 +1983,27 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
 	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
 	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
-	if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
 	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
 	if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
-	if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
 	if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
 	if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
 	if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
+	if (f2 & (TR2_RES_WATER)) p_ptr->resist_water = TRUE;
 	if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
 	if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
 	if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
 	if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
+	if (f2 & (TR2_RES_TIME))  p_ptr->resist_time = TRUE;
+	if (f2 & (TR2_RES_MANA))  p_ptr->resist_mana = TRUE;
+	if (f2 & (TR2_RES_DISEASE)) p_ptr->resist_disease = TRUE;
 
 	/* Sustain flags */
-	if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
-	if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
-	if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
-	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
-	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
-	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+	if (f1 & (TR1_SUST_STR)) p_ptr->sustain_str = TRUE;
+	if (f1 & (TR1_SUST_INT)) p_ptr->sustain_int = TRUE;
+	if (f1 & (TR1_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+	if (f1 & (TR1_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+	if (f1 & (TR1_SUST_CON)) p_ptr->sustain_con = TRUE;
+	if (f1 & (TR1_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 
 	/*** Analyze equipment ***/
@@ -2036,8 +2016,11 @@ static void calc_bonuses(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Hack - skip empty lanterns */
+		if ((o_ptr->tval == TV_LITE) && (!o_ptr->timeout)) continue;
+
 		/* Extract the item flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Affect stats */
 		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
@@ -2046,6 +2029,10 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_DEX)) p_ptr->stat_add[A_DEX] += o_ptr->pval;
 		if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
 		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
+
+		/* Affect mana and health */
+		if (f1 & (TR1_MANA)) p_ptr->mana_add += o_ptr->pval*10;
+		if (f1 & (TR1_HEALTH)) p_ptr->hp_add += o_ptr->pval*10;
 
 		/* Affect stealth */
 		if (f1 & (TR1_STEALTH)) p_ptr->skill[SK_STL] += o_ptr->pval;
@@ -2077,22 +2064,27 @@ static void calc_bonuses(void)
 		/* Good flags */
 		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
 		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
-		if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
+		if (f3 & (TR3_GLOW)) p_ptr->lite = TRUE;
 		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
 		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
-		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
-		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 		if (f3 & (TR3_INVIS)) p_ptr->invis = TRUE;
 
+		/* "semi-immunities" */
+		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
+		if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+		if (f2 & (TR2_BRAVERY)) p_ptr->bravery = TRUE;
+		if (f2 & (TR2_NO_BLIND)) p_ptr->no_blind = TRUE;
+
 		/* Weird flags */
-		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+		if (f4 & (TR4_BLESSED)) p_ptr->bless_blade = TRUE;
 
 		/* Bad flags */
 		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+		if (f3 & (TR3_DRAIN_ITEM)) p_ptr->item_drain = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2106,25 +2098,27 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
 		if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
 		if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
-		if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
 		if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
 		if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
-		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
 		if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
 		if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
 		if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
+		if (f2 & (TR2_RES_WATER)) p_ptr->resist_water = TRUE;
 		if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
 		if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
 		if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
 		if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
+		if (f2 & (TR2_RES_TIME))  p_ptr->resist_time = TRUE;
+		if (f2 & (TR2_RES_MANA))  p_ptr->resist_mana = TRUE;
+		if (f2 & (TR2_RES_DISEASE)) p_ptr->resist_disease = TRUE;
 
 		/* Sustain flags */
-		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
-		if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
-		if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
-		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
-		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
-		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+		if (f1 & (TR1_SUST_STR)) p_ptr->sustain_str = TRUE;
+		if (f1 & (TR1_SUST_INT)) p_ptr->sustain_int = TRUE;
+		if (f1 & (TR1_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+		if (f1 & (TR1_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+		if (f1 & (TR1_SUST_CON)) p_ptr->sustain_con = TRUE;
+		if (f1 & (TR1_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 		/* Modify the base armor class */
 		p_ptr->ac += o_ptr->ac;
@@ -2244,7 +2238,7 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary "Beserk" */
-	if (p_ptr->shero)
+	if (p_ptr->rage)
 	{
 		p_ptr->to_h += 24;
 		p_ptr->dis_to_h += 24;
@@ -2256,61 +2250,132 @@ static void calc_bonuses(void)
 	if (p_ptr->fast)
 	{
 		p_ptr->pspeed += 10;
+		p_ptr->tim_flag1 |= TR1_SPEED;
 	}
 
 	/* Temporary "slow" */
 	if (p_ptr->slow)
 	{
 		p_ptr->pspeed -= 10;
+		p_ptr->tim_flag1 |= TR1_SPEED;
 	}
 
 	/* Temporary see invisible */
 	if (p_ptr->tim_see_invis)
 	{
 		p_ptr->see_inv = TRUE;
+		p_ptr->tim_flag3 |= TR3_SEE_INVIS;
 	}
 
 	/* Temporary invisibility */
 	if (p_ptr->tim_invis)
 	{
 		p_ptr->invis = TRUE;
+		p_ptr->tim_flag3 |= TR3_INVIS;
 	}
 
 	/* Temporary infravision boost */
 	if (p_ptr->tim_infra)
 	{
 		p_ptr->see_infra++;
+		p_ptr->tim_flag1 |= TR1_INFRA;
 	}
 
-	/* Temporary resistance to everything */
-	if (p_ptr->oppose_all)
+	/*** Temporary resistances ***/
+
+	if (p_ptr->oppose_acid)
 	{
-		p_ptr->resist_acid = TRUE;
-		p_ptr->resist_elec = TRUE;
-		p_ptr->resist_fire = TRUE;
-		p_ptr->resist_cold = TRUE;
-		p_ptr->resist_pois = TRUE;
-		p_ptr->resist_fear = TRUE;
-		p_ptr->resist_lite = TRUE;
-		p_ptr->resist_dark = TRUE;
-		p_ptr->resist_blind = TRUE;
-		p_ptr->resist_confu = TRUE;
-		p_ptr->resist_sound = TRUE;
-		p_ptr->resist_shard = TRUE;
-		p_ptr->resist_nexus = TRUE;
-		p_ptr->resist_nethr = TRUE;
-		p_ptr->resist_chaos = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_ACID; 
 	}
 
+	if (p_ptr->oppose_elec)
+	{
+		p_ptr->tim_flag2 |= TR2_RES_ELEC; 
+	}
+
+	if (p_ptr->oppose_fire)
+	{
+		p_ptr->tim_flag2 |= TR2_RES_FIRE; 
+	}
+
+	if (p_ptr->oppose_cold)
+	{
+		p_ptr->tim_flag2 |= TR2_RES_COLD; 
+	}
+
+	if (p_ptr->oppose_pois)
+	{
+		p_ptr->tim_flag2 |= TR2_RES_POIS; 
+	}
+
+	if (p_ptr->tim_res_lite)
+	{
+		p_ptr->resist_lite = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_LITE;
+	}
+
+	if (p_ptr->tim_res_dark)
+	{
+		p_ptr->resist_dark = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_DARK;
+	}
+
+	if (p_ptr->tim_res_confu)
+	{
+		p_ptr->resist_confu = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_CONFU;
+	}
+
+	if (p_ptr->tim_res_sound)
+	{
+		p_ptr->resist_sound = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_SOUND;
+	}
+
+	if (p_ptr->tim_res_shard)
+	{
+		p_ptr->resist_shard = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_SHARD;
+	}
+
+	if (p_ptr->tim_res_water)
+	{
+		p_ptr->resist_water = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_WATER;
+	}
+
+	if (p_ptr->tim_res_nexus)
+	{
+		p_ptr->resist_nexus = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_NEXUS;
+	}
+
+	if (p_ptr->tim_res_nethr)
+	{
+		p_ptr->resist_nethr = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_NETHR;
+	}
+
+	if (p_ptr->tim_res_chaos)
+	{
+		p_ptr->resist_chaos = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_CHAOS;
+	}
+
+	if (p_ptr->tim_res_disease)
+	{
+		p_ptr->resist_disease = TRUE;
+		p_ptr->tim_flag2 |= TR2_RES_DISEASE;
+	}
 
 	/*** Special flags ***/
 
-	/* Hack -- Hero/Shero -> Res fear */
-	if (p_ptr->hero || p_ptr->shero)
+	/* Hack -- Hero/Rage -> Bravery */
+	if (p_ptr->hero || p_ptr->rage)
 	{
-		p_ptr->resist_fear = TRUE;
+		p_ptr->bravery = TRUE;
+		p_ptr->tim_flag2 |= TR2_BRAVERY;
 	}
-
 
 	/*** Analyze weight ***/
 
@@ -2346,7 +2411,6 @@ static void calc_bonuses(void)
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
-
 
 	/*** Modify skills ***/
 
@@ -2384,7 +2448,6 @@ static void calc_bonuses(void)
 
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
-
 
 	/*** Analyze current bow ***/
 
@@ -2743,13 +2806,11 @@ void notice_stuff(void)
 	}
 }
 
-
 /*
  * Handle "p_ptr->update"
  */
 void update_stuff(void)
 {
-	
 	/* Update stuff */
 	if (!p_ptr->update) return;
 
@@ -2833,7 +2894,6 @@ void update_stuff(void)
 	}
 }
 
-
 /*
  * Handle "p_ptr->redraw"
  */
@@ -2855,7 +2915,6 @@ void redraw_stuff(void)
 		prt_map();
 	}
 
-
 	if (p_ptr->redraw & (PR_BASIC))
 	{
 		p_ptr->redraw &= ~(PR_BASIC);
@@ -2867,11 +2926,10 @@ void redraw_stuff(void)
 		prt_frame_basic();
 	}
 
-
 	if (p_ptr->redraw & (PR_EQUIPPY))
 	{
 		p_ptr->redraw &= ~(PR_EQUIPPY);
-		print_equippy(); /* To draw / delete equippy chars */
+		prt_equippy(); /* To draw / delete equippy chars */
 	}
 
 	if (p_ptr->redraw & (PR_MISC))
@@ -2953,7 +3011,7 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_EXTRA);
 		p_ptr->redraw &= ~(PR_CUT | PR_STUN);
-		p_ptr->redraw &= ~(PR_HUNGER);
+		p_ptr->redraw &= ~(PR_HUNGER | PR_DISEASED);
 		p_ptr->redraw &= ~(PR_BLIND | PR_CONFUSED);
 		p_ptr->redraw &= ~(PR_AFRAID | PR_POISONED);
 		p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_STUDY);
@@ -3002,6 +3060,12 @@ void redraw_stuff(void)
 		prt_poisoned();
 	}
 
+	if (p_ptr->redraw & (PR_DISEASED))
+	{
+		p_ptr->redraw &= ~(PR_DISEASED);
+		prt_diseased();
+	}
+
 	if (p_ptr->redraw & (PR_STATE))
 	{
 		p_ptr->redraw &= ~(PR_STATE);
@@ -3021,7 +3085,6 @@ void redraw_stuff(void)
 	}
 }
 
-
 /*
  * Handle "p_ptr->window"
  */
@@ -3030,7 +3093,6 @@ void window_stuff(void)
 	int j;
 
 	u32b mask = 0L;
-
 
 	/* Nothing to do */
 	if (!p_ptr->window) return;
@@ -3117,7 +3179,6 @@ void window_stuff(void)
 	}
 }
 
-
 /*
  * Handle "p_ptr->update" and "p_ptr->redraw" and "p_ptr->window"
  */
@@ -3132,4 +3193,3 @@ void handle_stuff(void)
 	/* Window stuff */
 	if (p_ptr->window) window_stuff();
 }
-

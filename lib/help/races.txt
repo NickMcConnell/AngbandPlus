@@ -1,0 +1,222 @@
+=== Races ===
+
+There are twlelve different races that you can choose from in EyAngband.
+Some races are restricted as to what profession they may be, and each race 
+Has its own adjustments to a character's stats and abilities. The race stat
+adjustment lasts throughout the game, raising the maximum levels the character
+can otherwise acheive in this stat. Most races also have intrinsic abilities.
+ 
+          Human
+               The human is the base character.  All other races are com-
+               pared to them.  Humans can choose any class and are average
+               at everything.  Humans tend to go up levels faster than any
+               other race because of their shorter life spans.  No racial
+               adjustments or intrinsics occur to characters choosing human.
+ 
+          Half-Elf
+               Half-elves tend to be smarter and faster than a  human,  but
+               not as strong.  Half-elves are slightly better at searching,
+               disarming, saving throws, stealth, bows, throwing, and magic,
+               but they are not as good at hand weapons.  Half-elves may 
+               choose any class and do not receive any intrinsic abilities.
+ 
+          Elf
+               Elves are better magicians then humans, but not as good at
+               fighting.  They tend to be smarter and faster than either
+               humans or half-elves and also have better wisdom.  Elves
+               are better at searching, disarming, perception, stealth, bows,
+               and magic, but they are not as good at hand weapons or digging.
+               Elves may choose any class except Paladin. They are resistant
+               to attacks involving bright light.
+ 
+          Hobbits
+               Hobbits, or Halflings, are very good at bows, throwing, and 
+               have good saving throws.  They also are very good at searching,
+               alchemy, disarming, perception, and stealth.  They will be
+               much weaker than humans, and no good at melee fighting.
+               Halflings have fair infravision, so they can detect warm
+               creatures at a distance.  Hobbits can choose between being a
+               warrior, mage, or ranger.  They have their dexterity sustained.
+ 
+          Gnome
+               Gnomes are smaller than dwarves but larger than halflings.
+               They, like  the halflings, live in the earth in burrow-like
+               homes.  Gnomes make excellent mages, and have very good saving
+               throws.  They are good at searching, disarming, perception,
+               alchemy, digging, and stealth.  They have lower strength than
+               humans so they are not very good at fighting with hand weapons,
+               but are quite capable of using ranged attacks.  Gnomes have
+               fair infra-vision, so they can detect warm-blooded creatures
+               at a distance.  A gnome may choose between being a warrior,
+               mage, or priest.  Gnomes are intrinsically protected against
+               paralysis and some slowing effects.
+ 
+          Dwarf
+               Dwarves are the headstrong miners and fighters of legend.
+               Since dungeons are the natural home of a dwarf, they are
+               excellent choices for a warrior, paladin, priest or mystic.
+               Dwarves tend to be stronger and tougher but slower and less
+               intelligent than humans.  Because they are so headstrong and 
+               are somewhat wise, they resist spells which are cast on them. 
+               Dwarves also have very good infra-vision because they live
+               Underground, and are quite adept with a shovel. They do have
+               one big drawback, though.  Dwarves are loudmouthed and proud,
+               singing in loud voices, arguing with themselves for no good
+               reason, screaming out challenges at imagined foes.  In other
+               words, dwarves have a miserable stealth.  They can never be
+               blinded. 
+ 
+          Half-Orc
+               Half-Orcs make excellent warriors and decent priests, but
+               are terrible at magic.  They are as bad as dwarves at stealth,
+               and horrible at searching, disarming, and perception.
+               Half-Orcs are, let's face it, ugly.  They tend to pay more for
+               goods in town.  Half-Orcs do make good warriors, for the 
+               simple reason that Half-Orcs tend to have great constitutions
+               and lots of hit points.  Because of their preference to living
+               underground to on the surface, half-orcs resist darkness attacks.
+ 
+          Half-Troll
+               Half-Trolls are incredibly strong, and have more hit points
+               than any other character race.  They are also very stupid and
+               slow.  They will make great warriors and iffy priests.  They
+               are bad at searching, disarming, perception, and stealth, but
+               decent at digging. They are so ugly that a Half-Orc grimaces in
+               their presence. They also happen to be fun to run...  Half-trolls
+               always have their strength sustained.
+ 
+          Dunadan
+               Dunedain are a race of hardy men from the West.  This elder
+               race surpasses human abilities in every field, especially
+               constitution.  However, being men of the world, very little is
+               new to them, and levels are very hard to gain...  They can
+               play all classes.  Their constitution cannot be reduced.
+ 
+          High-Elf
+               High-Elves are descended from those among the Elves who heard 
+               and answered the call from the gods at the very beginning of 
+               time, before the sun and moon were made, and lived in the 
+               Blessed Realm for many thousands of years before returning to 
+               mortal lands. Because of this, they are far superior in terms 
+               of abilities when compared to their lesser Elven kindred, and 
+               are able to be priests as well as all the other classes that 
+               normal Elves can be. They can also see into the invisible
+               world of ghosts and wraiths. However, they find new experience
+               even harder to come by than Dunedain: and their wisdom is 
+               still a little suspect. And like normal Elves, they resist
+               attacks involving bright light.
+ 
+          Angel
+               Angels come from heaven to spread the causes of good, by any
+               means necessary. While they start out as being rather weak and
+               fragile, as they gain experience they are awarded new abilities
+               and they eventually become powerful in all regards. Angels
+               possess special racial abilities. Belonging to a higher plane,
+               the experiences of this world do not leave a strong impression
+               and them and they gain levels slowly. In addition, killing non-
+               evil creatures may sometimes be necessary for their survival,
+               but it goes against the basic fibre of their being and doing
+               so provides them with only minimal experience rewards. Angels
+               can play all classes.
+
+          Demons
+               Demons are the evil spawn of hell. Chaotic and unpredictable,
+               some demons realize that the quickest path to promotion is by
+               destroying all their rivals, and thus temporarily join the side
+               of good in cleaning the dungeons of Angband. They are the weakest
+               of the races at their creation, but their abilities grow with
+               their levels and they eventually gain immense power. From a
+               certain level, Demons possess special racial abilities. Low level
+               demons are quite stealthy, but as they grow more powerful their
+               stealth rapidly decreases. Death and mayhem being commonplace to
+               them, they gain levels slowly. They can play warriors, mages and
+               rangers.
+
+ === Recommended combinations of Race and Class ===
+
+                Warrior   Mage  Priest  Ranger  Paladin  Mystic  Bard
+ 
+     Human        Yes     Yes     Yes     Yes     Yes     Yes     Yes
+     Half-Elf     Yes     Yes     Yes     Yes     Yes     Yes     Yes
+     Elf          Yes     Yes     Yes     Yes     No      Yes     Yes
+     Hobbit       Yes     Yes     No      No      No      No      Yes
+     Gnome        Yes     Yes     Yes     No      No      No      No
+     Dwarf        Yes     No      Yes     No      Yes     Yes     No
+     Half-Orc     Yes     No      Yes     No      No      No      No
+     Half-Troll   Yes     No      Yes     No      No      No      No
+     Dunadan      Yes     Yes     Yes     Yes     Yes     Yes     Yes
+     High-Elf     Yes     Yes     No      Yes     No      No      Yes
+     Angel        Yes     Yes     Yes     Yes     Yes     Yes     Yes
+     Demon        Yes     Yes     No      Yes     No      No      No
+
+=== Stat Bonus Tables ===
+
+Stat, hit dice, and experience points per level modifications due to race
+are listed in the following table.
+ 
+                       STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
+
+           Human        0    0    0    0    0    0      10          +0%
+           Half-Elf    -1   +1    0   +1   -1   +1       9         +10%
+           Elf         -1   +2   +1   +1   -2   +1       8         +20%
+           Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
+           Gnome       -1   +2    0   +2   +1   -2       8         +25%
+           Dwarf       +2   -3   +2   -2   +2   -3      11         +20%
+           Half-Orc    +2   -1    0    0   +1   -4      10         +10%
+           Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
+           Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
+           High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
+           Angel        *    *    *    *    *    *       8         +90%
+           Demon        *    *    *    *    *    *       9        +120%
+		*see below           
+
+=== Angel Progression chart ===
+
+             LEVEL   STR  INT  WIS  DEX  CON  CHR     ABILITY
+
+Cherub        1- 4   -3    0   +1    0   -4   +1      Detect Evil
+Seraph        5- 9   -2    0   +2    0   -2   +1      Call Light 
+Deva         10-19    0   +1   +3    0    0   +2      Spear of Light
+Planetar     20-29    0   +1   +3    0    0   +3      Spear of Light
+Archon       30-39   +1   +2   +4    0   +1   +4      Orb of Draining
+Solar        40-49   +2   +3   +5    0   +2   +5      Prot. from Evil
+Archangel       50   +3   +3   +5    0   +3   +6      Prot. from Evil
+
+Resistances and inherent abilties (cumulative):
+Cherub    - None.
+Seraph    - Sustain Wisdom, Permanent Light (radius 1).
+Deva      - Bravery, Feather Falling.
+Plaentar  - Resist Light, See Invisible, Sustain Charisma.
+Archon    - Resist Fire, Cold, Confusion, Free Action.
+Solar     - Resist Acid & Electricity, Regeneration, Slow digestion.
+Archangel - Resist Chaos, Hold Life.
+
+
+=== Demon Progression chart ===
+             LEVEL   STR  INT  WIS  DEX  CON  CHR     ABILITY
+
+Lemure        1- 4   -4   -4   -6   -4   -4   -6      
+Quasit        5- 9   -2   -4   -6   -2   -2   -6      
+Imp          10-14   -1   -2   -6   -1   -1   -7        
+Tengu        15-19    0    0   -5    0   -1   -7      Blink
+Bodak        20-24    0    0   -5    0    0   -7      Fire Bolt
+Vrock        25-29    0    0   -4    0   +1   -8      Fire Bolt
+Hezrou       30-34   +1    0   -4    0   +2   -8      Fire Bolt
+Glabrezu     35-39   +2   +1   -3    0   +3   -8      Fire Ball
+Nalfeshnee   40-44   +3   +2   -3    0   +4   -9      Fire Ball
+Pit Fiend    45-49   +4   +2   -2    0   +5   -9      Fire Ball
+Balrog          50   +5   +3   -2   +1   +6  -10      Plasma Ball
+
+Resistances and inherent abilties (cumulative):
+
+Lemure     - None.
+Quasit     - Bravery.
+Imp        - Resist Fire.
+Tengu      - Resist Blindness.
+Bodak      - Resist Darkness, Sustain strength.
+Vrock      - Resist Acid.
+Hezrou     - Sustain Constituion.
+Glabrezu   - Resist Nether.
+Nalfeshnee - Regeneration. 
+Pit Fiend  - Resist Chaos.
+Balrog     - Immune to Fire.

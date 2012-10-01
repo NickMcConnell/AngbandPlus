@@ -1,7 +1,10 @@
-/* File: cmd4.c */
+/* File: cmd-util.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * "Utility" and system Commands 
+ *
+ * Copyright (c) 1999 Leon Marrick, Ben Harrison, James E. Wilson, 
+ * Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
@@ -9,8 +12,6 @@
  */
 
 #include "angband.h"
-
-
 
 /*
  * Hack -- redraw the screen
@@ -29,17 +30,14 @@ void do_cmd_redraw(void)
 
 	term *old = Term;
 
-
 	/* Low level flush */
 	Term_flush();
 
 	/* Reset "inkey()" */
 	flush();
 
-
 	/* Hack -- React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
-
 
 	/* Combine and Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -68,7 +66,6 @@ void do_cmd_redraw(void)
 	/* Hack -- update */
 	handle_stuff();
 
-
 	/* Redraw every window */
 	for (j = 0; j < 8; j++)
 	{
@@ -89,375 +86,15 @@ void do_cmd_redraw(void)
 	}
 }
 
-
-/*
- * Hack -- change name
- */
-void do_cmd_change_name(void)
-{
-	char ch;
-
-	int mode = 0;
-
-	cptr p;
-
-	/* Prompt */
-	p = "['c' to change name, 'f' to file, 'h' to change mode, or ESC]";
-
-	/* Save screen */
-	screen_save();
-
-	/* Forever */
-	while (1)
-	{
-		/* Display the player */
-		display_player(mode);
-
-		/* Prompt */
-		Term_putstr(2, 23, -1, TERM_WHITE, p);
-
-		/* Query */
-		ch = inkey();
-
-		/* Exit */
-		if (ch == ESCAPE) break;
-
-		/* Change name */
-		if (ch == 'c')
-		{
-			get_name();
-		}
-
-		/* File dump */
-		else if (ch == 'f')
-		{
-			char ftmp[80];
-
-			sprintf(ftmp, "%s.txt", op_ptr->base_name);
-
-			if (get_string("File name: ", ftmp, 80))
-			{
-				if (ftmp[0] && (ftmp[0] != ' '))
-				{
-					if (file_character(ftmp, FALSE))
-					{
-						msg_print("Character dump failed!");
-					}
-					else
-					{
-						msg_print("Character dump successful.");
-					}
-				}
-			}
-		}
-
-		/* Toggle mode */
-		else if (ch == 'h')
-		{
-			mode = !mode;
-		}
-
-		/* Oops */
-		else
-		{
-			bell("Illegal command for change name!");
-		}
-
-		/* Flush messages */
-		msg_print(NULL);
-	}
-
-	/* Load screen */
-	screen_load();
-}
-
-
-/*
- * Recall the most recent message
- */
-void do_cmd_message_one(void)
-{
-	/* Recall one message XXX XXX XXX */
-	c_prt(message_color(0), format( "> %s", message_str(0)), 0, 0);
-}
-
-
-/*
- * Show previous messages to the user
- *
- * The screen format uses line 0 and 23 for headers and prompts,
- * skips line 1 and 22, and uses line 2 thru 21 for old messages.
- *
- * This command shows you which commands you are viewing, and allows
- * you to "search" for strings in the recall.
- *
- * Note that messages may be longer than 80 characters, but they are
- * displayed using "infinite" length, with a special sub-command to
- * "slide" the virtual display to the left or right.
- *
- * Attempt to only hilite the matching portions of the string.
- */
-void do_cmd_messages(void)
-{
-	char ch;
-
-	int i, j, n;
-	uint q;
-
-	char shower[80];
-	char finder[80];
-
-
-	/* Wipe finder */
-	strcpy(finder, "");
-
-	/* Wipe shower */
-	strcpy(shower, "");
-
-
-	/* Total messages */
-	n = message_num();
-
-	/* Start on first message */
-	i = 0;
-
-	/* Start at leftmost edge */
-	q = 0;
-
-
-	/* Save screen */
-	screen_save();
-
-	/* Process requests until done */
-	while (1)
-	{
-		/* Clear screen */
-		Term_clear();
-
-		/* Dump up to 20 lines of messages */
-		for (j = 0; (j < 20) && (i + j < n); j++)
-		{
-			cptr msg = message_str((s16b)(i+j));
-			byte attr = message_color((s16b)(i+j));
-
-			/* Apply horizontal scroll */
-			msg = (strlen(msg) >= q) ? (msg + q) : "";
-
-			/* Dump the messages, bottom to top */
-			Term_putstr(0, 21-j, -1, attr, msg);
-
-			/* Hilite "shower" */
-			if (shower[0])
-			{
-				cptr str = msg;
-
-				/* Display matches */
-				while ((str = strstr(str, shower)) != NULL)
-				{
-					int len = strlen(shower);
-
-					/* Display the match */
-					Term_putstr(str-msg, 21-j, len, TERM_YELLOW, shower);
-
-					/* Advance */
-					str += len;
-				}
-			}
-		}
-
-		/* Display header XXX XXX XXX */
-		prt(format("Message Recall (%d-%d of %d), Offset %d",
-		           i, i+j-1, n, q), 0, 0);
-
-		/* Display prompt (not very informative) */
-		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", 23, 0);
-
-		/* Get a command */
-		ch = inkey();
-
-		/* Exit on Escape */
-		if (ch == ESCAPE) break;
-
-		/* Hack -- Save the old index */
-		j = i;
-
-		/* Horizontal scroll */
-		if (ch == '4')
-		{
-			/* Scroll left */
-			q = (q >= 40) ? (q - 40) : 0;
-
-			/* Success */
-			continue;
-		}
-
-		/* Horizontal scroll */
-		if (ch == '6')
-		{
-			/* Scroll right */
-			q = q + 40;
-
-			/* Success */
-			continue;
-		}
-
-		/* Hack -- handle show */
-		if (ch == '=')
-		{
-			/* Prompt */
-			prt("Show: ", 23, 0);
-
-			/* Get a "shower" string, or continue */
-			if (!askfor_aux(shower, 80)) continue;
-
-			/* Okay */
-			continue;
-		}
-
-		/* Hack -- handle find */
-		if (ch == '/')
-		{
-			s16b z;
-
-			/* Prompt */
-			prt("Find: ", 23, 0);
-
-			/* Get a "finder" string, or continue */
-			if (!askfor_aux(finder, 80)) continue;
-
-			/* Show it */
-			strcpy(shower, finder);
-
-			/* Scan messages */
-			for (z = i + 1; z < n; z++)
-			{
-				cptr msg = message_str(z);
-
-				/* Search for it */
-				if (strstr(msg, finder))
-				{
-					/* New location */
-					i = z;
-
-					/* Done */
-					break;
-				}
-			}
-		}
-
-		/* Recall 20 older messages */
-		if ((ch == 'p') || (ch == KTRL('P')) || (ch == ' '))
-		{
-			/* Go older if legal */
-			if (i + 20 < n) i += 20;
-		}
-
-		/* Recall 10 older messages */
-		if (ch == '+')
-		{
-			/* Go older if legal */
-			if (i + 10 < n) i += 10;
-		}
-
-		/* Recall 1 older message */
-		if ((ch == '8') || (ch == '\n') || (ch == '\r'))
-		{
-			/* Go newer if legal */
-			if (i + 1 < n) i += 1;
-		}
-
-		/* Recall 20 newer messages */
-		if ((ch == 'n') || (ch == KTRL('N')))
-		{
-			/* Go newer (if able) */
-			i = (i >= 20) ? (i - 20) : 0;
-		}
-
-		/* Recall 10 newer messages */
-		if (ch == '-')
-		{
-			/* Go newer (if able) */
-			i = (i >= 10) ? (i - 10) : 0;
-		}
-
-		/* Recall 1 newer messages */
-		if (ch == '2')
-		{
-			/* Go newer (if able) */
-			i = (i >= 1) ? (i - 1) : 0;
-		}
-
-		/* Hack -- Error of some kind */
-		if (i == j) bell(NULL);
-	}
-
-	/* Load screen */
-	screen_load();
-}
-
-
-
-/*
- * Ask for a "user pref line" and process it
- */
-void do_cmd_pref(void)
-{
-	char tmp[80];
-
-	/* Default */
-	strcpy(tmp, "");
-
-	/* Ask for a "user pref command" */
-	if (!get_string("Pref: ", tmp, 80)) return;
-
-	/* Process that pref command */
-	(void)process_pref_file_aux(tmp);
-}
-
-
-/*
- * Ask for a "user pref file" and process it.
- *
- * This function should only be used by standard interaction commands,
- * in which a standard "Command:" prompt is present on the given row.
- *
- * Allow absolute file names?  XXX XXX XXX
- */
-static void do_cmd_pref_file_hack(int row)
-{
-	char ftmp[80];
-
-	/* Prompt */
-	prt("Command: Load a user pref file", row, 0);
-
-	/* Prompt */
-	prt("File: ", row + 2, 0);
-
-	/* Default filename */
-	sprintf(ftmp, "%s.prf", op_ptr->base_name);
-
-	/* Ask for a file (or cancel) */
-	if (!askfor_aux(ftmp, 80)) return;
-
-	/* Process the given filename */
-	if (process_pref_file(ftmp))
-	{
-		/* Mention failure */
-		msg_format("Failed to load '%s'!", ftmp);
-	}
-	else
-	{
-		/* Mention success */
-		msg_format("Loaded '%s'.", ftmp);
-	}
-}
-
-
+#define OPT_TYPE_NORMAL 0
+#define OPT_TYPE_CHEAT	1
+#define OPT_TYPE_BIRTH	2
+#define OPT_TYPE_ADULT	3 /* You get this by trying to change options during character creation */
 
 /*
  * Interact with some options
  */
-static void do_cmd_options_aux(int page, cptr info)
+static void do_cmd_options_aux(int page, cptr info, byte type)
 {
 	char ch;
 
@@ -465,8 +102,10 @@ static void do_cmd_options_aux(int page, cptr info)
 
 	int opt[OPT_PAGE_PER];
 
-	char buf[80];
+	char buf1[80];
+	char buf2[80];
 
+	bool *opt_set;
 
 	/* Scan the options */
 	for (i = 0; i < OPT_PAGE_PER; i++)
@@ -478,6 +117,10 @@ static void do_cmd_options_aux(int page, cptr info)
 		}
 	}
 
+	if (type == OPT_TYPE_NORMAL) opt_set = op_ptr->opt;
+	if (type == OPT_TYPE_BIRTH)	opt_set = op_ptr->opt_birth;
+	if (type == OPT_TYPE_ADULT)	opt_set = op_ptr->opt_birth;
+	if (type == OPT_TYPE_CHEAT) opt_set = op_ptr->opt_cheat;
 
 	/* Clear screen */
 	Term_clear();
@@ -485,9 +128,21 @@ static void do_cmd_options_aux(int page, cptr info)
 	/* Interact with the player */
 	while (TRUE)
 	{
-		/* Prompt XXX XXX XXX */
-		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
-		prt(buf, 0, 0);
+		/* Title */
+		if (type == OPT_TYPE_BIRTH) 
+		{
+			sprintf (buf1, "%s - Changes will only affect the next character.", info);
+			prt (buf1, 0, 0);
+		}
+		else if (type == OPT_TYPE_CHEAT) prt("Cheat options - These options affect scoring.",0,0);
+		else 
+		{
+			sprintf (buf1, "%s - ", info);
+			prt (buf1, 0, 0);
+		}
+
+		/* Prompt */
+		prt("(RET to advance, y/n to set, ESC to accept) ", 1, 0);
 
 		/* Display the options */
 		for (i = 0; i < n; i++)
@@ -498,15 +153,46 @@ static void do_cmd_options_aux(int page, cptr info)
 			if (i == k) a = TERM_L_BLUE;
 
 			/* Display the option text */
-			sprintf(buf, "%-48s: %s  (%s)",
-			        option_desc[opt[i]],
-			        op_ptr->opt[opt[i]] ? "yes" : "no ",
-			        option_text[opt[i]]);
-			c_prt(a, buf, i + 2, 0);
+			if (type == OPT_TYPE_NORMAL) 
+			{
+				sprintf (buf1, "%s",options[opt[i]].descript);
+				sprintf(buf2, "(%s)", options[opt[i]].text);
+			}
+			else if (type == OPT_TYPE_CHEAT) 
+			{
+				sprintf (buf1, "Cheat: %s",options_cheat[opt[i]].descript);
+				sprintf(buf2, "(%s)", options_cheat[opt[i]].text);
+			}
+			else 
+			{	
+				sprintf (buf1, "Birth: %s",options_birth[opt[i]].descript);
+				sprintf(buf2, "(%s)", options_birth[opt[i]].text);
+			}
+
+			c_prt(a, buf1, i + 3, 0);
+
+			/* Display the option status */
+			sprintf(buf1, "%s", opt_set[opt[i]] ? "yes" : "no ");
+
+			c_prt(TERM_L_GREEN, buf1, i + 3, 47);
+
+			/* Display the current status (cheat/birth) */
+			if (type == OPT_TYPE_CHEAT) 
+			{
+				sprintf(buf1, "(%s)", op_ptr->opt_score[opt[i]] ? "yes" : "no");
+				c_prt(a, buf1, i + 3, 51);
+			}
+			else if (type == OPT_TYPE_BIRTH) 
+			{
+				sprintf(buf1, "(%s)", op_ptr->opt_adult[opt[i]] ? "yes" : "no");
+				c_prt(a, buf1, i + 3, 51);
+			}
+
+			c_prt(a, buf2, i + 3, 57);
 		}
 
 		/* Hilite current option */
-		move_cursor(k + 2, 50);
+		move_cursor(k + 3, 47);
 
 		/* Get a key */
 		ch = inkey();
@@ -517,12 +203,15 @@ static void do_cmd_options_aux(int page, cptr info)
 			case ESCAPE:
 			{
 				/* Hack -- Notice use of any "cheat" options */
-				for (i = OPT_CHEAT; i < OPT_ADULT; i++)
+				if (type == OPT_TYPE_CHEAT)
 				{
-					if (op_ptr->opt[i])
+					for (i = 0; i < OPT_CHEAT; i++)
 					{
-						/* Set score option */
-						op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = TRUE;
+						if (op_ptr->opt_cheat[i])
+						{
+							/* Set score option */
+							op_ptr->opt_score[i] = TRUE;
+						}
 					}
 				}
 
@@ -548,14 +237,14 @@ static void do_cmd_options_aux(int page, cptr info)
 			case 't':
 			case '5':
 			{
-				op_ptr->opt[opt[k]] = !op_ptr->opt[opt[k]];
+				opt_set[opt[k]] = !opt_set[opt[k]];
 				break;
 			}
 
 			case 'y':
 			case '6':
 			{
-				op_ptr->opt[opt[k]] = TRUE;
+				opt_set[opt[k]] = TRUE;
 				k = (k + 1) % n;
 				break;
 			}
@@ -563,7 +252,7 @@ static void do_cmd_options_aux(int page, cptr info)
 			case 'n':
 			case '4':
 			{
-				op_ptr->opt[opt[k]] = FALSE;
+				opt_set[opt[k]] = FALSE;
 				k = (k + 1) % n;
 				break;
 			}
@@ -576,7 +265,6 @@ static void do_cmd_options_aux(int page, cptr info)
 		}
 	}
 }
-
 
 /*
  * Modify the "window" options
@@ -592,13 +280,11 @@ static void do_cmd_options_win(void)
 
 	u32b old_flag[8];
 
-
 	/* Memorize old flags */
 	for (j = 0; j < 8; j++)
 	{
 		old_flag[j] = op_ptr->window_flag[j];
 	}
-
 
 	/* Clear screen */
 	Term_clear();
@@ -758,30 +444,52 @@ static errr option_dump(cptr fname)
 	/* Failure */
 	if (!fff) return (-1);
 
-
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 
 	/* Start dumping */
 	fprintf(fff, "# Automatic option dump\n\n");
 
-	/* Dump options (skip cheat, adult, score) */
-	for (i = 0; i < OPT_CHEAT; i++)
+	/* Dump options */
+	for (i = 0; i < OPT_NORMAL; i++)
 	{
 		/* Require a real option */
-		if (!option_text[i]) continue;
+		if (!options[i].text) continue;
 
 		/* Comment */
-		fprintf(fff, "# Option '%s'\n", option_desc[i]);
+		fprintf(fff, "# Option '%s'\n", options[i].descript);
 
 		/* Dump the option */
 		if (op_ptr->opt[i])
 		{
-			fprintf(fff, "Y:%s\n", option_text[i]);
+			fprintf(fff, "Y:O:%s\n", options[i].text);
 		}
 		else
 		{
-			fprintf(fff, "X:%s\n", option_text[i]);
+			fprintf(fff, "X:O:%s\n", options[i].text);
+		}
+
+		/* Skip a line */
+		fprintf(fff, "\n");
+	}
+
+	/* Dump birth options (but not adult options)*/
+	for (i = 0; i < OPT_BIRTH; i++)
+	{
+		/* Require a real option */
+		if (!options_birth[i].text) continue;
+
+		/* Comment */
+		fprintf(fff, "# Birth Option '%s'\n", options_birth[i].descript);
+
+		/* Dump the option */
+		if (op_ptr->opt_birth[i])
+		{
+			fprintf(fff, "Y:B:%s\n", options_birth[i].text);
+		}
+		else
+		{
+			fprintf(fff, "X:B:%s\n", options_birth[i].text);
 		}
 
 		/* Skip a line */
@@ -795,7 +503,7 @@ static errr option_dump(cptr fname)
 		if (!angband_term[i]) continue;
 
 		/* Check each flag */
-		for (j = 0; j < 32; j++)
+		for (j = 0; j < 16; j++)
 		{
 			/* Require a real flag */
 			if (!window_flag_desc[j]) continue;
@@ -826,6 +534,122 @@ static errr option_dump(cptr fname)
 	return (0);
 }
 
+/*
+ * Set or unset various options.
+ *
+ * After using this command, a complete redraw should be performed,
+ * in case any visual options have been changed.
+ */
+void options_birth_menu(bool adult)
+{
+	byte type;
+
+	char ch;
+
+	/* Save screen */
+	if (adult) screen_save();
+
+	if (adult) type = OPT_TYPE_ADULT;
+	else type = OPT_TYPE_BIRTH;
+
+	/* Interact */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
+
+		/* Why are we here */
+		prt("Birth/Difficulty options", 2, 0);
+
+		/* Give some choices */
+		prt("(1) Birth Options", 4, 5);
+		prt("(2) Difficulty Options", 5, 5);
+		prt("(3) Monster AI Options", 6, 5);
+
+		/* Prompt */
+		prt("Command: ", 21, 0);
+
+		/* Get command */
+		ch = inkey();
+
+		/* Exit */
+		if (ch == ESCAPE) break;
+
+		/* General Options */
+		else if (ch == '1')
+		{
+			do_cmd_options_aux(6, "Birth Options", type);
+		}
+
+		/* Disturbance Options */
+		else if (ch == '2')
+		{
+			do_cmd_options_aux(7, "Difficulty Options", type);
+		}
+
+		/* Disturbance Options */
+		else if (ch == '3')
+		{
+			do_cmd_options_aux(8, "Monster AI Options", type);
+		}
+
+		/* Help */
+		else if (ch == '?')
+		{
+			do_cmd_help();
+		}
+
+		/* Unknown option */
+		else
+		{
+			/* Oops */
+			bell("Illegal command for birth options!");
+		}
+
+		/* Flush messages */
+		msg_print(NULL);
+	}
+
+	if (adult) screen_load();
+	else return;
+}
+
+/*
+ * Ask for a "user pref file" and process it.
+ *
+ * This function should only be used by standard interaction commands,
+ * in which a standard "Command:" prompt is present on the given row.
+ *
+ * Allow absolute file names?  XXX XXX XXX
+ */
+static void do_cmd_pref_file_hack(int row)
+{
+	char ftmp[80];
+
+	/* Prompt */
+	prt("Command: Load a user pref file", row, 0);
+
+	/* Prompt */
+	prt("File: ", row + 2, 0);
+
+	/* Default filename */
+	sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+	/* Ask for a file (or cancel) */
+	if (!askfor_aux(ftmp, 80)) return;
+
+	/* Process the given filename */
+	if (process_pref_file(ftmp))
+	{
+		/* Mention failure */
+		msg_format("Failed to load '%s'!", ftmp);
+	}
+	else
+	{
+		/* Mention success */
+		msg_format("Loaded '%s'.", ftmp);
+	}
+}
 
 /*
  * Set or unset various options.
@@ -853,29 +677,32 @@ void do_cmd_options(void)
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
-		prt("(2) Disturbance Options", 5, 5);
-		prt("(3) Game-Play Options", 6, 5);
-		prt("(4) Efficiency Options", 7, 5);
-		prt("(5) Birth Options", 8, 5);
-		prt("(6) Cheat Options", 9, 5);
+		prt("(2) Display Options", 5, 5);
+		prt("(3) Disturbance Options", 6, 5);
+		prt("(4) Game-Play Options", 7, 5);
+		prt("(5) Efficiency Options", 8, 5);
+
+		/* Special menus */
+		prt("(B) Birth/Difficulty Options", 10, 5);
+		prt("(C) Cheat Options", 11, 5);
 
 		/* Squelch menus */
-		prt("(I) Item Squelch Menus", 11, 5);
+		prt("(I) Item Squelch Menus", 13, 5);
 
-		/* Special choices */
-		prt("(D) Base Delay Factor", 12, 5);
-		prt("(H) Hitpoint Warning", 13, 5);
+		/* Other choices */
+		prt("(D) Base Delay Factor", 14, 5);
+		prt("(H) Hitpoint Warning", 15, 5);
 
 		/* Window flags */
-		prt("(W) Window flags", 15, 5);
+		prt("(W) Window flags", 16, 5);
 
 		/* Load and Append */
-		prt("(L) Load a user pref file", 17, 5);
-		prt("(A) Append options to a file", 18, 5);
+		prt("(L) Load a user pref file", 18, 5);
+		prt("(A) Append options to a file", 19, 5);
 
 
 		/* Prompt */
-		prt("Command: ", 20, 0);
+		prt("Command: ", 21, 0);
 
 		/* Get command */
 		ch = inkey();
@@ -886,37 +713,43 @@ void do_cmd_options(void)
 		/* General Options */
 		else if (ch == '1')
 		{
-			do_cmd_options_aux(0, "User Interface Options");
+			do_cmd_options_aux(0, "User Interface Options", OPT_TYPE_NORMAL);
 		}
 
 		/* Disturbance Options */
 		else if (ch == '2')
 		{
-			do_cmd_options_aux(1, "Disturbance Options");
+			do_cmd_options_aux(1, "Display Options", OPT_TYPE_NORMAL);
+		}
+
+		/* Disturbance Options */
+		else if (ch == '3')
+		{
+			do_cmd_options_aux(2, "Disturbance Options", OPT_TYPE_NORMAL);
 		}
 
 		/* Inventory Options */
-		else if (ch == '3')
+		else if (ch == '4')
 		{
-			do_cmd_options_aux(2, "Game-Play Options");
+			do_cmd_options_aux(3, "Game-Play Options", OPT_TYPE_NORMAL);
 		}
 
 		/* Efficiency Options */
-		else if (ch == '4')
-		{
-			do_cmd_options_aux(3, "Efficiency Options");
-		}
-
-		/* Birth Options */
 		else if (ch == '5')
 		{
-			do_cmd_options_aux(4, "Birth Options");
+			do_cmd_options_aux(4, "Efficiency Options", OPT_TYPE_NORMAL);
 		}
 
 		/* Cheating Options */
-		else if (ch == '6')
+		else if ((ch == 'C') || (ch == 'c'))
 		{
-			do_cmd_options_aux(5, "Cheat Options");
+			do_cmd_options_aux(5, "Cheat Options", OPT_TYPE_CHEAT);
+		}
+
+		/* Birth Options */
+		else if ((ch == 'B') || (ch == 'b'))
+		{
+			options_birth_menu(FALSE);
 		}
 
 		/* Window flags */
@@ -1017,6 +850,12 @@ void do_cmd_options(void)
 			}
 		}
 
+		/* Help */
+		else if (ch == '?')
+		{
+			do_cmd_help();
+		}
+
 		/* Unknown option */
 		else
 		{
@@ -1028,12 +867,26 @@ void do_cmd_options(void)
 		msg_print(NULL);
 	}
 
-
 	/* Load screen */
 	screen_load();
 }
 
+/*
+ * Ask for a "user pref line" and process it
+ */
+void do_cmd_pref(void)
+{
+	char tmp[80];
 
+	/* Default */
+	strcpy(tmp, "");
+
+	/* Ask for a "user pref command" */
+	if (!get_string("Pref: ", tmp, 80)) return;
+
+	/* Process that pref command */
+	(void)process_pref_file_aux(tmp);
+}
 
 #ifdef ALLOW_MACROS
 
@@ -1281,10 +1134,7 @@ static errr keymap_dump(cptr fname)
 	/* Success */
 	return (0);
 }
-
-
-#endif
-
+#endif /*ALLOW_MACROS*/
 
 /*
  * Interact with "macros"
@@ -1297,10 +1147,11 @@ void do_cmd_macros(void)
 
 	char tmp[1024];
 
+#ifdef ALLOW_MACROS
 	char pat[1024];
+#endif
 
 	int mode;
-
 
 	/* Roguelike */
 	if (rogue_like_commands)
@@ -1314,14 +1165,11 @@ void do_cmd_macros(void)
 		mode = KEYMAP_MODE_ORIG;
 	}
 
-
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-
 	/* Save screen */
 	screen_save();
-
 
 	/* Process requests until done */
 	while (1)
@@ -1669,21 +1517,21 @@ void do_cmd_macros(void)
 	screen_load();
 }
 
-
-
 /*
  * Interact with "visuals"
  */
 void do_cmd_visuals(void)
 {
 	int ch;
-	int cx;
 
+
+#ifdef ALLOW_VISUALS
+	int cx;
 	int i;
 
 	FILE *fff;
-
 	char buf[1024];
+#endif
 
 
 	/* File type is "TEXT" */
@@ -2122,13 +1970,14 @@ void do_cmd_visuals(void)
 	screen_load();
 }
 
-
 /*
  * Interact with "colors"
  */
 void do_cmd_colors(void)
 {
 	int ch;
+
+#ifdef ALLOW_COLORS
 	int cx;
 
 	int i;
@@ -2136,7 +1985,7 @@ void do_cmd_colors(void)
 	FILE *fff;
 
 	char buf[1024];
-
+#endif
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2349,95 +2198,10 @@ void do_cmd_colors(void)
 	screen_load();
 }
 
-
-/*
- * Note something in the message recall
- */
-void do_cmd_note(void)
-{
-	char tmp[80];
-
-	/* Default */
-	strcpy(tmp, "");
-
-	/* Input */
-	if (!get_string("Note: ", tmp, 80)) return;
-
-	/* Ignore empty notes */
-	if (!tmp[0] || (tmp[0] == ' ')) return;
-
-	/* Add the note to the message recall */
-	msg_format("Note: %s", tmp);
-}
-
-
-/*
- * Mention the current version
- */
-void do_cmd_version(void)
-{
-	/* Silly message */
-	msg_format("You are playing EyAngband %d.%d.%d.  Type '?' for more info.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-}
-
-
-
-/*
- * Array of feeling strings
- */
-static cptr do_cmd_feeling_text[11] =
-{
-	"Looks like any other level.",
-	"You feel there is something special about this level.",
-	"You have a superb feeling about this level.",
-	"You have an excellent feeling...",
-	"You have a very good feeling...",
-	"You have a good feeling...",
-	"You feel strangely lucky...",
-	"You feel your luck is turning...",
-	"You like the look of this place...",
-	"This level can't be all bad...",
-	"What a boring place..."
-};
-
-
-/*
- * Note that "feeling" is set to zero unless some time has passed.
- * Note that this is done when the level is GENERATED, not entered.
- */
-void do_cmd_feeling(void)
-{
-	cptr quest_feel;
-
-	/* Verify the feeling */
-	if (feeling > 10) feeling = 10;
-
-	/* No useful feeling in town */
-	if (!p_ptr->depth)
-	{
-		msg_print("Looks like a typical town.");
-		return;
-	}
-
-	/* Display the feeling */
-	if (!adult_no_feelings) msg_print(do_cmd_feeling_text[feeling]);
-
-	/* Display the quest descpription for the current level (mode 3 = short)*/
-	quest_feel = describe_quest(p_ptr->depth,3);
-	if (quest_feel != NULL) msg_print(quest_feel);
-
-}
-
-
-
-
-
 /*
  * Encode the screen colors
  */
 static char hack[17] = "dwsorgbuDWvyRGBU";
-
 
 /*
  * Hack -- load a screen dump from a file
@@ -2635,776 +2399,109 @@ void do_cmd_save_screen(void)
 	screen_load();
 }
 
-
-
-
 /*
- * Display known artifacts
+ * Peruse the On-Line-Help
  */
-static void do_cmd_knowledge_artifacts(void)
+void do_cmd_help(void)
 {
-	int i, k, z, x, y;
-
-	FILE *fff;
-
-	char file_name[1024];
-
-	char o_name[80];
-
-	bool *okay;
-
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
-
-	/* Allocate the "okay" array */
-	C_MAKE(okay, z_info->a_max, bool);
-
-	/* Scan the artifacts */
-	for (k = 0; k < z_info->a_max; k++)
-	{
-		artifact_type *a_ptr = &a_info[k];
-
-		/* Default */
-		okay[k] = FALSE;
-
-		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
-
-		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
-
-		/* Assume okay */
-		okay[k] = TRUE;
-	}
-
-	/* Check the dungeon */
-	for (y = 0; y < DUNGEON_HGT; y++)
-	{
-		for (x = 0; x < DUNGEON_WID; x++)
-		{
-			s16b this_o_idx, next_o_idx = 0;
-
-			/* Scan all objects in the grid */
-			for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
-			{
-				object_type *o_ptr;
-
-				/* Get the object */
-				o_ptr = &o_list[this_o_idx];
-
-				/* Get the next object */
-				next_o_idx = o_ptr->next_o_idx;
-
-				/* Ignore non-artifacts */
-				if (!artifact_p(o_ptr)) continue;
-
-				/* Ignore known items */
-				if (object_known_p(o_ptr)) continue;
-
-				/* Note the artifact */
-				okay[o_ptr->name1] = FALSE;
-			}
-		}
-	}
-
-	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Note the artifact */
-		okay[o_ptr->name1] = FALSE;
-	}
-
-	/* Scan the artifacts */
-	for (k = 0; k < z_info->a_max; k++)
-	{
-		artifact_type *a_ptr = &a_info[k];
-
-		/* List "dead" ones */
-		if (!okay[k]) continue;
-
-		/* Paranoia */
-		strcpy(o_name, "Unknown Artifact");
-
-		/* Obtain the base object type */
-		z = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-		/* Real object */
-		if (z)
-		{
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Create fake object */
-			object_prep(i_ptr, z);
-
-			/* Make it an artifact */
-			i_ptr->name1 = k;
-
-			/* Describe the artifact */
-			object_desc_store(o_name, i_ptr, FALSE, 0);
-		}
-
-		/* Hack -- Build the artifact name */
-		fprintf(fff, "     The %s\n", o_name);
-	}
-
-	/* Free the "okay" array */
-	C_KILL(okay, z_info->a_max, bool);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	show_file(file_name, "Known artifacts", 0, 0);
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
-/*
- * Display known objects
- */
-static void do_cmd_knowledge_objects(void)
-{
-	int k;
-
-	FILE *fff;
-
-	char o_name[80];
-
-	char file_name[1024];
-
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
-
-	/* Scan the object kinds */
-	for (k = 1; k < z_info->k_max; k++)
-	{
-		object_kind *k_ptr = &k_info[k];
-
-		/* Hack -- skip artifacts */
-		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
-
-		/* List known flavored objects */
-		if (k_ptr->flavor && k_ptr->aware)
-		{
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Create fake object */
-			object_prep(i_ptr, k);
-
-			/* Describe the object */
-			object_desc_store(o_name, i_ptr, FALSE, 0);
-
-			/* Print a message */
-			fprintf(fff, "     %s\n", o_name);
-		}
-	}
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	show_file(file_name, "Known Objects", 0, 0);
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
-
-/*
- * Display known alchemical combinations
- */
-static void do_cmd_knowledge_alchemy(void)
-{
-	int i;
-
-	FILE *fff;
-
-	char line[80];
-	char file_name[1024];
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
-
-	/* Scan the alchemy info */
-	for (i = 0; i < SV_MAX_POTIONS; i++)
-	{
-		if ((potion_alch[i].known1) || (potion_alch[i].known2))
-		{
-			alchemy_describe(line, i);
-			
-			/* Print a message */
-			fprintf(fff, " %s\n", line);
-		}
-	}
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	show_file(file_name, "Known Alchemical Combinations", 0, 0);
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-/*
- * Description of each monster group.
- */
-static char *monster_group_text[] = {
-"Uniques",
-"Ants",
-"Bats",
-"Birds",
-"Canines",
-"Centipedes",
-"Demons",
-"Dragons",
-"Elementals",
-"Eyes/Beholders",
-"Felines",
-"Flies",
-"Ghosts",
-"Giants",
-"Golems",
-"Humans",
-"Humanoids",
-"Hybrids",
-"Icky Things",
-"Insects",
-"Jellies",
-"Killer Beetles",
-"Kobolds",
-"Lice",
-"Lichs",
-"Mimics",
-"Molds",
-"Mushroom Patches",
-"Nagas",
-"Nameless Horrors",
-"Ogres",
-"Orcs",
-"Quadropeds",
-"Quylthulgs",
-"Reptiles/Amphibians",
-"Rodents",
-"Scorpions/Spiders",
-"Skeletons",
-"Snakes",
-"Townspeople",
-"Trolls",
-"Vampires",
-"Vortices",
-"Wights/Wraiths",
-"Worms/Worm Masses",
-"Xorns/Xarens",
-"Yeeks",
-"Yeti",
-"Zephyr Hounds",
-"Zombies/Mummies",
-NULL};
-
-/*
- * Symbols of monsters in each group. Note the "Uniques" group
- * is handled differently.
- */
-static char *monster_group_char[] = {
-(char *) -1L,
-"a",
-"b",
-"B",
-"C",
-"c",
-"Uu",
-"Dd",
-"E",
-"e",
-"f",
-"F",
-"G",
-"P",
-"g",
-"p",
-"h",
-"H",
-"i",
-"I",
-"j",
-"K",
-"k",
-"l",
-"L",
-"$!?=.|~",
-"m",
-",",
-"n",
-"N",
-"O",
-"o",
-"q",
-"Q",
-"RM",
-"r",
-"S",
-"s",
-"J",
-"t",
-"T",
-"V",
-"v",
-"W",
-"w",
-"X",
-"y",
-"Y",
-"Z",
-"z",
-NULL
-};
-
-
-/*
- * Build a list of monster indexes in the given group. Return the number
- * of monsters in the group.
- */
-static int collect_monsters(int grp_cur, int mon_idx[], int mode)
-{
-	int i, mon_cnt = 0;
-
-	/* Get a list of x_char in this group */
-	char *group_char = monster_group_char[grp_cur];
-
-	/* XXX Hack -- Check if this is the "Uniques" group */
-	bool grp_unique = (monster_group_char[grp_cur] == (char *) -1L);
-
-	/* Check every race */
-	for (i = 0; i < z_info->r_max; i++)
-	{
-		/* Access the race */
-		monster_race *r_ptr = &r_info[i];
-		monster_lore *l_ptr = &l_list[i];
-
-		/* Is this a unique? */
-		bool unique = (r_ptr->flags1 & RF1_UNIQUE) != 0;
-
-		/* Is the unique dead? */
-		bool dead = unique && (r_ptr->max_num == 0);
-
-		/* Skip empty race */
-		if (!r_ptr->name) continue;
-
-#if 0
-		/* Require matching "unique" status */
-		if (unique != grp_unique) continue;
-#endif
-		if (grp_unique && !(unique)) continue;
-
-		/* Require known monsters */
-		if (!(mode & 0x02) && !cheat_know && !l_ptr->r_sights) continue;
-
-		/* Check for race in the group */
-		if (grp_unique || strchr(group_char, r_ptr->d_char))
-		{
-			/* Add the race */
-			mon_idx[mon_cnt++] = i;
-
-			/* XXX Hack -- Just checking for non-empty group */
-			if (mode & 0x01) break;
-		}
-	}
-
-	/* Terminate the list */
-	mon_idx[mon_cnt] = 0;
-
-	/* Return the number of races */
-	return mon_cnt;
-}
-
-
-/*
- * Display the monster groups.
- */
-static void display_group_list(int col, int row, int wid, int per_page,
-	int grp_idx[], int grp_cur, int grp_top)
-{
-	int i;
-
-	/* Display lines until done */
-	for (i = 0; i < per_page && (grp_idx[i] >= 0); i++)
-	{
-		/* Get the group index */
-		int grp = grp_idx[grp_top + i];
-
-		/* Choose a color */
-		byte attr = (grp_top + i == grp_cur) ? TERM_L_BLUE : TERM_WHITE;
-
-		/* Erase the entire line */
-		Term_erase(col, row + i, wid);
-
-		/* Display the group label */
-		c_put_str(attr, monster_group_text[grp], row + i, col);
-	}
-}
-
-
-/*
- * Display the monsters in a group.
- */
-static void display_monster_list(int col, int row, int per_page, int mon_idx[],
-	int mon_cur, int mon_top)
-{
-	int i;
-
-	/* Display lines until done */
-	for (i = 0; i < per_page && mon_idx[i]; i++)
-	{
-		/* Get the race index */
-		int r_idx = mon_idx[mon_top + i];
-
-		/* Access the race */
-		monster_race *r_ptr = &r_info[r_idx];
-		monster_lore *l_ptr = &l_list[r_idx];
-
-		/* Choose a color */
-		byte attr = (i + mon_top == mon_cur) ? TERM_L_BLUE : TERM_WHITE;
-
-		/* Display the name */
-		c_prt(attr, r_name + r_ptr->name, row + i, col);
-
-		/* Display symbol */
-		Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
-
-		/* Display kills */
-		if (!(r_ptr->flags1 & RF1_UNIQUE))
-			put_str(format("%5d", l_ptr->r_pkills), row + i, 73);
-		else
-			put_str(format("%s", (l_ptr->r_pkills) ? "dead" : "alive"), row + i, 73);
-	
-	}
-
-	/* Clear remaining lines */
-	for (; i < per_page; i++)
-	{
-		Term_erase(col, row + i, 255);
-	}
-}
-
-
-/*
- * Display known monsters.
- */
-static void do_cmd_knowledge_monsters(void)
-{
-	int i, len, max;
-	int grp_cur, grp_top;
-	int mon_old, mon_cur, mon_top;
-	int grp_cnt, grp_idx[100];
-	int mon_cnt;
-	int *mon_idx;
-
-	int column = 0;
-	bool flag;
-	bool redraw;
-
-	char find_ch = '\0', find_name[80] = "";
-	int find_mode = 0;
-
-	/* Allocate the "mon_idx" array */
-	C_MAKE(mon_idx, z_info->r_max, int);
-
-	max = 0;
-	grp_cnt = 0;
-
-	/* Check every group */
-	for (i = 0; monster_group_text[i] != NULL; i++)
-	{
-		/* Measure the label */
-		len = strlen(monster_group_text[i]);
-
-		/* Save the maximum length */
-		if (len > max)
-		{
-			max = len;
-		}
-
-		/* See if any monsters are known */
-		if ((monster_group_char[i] == ((char *) -1L)) || collect_monsters(i, mon_idx, 0x01))
-		{
-			/* Build a list of groups with known monsters */
-			grp_idx[grp_cnt++] = i;
-		}
-	}
-
-	/* Terminate the list */
-	grp_idx[grp_cnt] = -1;
-
-	grp_cur = grp_top = 0;
-	mon_cur = mon_top = 0;
-	mon_old = -1;
-
-	flag = FALSE;
-	redraw = TRUE;
-
-	while (!flag)
-	{
-		char ch;
-
-		if (redraw)
-		{
-			clear_from(0);
-		
-			prt("Knowledge - Monsters", 2, 0);
-			prt("Group", 4, 0);
-			prt("Name", 4, max + 3);
-			prt("Sym", 4, 67);
-			prt("Kills", 4, 73);
-
-			for (i = 0; i < 78; i++)
-			{
-				Term_putch(i, 5, TERM_WHITE, '=');
-			}
-
-			for (i = 0; i < 16; i++)
-			{
-				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
-			}
-
-			redraw = FALSE;
-		}
-
-		/* Scroll group list */
-		if (grp_cur < grp_top)
-			grp_top = grp_cur;
-		if (grp_cur >= grp_top + 16)
-			grp_top = grp_cur - 15;
-
-		/* Scroll monster list */
-		if (mon_cur < mon_top)
-			mon_top = mon_cur;
-		if (mon_cur >= mon_top + 16)
-			mon_top = mon_cur - 15;
-
-		/* Display a list of monster groups */
-		display_group_list(0, 6, max, 16, grp_idx, grp_cur, grp_top);
-
-		/* Get a list of monsters in the current group */
-		mon_cnt = collect_monsters(grp_idx[grp_cur], mon_idx, 0x00);
-
-		/* Display a list of monsters in the current group */
-		display_monster_list(max + 3, 6, 16, mon_idx, mon_cur, mon_top);
-
-		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", 23, 0);
-
-		/* The "current" monster changed */
-		if (mon_old != mon_idx[mon_cur])
-		{
-			/* Hack -- track this monster race */
-			monster_race_track(mon_idx[mon_cur]);
-
-			/* Hack -- handle stuff */
-			handle_stuff();
-
-			/* Remember the "current" monster */
-			mon_old = mon_idx[mon_cur];
-		}
-
-		if (!column)
-		{
-			Term_gotoxy(0, 6 + (grp_cur - grp_top));
-		}
-		else
-		{
-			Term_gotoxy(max + 3, 6 + (mon_cur - mon_top));
-		}
-	
-		ch = inkey();
-
-		switch (ch)
-		{
-			case ESCAPE:
-			{
-				flag = TRUE;
-				break;
-			}
-
-			case 'R':
-			case 'r':
-			{
-				/* Recall on screen */
-				screen_roff(mon_idx[mon_cur]);
-
-				(void) inkey();
-
-				redraw = TRUE;
-				break;
-			}
-
-			default:
-			{
-				int d;
-
-				/* Extract direction */
-				d = target_dir(ch);
-
-				if (!d) break;
-
-				if (ddx[d])
-				{
-					column += ddx[d];
-					if (column < 0) column = 0;
-					if (column > 1) column = 1;
-					break;
-				}
-
-				/* Browse group list */
-				if (!column)
-				{
-					int old_grp = grp_cur;
-
-					/* Move up or down */
-					grp_cur += ddy[d];
-
-					/* Verify */
-					if (grp_cur < 0)
-						grp_cur = 0;
-					if (grp_cur >= grp_cnt)
-						grp_cur = grp_cnt - 1;
-
-					if (grp_cur != old_grp)
-						mon_cur = mon_top = 0;
-				}
-
-				/* Browse monster list */
-				else
-				{
-					/* Move up or down */
-					mon_cur += ddy[d];
-
-					/* Verify */
-					if (mon_cur < 0)
-						mon_cur = 0;
-					if (mon_cur >= mon_cnt)
-						mon_cur = mon_cnt - 1;
-				}
-				
-				break;
-			}
-		}
-	}
-
-	/* XXX XXX Free the "mon_idx" array */
-	C_KILL(mon_idx, z_info->r_max, int);
-
-}
-
-/*
- * Interact with "knowledge"
- */
-void do_cmd_knowledge(void)
-{
-	char ch;
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
 	/* Save screen */
 	screen_save();
 
-	/* Interact until done */
-	while (1)
-	{
-		/* Clear screen */
-		Term_clear();
-
-		/* Ask for a choice */
-		prt("Display current knowledge", 2, 0);
-
-		/* Give some choices */
-		prt("(1) Display known artifacts", 4, 5);
-		prt("(2) Display known monsters", 5, 5);
-		prt("(3) Display known objects", 6, 5);
-		prt("(4) Display known alchemical combinations", 7, 5);
-
-		/* Prompt */
-		prt("Command: ", 9, 0);
-
-		/* Prompt */
-		ch = inkey();
-
-		/* Done */
-		if (ch == ESCAPE) break;
-
-		/* Artifacts */
-		if (ch == '1')
-		{
-			/* Spawn */
-			do_cmd_knowledge_artifacts();
-		}
-
-		/* Uniques */
-		else if (ch == '2')
-		{
-			/* Spawn */
-			do_cmd_knowledge_monsters();
-		}
-
-		/* Objects */
-		else if (ch == '3')
-		{
-			/* Spawn */
-			do_cmd_knowledge_objects();
-		}
-
-		/* Alchemy */
-		else if (ch == '4')
-		{
-			/* Spawn */
-			do_cmd_knowledge_alchemy();
-		}
-
-		/* Unknown option */
-		else
-		{
-			bell("Illegal command for knowledge!");
-		}
-
-		/* Flush messages */
-		msg_print(NULL);
-	}
-
+	/* Peruse the main help file */
+	(void)show_file("help.hlp", NULL, 0, 0);
 
 	/* Load screen */
 	screen_load();
 }
 
+/*
+ * Hack -- commit suicide
+ */
+void do_cmd_suicide(void)
+{
+	/* Flush input */
+	flush();
 
+	/* Verify Retirement */
+	if (p_ptr->total_winner)
+	{
+		/* Verify */
+		if (!get_check("Do you want to retire? ")) return;
+	}
+
+	/* Verify Suicide */
+	else
+	{
+		char ch;
+
+		/* Verify */
+		if (!get_check("Do you really want to quit? ")) return;
+
+		/* Special Verification for suicide */
+		prt("Please verify QUITTING by typing the '@' sign: ", 0, 0);
+		flush();
+		ch = inkey();
+		prt("", 0, 0);
+		if (ch != '@') return;
+	}
+
+	/* Commit suicide */
+	p_ptr->is_dead = TRUE;
+
+	/* Stop playing */
+	p_ptr->playing = FALSE;
+
+	/* Leaving */
+	p_ptr->leaving = TRUE;
+
+	/* Cause of death */
+	strcpy(p_ptr->died_from, "Quitting");
+}
+
+/*
+ * Save the game
+ */
+void do_cmd_save_game(void)
+{
+	/* Disturb the player */
+	disturb(1);
+
+	/* Clear messages */
+	msg_print(NULL);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Message */
+	prt("Saving game...", 0, 0);
+
+	/* Refresh */
+	Term_fresh();
+
+	/* The player is not dead */
+	strcpy(p_ptr->died_from, "(saved)");
+
+	/* Forbid suspend */
+	signals_ignore_tstp();
+
+	/* Save the player */
+	if (save_player())
+	{
+		prt("Saving game... done.", 0, 0);
+	}
+
+	/* Save failed (oops) */
+	else
+	{
+		prt("Saving game... failed!", 0, 0);
+	}
+
+	/* Allow suspend again */
+	signals_handle_tstp();
+
+	/* Refresh */
+	Term_fresh();
+
+	/* Note that the player is not dead */
+	strcpy(p_ptr->died_from, "(alive and well)");
+}

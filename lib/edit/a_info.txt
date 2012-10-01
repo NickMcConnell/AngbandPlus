@@ -10,7 +10,7 @@
 
 # The artifact indexes are defined in "defines.h", and must not be changed.
 
-# Artifacts 1-20 are "special", 21-68 are "armor", and 69-132 are "weapons".
+# Artifacts 1-30 are "special", 31-89 are "armor", and 90-164 are "weapons".
 
 # Hack -- "Grond" and "Morgoth" MUST have a rarity of one, or they might
 # not be dropped when Morgoth is killed.  Note that they, like the "special"
@@ -56,76 +56,86 @@
 
 # Version stamp (required)
 
-V:0.1.4
+V:0.2.0
 
-## Artifact Lights ##
+## Artifact Perma-Lights ##
 
-# The Phial of Galadriel
+# The Phial of Galadriel 
 
 N:1:of Galadriel
-I:39:4:0
-W:3:1:10:10000
+I:40:1:0
+W:4:1:10:10000
 P:0:1d1:0:0:0
-F:ACTIVATE | 
+F:ACTIVATE | LITE3 |
 F:INSTA_ART
 A:ILLUMINATION:10:10
 
-# The Star of Elendil
+# The Beacon of Om 
 
-N:2:of Elendil
-I:39:5:0
+N:2:of Om
+I:40:2:0
+W:30:1:300:10000
+P:0:1d1:0:0:0
+F:AGGRAVATE | LITE4 |
+F:INSTA_ART
+
+# The Star of Elendil 
+
+N:3:of Elendil
+I:40:3:0
 W:30:25:5:30000
 P:0:1d1:0:0:0
-F:ACTIVATE | SEE_INVIS | 
+F:ACTIVATE | SEE_INVIS | LITE3 |
 F:INSTA_ART
 A:MAGIC_MAP:50:50
 
 # The Arkenstone of Thrain
 
-N:3:of Thrain
-I:39:6:0
+N:4:of Thrain
+I:40:4:0
 W:50:50:5:50000
 P:0:1d1:0:0:0
-F:SEE_INVIS | HOLD_LIFE | 
-F:RES_LITE | RES_DARK |  
-F:INSTA_ART | ACTIVATE
+F:SEE_INVIS | HOLD_LIFE | RES_LITE | RES_DARK | LITE3 | ACTIVATE |
+F:INSTA_ART 
 A:DETECT:30:30
 
-# The Beacon of Om
+# The Palantir of Westernesse 
 
-N:4:of Om
-I:39:7:0
-W:30:1:300:10000
-P:0:1d1:0:0:0
-F:AGGRAVATE | INSTA_ART
-
-# The Great Lamp of Cheradenine
-
-N:5:of Cheradenine
-I:39:8:0
-W:45:25:75:10000
-P:0:1d1:0:0:0
-F:INSTA_ART | ACTIVATE
-A:ILLUMINATION:20:50
-
-# The Palantir of Westernesse
-
-N:6:of Westernesse
-I:39:9:2
+N:5:of Westernesse
+I:40:5:2
 W:75:60:200:100000
 P:0:10d10:0:0:0
-F:ACTIVATE | 
-F:INT | WIS | SEARCH | INFRA | SEE_INVIS | TELEPATHY | 
-F:RES_CHAOS | RES_BLIND | AGGRAVATE | 
-F:INSTA_ART 
+F:INT | WIS | SEARCH | INFRA | SEE_INVIS | TELEPATHY | LITE3 |
+F:RES_CHAOS | NO_BLIND | AGGRAVATE | 
+F:INSTA_ART | ACTIVATE 
 A:CLAIRVOYANCE:200:50
+
+## Artifact Lanterns ##
+
+# The Great Lamp of Cheradenine 
+
+N:6:of Cheradenine
+I:39:7:0
+W:45:25:75:10000
+P:0:1d1:0:0:0
+F:RES_LITE | RES_DARK | SUST_WIS | SUST_STR | LITE4 |
+F:INSTA_ART
+
+# The Lantern of Time Reduction
+
+N:7:of Time Reduction
+I:39:8:-5
+W:45:15:75:10000
+P:0:1d1:0:0:0
+F:SPEED | RES_TIME | RES_CHAOS | FEATHER | SLOW_DIGEST | LITE3 |
+F:HIDE_TYPE | INSTA_ART 
 
 ## Artifact Amulets ##
 
 # The Amulet of Carlammas
 
-N:7:of Carlammas
-I:40:10:2
+N:8:of Carlammas
+I:41:15:2
 W:50:10:3:60000
 F:CON | HIDE_TYPE | 
 F:ACTIVATE | RES_FIRE | 
@@ -134,8 +144,8 @@ A:PROT_EVIL:225:225
 
 # The Amulet of Ingwe
 
-N:8:of Ingwe
-I:40:11:3
+N:9:of Ingwe
+I:41:16:3
 W:65:30:3:90000
 F:INT | WIS | CHR | INFRA | HIDE_TYPE | 
 F:SEE_INVIS | FREE_ACT | ACTIVATE | 
@@ -145,19 +155,28 @@ A:DISP_EVIL:300:300
 
 # The Necklace of the Dwarves
 
-N:9:of the Dwarves
-I:40:12:3
+N:10:of the Dwarves
+I:41:17:3
 W:70:50:3:75000
 F:STR | CON | INFRA | HIDE_TYPE | 
-F:SEE_INVIS | FREE_ACT | REGEN | LITE | 
+F:SEE_INVIS | FREE_ACT | REGEN | GLOW | 
 F:INSTA_ART
+
+# The Amulet 'Heartstone'
+
+N:11:'Heartstone'
+I:41:18:3
+W:65:40:3:85000
+F:RES_DISEASE | RES_POIS | REGEN | HEALTH | HOLD_LIFE | ACTIVATE
+F:INSTA_ART | HIDE_TYPE
+A:HEAL1:450:100
 
 ## Artifact Rings ##
 
 # The Ring of Barahir
 
-N:10:of Barahir
-I:45:32:1
+N:12:of Barahir
+I:45:37:1
 W:50:25:2:65000
 F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE | 
 F:RES_POIS | RES_DARK | 
@@ -165,8 +184,8 @@ F:INSTA_ART
 
 # The Ring of Tulkas
 
-N:11:of Tulkas
-I:45:33:4
+N:13:of Tulkas
+I:45:38:4
 W:70:50:2:150000
 F:STR | DEX | CON | HIDE_TYPE | 
 F:ACTIVATE | 
@@ -175,36 +194,36 @@ A:HASTE2:150:150
 
 # The Ring of Power 'Narya'
 
-N:12:of Power 'Narya'
-I:45:34:1
+N:14:of Power 'Narya'
+I:45:39:1
 W:70:30:2:100000
 P:0:0d0:6:6:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | FREE_ACT | SEE_INVIS | 
 F:SLOW_DIGEST | REGEN | 
 F:SUST_STR | SUST_CON | SUST_WIS | SUST_CHR | 
-F:IM_FIRE | RES_FIRE | RES_NETHR | RES_FEAR | 
+F:IM_FIRE | RES_FIRE | RES_NETHR | BRAVERY | 
 F:INSTA_ART
 A:FIRE3:225:225
 
 # The Ring of Power 'Nenya'
 
-N:13:of Power 'Nenya'
-I:45:35:2
+N:15:of Power 'Nenya'
+I:45:40:2
 W:80:40:2:200000
 P:0:0d0:8:8:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | REGEN | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
-F:IM_COLD | RES_COLD | RES_BLIND | RES_CONFU | 
+F:IM_COLD | RES_COLD | NO_BLIND | RES_CONFU | 
 F:INSTA_ART
 A:FROST5:325:325
 
 # The Ring of Power 'Vilya'
 
-N:14:of Power 'Vilya'
-I:45:36:3
+N:16:of Power 'Vilya'
+I:45:41:3
 W:90:50:2:300000
 P:0:0d0:10:10:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
@@ -217,26 +236,42 @@ A:ELEC2:425:425
 
 # The Ring of Power 'The One Ring'
 
-N:15:of Power 'The One Ring'
-I:45:37:5
+N:17:of Power 'The One Ring'
+I:45:42:5
 W:100:100:2:5000000
 P:0:0d0:15:15:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
-F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | INVIS |
-F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | 
-F:RES_NETHR | RES_CONFU | RES_BLIND | RES_DISEN | RES_FEAR | 
+F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN | MANA |
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | INVIS | RES_WATER |
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | RES_TIME | 
+F:RES_NETHR | RES_CONFU | NO_BLIND | RES_DISEN | BRAVERY | 
 F:SUST_STR | SUST_DEX | SUST_CON | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
 F:INSTA_ART
 A:BIZZARE:450:450
 
+# The Ring of Calfin
+
+N:18:of Calfin
+I:45:43:4
+W:30:25:2:55000
+F:CHR | HEALTH | STEALTH | RES_WATER | HIDE_TYPE | 
+F:INSTA_ART
+
+# The Ring of Saturn
+
+N:19:of Saturn
+I:45:44:0
+W:50:50:2:70000
+F:TELEPATHY | RES_WATER | RES_FIRE | RES_ELEC | ACTIVATE | INSTA_ART
+A:IDENTIFY:50:20
+
 ## Artifact Spellbooks ##
 
 # The Codex of Ultimate Wisdom
 
-N:16:[The Codex of Ultimate Wisdom]
+N:20:[The Codex of Ultimate Wisdom]
 I:90:22:0
 W:90:20:75:2500000
 P:0:1d1:0:0:0
@@ -244,58 +279,66 @@ F:INSTA_ART | EASY_KNOW
 
 # The Necronomicon
 
-N:17:[The Necronomicon]
+N:21:[The Necronomicon]
 I:90:23:0
 W:75:20:60:2500000
 P:0:1d1:0:0:0
 F:INSTA_ART | EASY_KNOW
 
-#### Artifacts 18-20 are unused ####
+#### Artifacts 21-30 are unused ####
 
 # The Multi-Hued Dragon Scale Mail 'Razorback'
 
-N:21:'Razorback'
+N:31:'Razorback'
 I:38:6:0
 W:90:9:500:400000
 P:30:2d4:-4:0:25
 F:FREE_ACT | IM_ELEC | RES_ELEC | 
 F:RES_ACID | RES_FIRE | RES_COLD | 
 F:RES_POIS | RES_LITE | RES_DARK | 
-F:LITE | SEE_INVIS | AGGRAVATE | 
+F:GLOW | SEE_INVIS | AGGRAVATE | 
 F:ACTIVATE
 A:STAR_BALL:500:0
 
 # The Power Dragon Scale Mail 'Bladeturner'
 
-N:22:'Bladeturner'
+N:32:'Bladeturner'
 I:38:30:0
 W:100:16:600:500000
 P:50:2d4:-8:0:35
 F:HOLD_LIFE | REGEN | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | RES_FEAR | 
-F:RES_LITE | RES_DARK | RES_BLIND | RES_CONFU | RES_SOUND | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | BRAVERY | 
+F:RES_LITE | RES_DARK | RES_CONFU | RES_SOUND | RES_WATER |
 F:RES_SHARD | RES_NETHR | RES_NEXUS | RES_CHAOS | RES_DISEN | 
+F:RES_DISEASE 
 F:ACTIVATE
 A:RAGE_BLESS_RESIST:400:0
 
-#### Artifact 23 is unused ####
+# The Power Dragon Scale Mail 'Tortureskin'
+
+N:33:'Tortureskin'
+I:38:30:-6
+W:80:10:600:0
+P:40:2d4:-15:0:-95
+F:DRAIN_ITEM | DRAIN_EXP | TELEPORT | AGGRAVATE | HIDE_TYPE |
+F:SPEED | STR | DEX | CON | INT | WIS | CHR | MANA | HEALTH |
+F:LIGHT_CURSE | HEAVY_CURSE
 
 # The Adamantite Plate Mail 'Soulkeeper'
 
-N:24:'Soulkeeper'
+N:34:'Soulkeeper'
 I:37:30:2
 W:75:9:420:300000
 P:40:2d4:-4:0:20
 F:CON | 
-F:HOLD_LIFE | SUST_CON | 
-F:RES_ACID | RES_COLD | RES_DARK | RES_NETHR | RES_NEXUS | 
-F:RES_CHAOS | RES_CONFU | RES_FEAR | 
+F:HOLD_LIFE | SUST_CON | HEALTH | 
+F:RES_DARK | RES_NETHR | RES_NEXUS | RES_CHAOS | RES_CONFU | BRAVERY | 
 F:ACTIVATE
 A:HEAL2:888:0
 
 # The Full Plate Armour of Isildur
 
-N:25:of Isildur
+N:35:of Isildur
 I:37:15:1
 W:30:3:300:50000
 P:25:2d4:0:0:25
@@ -303,22 +346,20 @@ F:CON |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:RES_SOUND | RES_CONFU | RES_NEXUS
 
-
 # The Metal Brigandine Armour of the Rohirrim
 
-N:26:of the Rohirrim
+N:36:of the Rohirrim
 I:37:9:2
-W:30:3:200:30000
+W:30:4:290:50000
 P:19:1d4:0:0:15
-F:STR | DEX | HIDE_TYPE | RES_FEAR | 
+F:STR | DEX | HIDE_TYPE | BRAVERY | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONFU | RES_SOUND
-
 
 # The Mithril Chain Mail 'Belegennon'
 
-N:27:'Belegennon'
+N:37:'Belegennon'
 I:37:20:4
-W:40:3:150:105000
+W:35:3:150:105000
 P:28:1d4:-1:0:20
 F:STEALTH | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
@@ -326,7 +367,7 @@ A:PHASE:2:0
 
 # The Mithril Plate Mail of Celeborn
 
-N:28:of Celeborn
+N:38:of Celeborn
 I:37:25:4
 W:40:3:250:150000
 P:35:2d4:-3:0:25
@@ -337,7 +378,7 @@ A:GENOCIDE:500:0
 
 # The Chain Mail of Arvedui
 
-N:29:of Arvedui
+N:39:of Arvedui
 I:37:4:2
 W:20:3:220:32000
 P:14:1d4:-2:0:15
@@ -346,7 +387,7 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_SHARD | RES_NEXUS
 
 # The Augmented Chain Mail of Caspanion
 
-N:30:of Caspanion
+N:40:of Caspanion
 I:37:6:3
 W:25:9:270:40000
 P:16:1d4:-2:0:20
@@ -354,40 +395,73 @@ F:INT | WIS | CON | HIDE_TYPE |
 F:RES_ACID | RES_POIS | RES_CONFU | ACTIVATE
 A:TRAP_DOOR_DEST:10:0
 
-#### Artifact 31 is unused ####
+# The Chain Mail 'Winterworn'
+
+N:41:'Winterworn'
+I:37:4:0
+W:25:5:220:43000
+P:14:1d4:-2:0:10
+F:RES_WATER | RES_COLD | IM_COLD | FREE_ACT | ACTIVATE
+A:FROST2:10:15
+
+# The Partial Plate Armor of the Underlight
+
+N:42:of the Underlight
+I:37:12:1
+W:55:10:250:100000
+P:22:1d4:-5:0:12
+F:INVIS | STEALTH | HIDE_TYPE
 
 # The Soft Leather Armour 'Hithlomir'
 
-N:32:'Hithlomir'
+N:43:'Hithlomir'
 I:36:4:4
-W:20:3:80:45000
+W:10:1:80:45000
 P:4:0d0:0:0:20
 F:STEALTH | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK
 
 # The Leather Scale Mail 'Thalkettoth'
 
-N:33:'Thalkettoth'
+N:44:'Thalkettoth'
 I:36:11:3
 W:20:3:60:25000
 P:11:1d1:-1:0:25
 F:DEX | SPEED | HIDE_TYPE | 
 F:RES_ACID | RES_SHARD
 
-#### Artifact 34 is unused ####
+# The Wizard's Robes of Mordenkainen
+
+N:45:of Mordenkainen
+I:36:3:3
+W:40:3:15:100000
+P:5:1d1:0:0:15
+F:INT | MANA | FREE_ACT | NO_BLIND | RES_CONFU | HIDE_TYPE | 
+F:ACTIVATE
+A:PHASE:3:0
+
+# The Robes of Brutha
+
+N:46:of Brutha
+I:36:2:4
+W:15:5:15:30000
+P:2:1d1:0:0:10
+F:WIS | SUST_WIS | MANA | HIDE_TYPE | 
+F:ACTIVATE
+A:CURE_WOUNDS:10:0
 
 # The Small Metal Shield of Thorin
 
-N:35:of Thorin
+N:47:of Thorin
 I:34:3:4
 W:40:6:65:60000
 P:3:1d2:0:0:25
-F:STR | CON | HIDE_TYPE | RES_FEAR | 
+F:STR | CON | HIDE_TYPE | BRAVERY | 
 F:FREE_ACT | IM_ACID | RES_ACID | RES_SOUND | RES_CHAOS
 
 # The Large Leather Shield of Celegorm
 
-N:36:of Celegorm
+N:48:of Celegorm
 I:34:4:0
 W:30:3:60:12000
 P:4:1d2:0:0:20
@@ -395,32 +469,53 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK
 
 # The Large Metal Shield of Anarion
 
-N:37:of Anarion
+N:49:of Anarion
 I:34:5:0
 W:40:9:120:160000
 P:5:1d3:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SUST_STR | SUST_INT | 
 F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 
+# The Kite Shield 'Stormguard'
 
-#### Artifact 38 is unused ####
+N:50:'Stormguard'
+I:34:7:0
+W:45:9:160:90000
+P:7:1d3:0:0:25
+F:RES_ELEC | RES_COLD | RES_WATER | RES_NEXUS | RES_SOUND | RES_SHARD
+
+# The Small Metal Shield of the Thieves
+
+N:51:of the Thieves
+I:34:3:3
+W:35:5:65:30000
+P:3:1d2:0:0:15
+F:STEALTH | RES_LITE | DEX | SUST_DEX | HIDE_TYPE
+
+# The Wooden Shield of the Elder Forest
+
+N:52:of the Elder Forest
+I:34:1:3
+W:35:10:25:100000
+P:1:1d2:0:0:20
+F:RES_DISEN | IGNORE_DISEN | RES_DISEASE | CON | HIDE_TYPE
 
 # The Massive Iron Crown of Morgoth
 
-N:39:of Morgoth
+N:53:of Morgoth
 I:33:50:125
 W:100:1:20:10000000
 P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_CONFU | RES_NEXUS | RES_NETHR | 
-F:LITE | SEE_INVIS | TELEPATHY | RES_FEAR | 
+F:GLOW | SEE_INVIS | TELEPATHY | BRAVERY | 
 F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE
 F:INSTA_ART
 
 # The Iron Crown of Beruthiel
 
-N:40:of Beruthiel
+N:54:of Beruthiel
 I:33:10:-3
 W:40:12:20:0
 P:0:1d1:0:0:20
@@ -429,16 +524,16 @@ F:FREE_ACT | SEE_INVIS | TELEPATHY | LIGHT_CURSE | HEAVY_CURSE
 
 # The Hard Leather Cap of Thranduil
 
-N:41:of Thranduil
+N:55:of Thranduil
 I:32:2:2
 W:20:2:15:50000
 P:2:0d0:0:0:10
 F:INT | WIS | HIDE_TYPE | 
-F:RES_BLIND | TELEPATHY
+F:NO_BLIND | TELEPATHY
 
 # The Metal Cap of Thengel
 
-N:42:of Thengel
+N:56:of Thengel
 I:32:3:3
 W:10:2:20:22000
 P:3:1d1:0:0:12
@@ -446,69 +541,94 @@ F:WIS | CHR | RES_CONFU | HIDE_TYPE
 
 # The Steel Helm of Hammerhand
 
-N:43:of Hammerhand
+N:57:of Hammerhand
 I:32:6:3
 W:20:2:60:45000
 P:6:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
 F:RES_ACID | RES_NEXUS
 
-# The Iron Helm of Dor-Lomin
+# The Knight's Helm of Dor-Lomin
 
-N:44:of Dor-Lomin
-I:32:5:4
-W:40:12:75:300000
-P:5:1d3:0:0:20
-F:STR | DEX | CON | HIDE_TYPE | RES_FEAR | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND | 
-F:LITE | SEE_INVIS | TELEPATHY
+N:58:of Dor-Lomin
+I:32:8:4
+W:45:12:75:300000
+P:8:1d3:0:0:15
+F:STR | DEX | CON | HIDE_TYPE | BRAVERY | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | NO_BLIND | 
+F:GLOW | SEE_INVIS | TELEPATHY
 
 # The Iron Helm 'Holhenneth'
 
-N:45:'Holhenneth'
+N:59:'Holhenneth'
 I:32:5:2
 W:20:5:75:100000
 P:5:1d3:0:0:10
 F:INT | WIS | SEARCH | HIDE_TYPE | 
-F:RES_BLIND | RES_CONFU | SEE_INVIS | ACTIVATE
+F:NO_BLIND | RES_CONFU | SEE_INVIS | ACTIVATE
 A:DETECT:55:55
 
 # The Iron Helm of Gorlim
 
-N:46:of Gorlim
+N:60:of Gorlim
 I:32:5:-5
 W:20:5:75:0
 P:5:1d3:0:0:10
-F:INT | WIS | SEARCH | HIDE_TYPE | RES_FEAR | 
+F:INT | WIS | SEARCH | HIDE_TYPE | BRAVERY | 
 F:SEE_INVIS | FREE_ACT | AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE
 
 # The Golden Crown of Gondor
 
-N:47:of Gondor
+N:61:of Gondor
 I:33:11:3
 W:40:40:30:100000
 P:0:1d1:0:0:15
 F:STR | WIS | CON | SPEED | HIDE_TYPE | 
-F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | 
+F:RES_COLD | RES_FIRE | RES_LITE | NO_BLIND | 
 F:RES_CONFU | RES_SOUND | RES_CHAOS | 
-F:LITE | SEE_INVIS | REGEN | ACTIVATE
+F:GLOW | SEE_INVIS | REGEN | ACTIVATE
 A:HEAL1:500:0
 
+# The Golden Crown of the Archmage
 
-#### Artifact 48 is unused ####
+N:62:of the Archmage
+I:33:11:4
+W:60:40:30:120000
+P:0:1d1:-12:-12:10
+F:INT | WIS | MANA | SUST_WIS | SUST_INT | BRAVERY | RES_CONFU | 
+F:RES_DISEN | IGNORE_DISEN | HIDE_TYPE | ACTIVATE | SHOW_MODS |
+A:RESTORE_MANA:500:0
+
+# The Jeweled Crown of the Fallen Star
+
+N:63:of the Fallen Star
+I:33:12:0
+W:50:35:30:80000
+P:0:1d1:0:0:15
+F:RES_MANA | ACTIVATE
+A:DETECT_ENCHANT:150:100
+
+# The Jeweled Crown of the Shadows
+
+N:64:of the Shadows
+I:33:12:1
+W:50:35:30:65000
+P:0:1d1:0:0:25
+F:STEALTH | DEX | HIDE_TYPE | ACTIVATE
+A:DIMENSION_DOOR:100:20
 
 # The Cloak 'Colluin'
 
-N:49:'Colluin'
+N:65:'Colluin'
 I:35:1:0
-W:5:45:10:10000
+W:7:45:10:10000
 P:1:0d0:0:0:15
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
 A:RESIST:111:0
 
 # The Cloak 'Holcolleth'
 
-N:50:'Holcolleth'
+N:66:'Holcolleth'
 I:35:1:2
 W:5:45:10:13000
 P:1:0d0:0:0:4
@@ -518,7 +638,7 @@ A:SLEEP:55:0
 
 # The Cloak of Thingol
 
-N:51:of Thingol
+N:67:of Thingol
 I:35:1:3
 W:10:90:10:35000
 P:1:0d0:0:0:18
@@ -528,15 +648,15 @@ A:RECHARGE1:70:0
 
 # The Cloak of Thorongil
 
-N:52:of Thorongil
+N:68:of Thorongil
 I:35:1:0
 W:5:20:10:8000
 P:1:0d0:0:0:10
-F:FREE_ACT | RES_ACID | SEE_INVIS | RES_FEAR
+F:FREE_ACT | RES_ACID | SEE_INVIS | BRAVERY
 
 # The Cloak 'Colannon'
 
-N:53:'Colannon'
+N:69:'Colannon'
 I:35:1:3
 W:3:10:10:11000
 P:1:0d0:0:0:15
@@ -544,10 +664,9 @@ F:STEALTH | SPEED | HIDE_TYPE |
 F:RES_NEXUS | ACTIVATE
 A:TELEPORT:45:0
 
-
 # The Shadow Cloak of Luthien
 
-N:54:of Luthien
+N:70:of Luthien
 I:35:6:2
 W:40:40:5:45000
 P:6:0d0:0:0:20
@@ -555,22 +674,55 @@ F:INT | WIS | CHR | SPEED | STEALTH | HIDE_TYPE |
 F:RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
 A:RESTORE_LIFE:450:0
 
-
 # The Shadow Cloak of Tuor
 
-N:55:of Tuor
+N:71:of Tuor
 I:35:6:4
 W:40:40:5:35000
 P:6:0d0:0:0:12
 F:STEALTH | DEX | HIDE_TYPE | 
 F:FREE_ACT | IM_ACID | RES_ACID | SEE_INVIS
 
+# The Shadow Cloak 'Scarshawl'
 
-#### Artifact 56 is unused ####
+N:72:'Scarshawl'
+I:35:6:-2
+W:30:20:5:0
+P:6:0d0:0:0:-10
+F:STEALTH | AGGRAVATE | HIDE_TYPE | LIGHT_CURSE | HEAVY_CURSE |
+F:DRAIN_ITEM 
+
+# The Shadow Cloak 'Moondancer'
+
+N:73:'Moondancer'
+I:35:6:2
+W:30:20:5:70000
+P:6:0d0:0:0:10
+F:STEALTH | INVIS | MANA | HIDE_TYPE | RES_DISEN | IGNORE_DISEN 
+
+# The Fur Cloak of Thor
+
+N:74:of Thor
+I:35:2:2
+W:30:20:5:0
+P:2:0d0:0:0:8
+F:HEALTH | STR | HIDE_TYPE | SUST_STR | RES_SHARD | RES_NEXUS | 
+F:ACTIVATE
+A:RAGE:60:20
+
+# The Elven Cloak of Orodreth
+
+N:75:of Orodreth
+I:35:6:2
+W:30:20:5:0
+P:4:0d0:0:0:12
+F:SUST_STR | SUST_CON | SUST_DEX | RES_WATER | RES_FIRE | RES_SOUND | NO_BLIND
+F:ACTIVATE
+A:DETECT_TRAPS:30:5
 
 # The Set of Leather Gloves 'Cambeleg'
 
-N:57:'Cambeleg'
+N:76:'Cambeleg'
 I:31:1:2
 W:10:6:5:36000
 P:1:0d0:8:8:15
@@ -579,54 +731,54 @@ F:FREE_ACT | SHOW_MODS
 
 # The Set of Leather Gloves 'Cammithrim'
 
-N:58:'Cammithrim'
+N:77:'Cammithrim'
 I:31:1:0
 W:10:3:5:30000
 P:1:0d0:0:0:10
-F:FREE_ACT | RES_LITE | SUST_CON | LITE | ACTIVATE
+F:FREE_ACT | RES_LITE | SUST_CON | GLOW | ACTIVATE
 A:MISSILE:2:0
 
 # The Set of Gauntlets 'Paurhach'
 
-N:59:'Paurhach'
+N:78:'Paurhach'
 I:31:2:0
-W:6:10:25:15000
+W:6:5:25:15000
 P:2:1d1:0:0:15
 F:RES_FIRE | ACTIVATE
 A:FIRE1:8:8
 
 # The Set of Gauntlets 'Paurnimmen'
 
-N:60:'Paurnimmen'
+N:79:'Paurnimmen'
 I:31:2:0
-W:6:10:25:13000
+W:6:5:25:13000
 P:2:1d1:0:0:15
 F:RES_COLD | ACTIVATE
 A:FROST1:7:7
 
 # The Set of Gauntlets 'Pauraegen'
 
-N:61:'Pauraegen'
+N:80:'Pauraegen'
 I:31:2:0
-W:6:10:25:11000
+W:6:5:25:11000
 P:2:1d1:0:0:15
 F:RES_ELEC | ACTIVATE
 A:LIGHTNING_BOLT:6:6
 
 # The Set of Gauntlets 'Paurnen'
 
-N:62:'Paurnen'
+N:81:'Paurnen'
 I:31:2:0
-W:6:10:25:12000
+W:6:5:25:12000
 P:2:1d1:0:0:15
 F:RES_ACID | ACTIVATE
 A:ACID1:5:5
 
 # The Set of Gauntlets 'Camlost'
 
-N:63:'Camlost'
+N:82:'Camlost'
 I:31:2:-3
-W:10:20:25:0
+W:10:17:25:0
 P:2:1d1:-5:-5:15
 F:STR | DEX | HIDE_TYPE | 
 F:RES_FIRE | RES_DISEN | FREE_ACT | DRAIN_EXP | 
@@ -634,27 +786,35 @@ F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
 
 # The Set of Cesti of Fingolfin
 
-N:64:of Fingolfin
+N:83:of Fingolfin
 I:31:5:4
 W:40:15:40:110000
 P:5:1d1:10:10:20
-F:DEX | HIDE_TYPE | RES_FEAR | 
+F:DEX | HIDE_TYPE | BRAVERY | 
 F:FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS
 A:ARROW:90:90
 
-# The Pair of Hard Leather Boots of Feanor
+# The Set of Silk Gloves of Raal
 
-N:65:of Feanor
-I:30:3:15
-W:40:120:40:300000
-P:3:1d1:0:0:20
-F:SPEED | HIDE_TYPE |  
-F:RES_NEXUS | ACTIVATE
+N:84:of Raal
+I:31:0:4
+W:45:20:40:110000
+P:5:1d1:0:0:10
+F:FREE_ACT | MANA | RES_CONFU | NO_BLIND | RES_DARK | HIDE_TYPE | ACTIVATE 
+A:MANA_BOLT:90:90
+
+# The Pair of Spiked Leather Boots of Feanor
+
+N:85:of Feanor
+I:30:4:10
+W:40:70:40:300000
+P:4:1d1:0:0:20
+F:SPEED | HIDE_TYPE | RES_NEXUS | ACTIVATE
 A:HASTE1:200:0
 
 # The Pair of Soft Leather Boots 'Dal-i-thalion'
 
-N:66:'Dal-i-thalion'
+N:86:'Dal-i-thalion'
 I:30:2:5
 W:10:25:20:40000
 P:2:1d1:0:0:15
@@ -665,26 +825,45 @@ A:REM_FEAR_POIS:5:0
 
 # The Pair of Metal Shod Boots of Thror
 
-N:67:of Thror
+N:87:of Thror
 I:30:6:3
 W:30:25:80:12000
 P:6:1d1:0:0:20
-F:STR | CON | SPEED | HIDE_TYPE | RES_FEAR
+F:STR | CON | SPEED | HIDE_TYPE | BRAVERY
 
+# The Pair of Leather Sandal of Hermes
+
+N:88:of Hermes
+I:30:1:15
+W:40:75:5:300000
+P:1:1d1:0:0:20
+F:SPEED | HIDE_TYPE | FREE_ACT | FEATHER | ACTIVATE
+A:WOR:250:50
+
+# The Pair of Hard Leather Boots of the Long Journey
+
+N:89:of the Long Journey
+I:30:3:2
+W:5:5:40:7000
+P:3:1d1:0:0:5
+F:HEALTH | SLOW_DIGEST | SEARCH | SUST_CON | FEATHER | HIDE_TYPE | ACTIVATE |
+F:RES_DISEASE 
+A:SATISFY_HUNGER:500:0
+
+#### Here start the weapons ####
 
 # The Broken Sword 'Narsil'
 
-N:68:'Narsil'
+N:90:'Narsil'
 I:23:2:2
 W:20:4:30:2000
 P:0:3d2:6:10:0
 F:STR | DEX | BLOWS | HIDE_TYPE | 
 F:SLAY_ORC | SLAY_TROLL | RES_FIRE
 
-
 # The Main Gauche of Maedhros
 
-N:69:of Maedhros
+N:91:of Maedhros
 I:23:5:3
 W:15:30:30:20000
 P:0:2d5:12:15:0
@@ -693,7 +872,7 @@ F:SLAY_TROLL | SLAY_GIANT | FREE_ACT | SEE_INVIS | SHOW_MODS
 
 # The Dagger 'Angrist'
 
-N:70:'Angrist'
+N:92:'Angrist'
 I:23:4:4
 W:20:80:12:100000
 P:0:2d4:10:15:5
@@ -703,7 +882,7 @@ F:SHOW_MODS
 
 # The Dagger 'Narthanc'
 
-N:71:'Narthanc'
+N:93:'Narthanc'
 I:23:4:0
 W:4:7:12:12000
 P:0:1d4:4:6:0
@@ -712,7 +891,7 @@ A:FIRE1:8:8
 
 # The Dagger 'Nimthanc'
 
-N:72:'Nimthanc'
+N:94:'Nimthanc'
 I:23:4:0
 W:3:7:12:11000
 P:0:1d4:4:6:0
@@ -721,7 +900,7 @@ A:FROST1:7:7
 
 # The Dagger 'Dethanc'
 
-N:73:'Dethanc'
+N:95:'Dethanc'
 I:23:4:0
 W:5:7:12:13000
 P:0:1d4:4:6:0
@@ -730,16 +909,16 @@ A:LIGHTNING_BOLT:6:6
 
 # The Dagger of Rilia
 
-N:74:of Rilia
+N:96:of Rilia
 I:23:4:0
 W:5:40:12:15000
 P:0:2d4:4:3:0
-F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
+F:BRAND_VENOM | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
 A:STINKING_CLOUD:4:4
 
 # The Dagger 'Belangil'
 
-N:75:'Belangil'
+N:97:'Belangil'
 I:23:4:2
 W:10:40:12:40000
 P:0:2d4:6:9:0
@@ -750,7 +929,7 @@ A:FROST2:5:5
 
 # The Bastard Sword 'Calris'
 
-N:76:'Calris'
+N:98:'Calris'
 I:23:21:5
 W:30:15:140:100000
 P:0:5d4:-20:20:0
@@ -760,7 +939,7 @@ F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
 
 # The Broad Sword 'Arunruth'
 
-N:77:'Arunruth'
+N:99:'Arunruth'
 I:23:16:4
 W:20:45:150:50000
 P:0:3d5:20:12:0
@@ -771,36 +950,36 @@ A:FROST4:500:0
 
 # The Broad Sword 'Glamdring'
 
-N:78:'Glamdring'
+N:100:'Glamdring'
 I:23:16:1
 W:20:20:150:40000
 P:0:2d5:10:15:0
 F:SEARCH | HIDE_TYPE | 
-F:SLAY_EVIL | BRAND_FIRE | SLAY_ORC | RES_FIRE | RES_LITE | LITE | 
+F:SLAY_EVIL | BRAND_FIRE | SLAY_ORC | RES_FIRE | RES_LITE | GLOW | 
 F:SLOW_DIGEST | SHOW_MODS
 
 # The Broad Sword 'Aeglin'
 
-N:79:'Aeglin'
+N:101:'Aeglin'
 I:23:16:1
 W:20:90:150:45000
 P:0:2d5:12:16:0
 F:SEARCH | HIDE_TYPE | SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
-F:BRAND_ELEC | RES_ELEC | LITE | SLOW_DIGEST | SHOW_MODS
+F:BRAND_ELEC | RES_ELEC | GLOW | SLOW_DIGEST | SHOW_MODS
 
 # The Broad Sword 'Orcrist'
 
-N:80:'Orcrist'
+N:102:'Orcrist'
 I:23:16:3
 W:20:20:150:40000
 P:0:2d5:10:15:0
 F:STEALTH | HIDE_TYPE | 
-F:SLAY_EVIL | BRAND_COLD | SLAY_ORC | RES_COLD | LITE | RES_DARK | 
+F:SLAY_EVIL | BRAND_COLD | SLAY_ORC | RES_COLD | GLOW | RES_DARK | 
 F:SLOW_DIGEST | SHOW_MODS
 
 # The Two-Handed Sword 'Gurthang'
 
-N:81:'Gurthang'
+N:103:'Gurthang'
 I:23:25:2
 W:30:30:200:100000
 P:0:4d6:13:17:0
@@ -809,7 +988,7 @@ F:KILL_DRAGON | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
 
 # The Two-Handed Sword 'Zarcuthra'
 
-N:82:'Zarcuthra'
+N:104:'Zarcuthra'
 I:23:25:4
 W:30:80:200:200000
 P:0:3d6:19:21:0
@@ -820,7 +999,7 @@ F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE | SHOW_MODS
 
 # The Two-Handed Sword 'Mormegil'
 
-N:83:'Mormegil'
+N:105:'Mormegil'
 I:23:25:-5
 W:30:15:200:10000
 P:0:4d6:-15:-15:0
@@ -830,7 +1009,7 @@ F:AGGRAVATE | DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
 
 # The Cutlass 'Gondricam'
 
-N:84:'Gondricam'
+N:106:'Gondricam'
 I:23:12:3
 W:20:8:110:28000
 P:0:1d7:10:11:0
@@ -840,7 +1019,7 @@ F:SEE_INVIS | REGEN | SHOW_MODS
 
 # The Executioner's Sword 'Crisdurian'
 
-N:85:'Crisdurian'
+N:107:'Crisdurian'
 I:23:28:1
 W:40:15:260:100000
 P:0:4d5:18:19:0
@@ -850,7 +1029,7 @@ F:SLAY_ORC | SEE_INVIS | SHOW_MODS
 
 # The Katana 'Aglarang'
 
-N:86:'Aglarang'
+N:108:'Aglarang'
 I:23:20:3
 W:30:25:50:40000
 P:0:8d4:0:0:0
@@ -859,23 +1038,23 @@ F:SUST_DEX | SHOW_MODS
 
 # The Long Sword 'Ringil'
 
-N:87:'Ringil'
+N:109:'Ringil'
 I:23:17:10
 W:20:120:130:300000
 P:0:4d5:22:25:0
-F:SPEED | HIDE_TYPE | RES_FEAR | 
+F:SPEED | HIDE_TYPE | BRAVERY | 
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | 
-F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | 
+F:FREE_ACT | RES_COLD | RES_LITE | GLOW | SEE_INVIS | SLOW_DIGEST | REGEN | 
 F:ACTIVATE | SHOW_MODS
 A:FROST3:300:0
 
 # The Long Sword 'Anduril'
 
-N:88:'Anduril'
+N:110:'Anduril'
 I:23:17:4
 W:20:40:130:80000
 P:0:4d5:10:15:10
-F:STR | DEX | HIDE_TYPE | RES_FEAR | 
+F:STR | DEX | HIDE_TYPE | BRAVERY | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
 F:RES_FIRE | RES_DISEN | 
 F:SUST_STR | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS
@@ -883,17 +1062,17 @@ A:FIRE2:400:0
 
 # The Long Sword 'Anguirel'
 
-N:89:'Anguirel'
+N:111:'Anguirel'
 I:23:17:2
 W:20:30:130:40000
 P:0:2d5:8:12:0
 F:STR | CON | SPEED | HIDE_TYPE | AGGRAVATE | 
 F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC | 
-F:RES_LITE | RES_DARK | LITE | SEE_INVIS | SHOW_MODS
+F:RES_LITE | RES_DARK | GLOW | SEE_INVIS | SHOW_MODS
 
 # The Long Sword 'Elvagil'
 
-N:90:'Elvagil'
+N:112:'Elvagil'
 I:23:17:2
 W:20:15:130:30000
 P:0:2d5:2:7:0
@@ -902,15 +1081,15 @@ F:SLAY_TROLL | SLAY_ORC | FEATHER | SEE_INVIS | SHOW_MODS
 
 # The Rapier 'Forasgil'
 
-N:91:'Forasgil'
+N:113:'Forasgil'
 I:23:7:0
 W:15:8:40:15000
 P:0:1d6:12:19:0
-F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
+F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | GLOW | SHOW_MODS
 
 # The Sabre 'Careth Asdriag'
 
-N:92:'Careth Asdriag'
+N:114:'Careth Asdriag'
 I:23:11:1
 W:15:8:50:25000
 P:0:1d7:6:8:0
@@ -920,17 +1099,17 @@ F:SLAY_ORC | SHOW_MODS
 
 # The Small Sword 'Sting'
 
-N:93:'Sting'
+N:115:'Sting'
 I:23:8:2
 W:20:15:75:100000
 P:0:1d6:7:8:0
-F:STR | DEX | CON | BLOWS | SPEED | HIDE_TYPE | RES_FEAR | 
+F:STR | DEX | CON | BLOWS | SPEED | HIDE_TYPE | BRAVERY | 
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | 
-F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
+F:FREE_ACT | RES_LITE | GLOW | SEE_INVIS | SHOW_MODS
 
 # The Scimitar 'Haradekket'
 
-N:94:'Haradekket'
+N:116:'Haradekket'
 I:23:18:2
 W:20:8:130:30000
 P:0:2d5:9:11:0
@@ -940,7 +1119,7 @@ F:SHOW_MODS
 
 # The Short Sword 'Gilettar'
 
-N:95:'Gilettar'
+N:117:'Gilettar'
 I:23:10:2
 W:20:8:80:15000
 P:0:1d7:3:7:0
@@ -949,19 +1128,63 @@ F:SLAY_ANIMAL | SLOW_DIGEST | REGEN | SHOW_MODS
 
 # The Blade of Chaos 'Doomcaller'
 
-N:96:'Doomcaller'
+N:118:'Doomcaller'
 I:23:30:0
 W:70:25:180:200000
 P:0:6d5:18:28:-20
-F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
+F:KILL_DRAGON | SLAY_ANIMAL | SLAY_PLANT | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
 F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS
 
-#### Artifact 97 is unused ####
+# The Dagger 'Idrost'
+
+N:119:'Idrost'
+I:23:4:0
+W:4:8:12:13000
+P:0:1d4:4:6:0
+F:BRAND_DARK | RES_LITE | ACTIVATE | SHOW_MODS
+A:DARK_BOLT:8:8
+
+# The Dagger 'Adrost'
+
+N:120:'Adrost'
+I:23:4:0
+W:4:8:12:13000
+P:0:1d4:4:6:0
+F:BRAND_LITE | RES_DARK | ACTIVATE | SHOW_MODS
+A:LITE_BOLT:7:7
+
+# The Rapier of Dionure
+
+N:121:of Dionure
+I:23:7:0
+W:55:50:50:75000
+P:0:3d6:20:20:0
+F:SLAY_ANIMAL | SLAY_PLANT | SLAY_EVIL | SLAY_CHAOS | SLAY_UNDEAD | SHOW_MODS
+F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_DEMON | KILL_DRAGON | WOUNDING
+
+# The Long Sword 'Terrorblade'
+
+N:122:'Terrorblade'
+I:23:17:2
+W:50:90:130:100000
+P:0:2d8:12:15:0
+F:BLOWS | TERROR | BRAND_ELEC | HIDE_TYPE | RES_ELEC | GLOW | WOUNDING |
+F:FREE_ACT | SHOW_MODS
+
+# The Blackrock Sword of the Guardian
+
+N:123:of the Guardian
+I:23:31:0
+W:50:90:130:100000
+P:0:4d6:16:16:0
+F:TERROR | DRAIN_ITEM | RES_CHAOS | RES_DISEN | RES_LITE | RES_FIRE | RES_COLD |
+F:RES_SHARD | FREE_ACT | LIGHT_CURSE | SLAY_ANIMAL | SLAY_PLANT | SHOW_MODS |
+F:IGNORE_DISEN
 
 # The Beaked Axe of Theoden
 
-N:98:of Theoden
+N:124:of Theoden
 I:22:10:3
 W:20:15:180:40000
 P:0:2d6:8:10:0
@@ -971,7 +1194,7 @@ A:DRAIN_LIFE2:400:0
 
 # The Glaive of Pain
 
-N:99:of Pain
+N:125:of Pain
 I:22:13:0
 W:30:25:250:50000
 P:0:9d6:0:30:0
@@ -979,7 +1202,7 @@ F:SHOW_MODS
 
 # The Halberd 'Osondir'
 
-N:100:'Osondir'
+N:126:'Osondir'
 I:22:15:3
 W:20:8:190:22000
 P:0:3d5:6:9:0
@@ -989,7 +1212,7 @@ F:FEATHER | SEE_INVIS | SHOW_MODS
 
 # The Pike 'Til-i-arc'
 
-N:101:'Til-i-arc'
+N:127:'Til-i-arc'
 I:22:8:2
 W:20:15:160:32000
 P:0:2d5:10:12:10
@@ -999,29 +1222,29 @@ F:RES_FIRE | RES_COLD | SUST_INT | SLOW_DIGEST | SHOW_MODS
 
 # The Spear 'Aeglos'
 
-N:102:'Aeglos'
+N:128:'Aeglos'
 I:22:2:4
 W:15:45:50:140000
 P:0:3d6:15:25:5
-F:WIS | DEX | HIDE_TYPE | RES_FEAR | 
+F:WIS | DEX | HIDE_TYPE | BRAVERY | 
 F:BRAND_COLD | RES_COLD | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_ORC | 
 F:FREE_ACT | SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS
 A:FROST3:500:0
 
 # The Spear of Orome
 
-N:103:of Orome
+N:129:of Orome
 I:22:2:4
 W:15:45:50:60000
 P:0:1d6:15:15:0
-F:INT | SPEED | INFRA | HIDE_TYPE | RES_FEAR | 
+F:INT | SPEED | INFRA | HIDE_TYPE | BRAVERY | 
 F:BRAND_FIRE | SLAY_GIANT | SLAY_ANIMAL | RES_FIRE | RES_LITE | 
-F:FEATHER | LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS
+F:FEATHER | GLOW | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS
 A:STONE_TO_MUD:5:0
 
 # The Spear 'Nimloth'
 
-N:104:'Nimloth'
+N:130:'Nimloth'
 I:22:2:3
 W:15:12:50:30000
 P:0:1d6:11:13:0
@@ -1030,31 +1253,31 @@ F:BRAND_COLD | SLAY_UNDEAD | RES_COLD | SEE_INVIS | SHOW_MODS
 
 # The Lance of Eorlingas
 
-N:105:of Eorlingas
+N:131:of Eorlingas
 I:22:20:2
 W:20:23:360:55000
 P:0:3d8:13:21:0
-F:STR | DEX | HIDE_TYPE | RES_FEAR |  
+F:STR | DEX | HIDE_TYPE | BRAVERY |  
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS
 
 # The Great Axe of Durin
 
-N:106:of Durin
+N:132:of Durin
 I:22:25:3
 W:30:90:230:150000
 P:0:4d4:10:20:15
 F:STR | CON | HIDE_TYPE | 
 F:KILL_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
-F:RES_CONFU | RES_FEAR | 
+F:RES_CONFU | BRAVERY | 
 F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS
 
 # The Great Axe of Eonwe
 
-N:107:of Eonwe
+N:133:of Eonwe
 I:22:25:2
 W:30:120:230:200000
 P:0:4d4:15:18:8
-F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | RES_FEAR | 
+F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | BRAVERY | 
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | 
 F:SLAY_ORC | FREE_ACT | IM_COLD | RES_COLD | RES_CONFU | 
 F:SEE_INVIS | ACTIVATE | 
@@ -1063,18 +1286,18 @@ A:MASS_GENOCIDE:1000:0
 
 # The Battle Axe of Balli Stonehand
 
-N:108:of Balli Stonehand
+N:134:of Balli Stonehand
 I:22:22:3
 W:30:15:170:90000
 P:0:3d8:8:11:5
 F:STR | CON | STEALTH | HIDE_TYPE | 
 F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_BLIND | FEATHER | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | NO_BLIND | FEATHER | 
 F:SEE_INVIS | REGEN | SHOW_MODS
 
 # The Battle Axe 'Lotharang'
 
-N:109:'Lotharang'
+N:135:'Lotharang'
 I:22:22:1
 W:30:15:170:21000
 P:0:2d8:4:3:0
@@ -1084,7 +1307,7 @@ A:CURE_WOUNDS:3:3
 
 # The Lochaber Axe 'Mundwine'
 
-N:110:'Mundwine'
+N:136:'Mundwine'
 I:22:28:0
 W:30:8:250:30000
 P:0:3d8:12:17:0
@@ -1092,7 +1315,7 @@ F:SLAY_EVIL | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SHOW_MODS
 
 # The Broad Axe 'Barukkheled'
 
-N:111:'Barukkheled'
+N:137:'Barukkheled'
 I:22:11:3
 W:20:8:160:50000
 P:0:2d6:13:19:0
@@ -1102,7 +1325,7 @@ F:SEE_INVIS | SHOW_MODS
 
 # The Trident of Wrath
 
-N:112:of Wrath
+N:138:of Wrath
 I:22:5:2
 W:15:35:300:90000
 P:0:3d8:16:18:0
@@ -1112,7 +1335,7 @@ F:BLESSED | SHOW_MODS
 
 # The Trident of Ulmo
 
-N:113:of Ulmo
+N:139:of Ulmo
 I:22:5:4
 W:30:90:70:120000
 P:0:4d8:15:19:0
@@ -1123,21 +1346,49 @@ F:SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE |
 F:BLESSED | SHOW_MODS
 A:TELE_AWAY:150:0
 
+# The Trident of Poseidon
+
+N:140:of Poseidon
+I:22:5:2
+W:25:50:80:90000
+P:0:3d8:16:18:0
+F:HEALTH | SLAY_PLANT | RES_WATER | BLESSED | RES_SOUND | SHOW_MODS |
+F:ACTIVATE
+A:WATER_BOLT:30:10
+
 # The Scythe 'Avavir'
-N:114:'Avavir'
+
+N:141:'Avavir'
 I:22:17:3
 W:40:8:250:18000
 P:0:5d3:8:8:10
 F:DEX | CHR | HIDE_TYPE | 
 F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD | 
-F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
+F:RES_LITE | GLOW | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:WOR:200:0
 
-#### Artifact 115 is unused ####
+# The Scythe 'Reaper'
+
+N:142:'Reaper'
+I:22:17:2
+W:40:80:250:80000
+P:0:5d5:8:8:10
+F:BLOWS | BRAND_DARK | DEX | TERROR | WOUNDING | HIDE_TYPE | 
+F:RES_LITE | SEE_INVIS | RES_WATER | RES_FIRE | SLAY_PLANT | SHOW_MODS
+
+# The Battle Axe 'Lawgiver'
+
+N:143:'Lawgiver'
+I:22:22:1
+W:40:35:170:75000
+P:0:3d8:8:8:0
+F:STR | CON | BLESSED | HIDE_TYPE | HEALTH |
+F:SLAY_CHAOS | BRAND_LITE | HOLD_LIFE | SHOW_MODS | ACTIVATE
+A:CALM_NON_CHAOS:500:100
 
 # The Mighty Hammer 'Grond'
 
-N:116:'Grond'
+N:144:'Grond'
 I:21:50:2
 W:100:1:1000:500000
 P:0:9d9:25:25:10
@@ -1148,7 +1399,7 @@ F:SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART
 
 # The Flail 'Totila'
 
-N:117:'Totila'
+N:145:'Totila'
 I:21:13:2
 W:20:8:150:55000
 P:0:3d6:6:8:0
@@ -1159,17 +1410,17 @@ A:CONFUSE:15:0
 
 # The Two-Handed Flail 'Thunderfist'
 
-N:118:'Thunderfist'
+N:146:'Thunderfist'
 I:21:18:4
 W:45:38:300:160000
 P:0:3d6:5:18:0
-F:STR | CON | HIDE_TYPE | RES_FEAR | 
+F:STR | CON | HIDE_TYPE | BRAVERY | 
 F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC | 
 F:RES_ELEC | RES_FIRE | RES_DARK | SHOW_MODS
 
 # The Morning Star 'Bloodspike'
 
-N:119:'Bloodspike'
+N:147:'Bloodspike'
 I:21:12:4
 W:20:30:150:30000
 P:0:2d6:8:22:0
@@ -1179,16 +1430,16 @@ F:SHOW_MODS
 
 # The Morning Star 'Firestar'
 
-N:120:'Firestar'
+N:148:'Firestar'
 I:21:12:0
 W:20:15:150:35000
 P:0:2d6:5:7:2
-F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
+F:BRAND_FIRE | RES_FIRE | ACTIVATE | TERROR | SHOW_MODS
 A:FIRE2:100:0
 
 # The Mace 'Taratol'
 
-N:121:'Taratol'
+N:149:'Taratol'
 I:21:5:0
 W:20:15:200:50000
 P:0:3d4:12:12:0
@@ -1198,18 +1449,18 @@ A:HASTE1:100:100
 
 # The War Hammer of Aule
 
-N:122:of Aule
+N:150:of Aule
 I:21:8:4
 W:40:75:120:250000
 P:0:9d3:19:21:5
-F:WIS | HIDE_TYPE | RES_FEAR | 
+F:WIS | HIDE_TYPE | BRAVERY | 
 F:KILL_DRAGON | SLAY_EVIL | BRAND_ELEC | SLAY_UNDEAD | SLAY_DEMON | 
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS | 
 F:SEE_INVIS | SHOW_MODS
 
 # The Quarterstaff 'Nar-i-vagil'
 
-N:123:'Nar-i-vagil'
+N:151:'Nar-i-vagil'
 I:21:3:3
 W:20:18:150:70000
 P:0:1d9:10:20:0
@@ -1218,28 +1469,28 @@ F:SLAY_ANIMAL | BRAND_FIRE | RES_FIRE | SHOW_MODS
 
 # The Quarterstaff 'Eriril'
 
-N:124:'Eriril'
+N:152:'Eriril'
 I:21:3:4
 W:20:18:150:20000
 P:0:1d9:3:5:0
 F:INT | WIS | HIDE_TYPE | 
-F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
+F:SLAY_EVIL | RES_LITE | GLOW | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:IDENTIFY:10:0
 
 # The Quarterstaff of Olorin
 
-N:125:of Olorin
+N:153:of Olorin
 I:21:3:4
 W:30:105:150:130000
 P:0:2d9:10:13:0
-F:INT | WIS | CHR | HIDE_TYPE | RES_FEAR | 
+F:INT | WIS | CHR | HIDE_TYPE | BRAVERY | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | 
 F:HOLD_LIFE | RES_FIRE | RES_NETHR | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:PROBE:20:0
 
 # The Mace of Disruption 'Deathwreaker'
 
-N:126:'Deathwreaker'
+N:154:'Deathwreaker'
 I:21:20:6
 W:80:38:400:400000
 P:0:7d8:18:18:0
@@ -1250,20 +1501,36 @@ F:SHOW_MODS
 
 # The Lucerne Hammer 'Turmil'
 
-N:127:'Turmil'
+N:155:'Turmil'
 I:21:10:4
 W:20:15:120:30000
 P:0:2d5:10:6:8
 F:WIS | INFRA | HIDE_TYPE | 
-F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN | 
+F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | GLOW | REGEN | 
 F:ACTIVATE | SHOW_MODS
 A:DRAIN_LIFE1:70:0
 
-#### Artifact 128 is unused ####
+# The Quarterstaff of Grand Wizardry
+
+N:156:of Grand Wizardry
+I:21:3:4
+W:30:85:70:100000
+P:0:1d5:5:5:0
+F:INT | WIS | MANA | HIDE_TYPE | SUST_INT | SUST_WIS | RES_CONFU | NO_BLIND | 
+F:SEE_INVIS | ACTIVATE | SHOW_MODS
+A:RESTORE_MANA:600:100
+
+# The Wooden Club 'Skullbasher'
+
+N:157:'Skullbasher'
+I:21:4:10
+W:10:25:70:100000
+P:0:3d8:5:20:0
+F:STR | MANA | IGNORE_DISEN | HIDE_TYPE 
 
 # The Long Bow 'Belthronding'
 
-N:129:'Belthronding'
+N:158:'Belthronding'
 I:19:13:1
 W:40:20:40:35000
 P:0:0d0:20:22:0
@@ -1272,7 +1539,7 @@ F:RES_DISEN | SHOW_MODS
 
 # The Long Bow of Bard
 
-N:130:of Bard
+N:159:of Bard
 I:19:13:2
 W:30:20:40:20000
 P:0:0d0:17:19:0
@@ -1281,19 +1548,37 @@ F:FREE_ACT | SHOW_MODS
 
 # The Light Crossbow 'Cubragol'
 
-N:131:'Cubragol'
+N:160:'Cubragol'
 I:19:23:10
-W:50:25:110:50000
+W:50:45:110:50000
 P:0:0d0:10:14:0
 F:SPEED | HIDE_TYPE | 
 F:RES_FIRE | ACTIVATE | SHOW_MODS
 A:FIREBRAND:999:0
 
-#### Artifact 132 is unused ####
+# The Light Crossbow 'Sunstrike'
+
+N:161:'Sunstrike'
+I:19:23:1
+W:45:25:100:30000
+P:0:0d0:5:5:0
+F:SHOTS | HIDE_TYPE | 
+F:RES_LITE | RES_DARK | ACTIVATE | SHOW_MODS
+A:LITEBRAND:999:0
+
+# The Sling 'Hellwind'
+
+N:162:'Hellwind'
+I:19:2:2
+W:25:75:40:30000
+P:0:0d0:5:5:0
+F:SHOTS | HIDE_TYPE | 
+F:RES_DISEASE | RES_POIS | ACTIVATE | SHOW_MODS
+A:VENOMSHOT:999:0
 
 # The Mattock of Nain
 
-N:133:of Nain
+N:163:of Nain
 I:20:7:6
 W:60:20:250:30000
 P:0:3d8:12:18:0
@@ -1302,3 +1587,13 @@ F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
 F:BRAND_ACID | RES_ACID | RES_DARK | RES_DISEN | 
 F:ACTIVATE | 
 A:STONE_TO_MUD:10:10
+
+# The Dwarven Shovel of Glod
+
+N:164:of Glod
+I:20:3:3
+W:30:10:120:10000
+P:0:3d8:12:18:0
+F:TUNNEL | INFRA | SEARCH | STR | SLOW_DIGEST
+F:SLAY_ORC | ACTIVATE | 
+A:DETECT_TREASURE:50:10

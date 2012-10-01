@@ -11,26 +11,25 @@
 
 # Version stamp (required)
 
-V:0.1.4
-
+V:0.2.0
 
 # Maximum number of feature types
 M:F:80
 
 # Maximum number of object kinds
-M:K:587
+M:K:599
 
 # Maximum number of artifacts
-M:A:134
+M:A:165
 
 # Maximum number of classes
-M:C:6
+M:C:7
 
 # Maximum number of ego-item types
-M:E:128
+M:E:133
 
 # Maximum number of monster races
-M:R:641
+M:R:667
 
 # Maximum number of vaults
 M:V:35
@@ -39,12 +38,12 @@ M:V:35
 M:P:12
 
 # Maximum number of player history lines
-M:H:134
+M:H:140
 
 # Maximum number of owners per store
-M:B:4
+M:B:5
 
-# Maximum number of quests 
+# Maximum number of quests (including random quests)
 M:Q:64
 
 # Maximum number of objects
@@ -53,7 +52,6 @@ M:O:512
 # Maximum number of monsters
 M:M:512
 
-#
 # Array sizes (in bytes) for some initialization stuff
 #
 
@@ -64,4 +62,3 @@ M:N:20480
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories
 M:T:61440
-

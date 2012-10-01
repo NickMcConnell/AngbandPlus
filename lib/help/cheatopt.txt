@@ -1,0 +1,31 @@
+=== Cheating options ===
+
+Cheating options are there for those players who feel that the game is too 
+difficulty, or for those who want to know more about the internal machinations
+behind the game. Using any of these options marks the savefile, and will 
+prevent the character from ever achieving a high-score - even if the option
+is later turned off. So use these options with caution.
+
+=== Cheating Options ===
+
+Peek into object creation    [cheat_peek]
+    Cheaters never win.  But they can peek at object creation.
+
+Peek into monster creation    [cheat_hear]
+    Cheaters never win.  But they can peek at monster creation.
+
+Peek into dungeon creation    [cheat_room]
+    Cheaters never win.  But they can peek at room creation.
+
+Peek into something else    [cheat_xtra]
+    Cheaters never win.  But they can see debugging messages.
+
+Know complete monster info    [cheat_know]
+    Cheaters never win.  But they can know all about monsters.
+
+Allow player to avoid death    [cheat_live]
+    Cheaters never win.  But they can cheat death.
+
+No autosave. [cheat_no_autosave]
+    Cheaters never win.  But they don't have to save if you don't want to.
+    (note - this option might not work in certain ports)

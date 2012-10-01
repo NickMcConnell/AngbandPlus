@@ -14,7 +14,7 @@
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
-static int value_check_aux1(object_type *o_ptr)
+int value_check_aux1(object_type *o_ptr)
 {
 	/* Artifacts */
 	if (artifact_p(o_ptr))
@@ -84,13 +84,6 @@ static int value_check_aux2(object_type *o_ptr)
 
 /*
  * Sense the inventory
- *
- *   Class 0 = Warrior --> fast and heavy
- *   Class 1 = Mage    --> slow and light
- *   Class 2 = Priest  --> fast but light
- *   Class 3 = Ranger  --> slow and light
- *   Class 4 = Paladin --> slow but heavy
- *   Class 5 = Mystic  --> slow and light
  */
 static void sense_inventory(void)
 {
@@ -236,7 +229,7 @@ static void sense_inventory(void)
 		}
 		
 		/* Stop everything */
-		if (disturb_minor) disturb(0, 0);
+		if (disturb_minor) disturb(0);
 
 		/* Get an object description */
 		object_desc(o_name, o_ptr, FALSE, 0);
@@ -373,10 +366,6 @@ static void regenmana(int percent)
 }
 
 
-
-
-
-
 /*
  * Regenerate the monsters (once per 100 game turns)
  *
@@ -448,7 +437,7 @@ static void process_world(void)
 			if (closing_flag <= 2)
 			{
 				/* Disturb */
-				disturb(0, 0);
+				disturb(0);
 
 				/* Count warnings */
 				closing_flag++;
@@ -526,8 +515,6 @@ static void process_world(void)
 				/* Fixed quests don't fail */
 				if (q_info[i].type == QUEST_FIXED) continue;
 
-				/* Quests have a larger chance of failing if you are too deep */
-
 				/* Check for failure */
 				if (rand_int(100)<80)
 				{
@@ -539,7 +526,7 @@ static void process_world(void)
 
 					msg_print("You have failed on your quest!");
 
-					if (disturb_minor) disturb(0, 0);
+					if (disturb_minor) disturb(0);
 				}
 			}
 		}
@@ -635,6 +622,28 @@ static void process_world(void)
 		take_hit(i, "a fatal wound");
 	}
 
+	/*** Effects of disease ***/
+	if (p_ptr->diseased)
+	{
+		i = rand_int(900);
+		if (i<A_MAX)
+		{
+			msg_print("You suffer an attack of your disease -");
+			(void)do_dec_stat(i,10,FALSE,(bool)rand_int(1));
+			p_ptr->update |= (PU_BONUS);
+		}
+		else if (i == A_MAX)
+		{
+			msg_print("Your disease clouds your vision!");
+			(void)set_blind(rand_int(10)+10);
+		}
+		else if (i == A_MAX+1)
+		{
+			msg_print("You suffer a dizzy spell!");
+			(void)set_stun(rand_int(25)+25);
+			(void)set_confused(rand_int(5)+5);
+		}
+	}
 
 	/*** Check the Food, and Regenerate ***/
 
@@ -706,7 +715,7 @@ static void process_world(void)
 			{
 				/* Message */
 				msg_print("You faint from the lack of food.");
-				disturb(1, 0);
+				disturb(1);
 
 				/* Hack -- faint (bypass free action) */
 				(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(5));
@@ -733,17 +742,19 @@ static void process_world(void)
 	}
 
 	/* Various things interfere with healing */
-	if (p_ptr->paralyzed) regen_amount = 0;
 	if (p_ptr->poisoned) regen_amount = 0;
 	if (p_ptr->stun) regen_amount = 0;
 	if (p_ptr->cut) regen_amount = 0;
+	if (p_ptr->paralyzed) regen_amount = 0;
+
+	/* Disease slows healing but doesn't stop it */
+	if (p_ptr->diseased) regen_amount /= 2;
 
 	/* Regenerate Hit Points if needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
 		regenhp(regen_amount);
 	}
-
 
 	/*** Timeout Various Things ***/
 
@@ -831,10 +842,10 @@ static void process_world(void)
 		(void)set_hero(p_ptr->hero - 1);
 	}
 
-	/* Super Heroism */
-	if (p_ptr->shero)
+	/* Rage */
+	if (p_ptr->rage)
 	{
-		(void)set_shero(p_ptr->shero - 1);
+		(void)set_rage(p_ptr->rage - 1);
 	}
 
 	/* Blessed */
@@ -879,13 +890,54 @@ static void process_world(void)
 		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
 	}
 
-	/* Oppose All */
-	if (p_ptr->oppose_all)
+	/* Timed Resist Lite */
+	if (p_ptr->tim_res_lite)
 	{
-		(void)set_oppose_all(p_ptr->oppose_all - 1);
+		(void)set_tim_res_lite(p_ptr->tim_res_lite - 1);
 	}
 
-	
+	/* Timed Resist Dark */
+	if (p_ptr->tim_res_dark)
+	{
+		(void)set_tim_res_dark(p_ptr->tim_res_dark - 1);
+	}
+
+	/* Timed Resist Confusion */
+	if (p_ptr->tim_res_confu)
+	{
+		(void)set_tim_res_confu(p_ptr->tim_res_confu - 1);
+	}
+
+	/* Timed Resist Sound */
+	if (p_ptr->tim_res_sound)
+	{
+		(void)set_tim_res_sound(p_ptr->tim_res_sound - 1);
+	}
+
+	/* Timed Resist Shard */
+	if (p_ptr->tim_res_shard)
+	{
+		(void)set_tim_res_shard(p_ptr->tim_res_shard - 1);
+	}
+
+	/* Timed Resist Nexus */
+	if (p_ptr->tim_res_nexus)
+	{
+		(void)set_tim_res_nexus(p_ptr->tim_res_nexus - 1);
+	}
+
+	/* Timed Resist Nether */
+	if (p_ptr->tim_res_nethr)
+	{
+		(void)set_tim_res_nethr(p_ptr->tim_res_nethr - 1);
+	}
+
+	/* Timed Resist Chaos */
+	if (p_ptr->tim_res_chaos)
+	{
+		(void)set_tim_res_chaos(p_ptr->tim_res_chaos - 1);
+	}
+
 	/*** Racial Power ***/
 
 	/* Racial power recharge */
@@ -926,7 +978,16 @@ static void process_world(void)
 		(void)set_cut(p_ptr->cut - adjust);
 	}
 
+	/* Disease */
+	if (p_ptr->diseased)
+	{
+		/* Slower healing than poison, stun or cut, low con doesn't heal */
+		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] -2);
+		if (adjust < 0) adjust = 0;
 
+		/* Apply some healing */
+		if (adjust) (void)set_diseased(p_ptr->diseased - adjust);
+	}
 
 	/*** Process Light ***/
 
@@ -936,14 +997,14 @@ static void process_world(void)
 	/* Burn some fuel in the current lite */
 	if (o_ptr->tval == TV_LITE)
 	{
-		/* Hack -- Use some fuel (except on artifacts) */
-		if ((o_ptr->pval > 0) && (!artifact_p(o_ptr) || (o_ptr->sval == SV_LITE_CHERADENINE)))
+		/* Hack -- Use some fuel */
+		if (o_ptr->timeout> 0)
 		{
 			/* Decrease life-span */
-			o_ptr->pval--;
+			o_ptr->timeout--;
 
 			/* Hack -- notice interesting fuel steps */
-			if ((o_ptr->pval < 100) || (!(o_ptr->pval % 100)))
+			if ((o_ptr->timeout < 100) || (!(o_ptr->timeout % 100)))
 			{
 				/* Window stuff */
 				p_ptr->window |= (PW_EQUIP);
@@ -953,20 +1014,21 @@ static void process_world(void)
 			if (p_ptr->blind)
 			{
 				/* Hack -- save some light for later */
-				if (o_ptr->pval == 0) o_ptr->pval++;
+				if (o_ptr->timeout == 0) o_ptr->timeout++;
 			}
 
 			/* The light is now out */
-			else if (o_ptr->pval == 0)
+			else if (o_ptr->timeout == 0)
 			{
-				disturb(0, 0);
+				disturb(0);
 				msg_print("Your light has gone out!");
+				p_ptr->update |= (PU_BONUS);
 			}
 
 			/* The light is getting dim */
-			else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
+			else if ((o_ptr->timeout < 100) && (!(o_ptr->timeout % 10)))
 			{
-				if (disturb_minor) disturb(0, 0);
+				if (disturb_minor) disturb(0);
 				msg_print("Your light is growing faint.");
 			}
 		}
@@ -989,6 +1051,19 @@ static void process_world(void)
 		}
 	}
 
+	/* Handle item draining */
+	if (p_ptr->item_drain)
+	{
+		if ((!p_ptr->resist_disen) && (rand_int(100) < 5))
+		{
+			/* Ten attempts at disenchanting something */
+			for (i = 0; i<10 ; i++)
+			{
+				if (apply_disenchant(0)) break;
+			}
+		}
+	}
+
 	/* Process equipment */
 	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -999,7 +1074,7 @@ static void process_world(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Recharge activatable objects */
-		if (o_ptr->timeout > 0)
+		if ((o_ptr->tval != TV_LITE) && (o_ptr->timeout > 0))
 		{
 			/* Recharge */
 			o_ptr->timeout--;
@@ -1101,7 +1176,7 @@ static void process_world(void)
 		if (!p_ptr->word_recall)
 		{
 			/* Disturbing! */
-			disturb(0, 0);
+			disturb(0);
 
 			/* Sound */
 			sound(MSG_TPLEVEL);
@@ -1140,7 +1215,7 @@ static void process_world(void)
 static bool enter_wizard_mode(void)
 {
 	/* Ask first time */
-	if (verify_special || !(p_ptr->noscore & 0x0002))
+	if (!(p_ptr->noscore & 0x0002))
 	{
 		/* Mention effects */
 		msg_print("You are about to enter 'wizard' mode for the very first time!");
@@ -1171,7 +1246,7 @@ static bool enter_wizard_mode(void)
 static bool verify_debug_mode(void)
 {
 	/* Ask first time */
-	if (verify_special && !(p_ptr->noscore & 0x0008))
+	if (!(p_ptr->noscore & 0x0008))
 	{
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, debug commands!");
@@ -1192,15 +1267,7 @@ static bool verify_debug_mode(void)
 	return (TRUE);
 }
 
-
-/*
- * Hack -- Declare the Debug Routines
- */
-extern void do_cmd_debug(void);
-
-#endif
-
-
+#endif /* ALLOW_DEBUG */
 
 #ifdef ALLOW_BORG
 
@@ -1231,15 +1298,7 @@ static bool verify_borg_mode(void)
 	return (TRUE);
 }
 
-
-/*
- * Hack -- Declare the Borg Routines
- */
-extern void do_cmd_borg(void);
-
-#endif
-
-
+#endif /* ALLOW_BORG */
 
 /*
  * Parse and execute the current command
@@ -1266,7 +1325,6 @@ static void process_command(void)
 		{
 			break;
 		}
-
 
 		/*** Cheating Commands ***/
 
@@ -1305,7 +1363,6 @@ static void process_command(void)
 
 #endif
 
-
 #ifdef ALLOW_BORG
 
 		/* Special "borg" commands */
@@ -1316,7 +1373,6 @@ static void process_command(void)
 		}
 
 #endif
-
 
 		/*** Inventory Commands ***/
 
@@ -1410,7 +1466,6 @@ static void process_command(void)
 			break;
 		}
 
-
 		/*** Running, Resting, Searching, Staying */
 
 		/* Begin Running -- Arg is Max Distance */
@@ -1454,7 +1509,6 @@ static void process_command(void)
 			do_cmd_toggle_search();
 			break;
 		}
-
 
 		/*** Stairs and Doors and Chests and Traps ***/
 
@@ -1535,7 +1589,7 @@ static void process_command(void)
 		case 'm':
 		case 'p':
 		{
-			do_cmd_cast_or_pray();
+			do_cmd_magic();
 			break;
 		}
 
@@ -1670,8 +1724,6 @@ static void process_command(void)
 			break;
 		}
 
-
-
 		/*** Help and Such ***/
 
 		/* Help */
@@ -1691,7 +1743,7 @@ static void process_command(void)
 		/* Character description */
 		case 'C':
 		{
-			do_cmd_change_name();
+			do_cmd_display_character();
 			break;
 		}
 
@@ -1765,6 +1817,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Show quest */
+		case KTRL('Q'):
+		{
+			do_cmd_quest();
+			break;
+		}
+
 		/* Show previous message */
 		case KTRL('O'):
 		{
@@ -1786,16 +1845,12 @@ static void process_command(void)
 			break;
 		}
 
-#ifndef VERIFY_SAVEFILE
-
 		/* Hack -- Save and don't quit */
 		case KTRL('S'):
 		{
 			do_cmd_save_game();
 			break;
 		}
-
-#endif
 
 		/* Save and quit */
 		case KTRL('X'):
@@ -1961,7 +2016,7 @@ static void process_player(void)
 			if ((p_ptr->chp == p_ptr->mhp) &&
 			    (p_ptr->csp == p_ptr->msp))
 			{
-				disturb(0, 0);
+				disturb(0);
 			}
 		}
 
@@ -1977,7 +2032,7 @@ static void process_player(void)
 			    !p_ptr->slow && !p_ptr->paralyzed &&
 			    !p_ptr->image && !p_ptr->word_recall)
 			{
-				disturb(0, 0);
+				disturb(0);
 			}
 		}
 	}
@@ -2000,7 +2055,7 @@ static void process_player(void)
 				flush();
 
 				/* Disturb */
-				disturb(0, 0);
+				disturb(0);
 
 				/* Hack -- Show a Message */
 				msg_print("Cancelled.");
@@ -2018,7 +2073,7 @@ static void process_player(void)
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff (if needed) */
-		update_stuff();
+		if (p_ptr->update) update_stuff();
 
 		/* Redraw stuff (if needed) */
 		if (p_ptr->redraw) redraw_stuff();
@@ -2026,13 +2081,11 @@ static void process_player(void)
 		/* Redraw stuff (if needed) */
 		if (p_ptr->window) window_stuff();
 
-
 		/* Place the cursor on the player */
 		move_cursor_relative(p_ptr->py, p_ptr->px);
 
 		/* Refresh (optional) */
 		if (fresh_before) Term_fresh();
-
 
 		/* Hack -- Pack Overflow */
 		if (inventory[INVEN_PACK].k_idx)
@@ -2047,7 +2100,7 @@ static void process_player(void)
 			o_ptr = &inventory[item];
 
 			/* Disturbing */
-			disturb(0, 0);
+			disturb(0);
 
 			/* Warning */
 			msg_print("Your pack overflows!");
@@ -2078,7 +2131,6 @@ static void process_player(void)
 			/* Window stuff (if needed) */
 			if (p_ptr->window) window_stuff();
 		}
-
 
 		/* Hack -- cancel "lurking browse mode" */
 		if (!p_ptr->command_new) p_ptr->command_see = FALSE;
@@ -2161,7 +2213,6 @@ static void process_player(void)
 			process_command();
 		}
 
-
 		/*** Clean up ***/
 
 		/* Significant */
@@ -2170,10 +2221,8 @@ static void process_player(void)
 			/* Use some energy */
 			p_ptr->energy -= p_ptr->energy_use;
 
-
 			/* Hack -- constant hallucination */
 			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
-
 
 			/* Shimmer monsters if needed */
 			if (!avoid_other && shimmer_monsters)
@@ -2347,7 +2396,7 @@ static void dungeon(void)
 
 
 	/* Disturb */
-	disturb(1, 0);
+	disturb(1);
 
 
 	/* Track maximum player level */
@@ -2371,7 +2420,7 @@ static void dungeon(void)
 	}
 
 	/* No stairs from town or if not allowed */
-	if (!p_ptr->depth || !dungeon_stair)
+	if (!p_ptr->depth)
 	{
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
@@ -2844,7 +2893,6 @@ void play_game(bool new_game)
 	/* Reset visuals */
 	reset_visuals(TRUE);
 
-
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
@@ -2854,31 +2902,24 @@ void play_game(bool new_game)
 	/* Window stuff */
 	window_stuff();
 
-
 	/* Process some user pref files */
 	process_some_user_pref_files();
-
 
 	/* Set or clear "rogue_like_commands" if requested */
 	if (arg_force_original) rogue_like_commands = FALSE;
 	if (arg_force_roguelike) rogue_like_commands = TRUE;
 
-
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
-
 
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
 
-
 	/* Character is now "complete" */
 	character_generated = TRUE;
 
-
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;
-
 
 	/* Start playing */
 	p_ptr->playing = TRUE;
@@ -2889,13 +2930,11 @@ void play_game(bool new_game)
 	/* Process */
 	while (TRUE)
 	{
-
 		/* Update monster list window */
 		p_ptr->window |= (PW_M_LIST);
 	
 		/* Process the level */
 		dungeon();
-
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2909,26 +2948,21 @@ void play_game(bool new_game)
 		/* Window stuff */
 		if (p_ptr->window) window_stuff();
 
-
 		/* Cancel the target */
 		target_set_monster(0);
 
 		/* Cancel the health bar */
 		health_track(0);
 
-
 		/* Forget the view */
 		forget_view();
-
 
 		/* Handle "quit and save" */
 		if (!p_ptr->playing && !p_ptr->is_dead) break;
 
-
 		/* Erase the old cave */
 		wipe_o_list();
 		wipe_m_list();
-
 
 		/* XXX XXX XXX */
 		msg_print(NULL);

@@ -36,7 +36,6 @@ sint distance(int y1, int x1, int y2, int x2)
 	return ((ay > ax) ? (ay + (ax>>1)) : (ax + (ay>>1)));
 }
 
-
 /*
  * A simple, fast, integer-based line-of-sight algorithm.  By Joseph Hall,
  * 4116 Brewster Drive, Raleigh NC 27606.  Email to jnh@ecemwl.ncsu.edu.
@@ -96,7 +95,6 @@ bool los(int y1, int x1, int y2, int x2)
 	/* Slope, or 1/Slope, of LOS */
 	int m;
 
-
 	/* Extract the offset */
 	dy = y2 - y1;
 	dx = x2 - x1;
@@ -105,10 +103,8 @@ bool los(int y1, int x1, int y2, int x2)
 	ay = ABS(dy);
 	ax = ABS(dx);
 
-
 	/* Handle adjacent (or identical) grids */
 	if ((ax < 2) && (ay < 2)) return (TRUE);
-
 
 	/* Directly South/North */
 	if (!dx)
@@ -160,11 +156,9 @@ bool los(int y1, int x1, int y2, int x2)
 		return (TRUE);
 	}
 
-
 	/* Extract some signs */
 	sx = (dx < 0) ? -1 : 1;
 	sy = (dy < 0) ? -1 : 1;
-
 
 	/* Vertical "knights" */
 	if (ax == 1)
@@ -184,13 +178,11 @@ bool los(int y1, int x1, int y2, int x2)
 		}
 	}
 
-
 	/* Calculate scale factor div 2 */
 	f2 = (ax * ay);
 
 	/* Calculate scale factor */
 	f1 = f2 << 1;
-
 
 	/* Travel horizontally */
 	if (ax >= ay)
@@ -291,9 +283,6 @@ bool los(int y1, int x1, int y2, int x2)
 	return (TRUE);
 }
 
-
-
-
 /*
  * Returns true if the player's grid is dark
  */
@@ -304,9 +293,6 @@ bool no_lite(void)
 
 	return (!player_can_see_bold(py, px));
 }
-
-
-
 
 /*
  * Determine if a given location may be "destroyed"
@@ -340,13 +326,11 @@ bool cave_valid_bold(int y, int x)
 	return (TRUE);
 }
 
-
-
 /*
  * Hack -- Legal monster codes
  */
 static const char image_monster_hack[] = \
-"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+"abcdefghijklmnopqrstuvwyzBCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /*
  * Hack -- Hallucinatory monster
@@ -366,12 +350,11 @@ static u16b image_monster(void)
 	return (PICT(a,c));
 }
 
-
 /*
  * Hack -- Legal object codes
  */
 static const char image_object_hack[] = \
-"?/|\\\"!$()_-=[]{},~"; /* " */
+"?/|\\\"!$()_-=[]{},~*"; /* " */
 
 /*
  * Hack -- Hallucinatory object
@@ -391,7 +374,6 @@ static u16b image_object(void)
 	return (PICT(a,c));
 }
 
-
 /*
  * Hack -- Random hallucination
  */
@@ -409,7 +391,6 @@ static u16b image_random(void)
 		return (image_object());
 	}
 }
-
 
 /*
  * The 16x16 tile of the terrain supports lighting
@@ -441,7 +422,6 @@ bool feat_supports_lighting(byte feat)
 			return FALSE;
 	}
 }
-
 
 /*
  * Extract the attr/char to display at the given (legal) map location
@@ -498,7 +478,6 @@ bool feat_supports_lighting(byte feat)
  * "x_ptr->xxx", is quicker than "x_info[x].xxx", even if "x" is a fixed
  * constant.  If this is incorrect then a lot of code should be changed.
  *
- *
  * Some comments on the "terrain" layer...
  *
  * Note that "boring" grids (floors, invisible traps, and any illegal grids)
@@ -507,7 +486,6 @@ bool feat_supports_lighting(byte feat)
  * important distinction is that "boring" grids may or may not be memorized
  * when they are first encountered, and so we must use the "CAVE_SEEN" flag
  * to see if they are "see-able".
- *
  *
  * Some comments on the "terrain" layer (boring grids)...
  *
@@ -536,7 +514,6 @@ bool feat_supports_lighting(byte feat)
  * else if the grid is not "illuminated", we will use "dark gray", else
  * if the "view_bright_lite" option is set, we will use "slate" (gray),
  * else we will use the normal "white".
- *
  *
  * Some comments on the "terrain" layer (non-boring grids)...
  *
@@ -578,7 +555,6 @@ bool feat_supports_lighting(byte feat)
  * it would allow the player to notice the walls of illuminated rooms from
  * a dark hallway that happened to run beside the room.
  *
- *
  * Some comments on the "object" layer...
  *
  * Currently, we do nothing with multi-hued objects, because there are
@@ -587,7 +563,6 @@ bool feat_supports_lighting(byte feat)
  * would have to be created handle the "shimmer" effect, and the code
  * in "cave.c" would have to be updated to create the shimmer effect.
  * This did not seem worth the effort.  XXX XXX
- *
  *
  * Some comments on the "monster"/"player" layer...
  *
@@ -924,7 +899,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 		}
 	}
 
-
 	/* Monsters */
 	if (m_idx > 0)
 	{
@@ -1031,13 +1005,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 		c = r_ptr->x_char;
 	}
 
-#ifdef MAP_INFO_MULTIPLE_PLAYERS
-	/* Players */
-	else if (m_idx < 0)
-#else /* MAP_INFO_MULTIPLE_PLAYERS */
 	/* Handle "player" */
 	else if ((m_idx < 0) && !(p_ptr->running && hidden_player))
-#endif /* MAP_INFO_MULTIPLE_PLAYERS */
 	{
 		monster_race *r_ptr = &r_info[0];
 
@@ -1052,8 +1021,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 	(*ap) = a;
 	(*cp) = c;
 }
-
-
 
 /*
  * Move the cursor to a given map location.
@@ -1086,8 +1053,6 @@ void move_cursor_relative(int y, int x)
 	/* Go there */
 	Term_gotoxy(vx, vy);
 }
-
-
 
 /*
  * Display an attr/char pair at the given map location
@@ -1130,9 +1095,6 @@ void print_rel(char c, byte a, int y, int x)
 
 }
 
-
-
-
 /*
  * Memorize interesting viewable object/features in the given grid
  *
@@ -1168,13 +1130,11 @@ void note_spot(int y, int x)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-
 	/* Get cave info */
 	info = cave_info[y][x];
 
 	/* Require "seen" flag */
 	if (!(info & (CAVE_SEEN))) return;
-
 
 	/* Hack -- memorize objects */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
@@ -1187,7 +1147,6 @@ void note_spot(int y, int x)
 		/* Memorize objects */
 		o_ptr->marked = TRUE;
 	}
-
 
 	/* Hack -- memorize grids */
 	if (!(info & (CAVE_MARK)))
@@ -1212,7 +1171,6 @@ void note_spot(int y, int x)
 		}
 	}
 }
-
 
 /*
  * Redraw (on the screen) a given map location
@@ -1274,8 +1232,6 @@ void lite_spot(int y, int x)
 
 }
 
-
-
 /*
  * Redraw (on the screen) the current map panel
  *
@@ -1329,10 +1285,6 @@ void prt_map(void)
 	}
 }
 
-
-
-
-
 /*
  * Hack -- priority array (see below)
  *
@@ -1377,7 +1329,6 @@ static byte priority_table[][2] =
 	{ 0, 0 }
 };
 
-
 /*
  * Hack -- a priority function (see below)
  */
@@ -1410,13 +1361,11 @@ static byte priority(byte a, char c)
 	return (20);
 }
 
-
 /*
  * Maximum size of map.
  */
 #define MAP_HGT (DUNGEON_HGT / 3)
 #define MAP_WID (DUNGEON_WID / 3)
-
 
 /*
  * Display a "small-scale" map of the dungeon in the active Term.
@@ -1457,7 +1406,6 @@ void display_map(int *cy, int *cx)
 
 	monster_race *r_ptr = &r_info[0];
 
-
 	/* Desired map height */
 	map_hgt = Term->hgt - 2;
 	map_wid = Term->wid - 2;
@@ -1470,10 +1418,8 @@ void display_map(int *cy, int *cx)
 	if ((cy != NULL) && (map_hgt > SCREEN_HGT)) map_hgt = SCREEN_HGT;
 	if ((cx != NULL) && (map_wid > SCREEN_WID)) map_wid = SCREEN_WID;
 
-
 	/* Prevent accidents */
 	if ((map_wid < 1) || (map_hgt < 1)) return;
-
 
 	/* Save lighting effects */
 	old_view_special_lite = view_special_lite;
@@ -1482,7 +1428,6 @@ void display_map(int *cy, int *cx)
 	/* Disable lighting effects */
 	view_special_lite = FALSE;
 	view_granite_lite = FALSE;
-
 
 	/* Nothing here */
 	ta = TERM_WHITE;
@@ -1525,7 +1470,6 @@ void display_map(int *cy, int *cx)
 		Term_putch(x, y, ta, '|');
 	}
 
-
 	/* Analyze the actual map */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
@@ -1561,11 +1505,9 @@ void display_map(int *cy, int *cx)
 		}
 	}
 
-
 	/* Player location */
 	row = (py * map_hgt / DUNGEON_HGT);
 	col = (px * map_wid / DUNGEON_WID);
-
 
 	/*** Make sure the player is visible ***/
 
@@ -1582,51 +1524,10 @@ void display_map(int *cy, int *cx)
 	if (cy != NULL) (*cy) = row + 1;
 	if (cx != NULL) (*cx) = col + 1;
 
-
 	/* Restore lighting effects */
 	view_special_lite = old_view_special_lite;
 	view_granite_lite = old_view_granite_lite;
 }
-
-
-/*
- * Display a "small-scale" map of the dungeon.
- *
- * Note that the "player" is always displayed on the map.
- */
-void do_cmd_view_map(void)
-{
-	int cy, cx;
-
-	/* Save screen */
-	screen_save();
-
-	/* Note */
-	prt("Please wait...", 0, 0);
-
-	/* Flush */
-	Term_fresh();
-
-	/* Clear the screen */
-	Term_clear();
-
-	/* Display the map */
-	display_map(&cy, &cx);
-
-	/* Wait for it */
-	put_str("Hit any key to continue", 23, 23);
-
-	/* Hilite the player */
-	Term_gotoxy(cx, cy);
-
-	/* Get any key */
-	(void)inkey();
-
-	/* Load screen */
-	screen_load();
-}
-
-
 
 /*
  * Some comments on the dungeon related data structures and functions...
@@ -1959,20 +1860,15 @@ void do_cmd_view_map(void)
  *      ########?????????????    ########?????????????
  */
 
-
-
-
 /*
  * Maximum number of grids in a single octant
  */
 #define VINFO_MAX_GRIDS 161
 
-
 /*
  * Maximum number of slopes in a single octant
  */
 #define VINFO_MAX_SLOPES 126
-
 
 /*
  * Mask of bits used in a single octant
@@ -1982,12 +1878,10 @@ void do_cmd_view_map(void)
 #define VINFO_BITS_1 0xFFFFFFFF
 #define VINFO_BITS_0 0xFFFFFFFF
 
-
 /*
  * Forward declare
  */
 typedef struct vinfo_type vinfo_type;
-
 
 /*
  * The 'vinfo_type' structure
@@ -2017,21 +1911,15 @@ struct vinfo_type
 	byte r;
 };
 
-
-
 /*
  * The array of "vinfo" objects, initialized by "vinfo_init()"
  */
 static vinfo_type vinfo[VINFO_MAX_GRIDS];
 
-
-
-
 /*
  * Slope scale factor
  */
 #define SCALE 100000L
-
 
 /*
  * The actual slopes (for reference)
@@ -2166,13 +2054,10 @@ static vinfo_type vinfo[VINFO_MAX_GRIDS];
 /* 124 :     93103      28 */
 /* 125 :    100000      13 */
 
-
-
 /*
  * Forward declare
  */
 typedef struct vinfo_hack vinfo_hack;
-
 
 /*
  * Temporary data used by "vinfo_init()"
@@ -2195,8 +2080,6 @@ struct vinfo_hack {
 	long slopes_max[MAX_SIGHT+1][MAX_SIGHT+1];
 };
 
-
-
 /*
  * Sorting hook -- comp function -- array of long's (see below)
  *
@@ -2208,7 +2091,6 @@ static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
 
 	return (x[a] <= x[b]);
 }
-
 
 /*
  * Sorting hook -- comp function -- array of long's (see below)
@@ -2226,8 +2108,6 @@ static void ang_sort_swap_hook_longs(vptr u, vptr v, int a, int b)
 	x[a] = x[b];
 	x[b] = temp;
 }
-
-
 
 /*
  * Save a slope
@@ -2265,8 +2145,6 @@ static void vinfo_init_aux(vinfo_hack *hack, int y, int x, long m)
 	if (hack->slopes_max[y][x] < m) hack->slopes_max[y][x] = m;
 }
 
-
-
 /*
  * Initialize the "vinfo" array
  *
@@ -2296,10 +2174,8 @@ errr vinfo_init(void)
 	int queue_tail = 0;
 	vinfo_type *queue[VINFO_MAX_GRIDS*2];
 
-
 	/* Make hack */
 	MAKE(hack, vinfo_hack);
-
 
 	/* Analyze grids */
 	for (y = 0; y <= MAX_SIGHT; ++y)
@@ -2364,7 +2240,6 @@ errr vinfo_init(void)
 		         hack->num_slopes, VINFO_MAX_SLOPES);
 	}
 
-
 	/* Sort slopes numerically */
 	ang_sort_comp = ang_sort_comp_hook_longs;
 
@@ -2373,8 +2248,6 @@ errr vinfo_init(void)
 
 	/* Sort the (unique) slopes */
 	ang_sort(hack->slopes, NULL, hack->num_slopes);
-
-
 
 	/* Enqueue player grid */
 	queue[queue_tail++] = &vinfo[0];
@@ -2496,8 +2369,6 @@ errr vinfo_init(void)
 	return (0);
 }
 
-
-
 /*
  * Forget the "CAVE_VIEW" grids, redrawing as needed
  */
@@ -2544,8 +2415,6 @@ void forget_view(void)
 	view_n = fast_view_n;
 }
 
-
-
 /*
  * Calculate the complete field of view using a new algorithm
  *
@@ -2563,7 +2432,6 @@ void forget_view(void)
  *   ...
  *         g = pg + *((s16b*)(((byte*)(p))+o2));
  *   ...
- *
  *
  * Normally, vision along the major axes is more likely than vision
  * along the diagonal axes, so we check the bits corresponding to
@@ -2857,31 +2725,12 @@ void update_view(void)
 							int yy = (y < py) ? (y + 1) : (y > py) ? (y - 1) : y;
 							int xx = (x < px) ? (x + 1) : (x > px) ? (x - 1) : x;
 
-#ifdef UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION
-
-							/* Check for "complex" illumination */
-							if ((!(cave_info[yy][xx] & (CAVE_WALL)) &&
-							      (cave_info[yy][xx] & (CAVE_GLOW))) ||
-							    (!(cave_info[y][xx] & (CAVE_WALL)) &&
-							      (cave_info[y][xx] & (CAVE_GLOW))) ||
-							    (!(cave_info[yy][x] & (CAVE_WALL)) &&
-							      (cave_info[yy][x] & (CAVE_GLOW))))
-							{
-								/* Mark as seen */
-								info |= (CAVE_SEEN);
-							}
-
-#else /* UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION */
-
 							/* Check for "simple" illumination */
 							if (cave_info[yy][xx] & (CAVE_GLOW))
 							{
 								/* Mark as seen */
 								info |= (CAVE_SEEN);
 							}
-
-#endif /* UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION */
-
 						}
 
 						/* Save cave info */
@@ -2940,7 +2789,6 @@ void update_view(void)
 			}
 		}
 	}
-
 
 	/*** Step 3 -- Complete the algorithm ***/
 
@@ -3018,9 +2866,6 @@ void update_view(void)
 	view_n = fast_view_n;
 }
 
-
-
-
 #ifdef MONSTER_FLOW
 
 /*
@@ -3045,8 +2890,6 @@ void update_view(void)
 static int flow_save = 0;
 
 #endif /* MONSTER_FLOW */
-
-
 
 /*
  * Hack -- forget the "flow" information
@@ -3078,7 +2921,6 @@ void forget_flow(void)
 #endif
 
 }
-
 
 /*
  * Hack -- fill in the "cost" field of every grid that the player can
@@ -3118,7 +2960,7 @@ void update_flow(void)
 
 
 	/* Hack -- disabled */
-	if (!flow_by_sound) return;
+	if (!adult_flow_by_sound) return;
 
 
 	/*** Cycle the flow ***/
@@ -3142,7 +2984,6 @@ void update_flow(void)
 
 	/* Local variable */
 	flow_n = flow_save;
-
 
 	/*** Player Grid ***/
 
@@ -3215,9 +3056,6 @@ void update_flow(void)
 
 }
 
-
-
-
 /*
  * Map the current panel (plus some) ala "magic mapping"
  *
@@ -3280,8 +3118,6 @@ void map_area(void)
 	p_ptr->window |= (PW_OVERHEAD);
 }
 
-
-
 /*
  * Light up the dungeon using "claravoyance"
  *
@@ -3301,7 +3137,6 @@ void map_area(void)
 void wiz_lite(void)
 {
 	int i, y, x;
-
 
 	/* Memorize objects */
 	for (i = 1; i < o_max; i++)
@@ -3364,7 +3199,6 @@ void wiz_lite(void)
 	p_ptr->window |= (PW_OVERHEAD);
 }
 
-
 /*
  * Forget the dungeon map (ala "Thinking of Maud...").
  */
@@ -3408,15 +3242,12 @@ void wiz_dark(void)
 	p_ptr->window |= (PW_OVERHEAD);
 }
 
-
-
 /*
  * Light or Darken the town
  */
 void town_illuminate(bool daytime)
 {
 	int y, x, i;
-
 
 	/* Apply light or darkness */
 	for (y = 0; y < DUNGEON_HGT; y++)
@@ -3461,7 +3292,6 @@ void town_illuminate(bool daytime)
 		}
 	}
 
-
 	/* Handle shop doorways */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
@@ -3489,7 +3319,6 @@ void town_illuminate(bool daytime)
 		}
 	}
 
-
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
@@ -3499,8 +3328,6 @@ void town_illuminate(bool daytime)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
-
-
 
 /*
  * Change the "feat" flag for a grid, and notice/redraw the grid
@@ -3532,8 +3359,6 @@ void cave_set_feat(int y, int x, int feat)
 		lite_spot(y, x);
 	}
 }
-
-
 
 /*
  * Determine the path taken by a projection.
@@ -3597,10 +3422,8 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 	/* Slope */
 	int m;
 
-
 	/* No path necessary (or allowed) */
 	if ((x1 == x2) && (y1 == y2)) return (0);
-
 
 	/* Analyze "dy" */
 	if (y2 < y1)
@@ -3802,7 +3625,6 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 	return (n);
 }
 
-
 /*
  * Determine if a bolt spell cast from (y1,x1) to (y2,x2) will arrive
  * at the final destination, assuming that no monster gets in the way,
@@ -3839,8 +3661,6 @@ bool projectable(int y1, int x1, int y2, int x2)
 	/* Assume okay */
 	return (TRUE);
 }
-
-
 
 /*
  * Standard "find me a location" function
@@ -3880,11 +3700,6 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 	(*xp) = nx;
 }
 
-
-
-
-
-
 /*
  * Track a new monster
  */
@@ -3896,8 +3711,6 @@ void health_track(int m_idx)
 	/* Redraw (later) */
 	p_ptr->redraw |= (PR_HEALTH);
 }
-
-
 
 /*
  * Hack -- track the given monster race
@@ -3911,21 +3724,18 @@ void monster_race_track(int r_idx)
 	p_ptr->window |= (PW_MONSTER);
 }
 
-
-
 /*
  * Hack -- track the given object kind
  */
-void object_kind_track(int k_idx)
+void object_kind_track(int k_idx, int pval)
 {
 	/* Save this object ID */
 	p_ptr->object_kind_idx = k_idx;
+	p_ptr->object_pval = pval;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OBJECT);
 }
-
-
 
 /*
  * Something has happened to disturb the player.
@@ -3936,7 +3746,7 @@ void object_kind_track(int k_idx)
  *
  * All disturbance cancels repeated commands, resting, and running.
  */
-void disturb(int stop_search, int unused_flag)
+void disturb(int stop_search)
 {
 	/* Cancel auto-commands */
 	/* p_ptr->command_new = 0; */
@@ -4000,26 +3810,3 @@ void disturb(int stop_search, int unused_flag)
 	/* Flush the input if requested */
 	if (flush_disturb) flush();
 }
-
-
-/*
- * Hack -- Check if a level is a "quest" level - returns quest type
- */
-byte quest_check(int level)
-{
-	int i;
-
-	/* Town is never a quest */
-	if (!level) return (FALSE);
-
-	/* Check quests */
-	for (i = 0; i < z_info->q_max; i++)
-	{
-		/* Check for quest */
-		if (q_info[i].active_level == level) return (q_info[i].type);
-	}
-
-	/* Nope */
-	return 0;
-}
-

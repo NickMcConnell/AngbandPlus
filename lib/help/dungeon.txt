@@ -212,6 +212,11 @@ The Bookshop ("9")
      The bookshop sells spellbooks for both mages and priests, and holds a
      large variety of scrolls for every adventurer's needs. 
 
+The Adventurer's Guild ("0")
+     The adventurer's guild is not a standard shop. Instead, it offers a
+     selection of quests, which, if completed, offer rewards - the harder
+     the quest, the better the reward.
+
 === Within The Dungeon ===
 
 Once your character is adequately supplied with food, light, armor, and
@@ -324,7 +329,7 @@ the item in question will be inscribed with "good" or "cursed" as is
 relevant.  Priests acquire this ability far more readily than other
 character classes.
 
-Warriors, Rogues, and Paladins have a special method of "sensing" their
+Warriors, Bards, and Paladins have a special method of "sensing" their
 inventory/equipment items, which tells them not only if an item is "good" or
 "cursed", but also if it is "average", and if it is "special" or "excellent",
 or "terrible" or "worthless".
@@ -418,6 +423,18 @@ like normal floors.
 Creatures in the dungeon will generally know and use these secret doors, and
 can often be counted on to leave them open behind them when they pass
 through.
+
+=== Quests ===
+
+There are two types of quests in EyAngband - those needed to win the game, 
+which are covered in the next section, and random quests which can be assigned
+by the adventurer's guild. These quests always take the same form - kill a 
+number of creatures on an assigned dungeon level. Depending on the difficulty
+you requested, the creatures may be much harder than you would normally expect
+to find on those levels - so beware! On the other hand, once you complete the
+quest and return to the guild you will recieve a reward, which often can be
+very useful.
+
 
 === Winning The Game ===
 

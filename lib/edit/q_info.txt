@@ -18,10 +18,10 @@
 
 # Version stamp (required)
 
-V:0.1.4
+V:0.2.0
 
 N:0:Sauron
-W:99:638:1
+W:99:665:1
 
 N:1:Morgoth
-W:100:639:1
+W:100:666:1

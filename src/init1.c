@@ -74,14 +74,9 @@ int color_char_to_attr(char c)
 
 #ifdef ALLOW_TEMPLATES
 
-
 /*
  * Hack -- error tracking
  */
-extern s16b error_idx;
-extern s16b error_line;
-
-
 
 /*** Helper arrays for parsing ascii template files ***/
 
@@ -102,19 +97,15 @@ static cptr r_info_blow_method[] =
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
-	"XXX2",
 	"CRAWL",
 	"DROOL",
 	"SPIT",
-	"XXX3",
 	"GAZE",
 	"WAIL",
 	"SPORE",
-	"XXX4",
 	"BEG",
 	"INSULT",
 	"MOAN",
-	"XXX5",
 	NULL
 };
 
@@ -149,10 +140,11 @@ static cptr r_info_blow_effect[] =
 	"LOSE_CHR",
 	"LOSE_ALL",
 	"SHATTER",
-	"EXP_10",
-	"EXP_20",
-	"EXP_40",
-	"EXP_80",
+	"EXP_1",
+	"EXP_2",
+	"EXP_3",
+	"EXP_4",
+	"DISEASE",
 	NULL
 };
 
@@ -173,8 +165,8 @@ static cptr r_info_flags1[] =
 	"FORCE_DEPTH",
 	"FORCE_MAXHP",
 	"FORCE_SLEEP",
-	"FORCE_EXTRA",
-	"FRIEND",
+	"XXX1",
+	"COMPANION",
 	"FRIENDS",
 	"ESCORT",
 	"ESCORTS",
@@ -192,7 +184,7 @@ static cptr r_info_flags1[] =
 	"DROP_4D2",
 	"DROP_GOOD",
 	"DROP_GREAT",
-	"DROP_USEFUL",
+	"XXX2",
 	"DROP_CHOSEN"
 };
 
@@ -211,12 +203,7 @@ static cptr r_info_flags2[] =
 	"WEIRD_MIND",
 	"MULTIPLY",
 	"REGENERATE",
-	"XXX3X2",
-	"XXX4X2",
 	"POWERFUL",
-	"XXX5X2",
-	"XXX7X2",
-	"XXX6X2",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -225,21 +212,9 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-	"BRAIN_1",
-	"BRAIN_2",
-	"BRAIN_3",
-	"BRAIN_4",
-	"BRAIN_5",
-	"BRAIN_6",
-	"BRAIN_7",
-	"BRAIN_8"
-};
-
-/*
- * Monster race flags
- */
-static cptr r_info_flags3[] =
-{
+	"XXX1",
+	"XXX2",
+	"XXX3",
 	"ORC",
 	"TROLL",
 	"GIANT",
@@ -248,30 +223,47 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"XXX1X3",
-	"XXX2X3",
-	"XXX3X3",
-	"XXX4X3",
+	"PLANT",
+	"CHAOTIC"
+};
+
+/*
+ * Monster race flags
+ */
+static cptr r_info_flags3[] =
+{
 	"HURT_LITE",
 	"HURT_ROCK",
-	"HURT_FIRE",
-	"HURT_COLD",
-	"IM_ACID",
-	"IM_ELEC",
-	"IM_FIRE",
-	"IM_COLD",
-	"IM_POIS",
-	"XXX5X3",
-	"RES_NETH",
-	"RES_WATE",
-	"RES_PLAS",
-	"RES_NEXU",
-	"RES_DISE",
-	"XXX6X3",
+	"HURT_DARK",
+	"XXX1",
+	"NO_BLIND",
 	"NO_FEAR",
 	"NO_STUN",
-	"NO_CONF",
-	"NO_SLEEP"
+	"NO_SLEEP",
+	"NO_CUT",
+	"NO_CALM",
+	"RES_ACID",
+	"RES_ELEC",
+	"RES_FIRE",
+	"RES_COLD",
+	"RES_POIS",
+	"RES_NETH",
+	"RES_LITE",
+	"RES_DARK",
+	"RES_CONF",
+	"RES_SOUN",
+	"RES_CHAO",
+	"RES_DISE",
+	"RES_NEXU",
+	"RES_TIME",
+	"RES_INER",
+	"RES_GRAV",
+	"RES_SHAR",
+	"RES_PLAS",
+	"RES_FORCE",
+	"RES_MANA",
+	"RES_WATER",
+	"RES_DISEASE"
 };
 
 /*
@@ -280,9 +272,9 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"XXX2X4",
-	"XXX3X4",
-	"XXX4X4",
+	"XXX1",
+	"XXX2",
+	"XXX3",
 	"ARROW_1",
 	"ARROW_2",
 	"ARROW_3",
@@ -305,12 +297,12 @@ static cptr r_info_flags4[] =
 	"BR_GRAV",
 	"BR_SHAR",
 	"BR_PLAS",
-	"BR_WALL",
+	"BR_FORCE",
 	"BR_MANA",
-	"XXX5X4",
-	"XXX6X4",
-	"XXX7X4",
-	"XXX8X4"
+	"BR_WATER",
+	"BR_DISEASE",
+	"XXX4",
+	"XXX5"
 };
 
 /*
@@ -324,7 +316,7 @@ static cptr r_info_flags5[] =
 	"BA_COLD",
 	"BA_POIS",
 	"BA_NETH",
-	"BA_WATE",
+	"BA_WATER",
 	"BA_MANA",
 	"BA_DARK",
 	"DRAIN_MANA",
@@ -338,9 +330,9 @@ static cptr r_info_flags5[] =
 	"BO_ELEC",
 	"BO_FIRE",
 	"BO_COLD",
-	"BO_POIS",
+	"XXX1",
 	"BO_NETH",
-	"BO_WATE",
+	"BO_WATER",
 	"BO_MANA",
 	"BO_PLAS",
 	"BO_ICEE",
@@ -358,26 +350,26 @@ static cptr r_info_flags5[] =
 static cptr r_info_flags6[] =
 {
 	"HASTE",
-	"XXX1X6",
+	"XXX1",
 	"HEAL",
-	"XXX2X6",
+	"XXX2",
 	"BLINK",
 	"TPORT",
-	"XXX3X6",
-	"XXX4X6",
+	"BLINK_TO",
+	"XXX3",
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
-	"XXX5",
+	"XXX45",
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
+	"XXX5",
 	"S_KIN",
 	"S_HI_DEMON",
 	"S_MONSTER",
 	"S_MONSTERS",
-	"S_ANT",
+	"S_ANIMALS",
 	"S_SPIDER",
 	"S_HOUND",
 	"S_HYDRA",
@@ -397,7 +389,7 @@ static cptr r_info_flags6[] =
 static cptr c_info_flags[] =
 {
 	"EXTRA_SHOT",
-	"RES_FEAR_30",
+	"BRAVERY_30",
 	"BLESS_WEAPON",	
 	"NO_GLOVE",	
 	"POWER",		
@@ -408,21 +400,21 @@ static cptr c_info_flags[] =
 	"EXTRA_SPELL",	
 	"PSEUDO_ID_HEAVY",	
 	"CHOOSE_SPELLS",			
+	"MUSIC",			
+	"LORE",			
+	"XXX1",			
+	"XXX2",			
 	"XXX3",			
 	"XXX4",			
 	"XXX5",			
-	"XXX6",			
-	"XXX7",			
-	"XXX8",			
-	"XXX9",			
-	"XXX10",		
+	"XXX6",		
+	"XXX7",	
+	"XXX8",	
+	"XXX9",	
+	"XXX10",	
 	"XXX11",	
 	"XXX12",	
 	"XXX13",	
-	"XXX14",	
-	"XXX15",	
-	"XXX16",	
-	"XXX17",	
 	"PSEUDO_ID1",
 	"PSEUDO_ID2",
 	"PSEUDO_ID3",
@@ -450,42 +442,30 @@ static cptr k_info_flags1[] =
 	"SPEED",
 	"BLOWS",
 	"SHOTS",
+	"MANA",
+	"HEALTH",
 	"MIGHT",
-	"SLAY_ANIMAL",
-	"SLAY_EVIL",
-	"SLAY_UNDEAD",
-	"SLAY_DEMON",
-	"SLAY_ORC",
-	"SLAY_TROLL",
-	"SLAY_GIANT",
-	"SLAY_DRAGON",
-	"KILL_DRAGON",
+	"XXX3",
+	"XXX4",
 	"XXX5",
 	"XXX6",
 	"XXX7",
-	"BRAND_ACID",
-	"BRAND_ELEC",
-	"BRAND_FIRE",
-	"BRAND_COLD"
-};
-
-/*
- * Object flags
- */
-static cptr k_info_flags2[] =
-{
+	"XXX8",
+	"XXX9",
+	"XXX10",
 	"SUST_STR",
 	"SUST_INT",
 	"SUST_WIS",
 	"SUST_DEX",
 	"SUST_CON",
-	"SUST_CHR",
-	"XXX1",
-	"XXX2",
-	"XXX3",
-	"XXX4",
-	"XXX5",
-	"XXX6",
+	"SUST_CHR"
+};
+	
+/*
+ * Object flags
+ */
+static cptr k_info_flags2[] =
+{
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -494,18 +474,30 @@ static cptr k_info_flags2[] =
 	"RES_ELEC",
 	"RES_FIRE",
 	"RES_COLD",
+	"FREE_ACT",
+	"HOLD_LIFE",
+	"NO_BLIND",
+	"BRAVERY",
 	"RES_POIS",
-	"RES_FEAR",
+	"RES_DISEASE",
 	"RES_LITE",
 	"RES_DARK",
-	"RES_BLIND",
 	"RES_CONFU",
 	"RES_SOUND",
 	"RES_SHARD",
+	"RES_WATER",
 	"RES_NEXUS",
 	"RES_NETHR",
 	"RES_CHAOS",
-	"RES_DISEN"
+	"RES_DISEN",
+	"RES_TIME",
+	"RES_MANA",
+	"XXX1",
+	"XXX2",
+	"XXX3",
+	"XXX4",
+	"XXX5",
+	"XXX6"
 };
 
 /*
@@ -515,43 +507,82 @@ static cptr k_info_flags3[] =
 {
 	"SLOW_DIGEST",
 	"FEATHER",
-	"LITE",
 	"REGEN",
 	"TELEPATHY",
 	"SEE_INVIS",
-	"FREE_ACT",
-	"HOLD_LIFE",
 	"INVIS",
-	"XXX2",
-	"XXX3",
-	"XXX4",
-	"IMPACT",
-	"TELEPORT",
-	"AGGRAVATE",
-	"DRAIN_EXP",
+	"GLOW",
+	"XXX1",
+	"LITE1",
+	"LITE2",
+	"LITE3",
+	"LITE4",
 	"IGNORE_ACID",
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",
-	"XXX6",
-	"BLESSED",
+	"IGNORE_DISEN",
+	"XXX2",
 	"ACTIVATE",
 	"INSTA_ART",
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"XXX7",
+	"XXX3",
+	"DRAIN_ITEM",
+	"IMPACT",
+	"TELEPORT",
+	"AGGRAVATE",
+	"DRAIN_EXP",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
 };
 
+/*
+ * Object flags
+ */
+static cptr k_info_flags4[] =
+{
+
+	"SLAY_ANIMAL",
+	"SLAY_PLANT",
+	"SLAY_EVIL",
+	"SLAY_CHAOS",
+	"SLAY_UNDEAD",
+	"SLAY_DEMON",
+	"SLAY_ORC",
+	"SLAY_TROLL",
+	"SLAY_GIANT",
+	"SLAY_DRAGON",
+	"KILL_DRAGON",
+	"XXX1",
+	"BLESSED",
+	"XXX2",
+	"XXX3",
+	"XXX4",
+	"WOUNDING",
+	"TERROR",
+	"XXX5",
+	"XXX6",
+	"XXX7",
+	"XXX8",
+	"XXX9",
+	"BRAND_ACID",
+	"BRAND_ELEC",
+	"BRAND_FIRE",
+	"BRAND_COLD",
+	"BRAND_VENOM",
+	"BRAND_LITE",
+	"BRAND_DARK",
+	"XXX10",
+	"XXX11",
+};
 
 /*
  * Activation type
  */
-static cptr a_info_act[] =
+static cptr a_info_act[ACT_MAX] =
 {
 	"ILLUMINATION",
 	"MAGIC_MAP",
@@ -599,7 +630,22 @@ static cptr a_info_act[] =
 	"WOR",
 	"CONFUSE",
 	"PROBE",
-	"FIREBRAND"
+	"FIREBRAND",
+	"RESTORE_MANA",
+	"DIMENSION_DOOR",
+	"SATISFY_HUNGER",
+	"DETECT_ENCHANT",
+	"DETECT_TRAPS",
+	"RAGE",
+	"MANA_BOLT",
+	"LITE_BOLT",
+	"DARK_BOLT",
+	"WATER_BOLT",
+	"LITEBRAND",
+	"VENOMSHOT",
+	"DETECT_TREASURE",
+	"CALM_NON_CHAOS"
+
 };
 
 
@@ -792,7 +838,6 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-
 		/* Process 'H' for "Maximum h_info[] index" */
 		if (buf[2] == 'H')
 		{
@@ -807,7 +852,6 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
 
 		/* Process 'B' for "Maximum b_info[] subindex" */
 		if (buf[2] == 'B')
@@ -824,7 +868,6 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-
 		/* Process 'O' for "Maximum o_list[] index" */
 		if (buf[2] == 'O')
 		{
@@ -840,7 +883,6 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-
 		/* Process 'M' for "Maximum m_list[] index" */
 		if (buf[2] == 'M')
 		{
@@ -855,7 +897,6 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
 
 		/* Process 'Q' for "Maximum q_info[] index" */
 		if (buf[2] == 'Q')
@@ -886,7 +927,6 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
 
 		/* Process 'T' for "Fake text size" */
 		if (buf[2] == 'T')
@@ -1216,35 +1256,6 @@ errr init_f_info_txt(FILE *fp, char *buf)
 		/* There better be a current f_ptr */
 		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-
-#if 0
-
-		/* Process 'D' for "Description" */
-		if (buf[0] == 'D')
-		{
-			/* Get the text */
-			s = buf+2;
-
-			/* Hack -- Verify space */
-			if (f_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
-				return (PARSE_ERROR_OUT_OF_MEMORY);
-
-			/* Advance and Save the text index */
-			if (!f_ptr->text) f_ptr->text = ++f_head->text_size;
-
-			/* Append chars to the name */
-			strcpy(f_text + f_head->text_size, s);
-
-			/* Advance the index */
-			f_head->text_size += strlen(s);
-
-			/* Next... */
-			continue;
-		}
-
-#endif
-
-
 		/* Process 'M' for "Mimic" (one line only) */
 		if (buf[0] == 'M')
 		{
@@ -1340,6 +1351,16 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 		if (streq(what, k_info_flags3[i]))
 		{
 			k_ptr->flags3 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			k_ptr->flags4 |= (1L << i);
 			return (0);
 		}
 	}
@@ -1467,35 +1488,6 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-
-#if 0
-
-		/* Process 'D' for "Description" */
-		if (buf[0] == 'D')
-		{
-			/* Get the text */
-			s = buf+2;
-
-			/* Hack -- Verify space */
-			if (k_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
-				return (PARSE_ERROR_OUT_OF_MEMORY);
-
-			/* Advance and Save the text index */
-			if (!k_ptr->text) k_ptr->text = ++k_head->text_size;
-
-			/* Append chars to the name */
-			strcpy(k_text + k_head->text_size, s);
-
-			/* Advance the index */
-			k_head->text_size += strlen(s);
-
-			/* Next... */
-			continue;
-		}
-
-#endif
-
 
 		/* Process 'G' for "Graphics" (one line only) */
 		if (buf[0] == 'G')
@@ -1699,6 +1691,16 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 		}
 	}
 
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			a_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}
+
 	/* Oops */
 	msg_format("Unknown artifact flag '%s'.", what);
 
@@ -1846,34 +1848,6 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-
-#if 0
-
-		/* Process 'D' for "Description" */
-		if (buf[0] == 'D')
-		{
-			/* Get the text */
-			s = buf+2;
-
-			/* Hack -- Verify space */
-			if (a_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
-				return (PARSE_ERROR_OUT_OF_MEMORY);
-
-			/* Advance and Save the text index */
-			if (!a_ptr->text) a_ptr->text = ++a_head->text_size;
-
-			/* Append chars to the name */
-			strcpy(a_text + a_head->text_size, s);
-
-			/* Advance the index */
-			a_head->text_size += strlen(s);
-
-			/* Next... */
-			continue;
-		}
-
-#endif
 
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
@@ -2048,6 +2022,16 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 		}
 	}
 
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			e_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}
+
 	/* Oops */
 	msg_format("Unknown ego-item flag '%s'.", what);
 
@@ -2173,34 +2157,6 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-
-#if 0
-
-		/* Process 'D' for "Description" */
-		if (buf[0] == 'D')
-		{
-			/* Get the text */
-			s = buf+2;
-
-			/* Hack -- Verify space */
-			if (e_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
-				return (PARSE_ERROR_OUT_OF_MEMORY);
-
-			/* Advance and Save the text index */
-			if (!e_ptr->text) e_ptr->text = ++e_head->text_size;
-
-			/* Append chars to the name */
-			strcpy(e_text + e_head->text_size, s);
-
-			/* Advance the index */
-			e_head->text_size += strlen(s);
-
-			/* Next... */
-			continue;
-		}
-
-#endif
 
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
@@ -2534,7 +2490,6 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
@@ -2806,6 +2761,16 @@ static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
 		if (streq(what, k_info_flags3[i]))
 		{
 			pr_ptr->flags3 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			pr_ptr->flags4 |= (1L << i);
 			return (0);
 		}
 	}
@@ -3462,7 +3427,7 @@ errr init_c_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-		/* Hack -- Process 'T' for titles */
+		/* Process 'T' for titles */
 		if (buf[0] == 'T')
 		{
 			/* Parse every entry textually */
@@ -3547,7 +3512,6 @@ errr init_c_info_txt(FILE *fp, char *buf)
 	return (0);
 }
 
-
 /*
  * Initialize the "h_info" array, by parsing an ascii "template" file
  */
@@ -3563,13 +3527,11 @@ errr init_h_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	hist_type *h_ptr = NULL;
 
-
 	/* Just before the first record */
 	error_idx = -1;
 
 	/* Just before the first line */
 	error_line = -1;
-
 
 	/* Prepare the "fake" stuff */
 	h_head->text_size = 0;
@@ -3585,7 +3547,6 @@ errr init_h_info_txt(FILE *fp, char *buf)
 
 		/* Verify correct "colon" format */
 		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
-
 
 		/* Hack -- Process 'V' for "Version" */
 		if (buf[0] == 'V')
@@ -3610,7 +3571,6 @@ errr init_h_info_txt(FILE *fp, char *buf)
 
 		/* No version yet */
 		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
-
 
 		/* Process 'N' for "New/Number" */
 		if (buf[0] == 'N')
@@ -3649,7 +3609,6 @@ errr init_h_info_txt(FILE *fp, char *buf)
 		/* There better be a current h_ptr */
 		if (!h_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
@@ -3673,19 +3632,15 @@ errr init_h_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-
 		/* Oops */
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
 	}
 
-
 	/* Complete the "text" size */
 	++h_head->text_size;
 
-
 	/* No version yet */
 	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
-
 
 	/* Success */
 	return (0);
@@ -4016,7 +3971,7 @@ errr init_q_info_txt(FILE *fp, char *buf)
 	bool okay = FALSE;
 
 	/* Current entry */
-	quest *q_ptr = NULL;
+	quest_type *q_ptr = NULL;
 
 
 	/* Just before the first record */
@@ -4116,35 +4071,6 @@ errr init_q_info_txt(FILE *fp, char *buf)
 
 		/* There better be a current q_ptr */
 		if (!q_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-
-#if 0
-
-		/* Process 'D' for "Description" */
-		if (buf[0] == 'D')
-		{
-			/* Get the text */
-			s = buf+2;
-
-			/* Hack -- Verify space */
-			if (q_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
-				return (PARSE_ERROR_OUT_OF_MEMORY);
-
-			/* Advance and Save the text index */
-			if (!q_ptr->text) q_ptr->text = ++q_head->text_size;
-
-			/* Append chars to the name */
-			strcpy(q_text + q_head->text_size, s);
-
-			/* Advance the index */
-			q_head->text_size += strlen(s);
-
-			/* Next... */
-			continue;
-		}
-
-#endif
-
 
 		/* Process 'W' for "Where/What" (one line only) */
 		if (buf[0] == 'W')

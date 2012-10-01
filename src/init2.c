@@ -1,6 +1,5 @@
 /* File: init2.c */
 
-
 /*
  * Copyright (c) 1997 Ben Harrison
  *
@@ -10,7 +9,6 @@
  */ 
 
 #include "angband.h"
-
 
 /*
  * This file is used to initialize various variables and arrays for the
@@ -34,8 +32,6 @@
  * "ALLOW_TEMPLATES", saving about 20K by removing "init1.c".  Note
  * that the binary image files are extremely system dependant.
  */
-
-
 
 /*
  * Find the default paths to all of our important sub-directories.
@@ -74,7 +70,6 @@ void init_file_paths(char *path)
 {
 	char *tail;
 
-
 	/*** Free everything ***/
 
 	/* Free the main path */
@@ -82,16 +77,13 @@ void init_file_paths(char *path)
 
 	/* Free the sub-paths */
 	string_free(ANGBAND_DIR_APEX);
-	string_free(ANGBAND_DIR_BONE);
 	string_free(ANGBAND_DIR_DATA);
 	string_free(ANGBAND_DIR_EDIT);
 	string_free(ANGBAND_DIR_FILE);
 	string_free(ANGBAND_DIR_HELP);
-	string_free(ANGBAND_DIR_INFO);
 	string_free(ANGBAND_DIR_SAVE);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
-
 
 	/*** Prepare the "path" ***/
 
@@ -101,15 +93,12 @@ void init_file_paths(char *path)
 	/* Prepare to append to the Base Path */
 	tail = path + strlen(path);
 
-
 #ifdef VM
-
 
 	/*** Use "flat" paths with VM/ESA ***/
 
 	/* Use "blank" path names */
 	ANGBAND_DIR_APEX = string_make("");
-	ANGBAND_DIR_BONE = string_make("");
 	ANGBAND_DIR_DATA = string_make("");
 	ANGBAND_DIR_EDIT = string_make("");
 	ANGBAND_DIR_FILE = string_make("");
@@ -119,19 +108,13 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_USER = string_make("");
 	ANGBAND_DIR_XTRA = string_make("");
 
-
 #else /* VM */
-
 
 	/*** Build the sub-directory names ***/
 
 	/* Build a path name */
 	strcpy(tail, "apex");
 	ANGBAND_DIR_APEX = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "bone");
-	ANGBAND_DIR_BONE = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "data");
@@ -150,10 +133,6 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_HELP = string_make(path);
 
 	/* Build a path name */
-	strcpy(tail, "info");
-	ANGBAND_DIR_INFO = string_make(path);
-
-	/* Build a path name */
 	strcpy(tail, "save");
 	ANGBAND_DIR_SAVE = string_make(path);
 
@@ -166,7 +145,6 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_XTRA = string_make(path);
 
 #endif /* VM */
-
 
 #ifdef NeXT
 
@@ -207,17 +185,13 @@ void init_file_paths(char *path)
 
 }
 
-
-
 #ifdef ALLOW_TEMPLATES
-
 
 /*
  * Hack -- help give useful error messages
  */
 s16b error_idx;
 s16b error_line;
-
 
 /*
  * Standard error message text
@@ -237,13 +211,9 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"too many arguments",
 };
 
-
 #endif /* ALLOW_TEMPLATES */
 
-
-
 /*** Initialize from binary image files ***/
-
 
 /*
  * Initialize the "z_info" array, by parsing a binary "image" file
@@ -251,7 +221,6 @@ static cptr err_str[PARSE_ERROR_MAX] =
 static errr init_z_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -268,10 +237,8 @@ static errr init_z_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*z_head) = test;
-
 
 	/* Allocate the "z_info" array */
 	C_MAKE(z_info, z_head->info_num, maxima);
@@ -279,12 +246,9 @@ static errr init_z_info_raw(int fd)
 	/* Read the "z_info" array */
 	fd_read(fd, (char*)(z_info), z_head->info_size);
 
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "z_info" array
@@ -297,11 +261,12 @@ static errr init_z_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the header ***/
 
@@ -321,7 +286,6 @@ static errr init_z_info(void)
 	/* Save the size of "z_head" and "z_info" */
 	z_head->head_size = sizeof(header);
 	z_head->info_size = z_head->info_num * z_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -353,12 +317,10 @@ static errr init_z_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "z_info" array */
 	C_MAKE(z_info, z_head->info_num, maxima);
-
 
 	/*** Load the ascii template file ***/
 
@@ -395,7 +357,6 @@ static errr init_z_info(void)
 		quit("Error in 'z_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -422,7 +383,6 @@ static errr init_z_info(void)
 		/* Close */
 		fd_close(fd);
 	}
-
 
 	/*** Kill the fake arrays ***/
 
@@ -456,14 +416,12 @@ static errr init_z_info(void)
 	return (0);
 }
 
-
 /*
  * Initialize the "f_info" array, by parsing a binary "image" file
  */
 static errr init_f_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -480,10 +438,8 @@ static errr init_f_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*f_head) = test;
-
 
 	/* Allocate the "f_info" array */
 	C_MAKE(f_info, f_head->info_num, feature_type);
@@ -498,23 +454,9 @@ static errr init_f_info_raw(int fd)
 	/* Read the "f_name" array */
 	fd_read(fd, (char*)(f_name), f_head->name_size);
 
-
-#ifndef DELAY_LOAD_F_TEXT
-
-	/* Allocate the "f_text" array */
-	C_MAKE(f_text, f_head->text_size, char);
-
-	/* Read the "f_text" array */
-	fd_read(fd, (char*)(f_text), f_head->text_size);
-
-#endif
-
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "f_info" array
@@ -530,11 +472,12 @@ static errr init_f_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the header ***/
 
@@ -554,7 +497,6 @@ static errr init_f_info(void)
 	/* Save the size of "f_head" and "f_info" */
 	f_head->head_size = sizeof(header);
 	f_head->info_size = f_head->info_num * f_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -586,7 +528,6 @@ static errr init_f_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "f_info" array */
@@ -594,8 +535,6 @@ static errr init_f_info(void)
 
 	/* Hack -- make "fake" arrays */
 	C_MAKE(f_name, z_info->fake_name_size, char);
-	C_MAKE(f_text, z_info->fake_text_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -632,7 +571,6 @@ static errr init_f_info(void)
 		quit("Error in 'f_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -659,13 +597,9 @@ static errr init_f_info(void)
 		/* Dump the "f_name" array */
 		fd_write(fd, (char*)(f_name), f_head->name_size);
 
-		/* Dump the "f_text" array */
-		fd_write(fd, (char*)(f_text), f_head->text_size);
-
 		/* Close */
 		fd_close(fd);
 	}
-
 
 	/*** Kill the fake arrays ***/
 
@@ -674,10 +608,8 @@ static errr init_f_info(void)
 
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(f_name, z_info->fake_name_size, char);
-	C_KILL(f_text, z_info->fake_text_size, char);
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -703,15 +635,12 @@ static errr init_f_info(void)
 	return (0);
 }
 
-
-
 /*
  * Initialize the "k_info" array, by parsing a binary "image" file
  */
 static errr init_k_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -728,10 +657,8 @@ static errr init_k_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*k_head) = test;
-
 
 	/* Allocate the "k_info" array */
 	C_MAKE(k_info, k_head->info_num, object_kind);
@@ -739,30 +666,15 @@ static errr init_k_info_raw(int fd)
 	/* Read the "k_info" array */
 	fd_read(fd, (char*)(k_info), k_head->info_size);
 
-
 	/* Allocate the "k_name" array */
 	C_MAKE(k_name, k_head->name_size, char);
 
 	/* Read the "k_name" array */
 	fd_read(fd, (char*)(k_name), k_head->name_size);
 
-
-#ifndef DELAY_LOAD_K_TEXT
-
-	/* Allocate the "k_text" array */
-	C_MAKE(k_text, k_head->text_size, char);
-
-	/* Read the "k_text" array */
-	fd_read(fd, (char*)(k_text), k_head->text_size);
-
-#endif
-
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "k_info" array
@@ -778,11 +690,12 @@ static errr init_k_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the header ***/
 
@@ -802,7 +715,6 @@ static errr init_k_info(void)
 	/* Save the size of "k_head" and "k_info" */
 	k_head->head_size = sizeof(header);
 	k_head->info_size = k_head->info_num * k_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -834,7 +746,6 @@ static errr init_k_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "k_info" array */
@@ -842,8 +753,6 @@ static errr init_k_info(void)
 
 	/* Hack -- make "fake" arrays */
 	C_MAKE(k_name, z_info->fake_name_size, char);
-	C_MAKE(k_text, z_info->fake_text_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -880,7 +789,6 @@ static errr init_k_info(void)
 		quit("Error in 'k_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -907,13 +815,9 @@ static errr init_k_info(void)
 		/* Dump the "k_name" array */
 		fd_write(fd, (char*)(k_name), k_head->name_size);
 
-		/* Dump the "k_text" array */
-		fd_write(fd, (char*)(k_text), k_head->text_size);
-
 		/* Close */
 		fd_close(fd);
 	}
-
 
 	/*** Kill the fake arrays ***/
 
@@ -922,10 +826,8 @@ static errr init_k_info(void)
 
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(k_name, z_info->fake_name_size, char);
-	C_KILL(k_text, z_info->fake_text_size, char);
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -951,15 +853,13 @@ static errr init_k_info(void)
 	return (0);
 }
 
-
-
 /*
  * Initialize the "a_info" array, by parsing a binary "image" file
  */
 static errr init_a_info_raw(int fd)
 {
-	header test;
 
+	header test;
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -976,10 +876,8 @@ static errr init_a_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*a_head) = test;
-
 
 	/* Allocate the "a_info" array */
 	C_MAKE(a_info, a_head->info_num, artifact_type);
@@ -994,23 +892,9 @@ static errr init_a_info_raw(int fd)
 	/* Read the "a_name" array */
 	fd_read(fd, (char*)(a_name), a_head->name_size);
 
-
-#ifndef DELAY_LOAD_A_TEXT
-
-	/* Allocate the "a_text" array */
-	C_MAKE(a_text, a_head->text_size, char);
-
-	/* Read the "a_text" array */
-	fd_read(fd, (char*)(a_text), a_head->text_size);
-
-#endif
-
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "a_info" array
@@ -1026,11 +910,12 @@ static errr init_a_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the "header" ***/
 
@@ -1050,7 +935,6 @@ static errr init_a_info(void)
 	/* Save the size of "a_head" and "a_info" */
 	a_head->head_size = sizeof(header);
 	a_head->info_size = a_head->info_num * a_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -1082,7 +966,6 @@ static errr init_a_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "a_info" array */
@@ -1090,8 +973,6 @@ static errr init_a_info(void)
 
 	/* Hack -- make "fake" arrays */
 	C_MAKE(a_name, z_info->fake_name_size, char);
-	C_MAKE(a_text, z_info->fake_text_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -1128,7 +1009,6 @@ static errr init_a_info(void)
 		quit("Error in 'a_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -1155,13 +1035,9 @@ static errr init_a_info(void)
 		/* Dump the "a_name" array */
 		fd_write(fd, (char*)(a_name), a_head->name_size);
 
-		/* Dump the "a_text" array */
-		fd_write(fd, (char*)(a_text), a_head->text_size);
-
 		/* Close */
 		fd_close(fd);
 	}
-
 
 	/*** Kill the fake arrays ***/
 
@@ -1170,11 +1046,8 @@ static errr init_a_info(void)
 
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(a_name, z_info->fake_name_size, char);
-	C_KILL(a_text, z_info->fake_text_size, char);
-
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -1200,15 +1073,12 @@ static errr init_a_info(void)
 	return (0);
 }
 
-
-
 /*
  * Initialize the "e_info" array, by parsing a binary "image" file
  */
 static errr init_e_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -1225,10 +1095,8 @@ static errr init_e_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*e_head) = test;
-
 
 	/* Allocate the "e_info" array */
 	C_MAKE(e_info, e_head->info_num, ego_item_type);
@@ -1236,30 +1104,15 @@ static errr init_e_info_raw(int fd)
 	/* Read the "e_info" array */
 	fd_read(fd, (char*)(e_info), e_head->info_size);
 
-
 	/* Allocate the "e_name" array */
 	C_MAKE(e_name, e_head->name_size, char);
 
 	/* Read the "e_name" array */
 	fd_read(fd, (char*)(e_name), e_head->name_size);
 
-
-#ifndef DELAY_LOAD_E_TEXT
-
-	/* Allocate the "e_text" array */
-	C_MAKE(e_text, e_head->text_size, char);
-
-	/* Read the "e_text" array */
-	fd_read(fd, (char*)(e_text), e_head->text_size);
-
-#endif
-
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "e_info" array
@@ -1275,7 +1128,9 @@ static errr init_e_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
@@ -1299,7 +1154,6 @@ static errr init_e_info(void)
 	/* Save the size of "e_head" and "e_info" */
 	e_head->head_size = sizeof(header);
 	e_head->info_size = e_head->info_num * e_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -1331,7 +1185,6 @@ static errr init_e_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "e_info" array */
@@ -1339,8 +1192,6 @@ static errr init_e_info(void)
 
 	/* Hack -- make "fake" arrays */
 	C_MAKE(e_name, z_info->fake_name_size, char);
-	C_MAKE(e_text, z_info->fake_text_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -1377,7 +1228,6 @@ static errr init_e_info(void)
 		quit("Error in 'e_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -1404,13 +1254,9 @@ static errr init_e_info(void)
 		/* Dump the "e_name" array */
 		fd_write(fd, (char*)(e_name), e_head->name_size);
 
-		/* Dump the "e_text" array */
-		fd_write(fd, (char*)(e_text), e_head->text_size);
-
 		/* Close */
 		fd_close(fd);
 	}
-
 
 	/*** Kill the fake arrays ***/
 
@@ -1419,10 +1265,8 @@ static errr init_e_info(void)
 
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(e_name, z_info->fake_name_size, char);
-	C_KILL(e_text, z_info->fake_text_size, char);
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -1448,15 +1292,12 @@ static errr init_e_info(void)
 	return (0);
 }
 
-
-
 /*
  * Initialize the "r_info" array, by parsing a binary "image" file
  */
 static errr init_r_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -1473,10 +1314,8 @@ static errr init_r_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*r_head) = test;
-
 
 	/* Allocate the "r_info" array */
 	C_MAKE(r_info, r_head->info_num, monster_race);
@@ -1484,14 +1323,13 @@ static errr init_r_info_raw(int fd)
 	/* Read the "r_info" array */
 	fd_read(fd, (char*)(r_info), r_head->info_size);
 
-
 	/* Allocate the "r_name" array */
 	C_MAKE(r_name, r_head->name_size, char);
 
 	/* Read the "r_name" array */
 	fd_read(fd, (char*)(r_name), r_head->name_size);
 
-
+#ifndef PREVENT_LOAD_R_TEXT
 #ifndef DELAY_LOAD_R_TEXT
 
 	/* Allocate the "r_text" array */
@@ -1501,13 +1339,11 @@ static errr init_r_info_raw(int fd)
 	fd_read(fd, (char*)(r_text), r_head->text_size);
 
 #endif
-
+#endif
 
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "r_info" array
@@ -1523,11 +1359,12 @@ static errr init_r_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the header ***/
 
@@ -1547,7 +1384,6 @@ static errr init_r_info(void)
 	/* Save the size of "r_head" and "r_info" */
 	r_head->head_size = sizeof(header);
 	r_head->info_size = r_head->info_num * r_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -1579,7 +1415,6 @@ static errr init_r_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "r_info" array */
@@ -1588,7 +1423,6 @@ static errr init_r_info(void)
 	/* Hack -- make "fake" arrays */
 	C_MAKE(r_name, z_info->fake_name_size, char);
 	C_MAKE(r_text, z_info->fake_text_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -1625,7 +1459,6 @@ static errr init_r_info(void)
 		quit("Error in 'r_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -1659,7 +1492,6 @@ static errr init_r_info(void)
 		fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
 	/* Free the "r_info" array */
@@ -1670,7 +1502,6 @@ static errr init_r_info(void)
 	C_KILL(r_text, z_info->fake_text_size, char);
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -1696,15 +1527,12 @@ static errr init_r_info(void)
 	return (0);
 }
 
-
-
 /*
  * Initialize the "v_info" array, by parsing a binary "image" file
  */
 static errr init_v_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -1721,10 +1549,8 @@ static errr init_v_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*v_head) = test;
-
 
 	/* Allocate the "v_info" array */
 	C_MAKE(v_info, v_head->info_num, vault_type);
@@ -1732,15 +1558,11 @@ static errr init_v_info_raw(int fd)
 	/* Read the "v_info" array */
 	fd_read(fd, (char*)(v_info), v_head->info_size);
 
-
 	/* Allocate the "v_name" array */
 	C_MAKE(v_name, v_head->name_size, char);
 
 	/* Read the "v_name" array */
 	fd_read(fd, (char*)(v_name), v_head->name_size);
-
-
-#ifndef DELAY_LOAD_V_TEXT
 
 	/* Allocate the "v_text" array */
 	C_MAKE(v_text, v_head->text_size, char);
@@ -1748,13 +1570,9 @@ static errr init_v_info_raw(int fd)
 	/* Read the "v_text" array */
 	fd_read(fd, (char*)(v_text), v_head->text_size);
 
-#endif
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "v_info" array
@@ -1770,11 +1588,12 @@ static errr init_v_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the header ***/
 
@@ -1794,7 +1613,6 @@ static errr init_v_info(void)
 	/* Save the size of "v_head" and "v_info" */
 	v_head->head_size = sizeof(header);
 	v_head->info_size = v_head->info_num * v_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -1826,7 +1644,6 @@ static errr init_v_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "k_info" array */
@@ -1835,7 +1652,6 @@ static errr init_v_info(void)
 	/* Hack -- make "fake" arrays */
 	C_MAKE(v_name, z_info->fake_name_size, char);
 	C_MAKE(v_text, z_info->fake_text_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -1872,7 +1688,6 @@ static errr init_v_info(void)
 		quit("Error in 'v_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -1906,7 +1721,6 @@ static errr init_v_info(void)
 		fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
 	/* Free the "v_info" array */
@@ -1916,9 +1730,7 @@ static errr init_v_info(void)
 	C_KILL(v_name, z_info->fake_name_size, char);
 	C_KILL(v_text, z_info->fake_text_size, char);
 
-
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -1944,14 +1756,12 @@ static errr init_v_info(void)
 	return (0);
 }
 
-
 /*
  * Initialize the "p_info" array, by parsing a binary "image" file
  */
 static errr init_p_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -1968,10 +1778,8 @@ static errr init_p_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*p_head) = test;
-
 
 	/* Allocate the "p_info" array */
 	C_MAKE(p_info, p_head->info_num, player_race);
@@ -1979,30 +1787,15 @@ static errr init_p_info_raw(int fd)
 	/* Read the "p_info" array */
 	fd_read(fd, (char*)(p_info), p_head->info_size);
 
-
 	/* Allocate the "p_name" array */
 	C_MAKE(p_name, p_head->name_size, char);
 
 	/* Read the "p_name" array */
 	fd_read(fd, (char*)(p_name), p_head->name_size);
 
-
-#ifndef DELAY_LOAD_P_TEXT
-
-	/* Allocate the "p_text" array */
-	C_MAKE(p_text, p_head->text_size, char);
-
-	/* Read the "p_text" array */
-	fd_read(fd, (char*)(p_text), p_head->text_size);
-
-#endif
-
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "p_info" array
@@ -2018,11 +1811,12 @@ static errr init_p_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the "header" ***/
 
@@ -2042,7 +1836,6 @@ static errr init_p_info(void)
 	/* Save the size of "p_head" and "p_info" */
 	p_head->head_size = sizeof(header);
 	p_head->info_size = p_head->info_num * p_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -2074,7 +1867,6 @@ static errr init_p_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "p_info" array */
@@ -2082,8 +1874,6 @@ static errr init_p_info(void)
 
 	/* Hack -- make "fake" arrays */
 	C_MAKE(p_name, z_info->fake_name_size, char);
-	C_MAKE(p_text, z_info->fake_text_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -2120,7 +1910,6 @@ static errr init_p_info(void)
 		quit("Error in 'p_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -2147,13 +1936,9 @@ static errr init_p_info(void)
 		/* Dump the "p_name" array */
 		fd_write(fd, (char*)(p_name), p_head->name_size);
 
-		/* Dump the "p_text" array */
-		fd_write(fd, (char*)(p_text), p_head->text_size);
-
 		/* Close */
 		fd_close(fd);
 	}
-
 
 	/*** Kill the fake arrays ***/
 
@@ -2162,10 +1947,8 @@ static errr init_p_info(void)
 
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(p_name, z_info->fake_name_size, char);
-	C_KILL(p_text, z_info->fake_text_size, char);
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -2191,14 +1974,12 @@ static errr init_p_info(void)
 	return (0);
 }
 
-
 /*
  * Initialize the "p_info" array, by parsing a binary "image" file
  */
 static errr init_c_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -2215,10 +1996,8 @@ static errr init_c_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*c_head) = test;
-
 
 	/* Allocate the "c_info" array */
 	C_MAKE(c_info, c_head->info_num, player_class);
@@ -2226,12 +2005,13 @@ static errr init_c_info_raw(int fd)
 	/* Read the "c_info" array */
 	fd_read(fd, (char*)(c_info), c_head->info_size);
 
-
 	/* Allocate the "c_name" array */
 	C_MAKE(c_name, c_head->name_size, char);
 
 	/* Read the "c_name" array */
 	fd_read(fd, (char*)(c_name), c_head->name_size);
+
+#ifndef PREVENT_LOAD_C_TEXT
 
 	/* Allocate the "c_text" array */
 	C_MAKE(c_text, c_head->text_size, char);
@@ -2239,11 +2019,11 @@ static errr init_c_info_raw(int fd)
 	/* Read the "c_text" array */
 	fd_read(fd, (char*)(c_text), c_head->text_size);
 
+#endif /*PREVENT_LOAD_C_TEXT*/
+
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "c_info" array
@@ -2259,11 +2039,12 @@ static errr init_c_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the "header" ***/
 
@@ -2283,7 +2064,6 @@ static errr init_c_info(void)
 	/* Save the size of "c_head" and "c_info" */
 	c_head->head_size = sizeof(header);
 	c_head->info_size = c_head->info_num * c_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -2315,7 +2095,6 @@ static errr init_c_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "c_info" array */
@@ -2324,7 +2103,6 @@ static errr init_c_info(void)
 	/* Hack -- make "fake" arrays */
 	C_MAKE(c_name, z_info->fake_name_size, char);
 	C_MAKE(c_text, z_info->fake_text_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -2360,7 +2138,6 @@ static errr init_c_info(void)
 		/* Quit */
 		quit("Error in 'c_info.txt' file.");
 	}
-
 
 	/*** Dump the binary image file ***/
 
@@ -2406,7 +2183,6 @@ static errr init_c_info(void)
 
 #endif	/* ALLOW_TEMPLATES */
 
-
 	/*** Load the binary image file ***/
 
 	/* Build the filename */
@@ -2438,7 +2214,6 @@ static errr init_h_info_raw(int fd)
 {
 	header test;
 
-
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
 	    (test.v_major != h_head->v_major) ||
@@ -2454,10 +2229,8 @@ static errr init_h_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*h_head) = test;
-
 
 	/* Allocate the "h_info" array */
 	C_MAKE(h_info, h_head->info_num, hist_type);
@@ -2465,19 +2238,15 @@ static errr init_h_info_raw(int fd)
 	/* Read the "h_info" array */
 	fd_read(fd, (char*)(h_info), h_head->info_size);
 
-
 	/* Allocate the "h_text" array */
 	C_MAKE(h_text, h_head->text_size, char);
 
 	/* Read the "h_text" array */
 	fd_read(fd, (char*)(h_text), h_head->text_size);
 
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "h_info" array
@@ -2490,11 +2259,12 @@ static errr init_h_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the header ***/
 
@@ -2545,7 +2315,6 @@ static errr init_h_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "h_info" array */
@@ -2553,7 +2322,6 @@ static errr init_h_info(void)
 
 	/* Hack -- make "fake" arrays */
 	C_MAKE(h_text, z_info->fake_text_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -2590,7 +2358,6 @@ static errr init_h_info(void)
 		quit("Error in 'h_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -2621,7 +2388,6 @@ static errr init_h_info(void)
 		fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
 	/* Free the "h_info" array */
@@ -2631,7 +2397,6 @@ static errr init_h_info(void)
 	C_KILL(h_text, z_info->fake_text_size, char);
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -2657,15 +2422,12 @@ static errr init_h_info(void)
 	return (0);
 }
 
-
-
 /*
  * Initialize the "b_info" array, by parsing a binary "image" file
  */
 static errr init_b_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -2682,10 +2444,8 @@ static errr init_b_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*b_head) = test;
-
 
 	/* Allocate the "b_info" array */
 	C_MAKE(b_info, b_head->info_num, owner_type);
@@ -2693,19 +2453,15 @@ static errr init_b_info_raw(int fd)
 	/* Read the "b_info" array */
 	fd_read(fd, (char*)(b_info), b_head->info_size);
 
-
 	/* Allocate the "b_name" array */
 	C_MAKE(b_name, b_head->name_size, char);
 
 	/* Read the "b_name" array */
 	fd_read(fd, (char*)(b_name), b_head->name_size);
 
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "b_info" array
@@ -2718,11 +2474,12 @@ static errr init_b_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the header ***/
 
@@ -2742,7 +2499,6 @@ static errr init_b_info(void)
 	/* Save the size of "b_head" and "b_info" */
 	b_head->head_size = sizeof(header);
 	b_head->info_size = b_head->info_num * b_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -2774,7 +2530,6 @@ static errr init_b_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "b_info" array */
@@ -2782,7 +2537,6 @@ static errr init_b_info(void)
 
 	/* Hack -- make "fake" arrays */
 	C_MAKE(b_name, z_info->fake_name_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -2819,7 +2573,6 @@ static errr init_b_info(void)
 		quit("Error in 'b_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -2850,7 +2603,6 @@ static errr init_b_info(void)
 		fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
 	/* Free the "b_info" array */
@@ -2860,7 +2612,6 @@ static errr init_b_info(void)
 	C_KILL(b_name, z_info->fake_name_size, char);
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -2886,15 +2637,12 @@ static errr init_b_info(void)
 	return (0);
 }
 
-
-
 /*
  * Initialize the "g_info" array, by parsing a binary "image" file
  */
 static errr init_g_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -2911,10 +2659,8 @@ static errr init_g_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*g_head) = test;
-
 
 	/* Allocate the "g_info" array */
 	C_MAKE(g_info, g_head->info_num, byte);
@@ -2922,12 +2668,9 @@ static errr init_g_info_raw(int fd)
 	/* Read the "g_info" array */
 	fd_read(fd, (char*)(g_info), g_head->info_size);
 
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "g_info" array
@@ -2940,11 +2683,12 @@ static errr init_g_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the header ***/
 
@@ -2964,7 +2708,6 @@ static errr init_g_info(void)
 	/* Save the size of "g_head" and "g_info" */
 	g_head->head_size = sizeof(header);
 	g_head->info_size = g_head->info_num * g_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -2996,10 +2739,8 @@ static errr init_g_info(void)
 		if (!err) return (0);
 	}
 
-
 	/* Allocate the "g_info" array */
 	C_MAKE(g_info, g_head->info_num, byte);
-
 
 	/*** Load the ascii template file ***/
 
@@ -3036,7 +2777,6 @@ static errr init_g_info(void)
 		quit("Error in 'g_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -3064,14 +2804,12 @@ static errr init_g_info(void)
 		fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
 	/* Free the "g_info" array */
 	C_KILL(g_info, g_head->info_num, byte);
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -3104,7 +2842,6 @@ static errr init_q_info_raw(int fd)
 {
 	header test;
 
-
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
 	    (test.v_major != q_head->v_major) ||
@@ -3120,17 +2857,14 @@ static errr init_q_info_raw(int fd)
 		return (-1);
 	}
 
-
 	/* Accept the header */
 	(*q_head) = test;
 
-
 	/* Allocate the "q_info" array */
-	C_MAKE(q_info, q_head->info_num, quest);
+	C_MAKE(q_info, q_head->info_num, quest_type);
 
 	/* Read the "q_info" array */
 	fd_read(fd, (char*)(q_info), q_head->info_size);
-
 
 	/* Allocate the "q_name" array */
 	C_MAKE(q_name, q_head->name_size, char);
@@ -3138,23 +2872,9 @@ static errr init_q_info_raw(int fd)
 	/* Read the "q_name" array */
 	fd_read(fd, (char*)(q_name), q_head->name_size);
 
-
-#ifndef DELAY_LOAD_Q_TEXT
-
-	/* Allocate the "q_text" array */
-	C_MAKE(q_text, q_head->text_size, char);
-
-	/* Read the "q_text" array */
-	fd_read(fd, (char*)(q_text), q_head->text_size);
-
-#endif
-
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "q_info" array
@@ -3170,11 +2890,12 @@ static errr init_q_info(void)
 
 	errr err = 0;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
 
 	/* General buffer */
 	char buf[1024];
-
 
 	/*** Make the header ***/
 
@@ -3194,7 +2915,6 @@ static errr init_q_info(void)
 	/* Save the size of "q_head" and "q_info" */
 	q_head->head_size = sizeof(header);
 	q_head->info_size = q_head->info_num * q_head->info_len;
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -3226,16 +2946,13 @@ static errr init_q_info(void)
 		if (!err) return (0);
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "q_info" array */
-	C_MAKE(q_info, q_head->info_num, quest);
+	C_MAKE(q_info, q_head->info_num, quest_type);
 
 	/* Hack -- make "fake" arrays */
 	C_MAKE(q_name, z_info->fake_name_size, char);
-	C_MAKE(q_text, z_info->fake_text_size, char);
-
 
 	/*** Load the ascii template file ***/
 
@@ -3272,7 +2989,6 @@ static errr init_q_info(void)
 		quit("Error in 'q_info.txt' file.");
 	}
 
-
 	/*** Dump the binary image file ***/
 
 	/* File type is "DATA" */
@@ -3299,25 +3015,19 @@ static errr init_q_info(void)
 		/* Dump the "q_name" array */
 		fd_write(fd, (char*)(q_name), q_head->name_size);
 
-		/* Dump the "q_text" array */
-		fd_write(fd, (char*)(q_text), q_head->text_size);
-
 		/* Close */
 		fd_close(fd);
 	}
 
-
 	/*** Kill the fake arrays ***/
 
 	/* Free the "q_info" array */
-	C_KILL(q_info, q_head->info_num, quest);
+	C_KILL(q_info, q_head->info_num, quest_type);
 
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(q_name, z_info->fake_name_size, char);
-	C_KILL(q_text, z_info->fake_text_size, char);
 
 #endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -3343,10 +3053,7 @@ static errr init_q_info(void)
 	return (0);
 }
 
-
 /*** Initialize others ***/
-
-
 
 /*
  * Hack -- Objects sold in the stores -- by tval/sval pair.
@@ -3361,41 +3068,60 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
+		{ TV_FOOD, SV_FOOD_RATION },
+		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_BISCUIT },
-		{ TV_FOOD, SV_FOOD_JERKY },
-		{ TV_FOOD, SV_FOOD_JERKY },
 
-		{ TV_FOOD, SV_FOOD_PINT_OF_WINE },
+		{ TV_FOOD, SV_FOOD_JERKY },
+		{ TV_FOOD, SV_FOOD_JERKY },
 		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_LANTERN },
-		{ TV_LITE, SV_LITE_LANTERN },
+		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
+		{ TV_FOOD, SV_FOOD_PINT_OF_WINE },
+		{ TV_LITE, SV_LANTERN },
+		{ TV_LITE, SV_LANTERN },
+		{ TV_LITE, SV_LANTERN },
+
+		{ TV_LITE, SV_TORCH },
+		{ TV_LITE, SV_TORCH },
+		{ TV_LITE, SV_TORCH },
+		{ TV_LITE, SV_TORCH },
+		{ TV_LITE, SV_TORCH },
+		{ TV_SPIKE, 0 },
+		{ TV_SPIKE, 0 },
+		{ TV_SPIKE, 0 },
 
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_LANTERN },
-		{ TV_FLASK, SV_FLASK_LANTERN },
-		{ TV_FLASK, SV_FLASK_LANTERN },
-		{ TV_SPIKE, 0 },
-		{ TV_SPIKE, 0 },
+		{ TV_FLASK, SV_FLASK_BURNING },
+		{ TV_FLASK, SV_FLASK_BURNING },
+		{ TV_CLOAK, SV_CLOAK },
+		{ TV_CLOAK, SV_CLOAK },
 
+		{ TV_CLOAK, SV_CLOAK },
+		{ TV_CLOAK, SV_CLOAK },
+		{ TV_CLOAK, SV_FUR_CLOAK },
+		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_DIGGING, SV_SHOVEL },
 		{ TV_DIGGING, SV_PICK },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK }
+
+		{ TV_DIGGING, SV_PICK },
+		{ TV_DIGGING, SV_SHOVEL },
+		{ TV_DIGGING, SV_SHOVEL },
+		{ TV_MUSIC, SV_MUSIC_LYRE },
+		{ TV_MUSIC, SV_MUSIC_LYRE },
+		{ TV_MUSIC, SV_MUSIC_HORN },
+		{ TV_MUSIC, SV_MUSIC_FLUTE },
+		{ TV_MUSIC, SV_MUSIC_LUTE },
 	},
 
 	{
 		/* Armoury */
 
+		{ TV_BOOTS, SV_PAIR_OF_LEATHER_SANDALS },
 		{ TV_BOOTS, SV_PAIR_OF_LEATHER_SANDALS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
@@ -3403,74 +3129,109 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_METAL_CAP },
+
 		{ TV_HELM, SV_IRON_HELM },
-
+		{ TV_SOFT_ARMOR, SV_ROBE },
+		{ TV_SOFT_ARMOR, SV_ROBE },
 		{ TV_SOFT_ARMOR, SV_ROBE },
 		{ TV_SOFT_ARMOR, SV_ROBE },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
+
 		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
 		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
 		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
-
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
+
 		{ TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
-
 		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
+		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
+
+		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
+		{ TV_SHIELD, SV_WOODEN_SHIELD },
+		{ TV_SHIELD, SV_WOODEN_SHIELD },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_SMALL_METAL_SHIELD }
+		/* Item */
+
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
 	},
 
 	{
 		/* Weaponsmith */
 
 		{ TV_SWORD, SV_DAGGER },
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SWORD, SV_DAGGER },
 		{ TV_SWORD, SV_MAIN_GAUCHE },
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_SMALL_SWORD },
+		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_SWORD, SV_SHORT_SWORD },
+
 		{ TV_SWORD, SV_SABRE },
 		{ TV_SWORD, SV_CUTLASS },
 		{ TV_SWORD, SV_TULWAR },
-
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_SWORD, SV_SCIMITAR },
 		{ TV_SWORD, SV_KATANA },
 		{ TV_SWORD, SV_BASTARD_SWORD },
+
 		{ TV_POLEARM, SV_SPEAR },
 		{ TV_POLEARM, SV_AWL_PIKE },
 		{ TV_POLEARM, SV_TRIDENT },
-
 		{ TV_POLEARM, SV_PIKE },
 		{ TV_POLEARM, SV_BEAKED_AXE },
 		{ TV_POLEARM, SV_BROAD_AXE },
 		{ TV_POLEARM, SV_LANCE },
 		{ TV_POLEARM, SV_BATTLE_AXE },
-		{ TV_HAFTED, SV_WHIP },
-		{ TV_BOW, SV_SLING },
-		{ TV_BOW, SV_SHORT_BOW },
 
+		{ TV_HAFTED, SV_WHIP },
+		{ TV_BOW, SV_SHORT_BOW },
+		{ TV_BOW, SV_SHORT_BOW },
+		{ TV_BOW, SV_SLING },
+		{ TV_BOW, SV_SLING },
+		{ TV_BOW, SV_SLING },
 		{ TV_BOW, SV_LONG_BOW },
 		{ TV_BOW, SV_LIGHT_XBOW },
+
+		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
+		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
+
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
 	},
 
 	{
@@ -3486,43 +3247,61 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_HAFTED, SV_FLAIL },
 
 		{ TV_HAFTED, SV_WOODEN_CLUB },
+		{ TV_HAFTED, SV_WOODEN_CLUB },
 		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
 		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_BLESSING },
 		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
-		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-
 		{ TV_SCROLL, SV_SCROLL_LIGHT },
+
+		{ TV_SCROLL, SV_SCROLL_RECHARGING },
+		{ TV_SCROLL, SV_SCROLL_RECHARGING },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
 		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
 
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
+		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
+
 		{ TV_POTION, SV_POTION_RESTORE_EXP }
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
 	},
 
 
 	{
 		/* Alchemy shop */
 
+		{ TV_POTION, SV_POTION_SATISFY_HUNGER },
+		{ TV_POTION, SV_POTION_CURE_POISON },
 		{ TV_POTION, SV_POTION_CURE_POISON },
 		{ TV_POTION, SV_POTION_SLOW_POISON },
-		{ TV_POTION, SV_POTION_CURE_POISON },
 		{ TV_POTION, SV_POTION_SLOW_POISON },
 		{ TV_POTION, SV_POTION_HEROISM },
-		{ TV_POTION, SV_POTION_SATISFY_HUNGER },
 		{ TV_POTION, SV_POTION_BOLDNESS },
 		{ TV_POTION, SV_POTION_BOLDNESS },
 
@@ -3540,18 +3319,36 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RES_CHR },
 		{ TV_POTION, SV_POTION_RES_CHR },
 		{ TV_POTION, SV_POTION_RESIST_HEAT },
-		{ TV_POTION, SV_POTION_RESIST_COLD },
 		{ TV_POTION, SV_POTION_RESIST_HEAT },
 		{ TV_POTION, SV_POTION_RESIST_COLD },
+		{ TV_POTION, SV_POTION_RESIST_COLD },
 
-		{ TV_POWDER, SV_POWDER_FLASH},
-		{ TV_POWDER, SV_POWDER_FLASH},
-		{ TV_POWDER, SV_POWDER_FLASH},
+		{ TV_POTION, SV_POTION_CURE_DISEASE },
+		{ TV_POTION, SV_POTION_CURE_DISEASE },
+		{ TV_POTION, SV_POTION_CURE_DISEASE },
 		{ TV_POWDER, SV_POWDER_STARTLE},
 		{ TV_POWDER, SV_POWDER_STARTLE},
 		{ TV_POWDER, SV_POWDER_SLEEP},
 		{ TV_POWDER, SV_POWDER_SLEEP},
 		{ TV_POWDER, SV_POWDER_CONFUSE},
+
+		{ TV_POWDER, SV_POWDER_FLASH},
+		{ TV_POWDER, SV_POWDER_FLASH},
+		{ TV_POWDER, SV_POWDER_FLASH},
+		{ TV_POWDER, SV_POWDER_DARKNESS},
+		{ TV_POWDER, SV_POWDER_DARKNESS},
+		{ TV_POWDER, SV_POWDER_DARKNESS},
+		{ TV_POWDER, SV_POWDER_POISON},
+		{ TV_POWDER, SV_POWDER_FIRE1},
+
+		{ TV_POWDER, SV_POWDER_COLD1},
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
 
 	},
 
@@ -3564,20 +3361,20 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_RING, SV_RING_PROTECTION },
 		{ TV_RING, SV_RING_RESIST_FIRE_COLD },
 		{ TV_RING, SV_RING_RESIST_ACID_ELEC },
-		{ TV_AMULET, SV_AMULET_CHARISMA },
-		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
-
-		{ TV_AMULET, SV_AMULET_RESIST_ACID },
 		{ TV_WAND, SV_WAND_SLOW_MONSTER },
 		{ TV_WAND, SV_WAND_CONFUSE_MONSTER },
+
 		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
 		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
 		{ TV_WAND, SV_WAND_STINKING_CLOUD },
 		{ TV_WAND, SV_WAND_STONE_TO_MUD },
 		{ TV_WAND, SV_WAND_STONE_TO_MUD },
-
 		{ TV_WAND, SV_WAND_STINKING_CLOUD },
 		{ TV_WAND, SV_WAND_POLYMORPH },
+		{ TV_WAND, SV_WAND_CALL_MONSTER },
+
+		{ TV_WAND, SV_WAND_CALM_MONSTER },
+		{ TV_WAND, SV_WAND_BLIND_MONSTER },
 		{ TV_STAFF, SV_STAFF_DETECT_TRAP },
 		{ TV_STAFF, SV_STAFF_DETECT_DOOR },
 		{ TV_STAFF, SV_STAFF_DETECT_GOLD },
@@ -3591,9 +3388,26 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 		{ TV_STAFF, SV_STAFF_LITE },
 		{ TV_STAFF, SV_STAFF_MAPPING },
-		{ TV_STAFF, SV_ROD_DETECT_TRAP },
-		{ TV_STAFF, SV_ROD_DETECT_DOOR }
+		{ TV_ROD, SV_ROD_DETECT_TRAP },
+		{ TV_ROD, SV_ROD_DETECT_DOOR },
 
+		{ TV_AMULET, SV_AMULET_CHARISMA },
+		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
+		{ TV_AMULET, SV_AMULET_RESIST_ACID },
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
 	},
 
 	{
@@ -3645,6 +3459,23 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR }
 
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
+		/* Item */
 	},
 
 	{
@@ -3654,15 +3485,12 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 };
 
-
-
 /*
  * Initialize some other arrays
  */
 static errr init_other(void)
 {
 	int i, k, n;
-
 
 	/*** Prepare the various "bizarre" arrays ***/
 
@@ -3686,7 +3514,6 @@ static errr init_other(void)
 	/* Hack -- use some memory twice */
 	temp_y = ((byte*)(temp_g)) + 0;
 	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
-
 
 	/*** Prepare dungeon arrays ***/
 
@@ -3713,7 +3540,6 @@ static errr init_other(void)
 	/* Used by "update_view()" */
 	(void)vinfo_init();
 
-
 	/*** Prepare entity arrays ***/
 
 	/* Objects */
@@ -3721,7 +3547,6 @@ static errr init_other(void)
 
 	/* Monsters */
 	C_MAKE(m_list, z_info->m_max, monster_type);
-
 
 	/*** Prepare lore array ***/
 
@@ -3731,8 +3556,7 @@ static errr init_other(void)
 	/*** Prepare the inventory ***/
 
 	/* Allocate it */
-	C_MAKE(inventory, INVEN_TOTAL, object_type);
-
+	C_MAKE(inventory, INVEN_MAX, object_type);
 
 	/*** Prepare the stores ***/
 
@@ -3786,14 +3610,41 @@ static errr init_other(void)
 		}
 	}
 
-
 	/*** Prepare the options ***/
 
 	/* Initialize the options */
-	for (i = 0; i < OPT_MAX; i++)
+	for (i = 0; i < OPT_NORMAL; i++)
 	{
 		/* Default value */
-		op_ptr->opt[i] = option_norm[i];
+		op_ptr->opt[i] = options[i].norm;
+	}
+
+	/* Initialize the birth options */
+	for (i = 0; i < OPT_BIRTH; i++)
+	{
+		/* Default value */
+		op_ptr->opt_birth[i] = options_birth[i].norm;
+	}
+
+	/* Initialize the adult options */
+	for (i = 0; i < OPT_BIRTH; i++)
+	{
+		/* Default value */
+		op_ptr->opt_adult[i] = options_birth[i].norm;
+	}
+
+	/* Initialize the cheat options */
+	for (i = 0; i < OPT_CHEAT; i++)
+	{
+		/* Default value */
+		op_ptr->opt_cheat[i] = options_cheat[i].norm;
+	}
+
+	/* Initialize the score options */
+	for (i = 0; i < OPT_CHEAT; i++)
+	{
+		/* Default value */
+		op_ptr->opt_score[i] = options_cheat[i].norm;
 	}
 
 	/* Initialize the window flags */
@@ -3808,12 +3659,9 @@ static errr init_other(void)
 	/* Hack -- Just call the "format()" function */
 	(void)format("%s (%s).", "Eytan Zweig", MAINTAINER);
 
-
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize some other arrays
@@ -3828,14 +3676,13 @@ static errr init_alloc(void)
 
 	ego_item_type *e_ptr;
 
-	quest *q_ptr;
+	quest_type *q_ptr;
 
 	alloc_entry *table;
 
 	s16b num[MAX_DEPTH];
 
 	s16b aux[MAX_DEPTH];
-
 
 	/*** Analyze object allocation info ***/
 
@@ -3877,7 +3724,6 @@ static errr init_alloc(void)
 
 	/* Paranoia */
 	if (!num[0]) quit("No town objects!");
-
 
 	/*** Initialize object allocation info ***/
 
@@ -3925,7 +3771,6 @@ static errr init_alloc(void)
 		}
 	}
 
-
 	/*** Analyze monster allocation info ***/
 
 	/* Clear the "aux" array */
@@ -3937,8 +3782,8 @@ static errr init_alloc(void)
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
 
-	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < z_info->r_max - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < z_info->r_max ; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -3964,7 +3809,6 @@ static errr init_alloc(void)
 	/* Paranoia */
 	if (!num[0]) quit("No town monsters!");
 
-
 	/*** Initialize monster allocation info ***/
 
 	/* Allocate the alloc_race_table */
@@ -3973,8 +3817,8 @@ static errr init_alloc(void)
 	/* Get the table entry */
 	table = alloc_race_table;
 
-	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < z_info->r_max - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < z_info->r_max ; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -4113,7 +3957,6 @@ static errr init_alloc(void)
 	return (0);
 }
 
-
 /*
  * Hack -- take notes on line 23
  */
@@ -4123,8 +3966,6 @@ static void note(cptr str)
 	Term_putstr(20, 23, -1, TERM_WHITE, str);
 	Term_fresh();
 }
-
-
 
 /*
  * Hack -- Explain a broken "lib" folder and quit (see below).
@@ -4150,7 +3991,6 @@ static void init_angband_aux(cptr why)
 	/* Quit with error */
 	quit("Fatal Error.");
 }
-
 
 /*
  * Hack -- main Angband initialization entry point
@@ -4209,7 +4049,6 @@ void init_angband(void)
 
 	char buf[1024];
 
-
 	/*** Verify the "news" file ***/
 
 	/* Build the filename */
@@ -4232,7 +4071,6 @@ void init_angband(void)
 
 	/* Close it */
 	fd_close(fd);
-
 
 	/*** Display the "news" file ***/
 
@@ -4263,7 +4101,6 @@ void init_angband(void)
 
 	/* Flush it */
 	Term_fresh();
-
 
 	/*** Verify (or create) the "high score" file ***/
 
@@ -4297,7 +4134,6 @@ void init_angband(void)
 
 	/* Close it */
 	fd_close(fd);
-
 
 	/*** Initialize some arrays ***/
 
@@ -4360,7 +4196,6 @@ void init_angband(void)
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
-
 
 	/*** Load default user pref files ***/
 

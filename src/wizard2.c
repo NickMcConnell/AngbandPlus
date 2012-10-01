@@ -10,10 +10,7 @@
 
 #include "angband.h"
 
-
-
 #ifdef ALLOW_DEBUG
-
 
 /*
  * Hack -- quick debugging hook
@@ -27,7 +24,6 @@ static void do_cmd_wiz_hack_ben(void)
 	int px = p_ptr->px;
 
 	int i, y, x;
-
 
 	for (i = 0; i < MONSTER_FLOW_DEPTH; ++i)
 	{
@@ -88,8 +84,6 @@ static void do_cmd_wiz_hack_ben(void)
 
 }
 
-
-
 /*
  * Output a long int in binary format.
  */
@@ -115,7 +109,6 @@ static void prt_binary(u32b flags, int row, int col)
 	}
 }
 
-
 /*
  * Hack -- Teleport to the target
  */
@@ -128,8 +121,6 @@ static void do_cmd_wiz_bamf(void)
 		teleport_player_to(p_ptr->target_row, p_ptr->target_col);
 	}
 }
-
-
 
 /*
  * Aux function for "do_cmd_wiz_change()"
@@ -145,7 +136,6 @@ static void do_cmd_wiz_change_aux(void)
 	char tmp_val[160];
 
 	char ppp[80];
-
 
 	/* Query the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -170,7 +160,6 @@ static void do_cmd_wiz_change_aux(void)
 		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = tmp_int;
 	}
 
-
 	/* Default */
 	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
 
@@ -185,7 +174,6 @@ static void do_cmd_wiz_change_aux(void)
 
 	/* Save */
 	p_ptr->au = tmp_long;
-
 
 	/* Default */
 	sprintf(tmp_val, "%ld", (long)(p_ptr->exp));
@@ -224,7 +212,6 @@ static void do_cmd_wiz_change_aux(void)
 	check_experience();
 }
 
-
 /*
  * Change various "permanent" player variables.
  */
@@ -236,7 +223,6 @@ static void do_cmd_wiz_change(void)
 	/* Redraw everything */
 	do_cmd_redraw();
 }
-
 
 /*
  * Wizard routines for creating objects and modifying them
@@ -287,7 +273,6 @@ static void do_cmd_wiz_change(void)
  * This "feature" may induce crashes or other nasty effects.
  */
 
-
 /*
  * Display an item's properties
  */
@@ -295,13 +280,12 @@ static void wiz_display_item(object_type *o_ptr)
 {
 	int j = 0;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	char buf[256];
 
-
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Clear screen */
 	Term_clear();
@@ -318,43 +302,30 @@ static void wiz_display_item(object_type *o_ptr)
 	           o_ptr->number, o_ptr->weight,
 	           o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
 
-	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
-	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
+	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d  timeout = %-d",
+	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d, o_ptr->timeout), 6, j);
 
-	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld",
-	           o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
+	prt(format("name1 = %-4d  name2 = %-4d  ident = %04x  cost = %ld",
+	           o_ptr->name1, o_ptr->name2, o_ptr->ident, (long)object_value(o_ptr)) , 7, j);
 
-	prt(format("ident = %04x  timeout = %-d",
-	           o_ptr->ident, o_ptr->timeout), 8, j);
+	prt_binary(f1, 9, j+2);
+	prt_binary(f3, 9, j+36);
+	prt("f .....AFFECT................SUST.  sfrtsig.LITEIGNRE.aiehs.dqtadlhp f", 10, j);
+	prt("l siwdcc..ssidsbsmhm........siwdcc  leeeenl.1234aefcd.cnzdh.ruegrccc l", 11, j);
+	prt("a tnieoh..trniplhaei........tnieoh  daglevo.....clioi.tskeo.nalgnuuu a", 12, j);
+	prt("g rtsxna..lcfgeoonlg........rtsxna  gteeiiw.....ierls.iantm.ikererrr g", 13, j);
+	prt("s ........t.r.ewtath..............  shnpns......dcede.vroyo.tepaxsss s", 14, j);
+	prt("1 ........h.a.dss.ht..............  tr..v...........n.atwpd.m..vpeee 3", 15, j);
 
-	prt("+------------FLAGS1------------+", 10, j);
-	prt("AFFECT..........SLAY......BRAND.", 11, j);
-	prt("                ae      x q aefc", 12, j);
-	prt("siwdcc  ssidsa  nvudotgdd u clio", 13, j);
-	prt("tnieoh  trnipt  iinmrrnrr a ierl", 14, j);
-	prt("rtsxna..lcfgdk..mldncltgg.k.dced", 15, j);
-	prt_binary(f1, 16, j);
-
-	prt("+------------FLAGS2------------+", 17, j);
-	prt("SUST....IMMUN.RESIST............", 18, j);
-	prt("        aefcp psaefcp ldbc sn   ", 19, j);
-	prt("siwdcc  clioo atclioo ialoshtncd", 20, j);
-	prt("tnieoh  ierli raierli trnnnrhehi", 21, j);
-	prt("rtsxna..dceds.atdceds.ekdfddrxss", 22, j);
-	prt_binary(f2, 23, j);
-
-	prt("+------------FLAGS3------------+", 10, j+32);
-	prt("s   ts h     tadiiii   aiehs  hp", 11, j+32);
-	prt("lf  eefo     egrgggg  bcnaih  vr", 12, j+32);
-	prt("we  lerl    ilgannnn  ltssdo  ym", 13, j+32);
-	prt("da reied    merirrrr  eityew ccc", 14, j+32);
-	prt("itlepnel    ppanaefc  svaktm uuu", 15, j+32);
-	prt("ghigavai    aoveclio  saanyo rrr", 16, j+32);
-	prt("seteticf    craxierl  etropd sss", 17, j+32);
-	prt("trenhste    tttpdced  detwes eee", 18, j+32);
-	prt_binary(f3, 19, j+32);
+	prt_binary(f2, 17, j+2);
+	prt_binary(f4, 17, j+36);
+	prt("f IMMU........RESIST..............  ....SLAY................BRAND... f", 18, j);
+	prt("l aefcaefcfhbbpdldcsswnncdtm......  apecudotgdd.b...wt.....aefcvld.. l", 19, j);
+	prt("a cliocliorllroiiaonhtethiia......  nlvhnerrirr.l...or.....clioeia.. a", 20, j);
+	prt("g ierlierladiaistrndrrxhssmn......  iaiadmcoagg.e...ur.....ierlntr.. g", 21, j);
+	prt("s dceddcedclnvseekf.d..r.eea......  mnloeo.lnnn.s...no.....dcedoek.. s", 22, j);
+    prt("2 ........tfde.a.........n........  lt.sdn.lt.+.s...dr.........m.... 4", 23, j);
 }
-
 
 /*
  * A structure to hold a tval and its description
@@ -370,66 +341,41 @@ typedef struct tval_desc
  */
 static tval_desc tvals[] =
 {
-	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
-	{ TV_BOW,               "Bow"                  },
-	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
-	{ TV_SHIELD,            "Shield"               },
-	{ TV_CROWN,             "Crown"                },
-	{ TV_HELM,              "Helm"                 },
-	{ TV_GLOVES,            "Gloves"               },
-	{ TV_BOOTS,             "Boots"                },
-	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
-	{ TV_RING,              "Ring"                 },
-	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
-	{ TV_POTION,            "Potion"               },
-	{ TV_POWDER,            "Powder"               },
-	{ TV_SCROLL,            "Scroll"               },
-	{ TV_WAND,              "Wand"                 },
-	{ TV_STAFF,             "Staff"                },
-	{ TV_ROD,               "Rod"                  },
-	{ TV_MAGIC_BOOK,        "Spellbook"		       },
-	{ TV_SPIKE,             "Spikes"               },
-	{ TV_DIGGING,           "Digger"               },
-	{ TV_CHEST,             "Chest"                },
-	{ TV_FOOD,              "Food"                 },
-	{ TV_FLASK,             "Flask"                },
-	{ 0,                    NULL                   }
+	{ TV_SWORD,			"Sword"				},
+	{ TV_POLEARM,		"Polearm"			},
+	{ TV_HAFTED,		"Hafted Weapon"		},
+	{ TV_BOW,			"Bow"				},
+	{ TV_ARROW,			"Arrows"			},
+	{ TV_BOLT,			"Bolts"				},
+	{ TV_SHOT,			"Shots"				},
+	{ TV_SHIELD,		"Shield"			},
+	{ TV_CROWN,			"Crown"				},
+	{ TV_HELM,			"Helm"				},
+	{ TV_GLOVES,		"Gloves"			},
+	{ TV_BOOTS,			"Boots"				},
+	{ TV_CLOAK,			"Cloak"				},
+	{ TV_DRAG_ARMOR,	"Dragon Scale Mail"	},
+	{ TV_HARD_ARMOR,	"Hard Armor"		},
+	{ TV_SOFT_ARMOR,	"Soft Armor"		},
+	{ TV_RING,			"Ring"				},
+	{ TV_AMULET,		"Amulet"			},
+	{ TV_LITE,			"Lite"				},
+/*	{ TV_LITE_SPECIAL,	"Permanent Lite"	}, */
+	{ TV_POTION,		"Potion"			},
+	{ TV_POWDER,		"Powder"			},
+	{ TV_SCROLL,		"Scroll"			},
+	{ TV_WAND,			"Wand"				},
+	{ TV_STAFF,			"Staff"				},
+	{ TV_ROD,			"Rod"				},
+	{ TV_MAGIC_BOOK,	"Spellbook"			},
+	{ TV_MUSIC,			"Musical Instrument"},
+	{ TV_SPIKE,			"Spikes"			},
+	{ TV_DIGGING,		"Digger"			},
+	{ TV_CHEST,			"Chest"				},
+	{ TV_FOOD,			"Food"				},
+	{ TV_FLASK,			"Flask"				},
+	{ 0,				NULL				}
 };
-
-
-/*
- * Strip an "object name" into a buffer
- */
-static void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-		if (*str != '~') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
-
 
 /*
  * Hack -- title for each column
@@ -438,8 +384,7 @@ static void strip_name(char *buf, int k_idx)
  *
  */
 static char head[3] =
-{ 'a', 'A', '-' };
-
+{ 'a', 'A', ',' };
 
 /*
  * Get an object kind for creation (or zero)
@@ -455,16 +400,15 @@ static int wiz_create_itemtype(void)
 	cptr tval_desc;
 	char ch;
 
-	int choice[60];
+	int choice[64];
 
 	char buf[160];
-
 
 	/* Clear screen */
 	Term_clear();
 
 	/* Print all tval's and their descriptions */
-	for (num = 0; (num < 57) && tvals[num].tval; num++)
+	for (num = 0; (num < 60) && tvals[num].tval; num++)
 	{
 		row = 2 + (num % 20);
 		col = 30 * (num / 20);
@@ -491,14 +435,13 @@ static int wiz_create_itemtype(void)
 	tval = tvals[num].tval;
 	tval_desc = tvals[num].desc;
 
-
 	/*** And now we go for k_idx ***/
 
 	/* Clear screen */
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
+	for (num = 0, i = 1; (num < 64) && (i < z_info->k_max); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -509,9 +452,9 @@ static int wiz_create_itemtype(void)
 			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
 
 			/* Prepare it */
-			row = 2 + (num % 20);
-			col = 30 * (num / 20);
-			ch = head[num/20] + (num%20);
+			row = 2 + (num % 21);
+			col = 30 * (num / 21);
+			ch = head[num/21] + (num%21);
 
 			/* Get the "name" of object "i" */
 			strip_name(buf, i);
@@ -532,9 +475,9 @@ static int wiz_create_itemtype(void)
 
 	/* Analyze choice */
 	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 20)) num = ch - head[2] + 40;
+	if ((ch >= head[0]) && (ch < head[0] + 21)) num = ch - head[0];
+	if ((ch >= head[1]) && (ch < head[1] + 21)) num = ch - head[1] + 21;
+	if ((ch >= head[2]) && (ch < head[2] + 21)) num = ch - head[2] + 42;
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -543,7 +486,6 @@ static int wiz_create_itemtype(void)
 	return (choice[num]);
 }
 
-
 /*
  * Tweak an item
  */
@@ -551,7 +493,6 @@ static void wiz_tweak_item(object_type *o_ptr)
 {
 	cptr p;
 	char tmp_val[80];
-
 
 	/* Hack -- leave artifacts alone */
 	if (artifact_p(o_ptr)) return;
@@ -579,6 +520,13 @@ static void wiz_tweak_item(object_type *o_ptr)
 	if (!get_string(p, tmp_val, 5)) return;
 	o_ptr->to_d = atoi(tmp_val);
 	wiz_display_item(o_ptr);
+
+	p = "Enter new 'timeout' setting: ";
+	sprintf(tmp_val, "%d", o_ptr->timeout);
+	if (!get_string(p, tmp_val, 5)) return;
+	o_ptr->timeout = atoi(tmp_val);
+	wiz_display_item(o_ptr);
+
 }
 
 
@@ -594,17 +542,14 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 	bool changed = FALSE;
 
-
 	/* Hack -- leave artifacts alone */
 	if (artifact_p(o_ptr)) return;
-
 
 	/* Get local object */
 	i_ptr = &object_type_body;
 
 	/* Copy the object */
 	object_copy(i_ptr, o_ptr);
-
 
 	/* Main loop. Ask for magification and artifactification */
 	while (TRUE)
@@ -645,7 +590,6 @@ static void wiz_reroll_item(object_type *o_ptr)
 		}
 	}
 
-
 	/* Notice change */
 	if (changed)
 	{
@@ -669,13 +613,10 @@ static void wiz_reroll_item(object_type *o_ptr)
 	}
 }
 
-
-
 /*
  * Maximum number of rolls
  */
 #define TEST_ROLL 100000
-
 
 /*
  * Try to create an item again. Output some statistics.    -Bernd-
@@ -700,10 +641,8 @@ static void wiz_statistics(object_type *o_ptr)
 
 	cptr q = "Rolls: %ld, Matches: %ld, Better: %ld, Worse: %ld, Other: %ld";
 
-
 	/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
 	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
-
 
 	/* Interact */
 	while (TRUE)
@@ -736,10 +675,6 @@ static void wiz_statistics(object_type *o_ptr)
 		}
 		else
 		{
-#if 0 /* unused */
-			good = FALSE;
-			great = FALSE;
-#endif /* unused */
 			break;
 		}
 
@@ -833,25 +768,21 @@ static void wiz_statistics(object_type *o_ptr)
 		msg_print(NULL);
 	}
 
-
 	/* Hack -- Normally only make a single artifact */
 	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
 }
 
-
 /*
  * Change the quantity of a the item
  */
-static void wiz_quantity_item(object_type *o_ptr)
+static void wiz_quantity_item(object_type *o_ptr, bool carried)
 {
 	int tmp_int;
 
-	char tmp_val[100];
-
+	char tmp_val[3];
 
 	/* Never duplicate artifacts */
 	if (artifact_p(o_ptr)) return;
-
 
 	/* Default */
 	sprintf(tmp_val, "%d", o_ptr->number);
@@ -866,12 +797,20 @@ static void wiz_quantity_item(object_type *o_ptr)
 		if (tmp_int < 1) tmp_int = 1;
 		if (tmp_int > 99) tmp_int = 99;
 
+		/* Adjust total weight being carried */
+		if (carried)
+		{
+			/* Remove the weight of the old number of objects */
+			p_ptr->total_weight -= (o_ptr->number * o_ptr->weight);
+
+			/* Add the weight of the new number of objects */
+			p_ptr->total_weight += (tmp_int * o_ptr->weight);
+		}
+
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
 	}
 }
-
-
 
 /*
  * Play with an item. Options include:
@@ -895,7 +834,6 @@ static void do_cmd_wiz_play(void)
 
 	bool changed = FALSE;
 
-
 	/* Get an item */
 	q = "Play with which object? ";
 	s = "You have nothing to play with.";
@@ -913,17 +851,14 @@ static void do_cmd_wiz_play(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Save screen */
 	screen_save();
-
 
 	/* Get local object */
 	i_ptr = &object_type_body;
 
 	/* Copy object */
 	object_copy(i_ptr, o_ptr);
-
 
 	/* The main loop */
 	while (TRUE)
@@ -958,14 +893,13 @@ static void do_cmd_wiz_play(void)
 
 		if (ch == 'q' || ch == 'Q')
 		{
-			wiz_quantity_item(i_ptr);
+			bool carried = (item >= 0) ? TRUE : FALSE;
+			wiz_quantity_item(i_ptr, carried);
 		}
 	}
 
-
 	/* Load screen */
 	screen_load();
-
 
 	/* Accept change */
 	if (changed)
@@ -993,7 +927,6 @@ static void do_cmd_wiz_play(void)
 	}
 }
 
-
 /*
  * Wizard routine for creating objects
  *
@@ -1011,7 +944,6 @@ static void wiz_create_item(void)
 	object_type object_type_body;
 
 	int k_idx;
-
 
 	/* Save screen */
 	screen_save();
@@ -1040,7 +972,6 @@ static void wiz_create_item(void)
 	/* All done */
 	msg_print("Allocated.");
 }
-
 
 /*
  * Create the artifact with the specified number
@@ -1091,7 +1022,6 @@ static void wiz_create_artifact(int a_idx)
 	msg_print("Allocated.");
 }
 
-
 /*
  * Cure everything instantly
  */
@@ -1101,15 +1031,15 @@ static void do_cmd_wiz_cure_all(void)
 	(void)remove_all_curse();
 
 	/* Restore stats */
-	(void)res_stat(A_STR);
-	(void)res_stat(A_INT);
-	(void)res_stat(A_WIS);
-	(void)res_stat(A_CON);
-	(void)res_stat(A_DEX);
-	(void)res_stat(A_CHR);
+	(void)do_res_stat(A_STR);
+	(void)do_res_stat(A_INT);
+	(void)do_res_stat(A_WIS);
+	(void)do_res_stat(A_CON);
+	(void)do_res_stat(A_DEX);
+	(void)do_res_stat(A_CHR);
 
 	/* Restore the level */
-	(void)restore_level();
+	(void)restore_exp();
 
 	/* Heal the player */
 	p_ptr->chp = p_ptr->mhp;
@@ -1136,7 +1066,6 @@ static void do_cmd_wiz_cure_all(void)
 	/* Redraw everything */
 	do_cmd_redraw();
 }
-
 
 /*
  * Go to any level
@@ -1206,6 +1135,10 @@ static void do_cmd_wiz_learn(void)
 
 			/* Awareness */
 			object_aware(i_ptr);
+
+			/* Know alchemy stuff too */
+			potion_alch[i_ptr->sval].known1 = TRUE;
+			potion_alch[i_ptr->sval].known2 = TRUE;
 		}
 	}
 }
@@ -1444,26 +1377,6 @@ static void do_cmd_wiz_query(void)
 	prt_map();
 }
 
-
-
-#ifdef ALLOW_SPOILERS
-
-/*
- * External function
- */
-extern void do_cmd_spoilers(void);
-
-#endif
-
-
-
-/*
- * Hack -- declare external function
- */
-extern void do_cmd_debug(void);
-
-
-
 /*
  * Ask for and parse a "debug command"
  *
@@ -1598,6 +1511,7 @@ void do_cmd_debug(void)
 		/* Learn about objects */
 		case 'l':
 		{
+			if (p_ptr->command_arg <= 0) p_ptr->command_arg = z_info->k_max-1;
 			do_cmd_wiz_learn();
 			break;
 		}
@@ -1712,7 +1626,6 @@ void do_cmd_debug(void)
 		}
 	}
 }
-
 
 #else
 

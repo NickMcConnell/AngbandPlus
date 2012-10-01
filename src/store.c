@@ -437,6 +437,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_FOOD:
 		case TV_FLASK:
 		case TV_LITE:
+		case TV_LITE_SPECIAL:
 		{
 			if (cost <= 5L) size += mass_roll(3, 5);
 			if (cost <= 20L) size += mass_roll(3, 5);
@@ -595,8 +596,11 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- Never stack "powerful" items */
 	if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
 
-	/* Hack -- Never stack recharging items */
-	if (o_ptr->timeout || j_ptr->timeout) return (0);
+	/* Hack -- Never stack recharging rods */
+	if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout || j_ptr->timeout)) return (0);
+
+	/* Hack -- different light durations cannot be stacked */
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->timeout != j_ptr->timeout)) return (0);
 
 	/* Require many identical values */
 	if (o_ptr->ac != j_ptr->ac) return (0);
@@ -679,13 +683,13 @@ static bool store_check_num(object_type *o_ptr)
  */
 static bool is_blessed(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Get the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Is the object blessed? */
-	return ((f3 & TR3_BLESSED) ? TRUE : FALSE);
+	return ((f4 & TR4_BLESSED) ? TRUE : FALSE);
 }
 
 
@@ -710,6 +714,7 @@ static bool store_will_buy(object_type *o_ptr)
 			{
 				case TV_FOOD:
 				case TV_LITE:
+				case TV_LITE_SPECIAL:
 				case TV_FLASK:
 				case TV_SPIKE:
 				case TV_SHOT:
@@ -717,6 +722,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_BOLT:
 				case TV_DIGGING:
 				case TV_CLOAK:
+				case TV_MUSIC:
 				break;
 				default:
 				return (FALSE);
@@ -1214,8 +1220,8 @@ static void store_create(void)
 		/* Hack -- Charge lite's */
 		if (i_ptr->tval == TV_LITE)
 		{
-			if (i_ptr->sval == SV_LITE_TORCH) i_ptr->pval = FUEL_TORCH / 2;
-			if ((i_ptr->sval == SV_LITE_LANTERN) || (i_ptr->sval == SV_LITE_LANTERN_SEE)) i_ptr->pval = FUEL_LAMP / 2;
+			if (i_ptr->sval == SV_TORCH) i_ptr->timeout = FUEL_TORCH / 2;
+			if (i_ptr->sval >= SV_LANTERN) i_ptr->timeout = FUEL_LAMP / 2;
 		}
 
 
@@ -2313,10 +2319,6 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	return (FALSE);
 }
 
-
-
-
-
 /*
  * Buy an object from a store
  */
@@ -2546,17 +2548,6 @@ static void store_purchase(void)
 	else
 	{
 
-#if 0
-
-		/* Describe the object */
-		object_desc(o_name, i_ptr, TRUE, 3);
-
-		/* Message */
-		msg_format("You pick up %s (%c).",
-		           o_name, store_to_label(item));
-
-#endif
-
 		/* Give it to the player */
 		item_new = inven_carry(i_ptr);
 
@@ -2774,11 +2765,6 @@ static void store_sell(void)
 			/* Handle stuff */
 			handle_stuff();
 
-#if 0
-			/* Take note if we add a new item */
-			n = st_ptr->stock_num;
-#endif
-
 			/* The store gets that (known) object */
 			item_pos = store_carry(i_ptr);
 
@@ -2804,11 +2790,6 @@ static void store_sell(void)
 
 		/* Handle stuff */
 		handle_stuff();
-
-#if 0
-		/* Take note if we add a new item */
-		n = st_ptr->stock_num;
-#endif
 
 		/* Let the home carry it */
 		item_pos = home_carry(i_ptr);
@@ -2874,13 +2855,10 @@ static void store_examine(void)
 	return;
 }
 
-
-
 /*
  * Hack -- set this to leave the store
  */
 static bool leave_store = FALSE;
-
 
 /*
  * Process a command in a store
@@ -2893,9 +2871,15 @@ static bool leave_store = FALSE;
  * Hack -- note the bizarre code to handle the "=" command,
  * which is needed to prevent the "redraw" from affecting
  * the display of the store.  XXX XXX XXX
+ *
+ * Hack -- also note that the commands change for the guild.
+ * If more "special" buildings are added, a store_num check might be 
+ * better.
  */
-static void store_process_command(void)
+static void store_process_command(bool guild_cmd)
 {
+
+	bool legal;
 
 #ifdef ALLOW_REPEAT
 
@@ -2903,6 +2887,8 @@ static void store_process_command(void)
 	repeat_check();
 
 #endif /* ALLOW_REPEAT */
+
+	legal = TRUE;
 
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
@@ -2917,6 +2903,12 @@ static void store_process_command(void)
 		/* Browse */
 		case ' ':
 		{
+			if (guild_cmd)
+			{
+				legal = FALSE;
+				break;
+			}
+
 			if (st_ptr->stock_num <= 12)
 			{
 				/* Nothing to see */
@@ -2956,28 +2948,32 @@ static void store_process_command(void)
 		case KTRL('R'):
 		{
 			do_cmd_redraw();
-			display_store();
+			if (!guild_cmd) display_store();
+			else display_guild();
 			break;
 		}
 
 		/* Get (purchase) */
 		case 'g':
 		{
-			store_purchase();
+			if (!guild_cmd) store_purchase();
+			else guild_purchase();
 			break;
 		}
 
 		/* Drop (Sell) */
 		case 'd':
 		{
-			store_sell();
+			if (!guild_cmd) store_sell();
+			else legal = FALSE;
 			break;
 		}
 
 		/* Examine */
 		case 'l':
 		{
-			store_examine();
+			if (!guild_cmd) store_examine();
+			else legal = FALSE;
 			break;
 		}
 
@@ -3036,8 +3032,6 @@ static void store_process_command(void)
 			break;
 		}
 
-
-
 		/*** Use various objects ***/
 
 		/* Browse a book */
@@ -3082,7 +3076,7 @@ static void store_process_command(void)
 		/* Character description */
 		case 'C':
 		{
-			do_cmd_change_name();
+			do_cmd_display_character();
 			break;
 		}
 
@@ -3197,195 +3191,18 @@ static void store_process_command(void)
 		/* Hack -- Unknown command */
 		default:
 		{
-			msg_print("That command does not work in stores.");
+			legal = FALSE;
 			break;
 		}
 	}
-}
 
-/* 
- * Hack - legal commands in the adventurer's guild
- */
-
-static void guild_process_command(void)
-{
-#ifdef ALLOW_REPEAT
-
-	/* Handle repeating the last command */
-	repeat_check();
-
-#endif /* ALLOW_REPEAT */
-
-	/* Parse the command */
-	switch (p_ptr->command_cmd)
+	if (!legal)
 	{
-		/* Leave */
-		case ESCAPE:
-		{
-			leave_store = TRUE;
-			break;
-		}
-
-		/* Ignore */
-		case '\n':
-		case '\r':
-		{
-			break;
-		}
-
-		/* Redraw */
-		case KTRL('R'):
-		{
-			do_cmd_redraw();
-			display_store();
-			break;
-		}
-
-		/* Get (purchase) */
-		case 'g':
-		{
-			guild_purchase();
-			break;
-		}
-		/*** Help and Such ***/
-
-		/* Help */
-		case '?':
-		{
-			do_cmd_help();
-			break;
-		}
-
-		/* Identify symbol */
-		case '/':
-		{
-			do_cmd_query_symbol();
-			break;
-		}
-
-		/* Character description */
-		case 'C':
-		{
-			do_cmd_change_name();
-			break;
-		}
-
-
-		/*** System Commands ***/
-
-		/* Hack -- User interface */
-		case '!':
-		{
-			(void)Term_user(0);
-			break;
-		}
-
-		/* Single line from a pref file */
-		case '"':
-		{
-			do_cmd_pref();
-			break;
-		}
-
-		/* Interact with macros */
-		case '@':
-		{
-			do_cmd_macros();
-			break;
-		}
-
-		/* Interact with visuals */
-		case '%':
-		{
-			do_cmd_visuals();
-			break;
-		}
-
-		/* Interact with colors */
-		case '&':
-		{
-			do_cmd_colors();
-			break;
-		}
-
-		/* Interact with options */
-		case '=':
-		{
-			do_cmd_options();
-			do_cmd_redraw();
-			display_store();
-			break;
-		}
-
-
-		/*** Misc Commands ***/
-
-		/* Take notes */
-		case ':':
-		{
-			do_cmd_note();
-			break;
-		}
-
-		/* Version info */
-		case 'V':
-		{
-			do_cmd_version();
-			break;
-		}
-
-		/* Repeat level feeling */
-		case KTRL('F'):
-		{
-			do_cmd_feeling();
-			break;
-		}
-
-		/* Show previous message */
-		case KTRL('O'):
-		{
-			do_cmd_message_one();
-			break;
-		}
-
-		/* Show previous messages */
-		case KTRL('P'):
-		{
-			do_cmd_messages();
-			break;
-		}
-
-		/* Check knowledge */
-		case '~':
-		case '|':
-		{
-			do_cmd_knowledge();
-			break;
-		}
-
-		/* Load "screen dump" */
-		case '(':
-		{
-			do_cmd_load_screen();
-			break;
-		}
-
-		/* Save "screen dump" */
-		case ')':
-		{
-			do_cmd_save_screen();
-			break;
-		}
-
-
-		/* Hack -- Unknown command */
-		default:
-		{
-			msg_print("That command does not work in the adventurer's guild.");
-			break;
-		}
+		if (!guild_cmd) msg_print("That command does not work in stores.");
+		else msg_print("That command does not work in the adventurer's guild.");
 	}
 }
+
 /*
  * Enter a store, and interact with it.
  *
@@ -3504,8 +3321,8 @@ void do_cmd_store(void)
 		request_command(TRUE);
 
 		/* Process the command */
-		if (store_num != STORE_GUILD) store_process_command();
-		else guild_process_command();
+		if (store_num != STORE_GUILD) store_process_command(FALSE);
+		else store_process_command(TRUE);
 
 		/* Notice stuff */
 		notice_stuff();
@@ -3574,10 +3391,6 @@ void do_cmd_store(void)
 				/* Handle stuff */
 				handle_stuff();
 
-#if 0
-				/* Take note if we add a new item */
-				n = st_ptr->stock_num;
-#endif
 				/* Let the home carry it */
 				item_pos = home_carry(i_ptr);
 
@@ -3637,8 +3450,6 @@ void do_cmd_store(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
-
-
 
 /*
  * Shuffle one of the stores.

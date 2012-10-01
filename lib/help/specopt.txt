@@ -1,0 +1,95 @@
+=== Special options ===
+
+In addition to the regular, birth, and cheating options, there exist special 
+options that can be used to modify the game to your liking.
+
+The "hitpoint_warn" value, if non-zero, is the percentage of maximal hitpoints
+at which the player is warned that he may die.  It is also used as the cut-off
+for using red to display both hitpoints and mana.
+
+The "delay_factor" value, if non-zero, will slow down the visual effects used
+for missile, bolt, beam, and ball attacks.  The actual time delay is equal to
+"delay_factor" cubed, in milliseconds.
+
+=== Item squelch ===
+
+The item squelch menu allows you to define what you view as junk.  It makes
+the game more enjoyable by reducing the amount of time the you spend 
+sifting through large piles of mostly useless items.
+
+There are two ways in which items may be squelched. The first is called
+squelch-by-type. In order to use this option, first you must choose one
+of the object type menus available. Once the appropriate menu has been 
+reached, you may toggle a bit that tells whether the object type is to 
+be squelched or not. Objects that are squelched-by-type are completely
+ignored by the player - they appear as dark '.'s on the map, and cannot
+be interacted with (though the player can still look at them to see what's
+there). Note that, In order to prevent (as much as possible) the squelch 
+menus from giving away too much information about the game the actual name
+of a flavored object will not appear until the player has seen and 
+identified at least one example of the object.  
+
+The second way in which items may be squelched occurs after the item is 
+(pseudo)-identified.  Once you are aware of an item's quality, 
+the item may be squelched if the quality isn't good enough.  This type 
+of squelching is called squelch-by-quality. The squelch-by-quality menu
+is reached by pressing "Q" from the main item squelch menu. 
+
+=== Window flags ===
+
+Some platforms support "sub-windows", which are windows which can be used to
+display useful information generally available through other means.  The best
+thing about these windows is that they are updated automatically (usually) to
+reflect the current state of the world.  The "window options" can be used to
+specify what should be displayed in each window.  The possible choices should
+be pretty obvious.
+
+Display inven/equip
+    Display the player inventory (and sometimes the equipment).
+
+Display equip/inven
+    Display the player equipment (and sometimes the inventory).
+
+Display player (basic)
+    Display a brief description of the character, including a breakdown
+    of the current player "skills" (including attacks/shots per round).
+
+Display player (extra)
+    Display a brief description of the character, including a breakdown
+    of the contributions of each equipment item to various resistances
+    and stats.
+
+Display visible monsters
+    Displays a color-coded list of all monsters in LOS. "Unknown" (no similar
+    monster has been killed) monsters are grey, "known" monsters are violet
+    if out-of-depth or white otherwise. Uniques are always light red. Note
+    that using this display makes the game somewhat easier, and makes monsters
+    that are disguised as objects/floors somewhat pointless, so use it at
+    your own discretion.
+    
+Display messages
+    Display the most recently generated "messages".
+
+Display overhead view
+    Display an overhead view of the entire dungeon.  This is very slow
+    and does not even look very good.
+
+Display monster recall
+    Display a description of the most monster which has been most recently
+    attacked, targetted, or examined in some way.
+
+Display object recall
+    Display a description of the most recently selected object.  Currently
+    this only affects spellbooks and prayerbooks.  This window flag may be
+    usefully combined with others, such as "monster recall".
+
+Display snap-shot
+    This window flag is currently unused.
+
+Display borg messages
+    This window flag is currently used only by the Borg.
+
+Display borg status
+    This window flag is currently used only by the Borg.
+
+

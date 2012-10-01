@@ -151,13 +151,6 @@ static void change_path(cptr info)
 			break;
 		}
 
-		case 'i':
-		{
-			string_free(ANGBAND_DIR_INFO);
-			ANGBAND_DIR_INFO = string_make(s+1);
-			break;
-		}
-
 		case 'u':
 		{
 			string_free(ANGBAND_DIR_USER);
@@ -183,13 +176,6 @@ static void change_path(cptr info)
 		}
 
 #else /* VERIFY_SAVEFILE */
-
-		case 'b':
-		{
-			string_free(ANGBAND_DIR_BONE);
-			ANGBAND_DIR_BONE = string_make(s+1);
-			break;
-		}
 
 		case 'd':
 		{

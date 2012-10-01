@@ -16,8 +16,9 @@ Various concepts are mentioned in the descriptions below, including "disturb",
 macros in progress), "fresh" (dump any pending output to the screen), and
 "sub-windows" (see below).
 
-
 === Option Set 1 -- User Interface ===
+
+These options determine the way the user interface works. 
 
 Rogue-like commands    [rogue_like_commands]
     Selects the "roguelike" command set (see "command.txt" for info).
@@ -34,6 +35,10 @@ Prompt for floor item selection    [other_query_flag]
 Prompt before picking things up    [carry_query_flag]
     Forces the game to ask your permission before allowing you to pick up
     any object.
+
+Verify before picking up heavy objects [carry_heavy_query]
+    Asks you permission when picking up any object heavy enough to slow you
+    down.
 
 Use old target by default    [use_old_target]
     Forces all commands which normally ask for a "direction" to use the
@@ -52,18 +57,41 @@ Repeat obvious commands    [always_repeat]
     any grid, that you wish to automatically "repeat" the command 99 times
     (see "command.txt"), unless an explicit repeat count was given.
 
+Verify destruction of objects    [verify_destroy]
+    Prompt for verification of the "destroy" command.
+
+Verify destruction of objects    [verify_destroy_junk]
+    If destroy verification is on, prompt for verification when destroying 
+    worthless objects. If this is off, then only "good" objects will 
+    require verification.
+
+Open/Disarm/Close without direction    [easy_direction]
+    If there is only one closed door next to the character, the game will 
+    not bother asking for a direction when the player asks to "o"pen 
+    something. The same applies for "c"losing doors and "D"isarming traps.
+
+Open/Disarm doors/traps on movement.    [easy_alter]
+     Moving into a closed door will attempt once to open it, and moving 
+     into a trap will attempt once to disarm it. If the player ever wishes
+     to leave a known teleport trap as a guaranteed escape route, this 
+     option must therefore be off.
+
+Display floor stacks in a list    [easy_floor]
+     When moving into a stack, if this option is *off*, the character will 
+     attempt to pick up items from the stack, from top to bottom, until the 
+     stack is gone or the inventory is full. This option allows the player
+     to interact with other items than the one at the top of the stack.
+
+Verify before descending from quest level [verify_leave_quest]
+     Asks for confirmation when you try to leave a quest level using down 
+     stairs (thereby risking quest failure).
+
+=== Option Set 2 -- Display ===
+
+These options effect display only, and have no real infulence on gameplay.
+
 Show dungeon level in feet    [depth_in_feet]
     Display dungeon depths in "feet" instead of "levels".
-
-Merge inscriptions when stacking    [stack_force_notes]
-    Force otherwise identical objects to merge, even if one has an empty
-    inscription and the other does not.  The resulting stack keeps the 
-    non-empty inscription.
-
-Merge discounts when stacking    [stack_force_costs]
-    Force otherwise identical objects to merge, even if they have different
-    discounts.  The resulting stack keeps the largest discount.  This option
-    may cause you to lose "value", but will give you optimal pack usage.
 
 Show labels in equipment listings    [show_labels]
     Display "labels" (what an object is being used for) for objects in all
@@ -80,20 +108,67 @@ Show choices in inven/equip listings    [show_choices]
     will cause it to be (temporarily) toggled as needed to always show the
     "appropriate" set of objects (inventory or equipment).
 
-Show details in monster descriptions    [show_details]
-    Display "details" (including number of monsters killed, and textual
-    descriptions) in monster descriptions.
-    are displaying the monster.
-
 Show flavors in object descriptions    [show_flavors]
     Display "flavors" (color or variety) in object descriptions, even for
     objects whose type is known.  This does not affect objects in stores.
 
-Audible bell (on errors, etc)    [ring_bell]
-    Attempt to make a "bell" noise when various "errors" occur.
+Show stacks using special attr/char    [show_piles]
+     Stacks of items on the floor are shown using the "&" symbol.
 
+Hilite the player with the cursor    [hilite_player]
+    Place the visible cursor on the player.  This looks fine on some Unix
+    machines, but horrible on most graphics machines.  Note that only some
+    machines are able to *not* show the cursor, but on those machines, hiding
+    the cursor often speeds up the game and looks better.
 
-=== Option Set 2 -- Disturbance ===
+Use special colors for torch-lit grids    [view_yellow_lite]
+    This option causes special colors to be used for "torch-lit" grids in
+    certain situations (see "view_granite_lite" and "view_special_lite").
+    Turning this option off will slightly improve game speed.
+
+Use special colors for 'viewable' grids    [view_bright_lite]
+    This option causes special colors to be used for non "viewable" grids
+    in certain situations (see "view_granite_lite" and "view_special_lite").
+    When this option is set, floor grids which are normally drawn in "white"
+    but which are not currently "viewable" by the player are instead drawn
+    in "dark gray".  This makes the "viewable" grids to appear "brighter"
+    than the others, allowing the player to easily determine which floor
+    grids are in "line of sight".  Turning this option off will probably
+    increase the speed of the game.
+
+Use special colors for wall grids (slow)    [view_granite_lite]
+    This option activates a special color scheme for all "wall" grids which
+    are normally drawn in "white" (as walls and rubble normally are).  When
+    the player is blind, we use "dark gray", else if the grid is torch-lit,
+    we use "yellow" (or "white") depending on the "view_yellow_lite" option,
+    else if the "view_bright_lite" option is set, and the grid is not in line
+    of sight, or the grid is dark, or the grid is only "partially" lit, then
+    we use "gray", otherwise we use the normal "white".  Turning this option
+    off will probably increase the speed of the game.  This option may not
+    work well if the attr/char codes for walls/veins have been changed, or
+    if "graphics" are being used.
+
+Use special colors for floor grids (slow)    [view_special_lite]
+    This option activates a special color scheme for all "floor" grids which
+    are normally drawn in "white" (as they normally are).  When the player is
+    blind, we use "dark gray", else if the grid is torch-lit, we use "yellow"
+    (or "white") depending on the "view_yellow_lite" option, else if the grid
+    is "dark", we use "dark gray", else if the "view_bright_lite" option is
+    set, and the grid is not in line of sight, we use "gray", otherwise we
+    use the normal "white".  Turning this option off will probably increase
+    the speed of the game.  This option may not work well if the attr/char
+    codes for walls/veins have been changed, or if "graphics" are being used.
+
+Allow monsters to have light radius    [view_monster_lite]
+    This option allows certain monsters to produce their own light radius,
+    which potentially can slow down the game on slower machines. If this 
+    option is off, the relevant monsters will be visible even in darkness
+    but will not light up the squares around them.
+
+=== Option Set 3 -- Distrubance options ===
+
+These options affect what conditions will be handled automatically by the game 
+and which will cause it to stop for your intervention.
 
 Run past stairs    [run_ignore_stairs]
     Ignore stairs when running.
@@ -131,34 +206,20 @@ Disturb whenever boring things happen    [disturb_minor]
     including monsters bashing down doors, inventory feelings, and
     beginning to run out of fuel.
 
-Disturb whenever various things happen    [disturb_other]
-    This option is currently unused.
-
-Alert user to critical hitpoints    [alert_hitpoint]
-    Produce a "bell" noise, and flush all pending input, when your hitpoints
-    reach the "critical point" chosen elsewhere, preventing stupid deaths.
-
 Alert user to various failures    [alert_failure]
     Produce a "bell" noise, and flush all pending input, when various
     "failures" occur, as described above.
 
-Verify destruction of objects    [verify_destroy]
-    Prompt for verification of the "destroy" command.
+Automatically clear -more- prompts    [auto_more]
+    The game does not wait for a keypress when it comes to a -more-
+    prompt, but carries on going.
 
-Verify destruction of objects    [verify_destroy_junk]
-    If destroy verification is on, prompt for verification when destroying 
-    worthless objects. If this is off, then only "good" objects will 
-    require verification.
+Audible bell (on errors, etc)    [ring_bell]
+    Attempt to make a "bell" noise when various "errors" occur.
 
-Verify use of special commands    [verify_special]
-    Prompt for verification of the "special" commands (borg and debug).
+=== Option Set 4 -- Game-play ===
 
-Allow quantity specification    [allow_quantity]
-    Prompt for a quantity when necessary, instead of defaulting to a
-    single object.
-
-
-=== Option Set 3 -- Game-play ===
+These options affect the way the game is played.
 
 Auto-haggle in stores    [auto_haggle]
     Disable "haggling" in stores, resulting in a ten percent sales tax
@@ -178,6 +239,11 @@ Expand the power of the list commands    [expand_list]
     the appropriate list.  This allows the "look" and "target" commands
     to "cycle" through all appropriate grids forever, and the "identify
     symbol" to browse through all of the monsters of a given type.
+
+Center map continuously (very slow)    [center_player]
+     The map always centres on the player with this option on. With it off, it
+     is divided into 25 sections, with coordinates (0,0) to (4,4), and will 
+     show one section at a time.
 
 Map remembers all perma-lit grids    [view_perma_grids]
     Memorize all perma-lit floor grids which are seen by the player.
@@ -206,61 +272,19 @@ Generate dungeons with aligned rooms    [dungeon_align]
     Force all rooms to be "aligned" with the "panel" divisions.  This results
     in a much "prettier" dungeon, but may result in fewer greater vaults.
 
-Generate dungeons with connected stairs    [dungeon_stair]
-    Always generate a staircase back to the level you came from, if you used
-    a staircase to get to the level.  This is more "realistic", and "safer",
-    but less of a "challenge" for some people.
+Merge inscriptions when stacking    [stack_force_notes]
+    Force otherwise identical objects to merge, even if one has an empty
+    inscription and the other does not.  The resulting stack keeps the 
+    non-empty inscription.
 
-Monsters chase current location (v.slow)    [flow_by_sound]
-    Allow monsters to make paths to the player when they are nearby.  This
-    option is extremely slow, but can produce viciously smart monsters.
+Merge discounts when stacking    [stack_force_costs]
+    Force otherwise identical objects to merge, even if they have different
+    discounts.  The resulting stack keeps the largest discount.  This option
+    may cause you to lose "value", but will give you optimal pack usage.
 
-Monsters chase recent locations (v.slow)    [flow_by_smell]
-    Allow monsters to take advantage of "old" trails that you may have left
-    in the dungeon.  This has no effect unless "flow_by_sound" is also set.
+=== Option Set 5 -- Efficiency ===
 
-Monsters behave more intelligently     [smart_monsters]
-     Monsters have a certain amount of intelligence and will use it - 
-     teleporting away when low on hit points, using their more powerful
-     spells in preference to the less powerful spells, etc. Not all 
-     monsters are, of course, intelligent.
-
-Monsters act smarter in groups    [smart_packs]
-     "group" monsters will use tactics that groups of monsters might 
-     reasonably employ - such as hiding out of sight around a corner, 
-     trying to draw the character out into the middle of a room so they 
-     can surround him and all attack at once, rather than chasing one
-     by one down a corridor.
-
-Monsters learn from their mistakes    [smart_learn]
-    Allow monsters to learn what spell attacks you are resistant to,
-    and to use this information to choose the best attacks.
-
-Monsters exploit players weaknesses    [smart_cheat]
-    Allow monsters to know what spell attacks you are resistant to,
-    and to use this information to choose the best attacks.
-
-Open/Disarm/Close without direction    [easy_open]
-    If there is only one closed door next to the character, the game will 
-    not bother asking for a direction when the player asks to "o"pen 
-    something. The same applies for "c"losing doors and "D"isarming traps.
-
-Open/Disarm doors/traps on movement.    [easy_alter]
-     Moving into a closed door will attempt once to open it, and moving 
-     into a trap will attempt once to disarm it. If the player ever wishes
-     to leave a known teleport trap as a guaranteed escape route, this 
-     option must therefore be off.
-
-Display floor stacks in a list    [easy_floor]
-     When moving into a stack, if this option is *off*, the character will 
-     attempt to pick up items from the stack, from top to bottom, until the 
-     stack is gone or the inventory is full. This option allows the player
-     to interact with other items than the one at the top of the stack.
-
-Show stacks using special attr/char    [show_piles]
-     Stacks of items on the floor are shown using the "&" symbol.
-
-=== Option Set 4 -- Efficiency ===
+These options may be used to optimize the game on slower machines.
 
 Reduce lite-radius when running    [view_reduce_lite]
     Reduce the "radius" of the player's "lite" to that of a "torch"
@@ -327,61 +351,6 @@ Compress messages in savefiles    [compress_savefile]
     the player has received.  This can cut the size of the savefile by a
     drastic amount, but will result in the loss of message information.
 
-Hilite the player with the cursor    [hilite_player]
-    Place the visible cursor on the player.  This looks fine on some Unix
-    machines, but horrible on most graphics machines.  Note that only some
-    machines are able to *not* show the cursor, but on those machines, hiding
-    the cursor often speeds up the game and looks better.
-
-Use special colors for torch-lit grids    [view_yellow_lite]
-    This option causes special colors to be used for "torch-lit" grids in
-    certain situations (see "view_granite_lite" and "view_special_lite").
-    Turning this option off will slightly improve game speed.
-
-Use special colors for 'viewable' grids    [view_bright_lite]
-    This option causes special colors to be used for non "viewable" grids
-    in certain situations (see "view_granite_lite" and "view_special_lite").
-    When this option is set, floor grids which are normally drawn in "white"
-    but which are not currently "viewable" by the player are instead drawn
-    in "dark gray".  This makes the "viewable" grids to appear "brighter"
-    than the others, allowing the player to easily determine which floor
-    grids are in "line of sight".  Turning this option off will probably
-    increase the speed of the game.
-
-Use special colors for wall grids (slow)    [view_granite_lite]
-    This option activates a special color scheme for all "wall" grids which
-    are normally drawn in "white" (as walls and rubble normally are).  When
-    the player is blind, we use "dark gray", else if the grid is torch-lit,
-    we use "yellow" (or "white") depending on the "view_yellow_lite" option,
-    else if the "view_bright_lite" option is set, and the grid is not in line
-    of sight, or the grid is dark, or the grid is only "partially" lit, then
-    we use "gray", otherwise we use the normal "white".  Turning this option
-    off will probably increase the speed of the game.  This option may not
-    work well if the attr/char codes for walls/veins have been changed, or
-    if "graphics" are being used.
-
-Use special colors for floor grids (slow)    [view_special_lite]
-    This option activates a special color scheme for all "floor" grids which
-    are normally drawn in "white" (as they normally are).  When the player is
-    blind, we use "dark gray", else if the grid is torch-lit, we use "yellow"
-    (or "white") depending on the "view_yellow_lite" option, else if the grid
-    is "dark", we use "dark gray", else if the "view_bright_lite" option is
-    set, and the grid is not in line of sight, we use "gray", otherwise we
-    use the normal "white".  Turning this option off will probably increase
-    the speed of the game.  This option may not work well if the attr/char
-    codes for walls/veins have been changed, or if "graphics" are being used.
-
-Allow monsters to have light radius    [view_monster_lite]
-    This option allows certain monsters to produce their own light radius,
-    which potentially can slow down the game on slower machines. If this 
-    option is off, the relevant monsters will be visible even in darkness
-    but will not light up the squares around them.
-
-Center map continuously (very slow)    [center_player]
-     The map always centres on the player with this option on. With it off, it
-     is divided into 25 sections, with coordinates (0,0) to (4,4), and will 
-     show one section at a time.
-
 Avoid centering while running    [run_avoid_center]
      The map does not centre on the player if the player moves with the "run" 
      command, only when the running finishes.
@@ -391,170 +360,5 @@ Scroll map while targetting    [scroll_target]
      player's point of view, as the view will scroll to show the whereabouts of 
      all monsters in line of sight so the player can target them.
 
-=== Option Set 5 -- Birth options ===
-
-These options are special in that they only take effect if modified before the
-beginning of the game. Once the character is created, the birth options are set
-and modifications will only affect the next character.
-
-Allow purchase of stats using points [birth_point_based]
-    Allows the player to determine exactly what stats the character will start with,
-    but will lead to creation of weaker characters than by other methods.
-
-Allow specification of minimal stats    [birth_auto_roller]
-    This allows the player to set minimum stats (within reason) and ask 
-    the game to keep on rolling until a character with the desired stats
-    is generated. Using this method can lead to better characters than
-    point-based creation, but totally random rolling can create even
-    better ones (though rarely).
-
-Pre-Shop for some basic items [birth_start_kit]
-    The character starts with a lantern, 4 oil flasks, a scroll of phase door,
-    a cloak, and a potion of cure light wounds. On the other hand he starts with
-    100 gold less than without this option and no torches. Using this option allows
-    you to save the tedium of early shopping but gives you a bad deal gold-wise.
-
-Preserve artifacts on leaving level    [birth_preserve]
-    If preserve mode is "off", you can get a level feeling that you *NEVER*
-    get with preserve mode "on": a "special" feeling. This means that there 
-    is an artifact, a pit or a vault on the level: and while a pit or vault
-    may not necessarily cause a special feeling, an artifact CERTAINLY will.
-    This is principally of use in finding out which levels are *not* 
-    "special", i.e. which ones can be left in a hurry without worrying 
-    about leaving something behind - if it's not "special", there is no 
-    artifact unless a monster has dropped one when you killed it. This is 
-    particularly important because, with preserve mode off, no artifact can
-    be generated more than once in the game. If it's on a level and you miss
-    it, it's gone forever. With preserve mode "on", if you miss an artifact, 
-    it can turn up later provided you didn't pick it up and identify it 
-    the first time (in which case there is no excuse for losing it.) But 
-    you don't get the "special" feeling. 
-
-Restrict the use of stairs/recall    [birth_ironman]
-    This option, not recommended for non-advanced players, prevents the 
-    generation of up staircases, and makes the scroll and effect of Word 
-    of Recall not function: and teleport-level always goes down, as does 
-    the spell of stair-creation, except on the quest levels of Sauron and 
-    Morgoth.
-
-Restrict the use of stores/home    [birth_no_stores]
-    The stores are all closed. The home is someone else's, and locked. You 
-    can keep nothing but what you carry with you, and get nothing but what 
-    you find in the dungeon. No selling items, or buying potions of 
-    restore stat... Not recommended for new players, or indeed for 
-    sane players.
-
-No level feelings [birth_no_feelings]
-    You will no longer get a descriptive feeling when entering a level - 
-    you'll have to explore it yourself to discover what it contains, with
-    no prior warning. Recommended only for advanced players.
-
-Restrict the creation of artifacts    [birth_no_artifacts]
-    No artifacts will be created. Ever. Just *how* masochistic are you?
-
-Randomize some of the artifacts    [birth_rand_artifacts]
-    A different set of artifacts will be created, in place of the standard 
-    ones from a_info.txt/a_info.raw. This is intended primarily for people
-    who have played enough to know what most of the standard artifacts do
-    and have got bored with them. 
-
-Generate better (harder) levels    [birth_autoscum]
-    Allows you to force the generation of "good" levels in the dungeon.  
-    This option may be extremely slow on some machines, especially deep in
-    the dungeon.  The minimum "goodness" of the level is based on the 
-    dungeon level, so the deeper you go, the better the level will be. 
-    Note that better levels also include tougher monsters so this makes the
-    game both more challanging and more rewarding.
-
-=== Cheating Options ===
-
-Peek into object creation    [cheat_peek]
-    Cheaters never win.  But they can peek at object creation.
-
-Peek into monster creation    [cheat_hear]
-    Cheaters never win.  But they can peek at monster creation.
-
-Peek into dungeon creation    [cheat_room]
-    Cheaters never win.  But they can peek at room creation.
-
-Peek into something else    [cheat_xtra]
-    Cheaters never win.  But they can see debugging messages.
-
-Know complete monster info    [cheat_know]
-    Cheaters never win.  But they can know all about monsters.
-
-Allow player to avoid death    [cheat_live]
-    Cheaters never win.  But they can cheat death.
-
-No autosave. [cheat_no_autosave]
-    Cheaters never win.  But they don't have to save if you don't want to.
-
-=== Window flags ===
-
-Some platforms support "sub-windows", which are windows which can be used to
-display useful information generally available through other means.  The best
-thing about these windows is that they are updated automatically (usually) to
-reflect the current state of the world.  The "window options" can be used to
-specify what should be displayed in each window.  The possible choices should
-be pretty obvious.
-
-Display inven/equip
-    Display the player inventory (and sometimes the equipment).
-
-Display equip/inven
-    Display the player equipment (and sometimes the inventory).
-
-Display player (basic)
-    Display a brief description of the character, including a breakdown
-    of the current player "skills" (including attacks/shots per round).
-
-Display player (extra)
-    Display a brief description of the character, including a breakdown
-    of the contributions of each equipment item to various resistances
-    and stats.
-
-Display visible monsters
-    Displays a color-coded list of all monsters in LOS. "Unknown" (no similar
-    monster has been killed) monsters are grey, "known" monsters are violet
-    if out-of-depth or white otherwise. Uniques are always light red. Note
-    that using this display makes the game somewhat easier, and makes monsters
-    that are disguised as objects/floors somewhat pointless, so use it at
-    your own discretion.
-    
-Display messages
-    Display the most recently generated "messages".
-
-Display overhead view
-    Display an overhead view of the entire dungeon.  This is very slow
-    and does not even look very good.
-
-Display monster recall
-    Display a description of the most monster which has been most recently
-    attacked, targetted, or examined in some way.
-
-Display object recall
-    Display a description of the most recently selected object.  Currently
-    this only affects spellbooks and prayerbooks.  This window flag may be
-    usefully combined with others, such as "monster recall".
-
-Display snap-shot
-    This window flag is currently unused.
-
-Display borg messages
-    This window flag is currently used only by the Borg.
-
-Display borg status
-    This window flag is currently used only by the Borg.
-
-
-=== Additional Information ===
-
-The "hitpoint_warn" value, if non-zero, is the percentage of maximal hitpoints
-at which the player is warned that he may die.  It is also used as the cut-off
-for using red to display both hitpoints and mana.
-
-The "delay_factor" value, if non-zero, will slow down the visual effects used
-for missile, bolt, beam, and ball attacks.  The actual time delay is equal to
-"delay_factor" cubed, in milliseconds.
 
 

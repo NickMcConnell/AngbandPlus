@@ -53,6 +53,7 @@ byte auto_destroy;
 #define TYPE_FOOD    18
 #define TYPE_POWDER	 19
 #define TYPE_MISC    20
+#define TYPE_MUSIC	 21
 
 /*
  * This (admittedly hacky) stores the mapping from tval to typeval
@@ -69,8 +70,8 @@ static int tv_to_type[100];
 
 typedef struct tval_desc
 {
-	int        tval;
-	cptr       desc;
+	int		tval;
+	cptr	desc;
 } tval_desc;
 
 static char head[4] = { 'a', 'A', '0', ':' };
@@ -79,28 +80,29 @@ static char head[4] = { 'a', 'A', '0', ':' };
  * Here are the categories for squelch-on-creation.
  */
 
-static tval_desc typevals[] = 
+static tval_desc typevals[] =
 {
-	{TYPE_AMMO,		"Missiles"				},    
+	{TYPE_AMMO,		"Missiles"				},
 	{TYPE_BOW,		"Missile Launchers"		},
 	{TYPE_WEAPON1,	"Weapons (Swords)"		},
 	{TYPE_WEAPON2,	"Weapons (Non Swords)"	},
 	{TYPE_BODY,		"Body Armor"			},
-	{TYPE_CLOAK,	"Cloaks"				},   
-	{TYPE_SHIELD,	"Shields"				},   
+	{TYPE_CLOAK,	"Cloaks"				},
+	{TYPE_SHIELD,	"Shields"				},
 	{TYPE_HELM,		"Helmets"				},
-	{TYPE_BOOT,		"Gloves and boots"		},   
-	{TYPE_AMULET,	"Amulets"				},  
-	{TYPE_RING,		"Rings"					},    
-	{TYPE_STAFF,	"Staves"				},      
-	{TYPE_WAND,		"Wands"					},    
-	{TYPE_ROD,		"Rods"					},     
-	{TYPE_SCROLL,	"Scrolls"				},  
-	{TYPE_POTION,	"Potions"				},  
+	{TYPE_BOOT,		"Gloves and boots"		},
+	{TYPE_AMULET,	"Amulets"				},
+	{TYPE_RING,		"Rings"					},
+	{TYPE_STAFF,	"Staves"				},
+	{TYPE_WAND,		"Wands"					},
+	{TYPE_ROD,		"Rods"					},
+	{TYPE_SCROLL,	"Scrolls"				},
+	{TYPE_POTION,	"Potions"				},
 	{TYPE_POWDER,	"Powders"				},
 	{TYPE_BOOK,		"Spellbooks"			},
+	{TYPE_MUSIC,	"Musical Instruments"	},
 	{TYPE_FOOD,		"Food Items"			},
-	{TYPE_MISC,		"Miscellaneous"			},    
+	{TYPE_MISC,		"Miscellaneous"			},
 	{0, NULL}
 };    
 
@@ -129,82 +131,8 @@ static tval_desc tvals[] =
 	{ TV_HARD_ARMOR,        "Hard Armor"           },
 	{ TV_SOFT_ARMOR,        "Soft Armor"           },
 	{ TV_DIGGING,           "Diggers"              },
-	{ TV_RING,              "Rings"                },
-	{ TV_AMULET,            "Amulets"              },
 	{ 0,                    NULL }
 };
-
-/*
- * This code is the heavy pseudoidentify code.  I lifted it 
- * from dungeon.c.  It is used in the quality squelching code.
- */
-
-/*
- * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
- */
-static int value_check_aux1(object_type *o_ptr)
-{
-	/* Artifacts */
-	if (artifact_p(o_ptr))
-	{
-		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_TERRIBLE);
-
-		/* Normal */
-		return (INSCRIP_SPECIAL);
-	}
-
-	/* Ego-Items */
-	if (ego_item_p(o_ptr))
-	{
-		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_WORTHLESS);
-
-		/* Normal */
-		return (INSCRIP_EXCELLENT);
-	}
-
-	/* Cursed items */
-	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
-
-	/* Broken items */
-	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
-
-	/* Good "armor" bonus */
-	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
-
-	/* Good "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
-
-	/* Default to "average" */
-	return (INSCRIP_AVERAGE);
-}
-
-/*
- * Strip an "object name" into a buffer.  Lifted from wizard2.c.
- */
-static void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-		if (*str != '~') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
-
 
 /*
  * This subroutine actually handles the squelching menus.
@@ -219,7 +147,7 @@ static int do_cmd_squelch_aux(void)
 	cptr tval_desc;
 	char ch, sq;
 
-	int choice[60];
+	int choice[64];
 
 	char ftmp[80];
 	FILE *fff;
@@ -237,10 +165,10 @@ static int do_cmd_squelch_aux(void)
 	 * tvals into single typevals.
 	 */
 
-	for (num = 0; (num<60) && typevals[num].tval; num++)
+	for (num = 0; (num<63) && typevals[num].tval; num++)
 	{
-		row = 3 + (num % 20);
-		col = 30 * (num / 20);
+		row = 2 + (num % 21);
+		col = 30 * (num / 21);
 		ch = head[num/26] +num%26;
 		prt(format("[%c] %s", ch, typevals[num].desc), row, col);
 		
@@ -249,13 +177,13 @@ static int do_cmd_squelch_aux(void)
 	/* Me need to know the maximal possible tval_index */
 	max_num = num;
 
-	prt("Commands:", 3, 30);
-	prt("[a-t]: Go to item squelching sub-menu.", 5, 30);
-	prt("Q    : Go to quality squelching sub-menu.", 6, 30);
+	prt("Commands:", 2, 30);
+	prt("[a-u]: Go to item squelching sub-menu.", 4, 30);
+	prt("Q    : Go to quality squelching sub-menu.", 5, 30);
 	prt(format("A    : Toggle auto_destroy (Currently %s).",
-		(auto_destroy ? "ON" : "OFF")), 7, 30);
-	prt("S    : Save squelch values to pref file.", 8, 30);
-	prt("L    : Load squelch values from pref file.", 9, 30);
+		(auto_destroy ? "ON" : "OFF")), 6, 30);
+	prt("S    : Save squelch values to pref file.", 7, 30);
+	prt("L    : Load squelch values from pref file.", 8, 30);
 	prt("ESC  : Back to options menu.", 10, 30);
 
 	/* Choose! */
@@ -392,7 +320,7 @@ static int do_cmd_squelch_aux(void)
 			/* First sort based on value */
 			/* Step 1: Read into choice array */
 
-			for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
+			for (num = 0, i = 1; (num < 64) && (i < z_info->k_max); i++)
 			{
 				object_kind *k_ptr = &k_info[i];
 		
@@ -426,8 +354,8 @@ static int do_cmd_squelch_aux(void)
 				k_ptr->everseen |= k_ptr->aware;
 
 				/* Prepare it */
-				row = 3 + (num % 20);
-				col = 30 * (num / 20);
+				row = 3 + (num % 21);
+				col = 30 * (num / 21);
 				ch = head[num/26] + (num%26);
 
 				/* Acquire the "name" of object "i" */
@@ -491,7 +419,6 @@ static int do_cmd_squelch_aux(void)
 /*
  * This command handles the secondary squelch menu. 
  */
-
 static int do_qual_squelch(void)
 {
 	int i, num, max_num, index;
@@ -666,39 +593,41 @@ static int do_qual_squelch(void)
 
 void init_tv_to_type(void) 
 {
-	  tv_to_type[TV_BOTTLE]		=TYPE_MISC;
-	  tv_to_type[TV_JUNK]		=TYPE_MISC;
-	  tv_to_type[TV_SPIKE]		=TYPE_MISC;
-	  tv_to_type[TV_CHEST]		=TYPE_MISC;
-	  tv_to_type[TV_SHOT]		=TYPE_AMMO;
-	  tv_to_type[TV_ARROW]		=TYPE_AMMO;
-	  tv_to_type[TV_BOLT]		=TYPE_AMMO;
-	  tv_to_type[TV_BOW]		=TYPE_BOW;
-	  tv_to_type[TV_DIGGING]	=TYPE_WEAPON2;
-	  tv_to_type[TV_HAFTED]		=TYPE_WEAPON2;
-	  tv_to_type[TV_POLEARM]	=TYPE_WEAPON2;
-	  tv_to_type[TV_SWORD]		=TYPE_WEAPON1;
-	  tv_to_type[TV_BOOTS]		=TYPE_BOOT;
-	  tv_to_type[TV_GLOVES]		=TYPE_BOOT;
-	  tv_to_type[TV_HELM]		=TYPE_HELM;
-	  tv_to_type[TV_CROWN]		=TYPE_HELM;
-	  tv_to_type[TV_SHIELD]		=TYPE_SHIELD;
-	  tv_to_type[TV_CLOAK]		=TYPE_CLOAK;
-	  tv_to_type[TV_SOFT_ARMOR]	=TYPE_BODY;
-	  tv_to_type[TV_HARD_ARMOR]	=TYPE_BODY;
-	  tv_to_type[TV_DRAG_ARMOR]	=TYPE_BODY;
-	  tv_to_type[TV_LITE]		=TYPE_MISC;
-	  tv_to_type[TV_AMULET]		=TYPE_AMULET;
-	  tv_to_type[TV_RING]		=TYPE_RING;
-	  tv_to_type[TV_STAFF]		=TYPE_STAFF;
-	  tv_to_type[TV_WAND]		=TYPE_WAND;
-	  tv_to_type[TV_ROD]		=TYPE_ROD;
-	  tv_to_type[TV_SCROLL]		=TYPE_SCROLL;
-	  tv_to_type[TV_POTION]		=TYPE_POTION;
-	  tv_to_type[TV_FLASK]		=TYPE_MISC;
-	  tv_to_type[TV_FOOD]		=TYPE_FOOD;
-	  tv_to_type[TV_MAGIC_BOOK]	=TYPE_BOOK;
-	  tv_to_type[TV_POWDER]		=TYPE_POWDER;
+	  tv_to_type[TV_BOTTLE]			=TYPE_MISC;
+	  tv_to_type[TV_JUNK]			=TYPE_MISC;
+	  tv_to_type[TV_SPIKE]			=TYPE_MISC;
+	  tv_to_type[TV_CHEST]			=TYPE_MISC;
+	  tv_to_type[TV_SHOT]			=TYPE_AMMO;
+	  tv_to_type[TV_ARROW]			=TYPE_AMMO;
+	  tv_to_type[TV_BOLT]			=TYPE_AMMO;
+	  tv_to_type[TV_BOW]			=TYPE_BOW;
+	  tv_to_type[TV_DIGGING]		=TYPE_WEAPON2;
+	  tv_to_type[TV_HAFTED]			=TYPE_WEAPON2;
+	  tv_to_type[TV_POLEARM]		=TYPE_WEAPON2;
+	  tv_to_type[TV_SWORD]			=TYPE_WEAPON1;
+	  tv_to_type[TV_BOOTS]			=TYPE_BOOT;
+	  tv_to_type[TV_GLOVES]			=TYPE_BOOT;
+	  tv_to_type[TV_HELM]			=TYPE_HELM;
+	  tv_to_type[TV_CROWN]			=TYPE_HELM;
+	  tv_to_type[TV_SHIELD]			=TYPE_SHIELD;
+	  tv_to_type[TV_CLOAK]			=TYPE_CLOAK;
+	  tv_to_type[TV_SOFT_ARMOR]		=TYPE_BODY;
+	  tv_to_type[TV_HARD_ARMOR]		=TYPE_BODY;
+	  tv_to_type[TV_DRAG_ARMOR]		=TYPE_BODY;
+	  tv_to_type[TV_LITE]			=TYPE_MISC;
+	  tv_to_type[TV_LITE_SPECIAL]	=TYPE_MISC;
+	  tv_to_type[TV_AMULET]			=TYPE_AMULET;
+	  tv_to_type[TV_RING]			=TYPE_RING;
+	  tv_to_type[TV_STAFF]			=TYPE_STAFF;
+	  tv_to_type[TV_WAND]			=TYPE_WAND;
+	  tv_to_type[TV_ROD]			=TYPE_ROD;
+	  tv_to_type[TV_SCROLL]			=TYPE_SCROLL;
+	  tv_to_type[TV_POTION]			=TYPE_POTION;
+	  tv_to_type[TV_FLASK]			=TYPE_MISC;
+	  tv_to_type[TV_FOOD]			=TYPE_FOOD;
+	  tv_to_type[TV_MAGIC_BOOK]		=TYPE_BOOK;
+	  tv_to_type[TV_POWDER]			=TYPE_POWDER;
+	  tv_to_type[TV_MUSIC]			=TYPE_MUSIC;
 }
 
 void do_cmd_squelch(void)

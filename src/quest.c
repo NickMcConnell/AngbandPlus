@@ -17,8 +17,19 @@
 #define QMODE_SHORT  3
 #define QMODE_FULL   4
 
-s16b current;
-int avail_quest;
+static s16b current;
+static int avail_quest;
+
+/*
+ * The Adventurer's guild's selection
+ */
+static s16b guild[GUILD_QUESTS] = 
+{
+	{0},
+	{2},
+	{5},
+	{8},
+};
 
 /*
  * Fix plural names of monsters
@@ -63,7 +74,8 @@ static void plural_aux(char * Name)
 		strcpy (Name, dummy);
 		return;
 	}
-	else if ((strstr(Name, "Manes")) || (Name[NameLen-1]=='u') || (strstr(Name, "Yeti")))
+	else if ((strstr(Name, "Manes")) || (Name[NameLen-1]=='u') || (strstr(Name, "Yeti"))
+		|| (streq(&(Name[NameLen-2]), "ua")))
 	{
 		return;
 	}
@@ -111,7 +123,7 @@ cptr describe_quest(s16b level, int mode)
 	/* Check quests */
 	for (i = 0; i < z_info->q_max; i++)
 	{
-		quest *q_ptr = &q_info[i];
+		quest_type *q_ptr = &q_info[i];
 
 		/* Check for quest */
 		if (q_ptr->active_level == level)
@@ -158,14 +170,13 @@ cptr describe_quest(s16b level, int mode)
 		}
 	}
 	
-	/* Paranoia */
+	/* No quest */
 	return NULL;
 }
 
 /*
  * Give a reward to the player 
  */
-
 static void grant_reward(byte reward_level, byte type)
 {
 	int oldlevel,i;
@@ -205,10 +216,10 @@ static void grant_reward(byte reward_level, byte type)
 static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 {
 	int i, mcount, midx;
-	int lev_diff, chance;
+	int chance;
+	sint lev_diff;
 	monster_race *r_ptr;
 	monster_lore *l_ptr;
-
 
 	mcount = 0;
 
@@ -224,7 +235,7 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 		}
 
 		/* There's a chance of climbing up */
-		if ((lev_diff<(difficulty-3)) || lev+lev_diff==1) chance = 0;
+		if ((lev_diff<(difficulty-3)) || lev+lev_diff<=1) chance = 0;
 		else if (lev_diff>difficulty) chance = 80;
 		else chance = 20;
 
@@ -235,6 +246,9 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 			continue;
 		}
 
+		/* Paranoia */
+		if (lev+lev_diff <= 0) lev_diff = 1-lev;
+
 		/* Count possible monsters */
 		for (i = 0; i < z_info->r_max;i++)
 		{
@@ -242,7 +256,13 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 			l_ptr = &l_list[i];
 
 			/* Never any monster with force depth */
-			if ((r_ptr->flags1 & RF1_FORCE_DEPTH)) continue;
+			if (r_ptr->flags1 & RF1_FORCE_DEPTH) continue;
+
+			/* Never any monster that multiplies */
+			if (r_ptr->flags2 & RF2_MULTIPLY) continue;
+
+			/* Never any monster that can't move (that would be too easy) */
+			if (r_ptr->flags1 & RF1_NEVER_MOVE) continue;
 
 			/* Count an appropriate monster */
 			if (unique)
@@ -254,7 +274,7 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 			}
 			else 
 			{
-				if ((r_ptr->flags1 & RF1_UNIQUE)) continue;
+				if (r_ptr->flags1 & RF1_UNIQUE) continue;
 
 				if (r_ptr->level == (lev+lev_diff)) mcount++;
 			}
@@ -267,7 +287,6 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 			number += (damroll(2,2)-1);
 			lev_diff--;
 		}
-		
 	}
 
 	/* choose random monster */
@@ -281,6 +300,12 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 		/* Never any monster with force depth */
 		if ((r_ptr->flags1 & RF1_FORCE_DEPTH)) continue;
 		
+		/* Never any monster that multiplies */
+		if (r_ptr->flags2 & RF2_MULTIPLY) continue;
+
+		/* Never any monster that can't move (that would be too easy) */
+		if (r_ptr->flags1 & RF1_NEVER_MOVE) continue;
+
 		/* Count appropriate monsters */
 		if (unique)
 		{
@@ -300,6 +325,10 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 		msg_print("Something is wrong");
 		return FALSE;
 	}
+
+	/* Paranoia */
+	if (number <= 0) number = 1;
+	if (number > 63) number = 63;
 
 	/* Actually write the quest */
 	q_info[q].type = QUEST_GUILD;
@@ -321,6 +350,8 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 	{
 		/* 85% for good item reward, modified by difficulty and dlev*/
 		chance = 85 - (difficulty*5) - (lev/5); 
+
+		if (chance < 0) chance = 0;
 
 		if (rand_int(100)<chance) q_info[q].reward = REWARD_GOOD_ITEM;
 
@@ -446,9 +477,7 @@ void display_guild(void)
 			curquest = describe_quest(current,QMODE_HALF_2);
 			put_str(curquest, 8, 3);
 		}
-
 	}
-
 }
 
 /*
@@ -499,7 +528,7 @@ static bool get_quest(int *com_val)
 		item = A2I(which);
 
 		/* Oops */
-		if (item < 0)
+		if ((item < 0) || (item > avail_quest-1 ))
 		{
 			/* Oops */
 			bell("Illegal guild quest choice!");
@@ -509,7 +538,6 @@ static bool get_quest(int *com_val)
 
 		/* No verification */
 		if (!verify) break;
-
 	}
 
 	/* Save item */
@@ -524,7 +552,6 @@ static bool get_quest(int *com_val)
 	/* Success */
 	return (TRUE);
 }
-
 
 /*
  * "Purchase" a quest from the guild
@@ -588,15 +615,36 @@ void guild_purchase(void)
 		/* How many monsters? */
 
 		if (unique) num = 1;
-		else num = damroll(3,6);
+		else num = damroll(4,4)+2;
 		if (!place_quest(slot,qlev,num,(unique) ? 0 : guild[item],unique)) return;
 	}
 
-	msg_print("You can't accept any more quests!");
+	else msg_print("You can't accept any more quests!");
 
 	/* Clear screen */
 	Term_clear();
 
 	display_guild();
 
+}
+
+/*
+ * Hack -- Check if a level is a "quest" level - returns quest type
+ */
+byte quest_check(int level)
+{
+	int i;
+
+	/* Town is never a quest */
+	if (!level) return (FALSE);
+
+	/* Check quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		/* Check for quest */
+		if (q_info[i].active_level == level) return (q_info[i].type);
+	}
+
+	/* Nope */
+	return 0;
 }

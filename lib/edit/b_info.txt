@@ -1,6 +1,5 @@
 # File: b_info.txt
 
-
 # This file is used to initialize the "lib/data/b_info.raw" file, which is
 # used to initialize the "shop owner" information for the Angband game.
 
@@ -13,44 +12,44 @@
 # N:store:owner idx:owner name
 # I:race idx:purse:maxgreed:mingreed:haggleper:tolerance
 
-# Old format:
-# Store owners (exactly four "possible" owners per store, chosen randomly)
-# { name, purse, max greed, min greed, haggle_per, tolerance, race, unused }
-
-
 # Version stamp (required)
 
-V:0.1.4
-
+V:0.2.0
 
 # General Store
 N:0:0:Bilbo the Friendly
-I:3:200:175:108:4:12
+I:3:5000:175:108:4:12
 N:0:1:Rincewind the Chicken
-I:0:200:175:108:4:12
-N:0:2:Snafu the Midget
-I:4:300:170:107:5:15
-N:0:3:Lyar-el the Comely
-I:2:300:165:107:6:18
+I:0:10000:175:108:4:12
+N:0:2:Old Man Jones
+I:0:15000:180:110:4:15
+N:0:3:Snafu the Midget
+I:4:20000:170:107:5:15
+N:0:4:Lyar-el the Comely
+I:2:25000:165:107:6:18
 
 # Armoury
 N:1:0:Kon-Dar the Ugly
-I:6:5000:210:115:5:7
+I:6:10000:210:115:5:7
 N:1:1:Darg-Low the Grim
-I:0:10000:190:111:4:9
+I:0:15000:190:111:4:9
 N:1:2:Decado the Handsome
 I:8:25000:200:112:4:10
-N:1:3:Mauglin the Grumpy
+N:1:3:Hephesto the Horrible
+I:11:25000:210:115:4:5
+N:1:4:Mauglin the Grumpy
 I:5:30000:200:112:4:5
 
 # Weapon Smith
 N:2:0:Ithyl-Mak the Beastly
-I:7:5000:210:115:6:6
+I:7:10000:210:115:6:6
 N:2:1:Arndal Beast-Slayer
-I:1:10000:185:110:5:9
+I:1:15000:185:110:5:9
 N:2:2:Tarl Beast-Master
 I:3:25000:190:115:5:7
-N:2:3:Oglign Dragon-Slayer
+N:2:3:Har'knor the Hunter
+I:6:25000:200:118:5:5
+N:2:4:Oglign Dragon-Slayer
 I:5:30000:195:112:4:8
 
 # Temple
@@ -60,17 +59,21 @@ N:3:1:Gunnar the Paladin
 I:0:10000:185:110:5:23
 N:3:2:Delilah the Pure
 I:2:25000:180:107:6:20
-N:3:3:Bosk the Wise
+N:3:3:Raphael the Divine
+I:10:25000:180:110:6:25
+N:3:4:Bosk the Wise
 I:5:30000:185:109:5:15
 
 # Alchemist
-N:4:0:Mauser the Chemist
+N:4:0:Olaf the Apothecary
+I:0:5000:170:106:5:10
+N:4:1:Mauser the Chemist
 I:1:10000:190:111:5:8
-N:4:1:Wizzle the Chaotic
+N:4:2:Wizzle the Chaotic
 I:3:10000:190:110:6:8
-N:4:2:Ga-nat the Greedy
+N:4:3:Ga-nat the Greedy
 I:4:15000:200:116:6:9
-N:4:3:Vella the Slender
+N:4:4:Vella the Slender
 I:0:15000:220:111:4:9
 
 # Magic Shop
@@ -78,9 +81,11 @@ N:5:0:Ariel the Sorceress
 I:1:20000:200:110:7:8
 N:5:1:Buggerby the Great
 I:4:20000:215:113:6:10
-N:5:2:Inglorian the Mage
+N:5:2:Drizzt the Dark
+I:2:25000:210:106:6:9
+N:5:3:Inglorian the Mage
 I:0:30000:200:110:7:10
-N:5:3:Luthien Starshine
+N:5:4:Luthien Starshine
 I:9:30000:175:110:5:11
 
 # Black Market
@@ -88,9 +93,11 @@ N:6:0:Lo-Hak the Awful
 I:7:20000:250:150:10:5
 N:6:1:Histor the Goblin
 I:6:20000:250:150:10:5
-N:6:2:Durwin the Shifty
+N:6:2:Bazor the Damned
+I:11:25000:250:150:10:5
+N:6:3:Durwin the Shifty
 I:0:30000:250:150:10:5
-N:6:3:Drago the Fair
+N:6:4:Drago the Fair
 I:2:30000:250:150:10:5
 
 # Home
@@ -102,23 +109,29 @@ N:7:2:Your home
 I:99:0:100:100:0:99
 N:7:3:Your home
 I:99:0:100:100:0:99
+N:7:4:Your home
+I:99:0:100:100:0:99
 
 # Bookstore
 N:8:0:Nastra the Dusty
 I:0:10000:120:105:6:7
-N:8:1:Hastiel the Encyclopedist
-I:1:30000:160:120:5:7
-N:8:2:Silmarien the Joyous
-I:3:25000:150:110:8:20
-N:8:3:Gabberam the Sage
+N:8:1:Aziraphale the Caretaker
+I:10:15000:110:105:6:25
+N:8:2:Gabberam the Sage
 I:9:20000:190:115:5:8
+N:8:3:Silmarien the Joyous
+I:3:25000:150:110:8:20
+N:8:4:Hastiel the Encyclopedist
+I:1:30000:160:120:5:7
 
 # Adventurer's Guild
-N:9:0:The adventurer's Guild
+N:9:0:The Adventurer's Guild
 I:99:0:100:100:0:99
-N:9:1:The adventurer's Guild
+N:9:1:The Adventurer's Guild
 I:99:0:100:100:0:99
-N:9:2:The adventurer's Guild
+N:9:2:The Adventurer's Guild
 I:99:0:100:100:0:99
-N:9:3:The adventurer's Guild
+N:9:3:The Adventurer's Guild
+I:99:0:100:100:0:99
+N:9:4:The Adventurer's Guild
 I:99:0:100:100:0:99

@@ -10,16 +10,12 @@
 
 #include "angband.h"
 
-
 #ifdef ALLOW_SPOILERS
-
 
 /*
  * The spoiler file being created
  */
 static FILE *fff = NULL;
-
-
 
 /*
  * Extract a textual representation of an attribute
@@ -50,8 +46,6 @@ static cptr attr_to_text(byte a)
 	return ("Icky");
 }
 
-
-
 /*
  * A tval grouper
  */
@@ -61,12 +55,9 @@ typedef struct
 	cptr name;
 } grouper;
 
-
-
 /*
  * Item Spoilers by Ben Harrison (benh@phial.com)
  */
-
 
 /*
  * The basic items categorized by type
@@ -77,7 +68,7 @@ static grouper group_item[] =
 	{ TV_ARROW,		  NULL },
 	{ TV_BOLT,		  NULL },
 
-	{ TV_BOW,		"Bows" },
+	{ TV_BOW,		"Shooters" },
 
 	{ TV_SWORD,		"Weapons" },
 	{ TV_POLEARM,	  NULL },
@@ -113,16 +104,15 @@ static grouper group_item[] =
 
 	{ TV_SPIKE,		"Various" },
 	{ TV_LITE,		  NULL },
+	{ TV_LITE_SPECIAL,NULL },
 	{ TV_FLASK,		  NULL },
 	{ TV_JUNK,		  NULL },
 	{ TV_BOTTLE,	  NULL },
 
+	{ TV_MUSIC,		"Musical Instruments" },
+
 	{ 0, "" }
 };
-
-
-
-
 
 /*
  * Describe the kind
@@ -133,7 +123,6 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 	object_type *i_ptr;
 	object_type object_type_body;
-
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -153,21 +142,17 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	i_ptr->to_h = 0;
 	i_ptr->to_d = 0;
 
-
 	/* Level */
 	(*lev) = k_ptr->level;
 
 	/* Value */
 	(*val) = object_value(i_ptr);
 
-
 	/* Hack */
 	if (!buf || !dam || !wgt) return;
 
-
 	/* Description (too brief) */
 	object_desc_store(buf, i_ptr, FALSE, 0);
-
 
 	/* Misc info */
 	strcpy(dam, "");
@@ -216,11 +201,9 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		}
 	}
 
-
 	/* Weight */
 	sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
 }
-
 
 /*
  * Create a spoiler file for items
@@ -235,7 +218,6 @@ static void spoil_obj_desc(cptr fname)
 
 	char wgt[80];
 	char dam[80];
-
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -253,9 +235,9 @@ static void spoil_obj_desc(cptr fname)
 		return;
 	}
 
-
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (2.?.?)\n\n\n");
+	fprintf(fff, "Spoiler File -- Basic Items for Angband Version %d.%d.%d\n\n\n",
+	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* More Header */
 	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
@@ -336,7 +318,6 @@ static void spoil_obj_desc(cptr fname)
 		}
 	}
 
-
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
@@ -348,12 +329,9 @@ static void spoil_obj_desc(cptr fname)
 	msg_print("Successfully created a spoiler file.");
 }
 
-
-
 /*
  * Artifact Spoilers by: randy@PICARD.tamu.edu (Randy Hutson)
  */
-
 
 /*
  * Returns a "+" string if a number is non-negative and an empty
@@ -387,7 +365,7 @@ static grouper group_artifact[] =
 	{ TV_SWORD,		"Edged Weapons" },
 	{ TV_POLEARM,	"Polearms" },
 	{ TV_HAFTED,	"Hafted Weapons" },
-	{ TV_BOW,		"Bows" },
+	{ TV_BOW,		"Shooters" },
 	{ TV_DIGGING,	"Diggers" },
 
 	{ TV_SOFT_ARMOR,	"Body Armor" },
@@ -402,13 +380,13 @@ static grouper group_artifact[] =
 	{ TV_BOOTS,		"Boots" },
 
 	{ TV_LITE,		"Light Sources" },
+	{ TV_LITE_SPECIAL, NULL},
 	{ TV_AMULET,	"Amulets" },
 	{ TV_RING,		"Rings" },
+	{ TV_MAGIC_BOOK,"Spellbooks"},
 
 	{ 0, NULL }
 };
-
-
 
 /*
  * Pair together a constant flag with a textual description.
@@ -419,7 +397,6 @@ static grouper group_artifact[] =
  * of textual names, where entry 'N' is assumed to be paired with
  * the flag whose value is "1L << N", but that requires hard-coding.
  */
-
 typedef struct flag_desc flag_desc;
 
 struct flag_desc
@@ -428,15 +405,12 @@ struct flag_desc
 	const char *const desc;
 };
 
-
-
 /*
  * These are used for "+3 to STR, DEX", etc. These are separate from
  * the other pval affected traits to simplify the case where an object
  * affects all stats.  In this case, "All stats" is used instead of
  * listing each stat individually.
  */
-
 static flag_desc stat_flags_desc[] =
 {
 	{ TR1_STR,        "STR" },
@@ -451,7 +425,6 @@ static flag_desc stat_flags_desc[] =
  * Besides stats, these are the other player traits
  * which may be affected by an object's pval
  */
-
 static flag_desc pval_flags1_desc[] =
 {
 	{ TR1_STEALTH,    "Stealth" },
@@ -461,24 +434,27 @@ static flag_desc pval_flags1_desc[] =
 	{ TR1_SPEED,      "Speed" },
 	{ TR1_BLOWS,      "Attacks" },
 	{ TR1_SHOTS,      "Shots" },
-	{ TR1_MIGHT,      "Might" }
+	{ TR1_MIGHT,      "Might" },
+	{ TR1_MANA,       "Mana" },
+	{ TR1_HEALTH,     "Health" }
 };
 
 /*
  * Slaying preferences for weapons
  */
-
 static flag_desc slay_flags_desc[] =
 {
-	{ TR1_SLAY_ANIMAL,        "Animal" },
-	{ TR1_SLAY_EVIL,          "Evil" },
-	{ TR1_SLAY_UNDEAD,        "Undead" },
-	{ TR1_SLAY_DEMON,         "Demon" },
-	{ TR1_SLAY_ORC,           "Orc" },
-	{ TR1_SLAY_TROLL,         "Troll" },
-	{ TR1_SLAY_GIANT,         "Giant" },
-	{ TR1_SLAY_DRAGON,        "Dragon" },
-	{ TR1_KILL_DRAGON,        "Xdragon" }
+	{ TR4_SLAY_ANIMAL,        "Animal" },
+	{ TR4_SLAY_PLANT,		  "Plant" },
+	{ TR4_SLAY_EVIL,          "Evil" },
+	{ TR4_SLAY_CHAOS,         "Chaos" },
+	{ TR4_SLAY_UNDEAD,        "Undead" },
+	{ TR4_SLAY_DEMON,         "Demon" },
+	{ TR4_SLAY_ORC,           "Orc" },
+	{ TR4_SLAY_TROLL,         "Troll" },
+	{ TR4_SLAY_GIANT,         "Giant" },
+	{ TR4_SLAY_DRAGON,        "Dragon" },
+	{ TR4_KILL_DRAGON,        "Xdragon" }
 };
 
 /*
@@ -486,16 +462,21 @@ static flag_desc slay_flags_desc[] =
  */
 static flag_desc brand_flags_desc[] =
 {
-	{ TR1_BRAND_ACID,         "Acid Brand" },
-	{ TR1_BRAND_ELEC,         "Lightning Brand" },
-	{ TR1_BRAND_FIRE,         "Flame Tongue" },
-	{ TR1_BRAND_COLD,         "Frost Brand" },
+	{ TR4_BLESSED,            "Blessed Blade" },
+	{ TR4_WOUNDING,           "Wounding" },
+	{ TR4_TERROR,	          "Terror" },
+	{ TR4_BRAND_ACID,         "Acid Brand" },
+	{ TR4_BRAND_ELEC,         "Lightning Brand" },
+	{ TR4_BRAND_FIRE,         "Flame Tongue" },
+	{ TR4_BRAND_COLD,         "Frost Brand" },
+	{ TR4_BRAND_VENOM,        "Venom Brand" },
+	{ TR4_BRAND_LITE,         "Light Brand" },
+	{ TR4_BRAND_DARK,         "Dark Brand" },
 };
 
 /*
- * The basic resistances
+ * The basic resistances (+ hold life)
  */
-
 static const flag_desc resist_flags_desc[] =
 {
 	{ TR2_RES_ACID,   "Acid" },
@@ -503,29 +484,36 @@ static const flag_desc resist_flags_desc[] =
 	{ TR2_RES_FIRE,   "Fire" },
 	{ TR2_RES_COLD,   "Cold" },
 	{ TR2_RES_POIS,   "Poison" },
-	{ TR2_RES_FEAR,   "Fear" },
+	{ TR2_RES_DISEASE,"Disease" },
 	{ TR2_RES_LITE,   "Light" },
 	{ TR2_RES_DARK,   "Dark" },
-	{ TR2_RES_BLIND,  "Blindness" },
 	{ TR2_RES_CONFU,  "Confusion" },
 	{ TR2_RES_SOUND,  "Sound" },
 	{ TR2_RES_SHARD,  "Shards" },
+	{ TR2_RES_WATER,  "Water" },
 	{ TR2_RES_NEXUS,  "Nexus" },
 	{ TR2_RES_NETHR,  "Nether" },
 	{ TR2_RES_CHAOS,  "Chaos" },
 	{ TR2_RES_DISEN,  "Disenchantment" },
+	{ TR2_RES_TIME,   "Time" },
+	{ TR2_RES_TIME,   "Mana" },
+	{ TR2_HOLD_LIFE,  "Experience Drain" },
+
 };
 
 /*
- * Elemental immunities (along with poison)
+ * Immunities and "semi-immunities"
  */
-
 static const flag_desc immune_flags_desc[] =
 {
-	{ TR2_IM_ACID,    "Acid" },
-	{ TR2_IM_ELEC,    "Lightning" },
-	{ TR2_IM_FIRE,    "Fire" },
-	{ TR2_IM_COLD,    "Cold" },
+	{ TR2_IM_ACID,		"Acid" },
+	{ TR2_IM_ELEC,		"Lightning" },
+	{ TR2_IM_FIRE,		"Fire" },
+	{ TR2_IM_COLD,		"Cold" },
+	{ TR2_FREE_ACT,		"Paralysis" },
+	{ TR2_NO_BLIND,		"Blindness" },
+	{ TR2_BRAVERY,		"Fear" },
+
 };
 
 /*
@@ -534,12 +522,12 @@ static const flag_desc immune_flags_desc[] =
  */
 static const flag_desc sustain_flags_desc[] =
 {
-	{ TR2_SUST_STR,   "STR" },
-	{ TR2_SUST_INT,   "INT" },
-	{ TR2_SUST_WIS,   "WIS" },
-	{ TR2_SUST_DEX,   "DEX" },
-	{ TR2_SUST_CON,   "CON" },
-	{ TR2_SUST_CHR,   "CHR" },
+	{ TR1_SUST_STR,   "STR" },
+	{ TR1_SUST_INT,   "INT" },
+	{ TR1_SUST_WIS,   "WIS" },
+	{ TR1_SUST_DEX,   "DEX" },
+	{ TR1_SUST_CON,   "CON" },
+	{ TR1_SUST_CHR,   "CHR" },
 };
 
 /*
@@ -548,28 +536,25 @@ static const flag_desc sustain_flags_desc[] =
  * Note that cursed artifacts and objects with permanent light
  * are handled "directly" -- see analyze_misc_magic()
  */
-
 static const flag_desc misc_flags3_desc[] =
 {
 	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
 	{ TR3_FEATHER,            "Feather Falling" },
-	{ TR3_LITE,               "Permanent Light" },
+	{ TR3_GLOW,               "Permanent Light" },
 	{ TR3_REGEN,              "Regeneration" },
 	{ TR3_TELEPATHY,          "ESP" },
 	{ TR3_SEE_INVIS,          "See Invisible" },
 	{ TR3_INVIS,              "Invisibility" },
-	{ TR3_FREE_ACT,           "Free Action" },
-	{ TR3_HOLD_LIFE,          "Hold Life" },
-	{ TR3_BLESSED,            "Blessed Blade" },
 	{ TR3_IMPACT,             "Earthquake impact on hit" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
-	{ TR3_DRAIN_EXP,          "Drains Experience" }
+	{ TR3_DRAIN_EXP,          "Drains Experience" },
+	{ TR3_DRAIN_ITEM,         "Drains Items" },
+	{ TR3_IGNORE_DISEN,       "Ignores Disenchantment" }
 };
 
 /*
  * A special type used just for deailing with pvals
  */
-
 typedef struct
 {
 	/*
@@ -595,7 +580,6 @@ typedef struct
 	                  N_ELEMENTS(pval_flags1_desc) + 1];
 
 } pval_info_type;
-
 
 /*
  * An "object analysis structure"
@@ -642,8 +626,6 @@ typedef struct
 
 } obj_desc_list;
 
-
-
 /*
  * Write out `n' of the character `c' to the spoiler file
  */
@@ -669,8 +651,6 @@ static void spoiler_underline(cptr str)
 	spoiler_out_n_chars(strlen(str), '-');
 	fprintf(fff, "\n");
 }
-
-
 
 /*
  * This function does most of the actual "analysis". Given a set of bit flags
@@ -699,7 +679,6 @@ static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_x_ptr,
 	return desc_x_ptr;
 }
 
-
 /*
  * Get a "basic" description "The Cloak of Death [1,+10]"
  */
@@ -719,7 +698,7 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *pval_x_ptr)
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
 	                        TR1_DEX | TR1_CON | TR1_CHR);
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	cptr *affects_list;
 
@@ -732,7 +711,7 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *pval_x_ptr)
 	}
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	affects_list = pval_x_ptr->pval_affects;
 
@@ -766,12 +745,12 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *pval_x_ptr)
 
 static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-	slay_list = spoiler_flag_aux(f1, slay_flags_desc, slay_list,
-	                             N_ELEMENTS(slay_flags_desc));
+	slay_list = spoiler_flag_aux(f4, slay_flags_desc, slay_list,
+								 N_ELEMENTS(slay_flags_desc));
 
 	/* Terminate the description list */
 	*slay_list = NULL;
@@ -781,25 +760,23 @@ static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 
 static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-	brand_list = spoiler_flag_aux(f1, brand_flags_desc, brand_list,
+	brand_list = spoiler_flag_aux(f4, brand_flags_desc, brand_list,
 	                              N_ELEMENTS(brand_flags_desc));
 
 	/* Terminate the description list */
 	*brand_list = NULL;
 }
 
-
 /* Note the resistances granted by an object */
-
 static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	resist_list = spoiler_flag_aux(f2, resist_flags_desc,
 	                               resist_list, N_ELEMENTS(resist_flags_desc));
@@ -809,12 +786,11 @@ static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 }
 
 /* Note the immunities granted by an object */
-
 static void analyze_immune (object_type *o_ptr, cptr *immune_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	immune_list = spoiler_flag_aux(f2, immune_flags_desc,
 	                               immune_list, N_ELEMENTS(immune_flags_desc));
@@ -825,26 +801,25 @@ static void analyze_immune (object_type *o_ptr, cptr *immune_list)
 }
 
 /* Note which stats an object sustains */
-
 static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
 {
-	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
-	                           TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
+	const u32b all_sustains = (TR1_SUST_STR | TR1_SUST_INT | TR1_SUST_WIS |
+	                           TR1_SUST_DEX | TR1_SUST_CON | TR1_SUST_CHR);
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Simplify things if an item sustains all stats */
-	if ((f2 & all_sustains) == all_sustains)
+	if ((f1 & all_sustains) == all_sustains)
 	{
 		*sustain_list++ = "All stats";
 	}
 
 	/* Should we bother? */
-	else if ((f2 & all_sustains))
+	else if ((f1 & all_sustains))
 	{
-		sustain_list = spoiler_flag_aux(f2, sustain_flags_desc,
+		sustain_list = spoiler_flag_aux(f1, sustain_flags_desc,
 		                                sustain_list,
 		                                N_ELEMENTS(sustain_flags_desc));
 	}
@@ -853,17 +828,15 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
 	*sustain_list = NULL;
 }
 
-
 /*
  * Note miscellaneous powers bestowed by an artifact such as see invisible,
  * free action, permanent light, etc.
  */
-
 static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/*
 	 * Special flags
@@ -874,9 +847,17 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	/*
 	 * Artifact lights -- large radius light.
 	 */
-	if ((o_ptr->tval == TV_LITE) && artifact_p(o_ptr))
+	if ((o_ptr->tval == TV_LITE_SPECIAL) || (o_ptr->tval == TV_LITE))
 	{
-		*misc_list++ = "Permanent Light(3)";
+		byte rad;
+
+		if (f3 & TR3_LITE1) rad = 1;
+		else if (f3 & TR3_LITE2) rad = 2;
+		else if (f3 & TR3_LITE3) rad = 3;
+		else if (f3 & TR3_LITE4) rad = 4;
+
+		if (o_ptr->tval == TV_LITE_SPECIAL) *misc_list++ = format("Permanent Light(%d)",rad);
+		else *misc_list++ = format("Refuelable Light(%d)",rad);
 	}
 
 	/*
@@ -905,14 +886,10 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	*misc_list = NULL;
 }
 
-
-
-
 /*
  * Determine the minimum depth an artifact can appear, its rarity, its weight,
  * and its value in gold pieces
  */
-
 static void analyze_misc (object_type *o_ptr, char *misc_desc)
 {
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
@@ -925,7 +902,6 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 /*
  * Fill in an object description structure for a given object
  */
-
 static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 {
 	analyze_general(o_ptr, desc_x_ptr->description);
@@ -949,12 +925,11 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 	desc_x_ptr->activation = item_activation(o_ptr);
 }
 
-
 static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Angband Version %d.%d.%d",
+	sprintf(buf, "Artifact Spoilers for EyAngband Version %d.%d.%d",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
 }
@@ -996,7 +971,6 @@ static void print_header(void)
 
 /* LIST_SEP separates lists */
 #define LIST_SEP ';'
-
 
 static void spoiler_outlist(cptr header, cptr *list, char separator)
 {
@@ -1089,9 +1063,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	fprintf(fff, "%s\n", line);
 }
 
-
 /* Create a spoiler file entry for an artifact */
-
 static void spoiler_print_art(obj_desc_list *art_ptr)
 {
 	pval_info_type *pval_ptr = &art_ptr->pval_info;
@@ -1134,7 +1106,6 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	fprintf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
 }
 
-
 /*
  * Hack -- Create a "forged" artifact
  */
@@ -1173,7 +1144,6 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	/* Success */
 	return (TRUE);
 }
-
 
 /*
  * Create a spoiler file for artifacts
@@ -1256,10 +1226,6 @@ static void spoil_artifact(cptr fname)
 	msg_print("Successfully created a spoiler file.");
 }
 
-
-
-
-
 /*
  * Create a spoiler file for monsters
  */
@@ -1280,7 +1246,6 @@ static void spoil_mon_desc(cptr fname)
 	u16b *who;
 	u16b why = 2;
 
-
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
@@ -1298,7 +1263,7 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Angband Version %d.%d.%d\n",
+	fprintf(fff, "Monster Spoilers for EyAngband Version %d.%d.%d\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 
@@ -1307,7 +1272,6 @@ static void spoil_mon_desc(cptr fname)
 	        "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
 	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
 	        "----", "---", "---", "---", "--", "--", "-----------");
-
 
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
@@ -1348,7 +1312,6 @@ static void spoil_mon_desc(cptr fname)
 		{
 			sprintf(nam, "The %s", name);
 		}
-
 
 		/* Level */
 		sprintf(lev, "%d", r_ptr->level);
@@ -1408,9 +1371,6 @@ static void spoil_mon_desc(cptr fname)
 	/* Worked */
 	msg_print("Successfully created a spoiler file.");
 }
-
-
-
 
 /*
  * Monster spoilers by: smchorse@ringer.cs.utsa.edu (Shawn McHorse)
@@ -1495,7 +1455,6 @@ static void spoil_out(cptr str)
 	}
 }
 
-
 /*
  * Create a spoiler file for monsters (-SHAWN-)
  */
@@ -1528,9 +1487,8 @@ static void spoil_mon_info(cptr fname)
 		return;
 	}
 
-
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
+	sprintf(buf, "Monster Spoilers for EyAngband Version %d.%d.%d\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
@@ -1602,7 +1560,6 @@ static void spoil_mon_info(cptr fname)
 		sprintf(buf, " '%c')\n", r_ptr->d_char);
 		spoil_out(buf);
 
-
 		/* Indent */
 		sprintf(buf, "=== ");
 		spoil_out(buf);
@@ -1649,7 +1606,6 @@ static void spoil_mon_info(cptr fname)
 		sprintf(buf, "Exp:%ld\n", (long)(r_ptr->mexp));
 		spoil_out(buf);
 
-
 		/* Describe */
 		spoil_out(r_text + r_ptr->text);
 		spoil_out("  ");
@@ -1657,15 +1613,17 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out("This");
 
-		if (flags3 & (RF3_ANIMAL)) spoil_out(" natural");
-		if (flags3 & (RF3_EVIL)) spoil_out(" evil");
-		if (flags3 & (RF3_UNDEAD)) spoil_out(" undead");
+		if (flags2 & (RF2_CHAOTIC))	spoil_out(" chaotic");
+		if (flags2 & (RF2_ANIMAL)) spoil_out(" natural");
+		if (flags2 & (RF2_EVIL)) spoil_out(" evil");
+		if (flags2 & (RF2_UNDEAD)) spoil_out(" undead");
 
-		if (flags3 & (RF3_DRAGON)) spoil_out(" dragon");
-		else if (flags3 & (RF3_DEMON)) spoil_out(" demon");
-		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
-		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
-		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
+		if (flags2 & (RF2_DRAGON)) spoil_out(" dragon");
+		else if (flags2 & (RF2_DEMON)) spoil_out(" demon");
+		else if (flags2 & (RF2_GIANT)) spoil_out(" giant");
+		else if (flags2 & (RF2_TROLL)) spoil_out(" troll");
+		else if (flags2 & (RF2_ORC)) spoil_out(" orc");
+		else if (flags2 & (RF2_PLANT))	spoil_out(" plant");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1694,21 +1652,6 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out(".  ");
 
-
-#if 0
-
-		if (!r_ptr->level || (flags1 & (RF1_FORCE_DEPTH)))
-		{
-			sprintf(buf, "%s is never found out of depth.  ", wd_che[msex]);
-		}
-
-		if (flags1 & (RF1_FORCE_SLEEP))
-		{
-			sprintf(buf, "%s is always created sluggish.  ", wd_che[msex]);
-		}
-
-#endif
-
 		if (flags1 & (RF1_ESCORT))
 		{
 			sprintf(buf, "%s usually appears with ", wd_che[msex]);
@@ -1717,24 +1660,15 @@ static void spoil_mon_info(cptr fname)
 			else spoil_out("an escort.  ");
 		}
 
-		if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
+		if (flags1 & (RF1_FRIENDS))
 		{
 			sprintf(buf, "%s usually appears in groups.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 
-
 		/* Collect inate attacks */
-		vn = 0;
-		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
-		if (flags4 & (RF4_XXX2)) vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX4)) vp[vn++] = "do something";
-		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire arrows";
-		if (flags4 & (RF4_ARROW_2)) vp[vn++] = "fire arrows";
-		if (flags4 & (RF4_ARROW_3)) vp[vn++] = "fire missiles";
-		if (flags4 & (RF4_ARROW_4)) vp[vn++] = "fire missiles";
-
+		vn = collect_mon_innate(flags4, vp);
+	
 		if (vn)
 		{
 			spoil_out(wd_che[msex]);
@@ -1749,31 +1683,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Collect breaths */
-		vn = 0;
-		if (flags4 & (RF4_BR_ACID)) vp[vn++] = "acid";
-		if (flags4 & (RF4_BR_ELEC)) vp[vn++] = "lightning";
-		if (flags4 & (RF4_BR_FIRE)) vp[vn++] = "fire";
-		if (flags4 & (RF4_BR_COLD)) vp[vn++] = "frost";
-		if (flags4 & (RF4_BR_POIS)) vp[vn++] = "poison";
-		if (flags4 & (RF4_BR_NETH)) vp[vn++] = "nether";
-		if (flags4 & (RF4_BR_LITE)) vp[vn++] = "light";
-		if (flags4 & (RF4_BR_DARK)) vp[vn++] = "darkness";
-		if (flags4 & (RF4_BR_CONF)) vp[vn++] = "confusion";
-		if (flags4 & (RF4_BR_SOUN)) vp[vn++] = "sound";
-		if (flags4 & (RF4_BR_CHAO)) vp[vn++] = "chaos";
-		if (flags4 & (RF4_BR_DISE)) vp[vn++] = "disenchantment";
-		if (flags4 & (RF4_BR_NEXU)) vp[vn++] = "nexus";
-		if (flags4 & (RF4_BR_TIME)) vp[vn++] = "time";
-		if (flags4 & (RF4_BR_INER)) vp[vn++] = "inertia";
-		if (flags4 & (RF4_BR_GRAV)) vp[vn++] = "gravity";
-		if (flags4 & (RF4_BR_SHAR)) vp[vn++] = "shards";
-		if (flags4 & (RF4_BR_PLAS)) vp[vn++] = "plasma";
-		if (flags4 & (RF4_BR_WALL)) vp[vn++] = "force";
-		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
-		if (flags4 & (RF4_XXX5)) vp[vn++] = "something";
-		if (flags4 & (RF4_XXX6)) vp[vn++] = "something";
-		if (flags4 & (RF4_XXX7)) vp[vn++] = "something";
-		if (flags4 & (RF4_XXX8)) vp[vn++] = "something";
+		vn = collect_mon_breaths(flags4, vp);;
 
 		if (vn)
 		{
@@ -1790,71 +1700,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Collect spells */
-		vn = 0;
-		if (flags5 & (RF5_BA_ACID))           vp[vn++] = "produce acid balls";
-		if (flags5 & (RF5_BA_ELEC))           vp[vn++] = "produce lightning balls";
-		if (flags5 & (RF5_BA_FIRE))           vp[vn++] = "produce fire balls";
-		if (flags5 & (RF5_BA_COLD))           vp[vn++] = "produce frost balls";
-		if (flags5 & (RF5_BA_POIS))           vp[vn++] = "produce poison balls";
-		if (flags5 & (RF5_BA_NETH))           vp[vn++] = "produce nether balls";
-		if (flags5 & (RF5_BA_WATE))           vp[vn++] = "produce water balls";
-		if (flags5 & (RF5_BA_MANA))           vp[vn++] = "produce mana storms";
-		if (flags5 & (RF5_BA_DARK))           vp[vn++] = "produce darkness storms";
-		if (flags5 & (RF5_DRAIN_MANA))        vp[vn++] = "drain mana";
-		if (flags5 & (RF5_MIND_BLAST))        vp[vn++] = "cause mind blasting";
-		if (flags5 & (RF5_BRAIN_SMASH))       vp[vn++] = "cause brain smashing";
-		if (flags5 & (RF5_CAUSE_1))           vp[vn++] = "cause light wounds";
-		if (flags5 & (RF5_CAUSE_2))           vp[vn++] = "cause serious wounds";
-		if (flags5 & (RF5_CAUSE_3))           vp[vn++] = "cause critical wounds";
-		if (flags5 & (RF5_CAUSE_4))           vp[vn++] = "cause mortal wounds";
-		if (flags5 & (RF5_BO_ACID))           vp[vn++] = "produce acid bolts";
-		if (flags5 & (RF5_BO_ELEC))           vp[vn++] = "produce lightning bolts";
-		if (flags5 & (RF5_BO_FIRE))           vp[vn++] = "produce fire bolts";
-		if (flags5 & (RF5_BO_COLD))           vp[vn++] = "produce frost bolts";
-		if (flags5 & (RF5_BO_POIS))           vp[vn++] = "produce poison bolts";
-		if (flags5 & (RF5_BO_NETH))           vp[vn++] = "produce nether bolts";
-		if (flags5 & (RF5_BO_WATE))           vp[vn++] = "produce water bolts";
-		if (flags5 & (RF5_BO_MANA))           vp[vn++] = "produce mana bolts";
-		if (flags5 & (RF5_BO_PLAS))           vp[vn++] = "produce plasma bolts";
-		if (flags5 & (RF5_BO_ICEE))           vp[vn++] = "produce ice bolts";
-		if (flags5 & (RF5_MISSILE))           vp[vn++] = "produce magic missiles";
-		if (flags5 & (RF5_SCARE))             vp[vn++] = "terrify";
-		if (flags5 & (RF5_BLIND))             vp[vn++] = "blind";
-		if (flags5 & (RF5_CONF))              vp[vn++] = "confuse";
-		if (flags5 & (RF5_SLOW))              vp[vn++] = "slow";
-		if (flags5 & (RF5_HOLD))              vp[vn++] = "paralyze";
-		if (flags6 & (RF6_HASTE))             vp[vn++] = "haste-self";
-		if (flags6 & (RF6_XXX1))            vp[vn++] = "do something";
-		if (flags6 & (RF6_HEAL))              vp[vn++] = "heal-self";
-		if (flags6 & (RF6_XXX2))            vp[vn++] = "do something";
-		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
-		if (flags6 & (RF6_TPORT))             vp[vn++] = "teleport-self";
-		if (flags6 & (RF6_XXX3))            vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX4))            vp[vn++] = "do something";
-		if (flags6 & (RF6_TELE_TO))           vp[vn++] = "teleport to";
-		if (flags6 & (RF6_TELE_AWAY))         vp[vn++] = "teleport away";
-		if (flags6 & (RF6_TELE_LEVEL))        vp[vn++] = "teleport level";
-		if (flags6 & (RF6_XXX5))              vp[vn++] = "do something";
-		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
-		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
-		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
-		if (flags6 & (RF6_XXX6))            vp[vn++] = "do something";
-		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon similar monsters";
-		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "summon greater demons";
-		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
-		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
-		if (flags6 & (RF6_S_ANT))             vp[vn++] = "summon ants";
-		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
-		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
-		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";
-		if (flags6 & (RF6_S_HORROR))           vp[vn++] = "summon a nameless horror";
-		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
-		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
-		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "summon a dragon";
-		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
-		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
-		if (flags6 & (RF6_S_WRAITH))          vp[vn++] = "summon ring wraiths";
-		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
+		vn = collect_mon_spells(flags5, flags6, vp);
 
 		if (vn)
 		{
@@ -1887,16 +1733,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Collect special abilities. */
-		vn = 0;
-        if (flags2 & (RF2_HAS_LITE))  vp[vn++] = "illuminate the dungeon";
-		if (flags2 & (RF2_OPEN_DOOR)) vp[vn++] = "open doors";
-		if (flags2 & (RF2_BASH_DOOR)) vp[vn++] = "bash down doors";
-		if (flags2 & (RF2_PASS_WALL)) vp[vn++] = "pass through walls";
-		if (flags2 & (RF2_KILL_WALL)) vp[vn++] = "bore through walls";
-		if (flags2 & (RF2_MOVE_BODY)) vp[vn++] = "push past weaker monsters";
-		if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
-		if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
-		if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
+		vn = collect_mon_special(flags2, vp);
 
 		if (vn)
 		{
@@ -1948,11 +1785,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Collect susceptibilities */
-		vn = 0;
-		if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
-		if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
-		if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "fire";
-		if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "cold";
+		vn = collect_mon_vulnerabilities(flags3, vp);
 
 		if (vn)
 		{
@@ -1968,33 +1801,23 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Collect immunities */
-		vn = 0;
-		if (flags3 & (RF3_IM_ACID)) vp[vn++] = "acid";
-		if (flags3 & (RF3_IM_ELEC)) vp[vn++] = "lightning";
-		if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
-		if (flags3 & (RF3_IM_COLD)) vp[vn++] = "cold";
-		if (flags3 & (RF3_IM_POIS)) vp[vn++] = "poison";
+		vn = collect_mon_immunes(flags3, flags4, vp);
 
 		if (vn)
 		{
 			spoil_out(wd_che[msex]);
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" resists ");
+				if (!i) spoil_out(" can't be ");
 				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" and ");
+				else spoil_out(" or ");
 				spoil_out(vp[i]);
 			}
 			spoil_out(".  ");
 		}
 
 		/* Collect resistances */
-		vn = 0;
-		if (flags3 & (RF3_RES_NETH)) vp[vn++] = "nether";
-		if (flags3 & (RF3_RES_WATE)) vp[vn++] = "water";
-		if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
-		if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "nexus";
-		if (flags3 & (RF3_RES_DISE)) vp[vn++] = "disenchantment";
+		vn = collect_mon_resists(flags3, flags4, vp);
 
 		if (vn)
 		{
@@ -2004,26 +1827,6 @@ static void spoil_mon_info(cptr fname)
 				if (!i) spoil_out(" resists ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" and ");
-				spoil_out(vp[i]);
-			}
-			spoil_out(".  ");
-		}
-
-		/* Collect non-effects */
-		vn = 0;
-		if (flags3 & (RF3_NO_STUN)) vp[vn++] = "stunned";
-		if (flags3 & (RF3_NO_FEAR)) vp[vn++] = "frightened";
-		if (flags3 & (RF3_NO_CONF)) vp[vn++] = "confused";
-		if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "slept";
-
-		if (vn)
-		{
-			spoil_out(wd_che[msex]);
-			for (i = 0; i < vn; i++)
-			{
-				if (!i) spoil_out(" cannot be ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" or ");
 				spoil_out(vp[i]);
 			}
 			spoil_out(".  ");
@@ -2085,10 +1888,6 @@ static void spoil_mon_info(cptr fname)
 			{
 				spoil_out(" good object");
 			}
-			else if (flags1 & (RF1_DROP_USEFUL))
-			{
-				spoil_out(" useful object");
-			}
 			else if (flags1 & (RF1_ONLY_ITEM))
 			{
 				if (sin) spoil_out("n");
@@ -2126,75 +1925,14 @@ static void spoil_mon_info(cptr fname)
 		{
 			if (!r_ptr->blow[j].method) continue;
 
-			/* No method yet */
-			p = "???";
+			/* Skip non-attacks */
+			if (!r_ptr->blow[j].method) continue;
 
-			/* Get the method */
-			switch (r_ptr->blow[j].method)
-			{
-				case RBM_HIT:	p = "hit"; break;
-				case RBM_TOUCH:	p = "touch"; break;
-				case RBM_PUNCH:	p = "punch"; break;
-				case RBM_KICK:	p = "kick"; break;
-				case RBM_CLAW:	p = "claw"; break;
-				case RBM_BITE:	p = "bite"; break;
-				case RBM_STING:	p = "sting"; break;
-				case RBM_KISS:	p = "kiss"; break;
-				case RBM_BUTT:	p = "butt"; break;
-				case RBM_CRUSH:	p = "crush"; break;
-				case RBM_ENGULF:	p = "engulf"; break;
-				case RBM_XXX2:	break;
-				case RBM_CRAWL:	p = "crawl on you"; break;
-				case RBM_DROOL:	p = "drool on you"; break;
-				case RBM_SPIT:	p = "spit"; break;
-				case RBM_XXX3:	break;
-				case RBM_GAZE:	p = "gaze"; break;
-				case RBM_WAIL:	p = "wail"; break;
-				case RBM_SPORE:	p = "release spores"; break;
-				case RBM_XXX4:	break;
-				case RBM_BEG:	p = "beg"; break;
-				case RBM_INSULT:	p = "insult"; break;
-				case RBM_MOAN:	p = "moan"; break;
-				case RBM_XXX5:	break;
-			}
+			p = NULL;
+			q = NULL;
 
-
-			/* Default effect */
-			q = "???";
-
-			/* Get the effect */
-			switch (r_ptr->blow[j].effect)
-			{
-				case RBE_HURT:	q = "attack"; break;
-				case RBE_POISON:	q = "poison"; break;
-				case RBE_UN_BONUS:	q = "disenchant"; break;
-				case RBE_UN_POWER:	q = "drain charges"; break;
-				case RBE_EAT_GOLD:	q = "steal gold"; break;
-				case RBE_EAT_ITEM:	q = "steal items"; break;
-				case RBE_EAT_FOOD:	q = "eat your food"; break;
-				case RBE_EAT_LITE:	q = "absorb light"; break;
-				case RBE_ACID:	q = "shoot acid"; break;
-				case RBE_ELEC:	q = "electrify"; break;
-				case RBE_FIRE:	q = "burn"; break;
-				case RBE_COLD:	q = "freeze"; break;
-				case RBE_BLIND:	q = "blind"; break;
-				case RBE_CONFUSE:	q = "confuse"; break;
-				case RBE_TERRIFY:	q = "terrify"; break;
-				case RBE_PARALYZE:	q = "paralyze"; break;
-				case RBE_LOSE_STR:	q = "reduce strength"; break;
-				case RBE_LOSE_INT:	q = "reduce intelligence"; break;
-				case RBE_LOSE_WIS:	q = "reduce wisdom"; break;
-				case RBE_LOSE_DEX:	q = "reduce dexterity"; break;
-				case RBE_LOSE_CON:	q = "reduce constitution"; break;
-				case RBE_LOSE_CHR:	q = "reduce charisma"; break;
-				case RBE_LOSE_ALL:	q = "reduce all stats"; break;
-				case RBE_SHATTER:	q = "shatter"; break;
-				case RBE_EXP_10:	q = "lower experience (by 10d6+)"; break;
-				case RBE_EXP_20:	q = "lower experience (by 20d6+)"; break;
-				case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
-				case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
-			}
-
+			/* Extract the attack info */
+			describe_mon_attacks(r_ptr->blow[j].method,r_ptr->blow[j].effect,&p,&q);
 
 			if (!k)
 			{
@@ -2259,16 +1997,6 @@ static void spoil_mon_info(cptr fname)
 	msg_print("Successfully created a spoiler file.");
 }
 
-
-
-
-
-
-/*
- * Forward declare
- */
-extern void do_cmd_spoilers(void);
-
 /*
  * Create Spoiler files
  */
@@ -2276,14 +2004,11 @@ void do_cmd_spoilers(void)
 {
 	char ch;
 
-
 	/* Save screen */
 	screen_save();
 
-
 	/* Drop priv's */
 	safe_setuid_drop();
-
 
 	/* Interact */
 	while (1)
@@ -2346,15 +2071,12 @@ void do_cmd_spoilers(void)
 		msg_print(NULL);
 	}
 
-
 	/* Grab priv's */
 	safe_setuid_grab();
-
 
 	/* Load screen */
 	screen_load();
 }
-
 
 #else
 
@@ -2363,5 +2085,3 @@ static int i = 0;
 #endif
 
 #endif
-
-

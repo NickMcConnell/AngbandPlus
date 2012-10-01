@@ -10,7 +10,6 @@
 
 #include "angband.h"
 
-
 /*
  * Forward declare
  */
@@ -33,13 +32,10 @@ struct birther
 	char history[5][55];
 };
 
-
-
 /*
  * The last character displayed
  */
 static birther prev;
-
 
 /*
  * Current stats (when rolling a character).
@@ -49,15 +45,14 @@ static s16b stat_use[6];
 /*
  * Additional items in the "start kit"
  */
-start_item start_kit[5] =
+static start_item start_kit[5] =
 {
-	{TV_LITE, SV_LITE_LANTERN, 1, 1},
+	{TV_LITE, SV_LANTERN, 1, 1},
 	{TV_FLASK, SV_FLASK_LANTERN, 4, 4},
 	{TV_CLOAK, SV_CLOAK, 1, 1},
 	{TV_SCROLL, SV_SCROLL_PHASE_DOOR,1 ,1},
 	{TV_POTION, SV_POTION_CURE_LIGHT,1 ,1}
 };
-
 
 /*
  * Save the currently rolled data for later.
@@ -65,7 +60,6 @@ start_item start_kit[5] =
 static void save_prev_data(void)
 {
 	int i;
-
 
 	/*** Save the current data ***/
 
@@ -89,7 +83,6 @@ static void save_prev_data(void)
 	}
 }
 
-
 /*
  * Load the previously rolled data.
  */
@@ -98,7 +91,6 @@ static void load_prev_data(void)
 	int i;
 
 	birther temp;
-
 
 	/*** Save the current data ***/
 
@@ -120,7 +112,6 @@ static void load_prev_data(void)
 	{
 		strcpy(temp.history[i], p_ptr->history[i]);
 	}
-
 
 	/*** Load the previous data ***/
 
@@ -144,7 +135,6 @@ static void load_prev_data(void)
 		strcpy(p_ptr->history[i], prev.history[i]);
 	}
 
-
 	/*** Save the current data ***/
 
 	/* Save the data */
@@ -167,7 +157,6 @@ static void load_prev_data(void)
 	}
 }
 
-
 /*
  * Roll for a characters stats
  *
@@ -178,7 +167,6 @@ static void get_stats(void)
 	int i, j;
 
 	int dice[18];
-
 
 	/* Roll and verify some stats */
 	while (TRUE)
@@ -218,14 +206,12 @@ static void get_stats(void)
 	}
 }
 
-
 /*
  * Roll for some info that the auto-roller ignores
  */
 static void get_extra(void)
 {
 	int i, j, min_value, max_value;
-
 
 	/* Level one */
 	p_ptr->max_lev = p_ptr->lev = 1;
@@ -250,27 +236,43 @@ static void get_extra(void)
 	/* Pre-calculate level 1 hitdice */
 	p_ptr->player_hp[0] = p_ptr->hitdie;
 
-	/* Roll out the hitpoints */
-	while (TRUE)
+
+	/* Hack - Get the hitpoints for non-random hp characters.  
+	 * Each level provides exactly average hitpoints.
+	 * If the average is a fraction, alternate.
+	 */
+	if (!adult_random_hp)
 	{
-		/* Roll the hitpoint values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
-			j = randint(p_ptr->hitdie);
-			p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
+			p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + p_ptr->hitdie/2;
+			if (((p_ptr->hitdie % 2) == 1) & ((i % 2) == 1)) p_ptr->player_hp[i]++;
 		}
 
-		/* XXX Could also require acceptable "mid-level" hitpoints */
-
-		/* Require "valid" hitpoints at highest level */
-		if (p_ptr->player_hp[PY_MAX_LEVEL-1] < min_value) continue;
-		if (p_ptr->player_hp[PY_MAX_LEVEL-1] > max_value) continue;
-
-		/* Acceptable */
-		break;
 	}
-}
+	/* Hack, if the player wants, use old-style rolled hitpoints */
+	else
+	{
+		/* Roll out the hitpoints */
+		while (TRUE)
+		{
+			/* Roll the hitpoint values */
+			for (i = 1; i < PY_MAX_LEVEL; i++)
+			{
+				j = randint(p_ptr->hitdie);
+				p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
+			}
 
+			/* XXX Could also require acceptable "mid-level" hitpoints */
+			
+			/* Require "valid" hitpoints at highest level */
+			if (p_ptr->player_hp[PY_MAX_LEVEL-1] < min_value) continue;
+			if (p_ptr->player_hp[PY_MAX_LEVEL-1] > max_value) continue;
+
+			/* Acceptable */
+			break;
+		}
+	}}
 
 /*
  * Get the racial history, and social class, using the "history charts".
@@ -283,11 +285,8 @@ static void get_history(void)
 
 	char buf[240];
 
-
-
 	/* Clear the previous history strings */
 	for (i = 0; i < 5; i++) p_ptr->history[i][0] = '\0';
-
 
 	/* Clear the history text */
 	buf[0] = '\0';
@@ -297,7 +296,6 @@ static void get_history(void)
 
 	/* Starting place */
 	chart = rp_ptr->hist;
-
 
 	/* Process the history */
 	while (chart)
@@ -321,15 +319,12 @@ static void get_history(void)
 		chart = h_info[i].next;
 	}
 
-
-
 	/* Verify social class */
 	if (social_class > 100) social_class = 100;
 	else if (social_class < 1) social_class = 1;
 
 	/* Save the social class */
 	p_ptr->sc = social_class;
-
 
 	/* Skip leading spaces */
 	for (s = buf; *s == ' '; s++) /* loop */;
@@ -339,7 +334,6 @@ static void get_history(void)
 
 	/* Kill trailing spaces */
 	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-
 
 	/* Start at first line */
 	i = 0;
@@ -377,7 +371,6 @@ static void get_history(void)
 	}
 }
 
-
 /*
  * Computes character's age, height, and weight
  */
@@ -400,9 +393,6 @@ static void get_ahw(void)
 		p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
 	}
 }
-
-
-
 
 /*
  * Get the player's starting money
@@ -437,8 +427,6 @@ static void get_money(void)
 	p_ptr->au = gold;
 }
 
-
-
 /*
  * Clear all the global "character" data
  */
@@ -452,11 +440,10 @@ static void player_wipe(void)
 
 
 	/* Clear the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (i = 0; i < INVEN_MAX; i++)
 	{
 		object_wipe(&inventory[i]);
 	}
-
 
 	/* Start with no artifacts made yet */
 	for (i = 0; i < z_info->a_max; i++)
@@ -468,7 +455,7 @@ static void player_wipe(void)
 	/* Reset the quests */
 	for (i = 0; i < z_info->q_max; i++)
 	{
-		quest *q_ptr = &q_info[i];
+		quest_type *q_ptr = &q_info[i];
 
 		/* Reset level */
 		if (q_ptr->type == QUEST_FIXED) 
@@ -537,7 +524,6 @@ static void player_wipe(void)
 	}
 }
 
-
 /*
  * Init players with some belongings
  *
@@ -545,7 +531,7 @@ static void player_wipe(void)
  */
 static void player_outfit(void)
 {
-	int i, j, q;
+	int i;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -561,7 +547,6 @@ static void player_outfit(void)
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
 
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -576,27 +561,29 @@ static void player_outfit(void)
 			/* Get local object */
 			i_ptr = &object_type_body;
 
-			/* Hack
-			-- Give the player an object */
+			/* Hack	-- Give the player an object */
 			if (e_ptr->tval > 0)
 			{	
 				object_prep(i_ptr, lookup_kind(e_ptr->tval, e_ptr->sval));
+
+				/* Hack - make sure that lanterns have some oil in them */
+				if ((e_ptr->tval == TV_LITE) && (e_ptr->sval == SV_LANTERN))
+					i_ptr->timeout = 7500;
+
+				i_ptr->number = rand_int(e_ptr->max - e_ptr->min) + e_ptr->min;;
 				object_aware(i_ptr);
 				object_known(i_ptr);
-				q = rand_int(e_ptr->max - e_ptr->min) + e_ptr->min;
-				if (q < 0) q = 0;
-				for (j=0; j < q; j++) (void)inven_carry(i_ptr);
+				(void)inven_carry(i_ptr);
 			}
 		}
-
 	}
 
 	else
 	{	
 		/* Hack -- Give the player some torches */
-		object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+		object_prep(i_ptr, lookup_kind(TV_LITE, SV_TORCH));
 		i_ptr->number = (byte)rand_range(3, 7);
-		i_ptr->pval = rand_range(3, 7) * 500;
+		i_ptr->timeout = rand_range(3, 7) * 500;
 		object_aware(i_ptr);
 		object_known(i_ptr);
 		(void)inven_carry(i_ptr);
@@ -612,20 +599,17 @@ static void player_outfit(void)
 		/* Get local object */
 		i_ptr = &object_type_body;
 
-		/* Hack
-		-- Give the player an object */
+		/* Hack	-- Give the player an object */
 		if (e_ptr->tval > 0)
 		{
 			object_prep(i_ptr, lookup_kind(e_ptr->tval, e_ptr->sval));
+			i_ptr->number = rand_int(e_ptr->max - e_ptr->min + 1) + e_ptr->min;
 			object_aware(i_ptr);
 			object_known(i_ptr);
-			q = rand_int(e_ptr->max - e_ptr->min) + e_ptr->min;
-			if (q < 0) q = 0;
-			for (j=0; j < q; j++) (void)inven_carry(i_ptr);
+			(void)inven_carry(i_ptr);
 		}
 	}
 }
-
 
 /*
  * Helper function for 'player_birth()'.
@@ -641,9 +625,6 @@ static bool player_birth_aux_1(void)
 
 	char ch;
 
-#if 0
-	char p1 = '(';
-#endif
 	char p2 = ')';
 
 	char buf[80];
@@ -685,7 +666,7 @@ static bool player_birth_aux_1(void)
 	}
 
 	/* Choose */
-	while (1)
+	while (TRUE)
 	{
 		sprintf(buf, "Choose a sex (%c-%c, or * for random): ",
 		        I2A(0), I2A(n-1));
@@ -733,7 +714,7 @@ static bool player_birth_aux_1(void)
 	}
 
 	/* Choose */
-	while (1)
+	while (TRUE)
 	{
 		sprintf(buf, "Choose a race (%c-%c, or * for random): ",
 		        I2A(0), I2A(n-1));
@@ -791,9 +772,9 @@ static bool player_birth_aux_1(void)
 	}
 
 	/* Get a class */
-	while (1)
+	while (TRUE)
 	{
-		sprintf(buf, "Choose a class (%c-%c, or * for random): ",
+		sprintf(buf, "Choose a class (%c-%c, or * or ! for random): ",
 		        I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		ch = inkey();
@@ -803,7 +784,7 @@ static bool player_birth_aux_1(void)
 		if (ch == ESCAPE) ch = '*';
 		if (ch == '*')
 		{
-			while (1)
+			while (TRUE)
 			{
 				k = rand_int(z_info->c_max);
 
@@ -813,6 +794,7 @@ static bool player_birth_aux_1(void)
 				break;
 			}
 		}
+		if (ch == '!') k = rand_int(z_info->c_max);
  		if ((k >= 0) && (k < n)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal class!");
@@ -856,19 +838,19 @@ static bool player_birth_aux_1(void)
 	if (ch == 'y')
 	{
 		/* Interact with options */
-		do_cmd_options();
+		options_birth_menu(TRUE);
 	}
 
 	/* Set adult options from birth options */
-	for (i = OPT_BIRTH; i < OPT_CHEAT; i++)
+	for (i = 0; i < OPT_BIRTH; i++)
 	{
-		op_ptr->opt[OPT_ADULT + (i - OPT_BIRTH)] = op_ptr->opt[i];
+		op_ptr->opt_adult[i] = op_ptr->opt_birth[i];
 	}
 
 	/* Reset score options from cheat options */
-	for (i = OPT_CHEAT; i < OPT_ADULT; i++)
+	for (i = 0; i < OPT_CHEAT; i++)
 	{
-		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
+		op_ptr->opt_score[i] = op_ptr->opt_cheat[i];
 	}
 
 	/* Clean up */
@@ -878,12 +860,10 @@ static bool player_birth_aux_1(void)
 	return (TRUE);
 }
 
-
 /*
  * Initial stat costs (initial stats always range from 9 to 18 inclusive).
  */
 static int birth_stat_costs[(18-9)+1] = { 0, 1, 2, 3, 5, 8, 12, 17, 23, 31 };
-
 
 /*
  * Helper function for 'player_birth()'.
@@ -896,13 +876,14 @@ static int birth_stat_costs[(18-9)+1] = { 0, 1, 2, 3, 5, 8, 12, 17, 23, 31 };
  *
  * Each unused point is converted into 50 gold pieces.
  */
-#define POINTS 55
+#define POINTS		55
+#define BASE_STAT	9
 
 static bool player_birth_aux_2(void)
 {
 	int i;
 
-	int row = 3;
+	int row = 2;
 	int col = 42;
 
 	int stat = 0;
@@ -919,7 +900,7 @@ static bool player_birth_aux_2(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Initial stats */
-		stats[i] = 9;
+		stats[i] = BASE_STAT;
 	}
 
 	/* Roll for base hitpoints */
@@ -944,7 +925,7 @@ static bool player_birth_aux_2(void)
 					modify_stat_value(stats[i], cp_ptr->c_adj[i]);
 
 			/* Total cost */
-			cost += birth_stat_costs[stats[i] - 9];
+			cost += birth_stat_costs[stats[i] - BASE_STAT];
 		}
 
 		/* Restrict cost */
@@ -976,7 +957,7 @@ static bool player_birth_aux_2(void)
 		p_ptr->csp = p_ptr->msp;
 
 		/* Display the player */
-		display_player(0);
+		display_player(99);
 
 		/* Display the costs header */
 		put_str("Cost", row - 1, col + 32);
@@ -985,10 +966,9 @@ static bool player_birth_aux_2(void)
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Display cost */
-			sprintf(buf, "%4d", birth_stat_costs[stats[i] - 9]);
+			sprintf(buf, "%4d", birth_stat_costs[stats[i] - BASE_STAT]);
 			put_str(buf, row + i, col + 32);
 		}
-
 
 		/* Prompt XXX XXX XXX */
 		sprintf(buf, "Total Cost %2d/%d.  Use 2/8 to move, 4/6 to modify, ESC to accept.", cost,POINTS);
@@ -1022,7 +1002,7 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Decrease stat */
-		if ((ch == '4') && (stats[stat] > 9))
+		if ((ch == '4') && (stats[stat] > BASE_STAT))
 		{
 			stats[stat]--;
 		}
@@ -1034,11 +1014,9 @@ static bool player_birth_aux_2(void)
 		}
 	}
 
-
 	/* Done */
 	return (TRUE);
 }
-
 
 /*
  * Helper function for 'player_birth()'.
@@ -1063,7 +1041,6 @@ static bool player_birth_aux_3(void)
 
 	char buf[80];
 
-
 	s16b stat_limit[6];
 
 	s32b stat_match[6];
@@ -1071,7 +1048,6 @@ static bool player_birth_aux_3(void)
 	s32b auto_round = 0L;
 
 	s32b last_round;
-
 
 	/*** Autoroll ***/
 
@@ -1167,7 +1143,6 @@ static bool player_birth_aux_3(void)
 			stat_limit[i] = (v > 0) ? modify_stat_value(v, -(rp_ptr->r_adj[i])) : 0;
 		}
 	}
-
 
 	/* Clean up */
 	clear_from(10);
@@ -1334,7 +1309,7 @@ static bool player_birth_aux_3(void)
 			p_ptr->csp = p_ptr->msp;
 
 			/* Display the player */
-			display_player(0);
+			display_player(99);
 
 			/* Prepare a prompt (must squeeze everything in) */
 			Term_gotoxy(2, 23);
@@ -1394,7 +1369,6 @@ static bool player_birth_aux_3(void)
 	return (TRUE);
 }
 
-
 /*
  * Helper function for 'player_birth()'.
  *
@@ -1425,7 +1399,7 @@ static bool player_birth_aux(void)
 	get_name();
 
 	/* Display the player */
-	display_player(0);
+	display_player(99);
 
 	/* Prompt for it */
 	prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
@@ -1443,7 +1417,6 @@ static bool player_birth_aux(void)
 	return (TRUE);
 }
 
-
 /*
  * Create a new character.
  *
@@ -1453,7 +1426,6 @@ static bool player_birth_aux(void)
 void player_birth(void)
 {
 	int i, n;
-
 
 	/* Create a new character */
 	while (1)
@@ -1465,7 +1437,6 @@ void player_birth(void)
 		if (player_birth_aux()) break;
 	}
 
-
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);
 	message_add("  ", MSG_GENERIC);
@@ -1473,10 +1444,8 @@ void player_birth(void)
 	message_add("  ", MSG_GENERIC);
 	message_add(" ", MSG_GENERIC);
 
-
 	/* Hack -- outfit the player */
 	player_outfit();
-
 
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)
@@ -1491,6 +1460,3 @@ void player_birth(void)
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
 }
-
-
-

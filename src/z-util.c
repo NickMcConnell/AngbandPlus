@@ -222,8 +222,6 @@ void quit(cptr str)
 	(void)(exit(-1));
 }
 
-
-
 /*
  * Redefinable "core" action
  */
@@ -249,7 +247,4 @@ void core(cptr str)
 	/* Be sure we exited */
 	quit("core() failed");
 }
-
-
-
 

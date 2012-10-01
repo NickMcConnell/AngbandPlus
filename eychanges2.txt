@@ -1,0 +1,330 @@
+Changes from 0.1.4 to 0.2.0:
+
+## General Changes ##
+
+- Changed savefile format, to produce smaller savefiles. EyAngband 0.2.0 will NOT read 
+  older savefiles.
+
+- New class: The bard. The bard is a mediocre fighter, but he gets a whole new kind of 
+  magic. Instead of learning and casting spells from spellbooks, the bard uses musical
+  instruments. The bard has to wield a musical instrument in order to cast spells from it
+  (the bard gets a special MUSIC slot that is unavilable to other classes). Each music 
+  instrument has a plus ranging from +1 to +5. This plus is added to the bard's charisma,
+  and in addition, it determines which spells the instrument offers. The bard does not
+  have to learn spells - he can cast any spell that's available to his level and the level
+  of his instrument. The bard's mana and fail rate are determined by his charisma.
+  Musical instruments can be bought and sold at the general store, which only offers a 
+  limited selection of +1 instruments - better instruments must be found in the dungeon
+  (or black market). Finally, the bards get a special "lore" ability, which makes
+  identify act as *identify* on artifacts for them (they have a command of history and
+  legend and know all about the artifact from its name).
+
+- Switched to using (a modified version of) the randart code from angband-a291. Names.txt
+  is now a seperate file found in "libs\files".
+
+- Added a disease status, which causes slow atrophy of the player's stats and slows 
+  regeneration, and might cause temporary blindness or confusion.
+
+- Character display changed - there is now a display of current "effects" (poisoned,
+  blessed, etc.), the item properties page has been expanded for all the new flags,
+  and a display has been added for current weapon flags. Also, in the item flag 
+  display, a "*" column has been added which displays temporary effects ('+' for
+  normal effect, '*' for immunity, and 'x' if it can combine with a permanent 
+  resist for a double resistance).
+
+- When looking/targetting monsters, you now get more useful descriptions of their current 
+  condition ("wounded, afraid" instead of just "wounded", for instance).
+
+- Monster behaviour when character is invisible changed - it will not prevent all 
+  spellcasting if the character is unseen, just spells that affect the player. So 
+  turning invisible won't stop a monster healing itself. 
+
+- Monster conditions changed:
+    - Uniques are no longer necessarily immune to confusion, sleep, fear, or stunning, 
+      though they have a better chance of resisting.
+    - "Stunned" monsters have a chance of moving/attack/or casting a spell. However,
+      their spell failure rate is increased.
+    - Monsters can be "blinded", in which case they will act as if the player is 
+      invisible, and will be limited to innate attacks and breath attacks.
+    - Monsters can be "bleeding", in which case they will lose some hp every turn 
+      (the amount lost depends on their max HP).
+    - Monsters can be "poisoned", in which case they will lose some hp every turn
+      (the amount lose is independant of their max HP). 
+    - Monster can be "calmed". A calm monster will not attack and will only cast 
+      spells that heal itself or let it escape. The rate of recovery from calmness depends
+      on the players charisma - the higher the charisma the slower the monster will recover.
+      If the monster is hurt it will automatically recover, and also if it is aggravated.
+
+- Ctrl-Q now gives you a description of your current quest.
+
+- Reorganized the options:
+    - Changed the catagories for many options.
+    - Birth/Difficulty options now a submenu. 
+    - During character creation, you can only access the birth/difficulty options.
+    - Removed unused/redundant options: "show_choices", "show_details", "disturb_other",
+      "alert_hitpoint", "verify_special", "dungeon_stair".
+    - Added "verify_leaving_quest" option. 
+    - Added "carry_heavy_query" option, which prompts you before picking up something
+      that would slow you down.
+    - Added a birth option ("birth_random_hp") that when turned off creates characters
+      with non-random hitpoints (from Oangband 0.5.0)
+    - All AI options now birth options; "smart_monsters" and "smart_learn" no longer 
+      optional, while both "flow by" options are now on by default.
+    - The option "easy_open" has been renamed "easy_direction"
+    - The default values for several options have changed. 
+    - You can now access help from the option menus (but not from the actual option
+      screens).
+
+- Re-arranged the resistances:
+    - Resist fear renamed "bravery" (RES_FEAR flag became BRAVERY).
+    - Resist blindness renamed "no blindness" (RES_BLIND flag becmae NO_BLIND).
+    - Added resist water (RES_WATER). Reduces water damage and makes you immune to it's
+      stunning/confusing effects.
+    - Added resist disease (RES_DISEASE). Reduces disease damage and makes you immune 
+      to getting the diseased status.
+    - Added resist time (RES_TIME). Reduces time damage and makes you immune to it's
+      draining effects.
+    - Added resist mana (RES_MANA). Reduces mana damage.
+
+- Spells modified:
+    - Mages get a news spell (in [Sorcery and Evocations]) - "Blind Monster" which attempt to
+      blind a single monster.
+    - Rangers get a new spell (in [The Lore of the Hunter]) - "calm animals" which calms
+      all animals in LOS.
+    - Priests 2 new spells:
+      - in [Purifications and Healing] - "Holy Peace" which calms all non-evil 
+        creatures in LOS.
+      - in [Chants and Blessings] - "Cure Disease" which rid the caster of all disease.
+    - Priest spell "Turn undead" moved from [Chants and Blessings] to [Exorcism and 
+      Dispellings] but otherwise not changed.
+    - Priest spell "Teleport self" is now identical to mage spell of same name.
+    - [The Necronomicon] gains a new spell - "Unlight Area".
+
+- Experience drain attacks changed - now instead of causing xd6 + 2% of total exp damage,
+  they just cause a variable percentage drain, which makes them more dangerous against
+  high level characters and less against low-level characters.
+
+- When creating a character, you can now press "!" in class selection to get a random
+  class including illegal combinations ("*" allows only legal combinations).
+
+- Cleaned up and re-arranged the code; many things are now in different place than they
+  used to be.
+
+- Tweaked quantities of quest monsters somewhat. In addition, you will no longer recieve 
+  quests for breeding monsters, nor for monsters that can't move.
+
+- Fixed the hitdice for angels and demons (this was a bug) - demons now have 10-sided dice
+  (same as humans), angels 9-sided.
+
+- Added new shopkeepers. Also, the minimum purse for the  weapon and armour shops raised 
+  to 10000, and the minimum purses for all the general shop shopkeepers raised (to allow
+  for the new magic lanterns and music instruments).
+
+- When tweaking an item in debug mode, you can now change timeout.
+
+- Added some variation in the player histories for half-orcs, angels and demons.
+
+- EyAngband no longer requires the existance of the unused "lib\info", "lib\pref" and
+  "lib\bone" directories in order to run.
+
+- Rewrote help files, at some points incorporating portions of the Oangband help files, 
+  and the auto-squelch FAQ.
+
+## Item Changes ##
+
+- Added new item flags (in addition to the resistances mentioned above):
+  - MANA - the item adds pval*10 to maximum spell points.
+  - HEALTH - the item adds pval*10 to maximum hit points.
+  - IGNORE_DISEN - the item can not be disenchanted (NOT intrinsic in artifacts).
+  - DRAIN_ITEM - your other equipped items have a random chance each turn of being
+    disenchanted, unless you have disenchantment resistance.
+  - WOUNDING - a weapon with this flag causes cuts to monster.
+  - TERROR - a weapons with this flag increases the chances of monsters running away.
+    Undead creatures are only affected if the weapon also has SLAY_UNDEAD.
+  - BRAND_VENOM - a weapon branded with venom cause extra damage and poisons monsters
+    that are not immune.
+  - BRAND_LITE - a weapon branded with light causes extra damage and might blind monsters
+    that are not resistant to light. Monstes vulnerable to light get even more damage and
+    a higher chance of blindness.
+  - BRAND_DARK - a weapon branded with darkness causes extra damage and might blind 
+    monsters that are not resistant to darkness. Monstes vulnerable to darkness get even
+    more damage and a higher chance of blindness.
+  - SLAY_PLANT - the weapon causes extra damage to plants.
+  - SLAY_CHAOS - the weapon causes extra damage to chaotic creatures.
+  - LITE1, LITE2, LITE3 and LITE4 - used for determining the radius of light sources.
+
+- Renamed the old LITE flag GLOW to separate it from the new LITE1-4 flags (see above).
+
+- New items: Mushroom of cure disease, Potion of disease, Potion of cure disease,
+  Spiked Leather Boots, Silk Gloves, Fur Cloak, Wooden Shield, Ring of Bravery,
+  Ring of Resist Disease, Ring of Resist Disenchantment, Ring of Mana, Ring of Health,
+  Amulet of Unmagic, Amulet of Resist Time, Amulet of Hold Life, Amulet of Power, 
+  Lantern of Fearlessness, Lantern of Intelligence, Lantern of Wisdom, 
+  Lantern of Brightness, Blackrock sword, Blackrock Spear, Powder of Darkness, 
+  Powder of Poisoning, Powder of Burning, Powder of Ice Blast, Powder of Energy, 
+  Powder of Calming, Wand of Call Monster, Wand of Calm Monster, Wand of Blind Monster,
+  Lute, Flute, Lyre, Drum, Harp, Horn.
+
+- New ego item types -
+  - Armors: of Resist Water, of Health, Robes of Mana, Heavy Armor (Blackrock Studded).
+  - Shields: of Unmagic, of Perfect Health.
+  - Crowns: of Wizardry.
+  - Cloaks: of Kings.
+  - Gloves: Silk gloves of Spellcasting.
+  - Weapons: of slay plant, of slay chaos, of *slay* plant, of *slay* chaos, of law,
+             of slay nature, of venom, of the day, of the night, of terror, 
+             swords of sharpness
+  - Ammo: of slay plant, of slay chaos, (poisoned), of light, of darkness.
+
+- New artifacts -
+  - Lantern of Time Reduction, The Amulet 'Heartstone', The Ring of Calfin, The ring of
+    Saturn, The PDSM 'Tortureskin', The Chain Mail 'Winterworn', The Partial Plate Armor
+    of the Underlight, The Wizard's Robes of Mordenkainen, The Robes of Brutha, The Kite
+    Shield 'Stormguard',  The Small Metal Shield of the Thieves, The Wooden Shield of 
+    the Elder Forest, The Golden Crown of the Archmage, The Jeweled Crown of the Fallen
+    Star, the Jeweled Crown of the Shadows, The Shadow Cloak 'Scarshawl', The Shadow 
+    Cloak 'Moondancer', The Fur cloak of Thor, The Eleven Cloak of Orodreth, The Set of
+    Silk Gloves of Raal, The Pair of Leather Sandals of Hermes, The Hard Leather Boots
+    of the Long Journey, The Dagger 'Idrost', The Dagger 'Adrost', The Rapier of Dionure,
+    The Long Sword 'Terrorblade', the Blackrock Sword of the Guardian, The Trident of 
+    Poseidon, The Scythe 'Reaper', The Battle Axe 'Lawgiver, The Quarterstaff of Grand
+    Wizardry, The Wooden Club 'Skullbasher', The Light Crossbow 'Sunstrike', The Sling
+    'Hellwind', The Dwarven Shovel of Glod.
+
+- New activations for artifacts:
+  - RESTORE_MANA, DIMENSION_DOOR, SATISFY_HUNGER, DETECT_ENCHANT, DETECT_TRAPS, RAGE,
+    MANA_BOLT, LITE_BOLT, DARK_BOLT, WATER_BOLT, LITEBRAND, VENOMSHOTS, DETECT_TREASURE,
+    CALM_NON_CHAOS
+
+- Light sources have been reworked:
+  - Refuelable lights now use timeout for their time rather than pval. 
+  - Light source TVALs have been split between refuelable lights and non-refuelable lights 
+    (artifacts).
+  - Magical lanterns are now flavoured, and need to be identified.
+  - Magical lanterns only give their special powers when their fueled. 
+  - To save space on some of the longer lantern names, the turns of light display has 
+    been changed from "(With XXXX Turns of Light)" to "<XXXX>".
+
+- Thrown flasks (of lantern oil or oil of burning) now don't damage creatures immune to
+  fire.
+
+- Several powders' powers and/or costs changed.
+
+- Powders and food types now can appear in stacks.
+
+- Scroll of *resistance* effects changed.
+
+- Ego items of Elvenkind, Robes of Permanence, and Elven Cloaks can no longer be 
+  disenchanted (note that they don't grant disenchantment resistance).
+
+- Ammo of wounding now cause cuts (and thus are a lot more powerful). Shots can no
+  longer get this ego-type.
+
+- Armor and shields of Resistance now offer a random mid-resist.
+
+- Several existing artifacts' powers changed slightly, the base items for several altered,
+  and rarities/depths of several artifacts changed as well.
+
+- Scythes of slicing now cause cuts (and are more expensive).
+
+- Mushrooms of Unhealth and Disease now cause disease rather than outright damage. They
+  no longer do damage when thrown and are no longer sellable.
+
+- Changed prices for several items (mainly rods and powders).
+
+- Tridents are now light grey instead of yellow.
+
+- Amulet TVAL has been changed from 40 to 41 to make room for the new light source TVAL.
+
+- SVALs for many items changed.
+
+## Monster Changes ##
+
+- Many existing monsters altered:
+  - Many monster gained some of the new flags, whereever appropriate.
+  - Gremlins now worth even less EXP, and are now green to avoid confusion with manes.
+  - Mummies attacks now cause disease, mummies made deeper.
+  - Cockroaches now cause disease, cockroaches made deeper.
+  - Existing "mystics" renamed to monks.
+  - Monsters with two versions have their "group" version renamed to avoid double entries
+    in the monster memory: Hell Hound -> Hell Wolf, Mumak -> Pack Mumak, Novice XXXs ->
+    Young XXXs.
+
+- Removed monsters: Novice hunter, Dread (single version), Carrion Crawler (group version).
+
+- New monsters: Natural Quylthulg, Noxius Mushroom Patch, Mummified Giant, Acid Vortex, 
+  Novice Mystic, Young Mystic, Mystic, Disease Mold, Chaos Mold, Giant Dog Ticks, 
+  Acid Hound, Mana Hound, Greater Carrion Crawler, Noxious Jelly, Giant Tse-Tse fly,
+  Chaos Cockroach, Maggot Mass, Diseased Rat, Light Spirit, Giant Mantis, Time Fly,
+  Rabid Jackal, Rabid Wolf, Kobold Archer, Rabid Kobold, Chaos Naga.
+
+- New uniques: Fang FarMer Maggot's Dog, Grip Farmer Maggot's Dog, The Negative Astral 
+  Hound, The Positive Astral Hound.
+
+- The NO_STUN keyword actually protects monsters from stunning (it used to do nothing).
+
+- The BR_MANA flag actually causes the monsters to breate mana.
+
+- The FRIEND, HURT_FIRE, BO_POIS and HURT_COLD flags were removed, since they didn't do
+  anything.
+
+- The S_ANT spell removed, and replaced by S_ANIMALS.
+
+- Added new attack effect - DISEASE, which causes disease unless the player is resisant.
+
+- Standardized the breathes and resistances. There is now a separate "RES_XXX" flag
+  for each resistance; however, breathing something automatically includes the resistance.
+  (including the basic elements and poison). This means that a monster can be resistant
+  to something without having to be able to breathe it. Also, incorporated RES_CONFUSION 
+  and NO_CONFUSION into one resist, and the IM_XXXX flags have been renamed RES_XXXX since 
+  they didn't really grant immunity (note though that in general not all RES_XXXX flags 
+  give the same degree of resistance). The monster's name no longer has any effect on
+  the resistances.
+
+- Added new monster flags - 
+  - PLANT - monster is vulnerable to weapons of slay plant.
+  - CHAOTIC - monster is vulnerable to weapons of slay chaos, and somewhat resistant to
+    chaos.
+  - HURT_DARK - monster is vulnerable to darkness.
+  - NO_CUT - monster is immune to bleeding.
+  - NO_BLIND - monster is immune to blindness.
+  - NO_CALM - monster can not be calmed.
+  - COMPANION - monster will appear accompanied by a unique from the same depth. Used
+    for creating set groups of uniques.
+
+- Added new monster spells -
+  - BR_DISEASE - monster can breathe disease.
+  - BR_WATER - monster can breathe water.
+  - BLINK_TO - monster can teleport by the player.
+
+- Renamed the monster flag BR_WALL to BR_FORCE since that's what it really is.
+
+- Morgoth's description shortened a bit so his monster recall won't be too long.
+
+## Bug fixes ##
+
+- The squelch by quality menu no longer includes entries for "rings" and "amulets" (they
+  didn't do anything).
+
+- You can no longer cast spells when confused/blinded or in the dark, unless you are a 
+  Mystic and have a mystic spellbook.
+
+- The monster memory now correctly display EXP values for demon characters.
+
+- Fixed a bug with starting equipment (you could never get the maximum amount of any 
+  equipment item unless it was equal to the minimum amount).
+
+- Creeping Gems now always drop gems when they die.
+
+- Fixed a bug where the weight carried by characters could get wierd with huge amount of
+  heavy objects (inherited from Vanilla).
+
+- Fixed a bug where the wrong message would be given if you accept a quest.
+
+- Fixed a bug where alchemy formula memory was being saved incorrectly.
+
+- *identify*ing Ethereal DSM no longer crashes the game (thanks Victor Wang for reporting
+  this).
+
+- In the adventurer's guild, you could accept choices not on the list, which can cause
+  weird stuff to happen.

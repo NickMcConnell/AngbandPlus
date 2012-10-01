@@ -2370,9 +2370,7 @@ errr init_x11(int argc, char *argv[])
 
 		if (prefix(argv[i], "-s"))
 		{
-#ifdef USE_GRAPHICS
 			smoothRescaling = FALSE;
-#endif /*USE_GRAPHICS*/
 			continue;
 		}
 

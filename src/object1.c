@@ -14,21 +14,32 @@
 /*
  * Max sizes of the following arrays.
  */
-#define MAX_ROCKS      42				/* Used with rings (min 38) */
-#define MAX_AMULETS    17				/* Used with amulets (min 14) */
-#define MAX_WOODS      32				/* Used with staffs (min 30) */
-#define MAX_METALS     32				/* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     SV_MAX_POTIONS	/* Used with potions (min 64) */
-#define MAX_SHROOM     21				/* Used with mushrooms (min 21) */
-#define MAX_TITLES     50				/* Used with scrolls (min 50) */
 #define MAX_SYLLABLES 158				/* Used with scrolls (see below) */
-#define MAX_POWDERS		9				/* Used with powders (min 9) */
+#define MAX_MATERIALS  20				/* Used with amulets (min 19) */
+#define MAX_WOODS      32				/* Used with staffs (min 30) */
+#define MAX_METALS     32				/* Used with wands/rods (min 32/28) */
+
+/*
+ * Lanternss (adjectives and colors).
+ *
+ * Hack -- The first two entries (torches and brass lamps) are hard-coded.
+ */
+static cptr lantern_adj[SV_MAX_LITES] =
+{
+	"xxx_torch", "xxx_Brass", "Aluminum", "Cast Iron", "Copper", 
+	"Gold", "Silver", "Tin", "Nickel", "Mithril"
+};
+
+static byte lantern_col[SV_MAX_LITES] =
+{
+	TERM_UMBER, TERM_L_UMBER, TERM_L_BLUE, TERM_L_DARK, TERM_L_UMBER, 
+	TERM_YELLOW, TERM_L_WHITE,  TERM_L_WHITE, TERM_L_UMBER, TERM_L_BLUE 
+};
 
 /*
  * Rings (adjectives and colors).
  */
-
-static cptr ring_adj[MAX_ROCKS] =
+static cptr ring_adj[SV_MAX_RINGS] =
 {
 	"Alexandrite", "Amethyst", "Aquamarine", "Azurite", "Beryl",
 	"Bloodstone", "Calcite", "Carnelian", "Corundum", "Diamond",
@@ -38,10 +49,10 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite"
+	"Engagement", "Adamantite", "Wedding", "Lead", "Double-banded"
 };
 
-static byte ring_col[MAX_ROCKS] =
+static byte ring_col[SV_MAX_RINGS] =
 {
 	TERM_GREEN, TERM_VIOLET, TERM_L_BLUE, TERM_L_BLUE, TERM_L_GREEN,
 	TERM_RED, TERM_WHITE, TERM_RED, TERM_SLATE, TERM_WHITE,
@@ -51,36 +62,32 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
 	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
-	TERM_YELLOW, TERM_L_GREEN
+	TERM_YELLOW, TERM_L_GREEN, TERM_YELLOW, TERM_SLATE, TERM_YELLOW
 };
-
-alchemy_info potion_alch[SV_MAX_POTIONS];
 
 /*
  * Amulets (adjectives and colors).
  */
-
-static cptr amulet_adj[MAX_AMULETS] =
+static cptr amulet_adj[MAX_MATERIALS] =
 {
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper", "Platinum"
+	"Copper", "Platinum", "Carved Oak", "Aluminum", "Sapphire"
 };
 
-static byte amulet_col[MAX_AMULETS] =
+static byte amulet_col[MAX_MATERIALS] =
 {
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_UMBER, TERM_SLATE
+	TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_L_BLUE, TERM_BLUE
 };
 
 
 /*
  * Staffs (adjectives and colors).
  */
-
 static cptr staff_adj[MAX_WOODS] =
 {
 	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
@@ -107,7 +114,6 @@ static byte staff_col[MAX_WOODS] =
 /*
  * Wands (adjectives and colors).
  */
-
 static cptr wand_adj[MAX_METALS] =
 {
 	"Aluminum", "Cast Iron", "Chromium", "Copper", "Gold",
@@ -136,7 +142,6 @@ static byte wand_col[MAX_METALS] =
  *
  * Efficiency -- copied from wand arrays.
  */
-
 static cptr rod_adj[MAX_METALS];
 
 static byte rod_col[MAX_METALS];
@@ -145,23 +150,22 @@ static byte rod_col[MAX_METALS];
 /*
  * Mushrooms (adjectives and colors).
  */
-
-static cptr food_adj[MAX_SHROOM] =
+static cptr food_adj[SV_MAX_SHROOMS] =
 {
 	"Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
 	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
 	"Grey", "Light Blue", "Light Green", "Violet", "Red",
 	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
-	"Orange"
+	"Orange", "Pink"
 };
 
-static byte food_col[MAX_SHROOM] =
+static byte food_col[SV_MAX_SHROOMS] =
 {
 	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
 	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
 	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
 	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
-	TERM_ORANGE
+	TERM_ORANGE, TERM_L_RED
 };
 
 
@@ -171,8 +175,7 @@ static byte food_col[MAX_SHROOM] =
  * Hack -- The first four entries (water, apple juice, slime mold juice,
  * and undefined) are hard-coded.
  */
-
-static cptr potion_adj[MAX_COLORS] =
+static cptr potion_adj[SV_MAX_POTIONS] =
 {
 	"Clear", "Light Brown", "Ickey Green", "xxx",
 	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
@@ -190,7 +193,7 @@ static cptr potion_adj[MAX_COLORS] =
 };
 
 
-static byte potion_col[MAX_COLORS] =
+static byte potion_col[SV_MAX_POTIONS] =
 {
 	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
 	TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
@@ -207,22 +210,26 @@ static byte potion_col[MAX_COLORS] =
 	TERM_VIOLET, TERM_YELLOW
 };
 
-static cptr powder_adj[MAX_POWDERS] =
+/*
+ * Color adjectives and colors, for powders.
+ */
+static cptr powder_adj[SV_MAX_POWDERS] =
 {
-	"Red", "Yellow", "Blue", "Green", "Violet", "Pink", "Grey", 
-	"Light Brown", "Dark Brown"
+	"Red", "Yellow", "Blue", "Green", "Violet", 
+    "Pink", "Grey", "Light Brown", "Dark Brown", "Light Green", 
+	"Light Blue", "Black", "White", "Silver", "Golden"
 };
 
-static byte powder_col[MAX_POWDERS] =
+static byte powder_col[SV_MAX_POWDERS] =
 {
-	TERM_RED, TERM_YELLOW, TERM_BLUE, TERM_GREEN, TERM_VIOLET, TERM_L_RED, TERM_SLATE,
-	TERM_L_UMBER, TERM_UMBER
+	TERM_RED, TERM_YELLOW, TERM_BLUE, TERM_GREEN, TERM_VIOLET, 
+	TERM_L_RED, TERM_SLATE, TERM_L_UMBER, TERM_UMBER, TERM_L_GREEN, 
+	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_WHITE, TERM_YELLOW
 };
 
 /*
  * Syllables for scrolls (must be 1-4 letters each).
  */
-
 static cptr syllables[MAX_SYLLABLES] =
 {
 	"a", "ab", "ag", "aks", "ala", "an", "ankh", "app",
@@ -247,21 +254,15 @@ static cptr syllables[MAX_SYLLABLES] =
 	"yerg", "yp", "zun", "tri", "blaa"
 };
 
-
 /*
  * Hold the titles of scrolls, 6 to 14 characters each.
  *
  * Also keep an array of scroll colors (always WHITE for now).
  */
 
-static char scroll_adj[MAX_TITLES][16];
+static char scroll_adj[SV_MAX_SCROLLS][16];
 
-static byte scroll_col[MAX_TITLES];
-
-
-
-
-
+static byte scroll_col[SV_MAX_SCROLLS];
 
 /*
  * Certain items have a flavor.
@@ -307,12 +308,22 @@ static bool object_flavor(int k_idx)
 
 		case TV_POWDER:
 		{
-			return (0x30 + powder_col[k_ptr->sval]);
+			return (0x20 + powder_col[k_ptr->sval]);
 		}
 
 		case TV_POTION:
 		{
 			return (0xE0 + potion_col[k_ptr->sval]);
+		}
+
+		case TV_LITE:
+		{
+			if (k_ptr->sval > SV_LANTERN)
+			{
+				return (0x10 + lantern_col[k_ptr->sval]);
+			}
+			
+			break;
 		}
 
 		case TV_FOOD:
@@ -329,7 +340,6 @@ static bool object_flavor(int k_idx)
 	/* No flavor */
 	return (0);
 }
-
 
 /*
  * Certain items, if aware, are known instantly.
@@ -374,6 +384,7 @@ static bool object_easy_know(int i)
 		case TV_RING:
 		case TV_AMULET:
 		case TV_LITE:
+		case TV_LITE_SPECIAL:
 		{
 			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
 			return (FALSE);
@@ -383,7 +394,6 @@ static bool object_easy_know(int i)
 	/* Nope */
 	return (FALSE);
 }
-
 
 /*
  * Prepare the "variable" part of the "k_info" array.
@@ -422,13 +432,11 @@ void flavor_init(void)
 
 	cptr temp_adj;
 
-
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
 
 	/* Hack -- Induce consistant flavors */
 	Rand_value = seed_flavor;
-
 
 	/* Efficiency -- Rods/Wands share initial array */
 	for (i = 0; i < MAX_METALS; i++)
@@ -437,11 +445,22 @@ void flavor_init(void)
 		rod_col[i] = wand_col[i];
 	}
 
+	/* Lanterns */
+	for (i = 2; i < SV_MAX_LITES; i++)
+	{
+		j = rand_int(SV_MAX_LITES-2) + 2 ;
+		temp_adj = lantern_adj[i];
+		lantern_adj[i] = lantern_adj[j];
+		lantern_adj[j] = temp_adj;
+		temp_col = lantern_col[i];
+		lantern_col[i] = lantern_col[j];
+		lantern_col[j] = temp_col;
+	}
 
 	/* Rings have "ring colors" */
-	for (i = 0; i < MAX_ROCKS; i++)
+	for (i = 0; i < SV_MAX_RINGS; i++)
 	{
-		j = rand_int(MAX_ROCKS);
+		j = rand_int(SV_MAX_RINGS);
 		temp_adj = ring_adj[i];
 		ring_adj[i] = ring_adj[j];
 		ring_adj[j] = temp_adj;
@@ -451,9 +470,9 @@ void flavor_init(void)
 	}
 
 	/* Amulets have "amulet colors" */
-	for (i = 0; i < MAX_AMULETS; i++)
+	for (i = 0; i < MAX_MATERIALS; i++)
 	{
-		j = rand_int(MAX_AMULETS);
+		j = rand_int(MAX_MATERIALS);
 		temp_adj = amulet_adj[i];
 		amulet_adj[i] = amulet_adj[j];
 		amulet_adj[j] = temp_adj;
@@ -499,9 +518,9 @@ void flavor_init(void)
 	}
 
 	/* Foods (Mushrooms) */
-	for (i = 0; i < MAX_SHROOM; i++)
+	for (i = 0; i < SV_MAX_SHROOMS; i++)
 	{
-		j = rand_int(MAX_SHROOM);
+		j = rand_int(SV_MAX_SHROOMS);
 		temp_adj = food_adj[i];
 		food_adj[i] = food_adj[j];
 		food_adj[j] = temp_adj;
@@ -511,9 +530,9 @@ void flavor_init(void)
 	}
 
 	/* Potions */
-	for (i = 4; i < MAX_COLORS; i++)
+	for (i = 4; i < SV_MAX_POTIONS; i++)
 	{
-		j = rand_int(MAX_COLORS - 4) + 4;
+		j = rand_int(SV_MAX_POTIONS - 4) + 4;
 		temp_adj = potion_adj[i];
 		potion_adj[i] = potion_adj[j];
 		potion_adj[j] = temp_adj;
@@ -523,9 +542,9 @@ void flavor_init(void)
 	}
 
 	/* Powders */
-	for (i = 0; i < MAX_POWDERS; i++)
+	for (i = 0; i < SV_MAX_POWDERS; i++)
 	{
-		j = rand_int(MAX_POWDERS);
+		j = rand_int(SV_MAX_POWDERS);
 		temp_adj = powder_adj[i];
 		powder_adj[i] = powder_adj[j];
 		powder_adj[j] = temp_adj;
@@ -535,7 +554,7 @@ void flavor_init(void)
 	}
 
 	/* Scrolls (random titles, always white) */
-	for (i = 0; i < MAX_TITLES; i++)
+	for (i = 0; i < SV_MAX_SCROLLS; i++)
 	{
 		/* Get a new title */
 		while (TRUE)
@@ -610,7 +629,6 @@ void flavor_init(void)
 		scroll_col[i] = TERM_WHITE;
 	}
 
-
 	/* Hack -- Use the "complex" RNG */
 	Rand_quick = FALSE;
 
@@ -633,16 +651,9 @@ void flavor_init(void)
 	}
 }
 
-
-
-#ifdef ALLOW_BORG_GRAPHICS
-extern void init_translate_visuals(void);
-#endif /* ALLOW_BORG_GRAPHICS */
-
 /* 
  * Create Alchemy lists 
  */
-
 void alchemy_init(void)
 {
 	int i, j, sv1, sv2;
@@ -722,12 +733,10 @@ void alchemy_init(void)
 			potion_alch[i].sval1 = i;
 			potion_alch[i].sval2 = i;
 		}
-
 	}
 
 	/* Hack -- Use the "complex" RNG */
 	Rand_quick = FALSE;
-
 }
 
 /*
@@ -747,7 +756,6 @@ void alchemy_init(void)
 void reset_visuals(bool unused)
 {
 	int i;
-
 
 	/* Extract default attr/char code for features */
 	for (i = 0; i < z_info->f_max; i++)
@@ -779,7 +787,6 @@ void reset_visuals(bool unused)
 		r_ptr->x_char = r_ptr->d_char;
 	}
 
-
 	/* Extract attr/chars for inventory objects (by tval) */
 	for (i = 0; i < 128; i++)
 	{
@@ -808,29 +815,37 @@ void reset_visuals(bool unused)
 #endif /* ALLOW_BORG_GRAPHICS */
 }
 
-
 /*
  * Modes of object_flags_aux()
  */
-#define OBJECT_FLAGS_FULL   1 /* Full info */
-#define OBJECT_FLAGS_KNOWN  2 /* Only flags known to the player */
-#define OBJECT_FLAGS_RANDOM 3 /* Only known random flags */
-
+#define OBJECT_FLAGS_FULL	1	/* Full info */
+#define OBJECT_FLAGS_KNOWN	2	/* Only flags known to the player */
+#define OBJECT_FLAGS_RANDOM	3	/* Only known random flags */
 
 /*
  * Obtain the "flags" for an item
  */
-static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3 , u32b *f4)
 {
 	object_kind *k_ptr;
 
 	if (mode != OBJECT_FLAGS_FULL)
 	{
 		/* Clear */
-		(*f1) = (*f2) = (*f3) = 0L;
+		(*f1) = (*f2) = (*f3) = (*f4) = 0L;
 
 		/* Must be identified */
-		if (!object_known_p(o_ptr)) return;
+		if (!object_known_p(o_ptr)) 
+		{
+			/* Hack - know the light radius of items */
+			if (o_ptr->name1) 
+			{
+				(*f3) = (a_info[o_ptr->name1].flags3 & (TR3_LITE_MASK));
+			}
+			else (*f3) = (k_info[o_ptr->k_idx].flags3 & (TR3_LITE_MASK)); 
+
+			return;
+		}
 	}
 
 	if (mode != OBJECT_FLAGS_RANDOM)
@@ -841,6 +856,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 		(*f1) = k_ptr->flags1;
 		(*f2) = k_ptr->flags2;
 		(*f3) = k_ptr->flags3;
+		(*f4) = k_ptr->flags4;
 
 		if (mode == OBJECT_FLAGS_FULL)
 		{
@@ -852,6 +868,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 				(*f1) = a_ptr->flags1;
 				(*f2) = a_ptr->flags2;
 				(*f3) = a_ptr->flags3;
+				(*f4) = a_ptr->flags4;
 			}
 		}
 
@@ -863,6 +880,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 			(*f1) |= e_ptr->flags1;
 			(*f2) |= e_ptr->flags2;
 			(*f3) |= e_ptr->flags3;
+			(*f4) |= e_ptr->flags4;
 		}
 
 		if (mode == OBJECT_FLAGS_KNOWN)
@@ -872,10 +890,14 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 			{
 				artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-				/* Obvious flags (pval) */
+				/* Obvious flags (pval, elemental ignores) */
 				(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
 
 				(*f3) = (a_ptr->flags3 & (TR3_IGNORE_MASK));
+
+				/* Always know the radius of light sources */
+				(*f3) |= (a_ptr->flags3 & (TR3_LITE_MASK));
+
 			}
 		}
 	}
@@ -922,21 +944,24 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 	{
 		case OBJECT_XTRA_TYPE_SUSTAIN:
 		{
-			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
+			(*f1) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
 			break;
 		}
 
-		case OBJECT_XTRA_TYPE_RESIST:
+		case OBJECT_XTRA_TYPE_MID_RESIST:
 		{
-			/* OBJECT_XTRA_WHAT_RESIST == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
+			(*f2) |= (OBJECT_XTRA_BASE_MID_RESIST << o_ptr->xtra2);
+			break;
+		}
+
+		case OBJECT_XTRA_TYPE_HIGH_RESIST:
+		{
+			(*f2) |= (OBJECT_XTRA_BASE_HIGH_RESIST << o_ptr->xtra2);
 			break;
 		}
 
 		case OBJECT_XTRA_TYPE_POWER:
 		{
-			/* OBJECT_XTRA_WHAT_POWER == 3 */
 			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
 			break;
 		}
@@ -949,9 +974,9 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
-	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3);
+	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3, f4);
 }
 
 
@@ -959,9 +984,9 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
-	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3);
+	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3, f4);
 }
 
 
@@ -1155,13 +1180,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	char tmp_buf[128];
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* See if the object is "aware" */
@@ -1201,6 +1226,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_SPIKE:
 		case TV_FLASK:
 		case TV_CHEST:
+		case TV_MUSIC:
 		{
 			break;
 		}
@@ -1234,8 +1260,24 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-		/* Lites (including a few "Specials") */
+		/* Lites  */
 		case TV_LITE:
+		{
+			/* Hack -- Known artifacts */
+			if (artifact_p(o_ptr) && aware) break;
+
+			/* Hack -- torches and brass lanterns */
+			if ((o_ptr->sval == SV_TORCH) || (o_ptr->sval == SV_LANTERN)) break;
+
+			/* Color the object */
+			modstr = lantern_adj[o_ptr->sval];
+			if (aware) append_name = TRUE;
+			basenm = (flavor ? "& # Lantern~" : "& Lantern~");
+
+		}
+
+		/* Special Lites  */
+		case TV_LITE_SPECIAL:
 		{
 			break;
 		}
@@ -1844,18 +1886,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Hack -- Process Lanterns/Torches */
-	else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
+	else if (o_ptr->tval == TV_LITE)
 	{
 		/* Hack -- Turns of light for normal lites */
-		object_desc_str_macro(t, " (with ");
-		object_desc_num_macro(t, o_ptr->pval);
-		object_desc_str_macro(t, " turns of light)");
-	}
-
-	else if ((o_ptr->tval == TV_LITE) && (o_ptr->pval > 0) && (o_ptr->sval == SV_LITE_CHERADENINE))
-	{
-		/* Hack -- Turns of light for the great lamp of Cheradenine */
-		object_desc_str_macro(t, " (burning bright)");
+		object_desc_str_macro(t, " <");
+		object_desc_num_macro(t, o_ptr->timeout);
+		object_desc_str_macro(t, ">");
 	}
 
 	/* Dump "pval" flags for wearable items */
@@ -1898,17 +1934,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			tail = " to infravision";
 		}
 
-#if 0
-
-		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
-		{
-			/* Dump " to digging" */
-			tail = " to digging";
-		}
-
-#endif
-
 		/* Speed */
 		else if (f1 & (TR1_SPEED))
 		{
@@ -1926,22 +1951,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (ABS(o_ptr->pval) != 1) tail2 = "s";
 		}
 
-#if 0
-
-		/* Shots */
-		else if (f1 & (TR1_SHOTS))
-		{
-			/* Nothing */
-		}
-
-		/* Might */
-		else if (f1 & (TR1_MIGHT))
-		{
-			/* Nothing */
-		}
-
-#endif
-
 		/* Add the descriptor */
 		object_desc_str_macro(t, tail);
 		object_desc_str_macro(t, tail2);
@@ -1950,18 +1959,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		object_desc_chr_macro(t, p2);
 	}
 
-
 	/* Indicate "charging" artifacts */
-	if (known && o_ptr->timeout && !(o_ptr->tval == TV_ROD))
+	if (known && o_ptr->timeout && !(o_ptr->tval == TV_ROD) && !(o_ptr->tval == TV_LITE))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		object_desc_str_macro(t, " (charging)");
 	}
 
-
 	/* No more details wanted */
 	if (mode < 3) goto object_desc_done;
-
 
 	/* Use standard inscription */
 	if (o_ptr->note)
@@ -2154,6 +2160,20 @@ static cptr act_description[ACT_MAX] =
 	"confuse monster",
 	"probing",
 	"fire branding of bolts",
+	"restoring mana",
+	"dimension door",
+	"satisfy hunger",
+	"detect enchantment",
+	"detect traps",
+	"berserk rage",
+	"mana bolt (8d8)",
+	"light bolt (4d8)",
+	"darkness bolt (4d8)",
+	"water bolt (5d7)",
+	"light branding of bolts",
+	"venom branding of shots",
+	"detect treasure",
+	"calm non-chaotic beings"
 };
 
 
@@ -2164,10 +2184,10 @@ static cptr act_description[ACT_MAX] =
  */
 cptr item_activation(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Require activation ability */
 	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
@@ -2176,23 +2196,6 @@ cptr item_activation(object_type *o_ptr)
 	if (o_ptr->name1)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-#if 0
-		/*
-		 * ToDo: Put the recharge time back into the
-		 * artifact description.
-		 */
-		char turns[32];
-
-		/* Format the number of turns */
-		if (a_ptr->time && a_ptr->randtime)
-			sprintf(turns, " every %d+d%d turns",
-			        a_ptr->time, a_ptr->randtime);
-		else if (a_ptr->time)
-			sprintf(turns, " every %d turns", a_ptr->time);
-		else if (a_ptr->randtime)
-			sprintf(turns, " every d%d turns", a_ptr->randtime);
-#endif
 
 		/* Paranoia */
 		if (a_ptr->activation >= ACT_MAX)
@@ -2260,6 +2263,11 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "breathe the elements (300) every 300+d300 turns";
 		}
+		case SV_DRAGON_ETHEREAL:
+		{
+			return "breathe light/darkness/confusion (300) every 300+d300 turns";
+		}
+
 	}
 
 
@@ -2285,11 +2293,10 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 {
 	int i = 0;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the "known" and "random" flags */
-	object_flags_aux(mode, o_ptr, &f1, &f2, &f3);
-
+	object_flags_aux(mode, o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Mega-Hack -- describe activation */
 	if (f3 & (TR3_ACTIVATE))
@@ -2299,34 +2306,49 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 		info[i++] = "...if it is being worn.";
 	}
 
-
-	/* Hack -- describe lite's */
-	if (o_ptr->tval == TV_LITE)
+	if (f3 & (TR3_IGNORE_ACID))
 	{
-		if (artifact_p(o_ptr))
-		{
-			if (o_ptr->sval == SV_LITE_BEACON)
-			{
-				info[i++] = "It provides light (radius 4) forever.";
-			}
-			else if (o_ptr->sval == SV_LITE_CHERADENINE)
-			{
-				info[i++] = "It provides light (radius 3) forever, and greater light (radius 4) when fueled.";
-			}
-
-			else info[i++] = "It provides light (radius 3) forever.";
-
-		}
-		else if ((o_ptr->sval == SV_LITE_LANTERN) || (o_ptr->sval == SV_LITE_LANTERN_SEE))
-		{
-			info[i++] = "It provides light (radius 2) when fueled.";
-		}
-		else
-		{
-			info[i++] = "It provides light (radius 1) when fueled.";
-		}
+		info[i++] = "It cannot be harmed by acid.";
+	}
+	if (f3 & (TR3_IGNORE_ELEC))
+	{
+		info[i++] = "It cannot be harmed by electricity.";
+	}
+	if (f3 & (TR3_IGNORE_FIRE))
+	{
+		info[i++] = "It cannot be harmed by fire.";
+	}
+	if (f3 & (TR3_IGNORE_COLD))
+	{
+		info[i++] = "It cannot be harmed by cold.";
+	}
+	if (f3 & (TR3_IGNORE_DISEN))
+	{
+		info[i++] = "It cannot be disenchanted.";
 	}
 
+	/* Hack - Describe lite's - must come before all effects depending on fuel level*/
+	if ((o_ptr->tval == TV_LITE) || (o_ptr->tval == TV_LITE_SPECIAL))
+	{
+		int rad;
+
+		if (f3 & (TR3_LITE4)) rad = 4;
+		else if (f3 & (TR3_LITE3)) rad = 3;
+		else if (f3 & (TR3_LITE2)) rad = 2;
+		else if (f3 & (TR3_LITE1)) rad = 1;
+		else rad = 0; /* Hack - paranoia */
+
+		if (rad > 0)
+		{
+			if (o_ptr->tval == TV_LITE)
+			{
+				info[i++] = "--- While fueled:";
+				info[i++] = format("It provides light (radius %d)",rad);
+			}
+			/* TV_LITE_SPECIAL */ 
+			else info[i++] = format("It provides light (radius %d) forever.",rad); 
+		}
+	}
 
 	/* And then describe it fully */
 
@@ -2334,27 +2356,58 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It affects your strength.";
 	}
+	if (f1 & (TR1_SUST_STR))
+	{
+		info[i++] = "It sustains your strength.";
+	}
 	if (f1 & (TR1_INT))
 	{
 		info[i++] = "It affects your intelligence.";
+	}
+	if (f1 & (TR1_SUST_INT))
+	{
+		info[i++] = "It sustains your intelligence.";
 	}
 	if (f1 & (TR1_WIS))
 	{
 		info[i++] = "It affects your wisdom.";
 	}
+	if (f1 & (TR1_SUST_WIS))
+	{
+		info[i++] = "It sustains your wisdom.";
+	}
 	if (f1 & (TR1_DEX))
 	{
 		info[i++] = "It affects your dexterity.";
+	}
+	if (f1 & (TR1_SUST_DEX))
+	{
+		info[i++] = "It sustains your dexterity.";
 	}
 	if (f1 & (TR1_CON))
 	{
 		info[i++] = "It affects your constitution.";
 	}
+	if (f1 & (TR1_SUST_CON))
+	{
+		info[i++] = "It sustains your constitution.";
+	}
 	if (f1 & (TR1_CHR))
 	{
 		info[i++] = "It affects your charisma.";
 	}
-
+	if (f1 & (TR1_SUST_CHR))
+	{
+		info[i++] = "It sustains your charisma.";
+	}
+	if (f1 & (TR1_MANA))
+	{
+		info[i++] = "It affects your mana.";
+	}
+	if (f1 & (TR1_HEALTH))
+	{
+		info[i++] = "It affects your hit points.";
+	}
 	if (f1 & (TR1_STEALTH))
 	{
 		info[i++] = "It affects your stealth.";
@@ -2387,87 +2440,86 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It affects your shooting power.";
 	}
-
-	if (f1 & (TR1_SLAY_ANIMAL))
+	if (f4 & (TR4_SLAY_ANIMAL))
 	{
 		info[i++] = "It is especially deadly against natural creatures.";
 	}
-	if (f1 & (TR1_SLAY_EVIL))
+	if (f4 & (TR4_SLAY_PLANT))
+	{
+		info[i++] = "It is especially deadly against plant-based creatures.";
+	}
+	if (f4 & (TR4_SLAY_EVIL))
 	{
 		info[i++] = "It fights against evil with holy fury.";
 	}
-	if (f1 & (TR1_SLAY_UNDEAD))
+	if (f4 & (TR4_SLAY_CHAOS))
+	{
+		info[i++] = "It fights against chaos with lawful might.";
+	}
+	if (f4 & (TR4_SLAY_UNDEAD))
 	{
 		info[i++] = "It strikes at undead with holy wrath.";
 	}
-	if (f1 & (TR1_SLAY_DEMON))
+	if (f4 & (TR4_SLAY_DEMON))
 	{
 		info[i++] = "It strikes at demons with holy wrath.";
 	}
-	if (f1 & (TR1_SLAY_ORC))
+	if (f4 & (TR4_SLAY_ORC))
 	{
 		info[i++] = "It is especially deadly against orcs.";
 	}
-	if (f1 & (TR1_SLAY_TROLL))
+	if (f4 & (TR4_SLAY_TROLL))
 	{
 		info[i++] = "It is especially deadly against trolls.";
 	}
-	if (f1 & (TR1_SLAY_GIANT))
+	if (f4 & (TR4_SLAY_GIANT))
 	{
 		info[i++] = "It is especially deadly against giants.";
 	}
-	if (f1 & (TR1_SLAY_DRAGON))
+	if (f4 & (TR4_SLAY_DRAGON))
 	{
 		info[i++] = "It is especially deadly against dragons.";
 	}
-
-	if (f1 & (TR1_KILL_DRAGON))
+	if (f4 & (TR4_KILL_DRAGON))
 	{
 		info[i++] = "It is a great bane of dragons.";
 	}
-
-	if (f1 & (TR1_BRAND_ACID))
+	if (f4 & (TR4_WOUNDING))
+	{
+		info[i++] = "It is supernaturally sharp.";
+	}
+	if (f4 & (TR4_TERROR))
+	{
+		info[i++] = "It strikes fear into the hearts of your foes.";
+	}
+	if (f4 & (TR4_BRAND_ACID))
 	{
 		info[i++] = "It does extra damage from acid.";
 	}
-	if (f1 & (TR1_BRAND_ELEC))
+	if (f4 & (TR4_BRAND_ELEC))
 	{
 		info[i++] = "It does extra damage from electricity.";
 	}
-	if (f1 & (TR1_BRAND_FIRE))
+	if (f4 & (TR4_BRAND_FIRE))
 	{
 		info[i++] = "It does extra damage from fire.";
 	}
-	if (f1 & (TR1_BRAND_COLD))
+	if (f4 & (TR4_BRAND_COLD))
 	{
 		info[i++] = "It does extra damage from frost.";
 	}
-
-	if (f2 & (TR2_SUST_STR))
+	if (f4 & (TR4_BRAND_VENOM))
 	{
-		info[i++] = "It sustains your strength.";
+		info[i++] = "It does extra damage from poison.";
 	}
-	if (f2 & (TR2_SUST_INT))
+	if (f4 & (TR4_BRAND_LITE))
 	{
-		info[i++] = "It sustains your intelligence.";
+		info[i++] = "It does extra damage from light.";
 	}
-	if (f2 & (TR2_SUST_WIS))
+	if (f4 & (TR4_BRAND_DARK))
 	{
-		info[i++] = "It sustains your wisdom.";
+		info[i++] = "It does extra damage from darkness.";
 	}
-	if (f2 & (TR2_SUST_DEX))
-	{
-		info[i++] = "It sustains your dexterity.";
-	}
-	if (f2 & (TR2_SUST_CON))
-	{
-		info[i++] = "It sustains your constitution.";
-	}
-	if (f2 & (TR2_SUST_CHR))
-	{
-		info[i++] = "It sustains your charisma.";
-	}
-
 	if (f2 & (TR2_IM_ACID))
 	{
 		info[i++] = "It provides immunity to acid.";
@@ -2476,7 +2528,6 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It provides resistance to acid.";
 	}
-
 	if (f2 & (TR2_IM_ELEC))
 	{
 		info[i++] = "It provides immunity to electricity.";
@@ -2485,7 +2536,6 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It provides resistance to electricity.";
 	}
-
 	if (f2 & (TR2_IM_FIRE))
 	{
 		info[i++] = "It provides immunity to fire.";
@@ -2494,7 +2544,6 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It provides resistance to fire.";
 	}
-
 	if (f2 & (TR2_IM_COLD))
 	{
 		info[i++] = "It provides immunity to cold.";
@@ -2503,137 +2552,130 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It provides resistance to cold.";
 	}
-
 	if (f2 & (TR2_RES_POIS))
 	{
 		info[i++] = "It provides resistance to poison.";
 	}
-
-	if (f2 & (TR2_RES_FEAR))
+	if (f2 & (TR2_RES_DISEASE))
 	{
-		info[i++] = "It provides resistance to fear.";
+		info[i++] = "It provides resistance to disease.";
 	}
-
 	if (f2 & (TR2_RES_LITE))
 	{
 		info[i++] = "It provides resistance to light.";
 	}
-
 	if (f2 & (TR2_RES_DARK))
 	{
 		info[i++] = "It provides resistance to dark.";
 	}
-
-	if (f2 & (TR2_RES_BLIND))
-	{
-		info[i++] = "It provides resistance to blindness.";
-	}
-
 	if (f2 & (TR2_RES_CONFU))
 	{
 		info[i++] = "It provides resistance to confusion.";
 	}
-
 	if (f2 & (TR2_RES_SOUND))
 	{
 		info[i++] = "It provides resistance to sound.";
 	}
-
 	if (f2 & (TR2_RES_SHARD))
 	{
 		info[i++] = "It provides resistance to shards.";
 	}
-
+	if (f2 & (TR2_RES_WATER))
+	{
+		info[i++] = "It provides resistance to water.";
+	}
 	if (f2 & (TR2_RES_NEXUS))
 	{
 		info[i++] = "It provides resistance to nexus.";
 	}
-
 	if (f2 & (TR2_RES_NETHR))
 	{
 		info[i++] = "It provides resistance to nether.";
 	}
-
 	if (f2 & (TR2_RES_CHAOS))
 	{
 		info[i++] = "It provides resistance to chaos.";
 	}
-
 	if (f2 & (TR2_RES_DISEN))
 	{
 		info[i++] = "It provides resistance to disenchantment.";
 	}
-
+	if (f2 & (TR2_RES_TIME))
+	{
+		info[i++] = "It provides resistance to time.";
+	}
+	if (f2 & (TR2_RES_MANA))
+	{
+		info[i++] = "It provides resistance to mana.";
+	}
 	if (f3 & (TR3_SLOW_DIGEST))
 	{
 		info[i++] = "It slows your metabolism.";
 	}
-
 	if (f3 & (TR3_FEATHER))
 	{
 		info[i++] = "It induces feather falling.";
 	}
-
-	if (f3 & (TR3_LITE))
+	if (f3 & (TR3_GLOW))
 	{
 		info[i++] = "It provides permanent light.";
 	}
-
 	if (f3 & (TR3_REGEN))
 	{
 		info[i++] = "It speeds your regenerative powers.";
 	}
-
 	if (f3 & (TR3_TELEPATHY))
 	{
 		info[i++] = "It gives telepathic powers.";
 	}
-
 	if (f3 & (TR3_SEE_INVIS))
 	{
 		info[i++] = "It allows you to see invisible monsters.";
 	}
-
 	if (f3 & (TR3_INVIS))
 	{
 		info[i++] = "It renders you completely invisible.";
 	}
-
-	if (f3 & (TR3_FREE_ACT))
+	if (f2 & (TR2_FREE_ACT))
 	{
 		info[i++] = "It provides immunity to paralysis.";
 	}
-
-	if (f3 & (TR3_HOLD_LIFE))
+	if (f2 & (TR2_BRAVERY))
+	{
+		info[i++] = "It provides immunity to fear.";
+	}
+	if (f2 & (TR2_NO_BLIND))
+	{
+		info[i++] = "It provides immunity to blindness.";
+	}
+	if (f2 & (TR2_HOLD_LIFE))
 	{
 		info[i++] = "It provides resistance to life draining.";
 	}
-
 	if (f3 & (TR3_IMPACT))
 	{
 		info[i++] = "It induces earthquakes.";
 	}
-
 	if (f3 & (TR3_TELEPORT))
 	{
 		info[i++] = "It induces random teleportation.";
 	}
-
 	if (f3 & (TR3_AGGRAVATE))
 	{
 		info[i++] = "It aggravates nearby creatures.";
 	}
-
 	if (f3 & (TR3_DRAIN_EXP))
 	{
 		info[i++] = "It drains experience.";
 	}
-
-	if (f3 & (TR3_BLESSED))
+	if (f3 & (TR3_DRAIN_ITEM))
+	{
+		info[i++] = "It drains the magic off other items.";
+	}
+	if (f4 & (TR4_BLESSED))
 	{
 		info[i++] = "It has been blessed by the gods.";
 	}
-
 	if (object_known_p(o_ptr) && cursed_p(o_ptr))
 	{
 		if (f3 & (TR3_PERMA_CURSE))
@@ -2650,23 +2692,6 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 		}
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
-	{
-		info[i++] = "It cannot be harmed by acid.";
-	}
-	if (f3 & (TR3_IGNORE_ELEC))
-	{
-		info[i++] = "It cannot be harmed by electricity.";
-	}
-	if (f3 & (TR3_IGNORE_FIRE))
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
-	}
-
 	/* Unknown extra powers (ego-item with random extras or artifact) */
 	if (object_known_p(o_ptr) &&
 		(!(o_ptr->ident & IDENT_MENTAL)) &&
@@ -2674,7 +2699,6 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It has hidden powers.";
 	}
-
 
 	/* Return the number of lines */
 	return (i);
@@ -2851,6 +2875,7 @@ s16b wield_slot(object_type *o_ptr)
 		}
 
 		case TV_LITE:
+		case TV_LITE_SPECIAL:
 		{
 			return (INVEN_LITE);
 		}
@@ -2887,6 +2912,11 @@ s16b wield_slot(object_type *o_ptr)
 		{
 			return (INVEN_FEET);
 		}
+
+		case TV_MUSIC:
+		{
+			if (cp_ptr->flags & CF_MUSIC) return (INVEN_MUSIC);
+		}
 	}
 
 	/* No slot available */
@@ -2916,6 +2946,7 @@ cptr mention_use(int i)
 		case INVEN_HEAD:  p = "On head"; break;
 		case INVEN_HANDS: p = "On hands"; break;
 		case INVEN_FEET:  p = "On feet"; break;
+		case INVEN_MUSIC: p = "Playing"; break;
 		default:          p = "In pack"; break;
 	}
 
@@ -3497,8 +3528,6 @@ void show_equip(void)
 }
 
 
-#ifdef ALLOW_EASY_FLOOR
-
 /*
  * Display a list of the items on the floor at the given location.
  */
@@ -3599,9 +3628,6 @@ void show_floor(int *floor_list, int floor_num)
 	/* Make a "shadow" below the list (only if needed) */
 	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
 }
-
-#endif /* ALLOW_EASY_FLOOR */
-
 
 
 /*
@@ -4026,15 +4052,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			p_ptr->command_wrk = (USE_EQUIP);
 		}
 
-#ifdef ALLOW_EASY_FLOOR
-
 		/* Use floor if allowed */
 		else if (easy_floor)
 		{
 			p_ptr->command_wrk = (USE_FLOOR);
 		}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 		/* Hack -- Use (empty) inventory */
 		else
@@ -4055,42 +4077,38 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Repeat until done */
 	while (!done)
 	{
-		/* Show choices */
-		if (show_choices)
+		int ni = 0;
+		int ne = 0;
+
+		/* Scan windows */
+		for (j = 0; j < 8; j++)
 		{
-			int ni = 0;
-			int ne = 0;
+			/* Unused */
+			if (!angband_term[j]) continue;
 
-			/* Scan windows */
-			for (j = 0; j < 8; j++)
-			{
-				/* Unused */
-				if (!angband_term[j]) continue;
+			/* Count windows displaying inven */
+			if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
 
-				/* Count windows displaying inven */
-				if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
-
-				/* Count windows displaying equip */
-				if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
-			}
-
-			/* Toggle if needed */
-			if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
-			    ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
-			{
-				/* Toggle */
-				toggle_inven_equip();
-
-				/* Track toggles */
-				toggle = !toggle;
-			}
-
-			/* Update */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-			/* Redraw windows */
-			window_stuff();
+			/* Count windows displaying equip */
+			if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
 		}
+
+		/* Toggle if needed */
+		if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
+		    ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
+		{
+			/* Toggle */
+			toggle_inven_equip();
+
+			/* Track toggles */
+			toggle = !toggle;
+		}
+
+		/* Update */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Redraw windows */
+		window_stuff();
 
 		/* Viewing inventory */
 		if (p_ptr->command_wrk == (USE_INVEN))
@@ -4152,8 +4170,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (allow_floor) strcat(out_val, " - for floor,");
 		}
 
-#ifdef ALLOW_EASY_FLOOR
-
 		/* Viewing floor */
 		else
 		{
@@ -4182,8 +4198,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			/* Append */
 			else if (use_equip) strcat(out_val, " / for Equip,");
 		}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 		/* Finish the prompt */
 		strcat(out_val, " ESC");
@@ -4278,8 +4292,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					break;
 				}
 
-#ifdef ALLOW_EASY_FLOOR
-
 				if (easy_floor)
 				{
 					/* There is only one item */
@@ -4322,8 +4334,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 					break;
 				}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 				/* Check each legal object */
 				for (i = 0; i < floor_num; ++i)
@@ -4417,8 +4427,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					k = e1;
 				}
 
-#ifdef ALLOW_EASY_FLOOR
-
 				/* Choose "default" floor item */
 				else
 				{
@@ -4430,8 +4438,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 					k = 0 - floor_list[f1];
 				}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 				/* Validate the item */
 				if (!get_item_okay(k))
@@ -4488,8 +4494,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					}
 				}
 
-#ifdef ALLOW_EASY_FLOOR
-
 				/* Convert letter to floor index */
 				else
 				{
@@ -4504,8 +4508,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					/* Special index */
 					k = 0 - floor_list[k];
 				}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 				/* Validate the item */
 				if (!get_item_okay(k))
@@ -4537,7 +4539,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 	}
 
-
 	/* Fix the screen if necessary */
 	if (p_ptr->command_see)
 	{
@@ -4548,27 +4549,20 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		p_ptr->command_see = FALSE;
 	}
 
-
 	/* Forget the item_tester_tval restriction */
 	item_tester_tval = 0;
 
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
 
+	/* Toggle again if needed */
+	if (toggle) toggle_inven_equip();
 
-	/* Clean up */
-	if (show_choices)
-	{
-		/* Toggle again if needed */
-		if (toggle) toggle_inven_equip();
+	/* Update */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		/* Update */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-		/* Window stuff */
-		window_stuff();
-	}
-
+	/* Window stuff */
+	window_stuff();
 
 	/* Clear the prompt line */
 	prt("", 0, 0);
@@ -4587,4 +4581,29 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	return (item);
 }
 
+
+/*
+ * Strip an "object name" into a buffer.  Used in wizard2.c and squelch.c
+ */
+void strip_name(char *buf, int k_idx)
+{
+	char *t;
+
+	object_kind *k_ptr = &k_info[k_idx];
+
+	cptr str = (k_name + k_ptr->name);
+
+
+	/* Skip past leading characters */
+	while ((*str == ' ') || (*str == '&')) str++;
+
+	/* Copy useful chars */
+	for (t = buf; *str; str++)
+	{
+		if (*str != '~') *t++ = *str;
+	}
+
+	/* Terminate the new name */
+	*t = '\0';
+}
 

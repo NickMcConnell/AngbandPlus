@@ -4783,7 +4783,7 @@ PROTO static void amiga_hs_to_ascii(void)
 #ifdef KANGBAND
 	sprintf(temp, "%3d.%9s  %s the %s %s, Level %d",
 	        i + 1, h.pts, h.who,
-	        p_info[pr].title, c_info[pc].title,
+	        p_info[pr].title, class_info[pc].title,
 	        clev);
 #else
 /*	sprintf(temp, "%3d.%9s  %s the %s %s",
@@ -4791,7 +4791,7 @@ PROTO static void amiga_hs_to_ascii(void)
 	        p_info[pr].title,magic_info[pc].title); */
 	sprintf(temp, "%3d.%9s  %s the %s %s, Level %d",
 	        i + 1, h.pts, h.who,
-	        p_info[pr].title, c_info[pc].title,
+	        p_info[pr].title, class_info[pc].title,
 	        clev);
 
 #endif

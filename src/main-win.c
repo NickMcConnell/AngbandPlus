@@ -91,13 +91,6 @@
 
 
 /*
- * Switch on for compiling ZAngband with the new wilderness
- * (version 2.5.0 and later).
- */
-/* #define ZANGBAND_WILDERNESS */
-
-
-/*
  * Extract the "WIN32" flag from the compiler
  */
 #if defined(__WIN32__) || defined(__WINNT__) || defined(__NT__)
@@ -541,9 +534,6 @@ static cptr ANGBAND_DIR_XTRA_FONT;
 static cptr ANGBAND_DIR_XTRA_GRAF;
 static cptr ANGBAND_DIR_XTRA_SOUND;
 static cptr ANGBAND_DIR_XTRA_HELP;
-#if 0
-static cptr ANGBAND_DIR_XTRA_MUSIC;
-#endif /* 0 */
 
 /*
  * The "complex" color values
@@ -624,25 +614,6 @@ static byte special_key_list[] =
 	VK_DELETE,		/* 0x2E (KP<.>) */
 	VK_HELP,		/* 0x2F (?????) */
 
-#if 0
-	VK_NUMPAD0,		/* 0x60 (KP<0>) */
-	VK_NUMPAD1,		/* 0x61 (KP<1>) */
-	VK_NUMPAD2,		/* 0x62 (KP<2>) */
-	VK_NUMPAD3,		/* 0x63 (KP<3>) */
-	VK_NUMPAD4,		/* 0x64 (KP<4>) */
-	VK_NUMPAD5,		/* 0x65 (KP<5>) */
-	VK_NUMPAD6,		/* 0x66 (KP<6>) */
-	VK_NUMPAD7,		/* 0x67 (KP<7>) */
-	VK_NUMPAD8,		/* 0x68 (KP<8>) */
-	VK_NUMPAD9,		/* 0x69 (KP<9>) */
-	VK_MULTIPLY,	/* 0x6A (KP<*>) */
-	VK_ADD,			/* 0x6B (KP<+>) */
-	VK_SEPARATOR,	/* 0x6C (?????) */
-	VK_SUBTRACT,	/* 0x6D (KP<->) */
-	VK_DECIMAL,		/* 0x6E (KP<.>) */
-	VK_DIVIDE,		/* 0x6F (KP</>) */
-#endif /* 0 */
-
 	VK_F1,			/* 0x70 */
 	VK_F2,			/* 0x71 */
 	VK_F3,			/* 0x72 */
@@ -670,26 +641,6 @@ static byte special_key_list[] =
 
 	0
 };
-
-#if 0
-/*
- * Hack -- given a pathname, point at the filename
- */
-static cptr extract_file_name(cptr s)
-{
-	cptr p;
-
-	/* Start at the end */
-	p = s + strlen(s) - 1;
-
-	/* Back up to divider */
-	while ((p >= s) && (*p != ':') && (*p != '\\')) p--;
-
-	/* Return file name */
-	return (p+1);
-}
-#endif /* 0 */
-
 
 /*
  * Hack -- given a simple filename, extract the "font size" info
@@ -1644,32 +1595,7 @@ static void term_data_redraw_section(term_data *td, int x1, int y1, int x2, int 
 	Term_activate(term_screen);
 }
 
-
-
 /*** Function hooks needed by "Term" ***/
-
-
-#if 0
-
-/*
- * Initialize a new Term
- */
-static void Term_init_win(term *t)
-{
-	/* XXX Unused */
-}
-
-
-/*
- * Nuke an old Term
- */
-static void Term_nuke_win(term *t)
-{
-	/* XXX Unused */
-}
-
-#endif /* 0 */
-
 
 /*
  * Interact with the User
@@ -1679,7 +1605,6 @@ static errr Term_user_win(int n)
 	/* Success */
 	return (0);
 }
-
 
 /*
  * React to global changes
@@ -1825,11 +1750,9 @@ static errr Term_xtra_win_react(void)
 		}
 	}
 
-
 	/* Success */
 	return (0);
 }
-
 
 /*
  * Process at least one event
@@ -1863,7 +1786,6 @@ static errr Term_xtra_win_event(int v)
 	/* Success */
 	return 0;
 }
-
 
 /*
  * Process all pending events
@@ -2440,39 +2362,8 @@ static void windows_map_aux(void)
 	char tc;
 #endif /* USE_TRANSPARENCY */
 
-#ifndef ZANGBAND
 	s16b py = p_ptr->py;
 	s16b px = p_ptr->px;
-#endif /* ZANGBAND */
-
-#ifdef ZANGBAND
-
-	td->map_tile_wid = (td->tile_wid * td->cols) / MAX_WID;
-	td->map_tile_hgt = (td->tile_hgt * td->rows) / MAX_HGT;
-
-#ifdef ZANGBAND_WILDERNESS
-	
-	/* Is the player in the wilderness? */
-	if (dun_level == 0)
-	{
-		/* Work out offset of corner of dungeon-sized segment of the wilderness */
-		min_x = wild_grid.x_min;
-		min_y = wild_grid.y_min;
-		max_x = wild_grid.x_max;
-		max_y = wild_grid.y_max;
-	}
-	else
-
-#endif /* ZANGBAND_WILDERNESS */
-
-	{
-		min_x = 0;
-		min_y = 0;
-		max_x = cur_wid;
-		max_y = cur_hgt;
-	}
-
-#else /* ZANGBAND */
 
 	td->map_tile_wid = (td->tile_wid * td->cols) / DUNGEON_WID;
 	td->map_tile_hgt = (td->tile_hgt * td->rows) / DUNGEON_HGT;
@@ -2481,8 +2372,6 @@ static void windows_map_aux(void)
 	min_y = 0;
 	max_x = DUNGEON_WID;
 	max_y = DUNGEON_HGT;
-
-#endif /* ZANGBAND */
 
 	/* Draw the map */
 	for (x = min_x; x < max_x; x++)
@@ -2567,12 +2456,6 @@ static void term_data_link(term_data *td)
 	t->attr_blank = TERM_WHITE;
 	t->char_blank = ' ';
 
-#if 0
-	/* Prepare the init/nuke hooks */
-	t->init_hook = Term_init_win;
-	t->nuke_hook = Term_nuke_win;
-#endif /* 0 */
-
 	/* Prepare the template hooks */
 	t->user_hook = Term_user_win;
 	t->xtra_hook = Term_xtra_win;
@@ -2637,10 +2520,8 @@ static void init_windows(void)
 		td->pos_y = (7 - i) * 20;
 	}
 
-
 	/* Load prefs */
 	load_prefs();
-
 
 	/* Main window (need these before term_getsize gets called) */
 	td = &data[0];
@@ -3127,11 +3008,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
-				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
 				do_cmd_save_game();
-#endif /* ZANGBAND */
 			}
 			else
 			{
@@ -3202,11 +3079,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
-				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
-				if (!cheat_no_autosave) do_cmd_save_game();
-#endif /* ZANGBAND */
+				if (!cheat_no_save) do_cmd_save_game();
 			}
 			quit(NULL);
 			break;
@@ -3616,47 +3489,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 		case WM_GETMINMAXINFO:
 		{
-#if 0
-			MINMAXINFO FAR *lpmmi;
-			RECT rc;
-
-			lpmmi = (MINMAXINFO FAR *)lParam;
-
-			/* this message was sent before WM_NCCREATE */
-			if (!td) return 1;
-
-			/* Minimum window size is 8x2 */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 8 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 2 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save minimum size */
-			lpmmi->ptMinTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMinTrackSize.y = rc.bottom - rc.top;
-
-			/* Maximum window size */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 80 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 24 * td->tile_hgt + td->size_oh1 + td->size_oh2;
-
-			/* Paranoia */
-			rc.right  += (td->tile_wid - 1);
-			rc.bottom += (td->tile_hgt - 1);
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save maximum size */
-			lpmmi->ptMaxSize.x = rc.right - rc.left;
-			lpmmi->ptMaxSize.y = rc.bottom - rc.top;
-
-			/* Save maximum size */
-			lpmmi->ptMaxTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMaxTrackSize.y = rc.bottom - rc.top;
-#endif /* 0 */
 			return 0;
 		}
 
@@ -3735,11 +3567,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
-				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
-				if (!cheat_no_autosave) do_cmd_save_game();
-#endif /* ZANGBAND */
+				if (!cheat_no_save) do_cmd_save_game();
 			}
 			quit(NULL);
 			return 0;
@@ -3905,47 +3733,6 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 
 		case WM_GETMINMAXINFO:
 		{
-#if 0
-			MINMAXINFO FAR *lpmmi;
-			RECT rc;
-
-			/* this message was sent before WM_NCCREATE */
-			if (!td) return 1;
-
-			lpmmi = (MINMAXINFO FAR *)lParam;
-
-			/* Minimum size */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 8 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 2 * td->tile_hgt + td->size_oh1 + td->size_oh2;
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save the minimum size */
-			lpmmi->ptMinTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMinTrackSize.y = rc.bottom - rc.top;
-
-			/* Maximum window size */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 80 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 24 * td->tile_hgt + td->size_oh1 + td->size_oh2;
-
-			/* Paranoia */
-			rc.right += (td->tile_wid - 1);
-			rc.bottom += (td->tile_hgt - 1);
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save maximum size */
-			lpmmi->ptMaxSize.x = rc.right - rc.left;
-			lpmmi->ptMaxSize.y = rc.bottom - rc.top;
-
-			/* Save the maximum size */
-			lpmmi->ptMaxTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMaxTrackSize.y = rc.bottom - rc.top;
-#endif /* 0 */
 			return 0;
 		}
 
@@ -4130,15 +3917,6 @@ LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
 			SetCursor(NULL);
 			return 0;
 		}
-
-#if 0
-		case WM_ACTIVATE:
-		{
-			if (LOWORD(wParam) == WA_INACTIVE) break;
-
-			/* else fall through */
-		}
-#endif /* 0 */
 
 		case WM_LBUTTONDOWN:
 		case WM_MBUTTONDOWN:
@@ -4356,17 +4134,10 @@ static void init_stuff(void)
 
 	/* Hack -- Validate the paths */
 	validate_dir(ANGBAND_DIR_APEX);
-	validate_dir(ANGBAND_DIR_BONE);
 	validate_dir(ANGBAND_DIR_DATA);
 	validate_dir(ANGBAND_DIR_EDIT);
-
-#ifdef USE_SCRIPT
-	validate_dir(ANGBAND_DIR_SCRIPT);
-#endif /* USE_SCRIPT */
-
 	validate_dir(ANGBAND_DIR_FILE);
 	validate_dir(ANGBAND_DIR_HELP);
-	validate_dir(ANGBAND_DIR_INFO);
 	validate_dir(ANGBAND_DIR_SAVE);
 	validate_dir(ANGBAND_DIR_USER);
 	validate_dir(ANGBAND_DIR_XTRA);

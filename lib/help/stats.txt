@@ -1,0 +1,119 @@
+=== Character Statistics and Skills ===
+
+This file describes your character.  It discusses the attributes shown on 
+the left side of the main window, the basic skills characters possess, and the 
+various special immunities and qualities that characters may acquire in their 
+adventures.  It also tells you how to keep track of all this information.
+
+=== Character Attributes Shown on the Left Side of the Main Window ===
+     
+Experience:   Experience affects almost everything else about your character.  
+              As he kills monsters, casts spells and prays prayers for the 
+              first time, learns about an object kind by using it, disarms 
+              traps, and unlocks doors.
+Next:         The amount of experience necessary for the next level.
+AU:           Represents your current gold supply. Gold is amazingly handy, 
+              because everything the town can sell can be yours with enough of 
+              the stuff.  
+Vital Statistics (STR, INT, WIS, DEX, CON and CHR):
+              Your character has six primary statistics, or stats. The lowest 
+              any stat can go is 3, a level which greatly reduces any abilities
+              that stat influences.  Once a stat reaches 18, it no longer 
+              progresses in single increments but rather in percentiles - for 
+              instance, 18/04 or 18/220. The lowest "safe" figure for most 
+              stats is 7, but you can't expect any significant bonuses until 
+              the stat reaches 18 or higher. More information on individual
+              stats is available below.
+AC:           Armor class helps prevent you getting killed.  It may be 
+              increased by equipping more and better armor, and by increasing 
+              your Dexterity.  
+Hit Points:   Each character has hit points, representing how much damage he 
+              can sustain before he dies.  The maximum number of hit points is
+              derived from race, class, level, and constitution.  Hit points 
+              may be regained by resting, or by a variety of magical means.
+Mana:         Each character has spell points, or mana, which represents how 
+              many spells a character can cast (or tunes he can play). Mana may
+              be regained by resting or some rare magical means.
+
+=== Stats ===
+
+Strength:     Strength is critical to fighting effectively in melee and with 
+              missile weapons.  Increases in Strength increase damage, and 
+              allow players to get more blows with heavier weapons.  Strength 
+              is also useful in tunneling and for carrying heavy items without
+              being slowed down.
+Intelligence: Intelligence affects the spellcasting abilities of mages, rangers
+              and mystics. For these classes, this stat will affect the number
+              of spells they may learn each level, the number of spell points 
+              they receive, and the chance for spells to fail. Intelligent 
+              characters also use magic devices, pick locks, mix potions, and 
+              disarm traps more effectively.
+Wisdom:       Wisdom affects the spellcasting abilities of priests, paladins, 
+              and mystics. For these classes, this stat will affect the number
+              of spells they may learn each level, the number of spell points 
+              they receive, and the chance for or spells to fail.  Wise 
+              characters also have a better chance of resisting magical spells
+              cast upon them by monsters.
+Dexterity:    Dexterity is a combination of agility and quickness.  A high 
+              dexterity may allow a character to get multiple blows with 
+              lighter weapons, and will significantly increase his chances of 
+              hitting with any weapon and dodging blows from enemies. Dexterity
+              is also useful in picking locks, disarming traps, and protecting 
+              yourself from some of the thieves that inhabit the dungeon.
+Constitution: Constitution is a character's ability to resist damage to his 
+              body, and to recover from stuns, poison, disease, cuts, and pure
+              damage. Therefore a character with a high constitution will 
+              receive more hit points and also recover them faster while 
+              resting.
+Charisma:     Charisma represents a character's personality and physical 
+              appearance. It affects the spellcasting abilities of bards, 
+              affecting the number of spell points they receive and the chance
+              of their tunes failing. A charismatic character will also receive
+              better prices from store owners, whereas a character with a very 
+              low charisma may be robbed blind. Finally, a high charisma will
+              allow monsters that are magically calmed to remain non-agressive
+              longer. 
+
+=== Skills ===
+
+Characters possess various abilities which help them to survive and prosper.  
+The starting abilities of a character are based upon race and class. Abilities 
+may be adjusted by high or low stats, and some increase with experience level.
+
+Saving Throw: A Saving Throw is the ability of a character to resist the 
+              effects of a spell cast on him by another person/creature. This 
+              does not include spells cast on the player by his own stupidity,
+              such as quaffing a nasty potion.  
+Stealth:      The ability to move silently about is very useful.  Characters
+              with good stealth can usually surprise their opponents, gaining 
+              the first blow.  Also, creatures may fail to notice a stealthy 
+              character entirely.
+Fighting:     Melee (hand to hand) combat depends on this skill.  A character
+              with a low fighting skill cannot hope to either hit monsters 
+              often or do much damage if he does.  
+Shooting:     Using ranged missile weapons depends on this skill.  The higher 
+              the character's shooting ability, the more frequently he will 
+              hit his targets and the more damage he will do when he does.  
+Throwing:     Using thrown weapons depends on this skill.  The higher your
+              character's throwing ability, the more frequently he will hit 
+              his target.  
+Disarming:    Disarming is the ability to safely remove traps and pick locks on 
+              chests and doors. A trap must be found before it can be disarmed.  
+Magic Device: The chance of succesfully using a magical device such as a wand,
+              staff, or any activatable object depends on this skill.
+Searching:    Searching affects the chance of success when actively looking for
+              secret doors, floor traps, and traps on chests. 
+Search Freq.: This determines the chance to find something when not actively 
+              searching.
+Digging:      Digging is a tedious art, but characters with a higher skill
+              may do it much faster than others. 
+Alchemy:      Mixing potions is a hazardous art, and without a high alchemy
+              Skill it is likely to cause accidental explosions or no effect
+              At all. Character who excel in alchemy may learn alchemical 
+              formulae by simply quaffing potions.
+
+Infra-vision: Infra-vision is the ability to see heat sources.  It will allow 
+              a character to see any warm-blooded creature up to a certain 
+              distance. This ability works equally well with or without a light
+              source.  Many non-human races have innate infravision.
+

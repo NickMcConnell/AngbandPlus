@@ -1,7 +1,7 @@
 
-                           ************************************
-                           **   EyAngband 0.1.4 readme file  **
-                           ************************************
+                        ************************************
+                        **   EyAngband 0.1.4 readme file  **
+                        ************************************
 
 Welcome to EyAngband, the Angband varient authored by Eytan Zweig. This readme
 file gives a summary of the main new features that differentiate EyAngband from
@@ -28,7 +28,7 @@ available to it than any other class - but it is also the worse fighter of all.
 
 EyAngband offers many changes to normal Angband gameplay. Highlights include 
 the replacement of the "maximize" option with a "half-maximize" mode, where 
-race stat bouses are permanent but class bonuses only affect chracter generation,
+race stat bouses are permanent but class bonuses only affect character generation,
 a seperation of throwing and bow skills, player invisiblity, inclusion of 
 auto-squelching and the monster-list terminal patches, a bookshop for scrolls 
 and spellbooks, and many interface changes.

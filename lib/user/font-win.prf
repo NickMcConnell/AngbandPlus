@@ -11,9 +11,7 @@
 # one special wall type, so we have to use special "colors".
 #
 
-
 ### Terrain features ###
-
 
 # Floors (white / centered dot)
 
@@ -23,18 +21,15 @@ F:1:1/31
 
 F:2:1/31
 
-
 # Magma (slate / solid block)
 
 F:66:2/127
 F:68:2/127
 
-
 # Quartz (light slate / solid block)
 
 F:67:9/127
 F:69:9/127
-
 
 # Secret door (white / solid block)
 

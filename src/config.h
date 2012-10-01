@@ -8,7 +8,6 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-
 /*
  * Look through the following lines, and where a comment includes the
  * tag "OPTION:", examine the associated "#define" statements, and decide
@@ -21,11 +20,6 @@
  *
  * And finally, remember that the "Makefile" will specify some rather
  * important compile time options, like what visual module to use.
- */
-
-
-/*
- * OPTION: See the Makefile(s), where several options may be declared.
  *
  * Some popular options include "USE_GCU" (allow use with Unix "curses"),
  * "USE_X11" (allow basic use with Unix X11), "USE_XAW" (allow use with
@@ -41,13 +35,11 @@
  * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
  */
 
-
 /*
  * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
  * that use the 4.4BSD Lite version of Curses in "main-gcu.c"
  */
 /* #define SPECIAL_BSD */
-
 
 /*
  * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
@@ -75,7 +67,6 @@
 # define USE_GETCH
 #endif
 
-
 /*
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
  * Hack -- This option will not work on most BSD machines
@@ -84,12 +75,10 @@
 # define USE_CURS_SET
 #endif
 
-
 /*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
  */
 /* #define USE_NCURSES */
-
 
 /*
  * OPTION: for multi-user machines running the game setuid to some other
@@ -102,14 +91,12 @@
  */
 #define SAFE_SETUID
 
-
 /*
  * This flag enables the "POSIX" methods for "SAFE_SETUID".
  */
 #ifdef _POSIX_SAVED_IDS
 # define SAFE_SETUID_POSIX
 #endif
-
 
 /*
  * Prevent problems on (non-Solaris) Suns using "SAFE_SETUID".
@@ -118,9 +105,6 @@
 #if defined(SUNOS) && !defined(SOLARIS)
 # undef SAFE_SETUID_POSIX
 #endif
-
-
-
 
 /*
  * OPTION: for the AFS distributed file system, define this to ensure that
@@ -132,41 +116,6 @@
  * You may need to turn "SAFE_SETUID" off to use this option.
  */
 /* #define SECURE */
-
-
-
-
-/*
- * OPTION: Verify savefile Checksums (Angband 2.7.0 and up)
- * This option can help prevent "corruption" of savefiles, and also
- * stop intentional modification by amateur users.
- */
-#define VERIFY_CHECKSUMS
-
-
-/*
- * OPTION: Forbid the use of "fiddled" savefiles.  As far as I can tell,
- * a fiddled savefile is one with an internal timestamp different from
- * the actual timestamp.  Thus, turning this option on forbids one from
- * copying a savefile to a different name.  Combined with disabling the
- * ability to save the game without quitting, and with some method of
- * stopping the user from killing the process at the tombstone screen,
- * this should prevent the use of backup savefiles.  It may also stop
- * the use of savefiles from other platforms, so be careful.
- */
-/* #define VERIFY_TIMESTAMP */
-
-
-/*
- * OPTION: Forbid the "savefile over-write" cheat, in which you simply
- * run another copy of the game, loading a previously saved savefile,
- * and let that copy over-write the "dead" savefile later.  This option
- * either locks the savefile, or creates a fake "xxx.lok" file to prevent
- * the use of the savefile until the file is deleted.  Not ready yet.
- */
-/* #define VERIFY_SAVEFILE */
-
-
 
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
@@ -182,7 +131,6 @@
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
 #define ALLOW_SPOILERS
-
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time
@@ -200,15 +148,9 @@
 #define ALLOW_MACROS
 
 /*
- * OPTION: Allow monsters to "flee" when hit hard
- */
-#define ALLOW_FEAR
-
-/*
  * OPTION: Allow monsters to "flee" from strong players
  */
 #define ALLOW_TERROR
-
 
 /*
  * OPTION: Allow parsing of the ascii template files in "init.c".
@@ -222,82 +164,36 @@
  */
 #define ALLOW_REPEAT
 
+/*
+ * OPTION: Prevent the loading of the "c_text" array. saving some memory, 
+ * but removing the level titles.
+ */
+/* #define PREVENT_LOAD_C_TEXT */
 
 /*
- * OPTION: Allow open/disarm/close without direction.
+ * OPTION: Prevent the loading of the "r_text" array, saving ~60K, 
+ * but "simplifying" the "monster" descriptions.
  */
-#define ALLOW_EASY_OPEN
-
-/*
- * OPTION: Allow open/disarm doors/traps on motion.
- */
-#define ALLOW_EASY_ALTER
-
-/*
- * OPTION: Make floor stacks easy.
- */
-#define ALLOW_EASY_FLOOR
-
-
-/*
- * OPTION: Delay the loading of the "f_text" array until it is actually
- * needed, saving ~1K, since "feature" descriptions are unused.
- */
-#define DELAY_LOAD_F_TEXT
-
-/*
- * OPTION: Delay the loading of the "k_text" array until it is actually
- * needed, saving ~1K, since "object" descriptions are unused.
- */
-#define DELAY_LOAD_K_TEXT
-
-/*
- * OPTION: Delay the loading of the "a_text" array until it is actually
- * needed, saving ~1K, since "artifact" descriptions are unused.
- */
-#define DELAY_LOAD_A_TEXT
-
-/*
- * OPTION: Delay the loading of the "e_text" array until it is actually
- * needed, saving ~1K, since "ego-item" descriptions are unused.
- */
-#define DELAY_LOAD_E_TEXT
+/* #define PREVENT_LOAD_R_TEXT */
 
 /*
  * OPTION: Delay the loading of the "r_text" array until it is actually
- * needed, saving ~60K, but "simplifying" the "monster" descriptions.
+ * needed, instead of preventing it. Saving ~60K, but slows down the "monster" descriptions.
  */
 /* #define DELAY_LOAD_R_TEXT */
-
-/*
- * OPTION: Delay the loading of the "v_text" array until it is actually
- * needed, saving ~1K, but "destroying" the "vault" generation.
- */
-/* #define DELAY_LOAD_V_TEXT */
-
 
 /*
  * OPTION: Handle signals
  */
 #define HANDLE_SIGNALS
 
-
 /*
- * Allow "Wizards" to yield "high scores"
+ * Special scoring options, allowing "high scores" to those who would
+ * normally not get them.
  */
 /* #define SCORE_WIZARDS */
-
-/*
- * Allow "Borgs" to yield "high scores"
- */
 /* #define SCORE_BORGS */
-
-/*
- * Allow "Cheaters" to yield "high scores"
- */
 /* #define SCORE_CHEATERS */
-
-
 
 /*
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
@@ -305,72 +201,25 @@
  */
 #define MONSTER_FLOW
 
-
 /*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
 #define MONSTER_FLOW_DEPTH 32
 
-
-/*
- * OPTION: Allow use of the "smart_monsters" and "smart_packs"
- * software options, which attempt to make monsters smarter.
- *
- * AI code by Keldon Jones (keldon@umr.edu), modified by Julian
- * Lighton (jl8e@fragment.com).
- */
-#define MONSTER_AI
-
-
-/*
- * OPTION: Support multiple "player" grids in "map_info()"
- */
-/* #define MAP_INFO_MULTIPLE_PLAYERS */
-
-
-/*
- * OPTION: Use the new "update_view()" algorithm
- */
-#define UPDATE_VIEW_NEW
-
-/*
- * OPTION: Use the "complex" wall illumination code
- */
-/* #define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION */
-
-
 /*
  * OPTION: Gamma correct colours (with X11)
  */
-
 #define SUPPORT_GAMMA
-
 
 /*
  * OPTION: Check the modification time of *_info.raw files
  */
 #define CHECK_MODIFICATION_TIME
 
-
-/*
- * OPTION: Enable the "smart_learn" and "smart_cheat" options.
- * They let monsters make more "intelligent" choices about attacks
- * (including spell attacks) based on their observations of the
- * player's reactions to previous attacks.  The "smart_cheat" option
- * lets the monster know how the player would react to an attack
- * without actually needing to make the attack.  The "smart_learn"
- * option requires that a monster make a "failed" attack before
- * learning that the player is not harmed by that attack.
- *
- * This adds about 3K to the memory and about 5K to the executable.
- */
-#define DRS_SMART_OPTIONS
-
-
 /*
  * OPTION: Allow the use of random artifacts (see "randart.c").
  */
-#define GJW_RANDART
+#define GJW_RANDART 
 
 /*
  * OPTION: Allow the use of "sound" in various places.
@@ -392,7 +241,6 @@
 
 #endif
 
-
 /*
  * OPTION: Hack -- Windows stuff
  */
@@ -403,7 +251,6 @@
 
 #endif
 
-
 /*
  * OPTION: Hack -- EMX stuff
  */
@@ -413,7 +260,6 @@
 # undef HANDLE_SIGNALS
 
 #endif
-
 
 /*
  * OPTION: Set the "default" path to the angband "lib" directory.
@@ -435,7 +281,6 @@
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
 #endif
-
 
 /*
  * On multiuser systems, add the "uid" to savefile names
@@ -464,26 +309,21 @@
  */
 /* #define CHECK_LOAD */
 
-
 /*
  * OPTION: Capitalize the "user_name" (for "default" player name)
  * This option is only relevant on SET_UID machines.
  */
 #define CAPITALIZE_USER_NAME
 
-
-
 /*
  * OPTION: Person to bother if something goes wrong.
  */
 #define MAINTAINER	"eytanzw@yahoo.com"
 
-
 /*
  * OPTION: Default font (when using X11).
  */
 #define DEFAULT_X11_FONT		"9x15"
-
 
 /*
  * OPTION: Default fonts (when using X11)
@@ -496,7 +336,6 @@
 #define DEFAULT_X11_FONT_5		"5x8"
 #define DEFAULT_X11_FONT_6		"5x8"
 #define DEFAULT_X11_FONT_7		"5x8"
-
 
 /*
  * Hack -- Special "ancient machine" versions
@@ -511,7 +350,7 @@
  * OPTION: Attempt to minimize the size of the game
  */
 #ifndef ANGBAND_LITE
-/* #define ANGBAND_LITE */
+/*# define ANGBAND_LITE */
 #endif
 
 /*
@@ -523,36 +362,15 @@
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
 # undef ALLOW_TERROR
-# undef WDT_TRACK_OPTIONS
-# undef DRS_SMART_OPTIONS
 # undef GJW_RANDART
-# undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
-# undef MONSTER_AI
+# undef CHECK_MODIFICATION_TIME
 # undef DELAY_LOAD_R_TEXT
 # define DELAY_LOAD_R_TEXT
 #endif
-
-
-
-/*
- * OPTION: Attempt to prevent all "cheating"
- */
-/* #define VERIFY_HONOR */
-
-
-/*
- * React to the "VERIFY_HONOR" flag
- */
-#ifdef VERIFY_HONOR
-# define VERIFY_SAVEFILE
-# define VERIFY_CHECKSUMS
-# define VERIFY_TIMESTAMP
-#endif
-
 
 /*
  * Allow the Borg to use graphics.

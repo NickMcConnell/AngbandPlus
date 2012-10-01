@@ -10,7 +10,6 @@
 
 #include "angband.h"
 
-
 /*
  * Local "savefile" pointer
  */
@@ -30,8 +29,6 @@ static u32b	v_check = 0L;
  * Hack -- simple "checksum" on the encoded bytes
  */
 static u32b	x_check = 0L;
-
-
 
 /*
  * This function determines if the version of the savefile
@@ -55,7 +52,6 @@ static bool older_than(byte x, byte y, byte z)
 	return (FALSE);
 }
 
-
 /*
  * Hack -- Show information on the screen, one line at a time.
  *
@@ -74,7 +70,6 @@ static void note(cptr msg)
 	/* Flush it */
 	Term_fresh();
 }
-
 
 /*
  * Hack -- determine if an item is "wearable" (or a missile)
@@ -102,8 +97,10 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		case TV_LITE:
+		case TV_LITE_SPECIAL:
 		case TV_AMULET:
 		case TV_RING:
+		case TV_MUSIC:
 		{
 			return (TRUE);
 		}
@@ -204,81 +201,6 @@ static void strip_bytes(int n)
 	while (n--) rd_byte(&tmp8u);
 }
 
-static int old_rings(int sv)
-{
-	switch (sv)
-	{
-		case 6:
-		{
-			return SV_RING_SUSTAIN_ALL;
-		}
-		case 8:
-		case 9:
-		{
-			return SV_RING_RESIST_FIRE_COLD;
-		}
-		case 10:
-		case 15:
-		{
-			return SV_RING_SUSTAIN_STR_CHR;
-		}
-		case 11:
-		case 12:
-		{
-			return SV_RING_SUSTAIN_INT_WIS;
-		}
-		case 13:
-		case 14:
-		{
-			return SV_RING_SUSTAIN_CON_DEX;
-		}
-		case 16:
-		{
-			return SV_RING_PROTECTION;
-		}
-		case 24:
-		{
-			return SV_RING_STR;
-		}
-		case 25:
-		{
-			/* Note - if you had a ring of INT, you're lucky */
-			return SV_RING_GREATNESS;
-		}
-
-	}	
-	return sv;
-}
-
-static int fix_items(int tv, int sv)
-{
-	int i;
-
-	object_kind *k_ptr;
-
-	/* Hack - fix 0.1.0 rings */
-	if (older_than(0,1,1) && (tv == TV_RING)) sv=old_rings(sv);
-
-	for (i=0;i<z_info->k_max;i++)
-	{
-		k_ptr = &k_info[i];
-		if ((k_ptr->tval==tv) && (k_ptr->sval==sv)) return i;
-	}
-	
-	/* Didn't find the object, look for first object for same TVAL */
-
-	for (i=0;i<z_info->k_max;i++)
-	{
-		k_ptr = &k_info[i];
-		if (k_ptr->tval==tv) return i;
-	}	
-
-	/* Still didn't find object, return 0 */
-
-	return 0;
-
-}
-
 /*
  * Read an object
  *
@@ -290,13 +212,16 @@ static void rd_item(object_type *o_ptr)
 {
 	byte old_dd;
 	byte old_ds;
-	int x;
 
-	u32b f1, f2, f3;
+	u16b save_flags;
+
+	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr;
 
 	char buf[128];
+
+	rd_u16b(&save_flags);
 
 	/* Kind */
 	rd_s16b(&o_ptr->k_idx);
@@ -310,39 +235,36 @@ static void rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->sval);
 
 	/* Special pval */
-	rd_s16b(&o_ptr->pval);
+	if (save_flags & 0x0001) rd_s16b(&o_ptr->pval);
 
-	rd_byte(&o_ptr->discount);
+	if (save_flags & 0x0002) rd_byte(&o_ptr->discount);
 
 	rd_byte(&o_ptr->number);
 	rd_s16b(&o_ptr->weight);
 
-	rd_byte(&o_ptr->name1); 
-	rd_byte(&o_ptr->name2);
+	if (save_flags & 0x0004) rd_byte(&o_ptr->name1); 
+	if (save_flags & 0x0008) rd_byte(&o_ptr->name2);
 
-	rd_s16b(&o_ptr->timeout);
+	if (save_flags & 0x0010) rd_s16b(&o_ptr->timeout);
 
-	rd_s16b(&o_ptr->to_h);
-	rd_s16b(&o_ptr->to_d);
-	rd_s16b(&o_ptr->to_a);
+	if (save_flags & 0x0020) rd_s16b(&o_ptr->to_h);
+	if (save_flags & 0x0040) rd_s16b(&o_ptr->to_d);
+	if (save_flags & 0x0080) rd_s16b(&o_ptr->to_a);
 
-	rd_s16b(&o_ptr->ac);
+	if (save_flags & 0x0100) rd_s16b(&o_ptr->ac);
 
-	rd_byte(&old_dd);
-	rd_byte(&old_ds);
+	if (save_flags & 0x0200) rd_byte(&old_dd);
+	if (save_flags & 0x0400) rd_byte(&old_ds);
 
-	rd_byte(&o_ptr->ident);
+	if (save_flags & 0x0800) rd_byte(&o_ptr->ident);
 
-	rd_byte(&o_ptr->marked);
-
-	/* Old flags */
-	strip_bytes(12);
+	if (save_flags & 0x1000) rd_byte(&o_ptr->marked);
 
 	/* Monster holding object */
-	rd_s16b(&o_ptr->held_m_idx);
+	if (save_flags & 0x2000) rd_s16b(&o_ptr->held_m_idx);
 
-	rd_byte(&o_ptr->xtra1);
-	rd_byte(&o_ptr->xtra2);
+	if (save_flags & 0x4000) rd_byte(&o_ptr->xtra1);
+	if (save_flags & 0x8000) rd_byte(&o_ptr->xtra2);
 
 	/* Inscription */
 	rd_string(buf, 128);
@@ -352,19 +274,6 @@ static void rd_item(object_type *o_ptr)
 
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
-
-	/* Check compared tval/sval from k_info */
-	if (!(o_ptr->tval == k_ptr->tval) || !(o_ptr->sval == k_ptr->sval))
-	{
-		x=fix_items(o_ptr->tval,o_ptr->sval);
-		if (x>0)
-		{
-			o_ptr->k_idx = x;
-			k_ptr = &k_info[x];
-		}
-		o_ptr->tval = k_ptr->tval;
-		o_ptr->sval = k_ptr->sval;
-	}
 
 	/* Hack -- notice "broken" items */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
@@ -392,7 +301,7 @@ static void rd_item(object_type *o_ptr)
 	}
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Paranoia */
 	if (o_ptr->name1)
@@ -480,16 +389,11 @@ static void rd_item(object_type *o_ptr)
 
 }
 
-
-
-
 /*
  * Read a monster
  */
 static void rd_monster(monster_type *m_ptr)
 {
-	byte tmp8u;
-
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
 
@@ -504,66 +408,59 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
-	rd_byte(&tmp8u);
+	rd_byte(&m_ptr->blinded);
+	rd_byte(&m_ptr->calmed);
+
+	rd_u16b(&m_ptr->bleeding);
+	rd_u16b(&m_ptr->poisoned);
 }
-
-
-
-
 
 /*
  * Read the monster lore
  */
 static void rd_lore(int r_idx)
 {
-	byte tmp8u;
-
 	monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
 
+	u16b save_flags;
+
+	rd_u16b(&save_flags);
+
 	/* Count sights/deaths/kills */
-	rd_s16b(&l_ptr->r_sights);
-	rd_s16b(&l_ptr->r_deaths);
-	rd_s16b(&l_ptr->r_pkills);
-	rd_s16b(&l_ptr->r_tkills);
+	if (save_flags & 0x0001) rd_s16b(&l_ptr->r_sights);
+	if (save_flags & 0x0002) rd_s16b(&l_ptr->r_deaths);
+	if (save_flags & 0x0004) rd_s16b(&l_ptr->r_pkills);
+	if (save_flags & 0x0008) rd_s16b(&l_ptr->r_tkills);
 
 	/* Count wakes and ignores */
 	rd_byte(&l_ptr->r_wake);
 	rd_byte(&l_ptr->r_ignore);
-
-	/* Extra stuff */
-	rd_byte(&l_ptr->r_xtra1);
-	rd_byte(&l_ptr->r_xtra2);
 
 	/* Count drops */
 	rd_byte(&l_ptr->r_drop_gold);
 	rd_byte(&l_ptr->r_drop_item);
 
 	/* Count spells */
-	rd_byte(&l_ptr->r_cast_inate);
-	rd_byte(&l_ptr->r_cast_spell);
+	if (save_flags & 0x0010) rd_byte(&l_ptr->r_cast_inate);
+	if (save_flags & 0x0020) rd_byte(&l_ptr->r_cast_spell);
 
 	/* Count blows of each type */
-	rd_byte(&l_ptr->r_blows[0]);
-	rd_byte(&l_ptr->r_blows[1]);
-	rd_byte(&l_ptr->r_blows[2]);
-	rd_byte(&l_ptr->r_blows[3]);
+	if (save_flags & 0x0040) rd_byte(&l_ptr->r_blows[0]);
+	if (save_flags & 0x0080) rd_byte(&l_ptr->r_blows[1]);
+	if (save_flags & 0x0100) rd_byte(&l_ptr->r_blows[2]);
+	if (save_flags & 0x0200) rd_byte(&l_ptr->r_blows[3]);
 
 	/* Memorize flags */
-	rd_u32b(&l_ptr->r_flags1);
-	rd_u32b(&l_ptr->r_flags2);
-	rd_u32b(&l_ptr->r_flags3);
-	rd_u32b(&l_ptr->r_flags4);
-	rd_u32b(&l_ptr->r_flags5);
-	rd_u32b(&l_ptr->r_flags6);
+	if (save_flags & 0x0400) rd_u32b(&l_ptr->r_flags1);
+	if (save_flags & 0x0800) rd_u32b(&l_ptr->r_flags2);
+	if (save_flags & 0x1000) rd_u32b(&l_ptr->r_flags3);
+	if (save_flags & 0x2000) rd_u32b(&l_ptr->r_flags4);
+	if (save_flags & 0x4000) rd_u32b(&l_ptr->r_flags5);
+	if (save_flags & 0x8000) rd_u32b(&l_ptr->r_flags6);
 
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
-
-	/* Later (?) */
-	rd_byte(&tmp8u);
-	rd_byte(&tmp8u);
-	rd_byte(&tmp8u);
 
 	/* Repair the lore flags */
 	l_ptr->r_flags1 &= r_ptr->flags1;
@@ -573,9 +470,6 @@ static void rd_lore(int r_idx)
 	l_ptr->r_flags5 &= r_ptr->flags5;
 	l_ptr->r_flags6 &= r_ptr->flags6;
 }
-
-
-
 
 /*
  * Read a store
@@ -628,19 +522,12 @@ static errr rd_store(int n)
 	return (0);
 }
 
-
-
 /*
- * Read RNG state (added in 2.8.0)
+ * Read RNG state
  */
 static void rd_randomizer(void)
 {
 	int i;
-
-	u16b tmp16u;
-
-	/* Tmp */
-	rd_u16b(&tmp16u);
 
 	/* Place */
 	rd_u16b(&Rand_place);
@@ -654,8 +541,6 @@ static void rd_randomizer(void)
 	/* Accept */
 	Rand_quick = FALSE;
 }
-
-
 
 /*
  * Read options (ignore most pre-2.8.0 options)
@@ -675,19 +560,9 @@ static void rd_options(void)
 
 	byte b;
 
-	u16b tmp16u;
+	u16b flag16[8];
 
-	u32b flag[8];
-	u32b mask[8];
-
-
-	/*** Oops ***/
-
-	/* Ignore old options */
-	strip_bytes(16);
-
-
-	/*** Special info */
+	/*** Special info ***/
 
 	/* Read "delay_factor" */
 	rd_byte(&b);
@@ -697,103 +572,98 @@ static void rd_options(void)
 	rd_byte(&b);
 	op_ptr->hitpoint_warn = b;
 
-	/* Old cheating options */
-	rd_u16b(&tmp16u);
-
-
 	/*** Normal Options ***/
 
 	/* Read the option flags */
-	for (n = 0; n < 8; n++) rd_u32b(&flag[n]);
-
-	/* Read the option masks */
-	for (n = 0; n < 8; n++) rd_u32b(&mask[n]);
+	for (n = 0; n < 4; n++) rd_u16b(&flag16[n]);
 
 	/* Analyze the options */
-	for (i = 0; i < OPT_MAX; i++)
+	for (i = 0; i < OPT_NORMAL; i++)
 	{
-		int os = i / 32;
-		int ob = i % 32;
+		int os = i / 16;
+		int ob = i % 16;
 
 		/* Process real entries */
-		if (option_text[i])
+		if (options[i].text)
 		{
-			/* Process saved entries */
-			if (mask[os] & (1L << ob))
-			{
-				/* Set flag */
-				if (flag[os] & (1L << ob))
-				{
-					/* Set */
-					op_ptr->opt[i] = TRUE;
-				}
-
-				/* Clear flag */
-				else
-				{
-					/* Set */
-					op_ptr->opt[i] = FALSE;
-				}
-			}
+			/* Set flag */
+			if (flag16[os] & (1L << ob)) op_ptr->opt[i] = TRUE;
+	
+			/* Clear flag */
+			else op_ptr->opt[i] = FALSE;
 		}
 	}
 
+	/*** Birth and Adult Options ***/
+
+	/* Read the option flags */
+	rd_u16b(&flag16[0]);
+	rd_u16b(&flag16[1]);
+
+	/* Analyze the options */
+	for (i = 0; i < OPT_BIRTH; i++)
+	{
+		int ob = i % 16;
+
+		/* Process real entries */
+		if (options_birth[i].text)
+		{
+			/* Set flag */
+			if (flag16[0] & (1L << ob)) op_ptr->opt_birth[i] = TRUE;
+			/* Clear flag */
+			else op_ptr->opt_birth[i] = FALSE;
+
+			/* Set flag */
+			if (flag16[1] & (1L << ob)) op_ptr->opt_adult[i] = TRUE;
+			/* Clear flag */
+			else op_ptr->opt_adult[i] = FALSE;
+		}
+	}
+
+	/*** Cheating and scoring Options ***/
+
+	/* Read the option flags */
+	rd_u16b(&flag16[0]);
+
+	/* Analyze the options */
+	for (i = 0; i < OPT_CHEAT; i++)
+	{
+		int ob = i % 8;
+
+		/* Process real entries */
+		if (options_cheat[i].text)
+		{
+			/* Set flag */
+			if (flag16[0] & (1L << ob)) op_ptr->opt_cheat[i] = TRUE;
+			/* Clear flag */
+			else op_ptr->opt_cheat[i] = FALSE;
+			/* Set flag */
+			if (flag16[0] & (1L << (ob+8))) op_ptr->opt_score[i] = TRUE;
+			/* Clear flag */
+			else op_ptr->opt_score[i] = FALSE;
+		}
+	}
 
 	/*** Window Options ***/
 
 	/* Read the window flags */
-	for (n = 0; n < 8; n++) rd_u32b(&flag[n]);
-
-	/* Read the window masks */
-	for (n = 0; n < 8; n++) rd_u32b(&mask[n]);
+	for (n = 0; n < 8; n++) rd_u16b(&flag16[n]);
 
 	/* Analyze the options */
 	for (n = 0; n < 8; n++)
 	{
 		/* Analyze the options */
-		for (i = 0; i < 32; i++)
+		for (i = 0; i < 16; i++)
 		{
 			/* Process valid flags */
 			if (window_flag_desc[i])
 			{
-				/* Process valid flags */
-				if (mask[n] & (1L << i))
-				{
-					/* Set */
-					if (flag[n] & (1L << i))
-					{
-						/* Set */
-						op_ptr->window_flag[n] |= (1L << i);
-					}
-				}
+				/* Set */
+				if (flag16[n] & (1L << i)) op_ptr->window_flag[n] |= (1L << i);
 			}
 		}
 	}
 }
-
-
-
-
-
-/*
- * Hack -- strip the "ghost" info
- *
- * XXX XXX XXX This is such a nasty hack it hurts.
- */
-static void rd_ghost(void)
-{
-	char buf[64];
-
-	/* Strip name */
-	rd_string(buf, 64);
-
-	/* Strip old data */
-	strip_bytes(60);
-
-}
-
-
-
 
 /*
  * Read the "extra" information
@@ -803,7 +673,7 @@ static errr rd_extra(void)
 	int i;
 
 	byte tmp8u;
-	u16b tmp16u1,tmp16u2;
+	u16b tmp16u;
 
 	u32b randart_version;
 
@@ -816,13 +686,12 @@ static errr rd_extra(void)
 		rd_string(p_ptr->history[i], 60);
 	}
 
-	/* Class/Race/Gender/Spells */
+	/* Class/Race/Gender */
 	rd_byte(&p_ptr->prace);
 	rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->psex);
-	rd_byte(&tmp8u);	/* oops */
 
-	/* Repair psex (2.8.1 beta) */
+	/* Repair psex */
 	if (p_ptr->psex > MAX_SEXES - 1) p_ptr->psex = MAX_SEXES - 1;
 
 	/* Special Race/Class info */
@@ -835,10 +704,11 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->wt);
 
 	/* Read the stat info */
-	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
-	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
-
-	strip_bytes(24);	/* oops */
+	for (i = 0; i < A_MAX; i++) 
+	{
+		rd_s16b(&p_ptr->stat_max[i]);
+		rd_s16b(&p_ptr->stat_cur[i]);
+	}
 
 	rd_s32b(&p_ptr->au);
 
@@ -866,17 +736,13 @@ static errr rd_extra(void)
 	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
 
 	/* More info */
-	strip_bytes(8);
 	rd_s16b(&p_ptr->sc);
-	strip_bytes(2);
 
 	/* Read the flags */
-	strip_bytes(2);	/* Old "rest" */
 	rd_s16b(&p_ptr->blind);
 	rd_s16b(&p_ptr->paralyzed);
 	rd_s16b(&p_ptr->confused);
 	rd_s16b(&p_ptr->food);
-	strip_bytes(4);	/* Old "food_digested" / "protection" */
 	rd_s16b(&p_ptr->energy);
 	rd_s16b(&p_ptr->fast);
 	rd_s16b(&p_ptr->slow);
@@ -884,12 +750,13 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->cut);
 	rd_s16b(&p_ptr->stun);
 	rd_s16b(&p_ptr->poisoned);
+	rd_s16b(&p_ptr->diseased);
 	rd_s16b(&p_ptr->image);
 	rd_s16b(&p_ptr->protevil);
 	rd_s16b(&p_ptr->resilient);
 	rd_s16b(&p_ptr->absorb);
 	rd_s16b(&p_ptr->hero);
-	rd_s16b(&p_ptr->shero);
+	rd_s16b(&p_ptr->rage);
 	rd_s16b(&p_ptr->shield);
 	rd_s16b(&p_ptr->blessed);
 	rd_s16b(&p_ptr->tim_see_invis);
@@ -902,40 +769,35 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
-	rd_s16b(&p_ptr->oppose_all);
+	rd_s16b(&p_ptr->tim_res_lite);
+	rd_s16b(&p_ptr->tim_res_dark);
+	rd_s16b(&p_ptr->tim_res_confu);
+	rd_s16b(&p_ptr->tim_res_sound);
+	rd_s16b(&p_ptr->tim_res_shard);
+	rd_s16b(&p_ptr->tim_res_nexus);
+	rd_s16b(&p_ptr->tim_res_nethr);
+	rd_s16b(&p_ptr->tim_res_chaos);
+	rd_s16b(&p_ptr->tim_res_disease);
+	rd_s16b(&p_ptr->tim_res_water);
 	rd_s16b(&p_ptr->racial_power);
 
 	rd_byte(&p_ptr->confusing);
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&p_ptr->searching);
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);
 
 	/* Squelch bytes */
 	for (i = 0; i < 24; i++) rd_byte(&squelch_level[i]);
 	rd_byte(&auto_destroy);
 
- 	/* Future use */
-	for (i = 0; i < 15; i++) rd_byte(&tmp8u);
-
 	/* Read the randart version */
-	rd_u32b(&randart_version);
+	if (adult_rand_artifacts) rd_u32b(&randart_version);
 
 	/* Read the randart seed */
-	rd_u32b(&seed_randart);
-
-	/* Skip the flags */
-	strip_bytes(12);
-
+	if (adult_rand_artifacts) rd_u32b(&seed_randart);
 
 	/* Hack -- the three "special seeds" */
 	rd_u32b(&seed_flavor);
 	rd_u32b(&seed_alchemy);
 	rd_u32b(&seed_town);
-
 
 	/* Special stuff */
 	rd_u16b(&p_ptr->panic_save);
@@ -993,73 +855,74 @@ static errr rd_extra(void)
 
 
 	/* Read the player_hp array */
-	rd_u16b(&tmp16u1);
+	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u1 > PY_MAX_LEVEL)
+	if (tmp16u > PY_MAX_LEVEL)
 	{
-		note(format("Too many (%u) hitpoint entries!", tmp16u1));
+		note(format("Too many (%u) hitpoint entries!", tmp16u));
 		return (25);
 	}
 
 	/* Read the player_hp array */
-	for (i = 0; i < tmp16u1; i++)
-	{
-		rd_s16b(&p_ptr->player_hp[i]);
-	}
-
-	/* 
-	 * Read the spell info array 
-	 * 
-	 * 0.1.2 Changed the spell storage. Older spellcasters will have to 
-	 * relearn all their spells
-	 */
-
-	if (older_than(0,1,2)) 
-	{
-		/* 0.1.0 has 4 hard-coded spell realms */
-		if (older_than(0,1,1)) tmp16u1=4;  
-		else rd_u16b(&tmp16u1);
-
-		/* This is where the old spell info went*/
-		strip_bytes(88*tmp16u1);
-	}
-	else 
-	{
-		rd_u16b(&tmp16u1);
-		rd_u16b(&tmp16u2);
-
-		/* Incompatible save files */
-		if (tmp16u1 > SV_MAX_BOOKS)
-		{
-			note(format("Too many (%u) spellbook entries!", tmp16u1));
-			return (25);
-		}
-		if (tmp16u2 > MAX_BOOK_SPELLS)
-		{
-			note(format("Too many (%u) spells per book!", tmp16u2));
-			return (25);
-		}
-
-		/* Read spell info */
-		for (i =0; i < tmp16u1; i++)
-		{
-			rd_u16b(&p_ptr->spell_learned[i]);
-			rd_u16b(&p_ptr->spell_worked[i]);
-			rd_u16b(&p_ptr->spell_forgotten[i]);
-		}
-		for (i = 0; i < (tmp16u1 * tmp16u2); i++)
-		{
-			rd_byte(&p_ptr->spell_order[i][0]);
-			rd_byte(&p_ptr->spell_order[i][1]);
-		}
-	}
+	for (i = 0; i < tmp16u; i++) rd_s16b(&p_ptr->player_hp[i]);
 
 	return (0);
 }
 
+/* 
+ * Read the spell information
+ */
+static errr rd_spells(void)
+{
+	int i;
 
+	byte tmp8u;
+	u16b tmp16u1,tmp16u2;
 
+	/* Legal Spellbooks */
+	rd_u16b(&tmp16u1);
+	/* Ordered Spells */
+	rd_u16b(&tmp16u2);
+
+	/* Incompatible save files */
+	if (tmp16u1 > SV_MAX_BOOKS)
+	{
+		note(format("Too many (%u) spellbook entries!", tmp16u1));
+		return (25);
+	}
+	if (tmp16u2 > MAX_BOOK_SPELLS*SV_MAX_BOOKS)
+	{
+		note(format("Too many (%u) ordered spells!", tmp16u2));
+		return (25);
+	}
+
+	/* Read spell info */
+	for (i =0; i < tmp16u1; i++)
+	{
+		rd_byte(&tmp8u); /* The spellbook's index */
+		rd_u16b(&p_ptr->spell_learned[tmp8u]);
+		rd_u16b(&p_ptr->spell_worked[tmp8u]);
+		rd_u16b(&p_ptr->spell_forgotten[tmp8u]);
+	}
+	for (i = 0; i < MAX_BOOK_SPELLS*SV_MAX_BOOKS; i++)
+	{
+		if (i<tmp16u2) 
+		{
+			rd_byte(&p_ptr->spell_order[i][0]);
+			rd_byte(&p_ptr->spell_order[i][1]);
+		}
+		else 
+		/* Fill in the array */
+		{ 
+			p_ptr->spell_order[i][0] = 99;
+			p_ptr->spell_order[i][1] = 99;
+		}
+
+	}
+
+	return (0);
+}
 
 /*
  * Read the player inventory
@@ -1146,7 +1009,6 @@ static errr rd_inventory(void)
 	return (0);
 }
 
-
 /*
  * Read the saved messages
  */
@@ -1173,7 +1035,6 @@ static void rd_messages(void)
 		message_add(buf, tmp16u);
 	}
 }
-
 
 /*
  * Read the dungeon
@@ -1203,7 +1064,6 @@ static errr rd_dungeon(void)
 
 	byte count;
 	byte tmp8u;
-	u16b tmp16u;
 
 	u16b limit;
 
@@ -1212,14 +1072,10 @@ static errr rd_dungeon(void)
 
 	/* Header info */
 	rd_s16b(&depth);
-	rd_u16b(&tmp16u);
 	rd_s16b(&py);
 	rd_s16b(&px);
 	rd_s16b(&ymax);
 	rd_s16b(&xmax);
-	rd_u16b(&tmp16u);
-	rd_u16b(&tmp16u);
-
 
 	/* Ignore illegal dungeons */
 	if ((depth < 0) || (depth >= MAX_DEPTH))
@@ -1453,8 +1309,6 @@ static errr rd_dungeon(void)
 	return (0);
 }
 
-
-
 /*
  * Actually read the savefile
  */
@@ -1464,14 +1318,9 @@ static errr rd_savefile_new_aux(void)
 
 	byte tmp8u;
 	u16b tmp16u;
-	u32b tmp32u;
 
-
-#ifdef VERIFY_CHECKSUMS
 	u32b n_x_check, n_v_check;
 	u32b o_x_check, o_v_check;
-#endif
-
 
 	/* Mention the savefile version */
 	note(format("Loading a %d.%d.%d savefile...",
@@ -1502,28 +1351,17 @@ static errr rd_savefile_new_aux(void)
 	/* Number of times played */
 	rd_u16b(&sf_saves);
 
-
-	/* Later use (always zero) */
-	rd_u32b(&tmp32u);
-
-	/* Later use (always zero) */
-	rd_u32b(&tmp32u);
-
-
 	/* Read RNG state */
 	rd_randomizer();
 	if (arg_fiddle) note("Loaded Randomizer Info");
-
 
 	/* Then the options */
 	rd_options();
 	if (arg_fiddle) note("Loaded Option Flags");
 
-
 	/* Then the "messages" */
 	rd_messages();
 	if (arg_fiddle) note("Loaded Messages");
-
 
 	/* Monster Memory */
 	rd_u16b(&tmp16u);
@@ -1571,53 +1409,27 @@ static errr rd_savefile_new_aux(void)
 
 		rd_byte(&tmp8u);
 
-		/* Because of the item index changes, just assume you know all 0.1.0 items */
-		if (older_than(0,1,1))
-		{
-			k_ptr->aware = TRUE;
-			k_ptr->tried = TRUE;
-			k_ptr->squelch = FALSE;
-			k_ptr->everseen = FALSE;
-
-		}
-		else
-		{
-			k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
-			k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
-			k_ptr->squelch = (tmp8u & 0x04) ? TRUE: FALSE;
-			k_ptr->everseen = (tmp8u & 0x08) ? TRUE: FALSE;
-		}
+		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
+		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+		k_ptr->squelch = (tmp8u & 0x04) ? TRUE: FALSE;
+		k_ptr->everseen = (tmp8u & 0x08) ? TRUE: FALSE;
 	}
+
 	if (arg_fiddle) note("Loaded Object Memory");
 
-
-	if (!older_than(0,1,2))
+	/* Load the alchemy info */
+	rd_u16b(&tmp16u);
+	if (tmp16u != SV_MAX_POTIONS)
 	{
-		byte tmp8u;
+		note(format("Wrong amount (%u) of alchemy info!", tmp16u));
+		return (23);
+	}
 
-		/* Load the alchemy info */
-		rd_u16b(&tmp16u);
-		if (tmp16u != SV_MAX_POTIONS)
-		{
-			note(format("Wrong amount (%u) of alchemy info!", tmp16u));
-			return (23);
-		}
-
-		for (i = 0; i < tmp16u; i++) 
-		{
-			if (older_than(0,1,3))
-			{
-				rd_byte(&potion_alch[i].known1);
-				rd_byte(&potion_alch[i].known2);
-			}
-			else
-			{
-				rd_byte(&tmp8u);
-				potion_alch[i].known1 = (tmp8u & 0x01) ? TRUE: FALSE;
-				potion_alch[i].known2 = (tmp8u & 0x02) ? TRUE: FALSE;
-			}
-
-		}
+	for (i = 0; i < tmp16u; i++) 
+	{
+		rd_byte(&tmp8u);
+		potion_alch[i].known1 = (tmp8u & 0x01) ? TRUE: FALSE;
+		potion_alch[i].known2 = (tmp8u & 0x02) ? TRUE: FALSE;
 	}
 
 	/* Load the Quests */
@@ -1633,32 +1445,22 @@ static errr rd_savefile_new_aux(void)
 	/* Load the Quests */
 	for (i = 0; i < tmp16u; i++)
 	{
-		if (!older_than(0,1,3)) 
-		{
-			rd_byte(&q_info[i].type);
+		rd_byte(&q_info[i].type);
 
-			if (q_info[i].type == QUEST_FIXED)
-			{
-				rd_byte(&q_info[i].active_level);
-				rd_s16b(&q_info[i].cur_num);
-			}
-			else if (q_info[i].type == QUEST_GUILD)
-			{
-				rd_byte(&q_info[i].reward);
-				rd_byte(&q_info[i].active_level);
-				rd_byte(&q_info[i].base_level);
-
-				rd_s16b(&q_info[i].r_idx);
-
-				rd_s16b(&q_info[i].cur_num);
-				rd_s16b(&q_info[i].max_num);
-			}
-		}
-		else 
+		if (q_info[i].type == QUEST_FIXED)
 		{
 			rd_byte(&q_info[i].active_level);
 			rd_s16b(&q_info[i].cur_num);
-			rd_byte(&tmp8u);
+		}
+		else if (q_info[i].type == QUEST_GUILD)
+		{
+			rd_byte(&q_info[i].reward);
+			rd_byte(&q_info[i].active_level);
+			rd_byte(&q_info[i].base_level);
+
+			rd_s16b(&q_info[i].r_idx);
+			rd_s16b(&q_info[i].cur_num);
+			rd_s16b(&q_info[i].max_num);
 		}
 	}
 	if (arg_fiddle) note("Loaded Quests");
@@ -1678,15 +1480,16 @@ static errr rd_savefile_new_aux(void)
 	{
 		rd_byte(&tmp8u);
 		a_info[i].cur_num = tmp8u;
-		rd_byte(&tmp8u);
-		rd_byte(&tmp8u);
-		rd_byte(&tmp8u);
 	}
 	if (arg_fiddle) note("Loaded Artifacts");
 
 	/* Read the extra stuff */
 	if (rd_extra()) return (25);
 	if (arg_fiddle) note("Loaded extra information");
+
+	/* Read the spell stuff */
+	if (rd_spells()) return (25);
+	if (arg_fiddle) note("Loaded spell information");
 
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];
@@ -1712,7 +1515,6 @@ static errr rd_savefile_new_aux(void)
 		if (rd_store(i)) return (22);
 	}
 
-
 	/* I'm not dead yet... */
 	if (!p_ptr->is_dead)
 	{
@@ -1724,12 +1526,7 @@ static errr rd_savefile_new_aux(void)
 			return (34);
 		}
 
-		/* Read the ghost info */
-		rd_ghost();
 	}
-
-
-#ifdef VERIFY_CHECKSUMS
 
 	/* Save the checksum */
 	n_v_check = v_check;
@@ -1757,12 +1554,9 @@ static errr rd_savefile_new_aux(void)
 		return (11);
 	}
 	
-#endif
-
 	/* Success */
 	return (0);
 }
-
 
 /*
  * Actually read the savefile
@@ -1789,5 +1583,3 @@ errr rd_savefile_new(void)
 	/* Result */
 	return (err);
 }
-
-

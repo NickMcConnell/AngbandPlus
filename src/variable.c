@@ -10,7 +10,6 @@
 
 #include "angband.h"
 
-
 /*
  * Hack -- Link a copyright message into the executable
  */
@@ -22,7 +21,6 @@ cptr copyright[5] =
 	"and not for profit purposes provided that this copyright and statement",
 	"are included in all such copies.  Other copyrights may also apply."
 };
-
 
 /*
  * Executable version
@@ -61,7 +59,6 @@ bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
 /*
  * Various things
  */
-
 bool character_generated;	/* The character exists */
 bool character_dungeon;		/* The character has a dungeon */
 bool character_loaded;		/* The character was loaded from a savefile */
@@ -125,14 +122,12 @@ bool command_repeating = FALSE;
 /*
  * Dungeon variables
  */
-
 byte feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
 
 bool good_item_flag;	/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
-
 
 /*
  * Player info
@@ -141,12 +136,10 @@ int player_uid;
 int player_euid;
 int player_egid;
 
-
 /*
  * Buffer to hold the current savefile name
  */
 char savefile[1024];
-
 
 /*
  * Number of active macros.
@@ -163,7 +156,6 @@ cptr *macro__pat;
  */
 cptr *macro__act;
 
-
 /*
  * The number of quarks (first quark is NULL)
  */
@@ -173,7 +165,6 @@ s16b quark__num = 1;
  * The array[QUARK_MAX] of pointers to the quarks
  */
 cptr *quark__str;
-
 
 /*
  * The next "free" index to use
@@ -210,18 +201,15 @@ char *message__buf;
  */
 u16b *message__type;
 
-
 /*
  * Table of colors associated to message-types
  */
 byte message__color[MSG_MAX];
 
-
 /*
  * The array[8] of window pointers
  */
 term *angband_term[8];
-
 
 /*
  * The array[8] of window names (modifiable?)
@@ -237,7 +225,6 @@ char angband_term_name[8][16] =
 	"Term-6",
 	"Term-7"
 };
-
 
 /*
  * Global table of color definitions (mostly zeros)
@@ -261,7 +248,6 @@ byte angband_color_table[256][4] =
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
 };
-
 
 /*
  * Standard sound (and message) names
@@ -299,7 +285,6 @@ char angband_sound_name[SOUND_MAX][16] =
 	"stairs",
 };
 
-
 /*
  * Array[VIEW_MAX] used by "update_view()"
  */
@@ -314,7 +299,6 @@ u16b *temp_g;
 byte *temp_y;
 byte *temp_x;
 
-
 /*
  * Array[DUNGEON_HGT][256] of cave grid info flags (padded)
  *
@@ -327,7 +311,6 @@ byte (*cave_info)[256];
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
  */
 byte (*cave_feat)[DUNGEON_WID];
-
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid object indexes
@@ -354,7 +337,6 @@ s16b (*cave_o_idx)[DUNGEON_WID];
  */
 s16b (*cave_m_idx)[DUNGEON_WID];
 
-
 #ifdef MONSTER_FLOW
 
 /*
@@ -369,7 +351,6 @@ byte (*cave_when)[DUNGEON_WID];
 
 #endif	/* MONSTER_FLOW */
 
-
 /*
  * Array[z_info->o_max] of dungeon objects
  */
@@ -380,18 +361,10 @@ object_type *o_list;
  */
 monster_type *m_list;
 
-
 /*
  * Array[z_info->r_max] of monster lore
  */
 monster_lore *l_list;
-
-
-/*
- * Hack -- Array[MAX_Q_IDX] of quests
- */
-quest *q_list;
-
 
 /*
  * Array[MAX_STORES] of stores
@@ -403,7 +376,6 @@ store_type *store;
  */
 object_type *inventory;
 
-
 /*
  * The size of "alloc_kind_table" (at most z_info->k_max * 4)
  */
@@ -413,7 +385,6 @@ s16b alloc_kind_size;
  * The array[alloc_kind_size] of entries in the "kind allocator table"
  */
 alloc_entry *alloc_kind_table;
-
 
 /*
  * The size of the "alloc_ego_table"
@@ -425,7 +396,6 @@ s16b alloc_ego_size;
  */
 alloc_entry *alloc_ego_table;
 
-
 /*
  * The size of "alloc_race_table" (at most z_info->r_max)
  */
@@ -436,7 +406,6 @@ s16b alloc_race_size;
  */
 alloc_entry *alloc_race_table;
 
-
 /*
  * Specify attr/char pairs for visual special effects
  * Be sure to use "index & 0xFF" to avoid illegal access
@@ -444,26 +413,21 @@ alloc_entry *alloc_race_table;
 byte misc_to_attr[256];
 char misc_to_char[256];
 
-
 /*
  * Specify color for inventory item text display (by tval)
  * Be sure to use "index & 0x7F" to avoid illegal access
  */
 byte tval_to_attr[128];
 
-
 /*
  * Current (or recent) macro action
  */
 char macro_buffer[1024];
 
-
 /*
  * Keymaps for each "mode" associated with each keypress.
  */
 cptr keymap_act[KEYMAP_MODES][256];
-
-
 
 /*** Player information ***/
 
@@ -516,7 +480,6 @@ char *v_text;
 header *f_head;
 feature_type *f_info;
 char *f_name;
-char *f_text;
 
 /*
  * The object kind arrays
@@ -524,7 +487,6 @@ char *f_text;
 header *k_head;
 object_kind *k_info;
 char *k_name;
-char *k_text;
 
 /*
  * The artifact arrays
@@ -532,7 +494,6 @@ char *k_text;
 header *a_head;
 artifact_type *a_info;
 char *a_name;
-char *a_text;
 
 /*
  * The ego-item arrays
@@ -540,7 +501,6 @@ char *a_text;
 header *e_head;
 ego_item_type *e_info;
 char *e_name;
-char *e_text;
 
 /*
  * The monster race arrays
@@ -564,7 +524,6 @@ char *c_text;
 header *p_head;
 player_race *p_info;
 char *p_name;
-char *p_text;
 
 /*
  * The player history arrays
@@ -590,9 +549,8 @@ byte *g_info;
  * The quest arrays
  */
 header *q_head;
-quest *q_info;
+quest_type *q_info;
 char *q_name;
-char *q_text;
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -617,12 +575,6 @@ cptr ANGBAND_DIR;
  * These files may be portable between platforms
  */
 cptr ANGBAND_DIR_APEX;
-
-/*
- * Bone files for player ghosts (ascii)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_BONE;
 
 /*
  * Binary image files for the "*_info" arrays (binary)
@@ -672,13 +624,11 @@ cptr ANGBAND_DIR_USER;
  */
 cptr ANGBAND_DIR_XTRA;
 
-
 /*
  * Total Hack -- allow all items to be listed (even empty ones)
  * This is only used by "do_cmd_inven_e()" and is cleared there.
  */
 bool item_tester_full;
-
 
 /*
  * Here is a "pseudo-hook" used during calls to "get_item()" and
@@ -686,46 +636,36 @@ bool item_tester_full;
  */
 byte item_tester_tval;
 
-
 /*
  * Here is a "hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
 bool (*item_tester_hook)(object_type*);
 
-
-
 /*
  * Current "comp" function for ang_sort()
  */
 bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
-
 
 /*
  * Current "swap" function for ang_sort()
  */
 void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 
-
-
 /*
  * Hack -- function hook to restrict "get_mon_num_prep()" function
  */
 bool (*get_mon_num_hook)(int r_idx);
-
-
 
 /*
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
 
-
 /*
  * The "highscore" file descriptor, if available.
  */
 int highscore_fd = -1;
-
 
 /*
  * Use transparent tiles
@@ -736,3 +676,8 @@ bool use_transparency = FALSE;
  * Game can be saved
  */
 bool can_save = TRUE;
+
+/*
+ * The alchemy information
+ */
+alchemy_info potion_alch[SV_MAX_POTIONS];

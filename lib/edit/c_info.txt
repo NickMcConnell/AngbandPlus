@@ -53,7 +53,7 @@
 # id.
 # PSEDUO_ID_HEAVY - If a class has this flag it gets the "heavy" (more detailed) pseudo ID.
 # EXTRA_SHOT - The character shall gain extra shots at higher levels.
-# RES_FEAR_30 - The character shall gain resist fear at level 30.
+# BRAVERY_30 - The character shall gain resistance to fear at level 30.
 # NO_GLOVE - Spellcasting skills are reduced by wearing gloves.
 # BLESS_WEAPON - The character's spellcasting skill is reduced by using non-hafted, 
 # non-blessed weapons. Also, the character will get a more powerful orb of destruction.
@@ -64,24 +64,26 @@
 # POWER - The character's spells will be more powerful.
 # EXTRA_MANA - The character gets 1.5 times as much mana as without this flag.
 # EXTRA_SPELL - The character gains spells faster.
-# MYSTIC_CAST - Allows the character to cast spells from the mystic spellbooks even 
-# when blinded or confused.
+# MYSTIC_CAST - Allows the character to cast spells from the mystic spellbooks even
+# while blinded or confused.
+# MUSIC - Allows the character to use musical instruments.
+# LORE - Identifying an artifact reveals all info about it (acts as *identify*)
 
 # Version stamp (required)
 
-V:0.1.4
+V:0.2.0
 
 N:0:Warrior
 S:5:-2:-2:2:2:-1
 C:25:18:18:1:14:2:70:55:65:0:26
 X:10:7:10:0:0:0:45:45:45:0:5
 I:9:0:6:30:5:0:0:0
-E:75:33:1:1
+E:75:30:1:1
 E:23:16:1:1
 E:37:4:1:1
 T:Rookie|Soldier|Mercenary|Veteran|Swordsman
 T:Champion|Hero|Baron|Duke|Lord
-F:RES_FEAR_30|PSEUDO_ID5|PSEUDO_ID_HEAVY
+F:BRAVERY_30|PSEUDO_ID5|PSEUDO_ID_HEAVY
 
 N:1:Mage
 S:-5:3:0:1:-2:1
@@ -124,7 +126,7 @@ B:22:1
 B:23:1
 E:90:10:1:1
 E:21:5:1:1
-E:75:37:1:1
+E:75:34:1:1
 T:Believer|Acolyte|Adept|Curate|Canon
 T:Lama|Patriarch|Priest|High-Priest|Archpriest
 F:BLESS_WEAPON|ZERO_FAIL|PSEUDO_ID4
@@ -187,8 +189,21 @@ B:22:1
 B:23:1
 E:90:0:1:1
 E:90:10:1:1
-E:76:4:1:1
+E:76:10:2:3
 T:Aspirant|Initiate|Mystic|Grand-Mystic|Seer
 T:Guru|Enlightened|Master|Grand-Master|Transcendent
 F:NO_GLOVE|ZERO_FAIL|POWER|PSEUDO_ID1
 F:EXTRA_MANA|EXTRA_SPELL|MYSTIC_CAST|CHOOSE_SPELLS
+
+N:6:Bard
+S:-1:1:-2:2:0:3
+C:25:30:25:3:18:8:55:45:35:0:40
+X:10:10:10:0:0:0:30:35:20:0:8
+I:3:15:5:35:4:5:5:300
+E:50:0:1:1
+E:50:1:1:1
+E:23:7:1:1
+E:36:4:1:1
+T:Performer|Entertainer|Musician|Trubador|Minstrel
+T:Courtier|Poet|Bard|Master-Bard|Maestro
+F:MUSIC|PSEUDO_ID5|PSEUDO_ID_HEAVY|NO_GLOVE|LORE

@@ -1,0 +1,23 @@
+            -- Commands and Options --
+
+Please choose one of the following online help files:
+
+    (1) Listing of Commands        (cmdlist.txt)
+    (2) Commands Descriptions      (cmddesc.txt)
+    (3) Macros and Keymaps         (macro.txt)
+    (4) Regular Options            (option.txt)
+    (5) Birth Options              (birthopt.txt)
+    (6) Cheat Options              (cheatopt.txt)
+    (7) Special Options            (specopt.txt)
+
+
+ ?  : return to previous menu
+ ESC: leave help
+
+***** [1] cmdlist.txt
+***** [2] cmddesc.txt
+***** [3] macro.txt
+***** [4] option.txt
+***** [5] birthopt.txt
+***** [6] cheatopt.txt
+***** [7] specopt.txt
