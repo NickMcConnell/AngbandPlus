@@ -50,6 +50,7 @@
 
 
 #include "angband.h"
+#include "main.h"
 
 
 #ifdef USE_IBM
@@ -808,6 +809,56 @@ static errr Term_wipe_ibm(int x, int y, int n)
 
 
 /*
+ * Translate from ISO Latin-1 characters 128+ to 8-bit IBM extended ASCII.
+ *
+ * Many IBM extended characters are semi-graphical; we carefully do not
+ * translate them.
+ */
+const byte ibm_char_conv[128] =
+{
+	  0,   0,   0,   0,   0,   0,   0,   0,
+ 	  0,   0,   0,   0,   0,   0,   0,   0,
+ 	  0,   0,   0,   0,   0,   0,   0,   0,
+ 	  0,   0,   0,   0,   0,   0,   0,   0,
+ 	  0, 173, 135, 136,   0, 137,   0,  21,
+ 	  0,   0,   0,   0,   0,   0,   0,   0,
+ 	  0,   0,   0,   0,   0,   0,   0,   0,
+ 	  0,   0,   0,   0,   0,   0,   0, 168,
+ 	'A', 'A', 'A', 'A', 142, 143, 146, 128,
+ 	144, 'E', 'E', 'E', 152, 152, 152, 152,
+ 	'D', 165, 'O', 'O', 'O', 'O', 153,   0,
+ 	'O', 'U', 'U', 'U', 154, 'Y',   0, 225,
+ 	133, 160, 131, 'a', 132, 134, 145, 135,
+ 	138, 130, 136, 137, 'i', 161, 140, 139,
+ 	'o', 164, 149, 162, 147, 'o', 148,   0,
+ 	237, 151, 163, 150, 129, 'y',   0, 'y'
+};
+
+
+/*
+ * Given a position in the ISO Latin-1 character set, return
+ * the IBM ASCII equivalent.
+ */
+static byte Term_xchar_ibm(byte c)
+{
+ 	byte s;
+
+ 	/* 7-bit characters are not changed */
+ 	if (c < 128) return (c);
+
+ 	/* Translate extended characters */
+ 	s = ibm_char_conv[c - 128];
+
+ 	/* Ignore translations to zero */
+ 	if (s) return (s);
+ 	return (c);
+}
+
+
+
+
+
+/*
  * Place some text on the screen using an attribute
  *
  * The given parameters are "valid".  Be careful with "a".
@@ -871,11 +922,7 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
  *
  * The given parameters are "valid".
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	register int i;
 	register byte attr;
@@ -1182,6 +1229,8 @@ void enable_graphic_font(const char *font)
 
 #endif /* ALLOW_GRAPH */
 
+const char help_ibm[] =
+	"IBM (BIOS text mode)";
 
 
 /*
@@ -1383,6 +1432,7 @@ errr init_ibm(void)
 	t->wipe_hook = Term_wipe_ibm;
 	t->text_hook = Term_text_ibm;
 	t->pict_hook = Term_pict_ibm;
+	t->xchar_hook = Term_xchar_ibm;
 
 	/* Save it */
 	term_screen = t;

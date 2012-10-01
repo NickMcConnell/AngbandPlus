@@ -21,6 +21,7 @@
 
 /* Angband header files */
 #include "angband.h"
+#include "main.h"
 
 #define COLOR_OFFSET 240
 
@@ -625,6 +626,9 @@ static void term_nuke_svgalib (term *t)
 {
   vga_setmode (TEXT);
 }
+
+const char help_lsl[]= 
+"LSL (Linux-SVGALIB)";
 
 /****************************************************************************
  * Hook SVGAlib routines into term.c

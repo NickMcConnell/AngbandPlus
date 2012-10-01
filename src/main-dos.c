@@ -68,6 +68,7 @@
  */
 
 #include "angband.h"
+#include "main.h"
 
 
 #ifdef USE_DOS
@@ -166,6 +167,13 @@ static term_data data[MAX_TERM_DATA];
 
 
 #ifdef USE_GRAPHICS
+
+/*
+ * Available graphic modes
+ */
+#define GRAPHICS_NONE       0
+#define GRAPHICS_ORIGINAL   1
+#define GRAPHICS_ADAM_BOLT  2
 
 /*
  * Are graphics already initialized ?
@@ -312,11 +320,7 @@ static void play_song(void);
 #endif /* USE_SOUND */
 #ifdef USE_GRAPHICS
 static bool init_graphics(void);
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp);
-# endif /* USE_TRANSPARENCY */
 #endif /* USE_GRAPHICS */
 
 
@@ -960,7 +964,7 @@ static errr Term_user_dos(int n)
 
 				/* Prompt */
 				prt("Command: Screen Resolution", 1, 0);
-				prt("Restart Oangband to get the new screenmode.", 3, 0);
+				prt("Restart FAangband to get the new screenmode.", 3, 0);
 
 				/* Get a list of the available presets */
 				while (1)
@@ -1193,11 +1197,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
  * "ap[i]" and "cp[i]" values, but we must map the resulting value
  * onto the legal bitmap size, which is normally 32x32.  XXX XXX XXX
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -1208,11 +1208,7 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 	int x1, y1;
 	int x2, y2;
 
-# ifdef USE_TRANSPARENCY
-
 	int x3, y3;
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Size */
 	w = td->tile_wid;
@@ -1229,7 +1225,6 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 		x2 = (cp[i] & 0x7F) * w;
 		y2 = (ap[i] & 0x7F) * h;
 
-# ifdef USE_TRANSPARENCY
 		x3 = (tcp[i] & 0x7F) * w;
 		y3 = (tap[i] & 0x7F) * h;
 
@@ -1238,13 +1233,6 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 
 		/* Blit the tile to the screen */
 		masked_blit(td->tiles, screen, x2, y2, x1, y1, w, h);
-
-# else /* USE_TRANSPARENCY */
-
-		/* Blit the tile to the screen */
-		blit(td->tiles, screen, x2, y2, x1, y1, w, h);
-
-# endif /* USE_TRANSPARENCY */
 
 		/* Advance (window) */
 		x1 += w;
@@ -2077,6 +2065,9 @@ static void play_song(void)
 
 #endif /* USE_SOUND */
 
+
+const char help_dos[] =
+"DOS (Graphics)";
 
 /*
  * Attempt to initialize this file

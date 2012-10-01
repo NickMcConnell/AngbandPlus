@@ -1,0 +1,200 @@
+# File: Makefile.osx
+
+# This is a (rather crude) Makefile for Mac OS X Carbon port of Angband.
+#
+
+# Installing the Developer CD and you'll have this, as well as full
+# set of Mac OS programming documentation (HTML and PDF)
+
+CC = gcc
+ifeq ($(OPT),)
+OPT = -O2
+endif
+
+# Some Developer CD tools we need - the standard installation location
+TOOLDIR = /Developer/Tools
+SETFILE = $(TOOLDIR)/SetFile
+
+# Name of the game, other deliverable variables
+APPNAME = OAngband.app
+EXE =oangband
+NAME =OAngband
+COPYRIGHT =2008 Nick McConnell and Bahman Rabii
+VERSION =1.1.0u
+
+
+#
+# The "source" and "object" files.
+#
+
+SRCS = \
+  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
+  variable.c tables.c util.c cave.c info.c \
+  object1.c object2.c monster1.c monster2.c \
+  xtra1.c xtra2.c spells1.c spells2.c \
+  monmove.c monattk.c save.c files.c randart.c \
+  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
+  store.c birth.c load.c \
+  attack.c wizard1.c wizard2.c squelch.c \
+  generate.c dungeon.c init1.c init2.c \
+  main-crb.c
+
+OBJS = \
+  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
+  variable.o tables.o util.o cave.o info.o \
+  object1.o object2.o monster1.o monster2.o \
+  xtra1.o xtra2.o spells1.o spells2.o \
+  monmove.o monattk.o save.o files.o randart.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  store.o birth.o load.o \
+  attack.o wizard1.o wizard2.o squelch.o \
+  generate.o dungeon.o init1.o init2.o \
+  main-crb.o 
+
+
+CFLAGS = \
+	-Wall -std=gnu99 $(OPT) -DMACH_O_CARBON -DUSE_TRANSPARENCY \
+	-DHAVE_MKSTEMP 	-DPRIVATE_USER_PATH=\"~/Library/Preferences\" \
+	-DUSE_PRIVATE_PATHS
+	
+LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
+
+#
+# Default target.
+#
+all: install
+
+#
+# Build the "Angband" program
+#
+
+$(EXE): $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS) $(LIBS)
+
+
+#
+# Clean up old junk
+#
+
+clean:
+	-rm -f *.o $(EXE)
+
+
+#
+# Hack -- some file dependencies
+#
+
+HDRS = \
+  h-basic.h \
+  h-define.h h-type.h h-system.h h-config.h
+
+INCS = \
+  angband.h \
+  config.h defines.h types.h externs.h \
+  z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
+
+%.o: %.c $(INCS)
+main-crb.o: main-crb.c $(INCS) osx/osx_tables.h
+z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
+z-rand.o: z-rand.c $(HDRS) z-rand.h
+z-term.o: z-term.c $(HDRS) z-term.h z-virt.h
+z-util.o: z-util.c $(HDRS) z-util.h
+z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
+
+
+
+#
+# Installation.
+# Application bundle -- a directory looking like an ordinary application
+#
+
+# Bundle of the game (it must be a directory whose name ends in ".app")
+APPBNDL = ../$(APPNAME)
+
+# A bundle must have these subdirectories
+APPCONT = $(APPBNDL)/Contents
+APPBIN = $(APPCONT)/MacOS
+APPRES = $(APPCONT)/Resources
+
+# Auxiliary files. Please note that it still uses resouce fork based
+# resources for menus, dialogues and sounds, so that it isn't safe to use
+# utilities that doesn't understand them (virtually all Un*x commands) to
+# copy or archive the application.
+#
+# The graphics tiles have been moved out of the resource fork, but, again,
+# it isn't generally safe just to convert GIF or BMP files to PNG, because
+# the Mac OS takes dpi values stored in various images quite seriously.
+# Almost all tilesets for *band requires adjustment, with the sole exception
+# of 8x8.bmp for Vanilla.  Make sure setting dpi to 72, *not* preserving
+# the actual size of image.  When you have them ready, put them in the src
+# directory and "make install-tiles".
+ICONFILES = osx/Angband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
+PLIST = osx/Angband.xml
+
+RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON
+GRAPHSRC=../lib/xtra/graf/
+TILES = $(GRAPHSRC)8x8.bmp $(GRAPHSRC)16x16.bmp $(GRAPHSRC)32x32.bmp
+
+LIBFILES = \
+  ../lib/edit/*.txt \
+  ../lib/file/*.txt \
+  ../lib/help/*.txt \
+  ../lib/help/*.hlp \
+  ../lib/pref/*.prf \
+
+install: $(EXE) $(ICONFILES) $(PLIST) $(LIBFILES)
+	@echo making directories...
+	@mkdir -p $(APPBNDL)
+	@mkdir -p $(APPCONT)
+	@mkdir -p $(APPBIN)
+	@mkdir -p $(APPRES)
+	@mkdir -p $(APPRES)/English.lproj/main.nib 
+	@mkdir -p $(APPRES)/lib/edit
+	@mkdir -p $(APPRES)/lib/file
+	@mkdir -p $(APPRES)/lib/apex
+	@mkdir -p $(APPRES)/lib/data
+	@mkdir -p $(APPRES)/lib/save
+	@mkdir -p $(APPRES)/lib/help
+	@mkdir -p $(APPRES)/lib/pref
+	@mkdir -p $(APPRES)/lib/script
+	@mkdir -p $(APPRES)/lib/xtra/graf
+	@mkdir -p $(APPRES)/lib/xtra/sound
+
+	@echo copying files...
+	@cp ../lib/edit/*.txt $(APPRES)/lib/edit
+	@cp ../lib/file/*.txt $(APPRES)/lib/file
+	@cp ../lib/help/*.txt $(APPRES)/lib/help
+	@cp ../lib/help/*.hlp $(APPRES)/lib/help
+	@cp ../lib/pref/*.prf $(APPRES)/lib/pref
+
+	# 'optionally' install sound and graphics tiles, if present
+	-cp -f ../lib/xtra/graf/*.png $(APPRES)/lib/xtra/graf
+	-cp -f ../lib/xtra/sound/*.wav $(APPRES)/lib/xtra/sound
+
+	install -m 755 $(EXE) $(APPBIN)
+	install -m 644 $(ICONFILES) $(APPRES)
+	cp osx/English.lproj/main.nib/*ib $(APPRES)/English.lproj/main.nib
+	sed -e 's/\$$VERSION\$$/$(VERSION)/' -e 's/\$$COPYRIGHT\$$/$(COPYRIGHT)/' \
+		-e 's/\$$NAME\$$/$(NAME)/' -e 's/\$$EXECUTABLE\$$/$(EXE)/' \
+		$(PLIST) > $(APPCONT)/Info.plist
+
+	$(SETFILE) -a B $(APPBNDL)
+
+
+
+# In the event that tar+zip isn't enough...
+
+PACKAGE_NAME = $(NAME)-$(VERSION)
+
+dist: install
+	@rm -rf disttemp
+	mkdir -p disttemp/Docs
+	cp ../O-readme.txt disttemp/Docs
+	cp -R -p "$(APPBNDL)" disttemp
+	$(SETFILE) -a B disttemp/$(APPNAME)
+
+	@-rm ../"$(PACKAGE_NAME)-osx.dmg"
+
+	hdiutil create -fs HFS+ -volname $(PACKAGE_NAME) -srcfolder disttemp ../"$(PACKAGE_NAME)-osx.dmg"
+
+	rm -rf disttemp

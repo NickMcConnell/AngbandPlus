@@ -36,17 +36,14 @@
  *
  * This file will attempt to redefine the screen colors to conform to
  * standard Angband colors.  It will only do so if the terminal type
- * indicates that it can do so.  See the page:
- *
- *     http://www.umr.edu/~keldon/ang-patch/ncurses_color.html
- *
- * for information on this.
+ * indicates that it can do so.
  *
  * Consider the use of "savetty()" and "resetty()".  XXX XXX XXX
  */
 
 
 #include "angband.h"
+#include "main.h"
 
 
 #ifdef USE_GCU
@@ -72,32 +69,15 @@
 
 
 /*
- * Hack -- try to guess which systems use what commands
- * Hack -- allow one of the "USE_Txxxxx" flags to be pre-set.
- * Mega-Hack -- try to guess when "POSIX" is available.
- * If the user defines two of these, we will probably crash.
+ * Use POSIX terminal I/O
  */
-#if !defined(USE_TPOSIX)
-# if !defined(USE_TERMIO) && !defined(USE_TCHARS)
-#  if defined(_POSIX_VERSION)
-#   define USE_TPOSIX
-#  else
-#   if defined(USG) || defined(linux) || defined(SOLARIS)
-#    define USE_TERMIO
-#   else
-#    define USE_TCHARS
-#   endif
-#  endif
-# endif
-#endif
+#define USE_TPOSIX
 
 /*
  * Hack -- Amiga uses "fake curses" and cannot do any of this stuff
  */
 #if defined(AMIGA)
 # undef USE_TPOSIX
-# undef USE_TERMIO
-# undef USE_TCHARS
 #endif
 
 
@@ -107,38 +87,46 @@
  * POSIX stuff
  */
 #ifdef USE_TPOSIX
-# include <sys/ioctl.h>
 # include <termios.h>
 #endif
 
 /*
- * One version needs this file
- */
-#ifdef USE_TERMIO
-# include <sys/ioctl.h>
-# include <termio.h>
-#endif
-
-/*
- * The other needs this file
- */
-#ifdef USE_TCHARS
-# include <sys/ioctl.h>
-# include <sys/resource.h>
-# include <sys/param.h>
-# include <sys/file.h>
-# include <sys/types.h>
-#endif
-
-
-/*
- * XXX XXX Hack -- POSIX uses "O_NONBLOCK" instead of "O_NDELAY"
+ * OPTION: Use old BSD curses.
  *
- * They should both work due to the "(i != 1)" test below.
+ * Some versions of curses does things a bit differently.
+ *
+ * If you have an old BSD 4.4 version of curses that isn't
+ * XSI Curses standard compatible enable this.
  */
-#ifndef O_NDELAY
-# define O_NDELAY O_NONBLOCK
+/* #define USE_OLD_CURSES */
+
+
+/*
+ * Turn on options that are available in modern curses.
+ */
+#if defined (USE_OLD_CURSES)
+/* Nothing */
+#else
+# define USE_GETCH
+# define USE_CURS_SET
 #endif
+
+/*
+ * You might want to turn on some of the options below this line
+ * if you had to turn on USE_OLD_CURSES
+ */
+
+
+/*
+ * OPTION: Use "blocking getch() calls" in "main-gcu.c".
+ */
+/* #define USE_GETCH */
+
+/*
+ * OPTION: Use the "curs_set()" call in "main-gcu.c".
+ */
+/* #define USE_CURS_SET */
+
 
 
 /*
@@ -168,27 +156,7 @@ static struct termios  game_termios;
 
 #endif
 
-#ifdef USE_TERMIO
 
-static struct termio  norm_termio;
-
-static struct termio  game_termio;
-
-#endif
-
-#ifdef USE_TCHARS
-
-static struct ltchars norm_special_chars;
-static struct sgttyb  norm_ttyb;
-static struct tchars  norm_tchars;
-static int            norm_local_chars;
-
-static struct ltchars game_special_chars;
-static struct sgttyb  game_ttyb;
-static struct tchars  game_tchars;
-static int            game_local_chars;
-
-#endif
 
 static bool           split_window=TRUE;
 
@@ -249,11 +217,6 @@ static int colortable[16];
 #endif
 
 
-#ifdef USE_GRAPHICS
-
-static bool use_blocks = FALSE;
-
-#endif
 
 /*
  * Place the "keymap" into its "normal" state
@@ -265,23 +228,6 @@ static void keymap_norm(void)
 
 	/* restore the saved values of the special chars */
 	(void)tcsetattr(0, TCSAFLUSH, &norm_termios);
-
-#endif
-
-#ifdef USE_TERMIO
-
-	/* restore the saved values of the special chars */
-	(void)ioctl(0, TCSETA, (char *)&norm_termio);
-
-#endif
-
-#ifdef USE_TCHARS
-
-	/* restore the saved values of the special chars */
-	(void)ioctl(0, TIOCSLTC, (char *)&norm_special_chars);
-	(void)ioctl(0, TIOCSETP, (char *)&norm_ttyb);
-	(void)ioctl(0, TIOCSETC, (char *)&norm_tchars);
-	(void)ioctl(0, TIOCLSET, (char *)&norm_local_chars);
 
 #endif
 
@@ -301,23 +247,6 @@ static void keymap_game(void)
 
 #endif
 
-#ifdef USE_TERMIO
-
-	/* restore the saved values of the special chars */
-	(void)ioctl(0, TCSETA, (char *)&game_termio);
-
-#endif
-
-#ifdef USE_TCHARS
-
-	/* restore the saved values of the special chars */
-	(void)ioctl(0, TIOCSLTC, (char *)&game_special_chars);
-	(void)ioctl(0, TIOCSETP, (char *)&game_ttyb);
-	(void)ioctl(0, TIOCSETC, (char *)&game_tchars);
-	(void)ioctl(0, TIOCLSET, (char *)&game_local_chars);
-
-#endif
-
 }
 
 
@@ -331,23 +260,6 @@ static void keymap_norm_prepare(void)
 
 	/* Get the normal keymap */
 	tcgetattr(0, &norm_termios);
-
-#endif
-
-#ifdef USE_TERMIO
-
-	/* Get the normal keymap */
-	(void)ioctl(0, TCGETA, (char *)&norm_termio);
-
-#endif
-
-#ifdef USE_TCHARS
-
-	/* Get the normal keymap */
-	(void)ioctl(0, TIOCGETP, (char *)&norm_ttyb);
-	(void)ioctl(0, TIOCGLTC, (char *)&norm_special_chars);
-	(void)ioctl(0, TIOCGETC, (char *)&norm_tchars);
-	(void)ioctl(0, TIOCLGET, (char *)&norm_local_chars);
 
 #endif
 
@@ -386,76 +298,6 @@ static void keymap_game_prepare(void)
 
 #endif
 
-#ifdef USE_TERMIO
-
-	/* Acquire the current mapping */
-	(void)ioctl(0, TCGETA, (char *)&game_termio);
-
-	/* Force "Ctrl-C" to interupt */
-	game_termio.c_cc[VINTR] = (char)3;
-
-	/* Force "Ctrl-Z" to suspend */
-	game_termio.c_cc[VSUSP] = (char)26;
-
-	/* Hack -- Leave "VSTART/VSTOP" alone */
-
-	/* Disable the standard control characters */
-	game_termio.c_cc[VQUIT] = (char)-1;
-	game_termio.c_cc[VERASE] = (char)-1;
-	game_termio.c_cc[VKILL] = (char)-1;
-	game_termio.c_cc[VEOF] = (char)-1;
-	game_termio.c_cc[VEOL] = (char)-1;
-
-#if 0
-	/* Disable the non-posix control characters */
-	game_termio.c_cc[VEOL2] = (char)-1;
-	game_termio.c_cc[VSWTCH] = (char)-1;
-	game_termio.c_cc[VDSUSP] = (char)-1;
-	game_termio.c_cc[VREPRINT] = (char)-1;
-	game_termio.c_cc[VDISCARD] = (char)-1;
-	game_termio.c_cc[VWERASE] = (char)-1;
-	game_termio.c_cc[VLNEXT] = (char)-1;
-	game_termio.c_cc[VSTATUS] = (char)-1;
-#endif
-
-	/* Normally, block until a character is read */
-	game_termio.c_cc[VMIN] = 1;
-	game_termio.c_cc[VTIME] = 0;
-
-#endif
-
-#ifdef USE_TCHARS
-
-	/* Get the default game characters */
-	(void)ioctl(0, TIOCGETP, (char *)&game_ttyb);
-	(void)ioctl(0, TIOCGLTC, (char *)&game_special_chars);
-	(void)ioctl(0, TIOCGETC, (char *)&game_tchars);
-	(void)ioctl(0, TIOCLGET, (char *)&game_local_chars);
-
-	/* Force suspend (^Z) */
-	game_special_chars.t_suspc = (char)26;
-
-	/* Cancel some things */
-	game_special_chars.t_dsuspc = (char)-1;
-	game_special_chars.t_rprntc = (char)-1;
-	game_special_chars.t_flushc = (char)-1;
-	game_special_chars.t_werasc = (char)-1;
-	game_special_chars.t_lnextc = (char)-1;
-
-	/* Force interupt (^C) */
-	game_tchars.t_intrc = (char)3;
-
-	/* Force start/stop (^Q, ^S) */
-	game_tchars.t_startc = (char)17;
-	game_tchars.t_stopc = (char)19;
-
-	/* Cancel some things */
-	game_tchars.t_quitc = (char)-1;
-	game_tchars.t_eofc = (char)-1;
-	game_tchars.t_brkc = (char)-1;
-
-#endif
-
 }
 
 
@@ -466,6 +308,9 @@ static void keymap_game_prepare(void)
  */
 static errr Term_xtra_gcu_alive(int v)
 {
+	int x, y;
+
+
 	/* Suspend */
 	if (!v)
 	{
@@ -483,13 +328,11 @@ static errr Term_xtra_gcu_alive(int v)
 		/* Flush the curses buffer */
 		(void)refresh();
 
-#ifdef SPECIAL_BSD
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+		/* Get current cursor position */
+		getyx(curscr, y, x);
+
+		/* Move the cursor to bottom right corner */
+		mvcur(y, x, LINES - 1, 0);
 
 		/* Exit curses */
 		endwin();
@@ -521,12 +364,27 @@ static errr Term_xtra_gcu_alive(int v)
 
 
 
+#ifdef USE_NCURSES
+const char help_gcu[] = "NCurses, for terminal console, subopts -b(ig screen)";
+#else /* USE_NCURSES */
+const char help_gcu[] = "Curses, for terminal console, subopts -b(ig screen)";
+#endif /* USE_NCURSES */
+
+
 /*
  * Init the "curses" system
  */
 static void Term_init_gcu(term *t)
 {
 	term_data *td = (term_data *)(t->data);
+
+#ifdef USE_GETCH
+	/*
+	 * This is necessary to keep the first call to getch()
+	 * from clearing the screen
+	 */
+	wrefresh(stdscr);
+#endif /* USE_GETCH */
 
 	/* Count init's, handle first */
 	if (active++ != 0) return;
@@ -550,6 +408,7 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
+	int x, y;
 	term_data *td = (term_data *)(t->data);
 
 	/* Delete this window */
@@ -566,13 +425,11 @@ static void Term_nuke_gcu(term *t)
 	start_color();
 #endif
 
-#ifdef SPECIAL_BSD
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+	/* Get current cursor position */
+	getyx(curscr, y, x);
+
+	/* Move the cursor to bottom right corner */
+	mvcur(y, x, LINES - 1, 0);
 
 	/* Flush the curses buffer */
 	(void)refresh();
@@ -671,7 +528,7 @@ static errr Term_xtra_gcu_event(int v)
 		if (k < 0) return (1);
 
 		/* Tell stdin not to block */
-		if (fcntl(0, F_SETFL, k | O_NDELAY) < 0) return (1);
+		if (fcntl(0, F_SETFL, k | O_NONBLOCK) < 0) return (1);
 
 		/* Read one byte, if possible */
 		i = read(0, buf, 1);
@@ -770,7 +627,8 @@ static errr Term_xtra_gcu(int n, int v)
 
 		/* Delay */
 		case TERM_XTRA_DELAY:
-		usleep(1000 * v);
+		if (v > 0)
+			usleep(1000 * v);
 		return (0);
 
 		/* React to events */
@@ -806,6 +664,7 @@ static errr Term_curs_gcu(int x, int y)
 static errr Term_wipe_gcu(int x, int y, int n)
 {
 	term_data *td = (term_data *)(Term->data);
+	char buf[1024];
 
 	/* Place cursor */
 	wmove(td->win, y, x);
@@ -819,7 +678,11 @@ static errr Term_wipe_gcu(int x, int y, int n)
 	/* Clear some characters */
 	else
 	{
-		while (n-- > 0) waddch(td->win, ' ');
+		/* Format a buffer */
+		strnfmt(buf, sizeof(buf), "%*c", n, ' ');
+
+		/* Output */
+		waddstr(td->win, buf);
 	}
 
 	/* Success */
@@ -833,11 +696,7 @@ static errr Term_wipe_gcu(int x, int y, int n)
 static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
 	term_data *td = (term_data *)(Term->data);
-
-	int i;
-#ifdef USE_GRAPHICS
-	int pic;
-#endif
+	char buf[1024];
 
 #ifdef A_COLOR
 	/* Set the color */
@@ -847,41 +706,16 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 	/* Move the cursor */
 	wmove(td->win, y, x);
 
-	/* Draw each character */
-	for (i = 0; i < n; i++)
-	{
-#ifdef USE_GRAPHICS
-		/* Special characters? */
-		if (use_blocks)
-		{
+	/* Format to appropriate size */
+	strnfmt(buf, sizeof(buf), "%.*s", n, s);
 
-			/* Determine picture to use */
-			if (s[i] == '#')
-			{
-				/* Walls */
-				pic = ACS_CKBOARD;
+	/* Write to screen */
+	waddstr(td->win, buf);
 
-				/*
-				 *  Note that veins are '#' as well now.
-				 *  Trees are '%' now - and this looks bad when redefined.
-				 */
-			}
-			else
-			{
-			        pic = s[i];
-			}
-
-			/* Draw the picture */
-			waddch(td->win, pic);
-
-			/* Next character */
-			continue;
-		}
+#ifdef A_COLOR
+	/* Unset the color */
+	if (can_use_color) wattrset(td->win, 0);
 #endif
-
-		/* Draw a normal character */
-		waddch(td->win, s[i]);
-	}
 
 	/* Success */
 	return (0);
@@ -943,7 +777,7 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 		panel_col_max = 0;
 
 		/* Reset the panels */
-		map_panel_size();
+		verify_panel();
 	}
 
 	/* Success */
@@ -951,8 +785,18 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 }
 
 
+static void hook_quit(cptr str)
+{
+	/* Unused */
+	(void)str;
+
+	/* Exit curses */
+	endwin();
+}
+
+
 /*
- * Prepare "curses" for use by the file "term.c"
+ * Prepare "curses" for use by the file "z-term.c"
  *
  * Installs the "hook" functions defined above, and then activates
  * the main screen "term", which clears the screen and such things.
@@ -982,26 +826,22 @@ errr init_gcu(int argc, char *argv[])
 	keymap_norm_prepare();
 
 
-#if defined(USG)
-	/* Initialize for USG Unix */
-	if (initscr() == NULL) return (-1);
-#else
-	/* Initialize for others systems */
+#if defined(USE_OLD_CURSES)
+	/* Initialize for old BSD 4.4 curses */
 	if (initscr() == (WINDOW*)ERR) return (-1);
+#else
+	/* Initialize for standard curses */
+	if (initscr() == NULL) return (-1);
 #endif
 
+	/* Activate hooks */
+	quit_aux = hook_quit;
 
-	/* Hack -- Require large screen, or Quit with message */
-	i = ((LINES < 24) || (COLS < 80));
-	if (i) quit("Angband needs an 80x24 'curses' screen");
-
-#ifdef USE_GRAPHICS
-	/* Set graphics flag */
-	use_graphics = FALSE;
-
-	/* Use the graphical wall tiles? */
-	use_blocks = arg_graphics;
-#endif
+	/* Require standard size screen */
+	if ((LINES < 24) || (COLS < 80))
+	{
+		quit("Angband needs at least an 80x24 'curses' screen");
+	}
 
 #ifdef A_COLOR
 
@@ -1012,9 +852,11 @@ errr init_gcu(int argc, char *argv[])
 	                 (COLORS >= 8) && (COLOR_PAIRS >= 8));
 
 #ifdef REDEFINE_COLORS
+
 	/* Can we change colors? */
 	can_fix_color = (can_use_color && can_change_color() &&
 	                 (COLORS >= 16) && (COLOR_PAIRS > 8));
+
 #endif
 
 	/* Attempt to use customized colors */
@@ -1130,25 +972,25 @@ errr init_gcu(int argc, char *argv[])
 				break;
 
 			/* Lower left */
-			case 1:
+			case 1:				
 				y = rows + 1;
 				x = 0;
 				rows = LINES - (rows + 1);
 				break;
 
 			/* Upper right */
-			case 2:
+			case 2:				
 				y = 0;
 				x = cols + 1;
 				cols = COLS - (cols + 1);
 				break;
 
 			/* Lower right */
-			case 3:
+			case 3:				
 				y = rows + 1;
 				x = cols + 1;
 				rows = LINES - (rows + 1);
-				cols = COLS - (cols + 1);
+				cols = COLS - (cols + 1);				
 				break;
 
 			/* XXX */
@@ -1182,5 +1024,3 @@ errr init_gcu(int argc, char *argv[])
 
 
 #endif /* USE_GCU */
-
-

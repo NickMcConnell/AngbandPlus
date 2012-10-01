@@ -9,6 +9,7 @@
  */
 
 #include "angband.h"
+#include "main.h"
 
 
 #ifdef USE_SLA
@@ -342,6 +343,10 @@ static errr Term_text_sla(int x, int y, int n, byte a, cptr s)
 	/* Success */
 	return 0;
 }
+
+
+const char help_sla[] =
+	"SLA (SLANG)";
 
 
 /*

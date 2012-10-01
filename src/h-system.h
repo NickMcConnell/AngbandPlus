@@ -14,94 +14,87 @@
  */
 
 
-#include <stdio.h>
-#include <ctype.h>
-#include <errno.h>
+/*** ANSI C headers ***/
 
-#if defined(NeXT)
+#include <ctype.h>
+#include <assert.h>
+
+#ifdef _WIN32_WCE
+/* Non-standard crap */
+#else
+#include <errno.h>
+#endif
+
+#include <stdarg.h>
+#include <stdio.h>
+
+#if defined(NeXT) /* More non-standard crap */
 # include <libc.h>
 #else
 # include <stdlib.h>
 #endif
 
+#include <string.h>
 
-#ifdef SET_UID
-
-# include <sys/types.h>
-
-# if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
-     defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
-     defined(__osf__) || defined(ISC) || defined(SGI) || \
-     defined(linux)
-#  include <sys/time.h>
-# endif
-
-# if !defined(SGI) && !defined(ULTRIX)
-#  include <sys/timeb.h>
-# endif
-
-#endif
-
-
+#ifdef _WIN32_WCE
+/* Even more non-standard crap */
+#else
 #include <time.h>
-
-
-
-#if defined(MACINTOSH) && defined(__MWERKS__)
-# include <unix.h>
 #endif
 
-#if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
-# include <io.h>
-#endif
-
-#if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(RISCOS) && !defined(VM) && !defined(__MWERKS__)
-# if defined(__TURBOC__) || defined(__WATCOMC__)
-#  include <mem.h>
-# else
-#  include <memory.h>
-# endif
-#endif
-
+/*** POSIX headers ***/
 
 #if !defined(NeXT) && !defined(RISCOS)
+#ifdef _WIN32_WCE
+#else
 # include <fcntl.h>
+#endif
 #endif
 
 
-#ifdef SET_UID
-
-# ifndef USG
-#  include <sys/param.h>
-#  include <sys/file.h>
-# endif
-
-# ifdef linux
-#  include <sys/file.h>
-# endif
-
+#if defined (SET_UID) || defined (MACH_O_CARBON)
 # include <pwd.h>
-
-# include <unistd.h>
-
 # include <sys/stat.h>
+# include <unistd.h>
+#endif
 
-# if defined(SOLARIS)
-#  include <netdb.h>
-# endif
-
+#ifdef SET_UID
+# include <sys/types.h>
 #endif
 
 #if defined(__DJGPP__) || defined(__MWERKS__)
 #include <unistd.h>
 #endif /* __DJGPP__ || __MWERKS__ */
 
-#include <string.h>
+/*** Other headers ***/
 
-#include <stdarg.h>
-
-
+#if defined(MACINTOSH) && defined(__MWERKS__)
+# include <unix.h>
 #endif
+
+#if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
+#ifdef _WIN32_WCE
+#else
+# include <io.h>
+#endif
+#endif
+
+
+#ifdef SET_UID
+
+# ifndef HAVE_USLEEP
+
+/*
+ * struct timeval in usleep requires sys/time.h
+ *
+ * System test removed since Unix systems that neither have usleep nor
+ * sys/time.h are screwed anyway, since they have no way of delaying.
+ */
+#  include <sys/time.h>
+# endif /* HAVE_USLEEP */
+
+#endif /* SET_UID */
+
+#endif /* INCLUDED_H_SYSTEM_H */
 
 

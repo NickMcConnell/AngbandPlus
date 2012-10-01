@@ -131,6 +131,19 @@ static bool auto_pickup_check(object_type *o_ptr, bool check_pack)
 			/* Find another '=' */
 			s = strchr(s + 1, '=');
 		}
+
+		/* Throwing weapons and ammo need no extra inscription */
+		s = strchr(quark_str(o_ptr->note), '@');
+
+		/* Process preventions */
+		while (s)
+		{
+			/* =g ('g'et) means auto pickup */
+			if ((s[1] == 'f') || (s[1] == 'v')) return (TRUE);
+
+			/* Find another '=' */
+			s = strchr(s + 1, '=');
+		}
 	}
 
 	/* Optionally, check the backpack */
@@ -217,7 +230,7 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 
 	/* Effective added count */
 	added_ammo_num = (throwing ?
-		o_ptr->number * THROWER_AMMO_FACTOR : o_ptr->number);
+			  o_ptr->number * THROWER_AMMO_FACTOR : o_ptr->number);
 
 	/* How many quiver slots would be needed */
 	attempted_quiver_slots = ((ammo_num + added_ammo_num + 98) / 99);
@@ -313,7 +326,7 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 /*
  * Carry an object and delete it.
  */
-static void py_pickup_aux(int o_idx)
+extern void py_pickup_aux(int o_idx)
 {
 	int slot;
 
@@ -328,12 +341,24 @@ static void py_pickup_aux(int o_idx)
 	/* Get the object again */
 	o_ptr = &inventory[slot];
 
+	/* Set squelch status */
+	p_ptr->notice |= PN_SQUELCH;
+
 	/* Describe the object */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Message */
 	msg_format("You have %s (%c).", o_name, index_to_label(slot));
 
+	/* Hack - set the turn found for artifacts */
+	if (o_ptr->name1)
+		if (a_info[o_ptr->name1].creat_turn < 2)
+		{
+			a_info[o_ptr->name1].creat_turn = turn;
+			a_info[o_ptr->name1].creat_turn |= (p_ptr->lev << 24);
+		}
+
+  
 	/* Delete the object */
 	delete_object_idx(o_idx);
 }
@@ -400,8 +425,6 @@ byte py_pickup(int pickup)
 	bool call_function_again = FALSE;
 
 	bool blind = ((p_ptr->blind) || (no_lite()));
-
-	bool force_display_list = FALSE;
 
 	s32b total_gold = 0L;
 	byte *treasure;
@@ -471,7 +494,7 @@ byte py_pickup(int pickup)
 			if (k_idx <= 0) continue;
 
 			/* Get the object name */
-			strip_name(tmp, k_idx);
+			strip_name(tmp, k_idx, TRUE);
 
 			/* Build up the pickup string */
 			strcat(buf, tmp);
@@ -504,7 +527,7 @@ byte py_pickup(int pickup)
 	}
 
 	/* Free the gold array */
-	C_FREE(treasure, MONEY_TYPES, byte);
+	FREE(treasure);
 
 
 	/* Scan the remaining objects */
@@ -517,7 +540,8 @@ byte py_pickup(int pickup)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Ignore all hidden objects */
-		if (!o_ptr->marked) continue;
+		//if (squelch_hide_item(o_ptr) || !o_ptr->marked) continue;
+		if (squelch_hide_item(o_ptr)) continue;
 
 		/* Paranoia -- ignore all dead objects  XXX */
 		if (!o_ptr->k_idx) continue;
@@ -586,7 +610,7 @@ byte py_pickup(int pickup)
 
 			/* Display prompt */
 			prt(format("You %s: ",
-			    (blind ? "feel something on the floor" : "see")), 0, 0);
+				   (blind ? "feel something on the floor" : "see")), 0, 0);
 			(void)Term_fresh();
 
 			/* Wait for it.  Use key as next command. */
@@ -604,18 +628,18 @@ byte py_pickup(int pickup)
 			{
 				/* Get the object */
 				o_ptr = &o_list[floor_o_idx];
-
+			
 				/* Describe the object.  Less detail if blind. */
 				if (blind) object_desc(o_name, o_ptr, TRUE, 0);
 				else       object_desc(o_name, o_ptr, TRUE, 3);
-
+			
 				msg_print(NULL);
-
+			
 				/* Message */
 				msg_format("You %s %s.", (blind ? "feel" : "see"),
-					o_name);
+					   o_name);
 			}
-
+		
 			/* Several objects */
 			else
 			{
@@ -623,10 +647,10 @@ byte py_pickup(int pickup)
 
 				/* Message */
 				msg_format("You %s a pile of %d items.",
-					(blind ? "feel" : "see"), floor_num);
+					   (blind ? "feel" : "see"), floor_num);
 			}
+		
 		}
-
 		/* Done */
 		return (objs_picked_up);
 	}
@@ -657,7 +681,7 @@ byte py_pickup(int pickup)
 		else
 		{
 			/* Optionally, display more information about floor items */
-			if ((query_floor) || (force_display_list))
+			if (query_floor)
 			{
 				/* Scan all marked objects in the grid */
 				(void)scan_floor(floor_list, &floor_num, py, px, 0x03);
@@ -673,7 +697,7 @@ byte py_pickup(int pickup)
 				(void)Term_fresh();
 
 				/* Wait for it.  Use key as next command. */
-				p_ptr->command_new = inkey();
+				anykey();
 
 				/* Restore screen */
 				screen_load();
@@ -719,7 +743,7 @@ byte py_pickup(int pickup)
 			else
 			{
 				prt("Press Return to pick up any of the following objects: ",
-					0, 0);
+				    0, 0);
 			}
 			(void)Term_fresh();
 
@@ -872,919 +896,919 @@ void hit_trap(int y, int x)
 	switch (cave_feat[y][x])
 	{
 		/* trap door. */
-		case FEAT_TRAP_HEAD + 0x00:
+	case FEAT_TRAP_HEAD + 0x00:
+	{
+		Rand_quick = FALSE;
+
+
+		msg_print("You fall through a trap door!");
+		if (p_ptr->ffall)
 		{
-			Rand_quick = FALSE;
+			msg_print("You float gently down to the next level.");
+		}
+		else
+		{
+			dam = damroll(2, 8);
+			take_hit(dam, name);
+		}
 
+		/* New depth */
+		p_ptr->depth++;
 
-			msg_print("You fall through a trap door!");
+		/* Leaving */
+		p_ptr->leaving = TRUE;
+
+		Rand_quick = TRUE;
+
+		break;
+	}
+
+	/* pits. */
+	case FEAT_TRAP_HEAD + 0x01:
+	{
+		/* determine how dangerous the trap is allowed to be. */
+		nastyness = randint(p_ptr->depth);
+		if (randint(20) == 1) nastyness += 20;
+		else if (randint(5) == 1) nastyness += 10;
+
+		/* Player is now in pit. */
+		monster_swap(p_ptr->py, p_ptr->px, y, x);
+
+		/* Center on player. */
+		y = p_ptr->py;
+		x = p_ptr->px;
+
+		/* pit of daggers. */
+		if ((nastyness > 80) && (randint(3) != 3))
+		{
+			msg_print("You fall into a pit of daggers!");
+
 			if (p_ptr->ffall)
 			{
-				msg_print("You float gently down to the next level.");
+				msg_print("You float gently to the floor of the pit.");
+				msg_print("You carefully avoid setting off the daggers.");
+			}
+
+			else
+			{
+				/* a trap of morgul. */
+				if (randint(6) == 1)
+				{
+					Rand_quick = FALSE;
+
+
+					msg_print("A single coldly gleaming dagger pierces you deeply!");
+					msg_print("You feel a deadly chill slowly withering your soul.");
+
+					/* activate the Black Breath. */
+					p_ptr->black_breath = TRUE;
+
+					/* lots of damage. */
+					dam = damroll(20,15);
+
+					/* undead may be attracted. */
+					if (randint(2) == 1)
+					{
+						msg_print("Undead suddenly appear and call you to them!");
+
+						k = randint(3) + 2;
+						(void) summon_specific(y, x, FALSE, p_ptr->depth, SUMMON_UNDEAD, k);
+
+					}
+
+					/* morgul-traps are one-time only. */
+					cave_info[y][x] &= ~(CAVE_MARK);
+					cave_set_feat(y, x, FEAT_FLOOR);
+
+					Rand_quick = TRUE;
+				}
+
+				else
+				{
+					Rand_quick = FALSE;
+
+					/* activate the ordinary daggers. */
+					msg_print("Daggers pierce you everywhere!");
+
+					k = randint(10) + 5;
+					for (i = 0; i < k; i++)
+					{
+						dam += damroll(3, 4);
+					}
+
+					Rand_quick = TRUE;
+				}
+
+				/* cut the player. */
+				(void)set_cut(p_ptr->cut + randint(dam));
+
+				/* Take the damage. */
+				take_hit(dam, name);
+			}
+		}
+
+		/* poisoned spiked pit. */
+		else if ((nastyness > 55) && (randint(3) != 3))
+		{
+			msg_print("You fall into a spiked pit!");
+
+			if (p_ptr->ffall)
+			{
+				msg_print("You float gently to the floor of the pit.");
+				msg_print("You carefully avoid touching the spikes.");
+			}
+
+			else
+			{
+				Rand_quick = FALSE;
+
+				/* Base damage */
+				dam = damroll(2, 6);
+
+				/* Extra spike damage */
+				if (rand_int(100) < 85)
+				{
+					bool was_poisoned;
+
+					msg_print("You are impaled on poisonous spikes!");
+
+					dam = dam * (randint(6) + 3);
+					(void)set_cut(p_ptr->cut + randint(dam));
+
+					was_poisoned = pois_hit(dam);
+
+					if (!was_poisoned) msg_print("The poison does not affect you!");
+				}
+
+				/* Take the damage */
+				take_hit(dam, name);
+
+				Rand_quick = TRUE;
+			}
+		}
+
+		/* spiked pit. */
+		else if ((nastyness > 30) && (randint(3) != 3))
+		{
+			msg_print("You fall into a spiked pit!");
+
+			if (p_ptr->ffall)
+			{
+				msg_print("You float gently to the floor of the pit.");
+				msg_print("You carefully avoid touching the spikes.");
+			}
+
+			else
+			{
+				Rand_quick = FALSE;
+
+				/* Base damage */
+				dam = damroll(2, 6);
+
+				/* Extra spike damage */
+				if (rand_int(100) < 85)
+				{
+					msg_print("You are impaled!");
+
+					dam = dam * (2 + randint(4));
+					(void)set_cut(p_ptr->cut + randint(dam));
+				}
+
+				/* Take the damage */
+				take_hit(dam, name);
+
+				Rand_quick = TRUE;
+			}
+		}
+
+		/* ordinary pit in all other cases. */
+		else
+		{
+			msg_print("You fall into a pit!");
+			if (p_ptr->ffall)
+			{
+				msg_print("You float gently to the bottom of the pit.");
 			}
 			else
 			{
-				dam = damroll(2, 8);
+				Rand_quick = FALSE;
+
+				dam = damroll(2, 6);
 				take_hit(dam, name);
+
+				Rand_quick = TRUE;
+			}
+		}
+
+		break;
+	}
+
+	/* stat-reducing dart traps. */
+	case FEAT_TRAP_HEAD + 0x02:
+	{
+		/* decide if the dart hits. */
+		if (check_trap_hit(50 + p_ptr->depth))
+		{
+			/* select a stat to drain. */
+			selection = rand_int(6);
+
+			Rand_quick = FALSE;
+
+			msg_print("A small dart hits you!");
+			dam = damroll(1, 4);
+			take_hit(dam, name);
+
+			/* Determine how dangerous the trap is allowed to be. */
+			nastyness = randint(p_ptr->depth);
+
+			/* decide how much to drain the stat by. */
+			if ((nastyness > 50) && (randint(3) == 1))
+			{
+				num = randint(4);
+			}
+			else num = 1;
+
+			/* drain the stat. */
+			for (i = 0; i < num; i++)
+			{
+				(void)do_dec_stat(selection);
 			}
 
-			/* New depth */
-			p_ptr->depth++;
+			Rand_quick = TRUE;
+		}
+		else
+		{
+			msg_print("A small dart barely misses you.");
+		}
+		break;
+	}
+
+	/* discolored spots. */
+	case FEAT_TRAP_HEAD + 0x03:
+	{
+		/* determine how dangerous the trap is allowed to be. */
+		nastyness = randint(p_ptr->depth);
+		if (randint(5) == 1) nastyness += 10;
+
+		/* pick a elemental attack type. */
+		selection = randint(4);
+
+
+		/* electicity trap. */
+		if (selection == 1)
+		{
+			if ((nastyness >= 50) && (randint(2) == 1))
+			{
+				Rand_quick = FALSE;
+
+				msg_print("You are struck by lightning!");
+				dam = damroll(6, 30);
+
+				Rand_quick = TRUE;
+			}
+			else
+			{
+				Rand_quick = FALSE;
+
+				msg_print("You get zapped!");
+				dam = damroll(4, 8);
+
+				Rand_quick = TRUE;
+			}
+			Rand_quick = FALSE;
+			elec_dam(dam, "an electricity trap");
+			Rand_quick = TRUE;
+
+		}
+
+		/* frost trap. */
+		if (selection == 2)
+		{
+			if ((nastyness >= 50) && (randint(2) == 1))
+			{
+				Rand_quick = FALSE;
+
+				msg_print("You are lost within a blizzard!");
+				dam = damroll(6, 30);
+
+				Rand_quick = TRUE;
+			}
+			else
+			{
+				Rand_quick = FALSE;
+
+				msg_print("You are coated in frost!");
+				dam = damroll(4, 8);
+
+				Rand_quick = TRUE;
+			}
+			Rand_quick = FALSE;
+			cold_dam(dam, "a frost trap");
+			Rand_quick = TRUE;
+		}
+
+		/* fire trap. */
+		if (selection == 3)
+		{
+			if ((nastyness >= 50) && (randint(2) == 1))
+			{
+				Rand_quick = FALSE;
+
+				msg_print("You are enveloped in a column of fire!");
+				dam = damroll(6, 30);
+
+				Rand_quick = TRUE;
+			}
+			else
+			{
+				Rand_quick = FALSE;
+
+				msg_print("You are surrounded by flames!");
+				dam = damroll(4, 8);
+
+				Rand_quick = TRUE;
+			}
+			Rand_quick = FALSE;
+			fire_dam(dam, "a fire trap");
+			Rand_quick = TRUE;
+		}
+
+		/* acid trap. */
+		if (selection == 4)
+		{
+			if ((nastyness >= 50) && (randint(2) == 1))
+			{
+				Rand_quick = FALSE;
+
+				msg_print("A cauldron of acid is tipped over your head!");
+				dam = damroll(6, 30);
+
+				Rand_quick = TRUE;
+			}
+			else
+			{
+				Rand_quick = FALSE;
+
+				msg_print("You are splashed with acid!");
+				dam = damroll(4, 8);
+
+				Rand_quick = TRUE;
+			}
+			Rand_quick = FALSE;
+			acid_dam(dam, "an acid trap");
+			Rand_quick = TRUE;
+		}
+
+		break;
+	}
+
+	/* gas traps. */
+	case FEAT_TRAP_HEAD + 0x04:
+	{
+		selection = randint(4);
+
+		/* blinding trap. */
+		if (selection == 1)
+		{
+			msg_print("You are surrounded by a black gas!");
+			if (!p_ptr->no_blind)
+			{
+				Rand_quick = FALSE;
+
+				(void)set_blind(p_ptr->blind + rand_int(30) + 15);
+
+				Rand_quick = TRUE;
+			}
+		}
+
+		/* confusing trap. */
+		if (selection == 2)
+		{
+			msg_print("You are surrounded by a gas of scintillating colors!");
+			if (!p_resist_pos(P_RES_CONFU))
+			{
+				Rand_quick = FALSE;
+
+				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+
+				Rand_quick = TRUE;
+			}
+		}
+
+		/* poisoning trap. */
+		if (selection == 3)
+		{
+			msg_print("You are surrounded by a pungent green gas!");
+
+			Rand_quick = FALSE;
+
+			pois_hit(25);
+
+			Rand_quick = TRUE;
+		}
+
+		/* sleeping trap. */
+		if (selection == 4)
+		{
+			msg_print("You are surrounded by a strange white mist!");
+			if (!p_ptr->free_act)
+			{
+				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
+			}
+		}
+
+		break;
+	}
+
+	/* summoning traps. */
+	case FEAT_TRAP_HEAD + 0x05:
+	{
+		/* sometimes summon thieves. */
+		if ((p_ptr->depth > 8) && (randint(5) == 1))
+		{
+			msg_print("You have aroused a den of thieves!");
+
+			Rand_quick = FALSE;
+
+			num = 2 + randint(3);
+			(void)summon_specific(y, x, FALSE, p_ptr->depth, SUMMON_THIEF, num);
+
+			Rand_quick = TRUE;
+		}
+
+		/* sometimes summon a nasty unique. */
+		else if (randint(8) == 1)
+		{
+			msg_print("You are enveloped in a cloud of smoke!");
+
+			Rand_quick = FALSE;
+
+			(void)summon_specific(y, x, FALSE, p_ptr->depth + 5, SUMMON_UNIQUE, 1);
+
+			Rand_quick = TRUE;
+		}
+
+		/* otherwise, the ordinary summon monsters. */
+		else
+		{
+			msg_print("You are enveloped in a cloud of smoke!");
+
+			Rand_quick = FALSE;
+
+			num = 2 + randint(3);
+			(void)summon_specific(y, x, FALSE, p_ptr->depth, 0, num);
+
+			Rand_quick = TRUE;
+		}
+
+		/* these are all one-time traps. */
+		cave_info[y][x] &= ~(CAVE_MARK);
+		cave_set_feat(y, x, FEAT_FLOOR);
+
+		break;
+	}
+
+	/* dungeon alteration traps. */
+	case FEAT_TRAP_HEAD + 0x06:
+	{
+		/* determine how dangerous the trap is allowed to be. */
+		nastyness = randint(p_ptr->depth);
+		if (randint(5) == 1) nastyness += 10;
+
+		/* make room for alterations. */
+		cave_info[y][x] &= ~(CAVE_MARK);
+		cave_set_feat(y, x, FEAT_FLOOR);
+
+		/* Everything truely random from here on. */
+		Rand_quick = FALSE;
+
+		/* dungeon destruction trap. */
+		if ((nastyness > 60) && (randint(12) == 1))
+		{
+			msg_print("A ear-splitting howl shatters your mind as the dungeon is smashed by hammer blows!");
+
+			(void)destroy_level(FALSE);
+
+			/* the player is hard-hit. */
+			(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+			(void)set_blind(p_ptr->blind + rand_int(30) + 15);
+			(void)set_stun(p_ptr->stun + randint(50) + 50);
+			dam = damroll(15,15);
+			take_hit(dam, name);
+		}
+
+		/* earthquake trap. */
+		else if ((nastyness > 20) && (randint(4) == 1))
+		{
+			msg_print("A tremor shakes the dungeon around you");
+			earthquake(y, x, 10, FALSE);
+		}
+
+		/* falling rock trap. */
+		else if ((nastyness > 4) && (randint(2) == 1))
+		{
+			msg_print("A rock falls on your head.");
+			dam = damroll(2,10);
+			take_hit(dam, name);
+
+			(void)set_stun(p_ptr->stun + randint(10) + 10);
+		}
+
+		/* a few pebbles. */
+		else
+		{
+			msg_print("A bunch of pebbles rain down on you.");
+			dam = damroll(1,8);
+			take_hit(dam, name);
+		}
+
+		Rand_quick = TRUE;
+
+		break;
+	}
+
+	/* various char and equipment-alteration traps, lumped together
+	 * to avoid any one effect being too common (some of them can be
+	 * rather nasty).
+	 */
+	case FEAT_TRAP_HEAD + 0x07:
+	{
+		/* determine how dangerous the trap is allowed to be. */
+		nastyness = rand_int(100);
+
+		/* these are all one-time traps. */
+		cave_info[y][x] &= ~(CAVE_MARK);
+		cave_set_feat(y, x, FEAT_FLOOR);
+
+		/* Everything truely random from here on. */
+		Rand_quick = FALSE;
+
+		/* trap of drain wands. */
+		if (nastyness < 15)
+		{
+			/* Hold the object information. */
+			object_type *o_ptr;
+
+			/* Find an item */
+			for (i = 0; i < 20; i++)
+			{
+				/* Pick an item */
+				i = rand_int(INVEN_PACK - p_ptr->pack_size_reduce);
+
+				/* Obtain the item */
+				o_ptr = &inventory[i];
+
+				/* use "num" to decide if a item can be
+				 * uncharged.  By default, assume it can't. */
+				num = 0;
+
+				/* Skip non-objects */
+				if (!o_ptr->k_idx) continue;
+
+				/* Drain charged wands/staffs/rods */
+				if ((o_ptr->tval == TV_STAFF) ||
+				    (o_ptr->tval == TV_WAND) ||
+				    (o_ptr->tval == TV_ROD))
+				{
+					/* case of charged wands/staffs. */
+					if (((o_ptr->tval == TV_STAFF) ||
+					     (o_ptr->tval == TV_WAND)) &&
+					    (o_ptr->pval)) num = 1;
+
+					/* case of charged rods. */
+					if ((o_ptr->tval == TV_ROD) &&
+					    (o_ptr->timeout < (o_ptr->pval * o_ptr->number))) num = 1;
+
+
+					if (num == 1)
+					{
+						/* Message */
+						msg_print("Energy drains from your pack!");
+
+						/* Uncharge */
+						if ((o_ptr->tval == TV_STAFF) ||
+						    (o_ptr->tval == TV_WAND))
+							o_ptr->pval = 0;
+
+						if (o_ptr->tval == TV_ROD)
+							o_ptr->timeout = o_ptr->pval * o_ptr->number * 2;
+
+
+						/* Combine / Reorder the pack */
+						p_ptr->notice |= (PN_COMBINE |
+								  PN_REORDER);
+
+						/* Window stuff */
+						p_ptr->window |= (PW_INVEN);
+
+						/* not more than one inventory
+						 * slot effected. */
+						break;
+					}
+					else continue;
+				}
+			}
+		}
+
+		/* trap of forgetting. */
+		else if (nastyness < 35)
+		{
+			if (check_save(100))
+			{
+				msg_print("You hang on to your memories!");
+			}
+			else if (lose_all_info())
+			{
+				msg_print("Your memories fade away.");
+			}
+		}
+
+		/* trap of alter reality. */
+		else if (nastyness < 50)
+		{
+			msg_print("The world changes!");
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
-
-			Rand_quick = TRUE;
-
-			break;
 		}
 
-		/* pits. */
-		case FEAT_TRAP_HEAD + 0x01:
+		/* trap of remold player. */
+		else if (nastyness < 75)
 		{
-			/* determine how dangerous the trap is allowed to be. */
-			nastyness = randint(p_ptr->depth);
-			if (randint(20) == 1) nastyness += 20;
-			else if (randint(5) == 1) nastyness += 10;
+			int max1, cur1, max2, cur2, ii, jj;
 
-			/* Player is now in pit. */
-			monster_swap(p_ptr->py, p_ptr->px, y, x);
+			msg_print("You feel yourself being twisted by wild magic!");
 
-			/* Center on player. */
-			y = p_ptr->py;
-			x = p_ptr->px;
-
-			/* pit of daggers. */
-			if ((nastyness > 80) && (randint(3) != 3))
+			if (check_save(100))
 			{
-				msg_print("You fall into a pit of daggers!");
-
-				if (p_ptr->ffall)
-				{
-					msg_print("You float gently to the floor of the pit.");
-					msg_print("You carefully avoid setting off the daggers.");
-				}
-
-				else
-				{
-					/* a trap of morgul. */
-					if (randint(6) == 1)
-					{
-						Rand_quick = FALSE;
-
-
-						msg_print("A single coldly gleaming dagger pierces you deeply!");
-						msg_print("You feel a deadly chill slowly withering your soul.");
-
-						/* activate the Black Breath. */
-						p_ptr->black_breath = TRUE;
-
-						/* lots of damage. */
-						dam = damroll(20,15);
-
-						/* undead may be attracted. */
-						if (randint(2) == 1)
-						{
-							msg_print("Undead suddenly appear and call you to them!");
-
-							k = randint(3) + 2;
-							(void) summon_specific(y, x, FALSE, p_ptr->depth, SUMMON_UNDEAD, k);
-
-						}
-
-						/* morgul-traps are one-time only. */
-						cave_info[y][x] &= ~(CAVE_MARK);
-						cave_set_feat(y, x, FEAT_FLOOR);
-
-						Rand_quick = TRUE;
-					}
-
-					else
-					{
-						Rand_quick = FALSE;
-
-						/* activate the ordinary daggers. */
-						msg_print("Daggers pierce you everywhere!");
-
-						k = randint(10) + 5;
-						for (i = 0; i < k; i++)
-						{
-							dam += damroll(3, 4);
-						}
-
-						Rand_quick = TRUE;
-					}
-
-					/* cut the player. */
-					(void)set_cut(p_ptr->cut + randint(dam));
-
-					/* Take the damage. */
-					take_hit(dam, name);
-				}
-			}
-
-			/* poisoned spiked pit. */
-			else if ((nastyness > 55) && (randint(3) != 3))
-			{
-				msg_print("You fall into a spiked pit!");
-
-				if (p_ptr->ffall)
-				{
-					msg_print("You float gently to the floor of the pit.");
-					msg_print("You carefully avoid touching the spikes.");
-				}
-
-				else
-				{
-					Rand_quick = FALSE;
-
-					/* Base damage */
-					dam = damroll(2, 6);
-
-					/* Extra spike damage */
-					if (rand_int(100) < 85)
-					{
-						bool was_poisoned;
-
-						msg_print("You are impaled on poisonous spikes!");
-
-						dam = dam * (randint(6) + 3);
-						(void)set_cut(p_ptr->cut + randint(dam));
-
-						was_poisoned = pois_hit(dam);
-
-						if (!was_poisoned) msg_print("The poison does not affect you!");
-					}
-
-					/* Take the damage */
-					take_hit(dam, name);
-
-					Rand_quick = TRUE;
-				}
-			}
-
-			/* spiked pit. */
-			else if ((nastyness > 30) && (randint(3) != 3))
-			{
-				msg_print("You fall into a spiked pit!");
-
-				if (p_ptr->ffall)
-				{
-					msg_print("You float gently to the floor of the pit.");
-					msg_print("You carefully avoid touching the spikes.");
-				}
-
-				else
-				{
-					Rand_quick = FALSE;
-
-					/* Base damage */
-					dam = damroll(2, 6);
-
-					/* Extra spike damage */
-					if (rand_int(100) < 85)
-					{
-						msg_print("You are impaled!");
-
-						dam = dam * (2 + randint(4));
-						(void)set_cut(p_ptr->cut + randint(dam));
-					}
-
-					/* Take the damage */
-					take_hit(dam, name);
-
-					Rand_quick = TRUE;
-				}
-			}
-
-			/* ordinary pit in all other cases. */
-			else
-			{
-				msg_print("You fall into a pit!");
-				if (p_ptr->ffall)
-				{
-					msg_print("You float gently to the bottom of the pit.");
-				}
-				else
-				{
-					Rand_quick = FALSE;
-
-					dam = damroll(2, 6);
-					take_hit(dam, name);
-
-					Rand_quick = TRUE;
-				}
-			}
-
-			break;
-		}
-
-		/* stat-reducing dart traps. */
-		case FEAT_TRAP_HEAD + 0x02:
-		{
-			/* decide if the dart hits. */
-			if (check_trap_hit(50 + p_ptr->depth))
-			{
-				/* select a stat to drain. */
-				selection = rand_int(6);
-
-				Rand_quick = FALSE;
-
-				msg_print("A small dart hits you!");
-				dam = damroll(1, 4);
-				take_hit(dam, name);
-
-				/* Determine how dangerous the trap is allowed to be. */
-				nastyness = randint(p_ptr->depth);
-
-				/* decide how much to drain the stat by. */
-				if ((nastyness > 50) && (randint(3) == 1))
-				{
-					num = randint(4);
-				}
-				else num = 1;
-
-				/* drain the stat. */
-				for (i = 0; i < num; i++)
-				{
-					(void)do_dec_stat(selection);
-				}
-
-				Rand_quick = TRUE;
+				msg_print("You resist the effects!");
 			}
 			else
 			{
-				msg_print("A small dart barely misses you.");
+				msg_print("Your body starts to scramble...");
+
+				/* Pick a pair of stats */
+				ii = rand_int(6);
+				for (jj = ii; jj == ii; jj = rand_int(6)) /* loop */;
+
+				max1 = p_ptr->stat_max[ii];
+				cur1 = p_ptr->stat_cur[ii];
+				max2 = p_ptr->stat_max[jj];
+				cur2 = p_ptr->stat_cur[jj];
+
+				p_ptr->stat_max[ii] = max2;
+				p_ptr->stat_cur[ii] = cur2;
+				p_ptr->stat_max[jj] = max1;
+				p_ptr->stat_cur[jj] = cur1;
+
+				p_ptr->update |= (PU_BONUS);
 			}
-			break;
 		}
 
-		/* discolored spots. */
-		case FEAT_TRAP_HEAD + 0x03:
+		/* time ball trap. */
+		else if (nastyness < 90)
 		{
-			/* determine how dangerous the trap is allowed to be. */
-			nastyness = randint(p_ptr->depth);
-			if (randint(5) == 1) nastyness += 10;
+			msg_print("You feel time itself assault you!");
 
-			/* pick a elemental attack type. */
-			selection = randint(4);
-
-
-			/* electicity trap. */
-			if (selection == 1)
-			{
-				if ((nastyness >= 50) && (randint(2) == 1))
-				{
-					Rand_quick = FALSE;
-
-					msg_print("You are struck by lightning!");
-					dam = damroll(6, 30);
-
-					Rand_quick = TRUE;
-				}
-				else
-				{
-					Rand_quick = FALSE;
-
-					msg_print("You get zapped!");
-					dam = damroll(4, 8);
-
-					Rand_quick = TRUE;
-				}
-				Rand_quick = FALSE;
-				elec_dam(dam, "an electricity trap");
-				Rand_quick = TRUE;
-
-			}
-
-			/* frost trap. */
-			if (selection == 2)
-			{
-				if ((nastyness >= 50) && (randint(2) == 1))
-				{
-					Rand_quick = FALSE;
-
-					msg_print("You are lost within a blizzard!");
-					dam = damroll(6, 30);
-
-					Rand_quick = TRUE;
-				}
-				else
-				{
-					Rand_quick = FALSE;
-
-					msg_print("You are coated in frost!");
-					dam = damroll(4, 8);
-
-					Rand_quick = TRUE;
-				}
-				Rand_quick = FALSE;
-				cold_dam(dam, "a frost trap");
-				Rand_quick = TRUE;
-			}
-
-			/* fire trap. */
-			if (selection == 3)
-			{
-				if ((nastyness >= 50) && (randint(2) == 1))
-				{
-					Rand_quick = FALSE;
-
-					msg_print("You are enveloped in a column of fire!");
-					dam = damroll(6, 30);
-
-					Rand_quick = TRUE;
-				}
-				else
-				{
-					Rand_quick = FALSE;
-
-					msg_print("You are surrounded by flames!");
-					dam = damroll(4, 8);
-
-					Rand_quick = TRUE;
-				}
-				Rand_quick = FALSE;
-				fire_dam(dam, "a fire trap");
-				Rand_quick = TRUE;
-			}
-
-			/* acid trap. */
-			if (selection == 4)
-			{
-				if ((nastyness >= 50) && (randint(2) == 1))
-				{
-					Rand_quick = FALSE;
-
-					msg_print("A cauldron of acid is tipped over your head!");
-					dam = damroll(6, 30);
-
-					Rand_quick = TRUE;
-				}
-				else
-				{
-					Rand_quick = FALSE;
-
-					msg_print("You are splashed with acid!");
-					dam = damroll(4, 8);
-
-					Rand_quick = TRUE;
-				}
-				Rand_quick = FALSE;
-				acid_dam(dam, "an acid trap");
-				Rand_quick = TRUE;
-			}
-
-			break;
+			/* Target the player with a radius 0 ball attack. */
+			fire_meteor(0, GF_TIME, p_ptr->py, p_ptr->px,
+				    75, 0, TRUE);
 		}
 
-		/* gas traps. */
-		case FEAT_TRAP_HEAD + 0x04:
+		/* trap of software bugs gone berserk. */
+		else
 		{
-			selection = randint(4);
+			/* explain what the dickens is going on. */
+			msg_print("GRUESOME Software Bugs leap out at you!");
 
-			/* blinding trap. */
-			if (selection == 1)
+			if (!p_resist_pos(P_RES_CONFU))
 			{
-				msg_print("You are surrounded by a black gas!");
-				if (!p_ptr->no_blind)
-				{
-					Rand_quick = FALSE;
-
-					(void)set_blind(p_ptr->blind + rand_int(30) + 15);
-
-					Rand_quick = TRUE;
-				}
-			}
-
-			/* confusing trap. */
-			if (selection == 2)
-			{
-				msg_print("You are surrounded by a gas of scintillating colors!");
-				if (!p_resist_pos(P_RES_CONFU))
-				{
-					Rand_quick = FALSE;
-
-					(void)set_confused(p_ptr->confused + rand_int(20) + 10);
-
-					Rand_quick = TRUE;
-				}
-			}
-
-			/* poisoning trap. */
-			if (selection == 3)
-			{
-				msg_print("You are surrounded by a pungent green gas!");
-
-				Rand_quick = FALSE;
-
-				pois_hit(25);
-
-				Rand_quick = TRUE;
-			}
-
-			/* sleeping trap. */
-			if (selection == 4)
-			{
-				msg_print("You are surrounded by a strange white mist!");
-				if (!p_ptr->free_act)
-				{
-					(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
-				}
-			}
-
-			break;
-		}
-
-		/* summoning traps. */
-		case FEAT_TRAP_HEAD + 0x05:
-		{
-			/* sometimes summon thieves. */
-			if ((p_ptr->depth > 8) && (randint(5) == 1))
-			{
-				msg_print("You have aroused a den of thieves!");
-
-				Rand_quick = FALSE;
-
-				num = 2 + randint(3);
-				(void)summon_specific(y, x, FALSE, p_ptr->depth, SUMMON_THIEF, num);
-
-				Rand_quick = TRUE;
-			}
-
-			/* sometimes summon a nasty unique. */
-			else if (randint(8) == 1)
-			{
-				msg_print("You are enveloped in a cloud of smoke!");
-
-				Rand_quick = FALSE;
-
-				(void)summon_specific(y, x, FALSE, p_ptr->depth + 5, SUMMON_UNIQUE, 1);
-
-				Rand_quick = TRUE;
-			}
-
-			/* otherwise, the ordinary summon monsters. */
-			else
-			{
-				msg_print("You are enveloped in a cloud of smoke!");
-
-				Rand_quick = FALSE;
-
-				num = 2 + randint(3);
-				(void)summon_specific(y, x, FALSE, p_ptr->depth, 0, num);
-
-				Rand_quick = TRUE;
-			}
-
-			/* these are all one-time traps. */
-			cave_info[y][x] &= ~(CAVE_MARK);
-			cave_set_feat(y, x, FEAT_FLOOR);
-
-			break;
-		}
-
-		/* dungeon alteration traps. */
-		case FEAT_TRAP_HEAD + 0x06:
-		{
-			/* determine how dangerous the trap is allowed to be. */
-			nastyness = randint(p_ptr->depth);
-			if (randint(5) == 1) nastyness += 10;
-
-			/* make room for alterations. */
-			cave_info[y][x] &= ~(CAVE_MARK);
-			cave_set_feat(y, x, FEAT_FLOOR);
-
-			/* Everything truely random from here on. */
-			Rand_quick = FALSE;
-
-			/* dungeon destruction trap. */
-			if ((nastyness > 60) && (randint(12) == 1))
-			{
-				msg_print("A ear-splitting howl shatters your mind as the dungeon is smashed by hammer blows!");
-
-				(void)destroy_level(FALSE);
-
-				/* the player is hard-hit. */
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
-				(void)set_blind(p_ptr->blind + rand_int(30) + 15);
-				(void)set_stun(p_ptr->stun + randint(50) + 50);
-				dam = damroll(15,15);
-				take_hit(dam, name);
 			}
-
-			/* earthquake trap. */
-			else if ((nastyness > 20) && (randint(4) == 1))
+			if (!p_resist_pos(P_RES_CHAOS))
 			{
-				msg_print("A tremor shakes the dungeon around you");
-				earthquake(y, x, 10, FALSE);
+				(void)set_image(p_ptr->image + randint(40));
 			}
 
-			/* falling rock trap. */
-			else if ((nastyness > 4) && (randint(2) == 1))
+			/* XXX (hard coded) summon 3-6 software bugs. */
+			k = randint(4) + 2;
+			for (i = 0; i < k; ++i)
 			{
-				msg_print("A rock falls on your head.");
-				dam = damroll(2,10);
-				take_hit(dam, name);
+				/* Look for a location */
+				for (j = 0; j < 20; ++j)
+				{
+					/* Pick a (scattered) distance. */
+					int d = (j / 10) + randint(3);
 
-				(void)set_stun(p_ptr->stun + randint(10) + 10);
+					/* Pick a location */
+					scatter(&y, &x, y, x, d, 0);
+
+					/* Require passable terrain */
+					if (!cave_passable_bold(y, x)) continue;
+
+					/* Hack -- no summon on glyph of warding */
+					if (cave_feat[y][x] == FEAT_GLYPH) continue;
+
+					/* Okay */
+					break;
+				}
+
+				/* Attempt to place the awake software bug */
+				place_monster_aux(y, x, 453, FALSE, TRUE);
 			}
 
-			/* a few pebbles. */
-			else
-			{
-				msg_print("A bunch of pebbles rain down on you.");
-				dam = damroll(1,8);
-				take_hit(dam, name);
-			}
-
-			Rand_quick = TRUE;
-
-			break;
+			/* herald the arrival of Software Bugs. */
+			msg_print("AAAAAAAHHHH! THEY'RE EVERYWHERE!");
 		}
 
-		/* various char and equipment-alteration traps, lumped together
-		 * to avoid any one effect being too common (some of them can be
-		 * rather nasty).
-		 */
-		case FEAT_TRAP_HEAD + 0x07:
+		Rand_quick = TRUE;
+
+		break;
+	}
+
+	/* teleport trap */
+	case FEAT_TRAP_HEAD + 0x08:
+	{
+		msg_print("You teleport across the dungeon.");
+
+		Rand_quick = FALSE;
+
+		teleport_player(250, FALSE);
+
+		Rand_quick = TRUE;
+
+		break;
+	}
+
+	/* murder holes. */
+	case FEAT_TRAP_HEAD + 0x09:
+	{
+		/* hold the object info. */
+		object_type *o_ptr;
+		object_type object_type_body;
+
+		/* hold the missile type and name. */
+		int sval = 0;
+		int tval = 0;
+		cptr missile_name = "";
+
+
+		/* Determine the missile type and base damage. */
+		if (randint(3) == 1)
 		{
-			/* determine how dangerous the trap is allowed to be. */
-			nastyness = rand_int(100);
-
-			/* these are all one-time traps. */
-			cave_info[y][x] &= ~(CAVE_MARK);
-			cave_set_feat(y, x, FEAT_FLOOR);
-
-			/* Everything truely random from here on. */
-			Rand_quick = FALSE;
-
-			/* trap of drain wands. */
-			if (nastyness < 15)
+			if (p_ptr->depth < 40)
 			{
-				/* Hold the object information. */
-				object_type *o_ptr;
-
-				/* Find an item */
-				for (i = 0; i < 20; i++)
-				{
-					/* Pick an item */
-					i = rand_int(INVEN_PACK - p_ptr->pack_size_reduce);
-
-					/* Obtain the item */
-					o_ptr = &inventory[i];
-
-					/* use "num" to decide if a item can be
-					 * uncharged.  By default, assume it can't. */
-					num = 0;
-
-					/* Skip non-objects */
-					if (!o_ptr->k_idx) continue;
-
-					/* Drain charged wands/staffs/rods */
-					if ((o_ptr->tval == TV_STAFF) ||
-						(o_ptr->tval == TV_WAND) ||
-						(o_ptr->tval == TV_ROD))
-					{
-						/* case of charged wands/staffs. */
-						if (((o_ptr->tval == TV_STAFF) ||
-							(o_ptr->tval == TV_WAND)) &&
-							(o_ptr->pval)) num = 1;
-
-						/* case of charged rods. */
-						if ((o_ptr->tval == TV_ROD) &&
-						    (o_ptr->timeout < (o_ptr->pval * o_ptr->number))) num = 1;
-
-
-						if (num == 1)
-						{
-							/* Message */
-							msg_print("Energy drains from your pack!");
-
-							/* Uncharge */
-							if ((o_ptr->tval == TV_STAFF) ||
-								(o_ptr->tval == TV_WAND))
-								o_ptr->pval = 0;
-
-							if (o_ptr->tval == TV_ROD)
-								o_ptr->timeout = o_ptr->pval * o_ptr->number * 2;
-
-
-							/* Combine / Reorder the pack */
-							p_ptr->notice |= (PN_COMBINE |
-							PN_REORDER);
-
-							/* Window stuff */
-							p_ptr->window |= (PW_INVEN);
-
-							/* not more than one inventory
-							 * slot effected. */
-							break;
-						}
-						else continue;
-					}
-				}
+				missile_name = "shot";
+				dam = damroll(2,3);
+				tval = TV_SHOT;
+				sval = SV_AMMO_NORMAL;
 			}
-
-			/* trap of forgetting. */
-			else if (nastyness < 35)
-			{
-				if (check_save(100))
-				{
-					msg_print("You hang on to your memories!");
-				}
-				else if (lose_all_info())
-				{
-					msg_print("Your memories fade away.");
-				}
-			}
-
-			/* trap of alter reality. */
-			else if (nastyness < 50)
-			{
-				msg_print("The world changes!");
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-
-			/* trap of remold player. */
-			else if (nastyness < 75)
-			{
-				int max1, cur1, max2, cur2, ii, jj;
-
-				msg_print("You feel yourself being twisted by wild magic!");
-
-				if (check_save(100))
-				{
-					msg_print("You resist the effects!");
-				}
-				else
-				{
-					msg_print("Your body starts to scramble...");
-
-					/* Pick a pair of stats */
-					ii = rand_int(6);
-					for (jj = ii; jj == ii; jj = rand_int(6)) /* loop */;
-
-					max1 = p_ptr->stat_max[ii];
-					cur1 = p_ptr->stat_cur[ii];
-					max2 = p_ptr->stat_max[jj];
-					cur2 = p_ptr->stat_cur[jj];
-
-					p_ptr->stat_max[ii] = max2;
-					p_ptr->stat_cur[ii] = cur2;
-					p_ptr->stat_max[jj] = max1;
-					p_ptr->stat_cur[jj] = cur1;
-
-					p_ptr->update |= (PU_BONUS);
-				}
-			}
-
-			/* time ball trap. */
-			else if (nastyness < 90)
-			{
-				msg_print("You feel time itself assault you!");
-
-				/* Target the player with a radius 0 ball attack. */
-				fire_meteor(0, GF_TIME, p_ptr->py, p_ptr->px,
-					75, 0, TRUE);
-			}
-
-			/* trap of software bugs gone berserk. */
 			else
 			{
-				/* explain what the dickens is going on. */
-				msg_print("GRUESOME Software Bugs leap out at you!");
-
-				if (!p_resist_pos(P_RES_CONFU))
-				{
-					(void)set_confused(p_ptr->confused + rand_int(20) + 10);
-				}
-				if (!p_resist_pos(P_RES_CHAOS))
-				{
-					(void)set_image(p_ptr->image + randint(40));
-				}
-
-				/* XXX (hard coded) summon 3-6 software bugs. */
-				k = randint(4) + 2;
-				for (i = 0; i < k; ++i)
-				{
-					/* Look for a location */
-					for (j = 0; j < 20; ++j)
-					{
-						/* Pick a (scattered) distance. */
-						int d = (j / 10) + randint(3);
-
-						/* Pick a location */
-						scatter(&y, &x, y, x, d, 0);
-
-						/* Require passable terrain */
-						if (!cave_passable_bold(y, x)) continue;
-
-						/* Hack -- no summon on glyph of warding */
-						if (cave_feat[y][x] == FEAT_GLYPH) continue;
-
-						/* Okay */
-						break;
-					}
-
-					/* Attempt to place the awake software bug */
-					place_monster_aux(y, x, 453, FALSE, TRUE);
-				}
-
-				/* herald the arrival of Software Bugs. */
-				msg_print("AAAAAAAHHHH! THEY'RE EVERYWHERE!");
+				missile_name = "seeker shot";
+				dam = damroll(3,7);
+				tval = TV_SHOT;
+				sval = SV_AMMO_HEAVY;
 			}
-
-			Rand_quick = TRUE;
-
-			break;
 		}
 
-		/* teleport trap */
-		case FEAT_TRAP_HEAD + 0x08:
+		else if (randint(2) == 1)
 		{
-			msg_print("You teleport across the dungeon.");
+			if (p_ptr->depth < 55)
+			{
+				missile_name = "arrow";
+				dam = damroll(2,4);
+				tval = TV_ARROW;
+				sval = SV_AMMO_NORMAL;
+			}
+			else
+			{
+				missile_name = "seeker arrow";
+				dam = damroll(3,9);
+				tval = TV_ARROW;
+				sval = SV_AMMO_HEAVY;
+			}
+		}
+
+		else
+		{
+			if (p_ptr->depth < 65)
+			{
+				missile_name = "bolt";
+				dam = damroll(2,5);
+				tval = TV_BOLT;
+				sval = SV_AMMO_NORMAL;
+			}
+			else
+			{
+				missile_name = "seeker bolt";
+				dam = damroll(3,11);
+				tval = TV_BOLT;
+				sval = SV_AMMO_HEAVY;
+			}
+		}
+
+		/* determine if the missile hits. */
+		if (check_trap_hit(75 + p_ptr->depth))
+		{
+			msg_format("A %s hits you from above.", missile_name);
 
 			Rand_quick = FALSE;
 
-			teleport_player(250, FALSE);
+			/* critical hits. */
+			if (randint(2) == 1)
+			{
+				msg_print("It was well-aimed!");
+				dam *= 1 + randint(2);
+			}
+			if (randint(2) == 1)
+			{
+				msg_print("It gouges you!");
+				dam = 3 * dam / 2;
+
+				/* cut the player. */
+				(void)set_cut(p_ptr->cut + randint(dam));
+			}
 
 			Rand_quick = TRUE;
 
-			break;
-		}
-
-		/* murder holes. */
-		case FEAT_TRAP_HEAD + 0x09:
-		{
-			/* hold the object info. */
-			object_type *o_ptr;
-			object_type object_type_body;
-
-			/* hold the missile type and name. */
-			int sval = 0;
-			int tval = 0;
-			cptr missile_name = "";
-
-
-			/* Determine the missile type and base damage. */
-			if (randint(3) == 1)
-			{
-				if (p_ptr->depth < 40)
-				{
-					missile_name = "shot";
-					dam = damroll(2,3);
-					tval = TV_SHOT;
-					sval = SV_AMMO_NORMAL;
-				}
-				else
-				{
-					missile_name = "seeker shot";
-					dam = damroll(3,7);
-					tval = TV_SHOT;
-					sval = SV_AMMO_HEAVY;
-				}
-			}
-
-			else if (randint(2) == 1)
-			{
-				if (p_ptr->depth < 55)
-				{
-					missile_name = "arrow";
-					dam = damroll(2,4);
-					tval = TV_ARROW;
-					sval = SV_AMMO_NORMAL;
-				}
-				else
-				{
-					missile_name = "seeker arrow";
-					dam = damroll(3,9);
-					tval = TV_ARROW;
-					sval = SV_AMMO_HEAVY;
-				}
-			}
-
-			else
-			{
-				if (p_ptr->depth < 65)
-				{
-					missile_name = "bolt";
-					dam = damroll(2,5);
-					tval = TV_BOLT;
-					sval = SV_AMMO_NORMAL;
-				}
-				else
-				{
-					missile_name = "seeker bolt";
-					dam = damroll(3,11);
-					tval = TV_BOLT;
-					sval = SV_AMMO_HEAVY;
-				}
-			}
-
-			/* determine if the missile hits. */
-			if (check_trap_hit(75 + p_ptr->depth))
-			{
-				msg_format("A %s hits you from above.", missile_name);
-
-				Rand_quick = FALSE;
-
-				/* critical hits. */
-				if (randint(2) == 1)
-				{
-					msg_print("It was well-aimed!");
-					dam *= 1 + randint(2);
-				}
-				if (randint(2) == 1)
-				{
-					msg_print("It gouges you!");
-					dam = 3 * dam / 2;
-
-					/* cut the player. */
-					(void)set_cut(p_ptr->cut + randint(dam));
-				}
-
-				Rand_quick = TRUE;
-
-				take_hit(dam, name);
-			}
-
-			/* Explain what just happened. */
-			else msg_format("A %s wizzes by your head.", missile_name);
-
-			/* Get local object */
-			o_ptr = &object_type_body;
-
-			/* Make a missile, identify it, and drop it near the player. */
-			object_prep(o_ptr, lookup_kind(tval, sval));
-			object_aware(o_ptr);
-			object_known(o_ptr);
-			drop_near(o_ptr, -1, y, x);
-
-			break;
-		}
-
-		/* undefined trap. */
-		case FEAT_TRAP_HEAD + 0x0A:
-		{
-			msg_print("A dagger is thrown at you from the shadows!");
-			dam = damroll(3,4);
 			take_hit(dam, name);
-
-			break;
 		}
 
-		/* undefined trap. */
-		case FEAT_TRAP_HEAD + 0x0B:
-		{
-			msg_print("A dagger is thrown at you from the shadows!");
-			dam = damroll(3,4);
-			take_hit(dam, name);
+		/* Explain what just happened. */
+		else msg_format("A %s wizzes by your head.", missile_name);
 
-			break;
-		}
+		/* Get local object */
+		o_ptr = &object_type_body;
 
-		/* undefined trap. */
-		case FEAT_TRAP_HEAD + 0x0C:
-		{
-			msg_print("A dagger is thrown at you from the shadows!");
-			dam = damroll(3,4);
-			take_hit(dam, name);
+		/* Make a missile, identify it, and drop it near the player. */
+		object_prep(o_ptr, lookup_kind(tval, sval));
+		object_aware(o_ptr);
+		object_known(o_ptr);
+		drop_near(o_ptr, -1, y, x);
 
-			break;
-		}
+		break;
+	}
 
-		/* undefined trap. */
-		case FEAT_TRAP_HEAD + 0x0D:
-		{
-			msg_print("A dagger is thrown at you from the shadows!");
-			dam = damroll(3,4);
-			take_hit(dam, name);
+	/* undefined trap. */
+	case FEAT_TRAP_HEAD + 0x0A:
+	{
+		msg_print("A dagger is thrown at you from the shadows!");
+		dam = damroll(3,4);
+		take_hit(dam, name);
 
-			break;
-		}
+		break;
+	}
 
-		/* undefined trap. */
-		case FEAT_TRAP_HEAD + 0x0E:
-		{
-			msg_print("A dagger is thrown at you from the shadows!");
-			dam = damroll(3,4);
-			take_hit(dam, name);
+	/* undefined trap. */
+	case FEAT_TRAP_HEAD + 0x0B:
+	{
+		msg_print("A dagger is thrown at you from the shadows!");
+		dam = damroll(3,4);
+		take_hit(dam, name);
 
-			break;
-		}
+		break;
+	}
 
-		/* undefined trap. */
-		case FEAT_TRAP_HEAD + 0x0F:
-		{
-			msg_print("A dagger is thrown at you from the shadows!");
-			dam = damroll(3,4);
-			take_hit(dam, name);
+	/* undefined trap. */
+	case FEAT_TRAP_HEAD + 0x0C:
+	{
+		msg_print("A dagger is thrown at you from the shadows!");
+		dam = damroll(3,4);
+		take_hit(dam, name);
 
-			break;
-		}
+		break;
+	}
+
+	/* undefined trap. */
+	case FEAT_TRAP_HEAD + 0x0D:
+	{
+		msg_print("A dagger is thrown at you from the shadows!");
+		dam = damroll(3,4);
+		take_hit(dam, name);
+
+		break;
+	}
+
+	/* undefined trap. */
+	case FEAT_TRAP_HEAD + 0x0E:
+	{
+		msg_print("A dagger is thrown at you from the shadows!");
+		dam = damroll(3,4);
+		take_hit(dam, name);
+
+		break;
+	}
+
+	/* undefined trap. */
+	case FEAT_TRAP_HEAD + 0x0F:
+	{
+		msg_print("A dagger is thrown at you from the shadows!");
+		dam = damroll(3,4);
+		take_hit(dam, name);
+
+		break;
+	}
 
 	}
 
@@ -1838,7 +1862,7 @@ void move_player(int dir, int do_pickup)
 			dex_escape = adj_dex_dis[p_ptr->stat_ind[A_DEX]];
 
 			/* First attempt to leap out of the pit, */
-			 if ((dex_escape + 1) * 2 < randint(16))
+			if ((dex_escape + 1) * 2 < randint(16))
 			{
 				/* then attempt to climb out of the pit. */
 				if (str_escape + 3 < randint(16))
@@ -1856,8 +1880,8 @@ void move_player(int dir, int do_pickup)
 		/* Option to disarm a visible trap. -TNB- */
 		/* Hack - Rogues can walk over their own trap - BR */
 		if ((easy_disarm) &&
-			(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-			(cave_feat[y][x] <= FEAT_TRAP_TAIL))
+		    (cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		    (cave_feat[y][x] <= FEAT_TRAP_TAIL))
 		{
 			/* Optional auto-repeat. */
 			if (always_repeat && (p_ptr->command_arg <= 0))
@@ -1940,105 +1964,105 @@ void move_player(int dir, int do_pickup)
 			/*** Handle traversable terrain.  ***/
 			switch(cave_feat[y][x])
 			{
-				case FEAT_RUBBLE:
-				{
-					if (player_is_crossing == dir)
-						can_move = TRUE;
-					else
-					{
-						player_is_crossing = dir;
-
-						/* Automate 2nd movement command, if not disturbed. */
-						p_ptr->command_cmd = 59;
-						p_ptr->command_rep = 1;
-						p_ptr->command_dir = dir;
-					}
-
-					break;
-				}
-				case FEAT_TREE:
-				{
-					/* Druids and rangers slip easily under trees. */
-					if ((check_ability(SP_WOODSMAN))) can_move = TRUE;
-
-					/* Allow movement only if partway through already. */
-					else if (player_is_crossing == dir)
-						can_move = TRUE;
-					else
-					{
-						player_is_crossing = dir;
-
-						/* Automate 2nd movement command, if not disturbed. */
-						p_ptr->command_cmd = 59;
-						p_ptr->command_rep = 1;
-						p_ptr->command_dir = dir;
-					}
-
-					break;
-				}
-				case FEAT_WATER:
-				{
-					/* Cannot cross with an over-heavy burden. */
-					if (p_ptr->total_weight <
-						adj_str_wgt[p_ptr->stat_ind[A_STR]] * 50)
-						can_move = TRUE;
-					else can_move = FALSE;
-
-					/* Stop any run. */
-					disturb(0,0);
-
-					/* Explain why the horse won't cross the water. */
-					if (can_move == FALSE)
-						msg_print("You dare not cross carrying so much weight.");
-
-					break;
-				}
-				case FEAT_LAVA:
-				{
-					/* Assume player will continue. */
-					temp = TRUE;
-
-					/* Smart enough to stop running. */
-					if (p_ptr->running)
-					{
-						if (!get_check("Lava blocks your path.  Step into it? "))
-						{
-							temp = FALSE;
-							p_ptr->running = 0;
-						}
-					}
-
-					/* Smart enough to sense trouble. */
-					else if ((!p_resist_pos(P_RES_FIRE)) ||
-						 (!p_resist_strong(P_RES_FIRE) && (p_ptr->chp <= 100)) ||
-						 (!p_immune(P_RES_FIRE) && (p_ptr->chp <= 30)))
-					{
-						if (!get_check("The heat of the lava scalds you!  Really enter? "))
-						{
-							temp = FALSE;
-						}
-					}
-
-					/* Enter if OK or confirmed. */
-					if (temp)
-					{
-						/* Can always cross. */
-						can_move = TRUE;
-
-						/* Feather fall makes one lightfooted. */
-						if (p_ptr->ffall) temp = 49 + randint(51);
-						else temp = 124 + randint(126);
-
-						/* Will take serious fire damage. */
-						fire_dam(temp, "burnt to a cinder in molten lava");
-					}
-					break;
-				}
-				default:
-				{
-					/* All other terrain can be traversed normally. */
+			case FEAT_RUBBLE:
+			{
+				if (player_is_crossing == dir)
 					can_move = TRUE;
+				else
+				{
+					player_is_crossing = dir;
+
+					/* Automate 2nd movement command, if not disturbed. */
+					p_ptr->command_cmd = 59;
+					p_ptr->command_rep = 1;
+					p_ptr->command_dir = dir;
 				}
+
+				break;
+			}
+			case FEAT_TREE:
+			{
+				/* Druids and rangers slip easily under trees. */
+				if ((check_ability(SP_WOODSMAN))) can_move = TRUE;
+
+				/* Allow movement only if partway through already. */
+				else if (player_is_crossing == dir)
+					can_move = TRUE;
+				else
+				{
+					player_is_crossing = dir;
+
+					/* Automate 2nd movement command, if not disturbed. */
+					p_ptr->command_cmd = 59;
+					p_ptr->command_rep = 1;
+					p_ptr->command_dir = dir;
+				}
+
+				break;
+			}
+			case FEAT_WATER:
+			{
+				/* Cannot cross with an over-heavy burden. */
+				if (p_ptr->total_weight <
+				    adj_str_wgt[p_ptr->stat_ind[A_STR]] * 50)
+					can_move = TRUE;
+				else can_move = FALSE;
+
+				/* Stop any run. */
+				disturb(0,0);
+
+				/* Explain why the horse won't cross the water. */
+				if (can_move == FALSE)
+					msg_print("You dare not cross carrying so much weight.");
+
+				break;
+			}
+			case FEAT_LAVA:
+			{
+				/* Assume player will continue. */
+				temp = TRUE;
+
+				/* Smart enough to stop running. */
+				if (p_ptr->running)
+				{
+					if (!get_check("Lava blocks your path.  Step into it? "))
+					{
+						temp = FALSE;
+						p_ptr->running = 0;
+					}
+				}
+
+				/* Smart enough to sense trouble. */
+				else if ((!p_resist_pos(P_RES_FIRE)) ||
+					 (!p_resist_strong(P_RES_FIRE) && (p_ptr->chp <= 100)) ||
+					 (!p_immune(P_RES_FIRE) && (p_ptr->chp <= 30)))
+				{
+					if (!get_check("The heat of the lava scalds you!  Really enter? "))
+					{
+						temp = FALSE;
+					}
+				}
+
+				/* Enter if OK or confirmed. */
+				if (temp)
+				{
+					/* Can always cross. */
+					can_move = TRUE;
+
+					/* Feather fall makes one lightfooted. */
+					if (p_ptr->ffall) temp = 49 + randint(51);
+					else temp = 124 + randint(126);
+
+					/* Will take serious fire damage. */
+					fire_dam(temp, "burnt to a cinder in molten lava");
+				}
+				break;
+			}
+			default:
+			{
+				/* All other terrain can be traversed normally. */
+				can_move = TRUE;
+			}
 			}
 
 			/* If the player can move, handle various things. */
@@ -2046,6 +2070,10 @@ void move_player(int dir, int do_pickup)
 			{
 				/* Move player */
 				monster_swap(py, px, y, x);
+
+				/* Update stealth for Unlight */
+				if (check_ability(SP_UNLIGHT))
+					p_ptr->update |= PU_BONUS;
 
 				/* New location */
 				y = py = p_ptr->py;
@@ -2075,7 +2103,7 @@ void move_player(int dir, int do_pickup)
 
 				/* Handle "store doors" */
 				if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-				   (cave_feat[y][x] <= FEAT_SHOP_TAIL))
+				    (cave_feat[y][x] <= FEAT_SHOP_TAIL))
 				{
 					/* Disturb */
 					disturb(0, 0);
@@ -2102,7 +2130,7 @@ void move_player(int dir, int do_pickup)
 
 				/* Set off an visible trap */
 				else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-				  (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+					 (cave_feat[y][x] <= FEAT_TRAP_TAIL))
 				{
 					/* Disturb */
 					disturb(0, 0);
@@ -2113,7 +2141,7 @@ void move_player(int dir, int do_pickup)
 
 				/* Walk on a monster trap */
 				else if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) &&
-				  (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
+					 (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
 				{
 					msg_print("You inspect your cunning trap.");
 				}
@@ -2508,7 +2536,10 @@ static bool run_test(void)
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Visible object */
-			if (o_ptr->marked) return (TRUE);
+			if (o_ptr->marked  && !squelch_hide_item(o_ptr)) 
+			{
+			        return (TRUE);
+			}
 		}
 
 
@@ -2524,72 +2555,72 @@ static bool run_test(void)
 			switch (cave_feat[row][col])
 			{
 				/* Floors */
-				case FEAT_FLOOR:
+			case FEAT_FLOOR:
 
 				/* Invis traps */
-				case FEAT_INVIS:
+			case FEAT_INVIS:
 
 				/* Secret doors */
-				case FEAT_SECRET:
+			case FEAT_SECRET:
 
 				/* Normal veins */
-				case FEAT_MAGMA:
-				case FEAT_QUARTZ:
+			case FEAT_MAGMA:
+			case FEAT_QUARTZ:
 
 				/* Hidden treasure */
-				case FEAT_MAGMA_H:
-				case FEAT_QUARTZ_H:
+			case FEAT_MAGMA_H:
+			case FEAT_QUARTZ_H:
 
 				/* Special passable terrain. */
-				case FEAT_LAVA:
-				case FEAT_WATER:
-				case FEAT_TREE:
-				{
-					/* Ignore */
-					notice = FALSE;
+			case FEAT_LAVA:
+			case FEAT_WATER:
+			case FEAT_TREE:
+			{
+				/* Ignore */
+				notice = FALSE;
 
-					/* Done */
-					break;
-				}
+				/* Done */
+				break;
+			}
 
-				/* Walls */
-				case FEAT_WALL_EXTRA:
-				case FEAT_WALL_INNER:
-				case FEAT_WALL_OUTER:
-				case FEAT_WALL_SOLID:
-				case FEAT_PERM_EXTRA:
-				case FEAT_PERM_INNER:
-				case FEAT_PERM_OUTER:
-				case FEAT_PERM_SOLID:
-				{
-					/* Ignore */
-					notice = FALSE;
+			/* Walls */
+			case FEAT_WALL_EXTRA:
+			case FEAT_WALL_INNER:
+			case FEAT_WALL_OUTER:
+			case FEAT_WALL_SOLID:
+			case FEAT_PERM_EXTRA:
+			case FEAT_PERM_INNER:
+			case FEAT_PERM_OUTER:
+			case FEAT_PERM_SOLID:
+			{
+				/* Ignore */
+				notice = FALSE;
 
-					/* Done */
-					break;
-				}
+				/* Done */
+				break;
+			}
 
-				/* Open doors */
-				case FEAT_OPEN:
-				case FEAT_BROKEN:
-				{
-					/* Option -- ignore */
-					if (run_ignore_doors) notice = FALSE;
+			/* Open doors */
+			case FEAT_OPEN:
+			case FEAT_BROKEN:
+			{
+				/* Option -- ignore */
+				if (run_ignore_doors) notice = FALSE;
 
-					/* Done */
-					break;
-				}
+				/* Done */
+				break;
+			}
 
-				/* Stairs */
-				case FEAT_LESS:
-				case FEAT_MORE:
-				{
-					/* Option -- ignore */
-					if (run_ignore_stairs) notice = FALSE;
+			/* Stairs */
+			case FEAT_LESS:
+			case FEAT_MORE:
+			{
+				/* Option -- ignore */
+				if (run_ignore_stairs) notice = FALSE;
 
-					/* Done */
-					break;
-				}
+				/* Done */
+				break;
+			}
 			}
 
 			/* Interesting feature */
@@ -2830,6 +2861,9 @@ void run_step(int dir)
 	/* Start run */
 	if (dir)
 	{
+	        /* Paranoia */
+	        p_ptr->running_withpathfind = 0;
+
 		/* Initialize */
 		run_init(dir);
 
@@ -2843,23 +2877,98 @@ void run_step(int dir)
 	/* Continue run */
 	else
 	{
-		/* Update run */
-		if (run_test())
+	        if (!p_ptr->running_withpathfind)
 		{
-			/* Disturb */
-			disturb(0, 0);
+		        /* Update run */
+		        if (run_test())
+			{
+				/* Disturb */
+				disturb(0, 0);
 
-			/* Done */
-			return;
+				/* Done */
+				return;
+			}
+		}
+		else
+		{
+			/* Abort if we have finished */
+			if (pf_result_index < 0)
+			{
+				disturb(0, 0);
+				p_ptr->running_withpathfind = FALSE;
+				return;
+			}
+
+			/* Abort if we would hit a wall */
+			else if (pf_result_index == 0)
+			{
+				int y, x;
+	      
+				/* Get next step */
+				y = p_ptr->py + ddy[pf_result[pf_result_index] - '0'];
+				x = p_ptr->px + ddx[pf_result[pf_result_index] - '0'];
+	      
+				/* Known wall */
+				if ((cave_info[y][x] & (CAVE_MARK)) && !is_valid_pf(y,x))
+				{
+					disturb(0,0);
+					p_ptr->running_withpathfind = FALSE;
+					return;
+				}
+			}
+			/* Hack -- walking stick lookahead.
+			 *
+			 * If the player has computed a path that is going to end up in a 
+			 * wall, we notice this and convert to a normal run. This allows us 
+			 * to click on unknown areas to explore the map.
+			 *
+			 * We have to look ahead two, otherwise we don't know which is the 
+			 * last direction moved and don't initialise the run properly.
+			 */
+			else if (pf_result_index > 0)
+			{
+				int y, x;
+		    
+				/* Get next step */
+				y = p_ptr->py + ddy[pf_result[pf_result_index] - '0'];
+				x = p_ptr->px + ddx[pf_result[pf_result_index] - '0'];
+			   
+				/* Known wall */
+				if ((cave_info[y][x] & (CAVE_MARK)) && !is_valid_pf(y,x))
+				{
+					disturb(0,0);
+					p_ptr->running_withpathfind = FALSE;
+					return;
+				}
+			   
+				/* Get step after */
+				y = y + ddy[pf_result[pf_result_index - 1] - '0'];
+				x = x + ddx[pf_result[pf_result_index - 1] - '0'];
+			   
+				/* Known wall */
+				if ((cave_info[y][x] & (CAVE_MARK)) && !is_valid_pf(y,x))
+				{
+					p_ptr->running_withpathfind = FALSE;
+		  
+					run_init(pf_result[pf_result_index] - '0');
+				}
+			}
+		
+			if (!player_is_crossing)
+				p_ptr->run_cur_dir = pf_result[pf_result_index--] - '0';
+		
+			/* Hack -- allow easy_alter */
+			p_ptr->command_dir = p_ptr->run_cur_dir;
 		}
 	}
-
+		
 	/* Decrease counter */
 	p_ptr->running--;
-
+	
 	/* Take time */
 	p_ptr->energy_use = 100;
-
+	
 	/* Move the player, using the "pickup" flag */
 	move_player(p_ptr->run_cur_dir, always_pickup);
 }
+	

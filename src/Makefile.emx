@@ -22,7 +22,7 @@
 #		  Needs 4OS2.
 #
 
-VERSION         = 050
+VERSION         = 110u
 EXPORT          = oangband-$(VERSION).os2.zip
 
 CC		= gcc
@@ -65,7 +65,7 @@ OBJS = \
 	xtra1.o xtra2.o spells1.o spells2.o \
 	monmove.o monattk.o save.o files.o attack.o \
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-	store.o birth.o load1.o load2.o \
+	store.o birth.o load.o \
 	wizard1.o wizard2.o randart.o squelch.o \
 	generate.o dungeon.o init1.o init2.o
 
@@ -78,7 +78,7 @@ all .PHONY: oangband.exe aclient.exe
 	+@echo. 
 	+@echo       '$(MAKECMD) $(MFLAGS) $(MAKEFILE) install'
 	+@echo. 
-	+@echo to install OAngband in the parent directory, and/or
+	+@echo to install Oangband in the parent directory, and/or
 	+@echo. 
 	+@echo       '$(MAKECMD) $(MFLAGS) $(MAKEFILE) clean'
 	+@echo. 
@@ -161,7 +161,7 @@ ECF=>> ..\startwnd.cmd
 	$(EC) call RxFuncAdd 'SysLoadFuncs', 'RexxUtil', 'SysLoadFuncs'	$(ECF)
 	$(EC) call SysLoadFuncs						$(ECF)
 	$(EC).								$(ECF)
-	$(EC) /* This file starts up OAngband and up to seven other views. The */	$(ECF)
+	$(EC) /* This file starts up Oangband and up to seven other views. The */	$(ECF)
 	$(EC) /* optional number behind the name sets the number of lines for */	$(ECF)
 	$(EC) /* that screen.  Choose contents for each via the game options. */	$(ECF)
 	$(EC).								$(ECF)

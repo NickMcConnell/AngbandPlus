@@ -22,8 +22,6 @@ void do_cmd_go_up(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	char answer;
-
 	/* Verify stairs */
 	if (cave_feat[py][px] != FEAT_LESS)
 	{
@@ -34,9 +32,8 @@ void do_cmd_go_up(void)
 	/* Make certain the player really wants to leave a themed level. -LM- */
 	if (p_ptr->themed_level)
 	{
-		msg_print("This level will never appear again.  Really leave? (y/n)");
-		answer = inkey();
-		if ((answer != 'Y') && (answer != 'y')) return;
+	        if (!get_check("This level will never appear again.  Really leave?")) 
+		  return;
 	}
 
 
@@ -65,10 +62,8 @@ void do_cmd_go_up(void)
 	if ((is_quest(p_ptr->depth) == FALSE) &&
 		(p_ptr->depth != 0) && (randint(3) == 1))
 	{
-		msg_print("The stairs continue up.  Go up another level? (y/n)");
-
-		answer = inkey();
-		if ((answer == 'Y') || (answer == 'y')) p_ptr->depth--;
+                if (get_check("The stairs continue up.  Go up another level?"))
+		         p_ptr->depth--;
 	}
 
 	/* Revert to use of the "complex" RNG. */
@@ -87,8 +82,6 @@ void do_cmd_go_down(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	char answer;
-
 	/* Verify stairs */
 	if (cave_feat[py][px] != FEAT_MORE)
 	{
@@ -99,9 +92,8 @@ void do_cmd_go_down(void)
 	/* Make certain the player really wants to leave a themed level. -LM- */
 	if (p_ptr->themed_level)
 	{
-		msg_print("This level will never appear again.  Really leave? (y/n)");
-		answer = inkey();
-		if ((answer != 'Y') && (answer != 'y')) return;
+	        if (!get_check("This level will never appear again.  Really leave?")) 
+		  return;
 	}
 
 
@@ -130,10 +122,8 @@ void do_cmd_go_down(void)
 	if ((is_quest(p_ptr->depth) == FALSE) && (p_ptr->depth < MAX_DEPTH -1) &&
 		(randint(2) == 1))
 	{
-		msg_print("The stairs continue down.  Go down another level? (y/n)");
-
-		answer = inkey();
-		if ((answer == 'Y') || (answer == 'y')) p_ptr->depth++;
+                if (get_check("The stairs continue down.  Go down another level?"))
+		         p_ptr->depth++;
 	}
 
 	/* Revert to use of the "complex" RNG. */
@@ -712,6 +702,9 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
 		/* Let the Chest drop items */
 		chest_death(FALSE, y, x, o_idx);
+
+		/* Squelch chest if autosquelch calls for it */
+		p_ptr->notice |= PN_SQUELCH;
 	}
 
 	/* Result */
@@ -871,7 +864,7 @@ static int count_feats(int *y, int *x, bool (*test)(int feat), bool under)
  * Return the number of chests around (or under) the character. -TNB-
  * If requested, count only trapped chests.
  */
-static int count_chests(int *y, int *x, bool trapped)
+extern int count_chests(int *y, int *x, bool trapped)
 {
 	int d, count, o_idx;
 
@@ -1371,7 +1364,7 @@ static bool twall(int y, int x)
 	sound(SOUND_DIG);
 
 	/* Forget the wall */
-	cave_info[y][x] &= ~(CAVE_MARK);
+	cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
 
 	/* Remove the feature */
 	cave_set_feat(y, x, FEAT_FLOOR);
@@ -1514,7 +1507,8 @@ static bool do_cmd_tunnel_aux(int y, int x)
 				place_object(y, x, FALSE, FALSE, FALSE);
 
 				/* Observe new object */
-				if (player_can_see_bold(y, x))
+				if (!squelch_hide_item(&o_list[cave_o_idx[y][x]]) &&
+				    player_can_see_bold(y, x))
 				{
 					msg_print("You have found something!");
 				}
@@ -2562,6 +2556,33 @@ void do_cmd_run(void)
 
 
 /*
+ * Start running with pathfinder.
+ *
+ * Note that running while confused is not allowed.
+ */
+void do_cmd_pathfind(int y, int x)
+{
+  /* Hack XXX XXX XXX */
+  if (p_ptr->confused)
+    {
+      msg_print("You are too confused!");
+      return;
+    }
+  
+  if (findpath(y, x))
+    {
+      p_ptr->running = 1000;
+
+      /* Calculate torch radius */
+      p_ptr->update |= (PU_TORCH);
+
+      p_ptr->running_withpathfind = TRUE;
+      run_step(0);
+    }
+}
+
+
+/*
  * Stay still.  Search.   Enter stores.
  * Pick up treasure and objects if "pickup" is true.
  */
@@ -2630,8 +2651,24 @@ void do_cmd_hold(void)
  */
 void do_cmd_pickup(void)
 {
-	int energy_cost;
+	int energy_cost= 1, item;
+  
+  /* Do we have an item? */
+  if (p_ptr->command_item)
+    {
+      /* Get the item */
+      item = handle_item();
 
+      /* Pick it up */
+      py_pickup_aux(0 - item);
+
+      /* Charge some energy. */
+      p_ptr->energy_use = energy_cost;
+    }
+
+  /* Get items */
+  else
+    {
 	/* Pick up floor objects, forcing a menu for multiple objects. */
 	energy_cost = py_pickup(2) * 10;
 
@@ -2640,6 +2677,7 @@ void do_cmd_pickup(void)
 
 	/* Charge this amount of energy. */
 	p_ptr->energy_use = energy_cost;
+    }
 }
 
 
@@ -2648,18 +2686,32 @@ void do_cmd_pickup(void)
  */
 void do_cmd_rest(void)
 {
+        bool got_string;
+ 
 	/* Prompt for time if needed */
 	if (p_ptr->command_arg <= 0)
 	{
-		cptr p = "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
+		cptr p;
 
 		char out_val[80];
 
+		if (small_screen)
+		  p  = "Rest ('*': HP/SP, '&': needed): ";
+		else
+		  p  = "Rest (0-9999, '*' for HP/SP, '&' as needed: ";
+      
 		/* Default */
 		strcpy(out_val, "&");
 
+		/* Buttons */
+		add_button("*", '*');
+
 		/* Ask for duration */
-		if (!get_string(p, out_val, 5)) return;
+		got_string = get_string(p, out_val, 5);
+
+		kill_button('*');
+	
+		if (!got_string) return;
 
 		/* Rest until done */
 		if (out_val[0] == '&')

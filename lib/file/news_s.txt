@@ -1,0 +1,47 @@
+                                                                         
+************************************************
+** Oangband 1.1.0u  ***  The Pits of Angband  **
+************************************************
+                                                
+ Based on Moria: (c) 1985 Robert Alan Koeneke   
+    and  Umoria: (c) 1989 James E. Wilson       
+                                                
+ Angband 2.0 - 2.4 - 2.6.2 by:                  
+  Alex Cutler, Andy Astrand, Sean Marsh,        
+  Geoff Hill, Charles Teague, Charles Swiger    
+                                                
+ Angband 2.7.0 - 2.8.5 by Ben Harrison          
+ Angband 2.9.1 - 3.0.3 by Robert Ruehlmann      
+Oangband 0.1.0-0.4.0: (c) 1998-99 Leon Marrick  
+Oangband 0.5.0-1.1.0: (c) 2000-06 Bahman Rabii  
+Oangband 1.1.0u prepared by Nick McConnell      
+                                                
+Comments, etc to "nckmccnnll@yahoo.com.au".     
+Angband newsgroup: rec.games.roguelike.angband  
+Oangband home page is "http://www.oangband.com".
+Angband ladder page: "http://angband.oook.cz".  
+              '?' for online help.              
+
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwbbbbbbbbbbbbbbbwwwwwwwbbbbbbbbbbbbbbbbbbbwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+GGGGGGGGGGGGGGGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwww
+GGGGGGGGGGGGGGGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwww
+GGGGGGGGGGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBBwwwwwww
+wwwwwwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBBBBBBww
+wwwwwwwwwwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBBww
+wwwwwwwwwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBwwww
+wwwwwwwwwwwwwwwBwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww

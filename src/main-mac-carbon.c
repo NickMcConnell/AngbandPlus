@@ -128,7 +128,7 @@
  *   Use GestaltEqu.h instead of Gestalt.h
  *   Add Desk.h to include simply includes Menus.h, Devices.h, Events.h
  */
-
+ 
 #ifndef TARGET_CARBON
 #define TARGET_CARBON 1
 #endif
@@ -193,7 +193,7 @@
 
 #endif
 
-
+ 
 #ifdef ANGBAND_LITE_MAC
 
 /*
@@ -462,7 +462,7 @@ struct FrameRec
 	GWorldPtr 		framePort;					/* Graphic World for storing graphic tiles */
 	PixMapHandle 	framePixHndl;				/* Handle to PixMap for storing graphic tiles */
 	PixMapPtr 		framePix;					/* Ptr to PixMap for storing graphic tiles */
-
+	
 	GWorldPtr		bufferPort;					/* Graphic World for buffering one row of drawing */
 	PixMapHandle	bufferPixHndl;				/* Handle to PixMap for buffering one row of drawing */
 	PixMapPtr		bufferPix;					/* Ptr to PixMap for buffering one row of drawing */
@@ -473,7 +473,7 @@ struct FrameRec
  * The global picture data
  */
 static FrameRec *frameP = NULL;
-
+			
 /*
  * CodeWarrior uses Universal Procedure Pointers
  */
@@ -494,20 +494,20 @@ AEEventHandlerUPP AEH_Open_UPP;
 static void local_to_global( Rect *r )
 {
 	Point		temp;
-
+	
 	temp.h = r->left;
 	temp.v = r->top;
-
+	
 	LocalToGlobal( &temp );
-
+	
 	r->left = temp.h;
 	r->top = temp.v;
-
+	
 	temp.h = r->right;
 	temp.v = r->bottom;
-
+	
 	LocalToGlobal( &temp );
-
+	
 	r->right = temp.h;
 	r->bottom = temp.v;
 }
@@ -515,20 +515,20 @@ static void local_to_global( Rect *r )
 static void global_to_local( Rect *r )
 {
 	Point		temp;
-
+	
 	temp.h = r->left;
 	temp.v = r->top;
-
+	
 	GlobalToLocal( &temp );
-
+	
 	r->left = temp.h;
 	r->top = temp.v;
-
+	
 	temp.h = r->right;
 	temp.v = r->bottom;
-
+	
 	GlobalToLocal( &temp );
-
+	
 	r->right = temp.h;
 	r->bottom = temp.v;
 }
@@ -618,7 +618,7 @@ static void c2p_stringcopy( StringPtr dst, const char *src )
 {
 	short	len = strlen(src);
 	if( len > 255 ) len = 255;
-
+	
 	BlockMove( (void *)src, dst + 1, len );
 	*dst = (unsigned char)len;
 }
@@ -644,7 +644,7 @@ static void PathNameFromDirID(long dirID, short vRefNum, StringPtr fullPathName)
 		pstrinsert(fullPathName, directoryName);
 		if (block.dirInfo.ioDrDirID == 2) break;
 	}
-
+	
 	/* Add the root slash */
 	pstrinsert(fullPathName, (StringPtr)"\p/" );
 }
@@ -668,7 +668,7 @@ static void activate(WindowPtr w)
 		{
 			SetPort(GetWindowPort(w));
 		}
-
+		
 		/* Remember */
 		active = w;
 	}
@@ -694,12 +694,12 @@ static bool mac_confirm(cptr message, cptr description)
 		c2p_stringcopy( errorMessage, message );
 	else
 		c2p_stringcopy( errorMessage, "Warning!" );
-
+	
 	if( description != NULL )
 		c2p_stringcopy( descriptionMessage, description );
 	else
 		c2p_stringcopy( descriptionMessage, "" );
-
+		
 	err = StandardAlert( kAlertCautionAlert, errorMessage, descriptionMessage, NULL, &itemHit );
 	if( err == noErr )
 	{
@@ -710,7 +710,7 @@ static bool mac_confirm(cptr message, cptr description)
 				kAlertStdAlertOtherButton
 				kAlertStdAlertHelpButton
 		*/
-
+		
 		switch( itemHit )
 		{
 			case kAlertStdAlertOKButton:
@@ -739,7 +739,7 @@ static bool mac_confirm(cptr message, cptr description)
 				}
 		}
 	}
-
+	
 	return( return_value );
 }
 
@@ -759,19 +759,19 @@ static OSType GetProcessSignature( void )
 	ProcessSerialNumber		thePSN;
 	ProcessInfoRec			info;
 	OSErr					err;
-
+	
 	thePSN.highLongOfPSN = 0;
 	thePSN.lowLongOfPSN  = kCurrentProcess;
-
+	
 	info.processInfoLength	= sizeof(ProcessInfoRec);
 	info.processName		= nil;
 	info.processAppSpec		= nil;
-
+		
 	err = GetProcessInformation(&thePSN, &info);
-
+	
 	if( err != noErr )
 		quit( "Internal System Error.  Process Information could not be found." );
-
+	
 	return info.processSignature;
 }
 
@@ -781,9 +781,9 @@ static OSErr ChooseFile( StringPtr filename, OSType *typelist, long typeCount )
 	NavDialogOptions	dialogOptions;
 	NavTypeListHandle	navTypeList = NULL;
 	OSErr				err;
-
+	
 	err = NavGetDefaultDialogOptions( &dialogOptions );
-
+	
 	if( err == noErr )
 	{
 		if( typeCount > 0 )
@@ -791,26 +791,26 @@ static OSErr ChooseFile( StringPtr filename, OSType *typelist, long typeCount )
 			navTypeList = (NavTypeListHandle)NewHandle( sizeof(NavTypeList) + (sizeof(OSType)*(typeCount-1)) );
 			if( navTypeList == NULL )
 				quit( "Could not allocate memory for navigation file filter list." );
-
+			
 			// populate the navtypelist object
 			{
 				NavTypeListPtr	typesP = (NavTypeListPtr) *((Handle) navTypeList);
 				OSType	signature = GetProcessSignature();
-
+			
 				typesP->componentSignature	= signature;
 				typesP->reserved			= 0;
 				typesP->osTypeCount			= typeCount;
-
+				
 				BlockMoveData(typelist, typesP->osType,
 										(Size) (sizeof(OSType) * typeCount));
 			}
 		}
-
+							
 		err = NavChooseFile( NULL, &reply, &dialogOptions, NULL, NULL, NULL, navTypeList, NULL );
 		if( reply.validRecord && err == noErr )
 		{
 			FSSpec		finalFSSpec;
-
+			
 			long		index;
 			long		count;
 			// we are ready to open the document(s), grab information about each file for opening:
@@ -826,7 +826,7 @@ static OSErr ChooseFile( StringPtr filename, OSType *typelist, long typeCount )
 					FSRef		fileRef;
 					Handle		pathH;
 					short		length;
-
+					
 					err = FSpMakeFSRef( &finalFSSpec, &fileRef );
 					if( err == noErr )
 					{
@@ -836,14 +836,14 @@ static OSErr ChooseFile( StringPtr filename, OSType *typelist, long typeCount )
 				}
 			}
 		}
-
+		
 		if( navTypeList != NULL )
 		{
 			DisposeHandle( (Handle)navTypeList );
 			navTypeList = NULL;
 		}
 	}
-
+	
 	return err;
 }
 
@@ -860,7 +860,7 @@ static errr process_sound_config_file( const char *name, const char *section )
 	bool bypass = FALSE;
 
 	bool foundSection = FALSE;
-
+	
 	char soundpath[1024];
 
 	/* Build the filename */
@@ -895,16 +895,16 @@ static errr process_sound_config_file( const char *name, const char *section )
 		if( buf[0] == '[' )
 		{
 			char		section_string[64];
-
+			
 			sprintf( section_string, "[%s]", section );
-
+			
 			if( streq( section_string, buf ) )
 			{
 				foundSection = TRUE;
 				continue;
 			}
 		}
-
+		
 		if( foundSection )
 		{
 			int i, index = 0, count = 0;
@@ -912,9 +912,9 @@ static errr process_sound_config_file( const char *name, const char *section )
 			char *cptr = &(buf[0]);
 			char *the_file;
 			char *the_name = strtok(buf, "=");
-
+			
 			if( !the_name ) continue;
-
+			
 			/* trim spaces */
 			while( *the_name && *the_name == ' ' ) the_name++;
 			t = the_name + strlen(the_name) - 1;
@@ -923,7 +923,7 @@ static errr process_sound_config_file( const char *name, const char *section )
 				*t = '\0';
 				t--;
 			}
-
+			
 			/* Find sound effect in pre-defined sound effect list */
 			for( i = 1; i < SOUND_MAX; i++ )
 			{
@@ -933,15 +933,15 @@ static errr process_sound_config_file( const char *name, const char *section )
 					break;
 				}
 			}
-
+			
 			/* If sound effect number not found, then skip it */
 			if( index == 0 ) continue;
-
+			
 			/* Load in the specified sample filenames */
 			do
 			{
 				the_file = strtok(NULL, " ");
-
+				
 				if( the_file )
 				{
 					/* trim spaces */
@@ -952,14 +952,14 @@ static errr process_sound_config_file( const char *name, const char *section )
 						*t = '\0';
 						t--;
 					}
-
+			
 					/* Add the sample filename */
 					strcpy( sample_name[index][count], the_file );
 					count++;
 				}
 			}
 			while( the_file );
-
+			
 			/* Set the sound effect sample count */
 			sample_count[index] = count;
 		}
@@ -987,7 +987,7 @@ static errr process_sound_config_file( const char *name, const char *section )
 static errr process_music_config_file( const char *name, const char *section )
 {
 	FILE *fp;
-
+	
 	char musicpath[1024];
 	char buf[1024];
 
@@ -998,7 +998,7 @@ static errr process_music_config_file( const char *name, const char *section )
 	bool bypass = FALSE;
 
 	bool foundSection = FALSE;
-
+	
 
 	/* Build the filename */
 	path_build(musicpath, 1024, ANGBAND_DIR_XTRA, "music");
@@ -1015,7 +1015,7 @@ static errr process_music_config_file( const char *name, const char *section )
 	while (0 == my_fgets(fp, buf, 1024))
 	{
 		char *pbuf = &(buf[0]);
-
+		
 		/* Count lines */
 		num++;
 
@@ -1033,16 +1033,16 @@ static errr process_music_config_file( const char *name, const char *section )
 		if( pbuf[0] == '[' )
 		{
 			char		section_string[64];
-
+			
 			sprintf( section_string, "[%s]", section );
-
+			
 			if( streq( section_string, pbuf ) )
 			{
 				foundSection = TRUE;
 				continue;
 			}
 		}
-
+		
 		if( foundSection )
 		{
 			int i, index = 0, count = 0, volume = 0, repeat = 0;
@@ -1052,9 +1052,9 @@ static errr process_music_config_file( const char *name, const char *section )
 			char *the_volume;
 			char *the_repeat;
 			char *the_name = strtok(pbuf, "=");
-
+			
 			if( !the_name ) continue;
-
+			
 			/* trim spaces */
 			while( *the_name && *the_name == ' ' ) the_name++;
 			t = the_name + strlen(the_name) - 1;
@@ -1063,16 +1063,16 @@ static errr process_music_config_file( const char *name, const char *section )
 				*t = '\0';
 				t--;
 			}
-
+			
 			/* Get the music sound track number */
 			index = atoi( the_name );
-
+			
 			/* If the sound track number is invalid, then skip it */
 			if( index < 0 || index > SONG_MAX ) continue;
-
-			/* Get the filename for the sound track, assumed to be in the lib/xtra/music directory */
+			
+			/* Get the filename for the sound track, assumed to be in the lib/xtra/music directory */	
 			the_file = strtok(NULL, "|");
-
+			
 			if( the_file )
 			{
 				/* trim spaces */
@@ -1083,14 +1083,14 @@ static errr process_music_config_file( const char *name, const char *section )
 					*t = '\0';
 					t--;
 				}
-
+		
 				strcpy( song_name[index], the_file );
 				strcpy( song_description[index], the_file );
 			}
-
-			/* Get the description for the sound track, assumed to be in the lib/xtra/music directory */
+			
+			/* Get the description for the sound track, assumed to be in the lib/xtra/music directory */	
 			the_description = strtok(NULL, "|");
-
+			
 			if( the_description )
 			{
 				/* trim spaces */
@@ -1101,7 +1101,7 @@ static errr process_music_config_file( const char *name, const char *section )
 					*t = '\0';
 					t--;
 				}
-
+		
 				if( *the_description != '-' || *the_description != (char)0x00 )
 				{
 					strcpy( song_description[index], the_description );
@@ -1115,10 +1115,10 @@ static errr process_music_config_file( const char *name, const char *section )
 					strcpy( song_description[index], "" );
 				}
 			}
-
+			
 			/* Get the volume (0-255) of this sound track, if it exists */
 			the_volume = strtok(NULL, "|");
-
+				
 			if( the_volume )
 			{
 				/* trim spaces */
@@ -1129,11 +1129,11 @@ static errr process_music_config_file( const char *name, const char *section )
 					*t = '\0';
 					t--;
 				}
-
+		
 				if( *the_volume != '-' )
 				{
 					volume = atoi( the_volume );
-
+					
 					/* Ignore specified volume if it is out of range, default is SONG_VOLUME_MAX */
 					if( volume < SONG_VOLUME_MIN || volume > SONG_VOLUME_MAX )
 					{
@@ -1146,10 +1146,10 @@ static errr process_music_config_file( const char *name, const char *section )
 					}
 				}
 			}
-
+			
 			/* Get the repeat value for the sound track, if it exists */
 			the_repeat = strtok(NULL, "|");
-
+				
 			if( the_repeat )
 			{
 				/* trim spaces */
@@ -1160,11 +1160,11 @@ static errr process_music_config_file( const char *name, const char *section )
 					*t = '\0';
 					t--;
 				}
-
+		
 				if( *the_repeat != '-' )
 				{
 					repeat = atoi( the_repeat );
-
+					
 					/* Ignore the specified repeat value if it is out of range, default is SONG_REPEAT_MIN */
 					if( repeat < SONG_REPEAT_MIN || repeat > SONG_REPEAT_MAX )
 					{
@@ -1213,48 +1213,48 @@ static PicHandle get_picture_from_file( const char *filename )
 	OSErr						theErr;
 	Str255						pFileName;
 	FSSpec						theFile;
-
+	
 	c2p_stringcopy( pFileName, filename );
-
+	
 	theErr = FSMakeFSSpec( app_vol, app_dir, pFileName, &theFile );
-
+	
 	if( theErr == noErr )
 	{
 		theErr = GetGraphicsImporterForFile( &theFile, &gi );
 		if( theErr == noErr )
 		{
 			GraphicsImportGetAsPicture( gi, &thePicture );
-
+			
 			if( thePicture == NULL )
 			{
 				char		message[512];
-
+			
 				strcpy( message, "The graphics file storing the appropriate tiles could not be loaded.  This file must be authentic and the format must be recognized by Quicktime. Please verify and try again.  The target file is -> " );
 				strcat( message, filename );
-
+				
 				mac_warning( message );
 			}
 		}
 		else
 		{
 			char		message[512];
-
+			
 			strcpy( message, "The graphics file storing the appropriate tiles could not be loaded.  Verify its validity and try again.  The target file is -> " );
 			strcat( message, filename );
-
+			
 			mac_warning( message );
 		}
 	}
 	else
 	{
 		char		message[512];
-
+			
 		strcpy( message, "The graphics file storing the appropriate tiles could not be found.  Verify its existence and try again.  The target file is -> " );
 		strcat( message, filename );
-
+		
 		mac_warning( message );
 	}
-
+		
 	return thePicture;
 }
 
@@ -1267,7 +1267,7 @@ static int get_next_song( int current )
 {
 	int last_song = current++;
 	int next = current;
-
+	
 	while( next != last_song )
 	{
 		if( next == SONG_MAX ) next = 0;
@@ -1280,7 +1280,7 @@ static int get_next_song( int current )
 			break;
 		}
 	}
-
+	
 	return next;
 }
 
@@ -1304,18 +1304,18 @@ static void check_music( void )
 				GoToBeginningOfMovie( song[current_song] );
 				SetMovieVolume( song[current_song], (short)song_volume[current_song] );
 				StartMovie( song[current_song] );
-
+				
 				songStarted = true;
 			}
 			else if( songStarted && IsMovieDone( song[current_song] ) )
 			{
 				/* restart from first available song */
 				current_song = get_next_song( current_song );
-
+				
 				GoToBeginningOfMovie( song[current_song] );
 				SetMovieVolume( song[current_song], (short)song_volume[current_song] );
 				StartMovie( song[current_song] );
-
+				
 				songStarted = true;
 			}
 			else
@@ -1332,7 +1332,7 @@ static void check_music( void )
 			{
 				/* stop the current song */
 				StopMovie( song[current_song] );
-
+				
 				songStarted = false;
 			}
 		}
@@ -1352,21 +1352,21 @@ static void restart_music( int new_song )
 		if( !songOn && (new_song != current_song))
 		{
 			songOn = true;
-
+			
 			if( new_song >= 0 && new_song < SONG_MAX )
 			{
 				if( songStarted && !IsMovieDone( song[current_song] ) )
 				{
 					StopMovie( song[current_song] );
-
+					
 					current_song = new_song;
-
+					
 					songStarted = false;
 				}
 				else
 				{
 					current_song = new_song;
-
+					
 					songStarted = false;
 				}
 			}
@@ -1393,10 +1393,10 @@ static void init_music( void )
 	char		filepath[1024];
 	Str255		pFilePath;
 	FSSpec		theFile;
-
+		
 	songReady = false;
 	songStarted = false;
-
+	
 	for( i = 0; i < SONG_MAX; i++ )
 	{
 		strcpy( song_name[i], "" );
@@ -1404,12 +1404,12 @@ static void init_music( void )
 		song_volume[i] = ((gSoundVolume*255)/100);
 		song_repeat[i] = 1;
 		song[i] = (Movie)NULL;
-
+		
 		songReady = false;
 	}
-
+		
 	err = process_music_config_file( "music.cfg", "Music" );
-
+	
 	if( err == noErr )
 	{
 		for( i = 0; i < SONG_MAX; i++ )
@@ -1418,10 +1418,10 @@ static void init_music( void )
 			{
 				//path_build(musicpath, 1024, ANGBAND_DIR_XTRA, "music");
 				//path_build( filepath, 1024, musicpath, song_name[i] );
-
+				
 				sprintf( filepath, ":lib:xtra:music:%s", song_name[i] );
 				//path_build( filepath, 1024, ANGBAND_XTRA_MUSIC, song_name[i] );
-
+				
 				c2p_stringcopy( pFilePath, filepath );
 
 				err = FSMakeFSSpec( app_vol, app_dir, pFilePath, &theFile );
@@ -1434,14 +1434,14 @@ static void init_music( void )
 						short		movieResID = 0;
 						Str255		movieName;
 						Boolean		wasChanged;
-
+						
 						err = NewMovieFromFile( &song[i],
 												movieResFile,
 												&movieResID,
 												movieName,
 												newMovieActive,
 												&wasChanged );
-
+						
 						if( err == noErr )
 						{
 							songReady = true;
@@ -1462,21 +1462,21 @@ static void init_sounds( void )
 {
 	OSErr			err;
 	int				i, j;
-
+	
 	err = EnterMovies();
-
-
+	
+	
 	// Start Loading Sounds
-
-
+	
+	
 	err = process_sound_config_file( "sound.cfg", "Sound" );
-
+	
 	/* This set of loops may take a while depending on the count and size of samples to load */
 	/* We should use a progress dialog for this */
 	for( i = 1; i < SOUND_MAX; i++ )
 	{
 		if( sample_count[i] > SAMPLE_MAX ) sample_count[i] = SAMPLE_MAX;
-
+		
 		for( j = 0; j < sample_count[i]; j++ )
 		{
 			short		movieResFile;
@@ -1484,17 +1484,17 @@ static void init_sounds( void )
 			char		filepath[1024];
 			Str255		pFilePath;
 			FSSpec		theFile;
-
+		
 			//path_build( soundpath, 1024, ANGBAND_DIR_XTRA, "sound" );
 			//path_build( filepath, 1024, soundpath, sample_name[i][j] );
-
+		
 			//path_build( filepath, 1024, ANGBAND_XTRA_SOUND, sample_name[i][j] );
 			sprintf( filepath, ":lib:xtra:sound:%s", sample_name[i][j] );
-
+			
 			c2p_stringcopy( pFilePath, filepath );
-
+	
 			err = FSMakeFSSpec( app_vol, app_dir, pFilePath, &theFile );
-
+	
 			if( err == noErr )
 			{
 				err = OpenMovieFile( &theFile, &movieResFile, fsRdPerm );
@@ -1504,31 +1504,31 @@ static void init_sounds( void )
 					Str255		movieName;
 					Boolean		wasChanged;
 					Movie		theMovie;
-
+					
 					err = NewMovieFromFile( &theMovie,
 											movieResFile,
 											&movieResID,
 											movieName,
 											newMovieActive,
 											&wasChanged );
-
+				
 					if( err == noErr )
 					{
 						Track		myTrack = NULL;
-
-						myTrack = GetMovieIndTrackType( theMovie,
-													1,
+					
+						myTrack = GetMovieIndTrackType( theMovie, 
+													1, 
 													AudioMediaCharacteristic,
 													movieTrackCharacteristic | movieTrackEnabledOnly );
-
+					
 						if( myTrack != NULL )
 						{
 							sample[i][j] = NewHandle(0);
-
+						
 							if( sample[i][j] != NULL )
 							{
 								//SetMovieProgressProc( theMovie, (MovieProgressUPP)-1L, 0 );
-
+								
 								err = PutMovieIntoTypedHandle(
 													theMovie,
 													myTrack,
@@ -1541,19 +1541,19 @@ static void init_sounds( void )
 							}
 						}
 					}
-
+					
 					CloseMovieFile( movieResFile );
 					DisposeMovie( theMovie );
 				}
 			}
-
+			
 			if( err != noErr )
 			{
 				sample[i][j] = (Handle)NULL;
 			}
 		}
 	}
-
+	
 	// Stop Loading Sounds
 }
 
@@ -1579,14 +1579,14 @@ static void play_sound( int sound_number, int sound_volume, bool async )
 		if( sample_count[sound_number] > 0 )
 		{
 			int		random_sample = randint(sample_count[sound_number]) - 1;
-
+			
 			if (sample[sound_number][random_sample])
 			{
 				/* Lock */
 				HLock(sample[sound_number][random_sample]);
 
 				{
-
+					
 					long					kk;
 					OSErr					myErr = noErr;
 
@@ -1611,34 +1611,34 @@ static void play_sound( int sound_number, int sound_volume, bool async )
 							if( myErr == noErr && !status.scChannelBusy )
 							{
 								SndCommand		theVolumeCommand;
-
+								
 								theVolumeCommand.cmd = volumeCmd;
 								theVolumeCommand.param1 = 0;
 								theVolumeCommand.param2 = ((short)(sound_volume)<<4) | ((short)(sound_volume));
-
+								
 								/* Set up volume for channel */
 								SndDoImmediate( mySndChannel[kk], &theVolumeCommand );
-
+								
 								/* Play new sound ansynchronously */
 								SndPlay( mySndChannel[kk], (SndListHandle)sample[sound_number][random_sample], async );
-
+								
 								found = 1;
 							}
 						}
-
+						
 						if( !found )
 						{
 							SndCommand		theQuietCommand;
 							SndCommand		theVolumeCommand;
-
+							
 							theQuietCommand.cmd = quietCmd;
 							theQuietCommand.param1 = 0;
 							theQuietCommand.param2 = 0;
-
+								
 							theVolumeCommand.cmd = volumeCmd;
 							theVolumeCommand.param1 = 0;
 							theVolumeCommand.param2 = ((short)(sound_volume)<<4) | ((short)(sound_volume));;
-
+							
 							/* Lets grab the first sound channel and play now */
 							/* I'm sure a better algorithm could be used here. */
 							SndDoImmediate( mySndChannel[0], &theQuietCommand );
@@ -1647,7 +1647,7 @@ static void play_sound( int sound_number, int sound_volume, bool async )
 						}
 					}
 				}
-
+	            
 				/* Unlock */
 				HUnlock(sample[sound_number][random_sample]);
 			}
@@ -1693,7 +1693,7 @@ static void term_data_color(term_data *td, int a)
 		color.red = (rv | (rv << 8));
 		color.green = (gv | (gv << 8));
 		color.blue = (bv | (bv << 8));
-
+	
 		/* Activate the color */
 		RGBForeColor(&color);
 
@@ -1715,7 +1715,7 @@ static void term_data_check_font(term_data *td)
 	int i;
 
 	FontInfo info;
-
+        
 	WindowPtr old = active;
 
 	/* Activate */
@@ -1768,12 +1768,12 @@ static void term_data_check_size(term_data *td)
 {
 	BitMap		screen;
 
-#ifdef TARGET_CARBON
+#ifdef TARGET_CARBON						
 	GetQDGlobalsScreenBits( &screen );
 #else
 	screen = qd.screenBits;
-#endif
-
+#endif	
+		
 	/* Minimal window size */
 	if (td->cols < 1) td->cols = 1;
 	if (td->rows < 1) td->rows = 1;
@@ -1802,9 +1802,9 @@ static void term_data_check_size(term_data *td)
 	{
 		GDHandle	gdNthDevice;
 		Boolean		inside = false;
-
+		
 		gdNthDevice = GetDeviceList();
-
+		
 		while( gdNthDevice != nil )
 		{
 			if( TestDeviceAttribute( gdNthDevice, screenDevice ) )
@@ -1813,10 +1813,10 @@ static void term_data_check_size(term_data *td)
 				{
 					Point		topleft;
 					Boolean		cornerIn = false;
-
+					
 					topleft.h = td->r.left;
 					topleft.v = td->r.top;
-
+					
 					cornerIn = PtInRect( topleft, &(*gdNthDevice)->gdRect );
 					if( cornerIn )
 					{
@@ -1827,7 +1827,7 @@ static void term_data_check_size(term_data *td)
 			}
 			gdNthDevice = GetNextDevice( gdNthDevice );
 		}
-
+		
 		if( !inside )
 		{
 			/* Verify the top */
@@ -1854,12 +1854,12 @@ static void term_data_check_size(term_data *td)
 				td->r.left = screen.bounds.left;
 			}
 		}
-
+		
 		/* Calculate bottom right corner */
 		td->r.right = td->r.left + td->size_wid;
 		td->r.bottom = td->r.top + td->size_hgt;
 	}
-
+	
 
 	/* Assume no graphics */
 	td->t->always_pict = FALSE;
@@ -1912,8 +1912,8 @@ static void term_data_redraw(term_data *td)
 	/*
 		We want to make a multi-threaded redraw implementation for MacOSX!
 		So, lets use our locally defined thread routines to take use of multi-cpu machines.
-
-
+		
+		
 	*/
 	term *old = Term;
 
@@ -1965,7 +1965,7 @@ static void BenSWLockFrame(FrameRec *srcFrameP)
 	HLockHi((Handle)pixMapH);
 	srcFrameP->framePixHndl = pixMapH;
 	srcFrameP->framePix = (PixMapPtr)*(Handle)pixMapH;
-
+		
 	pixMapH = GetGWorldPixMap(srcFrameP->bufferPort);
 	(void)LockPixels(pixMapH);
 	HLockHi((Handle)pixMapH);
@@ -1986,7 +1986,7 @@ static void BenSWUnlockFrame(FrameRec *srcFrameP)
 	}
 
 	srcFrameP->framePix = NULL;
-
+		
 	if (srcFrameP->bufferPort != NULL)
 	{
 		HUnlock((Handle)srcFrameP->bufferPixHndl);
@@ -2014,14 +2014,14 @@ static OSErr BenSWCreateGWorldFromPict(
 
 	{
 		tempGWorld = NULL;
-
+		
 		/* Reset */
 		*pictGWorld = NULL;
 
 		/* Get depth */
 		depth = data[0].pixelDepth;
 		//depth = 8;
-
+			
 		/* Get GDH */
 		theGDH = data[0].theGDH;
 
@@ -2030,7 +2030,7 @@ static OSErr BenSWCreateGWorldFromPict(
 		OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
 
 		/* Create a GWorld */
-		err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
+		err = NewGWorld(&tempGWorld, depth, &pictRect, nil, 
 						theGDH, noNewDevice);
 
 		/* Success */
@@ -2057,17 +2057,17 @@ static OSErr BenSWCreateGWorldFromPict(
 		/* Restore GWorld */
 		SetGWorld(saveGWorld, saveGDevice);
 	}
-
+	
 	{
 		tempGWorld = NULL;
-
+		
 		/* Reset */
 		*bufferGWorld = NULL;
 
 		/* Get depth */
 		depth = data[0].pixelDepth;
 		//depth = 8;
-
+		
 		/* Get GDH */
 		theGDH = data[0].theGDH;
 
@@ -2076,11 +2076,11 @@ static OSErr BenSWCreateGWorldFromPict(
 		pictRect.right = ((COL_MAP+1)+(66+1)) * 32;
 		pictRect.top = 0;
 		pictRect.bottom = td->tile_hgt;
-
+		
 		//OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
 
 		/* Create a GWorld */
-		err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
+		err = NewGWorld(&tempGWorld, depth, &pictRect, nil, 
 						theGDH, noNewDevice);
 
 		/* Success */
@@ -2092,8 +2092,8 @@ static OSErr BenSWCreateGWorldFromPict(
 		/* Save pointer */
 		*bufferGWorld = tempGWorld;
 	}
-
-
+	
+	
 	/* Success */
 	return (0);
 }
@@ -2119,9 +2119,9 @@ static errr globe_nuke(void)
 		/* Forget */
 		frameP = NULL;
 	}
+	
 
-
-	/* Flush events */
+	/* Flush events */	
 	FlushEvents(everyEvent, 0);
 
 	/* Success */
@@ -2135,7 +2135,7 @@ static errr globe_nuke(void)
 static errr globe_init(term_data *td)
 {
 	OSErr err;
-
+	
 	GWorldPtr tempPictGWorldP;
 	GWorldPtr tempPictBufferGWorldP;
 
@@ -2145,7 +2145,7 @@ static errr globe_init(term_data *td)
 	{
 		globe_nuke();
 	}
-
+	
 	/* Use window XXX XXX XXX */
 	SetPort(GetWindowPort(data[0].w));
 
@@ -2158,20 +2158,20 @@ static errr globe_init(term_data *td)
 				Rect pictRect;
 				char grafpath[1024];
 				char filepath[1024];
-
+				
 				newPictH = get_picture_from_file( ANGBAND_XTRA_GRAF_8x8 );
-
+				
 				gTileWidth = 8;
 				gTileHeight = 8;
-
+				
 				pictRect = (**newPictH).picFrame;
 				gTileCols = (pictRect.right - pictRect.left) / gTileWidth;
 				gTileCols = (pictRect.bottom - pictRect.top) / gTileHeight;
-
+				
 				ANGBAND_GRAF = "old";
-
+				
 				use_transparency = false;
-
+				
 				break;
 			}
 		case GRAPHICS_ADAM_BOLT:
@@ -2179,23 +2179,23 @@ static errr globe_init(term_data *td)
 				Rect pictRect;
 				char grafpath[1024];
 				char filepath[1024];
-
+				
 				newPictH = get_picture_from_file( ANGBAND_XTRA_GRAF_16x16 );
-
+				
 				gTileWidth = 16;
 				gTileHeight = 16;
-
+				
 				pictRect = (**newPictH).picFrame;
 				gTileCols = (pictRect.right - pictRect.left) / gTileWidth;
 				gTileCols = (pictRect.bottom - pictRect.top) / gTileHeight;
-
+				
 				ANGBAND_GRAF = "new";
-
+				
 				use_transparency = true;
-
+				
 				break;
 			}
-
+		
 		case GRAPHICS_NONE:
 		default:
 			{
@@ -2212,14 +2212,14 @@ static errr globe_init(term_data *td)
 	if (err == noErr)
 	{
 		/* Create GWorld */
-		err = BenSWCreateGWorldFromPict( &tempPictGWorldP,
+		err = BenSWCreateGWorldFromPict( &tempPictGWorldP, 
 										&tempPictBufferGWorldP,
 										newPictH,
 										td );
 
 		/* Release resource */
 		ReleaseResource((Handle)newPictH);
-
+		
 		/* Error */
 		if (err == noErr)
 		{
@@ -2241,7 +2241,7 @@ static errr globe_init(term_data *td)
 			}
 		}
 	}
-
+	
 
 	/* Result */
 	return (err);
@@ -2350,14 +2350,14 @@ static void Term_init_mac(term *t)
 #endif /* ANGBAND_LITE_MAC */
 	{
 		Rect		portRect;
-
+		
 #ifdef TARGET_CARBON
 		GetWindowBounds( (WindowRef)td->w, kWindowContentRgn, &portRect );
 		global_to_local( &portRect );
 #else
 		portRect = td->w->portRect;
 #endif
-
+		
 		/* Clip to the window */
 		ClipRect(&portRect);
 
@@ -2424,7 +2424,7 @@ static errr Term_xtra_mac_react(void)
 #ifdef ANGBAND_LITE_MAC
 
 	/* Nothing */
-
+	
 #else /* ANGBAND_LITE_MAC */
 
 	/* Handle sound */
@@ -2435,7 +2435,7 @@ static errr Term_xtra_mac_react(void)
 	}
 
 	// We are comparing a byte with a boolean, not good!
-
+	
 	/* Handle graphics */
 	if (((td == &data[0]) || (td == &data[6])) && (current_graphics != arg_graphics))
 	{
@@ -2449,7 +2449,7 @@ static errr Term_xtra_mac_react(void)
 
 		/* Apply request */
 		current_graphics = arg_graphics;
-
+		
 		if( current_graphics == GRAPHICS_NONE )
 		{
 			use_graphics = false;
@@ -2484,7 +2484,7 @@ static errr Term_xtra_mac(int n, int v)
 	term_data *td = (term_data*)(Term->data);
 
 	Rect r;
-
+			
 	/* Analyze */
 	switch (n)
 	{
@@ -2510,7 +2510,7 @@ static errr Term_xtra_mac(int n, int v)
 			// play sound effect
 			short	volume = ( gSoundVolume > 0 ? (SOUND_VOLUME_MAX*gSoundVolume)/100 : 0 );
 			play_sound( v, volume, true );
-
+			
 			/* Success */
 			return (0);
 		}
@@ -2561,14 +2561,14 @@ static errr Term_xtra_mac(int n, int v)
 		case TERM_XTRA_CLEAR:
 		{
 			Rect		portRect;
-
+			
 #ifdef TARGET_CARBON
 			GetWindowBounds( (WindowRef)td->w, kWindowContentRgn, &portRect );
 			global_to_local( &portRect );
 #else
 			portRect = td->w->portRect;
 #endif
-
+			
 			/* No clipping XXX XXX XXX */
 			ClipRect(&portRect);
 
@@ -2712,11 +2712,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  *
  * Erase "n" characters starting at (x,y)
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else
-static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
-#endif
 {
 	int i;
 	Rect r2;
@@ -2724,39 +2720,39 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 	term_data *td = (term_data*)(Term->data);
 	GDHandle saveGDevice;
 	GWorldPtr saveGWorld;
-
+	
 	/* Save GWorld */
 	GetGWorld(&saveGWorld, &saveGDevice);
-
+	
 	//if( n > 0 )
 	if( n > 200 )
 	{
 		/* Use the row buffer if we are drawing more than one cell in the row */
 		use_buffer = true;
-
+		
 		/* Destination rectangle */
 		r2.left = x * td->tile_wid + td->size_ow1;
 		r2.right = r2.left + td->tile_wid;
 		r2.top = 0;
 		r2.bottom = r2.top + td->tile_hgt;
-
+	
 		/* We must change to the buffer port for output */
 		/* Activate */
 		SetGWorld(frameP->bufferPort, nil);
-
+		
 		/* Instantiate font */
 		TextFont(td->font_id);
 		TextSize(td->font_size);
 		TextFace(td->font_face);
-
+		
 		/* Restore colors */
 		BackColor(blackColor);
 		ForeColor(whiteColor);
-
+		
 #ifdef TARGET_CARBON
 		{
 			Rect		portRect;
-
+			
 			GetPortBounds( frameP->bufferPort, &portRect );
 			EraseRect( &portRect );
 		}
@@ -2768,14 +2764,14 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 	{
 		// no buffering, so we use the normal current port
 		use_buffer = false;
-
+		
 		/* Destination rectangle */
 		r2.left = x * td->tile_wid + td->size_ow1;
 		r2.right = r2.left + td->tile_wid;
 		r2.top = y * td->tile_hgt + td->size_oh1;
 		r2.bottom = r2.top + td->tile_hgt;
 	}
-
+		
 	/* Scan the input */
 	for (i = 0; i < n; i++)
 	{
@@ -2783,11 +2779,9 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 
 		byte a = ap[i];
 		char c = cp[i];
-
-#ifdef USE_TRANSPARENCY
+		
 		byte ta = tap[i];
 		char tc = tcp[i];
-#endif
 
 #ifdef ANGBAND_LITE_MAC
 
@@ -2801,21 +2795,17 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		{
 			int col, row;
 			Rect r1;
-
-#ifdef USE_TRANSPARENCY
+			
 			int terrain_col, terrain_row;
 			Rect terrain_rect;
-#endif
 
 			/* Row and Col */
 			row = ((byte)a & 0x7F) % gTileRows;
 			col = ((byte)c & 0x7F) % gTileCols;
 
-#ifdef USE_TRANSPARENCY
 			terrain_row = ((byte)ta & 0x7F) % gTileRows;
 			terrain_col = ((byte)tc & 0x7F) % gTileCols;
-#endif
-
+			
 			/* Source rectangle */
 			r1.left = col * gTileWidth;
 			r1.top = row * gTileHeight;
@@ -2827,12 +2817,11 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			ForeColor(blackColor);
 
 			/* Draw the picture */
-#ifdef USE_TRANSPARENCY
 			{
 				int lock_pixels = 0;
 				BitMapPtr	srcBitMap = (BitMapPtr)(frameP->framePix);
 				BitMapPtr	destBitMap = 0L;
-
+				
 #ifdef TARGET_CARBON
 				if( use_buffer )
 				{
@@ -2863,60 +2852,17 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 				terrain_rect.top = terrain_row * gTileHeight;
 				terrain_rect.right = terrain_rect.left + gTileWidth;
 				terrain_rect.bottom = terrain_rect.top + gTileHeight;
-
+				
 				// draw terrain
 				CopyBits( srcBitMap, destBitMap, &terrain_rect, &r2, srcCopy, NULL );
-
+				
 				// draw transparent tile
 				BackColor(blackColor);
 				CopyBits( srcBitMap, destBitMap, &r1, &r2, transparent, NULL );
-
+				
 				if( lock_pixels == 1 )
 					UnlockPixels( GetPortPixMap(GetWindowPort(td->w)) );
 			}
-
-#else /* USE_TRANSPARENCY : Do not allow terrain */
-
-			{
-				int lock_pixels = 0;
-				BitMapPtr	srcBitMap = (BitMapPtr)(frameP->framePix);
-				BitMapPtr	destBitMap;
-
-#ifdef TARGET_CARBON
-				if( use_buffer )
-				{
-					destBitMap = (BitMapPtr)(frameP->bufferPix);
-				}
-				else
-				{
-					PixMapHandle	bMap = 0L;
-					LockPixels( GetPortPixMap(GetWindowPort(td->w)) );
-					bMap = GetPortPixMap(GetWindowPort(td->w));
-					destBitMap = *bMap;
-					lock_pixels = 1;
-					//destBitMap = GetPortBitMapForCopyBits( (CGrafPtr)(td->w) );
-				}
-#else
-				if( use_buffer )
-				{
-					destBitMap = (BitMapPtr)(frameP->bufferPix);
-				}
-				else
-				{
-					destBitMap = (BitMapPtr)&(td->w->portBits);
-				}
-#endif
-
-				// draw transparent tile
-				// BackColor is ignored and the destination is left untouched
-				BackColor(blackColor);
-				CopyBits( srcBitMap, destBitMap, &r1, &r2, transparent, NULL );
-
-				if( lock_pixels == 1 )
-					UnlockPixels( GetPortPixMap(GetWindowPort(td->w)) );
-			}
-
-#endif /* USE_TRANSPARENCY */
 
 			/* Restore colors */
 			BackColor(blackColor);
@@ -2957,7 +2903,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		r2.left += td->tile_wid;
 		r2.right += td->tile_wid;
 	}
-
+	
 	if( use_buffer )
 	{
 		int lock_pixels = 0;
@@ -2981,29 +2927,29 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		srcRect.top = 0;
 		srcRect.right = srcRect.left + (td->tile_wid * n);
 		srcRect.bottom = td->tile_hgt;
-
+		
 		destRect.left = x * td->tile_wid + td->size_ow1;
 		destRect.right = destRect.left + (td->tile_wid * n);
 		destRect.top = y * td->tile_hgt + td->size_oh1;
 		destRect.bottom = destRect.top + td->tile_hgt;
-
+		
 		/* Restore GWorld */
 		SetGWorld(saveGWorld, saveGDevice);
-
+		
 		/* Hardwire CopyBits */
 		BackColor(whiteColor);
 		ForeColor(blackColor);
-
+		
 		CopyBits( srcBitMap, destBitMap, &srcRect, &destRect, srcCopy, NULL );
 
 		/* Restore colors */
 		BackColor(blackColor);
 		ForeColor(whiteColor);
-
+		
 		if( lock_pixels == 1 )
 			UnlockPixels( GetPortPixMap(GetWindowPort(td->w)) );
 	}
-
+	
 	/* Success */
 	return (0);
 }
@@ -3084,14 +3030,14 @@ static void SetupAppDir(void)
 	Str255 myName;
 	FSSpec mySpec;
 	char errString[255];
-
+	
 	err = GetCurrentProcess( &psn );
 	if( err == noErr )
 	{
 		info.processInfoLength = sizeof(ProcessInfoRec);
 		info.processName = myName;
 		info.processAppSpec = &mySpec;
-
+		
 		err = GetProcessInformation( &psn, &info );
 		if( err == noErr )
 		{
@@ -3099,7 +3045,7 @@ static void SetupAppDir(void)
 			app_dir = info.processAppSpec->parID;
 		}
 	}
-
+	
 	/* Set the current working directory to that location */
 	err = HSetVol(NULL, app_vol, app_dir);
 	if (err != noErr)
@@ -3166,7 +3112,7 @@ static void save_prefs(void)
 	int i;
 
 	term_data *td;
-
+	
 	/*** The current version ***/
 	putshort(VERSION_MAJOR);
 	putshort(VERSION_MINOR);
@@ -3191,7 +3137,7 @@ static void save_prefs(void)
 		putshort(td->r.left);
 		putshort(td->r.top);
 	}
-
+	
 	putshort(arg_graphics);
 	putshort(arg_sound);
 }
@@ -3232,7 +3178,7 @@ static void load_prefs(void)
 		/* Ignore */
 		return;
 	}
-
+	
 	/* Windows */
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
@@ -3254,7 +3200,7 @@ static void load_prefs(void)
 		/* Done */
 		if (feof(fff)) break;
 	}
-
+	
 	arg_graphics = getshort();
 	arg_sound = getshort();
 }
@@ -3403,86 +3349,86 @@ static void save_prefs_carbon( void )
 {
 	/* Creating a plist prefs file using the new Core Preferences Services */
 	short			theShortValue = 0;
-
+	
 	/* Version info */
 	{
 		CFStringRef		prefVersionMajorKey = CFSTR( "version.major" );
 		CFStringRef		prefVersionMinorKey = CFSTR( "version.minor" );
 		CFStringRef		prefVersionPatchKey = CFSTR( "version.patch" );
 		CFStringRef		prefVersionExtraKey = CFSTR( "version.extra" );
-
+		
 		CFNumberRef		prefVersionMajorValue;
 		CFNumberRef		prefVersionMinorValue;
 		CFNumberRef		prefVersionPatchValue;
 		CFNumberRef		prefVersionExtraValue;
-
-		theShortValue = VERSION_MAJOR;
+		
+		theShortValue = VERSION_MAJOR; 
 		prefVersionMajorValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
-		theShortValue = VERSION_MINOR;
+		theShortValue = VERSION_MINOR; 
 		prefVersionMinorValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
-		theShortValue = VERSION_PATCH;
+		theShortValue = VERSION_PATCH; 
 		prefVersionPatchValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
-		theShortValue = VERSION_EXTRA;
+		theShortValue = VERSION_EXTRA; 
 		prefVersionExtraValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
-
+	
 		CFPreferencesSetAppValue( prefVersionMajorKey, prefVersionMajorValue, kCFPreferencesCurrentApplication );
 		CFPreferencesSetAppValue( prefVersionMinorKey, prefVersionMinorValue, kCFPreferencesCurrentApplication );
 		CFPreferencesSetAppValue( prefVersionPatchKey, prefVersionPatchValue, kCFPreferencesCurrentApplication );
 		CFPreferencesSetAppValue( prefVersionExtraKey, prefVersionExtraValue, kCFPreferencesCurrentApplication );
-
+		
 		/* Cleanup CoreFoundation property list value refs */
 		//CFRelease( prefVersionMajorKey );
 		//CFRelease( prefVersionMinorKey );
 		//CFRelease( prefVersionPatchKey );
 		//CFRelease( prefVersionExtraKey );
-
+		
 		//CFRelease( prefVersionMajorValue );
 		//CFRelease( prefVersionMinorValue );
 		//CFRelease( prefVersionPatchValue );
 		//CFRelease( prefVersionExtraValue );
 	}
-
+	
 	/* Misc info */
 	{
 		CFStringRef		prefGraphicsKey = CFSTR( "arg.graphics" );
 		CFStringRef		prefSoundKey = CFSTR( "arg.sound" );
-
+	
 		CFNumberRef		prefGraphicsValue;
 		CFNumberRef		prefSoundValue;
-
-		theShortValue = arg_graphics;
+	
+		theShortValue = arg_graphics; 
 		prefGraphicsValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
-		theShortValue = arg_sound;
+		theShortValue = arg_sound; 
 		prefSoundValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
-
+	
 		CFPreferencesSetAppValue( prefGraphicsKey, prefGraphicsValue, kCFPreferencesCurrentApplication );
 		CFPreferencesSetAppValue( prefSoundKey, prefSoundValue, kCFPreferencesCurrentApplication );
-
+		
 		/* Cleanup CoreFoundation property list value refs */
 		//CFRelease( prefGraphicsKey );
 		//CFRelease( prefSoundKey );
-
+		
 		//CFRelease( prefGraphicsValue );
 		//CFRelease( prefSoundValue );
 	}
-
+	
 	/* store term/window prefs */
 	{
 		/* Create an array collection */
 		int i;
-		CFMutableArrayRef		theTermArray = CFArrayCreateMutable(
-														NULL,
-														(CFIndex)MAX_TERM_DATA,
+		CFMutableArrayRef		theTermArray = CFArrayCreateMutable( 
+														NULL, 
+														(CFIndex)MAX_TERM_DATA, 
 														&kCFTypeArrayCallBacks );
-
+		
 		for( i=0; i < MAX_TERM_DATA; i++ )
 		{
 			CFMutableDictionaryRef myDictionary = CFDictionaryCreateMutable(
-														NULL,
-														0,
+														NULL, 
+														0, 
 														&kCFCopyStringDictionaryKeyCallBacks,
 														&kCFTypeDictionaryValueCallBacks );
-
+			
 			CFStringRef		prefTermMappedKey = CFSTR( "term.mapped" );
 			CFStringRef		prefTermFontIDKey = CFSTR( "term.font_id" );
 			CFStringRef		prefTermFontSizeKey = CFSTR( "term.font_size" );
@@ -3491,7 +3437,7 @@ static void save_prefs_carbon( void )
 			CFStringRef		prefTermRowsKey = CFSTR( "term.rows" );
 			CFStringRef		prefTermLeftKey = CFSTR( "term.left" );
 			CFStringRef		prefTermTopKey = CFSTR( "term.top" );
-
+			
 			CFNumberRef		prefTermMappedValue;
 			CFNumberRef		prefTermFontIDValue;
 			CFNumberRef		prefTermFontSizeValue;
@@ -3500,10 +3446,10 @@ static void save_prefs_carbon( void )
 			CFNumberRef		prefTermRowsValue;
 			CFNumberRef		prefTermLeftValue;
 			CFNumberRef		prefTermTopValue;
-
+			
 			/* Access */
 			term_data		*td = &data[i];
-
+		
 			theShortValue = td->mapped;
 			prefTermMappedValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
 			theShortValue = td->font_id;
@@ -3520,7 +3466,7 @@ static void save_prefs_carbon( void )
 			prefTermLeftValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
 			theShortValue = td->r.top;
 			prefTermTopValue = CFNumberCreate( kCFAllocatorDefault, kCFNumberShortType, &theShortValue );
-
+			
 			CFDictionaryAddValue( myDictionary, prefTermMappedKey, prefTermMappedValue );
 			CFDictionaryAddValue( myDictionary, prefTermFontIDKey, prefTermFontIDValue );
 			CFDictionaryAddValue( myDictionary, prefTermFontSizeKey, prefTermFontSizeValue );
@@ -3529,19 +3475,19 @@ static void save_prefs_carbon( void )
 			CFDictionaryAddValue( myDictionary, prefTermRowsKey, prefTermRowsValue );
 			CFDictionaryAddValue( myDictionary, prefTermLeftKey, prefTermLeftValue );
 			CFDictionaryAddValue( myDictionary, prefTermTopKey, prefTermTopValue );
-
+			
 			CFArrayAppendValue( theTermArray, (void *)myDictionary );
 		}
-
+		
 		CFPreferencesSetAppValue( CFSTR("terms"), theTermArray, kCFPreferencesCurrentApplication );
-
+		
 		/* Cleanup CoreFoundation property list value refs */
 		//CFRelease( theTermArray );
 	}
-
+	
 	CFPreferencesAppSynchronize( kCFPreferencesCurrentApplication );
-
-
+	
+	 
 }
 
 static void load_prefs_carbon( void )
@@ -3556,11 +3502,11 @@ static void load_prefs_carbon( void )
 	CFNumberRef		prefSoundValue = CFPreferencesCopyAppValue( CFSTR("arg.sound"), kCFPreferencesCurrentApplication );
 	/* Load Term/Window Info */
 	CFArrayRef		prefTermArray = CFPreferencesCopyAppValue( CFSTR("terms"), kCFPreferencesCurrentApplication );
-
+	
 	short			old_major, old_minor, old_patch, old_extra;
 	short			old_graphics, old_sound;
 	int	i;
-
+	
 	if( prefVersionMajorValue == NULL ||
 		prefVersionMinorValue == NULL ||
 		prefVersionPatchValue == NULL ||
@@ -3568,16 +3514,16 @@ static void load_prefs_carbon( void )
 	{
 		/* Preferences have not been saved yet */
 		mac_warning("Preferences have not been found.");
-
+		
 		/* Ignore */
 		return;
 	}
-
+	
 	CFNumberGetValue( prefVersionMajorValue, kCFNumberShortType, &old_major );
 	CFNumberGetValue( prefVersionMinorValue, kCFNumberShortType, &old_minor );
 	CFNumberGetValue( prefVersionPatchValue, kCFNumberShortType, &old_patch );
 	CFNumberGetValue( prefVersionExtraValue, kCFNumberShortType, &old_extra );
-
+	
 	/* Hack -- Verify or ignore */
 	if ((old_major != VERSION_MAJOR) ||
 	    (old_minor != VERSION_MINOR) ||
@@ -3590,10 +3536,10 @@ static void load_prefs_carbon( void )
 		/* Ignore */
 		return;
 	}
-
+	
 	CFNumberGetValue( prefGraphicsValue, kCFNumberShortType, &old_graphics );
 	CFNumberGetValue( prefSoundValue, kCFNumberShortType, &old_sound );
-
+	
 	/* Windows */
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
@@ -3606,12 +3552,12 @@ static void load_prefs_carbon( void )
 		CFNumberRef			prefTermRowsValue = CFDictionaryGetValue( termDictionary, CFSTR("term.rows" ) );
 		CFNumberRef			prefTermLeftValue = CFDictionaryGetValue( termDictionary, CFSTR("term.left" ) );
 		CFNumberRef			prefTermTopValue = CFDictionaryGetValue( termDictionary, CFSTR("term.top" ) );
-
+		
 		short		old_mapped, old_font_id, old_font_size, old_font_face, old_cols, old_rows, old_left, old_top;
-
+		
 		/* Access */
 		term_data	*td = &data[i];
-
+		
 		CFNumberGetValue( prefTermMappedValue, kCFNumberShortType, &old_mapped );
 		CFNumberGetValue( prefTermFontIDValue, kCFNumberShortType, &old_font_id );
 		CFNumberGetValue( prefTermFontSizeValue, kCFNumberShortType, &old_font_size );
@@ -3632,25 +3578,25 @@ static void load_prefs_carbon( void )
 
 		td->r.left = old_left;
 		td->r.top = old_top;
-
+		
 		/* Cleanup CoreFoundation property list value refs */
 		//CFRelease( termDictionary );
 	}
-
+	
 	arg_graphics = old_graphics;
 	arg_sound = old_sound;
-
+	
 	/* Cleanup CoreFoundation property list value refs */
 	//CFRelease( prefVersionMajorValue );
 	//CFRelease( prefVersionMinorValue );
 	//CFRelease( prefVersionPatchValue );
 	//CFRelease( prefVersionExtraValue );
-
+	
 	//CFRelease( prefGraphicsValue );
 	//CFRelease( prefSoundValue );
-
+	
 	//CFRelease( prefTermArray );
-
+	
 }
 
 static void save_pref_file(void)
@@ -3709,7 +3655,7 @@ static void save_pref_file(void)
 
 #endif /* USE_SFL_CODE */
 
-
+	
 
 	/* Save preferences */
 	if (fff)
@@ -3777,7 +3723,7 @@ static void load_pref_file(void)
 
 #endif /* USE_SFL_CODE */
 
-
+	
 
 	/* Load preferences */
 	if (fff)
@@ -3821,13 +3767,13 @@ static void do_menu_file_open(bool all)
 {
 	int err;
 	BitMap screen;
-
+	
 	/* Window location */
-#ifdef TARGET_CARBON
+#ifdef TARGET_CARBON						
 	GetQDGlobalsScreenBits( &screen );
 #else
 	screen = qd.screenBits;
-#endif
+#endif	
 
 	/* Allow "all" files */
 	if (all)
@@ -3841,7 +3787,7 @@ static void do_menu_file_open(bool all)
 	{
 		OSType	types[1];
 		types[0] = 'SAVE';
-
+		
 		err = ChooseFile( (unsigned char*)savefile, types, 1 );
 	}
 
@@ -3916,7 +3862,7 @@ static void handle_open_when_ready(void)
  *   Tile Height (136) = {...}
  *   Graphics (137) = { Text Only, Original, Adam Bolt }
  */
-
+ 
 static void init_menubar(void)
 {
 	int i, n;
@@ -3925,19 +3871,19 @@ static void init_menubar(void)
 
 	WindowPtr tmpw;
 
-	MenuHandle 	menu_apple,
-				menu_file,
-				menu_edit,
-				menu_font,
-				menu_size,
-				menu_window,
+	MenuHandle 	menu_apple, 
+				menu_file, 
+				menu_edit, 
+				menu_font, 
+				menu_size, 
+				menu_window, 
 				menu_special,
 				menu_tilewidth,
 				menu_tileheight,
 				menu_graphics,
 				menu_music;
 
-
+	
 	{
 		/* Get the "apple" menu */
 		menu_apple = GetMenu(128);
@@ -3948,20 +3894,20 @@ static void init_menubar(void)
 		/* Add the DA's to the "apple" menu */
 		AppendResMenu(menu_apple, 'DRVR');
 	}
-
-
+	
+	
 	{
 		/* Get the "File" menu */
 		/* menu_file = GetMenu(129); */
-
+		
 		menu_file = NewMenu( 129, "\pFile" );
-
+		
 		/* Add New */
 		AppendMenu( menu_file, "\pNew/N" );
-
+		
 		/* Add Open */
 		AppendMenu( menu_file, "\pOpen/O" );
-
+		
 		/* Add Import */
 		AppendMenu( menu_file, "\pImport/I" );
 
@@ -3984,12 +3930,12 @@ static void init_menubar(void)
 		/* Insert the menu */
 		InsertMenu(menu_file, 0);
 	}
-
+	
 	{
 		/* Get the "Edit" menu */
 		/* menu_edit = GetMenu(130); */
 		menu_edit = NewMenu( 130, "\pEdit" );
-
+		
 		/* Add Undo */
 		AppendMenu( menu_edit, "\p(Undo/Z" );
 		/* Add --- */
@@ -4002,11 +3948,11 @@ static void init_menubar(void)
 		AppendMenu( menu_edit, "\p(Paste/V" );
 		/* Add Delete */
 		AppendMenu( menu_edit, "\p(Delete" );
-
+		
 		/* Insert the menu */
 		InsertMenu(menu_edit, 0);
 	}
-
+	
 	{
 		/* Make the "Font" menu */
 		menu_font = NewMenu(131, "\pFont");
@@ -4025,41 +3971,41 @@ static void init_menubar(void)
 
 		/* Fake window */
 		r.left = r.right = r.top = r.bottom = 0;
-
+	
 		/* Make the fake window */
 		tmpw = NewWindow(0, &r, "\p", false, documentProc, 0, 0, 0);
-
+	
 		/* Activate the "fake" window */
 		SetPort(GetWindowPort(tmpw));
-
+	
 		/* Default mode */
 		TextMode( srcCopy );
-
+	
 		/* Default size */
 		TextSize(12);
-
+	
 		/* Add the fonts to the menu */
 		AppendResMenu(menu_font, 'FONT');
-
+	
 		/* Size of menu */
 		n = CountMenuItems(menu_font);
-
+	
 		/* Scan the menu */
 		for (i = n; i >= 4; i--)
 		{
 			Str255 tmpName;
 			short fontNum;
-
+	
 			/* Acquire the font name */
 			/* GetMenuItemText(m, i, tmpName); */
 			GetMenuItemText(menu_font, i, tmpName);
-
+	
 			/* Acquire the font index */
 			GetFNum(tmpName, &fontNum);
-
+	
 			/* Apply the font index */
 			TextFont(fontNum);
-
+	
 			/* Remove non-mono-spaced fonts */
 			if ((CharWidth('i') != CharWidth('W')) || (CharWidth('W') == 0))
 			{
@@ -4068,7 +4014,7 @@ static void init_menubar(void)
 				DeleteMenuItem(menu_font, i);
 			}
 		}
-
+	
 		/* Destroy the old window */
 		DisposeWindow(tmpw);
 
@@ -4078,7 +4024,7 @@ static void init_menubar(void)
 		/* Add the fonts to the menu */
 		AppendResMenu(menu_font, 'FONT');
 	}
-
+	
 	{
 		/* Make the "Size" menu */
 		menu_size = NewMenu(132, "\pSize");
@@ -4090,7 +4036,7 @@ static void init_menubar(void)
 		for (i = 8; i <= 32; i += ((i / 16) + 1))
 		{
 			Str15 buf;
-
+			
 			/* Textual size */
 			sprintf((char*)buf + 1, "%d", i);
 			buf[0] = strlen((char*)buf + 1);
@@ -4111,7 +4057,7 @@ static void init_menubar(void)
 		for (i = 0; i < MAX_TERM_DATA; i++)
 		{
 			Str15 buf;
-
+			
 			/* Describe the item */
 			sprintf((char*)buf + 1, "%.15s", angband_term_name[i]);
 			buf[0] = strlen((char*)buf + 1);
@@ -4123,7 +4069,7 @@ static void init_menubar(void)
 			if (i < 8) SetItemCmd(menu_window, i + 1, '0' + i);
 		}
 	}
-
+	
 	{
 		/* Make the "Special" menu */
 		menu_special = NewMenu(134, "\pSpecial");
@@ -4151,7 +4097,7 @@ static void init_menubar(void)
 		for (i = 4; i <= 32; i++)
 		{
 			Str15 buf;
-
+			
 			/* Textual size */
 			sprintf((char*)buf + 1, "%d", i);
 			buf[0] = strlen((char*)buf + 1);
@@ -4160,7 +4106,7 @@ static void init_menubar(void)
 			AppendMenu(menu_tilewidth, buf);
 		}
 	}
-
+	
 	{
 		/* Make the "TileHeight" menu */
 		menu_tileheight = NewMenu(136, "\pTileHeight");
@@ -4181,37 +4127,37 @@ static void init_menubar(void)
 			AppendMenu(menu_tileheight, buf);
 		}
 	}
-
+	
 	{
 		/* Make the "Graphics" menu */
 		menu_graphics = NewMenu(137, "\parg_graphics");
-
+		
 		/* Append the choices */
 		AppendMenu(menu_graphics, "\pText Only" );
 		AppendMenu(menu_graphics, "\pOrignial" );
 		AppendMenu(menu_graphics, "\pAdam Bolt" );
-
+		
 		/* Insert SubMenu */
 		InsertMenu( menu_graphics, -1 );
 		// This call is only support with AppearanceLib 1.0 or greater
 		SetMenuItemHierarchicalID( menu_special, 2, 137 );
 	}
-
+	
 	{
 		short	i;
-
+		
 		/* Make the "Music" menu */
 		menu_music = NewMenu(138, "\parg_music");
-
+		
 		/* Append the choices */
 		for( i=0; i < SONG_MAX; i++ )
 		{
 			if( !streq(song_description[i], "" ) )
 			{
 				Str255		menu_title;
-
+			
 				c2p_stringcopy( menu_title, song_description[i] );
-
+			
 				AppendMenu( menu_music, menu_title );
 			}
 			else
@@ -4219,13 +4165,13 @@ static void init_menubar(void)
 				AppendMenu( menu_music, "\pEmpty" );
 			}
 		}
-
+		
 		/* Insert SubMenu */
 		InsertMenu( menu_music, -1 );
 		// This call is only support with AppearanceLib 1.0 or greater
 		SetMenuItemHierarchicalID( menu_special, 3, 138 );
 	}
-
+	
 
 	/* Update the menu bar */
 	DrawMenuBar();
@@ -4395,7 +4341,7 @@ static void setup_menus(void)
 			DisableMenuItem(m, i);
 			CheckMenuItem(m, i, FALSE);
 		}
-
+		
 		/* Active window */
 		if (td)
 		{
@@ -4455,9 +4401,9 @@ static void setup_menus(void)
 		{
 			/* Item "arg_graphics" */
 			EnableMenuItem(m, 2);
-
+		
 			subm = GetMenuHandle(137);
-
+			
 			/* Get menu size */
 			n = CountMenuItems(subm);
 
@@ -4468,7 +4414,7 @@ static void setup_menus(void)
 				EnableMenuItem(subm, i);
 				CheckMenuItem(subm, i, FALSE);
 			}
-
+						
 			switch( arg_graphics )
 			{
 				case GRAPHICS_ORIGINAL:
@@ -4483,7 +4429,7 @@ static void setup_menus(void)
 						CheckMenuItem(subm, 3, true);
 					}
 					break;
-
+				
 				case GRAPHICS_NONE:
 				default:
 					{
@@ -4493,23 +4439,23 @@ static void setup_menus(void)
 					break;
 			}
 		}
-
+		
 		/* music state */
 		{
 			/* Item arg_music */
 			EnableMenuItem(m, 3);
-
+			
 			subm = GetMenuHandle(138);
-
-
+			
+			 
 			/* Get menu size */
 			n = CountMenuItems(subm);
-
+			
 			/* add songs to menu */
 			for( i=1; i <= n; i++ )
 			{
 				short		song_index = i-1;
-
+				
 				if( !streq( song_name[song_index], "" ) )
 				{
 					if( song_index == current_song )
@@ -4671,12 +4617,12 @@ static void menu(long mc)
 				short item_hit;
 				BitMap screen;
 
-#ifdef TARGET_CARBON
+#ifdef TARGET_CARBON						
 				GetQDGlobalsScreenBits( &screen );
 #else
 				screen = qd.screenBits;
-#endif
-
+#endif	
+				
 				dialog=GetNewDialog(128, 0, (WindowPtr)-1);
 
 #ifdef TARGET_CARBON
@@ -4685,7 +4631,7 @@ static void menu(long mc)
 				r = dialog->portRect;
 				local_to_global( &r );
 #endif
-
+				
 				center_rect(&r, &screen.bounds);
 				MacMoveWindow((WindowRef)dialog, r.left, r.top, 1);
 				MacShowWindow((WindowRef)dialog);
@@ -4694,7 +4640,7 @@ static void menu(long mc)
 				break;
 			}
 
-
+			
 #ifdef TARGET_CARBON
 #else
 			/* Desk accessory */
@@ -4757,7 +4703,7 @@ static void menu(long mc)
 					msg_flag = FALSE;
 
 					/* Hack -- Save the game */
-					do_cmd_save_game(FALSE);
+					do_cmd_save_game();
 
 					break;
 				}
@@ -4789,7 +4735,7 @@ static void menu(long mc)
 						msg_flag = FALSE;
 
 						/* Save the game */
-						do_cmd_save_game(FALSE);
+						do_cmd_save_game();
 					}
 
 					/* Quit */
@@ -4962,7 +4908,7 @@ static void menu(long mc)
 			/* Mapped */
 			td->mapped = TRUE;
 
-			/* Link */
+			/* Link */	
 			term_data_link(i);
 
 			/* Mapped (?) */
@@ -5077,8 +5023,8 @@ static void menu(long mc)
 
 			break;
 		}
-
-
+		
+		
 		/* Graphics menu */
 		case 137:
 		{
@@ -5091,13 +5037,13 @@ static void menu(long mc)
 					arg_graphics = GRAPHICS_NONE;
 					use_graphics = false;
 					use_transparency = false;
-
+					
 					/* React to changes */
 					Term_xtra(TERM_XTRA_REACT, 0);
 
 					/* Hack -- Force redraw */
 					Term_key_push(KTRL('R'));
-
+					
 					break;
 				}
 
@@ -5108,16 +5054,16 @@ static void menu(long mc)
 					arg_graphics = GRAPHICS_ORIGINAL;
 					use_graphics = true;
 					use_transparency = false;
-
+					
 					/* React to changes */
 					Term_xtra(TERM_XTRA_REACT, 0);
 
 					/* Hack -- Force redraw */
 					Term_key_push(KTRL('R'));
-
+					
 					break;
 				}
-
+				
 				/* Adam Bolt Graphics 16x16 tiles */
 				case 3:
 				{
@@ -5125,20 +5071,20 @@ static void menu(long mc)
 					arg_graphics = GRAPHICS_ADAM_BOLT;
 					use_graphics = true;
 					use_transparency = true;
-
+					
 					/* React to changes */
 					Term_xtra(TERM_XTRA_REACT, 0);
 
 					/* Hack -- Force redraw */
 					Term_key_push(KTRL('R'));
-
+					
 					break;
 				}
 			}
-
+			
 			break;
 		}
-
+		
 		/* Music menu */
 		case 138:
 		{
@@ -5392,7 +5338,7 @@ static bool CheckEvents(bool wait)
 	{
 		check_music();
 	}
-
+			
 	/* Get an event (or null) */
 	GetNextEvent(everyEvent, &event);
 
@@ -5464,32 +5410,32 @@ static bool CheckEvents(bool wait)
 				if( ch == 44 )
 				{
 					int inc = ( ms ? VOLUME_INC : 1 );
-
+					
 					/* Adjust sound volume DOWN */
 					if( gSoundVolume > (VOLUME_MIN + inc) )
 						gSoundVolume -= inc;
 					else
 						gSoundVolume = VOLUME_MIN;
-
+					
 					/* test sound volume */
 					sound( SOUND_HIT );
-
+					
 					/* Done */
 					break;
 				}
 				else if( ch == 46 )
 				{
 					int inc = ( ms ? VOLUME_INC : 1 );
-
+					
 					/* Adjust sound volume UP */
 					if( gSoundVolume < (VOLUME_MAX - inc) )
 						gSoundVolume += inc;
 					else
 						gSoundVolume = VOLUME_MAX;
-
+					
 					/* test sound volume */
 					sound( SOUND_HIT );
-
+					
 					/* Done */
 					break;
 				}
@@ -5497,16 +5443,16 @@ static bool CheckEvents(bool wait)
 				{
 					/* Hack -- Prepare the menus */
 					setup_menus();
-
+	
 					/* Mega-Hack -- allow easy exit if nothing to save */
 					if (!character_generated && (ch=='Q' || ch=='q')) ch = 'e';
-
+	
 					/* Run the Menu-Handler */
 					menu(MenuKey(ch));
-
+	
 					/* Turn off the menus */
 					HiliteMenu(0);
-
+	
 					/* Done */
 					break;
 				}
@@ -5515,9 +5461,9 @@ static bool CheckEvents(bool wait)
 
 			/* Hide the mouse pointer */
 			ObscureCursor();
-
+			
 			//plog_fmt( "Keypress code=%ld, char=%ld", (long)ck, (long)ch );
-
+			
 			/* Normal key -> simple keypress */
 			if (ck < 64)
 			{
@@ -5528,7 +5474,7 @@ static bool CheckEvents(bool wait)
 			/* Hack -- normal "keypad keys" -> special keypress */
 			else if (!mc && !ms && !mo && !mx && (ck < 96))
 			{
-
+				
 				/* Hack -- "enter" is confused */
 				if (ck == 76) ch = '\n';
 
@@ -5606,15 +5552,15 @@ static bool CheckEvents(bool wait)
 					WindowPtr old_win;
 
 					BitMap screen;
-
+					
 					Rect portRect;
-
-#ifdef TARGET_CARBON
+					
+#ifdef TARGET_CARBON						
 					GetQDGlobalsScreenBits( &screen );
 #else
 					screen = qd.screenBits;
-#endif
-
+#endif	
+					
 					r = screen.bounds;
 					r.top += 20; /* GetMBarHeight() XXX XXX XXX */
 					InsetRect(&r, 4, 4);
@@ -5734,7 +5680,7 @@ static bool CheckEvents(bool wait)
 		case diskEvt:
 		{
 			/* check for error when mounting the disk */
-
+			
 #ifdef TARGET_CARBON
 #else
 			if (HiWord(event.message) != noErr)
@@ -5761,11 +5707,11 @@ static bool CheckEvents(bool wait)
 				if (event.message & resumeFlag)
 				{
 					SetPort( GetWindowPort(FrontWindow()) );
-
+					
 #ifdef TARGET_CARBON
 					{
 						Cursor	arrow;
-
+					
 						GetQDGlobalsArrow( &arrow );
 						SetCursor(&arrow);
 					}
@@ -5934,49 +5880,27 @@ static void hook_quit(cptr str)
 
 	/* Exit the sound support */
 	close_sounds();
-
+	
 	/* All done */
 	ExitToShell();
 }
-
-/*
- * Hook to tell the user something, and then crash
- */
-static void hook_core(cptr str)
-{
-	/* XXX Use the debugger */
-	/* DebugStr(str); */
-
-	/* Warning */
-	if (str) mac_warning(str);
-
-	/* Warn, then save player */
-	mac_warning("Fatal error.\rI will now attempt to save and quit.");
-
-	/* Attempt to save */
-	if (!save_player()) mac_warning("Warning -- save failed!");
-
-	/* Quit */
-	quit(NULL);
-}
-
 
 
 /*** Main program ***/
 static void init_paths( void )
 {
 	char basepath[1024];
-
+	
 	/* Default to the "lib" folder with the application */
 	{
 		char app_path[1024];
-
+		
 		PathNameFromDirID(app_dir, app_vol, (StringPtr)app_path);
 		ptocstr((StringPtr)app_path);
 		strcat(app_path, "lib/" );
 		strcpy(basepath,app_path);
 	}
-
+	
 	/* Prepare the paths */
 	init_file_paths(basepath);
 }
@@ -6010,11 +5934,11 @@ static void init_stuff(void)
 	r.bottom = 188;
 
 	/* Center it */
-#ifdef TARGET_CARBON
+#ifdef TARGET_CARBON						
 	GetQDGlobalsScreenBits( &screen );
 #else
 	screen = qd.screenBits;
-#endif
+#endif	
 
 	center_rect(&r, &screen.bounds);
 
@@ -6026,12 +5950,12 @@ static void init_stuff(void)
 	while (1)
 	{
 		OSType		types[3];
-
+		
 		/* Build the filename */
 		path_build(path, 1024, ANGBAND_DIR_FILE, "news.txt");
-
+		
 		//plog_fmt("Trying to access file '%s'", path );
-
+		
 		/* Attempt to open and close that file */
 		if (0 == fd_close(fd_open(path, O_RDONLY))) break;
 
@@ -6056,9 +5980,9 @@ static void init_stuff(void)
 		/* Get any file */
 		{
 			OSErr		err;
-
+			
 			err = ChooseFile( (unsigned char *)path, types, 3 );
-
+			
 			if( err != noErr )
 			{
 				quit(NULL);
@@ -6132,7 +6056,7 @@ int main(void)
 # if defined(powerc) || defined(__powerc)
 
 	/* Assume System 7 */
-
+	
 	/* Assume Color Quickdraw */
 
 # else
@@ -6153,7 +6077,7 @@ int main(void)
 		}
 	}
 
-
+	
 # endif
 
 #endif /* ANGBAND_LITE_MAC */
@@ -6214,8 +6138,6 @@ int main(void)
 	/* Hooks in some "z-util.c" hooks */
 	plog_aux = hook_plog;
 	quit_aux = hook_quit;
-	core_aux = hook_core;
-
 
 
 	/* Show the "watch" cursor */
@@ -6223,20 +6145,20 @@ int main(void)
 
 	/* Prepare paths */
 	init_paths();
-
+	
 	/* Prepare sound effects */
 	init_sounds();
-
+	
 	/* Prepare music soundtrack */
 	init_music();
-
+	
 	/* Prepare the menubar */
 	init_menubar();
 
 	/* Prepare the windows */
 	init_windows();
-
-
+	
+	
 	/* Hack -- process all events */
 	while (CheckEvents(TRUE)) /* loop */;
 

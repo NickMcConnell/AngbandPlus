@@ -57,8 +57,8 @@ static char *wd_rarity(byte rarity, bool unique)
 /*
  * Pluralizer.  Args(count, singular, plural)
  */
-#define plural(c,s,p) \
-    (((c) == 1) ? (s) : (p))
+#define plural(c,s,p)				\
+	(((c) == 1) ? (s) : (p))
 
 /*
  * Determine if the "armor" is known
@@ -253,10 +253,10 @@ static void roff_aux(int r_idx)
 
 		/* Hack -- maximal drops */
 		l_ptr->drop_gold = l_ptr->drop_item =
-		(((r_ptr->flags1 & (RF1_DROP_TWO)) ? 2 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_ONE)) ? 1 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_60))  ? 1 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_40))  ? 1 : 0));
+			(((r_ptr->flags1 & (RF1_DROP_TWO)) ? 2 : 0) +
+			 ((r_ptr->flags1 & (RF1_DROP_ONE)) ? 1 : 0) +
+			 ((r_ptr->flags1 & (RF1_DROP_60))  ? 1 : 0) +
+			 ((r_ptr->flags1 & (RF1_DROP_40))  ? 1 : 0));
 
 		/* Decode level boost */
 		l_ptr->drop_boost += (r_ptr->flags1 & (RF1_DROP_PLUS_5)) ? 5 : 0;
@@ -356,51 +356,55 @@ static void roff_aux(int r_idx)
 		fd = fd_open(buf, O_RDONLY);
 
 		/* Use file */
-		if (fd >= 0)
-		{
-			huge pos;
+#ifdef _WIN32_WCE
+		if (fd != INVALID_HANDLE_VALUE)
+#else
+			if (fd >= 0)
+#endif
+			{
+				huge pos;
 
-			/* Starting position */
-			pos = r_ptr->text;
+				/* Starting position */
+				pos = r_ptr->text;
 
-			/* Additional offsets */
-			pos += r_head->head_size;
-			pos += r_head->info_size;
-			pos += r_head->name_size;
+				/* Additional offsets */
+				pos += r_head->head_size;
+				pos += r_head->info_size;
+				pos += r_head->name_size;
 
 #if 0
 
-			/* Maximal length */
-			len = r_head->text_size - r_ptr->text;
+				/* Maximal length */
+				len = r_head->text_size - r_ptr->text;
 
-			/* Actual length */
-			for (i = r_idx+1; i < MAX_R_IDX; i++)
-			{
 				/* Actual length */
-				if (r_info[i].text > r_ptr->text)
+				for (i = r_idx+1; i < z_info->r_max; i++)
 				{
-					/* Extract length */
-					len = r_info[i].text - r_ptr->text;
+					/* Actual length */
+					if (r_info[i].text > r_ptr->text)
+					{
+						/* Extract length */
+						len = r_info[i].text - r_ptr->text;
 
-					/* Done */
-					break;
+						/* Done */
+						break;
+					}
 				}
-			}
 
-			/* Maximal length */
-			if (len > 2048) len = 2048;
+				/* Maximal length */
+				if (len > 2048) len = 2048;
 
 #endif
 
-			/* Seek */
-			fd_seek(fd, pos);
+				/* Seek */
+				fd_seek(fd, pos);
 
-			/* Read a chunk of data */
-			fd_read(fd, buf, 2048);
+				/* Read a chunk of data */
+				fd_read(fd, buf, 2048);
 
-			/* Close it */
-			fd_close(fd);
-		}
+				/* Close it */
+				fd_close(fd);
+			}
 
 #else
 
@@ -410,23 +414,25 @@ static void roff_aux(int r_idx)
 #endif
 
 		/* Dump it */
-		c_roff(TERM_L_BLUE, buf, 0, 0);
-		roff("  ", 0, 0);
+		text_out_indent = 0;
+		text_out_to_screen(TERM_L_BLUE, buf);
+		text_out_to_screen(TERM_WHITE, "  ");
 	}
 
 	/* Player ghosts may have unique descriptions. */
 	if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && (ghost_string_type == 2))
-		c_roff(TERM_L_BLUE, format("%s  ", ghost_string), 0, 0);
+	        text_out_to_screen(TERM_L_BLUE, format("%s  ", ghost_string));
 
 
 	/* Notice "Quest" monsters */
 	if (flags1 & (RF1_QUESTOR))
 	{
-		c_roff(TERM_VIOLET, "You feel an intense desire to kill this monster...  ", 0, 0);
+                text_out_to_screen(TERM_VIOLET, 
+				   "You feel an intense desire to kill this monster...  ");
 	}
 
 	/* New paragraph. */
-	roff("\n", 0, 0);
+	text_out_to_screen(TERM_WHITE, "\n");
 
 	/* Require a flag to show kills */
 	if (!(show_details))
@@ -444,33 +450,35 @@ static void roff_aux(int r_idx)
 		if (l_ptr->deaths)
 		{
 			/* Killed ancestors */
-			roff(format("%^s has slain ",
-				    wd_he[msex]), 0, 0);
-
-			c_roff(TERM_WHITE, format("%d ",
-				    l_ptr->deaths), 0, 0);
-
-			roff("of your ancestors", 0, 0);
-
+		        text_out_to_screen(TERM_WHITE, format("%^s has slain ",
+							      wd_he[msex]));
+	  
+			text_out_to_screen(TERM_WHITE, format("%d ", l_ptr->deaths));
+	  
+			text_out_to_screen(TERM_WHITE, "of your ancestors");
+	  
 			/* But we've also killed it */
 			if (dead)
 			{
-				roff(format(", but you have avenged %s!  ",
-					    plural(l_ptr->deaths, "him", "them")), 0, 0);
+				text_out_to_screen(TERM_WHITE, 
+						   format(", but you have avenged %s!  ",
+							  plural(l_ptr->deaths, "him", "them")));
 			}
 
 			/* Unavenged (ever) */
 			else
 			{
-				roff(format(", who %s unavenged.  ",
-					    plural(l_ptr->deaths, "remains", "remain")), 0, 0);
+				text_out_to_screen(TERM_WHITE, format(", who %s unavenged.  ",
+								      plural(l_ptr->deaths, 
+									     "remains", 
+									     "remain")));
 			}
 		}
 
 		/* Dead unique who never hurt us */
 		else if (dead)
 		{
-			roff("You have slain this foe.  ", 0, 0);
+	                text_out_to_screen(TERM_WHITE, "You have slain this foe.  ");
 		}
 	}
 
@@ -478,32 +486,34 @@ static void roff_aux(int r_idx)
 	else if (l_ptr->deaths)
 	{
 		/* Dead ancestors */
-		c_roff(TERM_WHITE, format("%d ", l_ptr->deaths), 0, 0);
-
-		roff(format("of your ancestors %s been killed by this creature, ",
-			plural(l_ptr->deaths, "has", "have")), 0, 0);
+	        text_out_to_screen(TERM_WHITE, format("%d ", l_ptr->deaths));
+      
+		text_out_to_screen(TERM_WHITE, format("of your ancestors %s been killed by this creature, ",
+						      plural(l_ptr->deaths, "has", "have")));
+      
 
 		/* Some kills this life */
 		if (l_ptr->pkills)
 		{
-			roff("and you have exterminated at least ", 0, 0);
-			c_roff(TERM_WHITE, format("%d ", l_ptr->pkills), 0, 0);
-			roff("of the creatures.  ", 0, 0);
+	                text_out_to_screen(TERM_WHITE, "and you have exterminated at least ");
+			text_out_to_screen(TERM_WHITE, format("%d ", l_ptr->pkills));
+			text_out_to_screen(TERM_WHITE, "of the creatures.  ");
 		}
 
 		/* Some kills past lives */
 		else if (l_ptr->tkills)
 		{
-			roff("and your ancestors have exterminated at least ", 0, 0);
-			c_roff(TERM_WHITE, format("%d ", l_ptr->tkills), 0, 0);
-			roff("of the creatures.  ", 0, 0);
+		        text_out_to_screen(TERM_WHITE, "and your ancestors have exterminated at least ");
+			text_out_to_screen(TERM_WHITE, format("%d ", l_ptr->tkills));
+			text_out_to_screen(TERM_WHITE, "of the creatures.  ");
 		}
 
 		/* No kills */
 		else
 		{
-			c_roff(TERM_RED, format("and %s is not ever known to have been defeated.  ",
-				wd_he[msex]), 0, 0);
+	                text_out_to_screen(TERM_RED, 
+					   format("and %s is not ever known to have been defeated.  ",
+						  wd_he[msex]));
 		}
 	}
 
@@ -513,23 +523,23 @@ static void roff_aux(int r_idx)
 		/* Killed some this life */
 		if (l_ptr->pkills)
 		{
-			roff("You have killed at least ", 0, 0);
-			c_roff(TERM_WHITE, format("%d ", l_ptr->pkills), 0, 0);
-			roff("of these creatures.  ", 0, 0);
+	                text_out_to_screen(TERM_WHITE, "You have killed at least ");
+			text_out_to_screen(TERM_WHITE, format("%d ", l_ptr->pkills));
+			text_out_to_screen(TERM_WHITE, "of these creatures.  ");
 		}
 
 		/* Killed some last life */
 		else if (l_ptr->tkills)
 		{
-			roff("Your ancestors have killed at least ", 0, 0);
-			c_roff(TERM_WHITE, format("%d ", l_ptr->tkills), 0, 0);
-			roff("of these creatures.  ", 0, 0);
+	                text_out_to_screen(TERM_WHITE, "Your ancestors have killed at least ");
+			text_out_to_screen(TERM_WHITE, format("%d ", l_ptr->tkills));
+			text_out_to_screen(TERM_WHITE, "of these creatures.  ");
 		}
 
 		/* Killed none */
 		else
 		{
-			c_roff(TERM_RED, "No battles to the death are recalled.  ", 0, 0);
+	                text_out_to_screen(TERM_RED, "No battles to the death are recalled.  ");
 		}
 	}
 
@@ -539,7 +549,7 @@ static void roff_aux(int r_idx)
 	/* Describe location */
 	if (r_ptr->level == 0)
 	{
-		c_roff(TERM_SLATE, format("%^s lives in the town", wd_he[msex]), 0, 0);
+                text_out_to_screen(TERM_SLATE, format("%^s lives in the town", wd_he[msex]));
 		old = TRUE;
 	}
 	else if (l_ptr->tkills)
@@ -569,23 +579,23 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags1 & (RF1_QUESTOR))
 		{
 			/* Questor monsters are fixed-depth, and always appear. */
-			roff(format("%^s is always found ", wd_he[msex]), 0, 0);
-			c_roff(con_color, format("%s", depth_desc), 0, 0);
+	                text_out_to_screen(TERM_WHITE, format("%^s is always found ", wd_he[msex]));
+			text_out_to_screen(con_color, format("%s", depth_desc));
 		}
 
 		else if (r_ptr->flags1 & (RF1_FORCE_DEPTH))
 		{
-			roff(format("%^s is %s, always found ", wd_he[msex],
-				wd_rarity(r_ptr->rarity, unique)), 0, 0);
-			c_roff(con_color, format("%s",
-				depth_desc), 0, 0);
+	                text_out_to_screen(TERM_WHITE, format("%^s is %s, always found ", wd_he[msex], 
+							      wd_rarity(r_ptr->rarity, unique)));
+			text_out_to_screen(con_color, format("%s", 
+							     depth_desc));
 		}
 		else
 		{
-			roff(format("%^s is %s, normally found ", wd_he[msex],
-				wd_rarity(r_ptr->rarity, unique)), 0, 0);
-			c_roff(con_color, format("%s",
-				depth_desc), 0, 0);
+	                text_out_to_screen(TERM_WHITE, format("%^s is %s, normally found ", wd_he[msex], 
+							      wd_rarity(r_ptr->rarity, unique)));
+			text_out_to_screen(con_color, format("%s", 
+							     depth_desc));
 		}
 
 		old = TRUE;
@@ -599,132 +609,130 @@ static void roff_aux(int r_idx)
 		/* Introduction */
 		if (old)
 		{
-			roff(", and ", 0, 0);
+	                text_out_to_screen(TERM_WHITE, ", and ");
 		}
 		else
 		{
-			roff(format("%^s ", wd_he[msex]), 0, 0);
+	                text_out_to_screen(TERM_WHITE, format("%^s ", wd_he[msex]));
 			old = TRUE;
 		}
-		if (flags1 & (RF1_NEVER_MOVE)) roff("acts", 0, 0);
-		else roff("moves", 0, 0);
+		if (flags1 & (RF1_NEVER_MOVE)) text_out_to_screen(TERM_WHITE, "acts");
+		else text_out_to_screen(TERM_WHITE, "moves");
 
 		/* Random-ness */
 		if ((flags1 & (RF1_RAND_50)) || (flags1 & (RF1_RAND_25)))
 		{
-			/* Adverb */
-			if ((flags1 & (RF1_RAND_50)) && (flags1 & (RF1_RAND_25)))
+		        /* Adverb */
+		        if ((flags1 & (RF1_RAND_50)) && (flags1 & (RF1_RAND_25)))
 			{
-				roff(" extremely", 0, 0);
+			        text_out_to_screen(TERM_WHITE, " extremely");
 			}
 			else if (flags1 & (RF1_RAND_50))
 			{
-				roff(" somewhat", 0, 0);
+			        text_out_to_screen(TERM_WHITE, " somewhat");
 			}
 			else if (flags1 & (RF1_RAND_25))
 			{
-				roff(" a bit", 0, 0);
+			        text_out_to_screen(TERM_WHITE, " a bit");
 			}
-
+	  
 			/* Adjective */
-			roff(" erratically", 0, 0);
-
+			text_out_to_screen(TERM_WHITE, " erratically");
+	  
 			/* Hack -- Occasional conjunction */
-			if (r_ptr->speed != 110) roff(", and", 0, 0);
+			if (r_ptr->speed != 110) text_out_to_screen(TERM_WHITE, ", and");
 		}
-
+      
 		/* Speed */
 		if (r_ptr->speed > 110)
 		{
-			if (r_ptr->speed > 130) c_roff(TERM_UMBER, " incredibly", 0, 0);
-			else if (r_ptr->speed > 120) c_roff(TERM_UMBER, " very", 0, 0);
-			else if (r_ptr->speed < 116) c_roff(TERM_UMBER, " fairly", 0, 0);
-			c_roff(TERM_UMBER, " quickly", 0, 0);
+		        if (r_ptr->speed > 130) text_out_to_screen(TERM_UMBER, " incredibly");
+			else if (r_ptr->speed > 120) text_out_to_screen(TERM_UMBER, " very");
+			else if (r_ptr->speed < 116) text_out_to_screen(TERM_UMBER, " fairly");
+			text_out_to_screen(TERM_UMBER, " quickly");
 		}
 		else if (r_ptr->speed < 110)
 		{
-			if (r_ptr->speed < 90) c_roff(TERM_UMBER, " extremely", 0, 0);
-			else if (r_ptr->speed < 100) c_roff(TERM_UMBER, " very", 0, 0);
-			c_roff(TERM_UMBER, " slowly", 0, 0);
+		        if (r_ptr->speed < 90) text_out_to_screen(TERM_UMBER, " extremely");
+			else if (r_ptr->speed < 100) text_out_to_screen(TERM_UMBER, " very");
+			text_out_to_screen(TERM_UMBER, " slowly");
 		}
 		else
 		{
-			c_roff(TERM_UMBER, " at normal speed", 0, 0);
+		        text_out_to_screen(TERM_UMBER, " at normal speed");
 		}
 	}
-
+	
 	/* The code above includes "attack speed" */
 	if (flags1 & (RF1_NEVER_MOVE))
 	{
-		/* Introduce */
-		if (old)
+	        /* Introduce */
+	        if (old)
 		{
-			roff(", but ", 0, 0);
+		        text_out_to_screen(TERM_WHITE, ", but ");
 		}
 		else
 		{
-			roff(format("%^s ", wd_he[msex]), 0, 0);
+		        text_out_to_screen(TERM_WHITE, format("%^s ", wd_he[msex]));
 			old = TRUE;
 		}
-
+      
 		/* Describe */
-		roff("does not deign to chase intruders", 0, 0);
+		text_out_to_screen(TERM_WHITE, "does not deign to chase intruders");
 	}
-
+  
 	/* End this sentence */
 	if (old)
 	{
-		roff(".  ", 0, 0);
+	        text_out_to_screen(TERM_WHITE, ".  ");
 		old = FALSE;
 	}
-
-
+  
+  
 	/* Describe experience if known */
 	if (l_ptr->tkills)
 	{
-		/* Introduction */
-		if (flags1 & (RF1_UNIQUE))
+	        /* Introduction */
+	        if (flags1 & (RF1_UNIQUE))
 		{
-			roff("Killing this", 0, 0);
+		        text_out_to_screen(TERM_WHITE, "Killing this");
 		}
 		else
 		{
-			roff("A kill of this", 0, 0);
+		        text_out_to_screen(TERM_WHITE, "A kill of this");
 		}
-
+      
 		/* Describe the "quality" */
-		if (flags3 & (RF3_ANIMAL)) c_roff(TERM_BLUE, " natural", 0, 0);
-		if (flags3 & (RF3_EVIL)) c_roff(TERM_BLUE, " evil", 0, 0);
-		if (flags3 & (RF3_UNDEAD)) c_roff(TERM_BLUE, " undead", 0, 0);
-
+		if (flags3 & (RF3_ANIMAL)) text_out_to_screen(TERM_BLUE, " natural");
+		if (flags3 & (RF3_EVIL)) text_out_to_screen(TERM_BLUE, " evil");
+		if (flags3 & (RF3_UNDEAD)) text_out_to_screen(TERM_BLUE, " undead");
+      
 		/* Describe the "race" */
-		if (flags3 & (RF3_DRAGON)) c_roff(TERM_BLUE, " dragon", 0, 0);
-		else if (flags3 & (RF3_DEMON)) c_roff(TERM_BLUE, " demon", 0, 0);
-		else if (flags3 & (RF3_GIANT)) c_roff(TERM_BLUE, " giant", 0, 0);
-		else if (flags3 & (RF3_TROLL)) c_roff(TERM_BLUE, " troll", 0, 0);
-		else if (flags3 & (RF3_ORC)) c_roff(TERM_BLUE, " orc", 0, 0);
-		else roff(" creature", 0, 0);
-
+		if (flags3 & (RF3_DRAGON)) text_out_to_screen(TERM_BLUE, " dragon");
+		else if (flags3 & (RF3_DEMON)) text_out_to_screen(TERM_BLUE, " demon");
+		else if (flags3 & (RF3_GIANT)) text_out_to_screen(TERM_BLUE, " giant");
+		else if (flags3 & (RF3_TROLL)) text_out_to_screen(TERM_BLUE, " troll");
+		else if (flags3 & (RF3_ORC)) text_out_to_screen(TERM_BLUE, " orc");
+		else text_out_to_screen(TERM_WHITE, " creature");
+      
 		/* Group some variables */
 		if (TRUE)
 		{
-			long i, j;
-
+		        long i, j;
+		    
 			/* calculate the integer exp part */
 			i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
-
+			
 			/* calculate the fractional exp part scaled by 100, */
 			/* must use long arithmetic to avoid overflow  */
 			j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
 			      (long)1000 / p_ptr->lev + 5) / 10);
-
+			
 			/* Mention the experience */
-			roff(" is worth ", 0, 0);
-			c_roff(TERM_VIOLET, format("%ld.%02ld ",
-				    (long)i, (long)j), 0, 0);
-			roff(format("point%s",
-				    (((i == 1) && (j == 0)) ? "" : "s")), 0, 0);
-
+			text_out_to_screen(TERM_WHITE, " is worth ");
+			text_out_to_screen(TERM_VIOLET, format("%ld.%02ld ", (long)i, (long)j));
+			text_out_to_screen(TERM_WHITE, format("point%s", (((i == 1) && (j == 0)) ? "" : "s")));
+	  
 			/* Take account of annoying English */
 			p = "th";
 			i = p_ptr->lev % 10;
@@ -732,79 +740,77 @@ static void roff_aux(int r_idx)
 			else if (i == 1) p = "st";
 			else if (i == 2) p = "nd";
 			else if (i == 3) p = "rd";
-
+			
 			/* Take account of "leading vowels" in numbers */
 			q = "";
 			i = p_ptr->lev;
 			if ((i == 8) || (i == 11) || (i == 18)) q = "n";
-
+			
 			/* Mention the dependance on the player's level */
-			roff(format(" for a%s %lu%s level character.  ",
-				    q, (long)i, p), 0, 0);
+			text_out_to_screen(TERM_WHITE, format(" for a%s %lu%s level character.  ",
+							      q, (long)i, p));
 		}
 	}
 	/* If no kills, known racial information should still be displayed. */
-	else if ((flags3 & (RF3_ANIMAL)) || (flags3 & (RF3_EVIL)) ||
-		(flags3 & (RF3_UNDEAD)) || (flags3 & (RF3_DRAGON)) ||
-		(flags3 & (RF3_DEMON)) || (flags3 & (RF3_GIANT)) ||
-		(flags3 & (RF3_TROLL)) || (flags3 & (RF3_ORC)))
+	else if ((flags3 & (RF3_ANIMAL)) || (flags3 & (RF3_EVIL)) || 
+		 (flags3 & (RF3_UNDEAD)) || (flags3 & (RF3_DRAGON)) || 
+		 (flags3 & (RF3_DEMON)) || (flags3 & (RF3_GIANT)) || 
+		 (flags3 & (RF3_TROLL)) || (flags3 & (RF3_ORC)))
 	{
-		bool add = FALSE;
-
+	        bool add = FALSE;
+      
 		/* Pronoun. */
-		if (flags1 & (RF1_UNIQUE))
-			roff(format("%^s is a", wd_he[msex]), 0, 0);
-		else roff("It is a", 0, 0);
-
+		if (flags1 & (RF1_UNIQUE)) 
+			text_out_to_screen(TERM_WHITE, format("%^s is a", wd_he[msex]));
+		else text_out_to_screen(TERM_WHITE, "It is a");
+		
 		/* Describe the "quality" */
-		if (flags3 & (RF3_ANIMAL))
+		if (flags3 & (RF3_ANIMAL)) 
 		{
-			roff(" natural", 0, 0);
+		        text_out_to_screen(TERM_WHITE, " natural");
 			add = TRUE;
 		}
-		if (flags3 & (RF3_EVIL))
+		if (flags3 & (RF3_EVIL))	
 		{
-			if (add) roff(" evil", 0, 0);
-			else roff("n evil", 0, 0);
+		        if (add) text_out_to_screen(TERM_WHITE, " evil");
+			else text_out_to_screen(TERM_WHITE, "n evil");
 			add = TRUE;
 		}
-		if (flags3 & (RF3_UNDEAD))
+		if (flags3 & (RF3_UNDEAD)) 
 		{
-			if (add) roff(" undead", 0, 0);
-			else roff("n undead", 0, 0);
+		        if (add) text_out_to_screen(TERM_WHITE, " undead");
+			else text_out_to_screen(TERM_WHITE, "n undead");
 			add = TRUE;
 		}
-
+		
 		/* Describe the "race" */
-		if (flags3 & (RF3_DRAGON)) roff(" dragon", 0, 0);
-		else if (flags3 & (RF3_DEMON)) roff(" demon", 0, 0);
-		else if (flags3 & (RF3_GIANT)) roff(" giant", 0, 0);
-		else if (flags3 & (RF3_TROLL)) roff(" troll", 0, 0);
-		else if (flags3 & (RF3_ORC))
+		if (flags3 & (RF3_DRAGON)) text_out_to_screen(TERM_WHITE, " dragon");
+		else if (flags3 & (RF3_DEMON)) text_out_to_screen(TERM_WHITE, " demon");
+		else if (flags3 & (RF3_GIANT)) text_out_to_screen(TERM_WHITE, " giant");
+		else if (flags3 & (RF3_TROLL)) text_out_to_screen(TERM_WHITE, " troll");
+		else if (flags3 & (RF3_ORC)) 
 		{
-			if (add) roff(" orc", 0, 0);
-			else roff("n orc", 0, 0);
+		        if (add) text_out_to_screen(TERM_WHITE, " orc");
+			else text_out_to_screen(TERM_WHITE, "n orc");
 		}
-		else roff(" creature", 0, 0);
-
+		else text_out_to_screen(TERM_WHITE, " creature");
+      
 		/* End sentence. */
-		roff(".  ", 0, 0);
+		text_out_to_screen(TERM_WHITE, ".  ");
 	}
-
+  
 	/* Describe escorts */
 	if ((flags1 & (RF1_ESCORT)) || (flags1 & (RF1_ESCORTS)))
 	{
-		roff(format("%^s usually appears with escorts.  ",
-			    wd_he[msex]), 0, 0);
+	        text_out_to_screen(TERM_WHITE, format("%^s usually appears with escorts.  ", wd_he[msex]));
 	}
-
+  
 	/* Describe friends */
 	else if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
 	{
-		roff(format("%^s usually appears in groups.  ",
-			    wd_he[msex]), 0, 0);
+	        text_out_to_screen(TERM_WHITE, format("%^s usually appears in groups.  ", wd_he[msex]));
 	}
-
+  
 	/* Get spell power */
 	spower = r_ptr->spell_power;
 
@@ -858,27 +864,27 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]), 0, 0);
-
+	        text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+      
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
-			/* Intro */
-			if (n == 0)
+		        /* Intro */
+		        if (n == 0) 
 			{
-				roff(" may ", 0, 0);
-				if (flags2 & (RF2_ARCHER)) roff("frequently ", 0, 0);
+			        text_out_to_screen(TERM_WHITE, " may ");
+				if (flags2 & (RF2_ARCHER)) text_out_to_screen(TERM_WHITE, "frequently ");
 			}
-			else if (n < vn-1) roff(", ", 0, 0);
-			else if (n == 1) roff(" or ", 0, 0);
-			else roff(", or ", 0, 0);
-
+			else if (n < vn-1) text_out_to_screen(TERM_WHITE, ", ");
+			else if (n == 1) text_out_to_screen(TERM_WHITE, " or ");
+			else text_out_to_screen(TERM_WHITE, ", or ");
+	  
 			/* Dump */
-			c_roff(TERM_L_RED, vp[n], 0, 0);
+			text_out_to_screen(TERM_L_RED, vp[n]);
 		}
-
+      
 		/* End */
-		roff(".  ", 0, 0);
+		text_out_to_screen(TERM_WHITE, ".  ");
 	}
 
 	/* Collect breaths */
@@ -922,24 +928,24 @@ static void roff_aux(int r_idx)
 		breath = TRUE;
 
 		/* Intro */
-		roff(format("%^s", wd_he[msex]), 0, 0);
-
+		text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+		
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
-			/* Intro */
-			if (n == 0) roff(" may breathe ", 0, 0);
-			else if (n < vn-1) roff(", ", 0, 0);
-			else if (n == 1) roff(" or ", 0, 0);
-			else roff(", or ", 0, 0);
-
+		        /* Intro */
+		        if (n == 0) text_out_to_screen(TERM_WHITE, " may breathe ");
+			else if (n < vn-1) text_out_to_screen(TERM_WHITE, ", ");
+			else if (n == 1) text_out_to_screen(TERM_WHITE, " or ");
+			else text_out_to_screen(TERM_WHITE, ", or ");
+			
 			/* Dump */
-			c_roff(TERM_L_RED, vp[n], 0, 0);
+			text_out_to_screen(TERM_L_RED, vp[n]);
 		}
-		if (flags2 & (RF2_POWERFUL)) roff(" powerfully", 0, 0);
+		if (flags2 & (RF2_POWERFUL)) text_out_to_screen(TERM_WHITE, " powerfully");
 	}
-
-
+	
+	
 	/* Collect spells */
 	vn = 0;
 	if (flags5 & (RF5_BALL_ACID))
@@ -1165,63 +1171,64 @@ static void roff_aux(int r_idx)
 		/* Intro */
 		if (breath)
 		{
-			roff(", and is also", 0, 0);
+		        text_out_to_screen(TERM_WHITE, ", and is also");
 		}
 		else
 		{
-			roff(format("%^s is", wd_he[msex]), 0, 0);
+		        text_out_to_screen(TERM_WHITE, format("%^s is", wd_he[msex]));
 		}
-
-
+      
+      
 		/* Verb Phrase */
-		roff(" magical, casting", 0, 0);
-
+		text_out_to_screen(TERM_WHITE, " magical, casting");
+		
 		/* Describe magic */
 		if ((flags2 & (RF2_UDUN_MAGIC)) && (flags2 & (RF2_MORGUL_MAGIC)))
 		{
-			c_roff(TERM_RED, " perilous spells of Udun and of Morgul", 0, 0);
+		        text_out_to_screen(TERM_RED, " perilous spells of Udun and of Morgul");
 		}
-		else if (flags2 & (RF2_MORGUL_MAGIC)) c_roff(TERM_RED, " Morgul-spells", 0, 0);
+		else if (flags2 & (RF2_MORGUL_MAGIC)) 
+		        text_out_to_screen(TERM_RED, " Morgul-spells");
 		else if (flags2 & (RF2_UDUN_MAGIC))
 		{
-			roff(" spells of", 0, 0);
-			c_roff(TERM_RED, " Udun", 0, 0);
+		        text_out_to_screen(TERM_WHITE, " spells of");
+			text_out_to_screen(TERM_RED, " Udun");
 		}
-
-		else roff(" spells", 0, 0);
-
+		
+		else text_out_to_screen(TERM_WHITE, " spells");
+		
 		/* Adverb */
 		if (flags2 & (RF2_SMART))
 		{
-			/* Suppress text if monster has both Udun and Morgul-magic. */
-			if (!((flags2 & (RF2_UDUN_MAGIC)) &&
-				(flags2 & (RF2_MORGUL_MAGIC))))
+		        /* Suppress text if monster has both Udun and Morgul-magic. */
+		        if (!((flags2 & (RF2_UDUN_MAGIC)) && 
+			      (flags2 & (RF2_MORGUL_MAGIC))))
 			{
-				roff(" intelligently", 0, 0);
+			        text_out_to_screen(TERM_WHITE, " intelligently");
 			}
 		}
-
+      
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
-			/* Intro */
-			if ((vn > m) && (n == m))
+		        /* Intro */
+		        if ((vn > m) && (n == m))
 			{
-				if (m > 1) roff(",", 0, 0);
-				if (m > 0) roff(" or", 0, 0);
-				c_roff(TERM_L_RED, " summon ", 0, 0);
+			        if (m > 1) text_out_to_screen(TERM_WHITE, ",");
+				if (m > 0) text_out_to_screen(TERM_WHITE, " or");
+				text_out_to_screen(TERM_L_RED, " summon ");
 			}
-			else if (n == 0) roff(" which ", 0, 0);
-			else if (n < vn-1) roff(", ", 0, 0);
-			else if (n == 1) roff(" or ", 0, 0);
-			else
+			else if (n == 0) text_out_to_screen(TERM_WHITE, " which ");
+			else if (n < vn-1) text_out_to_screen(TERM_WHITE, ", ");
+			else if (n == 1) text_out_to_screen(TERM_WHITE, " or ");
+			else 
 			{
-				if ((vn > m) && (m == vn - 2)) roff(" or ", 0, 0);
-				else roff(", or ", 0, 0);
+			        if ((vn > m) && (m == vn - 2)) text_out_to_screen(TERM_WHITE, " or ");
+				else text_out_to_screen(TERM_WHITE, ", or ");
 			}
-
+	  
 			/* Dump */
-			c_roff(TERM_L_RED, vp[n], 0, 0);
+			text_out_to_screen(TERM_L_RED, vp[n]);
 		}
 	}
 
@@ -1243,23 +1250,23 @@ static void roff_aux(int r_idx)
 		/* Describe the spell frequency */
 		if (m)
 		{
-			roff("; ", 0, 0);
-			c_roff(TERM_L_GREEN, "1 ", 0, 0);
-			roff("time in ", 0, 0);
-			c_roff(TERM_L_GREEN, format("%d", 100 / n), 0, 0);
+		        text_out_to_screen(TERM_WHITE, "; ");
+			text_out_to_screen(TERM_L_GREEN, "1 ");
+			text_out_to_screen(TERM_WHITE, "time in ");
+			text_out_to_screen(TERM_L_GREEN, format("%d", 100 / n));
 		}
 
 		/* Describe monster mana */
 		if (r_ptr->mana && know_mana(r_idx))
 		{
 			/* Mana */
-			roff(" with a mana rating of ", 0, 0);
-			c_roff(TERM_L_GREEN, format("%d",
-				    r_ptr->mana), 0, 0);
+		        text_out_to_screen(TERM_WHITE, " with a mana rating of ");
+			text_out_to_screen(TERM_L_GREEN, format("%d", r_ptr->mana));
+			
 		}
-
+      
 		/* End this sentence */
-		roff(".  ", 0, 0);
+		text_out_to_screen(TERM_WHITE, ".  ");
 	}
 
 
@@ -1267,26 +1274,25 @@ static void roff_aux(int r_idx)
 	if (know_armour(r_idx))
 	{
 		/* Armor */
-		roff(format("%^s has an armour rating of ",
-			    wd_he[msex]), 0, 0);
-		c_roff(TERM_L_GREEN, format("%d", r_ptr->ac), 0, 0);
-
+	        text_out_to_screen(TERM_WHITE, format("%^s has an armour rating of ", wd_he[msex]));
+		text_out_to_screen(TERM_L_GREEN, format("%d", r_ptr->ac));
+		
 		/* Maximized hitpoints */
 		if (flags1 & (RF1_FORCE_MAXHP))
 		{
-			roff(" and a life rating of ", 0, 0);
-			c_roff(TERM_L_GREEN, format("%d",
-				    r_ptr->hdice * r_ptr->hside), 0, 0);
-			roff(".  ", 0, 0);
+		        text_out_to_screen(TERM_WHITE, " and a life rating of ");
+			text_out_to_screen(TERM_L_GREEN, 
+					   format("%d", r_ptr->hdice * r_ptr->hside));
+			text_out_to_screen(TERM_WHITE, ".  ");
 		}
-
+      
 		/* Variable hitpoints */
 		else
 		{
-			roff(" and an average life rating of ", 0, 0);
-			c_roff(TERM_L_GREEN, format("%d",
-				    (r_ptr->hdice * (r_ptr->hside + 1)) / 2), 0, 0);
-			roff(".  ", 0, 0);
+		        text_out_to_screen(TERM_WHITE, " and an average life rating of ");
+			text_out_to_screen(TERM_L_GREEN, 
+					   format("%d", (r_ptr->hdice * (r_ptr->hside + 1)) / 2));
+			text_out_to_screen(TERM_WHITE, ".  ");
 		}
 	}
 
@@ -1306,50 +1312,52 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]), 0, 0);
-
+	        text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+		
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
-			/* Intro */
-			if (n == 0) roff(" can ", 0, 0);
-			else if (n < vn-1) roff(", ", 0, 0);
-			else if (n == 1) roff(" and ", 0, 0);
-			else roff(", and ", 0, 0);
-
+		        /* Intro */
+		        if (n == 0) text_out_to_screen(TERM_WHITE, " can ");
+			else if (n < vn-1) text_out_to_screen(TERM_WHITE, ", ");
+			else if (n == 1) text_out_to_screen(TERM_WHITE, " and ");
+			else text_out_to_screen(TERM_WHITE, ", and ");
+			
 			/* Dump */
-			c_roff(TERM_L_UMBER, vp[n], 0, 0);
+			text_out_to_screen(TERM_L_UMBER, vp[n]);
 		}
-
+      
 		/* End */
-		roff(".  ", 0, 0);
+		text_out_to_screen(TERM_WHITE, ".  ");
 	}
-
+	
 
 	/* Describe special abilities. */
 	if (flags2 & (RF2_INVISIBLE))
 	{
-		c_roff(TERM_L_UMBER, format("%^s is invisible.  ", wd_he[msex]), 0, 0);
+	        text_out_to_screen(TERM_L_UMBER, format("%^s is invisible.  ", wd_he[msex]));
 	}
 	if (flags2 & (RF2_COLD_BLOOD))
 	{
-		c_roff(TERM_L_UMBER, format("%^s is cold blooded.  ", wd_he[msex]), 0, 0);
+	        text_out_to_screen(TERM_L_UMBER, format("%^s is cold blooded.  ", wd_he[msex]));
 	}
 	if (flags2 & (RF2_EMPTY_MIND))
 	{
-		c_roff(TERM_L_UMBER, format("%^s is not detected by telepathy.  ", wd_he[msex]), 0, 0);
+	        text_out_to_screen(TERM_L_UMBER, 
+				   format("%^s is not detected by telepathy.  ", wd_he[msex]));
 	}
 	if (flags2 & (RF2_WEIRD_MIND))
 	{
-		c_roff(TERM_L_UMBER, format("%^s is rarely detected by telepathy.  ", wd_he[msex]), 0, 0);
+	        text_out_to_screen(TERM_L_UMBER, 
+				   format("%^s is rarely detected by telepathy.  ", wd_he[msex]));
 	}
 	if (flags2 & (RF2_MULTIPLY))
 	{
-		c_roff(TERM_L_UMBER, format("%^s breeds explosively.  ", wd_he[msex]), 0, 0);
+	        text_out_to_screen(TERM_L_UMBER, format("%^s breeds explosively.  ", wd_he[msex]));
 	}
 	if (flags2 & (RF2_REGENERATE))
 	{
-		c_roff(TERM_L_UMBER, format("%^s regenerates quickly.  ", wd_he[msex]), 0, 0);
+	        text_out_to_screen(TERM_L_UMBER, format("%^s regenerates quickly.  ", wd_he[msex]));
 	}
 
 
@@ -1364,26 +1372,26 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]), 0, 0);
-
+	        text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+		
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
-			/* Intro */
-			if (n == 0) roff(" is hurt by ", 0, 0);
-			else if (n < vn-1) roff(", ", 0, 0);
-			else if (n == 1) roff(" and ", 0, 0);
-			else roff(", and ", 0, 0);
-
+		        /* Intro */
+		        if (n == 0) text_out_to_screen(TERM_WHITE, " is hurt by ");
+			else if (n < vn-1) text_out_to_screen(TERM_WHITE, ", ");
+			else if (n == 1) text_out_to_screen(TERM_WHITE, " and ");
+			else text_out_to_screen(TERM_WHITE, ", and ");
+			
 			/* Dump */
-			c_roff(TERM_YELLOW, vp[n], 0, 0);
+			text_out_to_screen(TERM_YELLOW, vp[n]);
 		}
-
+      
 		/* End */
-		roff(".  ", 0, 0);
+		text_out_to_screen(TERM_WHITE, ".  ");
 	}
-
-
+	
+	
 	/* Collect immunities */
 	vn = 0;
 	if (flags3 & (RF3_IM_ACID)) vp[vn++] = "acid";
@@ -1396,23 +1404,23 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]), 0, 0);
-
+	        text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+      
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
-			/* Intro */
-			if (n == 0) roff(" resists ", 0, 0);
-			else if (n < vn-1) roff(", ", 0, 0);
-			else if (n == 1) roff(" and ", 0, 0);
-			else roff(", and ", 0, 0);
-
+		        /* Intro */
+		        if (n == 0) text_out_to_screen(TERM_WHITE, " resists ");
+			else if (n < vn-1) text_out_to_screen(TERM_WHITE, ", ");
+			else if (n == 1) text_out_to_screen(TERM_WHITE, " and ");
+			else text_out_to_screen(TERM_WHITE, ", and ");
+			
 			/* Dump */
-			c_roff(TERM_ORANGE, vp[n], 0, 0);
+			text_out_to_screen(TERM_ORANGE, vp[n]);
 		}
-
+		
 		/* End */
-		roff(".  ", 0, 0);
+		text_out_to_screen(TERM_WHITE, ".  ");
 	}
 
 
@@ -1421,7 +1429,7 @@ static void roff_aux(int r_idx)
 	vn = 0;
 	if (flags4 & (RF4_BRTH_LITE)) vp[vn++] = "light";
 	if ((flags4 & (RF4_BRTH_DARK)) || (flags2 & (RF2_MORGUL_MAGIC))
-		|| (flags3 & (RF3_ORC))) vp[vn++] = "darkness";
+	    || (flags3 & (RF3_ORC))) vp[vn++] = "darkness";
 
 	if (flags4 & (RF4_BRTH_CONFU)) vp[vn++] = "confusion";
 	if (flags4 & (RF4_BRTH_SOUND)) vp[vn++] = "sound";
@@ -1433,15 +1441,15 @@ static void roff_aux(int r_idx)
 		vp[vn++] = "water";
 
 	if ((flags4 & (RF4_BRTH_PLAS)) || (flags3 & (RF3_RES_PLAS)) ||
-		((vn) && ((flags3 & (RF3_IM_ELEC)) || (flags3 & (RF3_IM_FIRE)))) ||
-		prefix(name, "Plasma")) vp[vn++] = "plasma";
+	    ((vn) && ((flags3 & (RF3_IM_ELEC)) || (flags3 & (RF3_IM_FIRE)))) ||
+	    prefix(name, "Plasma")) vp[vn++] = "plasma";
 
 	if ((flags3 & (RF3_RES_NEXU)) || prefix(name, "Nexus") ||
-		(flags4 & (RF4_BRTH_NEXUS))) vp[vn++] = "nexus";
+	    (flags4 & (RF4_BRTH_NEXUS))) vp[vn++] = "nexus";
 	if ((flags3 & (RF3_UNDEAD)) || (flags3 & (RF3_RES_NETH)) ||
-		(flags4 & (RF4_BRTH_NETHR))) vp[vn++] = "nether";
+	    (flags4 & (RF4_BRTH_NETHR))) vp[vn++] = "nether";
 	if ((flags3 & (RF3_RES_DISE)) || (flags4 & (RF4_BRTH_DISEN)) ||
-		prefix(name, "Disen")) vp[vn++] = "disenchantment";
+	    prefix(name, "Disen")) vp[vn++] = "disenchantment";
 	if (flags4 & (RF4_BRTH_TIME)) vp[vn++] = "time";
 
 
@@ -1449,56 +1457,56 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]), 0, 0);
-
+	        text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+      
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
-			/* Intro */
-			if (n == 0) roff(" resists ", 0, 0);
-			else if (n < vn-1) roff(", ", 0, 0);
-			else if (n == 1) roff(" and ", 0, 0);
-			else roff(", and ", 0, 0);
-
+		        /* Intro */
+		        if (n == 0) text_out_to_screen(TERM_WHITE, " resists ");
+			else if (n < vn-1) text_out_to_screen(TERM_WHITE, ", ");
+			else if (n == 1) text_out_to_screen(TERM_WHITE, " and ");
+			else text_out_to_screen(TERM_WHITE, ", and ");
+			
 			/* Dump */
-			c_roff(TERM_ORANGE, vp[n], 0, 0);
+			text_out_to_screen(TERM_ORANGE, vp[n]);
 		}
-
+		
 		/* End */
-		roff(".  ", 0, 0);
+		text_out_to_screen(TERM_WHITE, ".  ");
 	}
 
 
 	/* Collect non-effects */
 	vn = 0;
 	if ((flags3 & (RF3_NO_STUN)) || (flags4 & (RF4_BRTH_SOUND)) ||
-		(flags4 & (RF4_BRTH_FORCE))) vp[vn++] = "stunned";
+	    (flags4 & (RF4_BRTH_FORCE))) vp[vn++] = "stunned";
 	if (flags3 & (RF3_NO_FEAR)) vp[vn++] = "frightened";
 	if ((flags3 & (RF3_NO_CONF)) || (flags4 & (RF4_BRTH_CONFU)) ||
-		(flags4 & (RF4_BRTH_CHAOS))) vp[vn++] = "confused";
+	    (flags4 & (RF4_BRTH_CHAOS))) vp[vn++] = "confused";
 	if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "slept";
 
 	/* Describe non-effects */
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]), 0, 0);
-
+	        text_out_to_screen(TERM_WHITE, format("%^s", wd_he[msex]));
+      
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
-			/* Intro */
-			if (n == 0) roff(" cannot be ", 0, 0);
-			else if (n < vn-1) roff(", ", 0, 0);
-			else if (n == 1) roff(" or ", 0, 0);
-			else roff(", or ", 0, 0);
-
+		        /* Intro */
+		        if (n == 0) text_out_to_screen(TERM_WHITE, " cannot be ");
+			else if (n < vn-1) text_out_to_screen(TERM_WHITE, ", ");
+			else if (n == 1) text_out_to_screen(TERM_WHITE, " or ");
+			else text_out_to_screen(TERM_WHITE, ", or ");
+			
 			/* Dump */
-			c_roff(TERM_YELLOW, vp[n], 0, 0);
+			text_out_to_screen(TERM_YELLOW, vp[n]);
 		}
-
+		
 		/* End */
-		roff(".  ", 0, 0);
+		text_out_to_screen(TERM_WHITE, ".  ");
 	}
 
 
@@ -1554,12 +1562,13 @@ static void roff_aux(int r_idx)
 			act = "is ever vigilant for";
 		}
 
-		roff(format("%^s %s intruders, which %s may notice from ",
-			    wd_he[msex], act, wd_he[msex]), 0, 0);
-		c_roff(TERM_WHITE, format("%d feet.  ",
-			    10 * r_ptr->aaf), 0, 0);
+		text_out_to_screen(TERM_WHITE, format("%^s %s intruders, which %s may notice from ",
+						      wd_he[msex], act, wd_he[msex]));
+		text_out_to_screen(TERM_WHITE, 
+				   format("%d feet.  ", 
+					  (adult_small_device ? 5 : 10) * r_ptr->aaf));
 	}
-
+	
 
 	/* Drops gold and/or items */
 	if (l_ptr->drop_gold || l_ptr->drop_item)
@@ -1568,7 +1577,7 @@ static void roff_aux(int r_idx)
 		sin = FALSE;
 
 		/* Intro */
-		roff(format("%^s may carry", wd_he[msex]), 0, 0);
+		text_out_to_screen(TERM_WHITE, format("%^s may carry", wd_he[msex]));
 
 		/* Count maximum drop */
 		n = MAX(l_ptr->drop_gold, l_ptr->drop_item);
@@ -1576,20 +1585,20 @@ static void roff_aux(int r_idx)
 		/* One drop (may need an "n") */
 		if (n == 1)
 		{
-			roff(" a", 0, 0);
+			text_out_to_screen(TERM_WHITE, " a");
 			sin = TRUE;
 		}
 
 		/* Two drops */
 		else if (n == 2)
 		{
-			roff(" one or two", 0, 0);
+			text_out_to_screen(TERM_WHITE, " one or two");
 		}
 
 		/* Many drops */
 		else
 		{
-			roff(format(" up to %d", n), 0, 0);
+			text_out_to_screen(TERM_WHITE, format(" up to %d", n));
 		}
 
 
@@ -1623,14 +1632,14 @@ static void roff_aux(int r_idx)
 		if (l_ptr->drop_item)
 		{
 			/* Handle singular "an" */
-			if ((sin) && (!(r_ptr->flags1 & (RF1_DROP_CHEST)))) roff("n", 0, 0);
+			if ((sin) && (!(r_ptr->flags1 & (RF1_DROP_CHEST)))) text_out_to_screen(TERM_WHITE, "n");
 			sin = FALSE;
 
 			/* Dump "object(s)" */
-			if (p) roff(p, 0, 0);
-			if (r_ptr->flags1 & (RF1_DROP_CHEST)) roff(" chest", 0, 0);
-			else roff(" object", 0, 0);
-			if (n != 1) roff("s", 0, 0);
+			if (p) text_out_to_screen(TERM_WHITE, p);
+			if (r_ptr->flags1 & (RF1_DROP_CHEST)) text_out_to_screen(TERM_WHITE, " chest");
+			else text_out_to_screen(TERM_WHITE, " object");
+			if (n != 1) text_out_to_screen(TERM_WHITE, "s");
 
 			/* Conjunction replaces variety, if needed for "gold" below */
 			p = " or";
@@ -1643,17 +1652,17 @@ static void roff_aux(int r_idx)
 			if (!p) sin = FALSE;
 
 			/* Handle singular "an" */
-			if (sin) roff("n", 0, 0);
+			if (sin) text_out_to_screen(TERM_WHITE, "n");
 			sin = FALSE;
 
 			/* Dump "treasure(s)" */
-			if (p) roff(p, 0, 0);
-			roff(" treasure", 0, 0);
-			if (n != 1) roff("s", 0, 0);
+			if (p) text_out_to_screen(TERM_WHITE, p);
+			text_out_to_screen(TERM_WHITE, " treasure");
+			if (n != 1) text_out_to_screen(TERM_WHITE, "s");
 		}
 
 		/* End this sentence */
-		roff(".  ", 0, 0);
+		text_out_to_screen(TERM_WHITE, ".  ");
 	}
 
 
@@ -1692,30 +1701,30 @@ static void roff_aux(int r_idx)
 		/* Acquire the method */
 		switch (method)
 		{
-			case RBM_HIT:	p = "hit"; break;
-			case RBM_TOUCH:	p = "touch"; break;
-			case RBM_PUNCH:	p = "punch"; break;
-			case RBM_KICK:	p = "kick"; break;
-			case RBM_CLAW:	p = "claw"; break;
-			case RBM_BITE:	p = "bite"; break;
-			case RBM_STING:	p = "sting"; break;
-			case RBM_XXX1:	break;
-			case RBM_BUTT:	p = "butt"; break;
-			case RBM_CRUSH:	p = "crush"; break;
-			case RBM_ENGULF:	p = "engulf"; break;
-			case RBM_XXX2:	break;
-			case RBM_CRAWL:	p = "crawl on you"; break;
-			case RBM_DROOL:	p = "drool on you"; break;
-			case RBM_SPIT:	p = "spit"; break;
-			case RBM_XXX3:	break;
-			case RBM_GAZE:	p = "gaze"; break;
-			case RBM_WAIL:	p = "wail"; break;
-			case RBM_SPORE:	p = "release spores"; break;
-			case RBM_XXX4:	break;
-			case RBM_BEG:	p = "beg"; break;
-			case RBM_INSULT:	p = "insult"; break;
-			case RBM_SNEER:	p = "sneer"; break;
-			case RBM_REQUEST:	p = "offer to trade"; break;
+		case RBM_HIT:	p = "hit"; break;
+		case RBM_TOUCH:	p = "touch"; break;
+		case RBM_PUNCH:	p = "punch"; break;
+		case RBM_KICK:	p = "kick"; break;
+		case RBM_CLAW:	p = "claw"; break;
+		case RBM_BITE:	p = "bite"; break;
+		case RBM_STING:	p = "sting"; break;
+		case RBM_XXX1:	break;
+		case RBM_BUTT:	p = "butt"; break;
+		case RBM_CRUSH:	p = "crush"; break;
+		case RBM_ENGULF:	p = "engulf"; break;
+		case RBM_XXX2:	break;
+		case RBM_CRAWL:	p = "crawl on you"; break;
+		case RBM_DROOL:	p = "drool on you"; break;
+		case RBM_SPIT:	p = "spit"; break;
+		case RBM_XXX3:	break;
+		case RBM_GAZE:	p = "gaze"; break;
+		case RBM_WAIL:	p = "wail"; break;
+		case RBM_SPORE:	p = "release spores"; break;
+		case RBM_XXX4:	break;
+		case RBM_BEG:	p = "beg"; break;
+		case RBM_INSULT:	p = "insult"; break;
+		case RBM_SNEER:	p = "sneer"; break;
+		case RBM_REQUEST:	p = "offer to trade"; break;
 		}
 
 
@@ -1725,49 +1734,49 @@ static void roff_aux(int r_idx)
 		/* Acquire the effect */
 		switch (effect)
 		{
-			case RBE_HURT:	q = "attack"; break;
-			case RBE_POISON:	q = "poison"; break;
-			case RBE_UN_BONUS:	q = "disenchant"; break;
-			case RBE_UN_POWER:	q = "drain charges"; break;
-			case RBE_EAT_GOLD:	q = "steal gold"; break;
-			case RBE_EAT_ITEM:	q = "steal items"; break;
-			case RBE_EAT_FOOD:	q = "eat your food"; break;
-			case RBE_EAT_LITE:	q = "absorb light"; break;
-			case RBE_ACID:	q = "shoot acid"; break;
-			case RBE_ELEC:	q = "electrify"; break;
-			case RBE_FIRE:	q = "burn"; break;
-			case RBE_COLD:	q = "freeze"; break;
-			case RBE_BLIND:	q = "blind"; break;
-			case RBE_CONFUSE:	q = "confuse"; break;
-			case RBE_TERRIFY:	q = "terrify"; break;
-			case RBE_PARALYZE:	q = "paralyze"; break;
-			case RBE_LOSE_STR:	q = "reduce strength"; break;
-			case RBE_LOSE_INT:	q = "reduce intelligence"; break;
-			case RBE_LOSE_WIS:	q = "reduce wisdom"; break;
-			case RBE_LOSE_DEX:	q = "reduce dexterity"; break;
-			case RBE_LOSE_CON:	q = "reduce constitution"; break;
-			case RBE_LOSE_CHR:	q = "reduce charisma"; break;
-			case RBE_LOSE_ALL:	q = "reduce all stats"; break;
-			case RBE_SHATTER:	q = "shatter"; break;
-			case RBE_EXP_10:	q = "lower experience (by 10d6+)"; break;
-			case RBE_EXP_20:	q = "lower experience (by 20d6+)"; break;
-			case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
-			case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
+		case RBE_HURT:	q = "attack"; break;
+		case RBE_POISON:	q = "poison"; break;
+		case RBE_UN_BONUS:	q = "disenchant"; break;
+		case RBE_UN_POWER:	q = "drain charges"; break;
+		case RBE_EAT_GOLD:	q = "steal gold"; break;
+		case RBE_EAT_ITEM:	q = "steal items"; break;
+		case RBE_EAT_FOOD:	q = "eat your food"; break;
+		case RBE_EAT_LITE:	q = "absorb light"; break;
+		case RBE_ACID:	q = "shoot acid"; break;
+		case RBE_ELEC:	q = "electrify"; break;
+		case RBE_FIRE:	q = "burn"; break;
+		case RBE_COLD:	q = "freeze"; break;
+		case RBE_BLIND:	q = "blind"; break;
+		case RBE_CONFUSE:	q = "confuse"; break;
+		case RBE_TERRIFY:	q = "terrify"; break;
+		case RBE_PARALYZE:	q = "paralyze"; break;
+		case RBE_LOSE_STR:	q = "reduce strength"; break;
+		case RBE_LOSE_INT:	q = "reduce intelligence"; break;
+		case RBE_LOSE_WIS:	q = "reduce wisdom"; break;
+		case RBE_LOSE_DEX:	q = "reduce dexterity"; break;
+		case RBE_LOSE_CON:	q = "reduce constitution"; break;
+		case RBE_LOSE_CHR:	q = "reduce charisma"; break;
+		case RBE_LOSE_ALL:	q = "reduce all stats"; break;
+		case RBE_SHATTER:	q = "shatter"; break;
+		case RBE_EXP_10:	q = "lower experience (by 10d6+)"; break;
+		case RBE_EXP_20:	q = "lower experience (by 20d6+)"; break;
+		case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
+		case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
 		}
 
 
 		/* Introduce the attack description */
 		if (!r)
 		{
-			roff(format("%^s can ", wd_he[msex]), 0, 0);
+			text_out_to_screen(TERM_WHITE, format("%^s can ", wd_he[msex]));
 		}
 		else if (r < n-1)
 		{
-			roff(", ", 0, 0);
+			text_out_to_screen(TERM_WHITE, ", ");
 		}
 		else
 		{
-			roff(", and ", 0, 0);
+			text_out_to_screen(TERM_WHITE, ", and ");
 		}
 
 
@@ -1775,22 +1784,22 @@ static void roff_aux(int r_idx)
 		if (!p) p = "do something weird";
 
 		/* Describe the method */
-		roff(p, 0, 0);
+		text_out_to_screen(TERM_WHITE, p);
 
 
 		/* Describe the effect (if any) */
 		if (q)
 		{
 			/* Describe the attack type */
-			roff(" to ", 0, 0);
-			c_roff(TERM_L_RED, q, 0, 0);
+			text_out_to_screen(TERM_WHITE, " to ");
+			text_out_to_screen(TERM_L_RED, q);
 
 			/* Describe damage (if known) */
 			if (d1 && d2 && know_damage(r_idx, m))
 			{
 				/* Display the damage */
-				roff(" with damage", 0, 0);
-				c_roff(TERM_GREEN, format(" %dd%d", d1, d2), 0, 0);
+				text_out_to_screen(TERM_WHITE, " with damage");
+				text_out_to_screen(TERM_GREEN, format(" %dd%d", d1, d2));
 			}
 		}
 
@@ -1802,23 +1811,23 @@ static void roff_aux(int r_idx)
 	/* Finish sentence above */
 	if (r)
 	{
-		roff(".  ", 0, 0);
+		text_out_to_screen(TERM_WHITE, ".  ");
 	}
 
 	/* Notice lack of attacks */
 	else if (flags1 & (RF1_NEVER_BLOW))
 	{
-		roff(format("%^s has no physical attacks.  ", wd_he[msex]), 0, 0);
+		text_out_to_screen(TERM_WHITE, format("%^s has no physical attacks.  ", wd_he[msex]));
 	}
 
 	/* Or describe the lack of knowledge */
 	else
 	{
-		roff(format("Nothing is known about %s attack.  ", wd_his[msex]), 0, 0);
+		text_out_to_screen(TERM_WHITE, format("Nothing is known about %s attack.  ", wd_his[msex]));
 	}
 
 	/* All done */
-	roff("\n", 0, 0);
+	text_out_to_screen(TERM_WHITE, "\n");
 
 	/* Cheat -- know everything */
 	if ((cheat_know) || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
@@ -1874,15 +1883,19 @@ static void roff_top(int r_idx)
 	/* For all other monsters, dump the racial name. */
 	else Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
 
-	/* Append the "standard" attr/char info */
-	Term_addstr(-1, TERM_WHITE, " ('");
-	Term_addch(a1, c1);
-	Term_addstr(-1, TERM_WHITE, "')");
-
-	/* Append the "optional" attr/char info */
-	Term_addstr(-1, TERM_WHITE, "/('");
-	Term_addch(a2, c2);
-	Term_addstr(-1, TERM_WHITE, "'):");
+	if (!use_dbltile && !use_trptile)
+	{
+	        /* Append the "standard" attr/char info */
+	        Term_addstr(-1, TERM_WHITE, " ('");
+		Term_addch(a1, c1);
+		Term_addstr(-1, TERM_WHITE, "')");
+		
+		/* Append the "optional" attr/char info */
+		Term_addstr(-1, TERM_WHITE, "/('");
+		Term_addch(a2, c2);
+		if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
+		Term_addstr(-1, TERM_WHITE, "'):");
+	}
 }
 
 
@@ -1944,147 +1957,147 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 	switch(ghost_race)
 	{
 		/* Human */
-		case 0:
-		{
-			/* No differences */
-			break;
-		}
-		/* Half-Elf */
-		case 1:
-		{
-			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 3;
-			r_ptr->aaf += 2;
-			r_ptr->hdice = 6 * r_ptr->hdice / 7;
-			break;
-		}
-		/* Elf */
-		case 2:
-		{
-			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 5;
-			r_ptr->aaf += 4;
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-			if (r_ptr->flags3 & (RF3_HURT_LITE))
-				r_ptr->flags3 &= ~(RF3_HURT_LITE);
-			break;
-		}
-		/* Hobbit */
-		case 3:
-		{
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+	case 0:
+	{
+		/* No differences */
+		break;
+	}
+	/* Half-Elf */
+	case 1:
+	{
+		if (r_ptr->freq_ranged) r_ptr->freq_ranged += 3;
+		r_ptr->aaf += (adult_small_device ? 1 : 2);
+		r_ptr->hdice = 6 * r_ptr->hdice / 7;
+		break;
+	}
+	/* Elf */
+	case 2:
+	{
+		if (r_ptr->freq_ranged) r_ptr->freq_ranged += 5;
+		r_ptr->aaf += (adult_small_device ? 2 : 4);
+		r_ptr->hdice = 4 * r_ptr->hdice / 5;
+		if (r_ptr->flags3 & (RF3_HURT_LITE))
+			r_ptr->flags3 &= ~(RF3_HURT_LITE);
+		break;
+	}
+	/* Hobbit */
+	case 3:
+	{
+		r_ptr->hdice = 4 * r_ptr->hdice / 5;
 
-			for (n = 1; n < 3; n++)
+		for (n = 1; n < 3; n++)
+		{
+			if (r_ptr->blow[n].effect == RBE_HURT)
 			{
-				if (r_ptr->blow[n].effect == RBE_HURT)
-				{
-					if (n == 1) r_ptr->blow[n].effect = RBE_EAT_GOLD;
-					if (n == 2) r_ptr->blow[n].effect = RBE_EAT_ITEM;
-					break;
-				}
+				if (n == 1) r_ptr->blow[n].effect = RBE_EAT_GOLD;
+				if (n == 2) r_ptr->blow[n].effect = RBE_EAT_ITEM;
+				break;
 			}
-
-			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 4;
-
-			r_ptr->flags4 |= (RF4_SHOT);
-
-			break;
 		}
-		/* Gnome */
-		case 4:
+
+		if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 4;
+
+		r_ptr->flags4 |= (RF4_SHOT);
+
+		break;
+	}
+	/* Gnome */
+	case 4:
+	{
+		r_ptr->flags6 |= (RF6_BLINK);
+		r_ptr->flags3 |= (RF3_NO_SLEEP);
+		r_ptr->hdice = 5 * r_ptr->hdice / 6;
+		break;
+	}
+	/* Dwarf */
+	case 5:
+	{
+		r_ptr->hdice = 6 * r_ptr->hdice / 5;
+		break;
+	}
+	/* Half-Orc */
+	case 6:
+	{
+		r_ptr->flags3 |= (RF3_ORC);
+		break;
+	}
+	/* Half-Troll */
+	case 7:
+	{
+		if (!r_ptr->freq_ranged) r_ptr->freq_ranged = 5;
+		if (r_ptr->freq_ranged > 5)
+			r_ptr->freq_ranged = 2 * r_ptr->freq_ranged / 3;
+
+		r_ptr->flags4 |= (RF4_BOULDER);
+		r_ptr->flags3 |= (RF3_TROLL);
+
+		r_ptr->hdice = 3 * r_ptr->hdice / 2;
+		r_ptr->aaf -= (adult_small_device ? 1 : 2);
+
+		r_ptr->ac += r_ptr->level / 10 + 10;
+
+		m_ptr->mspeed -= 2;
+
+		for (n = 0; n < 4; n++)
 		{
-			r_ptr->flags6 |= (RF6_BLINK);
-			r_ptr->flags3 |= (RF3_NO_SLEEP);
-			r_ptr->hdice = 5 * r_ptr->hdice / 6;
-			break;
+			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
 		}
-		/* Dwarf */
-		case 5:
+
+		break;
+	}
+	/* Dunadan */
+	case 8:
+	{
+		r_ptr->ac += r_ptr->level / 10 + 5;
+
+		for (n = 0; n < 4; n++)
 		{
-			r_ptr->hdice = 6 * r_ptr->hdice / 5;
-			break;
+			if ((n == 1) || (n == 3))
+				r_ptr->blow[n].d_side = 6 * r_ptr->blow[n].d_side / 5;
 		}
-		/* Half-Orc */
-		case 6:
-		{
-			r_ptr->flags3 |= (RF3_ORC);
-			break;
-		}
-		/* Half-Troll */
-		case 7:
-		{
-			if (!r_ptr->freq_ranged) r_ptr->freq_ranged = 5;
-			if (r_ptr->freq_ranged > 5)
-				r_ptr->freq_ranged = 2 * r_ptr->freq_ranged / 3;
+		break;
+	}
+	/* High-Elf */
+	case 9:
+	{
+		r_ptr->ac += r_ptr->level / 10 + 2;
 
-			r_ptr->flags4 |= (RF4_BOULDER);
-			r_ptr->flags3 |= (RF3_TROLL);
+		if (r_ptr->freq_ranged) r_ptr->freq_ranged += 8;
+		r_ptr->aaf += (adult_small_device ? 2 : 5);
+		if (r_ptr->flags3 & (RF3_HURT_LITE))
+			r_ptr->flags3 &= ~(RF3_HURT_LITE);
+		break;
+	}
 
-			r_ptr->hdice = 3 * r_ptr->hdice / 2;
-			r_ptr->aaf -= 2;
+	/* Maia */
+	case 10:
+	{
+		if (r_ptr->freq_ranged) r_ptr->freq_ranged += 5;
+		r_ptr->ac += r_ptr->level / 10 + 5;
+		r_ptr->aaf += (adult_small_device ? 2 : 4);
+		r_ptr->hdice = 5 * r_ptr->hdice / 4;
+		break;
+	}
 
-			r_ptr->ac += r_ptr->level / 10 + 10;
+	/* Shadow Fairy */
+	case 11:
+	{
+		if (r_ptr->level < 15) r_ptr->flags6 |= (RF6_BLIND);
+		else r_ptr->flags2 |= (RF2_INVISIBLE);
+		r_ptr->hdice = 3 * r_ptr->hdice / 4;
+		r_ptr->flags3 |= (RF3_HURT_LITE);
+		break;
+	}
 
-			m_ptr->mspeed -= 2;
-
-			for (n = 0; n < 4; n++)
-			{
-				r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
-			}
-
-			break;
-		}
-		/* Dunadan */
-		case 8:
-		{
-			r_ptr->ac += r_ptr->level / 10 + 5;
-
-			for (n = 0; n < 4; n++)
-			{
-				if ((n == 1) || (n == 3))
-					r_ptr->blow[n].d_side = 6 * r_ptr->blow[n].d_side / 5;
-			}
-			break;
-		}
-		/* High-Elf */
-		case 9:
-		{
-			r_ptr->ac += r_ptr->level / 10 + 2;
-
-			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 8;
-			r_ptr->aaf += 5;
-			if (r_ptr->flags3 & (RF3_HURT_LITE))
-				r_ptr->flags3 &= ~(RF3_HURT_LITE);
-			break;
-		}
-
-		/* Maia */
-		case 10:
-		{
-			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 5;
-			r_ptr->ac += r_ptr->level / 10 + 5;
-			r_ptr->aaf += 4;
-			r_ptr->hdice = 5 * r_ptr->hdice / 4;
-			break;
-		}
-
-		/* Shadow Fairy */
-		case 11:
-		{
-			if (r_ptr->level < 15) r_ptr->flags6 |= (RF6_BLIND);
-			else r_ptr->flags2 |= (RF2_INVISIBLE);
-			r_ptr->hdice = 3 * r_ptr->hdice / 4;
-			r_ptr->flags3 |= (RF3_HURT_LITE);
-			break;
-		}
-
-		/* Ent */
-		case 12:
-		{
-			r_ptr->flags3 |= (RF3_ANIMAL);
-			r_ptr->hdice = 4 * r_ptr->hdice / 3;
-			if (r_ptr->flags3 & (RF3_IM_FIRE))
-				r_ptr->flags3 &= ~(RF3_IM_FIRE);
-			break;
-		}
+	/* Ent */
+	case 12:
+	{
+		r_ptr->flags3 |= (RF3_ANIMAL);
+		r_ptr->hdice = 4 * r_ptr->hdice / 3;
+		if (r_ptr->flags3 & (RF3_IM_FIRE))
+			r_ptr->flags3 &= ~(RF3_IM_FIRE);
+		break;
+	}
 	}
 }
 
@@ -2103,330 +2116,330 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 	switch(ghost_class)
 	{
 		/* Warrior */
-		case 0:
+	case 0:
+	{
+		if (r_ptr->freq_ranged <= 10) r_ptr->freq_ranged = 5;
+		else r_ptr->freq_ranged -= 5;
+
+		if ((dun_level > 24) && (r_ptr->freq_ranged))
+			r_ptr->flags4 |= (RF4_BOLT);
+		if ((dun_level > 54) && (r_ptr->freq_ranged))
+			r_ptr->flags2 |= (RF2_ARCHER);
+
+		r_ptr->spell_power = 2 * r_ptr->spell_power / 3;
+
+		r_ptr->hdice = 4 * r_ptr->hdice / 3;
+		r_ptr->ac += r_ptr->level / 10 + 5;
+
+		for (n = 0; n < 4; n++)
 		{
-			if (r_ptr->freq_ranged <= 10) r_ptr->freq_ranged = 5;
-			else r_ptr->freq_ranged -= 5;
+			r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
+		}
 
-			if ((dun_level > 24) && (r_ptr->freq_ranged))
-				r_ptr->flags4 |= (RF4_BOLT);
-			if ((dun_level > 54) && (r_ptr->freq_ranged))
-				r_ptr->flags2 |= (RF2_ARCHER);
+		break;
+	}
+	/* Mage */
+	case 1:
+	{
+		if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
+		else r_ptr->freq_ranged += 10;
 
-			r_ptr->spell_power = 2 * r_ptr->spell_power / 3;
+		if (r_ptr->flags4 & (RF4_SHOT)) r_ptr->flags4 &= ~(RF4_SHOT);
+		if (r_ptr->flags4 & (RF4_ARROW)) r_ptr->flags4 &= ~(RF4_ARROW);
+		if (r_ptr->flags4 & (RF4_BOLT)) r_ptr->flags4 &= ~(RF4_BOLT);
 
-			r_ptr->hdice = 4 * r_ptr->hdice / 3;
-			r_ptr->ac += r_ptr->level / 10 + 5;
+		r_ptr->flags5 |= (RF5_BOLT_MANA);
 
+		if (dun_level > 11) r_ptr->flags5 |= (RF5_BALL_POIS);
+		if ((dun_level > 13) && (dun_level < 25))
+			r_ptr->flags5 |= (RF5_BOLT_ELEC);
+		if ((dun_level > 16) && (dun_level < 35))
+			r_ptr->flags5 |= (RF5_BEAM_ICE);
+		if (dun_level > 24) r_ptr->flags5 |= (RF5_BALL_ELEC);
+		if (dun_level > 34) r_ptr->flags5 |= (RF5_BALL_COLD);
+		if (dun_level > 44) r_ptr->flags5 |= (RF5_BALL_ACID);
+		if (dun_level > 64) r_ptr->flags5 |= (RF5_BALL_MANA);
+
+		if (dun_level > 19) r_ptr->flags6 |= (RF6_SLOW);
+		if (dun_level > 39) r_ptr->flags6 |= (RF6_HOLD);
+
+		if (dun_level > 19) r_ptr->flags6 |= (RF6_HASTE);
+		if (dun_level > 39) m_ptr->mspeed += 5;
+		if (m_ptr->mspeed > 130) m_ptr->mspeed = 130;
+
+		r_ptr->flags6 |= (RF6_BLINK);
+		r_ptr->flags6 |= (RF6_BLIND);
+		if (dun_level > 26) r_ptr->flags6 |= (RF6_TPORT);
+		if (dun_level > 55) r_ptr->flags6 |= (RF6_TELE_AWAY);
+
+		r_ptr->hdice = 3 * r_ptr->hdice / 4;
+
+		for (n = 0; n < 4; n++)
+		{
+			r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+		}
+
+		r_ptr->mana = 3*(r_ptr->mana/2);
+
+		break;
+	}
+	/* Priest */
+	case 2:
+	{
+		if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
+		else r_ptr->freq_ranged += 5;
+
+		r_ptr->flags6 |= (RF6_WOUND);
+		if (dun_level > 34) r_ptr->flags5 |= (RF5_BALL_LITE);
+		if (dun_level > 64) r_ptr->flags5 |= (RF5_BEAM_NETHR);
+
+		if (dun_level > 29) r_ptr->flags6 |= (RF6_BLINK);
+
+		r_ptr->flags6 |= (RF6_SCARE);
+		if (dun_level > 44) r_ptr->flags6 |= (RF6_HOLD);
+		if (dun_level > 54) r_ptr->flags6 |= (RF6_FORGET);
+
+		r_ptr->flags6 |= (RF6_HEAL);
+		if (dun_level > 24) r_ptr->flags6 |= (RF6_CURE);
+
+		if (dun_level > 29) r_ptr->flags7 |= (RF7_S_MONSTER);
+		if (dun_level > 49) r_ptr->flags7 |= (RF7_S_MONSTERS);
+
+		r_ptr->hdice = 4 * r_ptr->hdice / 5;
+
+		r_ptr->mana = 4*(r_ptr->mana/3);
+
+		break;
+	}
+	/* Rogue */
+	case 3:
+	{
+		if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 8;
+
+		if (dun_level > 24) r_ptr->flags6 |= (RF6_HASTE);
+		if (dun_level > 34) m_ptr->mspeed += 5;
+		if (m_ptr->mspeed > 130) m_ptr->mspeed = 130;
+
+		r_ptr->hdice = 4 * r_ptr->hdice / 5;
+
+		if (dun_level > 11) r_ptr->flags4 |= (RF4_SHOT);
+		if ((dun_level > 44) && (r_ptr->freq_ranged))
+			r_ptr->flags2 |= (RF2_ARCHER);
+
+		if (dun_level > 24) r_ptr->flags5 |= (RF5_BALL_POIS);
+
+		r_ptr->flags6 |= (RF6_DARKNESS);
+		if (dun_level > 16) r_ptr->flags6 |= (RF6_TRAPS);
+		if (dun_level > 34) r_ptr->flags6 |= (RF6_TELE_TO);
+		if (dun_level > 19) r_ptr->flags6 |= (RF6_BLINK);
+		if (dun_level > 24) r_ptr->flags6 |= (RF6_BLIND);
+
+		if (dun_level > 39) r_ptr->flags2 |= (RF2_EMPTY_MIND);
+		else if (dun_level > 19)
+			r_ptr->flags2 |= (RF2_WEIRD_MIND);
+
+		if (dun_level > 39) r_ptr->flags2 |= (RF2_INVISIBLE);
+
+		if (dun_level > 44) r_ptr->flags7 |= (RF7_S_THIEF);
+
+		if (r_ptr->blow[0].effect == RBE_HURT)
+		{
+			r_ptr->blow[0].effect = RBE_EAT_GOLD;
+		}
+		if (r_ptr->blow[1].effect == RBE_HURT)
+		{
+			r_ptr->blow[2].effect = RBE_EAT_ITEM;
+		}
+
+		r_ptr->mana = 5*(r_ptr->mana/4);
+
+		break;
+	}
+	/* Ranger */
+	case 4:
+	{
+		if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 8;
+		r_ptr->aaf += (adult_small_device ? 2 : 5);
+
+		r_ptr->flags4 |= (RF4_ARROW);
+		if ((dun_level > 24) && (r_ptr->freq_ranged))
+			r_ptr->flags2 |= (RF2_ARCHER);
+
+		r_ptr->flags6 |= (RF6_BLINK);
+		if (dun_level > 34) r_ptr->flags6 |= (RF6_CURE);
+		if (dun_level > 44) r_ptr->flags6 |= (RF6_HOLD);
+		if (dun_level > 54) r_ptr->flags6 |= (RF6_HEAL);
+
+		r_ptr->mana = 5*(r_ptr->mana/4);
+
+		break;
+	}
+	/* Paladin */
+	case 5:
+	{
+		if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 8;
+
+		if (r_ptr->flags4 & (RF4_SHOT)) r_ptr->flags4 &= ~(RF4_SHOT);
+		if (r_ptr->flags4 & (RF4_ARROW)) r_ptr->flags4 &= ~(RF4_ARROW);
+		if (r_ptr->flags4 & (RF4_BOLT)) r_ptr->flags4 &= ~(RF4_BOLT);
+
+		if (dun_level > 59) r_ptr->flags5 |= (RF5_BALL_LITE);
+
+		r_ptr->flags4 |= (RF4_SHRIEK);
+		r_ptr->flags6 |= (RF6_SCARE);
+		if (dun_level > 5) r_ptr->flags6 |= (RF6_WOUND);
+		if (dun_level > 24) r_ptr->flags6 |= (RF6_CURE);
+		if (dun_level > 29) r_ptr->flags6 |= (RF6_HEAL);
+		if (dun_level > 34) r_ptr->flags6 |= (RF6_BLINK);
+		if (dun_level > 44) r_ptr->flags6 |= (RF6_HOLD);
+
+		r_ptr->flags3 |= (RF3_IM_FIRE |
+				  RF3_IM_COLD | RF3_IM_ELEC | RF3_IM_ACID);
+
+		r_ptr->mana = 5*(r_ptr->mana/4);
+
+		break;
+	}
+	/* Druid */
+	case 6:
+	{
+		if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
+		else r_ptr->freq_ranged += 5;
+
+		if (dun_level > 29) r_ptr->flags5 |= (RF5_BALL_ELEC);
+		else r_ptr->flags5 |= (RF5_BEAM_ELEC);
+
+		if (dun_level > 34) r_ptr->flags5 |= (RF5_BALL_COLD);
+		else if (dun_level > 9) r_ptr->flags5 |= (RF5_BOLT_COLD);
+
+		if (dun_level > 39) r_ptr->flags5 |= (RF5_BALL_FIRE);
+		else if (dun_level > 14) r_ptr->flags5 |= (RF5_BOLT_FIRE);
+
+		if (dun_level > 39) r_ptr->flags5 |= (RF5_BALL_ACID);
+		else if (dun_level > 19) r_ptr->flags5 |= (RF5_BOLT_ACID);
+
+		if (dun_level > 44) r_ptr->flags5 |= (RF5_BALL_POIS);
+		else if (dun_level > 24) r_ptr->flags5 |= (RF5_BOLT_POIS);
+
+		if (dun_level > 29) r_ptr->flags5 |= (RF5_BOLT_PLAS);
+
+		if (dun_level > 49) r_ptr->flags5 |= (RF5_BALL_STORM);
+		else if (dun_level > 34) r_ptr->flags5 |= (RF5_BOLT_WATER);
+
+		if (dun_level > 54) r_ptr->flags5 |= (RF5_BALL_SOUND);
+		if (dun_level > 54) r_ptr->flags5 |= (RF5_BALL_SHARD);
+		if (dun_level > 59) r_ptr->flags5 |= (RF5_ARC__FORCE);
+
+		if (dun_level > 24) r_ptr->flags6 |= (RF6_CURE);
+		if (dun_level > 54) r_ptr->flags6 |= (RF6_HEAL);
+
+		if (dun_level < 40) r_ptr->flags7 |= (RF7_S_ANT);
+		if (dun_level < 40) r_ptr->flags7 |= (RF7_S_SPIDER);
+		if (dun_level > 20) r_ptr->flags7 |= (RF7_S_ANIMAL);
+		if (dun_level > 20) r_ptr->flags7 |= (RF7_S_HOUND);
+
+		r_ptr->hdice = 4 * r_ptr->hdice / 5;
+
+		r_ptr->mana = 4*(r_ptr->mana/3);
+
+		break;
+	}
+	/* Necromancer */
+	case 7:
+	{
+		if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
+		else r_ptr->freq_ranged += 10;
+
+		if (dun_level > 49) r_ptr->flags2 |= (RF2_MORGUL_MAGIC);
+
+		r_ptr->flags5 |= (RF5_BOLT_MANA);
+		r_ptr->flags6 |= (RF6_WOUND);
+		r_ptr->flags6 |= (RF6_DARKNESS);
+
+		if (dun_level > 4) r_ptr->flags5 |= (RF5_BALL_POIS);
+		if (dun_level > 14) r_ptr->flags5 |= (RF5_BALL_DARK);
+		if (dun_level > 44) r_ptr->flags5 |= (RF5_BALL_NETHR);
+		if (dun_level > 54) r_ptr->flags5 |= (RF5_BALL_MANA);
+		if (dun_level > 54) r_ptr->flags5 |= (RF5_ARC__HFIRE);
+
+		if (dun_level > 9) r_ptr->flags6 |= (RF6_BLINK);
+		if (dun_level > 9) r_ptr->flags6 |= (RF6_BLIND);
+		if (dun_level > 9) r_ptr->flags6 |= (RF6_SCARE);
+		if (dun_level > 19) r_ptr->flags6 |= (RF6_CONF);
+		if (dun_level > 29) r_ptr->flags6 |= (RF6_TPORT);
+		if (dun_level > 39) r_ptr->flags6 |= (RF6_HOLD);
+
+		if (dun_level > 49) r_ptr->flags6 |= (RF6_BRAIN_SMASH);
+		else if (dun_level > 29) r_ptr->flags6 |= (RF6_MIND_BLAST);
+
+		if (dun_level > 19) r_ptr->flags7 |= (RF7_S_DEMON);
+		if (dun_level > 69) r_ptr->flags7 |= (RF7_S_HI_DEMON);
+		if (dun_level > 29) r_ptr->flags7 |= (RF7_S_UNDEAD);
+		if (dun_level > 79) r_ptr->flags7 |= (RF7_S_HI_UNDEAD);
+
+		r_ptr->hdice = 3 * r_ptr->hdice / 4;
+
+		for (n = 0; n < 4; n++)
+		{
+			r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+		}
+
+		r_ptr->mana = 3*(r_ptr->mana/2);
+
+		break;
+	}
+	/* Assassin */
+	case 8:
+	{
+		if ((dun_level > 9) && (r_ptr->freq_ranged == 0))
+			r_ptr->freq_ranged = 6;
+		else r_ptr->freq_ranged = 3 * r_ptr->freq_ranged / 4;
+
+		if ((dun_level > 11) && (dun_level < 45))
+			r_ptr->flags4 |= (RF4_MISSL);
+		if (dun_level > 44) r_ptr->flags4 |= (RF4_PMISSL);
+
+		if (dun_level > 49) r_ptr->flags2 |= (RF2_ARCHER);
+		if (dun_level > 54) r_ptr->flags2 |= (RF2_MORGUL_MAGIC);
+
+		if (dun_level > 14) r_ptr->flags5 |= (RF5_BOLT_POIS);
+		if (dun_level > 24) r_ptr->flags5 |= (RF5_BOLT_MANA);
+		if (dun_level > 54) r_ptr->flags5 |= (RF5_BOLT_NETHR);
+
+		if (dun_level > 9) r_ptr->flags6 |= (RF6_DARKNESS);
+		if (dun_level > 14) r_ptr->flags6 |= (RF6_SCARE);
+		if (dun_level > 14) r_ptr->flags6 |= (RF6_SLOW);
+		if (dun_level > 24) r_ptr->flags6 |= (RF6_BLINK);
+		if (dun_level > 29) r_ptr->flags6 |= (RF6_BLIND);
+		if (dun_level > 39) r_ptr->flags6 |= (RF6_TRAPS);
+		if (dun_level > 49) r_ptr->flags6 |= (RF6_TPORT);
+		if (dun_level > 59) r_ptr->flags6 |= (RF6_HOLD);
+
+		if (dun_level > 34)
+			r_ptr->flags2 |= (RF2_WEIRD_MIND);
+		if (dun_level > 44) r_ptr->flags2 |= (RF2_INVISIBLE);
+
+		if (dun_level > 29)
+		{
 			for (n = 0; n < 4; n++)
 			{
-				r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
-			}
-
-			break;
-		}
-		/* Mage */
-		case 1:
-		{
-			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
-			else r_ptr->freq_ranged += 10;
-
-			if (r_ptr->flags4 & (RF4_SHOT)) r_ptr->flags4 &= ~(RF4_SHOT);
-			if (r_ptr->flags4 & (RF4_ARROW)) r_ptr->flags4 &= ~(RF4_ARROW);
-			if (r_ptr->flags4 & (RF4_BOLT)) r_ptr->flags4 &= ~(RF4_BOLT);
-
-			r_ptr->flags5 |= (RF5_BOLT_MANA);
-
-			if (dun_level > 11) r_ptr->flags5 |= (RF5_BALL_POIS);
-			if ((dun_level > 13) && (dun_level < 25))
-				r_ptr->flags5 |= (RF5_BOLT_ELEC);
-			if ((dun_level > 16) && (dun_level < 35))
-				r_ptr->flags5 |= (RF5_BEAM_ICE);
-			if (dun_level > 24) r_ptr->flags5 |= (RF5_BALL_ELEC);
-			if (dun_level > 34) r_ptr->flags5 |= (RF5_BALL_COLD);
-			if (dun_level > 44) r_ptr->flags5 |= (RF5_BALL_ACID);
-			if (dun_level > 64) r_ptr->flags5 |= (RF5_BALL_MANA);
-
-			if (dun_level > 19) r_ptr->flags6 |= (RF6_SLOW);
-			if (dun_level > 39) r_ptr->flags6 |= (RF6_HOLD);
-
-			if (dun_level > 19) r_ptr->flags6 |= (RF6_HASTE);
-			if (dun_level > 39) m_ptr->mspeed += 5;
-			if (m_ptr->mspeed > 130) m_ptr->mspeed = 130;
-
-			r_ptr->flags6 |= (RF6_BLINK);
-			r_ptr->flags6 |= (RF6_BLIND);
-			if (dun_level > 26) r_ptr->flags6 |= (RF6_TPORT);
-			if (dun_level > 55) r_ptr->flags6 |= (RF6_TELE_AWAY);
-
-			r_ptr->hdice = 3 * r_ptr->hdice / 4;
-
-			for (n = 0; n < 4; n++)
-			{
-				r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
-			}
-
-			r_ptr->mana = 3*(r_ptr->mana/2);
-
-			break;
-		}
-		/* Priest */
-		case 2:
-		{
-			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
-			else r_ptr->freq_ranged += 5;
-
-			r_ptr->flags6 |= (RF6_WOUND);
-			if (dun_level > 34) r_ptr->flags5 |= (RF5_BALL_LITE);
-			if (dun_level > 64) r_ptr->flags5 |= (RF5_BEAM_NETHR);
-
-			if (dun_level > 29) r_ptr->flags6 |= (RF6_BLINK);
-
-			r_ptr->flags6 |= (RF6_SCARE);
-			if (dun_level > 44) r_ptr->flags6 |= (RF6_HOLD);
-			if (dun_level > 54) r_ptr->flags6 |= (RF6_FORGET);
-
-			r_ptr->flags6 |= (RF6_HEAL);
-			if (dun_level > 24) r_ptr->flags6 |= (RF6_CURE);
-
-			if (dun_level > 29) r_ptr->flags7 |= (RF7_S_MONSTER);
-			if (dun_level > 49) r_ptr->flags7 |= (RF7_S_MONSTERS);
-
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-
-			r_ptr->mana = 4*(r_ptr->mana/3);
-
-			break;
-		}
-		/* Rogue */
-		case 3:
-		{
-			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 8;
-
-			if (dun_level > 24) r_ptr->flags6 |= (RF6_HASTE);
-			if (dun_level > 34) m_ptr->mspeed += 5;
-			if (m_ptr->mspeed > 130) m_ptr->mspeed = 130;
-
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-
-			if (dun_level > 11) r_ptr->flags4 |= (RF4_SHOT);
-			if ((dun_level > 44) && (r_ptr->freq_ranged))
-				r_ptr->flags2 |= (RF2_ARCHER);
-
-			if (dun_level > 24) r_ptr->flags5 |= (RF5_BALL_POIS);
-
-			r_ptr->flags6 |= (RF6_DARKNESS);
-			if (dun_level > 16) r_ptr->flags6 |= (RF6_TRAPS);
-			if (dun_level > 34) r_ptr->flags6 |= (RF6_TELE_TO);
-			if (dun_level > 19) r_ptr->flags6 |= (RF6_BLINK);
-			if (dun_level > 24) r_ptr->flags6 |= (RF6_BLIND);
-
-			if (dun_level > 39) r_ptr->flags2 |= (RF2_EMPTY_MIND);
-			else if (dun_level > 19)
-				r_ptr->flags2 |= (RF2_WEIRD_MIND);
-
-			if (dun_level > 39) r_ptr->flags2 |= (RF2_INVISIBLE);
-
-			if (dun_level > 44) r_ptr->flags7 |= (RF7_S_THIEF);
-
-			if (r_ptr->blow[0].effect == RBE_HURT)
-			{
-				r_ptr->blow[0].effect = RBE_EAT_GOLD;
-			}
-			if (r_ptr->blow[1].effect == RBE_HURT)
-			{
-				r_ptr->blow[2].effect = RBE_EAT_ITEM;
-			}
-
-			r_ptr->mana = 5*(r_ptr->mana/4);
-
-			break;
-		}
-		/* Ranger */
-		case 4:
-		{
-			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 8;
-			r_ptr->aaf += 5;
-
-			r_ptr->flags4 |= (RF4_ARROW);
-			if ((dun_level > 24) && (r_ptr->freq_ranged))
-				r_ptr->flags2 |= (RF2_ARCHER);
-
-			r_ptr->flags6 |= (RF6_BLINK);
-			if (dun_level > 34) r_ptr->flags6 |= (RF6_CURE);
-			if (dun_level > 44) r_ptr->flags6 |= (RF6_HOLD);
-			if (dun_level > 54) r_ptr->flags6 |= (RF6_HEAL);
-
-			r_ptr->mana = 5*(r_ptr->mana/4);
-
-			break;
-		}
-		/* Paladin */
-		case 5:
-		{
-			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 8;
-
-			if (r_ptr->flags4 & (RF4_SHOT)) r_ptr->flags4 &= ~(RF4_SHOT);
-			if (r_ptr->flags4 & (RF4_ARROW)) r_ptr->flags4 &= ~(RF4_ARROW);
-			if (r_ptr->flags4 & (RF4_BOLT)) r_ptr->flags4 &= ~(RF4_BOLT);
-
-			if (dun_level > 59) r_ptr->flags5 |= (RF5_BALL_LITE);
-
-			r_ptr->flags4 |= (RF4_SHRIEK);
-			r_ptr->flags6 |= (RF6_SCARE);
-			if (dun_level > 5) r_ptr->flags6 |= (RF6_WOUND);
-			if (dun_level > 24) r_ptr->flags6 |= (RF6_CURE);
-			if (dun_level > 29) r_ptr->flags6 |= (RF6_HEAL);
-			if (dun_level > 34) r_ptr->flags6 |= (RF6_BLINK);
-			if (dun_level > 44) r_ptr->flags6 |= (RF6_HOLD);
-
-			r_ptr->flags3 |= (RF3_IM_FIRE |
-					RF3_IM_COLD | RF3_IM_ELEC | RF3_IM_ACID);
-
-			r_ptr->mana = 5*(r_ptr->mana/4);
-
-			break;
-		}
-		/* Druid */
-		case 6:
-		{
-			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
-			else r_ptr->freq_ranged += 5;
-
-			if (dun_level > 29) r_ptr->flags5 |= (RF5_BALL_ELEC);
-			else r_ptr->flags5 |= (RF5_BEAM_ELEC);
-
-			if (dun_level > 34) r_ptr->flags5 |= (RF5_BALL_COLD);
-			else if (dun_level > 9) r_ptr->flags5 |= (RF5_BOLT_COLD);
-
-			if (dun_level > 39) r_ptr->flags5 |= (RF5_BALL_FIRE);
-			else if (dun_level > 14) r_ptr->flags5 |= (RF5_BOLT_FIRE);
-
-			if (dun_level > 39) r_ptr->flags5 |= (RF5_BALL_ACID);
-			else if (dun_level > 19) r_ptr->flags5 |= (RF5_BOLT_ACID);
-
-			if (dun_level > 44) r_ptr->flags5 |= (RF5_BALL_POIS);
-			else if (dun_level > 24) r_ptr->flags5 |= (RF5_BOLT_POIS);
-
-			if (dun_level > 29) r_ptr->flags5 |= (RF5_BOLT_PLAS);
-
-			if (dun_level > 49) r_ptr->flags5 |= (RF5_BALL_STORM);
-			else if (dun_level > 34) r_ptr->flags5 |= (RF5_BOLT_WATER);
-
-			if (dun_level > 54) r_ptr->flags5 |= (RF5_BALL_SOUND);
-			if (dun_level > 54) r_ptr->flags5 |= (RF5_BALL_SHARD);
-			if (dun_level > 59) r_ptr->flags5 |= (RF5_ARC__FORCE);
-
-			if (dun_level > 24) r_ptr->flags6 |= (RF6_CURE);
-			if (dun_level > 54) r_ptr->flags6 |= (RF6_HEAL);
-
-			if (dun_level < 40) r_ptr->flags7 |= (RF7_S_ANT);
-			if (dun_level < 40) r_ptr->flags7 |= (RF7_S_SPIDER);
-			if (dun_level > 20) r_ptr->flags7 |= (RF7_S_ANIMAL);
-			if (dun_level > 20) r_ptr->flags7 |= (RF7_S_HOUND);
-
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-
-			r_ptr->mana = 4*(r_ptr->mana/3);
-
-			break;
-		}
-		/* Necromancer */
-		case 7:
-		{
-			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
-			else r_ptr->freq_ranged += 10;
-
-			if (dun_level > 49) r_ptr->flags2 |= (RF2_MORGUL_MAGIC);
-
-			r_ptr->flags5 |= (RF5_BOLT_MANA);
-			r_ptr->flags6 |= (RF6_WOUND);
-			r_ptr->flags6 |= (RF6_DARKNESS);
-
-			if (dun_level > 4) r_ptr->flags5 |= (RF5_BALL_POIS);
-			if (dun_level > 14) r_ptr->flags5 |= (RF5_BALL_DARK);
-			if (dun_level > 44) r_ptr->flags5 |= (RF5_BALL_NETHR);
-			if (dun_level > 54) r_ptr->flags5 |= (RF5_BALL_MANA);
-			if (dun_level > 54) r_ptr->flags5 |= (RF5_ARC__HFIRE);
-
-			if (dun_level > 9) r_ptr->flags6 |= (RF6_BLINK);
-			if (dun_level > 9) r_ptr->flags6 |= (RF6_BLIND);
-			if (dun_level > 9) r_ptr->flags6 |= (RF6_SCARE);
-			if (dun_level > 19) r_ptr->flags6 |= (RF6_CONF);
-			if (dun_level > 29) r_ptr->flags6 |= (RF6_TPORT);
-			if (dun_level > 39) r_ptr->flags6 |= (RF6_HOLD);
-
-			if (dun_level > 49) r_ptr->flags6 |= (RF6_BRAIN_SMASH);
-			else if (dun_level > 29) r_ptr->flags6 |= (RF6_MIND_BLAST);
-
-			if (dun_level > 19) r_ptr->flags7 |= (RF7_S_DEMON);
-			if (dun_level > 69) r_ptr->flags7 |= (RF7_S_HI_DEMON);
-			if (dun_level > 29) r_ptr->flags7 |= (RF7_S_UNDEAD);
-			if (dun_level > 79) r_ptr->flags7 |= (RF7_S_HI_UNDEAD);
-
-			r_ptr->hdice = 3 * r_ptr->hdice / 4;
-
-			for (n = 0; n < 4; n++)
-			{
-				r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
-			}
-
-			r_ptr->mana = 3*(r_ptr->mana/2);
-
-			break;
-		}
-		/* Assassin */
-		case 8:
-		{
-			if ((dun_level > 9) && (r_ptr->freq_ranged == 0))
-				r_ptr->freq_ranged = 6;
-			else r_ptr->freq_ranged = 3 * r_ptr->freq_ranged / 4;
-
-			if ((dun_level > 11) && (dun_level < 45))
-				r_ptr->flags4 |= (RF4_MISSL);
-			if (dun_level > 44) r_ptr->flags4 |= (RF4_PMISSL);
-
-			if (dun_level > 49) r_ptr->flags2 |= (RF2_ARCHER);
-			if (dun_level > 54) r_ptr->flags2 |= (RF2_MORGUL_MAGIC);
-
-			if (dun_level > 14) r_ptr->flags5 |= (RF5_BOLT_POIS);
-			if (dun_level > 24) r_ptr->flags5 |= (RF5_BOLT_MANA);
-			if (dun_level > 54) r_ptr->flags5 |= (RF5_BOLT_NETHR);
-
-			if (dun_level > 9) r_ptr->flags6 |= (RF6_DARKNESS);
-			if (dun_level > 14) r_ptr->flags6 |= (RF6_SCARE);
-			if (dun_level > 14) r_ptr->flags6 |= (RF6_SLOW);
-			if (dun_level > 24) r_ptr->flags6 |= (RF6_BLINK);
-			if (dun_level > 29) r_ptr->flags6 |= (RF6_BLIND);
-			if (dun_level > 39) r_ptr->flags6 |= (RF6_TRAPS);
-			if (dun_level > 49) r_ptr->flags6 |= (RF6_TPORT);
-			if (dun_level > 59) r_ptr->flags6 |= (RF6_HOLD);
-
-			if (dun_level > 34)
-				r_ptr->flags2 |= (RF2_WEIRD_MIND);
-			if (dun_level > 44) r_ptr->flags2 |= (RF2_INVISIBLE);
-
-			if (dun_level > 29)
-			{
-				for (n = 0; n < 4; n++)
+				if (r_ptr->blow[n].effect == RBE_HURT)
 				{
-					if (r_ptr->blow[n].effect == RBE_HURT)
-					{
-						k = n;
+					k = n;
 
-						if (k == 0)
-							r_ptr->blow[n].effect = RBE_POISON;
-						if (k == 1) r_ptr->blow[n].effect = RBE_BLIND;
-						if (k == 2) r_ptr->blow[n].effect = RBE_CONFUSE;
-						if (k == 3) r_ptr->blow[n].effect = RBE_EAT_ITEM;
-					}
+					if (k == 0)
+						r_ptr->blow[n].effect = RBE_POISON;
+					if (k == 1) r_ptr->blow[n].effect = RBE_BLIND;
+					if (k == 2) r_ptr->blow[n].effect = RBE_CONFUSE;
+					if (k == 3) r_ptr->blow[n].effect = RBE_EAT_ITEM;
 				}
 			}
-
-			r_ptr->mana = 5*(r_ptr->mana/4);
-
-			break;
 		}
+
+		r_ptr->mana = 5*(r_ptr->mana/4);
+
+		break;
+	}
 	}
 }
 
@@ -2454,14 +2467,15 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	if (!(r_ptr->flags2 & (RF2_PLAYER_GHOST))) return (TRUE);
 
 	/* Hack -- If the ghost has a sex, then it must already have been prepared. */
+	/* This is completely unnecessary, and causes bugs - NRM 
 	if ((r_ptr->flags1 & RF1_MALE) || (r_ptr->flags1 & RF1_FEMALE))
 	{
-		/* Hack - Ensure that ghosts are always "seen". */
+		/* Hack - Ensure that ghosts are always "seen". 
 		l_ptr->sights = 1;
 
-		/* Nothing more to do. */
+		/* Nothing more to do. 
 		return (TRUE);
-	}
+		}*/
 
 	/* Hack -- No easy player ghosts, unless the ghost is from a savefile.
 	 * This also makes player ghosts much rarer, and effectively (almost)
@@ -2521,7 +2535,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 
 	/* XXX XXX XXX Scan the file (new style) */
 	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d\n%d:%[^\n]", ghost_name,
-		&ghost_sex, &ghost_race, &ghost_class, &ghost_string_type, ghost_string) != 6);
+		      &ghost_sex, &ghost_race, &ghost_class, &ghost_string_type, ghost_string) != 6);
 
 	if (err)
 	{
@@ -2531,7 +2545,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 		my_fclose(fp);
 		fp = my_fopen(path, "r");
 		err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", ghost_name,
-			&ghost_sex, &ghost_race, &ghost_class) != 4);
+			      &ghost_sex, &ghost_race, &ghost_class) != 4);
 	}
 
 	/* Close the file */
@@ -2571,7 +2585,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	/*** Process race. ***/
 
 	/* Sanity check. */
-	if (ghost_race >= MAX_P_IDX) ghost_race = rand_int(MAX_P_IDX);
+	if (ghost_race >= z_info->p_max) ghost_race = rand_int(z_info->p_max);
 
 	/* And use the ghost race to gain some flags. */
 	process_ghost_race(ghost_race, r_idx, m_ptr);

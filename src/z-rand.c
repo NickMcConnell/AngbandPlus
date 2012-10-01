@@ -104,52 +104,6 @@ void Rand_state_init(u32b seed)
 
 
 /*
- * Extract a "random" number from 0 to m-1, via "modulus"
- *
- * Note that "m" should probably be less than 500000, or the
- * results may be rather biased towards low values.
- */
-u32b Rand_mod(u32b m)
-{
-	int j;
-	u32b r;
-
-	/* Hack -- simple case */
-	if (m <= 1) return (0);
-
-	/* Use the "simple" RNG */
-	if (Rand_quick)
-	{
-		/* Cycle the generator */
-		r = (Rand_value = LCRNG(Rand_value));
-
-		/* Mutate a 28-bit "random" number */
-		r = ((r >> 4) % m);
-	}
-
-	/* Use the "complex" RNG */
-	else
-	{
-		/* Acquire the next index */
-		j = Rand_place + 1;
-		if (j == RAND_DEG) j = 0;
-
-		/* Update the table, extract an entry */
-		r = (Rand_state[j] += Rand_state[Rand_place]);
-
-		/* Advance the index */
-		Rand_place = j;
-
-		/* Extract a "random" number */
-		r = ((r >> 4) % m);
-	}
-
-	/* Use the value */
-	return (r);
-}
-
-
-/*
  * Extract a "random" number from 0 to m-1, via "division"
  *
  * This method selects "random" 28-bit numbers, and then uses
@@ -162,19 +116,18 @@ u32b Rand_mod(u32b m)
  *
  * Note that "m" must not be greater than 0x1000000, or division
  * by zero will result.
+ *
+ * ToDo: Check for m > 0x1000000.
  */
 u32b Rand_div(u32b m)
 {
 	u32b r, n;
 
 	/* Hack -- simple case */
-	if (m < 2) return (0);
+	if (m <= 1) return (0);
 
 	/* Partition size */
 	n = (0x10000000 / m);
-
-	/* Sanity -BR- */
-	if (!n) return(0);
 
 	/* Use a simple RNG */
 	if (Rand_quick)
@@ -186,7 +139,7 @@ u32b Rand_div(u32b m)
 			r = (Rand_value = LCRNG(Rand_value));
 
 			/* Mutate a 28-bit "random" number */
-			r = (r >> 4) / n;
+			r = ((r >> 4) & 0x0FFFFFFF) / n;
 
 			/* Done */
 			if (r < m) break;
@@ -209,7 +162,7 @@ u32b Rand_div(u32b m)
 			r = (Rand_state[j] += Rand_state[Rand_place]);
 
 			/* Hack -- extract a 28-bit "random" number */
-			r = (r >> 4) / n;
+			r = ((r >> 4) & 0x0FFFFFFF) / n;
 
 			/* Advance the index */
 			Rand_place = j;
@@ -342,3 +295,57 @@ s16b Rand_normal(int mean, int stand)
 }
 
 
+/*
+ * Extract a "random" number from 0 to m-1, using the "simple" RNG.
+ *
+ * This function should be used when generating random numbers in
+ * "external" program parts like the main-*.c files.  It preserves
+ * the current RNG state to prevent influences on game-play.
+ *
+ * Could also use rand() from <stdlib.h> directly. XXX XXX XXX
+ */
+u32b Rand_simple(u32b m)
+{
+	static bool initialized = FALSE;
+	static u32b simple_rand_value;
+	bool old_rand_quick;
+	u32b old_rand_value;
+	u32b result;
+
+
+	/* Save RNG state */
+	old_rand_quick = Rand_quick;
+	old_rand_value = Rand_value;
+
+	/* Use "simple" RNG */
+	Rand_quick = TRUE;
+
+	if (initialized)
+	{
+		/* Use stored seed */
+		Rand_value = simple_rand_value;
+	}
+	else
+	{
+		/* Initialize with new seed */
+#ifdef _WIN32_WCE
+		Rand_value = fake_time(NULL);
+#else
+		Rand_value = time(NULL);
+#endif
+		initialized = TRUE;
+	}
+
+	/* Get a random number */
+	result = rand_int(m);
+
+	/* Store the new seed */
+	simple_rand_value = Rand_value;
+
+	/* Restore RNG state */
+	Rand_quick = old_rand_quick;
+	Rand_value = old_rand_value;
+
+	/* Use the value */
+	return (result);
+}

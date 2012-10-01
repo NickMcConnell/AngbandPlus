@@ -924,6 +924,11 @@ static int get_druid_damage(int plev, char m_name[], int power, int deadliness)
 	if (power_strike) damage = (dd * ds);
 	else damage = damroll(dd, ds);
 
+	/* Record the damage for display */
+	for (i = 0; i < 11; i++)
+	  p_ptr->barehand_dam[i] = p_ptr->barehand_dam[i + 1];
+	p_ptr->barehand_dam[11] = (u16b)damage;
+  
 	/* Druids can also confuse monsters. */
 	if ((power_strike && (rand_int(3) != 0)) || (power > rand_int(500) + 25))
 	{
@@ -1610,7 +1615,7 @@ static int breakage_chance(object_type *o_ptr)
  *
  * Returns true if a shot is actually fired.
  */
-bool do_cmd_fire(int mode)
+void do_cmd_fire(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1665,6 +1670,9 @@ bool do_cmd_fire(int mode)
 
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
+	/* Nothing fired -NRM- */
+	did_fire = FALSE;
+
 	/* Get the "bow" (if any) */
 	o_ptr = &inventory[INVEN_BOW];
 
@@ -1672,16 +1680,30 @@ bool do_cmd_fire(int mode)
 	if (!o_ptr->tval || !p_ptr->ammo_tval)
 	{
 		msg_print("You have nothing to fire with.");
-		return(FALSE);
+		fire_mode = FIRE_MODE_NORMAL;
+		return;
 	}
 
 	/* Require proper missile */
 	item_tester_tval = p_ptr->ammo_tval;
 
+	/* Do we have an item? */
+	if (p_ptr->command_item) {
+	        item = handle_item();
+		if (!get_item_allow(item)) return;
+	}
+
 	/* Get an item */
-	q = "Fire which item? ";
-	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return(FALSE);
+	else
+	{
+	        q = "Fire which item? ";
+		s = "You have nothing to fire.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) 
+		  {
+		    fire_mode = FIRE_MODE_NORMAL;
+		    return;
+		  }
+	}
 
 	/* Access the item (if in the pack) */
 	if (item >= 0)
@@ -1694,7 +1716,11 @@ bool do_cmd_fire(int mode)
 	}
 
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return(FALSE);
+	if (!get_aim_dir(&dir)) 
+	  {
+		fire_mode = FIRE_MODE_NORMAL;
+		return;
+	  }
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -1737,10 +1763,10 @@ bool do_cmd_fire(int mode)
 	f3 |= f3_temp;
 
 	/* Extra flags from modal shots */
-	if (mode == FIRE_MODE_STORM) f1 |= TR1_BRAND_ELEC;
-	if (mode == FIRE_MODE_POISON) f1 |= TR1_BRAND_POIS;
-	if (mode == FIRE_MODE_SLAY_DRAGON) f1 |= TR1_SLAY_DRAGON;
-	if (mode == FIRE_MODE_SCOURGE)
+	if (fire_mode == FIRE_MODE_STORM) f1 |= TR1_BRAND_ELEC;
+	if (fire_mode == FIRE_MODE_POISON) f1 |= TR1_BRAND_POIS;
+	if (fire_mode == FIRE_MODE_SLAY_DRAGON) f1 |= TR1_SLAY_DRAGON;
+	if (fire_mode == FIRE_MODE_SCOURGE)
 	{
 		f1 |= TR1_SLAY_ORC;
 		f1 |= TR1_SLAY_TROLL;
@@ -1796,7 +1822,9 @@ bool do_cmd_fire(int mode)
 		set_cut(randint(damage * 3));
 
 		/* That ends that shot! */
-		return(TRUE);
+		did_fire = TRUE;
+		fire_mode = FIRE_MODE_NORMAL;
+		return;
 	}
 
 	/* Describe the object */
@@ -1815,7 +1843,7 @@ bool do_cmd_fire(int mode)
 	chance = p_ptr->skill_thb + (BTH_PLUS_ADJ * bonus);
 
 	/* Accuracy bonus for deadeye shots */
-	if (mode == FIRE_MODE_DEADEYE) chance += 15;
+	if (fire_mode == FIRE_MODE_DEADEYE) chance += 15;
 
 	/* Sum all the applicable additions to Deadliness. */
 	total_deadliness = p_ptr->to_d + o_ptr->to_d + i_ptr->to_d;
@@ -1842,7 +1870,7 @@ bool do_cmd_fire(int mode)
 	handle_stuff();
 
 	/* Multishot mode? */
-	multi = ((mode == FIRE_MODE_MULTI) ? (randint(3) + 2) : 1);
+	multi = ((fire_mode == FIRE_MODE_MULTI) ? (randint(3) + 2) : 1);
 
 	/* Later shots may spread out, save some numbers */
 	if (multi > 1) spread_target_prepare(py, px, ty, tx, &spread_y_cen, &spread_x_cen, &spread_roll, &spread_sign_y, &spread_sign_x);
@@ -2081,7 +2109,7 @@ bool do_cmd_fire(int mode)
 				}
 
 				/* Is this a multishot? */
-				if (mode == FIRE_MODE_MULTI) damage = damage / 2;
+				if (fire_mode == FIRE_MODE_MULTI) damage = damage / 2;
 
 				/* No negative damage */
 				if (damage < 0) damage = 0;
@@ -2111,7 +2139,7 @@ bool do_cmd_fire(int mode)
 				}
 
 				/* Storm mode creates thunderclaps */
-				if (mode == FIRE_MODE_STORM)
+				if (fire_mode == FIRE_MODE_STORM)
 				{
 					fire_meteor(0, GF_SOUND, y, x, p_ptr->lev, 1, FALSE);
 				}
@@ -2138,13 +2166,18 @@ bool do_cmd_fire(int mode)
 	break_chance = (hit_body ? breakage_chance(i_ptr) : 0);
 
 	/* Certain special shots always disappear */
-	if (mode == FIRE_MODE_MULTI) break_chance = 100;
-	if (mode == FIRE_MODE_STORM) break_chance = 100;
+	if (fire_mode == FIRE_MODE_MULTI) break_chance = 100;
+	if (fire_mode == FIRE_MODE_STORM) break_chance = 100;
 
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, break_chance, y, x);
 
-	return(TRUE);
+	/* Forget the item_tester_tval restriction */
+	item_tester_tval = 0;
+
+	did_fire = TRUE;
+	fire_mode = FIRE_MODE_NORMAL;
+	return;
 }
 
 
@@ -2162,7 +2195,7 @@ bool do_cmd_fire(int mode)
  *
  * Returns true if a shot is actually fired.
  */
-bool do_cmd_throw(int mode)
+void do_cmd_throw(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -2201,11 +2234,27 @@ bool do_cmd_throw(int mode)
 
 	u32b f1, f2, f3;
 
+	/* Nothing thrown -NRM- */
+	did_throw = FALSE;
+
+	/* Do we have an item? */
+	if (p_ptr->command_item) 
+	{
+	        item = handle_item();
+		if (!get_item_allow(item)) return;
+	}
 
 	/* Get an item */
-	q = "Throw which item? ";
-	s = "You have nothing to throw.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return(FALSE);
+	else
+	{
+	        q = "Throw which item? ";
+		s = "You have nothing to throw.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) 
+		{
+		        throw_mode = THROW_MODE_NORMAL;
+		        return;
+		}
+	}
 
 	/* Access the item (if in the pack) */
 	if (item >= 0)
@@ -2219,8 +2268,22 @@ bool do_cmd_throw(int mode)
 
 
 
+	/* Can't unwield cursed items this way! */
+	if ((item > INVEN_PACK) && (item < INVEN_BLANK) && (cursed_p(o_ptr)))
+	{
+	        /* Oops */
+	        msg_print("Hmmm, it seems to be cursed.");
+      
+		/* Nope */
+		return;
+	}
+
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return(FALSE);
+	if (!get_aim_dir(&dir)) 
+	{
+		throw_mode = THROW_MODE_NORMAL;
+		return;
+	}
 
 
 	/* Get local object */
@@ -2525,7 +2588,7 @@ bool do_cmd_throw(int mode)
 			else
 			{
 				/* Apply Black Breath to the monster */
-				if (mode == THROW_MODE_BLKBRTH) hit_monster_black_breath(120, m_ptr);
+				if (throw_mode == THROW_MODE_BLKBRTH) hit_monster_black_breath(120, m_ptr);
 
 				/* Message */
 				message_pain(cave_m_idx[y][x], damage);
@@ -2554,5 +2617,7 @@ bool do_cmd_throw(int mode)
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, break_chance, y, x);
 
-	return(TRUE);
+	did_throw = TRUE;
+	throw_mode = THROW_MODE_NORMAL;
+	return;
 }

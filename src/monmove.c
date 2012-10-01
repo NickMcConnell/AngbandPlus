@@ -48,7 +48,7 @@ static void find_range(monster_type *m_ptr)
 
 	/* Some monsters run when low on mana */
 	else if ((r_ptr->flags2 & (RF2_LOW_MANA_RUN)) &&
-	    (m_ptr->mana < r_ptr->mana / 6)) m_ptr->min_range = FLEE_RANGE;
+		 (m_ptr->mana < r_ptr->mana / 6)) m_ptr->min_range = FLEE_RANGE;
 
 	else
 	{
@@ -349,242 +349,242 @@ static int find_resist(int m_idx, int spell_lrn)
 	{
 		/* Spells 'resisted' by AC, Dex, etc.
 		 * Currently no assesment is made */
-		case LRN_ARCH:
+	case LRN_ARCH:
+	{
+		return(0);
+	}
+	/* As above, but poisonous. */
+	case LRN_PARCH:
+	{
+		if (smart & (SM_RES_POIS)) return(10);
+		else return(0);
+	}
+	/* Acid Spells */
+	case LRN_ACID:
+	{
+		if (smart & (SM_IMM_ACID)) return(100);
+		else if (smart & (SM_RES_STRONG_ACID)) return(70);
+		else if (smart & (SM_RES_ACID)) return(40);
+		else return(0);
+	}
+	/* Lightning Spells */
+	case LRN_ELEC:
+	{
+		if (smart & (SM_IMM_ELEC)) return(100);
+		else if (smart & (SM_RES_STRONG_ELEC)) return(70);
+		else if (smart & (SM_RES_ELEC)) return(40);
+		else return(0);
+	}
+	/* Fire Spells */
+	case LRN_FIRE:
+	{
+		if (smart & (SM_IMM_FIRE)) return(100);
+		else if (smart & (SM_RES_STRONG_FIRE)) return(70);
+		else if (smart & (SM_RES_FIRE)) return(40);
+		else return(0);
+	}
+	/* Cold Spells */
+	case LRN_COLD:
+	{
+		if (smart & (SM_IMM_COLD)) return(100);
+		else if (smart & (SM_RES_STRONG_COLD)) return(70);
+		else if (smart & (SM_RES_COLD)) return(40);
+		else return(0);
+	}
+	/* Ice Spells */
+	case LRN_ICE:
+	{
+		if (smart & (SM_IMM_COLD)) a=90;
+		else if (smart & (SM_RES_STRONG_COLD)) a=60;
+		else if (smart & (SM_RES_COLD)) a=30;
+		else a=0;
+		if (smart & (SM_RES_SOUND)) a += 5;
+		if (smart & (SM_RES_SHARD)) a += 5;
+		return(a);
+	}
+	/* Poison Spells */
+	case LRN_POIS:
+	{
+		if (smart & (SM_RES_STRONG_POIS)) return(80);
+		else if (smart & (SM_RES_POIS)) return(55);
+		else return(0);
+	}
+	/* Plasma Spells */
+	case LRN_PLAS:
+	{
+		a=0;
+		if (smart & (SM_IMM_FIRE)) a += 50;
+		else if (smart & (SM_RES_STRONG_FIRE)) a += 35;
+		else if (smart & (SM_RES_FIRE)) a += 20;
+		if (smart & (SM_IMM_ELEC)) a += 50;
+		else if (smart & (SM_RES_STRONG_ELEC)) a += 35;
+		else if (smart & (SM_RES_ELEC)) a += 20;
+		return(a);
+	}
+	/* Light Spells */
+	case LRN_LITE:
+	{
+		if (smart & (SM_RES_LITE)) return(30);
+		else return(0);
+	}
+	/* Darkness Spells */
+	case LRN_DARK:
+	{
+		if (smart & (SM_RES_DARK)) return(30);
+		else return(0);
+	}
+	/* Confusion Spells, damage dealing */
+	case LRN_CONFU:
+	{
+		if (smart & (SM_RES_CONFU)) return(30);
+		else return(0);
+	}
+	/* Sound Spells */
+	case LRN_SOUND:
+	{
+		a=0;
+		if (smart & (SM_RES_SOUND)) a += 30;
+		if (smart & (SM_RES_CONFU)) a += 10;
+		if (smart & (SM_PERF_SAVE)) a += 10;
+		else if (smart & (SM_GOOD_SAVE)) a += 5;
+		else return(a);
+	}
+	/* Unresistable, but sound prevents stun */
+	case LRN_SOUND2:
+	{
+		if (smart & (SM_RES_SOUND)) return(5);
+		else return(0);
+	}
+	/* Shards Spells */
+	case LRN_SHARD:
+	{
+		if (smart & (SM_RES_SHARD)) return(30);
+		else return(0);
+	}
+	/* Nexus Spells */
+	case LRN_NEXUS:
+	{
+		if (smart & (SM_RES_NEXUS)) return(30);
+		else return(0);
+	}
+	/* Nether Spells */
+	case LRN_NETHR:
+	{
+		if (smart & (SM_RES_NETHR)) return(30);
+		else return(0);
+	}
+	/* Chaos Spells */
+	case LRN_CHAOS:
+	{
+		if (smart & (SM_RES_CHAOS)) return(30);
+		else return(0);
+	}
+	/* Disenchantment Spells */
+	case LRN_DISEN:
+	{
+		if (smart & (SM_RES_DISEN)) return(30);
+		else return(0);
+	}
+	/* Storm Spells */
+	case LRN_STORM:
+	{
+		a=0;
+		if (smart & (SM_IMM_ELEC)) a+=15;
+		else if (smart & (SM_RES_STRONG_ELEC)) a += 10;
+		else if (smart & (SM_RES_ELEC)) a += 5;
+		if (smart & (SM_RES_COLD)) a += 5;
+		if (smart & (SM_RES_ACID)) a += 5;
+		if (smart & (SM_RES_CONFU)) a += 10;
+		return(a);
+	}
+	/* Water Spells */
+	case LRN_WATER:
+	{
+		a=0;
+		if (smart & (SM_RES_CONFU)) a += 10;
+		if (smart & (SM_RES_SOUND)) a += 5;
+		return(a);
+	}
+	/* Spells that attack player mana */
+	case LRN_MANA:
+	{
+		if (smart & (SM_IMM_MANA)) return(100);
+		else return(0);
+	}
+	/* Spells Requiring Save or Resist Nexus */
+	case LRN_NEXUS_SAVE:
+	{
+		if (smart & (SM_RES_NEXUS)) return(100);
+		else if (smart & (SM_PERF_SAVE)) return(100);
+		else if (smart & (SM_GOOD_SAVE)) return(30);
+		else return(0);
+	}
+	/* Spells Requiring Save or Resist Fear */
+	case LRN_FEAR_SAVE:
+	{
+		a=0;
+		if (smart & (SM_RES_FEAR)) a = 100;
+		else if (smart & (SM_PERF_SAVE)) a = 100;
+		else
 		{
-			return(0);
+			if (smart & (SM_GOOD_SAVE)) a += 30;
+			if (p_ptr->afraid) a += 50;
 		}
-		/* As above, but poisonous. */
-		case LRN_PARCH:
+		return(a);
+	}
+	/* Spells Requiring Save or Resist Blindness */
+	case LRN_BLIND_SAVE:
+	{
+		a=0;
+		if (smart & (SM_RES_BLIND)) a = 100;
+		else if (smart & (SM_PERF_SAVE)) a = 100;
+		else
 		{
-			if (smart & (SM_RES_POIS)) return(10);
-			else return(0);
+			if (smart & (SM_GOOD_SAVE)) a += 30;
+			if (p_ptr->blind) a += 50;
 		}
-		/* Acid Spells */
-		case LRN_ACID:
+		return(a);
+	}
+	/* Spells Requiring Save or Resist Confusion */
+	case LRN_CONFU_SAVE:
+	{
+		a=0;
+		if (smart & (SM_RES_CONFU)) a = 100;
+		else if (smart & (SM_PERF_SAVE)) a = 100;
+		else
 		{
-			if (smart & (SM_IMM_ACID)) return(100);
-			else if (smart & (SM_RES_STRONG_ACID)) return(70);
-			else if (smart & (SM_RES_ACID)) return(40);
-			else return(0);
+			if (smart & (SM_GOOD_SAVE)) a += 30;
+			if (p_ptr->confused) a += 50;
 		}
-		/* Lightning Spells */
-		case LRN_ELEC:
+		return(a);
+	}
+	/* Spells Requiring Save or Free Action */
+	case LRN_FREE_SAVE:
+	{
+		a=0;
+		if (smart & (SM_IMM_FREE)) a=100;
+		else if (smart & (SM_PERF_SAVE)) a = 100;
+		else if (p_ptr->paralyzed) a = 80;
+		else
 		{
-			if (smart & (SM_IMM_ELEC)) return(100);
-			else if (smart & (SM_RES_STRONG_ELEC)) return(70);
-			else if (smart & (SM_RES_ELEC)) return(40);
-			else return(0);
+			if (smart & (SM_GOOD_SAVE)) a += 30;
+			if (p_ptr->slow) a += 50;
 		}
-		/* Fire Spells */
-		case LRN_FIRE:
-		{
-			if (smart & (SM_IMM_FIRE)) return(100);
-			else if (smart & (SM_RES_STRONG_FIRE)) return(70);
-			else if (smart & (SM_RES_FIRE)) return(40);
-			else return(0);
-		}
-		/* Cold Spells */
-		case LRN_COLD:
-		{
-			if (smart & (SM_IMM_COLD)) return(100);
-			else if (smart & (SM_RES_STRONG_COLD)) return(70);
-			else if (smart & (SM_RES_COLD)) return(40);
-			else return(0);
-		}
-		/* Ice Spells */
-		case LRN_ICE:
-		{
-			if (smart & (SM_IMM_COLD)) a=90;
-			else if (smart & (SM_RES_STRONG_COLD)) a=60;
-			else if (smart & (SM_RES_COLD)) a=30;
-			else a=0;
-			if (smart & (SM_RES_SOUND)) a += 5;
-			if (smart & (SM_RES_SHARD)) a += 5;
-			return(a);
-		}
-		/* Poison Spells */
-		case LRN_POIS:
-		{
-			if (smart & (SM_RES_STRONG_POIS)) return(80);
-			else if (smart & (SM_RES_POIS)) return(55);
-			else return(0);
-		}
-		/* Plasma Spells */
-		case LRN_PLAS:
-		{
-			a=0;
-			if (smart & (SM_IMM_FIRE)) a += 50;
-			else if (smart & (SM_RES_STRONG_FIRE)) a += 35;
-			else if (smart & (SM_RES_FIRE)) a += 20;
-			if (smart & (SM_IMM_ELEC)) a += 50;
-			else if (smart & (SM_RES_STRONG_ELEC)) a += 35;
-			else if (smart & (SM_RES_ELEC)) a += 20;
-			return(a);
-		}
-		/* Light Spells */
-		case LRN_LITE:
-		{
-			if (smart & (SM_RES_LITE)) return(30);
-			else return(0);
-		}
-		/* Darkness Spells */
-		case LRN_DARK:
-		{
-			if (smart & (SM_RES_DARK)) return(30);
-			else return(0);
-		}
-		/* Confusion Spells, damage dealing */
-		case LRN_CONFU:
-		{
-			if (smart & (SM_RES_CONFU)) return(30);
-			else return(0);
-		}
-		/* Sound Spells */
-		case LRN_SOUND:
-		{
-			a=0;
-			if (smart & (SM_RES_SOUND)) a += 30;
-			if (smart & (SM_RES_CONFU)) a += 10;
-			if (smart & (SM_PERF_SAVE)) a += 10;
-			else if (smart & (SM_GOOD_SAVE)) a += 5;
-			else return(a);
-		}
-		/* Unresistable, but sound prevents stun */
-		case LRN_SOUND2:
-		{
-			if (smart & (SM_RES_SOUND)) return(5);
-			else return(0);
-		}
-		/* Shards Spells */
-		case LRN_SHARD:
-		{
-			if (smart & (SM_RES_SHARD)) return(30);
-			else return(0);
-		}
-		/* Nexus Spells */
-		case LRN_NEXUS:
-		{
-			if (smart & (SM_RES_NEXUS)) return(30);
-			else return(0);
-		}
-		/* Nether Spells */
-		case LRN_NETHR:
-		{
-			if (smart & (SM_RES_NETHR)) return(30);
-			else return(0);
-		}
-		/* Chaos Spells */
-		case LRN_CHAOS:
-		{
-			if (smart & (SM_RES_CHAOS)) return(30);
-			else return(0);
-		}
-		/* Disenchantment Spells */
-		case LRN_DISEN:
-		{
-			if (smart & (SM_RES_DISEN)) return(30);
-			else return(0);
-		}
-		/* Storm Spells */
-		case LRN_STORM:
-		{
-			a=0;
-			if (smart & (SM_IMM_ELEC)) a+=15;
-			else if (smart & (SM_RES_STRONG_ELEC)) a += 10;
-			else if (smart & (SM_RES_ELEC)) a += 5;
-			if (smart & (SM_RES_COLD)) a += 5;
-			if (smart & (SM_RES_ACID)) a += 5;
-			if (smart & (SM_RES_CONFU)) a += 10;
-			return(a);
-		}
-		/* Water Spells */
-		case LRN_WATER:
-		{
-			a=0;
-			if (smart & (SM_RES_CONFU)) a += 10;
-			if (smart & (SM_RES_SOUND)) a += 5;
-			return(a);
-		}
-		/* Spells that attack player mana */
-		case LRN_MANA:
-		{
-			if (smart & (SM_IMM_MANA)) return(100);
-			else return(0);
-		}
-		/* Spells Requiring Save or Resist Nexus */
-		case LRN_NEXUS_SAVE:
-		{
-			if (smart & (SM_RES_NEXUS)) return(100);
-			else if (smart & (SM_PERF_SAVE)) return(100);
-			else if (smart & (SM_GOOD_SAVE)) return(30);
-			else return(0);
-		}
-		/* Spells Requiring Save or Resist Fear */
-		case LRN_FEAR_SAVE:
-		{
-			a=0;
-			if (smart & (SM_RES_FEAR)) a = 100;
-			else if (smart & (SM_PERF_SAVE)) a = 100;
-			else
-			{
-				if (smart & (SM_GOOD_SAVE)) a += 30;
-				if (p_ptr->afraid) a += 50;
-			}
-			return(a);
-		}
-		/* Spells Requiring Save or Resist Blindness */
-		case LRN_BLIND_SAVE:
-		{
-			a=0;
-			if (smart & (SM_RES_BLIND)) a = 100;
-			else if (smart & (SM_PERF_SAVE)) a = 100;
-			else
-			{
-				if (smart & (SM_GOOD_SAVE)) a += 30;
-				if (p_ptr->blind) a += 50;
-			}
-			return(a);
-		}
-		/* Spells Requiring Save or Resist Confusion */
-		case LRN_CONFU_SAVE:
-		{
-			a=0;
-			if (smart & (SM_RES_CONFU)) a = 100;
-			else if (smart & (SM_PERF_SAVE)) a = 100;
-			else
-			{
-				if (smart & (SM_GOOD_SAVE)) a += 30;
-				if (p_ptr->confused) a += 50;
-			}
-			return(a);
-		}
-		/* Spells Requiring Save or Free Action */
-		case LRN_FREE_SAVE:
-		{
-			a=0;
-			if (smart & (SM_IMM_FREE)) a=100;
-			else if (smart & (SM_PERF_SAVE)) a = 100;
-			else if (p_ptr->paralyzed) a = 80;
-			else
-			{
-				if (smart & (SM_GOOD_SAVE)) a += 30;
-				if (p_ptr->slow) a += 50;
-			}
-			return(a);
-		}
+		return(a);
+	}
 
-		/* Spells Requiring Save  */
-		case LRN_SAVE:
-		{
-			if (smart & (SM_PERF_SAVE)) return(100);
-			else if (smart & (SM_GOOD_SAVE)) return(30);
-			else return(0);
-		}
-		/* Anything else */
-		default:
-		{
-			return(0);
-		}
+	/* Spells Requiring Save  */
+	case LRN_SAVE:
+	{
+		if (smart & (SM_PERF_SAVE)) return(100);
+		else if (smart & (SM_GOOD_SAVE)) return(30);
+		else return(0);
+	}
+	/* Anything else */
+	default:
+	{
+		return(0);
+	}
 	}
 }
 
@@ -1009,27 +1009,27 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 
 		/* Bonus if want summon and this spell is helpful */
 		if (spell_desire[D_SUMM] && want_summon) cur_spell_rating +=
-						      want_summon * spell_desire[D_SUMM];
+								 want_summon * spell_desire[D_SUMM];
 
 		/* Bonus if wounded and this spell is helpful */
 		if (spell_desire[D_HURT] && want_hps) cur_spell_rating +=
-							want_hps * spell_desire[D_HURT];
+							      want_hps * spell_desire[D_HURT];
 
 		/* Bonus if low on mana and this spell is helpful */
 		if (spell_desire[D_MANA] && want_mana) cur_spell_rating +=
-							 want_mana * spell_desire[D_MANA];
+							       want_mana * spell_desire[D_MANA];
 
 		/* Bonus if want to flee and this spell is helpful */
 		if (spell_desire[D_ESC] && want_escape) cur_spell_rating +=
-							  want_escape * spell_desire[D_ESC];
+								want_escape * spell_desire[D_ESC];
 
 		/* Bonus if want a tactical move and this spell is helpful */
 		if (spell_desire[D_TACT] && want_tactic) cur_spell_rating +=
-							   want_tactic * spell_desire[D_TACT];
+								 want_tactic * spell_desire[D_TACT];
 
 		/* Penalty if this spell is resisted */
 		if (spell_desire[D_RES])
-		      cur_spell_rating = (cur_spell_rating * (100 - find_resist(m_idx, spell_desire[D_RES])))/100;
+			cur_spell_rating = (cur_spell_rating * (100 - find_resist(m_idx, spell_desire[D_RES])))/100;
 
 		/* Penalty for range if attack drops off in power */
 		if (spell_range)
@@ -1060,7 +1060,7 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 	}
 
 	if(p_ptr->wizard)
-	  msg_format("Spell rating: %i.", best_spell_rating);
+		msg_format("Spell rating: %i.", best_spell_rating);
 
 	/* If we used a harassment spell, lower the bias to use them early */
 	if (is_best_harass && m_ptr->harass) m_ptr->harass--;
@@ -1083,7 +1083,7 @@ bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok)
 	int feat;
 
 	/* Check Bounds */
-	if (!in_bounds(y, x)) return (FALSE);
+	if (!in_bounds_fully(y, x)) return (FALSE);
 
 	/* Check location */
 	feat = cave_feat[y][x];
@@ -1109,8 +1109,8 @@ bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok)
 
 			if ((r_ptr->flags4 & (RF4_BRTH_FIRE)) ||
 			    (strchr("uU", r_ptr->d_char)) ||
-			   ((strchr("E", r_ptr->d_char)) &&
-			   ((r_ptr->d_attr == TERM_RED) || (r_ptr->d_attr == TERM_L_RED))))
+			    ((strchr("E", r_ptr->d_char)) &&
+			     ((r_ptr->d_attr == TERM_RED) || (r_ptr->d_attr == TERM_L_RED))))
 			{
 				return (FALSE);
 			}
@@ -1127,8 +1127,8 @@ bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok)
 			{
 				/* Get HPs */
 				int hp = (r_ptr->flags1 & (RF1_FORCE_MAXHP) ?
-				    (r_ptr->hdice * r_ptr->hside) :
-				    (r_ptr->hdice * (r_ptr->hside + 1) / 2));
+					  (r_ptr->hdice * r_ptr->hside) :
+					  (r_ptr->hdice * (r_ptr->hside + 1) / 2));
 
 				/* Only strong monsters */
 				if (hp > 49) return (TRUE);
@@ -1225,7 +1225,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 
 		/* Push past weaker or similar monsters */
 		else if ((r_ptr->flags2 & (RF2_MOVE_BODY)) &&
-		    (r_ptr->mexp >= nr_ptr->mexp))
+			 (r_ptr->mexp >= nr_ptr->mexp))
 		{
 			/* It's easier to push past weaker monsters */
 			if (r_ptr->mexp == nr_ptr->mexp) move_chance = 50;
@@ -1263,7 +1263,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 
 			/* "Red" elementals cannot cross water */
 			if (strchr("E", r_ptr->d_char) &&
-			   ((r_ptr->d_attr == TERM_RED) || (r_ptr->d_attr == TERM_L_RED)))
+			    ((r_ptr->d_attr == TERM_RED) || (r_ptr->d_attr == TERM_L_RED)))
 			{
 				return (0);
 			}
@@ -1324,7 +1324,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 
 		/* Doors */
 		if (((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL)) ||
-		     (feat == FEAT_SECRET))
+		    (feat == FEAT_SECRET))
 		{
 			int unlock_chance = 0;
 			int bash_chance = 0;
@@ -1420,7 +1420,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		{
 			/* Some monsters move easily through rubble */
 			if ((r_ptr->flags2 & (RF2_PASS_WALL)) ||
-				(r_ptr->flags2 & (RF2_KILL_WALL)))
+			    (r_ptr->flags2 & (RF2_KILL_WALL)))
 			{
 				return (move_chance);
 			}
@@ -1438,7 +1438,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 
 			/* Some monsters can fly over trees, or know them well */
 			if ((r_ptr->flags2 & (RF2_FLYING)) ||
-				(r_ptr->flags3 & (RF3_ANIMAL)))
+			    (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
 				return (move_chance);
 			}
@@ -1497,7 +1497,7 @@ static void get_move_advance(monster_type *m_ptr, int *ty, int *tx)
 
 	/* Monster can go through rocks - head straight for character */
 	if ((r_ptr->flags2 & (RF2_PASS_WALL)) ||
-	   (r_ptr->flags2 & (RF2_KILL_WALL)))
+	    (r_ptr->flags2 & (RF2_KILL_WALL)))
 	{
 		*ty = py;
 		*tx = px;
@@ -1703,12 +1703,12 @@ static bool find_safety(monster_type *m_ptr, int *ty, int *tx)
 					 * with costs we have a chance of beating.
 					 */
 					if ((safe_cost[yy][xx] == 0) ||
-					      ((safe_cost[yy][xx] > parent_cost + 1) &&
-					       (safe_cost[yy][xx] < 100)))
+					    ((safe_cost[yy][xx] > parent_cost + 1) &&
+					     (safe_cost[yy][xx] < 100)))
 					{
 						/* Get the cost to enter this grid */
 						chance = cave_passable_mon(m_ptr, yy - conv_y,
-						         xx - conv_x, &dummy);
+									   xx - conv_x, &dummy);
 
 						/* Impassable */
 						if (!chance)
@@ -1723,7 +1723,7 @@ static bool find_safety(monster_type *m_ptr, int *ty, int *tx)
 
 						/* Next to character */
 						if (distance(yy - conv_y, xx - conv_x,
-						    p_ptr->py, p_ptr->px) <= 1)
+							     p_ptr->py, p_ptr->px) <= 1)
 						{
 							/* Don't want to maneuver next to the character */
 							cost += 3;
@@ -1741,12 +1741,12 @@ static bool find_safety(monster_type *m_ptr, int *ty, int *tx)
 							if (ABS(p_ptr->py - (yy - conv_y)) <
 							    ABS(m_ptr->fy - (yy - conv_y)))
 							{
-								 this_cost *= 2;
+								this_cost *= 2;
 							}
 							if (ABS(p_ptr->px - (xx - conv_x)) <
 							    ABS(m_ptr->fx - (xx - conv_x)))
 							{
-								 this_cost *= 2;
+								this_cost *= 2;
 							}
 
 							/* Accept lower-cost, sometimes accept same-cost options */
@@ -1931,7 +1931,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
 	{
 		/* Monster cannot pass through walls */
 		if (!((r_ptr->flags2 & (RF2_PASS_WALL)) ||
-	      	 (r_ptr->flags2 & (RF2_KILL_WALL))))
+		      (r_ptr->flags2 & (RF2_KILL_WALL))))
 		{
 			/* Run away from noise */
 			if (cave_cost[m_ptr->fy][m_ptr->fx])
@@ -2157,7 +2157,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 	{
 		/* The character is too close to avoid, and faster than we are */
 		if ((!m_ptr->monfear) && (m_ptr->cdis < TURN_RANGE) &&
-		     (p_ptr->pspeed > m_ptr->mspeed))
+		    (p_ptr->pspeed > m_ptr->mspeed))
 		{
 			/* Recalculate range */
 			find_range(m_ptr);
@@ -2224,10 +2224,10 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 
 	/* Uninjured animals in packs try to lure the character into the open. */
 	if ((!*fear) && (r_ptr->flags1 & (RF1_FRIENDS)) &&
-			(r_ptr->flags3 & (RF3_ANIMAL))  &&
-			(m_ptr->hp == m_ptr->maxhp) &&
-		      (!((r_ptr->flags2 & (RF2_PASS_WALL)) ||
-		      (r_ptr->flags2 & (RF2_KILL_WALL)))))
+	    (r_ptr->flags3 & (RF3_ANIMAL))  &&
+	    (m_ptr->hp == m_ptr->maxhp) &&
+	    (!((r_ptr->flags2 & (RF2_PASS_WALL)) ||
+	       (r_ptr->flags2 & (RF2_KILL_WALL)))))
 	{
 		/* Animal has to be willing to melee */
 		if (m_ptr->min_range == 1)
@@ -2377,7 +2377,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 
 			/* Monsters that can't target the character will advance. */
 			else if (projectable(m_ptr->fy, m_ptr->fx,
-			         py, px, 0) == PROJECT_NO)
+					     py, px, 0) == PROJECT_NO)
 			{
 				*ty = py;
 				*tx = px;
@@ -2658,7 +2658,7 @@ static void make_confused_move(monster_type *m_ptr, int y, int x)
 			cptr note_dies = " is burnt to death in lava!";
 
 			if (mon_take_hit(cave_m_idx[m_ptr->fy][m_ptr->fx],
-				50 + m_ptr->maxhp / 50, &fear, note_dies))
+					 50 + m_ptr->maxhp / 50, &fear, note_dies))
 			{
 				death = TRUE;
 			}
@@ -2675,7 +2675,7 @@ static void make_confused_move(monster_type *m_ptr, int y, int x)
 			cptr note_dies = " is drowned!";
 
 			if (mon_take_hit(cave_m_idx[m_ptr->fy][m_ptr->fx],
-				5 + m_ptr->maxhp / 20, &fear, note_dies))
+					 5 + m_ptr->maxhp / 20, &fear, note_dies))
 			{
 				death = TRUE;
 			}
@@ -2957,7 +2957,7 @@ static bool make_move(monster_type *m_ptr, int *ty, int *tx, bool fear, bool *ba
 					{
 						/* Accept any easily passable grid out of LOS */
 						if ((!player_has_los_bold(ny, nx)) &&
-							(moves_data[i].move_chance > 40))
+						    (moves_data[i].move_chance > 40))
 						{
 							break;
 						}
@@ -2988,7 +2988,7 @@ static bool make_move(monster_type *m_ptr, int *ty, int *tx, bool fear, bool *ba
 
 			/* XXX XXX -- Sometimes attempt to break glyphs. */
 			if ((cave_feat[ny][nx] == FEAT_GLYPH) && (!fear) &&
-			    (rand_int(5) == 0))
+			    ((rand_int(5) == 0) || (cave_m_idx[ny][nx] < 0)))
 			{
 				break;
 			}
@@ -3001,7 +3001,7 @@ static bool make_move(monster_type *m_ptr, int *ty, int *tx, bool fear, bool *ba
 				 * to the character, or get stuck fighting him.
 				 */
 				if ((fear) && (m_ptr->cdis <= 2) &&
-					(distance(p_ptr->py, p_ptr->px, ny, nx) <= 1))
+				    (distance(p_ptr->py, p_ptr->px, ny, nx) <= 1))
 				{
 					avoid = TRUE;
 				}
@@ -3279,7 +3279,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 	/* Other traps seldom affect flying monsters or ghosts. */
 	else if (((r_ptr->flags2 & (RF2_PASS_WALL)) ||
 		  (r_ptr->flags2 & (RF2_FLYING))) &&
-	          (rand_int(4) != 0))
+		 (rand_int(4) != 0))
 	{
 		if (m_ptr->ml) msg_format("%^s flies over your trap.", m_name);
 		trap_hit = FALSE;
@@ -3345,7 +3345,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 		{
 			/* HACK - no message for non-damaging traps */
 			if (!(feat == FEAT_MTRAP_CONF) && !(feat == FEAT_MTRAP_PORTAL) &&
-				!(feat == FEAT_MTRAP_STASIS))
+			    !(feat == FEAT_MTRAP_STASIS))
 			{
 				msg_print("You hear anguished yells in the distance.");
 			}
@@ -3604,7 +3604,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 
 		/* Doors */
 		else if (((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL)) ||
-		          (feat == FEAT_SECRET))
+			 (feat == FEAT_SECRET))
 		{
 			/* Monster bashes the door down */
 			if (bash)
@@ -3820,7 +3820,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 
 		/* Possible disturb */
 		else if (m_ptr->ml && (disturb_move ||
-		        (m_ptr->mflag & (MFLAG_VIEW) && disturb_near)))
+				       (m_ptr->mflag & (MFLAG_VIEW) && disturb_near)))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -3881,7 +3881,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 						did_take_item = TRUE;
 
 						/* Describe observable situations */
-						if (m_ptr->ml && player_has_los_bold(ny, nx))
+						if (m_ptr->ml && player_has_los_bold(ny, nx) && !squelch_hide_item(o_ptr))
 						{
 							/* Dump a message */
 							msg_format("%^s tries to pick up %s, but fails.",
@@ -3900,7 +3900,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 					did_take_item = TRUE;
 
 					/* Describe observable situations */
-					if (player_has_los_bold(ny, nx))
+					if (player_has_los_bold(ny, nx) && !squelch_hide_item(o_ptr))
 					{
 						/* Dump a message */
 						msg_format("%^s picks up %s.", m_name, o_name);
@@ -3926,7 +3926,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 					did_kill_item = TRUE;
 
 					/* Describe observable situations */
-					if (player_has_los_bold(ny, nx))
+					if (player_has_los_bold(ny, nx) && !squelch_hide_item(o_ptr))
 					{
 						/* Dump a message */
 						msg_format("%^s crushes %s.", m_name, o_name);
@@ -3991,7 +3991,8 @@ static void process_monster(monster_type *m_ptr)
 	int chance = 0;
 	int choice = 0;
 	int dir;
-	bool fear;
+	int scan_range = (adult_small_device ? r_ptr->aaf/2 : r_ptr->aaf); 
+	bool fear = FALSE;
 
 	bool bash;
 
@@ -4016,7 +4017,7 @@ static void process_monster(monster_type *m_ptr)
 		 * Character is outside of scanning range and well outside
 		 * of sighting range.  Monster does not have a target.
 		 */
-		if ((m_ptr->cdis >= FLEE_RANGE) && (m_ptr->cdis > r_ptr->aaf) &&
+		if ((m_ptr->cdis >= FLEE_RANGE) && (m_ptr->cdis > scan_range) &&
 		    (!m_ptr->ty) && (!m_ptr->tx))
 		{
 			/* Monster cannot smell the character */
@@ -4029,7 +4030,7 @@ static void process_monster(monster_type *m_ptr)
 	else
 	{
 		/* Character is inside scanning range */
-		if (m_ptr->cdis <= r_ptr->aaf) m_ptr->mflag |= (MFLAG_ACTV);
+		if (m_ptr->cdis <= scan_range) m_ptr->mflag |= (MFLAG_ACTV);
 
 		/* Monster has a target */
 		else if ((m_ptr->ty) && (m_ptr->tx)) m_ptr->mflag |= (MFLAG_ACTV);
@@ -4115,8 +4116,8 @@ static void process_monster(monster_type *m_ptr)
 		/* Default name */
 		else strcpy(m_name, "It");
 
-		get_rnd_line("bravado.txt", bravado);
-		msg_format("%^s %s", m_name, bravado);
+		if (!get_rnd_line("bravado.txt", bravado))
+		        msg_format("%^s %s", m_name, bravado);
 	}
 
 	/* Player ghosts may have a unique message they can say. */
@@ -4165,7 +4166,7 @@ static void process_monster(monster_type *m_ptr)
 	}
 
 	/* Roll to use ranged attacks failed, but monster is an archer. */
-	if ((choice == 0) && (r_ptr->flags2 & (RF2_ARCHER)) && (!(m_ptr->confused)))
+	if ((choice == 0) && (r_ptr->flags2 & (RF2_ARCHER)) && (!(m_ptr->confused)) && aware)
 	{
 		/* Pick an archery attack (usually) */
 		if ((rand_int(8) != 0) && (m_ptr->cdis > 1)) choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx], TRUE);
@@ -4178,7 +4179,7 @@ static void process_monster(monster_type *m_ptr)
 		make_attack_ranged(m_ptr, choice);
 
 		/* End turn */
-	return;
+		return;
 	}
 
 	/*** Movement ***/
@@ -4301,6 +4302,7 @@ static void recover_monster(monster_type *m_ptr, bool regen)
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int frac;
+	int scan_range = (adult_small_device ? r_ptr->aaf/2 : r_ptr->aaf); 
 
 
 	/* Handle stasis */
@@ -4310,7 +4312,7 @@ static void recover_monster(monster_type *m_ptr, bool regen)
 
 		/* Sudden emergence.  Uniques get a bonus. */
 		if (50 + r_ptr->level + (r_ptr->flags1 & (RF1_UNIQUE) ?
-			r_ptr->level / 2 : 0) > randint(800))
+					 r_ptr->level / 2 : 0) > randint(800))
 		{
 			m_ptr->stasis = 0;
 		}
@@ -4405,7 +4407,7 @@ static void recover_monster(monster_type *m_ptr, bool regen)
 
 
 	/* Monster is sleeping, but character is within detection range */
-	if ((m_ptr->csleep) && (m_ptr->cdis <= r_ptr->aaf))
+	if ((m_ptr->csleep) && (m_ptr->cdis <= scan_range))
 	{
 		/* Aggravated by the player */
 		if (p_ptr->aggravate)
@@ -4481,7 +4483,7 @@ static void recover_monster(monster_type *m_ptr, bool regen)
 
 	/* Chance for extra noise to wake up monsters in LOS */
 	if ((m_ptr->csleep) && (add_wakeup_chance > 0) &&
-	     (player_has_los_bold(m_ptr->fy, m_ptr->fx)))
+	    (player_has_los_bold(m_ptr->fy, m_ptr->fx)))
 	{
 		if (add_wakeup_chance > rand_int(10000))
 		{

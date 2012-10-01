@@ -60,13 +60,13 @@
 /* What variant is this? Used in the highscore dump */
 
 /* Yep, Bablos, this is still a mess! ;) */
-#define VERTITLE "Oangband 0.5.1"
-#define VERSION "Oangband"
-#define VERS "0.5.1"
-#define VARIANT "Oangband 0.5.1"
+#define VERTITLE "FAangband 0.1.0"
+#define VERSION "FAangband"
+#define VERS "0.1.0"
+#define VARIANT "FAangband 0.1.0"
 
 /* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
-#define VERPATH "Oangband:"
+#define VERPATH "FAangband:"
 
 #define CGXSUPPORT					/* Define for RTG support. Leave on */
 //#define SANGBAND					/* Define if this is Sangband. */
@@ -80,6 +80,7 @@
 
 #ifndef __CEXTRACT__
 #include "angband.h"
+#include "main.h"
 
 #include "vers.h"
 
@@ -538,19 +539,11 @@ struct NewMenu window_menu[] =
 /* Menu array */
 static struct NewMenu newmenu[ MENUMAX ];
 
-#ifdef USE_TRANSPARENCY
 extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
-#else /* USE_TRANSPARENCY */
-extern void map_info(int y, int x, byte *ap, char *cp);
-#endif /* USE_TRANSPARENCY */
 extern void center_string( char *buf, cptr str );
 extern void amiga_gfxmap(void);
 
-#ifdef USE_TRANSPARENCY
 static errr amiga_pict( int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp );
-#else
-static errr amiga_pict( int x, int y, int n, const byte *ap, const char *cp );
-#endif
 
 errr init_ami ( void );
 static int load_backpic ( term_data *t, char *name );
@@ -633,6 +626,10 @@ static void amiga_gfx(int type);
 static int find_menuitem(int *rmenu, int *item, void *ud);
 static void quick_BltBitMapRastPort( struct BitMap *src, int x, int y, struct RastPort *rp, int dx, int dy, int dw, int dh, int mode);
 static void quick_Text(struct RastPort *rp, int col, char *s, int n, int dx, int dy);
+
+const char help_ami[] = 
+"AMI (Amiga)";
+
 
 errr init_ami( void )
 {
@@ -1845,7 +1842,7 @@ static void free_term( term_data *td )
 
 static BOOL strreq( char *s, char *d)
 {
-	return((BOOL)!stricmp(s,d));
+	return((BOOL)!my_stricmp(s,d));
 }
 
 /* Get font name from user, return in str as 'topaz.font/8' or '' if cancel */
@@ -1962,25 +1959,25 @@ int read_menus( void )
 			{
 				s = token_line(s, buf);
 
-				if (!stricmp(buf, "dungeon_map"))
+				if (!my_stricmp(buf, "dungeon_map"))
 					internal = MNU_SCALEDMAP;
-				else if (!stricmp(buf, "palette_requester"))
+				else if (!my_stricmp(buf, "palette_requester"))
 					internal = MNU_PALETTE;
-				else if (!stricmp(buf, "load_palette"))
+				else if (!my_stricmp(buf, "load_palette"))
 					internal = MNU_LOAD_PALETTE;
-				else if (!stricmp(buf, "graphics_off"))
+				else if (!my_stricmp(buf, "graphics_off"))
 					internal = MNU_GRAPHICS_OFF;
-				else if (!stricmp(buf, "graphics_8x8"))
+				else if (!my_stricmp(buf, "graphics_8x8"))
 					internal = MNU_GRAPHICS_8;
-				else if (!stricmp(buf, "graphics_16x16"))
+				else if (!my_stricmp(buf, "graphics_16x16"))
 					internal = MNU_GRAPHICS_16;
-				else if (!stricmp(buf, "save_palette"))
+				else if (!my_stricmp(buf, "save_palette"))
 					internal = MNU_SAVE_PALETTE;
-				else if (!stricmp(buf, "CTRL"))
+				else if (!my_stricmp(buf, "CTRL"))
 					ctrl_key = TRUE;
-				else if (!stricmp(buf, "HELP"))
+				else if (!my_stricmp(buf, "HELP"))
 					help_key = TRUE;
-				else if (!stricmp(buf, "RAMIGA"))
+				else if (!my_stricmp(buf, "RAMIGA"))
 					ramiga_key = TRUE;
 				else
 					keycode[0] = buf[0];
@@ -2524,11 +2521,7 @@ static errr amiga_clear( void )
 	return ( 0 );
 }
 
-#ifdef USE_TRANSPARENCY
 static errr amiga_pict( int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp )
-#else
-static errr amiga_pict( int x, int y, int n, const byte *ap, const char *cp )
-#endif
 {
 	term_data *td = (term_data *)(Term->data);
 
@@ -2552,7 +2545,6 @@ static errr amiga_pict( int x, int y, int n, const byte *ap, const char *cp )
 		a = ap[i];
 		c = cp[i];
 
-#ifdef USE_TRANSPARENCY
 		if (screen_enhanced)
 		{
 			put_gfx(  td->rp, x, y, tcp[i], tap[i] );
@@ -2560,9 +2552,6 @@ static errr amiga_pict( int x, int y, int n, const byte *ap, const char *cp )
 		}
 		put_gfx(  td->rp, x, y, c, a );
 		use_mask = 0;
-#else
-		put_gfx( td->rp, x, y, c, a );
-#endif
 		x++;
 	}
 	return ( 0 );
@@ -3508,16 +3497,12 @@ static void cursor_off( term_data *td )
 		/* Restore graphics under cursor */
 		if ( CUR_A & 0xf0 && use_graphics )
 		{
-#ifdef USE_TRANSPARENCY
 		put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, Term->scr->tc[ td->cursor_ypos ][ td->cursor_xpos ],
 				Term->scr->ta[ td->cursor_ypos ][ td->cursor_xpos ]);
 		use_mask = 1;
 		put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, Term->scr->c[ td->cursor_ypos ][ td->cursor_xpos ],
 				Term->scr->a[ td->cursor_ypos ][ td->cursor_xpos ]);
 		use_mask = 0;
-#else
-			put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, CUR_C, CUR_A );
-#endif
 		}
 		/* Restore char/attr under cursor */
 		else
@@ -3589,16 +3574,13 @@ static void cursor_anim( void )
 		if ( CUR_A & 0x80 && use_graphics )
 		{
 			/* First draw the tile under cursor */
-#ifdef USE_TRANSPARENCY
 			put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, Term->scr->tc[ td->cursor_ypos ][ td->cursor_xpos ],
 				Term->scr->ta[ td->cursor_ypos ][ td->cursor_xpos ]);
 			use_mask = 1;
 			put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, Term->scr->c[ td->cursor_ypos ][ td->cursor_xpos ],
 				Term->scr->a[ td->cursor_ypos ][ td->cursor_xpos ]);
 			use_mask = 0;
-#else
-			put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, CUR_C, CUR_A );
-#endif
+
 			if ( td->cursor_frame < 4 )
 			{
 				x0 = td->cursor_xpos * td->fw;
@@ -4119,9 +4101,8 @@ static void amiga_map( void )
 	term_data *td = &data[ 0 ];
 	int i,j;
 	byte ta,tc;
-#ifdef USE_TRANSPARENCY
 	byte tap,tcp;
-#endif
+
 #ifdef ANG282
 	int max_wid = DUNGEON_WID, max_hgt = DUNGEON_HGT;
 	int min_wid = 0, min_hgt = 0;
@@ -4198,11 +4179,7 @@ static void amiga_map( void )
 				/* Get tile from cave table */
 				else
 				{
-#ifdef USE_TRANSPARENCY
 					map_info( j, i, &ta, (char *) &tc, &tap, (char *) &tcp );
-#else
-					map_info( j, i, &ta, (char *) &tc );
-#endif
 				}
 
 				/* Ignore non-graphics */
@@ -4250,11 +4227,7 @@ static void amiga_map( void )
 				/* Get tile from cave table */
 				else
 				{
-#ifdef USE_TRANSPARENCY
 					map_info( j, i, &ta, (char *) &tc, &tap, (char *) &tcp );
-#else
-					map_info( j, i, &ta, (char *) &tc );
-#endif
 				}
 
 				/* Ignore non-graphics */
@@ -5326,7 +5299,7 @@ void amiga_hs_to_ascii(void)
 }
 
 /* Provides name of the last used save file in 'buf', by reading
-   'user/data-ami.prf'. This is a hack, but works for most player names.
+   'user/data-ami.prf'. This is a hack, but works for most player names. 
    Insert in main.c */
 void amiga_user_name( char *buf )
 {

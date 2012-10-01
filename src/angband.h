@@ -9,6 +9,12 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
+#ifdef _WIN32_WCE
+# ifndef WINDOWS
+#  define WINDOWS 1
+# endif
+#endif
+
 #ifndef INCLUDED_ANGBAND_H
 #define INCLUDED_ANGBAND_H
 
@@ -25,6 +31,7 @@
 #include "z-form.h"
 #include "z-rand.h"
 #include "z-term.h"
+#include "z-file.h"
 
 /*
  * Include the high-level includes.
@@ -33,7 +40,9 @@
 #include "defines.h"
 #include "types.h"
 #include "externs.h"
-
+#include "cmds.h"
+#include "ui.h"
+#include "z-type.h"
 
 
 /***** Some older copyright messages follow below *****/

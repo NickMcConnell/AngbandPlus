@@ -45,53 +45,10 @@
 
 
 /*
- * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
- * that use the 4.4BSD Lite version of Curses in "main-gcu.c"
- */
-/* #define SPECIAL_BSD */
-
-
-/*
- * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
- */
-/* #define USE_TPOSIX */
-
-/*
- * OPTION: Use the "termio" methods in "main-gcu.c"
- */
-/* #define USE_TERMIO */
-
-/*
- * OPTION: Use the icky BSD "tchars" methods in "main-gcu.c"
- */
-/* #define USE_TCHARS */
-
-
-/*
- * OPTION: Use "blocking getch() calls" in "main-gcu.c".
- * Hack -- Note that this option will NOT work on many BSD machines
- * Currently used whenever available, if you get a warning about
- * "nodelay()" undefined, then make sure to undefine this.
- */
-#if defined(SYS_V) || defined(AMIGA)
-# define USE_GETCH
-#endif
-
-
-/*
- * OPTION: Use the "curs_set()" call in "main-gcu.c".
- * Hack -- This option will not work on most BSD machines
- * But it *will* work on Linux, which is not System V. -uav
- */
-#if defined (SYS_V) || defined(linux)
-# define USE_CURS_SET
-#endif
-
-
-/*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
  */
 /* #define USE_NCURSES */
+
 
 
 /*
@@ -217,13 +174,6 @@
 #define ALLOW_TEMPLATES
 
 /*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- */
-#define ALLOW_OLD_SAVEFILES
-
-
-/*
  * OPTION: Delay the loading of the "f_text" array until it is actually
  * needed, saving ~1K, since "feature" descriptions are unused.
  */
@@ -289,8 +239,8 @@
 
 
 /*
- * OPTION: Allow monsters to use noise and scent information to better
- * track the character.  This feature requires a significant amount of
+ * OPTION: Allow monsters to use noise and scent information to better 
+ * track the character.  This feature requires a significant amount of 
  * memory.
  */
 #define MONSTER_FLOW
@@ -317,12 +267,15 @@
 /*
  * OPTION: Allow the use of "sound" in various places.
  */
-#define USE_SOUND
+#ifdef _WIN32_WCE
+#else
+ #define USE_SOUND
+#endif
 
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-/* #define USE_GRAPHICS TNB */
+#define USE_GRAPHICS /* TNB */
 
 
 /*
@@ -362,14 +315,10 @@
  * OPTION: Set the "default" path to the angband "lib" directory.
  *
  * See "main.c" for usage, and note that this value is only used on
- * certain machines, primarily Unix machines.
- *
- * The configure script overrides this value.  Check the "--prefix=<dir>"
- * option of the configure script.
- *
- * This value will be over-ridden by the "ANGBAND_PATH" environment
- * variable, if that variable is defined and accessable.  The final
- * "slash" is required if the value supplied is in fact a directory.
+ * certain machines, primarily Unix machines.  If this value is used,
+ * it will be over-ridden by the "ANGBAND_PATH" environment variable,
+ * if that variable is defined and accessable.  The final slash is
+ * optional, but it may eventually be required.
  *
  * Using the value "./lib/" below tells Angband that, by default,
  * the user will run "angband" from the same directory that contains
@@ -381,7 +330,7 @@
  */
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
-#endif /* DEFAULT_PATH */
+#endif
 
 
 /*
@@ -390,7 +339,7 @@
  */
 #ifdef SET_UID
 # ifndef PRIVATE_USER_PATH
-/* #  define PRIVATE_USER_PATH "~/.angband" */
+#  define PRIVATE_USER_PATH "~/.angband"
 # endif /* PRIVATE_USER_PATH */
 #endif /* SET_UID */
 
@@ -409,31 +358,7 @@
  */
 #ifdef SET_UID
 # define SAVEFILE_USE_UID
-#endif /* SET_UID */
-
-
-/*
- * Allow the user to execute his own scripts in debug mode.
- *
- * The user-script code has not been checked for security issues yet,
- * so the user shouldn't be allowed to execute his own scripts from
- * a setgid executable.
- */
-#ifndef SET_UID
-# define ALLOW_USER_SCRIPTS
-#endif /* SET_UID */
-
-
-/*
- * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
- * the '-d<what>=<path>' command line option (except for '-du=<path>').
- *
- * This prevents cheating in multi-user installs as well as possible
- * security problems when running setgid.
- */
-#ifdef SET_UID
-#define FIXED_PATHS
-#endif /* SET_UID */
+#endif
 
 
 /*
@@ -447,7 +372,7 @@
  * player's name, it will then save the savefile elsewhere.  Note that
  * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
  */
-#if defined(MACINTOSH) || defined(AMIGA)
+#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
 # define SAVEFILE_MUTABLE
 #endif
 
@@ -455,13 +380,6 @@
  * OPTION: Check the "time" against "lib/file/hours.txt"
  */
 /* #define CHECK_TIME */
-
-/*
- * OPTION: Check the "load" against "lib/file/load.txt"
- * This may require the 'rpcsvs' library
- */
-/* #define CHECK_LOAD */
-
 
 /*
  * OPTION: Capitalize the "user_name" (for "default" player name)
@@ -473,35 +391,25 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"bahman@topped-with-meat.com"
+#define MAINTAINER	"nckmccnnll@yahoo.com.au"
 
 /*
  * OPTION: Default font (when using X11).
  */
-#define DEFAULT_X11_FONT		"9x15"
+#define DEFAULT_X11_FONT		"8x16x"
 
 
 /*
  * OPTION: Default fonts (when using X11)
  */
-#define DEFAULT_X11_FONT_0		"10x20"
-#define DEFAULT_X11_FONT_1		"9x15"
-#define DEFAULT_X11_FONT_2		"9x15"
-#define DEFAULT_X11_FONT_3		"5x8"
-#define DEFAULT_X11_FONT_4		"5x8"
-#define DEFAULT_X11_FONT_5		"5x8"
-#define DEFAULT_X11_FONT_6		"5x8"
-#define DEFAULT_X11_FONT_7		"5x8"
-
-
-/*
- * OPTION: Default fonts (when using X11)
- */
-#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
-
+#define DEFAULT_X11_FONT_0		"8x16x"
+#define DEFAULT_X11_FONT_1		"8x12x"
+#define DEFAULT_X11_FONT_2		"8x12x"
+#define DEFAULT_X11_FONT_3		"5x8x"
+#define DEFAULT_X11_FONT_4		"5x8x"
+#define DEFAULT_X11_FONT_5		"5x8x"
+#define DEFAULT_X11_FONT_6		"5x8x"
+#define DEFAULT_X11_FONT_7		"5x8x"
 
 
 
@@ -536,7 +444,6 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
-# undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
@@ -566,27 +473,3 @@
 # define VERIFY_TIMESTAMP
 #endif
 
-/*
- * OPTION: Repeat last command -- TNB
- */
-#define ALLOW_REPEAT
-
-/*
- * OPTION: Make opening and closing things easy -- TNB
- */
-#define ALLOW_EASY_OPEN
-
-/*
- * OPTION: Make disarming traps easy -- TNB
- */
-#define ALLOW_EASY_DISARM
-
-/*
- * Hack -- Mach-O (native binary format of OS X) is basically a Un*x
- * but has Mac OS/Windows-like user interface
- */
-#ifdef MACH_O_CARBON
-# ifdef SAVEFILE_USE_UID
-#  undef SAVEFILE_USE_UID
-# endif
-#endif

@@ -22,46 +22,20 @@
  * which will have already "included" several relevant header files.
  */
 
+#include "angband.h"
 
+#if defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ) || defined(USE_GTK)
 
-#ifndef IsModifierKey
+#ifndef __MAKEDEPEND__
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/keysym.h>
+#include <X11/Xproto.h>
+#include <X11/keysymdef.h>
+#endif /* __MAKEDEPEND__ */
 
-/*
- * Keysym macros, used on Keysyms to test for classes of symbols
- * These were stolen from one of the X11 header files
- *
- * Also appears in "main-x11.c".
- */
-
-#define IsKeypadKey(keysym) \
-  (((unsigned)(keysym) >= XK_KP_Space) && ((unsigned)(keysym) <= XK_KP_Equal))
-
-#define IsCursorKey(keysym) \
-  (((unsigned)(keysym) >= XK_Home)     && ((unsigned)(keysym) <  XK_Select))
-
-#define IsPFKey(keysym) \
-  (((unsigned)(keysym) >= XK_KP_F1)     && ((unsigned)(keysym) <= XK_KP_F4))
-
-#define IsFunctionKey(keysym) \
-  (((unsigned)(keysym) >= XK_F1)       && ((unsigned)(keysym) <= XK_F35))
-
-#define IsMiscFunctionKey(keysym) \
-  (((unsigned)(keysym) >= XK_Select)   && ((unsigned)(keysym) <  XK_KP_Space))
-
-#define IsModifierKey(keysym) \
-  (((unsigned)(keysym) >= XK_Shift_L)  && ((unsigned)(keysym) <= XK_Hyper_R))
-
-#endif /* IsModifierKey */
-
-
-/*
- * Checks if the keysym is a special key or a normal key
- * Assume that XK_MISCELLANY keysyms are special
- *
- * Also appears in "main-x11.c".
- */
-#define IsSpecialKey(keysym) \
-  ((unsigned)(keysym) >= 0xFF00)
+/* Include our headers */
+#include "maid-x11.h"
 
 
 #ifdef SUPPORT_GAMMA
@@ -73,17 +47,13 @@ static int gamma_val = 0;
 /*
  * Hack -- Convert an RGB value to an X11 Pixel, or die.
  */
-static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
+u32b create_pixel(Display *dpy, byte red, byte green, byte blue)
 {
 	Colormap cmap = DefaultColormapOfScreen(DefaultScreenOfDisplay(dpy));
-
-	char cname[8];
 
 	XColor xcolour;
 
 #ifdef SUPPORT_GAMMA
-
-
 
 	if (!gamma_table_ready)
 	{
@@ -116,12 +86,432 @@ static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
 	/* Attempt to Allocate the Parsed color */
 	if (!(XAllocColor(dpy, cmap, &xcolour)))
 	{
-		quit_fmt("Couldn't allocate bitmap color '%s'\n", cname);
+		quit_fmt("Couldn't allocate bitmap color #%04x%04x%04x\n",
+		         xcolour.red, xcolour.green, xcolour.blue);
 	}
 
 	return (xcolour.pixel);
 }
 
+/*
+ * Removes all redundant dots and path separators from a given path.
+ * "path" must be an absolute UNIX path (it has to start with PATH_SEP).
+ */
+static void simplify_unix_path(char path[], size_t max)
+{
+ 	char buf[1024];
+ 	char *pbuf = buf, *psep;
+ 	int size_sep = strlen(PATH_SEP);
+ 	/* This table holds pointers to the parts of the path */
+ 	char *parts[100];
+ 	int i, j, n = 0;
+
+ 	/* Make a copy of the path */
+ 	my_strcpy(buf, path, sizeof(buf));
+
+ 	/* Separate the parts of the path */
+ 	while ((psep = strstr(pbuf, PATH_SEP)) != NULL)
+ 	{
+ 		/* Terminate the part */
+ 		*psep = '\0';
+
+ 		/* Put the part in the table */
+ 		if (*pbuf && (n < N_ELEMENTS(parts))) parts[n++] = pbuf;
+
+ 		/* Skip the separator and jump to the next part */
+ 		pbuf = psep + size_sep;
+ 	}
+
+ 	/* Append the last part to the table */
+ 	if (*pbuf && (n < N_ELEMENTS(parts))) parts[n++] = pbuf;
+
+ 	/*
+ 	 * Traverse the parts table, processing "." and ".."
+ 	 * We use two indexes, "i" to traverse the table and "j" to save
+ 	 * its final size.
+ 	 */
+ 	for (i = j = 0; i < n; i++)
+ 	{
+ 		/* Get the part */
+ 		char *part = parts[i];
+
+ 		/*
+ 		 * "." does nothing. "j" isn't modified, so "." is removed
+ 		 * from the table
+ 		 */
+ 		if (streq(part, ".")) continue;
+
+ 		/* ".." removes the previous part, if possible */
+ 		if (streq(part, ".."))
+ 		{
+ 			if (j > 0) --j;
+
+ 			continue;
+ 		}
+
+ 		/* Normal case. Copy the part to its final position */
+ 		parts[j++] = part;
+ 	}
+
+ 	/* Update the number of parts */
+ 	n = j;
+
+ 	/* Start with an empty string */
+ 	path[0] = '\0';
+
+ 	/* Construct the simplified path, it contains at least the root dir */
+ 	pbuf = my_fast_strcat(path, NULL, PATH_SEP, max);
+
+ 	/* Concat the parts */
+ 	for (i = 0; i < n; i++)
+ 	{
+ 		/* Append the part */
+ 		pbuf = my_fast_strcat(path, pbuf, parts[i], max);
+
+ 		/* Append the separator, except for the last part */
+ 		if (i < (n - 1))
+ 		{
+ 			pbuf = my_fast_strcat(path, pbuf, PATH_SEP, max);
+ 		}
+ 	}
+}
+
+
+#ifdef SET_UID
+
+/*
+ * Construct the full pathname of the given file.
+ * TODO -- Move this to util.c
+ */
+static errr path_build_full(char buf[], size_t max, cptr file)
+{
+ 	char tmp_buf[1024], *pbuf;
+
+ 	/* Parse special directories, etc. */
+ 	if (path_parse(tmp_buf, sizeof(tmp_buf), file)) return (1);
+
+ 	/* We already have an absolute path? */
+ 	if (prefix(tmp_buf, PATH_SEP))
+ 	{
+ 		/* Just copy the path */
+ 		my_strcpy(buf, tmp_buf, max);
+
+ 		/* Done */
+ 		return (0);
+ 	}
+
+ 	/* We got a relative path, get the current working directory */
+ 	if (!getcwd(buf, max))
+ 	{
+ 		/* Failed */
+ 		return (1);
+ 	}
+
+ 	/* Append the path to the current working directory */
+ 	pbuf = NULL;
+
+ 	pbuf = my_fast_strcat(buf, pbuf, PATH_SEP, max);
+
+ 	pbuf = my_fast_strcat(buf, pbuf, tmp_buf, max);
+
+ 	/* Remove all redundant dots and path separators */
+ 	simplify_unix_path(buf, max);
+
+ 	/* Success */
+ 	return (0);
+}
+
+#else /* SET_UID */
+
+#define path_build_full(buf, max, file) \
+ 	path_parse(buf, max, file)
+
+#endif /* SET_UID */
+
+/* Hack -- Remember if XSetFontPath failed */
+static bool set_font_path_failed;
+
+/* Custom error handler for XWindows. It doesn't quit the application */
+static int my_error_handler(Display *display, XErrorEvent *event)
+{
+ 	/* XSetFontPath errors require special handling */
+ 	if ((event->request_code == X_SetFontPath) &&
+ 		(event->error_code == BadValue))
+ 	{
+ 		/* Remember the error */
+ 		set_font_path_failed = TRUE;
+	}
+
+ 	/* Dummy value */
+ 	return (0);
+}
+
+
+/*
+ * Full path to the lib/xtra/font folder
+ */
+static char full_fdir_path[1024];
+
+/*
+ * Tell to the X server where to find the fonts provided with Angband.
+ * Returns TRUE on success.
+ */
+bool register_angband_fonts(void)
+{
+ 	char *display_name = "";
+ 	Display *display;
+ 	char **dir_list;
+ 	int i, ndirs;
+ 	char fdir_path[1024];
+
+ 	/* Get the path to lib/xtra/font */
+ 	if (path_build(fdir_path, sizeof(fdir_path), ANGBAND_DIR_XTRA, "font"))
+ 	{
+ 		/* Failed */
+ 		return (FALSE);
+ 	}
+
+ 	/* Get the FULL path to lib/xtra/font */
+ 	if (path_build_full(full_fdir_path, sizeof(full_fdir_path), fdir_path))
+ 	{
+ 		/* Failed */
+ 		return (FALSE);
+ 	}
+
+ 	/* Paranoia */
+ 	if (!prefix(full_fdir_path, PATH_SEP)) return (FALSE);
+
+ 	/* Open a connection to the X server */
+ 	display = XOpenDisplay(display_name);
+
+ 	/* Check status of the connection */
+ 	if (!display) return (FALSE);
+
+ 	/* Hack -- Assume success */
+ 	set_font_path_failed = FALSE;
+
+ 	/* Get the current font path of the X server */
+ 	dir_list = XGetFontPath(display, &ndirs);
+
+ 	/* Check if lib/xtra/font is already there */
+ 	for (i = 0; i < ndirs; i++)
+ 	{
+ 		/* Found it */
+ 		if (streq(dir_list[i], full_fdir_path)) break;
+ 	}
+
+ 	/* The lib/xtra/font folder is not in the font path. Append it */
+ 	if (i >= ndirs)
+ 	{
+ 		char **new_dir_list;
+ 		int (*old_error_handler)(Display *, XErrorEvent *);
+
+ 		/* Allocate the new font path */
+ 		C_MAKE(new_dir_list, ndirs + 1, cptr);
+
+ 		/* Copy the entries of the old font path into the new one */
+ 		for (i = 0; i < ndirs; i++)
+ 		{
+ 			new_dir_list[i] = dir_list[i];
+ 		}
+
+ 		/* Append the full path to lib/xtra/font */
+ 		new_dir_list[i] = full_fdir_path;
+
+ 		/* Set a custom error handler to avoid program termination */
+ 		old_error_handler = XSetErrorHandler(my_error_handler);
+
+ 		/* Set the new font path */
+ 		XSetFontPath(display, new_dir_list, ndirs + 1);
+
+ 		/* Release resources */
+ 		FREE(new_dir_list);
+
+ 		/* Synchronize with the X server to catch errors ASAP */
+ 		XSync(display, FALSE);
+
+ 		/* Reset the error handler */
+ 		XSetErrorHandler(old_error_handler);
+ 	}
+
+ 	/* Cleanup */
+ 	XFreeFontPath(dir_list);
+
+ 	/* Close the connection to the X server */
+ 	XCloseDisplay(display);
+
+ 	/* Failed */
+ 	if (set_font_path_failed)
+ 	{
+ 		plog_fmt("Bad font directory. (%s)", full_fdir_path);
+ 		plog("Possible causes:");
+ 		plog("\t1. Directory doesn't exist.");
+ 		plog("\t2. You have the wrong permissions.");
+ 		plog("\t3. Directory lacks a fonts.dir file.");
+
+ 		return (FALSE);
+ 	}
+
+ 	/* Success */
+ 	return (TRUE);
+}
+
+
+/*
+ * Remove the fonts provided with Angband from the X server.
+ * We do this to solve conflicts with font names of other variants.
+ * NOTE: This doesn't handle parallel execution of *bands.
+ * Returns TRUE on success.
+ */
+bool unregister_angband_fonts(void)
+{
+ 	char *display_name = "";
+ 	Display *display;
+ 	char **dir_list, **new_dir_list;
+ 	int i, j, ndirs;
+
+ 	/* Open a connection to the X server */
+ 	display = XOpenDisplay(display_name);
+
+ 	/* Check status of the connection */
+ 	if (!display) return (FALSE);
+
+ 	/* Hack -- Assume success */
+ 	set_font_path_failed = FALSE;
+
+ 	/* Get the current font path of the X server */
+ 	dir_list = XGetFontPath(display, &ndirs);
+
+ 	/* Allocate the new font path */
+ 	C_MAKE(new_dir_list, ndirs, cptr);
+
+ 	/* Put the current font directories in the new font path */
+ 	for (i = j = 0; i < ndirs; i++)
+ 	{
+ 		/* Except lib/xtra/font */
+ 		if (streq(dir_list[i], full_fdir_path)) continue;
+
+ 		/* Some other font directory */
+ 		new_dir_list[j++] = dir_list[i];
+ 	}
+
+ 	/* Something changed */
+ 	if (j < ndirs)
+ 	{
+ 		int (*old_error_handler)(Display *, XErrorEvent *);
+
+ 		/* Set a custom error handler to avoid program termination */
+ 		old_error_handler = XSetErrorHandler(my_error_handler);
+
+ 		/* Adjust the number of directories in the font path */
+ 		ndirs = j;
+
+ 		/* Set the new font path */
+ 		XSetFontPath(display, new_dir_list, ndirs);
+
+ 		/* Synchronize with the X server to catch errors ASAP */
+ 		XSync(display, FALSE);
+
+ 		/* Reset the error handler */
+ 		XSetErrorHandler(old_error_handler);
+ 	}
+
+ 	/* Release resources */
+ 	FREE(new_dir_list);
+
+ 	/* Cleanup */
+ 	XFreeFontPath(dir_list);
+
+ 	/* Close the connection to the X server */
+ 	XCloseDisplay(display);
+
+ 	/* Failed */
+ 	if (set_font_path_failed)
+ 	{
+ 		plog_fmt("Can't remove %s from the font path", full_fdir_path);
+
+		return (FALSE);
+	}
+
+	/* Success */
+	return (TRUE);
+}
+
+
+
+
+/*
+ * Get the name of the default font to use for the term.
+ */
+cptr get_default_font(int term_num)
+{
+	cptr font;
+
+	char buf[80];
+
+	/* Window specific font name */
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_FONT_%d", term_num);
+
+	/* Check environment for that font */
+	font = getenv(buf);
+
+	/* Check environment for "base" font */
+	if (!font) font = getenv("ANGBAND_X11_FONT");
+
+	/* No environment variables, use default font */
+	if (!font)
+	{
+		switch (term_num)
+		{
+			case 0:
+			{
+				font = DEFAULT_X11_FONT_0;
+			}
+			break;
+			case 1:
+			{
+				font = DEFAULT_X11_FONT_1;
+			}
+			break;
+			case 2:
+			{
+				font = DEFAULT_X11_FONT_2;
+			}
+			break;
+			case 3:
+			{
+				font = DEFAULT_X11_FONT_3;
+			}
+			break;
+			case 4:
+			{
+				font = DEFAULT_X11_FONT_4;
+			}
+			break;
+			case 5:
+			{
+				font = DEFAULT_X11_FONT_5;
+			}
+			break;
+			case 6:
+			{
+				font = DEFAULT_X11_FONT_6;
+			}
+			break;
+			case 7:
+			{
+				font = DEFAULT_X11_FONT_7;
+			}
+			break;
+			default:
+			{
+				font = DEFAULT_X11_FONT;
+			}
+		}
+	}
+
+	return (font);
+}
 
 
 #ifdef USE_GRAPHICS
@@ -203,7 +593,7 @@ static void rd_u32b(FILE *fff, u32b *ip)
  * Assumes that the bitmap has a size such that no padding is needed in
  * various places.  Currently only handles bitmaps with 3 to 256 colors.
  */
-static XImage *ReadBMP(Display *dpy, char *Name)
+XImage *ReadBMP(Display *dpy, char *Name)
 {
 	Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
 
@@ -224,7 +614,7 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 
 	int i, j;
 
-	u16b x, y;
+	u32b x, y;
 
 	unsigned long clr_pixels[256];
 
@@ -297,19 +687,19 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 
 	Res = XCreateImage(dpy, visual, depth, ZPixmap, 0 /*offset*/,
 	                   Data, infoheader.biWidth, infoheader.biHeight,
-	                   8 /*bitmap_pad*/, 0 /*bytes_per_line*/);
+	                   32 /*bitmap_pad*/, 0 /*bytes_per_line*/);
 
 	/* Failure */
 	if (Res == NULL)
 	{
-		C_KILL(Data, total, char);
+		KILL(Data);
 		fclose(f);
 		return (NULL);
 	}
 
 	for (y = 0; y < infoheader.biHeight; y++)
 	{
-		int y2 = infoheader.biHeight - y - 1;
+		u32b y2 = infoheader.biHeight - y - 1;
 
 		for (x = 0; x < infoheader.biWidth; x++)
 		{
@@ -320,8 +710,12 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 
 			if (infoheader.biBitCount == 24)
 			{
-				int c2 = getc(f);
-				int c3 = getc(f);
+				int c3, c2 = getc(f);
+
+				/* Verify not at end of file XXX XXX */
+				if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
+
+				c3 = getc(f);
 
 				/* Verify not at end of file XXX XXX */
 				if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
@@ -373,7 +767,7 @@ static int redShift, greenShift, blueShift;
 /*
  * Use smooth rescaling?
  */
-static bool smoothRescaling = TRUE;
+bool smoothRescaling = TRUE;
 
 
 /*
@@ -553,8 +947,8 @@ static void PutRGBScan(XImage *Im, int x, int y, int w, int div,
  * vertical directions (eg. shrink horizontal, grow vertical).
  */
 static void ScaleIcon(XImage *ImIn, XImage *ImOut,
-    	    	      int x1, int y1, int x2, int y2,
-		      int ix, int iy, int ox, int oy)
+                      int x1, int y1, int x2, int y2,
+                      int ix, int iy, int ox, int oy)
 {
 	int div;
 	int xi, yi, si, sifrac, ci, cifrac, addWhole, addFrac;
@@ -597,13 +991,17 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 		iy--;
 		oy--;
 		div *= oy;
+
 		/* get first row: */
 		GetScaledRow(ImIn, x1, y1, ix, ox, nextRed, nextGreen, nextBlue);
+
 		/* si and sifrac give the subsampling position: */
 		si = y1;
 		sifrac = 0;
+
 		/* getNextRow tells us, that we need the next row */
 		getNextRow = TRUE;
+
 		for (yi = 0; yi <= oy; yi++)
 		{
 			if (getNextRow)
@@ -614,6 +1012,7 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 					prevGreen[xi] = nextGreen[xi];
 					prevBlue[xi]  = nextBlue[xi];
 				}
+
 				if (yi < oy)
 				{
 					/* only get next row if in same icon */
@@ -650,31 +1049,36 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 			{
 				getNextRow = FALSE;
 			}
-
 		}
 	}
 	else
 	{
 		/* scaling by averaging (shrink) */
 		div *= iy;
+
 		/* height of a output row in input rows: */
 		addWhole = iy / oy;
 		addFrac = iy % oy;
+
 		/* start position of the first output row: */
 		si = y1;
 		sifrac = 0;
+
 		/* get first input row: */
 		GetScaledRow(ImIn, x1, y1, ix, ox, nextRed, nextGreen, nextBlue);
+
 		for (yi = 0; yi < oy; yi++)
 		{
 			/* find endpoint of the current output row: */
 			ci = si + addWhole;
 			cifrac = sifrac + addFrac;
+
 			if (cifrac >= oy)
 			{
 				ci++;
 				cifrac -= oy;
 			}
+
 			/* take fraction of current input row (starting segment): */
 			for (xi = 0; xi < ox; xi++)
 			{
@@ -682,12 +1086,15 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 				tempGreen[xi] = nextGreen[xi] * (oy - sifrac);
 				tempBlue[xi]  = nextBlue[xi]  * (oy - sifrac);
 			}
+
 			si++;
+
 			/* add values for whole pixels: */
 			while (si < ci)
 			{
 				GetScaledRow(ImIn, x1, si, ix, ox,
 				             nextRed, nextGreen, nextBlue);
+
 				for (xi = 0; xi < ox; xi++)
 				{
 					tempRed[xi]   += nextRed[xi]   * oy;
@@ -696,6 +1103,7 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 				}
 				si++;
 			}
+
 			/* add fraction of current input row (ending segment): */
 			if (yi < oy - 1)
 			{
@@ -703,13 +1111,16 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 				GetScaledRow(ImIn, x1, si, ix, ox,
 				             nextRed, nextGreen, nextBlue);
 			}
+
 			sifrac = cifrac;
+
 			for (xi = 0; xi < ox; xi++)
 			{
 				tempRed[xi]   += nextRed[xi]   * sifrac;
 				tempGreen[xi] += nextGreen[xi] * sifrac;
 				tempBlue[xi]  += nextBlue[xi]  * sifrac;
 			}
+
 			/* write row to output image: */
 			PutRGBScan(ImOut, x2, y2 + yi, ox, div,
 			           tempRed, tempGreen, tempBlue);
@@ -746,24 +1157,29 @@ static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
 	/* compute values for decomposing pixel into color values: */
 	redMask = Im->red_mask;
 	redShift = 0;
+
 	while ((redMask & 1) == 0)
 	{
-	    redShift++;
-	    redMask >>= 1;
+		redShift++;
+		redMask >>= 1;
 	}
+
 	greenMask = Im->green_mask;
 	greenShift = 0;
+
 	while ((greenMask & 1) == 0)
 	{
-	    greenShift++;
-	    greenMask >>= 1;
+		greenShift++;
+		greenMask >>= 1;
 	}
+
 	blueMask = Im->blue_mask;
 	blueShift = 0;
+
 	while ((blueMask & 1) == 0)
 	{
-	    blueShift++;
-	    blueMask >>= 1;
+		blueShift++;
+		blueMask >>= 1;
 	}
 
 	/* scale each icon: */
@@ -783,7 +1199,7 @@ static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
 /*
  * Resize an image.
  */
-static XImage *ResizeImage(Display *dpy, XImage *Im,
+XImage *ResizeImage(Display *dpy, XImage *Im,
                            int ix, int iy, int ox, int oy)
 {
 	Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
@@ -798,9 +1214,9 @@ static XImage *ResizeImage(Display *dpy, XImage *Im,
 	char *Data;
 
 	if (smoothRescaling && (ix != ox || iy != oy) &&
-	    visual->class == TrueColor)
+	    (visual->class == TrueColor))
 	{
-	    return ResizeImageSmooth(dpy, Im, ix, iy, ox, oy);
+		return ResizeImageSmooth(dpy, Im, ix, iy, ox, oy);
 	}
 
 	width1 = Im->width;
@@ -880,4 +1296,5 @@ static XImage *ResizeImage(Display *dpy, XImage *Im,
 
 #endif /* USE_GRAPHICS */
 
+#endif /* USE_X11 || USE_XAW || USE_XPJ || USE_GTK */
 

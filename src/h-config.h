@@ -26,7 +26,11 @@
  * OPTION: Compile on a Windows machine
  */
 #ifndef WINDOWS
-/* #define WINDOWS */
+# ifdef _WIN32_WCE
+#  define WINDOWS
+# else
+/*#define WINDOWS */
+# endif
 #endif
 
 /*
@@ -193,6 +197,7 @@
 #endif
 
 
+
 /*
  * OPTION: set "SET_UID" if the machine is a "multi-user" machine.
  * This option is used to verify the use of "uids" and "gids" for
@@ -206,25 +211,9 @@
  */
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
     !defined(MSDOS) && !defined(USE_EMX) && \
-    !defined(AMIGA) && !defined(ACORN) && !defined(VM)
+    !defined(AMIGA) && !defined(ACORN) && \
+    !defined(VM) && !defined(NDS)
 # define SET_UID
-#endif
-
-
-/*
- * OPTION: Set "USG" for "System V" versions of Unix
- * This is used to choose a "lock()" function, and to choose
- * which header files ("string.h" vs "strings.h") to include.
- * It is also used to allow certain other options, such as options
- * involving userid's, or multiple users on a single machine, etc.
- */
-#ifdef SET_UID
-# if defined(SYS_III) || defined(SYS_V) || defined(SOLARIS) || \
-     defined(HPUX) || defined(SGI) || defined(ATARI)
-#  ifndef USG
-#   define USG
-#  endif
-# endif
 #endif
 
 
@@ -268,7 +257,7 @@
 /*
  * The Macintosh allows the use of a "file type" when creating a file
  */
-#if defined(MACINTOSH) || defined(MACH_O_CARBON)
+#if defined(MACINTOSH) && !defined(applec) || defined(MACH_O_CARBON)
 # define FILE_TYPE_TEXT 'TEXT'
 # define FILE_TYPE_DATA 'DATA'
 # define FILE_TYPE_SAVE 'SAVE'
@@ -278,51 +267,7 @@
 #endif
 
 
-/*
- * OPTION: Hack -- Make sure "strchr()" and "strrchr()" will work
- */
-#if defined(SYS_III) || defined(SYS_V) || defined(MSDOS)
-# if !defined(__TURBOC__) && !defined(__WATCOMC__) && !defined(__DJGPP__)
-#  define strchr(S,C) index((S),(C))
-#  define strrchr(S,C) rindex((S),(C))
-# endif
-#endif
 
-
-/*
- * OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
- */
-/* #define HAS_STRICMP */
-
-/*
- * Linux has "stricmp()" with a different name
- */
-#if defined(linux)
-# define HAS_STRICMP
-# define stricmp(S,T) strcasecmp((S),(T))
-#endif
-
-
-/*
- * OPTION: Define "HAS_MEMSET" only if "memset()" exists.
- */
-#define HAS_MEMSET
-
-
-/*
- * OPTION: Define "HAVE_USLEEP" only if "usleep()" exists.
- *
- * Note that this is only relevant for "SET_UID" machines.
- * Note that new "SOLARIS" and "SGI" machines have "usleep()".
- */
-#if defined(SET_UID) && !defined(HAVE_CONFIG_H)
-# if !defined(HPUX) && !defined(ULTRIX) && !defined(ISC)
-#  define HAVE_USLEEP
-# endif
-#endif
-
-
-
-#endif
+#endif /* INCLUDED_H_CONFIG_H */
 
 

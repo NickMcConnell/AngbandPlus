@@ -1,7 +1,7 @@
 /* File: variable.c */
 
 /* The copyright.  Definitions for a large number of variables, arrays,
- * and pointers, plus the color table and sound names.
+ * and pointers, plus the color table and sound names. 
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
@@ -44,18 +44,18 @@ byte o_version_patch = O_VERSION_PATCH;
 /*
  * Savefile version - Angband reckoning
  */
-byte sf_major;			/* Savefile's "version_major" */
-byte sf_minor;			/* Savefile's "version_minor" */
-byte sf_patch;			/* Savefile's "version_patch" */
-byte sf_extra;			/* Savefile's "version_extra". Used for enryption */
+byte sf_major;                  /* Savefile's "version_major" */
+byte sf_minor;                  /* Savefile's "version_minor" */
+byte sf_patch;                  /* Savefile's "version_patch" */
+byte sf_extra;                  /* Savefile's "version_extra". Used for enryption */
 
 /*
  * Savefile version - Oangband reckoning
  */
-byte o_sf_major;			/* Savefile's "version_major" */
-byte o_sf_minor;			/* Savefile's "version_minor" */
-byte o_sf_patch;			/* Savefile's "version_patch" */
-byte o_sf_extra;			/* Savefile's "version_extra".  Not currently used */
+byte o_sf_major;                        /* Savefile's "version_major" */
+byte o_sf_minor;                        /* Savefile's "version_minor" */
+byte o_sf_patch;                        /* Savefile's "version_patch" */
+byte o_sf_extra;                        /* Savefile's "version_extra".  Not currently used */
 
 /*
  * Savefile information
@@ -68,10 +68,11 @@ u16b sf_saves;			/* Number of "saves" during this life */
 /*
  * Run-time arguments
  */
-bool arg_fiddle;			/* Command arg -- Request fiddle mode */
-bool arg_wizard;			/* Command arg -- Request wizard mode */
-bool arg_sound;				/* Command arg -- Request special sounds */
-bool arg_graphics;			/* Command arg -- Request graphics mode */
+bool arg_fiddle;		/* Command arg -- Request fiddle mode */
+bool arg_wizard;		/* Command arg -- Request wizard mode */
+bool arg_sound;			/* Command arg -- Request special sounds */
+bool arg_graphics;		/* Command arg -- Request graphics mode */
+bool arg_graphics_nice;	        /* Command arg -- Request nice graphics mode */
 bool arg_monochrome;		/* Command arg -- Request monochrome mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
@@ -80,32 +81,37 @@ bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
  * Various things
  */
 
-bool character_generated;	/* The character exists */
-bool character_dungeon;		/* The character has a dungeon */
-bool character_loaded;		/* The character was loaded from a savefile */
+bool character_generated;       /* The character exists */
+bool character_dungeon;         /* The character has a dungeon */
+bool character_loaded;          /* The character was loaded from a savefile */
 bool character_saved;		/* The character was just saved to a savefile */
-bool character_existed;			/* A character once existed on this savefile */
+bool character_quickstart;      /* The character is based on the last one */
 
 s16b character_icky;		/* Depth of the game in special mode */
-s16b character_xtra;		/* Depth of the game in startup mode */
+s16b character_xtra;            /* Depth of the game in startup mode */
 
-u32b seed_flavor;		/* Hack -- consistent object colors */
-u32b seed_town;			/* Hack -- consistent town layout */
+u32b seed_flavor;               /* Hack -- consistent object colors */
+u32b seed_town;                 /* Hack -- consistent town layout */
 
-s16b num_repro;			/* Current reproducer count */
-s16b object_level;		/* Current object creation level */
+s16b num_repro;                 /* Current reproducer count */
+s16b object_level;              /* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 
-char summon_kin_type;		/* Hack -- See summon_specific() */
+char summon_kin_type;           /* Hack -- See summon_specific() */
 
-s32b turn;				/* Current game turn */
+s32b turn;                              /* Current game turn */
 
-s32b old_turn;			/* Hack -- Level feeling counter */
+s32b old_turn;                  /* Hack -- Level feeling counter */
 
-bool use_sound;			/* The "sound" mode is enabled */
-bool use_graphics;		/* The "graphics" mode is enabled */
-
-bool use_transparency = FALSE; /* Use transparent tiles */
+bool use_sound;                 /* The "sound" mode is enabled */
+int use_graphics;               /* "graphics" mode */
+bool use_graphics_nice;	        /* The 'nice' "graphics" mode is enabled */
+bool use_trptile = FALSE;       /* The triple tile mode is enabled */
+bool use_dbltile = FALSE;       /* The double tile mode is enabled */
+bool use_bigtile = FALSE;       /* The bigtile mode is enabled */
+bool small_screen = FALSE;      /* Small screen mode for portables */
+bool use_transparency = FALSE;  /* Use transparent tiles */
+char notes_start[80];           /* Opening line of notes */
 
 int image_count;  		/* Grids until next random image    */
                   		/* Optimizes the hallucination code */
@@ -116,14 +122,14 @@ bool msg_flag;			/* Player has pending message */
 
 bool inkey_base;		/* See the "inkey()" function */
 bool inkey_xtra;		/* See the "inkey()" function */
-bool inkey_scan;		/* See the "inkey()" function */
-bool inkey_flag;		/* See the "inkey()" function */
+u32b inkey_scan;		/* See the "inkey()" function */
+bool inkey_flag;                /* See the "inkey()" function */
 
-s16b coin_type;			/* Hack -- force coin type */
+s16b coin_type;                 /* Hack -- force coin type */
 
-bool opening_chest;		/* Hack -- prevent chest generation */
+bool opening_chest;             /* Hack -- prevent chest generation */
 
-bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
+bool shimmer_monsters;  /* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 
 bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
@@ -137,9 +143,9 @@ s16b m_cnt = 0;			/* Number of live monsters */
 
 /*
  * Height of dungeon map on screen.
- */
-s16b SCREEN_HGT = 22;
-s16b SCREEN_WID = 66;
+ * Moved to defines.h -NRM-
+ s16b SCREEN_HGT = 22;
+ s16b SCREEN_WID = 66; */
 
 /*
  * Dungeon variables
@@ -147,11 +153,11 @@ s16b SCREEN_WID = 66;
 
 s16b feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
-bool good_item_flag;	/* True if "Artifact" on this level */
+bool good_item_flag;	        /* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
 
-bool fake_monochrome;	/* Use fake monochrome for effects */
+bool fake_monochrome;	        /* Use fake monochrome for effects */
 
 
 /*
@@ -163,14 +169,6 @@ s16b panel_row_min, panel_row_max;
 s16b panel_col_min, panel_col_max;
 s16b panel_col_prt, panel_row_prt;
 bool panel_extra_rows=FALSE;
-
-byte *mp_a = NULL;
-char *mp_c = NULL;
-
-#ifdef USE_TRANSPARENCY
-byte *mp_ta = NULL;
-char *mp_tc = NULL;
-#endif /* USE_TRANSPARENCY */
 
 /*
  * Player info
@@ -266,15 +264,25 @@ term *angband_term[TERM_WIN_MAX];
  */
 char angband_term_name[TERM_WIN_MAX][16] =
 {
-	"OAngband",
-	"Term-1",
-	"Term-2",
-	"Term-3",
+        "OAngband",
+        "Term-1",
+        "Term-2",
+        "Term-3",
 	"Term-4",
 	"Term-5",
 	"Term-6",
 	"Term-7"
 };
+
+
+
+int max_macrotrigger = 0;
+cptr macro_template = NULL;
+cptr macro_modifier_chr;
+cptr macro_modifier_name[MAX_MACRO_MOD];
+cptr macro_trigger_name[MAX_MACRO_TRIGGER];
+cptr macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
+
 
 
 /*
@@ -297,7 +305,29 @@ byte angband_color_table[256][4] =
 	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
 	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
-	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+	{0x00, 0xC0, 0x80, 0x40},	/* TERM_L_UMBER */
+
+	/*
+	 * Values for shades at compile time, taken from shades.prf
+	 * Hack -- TERM_WHITE (Shade 1) comes from font-x11.prf, because
+	 * we must ensure that all colors are different.
+	 */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK	(Shade 1) */
+	{0x00, 0xAF, 0xFF, 0xFF},	/* TERM_WHITE 	(Shade 1) */
+	{0x00, 0xA0, 0xA0, 0xA0},	/* TERM_SLATE 	(Shade 1) */
+	{0x00, 0xDC, 0x64, 0x00},	/* TERM_ORANGE 	(Shade 1) */
+	{0x00, 0xF0, 0x00, 0x00},	/* TERM_RED 	(Shade 1) */
+	{0x00, 0x00, 0x70, 0x00},	/* TERM_GREEN 	(Shade 1) */
+	{0x00, 0x00, 0x80, 0xFF},	/* TERM_BLUE 	(Shade 1) */
+	{0x00, 0xC8, 0x64, 0x00},	/* TERM_UMBER 	(Shade 1) */
+	{0x00, 0x78, 0x64, 0x64},	/* TERM_L_DARK 	(Shade 1) */
+	{0x00, 0xE8, 0xD0, 0xC0},	/* TERM_L_WHITE	(Shade 1) */
+	{0x00, 0xA5, 0x00, 0xFF},	/* TERM_VIOLET 	(Shade 1) */
+	{0x00, 0xC8, 0xC8, 0x00},	/* TERM_YELLOW 	(Shade 1) */
+	{0x00, 0xB4, 0x46, 0x32},	/* TERM_L_RED 	(Shade 1) */
+	{0x00, 0x00, 0xDC, 0x64},	/* TERM_L_GREEN (Shade 1) */
+	{0x00, 0x64, 0xAA, 0xC8},	/* TERM_L_BLUE  (Shade 1) */
+	{0x00, 0xC8, 0xAA, 0x46} 	/* TERM_L_UMBER (Shade 1) */
 };
 
 
@@ -340,6 +370,18 @@ char angband_sound_name[SOUND_MAX][16] =
 sint view_n = 0;
 u16b *view_g;
 
+/* 
+ * Variables for dealing with the vinfo array used by update_view() -NRM-
+ */
+
+int  vinfo_grids;
+int  vinfo_slopes;
+u32b vinfo_bits_3;
+u32b vinfo_bits_2;
+u32b vinfo_bits_1;
+u32b vinfo_bits_0;
+
+
 /*
  * Arrays[TEMP_MAX] used for various things
  */
@@ -356,6 +398,7 @@ byte *temp_x;
  * in the array via "grid" values (see the GRID() macros).
  */
 byte (*cave_info)[256];
+byte (*cave_info2)[256];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
@@ -425,12 +468,12 @@ int cost_at_center = 0;
 #endif	/* MONSTER_FLOW */
 
 /*
- * Array[MAX_O_IDX] of dungeon objects
+ * Array[z_info->o_max] of dungeon objects
  */
 object_type *o_list;
 
 /*
- * Array[MAX_M_IDX] of dungeon monsters
+ * Array[z_info->m_max] of dungeon monsters
  */
 monster_type *m_list;
 
@@ -440,7 +483,7 @@ monster_type *m_list;
 effect_type *x_list;
 
 /*
- * Array[MAX_M_IDX] of monster lore
+ * Array[z_info->r_max] of monster lore
  */
 monster_lore *l_list;
 
@@ -448,6 +491,11 @@ monster_lore *l_list;
  * Hack -- Array[MAX_Q_IDX] of quests
  */
 quest *q_list;
+
+/*
+ * Hack -- Array[NOTES_MAX_LINES] of note records
+ */
+note_info *notes;
 
 
 /*
@@ -462,7 +510,7 @@ object_type *inventory;
 
 
 /*
- * The size of "alloc_kind_table" (at most MAX_K_IDX * 4)
+ * The size of "alloc_kind_table" (at most z_info->k_max * 4)
  */
 s16b alloc_kind_size;
 
@@ -482,7 +530,7 @@ s16b alloc_ego_size;
 alloc_entry *alloc_ego_table;
 
 /*
- * The size of "alloc_race_table" (at most MAX_R_IDX)
+ * The size of "alloc_race_table" (at most z_info->r_max)
  */
 s16b alloc_race_size;
 
@@ -492,7 +540,7 @@ s16b alloc_race_size;
 alloc_entry *alloc_race_table;
 
 /*
- * The total of all final monster generation probabilities
+ * The total of all final monster generation probabilities 
  */
 u32b alloc_race_total;
 
@@ -556,22 +604,26 @@ static player_type player_type_body;
 player_type *p_ptr = &player_type_body;
 
 /*
- * The character generates both directed (extra) noise (by doing noisy
- * things) and ambiant noise (the combination of directed and innate
- * noise).  Directed noise can immediately wake up monsters in LOS.
- * Ambient noise determines how quickly monsters wake up and how often
+ * The character generates both directed (extra) noise (by doing noisy 
+ * things) and ambiant noise (the combination of directed and innate 
+ * noise).  Directed noise can immediately wake up monsters in LOS. 
+ * Ambient noise determines how quickly monsters wake up and how often 
  * they get new information on the current character position.
  *
- * Each player turn, more noise accumulates.  Every time monster
+ * Each player turn, more noise accumulates.  Every time monster 
  * temporary conditions are processed, all non-innate noise is cleared.
  */
 int add_wakeup_chance = 0;
 u32b total_wakeup_chance = 0;
 
 /*
+ * Structure (not array) of size limits
+ */
+maxima *z_info;
+
+/*
  * The vault generation arrays
  */
-header *v_head;
 vault_type *v_info;
 char *v_name;
 char *v_text;
@@ -579,7 +631,6 @@ char *v_text;
 /*
  * The themed level generation arrays. -LM-
  */
-header *t_head;
 vault_type *t_info;
 char *t_name;
 char *t_text;
@@ -587,7 +638,6 @@ char *t_text;
 /*
  * The terrain feature arrays
  */
-header *f_head;
 feature_type *f_info;
 char *f_name;
 char *f_text;
@@ -595,7 +645,6 @@ char *f_text;
 /*
  * The object kind arrays
  */
-header *k_head;
 object_kind *k_info;
 char *k_name;
 char *k_text;
@@ -603,7 +652,6 @@ char *k_text;
 /*
  * The artifact arrays
  */
-header *a_head;
 artifact_type *a_info;
 char *a_name;
 char *a_text;
@@ -611,7 +659,6 @@ char *a_text;
 /*
  * The set item arrays
  */
-header *s_head;
 set_type *s_info;
 char *s_name;
 char *s_text;
@@ -619,7 +666,6 @@ char *s_text;
 /*
  * The ego-item arrays
  */
-header *e_head;
 ego_item_type *e_info;
 char *e_name;
 char *e_text;
@@ -627,7 +673,6 @@ char *e_text;
 /*
  * The monster race arrays
  */
-header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
@@ -635,54 +680,59 @@ char *r_text;
 /*
  * The player race arrays
  */
-header *rp_head;
-player_race *rp_info;
-char *rp_name;
-char *rp_text;
+player_race *p_info;
+char *p_name;
+char *p_text;
 
 
 /*
  * The player class arrays
  */
-header *cp_head;
-player_class *cp_info;
-char *cp_name;
-char *cp_text;
+player_class *c_info;
+char *c_name;
+char *c_text;
 
 
 /*
  * The player magic arrays
  */
-header *mp_head;
 player_magic *mp_info;
+char *mp_name;
+char *mp_text;
 
 
 /*
  * The chest drop arrays
  */
-header *ch_head;
 chest_drops *ch_info;
+char *ch_name;
+char *ch_text;
 
 
 /*
  * The player history arrays
  */
-header *h_head;
 hist_type *h_info;
 char *h_text;
 
 /*
  * The shop owner arrays
  */
-header *b_head;
 owner_type *b_info;
 char *b_name;
 
 /*
  * The racial price adjustment arrays
  */
-header *g_head;
 byte *g_info;
+
+
+/*
+ * The object flavor arrays
+ */
+flavor_type *flavor_info;
+char *flavor_name;
+char *flavor_text;
 
 
 /*
@@ -820,6 +870,63 @@ bool (*get_mon_num_hook)(int r_idx);
 bool (*get_obj_num_hook)(int k_idx);
 
 /*
+ * Hack - the destination file for text_out_to_file.
+ */
+FILE *text_out_file = NULL;
+
+
+/*
+ * Hack -- function hook to output (colored) text to the
+ * screen or to a file.
+ */
+void (*text_out_hook)(byte a, cptr str);
+
+
+/*
+ * Hack -- Where to wrap the text when using text_out().  Use the default
+ * value (for example the screen width) when 'text_out_wrap' is 0.
+ */
+int text_out_wrap = 0;
+
+
+/*
+ * Hack -- Indentation for the text when using text_out().
+ */
+int text_out_indent = 0;
+
+
+/*
+ * Hack - the destination row for dump_line_screen.
+ */
+int dump_row = 0;
+
+/*
+ * Hack - the destination file for dump_line_file.
+ */
+FILE *dump_out_file = NULL;
+
+/*
+ * Hack - the destination address for  dump_line_mem.
+ */
+char_attr *dump_ptr = NULL;
+
+/*
+ * Hack -- function hook for new line dump functions.
+ */
+void (*dump_line_hook)(char_attr *this_line);
+
+/* 
+ * Array for character screen/dump
+ */
+char_attr_line *dumpline;
+
+/* 
+ * Arrays for display player subwindows
+ */
+char_attr_line *pline0;
+char_attr_line *pline1;
+
+/*
  * The "highscore" file descriptor, if available.
  */
 int highscore_fd = -1;
@@ -834,8 +941,8 @@ char themed_feeling[80];
  */
 byte required_tval = 0;
 
-/* The bones file a restored player ghost should use to collect extra
- * flags, a sex, and a unique name.  This also indicates that there is
+/* The bones file a restored player ghost should use to collect extra 
+ * flags, a sex, and a unique name.  This also indicates that there is 
  * a ghost active.  -LM-
  */
 byte bones_selector;
@@ -845,29 +952,29 @@ byte bones_selector;
  */
 int r_ghost;
 
-/*
- * The player ghost name is stored here for quick reference by the
+/* 
+ * The player ghost name is stored here for quick reference by the 
  * description function.  -LM-
  */
 char ghost_name[80];
 
 /*
- * The type (if any) of the player ghost's personalized string, and
+ * The type (if any) of the player ghost's personalized string, and 
  * the string itself. -LM-
  */
 int ghost_string_type = 0;
 char ghost_string[80];
 
 /*
- * Variable to insure that ghosts say their special message only once.
- * This variable is deliberately not saved, so reloaded ghosts may speak
+ * Variable to insure that ghosts say their special message only once.  
+ * This variable is deliberately not saved, so reloaded ghosts may speak 
  * again. -LM-
  */
 bool ghost_has_spoken = FALSE;
 
 
 /*
- * Autosave-related global variables adopted from Zangband. -LM-
+ * Autosave-related global variables adopted from Zangband. -LM- 
  */
 bool is_autosave = FALSE;		/* Is the save an autosave */
 bool autosave;				/* Timed autosave */
@@ -875,16 +982,16 @@ s16b autosave_freq;			/* Autosave frequency */
 
 
 /*
- * Is the player partly through trees or rubble and, if so, in which
- * direction is he headed?  Monsters are handled more simply:  They have
+ * Is the player partly through trees or rubble and, if so, in which 
+ * direction is he headed?  Monsters are handled more simply:  They have 
  * a 33% or 50% chance of walking through. -LM-
  */
 byte player_is_crossing;
 
 
 /*
- * Two variables that limit rogue stealing and creation of traps.  The
- * third prevents Priests from using the "sea of runes" trick.
+ * Two variables that limit rogue stealing and creation of traps.  The 
+ * third prevents Priests from using the "sea of runes" trick.  
  * Cleared when a level is created. -LM-
  */
 byte number_of_thefts_on_level;
@@ -894,3 +1001,47 @@ byte num_glyph_on_level;
 
 /* XXX Mega-Hack - See main-win.c */
 bool angband_keymap_flag = TRUE;
+
+/* Path finding variables
+ *
+ */
+char pf_result[MAX_PF_LENGTH];
+int pf_result_index;
+
+/*
+ * Sound hook (for playing FX).
+ */
+void (*sound_hook)(int sound);
+
+/*
+ * Firing/throwing variables
+ */
+bool did_fire;
+bool did_throw;
+int fire_mode;
+int throw_mode;
+
+/*
+ * For autoinscriptions.
+ */
+autoinscription *inscriptions = 0;
+u16b inscriptions_count = 0;
+
+
+/* 
+ * Mouse button handling variables
+ */
+mouse_button *mse_button;
+mouse_button *backup_button;
+int status_end    = 0;
+int depth_start   = 0;
+int button_length = 0;
+int num_buttons   = 0;
+int prompt_end = 0;
+bool normal_screen = TRUE;
+
+/* 
+ * Hooks for making and unmaking buttons
+ */
+int (*add_button_hook)(char *label, unsigned char keypress);
+int (*kill_button_hook)(unsigned char keypress);

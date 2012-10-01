@@ -107,22 +107,31 @@ ANGBAND MENU
 	{
 		POPUP "&Graphics"
 		{
-			MENUITEM "&None", 400
-			MENUITEM "&Old tiles", 401
-			MENUITEM "&Adam Bolt's tiles", 402
-		}
+                        MENUITEM "&None", 400
+                        MENUITEM "&Old tiles", 401
+                        MENUITEM "&Adam Bolt's tiles", 402
+                        MENUITEM "&David Gervais' tiles", 403
+                        MENUITEM SEPARATOR
+                        MENUITEM "Enable nice &graphics", 405
+                        MENUITEM SEPARATOR
+                        MENUITEM "&Triple tile mode", 407
+                        MENUITEM "Do&uble tile mode", 408
+                        MENUITEM SEPARATOR
+                        MENUITEM "&Bigtile mode", 409
+                }
 
-		MENUITEM "&Sound", 410
+                MENUITEM "&Sound", 410
 //		MENUITEM SEPARATOR
-//		MENUITEM "Low Priority", 420
-//		MENUITEM "Activate Screensaver", 430
-//		MENUITEM "&Map", 440
-	}
+//              MENUITEM "Low Priority", 420
+//              MENUITEM "Activate Screensaver", 430
+//              MENUITEM "&Map", 440
+                MENUITEM "&Small screen", 450
+        }
 
-//	POPUP "&Help"
+//      POPUP "&Help"
 //	{
 //		MENUITEM "&Contents", 901
-//	}
+//      }
 }
 
 ANGBAND ICON "angband.ico"

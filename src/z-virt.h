@@ -29,7 +29,7 @@
  * Note the macros below which simplify the details of allocation,
  * deallocation, setting, clearing, casting, size extraction, etc.
  *
- * The macros MAKE/C_MAKE and KILL/C_KILL have a "procedural" metaphor,
+ * The macros MAKE/C_MAKE and KILL have a "procedural" metaphor,
  * and they actually modify their arguments.
  *
  * Note that, for some reason, some allocation macros may disallow
@@ -46,119 +46,114 @@
 /**** Available macros ****/
 
 
-/* Size of 'N' things of type 'T' */
-#define C_SIZE(N,T) \
-	((huge)((N)*(sizeof(T))))
-
-/* Size of one thing of type 'T' */
-#define SIZE(T) \
-	((huge)(sizeof(T)))
-
-
-/* Compare two arrays of type T[N], at locations P1 and P2 */
-#define C_DIFF(P1,P2,N,T) \
-	(memcmp((char*)(P1),(char*)(P2),C_SIZE(N,T)))
-
-/* Compare two things of type T, at locations P1 and P2 */
-#define DIFF(P1,P2,T) \
-	(memcmp((char*)(P1),(char*)(P2),SIZE(T)))
-
-
 /* Set every byte in an array of type T[N], at location P, to V, and return P */
-#define C_BSET(P,V,N,T) \
-	(T*)(memset((char*)(P),(V),C_SIZE(N,T)))
+#define C_BSET(P, V, N, T) \
+	(memset((P), (V), (N) * sizeof(T)))
 
 /* Set every byte in a thing of type T, at location P, to V, and return P */
-#define BSET(P,V,T) \
-	(T*)(memset((char*)(P),(V),SIZE(T)))
+#define BSET(P, V, T) \
+	(memset((P), (V), sizeof(T)))
 
 
 /* Wipe an array of type T[N], at location P, and return P */
-#define C_WIPE(P,N,T) \
-	(T*)(memset((char*)(P),0,C_SIZE(N,T)))
+#define C_WIPE(P, N, T) \
+	(memset((P), 0, (N) * sizeof(T)))
 
 /* Wipe a thing of type T, at location P, and return P */
-#define WIPE(P,T) \
-	(T*)(memset((char*)(P),0,SIZE(T)))
+#define WIPE(P, T) \
+	(memset((P), 0, sizeof(T)))
 
 
 /* Load an array of type T[N], at location P1, from another, at location P2 */
-#define C_COPY(P1,P2,N,T) \
-	(T*)(memcpy((char*)(P1),(char*)(P2),C_SIZE(N,T)))
+#define C_COPY(P1, P2, N, T) \
+	(memcpy((P1), (P2), (N) * sizeof(T)))
 
 /* Load a thing of type T, at location P1, from another, at location P2 */
-#define COPY(P1,P2,T) \
-	(T*)(memcpy((char*)(P1),(char*)(P2),SIZE(T)))
-
-
-/* Free an array of N things of type T at P, return NULL */
-#define C_FREE(P,N,T) \
-	(T*)(rnfree(P,C_SIZE(N,T)))
-
-/* Free one thing of type T at P, return NULL */
-#define FREE(P,T) \
-	(T*)(rnfree(P,SIZE(T)))
+#define COPY(P1, P2, T) \
+	(memcpy((P1), (P2), sizeof(T)))
 
 
 /* Allocate, and return, an array of type T[N] */
-#define C_RNEW(N,T) \
-	((T*)(ralloc(C_SIZE(N,T))))
+#define C_RNEW(N, T) \
+	(ralloc((N) * sizeof(T)))
 
 /* Allocate, and return, a thing of type T */
 #define RNEW(T) \
-	((T*)(ralloc(SIZE(T))))
+	(ralloc(sizeof(T)))
 
 
 /* Allocate, wipe, and return an array of type T[N] */
-#define C_ZNEW(N,T) \
-	((T*)(C_WIPE(C_RNEW(N,T),N,T)))
+#define C_ZNEW(N, T) \
+	(C_WIPE(C_RNEW(N, T), N, T))
 
 /* Allocate, wipe, and return a thing of type T */
 #define ZNEW(T) \
-	((T*)(WIPE(RNEW(T),T)))
+	(WIPE(RNEW(T), T))
 
 
 /* Allocate a wiped array of type T[N], assign to pointer P */
-#define C_MAKE(P,N,T) \
-	((P)=C_ZNEW(N,T))
+#define C_MAKE(P, N, T) \
+	((P) = C_ZNEW(N, T))
 
 /* Allocate a wiped thing of type T, assign to pointer P */
-#define MAKE(P,T) \
-	((P)=ZNEW(T))
+#define MAKE(P, T) \
+	((P) = ZNEW(T))
 
 
-/* Free an array of type T[N], at location P, and set P to NULL */
-#define C_KILL(P,N,T) \
-	((P)=C_FREE(P,N,T))
+/* Free one thing at P, return NULL */
+#define FREE(P) \
+	(rnfree(P))
 
-/* Free a thing of type T, at location P, and set P to NULL */
-#define KILL(P,T) \
-	((P)=FREE(P,T))
+/* Free a thing at location P and set P to NULL */
+#define KILL(P) \
+	((P)=FREE(P))
 
 
 
 /**** Available variables ****/
 
 /* Replacement hook for "rnfree()" */
-extern vptr (*rnfree_aux)(vptr, huge);
+extern void* (*rnfree_aux)(void*);
 
 /* Replacement hook for "rpanic()" */
-extern vptr (*rpanic_aux)(huge);
+extern void* (*rpanic_aux)(size_t);
 
 /* Replacement hook for "ralloc()" */
-extern vptr (*ralloc_aux)(huge);
+extern void* (*ralloc_aux)(size_t);
 
 
 /**** Available functions ****/
 
-/* De-allocate a given amount of memory */
-extern vptr rnfree(vptr p, huge len);
+/* De-allocate memory */
+extern void* rnfree(void *p);
 
-/* Panic, attempt to Allocate 'len' bytes */
-extern vptr rpanic(huge len);
+/* Panic, attempt to allocate 'len' bytes */
+extern void* rpanic(size_t len);
 
-/* Allocate (and return) 'len', or dump core */
-extern vptr ralloc(huge len);
+/* Allocate (and return) 'len', or quit */
+extern void* ralloc(size_t len);
+
+/*** Initialisation bits ***/
+
+/* Hook types for memory allocation */
+typedef void *(*mem_alloc_hook)(size_t);
+typedef void *(*mem_free_hook)(void *);
+typedef void *(*mem_realloc_hook)(void *, size_t);
+
+/* Set up memory allocation hooks */
+bool mem_set_hooks(mem_alloc_hook alloc, mem_free_hook free, mem_realloc_hook realloc);
+
+
+/**** Normal bits ***/
+
+/* Allocate (and return) 'len', or quit */
+void *mem_alloc(size_t len);
+
+/* De-allocate memory */
+void *mem_free(void *p);
+
+/* Reallocate memory */
+void *mem_realloc(void *p, size_t len);
 
 /* Create a "dynamic string" */
 extern cptr string_make(cptr str);
@@ -166,10 +161,4 @@ extern cptr string_make(cptr str);
 /* Free a string allocated with "string_make()" */
 extern errr string_free(cptr str);
 
-
-
-
-#endif
-
-
-
+#endif /* INCLUDED_Z_VIRT_H */

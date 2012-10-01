@@ -940,7 +940,7 @@ static void initialize_artifact(int a_idx)
 	while(TRUE)
 	{
 		/* Acquire an object at random */
-		index = rand_int(MAX_K_IDX);
+		index = rand_int(z_info->k_max);
 		k_ptr = &k_info[index];
 
 		/* Skip "empty" objects */
@@ -2773,30 +2773,30 @@ static void haggle_till_done(int a_idx)
 		choice = randint(5);
 
 		/* ...among some tasty options. */
-		if ((choice == 1) && (!(a_ptr->flags3 & TELEPATHY)))
+		if ((choice == 1) && (!(a_ptr->flags3 & TR3_TELEPATHY)))
 		{
 			get_quality(FALSE, TELEPATHY, 0, a_idx);
 		}
-		if ((choice == 2) && (!(a_ptr->flags3 & HOLD_LIFE)))
+		if ((choice == 2) && (!(a_ptr->flags3 & TR3_HOLD_LIFE)))
 		{
 			get_quality(FALSE, HOLD_LIFE, 0, a_idx);
 		}
 		if (choice == 3)
 		{
-			if (!(a_ptr->flags2 & RES_CONFU))
+			if (!(a_ptr->flags2 & TR2_RES_CONFU))
 				get_quality(FALSE, RES_CONFU, 0, a_idx);
-			if (!(a_ptr->flags2 & RES_BLIND))
+			if (!(a_ptr->flags2 & TR2_RES_BLIND))
 				get_quality(FALSE, RES_BLIND, 0, a_idx);
 		}
 		if (choice == 4)
 		{
-			if ((randint(4) == 1) && (!(a_ptr->flags2 & RES_DISEN)))
+			if ((randint(4) == 1) && (!(a_ptr->flags2 & TR2_RES_DISEN)))
 				get_quality(FALSE, RES_DISEN, 0, a_idx);
-			else if ((randint(3) == 1) && (!(a_ptr->flags2 & RES_NETHR)))
+			else if ((randint(3) == 1) && (!(a_ptr->flags2 & TR2_RES_NETHR)))
 				get_quality(FALSE, RES_NETHR, 0, a_idx);
-			else if ((randint(2) == 1) && (!(a_ptr->flags2 & RES_CHAOS)))
+			else if ((randint(2) == 1) && (!(a_ptr->flags2 & TR2_RES_CHAOS)))
 				get_quality(FALSE, RES_CHAOS, 0, a_idx);
-			else if (!(a_ptr->flags2 & RES_POIS))
+			else if (!(a_ptr->flags2 & TR2_RES_POIS))
 				get_quality(FALSE, RES_POIS, 0, a_idx);
 		}
 		if ((choice == 5) && (potential > 4500))
@@ -2836,24 +2836,24 @@ static void haggle_till_done(int a_idx)
 			else
 	 			choice = randint(8);
 
-			if ((choice == 1) && (!(a_ptr->flags1 & ADD_STR)))
+			if ((choice == 1) && (!(a_ptr->flags1 & TR1_STR)))
 				get_quality(FALSE, ADD_STR, pval, a_idx);
-			if ((choice == 2) && (!(a_ptr->flags1 & ADD_WIS)))
+			if ((choice == 2) && (!(a_ptr->flags1 & TR1_WIS)))
 				get_quality(FALSE, ADD_WIS, pval, a_idx);
-			if ((choice == 3) && (!(a_ptr->flags1 & ADD_INT)))
+			if ((choice == 3) && (!(a_ptr->flags1 & TR1_INT)))
 				get_quality(FALSE, ADD_INT, pval, a_idx);
-			if ((choice == 4) && (!(a_ptr->flags1 & ADD_DEX)))
+			if ((choice == 4) && (!(a_ptr->flags1 & TR1_DEX)))
 				get_quality(FALSE, ADD_DEX, pval, a_idx);
-			if ((choice == 5) && (!(a_ptr->flags1 & ADD_CON)))
+			if ((choice == 5) && (!(a_ptr->flags1 & TR1_CON)))
 				get_quality(FALSE, ADD_CON, pval, a_idx);
-			if ((choice == 6) && (!(a_ptr->flags1 & ADD_CHR)))
+			if ((choice == 6) && (!(a_ptr->flags1 & TR1_CHR)))
 				get_quality(FALSE, ADD_CHR, pval, a_idx);
-			if ((choice == 7) && (!(a_ptr->flags1 & STEALTH)))
+			if ((choice == 7) && (!(a_ptr->flags1 & TR1_STEALTH)))
 				get_quality(FALSE, STEALTH, pval, a_idx);
-			if ((choice == 8) && (!(a_ptr->flags1 & SEARCH)))
+			if ((choice == 8) && (!(a_ptr->flags1 & TR1_SEARCH)))
 				get_quality(FALSE, SEARCH, pval, a_idx);
 
-			if ((choice == 9) && (!(a_ptr->flags1 & TUNNEL)))
+			if ((choice == 9) && (!(a_ptr->flags1 & TR1_TUNNEL)))
 				get_quality(FALSE, TUNNEL, pval, a_idx);
 
 				choice = 0;
@@ -2928,31 +2928,31 @@ static void haggle_till_done(int a_idx)
 			/* Collect a slay or brand, if it is affordable. */
 			choice = randint(13);
 
-			if ((choice == 1) && (!(a_ptr->flags1 & SLAY_ANIMAL)))
+			if ((choice == 1) && (!(a_ptr->flags1 & TR1_SLAY_ANIMAL)))
 				get_quality(FALSE, SLAY_ANIMAL, 0, a_idx);
-			if ((choice == 2) && (!(a_ptr->flags1 & SLAY_EVIL)))
+			if ((choice == 2) && (!(a_ptr->flags1 & TR1_SLAY_EVIL)))
 				get_quality(FALSE, SLAY_EVIL, 0, a_idx);
-			if ((choice == 3) && (!(a_ptr->flags1 & SLAY_UNDEAD)))
+			if ((choice == 3) && (!(a_ptr->flags1 & TR1_SLAY_UNDEAD)))
 				get_quality(FALSE, SLAY_UNDEAD, 0, a_idx);
-			if ((choice == 4) && (!(a_ptr->flags1 & SLAY_DEMON)))
+			if ((choice == 4) && (!(a_ptr->flags1 & TR1_SLAY_DEMON)))
 				get_quality(FALSE, SLAY_DEMON, 0, a_idx);
-			if ((choice == 5) && (!(a_ptr->flags1 & SLAY_ORC)))
+			if ((choice == 5) && (!(a_ptr->flags1 & TR1_SLAY_ORC)))
 				get_quality(FALSE, SLAY_ORC, 0, a_idx);
-			if ((choice == 6) && (!(a_ptr->flags1 & SLAY_TROLL)))
+			if ((choice == 6) && (!(a_ptr->flags1 & TR1_SLAY_TROLL)))
 				get_quality(FALSE, SLAY_TROLL, 0, a_idx);
-			if ((choice == 7) && (!(a_ptr->flags1 & SLAY_GIANT)))
+			if ((choice == 7) && (!(a_ptr->flags1 & TR1_SLAY_GIANT)))
 				get_quality(FALSE, SLAY_GIANT, 0, a_idx);
-			if ((choice == 8) && (!(a_ptr->flags1 & SLAY_DRAGON)))
+			if ((choice == 8) && (!(a_ptr->flags1 & TR1_SLAY_DRAGON)))
 				get_quality(FALSE, SLAY_DRAGON, 0, a_idx);
-			if ((choice == 9) && (!(a_ptr->flags1 & BRAND_FIRE)))
+			if ((choice == 9) && (!(a_ptr->flags1 & TR1_BRAND_FIRE)))
 				get_quality(FALSE, BRAND_FIRE, 0, a_idx);
-			if ((choice == 10) && (!(a_ptr->flags1 & BRAND_COLD)))
+			if ((choice == 10) && (!(a_ptr->flags1 & TR1_BRAND_COLD)))
 				get_quality(FALSE, BRAND_COLD, 0, a_idx);
-			if ((choice == 11) && (!(a_ptr->flags1 & BRAND_ACID)))
+			if ((choice == 11) && (!(a_ptr->flags1 & TR1_BRAND_ACID)))
 				get_quality(FALSE, BRAND_ACID, 0, a_idx);
-			if ((choice == 12) && (!(a_ptr->flags1 & BRAND_ELEC)))
+			if ((choice == 12) && (!(a_ptr->flags1 & TR1_BRAND_ELEC)))
 				get_quality(FALSE, BRAND_ELEC, 0, a_idx);
-			if ((choice == 13) && (!(a_ptr->flags1 & BRAND_POIS)))
+			if ((choice == 13) && (!(a_ptr->flags1 & TR1_BRAND_POIS)))
 				get_quality(FALSE, BRAND_POIS, 0, a_idx);
 
 			/* Often, collect a miscellanious quality, if it is affordable. */
@@ -2960,17 +2960,17 @@ static void haggle_till_done(int a_idx)
 			{
 				choice = randint(6);
 
-				if ((choice == 1) && (!(a_ptr->flags3 & SLOW_DIGEST)))
+				if ((choice == 1) && (!(a_ptr->flags3 & TR3_SLOW_DIGEST)))
 					get_quality(FALSE, SLOW_DIGEST, 0, a_idx);
-				if ((choice == 2) && (!(a_ptr->flags3 & FEATHER)))
+				if ((choice == 2) && (!(a_ptr->flags3 & TR3_FEATHER)))
 					get_quality(FALSE, FEATHER, 0, a_idx);
-				if ((choice == 3) && (!(a_ptr->flags3 & LITE)))
+				if ((choice == 3) && (!(a_ptr->flags3 & TR3_LITE)))
 					get_quality(FALSE, LITE, 0, a_idx);
-				if ((choice == 4) && (!(a_ptr->flags3 & REGEN)))
+				if ((choice == 4) && (!(a_ptr->flags3 & TR3_REGEN)))
 					get_quality(FALSE, REGEN, 0, a_idx);
-				if ((choice == 5) && (!(a_ptr->flags3 & SEE_INVIS)))
+				if ((choice == 5) && (!(a_ptr->flags3 & TR3_SEE_INVIS)))
 					get_quality(FALSE, SEE_INVIS, 0, a_idx);
-				if ((choice == 6) && (!(a_ptr->flags3 & FREE_ACT)))
+				if ((choice == 6) && (!(a_ptr->flags3 & TR3_FREE_ACT)))
 					get_quality(FALSE, FREE_ACT, 0, a_idx);
 			}
 
@@ -2979,29 +2979,29 @@ static void haggle_till_done(int a_idx)
 			{
 				choice = randint(12);
 
-				if ((choice == 1) && (!(a_ptr->flags2 & RES_FIRE)))
+				if ((choice == 1) && (!(a_ptr->flags2 & TR2_RES_FIRE)))
 					get_quality(FALSE, RES_FIRE, 0, a_idx);
-				if ((choice == 2) && (!(a_ptr->flags2 & RES_COLD)))
+				if ((choice == 2) && (!(a_ptr->flags2 & TR2_RES_COLD)))
 					get_quality(FALSE, RES_COLD, 0, a_idx);
-				if ((choice == 3) && (!(a_ptr->flags2 & RES_ACID)))
+				if ((choice == 3) && (!(a_ptr->flags2 & TR2_RES_ACID)))
 					get_quality(FALSE, RES_ACID, 0, a_idx);
-				if ((choice == 4) && (!(a_ptr->flags2 & RES_ELEC)))
+				if ((choice == 4) && (!(a_ptr->flags2 & TR2_RES_ELEC)))
 					get_quality(FALSE, RES_ELEC, 0, a_idx);
-				if ((choice == 5) && (!(a_ptr->flags2 & RES_FEAR)))
+				if ((choice == 5) && (!(a_ptr->flags2 & TR2_RES_FEAR)))
 					get_quality(FALSE, RES_FEAR, 0, a_idx);
-				if ((choice == 6) && (!(a_ptr->flags2 & RES_LITE)))
+				if ((choice == 6) && (!(a_ptr->flags2 & TR2_RES_LITE)))
 					get_quality(FALSE, RES_LITE, 0, a_idx);
-				if ((choice == 7) && (!(a_ptr->flags2 & RES_DARK)))
+				if ((choice == 7) && (!(a_ptr->flags2 & TR2_RES_DARK)))
 					get_quality(FALSE, RES_DARK, 0, a_idx);
-				if ((choice == 8) && (!(a_ptr->flags2 & RES_BLIND)))
+				if ((choice == 8) && (!(a_ptr->flags2 & TR2_RES_BLIND)))
 					get_quality(FALSE, RES_BLIND, 0, a_idx);
-				if ((choice == 9) && (!(a_ptr->flags2 & RES_CONFU)))
+				if ((choice == 9) && (!(a_ptr->flags2 & TR2_RES_CONFU)))
 					get_quality(FALSE, RES_CONFU, 0, a_idx);
-				if ((choice == 10) && (!(a_ptr->flags2 & RES_SOUND)))
+				if ((choice == 10) && (!(a_ptr->flags2 & TR2_RES_SOUND)))
 					get_quality(FALSE, RES_SOUND, 0, a_idx);
-				if ((choice == 11) && (!(a_ptr->flags2 & RES_SHARD)))
+				if ((choice == 11) && (!(a_ptr->flags2 & TR2_RES_SHARD)))
 					get_quality(FALSE, RES_SHARD, 0, a_idx);
-				if ((choice == 12) && (!(a_ptr->flags2 & RES_NEXUS)))
+				if ((choice == 12) && (!(a_ptr->flags2 & TR2_RES_NEXUS)))
 					get_quality(FALSE, RES_NEXUS, 0, a_idx);
 			}
 
@@ -3021,17 +3021,17 @@ static void haggle_till_done(int a_idx)
 			/* Collect a miscellanious quality, if it is affordable. */
 			choice = randint(6);
 
-			if ((choice == 1) && (!(a_ptr->flags3 & SLOW_DIGEST)))
+			if ((choice == 1) && (!(a_ptr->flags3 & TR3_SLOW_DIGEST)))
 				get_quality(FALSE, SLOW_DIGEST, 0, a_idx);
-			if ((choice == 2) && (!(a_ptr->flags3 & FEATHER)))
+			if ((choice == 2) && (!(a_ptr->flags3 & TR3_FEATHER)))
 				get_quality(FALSE, FEATHER, 0, a_idx);
-			if ((choice == 3) && (!(a_ptr->flags3 & LITE)))
+			if ((choice == 3) && (!(a_ptr->flags3 & TR3_LITE)))
 				get_quality(FALSE, LITE, 0, a_idx);
-			if ((choice == 4) && (!(a_ptr->flags3 & REGEN)))
+			if ((choice == 4) && (!(a_ptr->flags3 & TR3_REGEN)))
 				get_quality(FALSE, REGEN, 0, a_idx);
-			if ((choice == 5) && (!(a_ptr->flags3 & SEE_INVIS)))
+			if ((choice == 5) && (!(a_ptr->flags3 & TR3_SEE_INVIS)))
 				get_quality(FALSE, SEE_INVIS, 0, a_idx);
-			if ((choice == 6) && (!(a_ptr->flags3 & FREE_ACT)))
+			if ((choice == 6) && (!(a_ptr->flags3 & TR3_FREE_ACT)))
 				get_quality(FALSE, FREE_ACT, 0, a_idx);
 
 			/* Sometimes, collect a resistance, if it is affordable. */
@@ -3039,29 +3039,29 @@ static void haggle_till_done(int a_idx)
 			{
 				choice = randint(12);
 
-				if ((choice == 1) && (!(a_ptr->flags2 & RES_FIRE)))
+				if ((choice == 1) && (!(a_ptr->flags2 & TR2_RES_FIRE)))
 					get_quality(FALSE, RES_FIRE, 0, a_idx);
-				if ((choice == 2) && (!(a_ptr->flags2 & RES_COLD)))
+				if ((choice == 2) && (!(a_ptr->flags2 & TR2_RES_COLD)))
 					get_quality(FALSE, RES_COLD, 0, a_idx);
-				if ((choice == 3) && (!(a_ptr->flags2 & RES_ACID)))
+				if ((choice == 3) && (!(a_ptr->flags2 & TR2_RES_ACID)))
 					get_quality(FALSE, RES_ACID, 0, a_idx);
-				if ((choice == 4) && (!(a_ptr->flags2 & RES_ELEC)))
+				if ((choice == 4) && (!(a_ptr->flags2 & TR2_RES_ELEC)))
 					get_quality(FALSE, RES_ELEC, 0, a_idx);
-				if ((choice == 5) && (!(a_ptr->flags2 & RES_FEAR)))
+				if ((choice == 5) && (!(a_ptr->flags2 & TR2_RES_FEAR)))
 					get_quality(FALSE, RES_FEAR, 0, a_idx);
-				if ((choice == 6) && (!(a_ptr->flags2 & RES_LITE)))
+				if ((choice == 6) && (!(a_ptr->flags2 & TR2_RES_LITE)))
 					get_quality(FALSE, RES_LITE, 0, a_idx);
-				if ((choice == 7) && (!(a_ptr->flags2 & RES_DARK)))
+				if ((choice == 7) && (!(a_ptr->flags2 & TR2_RES_DARK)))
 					get_quality(FALSE, RES_DARK, 0, a_idx);
-				if ((choice == 8) && (!(a_ptr->flags2 & RES_BLIND)))
+				if ((choice == 8) && (!(a_ptr->flags2 & TR2_RES_BLIND)))
 					get_quality(FALSE, RES_BLIND, 0, a_idx);
-				if ((choice == 9) && (!(a_ptr->flags2 & RES_CONFU)))
+				if ((choice == 9) && (!(a_ptr->flags2 & TR2_RES_CONFU)))
 					get_quality(FALSE, RES_CONFU, 0, a_idx);
-				if ((choice == 10) && (!(a_ptr->flags2 & RES_SOUND)))
+				if ((choice == 10) && (!(a_ptr->flags2 & TR2_RES_SOUND)))
 					get_quality(FALSE, RES_SOUND, 0, a_idx);
-				if ((choice == 11) && (!(a_ptr->flags2 & RES_SHARD)))
+				if ((choice == 11) && (!(a_ptr->flags2 & TR2_RES_SHARD)))
 					get_quality(FALSE, RES_SHARD, 0, a_idx);
-				if ((choice == 12) && (!(a_ptr->flags2 & RES_NEXUS)))
+				if ((choice == 12) && (!(a_ptr->flags2 & TR2_RES_NEXUS)))
 					get_quality(FALSE, RES_NEXUS, 0, a_idx);
 			}
 
@@ -3081,29 +3081,29 @@ static void haggle_till_done(int a_idx)
 			/* Collect a resistance, if it is affordable. */
 			choice = randint(12);
 
-			if ((choice == 1) && (!(a_ptr->flags2 & RES_FIRE)))
+			if ((choice == 1) && (!(a_ptr->flags2 & TR2_RES_FIRE)))
 				get_quality(FALSE, RES_FIRE, 0, a_idx);
-			if ((choice == 2) && (!(a_ptr->flags2 & RES_COLD)))
+			if ((choice == 2) && (!(a_ptr->flags2 & TR2_RES_COLD)))
 				get_quality(FALSE, RES_COLD, 0, a_idx);
-			if ((choice == 3) && (!(a_ptr->flags2 & RES_ACID)))
+			if ((choice == 3) && (!(a_ptr->flags2 & TR2_RES_ACID)))
 				get_quality(FALSE, RES_ACID, 0, a_idx);
-			if ((choice == 4) && (!(a_ptr->flags2 & RES_ELEC)))
+			if ((choice == 4) && (!(a_ptr->flags2 & TR2_RES_ELEC)))
 				get_quality(FALSE, RES_ELEC, 0, a_idx);
-			if ((choice == 5) && (!(a_ptr->flags2 & RES_FEAR)))
+			if ((choice == 5) && (!(a_ptr->flags2 & TR2_RES_FEAR)))
 				get_quality(FALSE, RES_FEAR, 0, a_idx);
-			if ((choice == 6) && (!(a_ptr->flags2 & RES_LITE)))
+			if ((choice == 6) && (!(a_ptr->flags2 & TR2_RES_LITE)))
 				get_quality(FALSE, RES_LITE, 0, a_idx);
-			if ((choice == 7) && (!(a_ptr->flags2 & RES_DARK)))
+			if ((choice == 7) && (!(a_ptr->flags2 & TR2_RES_DARK)))
 				get_quality(FALSE, RES_DARK, 0, a_idx);
-			if ((choice == 8) && (!(a_ptr->flags2 & RES_BLIND)))
+			if ((choice == 8) && (!(a_ptr->flags2 & TR2_RES_BLIND)))
 				get_quality(FALSE, RES_BLIND, 0, a_idx);
-			if ((choice == 9) && (!(a_ptr->flags2 & RES_CONFU)))
+			if ((choice == 9) && (!(a_ptr->flags2 & TR2_RES_CONFU)))
 				get_quality(FALSE, RES_CONFU, 0, a_idx);
-			if ((choice == 10) && (!(a_ptr->flags2 & RES_SOUND)))
+			if ((choice == 10) && (!(a_ptr->flags2 & TR2_RES_SOUND)))
 				get_quality(FALSE, RES_SOUND, 0, a_idx);
-			if ((choice == 11) && (!(a_ptr->flags2 & RES_SHARD)))
+			if ((choice == 11) && (!(a_ptr->flags2 & TR2_RES_SHARD)))
 				get_quality(FALSE, RES_SHARD, 0, a_idx);
-			if ((choice == 12) && (!(a_ptr->flags2 & RES_NEXUS)))
+			if ((choice == 12) && (!(a_ptr->flags2 & TR2_RES_NEXUS)))
 				get_quality(FALSE, RES_NEXUS, 0, a_idx);
 
 			/* Often, collect a miscellanious quality, if it is affordable. */
@@ -3111,17 +3111,17 @@ static void haggle_till_done(int a_idx)
 			{
 				choice = randint(6);
 
-				if ((choice == 1) && (!(a_ptr->flags3 & SLOW_DIGEST)))
+				if ((choice == 1) && (!(a_ptr->flags3 & TR3_SLOW_DIGEST)))
 					get_quality(FALSE, SLOW_DIGEST, 0, a_idx);
-				if ((choice == 2) && (!(a_ptr->flags3 & FEATHER)))
+				if ((choice == 2) && (!(a_ptr->flags3 & TR3_FEATHER)))
 					get_quality(FALSE, FEATHER, 0, a_idx);
-				if ((choice == 3) && (!(a_ptr->flags3 & LITE)))
+				if ((choice == 3) && (!(a_ptr->flags3 & TR3_LITE)))
 					get_quality(FALSE, LITE, 0, a_idx);
-				if ((choice == 4) && (!(a_ptr->flags3 & REGEN)))
+				if ((choice == 4) && (!(a_ptr->flags3 & TR3_REGEN)))
 					get_quality(FALSE, REGEN, 0, a_idx);
-				if ((choice == 5) && (!(a_ptr->flags3 & SEE_INVIS)))
+				if ((choice == 5) && (!(a_ptr->flags3 & TR3_SEE_INVIS)))
 					get_quality(FALSE, SEE_INVIS, 0, a_idx);
-				if ((choice == 6) && (!(a_ptr->flags3 & FREE_ACT)))
+				if ((choice == 6) && (!(a_ptr->flags3 & TR3_FREE_ACT)))
 					get_quality(FALSE, FREE_ACT, 0, a_idx);
 			}
 
@@ -3737,7 +3737,7 @@ static int convert_names(void)
 
 	/* Convert our names array into an a_name structure for later use. */
 	name_size = 1;
-	for (i = 0; i < MAX_A_IDX; i++)
+	for (i = 0; i < z_info->a_max; i++)
 	{
 		name_size += strlen (names[i]) + 1;	/* skip first char */
 	}
@@ -3748,7 +3748,7 @@ static int convert_names(void)
 	}
 
 	a_next = a_base + 1;	/* skip first char */
-	for (i = 0; i < MAX_A_IDX; i++)
+	for (i = 0; i < z_info->a_max; i++)
 	{
 		strcpy(a_next, names[i]);
 		if (a_info[i].tval > 0)		/* skip unused! */
@@ -3758,8 +3758,8 @@ static int convert_names(void)
 
 
 	/* Free some of our now unneeded memory. */
-	KILL (a_name, char);
-	for (i = ART_MIN_RANDOM; i < MAX_A_IDX; i++)
+	KILL (a_name);
+	for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
 	{
 		free(names[i]);
 	}
@@ -3790,7 +3790,7 @@ void initialize_random_artifacts(void)
 	/* Go from beginning to end of the random section of the
 	 * artifact array, initializing and naming as we go.
 	 */
-	for (a_idx = ART_MIN_RANDOM; a_idx < MAX_A_IDX; a_idx++)
+	for (a_idx = ART_MIN_RANDOM; a_idx < z_info->a_max; a_idx++)
 	{
 		/* Design the artifact, storing information as we go along. */
 		design_random_artifact(a_idx);

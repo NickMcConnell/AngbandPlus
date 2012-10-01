@@ -1,21 +1,28 @@
-/* File: z-util.c */
-
 /*
- * Copyright (c) 1997 Ben Harrison
+ * File: z-util.c
+ * Purpose: Low-level string handling and other utilities.
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * Copyright (c) 1997-2005 Ben Harrison, Robert Ruehlmann.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
-
-/* Purpose: Low level utilities -BEN- */
-
 #include "z-util.h"
+
 
 /*
  * Convenient storage of the program name
  */
 cptr argv0 = NULL;
+
 
 /*
  * Case insensitive comparison between two strings
@@ -71,6 +78,43 @@ int my_strnicmp(cptr a, cptr b, int n)
 	}
 
 	return 0;
+}
+
+
+/*
+ * An ANSI version of strstr() with case insensitivity.
+ *
+ * In the public domain; found at:
+ *    http://c.snippets.org/code/stristr.c
+ */
+char *my_stristr(const char *string, const char *pattern)
+{
+      char *pptr, *sptr, *start;
+
+      for (start = (char *)string; *start != 0; start++)
+      {
+            /* find start of pattern in string */
+            for ( ; ((*start != 0) &&
+			        (toupper((unsigned char)*start) != toupper((unsigned char)*pattern))); start++)
+                  ;
+            if (*start == 0)
+                  return NULL;
+
+            pptr = (char *)pattern;
+            sptr = (char *)start;
+
+            while (toupper((unsigned char)*sptr) == toupper((unsigned char)*pptr))
+            {
+                  sptr++;
+                  pptr++;
+
+                  /* if end of pattern then pattern was found */
+                  if (*pptr == 0)
+                        return (start);
+            }
+      }
+
+      return NULL;
 }
 
 
@@ -134,8 +178,9 @@ size_t my_strcat(char *buf, const char *src, size_t bufsize)
 
 
 /*
- * Determine if string "t" is equal to string "t"
+ * Determine if string "a" is equal to string "b"
  */
+#undef streq
 bool streq(cptr a, cptr b)
 {
 	return (!strcmp(a, b));
@@ -147,8 +192,8 @@ bool streq(cptr a, cptr b)
  */
 bool suffix(cptr s, cptr t)
 {
-	int tlen = strlen(t);
-	int slen = strlen(s);
+	size_t tlen = strlen(t);
+	size_t slen = strlen(s);
 
 	/* Check for incompatible lengths */
 	if (tlen > slen) return (FALSE);
@@ -191,7 +236,7 @@ void plog(cptr str)
 	if (plog_aux) (*plog_aux)(str);
 
 	/* Just do a labeled fprintf to stderr */
-	else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "???", str));
+	else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "?", str));
 }
 
 
@@ -202,8 +247,7 @@ void plog(cptr str)
 void (*quit_aux)(cptr) = NULL;
 
 /*
- * Exit (ala "exit()").  If 'str' is NULL, do "exit(0)".
- * If 'str' begins with "+" or "-", do "exit(atoi(str))".
+ * Exit (ala "exit()").  If 'str' is NULL, do "exit(EXIT_SUCCESS)".
  * Otherwise, plog() 'str' and exit with an error code of -1.
  * But always use 'quit_aux', if set, before anything else.
  */
@@ -213,10 +257,7 @@ void quit(cptr str)
 	if (quit_aux) (*quit_aux)(str);
 
 	/* Success */
-	if (!str) (void)(exit(0));
-
-	/* Extract a "special error code" */
-	if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
+	if (!str) (void)(exit(EXIT_SUCCESS));
 
 	/* Send the string to plog() */
 	plog(str);
@@ -225,34 +266,47 @@ void quit(cptr str)
 	(void)(exit(EXIT_FAILURE));
 }
 
-
-
 /*
- * Redefinable "core" action
+ * Fast string concatenation - stolen from NPPangband for FAangband 0.3.2.
+ * Append the "src" string to "buf" given the address of the trailing null
+ * character of "buf" in "end". "end" can be NULL, in which the trailing null
+ * character is fetched from the beginning of "buf".
+ * "bufsize" is the maximum size of "buf" (including the trailing null character).
+ * It returns the -new- address of the trailing null character of "buf".
+ *
+ * Example of usage:
+ *
+ * char buf[100] = "", *end;
+ * int i;
+ *
+ * end = my_fast_strcat(buf, NULL, "START", sizeof(buf));
+ *
+ * for (i = 0; i < 5; i++)
+ * {
+ * 	end = my_fast_strcat(buf, end, "_", sizeof(buf));
+ * }
+ *
+ * end = my_fast_strcat(buf, end, "END", sizeof(buf));
+ *
+ * buf ==> "START_____END"
  */
-void (*core_aux)(cptr) = NULL;
-
-/*
- * Dump a core file, after printing a warning message
- * As with "quit()", try to use the "core_aux()" hook first.
- */
-void core(cptr str)
+char *my_fast_strcat(char *buf, char *end, const char *src, size_t bufsize)
 {
-	char *crash = NULL;
+	/* No end, go to the beginning of "buf" */
+	if (end == NULL) end = buf;
 
-	/* Use the aux function */
-	if (core_aux) (*core_aux)(str);
+	/* Find the trailing null character, if necessary */
+	while (*end) ++end;
 
-	/* Dump the warning string */
-	if (str) plog(str);
+	/* Make room for the trailing null character, if possible */
+	if (bufsize > 0) --bufsize;
 
-	/* Attempt to Crash */
-	(*crash) = (*crash);
+	/* Append "str" to "buf", if possible */
+	while (*src && ((size_t)(end - buf) < bufsize)) *end++ = *src++;
 
-	/* Be sure we exited */
-	quit("core() failed");
+	/* Terminate the string */
+	*end = '\0';
+
+	/* Return the new end of "buf" */
+	return end;
 }
-
-
-
-

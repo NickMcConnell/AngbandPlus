@@ -16,6 +16,7 @@ SRCS = \
 	angband.rc \
 	birth.c \
 	cave.c \
+	cmd0.c \
 	cmd1.c \
 	cmd2.c \
 	cmd3.c \
@@ -27,8 +28,7 @@ SRCS = \
 	generate.c \
 	init1.c \
 	init2.c \
-	load1.c \
-	load2.c \
+	load.c \
 	main-win.c \
 	monmove.c \
 	monattk.c \
@@ -37,12 +37,14 @@ SRCS = \
 	object1.c \
 	object2.c \
 	randart.c \
+	randname.c \
 	readdib.c \
 	save.c \
 	spells1.c \
 	spells2.c \
 	store.c \
 	tables.c \
+	ui.c \
 	util.c \
 	variable.c \
 	wizard1.c \
@@ -52,6 +54,7 @@ SRCS = \
 	attack.c \
 	info.c \
 	squelch.c \
+	z-file.c \
 	z-form.c \
 	z-rand.c \
 	z-term.c \
@@ -63,6 +66,7 @@ EXOBJS = \
 	angband.res \
 	birth.o \
 	cave.o \
+	cmd0.o \
 	cmd1.o \
 	cmd2.o \
 	cmd3.o \
@@ -74,8 +78,7 @@ EXOBJS = \
 	generate.o \
 	init1.o \
 	init2.o \
-	load1.o \
-	load2.o \
+	load.o \
 	main-win.o \
 	monmove.o \
 	monattk.o \
@@ -84,12 +87,14 @@ EXOBJS = \
 	object1.o \
 	object2.o \
 	randart.o \
+	randname.o \
 	readdib.o \
 	save.o \
 	spells1.o \
 	spells2.o \
 	store.o \
 	tables.o \
+	ui.o \
 	util.o \
 	variable.o \
 	wizard1.o \
@@ -99,6 +104,7 @@ EXOBJS = \
 	xtra2.o \
 	info.o \
 	squelch.o \
+	z-file.o \
 	z-form.o \
 	z-rand.o \
 	z-term.o \
@@ -117,8 +123,9 @@ INCS = \
 	config.h defines.h \
 	types.h externs.h \
 	z-term.h z-rand.h \
-	z-util.h z-virt.h \
-	z-form.h $(HDRS)
+	z-type.h z-util.h \
+	z-virt.h z-form.h \
+	z-file.h $(HDRS)
 
 
 #
@@ -212,10 +219,7 @@ init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-load1.o: load1.c $(INCS)
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
-load2.o: load2.c $(INCS)
+load.o: load.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 main.o: main.c $(INCS)

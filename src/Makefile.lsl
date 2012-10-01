@@ -9,8 +9,8 @@ SRCS = \
   xtra1.c xtra2.c spells1.c spells2.c \
   monmove.c monattk.c save.c files.c randart.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load1.c load2.c \
-  attack.c wizard1.c wizard2.c squelch.c \
+  store.c birth.c load.c \
+  attack.c wizard1.c wizard2.c squlech.c \
   generate.c dungeon.c init1.c init2.c \
   main-ami.c main.c
 
@@ -21,7 +21,7 @@ OBJS = \
   xtra1.o xtra2.o spells1.o spells2.o \
   monmove.o monattk.o save.o files.o randart.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load1.o load2.o \
+  store.o birth.o load.o \
   attack.o wizard1.o wizard2.o squelch.o \
   generate.o dungeon.o init1.o init2.o \
   main-lsl.o main.o

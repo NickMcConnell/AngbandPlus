@@ -160,7 +160,7 @@ static void compact_monsters_aux(int i1, int i2)
 	if (p_ptr->health_who == i1) p_ptr->health_who = i2;
 
 	/* Hack -- move monster */
-	COPY(&m_list[i2], &m_list[i1], monster_type);
+	(void)COPY(&m_list[i2], &m_list[i1], monster_type);
 
 	/* Hack -- wipe hole */
 	(void)WIPE(&m_list[i1], monster_type);
@@ -317,8 +317,8 @@ void wipe_m_list(void)
 	/* Hack -- no more tracking */
 	health_track(0);
 
-	/* Hack -- make sure there is no player ghost */
-	bones_selector = 0;
+	/* Hack -- make sure there is no player ghost - doesn't work NRM
+	   bones_selector = 0;*/
 }
 
 
@@ -333,7 +333,7 @@ s16b m_pop(void)
 
 
 	/* Normal allocation */
-	if (m_max < MAX_M_IDX)
+	if (m_max < z_info->m_max)
 	{
 		/* Access the next hole */
 		i = m_max;
@@ -610,6 +610,115 @@ s16b get_mon_num_quick(int level)
 
 
 /*
+ * Display visible monsters in a window
+ */
+void display_monlist(void)
+{
+	int idx, n;
+	int line = 0;
+	  
+	char *m_name;
+	char buf[80];
+	  
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+	  
+	u16b *race_counts;
+	  
+	/* Allocate the array */
+	C_MAKE(race_counts, z_info->r_max, u16b);
+	  
+	/* Iterate over m_list */
+	for (idx = 1; idx < z_info->m_max; idx++)
+	{
+		m_ptr = &m_list[idx];
+      
+		/* Only visible monsters */
+		if (!m_ptr->ml) continue;
+		  
+		/* Bump the count for this race */
+		race_counts[m_ptr->r_idx]++;
+	}
+	  
+	  
+	/* Iterate over m_list ( again :-/ ) */
+	for (idx = 1; idx < z_info->m_max; idx++)
+	{
+		m_ptr = &m_list[idx];
+      
+		/* Only visible monsters */
+		if (!m_ptr->ml) continue;
+		  
+		/* Do each race only once */
+		if (!race_counts[m_ptr->r_idx]) continue;
+		  
+		/* Get monster race */
+		r_ptr = &r_info[m_ptr->r_idx];
+		  
+		/* Get the monster name */
+		m_name = r_name + r_ptr->name;
+		  
+		/* Obtain the length of the description */
+		n = strlen(m_name);
+		  
+		/* Display the entry itself */
+		Term_putstr(0, line, n, TERM_WHITE, m_name);
+		  
+		/* Append the "standard" attr/char info */
+		Term_addstr(-1, TERM_WHITE, " ('");
+		Term_addch(r_ptr->d_attr, r_ptr->d_char);
+		Term_addstr(-1, TERM_WHITE, "')");
+		n += 6;
+		  
+		/* Monster graphic on one line */
+		if (!(use_dbltile) && !(use_trptile))
+		{
+			/* Append the "optional" attr/char info */
+			Term_addstr(-1, TERM_WHITE, "/('");
+		    
+			Term_addch(r_ptr->x_attr, r_ptr->x_char);
+			  
+			if (use_bigtile)
+			{
+				if (r_ptr->x_attr & 0x80)
+					Term_addch(255, -1);
+				else
+					Term_addch(0, ' ');
+	      
+				n++;
+			}
+			  
+			Term_addstr(-1, TERM_WHITE, "'):");
+			n += 7;
+		}
+		  
+		/* Add race count */
+		sprintf(buf, "%d", race_counts[m_ptr->r_idx]);
+		Term_addch(TERM_WHITE, '[');
+		Term_addstr(strlen(buf), TERM_WHITE, buf);
+		Term_addch(TERM_WHITE, ']');
+		n += strlen(buf) + 2;
+		  
+		/* Don't do this race again */
+		race_counts[m_ptr->r_idx] = 0;
+		  
+		/* Erase the rest of the line */
+		Term_erase(n, line, 255);
+		  
+		/* Bump line counter */
+		line++;
+	}
+	  
+	/* Erase the rest of the window */
+	for (idx = line; idx < Term->hgt; idx++)
+	{
+		/* Erase the line */
+		Term_erase(0, idx, 255);
+	}
+}
+
+
+/*
  * Build a string describing a monster in some way.
  *
  * We can correctly describe monsters based on their visibility.
@@ -698,34 +807,34 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 		switch (kind + (mode & 0x07))
 		{
 			/* Neuter, or unknown */
-			case 0x00: res = "it"; break;
-			case 0x01: res = "it"; break;
-			case 0x02: res = "its"; break;
-			case 0x03: res = "itself"; break;
-			case 0x04: res = "something"; break;
-			case 0x05: res = "something"; break;
-			case 0x06: res = "something's"; break;
-			case 0x07: res = "itself"; break;
+		case 0x00: res = "it"; break;
+		case 0x01: res = "it"; break;
+		case 0x02: res = "its"; break;
+		case 0x03: res = "itself"; break;
+		case 0x04: res = "something"; break;
+		case 0x05: res = "something"; break;
+		case 0x06: res = "something's"; break;
+		case 0x07: res = "itself"; break;
 
 			/* Male (assume human if vague) */
-			case 0x10: res = "he"; break;
-			case 0x11: res = "him"; break;
-			case 0x12: res = "his"; break;
-			case 0x13: res = "himself"; break;
-			case 0x14: res = "someone"; break;
-			case 0x15: res = "someone"; break;
-			case 0x16: res = "someone's"; break;
-			case 0x17: res = "himself"; break;
+		case 0x10: res = "he"; break;
+		case 0x11: res = "him"; break;
+		case 0x12: res = "his"; break;
+		case 0x13: res = "himself"; break;
+		case 0x14: res = "someone"; break;
+		case 0x15: res = "someone"; break;
+		case 0x16: res = "someone's"; break;
+		case 0x17: res = "himself"; break;
 
 			/* Female (assume human if vague) */
-			case 0x20: res = "she"; break;
-			case 0x21: res = "her"; break;
-			case 0x22: res = "her"; break;
-			case 0x23: res = "herself"; break;
-			case 0x24: res = "someone"; break;
-			case 0x25: res = "someone"; break;
-			case 0x26: res = "someone's"; break;
-			case 0x27: res = "herself"; break;
+		case 0x20: res = "she"; break;
+		case 0x21: res = "her"; break;
+		case 0x22: res = "her"; break;
+		case 0x23: res = "herself"; break;
+		case 0x24: res = "someone"; break;
+		case 0x25: res = "someone"; break;
+		case 0x26: res = "someone's"; break;
+		case 0x27: res = "herself"; break;
 		}
 
 		/* Copy the result */
@@ -803,6 +912,30 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	}
 }
 
+
+
+
+/*
+ * Build a string describing a monster race, currently used for quests.
+ *
+ * Assumes a singular monster.  This may need to be run through the
+ * plural_aux function in the quest.c file.  (Changes "wolf" to
+ * wolves, etc.....)
+ *
+ * I am assuming that no monster name is more than 65 characters long,
+ * so that "char desc[80];" is sufficiently large for any result, even
+ * when the "offscreen" notation is added.
+ *
+ */
+void monster_desc_race(char *desc, size_t max, int r_idx)
+{
+        monster_race *r_ptr = &r_info[r_idx];
+  
+	cptr name = (r_name + r_ptr->name);
+	
+	/* Write the name */
+	my_strcpy(desc, name, max);
+}
 
 
 
@@ -1106,6 +1239,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Disturb on appearance */
 			if (disturb_move) disturb(1, 0);
+	  
+			/* Window stuff */
+			p_ptr->window |= PW_MONLIST;
 		}
 	}
 
@@ -1126,6 +1262,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Disturb on disappearance */
 			if (disturb_move) disturb(1, 0);
+	  
+			/* Window stuff */
+			p_ptr->window |= PW_MONLIST;
 		}
 	}
 
@@ -1254,6 +1393,32 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 }
 
 
+/* See whether all surrounding squares are trap detected */
+bool is_detected(int y, int x)
+{
+        int d, xx, yy;
+  
+	/* Check around (and under) the character */
+	for (d = 0; d < 9; d++)
+	{
+	        /* Extract adjacent (legal) location */
+	        yy = y + ddy_ddd[d];
+		xx = x + ddx_ddd[d];
+		
+		/* Paranoia */
+		if (!in_bounds_fully(yy, xx)) continue;
+		
+		/* Only check trappable grids */
+		if (!cave_floor_bold(yy, xx)) continue;
+		
+		/* Return false if undetected */
+		if ((cave_info2[yy][xx] & (CAVE2_DTRAP)) == 0) return (FALSE);
+	}
+	
+	/* Must be OK */
+	return (TRUE);
+}
+
 /*
  * Swap the players/monsters (if any) at two locations XXX XXX XXX
  */
@@ -1322,6 +1487,15 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	/* Did the player move? */
 	if (player_moved)
 	{
+                bool old_dtrap, new_dtrap;
+		
+		/* Calculate changes in dtrap status */
+		old_dtrap = cave_info2[y1][x1] & (CAVE2_DTRAP);
+		new_dtrap = is_detected(y2, x2);
+		
+		/* Note the change in the detect status */
+		p_ptr->redraw |= (PR_DTRAP);
+      
 		/* Update the panel */
 		p_ptr->update |= (PU_PANEL);
 
@@ -1332,24 +1506,14 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->window |= (PW_OVERHEAD);
 
 		/* Warn when leaving trap detected region */
-		if (disturb_trap_detect && p_ptr->dtrap_x && p_ptr->dtrap_y && p_ptr->dtrap_rad)
+		if (disturb_trap_detect && old_dtrap && !new_dtrap)
 		{
-			if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= (p_ptr->dtrap_rad - 1))
-			{
-				p_ptr->dtrap_x=0;
-				p_ptr->dtrap_y=0;
-				p_ptr->dtrap_rad=0;
-				msg_print("*Leaving trap detect region!*");
-
-				/* Disturb to break runs */
-				disturb(0, 0);
-
-				/* Redraw DTrap Status */
-				p_ptr->redraw |= (PR_DTRAP);
-			}
+		        /* Disturb to break runs */
+		        msg_print("*Edge of trap detect region!*");
+			disturb(0, 0);
 		}
 	}
-
+	
 	/* Redraw */
 	lite_spot(y1, x1);
 	lite_spot(y2, x2);
@@ -1405,7 +1569,7 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 		m_ptr = &m_list[m_idx];
 
 		/* Copy the monster XXX */
-		COPY(m_ptr, n_ptr, monster_type);
+		(void)COPY(m_ptr, n_ptr, monster_type);
 
 		/* Location */
 		m_ptr->fy = y;
@@ -1587,36 +1751,32 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
   	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
 
-	/* Monster generation messages for cheaters */
-	if (cheat_hear)
+	/* Deep unique monsters */
+	if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
+	    (r_ptr->level > p_ptr->depth))
 	{
-		/* Deep unique monsters */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
-		   (r_ptr->level > p_ptr->depth))
-		{
-			/* Message */
-			msg_format("Deep Unique (%s).", name);
+		/* Message */
+		if (cheat_hear) msg_format("Deep Unique (%s).", name);
 
-			/* Boost rating by twice delta-depth */
-			rating += (r_ptr->level - p_ptr->depth) * 2;
-		}
+		/* Boost rating by twice delta-depth */
+		rating += (r_ptr->level - p_ptr->depth) * 2;
+	}
 
-		/* Note any unique monster, even if not out of depth */
-		else if (r_ptr->flags1 & (RF1_UNIQUE))
-		{
-			/* Message */
-			msg_format("Unique (%s).", name);
-		}
+	/* Note any unique monster, even if not out of depth */
+	else if (r_ptr->flags1 & (RF1_UNIQUE))
+	{
+		/* Message */
+		if (cheat_hear) msg_format("Unique (%s).", name);
+	}
 
-		/* Deep normal monsters */
-		else if (r_ptr->level > p_ptr->depth + 2)
-		{
-			/* Message */
-			msg_format("Deep Monster (%s).", name);
+	/* Deep normal monsters */
+	else if (r_ptr->level > p_ptr->depth + 2)
+	{
+		/* Message */
+		if (cheat_hear) msg_format("Deep Monster (%s).", name);
 
-			/* Boost rating by delta-depth */
-			rating += (r_ptr->level - p_ptr->depth);
-		}
+		/* Boost rating by delta-depth */
+		rating += (r_ptr->level - p_ptr->depth);
 	}
 
 	/* Success */
@@ -2012,142 +2172,142 @@ static bool summon_specific_okay(int r_idx)
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
-		case SUMMON_KIN:
-		{
-			okay = ((r_ptr->d_char == summon_kin_type) &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
+	case SUMMON_KIN:
+	{
+		okay = ((r_ptr->d_char == summon_kin_type) &&
+			!(r_ptr->flags1 & (RF1_UNIQUE)));
+		break;
+	}
 
-		case SUMMON_ANT:
-		{
-			okay = ((r_ptr->d_char == 'a') &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
+	case SUMMON_ANT:
+	{
+		okay = ((r_ptr->d_char == 'a') &&
+			!(r_ptr->flags1 & (RF1_UNIQUE)));
+		break;
+	}
 
-		case SUMMON_SPIDER:
-		{
-			okay = ((r_ptr->d_char == 'S') &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
+	case SUMMON_SPIDER:
+	{
+		okay = ((r_ptr->d_char == 'S') &&
+			!(r_ptr->flags1 & (RF1_UNIQUE)));
+		break;
+	}
 
-		case SUMMON_HOUND:
-		{
-			okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z')) &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
+	case SUMMON_HOUND:
+	{
+		okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z')) &&
+			!(r_ptr->flags1 & (RF1_UNIQUE)));
+		break;
+	}
 
-		case SUMMON_ANIMAL:
-		{
-			okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
+	case SUMMON_ANIMAL:
+	{
+		okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
+			!(r_ptr->flags1 & (RF1_UNIQUE)));
+		break;
+	}
 
-		case SUMMON_DRAGON:
-		{
-			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
+	case SUMMON_DRAGON:
+	{
+		okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
+			!(r_ptr->flags1 & (RF1_UNIQUE)));
+		break;
+	}
 
-		case SUMMON_HI_DRAGON:
-		{
-			okay = (r_ptr->d_char == 'D');
-			break;
-		}
+	case SUMMON_HI_DRAGON:
+	{
+		okay = (r_ptr->d_char == 'D');
+		break;
+	}
 
-		case SUMMON_DEMON:
-		{
-			okay = ((r_ptr->flags3 & (RF3_DEMON)) &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
+	case SUMMON_DEMON:
+	{
+		okay = ((r_ptr->flags3 & (RF3_DEMON)) &&
+			!(r_ptr->flags1 & (RF1_UNIQUE)));
+		break;
+	}
 
-		case SUMMON_HI_DEMON:
-		{
-			okay = (r_ptr->d_char == 'U');
-			break;
-		}
+	case SUMMON_HI_DEMON:
+	{
+		okay = (r_ptr->d_char == 'U');
+		break;
+	}
 
-		case SUMMON_UNDEAD:
-		{
-			okay = ((r_ptr->flags3 & (RF3_UNDEAD)) &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
+	case SUMMON_UNDEAD:
+	{
+		okay = ((r_ptr->flags3 & (RF3_UNDEAD)) &&
+			!(r_ptr->flags1 & (RF1_UNIQUE)));
+		break;
+	}
 
-		case SUMMON_HI_UNDEAD:
-		{
-			okay = ((r_ptr->d_char == 'L') ||
-				(r_ptr->d_char == 'V') ||
-				(r_ptr->d_char == 'W'));
-			break;
-		}
+	case SUMMON_HI_UNDEAD:
+	{
+		okay = ((r_ptr->d_char == 'L') ||
+			(r_ptr->d_char == 'V') ||
+			(r_ptr->d_char == 'W'));
+		break;
+	}
 
-		case SUMMON_WRAITH:
-		{
-			okay = ((r_ptr->d_char == 'W') &&
-				(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
+	case SUMMON_WRAITH:
+	{
+		okay = ((r_ptr->d_char == 'W') &&
+			(r_ptr->flags1 & (RF1_UNIQUE)));
+		break;
+	}
 
 
-		case SUMMON_UNIQUE:
-		{
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) != 0) okay = TRUE;
-			break;
-		}
+	case SUMMON_UNIQUE:
+	{
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) != 0) okay = TRUE;
+		break;
+	}
 
-		case SUMMON_ELEMENTAL:
-		{
-			okay = (r_ptr->d_char == 'E');
-			break;
-		}
+	case SUMMON_ELEMENTAL:
+	{
+		okay = (r_ptr->d_char == 'E');
+		break;
+	}
 
-		case SUMMON_VORTEX:
-		{
-			okay = (r_ptr->d_char == 'v');
-			break;
-		}
+	case SUMMON_VORTEX:
+	{
+		okay = (r_ptr->d_char == 'v');
+		break;
+	}
 
-		case SUMMON_HYBRID:
-		{
-			okay = (r_ptr->d_char == 'H');
-			break;
-		}
+	case SUMMON_HYBRID:
+	{
+		okay = (r_ptr->d_char == 'H');
+		break;
+	}
 
-		case SUMMON_BIRD:
-		{
-			okay = (r_ptr->d_char == 'B');
-			break;
-		}
+	case SUMMON_BIRD:
+	{
+		okay = (r_ptr->d_char == 'B');
+		break;
+	}
 
-		case SUMMON_THIEF:
+	case SUMMON_THIEF:
+	{
+		/* Scan through all four blows */
+		for (i = 0; i < 4; i++)
 		{
-			/* Scan through all four blows */
-			for (i = 0; i < 4; i++)
-			{
-				/* Extract infomation about the blow effect */
-				effect = r_ptr->blow[i].effect;
-				if (effect == RBE_EAT_GOLD) okay = TRUE;
-				if (effect == RBE_EAT_ITEM) okay = TRUE;
-			}
-			break;
+			/* Extract infomation about the blow effect */
+			effect = r_ptr->blow[i].effect;
+			if (effect == RBE_EAT_GOLD) okay = TRUE;
+			if (effect == RBE_EAT_ITEM) okay = TRUE;
 		}
+		break;
+	}
 
-		case SUMMON_BERTBILLTOM:
-		{
-			okay = ((r_ptr->d_char == 'T') &&
-				(r_ptr->flags1 & (RF1_UNIQUE)) &&
-				  ((strstr((r_name + r_ptr->name), "Bert")) ||
-				   (strstr((r_name + r_ptr->name), "Bill")) ||
-				   (strstr((r_name + r_ptr->name), "Tom" ))));
-			break;
-		}
+	case SUMMON_BERTBILLTOM:
+	{
+		okay = ((r_ptr->d_char == 'T') &&
+			(r_ptr->flags1 & (RF1_UNIQUE)) &&
+			((strstr((r_name + r_ptr->name), "Bert")) ||
+			 (strstr((r_name + r_ptr->name), "Bill")) ||
+			 (strstr((r_name + r_ptr->name), "Tom" ))));
+		break;
+	}
 	}
 
 	/* Result */
@@ -2225,7 +2385,7 @@ int summon_specific(int y1, int x1, bool scattered, int lev, int type, int num)
 
 		/* Pick a monster.  Usually do not exceed maximum level. */
 		r_idx = get_mon_num((p_ptr->depth + lev) / 2 + 1 +
-			(p_ptr->depth >= 20 ? 4 : p_ptr->depth / 5));
+				    (p_ptr->depth >= 20 ? 4 : p_ptr->depth / 5));
 
 		/* Attempt to place the monster (awake, usually allow groups) */
 		if (r_idx)
@@ -2430,341 +2590,341 @@ void update_smart_learn(int m_idx, int what)
 	{
 
 		/* Slow/paralyze attacks learn about free action and saving throws */
-		case LRN_FREE_SAVE:
-		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
-			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
-			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_ptr->free_act) m_ptr->smart |= (SM_IMM_FREE);
-			else m_ptr->smart &= ~(SM_IMM_FREE);
-			break;
-		}
+	case LRN_FREE_SAVE:
+	{
+		if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+		else m_ptr->smart &= ~(SM_GOOD_SAVE);
+		if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+		else m_ptr->smart &= ~(SM_PERF_SAVE);
+		if (p_ptr->free_act) m_ptr->smart |= (SM_IMM_FREE);
+		else m_ptr->smart &= ~(SM_IMM_FREE);
+		break;
+	}
 
-		/* Mana attacks learn if you have any mana to attack */
-		case LRN_MANA:
-		{
-			if (!p_ptr->msp) m_ptr->smart |= (SM_IMM_MANA);
-			else m_ptr->smart &= ~(SM_IMM_MANA);
-			break;
-		}
+	/* Mana attacks learn if you have any mana to attack */
+	case LRN_MANA:
+	{
+		if (!p_ptr->msp) m_ptr->smart |= (SM_IMM_MANA);
+		else m_ptr->smart &= ~(SM_IMM_MANA);
+		break;
+	}
 
-		/* Acid attacks learn about Acid resists and immunities */
-		case LRN_ACID:
-		{
-			if (p_resist_pos(P_RES_ACID)) m_ptr->smart |= (SM_RES_ACID);
-			else m_ptr->smart &= ~(SM_RES_ACID);
-			if (p_resist_strong(P_RES_ACID)) m_ptr->smart |= (SM_RES_STRONG_ACID);
-			else m_ptr->smart &= ~(SM_RES_STRONG_ACID);
-			if (p_immune(P_RES_ACID)) m_ptr->smart |= (SM_IMM_ACID);
-			else m_ptr->smart &= ~(SM_IMM_ACID);
-			break;
-		}
+	/* Acid attacks learn about Acid resists and immunities */
+	case LRN_ACID:
+	{
+		if (p_resist_pos(P_RES_ACID)) m_ptr->smart |= (SM_RES_ACID);
+		else m_ptr->smart &= ~(SM_RES_ACID);
+		if (p_resist_strong(P_RES_ACID)) m_ptr->smart |= (SM_RES_STRONG_ACID);
+		else m_ptr->smart &= ~(SM_RES_STRONG_ACID);
+		if (p_immune(P_RES_ACID)) m_ptr->smart |= (SM_IMM_ACID);
+		else m_ptr->smart &= ~(SM_IMM_ACID);
+		break;
+	}
 
-		/* Electircal attacks learn about Electrical resists and immunities */
-		case LRN_ELEC:
-		{
-			if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
-			else m_ptr->smart &= ~(SM_RES_ELEC);
-			if (p_resist_strong(P_RES_ELEC)) m_ptr->smart |= (SM_RES_STRONG_ELEC);
-			else m_ptr->smart &= ~(SM_RES_STRONG_ELEC);
-			if (p_immune(P_RES_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
-			else m_ptr->smart &= ~(SM_IMM_ELEC);
-			break;
-		}
+	/* Electircal attacks learn about Electrical resists and immunities */
+	case LRN_ELEC:
+	{
+		if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
+		else m_ptr->smart &= ~(SM_RES_ELEC);
+		if (p_resist_strong(P_RES_ELEC)) m_ptr->smart |= (SM_RES_STRONG_ELEC);
+		else m_ptr->smart &= ~(SM_RES_STRONG_ELEC);
+		if (p_immune(P_RES_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
+		else m_ptr->smart &= ~(SM_IMM_ELEC);
+		break;
+	}
 
-		/* Fire attacks learn about Fire resists and immunities */
-		case LRN_FIRE:
-		{
-			if (p_resist_pos(P_RES_FIRE)) m_ptr->smart |= (SM_RES_FIRE);
-			else m_ptr->smart &= ~(SM_RES_FIRE);
-			if (p_resist_strong(P_RES_FIRE)) m_ptr->smart |= (SM_RES_STRONG_FIRE);
-			else m_ptr->smart &= ~(SM_RES_STRONG_FIRE);
-			if (p_immune(P_RES_FIRE)) m_ptr->smart |= (SM_IMM_FIRE);
-			else m_ptr->smart &= ~(SM_IMM_FIRE);
-			break;
-		}
+	/* Fire attacks learn about Fire resists and immunities */
+	case LRN_FIRE:
+	{
+		if (p_resist_pos(P_RES_FIRE)) m_ptr->smart |= (SM_RES_FIRE);
+		else m_ptr->smart &= ~(SM_RES_FIRE);
+		if (p_resist_strong(P_RES_FIRE)) m_ptr->smart |= (SM_RES_STRONG_FIRE);
+		else m_ptr->smart &= ~(SM_RES_STRONG_FIRE);
+		if (p_immune(P_RES_FIRE)) m_ptr->smart |= (SM_IMM_FIRE);
+		else m_ptr->smart &= ~(SM_IMM_FIRE);
+		break;
+	}
 
-		/* Cold attacks learn about Cold resists and immunities */
-		case LRN_COLD:
-		{
-			if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
-			else m_ptr->smart &= ~(SM_RES_COLD);
-			if (p_resist_strong(P_RES_COLD)) m_ptr->smart |= (SM_RES_STRONG_COLD);
-			else m_ptr->smart &= ~(SM_RES_STRONG_COLD);
-			if (p_immune(P_RES_COLD)) m_ptr->smart |= (SM_IMM_COLD);
-			else m_ptr->smart &= ~(SM_IMM_COLD);
-			break;
-		}
+	/* Cold attacks learn about Cold resists and immunities */
+	case LRN_COLD:
+	{
+		if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
+		else m_ptr->smart &= ~(SM_RES_COLD);
+		if (p_resist_strong(P_RES_COLD)) m_ptr->smart |= (SM_RES_STRONG_COLD);
+		else m_ptr->smart &= ~(SM_RES_STRONG_COLD);
+		if (p_immune(P_RES_COLD)) m_ptr->smart |= (SM_IMM_COLD);
+		else m_ptr->smart &= ~(SM_IMM_COLD);
+		break;
+	}
 
-		/* Poison attacks learn about Poison resists */
-		case LRN_POIS:
-		{
-			if (p_resist_pos(P_RES_POIS)) m_ptr->smart |= (SM_RES_POIS);
-			else m_ptr->smart &= ~(SM_RES_POIS);
-			if (p_resist_strong(P_RES_POIS)) m_ptr->smart |= (SM_RES_STRONG_POIS);
-			else m_ptr->smart &= ~(SM_RES_STRONG_POIS);
-			break;
-		}
+	/* Poison attacks learn about Poison resists */
+	case LRN_POIS:
+	{
+		if (p_resist_pos(P_RES_POIS)) m_ptr->smart |= (SM_RES_POIS);
+		else m_ptr->smart &= ~(SM_RES_POIS);
+		if (p_resist_strong(P_RES_POIS)) m_ptr->smart |= (SM_RES_STRONG_POIS);
+		else m_ptr->smart &= ~(SM_RES_STRONG_POIS);
+		break;
+	}
 
-		/* Fear attacks learn about resist fear and saving throws */
-		case LRN_FEAR_SAVE:
-		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
-			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
-			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_ptr->no_fear) m_ptr->smart |= (SM_RES_FEAR);
-			else m_ptr->smart &= ~(SM_RES_FEAR);
-			break;
-		}
+	/* Fear attacks learn about resist fear and saving throws */
+	case LRN_FEAR_SAVE:
+	{
+		if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+		else m_ptr->smart &= ~(SM_GOOD_SAVE);
+		if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+		else m_ptr->smart &= ~(SM_PERF_SAVE);
+		if (p_ptr->no_fear) m_ptr->smart |= (SM_RES_FEAR);
+		else m_ptr->smart &= ~(SM_RES_FEAR);
+		break;
+	}
 
-		/* Light attacks learn about light and blindness resistance */
-		case LRN_LITE:
-		{
-			if (p_resist_pos(P_RES_LITE)) m_ptr->smart |= (SM_RES_LITE);
-			else m_ptr->smart &= ~(SM_RES_LITE);
-			break;
-		}
+	/* Light attacks learn about light and blindness resistance */
+	case LRN_LITE:
+	{
+		if (p_resist_pos(P_RES_LITE)) m_ptr->smart |= (SM_RES_LITE);
+		else m_ptr->smart &= ~(SM_RES_LITE);
+		break;
+	}
 
-		/* Darkness attacks learn about dark and blindness resistance */
-		case LRN_DARK:
-		{
-			if (p_resist_pos(P_RES_DARK)) m_ptr->smart |= (SM_RES_DARK);
-			else m_ptr->smart &= ~(SM_RES_DARK);
-			break;
-		}
+	/* Darkness attacks learn about dark and blindness resistance */
+	case LRN_DARK:
+	{
+		if (p_resist_pos(P_RES_DARK)) m_ptr->smart |= (SM_RES_DARK);
+		else m_ptr->smart &= ~(SM_RES_DARK);
+		break;
+	}
 
-		/*
-		 * Some Blindness attacks learn about blindness resistance
-		 * Others (below) do more
-		 */
-		case LRN_BLIND:
-		{
-			if (p_ptr->no_blind) m_ptr->smart |= (SM_RES_BLIND);
-			else m_ptr->smart &= ~(SM_RES_BLIND);
-			break;
-		}
+	/*
+	 * Some Blindness attacks learn about blindness resistance
+	 * Others (below) do more
+	 */
+	case LRN_BLIND:
+	{
+		if (p_ptr->no_blind) m_ptr->smart |= (SM_RES_BLIND);
+		else m_ptr->smart &= ~(SM_RES_BLIND);
+		break;
+	}
 
-		/*
-		 * Some Confusion attacks learn about confusion resistance
-		 * Others (below) do more
-		 */
-		case LRN_CONFU:
-		{
-			if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
-			else m_ptr->smart &= ~(SM_RES_CONFU);
-			break;
-		}
+	/*
+	 * Some Confusion attacks learn about confusion resistance
+	 * Others (below) do more
+	 */
+	case LRN_CONFU:
+	{
+		if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
+		else m_ptr->smart &= ~(SM_RES_CONFU);
+		break;
+	}
 
-		/*
-		 * Some sound attacks learn about sound and confusion resistance, and saving throws
-		 * Others (below) do less.
-		 */
-		case LRN_SOUND:
-		{
-			if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
-			else m_ptr->smart &= ~(SM_RES_SOUND);
-			if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
-			else m_ptr->smart &= ~(SM_RES_CONFU);
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
-			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
-			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			break;
-		}
+	/*
+	 * Some sound attacks learn about sound and confusion resistance, and saving throws
+	 * Others (below) do less.
+	 */
+	case LRN_SOUND:
+	{
+		if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
+		else m_ptr->smart &= ~(SM_RES_SOUND);
+		if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
+		else m_ptr->smart &= ~(SM_RES_CONFU);
+		if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+		else m_ptr->smart &= ~(SM_GOOD_SAVE);
+		if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+		else m_ptr->smart &= ~(SM_PERF_SAVE);
+		break;
+	}
 
-		/* Shards attacks learn about shards resistance */
-		case LRN_SHARD:
-		{
-			if (p_resist_pos(P_RES_SHARD)) m_ptr->smart |= (SM_RES_SHARD);
-			else m_ptr->smart &= ~(SM_RES_SHARD);
-			break;
-		}
+	/* Shards attacks learn about shards resistance */
+	case LRN_SHARD:
+	{
+		if (p_resist_pos(P_RES_SHARD)) m_ptr->smart |= (SM_RES_SHARD);
+		else m_ptr->smart &= ~(SM_RES_SHARD);
+		break;
+	}
 
-		/*
-		 *  Some Nexus attacks learn about Nexus resistance only
-		 *  Others (below) do more
-		 */
-		case LRN_NEXUS:
-		{
-			if (p_resist_pos(P_RES_NEXUS)) m_ptr->smart |= (SM_RES_NEXUS);
-			else m_ptr->smart &= ~(SM_RES_NEXUS);
-			break;
-		}
+	/*
+	 *  Some Nexus attacks learn about Nexus resistance only
+	 *  Others (below) do more
+	 */
+	case LRN_NEXUS:
+	{
+		if (p_resist_pos(P_RES_NEXUS)) m_ptr->smart |= (SM_RES_NEXUS);
+		else m_ptr->smart &= ~(SM_RES_NEXUS);
+		break;
+	}
 
-		/* Nether attacks learn about Nether resistance */
-		case LRN_NETHR:
-		{
-			if (p_resist_pos(P_RES_NETHR)) m_ptr->smart |= (SM_RES_NETHR);
-			else m_ptr->smart &= ~(SM_RES_NETHR);
-			break;
-		}
+	/* Nether attacks learn about Nether resistance */
+	case LRN_NETHR:
+	{
+		if (p_resist_pos(P_RES_NETHR)) m_ptr->smart |= (SM_RES_NETHR);
+		else m_ptr->smart &= ~(SM_RES_NETHR);
+		break;
+	}
 
-		/* Chaos attacks learn about Chaos resistance */
-		case LRN_CHAOS:
-		{
-			if (p_resist_pos(P_RES_CHAOS)) m_ptr->smart |= (SM_RES_CHAOS);
-			else m_ptr->smart &= ~(SM_RES_CHAOS);
-			break;
-		}
+	/* Chaos attacks learn about Chaos resistance */
+	case LRN_CHAOS:
+	{
+		if (p_resist_pos(P_RES_CHAOS)) m_ptr->smart |= (SM_RES_CHAOS);
+		else m_ptr->smart &= ~(SM_RES_CHAOS);
+		break;
+	}
 
-		/* Disenchantment attacks learn about disenchantment resistance */
-		case LRN_DISEN:
-		{
-			if (p_resist_pos(P_RES_DISEN)) m_ptr->smart |= (SM_RES_DISEN);
-			else m_ptr->smart &= ~(SM_RES_DISEN);
-			break;
-		}
+	/* Disenchantment attacks learn about disenchantment resistance */
+	case LRN_DISEN:
+	{
+		if (p_resist_pos(P_RES_DISEN)) m_ptr->smart |= (SM_RES_DISEN);
+		else m_ptr->smart &= ~(SM_RES_DISEN);
+		break;
+	}
 
-		/* Some attacks learn only about saving throws (cause wounds, etc) */
-		case LRN_SAVE:
-		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
-			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
-			else m_ptr->smart &= ~(SM_PERF_SAVE);
-		}
+	/* Some attacks learn only about saving throws (cause wounds, etc) */
+	case LRN_SAVE:
+	{
+		if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+		else m_ptr->smart &= ~(SM_GOOD_SAVE);
+		if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+		else m_ptr->smart &= ~(SM_PERF_SAVE);
+	}
 
-		/* Archery attacks don't learn anything */
-		case LRN_ARCH:
-		{
-			break;
-		}
+	/* Archery attacks don't learn anything */
+	case LRN_ARCH:
+	{
+		break;
+	}
 
-		/* Poison archery attacks learn about poison resists */
-		case LRN_PARCH:
-		{
-			if (p_resist_pos(P_RES_POIS)) m_ptr->smart |= (SM_RES_POIS);
-			else m_ptr->smart &= ~(SM_RES_POIS);
-			if (p_resist_strong(P_RES_POIS)) m_ptr->smart |= (SM_RES_STRONG_POIS);
-			else m_ptr->smart &= ~(SM_RES_STRONG_POIS);
-			break;
-		}
+	/* Poison archery attacks learn about poison resists */
+	case LRN_PARCH:
+	{
+		if (p_resist_pos(P_RES_POIS)) m_ptr->smart |= (SM_RES_POIS);
+		else m_ptr->smart &= ~(SM_RES_POIS);
+		if (p_resist_strong(P_RES_POIS)) m_ptr->smart |= (SM_RES_STRONG_POIS);
+		else m_ptr->smart &= ~(SM_RES_STRONG_POIS);
+		break;
+	}
 
-		/* Ice attacks learn aboyt sound/shards/cold resists and cold immunity */
-		case LRN_ICE:
-		{
-			if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
-			else m_ptr->smart &= ~(SM_RES_COLD);
-			if (p_resist_strong(P_RES_COLD)) m_ptr->smart |= (SM_RES_STRONG_COLD);
-			else m_ptr->smart &= ~(SM_RES_STRONG_COLD);
-			if (p_immune(P_RES_COLD)) m_ptr->smart |= (SM_IMM_COLD);
-			else m_ptr->smart &= ~(SM_IMM_COLD);
-			if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
-			else m_ptr->smart &= ~(SM_RES_SOUND);
-			if (p_resist_pos(P_RES_SHARD)) m_ptr->smart |= (SM_RES_SHARD);
-			else m_ptr->smart &= ~(SM_RES_SHARD);
-			break;
-		}
+	/* Ice attacks learn aboyt sound/shards/cold resists and cold immunity */
+	case LRN_ICE:
+	{
+		if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
+		else m_ptr->smart &= ~(SM_RES_COLD);
+		if (p_resist_strong(P_RES_COLD)) m_ptr->smart |= (SM_RES_STRONG_COLD);
+		else m_ptr->smart &= ~(SM_RES_STRONG_COLD);
+		if (p_immune(P_RES_COLD)) m_ptr->smart |= (SM_IMM_COLD);
+		else m_ptr->smart &= ~(SM_IMM_COLD);
+		if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
+		else m_ptr->smart &= ~(SM_RES_SOUND);
+		if (p_resist_pos(P_RES_SHARD)) m_ptr->smart |= (SM_RES_SHARD);
+		else m_ptr->smart &= ~(SM_RES_SHARD);
+		break;
+	}
 
-		/* Plasma attacks learn about fire/lightning resists/immunities */
-		case LRN_PLAS:
-		{
-			if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
-			else m_ptr->smart &= ~(SM_RES_ELEC);
-			if (p_resist_strong(P_RES_ELEC)) m_ptr->smart |= (SM_RES_STRONG_ELEC);
-			else m_ptr->smart &= ~(SM_RES_STRONG_ELEC);
-			if (p_immune(P_RES_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
-			else m_ptr->smart &= ~(SM_IMM_ELEC);
-			if (p_resist_pos(P_RES_FIRE)) m_ptr->smart |= (SM_RES_FIRE);
-			else m_ptr->smart &= ~(SM_RES_FIRE);
-			if (p_resist_strong(P_RES_FIRE)) m_ptr->smart |= (SM_RES_STRONG_FIRE);
-			else m_ptr->smart &= ~(SM_RES_STRONG_FIRE);
-			if (p_immune(P_RES_FIRE)) m_ptr->smart |= (SM_IMM_FIRE);
-			else m_ptr->smart &= ~(SM_IMM_FIRE);
-			break;
-		}
+	/* Plasma attacks learn about fire/lightning resists/immunities */
+	case LRN_PLAS:
+	{
+		if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
+		else m_ptr->smart &= ~(SM_RES_ELEC);
+		if (p_resist_strong(P_RES_ELEC)) m_ptr->smart |= (SM_RES_STRONG_ELEC);
+		else m_ptr->smart &= ~(SM_RES_STRONG_ELEC);
+		if (p_immune(P_RES_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
+		else m_ptr->smart &= ~(SM_IMM_ELEC);
+		if (p_resist_pos(P_RES_FIRE)) m_ptr->smart |= (SM_RES_FIRE);
+		else m_ptr->smart &= ~(SM_RES_FIRE);
+		if (p_resist_strong(P_RES_FIRE)) m_ptr->smart |= (SM_RES_STRONG_FIRE);
+		else m_ptr->smart &= ~(SM_RES_STRONG_FIRE);
+		if (p_immune(P_RES_FIRE)) m_ptr->smart |= (SM_IMM_FIRE);
+		else m_ptr->smart &= ~(SM_IMM_FIRE);
+		break;
+	}
 
-		/*
-		 * Some sounds attacks learna about sound resistance only
-		 * Others (above) do more
-		 */
-		case LRN_SOUND2:
-		{
-			if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
-			else m_ptr->smart &= ~(SM_RES_SOUND);
-			break;
-		}
+	/*
+	 * Some sounds attacks learna about sound resistance only
+	 * Others (above) do more
+	 */
+	case LRN_SOUND2:
+	{
+		if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
+		else m_ptr->smart &= ~(SM_RES_SOUND);
+		break;
+	}
 
-		/*
-		 * Storm attacks learn about Electrical/Cold/Acid resists/immunities,
-		 * and about confusion resist
-		 */
-		case LRN_STORM:
-		{
-			if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
-			else m_ptr->smart &= ~(SM_RES_ELEC);
-			if (p_resist_strong(P_RES_ELEC)) m_ptr->smart |= (SM_RES_STRONG_ELEC);
-			else m_ptr->smart &= ~(SM_RES_STRONG_ELEC);
-			if (p_immune(P_RES_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
-			else m_ptr->smart &= ~(SM_IMM_ELEC);
-			if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
-			else m_ptr->smart &= ~(SM_RES_COLD);
-			if (p_resist_strong(P_RES_COLD)) m_ptr->smart |= (SM_RES_STRONG_COLD);
-			else m_ptr->smart &= ~(SM_RES_STRONG_COLD);
-			if (p_immune(P_RES_COLD)) m_ptr->smart |= (SM_IMM_COLD);
-			else m_ptr->smart &= ~(SM_IMM_COLD);
-			if (p_resist_pos(P_RES_ACID)) m_ptr->smart |= (SM_RES_ACID);
-			else m_ptr->smart &= ~(SM_RES_ACID);
-			if (p_resist_strong(P_RES_ACID)) m_ptr->smart |= (SM_RES_STRONG_ACID);
-			else m_ptr->smart &= ~(SM_RES_STRONG_ACID);
-			if (p_immune(P_RES_ACID)) m_ptr->smart |= (SM_IMM_ACID);
-			else m_ptr->smart &= ~(SM_IMM_ACID);
-			if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
-		}
+	/*
+	 * Storm attacks learn about Electrical/Cold/Acid resists/immunities,
+	 * and about confusion resist
+	 */
+	case LRN_STORM:
+	{
+		if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
+		else m_ptr->smart &= ~(SM_RES_ELEC);
+		if (p_resist_strong(P_RES_ELEC)) m_ptr->smart |= (SM_RES_STRONG_ELEC);
+		else m_ptr->smart &= ~(SM_RES_STRONG_ELEC);
+		if (p_immune(P_RES_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
+		else m_ptr->smart &= ~(SM_IMM_ELEC);
+		if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
+		else m_ptr->smart &= ~(SM_RES_COLD);
+		if (p_resist_strong(P_RES_COLD)) m_ptr->smart |= (SM_RES_STRONG_COLD);
+		else m_ptr->smart &= ~(SM_RES_STRONG_COLD);
+		if (p_immune(P_RES_COLD)) m_ptr->smart |= (SM_IMM_COLD);
+		else m_ptr->smart &= ~(SM_IMM_COLD);
+		if (p_resist_pos(P_RES_ACID)) m_ptr->smart |= (SM_RES_ACID);
+		else m_ptr->smart &= ~(SM_RES_ACID);
+		if (p_resist_strong(P_RES_ACID)) m_ptr->smart |= (SM_RES_STRONG_ACID);
+		else m_ptr->smart &= ~(SM_RES_STRONG_ACID);
+		if (p_immune(P_RES_ACID)) m_ptr->smart |= (SM_IMM_ACID);
+		else m_ptr->smart &= ~(SM_IMM_ACID);
+		if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
+	}
 
-		/* Water attacks learn about sound/confusion resists */
-		case LRN_WATER:
-		{
-			if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
-			else m_ptr->smart &= ~(SM_RES_SOUND);
-			if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
-			else m_ptr->smart &= ~(SM_RES_CONFU);
-		}
+	/* Water attacks learn about sound/confusion resists */
+	case LRN_WATER:
+	{
+		if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
+		else m_ptr->smart &= ~(SM_RES_SOUND);
+		if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
+		else m_ptr->smart &= ~(SM_RES_CONFU);
+	}
 
-		/*
-		 * Some nexus attacks learn about Nexus resist and saving throws
-		 * Others (above) do more
-		 */
-		case LRN_NEXUS_SAVE:
-		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
-			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
-			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_resist_pos(P_RES_NEXUS)) m_ptr->smart |= (SM_RES_NEXUS);
-			break;
-		}
+	/*
+	 * Some nexus attacks learn about Nexus resist and saving throws
+	 * Others (above) do more
+	 */
+	case LRN_NEXUS_SAVE:
+	{
+		if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+		else m_ptr->smart &= ~(SM_GOOD_SAVE);
+		if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+		else m_ptr->smart &= ~(SM_PERF_SAVE);
+		if (p_resist_pos(P_RES_NEXUS)) m_ptr->smart |= (SM_RES_NEXUS);
+		break;
+	}
 
-		/*
-		 * Some Blindness attacks learn about blindness resistance and saving throws
-		 * Others (above) do less
-		 */
-		case LRN_BLIND_SAVE:
-		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
-			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
-			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_ptr->no_blind) m_ptr->smart |= (SM_RES_BLIND);
-			break;
-		}
+	/*
+	 * Some Blindness attacks learn about blindness resistance and saving throws
+	 * Others (above) do less
+	 */
+	case LRN_BLIND_SAVE:
+	{
+		if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+		else m_ptr->smart &= ~(SM_GOOD_SAVE);
+		if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+		else m_ptr->smart &= ~(SM_PERF_SAVE);
+		if (p_ptr->no_blind) m_ptr->smart |= (SM_RES_BLIND);
+		break;
+	}
 
-		/*
-		 * Some Confusion attacks learn about confusion resistance and saving throws
-		 * Others (above) do less
-		 */
-		case LRN_CONFU_SAVE:
-		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
-			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
-			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
-			else m_ptr->smart &= ~(SM_RES_CONFU);
-			break;
-		}
+	/*
+	 * Some Confusion attacks learn about confusion resistance and saving throws
+	 * Others (above) do less
+	 */
+	case LRN_CONFU_SAVE:
+	{
+		if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+		else m_ptr->smart &= ~(SM_GOOD_SAVE);
+		if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+		else m_ptr->smart &= ~(SM_PERF_SAVE);
+		if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
+		else m_ptr->smart &= ~(SM_RES_CONFU);
+		break;
+	}
 
 	}
 }

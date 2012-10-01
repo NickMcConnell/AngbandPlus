@@ -1,324 +1,178 @@
-# File: Makefile
-
-# This is not a very "nice" Makefile, but it usually works.
-
+# File: Makefile.std
+# Standard makefile for Angband.
 #
-# Note that you may have to make modifications below according
-# to your machine, available libraries, compilation options,
-# and your "visual module" of choice.  This Makefile is intended
-# for use with Unix machines running X11, Curses, Ncurses, or Vt100,
-# or possibly for "Atari" or "Amiga" computers with "Curses" ports,
-# see below for more information.
+# This makefile probably requires GNU make.
 #
-# Note that "main-mac.c", the visual module for the Macintosh,
-# must be compiled in a special way, see elsewhere.
+# This makefile is intended for use with Unix machines running X11, gtk or 
+# (n)curses.  You can choose which you want to compile for below.
 #
-# Note that "main-win.c", the visual module for Windows,
-# must be compiled in a special way, see elsewhere.
-#
-# Note that "main-ibm.c", "main-emx.c", and "main-286.c",
-# the visual modules for various types of IBM-PC computers,
-# must be compiled with special Makefiles, see elsewhere.
-#
-# Note that "main-lsl.c", the visual module for ???,
-# must be compiled with "Makefile.lsl", see elsewhere.
-#
-# Note that "main-acn.c", the visual module for Risc Acorn,
-# must be compiled with "Makefile.acn", see elsewhere.
-#
-# Note that "Makefile.w31" and "Makefile.wat" are slight variations
-# on "Makefile.win" and "Makefile.ibm", respectively, which allow
-# the use of the "main-win.c" and "main-ibm.c" files, respectively,
-# with special compilers.
-#
-# If you are able to construct "main-xxx.c" and/or "Makefile.xxx"
-# files for a currently unsupported system, please send them to
-# Robert Ruehlmann < rr9@angband.org > for inclusion in future versions.
-#
-# This Makefile comes with "default" dependancies that may be obsolete.
+# You can also place your alterations to a file in the src/ directory called 
+# "config", in which case that file will override what is specified here.
 #
 
+#### Things you should, or could, change ####
 
+
+# What systems to try.
 #
-# The "source" and "object" files.
-#
-
-SRCS = \
-  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
-  variable.c tables.c util.c cave.c info.c \
-  object1.c object2.c monster1.c monster2.c \
-  xtra1.c xtra2.c spells1.c spells2.c \
-  monmove.c monattk.c save.c files.c randart.c \
-  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load1.c load2.c \
-  attack.c wizard1.c wizard2.c squelch.c \
-  generate.c dungeon.c init1.c init2.c \
-  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
-
-OBJS = \
-  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o info.o \
-  object1.o object2.o monster1.o monster2.o \
-  xtra1.o xtra2.o spells1.o spells2.o \
-  monmove.o monattk.o save.o files.o randart.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load1.o load2.o \
-  attack.o wizard1.o wizard2.o squelch.o \
-  generate.o dungeon.o init1.o init2.o \
-  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
+# By default, this tries to compile both the X11 and "curses" terminal mode
+# ports in the same executable.  On Linux only, it also builds the lfb 'console' 
+# module.
 
 
+# Recent, known-to-work ports
 
-##
-## Following are some "system" definitions
-##
-## No changes are needed to compile a version that will run on both
-## X11 and Curses, in debugging mode, with maximal warnings, on many
-## normal Unix machines of the Sun OS variety (non-solaris).
-##
-## To use an "alternative" definition, simply "modify" (or "replace")
-## the definition below with one that you like.  For example, you can
-## change the compiler to "cc", or remove the "debugging" options, or
-## remove the X11 or Curses support, etc, as desired.
-##
-## See also "config.h" and "h-config.h" for important information.
-##
-## Some "examples" are given below, they can be used by simply
-## removing the FIRST column of "#" signs from the "block" of lines
-## you wish to use, and commenting out "standard" block below.
-##
-## This is not intended to be a "good" Makefile, just a "simple" one.
-##
-
-
-#
-# This is my compiler of choice, it seems to work most everywhere
-#
-CC = gcc
-
-
-#
-# Standard version (see main-x11.c and main-gcu.c)
-#
-# This version supports both "X11" and "curses" in a single executable.
-#
+# Support X11 (main-x11.c)
 # You may have to add various X11 include/library directories to the
-# "CFLAGS", if your machine places files in a weird location.
-#
-# You may be able to remove "-ltermcap" on some machines (ex: Solaris).
-#
-# You may have to replace "-lcurses" with "-lncurses" to use the
-# "new curses" library instead of the "old curses" library, and
-# you may have to add "-l/usr/include/ncurses" to the "CFLAGS".
-#
-# See "main-gcu.c" and "config.h" for some optional "curses" defines,
-# including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
-# attempt to "guess" at many of these flags based on your system.
-#
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
-#LIBS = -lX11 -lcurses -ltermcap
+# "CFLAGS", if your machine places files in a weird location, for example
+# " -I/usr/X11R6/include", or "-L/usr/X11R6/lib" to LIBS.
+SYS_x11 = -DUSE_X11 -lX11
 
-##
-## Variation -- compile for Linux
-##
-## Allows the use in the console using ncurses, as well as under X11.
-##
-CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall \
-         -O2 -fno-strength-reduce \
-         -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES" -g
-LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
+# Support curses console mode (main-gcu.c)
+# If this fails, try the alternate below
+SYS_gcu = -DUSE_GCU -DUSE_NCURSES -lncurses
+#SYS_gcu = -DUSE_GCU -lcurses -ltermcap
 
-##
-## Compile for Red Hat Linux with X11 and Console support
-##
-#CFLAGS = -Wall -O2 -pipe -g -D"USE_GCU" -D"USE_X11" -I/usr/X11R6/include/ -D"USG"
-#LIBS = -L/usr/X11R6/lib -lX11 -lXaw -lXext -lSM -lICE -lXmu -lXt -lcurses -ltermcap
+# Support Xaw motif (main-xaw.c)
+SYS_xaw = -DUSE_XAW -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11
 
-##
-## NetBSD w/ X11 support
-##
-#CFLAGS = -Wall -O2 -pipe -g -D"USE_GCU" -D"SPECIAL_BSD" -D"USE_X11" -I/usr/X11/include/
-#LIBS = -L/usr/X11/lib -lX11 -lXaw -lXext -lSM -lICE -lXmu -lXt -lcurses -ltermcap
+# Support the GTK2 graphical tookit (main-gtk.c)
+SYS_gtk = -DUSE_GTK $(shell pkg-config gtk+-2.0 --libs --cflags)
 
-##
-## Variation -- Only support "main-x11.c" (not "main-gcu.c")
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11"
-#LIBS = -lX11
-
-
-##
-## Variation -- Only support "main-gcu.c" (not "main-x11.c")
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU"
-#LIBS = -lcurses -ltermcap
-
-
-##
-## Variation -- Use "main-xaw.c" instead of "main-x11.c"
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_XAW" -D"USE_GCU"
-#LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap
-
-
-##
-## Variation -- Use "main-cap.c" instead of "main-gcu.c"
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_CAP"
-#LIBS = -lX11 -ltermcap
-
-
-##
-## Variation -- Only work on simple vt100 terminals
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_CAP" -D"USE_HARDCODE"
-
-
-##
-## Variation -- this might work for Linux 1.1.93 using ncurses-1.8.7.
-##
-#CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses \
-#         -Wall -O2 -fomit-frame-pointer \
-#         -D"USE_X11" -D"USE_GCU"
-#LIBS = -L/usr/X11R6/lib -lX11 -lncurses -ltermcap
-
-##
-## Variation -- this might work better than the suggestion above
-##
-#CFLAGS = -I/usr/include/ncurses \
-#         -Wall -O2 -fomit-frame-pointer \
-#         -D"USE_X11" -D"USE_GCU" \
-#         -D"USE_TPOSIX" -D"USE_CURS_SET"
-#LIBS = -lX11 -lncurses
-#LDFLAGS = -s
-
-
-##
-## Variation -- compile for Solaris
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"SOLARIS"
-#LIBS = -lX11 -lsocket -lcurses
-
-
-##
-## Variation -- compile for SGI Indigo runnig Irix
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"SGI"
-#LIBS = -lX11 -lcurses -ltermcap -lsun
+# Support SDL frontend
+SYS_sdl = -DUSE_SDL $(shell sdl-config --cflags) $(shell sdl-config --libs) -lSDL_ttf -lSDL_image
 
 
 
-##
-## Variation -- compile for Dec ALPHA OSF/1 v2.0
-##
-#CC     = cc
-##CFLAGS = -std -O -g3 -Olimit 4000 -D"USE_X11" -D"USE_GCU"
-#CFLAGS = -std -g -D"USE_X11" -D"USE_GCU"
-#LIBS   = -lX11 -lcurses -ltermcap -lrpcsvc
+
+## Support SDL_mixer for sound
+#SOUND_sdl = -DSOUND_SDL $(shell sdl-config --cflags) $(shell sdl-config --libs) -lSDL_mixer
 
 
-##
-## Variation -- compile for Interactive Unix (ISC) systems
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"ISC"
-#LIBS = -lX11 -lcurses -lnsl_s -linet -lcposix
+
+# Basic compiler stuff
+CC = gcc
+CFLAGS = -Wall -O2 -g -Wno-unused-parameter
 
 
-##
-## Variation -- Support fat binaries under NEXTSTEP
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU" -arch m68k -arch i386
-#LIBS = -lcurses -ltermcap
+# Add additional search directives here
+# Example: -I/usr/X11R6/include -I/usr/include/ncurses
+INCLUDES =
+# Example: -L/usr/X11R6/lib 
+LIBS =
 
+
+# Version info
+EXE = oangband
+VERSION = 1.1.0u
+
+
+
+#### Things you probably shouldn't change, unless there is a problem ####
+
+# Import user prefs
+# If you don't want to edit this file, put your module redefinitions
+# and build flags in "./config"
+-include config
+
+
+# Extract CFLAGS and LIBS from the system definitions
+MODULES = $(SYS_x11) $(SYS_gcu) $(SYS_xaw) $(SYS_gtk) $(SYS_sdl) $(SOUND_sdl)
+CFLAGS += $(patsubst -l%,,$(MODULES)) $(INCLUDES)
+LIBS += $(patsubst -D%,,$(patsubst -I%,, $(MODULES)))
+
+
+# Extract system we're running on
+uname = $(shell uname -s)
+
+# Enable linux-specific modules, if requested.
+ifeq ($(uname),Linux)
+  CFLAGS += -DHAVE_MKSTEMP
+endif
+
+
+# Object definitions
+X11OBJS = maid-x11.o main-x11.o main-xaw.o main-gtk.o
+MAINOBJS = main.o main-gcu.o main-sdl.o snd-sdl.o $(X11OBJS)
+OBJS = $(BASEOBJS) $(MAINOBJS)
+
+
+
+
+#### Targets and objects #####
+
+# By default, copy the executable to ../ so that you don't find
+# yourself debugging a stale copy.
+default: install
+
+# Makefile.inc contains an up-to-date set of object files to compile, so
+# we include it
+OBJEXT=.o
+include Makefile.inc
 
 
 #
-# Hack -- "install" as the base target
+# Targets
 #
 
-install: oangband
-	cp oangband ..
+# Build the "Angband" program
+$(EXE): $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS) $(LIBS)
+
+# Install the game.
+install: ../$(EXE)
 
 
-#
-# Build the "OAngband" program
-#
+../$(EXE): $(EXE)
+	cp $(EXE) ..
 
-oangband: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o oangband $(OBJS) $(LIBS)
-
-
-#
 # Clean up old junk
-#
-
 clean:
-	-rm -f *.bak *.o oangband
+	-rm -f *.o $(EXE)
+
+# make a distribution
+DIRS = lib/apex lib/bone lib/data lib/edit lib/file lib/help lib/info \
+       lib/pref lib/save lib/user lib/xtra/sound lib/xtra/graf lib/xtra/font
+
+TMPDIR = ./$(EXE)-$(VERSION)
+dist:
+	@-rm -rf $(TMPDIR)
+	@echo making directories...
+	@for i in $(DIRS) ; do mkdir -p $(TMPDIR)/$$i ; done
+	@echo copying files...
+	@cp ../lib/edit/*.txt $(TMPDIR)/lib/edit
+	@cp ../lib/file/*.txt $(TMPDIR)/lib/file
+	@cp ../lib/help/*.txt ../lib/help/*.hlp $(TMPDIR)/lib/help
+	@cp ../lib/pref/*.prf $(TMPDIR)/lib/pref
+	@cp ../lib/xtra/font/*.txt $(TMPDIR)/lib/xtra/font
+	@echo attempting to install sound and graphics
+	@-cp ../lib/xtra/sound/*.wav $(TMPDIR)/lib/xtra/sound
+	@-cp ../lib/xtra/graf/*.bmp $(TMPDIR)/lib/xtra/graf
+	@cp ../changes.txt ../readme.txt $(TMPDIR)
+	@cp $(EXE) $(TMPDIR)
+	tar czf ../$(EXE)-$(VERSION).tar.gz $(TMPDIR)
+	rm -rf $(TMPDIR)
 
 
-#
-# Generate dependancies automatically
-#
+#  Verify module arguments
+args:
+	@echo CFLAGS = $(CFLAGS)
+	@echo LIBS = $(LIBS)
 
+
+# Generate dependencies automatically
 depend:
 	makedepend -D__MAKEDEPEND__ $(SRCS)
 
 
-#
-# Hack -- some file dependencies
-#
+# Some file dependencies
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ -c $<
 
-HDRS = \
-  h-basic.h \
-  h-define.h h-type.h h-system.h h-config.h
+# X11 dependencies
+$(X11OBJS) : $(INCS) maid-x11.h
 
-INCS = \
-  angband.h \
-  config.h defines.h types.h externs.h \
-  z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
+# Basic dependencies for main-xxx.c, main.c
+$(MAINOBJS) : $(INCS)
 
-
-birth.o: birth.c $(INCS)
-cave.o: cave.c $(INCS)
-cmd1.o: cmd1.c $(INCS)
-cmd2.o: cmd2.c $(INCS)
-cmd3.o: cmd3.c $(INCS)
-cmd4.o: cmd4.c $(INCS)
-cmd5.o: cmd5.c $(INCS)
-cmd6.o: cmd6.c $(INCS)
-dungeon.o: dungeon.c $(INCS)
-files.o: files.c $(INCS)
-generate.o: generate.c $(INCS)
-init1.o: init1.c $(INCS)
-init2.o: init2.c $(INCS)
-load1.o: load1.c $(INCS)
-load2.o: load2.c $(INCS)
-main-cap.o: main-cap.c $(INCS)
-main-gcu.o: main-gcu.c $(INCS)
-main-x11.o: main-x11.c $(INCS)
-main-xaw.o: main-xaw.c $(INCS)
-main.o: main.c $(INCS)
-monmove.o: monmove.c $(INCS)
-monattk.o: monattk.c $(INCS)
-monster1.o: monster1.c $(INCS)
-monster2.o: monster2.c $(INCS)
-object1.o: object1.c $(INCS)
-object2.o: object2.c $(INCS)
-save.o: save.c $(INCS)
-spells1.o: spells1.c $(INCS)
-spells2.o: spells2.c $(INCS)
-store.o: store.c $(INCS)
-tables.o: tables.c $(INCS)
-util.o: util.c $(INCS)
-variable.o: variable.c $(INCS)
-wizard1.o: wizard1.c $(INCS)
-wizard2.o: wizard2.c $(INCS)
-squelch.o: squelch.c $(INCS)
-xtra1.o: xtra1.c $(INCS)
-xtra2.o: xtra2.c $(INCS)
-z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
-z-rand.o: z-rand.c $(HDRS) z-rand.h
-z-term.o: z-term.c $(HDRS) z-term.h z-virt.h
-z-util.o: z-util.c $(HDRS) z-util.h
-z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
 
