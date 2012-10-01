@@ -30,8 +30,8 @@ static spell_tip spell_tips[SP_MAX] =
 {
 	{0, NULL},
 	{SP_HEAL_1,				"Reduces cuts and heals you a little."},
-    {SP_HEAL_2A,			"Reduces cuts and heals you a moderate amount."},
-    {SP_HEAL_2B,			"Eliminates cuts and heals you a moderate amount."},
+	{SP_HEAL_2A,			"Reduces cuts and heals you a moderate amount."},
+	{SP_HEAL_2B,			"Eliminates cuts and heals you a moderate amount."},
 	{SP_HEAL_3,				"Reduces cuts and heals you a large amount."},
 	{SP_HEAL_4,				"Eliminates cuts and heals you a very large amount."},
 	{SP_HEAL_5,				"A large amount of healing, eliminates cuts and stunning."},	
@@ -50,7 +50,7 @@ static spell_tip spell_tips[SP_MAX] =
 	{SP_TELE_MAJOR,			"Random major displacement."},
 	{SP_TELE_OTHER,			"Teleports a line of opponents away."},
 	{SP_TELE_LEVEL,			"Immediately takes you to the next level up or down."},
-	{SP_TELE_CONTROL,		"Controlled displacement. Press 'p' when you enter targeting mode."},
+	{SP_TELE_CONTROL,		"Controlled displacement."},
 	{SP_WORD_RECALL,		"Recalls you to the town, or back into the dungeon."},
 	{SP_ALTER_REALITY,		"Regenerates the dungeon level."},
 	{SP_BOLT_MISSILE,		"Fires a bolt of mana."},
@@ -65,15 +65,16 @@ static spell_tip spell_tips[SP_MAX] =
 	{SP_BEAM_NETHER,		"Fires an ultra-powerful beam of nether. Does not affect undead."},
 	{SP_BALL_POISON_1,		"Fires a ball of poison."},
 	{SP_BALL_POISON_2,		"Fires a large poison ball."},
-	{SP_BALL_ACID,			"Fires a large acid ball."},
-	{SP_BALL_FIRE,			"Fires a ball of fire."},
+	{SP_BALL_FIRE_1,		"Fires a ball of fire."},
+	{SP_BALL_FIRE_2,		"Fires a large fire ball."},
 	{SP_BALL_FROST_1,		"Fires a ball of frost."},
 	{SP_BALL_FROST_2,		"Fires a large frost ball."},
 	{SP_BALL_SOUND,			"Fires a ball of sound."},
-	{SP_BALL_METEOR,		"Fires a large, unresistable ball of magic."},
 	{SP_BALL_MANA,			"Fires a large, very powerful mana ball."},
 	{SP_BALL_HOLY,			"Fires a ball of holy force."},
 	{SP_BANISH,				"Teleports away all evil monsters in line of sight."},
+	{SP_BLIGHT,				"Damages all plants in line of sight, and also wounds animals."},
+	{SP_BURST_ASTRAL,		"Damages all creatures in line of sight."},
 	{SP_ANNIHILATION,		"A powerful drain life attack."},
 	{SP_DISPEL_UNDEAD_1,	"Dispels all undead in line of sight."},
 	{SP_DISPEL_UNDEAD_2,	"Dispels all undead in line of sight."},
@@ -85,7 +86,7 @@ static spell_tip spell_tips[SP_MAX] =
 	{SP_MASS_GENOCIDE,		"Removes nearby monsters except uniques."},
 	{SP_EARTHQUAKE,			"Shakes the nearby dungeon, randomly swapping walls and floors."},
 	{SP_WORD_DESTRUCTION,	"Destroys objects and monsters, and banishes uniques."},
-	{SP_LIGHT_AREA,			"Permanently light up the nearby area."},
+	{SP_LIGHT_AREA,			"Permanently lights up the current room or nearby area."},
 	{SP_DARK_AREA,			"Darken the area."},
 	{SP_DETECT_MONSTERS,	"Detects monsters on the current screen that are not invisible."},
 	{SP_DETECT_EVIL,		"Detects all evil monsters, even invisible ones."},
@@ -129,11 +130,11 @@ static spell_tip spell_tips[SP_MAX] =
 	{SP_SCARE_ALL,			"Attempts to make all monsters in line of sight flee."},
 	{SP_POLY_MONSTER,		"Attempts to change a monster."},
 	{SP_SATISFY_HUNGER,		"Fully feeds you."},
-	{SP_RECHARGE_1,			"Minor recharging."},
-	{SP_RECHARGE_2,			"Medium strength recharging spell."},
-	{SP_RECHARGE_3,			"Medium-strength recharging spell."},
-	{SP_RECHARGE_4,			"Powerful recharging spell."},
+	{SP_RECHARGE_1,			"Recharges a staff, wand, rod or talisman."},
+	{SP_RECHARGE_2,			"Recharges a staff, wand, rod or talisman."},
+	{SP_RECHARGE_3,			"Powerful recharging spell."},
 	{SP_IDENTIFY,			"Standard identification of an object."},
+	{SP_IDENTIFY_PACK,		"Identify everything being carried."},
 	{SP_IDENTIFY_FULL,		"Reveals all information about a specific object."},
 	{SP_RES_FIRE,			"Opposition to fire.  Cumulative with equipment."},
 	{SP_RES_COLD,			"Opposition to cold.  Cumulative with equipment."},
@@ -425,19 +426,17 @@ static void spell_info(char *p, int spell_index)
 		case SP_BALL_POISON_1:
 			sprintf(p, " dam %d, rad 2", 10 + (damlev / 2)); break;
 		case SP_BALL_POISON_2: 
-			sprintf(p, " dam %d, rad 3", 20 + (damlev / 2)); break;
-		case SP_BALL_ACID: 
-			sprintf(p, " dam %d, rad 3", 45 + damlev); break;
-		case SP_BALL_FIRE: 
-			sprintf(p, " dam %d, rad 2", 60 + damlev); break;
+			sprintf(p, " dam %d, rad 3", 20 + damlev); break;
+		case SP_BALL_FIRE_1: 
+			sprintf(p, " dam %d, rad %d", 60 + damlev, (p_ptr->lev < 40) ? 2 : 3); break;
+		case SP_BALL_FIRE_2: 
+			sprintf(p, " dam %d, rad %d", 100 + (damlev * 2), (p_ptr->lev < 40) ? 3 : 4); break;
 		case SP_BALL_FROST_1: 
-			sprintf(p, " dam %d, rad 2", 35 + damlev); break;
+			sprintf(p, " dam %d, rad %d", 35 + damlev, (p_ptr->lev < 35) ? 2 : 3); break;
 		case SP_BALL_FROST_2: 
-			sprintf(p, " dam %d, rad 3", 70 + damlev); break;
+			sprintf(p, " dam %d, rad %d", 60 + (damlev * 2), (p_ptr->lev < 35) ? 3 : 4); break;
 		case SP_BALL_SOUND: 
 			sprintf(p, " dam %d, rad 2", 30 + damlev); break;
-		case SP_BALL_METEOR: 
-			sprintf(p, " dam %d, rad 3", 65 + damlev); break;
 		case SP_BALL_MANA: 
 			sprintf(p, " dam %d, rad 3", 300 + (damlev * 2)); break;
 		case SP_BALL_HOLY:
@@ -447,8 +446,12 @@ static void spell_info(char *p, int spell_index)
 				sprintf(p, " dam %d+3d6, rad %d", x, y);
 				break;
 			}
+		case SP_BURST_ASTRAL: 
+			sprintf(p, " dam 25%%"); break;
 		case SP_ANNIHILATION	:
 			strcpy(p, " dam 200"); break;
+		case SP_BLIGHT: 
+			sprintf(p, " dam %d", damlev * 8); break;
 		case SP_DISPEL_UNDEAD_1:
 			sprintf(p, " dam d%d", 3 * damlev); break;
 		case SP_DISPEL_UNDEAD_2:
@@ -470,11 +473,11 @@ static void spell_info(char *p, int spell_index)
 		case SP_WORD_DESTRUCTION: 
 			strcpy(p, " rad 15"); break;
 		case SP_LIGHT_AREA:
-			sprintf(p, " dam 2d%d, rad %d", (damlev/2), (damlev / 10) + 1); break;
+			sprintf(p, " dam 2d%d, rad %d", (damlev / 2), (damlev / 10) + 1); break;
 		case SP_DARK_AREA:
-			sprintf(p, " dam 2d%d, rad %d", (damlev/2), (damlev / 10) + 1); break;
+			sprintf(p, " dam 2d%d, rad %d", (damlev / 2), (damlev / 10) + 1); break;
 		case SP_ABSORB_HIT: 
-			sprintf(p, " dur %d+d25", durlev); break;
+			sprintf(p, " dur %d+d32", durlev * 2); break;
 		case SP_BLESS:
 			strcpy(p, " dur 12+d12"); break;
 		case SP_CHANT:
@@ -864,7 +867,7 @@ static int get_spell(int *sn, cptr prompt, int book, bool known)
 /*
  * Get a spell out of a book/instrument
  */
-static int get_tune(int *sn, int instrument, int lev)
+static int get_tune(int *sn, cptr prompt, int instrument, int lev)
 {
 	int i;
 
@@ -919,8 +922,8 @@ static int get_tune(int *sn, int instrument, int lev)
 	redraw = FALSE;
 
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(spells %c-%c, *=List, ESC=exit) play which tune? ",
-		I2A(0), I2A(count_tunes(instrument, lev)-1));
+	strnfmt(out_val, 78, "(spells %c-%c, *=List, ESC=exit) %^s which tune? ",
+		I2A(0), I2A(count_tunes(instrument, lev)-1), prompt);
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
@@ -977,7 +980,7 @@ static int get_tune(int *sn, int instrument, int lev)
 		if (!tune_okay(instrument, lev, tune))
 		{
 			bell("Illegal tune choice!");
-			message(MSG_FAIL, 0, "You may not play that tune.");
+			message_format(MSG_FAIL, 0, "You may not %s that tune.", prompt);
 			continue;
 		}
 
@@ -990,7 +993,7 @@ static int get_tune(int *sn, int instrument, int lev)
 			s_ptr = &instruments[instrument].contents[i];
 
 			/* Prompt */
-			strnfmt(tmp_val, 78, "Play %s (%d mana, %d%% fail)? ", s_ptr->sname,
+			strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ", prompt, s_ptr->sname,
 			        spell_mana(instrument, tune, TRUE), spell_chance(instrument, tune, TRUE));
 
 			/* Belay that order */
@@ -1034,9 +1037,6 @@ static void do_browse_instrument(int instrument, int lev)
 	/* Display the spells */
 	print_spells(instrument, TRUE, lev, 1, 14);
 
-	/* Prompt for a command */
-	put_str("(Browsing) Choose a tune, or ESC:", 0, 0);
-
 	/* Hack - Determine how far from the top of the screen the spell list 
 	 * extends by counting spells, and adding space for name, etc.
 	 */
@@ -1046,13 +1046,13 @@ static void do_browse_instrument(int instrument, int lev)
 	while(TRUE)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_tune(&tune, instrument, lev))
+		if (!get_tune(&tune, "browse", instrument, lev))
 		{
 			/* If cancelled, leave immediately. */
 			if (tune == -1) break;
 
 			/* Notify that there's nothing to see, and wait. */
-			c_put_str(TERM_SLATE, "No tunes to browse     ", 0, 11);
+			c_put_str(TERM_SLATE, "No tunes to browse     ", 0, 0);
 
 			/* Any key cancels if no spells are available. */
 			if (inkey()) break;
@@ -1086,10 +1086,8 @@ static void do_browse_book(int book)
 	/* Display the spells */
 	print_spells(book, FALSE, 0, 1, 14);
 
-	/* Prompt for a command */
-	put_str("(Browsing) Choose a spell, or ESC:", 0, 0);
-
-	/* Hack - Determine how far from the top of the screen the spell list 
+	/* 
+	 * Hack - Determine how far from the top of the screen the spell list 
 	 * extends by counting spells, and adding space for name, etc.
 	 */
 	lines = count_spells(book);
@@ -1104,7 +1102,7 @@ static void do_browse_book(int book)
 			if (spell == -1) break;
 
 			/* Notify that there's nothing to see, and wait. */
-			c_put_str(TERM_SLATE, "No spells to browse     ", 0, 11);
+			c_put_str(TERM_SLATE, "No spells to browse     ", 0, 0);
 
 			/* Any key cancels if no spells are available. */
 			if (inkey()) break;
@@ -1502,7 +1500,7 @@ static bool aux_spell_cast(int index)
 		{
 			message(MSG_GENERIC, 0, "Choose a location to teleport to.");
 			message_flush();
-			dimen_door();
+			dimen_door(20, 100 / damlev);
 			break;
 		}
 		case SP_WORD_RECALL:
@@ -1598,43 +1596,37 @@ static bool aux_spell_cast(int index)
 		case SP_BALL_POISON_2:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_POIS, dir, 20 + (damlev / 2), 3);
+			fire_ball(GF_POIS, dir, 20 + damlev, 3);
 			break;
 		}
-		case SP_BALL_ACID:
+		case SP_BALL_FIRE_1:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_ACID, dir, 45 + (damlev), 2);
+			fire_ball(GF_FIRE, dir, 60 + (damlev), (p_ptr->lev < 40) ? 2 : 3);
 			break;
 		}
-		case SP_BALL_FIRE:
+		case SP_BALL_FIRE_2:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_FIRE, dir, 60 + (damlev), 2);
+			fire_ball(GF_FIRE, dir, 100 + (damlev * 2), (p_ptr->lev < 40) ? 3 : 4);
 			break;
 		}
 		case SP_BALL_FROST_1:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_COLD, dir, 35 + (damlev), 2);
+			fire_ball(GF_COLD, dir, 35 + (damlev), (p_ptr->lev < 35) ? 2 : 3);
 			break;
 		}
 		case SP_BALL_FROST_2:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_COLD, dir, 70 + (damlev), 3);
+			fire_ball(GF_COLD, dir, 60 + (damlev * 2), (p_ptr->lev < 35) ? 3 : 4);
 			break;
 		}
 		case SP_BALL_SOUND:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_SOUND, dir, 30 + (damlev), 2);
-			break;
-		}
-		case SP_BALL_METEOR:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_METEOR, dir, 65 + (damlev), 3);
 			break;
 		}
 		case SP_BALL_MANA:
@@ -1664,6 +1656,16 @@ static bool aux_spell_cast(int index)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			drain_life(dir, 200);
+			break;
+		}
+		case SP_BLIGHT:
+		{
+			(void)blight(damlev * 8);
+			break;
+		}
+		case SP_BURST_ASTRAL:
+		{
+			(void)astral_burst(25);
 			break;
 		}
 		case SP_DISPEL_UNDEAD_1:
@@ -1775,7 +1777,7 @@ static bool aux_spell_cast(int index)
 		}
 		case SP_ABSORB_HIT:
 		{
-			(void)set_absorb(p_ptr->absorb + randint(25) + durlev);
+			(void)set_absorb(p_ptr->absorb + randint(36) + 2 * durlev);
 			break;
 		}
 		case SP_BLESS:
@@ -1814,7 +1816,7 @@ static bool aux_spell_cast(int index)
 		}
 		case SP_INVIS:
 		{
-			if (!p_ptr->tim_invis)
+			if (p_ptr->tim_invis <= 0)
 			{
 				(void)set_tim_invis(randint(25) + 25 + durlev);
 			}
@@ -1985,7 +1987,7 @@ static bool aux_spell_cast(int index)
 		}
 		case SP_RECHARGE_1:
 		{
-			(void)recharge(5);
+			(void)recharge(p_ptr->lev);
 			break;
 		}
 		case SP_RECHARGE_2:
@@ -1995,12 +1997,7 @@ static bool aux_spell_cast(int index)
 		}
 		case SP_RECHARGE_3:
 		{
-			(void)recharge(40);
-			break;
-		}
-		case SP_RECHARGE_4:
-		{
-			recharge(100);
+			(void)recharge(100);
 			break;
 		}
 		case SP_IDENTIFY:
@@ -2008,9 +2005,14 @@ static bool aux_spell_cast(int index)
 			(void)ident_spell();
 			break;
 		}
+		case SP_IDENTIFY_PACK:
+		{
+			(void)identify_pack();
+			break;
+		}
 		case SP_IDENTIFY_FULL:
 		{
-			identify_fully();
+			(void)identify_fully();
 			break;
 		}
 		case SP_RES_FIRE:
@@ -2229,7 +2231,7 @@ static void do_cast_or_pray(int book)
 			case SBF_CODEX:
 			{
 				message(MSG_SPELL_FAIL, 0, 
-					"Your mind is overwhelmed by the magnitute of ancient mystery!");
+					"Your mind is overwhelmed by the magnitude of ancient mystery!");
 				/* Lose your spell-casting stats */
 				if (rand_int(100) < chance) 
 				{ 
@@ -2348,7 +2350,7 @@ static void do_play(int instrument, int lev)
 	magic_type *s_ptr;
 
 	/* Ask for a spell */
-	if (!get_tune(&tune, instrument, lev))
+	if (!get_tune(&tune, "play", instrument, lev))
 	{
 		if (tune == -2) 
 		{

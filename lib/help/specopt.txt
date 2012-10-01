@@ -17,23 +17,32 @@ The item squelch menu allows you to define what you view as junk.  It makes
 the game more enjoyable by reducing the amount of time the you spend 
 sifting through large piles of mostly useless items.
 
-There are two ways in which items may be squelched. The first is called
+There are three ways in which items may be squelched. The first is called
 squelch-by-type. In order to use this option, first you must choose one
 of the object type menus available. Once the appropriate menu has been 
 reached, you may toggle a bit that tells whether the object type is to 
-be squelched or not. Objects that are squelched-by-type are completely
-ignored by the player - they appear as dark '.'s on the map, and cannot
-be interacted with (though the player can still look at them to see what's
-there). Note that, In order to prevent (as much as possible) the squelch 
-menus from giving away too much information about the game the actual name
-of a flavored object will not appear until the player has seen and 
-identified at least one example of the object.  
+be squelched or not. Note that, In order to prevent (as much as possible) 
+the squelch menus from giving away too much information about the game the 
+actual name of an object will not appear until the character (or a different 
+character on the same savefile) has seen and identified at least one example
+of the object.  
 
 The second way in which items may be squelched occurs after the item is 
 (pseudo)-identified.  Once you are aware of an item's quality, 
 the item may be squelched if the quality isn't good enough.  This type 
 of squelching is called squelch-by-quality. The squelch-by-quality menu
 is reached by pressing "Q" from the main item squelch menu. 
+
+The third way is squelching junk. You can turn squelching junk on by pressing
+"J" on the main squelch menu. If it is on, all junk (items that can't be sold
+in the stores) will be squelched.
+
+Once an item is squelched, it will be inscribed with "squelch". Pressing "k"
+and then "!" will destroy all squelched items you are carrying and that are
+on the floor below you. If you want to automate this, turn on automatic 
+squelching by pressing "A" in the main squelch menu - this will cause the 
+game to automatically destroy any squelched item. This is irreversible, so
+take care.
 
 === Window flags ===
 

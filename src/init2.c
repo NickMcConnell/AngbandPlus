@@ -352,7 +352,7 @@ static void display_parse_error(cptr filename, errr err, char *buf)
 	message_flush();
 
 	/* Quit */
-	quit(format("Error in '%s' file.", filename));
+	quit_fmt("Error in '%s.txt' file.", filename);
 }
 
 /*
@@ -435,7 +435,7 @@ static errr init_info(cptr filename, header *head,
 		my_fclose(fp);
 
 		/* Errors */
-		if (err) display_parse_error(format("%s.txt", filename), err, buf);
+		if (err) display_parse_error(filename, err, buf);
 
 		/*** Dump the binary image file ***/
 
@@ -1343,6 +1343,13 @@ static errr init_other(void)
 	{
 		/* Default value */
 		op_ptr->opt_score[i] = options_cheat[i].norm;
+	}
+
+	/* Initialize the squelch options */
+	for (i = 0; i < OPT_SQUELCH; i++)
+	{
+		/* Default value */
+		op_ptr->opt_squelch[i] = options_squelch[i].norm;
 	}
 
 	/* Initialize the window flags */

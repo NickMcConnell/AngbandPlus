@@ -741,7 +741,6 @@ void object_known(object_type *o_ptr)
  */
 void object_aware(object_type *o_ptr)
 {
-	int x, y;
 	bool flag = k_info[o_ptr->k_idx].aware;
 
 	/* Fully aware of the effects */
@@ -749,12 +748,6 @@ void object_aware(object_type *o_ptr)
 
 	/* You must have seen it */
 	k_info[o_ptr->k_idx].everseen = TRUE;
-
-	/* If newly aware and squelched, must rearrange stacks */
-	if (!flag && (k_info[o_ptr->k_idx].squelch))
-		for(x=0; x<p_ptr->cur_wid; x++)
-			for(y=0; y<p_ptr->cur_hgt; y++)
-				rearrange_stack(y, x);
 }
 
 /*
@@ -1080,21 +1073,34 @@ static s32b object_value_real(object_type *o_ptr)
 		case TV_SWORD:
 		case TV_POLEARM:
 		{
-			/* Hack - ignore prefix values */
-			int	calc_h = o_ptr->to_h - item_prefix[o_ptr->prefix_idx].mod_th;
-			int calc_d = o_ptr->to_d - item_prefix[o_ptr->prefix_idx].mod_td;
-			int calc_dd = o_ptr->dd - item_prefix[o_ptr->prefix_idx].mod_dd;
+			int to_h_val, to_d_val;
+			item_prefix_type *px_ptr = &item_prefix[o_ptr->prefix_idx];
 
 			/* Hack -- negative hit/damage bonuses */
-			if (calc_h + calc_d < 0) return (0L);
+			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
+
+			/* Reduce the values if there is a negative prefix */
+			if (px_ptr->to_h >= 0) to_h_val = o_ptr->to_h;
+			else to_h_val = o_ptr->to_h + px_ptr->to_h;
+
+			/* Reduce the values if there is a negative prefix */
+			if (px_ptr->to_d >= 0) to_d_val = o_ptr->to_d;
+			else to_d_val = o_ptr->to_d + px_ptr->to_d;
+
+			if (to_h_val < 0) to_h_val = 0;
+			if (to_d_val < 0) to_d_val = 0;
 
 			/* Factor in the bonuses */
-			value += ((calc_h + calc_d + o_ptr->to_a) * 100L);
+			value += ((to_h_val + to_d_val + o_ptr->to_a) * 100L);
+
+			/* Small price increase for lower bonuses */
+			if (to_h_val < o_ptr->to_h) value += (o_ptr->to_h - to_h_val) * 10;
+			if (to_d_val < o_ptr->to_d) value += (o_ptr->to_d - to_d_val) * 10;
 
 			/* Hack -- Factor in extra damage dice */
-			if ((calc_dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
+			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
 			{
-				value += (calc_dd - k_ptr->dd) * o_ptr->ds * 100L;
+				value += (o_ptr->dd - k_ptr->dd) * o_ptr->ds * 100L;
 			}
 
 			/* Done */
@@ -3090,24 +3096,22 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 			l = randint(PREFIX_MAX - 1);
 			px_ptr = &item_prefix[l];
 
+			/* Not a real prefix */
 			if (!px_ptr->rarity) continue;
 
+			/* Check for material constraints */
+			if (px_ptr->material)
+			{
+				if (px_ptr->material != object_material(o_ptr)) continue;
+			}
+
+			/* Hack - Good items must have prefixes worth more than 50% */
+			if (good && (px_ptr->cost <= 50)) continue;
+
+			/* Roll for rarity */
 			if (rand_int(px_ptr->rarity) == 0)
 			{
-				int temp_dd, temp_ds;
-
 				o_ptr->prefix_idx = l;
-
-				o_ptr->weight = (o_ptr->weight * px_ptr->weight) / 100;
-
-				o_ptr->to_d += px_ptr->mod_td;
-				o_ptr->to_h += px_ptr->mod_th;
-
-				temp_dd = o_ptr->dd + px_ptr->mod_dd;
-				temp_ds = o_ptr->ds + px_ptr->mod_ds;
-
-				o_ptr->dd = ((temp_dd > 0) ? temp_dd : 1);
-				o_ptr->ds = ((temp_ds > 0) ? temp_ds : 1);
 
 				break;
 			}
@@ -3240,29 +3244,31 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool real_depth)
 	/* Easy mode - chance of inflating item */
 	if (adult_easy_mode)
 	{
-		/* Increase depth (up to twice) */
-		if (rand_int(100) < EASY_INFLATE) p_ptr->obj_depth += 5;
+		/* Increase depth */
+		if (rand_int(1000) < EASY_INFLATE) p_ptr->obj_depth += 5;
 		/* Chance of improving object "quality" */
-		if (!good && (rand_int(100) < EASY_GOOD)) good = TRUE;
-		if (!great && good && (rand_int(100) < EASY_GREAT)) great = TRUE;
+		if (!good && (rand_int(1000) < EASY_GOOD)) good = TRUE;
+		if (!great && good && (rand_int(1000) < EASY_GREAT)) great = TRUE;
 	}
 
 	/* Luck - chance of inflating item */
 	if (p_ptr->luck)
 	{
-		/* Increase depth (up to twice) */
-		if (rand_int(100) < LUCK_INFLATE) p_ptr->obj_depth += 5;
-		if (rand_int(100) < LUCK_INFLATE) p_ptr->obj_depth += 5;
+		/* Increase depth (up to four times) */
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 1;
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 2;
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 3;
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 4;
 		/* Chance of improving object "quality" */
-		if (!good && (rand_int(100) < LUCK_GOOD)) good = TRUE;
-		if (!great && good && (rand_int(100) < LUCK_GREAT)) great = TRUE;
+		if (!good && (rand_int(1000) < LUCK_GOOD)) good = TRUE;
+		if (!great && good && (rand_int(1000) < LUCK_GREAT)) great = TRUE;
 	}
-
-	/* Chance of "special object" */
-	prob = (good ? 10 : 1000);
 
 	/* Base level for the object */
 	base = (good ? (p_ptr->obj_depth + 10) : p_ptr->obj_depth);
+
+	/* Chance of "special object" */
+	prob = (good ? 10 : 1000);
 
 	/* Generate a special artifact, or a normal object */
 	if ((rand_int(prob) != 0) || !make_artifact_special(j_ptr, real_depth))
@@ -3333,22 +3339,24 @@ bool make_mimic(object_type *j_ptr, byte a, char c)
 	/* Easy mode - chance of inflating item */
 	if (adult_easy_mode)
 	{
-		/* Increase depth (up to twice) */
-		if (rand_int(100) < EASY_INFLATE) p_ptr->obj_depth += 5;
+		/* Increase depth */
+		if (rand_int(1000) < EASY_INFLATE) p_ptr->obj_depth += 5;
 		/* Chance of improving object "quality" */
-		if (!good && (rand_int(100) < EASY_GOOD)) good = TRUE;
-		if (!great && good && (rand_int(100) < EASY_GREAT)) great = TRUE;
+		if (!good && (rand_int(1000) < EASY_GOOD)) good = TRUE;
+		if (!great && good && (rand_int(1000) < EASY_GREAT)) great = TRUE;
 	}
 
 	/* Luck - chance of inflating item */
 	if (p_ptr->luck)
 	{
-		/* Increase depth (up to twice) */
-		if (rand_int(100) < LUCK_INFLATE) p_ptr->obj_depth += 5;
-		if (rand_int(100) < LUCK_INFLATE) p_ptr->obj_depth += 5;
+		/* Increase depth (up to four times) */
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 1;
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 2;
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 3;
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 4;
 		/* Chance of improving object "quality" */
-		if (!good && (rand_int(100) < LUCK_GOOD)) good = TRUE;
-		if (!great && good && (rand_int(100) < LUCK_GREAT)) great = TRUE;
+		if (!good && (rand_int(1000) < LUCK_GOOD)) good = TRUE;
+		if (!great && good && (rand_int(1000) < LUCK_GREAT)) great = TRUE;
 	}
 
 	/* Hack - gold mimics */
@@ -3522,9 +3530,6 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 
 		/* Link the floor to the object */
 		cave_o_idx[y][x] = o_idx;
-
-		/* Rearrange to refelct squelching */
-		rearrange_stack(y, x);
 
 		/* Notice */
 		note_spot(y, x);
@@ -4139,7 +4144,7 @@ void inven_item_increase(int item, int num)
 		o_ptr->number += num;
 
 		/* Add the weight */
-		p_ptr->total_weight += (num * o_ptr->weight);
+		p_ptr->total_weight += (num * actual_weight(o_ptr));
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -4347,7 +4352,7 @@ s16b inven_carry(object_type *o_ptr)
 			object_absorb(j_ptr, o_ptr);
 
 			/* Increase the weight */
-			p_ptr->total_weight += (o_ptr->number * o_ptr->weight);
+			p_ptr->total_weight += (o_ptr->number * actual_weight(o_ptr));
 
 			/* Recalculate bonuses */
 			p_ptr->update |= (PU_BONUS);
@@ -4473,7 +4478,7 @@ s16b inven_carry(object_type *o_ptr)
 	j_ptr->marked = FALSE;
 
 	/* Increase the weight */
-	p_ptr->total_weight += (j_ptr->number * j_ptr->weight);
+	p_ptr->total_weight += (j_ptr->number * actual_weight(j_ptr));
 
 	/* Count the items */
 	p_ptr->inven_cnt++;

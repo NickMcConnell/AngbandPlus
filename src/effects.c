@@ -15,6 +15,9 @@
  */
 bool hp_player(int num)
 {
+	/* No healing */
+	if (!num) return (FALSE);
+
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
@@ -64,6 +67,72 @@ bool hp_player(int num)
 
 	/* Ignore */
 	return (FALSE);
+}
+
+/*
+ * Decreases players hit points and sets death flag if necessary
+ */
+void damage_player(int dam, cptr kb_str)
+{
+	int old_chp = p_ptr->chp;
+
+	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
+
+	/* Paranoia */
+	if (p_ptr->is_dead) return;
+
+	/* Disturb */
+    disturb(1);
+
+	/* Mega-Hack -- Apply "resilence"*/
+	if (p_ptr->resilient) dam /= 3;
+	
+	/* Hurt the player */
+	p_ptr->chp -= dam;
+
+	/* Display the hitpoints */
+	p_ptr->redraw |= (PR_HP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Dead player */
+	if (p_ptr->chp < 0)
+	{
+		/* Hack -- Note death */
+		message(MSG_DEATH, TRUE, "You die.");
+		message_flush();
+
+		/* Note cause of death */
+		strcpy(p_ptr->died_from, kb_str);
+
+		/* No longer a winner */
+		p_ptr->total_winner = FALSE;
+
+		/* Note death */
+		p_ptr->is_dead = TRUE;
+
+		/* Leaving */
+		p_ptr->leaving = TRUE;
+
+		/* Dead */
+		return;
+	}
+
+	/* Hitpoint warning */
+	if (p_ptr->chp < warning)
+	{
+		/* Hack -- bell on first notice */
+		if (old_chp > warning)
+		{
+			bell("Low hitpoint warning!");
+		}
+
+		/* Message */
+		message(MSG_HITPOINT_WARN, TRUE, "*** LOW HITPOINT WARNING! ***");
+
+		message_flush();
+	}
 }
 
 /*
@@ -977,7 +1046,7 @@ bool set_image(int v)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_VISIBLE);
 
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
@@ -1389,7 +1458,7 @@ bool set_absorb(int v)
 {
 	bool notice = FALSE;
 
-	/* Hack -- Force good values */
+	/* Hack -- Force good values, plus a very low cap */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	/* Open */
@@ -1399,6 +1468,10 @@ bool set_absorb(int v)
 		{
 			message(MSG_EFFECT, 0, "An aura of magical light emanates from your body!");
 			notice = TRUE;
+		}
+		else if (v > 400)
+		{
+			message(MSG_EFFECT, 0, "Your arua of magical light reaches full intensity!");
 		}
 	}
 
@@ -1412,8 +1485,8 @@ bool set_absorb(int v)
 		}
 	}
 
-	/* Use the value */
-	p_ptr->absorb = v;
+	/* Use the value. HACK - Note that it caps at 150. */
+	p_ptr->absorb = (v > 400) ? 400 : v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1491,13 +1564,13 @@ bool set_tim_invis(int v)
 {
 	bool notice = FALSE;
 
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+	/* Hack -- Force good values. Note that it can be negative */
+	v = (v > 10000) ? 10000 : v;
 
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->tim_invis)
+		if (p_ptr->tim_invis <= 0)
 		{
 			notice = TRUE;
 		}
@@ -1523,9 +1596,6 @@ bool set_tim_invis(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
-
-	/* Update the monsters XXX */
-	p_ptr->update |= (PU_MONSTERS);
 
 	/* Handle stuff */
 	handle_stuff();

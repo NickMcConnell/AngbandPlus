@@ -2699,9 +2699,8 @@ void clear_from(int row)
  * Return accepts the current buffer contents and returns TRUE.
  * Escape clears the buffer and the window and returns FALSE.
  *
- * Note that 'buf' must be able to hold 'len+1' characters, not just 'len'
- * characters, as might be expected.  That is, 'len' primarily refers to
- * the input, not the buffer itself.
+ * Note that 'len' refers to the size of the buffer.  The maximum length
+ * of the input is 'len-1'.
  */
 bool askfor_aux(char *buf, int len)
 {
@@ -2729,7 +2728,7 @@ bool askfor_aux(char *buf, int len)
 	if (x + len > 80) len = 80 - x;
 
 	/* Truncate the default entry */
-	buf[len] = '\0';
+	buf[len-1] = '\0';
 
 
 	/* Display the default answer */
@@ -2772,7 +2771,7 @@ bool askfor_aux(char *buf, int len)
 
 			default:
 			{
-				if ((k < len) && (isprint(ch)))
+				if ((k < len-1) && (isprint(ch)))
 				{
 					buf[k++] = ch;
 				}
@@ -2875,7 +2874,7 @@ s16b get_quantity(cptr prompt, int max)
 		sprintf(buf, "%d", amt);
 
 		/* Ask for a quantity */
-		if (!get_string(prompt, buf, 6)) return (0);
+		if (!get_string(prompt, buf, 7)) return (0);
 
 		/* Extract a number */
 		amt = atoi(buf);

@@ -275,16 +275,11 @@ errr process_pref_file_command(char *buf)
 	else if (buf[0] == 'Q')
 	{
 		i = tokenize(buf+2, 4, zz);
-		if (i==1) 
-		{
-			auto_destroy = (byte)strtol(zz[0], NULL, 0);
-			return(0);
-		} 
-		else if (i==2) 
+		if (i==2) 
 		{
 			n1 = strtol(zz[0], NULL, 0);
 			n2 = strtol(zz[1], NULL, 0);
-			squelch_level[n1]=n2;
+			op_ptr->squelch_level[n1]=n2;
 		return (0);
 		}
 		else if (i==4) 
@@ -455,6 +450,18 @@ errr process_pref_file_command(char *buf)
 				}
 			}
 		}
+		else if (buf[2] == 'S')
+		{
+			/* Check squelch options */
+			for (i = 0; i < OPT_SQUELCH; i++)
+			{
+				if (options_squelch[i].text && streq(options_squelch[i].text, buf + 4))
+				{
+					op_ptr->opt_squelch[i] = FALSE;
+					return (0);
+				}
+			}
+		}
 	}
 
 	/* Process "Y:<str>" -- turn option on */
@@ -480,6 +487,18 @@ errr process_pref_file_command(char *buf)
 				if (options[i].text && streq(options[i].text, buf + 4))
 				{
 					op_ptr->opt[i] = TRUE;
+					return (0);
+				}
+			}
+		}
+		else if (buf[2] == 'S')
+		{
+			/* Check squelch options */
+			for (i = 0; i < OPT_SQUELCH; i++)
+			{
+				if (options_squelch[i].text && streq(options_squelch[i].text, buf + 4))
+				{
+					op_ptr->opt_squelch[i] = TRUE;
 					return (0);
 				}
 			}
@@ -530,13 +549,16 @@ errr process_pref_file_command(char *buf)
 		if (tokenize(buf+2, 2, zz) == 2)
 		{
 			u16b type = (u16b)strtol(zz[0], NULL, 0);
-			byte color = color_char_to_attr(zz[1][0]);
+			int color = color_char_to_attr(zz[1][0]);
 
 			/* Ignore illegal types */
 			if (type >= MSG_MAX) return (1);
 
+			/* Ignore illegal colors */
+			if (color < 0) return (1);
+
 			/* Store the color */
-			message__color[type] = color;
+			message__color[type] = (byte)color;
 
 			/* Success */
 			return (0);
@@ -1479,8 +1501,8 @@ static void display_player_xtra_info(void)
 	dam = p_ptr->dis_to_d;
 
 	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	if (object_known_p(o_ptr)) hit += actual_to_h(o_ptr);
+	if (object_known_p(o_ptr)) dam += actual_to_d(o_ptr);
 
 	/* Melee attacks */
 	sprintf(buf, "(%+d,%+d)", hit, dam);
@@ -1495,8 +1517,8 @@ static void display_player_xtra_info(void)
 	dam = 0;
 
 	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	if (object_known_p(o_ptr)) hit += actual_to_h(o_ptr);
+	if (object_known_p(o_ptr)) dam += actual_to_d(o_ptr);
 
 	/* Range attacks */
 	sprintf(buf, "(%+d,%+d)", hit, dam);
@@ -1558,12 +1580,12 @@ static void display_player_skill_info(void)
 
 	/* Fighting Skill (with current weapon) */
 	o_ptr = &inventory[INVEN_WIELD];
-	tmp = p_ptr->to_h + o_ptr->to_h;
+	tmp = p_ptr->to_h + actual_to_h(o_ptr);
 	xskill[SK_THN] = p_ptr->skill[SK_THN] + (tmp * BTH_PLUS_ADJ);
 
 	/* Shooting Skill (with current bow) */
 	o_ptr = &inventory[INVEN_BOW];
-	tmp = p_ptr->to_h + o_ptr->to_h;
+	tmp = p_ptr->to_h + actual_to_h(o_ptr);
 	xskill[SK_THB] = p_ptr->skill[SK_THB] + (tmp * BTH_PLUS_ADJ);
 
 	/* Throwing Skill */
@@ -3332,7 +3354,7 @@ void get_name(void)
 	strcpy(tmp, op_ptr->full_name);
 
 	/* Prompt for a new name */
-	if (get_string("Enter a name for your character: ", tmp, 15))
+	if (get_string("Enter a name for your character: ", tmp, sizeof(tmp)))
 	{
 		/* Use the name */
 		strcpy(op_ptr->full_name, tmp);

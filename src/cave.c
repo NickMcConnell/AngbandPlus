@@ -854,23 +854,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 				break;
 			}
 
-			sq_flag = ((k_info[o_ptr->k_idx].squelch) & (k_info[o_ptr->k_idx].aware));
-
-			if (!sq_flag) 
-			{
-				/* Normal attr */
-				a = object_attr(o_ptr);
+			/* Normal attr */
+			a = object_attr(o_ptr);
 			  
-				/* Normal char */
-				c = object_char(o_ptr);
-			} 
-			else 
-			{
-				/* Special squelch character HACK */
-				a = TERM_RED;  
-				/* Symbol of floor */
-				c = f_info[FEAT_FLOOR].x_char;  
-			}
+			/* Normal char */
+			c = object_char(o_ptr);
 
 			/* First marked object */
 			if (!show_piles || sq_flag) break;

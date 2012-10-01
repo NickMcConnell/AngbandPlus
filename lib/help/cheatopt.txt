@@ -38,6 +38,10 @@ Allow player to avoid death    [cheat_live]
 No save on death    [cheat_no_save]
     Cheaters never win.  But they don't have to save the game when they die.
 
+***** <cheat_no_respawn> 
+No respawning monsters [cheat_no_respawn]
+    Cheaters never win.  But they can prevent monsters from respawning.
+
 ***** <cheat_wizard>
 Activate wizard mode    [cheat_wizard]
     Wizard mode allows you to receive a lot of information that is normally

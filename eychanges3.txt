@@ -1,3 +1,201 @@
+Changes from 0.3.2 to 0.3.3:
+
+- Compatible with 0.3.2 or 0.3.1 savefiles, with the following exceptions:
+  - Saves with randarts on art incompatible.
+  - Prefixed ego items might have changed damage dice.
+  - Characters with mages spells discover they have an altered spell selection.
+
+- Graphics support has been completely removed. It will probably not return unless I manage to
+  get someone to supply the missing tiles.
+
+## Gamplay Changes ##
+
+- Quests have been changed - each quest has been "moved down a peg". This means that the old
+  "challenging" quests are now called "difficult" quests, the old "difficult" quests are now
+  "moderate" quests, and the old "moderate" quests are now "easy" quests. The old "easy" quests
+  no longer exists. Also, the list for "legal" quest monsters has been enlarged by allowing
+  non-moving creatures with ranged attacks or summoning spells to be chosen. 
+
+- Absorb hit re-implemented. Now, there are some sorts of damage it won't protect you from,
+  most importantly from being poisoned and psionic attacks (mind blast, brain smash). Also, 
+  there is now a cap of 400 HP which the spell can not exceed, AND, if you get hit for more 
+  damage than you're spell allows you, instead of absorbing the entire hit the extra damage will 
+  "spill over". Spilling over first reduced the amount of damage healed, so if you have the full
+  400-HP strong absorb hit aura, you will need to take over 800 HP damage before the attack hurts
+  you (though over 400 will already cancel the spell leaving you vulnerable to future attacks).
+  To compensate for all these reductions, the spell (and scroll) have been made more powerful
+  offering a longer duration/damage amount for each casting. Hopefully this leaves absorb hit very
+  useful, but no longer abusable.
+
+- Invisibility abusability reduced. Now, if you fire a missile weapon, or melee a monster 
+  while invisible, temporary invisibility will be cancelled, while permanent invisibility will
+  be nullified for 3 turns. This still leaves invisibility as a very powerful tactic for moving
+  around, but you can no longer kill monsters while they ignore you. Also note that spellcasting
+  and using items does not currently disturb invisibiltiy, though this might change if it still
+  proves overpowering. The duration of potions of invisibilty has been increased to compensate.
+
+- Luck tuned down a smidgen. 
+
+- Squelching changed:
+  - New behavior for squelched items. Now, instead of being destoryed an item will be inscribed
+    with "squelch" the moment they are ID'd or, if already ID'd, when you walk over them or pick
+	them up. Items inscribed with squelch will be destroyed without confirmation, and, by
+    pressing k and then !, you will destroy all squelched items (as in Oangband). In the 
+    normal keyset, CTRL+K will also work. For those that don't want to manually destroy items,
+    there is an "auto_squelch" option which will automatically destroy each squelched item,
+    behaving more or less like the old auto-squelch. Note that items manually inscribed with
+    "squelch" will also be destroyed.
+  - New squelch option - Squelch Junk. It will squelch any item with a value of 0. The old
+    option for prompting on destruction of junk has been removed.
+  - Squelching by type will no longer hide items as red dots. Instead, the squelch behavior for
+    these items will be identical to other items.
+  - The squelching menus will no longer spoil unknown item quantities. You have to see an item
+    (or an ancestor has had to see it) in order for it to appear on the menus.
+  - Now, for characters with weak psuedo-ID, setting squelch "good" items will not squelch until
+    {good} items are fully ID'd, since otherwise {excellent} items would also be squelched.
+
+- Added a knowledge option to display the contents of your home (Oangband).
+
+- Modified the "visible monster" term window to be slightly faster and cleaner; also, the 
+  monsters are now sorted by descending experience value, so the most important monsters to know
+  about (usually) are first.
+
+- The "y/n/k" prompt will become "y/n/^d" when roguelike keyboard is used. Note that this is 
+  a hack, not a proper solution, so custom keymaps will not be handled properly.
+
+- New cheat option - "cheat_no_respawn", which supresses monster spawning while on the level.
+
+- Added a list of debug commands (enter debug mode and press '?'), taken partially from Cthband,
+  and a debug command has been added for dimension door.
+
+# Spells #
+
+- Mage/Mystic damage spells improved, including some that have been replaced by better spells. 
+
+- Some Mage spells in [Incantations and Illusions] swapped around. 
+
+- The recharging spells in the town spellbooks have been condensed into one spell, and a new
+  spell replaces "recharge item" in [Sorcery and Evocations].
+
+- One of the artifact spellbooks gained a new spell.
+
+- Improved interface for Dimension Door.
+
+# Races/Classes #
+
+- Each race now begins with an appropriate prefix on their weapons (i.e. elves get elven weapons,
+  gnomes get gnomish weapons).
+
+- Felpurrs now get -2 to strength instead of -1 to prevent them from getting 4 attacks when
+  starting. To compensate, their hit die has been raised to 10-sided (from 8 sided), and their 
+  EXP bonus has been reduced to +20%.
+
+- Spellswords experience penalty lowered to 35%, like paladins.
+
+- Mystics will now only start with a single powder of incineration.
+
+- Gnomes can now be mystics.
+
+# Items #
+
+- Changed object destruction rules:
+  - Changed the rules for elemental damage, so that instead of all elements attacking your 
+    inventory and acid additionally hitting armor, each attack (including acid) has a chance of
+	attacking each slot of your inventory or equipment, but damage is not certain. Also, damage
+	will behave the same whether armor is equipped or not - no more plate mails in your inventory
+	destroyed by a single acid attack. This means that in general less object destruction will
+	occur but that more elemental attacks can damage armor. Also, getting your armor damaged will
+	NOT lower the damage done by the attack - this means acid attacks are more dangerous now.
+  - What items are destroyed depends on the item's material instead of tval, which means that 
+    the rules for what can or can not be damaged have changed.
+  - If a piece of armor is lowered to give a total of 0 AC by fire or acid, it will be totally
+    destroyed (i.e, a robe will be destoryed if it gets to [+2,-2]). This will not happen to 
+    ego-items. (While this might not sound like it, this is actually an advantage to the 
+    player - no more wearing heavy but totally useless armor. No one would bother enchanting 
+    the armor back if it gets so low).
+  - Added new damage types, rust and rot, which only affect acid and wood appropriately. They
+    can also damage your weapon - so beware.
+  - The IGNORE flags have been combined into IGNORE_ELEM. Items that offer a resistance or are
+    branded with an element, also ignore it. A new IGNORE_NON_ELEM flag has been added for items
+	that ignore rot and rust.
+
+- Added item materials - each item is now associated with a material type. This affects 
+  item destruction rules (see above).
+
+- DSMs made a bit deeper and rarer, since the earlier change was too severe. They're still 
+  generally easier to find than in Vanilla.
+
+- Price adjustments for some prefixes changed. Now, "good" items won't be generated with the
+  cheaper prefixes (broken, rusty, yeek). Also, the pricing for enchanted prefixed weapons now
+  makes more sense for the "bad" prefixed weapons.
+
+- Potions of risk "good" effect now much better. Also, if you drink it un-ID'd, you'll always
+  get the good effect.
+
+- The Boots of The Long Journey value increased.
+
+- The Beacon of Om's weight reduced to something more logical. Also, weight fixed for artifact
+  lanterns.
+
+# Monsters #
+
+- New RUST attack, which only damages metallic equipment (see above).
+
+- New ROT attack, which damages wooden equipment and food.
+
+- FORCE_DEPTH flag cancelled. Instead, uniques that are in a quest will only appear on the
+  quest levels. 
+
+- Corroding monster renamed back to rust monster, and given RUST attack instead of ACID.
+
+- Rot jelly and corruption vortexes given ROT attack (rot jellies lose their EAT_FOOD attack).
+
+- Bealzebub now summons less often.
+
+- Smeagol now light blue, and a person.
+
+- To prevent confusion with the Basilisks, Vlastas are now bright blue.
+
+- Added description to cockatrice.
+
+## Non-Gameplay Affecting Changes ##
+
+- Continued updating the monster system. Now it is possible to base uniques on regular monsters.
+  There are still a few things to finish, speficially, it is impossible to control unique 
+  appearnce in .prf files, and the COMPANION flag works in a problematic way. Also, note that in
+  order to preserve savefile compatibility and balance, no actual changes have been made to the 
+  info file - these will be done in a later version.
+
+- Included new makefile.cyg written by Pav Lucistnik.
+
+## Bug Fixes ##
+
+- Fixed the handling of prefixed weapons so that several glitches are fixed, including 
+  disenchantment damaging them, and weird prices for gnomish weapons.
+
+- Fixed a bug in the knowledge screens where pressing down on an empty list could crash
+  the game.
+
+- Beyond a certain depth all quests would be for greater balrogs.
+
+- You can no longer get quests below dungeon level 127.
+
+- Fixed a bug displaying weird error messages if randarts are on.
+
+- Taking off an amulet of unmagic will correctly end the item drain.
+
+- Fixed incorrect prompts when browsing musical instruments.
+
+- Fixed the message when pseudo-IDing wielded equipment.
+
+- Fixed the liches that could (mistakenly) bleed.
+
+- From Vanilla: 
+  - Potions of life always heal full HP now.
+  - Many calls to get_string() and askfor_aux() used an incorrect length argument.
+  - The exit code in case of failures wasn't standard.
+  - The error message for parsing errors in the *_info.txt files was wrong.
+
 Changes from 0.3.1b to 0.3.2:
 
 ## Gamplay Changes ##

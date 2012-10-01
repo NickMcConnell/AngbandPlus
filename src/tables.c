@@ -1100,16 +1100,16 @@ byte extract_energy[200] =
 byte invis_chance[31] =
 {
 	10, /*  0 */
-	14, /*  1 */
-	17, /*  2 */
-	20, /*  3 */
-	21, /*  4 */
-	22, /*  5 */
-	23, /*  6 */
-	24, /*  7 */
-	28, /*  8 */
-	32, /*  9 */
-	36, /* 10 */
+	12, /*  1 */
+	15, /*  2 */
+	18, /*  3 */
+	19, /*  4 */
+	20, /*  5 */
+	21, /*  6 */
+	22, /*  7 */
+	25, /*  8 */
+	30, /*  9 */
+	35, /* 10 */
 	40, /* 11 */
 	45, /* 12 */
 	50, /* 13 */
@@ -1350,7 +1350,7 @@ spell_book books[SV_BOOK_MAX] =
 		/* Conjurings and Tricks (sval 1) */
 		SBF_MAGIC,
 		{
-			{ SP_ABSORB_HIT,		"Absorb hit",				 4,  3, 25,   3},	
+			{ SP_ABSORB_HIT,		"Absorb hit",				 4,  4, 25,   3},	
 			{ SP_BOLT_ELEC,			"Lightning Bolt",			 4,  4, 30,   4},
 			{ SP_DESTROY_TRAP_DOOR,	"Trap/Door Destruction",	 5,  5, 30,   6},
 			{ SP_SLEEP_MONSTER,		"Sleep Monster",			 5,  5, 30,   4},
@@ -1367,13 +1367,13 @@ spell_book books[SV_BOOK_MAX] =
 		SBF_MAGIC,
 		{
 			{ SP_SATISFY_HUNGER,	"Satisfy Hunger",			 9,  7, 45,   8},
-			{ SP_RECHARGE_1,		"Lesser Recharge Item",		 9,  7, 75,   9},
-			{ SP_BOLT_ACID,			"Acid Bolt",				10,  7, 50,  12},	
-			{ SP_IDENTIFY,			"Identify",					11,  7, 75,   6},
-			{ SP_CREATE_DOOR,		"Door Creation",			11,  7, 20,  28},	
-			{ SP_DETECT_ENCHANT,	"Detect Enchantment",		12,	 7,	40,  10},
-			{ SP_BOLT_FIRE,			"Fire Bolt",				14,  9, 50,   6},	
-			{ SP_SLOW_MONSTER,		"Slow Monster",				16,  9, 50,   7},	
+			{ SP_CREATE_DOOR,		"Create Doors",				 9,  7, 25,  10},	
+			{ SP_BOLT_ACID,			"Acid Bolt",				10,  7, 50,   8},	
+			{ SP_IDENTIFY,			"Identify Item",			11,  7, 75,   6},
+			{ SP_SLOW_MONSTER,		"Slow Monster",				11,  7, 50,  10},	
+			{ SP_DETECT_ENCHANT,	"Detect Enchantment",		12,	 7,	40,   6},
+			{ SP_BOLT_FIRE,			"Fire Bolt",				14,  9, 50,   8},	
+			{ SP_RECHARGE_1,		"Recharge Item",			15, 10, 75,  10},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
 		}
 	},
@@ -1383,9 +1383,9 @@ spell_book books[SV_BOOK_MAX] =
 		{
 			{ SP_BALL_FROST_1,		"Frost Ball",				17, 12, 55,   8},	
 			{ SP_BLIND_MONSTER,		"Blind Monster",			19, 12, 60,   8},
-			{ SP_RECHARGE_3,		"Recharge Item",			20, 12, 90,   8},	
-			{ SP_TELE_OTHER,		"Teleport Other",			23, 12, 60,   8},	
-			{ SP_BALL_FIRE,			"Fire Ball",				25, 18, 65,  12},	
+			{ SP_IDENTIFY_PACK,		"Identify Pack",			21, 21, 80,   6},	
+			{ SP_TELE_OTHER,		"Teleport Others",			23, 12, 60,   8},	
+			{ SP_BALL_FIRE_1,		"Fire Ball",				25, 18, 65,  12},	
 			{ SP_HASTE_SELF_1,		"Haste Self",				29, 12, 65,  10},	
 			{ SP_WORD_DESTRUCTION,	"Word of Destruction",		33, 21, 80,  15},	
 			{ SP_GENOCIDE,			"Genocide",					42, 25, 95,  21},	
@@ -1426,7 +1426,7 @@ spell_book books[SV_BOOK_MAX] =
 		{
 			{ SP_DETECT_EVIL,		"Detect Evil",				 5,  5, 50,   8},	
 			{ SP_POLY_MONSTER,		"Polymorph Other",			11,  7, 45,   9},
-			{ SP_RECHARGE_4,		"Greater Recharge Item",	25, 30, 95, 160},	
+			{ SP_RECHARGE_3,		"Greater Recharge Item",	25, 30, 95, 160},	
 			{ SP_GENOCIDE,			"Genocide",					30, 50, 70,  40},	
 			{ SP_MASS_GENOCIDE,		"Mass Genocide",			40, 75, 80, 100},	
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
@@ -1453,10 +1453,10 @@ spell_book books[SV_BOOK_MAX] =
 		(SBF_MAGIC | SBF_GOOD),
 		{
 			{ SP_BOLT_MANA,			"Mana Bolt",				10,  4, 50,  12},	
-			{ SP_BALL_POISON_2,		"Cloud Kill",				12,  9, 60,  16},	
-			{ SP_BALL_ACID,			"Acid Ball",				20, 13, 70,  20},	
-			{ SP_BALL_FROST_2,		"Ice Storm",				25, 32, 85,  34},	
-			{ SP_BALL_METEOR,		"Meteor Swarm",				33, 20, 75,  29},	
+			{ SP_BLIGHT,			"Blight",					13,	13,	60,	 20},
+			{ SP_BALL_POISON_2,		"Cloud Kill",				16, 15, 60,  16},	
+			{ SP_BALL_FROST_2,		"Ice Storm",				25, 25, 85,  34},	
+			{ SP_BALL_FIRE_2,		"Hell Storm",				33, 30, 85,  45},	
 			{ SP_BALL_MANA,			"Mana Storm",				42, 45, 95, 200},	
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
@@ -1644,7 +1644,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ SP_HASTE_SELF_2,		"Essence of Speed",			35, 60, 50, 200},	
 			{ SP_ALTER_REALITY,		"Alter Reality",			40, 80, 75, 200}, 
 			{ SP_GLYPH_WARDING,		"Glyph of Warding",			45, 60, 90,  20}, 
-			{ SP_BALL_METEOR,		"Meteor Swarm",				50, 25, 75,  50},	
+			{ SP_BURST_ASTRAL,		"Astral Burst",				50, 80, 50, 100},	
 			{ 0, NULL, 99,  0, 0, 0}
 		}
 	},
@@ -1665,13 +1665,14 @@ spell_book books[SV_BOOK_MAX] =
 		/* The Codex of Ultimate Wisdom (sval 23) */
 		(SBF_CODEX | SBF_GOOD | SBF_ARTIFACT),
 		{
-			{ SP_IDENTIFY,			"Perception",				 1, 20, 50,   1}, 
+			{ SP_IDENTIFY,			"Perception",				 1, 15, 50,   1}, 
+			{ SP_IDENTIFY_PACK,		"Greater Perception",		20, 20, 90,   2},	
 			{ SP_SELF_KNOW,			"Self Knowledge",			45,100, 82,   4}, 
 			{ SP_IDENTIFY_FULL,		"Revelation",				50,100, 72,   8},
 			{ SP_MAP_2,				"Clairvoyance",				50,100, 10,   2}, 
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ 0, NULL, 99,  0, 0, 0}
 		}
 	}
 };
@@ -1860,7 +1861,7 @@ option_type options[OPT_NORMAL] =
 	{"disturb_minor",		"Disturb whenever boring things happen",	TRUE },
 	{"alert_failure",		"Alert user to various failures",			FALSE},
 	{"verify_destroy",		"Verify destruction of objects",			TRUE },
-	{"verify_destroy_junk",	"Verify destruction of worthless items",	FALSE},
+	{NULL,					NULL,										FALSE},
 	{"use_command",			"Allow unified use command",				FALSE},
 	{"expand_look",			"Expand the power of the look command",		TRUE },
 	{"expand_list",			"Expand the power of the list commands",	TRUE },
@@ -1927,7 +1928,14 @@ option_type options_cheat[OPT_CHEAT] =
 	{"cheat_live",			"Allow player to avoid death",				FALSE},
 	{"cheat_no_save",		"No automatic saves upon death", 			FALSE},
 	{"cheat_debug",			"Allow access to debug mode",	 			FALSE},
-	{"cheat_wizard",		"Activate wizard mode",						FALSE}
+	{"cheat_wizard",		"Activate wizard mode",						FALSE},
+	{"cheat_no_respawn",	"No respawning monsters",					FALSE}
+};
+
+option_type options_squelch[OPT_SQUELCH] =
+{
+	{"squelch_junk",		"Squelch anything worth 0 gold",			TRUE},
+	{"auto_squelch",		"Automatically destroy squelched items",	FALSE}
 };
 
 /*
@@ -1950,11 +1958,11 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_always_pickup,
 		OPT_always_repeat,
 		OPT_verify_destroy,
-		OPT_verify_destroy_junk,
 		OPT_easy_direction,
 		OPT_easy_alter,
 		OPT_easy_floor,
 		OPT_verify_leave_quest,
+		255,
 		255
 	},
 
@@ -2060,8 +2068,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_know,
 		OPT_cheat_live,
 		OPT_cheat_no_save,
+		OPT_cheat_no_respawn,
 		OPT_cheat_wizard,
-		255,
 		255,
 		255,
 		255,
@@ -2168,25 +2176,25 @@ cptr inscrip_text[MAX_INSCRIP] =
  */
 item_prefix_type item_prefix[PREFIX_MAX] =
 {
-	{NULL,			1,	 0, 0, 0, 0, 100,100, TRUE}, /* Normal - no prefix. Don't change */
-	{"Broken",		10,	-5,-5,-9,-9,  50,  1, FALSE}, 
-	{"Rusty",		10,	-2,-2, 0, 0, 100, 75, FALSE},
-	{"Cheap",		15,	-1, 0, 0, 0, 100, 85, TRUE},
-	{"Hunter's",	15,	 0, 1, 0, 0, 100,110, TRUE},
-	{"Quality",		20,	 1, 1, 0, 0, 100,130, TRUE},
-	{"Orcish",		30,	 0, 2, 0, 0, 120,130, TRUE},
-	{"Dwarven",		40,	 0, 0, 0, 1, 110,150, TRUE},
-	{"Elven",		40,	 2, 0, 0, 0,  90,200, TRUE},
-	{"Kobold",		40,	 0, 0,-1,-1,  80, 80, TRUE},
-	{"Rattikin",	40,	 1, 0,-1, 1,  80,120, TRUE},
-	{"Trollish",	45,	 0, 0, 1, 0, 160,200, TRUE},
-	{"Felpurr",		45,	 0, 0, 0, 0,  90,110, TRUE},
-	{"Hobbit",		50,	 0, 0, 0,-1,  60,100, TRUE},
-	{"Gnomish",		50,	 0, 0,-1, 0,  50, 60, TRUE},
-	{"Yeek",		50,	-1,-1,-1,-1,  60, 30, FALSE},
-	{"Ogrish",		60,	-2, 0, 1, 1, 250,200, FALSE},
-	{"Runed",		75,  0, 5, 0, 0, 100,200, FALSE},
-	{"Ornamental",	80,	-3,-3,-1,-1, 110,350, FALSE},
-	{"Dark Elven",	90,	 2, 2, 0, 1,  90,250, FALSE},
-	{"Majestic",   150,	 2, 2, 2, 2, 125,500, FALSE}
+	{NULL,			1,	0,				 0, 0, 0, 0, 100,100, TRUE}, /* No prefix - Don't change */
+	{"Broken",		10,	0,				-5,-5,-9,-9,  50,  1, FALSE}, 
+	{"Rusty",		10,	MATERIAL_STEEL,	-2,-2, 0, 0, 100, 50, FALSE},
+	{"Cheap",		15,	0,				-1, 0, 0, 0, 100, 85, TRUE},
+	{"Hunter's",	15,	0,				 0, 1, 0, 0, 100,110, TRUE},
+	{"Quality",		20,	0,				 1, 1, 0, 0, 100,130, TRUE},
+	{"Orcish",		30,	0,				 0, 2, 0, 0, 120,130, TRUE},
+	{"Dwarven",		40,	0,				 0, 0, 0, 1, 110,150, TRUE},
+	{"Elven",		40,	0,				 2, 0, 0, 0,  90,200, TRUE},
+	{"Kobold",		40,	0,				 0, 0,-1,-1,  80, 80, TRUE},
+	{"Rattikin",	40,	0,				 1, 0,-1, 1,  80,120, TRUE},
+	{"Trollish",	45,	0,				 0, 0, 1, 0, 160,200, TRUE},
+	{"Felpurr",		45,	0,				 0, 0, 0, 0,  90,110, TRUE},
+	{"Hobbit",		50,	0,				 0, 0, 0,-1,  60,100, TRUE},
+	{"Gnomish",		50,	0,				 0, 0,-1, 0,  50, 65, TRUE},
+	{"Yeek",		50,	0,				-1,-1,-1,-1,  60, 30, FALSE},
+	{"Ogrish",		60,	0,				-2, 0, 1, 1, 250,200, FALSE},
+	{"Runed",		75,	0,				 0, 5, 0, 0, 100,200, FALSE},
+	{"Ornamental",	80, MATERIAL_STEEL,	-3,-3,-1,-1, 110,350, FALSE},
+	{"Dark Elven",	90,	0,				 2, 2, 0, 1,  90,250, FALSE},
+	{"Majestic",   150,	0,				 2, 2, 2, 2, 125,500, FALSE}
 };

@@ -76,7 +76,7 @@
 
 # Version stamp (required)
 
-V:0.3.2
+V:0.3.3
 
 N:0:Warrior
 S:3:-2:-1:1:1:-2
@@ -194,7 +194,7 @@ B:22:1
 B:23:1
 E:90:0:0:1:1
 E:90:10:0:1:1
-E:76:13:0:2:3
+E:76:13:0:1:1
 T:Aspirant|Initiate|Mystic|Grand-Mystic|Seer
 T:Guru|Enlightened|Master|Grand-Master|Transcendent
 F:NO_GLOVE|ZERO_FAIL|POWER|PSEUDO_ID1
@@ -209,7 +209,7 @@ E:50:0:0:1:1
 E:50:1:0:1:1
 E:23:7:0:1:1
 E:36:4:0:1:1
-T:Performer|Entertainer|Musician|Trubador|Minstrel
+T:Performer|Entertainer|Musician|Troubador|Minstrel
 T:Courtier|Poet|Bard|Master-Bard|Maestro
 F:MUSIC|PSEUDO_ID5|PSEUDO_ID_HEAVY|NO_GLOVE|LORE|INFLUENCE
 
@@ -217,7 +217,7 @@ N:7:Spellsword
 S:2:1:-1:0:0:0
 C:25:30:25:1:12:5:65:38:40:0:30
 X:7:10:10:0:0:0:35:28:30:0:7
-I:5:45:5:30:4:1:1:400
+I:5:35:5:30:4:1:1:400
 B:0:5
 B:1:5
 B:2:5

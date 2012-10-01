@@ -13,6 +13,85 @@
 #ifdef ALLOW_DEBUG
 
 /*
+ * Listing of wizard commands 
+ */
+void do_cmd_wiz_help(void)
+{
+	/* Enter "icky" mode */
+	character_icky++;
+
+	/* Save the screen */
+	Term_save();
+
+	/* Flush */
+	Term_fresh();
+
+	/* Clear the screen */
+	Term_clear();
+
+	c_put_str(TERM_RED,"Wizard Commands",1,32);
+	
+	c_put_str(TERM_BLUE,"Character Editing",3,1);
+	c_put_str(TERM_BLUE,"=================",4,1);
+	put_str("a = Cure all",6,1);
+	put_str("e = Edit stats",7,1);
+	put_str("h = Reroll hitpoints",8,1);
+	put_str("k = Self knowledge",9,1);
+	put_str("x = Gain experience",10,1);
+
+	c_put_str(TERM_BLUE,"Movement",12,1);
+	c_put_str(TERM_BLUE,"========",13,1);
+	put_str("b = Teleport to target",15,1);
+	put_str("j = Jump levels",16,1);
+	put_str("p = Phase Door",17,1);
+	put_str("P = Dimension Door",18,1);
+	put_str("t = Teleport player",19,1);
+
+	c_put_str(TERM_BLUE,"Monsters",3,24);
+	c_put_str(TERM_BLUE,"========",4,24);
+	put_str("(#)s = Summon monsters",6,24);
+	put_str("#n   = Summon named mon.",7,24);
+	put_str("(#)u = Unhide monsters",8,24);
+	put_str("(#)z = Zap monsters",9,24);
+
+	c_put_str(TERM_BLUE,"Dungeon Commands",12,24);
+	c_put_str(TERM_BLUE,"================",13,24);
+	put_str("d = Detect all",15,24);
+	put_str("m = Map area",16,24);
+	put_str("q = Query the dungeon ",17,24);
+	put_str("w = Wizard light",18,24);
+	put_str("_ = Show flow values",19,24);
+
+	c_put_str(TERM_BLUE,"Object Commands",3,50);
+	c_put_str(TERM_BLUE,"===============",4,50);
+	put_str("c    = Create item",6,50);
+	put_str("#C   = Create named artifact",7,50);
+	put_str("f    = *Identify* item",8,50);
+	put_str("(#)g = Generate good objects",9,50);
+	put_str("i    = Identify item",10,50);
+	put_str("(#)l = Learn about objects",11,50);
+	put_str("o    = Object editor",12,50);
+	put_str("(#)v = Generate great objects",13,50);
+
+	c_put_str(TERM_BLUE,"General Commands",15,50);
+	c_put_str(TERM_BLUE,"================",16,50);
+	put_str("? = Wizard mode help",18,50); 
+	put_str("\" = Generate spoilers",19,50);
+
+	/* Wait for it */
+	put_str("Hit any key to continue", 23, 23);
+
+	/* Get any key */
+	inkey();
+
+	/* Restore the screen */
+	Term_load();
+
+	/* Leave "icky" mode */
+	character_icky--;
+}
+
+/*
  * Hack -- quick debugging hook
  */
 static void do_cmd_wiz_hack_ben(void)
@@ -288,7 +367,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
 
 	/* Query */
-	if (!get_string("Gold: ", tmp_val, 9)) return;
+	if (!get_string("Gold: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -423,11 +502,11 @@ static void wiz_display_item(object_type *o_ptr)
 	           o_ptr->tval, o_ptr->sval), 4, j);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d  break = %d",
-	           o_ptr->number, o_ptr->weight,
-	           o_ptr->ac, o_ptr->dd, o_ptr->ds, k_info[o_ptr->k_idx].breakage), 5, j);
+	           o_ptr->number, actual_weight(o_ptr), o_ptr->ac, 
+			   actual_dd(o_ptr), actual_ds(o_ptr), k_info[o_ptr->k_idx].breakage), 5, j);
 
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d  timeout = %-d",
-	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d, o_ptr->timeout), 6, j);
+	           o_ptr->pval, o_ptr->to_a, actual_to_h(o_ptr), actual_to_d(o_ptr), o_ptr->timeout), 6, j);
 
 	prt(format("a_idx = %-4d  e_idx = %-4d  ident = %04x  cost = %ld",
 	           o_ptr->a_idx, o_ptr->e_idx, o_ptr->ident, (long)object_value(o_ptr)) , 7, j);
@@ -454,18 +533,9 @@ static void wiz_display_item(object_type *o_ptr)
 }
 
 /*
- * A structure to hold a tval and its description
- */
-typedef struct tval_desc
-{
-	int tval;
-	cptr desc;
-} tval_desc;
-
-/*
  * A list of tvals and their textual names
  */
-static tval_desc tvals[31] =
+static tval_desc_type tvals[31] =
 {
 	{ TV_SWORD,			"Sword"				},
 	{ TV_POLEARM,		"Polearm"			},
@@ -626,31 +696,31 @@ static void wiz_tweak_item(object_type *o_ptr)
 
 	p = "Enter new 'pval' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->pval);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->pval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_a' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_a);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_a = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_h' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_h);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_h = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_d' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_d);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_d = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'timeout' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->timeout);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->timeout = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 }
@@ -855,7 +925,8 @@ static void wiz_statistics(object_type *o_ptr)
 			if ((i_ptr->pval == o_ptr->pval) &&
 			    (i_ptr->to_a == o_ptr->to_a) &&
 			    (i_ptr->to_h == o_ptr->to_h) &&
-			    (i_ptr->to_d == o_ptr->to_d))
+			    (i_ptr->to_d == o_ptr->to_d) &&
+				(i_ptr->prefix_idx == i_ptr->prefix_idx))
 			{
 				matches++;
 			}
@@ -910,7 +981,7 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 	sprintf(tmp_val, "%d", o_ptr->number);
 
 	/* Query */
-	if (get_string("Quantity: ", tmp_val, 2))
+	if (get_string("Quantity: ", tmp_val, 3))
 	{
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -923,10 +994,10 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 		if (carried)
 		{
 			/* Remove the weight of the old number of objects */
-			p_ptr->total_weight -= (o_ptr->number * o_ptr->weight);
+			p_ptr->total_weight -= (o_ptr->number * actual_weight(o_ptr));
 
 			/* Add the weight of the new number of objects */
-			p_ptr->total_weight += (tmp_int * o_ptr->weight);
+			p_ptr->total_weight += (tmp_int * actual_weight(o_ptr));
 		}
 
 		/* Accept modifications */
@@ -1206,7 +1277,7 @@ static void do_cmd_wiz_jump(void)
 		sprintf(tmp_val, "%d", p_ptr->depth);
 
 		/* Ask for a level */
-		if (!get_string(ppp, tmp_val, 10)) return;
+		if (!get_string(ppp, tmp_val, 4)) return;
 
 		/* Extract request */
 		p_ptr->command_arg = atoi(tmp_val);
@@ -1347,7 +1418,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
+		if (place_monster_aux(y, x, r_idx, slp, TRUE, 0)) break;
 	}
 }
 
@@ -1517,7 +1588,7 @@ void do_cmd_debug(void)
 		/* Hack -- Help */
 		case '?':
 		{
-			do_cmd_help();
+			do_cmd_wiz_help();
 			break;
 		}
 
@@ -1639,6 +1710,13 @@ void do_cmd_debug(void)
 		case 'p':
 		{
 			teleport_player(10);
+			break;
+		}
+
+		/* Dimension Door */
+		case 'P':
+		{
+			dimen_door(25, 0);
 			break;
 		}
 

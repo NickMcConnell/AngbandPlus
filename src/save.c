@@ -121,7 +121,6 @@ static void wr_item(object_type *o_ptr)
 	if (o_ptr->discount) wr_byte(o_ptr->discount);
 
 	wr_byte(o_ptr->number);
-	wr_s16b(o_ptr->weight);
 
 	if (o_ptr->a_idx) wr_byte(o_ptr->a_idx); 
 	if (o_ptr->e_idx) wr_byte(o_ptr->e_idx);
@@ -259,7 +258,7 @@ static void wr_item_memory(int k_idx)
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
 	if (k_ptr->squelch) tmp8u |= 0x04;
-	if ((k_ptr->everseen) || (k_ptr->aware)) tmp8u |= 0x08;
+	if (k_ptr->everseen) tmp8u |= 0x08;
 
 	wr_byte(tmp8u);
 }
@@ -389,6 +388,29 @@ static void wr_options(void)
 	wr_u16b(flag16[0]);
 	wr_u16b(flag16[1]);
 
+	/*** Squelching options ***/
+
+	/* Squelch bytes */
+	for (i = 0; i < MAX_SQ_TYPES; i++) wr_byte(op_ptr->squelch_level[i]);
+
+	/* Reset */
+	flag16[0] = 0L;
+
+	/* Analyze the options */
+	for (i = 0; i < OPT_SQUELCH; i++)
+	{
+		int ob = i % 16;
+
+		/* Process real entries */
+		if (options_squelch[i].text)
+		{
+			if (op_ptr->opt_squelch[i]) flag16[0] |= (1L << ob);
+		}
+	}
+
+	/* Dump the flags */
+	wr_u16b(flag16[0]);
+
 	/*** Window options ***/
 
 	/* Reset */
@@ -498,10 +520,6 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->racial_power);
 
 	wr_byte(p_ptr->searching);
-
-	/* Squelch bytes */
-	for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
-	wr_byte(auto_destroy);
 
 	/* Random artifact seed */
 	if (adult_rand_artifacts) wr_u32b(seed_randart);

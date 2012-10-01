@@ -65,6 +65,7 @@ extern cptr window_flag_desc[16];
 extern option_type options[OPT_NORMAL];
 extern option_type options_birth[OPT_BIRTH];
 extern option_type options_cheat[OPT_CHEAT];
+extern option_type options_squelch[OPT_SQUELCH];
 extern byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern cptr inscrip_text[MAX_INSCRIP];
 extern item_prefix_type	item_prefix[PREFIX_MAX];
@@ -370,10 +371,12 @@ extern void do_cmd_save_game(void);
 
 /* dungeon.c */
 extern int value_check_aux1(object_type *o_ptr);
+extern int value_check_aux2(object_type *o_ptr);
 extern void play_game(bool new_game);
 
 /* effects.c */
 extern bool hp_player(int num);
+extern void damage_player(int dam, cptr kb_str);
 extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
 extern bool restore_exp(void);
@@ -475,6 +478,7 @@ extern void describe_mon_attacks(int method, int effect, cptr method_text[1], cp
 extern void screen_roff(int r_idx, int u_idx);
 extern void roff_top(int r_idx, int u_idx);
 extern void display_roff(int r_idx, int u_idx);
+extern void display_visible(void);
 
 /* monster2.c */
 extern void delete_monster_idx(int i);
@@ -493,14 +497,14 @@ extern s16b monster_carry(int m_idx, object_type *j_ptr);
 extern void monster_swap(int y1, int x1, int y2, int x2);
 extern s16b player_place(int y, int x);
 extern s16b monster_place(int y, int x, monster_type *n_ptr);
-extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp);
+extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, byte mode);
 extern bool place_monster(int y, int x, bool slp, bool grp);
 extern bool alloc_monster(int dis, bool slp);
 extern bool summon_specific(int y1, int x1, int lev, int type);
 extern bool multiply_monster(int m_idx);
 extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
-extern void mon_exp(monster_race *r_ptr, u32b *exint, u32b *exfrac);
+extern void mon_exp(int r_idx, int u_idx, u32b *exint, u32b *exfrac);
 
 /* monster3.c */
 extern cptr monster_text(int r_idx, int u_idx);
@@ -598,6 +602,10 @@ extern void reorder_pack(void);
 extern void display_spell_list(void);
 extern void display_koff(int k_idx, int pval);
 extern bool make_fake_artifact(object_type *o_ptr, int a_idx);
+extern int object_base_to_h(object_type *o_ptr);
+extern int object_base_to_d(object_type *o_ptr);
+extern int object_base_dd(object_type *o_ptr);
+extern int object_base_ds(object_type *o_ptr);
 
 /* quest.c */
 extern cptr describe_quest(s16b level, int mode);
@@ -616,12 +624,18 @@ extern void teleport_player(int dis);
 extern void teleport_player_to(int ny, int nx);
 extern void teleport_monster_to(int m_idx, int ny, int nx);
 extern void teleport_player_level(void);
-extern void dimen_door(void);
+extern void dimen_door(int dis, int fail);
 extern void take_hit(int dam, cptr kb_str);
+extern bool ignores_acid_p(u32b f2, u32b f3, u32b f4);
+extern bool ignores_fire_p(u32b f2, u32b f3, u32b f4);
+extern bool ignores_cold_p(u32b f2, u32b f3, u32b f4);
+extern bool ignores_elec_p(u32b f2, u32b f3, u32b f4);
 extern void acid_dam(int dam, cptr kb_str);
 extern void elec_dam(int dam, cptr kb_str);
 extern void fire_dam(int dam, cptr kb_str);
 extern void cold_dam(int dam, cptr kb_str);
+extern void rust_dam(int dam, cptr kb_str);
+extern void rot_dam(int dam, cptr kb_str);
 extern bool apply_disenchant(void);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
 
@@ -657,6 +671,8 @@ extern bool confuse_monsters(int power);
 extern bool banish_evil(int dist);
 extern bool turn_undead(int power);
 extern bool scare_monsters(int power);
+extern bool blight(int dam);
+extern bool astral_burst(int perc);
 extern bool dispel_undead(int dam);
 extern bool dispel_evil(int dam);
 extern bool dispel_non_evil(int dam);
@@ -702,13 +718,10 @@ extern bool item_tester_hook_spellbooks(object_type *o_ptr);
 extern bool item_tester_hook_bookmusic(object_type *o_ptr);
 
 /* squelch.c */
-extern byte squelch_level[24];
-extern byte auto_destroy;
 extern void do_cmd_squelch(void);
-extern int squelch_itemp(object_type *o_ptr, int feeling, int fullid);
-extern int do_squelch_item(int squelch, int item, object_type *o_ptr);
-extern void rearrange_stack(int y, int x);
-extern void do_squelch_pile(int y, int x);
+extern bool squelch_itemp(object_type *o_ptr);
+extern void do_squelch_item(object_type *o_ptr);
+extern void destroy_squelched_items(void);
 
 /* store.c */
 extern void do_cmd_store(void);

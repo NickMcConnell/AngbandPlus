@@ -15,10 +15,6 @@
  */
 int value_check_aux1(object_type *o_ptr)
 {
-	/* Ignore prefix modifiers */
-	int calc_h = o_ptr->to_h - item_prefix[o_ptr->prefix_idx].mod_th;
-	int calc_d = o_ptr->to_d - item_prefix[o_ptr->prefix_idx].mod_td;
-
 	/* Artifacts */
 	if (artifact_p(o_ptr))
 	{
@@ -49,7 +45,7 @@ int value_check_aux1(object_type *o_ptr)
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
 
 	/* Good "weapon" bonus */
-	if (calc_h + calc_d > 0) return (INSCRIP_GOOD);
+	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
 
 	/* Default to "average" */
 	return (INSCRIP_AVERAGE);
@@ -58,12 +54,8 @@ int value_check_aux1(object_type *o_ptr)
 /*
  * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
  */
-static int value_check_aux2(object_type *o_ptr)
+int value_check_aux2(object_type *o_ptr)
 {
-	/* Ignore prefix modifiers */
-	int calc_h = o_ptr->to_h - item_prefix[o_ptr->prefix_idx].mod_th;
-	int calc_d = o_ptr->to_d - item_prefix[o_ptr->prefix_idx].mod_td;
-
 	/* Cursed items (all of them) */
 	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
 
@@ -80,7 +72,7 @@ static int value_check_aux2(object_type *o_ptr)
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
 
 	/* Good weapon bonuses */
-	if (calc_h + calc_d > 0) return (INSCRIP_GOOD);
+	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
 
 	/* No feeling */
 	return (0);
@@ -164,7 +156,7 @@ static void sense_inventory(void)
 	{
 		bool okay = FALSE;
 
-		int squelch=0;
+		bool squelch = FALSE;
 
 		o_ptr = &inventory[i];
 
@@ -217,46 +209,44 @@ static void sense_inventory(void)
 		/* Skip non-feelings */
 		if (!feel) continue;
 
+		/* Get an object description */
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		/* The object has been "sensed" */
+		o_ptr->ident |= (IDENT_SENSE);
+		
+		/* Sense the object */
+		o_ptr->discount = feel;
+		
 		/* Squelch it? */
 		if (i < INVEN_WIELD) 
 		{
-			squelch = squelch_itemp(o_ptr, feel, 0);
+			squelch = squelch_itemp(o_ptr);
 		}
 		
 		/* Stop everything */
 		if (disturb_minor) disturb(0);
 
-		/* Get an object description */
-		object_desc(o_name, o_ptr, FALSE, 0);
-
 		/* Message (equipment) */
 		if (i >= INVEN_WIELD)
 		{
-			message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) in your pack %s %s...  %s",
+			message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) you are %s %s %s...",
 						o_name, index_to_label(i), describe_use(i),
 						((o_ptr->number == 1) ? "is" : "are"),
-						inscrip_text[feel - INSCRIP_NULL],
-						((squelch==1) ? "(Squelched)" :
-						((squelch==-1) ? "(Squelch Failed)" : "")));
+						inscrip_text[feel - INSCRIP_NULL]);
 		}
 
 		/* Message (inventory) */
 		else
 		{
 			message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) in your pack %s %s...",
-			           o_name, index_to_label(i),
-			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL]);
+						o_name, index_to_label(i),
+						((o_ptr->number == 1) ? "is" : "are"),
+						inscrip_text[feel - INSCRIP_NULL]);
 		}
 
-		/* Sense the object */
-		o_ptr->discount = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-
 		/* Squelch it if necessary */
-		do_squelch_item(squelch, i, o_ptr);
+		if (squelch) do_squelch_item(o_ptr);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -564,7 +554,7 @@ static void process_world(void)
 	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)
 	{
 		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
+		if (!cheat_no_respawn) (void)alloc_monster(MAX_SIGHT + 5, FALSE);
 	}
 	
 	/* Hack -- Check for creature regeneration */
@@ -576,7 +566,7 @@ static void process_world(void)
 	if (p_ptr->poisoned)
 	{
 		/* Take damage */
-		take_hit(1, "poison");
+		damage_player(1, "poison");
 	}
 
 	/* Take damage from cuts */
@@ -603,11 +593,14 @@ static void process_world(void)
 		if (i<A_MAX)
 		{
 			message(MSG_EFFECT, 0, "You suffer an attack of your disease -");
-			(void)do_dec_stat(i, 1, FALSE, (bool)rand_int(2));
-			p_ptr->update |= (PU_BONUS);
+			if (do_dec_stat(i, 1, FALSE, (bool)rand_int(2)))
+			{
+				p_ptr->update |= (PU_BONUS);
 
-			/* Disturb */
-			if (disturb_state) disturb(0);
+				/* Disturb */
+				if (disturb_state) disturb(0);
+			}
+			else message(MSG_EFFECT, 0, "Nothing happens.");
 		}
 		else if (i == A_MAX)
 		{
@@ -664,7 +657,7 @@ static void process_world(void)
 		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
 
 		/* Take damage */
-		take_hit(i, "starvation");
+		damage_player(i, "starvation");
 	}
 
 	/* Default regeneration */
@@ -735,43 +728,44 @@ static void process_world(void)
 	if (p_ptr->racial_power) p_ptr->racial_power--;
 
 	/* Various player conditions */
-	if (p_ptr->image) (void)set_image(p_ptr->image - 1);
-	if (p_ptr->blind) (void)set_blind(p_ptr->blind - 1);
-	if (p_ptr->tim_see_invis) (void)set_tim_see_invis(p_ptr->tim_see_invis - 1);
-	if (p_ptr->tim_invis) (void)set_tim_invis(p_ptr->tim_invis - 1);
-	if (p_ptr->tim_infra) (void)set_tim_infra(p_ptr->tim_infra - 1);
-	if (p_ptr->paralyzed) (void)set_paralyzed(p_ptr->paralyzed - 1);
-	if (p_ptr->afraid) (void)set_afraid(p_ptr->afraid - 1);
-	if (p_ptr->fast) (void)set_fast(p_ptr->fast - 1);
-	if (p_ptr->slow) (void)set_slow(p_ptr->slow - 1);
-	if (p_ptr->absorb) (void)set_absorb(p_ptr->absorb - 1);
-	if (p_ptr->protevil) (void)set_protevil(p_ptr->protevil - 1);
-	if (p_ptr->resilient) (void)set_resilient(p_ptr->resilient - 1);
-	if (p_ptr->hero) (void)set_hero(p_ptr->hero - 1);
-	if (p_ptr->rage) (void)set_rage(p_ptr->rage - 1);
-	if (p_ptr->blessed) (void)set_blessed(p_ptr->blessed - 1);
-	if (p_ptr->shield) (void)set_shield(p_ptr->shield - 1);
+	if (p_ptr->image)			(void)set_image(p_ptr->image - 1);
+	if (p_ptr->blind)			(void)set_blind(p_ptr->blind - 1);
+	if (p_ptr->tim_see_invis)	(void)set_tim_see_invis(p_ptr->tim_see_invis - 1);
+	if (p_ptr->tim_invis > 0)	(void)set_tim_invis(p_ptr->tim_invis - 1);
+	if (p_ptr->tim_invis < 0)	(void)set_tim_invis(p_ptr->tim_invis + 1);
+	if (p_ptr->tim_infra)		(void)set_tim_infra(p_ptr->tim_infra - 1);
+	if (p_ptr->paralyzed)		(void)set_paralyzed(p_ptr->paralyzed - 1);
+	if (p_ptr->afraid)			(void)set_afraid(p_ptr->afraid - 1);
+	if (p_ptr->fast)			(void)set_fast(p_ptr->fast - 1);
+	if (p_ptr->slow)			(void)set_slow(p_ptr->slow - 1);
+	if (p_ptr->absorb)			(void)set_absorb(p_ptr->absorb - 1);
+	if (p_ptr->protevil)		(void)set_protevil(p_ptr->protevil - 1);
+	if (p_ptr->resilient)		(void)set_resilient(p_ptr->resilient - 1);
+	if (p_ptr->hero)			(void)set_hero(p_ptr->hero - 1);
+	if (p_ptr->rage)			(void)set_rage(p_ptr->rage - 1);
+	if (p_ptr->blessed)			(void)set_blessed(p_ptr->blessed - 1);
+	if (p_ptr->shield)			(void)set_shield(p_ptr->shield - 1);
 
 	/* Hack - don't heal confusion if "insane" */
 	if ((p_ptr->confused) && (p_ptr->confused <= PY_CONF_INSANE))
 		(void)set_confused(p_ptr->confused - 1);
 
 	/* Timed Resistances */
-	if (p_ptr->oppose_acid) (void)set_oppose_acid(p_ptr->oppose_acid - 1);
-	if (p_ptr->oppose_elec) (void)set_oppose_elec(p_ptr->oppose_elec - 1);
-	if (p_ptr->oppose_fire) (void)set_oppose_fire(p_ptr->oppose_fire - 1);
-	if (p_ptr->oppose_cold) (void)set_oppose_cold(p_ptr->oppose_cold - 1);
-	if (p_ptr->oppose_pois) (void)set_oppose_pois(p_ptr->oppose_pois - 1);
-	if (p_ptr->oppose_disease) (void)set_oppose_disease(p_ptr->oppose_disease - 1);
-	if (p_ptr->tim_res_lite) (void)set_tim_res_lite(p_ptr->tim_res_lite - 1);
-	if (p_ptr->tim_res_dark) (void)set_tim_res_dark(p_ptr->tim_res_dark - 1);
-	if (p_ptr->tim_res_confu) (void)set_tim_res_confu(p_ptr->tim_res_confu - 1);
-	if (p_ptr->tim_res_sound) (void)set_tim_res_sound(p_ptr->tim_res_sound - 1);
-	if (p_ptr->tim_res_shard) (void)set_tim_res_shard(p_ptr->tim_res_shard - 1);
-	if (p_ptr->tim_res_nexus) (void)set_tim_res_nexus(p_ptr->tim_res_nexus - 1);
-	if (p_ptr->tim_res_nethr) (void)set_tim_res_nethr(p_ptr->tim_res_nethr - 1);
-	if (p_ptr->tim_res_chaos) (void)set_tim_res_chaos(p_ptr->tim_res_chaos - 1);
-	if (p_ptr->tim_res_water) (void)set_tim_res_water(p_ptr->tim_res_water - 1);
+	if (p_ptr->oppose_acid)		(void)set_oppose_acid(p_ptr->oppose_acid - 1);
+	if (p_ptr->oppose_elec)		(void)set_oppose_elec(p_ptr->oppose_elec - 1);
+	if (p_ptr->oppose_fire)		(void)set_oppose_fire(p_ptr->oppose_fire - 1);
+	if (p_ptr->oppose_cold)		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
+	if (p_ptr->oppose_pois)		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
+	if (p_ptr->oppose_disease)	(void)set_oppose_disease(p_ptr->oppose_disease - 1);
+	if (p_ptr->tim_res_lite)	(void)set_tim_res_lite(p_ptr->tim_res_lite - 1);
+	if (p_ptr->tim_res_dark)	(void)set_tim_res_dark(p_ptr->tim_res_dark - 1);
+	if (p_ptr->tim_res_confu)	(void)set_tim_res_confu(p_ptr->tim_res_confu - 1);
+	if (p_ptr->tim_res_sound)	(void)set_tim_res_sound(p_ptr->tim_res_sound - 1);
+	if (p_ptr->tim_res_shard)	(void)set_tim_res_shard(p_ptr->tim_res_shard - 1);
+	if (p_ptr->tim_res_nexus)	(void)set_tim_res_nexus(p_ptr->tim_res_nexus - 1);
+	if (p_ptr->tim_res_nethr)	(void)set_tim_res_nethr(p_ptr->tim_res_nethr - 1);
+	if (p_ptr->tim_res_chaos)	(void)set_tim_res_chaos(p_ptr->tim_res_chaos - 1);
+	if (p_ptr->tim_res_water)	(void)set_tim_res_water(p_ptr->tim_res_water - 1);
 
 	/*** Stuff with CON-related healing ***/
 
@@ -2183,7 +2177,7 @@ static void dungeon(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_MONSTER | PW_VISIBLE);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
@@ -2571,7 +2565,7 @@ void play_game(bool new_game)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER | PW_MESSAGE);
+	p_ptr->window |= (PW_MONSTER | PW_MESSAGE | PW_VISIBLE);
 
 	/* Window stuff */
 	window_stuff();
@@ -2604,9 +2598,6 @@ void play_game(bool new_game)
 	/* Process */
 	while (TRUE)
 	{
-		/* Update monster list window */
-		p_ptr->window |= (PW_M_LIST);
-	
 		/* Process the level */
 		dungeon();
 

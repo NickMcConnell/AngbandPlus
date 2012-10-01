@@ -562,6 +562,9 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Require identical "ego-item" names */
 	if (o_ptr->e_idx != j_ptr->e_idx) return (0);
 
+	/* Require identical "prefix" names */
+	if (o_ptr->prefix_idx != j_ptr->prefix_idx) return (0);
+
 	/* Hack -- Never stack "powerful" items */
 	if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
 
@@ -1065,7 +1068,7 @@ static bool black_market_crap(object_type *o_ptr)
 	for (i = 0; i < MAX_STORES; i++)
 	{
 		/* Skip home and black market */
-		if (i == STORE_B_MARKET || i == STORE_HOME)
+		if ((i == STORE_B_MARKET) || (i == STORE_HOME) || (i == STORE_GUILD))
 		  continue;
 
 		/* Check every object in the store */
@@ -1336,7 +1339,7 @@ static void display_entry(int item)
 		if (show_weights)
 		{
 			/* Only show the weight of a single object */
-			int wgt = o_ptr->weight;
+			int wgt = actual_weight(o_ptr);
 			sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
 			put_str(out_val, y, 68);
 		}
@@ -1372,7 +1375,7 @@ static void display_entry(int item)
 		if (show_weights)
 		{
 			/* Only show the weight of a single object */
-			int wgt = o_ptr->weight;
+			int wgt = actual_weight(o_ptr);
 			sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
 			put_str(out_val, y, 61);
 		}
@@ -2787,6 +2790,9 @@ static void store_sell(void)
 			/* Identify original object */
 			object_aware(o_ptr);
 			object_known(o_ptr);
+
+			/* Test for squelch */
+			if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
 
 			/* Combine / Reorder the pack (later) */
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);

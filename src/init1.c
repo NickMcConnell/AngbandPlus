@@ -109,6 +109,8 @@ static cptr r_info_blow_effect[] =
 	"EXP_3",
 	"EXP_4",
 	"DISEASE",
+	"RUST",
+	"ROT",
 	NULL
 };
 
@@ -126,7 +128,7 @@ static cptr r_info_flags1[] =
 	"ATTR_MIMIC",
 	"ATTR_CLEAR",
 	"ATTR_MULTI",
-	"FORCE_DEPTH",
+	"XXX2",
 	"FORCE_MAXHP",
 	"FORCE_SLEEP",
 	"COMPANION",
@@ -481,12 +483,12 @@ static cptr k_info_flags3[] =
 	"LITE2",
 	"LITE3",
 	"LITE4",
-	"IGNORE_ACID",
-	"IGNORE_ELEC",
-	"IGNORE_FIRE",
-	"IGNORE_COLD",
+	"IGNORE_ELEM",
+	"IGNORE_NON_ELEM",
 	"IGNORE_DISEN",
+	"XXX1",
 	"XXX2",
+	"XXX3",
 	"ACTIVATE",
 	"DONT_RANDOMIZE",
 	"EASY_KNOW",
@@ -1541,13 +1543,14 @@ errr init_k_info_txt(FILE *fp, char *buf, header *head)
 		/* Process 'X' for "Even more Info" (one line only) */
 		if (buf[0] == 'X')
 		{
-			int qd, qs, breakage;
+			int material, qd, qs, breakage;
 
 			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%dd%d:%d",
-			                &qd, &qs, &breakage)) return (PARSE_ERROR_GENERIC);
+			if (4 != sscanf(buf+2, "%d:%dd%d:%d",
+			                &material, &qd, &qs, &breakage)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
+			k_ptr->material = material;
 			k_ptr->qd = qd;
 			k_ptr->qs = qs;
 			k_ptr->breakage = breakage;
@@ -1788,7 +1791,7 @@ errr init_a_info_txt(FILE *fp, char *buf, header *head)
 			head->name_size += strlen(s);
 
 			/* Ignore everything */
-			a_ptr->flags3 |= (TR3_IGNORE_MASK);
+			a_ptr->flags3 |= (TR3_IGNORE_ELEM | TR3_IGNORE_NON_ELEM);
 
 			/* Next... */
 			continue;
@@ -3217,13 +3220,14 @@ errr init_p_info_txt(FILE *fp, char *buf, header *head)
 		/* Hack -- Process 'I' for "info" and such */
 		if (buf[0] == 'I')
 		{
-			int hist, b_age, m_age;
+			int hist, prfx, b_age, m_age;
 
 			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &hist, &b_age, &m_age)) return (PARSE_ERROR_GENERIC);
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			                &hist, &prfx, &b_age, &m_age)) return (PARSE_ERROR_GENERIC);
 
 			pr_ptr->hist = hist;
+			pr_ptr->prefix = prfx;
 			pr_ptr->b_age = b_age;
 			pr_ptr->m_age = m_age;
 

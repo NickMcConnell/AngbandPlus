@@ -400,7 +400,7 @@ static byte spell_color(int type)
 		case GF_DARK_WEAK:	return (TERM_L_DARK);
 		case GF_DARK:		return (TERM_L_DARK);
 		case GF_PLASMA:		return (TERM_RED);
-		case GF_METEOR:		return (TERM_RED);
+		case GF_ASTRAL:		return (TERM_BLUE);
 		case GF_ICE:		return (TERM_WHITE);
 	}
 
@@ -454,87 +454,81 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 }
 
 /*
- * Decreases players hit points and sets death flag if necessary
- *
- * Hack -- this function allows the user to save (or quit) the game
- * when he dies, since the "You die." message is shown before setting
- * the player to "dead".
- */
-static void take_hit_aux(int dam, cptr kb_str)
-{
-	int old_chp = p_ptr->chp;
-
-	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
-
-	/* Paranoia */
-	if (p_ptr->is_dead) return;
-
-	/* Disturb */
-    disturb(1);
-
-	/* Mega-Hack -- Apply "resilence"*/
-	if (p_ptr->resilient) dam /= 3;
-	
-	/* Hurt the player */
-	p_ptr->chp -= dam;
-
-	/* Display the hitpoints */
-	p_ptr->redraw |= (PR_HP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
-	/* Dead player */
-	if (p_ptr->chp < 0)
-	{
-		/* Hack -- Note death */
-		message(MSG_DEATH, TRUE, "You die.");
-		message_flush();
-
-		/* Note cause of death */
-		strcpy(p_ptr->died_from, kb_str);
-
-		/* No longer a winner */
-		p_ptr->total_winner = FALSE;
-
-		/* Note death */
-		p_ptr->is_dead = TRUE;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-
-		/* Dead */
-		return;
-	}
-
-	/* Hitpoint warning */
-	if (p_ptr->chp < warning)
-	{
-		/* Hack -- bell on first notice */
-		if (old_chp > warning)
-		{
-			bell("Low hitpoint warning!");
-		}
-
-		/* Message */
-		message(MSG_HITPOINT_WARN, TRUE, "*** LOW HITPOINT WARNING! ***");
-
-		message_flush();
-	}
-}
-
-/*
  * Hack Apply the actual hit and check for absorbance.
  */
 void take_hit(int damage, cptr ddesc)
 {
-	if (!p_ptr->absorb) take_hit_aux(damage, ddesc);
+	if (!p_ptr->absorb) damage_player(damage, ddesc);
 	else 
 	{
-		set_absorb(p_ptr->absorb-(damage+1));
-		hp_player(damage);
-		message_format(MSG_EFFECT, 0, "you have absorbed %d damage.", damage);
+		if (p_ptr->absorb > damage)
+		{
+			message_format(MSG_EFFECT, 0, "you have absorbed %d damage.", damage);
+			hp_player(damage);
+			set_absorb(p_ptr->absorb - damage);
+		}
+		else
+		{
+			int ab_limit = p_ptr->absorb * 2;
+
+			message_format(MSG_EFFECT, 0, "you have absorbed %d damage.", p_ptr->absorb);
+			if (damage > ab_limit) damage_player(damage - ab_limit, ddesc);
+			else hp_player(ab_limit - damage);
+			set_absorb(0);
+		}
 	}
+}
+
+/*
+ * Does an item ignore the damage from acid? 
+ */
+bool ignores_acid_p(u32b f2, u32b f3, u32b f4)
+{
+	if (f3 & TR3_IGNORE_ELEM) return TRUE;
+	if (f2 & TR2_RES_ACID) return TRUE;
+	if (f4 & TR4_BRAND_ACID) return TRUE;
+	if (f2 & TR2_IM_ACID) return TRUE;
+
+	return FALSE;
+}
+
+/*
+ * Does an item ignore the damage from fire? 
+ */
+bool ignores_fire_p(u32b f2, u32b f3, u32b f4)
+{
+	if (f3 & TR3_IGNORE_ELEM) return TRUE;
+	if (f2 & TR2_RES_FIRE) return TRUE;
+	if (f4 & TR4_BRAND_FIRE) return TRUE;
+	if (f2 & TR2_IM_FIRE) return TRUE;
+
+	return FALSE;
+}
+
+/*
+ * Does an item ignore the damage from cold? 
+ */
+bool ignores_cold_p(u32b f2, u32b f3, u32b f4)
+{
+	if (f3 & TR3_IGNORE_ELEM) return TRUE;
+	if (f2 & TR2_RES_COLD) return TRUE;
+	if (f4 & TR4_BRAND_COLD) return TRUE;
+	if (f2 & TR2_IM_COLD) return TRUE;
+
+	return FALSE;
+}
+
+/*
+ * Does an item ignore the damage from elec? 
+ */
+bool ignores_elec_p(u32b f2, u32b f3, u32b f4)
+{
+	if (f3 & TR3_IGNORE_ELEM) return TRUE;
+	if (f2 & TR2_RES_ELEC) return TRUE;
+	if (f4 & TR4_BRAND_ELEC) return TRUE;
+	if (f2 & TR2_IM_ELEC) return TRUE;
+
+	return FALSE;
 }
 
 /*
@@ -544,43 +538,24 @@ void take_hit(int damage, cptr ddesc)
 static bool hates_acid(object_type *o_ptr)
 {
 	/* Analyze the type */
-	switch (o_ptr->tval)
+	switch (object_material(o_ptr))
 	{
-		/* Wearable items */
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
-		case TV_SWORD:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_HEADGEAR:
-		case TV_SHIELD:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_BODY_ARMOR:
-		case TV_DRAG_ARMOR:
+		/* Stuff that is always damaged by acid */
+		case MATERIAL_PAPER:
+		case MATERIAL_CLOTH:
+		case MATERIAL_BONE:
+		case MATERIAL_LEATHER:
+		case MATERIAL_STEEL:
+		case MATERIAL_STONE:
+		case MATERIAL_S_WOOD:
 		{
 			return (TRUE);
 		}
 
-		/* Staffs/Scrolls are wood/paper */
-		case TV_STAFF:
-		case TV_SCROLL:
+		/* Other metals, very rarely */
+		case MATERIAL_METAL:
 		{
-			return (TRUE);
-		}
-
-		/* Ouch */
-		case TV_CHEST:
-		{
-			return (TRUE);
-		}
-
-		/* Low level instruments */
-		case TV_MUSIC:
-		{
-			return (o_ptr->pval < 3);
+			if (rand_int(10) == 0) return (TRUE);
 		}
 	}
 
@@ -592,10 +567,10 @@ static bool hates_acid(object_type *o_ptr)
  */
 static bool hates_elec(object_type *o_ptr)
 {
-	switch (o_ptr->tval)
+	switch (object_material(o_ptr))
 	{
-		case TV_RING:
-		case TV_WAND:
+		/* Various metals (not steel)*/
+		case MATERIAL_METAL:
 		{
 			return (TRUE);
 		}
@@ -606,53 +581,27 @@ static bool hates_elec(object_type *o_ptr)
 
 /*
  * Does a given object (usually) hate fire?
- * Hafted/Polearm weapons have wooden shafts.
- * Arrows/Bows are mostly wooden.
  */
 static bool hates_fire(object_type *o_ptr)
 {
-	/* Analyze the type */
-	switch (o_ptr->tval)
+	switch (object_material(o_ptr))
 	{
-		/* Wearable */
-		case TV_LITE:
-		case TV_ARROW:
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_BODY_ARMOR:
+		/* Stuff that is always damaged by fire */
+		case MATERIAL_PAPER:
+		case MATERIAL_CLOTH:
+		case MATERIAL_S_WOOD:
+		case MATERIAL_H_WOOD:
+		case MATERIAL_BONE:
+		case MATERIAL_FOOD:
 		{
 			return (TRUE);
 		}
 
-		/* Books */
-		case TV_MAGIC_BOOK:
+		/* Leather, rarely */
+		case MATERIAL_LEATHER:
 		{
-			return (TRUE);
+			if (rand_int(3) == 0) return (TRUE);
 		}
-
-		/* Chests */
-		case TV_CHEST:
-		{
-			return (TRUE);
-		}
-
-		/* Staffs/Scrolls burn */
-		case TV_STAFF:
-		case TV_SCROLL:
-		{
-			return (TRUE);
-		}
-
-		/* Low-mid level instruments */
-		case TV_MUSIC:
-		{
-			return (o_ptr->pval < 4);
-		}
-
 	}
 
 	return (FALSE);
@@ -663,10 +612,10 @@ static bool hates_fire(object_type *o_ptr)
  */
 static bool hates_cold(object_type *o_ptr)
 {
-	switch (o_ptr->tval)
+	switch (object_material(o_ptr))
 	{
-		case TV_POTION:
-		case TV_FLASK:
+		/* Liquids */
+		case MATERIAL_LIQUID:
 		{
 			return (TRUE);
 		}
@@ -676,51 +625,114 @@ static bool hates_cold(object_type *o_ptr)
 }
 
 /*
- * Melt something
+ * Does a given object (usually) hate rust?
+ */
+static bool hates_rust(object_type *o_ptr)
+{
+	switch (object_material(o_ptr))
+	{
+		/* Liquids */
+		case MATERIAL_STEEL:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/*
+ * Does a given object (usually) hate rust?
+ */
+static bool hates_rot(object_type *o_ptr)
+{
+	switch (object_material(o_ptr))
+	{
+		/* Wood and food */
+		case MATERIAL_S_WOOD:
+		case MATERIAL_H_WOOD:
+		case MATERIAL_FOOD:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+/*
+ * Melt something - returns 1 if succeptible, 0 if not, -1 if immune
  */
 static int set_acid_destroy(object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4;
-	if (!hates_acid(o_ptr)) return (FALSE);
+	if (!hates_acid(o_ptr)) return (0);
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-	if (f3 & (TR3_IGNORE_ACID)) return (FALSE);
-	return (TRUE);
+	if (ignores_acid_p(f2,f3,f4)) return (-1);
+	return (1);
 }
 
 /*
- * Electrical damage
+ * Electrical damage - returns 1 if succeptible, 0 if not, -1 if immune
  */
 static int set_elec_destroy(object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4;
-	if (!hates_elec(o_ptr)) return (FALSE);
+	if (!hates_elec(o_ptr)) return (0);
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-	if (f3 & (TR3_IGNORE_ELEC)) return (FALSE);
-	return (TRUE);
+	if (ignores_elec_p(f2,f3,f4)) return (-1);
+	return (1);
 }
 
 /*
- * Burn something
+ * Burn something - returns 1 if succeptible, 0 if not, -1 if immune
  */
 static int set_fire_destroy(object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4;
-	if (!hates_fire(o_ptr)) return (FALSE);
+	if (!hates_fire(o_ptr)) return (0);
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-	if (f3 & (TR3_IGNORE_FIRE)) return (FALSE);
-	return (TRUE);
+	if (ignores_fire_p(f2,f3,f4)) return (-1);
+	return (1);
 }
 
 /*
- * Freeze things
+ * Freeze something - returns 1 if succeptible, 0 if not, -1 if immune
  */
 static int set_cold_destroy(object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4;
-	if (!hates_cold(o_ptr)) return (FALSE);
+	if (!hates_cold(o_ptr)) return (0);
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-	if (f3 & (TR3_IGNORE_COLD)) return (FALSE);
-	return (TRUE);
+	if (ignores_cold_p(f2,f3,f4)) return (-1);
+	return (1);
+}
+
+/*
+ * Rust something - returns 1 if succeptible, 0 if not, -1 if immune
+ */
+static int set_rust_destroy(object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4;
+	if (!hates_rust(o_ptr)) return (0);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	if (f3 & (TR3_IGNORE_NON_ELEM)) return (-1);
+
+	return (1);
+}
+
+/*
+ * Rot something - returns 1 if succeptible, 0 if not, -1 if immune
+ */
+static int set_rot_destroy(object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4;
+	if (!hates_rot(o_ptr)) return (0);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	if (f3 & (TR3_IGNORE_NON_ELEM)) return (-1);
+
+	return (1);
 }
 
 /*
@@ -734,20 +746,41 @@ typedef int (*inven_func)(object_type *);
  *
  * Returns number of items destroyed.
  */
-static int inven_damage(inven_func typ, int perc)
+static void inven_damage(int dam, inven_func typ, bool allow_wield, cptr verb)
 {
-	int i, j, k, amt;
+	int i, j, k ,l ,n;
+	int count, amt;
+	int perc = (dam < 30) ? 10 : (dam < 60) ? 20 : 30;
+	int max = (dam < 50) ? 1 : (dam / 50);
 
 	object_type *o_ptr;
 
 	char o_name[80];
 
 	/* Count the casualties */
-	k = 0;
+	count = 0;
+
+	/* Start from a random item */
+ 	k = rand_int(INVEN_TOTAL);
 
 	/* Scan through the slots backwards */
-	for (i = 0; i < INVEN_PACK; i++)
+	for (l = INVEN_TOTAL; (l >= 0); l--)
 	{
+		/* Reached maximum allowance */
+		if (count >= max) break;
+
+		/* Find the inventory slot */
+		i = ((k + l) % INVEN_TOTAL);
+
+		/* Hack - Skip certain slots */
+		if (!allow_wield && i == INVEN_WIELD) continue;
+		if (i == INVEN_BOW) continue; /* don't harm wielded bows */
+		if ((i == INVEN_RIGHT) || (i == INVEN_LEFT)) continue; /* don't harm wielded rings */
+		if (i == INVEN_NECK) continue; /* don't harm wielded amulets */
+		if (i == INVEN_LITE) continue; /* don't harm wielded lights */
+		if (i == INVEN_MUSIC) continue; /* don't harm wielded musical instruments */
+		
+		/* Get the item */
 		o_ptr = &inventory[i];
 
 		/* Skip non-objects */
@@ -756,95 +789,147 @@ static int inven_damage(inven_func typ, int perc)
 		/* Hack -- for now, skip artifacts */
 		if (artifact_p(o_ptr)) continue;
 
-		/* Give this item slot a shot at death */
-		if ((*typ)(o_ptr))
+		/* Object resists */
+		n = ((*typ)(o_ptr));
+
+		/* Item just isn't normally affected by element */
+		if (!n) continue;
+
+		/* Count the casualties */
+		for (amt = j = 0; j < o_ptr->number; ++j)
 		{
+			if (rand_int(100) < perc) amt++;
+		}
+
+		/* Some casualities */
+		if (amt)
+		{
+			/* Describe */
+			object_desc(o_name, o_ptr, FALSE, 0);
+
+			/* Item ignores element */
+			if (n == -1)
+			{
+				message_format(MSG_ITEM_RESIST, o_ptr->k_idx, 
+					"Your %s is unaffected!", o_name);
+
+				count++;
+
+				continue;
+			}
+
+			/* Item was damaged, behavior depends on type */
+			switch (o_ptr->tval)
+			{
+				case TV_CHEST:
+				case TV_SHOT:
+				case TV_ARROW:		
+				case TV_BOLT:			
+				case TV_LITE:	
+				case TV_LITE_SPECIAL:
+				case TV_AMULET:
+				case TV_RING:			
+				case TV_MUSIC:		
+				case TV_STAFF:		
+				case TV_WAND:			
+				case TV_TALISMAN:
+				case TV_ROD:	
+				case TV_SCROLL:
+				case TV_POTION:		
+				case TV_POWDER:		
+				case TV_FLASK:		
+				case TV_FOOD:			
+				case TV_MAGIC_BOOK:
+				{
+					/* Simple objects, just reduce in quantities by amt */
+
+					/* Message */
+					message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, "%sour %s (%c) %s!",
+						((o_ptr->number > 1) ?
+						((amt == o_ptr->number) ? "All of y" :
+						(amt > 1 ? "Some of y" : "One of y")) : "Y"),
+						o_name, index_to_label(i),
+						verb);
+
+					/* Destroy "amt" items */
+					inven_item_increase(i, -amt);
+					inven_item_optimize(i);
+
+					break;
+				}
+
+				case TV_BOOTS:	
+				case TV_GLOVES:		
+				case TV_HEADGEAR:
+				case TV_SHIELD:	
+				case TV_CLOAK:		
+				case TV_BODY_ARMOR:
+				case TV_DRAG_ARMOR:	
+				{
+					/* Armor. Reduce AC, maybe destroy */
+
+					/* XXX XXX Note that piles will be reduced as single items */
+					
+					/* No damage left to be done */
+					if (o_ptr->ac + o_ptr->to_a <= 0) continue;
+
+					/* Damage the item */
+					o_ptr->to_a--;
+
+					/* Totally destroy the item, if not an ego item */
+					if (!ego_item_p(o_ptr) && (o_ptr->ac + o_ptr->to_a == 0))
+					{
+						inven_item_increase(i, -1);
+						inven_item_optimize(i);
+
+						message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, "%sour %s (%c) %s!",
+							((o_ptr->number > 1) ?
+							((amt == o_ptr->number) ? "All of y" :
+							(amt > 1 ? "Some of y" : "One of y")) : "Y"),
+							o_name, index_to_label(i),
+							verb);
+					}
+					/* Message */
+					else message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, 
+						"Your %s is damaged!", o_name);
+
+					break;
+				}
+
+				case TV_BOW:		
+				case TV_DIGGING:
+				case TV_HAFTED:	
+				case TV_POLEARM:	
+				case TV_SWORD:	
+				{
+					/* Weapon. Reduce either to hit or to dam down to -2 */
+
+					/* XXX XXX Note that piles will be reduced as single items */
+
+					if (rand_int(2) == 0) 
+					/* Reduce to damage */
+					{ 
+						if (o_ptr->to_d <= -2) continue;
+						o_ptr->to_d--;
+					}
+					else 
+					/* Reduce to hit */
+					{ 
+						if (o_ptr->to_h <= -2) continue;
+						o_ptr->to_h--;
+					}
+
+					/* Message */
+					message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, "Your %s is damaged!", o_name);
+
+					break;
+				}
+			}
+
 			/* Count the casualties */
-			for (amt = j = 0; j < o_ptr->number; ++j)
-			{
-				if (rand_int(100) < perc) amt++;
-			}
-
-			/* Some casualities */
-			if (amt)
-			{
-				/* Get a description */
-				object_desc(o_name, o_ptr, FALSE, 3);
-
-				/* Message */
-				message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, "%sour %s (%c) %s destroyed!",
-				           ((o_ptr->number > 1) ?
-				            ((amt == o_ptr->number) ? "All of y" :
-				             (amt > 1 ? "Some of y" : "One of y")) : "Y"),
-				           o_name, index_to_label(i),
-				           ((amt > 1) ? "were" : "was"));
-
-				/* Destroy "amt" items */
-				inven_item_increase(i, -amt);
-				inven_item_optimize(i);
-
-				/* Count the casualties */
-				k += amt;
-			}
+			count++;
 		}
 	}
-
-	/* Return the casualty count */
-	return (k);
-}
-
-/*
- * Acid has hit the player, attempt to affect some armor.
- *
- * Note that the "base armor" of an object never changes.
- *
- * If any armor is damaged (or resists), the player takes less damage.
- */
-static int minus_ac(void)
-{
-	object_type *o_ptr = NULL;
-
-	u32b f1, f2, f3, f4;
-
-	char o_name[80];
-
-	/* Pick a (possibly empty) inventory slot */
-	switch (randint(6))
-	{
-		case 1: o_ptr = &inventory[INVEN_BODY]; break;
-		case 2: o_ptr = &inventory[INVEN_ARM]; break;
-		case 3: o_ptr = &inventory[INVEN_OUTER]; break;
-		case 4: o_ptr = &inventory[INVEN_HANDS]; break;
-		case 5: o_ptr = &inventory[INVEN_HEAD]; break;
-		case 6: o_ptr = &inventory[INVEN_FEET]; break;
-	}
-
-	/* Nothing to damage */
-	if (!o_ptr->k_idx) return (FALSE);
-
-	/* No damage left to be done */
-	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
-
-
-	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 0);
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
-	/* Object resists */
-	if (f3 & (TR3_IGNORE_ACID))
-	{
-		message_format(MSG_ITEM_RESIST, o_ptr->k_idx, "Your %s is unaffected!", o_name);
-
-		return (TRUE);
-	}
-
-	/* Message */
-	message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, "Your %s is damaged!", o_name);
-
-	/* Damage the item */
-	o_ptr->to_a--;
 
 	/* Calculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -852,8 +937,8 @@ static int minus_ac(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
-	/* Item was damaged */
-	return (TRUE);
+	/* Return the casualty count */
+	return;
 }
 
 /*
@@ -861,8 +946,6 @@ static int minus_ac(void)
  */
 void acid_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-
 	/* Total Immunity */
 	if (p_ptr->immune_acid || (dam <= 0)) return;
 
@@ -870,14 +953,11 @@ void acid_dam(int dam, cptr kb_str)
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
 
-	/* If any armor gets hit, defend the player */
-	if (minus_ac()) dam = (dam + 1) / 2;
-
 	/* Take damage */
 	take_hit(dam, kb_str);
 
-	/* Inventory damage */
-	inven_damage(set_acid_destroy, inv);
+	/* Damage armor/inventory */
+	inven_damage(dam, set_acid_destroy, FALSE, "melted");
 }
 
 /*
@@ -885,8 +965,6 @@ void acid_dam(int dam, cptr kb_str)
  */
 void elec_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-
 	/* Total immunity */
 	if (p_ptr->immune_elec || (dam <= 0)) return;
 
@@ -897,8 +975,8 @@ void elec_dam(int dam, cptr kb_str)
 	/* Take damage */
 	take_hit(dam, kb_str);
 
-	/* Inventory damage */
-	inven_damage(set_elec_destroy, inv);
+	/* Damage armor/inventory */
+	inven_damage(dam, set_elec_destroy, FALSE, "exploded");
 }
 
 /*
@@ -906,8 +984,6 @@ void elec_dam(int dam, cptr kb_str)
  */
 void fire_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-
 	/* Totally immune */
 	if (p_ptr->immune_fire || (dam <= 0)) return;
 
@@ -918,8 +994,8 @@ void fire_dam(int dam, cptr kb_str)
 	/* Take damage */
 	take_hit(dam, kb_str);
 
-	/* Inventory damage */
-	inven_damage(set_fire_destroy, inv);
+	/* Damage armor/inventory */
+	inven_damage(dam, set_fire_destroy, FALSE, "burnt up");
 }
 
 /*
@@ -927,8 +1003,6 @@ void fire_dam(int dam, cptr kb_str)
  */
 void cold_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-
 	/* Total immunity */
 	if (p_ptr->immune_cold || (dam <= 0)) return;
 
@@ -939,8 +1013,33 @@ void cold_dam(int dam, cptr kb_str)
 	/* Take damage */
 	take_hit(dam, kb_str);
 
-	/* Inventory damage */
-	inven_damage(set_cold_destroy, inv);
+	/* Damage armor/inventory */
+	inven_damage(dam, set_cold_destroy, FALSE, "froze");
+}
+
+
+/*
+ * Hurt the player with rust
+ */
+void rust_dam(int dam, cptr kb_str)
+{
+	/* Take damage */
+	take_hit(dam, kb_str);
+
+	/* Damage armor/inventory */
+	inven_damage(dam, set_rust_destroy, TRUE, "crumbled");
+}
+
+/*
+ * Hurt the player with rust
+ */
+void rot_dam(int dam, cptr kb_str)
+{
+	/* Take damage */
+	take_hit(dam, kb_str);
+
+	/* Damage armor/inventory */
+	inven_damage(dam, set_rot_destroy, TRUE, "decayed");
 }
 
 /*
@@ -1083,7 +1182,8 @@ static void apply_nexus(monster_type *m_ptr)
 
 			message(MSG_RESIST, 0, "Your body starts to scramble...");
 
-			scramble_stats(); /*scramble a pair of stats */
+			/*scramble a pair of stats */
+			scramble_stats(); 
 			break;
 		}
 	}
@@ -1125,7 +1225,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_FIRE:
 		case GF_COLD:
 		case GF_PLASMA:
-		case GF_METEOR:
+		case GF_ASTRAL:
 		case GF_ICE:
 		case GF_SHARD:
 		case GF_FORCE:
@@ -1493,7 +1593,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " melt!" : " melts!");
-					if (f3 & (TR3_IGNORE_ACID)) ignore = TRUE;
+					if (ignores_acid_p(f2,f3,f4)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1505,7 +1605,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+					if (ignores_elec_p(f2,f3,f4)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1517,7 +1617,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if (ignores_fire_p(f2,f3,f4)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1529,7 +1629,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					note_kill = (plural ? " shatter!" : " shatters!");
 					do_kill = TRUE;
-					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
+					if (ignores_cold_p(f2,f3,f4)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1541,33 +1641,14 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if (ignores_fire_p(f2,f3,f4)) ignore = TRUE;
 				}
 				if (hates_elec(o_ptr))
 				{
 					ignore = FALSE;
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
-				}
-				break;
-			}
-
-			/* Fire + Cold */
-			case GF_METEOR:
-			{
-				if (hates_fire(o_ptr))
-				{
-					do_kill = TRUE;
-					note_kill = (plural ? " burn up!" : " burns up!");
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
-				}
-				if (hates_cold(o_ptr))
-				{
-					ignore = FALSE;
-					do_kill = TRUE;
-					note_kill = (plural ? " shatter!" : " shatters!");
-					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
+					if (ignores_elec_p(f2,f3,f4)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1826,7 +1907,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	}
 
 	/* Uniques get a higher resistance level */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) resist = 10;
+	if (m_ptr->u_idx) resist = 10;
 
 	/* Analyze the damage type */
 	switch (typ)
@@ -2165,13 +2246,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Meteor -- powerful magic missile */
-		case GF_METEOR:
-		{
-			if (seen) obvious = TRUE;
-			break;
-		}
-
 		/* Ice -- Cold + Cuts + Stun */
 		case GF_ICE:
 		{
@@ -2187,6 +2261,35 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Monster lore - give a resistance flag unless you know you don't need it */
 				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_COLD, FALSE);
 			}
+			break;
+		}
+
+		/* Astral */
+		case GF_ASTRAL:
+		{
+			int amount;
+
+			/* Skip monsters with only 1 HP - Astral attacks never kill */
+			if (m_ptr->hp == 1)
+			{
+				note = " is unaffected";
+				dam = 0;
+				break;
+			}
+
+			/* Do "dam" percent damage out of total HP */
+			amount = (m_ptr->hp * dam) / 100;
+
+			if (seen) obvious = TRUE;
+			if (m_ptr->u_idx)
+			{
+				note = " resists.";
+				amount /= 3;
+			}
+
+			/* Do some damage */
+			dam = ((amount > 1) ? amount : 1);
+
 			break;
 		}
 
@@ -2224,7 +2327,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			do_poly = TRUE;
 
 			/* Powerful monsters can resist, uniques are immune */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			if ((m_ptr->u_idx) ||
 				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 			{
 				note = " is unaffected!";
@@ -2757,6 +2860,66 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Dispel animals */
+		case GF_DISP_ANIMAL:
+		{
+			/* Only affect undead */
+			if (r_ptr->flags2 & (RF2_ANIMAL))
+			{
+				/* Learn about type */
+				lore_learn(m_ptr, LRN_FLAG2, RF2_ANIMAL, FALSE);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
+
+		/* Dispel animals */
+		case GF_DISP_PLANT:
+		{
+			/* Only affect undead */
+			if (r_ptr->flags2 & (RF2_PLANT))
+			{
+				/* Learn about type */
+				lore_learn(m_ptr, LRN_FLAG2, RF2_PLANT, FALSE);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
+
 		/* Dispel undead */
 		case GF_DISP_UNDEAD:
 		{
@@ -3026,12 +3189,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Absolutely no effect */
 	if (skipped) return (FALSE);
 
-	/* "Unique" monsters cannot be polymorphed */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
-
-	/* "Unique" monsters can only be "killed" by the player */
-	if (r_ptr->flags1 & (RF1_UNIQUE))
+	if (m_ptr->u_idx) 
 	{
+		/* "Unique" monsters cannot be polymorphed */
+		do_poly = FALSE;
+
 		/* Uniques may only be killed by the player */
 		if ((who > 0) && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
@@ -3091,7 +3253,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			delete_monster_idx(cave_m_idx[y][x]);
 
 			/* Create a new monster (no groups) */
-			(void)place_monster_aux(y, x, tmp, FALSE, FALSE);
+			(void)place_monster_aux(y, x, tmp, FALSE, FALSE, PLACE_NO_U);
 
 			/* Hack -- Assume success XXX XXX XXX */
 
@@ -3799,14 +3961,6 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Pure damage */
-		case GF_METEOR:
-		{
-			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something!");
-			take_hit(dam, killer);
-			break;
-		}
-
 		/* Ice -- cold plus stun plus cuts */
 		case GF_ICE:
 		{
@@ -4404,7 +4558,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
  * Controlled teleportation.  
  * Idea from PsiAngband, through Zangband and finally Oangband.
  */
-void dimen_door(void)
+void dimen_door(int dis, int fail)
 {
 	int ny;
 	int nx;
@@ -4412,7 +4566,7 @@ void dimen_door(void)
 	bool old_expand_look = expand_look;
 
 	expand_look = TRUE;
-	okay = target_set_interactive(TARGET_LOOK | TARGET_GRID);
+	okay = target_set_interactive(TARGET_FREE);
 	expand_look = old_expand_look;
 	if (!okay) return;
 
@@ -4424,12 +4578,12 @@ void dimen_door(void)
 	 * distance, and insure that this spell is never certain.
 	 */
 	if (!cave_empty_bold(ny,nx) || (cave_info[ny][nx] & CAVE_ICKY) ||
-		(distance(ny,nx,p_ptr->py,p_ptr->px) > 20) || 
-		(rand_int(p_ptr->lev) == 0))
+		(distance(ny,nx,p_ptr->py,p_ptr->px) > dis) || 
+		(rand_int(100) < fail))
 	{
 		message(MSG_EFFECT, 0, "You fail to exit the astral plane correctly!");
 		p_ptr->energy -= 50;
-		teleport_player(15);
+		if (dis > 5) teleport_player(dis - 5);
 	}
 
 	/* Controlled teleport. */

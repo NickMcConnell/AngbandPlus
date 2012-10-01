@@ -190,6 +190,8 @@ bool make_attack_normal(int m_idx)
 			case RBE_ELEC:		power = 10; break;
 			case RBE_FIRE:		power = 10; break;
 			case RBE_COLD:		power = 10; break;
+			case RBE_RUST:		power =  0; break;
+			case RBE_ROT:		power =  0; break;
 			case RBE_BLIND:		power =  2; break;
 			case RBE_CONFUSE:	power = 10; break;
 			case RBE_TERRIFY:	power = 10; break;
@@ -778,6 +780,28 @@ bool make_attack_normal(int m_idx)
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_COLD);
+
+					break;
+				}
+
+				case RBE_RUST:
+				{
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Take damage (special) */
+					rust_dam(damage, ddesc);
+
+					break;
+				}
+
+				case RBE_ROT:
+				{
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Take damage (special) */
+					rot_dam(damage, ddesc);
 
 					break;
 				}

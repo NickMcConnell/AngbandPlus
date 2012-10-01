@@ -200,7 +200,7 @@ static errr rd_item(object_type *o_ptr)
 	if (save_flags & 0x0002) rd_byte(&o_ptr->discount);
 
 	rd_byte(&o_ptr->number);
-	rd_s16b(&o_ptr->weight);
+	if (older_than(0,3,3)) rd_s16b(&o_ptr->weight);
 
 	if (save_flags & 0x0004) rd_byte(&o_ptr->a_idx); 
 	if (save_flags & 0x0008) rd_byte(&o_ptr->e_idx);
@@ -211,8 +211,26 @@ static errr rd_item(object_type *o_ptr)
 
 	if (save_flags & 0x0010) rd_s16b(&o_ptr->timeout);
 
-	if (save_flags & 0x0020) rd_s16b(&o_ptr->to_h);
-	if (save_flags & 0x0040) rd_s16b(&o_ptr->to_d);
+	if (!older_than(0,3,3))
+	{
+		if (save_flags & 0x0020) rd_s16b(&o_ptr->to_h);
+		if (save_flags & 0x0040) rd_s16b(&o_ptr->to_d);
+	}
+	else
+	{
+		s16b tmp_to_h = 0;
+		s16b tmp_to_d = 0;
+	
+		if (save_flags & 0x0020) rd_s16b(&tmp_to_h);
+		if (save_flags & 0x0040) rd_s16b(&tmp_to_d);
+
+		tmp_to_h -= item_prefix[o_ptr->prefix_idx].to_h;
+		tmp_to_d -= item_prefix[o_ptr->prefix_idx].to_d;
+
+		o_ptr->to_h = tmp_to_h;
+		o_ptr->to_d = tmp_to_d;
+	}
+
 	if (save_flags & 0x0080) rd_s16b(&o_ptr->to_a);
 
 	if (save_flags & 0x0100) rd_s16b(&o_ptr->ac);
@@ -311,21 +329,6 @@ static errr rd_item(object_type *o_ptr)
 
 	/* Hack -- extract the "broken" flag */
 	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
-
-	/* Prefixed items */
-	if (o_ptr->prefix_idx)
-	{
-		int temp_dd, temp_ds;
-		item_prefix_type *px_ptr = &item_prefix[o_ptr->prefix_idx];
-
-		o_ptr->weight = (o_ptr->weight * px_ptr->weight) / 100;
-
-		temp_dd = o_ptr->dd + px_ptr->mod_dd;
-		temp_ds = o_ptr->ds + px_ptr->mod_ds;
-
-		o_ptr->dd = ((temp_dd > 0) ? temp_dd : 1);
-		o_ptr->ds = ((temp_ds > 0) ? temp_ds : 1);
-	}
 
 	/* Artifacts */
 	if (o_ptr->a_idx)
@@ -646,6 +649,31 @@ static void rd_options(void)
 			else op_ptr->opt_score[i] = FALSE;
 		}
 	}
+	
+	if (!older_than(0,3,3))
+	{
+		/* Squelch bytes */
+		for (i = 0; i < MAX_SQ_TYPES; i++) rd_byte(&op_ptr->squelch_level[i]);
+
+		/* Read the option flags */
+		rd_u16b(&flag16[0]);
+
+		/* Analyze the options */
+		for (i = 0; i < OPT_SQUELCH; i++)
+		{
+			int os = i / 16;
+			int ob = i % 16;
+
+			/* Process real entries */
+			if (options_squelch[i].text)
+			{
+				/* Set flag */
+				if (flag16[os] & (1L << ob)) op_ptr->opt_squelch[i] = TRUE;
+				/* Clear flag */
+				else op_ptr->opt_squelch[i] = FALSE;
+			}
+		}
+	}
 
 	/*** Window Options ***/
 
@@ -836,8 +864,11 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->searching);
 
 	/* Squelch bytes */
-	for (i = 0; i < 24; i++) rd_byte(&squelch_level[i]);
-	rd_byte(&auto_destroy);
+	if (older_than(0,3,3))
+	{
+		for (i = 0; i < 24; i++) rd_byte(&op_ptr->squelch_level[i]);
+		strip_bytes(1);
+	}
 
 	/* Read the randart seed */
 	if (adult_rand_artifacts) rd_u32b(&seed_randart);
@@ -870,7 +901,7 @@ static errr rd_extra(void)
 		 * Therefore, Check for incompatible randart version - this might be 
 		 * different than the normal compatible version so have double check
 		 */
-		if (older_than(0,3,1))
+		if (older_than(0,3,3))
 		{
 			note(format("Incompatible random artifacts version!"));
 			return (-1);
@@ -961,7 +992,6 @@ static errr rd_spells(void)
 			p_ptr->spell_order[i][0] = 99;
 			p_ptr->spell_order[i][1] = 99;
 		}
-
 	}
 
 	return (0);
@@ -1016,7 +1046,7 @@ static errr rd_inventory(void)
 			object_copy(&inventory[n], i_ptr);
 
 			/* Add the weight */
-			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
+			p_ptr->total_weight += (i_ptr->number * actual_weight(i_ptr));
 
 			/* One more item */
 			p_ptr->equip_cnt++;
@@ -1042,7 +1072,7 @@ static errr rd_inventory(void)
 			object_copy(&inventory[n], i_ptr);
 
 			/* Add the weight */
-			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
+			p_ptr->total_weight += (i_ptr->number * actual_weight(i_ptr));
 
 			/* One more item */
 			p_ptr->inven_cnt++;
@@ -1267,11 +1297,7 @@ static errr rd_dungeon(void)
 			o_ptr->next_o_idx = cave_o_idx[y][x];
 
 			/* Link the floor to the object */
-			cave_o_idx[y][x] = o_idx;
-
-			/* Rearrange stack if needed */
-			rearrange_stack(y, x);
-		
+			cave_o_idx[y][x] = o_idx;		
 		}
 	}
 

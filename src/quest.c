@@ -17,6 +17,8 @@
 #define QMODE_SHORT  3
 #define QMODE_FULL   4
 
+#define GUILD_QUESTS		3		/* Number of quests offered at the guild at any given time */
+
 static int avail_quest;
 
 /*
@@ -24,7 +26,7 @@ static int avail_quest;
  */
 static s16b guild[GUILD_QUESTS] = 
 {
-	0,	2,	5,	8,
+	2,	5,	8
 };
 
 /*
@@ -212,26 +214,25 @@ static void grant_reward(byte reward_level, byte type)
  */
 static bool place_quest(int q, int lev, int number, int difficulty)
 {
-	int i, mcount, midx;
-	int chance;
+	int i, chance;
+	int mcount = 0;
 	sint lev_diff;
 	monster_race *r_ptr;
+	int *monster_idx;
 
-	mcount = 0;
+	/* Allocate the "monster_idx" array */
+	C_MAKE(monster_idx, z_info->r_max, int);
 
 	/* Monsters can be up to 3 levels out of depth with difficulty 0 */
 	lev_diff = 3 + difficulty;
 
-	while (mcount == 0)
+	while (mcount < 5)
 	{
-		if ((lev_diff<(-50)) || (lev+lev_diff < 1))
-		{
-			message(MSG_FAIL, 0, "There are no elligable monsters to quest for");
-			return FALSE;
-		}
+		/* After trying for a while, give up */
+		if ((lev_diff < (-50)) || (lev + lev_diff < 1)) break;
 
 		/* There's a chance of climbing up */
-		if ((lev_diff < (difficulty - 3)) || lev+lev_diff <= 1) chance = 0;
+		if ((lev_diff < (difficulty - 3)) || (lev + lev_diff <= 1)) chance = 0;
 		else if (lev_diff > difficulty) chance = 80;
 		else chance = 20;
 
@@ -243,62 +244,74 @@ static bool place_quest(int q, int lev, int number, int difficulty)
 		}
 
 		/* Paranoia */
-		if (lev + lev_diff <= 0) lev_diff = 1-lev;
+		if (lev + lev_diff <= 0) lev_diff = 1 - lev;
 
 		/* Count possible monsters */
 		for (i = 0; i < z_info->r_max; i++)
 		{
 			r_ptr = &r_info[i];
-			/* Never any monster with force depth */
-			if (r_ptr->flags1 & RF1_FORCE_DEPTH) continue;
 
+			/* Check for appropriate level */
+			if (r_ptr->level != (lev + lev_diff)) continue;
+			
 			/* Never any monster that multiplies */
 			if (r_ptr->flags2 & RF2_MULTIPLY) continue;
 
-			/* Never any monster that can't move (that would be too easy) */
-			if (r_ptr->flags1 & RF1_NEVER_MOVE) continue;
+			/* Check if a monster that can't move can still hurt the player from a distance */
+			if (r_ptr->flags1 & RF1_NEVER_MOVE)
+			{
+				bool okay = FALSE;
 
-			/* Count an appropriate monster */
+				/* Allow if the monster can summon */
+				if ((r_ptr->flags4 & (RF4_SUMMON_MASK)) ||
+					(r_ptr->flags5 & (RF5_SUMMON_MASK)) || 
+					(r_ptr->flags6 & (RF6_SUMMON_MASK)))
+					okay = TRUE;
+				/* Allow if the monster can attack */
+				if ((r_ptr->flags4 & (RF4_ATTACK_MASK)) ||
+					(r_ptr->flags5 & (RF5_ATTACK_MASK)) || 
+					(r_ptr->flags6 & (RF6_ATTACK_MASK)))
+					okay = TRUE;
+				/* Allow if the monster can bring the player to itself */
+				if ((r_ptr->flags4 & (RF4_TACTIC_FAR_MASK)) ||
+					(r_ptr->flags5 & (RF5_TACTIC_FAR_MASK)) || 
+					(r_ptr->flags6 & (RF6_TACTIC_FAR_MASK)))
+					okay = TRUE;
+
+				if (!okay) continue;
+			}
+
+			/* No uniques */
 			if (r_ptr->flags1 & RF1_UNIQUE) continue;
 
-			if (r_ptr->level == (lev + lev_diff)) mcount++;
+			/* Allow monster */
+			monster_idx[mcount++] = i;
 		}
 
 		/* Climb up until you find a suitable monster type */
-		if (mcount == 0)
+		if (mcount < 5)
 		{
 			/* Add some monsters to balance difficulty (sort-of) */
-			number += (damroll(2,2) - 1);
+			if (mcount == 0) number += (damroll(2,2) - 1);
+
 			lev_diff--;
 		}
 	}
 
-	/* choose random monster */
-	midx = randint(mcount);
-
-	for (i = 0, mcount = 0; mcount < midx; i++)
+	/* Paranoia */
+	if (mcount == 0) 
 	{
-		r_ptr = &r_info[i];
+		/* No monsters - no quest */
+		message(MSG_FAIL, 0, "There are no elligable monsters to quest for");
 
-		/* Never any monster with force depth */
-		if ((r_ptr->flags1 & RF1_FORCE_DEPTH)) continue;
-		
-		/* Never any monster that multiplies */
-		if (r_ptr->flags2 & RF2_MULTIPLY) continue;
+		/* XXX XXX Free the "monster_idx" array */
+		C_KILL(monster_idx, z_info->r_max, int);
 
-		/* Never any monster that can't move (that would be too easy) */
-		if (r_ptr->flags1 & RF1_NEVER_MOVE) continue;
-
-		/* Count appropriate monsters */
-		if ((r_ptr->flags1 & RF1_UNIQUE)) continue;
-		if (r_ptr->level == (lev+lev_diff)) mcount++;
-	}
-
-	if (i <= 1) 
-	{
-		message(MSG_FAIL, 0, "Something is wrong");
 		return FALSE;
 	}
+
+	/* choose random monster */
+	i = rand_int(mcount);
 
 	/* Paranoia */
 	if (number <= 0) number = 1;
@@ -310,7 +323,7 @@ static bool place_quest(int q, int lev, int number, int difficulty)
 	q_info[q].type = QUEST_GUILD;
 	q_info[q].base_level = lev;
 	q_info[q].active_level = lev;
-	q_info[q].r_idx = i - 1;
+	q_info[q].r_idx = monster_idx[i];
 	q_info[q].max_num = number;
 	q_info[q].started = FALSE;
 
@@ -325,6 +338,7 @@ static bool place_quest(int q, int lev, int number, int difficulty)
 	/* No negative chances */
 	if (chance < 0) chance = 0;
 
+	/* First roll for gold award */
 	if (rand_int(100) < chance) q_info[q].reward = REWARD_GOLD;
 	else
 	{
@@ -338,6 +352,9 @@ static bool place_quest(int q, int lev, int number, int difficulty)
 		/* Otherwise - a great item reward */
 		else q_info[q].reward = REWARD_GREAT_ITEM;
 	}
+
+	/* XXX XXX Free the "monster_idx" array */
+	C_KILL(monster_idx, z_info->r_max, int);
 
 	/*success*/
 	return TRUE;
@@ -398,30 +415,20 @@ void display_guild(void)
 			byte attr;
 			cptr difficulty;
 
-			if (guild[j] == 99)
-			{
-				attr = TERM_L_RED;
-				difficulty = "A bounty";
-			}
-			else if (guild[j] <= 1)
+			if (guild[j] <= 3)
 			{
 				attr = TERM_L_GREEN;
 				difficulty = "An easy";
 			}
-			else if (guild[j] <= 3)
-			{
-				attr = TERM_GREEN;
-				difficulty = "A moderate";
-			}
-			else if (guild[j] <= 5)
+			else if (guild[j] <= 7)
 			{
 				attr = TERM_YELLOW;
-				difficulty = "A difficult";
+				difficulty = "A moderate";
 			}
-			else 
+			else
 			{
 				attr = TERM_ORANGE;
-				difficulty = "A challenging";
+				difficulty = "A difficult";
 			}
 
 			put_str(format("%c)", I2A(avail_quest)), 7+avail_quest, 0);
@@ -509,8 +516,14 @@ void guild_purchase(void)
 	if (item == -1) return;
 	
 	/* Get level for quest - most likely on the next level but can be deeper */
-	qlev = p_ptr->max_depth+1+rand_int(5)-2;
-	if (qlev < p_ptr->max_depth+1) qlev = p_ptr->max_depth+1;
+	qlev = p_ptr->max_depth + 1 + rand_int(5)-2;
+	if (qlev < p_ptr->max_depth + 1) qlev = p_ptr->max_depth + 1;
+
+	if (qlev >= MAX_DEPTH) 
+	{
+		message(MSG_FAIL, 0, "You have reached the lower depths of the dungeon!");
+		return;
+	}
 
 	/* Check list of quests */
 	for (i = 0; i < z_info->q_max ; i++)

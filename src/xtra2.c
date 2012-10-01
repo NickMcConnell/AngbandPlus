@@ -13,22 +13,22 @@
 /*
  * Mega-Hack - Apply level raise bonuses for races that progress with levels
  */
-static void special_level(void)
+static void check_race_special(void)
 {
 	cptr levname;
 
 	/* Hack - Demons gain bulk every level */
 	if (rp_ptr->special == RACE_SPECIAL_DEMON)
 	{
-		p_ptr->ht += 2;
-		p_ptr->wt += 4;
+		p_ptr->ht += 4 + randint(2);
+		p_ptr->wt += 7 + randint(4);
 	}
 
 	/* Get the name for the new level */
-	levname=rsp_ptr[p_ptr->lev/5]->name;
+	levname = rsp_ptr[p_ptr->lev/5]->name;
 
 	/* Check if name changed from last level */
-	if (strcmp(levname, rsp_ptr[(p_ptr->lev-1)/5]->name))
+	if (strcmp(levname, rsp_ptr[(p_ptr->lev - 1) / 5]->name))
 	{
 		cptr t;
 	
@@ -111,7 +111,7 @@ void check_experience(void)
 		p_ptr->lev++;
 
 		/* Check if a "special" race */
-		if ((rp_ptr->special) && (p_ptr->lev > p_ptr->max_lev)) special_level();
+		if ((rp_ptr->special) && (p_ptr->lev > p_ptr->max_lev)) check_race_special();
 
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
@@ -223,7 +223,7 @@ void monster_death(int m_idx)
 
 	monster_race *r_ptr = get_monster_real(m_ptr);
 
-	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
+	bool visible = (m_ptr->ml || (m_ptr->u_idx));
 
 	bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
 	bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
@@ -239,7 +239,7 @@ void monster_death(int m_idx)
 	x = m_ptr->fx;
 
 	/* Update monster list window */
-	p_ptr->window |= (PW_M_LIST);
+	p_ptr->window |= (PW_VISIBLE);
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -534,7 +534,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* Calculate experience */
-		mon_exp(r_ptr, &new_exp, &new_exp_frac);
+		mon_exp(m_ptr->r_idx, m_ptr->u_idx, &new_exp, &new_exp_frac);
 		
 		/* Handle fractional experience */
 		new_exp_frac = ((new_exp_frac * 0x10000L) / 1000L) + p_ptr->exp_frac;
@@ -557,10 +557,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) u_info[m_ptr->u_idx].dead = TRUE;
+		if (m_ptr->u_idx) u_info[m_ptr->u_idx].dead = TRUE;
 		
-		/* Recall even invisible uniques or winners */
-		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
+		/* Recall even invisible uniques*/
+		if (m_ptr->ml || (m_ptr->u_idx))
 		{
 			/* Count kills this life */
 			lore_learn(m_ptr, LRN_MDEATH, 0, TRUE);
@@ -885,8 +885,8 @@ bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 4)
 	{
 		/* Extract player kills */
-		z1 = lr_list[r1].r_pkills;
-		z2 = lr_list[r2].r_pkills;
+		z1 = get_lore_idx(r1,who[a].u_idx)->r_pkills;
+		z2 = get_lore_idx(r2,who[b].u_idx)->r_pkills;
 
 		/* Compare player kills */
 		if (z1 < z2) return (TRUE);
@@ -897,8 +897,8 @@ bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 3)
 	{
 		/* Extract total kills */
-		z1 = lr_list[r1].r_tkills;
-		z2 = lr_list[r2].r_tkills;
+		z1 = get_lore_idx(r1,who[a].u_idx)->r_tkills;
+		z2 = get_lore_idx(r2,who[b].u_idx)->r_tkills;
 
 		/* Compare total kills */
 		if (z1 < z2) return (TRUE);
@@ -909,8 +909,8 @@ bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 2)
 	{
 		/* Extract levels */
-		z1 = r_info[r1].level;
-		z2 = r_info[r2].level;
+		z1 = get_monster_fake(r1,who[a].u_idx)->level;
+		z2 = get_monster_fake(r2,who[b].u_idx)->level;
 
 		/* Compare levels */
 		if (z1 < z2) return (TRUE);
@@ -921,8 +921,8 @@ bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 1)
 	{
 		/* Extract experience */
-		z1 = r_info[r1].mexp;
-		z2 = r_info[r2].mexp;
+		z1 = get_monster_fake(r1,who[a].u_idx)->mexp;
+		z2 = get_monster_fake(r2,who[b].u_idx)->mexp;
 
 		/* Compare experience */
 		if (z1 < z2) return (TRUE);
@@ -1200,7 +1200,7 @@ bool target_okay(void)
 void target_set_monster(int m_idx)
 {
 	/* Acceptable target */
-	if ((m_idx > 0) && target_able(m_idx))
+ 	if ((m_idx > 0) && target_able(m_idx))
 	{
 		monster_type *m_ptr = &m_list[m_idx];
 
@@ -1920,7 +1920,7 @@ bool target_set_interactive(int mode)
 	int x = p_ptr->px;
 
 	bool done = FALSE;
-	bool flag = TRUE;
+	bool flag = ((mode & TARGET_FREE) ? FALSE :TRUE);
 
 	char query;
 
@@ -2101,7 +2101,8 @@ bool target_set_interactive(int mode)
 		else
 		{
 			/* Default prompt */
-			strcpy(info, "q,t,p,m,+,-,<dir>");
+			if (!(mode & TARGET_FREE)) strcpy(info, "q,t,p,m,<dir>");
+			else strcpy(info, "q,t,p,<dir>");
 
 			/* Describe and Prompt (enable "TARGET_LOOK") */
 			query = target_set_interactive_aux(y, x, mode | TARGET_LOOK, info);
@@ -2122,14 +2123,6 @@ bool target_set_interactive(int mode)
 					break;
 				}
 
-				case ' ':
-				case '*':
-				case '+':
-				case '-':
-				{
-					break;
-				}
-
 				case 'p':
 				{
 					if (scroll_target)
@@ -2145,33 +2138,31 @@ bool target_set_interactive(int mode)
 					x = p_ptr->px;
 				}
 
-				case 'o':
-				{
-					break;
-				}
-
 				case 'm':
 				{
-					flag = TRUE;
-
-					m = 0;
-					bd = 999;
-
-					/* Pick a nearby monster */
-					for (i = 0; i < temp_n; i++)
+					if (!(mode & TARGET_FREE)) 
 					{
-						t = distance(y, x, temp_y[i], temp_x[i]);
+						flag = TRUE;
 
-						/* Pick closest */
-						if (t < bd)
+						m = 0;
+						bd = 999;
+
+						/* Pick a nearby monster */
+						for (i = 0; i < temp_n; i++)
 						{
-							m = i;
-							bd = t;
-						}
-					}
+							t = distance(y, x, temp_y[i], temp_x[i]);
 
-					/* Nothing interesting */
-					if (bd == 999) flag = FALSE;
+							/* Pick closest */
+							if (t < bd)
+							{
+								m = i;
+								bd = t;
+							}
+						}
+
+						/* Nothing interesting */
+						if (bd == 999) flag = FALSE;
+					}
 
 					break;
 				}

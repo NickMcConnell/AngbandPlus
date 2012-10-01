@@ -1419,7 +1419,7 @@ static bool make_attack_spell(int m_idx)
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
-				take_hit(damroll(8, 8), ddesc);
+				damage_player(damroll(8, 8), ddesc);
 			}
 			break;
 		}
@@ -1444,7 +1444,7 @@ static bool make_attack_spell(int m_idx)
 			else
 			{
 				message(MSG_EFFECT, 0, "Your mind is blasted by psionic energy.");
-				take_hit(damroll(12, 15), ddesc);
+				damage_player(damroll(12, 15), ddesc);
 				if (!p_ptr->no_blind)
 				{
 					(void)set_blind(p_ptr->blind + 8 + rand_int(8));
@@ -2016,8 +2016,7 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons %s %s.", m_name, m_poss,
-			                ((r_ptr->flags1) & RF1_UNIQUE ?
-			                 "minions" : "kin"));
+			                (m_ptr->u_idx ? "minions" : "kin"));
 
 			/* Hack -- Set the letter of the monsters to summon */
 			summon_kin_type = r_ptr->d_char;

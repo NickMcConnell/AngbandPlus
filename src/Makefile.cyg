@@ -1,19 +1,9 @@
-# This is a makefile for the Cygwin 2.01 Beta release which may
-# be downloaded by following the links from the url:
-# http://sourceware.cygnus.com/cygwin/download.html. The file
-# you want is full.exe which is roughly 14 Mb in size.
-#
-# In order for the makefile to work you must install Cygwin
-# into your chosen directory and make sure your path points to
-# the directory in which gcc.exe is located. This will usually
-# be: c:\cygnus\cygwin-b20\h-i586-cygwin32\bin.
+# To compile this with Cygwin on Windows box,
+# uncomment line 28 (#define WINDOWS) in h-config.h
 
-
-#
-# Cygwin install directory - change as appropriate
-#
-CYGDIR = c:/cygnus/cygwin-b20/h-i586-cygwin32
-
+# This is a makefile for the Cygwin tools which may
+# be downloaded by following the links from the URL:
+# http://sources.redhat.com/cygwin/
 
 #
 # Standard defines
@@ -21,30 +11,31 @@ CYGDIR = c:/cygnus/cygwin-b20/h-i586-cygwin32
 
 CC = gcc
 WRES = windres
-LIBDIRS = -L$(CYGDIR)/lib
-INCDIRS = -I$(CYGDIR)/i586-cygwin32/include/mingw32
-LIBS = -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
-CFLAGS = -Wall -pedantic -O2 -fno-strength-reduce
+# pern
+LIBS = -s -mwindows -e _mainCRTStartup -lwinmm
+CFLAGS = -Wall -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS
+# ey
+# LIBS = -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
+# CFLAGS = -Wall -pedantic -O2 -fno-strength-reduce
 
 
 SRCS = \
 	angband.rc \
 	birth.c \
 	cave.c \
-	cmd1.c \
-	cmd2.c \
-	cmd3.c \
-	cmd4.c \
-	cmd5.c \
-	cmd6.c \
+	cmd-attk.c \
+	cmd-book.c \
+	cmd-item.c \
+	cmd-know.c \
+	cmd-misc.c \
+	cmd-util.c \
 	dungeon.c \
+	effects.c \
 	files.c \
 	generate.c \
 	init1.c \
 	init2.c \
-	randart.c \
-	load1.c \
-	load2.c \
+	load.c \
 	main-win.c \
 	melee1.c \
 	melee2.c \
@@ -53,10 +44,13 @@ SRCS = \
 	monster3.c \
 	object1.c \
 	object2.c \
+	quest.c \
+	randart.c \
 	readdib.c \
 	save.c \
 	spells1.c \
 	spells2.c \
+	squelch.c \
 	store.c \
 	tables.c \
 	util.c \
@@ -76,20 +70,19 @@ EXOBJS = \
 	angband.res \
 	birth.o \
 	cave.o \
-	cmd1.o \
-	cmd2.o \
-	cmd3.o \
-	cmd4.o \
-	cmd5.o \
-	cmd6.o \
+	cmd-attk.o \
+	cmd-book.o \
+	cmd-item.o \
+	cmd-know.o \
+	cmd-misc.o \
+	cmd-util.o \
 	dungeon.o \
+	effects.o \
 	files.o \
 	generate.o \
 	init1.o \
 	init2.o \
-	randart.o \
-	load1.o \
-	load2.o \
+	load.o \
 	main-win.o \
 	melee1.o \
 	melee2.o \
@@ -98,10 +91,13 @@ EXOBJS = \
 	monster3.o \
 	object1.o \
 	object2.o \
+	quest.o \
+	randart.o \
 	readdib.o \
 	save.o \
 	spells1.o \
 	spells2.o \
+	squelch.o \
 	store.o \
 	tables.o \
 	util.o \
@@ -162,7 +158,7 @@ clean:	cleanobjs cleanbin
 #
 
 angband: $(EXOBJS)
-	$(CC) -o angband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
+	$(CC) -o angband $(EXOBJS) $(LIBS)
 
 
 #
@@ -189,25 +185,28 @@ birth.o: birth.c $(INCS)
 cave.o: cave.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd1.o: cmd1.c $(INCS)
+cmd-attk.o: cmd-attk.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd2.o: cmd2.c $(INCS)
+cmd-book.o: cmd-book.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd3.o: cmd3.c $(INCS)
+cmd-item.o: cmd-item.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd4.o: cmd4.c $(INCS)
+cmd-know.o: cmd-know.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd5.o: cmd5.c $(INCS)
+cmd-misc.o: cmd-misc.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-cmd6.o: cmd6.c $(INCS)
+cmd-util.o: cmd-util.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 dungeon.o: dungeon.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+effects.o: effects.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 files.o: files.c $(INCS)
@@ -222,13 +221,7 @@ init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-randart.o: randart.c $(INCS)
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
-load1.o: load1.c $(INCS)
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
-load2.o: load2.c $(INCS)
+load.o: load.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 main.o: main.c $(INCS)
@@ -258,6 +251,12 @@ object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
+quest.o: quest.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+randart.o: randart.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
 
 #
 # Note the additional -DNEAR= flag to cope with the 'NEAR'
@@ -274,6 +273,9 @@ spells1.o: spells1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 spells2.o: spells2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+squelch.o: squelch.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 store.o: store.c $(INCS)

@@ -76,12 +76,12 @@ static bool test_hit_norm(int chance, int ac, int vis)
  * Critical hits (from objects fired by player)
  * Factor in item weight, total plusses, and player level.
  */
-static sint critical_shot(int plus, int tval, byte *special, int dam)
+static sint critical_shot(object_type *o_ptr, byte *special, int dam)
 {
 	int i, k;
 
 	/* Extract "shot" power */
-	i = ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2);
+	i = ((p_ptr->to_h + actual_to_h(o_ptr)) * 4) + (p_ptr->lev * 2);
 
 	/* Improved critical hits for some classes */
 	if (cp_ptr->flags & CF_BETTER_SHOT) i += 10 + (p_ptr->lev * 2);
@@ -110,8 +110,8 @@ static sint critical_shot(int plus, int tval, byte *special, int dam)
 			dam = ((5 * dam) / 2) + 10;
 		}
 	
-		if ((tval == TV_ARROW) || (tval == TV_BOLT)) (*special) |= SPEC_CUT;
-		if (tval == TV_SHOT) (*special) |= SPEC_STUN;
+		if ((o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_BOLT)) (*special) |= SPEC_CUT;
+		if (o_ptr->tval == TV_SHOT) (*special) |= SPEC_STUN;
 	}
 
 	return (dam);
@@ -121,12 +121,12 @@ static sint critical_shot(int plus, int tval, byte *special, int dam)
  * Critical hits (from objects thrown by player)
  * Factor in item weight, total plusses, and player level.
  */
-static sint critical_throw(int plus, int dam)
+static sint critical_throw(object_type *o_ptr, int dam)
 {
 	int i;
 
 	/* Extract "shot" power */
-	i = ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2);
+	i = ((p_ptr->to_h + actual_to_h(o_ptr)) * 4) + (p_ptr->lev * 2);
 
 	/* Critical hit */
 	if (randint(5000) <= i)
@@ -143,15 +143,17 @@ static sint critical_throw(int plus, int dam)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-static sint critical_norm(int weight, int plus, int tval, byte *special, int dam)
+static sint critical_norm(object_type *o_ptr, byte *special, int dam)
 {
 	int i, k;
+	int weight = actual_weight(o_ptr);
 
 	/* No critical hit with "bad" weapons */
 	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (p_ptr->icky_wield)) return (dam);
 	
 	/* Extract "blow" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+	i = (weight + ((p_ptr->to_h + actual_to_h(o_ptr)) * 5)
+		+ (p_ptr->lev * 3));
 
 	/* Improved critical hits for blessed blades */
 	if (p_ptr->bless_blade) i += 100;
@@ -173,39 +175,39 @@ static sint critical_norm(int weight, int plus, int tval, byte *special, int dam
 		if (k < 400)
 		{
 			message(MSG_CRITICAL_HIT, 0,"It was a good hit!");
-			if (tval == TV_POLEARM) dam = 2 * dam + 5;
+			if (o_ptr->tval == TV_POLEARM) dam = 2 * dam + 5;
 		}
 		else if (k < 700)
 		{
 			message(MSG_CRITICAL_HIT, 0, "It was a great hit!");
-			if (tval == TV_POLEARM) dam = 2 * dam + 10;
+			if (o_ptr->tval == TV_POLEARM) dam = 2 * dam + 10;
 			else dam = dam + 5;
 		}
 		else if (k < 900)
 		{
 			message(MSG_CRITICAL_HIT, 0, "It was a superb hit!");
-			if (tval == TV_POLEARM) dam = 3 * dam + 15;
+			if (o_ptr->tval == TV_POLEARM) dam = 3 * dam + 15;
 			else dam = ((3 * dam) / 2) + 8;
 		}
 		else if (k < 1300)
 		{
 			message(MSG_CRITICAL_HIT, 0, "It was a *GREAT* hit!");
-			if (tval == TV_POLEARM) dam = 3 * dam + 20;
+			if (o_ptr->tval == TV_POLEARM) dam = 3 * dam + 20;
 			else dam = ((3 * dam) / 2) + 10;
 
-			if ((tval == TV_HAFTED) && (rand_int(100) < 10)) (*special) |= SPEC_CONF;
+			if ((o_ptr->tval == TV_HAFTED) && (rand_int(100) < 10)) (*special) |= SPEC_CONF;
 		}
 		else
 		{
 			message(MSG_CRITICAL_HIT, 0, "It was a *SUPERB* hit!");
-			if (tval == TV_POLEARM) dam = ((7 * dam) / 2) + 25;
+			if (o_ptr->tval == TV_POLEARM) dam = ((7 * dam) / 2) + 25;
 			else dam = 2 * dam + 13;
 
-			if ((tval == TV_HAFTED) && (rand_int(100) < 25)) (*special) |= SPEC_CONF;
+			if ((o_ptr->tval == TV_HAFTED) && (rand_int(100) < 25)) (*special) |= SPEC_CONF;
 		}
 	
-		if (tval == TV_SWORD) (*special) |= SPEC_CUT;
-		if (tval == TV_HAFTED) (*special) |= SPEC_STUN;
+		if (o_ptr->tval == TV_SWORD) (*special) |= SPEC_CUT;
+		if (o_ptr->tval == TV_HAFTED) (*special) |= SPEC_STUN;
 	}
 
 	return (dam);
@@ -682,7 +684,7 @@ static bool auto_pickup_okay(object_type *o_ptr)
 }
 
 /*
- * Helper routine for py_pickup() and py_pickup_floor().
+ * Helper routine for py_pickup().
  *
  * Add the given dungeon object to the character's inventory.
  *
@@ -734,8 +736,7 @@ static void py_pickup(int pickup)
 	bool pickup_query = FALSE;
 	bool heavy = FALSE;
 
-	/* Automatically destroy squelched items in pile if necessary */
-	if (auto_destroy==1) do_squelch_pile(p_ptr->py, p_ptr->px);
+	int squelch = 0;
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[p_ptr->py][p_ptr->px]; this_o_idx; this_o_idx = next_o_idx)
@@ -751,13 +752,6 @@ static void py_pickup(int pickup)
 
 		/* Hack -- disturb */
 		disturb(0);
-
-		/* End loop if squelched stuff reached */
-		if (k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware)
-		{
-	        next_o_idx = 0;
-			continue;
-		}
 
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
@@ -780,6 +774,20 @@ static void py_pickup(int pickup)
 
 			/* Check the next object */
 			continue;
+		}
+
+		/* Make sure you are properly aware of the object */
+		if (object_aware_p(o_ptr)) object_aware(o_ptr);
+
+		/* Test for squelch */
+		squelch = squelch_itemp(o_ptr);
+
+		/* Squelch it if necessary */
+		if (squelch) 
+		{
+			do_squelch_item(o_ptr);
+
+			if (auto_squelch) continue;
 		}
 
 		/* Test for auto-pickup */
@@ -812,7 +820,7 @@ static void py_pickup(int pickup)
 			if (j > i/2) old_enc = ((j - (i/2)) / (i / 10));
 
 			/* Increase the weight, recalculate encumbarance */
-			j += (o_ptr->number * o_ptr->weight);
+			j += (o_ptr->number * actual_weight(o_ptr));
 
 			/* Apply encumbarance from weight */
 			if (j > i/2) new_enc = ((j - (i/2)) / (i / 10));
@@ -881,13 +889,18 @@ static void py_pickup(int pickup)
 			continue;
 		}
 
+		/*
+		 * Query for picking up/destroying floor items
+		 * XXX XXX XXX Very nasty hack regarding rogue_like_commands
+		 */
 		if (pickup_query)
 		{
 			int i;
 			char out_val[160];
+			cptr keys = (rogue_like_commands) ? "y/n/^d" : "y/n/k";
 			
-			if (!heavy) sprintf(out_val, "Pick up %s? [y/n/k] ", o_name);
-			else sprintf (out_val, "Pick up %s (heavy)? [y/n/k] ", o_name);
+			if (!heavy) sprintf(out_val, "Pick up %s? [%s] ", o_name, keys);
+			else sprintf (out_val, "Pick up %s (heavy)? [%s] ", o_name, keys);
 			
 			/* Prompt for it */
 			prt(out_val, 0, 0);
@@ -898,7 +911,9 @@ static void py_pickup(int pickup)
 				i = inkey();
 				if (quick_messages) break;
 				if (i == ESCAPE) break;
-				if (strchr("YyNnKk", i)) break;
+				if (strchr("YyNn", i)) break;
+				if (rogue_like_commands && i == KTRL('D')) break;
+				if (!rogue_like_commands && strchr("Kn", i)) break;
 				bell("Illegal response to question!");
 			}
 
@@ -911,7 +926,8 @@ static void py_pickup(int pickup)
 				py_pickup_aux(this_o_idx);
 			}
 			
-			if ((i == 'K') || (i == 'k'))
+			if ((rogue_like_commands && (i == KTRL('D'))) ||
+				(!rogue_like_commands && ((i == 'K') || (i == 'k'))))
 			{
 				/* Artifact? */
 				if (!destroy_check(o_ptr))
@@ -1333,6 +1349,9 @@ void py_attack(int y, int x)
 	/* Anger the monster */
 	m_ptr->calmed = 0;
 
+	/* Nullify invisiblity */
+	if (p_ptr->invis) set_tim_invis(-1 * INVIS_DELAY);
+
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
@@ -1356,7 +1375,7 @@ void py_attack(int y, int x)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h + o_ptr->to_h;
+	bonus = p_ptr->to_h + actual_to_h(o_ptr);
 	chance = (p_ptr->skill[SK_THN] + (bonus * BTH_PLUS_ADJ));
 
 	/* Attack once for each legal blow */
@@ -1379,11 +1398,11 @@ void py_attack(int y, int x)
 				/* Extract the flags */
 				object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-				k = damroll(o_ptr->dd, o_ptr->ds);
+				k = damroll(actual_dd(o_ptr), actual_ds(o_ptr));
 				k = tot_dam_aux(o_ptr, k, m_ptr, &special);
 				if ((f4 & TR4_IMPACT) && (k > 50)) do_quake = TRUE;
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, o_ptr->tval, &special, k);
-				k += o_ptr->to_d;
+				k = critical_norm(o_ptr, &special, k);
+				k += actual_to_d(o_ptr);
 			}
 
 			/* Apply the player damage bonuses */
@@ -2668,7 +2687,7 @@ void do_cmd_rest(void)
 		strcpy(out_val, "&");
 
 		/* Ask for duration */
-		if (!get_string(p, out_val, 4)) return;
+		if (!get_string(p, out_val, 5)) return;
 
 		/* Rest until done */
 		if (out_val[0] == '&')
@@ -2816,6 +2835,9 @@ void do_cmd_fire(void)
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
+	/* Nullify invisiblity */
+	if (p_ptr->invis) set_tim_invis(-1 * INVIS_DELAY);
+
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -2853,11 +2875,11 @@ void do_cmd_fire(void)
 	/* Use the proper number of shots */
 	thits = p_ptr->num_fire;
 
-	/* Base damage from thrown object plus launcher bonus */
-	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d;
+	/* Base damage from fired object plus launcher bonus */
+	tdam = damroll(actual_dd(i_ptr), actual_ds(i_ptr)) + actual_to_d(i_ptr) + actual_to_d(j_ptr);
 
 	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
+	bonus = (p_ptr->to_h + actual_to_h(i_ptr) + actual_to_h(j_ptr));
 	chance = (p_ptr->skill[SK_THB] + (bonus * BTH_PLUS_ADJ));
 
 	/* Assume a base multiplier */
@@ -2984,7 +3006,7 @@ void do_cmd_fire(void)
 
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr, &special);
-				tdam = critical_shot(i_ptr->to_h, i_ptr->tval, &special, tdam);
+				tdam = critical_shot(i_ptr, &special, tdam);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -3123,7 +3145,7 @@ void do_cmd_throw(void)
 	mul = 10;
 
 	/* Enforce a minimum "weight" of one pound */
-	div = ((i_ptr->weight > 10) ? i_ptr->weight : 10);
+	div = ((actual_weight(i_ptr) > 10) ? actual_weight(i_ptr) : 10);
 
 	/* Hack -- Distance -- Reward strength, penalize weight */
 	tdis = (adj_str_blow[p_stat(A_STR)] + 20) * mul / div;
@@ -3132,7 +3154,7 @@ void do_cmd_throw(void)
 	if (tdis > 10) tdis = 10;
 
 	/* Hack -- Base damage from thrown object */
-	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;
+	tdam = damroll(actual_dd(i_ptr), actual_ds(i_ptr)) + actual_to_d(i_ptr);
 
 	/* Chance of hitting */
 	chance = (p_ptr->skill[SK_THT] + (p_ptr->to_h * BTH_PLUS_ADJ));
@@ -3357,6 +3379,9 @@ void do_cmd_throw(void)
 					if ((!object_aware_p(i_ptr)) && aware)
 					{
 						object_aware(i_ptr);
+
+						/* Squelch */
+						if (squelch_itemp(i_ptr)) do_squelch_item(i_ptr);
 					}
 
 					/* Combine / Reorder the pack (later) */
@@ -3367,7 +3392,7 @@ void do_cmd_throw(void)
 				{
 					/* Apply special damage XXX XXX XXX */
 					tdam = tot_dam_aux(i_ptr, tdam, m_ptr, &special);
-					tdam = critical_throw(i_ptr->to_h, tdam);
+					tdam = critical_throw(i_ptr, tdam);
 
 					/* No negative damage */
 					if (tdam < 0) tdam = 0;

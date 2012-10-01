@@ -451,7 +451,6 @@ static void do_cmd_options_win(void)
 	}
 }
 
-
 /*
  * Write all current options to the given preference file in the
  * lib/user directory. Modified from KAmband 1.8.
@@ -522,6 +521,29 @@ static errr option_dump(cptr fname)
 		else
 		{
 			fprintf(fff, "X:B:%s\n", options_birth[i].text);
+		}
+
+		/* Skip a line */
+		fprintf(fff, "\n");
+	}
+
+	/* Dump birth options (but not adult options)*/
+	for (i = 0; i < OPT_SQUELCH; i++)
+	{
+		/* Require a real option */
+		if (!options_squelch[i].text) continue;
+
+		/* Comment */
+		fprintf(fff, "# squelch Option '%s'\n", options_squelch[i].descript);
+
+		/* Dump the option */
+		if (op_ptr->opt_squelch[i])
+		{
+			fprintf(fff, "Y:S:%s\n", options_squelch[i].text);
+		}
+		else
+		{
+			fprintf(fff, "X:S:%s\n", options_squelch[i].text);
 		}
 
 		/* Skip a line */

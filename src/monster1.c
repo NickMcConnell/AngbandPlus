@@ -45,7 +45,7 @@ static bool know_armour(int r_idx, int u_idx)
 	if (kills > 304 / (4 + level)) return (TRUE);
 
 	/* Skip non-uniques */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+	if (!u_idx) return (FALSE);
 
 	/* Unique monsters */
 	if (kills > 304 / (38 + (5*level) / 4)) return (TRUE);
@@ -77,7 +77,7 @@ static bool know_damage(int r_idx, int u_idx, int i)
 	if ((4 + level) * a > 80 * d) return (TRUE);
 
 	/* Skip non-uniques */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+	if (!u_idx) return (FALSE);
 
 	/* Unique monsters */
 	if ((4 + level) * (2 * a) > 80 * d) return (TRUE);
@@ -361,6 +361,8 @@ void describe_mon_attacks(int method, int effect, cptr method_text[1], cptr effe
 		case RBE_ELEC:		effect_text[0] = "electrify"; break;
 		case RBE_FIRE:		effect_text[0] = "burn"; break;
 		case RBE_COLD:		effect_text[0] = "freeze"; break;
+		case RBE_RUST:		effect_text[0] = "rust"; break;
+		case RBE_ROT:		effect_text[0] = "rot"; break;
 		case RBE_BLIND:		effect_text[0] = "blind"; break;
 		case RBE_CONFUSE:	effect_text[0] = "confuse"; break;
 		case RBE_TERRIFY:	effect_text[0] = "terrify"; break;
@@ -527,13 +529,11 @@ static void roff_main(int r_idx, int u_idx)
 		if (r_ptr->flags2 & (RF2_PLANT))	flags2 |= (RF2_PLANT);
 		if (r_ptr->flags2 & (RF2_CHAOTIC))	flags2 |= (RF2_CHAOTIC);
 
-		/* Know "forced" flags */
-		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
 		if (r_ptr->flags1 & (RF1_FORCE_MAXHP)) flags1 |= (RF1_FORCE_MAXHP);
 	}
 
 	/* Treat uniques differently */
-	if (flags1 & (RF1_UNIQUE))
+	if (u_idx)
 	{
 		/* Hack -- Determine if the unique is "dead" */
 		bool dead = (l_ptr->r_pkills > 0) ? TRUE : FALSE;
@@ -777,7 +777,7 @@ static void roff_main(int r_idx, int u_idx)
 		else roff(" creature");
 
 		/* Mention the experience */
-		mon_exp(r_ptr, &i, &j);
+		mon_exp(r_idx, u_idx, &i, &j);
 		j = (j + 5) / 10;
 		roff(" is worth ");
 		if (j) c_roff(TERM_ORANGE,format("%ld.%02ld ", (long)i, (long)j));
@@ -1439,4 +1439,147 @@ void display_roff(int r_idx, int u_idx)
 
 	/* Recall monster */
 	roff_aux(r_idx, u_idx);
+}
+
+/*
+ * Hack -- show a list of the visible monsters in the current "term" window
+ */
+void display_visible(void)
+{
+	int i, j;
+	int c = 0;
+	int items = 0;
+
+	monster_list_entry *who;
+
+	/* Clear */
+	Term_clear();
+
+	/* XXX Hallucination - no monster list */
+	if (p_ptr->image)
+	{		
+		c_prt(TERM_WHITE,"You see a lot of pretty colours.",0,0);
+
+		return;
+	}
+
+	/* Allocate the "who" array */
+	C_MAKE(who, m_max, monster_list_entry);
+
+	/* Count up the number visible in each race */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		bool found = FALSE;
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Skip unseen monsters */
+		if (!m_ptr->ml) continue;
+
+		/* Increase for this race */
+		if (items)
+		{
+			for (j = 0; j < items; j++)
+			{
+				if ((who[j].r_idx == m_ptr->r_idx) && (who[j].u_idx == m_ptr->u_idx))
+				{
+					who[j].amount++;
+					
+					found = TRUE;
+
+					break;
+				}
+			}
+		}
+		
+		if (!found)
+		{
+			who[items].r_idx = m_ptr->r_idx;
+			who[items].u_idx = m_ptr->u_idx;
+			who[items].amount = 1;
+
+			items++;
+		}
+
+		/* Increase total Count */
+		c++;
+	}
+
+	/* Are monsters visible? */
+	if (items)
+	{
+		int w, h, num = 0;
+		u16b why = 1;
+
+		/* First, sort the monsters by expereince*/
+		ang_sort_comp = ang_mon_sort_comp_hook;
+		ang_sort_swap = ang_mon_sort_swap_hook;
+
+		/* Sort the array */
+		ang_sort(who, &why, items);
+
+		/* Then, display them */
+		(void)Term_get_size(&w, &h);
+
+		c_prt(TERM_WHITE,format("You can see %d monster%s", c, (c > 1 ? "s:" : ":")), 0, 0);
+
+		/* Print the monsters in reverse order */
+		for (i = items - 1; i >= 0; i--)
+		{
+			monster_lore *l_ptr = get_lore_idx(who[i].r_idx, who[i].u_idx);
+			monster_race *r_ptr = get_monster_fake(who[i].r_idx, who[i].u_idx);
+
+			/* Default Colour */
+			byte attr = TERM_WHITE;
+
+			/* Uniques */
+			if (who[i].u_idx)
+			{
+				attr = TERM_L_RED;
+			}
+
+			/* Have we ever killed one? */
+			if (l_ptr->r_tkills)
+			{
+				if (r_ptr->level > p_ptr->depth)
+				{
+					attr = TERM_VIOLET;
+
+					if (who[i].u_idx)
+					{
+						attr = TERM_RED;
+					}
+				}
+			}
+			else
+			{
+				if (!who[i].u_idx) attr = TERM_SLATE;
+			}			
+			
+			/* Dump the monster name */
+			if (who[i].amount == 1)
+			{
+				c_prt(attr, monster_name_idx(who[i].r_idx, who[i].u_idx), (num % (h - 1)) + 1, 
+					(num / (h - 1) * 26));
+			}
+			else
+			{
+				c_prt(attr, format("%s (x%d)", monster_name_idx(who[i].r_idx, who[i].u_idx),
+					who[i].amount), (num % (h - 1)) + 1, (num / (h - 1)) * 26);
+			}
+
+			num++;
+		}
+	}
+
+	else
+	{
+		c_prt(TERM_WHITE,"You see no monsters.",0,0);
+	}
+
+	/* XXX XXX Free the "who" array */
+	C_FREE(who, m_max, monster_list_entry);
 }

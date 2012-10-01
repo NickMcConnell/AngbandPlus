@@ -205,7 +205,7 @@ static s16b wield_slot(object_type *o_ptr)
 					case SV_RING_SLAYING:
 					{
 						/* Don't auto-choose ambiguous rings (only applies to slaying) */
-						if (((i_ptr->to_h < j_ptr->to_h) &&	(i_ptr->to_d > j_ptr->to_d)) ||
+						if (((i_ptr->to_h < j_ptr->to_h) && (i_ptr->to_d > j_ptr->to_d)) ||
 							((i_ptr->to_h > j_ptr->to_h) && (i_ptr->to_d < j_ptr->to_d)))
 						{
 							break;
@@ -405,7 +405,7 @@ void do_cmd_wield(void)
 	object_copy(o_ptr, i_ptr);
 
 	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight;
+	p_ptr->total_weight += actual_weight(i_ptr);
 
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
@@ -448,6 +448,9 @@ void do_cmd_wield(void)
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
+
+		/* Squelch */
+		if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
 	}
 
 	/* Recalculate bonuses */
@@ -583,7 +586,15 @@ void do_cmd_destroy(void)
 	/* Get an item */
 	q = "Destroy which item? ";
 	s = "You have nothing to destroy.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | CAN_SQUELCH))) return;
+
+	/* Try to destroy all items marked SQUELCH */
+	if (item == ALL_SQUELCHED)
+	{
+		destroy_squelched_items();
+
+		return;
+	}
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -610,8 +621,7 @@ void do_cmd_destroy(void)
 	o_ptr->number = old_number;
 
 	/* Verify destruction */
-	if (verify_destroy && 
-		((object_value(o_ptr) >= 1) || verify_destroy_junk))
+	if ((verify_destroy) && !((o_ptr->note) && (streq(quark_str(o_ptr->note), "squelch"))))
 	{
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
@@ -1144,7 +1154,7 @@ static void do_cmd_eat_food_aux(int item)
 
 		case SV_FOOD_WEAKNESS:
 		{
-			take_hit(damroll(6, 6), "poisonous food");
+			damage_player(damroll(6, 6), "poisonous food");
 			(void)do_dec_stat(A_STR, 1, FALSE, TRUE);
 			ident = TRUE;
 			break;
@@ -1152,7 +1162,7 @@ static void do_cmd_eat_food_aux(int item)
 
 		case SV_FOOD_SICKNESS:
 		{
-			take_hit(damroll(6, 6), "poisonous food");
+			damage_player(damroll(6, 6), "poisonous food");
 			(void)do_dec_stat(A_CON, 1, FALSE, TRUE);
 			ident = TRUE;
 			break;
@@ -1258,8 +1268,12 @@ static void do_cmd_eat_food_aux(int item)
 	/* The player is now aware of the object */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+
+		object_aware(o_ptr);
+
+		/* Squelch */
+		if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
 	}
 
 	/* Window stuff */
@@ -1431,7 +1445,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_RUINATION:
 		{
 			message(MSG_EFFECT, 0, "Your nerves and muscles feel weak and lifeless!");
-			take_hit(damroll(10, 10), "a potion of Ruination");
+			damage_player(damroll(10, 10), "a potion of Ruination");
 			(void)do_dec_stat(A_STR, 3, TRUE, FALSE);
 			(void)do_dec_stat(A_WIS, 3, TRUE, FALSE);
 			(void)do_dec_stat(A_INT, 3, TRUE, FALSE);
@@ -1481,7 +1495,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_DETONATIONS:
 		{
 			message(MSG_EFFECT, 0, "Massive explosions rupture your body!");
-			take_hit(damroll(50, 20), "a potion of Detonation");
+			damage_player(damroll(50, 20), "a potion of Detonation");
 			(void)set_stun(p_ptr->stun + 75);
 			(void)set_cut(p_ptr->cut + 5000);
 			ident = TRUE;
@@ -1491,34 +1505,41 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_DEATH:
 		{
 			message(MSG_EFFECT, 0, "A feeling of Death flows through your body.");
-			take_hit(5000, "a potion of Death");
+			damage_player(5000, "a potion of Death");
 			ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_RISK:
 		{
-			if (rand_int(100)<=49) 
+			if ((object_aware_p(o_ptr)) && (rand_int(100) < 50))
 			{
 				message(MSG_EFFECT, 0, "You took one risk too many.");
-				take_hit(5000, "a potion of Risk");
-				ident = TRUE;
-				break;
+				damage_player(5000, "a potion of Risk");
 			}
 			else
 			{
-				message(MSG_EFFECT, 0, "Great risks bring great rewards - ");
-				hp_player(damroll(4, 8));
+				message(MSG_EFFECT, 0, "Great risks bring great rewards!");
+				restore_exp();
+				(void)set_poisoned(0);
+				(void)set_blind(0);
+				(void)set_confused(0);
+				(void)set_diseased(0);
+				(void)set_image(0);
+				(void)set_stun(0);
+				(void)set_cut(0);
 				(void)do_inc_stat(A_STR);
 				(void)do_inc_stat(A_INT);
 				(void)do_inc_stat(A_WIS);
 				(void)do_inc_stat(A_DEX);
 				(void)do_inc_stat(A_CON);
 				(void)do_inc_stat(A_CHR);
+				(void)hp_player(5000);
 				wiz_lite();
-				ident = TRUE;
-			break;
 			}
+
+			ident = TRUE;
+			break;
 		}
 
 
@@ -1526,11 +1547,11 @@ static void do_cmd_quaff_potion_aux(int item)
 		{
 			message(MSG_EFFECT, 0, "You feel your flesh twist and contort");
 			for (time = 0; time < 3; time++) scramble_stats();
-			ident=TRUE;
-			p_ptr->ht+=(rand_int(11)-5);
-			p_ptr->wt+=(rand_int(21)-10);
-			if (p_ptr->ht<20) p_ptr->ht=20;
-			if (p_ptr->ht<20) p_ptr->ht=20;
+			p_ptr->ht += (rand_int(11) - 5);
+			p_ptr->wt += (rand_int(21) - 10);
+			if (p_ptr->ht<20) p_ptr->ht = 20;
+			if (p_ptr->ht<20) p_ptr->ht = 20;
+			ident = TRUE;
 			break;
 		}
 
@@ -1554,7 +1575,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_INVISIBILITY:
 		{
-			if (set_tim_invis(p_ptr->tim_invis + 10 + randint(10)))
+			if (set_tim_invis(p_ptr->tim_invis + 15 + randint(15)))
 			{
 				ident = TRUE;
 			}
@@ -1688,7 +1709,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		{
 			message(MSG_EFFECT, 0, "You feel life flow through your body!");
 			restore_exp();
-			hp_player(5000);
 			(void)set_poisoned(0);
 			(void)set_blind(0);
 			(void)set_confused(0);
@@ -1702,6 +1722,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			(void)do_res_stat(A_WIS);
 			(void)do_res_stat(A_INT);
 			(void)do_res_stat(A_CHR);
+			hp_player(5000);
 			ident = TRUE;
 			break;
 		}
@@ -1905,8 +1926,12 @@ static void do_cmd_quaff_potion_aux(int item)
 	/* An identification was made */
 	if ((ident) && (!object_aware_p(o_ptr)))
 	{
-		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+
+		object_aware(o_ptr);
+
+		/* Squelch */
+		if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
 	}
 		
 	/* Check if the alchemicl formula is learnt */
@@ -2468,7 +2493,7 @@ static void do_cmd_read_scroll_aux(int item)
 
 		case SV_SCROLL_ABSORB_HIT:
 		{
-			if (set_absorb(p_ptr->absorb + randint(20) + 25)) ident = TRUE;
+			if (set_absorb(p_ptr->absorb + randint(32) + 50)) ident = TRUE;
 			break;
 		}
 
@@ -2561,17 +2586,19 @@ static void do_cmd_read_scroll_aux(int item)
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+
+		object_aware(o_ptr);
+
+		/* Squelch */
+		if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
 	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
 	/* Hack -- allow certain scrolls to be "preserved" */
 	if (!used_up) return;
-
 
 	/* Destroy a scroll in the pack */
 	if (item >= 0)
@@ -2998,8 +3025,12 @@ static void do_cmd_use_staff_aux(int item)
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
 		gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
+
+		object_aware(o_ptr);
+
+		/* Squelch */
+		if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
 	}
 
 	/* Window stuff */
@@ -3031,7 +3062,7 @@ static void do_cmd_use_staff_aux(int item)
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
+		p_ptr->total_weight -= actual_weight(i_ptr);
 		item = inven_carry(i_ptr);
 
 		/* Message */
@@ -3374,8 +3405,12 @@ static void do_cmd_aim_wand_aux(int item)
 	/* Apply identification */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
 		gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
+
+		object_aware(o_ptr);
+
+		/* Squelch */
+		if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
 	}
 
 	/* Window stuff */
@@ -3404,7 +3439,7 @@ static void do_cmd_aim_wand_aux(int item)
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
+		p_ptr->total_weight -= actual_weight(i_ptr);
 		item = inven_carry(i_ptr);
 
 		/* Message */
@@ -3652,8 +3687,12 @@ static void do_cmd_zap_rod_aux(int item)
 	/* Successfully determined the object function */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
 		gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
+
+		object_aware(o_ptr);
+
+		/* Squelch */
+		if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
 	}
 
 	/* Window stuff */
@@ -3865,8 +3904,12 @@ static void do_cmd_invoke_talisman_aux(int item)
 	/* Successfully determined the object function */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
 		gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
+
+		object_aware(o_ptr);
+
+		/* Squelch */
+		if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
 	}
 
 	/* Window stuff */
@@ -4269,7 +4312,7 @@ static void do_cmd_activate_aux(int item)
 				message_format(MSG_EFFECT, 0, "Your %s opens a door in the fabric of reality...", o_name);
 				message(MSG_EFFECT, 0, "Choose a location to teleport to.");
 				message_flush();
-				dimen_door();
+				dimen_door(20, 5);
 				break;
 			}
 
@@ -5000,7 +5043,8 @@ void do_cmd_mix(void)
 		/* If there's no potion, always fail */
 		if (k_idx != z_info->k_max) 
 		{
-			chance = 25 + (p_ptr->skill[SK_ALC]) - ((k_ptr->cost) / 250);
+			int cost_mod = ((k_ptr->cost >= 30000) ? 120 : (k_ptr->cost) / 250);
+			chance = 25 + (p_ptr->skill[SK_ALC]) - cost_mod;
 			penalty = (k_ptr->cost) / 800;
 
 			/* Always 5% chance of success or failure*/

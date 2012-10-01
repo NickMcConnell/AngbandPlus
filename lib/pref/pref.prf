@@ -59,6 +59,10 @@ C:0:X
 A:m
 C:0:p
 
+# Hack -- Destroy squelched
+A:k!
+C:0:^K
+
 # Original keymap: Repeat last command
 A:^V
 C:0:n

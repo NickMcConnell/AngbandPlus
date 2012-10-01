@@ -201,7 +201,7 @@ static void get_stats(void)
  */
 static void get_extra(void)
 {
-	int i, j, min_value, max_value;
+	int i;
 
 	/* Level one */
 	p_ptr->max_lev = p_ptr->lev = 1;
@@ -215,18 +215,11 @@ static void get_extra(void)
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
 
-	/* Minimum hitpoints at highest level */
-	min_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 3) / 8;
-	min_value += PY_MAX_LEVEL;
-
-	/* Maximum hitpoints at highest level */
-	max_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 5) / 8;
-	max_value += PY_MAX_LEVEL;
-
 	/* Pre-calculate level 1 hitdice */
 	p_ptr->player_hp[0] = p_ptr->hitdie;
 
-	/* Hack - Get the hitpoints for non-random hp characters.  
+	/* 
+	 * Hack - Get the hitpoints for non-random hp characters.  
 	 * Each level provides exactly average hitpoints.
 	 * If the average is a fraction, alternate.
 	 */
@@ -242,14 +235,23 @@ static void get_extra(void)
 	/* Hack, if the player wants, use old-style rolled hitpoints */
 	else
 	{
+		int min_value, max_value;
+
+		/* Minimum hitpoints at highest level */
+		min_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 3) / 8;
+		min_value += PY_MAX_LEVEL;
+
+		/* Maximum hitpoints at highest level */
+		max_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 5) / 8;
+		max_value += PY_MAX_LEVEL;
+
 		/* Roll out the hitpoints */
 		while (TRUE)
 		{
 			/* Roll the hitpoint values */
 			for (i = 1; i < PY_MAX_LEVEL; i++)
 			{
-				j = randint(p_ptr->hitdie);
-				p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
+				p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + randint(p_ptr->hitdie);
 			}
 
 			/* XXX Could also require acceptable "mid-level" hitpoints */
@@ -413,6 +415,7 @@ static void get_money(void)
 	}
 	else if (gold < 0) gold = 0;
 
+	/* 500 Bonus gold coins for easy_mode */
 	if (adult_easy_mode) gold += 500;
 
 	/* Save the gold */
@@ -613,6 +616,10 @@ static void player_outfit(void)
 
 			/* make ego item if necessary */
 			if (e_ptr->ego) i_ptr->e_idx = e_ptr->ego;
+
+			/* hack - give prefix if applicable */
+			if ((rp_ptr->prefix) && ((i_ptr->tval == TV_SWORD) || (i_ptr->tval == TV_HAFTED) ||
+				(i_ptr->tval == TV_POLEARM))) i_ptr->prefix_idx = rp_ptr->prefix;
 
 			object_aware(i_ptr);
 			object_known(i_ptr);
@@ -1116,7 +1123,7 @@ static bool player_birth_aux_3(void)
 				strcpy(inp, "");
 
 				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 8)) inp[0] = '\0';
+				if (!askfor_aux(inp, 9)) inp[0] = '\0';
 
 				/* Hack -- Extract an input */
 				v = atoi(inp);

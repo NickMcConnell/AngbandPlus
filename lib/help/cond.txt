@@ -37,11 +37,14 @@ Negative conditions:
      Paralyzed:
          Whole paralyzed, you may take no action at all - this is a very 
          dangerous condition to be in!
-     Confused:
-         Confused characters can not control their own movement, read scrolls,
-         cast spells (except mystics), or do 
-     Afraid:
-         You cannot fight hand-to-hand while afraid.
+     Perplexed, Confused, Befuddled, Insane:
+         The more confused you get, the less control you have on your movement,
+         and casting spells and using items becomes more and more difficult. If
+         you become insane, you can not recover by non-magical means.
+     Wary. Afraid, Terrified, Panic:
+         Fear increases your armor class, but makes combat a lot more difficult. 
+         As you become more and more afraid, more and more actions become 
+         impossible.
      Poisoned:
          When poisoned, you will lose hit points every round until the poison
          is cured (or it runs it course).
@@ -50,12 +53,14 @@ Negative conditions:
          or diziness (stunning/confusion). Only characters with very high 
          constituion stand a chance of the disease ending on its own - others
          must use magical healing.
-     Stunned:
-         When stunned, spell casting and combat become more difficult.
+     Stunned, Heavily stunned, Knocked out:
+         When stunned, spell casting and combat become more difficult. Also,
+         your mana points won't regenerate. Stunning can lead to being knocked
+         out, which is similar to being paralyzed.
      Hallucination:
          Hallucination causes phantom monsters to appear on screen in addition
          (and instead of) real monsters.
-     Mortal wound,Deep gash,Severe cut,Nasty cut,Bad cut,Light cut,Graze:
+     Graze, Light cut, Bad cut. Nasty cut, Severe cut, Deep gash, Mortal wound
          If you are wounded, you will lose hit points consistently until healed. 
          Mortal wounds never heal on their own accord - you have to use magical
          healing to survive them.

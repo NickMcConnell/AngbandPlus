@@ -158,6 +158,8 @@ monster_race *get_monster_real(monster_type *m_ptr)
 
 		/* d_char copied from r_ptr */
 		monster_temp.d_char = r_ptr->d_char;
+		monster_temp.x_char = r_ptr->d_char;
+		monster_temp.x_attr = u_ptr->d_attr;
 
 		/* Flags are a combination of both */
 		monster_temp.flags1 = (r_ptr->flags1 | u_ptr->flags1);		
@@ -170,10 +172,6 @@ monster_race *get_monster_real(monster_type *m_ptr)
 		/* Remember the unique for next time */
 		stored_unique = m_ptr->u_idx;
 	}
-	
-	/* Hack - copy x_attr and x_char */
-	monster_temp.x_char = r_ptr->x_char;
-	monster_temp.x_attr = r_ptr->x_attr;
 
 	/* Success */
 	return (&monster_temp);
@@ -233,10 +231,10 @@ monster_race *get_monster_fake(int r_idx, int u_idx)
 		monster_temp_fake.blow[i].d_side = u_ptr->blow[i].d_side;
 	}
 
-	/* x_attr, x_char and d_char copied from r_ptr */
+	/* hack - d_char copied from r_ptr, x_attr and x_char same as d_'s*/
 	monster_temp_fake.d_char = r_ptr->d_char;
-	monster_temp_fake.x_char = r_ptr->x_char;
-	monster_temp_fake.x_attr = r_ptr->x_attr;
+	monster_temp_fake.x_char = r_ptr->d_char;
+	monster_temp_fake.x_attr = u_ptr->d_attr;
 
 	/* Flags are a combination of both */
 	monster_temp_fake.flags1 = (r_ptr->flags1 | u_ptr->flags1);		

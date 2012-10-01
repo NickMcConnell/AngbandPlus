@@ -27,43 +27,6 @@ void warding_glyph(void)
 }
 
 /*
- * Identify everything being carried.
- * Done by a potion of *enlightment*.
- */
-void identify_pack(void)
-{
-	int i;
-
-	/* Simply identify and know every item */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Aware and Known */
-		object_aware(o_ptr);
-		object_known(o_ptr);
-
-		/* Lore ability*/
-		if ((cp_ptr->flags & CF_LORE) && artifact_p(o_ptr)) artifact_known(&a_info[o_ptr->a_idx]);
-
-		/* Mark the artifact as "aware" */
-		if (artifact_p(o_ptr)) artifact_aware(&a_info[o_ptr->a_idx]);
-	}
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-}
-
-/*
  * Hack -- Removes curse from an object.
  */
 static void uncurse_object(object_type *o_ptr)
@@ -939,7 +902,6 @@ bool detect_objects_gold(void)
 
 	bool detect = FALSE;
 
-
 	/* Scan objects */
 	for (i = 1; i < o_max; i++)
 	{
@@ -1054,10 +1016,6 @@ bool detect_objects_magic(void)
 	{
 		object_type *o_ptr = &o_list[i];
 
-		/* Ignore prefix modifiers */
-		int calc_h = o_ptr->to_h - item_prefix[o_ptr->prefix_idx].mod_th;
-		int calc_d = o_ptr->to_d - item_prefix[o_ptr->prefix_idx].mod_td;
-
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
@@ -1104,7 +1062,8 @@ bool detect_objects_magic(void)
 			default:
 			{
 				if (artifact_p(o_ptr) || ego_item_p(o_ptr)) found = TRUE;
-				if ((o_ptr->to_a > 0) || (calc_h > 0) || (calc_d > 0)) found = TRUE;
+				if ((o_ptr->to_a > 0) || (o_ptr->to_h > 0) || (o_ptr->to_d > 0)) 
+					found = TRUE;
 				/* Also, cursed items */
 				if (cursed_p(o_ptr)) found = TRUE;
 				break;
@@ -1529,9 +1488,9 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 
 	bool a = artifact_p(o_ptr);
 
-	u32b f1, f2, f3, f4;
+	int calc_d = o_ptr->to_d;
 
-	int calc_h, calc_d;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -1542,10 +1501,6 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 	/* Missiles are easy to enchant */
 	if (ammo_p(o_ptr)) prob = prob / 20;
 	
-	/* Ignore prefix modifiers */
-	calc_h = o_ptr->to_h - item_prefix[o_ptr->prefix_idx].mod_th;
-	calc_d = o_ptr->to_d - item_prefix[o_ptr->prefix_idx].mod_td;
-
 	/* Weight affects damage enchantment, except for bows or ammo */
 	if (!(ammo_p(o_ptr) || (o_ptr->tval == TV_BOW))) calc_d = (calc_d * 10) / wgt_factor(o_ptr);
 
@@ -1558,9 +1513,9 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to hit */
 		if (eflag & (ENCH_TOHIT))
 		{
-			if (calc_h < 0) chance = 0;
-			else if (calc_h > 15) chance = 1000;
-			else chance = enchant_table[calc_h];
+			if (o_ptr->to_h < 0) chance = 0;
+			else if (o_ptr->to_h > 15) chance = 1000;
+			else chance = enchant_table[o_ptr->to_h];
 
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -1900,29 +1855,16 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 	return (TRUE);
 }
 
-/*
- * Identify an object in the inventory (or on the floor)
- * This routine does *not* automatically combine objects.
- * Returns TRUE if something was identified, else FALSE.
+/* 
+ * Actually identify an item 
  */
-bool ident_spell(void)
+static void ident_aux(int item)
 {
-	int item;
 	int squelch=0;
 
 	object_type *o_ptr;
 
 	char o_name[80];
-
-	cptr q, s;
-
-	/* Only un-id'ed items */
-	item_tester_hook = item_tester_unknown;
-
-	/* Get an item */
-	q = "Identify which item? ";
-	s = "You have nothing to identify.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1936,7 +1878,13 @@ bool ident_spell(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Identify it fully */
+	/* Not an object */
+	if (!o_ptr->k_idx) return;
+
+	/* Already identified */
+	if (object_aware_p(o_ptr) && object_known_p(o_ptr)) return;
+
+	/* Identify it */
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
@@ -1946,17 +1894,8 @@ bool ident_spell(void)
 	/* Mark the artifact as "aware" */
 	if (artifact_p(o_ptr)) artifact_aware(&a_info[o_ptr->a_idx]);
 
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
 	/* Squelch it? */
-	if (item<INVEN_WIELD) squelch=squelch_itemp(o_ptr, 0, 1);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	if (item < INVEN_WIELD) squelch = squelch_itemp(o_ptr);
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -1969,20 +1908,17 @@ bool ident_spell(void)
 	}
 	else if (item >= 0)
 	{
-		message_format(MSG_DESCRIBE, 0, "In your pack: %s (%c).  %s", o_name, index_to_label(item), 
-			((squelch == 1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
+		message_format(MSG_DESCRIBE, 0, "In your pack: %s (%c).", o_name, index_to_label(item));
 	}
 	else
 	{
-		message_format(MSG_DESCRIBE, 0, "On the ground: %s.  %s", o_name, ((squelch==1) ? "(Squelched)" :
-			((squelch == -1) ? "(Squelch Failed)" : "")));
-		
+		message_format(MSG_DESCRIBE, 0, "On the ground: %s.", o_name);
 	}
 
 	/* Now squelch it if needed */
-	if (squelch == 1) 
+	if (squelch) 
 	{
-		do_squelch_item(squelch, item, o_ptr);
+		do_squelch_item(o_ptr);
 	} 
 	else if (artifact_p(o_ptr))
 	{
@@ -1991,9 +1927,64 @@ bool ident_spell(void)
 		/* Describe it fully */
 		if artifact_known_p(a_ptr) identify_fully_aux(o_ptr);
 	}
+}
+
+/*
+ * Identify an object in the inventory (or on the floor)
+ * This routine does *not* automatically combine objects.
+ * Returns TRUE if something was identified, else FALSE.
+ */
+bool ident_spell(void)
+{
+	int item;
+
+	cptr q, s;
+
+	/* Only un-id'ed items */
+	item_tester_hook = item_tester_unknown;
+
+	/* Get an item */
+	q = "Identify which item? ";
+	s = "You have nothing to identify.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Identify it */
+	ident_aux(item);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Something happened */
 	return (TRUE);
+}
+
+/*
+ * Identify everything being carried.
+ */
+void identify_pack(void)
+{
+	int i;
+
+	/* Simply identify and know every item */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		ident_aux(i);
+	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 }
 
 /*
@@ -2040,8 +2031,8 @@ bool identify_fully(void)
 	/* Learn all alchemical info if potion */
 	if (o_ptr->tval == TV_POTION)
 	{
-		potion_alch[o_ptr->sval].known1=TRUE;
-		potion_alch[o_ptr->sval].known2=TRUE;
+		potion_alch[o_ptr->sval].known1 = TRUE;
+		potion_alch[o_ptr->sval].known2 = TRUE;
 
 		for (i = 0; i < SV_POTION_MAX; i++)
 		{
@@ -2051,7 +2042,7 @@ bool identify_fully(void)
 	}
 
 	/* Squelch it? */
-	if (item < INVEN_WIELD) squelch = squelch_itemp(o_ptr, 0, 1);
+	if (item < INVEN_WIELD) squelch = squelch_itemp(o_ptr);
 
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
@@ -2089,20 +2080,18 @@ bool identify_fully(void)
 	}
 	else if (item >= 0)
 	{
-		message_format(MSG_DESCRIBE, 0, "In your pack: %s (%c).  %s", o_name, index_to_label(item),
-			((squelch==1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
+		message_format(MSG_DESCRIBE, 0, "In your pack: %s (%c).", o_name, 
+			index_to_label(item));
  	}
  	else
  	{
-		message_format(MSG_DESCRIBE, 0, "On the ground: %s.  %s", o_name,
-		   ((squelch==1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
-		
+		message_format(MSG_DESCRIBE, 0, "On the ground: %s.", o_name);	
  	}
  
 	/* Now squelch it if needed */
-	if (squelch==1) 
+	if (squelch == 1) 
 	{
-		do_squelch_item(squelch, item, o_ptr);
+		do_squelch_item(o_ptr);
 	} 
 	else 
 	{
@@ -2373,6 +2362,27 @@ bool scare_monsters(int power )
 }
 
 /*
+ * Blight
+ */
+bool blight(int dam)
+{
+	bool result = FALSE;
+
+	if (project_hack(GF_DISP_PLANT, dam)) result = TRUE;
+	if (project_hack(GF_DISP_ANIMAL, dam / 10)) result = TRUE;
+	
+	return (result);
+}
+
+/*
+ * Astral burst
+ */
+bool astral_burst(int perc)
+{
+	return (project_hack(GF_ASTRAL, perc));
+}
+
+/*
  * Dispel undead monsters
  */
 bool dispel_undead(int dam)
@@ -2532,7 +2542,7 @@ bool genocide(void)
 		delete_monster_idx(i);
 
 		/* Take some damage */
-		take_hit(randint(4), "the strain of casting Genocide");
+		damage_player(randint(4), "the strain of casting Genocide");
 
 		/* Take note */
 		result = TRUE;
@@ -2568,7 +2578,7 @@ bool mass_genocide(void)
 		delete_monster_idx(i);
 
 		/* Take some damage */
-		take_hit(randint(3), "the strain of casting Mass Genocide");
+		damage_player(randint(3), "the strain of casting Mass Genocide");
 
 		/* Note effect */
 		result = TRUE;

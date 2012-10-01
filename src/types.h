@@ -158,6 +158,8 @@ struct object_kind
 	byte tval;					/* Object type */
 	byte sval;					/* Object sub type */
 
+	byte material;				/* Object type material */
+
 	s16b pval;					/* Object extra info */
 
 	s16b to_h;					/* Bonus to hit */
@@ -284,12 +286,13 @@ struct item_prefix_type
 	cptr name;			/* Name */
 
 	byte rarity;		/* Rarity - the higher this is, the less chance of being generated */
+	byte material;		/* Material */
 
-	s16b mod_th;		/* Modifer to hit */
-	s16b mod_td;		/* Modifer to damage */
+	s16b to_h;			/* Modifer to hit */
+	s16b to_d;			/* Modifer to damage */
 	
-	s16b mod_dd;		/* Modifer to damage dice */
-	s16b mod_ds;		/* Modifer to damage dice sides*/
+	s16b dd;			/* Modifer to damage dice */
+	s16b ds;			/* Modifer to damage dice sides*/
 
 	u16b weight;		/* Weight (percentage) */
 	u16b cost;			/* Cost (percentage) */
@@ -427,8 +430,6 @@ struct monster_race
 	byte cur_num;			/* Monster population on current level */
 
 	byte cur_unique;		/* How many uniques remain for this monster */
-
-	byte total_visible;     /* Amount of this race that are visible */
 };
 
 /*
@@ -473,6 +474,8 @@ struct monster_list_entry
 {
 	s16b r_idx;			/* Monster race index */
 	s16b u_idx;			/* Unique index (for uniques) */
+
+	byte amount;
 };
 
 /*
@@ -564,6 +567,17 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+};
+
+/*
+ * A structure to hold a tval and its description
+ */
+typedef struct tval_desc_type tval_desc_type;
+
+struct tval_desc_type
+{
+	int	 tval;
+	cptr desc;
 };
 
 /*
@@ -781,6 +795,8 @@ struct player_race
 
 	byte special;		/* Race special abilities index */
 
+	byte prefix;		/* Race's starting weapon prefix */
+
 	u32b flags1;		/* Racial Flags, set 1 */
 	u32b flags2;		/* Racial Flags, set 2 */
 	u32b flags3;		/* Racial Flags, set 3 */
@@ -874,17 +890,19 @@ struct player_other
 	char full_name[32];		/* Full name */
 	char base_name[32];		/* Base name */
 
-	bool opt[OPT_NORMAL]; /* Options */
-	bool opt_birth[OPT_BIRTH]; /* Options */
-	bool opt_adult[OPT_BIRTH]; /* Options */
-	bool opt_cheat[OPT_CHEAT]; /* Options */
-	bool opt_score[OPT_CHEAT]; /* Options */
+	bool opt[OPT_NORMAL];			/* Options */
+	bool opt_birth[OPT_BIRTH];		/* Options */
+	bool opt_adult[OPT_BIRTH];		/* Options */
+	bool opt_cheat[OPT_CHEAT];		/* Options */
+	bool opt_score[OPT_CHEAT];		/* Options */
+	bool opt_squelch[OPT_SQUELCH];	/* Options */
 
 	u16b window_flag[ANGBAND_TERM_MAX];	/* Window flags */
 
 	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
-
 	byte delay_factor;		/* Delay factor (0 to 9) */
+
+	byte squelch_level[MAX_SQ_TYPES];	/* Squelch levels for the secondary squelching */
 };
 
 /*

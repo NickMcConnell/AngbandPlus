@@ -167,7 +167,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_BOLT:
 		case TV_ARROW:
 		{
-			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
+			sprintf(dam, "%dd%d", actual_dd(i_ptr), actual_ds(i_ptr));
 			break;
 		}
 
@@ -177,7 +177,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
+			sprintf(dam, "%dd%d", actual_dd(i_ptr), actual_ds(i_ptr));
 			break;
 		}
 
@@ -1277,7 +1277,7 @@ static void spoil_mon_desc(cptr fname)
 		cptr name = (monster_name_idx(who[i].r_idx, who[i].u_idx));
 
 		/* Get the "name" */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) 
+		if (who[i].u_idx) 
 		{
 			sprintf(nam, "<U> %s", name);
 		}
@@ -1513,7 +1513,7 @@ static void spoil_mon_info(cptr fname)
 		else msex = 0;
 
 		/* Prefix */
-		if (flags1 & (RF1_UNIQUE))
+		if (who[n].u_idx)
 		{
 			spoil_out("[U] ");
 		}

@@ -446,15 +446,23 @@ s16b get_mon_num(int level)
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- "unique" monsters must be "unique" */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_unique != 1))
+		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			continue;
-		}
+			bool quest = FALSE;
 
-		/* Depth Monsters never appear out of depth */
-		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
-		{
-			continue;
+			if (r_ptr->cur_unique != 1) continue;
+			
+			for (j = 0; j < z_info->q_max; j++)
+			{
+				if ((q_info[j].r_idx == r_idx) && (q_info[j].active_level != 0) &&
+					(q_info[j].active_level != p_ptr->depth)) 
+				{
+					quest = TRUE;
+					break;
+				}
+			}
+
+			if (quest) continue;
 		}
 
 		/* Accept */
@@ -996,7 +1004,7 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Update monster list window */
-			p_ptr->window |= (PW_M_LIST);
+			p_ptr->window |= (PW_VISIBLE);
 
 			/* Hack -- Count "fresh" sightings */
 			lore_learn(m_ptr, LRN_SIGHTS, 0, FALSE);
@@ -1026,7 +1034,7 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Update monster list window */
-			p_ptr->window |= (PW_M_LIST);
+			p_ptr->window |= (PW_VISIBLE);
 
 			/* Disturb on disappearance */
 			if (disturb_move) disturb(1);
@@ -1382,20 +1390,12 @@ static byte get_attr_mimic(char r_char)
  * "FORCE_SLEEP", which will cause them to be placed with low energy,
  * which often (but not always) lets the player move before they do.
  *
- * This routine refuses to place out-of-depth "FORCE_DEPTH" monsters.
- *
- * XXX XXX XXX Use special "here" and "dead" flags for unique monsters,
- * remove old "cur_num" and "max_num" fields.
- *
- * XXX XXX XXX Actually, do something similar for artifacts, to simplify
- * the "preserve" mode, and to make the "what artifacts" flag more useful.
- *
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
  */
-static bool place_monster_one(int y, int x, int r_idx, bool slp)
+static bool place_monster_one(int y, int x, int r_idx, bool slp, byte mode)
 {
-	int i;
+	int i, j;
 	int u_idx = 0;
 
 	monster_race *r_ptr;
@@ -1406,7 +1406,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	cptr name;
 
-	bool unique;
+	bool force_unique;
+	bool unique = FALSE;
 
 	/* Paranoia */
 	if (!in_bounds(y, x)) return (FALSE);
@@ -1423,8 +1424,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Race */
 	r_ptr = &r_info[r_idx];
 
-	/* Is it a unique? */
-	unique = ((r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE);
+	force_unique = ((r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE);
 
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
@@ -1432,31 +1432,89 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Name */
 	name = (r_name + r_ptr->name);
 
+	/* Try to place a unique */
+	if ((r_ptr->cur_unique) && (mode != PLACE_NO_U))
+	{
+		/* Force a unique */
+		if (force_unique)
+		{
+			for (u_idx = 0; u_idx < z_info->u_max ; u_idx++)
+			{
+				u_ptr = &u_info[u_idx];
+
+				/* Find the first living unique */
+				if (u_ptr->r_idx == r_idx) 
+				{
+					if (u_ptr->dead) continue;
+					if (u_ptr->depth > -1) continue;
+
+					break;
+				}
+			}
+
+			/* Paranoia */
+			if (u_idx == z_info->u_max) return (FALSE);
+
+			/* We're making a unique */
+			unique = TRUE;
+		}
+		/* A unique exists on a non-unique template */
+		else
+		{
+			/* Look for uniques from this race*/
+			for (u_idx = 0; u_idx < z_info->u_max ; u_idx++)
+			{
+				u_ptr = &u_info[u_idx];
+
+				/* Found one */
+				if (u_ptr->r_idx == r_idx) 
+				{
+					/* Check if unique is alive */
+					if (u_ptr->dead) continue;
+
+					/* Check if unique is not already here */
+					if (u_ptr->depth > -1) continue;
+
+					/* In PLACE_UNIQ mode, always place a unique */
+					if (mode != PLACE_UNIQ)
+					{
+						/* Enforce minimum "depth" (loosely) */
+						if (u_ptr->level > p_ptr->depth)
+						{
+							/* Get the "out-of-depth factor" */
+							int d = (u_ptr->level - p_ptr->depth) * 2;
+
+							/* Roll for out-of-depth creation */
+							if (rand_int(d) != 0) continue;
+						}
+
+						/* Rarity check */
+						if (rand_int(u_ptr->rarity) != 0) continue;
+					}
+
+					unique = TRUE;
+
+					break;
+				}
+			}
+
+			if (!unique) u_idx = 0;
+		}
+	}
+	/* No uniques left */
+	else if (force_unique) return FALSE;
+
+	/* Handle uniques in quests*/
 	if (unique)
 	{
-		for (u_idx = 0; u_idx < z_info->u_max ; u_idx++)
+		for (j = 0; j < z_info->q_max; j++)
 		{
-			u_ptr = &u_info[u_idx];
-
-			if (u_ptr->r_idx == r_idx) break;
+			if ((q_info[j].r_idx == r_idx) && (q_info[j].active_level != 0) &&
+				(q_info[j].active_level != p_ptr->depth)) 
+			{
+				return (FALSE);
+			}
 		}
-
-		/* Paranoia */
-		if (u_idx == z_info->u_max) return (FALSE);
-	}
-
-	/* Hack -- "unique" monsters must be "unique" */
-	if (unique && (r_ptr->cur_unique != 1))
-	{
-		/* Cannot create */
-		return (FALSE);
-	}
-
-	/* Depth monsters may NOT be created out of depth */
-	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
-	{
-		/* Cannot create */
-		return (FALSE);
 	}
 
 	/* Powerful monster */
@@ -1470,6 +1528,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - p_ptr->depth) * 2;
+			if (!force_unique) rating += (u_ptr->level - p_ptr->depth) * 2;
 		}
 
 		/* Normal monsters */
@@ -1486,8 +1545,17 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Note the monster */
 	else if (unique)
 	{
+		if ((!force_unique) && (u_ptr->level > p_ptr->depth))
+		{
+			/* Message for cheaters */
+			if (cheat_hear) message_format(MSG_CHEAT, 0, "Deep Unique (%s).", name);
+
+			/* Boost rating by twice delta-depth */
+			rating += (u_ptr->level - p_ptr->depth) * 2;
+		}
+
 		/* Unique monsters induce message */
-		if (cheat_hear) message_format(MSG_CHEAT, 0, "Unique (%s).", name);
+		else if (cheat_hear) message_format(MSG_CHEAT, 0, "Unique (%s).", name);
 	}
 
 	/* Get local monster */
@@ -1503,8 +1571,10 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	{
 		/* Mark as unique */
 		n_ptr->u_idx = u_idx;
+
 		/* Mark unique's location */
 		u_ptr->depth = p_ptr->depth;
+
 		/* One less unique available */
 		r_ptr->cur_unique--;
 
@@ -1593,7 +1663,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
  * up to the max is 24 monsters, "big" groups double the size of the group.
  */
 
-static bool place_monster_group(int y, int x, int r_idx, bool slp, bool big)
+static bool place_monster_group(int y, int x, int r_idx, bool slp, bool big, byte mode)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1650,7 +1720,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool big)
 			if (!cave_empty_bold(my, mx)) continue;
 
 			/* Attempt to place another monster */
-			if (place_monster_one(my, mx, r_idx, slp))
+			if (place_monster_one(my, mx, r_idx, slp, mode))
 			{
 				/* Add it to the "hack" set */
 				hack_y[hack_n] = my;
@@ -1710,7 +1780,7 @@ static bool place_companion_okay(int r_idx)
 	if (z_ptr->level != r_ptr->level) return (FALSE);
 
 	/* Require unique monsters */
-	if (!(z_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+	if (!z_ptr->cur_unique) return (FALSE);
 
 	/* Require companion flag */
 	if (!(z_ptr->flags1 & (RF1_COMPANION))) return (FALSE);
@@ -1743,7 +1813,7 @@ static bool place_companion_okay(int r_idx)
  * Note the use of the new "monster allocation table" code to restrict
  * the "get_mon_num()" function to "legal" escort types.
  */
-bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
+bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, byte mode)
 {
 	int i;
 	u32b f1;
@@ -1753,7 +1823,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	bool unique = ((r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE);
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(y, x, r_idx, slp)) return (FALSE);
+	if (!place_monster_one(y, x, r_idx, slp, mode)) return (FALSE);
 
 	/* Require the "group" flag */
 	if (!grp) return (TRUE);
@@ -1815,7 +1885,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 			if (!z) break;
 
 			/* Place a single escort */
-			(void)place_monster_one(ny, nx, z, slp);
+			(void)place_monster_one(ny, nx, z, slp, PLACE_UNIQ);
 		}
 	}
 
@@ -1827,7 +1897,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 		if (f1 & RF1_FRIENDS) big = TRUE;
 
 		/* Attempt to place a group */
-		(void)place_monster_group(y, x, r_idx, slp, big);
+		(void)place_monster_group(y, x, r_idx, slp, big, PLACE_NO_U);
 	}
 
 	/* Escorts for certain monsters */
@@ -1866,14 +1936,14 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 			if (!z) break;
 
 			/* Place a single escort */
-			(void)place_monster_one(ny, nx, z, slp);
+			(void)place_monster_one(ny, nx, z, slp, PLACE_NO_U);
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & RF1_FRIENDS) || (r_info[z].flags1 & RF1_FRIEND)
 				|| (f1 & (RF1_ESCORTS)))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(ny, nx, z, slp, FALSE);
+				(void)place_monster_group(ny, nx, z, slp, FALSE, PLACE_NO_U);
 			}
 		}
 	}
@@ -1898,7 +1968,7 @@ bool place_monster(int y, int x, bool slp, bool grp)
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster */
-	if (place_monster_aux(y, x, r_idx, slp, grp)) return (TRUE);
+	if (place_monster_aux(y, x, r_idx, slp, grp, 0)) return (TRUE);
 
 	/* Oops */
 	return (FALSE);
@@ -2054,14 +2124,15 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_WRAITH:
 		{
-			okay = ((r_ptr->d_char == 'W') &&
-			        (r_ptr->flags1 & (RF1_UNIQUE)));
+			/* note - also forces uniques */
+			okay = ((r_ptr->d_char == 'W') && (r_ptr->cur_unique > 0));
 			break;
 		}
 
 		case SUMMON_UNIQUE:
 		{
-			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
+			/* note - forces uniques */
+			okay = (r_ptr->cur_unique > 0);
 			break;
 		}
 	}
@@ -2098,6 +2169,7 @@ static bool summon_specific_okay(int r_idx)
 bool summon_specific(int y1, int x1, int lev, int type)
 {
 	int i, x, y, r_idx;
+	byte mode;
 
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
@@ -2142,8 +2214,14 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 
+	/* Mega-hack - determine if to force, allow, or disallow uniques */
+	if ((type == SUMMON_UNIQUE) || (type == SUMMON_WRAITH)) mode = PLACE_UNIQ;
+	else if ((type == SUMMON_HI_DRAGON) || (type == SUMMON_HI_DEMON) || 
+		(type == SUMMON_HI_UNDEAD))	mode = 0;
+	else mode = PLACE_NO_U;
+
 	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE)) return (FALSE);
+	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE, mode)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -2174,7 +2252,7 @@ bool multiply_monster(int m_idx)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Create a new monster (awake, no groups) */
-		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE);
+		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE, PLACE_NO_U);
 
 		/* Done */
 		break;
@@ -2458,11 +2536,13 @@ void update_smart_learn(int m_idx, int what)
 /*
  * Calculate a monster's EXP value 
  */
-void mon_exp(monster_race *r_ptr, u32b *exint, u32b *exfrac)
+void mon_exp(int r_idx, int u_idx, u32b *exint, u32b *exfrac)
 {
+	monster_race *r_ptr = get_monster_fake(r_idx, u_idx);
+
 	int div = p_ptr->lev;
 
-	if (!(r_ptr->flags1 & (RF1_UNIQUE)) && 
+	if (!(u_idx) && 
 		(rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags2 & (RF2_EVIL))) div *=2;
 
 	*exint = (long)r_ptr->mexp / div;

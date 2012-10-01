@@ -104,8 +104,6 @@ static rand_sv_type rand_blunts[] =
  */
 static rand_sv_type rand_swords[] =
 {
-	{ 0, SV_BROKEN_DAGGER },
-	{ 1, SV_BROKEN_SWORD },
 	{ 5, SV_DAGGER },
 	{ 9, SV_MAIN_GAUCHE },
 	{ 10, SV_RAPIER }, /* or at least pointy ;-) */
@@ -576,7 +574,8 @@ static void choose_item(int a_idx, u32b activates)
 	a_ptr->flags2 = k_ptr->flags2;
 	a_ptr->flags3 = k_ptr->flags3;
 	a_ptr->flags4 = k_ptr->flags4;
-	a_ptr->flags3 |= TR3_IGNORE_MASK;
+	a_ptr->flags3 |= TR3_IGNORE_ELEM;
+	a_ptr->flags3 |= TR3_IGNORE_NON_ELEM;
 
 	/* Assign basic stats to the artifact based on its artifact level. */
 	switch (a_ptr->tval)
@@ -1309,7 +1308,7 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags3 & TR3_SEE_INVIS)	 p += 8;
 	if (a_ptr->flags3 & TR3_REGEN)		 p += 8;
 	if (a_ptr->flags3 & TR3_GLOW)		 p += 8;
-	if (a_ptr->flags3 & TR3_LUCK)		 p += 10;
+	if (a_ptr->flags3 & TR3_LUCK)		 p += 12;
 	if (a_ptr->flags3 & TR3_TELEPATHY)	 p += 20;
 	if (a_ptr->flags3 & TR3_INVIS)		 p += 20;
 
@@ -1445,7 +1444,7 @@ static void scramble_artifact(int a_idx)
 		a_ptr->pval = 0;
 		a_ptr->to_h = a_ptr->to_d = a_ptr->to_a = 0;
 		a_ptr->flags1 = a_ptr->flags2 = 0;
-		a_ptr->flags3 = TR3_IGNORE_MASK;
+		a_ptr->flags3 = (TR3_IGNORE_ELEM | TR3_IGNORE_NON_ELEM);
 
 		/* Give lites a light radius */
 		if ((a_ptr->tval == TV_LITE) || (a_ptr->tval == TV_LITE_SPECIAL))

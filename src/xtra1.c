@@ -187,7 +187,7 @@ static void prt_hp(void)
 
 	byte color, offset;
 
-	put_str("HP ", ROW_HP, COL_HP);
+	put_str("HP  ", ROW_HP, COL_HP);
 	sprintf(tmp, "%4d", p_ptr->chp);
 
 	if (p_ptr->mhp > 999) offset = 3;
@@ -226,7 +226,7 @@ static void prt_sp(void)
 	/* Do not show mana unless it matters */
 	if (p_ptr->msp>0)
 	{
-		put_str("SP ", ROW_SP, COL_SP);
+		put_str("SP  ", ROW_SP, COL_SP);
 		sprintf(tmp, "%4d", p_ptr->csp);
 
 		if (p_ptr->msp > 999) offset = 3;
@@ -1103,120 +1103,30 @@ static void fix_object(void)
 	}
 }
 
-static void fix_m_list(void)
+/*
+ * Hack -- display visible monster list in sub-windows
+ */
+static void fix_visible(void)
 {
-	int i, j; 
+	int j;
 
 	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < 8; j++)
 	{
 		term *old = Term;
-
-		int c = 0;
 
 		/* No window */
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_M_LIST))) continue;
+		if (!(op_ptr->window_flag[j] & (PW_VISIBLE))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
 
-		/* Clear */
-		Term_clear();
+		/* Display monster list */
+		display_visible();
 
-		/* reset visible count */
-		for (i = 1; i< z_info->r_max; i++)
-		{
-			monster_race *r_ptr = &r_info[i];
-			
-			r_ptr->total_visible = 0;
-		}
-
-		/* Count up the number visible in each race */
-		for (i = 1; i < m_max; i++)
-		{
-			monster_type *m_ptr = &m_list[i];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-			/* Skip dead monsters */
-			if (!m_ptr->r_idx) continue;
-
-			/* Skip unseen monsters */
-			if (!m_ptr->ml) continue;
-
-			/* Increase for this race */
-			r_ptr->total_visible++;
-
-			/* Increase total Count */
-			c++;
-		}
-
-		/* Are monsters visible? */
-		if (c)
-		{
-			int  w, h, num = 0;
-
-			(void)Term_get_size(&w, &h);
-
-			c_prt(TERM_WHITE,format("You can see %d monster%s", c, (c > 1 ? "s:" : ":")), 0, 0);
-
-			for (i = 1; i< z_info->r_max; i++)
-			{
-				monster_race *r_ptr = &r_info[i];
-				monster_lore *lr_ptr = &lr_list[i];
-
-				/* Default Colour */
-				byte attr = TERM_WHITE;
-
-				/* Only visible monsters */
-				if (!r_ptr->total_visible) continue;
-
-				/* Uniques */
-				if (r_ptr->flags1 & RF1_UNIQUE)
-				{
-					attr = TERM_L_RED;
-				}
-
-				/* Have we ever killed one? */
-				if (lr_ptr->r_tkills)
-				{
-					if (r_ptr->level > p_ptr->depth)
-					{
-						attr = TERM_VIOLET;
-
-						if (r_ptr->flags1 & RF1_UNIQUE)
-						{
-							attr = TERM_RED;
-						}
-					}
-				}
-				else
-				{
-					if (!(r_ptr->flags1 & RF1_UNIQUE)) attr = TERM_SLATE;
-				}			
-				
-				/* Dump the monster name */
-				if (r_ptr->total_visible == 1)
-				{
-					c_prt(attr, (monster_name_race(i)), (num % (h - 1)) + 1, (num / (h - 1) * 26));
-				}
-				else
-				{
-					c_prt(attr,format("%s (x%d)", monster_name_race(i), r_ptr->total_visible), 
-						(num % (h - 1)) + 1, (num / (h - 1)) * 26);
-				}
-
-				num++;
-			}
-		}
-
-		else
-		{
-			c_prt(TERM_WHITE,"You see no monsters.",0,0);
-		}
-		
 		/* Fresh */
 		Term_fresh();
 
@@ -1803,6 +1713,7 @@ static void calc_bonuses(void)
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
+	p_ptr->item_drain = FALSE;
 	p_ptr->bless_blade = FALSE;
 	p_ptr->disrupt = FALSE;
 	p_ptr->see_inv = FALSE;
@@ -2061,12 +1972,12 @@ static void calc_bonuses(void)
 		if (i == INVEN_BOW) continue;
 
 		/* Apply the bonuses to hit/damage */
-		p_ptr->to_h += o_ptr->to_h;
-		p_ptr->to_d += o_ptr->to_d;
+		p_ptr->to_h += actual_to_h(o_ptr);
+		p_ptr->to_d += actual_to_d(o_ptr);
 
 		/* Apply the mental bonuses tp hit/damage, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
-		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
+		if (object_known_p(o_ptr)) p_ptr->dis_to_h += actual_to_h(o_ptr);
+		if (object_known_p(o_ptr)) p_ptr->dis_to_d += actual_to_d(o_ptr);
 	}
 
 	/*** Handle stats ***/
@@ -2190,8 +2101,16 @@ static void calc_bonuses(void)
 	/* Temporary invisibility */
 	if (p_ptr->tim_invis)
 	{
-		p_ptr->invis = TRUE;
-		p_ptr->tim_flag3 |= TR3_INVIS;
+		if (p_ptr->tim_invis > 0)
+		{
+			p_ptr->invis = TRUE;
+			p_ptr->tim_flag3 |= TR3_INVIS;
+		}
+		else
+		{
+			/* Hack - temporary nullified invisiblity */
+			p_ptr->invis = FALSE;
+		}
 	}
 
 	/* Temporary infravision boost */
@@ -2388,12 +2307,12 @@ static void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
 
-	/* It is hard to carholdry a heavy bow */
-	if (hold < o_ptr->weight / 10)
+	/* It is hard to hold a heavy bow */
+	if (hold < actual_weight(o_ptr) / 10)
 	{
 		/* Hard to wield a heavy bow */
-		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+		p_ptr->to_h += 2 * (hold - actual_weight(o_ptr) / 10);
+		p_ptr->dis_to_h += 2 * (hold - actual_weight(o_ptr) / 10);
 
 		/* Heavy Bow */
 		p_ptr->heavy_shoot = TRUE;
@@ -2482,11 +2401,11 @@ static void calc_bonuses(void)
 	p_ptr->heavy_wield = FALSE;
 
 	/* It is hard to hold a heavy weapon */
-	if (hold < o_ptr->weight / 10)
+	if (hold < actual_weight(o_ptr) / 10)
 	{
 		/* Hard to wield a heavy weapon */
-		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+		p_ptr->to_h += 2 * (hold - actual_weight(o_ptr) / 10);
+		p_ptr->dis_to_h += 2 * (hold - actual_weight(o_ptr) / 10);
 
 		/* Heavy weapon */
 		p_ptr->heavy_wield = TRUE;
@@ -2501,10 +2420,11 @@ static void calc_bonuses(void)
 		/* Enforce a minimum "weight" (tenth pounds) */
 		if (o_ptr->k_idx) 
 		{
-			div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+			div = ((actual_weight(o_ptr) < cp_ptr->min_weight)
+				? cp_ptr->min_weight : actual_weight(o_ptr));
 
 			/* Boost digging skill by weapon weight */
-			p_ptr->skill[SK_DIG] += (o_ptr->weight / 10);
+			p_ptr->skill[SK_DIG] += (actual_weight(o_ptr) / 10);
 		}
 		else div = cp_ptr->min_weight;
 
@@ -2606,19 +2526,20 @@ static void calc_bonuses(void)
 
 	if (cp_ptr->spell_weight)
 	{
-		int  cur_wgt, max_wgt;
+		int i;
+		int cur_wgt, max_wgt;
 
 		/* Assume player not encumbered by armor */
 		p_ptr->cumber_armor = 0;
 
 		/* Weigh the armor */
 		cur_wgt = 0;
-		cur_wgt += inventory[INVEN_BODY].weight;
-		cur_wgt += inventory[INVEN_HEAD].weight;
-		cur_wgt += inventory[INVEN_ARM].weight;
-		cur_wgt += inventory[INVEN_OUTER].weight;
-		cur_wgt += inventory[INVEN_HANDS].weight;
-		cur_wgt += inventory[INVEN_FEET].weight;
+		for (i = INVEN_BODY; i <= INVEN_FEET; i++);
+		{
+			object_type *o_ptr = &inventory[i];
+
+			cur_wgt += actual_weight(o_ptr);
+		}
 
 		/* Determine the weight allowance */
 		max_wgt = cp_ptr->spell_weight;
@@ -2873,6 +2794,12 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_SPELLS);
 		calc_spells();
+	}
+
+	if (p_ptr->update & (PU_SQUELCH))
+	{
+		p_ptr->update &= ~(PU_SQUELCH);
+		if (auto_squelch) destroy_squelched_items();
 	}
 
 	/* Character is not ready yet, no screen updates */
@@ -3144,7 +3071,6 @@ void window_stuff(void)
 	/* Nothing to do */
 	if (!p_ptr->window) return;
 
-
 	/* Display inventory */
 	if (p_ptr->window & (PW_INVEN))
 	{
@@ -3174,10 +3100,10 @@ void window_stuff(void)
 	}
 
 	/* Display monster list */
-	if (p_ptr->window & (PW_M_LIST))
+	if (p_ptr->window & (PW_VISIBLE))
 	{
-		p_ptr->window &= ~(PW_M_LIST);
-		fix_m_list();
+		p_ptr->window &= ~(PW_VISIBLE);
+		fix_visible();
 	}
 
 	/* Display message recall */

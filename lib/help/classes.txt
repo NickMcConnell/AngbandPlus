@@ -109,7 +109,7 @@ Note that the class stat bonuses only affect character generation.
  Half-Elf   Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
  Elf        Yes     Yes    Yes     Yes     No       Yes    Yes     Yes
  Hobbit     Yes     Yes    No      No      No       No     Yes     No
- Gnome      Yes     Yes    Yes     No      No       No     No      Yes
+ Gnome      Yes     Yes    Yes     No      No       Yes     No      Yes
  Dwarf      Yes     No     Yes     No      Yes      Yes    No      No
  Half-Orc   Yes     No     Yes     No      No       No     No      Yes
  Half-Troll Yes     No     Yes     No      No       No     No      No

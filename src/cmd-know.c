@@ -808,8 +808,8 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 			grp += ddy[d] * BROWSER_ROWS;
 
 			/* Verify */
-			if (grp < 0) grp = 0;
 			if (grp >= grp_cnt)	grp = grp_cnt - 1;
+			if (grp < 0) grp = 0;
 			if (grp != old_grp)	list = 0;
 		}
 
@@ -820,8 +820,8 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 			list += ddy[d] * BROWSER_ROWS;
 
 			/* Verify */
-			if (list < 0) list = 0;
 			if (list >= list_cnt) list = list_cnt - 1;
+			if (list < 0) list = 0;
 		}
 
 		(*grp_cur) = grp;
@@ -1511,6 +1511,56 @@ static void do_cmd_knowledge_alchemy(void)
 }
 
 /*
+ * Display contents of the Home. Code taken from the player death interface 
+ * and the show known objects function. -LM-
+ */
+static void do_cmd_knowledge_home(void)
+{
+	int k;
+
+	FILE *fff;
+
+	object_type *o_ptr;
+	char o_name[120];
+
+	char file_name[1024];
+
+	store_type *st_ptr = &store[STORE_HOME];
+
+	/* Temporary file */
+	fff = my_fopen_temp(file_name, 1024);
+ 
+	/* Failure */
+	if (!fff) return;
+
+	/* Home -- if anything there */
+	if (st_ptr->stock_num)
+	{
+		/* Display contents of the home */
+		for (k = 0; k < st_ptr->stock_num; k++)
+		{
+			/* Acquire item */
+			o_ptr = &st_ptr->stock[k];
+
+			/* Acquire object description */
+			object_desc(o_name, o_ptr, TRUE, 3);
+
+			/* Print a message */
+			fprintf(fff, "     %s\n", o_name);
+		}
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Contents of Your Home", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+/*
  * Interact with "knowledge"
  */
 void do_cmd_knowledge(void)
@@ -1537,9 +1587,10 @@ void do_cmd_knowledge(void)
 		prt("(2) Display known monsters", 5, 5);
 		prt("(3) Display known objects", 6, 5);
 		prt("(4) Display known alchemical combinations", 7, 5);
+		prt("(5) Display contents of your home", 8, 5);
 
 		/* Prompt */
-		prt("Command: ", 9, 0);
+		prt("Command: ", 10, 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -1573,6 +1624,13 @@ void do_cmd_knowledge(void)
 		{
 			/* Spawn */
 			do_cmd_knowledge_alchemy();
+		}
+
+		/* Alchemy */
+		else if (ch == '5')
+		{
+			/* Spawn */
+			do_cmd_knowledge_home();
 		}
 
 		/* Unknown option */

@@ -24,20 +24,20 @@
  */
 static cptr lantern_adj[SV_LANTERN_MAX] =
 {
-	"xxx_torch", "xxx_Brass", "Aluminum", "Cast Iron", "Copper", 
+	"xxx_torch", "xxx_Brass", "Aluminum", "Lead", "Copper", 
 	"Gold", "Silver", "Tin", "Nickel", "Mithril", 
-	"Bronze", "Pewter"
+	"Bronze", "Zinc"
 };
 
 static byte lantern_col[SV_LANTERN_MAX] =
 {
-	TERM_UMBER, TERM_L_UMBER, TERM_L_BLUE, TERM_L_DARK, TERM_L_UMBER, 
+	TERM_UMBER, TERM_L_UMBER, TERM_L_BLUE, TERM_SLATE, TERM_L_UMBER, 
 	TERM_YELLOW, TERM_L_WHITE,  TERM_L_WHITE, TERM_L_UMBER, TERM_L_BLUE,
-	TERM_L_UMBER, TERM_SLATE
+	TERM_L_UMBER, TERM_L_WHITE
 };
 
 /*
- * Rings (adjectives and colors).
+ * Rings (adjectives, materials and colors).
  */
 static cptr ring_adj[SV_RING_MAX] =
 {
@@ -111,7 +111,6 @@ static byte staff_col[MAX_WOODS] =
 	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
 	TERM_YELLOW, TERM_SLATE
 };
-
 
 /*
  * Wands (adjectives and colors).
@@ -875,7 +874,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 				/* Obvious flags (pval, elemental ignores) */
 				(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
 
-				(*f3) = (a_ptr->flags3 & (TR3_IGNORE_MASK));
+				(*f3) = (a_ptr->flags3 & (TR3_IGNORE_ELEM | TR3_IGNORE_NON_ELEM));
 
 				/* Always know the radius of light sources */
 				(*f3) |= (a_ptr->flags3 & (TR3_LITE_MASK));
@@ -914,7 +913,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 			if (mode == OBJECT_FLAGS_RANDOM)
 			{
 				/* Hack - remove 'ignore' flags */
-				(*f3) &= ~(TR3_IGNORE_MASK);
+				(*f3) &= ~(TR3_IGNORE_ELEM | TR3_IGNORE_NON_ELEM);
 			}
 		}
 
@@ -977,8 +976,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
  \
 } while (0)
 
-
-
 /*
  * Efficient version of '(T) += strfmt((T), "%s", (S))'
  */
@@ -990,8 +987,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 	while (*s) *(T)++ = *s++; \
  \
 } while (0)
-
-
 
 /*
  * Efficient version of '(T) += strfmt((T), "%u", (N))'
@@ -1019,8 +1014,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 	} \
  \
 } while (0)
-
-
 
 /*
  * Efficient version of '(T) += strfmt((T), "%+d", (I))'
@@ -1050,9 +1043,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 	object_desc_num_macro(T, i); \
  \
 } while (0)
-
-
-
 
 /*
  * Creates a description of the item "o_ptr", and stores it in "out_val".
@@ -1697,9 +1687,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Append a "damage" string */
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
-			object_desc_num_macro(t, o_ptr->dd);
+			object_desc_num_macro(t, actual_dd(o_ptr));
 			object_desc_chr_macro(t, 'd');
-			object_desc_num_macro(t, o_ptr->ds);
+			object_desc_num_macro(t, actual_ds(o_ptr));
 			object_desc_chr_macro(t, p2);
 
 			/* All done */
@@ -1737,27 +1727,27 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
-			object_desc_int_macro(t, o_ptr->to_h);
+			object_desc_int_macro(t, actual_to_h(o_ptr));
 			object_desc_chr_macro(t, ',');
-			object_desc_int_macro(t, o_ptr->to_d);
+			object_desc_int_macro(t, actual_to_d(o_ptr));
 			object_desc_chr_macro(t, p2);
 		}
 
 		/* Show the tohit if needed */
-		else if (o_ptr->to_h)
+		else if (actual_to_h(o_ptr))
 		{
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
-			object_desc_int_macro(t, o_ptr->to_h);
+			object_desc_int_macro(t, actual_to_h(o_ptr));
 			object_desc_chr_macro(t, p2);
 		}
 
 		/* Show the todam if needed */
-		else if (o_ptr->to_d)
+		else if (actual_to_d(o_ptr))
 		{
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
-			object_desc_int_macro(t, o_ptr->to_d);
+			object_desc_int_macro(t, actual_to_d(o_ptr));
 			object_desc_chr_macro(t, p2);
 		}
 	}
@@ -2391,21 +2381,32 @@ static bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info)
 		info[i++] = "...if it is being worn.";
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
+	if (f3 & (TR3_IGNORE_ELEM))
 	{
-		info[i++] = "It cannot be harmed by acid.";
+		info[i++] = "It cannot be harmed by elemental attacks.";
 	}
-	if (f3 & (TR3_IGNORE_ELEC))
+	else
 	{
-		info[i++] = "It cannot be harmed by electricity.";
+		if (ignores_acid_p(f2,f3,f4))
+		{
+			info[i++] = "It cannot be harmed by acid.";
+		}
+		if (ignores_elec_p(f2,f3,f4))
+		{
+			info[i++] = "It cannot be harmed by electricity.";
+		}
+		if (ignores_fire_p(f2,f3,f4))
+		{
+			info[i++] = "It cannot be harmed by fire.";
+		}
+		if (ignores_cold_p(f2,f3,f4))
+		{
+			info[i++] = "It cannot be harmed by cold.";
+		}
 	}
-	if (f3 & (TR3_IGNORE_FIRE))
+	if (f3 & (TR3_IGNORE_NON_ELEM))
 	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
+		info[i++] = "It cannot be harmed by non-elemental attacks.";
 	}
 	if (f3 & (TR3_IGNORE_DISEN))
 	{
@@ -2967,7 +2968,7 @@ cptr mention_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_stat(A_STR)] < o_ptr->weight / 10)
+		if (adj_str_hold[p_stat(A_STR)] < (actual_weight(o_ptr) / 10))
 		{
 			p = "Just lifting";
 		}
@@ -2978,7 +2979,7 @@ cptr mention_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_stat(A_STR)] < o_ptr->weight / 10)
+		if (adj_str_hold[p_stat(A_STR)] < (actual_weight(o_ptr) / 10))
 		{
 			p = "Just holding";
 		}
@@ -3018,7 +3019,7 @@ cptr describe_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_stat(A_STR)] < o_ptr->weight / 10)
+		if (adj_str_hold[p_stat(A_STR)] < (actual_weight(o_ptr) / 10))
 		{
 			p = "just lifting";
 		}
@@ -3029,7 +3030,7 @@ cptr describe_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_stat(A_STR)] < o_ptr->weight / 10)
+		if (adj_str_hold[p_stat(A_STR)] < (actual_weight(o_ptr) / 10))
 		{
 			p = "just holding";
 		}
@@ -3242,9 +3243,9 @@ void display_inven(void)
 		Term_erase(3+n, i, 255);
 
 		/* Display the weight if needed */
-		if (show_weights && o_ptr->weight)
+		if (show_weights && actual_weight(o_ptr))
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
+			int wgt = actual_weight(o_ptr) * o_ptr->number;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			Term_putstr(71, i, -1, TERM_WHITE, tmp_val);
 		}
@@ -3315,9 +3316,9 @@ void display_equip(void)
 		}
 
 		/* Display the weight (if needed) */
-		if (show_weights && o_ptr->weight)
+		if (show_weights && actual_weight(o_ptr))
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
+			int wgt = actual_weight(o_ptr) * o_ptr->number;
 			int col = (show_labels ? 52 : 71);
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			Term_putstr(col, i - INVEN_WIELD, -1, TERM_WHITE, tmp_val);
@@ -3443,7 +3444,7 @@ void show_inven(void)
 		/* Display the weight if needed */
 		if (show_weights)
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
+			int wgt = actual_weight(o_ptr) * o_ptr->number;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			put_str(tmp_val, j + 1, 71);
 		}
@@ -3563,7 +3564,7 @@ void show_equip(void)
 		/* Display the weight if needed */
 		if (show_weights)
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
+			int wgt = actual_weight(o_ptr) * o_ptr->number;
 			sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
 			put_str(tmp_val, j+1, 71);
 		}
@@ -3662,7 +3663,7 @@ void show_floor(int *floor_list, int floor_num)
 		/* Display the weight if needed */
 		if (show_weights)
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
+			int wgt = actual_weight(o_ptr) * o_ptr->number;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			put_str(tmp_val, j + 1, 71);
 		}
@@ -3950,6 +3951,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool use_inven = ((mode & (USE_INVEN)) ? TRUE : FALSE);
 	bool use_equip = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
 	bool use_floor = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
+	bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE);
 
 	bool allow_inven = FALSE;
 	bool allow_equip = FALSE;
@@ -4159,6 +4161,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Indicate legality of the "floor" */
 			if (allow_floor) strcat(out_val, " - for floor,");
+
+			/* Indicate that selecting all SQUELCHED items is an option */
+			if (can_squelch) strcat(out_val, " ! for squelched,");
 		}
 
 		/* Viewing equipment */
@@ -4189,6 +4194,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Indicate legality of the "floor" */
 			if (allow_floor) strcat(out_val, " - for floor,");
+
+			/* Indicate that selecting all SQUELCHED items is an option */
+			if (can_squelch) strcat(out_val, " ! for all squelched,");
 		}
 
 		/* Viewing floor */
@@ -4218,6 +4226,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Append */
 			else if (use_equip) strcat(out_val, " / for Equip,");
+
+			/* Indicate that selecting all SQUELCHED items is an option */
+			if (can_squelch) strcat(out_val, " ! for all squelched,");
 		}
 
 		/* Finish the prompt */
@@ -4419,6 +4430,21 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				item = TRUE;
 				done = TRUE;
 				break;
+			}
+
+			case '!':
+			{
+				/* Can we select all squelched items? */
+				if (can_squelch)
+				{
+					(*cp) = ALL_SQUELCHED;
+					item = TRUE;
+					done = TRUE;
+					break;
+				}
+
+				/* Otherwise just fall through */
+
 			}
 
 			case '\n':
@@ -4625,4 +4651,3 @@ void strip_name(char *buf, int k_idx)
 	/* Terminate the new name */
 	*t = '\0';
 }
-
