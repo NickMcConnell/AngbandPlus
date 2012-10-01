@@ -1979,7 +1979,7 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
  * Stop if we hit a monster
  * Affect monsters and the player
  */
-static void mon_bolt(int m_idx, int typ, int dam)
+static void mon_bolt(int m_idx, int typ, int dam, u32b flg)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 	int py = p_ptr->py;
@@ -1987,7 +1987,7 @@ static void mon_bolt(int m_idx, int typ, int dam)
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
 
-	u32b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_PLAY | PROJECT_EFCT;
+	flg |= PROJECT_STOP | PROJECT_KILL | PROJECT_PLAY | PROJECT_EFCT;
 
 	/* Target the player with a bolt attack */
 	(void)project(m_idx, 0, fy, fx, py, px, dam, typ, flg, 0 , 0);
@@ -2481,7 +2481,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			if (blind) msg_print("You hear something grunt with exertion.");
 			else if (spower < 8) msg_format("%^s hurls a rock at you.", m_name);
 			else msg_format("%^s hurls a boulder at you.", m_name);
-			mon_bolt(m_idx, GF_ARROW, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_ARROW, get_dam(m_ptr, attack), PROJECT_ROCK);
 			break;
 		}
 
@@ -2494,7 +2494,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else if (spower < 10) msg_format("%^s slings a leaden pellet at you.", m_name);
 			else msg_format("%^s slings a seeker shot at you.", m_name);
 
-			mon_bolt(m_idx, GF_ARROW, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_ARROW, get_dam(m_ptr, attack), PROJECT_SHOT);
 			break;
 		}
 
@@ -2518,7 +2518,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s fires a seeker arrow.", m_name);
 			}
 
-			mon_bolt(m_idx, GF_ARROW, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_ARROW, get_dam(m_ptr, attack), PROJECT_AMMO);
 			break;
 		}
 
@@ -2542,7 +2542,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s fires a seeker bolt.", m_name);
 			}
 
-			mon_bolt(m_idx, GF_ARROW, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_ARROW, get_dam(m_ptr, attack), PROJECT_AMMO);
 			break;
 		}
 
@@ -2566,7 +2566,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s fires a heavy missile.", m_name);
 			}
 
-			mon_bolt(m_idx, GF_MISSILE, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_MISSILE, get_dam(m_ptr, attack), PROJECT_AMMO);
 			break;
 		}
 
@@ -3288,7 +3288,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
 				else msg_format("%^s casts a bolt of acid.", m_name);
 			}
-			mon_bolt(m_idx, GF_ACID, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_ACID, get_dam(m_ptr, attack), 0L);
 			break;
 		}
 
@@ -3306,7 +3306,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
 				else msg_format("%^s casts a bolt of lightning.", m_name);
 			}
-			mon_bolt(m_idx, GF_ELEC, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_ELEC, get_dam(m_ptr, attack), 0L);
 			break;
 		}
 
@@ -3324,7 +3324,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
 				else msg_format("%^s throws a fiery sphere at you.", m_name);
 			}
-			mon_bolt(m_idx, GF_FIRE, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_FIRE, get_dam(m_ptr, attack), 0L);
 			break;
 		}
 
@@ -3342,7 +3342,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
 				else msg_format("%^s casts a frost bolt.", m_name);
 			}
-			mon_bolt(m_idx, GF_COLD, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_COLD, get_dam(m_ptr, attack), 0L);
 			break;
 		}
 
@@ -3360,7 +3360,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
 				else msg_format("%^s casts a bolt of venom.", m_name);
 			}
-			mon_bolt(m_idx, GF_POIS, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_POIS, get_dam(m_ptr, attack), 0L);
 			break;
 		}
 
@@ -3378,7 +3378,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
 				else msg_format("%^s casts a bolt of plasma.", m_name);
 			}
-			mon_bolt(m_idx, GF_PLASMA, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_PLASMA, get_dam(m_ptr, attack), 0L);
 			break;
 		}
 
@@ -3396,7 +3396,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
 				else msg_format("%^s casts a bolt of ice.", m_name);
 			}
-			mon_bolt(m_idx, GF_ICE, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_ICE, get_dam(m_ptr, attack), 0L);
 			break;
 		}
 
@@ -3414,7 +3414,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
 				else msg_format("%^s casts a water bolt.", m_name);
 			}
-			mon_bolt(m_idx, GF_WATER, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_WATER, get_dam(m_ptr, attack), 0L);
 			break;
 		}
 
@@ -3432,7 +3432,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs a deadly word.", m_name);
 				else msg_format("%^s hurls a black bolt of nether at you.", m_name);
 			}
-			mon_bolt(m_idx, GF_NETHER, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_NETHER, get_dam(m_ptr, attack), 0L);
 			break;
 		}
 
@@ -3450,7 +3450,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
 				else msg_format("%^s casts a mana bolt.", m_name);
 			}
-			mon_bolt(m_idx, GF_MANA, get_dam(m_ptr, attack));
+			mon_bolt(m_idx, GF_MANA, get_dam(m_ptr, attack), 0L);
 			break;
 		}
 

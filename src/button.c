@@ -28,7 +28,7 @@
 /**
  * Maximum length of a mouse button label
  */
-#define MAX_MOUSE_LABEL 10
+#define MAX_MOUSE_LABEL 15
 
 
 /*** Types ***/
@@ -112,6 +112,25 @@ int button_add_text(const char *label, unsigned char keypress)
 }
 
 /*
+ * Re-set and add the basic buttons
+ * More are added in process_player depending on the
+ * situation.
+ */
+void basic_buttons(void)
+{
+	button_kill_all();
+
+	/* Make basic mouse buttons */
+	(void) button_add("[MENU]", KTRL('H'));
+	(void) button_add("[HELP]", '?');
+	(void) button_add("[OPT]", '=');
+	(void) button_add("[REPEAT]", KTRL('V'));
+	if ((p_ptr->chp < p_ptr->mhp) || (p_ptr->csp < p_ptr->msp)) button_add("[REST]", 'R');
+	if ((cp_ptr->spell_book) && (p_ptr->csp))  button_add("[CAST]", 'm');
+	(void) button_add("[ITEM_MENU]", '|');
+}
+
+/*
  * Add a button
  */
 int button_add(const char *label, unsigned char keypress)
@@ -154,7 +173,6 @@ void button_restore(void)
 		i++;
 	}
 }
-
 
 /*
  * Remove a button
@@ -239,6 +257,16 @@ void button_init(button_add_f add, button_kill_f kill)
 	/* Initialise the hooks */
 	button_add_hook = add;
 	button_kill_hook = kill;
+}
+
+/*
+ * Free buttons.
+ */
+void button_free(void)
+{
+	/* Free mouse button arrays */
+	FREE(button_mse);
+	FREE(button_backup);
 }
 
 

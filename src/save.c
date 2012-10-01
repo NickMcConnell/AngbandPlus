@@ -704,19 +704,15 @@ static void wr_extra(void)
 		if (fp)
 		{
 			byte ghost_sex = 0, ghost_race = 0, ghost_class = 0;
-			bool err = FALSE;
 
 			/* Ghost name is a global variable and is not needed */
 			char dummy[80];
 
 			/* XXX XXX XXX Scan the file to get the basic info of the ghost  */
-			if (!file_getl(fp, dummy, sizeof(dummy)) ||
-				!next_line_to_number(fp, &ghost_sex) ||
-				!next_line_to_number(fp, &ghost_race) ||
-				!next_line_to_number(fp, &ghost_class))
-			{
-				err = TRUE;
-			}
+			file_getl(fp, dummy, sizeof(dummy));
+			next_line_to_number(fp, &ghost_sex);
+			next_line_to_number(fp, &ghost_race);
+			next_line_to_number(fp, &ghost_class);
 
 			/* Close the file */
 			(void)file_close(fp);
@@ -1111,6 +1107,7 @@ static bool wr_savefile_new(void)
 	wr_byte(VERSION_MAJOR);
 
 	xor_byte = 0;
+
 	wr_byte(VERSION_MINOR);
 	xor_byte = 0;
 	wr_byte(VERSION_PATCH);

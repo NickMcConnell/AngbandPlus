@@ -326,7 +326,14 @@ struct term
 /*  45 is unused  */
 /*  46 is unused  */
 #define TERM_EARTH_YELLOW  	47	 	/* 'U2' */
-/*  47 and beyond is unused  */
+
+/*
+ * 47 and beyond is unused
+ * Note that if a color is added beyond TERM_EARTH_YELLOW, then
+ * MAX_COLOR_USED in defines.h needs to be modified
+ */
+
+
 
 
 /* The following allow color 'translations' to support environments with a limited color depth

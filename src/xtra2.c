@@ -20,6 +20,8 @@
 #include "angband.h"
 #include "cmds.h"
 #include "game-cmd.h"
+#include "ui-menu.h"
+#include "game-event.h"
 
 
 /* Players with chaos or confusion resistance don't get confused*/
@@ -569,7 +571,7 @@ void monster_death(int m_idx, int who)
 						(q_ptr->q_type == QUEST_FIXED_U))
 						fixedquest = TRUE;
 
-					if (q_ptr->q_type == QUEST_FIXED_MON) need_stairs = TRUE;
+					if (q_ptr->q_type == QUEST_GUARDIAN) need_stairs = TRUE;
 
 					/* One complete */
 					completed = TRUE;
@@ -612,7 +614,7 @@ void monster_death(int m_idx, int who)
 
 				/*let the player know how many left*/
 				else if ((q_ptr->q_type == QUEST_MONSTER) ||
-						(q_ptr->q_type == QUEST_FIXED_MON)) p_ptr->notice |= PN_QUEST_REMAIN;
+						(q_ptr->q_type == QUEST_GUARDIAN)) p_ptr->notice |= PN_QUEST_REMAIN;
 
 			}
 			/*quest monster from a themed level, nest, or pit*/
@@ -1287,6 +1289,73 @@ int motion_dir(int y1, int x1, int y2, int x2)
 }
 
 
+/**
+ * Extract a direction (or zero) from a mousepress
+ */
+extern int mouse_dir(ui_event_data ke, bool locating)
+{
+	int i, y, x;
+
+	int gy = KEY_GRID_Y(ke), gx = KEY_GRID_X(ke);
+
+	int py = p_ptr->py, px = p_ptr->px;
+
+	if (locating)
+	{
+		gy = ke.mousey;
+		gx = ke.mousex;
+		py = Term->hgt / 2;
+		px = Term->wid / 2;
+	}
+
+	y = ABS(gy - py);
+	x = ABS(gx - px);
+
+	if ((y == 0) && (x == 0)) return (0);
+
+	/* Click next to player */
+	if ((y <= 1) && (x <= 1))
+	{
+		/* Get the direction */
+		for (i = 0; i < 10; i++)
+		{
+			if ((ddx[i] == (gx - px)) && (ddy[i] == (gy - py))) break;
+		}
+
+		/* Take it */
+		return (i);
+	}
+
+	if (2 * y < x)
+	{
+		y = 0;
+		x = (x / (gx - px));
+	}
+	else if (2 * x < y)
+	{
+		x = 0;
+		y = (y / (gy - py));
+	}
+	else
+	{
+		y = (y / (gy - py));
+		x = (x / (gx - px));
+	}
+
+	for (i = 0; i < 10; i++)
+	{
+		if ((ddy[i] == y) && (ddx[i] == x)) break;
+	}
+
+	/* paranoia */
+	if ((i % 5) == 0) i = 0;
+
+	return (i);
+}
+
+
+
+
 /*
  * Extract a direction (or zero) from a character
  */
@@ -1396,6 +1465,14 @@ bool get_aim_dir(int *dp, bool target_trap)
 	/* Initialize */
 	(*dp) = 0;
 
+	/* Make some buttons */
+	button_backup_all();
+	button_kill_all();
+	button_add("[ESCAPE]", ESCAPE);
+	button_add("[CUR_TARGET]", 't');
+	button_add("[CLOSEST]", 'c');
+	event_signal(EVENT_MOUSEBUTTONS);
+
 	/* Hack -- auto-target if requested */
 	if (use_old_target && target_okay() && !dir) dir = 5;
 
@@ -1404,7 +1481,7 @@ bool get_aim_dir(int *dp, bool target_trap)
 	{
 		/* Choose a prompt */
 		if (!target_okay())
-			p = "Direction ('*' or <click> to target, \"'\" for closest, Escape to cancel)? ";
+			p = "Direction ('*' or <click> to target, 'c' for closest, Escape to cancel)? ";
 		else
 			p = "Direction ('5' for target, '*' or <click> to re-target, Escape to cancel)? ";
 
@@ -1433,7 +1510,7 @@ bool get_aim_dir(int *dp, bool target_trap)
 			}
 
 			/* Set to closest target */
-			case '\'':
+			case 'c':
 			{
 				if (target_set_closest(TARGET_KILL)) dir = 5;
 				break;
@@ -1485,6 +1562,10 @@ bool get_aim_dir(int *dp, bool target_trap)
 		/* Error */
 		if (!dir) bell("Illegal aim direction!");
 	}
+
+	/* REstore buttons */
+	button_restore();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* No direction */
 	if (!dir) return (FALSE);

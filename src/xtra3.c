@@ -705,30 +705,31 @@ static const struct side_handler_t
 	void (*hook)(int, int);	 /* int row, int col */
 	int priority;		 /* 1 is most important (always displayed) */
 	game_event_type type;	 /* PR_* flag this corresponds to */
+	byte sidebar_type;
 } side_handlers[] =
 {
-	{ prt_race,    20, EVENT_RACE_CLASS },
-	{ prt_title,   19, EVENT_PLAYERTITLE },
-	{ prt_class,   22, EVENT_RACE_CLASS },
-	{ prt_level,   11, EVENT_PLAYERLEVEL },
-	{ prt_exp,     18, EVENT_EXPERIENCE },
-	{ prt_gold,    12, EVENT_GOLD },
-	{ prt_equippy, 10, EVENT_EQUIPMENT },
-	{ prt_str,      6, EVENT_STATS },
-	{ prt_int,      5, EVENT_STATS },
-	{ prt_wis,      4, EVENT_STATS },
-	{ prt_dex,      3, EVENT_STATS },
-	{ prt_con,      2, EVENT_STATS },
-	{ prt_chr,      1, EVENT_STATS },
-	{ prt_ac,       7, EVENT_AC },
-	{ prt_hp,       8, EVENT_HP },
-	{ prt_sp,       9, EVENT_MANA },
-	{ prt_health,  13, EVENT_MONSTERHEALTH },
-	{ prt_mon_mana,  14, EVENT_MONSTERMANA },
-	{ prt_speed,   15, EVENT_PLAYERSPEED }, /* Slow (-NN) / Fast (+NN) */
-	{ prt_depth,   16, EVENT_DUNGEONLEVEL }, /* Lev NNN / NNNN ft */
-	{ prt_quest_st,17, EVENT_QUEST_TICKER },
-	{ prt_feeling, 21, EVENT_FEELING },
+	{ prt_race,    20, EVENT_RACE_CLASS, SIDEBAR_RACE},
+	{ prt_title,   19, EVENT_PLAYERTITLE, SIDEBAR_TITLE},
+	{ prt_class,   22, EVENT_RACE_CLASS, SIDEBAR_CLASS},
+	{ prt_level,   11, EVENT_PLAYERLEVEL, SIDEBAR_LEVEL},
+	{ prt_exp,     18, EVENT_EXPERIENCE, SIDEBAR_XP},
+	{ prt_gold,    12, EVENT_GOLD, SIDEBAR_GOLD},
+	{ prt_equippy, 10, EVENT_EQUIPMENT, SIDEBAR_EQUIPPY},
+	{ prt_str,      6, EVENT_STATS, SIDEBAR_STAT_MIN},
+	{ prt_int,      5, EVENT_STATS, SIDEBAR_STAT_MIN},
+	{ prt_wis,      4, EVENT_STATS, SIDEBAR_STAT_MIN},
+	{ prt_dex,      3, EVENT_STATS, SIDEBAR_STAT_MIN},
+	{ prt_con,      2, EVENT_STATS, SIDEBAR_STAT_MIN},
+	{ prt_chr,      1, EVENT_STATS, SIDEBAR_STAT_MIN},
+	{ prt_ac,       7, EVENT_AC, SIDEBAR_AC},
+	{ prt_hp,       8, EVENT_HP, SIDEBAR_HP},
+	{ prt_sp,       9, EVENT_MANA, SIDEBAR_MANA},
+	{ prt_health,  13, EVENT_MONSTERHEALTH, SIDEBAR_MON_HP},
+	{ prt_mon_mana,  14, EVENT_MONSTERMANA, SIDEBAR_MON_MANA},
+	{ prt_speed,   15, EVENT_PLAYERSPEED, SIDEBAR_SPEED}, /* Slow (-NN) / Fast (+NN) */
+	{ prt_depth,   16, EVENT_DUNGEONLEVEL, SIDEBAR_DEPTH}, /* Lev NNN / NNNN ft */
+	{ prt_quest_st,17, EVENT_QUEST_TICKER, SIDEBAR_QUEST},
+	{ prt_feeling, 21, EVENT_FEELING, SIDEBAR_FEELING},
 
 };
 
@@ -751,6 +752,15 @@ static void update_sidebar(game_event_type type, game_event_data *data, void *us
 
 	/* Keep the top and bottom lines clear. */
 	max_priority = y - 2;
+
+	for (i=0; i < SIDEBAR_MAX_TYPES; i++)
+	{
+		sidebar_details[i] = SIDEBAR_MAX_TYPES;
+	}
+
+	/* Hack - extreme max and min for the stat section */
+	sidebar_details[SIDEBAR_STAT_MIN] = Term->hgt;
+	sidebar_details[SIDEBAR_STAT_MAX] = -1;
 
 	/* Display list entries */
 	for (i = 0, row = 1; i < N_ELEMENTS(side_handlers); i++)
@@ -776,6 +786,25 @@ static void update_sidebar(game_event_type type, game_event_data *data, void *us
 				else
 				    hnd->hook(row, 0);
 			}
+
+			/*
+			 * Record which sidebar info is on this row
+			 * Special handling for the stat rows
+			 */
+			if ((hnd->sidebar_type == SIDEBAR_STAT_MIN) ||
+				(hnd->sidebar_type == SIDEBAR_STAT_MAX))
+			{
+				if (sidebar_details[SIDEBAR_STAT_MIN] > row)
+				{
+					sidebar_details[SIDEBAR_STAT_MIN] = row;
+				}
+				if (sidebar_details[SIDEBAR_STAT_MAX] < row)
+				{
+					sidebar_details[SIDEBAR_STAT_MAX] = row;
+				}
+			}
+
+			else sidebar_details[hnd->sidebar_type] = row;
 
 			/* Increment for next time */
 			row++;
@@ -1172,9 +1201,27 @@ static size_t prt_buttons(int row, int col)
 /* Useful typedef */
 typedef size_t status_f(int row, int col);
 
-status_f *status_handlers[] =
-{ prt_recall, prt_state, prt_cut, prt_stun, prt_hunger,
-  prt_study, prt_tmd, prt_nativity, prt_dtrap, prt_buttons };
+status_f *status_handlers;
+
+struct status_events
+{
+	status_f *status_handlers;
+	bool icky_update;
+};
+
+static const struct status_events status_reports[] =
+{
+	{prt_recall, 	FALSE},
+	{prt_state, 	FALSE},
+	{prt_cut, 		FALSE},
+	{prt_stun, 		FALSE},
+	{prt_hunger, 	FALSE},
+	{prt_study, 	FALSE},
+	{prt_tmd, 		FALSE},
+	{prt_nativity, 	FALSE},
+	{prt_dtrap, 	FALSE},
+	{prt_buttons, 	TRUE}
+};
 
 /*
  * Print the status line.
@@ -1185,12 +1232,24 @@ static void update_statusline(game_event_type type, game_event_data *data, void 
 	int col = 13;
 	size_t i;
 
+	if ((!character_generated) || (character_icky)) col = 3;
+
 	/* Clear the remainder of the line */
 	prt("", row, col);
 
 	/* Display those which need redrawing */
-	for (i = 0; i < N_ELEMENTS(status_handlers); i++)
-		col += status_handlers[i](row, col);
+	for (i = 0; i < N_ELEMENTS(status_reports); i++)
+	{
+		const struct status_events *stat = &status_reports[i];
+
+		/* Do not update most of the statusline while in "icky mode" */
+		if ((!character_generated) || (character_icky))
+		{
+			if (!stat->icky_update) continue;
+		}
+
+		col += stat->status_handlers(row, col);
+	}
 
 
 }
@@ -1383,6 +1442,7 @@ static void update_itemlist_subwindow(game_event_type type, game_event_data *dat
 	Term_activate(inv_term);
 
 	display_itemlist();
+
 	Term_fresh();
 
 	/* Restore */
@@ -1663,7 +1723,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 	void (*register_or_deregister)(game_event_type type, game_event_handler *fn, void *user);
 	void (*set_register_or_deregister)(game_event_type *type, size_t n_events, game_event_handler *fn, void *user);
 
-	/* Decide whether to register or deregister an evenrt handler */
+	/* Decide whether to register or deregister an event handler */
 	if (new_state == FALSE)
 	{
 		register_or_deregister = event_remove_handler;
@@ -2000,6 +2060,7 @@ static void ui_leave_game(game_event_type type, game_event_data *data, void *use
 
 	/* The flexible statusbar has similar requirements, so is
 	   also trigger by a large set of events. */
+
 	event_remove_handler_set(statusline_events, N_ELEMENTS(statusline_events),
 			      update_statusline, NULL);
 
@@ -2014,6 +2075,23 @@ static void ui_leave_game(game_event_type type, game_event_data *data, void *use
 	/* Check if the panel should shift when the player's moved */
 	event_remove_handler(EVENT_PLAYERMOVED, check_panel, NULL);
 }
+
+/*
+ * Initialize and remove just the statusline.  Used in the store and during player birth.
+ */
+
+static void ui_init_statusline(game_event_type type, game_event_data *data, void *user)
+{
+	event_add_handler_set(statusline_events, N_ELEMENTS(statusline_events),
+			      update_statusline, NULL);
+}
+
+static void ui_remove_statusline(game_event_type type, game_event_data *data, void *user)
+{
+	event_remove_handler_set(statusline_events, N_ELEMENTS(statusline_events),
+			      update_statusline, NULL);
+}
+
 
 errr textui_get_cmd(cmd_context context, bool wait)
 {
@@ -2035,6 +2113,9 @@ void init_display(void)
 
 	event_add_handler(EVENT_ENTER_GAME, ui_enter_game, NULL);
 	event_add_handler(EVENT_LEAVE_GAME, ui_leave_game, NULL);
+	event_add_handler(EVENT_INIT_STATUSLINE, ui_init_statusline, NULL);
+	event_add_handler(EVENT_REMOVE_STATUSLINE, ui_remove_statusline, NULL);
 
 	ui_init_birthstate_handlers();
 }
+

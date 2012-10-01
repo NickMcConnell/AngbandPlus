@@ -39,9 +39,6 @@
 #?:[EQU $SYS win]
 #%:font-win.prf
 
-?:[EQU $SYS acn]
-%:font-acn.prf
-
 ?:[EQU $SYS sdl]
 %:font-sdl.prf
 

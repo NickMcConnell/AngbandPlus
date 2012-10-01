@@ -6112,7 +6112,7 @@ static bool alloc_stairs(u16b feat, int num)
 		/* Quest -- must go up */
 		else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
 				 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
-				 (quest_check(p_ptr->depth) == QUEST_FIXED_MON) ||
+				 (quest_check(p_ptr->depth) == QUEST_GUARDIAN) ||
 				 (effective_depth(p_ptr->depth) >= MAX_DEPTH-1))
 		{
 			/* Clear previous contents, add up stairs */
@@ -7229,7 +7229,7 @@ static bool build_feature(int feat, bool do_big_lake)
 }
 
 
-#define ENABLE_DEVELOPER_FEATURE 1
+/*#define ENABLE_DEVELOPER_FEATURE 1 */
 
 #ifdef ENABLE_DEVELOPER_FEATURE
 
@@ -7286,6 +7286,12 @@ static void build_nature(void)
 	/* Get the maximum number of features based on level size */
 	byte dun_size = ponder_dungeon_size();
 
+	 /* Clear the level's restriction */
+	 level_flag = 0;
+
+	/* No NPP terrains option turned on */
+	if (adult_simple_dungeons) return;
+
 	/* Debug message */
 	if (cheat_room)
 	{
@@ -7300,11 +7306,8 @@ static void build_nature(void)
 
 	else max_features = DUN_MAX_LAKES;
 
-	 /* Clear the level's restriction */
- 	level_flag = 0;
-
 	/* Check quests for specific element flags */
-	for (i = 0; i < z_info->q_max; i++)
+ 	for (i = 0; i < z_info->q_max; i++)
 	{
 		/* Get the quest */
 		quest_type *q_ptr = &q_info[i];
@@ -7315,7 +7318,7 @@ static void build_nature(void)
 		/* Monster quests */
 		if ((q_ptr->q_type == QUEST_FIXED) ||
 			(q_ptr->q_type == QUEST_FIXED_U) ||
-			(q_ptr->q_type == QUEST_FIXED_MON) ||
+			(q_ptr->q_type == QUEST_GUARDIAN) ||
 			(q_ptr->q_type == QUEST_MONSTER) ||
 			(q_ptr->q_type == QUEST_UNIQUE))
 		{
@@ -7444,6 +7447,9 @@ static void build_themed_level_nature(byte theme)
 
 	/* Clear the level flag */
 	level_flag = 0;
+
+	/* No NPP terrains option turned on */
+	if (adult_simple_dungeons) return;
 
 	/* Find if the theme has some restrictions to generate terrain */
 	for (i = 0; i < N_ELEMENTS(themed_level_flags); i++)
@@ -8892,7 +8898,7 @@ static void build_misc_features(void)
 	}
 
 	/* More flavor! */
-	transform_walls_regions();
+	if (!adult_simple_dungeons) transform_walls_regions();
 }
 
 
@@ -9429,7 +9435,7 @@ static bool place_monsters_objects(void)
 
 			if ((q_ptr->q_type == QUEST_MONSTER) ||
 				(q_ptr->q_type == QUEST_FIXED) ||
-				(q_ptr->q_type == QUEST_FIXED_MON))
+				(q_ptr->q_type == QUEST_GUARDIAN))
 			{
 				int j;
 
@@ -9934,7 +9940,8 @@ static bool cave_gen(void)
 	if ((effective_depth(p_ptr->depth) > 10) && (one_in_(DUN_DEST))) destroyed = TRUE;
 
 	/* Possible "fractal" level */
-	if (!destroyed && (effective_depth(p_ptr->depth) >= 15) && one_in_(DUN_FRACTAL)) fractal_level = TRUE;
+	if (!destroyed && (effective_depth(p_ptr->depth) >= 15) && one_in_(DUN_FRACTAL) &&
+			 (!adult_simple_dungeons)) fractal_level = TRUE;
 
 	/*Clear the level flag*/
 	level_flag = 0;
@@ -10136,7 +10143,7 @@ static bool cave_gen(void)
 
 		/* Occasionally attempt a starburst room */
 		/* Maximum chance: one in 20 */
-		if (randint(800) <= MIN(effective_depth(p_ptr->depth), 40))
+		if ((randint(800) <= MIN(effective_depth(p_ptr->depth), 40)) && (!adult_simple_dungeons))
 		{
 			int room_idx = (one_in_(10) ? 11 : 10);
 
@@ -10145,7 +10152,7 @@ static bool cave_gen(void)
 
 		/* Occasionally attempt a fractal room */
 		/* Maximum chance: one in 7 */
-		if (randint(490) <= MIN(effective_depth(p_ptr->depth), 70))
+		if ((randint(490) <= MIN(effective_depth(p_ptr->depth), 70)) && (!adult_simple_dungeons))
 		{
 			if (one_in_(8) && room_build(by, bx, 14)) continue;
 
@@ -10473,7 +10480,7 @@ static void town_gen(void)
 		for (x = 1; x < p_ptr->cur_map_wid-1; x++)
 		{
 			/* Create empty floor */
-			cave_set_feat(y, x, FEAT_FLOOR);
+			cave_set_feat(y, x, FEAT_COBBLESTONE_FLOOR);
 		}
 	}
 
@@ -10511,14 +10518,15 @@ int pick_dungeon_type(void)
 	}
 
 	/* Random themed level */
-	if (allow_themed_levels && (effective_depth(p_ptr->depth) >= 10) &&
+	if (allow_themed_levels && (effective_depth(p_ptr->depth) >= 10) && (!adult_simple_dungeons) &&
 		!quest_check(effective_depth(p_ptr->depth)) && one_in_(THEMED_LEVEL_CHANCE))
 	{
 		return DUNGEON_TYPE_THEMED_LEVEL;
 	}
 
 	/* Random wilderness level */
-	if ((effective_depth(p_ptr->depth) > 10) && !quest_check(effective_depth(p_ptr->depth)) && one_in_(WILDERNESS_LEVEL_CHANCE))
+	if ((effective_depth(p_ptr->depth) > 10) && !quest_check(effective_depth(p_ptr->depth)) &&
+			(!adult_simple_dungeons) && one_in_(WILDERNESS_LEVEL_CHANCE))
 	{
 		return DUNGEON_TYPE_WILDERNESS;
 	}

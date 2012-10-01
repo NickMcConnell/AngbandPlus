@@ -23,6 +23,46 @@
 # K: action name : change with feature : change chance
 # F: flag | flag | etc
 # D: Description
+# 'G' is for graphics - symbol and color. There are 37 colors, 
+# with up to 256 customizable colors, as follows:
+
+# b  - Blue
+# b1 - Navy Blue 
+# B  - Light Blue 
+# B1 - Deep Sky Blue
+# d  - Black(default background)
+# D  - Dark Gray (Light Dark)
+# D1 - Taupe (Light Gray Shaded
+# g  - Green
+# G  - Light Green
+# g1 - Jungle Green
+# G1 - Lime Green (bright green)
+# o  - Orange
+# o1 - Light Orange (Orange Peel)
+# 02 - Mahagony
+# r  - Red
+# R  - Light Red
+# r1 - Lava Red
+# R1 - Light Red (raspberry)
+# R2 - Pink
+# s  - Slate (gray)
+# s1 - Slate Gray (light slate)
+# s2 - Silver
+# u  - Brown
+# U  - Light Brown
+# u1 - Auburn (brown shaded)
+# U1 - Fallow (light brown shaded)
+# u2 - Copper
+# v  - Violet
+# v1 - Violet shaded
+# w  - White
+# W  - Light gray (white shaded)
+# w1 - Snow White
+# W1 - Light White (Light Gray shaded)
+# y  - yellow
+# y1 - Maize (yellow shaded)
+# y2 - Gold
+#       
 
 # Effects do not use the C ow W lines.  They use the one line below:
 # X: depth : rarity : power : damage: gf type : timeout set : timeout rand
@@ -2140,5 +2180,13 @@ K:DEFAULT:89
 K:TREE:205:40
 F:NOTICE | REMEMBER | CAN_TUNNEL | WALL | ATTR_LIGHT
 F:HURT_ROCK | ACID
+
+
+N:206:cobblestone street
+G:.:s2
+W:0:1:15:0
+C:0:100:100:100:100:0
+F:LOS | PROJECT | MOVE | PLACE | DROP
+F:RUN | FLOOR | PERMANENT | ATTR_LIGHT | CAN_FLY
 
 

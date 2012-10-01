@@ -197,6 +197,8 @@ extern byte dyna_center_x;
 extern u16b cave_cost[MAX_FLOWS][MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
 extern int cost_at_center[MAX_FLOWS];
 
+extern int sidebar_details[SIDEBAR_MAX_TYPES];
+
 extern u16b quest_indicator_timer;
 extern byte quest_indicator_complete;
 
@@ -229,8 +231,8 @@ extern s16b alloc_race_size;
 extern alloc_entry *alloc_race_table;
 extern s16b alloc_feat_size;
 extern alloc_entry *alloc_feat_table;
-extern byte misc_to_attr[256];
-extern char misc_to_char[256];
+extern byte color_to_attr[2][MAX_COLOR_USED];
+extern char color_to_char[2][MAX_COLOR_USED];
 extern byte tval_to_attr[128];
 extern char macro_buffer[1024];
 extern char *keymap_act[KEYMAP_MODES][256];
@@ -250,6 +252,9 @@ extern char *f_text;
 extern object_kind *k_info;
 extern char *k_name;
 extern char *k_text;
+extern ghost_template *t_info;
+extern char *t_name;
+extern char *t_text;
 extern artifact_type *a_info;
 extern artifact_lore *a_l_list;
 extern char *a_text;
@@ -289,6 +294,7 @@ extern u16b size_mon_msg;
 extern u16b size_mon_hist;
 
 extern quiver_group_type quiver_group[MAX_QUIVER_GROUPS];
+
 
 extern const char *ANGBAND_SYS;
 extern const char *ANGBAND_GRAF;
@@ -360,6 +366,7 @@ extern void player_birth(bool quickstart_allowed);
 
 /* button.c */
 extern int button_add_text(const char *label, unsigned char keypress);
+extern void basic_buttons(void);
 extern int button_add(const char *label, unsigned char keypress);
 extern void button_backup_all(void);
 extern void button_restore(void);
@@ -367,10 +374,12 @@ extern int button_kill_text(unsigned char keypress);
 extern int button_kill(unsigned char keypress);
 extern void button_kill_all(void);
 extern void button_init(button_add_f add, button_kill_f kill);
+extern void button_free(void);
 extern char button_get_key(int x, int y);
 extern size_t button_print(int row, int col);
 
 /* calcs.c*/
+extern void calc_spells(void);
 extern void notice_stuff(void);
 extern void update_stuff(void);
 extern void redraw_stuff(void);
@@ -421,6 +430,7 @@ extern void disturb(int stop_search, int unused_flag);
 
 /* cmd0.c */
 extern void cmd_init(void);
+extern int click_area(ui_event_data ke);
 extern void do_cmd_quit(cmd_code code, cmd_arg args[]);
 extern void textui_process_command(bool no_request);
 
@@ -433,10 +443,12 @@ extern void py_pickup(bool pickup);
 extern s16b move_player(int dir, int jumping);
 
 /* cmd2.c */
+extern bool do_cmd_test(int y, int x, int action, bool message);
 extern void do_cmd_go_up(cmd_code code, cmd_arg args[]);
 extern void do_cmd_go_down(cmd_code code, cmd_arg args[]);
 extern void do_cmd_search(cmd_code code, cmd_arg args[]);
 extern void do_cmd_toggle_search(cmd_code code, cmd_arg args[]);
+extern int count_chests(int *y, int *x, bool trapped);
 extern void do_cmd_open(cmd_code code, cmd_arg args[]);
 extern void textui_cmd_open(void);
 extern void do_cmd_close(cmd_code code, cmd_arg args[]);
@@ -501,8 +513,8 @@ extern void do_cmd_redraw(void);
 extern void do_cmd_change_name(void);
 extern void do_cmd_message_one(void);
 extern void do_cmd_messages(void);
+extern void do_cmd_options_aux(void *vpage, cptr info);
 extern void do_cmd_pref(void);
-extern void do_cmd_macros(void);
 extern void do_cmd_visuals(void);
 extern void do_cmd_colors(void);
 extern void do_cmd_dictate_note(void);
@@ -511,7 +523,6 @@ extern const char *option_desc(int opt);
 extern void option_set(int opt, bool on);
 extern void option_set_defaults(void);
 extern void do_cmd_options(void);
-extern void init_cmd4_c(void);
 extern void do_cmd_note(char *note, int what_depth);
 extern void do_cmd_version(void);
 extern void do_cmd_feeling(void);
@@ -526,16 +537,16 @@ extern void delete_notes_file(void);
 /* cmd5.c */
 extern s16b spell_chance(int spell);
 extern bool spell_okay(int spell, bool known);
-extern void print_spells(const byte *spells, int num, int y, int x);
-extern void display_koff(int k_idx);
-extern int get_spell(const object_type *o_ptr, cptr prompt, bool known);
-extern void do_cmd_browse_aux(const object_type *o_ptr);
+extern int get_spell_menu(const object_type *o_ptr, int mode_dummy);
 extern bool player_can_cast(void);
 extern bool player_can_study(void);
+extern bool player_can_use_book(const object_type *o_ptr, bool cast);
 extern void do_cmd_study_spell(cmd_code code, cmd_arg args[]);
 extern void do_cmd_study_book(cmd_code code, cmd_arg args[]);
 extern void do_cmd_cast(cmd_code code, cmd_arg args[]);
 extern void spell_learn(int spell);
+
+
 
 /* cmd6.c */
 /*deleted entire file*/
@@ -551,12 +562,19 @@ extern void do_cmd_knowledge(void);
 
 
 /*cmd-obj.c*/
+extern void obj_uninscribe(object_type *o_ptr, int item);
 extern void do_cmd_uninscribe(cmd_code code, cmd_arg args[]);
 extern void do_cmd_inscribe(cmd_code code, cmd_arg args[]);
+extern void obj_inscribe(object_type *o_ptr, int item);
+extern void obj_examine(object_type *o_ptr, int item);
 extern void do_cmd_takeoff(cmd_code code, cmd_arg args[]);
 extern void do_cmd_wield(cmd_code code, cmd_arg args[]);
 extern void do_cmd_drop(cmd_code code, cmd_arg args[]);
+extern void obj_browse(object_type *o_ptr, int item);
+extern void obj_study(object_type *o_ptr, int item);
+extern void obj_cast(object_type *o_ptr, int item);
 extern void do_cmd_use(cmd_code code, cmd_arg args[]);
+extern void cmd_use_item(void);
 extern void textui_cmd_uninscribe(void);
 extern void textui_cmd_inscribe(void);
 extern void do_cmd_observe(void);
@@ -917,6 +935,7 @@ extern void display_object_idx_recall(s16b o_idx);
 extern void display_object_kind_recall(s16b k_idx);
 extern void display_itemlist(void);
 extern bool obj_can_refill(const object_type *o_ptr);
+extern bool obj_is_spellbook(const object_type *o_ptr);
 extern bool obj_is_staff(const object_type *o_ptr);
 extern bool obj_is_wand(const object_type *o_ptr);
 extern bool obj_is_rod(const object_type *o_ptr);
@@ -925,8 +944,13 @@ extern bool obj_is_scroll(const object_type *o_ptr);
 extern bool obj_is_food(const object_type *o_ptr);
 extern bool obj_is_light(const object_type *o_ptr);
 extern bool obj_is_ring(const object_type *o_ptr);
+extern bool obj_is_chest(const object_type *o_ptr);
+extern bool chest_requires_disarming(const object_type *o_ptr);
 extern bool obj_is_ammo(const object_type *o_ptr);
+extern bool ammo_can_fire(const object_type *o_ptr, int item);
+extern bool has_correct_ammo(void);
 extern bool obj_has_charges(const object_type *o_ptr);
+extern bool rod_can_zap(const object_type *o_ptr);
 extern bool obj_can_browse(const object_type *o_ptr);
 extern bool obj_can_takeoff(const object_type *o_ptr);
 extern bool obj_can_wear(const object_type *o_ptr);
@@ -948,6 +972,9 @@ extern void display_equip(void);
 extern void show_equip(olist_detail_t mode);
 extern void show_floor(const int *floor_list, int floor_num, olist_detail_t mode);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
+extern bool get_item_beside(int *cp, cptr pmt, cptr str, int sq_y, int sq_x);
+extern bool item_menu(int *cp, cptr pmt, int mode, bool *oops, int sq_y, int sq_x);
+
 
 /* pathfind.c */
 extern bool findpath(int y, int x);
@@ -1025,7 +1052,7 @@ extern void teleport_player_to(int ny, int nx);
 extern void teleport_towards(int oy, int ox, int ny, int nx);
 extern void teleport_player_level(int who);
 extern byte gf_color(int type);
-extern u16b bolt_pict(int y, int x, int ny, int nx, int typ);
+extern u16b bolt_pict(int y, int x, int ny, int nx, int typ, u32b flg);
 extern void take_terrain_hit(int dam, int feat, cptr kb_str);
 extern void take_hit(int dam, cptr kb_str);
 extern bool hates_location(int y, int x, const object_type *o_ptr);
@@ -1179,9 +1206,10 @@ extern void autoinscribe_pack(void);
 extern char *squelch_to_label(int squelch);
 extern bool squelch_tval(int tval);
 extern byte get_squelch_status(int k_idx);
-extern int squelch_itemp(object_type *o_ptr, byte feeling, bool fullid);
+extern int squelch_itemp(const object_type *o_ptr, byte feeling, bool fullid);
 extern int do_squelch_item(int squelch, int item, object_type *o_ptr);
 extern void rearrange_stack(int y, int x);
+extern bool squelch_item_ok(const object_type *o_ptr);
 extern void do_squelch_pile(int y, int x);
 extern void change_squelch_setting(s16b k_idx, int change);
 extern void do_cmd_squelch_autoinsc(void *unused, cptr title);
@@ -1207,6 +1235,8 @@ extern bool target_able(int m_idx);
 extern bool target_okay(void);
 extern void target_set_monster(int m_idx);
 extern void target_set_location(int y, int x);
+extern bool is_valid_target(int mode);
+extern bool valid_target_exists(int mode);
 extern bool target_set_closest(int mode);
 extern bool target_set_interactive(int mode, int x, int y);
 
@@ -1222,8 +1252,6 @@ extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
 
-
-/*use-obj.c*/
 
 
 /* util.c */
@@ -1269,7 +1297,7 @@ extern bool askfor_aux(char *buf, size_t len, bool keypress_h(char *, size_t, si
 extern bool get_name(char *buf, size_t buflen);
 extern bool get_string(cptr prompt, char *buf, size_t len);
 extern s16b get_quantity(cptr prompt, int max);
-extern int get_check_other(cptr prompt, char other, cptr explain);
+extern int get_check_other(cptr prompt, cptr other_text, char other, cptr explain);
 extern bool get_check(cptr prompt);
 extern bool (*get_file)(const char *suggested_name, char *path, size_t len);
 extern char get_char(cptr prompt, const char *options, size_t len, char fallback);
@@ -1328,7 +1356,7 @@ extern char xchar_trans(byte c);
 extern int get_spell_index(const object_type *o_ptr, int index);
 extern bool spell_needs_aim(int tval, int spell);
 extern cptr do_mage_spell(int mode, int spell, int dir);
-extern cptr do_druid_spell(int mode, int spell, int dir);
+extern cptr do_druid_incantation(int mode, int spell, int dir);
 extern cptr do_priest_prayer(int mode, int spell, int dir);
 cptr cast_spell(int mode, int tval, int index, int dir);
 extern int get_player_spell_realm(void);
@@ -1354,6 +1382,7 @@ extern void center_panel(void);
 extern void ang_sort_aux(void *u, void *v, int p, int q);
 extern void ang_sort(void *u, void *v, int n);
 extern int motion_dir(int y1, int x1, int y2, int x2);
+extern int mouse_dir(ui_event_data ke, bool locating);
 extern int target_dir(char ch);
 bool get_aim_dir(int *dp, bool target_trap);
 extern bool get_rep_dir(int *dp);

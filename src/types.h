@@ -49,6 +49,7 @@ typedef struct feature_state feature_state;
 typedef struct feature_type feature_type;
 typedef struct feature_lore feature_lore;
 typedef struct object_kind object_kind;
+typedef struct ghost_template ghost_template;
 typedef struct artifact_type artifact_type;
 typedef struct artifact_lore artifact_lore;
 typedef struct ego_item_type ego_item_type;
@@ -114,7 +115,9 @@ struct maxima
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "mon_list[]" */
 	u16b x_max;		/* Max size for "x_info[]" */
-	u16b ghost_other_max;  /* number of maintainer player ghost templates*/
+	u16b ghost_template_max;  /* number of maintainer maintainer + player ghost templates*/
+	u16b ghost_player_max;
+	u16b ghost_maint_max;
 	u16b art_spec_max; /* Max number of special artifacts*/
 
 	u16b art_norm_max; /* Max number for normal artifacts (special - normal)*/
@@ -373,7 +376,17 @@ struct ego_item_type
 	bool squelch;			/* Squelch this ego-item */
 };
 
-
+/*
+ * Information about ghost "templates".
+ */
+struct ghost_template
+{
+	u32b t_name;	/* Ghost Name */
+	u32b t_text;	/* Ghost Text */
+	byte t_gender;	/* Ghost gender (0 = male  1 = female) */
+	byte t_race;	/* Ghost race */
+	byte t_class; 	/* Ghost class */
+};
 
 
 /*
@@ -618,6 +631,7 @@ struct object_type
 	u32b ident;			/* Special flags (was byte) */
 
 	byte marked;		/* Object is marked */
+	bool obj_in_use; 	/* Object is in use */
 
 	u16b obj_note;		/* Inscription index */
 
@@ -726,7 +740,7 @@ struct quest_type
 	s16b cur_num;		/* Number killed */
 	s16b max_num;		/* Number required */
 
-	byte q_flags;		/* Has the player start the quest */
+	byte q_flags;		/* Various quest flags */
 };
 
 
@@ -1097,6 +1111,8 @@ struct player_type
 
 	bool playing;			/* True if player is playing */
 
+	bool noun_verb;			/* Player is using the object verb-noun menu */
+
 	bool leaving;			/* True if player is leaving */
 
 	bool autosave;          /* True if autosave is pending */
@@ -1151,7 +1167,7 @@ struct player_type
 	int  command_inv;		/* Gives item of current command */
 	ui_event_data command_cmd_ex; /* Gives additional information of current command */
 
-
+	s16b command_see;	/**< See "cmd1.c" */
 	s16b command_wrk;		/* See "cmd1.c" */
 
 	s16b command_new;		/* Hack -- command chaining XXX XXX */

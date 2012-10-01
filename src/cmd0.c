@@ -58,7 +58,7 @@ typedef struct
 /* Magic use */
 static command_type cmd_magic[] =
 {
-	{ "Gain new spells or prayers", 'G', CMD_NULL, textui_cmd_study },
+	{ "Gain new spells, incantations, or prayers", 'G', CMD_NULL, textui_cmd_study },
 	{ "Browse a book",              'b', CMD_NULL, do_cmd_browse },
 	{ "Cast a spell",               'm', CMD_NULL, textui_cmd_cast },
 	{ "Pray a prayer",              'p', CMD_NULL, textui_cmd_pray }
@@ -99,7 +99,8 @@ static command_type cmd_item_use[] =
 	{ "Fuel your light source",   'F', CMD_NULL, textui_cmd_refill },
 	{ "Fire your missile weapon", 'f', CMD_NULL, textui_cmd_fire },
 	{ "Fire at nearest target",   'h', CMD_NULL, textui_cmd_fire_at_nearest },
-	{ "Throw an item",            'v', CMD_NULL, textui_cmd_throw }
+	{ "Throw an item",            'v', CMD_NULL, textui_cmd_throw },
+	{ "Use item",            	  '|', CMD_NULL, cmd_use_item  }
 };
 
 /* Item management commands */
@@ -114,7 +115,8 @@ static command_type cmd_item_manage[] =
 	{ "Destroy an item",           'k', CMD_NULL, textui_cmd_destroy },
 	{ "Examine an item",           'I', CMD_NULL, do_cmd_observe },
 	{ "Inscribe an object",        '{', CMD_NULL, textui_cmd_inscribe },
-	{ "Uninscribe an object",      '}', CMD_NULL, textui_cmd_uninscribe }
+	{ "Uninscribe an object",      '}', CMD_NULL, textui_cmd_uninscribe },
+	{ "Use item",            	   '|', CMD_NULL, cmd_use_item }
 };
 
 /* Information access commands */
@@ -164,7 +166,7 @@ static command_type cmd_hidden[] =
 	{ "Jump into a trap",         '-', CMD_NULL, textui_cmd_jump },
 	{ "Start running",            '.', CMD_NULL, textui_cmd_run },
 	{ "Stand still",              ',', CMD_HOLD, NULL },
-	{ "Check knowledge",          '|', CMD_NULL, do_cmd_knowledge },
+	{ "Check knowledge",          '~', CMD_NULL, do_cmd_knowledge },
 	{ "Display menu of actions", KTRL('H'), CMD_NULL, do_cmd_menu },
 	{ "Center map",              KTRL('L'), CMD_NULL, do_cmd_center_map },
 
@@ -198,9 +200,347 @@ static command_list cmds_all[] =
 	{ "Hidden",          cmd_hidden,      N_ELEMENTS(cmd_hidden) }
 };
 
+/**
+ * Menu functions
+ */
+char comm[22];
+cptr comm_descr[22];
+int poss;
+
+/**
+ * Item tag/command key
+ */
+static char show_tag(menu_type *menu, int oid)
+{
+	/* Caution - could be a problem here if KTRL commands were used */
+	return comm[oid];
+}
+
+/**
+ * Display an entry on a command menu
+ */
+static void show_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+{
+	byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+
+	/* Write the description */
+	Term_putstr(col + 4, row, -1, attr, comm_descr[oid]);
+}
 
 
+/**
+ * Handle user input from a command menu
+ */
+static bool show_action(char cmd, void *db, int oid)
+{
+	/* Handle enter and mouse */
+	if (cmd == '\n' || cmd == '\r' || cmd == '\xff')
+	{
+		p_ptr->command_new = comm[oid];
+	}
+	return TRUE;
+}
 
+/**
+ * Display a list of commands.
+ */
+void show_cmd_menu(void)
+{
+	menu_type menu;
+	menu_iter commands_menu = {show_tag, NULL, show_display, show_action };
+	region area = { 0, 1, 20, -1};
+
+	int cursor = 0;
+
+	/* Size of menu */
+	area.page_rows = poss + 1;
+
+	/* Set up the menu */
+	WIPE(&menu, menu);
+	menu.cmd_keys = "\x8B\x8C\n\r";
+	menu.count = poss;
+	menu.menu_data = comm;
+	menu_init(&menu, MN_SKIN_SCROLL, &commands_menu, &area);
+
+	/* Select an entry */
+	(void) menu_select(&menu, &cursor, 0);
+}
+
+/*
+ * Figure out which row of the sidebar was clicked.
+ * These are not constant as the function update_sidebar
+ * will change what goes on each row depending on
+ * the screen height.
+ */
+static int sidebar_click(int row)
+{
+	int i;
+
+	/* Hack - special handling for the stat section */
+	if ((row >= sidebar_details[SIDEBAR_STAT_MIN]) &&
+		(row <= sidebar_details[SIDEBAR_STAT_MAX])) return SIDEBAR_STAT_MIN;
+
+	for (i=0; i < SIDEBAR_MAX_TYPES; i++)
+	{
+		if (row == sidebar_details[i]) return (i);
+	}
+
+	/* Nothing on this row */
+	return (MOUSE_NULL);
+}
+
+/**
+ * Bring up player actions
+ */
+static void show_commands(void)
+{
+	int i;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	bool nearby_closed_door = FALSE;
+	bool nearby_open_door = FALSE;
+	bool nearby_trap = FALSE;
+	bool nearby_player_trap = FALSE;
+	bool nearby_monster = FALSE;
+	bool nearby_chest = FALSE;
+	bool nearby_trapped_chest = FALSE;
+	bool can_steal = FALSE;
+	bool can_set_trap = FALSE;
+	bool can_tunnel = FALSE;
+	bool can_bash = FALSE;
+	bool can_spike = FALSE;
+
+	/* Start with no commands */
+	poss = 0;
+
+	/* Count_chests looks at all nearby squares */
+	if (count_chests(&py, &px, FALSE))
+	{
+		nearby_chest = TRUE;
+
+		/* reset location (count_chests may have moved it */
+		py = p_ptr->py;
+		px = p_ptr->px;
+
+		if (count_chests(&py, &px, TRUE)) nearby_trapped_chest = TRUE;
+
+		/* reset location (count_chests may have moved it */
+		py = p_ptr->py;
+		px = p_ptr->px;
+	}
+
+	/* Check the sourrounding squares for their contents */
+	for (i = 0; i < 8; i++)
+	{
+		int y = py + ddy[i];
+		int x = px + ddx[i];
+
+		if (!in_bounds_fully(y, x)) continue;
+
+		if (cave_any_trap_bold(y, x))
+		{
+			nearby_trap = TRUE;
+			if (cave_player_trap_bold(y, x)) 	nearby_player_trap = TRUE;
+		}
+
+		if (cave_known_closed_door(y, x))	nearby_closed_door = TRUE;
+		if (cave_open_door(y, x))			nearby_open_door = TRUE;
+		if (cave_ff1_match(y, x, (FF1_DOOR | FF1_CAN_TUNNEL)) == (FF1_CAN_TUNNEL))
+		{
+			can_tunnel = TRUE;
+		}
+		if (cave_m_idx[y][x] > 0)
+		{
+			nearby_monster = TRUE;
+
+			if (cp_ptr->flags & CF_ROGUE_COMBAT) can_steal = TRUE;
+		}
+		else if (cave_passable_bold(y,x))
+		{
+			if (cp_ptr->flags & CF_ROGUE_COMBAT) can_set_trap = TRUE;
+		}
+		if (do_cmd_test(y, x, FS_BASH, FALSE)) can_bash = TRUE;
+		if (do_cmd_test(y, x, FS_SPIKE, FALSE)) can_spike = TRUE;
+    }
+
+	/* Alter a grid */
+	if (nearby_monster || can_tunnel || nearby_closed_door || nearby_trap)
+    {
+      comm[poss] = '+';
+      comm_descr[poss++] = "Alter";
+    }
+
+	/* Dig a tunnel */
+	if (can_tunnel)
+	{
+		comm[poss] = 'T';
+		comm_descr[poss++] = "Tunnel";
+	}
+	/* Begin Running -- Arg is Max Distance */
+	comm[poss] = '.';
+	comm_descr[poss++] = "Run";
+
+	/* Hold still for a turn.  Pickup objects if auto-pickup is true. */
+	comm[poss] = ',';
+	comm_descr[poss++] = "Stand still";
+
+	comm[poss] = 'e';
+	comm_descr[poss++] = "Equipment";
+
+	comm[poss] = 'i';
+	comm_descr[poss++] = "Inventory";
+
+	/* Pick up objects. */
+	if (cave_o_idx[p_ptr->py][p_ptr->px])
+	{
+		comm[poss] = 'g';
+		comm_descr[poss++] = "Pick up";
+	}
+
+	/* Rest -- Arg is time */
+	comm[poss] = 'R';
+	comm_descr[poss++] = "Rest";
+
+	/* Search for traps/doors */
+	if (!p_ptr->searching)
+	{
+		comm[poss] = 's';
+
+		comm_descr[poss++] = "Search";
+	}
+
+	/* Look around */
+	comm[poss] = 'l';
+	comm_descr[poss++] = "Look";
+
+	/* Scroll the map */
+	comm[poss] = 'L';
+	comm_descr[poss++] = "Scroll map";
+
+	/* Show the map */
+	comm[poss] = 'M';
+	comm_descr[poss++] = "Level map";
+
+	/* Knowledge */
+	comm[poss] = '~';
+	comm_descr[poss++] = "Knowledge";
+
+	/* Options */
+	comm[poss] = '=';
+	comm_descr[poss++] = "Options";
+
+	/* Options */
+	comm[poss] = ':';
+	comm_descr[poss++] = "Take note";
+
+	/* Toggle search mode */
+	comm[poss] = 'S';
+	comm_descr[poss++] = "Toggle searching";
+
+	/* Go up staircase */
+	if (cave_stair_bold(py, px))
+	{
+		if (cave_up_stairs(py, px))
+		{
+			comm[poss] = '<';
+			if cave_shaft_bold(py, px)	comm_descr[poss++] = "Go up shaft";
+			else comm_descr[poss++] = "Go up staircase";
+		}
+		else
+		{
+			comm[poss] = '>';
+			if cave_shaft_bold(py, px)	comm_descr[poss++] = "Go down shaft";
+			else comm_descr[poss++] = "Go down staircase";
+		}
+	}
+
+	/* Disarm a trap or chest */
+	if (nearby_trapped_chest || nearby_trap)
+	{
+		comm[poss] = 'D';
+		comm_descr[poss++] = "Disarm";
+	}
+
+	/* Open a door or chest */
+	if (nearby_closed_door || nearby_chest)
+    {
+      comm[poss] = 'o';
+      comm_descr[poss++] = "Open";
+    }
+
+	/* Close a door */
+	if (nearby_open_door)
+	{
+		comm[poss] = 'c';
+		comm_descr[poss++] = "Close";
+	}
+
+	/* Jam a door with spikes,or bash it */
+	if (can_bash)
+	{
+		comm[poss] = 'B';
+		comm_descr[poss++] = "Bash";
+	}
+
+    /* Jam a door with spikes,or bash it */
+	if (can_spike)
+	{
+		comm[poss] = 'j';
+		comm_descr[poss++] = "Jam";
+	}
+
+	/* Jam a door with spikes,or bash it */
+	if (can_set_trap)
+	{
+		comm[poss] = 'o';
+		if ((nearby_player_trap) && (cp_ptr->flags & CF_ROGUE_COMBAT))
+		{
+			comm_descr[poss++] = "Set or Improve Trap";
+		}
+		else comm_descr[poss++] = "Set Trap";
+	}
+	if (can_steal)
+	{
+		comm[poss] = 'P';
+		comm_descr[poss++] = "Steal From Monster";
+	}
+
+	if (cp_ptr->spell_book)
+	{
+		comm[poss] = 'm';
+		comm_descr[poss++] = "Cast a spell";
+	}
+
+	/* Prompt */
+	put_str("Choose a command, or ESC:", 0, 0);
+
+	button_backup_all();
+
+	/* Get a choice */
+	show_cmd_menu();
+
+	/* Load screen */
+	button_restore();
+
+	do_cmd_redraw();
+}
+
+/**
+ * Divide up the screen into mousepress regions
+ */
+int click_area(ui_event_data ke)
+{
+	if ((ke.mousey) && (ke.mousex > COL_MAP) && (ke.mousey < (Term->hgt - 1)))
+	{
+		return MOUSE_MAP;
+	}
+	/* Status Line */
+	else if (!ke.mousey) return MOUSE_MESSAGE;
+	else if (ke.mousey == Term->hgt - 1) return MOUSE_STATUS_BAR;
+	else if (ke.mousex <= COL_MAP) return (sidebar_click(ke.mousey));
+	else return MOUSE_NULL;
+}
 
 /*
  * Toggle wizard mode
@@ -292,42 +632,135 @@ void do_cmd_quit(cmd_code code, cmd_arg args[])
  */
 static void do_cmd_mouseclick(void)
 {
-	int x, y;
-
-
-	if (!mouse_movement) return;
+	int x, y, area;
 
 	y = KEY_GRID_Y(p_ptr->command_cmd_ex);
 	x = KEY_GRID_X(p_ptr->command_cmd_ex);
 
-	/* Check for a valid location */
-	if (!in_bounds_fully(y, x)) return;
+	/* Find out where we've clicked */
+	area = click_area(p_ptr->command_cmd_ex);
 
-	/* XXX We could try various things here like going up/down stairs */
-	if ((p_ptr->py == y) && (p_ptr->px == x) /* && (p_ptr->command_cmd_ex.mousebutton) */)
+	switch (area)
 	{
-		textui_cmd_rest();
+		case MOUSE_MAP:
+		{
+			/* Go through various on-screen options below */
+			break;
+		}
+		/* Display the character */
+		case SIDEBAR_RACE:
+		{
+			char buf[80];
+
+			strnfmt(buf, sizeof(buf), "raceclas.txt#%s", p_name + rp_ptr->name);
+			screen_save();
+			show_file(buf, NULL, 0, 0);
+			screen_load();
+			return;
+		}
+		case SIDEBAR_CLASS:
+		{
+			char buf[80];
+
+			strnfmt(buf, sizeof(buf), "raceclas.txt#%s", c_name + cp_ptr->name);
+			screen_save();
+			show_file(buf, NULL, 0, 0);
+			screen_load();
+			return;
+		}
+		case SIDEBAR_LEVEL:
+		case SIDEBAR_STAT_MIN:
+		case SIDEBAR_STAT_MAX:
+		case SIDEBAR_XP:
+		case SIDEBAR_GOLD:
+		{
+			do_cmd_change_name();
+			return;
+		}
+		case SIDEBAR_HP:
+		{
+			textui_cmd_rest();
+			return;
+		}
+		case SIDEBAR_MANA:
+		{
+			textui_cmd_cast();
+			return;
+		}
+		case SIDEBAR_MON_HP:
+		case SIDEBAR_MON_MANA:
+		{
+			if (p_ptr->monster_race_idx)
+			{
+				/* Save screen */
+				screen_save();
+
+				screen_roff(p_ptr->monster_race_idx);
+
+				(void)anykey();
+
+				screen_load();
+			}
+			return;
+		}
+		case MOUSE_MESSAGE:
+		{
+			do_cmd_messages();
+			return;
+		}
+		case SIDEBAR_FEELING:
+		{
+		    do_cmd_feeling();
+		    return;
+		}
+		case SIDEBAR_QUEST:
+		{
+		    do_cmd_quest();
+		    return;
+		}
+		case SIDEBAR_EQUIPPY:
+		{
+			do_cmd_equip();
+			return;
+		}
+		/* Do nothing */
+		case SIDEBAR_SPEED:
+		case SIDEBAR_DEPTH:
+		case MOUSE_STATUS_BAR:
+		case MOUSE_NULL:
+		default:
+		{
+		    return;
+		}
 	}
-	else /* if (p_ptr->command_cmd_ex.mousebutton == 1) */
+
+	/* Give the player a list of command to choose from */
+	if ((p_ptr->py == y) && (p_ptr->px == x))
 	{
-		if (p_ptr->timed[TMD_CONFUSED])
-		{
-			cmd_insert(CMD_WALK, DIR_UNKNOWN);
-		}
-		else
-		{
-			cmd_insert(CMD_PATHFIND, y, x);
-		}
+		/* Display player */
+		show_commands();
+
+		return;
 	}
-	/*
-	else if (p_ptr->command_cmd_ex.mousebutton == 2)
+
+	if (!mouse_movement) return;
+
+	/*if (p_ptr->command_cmd_ex.mousebutton == 2)
 	{
 		target_set_location(y, x);
 		msg_print("Target set.");
-	}
-	*/
-}
+	}*/
 
+	/* Mouseclick on map other than the player*/
+	if (p_ptr->timed[TMD_CONFUSED])
+	{
+		cmd_insert(CMD_WALK, DIR_UNKNOWN);
+	}
+	else
+	{
+		cmd_insert(CMD_PATHFIND, y, x);
+	}
+}
 
 /*
  * Port-specific options
@@ -389,7 +822,7 @@ static void do_cmd_itemlist(void)
  */
 static void do_cmd_unknown(void)
 {
-	prt("Type '?' for help, or press CTRL-h for a floating menu of commands.", 0, 0);
+	prt("'?':help, mouseclick on player:command suggestions, CTRL-h:complete command list.", 0, 0);
 }
 
 
@@ -523,7 +956,6 @@ static void do_cmd_menu(void)
 	menu_iter commands_menu = { NULL, NULL, cmd_list_entry, cmd_list_action };
 	region area = { 21, 5, 37, 6 };
 
-	ui_event_data evt;
 	int cursor = 0;
 	command_type chosen_command = {NULL, '\0', CMD_NULL, NULL};
 
@@ -539,7 +971,7 @@ static void do_cmd_menu(void)
 	window_make(19, 4, 58, 11);
 
 	/* Select an entry */
-	evt = menu_select(&menu, &cursor, 0);
+	(void)menu_select(&menu, &cursor, 0);
 
 	/* Load de screen */
 	screen_load();

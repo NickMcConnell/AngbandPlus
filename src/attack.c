@@ -1047,7 +1047,6 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 	u16b path_g[PATH_SIZE];
 	u16b path_gx[PATH_SIZE];
 
-
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
 
@@ -1063,7 +1062,7 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 	dir = args[1].direction;
 
 	/* Check the item being fired is usable by the player. */
-	if (!item_is_available(item, NULL, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
+	if (!item_is_available(item, NULL, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_QUIVER | QUIVER_FIRST)))
 	{
 		msg_format("That item is not within your reach.");
 		return;
@@ -1092,8 +1091,9 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
 
-	/* Single object */
+	/* Single object, not marked */
 	i_ptr->number = 1;
+	i_ptr->obj_in_use = FALSE;
 
 	if (IS_QUIVER_SLOT(item))
 	{
@@ -1122,6 +1122,21 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_FULL | ODESC_SINGULAR);
+
+	/* Cursed ammunition can hurt the player sometimes */
+	if (IS_QUIVER_SLOT(item) && cursed_p(i_ptr) && (rand_int(100) < 70))
+	{
+		/* Get amount of damage */
+		int dam = damroll(i_ptr->dd, i_ptr->ds) + ABS(i_ptr->to_d) + ABS(j_ptr->to_d) + ABS(p_ptr->state.to_d);
+
+		/* Message */
+		msg_format("The %s releases its curse on you!", o_name);
+
+		/* Hurt the player */
+		project_p(SOURCE_OTHER, p_ptr->py, p_ptr->px, dam, GF_NETHER, "firing a cursed projectile");
+
+		return;
+	}
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
@@ -1186,6 +1201,33 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 		/* Only do visuals if the player can "see" the missile */
 		if (player_can_see_bold(y, x))
 		{
+			/* Hack, get the appropriate arrow graphics for david gervais and adam bolt's graphics*/
+			if (((i_ptr->tval == TV_ARROW) || (i_ptr->tval == TV_BOLT)) &&
+				 (use_graphics) && ((arg_graphics == GRAPHICS_DAVID_GERVAIS) || (arg_graphics == GRAPHICS_ADAM_BOLT)))
+			{
+				int yy, xx;
+				u16b pict;
+
+				if (!i)
+				{
+					yy = p_ptr->py;
+					xx = p_ptr->px;
+				}
+				else
+				{
+					yy = GRID_Y(path_g[i-1]);
+					xx = GRID_X(path_g[i-1]);
+				}
+
+				pict = bolt_pict(yy, xx, ny, nx, GF_ARROW, PROJECT_AMMO);
+
+				missile_attr = PICT_A(pict);
+				missile_char = PICT_C(pict);
+
+				/* Use the other DVG set for bolts */
+				if (i_ptr->tval == TV_BOLT) missile_char += 8;
+			}
+
 			/* Visual effects */
 			print_rel(missile_char, missile_attr, y, x);
 			move_cursor_relative(y, x);
@@ -1380,7 +1422,7 @@ void textui_cmd_fire(void)
 	p_ptr->command_wrk = USE_EQUIP;
 
 	/* Get an item */
-	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_QUIVER | QUIVER_FIRST | USE_FLOOR))) return;
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir, FALSE)) return;
@@ -1404,9 +1446,26 @@ void textui_cmd_fire_at_nearest(void)
 	/* Find first eligible ammo in the quiver */
 	for (i=QUIVER_START; i < QUIVER_END; i++)
 	{
-		if (inventory[i].tval != p_ptr->state.ammo_tval) continue;
+		object_type *o_ptr = & inventory [i];
+
+		if (!ammo_can_fire(o_ptr, i)) continue;
+
 		item = i;
 		break;
+	}
+
+	/* Next, try the backpack if necessary*/
+	if (item < 0)
+	{
+		for (i = 0; i < INVEN_PACK; i++)
+		{
+			object_type *o_ptr = & inventory [i];
+
+			if (!ammo_can_fire(o_ptr, i)) continue;
+
+			item = i;
+			break;
+		}
 	}
 
 	/* Require usable ammo */
@@ -1954,7 +2013,7 @@ void do_cmd_throw(cmd_code code, cmd_arg args[])
 	}
 
 	/* Check the item being thrown is usable by the player. */
-	if (!item_is_available(item, NULL, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
+	if (!item_is_available(item, NULL, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_QUIVER)))
 	{
 		msg_format("That item is not within your reach.");
 		return;
@@ -1974,6 +2033,7 @@ void do_cmd_throw(cmd_code code, cmd_arg args[])
 
 	/* Single object */
 	i_ptr->number = 1;
+	i_ptr->obj_in_use = FALSE;
 
 	if (IS_QUIVER_SLOT(item))
 	{
@@ -2319,7 +2379,7 @@ void textui_cmd_throw(void)
 	/* Get an item */
 	q = "Throw which item? ";
 	s = "You have nothing to throw.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_QUIVER | USE_FLOOR))) return;
 
 	if (item >= INVEN_WIELD && item < QUIVER_START)
 	{

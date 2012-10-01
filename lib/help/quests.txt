@@ -62,7 +62,7 @@ leave and return to a quest level. Leaving an optional quest level without
 killing the required number of creatures can result in a failed quest.  Failing
 a quest greatly tarnishes the player's reputation at the guild.
 
-***** <Fixed Monster Quest>
+***** <Guardian Quest>
 FIXED MONSTER QUESTS:
 Similar to monster quests.  The player is assigned to go to a specified
 depth, based on the average difficulty of monsters 4-9 levels below the quest 

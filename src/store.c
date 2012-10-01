@@ -198,7 +198,7 @@ static cptr quest_title[QUEST_SLOT_MAX] =
 	"Pit or Nest Quest",		/*QUEST_PIT*/
   	"Level Quest",				/*QUEST_LEVEL*/
 	"Vault Quest",				/*QUEST_VAULT*/
-  	"Fixed Monster Quest"		/*QUEST_FIXED */
+  	"Guardian Quest"			/*QUEST_FIXED */
 };
 
 
@@ -287,6 +287,187 @@ static const char *comment_great[] =
 	"Wow.  I'm going to name my new villa in your honour."
 };
 
+int stats[A_MAX];
+#define STAT_ESCAPE		A_MAX
+#define STAT_NO_CHOICE	A_MAX + 1
+
+/**
+ * Item tag/command key
+ */
+static char stats_tag(menu_type *menu, int oid)
+{
+	/* Caution - could be a problem here if KTRL commands were used */
+	return I2A(oid);
+}
+
+/**
+ * Display an entry on a command menu
+ */
+static void stat_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+{
+	char buf[80];
+	byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+	int pr_stat = stats[oid];
+
+	/* Write the description */
+	c_prt(attr, stat_names[pr_stat], row, col);
+
+	/* Note if the stat is maxed */
+	if (p_ptr->stat_max[pr_stat] == 18+100) put_str("!", row, col+3);
+
+	/* Internal "natural" maximum value */
+	cnv_stat(p_ptr->stat_max[pr_stat], buf, sizeof(buf));
+	c_put_str(TERM_L_GREEN, buf, row, col+5);
+
+	/* Race Bonus */
+	strnfmt(buf, sizeof(buf), "%+3d", rp_ptr->r_adj[pr_stat]);
+	c_put_str(TERM_L_BLUE, buf, row, col+11);
+
+	/* Class Bonus */
+	strnfmt(buf, sizeof(buf), "%+3d", cp_ptr->c_adj[pr_stat]);
+	c_put_str(TERM_L_BLUE, buf, row, col+14);
+
+	/* Equipment Bonus */
+	strnfmt(buf, sizeof(buf), "%+3d", p_ptr->state.stat_add[pr_stat]);
+	c_put_str(TERM_L_BLUE, buf, row, col+18);
+
+	/* Resulting "modified" maximum value */
+	cnv_stat(p_ptr->state.stat_top[pr_stat], buf, sizeof(buf));
+	c_put_str(TERM_L_GREEN, buf, row, col+22);
+
+	/* Only display stat_use if not maximal */
+	if (p_ptr->state.stat_use[pr_stat] < p_ptr->state.stat_top[pr_stat])
+	{
+		cnv_stat(p_ptr->state.stat_use[pr_stat], buf, sizeof(buf));
+		c_put_str(TERM_YELLOW, buf, row, col+29);
+	}
+}
+
+/**
+ * Handle user input from a command menu
+ */
+static bool stat_action(char cmd, void *db, int oid)
+{
+	return TRUE;
+}
+/*
+ * Pick a stat.
+ */
+static int stats_menu(int service)
+{
+	int i;
+	int count = 0;
+	char title[120];
+	menu_type menu;
+	menu_iter menu_f = { stats_tag, NULL, stat_display, stat_action };
+	ui_event_data evt = { EVT_NONE, 0, 0, 0, 0 };
+	region area = { 0, 1, -1, -1 };
+	int cursor = 0;
+	int return_value = STAT_NO_CHOICE;
+
+	/* Count up the stats that require the service */
+	for (i = 0; i < A_MAX; i++)
+	{
+		/* Add the stat that need to be restored */
+		if (service == SERVICE_RESTORE_STAT)
+		{
+			if (p_ptr->stat_cur[i] < p_ptr->stat_max[i]) stats[count++] = i;
+		}
+		else /*(service == SERVICE_INCREASE_STAT)*/
+		{
+			if (p_ptr->stat_max[i] < 18+100) stats[count++] = i;
+		}
+
+	}
+
+	/* None of the player stats need servicing */
+	if (!count) return (STAT_NO_CHOICE);
+
+	/* Set up the menu */
+	WIPE(&menu, menu);
+	menu.count = count;
+	menu.title = "abcdef+-\n\r";
+	menu.title = "              Self RB CB  EB   Best";
+	menu.menu_data = stats;
+	if (service == SERVICE_RESTORE_STAT)
+	{
+		my_strcpy(title, " Please select a stat to restore.", sizeof(title));
+	}
+	else /*(service == SERVICE_INCREASE_STAT)*/
+	{
+		my_strcpy(title, " Please select a stat to increase.", sizeof(title));
+	}
+
+	menu.prompt = title;
+	area.page_rows = count + 4;
+	area.width = MAX(strlen(menu.title), strlen(menu.prompt)) + 7;
+
+	menu_init(&menu, MN_SKIN_SCROLL, &menu_f, &area);
+
+	/* Make some buttons */
+	button_backup_all();
+	button_kill_all();
+	button_add("[ESC]", ESCAPE);
+
+	/* Add buttons for all stats that require the service */
+	for (i = 0; i < count; i++)
+	{
+		/* Only use the first three digits */
+		char stat_name[4];
+
+		/*
+		 * Very important to use a string function that handles buffer overflow,
+		 * since a string 5 characters long is being put into a variable 3 spaces long.
+		 */
+		my_strcpy(stat_name, stat_names[stats[i]], sizeof(stat_name));
+
+		button_add(format("[%s]", stat_name),I2A(i));
+	}
+
+	event_signal(EVENT_MOUSEBUTTONS);
+
+	/* Select an entry */
+	while (return_value == STAT_NO_CHOICE)
+	{
+		evt = menu_select(&menu, &cursor, EVT_MOVE);
+
+		if (evt.key == ESCAPE)
+		{
+			return_value = STAT_ESCAPE;
+			continue;
+		}
+
+		else if (evt.type == EVT_BUTTON)
+		{
+			switch (evt.key)
+			{
+				case 'a':
+				case 'b':
+				case 'c':
+				case 'd':
+				case 'e':
+				case 'f':
+				{
+					return_value = stats[A2I(evt.key)];
+					continue;
+				}
+					default:  	break;
+			}
+		}
+		else if (evt.type == EVT_SELECT)
+		{
+			return_value = stats[cursor];
+			continue;
+		}
+	}
+
+	/* Load screen */
+	button_kill_all();
+	button_restore();
+	return (return_value);
+}
+
+
 
 /*
  * The greeting a shopkeeper gives the character says a lot about his
@@ -348,7 +529,7 @@ static void store_updates(void)
 	/* Redraw stuff */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_INVEN | PR_EQUIP | PR_MESSAGE);
 
-	p_ptr->window |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_ITEMLIST);
 
 }
 
@@ -414,18 +595,6 @@ static bool check_gold(s32b price)
 
 	return (TRUE);
 }
-
-/*
- * Convert a store item index into a one character label
- *
- * We use labels "a"-"l" for page 1, and labels "m"-"x" for page 2.
- */
-static s16b store_to_label(int i)
-{
-	/* Assume legal */
-	return (I2A(i));
-}
-
 
 static void init_services_and_quests(int store_num)
 {
@@ -568,7 +737,7 @@ static bool store_service_aux(int store_num, s16b choice)
 
 	cptr q, s;
 
-	int item, i;
+	int item;
 
 	char prompt[160];
 
@@ -595,7 +764,7 @@ static bool store_service_aux(int store_num, s16b choice)
 			/* Get an item */
 			q = "Enchant which item? ";
 			s = "You have nothing to enchant.";
-			if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return (FALSE);
+			if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_QUIVER))) return (FALSE);
 
 			/*Got the item*/
 			o_ptr = &inventory[item];
@@ -701,7 +870,7 @@ static bool store_service_aux(int store_num, s16b choice)
 			/* Get an item */
 			q = "Brand which item? ";
 			s = "You have nothing to Brand.";
-			if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return (FALSE);
+			if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_QUIVER))) return (FALSE);
 
 			/*Got the item*/
 			o_ptr = &inventory[item];
@@ -929,80 +1098,35 @@ static bool store_service_aux(int store_num, s16b choice)
 		case SERVICE_RESTORE_STAT:
 		case SERVICE_INCREASE_STAT:
 		{
-
-			bool stats_healthy = TRUE;
-			bool stats_maxed = TRUE;
+			int result;
 
 			/*Too expensive*/
 			if (!check_gold(price)) return (FALSE);
 
 			screen_save();
-			window_make(28, 8, 69, 17);
 
-			/* Check the stats for need */
-			for (i = 0; i < A_MAX; i++)
+			/* returning false??*/
+			result = stats_menu(choice);
+
+			if (result == STAT_NO_CHOICE)
 			{
-				byte color = TERM_SLATE;
 
-				/* Display "injured" stat */
-				if (p_ptr->stat_cur[i] < p_ptr->stat_max[i])
+				if (choice == SERVICE_RESTORE_STAT)
 				{
-					stats_healthy = FALSE;
-
-					color = TERM_L_BLUE;
+					screen_load();
+					msg_format("None of your stats need restoring.");
+					return (FALSE);
 				}
-
-				/* Mark natural maximum */
-				if (p_ptr->stat_max[i] < 18+100)
+				else if (choice == SERVICE_INCREASE_STAT)
 				{
-					stats_maxed = FALSE;
-
-					color = TERM_L_BLUE;
-
+					screen_load();
+					msg_format("Your stats cannot be increased any further.");
+					return (FALSE);
 				}
-
-				/*print out the letter (lines up with the next command to display stat info)*/
-				c_put_str(color, format("%c) ",  store_to_label(i)), 10 + i, 30);
-
 			}
-
-			/* All Modes Use Stat info */
-			display_player_stat_info(10, 33);
-
-			if ((choice == SERVICE_RESTORE_STAT) && (stats_healthy))
-			{
-				msg_format("None of your stats need restoring.");
-
-				screen_load();
-				return (FALSE);
-			}
-			else if ((choice == SERVICE_INCREASE_STAT) && (stats_maxed))
-			{
-				msg_format("Your stats cannot be increased any further.");
-				screen_load();
-				return (FALSE);
-			}
-
-			if  (choice == SERVICE_RESTORE_STAT)
-			{
-				/* Copy the string over */
-				my_strcpy(prompt, "Which stat do you wish to restore? (ESC to cancel):",
-					sizeof(prompt));
-			}
-			/*must be SERVICE_INCREASE_STAT*/
-			else
-			{
-				/* Copy the string over */
-				my_strcpy(prompt, "Which stat do you wish to increase? (ESC to cancel):",
-					sizeof(prompt));
-			}
-
-
-			/* Get the object number to be bought */
-			i = get_menu_choice(A_MAX, prompt);
 
 			/*player chose escape - do nothing */
-			if (i == -1)
+			if (result == STAT_ESCAPE)
 			{
 				screen_load();
 				return (FALSE);
@@ -1012,21 +1136,19 @@ static bool store_service_aux(int store_num, s16b choice)
 			if (choice == SERVICE_RESTORE_STAT)
 			{
 				/*charge it*/
-				if (do_res_stat(i)) p_ptr->au -= price;
+				if (do_res_stat(result)) p_ptr->au -= price;
 				else msg_format("Your %s does not need restoring.",
-										stat_names_full[i]);
+										stat_names_full[result]);
 
 			}
 			/*must be SERVICE_INCREASE_STAT*/
 			else
 			{
-				if (do_inc_stat(i)) p_ptr->au -= price;
+				if (do_inc_stat(result)) p_ptr->au -= price;
 				else msg_format("Your %s cannot be increased any further.",
-									stat_names_full[i]);
+									stat_names_full[result]);
 			}
-
 			screen_load();
-
 			return (TRUE);
 		}
 
@@ -1108,7 +1230,7 @@ static bool store_service_aux(int store_num, s16b choice)
 
 			if (((q_ptr->q_type != QUEST_MONSTER) &&
 			     (q_ptr->q_type != QUEST_UNIQUE) &&
-			     (q_ptr->q_type != QUEST_FIXED_MON)) ||
+			     (q_ptr->q_type != QUEST_GUARDIAN)) ||
 				(q_ptr->mon_idx == 0))
 			{
 				msg_print("You are not currently questing for a specific creature.");
@@ -2186,15 +2308,16 @@ static void store_item_increase(int st, int item, int num)
 	cnt = o_ptr->number + num;
 	if (cnt > STORE_MAX_ITEM) cnt = STORE_MAX_ITEM;
 	else if (cnt < 0) cnt = 0;
-
-	/* Hack - don't let theh store be bought out of items that are always in stock run out */
-	if (keep_in_stock(o_ptr, st))
-	{
-		cnt = STORE_MAX_ITEM;
-	}
+	num = cnt - o_ptr->number;
 
 	/* Save the new number */
-	o_ptr->number = cnt;
+	o_ptr->number += num;
+
+	/* Hack - don't let the store be bought out of items that are always in stock run out */
+	if (keep_in_stock(o_ptr, st))
+	{
+		if (st != STORE_HOME) o_ptr->number = STORE_MAX_ITEM;
+	}
 }
 
 
@@ -2276,7 +2399,7 @@ static bool black_market_ok(const object_type *o_ptr)
 }
 
 /*
- * Keep certain objects (undiscounted only.
+ * Keep certain objects (undiscounted only).
  *
  * Note if this list is greatly expanded, teh store_maint function
  * could get caught in an eternal loop.  Be mindful of the fixed
@@ -2291,6 +2414,9 @@ bool keep_in_stock(const object_type *o_ptr, int which)
 	if (o_ptr->discount) return (FALSE);
 	if (o_ptr->art_num) return (FALSE);
 	if (o_ptr->ego_num) return (FALSE);
+
+	/* Never in the home */
+	if (which == STORE_HOME) return (FALSE);
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -2333,7 +2459,6 @@ bool keep_in_stock(const object_type *o_ptr, int which)
 			if (which != STORE_TEMPLE) return (FALSE);
 			if (k_ptr->sval == SV_POTION_CURE_CRITICAL) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RESTORE_EXP) return (TRUE);
-			if (k_ptr->sval == SV_POTION_HEROISM) return (TRUE);
 			return (FALSE);
 		}
 		case TV_SCROLL:
@@ -2344,19 +2469,20 @@ bool keep_in_stock(const object_type *o_ptr, int which)
 			if (k_ptr->sval == SV_SCROLL_SATISFY_HUNGER) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_IDENTIFY) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_WORD_OF_RECALL) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_HOLY_CHANT) return (TRUE);
 			return (FALSE);
 
 		}
 		/* Flasks should be kept */
 		case TV_FLASK:
 		{
+			if (which != STORE_GENERAL) return (FALSE);
 			return (TRUE);
 		}
 		case TV_PRAYER_BOOK:
 		case TV_MAGIC_BOOK:
 		case TV_DRUID_BOOK:
 		{
+			if (which != STORE_BOOKSHOP) return (FALSE);
 			if (k_ptr->sval < SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
 		}
@@ -3253,6 +3379,7 @@ static void store_redraw(void)
 			prt("Press '?' for help.", scr_places_y[LOC_HELP_PROMPT], 1);
 
 		store_flags &= ~(STORE_FRAME_CHANGE);
+		event_signal(EVENT_MOUSEBUTTONS);
 	}
 
 	if (store_flags & (STORE_GOLD_CHANGE))
@@ -3269,25 +3396,37 @@ static void store_redraw(void)
 
 static bool store_get_check(const char *prompt)
 {
-	char ch;
+	ui_event_data ch;
 	bool return_v = FALSE;
 
 	/* Prompt for it */
 	prt(prompt, 0, 0);
 
+	/* Make some buttons */
+	button_backup_all();
+	button_kill_all();
+	button_add("[YES]", 'y');
+	button_add("[NO]", 'n');
+	event_signal(EVENT_MOUSEBUTTONS);
+
 	while (TRUE)
 	{
 		/* Get an answer */
-		ch = inkey();
+		ch = inkey_ex();
 
-		if ((strchr("Nn", ch)) || (ch == ESCAPE)) break;
-		if ((strchr("Yy", ch)) || (ch == '\r') || (ch == '\r') || (ch == '\xff'))
+		if ((strchr("Nn", ch.key)) || (ch.key == ESCAPE)) break;
+		if ((strchr("Yy", ch.key)) || (ch.key == '\r') || (ch.key == '\r') || (ch.key == '\xff'))
 		{
 			return_v = TRUE;
 			break;
 		}
 
 	}
+
+	/* Kill the buttons */
+	/* Restore the old buttons */
+	button_restore();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Erase the prompt */
 	prt("", 0, 0);
@@ -4047,7 +4186,7 @@ static bool store_sell(void)
 {
 	int amt;
 	int item;
-	int get_mode = USE_EQUIP | USE_INVEN | USE_FLOOR;
+	int get_mode = (USE_EQUIP | USE_INVEN | USE_FLOOR  | USE_QUIVER);
 
 	object_type *o_ptr;
 	object_type object_type_body;
@@ -4083,7 +4222,6 @@ static bool store_sell(void)
 	else
 	{
 		item_tester_hook = store_will_buy_tester;
-		get_mode |= SHOW_PRICES;
 	}
 
 	/* Get an item */
@@ -4183,34 +4321,36 @@ static void store_examine(int oid)
 
 	entry_num = find_entry_type(&entry_type, oid);
 
+	screen_save();
+
+	/* Clear the screen */
+	Term_erase(0, 0, 255);
+	Term_gotoxy(0, 0);
+
 	/* Display the entry name and, if object, weight*/
 	if (entry_type == ENTRY_SERVICE)
 	{
 		strnfmt(file_name, sizeof(file_name), "town.txt");
 		strnfmt(service_name, sizeof(service_name), service_names[services_offered[entry_num]]);
 		show_file(format("%s#%s", file_name, service_name), NULL,  0, 0);
+		screen_load();
 		return;
 	}
 	else if (entry_type == ENTRY_QUEST)
 	{
 		strnfmt(file_name, sizeof(file_name), "quests.txt");
 		strnfmt(service_name, sizeof(service_name), quest_title[quests_offered[entry_num]]);
-		playtesting(format("service name is %s, file name is %s", service_name, file_name));
 		show_file(format("%s#%s", file_name, service_name), NULL,  0, 0);
+		screen_load();
 		return;
 	}
+
+	/* else (entry type == ENTRY_OBJECT) */
 
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[entry_num];
 
-	screen_save();
-
-	/* Describe it fully */
-	Term_erase(0, 0, 255);
-	Term_gotoxy(0, 0);
-
 	text_out_hook = text_out_to_screen;
-
 
 	/* Show full info in most stores, but normal info in player home */
 	object_info_screen(o_ptr);
@@ -4221,7 +4361,7 @@ static void store_examine(int oid)
 	if (o_ptr->tval == cp_ptr->spell_book)
 	{
 		/* Call the aux function */
-		do_cmd_browse_aux(o_ptr);
+		get_spell_menu(o_ptr, BOOK_BROWSE);
 	}
 }
 
@@ -4496,7 +4636,7 @@ static bool store_process_command(char cmd, void *db, int oid)
 
 			/* Redisplay */
 			store_flags |= STORE_INIT_CHANGE;
-
+			redraw = TRUE;
 			command_processed = TRUE;
 			break;
 		}
@@ -4524,7 +4664,6 @@ static bool store_process_command(char cmd, void *db, int oid)
 
 		/* Check knowledge */
 		case '~':
-		case '|':
 		{
 			do_cmd_knowledge();
 			break;
@@ -4551,6 +4690,7 @@ static bool store_process_command(char cmd, void *db, int oid)
 
 		event_signal(EVENT_INVENTORY);
 		event_signal(EVENT_EQUIPMENT);
+
 	}
 
 	return command_processed;
@@ -4580,7 +4720,6 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 		msg_print("The doors are locked.");
 		return;
 	}
-
 	/*
 	 * Quests and services are re-counted
 	 * each time a person enters the store
@@ -4594,6 +4733,7 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 	 */
 	event_signal(EVENT_LEAVE_GAME);
 	event_signal(EVENT_ENTER_STORE);
+	event_signal(EVENT_INIT_STATUSLINE);
 
 	/* Forget the view */
 	forget_view();
@@ -4602,7 +4742,6 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 	p_ptr->command_arg = 0;
 	p_ptr->command_rep = 0;
 	p_ptr->command_new = 0;
-
 
 	/*** Display ***/
 
@@ -4648,6 +4787,27 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 		/* Loop */
 		while (!leave)
 		{
+			/* add the store buttons */
+			button_kill_all();
+			button_add("[HELP]", '?');
+			if (this_store == STORE_HOME)
+			{
+				button_add("[GET]", 'p');
+				button_add("[DROP]", 's');
+			}
+			else if (this_store == STORE_GUILD)
+			{
+				button_add("[BUY]", 'p');
+			}
+			else
+			{
+				button_add("[BUY]", 'p');
+				button_add("[SELL]", 's');
+			}
+			button_add("[EXAMINE]", 'x');
+			button_add("[LEAVE]", ESCAPE);
+			event_signal(EVENT_MOUSEBUTTONS);
+
 			/* As many rows in the menus as there are items in the store */
 			menu.count = st_ptr->stock_num + quests_max;
 
@@ -4690,10 +4850,18 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 			{
 				evt = menu_select(&menu, &cursor, EVT_MOVE);
 			}
-
 			if (evt.key == ESCAPE || evt.type == EVT_BACK)
 			{
 				leave = TRUE;
+			}
+			/* Handle buttons */
+			else if (evt.type == EVT_BUTTON)
+			{
+				store_process_command(evt.key, FALSE, cursor);
+
+				/* Display the store */
+				store_display_recalc(this_store);
+				store_redraw();
 			}
 			else if (evt.type == EVT_RESIZE)
 			{
@@ -4724,6 +4892,7 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 	}
 
 	/* Switch back to the normal game view. */
+	event_signal(EVENT_REMOVE_STATUSLINE);
 	event_signal(EVENT_LEAVE_STORE);
 	event_signal(EVENT_ENTER_GAME);
 
@@ -4747,4 +4916,7 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
+
+	/* restore the buttons */
+	basic_buttons();
 }

@@ -19,9 +19,11 @@
 #include "ui-menu.h"
 #include "game-cmd.h"
 #include "cmds.h"
+#include "game-event.h"
 
 
 #define MAX_PANEL 12
+
 
 
 
@@ -2498,7 +2500,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 {
 	int i, k, n;
 
-	char ch;
+	ui_event_data ke;
 
 	/* Number of "real" lines passed by */
 	int next = 0;
@@ -2689,11 +2691,13 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	/* Save the number of "real" lines */
 	size = next;
 
-
-
 	/* Display the file */
 	while (TRUE)
 	{
+		char prompt[120];
+
+
+
 		/* Clear screen */
 		Term_clear();
 
@@ -2801,42 +2805,81 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		prt(format("[%s %s, %s, Line %d-%d/%d]", VERSION_NAME, VERSION_STRING,
 	           caption, line, line + hgt - 4, size), 0, 0);
 
+		/* Buttons */
+		button_kill_all();
+		button_add("ESC", ESCAPE);
 
 		/* Prompt -- menu screen */
 		if (menu)
 		{
 			/* Wait for it */
-			prt("[Press a Number, or ESC to exit.]", hgt - 1, 0);
+			my_strcpy(prompt,"[Press a letter, or ESC to exit.]", sizeof(prompt));
 		}
 
 		/* Prompt -- small files */
 		else if (size <= hgt - 4)
 		{
 			/* Wait for it */
-			prt("[Press ESC to exit.]", hgt - 1, 0);
+			my_strcpy(prompt,"[Press ESC to exit.]", sizeof(prompt));
 		}
 
 		/* Prompt -- large files */
 		else
 		{
 			/* Wait for it */
-			prt("[Press Space to advance, or ESC to exit.]", hgt - 1, 0);
+			my_strcpy(prompt,"[Press Space to advance, or ESC to exit.]", sizeof(prompt));
+
+			/* More buttons */
+			if (!menu)
+			{
+				button_add("|UP", '-');
+				button_add("|DOWN", ' ');
+				button_add("|BOTTOM", '1');
+				button_add("|TOP", '7');
+			}
+		}
+		prt(prompt, hgt - 2, 0);
+		if (!menu)
+		{
+			button_add("|FIND", '/');
+			button_add("|GOTOLINE", '#');
+		}
+		else
+		{
+			button_add("|SHOW", '=');
+			button_add("|GOTO_FILE", '%');
 		}
 
+		/* We are in icky_mode, so a call to redraw_stuff won't work */
+		event_signal(EVENT_MOUSEBUTTONS);
+
 		/* Get a keypress */
-		ch = inkey();
+		ke = inkey_ex();
+
+		if (menu && isalpha((unsigned char)ke.key))
+		{
+			/* Extract the requested menu item */
+			k = A2I(ke.key);
+
+			/* Verify the menu item */
+			if ((k >= 0) && (k <= 25) && hook[k][0])
+			{
+				/* Recurse on that file */
+				if (!show_file(hook[k], NULL, 0, mode)) ke.key = ESCAPE;
+			}
+		}
 
 		/* Exit the help */
-		if (ch == '?') break;
+		if (ke.key == ESCAPE) break;
 
 		/* Toggle case sensitive on/off */
-		if (ch == '!')
+		if (ke.key == '!')
 		{
 			case_sensitive = !case_sensitive;
 		}
 
 		/* Try showing */
-		if (ch == '&')
+		if (ke.key == '=')
 		{
 			/* Get "shower" */
 			prt("Show: ", hgt - 1, 0);
@@ -2847,7 +2890,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Try finding */
-		if (ch == '/')
+		if (ke.key == '/')
 		{
 			/* Get "finder" */
 			prt("Find: ", hgt - 1, 0);
@@ -2867,7 +2910,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Go to a specific line */
-		if (ch == '#')
+		if (ke.key == '#')
 		{
 			char tmp[80];
 			prt("Goto Line: ", hgt - 1, 0);
@@ -2879,89 +2922,84 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Go to a specific file */
-		if (ch == '%')
+		if (ke.key == '%')
 		{
 			char ftmp[80];
 			prt("Goto File: ", hgt - 1, 0);
 			my_strcpy(ftmp, "help.hlp", sizeof(ftmp));
 			if (askfor_aux(ftmp, sizeof(ftmp), NULL))
 			{
-				if (!show_file(ftmp, NULL, 0, mode)) ch = ESCAPE;
+				if (!show_file(ftmp, NULL, 0, mode)) ke.key = ESCAPE;
 			}
 		}
 
 		/* Back up one line */
-		if ((ch == '8') || (ch == '='))
+		if (ke.key == ARROW_UP || ke.key == '8')
 		{
 			line = line - 1;
 			if (line < 0) line = 0;
 		}
 
 		/* Back up one half page */
-		if (ch == '_')
+		if (ke.key == '_')
 		{
 			line = line - ((hgt - 4) / 2);
 		}
 
 		/* Back up one full page */
-		if ((ch == '9') || (ch == '-'))
+		if ((ke.key == '-') || (ke.key == '9'))
 		{
 			line = line - (hgt - 4);
 		}
 
 		/* Back to the top */
-		if (ch == '7')
+		if (ke.key == '7')
 		{
 			line = 0;
  		}
 
 		/* Advance one line */
-		if ((ch == '2') || (ch == '\n') || (ch == '\r'))
+		if ((ke.key == '\n') || (ke.key == '\r') || (ke.key == '2')
+			    || (ke.key == ARROW_DOWN))
 		{
 			line = line + 1;
 		}
 
 		/* Advance one half page */
-		if (ch == '+')
+		if (ke.key == '+')
 		{
 			line = line + ((hgt - 4) / 2);
 		}
 
 		/* Advance one full page */
-		if ((ch == '3') || (ch == ' '))
+		if ((ke.key == ' ') || (ke.key == '3'))
 		{
 			line = line + (hgt - 4);
 		}
 
 		/* Advance to the bottom */
-		if (ch == '1')
+		if (ke.key == '1')
 		{
 			line = size;
 		}
 
 		/* Recurse on letters */
-		if (menu && isalpha((unsigned char)ch))
+		if (menu && isdigit(ke.key) && hook[D2I(ke.key)][0])
 		{
-			/* Extract the requested menu item */
-			k = A2I(ch);
-
-			/* Verify the menu item */
-			if ((k >= 0) && (k <= 25) && hook[k][0])
-			{
-				/* Recurse on that file */
-				if (!show_file(hook[k], NULL, 0, mode)) ch = ESCAPE;
-			}
+			/* Recurse on that file */
+			if (!show_file(hook[D2I(ke.key)], NULL, 0, mode))
+			ke.key = '?';
 		}
 
 		/* Exit on escape */
-		if (ch == ESCAPE) break;
+		if (ke.key == '?') break;
 	}
 
 	/* Close the file */
 	file_close(fff);
 
 	/* Done */
-	return (ch != '?');
+	return (ke.key != '?');
 }
 
 
@@ -2970,6 +3008,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
  */
 void do_cmd_help(void)
 {
+	/* Save the buttons */
+	button_backup_all();
+
 	/* Save screen */
 	screen_save();
 
@@ -2978,6 +3019,11 @@ void do_cmd_help(void)
 
 	/* Load screen */
 	screen_load();
+
+	/* Restore the buttons and statusline */
+	button_kill_all();
+	button_restore();
+	event_signal(EVENT_MOUSEBUTTONS);
 }
 
 

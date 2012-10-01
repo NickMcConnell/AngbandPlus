@@ -17,6 +17,8 @@
  */
 #include "angband.h"
 #include "game-cmd.h"
+#include "ui-menu.h"
+#include "game-event.h"
 /*#include "cmds.h"*/
 
 /*
@@ -85,6 +87,7 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	if ((!m_ptr->m_timed[MON_TMD_SLOW]) && (m_ptr->m_timed[MON_TMD_FAST])) my_strcat(buf, ", hasted", max);
 }
 
+
 /*
  * Draw a visible path over the squares between (x1,y1) and (x2,y2).
  * The path consists of "*", which are white except where there is a
@@ -99,10 +102,11 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
  * The first two result from information being lost from the dungeon arrays,
  * which requires changes elsewhere
  */
-static int draw_path(u16b path_n, u16b *path_g, char *c, byte *a, int y1, int x1)
+static int draw_path(u16b path_n, u16b *path_g, char *c, byte *a, int y1, int x1, int cur_tar_y, int cur_tar_x)
 {
 	int i;
 	bool on_screen;
+	byte color_type;
 
 	/* No path, so do nothing. */
 	if (path_n < 1) return (FALSE);
@@ -115,11 +119,13 @@ static int draw_path(u16b path_n, u16b *path_g, char *c, byte *a, int y1, int x1
 	/* Draw the path. */
 	for (i = 0; i < path_n; i++)
 	{
-		byte colour;
-
 		/* Find the co-ordinates on the level. */
 		int y = GRID_Y(path_g[i]);
 		int x = GRID_X(path_g[i]);
+
+		byte this_a;
+		char this_c;
+
 		/*
 		 * As path[] is a straight line and the screen is oblong,
 		 * there is only section of path[] on-screen.
@@ -141,42 +147,63 @@ static int draw_path(u16b path_n, u16b *path_g, char *c, byte *a, int y1, int x1
 		Term_what(Term->scr->cx, Term->scr->cy, a+i, c+i);
 
 		/* Choose a colour. */
-		/* Visible monsters are red. */
+		/* Visible monsters are orange. */
 		if (cave_m_idx[y][x] && mon_list[cave_m_idx[y][x]].ml)
 		{
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 
 			/*mimics act as objects*/
-			if (m_ptr->mimic_k_idx) colour = TERM_YELLOW;
-			else colour = TERM_L_RED;
+			if (m_ptr->mimic_k_idx) color_type = TERM_YELLOW;
+			else color_type = TERM_ORANGE;
 		}
 
 		/* Known objects are yellow. */
 		else if (cave_o_idx[y][x] && o_list[cave_o_idx[y][x]].marked)
 		{
-
-			colour = TERM_YELLOW;
+			color_type = TERM_YELLOW;
     	}
+
+		/* Effects are green */
+		else if ((cave_x_idx[y][x] > 0) && (cave_info[y][x] & (CAVE_SEEN | CAVE_MARK)))
+		{
+			color_type = TERM_GREEN;
+		}
 
 		/* Known walls are blue. */
 		else if (!cave_project_bold(y,x) &&
 				((cave_info[y][x] & (CAVE_MARK)) ||	player_can_see_bold(y,x)))
 		{
-			colour = TERM_BLUE;
+			color_type = TERM_BLUE;
 		}
 		/* Unknown squares are grey. */
 		else if (!(cave_info[y][x] & (CAVE_MARK)) && !player_can_see_bold(y,x))
 		{
-			colour = TERM_L_DARK;
+			color_type = TERM_L_DARK;
 		}
 		/* Unoccupied squares are white. */
 		else
 		{
-			colour = TERM_WHITE;
+			color_type = TERM_WHITE;
 		}
 
-		/* Draw the path segment */
-		(void)Term_addch(colour, '*');
+		/* ALways use red for the current target square */
+		if ((cur_tar_y == y) && (cur_tar_x == x)) color_type = TERM_RED;
+
+		/* Get the character */
+		if (!use_graphics)
+		{
+			this_a = color_type;
+			this_c = '*';
+		}
+		/* Graphics are being used */
+		else
+		{
+			this_a = color_to_attr[TILE_BALL_INFO][color_type];
+			this_c = color_to_char[TILE_BALL_INFO][color_type];
+		}
+
+		/* Visual effects -- Display */
+		print_rel(this_c, this_a, y, x);
 	}
 	return i;
 }
@@ -707,7 +734,7 @@ static void target_display_help(bool monster, bool free)
 	/* Determine help location */
 	int wid, hgt, help_loc;
 	Term_get_size(&wid, &hgt);
-	help_loc = hgt - HELP_HEIGHT;
+	help_loc = hgt - HELP_HEIGHT - (mouse_buttons ? 1 : 0);
 
 	/* Clear */
 	clear_from(help_loc);
@@ -1013,6 +1040,11 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 				/* Interact */
 				while (1)
 				{
+					if (recall)	button_add("[CLEAR_RECALL]", 'r');
+					else 		button_add("[RECALL]", 'r');
+					if (cave_o_idx[y][x] > 0)button_add("[VIEW_FLOOR]", 'f');
+					event_signal(EVENT_MOUSEBUTTONS);
+
 					/* Recall, but not mimics */
 					if ((recall) && (!(m_ptr->mimic_k_idx)))
 					{
@@ -1035,6 +1067,7 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 					/* Normal */
 					else
 					{
+
 						/* Basic info */
 						strnfmt(out_val, sizeof(out_val),
 							"%s%s%s", s1, s2, m_name);
@@ -1077,6 +1110,10 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 						query = inkey_ex();
 					}
 
+					button_kill('r');
+					button_kill('f');
+					event_signal(EVENT_MOUSEBUTTONS);
+
 					/* Handle fake object recall */
 					if (m_ptr->mimic_k_idx)
 					{
@@ -1112,8 +1149,12 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 					}
 				}
 
-				/* Stop on everything but "return"/"space" */
-				if ((query.key != '\n') && (query.key != '\r') && (query.key != ' ')) break;
+				/* Stop on everything but "return"/"space", or floor */
+				if ((query.key != '\n') && (query.key != '\r') &&
+					(query.key != ' ') && (query.key != 'f')) break;
+
+				/* continue with 'f' only if there are floor items....*/
+				if ((query.key == 'f') && (!cave_o_idx[y][x])) break;
 
 				/* Sometimes stop at "space" key */
 				if ((query.key == ' ') && !(mode & (TARGET_LOOK))) break;
@@ -1437,6 +1478,48 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 	return (query);
 }
 
+/* checks if there is a visible monster in line-of-sight */
+bool valid_target_exists(int mode)
+{
+	int y, x, m_idx;
+
+	/* Save target info */
+	s16b old_target_set = p_ptr->target_set;
+	s16b old_target_who = p_ptr->target_who;
+	s16b old_target_row = p_ptr->target_row;
+	s16b old_target_col = p_ptr->target_col;
+
+	/* Cancel old target */
+	target_set_monster(0);
+
+	/* Get ready to do targetting */
+	target_set_interactive_prepare(mode);
+
+	/* Find the first monster in the queue */
+	y = temp_y[0];
+	x = temp_x[0];
+	m_idx = cave_m_idx[y][x];
+
+	/* restore old target into */
+	p_ptr->target_set = old_target_set;
+	p_ptr->target_who = old_target_who;
+	p_ptr->target_row = old_target_row;
+	p_ptr->target_col = old_target_col ;
+
+	/* If nothing was prepared, then return */
+	 if (temp_n < 1)
+	{
+		return FALSE;
+	}
+
+	/* Target the monster, if possible */
+	if ((m_idx <= 0) || !target_able(m_idx))
+	{
+		return FALSE;
+	}
+
+	return (TRUE);
+}
 
 bool target_set_closest(int mode)
 {
@@ -1586,6 +1669,16 @@ bool target_set_interactive(int mode, int x, int y)
 	/* Cancel target */
 	target_set_monster(0);
 
+	/* make some buttons */
+	button_backup_all();
+	button_kill_all();
+	button_add("[ESCAPE]", ESCAPE);
+	button_add("[NEXT]", '+');
+	button_add("[PREV]", '-');
+	button_add("[PLAYER]", 'p');
+	button_add("[PATHFIND]", 'g');
+	button_add("[TARGET]", 't');
+
 	/* health_track(0); */
 
 	  /* All grids are selectable */
@@ -1600,10 +1693,10 @@ bool target_set_interactive(int mode, int x, int y)
 
 	/* Calculate the window location for the help prompt */
 	Term_get_size(&wid, &hgt);
-	help_prompt_loc = hgt - 1;
+	help_prompt_loc = hgt - (mouse_buttons ? 2 : 1);
 
 	/* Display the help prompt */
-	prt("Press '?' for help.", help_prompt_loc, 0);
+	prt("'?' - help", help_prompt_loc, 0);
 
 	/* Prepare the "temp" array */
 	target_set_interactive_prepare(mode);
@@ -1614,6 +1707,19 @@ bool target_set_interactive(int mode, int x, int y)
 	/* Interact */
 	while (!done)
 	{
+		button_kill('l');
+		button_kill('?');
+		if (list_floor_objects)
+		{
+			button_add("[HIDE_OBJLIST]", 'l');
+		}
+		else button_add("[SHOW_OBJLIST]", 'l');
+		if (help)
+		{
+			button_add("[HIDE_HELP]", '?');
+		}
+		else button_add("[SHOW_HELP]",'?');
+
 		/* Interesting grids */
 		if (flag && temp_n)
 		{
@@ -1623,6 +1729,15 @@ bool target_set_interactive(int mode, int x, int y)
 			y = temp_y[m];
 			x = temp_x[m];
 
+			button_add("[SCAN]",'o');
+
+			/* Update help */
+			if (help)
+			{
+				bool good_target = ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x]));
+				target_display_help(good_target, !(flag && temp_n));
+			}
+
 			/* Dummy pointers to send to project_path */
 			yy = y;
 			xx = x;
@@ -1631,13 +1746,13 @@ bool target_set_interactive(int mode, int x, int y)
 			if (((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x])) ||
 				((mode & (TARGET_TRAP)) && target_able_trap(y, x)))
 			{
-				strcpy(info, "q,t,p,o,+,-,<dir>");
+				strcpy(info, "q,t,r,l,p,o,+,-,<dir>");
 			}
 
 			/* Dis-allow target */
 			else
 			{
-				strcpy(info, "q,p,o,+,-,<dir>");
+				strcpy(info, "q,p,l,o,+,-,<dir>");
 			}
 
 			/* Adjust panel if needed */
@@ -1651,10 +1766,11 @@ bool target_set_interactive(int mode, int x, int y)
 			path_n = project_path(path_g, path_gx, MAX_RANGE, py, px, &yy, &xx, PROJECT_THRU);
 
 			/* Draw the path in "target" mode. If there is one */
-			if ((mode & (TARGET_KILL)) && (projectable(py, px, y, x, PROJECT_THRU)))
+			if ((mode & (TARGET_KILL)) && (cave_info[y][x] & (CAVE_FIRE)))
 			{
-				path_drawn = draw_path(path_n, path_g, path_char, path_attr, py, px);
+				path_drawn = draw_path(path_n, path_g, path_char, path_attr, py, px, y, x);
 			}
+			event_signal(EVENT_MOUSEBUTTONS);
 
 			/* Describe and Prompt */
 			query = target_set_interactive_aux(y, x, mode, info, list_floor_objects);
@@ -1763,7 +1879,7 @@ bool target_set_interactive(int mode, int x, int y)
 					break;
 				}
 
-				case 'r':
+				case 'l':
 				{
 					list_floor_objects = (!list_floor_objects);
 				}
@@ -1777,7 +1893,7 @@ bool target_set_interactive(int mode, int x, int y)
 					Term_clear();
 					handle_stuff();
 					if (!help)
-						prt("Press '?' for help.", help_prompt_loc, 0);
+						prt("'?' - help", help_prompt_loc, 0);
 
 					break;
 				}
@@ -1844,6 +1960,9 @@ bool target_set_interactive(int mode, int x, int y)
 			int yy = y;
 			int xx = x;
 
+			/* Don't need this button any more */
+			button_kill('o');
+
 			/* Update help */
 			if (help)
 			{
@@ -1854,24 +1973,26 @@ bool target_set_interactive(int mode, int x, int y)
 			/* Default prompt */
 			if (!(mode & (TARGET_GRID)))
 			{
-				strcpy(info, "q,t,p,m,+,-,<dir>");
+				strcpy(info, "q,t,l,p,m,+,-,<dir>");
 			}
 
 			/* Disable monster selection */
 			else
 			{
-				strcpy(info, "q,t,p,+,-,<dir>");
+				strcpy(info, "q,t,l.p,+,-,<dir>");
 			}
 
 			/* Find the path. */
 			path_n = project_path(path_g, path_gx, MAX_RANGE, py, px, &yy, &xx, PROJECT_THRU);
 
 			/* Draw the path in "target" mode. If there is one */
-			if ((mode & (TARGET_KILL)) && (projectable(py, px, y, x, PROJECT_THRU)))
+			if ((mode & (TARGET_KILL)) && (cave_info[y][x] & (CAVE_FIRE)))
 			{
 				/* Save target info */
-				path_drawn = draw_path(path_n, path_g, path_char, path_attr, py, px);
+				path_drawn = draw_path(path_n, path_g, path_char, path_attr, py, px, y, x);
 			}
+
+			event_signal(EVENT_MOUSEBUTTONS);
 
 			/* Describe and Prompt (enable "TARGET_LOOK") */
 			query = target_set_interactive_aux(y, x, (mode | TARGET_LOOK), info, list_floor_objects);
@@ -2002,7 +2123,7 @@ bool target_set_interactive(int mode, int x, int y)
 					break;
 				}
 
-				case 'r':
+				case 'l':
 				{
 					list_floor_objects = (!list_floor_objects);
 				}
@@ -2016,7 +2137,7 @@ bool target_set_interactive(int mode, int x, int y)
 					Term_clear();
 					handle_stuff();
 					if (!help)
-						prt("Press '?' for help.", help_prompt_loc, 0);
+						prt("'?' - help.", help_prompt_loc, 0);
 
 					break;
 				}
@@ -2082,8 +2203,13 @@ bool target_set_interactive(int mode, int x, int y)
 		p_ptr->redraw |= (PR_DEPTH | PR_STATUS);
 	}
 
+
+
 	/* Recenter around player */
 	verify_panel();
+
+	/* Restore buttons */
+	button_restore();
 
 	/* Handle stuff */
 	handle_stuff();

@@ -1437,10 +1437,8 @@ ui_event_data inkey_ex(void)
 	/* Hack -- restore the term */
 	Term_activate(old);
 
-
 	/* Restore the cursor */
 	Term_set_cursor(cursor_state);
-
 
 	/* Cancel the various "global parameters" */
 	inkey_base = inkey_xtra = inkey_flag = FALSE;
@@ -2530,7 +2528,7 @@ bool askfor_aux(char *buf, size_t len, bool keypress_h(char *, size_t, size_t *,
 	size_t k = 0;		/* Cursor position */
 	size_t nul = 0;		/* Position of the null byte in the string */
 
-	char ch = '\0';
+	ui_event_data ke = EVENT_EMPTY;
 
 	bool done = FALSE;
 	bool firsttime = TRUE;
@@ -2542,7 +2540,6 @@ bool askfor_aux(char *buf, size_t len, bool keypress_h(char *, size_t, size_t *,
 
 	/* Locate the cursor */
 	Term_locate(&x, &y);
-
 
 	/* Paranoia */
 	if ((x < 0) || (x >= 80)) x = 0;
@@ -2568,10 +2565,13 @@ bool askfor_aux(char *buf, size_t len, bool keypress_h(char *, size_t, size_t *,
 		Term_gotoxy(x + k, y);
 
 		/* Get a key */
-		ch = inkey();
+		ke = inkey_ex();
 
 		/* Let the keypress handler deal with the keypress */
-		done = keypress_h(buf, len, &k, &nul, ch, firsttime);
+		done = keypress_h(buf, len, &k, &nul, ke.key, firsttime);
+
+		/* Player used one of the statusline buttons */
+		if ((ke.type & (EVT_BUTTON)) && (firsttime)) done = TRUE;
 
 		/* Update the entry */
 		Term_erase(x, y, (int)len);
@@ -2582,7 +2582,7 @@ bool askfor_aux(char *buf, size_t len, bool keypress_h(char *, size_t, size_t *,
 	}
 
 	/* Done */
-	return (ch != ESCAPE);
+	return (ke.key != ESCAPE);
 }
 
 
@@ -2631,6 +2631,14 @@ bool get_name(char *buf, size_t buflen)
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
+	/* add a button for random name */
+
+	button_backup_all();
+	button_kill_all();
+	button_add("[ESC]", ESCAPE);
+	button_add("[ENTER]", '\r');
+	button_add("[RANDOM_NAME]", '*');
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Display prompt */
 	prt("Enter a name for your character (* for a random name): ", 0, 0);
@@ -2649,6 +2657,9 @@ bool get_name(char *buf, size_t buflen)
 	{
 		my_strcpy(buf, op_ptr->full_name, buflen);
 	}
+
+	button_restore();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	return res;
 }
@@ -2695,6 +2706,10 @@ s16b get_quantity(cptr prompt, int max)
 {
 	int amt = 1;
 
+	button_add("[ALL]", 'a');
+	event_signal(EVENT_MOUSEBUTTONS);
+
+
 	/* Use "command_arg" */
 	if (p_ptr->command_arg)
 	{
@@ -2715,11 +2730,13 @@ s16b get_quantity(cptr prompt, int max)
 		/* Build a prompt if needed */
 		if (!prompt)
 		{
+
 			/* Build a prompt */
 			strnfmt(tmp, sizeof(tmp), "Quantity (0-%d, '*' or 'a' = all): ", max);
 
 			/* Use that prompt */
 			prompt = tmp;
+
 		}
 
 		/* Build the default */
@@ -2742,6 +2759,9 @@ s16b get_quantity(cptr prompt, int max)
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;
 
+	button_kill('a');
+	event_signal(EVENT_MOUSEBUTTONS);
+
 	/* Return the result */
 	return (amt);
 }
@@ -2758,13 +2778,11 @@ s16b get_quantity(cptr prompt, int max)
  *
  * Note that "[y/n/{char}]" is appended to the prompt, along with an explanation.
  */
-int get_check_other(cptr prompt, char other, cptr explain)
+int get_check_other(cptr prompt, cptr other_text, char other, cptr explain)
 {
 	ui_event_data ke;
 
 	char buf[160];
-
-	bool repeat = FALSE;
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
@@ -2772,13 +2790,13 @@ int get_check_other(cptr prompt, char other, cptr explain)
 	/* Hack -- Build a "useful" prompt */
 	strnfmt(buf, sizeof(buf), "%s [y/n/%c] %s ", prompt, other, explain);
 
-	/* Hack - kill the repeat button */
-	if (button_kill('n')) repeat = TRUE;
-
 	/* Make some buttons */
-	button_add("[y]", 'y');
-	button_add("[n]", 'n');
-	handle_stuff();
+	button_backup_all();
+	button_kill_all();
+	button_add("[YES]", 'y');
+	button_add("[NO]", 'n');
+	button_add(other_text, other);
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Prompt for it */
 	prt(buf, 0, 0);
@@ -2795,13 +2813,9 @@ int get_check_other(cptr prompt, char other, cptr explain)
 		bell("Illegal response to a 'yes/no' question!");
 	}
 
-	/* Kill the buttons */
-	button_kill('y');
-	button_kill('n');
-
-	/* Hack - restore the repeat button */
-	if (repeat) button_add("[Rpt]", 'n');
-	handle_stuff();
+	/* Restore the old buttons */
+	button_restore();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Erase the prompt */
 	prt("", 0, 0);
@@ -2829,23 +2843,21 @@ bool get_check(cptr prompt)
 
 	char buf[80];
 
-	bool repeat = FALSE;
-
 	/* Paranoia XXX XXX XXX */
 	message_flush();
 
 	/* Hack -- Build a "useful" prompt */
 	strnfmt(buf, 78, "%.70s[y/n] ", prompt);
 
-	/* Hack - kill the repeat button */
-	if (button_kill('n')) repeat = TRUE;
-
 	/* Make some buttons */
-	button_add("[y]", 'y');
-	button_add("[n]", 'n');
-	handle_stuff();
+	button_backup_all();
+	button_kill_all();
+	button_add("[YES]", 'y');
+	button_add("[NO]", 'n');
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Prompt for it */
+	prt("", 0, 0);
 	prt(buf, 0, 0);
 
 	/* Get an acceptable answer */
@@ -2859,12 +2871,9 @@ bool get_check(cptr prompt)
 	}
 
 	/* Kill the buttons */
-	button_kill('y');
-	button_kill('n');
-
-	/* Hack - restore the repeat button */
-	if (repeat) button_add("[Rpt]", 'n');
-	handle_stuff();
+	/* Restore the old buttons */
+	button_restore();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Erase the prompt */
 	prt("", 0, 0);
@@ -2936,7 +2945,7 @@ char get_char(cptr prompt, const char *options, size_t len, char fallback)
 	for (i=0; i < len; i++) button_kill(options[i]);
 
 	/* Hack - restore the repeat button */
-	if (repeat) button_add("[Rpt]", 'n');
+	if (repeat) button_add("[RPT]", 'n');
 	handle_stuff();
 
 	/* Erase the prompt */

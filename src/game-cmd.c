@@ -57,6 +57,7 @@ static struct
 	{ CMD_CHOOSE_SEX, { arg_CHOICE, arg_END }, NULL, FALSE, 0 },
 	{ CMD_CHOOSE_RACE, { arg_CHOICE, arg_END }, NULL, FALSE, 0 },
 	{ CMD_CHOOSE_CLASS, { arg_CHOICE, arg_END }, NULL, FALSE, 0 },
+	{ CMD_CHOOSE_OPTIONS, { arg_CHOICE, arg_END }, NULL, FALSE, 0 },
 	{ CMD_BUY_STAT, { arg_CHOICE, arg_END }, NULL, FALSE, 0 },
 	{ CMD_SELL_STAT, { arg_CHOICE, arg_END }, NULL, FALSE, 0 },
 	{ CMD_RESET_STATS, { arg_CHOICE, arg_END }, NULL, FALSE, 0 },
@@ -372,7 +373,7 @@ void process_command(cmd_context ctx, bool no_request)
 			{
 				bool get_target = FALSE;
 
-							if (spell_needs_aim(cp_ptr->spell_book, cmd.args[0].choice))
+				if (spell_needs_aim(cp_ptr->spell_book, cmd.args[0].choice))
 				{
 					if (cmd.args[1].direction == DIR_UNKNOWN)
 						get_target = TRUE;

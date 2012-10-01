@@ -148,6 +148,11 @@ Use a staff (u) / (Z) :
 Zap a rod (z) / (a) :
      Uses the indicated kind of magical device.  This command takes a full turn.
 
+Object menu (|)
+     This interactive menu lets the player go through the objects in the player's
+inventory, equipment, and on the floor and select from a menu of allowable commands 
+for that item.
+
 
 --- Dungeon and Object Alteration Commands ---
 
@@ -204,6 +209,30 @@ Get objects off of the dungeon floor ('g') :
      Sort through and pick up selected objects off the floor grid the player
 is standing on, regardless of squelch settings or the order of items on the
 floor.  This command takes no time.
+
+--- Mouse Commands ---
+You can play most of the game using only mouseclicks.   Here are some of the
+ways the mouse can be used:
+
+Clicking on sidebar:
+*Click on the player race to access help information for that race.
+*Click on the player class to access help information for that class.
+*Cick on the player stats to bring up the character screen.
+*Click on player hit points to rest.
+*Click on monster hit poitns or mana to pull up information on that character.
+*Click on the top (mesage) line of the screen to see a list of recent messages.
+*CLick on level feeling to see the player feeling (same as hitting CTRL-F).
+*CLick on your quest status to see the quest status (same as hitting CTRL-Q)
+*CLick on the equipment characters to see a list of your equipment.
+
+Other mouse commands:
+Click on the player to see a list of commands
+Click on a part of the dungeon to walk in that direction.
+
+Mouse buttons:
+The status bar will have buttons that you can click to enter that command.  The 
+buttons update as the game status changes or if you enter a game menu.
+
 
 
 --- Special Action Commands ---

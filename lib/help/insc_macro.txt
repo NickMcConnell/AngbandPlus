@@ -50,7 +50,7 @@ will disappear when the item is identified, and you may overwrite others.
      "tried"          :  Used an object, didn't learn anything about it.
      "50% off"        :  Object is worth 50% less than normal.
 
-
+***** <macros>
 ====== Macros and keymaps ======
 
 --- Quick Tutorial ---

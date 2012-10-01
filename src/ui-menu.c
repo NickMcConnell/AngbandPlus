@@ -397,6 +397,7 @@ static bool handle_menu_key(char cmd, menu_type *menu, int cursor)
 	if (flags & MN_NO_ACT) return FALSE;
 
 	if (cmd == ESCAPE) return FALSE;
+
 	if (!(cmd == DEFINED_XFF) &&
 			(!menu->cmd_keys || !strchr(menu->cmd_keys, cmd)))
 		return FALSE;
@@ -731,7 +732,7 @@ ui_event_data menu_select(menu_type *menu, int *cursor, int no_handle)
 	}
 
 	/* Stop on first unhandled event. */
-	while (!(ke.type & no_handle))
+	while (!(ke.type & (no_handle)))
 	{
 		ke = run_event_loop(&menu->target, NULL);
 
@@ -762,9 +763,16 @@ ui_event_data menu_select(menu_type *menu, int *cursor, int no_handle)
 			{
 				/* Just in case */
 				if (ke.key == ESCAPE)
+				{
 					ke.type = EVT_ESCAPE;
+				}
 
 				break;
+			}
+			/* Choice selected from mouse_button.  We are done. */
+			case EVT_BUTTON:
+			{
+				return (ke);
 			}
 
 			default:
@@ -773,6 +781,7 @@ ui_event_data menu_select(menu_type *menu, int *cursor, int no_handle)
 			}
 		}
 	}
+
 	return ke;
 }
 
@@ -898,7 +907,7 @@ bool menu_init(menu_type *menu, skin_id skin_id, const menu_iter *iter, const re
 	/* Stuff for the event listener (see ui-event.h) */
 	menu->target.handler = menu_handle_event;
 	menu->target.object = menu;
-	menu->target.event_flags = (EVT_KBRD | EVT_MOUSE | EVT_REFRESH);
+	menu->target.event_flags = (EVT_KBRD | EVT_MOUSE | EVT_REFRESH | EVT_BUTTON);
 
 	/* Menu-specific initialisation */
 	menu->refresh = menu_refresh;

@@ -610,8 +610,11 @@ void pick_and_set_trap(int y, int x, int mode)
 	/* Paranoia */
 	if (cave_any_trap_bold(y, x)) return;
 
+	/* No NPP terrains option turned on */
+	if (adult_simple_dungeons) mode = EFFECT_TRAP_DUMB;
+
 	/*Make sure there aren't too many smart traps in the same place*/
-	if (mode != EFFECT_TRAP_DUMB)
+	else if (mode != EFFECT_TRAP_DUMB)
 	{
 		/*There is a nearby trap in line of sight*/
 		if (found_smart_trap(y, x)) mode = EFFECT_TRAP_DUMB;
@@ -735,7 +738,7 @@ void effect_near(int feat, int y, int x, byte effect_type)
 	/* Give it to the floor */
 	if (flag)
 	{
-		pick_and_set_trap(y, x, 0);
+		pick_and_set_trap(by, bx, 0);
 	}
 }
 
@@ -1325,7 +1328,7 @@ static void show_burst_effects(void)
 			int x = burst_x[i];
 
 			/* Get grapchis */
-			u16b p = bolt_pict(y, x, y, x, burst_gf[i]);
+			u16b p = bolt_pict(y, x, y, x, burst_gf[i], 0L);
 
 			/* Extract attr/char */
 			byte a = PICT_A(p);

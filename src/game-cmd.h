@@ -21,6 +21,7 @@ typedef enum cmd_code
 	CMD_CHOOSE_SEX,
 	CMD_CHOOSE_RACE,
 	CMD_CHOOSE_CLASS,
+	CMD_CHOOSE_OPTIONS,
 	CMD_BUY_STAT,
 	CMD_SELL_STAT,
 	CMD_RESET_STATS,
@@ -47,7 +48,11 @@ typedef enum cmd_code
 	CMD_DROP,
 	CMD_STUDY_SPELL,
 	CMD_STUDY_BOOK,
+	CMD_STUDY_INCAN,
+	CMD_BROWSE,
 	CMD_CAST, /* Casting a spell /or/ praying. */
+	CMD_PRAY, /* Casting a spell /or/ praying. */
+	CMD_CHANT, /* Casting a spell /or/ praying. */
 	CMD_USE_STAFF,
 	CMD_USE_WAND,
 	CMD_USE_ROD,
@@ -57,9 +62,11 @@ typedef enum cmd_code
 	CMD_READ_SCROLL,
 	CMD_REFILL,
 	CMD_FIRE,
+	CMD_FIRE_NEAR,
 	CMD_THROW,
 	CMD_PICKUP,
 	CMD_DESTROY,
+	CMD_EXAMINE,
 /*	CMD_SQUELCH_TYPE, -- might be a command, might have another interface */
 	CMD_DISARM,
 	CMD_REST,

@@ -1,6 +1,54 @@
+NPP 0.5.4 changes:
+The edges of the detected trap areas now show up onscreen.
+DVG tileset - added tiles for many objects, flavors, terrains, monsters, allspells, and bolt spells (by Buzzkill, Jeff Greene, and Thacker).
+Expanded colors are now used when spells are cast by the monsters and player.
+During targeting, modified how the path is drawn.
+DVG tileset - epanded tile support for ball spells and bolt spells.
+Deleted files supporting Nintento DS, Amiga, and RISC-OS operating sytems.
+Changed the message a player gets regarding the weight of armor reducing the player's mana.
+Changed the message a player gets when they are holding a sling/bow/crossbow that is too heavy.
+Added birth option for simple, Vanilla Angband dungeon generation.
+Added FAAngband-style mouse support.
+Rename fixed monster quests to Guardian quests.
+Increase Morgoth's spellpower and percentage.
+Give Morgoth the teleport_self_to spell.
+Removed Potions of Heroism and Scrolls of Holy Chant from the "infinite stock" list.
+In the object knowledge menu, the categories now have plural names.
+For the druid "clear area" spell, the cleared area and borderinging walls now light up during casting. 
+The druid spell stone to mud is now 4 mana to cast.
+The druid spell clear area is now 9 mana to cast. 
+Change the colors of some spells (electric bursts, spores).
+Made most of the lizards, frogs, and snakes cold-blooded.
+Made the spirit troll cold-blooded.
+Add terrain for a town floor.
+Many files added to assist compiling in Linux.
+Modify colors in the GCU port
+Moved the menu for picking up items off the floor to the standard mouse dirven menu.
+Additional mapping for the 8x8 and 16x16 tilesets.
+Modify the colors for the drawn target path inside the targeting menu.
+Firing cursed ammo now has a 70% chance to hurt the player.
+Added buzzkill as a shopkeeper in the black market.
+Changes to how compact objects works.
+When holding, the game only picks up everything if the always_pickup option is true.
+Bugfix: Equipment and itemlist windows were not updating properly when the player was in a store.
+Bugfix: There was a playtesting message when examining a store service.
+Bugfix: Player ghost templates were not saving properly when a player died.
+Bugfix: Several of the player ghost templates were defective.
+Bugfix: Teleport level allowed the player to bypass a guardian (fixed monster) quest.
+Bugfix: The player was allowed to keep a never ending supply of magic books in the home.
+Bugfix: A throwing weapon that had been in the quiver couldn't be wielded again.
+Bugfix: The jet black amulet was being shown with a blue colored tile.
+Bugfix: Fixed several bugs regarding replacing a quest monster that has not been killed by the player.
+Bugfix: In the object knowledge menu, Dragon shields and Druid spellbooks now appear in the right order.
+Bugfix: In the object knowledge menu, a section has been added for chests.
+Bugfix: The druid spell "create elements" now creates native terrain below the player as well.
+Bugfix: Stunned and confused monsters were prevented from walking into terrain that caused them damage.
+Bugfix: Keyboard navigation in the windows submenu was broken.
+Bugfix: The tombstone screen was not centered properly.
+Bugfix: The game could crash with more than 256 objects laying on the floor.
+Bugfix: When opening or disarming 2 chests in a stack, the first one was automatically picked instead of giving the player a choice.
+
 NPP 0.5.3 changes:
-
-
 Reinstated the menus allowing the player to edit visuals and tilesets for monsters, terrain, flavors, and objects.
 Many updates to the help files.
 Bugfix:  The store help file incorrectly indicated you could purchase an item using the enter key.

@@ -1405,7 +1405,6 @@ static errr rd_extra(void)
 	/* Skip the flags */
 	strip_bytes(12);
 
-
 	/* Hack -- the two "special seeds" */
 	rd_u32b(&seed_flavor);
 	rd_u32b(&seed_town);
@@ -2299,7 +2298,7 @@ static errr rd_savefile_new_aux(void)
 		}
 		else if ((q_info[i].q_type == QUEST_MONSTER) ||
 				 (q_info[i].q_type == QUEST_UNIQUE) ||
-				 (q_info[i].q_type == QUEST_FIXED_MON))
+				 (q_info[i].q_type == QUEST_GUARDIAN))
 		{
 			rd_byte(&q_info[i].reward);
 			rd_byte(&q_info[i].active_level);

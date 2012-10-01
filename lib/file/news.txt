@@ -17,7 +17,7 @@
             Angband 2.6.2:   Alex Cutler, Andy Astrand, Sean Marsh,
                              Geoff Hill, Charles Teague, Charles Swiger
             2.7.0 - 2.8.5:   Ben Harrison 2.9.0 - 3.0.6: Robert Ruehlmann
-            3.0.7 - 3.1.2v2: Andrew Sidewll
+            3.0.7 - 3.1.2v2: Andrew Sidwell
             Oangband 0.6.0 Copyright 1998-2003 Leon Marrick, Bahman Rabii
             EYAngband 0.5.2 By Eytan Zweig, UNAngband by Andrew Doull
             Sangband 0.9.9 and Demoband by Leon Marrick

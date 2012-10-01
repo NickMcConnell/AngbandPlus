@@ -130,23 +130,12 @@ static void make_bones(void)
 				/* Build the filename */
 				path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
 
-				/* Attempt to open the bones file */
-				fp = file_open(str, MODE_READ, -1);
-
-				/* Close it right away */
-				if (fp)
-				{
-					file_close(fp);
-					/* Do not over-write a previous ghost */
-					continue;
-				}
+				/* Do not over-write a previous ghost */
+				if (file_exists(str)) continue;
 
 				/* If no file by that name exists, we can make a new one. */
-				if (!(fp)) break;
+				break;
 			}
-
-			/* Failure */
-			if (fp) return;
 
 			/* Try to write a new "Bones File" */
 			fp = file_open(str, MODE_WRITE, FTYPE_TEXT);
@@ -311,9 +300,12 @@ static void death_info(void *unused, const char *title)
 	object_type *o_ptr;
 	store_type *st_ptr = &store[STORE_HOME];
 
+	ui_event_data ke;
+
+	bool done = FALSE;
+
 	(void)unused;
 	(void)title;
-
 
 	screen_save();
 
@@ -321,26 +313,33 @@ static void death_info(void *unused, const char *title)
 	display_player(0);
 
 	/* Prompt for inventory */
-	prt("Hit any key to see more information: ", 0, 0);
+	prt("Hit any key to see more information (esc to abort): ", 0, 0);
+
+	/* Buttons */
+	button_backup_all();
+	button_kill_all();
+	button_add("ESC", ESCAPE);
+	button_add("Continue", 'q');
 
 	/* Allow abort at this point */
-	(void)anykey();
-
+	ke = inkey_ex();
+	if (ke.key == ESCAPE) done = TRUE;
 
 	/* Show equipment and inventory */
 
 	/* Equipment -- if any */
-	if (p_ptr->equip_cnt)
+	if ((p_ptr->equip_cnt) && (!done))
 	{
 		Term_clear();
 		item_tester_full = TRUE;
 		show_equip(OLIST_WEIGHT);
 		prt("You are using: -more-", 0, 0);
-		(void)anykey();
+		ke = inkey_ex();
+		if (ke.key == ESCAPE) done = TRUE;
 	}
 
 	/* Inventory -- if any */
-	if (p_ptr->inven_cnt)
+	if ((p_ptr->inven_cnt)  && (!done))
 	{
 		Term_clear();
 		item_tester_full = TRUE;
@@ -349,10 +348,8 @@ static void death_info(void *unused, const char *title)
 		(void)anykey();
 	}
 
-
-
 	/* Home -- if anything there */
-	if (st_ptr->stock_num)
+	if ((st_ptr->stock_num) && (!done))
 	{
 		/* Display contents of the home */
 		for (k = 0, i = 0; i < st_ptr->stock_num; k++)
@@ -389,7 +386,9 @@ static void death_info(void *unused, const char *title)
 			prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
 
 			/* Wait for it */
-			(void)anykey();
+			ke = inkey_ex();
+			if (ke.key == ESCAPE)
+			done = TRUE;
 		}
 	}
 
@@ -437,7 +436,7 @@ static void death_examine(void *unused, const char *title)
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
 
-	while (get_item(&item, q, s, (USE_INVEN | USE_EQUIP | IS_HARMLESS)))
+	while (get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_QUIVER | IS_HARMLESS)))
 	{
 		/* Get the item */
 		object_type *o_ptr = &inventory[item];

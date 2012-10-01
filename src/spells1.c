@@ -174,7 +174,7 @@ bool native_teleport_player(int dis)
 				if ((d >= dis) || (d <= min)) continue;
 
 				/* Require "start" floor space */
-				if (!cave_start_bold(y, x)) continue;
+				if (!cave_teleport_bold(y, x)) continue;
 
 				/* No teleporting into vaults and such */
 				if (cave_info[y][x] & (CAVE_ICKY)) continue;
@@ -251,7 +251,7 @@ void teleport_player(int dis)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int d, i, min, y, x;
+	int d, d1, i, min, y, x;
 
 	bool look = TRUE;
 
@@ -264,10 +264,16 @@ void teleport_player(int dis)
 	/* Minimum distance */
 	min = dis / 2;
 
-	/*guage the dungeon size*/
-	d = distance(p_ptr->cur_map_hgt, p_ptr->cur_map_wid, 0, 0);
+	/* Gauge the distance from the player to the 4 corners of the dungeon, take the highest*/
+	d = distance(py, px, 1, 1);
+	d1 = distance(py, px, p_ptr->cur_map_hgt-1, 1);
+	if (d1 > d) d = d1;
+	d1 = distance(py, px, 1, p_ptr->cur_map_wid-1);
+	if (d1 > d) d = d1;
+	d1 = distance(py, px, p_ptr->cur_map_hgt-11, p_ptr->cur_map_wid-1);
+	if (d1 > d) d = d1;
 
-	/*first start with a realistic range*/
+	/* start with a realistic range*/
 	if (dis > d) dis = d;
 
 	/*must have a realistic minimum*/
@@ -289,15 +295,15 @@ void teleport_player(int dis)
 		/* Try several locations */
 		for (i = 0; i < 10000; i++)
 		{
-
+			int dist;
 			/* Pick a location */
 			y = rand_range(min_y, max_y);
 			x = rand_range(min_x, max_x);
-			d = distance(py, px, y, x);
-			if ((d <= min) || (d >= dis)) continue;
+			dist = distance(py, px, y, x);
+			if ((dist <= min) || (dist >= dis)) continue;
 
 			/* Require "start" floor space */
-			if (!cave_start_bold(y, x)) continue;
+			if (!cave_teleport_bold(y, x)) continue;
 
 			/* No teleporting into vaults and such */
 			if (cave_info[y][x] & (CAVE_ICKY)) continue;
@@ -328,6 +334,7 @@ void teleport_player(int dis)
 
 		/* Increase the maximum distance */
 		dis = dis * 2;
+		if (dis > d) dis = d;
 
 		/* Decrease the minimum distance */
 		min = min * 6 / 10;
@@ -383,7 +390,7 @@ void teleport_player_to(int ny, int nx)
 		}
 
 		/* Require "start" floor space */
-		if (cave_start_bold(y, x)) break;
+		if (cave_teleport_bold(y, x)) break;
 
 		/* Occasionally advance the distance */
 		if (++ctr > (4 * dis * dis + 4 * dis + 1))
@@ -506,6 +513,7 @@ void teleport_player_level(int who)
 	 */
 	if ((kind_of_quest == QUEST_FIXED) ||
 	    (kind_of_quest == QUEST_FIXED_U) ||
+	    (kind_of_quest == QUEST_GUARDIAN) ||
 	    (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		go_up = TRUE;
@@ -663,6 +671,31 @@ static byte plasma_color(void)
 	return (TERM_WHITE);
 }
 
+static byte disen_color(void)
+{
+	switch (rand_int(5))
+	{
+		case 0: case 1: return (TERM_VIOLET);
+		case 2: case 3: return (TERM_D_PURPLE);
+		case 4: return (TERM_RASPBERRY);
+	}
+
+	return (TERM_WHITE);
+}
+
+
+static byte nexus_color(void)
+{
+	switch (rand_int(4))
+	{
+		case 0: case 1: return (TERM_VIOLET);
+		case 2: return (TERM_RED);
+		case 3: return (TERM_D_PURPLE);
+	}
+
+	return (TERM_WHITE);
+}
+
 static byte ice_color(void)
 {
 	switch (rand_int(3))
@@ -697,6 +730,30 @@ static byte confu_color(void)
 	return (TERM_WHITE);
 }
 
+static byte spore_color(void)
+{
+	switch (rand_int(5))
+	{
+		case 0: case 1: case 2: return (TERM_L_UMBER);
+		case 3: return (TERM_UMBER);
+		case 4: return (TERM_ORANGE);
+	}
+
+	return (TERM_WHITE);
+}
+
+static byte sound_color(void)
+{
+	switch (rand_int(5))
+	{
+		case 0: case 1: case 2: return (TERM_YELLOW);
+		case 3: return (TERM_GOLD);
+		case 4: return (TERM_MAIZE);
+	}
+
+	return (TERM_WHITE);
+}
+
 static byte grav_color(void)
 {
 	switch (rand_int(4))
@@ -704,6 +761,18 @@ static byte grav_color(void)
 		case 0: case 1: return (TERM_DARK);
 		case 2: return (TERM_L_DARK);
 		case 3: return (TERM_SLATE);
+	}
+
+	return (TERM_WHITE);
+}
+
+static byte iner_color(void)
+{
+	switch (rand_int(5))
+	{
+		case 0: case 1: case 2: return (TERM_PINK);
+		case 3: return (TERM_RASPBERRY);
+		case 4: return (TERM_RED_RUST);
 	}
 
 	return (TERM_WHITE);
@@ -721,6 +790,18 @@ static byte meteor_color(void)
 	}
 
 	return (TERM_WHITE);
+}
+
+static byte water_color(void)
+{
+	switch (rand_int(5))
+	{
+		case 0: case 1: case 2: return (TERM_SLATE);
+		case 3: return (TERM_L_BLUE);
+		case 4: return (TERM_SNOW_WHITE);
+	}
+
+	return (TERM_L_DARK);
 }
 
 static byte orb_color(void)
@@ -793,6 +874,7 @@ byte gf_color(int type)
 		case GF_MISSILE:	return (TERM_VIOLET);
 		case GF_ACID:		return (acid_color());
 		case GF_ELEC:		return (elec_color());
+		case GF_ELEC_BURST:	return (elec_color());
 		case GF_FIRE:		return (fire_color());
 		case GF_COLD:		return (cold_color());
 		case GF_POIS:		return (pois_color());
@@ -800,19 +882,43 @@ byte gf_color(int type)
 		case GF_MANA:		return (mana_color());
 		case GF_STATIC:		return (TERM_WHITE);
 		case GF_ARROW:		return (TERM_WHITE);
-		case GF_WATER:		return (TERM_SLATE);
+		case GF_WATER:		return (water_color());
 		case GF_EXTINGUISH:	return (TERM_BLUE);
 		case GF_CLEAR_AIR:	return (TERM_WHITE);
 		case GF_NETHER:		return (TERM_L_GREEN);
 		case GF_CHAOS:		return (mh_attr());
-		case GF_DISENCHANT:	return (TERM_VIOLET);
+		case GF_DISENCHANT:	return (disen_color());
 		case GF_STERILIZE:	return (TERM_YELLOW);
-		case GF_NEXUS:		return (TERM_L_RED);
+		case GF_NEXUS:		return (nexus_color());
 		case GF_CONFUSION:	return (confu_color());
-		case GF_SOUND:		return (TERM_YELLOW);
+		case GF_SOUND:		return (sound_color());
+		case GF_SPORE:		return (spore_color());
 		case GF_SHARD:		return (TERM_UMBER);
 		case GF_FORCE:		return (TERM_UMBER);
-		case GF_INERTIA:	return (TERM_L_WHITE);
+		case GF_KILL_WALL:	return (TERM_COPPER);
+		case GF_KILL_TRAP:	return (TERM_L_BLUE);
+		case GF_KILL_DOOR:	return (TERM_SILVER);
+		case GF_MAKE_WALL:	return (TERM_EARTH_YELLOW);
+		case GF_MAKE_DOOR:	return (TERM_COPPER);
+		case GF_MAKE_TRAP:	return (TERM_GOLD);
+		case GF_AWAY_UNDEAD:return (TERM_ORANGE_PEEL);
+		case GF_AWAY_EVIL:	return (TERM_L_WHITE_2);
+		case GF_AWAY_ALL:	return (TERM_JUNGLE_GREEN);
+		case GF_TURN_UNDEAD:return (TERM_MAHAGONY);
+		case GF_TURN_EVIL:	return (TERM_MAIZE);
+		case GF_TURN_ALL:	return (TERM_RED_RUST);
+		case GF_DISP_UNDEAD:return (TERM_TAUPE);
+		case GF_DISP_EVIL:	return (TERM_SKY_BLUE);
+		case GF_DISP_ALL:	return (TERM_D_PURPLE);
+		case GF_MAKE_WARY:	return (TERM_MAIZE);
+		case GF_OLD_CLONE:	return (TERM_BLUE);
+		case GF_OLD_POLY:	return (mh_attr());
+		case GF_OLD_HEAL:	return (TERM_SNOW_WHITE);
+		case GF_OLD_SPEED:	return (TERM_ORANGE);
+		case GF_OLD_SLOW:	return (TERM_PINK);
+		case GF_OLD_CONF:	return (confu_color());
+		case GF_OLD_SLEEP:	return (TERM_L_DARK);
+		case GF_INERTIA:	return (iner_color());
 		case GF_GRAVITY:	return (grav_color());
 		case GF_TIME:		return (TERM_L_BLUE);
 		case GF_LIGHT_WEAK:	return (light_color());
@@ -836,7 +942,101 @@ byte gf_color(int type)
 	return (TERM_WHITE);
 }
 
+/*
+ * Helper function for bolt_pic.  For Adam Bolt's tileset, there are several series of
+ * arrows pointed in all 8 directions.  This functions helps display the right one based
+ * on a particular direction.
+ * Projectile is moving (or has moved) from (x,y) to (nx,ny).
+ */
+static int get_arrow_direction_new(int y, int x, int ny, int nx)
+{
+	int adjust = 0;
 
+	/* On the same row */
+	if (y == ny)
+	{
+		/* Headed left */
+		if (x > nx) 		adjust = 2;
+		/* Headed right */
+		else if (x < nx)	adjust = 3;
+	}
+	/* On the same column */
+	else if (x == nx)
+	{
+		/* Headed up */
+		if (y > ny) 		adjust = 0;
+
+		/* Headed down */
+		else /*if (y < ny)*/adjust = 1;
+	}
+	/* headed down */
+	else if (y < ny)
+	{
+		/* Diagonally right */
+		if (x > nx)			adjust = 7;
+
+		/* Diagonally left */
+		else if (x < nx)  	adjust = 6;
+	}
+	/* headed up */
+	else /*if (y > ny) */
+	{
+		/* Diagonally right */
+		if (x > nx)			adjust = 5;
+
+		/* Diagonally left */
+		else if (x < nx)	adjust = 4;
+	}
+	return (adjust);
+}
+
+/*
+ * Helper function for bolt_pic.  For the DVG tileset, there are several series of
+ * arrows pointed in all 8 directions.  This functions helps display the right one based
+ * on a particular direction.
+ * Projectile is moving (or has moved) from (x,y) to (nx,ny).
+ */
+static int get_arrow_direction_dvg(int y, int x, int ny, int nx)
+{
+	int adjust = 0;
+
+	/* On the same row */
+	if (y == ny)
+	{
+		/* Headed left */
+		if (x > nx) 		adjust = 3;
+		/* Headed right */
+		else if (x < nx)	adjust = 4;
+	}
+	/* On the same column */
+	else if (x == nx)
+	{
+		/* Headed up */
+		if (y > ny) 		adjust = 6;
+
+		/* Headed down */
+		else /*if (y < ny)*/adjust = 1;
+	}
+	/* headed down */
+	else if (y < ny)
+	{
+		/* Diagonally right */
+		if (x > nx)			adjust = 0;
+
+		/* Diagonally left */
+		else if (x < nx)  	adjust = 2;
+	}
+	/* headed up */
+	else /*if (y > ny) */
+	{
+		/* Diagonally right */
+		if (x > nx)			adjust = 5;
+
+		/* Diagonally left */
+		else if (x < nx)	adjust = 7;
+	}
+	return (adjust);
+}
 
 /*
  * Find the attr/char pair to use for a spell effect
@@ -845,16 +1045,71 @@ byte gf_color(int type)
  *
  * If the distance is not "one", we (may) return "*".
  */
-u16b bolt_pict(int y, int x, int ny, int nx, int typ)
+u16b bolt_pict(int y, int x, int ny, int nx, int typ, u32b flg)
 {
-	int base;
-
-	byte k;
+	/* Get the color */
+	byte typ_color = gf_color(typ);
 
 	byte a;
 	char c;
 
-	if (!(use_graphics && (arg_graphics == GRAPHICS_DAVID_GERVAIS)))
+	/* Special handling of boulders */
+	if (flg & (PROJECT_ROCK))
+	{
+		/* Special handling GRAPHICS_DAVID_GERVAIS graphics */
+		if (use_graphics && (arg_graphics == GRAPHICS_DAVID_GERVAIS))
+		{
+			a = (byte)0x97;
+			c = (char)0xfe;
+		}
+		else
+		{
+			a = TERM_SLATE;
+			c = '0';
+		}
+	}
+	/* Special handling of shots */
+	else if (flg & (PROJECT_SHOT))
+	{
+		/* Use character for the iron shot */
+		int k_idx = lookup_kind(TV_SHOT, SV_AMMO_NORMAL);
+		a = object_type_attr(k_idx);
+		c = object_type_char(k_idx);
+
+	}
+
+	else if (flg & (PROJECT_AMMO))
+	{
+		/* Special handling GRAPHICS_DAVID_GERVAIS and GRAPHICS_ADAM_BOLT graphics */
+		if (use_graphics && ((arg_graphics == GRAPHICS_DAVID_GERVAIS) || (arg_graphics == GRAPHICS_ADAM_BOLT)))
+		{
+			if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
+			{
+				int add = get_arrow_direction_dvg(y, x, ny, nx);
+
+				a = (byte)0x81;
+				c = (char)0xec + add;
+			}
+			else /* if (arg_graphics == GRAPHICS_ADAM_BOLT) */
+			{
+				int add = get_arrow_direction_new(y, x, ny, nx);
+
+				a = (byte)0xae;
+				c = (char)0x83 + add;
+			}
+		}
+		else
+		{
+			/* Use character for the arrow */
+			int k_idx = lookup_kind(TV_ARROW, SV_AMMO_NORMAL);
+			a = object_type_attr(k_idx);
+			c = object_type_char(k_idx);
+
+		}
+	}
+
+	/* Using ASCII */
+	else if (!use_graphics)
 	{
 		/* No motion (*) */
 		if ((ny == y) && (nx == x)) c = '*';
@@ -874,38 +1129,37 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 		/* Weird (*) */
 		else c = '*';
 
-		/* Basic spell color */
-		a = gf_color(typ);
-
+		a = typ_color;
 	}
+	/* Using a tileset */
 	else
 	{
 		int add;
 
+		/* Assume bolt unless otherwise specified below (no motion) */
+		byte tile_type = TILE_BOLT_INFO;
+
 		/* No motion (*) */
-		if ((ny == y) && (nx == x)) {base = 0x00; add = 0;}
+		if ((ny == y) && (nx == x)) {tile_type = TILE_BALL_INFO; add = 0;}
 
 		/* Vertical (|) */
-		else if (nx == x) {base = 0x40; add = 0;}
+		else if (nx == x) add = 0;
 
 		/* Horizontal (-) */
-		else if (ny == y) {base = 0x40; add = 1;}
+		else if (ny == y) add = 1;
 
 		/* Diagonal (/) */
-		else if ((ny-y) == (x-nx)) {base = 0x40; add = 2;}
+		else if ((ny-y) == (x-nx)) add = 2;
 
 		/* Diagonal (\) */
-		else if ((ny-y) == (nx-x)) {base = 0x40; add = 3;}
+		else if ((ny-y) == (nx-x)) add = 3;
 
 		/* Weird (*) */
-		else {base = 0x00; add = 0;}
-
-		if (typ >= 0x40) k = 0;
-		else k = typ;
+		else {tile_type = TILE_BALL_INFO; add = 0;}
 
 		/* Obtain attr/char */
-		a = misc_to_attr[base+k];
-		c = misc_to_char[base+k] + add;
+		a = color_to_attr[tile_type][typ_color];
+		c = color_to_char[tile_type][typ_color] + add;
 	}
 
 	/* Create pict */
@@ -3390,10 +3644,26 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ, int flg
 				/* Destroy the wall/door */
 				cave_alter_feat(y, x, FS_HURT_ROCK);
 
+				obvious = TRUE;
+
 				/* Make it a room, if called for. */
 				if (flg & PROJECT_ROOM)
 				{
-					cave_info[y][x] |= (CAVE_ROOM);
+					int d;
+
+					/* Look in all directions. */
+					for (d = 0; d < 8; d++)
+					{
+						/* Extract adjacent location */
+						int yy = y + ddy_ddd[d];
+						int xx = x + ddx_ddd[d];
+
+						/* Ignore annoying locations */
+						if (!in_bounds_fully(yy, xx)) continue;
+
+						/* Make part of the room and light it up*/
+						cave_info[yy][xx] |= (CAVE_ROOM | CAVE_GLOW);
+					}
 				}
 			}
 
@@ -7073,8 +7343,8 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 					char c;
 
 					/* Obtain the bolt or explosion pict */
-					if (flg & (PROJECT_BEAM)) p = bolt_pict(y, x, y, x, typ);
-					else                      p = bolt_pict(oy, ox, y, x, typ);
+					if (flg & (PROJECT_BEAM)) p = bolt_pict(y, x, y, x, typ, flg);
+					else                      p = bolt_pict(oy, ox, y, x, typ, flg);
 
 					/* Extract attr/char */
 					a = PICT_A(p);
@@ -7442,7 +7712,7 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 				drawn = TRUE;
 
 				/* Obtain the explosion pict */
-				p = bolt_pict(y, x, y, x, typ);
+				p = bolt_pict(y, x, y, x, typ, flg);
 
 				/* Extract attr/char */
 				a = PICT_A(p);

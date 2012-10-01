@@ -278,7 +278,6 @@ bool file_move(const char *fname, const char *newname)
 	return (rename(buf, aux) == 0);
 }
 
-
 /*
  * Decide whether a file exists or not.
  */

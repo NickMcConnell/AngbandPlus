@@ -1,0 +1,4 @@
+*.o
+autoconf*
+.deps
+nppangband

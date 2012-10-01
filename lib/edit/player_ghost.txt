@@ -1,0 +1,101 @@
+# File: player_ghost.txt
+
+
+# This file is used to initialize the player ghost template information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the lib/Data/player_ghost.raw file.
+
+# === Understanding player_ghost.txt ===
+
+# N: serial number : player ghost name
+# I: gender : race : class
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item. 
+
+#  I is the information line.
+#  Gender of 0 is female, and 1 is male.
+#  race and/or class of 99 means they will be chosen at random
+#  To assign a specific race or class, please use the corresponding
+#  number out of race.txt and class.txt.
+
+#  In order to increase add a new entry here, limits.txt must be edited
+#  as well.
+
+
+V:0.5.4
+
+##### Player Ghost information #####
+
+
+
+N:0:Robert Alan Koeneke
+I:1:99:99
+
+N:1:James Wilson
+I:1:99:99
+
+N:2:Andy Astrand
+I:1:99:99
+
+N:3:Alex Cutler
+I:1:99:99
+
+N:4:Sean Marsh
+I:1:99:99
+
+N:5:Geoff Hill
+I:1:99:99
+
+N:6:Charles Teague
+I:1:99:99
+
+N:7:Charles Swiger
+I:1:99:99
+
+N:8:Ben Harrison
+I:1:99:99
+
+N:9:Robert R["u]hlmann
+I:1:99:99
+
+N:10:Andrew Sidwell
+I:1:99:99
+
+N:11:Jeff Greene
+I:1:99:99
+
+N:12:Diego Gonz['a]lez
+I:1:99:99
+
+N:13:Anssi Ramela
+I:1:99:99
+
+N:14:Kurt Tannert
+I:1:99:99
+
+N:15:Leon Marrick
+I:1:99:99
+
+N:16:Bahman Rabii
+I:1:99:99
+
+N:17:Topi Ylinen
+I:1:99:99
+
+N:18:Nick McConnell
+I:1:99:99
+
+N:19:Pedro G['o]mez-Esteban
+I:1:99:99
+
+N:20:Wayland Stringer
+I:1:99:99
+
+N:21:Tomas Dedorson
+I:1:99:99
+
+N:22:Antoine
+I:1:99:99

@@ -390,7 +390,7 @@ I:100:3d6:4:30:99
 W:1:1:0:2
 B:BITE:HURT:1d1
 B:CRUSH:HURT:1d1
-F:RAND_50 | BASH_DOOR | ANIMAL | N_WATER
+F:RAND_50 | COLD_BLOOD | BASH_DOOR | ANIMAL | N_WATER
 D:It is about eight feet long.
 
 
@@ -409,7 +409,7 @@ G:R:U
 I:110:3d4:20:4:15
 W:1:1:0:2
 B:BITE:HURT:1d1
-F:ANIMAL
+F:COLD_BLOOD | ANIMAL
 D:It is a small lizard with a hardened hide.
 
 
@@ -419,7 +419,7 @@ I:100:4d6:4:35:99
 W:1:1:0:3
 B:BITE:HURT:1d3
 B:CRUSH:HURT:1d4
-F:RAND_25 | BASH_DOOR | ANIMAL | N_WATER
+F:RAND_25 | COLD_BLOOD | BASH_DOOR | ANIMAL | N_WATER
 D:It is about eight feet long.
 
 
@@ -560,7 +560,7 @@ G:R:g
 I:110:2d8:12:8:30
 W:2:1:0:6
 B:BITE:HURT:1d3
-F:RAND_25 | BASH_DOOR | ANIMAL | N_WATER
+F:RAND_25 | COLD_BLOOD | BASH_DOOR | ANIMAL | N_WATER
 D:It is as big as a wolf.
 
 
@@ -620,7 +620,7 @@ I:100:4d8:5:38:75
 W:2:1:0:9
 B:BITE:HURT:1d4
 B:CRUSH:HURT:1d6
-F:RAND_25 | BASH_DOOR | ANIMAL | N_WATER
+F:RAND_25 | COLD_BLOOD | BASH_DOOR | ANIMAL | N_WATER
 D:It is about ten feet long.
 
 
@@ -639,7 +639,7 @@ G:R:o
 I:110:4d6:8:20:80
 W:2:1:0:10
 B:BITE:FIRE:1d3
-F:RAND_25 | ANIMAL | IM_FIRE
+F:RAND_25 | COLD_BLOOD | ANIMAL | IM_FIRE
 D:A small black and orange lizard.
 
 
@@ -892,7 +892,7 @@ G:R:u
 I:110:3d6:8:16:80
 W:4:1:0:8
 B:BITE:HURT:1d5
-F:ANIMAL
+F:COLD_BLOOD | ANIMAL
 D:It is an armoured lizard with a powerful bite.
 
 
@@ -933,7 +933,7 @@ I:100:6d8:6:41:50
 W:4:1:0:14
 B:BITE:HURT:1d5
 B:CRUSH:HURT:1d8
-F:RAND_25 | BASH_DOOR | ANIMAL | N_WATER
+F:RAND_25 | COLD_BLOOD | BASH_DOOR | ANIMAL | N_WATER
 D:It is about ten feet long.
 
 
@@ -1030,7 +1030,7 @@ G:J:o
 I:110:4d6:6:20:1
 W:5:1:0:15
 B:BITE:POISON:2d4
-F:RAND_50 | BASH_DOOR | ANIMAL | IM_POIS
+F:RAND_50 | COLD_BLOOD | BASH_DOOR | ANIMAL | IM_POIS
 D:It has a copper head and sharp venomous fangs.
 
 
@@ -1206,7 +1206,7 @@ G:J:r
 I:110:6d7:6:24:1
 W:6:1:0:20
 B:BITE:POISON:2d5
-F:RAND_50 | BASH_DOOR | ANIMAL | IM_POIS
+F:RAND_50 | COLD_BLOOD | BASH_DOOR | ANIMAL | IM_POIS
 S:SPELL_PCT_25 | POW_0
 S:LASH
 D:It is recognized by the hard-scaled end of its body that is often
@@ -1263,7 +1263,7 @@ G:R:r
 I:110:5d8:12:16:50
 W:7:1:0:16
 B:BITE:LOSE_STR:2d4
-F:RAND_50 | BASH_DOOR | ANIMAL | N_WATER
+F:RAND_50 | COLD_BLOOD | BASH_DOOR | ANIMAL | N_WATER
 D:It looks poisonous.
 
 
@@ -1330,7 +1330,7 @@ I:110:4d8:20:16:30
 W:7:2:0:35
 B:BITE:HURT:1d6
 B:BITE:HURT:1d6
-F:ANIMAL
+F:COLD_BLOOD | ANIMAL
 D:It is a black lizard with overlapping scales and a powerful jaw.
 
 
@@ -1544,7 +1544,7 @@ I:110:8d10:8:30:1
 W:9:2:0:28
 B:SPIT:BLIND:1d2
 B:BITE:POISON:3d4
-F:RAND_50 | BASH_DOOR | ANIMAL | IM_POIS
+F:RAND_50 | COLD_BLOOD | BASH_DOOR | ANIMAL | IM_POIS
 S:SPELL_PCT_25 | POW_0
 S:LASH
 D:It is a large snake with a hooded face.
@@ -2053,7 +2053,7 @@ G:J:D
 I:120:10d8:10:32:1
 W:12:3:0:40
 B:BITE:POISON:4d4
-F:RAND_50 | BASH_DOOR | ANIMAL | IM_POIS
+F:RAND_50 | COLD_BLOOD | BASH_DOOR | ANIMAL | IM_POIS
 S:SPELL_PCT_25 | POW_0
 S:LASH
 D:It has glistening black skin, a sleek body and highly venomous fangs.
@@ -4270,8 +4270,8 @@ B:GAZE:PARALYZE
 B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:BITE:HURT:2d12
-F:ONLY_ITEM | DROP_1D2 | OPEN_DOOR | BASH_DOOR | ANIMAL
-F:NO_CONF | NO_SLEEP
+F:ONLY_ITEM | DROP_1D2 | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
+F:ANIMAL | NO_CONF | NO_SLEEP
 S:SPELL_PCT_15 | POW_0
 S:BRTH_POIS
 D:An evil reptile that preys on unsuspecting travellers.  Its eyes stare
@@ -6277,9 +6277,10 @@ W:40:3:0:900
 B:HIT:BATTER:3d6
 B:HIT:BATTER:3d6
 B:HIT:HURT:3d6
-F:FORCE_MAXHP | DROP_90 | INVISIBLE | REGENERATE | PASS_WALL
-F:TROLL | UNDEAD | EVIL | FLYING | HURT_FIRE
-F:IM_ELEC | IM_COLD | IM_POIS | NO_FEAR | NO_SLEEP
+F:FORCE_MAXHP | DROP_90 | INVISIBLE | COLD_BLOOD | REGENERATE
+F:PASS_WALL | TROLL | UNDEAD | EVIL | FLYING
+F:HURT_FIRE | IM_ELEC | IM_COLD | IM_POIS | NO_FEAR
+F:NO_SLEEP
 D:A weird ghostly troll-like being from the ethereal plane.
 
 
@@ -8407,8 +8408,8 @@ F:RES_NETHR | RES_WATER | RES_PLAS | RES_NEXUS | RES_DISEN
 F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_65 | POW_100
 S:BRTH_DARK | BRTH_CONFU | BRTH_NETHR | BRTH_CHAOS | BALL_NETHR
-S:BOLT_NETHR | BOLT_MANA | ADD_MANA | HEAL | BLIND
-S:S_HI_DEMON | TELE_TO | TELE_SELF_TO
+S:BOLT_NETHR | BOLT_MANA | ADD_MANA | HEAL | TELE_SELF_TO
+S:TELE_TO | BLIND | S_HI_DEMON
 D:This creature appears as a shadow of darkness and chaos, with no
 D: definite physical form.  You have never seen anything like it. You
 D: hear the faint, annoying sounds of flutes and pipes as it comes to
@@ -9670,7 +9671,7 @@ D: rarely fights without them.
 N:644:Morgoth, Lord of Darkness
 G:A:D
 I:140:200d100:100:150:0
-W:100:1:300:60000
+W:100:1:400:60000
 B:HIT:SHATTER:20d10
 B:HIT:SHATTER:20d10
 B:HIT:LOSE_ALL:8d12
@@ -9684,10 +9685,10 @@ F:RES_NETHR | RES_WATER | RES_PLAS | RES_NEXUS | RES_DISEN
 F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 F:N_LAVA | N_ICE | N_OIL | N_FIRE | N_SAND
 F:N_FOREST | N_ACID | N_MUD
-S:SPELL_PCT_45 | POW_200
+S:SPELL_PCT_60 | POW_200
 S:BALL_MANA | BOLT_PLAS | BOLT_MANA | ADD_MANA | HEAL
-S:CURE | TELE_TO | BRAIN_SMASH | WOUND | S_HI_DRAGON
-S:S_HI_DEMON | S_HI_UNIQUE | S_HI_UNDEAD | S_WRAITH
+S:CURE | TELE_SELF_TO | TELE_TO | BRAIN_SMASH | WOUND
+S:S_HI_DRAGON | S_HI_DEMON | S_HI_UNIQUE | S_HI_UNDEAD | S_WRAITH
 D:He is the Master of the Pits of Angband.  His figure is like a black
 D: mountain crowned with lightning.  He rages with everlasting anger,
 D: his body scarred by Fingolfin's eight mighty wounds.  He can never

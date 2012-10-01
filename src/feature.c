@@ -1674,7 +1674,7 @@ s16b get_feat_num(int level)
 				/* We don't allow any down stair in fixed quests */
 				if ((what_quest_type == QUEST_FIXED) ||
 				 	(what_quest_type == QUEST_FIXED_U) ||
-				 	(what_quest_type == QUEST_FIXED_MON)) continue;
+				 	(what_quest_type == QUEST_GUARDIAN)) continue;
 
 				/* Shafts shouldn't pierce quest levels */
 				if (is_shaft && quest_check(p_ptr->depth + 1)) continue;

@@ -55,6 +55,8 @@
  */
 typedef struct birther /*lovely*/ birther; /*sometimes we think she's a dream*/
 
+
+
 /*
  * A structure to hold "rolled" information, and any
  * other useful state for the birth process.
@@ -1106,6 +1108,7 @@ void player_birth(bool quickstart_allowed)
 
 	/* We're ready to start the interactive birth process. */
 	event_signal_flag(EVENT_ENTER_BIRTH, quickstart_allowed);
+	event_signal(EVENT_INIT_STATUSLINE);
 
 	/*
 	 * Loop around until the UI tells us we have an acceptable character.
@@ -1144,6 +1147,13 @@ void player_birth(bool quickstart_allowed)
 			reset_stats(stats, points_spent, &points_left);
 			generate_stats(stats, points_spent, &points_left);
 			rolled_stats = FALSE;
+		}
+		else if (cmd.command == CMD_CHOOSE_OPTIONS)
+		{
+			if (cmd.args[0].choice == 1)
+			{
+				do_cmd_options_aux((void*)3, "Birth (difficulty) options");
+			}
 		}
 		else if (cmd.command == CMD_BUY_STAT)
 		{
@@ -1347,6 +1357,7 @@ void player_birth(bool quickstart_allowed)
 
 	/* Now we're really done.. */
 	event_signal(EVENT_LEAVE_BIRTH);
+	event_signal(EVENT_REMOVE_STATUSLINE);
 }
 
 

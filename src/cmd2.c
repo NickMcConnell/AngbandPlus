@@ -26,7 +26,7 @@
  * Check if action permissable here.
  */
 
-static bool do_cmd_test(int y, int x, int action)
+bool do_cmd_test(int y, int x, int action, bool message)
 {
 	u32b bitzero = 0x01;
 	u32b flag;
@@ -41,7 +41,7 @@ static bool do_cmd_test(int y, int x, int action)
 	if (!(cave_info[y][x] & (CAVE_MARK)))
 	{
 		/* Message */
-		msg_format("You see nothing %s.", here);
+		if (message) msg_format("You see nothing %s.", here);
 
 		/* Nope */
 		return (FALSE);
@@ -67,7 +67,7 @@ static bool do_cmd_test(int y, int x, int action)
 		flag = bitzero << (action - FS_FLAGS1);
 		if (!(f_ptr->f_flags1 & flag))
 		{
-			msg_format("You see nothing %s%s.", here, act);
+			if (message) msg_format("You see nothing %s%s.", here, act);
 		 	return (FALSE);
 		}
 	}
@@ -77,7 +77,7 @@ static bool do_cmd_test(int y, int x, int action)
 		flag = bitzero << (action - FS_FLAGS2);
 		if (!(f_ptr->f_flags2 & flag))
 		{
-		 	msg_format("You see nothing %s%s.", here, act);
+			if (message) msg_format("You see nothing %s%s.", here, act);
 		 	return (FALSE);
 		}
 	}
@@ -87,7 +87,7 @@ static bool do_cmd_test(int y, int x, int action)
 		flag = bitzero << (action - FS_FLAGS3);
 		if (!(f_ptr->f_flags2 & flag))
 		{
-			msg_format("You see nothing %s%s.", here, act);
+			if (message) msg_format("You see nothing %s%s.", here, act);
 		 	return (FALSE);
 		}
 	}
@@ -587,6 +587,12 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
+	/* paranoia - make sure it is a chest */
+	if (o_ptr->tval != TV_CHEST)
+	{
+		msg_print("This object is not a chest!");
+		return (FALSE);
+	}
 
 	/* Attempt to unlock it */
 	if (o_ptr->pval > 0)
@@ -659,7 +665,6 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	bool more = FALSE;
 
 	object_type *o_ptr = &o_list[o_idx];
-
 
 	/* Get the "disarm" factor */
 	i = p_ptr->state.skills[SKILL_DISARM];
@@ -826,7 +831,7 @@ static int count_traps(int *y, int *x, bool known)
  * Return the number of chests around (or under) the character.
  * If requested, count only trapped chests.
  */
-static int count_chests(int *y, int *x, bool trapped)
+int count_chests(int *y, int *x, bool trapped)
 {
 	int d, count, o_idx;
 
@@ -848,9 +853,6 @@ static int count_chests(int *y, int *x, bool trapped)
 		/* Grab the object */
 		o_ptr = &o_list[o_idx];
 
-		/* Already open */
-		if (o_ptr->pval == 0) continue;
-
 		/* No (known) traps here */
 		if (trapped &&
 		    (!object_known_p(o_ptr) ||
@@ -871,7 +873,6 @@ static int count_chests(int *y, int *x, bool trapped)
 	/* All done */
 	return count;
 }
-
 
 /*
  * Extract a "direction" which will move one step from the player location
@@ -901,7 +902,7 @@ static bool do_cmd_open_aux(int y, int x)
 	int door_power;
 
 	/* Verify legality */
-	if (!do_cmd_test(y, x, FS_OPEN)) return (FALSE);
+	if (!do_cmd_test(y, x, FS_OPEN, TRUE)) return (FALSE);
 
 	/* Secrets on doors */
 	if (feat_ff1_match(feat, FF1_DOOR | FF1_SECRET) == (FF1_DOOR | FF1_SECRET))
@@ -1001,41 +1002,26 @@ static bool do_cmd_open_aux(int y, int x)
  */
 void do_cmd_open(cmd_code code, cmd_arg args[])
 {
-	int y, x, dir;
+	int cy, cx, y, x;
+	int dir = args[0].direction;
 
-	s16b o_idx;
+	/* Count chests (locked) */
+	int num_chests, o_idx;
 
 	bool more = FALSE;
 
 	dir = args[0].direction;
 
-	/* Easy Open */
-	if (easy_open)
-	{
-		int num_doors, num_chests;
-
-		/* Count closed doors */
-		num_doors = count_feats(&y, &x, FS_OPEN);
-
-		/* Count chests (locked) */
-		num_chests = count_chests(&y, &x, FALSE);
-
-		/* See if only one target */
-		if ((num_doors + num_chests) == 1)
-		{
-			p_ptr->command_dir = coords_to_dir(y, x);
-		}
-	}
-
 	/* Get location */
-	y = p_ptr->py + ddy[dir];
-	x = p_ptr->px + ddx[dir];
+	cy = y = p_ptr->py + ddy[dir];
+	cx = x = p_ptr->px + ddx[dir];
 
 	/* Check for chests */
+	num_chests = count_chests(&y, &x, FALSE);
 	o_idx = chest_check(y, x, FALSE);
 
 	/* Verify legality */
-	if (!o_idx && !do_cmd_test(y, x, FS_OPEN)) return;
+	if (!o_idx && !do_cmd_test(y, x, FS_OPEN, TRUE)) return;
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
@@ -1044,13 +1030,13 @@ void do_cmd_open(cmd_code code, cmd_arg args[])
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = p_ptr->py + ddy[dir];
-		x = p_ptr->px + ddx[dir];
+		cy = y = p_ptr->py + ddy[dir];
+		cy = x = p_ptr->px + ddx[dir];
 
 		/* Check for chest */
+		num_chests = count_chests(&y, &x, FALSE);
 		o_idx = chest_check(y, x, FALSE);
 	}
-
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -1076,17 +1062,41 @@ void do_cmd_open(cmd_code code, cmd_arg args[])
 	}
 
 	/* Chest */
-	else if (o_idx)
+	else if (num_chests)
 	{
-		/* Open the chest */
-		more = do_cmd_open_chest(y, x, o_idx);
+		/* Get top chest */
+		o_idx = chest_check(y, x, FALSE);
+
+		/* Open the chest if confused, or only one */
+		if ((p_ptr->timed[TMD_CONFUSED]) || (num_chests == 1))  more = do_cmd_open_chest(y, x, o_idx);
+
+		/* More than one */
+		else
+		{
+			cptr q, s;
+
+			o_idx = 0;
+
+			/* Get an item */
+			q = "Open which chest? ";
+			s = "There are no chests in that direction!";
+
+			/*clear the restriction*/
+			item_tester_hook = obj_is_chest;
+
+			/*player chose escape*/
+			if (!get_item_beside(&o_idx, q, s, cy, cx)) more = 0;
+
+			/* Open the chest */
+			else more = do_cmd_open_chest(cy, cx, -o_idx);
+		}
 	}
 
 	/* Door */
 	else
 	{
 		/* Open the door */
-		more = do_cmd_open_aux(y, x);
+		more = do_cmd_open_aux(cy, cx);
 	}
 
 	/* Cancel repeat unless we may continue */
@@ -1095,7 +1105,8 @@ void do_cmd_open(cmd_code code, cmd_arg args[])
 
 void textui_cmd_open(void)
 {
-	int y, x, dir = DIR_UNKNOWN;
+	int y, x;
+	int dir = DIR_UNKNOWN;
 
 	/* Easy Open */
 	if (easy_open)
@@ -1134,7 +1145,7 @@ static bool do_cmd_close_aux(int y, int x)
 	int feat = cave_feat[y][x];
 
 	/* Verify legality */
-	if (!do_cmd_test(y, x, FS_CLOSE)) return (FALSE);
+	if (!do_cmd_test(y, x, FS_CLOSE, TRUE)) return (FALSE);
 
 	/* Broken door */
 	if (feat_ff3_match(feat, FF3_DOOR_BROKEN))
@@ -1191,7 +1202,7 @@ void do_cmd_close(cmd_code code, cmd_arg args[])
 	x = p_ptr->px + ddx[dir];
 
 	/* Verify legality */
-	if (!do_cmd_test(y, x, FS_CLOSE))
+	if (!do_cmd_test(y, x, FS_CLOSE, TRUE))
 	{
 		/* Cancel repeat */
 		disturb(0, 0);
@@ -1277,7 +1288,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	feat = cave_feat[y][x];
 
 	/* Verify legality */
-	if (!do_cmd_test(y, x, FS_TUNNEL)) return (FALSE);
+	if (!do_cmd_test(y, x, FS_TUNNEL, TRUE)) return (FALSE);
 
 	j = feat_state_power(feat, FS_TUNNEL);
 
@@ -1398,7 +1409,7 @@ void do_cmd_tunnel(cmd_code code, cmd_arg args[])
 	x = p_ptr->px + ddx[dir];
 
 	/* Oops */
-	if (!do_cmd_test(y, x, FS_TUNNEL)) return;
+	if (!do_cmd_test(y, x, FS_TUNNEL, TRUE)) return;
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
@@ -1582,40 +1593,37 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 void do_cmd_disarm(cmd_code code, cmd_arg args[])
 {
 	int dir = args[0].direction;
-	int y = p_ptr->py + ddy[dir];
-	int x = p_ptr->px + ddx[dir];
+	int y, x, cy, cx;
 
-	s16b o_idx;
+	int num_traps, o_idx, num_chests;
 
 	bool more = FALSE;
+
+	/* Get location */
+	cy = y = p_ptr->py + ddy[dir];
+	cx = x = p_ptr->px + ddx[dir];
+
+	/* Count visible traps */
+	num_traps = count_traps(&y, &x, TRUE);
+
+	/* Count chests (trapped) */
+	num_chests = count_chests(&y, &x, TRUE);
+
+	/* Check for trapped chests */
+	o_idx = chest_check(cy, cx, TRUE);
+
+	/* Verify legality */
+	if (!num_traps && !num_chests) return;
 
 	/* Easy Disarm */
 	if (easy_open)
 	{
-		int num_traps, num_chests;
-
-		/* Count visible traps */
-		num_traps = count_traps(&y, &x, TRUE);
-
-		/* Count chests (trapped) */
-		num_chests = count_chests(&y, &x, TRUE);
-
 		/* See if only one target */
 		if ((num_traps + num_chests) == 1)
 		{
 			p_ptr->command_dir = coords_to_dir(y, x);
 		}
 	}
-
-	/* Get location */
-	y = p_ptr->py + ddy[dir];
-	x = p_ptr->px + ddx[dir];
-
-	/* Check for chests */
-	o_idx = chest_check(y, x, TRUE);
-
-	/* Verify legality */
-	if (!o_idx && !cave_any_trap_bold(y, x)) return;
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
@@ -1624,11 +1632,14 @@ void do_cmd_disarm(cmd_code code, cmd_arg args[])
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = p_ptr->py + ddy[dir];
-		x = p_ptr->px + ddx[dir];
+		cy = y = p_ptr->py + ddy[dir];
+		cx = x = p_ptr->px + ddx[dir];
 
-		/* Check for chests */
-		o_idx = chest_check(y, x, TRUE);
+		/* re-count the chests and traps */
+		num_traps = count_traps(&y, &x, TRUE);
+
+		num_chests= count_chests(&y, &x, TRUE);
+		o_idx = chest_check(cy, cx, TRUE);
 	}
 
 
@@ -1656,17 +1667,38 @@ void do_cmd_disarm(cmd_code code, cmd_arg args[])
 	}
 
 	/* Chest */
-	else if (o_idx)
+	else if (num_chests)
 	{
-		/* Disarm the chest */
-		more = do_cmd_disarm_chest(y, x, o_idx);
+
+		/* Disarm the chest if confused, or only one */
+		if ((p_ptr->timed[TMD_CONFUSED]) || (num_chests == 1))  more = do_cmd_disarm_chest(y, x, o_idx);
+
+		/* More than one */
+		else
+		{
+			cptr q, s;
+			o_idx = 0;
+
+			/* Get an item */
+			q = "Disarm which chest? ";
+			s = "There are no trapped chests in that direction!";
+
+			/*clear the restriction*/
+			item_tester_hook = chest_requires_disarming;
+
+			/*player chose escape*/
+			if (!get_item_beside(&o_idx, q, s, cy, cx)) more = 0;
+
+			/* Disarm the chest */
+			else more = do_cmd_disarm_chest(cy, cx, -o_idx);
+		}
 	}
 
 	/* Disarm trap */
 	else
 	{
 		/* Disarm the trap */
-		more = do_cmd_disarm_aux(y, x, TRUE);
+		more = do_cmd_disarm_aux(cy, cx, TRUE);
 	}
 
 	/* Cancel repeat unless told not to */
@@ -1694,7 +1726,10 @@ void textui_cmd_disarm(void)
 		if (num_traps || num_chests)
 		{
 			if (num_traps + num_chests <= 1)
+			{
 				dir = coords_to_dir(y, x);
+			}
+
 		}
 	}
 	else
@@ -1726,7 +1761,7 @@ static bool do_cmd_bash_aux(int y, int x)
 	feature_lore *f_l_ptr = &f_l_list[cave_feat[y][x]];
 
 	/* Verify legality */
-	if (!do_cmd_test(y, x, FS_BASH)) return (FALSE);
+	if (!do_cmd_test(y, x, FS_BASH, TRUE)) return (FALSE);
 
 	/* Get the name */
 	feature_desc(name, sizeof(name), feat, FALSE, TRUE);
@@ -1874,7 +1909,7 @@ void do_cmd_bash(cmd_code code, cmd_arg args[])
 	x = p_ptr->px + ddx[dir];
 
 	/* Verify legality */
-	if (!do_cmd_test(y, x, FS_BASH)) return;
+	if (!do_cmd_test(y, x, FS_BASH, TRUE)) return;
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
@@ -2260,7 +2295,7 @@ void do_cmd_spike(cmd_code code, cmd_arg args[])
 	x = p_ptr->px + ddx[dir];
 
 	/* Verify legality */
-	if (!do_cmd_test(y, x, FS_SPIKE)) return;
+	if (!do_cmd_test(y, x, FS_SPIKE, TRUE)) return;
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
@@ -2295,7 +2330,7 @@ void do_cmd_spike(cmd_code code, cmd_arg args[])
 		f_l_ptr->f_l_flags1 |= (FF1_CAN_SPIKE);
 
 		/* Verify legality */
-		if (!do_cmd_test(y, x, FS_SPIKE)) return;
+		if (!do_cmd_test(y, x, FS_SPIKE, TRUE)) return;
 
 		/* Secrets on door/permanent doors */
 		if (feat_ff1_match(feat, FF1_SECRET | FF1_PERMANENT))
@@ -2582,7 +2617,7 @@ void do_cmd_hold(cmd_code code, cmd_arg args[])
 	}
 
 	/* Handle "objects" */
-	py_pickup(TRUE);
+	py_pickup(always_pickup);
 
 	/* Hack -- enter a store if we are on one */
 	if (cave_shop_bold(p_ptr->py,p_ptr->px))
@@ -2712,12 +2747,24 @@ void textui_cmd_rest(void)
   	/* Prompt for time if needed */
 	if (p_ptr->command_arg <= 0)
 	{
-		cptr p = "Rest (0-9999, '!' for HP or SP, '*' for HP and SP, '&' as needed): ";
+		cptr p = "Rest (0-9999, 'h' for HP, 's' for SP, '*' for HP and SP, '&' as needed): ";
 
 		char out_val[5] = "& ";
 
+		/* Buttons */
+		button_kill_all();
+		button_add("[Rest-all]", '&');
+		button_add("[Rest-HP&SP]", '*');
+		button_add("[Rest-HP]", 'h');
+		button_add("[Rest-SP]", 's');
+		event_signal(EVENT_MOUSEBUTTONS);
+
 		/* Ask for duration */
 		if (!get_string(p, out_val, sizeof(out_val))) return;
+
+		/* Restore normal buttons */
+		basic_buttons();
+		event_signal(EVENT_MOUSEBUTTONS);
 
 		/* Rest until done */
 		if (out_val[0] == '&')

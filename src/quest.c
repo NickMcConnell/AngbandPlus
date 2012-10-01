@@ -461,12 +461,12 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 	/* The type of the quest */
 	if (q_ptr->q_type == QUEST_FIXED) my_strcpy(intro, "For eternal glory, ", sizeof(intro));
 	else if (q_ptr->q_type == QUEST_FIXED_U) my_strcpy(intro, "For eternal glory, ", sizeof(intro));
-	else if ((q_ptr->q_type == QUEST_MONSTER) || (q_ptr->q_type == QUEST_FIXED_MON))
+	else if ((q_ptr->q_type == QUEST_MONSTER) || (q_ptr->q_type == QUEST_GUARDIAN))
 	{
 		my_strcpy(intro, "To complete your ", sizeof(intro));
-		if (q_ptr->q_type == QUEST_FIXED_MON)
+		if (q_ptr->q_type == QUEST_GUARDIAN)
 		{
-			my_strcat(intro, "fixed ", sizeof(intro));
+			my_strcat(intro, "guardian ", sizeof(intro));
 		}
 		my_strcat(intro, "quest.", sizeof(intro));
 	}
@@ -495,7 +495,7 @@ void show_quest_mon(int y, int x)
 	/*display the monster character if applicable*/
 	if ((i == QUEST_MONSTER) || (i == QUEST_UNIQUE) ||
 		(i == QUEST_FIXED)   || (i == QUEST_FIXED_U) ||
-		(i == QUEST_FIXED_MON))
+		(i == QUEST_GUARDIAN))
 	{
 		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
 		monster_race *r_ptr = &r_info[q_ptr->mon_idx];
@@ -2020,7 +2020,7 @@ static bool place_mon_quest(int lev, bool fixed)
 		q_ptr->max_num = num;
 
 		/*assign the quest type*/
-		if (fixed) q_ptr->q_type	= QUEST_FIXED_MON;
+		if (fixed) q_ptr->q_type	= QUEST_GUARDIAN;
 		else q_ptr->q_type	= QUEST_MONSTER;
 
 	}
@@ -2497,7 +2497,7 @@ bool check_reward(void)
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
 	if ((q_ptr->q_type == QUEST_MONSTER) || (q_ptr->q_type == QUEST_UNIQUE) ||
-		(q_ptr->q_type == QUEST_FIXED_MON))
+		(q_ptr->q_type == QUEST_GUARDIAN))
 	{
 		/*We owe the player a reward*/
 		if ((!q_ptr->active_level) && (q_ptr->reward))
@@ -2539,13 +2539,13 @@ void do_reward(void)
 	if (!check_reward()) return;
 
 	if ((q_ptr->q_type == QUEST_MONSTER) || (q_ptr->q_type == QUEST_UNIQUE) ||
-		(q_ptr->q_type == QUEST_FIXED_MON))
+		(q_ptr->q_type == QUEST_GUARDIAN))
 	{
 		/* Grant fame bonus */
 		p_ptr->fame += 1;
 
 		/* Fixed quests sometimes get a better fame boost */
-		if (q_ptr->q_type == QUEST_FIXED_MON)
+		if (q_ptr->q_type == QUEST_GUARDIAN)
 		{
 			if (one_in_(2)) p_ptr->fame += 1;
 		}
@@ -2647,7 +2647,7 @@ void display_quest(void)
 	/*display the monster character if applicable*/
 	if ((quest_check(p_ptr->cur_quest) == QUEST_MONSTER) ||
 		(quest_check(p_ptr->cur_quest) == QUEST_UNIQUE) ||
-		(quest_check(p_ptr->cur_quest) == QUEST_FIXED_MON))
+		(quest_check(p_ptr->cur_quest) == QUEST_GUARDIAN))
 	{
 		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
 		monster_race *r_ptr = &r_info[q_ptr->mon_idx];
@@ -3120,9 +3120,9 @@ void quest_monster_update(void)
 		my_strcpy(note, format("You have %d %s remaining to complete your ",
 				remaining, race_name), sizeof(note));
 
-		if (q_ptr->q_type == QUEST_FIXED_MON)
+		if (q_ptr->q_type == QUEST_GUARDIAN)
 		{
-			my_strcat(note, "fixed ", sizeof(note));
+			my_strcat(note, "guardian ", sizeof(note));
 		}
 
 		my_strcat(note, "quest.", sizeof(note));

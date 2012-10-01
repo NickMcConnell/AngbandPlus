@@ -1,7 +1,7 @@
 # File: pref-sdl.prf
 
 #
-# This file is included by "pref.prf" when "main-win.c" is used.
+# This file is included by "pref.prf" when "main-sdl.c" is used.
 #
 # This file implements macros for extended keyboard commands (characters not
 # within the 128 character ASCII set).

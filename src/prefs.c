@@ -813,23 +813,27 @@ errr process_pref_file_command(char *buf)
 		}
 	}
 
-
-	/* Process "S:<num>:<a>/<c>" -- attr/char for special things */
+	/* Process "S:<num>:<a>:<c>:<a>:<c>" -- attr/char for ball spells and bolt spells */
 	else if (buf[0] == 'S')
 	{
 
-		if (tokenize(buf+2, 3, zz) == 3)
+		if (tokenize(buf+2, 5, zz) == 5)
 		{
+			long n3, n4;
+
 			i = strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if ((i < 0) || (i >= (long)N_ELEMENTS(misc_to_attr))) return (1);
-			misc_to_attr[i] = (byte)n1;
-			misc_to_char[i] = (char)n2;
+			n3 = strtol(zz[3], NULL, 0);
+			n4 = strtol(zz[4], NULL, 0);
+			if ((i < 0) || (i > (long)MAX_COLOR_USED)) return (1);
+			color_to_attr[TILE_BALL_INFO][i] = (byte)n1;
+			color_to_char[TILE_BALL_INFO][i] = (char)n2;
+			color_to_attr[TILE_BOLT_INFO][i] = (byte)n3;
+			color_to_char[TILE_BOLT_INFO][i] = (char)n4;
 			return (0);
 		}
 	}
-
 
 	/* Process "E:<tv>:<a>" -- attribute for inventory objects */
 	else if (buf[0] == 'E')

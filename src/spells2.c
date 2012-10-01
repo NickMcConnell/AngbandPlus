@@ -188,15 +188,17 @@ bool create_elements(int cy, int cx, int range)
 		if (n > 0) feat2 = elements[rand_int(n)];
 	}
 
+
+
 	/* Traverse grids */
     for (y = cy - range; y <= cy + range; y++)
     {
         for (x = cx - range; x <= cx + range; x++)
         {
-			/* Ignore out of range grids */
+        	/* Ignore out of range grids */
             if (distance(y, x, cy, cx) > range) continue;
 
-			/* Ignore invalid grids */
+  			/* Ignore invalid grids */
             if (!in_bounds(y, x)) continue;
 
 			/* Ignore perma-walls, stairs, etc. */
@@ -208,8 +210,8 @@ bool create_elements(int cy, int cx, int range)
 			/* Ignore walls, doors, etc. */
 			if (!cave_passable_bold(y, x)) continue;
 
-			/* Ignore grids with monsters/player */
-			if (cave_m_idx[y][x] != 0) continue;
+			/* Ignore grids with monsters */
+			if (cave_m_idx[y][x] > 0) continue;
 
 			/* Ignore grids with objects */
 			if (cave_o_idx[y][x] != 0) continue;
@@ -236,7 +238,7 @@ bool create_elements(int cy, int cx, int range)
         }
     }
 
-	/* Success */
+    /* Success */
 	return (TRUE);
 }
 
@@ -1261,9 +1263,17 @@ static void animate_detect(int rad)
 {
 	int x, y;
 
-	byte a, c;
+	byte a = TERM_YELLOW;
+	char c = '*';
 
 	int dist_squared = rad * rad;
+
+	/* Special tile for DVG graphics */
+	if ((use_graphics) && (arg_graphics == GRAPHICS_DAVID_GERVAIS))
+	{
+		a = (byte)0x81;
+		c = (char)0xE3;
+	}
 
 	/* Scan the map */
 	for (y = 0; y < p_ptr->cur_map_hgt; y++)
@@ -1279,11 +1289,6 @@ static void animate_detect(int rad)
 			 */
 			if (((px * px + py * py) <= dist_squared) && (panel_contains(y, x)))
 			{
-
-               	/* Hack - Obtain attr/char */
-               	a = TERM_YELLOW;
-               	c = '*';
-
                	/* Hack -- Visual effects -- Display a yellow star */
                	print_rel(c, a, y, x);
 			}
@@ -2293,7 +2298,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	/* Get an item */
 	q = "Enchant which item? ";
 	s = "You have nothing to enchant.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_QUIVER))) return (FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2357,7 +2362,7 @@ bool ident_spell(void)
 	/* Get an item */
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_QUIVER))) return (FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2404,7 +2409,7 @@ bool identify_fully(void)
 	/* Get an item */
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_QUIVER))) return (FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -5200,7 +5205,7 @@ bool brand_ammo(bool enchant)
 	/* Get an item */
 	q = "Brand which kind of ammunition? ";
 	s = "You have nothing to brand.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_QUIVER | QUIVER_FIRST))) return (FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -5243,7 +5248,7 @@ bool brand_bolts(bool enchant)
 	/* Get an item */
 	q = "Brand which bolts? ";
 	s = "You have no bolts to brand.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_QUIVER | QUIVER_FIRST))) return (FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -5835,7 +5840,6 @@ static void misc_place_elements(int y, int x, int gf_type, int rad)
 	int yy, xx;
 	int i;
 	u16b feat = 0;
-	bool flag = FALSE;
 
 	/* Find the spell type in the list and retrieve the feature */
 	for (i = 0; info[i].gf_type; i++)
@@ -5876,8 +5880,6 @@ static void misc_place_elements(int y, int x, int gf_type, int rad)
 			{
 				/* Put the feature */
 				cave_set_feat(yy, xx, feat);
-
-				flag = TRUE;
 			}
 		}
 	}

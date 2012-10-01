@@ -74,6 +74,8 @@ ui_event_data run_event_loop(event_listener *target, const ui_event_data *start)
 		if (handled) start = NULL;
 	}
 
+
+
 	if (start)
 	{
 		ke.type = EVT_AGAIN;

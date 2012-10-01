@@ -1,5 +1,5 @@
 /*
- * File: object1.c
+ * File: obj-ui.c
  * Purpose: Mainly object descriptions and generic UI functions
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -17,6 +17,8 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 #include "angband.h"
+#include "ui-menu.h"
+#include "game-event.h"
 
 
 /*
@@ -182,6 +184,91 @@ static void show_obj_list(int num_obj, char labels[50][80], object_type *objects
 	}
 }
 
+/*
+ * Helper function for the get_item or the cmd_use_item functions.
+ * Helps to ensure there is only one item marked.
+ * Clear all objects of the in_use flag;
+ */
+static void clear_object_in_use(void)
+{
+	int i;
+	object_type *o_ptr;
+
+	/* Clear everything in the backpack, equipment, and quiver */
+	for (i = 0; i < ALL_INVEN_TOTAL; i++)
+	{
+		/* Get the object */
+		o_ptr = &inventory[i];
+
+		/* Skip empty slots */
+		if (!o_ptr->k_idx) continue;
+
+		o_ptr->obj_in_use = FALSE;
+	}
+
+	/* Now clear everything on the floor */
+	for (i = 1; i < o_max; i++)
+	{
+		/* Get the object */
+		o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+		o_ptr->obj_in_use = FALSE;
+	}
+}
+
+
+/*
+ * Helper function for the get_item or the cmd_use_item functions.
+ * Find the object in the inventory or on the floor that is in use by the get_item function.
+ * Only one object should be in use at a time to avoid confusion.
+ * Returns TRUE/FALSE, and uses a pointer to return the item in use
+ */
+
+static bool find_object_in_use(int *item)
+{
+	int i;
+	object_type *o_ptr;
+
+	/* First look through the backpack, equipment, and quiver */
+	for (i = 0; i < ALL_INVEN_TOTAL; i++)
+	{
+		/* Get the object */
+		o_ptr = &inventory[i];
+
+		/* Skip empty slots */
+		if (!o_ptr->k_idx) continue;
+
+		/* Found it */
+		if (o_ptr->obj_in_use)
+		{
+			*item = i;
+			return (TRUE);
+		}
+	}
+
+	/* Now look on the floor */
+	for (i = 1; i < o_max; i++)
+	{
+		/* Get the object */
+		o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Found it */
+		if (o_ptr->obj_in_use)
+		{
+			*item = -i;
+			return (TRUE);
+		}
+
+	}
+
+	return (FALSE);
+}
+
 
 
 /*
@@ -232,6 +319,122 @@ void show_inven(olist_detail_t mode)
 	/* Display the object list */
 	show_obj_list(num_obj, labels, objects, mode);
 }
+
+/*
+ * Find the "first" inventory object with the given "tag".
+ *
+ * A "tag" is a char "n" appearing as "@n" anywhere in the
+ * inscription of an object.
+ *
+ * Also, the tag "@xn" will work as well, where "n" is a tag-char,
+ * and "x" is the "current" p_ptr->command_cmd code.
+ */
+static int get_tag(int *cp, char tag)
+{
+	int i;
+	cptr s;
+
+	/*
+	 * The 'f'ire and 't'hrow commands behave differently when we are using the
+	 * equipment (quiver)
+	 */
+	if (((p_ptr->command_cmd == 'f') || (p_ptr->command_cmd == 'v')) && (p_ptr->command_wrk == USE_EQUIP))
+	{
+		/* The pseudo-tag */
+		byte tag_num = 0;
+		object_type *o_ptr;
+		byte group;
+
+		/* Get the proper quiver group to determine which objects can be selected */
+		if (p_ptr->command_cmd == 'f')
+		{
+			/* Ammo groups are taken from the missile weapon */
+			switch (p_ptr->state.ammo_tval)
+			{
+				case TV_BOLT:	group = QUIVER_GROUP_BOLTS;	break;
+				case TV_ARROW:	group = QUIVER_GROUP_ARROWS;	break;
+				default:		group = QUIVER_GROUP_SHOTS;	break;
+			}
+		}
+		/* Hack - Everything else is a throwing weapon */
+		else
+		{
+		 	group = QUIVER_GROUP_THROWING_WEAPONS;
+		}
+
+		/* Iterate over the quiver */
+		for (i = QUIVER_START; i < QUIVER_END; i++)
+		{
+			o_ptr = &inventory[i];
+
+			/* (Paranoia) Ignore empty slots */
+			if (!o_ptr->k_idx) continue;
+
+			/* Groups must be equal */
+			if (quiver_get_group(o_ptr) != group) continue;
+
+			/* Allow pseudo-tag override */
+			(void)get_tag_num(i, quiver_group[group].cmd, &tag_num);
+
+			/* We have a match? */
+			if (I2D(tag_num) == tag)
+			{
+				*cp = i;
+				return TRUE;
+			}
+
+			/* Try with the next pseudo-tag */
+			++tag_num;
+		}
+	}
+
+	/* Check every object */
+	for (i = 0; i < INVEN_TOTAL; ++i)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->obj_note) continue;
+
+		/* Find a '@' */
+		s = strchr(quark_str(o_ptr->obj_note), '@');
+
+		/* Process all tags */
+		while (s)
+		{
+			/* Check the normal tags */
+			if (s[1] == tag)
+			{
+				/* Save the actual inventory ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Check the special tags */
+			if ((s[1] == p_ptr->command_cmd) && (s[2] == tag))
+			{
+				/* Save the actual inventory ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Find another '@' */
+			s = strchr(s + 1, '@');
+		}
+	}
+
+	/* No such tag */
+	return (FALSE);
+}
+
+
 
 /*
  * Get the string that represents the pseudo-tag of the given quiver slot.
@@ -656,185 +859,379 @@ static bool get_item_allow(int item, bool is_harmless)
 
 
 
-/*
- * Find the "first" inventory object with the given "tag".
- *
- * A "tag" is a char "n" appearing as "@n" anywhere in the
- * inscription of an object.
- *
- * Also, the tag "@xn" will work as well, where "n" is a tag-char,
- * and "x" is the "current" p_ptr->command_cmd code.
+
+
+/* Arrays for inventory, equipment and floor */
+int i1, i2, e1, e2, f1, f2, q1, q2;
+int inven_count = 0;
+int equip_count = 0;
+int floor_count = 0;
+int quiver_count = 0;
+int equip_items[INVEN_WIELD];
+int	inven_items[ALL_INVEN_TOTAL - INVEN_WIELD];
+int floor_items[MAX_FLOOR_STACK];
+int quiver_items[QUIVER_SIZE];
+char header_val[160];
+
+
+/**
+ * Make the correct prompt for items, handle mouse buttons
  */
-static int get_tag(int *cp, char tag)
+static void item_prompt(menu_type *menu, int mode, cptr pmt)
 {
-	int i;
-	cptr s;
-
-	/* (f)ire is handled differently from all others, due to the quiver */
-	if (p_ptr->command_cmd == 'f')
-	{
-		i = QUIVER_START + tag - '0';
-		if (inventory[i].k_idx)
-		{
-			*cp = i;
-			return (TRUE);
-		}
-		return (FALSE);
-	}
-
-	/* Check every object */
-	for (i = 0; i < ALL_INVEN_TOTAL; ++i)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip empty inscriptions */
-		if (!o_ptr->obj_note) continue;
-
-		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->obj_note), '@');
-
-		/* Process all tags */
-		while (s)
-		{
-			/* Check the normal tags */
-			if (s[1] == tag)
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
-
-				/* Success */
-				return (TRUE);
-			}
-
-			/* Check the special tags */
-			if ((s[1] == p_ptr->command_cmd) && (s[2] == tag))
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
-
-				/* Success */
-				return (TRUE);
-			}
-
-			/* Find another '@' */
-			s = strchr(s + 1, '@');
-		}
-	}
-
-	/* No such tag */
-	return (FALSE);
-}
-
-
-
-/*
- * Let the user select an item, save its "index"
- *
- * Return TRUE only if an acceptable item was chosen by the user.
- *
- * The selected item must satisfy the "item_tester_hook()" function,
- * if that hook is set, and the "item_tester_tval", if that value is set.
- *
- * All "item_tester" restrictions are cleared before this function returns.
- *
- * The user is allowed to choose acceptable items from the equipment,
- * inventory, or floor, respectively, if the proper flag was given,
- * and there are any acceptable items in that location.
- *
- * The equipment or inventory are displayed (even if no acceptable
- * items are in that location) if the proper flag was given.
- *
- * If there are no acceptable items available anywhere, and "str" is
- * not NULL, then it will be used as the text of a warning message
- * before the function returns.
- *
- * Note that the user must press "-" to specify the item on the floor,
- * and there is no way to "examine" the item on the floor, while the
- * use of "capital" letters will "examine" an inventory/equipment item,
- * and prompt for its use.
- *
- * If a legal item is selected from the inventory, we save it in "cp"
- * directly (0 to 35), and return TRUE.
- *
- * If a legal item is selected from the floor, we save it in "cp" as
- * a negative (-1 to -511), and return TRUE.
- *
- * If no item is available, we do nothing to "cp", and we display a
- * warning message, using "str" if available, and return FALSE.
- *
- * If no item is selected, we do nothing to "cp", and return FALSE.
- *
- * Global "p_ptr->command_new" is used when viewing the inventory or equipment
- * to allow the user to enter a command while viewing those screens, and
- * also to induce "auto-enter" of stores, and other such stuff.
- *
- * Global "p_ptr->command_wrk" is used to choose between equip/inven/floor
- * listings.  It is equal to USE_INVEN or USE_EQUIP or USE_FLOOR, except
- * when this function is first called, when it is equal to zero, which will
- * cause it to be set to USE_INVEN.
- *
- * We always erase the prompt when we are done, leaving a blank line,
- * or a warning message, if appropriate, if no items are available.
- *
- * Note that only "acceptable" floor objects get indexes, so between two
- * commands, the indexes of floor objects may change.  XXX XXX XXX
- */
-bool get_item(int *cp, cptr pmt, cptr str, int mode)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	ui_event_data which;
-
-	int j, k;
-
-	int i1, i2;
-	int e1, e2;
-	int f1, f2;
-
-	bool done, item;
-
-	bool oops = FALSE;
-
-	bool use_inven = ((mode & USE_INVEN) ? TRUE : FALSE);
-	bool use_equip = ((mode & USE_EQUIP) ? TRUE : FALSE);
-	bool use_floor = ((mode & USE_FLOOR) ? TRUE : FALSE);
-	bool is_harmless = ((mode & IS_HARMLESS) ? TRUE : FALSE);
-	bool use_quiver = ((mode & USE_QUIVER) ? TRUE : FALSE);
-
-	olist_detail_t olist_mode = 0;
-
-	bool allow_inven = FALSE;
-	bool allow_equip = FALSE;
-	bool allow_floor = FALSE;
-
-	bool toggle = FALSE;
+	bool use_inven   = ((mode & (USE_INVEN))   ? TRUE : FALSE);
+	bool use_equip   = ((mode & (USE_EQUIP))   ? TRUE : FALSE);
 
 	char tmp_val[160];
 	char out_val[160];
 
-	int floor_list[MAX_FLOOR_STACK];
+	/* Viewing inventory */
+	if (p_ptr->command_wrk == (USE_INVEN))
+	{
+		/* Begin the prompt */
+    	sprintf(out_val, "Inven:");
+
+    	/* Indicate lack of inventory choices. */
+    	if (i1 > i2)
+    	{
+    		sprintf(tmp_val, " (none),");
+    	}
+
+    	/* List choices. */
+    	else sprintf(tmp_val, " %c-%c,", index_to_label(i1), index_to_label(i2));
+
+    	/* Append choices. */
+    	strcat(out_val, tmp_val);
+
+    	/* Indicate ability to "view" */
+    	if (!p_ptr->command_see)
+    	{
+    		strcat(out_val, " * to see,");
+    		button_add("[VIEW]", '*');
+    	}
+    	else
+    	{
+    		strcat(out_val, " * to hide,");
+    		button_add("[HIDE]", '*');
+    	}
+
+    	/* Indicate that equipment items are available */
+    	if (use_equip)
+    	{
+    		strcat(out_val, " / equip,");
+    		button_add("[EQUIP]", '/');
+    	}
+
+    	/* Indicate that floor items are available */
+    	if (f1 <= f2)
+    	{
+    		strcat(out_val, " - floor, . floor top,");
+    		button_add("[FLOOR]", '-');
+    		button_add(".", '.');
+    	}
+	}
+
+	/* Viewing equipment */
+	else if (p_ptr->command_wrk == (USE_EQUIP))
+	{
+		/* Begin the prompt */
+		sprintf(out_val, "Equip:");
+
+		/* Indicate lack of equipment choices. */
+		if (e1 > e2)
+		{
+			sprintf(tmp_val, " (none),");
+		}
+
+		/* List choices. */
+		else sprintf(tmp_val, " %c-%c,", index_to_label(e1), index_to_label(e2));
+
+		/* Append choices. */
+		strcat(out_val, tmp_val);
+
+		/* Indicate ability to "view" */
+		if (!p_ptr->command_see)
+		{
+			strcat(out_val, " * to see,");
+			button_add("[VIEW]", '*');
+		}
+		else
+		{
+			strcat(out_val, " * to hide,");
+			button_add("[HIDE]", '*');
+		}
+
+		/* Append */
+		if (use_inven)
+		{
+			strcat(out_val, " / inven,");
+			button_add("[INVEN]", '/');
+		}
+
+		/* Append */
+		if (f1 <= f2)
+		{
+			strcat(out_val, " - floor, . floor top,");
+			button_add("[FLOOR]", '-');
+			button_add(".", '.');
+		}
+	}
+
+	/* Viewing floor */
+	else if (p_ptr->command_wrk == (USE_FLOOR))
+	{
+		/* Begin the prompt */
+		sprintf(out_val, "Floor:");
+
+		/* Indicate lack of floor choices. */
+		if (f1 > f2) sprintf(tmp_val, " (none),");
+
+		/* List choices. */
+		else sprintf(tmp_val, " %c-%c,", I2A(f1-f1), I2A(f2-f1));
+
+		/* Append */
+		strcat(out_val, tmp_val);
+
+		/* Indicate ability to "view" */
+		if (!p_ptr->command_see)
+		{
+			strcat(out_val, " * to see,");
+			button_add("[VIEW]", '*');
+		}
+		else
+		{
+			strcat(out_val, " * to hide,");
+		    button_add("[HIDE]", '*');
+		}
+
+		/* Append */
+		if (use_inven)
+		{
+			strcat(out_val, " / inven,");
+			button_add("[INVEN]", '/');
+		}
+		else if (use_equip)
+		{
+			strcat(out_val, " / equip,");
+			button_add("[EQUIP]", '/');
+		}
+
+	}
+
+ 	/* Do the buttons */
+	event_signal(EVENT_MOUSEBUTTONS);
+
+	/* Finish the prompt */
+	strcat(out_val, " ESC");
+
+	my_strcpy(header_val, out_val, sizeof(header_val));
+}
+
+
+
+
+/**
+ * Item selection menus
+ */
+static char get_item_tag(menu_type *menu, int oid)
+{
+	const int *choice = menu->menu_data;
+	int idx = choice[oid];
+
+	if (p_ptr->command_wrk == USE_FLOOR)  return I2A(oid);
+	else return index_to_label(idx);
+}
+
+static void get_item_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+{
+	const int *choice = menu->menu_data;
+	int idx = choice[oid];
+	char o_name[120];
+	char label;
+
+	byte attr = TERM_WHITE;
+
+	object_type *o_ptr;
+
+	/* Get the object - hack to abort if invalid */
+	if (p_ptr->command_wrk == (USE_INVEN))
+	{
+		o_ptr = &inventory[idx];
+		if (!get_item_okay(idx)) return;
+	}
+	else if (p_ptr->command_wrk == (USE_EQUIP))
+	{
+		o_ptr = &inventory[idx];
+		if (!get_item_okay(idx)) return;
+
+		if (idx >= QUIVER_START)
+		{
+			attr = TERM_L_UMBER;
+		}
+	}
+	else
+	{
+		o_ptr = &o_list[idx];
+		if (!get_item_okay(0 - idx)) return;
+	}
+
+	/* Get the color, unless it is the quiver (above).*/
+	if (attr == TERM_WHITE) attr = tval_to_attr[o_ptr->tval & 0x7F];
+	if (cursor) attr = TERM_NAVY_BLUE;
+
+
+	/* Get the object description */
+	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+
+	/* Hack -- enforce max length */
+	o_name[width - 3] = '\0';
+
+	/* Hack - re-print the label with the right color, code taken from get_item_tag above*/
+	if (p_ptr->command_wrk == USE_FLOOR)  label = I2A(oid);
+	else label = index_to_label(idx);
+	c_put_str(attr, format("%c)",label), row, (col-3));
+
+	/* Now print the object  */
+	c_put_str(attr, format("%s", o_name), row, col);
+}
+
+
+
+/* Print out the item description of the highlighted object */
+static void item_menu_hook(int oid, void *db, const region *loc)
+{
+	const int *choice = (const int *) db;
+	int idx = choice[oid];
+	char out_val[1024];
+	int max_output;
+	bool started = FALSE;
+
+	/* Get the object */
+	object_type *o_ptr;
+
+	/* Get the object, handle whether in Inventory or on floor */
+	if (p_ptr->command_wrk == (USE_FLOOR)) o_ptr = &o_list[idx];
+	else o_ptr = &inventory[idx];
+
+	prt("", loc->row + loc->page_rows, loc->col);
+	prt("", loc->row + loc->page_rows + 1, loc->col);
+	prt("", loc->row + loc->page_rows + 2, loc->col);
+	prt("", loc->row + loc->page_rows + 3, loc->col);
+
+	/* No info until they know about the item */
+	if (!object_is_known(o_ptr)) return;
+
+	/* Not displaying full menu */
+	if (loc->page_rows == 1) return;
+
+	/* Output to the screen */
+	text_out_hook = text_out_to_screen;
+
+	/* Indent output */
+	text_out_indent = loc->col;
+	text_out_wrap = loc->col + loc->width - 2;
+
+	/* Display the known artifact description */
+	if (!adult_rand_artifacts && o_ptr->art_num &&
+		    object_known_p(o_ptr) && a_info[o_ptr->art_num].text)
+	{
+		my_strcpy(out_val, a_text + a_info[o_ptr->art_num].text, sizeof(out_val));
+		started = TRUE;
+	}
+	/* Display the known object description */
+	else if (object_aware_p(o_ptr) || object_known_p(o_ptr))
+	{
+		if (k_info[o_ptr->k_idx].text)
+		{
+			my_strcpy(out_val, k_text + k_info[o_ptr->k_idx].text, sizeof(out_val));
+			started = TRUE;
+		}
+
+		/* Display an additional ego-item description */
+		if (o_ptr->ego_num && object_known_p(o_ptr) && e_info[o_ptr->ego_num].text)
+		{
+			if (started)
+			{
+				my_strcat(out_val, "   ", sizeof(out_val));
+				my_strcat(out_val, e_text + e_info[o_ptr->ego_num].text, sizeof(out_val));
+			}
+			else
+			{
+				my_strcpy(out_val, e_text + e_info[o_ptr->ego_num].text, sizeof(out_val));
+				started = TRUE;
+			}
+		}
+	}
+
+	/* Now (crudely) terminate it so it doesn't go any longer than four lines, */
+	max_output = ((text_out_wrap - text_out_indent) * 4) - 30;
+	out_val[max_output] = '\0';
+
+	Term_gotoxy(loc->col, loc->row + loc->page_rows);
+
+	/* Nothing to print */
+	if (!started) return;
+
+	text_out_c(TERM_L_BLUE, out_val);
+	text_out_indent = 0;
+}
+
+
+/**
+ * Deal with events on the get_item menu
+ */
+static bool get_item_action(char cmd, void *db, int oid)
+{
+	return TRUE;
+}
+
+
+/**
+ * Display list items to choose from
+ */
+bool item_menu(int *cp, cptr pmt, int mode, bool *oops, int sq_y, int sq_x)
+{
+	menu_type menu;
+	menu_iter menu_f = {get_item_tag, NULL, get_item_display, get_item_action };
+	region area = { 0, 0, -1, -1 };
+	ui_event_data evt = { EVT_NONE, 0, 0, 0, 0 };
+	int num_entries;
+	bool done;
+
+	int j, k = 0;
+
+	bool refresh = TRUE;
+
+	bool use_inven  = ((mode & (USE_INVEN)) ? TRUE : FALSE);
+	bool use_equip  = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
+	bool use_floor  = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
+	bool use_quiver = ((mode & (USE_QUIVER)) ? TRUE : FALSE);
+	bool allow_quiver = FALSE;
+	bool allow_equip = FALSE;
+	bool allow_inven = FALSE;
+	bool allow_floor = FALSE;
+	int cursor = 0;
+	bool toggle = FALSE;
+
+	int floor_list[24];
 	int floor_num;
 
-	bool show_list = auto_display_lists ? TRUE : FALSE;
+	/* FIX LATER */
+	int len = 70;
 
 	/* Paranoia XXX XXX XXX */
-	message_flush();
-
+	msg_print(NULL);
 
 	/* Not done */
 	done = FALSE;
 
-	/* No item selected */
-	item = FALSE;
-
+	/* Mega-hack -- show lists */
+	if ((auto_display_lists) || (mode & (NOUN_VERB))) p_ptr->command_see = TRUE;
 
 	/* Full inventory */
 	i1 = 0;
-	i2 = INVEN_PACK - 1;
+	i2 = INVEN_WIELD - 1;
 
 	/* Forbid inventory */
 	if (!use_inven) i2 = -1;
@@ -844,27 +1241,66 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	while ((i1 <= i2) && (!get_item_okay(i2))) i2--;
 
 	/* Accept inventory */
-	if (i1 <= i2) allow_inven = TRUE;
+	if (i1 <= i2)
+	{
+		allow_inven = TRUE;
 
-	/* Hack -- The quiver is displayed in the equipment window */
-	if (use_quiver) use_equip = TRUE;
+		/* Record them */
+		for (inven_count = 0, j = i1; j <= i2; j++)
+		{
+			if (get_item_okay(j)) inven_items[inven_count++] = j;
+		}
+	}
 
-	/* Full equipment */
-	e1 = INVEN_WIELD;
-	e2 = ALL_INVEN_TOTAL - 1;
+	/*
+	 * equipment & quiver
+	 * Figure out where we want to start
+	 * can be equipment, quiver, both, or neither
+	 */
 
-	/* Forbid equipment */
-	if (!use_equip) e2 = -1;
+	if (use_equip) e1 = INVEN_WIELD;
+	else e1 = QUIVER_START;
+
+	/* Now figure out where we want to end */
+	if (use_quiver) e2 = ALL_INVEN_TOTAL - 1;
+	else e2 = INVEN_TOTAL - 1;
+
+	/* Neither equipment or quiver */
+	if ((!use_equip) && (!use_quiver)) e2 = -1;
 
 	/* Restrict equipment indexes */
 	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
 	while ((e1 <= e2) && (!get_item_okay(e2))) e2--;
 
 	/* Accept equipment */
-	if (e1 <= e2) allow_equip = TRUE;
+	if (e1 <= e2)
+	{
+		allow_equip = TRUE;
 
-	/* Scan all non-gold objects in the grid */
-	floor_num = scan_floor(floor_list, N_ELEMENTS(floor_list), py, px, 0x03);
+		/* Record them */
+		for (equip_count = 0, quiver_count = 0, j = e1; j <= e2; j++)
+		{
+			if (get_item_okay(j))
+			{
+				equip_items[equip_count++] = j;
+				if (IS_QUIVER_SLOT(j))
+				{
+					allow_quiver = TRUE;
+					quiver_items[quiver_count++] = j;
+				}
+			}
+		}
+	}
+
+	/* Count "okay" floor items */
+	floor_num = 0;
+
+	/* Restrict floor usage */
+	if (mode & (USE_FLOOR))
+	{
+		/* Scan all objects in the grid */
+		floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, sq_y, sq_x, 0x01);
+	}
 
 	/* Full floor */
 	f1 = 0;
@@ -878,50 +1314,83 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	while ((f1 <= f2) && (!get_item_okay(0 - floor_list[f2]))) f2--;
 
 	/* Accept floor */
-	if (f1 <= f2) allow_floor = TRUE;
+	if (f1 <= f2)
+	{
+		allow_floor = TRUE;
 
+		/* Record them */
+		for (floor_count = 0, j = f1; j <= f2; j++)
+		{
+			if (get_item_okay(0 - floor_list[j])) floor_items[floor_count++] = floor_list[j];
+		}
+	}
 
 	/* Require at least one legal choice */
-	if (!allow_inven && !allow_equip && !allow_floor)
+	if (!allow_inven && !allow_equip && !allow_floor && !allow_quiver)
 	{
-		/* Oops */
-		oops = TRUE;
-		done = TRUE;
+		/* Cancel p_ptr->command_see */
+		p_ptr->command_see = FALSE;
+
+		/* Report failure */
+		*oops = TRUE;
+
+		/* Done here */
+		return FALSE;
 	}
 
-	/* Analyze choices */
+	/* Assume we'll be looking at something*/
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+	/* Hack -- Start on quiver if shooting or throwing */
+	if ((mode & (QUIVER_FIRST)) && use_quiver && allow_quiver)
+	{
+		p_ptr->command_wrk = (USE_EQUIP);
+	}
+	/* Hack -- Start on equipment if requested */
+	else if ((mode == (USE_EQUIP)) && use_equip)
+	{
+		p_ptr->command_wrk = (USE_EQUIP);
+	}
+
+	/* Use inventory if allowed. */
+	else if (allow_inven)
+	{
+		p_ptr->command_wrk = (USE_INVEN);
+	}
+
+	/* Use equipment if allowed */
+	else if (allow_equip)
+	{
+		p_ptr->command_wrk = (USE_EQUIP);
+	}
+
+	/* Use floor if allowed */
+	else if (allow_floor)
+	{
+		p_ptr->command_wrk = (USE_FLOOR);
+	}
+	/* Hack -- Use (empty) inventory if no other choices available. */
 	else
 	{
-		/* Hack -- Start on equipment if requested */
-		if ((p_ptr->command_wrk == USE_EQUIP) && use_equip)
-			p_ptr->command_wrk = USE_EQUIP;
-
-		/* Use inventory if allowed */
-		else if (use_inven)
-			p_ptr->command_wrk = USE_INVEN;
-
-		/* Use equipment if allowed */
-		else if (use_equip)
-			p_ptr->command_wrk = USE_EQUIP;
-
-		/* Use floor if allowed */
-		else if (use_floor)
-			p_ptr->command_wrk = USE_FLOOR;
-
-		/* Hack -- Use (empty) inventory */
-		else
-			p_ptr->command_wrk = USE_INVEN;
+		p_ptr->command_wrk = (USE_INVEN);
 	}
 
+	/* Find the column to start in */
+	if ((Term->wid - len + 1) < 12 ) area.col = 12;
+	else area.col = Term->wid - (len + 1);
 
-	/* Start out in "display" mode */
-	if (auto_display_lists)
-	{
-		/* Save screen */
-		screen_save();
-	}
+	/* Save the screen */
+	screen_save();
 
-	/* Repeat until done */
+	/* Set up the menu */
+	WIPE(&menu, menu);
+	menu.cmd_keys = "\n\r";
+	menu.browse_hook = item_menu_hook;
+
+	/* Clear space */
+	area.width = len;
+
+	/* Play until item selected or refused */
 	while (!done)
 	{
 		int ni = 0;
@@ -941,8 +1410,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 
 		/* Toggle if needed */
-		if (((p_ptr->command_wrk == USE_EQUIP) && ni && !ne) ||
-		    ((p_ptr->command_wrk == USE_INVEN) && !ni && ne))
+		if ((((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
+			 ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne)) &&
+			  (p_ptr->command_see))
 		{
 			/* Toggle */
 			toggle_inven_equip();
@@ -951,279 +1421,210 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			toggle = !toggle;
 		}
 
-		/* Redraw stuff */
-		p_ptr->redraw |= (PR_INVEN | PR_EQUIP  | PR_ITEMLIST);
+		/* Update */
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 		/* Redraw windows */
-		handle_stuff();
+		redraw_stuff();
+		event_signal(EVENT_MOUSEBUTTONS);
 
-		/* Viewing inventory */
-		if (p_ptr->command_wrk == USE_INVEN)
+		/* Change the display if needed */
+		if (refresh)
 		{
-			/* Redraw if needed */
-			if (show_list) show_inven(olist_mode);
+			/* Hack - load the screen and re-save */
+			screen_load();
+			screen_save();
 
-			/* Begin the prompt */
-			strnfmt(out_val, sizeof(out_val), "Inven:");
-
-			/* List choices */
-			if (i1 <= i2)
+			/* Pick the right menu */
+			if (p_ptr->command_wrk == (USE_INVEN))
 			{
-				/* Build the prompt */
-				strnfmt(tmp_val, sizeof(tmp_val), " %c-%c,",
-				        index_to_label(i1), index_to_label(i2));
-
-				/* Append */
-				my_strcat(out_val, tmp_val, sizeof(out_val));
+				menu.menu_data = inven_items;
+				num_entries = inven_count;
+			}
+			else if ((p_ptr->command_wrk == (USE_EQUIP)) && use_quiver && (!use_inven) && allow_quiver &&
+					 (mode & (QUIVER_FIRST)))
+			{
+				menu.menu_data = quiver_items;
+				num_entries = quiver_count;
+			}
+			else if (p_ptr->command_wrk == (USE_FLOOR))
+			{
+				menu.menu_data = floor_items;
+				num_entries = floor_count;
+			}
+			else /* if (p_ptr->command_wrk == (USE_EQUIP)) */
+			{
+				menu.menu_data = equip_items;
+				num_entries = equip_count;
 			}
 
-			/* Indicate ability to "view" */
-			if (!show_list)
+			/* Different menu sizes depending on if the objects are listed or not */
+			if (!p_ptr->command_see)
 			{
-				my_strcat(out_val, " * to see,", sizeof(out_val));
-				button_add("[*]", '*');
+				area.page_rows = 1;
+				menu.count = 1;
+			}
+			else
+			{
+				area.page_rows = num_entries + 3;
+				menu.count = num_entries;
 			}
 
-			/* Indicate legality of "toggle" */
-			if (use_equip)
-			{
-				my_strcat(out_val, " / for Equip,", sizeof(out_val));
-				button_add("[/]", '/');
-			}
+			/* Set the prompt */
+			item_prompt(&menu, mode, pmt);
 
-			/* Indicate legality of the "floor" */
-			if (allow_floor)
-			{
-				my_strcat(out_val, " - for floor,", sizeof(out_val));
-				button_add("[-]", '-');
-			}
+			menu.title = header_val;
 
+			menu_init(&menu, MN_SKIN_SCROLL, &menu_f, &area);
+
+			refresh = FALSE;
 		}
 
-		/* Viewing equipment */
-		else if (p_ptr->command_wrk == USE_EQUIP)
+		evt = menu_select(&menu, &cursor, EVT_MOVE | EVT_KBRD);
+
+		switch(evt.type)
 		{
-			/* Redraw if needed */
-			if (show_list) show_equip(olist_mode);
-
-			/* Begin the prompt */
-			strnfmt(out_val, sizeof(out_val), "Equip:");
-
-			/* List choices */
-			if (e1 <= e2)
+			case EVT_KBRD:
 			{
-				/* Build the prompt */
-				strnfmt(tmp_val, sizeof(tmp_val), " %c-%c,",
-				        index_to_label(e1), index_to_label(e2));
-
-				/* Append */
-				my_strcat(out_val, tmp_val, sizeof(out_val));
+				break;
 			}
 
-			/* Indicate ability to "view" */
-			if (!show_list)
-			{
-				my_strcat(out_val, " * to see,", sizeof(out_val));
-				button_add("[*]", '*');
-			}
-
-			/* Indicate legality of "toggle" */
-			if (use_inven)
-			{
-				my_strcat(out_val, " / for Inven,", sizeof(out_val));
-				button_add("[/]", '/');
-			}
-
-			/* Indicate legality of the "floor" */
-			if (allow_floor)
-			{
-				my_strcat(out_val, " - for floor,", sizeof(out_val));
-				button_add("[!]", '!');
-			}
-		}
-
-		/* Viewing floor */
-		else
-		{
-			/* Redraw if needed */
-			if (show_list) show_floor(floor_list, floor_num, olist_mode);
-
-			/* Begin the prompt */
-			strnfmt(out_val, sizeof(out_val), "Floor:");
-
-			/* List choices */
-			if (f1 <= f2)
-			{
-				/* Build the prompt */
-				strnfmt(tmp_val, sizeof(tmp_val), " %c-%c,", I2A(f1), I2A(f2));
-
-				/* Append */
-				my_strcat(out_val, tmp_val, sizeof(out_val));
-			}
-
-			/* Indicate ability to "view" */
-			if (!show_list)
-			{
-				my_strcat(out_val, " * to see,", sizeof(out_val));
-				button_add("[*]", '*');
-			}
-
-			/* Append */
-			if (use_inven)
-			{
-				my_strcat(out_val, " / for Inven,", sizeof(out_val));
-				button_add("[/]", '/');
-			}
-
-			/* Append */
-			else if (use_equip)
-			{
-				my_strcat(out_val, " / for Equip,", sizeof(out_val));
-				button_add("[/]", '/');
-			}
-
-		}
-
-		handle_stuff();
-
-		/* Finish the prompt */
-		my_strcat(out_val, " ESC", sizeof(out_val));
-
-		/* Build the prompt */
-		strnfmt(tmp_val, sizeof(tmp_val), "(%s) %s", out_val, pmt);
-
-		/* Show the prompt */
-		prt(tmp_val, 0, 0);
-
-
-		/* Get a key */
-		which = inkey_ex();
-
-		/* Parse it */
-		switch (which.key)
-		{
-			case ESCAPE:
+			case EVT_ESCAPE:
 			{
 				done = TRUE;
-				break;
+				continue;
 			}
 
-			case '*':
-			case '?':
-			case ' ':
+			case EVT_SELECT:
 			{
-				if (!show_list)
-				{
-					/* Hide the list */
-					if (show_list)
-					{
-						/* Flip flag */
-						show_list = FALSE;
+				int *tmp = (int *) menu.menu_data;
+				if (p_ptr->command_wrk == (USE_FLOOR))	k = 0 - tmp[evt.index];
+				else k = tmp[evt.index];
 
-						/* Load screen */
-						screen_load();
-					}
+				/* Paranoia */
+				if (!get_item_okay(k))	continue;
 
-					/* Show the list */
-					else
-					{
-						/* Save screen */
-						screen_save();
-
-						/* Flip flag */
-						show_list = TRUE;
-					}
-				}
-
-				break;
+				(*cp) = k;
+				done = TRUE;
+				continue;
 			}
 
-			case '/':
+			case EVT_MOVE:
 			{
-				/* Toggle to inventory */
-				if (use_inven && (p_ptr->command_wrk != USE_INVEN))
+				continue;
+			}
+
+			case EVT_BACK:
+			{
+				done = TRUE;
+			}
+
+			default:
+			{
+				continue;
+			}
+		}
+
+		switch (evt.key)
+		{
+			case '*':case ' ':
+			{
+				/* Hide the list */
+				if (p_ptr->command_see)
 				{
-					p_ptr->command_wrk = USE_INVEN;
+					/* Flip flag */
+					p_ptr->command_see = FALSE;
 				}
 
-				/* Toggle to equipment */
-				else if (use_equip && (p_ptr->command_wrk != USE_EQUIP))
-				{
-					p_ptr->command_wrk = USE_EQUIP;
-				}
-
-				/* No toggle allowed */
+				/* Show the list */
 				else
 				{
-					bell("Cannot switch item selector!");
-					break;
+					/* Flip flag */
+					p_ptr->command_see = TRUE;
 				}
-
-
-				/* Hack -- Fix screen */
-				if (show_list)
-				{
-					/* Load screen */
-					screen_load();
-
-					/* Save screen */
-					screen_save();
-				}
-
-				/* Need to redraw */
+				refresh = TRUE;
 				break;
 			}
-
 			case '-':
 			{
-				/* Paranoia */
 				if (!allow_floor)
 				{
 					bell("Cannot select floor!");
 					break;
 				}
 
-				/* There is only one item */
-				if (floor_num == 1)
+				/*
+				 * If we aren't examining the floor and there is only
+				 * one item, we will select it if floor_query_flag
+				 * is FALSE.
+				 */
+				/* Hack -- Auto-Select */
+				if ((!floor_query_flag) && (floor_num == 1))
 				{
-					/* Auto-select */
-					if ((p_ptr->command_wrk == (USE_FLOOR)) ||
-							(!floor_query_flag))
+					/* Fall through */
+				}
+				else
+				{
+					p_ptr->command_wrk = (USE_FLOOR);
+					refresh = TRUE;
+					break;
+				}
+			}
+			case '.':
+			{
+				/*
+				 * If we are allow to use the floor, select
+				 * the top item. -BR-
+				 */
+				if (allow_floor)
+				{
+					int k;
+
+					/* Special index */
+					k = 0 - floor_list[0];
+
+					/* Allow player to "refuse" certain actions */
+					if (!get_item_allow(k, TRUE))
 					{
-
-						/* Special index */
-						k = 0 - floor_list[0];
-
-						/* Allow player to "refuse" certain actions */
-						if (!get_item_allow(k, is_harmless))
-						{
-
-							done = TRUE;
-							break;
-						}
-
-						/* Accept that choice */
-						(*cp) = k;
-						item = TRUE;
 						done = TRUE;
-
 						break;
 					}
+
+					/* Accept that choice */
+					(*cp) = k;
+					done = TRUE;
 				}
-
-				/* Hack -- Fix screen */
-				if (show_list)
-				{
-					/* Load screen */
-					screen_load();
-
-					/* Save screen */
-					screen_save();
-				}
-
-				p_ptr->command_wrk = (USE_FLOOR);
 
 				break;
+			}
+			case '/':
+			{
+				/* Toggle to inventory */
+				if (allow_inven && (p_ptr->command_wrk != (USE_INVEN)))
+				{
+					p_ptr->command_wrk = (USE_INVEN);
+					refresh = TRUE;
+				}
+
+				/* Toggle to equipment */
+				else if (allow_equip && (p_ptr->command_wrk != (USE_EQUIP)))
+				{
+				p_ptr->command_wrk = (USE_EQUIP);
+				refresh = TRUE;
+				}
+
+				/* No toggle allowed */
+				else
+				{
+					bell("Cannot switch item selector!");
+				}
+
+				break;
+			}
+			case ESCAPE:
+			{
+				evt.type = EVT_ESCAPE;
+				done = TRUE;
 			}
 
 			case '0':
@@ -1232,7 +1633,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			case '7': case '8': case '9':
 			{
 				/* Look up the tag */
-				if (!get_tag(&k, which.key))
+				if (!get_tag(&k, evt.key))
 				{
 					bell("Illegal object choice (tag)!");
 					break;
@@ -1245,6 +1646,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					break;
 				}
 
+				/* Forbid classic equipment if using the quiver */
+				if (use_quiver && (k >= INVEN_WIELD) && !IS_QUIVER_SLOT(k))
+				{
+					bell("Illegal object choice (tag)!");
+					break;
+				}
+
 				/* Validate the item */
 				if (!get_item_okay(k))
 				{
@@ -1254,71 +1662,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 				/* Accept that choice */
 				(*cp) = k;
-				item = TRUE;
-				done = TRUE;
-				break;
-			}
-
-			case '\n':
-			case '\r':
-			{
-				/* Choose "default" inventory item */
-				if (p_ptr->command_wrk == USE_INVEN)
-				{
-					if (i1 != i2)
-					{
-						bell("Illegal object choice (default)!");
-						break;
-					}
-
-					k = i1;
-				}
-
-				/* Choose the "default" slot (0) of the quiver */
-				else if(p_ptr->command_cmd == 'f')
-					k = e1;
-
-				/* Choose "default" equipment item */
-				else if (p_ptr->command_wrk == USE_EQUIP)
-				{
-					if (e1 != e2)
-					{
-						bell("Illegal object choice (default)!");
-						break;
-					}
-
-					k = e1;
-				}
-
-				/* Choose "default" floor item */
-				else
-				{
-					if (f1 != f2)
-					{
-						bell("Illegal object choice (default)!");
-						break;
-					}
-
-					k = 0 - floor_list[f1];
-				}
-
-				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(k, is_harmless))
-				{
-					done = TRUE;
-					break;
-				}
-
-				/* Validate the item */
-				if (!get_item_okay(k))
-				{
-					bell("Illegal object choice (default)!");
-					break;
-				}
-
-				/* Accept that choice */
-				(*cp) = k;
-				item = TRUE;
 				done = TRUE;
 				break;
 			}
@@ -1328,15 +1671,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				bool verify;
 
 				/* Note verify */
-				verify = (isupper((unsigned char)which.key) ? TRUE : FALSE);
+				verify = (isupper(evt.key) ? TRUE : FALSE);
 
 				/* Lowercase */
-				which.key = tolower((unsigned char)which.key);
+				evt.key = tolower(evt.key);
 
 				/* Convert letter to inventory index */
-				if (p_ptr->command_wrk == USE_INVEN)
+				if (p_ptr->command_wrk == (USE_INVEN))
 				{
-					k = label_to_inven(which.key);
+					k = label_to_inven(evt.key);
 
 					if (k < 0)
 					{
@@ -1346,9 +1689,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				}
 
 				/* Convert letter to equipment index */
-				else if (p_ptr->command_wrk == USE_EQUIP)
+				else if (p_ptr->command_wrk == (USE_EQUIP))
 				{
-					k = label_to_equip(which.key);
+					k = label_to_equip(evt.key);
 
 					if (k < 0)
 					{
@@ -1356,12 +1699,18 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 						break;
 					}
 
+					/* Forbid classic equipment if using the quiver */
+					if (use_quiver && !IS_QUIVER_SLOT(k))
+					{
+						bell("Illegal object choice (equip)!");
+						break;
+					}
 				}
 
 				/* Convert letter to floor index */
 				else
 				{
-					k = (islower((unsigned char)which.key) ? A2I(which.key) : -1);
+					k = (islower((unsigned char)evt.key) ? A2I(evt.key) : -1);
 
 					if (k < 0 || k >= floor_num)
 					{
@@ -1384,43 +1733,142 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				if (verify && !verify_item("Try", k))
 				{
 					done = TRUE;
-					break;
-				}
-
-				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(k, is_harmless))
-				{
-					done = TRUE;
+					evt.type = EVT_ESCAPE;
 					break;
 				}
 
 				/* Accept that choice */
 				(*cp) = k;
-				item = TRUE;
 				done = TRUE;
 				break;
 			}
 		}
 	}
 
-
-	/* Fix the screen if necessary */
-	if (show_list)
-	{
-		/* Load screen */
-		screen_load();
-
-		/* Hack -- Cancel "display" */
-		show_list = FALSE;
-	}
-
+	/* Load screen */
+	screen_load();
 
 	/* Kill buttons */
 	button_kill('*');
 	button_kill('/');
 	button_kill('-');
+	button_kill('.');
 	button_kill('!');
-	handle_stuff();
+	event_signal(EVENT_MOUSEBUTTONS);
+
+	/* Clean up */
+	if ((auto_display_lists) || (mode & NOUN_VERB))
+	{
+		/* Toggle again if needed */
+		if (toggle) toggle_inven_equip();
+
+		/* Update */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Window stuff */
+		redraw_stuff();
+	}
+
+	return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
+}
+
+/**
+ *
+ * This code was taken from FAAngband v1.6, Modified for NPP
+ *
+ * FAAngband notes are below:
+ *
+ * Let the user select an item, save its "index"
+ *
+ * Return TRUE only if an acceptable item was chosen by the user.
+ *
+ * The selected item must satisfy the "item_tester_hook()" function,
+ * if that hook is set, and the "item_tester_tval", if that value is set.
+ *
+ * All "item_tester" restrictions are cleared before this function returns.
+ *
+ * The user is allowed to choose acceptable items from the equipment,
+ * inventory, or floor, respectively, if the proper flag was given,
+ * and there are any acceptable items in that location.
+ *
+ * Any of these are displayed (even if no acceptable items are in that
+ * location) if the proper flag was given.
+ *
+ * If there are no acceptable items available anywhere, and "str" is
+ * not NULL, then it will be used as the text of a warning message
+ * before the function returns.
+ *
+ * Note that the user must press "-" to specify the item on the floor.  The
+ * use of "capital" letters will "examine" an inventory, equipment, or floor
+ * item, and prompt for its use.
+ *
+ * If a legal item is selected from the inventory, we save it in "cp"
+ * directly (0 to 35), and return TRUE.
+ *
+ * If a legal item is selected from the floor, we save it in "cp" as
+ * a negative (-1 to -511), and return TRUE.
+ *
+ * If no item is available, we do nothing to "cp", and we display a
+ * warning message, using "str" if available, and return FALSE.
+ *
+ * If no item is selected, we do nothing to "cp", and return FALSE.
+ *
+ * If 'all squelched items' are selected we set cp to ALL_SQUELCHED and return
+ * TRUE.
+ *
+ * Global "p_ptr->command_new" is used when viewing the inventory or equipment
+ * to allow the user to enter a command while viewing those screens, and
+ * also to induce "auto-enter" of stores, and other such stuff.
+ *
+ * Global "p_ptr->command_see" may be set before calling this function to start
+ * out in "browse" mode.  It is cleared before this function returns.
+ *
+ * Global "p_ptr->command_wrk" is used to choose between equip/inven/floor
+ * listings.  It is equal to USE_INVEN or USE_EQUIP or USE_FLOOR, except
+ * when this function is first called, when it is equal to zero, which will
+ * cause it to be set to USE_INVEN.
+ *
+ * We always erase the prompt when we are done, leaving a blank line,
+ * or a warning message, if appropriate, if no items are available.
+ *
+ * Note that only "acceptable" floor objects get indexes, so between two
+ * commands, the indexes of floor objects may change.  XXX XXX XXX
+ *
+ * This function has been revised using code from Tim Baker's Easy Patch 1.2
+ *
+ * This function has been largely rewritten for FAangband 0.3.2 using
+ * Pete Mack's menu code.
+ *
+ * Assumes the item is on the player square
+ */
+bool get_item(int *cp, cptr pmt, cptr str, int mode)
+{
+	bool item;
+
+	bool oops = FALSE;
+
+	/* Paranoia XXX XXX XXX */
+	msg_print(NULL);
+
+	/* No item selected */
+	item = FALSE;
+	*cp = 0;
+
+	/* Go to menu */
+	item = item_menu(cp, pmt, mode, &oops, p_ptr->py, p_ptr->px);
+
+	/* Check validity */
+	if (item)
+	{
+		if (!get_item_allow(*cp, TRUE))
+		{
+			item = FALSE;
+			msg_print(NULL);
+		}
+	}
+
+	/* Hack -- Cancel "display" */
+	p_ptr->command_see = FALSE;
 
 	/* Forget the item_tester_tval restriction */
 	item_tester_tval = 0;
@@ -1428,14 +1876,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
 
-
-	/* Toggle again if needed */
-	if (toggle) toggle_inven_equip();
-
-	/* Redraw stuff */
-	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
-	handle_stuff();
-
+	/* Make sure the equipment/inventory windows are up to date */
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 	/* Clear the prompt line */
 	prt("", 0, 0);
@@ -1446,4 +1888,696 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Result */
 	return (item);
 }
+
+/*
+* Same notes as above for get_item, except this is used for squares other than the one the player is on.
+* This can be used on any square on the map, but it is intended for
+* disarming opening chests on adjacent squares.
+*/
+bool get_item_beside(int *cp, cptr pmt, cptr str, int sq_y, int sq_x)
+{
+	bool item;
+
+	bool oops = FALSE;
+
+	/* Paranoia XXX XXX XXX */
+	msg_print(NULL);
+
+	/* No item selected */
+	item = FALSE;
+	*cp = 0;
+
+	/* Paranoia */
+	if (!in_bounds_fully(sq_y, sq_x)) oops = TRUE;
+
+	/* Go to menu */
+	else item = item_menu(cp, pmt, (USE_FLOOR), &oops, sq_y, sq_x);
+
+	/* Check validity */
+	if (item)
+	{
+		if (!get_item_allow(*cp, TRUE))
+		{
+			item = FALSE;
+			msg_print(NULL);
+		}
+	}
+
+	/* Hack -- Cancel "display" */
+	p_ptr->command_see = FALSE;
+
+	/* Forget the item_tester_tval restriction */
+	item_tester_tval = 0;
+
+	/* Forget the item_tester_hook restriction */
+	item_tester_hook = NULL;
+
+	/* Clear the prompt line */
+	prt("", 0, 0);
+
+	/* Warning if needed */
+	if (oops && str) msg_print(str);
+
+	/* Result */
+	return (item);
+}
+
+
+/**
+ * Menu functions
+ */
+char comm[30];
+cmd_code comm_command[30];
+cptr comm_descr[30];
+int poss;
+
+
+
+
+/*
+ * Holds a generic command - if cmd is set to other than CMD_NULL
+ * it simply pushes that command to the game, otherwise the hook
+ * function will be called.
+ */
+typedef struct
+{
+	cmd_code command;
+	const char *desc;
+	unsigned char key;
+	bool aim;
+	bool quantity;
+} object_command;
+
+/* General actions, note inscribe should come first, see comments in find_command_line */
+static object_command command_actions[] =
+{
+	{CMD_INSCRIBE, 		"Inscribe ", 				'{', 	FALSE, 	FALSE},
+	{CMD_UNINSCRIBE, 	"Uninscribe ", 				'}', 	FALSE, 	FALSE},
+	{CMD_TAKEOFF, 		"Takeoff/unwield ", 		't', 	FALSE, 	FALSE},
+	{CMD_WIELD, 		"Wear/wield ",      		'w', 	FALSE, 	FALSE},
+	{CMD_DROP, 			"Drop ",            		'd', 	FALSE, 	TRUE},
+	{CMD_STUDY_SPELL, 	"Gain new spell",			'G', 	FALSE, 	FALSE},
+	{CMD_STUDY_BOOK, 	"Gain new prayer", 			'G', 	FALSE, 	FALSE},
+	{CMD_STUDY_INCAN, 	"Gain new incantation",		'G', 	FALSE, 	FALSE},
+	{CMD_BROWSE, 		"Browse ",            		'b', 	FALSE, 	FALSE},
+	{CMD_CAST,  		"Cast a spell",        		'm', 	FALSE, 	FALSE},
+	{CMD_CHANT,  		"Chant an incantation",		'm', 	FALSE, 	FALSE},
+	{CMD_PRAY,  		"Pray a prayer",       		'p', 	FALSE, 	FALSE},
+	{CMD_USE_STAFF, 	"Use ",              		'u', 	TRUE, 	FALSE},
+	{CMD_USE_WAND, 		"Aim ",               		'a', 	TRUE, 	FALSE},
+	{CMD_USE_ROD, 		"Zap ",                		'z', 	TRUE, 	FALSE},
+	{CMD_ACTIVATE, 		"Activate ",  				'A', 	TRUE, 	FALSE},
+	{CMD_EAT, 			"Eat ",            			'E', 	FALSE, 	FALSE},
+	{CMD_QUAFF, 		"Quaff ",           		'q', 	FALSE, 	FALSE},
+	{CMD_READ_SCROLL, 	"Read ",          			'r', 	TRUE, 	FALSE},
+	{CMD_REFILL, 		"Fuel ",   					'F', 	FALSE, 	FALSE},
+	{CMD_FIRE, 			"Fire ", 					'f', 	TRUE, 	FALSE},
+	{CMD_FIRE_NEAR,		"Fire nearest target",		'h', 	FALSE, 	FALSE},
+	{CMD_THROW, 		"Throw ",            		'v', 	TRUE, 	FALSE},
+	{CMD_PICKUP,		"Pick up ", 				'g', 	FALSE, 	FALSE},
+	{CMD_DESTROY, 		"Destroy ",   				'k',	FALSE, 	TRUE},
+	{CMD_EXAMINE, 		"Examine ", 				'I',	FALSE, 	FALSE}
+};
+
+/* Helper function - returns the row# of a particular command from above */
+static cmd_code find_command_line(cmd_code command)
+{
+	u16b i;
+
+	for (i = 0; i < N_ELEMENTS(command_actions); i++)
+	{
+		if (command_actions[i].command == command) return i;
+	}
+
+	/*
+	 * Failure should never happen, but if it is we are returning the
+	 * harmless Inscribe command
+	 */
+
+	return (0);
+}
+
+/*
+ * Handle a command made from the item_menu function.
+ * This is a noun-verb command section, which makes it
+ * different than game-comd.h, in that it assumes 100% success in command execution.
+ * It assumes that add_command has performed all necessary checks to
+ * ensure success before allowing the command to be added to the menu.
+ * The screen should be cleared before this command is called, and
+ * any menus re-loaded after it is done.
+ */
+static void handle_command(cmd_code command_line, int item)
+{
+	cmd_arg args[CMD_MAX_ARGS];
+
+	cmd_code action = command_actions[command_line].command;
+
+	object_type *o_ptr = object_from_item_idx(item);
+
+	args[0].item = item;
+
+	/* Set up for verification of inscriptions */
+	p_ptr->command_cmd = command_actions[command_line].key;
+
+	/* Allow player to "refuse" certain actions, then clear afterwards. */
+	if (!get_item_allow(item, TRUE))
+	{
+		p_ptr->command_cmd = 0;
+		return;
+	}
+	else p_ptr->command_cmd = 0;
+
+	/* Mark it as the item to be used */
+	o_ptr->obj_in_use = TRUE;
+
+	/* Get a qualtity or direction if we need it */
+	if (command_actions[command_line].quantity)
+	{
+		args[1].number = get_quantity(NULL, o_ptr->number);
+	}
+	if ((command_actions[command_line].aim) && (obj_needs_aim(o_ptr) ||
+		(action  == CMD_FIRE) || (action  == CMD_THROW)))
+	{
+		get_aim_dir(&args[1].direction, FALSE);
+	}
+
+	switch(action)
+	{
+		case CMD_INSCRIBE:
+		{
+			obj_inscribe(o_ptr, item);
+			break;
+		}
+		case CMD_UNINSCRIBE:
+		{
+			do_cmd_uninscribe(action, args);
+			break;
+		}
+		case CMD_TAKEOFF:
+		{
+			do_cmd_takeoff(action, args);
+			break;
+		}
+		case CMD_WIELD:
+		{
+			args[1].number = wield_slot(o_ptr);
+
+			/* Oops - this shouldn't ever happen */
+			if (args[1].number == -1) return;
+			if (args[1].number == QUIVER_END) return;
+
+			do_cmd_wield(action, args);
+			break;
+		}
+		case CMD_DROP:
+		{
+			do_cmd_drop(action, args);
+			break;
+		}
+		case CMD_STUDY_SPELL:
+		case CMD_STUDY_BOOK:
+		case CMD_STUDY_INCAN:
+		{
+			obj_study(o_ptr, item);
+			break;
+		}
+		case CMD_BROWSE:
+		{
+			obj_browse(o_ptr, item);
+			break;
+		}
+		case CMD_CAST:
+		case CMD_PRAY:
+		case CMD_CHANT:
+		{
+			obj_cast(o_ptr, item);
+			break;
+		}
+		case CMD_USE_STAFF:
+		case CMD_USE_WAND:
+		case CMD_USE_ROD:
+		case CMD_ACTIVATE:
+		case CMD_EAT:
+		case CMD_QUAFF:
+		case CMD_READ_SCROLL:
+		{
+			do_cmd_use(action, args);
+			break;
+		}
+		case CMD_REFILL:
+		{
+			do_cmd_refill(action, args);
+			break;
+		}
+		case CMD_FIRE:
+		{
+			do_cmd_fire(action, args);
+			break;
+		}
+		case CMD_FIRE_NEAR:
+		{
+			/* Require foe */
+			if (!target_set_closest(TARGET_KILL | TARGET_QUIET))
+			{
+				return;
+			}
+
+			/* Use the target */
+			args[1].direction = 5;
+
+			/* Check for confusion */
+			if (p_ptr->timed[TMD_CONFUSED])
+			{
+				msg_print("You are confused.");
+				args[1].direction = ddd[randint0(8)];
+			}
+
+			/* Fire! */
+			do_cmd_fire(action, args);
+
+
+			break;
+		}
+		case CMD_THROW:
+		{
+			do_cmd_throw(action, args);
+			break;
+		}
+		case CMD_PICKUP:
+		{
+			if (put_object_in_inventory(o_ptr))
+			{
+				delete_object_idx(-item);
+				p_ptr->p_energy_use = BASE_ENERGY_MOVE;
+			}
+			break;
+		}
+
+		case CMD_DESTROY:
+		{
+			destroy_item(item);
+			break;
+		}
+		case CMD_EXAMINE:
+		{
+			obj_examine(o_ptr, item);
+			break;
+		}
+
+		default:
+		{
+			/* Oops - this shouldn't ever happen */
+			msg_print("invalid selection");
+			break;
+		}
+
+	}
+}
+
+static void add_command(cmd_code command)
+{
+	u16b j;
+
+	for (j = 0; j < N_ELEMENTS(command_actions); j++)
+	{
+		/* Find the right command */
+		if (command != command_actions[j].command) continue;
+
+		/* Found the match */
+		comm[poss] = command_actions[j].key;
+		comm_descr[poss] = command_actions[j].desc;
+		comm_command[poss++] = command_actions[j].command;
+	}
+}
+
+#define MODE_FLOOR 		1
+#define MODE_INVENTORY	2
+#define MODE_EQUIPMENT	3
+#define MODE_QUIVER		4
+
+static void collect_commands(const object_type *o_ptr, int item)
+{
+	int mode;
+
+	/* Start with no commands */
+	poss = 0;
+
+	button_kill_all();
+
+	/* Items in the inventory */
+	if (item < 0) 					mode = MODE_FLOOR;
+	else if (item <= INVEN_PACK) 	mode = MODE_INVENTORY;
+	else if (item <= INVEN_TOTAL)	mode = MODE_EQUIPMENT;
+	else 	/* 	MODE_QUIVER */		mode = MODE_QUIVER;
+
+	add_command(CMD_EXAMINE);
+	button_add("EXAMINE", 'I' );
+
+	/* Most anything can be destroyed */
+	if (!o_ptr->art_num)
+	{
+		add_command(CMD_DESTROY);
+		button_add("|DESTROY", 'k');
+	}
+
+	if (mode >= MODE_EQUIPMENT)
+	{
+
+		/* Can take off items unless they are cursed */
+		if (obj_can_takeoff(o_ptr))
+		{
+			add_command(CMD_TAKEOFF);
+			button_add("|TAKEOFF", 't');
+		}
+
+		/*  Check if the object can be activated and it isn't charging */
+		if (obj_can_activate(o_ptr))
+		{
+			add_command(CMD_ACTIVATE);
+			button_add("|ACTIVATE", 'A');
+		}
+	}
+
+	/* Floor and backpack */
+	else if (obj_can_wear(o_ptr))
+	{
+		add_command(CMD_WIELD);
+		button_add("|WIELD", 'w');
+	}
+
+	if ((obj_is_spellbook(o_ptr)) && (o_ptr->tval == cp_ptr->spell_book))
+	{
+		/* Can we study? */
+		if (player_can_use_book(o_ptr, FALSE))
+		{
+			if (cp_ptr->spell_book == TV_PRAYER_BOOK)		add_command(CMD_STUDY_BOOK);
+			else if  (cp_ptr->spell_book == TV_MAGIC_BOOK)	add_command(CMD_STUDY_SPELL);
+			else /* TV_DRUID_BOOK */						add_command(CMD_STUDY_INCAN);
+			button_add("|STUDY", 'G');
+		}
+		/* Can we cast? */
+		if (player_can_use_book(o_ptr, TRUE))
+		{
+			if (cp_ptr->spell_book == TV_PRAYER_BOOK)		add_command(CMD_PRAY);
+			else if  (cp_ptr->spell_book == TV_MAGIC_BOOK)	add_command(CMD_CAST);
+			else /* TV_DRUID_BOOK */						add_command(CMD_CHANT);
+
+			button_add("|CAST", 'm');
+		}
+
+		add_command(CMD_BROWSE);
+		button_add("|BROWSE", 'b');
+	}
+
+	/* A staff with charges */
+	if ((obj_is_staff(o_ptr)) && (obj_has_charges(o_ptr)))
+	{
+		add_command(CMD_USE_STAFF);
+		button_add("|USE", 'u');
+	}
+
+	/* A staff with charges */
+	if ((obj_is_wand(o_ptr)) && (obj_has_charges(o_ptr)))
+	{
+		add_command(CMD_USE_WAND);
+		button_add("|AIM", 'a');
+	}
+
+	/* A staff with charges */
+	if (rod_can_zap(o_ptr))
+	{
+		add_command(CMD_USE_ROD);
+		button_add("|ZAP", 'z');
+	}
+
+	/* A staff with charges */
+	if (obj_is_food(o_ptr))
+	{
+		add_command(CMD_EAT);
+		button_add("|EAT", 'E');
+	}
+
+	/* A staff with charges */
+	if (obj_is_potion(o_ptr))
+	{
+		add_command(CMD_QUAFF);
+		button_add("|QUAFF", 'q');
+	}
+
+	/* A staff with charges */
+	if (obj_is_scroll(o_ptr))
+	{
+		add_command(CMD_READ_SCROLL);
+		button_add("|READ", 'r');
+	}
+
+	/* A staff with charges */
+	if (obj_can_refill(o_ptr))
+	{
+		add_command(CMD_REFILL);
+		button_add("|REFILL", 'F');
+	}
+
+	if (item < 0)
+	{
+		add_command(CMD_PICKUP);
+		button_add("|PICKUP", 'g');
+	}
+
+	else
+	{
+		add_command(CMD_DROP);
+		button_add("|DROP", 'd');
+	}
+
+	/* See if we can fire ammo */
+	if (ammo_can_fire(o_ptr, item))
+	{
+		add_command(CMD_FIRE);
+		button_add("|FIRE", 'f');
+
+		if (valid_target_exists(TARGET_KILL | TARGET_QUIET))
+		{
+			add_command(CMD_FIRE_NEAR);
+			button_add("|FIRE_NEAR", 'h');
+		}
+	}
+
+	/* Some are automatic */
+	add_command(CMD_INSCRIBE);
+	button_add("|INSCR", '{' );
+
+	if (obj_has_inscrip(o_ptr))
+	{
+		add_command(CMD_UNINSCRIBE);
+		button_add("|UNINSC", '}' );
+	}
+
+	add_command(CMD_THROW);
+	button_add("|THROW", 'v' );
+
+	event_signal(EVENT_MOUSEBUTTONS);
+}
+
+/**
+ * Item tag/command key
+ */
+static char command_tag(menu_type *menu, int oid)
+{
+	/* Caution - could be a problem here if KTRL commands were used */
+	return comm[oid];
+}
+
+/**
+ * Display an entry on a command menu
+ */
+static void command_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+{
+	byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+
+	/* Write the description */
+	Term_putstr(col + 2, row, -1, attr, comm_descr[oid]);
+}
+
+
+/**
+ * Handle user input from a command menu
+ */
+static bool command_action(char cmd, void *db, int oid)
+{
+	return TRUE;
+}
+
+#define MENU_QUIT		1
+#define MENU_OBJECT 	2
+#define MENU_COMMAND	3
+
+
+
+/*
+ * Come up with a list of commands for an object and display them
+ * This is a "noun-verb" command list.
+ *
+ */
+void cmd_use_item(void)
+{
+	int item;
+	object_type *o_ptr;
+	bool oops = FALSE;
+	ui_event_data evt;
+	byte menu_stage = MENU_OBJECT;
+
+	/* Get item */
+	cptr q = "Select an object.";
+	cptr s = "There are no objects to select.";
+
+	menu_type menu;
+	menu_iter commands_menu = {command_tag, NULL, command_display, command_action };
+	/* Note that the column needs to be at least 1 due to the title line below */
+	region area = { 0, 0, -1, -1 };
+
+	/* Set up the menu */
+	WIPE(&menu, menu);
+	menu.cmd_keys = "\x8B\x8C\n\r";
+	menu.count = poss;
+	menu.menu_data = comm;
+	menu_init(&menu, MN_SKIN_SCROLL, &commands_menu, &area);
+
+	/* We want to use all objects */
+	item_tester_tval = 0;
+	item_tester_hook = NULL;
+
+	/* Get item */
+	q = "Select an item.";
+	s = "You have no objects to select.";
+
+	/* We already have an object selected */
+	if (find_object_in_use(&item))
+	{
+		/* Skip the object manu */
+		menu_stage = MENU_COMMAND;
+
+		/* Clear the mark */
+		clear_object_in_use();
+	}
+
+	else menu_stage = MENU_OBJECT;
+
+	/* Make sure the player has seen everything */
+	message_flush();
+
+	while (menu_stage != MENU_QUIT)
+	{
+		int cursor = 0;
+		char o_name[80];
+
+		if (menu_stage == MENU_OBJECT)
+		{
+
+			message_flush();
+			screen_save();
+
+			if (!item_menu(&item, q, (USE_QUIVER | USE_INVEN | USE_EQUIP | USE_FLOOR | NOUN_VERB), &oops, p_ptr->py, p_ptr->px))
+			{
+				/* Total Redraw, print warning, then quit  */
+				menu_stage = MENU_QUIT;
+				p_ptr->noun_verb = FALSE;
+				screen_load();
+				break;
+			}
+			else
+			{
+				menu_stage = MENU_COMMAND;
+			}
+
+			/* No objects, */
+			if (oops)
+			{
+				/* Total Redraw, print warning, then quit  */
+				msg_print(s);
+				p_ptr->noun_verb = FALSE;
+				menu_stage = MENU_QUIT;
+			}
+			screen_load();
+
+		}
+
+		if (menu_stage >= MENU_COMMAND)
+		{
+			char title[120];
+			int len = 70;
+
+			/* Get the item */
+			o_ptr = object_from_item_idx(item);
+
+			object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_BASE);
+
+			collect_commands(o_ptr, item);
+			/* Update the menu */
+			menu.count = poss;
+			menu.menu_data = comm;
+			area.page_rows = poss + 3;
+
+			/* Find the column to start in */
+			if ((Term->wid - len + 1) < 12 ) area.col = 12;
+			else area.col = Term->wid - (len + 1);
+			area.width = len;
+
+			message_flush();
+			screen_save();
+
+			my_strcpy(title, format(" Enter a command for %s", o_name), sizeof(title));
+
+			menu.title = title;
+
+			menu_init(&menu, MN_SKIN_SCROLL, &commands_menu, &area);
+
+			/* Select an entry */
+			evt = menu_select(&menu, &cursor, EVT_SELECT);
+
+			screen_load();
+
+			/* Go back to the object manu */
+			if (evt.key == ESCAPE)
+			{
+				menu_stage = MENU_OBJECT;
+				continue;
+			}
+
+			if (evt.type == EVT_SELECT)
+			{
+				cmd_code command_line = find_command_line(comm_command[cursor]);
+
+				o_ptr->obj_in_use = TRUE;
+
+				message_flush();
+
+				handle_command(command_line, item);
+
+				/* Go back one step if item has been consumed used, moved, etc.... */
+				if (!find_object_in_use(&item)) menu_stage = MENU_OBJECT;
+
+				/* We just used some energy, so we need to exit the menu and process the dungeon */
+				if (p_ptr->p_energy_use)
+				{
+					menu_stage = MENU_QUIT;
+					p_ptr->noun_verb = TRUE;
+				}
+
+				/* Place the cursor on the player */
+				move_cursor_relative(p_ptr->py, p_ptr->px);
+
+				process_command(CMD_GAME, TRUE);
+			}
+			handle_stuff();
+		}
+	}
+
+	handle_stuff();
+	basic_buttons();
+	message_flush();
+
+}
+
+
 

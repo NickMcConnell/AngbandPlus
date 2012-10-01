@@ -51,6 +51,7 @@ enum birth_stage
 	BIRTH_SEX_CHOICE,
 	BIRTH_RACE_CHOICE,
 	BIRTH_CLASS_CHOICE,
+	BIRTH_OPTION_CHOICE,
 	BIRTH_ROLLER_CHOICE,
 	BIRTH_POINTBASED,
 	BIRTH_ROLLER,
@@ -66,6 +67,7 @@ enum birth_questions
 	BQ_SEX,
 	BQ_RACE,
 	BQ_CLASS,
+	BQ_OPTIONS,
 	BQ_ROLLER,
 	MAX_BIRTH_QUESTIONS
 };
@@ -75,6 +77,13 @@ enum birth_rollers
 	BR_POINTBASED = 0,
 	BR_NORMAL,
 	MAX_BIRTH_ROLLERS
+};
+
+enum birth_options
+{
+	BO_PROCEED = 0,
+	BO_GOTO_OPT,
+	MAX_BIRTH_OPTONS
 };
 
 
@@ -93,14 +102,15 @@ static enum birth_stage get_quickstart_command(void)
 
 	/* Prompt for it */
 	prt("New character based on previous one:", 0, 0);
-	prt(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
+	prt(prompt, Term->hgt - (mouse_buttons ? 2 : 1), Term->wid / 2 - strlen(prompt) / 2);
 
 	/* Buttons */
 	button_kill_all();
-	button_add("[Y]", 'y');
-	button_add("[N]", 'n');
-	button_add("[C]", 'c');
-	handle_stuff();
+	button_add("[YES]", 'y');
+	button_add("[START_OVER]", 'n');
+	button_add("[CHANGE_NAME]", 'c');
+	redraw_stuff();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	do
 	{
@@ -131,6 +141,7 @@ static enum birth_stage get_quickstart_command(void)
 	/* Buttons */
 	button_kill_all();
 	handle_stuff();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Clear prompt */
 	clear_from(23);
@@ -144,24 +155,27 @@ static enum birth_stage get_quickstart_command(void)
  * ------------------------------------------------------------------------ */
 
 /* The various menus */
-static menu_type sex_menu, race_menu, class_menu, roller_menu;
+static menu_type sex_menu, race_menu, class_menu, roller_menu, birth_opt_menu;
 
 /* Locations of the menus, etc. on the screen */
 #define HEADER_ROW       1
 #define QUESTION_ROW     7
-#define TABLE_ROW       10
+#define TABLE_ROW		10
+#define ROLLER_ROW       TABLE_ROW + 8
 
 #define QUESTION_COL     2
 #define SEX_COL          2
 #define RACE_COL        14
 #define RACE_AUX_COL    29
 #define CLASS_COL       29
-#define CLASS_AUX_COL   50
+#define ROLLER_COL		44
+#define CLASS_AUX_COL   44
 
 static region gender_region = {SEX_COL, TABLE_ROW, 15, -2};
 static region race_region = {RACE_COL, TABLE_ROW, 15, -2};
 static region class_region = {CLASS_COL, TABLE_ROW, 19, -2};
-static region roller_region = {44, TABLE_ROW, 21, -2};
+static region birth_opt_region = {ROLLER_COL,   TABLE_ROW, 36,   8};
+static region roller_region = {ROLLER_COL, ROLLER_ROW, 36, 8};
 
 /* We use different menu "browse functions" to display the help text
    sometimes supplied with the menu items - currently just the list
@@ -241,11 +255,12 @@ static void class_help(int i, void *db, const region *l)
 
 	for (j = 0; j < A_MAX; j++)
 	{
-		text_out_e("%s%+d\n", stat_names_reduced[j], c_info[i].c_adj[j]);
+		text_out_e("%s%+d%+8d%+8d\n", stat_names_reduced[j], p_info[p_ptr->prace].r_adj[j], c_info[i].c_adj[j],
+					  (p_info[p_ptr->prace].r_adj[j] + c_info[i].c_adj[j]));
 	}
 
-	text_out_e("Hit die: %d\n", c_info[i].c_mhp);
-	text_out_e("Experience: %d%%", c_info[i].c_exp);
+	text_out_e("Hit die: %6d%8d\n", c_info[i].c_mhp, p_info[p_ptr->prace].r_mhp + c_info[i].c_mhp);
+	text_out_e("Experience: %3d%%%7d%%", c_info[i].c_exp, + (p_info[p_ptr->prace].r_exp + c_info[i].c_exp));
 
 	/* Reset text_out() indentation */
 	text_out_indent = 0;
@@ -294,9 +309,16 @@ static void setup_menus(void)
 {
 	int i;
 
-	const char *roller_choices[MAX_BIRTH_ROLLERS] = {
+	const char *roller_choices[MAX_BIRTH_ROLLERS] =
+	{
 		"Point-based",
 		"Standard roller"
+	};
+
+	const char *option_choices[MAX_BIRTH_OPTONS] =
+	{
+		"Use current options",
+		"Go to birth option screen"
 	};
 
 	struct birthmenu_data *mdata;
@@ -330,8 +352,17 @@ static void setup_menus(void)
 	}
 	mdata->hint = "Your 'class' determines various intrinsic abilities and bonuses";
 
+	/* Birth option menu simple */
+	init_birth_menu(&birth_opt_menu, MAX_BIRTH_OPTONS, 0, &birth_opt_region, FALSE, NULL);
+	mdata = birth_opt_menu.menu_data;
+	for (i = 0; i < MAX_BIRTH_OPTONS; i++)
+	{
+		mdata->items[i] = option_choices[i];
+	}
+	mdata->hint = "Birth options are finalized for the game before stats are rolled.";
+
 	/* Roller menu straightforward again */
-	init_birth_menu(&roller_menu, MAX_BIRTH_ROLLERS, 0, &roller_region, FALSE, NULL);
+	init_birth_menu(&roller_menu, MAX_BIRTH_ROLLERS, 0, &roller_region, TRUE, NULL);
 	mdata = roller_menu.menu_data;
 	for (i = 0; i < MAX_BIRTH_ROLLERS; i++)
 	{
@@ -358,6 +389,7 @@ static void free_birth_menus(void)
 	free_birth_menu(&sex_menu);
 	free_birth_menu(&race_menu);
 	free_birth_menu(&class_menu);
+	free_birth_menu(&birth_opt_menu);
 	free_birth_menu(&roller_menu);
 }
 
@@ -381,7 +413,7 @@ static void clear_question(void)
 	"Use the {lightgreen}movement keys{/} to scroll the menu, " \
 	"{lightgreen}Enter{/} to select the current menu item, '{lightgreen}*{/}' " \
 	"for a random menu item, '{lightgreen}ESC{/}' to step back through the " \
-	"birth process, '{lightgreen}={/}' for the birth options, '{lightgreen}?{/} " \
+	"birth process, '{lightgreen}={/}' for game options, '{lightgreen}?{/} " \
 	"for help, or '{lightgreen}Ctrl-X{/}' to quit."
 
 /* Show the birth instructions on an otherwise blank screen */
@@ -423,13 +455,22 @@ static enum birth_stage menu_question(enum birth_stage current, menu_type *curre
 
 	while (next == BIRTH_RESET)
 	{
+		button_kill_all();
+		button_add("[ENTER]", '\r');
+		if (menu_data->allow_random) button_add("[RANDOM]", '*');
+		button_add("[ESCAPE]", ESCAPE);
+		button_add("[OPTIONS]", '=');
+		button_add("[HELP]", '?');
+		button_add("[QUIT]", '\x18');  /* CTRL-X */
+		event_signal(EVENT_MOUSEBUTTONS);
+
 		/* Display the menu, wait for a selection of some sort to be made. */
 		cx = menu_select(current_menu, &cursor, EVT_CMD);
 
 		/* As all the menus are displayed in "hierarchical" style, we allow
 		   use of "back" (left arrow key or equivalent) to step back in
 		   the proces as well as "escape". */
-		if (cx.type == EVT_BACK || cx.type == EVT_ESCAPE)
+		if (cx.type == EVT_BACK || cx.type == EVT_ESCAPE || cx.key == ESCAPE)
 		{
 			next = BIRTH_BACK;
 		}
@@ -518,12 +559,16 @@ static enum birth_stage roller_command(bool first_call)
 		prev_roll = FALSE;
 
 	/* Add buttons */
-	button_add("[ESC]", ESCAPE);
-	button_add("[Enter]", '\r');
-	button_add("[r]", 'r');
-	if (prev_roll) button_add("[p]", 'p');
+	button_kill_all();
+	button_add("[ESCAPE]", ESCAPE);
+	button_add("[ACCEPT]", '\r');
+	button_add("[REROLL]", 'r');
+	if (prev_roll) button_add("[PREV]", 'p');
+	button_add("[HELP]", '?');
+	button_add("[QUIT]", '\x18');  /* CTRL-X */
 	clear_from(Term->hgt - 2);
 	handle_stuff();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Prepare a prompt (must squeeze everything in) */
 	strnfcat(prompt, sizeof (prompt), &promptlen, "['r' to reroll");
@@ -532,7 +577,7 @@ static enum birth_stage roller_command(bool first_call)
 	strnfcat(prompt, sizeof (prompt), &promptlen, " or 'Enter' to accept]");
 
 	/* Prompt for it */
-	prt(prompt, Term->hgt - 1, Term->wid / 2 - promptlen / 2);
+	prt(prompt, Term->hgt - (mouse_buttons ? 2 : 1), Term->wid / 2 - promptlen / 2);
 
 	/* Prompt and get a command */
 	ke = inkey_ex();
@@ -585,11 +630,9 @@ static enum birth_stage roller_command(bool first_call)
 	}
 
 	/* Kill buttons */
-	button_kill(ESCAPE);
-	button_kill('\r');
-	button_kill('r');
-	button_kill('p');
+	button_kill_all();
 	handle_stuff();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	return next;
 }
@@ -653,7 +696,7 @@ static void point_based_start(void)
 	display_player_xtra_info();
 	display_player_stat_info(2, 42);
 
-	prt(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
+	prt(prompt, Term->hgt - (mouse_buttons ? 2 : 1), Term->wid / 2 - strlen(prompt) / 2);
 
 	/* Register handlers for various events - cheat a bit because we redraw
 	   the lot at once rather than each bit at a time. */
@@ -674,14 +717,31 @@ static enum birth_stage point_based_command(void)
 	static int stat = 0;
 	char ch;
 	enum birth_stage next = BIRTH_POINTBASED;
+	ui_event_data ke;
 
-/*	point_based_display();*/
+	/* Add buttons */
+	button_kill_all();
+	button_add("[ESCAPE]", ESCAPE);
+	button_add("[ACCEPT]", '\r');
+	button_add("[RESET STATS]", 'r');
+	button_add("[UP]", '8');
+	button_add("[DOWN]", '2');
+	button_add("[DEC_STAT]", '4');
+	button_add("[INC_STAT]", '6');
+	button_add("[QUIT]", '\x18');  /* CTRL-X */
+	clear_from(Term->hgt - 2);
+	handle_stuff();
+	event_signal(EVENT_MOUSEBUTTONS);
+
+	/*	point_based_display();*/
 
 	/* Place cursor just after cost of current stat */
 	Term_gotoxy(COSTS_COL + 4, COSTS_ROW + stat);
 
 	/* Get key */
-	ch = inkey();
+	/* Prompt and get a command */
+	ke = inkey_ex();
+	ch = ke.key;
 
 	if (ch == KTRL('X'))
 	{
@@ -730,6 +790,9 @@ static enum birth_stage point_based_command(void)
 		}
 	}
 
+	button_kill_all();
+	event_signal(EVENT_MOUSEBUTTONS);
+
 	return next;
 }
 
@@ -765,14 +828,15 @@ static enum birth_stage get_confirm_command(void)
 	enum birth_stage next;
 
 	/* Prompt for it */
-	prt(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
+	prt(prompt, Term->hgt - (mouse_buttons ? 2 : 1), Term->wid / 2 - strlen(prompt) / 2);
 
 	/* Buttons */
 	button_kill_all();
-	button_add("[Continue]", 'q');
-	button_add("[ESC]", ESCAPE);
-	button_add("[S]", 'S');
+	button_add("[CONTINUE]", 'q');
+	button_add("[BACK]", ESCAPE);
+	button_add("[START OVER]", 'S');
 	handle_stuff();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Get a key */
 	ke = inkey_ex();
@@ -800,6 +864,7 @@ static enum birth_stage get_confirm_command(void)
 	/* Buttons */
 	button_kill_all();
 	handle_stuff();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Clear prompt */
 	clear_from(23);
@@ -857,6 +922,7 @@ errr get_birth_command(bool wait)
 		case BIRTH_SEX_CHOICE:
 		case BIRTH_CLASS_CHOICE:
 		case BIRTH_RACE_CHOICE:
+		case BIRTH_OPTION_CHOICE:
 		case BIRTH_ROLLER_CHOICE:
 		{
 			menu_type *menu = &sex_menu;
@@ -882,6 +948,13 @@ errr get_birth_command(bool wait)
 			if (current_stage > BIRTH_CLASS_CHOICE)
 			{
 				menu_refresh(&class_menu);
+				menu = &birth_opt_menu;
+				command = CMD_CHOOSE_OPTIONS;
+			}
+
+			if (current_stage > BIRTH_OPTION_CHOICE)
+			{
+				menu_refresh(&birth_opt_menu);
 				menu = &roller_menu;
 				command = CMD_NULL;
 			}

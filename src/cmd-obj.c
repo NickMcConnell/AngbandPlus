@@ -21,6 +21,7 @@
 #include "cmds.h"
 
 
+
 /*** Utility bits and bobs ***/
 
 /*
@@ -67,17 +68,12 @@ static int check_devices(object_type *o_ptr)
 	return TRUE;
 }
 
-
-
-
 /*** Inscriptions ***/
 
 /* Remove inscription */
 void do_cmd_uninscribe(cmd_code code, cmd_arg args[])
 {
 	object_type *o_ptr = object_from_item_idx(args[0].item);
-
-
 
 	if (!obj_has_inscrip(o_ptr))
 	{
@@ -139,7 +135,7 @@ void do_cmd_inscribe(cmd_code code, cmd_arg args[])
 	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
 }
 
-static void obj_inscribe(object_type *o_ptr, int item)
+void obj_inscribe(object_type *o_ptr, int item)
 {
 	char o_name[80];
 	char tmp[80] = "";
@@ -223,8 +219,9 @@ static void obj_inscribe(object_type *o_ptr, int item)
 
 
 
+
 /*** Examination ***/
-static void obj_examine(object_type *o_ptr, int item)
+void obj_examine(object_type *o_ptr, int item)
 {
 	track_object(item);
 
@@ -233,8 +230,6 @@ static void obj_examine(object_type *o_ptr, int item)
 	object_info_screen(o_ptr);
 }
 
-
-
 /*** Taking off/putting on ***/
 
 /* Take off an item */
@@ -242,7 +237,7 @@ void do_cmd_takeoff(cmd_code code, cmd_arg args[])
 {
 	int item = args[0].item;
 
-	if (!item_is_available(item, NULL, USE_EQUIP))
+	if (!item_is_available(item, NULL, USE_EQUIP | USE_QUIVER))
 	{
 		msg_print("You are not wielding that item.");
 		return;
@@ -365,7 +360,7 @@ void do_cmd_drop(cmd_code code, cmd_arg args[])
 	object_type *o_ptr = object_from_item_idx(item);
 	int amt = args[1].number;
 
-	if (!item_is_available(item, NULL, USE_INVEN | USE_EQUIP))
+	if (!item_is_available(item, NULL, USE_INVEN | USE_EQUIP | USE_QUIVER))
 	{
 		msg_print("You do not have that item to drop it.");
 		return;
@@ -425,7 +420,7 @@ static void obj_wield(object_type *o_ptr, int item)
 			cptr q = "Replace which ammunition? ";
 			cptr s = "Error in obj_wield, please report";
 			item_tester_hook = obj_is_ammo;
-			if (!get_item(&slot, q, s, USE_EQUIP)) return;
+			if (!get_item(&slot, q, s, USE_QUIVER)) return;
 		}
 	}
 
@@ -456,19 +451,18 @@ static void obj_wield(object_type *o_ptr, int item)
 	cmd_insert(CMD_WIELD, item, slot);
 }
 
-
-/*** Casting and browsing ***/
-
 /* Peruse spells in a book */
-static void obj_browse(object_type *o_ptr, int item)
+void obj_browse(object_type *o_ptr, int item)
 {
 	(void)item;
 
-	do_cmd_browse_aux(o_ptr);
+	(void)get_spell_menu(o_ptr, BOOK_BROWSE);
 }
 
+
+
 /* Study a book to gain a new spell */
-static void obj_study(object_type *o_ptr, int item)
+void obj_study(object_type *o_ptr, int item)
 {
 	/* Track the object kind */
 	track_object(item);
@@ -476,7 +470,7 @@ static void obj_study(object_type *o_ptr, int item)
 	/* Mage -- Choose a spell to study */
 	if (cp_ptr->flags & CF_CHOOSE_SPELLS)
 	{
-		int spell = get_spell(o_ptr, "study", FALSE);
+		int spell = get_spell_menu(o_ptr, BOOK_STUDY);
 		if (spell >= 0)
 			cmd_insert(CMD_STUDY_SPELL, spell);
 		else if (spell == -2)
@@ -510,36 +504,17 @@ static bool is_trap_spell(byte spell_book, int spell)
 	return (FALSE);
 }
 
-static void obj_cast(object_type *o_ptr, int item)
+void obj_cast(object_type *o_ptr, int item)
 {
 	int spell, dir = DIR_UNKNOWN;
-	cptr verb;
-	cptr noun;
+	cptr noun = cast_spell(MODE_SPELL_NOUN, cp_ptr->spell_book, 1, 0);
 	bool trap_spell;
 
 	/* Track the object kind */
 	track_object(item);
 
-	if (cp_ptr->spell_book == TV_MAGIC_BOOK)
-	{
-		verb = "cast";
-		noun = "spell";
-
-	}
-
-	else if (cp_ptr->spell_book == TV_DRUID_BOOK)
-	{
-		verb = "recite";
-		noun = "spell";
-	}
-	else /*Priest*/
-	{
-		verb = "recite";
-		noun = "prayer";
-	}
-
 	/* Ask for a spell */
-	spell = get_spell(o_ptr, verb, TRUE);
+	spell = get_spell_menu(o_ptr, BOOK_CAST);
 
 	if (spell < 0)
 	{
@@ -555,7 +530,6 @@ static void obj_cast(object_type *o_ptr, int item)
 	cmd_insert(CMD_CAST, spell, dir);
 
 }
-
 
 
 /* Determine if the player can read scrolls. */
@@ -1648,7 +1622,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			/* Only accept legal items. */
 			item_tester_hook = item_tester_hook_randart;
 
-			if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) break;
+			if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) break;
 
 			/*Got the item*/
 			o_ptr = &inventory[item];
@@ -1970,7 +1944,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 {
-	int lev, sval;
+	int sval;
 
 
 	/*Special allowance for disarming and traps*/
@@ -1990,9 +1964,6 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 
 	/* Not identified yet */
 	*ident = FALSE;
-
-	/* Get the level */
-	lev = k_info[o_ptr->k_idx].k_level;
 
 	/* Sound */
 	/* TODO: Create wand sound?  Do the individual effects have sounds? */
@@ -2236,7 +2207,6 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 
 static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 {
-	int lev;
 	bool used_charge = TRUE;
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -2245,9 +2215,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 
 	/* Not identified yet */
 	*ident = FALSE;
-
-	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].k_level;
 
 	/* Still charging? */
 	if (o_ptr->timeout > (o_ptr->pval - k_ptr->pval))
@@ -3586,22 +3553,22 @@ static item_act_t item_actions[] =
 	/* ACTION_UNINSCRIBE */
 	{ NULL, CMD_UNINSCRIBE, "uninscribe",
 	  "Un-inscribe which item? ", "You have nothing to un-inscribe.",
-	  obj_has_inscrip, (USE_EQUIP | USE_INVEN | USE_FLOOR), NULL },
+	  obj_has_inscrip, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_QUIVER), NULL },
 
 	 /* ACTION_INSCRIBE */
 	{ obj_inscribe, CMD_NULL, "inscribe",
 	  "Inscribe which item? ", "You have nothing to inscribe.",
-	  NULL, (USE_EQUIP | USE_INVEN | USE_FLOOR | IS_HARMLESS), NULL },
+	  NULL, (USE_EQUIP | USE_INVEN | USE_FLOOR | IS_HARMLESS | USE_QUIVER), NULL },
 
 	  /* ACTION_EXAMINE */
 	{ obj_examine, CMD_NULL, "examine",
 	  "Examine which item? ", "You have nothing to examine.",
-	  NULL, (USE_EQUIP | USE_INVEN | USE_FLOOR | IS_HARMLESS), NULL },
+	  NULL, (USE_EQUIP | USE_INVEN | USE_FLOOR | IS_HARMLESS | USE_QUIVER), NULL },
 
 	/* ACTION_TAKEOFF */
 	{ NULL, CMD_TAKEOFF, "takeoff",
 	  "Take off which item? ", "You are not wearing anything you can take off.",
-	  obj_can_takeoff, USE_EQUIP, NULL },
+	  obj_can_takeoff, (USE_EQUIP | USE_QUIVER), NULL },
 
 	  /* ACTION_WIELD */
 	{ obj_wield, CMD_WIELD, "wield",
@@ -3611,7 +3578,7 @@ static item_act_t item_actions[] =
 	  /* ACTION_DROP */
 	{ obj_drop, CMD_NULL, "drop",
 	  "Drop which item? ", "You have nothing to drop.",
-	  NULL, (USE_EQUIP | USE_INVEN), NULL },
+	  NULL, (USE_EQUIP | USE_INVEN | USE_QUIVER), NULL },
 
 	  /* ACTION_BROWSE */
 	/*** Spellbooks ***/
@@ -3695,7 +3662,7 @@ typedef enum
 	ACTION_REFILL
 } item_act;
 
-bool trap_related_object(object_type *o_ptr)
+static bool trap_related_object(object_type *o_ptr)
 {
 	if ((o_ptr->tval == TV_WAND) && (object_aware_p(o_ptr)))
 	{
@@ -3763,6 +3730,7 @@ static void do_item(item_act act)
 		cmd_insert(item_actions[act].command, item);
 
 }
+
 
 /* Wrappers */
 void textui_cmd_uninscribe(void) { do_item(ACTION_UNINSCRIBE); }

@@ -67,6 +67,11 @@
 #define PRIEST_REALM	1
 #define DRUID_REALM		2
 
+/* Different modes to interact with books */
+#define BOOK_BROWSE		1
+#define BOOK_STUDY		2
+#define BOOK_CAST		3
+
 /*Define the spell slot for the various classes*/
 #define SPELL_STAT_SLOT \
 		((cp_ptr->spell_book == TV_DRUID_BOOK) ? \
@@ -427,8 +432,8 @@
  *Quiver
  */
 #define QUIVER_START 37
-#define QUIVER_SIZE  10
 #define QUIVER_END   47
+#define QUIVER_SIZE  (QUIVER_END - QUIVER_START)
 
 #define ALL_INVEN_TOTAL 47
 
@@ -654,11 +659,12 @@ enum
 /*
  * Modes for the "do_spell" function
  */
-#define MODE_SPELL_CAST    1
-#define MODE_SPELL_NAME    2
-#define MODE_SPELL_DESC    3
-
-
+#define MODE_SPELL_CAST    		1
+#define MODE_SPELL_NAME    		2
+#define MODE_SPELL_DESC    		3
+#define MODE_SPELL_DESC_SHORT   4
+#define MODE_SPELL_NOUN    		5
+#define MODE_SPELL_VERB    		6
 
 
 #define LEV_EXTRA_COMBAT 	26
@@ -722,7 +728,7 @@ enum
 #define QUEST_PIT			6	/* clear out an entire monster pit*/
 #define QUEST_NEST			7	/* clear out a monster next*/
 #define QUEST_THEMED_LEVEL	8	/* clear out an entire level of creatures*/
-#define QUEST_FIXED_MON		9  	/* A fixed quest from the guild */
+#define QUEST_GUARDIAN		9  	/* A fixed monster quest from the guild */
 
 #define MON_RARE_FREQ	15
 #define MON_LESS_FREQ	50

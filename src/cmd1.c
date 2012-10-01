@@ -280,6 +280,9 @@ bool put_object_in_inventory(object_type *o_ptr)
 	/* Message */
 	msg_c_format(msgt, "You have %s (%c).", o_name, index_to_label(slot));
 
+	/* No longer marked "in use */
+	o_ptr->obj_in_use = FALSE;
+
 	/* Combine / Reorder the pack */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
 
@@ -292,36 +295,6 @@ bool put_object_in_inventory(object_type *o_ptr)
 }
 
 
-/* Helper function for do_cmd_pickup_from_pile */
-static int get_first_item_for_pickup(void)
-{
-	int y = p_ptr->py;
-	int x = p_ptr->px;
-
-	s16b this_o_idx, next_o_idx = 0;
-	object_type *o_ptr;
-
-	/* First, find the item */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
-	{
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Test for auto-pickup */
-		if (inven_carry_okay(o_ptr))
-		{
-			return (this_o_idx);
-		}
-	}
-
-	/* Not found */
-	return (-1);
-}
-
-
 /*
  * Allow the player to sort through items in a pile and
  * pickup what they want.  This command does not use
@@ -330,7 +303,6 @@ static int get_first_item_for_pickup(void)
  */
 void do_cmd_pickup_from_pile(bool pickup, bool message)
 {
-	byte objs_picked_up = 0;
 	object_type *o_ptr;
 
 	int py = p_ptr->py;
@@ -345,8 +317,7 @@ void do_cmd_pickup_from_pile(bool pickup, bool message)
 	while (TRUE)
 	{
 		int item;
-
-		char prompt[80];
+		cptr q, s;
 
 		int floor_list[MAX_FLOOR_STACK];
 
@@ -388,56 +359,28 @@ void do_cmd_pickup_from_pile(bool pickup, bool message)
 			break;
 		}
 
-		/* Auto-pickup if only one item */
-		else if ((!floor_query_flag) && (cycles < 2) &&
-				(want_pickup_num == 1))
-		{
-			item = get_first_item_for_pickup();
-
-			/* paranoia */
-			if (item == -1) break;
-
-			o_ptr = &o_list[item];
-
-			/* Pick up the object */
-			if (put_object_in_inventory(o_ptr))
-			{
-				/* Delete the gold */
-				delete_object_idx(item);
-				objs_picked_up++;
-				break;
-			}
-		}
-
-		/* Save screen */
-		screen_save();
-
-		/* Display */
-		show_floor(floor_list, floor_num, (OLIST_WEIGHT));
-
-		my_strcpy(prompt, "Pick up which object? (ESC to cancel):", sizeof(prompt));
-
 		/*clear the restriction*/
 		item_tester_hook = NULL;
 
-		/* Get the object number to be bought */
-		item = get_menu_choice(floor_num, prompt);
+		q = "Pick up which object? (ESC to cancel):";
+		s = "THere are no objects to pick up!";
 
-		/*player chose escape*/
-		if (item == -1)
+		if (!get_item(&item, q, s, (USE_FLOOR)))
 		{
-			screen_load();
+			/*player chose escape*/
 			break;
 		}
 
-		o_ptr = &o_list[floor_list[item]];
+		/* FLoor items are returned as negative numbers */
+		item = -item;
+
+		o_ptr = &o_list[item];
 
 		/* Pick up the object */
 		if (put_object_in_inventory(o_ptr))
 		{
-			/* Delete the gold */
-			delete_object_idx(floor_list[item]);
-			objs_picked_up++;
+			/* Delete the object */
+			delete_object_idx(item);
 		}
 
 		/* Pickup failed.  Quit. */
@@ -448,12 +391,8 @@ void do_cmd_pickup_from_pile(bool pickup, bool message)
 			/* Describe the object */
 			object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
-			screen_load();
 			break;
 		}
-
-		/* Load screen */
-		screen_load();
 	}
 
 	/*clear the restriction*/
@@ -627,7 +566,6 @@ void py_pickup(bool pickup)
 	/* Next, pick up items that are marked for auto-pickup.  */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
-		char o_name[80];
 		bool do_continue = TRUE;
 
 		/* We are done */
@@ -638,9 +576,6 @@ void py_pickup(bool pickup)
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
-
-		/* Describe the object */
-		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
 		/* Object is marked to always pickup */
 		if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP)  &&
@@ -660,7 +595,6 @@ void py_pickup(bool pickup)
 
 	/* Nothing left */
 	if (!cave_o_idx[py][px]) return;
-
 
 	if (pickup)
 	{

@@ -1028,9 +1028,10 @@ static CGImageRef GetTileImage(int row, int col, bool has_alpha)
 	CGRect dst_r = {{ 0, 0 }, { tile_wid, td->tile_hgt }};
 
 #if 1	
-	//	CBB:  Overwrite neighbouring tiles to avoid interpolation across boundaries.
-	//
-	//	1. Create thin rectangular strips around this tile (must use fill not stroke).
+	/*	CBB:  Overwrite neighbouring tiles to avoid interpolation across boundaries.
+	 *
+	 *	1. Create thin rectangular strips around this tile (must use fill not stroke).
+	 */
 	int x0 = graf_width*col; 
 	int y0 = graf_height*(frame.rows-row-1); 
 	int x1 = x0 + graf_width;
@@ -1042,7 +1043,7 @@ static CGImageRef GetTileImage(int row, int col, bool has_alpha)
 	CGRect src_bottom = {{ x0-2, y0-2} , { graf_width+4, 2 } };
 	CGRect src_top    = {{ x0-2, y1} , { graf_width+4, 2 } };
 	
-	//	2. Create a drawable copy of the tile set image and get a context pointer to it.
+	/*	2. Create a drawable copy of the tile set image and get a context pointer to it.  */
 	CGContextRef context_copy_ref = CGBitmapContextCreate(NULL, 
 														  CGImageGetWidth(frame.image), 
 														  CGImageGetHeight(frame.image), 
@@ -1054,7 +1055,7 @@ static CGImageRef GetTileImage(int row, int col, bool has_alpha)
 	int dy = CGImageGetHeight(frame.image);
 	CGContextDrawImage(context_copy_ref, CGRectMake(0,0, dx,dy), frame.image);
 	
-	//	3. Black out the surrounding strips.
+	/*	3. Black out the surrounding strips.  */
 	CGContextSetRGBFillColor(context_copy_ref, .15, .15, .15, 1);
 	CGContextAddRect(context_copy_ref, src_left);
 	CGContextAddRect(context_copy_ref, src_right);

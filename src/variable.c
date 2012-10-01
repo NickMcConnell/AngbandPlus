@@ -273,8 +273,6 @@ byte angband_color_table[256][4] =
 	{0x00, 0xE1, 0xA9, 0x5F} 	/* TERM_EARTH_YELLOW (Shade 2 - U2) */
 };
 
-
-
 /*
  * Standard sound (and message) names
  */
@@ -641,13 +639,12 @@ s16b alloc_race_size;
  */
 alloc_entry *alloc_race_table;
 
-
 /*
  * Specify attr/char pairs for visual special effects
- * Be sure to use "index & 0xFF" to avoid illegal access
+ * for ball spells and bolt spells
  */
-byte misc_to_attr[256];
-char misc_to_char[256];
+byte color_to_attr[2][MAX_COLOR_USED];
+char color_to_char[2][MAX_COLOR_USED];
 
 
 /*
@@ -731,6 +728,14 @@ feature_lore *f_l_list;
 object_kind *k_info;
 char *k_name;
 char *k_text;
+
+/*
+ * The ghost template arrays
+ */
+ghost_template *t_info;
+char *t_name;
+char *t_text;
+
 
 /*
  * The artifact arrays
@@ -1069,6 +1074,11 @@ quiver_group_type quiver_group[MAX_QUIVER_GROUPS] =
 u16b quest_indicator_timer = 0;
 
 /*
+ * Remember what is being displayed on each row on the side of the screen.
+ */
+int sidebar_details[SIDEBAR_MAX_TYPES];
+
+/*
  * It's TRUE if the player won a quest.
  */
 byte quest_indicator_complete = FALSE;
@@ -1089,3 +1099,5 @@ dungeon_capabilities_type *dun_cap = NULL;
 /* Delay in centiseconds before moving to allow another keypress */
 /* Zero means normal instant movement. */
 u16b lazymove_delay =0;
+
+

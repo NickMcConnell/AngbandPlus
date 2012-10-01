@@ -1935,7 +1935,7 @@ option_entry options[OPT_MAX] =
 	{"verify_leave_quests",	"Verify before descending from quest level",TRUE},/* OPT_verify_leave_quests*/
 	{"mark_squelch_items",	"Items marked for squelch appear as dot",FALSE},/* OPT_mark_squelch_items */
 	{"mouse_movement",      "Allow mouse clicks to move the player",       TRUE }, /*OPT_mouse_movement*/
-	{"mouse_buttons",       "Show mouse status line buttons",              FALSE }, /*OPT_mouse_buttons*/
+	{"mouse_buttons",       "Show mouse status line buttons",              TRUE }, /*OPT_mouse_buttons*/
 	{"notify_recharge",		"Notify on object recharge", 	FALSE},/* OPT_notify_recharge */
 	{NULL,				NULL,								FALSE},/* xxx */
 	{NULL,				NULL,							FALSE},/* xxx */
@@ -2001,8 +2001,8 @@ option_entry options[OPT_MAX] =
 	{"birth_no_player ghosts",	"Birth: Disable player ghosts",					FALSE},	/* OPT_birth_no_player ghosts*/
 	{"birth_no_store_services",	"Birth: Disable store services",				FALSE},	/* OPT_birth_no_store_services*/
 	{"birth_no_xtra_artifacts", "Birth: Disable extra artifacts",				FALSE},	/* OPT_birth_no_xtra_artifacts*/
-	{ "birth_money",            "Birth: Start with more money and no equipment",FALSE },
-	{NULL,NULL,FALSE},/* xxx */
+	{"birth_money",             "Birth: Start with more money and no equipment",FALSE },/* OPT_birth_money */
+	{"birth_simple_dungeons",   "Birth: Prevent unusual terrains or dungeons",	FALSE },/* OPT_birth_birth_simple_dungeons */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2066,7 +2066,7 @@ option_entry options[OPT_MAX] =
 	{"adult_no_store_services",	"Adult: Disable store services",				FALSE},	/* OPT_adult_no_store_services*/
 	{"adult_no_xtra_artifacts",	"Adult: Disable extra artifacts",				FALSE},	/* OPT_adult_no_xtra_artifacts*/
 	{"adult_birth_money",      	"Adult: Start with more money and no equipment",FALSE },/* OPT_adult_birth_money*/
-	{NULL,NULL,FALSE},/* xxx */
+	{"adult_simple_dungeons",   "Adult: Prevent unusual terrains or dungeons",	FALSE },/* OPT_adult_birth_simple_dungeons */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2214,7 +2214,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_store_services,
 		OPT_birth_no_xtra_artifacts,
 		OPT_birth_no_selling,
-		OPT_NONE,
+		OPT_birth_simple_dungeons,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE

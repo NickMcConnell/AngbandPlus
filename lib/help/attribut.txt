@@ -62,6 +62,7 @@ terrain you are in will affect your ability to move, and your
 that will allow you to become native to various terrains, and give 
 you an advantage in moving and fighting in those terrains.
 
+***** <statistics>
 --- Vital Statistics ---
 
      You have six primary statistics, or stats.  Each of them has important

@@ -767,9 +767,6 @@ static size_t obj_desc_inscrip(const object_type *o_ptr, char *buf, size_t max, 
  */
 size_t object_desc(char *buf, size_t max, const object_type *o_ptr, odesc_detail_t mode)
 {
-	cptr basenm;
-	cptr modstr;
-
 	bool prefix = mode & ODESC_PREFIX;
 	bool spoil = (mode & ODESC_SPOIL);
 
@@ -777,13 +774,6 @@ size_t object_desc(char *buf, size_t max, const object_type *o_ptr, odesc_detail
 
 	bool aware;
 	bool known;
-
-	bool flavor;
-
-	bool append_name;
-
-	bool show_weapon;
-	bool show_armour;
 
 	u32b f1, f2, f3, fn;
 
@@ -798,17 +788,9 @@ size_t object_desc(char *buf, size_t max, const object_type *o_ptr, odesc_detail
 	/* See if the object is "known" */
 	known = (object_known_p(o_ptr) ? TRUE : FALSE);
 
-	/* See if the object is "flavored" */
-	flavor = (k_ptr->flavor ? TRUE : FALSE);
-
-	/* Allow flavors to be hidden when aware */
-	if (aware && !show_flavors) flavor = FALSE;
-
 	/* Object is in the inventory of a store */
 	if (o_ptr->ident & IDENT_STORE)
 	{
-		/* Don't show flavors */
-		flavor = FALSE;
 
 		/* Pretend known and aware */
 		aware = TRUE;
@@ -822,21 +804,6 @@ size_t object_desc(char *buf, size_t max, const object_type *o_ptr, odesc_detail
 	 * in the dungeon.
 	 */
 	if (aware) k_ptr->everseen = TRUE;
-
-	/* Assume no name appending */
-	append_name = FALSE;
-
-	/* Assume no need to show "weapon" bonuses */
-	show_weapon = FALSE;
-
-	/* Assume no need to show "armour" bonuses */
-	show_armour = FALSE;
-
-	/* Extract default "base" string */
-	basenm = (k_name + k_ptr->name);
-
-	/* Assume no "modifier" string */
-	modstr = "";
 
 	/* We've seen it at least once now we're aware of it */
 	if (known && o_ptr->ego_num) e_info[o_ptr->ego_num].everseen = TRUE;

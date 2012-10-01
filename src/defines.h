@@ -53,7 +53,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.3"
+#define VERSION_STRING	"0.5.4"
 
 
 /*
@@ -148,6 +148,40 @@
 #define ANGBAND_TERM_MAX 8
 
 
+/* Sidebar types */
+#define SIDEBAR_RACE		0
+#define SIDEBAR_TITLE		1
+#define SIDEBAR_CLASS		2
+#define SIDEBAR_LEVEL		3
+#define SIDEBAR_XP			4
+#define SIDEBAR_GOLD		5
+#define SIDEBAR_EQUIPPY		6
+#define SIDEBAR_STAT_MIN	7
+#define SIDEBAR_STAT_MAX	8
+#define SIDEBAR_AC			9
+#define SIDEBAR_HP			10
+#define SIDEBAR_MANA		11
+#define SIDEBAR_MON_HP		12
+#define SIDEBAR_MON_MANA	13
+#define SIDEBAR_SPEED		14
+#define SIDEBAR_DEPTH		15
+#define SIDEBAR_QUEST		16
+#define SIDEBAR_FEELING		17
+
+#define SIDEBAR_MAX_TYPES	18
+
+/*
+ * Mouse click region names
+ */
+#define MOUSE_NULL    		SIDEBAR_MAX_TYPES + 0
+#define MOUSE_MAP     		SIDEBAR_MAX_TYPES + 1
+#define MOUSE_MESSAGE 		SIDEBAR_MAX_TYPES + 2
+#define MOUSE_STATUS_BAR	SIDEBAR_MAX_TYPES + 3
+
+
+
+/* mouseclick */
+#define DEFINED_XFF	'\xff'
 
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
@@ -337,21 +371,6 @@
 
 
 
-/*** Screen Locations ***/
-
-/*
- * Some screen locations for various display routines
- * Currently, row 8 and 15 are the only "blank" rows.
- * That leaves a "border" around the "stat" values.
- */
-
-
-#define ROW_HUNGRY		(Term->hgt - 1)
-#define COL_HUNGRY		0	/* "Weak" / "Hungry" / "Full" / "Gorged" */
-
-#define ROW_STATE		(Term->hgt - 1)
-#define COL_STATE		38	/* <state> */
-
 
 
 /*
@@ -521,9 +540,9 @@ enum
 #define PROJECT_BEAM         0x00000001
 #define PROJECT_ARC          0x00000002
 #define PROJECT_STAR         0x00000004
-#define PROJECT_XXX1         0x00000008
-#define PROJECT_XXX2         0x00000010
-#define PROJECT_XXX3         0x00000020
+#define PROJECT_ROCK         0x00000008 /* A boulder is being thrown, use rock graphic (affects visuals only) */
+#define PROJECT_SHOT         0x00000010 /* A rock is being thrown/fired, use shot graphic (affects visuals only) */
+#define PROJECT_AMMO         0x00000020 /* A bolt/arrow is being thrown/fired, use shot graphic (affects visuals only) */
 
 /* What projections do */
 #define PROJECT_BOOM         0x00000040
@@ -767,6 +786,7 @@ enum
 #define OPT_birth_no_store_services	(OPT_BIRTH+14)
 #define OPT_birth_no_xtra_artifacts (OPT_BIRTH+15)
 #define OPT_birth_money             (OPT_BIRTH+16)
+#define OPT_birth_simple_dungeons	(OPT_BIRTH+17)
 
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
@@ -793,6 +813,7 @@ enum
 #define OPT_adult_no_store_services	(OPT_ADULT+14)
 #define OPT_adult_no_xtra_artifacts (OPT_ADULT+15)
 #define OPT_adult_birth_money       (OPT_ADULT+16)
+#define OPT_adult_simple_dungeons	(OPT_ADULT+17)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -898,6 +919,7 @@ enum
 #define birth_no_store_services	op_ptr->opt[OPT_birth_no_store_services]
 #define birth_no_xtra_artifacts	op_ptr->opt[OPT_birth_no_xtra_artifacts]
 #define birth_money				op_ptr->opt[OPT_birth_money]
+#define birth_simple_dungeons	op_ptr->opt[OPT_birth_simple_dungeons]
 
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
@@ -924,6 +946,9 @@ enum
 #define adult_no_store_services	op_ptr->opt[OPT_adult_no_store_services]
 #define adult_no_xtra_artifacts	op_ptr->opt[OPT_adult_no_xtra_artifacts]
 #define adult_money				op_ptr->opt[OPT_adult_money]
+#define adult_simple_dungeons	op_ptr->opt[OPT_adult_simple_dungeons]
+
+
 #define hp_changes_color  		op_ptr->opt[OPT_hp_changes_color]
 #define verify_leave_quest 		op_ptr->opt[OPT_verify_leave_quest]
 #define mark_squelch_items		op_ptr->opt[OPT_mark_squelch_items]
@@ -1215,7 +1240,13 @@ enum
 /*
  * Maximum number of colours, and number of "basic" Angband colours
  */
-#define MAX_COLORS        128
+#define MAX_COLORS        	128
+#define MAX_COLOR_USED		(TERM_EARTH_YELLOW + 1)
+
+/* For the colors to tiles table */
+#define TILE_BALL_INFO	0
+#define TILE_BOLT_INFO	1
+
 /*
  * Number of base colors. These are the TERM_* constants
  */
@@ -1328,9 +1359,8 @@ enum
 #define SCAN_MACRO 45
 
 
-#define MAX_ITEMLIST 256
+#define MAX_ITEMLIST 1024
 
-#define DEFINED_XFF	'\xff'
 
 
 #endif /* INCLUDED_DEFINES_H */

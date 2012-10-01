@@ -103,7 +103,6 @@
     <ClCompile Include="..\ui-event.c" />
     <ClCompile Include="..\ui-menu.c" />
     <ClCompile Include="..\ui.c" />
-    <ClCompile Include="..\use-obj.c" />
     <ClCompile Include="..\util.c" />
     <ClCompile Include="..\variable.c" />
     <ClCompile Include="..\wizard1.c" />

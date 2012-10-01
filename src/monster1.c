@@ -2859,7 +2859,7 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 	 * information in it (this allows saved ghosts to reacquire all special
 	 * features), then use the current depth, and finally pick at random.
 	 */
-	for (try = 0; try < PLAYER_GHOST_TRIES_MAX + z_info->ghost_other_max; ++try)
+	for (try = 0; try < PLAYER_GHOST_TRIES_MAX + z_info->ghost_maint_max; ++try)
 	{
 		/* Prepare a path, and store the file number for future reference. */
 		if (try == 0)
@@ -2877,7 +2877,7 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 		else
 		{
 			if (try < PLAYER_GHOST_TRIES_MAX) backup_file_selector = randint(MAX_DEPTH - 1);
-			else backup_file_selector = MAX_DEPTH + rand_int(z_info->ghost_other_max);
+			else backup_file_selector = MAX_DEPTH + rand_int(z_info->ghost_maint_max);
 			sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, backup_file_selector);
 			bones_selector = backup_file_selector;
 		}

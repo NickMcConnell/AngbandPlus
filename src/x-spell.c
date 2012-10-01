@@ -294,14 +294,14 @@ cptr do_mage_spell(int mode, int spell, int dir)
 	int rad, beam;
 
 	/* Function modes */
-	bool cast = FALSE;
-	bool name = FALSE;
-	bool desc = FALSE;
+	bool cast = (mode == MODE_SPELL_CAST);
+	bool name = (mode == MODE_SPELL_NAME);
+	bool desc = (mode == MODE_SPELL_DESC);
+	bool desc_short = (mode == MODE_SPELL_DESC_SHORT);
 
-	/* Function modes */
-	if (mode == MODE_SPELL_CAST) cast = TRUE;
-	if (mode == MODE_SPELL_NAME) name = TRUE;
-	if (mode == MODE_SPELL_DESC) desc = TRUE;
+	/* Return the spell type name if that is what is being asked*/
+	if (mode == MODE_SPELL_NOUN) return "spell";
+	if (mode == MODE_SPELL_VERB) return "cast";
 
 	/* Hack -- chance of "beam" instead of "bolt" */
 	beam = beam_chance();
@@ -317,6 +317,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Magic Missile");
 			if (desc) return (format("Fires a magic missile for %dd%d hp damage.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				fire_bolt_or_beam(beam-10, GF_MISSILE, dir, damroll(dice, sides));
@@ -329,6 +330,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Detect Monsters");
 			if (desc) return ("Detects nearby monsters that are not invisible.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_MONSTERS);
@@ -343,6 +345,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Phase Door");
 			if (desc) return (format("A range %d random minor displacement.", dam));
+			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
 				teleport_player(dam);
@@ -359,6 +362,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Light Area");
 			if (desc) return (format("Permanently lights up a room or a radius %d area.", rad));
+			if (desc_short) return (format("radius %d", rad));
 			if (cast)
 			{
 				(void)light_area(damroll(dice, sides), rad);
@@ -371,6 +375,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Detect Treasure");
 			if (desc) return ("Detects nearby treasure.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_ALL_TREASURE);
@@ -386,6 +391,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Cure Light Wounds");
 			if (desc) return (format("Reduces cuts and heals %dd%d hp", dice, sides));
+			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)hp_player(damroll(dice, sides));
@@ -398,6 +404,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Detect Objects");
 			if (desc) return ("Detects nearby objects.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)(void)detect(DETECT_RADIUS, DETECT_OBJECTS);
@@ -410,6 +417,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Find Hidden Traps/Doors");
 			if (desc) return ("Detects nearby traps, doors and stairs.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_DOORS_STAIRS_TRAPS);
@@ -425,6 +433,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Stinking Cloud");
 			if (desc) return (format("Fires a radius %d cloud of poison for %d hp damage.", rad, dam));
+			if (desc_short) return (format("dam %d", dam));
 			if (cast)
 			{
 				fire_ball(GF_POIS, dir, dam, rad);
@@ -437,6 +446,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Confuse Monster");
 			if (desc) return ("Attempts to confuse one monster.");
+			if (desc_short) return (format(""));
 			if (cast)
 			{
 				(void)confuse_monster(dir, plev);
@@ -460,6 +470,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Shock Wave");
 			if (desc) return (format("Fires an arc of sonic energy for %d+%dd%d hp damage.", dam, dice, sides));
+			if (desc_short) return (format("dam %d+%dd%d", dam, dice, sides));
 			if (cast)
 			{
 				fire_arc(GF_SOUND, dir, dam + damroll(dice, sides), 0, 60);
@@ -472,6 +483,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Trap/Door Destruction");
 			if (desc) return ("Fires a beam that disarms traps and chests and destroys doors.");
+			if (desc_short) return (format(""));
 			if (cast)
 			{
 				destroy_door(dir);
@@ -484,6 +496,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Sleep Monster");
 			if (desc) return ("Attempts to put a monster to sleep.");
+			if (desc_short) return (format(""));
 			if (cast)
 			{
 				(void)sleep_monster(dir);
@@ -496,6 +509,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Cure Poison");
 			if (desc) return ("Cures the player of poison.");
+			if (desc_short) return (format(""));
 			if (cast)
 			{
 				(void)clear_timed(TMD_POISONED, TRUE);
@@ -510,6 +524,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Teleport Self");
 			if (desc) return (format("Random major displacement up to %d squares.", dam));
+			if (desc_short) return (format(""));
 			if (cast)
 			{
 				teleport_player(dam);
@@ -525,6 +540,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Spear of Light");
 			if (desc) return (format("Fires a line of weak light.  %dd%d hp damage for light-hating creatures.", dice, sides));
+			if (desc_short) return (format("dam %dd%d.", dice, sides));
 			if (cast)
 			{
 				msg_print("A line of blue shimmering light appears.");
@@ -563,6 +579,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Ice Bolt");
 			if (desc) return (format("Fires a bolt or beam of ice for %dd%d hp damage.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 						fire_bolt_or_beam(beam, GF_ICE, dir, damroll(dice, sides));
@@ -577,6 +594,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Turn Stone to Mud");
 			if (desc) return ("Removes one section of a normal wall to floor.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)wall_to_mud(dir, dam);
@@ -589,6 +607,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Satisfy Hunger");
 			if (desc) return ("Magically renders the player well-fed.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)set_food(PY_FOOD_MAX - 50);
@@ -601,6 +620,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Lesser Recharging");
 			if (desc) return ("Attempts to recharge a wand, staff, or rod.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)recharge(2 + (plev / 5), FALSE, 15 + (plev / 5));
@@ -616,6 +636,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			if (name) return ("Prismatic Spray");
 			if (desc) return (format("Invokes a cone of a random element with a "
 				"damage between %d and %d, depending on the element.", 2 * dam, 5 * dam));
+			if (desc_short) return (format("dam range %d - %d", 2 * dam, 5 * dam));
 			if (cast)
 			{
 				cast_prismatic_spray(dir, dam);
@@ -628,6 +649,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Polymorph Other");
 			if (desc) return ("Attempts to change a monster into a different monster race.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)poly_monster(dir);
@@ -640,6 +662,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Identify");
 			if (desc) return ("Identifies an object.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				if (!ident_spell()) return (NULL);
@@ -653,6 +676,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Mass Sleep");
 			if (desc) return ("Attempts to sleep all monsters in LOS.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)sleep_monsters(damroll (2, p_ptr->lev));
@@ -684,6 +708,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Shard Storm");
 			if (desc) return (format("Creates a radius %d cloud of shards that causes %d hp damage.", rad, dam1));
+			if (desc_short) return (format("rad %d dam %d", rad, dam1));
 			if (cast)
 			{
 				fire_effect_orb(GF_SHARD, dir, dam, rad);
@@ -697,6 +722,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Slow Monster");
 			if (desc) return ("Attempts to slow a monster.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)slow_monster(dir);
@@ -722,6 +748,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Call Lightning");
 			if (desc) return (format("Creates a radius %d orb of time released lightning strikes that cause %d hp damage each.", rad, dam1));
+			if (desc_short) return (format("rad %d dam %d", rad, dam1));
 			if (cast)
 			{
 				fire_effect_orb(GF_ELEC_BURST, dir, dam, rad);
@@ -734,6 +761,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Greater Recharging");
 			if (desc) return ("Attempts to recharge a wand, staff, or rod.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)recharge(50 + plev, FALSE, 25 + (plev / 2));
@@ -746,6 +774,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Teleport Other");
 			if (desc) return ("Attempts to teleport a monster away.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)teleport_monster(dir);
@@ -769,6 +798,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Bedlam");
 			if (desc) return (format("Creates a radius %d cloud of confusion that causes %d hp damage.", rad, dam1));
+			if (desc_short) return (format("rad %d dam %d", rad, dam1));
 			if (cast)
 			{
 				fire_effect_orb(GF_CONFUSION, dir, dam, rad);
@@ -785,6 +815,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Water Bolt");
 			if (desc) return (format("Fires a bolt or beam of water for %dd%d hp damage.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				fire_bolt_or_beam(beam, GF_WATER, dir, damroll(dice, sides));
@@ -799,6 +830,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Word of Destruction");
 			if (desc) return (format("Creates a radius %d earthquake.  Deletes all non-quest monsters.", rad));
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				destroy_area(py, px, rad);
@@ -811,6 +843,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Banishment");
 			if (desc) return ("Banishes one type of monster.  Uniques and quest monsters are unaffected");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)banishment();
@@ -823,6 +856,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Door Creation");
 			if (desc) return ("Creates a barrier of doors around you.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)door_creation();
@@ -835,6 +869,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Stair Creation");
 			if (desc) return ("Creates a staircase nearby.  Random choice between up or down, except on quest levels.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)stair_creation();
@@ -847,6 +882,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Teleport Level");
 			if (desc) return ("Immediately takes you to the next level up or down.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				teleport_player_level(SOURCE_PLAYER);
@@ -861,6 +897,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Earthquake");
 			if (desc) return (format("Creates a radius %d earthquake centered on the player.", rad));
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				earthquake(py, px, rad, FALSE);
@@ -873,6 +910,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Word of Recall");
 			if (desc) return ("Recalls you to the town, or to the recall level in the dungeon.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				set_recall();
@@ -893,6 +931,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Hurricane");
 			if (desc) return (format("Conjures forth a radius %d storm of wind and water for %d hp damage.", rad, dam));
+			if (desc_short) return (format("rad %d dam %d", rad, dam));
 			if (cast)
 			{
 				fire_ball(GF_WATER, dir, dam, rad);
@@ -920,6 +959,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Cloudkill");
 			if (desc) return (format("Creates a radius %d cloud of nether that causes %d hp damage.", rad, dam1));
+			if (desc_short) return (format("rad %d dam %d", rad, dam1));
 			if (cast)
 			{
 				fire_effect_orb(GF_NETHER, dir, dam, rad);
@@ -936,6 +976,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Ice Storm");
 			if (desc) return (format("Fires a radius %d ball of ice for %d hp damage.", rad, dam));
+			if (desc_short) return (format("rad %d dam %d", rad, dam));
 			if (cast)
 			{
 				fire_ball(GF_ICE, dir, dam, rad);
@@ -951,6 +992,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Plasma Bolt");
 			if (desc) return (format("Fires a bolt or beam of plasma for %dd%d hp damage.", dice, sides));
+			if (desc) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				fire_bolt_or_beam(beam, GF_PLASMA, dir, damroll(dice, sides));
@@ -974,6 +1016,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Meteor Storm");
 			if (desc) return (format("Creates a radius %d meteor strike that causes %d hp damage.", rad, dam1));
+			if (desc_short) return (format("rad %d dam %d", rad, dam1));
 			if (cast)
 			{
 				fire_effect_orb(GF_METEOR, dir, dam, rad);
@@ -989,6 +1032,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Mana Storm");
 			if (desc) return (format("Fire a radius %d storm of mana for %d hp damage.", rad, dam));
+			if (desc_short) return (format("rad %d dam %d", rad, dam));
 			if (cast)
 			{
 				fire_ball(GF_MANA, dir, dam, rad);
@@ -1000,6 +1044,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Detect Invisible");
 			if (desc) return ("Detects invisible monsters.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_INVISIBLE);
@@ -1013,6 +1058,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Detect Enchantment");
 			if (desc) return ("Detects nearby enchanted objects.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_ENCHANTMENT);
@@ -1034,6 +1080,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Nova");
 			if (desc) return (format("Fires a radius %d explosion of powerful light for %d hp damage.", rad, dam));
+			if (desc_short) return (format("rad %d dam %d", rad, dam));
 			if (cast)
 			{
 				fire_ball(GF_LIGHT, dir, dam, rad);
@@ -1054,6 +1101,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Rend Soul");
 			if (desc) return (format("Fires a bolt or beam of nether for %dd%d hp damage.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				fire_bolt_or_beam(beam, GF_NETHER, dir, damroll(dice, sides));
@@ -1066,6 +1114,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Mass Banishment");
 			if (desc) return ("Banishes nearby monsters.  Uniques and quest monsters are unaffected.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)mass_banishment();
@@ -1079,7 +1128,8 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			dur = 20;
 
 			if (name) return ("Resist Fire");
-			if (desc) return (format("Temporary opposition to fire for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc) return (format("Temporary opposition to fire for %d+1d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("%d+1d%d turns", dur, dur));
 			if (cast)
 			{
 				(void)inc_timed(TMD_OPP_FIRE, randint(dur) + dur, TRUE);
@@ -1093,7 +1143,8 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			dur = 20;
 
 			if (name) return ("Resist Cold");
-			if (desc) return (format("Temporary opposition to cold for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc) return (format("Temporary opposition to cold for %d+1d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("%d+1d%d turns", dur, dur));
 			if (cast)
 			{
 				(void)inc_timed(TMD_OPP_COLD, randint(dur) + dur, TRUE);
@@ -1106,6 +1157,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Elemental Brand");
 			if (desc) return ("Attempts to brand one set of ammunition.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)brand_ammo(TRUE);
@@ -1119,7 +1171,8 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			dur = 20;
 
 			if (name) return ("Resist Poison");
-			if (desc) return (format("Temporary resist to poison for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc) return (format("Temporary resist to poison for %d+1d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("%d+1d%d turns", dur, dur));
 			if (cast)
 			{
 				(void)inc_timed(TMD_OPP_POIS, randint(dur) + dur, TRUE);
@@ -1133,7 +1186,8 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			dur = 20;
 
 			if (name) return ("Resistance");
-			if (desc) return (format("Temporary resist to the 5 elements for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc) return (format("Temporary resist to the 5 elements for %d+1d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("%d+1d%d turns", dur, dur));
 			if (cast)
 			{
 				int time_2 = randint(dur) + dur;
@@ -1155,6 +1209,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			if (name) return ("Flight");
 			if (desc) return (format("Causes the player to fly for %d turns, or %d more turns if already flying.",
 											dur, dur1));
+			if (desc_short) return (format("%d turns", dur));
 			if (cast)
 			{
 				if (!p_ptr->timed[TMD_FLYING])
@@ -1177,6 +1232,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Shield");
 			if (desc) return (format("Temporarily increases armour class by 50 for %d+1d%d turns.", dur2, dur1));
+			if (desc_short) return (format("%d+1d%d turns", dur2, dur1));
 			if (cast)
 			{
 				(void)inc_timed(TMD_SHIELD, randint(dur1) + dur2, TRUE);
@@ -1192,6 +1248,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Berserker");
 			if (desc) return (format("Heals player a little.  Removes fear.  Makes player berzerk for %d+1d%d turns.", dur, dur));
+			if (desc_short) return (format("%d+1d%d turns", dur, dur));
 			if (cast)
 			{
 				(void)hp_player(dam);
@@ -1210,6 +1267,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			if (name) return ("Haste Self");
 			if (desc) return (format("Temporarily hasten yourself for %d+1d%d turns, or %d more turns if already hasted.",
 										plev, dur, dur1));
+			if (desc_short) return (format("%d+1d%d turns", plev, dur));
 			if (cast)
 			{
 				if (!p_ptr->timed[TMD_FAST])
@@ -1233,6 +1291,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Rift");
 			if (desc) return (format("Fires a beam of gravity for %d+%dd%d hp damage.", dam1, dice, sides));
+			if (desc_short) return (format("dam %d+%dd%d", dam1, dice, sides));
 			if (cast)
 			{
 				fire_beam(GF_GRAVITY, dir,	dam1 + damroll(dice, sides), 0L);
@@ -1254,6 +1313,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Darness Storm");
 			if (desc) return (format("Fires a radius %d explosion of powerful darkness for %d hp damage.", rad, dam));
+			if (desc_short) return (format("rad %d dam %d", rad, dam));
 			if (cast)
 			{
 				fire_ball(GF_DARK, dir, dam, rad);
@@ -1269,6 +1329,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Mana Bolt");
 			if (desc) return (format("Fires a bolt or beam of pure mana for %dd%d hp damage.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				fire_bolt_or_beam(beam, GF_MANA, dir, damroll(dice, sides));
@@ -1281,6 +1342,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Rune of Protection");
 			if (desc) return ("Creates a rune of protection beneath you.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)warding_glyph();
@@ -1293,6 +1355,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Enchant Armor");
 			if (desc) return ("Attempts to enchant one piece of armor.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)enchant_spell(0, 0, rand_int(3) + plev / 20);
@@ -1305,6 +1368,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Enchant Weapon");
 			if (desc) return ("Attempts to enchant one weapon.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)enchant_spell(rand_int(4) + plev / 20,
@@ -1316,11 +1380,14 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 		case SPELL_MASS_IDENTIFY:
 		{
+			rad = 3;
+
 			if (name) return ("Mass Identify");
 			if (desc) return ("Identifies all nearby objects, including player equipment and inventory.");
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
-				mass_identify(3);
+				mass_identify(rad);
 			}
 
 			break;
@@ -1330,6 +1397,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Wail of the Banshee");
 			if (desc) return ("Creates a wide cone of fear.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				fire_arc(GF_TURN_ALL, dir, plev, 0, 60);
@@ -1350,7 +1418,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 /*
  * Cast a spell, or output spell info, description.
  */
-cptr do_druid_spell(int mode, int spell, int dir)
+cptr do_druid_incantation(int mode, int spell, int dir)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1367,7 +1435,11 @@ cptr do_druid_spell(int mode, int spell, int dir)
 	bool cast = (mode == MODE_SPELL_CAST);
 	bool name = (mode == MODE_SPELL_NAME);
 	bool desc = (mode == MODE_SPELL_DESC);
+	bool desc_short = (mode == MODE_SPELL_DESC_SHORT);
 
+	/* Return the spell type name if that is what is being asked*/
+	if (mode == MODE_SPELL_NOUN) return "incantation";
+	if (mode == MODE_SPELL_VERB) return "recite";
 
 	/* Spells. */
 	switch (spell)
@@ -1379,6 +1451,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Acid bolt");
 			if (desc) return (format("Fires a bolt of acid for %dd%d hp damage.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				fire_bolt(GF_ACID, dir, damroll((dice), (sides)));
@@ -1394,6 +1467,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Cure Light Wounds");
 			if (desc) return (format("Reduces cuts and heals %dd%d hp", dice, sides));
+			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)hp_player(damroll(dice, sides));
@@ -1406,6 +1480,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Detect Life");
 			if (desc) return ("Detects nearby living monsters.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_LIFE);
@@ -1422,6 +1497,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Call Light");
 			if (desc) return (format("Permanently lights up a room or a radius %d area.", rad));
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				(void)light_area(damroll(dice, sides), rad);
@@ -1434,6 +1510,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Find Hidden Traps/Doors");
 			if (desc) return ("Detects nearby traps, doors and stairs.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_DOORS_STAIRS_TRAPS);
@@ -1446,6 +1523,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Slow Poison");
 			if (desc) return ("Reduces the level of the player's poison.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)dec_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2 + 1, TRUE);
@@ -1467,6 +1545,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Poison Cloud");
 			if (desc) return (format("Creates a radius %d cloud of poison that causes %d hp damage.", rad, dam1));
+			if (desc_short) return (format("rad %d dam %d", rad, dam1));
 			if (cast)
 			{
 
@@ -1478,15 +1557,16 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_NATURAL_ESCAPE:
 		{
+			/* Get the distance */
+			/*int dam = MAX(plev, 20);*/
+
+			int dam = plev * 8;
+
 			if (name) return ("Natural Escape");
 			if (desc) return ("Random displacement from/to native terrain.");
+			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
-				/* Get the distance */
-				/*int dam = MAX(plev, 20);*/
-
-				int dam = plev * 8;
-
 				/* Teleport */
 				if (!native_teleport_player(dam)) return (NULL);
 			}
@@ -1502,6 +1582,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Bark Skin");
 			if (desc) return (format("Temporarily increases armour class by 50 for %d turns.", dur));
+			if (desc_short) return (format("dur %d turns.", dur));
 			if (cast)
 			{
 				(void)inc_timed(TMD_SHIELD, dur, TRUE);
@@ -1514,6 +1595,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Nourishment");
 			if (desc) return ("Magically renders the player well-fed.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)set_food(PY_FOOD_MAX - 50);
@@ -1528,6 +1610,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Turn Stone to Mud");
 			if (desc) return ("Removes one section of a normal wall to floor.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)wall_to_mud(dir, dam);
@@ -1543,6 +1626,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Frost Beam");
 			if (desc) return (format("Fires a beam of frost for %dd%d hp damage.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				fire_beam(GF_COLD, dir, damroll(dice, sides), 0L);
@@ -1555,6 +1639,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Cure Poison");
 			if (desc) return ("Cures the player of poison.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)clear_timed(TMD_POISONED, TRUE);
@@ -1567,6 +1652,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Trap/Door Destruction");
 			if (desc) return ("Fires a beam that disarms traps and chests and destroys doors.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				destroy_door(dir);
@@ -1579,9 +1665,9 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			dur = 20;
 
-
 			if (name) return ("Resist Heat and Cold");
-			if (desc) return (format("Temporary opposition to fire and frost for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc) return (format("Temporary opposition to fire and frost for %d+1d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("dur %d+1d%d turns", dur, dur));
 			if (cast)
 			{
 				dur1 = randint(dur);
@@ -1600,6 +1686,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Spear of Light");
 			if (desc) return (format("Fires a line of weak light.  %dd%d hp damage for light-hating creatures.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				msg_print("A line of blue shimmering light appears.");
@@ -1616,6 +1703,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Fire Beam");
 			if (desc) return (format("Fires a beam of fire for %dd%d hp damage", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)fire_beam(GF_FIRE, dir, damroll(dice, sides), 0L);
@@ -1632,7 +1720,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Sterilize");
 			if (desc) return (format("Fires a radius %d ball that prevents monsters from multiplying.", rad));
-
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				fire_ball(GF_STERILIZE, dir, dam, rad);
@@ -1643,15 +1731,17 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_EXTINGUISH:
 		{
+			rad = 2;
 
 			if (name) return ("Extinguish");
-			if (desc) return ("Attempts to extinguish nearby fires.");
+			if (desc) return (format("Attempts to extinguish any fires in a %d radius.", rad));
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				u32b flg = PROJECT_BOOM | PROJECT_WALL | PROJECT_GRID | PROJECT_EFCT;
 
 				/* Try to put out fires*/
-				project(SOURCE_PLAYER, 2, py, px, py, px, (plev * 75), GF_EXTINGUISH, flg, 0,0);
+				project(SOURCE_PLAYER, rad, py, px, py, px, (plev * 75), GF_EXTINGUISH, flg, 0,0);
 			}
 
 			break;
@@ -1659,13 +1749,17 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_CLEAR_AREA:
 		{
+			int rad1 = 3;
+			rad = 4;
+
 			dam = 50 + randint(30);
-			rad = 4 + randint(3);
 
 			if (name) return ("Clear Area");
 			if (desc) return ("Clears an area of all normal walls.");
+			if (desc_short) return (format("rad %d+1d%d", rad, rad1));
 			if (cast)
 			{
+				rad += randint1(rad1);
 				fire_star(GF_KILL_WALL, dam, rad, PROJECT_PASS | PROJECT_ROOM);
 			}
 
@@ -1679,6 +1773,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Cure Critical Wounds");
 			if (desc) return (format("Eliminates cuts and heals %dd%d hp.", dice, sides));
+			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)hp_player(damroll(dice, sides));
@@ -1692,6 +1787,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Identify");
 			if (desc) return ("Identifies an object.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				if (!ident_spell()) return (NULL);
@@ -1703,15 +1799,17 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_CLEAR_AIR:
 		{
+			rad = 3;
 
 			if (name) return ("Clear Air");
-			if (desc) return ("Clears the air of visible effects.");
+			if (desc) return (format("Clears the air of visible effects within a %d radius.", rad));
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				u32b flg = PROJECT_BOOM | PROJECT_WALL | PROJECT_EFCT;
 
 				/* Clear the air of effects*/
-				project(SOURCE_PLAYER, 3, py, px, py, px, 1, GF_CLEAR_AIR, flg, 0,0);
+				project(SOURCE_PLAYER, rad, py, px, py, px, 1, GF_CLEAR_AIR, flg, 0,0);
 			}
 
 			break;
@@ -1728,6 +1826,8 @@ cptr do_druid_spell(int mode, int spell, int dir)
 				return ("Maps all natural features on the entire dungeon level."
 					"  At level 30 also reveals what natural beings can see.");
 			}
+			if (desc_short) return ("");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_TERRAIN);
@@ -1743,6 +1843,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Earthquake");
 			if (desc) return (format("Creates a radius %d earthquake centered on the player.", rad));
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				earthquake(py, px, rad, FALSE);
@@ -1764,6 +1865,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Life draining bursts");
 			if (desc) return (format("Creates a radius %d orb of time released life draining bursts that causes %d hp damage.", rad, dam1));
+			if (desc_short) return (format("rad %d dam %d", rad, dam1));
 			if (cast)
 			{
 				fire_effect_orb(GF_LIFE_DRAIN, dir, dam, rad);
@@ -1774,23 +1876,23 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_ELEMENTAL_BRAND:
 		{
-
+			cptr extra = "";
 			dur1 = 5;
 			dur = 10 + p_ptr->lev / 2;
 
+			if (!p_ptr->timed[TMD_SLAY_ELEM])
+			{
+				dur = 5;
+				extra = " extra";
+			}
+
+
 			if (name) return ("Elemental Weapon");
-			if (desc) return (format("Temporarily makes your weapon glow with elemental brands for %d turns, or %d more turns if already glowing.",
-		   								dur, dur1));
+			if (desc) return (format("Temporarily makes your weapon glow with elemental brands for %d%s turns.", dur, extra));
+			if (desc_short) return (format("dur %d%s turns.", dur, extra));
 			if (cast)
 			{
-				if (!p_ptr->timed[TMD_SLAY_ELEM])
-				{
-					(void)inc_timed(TMD_SLAY_ELEM, dur, TRUE);
-				}
-				else
-				{
-					(void)inc_timed(TMD_SLAY_ELEM, dur1, FALSE);
-				}
+				(void)inc_timed(TMD_SLAY_ELEM, dur, TRUE);
 			}
 
 			break;
@@ -1804,7 +1906,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Frost Ball");
 			if (desc) return (format("Fires a radius %d ball of frost for %d hp damage.", rad, dam));
-
+			if (desc_short) return (format("rad %d dam %d", rad, dam));
 			if (cast)
 			{
 				fire_ball(GF_COLD, dir, dam, rad);
@@ -1822,6 +1924,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Heal");
 			if (desc) return (format("Eliminates stunning and cuts and heals %d hp.", dam));
+			if (desc_short) return (format("heal %d hp.", dam));
 			if (cast)
 			{
 				(void)hp_player(dam);
@@ -1839,6 +1942,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Dispel Life");
 			if (desc) return (format("Does %dd%d damage to all living creatures in line of sight.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				/* Calculate damage */
@@ -1860,6 +1964,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Fire Ball");
 			if (desc) return (format("Fires a radius %d ball of fire for %d+1d%d hp damage.", rad, dam, dam1));
+			if (desc_short) return (format("rad %d dam %d", rad, dam1));
 			if (cast)
 			{
 				dam += randint(dam1);
@@ -1876,7 +1981,8 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			sides = plev;
 
 			if (name) return ("Life Draining Arc");
-			if (desc) return (format("Fires an arc of life draining for %d+%dd%d hp damage.", dam, dice, sides));
+			if (desc) return (format("Fires an arc of life draining for %d + %dd%d hp damage.", dam, dice, sides));
+			if (desc_short) return (format("dam %d + %dd%d", dam, dice, sides));
 			if (cast)
 			{
 				/*figure the damage*/
@@ -1890,11 +1996,14 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_MASS_IDENTIFY:
 		{
+			rad = 3;
+
 			if (name) return ("Mass Identify");
 			if (desc) return ("Identifies all nearby objects, including player equipment and inventory.");
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
-				mass_identify(3);
+				mass_identify(rad);
 			}
 
 			break;
@@ -1906,7 +2015,8 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			dur = 40;
 
 			if (name) return ("Resist Electricity");
-			if (desc) return (format("Temporary opposition to electricity for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc) return (format("Temporary opposition to electricity for %d+1d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("dur%d+1d%d turns.", dur, dur));
 			if (cast)
 			{
 				(void)inc_timed(TMD_OPP_ELEC, randint(dur) + dur, TRUE);
@@ -1920,7 +2030,8 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			dur = 40;
 
 			if (name) return ("Resist Acid");
-			if (desc) return (format("Temporary opposition to acid for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc) return (format("Temporary opposition to acid for %d+1d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("dur %d+1d%d turns.", dur, dur));
 			if (cast)
 			{
 				(void)inc_timed(TMD_OPP_ACID, randint(dur) + dur, TRUE);
@@ -1934,7 +2045,8 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			dur = 40;
 
 			if (name) return ("Resist Poison");
-			if (desc) return (format("Temporary resist to poison for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc) return (format("Temporary resist to poison for %d+1d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("dur %d+1d%d turns.", dur, dur));
 			if (cast)
 			{
 				(void)inc_timed(TMD_OPP_POIS, randint(dur) + dur, TRUE);
@@ -1948,7 +2060,8 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			dur = 30;
 
 			if (name) return ("Resistance");
-			if (desc) return (format("Temporary resist to the 5 elements for %d+%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc) return (format("Temporary resist to the 5 elements for %d+1d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("dur %d+1d%d turns.", dur, dur));
 			if (cast)
 			{
 				int time_2 = randint(dur) + dur;
@@ -1970,6 +2083,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			if (name) return ("Haste Self");
 			if (desc) return (format("Temporarily hasten yourself for %d+1d%d turns, or %d more turns if already hasted.",
 											plev, dur, dur1));
+			if (desc_short) return (format("dur %d turns.", dur));
 			if (cast)
 			{
 				if (!p_ptr->timed[TMD_FAST])
@@ -1994,6 +2108,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Glacier");
 			if (desc) return (format("Creates a transparent and impenetrable ice barrier that lasts %d+d%d turns.", dam, dam1));
+			if (desc_short) return (format("dur %d+d%d turns.", dam, dam1));
 			if (cast)
 			{
 				if (!create_glacier()) return (NULL);
@@ -2008,6 +2123,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Create elements");
 			if (desc) return (format("Creates native terrains in a radius %d area around the player.", rad));
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				if (!create_elements(p_ptr->py, p_ptr->px, rad)) return (NULL);
@@ -2021,6 +2137,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Flicker");
 			if (desc) return (format("A range %d random minor displacement.", dam));
+			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
 				teleport_player(dam);
@@ -2034,6 +2151,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Word of Recall");
 			if (desc) return ("Recalls you to the town, or to the recall level in the dungeon.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				set_recall();
@@ -2048,6 +2166,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Healing");
 			if (desc) return (format("Eliminates stunning and cuts and heals %d hp.", dam));
+			if (desc_short) return (format("heals %d", dam));
 			if (cast)
 			{
 				(void)hp_player(dam);
@@ -2063,6 +2182,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Restoration");
 			if (desc) return ("Restores all stats to their maximum.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)do_res_stat(A_STR);
@@ -2081,6 +2201,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Remembrance");
 			if (desc) return ("Restores experience to maximum.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)restore_level();
@@ -2096,8 +2217,9 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			sides = plev;
 
 			if (name) return ("Sand storm");
-			if (desc) return (format("Fires an arc of sand for %d+%dd%d hp damage",
+			if (desc) return (format("Fires an arc of sand for %d + %dd%d hp damage",
 				dam, dice, sides));
+			if (desc_short) return (format("dam %d + %dd%d", dam, dice, sides));
 			if (cast)
 			{
 				dam += damroll(dice, sides);
@@ -2116,6 +2238,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			if (name) return ("Sand Nativity");
 			if (desc) return (format("Temporary nativity to sand for %d turns, or %d more turns if already temporarily native to sand.",
 											dur, dur1));
+			if (desc_short) return (format("dur %d turns.", dur));
 			if (cast)
 			{
 				if (p_ptr->timed[TMD_NAT_SAND]) dur = dur1;
@@ -2134,6 +2257,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			if (name) return ("Mud Nativity");
 			if (desc) return (format("Temporary nativity to mud for %d turns, or %d more turns if already temporarily native to mud.",
 											dur, dur1));
+			if (desc_short) return (format("dur %d turns.", dur));
 			if (cast)
 			{
 				if (p_ptr->timed[TMD_NAT_MUD]) dur = dur1;
@@ -2152,6 +2276,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			if (name) return ("Water Nativity");
 			if (desc) return (format("Temporary nativity to water for %d turns, or %d more turns if already temporarily native to water.",
 											dur, dur1));
+			if (desc_short) return (format("dur %d turns.", dur));
 			if (cast)
 			{
 				if (p_ptr->timed[TMD_NAT_WATER]) dur = dur1;
@@ -2170,6 +2295,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			if (name) return ("Oil Nativity");
 			if (desc) return (format("Temporary nativity to oil for %d turns, or %d more turns if already temporarily native to oil.",
 											dur, dur1));
+			if (desc_short) return (format("dur %d turns.", dur));
 			if (cast)
 			{
 				if (p_ptr->timed[TMD_NAT_OIL]) dur = dur1;
@@ -2188,6 +2314,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			if (name) return ("Lava Nativity");
 			if (desc) return (format("Temporary nativity to lava for %d turns, or %d more turns if already temporarily native to lava.",
 											dur, dur1));
+			if (desc_short) return (format("dur %d turns.", dur));
 			if (cast)
 			{
 				if (p_ptr->timed[TMD_NAT_LAVA]) dur = dur1;
@@ -2206,6 +2333,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			if (name) return ("Channel Lightning");
 			if (desc) return (format("Fires a powerful bolt of lightning for %dd%d hp damage.",
 				dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 
 			if (cast)
 			{
@@ -2220,6 +2348,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Dispel Curse");
 			if (desc) return ("Removes standard and heavy curses.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				remove_curse(FALSE);
@@ -2232,6 +2361,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Greater Recharging");
 			if (desc) return ("Attempts to recharge a wand, staff, or rod.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)recharge(50, FALSE, 25 + (plev / 2));
@@ -2244,6 +2374,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Elemental Ammunition Brand");
 			if (desc) return ("Attempts to brand one set of ammunition.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)brand_ammo(TRUE);
@@ -2256,6 +2387,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Enchant Armour");
 			if (desc) return ("Attempts to enchant one piece of armor.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)enchant_spell(0, 0, rand_int(3) + 2);
@@ -2269,6 +2401,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Elemental Weapon Brand");
 			if (desc) return ("Attempts to brand one weapon.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)brand_weapon(TRUE);
@@ -2284,8 +2417,9 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			sides = plev;
 
 			if (name) return ("Ulmo's Wrath");
-			if (desc) return (format("Fires chained beams of water for %d+%dd%d hp damage.",
+			if (desc) return (format("Fires chained beams of water for %d + %dd%d hp damage.",
 				dam, dice, sides));
+			if (desc_short) return (format("dam %d + %dd%d", dam, dice, sides));
 			if (cast)
 			{
 				int max_hits = 7;
@@ -2307,24 +2441,22 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 		case DRUID_CALL_HUORNS:
 		{
+			cptr extra = "";
 			dam = plev;
-			dam1 = plev / 10;
+
+			if (!p_ptr->timed[TMD_CALL_HOURNS])
+			{
+				extra = " extra";
+				dam = plev / 10;
+			}
+
 
 			if (name) return ("Call Huorns");
-			if (desc) return (format("Make nearby trees attack foes for %d player turns, or %d turns more if already casted.",
-				dam, dam1));
+			if (desc) return (format("Make nearby trees attack foes for %d%s player turns.", dam, extra));
+			if (desc_short) return (format("%d%s player turns", dam, extra));
 			if (cast)
 			{
-				/* Spell already active */
-				if (p_ptr->timed[TMD_CALL_HOURNS])
-				{
-					inc_timed(TMD_CALL_HOURNS, dam1, TRUE);
-				}
-				/* Full time */
-				else
-				{
-					set_timed(TMD_CALL_HOURNS, dam, TRUE);
-				}
+				set_timed(TMD_CALL_HOURNS, dam, TRUE);
 			}
 
 			break;
@@ -2336,6 +2468,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 
 			if (name) return ("Master Elements");
 			if (desc) return (format("Cast a powerful ball of elements for %d hp damage.", dam));
+			if (desc_short) return (format("dam %d", dam));
 			if (cast)
 			{
 				if (!master_elements(dam, dir)) return (NULL);
@@ -2348,6 +2481,7 @@ cptr do_druid_spell(int mode, int spell, int dir)
 		{
 			if (name) return ("Steal Powers");
 			if (desc) return (format("Cast attack spells like nearby animals and vortices."));
+			if (desc_short) return ("");
 			if (cast)
 			{
 				if (!steal_powers(dir)) return (NULL);
@@ -2383,6 +2517,11 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 	bool cast = (mode == MODE_SPELL_CAST);
 	bool name = (mode == MODE_SPELL_NAME);
 	bool desc = (mode == MODE_SPELL_DESC);
+	bool desc_short = (mode == MODE_SPELL_DESC_SHORT);
+
+	/* Return the spell type name if that is what is being asked*/
+	if (mode == MODE_SPELL_NOUN) return "prayer";
+	if (mode == MODE_SPELL_VERB) return "pray";
 
 	switch (spell)
 	{
@@ -2390,6 +2529,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Detect Evil");
 			if (desc) return ("Detects all nearby evil monsters, even invisible ones.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_EVIL);
@@ -2405,6 +2545,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Cure Light Wounds");
 			if (desc) return (format("Reduces cuts and heals %dd%d hp.", dice, sides));
+			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)hp_player(damroll(dice, sides));
@@ -2426,6 +2567,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Bless");
 			if (desc) return (format("Bonus to fighting ability and armour class for %d+d%d%s turns.", dur, dur, extra));
+			if (desc_short) return (format("%d+d%d%s turns", dur, dur, extra));
 			if (cast)
 			{
 				(void)inc_timed(TMD_BLESSED, randint(dur) + dur, TRUE);
@@ -2439,6 +2581,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Remove Fear");
 			if (desc) return ("Removes fear.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)clear_timed(TMD_AFRAID, TRUE);
@@ -2455,6 +2598,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Call Light");
 			if (desc) return (format("Permanently lights up a room or a radius %d area.", rad));
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				(void)light_area(damroll(dice, sides), rad);
@@ -2467,6 +2611,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Find Doors/Stairs/Traps");
 			if (desc) return ("Detects nearby traps, doors and stairs.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_DOORS_STAIRS_TRAPS);
@@ -2483,6 +2628,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Shock Bolt");
 			if (desc) return (format("Fires a bolt of solid light for %d+%dd%d damage.", dam, dice, sides));
+			if (desc_short) return (format("dam %d + %dd%d", dam, dice, sides));
 			if (cast)
 			{
 				fire_bolt(GF_LIGHT, dir, (damroll(dice, sides) + dam));
@@ -2495,6 +2641,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Slow Poison");
 			if (desc) return ("Reduces the level of the player's poison.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)dec_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2 + 1, TRUE);
@@ -2508,6 +2655,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Scare Monster");
 			if (desc) return ("Attempts to scare one monster.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)fear_monster(dir, plev);
@@ -2523,6 +2671,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Portal");
 			if (desc) return (format("Random minor displacement up to %d squares.", dam));
+			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
 				teleport_player(dam);
@@ -2538,6 +2687,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Cure Serious Wounds");
 			if (desc) return (format("Reduces cuts and heals %dd%d hp.", dice, sides));
+			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)hp_player(damroll(dice, sides));
@@ -2560,6 +2710,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Chant");
 			if (desc) return (format("Bonus to fighting ability and armour class for %d+d%d%s turns.", dur, dur, extra));
+			if (desc_short) return (format("dur %d+d%d%s turns.", dur, dur, extra));
 			if (cast)
 			{
 				(void)inc_timed(TMD_BLESSED, randint(dur) + dur, TRUE);
@@ -2573,6 +2724,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Sanctuary");
 			if (desc) return ("Attempts to sleep all adjacent monsters.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)sleep_monsters_touch();
@@ -2585,6 +2737,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Satisfy Hunger");
 			if (desc) return ("Magically renders the player well-fed.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)set_food(PY_FOOD_MAX - 50);
@@ -2597,6 +2750,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Remove Curse");
 			if (desc) return ("Removes standard curses.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				remove_curse(FALSE);
@@ -2611,13 +2765,14 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Resist Heat and Cold");
 			if (desc) return (format("Temporary opposition to fire and frost for %d+d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("dur %d+1d%d turns.", dur, dur));
 			if (cast)
 			{
 
-				dur1 = randint(dur);
+				dur += randint1(dur);
 
-				(void)inc_timed(TMD_OPP_FIRE, dur1 + dur, TRUE);
-				(void)inc_timed(TMD_OPP_COLD, dur1 + dur, TRUE);
+				(void)inc_timed(TMD_OPP_FIRE, dur, TRUE);
+				(void)inc_timed(TMD_OPP_COLD, dur, TRUE);
 
 			}
 
@@ -2628,6 +2783,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Neutralize Poison");
 			if (desc) return ("Cures the player of poison.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)clear_timed(TMD_POISONED, TRUE);
@@ -2644,6 +2800,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Orb of Draining");
 			if (desc) return (format("Fires a radius %d orb of holy force that does %d+%dd%d damage.", rad, dam, dice, sides));
+			if (desc_short) return (format("rad %d dam %d+%dd%d ", rad, dam, dice, sides));
 			if (cast)
 			{
 				fire_orb(GF_HOLY_ORB, dir, (damroll(dice, sides) + dam), rad);
@@ -2659,6 +2816,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Cure Critical Wounds");
 			if (desc) return (format("Eliminates cuts and heals %dd%d hp.", dice, sides));
+			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)hp_player(damroll(dice, sides));
@@ -2679,6 +2837,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Sense Invisible");
 			if (desc) return (format("Allows player to see invisible monsters for %d%s turns.", dur, extra));
+			if (desc_short) return (format("dur %d turns.", dur));
 			if (cast)
 			{
 				(void)inc_timed(TMD_SINVIS, randint(dur) + dur, TRUE);
@@ -2700,6 +2859,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Protection from Evil");
 			if (desc) return (format("Temporary protection from evil creatures for %dd%d%s turns.", dur1, dur, extra));
+			if (desc_short) return (format("%d+d%d%s turns", dur1, dur, extra));
 			if (cast)
 			{
 				(void)inc_timed(TMD_PROTEVIL, randint(dur) + dur1, TRUE);
@@ -2714,6 +2874,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Earthquake");
 			if (desc) return (format("Creates a radius %d earthquake centered on the player.", rad));
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				earthquake(py, px, rad, FALSE);
@@ -2726,6 +2887,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Sense Surroundings");
 			if (desc) return ("Maps the local area, reveals doors and stairs.");
+			if (desc_short) return (format("rad %d", (DETECT_RADIUS + 5)));
 			if (cast)
 			{
 				detect(DETECT_RADIUS + 5, DETECT_MAP);
@@ -2741,6 +2903,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Cure Mortal Wounds");
 			if (desc) return (format("Eliminates stunning and cuts and heals %dd%d hp.", dice, sides));
+			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)hp_player(damroll(dice, sides));
@@ -2755,6 +2918,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Turn Undead");
 			if (desc) return ("Repels all undead monsters in line of sight.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)turn_undead(p_ptr->lev);
@@ -2775,6 +2939,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Prayer");
 			if (desc) return (format("Bonus to fighting ability and armour class for %d+d%d%s turns.", dur, dur, extra));
+			if (desc_short) return (format("dur %d+d%d%s turns", dur, dur, extra));
 			if (cast)
 			{
 				(void)inc_timed(TMD_BLESSED, randint(dur) + dur, TRUE);
@@ -2793,6 +2958,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (name) return ("Sun Beam");
 			if (desc) return (format("Fires an narrow arc of intense light energy"
 				" for %d+%dd%d hp damage.", dam, dice, sides));
+			if (desc_short) return (format("dam %d + %dd%d", dam , dice, sides));
 			if (cast)
 			{
 				fire_arc(GF_LIGHT, dir, dam + damroll(dice, sides), 0, 30);
@@ -2807,6 +2973,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Heal");
 			if (desc) return (format("Eliminates stunning and cuts and heals %d hp.", dam));
+			if (desc_short) return (format("heal %d hp.", dam));
 			if (cast)
 			{
 				(void)hp_player(dam);
@@ -2823,6 +2990,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Dispel Evil");
 			if (desc) return (format("Does 1d%d damage to all evil creatures in line of sight.", dam));
+			if (desc_short) return (format("dam 1d%d", dam));
 			if (cast)
 			{
 				(void)dispel_evil(randint(dam));
@@ -2835,6 +3003,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Glyph of Warding");
 			if (desc) return ("Creates a glyph of warding beneath you.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)warding_glyph();
@@ -2848,8 +3017,9 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			dam = 150;
 
 			if (name) return ("Holy Word");
-			if (desc) return (format("Dispels evil with %d hp damage."
-				"  Eliminates stunning, fear, poison and cuts and heals %d hp.", dam, dam));
+			if (desc) return (format("Dispels evil with %d hp damage, and Eliminates stunning, fear, poison and cuts and heals %d hp.", dam, dam));
+			if (desc_short) return (format("dam %d, heal %d", dam, dam));
+			if (cast)
 			{
 				(void)dispel_evil(dam);
 				(void)hp_player(dam);
@@ -2866,6 +3036,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Detect Monsters");
 			if (desc) return ("Detects all nearby creatures.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_MONSTERS);
@@ -2878,6 +3049,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Detection");
 			if (desc) return ("Detects all nearby traps, doors, stairs, treasure, objects, and creatures.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
 				(void)detect(DETECT_RADIUS, DETECT_ALL);
@@ -2890,6 +3062,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Perception");
 			if (desc) return ("Identifies an object.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				if (!ident_spell()) return (NULL);
@@ -2902,6 +3075,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Probing");
 			if (desc) return ("Learns many attributes of a monster or feature in sight, or any feature on the map.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)probing();
@@ -2914,6 +3088,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Clairvoyance");
 			if (desc) return ("Lights up the entire dungeon level and shows all objects on the dungeon floor.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				wiz_light();
@@ -2929,6 +3104,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Cure Serious Wounds");
 			if (desc) return (format("Eliminates cuts and heals %dd%d hp.", dice, sides));
+			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)hp_player(damroll(dice, sides));
@@ -2945,6 +3121,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Cure Mortal Wounds");
 			if (desc) return (format("Eliminates stunning and cuts and heals %dd%d hp.", dice, sides));
+			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)hp_player(damroll(dice, sides));
@@ -2961,6 +3138,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Healing");
 			if (desc) return (format("Eliminates stunning and cuts and heals %d hp.", dam));
+			if (desc_short) return (format("heal %d", dam));
 			if (cast)
 			{
 				(void)hp_player(dam);
@@ -2975,6 +3153,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Restoration");
 			if (desc) return ("Restores all stats to their maximum.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)do_res_stat(A_STR);
@@ -2992,6 +3171,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Remembrance");
 			if (desc) return ("Restores experience to maximum.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)restore_level();
@@ -3007,8 +3187,8 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			rad = 5;
 
 			if (name) return ("Sun Burst");
-			if (desc) return (format("You cast a radius %d orb of hard"
-				" light that deals %dd%d damage.", rad, dice, sides));
+			if (desc) return (format("You cast a radius %d orb of hard light that deals %dd%d damage.", rad, dice, sides));
+			if (desc_short) return (format("rad %d dam %dd%d", rad, dice, sides));
 			if (cast)
 			{
 				fire_orb(GF_LIGHT, dir, damroll(dice, sides), rad);
@@ -3024,6 +3204,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Dispel Evil");
 			if (desc) return (format("Does %dd%d damage to all evil creatures in line of sight.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				(void)dispel_evil(damroll(dice, sides));
@@ -3034,11 +3215,14 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 		case PRAYER_BANISH_EVIL:
 		{
+			dam = 150;
+
 			if (name) return ("Repel Evil");
 			if (desc) return ("Attempts to teleport away all evil monsters in line of sight.");
+			if (desc_short) return ("dam 150");
 			if (cast)
 			{
-				if (banish_evil(150))
+				if (banish_evil(dam))
 				{
 					msg_print("The power of your god banishes evil!");
 				}
@@ -3053,6 +3237,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Word of Destruction");
 			if (desc) return (format("Creates a radius %d earthquake.  Deletes all non-quest monsters.", rad));
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
 				destroy_area(py, px, rad);
@@ -3072,6 +3257,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (desc) return (format("You release a massive starburst of holy energy."
 				" Affected creatures suffer %d+%dd%d hp damage or twice as much if evil.",
 				dam1, dice, sides));
+			if (desc_short) return (format("rad %d dam %d + %dd%d", rad, dam1, dice, sides));
 			if (cast)
 			{
 				dam = dam1 + damroll(dice, sides);
@@ -3085,6 +3271,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Unbarring Ways");
 			if (desc) return ("Fires a beam that disarms traps and chests and destroys doors.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				destroy_door(dir);
@@ -3097,6 +3284,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Recharging");
 			if (desc) return ("Attempts to recharge a wand, staff, or rod.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)recharge(15 + (plev / 2), FALSE, 15 + (plev / 2));
@@ -3109,6 +3297,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Dispel Curse");
 			if (desc) return ("Removes standard and heavy curses.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				remove_curse(TRUE);
@@ -3121,6 +3310,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Enchant Weapon");
 			if (desc) return ("Attempts to enchant one weapon.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void) enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
@@ -3133,6 +3323,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Enchant Armour");
 			if (desc) return ("Attempts to enchant one piece of armor.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)enchant_spell(0, 0, rand_int(3) + 2);
@@ -3146,6 +3337,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Elemental Brand");
 			if (desc) return ("Attempts to brand one weapon.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)brand_weapon(TRUE);
@@ -3160,6 +3352,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Blink");
 			if (desc) return (format("Random minor displacement up to %d squares.", dam));
+			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
 				teleport_player(dam);
@@ -3175,6 +3368,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 			if (name) return ("Teleport Self");
 			if (desc) return (format("Random major displacement up to %d squares.", dam));
+			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
 				teleport_player(dam);
@@ -3187,6 +3381,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Teleport Other");
 			if (desc) return ("Attempts to teleport a monster away.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				(void)teleport_monster(dir);
@@ -3199,6 +3394,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Teleport Level");
 			if (desc) return ("Immediately takes you to the next level up or down.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				teleport_player_level(SOURCE_PLAYER);
@@ -3212,6 +3408,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Word of Recall");
 			if (desc) return ("Recalls you to the town, or to the recall level in the dungeon.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				set_recall();
@@ -3224,6 +3421,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			if (name) return ("Alter Reality");
 			if (desc) return ("Redraws the current level.");
+			if (desc_short) return ("");
 			if (cast)
 			{
 				/* Ironman */
@@ -3249,11 +3447,14 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 		case PRAYER_MASS_IDENTIFY:
 		{
+			rad = 3;
+
 			if (name) return ("Mass Identify");
 			if (desc) return ("Identifies all nearby objects, including player equipment and inventory.");
+			if (desc_short) return (format("rad %d", rad));
 			if (cast)
 			{
-				mass_identify(3);
+				mass_identify(rad);
 			}
 
 			break;
@@ -3274,7 +3475,7 @@ cptr cast_spell(int mode, int tval, int index, int dir)
 
 	else if (tval == TV_DRUID_BOOK)
 	{
-		return do_druid_spell(mode, index, dir);
+		return do_druid_incantation(mode, index, dir);
 	}
 	else /*Priest*/
 	{
@@ -3303,5 +3504,5 @@ cptr get_spell_name(int tval, int spell)
 	else if (tval == TV_PRAYER_BOOK)
 		return do_priest_prayer(MODE_SPELL_NAME, spell, 0);
 	/*TV_DRUID_BOOK*/
-	else return do_druid_spell(MODE_SPELL_NAME, spell,0);
+	else return do_druid_incantation(MODE_SPELL_NAME, spell,0);
 }

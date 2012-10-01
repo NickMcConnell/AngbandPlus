@@ -4,47 +4,70 @@ Compiling Instructions
 which you 
 have chosen to download the source code.)
 
-========================
-Windows & lcc-win32 by Robert Ruehlmann (edited for NPPAngband): 
-========================
+===================================================================
 
-1.	Getting the free lcc-win32 compiler: 
-Download the compiler and install it. 
-2.	Install the NPPAngband source: 
-Unzip and extract the zip-file "NPPAngband Source Code v0.1.0.zip" with your 
-favorite archive tool (like WinZip, or untgz.exe).
-3.	Create the LCC project: 
-Start lcc-win32. Select 'File/New/Project...' from the menu and enter 
-"NPPAngband" as the project name. On the "Definition of a new project" set the 
-working directory to "C:\NPPAngband*\src" (wherever you extracted the source 
-code to) and then select the "Windows executable" option. Press the 'Create' 
-button and answer the question about using the wizard to generate the 
-application skeleton with "no". We want to use the existing NPPAngband source 
-code, so we don't need the skeleton code. 
-4.	Adding the NPPAngband source files to the project: 
-Add all files from birth.c to load.c to the project, then add the "main-win.c" 
-file with the "Add new file..." option and finally the files from melee1.c to z-
-virt.c. Select "Add new file..." again, and this time select the "Resources" 
-filetype and select the "angband.rc" file. 
-5.	Setting various project options: 
-Type "winmm.lib" in the 'Additional files to be included in the link' field. In the 'Debugger 
-settings' you should change the start directory to "C:\NPPAngband*" (or again 
-use your own path to the NPPAngband directory). The 'Executable to start' should 
-be "C:\NPPAngband*\NPPangband.exe" (did I already mention change it to your path 
-if necessary?). The settings part is now finished. When asked if you want to 
-"Open ... files?" simply say no. 
-6.	Compiling: 
-Select 'Compiler/Generate Makefile' from the menu and wait for it to finish. Now 
-select 'Compiler/Make' and NPPAngband should be compiled. 
-7.	Run NPPAngband: 
-Go back to the NPPAngband* folder and run the NPPAngband.exe. 
+Compiling on Windows:
+
+NPPAngband compiles with MINGW, and should compile with CYGWIN as well.  
+There are also file to compile with visual c++ Express.
+
+To compile with MINGW, download and install MINGW, open a command prompt and navigate to the *NPP/src directory.
+
+use the following command line (this should also work for CYGWIN as well):
+
+make -f makefile.win MINGW=YES
+
+
+===================================================================
+
+Compiling on Linux:
+
+The most up-to-date instruction will be found in this thread:
+
+http://forum.nppangband.org/viewtopic.php?id=1224
+
+NPP 0.5.4 compiles for linux as follows:
+
+
+
+These instructions are based on this page for compiling and running a local install of NPPAngband:
+
+http://rephial.org/wiki/Compiling
+
+1) Get the dependencies & source:
+
+open a terminal and run the following command:
+
+sudo apt-get install autoconf gcc libc6-dev libncurses5-dev libx11-dev ibsdl1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev libsdl-image1.2-dev libgtk2.0-dev libglade2-dev
+
+Download source code (https://github.com/nppangband/NPPAngband) and extract into a directory of your choice:
+
+2) Open a terminal and navigate to the *NPP directory.
+
+3) enter the command:   "./autogen.sh"
+
+4) enter the command:   "./configure --with-no-install --enable-sdl"  (There are various commands that can be used here to compile the game in different ways.  See configure.ac for various options.  This one enables the sdl port to compile in a local directory.  GCU also works with this command)
+
+5) enter the command:   "make"
+
+6) enter the command:    "make install"
+
+NPP is now compiled and ready to play.
+
+To run the GCU port, enter:  "./src/nppangband -mgcu"
+To run the sdl port, enter:  "./src/nppangband -msdl"
+
+The other two ports should be fixed in the next couple months.
+
+
+===================================================================
 
 All other operating Systems and compilers:
 
 Please see the following site for other compiling instructions:
 
-http://rephial.org/wiki/Compiling
+http://forum.nppangband.org/viewforum.php?id=5
 
-NPPangband should compile with virtually the same instructions as found on this site. 
-Please note NPPAngband has a slightly different directory structure and file names.
-However NPPAngband is based on the most recent source code.
+and 
+
+http://rephial.org/wiki/Compiling

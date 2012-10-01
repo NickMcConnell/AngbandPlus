@@ -1065,16 +1065,18 @@ errr parse_z_info(char *buf, header *head)
 		z_info->e_max = max;
 	}
 
-	/* Process 'G' for "Maximum e_info[] index" */
+	/* Process 'G' for "Maximum t_info[] index" */
 	else if (buf[2] == 'G')
 	{
-		int max;
+		int maintainer_ghost_max, player_ghost_max;
 
 		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(buf+4, "%d:%d", &maintainer_ghost_max, &player_ghost_max)) return (PARSE_ERROR_GENERIC);
 
-		/* Save the value */
-		z_info->ghost_other_max = max;
+		/* Save the values */
+		z_info->ghost_player_max = player_ghost_max;
+		z_info->ghost_maint_max = maintainer_ghost_max;
+		z_info->ghost_template_max = maintainer_ghost_max + player_ghost_max;
 	}
 
 	/* Process 'R' for "Maximum r_info[] index" */
@@ -1500,16 +1502,16 @@ errr parse_f_info(char *buf, header *head)
 	/* Process 'M' for "Mimic" (one line only) */
 	else if (buf[0] == 'M')
 	{
-		u32b f_mimic;
+		int f_mimic;
 
 		/* There better be a current f_ptr */
 		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (1 != sscanf(buf+2, "%lu", &f_mimic)) return (PARSE_ERROR_GENERIC);
+		if (1 != sscanf(buf+2, "%d", &f_mimic)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		f_ptr->f_mimic = f_mimic;
+		f_ptr->f_mimic = (u16b)f_mimic;
 	}
 
 	/* Process 'G' for "Graphics" (one line only) */
@@ -1985,6 +1987,81 @@ errr parse_k_info(char *buf, header *head)
 		/* Store the text */
 		if (!add_text(&(k_ptr->text), head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
+	else
+	{
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "t_info" array, by parsing an ascii "template" file
+ */
+errr parse_t_info(char *buf, header *head)
+{
+	int i;
+
+	char *s;
+
+	/* Current entry */
+	static ghost_template *t_ptr = NULL;
+
+	/* Process 'N' for "New/Number/Name" */
+	if (buf[0] == 'N')
+	{
+		/* Find the colon before the name */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+
+		/* Paranoia -- require a name */
+		if (!*s) return (PARSE_ERROR_GENERIC);
+
+		/* Get the index */
+		i = atoi(buf+2);
+
+		/* Verify information */
+		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+		/* Verify information */
+		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
+
+		/* Save the index */
+		error_idx = i;
+
+		/* Point at the "info" */
+		t_ptr = (ghost_template*)head->info_ptr + i;
+
+		/* Store the name */
+		if (!(t_ptr->t_name = add_name(head, s)))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
+	/* Process 'I' for "Info" (one line only) */
+	else if (buf[0] == 'I')
+	{
+		int t_gender, t_race, t_class;
+
+		/* There better be a current k_ptr */
+		if (!t_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+			            &t_gender, &t_race, &t_class)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		t_ptr->t_gender = t_gender;
+		t_ptr->t_race = t_race;
+		t_ptr->t_class = t_class;
 	}
 
 	else

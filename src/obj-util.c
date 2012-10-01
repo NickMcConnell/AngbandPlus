@@ -799,6 +799,15 @@ s16b wield_slot(const object_type *o_ptr)
 		case TV_POLEARM:
 		case TV_SWORD:
 		{
+
+			/* See if the throwing weapon can go into the quiver first */
+			if ((is_throwing_weapon(o_ptr)) && (weapon_inscribed_for_quiver(o_ptr)))
+			{
+				s16b x = (wield_slot_ammo(o_ptr));
+
+				if (x != QUIVER_END) return (x);
+			}
+
 			return (INVEN_WIELD);
 		}
 
@@ -1460,7 +1469,6 @@ void compact_objects(int size)
 
 	int cur_lev, cur_dis, chance;
 
-
 	/* Compact */
 	if (size)
 	{
@@ -1472,6 +1480,47 @@ void compact_objects(int size)
 
 	}
 
+	/* First do squelchable objects */
+	for (i = 1; (i < o_max) && (size); i++)
+	{
+		object_type *o_ptr = &(o_list[i]);
+
+		/* Nuke squelched items */
+		if (squelch_item_ok(o_ptr))
+		{
+			delete_object_idx(i);
+			size--;
+		}
+	}
+
+	/* Now try to combine objects and gold instead (backwards) */
+	for (i = o_max - 1; i >= 2 && (size); i--)
+	{
+		object_type *o_ptr =&(o_list[i]);
+		int j;
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		for (j = i - 1; j >= 1; j--)
+		{
+			object_type *j_ptr =&(o_list[j]);
+
+			/* Skip dead objects */
+			if (!j_ptr->k_idx) continue;
+
+			if (object_similar(j_ptr, o_ptr))
+			{
+				/* Combine the items */
+				object_absorb(j_ptr, o_ptr);
+
+				/* Delete the object */
+				delete_object_idx(i);
+				size--;
+				break;
+			}
+		}
+	}
 
 	/* Compact at least 'size' objects */
 	for (num = 0, cnt = 1; num < size; cnt++)
@@ -1525,9 +1574,6 @@ void compact_objects(int size)
 
 			/* Saving throw */
 			chance = 90;
-
-			/* Squelched items get compacted */
-			if ((k_ptr->aware) && (k_ptr->squelch == SQUELCH_ALWAYS)) chance = 0;
 
  			/* Hack -- only compact artifacts in emergencies */
 			if (artifact_p(o_ptr) && (cnt < 1000)) chance = 100;
@@ -2192,12 +2238,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		{
 			/* Never okay */
 			return (0);
-		}
-
-		/* Gold */
-		case TV_GOLD:
-		{
-			return (1);
 		}
 
 		/* Food and Potions and Scrolls */
@@ -4224,6 +4264,9 @@ s16b inven_takeoff(int item, int amt)
 	/* Modify quantity */
 	i_ptr->number = amt;
 
+	/* No longer in use */
+	i_ptr->obj_in_use = FALSE;
+
 	/* Modify, Optimize */
 	inven_item_increase(item, -amt);
 	inven_item_optimize(item);
@@ -4238,7 +4281,7 @@ s16b inven_takeoff(int item, int amt)
 	slot = inven_carry(i_ptr);
 
 	/* Remove the mark to auto-wield in quiver */
-	if (is_throwing_weapon(o_ptr)) o_ptr->ident &= ~(IDENT_QUIVER);
+	o_ptr->ident &= ~(IDENT_QUIVER);
 
 	/* Special handling for the quiver */
 	if ((item > QUIVER_START) && (item < QUIVER_END))
@@ -4336,6 +4379,9 @@ void inven_drop(int item, int amt)
 
 	/* Modify quantity */
 	i_ptr->number = amt;
+
+	/* No longer in use */
+	i_ptr->obj_in_use = FALSE;
 
 	/* Describe local object */
 	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
@@ -4871,7 +4917,7 @@ void display_itemlist(void)
 {
 	int max;
 	int mx, my;
-	unsigned num;
+	unsigned num_player;
 	int line = 1, x = 0;
 	int cur_x;
 	int py = p_ptr->py;
@@ -4882,12 +4928,9 @@ void display_itemlist(void)
 	char c;
 
 	object_type *types[MAX_ITEMLIST];
-	object_type *standing_types[MAX_ITEMLIST];
 	int counts[MAX_ITEMLIST];
-	int standing_counts[MAX_ITEMLIST];
 	int dx[MAX_ITEMLIST], dy[MAX_ITEMLIST];
 	unsigned counter = 0;
-	unsigned standing_counter = 0;
 
 	int dungeon_hgt = p_ptr->cur_map_hgt;
 	int dungeon_wid = p_ptr->cur_map_wid;
@@ -4895,8 +4938,7 @@ void display_itemlist(void)
 	byte attr;
 	char buf[80];
 
-	int floor_list[MAX_FLOOR_STACK];
-
+	int floor_list_player[MAX_FLOOR_STACK];
 	bool in_term = (Term != angband_term[0]);
 
 	/* Hallucination is weird */
@@ -4923,39 +4965,26 @@ void display_itemlist(void)
 	}
 
 	/* Player gets special treatment */
-	num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x02);
-
-	if (num)
-	{
-		for (i = 0; i < num; i++)
-		{
-			object_type *o_ptr = &o_list[floor_list[i]];
-			/* Skip gold/squelched */
-			if ((o_ptr->tval == TV_GOLD) ||
-				((k_info[o_ptr->k_idx].squelch == SQUELCH_ALWAYS) && (k_info[o_ptr->k_idx].aware)))
-				continue;
-
-			standing_types[standing_counter] = o_ptr;
-			standing_counts[standing_counter] = o_ptr->number;
-			standing_counter++;
-		}
-	}
+	num_player = scan_floor(floor_list_player, MAX_FLOOR_STACK, py, px, 0x02);
 
 	/* Look at each square of the dungeon for items */
 	for (my = 0; my < dungeon_hgt; my++)
 	{
 		for (mx = 0; mx < dungeon_wid; mx++)
 		{
+			unsigned num_square;
+			int floor_list_stack[MAX_FLOOR_STACK];
+
 			/* No objects here, or it is the player square */
 			if (!cave_o_idx[my][mx]) continue;
 			if ((my == py) && (mx == px)) continue;
 
-			num = scan_floor(floor_list, MAX_FLOOR_STACK, my, mx, 0x02);
+			num_square = scan_floor(floor_list_stack, MAX_FLOOR_STACK, my, mx, 0x02);
 
 			/* Iterate over all the items found on this square */
-			for (i = 0; i < num; i++)
+			for (i = 0; i < num_square; i++)
 			{
-				object_type *o_ptr = &o_list[floor_list[i]];
+				object_type *o_ptr = &o_list[floor_list_stack[i]];
 				unsigned j;
 
 				/* Skip gold/squelched */
@@ -5014,7 +5043,7 @@ void display_itemlist(void)
 	}
 
 	/* Note no visible items */
-	if ((!counter) && (!standing_counter))
+	if ((!counter) && (!num_player))
 	{
 		/* Clear display and print note */
 		c_prt(TERM_SLATE, "You see no items.", 0, 0);
@@ -5025,30 +5054,30 @@ void display_itemlist(void)
 	}
 
 	/* First print the items the player is standing on */
-	if (standing_counter)
+	if (num_player)
 	{
 		/* Reprint Message */
 		prt(format("You are standing on %d item%s:",
-						   standing_counter, (standing_counter > 1 ? "s" : "")), 0, 0);
+				num_player, (num_player > 1 ? "s" : "")), 0, 0);
 	}
 
-	for (i = 0; i < standing_counter; i++)
+	for (i = 0; i < num_player; i++)
 	{
 		/* o_name will hold the object_desc() name for the object. */
 		/* o_desc will also need to put a (x4) behind it. */
 		char o_name[80];
 		char o_desc[86];
 
-		object_type *o_ptr = standing_types[i];
+		object_type *o_ptr = &o_list[floor_list_player[i]];
 
 		/* We shouldn't list coins or squelched items */
 		if ((o_ptr->tval == TV_GOLD) ||
 			((k_info[o_ptr->k_idx].squelch == SQUELCH_ALWAYS) && (k_info[o_ptr->k_idx].aware)))
 						continue;
 		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_FULL);
-		if (standing_counts[i] > 1)
+		if (o_ptr->number > 1)
 		{
-			strnfmt(o_desc, sizeof(o_desc), "%s (x%d)", o_name, standing_counts[i]);
+			strnfmt(o_desc, sizeof(o_desc), "%s (x%d)", o_name, o_ptr->number);
 		}
 		else
 		{
@@ -5059,7 +5088,7 @@ void display_itemlist(void)
 		cur_x = x;
 
 		/* See if we need to scroll or not */
-		if ((!in_term) && (line == max) && (disp_count != (counter + standing_counter + 2)))
+		if ((!in_term) && (line == max) && (disp_count != (counter + num_player + 2)))
 		{
 			prt("-- more --", line, x);
 			anykey();
@@ -5070,7 +5099,7 @@ void display_itemlist(void)
 
 			/* Reprint Message */
 			prt(format("You can see %d item%s:",
-					standing_counter, (standing_counter > 1 ? "s" : "")), 0, 0);
+					num_player, (num_player > 1 ? "s" : "")), 0, 0);
 
 			/* Reset */
 			line = 1;
@@ -5109,10 +5138,10 @@ void display_itemlist(void)
 		line++;
 	}
 
-	if (disp_count != (standing_counter))
+	if (disp_count != (num_player))
 	{
 		/* Print "and others" message if we've run out of space */
-		strnfmt(buf, sizeof buf, "  ...and %d others.", counter  + standing_counter - disp_count);
+		strnfmt(buf, sizeof buf, "  ...and %d others.", counter  + num_player - disp_count);
 		c_prt(TERM_WHITE, buf, line, x);
 		line ++;
 	}
@@ -5126,10 +5155,10 @@ void display_itemlist(void)
 	if (counter)
 	{
 		/* Reprint Message */
-		prt(format("You can see %d %sitem%s:", counter, (standing_counter ? "other " : ""),
+		prt(format("You can see %d %sitem%s:", counter, (num_player ? "other " : ""),
 				(counter > 1 ? "s" : "")),
-				(standing_counter ? line : 0), 0);
-		if (standing_counter) line++;
+				(num_player ? line : 0), 0);
+		if (num_player) line++;
 	}
 
 	for (i = 0; i < counter; i++)
@@ -5161,7 +5190,7 @@ void display_itemlist(void)
 		cur_x = x;
 
 		/* See if we need to scroll or not */
-		if ((!in_term) && (line == max) && (disp_count != counter + standing_counter + 2))
+		if ((!in_term) && (line == max) && (disp_count != counter + num_player + 2))
 		{
 			prt("-- more --", line, x);
 			anykey();
@@ -5211,10 +5240,10 @@ void display_itemlist(void)
 		line++;
 	}
 
-	if (disp_count != (counter + standing_counter))
+	if (disp_count != (counter + num_player))
 	{
 		/* Print "and others" message if we've run out of space */
-		strnfmt(buf, sizeof buf, "  ...and %d others.", counter + standing_counter - disp_count);
+		strnfmt(buf, sizeof buf, "  ...and %d others.", counter + num_player - disp_count);
 		c_prt(TERM_WHITE, buf, line, x);
 	}
 	else
@@ -5261,6 +5290,17 @@ bool obj_can_refill(const object_type *o_ptr)
 	return (FALSE);
 }
 
+/* Is this a spellbook */
+bool obj_is_spellbook(const object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_MAGIC_BOOK) return (TRUE);
+	if (o_ptr->tval == TV_PRAYER_BOOK) return (TRUE);
+	if (o_ptr->tval == TV_DRUID_BOOK) return (TRUE);
+
+	return (FALSE);
+}
+
+
 
 /* Basic tval testers */
 bool obj_is_staff(const object_type *o_ptr)  { return o_ptr->tval == TV_STAFF; }
@@ -5271,6 +5311,27 @@ bool obj_is_scroll(const object_type *o_ptr) { return o_ptr->tval == TV_SCROLL; 
 bool obj_is_food(const object_type *o_ptr)   { return o_ptr->tval == TV_FOOD; }
 bool obj_is_light(const object_type *o_ptr)   { return o_ptr->tval == TV_LIGHT; }
 bool obj_is_ring(const object_type *o_ptr)   { return o_ptr->tval == TV_RING; }
+bool obj_is_chest(const object_type *o_ptr)   { return o_ptr->tval == TV_CHEST; }
+
+/**
+ * Determine whether an object is a chest
+ *
+ * \param o_ptr is the object to check
+ */
+bool chest_requires_disarming(const object_type *o_ptr)
+{
+	if (!obj_is_chest(o_ptr)) return FALSE;
+
+	/* We don't know if it is trapped or not */
+	if (!object_known_p(o_ptr)) return FALSE;
+
+	/* Already disarmed. */
+	if (o_ptr->pval <= 0) return FALSE;
+
+	if (!chest_traps[o_ptr->pval]) return FALSE;
+
+	return (TRUE);
+}
 
 
 /**
@@ -5280,6 +5341,9 @@ bool obj_is_ring(const object_type *o_ptr)   { return o_ptr->tval == TV_RING; }
  */
 bool obj_is_ammo(const object_type *o_ptr)
 {
+	/* Ignore empty objects */
+	if (!o_ptr->k_idx) return (FALSE);
+
 	switch (o_ptr->tval)
 	{
 		case TV_SHOT:
@@ -5291,6 +5355,59 @@ bool obj_is_ammo(const object_type *o_ptr)
 	}
 }
 
+
+/*
+ * Determine whether the ammo can be fired with the current launcher
+ */
+bool ammo_can_fire(const object_type *o_ptr, int item)
+{
+	/* Get the "bow" (if any) */
+	object_type *j_ptr = &inventory[INVEN_BOW];
+
+	/* No ammo */
+	if (!obj_is_ammo(o_ptr)) return (FALSE);
+
+	/* No launcher */
+	if (!j_ptr->tval || !p_ptr->state.ammo_tval) return (FALSE);
+
+	/* Not within reach */
+	if (!item_is_available(item, NULL, (USE_INVEN | USE_FLOOR | USE_EQUIP | USE_QUIVER))) return (FALSE);
+
+	/* Cursed quiver */
+	if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver && !cursed_p(o_ptr)) return (FALSE);
+
+	/* Wrong ammo type */
+	if (o_ptr->tval != p_ptr->state.ammo_tval) return (FALSE);
+
+	/* Success! */
+	return (TRUE);
+}
+
+/* See if the player has ammo that can be used with the launcher in the quiver */
+bool has_correct_ammo(void)
+{
+	int i;
+
+	/* First search the quiver */
+	for (i=QUIVER_START; i < QUIVER_END; i++)
+	{
+		object_type *o_ptr = & inventory [i];
+
+		if (ammo_can_fire(o_ptr, i)) return (TRUE);
+	}
+
+	/* Next, search the inventory */
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		object_type *o_ptr = & inventory [i];
+
+		if (ammo_can_fire(o_ptr, i)) return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
 /* Determine if an object has charges */
 bool obj_has_charges(const object_type *o_ptr)
 {
@@ -5299,6 +5416,18 @@ bool obj_has_charges(const object_type *o_ptr)
 	if (o_ptr->pval <= 0) return FALSE;
 
 	return TRUE;
+}
+
+/* Determine if an object has charges */
+bool rod_can_zap(const object_type *o_ptr)
+{
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	if (!obj_is_rod(o_ptr)) return FALSE;
+
+	if (o_ptr->timeout > (o_ptr->pval - k_ptr->pval)) return (FALSE);
+
+	return (TRUE);
 }
 
 bool obj_can_browse(const object_type *o_ptr)
@@ -5316,7 +5445,9 @@ bool obj_can_takeoff(const object_type *o_ptr)
 /* Can only put on wieldable items */
 bool obj_can_wear(const object_type *o_ptr)
 {
-	return (wield_slot(o_ptr) >= INVEN_WIELD);
+	s16b x = wield_slot(o_ptr);
+
+	return ((x >= INVEN_WIELD) && x < QUIVER_END);
 }
 
 /* Can has inscrip pls */
@@ -5472,6 +5603,7 @@ int scan_items(int *item_list, size_t item_list_max, int mode)
 	bool use_inven = ((mode & USE_INVEN) ? TRUE : FALSE);
 	bool use_equip = ((mode & USE_EQUIP) ? TRUE : FALSE);
 	bool use_floor = ((mode & USE_FLOOR) ? TRUE : FALSE);
+	bool use_quiver = ((mode & USE_QUIVER) ? TRUE : FALSE);
 
 	int floor_list[MAX_FLOOR_STACK];
 	int floor_num;
@@ -5490,7 +5622,16 @@ int scan_items(int *item_list, size_t item_list_max, int mode)
 
 	if (use_equip)
 	{
-		for (i = INVEN_WIELD; i < ALL_INVEN_TOTAL && item_list_num < item_list_max; i++)
+		for (i = INVEN_WIELD; i < INVEN_TOTAL && item_list_num < item_list_max; i++)
+		{
+			if (get_item_okay(i))
+				item_list[item_list_num++] = i;
+		}
+	}
+
+	if (use_quiver)
+	{
+		for (i = QUIVER_START; i < QUIVER_END && item_list_num < item_list_max; i++)
 		{
 			if (get_item_okay(i))
 				item_list[item_list_num++] = i;

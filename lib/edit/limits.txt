@@ -18,7 +18,7 @@ V:0.5.4
 
 
 # Maximum number of feature types
-M:F:206
+M:F:207
 
 # Maximum number of object kinds
 M:K:453
@@ -44,7 +44,8 @@ M:R:750
 M:X:750
 
 # Maximum number of permanant maintainer ghost templates (in *angband/lib/bones)
-M:G:21
+# followed by the max number of player ghost templates
+M:G:21:20
 
 # Maximum number of vaults
 M:V:69
@@ -65,10 +66,10 @@ M:B:4
 M:Q:4
 
 # Maximum number of flavors
-M:L:330
+M:L:348
 
 # Maximum number of objects on the level
-M:O:512
+M:O:1024
 
 # Maximum number of monsters on the level
 M:M:1024

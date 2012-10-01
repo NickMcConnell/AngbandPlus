@@ -281,7 +281,7 @@ depgen:
   z-virt.h z-rand.h z-term.h ui-event.h z-quark.h z-msg.h config.h \
   defines.h types.h object.h monster.h player.h store.h cmds.h \
   ui.h z-type.h externs.h game-cmd.h game-event.h init.h terrain.h \
-  ui-birth.h ui-menu.h x-char.h 
+  ui-birth.h ui-menu.h x-char.h
 
 ./store.o: store.c angband.h h-basic.h z-file.h z-form.h z-util.h \
   z-virt.h z-rand.h z-term.h ui-event.h z-quark.h z-msg.h config.h \

@@ -26,6 +26,8 @@ struct region {
 
 /* Region that defines the full screen */
 static const region SCREEN_REGION = {0, 0, 0, 0};
+/* Region that leaves the bottom line for mousebuttons */
+static const region SCREEN_REGION_BUTTONS = {0, 0, 0, -1};
 
 /* Erase the contents of a region */
 void region_erase(const region *loc);

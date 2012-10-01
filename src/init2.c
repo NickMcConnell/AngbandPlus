@@ -249,6 +249,7 @@ header g_head;
 header flavor_head;
 header q_head;
 header n_head;
+header t_head;
 
 
 /*
@@ -269,7 +270,6 @@ static void init_header(header *head, int num, int len)
        /* Save the size of "*_head" and "*_info" */
        head->head_size = sizeof(header);
        head->info_size = head->info_num * head->info_len;
-
 }
 
 
@@ -444,6 +444,29 @@ static errr init_k_info(void)
 	k_info = k_head.info_ptr;
 	k_name = k_head.name_ptr;
 	k_text = k_head.text_ptr;
+
+	return (err);
+}
+
+/*
+ * Initialize the "t_info" array
+ */
+static errr init_t_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&t_head, z_info->ghost_template_max, sizeof(ghost_template));
+
+	/* Save a pointer to the parsing function */
+	t_head.parse_info_txt = parse_t_info;
+
+	err = init_info("player_ghost", &t_head);
+
+	/* Set the global variables */
+	t_info = t_head.info_ptr;
+	t_name = t_head.name_ptr;
+	t_text = t_head.text_ptr;
 
 	return (err);
 }
@@ -1336,10 +1359,6 @@ bool init_angband(void)
 
 	event_signal(EVENT_ENTER_INIT);
 
-	/* Initialize the menus */
-		/* This must occur before preference files are read(?) */
-		init_cmd4_c();
-
 	/*** Initialize some arrays ***/
 
 	/* Initialize size info */
@@ -1353,6 +1372,10 @@ bool init_angband(void)
 	/* Initialize object info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (objects)");
 	if (init_k_info()) quit("Cannot initialize objects");
+
+	/* Initialize object info */
+	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (ghosts)");
+	if (init_t_info()) quit("Cannot initialize ghosts");
 
 	/* Initialize artifact info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (artifacts)");
@@ -1488,6 +1511,11 @@ void cleanup_angband(void)
 	/* Free the stores */
 	FREE(store);
 
+	event_remove_all_handlers();
+
+	/* free the buttons */
+	button_free();
+
 	/* Free the player inventory */
 	FREE(inventory);
 
@@ -1558,6 +1586,7 @@ void cleanup_angband(void)
 	free_info(&e_head);
 	free_info(&a_head);
 	free_info(&k_head);
+	free_info(&t_head);
 	free_info(&f_head);
 	free_info(&z_head);
 	free_info(&n_head);

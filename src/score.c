@@ -18,6 +18,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 #include "angband.h"
+#include "game-event.h"
 
 
 
@@ -239,7 +240,7 @@ static void highscore_write(const high_score scores[], size_t sz)
  */
 static void display_scores_aux(const high_score scores[], int from, int to, int highlight)
 {
-	char ch;
+	ui_event_data ke;
 
 	int j, k, n, place;
 	int count;
@@ -260,6 +261,9 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 	/* Forget about the last entries */
 	if (count > to) count = to;
 
+	/* Buttons */
+	button_kill_all();
+	button_add("[ESC]", ESCAPE);
 
 	/* Show 5 per page, until "done" */
 	for (k = from, j = from, place = k+1; k < count; k += 5)
@@ -350,13 +354,16 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 
 
 		/* Wait for response */
-		prt("[Press ESC to exit, any other key to continue.]", 23, 17);
-		ch = inkey();
-		prt("", 23, 0);
+		prt("[Press ESC to exit, any other key to continue.]", 22, 17);
+		event_signal(EVENT_MOUSEBUTTONS);
+		ke = inkey_ex();
+		prt("", 22, 0);
 
 		/* Hack -- notice Escape */
-		if (ch == ESCAPE) break;
+		if (ke.key == ESCAPE) break;
 	}
+	button_restore();
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	return;
 }

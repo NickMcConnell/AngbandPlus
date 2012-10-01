@@ -17,7 +17,7 @@
  */
 
 #include "angband.h"
-
+#include "game-event.h"
 
 /*
  * Display inventory
@@ -66,7 +66,7 @@ void do_cmd_inven(void)
 void do_cmd_equip(void)
 {
 	/* Hack -- Start in "equipment" mode */
-	p_ptr->command_wrk = (USE_EQUIP);
+	p_ptr->command_wrk = (USE_EQUIP | USE_QUIVER);
 
 	/* Save screen */
 	screen_save();
@@ -128,6 +128,9 @@ static int quiver_wield(int item, object_type *o_ptr)
 
 	/* Modify quantity */
 	i_ptr->number = num;
+
+	/* No longer in use */
+	i_ptr->obj_in_use = FALSE;
 
 	/* Describe the result */
 	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
@@ -220,16 +223,6 @@ void wield_item(object_type *o_ptr, int item, int slot)
 	cptr fmt;
 	char o_name[80];
 
-	bool combined_ammo = FALSE;
-	int num = 1;
-
-	/* If we are stacking ammo in the quiver */
-	if (obj_is_ammo(o_ptr))
-	{
-		num = o_ptr->number;
-		combined_ammo = object_similar(o_ptr, &inventory[slot]);
-	}
-
 	/* Describe the result */
 	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
@@ -244,7 +237,6 @@ void wield_item(object_type *o_ptr, int item, int slot)
 
 		/* Can't do it */
 		return;
-
 	}
 
 	/* Get local object */
@@ -255,6 +247,9 @@ void wield_item(object_type *o_ptr, int item, int slot)
 
 	/* Modify quantity */
 	i_ptr->number = 1;
+
+	/* No longer in use */
+	i_ptr->obj_in_use = FALSE;
 
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
@@ -445,6 +440,7 @@ void destroy_item(int item)
 		int result;
 		char other;
 		char explain[80];
+		cptr other_text = "[SQUELCH_EGO]";
 
 		/* Check for known ego-items */
 		strnfmt(out_val, sizeof(out_val), "Really Destroy %s", o_name);
@@ -460,7 +456,7 @@ void destroy_item(int item)
 			/* Format the prompt */
 			strnfmt(explain, sizeof(explain), "(%c to always squelch ego item type %s)? ", other, e_name + e_ptr->name);
 
-			result = get_check_other(out_val, other, explain);
+			result = get_check_other(out_val, other_text, other, explain);
 
 			/* returned "no"*/
 			if (!result) return;
@@ -501,11 +497,12 @@ void destroy_item(int item)
 			object_desc(i_name, sizeof(i_name), i_ptr, ODESC_PLURAL | ODESC_FULL);
 
 			other = 's';
+			other_text = "[SQUELCH_TYPE]";
 
 			/* Format the prompt */
 			strnfmt(explain, sizeof(explain), "(%c to always squelch %s)?", other, i_name);
 
-			result = get_check_other(out_val, other, explain);
+			result = get_check_other(out_val, other_text, other, explain);
 
 			/* returned "no"*/
 			if (!result) return;
@@ -605,7 +602,7 @@ void textui_cmd_destroy(void)
 	/* Get an item */
 	q = "Destroy which item? ";
 	s = "You have nothing to destroy.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR | USE_QUIVER))) return;
 
 	destroy_item(item);
 }
@@ -1232,6 +1229,15 @@ void do_cmd_query_symbol(void)
 	u16b why = 0;
 	u16b *who;
 
+	button_backup_all();
+	button_kill_all();
+	button_add("ALL MONSTERS|", KTRL('A'));
+	button_add("ALL UNIQUES|", KTRL('U'));
+	button_add("NON-UNIQUES|", KTRL('N'));
+
+	/* Don't collide with the repeat button */
+	button_add("QUIT", 'q');
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Get a character, or abort */
 	if (!get_com("Enter character to be identified, or control+[ANU]: ", &sym)) return;
@@ -1304,11 +1310,12 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Buttons */
-	button_add("[y]", 'y');
-	button_add("[k]", 'k');
+	button_kill_all();
+	button_add("SORT_LEVELS|", 'y');
+	button_add("SORT-KILLS|", 'k');
 	/* Don't collide with the repeat button */
-	button_add("[n]", 'q');
-	handle_stuff();
+	button_add("QUIT", 'q');
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Prompt */
 	put_str("Recall details? (y/k/n): ", 0, 40);
@@ -1318,12 +1325,6 @@ void do_cmd_query_symbol(void)
 
 	/* Restore */
 	prt(buf, 0, 0);
-
-	/* Buttons */
-	button_kill('y');
-	button_kill('k');
-	button_kill('q');
-	handle_stuff();
 
 	/* Interpret the response */
 	if (query.key == 'k')
@@ -1358,10 +1359,13 @@ void do_cmd_query_symbol(void)
 	i = n - 1;
 
 	/* Button */
-	button_add("[r]", 'r');
-	button_add("[-]", '-');
-	button_add("[+]", '+');
-	handle_stuff();
+	button_backup_all();
+	button_kill_all();
+	button_add("ESC|", ESCAPE);
+	button_add("RECALL|", 'r');
+	button_add("PREV|", '-');
+	button_add("NEXT", '+');
+	event_signal(EVENT_MOUSEBUTTONS);
 
 	/* Scan the monster memory */
 	while (1)
@@ -1433,13 +1437,12 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Button */
-	button_kill('r');
-	button_kill('-');
-	button_kill('+');
-	handle_stuff();
+	button_kill_all();
+	button_restore();
+	event_signal(EVENT_MOUSEBUTTONS);
 
-	/* Re-display the identity */
-	prt(buf, 0, 0);
+	/* Clear the top line */
+	prt("", 0, 0);
 
 	/* Free the "who" array */
 	FREE(who);

@@ -3960,21 +3960,21 @@ static char *msg_repository[MAX_MON_MSG + 1] =
 	"[is|are] even more stunned.",		/* MON_MSG_MORE_DAZED */
 	"[is|are] stunned.",		/* MON_MSG_DAZED*/
 	"[is|are] no longer stunned.",	/* MON_MSG_NOT_DAZED */
-	"look[s] more confused.",	/* MON_MSG_MORE_CONFUSED */
-	"look[s] confused.",		/* MON_MSG_CONFUSED */
+	"[is|are] more confused.",	/* MON_MSG_MORE_CONFUSED */
+	"[is|are] confused.",		/* MON_MSG_CONFUSED */
 	"[is|are] no longer confused.",/* MON_MSG_NOT_CONFUSED */
-	"look[s] more slowed.",		/* MON_MSG_MORE_SLOWED */
-	"look[s] slowed.",			/* MON_MSG_SLOWED */
+	"[is|are] more slowed.",		/* MON_MSG_MORE_SLOWED */
+	"[is|are] slowed.",			/* MON_MSG_SLOWED */
 	"speed[s] up.",				/* MON_SNG_NOT_SLOWED */
-	"look[s] more hasted.",		/* MON_MSG_MORE_HASTED */
-	"look[s] hasted.",			/* MON_MSG_HASTED */
+	"[is|are] more hasted.",		/* MON_MSG_MORE_HASTED */
+	"[is|are] hasted.",			/* MON_MSG_HASTED */
 	"[is|are] no longer hasted.",/* MON_MSG_NOT_HASTED */
-	"look[s] more terrified!",	/* MON_MSG_MORE_AFRAID */
+	"[is|are] more terrified!",	/* MON_MSG_MORE_AFRAID */
 	"flee[s] in terror!",		/* MON_MSG_FLEE_IN_TERROR */
 	"[is|are] no longer afraid.",/* MON_MSG_NOT_AFRAID */
 	"~You hear [a|several] scream[|s] of agony!",/* MON_MSG_MORIA_DEATH */
 	"disintegrates!",		/* MON_MSG_DISENTEGRATES */
-	"freez[es] and shatter[s]",  /* MON_MSG_FREEZE_SHATTER */
+	"freeze[s] and shatter[s].",  /* MON_MSG_FREEZE_SHATTER */
 	"lose[s] some mana!",		/* MON_MSG_MANA_DRAIN */
 
 

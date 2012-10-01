@@ -29,7 +29,7 @@
  * Note that this function induces various "status" messages,
  * which must be bypasses until the character is created.
  */
-static void calc_spells(void)
+void calc_spells(void)
 {
 	int i, j, k, levels;
 	int num_allowed, num_known;
@@ -39,7 +39,7 @@ static void calc_spells(void)
 
 	s16b old_spells;
 
-	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell" );
+	cptr p = cast_spell(MODE_SPELL_NOUN, cp_ptr->spell_book, 1, 0);
 
 	/* Hack -- must be literate */
 	if (!cp_ptr->spell_book) return;
@@ -358,11 +358,11 @@ static void calc_mana(void)
 		/* Message */
 		if (p_ptr->cumber_armor)
 		{
-			msg_print("The weight of your armor encumbers your movement.");
+			msg_print("The weight of your equipment is reducing your mana.");
 		}
 		else
 		{
-			msg_print("You feel able to move more freely.");
+			msg_print("Your equipment is no longer reducing your mana.");
 		}
 	}
 }
@@ -1597,18 +1597,29 @@ static void calc_bonuses(void)
 	/* Take note when "heavy bow" changes */
 	if (old_heavy_shoot != p_ptr->heavy_shoot)
 	{
+		/* default: SV_SHORT_BOW or SV_LONG_BOW	*/
+		cptr launcher = "bow";
+
+		/* Examine the "current bow" */
+		object_kind *k_ptr = &k_info[inventory[INVEN_BOW].k_idx];
+
+		/* Make sure we are calling the launcher by the right name */
+		if (k_ptr->sval == SV_SLING) launcher = "sling";
+		else if ((k_ptr->sval == SV_LIGHT_XBOW) ||
+				 (k_ptr->sval == SV_LIGHT_XBOW)) launcher = "crossbow";
+
 		/* Message */
 		if (p_ptr->heavy_shoot)
 		{
-			msg_print("You have trouble wielding such a heavy bow.");
+			msg_print(format("You have trouble aiming such a heavy %s.", launcher));
 		}
 		else if (inventory[INVEN_BOW].k_idx)
 		{
-			msg_print("You have no trouble wielding your bow.");
+			msg_print(format("You have no trouble aiming your %s.", launcher));
 		}
 		else
 		{
-			msg_print("You feel relieved to put down your heavy bow.");
+			msg_print(format("You feel relieved to put down your heavy %s.", launcher));
 		}
 	}
 
@@ -1748,7 +1759,7 @@ void update_stuff(void)
 	{
 		/* Clear the flags */
 		p_ptr->update &= ~(PU_TORCH | PU_BONUS | PU_STEALTH | PU_NATIVE | \
-							PU_STEALTH | PU_HP | PU_MANA | PU_SPELLS);
+							PU_HP | PU_MANA | PU_SPELLS);
 		return;
 	}
 
@@ -1837,12 +1848,15 @@ void redraw_stuff(void)
 	{
 		const struct flag_event_trigger *hnd = &redraw_events[i];
 
-		if (p_ptr->redraw & hnd->flag)
+		if (p_ptr->redraw & (hnd->flag))
+		{
 			event_signal(hnd->event);
+		}
+
 	}
 
 	/* Then the ones that require parameters to be supplied. */
-	if (p_ptr->redraw & PR_MAP)
+	if (p_ptr->redraw & (PR_MAP))
 	{
 		/* Mark the whole map to be redrawn */
 		event_signal_point(EVENT_MAP, -1, -1);

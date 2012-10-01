@@ -687,60 +687,48 @@ static errr Term_xtra_gcu_react(void)
 	}
 	else if (COLORS == 256)
 	{
-		/* If we have 256 colors, find the best matches. These numbers
-		 * correspond to xterm's builtin color numbers--they do not correspond
-		 * to curses' constants OR with curses' color pairs.
-		 *
-		 * XTerm has 216 (6*6*6) colors, with each RGB setting 0-5. So, to find
-		 * the "closest" match, I just multiply Angband's RGB setting by 5 and
-		 * then divide by 255. I used true rounding because using the floor
-		 * produces too dark a feel, and using the ceiling kind of washes all
-		 * the colors out.
+		/*
+		 *  Shades taken from the color table at
+		 *  http://upload.wikimedia.org/wikipedia/commons/9/95/Xterm_color_chart.png
 		 */
 		set_256color_table(TERM_DARK, 0);
 		set_256color_table(TERM_WHITE, 15);
 		set_256color_table(TERM_SLATE, 145);
-		set_256color_table(TERM_ORANGE, 214);
+		set_256color_table(TERM_ORANGE, 166);
 		set_256color_table(TERM_RED, 160);
 		set_256color_table(TERM_GREEN, 35);
 		set_256color_table(TERM_BLUE, 27);
-		set_256color_table(TERM_UMBER, 130);
+		set_256color_table(TERM_UMBER, 94);
 		set_256color_table(TERM_L_DARK, 102);
 		set_256color_table(TERM_L_WHITE, 188);
 		set_256color_table(TERM_VIOLET, 201);
 		set_256color_table(TERM_YELLOW, 226);
-		set_256color_table(TERM_L_RED, 203);
+		set_256color_table(TERM_L_RED, 204);
 		set_256color_table(TERM_L_GREEN, 46);
 		set_256color_table(TERM_L_BLUE, 51);
 		set_256color_table(TERM_L_UMBER, 179);
-
-		set_256color_table(TERM_SNOW_WHITE, 14);
-		set_256color_table(TERM_SLATE_GRAY, 152);
-		set_256color_table(TERM_ORANGE_PEEL, 215);
-		set_256color_table(TERM_RED_LAVA, 161);
-		set_256color_table(TERM_JUNGLE_GREEN, 37);
-		set_256color_table(TERM_NAVY_BLUE, 28);
-		set_256color_table(TERM_AUBURN, 101);
-		set_256color_table(TERM_TAUPE, 103);
-		set_256color_table(TERM_L_WHITE_2, 187);
-		set_256color_table(TERM_D_PURPLE, 127);
-		set_256color_table(TERM_MAIZE, 221);
-		set_256color_table(TERM_RASPBERRY, 204);
-		set_256color_table(TERM_LIME_GREEN, 86);
-		set_256color_table(TERM_SKY_BLUE, 39);
-		set_256color_table(TERM_L_BROWN, 180);
-
-		set_256color_table(TERM_SILVER, 151);
-		set_256color_table(TERM_MAHAGONY, 216);
-		set_256color_table(TERM_RED_RUST, 159);
-
-		set_256color_table(TERM_COPPER, 131);
-
-		set_256color_table(TERM_GOLD, 184);
-		set_256color_table(TERM_PINK, 217);
-
-		set_256color_table(TERM_EARTH_YELLOW, 178);
-
+		set_256color_table(TERM_SNOW_WHITE, 7);
+		set_256color_table(TERM_SLATE_GRAY, 238);
+		set_256color_table(TERM_ORANGE_PEEL, 202);
+		set_256color_table(TERM_RED_LAVA, 124);
+		set_256color_table(TERM_JUNGLE_GREEN, 39);
+		set_256color_table(TERM_NAVY_BLUE, 20);
+		set_256color_table(TERM_AUBURN, 52);
+		set_256color_table(TERM_TAUPE, 244);
+		set_256color_table(TERM_L_WHITE_2, 231);
+		set_256color_table(TERM_D_PURPLE, 57);
+		set_256color_table(TERM_MAIZE, 227);
+		set_256color_table(TERM_RASPBERRY, 89);
+		set_256color_table(TERM_LIME_GREEN, 118);
+		set_256color_table(TERM_SKY_BLUE, 38);
+		set_256color_table(TERM_L_BROWN, 95);
+		set_256color_table(TERM_SILVER, 246);
+		set_256color_table(TERM_MAHAGONY, 214);
+		set_256color_table(TERM_RED_RUST, 130);
+		set_256color_table(TERM_COPPER, 188);
+		set_256color_table(TERM_GOLD, 226);
+		set_256color_table(TERM_PINK, 165);
+		set_256color_table(TERM_EARTH_YELLOW, 173);
 
 	}
 	/* TODO: figure out how 88-color terminals (e.g. urxvt) work */
@@ -953,6 +941,7 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
 	t->wipe_hook = Term_wipe_gcu;
 	t->curs_hook = Term_curs_gcu;
 	t->xtra_hook = Term_xtra_gcu;
+	t->xchar_hook = Term_xchar_gcu;
 
 	/* Save the data */
 	t->data = td;
@@ -1034,6 +1023,18 @@ errr init_gcu(int argc, char **argv)
 		quit("Angband needs at least an 80x24 'curses' screen");
 	}
 
+#ifdef USE_GRAPHICS
+
+	/* Set graphics */
+	if (arg_graphics)
+	{
+		use_graphics = GRAPHICS_PSEUDO;
+		ANGBAND_GRAF = "pseudo";
+	}
+
+
+#endif /* USE_GRAPHICS */
+
 
 #ifdef A_COLOR
 
@@ -1099,7 +1100,7 @@ errr init_gcu(int argc, char **argv)
 		colortable[TERM_DARK]     = (COLOR_PAIR(PAIR_BLACK));
 		colortable[TERM_WHITE]    = (COLOR_PAIR(PAIR_WHITE) | A_BRIGHT);
 		colortable[TERM_SLATE]    = (COLOR_PAIR(PAIR_WHITE));
-		colortable[TERM_ORANGE]   = (COLOR_PAIR(PAIR_RED) | A_BRIGHT);
+		colortable[TERM_ORANGE]   = (COLOR_PAIR(PAIR_YELLOW) | A_BRIGHT);
 		colortable[TERM_RED]      = (COLOR_PAIR(PAIR_RED));
 		colortable[TERM_GREEN]    = (COLOR_PAIR(PAIR_GREEN));
 		colortable[TERM_BLUE]     = (COLOR_PAIR(PAIR_BLUE));
@@ -1114,7 +1115,7 @@ errr init_gcu(int argc, char **argv)
 		colortable[TERM_L_UMBER]  = (COLOR_PAIR(PAIR_YELLOW));
 		colortable[TERM_SNOW_WHITE] = (COLOR_PAIR(PAIR_WHITE) | A_BRIGHT);
 		colortable[TERM_SLATE_GRAY] = (COLOR_PAIR(PAIR_WHITE));
-		colortable[TERM_ORANGE_PEEL]  = (COLOR_PAIR(PAIR_RED) | A_BRIGHT);
+		colortable[TERM_ORANGE_PEEL]  = (COLOR_PAIR(PAIR_YELLOW) | A_BRIGHT);
 		colortable[TERM_RED_LAVA]      = (COLOR_PAIR(PAIR_RED));
 		colortable[TERM_JUNGLE_GREEN]    = (COLOR_PAIR(PAIR_GREEN));
 		colortable[TERM_NAVY_BLUE]     = (COLOR_PAIR(PAIR_BLUE));

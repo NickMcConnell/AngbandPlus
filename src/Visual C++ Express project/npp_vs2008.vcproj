@@ -534,10 +534,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\use-obj.c"
-				>
-			</File>
-			<File
 				RelativePath="..\util.c"
 				>
 			</File>
