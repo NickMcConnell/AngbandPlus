@@ -1,3 +1,6 @@
+1/11/00: Fixed a nasty bug that allowed people to earthquake in town.
+	 This is too nasty a bug to leave in an 'official' release,
+	 so I am releasing a revision 2 mangband-060-rev2.src.tar.gz.
 1/9/00:
 	----- MAngband 0.6.0 released -----
 1/9/00:

@@ -2609,7 +2609,7 @@ void destroy_area(int Depth, int y1, int x1, int r, bool full)
 	full = full ? full : 0;
 
 	/* Don't hurt the main town or surrounding areas */
-	if (Depth < 0 ? (wild_info[Depth].radius <= 2) : 0)
+	if (Depth <= 0 ? (wild_info[Depth].radius <= 2) : 0)
 		return;
 
 	/* Big area of affect */
@@ -2763,7 +2763,7 @@ void earthquake(int Depth, int cy, int cx, int r)
 
 
 	/* Don't hurt town or surrounding areas */
-	if (Depth < 0 ? wild_info[Depth].radius <= 2 : 0)
+	if (Depth <= 0 ? wild_info[Depth].radius <= 2 : 0)
 		return;
 
 	/* Paranoia -- Dnforce maximum range */
