@@ -274,6 +274,7 @@ extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
 #else /* USE_TRANSPARENCY */
 extern void map_info(int y, int x, byte *ap, char *cp);
 #endif /* USE_TRANSPARENCY */
+extern void map_info_default(int y, int x, byte *ap, char *cp);
 extern void move_cursor_relative(int y, int x);
 extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
@@ -377,8 +378,8 @@ extern void do_cmd_pref(void);
 extern void do_cmd_macros(void);
 extern void do_cmd_visuals(void);
 extern void do_cmd_colors(void);
-extern void do_cmd_load_screen(void);
-extern void do_cmd_save_screen(void);
+extern void do_cmd_save_screen_text(void);
+extern void do_cmd_save_screen_html(void);
 extern void do_cmd_help(void);
 extern void do_cmd_suicide(void);
 extern void do_cmd_save_game(void);
@@ -427,6 +428,8 @@ extern bool set_cut(int v);
 extern bool set_food(int v);
 
 /* files.c */
+extern void text_screenshot(cptr name);
+extern void html_screenshot(cptr name);
 extern void safe_setuid_drop(void);
 extern void safe_setuid_grab(void);
 extern errr process_pref_file_command(char *buf);
@@ -586,6 +589,7 @@ extern void place_gold(int y, int x);
 extern void place_secret_door(int y, int x);
 extern void place_closed_door(int y, int x);
 extern void place_random_door(int y, int x);
+extern void place_chest(int y, int x);
 extern void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt);
 extern void reduce_charges(object_type *o_ptr, int amt);
 extern void alchemy_describe(char *buf, int sval);
@@ -728,9 +732,10 @@ extern bool do_disarm_trap(int y, int x);
 extern void compact_traps(int size);
 extern s16b trap_place(int y, int x, trap_type *x_ptr);
 extern bool place_trap_dungeon(int y, int x);
-extern bool place_lock(int y, int x, bool visible, byte type);
+extern bool place_trap_chest(int y, int x);
 extern bool place_trap_monster(u32b typ, int y, int x);
 extern bool place_trap_player(int y, int x);
+extern bool place_lock(int y, int x, bool visible, byte type);
 extern bool warding_glyph(byte type);
 extern bool mon_glyph_check(int m_idx, int y, int x);
 

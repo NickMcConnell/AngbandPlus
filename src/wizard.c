@@ -71,9 +71,10 @@ void do_cmd_wiz_help(void)
 	put_str("(#)l = Learn about objects",11,50);
 	put_str("o    = Object editor",12,50);
 	put_str("(#)v = Generate great objects",13,50);
+	put_str("X    = Generate a chest",14,50);
 
-	c_put_str(TERM_BLUE,"General Commands",15,50);
-	c_put_str(TERM_BLUE,"================",16,50);
+	c_put_str(TERM_BLUE,"General Commands",16,50);
+	c_put_str(TERM_BLUE,"================",17,50);
 	put_str("? = Wizard mode help",18,50); 
 	put_str("\" = Generate spoilers",19,50);
 
@@ -2743,6 +2744,20 @@ void do_cmd_debug(void)
 			{
 				gain_exp(p_ptr->exp + 1);
 			}
+			break;
+		}
+
+		/* Create chest */
+		case 'X':
+		{
+			int yy = p_ptr->py;
+			int xx = p_ptr->px;
+
+			/* Hack - boundary check */
+			if cave_naked_bold(yy + 1, xx) place_chest(yy + 1, xx);
+			else if cave_naked_bold(yy, xx + 1) place_chest(yy, xx + 1);
+			else if cave_naked_bold(yy - 1, xx) place_chest(yy - 1, xx);
+			else if cave_naked_bold(yy, xx - 1) place_chest(yy, xx - 1);
 			break;
 		}
 

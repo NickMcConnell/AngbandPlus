@@ -11,6 +11,253 @@
 #include "angband.h"
 
 /*
+ * Attr value-to-char convertion table
+ */
+static byte conv_color[16] =
+{
+	'd',
+	'w',
+	's',
+	'o',
+	'r',
+	'g',
+	'b',
+	'u',
+	'D',
+	'W',
+	'v',
+	'y',
+	'R',
+	'G',
+	'B',
+	'U',
+};
+
+/*
+ * Clean up a line for recording via cmovie or html dump
+ */
+static void cmovie_clean_line(int y, char *abuf, char *cbuf)
+{
+	const byte *ap = Term->scr->a[y];
+	const char *cp = Term->scr->c[y];
+
+	byte a;
+	char c;
+
+	int x;
+	int wid, hgt;
+	int screen_wid, screen_hgt;
+
+	/* Retrieve current screen size */
+	Term_get_size(&wid, &hgt);
+
+	/* Calculate the size of dungeon map area */
+	screen_wid = wid - (COL_MAP + 1);
+	screen_hgt = hgt - (ROW_MAP + 1);
+
+	/* For the time being, assume 80 column display XXX XXX XXX */
+	for (x = 0; x < wid; x++)
+	{
+		/* Convert dungeon map into default attr/chars */
+		if (!character_icky &&
+                    ((x - COL_MAP) >= 0) &&
+		    ((x - COL_MAP) < screen_wid) &&
+		    ((y - ROW_MAP) >= 0) &&
+		    ((y - ROW_MAP) < screen_hgt))
+		{
+			/* Retrieve default attr/char */
+                        map_info_default(y + p_ptr->wy - ROW_MAP, x + p_ptr->wx - COL_MAP, &a, &c);
+
+			abuf[x] = conv_color[a & 0xf];
+
+			if (c == '\0') cbuf[x] = ' ';
+			else cbuf[x] = c;
+		}
+
+		else
+		{
+			abuf[x] = conv_color[ap[x] & 0xf];
+			cbuf[x] = cp[x];
+		}
+	}
+
+	/* Null-terminate the prepared strings */
+	abuf[x] = '\0';
+	cbuf[x] = '\0';
+}
+
+/*
+ * Hack -- save a screen dump to a file
+ */
+void text_screenshot(cptr name)
+{
+	int y, x;
+
+	byte a = 0;
+	char c = ' ';
+
+	FILE *fff;
+
+	char buf[1024];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Hack -- drop permissions */
+	safe_setuid_drop();
+
+	/* Append to the file */
+	fff = my_fopen(buf, "w");
+
+	/* Hack -- grab permissions */
+	safe_setuid_grab();
+
+	/* Oops */
+	if (!fff) return;
+
+	/* Save screen */
+	screen_save();
+
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = c;
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
+
+
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = conv_color[a & 0xf];
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
+
+	/* Close it */
+	my_fclose(fff);
+
+	/* Load screen */
+	screen_load();
+}
+
+/*
+ * Take an html screenshot 
+ */
+void html_screenshot(cptr name)
+{
+	int y, x;
+	int wid, hgt;
+
+	byte a = 0, oa = TERM_WHITE;
+	char c = ' ';
+
+	FILE *htm;
+
+	char buf[1024];
+
+	/* The terms package supports up to 255x255 screen size */
+	char abuf[256];
+	char cbuf[256];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Hack -- drop permissions */
+	/* safe_setuid_drop(); */
+
+	/* Append to the file */
+	htm = my_fopen(buf, "w");
+
+	/* Hack -- grab permissions */
+	/* safe_setuid_grab(); */
+
+	/* Oops */
+	if (!htm) return;
+
+	/* Retrieve current screen size */
+	Term_get_size(&wid, &hgt);
+
+	fprintf(htm, "<HTML>\n");
+	fprintf(htm, "<HEAD>\n");
+        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"Angband %d.%d.%d\">\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(htm, "<TITLE>%s</TITLE>\n", name);
+	fprintf(htm, "</HEAD>\n");
+	fprintf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
+	fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">\n<PRE><TT>",
+	             angband_color_table[TERM_WHITE][1],
+	             angband_color_table[TERM_WHITE][2],
+	             angband_color_table[TERM_WHITE][3]);
+
+	/* Dump the screen */
+	for (y = 0; y < hgt; y++)
+	{
+		cmovie_clean_line(y, abuf, cbuf);
+
+		/* Dump each row */
+		for (x = 0; x < wid; x++)
+		{
+			a = color_char_to_attr(abuf[x]);
+			c = cbuf[x];
+
+			if (oa != a)
+			{
+				fprintf(htm, "</FONT><FONT COLOR=\"#%02X%02X%02X\">", angband_color_table[a][1], angband_color_table[a][2], angband_color_table[a][3]);
+				oa = a;
+			}
+			fprintf(htm, "%c", c);
+		}
+
+		/* End the row */
+		fprintf(htm, "\n");
+	}
+	fprintf(htm, "</TT></PRE></FONT>\n");
+
+	fprintf(htm, "</BODY>\n");
+	fprintf(htm, "</HTML>\n");
+
+	/* Close it */
+	my_fclose(htm);
+}
+
+/*
  * Hack -- drop permissions
  */
 void safe_setuid_drop(void)
@@ -3189,11 +3436,11 @@ static void close_game_aux(void)
 						/* Check result */
 						if (err)
 						{
-							msg_print("Character dump failed!");
+							message(MSG_GENERIC, 0, "Character dump failed!");
 						}
 						else
 						{
-							msg_print("Character dump successful.");
+							message(MSG_GENERIC, 0, "Character dump successful.");
 						}
  
 						/* Flush messages */

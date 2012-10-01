@@ -1,3 +1,96 @@
+Changes from 0.4.1b to 0.4.2:
+
+- 0.4.1/b savefiles are compatible, with the following exception:
+  - Room descriptions may be screwed up (not the actual rooms, just the 
+    descriptions).
+
+- 0.4.0/b/c/d savefiles are compatible, with the following exceptions:
+  - Spellcasters will have to re-learn all their spells.
+  - Spellcasters who use mage books will have their books replaced by the new
+    ones; this means they'll have a different spell selection.
+  - Room descriptions may be screwed up (not the actual rooms, just the 
+    descriptions).
+
+## Screen dumps ##
+
+- Removed the old option to read screen dumps from within the game - it wasn't
+  working anyway.
+
+- Added DarkGod's patch for HTML screen dumps. Now, pressing '(' will result 
+  in an old style text-file screen dump, while pressing ')' will result in a 
+  new, HTML-file screen dump.
+
+- You can now choose the file's name in both dump types.
+
+## Gameplay changes ##
+
+- The thief class is greyed out for all races, because it is unbalanced in its 
+  current form.
+
+- Removed the option to inverse the spellbook interface. The option between the
+  two possible interfaces is no longer a test option.
+
+- Added an option to have traps appear on top of objects rather than 
+  vice-versa.
+
+- Option screens can now be navigated by the roguelike keys if they are turned
+  on (patch by Robert Ruhelmann).
+
+- Lantern light radius starts reducing a bit sooner when running out of fuel.
+
+# Dungeon #
+
+- The frequency of "item" rooms (where many items of the same type are found) 
+  has been reduced.
+
+- Chests are back! Now they are a terrain feature. At the moment they are 
+  limited to vaults, and disarming and opening one gives you a singe, excellent
+  item. This might change in future versions.
+
+# Monster changes #
+
+- Bogles made a bit more powerful.
+
+- Non-unique harpies are now a bit more powerful.
+
+- Blind eyes cast spells more often, and are worth less experience
+
+- Modification of automata abilities: Flesh, clay and stone golems made more
+  powerful; Iron golems made slightly weaker. Pukelman now resist acid and are
+  worth less EXP. Colbran toned up slightly and worth less EXP. Clockwork
+  warriors toned up, and worth more EXP.
+
+- Lurkers and Trappers now grab instead of cut, and do slightly more damage.
+
+- Vlasta now hit for less damage.
+
+# Items #
+
+- Talismans of Stone To Mud now cheaper.
+
+- Rods of Recall worth more.
+
+- Rods of Trap Location recharge a bit slower.
+
+- Talismans of rapid ligntning/frost bolts are found a little deeper.
+
+- Dal-i-thanon's weight fixed.
+
+## Bug fixes ##
+
+- All items in stores were being generated *ID*'d, which meant that you 
+  couldn't later *ID* potions for their formulae. Now, only store ego-items
+  are created *ID*'d.
+
+- Unknown locked doors will no longer be interesting to 'l'ook (they appeared 
+  as "unknown grid").
+
+- Lurkers and trappers now work correctly again.
+
+- Potential crash in knowledge screens fixed (thanks to Kieron Dunbar).
+
+- Got rid of a few referrences to msg_print() that snuck back into the code.
+
 Changes from 0.4.1 to 0.4.1b:
 
 - Fully compatible with 0.4.0/b/c/d savefiles, same caveats apply as for 0.4.1.

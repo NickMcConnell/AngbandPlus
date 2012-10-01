@@ -44,15 +44,15 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.4.1b"
+#define VERSION_STRING	"0.4.2"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	4
-#define VERSION_PATCH	1
-#define VERSION_EXTRA	1
+#define VERSION_PATCH	2
+#define VERSION_EXTRA	0
 
 /*
  * Maximum value storable in a "byte" (hard-coded)
@@ -101,14 +101,14 @@
 #define SCREEN_WID		66
 
 /*
- * Maximum number of grids in each dungeon (horizontally)
+ * Maximum number of grids in each dungeon (vertically)
  * Must be a multiple of SCREEN_HGT
  * Must be less or equal to 256
  */
 #define MAX_DUNGEON_HGT		66
 
 /*
- * Maximum number of grids in each dungeon (vertically)
+ * Maximum number of grids in each dungeon (horizontally)
  * Must be a multiple of SCREEN_WID
  * Must be less or equal to 256
  */
@@ -201,6 +201,11 @@
  * Maximum amount of sections in room description.
  */
 #define ROOM_DESC_SECTIONS 15
+
+/* 
+ * Amount rolled to determine room desc.
+ */
+#define ROOM_DESC_CHANCE	1000
 
 /*
  * Dungeon room types 
@@ -855,6 +860,7 @@
 #define FEAT_OPEN		0x04
 #define FEAT_BROKEN		0x05
 #define FEAT_CLOSED		0x06
+#define FEAT_CHEST		0x07
 
 /* Extra */
 #define FEAT_SECRET		0x10
@@ -919,6 +925,10 @@
 #define WG_DOOR_LOCK		32
 #define WG_MAGIC_LOCK		33
 #define WG_ANTI_MONSTER		34
+#define WG_CHEST_POISON		35
+#define WG_CHEST_SUMMON		36
+#define WG_CHEST_SHRIEK		37
+#define WG_CHEST_CURSE		38
 
 /*** Artifact indexes (see "lib/edit/artifact.txt") ***/
 
@@ -2986,8 +2996,8 @@
 #define WGF_XXX2			0x00000008
 #define WGF_FLOOR			0x00000010	/* A trap that lies on the floor */
 #define WGF_GLYPH			0x00000020	/* A glyph that lies on the floor */
-#define WGF_DOOR			0x00000040	/* A trap that lies on a door/chest */
-#define WGF_LOCK			0x00000080	/* A lock that lies on a door/chest */
+#define WGF_CHEST			0x00000040	/* A trap that lies on a chest */
+#define WGF_LOCK			0x00000080	/* A lock that lies on a door */
 #define WGF_XXX3			0x00000100
 #define WGF_XXX4			0x00000200
 #define WGF_TRAP_DOOR		0x00000400	/* It's a trap door */
@@ -3095,8 +3105,8 @@
 #define OPT_display_insc_msg		57
 #define OPT_display_recharge_msg	58
 #define OPT_inscribe_unique			59
-#define OPT_spellbook_menu1			60
-#define OPT_spellbook_menu2			61
+#define OPT_spellbook_menu			60
+#define OPT_trap_under_object		61
 
 /*
  * Option indexes (birth and adult)
@@ -3201,8 +3211,8 @@
 #define display_insc_msg		op_ptr->opt[OPT_display_insc_msg]
 #define display_recharge_msg	op_ptr->opt[OPT_display_recharge_msg]
 #define inscribe_unique			op_ptr->opt[OPT_inscribe_unique]
-#define spellbook_menu1			op_ptr->opt[OPT_spellbook_menu1]
-#define spellbook_menu2			op_ptr->opt[OPT_spellbook_menu2]
+#define spellbook_menu			op_ptr->opt[OPT_spellbook_menu]
+#define trap_under_object		op_ptr->opt[OPT_trap_under_object]
 #define birth_point_based		op_ptr->opt_birth[OPT_birth_point_based]
 #define birth_auto_roller		op_ptr->opt_birth[OPT_birth_auto_roller]
 #define birth_preserve			op_ptr->opt_birth[OPT_birth_preserve]
@@ -3492,10 +3502,16 @@
  * Determine if a grid is a lock, or a door trap
  */
 #define trap_lock(Y,X) \
-	((w_info[t_list[cave_t_idx[Y][X]].w_idx].flags & WGF_LOCK) || \
-	 (w_info[t_list[cave_t_idx[Y][X]].w_idx].flags & WGF_DOOR))
+	(w_info[t_list[cave_t_idx[Y][X]].w_idx].flags & WGF_LOCK)
 
- /*
+/*
+ * Determine if a grid is a lock, or a door trap
+ */
+#define trap_chest(Y,X) \
+	((t_list[cave_t_idx[Y][X]].visible) && \
+	 (w_info[t_list[cave_t_idx[Y][X]].w_idx].flags & WGF_CHEST))
+
+/*
  * Determine if a grid is a known "anti-player" trap
  */
 #define trap_player(Y,X) \

@@ -51,8 +51,8 @@ mation about any command, consult the help file "cmddesc.txt".
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  (unused)
  *  Target monster or location          ^H  (unused)
- (  Load screen dump                    ^I  (special - tab)
- )  Dump screen dump                    ^J  (special - linefeed)
+ (  Text screen dump                    ^I  (special - tab)
+ )  HTML screen dump                    ^J  (special - linefeed)
  {  Inscribe an object                  ^K  (unused)
  }  Uninscribe an object                ^L  (unused)
  [  (unused)                            ^M  (special - return)
@@ -110,8 +110,8 @@ mation about any command, consult the help file "cmddesc.txt".
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  Describe current room
  *  Target monster or location          ^H  (alter - west)
- (  Load screen dump                    ^I  (special - tab)
- )  Dump screen dump                    ^J  (alter - south)
+ (  Text screen dump                    ^I  (special - tab)
+ )  HTML screen dump                    ^J  (alter - south)
  {  Inscribe an object                  ^K  (alter - north)
  }  Uninscribe an object                ^L  (alter - east)
  [  (unused)                            ^M  (special - return)

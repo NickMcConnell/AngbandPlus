@@ -1050,7 +1050,7 @@ static void get_room_info(int y, int x)
 		i = 0;
 
 		/* Roll for line */
-		roll = randint(100);
+		roll = randint(ROOM_DESC_CHANCE);
 
 		/* Get the proper entry in the table */
 		while ((chart != d_info[i].chart) || (roll > d_info[i].roll)) i++;
@@ -1107,7 +1107,7 @@ static void get_room_info(int y, int x)
 			get_obj_num_prep();
 
 			/* Lower the level's object count */
-			if (obj_gen) obj_gen--;
+			if (obj_gen > 0) obj_gen--;
 		}
 			
 		/* Place features if needed */
@@ -2555,20 +2555,6 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					break;
 				}
 
-				/* Treasure/trap */
-				case '*':
-				{
-					if (rand_int(100) < 75)
-					{
-						place_object(y, x, FALSE, FALSE);
-					}
-					else
-					{
-						place_trap_dungeon(y, x);
-					}
-					break;
-				}
-
 				/* Secret doors */
 				case '+':
 				{
@@ -2582,31 +2568,27 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					place_trap_dungeon(y, x);
 					break;
 				}
-			}
-		}
-	}
 
-	/* Place dungeon monsters and objects */
-	for (t = data, dy = 0; dy < ymax; dy++)
-	{
-		if (flip_v) ay = ymax - dy;
-		else ay = dy;
+				/* Treasure/trap/chest */
+				case '*':
+				{
+					int i = rand_int(100);
 
-		for (dx = 0; dx < xmax; dx++, t++)
-		{
-			if (flip_h) ax = xmax - dx;
-			else ax = dx;
+					if (i < 73)
+					{
+						place_object(y, x, FALSE, FALSE);
+					}
+					else if (i < 98)
+					{
+						place_trap_dungeon(y, x);
+					}
+					else 
+					{
+						place_chest(y, x);
+					}
+					break;
+				}
 
-			/* Extract the location */
-			x = x0 - (xmax / 2) + ax;
-			y = y0 - (ymax / 2) + ay;
-
-			/* Hack -- skip "non-grids" */
-			if (*t == ' ') continue;
-
-			/* Analyze the symbol */
-			switch (*t)
-			{
 				/* Monster */
 				case '&':
 				{
@@ -2672,6 +2654,13 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				{
 					create_quest_item(y, x);
 				}
+
+				/* Chest */
+				case '~':
+				{
+					place_chest(y, x);
+				}
+
 			}
 		}
 	}
@@ -3225,7 +3214,7 @@ static void cave_gen(void)
 
 	/* Reset generation variables */
 	mon_gen = MIN_M_ALLOC_LEVEL;
-	obj_gen = (byte)Rand_normal(DUN_AMT_ROOM, 3);
+	obj_gen = Rand_normal(DUN_AMT_ROOM, 3);
 
 	/* Possible "destroyed" level */
 	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;

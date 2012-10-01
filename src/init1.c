@@ -440,7 +440,7 @@ static cptr w_info_flags[32] =
 	"XXX2",
 	"FLOOR",	
 	"GLYPH",
-	"DOOR",	
+	"CHEST",	
 	"LOCK",
 	"XXX3",	
 	"XXX4",

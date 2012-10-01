@@ -108,20 +108,12 @@ Verify before descending from quest level [verify_leave_quest]
      Asks for confirmation when you try to leave a quest level using down 
      stairs (thereby risking quest failure).
 
-***** <spellbook_menu1>
-***** <spellbook_menu2>
-TEST: alternate spellbook interface [spellbook_menu1]
-TEST: inverse behavior in book selection [spellbook_menu2]
+***** <spellbook_menu>
+Alternate spellbook interface [spellbook_menu1]
      Allows you to choose between the two methods of spell power selection.
-     If the first option is off, you get the menu if you type a lower-case 
-     letter for the spell: maaa, and the top level spell if you type a 
-     captial letter: maA. If it is on, you get the lowest level spell if you
-     type a low-case letter: maa, the top level spell if you type a capital: 
-     maA, and a menu if you type a capital for the spellbook: mAaa or mAAa.
-
-     Turning the second option on only affects the game if the first option
-     is on. If it is, then it inverses the capital effect when choosing 
-     a spellbook - ma will give you the menu, mA will give you the shortcuts.
+     If the option is off, you get the menu if you type a lower-case letter
+     for the spell: maaa, and the top level spell if you type a captial 
+     letter: maA. 
 
 === Option Set 2 -- Display ===
 
@@ -218,6 +210,11 @@ Allow monsters to have light radius    [view_monster_lite]
     which potentially can slow down the game on slower machines. If this 
     option is off, the relevant monsters will be visible even in darkness
     but will not light up the squares around them.
+
+***** <trap_under_object>
+Traps are hidden by objects    [trap_under_object]
+    If this option is turned on, and a trap and an object share a square, then
+    the object will hide the trap. If it is off, the trap will hide the object.
 
 === Option Set 3 -- Distrubance options ===
 

@@ -45,87 +45,72 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.4.2
 
-N:1:2:1:4
+N:1:2:5:4
 A:
 B:graveyard
 D:Animal skulls line 
 R:ANIMAL
 S:YES
 
-N:1:2:2:8
+N:1:2:10:8
 A:
 B:mausoleum
 D:Skulls line 
 R:UNDEAD
 S:YES
 
-N:1:2:3:0
-A:grafittied
-B:
-D:Crude grafitti covers 
-S:YES
-
-N:1:2:4:6
+N:1:2:12:6
 A:
 B:
 D:Claw marks cover 
 G:q
 S:YES
 
-N:1:2:5:0
-A:frescoed
-B:
-D:Faded frescoes cover 
-S:YES
-
-N:1:2:6:0
-A:painted
-B:
-D:Faded cave paintings 
-S:YES
-
-N:1:2:7:15
+N:1:2:14:15
 A:
 B:
 D:Hieroglyphics cover 
 G:M
 S:YES
 
-N:1:2:8:0
-A:curtained
-B:
-D:Rotted curtains cover 
-S:YES
-
-N:1:2:9:0
-A:curtained
-B:
-D:Thick curtains cover 
-S:YES
-
-N:1:2:10:4
+N:1:2:18:4
 A:
 B:
 D:Spiderwebs cover 
 G:S
 S:YES
 
-N:1:2:14:0
-A:
-B:
-D:Dusty cobwebs cover 
-S:YES
-
-N:1:2:15:10
+N:1:2:22:10
 A:
 B:
 D:Giant spiderwebs cover 
 G:S
 S:YES
 
-N:1:2:16:3
+N:1:2:24:4
+A:
+B:crypt
+D:Stone caskets line 
+R:UNDEAD
+S:YES
+
+N:1:2:28:20
+A:
+B:
+D:Deep gouges cover 
+R:DRAGON
+S:YES
+
+N:1:2:32:4
+A:
+B:
+D:Scratch marks cover 
+G:f
+S:YES
+
+N:1:2:40:3
 A:
 B:
 D:Delicate mushrooms cover 
@@ -133,41 +118,41 @@ G:,
 K:80
 S:YES
 
-N:1:2:17:3
+N:1:2:45:3
 A:moldy
 B:
 D:Mold covers 
 G:m
 S:YES
 
-N:1:2:18:0
-A:mildewed
-B:
-D:Mildew covers 
-S:YES
-
-N:1:2:19:6
+N:1:2:49:6
 A:slimy
 B:
 D:A slimy ichor covers 
 G:j
 S:YES
 
-N:1:2:20:3
+N:1:2:53:3
 A:icky
 B:
 D:A slimy ichor covers 
 G:i
 S:YES
 
-N:1:2:21:3
+N:1:2:57:0
+A:mildewed
+B:
+D:Mildew covers 
+S:YES
+
+N:1:2:59:3
 A:
 B:library
 D:Empty bookshelves line 
 K:70
 S:YES
 
-N:1:2:22:15
+N:1:2:61:15
 A:
 B:library
 D:Crowded bookshelves line 
@@ -175,7 +160,7 @@ K:90
 R:MAGE
 S:YES
 
-N:1:2:23:3
+N:1:2:63:3
 A:
 B:laboratory
 D:Laboratory equipment lines 
@@ -183,7 +168,7 @@ K:75
 R:MAGE
 S:YES
 
-N:1:2:24:5
+N:1:2:65:5
 A:
 B:weapons room
 D:Weapon racks line 
@@ -191,7 +176,7 @@ K:21
 R:WARRIOR
 S:YES
 
-N:1:2:25:5
+N:1:2:67:5
 A:
 B:weapons room
 D:Weapon racks line 
@@ -199,7 +184,7 @@ K:22
 R:WARRIOR
 S:YES
 
-N:1:2:26:5
+N:1:2:70:5
 A:
 B:weapons room
 D:Weapon racks line 
@@ -207,76 +192,76 @@ K:23
 R:WARRIOR
 S:YES
 
-N:1:2:27:3
+N:1:2:72:3
 A:
 B:cloakroom
 D:Cloaks hang from 
 K:35
 S:YES
 
-N:1:2:28:5
+N:1:2:74:5
 A:
 B:armoury
 D:Armour lines 
 K:36
 S:YES
 
-N:1:2:29:3
+N:1:2:76:3
 A:
 B:armoury
 D:Battered shields hang from 
 K:34
 S:YES
 
-N:1:2:30:3
+N:1:2:78:3
 A:
 B:
 D:Banners hang from 
 K:32
 S:YES
 
-N:1:2:31:30
+N:1:2:80:30
 A:
 B:
 D:Frost covers 
 R:RES_COLD
 S:YES
 
-N:1:2:32:10
+N:1:2:82:10
 A:
 B:
 D:Burn marks cover 
 R:BR_FIRE
 S:YES
 
-N:1:2:33:11
+N:1:2:84:11
 A:
 B:
 D:Acid marks cover 
 R:BR_ACID
 S:YES
 
-N:1:2:34:11
+N:1:2:86:11
 A:
 B:
 D:Frost covers 
 R:BR_COLD
 S:YES
 
-N:1:2:35:0
+N:1:2:88:0
 A:
 B:
 D:Slime covers 
 S:YES
 
-N:1:2:36:12
+N:1:2:90:12
 A:
 B:
 D:Slime covers 
 G:,
 S:YES
 
-N:1:2:37:11
+N:1:2:93:11
 A:
 B:
 D:Acid marks cover 
@@ -284,1128 +269,1143 @@ R:RES_ACID
 G:j
 S:YES
 
-N:1:2:38:17
+N:1:2:96:17
 A:
 B:
 D:Ancient statues line 
 G:A
 S:YES
 
-N:1:2:39:0
+N:1:2:100:0
 A:
 B:cell
 D:Rusted manacles hang from 
 S:YES
 
-N:1:2:40:1
+N:1:2:105:1
 A:
 B:
 D:Broken statues line 
 F:17
 S:YES
 
-N:1:2:41:4
-A:
-B:crypt
-D:Stone caskets line 
-R:UNDEAD
-S:YES
-
-N:1:2:42:20
+N:1:2:110:0
 A:
 B:
-D:Deep gouges cover 
-R:DRAGON
+D:Dusty cobwebs cover 
 S:YES
 
-N:1:2:43:4
-A:
-B:
-D:Scratch marks cover 
-G:f
-S:YES
-
-N:1:2:44:14
+N:1:2:115:14
 A:
 B:
 D:Gold inlay covers 
 S:YES
 
-N:1:2:45:0
+N:1:2:120:0
 A:
 B:
 D:Wooden panels cover 
 S:YES
 
-N:1:2:46:0
+N:1:2:122:0
 A:
 B:kitchen
 D:Cupboards cover 
 K:80
 S:YES
 
-N:1:13:47:0
+N:1:2:124:0
+A:grafittied
+B:
+D:Crude grafitti covers 
+S:YES
+
+N:1:2:126:0
+A:curtained
+B:
+D:Rotted curtains cover 
+S:YES
+
+N:1:2:128:0
+A:curtained
+B:
+D:Thick curtains cover 
+S:YES
+
+N:1:2:130:0
+A:frescoed
+B:
+D:Faded frescoes cover 
+S:YES
+
+N:1:2:133:0
+A:painted
+B:
+D:Faded cave paintings 
+S:YES
+
+N:1:13:136:0
 A:
 B:
 D:A worn 
 S:YES
 
-N:1:13:48:5
+N:1:13:140:5
 A:
 B:
 D:A mottled 
 S:YES
 
-N:1:13:49:10
+N:1:13:145:10
 A:
 B:
 D:A strange 
 S:YES
 
-N:1:13:50:15
+N:1:13:150:15
 A:
 B:
 D:A gleaming 
 S:YES
 
-N:1:13:51:20
+N:1:13:155:20
 A:
 B:
 D:A glistening 
 S:YES
 
-N:1:13:52:25
+N:1:13:160:25
 A:
 B:
 D:A glowing 
 S:YES
 
-N:1:2:53:0
+N:1:2:165:0
 A:
 B:
 D:Chains hang from 
 S:YES
 
-N:1:4:100:0
+N:1:4:1000:0
 A:
 B:
 D:
 S:YES
 
-N:2:4:15:0
+N:2:4:150:0
 A:
 B:
 D:the north wall.  
 S:YES
 
-N:2:4:30:0
+N:2:4:300:0
 A:
 B:
 D:the east wall.  
 S:YES
 
-N:2:4:45:0
+N:2:4:450:0
 A:
 B:
 D:the west wall.  
 S:YES
 
-N:2:4:60:0
+N:2:4:600:0
 A:
 B:
 D:the south wall.  
 S:YES
 
-N:2:4:65:0
+N:2:4:650:0
 A:
 B:
 D:the walls and ceiling.  
 S:YES
 
-N:2:4:66:0
+N:2:4:660:0
 A:
 B:
 D:every available surface.  
 S:YES
 
-N:2:3:67:0
+N:2:3:670:0
 A:
 B:
 D:a nook in 
 S:YES
 
-N:2:3:68:0
+N:2:3:680:0
 A:
 B:
 D:a recess in 
 S:YES
 
-N:2:3:69:0
+N:2:3:690:0
 A:
 B:
 D:a cranny in 
 S:YES
 
-N:2:3:70:0
+N:2:3:700:0
 A:
 B:
 D:an alcove in 
 S:YES
 
-N:2:3:71:0
+N:2:3:710:0
 A:
 B:
 D:an cupboard in 
 S:YES
 
-N:2:4:100:0
+N:2:4:1000:0
 A:
 B:
 D:the walls.  
 S:YES
 
-N:3:4:25:0
+N:3:4:250:0
 A:
 B:
 D:the north wall.  
 S:YES
 
-N:3:4:50:0
+N:3:4:500:0
 A:
 B:
 D:the east wall.  
 S:YES
 
-N:3:4:75:0
+N:3:4:750:0
 A:
 B:
 D:the west wall.  
 S:YES
 
-N:3:4:100:0
+N:3:4:1000:0
 A:
 B:
 D:the south wall.  
 S:YES
 
-N:4:5:1:4
+N:4:5:3:4
 A:
 B:temple
 D:A stone altar 
 R:PRIEST
 S:YES
 
-N:4:5:2:4
+N:4:5:6:4
 A:
 B:chapel
 D:A wooden shrine 
 R:PRIEST
 S:YES
 
-N:4:5:3:0
+N:4:5:9:0
 A:
 B:
 D:A wooden platform 
 S:YES
 
-N:4:5:4:0
+N:4:5:12:0
 A:
 B:
 D:A stone dais 
 S:YES
 
-N:4:5:5:4
+N:4:5:15:4
 A:
 B:temple
 D:A sacrificial stone 
 R:UNDEAD
 S:YES
 
-N:4:5:6:9
+N:4:5:18:9
 A:
 B:tomb
 D:A great sarcophagus 
 R:UNDEAD
 S:YES
 
-N:4:5:7:0
+N:4:5:21:0
 A:
 B:feasthall
 D:A stone table 
 K:80
 S:YES
 
-N:4:5:8:0
+N:4:5:24:0
 A:
 B:dining room
 D:A wooden table 
 K:80
 S:YES
 
-N:4:5:9:45
+N:4:5:27:45
 A:
 B:throneroom
 D:An iron throne 
 R:WARRIOR
 S:YES
 
-N:4:5:10:45
+N:4:5:30:45
 A:
 B:throneroom
 D:A gold-leafed throne 
 G:h
 S:YES
 
-N:4:5:11:2
+N:4:5:33:2
 A:
 B:
 D:A giant stone head 
 S:YES
 
-N:4:5:12:3
+N:4:5:36:3
 A:
 B:
 D:A shallow grave 
 R:UNDEAD
 S:YES
 
-N:4:5:13:0
+N:4:5:39:0
 A:sunken
 B:
 D:A sunken area 
 S:YES
 
-N:4:5:14:0
+N:4:5:42:0
 A:
 B:plaza
 D:A fountain 
 S:YES
 
-N:4:5:15:0
+N:4:5:45:0
 A:
 B:
 D:A stone basin 
 S:YES
 
-N:4:5:16:1
+N:4:5:48:1
 A:
 B:mine
 D:A deep shaft 
 K:20
 S:YES
 
-N:4:5:17:40
+N:4:5:51:40
 A:
 B:nest
 D:A huge nest 
 G:B
 S:YES
 
-N:4:5:18:25
+N:4:5:54:25
 A:
 B:cocoon
 D:A huge cocoon 
 G:I
 S:YES
 
-N:4:5:19:12
+N:4:5:57:12
 A:
 B:
 D:A huge spiderweb 
 G:S
 S:YES
 
-N:4:5:20:1
+N:4:5:60:1
 A:
 B:cell
 D:An iron cage 
 S:YES
 
-N:4:5:21:1
+N:4:5:63:1
 A:
 B:torture room
 D:A torture rack 
 S:YES
 
-N:4:5:22:1
+N:4:5:66:1
 A:
 B:
 D:A large boulder 
 F:17
 S:YES
 
-N:4:5:24:1
+N:4:5:69:1
 A:
 B:
 D:A fallen statue 
 S:YES
 
-N:4:5:25:1
+N:4:5:72:1
 A:
 B:
 D:A stone monolith 
 S:YES
 
-N:4:6:40:0
+N:4:6:200:0
 A:
 B:
 D:The floor is 
 S:YES
 
-N:4:7:100:0
+N:4:7:1000:0
 A:
 B:
 D:
 S:YES
 
-N:5:6:15:0
+N:5:6:150:0
 A:
 B:
 D:against the north wall is 
 S:YES
 
-N:5:6:30:0
+N:5:6:300:0
 A:
 B:
 D:against the east wall is 
 S:YES
 
-N:5:6:45:0
+N:5:6:450:0
 A:
 B:
 D:aginst the west wall is 
 S:YES
 
-N:4:6:70:0
+N:5:6:700:0
 A:
 B:
 D:against the south wall is 
 S:YES
 
-N:5:6:100:0
+N:5:6:1000:0
 A:
 B:
 D:in the centre of the room is 
 S:YES
 
-N:6:7:1:0
+N:6:7:5:0
 A:
 B:
 D:littered with broken bones.  
 S:YES
 
-N:6:7:2:3
+N:6:7:10:3
 A:rocky
 B:
 D:littered with loose rocks.  
 S:YES
 
-N:6:7:3:0
+N:6:7:15:0
 A:
 B:junkyard
 D:strewn with junk.  
 S:YES
 
-N:6:7:4:0
+N:6:7:20:0
 A:
 B:cellar
 D:littered with broken pottery.  
 S:YES
 
-N:6:7:5:0
+N:6:7:25:0
 A:tiled
 B:
 D:decorated with a tile mosaic.  
 S:YES
 
-N:6:7:8:14
+N:6:7:40:14
 A:
 B:
 D:inlaid with precious metal.  
 S:YES
 
-N:6:7:9:0
+N:6:7:45:0
 A:sunken
 B:
 D:sunken in places.  
 S:YES
 
-N:6:7:10:15
+N:6:7:50:15
 A:uneven
 B:
 D:broken and uneven in places.  
 S:YES
 
-N:6:7:11:0
+N:6:7:65:0
 A:damp
 B:
 D:slick with moisture.  
 S:YES
 
-N:6:7:12:0
+N:6:7:75:0
 A:water-filled
 B:
 D:flooded with stagnant water.  
 S:YES
 
-N:6:7:13:0
+N:6:7:80:0
 A:water-filled
 B:
 D:flooded with water.  
 S:YES
 
-N:6:7:15:12
+N:6:7:85:12
 A:
 B:
 D:covered in slime.  
 G:,
 S:YES
 
-N:6:7:16:10
+N:6:7:90:10
 A:
 B:
 D:badly burned by powerful fire.  
 R:BR_FIRE
 S:YES
 
-N:1:2:17:11
+N:1:2:95:11
 A:
 B:
 D:badly melted by powerful acid.  
 R:BR_ACID
 S:YES
 
-N:1:2:18:11
+N:1:2:100:11
 A:
 B:
 D:covered in a thick layer of frost.  
 R:BR_COLD
 S:YES
 
-N:6:7:19:3
+N:6:7:105:3
 A:
 B:hatchery
 D:littered with broken egg shells.  
 G:R
 S:YES
 
-N:6:7:20:3
+N:6:7:110:3
 A:
 B:hatchery
 D:littered with broken egg shells.  
 G:J
 S:YES
 
-N:6:7:21:11
+N:6:7:115:11
 A:
 B:hatchery
 D:littered with broken egg shells.  
 G:d
 S:YES
 
-N:6:7:22:4
+N:6:7:120:4
 A:
 B:nest
 D:nested with twigs and feathers.  
 G:B
 S:YES
 
-N:6:7:23:2
+N:6:7:125:2
 A:broken arrow
 B:
 D:littered with broken arrows.  
 K:17
 S:YES
 
-N:6:7:24:1
+N:6:7:130:1
 A:sooty
 B:
 D:covered with soot.  
 K:77
 S:YES
 
-N:6:7:25:5
+N:6:7:135:5
 A:dusty
 B:
 D:covered with coal dust.  
 S:YES
 
-N:6:7:26:5
+N:6:7:140:5
 A:
 B:
 D:slick with oil.  
 S:YES
 
-N:6:7:27:72
+N:6:7:145:72
 A:
 B:
 D:covered with volcanic ash.  
 S:YES
 
-N:6:7:28:51
+N:6:7:150:51
 A:
 B:
 D:covered with sulpher deposits.  
 S:YES
 
-N:6:7:29:8
+N:6:7:155:8
 A:sandy
 B:
 D:covered with sand.  
 S:YES
 
-N:6:7:30:75
+N:6:7:160:75
 A:
 B:
 D:covered with acid.  
 S:YES
 
-N:6:7:31:30
+N:6:7:165:30
 A:icy
 B:
 D:covered in ice.  
 S:YES
 
-N:6:7:32:0
+N:6:7:170:0
 A:bloody
 B:
 D:spattered with dried blood.  
 S:YES
 
-N:6:7:33:0
+N:6:7:175:0
 A:dirt-filled
 B:
 D:caked with dirt.  
 S:YES
 
-N:6:7:34:3
+N:6:7:180:3
 A:muddy
 B:
 D:covered in mud.  
 S:YES
 
-N:6:7:35:0
+N:6:7:185:0
 A:rubble-filled
 B:
 D:covered in rubble.  
 F:17
 S:YES
 
-N:6:7:36:1
+N:6:7:190:1
 A:dirt-filled
 B:
 D:covered with piles of dirt.  
 S:YES
 
-N:6:7:38:3
+N:6:7:200:3
 A:
 B:
 D:covered with bat guano.  
 G:b
 S:YES
 
-N:6:7:100:0
+N:6:7:1000:0
 A:dusty
 B:
 D:covered in dust.  
 S:YES
 
-N:7:8:60:0
+N:7:8:600:0
 A:
 B:
 D:The air here is 
 S:NO
 
-N:7:9:100:0
+N:7:9:1000:0
 A:
 B:
 D:
 S:NO
 
-N:8:9:15:51
+N:8:9:30:51
 A:humid
 B:
 D:hot and humid.  
 S:NO
 
-N:8:9:25:72
+N:8:9:50:72
 A:hot
 B:
 D:hot and dry.  
 S:NO
 
-N:8:9:30:72
+N:8:9:60:72
 A:hot
 B:
 D:stiffling hot.  
 R:RES_FIRE
 S:NO
 
-N:8:9:45:0
+N:8:9:80:0
 A:damp
 B:
 D:cool and damp.  
 S:NO
 
-N:8:9:50:0
+N:8:9:90:0
 A:
 B:
 D:cool and dry.  
 S:NO
 
-N:8:9:52:1
+N:8:9:100:1
 A:dusty
 B:
 D:thick with dust.  
 S:NO
 
-N:8:9:53:1
+N:8:9:105:1
 A:steamy
 B:
 D:thick with steam.  
 S:NO
 
-N:8:9:54:4
+N:8:9:108:4
 A:
 B:
 D:smokey with incense.  
 G:PRIEST
 S:NO
 
-N:8:9:55:9
+N:8:9:110:9
 A:
 B:
 D:rank with sulphur.  
 R:DEMON
 S:NO
 
-N:8:9:56:9
+N:8:9:120:9
 A:
 B:
 D:ripe with decay.  
 R:UNDEAD
 S:NO
 
-N:8:9:56:25
+N:8:9:125:25
 A:
 B:
 D:tainted with ancient evil
 G:N
 S:NO
 
-N:8:9:58:0
+N:8:9:140:0
 A:mildewed
 B:
 D:rank with mildew.  
 S:NO
 
-N:8:9:65:30
+N:8:9:150:30
 A:freezing
 B:
 D:freezing cold.  
 R:RES_COLD
 S:NO
 
-N:8:9:100:10
+N:8:9:1000:10
 A:
 B:
 D:stale.  
 S:NO
 
-N:9:10:5:0
+N:9:10:50:0
 A:
 B:
 D:A warm breeze blows 
 S:NO
 
-N:9:10:10:0
+N:9:10:100:0
 A:
 B:
 D:A cool breeze blows 
 S:NO
 
-N:9:10:15:40
+N:9:10:150:40
 A:windy
 B:
 D:A hot wind blows 
 S:NO
 
-N:9:10:20:30
+N:9:10:200:30
 A:windy
 B:
 D:A cold wind blows 
 S:NO
 
-N:9:10:22:40
+N:9:10:220:40
 A:windy
 B:
 D:A howling gale blows 
 S:NO
 
-N:9:11:100:0
+N:9:11:1000:0
 A:
 B:
 D:
 S:NO
 
-N:10:11:15:0
+N:10:11:150:0
 A:
 B:
 D:from the north.  
 S:NO
 
-N:10:11:30:0
+N:10:11:300:0
 A:
 B:
 D:from the east.  
 S:NO
 
-N:10:11:45:0
+N:10:11:450:0
 A:
 B:
 D:from the west.   
 S:NO
 
-N:10:11:60:0
+N:10:11:600:0
 A:
 B:
 D:from the south.  
 S:NO
 
-N:10:11:100:0
+N:10:11:1000:0
 A:
 B:
 D:around the room.  
 S:NO
 
-N:11:12:40:0
+N:11:12:300:0
 A:
 B:
 D:You hear 
 S:NO
 
-N:11:15:100:0
+N:11:15:1000:0
 A:
 B:
 S:NO
 
-N:12:15:2:51
+N:12:15:10:51
 A:
 B:
 D:the earth trembling deep beneath you.
 S:NO
 
-N:12:15:3:3
+N:12:15:15:3
 A:
 B:kennels
 D:howling...
 G:C
 S:NO
 
-N:12:15:4:5
+N:12:15:20:5
 A:haunted
 B:
 D:quiet footsteps...
 G:g
 S:NO
 
-N:12:15:5:3
+N:12:15:30:3
 A:rat-infested
 B:
 D:a sudden scampering...
 G:r
 S:NO
 
-N:12:15:6:3
+N:12:15:40:3
 A:
 B:
 D:slithering noises...
 G:J
 S:NO
 
-N:12:15:7:3
+N:12:15:50:3
 A:
 B:
 D:a sudden hissing...
 G:J
 S:NO
 
-N:12:15:8:5
+N:12:15:60:5
 A:haunted
 B:
 D:something whispering...
 R:UNDEAD
 S:NO
 
-N:12:15:9:3
+N:12:15:70:3
 A:
 B:antfarm
 D:a faint chittering...
 G:a
 S:NO
 
-N:12:15:10:4
+N:12:15:80:4
 A:
 B:
 D:a faint chittering...
 G:S
 S:NO
 
-N:12:15:11:14
+N:12:15:90:14
 A:
 B:
 D:distant chanting...
 R:PRIEST
 S:NO
 
-N:12:15:12:10
+N:12:15:100:10
 A:
 B:
 D:a faint laughter...
 R:FAERY
 S:NO
 
-N:12:15:13:40
+N:12:15:120:40
 A:
 B:
 D:distant echoes...
 S:NO
 
-N:12:15:14:3
+N:12:15:135:3
 A:creepy
 B:
 D:something behind you!
 R:INVISIBLE
 S:NO
 
-N:12:15:15:10
+N:12:15:150:10
 A:windy
 B:
 D:the wind whistling through a distant chasm...
 S:NO
 
-N:12:15:25:40
+N:12:15:250:40
 A:windy
 B:
 D:the wind whistling through a nearby chasm...
 S:NO
 
-N:12:15:26:1
+N:12:15:260:1
 A:
 B:
 D:the drip of water...
 S:NO
 
-N:12:15:30:3
+N:12:15:300:3
 A:
 B:
 D:the drip of water...
 S:NO
 
-N:12:15:35:18
+N:12:15:350:18
 A:
 B:
 D:running water.
 S:NO
 
-N:12:15:40:27
+N:12:15:400:27
 A:
 B:
 D:rushing water.
 S:NO
 
-N:12:15:75:60
+N:12:15:750:60
 A:
 B:
 D:bubbling mud.
 S:NO
 
-N:12:15:85:81
+N:12:15:850:81
 A:
 B:
 D:the earth trembling all around you.
 S:NO
 
-N:12:15:99:71
+N:12:15:990:71
 A:
 B:
 D:the roar of a nearby volcano...
 S:NO
 
-N:12:15:100:0
+N:12:15:1000:0
 A:quiet
 B:
 D:nothing.
 S:NO
 
-N:13:14:30:0
+N:13:14:300:0
 A:black
 B:
 D:black 
 S:YES
 
-N:13:14:35:0
+N:13:14:350:0
 A:blue
 B:
 D:blue 
 S:YES
 
-N:13:14:55:0
+N:13:14:550:0
 A:white
 B:
 D:white 
 S:YES
 
-N:13:14:60:0
+N:13:14:600:0
 A:green
 B:
 D:green 
 S:YES
 
-N:13:14:65:0
+N:13:14:650:0
 A:yellow
 B:
 D:yellow 
 S:YES
 
-N:13:14:95:0
+N:13:14:950:0
 A:grey
 B:
 D:grey 
 S:YES
 
-N:13:14:100:0
+N:13:14:1000:0
 A:brown
 B:
 D:brown 
 S:YES
 
-N:14:3:80:0
+N:14:3:800:0
 A:
 B:
 D:stonework covers 
 S:YES
 
-N:14:3:90:20
+N:14:3:900:20
 A:
 B:
 D:metal covers 
 S:YES
 
-N:14:3:95:0
+N:14:3:950:0
 A:
 B:
 D:wood covers 
 S:YES
 
-N:14:3:96:0
+N:14:3:960:0
 A:frescoed
 B:
 D:fresco covers 
 S:YES
 
-N:14:3:97:0
+N:14:3:970:0
 A:muralled
 B:
 D:mural covers 
 S:YES
 
-N:14:3:98:0
+N:14:3:980:0
 A:painted
 B:
 D:painting covers 
 S:YES
 
-N:14:3:100:0
+N:14:3:1000:0
 A:curtained
 B:
 D:curtain covers 
 S:YES
 
-N:15:16:3:0
+N:15:16:30:0
 A:low-ceilinged
 B:
 
-N:15:16:6:0
+N:15:16:60:0
 A:high-ceilinged
 B:
 
-N:15:16:9:0
+N:15:16:90:0
 A:brightly-lit
 B:
 
-N:15:16:12:0
+N:15:16:120:0
 A:torch-lit
 B:
 
-N:15:16:15:0
+N:15:16:150:0
 A:gloomy
 B:
 
-N:15:16:18:0
+N:15:16:180:0
 A:shadowy
 B:
 
-N:15:16:21:0
+N:15:16:210:0
 A:half-lit
 B:
 
-N:15:16:24:0
+N:15:16:240:0
 A:dusty
 B:
 
-N:15:16:27:0
+N:15:16:270:0
 A:forgotten
 B:
 
-N:15:16:30:0
+N:15:16:300:0
 A:abandoned
 B:
 
-N:15:16:33:0
+N:15:16:330:0
 A:cramped
 B:
 
-N:15:16:36:0
+N:15:16:360:0
 A:small
 B:
 
-N:15:16:39:0
+N:15:16:390:0
 A:ancient
 B:
 
-N:15:16:100:0
+N:15:16:1000:0
 A:empty
 B:
 
-N:16:0:20:1
+N:16:0:200:1
 A:
 B:chamber
 
-N:16:0:30:1
+N:16:0:300:1
 A:
 B:antechamber
 
-N:16:0:35:1
+N:16:0:350:1
 A:
 B:foyer
 
-N:16:0:40:1
+N:16:0:400:1
 A:
 B:guardroom
 
-N:16:0:45:1
+N:16:0:450:1
 A:
 B:store room
 
-N:16:0:65:1
+N:16:0:650:1
 A:
 B:hall
 
-N:16:0:80:1
+N:16:0:800:1
 A:
 B:cave
 
-N:16:0:100:1
+N:16:0:1000:1
 A:
 B:room

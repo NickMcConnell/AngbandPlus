@@ -231,7 +231,7 @@ bool make_attack_normal(int m_idx)
 			}
 
 			/* Assume no cut or stun */
-			do_cut = do_stun = 0;
+			do_cut = do_stun = FALSE;
 
 			/* Describe the attack method */
 			switch (method)
@@ -239,7 +239,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_HIT:
 				{
 					act = "hits you.";
-					do_cut = do_stun = 1;
+					do_cut = do_stun = TRUE;
 					break;
 				}
 
@@ -252,35 +252,35 @@ bool make_attack_normal(int m_idx)
 				case RBM_PUNCH:
 				{
 					act = "punches you.";
-					do_stun = 1;
+					do_stun = TRUE;
 					break;
 				}
 
 				case RBM_KICK:
 				{
 					act = "kicks you.";
-					do_stun = 1;
+					do_stun = TRUE;
 					break;
 				}
 
 				case RBM_GRAB:
 				{
 					act = "grabs you.";
-					do_stun = 1;
+					do_stun = TRUE;
 					break;
 				}
 				
 				case RBM_CLAW:
 				{
 					act = "claws you.";
-					do_cut = 1;
+					do_cut = TRUE;
 					break;
 				}
 
 				case RBM_BITE:
 				{
 					act = "bites you.";
-					do_cut = 1;
+					do_cut = TRUE;
 					break;
 				}
 
@@ -299,14 +299,14 @@ bool make_attack_normal(int m_idx)
 				case RBM_BUTT:
 				{
 					act = "butts you.";
-					do_stun = 1;
+					do_stun = TRUE;
 					break;
 				}
 
 				case RBM_CRUSH:
 				{
 					act = "crushes you.";
-					do_stun = 1;
+					do_stun = TRUE;
 					break;
 				}
 

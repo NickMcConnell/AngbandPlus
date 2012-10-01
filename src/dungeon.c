@@ -1629,14 +1629,14 @@ static void process_command(void)
 		/* Load "screen dump" */
 		case '(':
 		{
-			do_cmd_load_screen();
+			do_cmd_save_screen_text();
 			break;
 		}
 
 		/* Save "screen dump" */
 		case ')':
 		{
-			do_cmd_save_screen();
+			do_cmd_save_screen_html();
 			break;
 		}
 

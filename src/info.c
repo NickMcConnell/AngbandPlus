@@ -803,7 +803,7 @@ void display_player_equippy(int y, int x)
 		if (!o_ptr->k_idx)
 		{
 			c = ' ';
-			a = TERM_DARK;
+			a = TERM_WHITE;
 		}
 
 		/* Dump */
@@ -2289,7 +2289,7 @@ void list_object(object_type *o_ptr, int mode)
 
 		/* Note that blessed weapons have special treatment */
 		if (f2 & TR2_BLESSED) 
-			text_out("It has been blessed by the gods, allowing priests to wield it.  ");
+			text_out("It has been blessed by the gods.  ");
 
 	}
 

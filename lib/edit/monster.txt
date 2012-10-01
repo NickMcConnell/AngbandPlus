@@ -1,9 +1,8 @@
 #File: monster.txt
 #
 #This file is currently in transition. Documentation will return in a future version.
-#
 
-V:0.4.1
+V:0.4.2
 
 N:0:<player>
 G:@:w
@@ -855,7 +854,7 @@ D: acid.
 
 N:95:white harpy
 G:H:w
-I:120:5d5:14:17:10
+I:120:5d8:14:17:10
 W:5:1:0:140
 B:BITE:HURT:1d3
 B:CLAW:HURT:1d1
@@ -1004,7 +1003,7 @@ D: to frighten its prey.
 
 N:111:black harpy
 G:H:D
-I:120:4d8:16:22:10
+I:120:5d10:16:22:10
 W:6:1:0:160
 B:BITE:HURT:1d4
 B:CLAW:HURT:1d2
@@ -1227,9 +1226,9 @@ D:It is an animated orc skeleton.
 
 N:134:red harpy
 G:H:R
-I:120:7d8:17:25:10
+I:120:7d10:17:25:10
 W:8:1:0:240
-B:BITE:HURT:1d7
+B:BITE:HURT:2d4
 B:CLAW:HURT:2d2
 B:CLAW:HURT:2d2
 F:EVIL | FEMALE | DROP_90 | ONLY_GOLD | BASH_DOOR
@@ -1411,7 +1410,7 @@ D: its tail.
 
 N:152:bogle
 G:F:g
-I:110:4d5:15:25:5
+I:110:4d6:15:25:5
 W:9:3:0:250
 B:GRAB:HURT:1d3
 B:GRAB:HURT:1d3
@@ -1430,13 +1429,13 @@ B:HIT:HURT:1d6
 F:BASH_DOOR | DROP_60 | EVIL | NO_FEAR | RES_POIS
 D:A small, dog head humanoid, it seems maddened. It is foaming at the mouth.
 
-N:154:Blind eye
+N:154:blind eye
 G:e:w
 I:110:7d8:2:6:10
-W:9:5:0:300
+W:9:5:0:240
 F:NEVER_MOVE | HURT_LITE | NO_FEAR | SEE_INVIS | EMPTY_MIND | NEVER_FAIL | STUPID | 
 F:NEVER_BLOW
-S:1_IN_7 | DRAIN_MANA | FORGET
+S:1_IN_6 | DRAIN_MANA | FORGET
 D:A strange eye, milky white with blindness.
 
 N:155:Wormtongue, agent of Saruman
@@ -1886,7 +1885,7 @@ W:12:4:0:400
 B:BITE:HURT:1d5
 F:CHAOTIC | DEMON | DROP_90 | EVIL | ONLY_ITEM | RES_NEXU
 S:1_IN_5 | BLINK | BR_NEXU
-D:Just looking at fiend thing hurts your eyes.
+D:Just looking at this thing hurts your eyes.
 
 N:199:Golfimbul, the hill orc chief
 G:o:U
@@ -2050,7 +2049,7 @@ D:It is a pile of coins, shambling forward on thousands of tiny legs.
 
 N:215:harpy queen
 G:H:o
-I:120:13d8:17:25:10
+I:120:13d10:17:25:10
 W:13:5:0:800
 B:BITE:HURT:1d11
 B:CLAW:ELEC:2d4
@@ -2071,10 +2070,10 @@ D:It makes you itch just to look at it.
 
 N:217:flesh golem
 G:A:R
-I:110:12d8:12:30:10
+I:110:15d8:12:30:10
 W:14:1:0:700
-B:HIT:HURT:1d6
-B:HIT:HURT:1d6
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
 F:BASH_DOOR | EMPTY_MIND | NO_FEAR | NO_SLEEP | RES_CONF | RES_ELEC
 D:A shambling humanoid monster with long scars.
 
@@ -2117,8 +2116,8 @@ N:221:vlasta
 G:R:B
 I:120:11d6:12:20:12
 W:14:3:0:600
-B:BITE:BLIND:1d10
-B:BITE:BLIND:1d10
+B:BITE:BLIND:1d8
+B:BITE:BLIND:1d8
 F:BASH_DOOR
 D:This strange creature looks like a miniature tyrannosaur. It has
 D: empty, pale eyes and a sharp beak, which it aims at your eye
@@ -2137,10 +2136,11 @@ N:223:lurker
 G:.:w
 I:110:20d9:30:25:10
 W:14:3:0:1000
-B:HIT:HURT:1d8
-B:HIT:HURT:1d8
+B:GRAB:HURT:2d5
+B:GRAB:HURT:2d5
 F:ATTR_CLEAR | COLD_BLOOD | EMPTY_MIND | FORCE_MAXHP | INVISIBLE | 
-F:NEVER_MOVE | NO_BLIND | NO_CALM | NO_FEAR | NO_SLEEP | RES_CONF
+F:NEVER_MOVE | NO_BLIND | NO_CALM | NO_FEAR | NO_SLEEP | RES_CONF |
+F:CHAR_CLEAR
 D:A strange creature that merges with the dungeon floor, trapping its
 D: victims by enveloping them within its perfectly disguised form.
 
@@ -2219,10 +2219,10 @@ D: noise.
 
 N:231:clay golem
 G:A:U
-I:110:14d8:12:30:10
-W:15:2:0:750
-B:HIT:HURT:1d8
-B:HIT:HURT:1d8
+I:110:18d8:12:40:10
+W:15:2:0:775
+B:HIT:HURT:2d5
+B:HIT:HURT:2d5
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | HURT_ROCK | NO_CUT | NO_FEAR |
 F:NO_SLEEP | RES_COLD | RES_CONF | RES_ELEC | RES_FIRE | RES_POIS
 D:It is a massive animated statue made out of hardened clay.
@@ -2638,10 +2638,10 @@ D: flame.
 
 N:271:stone golem
 G:A:W
-I:100:27d8:12:75:10
+I:100:32d8:12:75:10
 W:19:1:0:1600
-B:HIT:HURT:1d10
-B:HIT:HURT:1d10
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | HURT_ROCK | NO_CUT | NO_FEAR |
 F:NO_SLEEP | RES_COLD | RES_CONF | RES_ELEC | RES_FIRE | RES_POIS
 D:It is a massive animated statue.
@@ -2980,9 +2980,9 @@ D:A caustic spinning whirlpool of water.
 
 N:304:iron golem
 G:A:s
-I:110:75d12:12:80:10
+I:110:70d12:12:80:10
 W:23:2:0:5500
-B:HIT:HURT:1d12
+B:HIT:HURT:2d7
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | FORCE_SLEEP | NO_CUT | NO_FEAR |
 F:NO_SLEEP | RES_COLD | RES_CONF | RES_ELEC | RES_FIRE | RES_POIS
 S:1_IN_7 | SLOW
@@ -3258,12 +3258,12 @@ D: follow.  You can feel the earth resonating beneath your feet.
 N:331:pukelman
 G:A:D
 I:110:75d12:12:70:10
-W:25:3:0:18000
+W:25:3:0:15000
 B:HIT:HURT:3d6
 B:HIT:HURT:1d12
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | FORCE_SLEEP | HURT_ROCK |
 F:NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP | RES_COLD | RES_CONF |
-F:RES_ELEC | RES_FIRE | RES_POIS
+F:RES_ELEC | RES_FIRE | RES_POIS | RES_ACID
 S:1_IN_4 | BO_ACID | CONF | SLOW
 D:A stumpy figure carved from stone, with glittering eyes, this sentinel
 D: strides towards you with deadly intent.
@@ -3560,10 +3560,10 @@ D: deeply at you and your soul starts to wilt!
 
 N:359:colbran
 G:A:y
-I:120:80d11:12:80:10
-W:28:3:0:25000
-B:HIT:ELEC:3d8
-B:HIT:ELEC:3d8
+I:120:80d12:12:80:10
+W:28:3:0:22000
+B:HIT:ELEC:4d8
+B:HIT:ELEC:4d8
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | FORCE_SLEEP | HAS_LITE |
 F:NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP | RES_CONF | RES_ELEC |
 F:RES_POIS
@@ -3903,15 +3903,15 @@ D:An insect made of chaotic substance, changing shape as it scurries along.
 
 N:389:clockwork soldier
 G:A:r
-I:100:20d11:15:49:0
-W:30:3:0:3000
-B:HIT:HURT:2d4
-B:HIT:HURT:2d4
-B:HIT:HURT:2d4
-B:HIT:HURT:2d4
+I:100:12d20:15:49:0
+W:30:3:0:4400
+B:HIT:HURT:3d3
+B:HIT:HURT:3d3
+B:HIT:HURT:3d3
+B:HIT:HURT:3d3
 F:COLD_BLOOD | EMPTY_MIND | FORCE_MAXHP | FRIENDS | NO_CUT | NO_FEAR |
 F:NO_SLEEP | RES_CONF | RES_POIS
-S:1_IN_10 | ARROW_1 | ARROW_3
+S:1_IN_9 | ARROW_1 | ARROW_3
 D:A human-shaped contraption made of gears and metal scrapes, it makes a 
 D: clanking sound as it approaches you.
 
@@ -4775,12 +4775,13 @@ N:458:trapper
 G:.:w
 I:120:60d9:30:65:10
 W:36:3:0:20000
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
-B:HIT:PARALYZE:15d1
-B:HIT:PARALYZE:15d1
+B:GRAB:HURT:4d6
+B:GRAB:HURT:4d6
+B:GRAB:PARALYZE:16d1
+B:GRAB:PARALYZE:16d1
 F:ATTR_CLEAR | COLD_BLOOD | EMPTY_MIND | FORCE_MAXHP | INVISIBLE | 
-F:NEVER_MOVE | NO_BLIND | NO_CALM | NO_FEAR | NO_SLEEP | RES_CONF
+F:NEVER_MOVE | NO_BLIND | NO_CALM | NO_FEAR | NO_SLEEP | RES_CONF | 
+F:CHAR_CLEAR
 D:A larger cousin of the lurker, this creature traps unsuspecting victims
 D: and paralyzes them, to be slowly digested later.
 

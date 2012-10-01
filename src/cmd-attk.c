@@ -2263,6 +2263,13 @@ static bool do_cmd_walk_test(int y, int x)
 			message(MSG_HITWALL, 0, "There is a door in the way!");
 		}
 
+		/* Door */
+		else if (cave_feat[y][x] == FEAT_CHEST)
+		{
+			/* Message */
+			message(MSG_HITWALL, 0, "There is a chest in the way!");
+		}
+
 		/* Wall */
 		else
 		{

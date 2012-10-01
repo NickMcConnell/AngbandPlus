@@ -429,7 +429,7 @@ bool place_trap_player(int y, int x)
 	{
 		if (t_list[i].w_idx == WG_ANTI_MONSTER)
 		{
-			msg_print("You must disarm your existing trap to free up your equipment.");
+			message(MSG_FAIL, 0, "You must disarm your existing trap to free up your equipment.");
 			return (FALSE);
 		}
 	}
@@ -450,8 +450,61 @@ bool place_trap_player(int y, int x)
 	lite_spot(y, x);
 
 	/* Notify the player. */
-	msg_print("You set a monster trap.");
+	message(MSG_SUCCEED, 0, "You set a monster trap.");
 
+	return (TRUE);
+}
+
+/*
+ * Places a random trap at the given location.
+ */
+bool place_trap_chest(int y, int x)
+{
+	trap_type trap_type_body;
+	trap_type *t_ptr = &trap_type_body;
+	trap_widget *w_ptr;
+
+	int w_idx;
+
+	/* Paranoia */
+	if (!in_bounds(y, x)) return (FALSE);
+
+	/* Require closed, or secret door*/
+	if (cave_feat[y][x] != FEAT_CHEST) return (FALSE);
+
+	/* Assign a trap type */
+	while (TRUE)
+	{
+		w_idx = randint(z_info->w_max - 1);
+
+		w_ptr = &w_info[w_idx];
+
+		/* Check if floor trap */
+		if (!(w_ptr->flags & WGF_CHEST)) continue;
+
+		/* Ensure minimum depth */
+		if (p_ptr->depth < w_ptr->level) continue;
+
+		/* Ensure that it affects players */
+		if (!(w_ptr->flags & WGF_PLAYER)) continue;
+
+		/* Rarity check */
+		if (rand_int(w_ptr->rarity)) continue;
+
+		/* Accept */
+		break;
+	}
+	
+	/* Trap's visibility */
+	t_ptr->w_idx = w_idx;
+	t_ptr->visible = FALSE;
+
+	/* HACK - Regular locks get random power, all other get full power */
+	t_ptr->charges = w_ptr->max_charges;
+
+	if (!trap_place(y, x, t_ptr)) return (FALSE);
+
+	/* Result */
 	return (TRUE);
 }
 
@@ -665,6 +718,7 @@ void hit_trap(int y, int x)
 		}
 
 		case WG_RUNE_SUMMON:
+		case WG_CHEST_SUMMON:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are enveloped in a cloud of smoke!");
 			num = 2 + randint(3);
@@ -697,6 +751,7 @@ void hit_trap(int y, int x)
 		}
 
 		case WG_RUNE_CURSE1:
+		case WG_CHEST_CURSE:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You have awoken an ancient curse!");
 
@@ -729,6 +784,7 @@ void hit_trap(int y, int x)
 		}
 
 		case WG_RUNE_SHRIEK:
+		case WG_CHEST_SHRIEK:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "A high pitch noise suddenly arises!");
 			aggravate_monsters(0);
@@ -849,6 +905,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
+		case WG_CHEST_POISON:
 		case WG_GAS_POISON:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are surrounded by a pungent green gas!");

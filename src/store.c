@@ -1220,7 +1220,9 @@ static void store_create(void)
 
 		/* The object is fully "known" */
 		object_known(i_ptr);
-		i_ptr->ident |= (IDENT_MENTAL);
+		
+		/* Hack - *ID* ego items */
+		if (ego_item_p(i_ptr)) i_ptr->ident |= (IDENT_MENTAL);
 
 		/* Object history */
 		i_ptr->origin_nature = ORIGIN_STORE;
@@ -3269,14 +3271,14 @@ static void store_process_command(bool guild_cmd)
 		/* Load "screen dump" */
 		case '(':
 		{
-			do_cmd_load_screen();
+			do_cmd_save_screen_text();
 			break;
 		}
 
 		/* Save "screen dump" */
 		case ')':
 		{
-			do_cmd_save_screen();
+			do_cmd_save_screen_html();
 			break;
 		}
 

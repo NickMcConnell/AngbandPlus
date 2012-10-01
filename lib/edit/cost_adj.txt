@@ -13,7 +13,7 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.4.2
 
 # Hum,Elf,Dwa,Gno,Gri,Liz,Rat,Fel,Urs,Var,Nil,Ang,Dem
 

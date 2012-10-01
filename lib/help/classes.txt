@@ -17,10 +17,10 @@ Note that the class stat bonuses only affect character generation.
 ***** <Thief>
           Thief
                A Thief is a professional criminal, attracted to the dungeon
-			   by the  promise of great riches.  He relies on his dexterity
-			   and  intelligence, allowing him to handle  the delicate arts 
-			   of trap  placement and avoidance.  While stealth is his main
-			   element,  when things get rough he can defend  himself well.
+               by the  promise of great riches.  He relies on his dexterity
+               and  intelligence, allowing him to handle  the delicate arts 
+               of trap  placement and avoidance.  While stealth is his main
+               element,  when things get rough he can defend  himself well.
 
 ***** <Mage>
           Mage

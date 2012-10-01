@@ -18,7 +18,7 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.4.2
 
 N:0:<None>
 G:^:D
@@ -225,3 +225,29 @@ N:34:anti-monster trap
 G:^:v
 X:0:0:0
 F:MONSTER | FLOOR | DISARM 
+
+## Chest traps ##
+
+N:35: (poison trap)
+G:~:s
+W:0:1
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT
+
+N:36: (guardian)
+G:~:s
+W:5:1
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT
+
+N:37: (alarm)
+G:~:s
+W:5:1
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT
+
+N:38: (curse)
+G:~:s
+W:15:1
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT

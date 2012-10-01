@@ -29,9 +29,10 @@
 #    % - outside of the vault, where corridors may be connected
 #    # - granite
 #    X - impenetrable rock
-#    * - treasure or trap
+#    * - treasure, chest or trap
 #    + - secret door
 #    ^ - trap
+#    ~ - chest
 #    & - monster up to 5 levels out of depth (OOD)
 #    @ - monster up to 11 levels OOD
 #    9 - monster up to 9 levels OOD and treasure up to 7 levels OOD
@@ -45,7 +46,7 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.4.2
 
 ### Simple Vaults (type 7) -- maximum size 44x22 ###
 
@@ -137,7 +138,7 @@ D:%^+.,..&+,*+*....+^%
 D:%^+..*.,+.&+.,.&.+^%
 D:%^#######++#######^%
 D:%^#....,.,.....,.#^%
-D:%^#..9......*....#^%
+D:%^#~.9......*....#^%
 D:%,################,%
 D:%%%%%%%%%%%%%%%%%%%%
 
@@ -349,21 +350,21 @@ D:%XXXXXXXXXXXXXXXXXXX#XXXXXXXXXXXXXXXXXXX%
 D:%X&&..^..#9X..^^^^^^^^^^^^^..X9#..^..&&X%
 D:%X&...#....X..XXXXXX^XXXXXX..X....#...&X%
 D:%X...&#..#.X9XX.@8XX^XX8@.XX9X.#..#&...X%
-D:%X..&9#....XXX...@X,,,X@...XXX....#9&..X%
+D:%X..&9#....XXX~..@X,,,X@..~XXX....#9&..X%
 D:%X^####..#...XX..XX,.,XX..XX...#..####^X%
 D:%X........,#..XX^X,,.,,X^XX..#,........X%
 D:%X.......#.....^XX,...,XX^.....#.......X%
 D:%X........,#....X,,...,,X....#,........X%
-D:%X.......#.....XX.......XX.....#.......X%
+D:%X.......#.....XX...~...XX.....#.......X%
 D:%X.#......,#..XX^.......^XX..#,......#.X%
 D:%X.9#....#....#^^...8...^^#....#....#9.X%
 D:%X.#......,#..XX^.......^XX..#,......#.X%
-D:%X.......#.....XX.......XX.....#.......X%
+D:%X.......#.....XX...~...XX.....#.......X%
 D:%X........,#....X,,...,,X....#,........X%
 D:%X.......#.....^XX,...,XX^.....#.......X%
 D:%X........,#..XX^X,,.,,X^XX..#,........X%
 D:%X^####..#...XX..XX,.,XX..XX...#..####^X%
-D:%X..&9#....XXX...@X,,,X@...XXX....#9&..X%
+D:%X..&9#....XXX~..@X,,,X@..~XXX....#9&..X%
 D:%X...&#..#.X9XX.@8XX^XX8@.XX9X.#..#&...X%
 D:%X&...#....X&&XXXXXX^XXXXXX&&X....#...&X%
 D:%X&&..^..#9X..^^^^^^^^^^^^^..X9#..^..&&X%
@@ -447,7 +448,7 @@ D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%#^X.^^+X@XX.+X^^^^^+.X...X8#@&*X*****X%
 D:%X^X.^XX@XX.XX^^^^^^X.X.X^XXX@.&+9....X%
-D:%X^X.XX&XX.XX^^^^^^^X.X.X^X8#@&*X99...X%
+D:%X^X.XX&XX.XX~^^^^^^X.X.X^X8#@&*X99...X%
 D:%X^X.X^^X&.XXXXXXXXXX.X.X^XXXXXXXXXX++X%
 D:%X^X.X.*X&.X.......&..X.X^X........X^^X%
 D:%X^X&X.*X^^X.XXXXXXXXXX.X&X#XXXXXX.X^.X%
@@ -463,7 +464,7 @@ D:%X^X.X..X^^X...@........X.X......X.X^^X%
 D:%X^X&X.*X^^X.XXXXXXXXXX.X&X#XXXXXX.X.^X%
 D:%X^X.X.*X&.X.......&..X.X^X........X^^X%
 D:%X^X.X^^X&.XXXXXXXXXX.X.X^XXXXXXXXXX++X%
-D:%X^X.XX&XX.XX^^^^^^^X.X.X^X8#@&*X99...X%
+D:%X^X.XX&XX.XX~^^^^^^X.X.X^X8#@&*X99...X%
 D:%X^X.^XX@XX.XX^^^^^^X.X.X^XXX@.&+9....X%
 D:%#^X.^^+X@XX.+X^^^^^+.X...X8#@&*X*****X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%

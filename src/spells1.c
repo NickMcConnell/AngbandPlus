@@ -1282,9 +1282,10 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
 				trap_widget *w_ptr = &w_info[t_ptr->w_idx];
 				
-				/* Only disarm anti-player floor traps */
-				if (trap_lock(y, x) ||
-					((w_ptr->flags & WGF_PLAYER) && (w_ptr->flags & WGF_FLOOR)))
+				/* Only disarm anti-player floor and chest traps, and locks */
+				if ((w_ptr->flags & WGF_PLAYER) && 
+					((w_ptr->flags & WGF_FLOOR) || (w_ptr->flags & WGF_LOCK) ||
+					 (w_ptr->flags & WGF_CHEST)))
 				{
 					delete_trap(y, x);
 
@@ -1343,7 +1344,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				}
 
 				/* Disarm anti-player floor traps */
-				if ((w_ptr->flags & WGF_PLAYER) && (w_ptr->flags & WGF_FLOOR))
+				if ((w_ptr->flags & WGF_PLAYER) && 
+					((w_ptr->flags & WGF_FLOOR) || (w_ptr->flags & WGF_CHEST)))
 				{
 					delete_trap(y, x);
 

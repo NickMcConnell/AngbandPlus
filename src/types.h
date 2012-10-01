@@ -169,7 +169,7 @@ struct desc_type
 
 	bool seen;				/* Requires light */
 
-	byte roll;				/* Frequency of this entry */
+	u16b roll;				/* Frequency of this entry */
 	byte chart;				/* Chart index */
 	byte next;				/* Next chart index */
 	u16b level;				/* Minimum */

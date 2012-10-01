@@ -154,11 +154,11 @@ static bool is_open(int feat)
 }
 
 /*
- * Return TRUE if the given feature is a closed door
+ * Return TRUE if the given feature is a closed door or chest
  */
 static bool is_closed(int feat)
 {
-	return (feat == FEAT_CLOSED);
+	return ((feat == FEAT_CLOSED) || (feat == FEAT_CHEST));
 }
 
 /*
@@ -226,7 +226,8 @@ static bool do_cmd_open_test(int y, int x)
 	}
 
 	/* Must be a closed door */
-	if (cave_feat[y][x] != FEAT_CLOSED)
+	if ((cave_feat[y][x] != FEAT_CLOSED) &&
+	    (cave_feat[y][x] != FEAT_CHEST))
 	{
 		/* Message */
 		message(MSG_FAIL, 0, "You see nothing there to open.");
@@ -310,7 +311,30 @@ static bool do_cmd_open_aux(int y, int x)
 	}
 
 	/* Open the door */
-	cave_set_feat(y, x, FEAT_OPEN);
+	if (cave_feat[y][x] == FEAT_CLOSED) cave_set_feat(y, x, FEAT_OPEN);
+
+	/* Open a chest */
+	else
+	{
+		/* Trap */
+		if (cave_t_idx[y][x])
+		{
+			/* Message */
+			message(MSG_TRAP, 0, "You set off a trap!");
+
+			t_list[cave_t_idx[y][x]].visible = TRUE;
+
+			hit_trap(y, x);
+		}
+		/* No trap */
+		else 
+		{
+			cave_set_feat(y, x, FEAT_FLOOR);
+
+			/* Create a reward */
+			acquirement(y, x, 1, TRUE, TRUE);
+		}
+	}
 
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -555,6 +579,16 @@ static bool do_cmd_tunnel_test(int y, int x)
 	{
 		/* Message */
 		message(MSG_FAIL, 0, "You see nothing there.");
+
+		/* Nope */
+		return (FALSE);
+	}
+
+	/* Hacl - Can't tunnel into a chest */
+	if (cave_feat[y][x] == FEAT_CHEST)
+	{
+		/* Message */
+		message(MSG_FAIL, 0, "You can't tunnel into a chest.");
 
 		/* Nope */
 		return (FALSE);

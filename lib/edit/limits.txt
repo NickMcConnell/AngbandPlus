@@ -8,7 +8,7 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.4.2
 
 # Maximum number of feature types
 M:F:42
@@ -41,7 +41,7 @@ M:X:24
 M:Y:9
 
 # Maximum number of trap widgets
-M:W:35
+M:W:39
 
 # Maximum number of monster races
 M:R:668

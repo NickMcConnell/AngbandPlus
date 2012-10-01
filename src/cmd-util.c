@@ -105,6 +105,8 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 	char buf1[80];
 	char buf2[80];
 
+	int dir;
+ 
 	bool *opt_set = NULL;
 
 	/* Scan the options */
@@ -204,6 +206,13 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 		/* Get a key */
 		ch = inkey();
 
+		/*
+		 * HACK - Try to translate the key into a direction
+		 * to allow using the roguelike keys for navigation.
+		 */
+		dir = target_dir(ch);
+		if (dir) ch = I2D(dir);
+ 
 		/* Analyze */
 		switch (ch)
 		{
@@ -2267,192 +2276,37 @@ void do_cmd_colors(void)
 }
 
 /*
- * Encode the screen colors
+ * Dump screen shot in HTML
  */
-static char hack[17] = "dwsorgbuDWvyRGBU";
-
-/*
- * Hack -- load a screen dump from a file
- *
- * ToDo: Add support for loading/saving screen-dumps with graphics
- * and pseudo-graphics.  Allow the player to specify the filename
- * of the dump.
- */
-void do_cmd_load_screen(void)
+void do_cmd_save_screen_text(void)
 {
-	int i, y, x;
-
-	byte a = 0;
-	char c = ' ';
-
-	bool okay = TRUE;
-
-	FILE *fp;
-
-	char buf[1024];
-
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
-
-	/* Open the file */
-	fp = my_fopen(buf, "r");
-
-	/* Oops */
-	if (!fp) return;
-
-	/* Save screen */
-	screen_save();
-
-	/* Clear the screen */
-	Term_clear();
-
-	/* Load the screen */
-	for (y = 0; okay && (y < 24); y++)
-	{
-		/* Get a line of data */
-		if (my_fgets(fp, buf, 1024)) okay = FALSE;
-
-
-		/* Show each row */
-		for (x = 0; x < 79; x++)
-		{
-			/* Put the attr/char */
-			Term_draw(x, y, TERM_WHITE, buf[x]);
-		}
-	}
-
-	/* Get the blank line */
-	if (my_fgets(fp, buf, 1024)) okay = FALSE;
-
-
-	/* Dump the screen */
-	for (y = 0; okay && (y < 24); y++)
-	{
-		/* Get a line of data */
-		if (my_fgets(fp, buf, 1024)) okay = FALSE;
-
-		/* Dump each row */
-		for (x = 0; x < 79; x++)
-		{
-			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
-
-			/* Look up the attr */
-			for (i = 0; i < 16; i++)
-			{
-				/* Use attr matches */
-				if (hack[i] == buf[x]) a = i;
-			}
-
-			/* Put the attr/char */
-			Term_draw(x, y, a, c);
-		}
-	}
-
-	/* Close it */
-	my_fclose(fp);
-
-	/* Message */
-	message(MSG_SUCCEED, 0, "Screen dump loaded.");
-	message_flush();
-
-	/* Load screen */
-	screen_load();
-}
-
-/*
- * Hack -- save a screen dump to a file
- */
-void do_cmd_save_screen(void)
-{
-	int y, x;
-
-	byte a = 0;
-	char c = ' ';
-
-	FILE *fff;
-
-	char buf[1024];
-
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Hack -- drop permissions */
-	safe_setuid_drop();
-
-	/* Append to the file */
-	fff = my_fopen(buf, "w");
-
-	/* Hack -- grab permissions */
-	safe_setuid_grab();
-
-	/* Oops */
-	if (!fff) return;
-
-	/* Save screen */
-	screen_save();
-
-	/* Dump the screen */
-	for (y = 0; y < 24; y++)
-	{
-		/* Dump each row */
-		for (x = 0; x < 79; x++)
-		{
-			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
-
-			/* Dump it */
-			buf[x] = c;
-		}
-
-		/* Terminate */
-		buf[x] = '\0';
-
-		/* End the row */
-		fprintf(fff, "%s\n", buf);
-	}
-
-	/* Skip a line */
-	fprintf(fff, "\n");
-
-
-	/* Dump the screen */
-	for (y = 0; y < 24; y++)
-	{
-		/* Dump each row */
-		for (x = 0; x < 79; x++)
-		{
-			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
-
-			/* Dump it */
-			buf[x] = hack[a&0x0F];
-		}
-
-		/* Terminate */
-		buf[x] = '\0';
-
-		/* End the row */
-		fprintf(fff, "%s\n", buf);
-	}
-
-	/* Skip a line */
-	fprintf(fff, "\n");
-
-	/* Close it */
-	my_fclose(fff);
+	char tmp_val[81];
+ 
+	/* Ask for a file */ 
+	strcpy(tmp_val, "dump.txt");
+	if (!get_string("File: ", tmp_val, 80)) return;
+	text_screenshot(tmp_val);
 
 	/* Message */
 	message(MSG_SUCCEED, 0, "Screen dump saved.");
 	message_flush();
+}
 
-	/* Load screen */
-	screen_load();
+/*
+ * Dump screen shot in HTML
+ */
+void do_cmd_save_screen_html(void)
+{
+	char tmp_val[81];
+ 
+	/* Ask for a file */ 
+	strcpy(tmp_val, "dump.html");
+	if (!get_string("File: ", tmp_val, 80)) return;
+	html_screenshot(tmp_val);
+
+	/* Message */
+	message(MSG_SUCCEED, 0, "Screen dump saved.");
+	message_flush();
 }
 
 /*

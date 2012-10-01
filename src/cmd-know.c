@@ -865,8 +865,8 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 		grp += ddy[d];
 
 		/* Verify */
-		if (grp < 0) grp = 0;
 		if (grp >= grp_cnt)	grp = grp_cnt - 1;
+		if (grp < 0) grp = 0;
 		if (grp != old_grp)	list = 0;
 	}
 
@@ -877,8 +877,8 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 		list += ddy[d];
 
 		/* Verify */
-		if (list < 0) list = 0;
 		if (list >= list_cnt) list = list_cnt - 1;
+		if (list < 0) list = 0;
 	}
 
 	(*grp_cur) = grp;

@@ -66,7 +66,7 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.4.2
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -3672,7 +3672,7 @@ U:DARK_AREA
 
 N:393:Trap Location
 G:-:d
-I:67:2:50
+I:67:2:70
 W:5:0:17:850
 X:13:1d1:10
 A:5/1
@@ -3703,7 +3703,7 @@ U:IDENTIFY
 N:396:Recall
 G:-:d
 I:67:5:60
-W:30:0:17:4500
+W:30:0:17:6500
 X:13:1d1:10
 A:30/4
 P:0:1d1:0:0:0
@@ -3825,7 +3825,7 @@ U:DISARM
 N:408:Stone to Mud
 G:`:d
 I:66:2:50
-W:40:0:8:15000
+W:40:0:8:9000
 X:8:1d1:10
 A:40/3
 P:0:1d1:0:0:0
@@ -3925,9 +3925,9 @@ U:BOLT_ACID_1
 N:418:Rapid Lightning Bolts
 G:`:d
 I:66:12:2
-W:40:0:8:10000
+W:45:0:8:10000
 X:8:1d1:10
-A:40/3
+A:45/3
 P:0:1d1:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
 U:BOLT_ELEC
@@ -3945,9 +3945,9 @@ U:BOLT_FIRE_1
 N:420:Rapid Frost Bolts
 G:`:d
 I:66:14:2
-W:40:0:8:10500
+W:45:0:8:10500
 X:8:1d1:10
-A:40/3
+A:45/3
 P:0:1d1:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
 U:BOLT_COLD_1

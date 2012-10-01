@@ -771,12 +771,12 @@ static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool a
 		}
 
 		/* Force high sub-spell */
-		if (ss && !spellbook_menu1)
+		if (ss && !spellbook_menu)
 		{
-			if ((ss) && isupper(choice)) *ss = -1;
+			if (isupper(choice)) *ss = -1;
 		}
-		else if (ss)
 		/* Alternate interface */
+		else if (ss)
 		{
 			if (isupper(choice)) *ss = -1;
 			else *ss = -2;
@@ -1494,8 +1494,7 @@ static void do_cast(int book, bool force_menu)
 	}
 
 	/* Ensure a menu */
-	if (force_menu && !spellbook_menu2) sub = 0;
-	if (!force_menu && spellbook_menu2) sub = 0;
+	if (force_menu) sub = 0;
 
 	/* Access the spell */
 	s_ptr = &books[book].contents[spell];
@@ -1825,7 +1824,7 @@ void do_cmd_magic(void)
 		if (literate() && (!(cp_ptr->flags & CF_MUSIC))) flg = (USE_INVEN | USE_FLOOR);
 		if (literate() && (cp_ptr->flags & CF_MUSIC)) flg = (USE_INVEN | USE_FLOOR | USE_EQUIP); 
 
-		if (spellbook_menu1 && (cp_ptr->flags & CF_SUB_SPELL)) flg |= CAPITAL_HACK;
+		if (spellbook_menu && (cp_ptr->flags & CF_SUB_SPELL)) flg |= CAPITAL_HACK;
 
 		/* Can read books, can't use instruments */
 		if (literate() && (!(cp_ptr->flags & CF_MUSIC))) 
@@ -1838,7 +1837,7 @@ void do_cmd_magic(void)
 				"You have no books or musical instruments that you can use.", flg)) return;
 
 		/* Hack - capital letters */
-		if (spellbook_menu1 && (item >= 100))
+		if (spellbook_menu && (item >= 100))
 		{
 			item -= 100;
 			force_menu = TRUE;

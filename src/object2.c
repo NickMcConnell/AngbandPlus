@@ -4009,6 +4009,17 @@ void place_random_door(int y, int x)
 }
 
 /*
+ * Place a random type of closed door at the given location.
+ */
+void place_chest(int y, int x)
+{
+	/* Create closed door */
+	cave_set_feat(y, x, FEAT_CHEST);
+
+	place_trap_chest(y, x);
+}
+
+/*
  * Describe an alchemical formula (place string in buf)
  */
 void alchemy_describe(char *buf, int sval)

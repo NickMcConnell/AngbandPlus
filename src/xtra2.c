@@ -1791,7 +1791,7 @@ static bool target_set_interactive_accept(int y, int x)
 		trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
 
 		/* Visible traps */
-		if (t_ptr->visible) return (TRUE);
+		if (t_ptr->visible && !trap_lock(y,x)) return (TRUE);
 	}
 
 	/* Interesting memorized features */
@@ -1801,6 +1801,9 @@ static bool target_set_interactive_accept(int y, int x)
 		if (cave_feat[y][x] == FEAT_OPEN) return (TRUE);
 		if (cave_feat[y][x] == FEAT_BROKEN) return (TRUE);
 		if (cave_feat[y][x] == FEAT_CLOSED) return (TRUE);
+
+		/* Notice chests */
+		if (cave_feat[y][x] == FEAT_CHEST) return (TRUE);
 
 		/* Notice stairs */
 		if (cave_feat[y][x] == FEAT_LESS) return (TRUE);
@@ -2224,7 +2227,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			 * Visible trap 
 			 * Note that simple locks (LOCK flag) don't appear here
 			 */
-			if (t_ptr->visible && !(w_info[t_ptr->w_idx].flags & WGF_LOCK))
+			if (t_ptr->visible && !trap_lock(y, x) && !trap_chest(y, x))
 			{
 				cptr t_name = w_name + w_ptr->name;
 
@@ -2281,7 +2284,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (feat == FEAT_NONE) name = "unknown grid";
 
 			/* Pick a prefix */
-			if (*s2 && (feat >= FEAT_CLOSED) && (feat < FEAT_SHOP_HEAD)) s2 = "in ";
+			if (*s2 && (feat >= FEAT_OPEN) && (feat < FEAT_SHOP_HEAD)) s2 = "in ";
 
 			/* Pick proper indefinite article */
 			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
@@ -2294,6 +2297,12 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 			/* Hack - locks */
 			if (cave_t_idx[y][x] && trap_lock(y, x) && (feat == FEAT_CLOSED))
+			{
+				lock = w_name + w_info[t_list[cave_t_idx[y][x]].w_idx].name;
+			}
+
+			/* Hack - chests */
+			if (cave_t_idx[y][x] && trap_chest(y, x) && (feat == FEAT_CHEST))
 			{
 				lock = w_name + w_info[t_list[cave_t_idx[y][x]].w_idx].name;
 			}

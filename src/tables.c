@@ -1946,8 +1946,8 @@ option_type options[OPT_NORMAL] =
 	{"display_insc_msg",	"Display inscriptions in messages",			FALSE},
 	{"display_recharge_msg","Display messages upon recharge",			TRUE },
 	{"inscribe_unique",		"Auto-inscribe unique drops",				FALSE},
-	{"spellbook_menu1",		"TEST: alternate spellbook interface",		FALSE},
-	{"spellbook_menu2",		"TEST: inverse behavior in book selection", FALSE}
+	{"spellbook_menu",		"Alternate spellbook interface",			FALSE},
+	{"trap_under_object",	"Traps are hidden by objects",				TRUE }
 };
 
 option_type options_birth[OPT_BIRTH] =
@@ -2015,8 +2015,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_alter,
 		OPT_easy_floor,
 		OPT_verify_leave_quest,
-		OPT_spellbook_menu1,
-		OPT_spellbook_menu2
+		OPT_spellbook_menu,
+		255
 	},
 
 	/*** Display ***/
@@ -2034,7 +2034,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
 		OPT_view_monster_lite,
-		255,
+		OPT_trap_under_object,
 		255,
 		255,
 		255

@@ -50,7 +50,7 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.4.2
 
 ## Artifact Perma-Lights ##
 
@@ -801,7 +801,7 @@ U:SATISFY_HUNGER:750:0
 
 N:87:'Dal-i-thalion'
 I:30:1:0:5
-W:10:25:80:40000
+W:10:25:25:40000
 P:1:1d1:0:0:10
 O:0:0:0:0:0:0:0:20:0:0:0:0:0:25:30:0:0:0
 F:DEX | FREE_ACT | SUST_CON

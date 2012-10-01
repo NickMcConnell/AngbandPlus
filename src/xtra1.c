@@ -309,7 +309,7 @@ static void prt_hunger(void)
 	/* Normal */
 	else if (p_ptr->food < PY_FOOD_FULL)
 	{
-		c_put_str(TERM_L_GREEN, "      ", ROW_HUNGRY, COL_HUNGRY);
+		put_str("      ", ROW_HUNGRY, COL_HUNGRY);
 	}
 
 	/* Full */
@@ -1728,9 +1728,9 @@ static void calc_torch(void)
 	}
 
 	/* Reduce light gradually when running out of fuel */
-	if ((o_ptr->tval == TV_LITE) && (o_ptr->timeout < 200) && (o_ptr->timeout > 0))
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->timeout < 300) && (o_ptr->timeout > 0))
 	{
-		p_ptr->cur_lite = ((p_ptr->cur_lite * o_ptr->timeout) / 200)+1;
+		p_ptr->cur_lite = ((p_ptr->cur_lite * o_ptr->timeout) / 300) + 1;
 	}
 
 	/* Reduce lite when running if requested */
