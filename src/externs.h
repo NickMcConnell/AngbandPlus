@@ -233,6 +233,7 @@ extern int text_out_wrap;
 extern int text_out_indent;
 extern int highscore_fd;
 extern bool use_transparency;
+FILE *notes_file;
 
 
 /*
@@ -249,6 +250,7 @@ extern bool no_lite(void);
 extern bool cave_valid_bold(int y, int x);
 extern bool feat_supports_lighting(byte feat);
 extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
+extern void map_info_default(int y, int x, byte *ap, char *cp);
 extern void move_cursor_relative(int y, int x);
 extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
@@ -337,7 +339,7 @@ extern void do_cmd_pref(void);
 extern void do_cmd_macros(void);
 extern void do_cmd_visuals(void);
 extern void do_cmd_colors(void);
-extern void do_cmd_note(void);
+extern void do_cmd_note(char *note, int what_depth);
 extern void do_cmd_version(void);
 extern void do_cmd_feeling(void);
 extern void do_cmd_load_screen(void);
@@ -364,6 +366,7 @@ extern void do_cmd_activate(void);
 extern void play_game(bool new_game);
 
 /* files.c */
+extern void html_screenshot(cptr name);
 extern void safe_setuid_drop(void);
 extern void safe_setuid_grab(void);
 extern s16b tokenize(char *buf, s16b num, char **tokens);
@@ -488,6 +491,8 @@ extern void object_aware(object_type *o_ptr);
 extern void object_tried(object_type *o_ptr);
 extern bool is_blessed(const object_type *o_ptr);
 extern s32b object_value(const object_type *o_ptr);
+extern void distribute_charges(object_type *o_ptr, object_type *i_ptr, int amt);
+extern void reduce_charges(object_type *o_ptr, int amt);
 extern bool object_similar(const object_type *o_ptr, const object_type *j_ptr);
 extern void object_absorb(object_type *o_ptr, const object_type *j_ptr);
 extern s16b lookup_kind(int tval, int sval);
@@ -495,12 +500,12 @@ extern void object_wipe(object_type *o_ptr);
 extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
 extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
-extern bool make_object(object_type *j_ptr, bool good, bool great);
+extern bool make_object(object_type *j_ptr, bool good, bool great, int chesttype);
 extern bool make_gold(object_type *j_ptr);
 extern s16b floor_carry(int y, int x, object_type *j_ptr);
 extern void drop_near(object_type *j_ptr, int chance, int y, int x);
 extern void acquirement(int y1, int x1, int num, bool great);
-extern void place_object(int y, int x, bool good, bool great);
+extern void place_object(int y, int x, bool good, bool great, int droptype);
 extern void place_gold(int y, int x);
 extern void pick_trap(int y, int x);
 extern void place_trap(int y, int x);
@@ -525,6 +530,7 @@ extern s16b spell_chance(int spell);
 extern bool spell_okay(int spell, bool known);
 extern void print_spells(const byte *spells, int num, int y, int x);
 extern void display_koff(int k_idx);
+extern int choose_chest_contents (int chest_theme);
 
 /* save.c */
 extern bool save_player(void);
@@ -765,6 +771,15 @@ extern bool target_set_interactive(int mode);
 extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
+
+/* squlech.c */
+extern byte squelch_level[24];
+extern byte auto_destroy;
+extern void do_cmd_squelch(void);
+extern int squelch_itemp(object_type *, byte, int);
+extern int do_squelch_item(int, int, object_type *);
+extern void rearrange_stack(int, int);
+extern void do_squelch_pile(int, int);
 
 
 /*

@@ -963,7 +963,7 @@ struct object_type
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
 
-	byte xtra1;			/* Extra info type */
+	byte xtra1;			/* if chest, the pre-determined chest theme */
 	byte xtra2;			/* Extra info index */
 
 	s16b to_h;			/* Plusses to hit */
@@ -1020,7 +1020,7 @@ struct object_kind
 	byte chance[4];		/* Allocation chance(s) */
 
 	byte level;			/* Level */
-	byte extra;			/* Something */
+	byte extra;			/* extra flag */
 
 
 	byte d_attr;		/* Default object attribute */
@@ -1110,7 +1110,7 @@ struct ego_item_type
 struct flavor_type
 {
 	u32b text;      /* Text (offset) */
-	
+
 	byte tval;      /* Associated object type */
 	byte sval;      /* Associated object sub-type */
 
@@ -1182,12 +1182,11 @@ extern void object_wipe(object_type *o_ptr);
 extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
 extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
-extern bool make_object(object_type *j_ptr, bool good, bool great);
+extern bool make_object(object_type *j_ptr, bool good, bool great, int chesttype);
 extern bool make_gold(object_type *j_ptr);
 extern s16b floor_carry(int y, int x, object_type *j_ptr);
 extern void drop_near(object_type *j_ptr, int chance, int y, int x);
 extern void acquirement(int y1, int x1, int num, bool great);
-extern void place_object(int y, int x, bool good, bool great);
 extern void place_gold(int y, int x);
 extern void pick_trap(int y, int x);
 extern void place_trap(int y, int x);

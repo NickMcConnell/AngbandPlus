@@ -438,7 +438,7 @@ function read_scroll(object)
 		if not recharge(60) then used_up = FALSE end
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_LIGHT then
-		if lite_area(damroll(2, 8), 2) then ident = TRUE end		
+		if lite_area(damroll(2, 8), 2) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_MAPPING then
 		map_area()
 		ident = TRUE
@@ -798,6 +798,9 @@ function zap_rod(object)
 	-- Get the object level
 	local lev = k_info[object.k_idx + 1].level
 
+	-- Get the object pval, which is how long the rod needs to charge before using again
+	local pvalue = k_info[object.k_idx + 1].pval
+
 	-- Base chance of success
 	local chance = player.skill_dev
 
@@ -823,10 +826,16 @@ function zap_rod(object)
 		return FALSE, FALSE
 	end
 
-	-- Still charging
-	if object.pval > 0 then
+	-- Still charging, one rod
+	if (object.timeout > 0) and (object.number == 1) then
 		flush_fail()
 		msg_print("The rod is still charging.")
+		return FALSE, FALSE
+	end
+
+	if (object.timeout > (object.pval- pvalue)) and (object.number >= 2) then
+		flush_fail()
+		msg_print("The rods are all still charging.")
 		return FALSE, FALSE
 	end
 
@@ -837,45 +846,45 @@ function zap_rod(object)
 
 	if sval == SV_ROD_DETECT_TRAP then
 		if detect_traps() then ident = TRUE end
-		object.pval = 50
+		object.timeout = object.timeout + 50
 	elseif sval == SV_ROD_DETECT_DOOR then
 		if detect_doors() then ident = TRUE end
 		if detect_stairs() then ident = TRUE end
-		object.pval = 70
+		object.timeout = object.timeout + 70
 	elseif sval == SV_ROD_IDENTIFY then
 		ident = TRUE
-		if ident_spell() then object.pval = 10 end
+		if ident_spell() then object.timeout = object.timeout + 10 end
 	elseif sval == SV_ROD_RECALL then
 		set_recall()
 		ident = TRUE
-		object.pval = 60
+		object.timeout = object.timeout + 60
 	elseif sval == SV_ROD_ILLUMINATION then
 		if lite_area(damroll(2, 8), 2) then ident = TRUE end
-		object.pval = 30
+		object.timeout = object.timeout + 30
 	elseif sval == SV_ROD_MAPPING then
 		map_area()
 		ident = TRUE
-		object.pval = 99
+		object.timeout = object.timeout + 99
 	elseif sval == SV_ROD_DETECTION then
 		detect_all()
 		ident = TRUE
-		object.pval = 99
+		object.timeout = object.timeout + 99
 	elseif sval == SV_ROD_PROBING then
 		probing()
 		ident = TRUE
-		object.pval = 50
+		object.timeout = object.timeout + 50
 	elseif sval == SV_ROD_CURING then
 		if set_blind(0) then ident = TRUE end
 		if set_poisoned(0) then ident = TRUE end
 		if set_confused(0) then ident = TRUE end
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
-		object.pval = 999
+		object.timeout = object.timeout + 999
 	elseif sval == SV_ROD_HEALING then
 		if hp_player(500) then ident = TRUE end
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
-		object.pval = 999
+		object.timeout = object.timeout + 999
 	elseif sval == SV_ROD_RESTORATION then
 		if restore_level() then ident = TRUE end
 		if do_res_stat(A_STR) then ident = TRUE end
@@ -884,69 +893,69 @@ function zap_rod(object)
 		if do_res_stat(A_DEX) then ident = TRUE end
 		if do_res_stat(A_CON) then ident = TRUE end
 		if do_res_stat(A_CHR) then ident = TRUE end
-		object.pval = 999
+		object.timeout = object.timeout + 999
 	elseif sval == SV_ROD_SPEED then
 		if player.fast == 0 then
 			if set_fast(randint(30) + 15) then ident = TRUE end
 		else
 			set_fast(player.fast + 5)
 		end
-		object.pval = 99
+		object.timeout = object.timeout + 99
 	elseif sval == SV_ROD_TELEPORT_AWAY then
 		if teleport_monster(dir) then ident = TRUE end
-		object.pval = 25
+		object.timeout = object.timeout + 25
 	elseif sval == SV_ROD_DISARMING then
 		if disarm_trap(dir) then ident = TRUE end
-		object.pval = 30
+		object.timeout = object.timeout + 30
 	elseif sval == SV_ROD_LITE then
 		msg_print("A line of blue shimmering light appears.")
 		lite_line(dir)
 		ident = TRUE
-		object.pval = 9
+		object.timeout = object.timeout + 9
 	elseif sval == SV_ROD_SLEEP_MONSTER then
 		if sleep_monster(dir) then ident = TRUE end
-		object.pval = 18
+		object.timeout = object.timeout + 18
 	elseif sval == SV_ROD_SLOW_MONSTER then
 		if slow_monster(dir) then ident = TRUE end
-		object.pval = 20
+		object.timeout = object.timeout + 20
 	elseif sval == SV_ROD_DRAIN_LIFE then
 		if drain_life(dir, 150) then ident = TRUE end
-		object.pval = 23
+		object.timeout = object.timeout + 23
 	elseif sval == SV_ROD_POLYMORPH then
 		if poly_monster(dir) then ident = TRUE end
-		object.pval = 25
+		object.timeout = object.timeout + 25
 	elseif sval == SV_ROD_ACID_BOLT then
 		fire_bolt_or_beam(10, GF_ACID, dir, damroll(12, 8))
 		ident = TRUE
-		object.pval = 12
+		object.timeout = object.timeout + 12
 	elseif sval == SV_ROD_ELEC_BOLT then
 		fire_bolt_or_beam(10, GF_ELEC, dir, damroll(6, 6))
 		ident = TRUE
-		object.pval = 11
+		object.timeout = object.timeout + 11
 	elseif sval == SV_ROD_FIRE_BOLT then
 		fire_bolt_or_beam(10, GF_FIRE, dir, damroll(16, 8))
 		ident = TRUE
-		object.pval = 15
+		object.timeout = object.timeout + 15
 	elseif sval == SV_ROD_COLD_BOLT then
 		fire_bolt_or_beam(10, GF_COLD, dir, damroll(10, 8))
 		ident = TRUE
-		object.pval = 13
+		object.timeout = object.timeout + 13
 	elseif sval == SV_ROD_ACID_BALL then
 		fire_ball(GF_ACID, dir, 120, 2)
 		ident = TRUE
-		object.pval = 27
+		object.timeout = object.timeout + 27
 	elseif sval == SV_ROD_ELEC_BALL then
 		fire_ball(GF_ELEC, dir, 64, 2)
 		ident = TRUE
-		object.pval = 23
+		object.timeout = object.timeout + 23
 	elseif sval == SV_ROD_FIRE_BALL then
 		fire_ball(GF_FIRE, dir, 144, 2)
 		ident = TRUE
-		object.pval = 30
+		object.timeout = object.timeout + 30
 	elseif sval == SV_ROD_COLD_BALL then
 		fire_ball(GF_COLD, dir, 96, 2)
 		ident = TRUE
-		object.pval = 25
+		object.timeout = object.timeout + 25
 	end
 
 	return ident, used_charge
@@ -1455,7 +1464,7 @@ function describe_item_activation_hook(object)
 			[SV_RING_FLAMES] = "fire resistance (20+d20 turns) and fire ball (80) every 50+d50 turns",
 			[SV_RING_ICE] = "cold resistance (20+d20 turns) and cold ball (75) every 50+d50 turns",
 			[SV_RING_LIGHTNING] = "electricity resistance (20+d20 turns) and electricity ball (85) every 50+d50 turns"}
-	
+
 		return activations[object.sval]
 	end
 

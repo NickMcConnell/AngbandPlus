@@ -39,7 +39,7 @@ everything at first, especially if you have never played a "roguelike" game
 before.  You should probably browse through all of the "online help files",
 especially this one, before beginning any serious adventuring...
 
-=== A Note from the Maintainer ===
+=== A Note from the Maintainer of Angband (outdated) ===
 
 Welcome to Angband 2.8.X.
 

@@ -511,7 +511,8 @@ View previous messages (^P)
 
 Take notes (:)
         This command allows you to take notes, which will then appear in
-        your message list (prefixed with "Note:").
+        your message list, and if you choose the birth option take auto notes
+	  as a birth option, in your character dump. (prefixed with "Note:").
 
 --- Game Status Commands ---
 
@@ -640,9 +641,9 @@ Redraw Screen (^R)
 
 Load screen dump (left-paren)
         This command loads a "snap-shot" of the current screen from the file
-        "dump.txt", and displays it on the screen.
+        "dump.html", and displays it on the screen.
 
 Save screen dump (right-paren)
-        This command dumps a "snap-shot" of the current screen to the file
-        "dump.txt", including encoded color information.
+        This command dumps an html "snap-shot" of the current screen 
+	  to the file "dump.html", including encoded color information.
 

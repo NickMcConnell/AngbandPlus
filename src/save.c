@@ -829,6 +829,9 @@ static void wr_xtra(int k_idx)
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
 
+	if (k_ptr->squelch) tmp8u |= 0x04;
+	if ((k_ptr->everseen) || (k_ptr->aware)) tmp8u |= 0x08;
+
 	wr_byte(tmp8u);
 }
 
@@ -1101,9 +1104,12 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 	wr_byte(0);
 
-	/* Future use */
-	for (i = 0; i < 10; i++) wr_u32b(0L);
+	/* Squelch bytes */
+	for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
+	wr_byte(auto_destroy);
 
+	/* Future use */
+	for (i = 0; i < 15; i++) wr_byte(0);
 
 	/* Random artifact version */
 	wr_u32b(RANDART_VERSION);

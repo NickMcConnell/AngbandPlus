@@ -41,13 +41,13 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Angband"
+#define VERSION_NAME "NPPAngband"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"3.0.3"
+#define VERSION_STRING	"0.1.0"
 
 
 /*
@@ -882,6 +882,25 @@
 #define EGO_BLASTED			127
 
 
+/*themed drops*/
+#define DROP_TYPE_UNTHEMED				0
+#define DROP_TYPE_GOLD					1
+#define DROP_TYPE_POTION				2
+#define DROP_TYPE_ROD_WAND_STAFF		3
+#define DROP_TYPE_SCROLL				4
+#define DROP_TYPE_SHIELD				5
+#define DROP_TYPE_WEAPON				6
+#define DROP_TYPE_ARMOR					7
+#define DROP_TYPE_BOOTS					8
+#define DROP_TYPE_BOW					9
+#define DROP_TYPE_CLOAK					10
+#define DROP_TYPE_GLOVES				11
+#define DROP_TYPE_HAFTED				12
+#define DROP_TYPE_HEADGEAR				13
+#define DROP_TYPE_JEWELRY				14
+#define DROP_TYPE_DRAGON_ARMOR			15
+#define DROP_TYPE_CHEST					16
+
 
 /*** Object "tval" and "sval" codes ***/
 
@@ -1415,6 +1434,29 @@
  * Special "sval" limit -- first "good" magic/prayer book
  */
 #define SV_BOOK_MIN_GOOD	4
+
+/*
+ * These are the various levels of squelching supported by the game.
+ * Less concisely:
+ * 0 ---> No squelching
+ * 1 ---> Squelch cursed items
+ * 2 ---> Squelch average and worse items
+ * 3 ---> Squelch good and worse items
+ * 4 ---> squelch all but artifacts
+ * 5 ---> squelch open chests
+ */
+
+#define SQUELCH_NONE     0
+#define SQUELCH_CURSED   1
+#define SQUELCH_AVERAGE  2
+#define SQUELCH_GOOD     3
+#define SQUELCH_ALL      4
+#define SQUELCH_OPENED_CHESTS	 5 /*chests*/
+
+/*others are defines in squelch.c, static int do_qual_squelch,
+ *but this one is used in chest opening. JG*/
+#define CHEST_INDEX 	19
+
 
 /*
  * Special "sval" value -- unknown "sval"
@@ -2005,7 +2047,7 @@
  */
 #define RF2_STUPID			0x00000001	/* Monster is stupid */
 #define RF2_SMART			0x00000002	/* Monster is smart */
-#define RF2_XXX1			0x00000004	/* (?) */
+#define RF2_HAS_LITE        0x00000004  /* Monster carries light */
 #define RF2_XXX2			0x00000008	/* (?) */
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
@@ -2452,7 +2494,7 @@
 #define OPT_auto_more				71
 #define OPT_smart_monsters			72
 #define OPT_smart_packs				73
-/* xxx */
+#define OPT_hp_changes_color  		74
 /* xxx */
 /* xxx */
 /* xxx */
@@ -2468,6 +2510,9 @@
 #define OPT_birth_no_artifacts      (OPT_BIRTH+6)
 #define OPT_birth_rand_artifacts    (OPT_BIRTH+7)
 #define OPT_birth_no_stacking       (OPT_BIRTH+8)
+#define OPT_birth_take_notes        (OPT_BIRTH+9)
+
+
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
 #define OPT_cheat_hear				(OPT_CHEAT+1)
@@ -2588,6 +2633,8 @@
 #define birth_no_artifacts		op_ptr->opt[OPT_birth_no_artifacts]
 #define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
 #define birth_no_stacking       op_ptr->opt[OPT_birth_no_stacking]
+#define birth_take_notes        op_ptr->opt[OPT_birth_take_notes]
+
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear				op_ptr->opt[OPT_cheat_hear]
@@ -2605,7 +2652,7 @@
 #define adult_no_artifacts		op_ptr->opt[OPT_adult_no_artifacts]
 #define adult_rand_artifacts	op_ptr->opt[OPT_adult_rand_artifacts]
 #define adult_no_stacking		op_ptr->opt[OPT_adult_no_stacking]
-/* xxx xxx */
+#define hp_changes_color  		op_ptr->opt[OPT_hp_changes_color]
 #define score_peek				op_ptr->opt[OPT_score_peek]
 #define score_hear				op_ptr->opt[OPT_score_hear]
 #define score_room				op_ptr->opt[OPT_score_room]

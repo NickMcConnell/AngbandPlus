@@ -1614,18 +1614,29 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		return FALSE;
 	}
 
-	/* Still charging */
-	if (o_ptr->pval)
+	/* A single rod is still charging */
+	if ((o_ptr->number == 1) && (o_ptr->timeout))
 	{
 		if (flush_failure) flush();
-		msg_print("The rod is still charging.");
-		return FALSE;
+		msg_print("The rod is still charging");
+
+		return;
+	}
+	/* A stack of rods lacks enough energy. */
+	else if ((o_ptr->number > 1) && (o_ptr->timeout > o_ptr->pval - k_ptr->pval))
+	{
+		if (flush_failure) flush();
+		msg_print("The rods are all still charging");
+		return;
 	}
 
+	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Sound */
 	sound(MSG_ZAP);
 
+	/* Increase the timeout by the rod kind's pval. */
+	o_ptr->timeout += k_ptr->pval;
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
@@ -1633,7 +1644,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		case SV_ROD_DETECT_TRAP:
 		{
 			if (detect_traps()) *ident = TRUE;
-			o_ptr->pval = 50;
 			break;
 		}
 
@@ -1641,14 +1651,12 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			if (detect_doors()) *ident = TRUE;
 			if (detect_stairs()) *ident = TRUE;
-			o_ptr->pval = 70;
 			break;
 		}
 
 		case SV_ROD_IDENTIFY:
 		{
 			*ident = TRUE;
-			if (ident_spell()) o_ptr->pval = 10;
 			break;
 		}
 
@@ -1656,14 +1664,12 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			set_recall();
 			*ident = TRUE;
-			o_ptr->pval = 60;
 			break;
 		}
 
 		case SV_ROD_ILLUMINATION:
 		{
 			if (lite_area(damroll(2, 8), 2)) *ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -1671,7 +1677,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			map_area();
 			*ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -1679,7 +1684,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			detect_all();
 			*ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -1687,7 +1691,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			probing();
 			*ident = TRUE;
-			o_ptr->pval = 50;
 			break;
 		}
 
@@ -1698,7 +1701,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 			if (set_confused(0)) *ident = TRUE;
 			if (set_stun(0)) *ident = TRUE;
 			if (set_cut(0)) *ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -1707,7 +1709,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 			if (hp_player(500)) *ident = TRUE;
 			if (set_stun(0)) *ident = TRUE;
 			if (set_cut(0)) *ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -1720,7 +1721,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 			if (do_res_stat(A_DEX)) *ident = TRUE;
 			if (do_res_stat(A_CON)) *ident = TRUE;
 			if (do_res_stat(A_CHR)) *ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -1734,21 +1734,18 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 			{
 				(void)set_fast(p_ptr->fast + 5);
 			}
-			o_ptr->pval = 99;
 			break;
 		}
 
 		case SV_ROD_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) *ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
 		case SV_ROD_DISARMING:
 		{
 			if (disarm_trap(dir)) *ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -1757,35 +1754,30 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
 			*ident = TRUE;
-			o_ptr->pval = 9;
 			break;
 		}
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir)) *ident = TRUE;
-			o_ptr->pval = 18;
 			break;
 		}
 
 		case SV_ROD_SLOW_MONSTER:
 		{
 			if (slow_monster(dir)) *ident = TRUE;
-			o_ptr->pval = 20;
 			break;
 		}
 
 		case SV_ROD_DRAIN_LIFE:
 		{
 			if (drain_life(dir, 150)) *ident = TRUE;
-			o_ptr->pval = 23;
 			break;
 		}
 
 		case SV_ROD_POLYMORPH:
 		{
 			if (poly_monster(dir)) *ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
@@ -1793,7 +1785,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			fire_bolt_or_beam(10, GF_ACID, dir, damroll(12, 8));
 			*ident = TRUE;
-			o_ptr->pval = 12;
 			break;
 		}
 
@@ -1801,7 +1792,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(6, 6));
 			*ident = TRUE;
-			o_ptr->pval = 11;
 			break;
 		}
 
@@ -1809,7 +1799,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(16, 8));
 			*ident = TRUE;
-			o_ptr->pval = 15;
 			break;
 		}
 
@@ -1817,7 +1806,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			fire_bolt_or_beam(10, GF_COLD, dir, damroll(10, 8));
 			*ident = TRUE;
-			o_ptr->pval = 13;
 			break;
 		}
 
@@ -1825,7 +1813,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			fire_ball(GF_ACID, dir, 120, 2);
 			*ident = TRUE;
-			o_ptr->pval = 27;
 			break;
 		}
 
@@ -1833,7 +1820,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			fire_ball(GF_ELEC, dir, 64, 2);
 			*ident = TRUE;
-			o_ptr->pval = 23;
 			break;
 		}
 
@@ -1841,7 +1827,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			fire_ball(GF_FIRE, dir, 144, 2);
 			*ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -1849,7 +1834,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			fire_ball(GF_COLD, dir, 96, 2);
 			*ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 	}

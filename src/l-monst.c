@@ -2175,7 +2175,7 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"RF1_DROP_CHOSEN",RF1_DROP_CHOSEN);
  tolua_constant(tolua_S,NULL,"RF2_STUPID",RF2_STUPID);
  tolua_constant(tolua_S,NULL,"RF2_SMART",RF2_SMART);
- tolua_constant(tolua_S,NULL,"RF2_XXX1",RF2_XXX1);
+ tolua_constant(tolua_S,NULL,"RF2_HAS_LITE",RF2_HAS_LITE);
  tolua_constant(tolua_S,NULL,"RF2_XXX2",RF2_XXX2);
  tolua_constant(tolua_S,NULL,"RF2_INVISIBLE",RF2_INVISIBLE);
  tolua_constant(tolua_S,NULL,"RF2_COLD_BLOOD",RF2_COLD_BLOOD);
@@ -2560,7 +2560,7 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF1_DROP_CHOSEN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_STUPID");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_SMART");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_XXX1");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_HAS_LITE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_XXX2");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_INVISIBLE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_COLD_BLOOD");

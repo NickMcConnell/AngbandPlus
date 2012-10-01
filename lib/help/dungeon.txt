@@ -256,7 +256,7 @@ the dungeon.  Many cursed items present in the dungeon - either left behind
 as the result of a failed attempt to create a magic items, or deliberately
 placed by evil sorcerers who enjoy a good joke when it gets you killed...
 
-Only one object may occupy a given floor location, which may or may not also
+Up to 23 objects may occupy a given floor location, which may or may not also
 contain one creature.  Doors, rubble, traps, and staircases are considered
 "objects" for this purpose.  As below, any item may actually be a "pile" of
 up to 99 identical items.  With the right choice of "options", you may be

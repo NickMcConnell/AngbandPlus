@@ -194,6 +194,10 @@ struct object_kind
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
+
+	bool squelch;	/* Squelch item if known            */
+
+	bool everseen;	/* Used to despoilify squelch menus */
 };
 
 
@@ -1110,7 +1114,7 @@ typedef struct flavor_type flavor_type;
 struct flavor_type
 {
 	u32b text;      /* Text (offset) */
-	
+
 	byte tval;      /* Associated object type */
 	byte sval;      /* Associated object sub-type */
 

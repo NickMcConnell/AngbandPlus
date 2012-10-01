@@ -38,22 +38,22 @@
 # 'I' is for basic information. The tval is for the type of item, the
 # sval identifies the subtype and the pval indicates the amount of
 # effect the item has, if applicable (a fixed value: variable pvals
-# are currently hard-coded.) 
+# are currently hard-coded.)
 
 # 'W' is for extra information. Depth is the depth the object is normally
-# found at (and defines what "level" the object is, when determining how easy 
-# it is to use a wand, staff or rod, rarity determines how common the object 
-# is (currently unused, thanks to the A: allocation lines), weight is in 
+# found at (and defines what "level" the object is, when determining how easy
+# it is to use a wand, staff or rod, rarity determines how common the object
+# is (currently unused, thanks to the A: allocation lines), weight is in
 # tenth-pounds and cost is the item's base value.
 
 # 'P' is for power information. The items base armor class, its base
-# damage and pluses to-hit, to-dam and to-ac (assuming the latter 
+# damage and pluses to-hit, to-dam and to-ac (assuming the latter
 # three numbers to be fixed: variable bonuses must be hard-coded.)
 
 # 'A' is for allocation - depth and rarity, in pairs. This allows an
 # item to have multiple natural depths and rarities. It is used to
 # ensure that certain vital items such as food and identify scrolls
-# are found throughout the dungeon. The "allocation" depth need not 
+# are found throughout the dungeon. The "allocation" depth need not
 # match the depth as specified in the "W:" line.
 
 # 'F' is for flags. These are fairly self-explanatory. As many F:
@@ -1188,7 +1188,7 @@ I:45:18:0
 W:50:0:2:3000
 A:50/2
 P:0:0d0:0:0:15
-F:RES_FIRE | IGNORE_FIRE | 
+F:RES_FIRE | IGNORE_FIRE |
 F:ACTIVATE
 
 N:147:Acid
@@ -1197,7 +1197,7 @@ I:45:17:0
 W:50:0:2:3000
 A:50/2
 P:0:0d0:0:0:15
-F:RES_ACID | IGNORE_ACID | 
+F:RES_ACID | IGNORE_ACID |
 F:ACTIVATE
 
 N:148:Ice
@@ -1206,7 +1206,7 @@ I:45:19:0
 W:50:0:2:3000
 A:50/2
 P:0:0d0:0:0:15
-F:RES_COLD | IGNORE_COLD | 
+F:RES_COLD | IGNORE_COLD |
 F:ACTIVATE
 
 N:149:Woe
@@ -1360,8 +1360,8 @@ G:":d
 I:40:9:0
 W:60:0:3:20000
 A:60/6
-F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | 
-F:HOLD_LIFE | SLOW_DIGEST | EASY_KNOW | 
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR |
+F:HOLD_LIFE | SLOW_DIGEST | EASY_KNOW |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:171:the Magi
@@ -2569,42 +2569,42 @@ N:338:& Small wooden chest~
 G:~:s
 I:7:1:0
 W:5:0:250:20
-A:5/1
+A:5/8:25/4
 P:0:2d3:0:0:0
 
 N:339:& Large wooden chest~
 G:~:s
 I:7:5:0
 W:15:0:500:60
-A:15/1
+A:15/16:65/8
 P:0:2d5:0:0:0
 
 N:340:& Small iron chest~
 G:~:s
 I:7:2:0
 W:25:0:300:100
-A:25/1
+A:25/8:45/4
 P:0:2d4:0:0:0
 
 N:341:& Large iron chest~
 G:~:s
 I:7:6:0
 W:35:0:1000:150
-A:35/1
+A:35/16:75/8
 P:0:2d6:0:0:0
 
 N:342:& Small steel chest~
 G:~:s
 I:7:3:0
 W:45:0:500:200
-A:45/1
+A:45/8:65/4
 P:0:2d4:0:0:0
 
 N:343:& Large steel chest~
 G:~:s
 I:7:7:0
 W:55:0:1000:250
-A:55/1
+A:55/16:85/8
 P:0:2d6:0:0:0
 
 N:344:& Ruined chest~
@@ -2658,12 +2658,15 @@ F:EASY_KNOW
 
 
 ##### Here are the Rods #####
+##### The PVALs have been changed to reflect recharge time #####
+##### A rod with a PVAL of 0 will crash the game #####
+##### Due to Divide by 0 errors #####
 
 ## XXX 350 XXX ##
 
 N:351:Door/Stair Location
 G:-:d
-I:66:1:0
+I:66:1:70
 W:15:0:15:1000
 A:15/1
 P:0:1d1:0:0:0
@@ -2671,7 +2674,7 @@ F:EASY_KNOW
 
 N:352:Trap Location
 G:-:d
-I:66:0:0
+I:66:0:50
 W:5:0:15:100
 A:5/1
 P:0:1d1:0:0:0
@@ -2679,7 +2682,7 @@ F:EASY_KNOW
 
 N:353:Probing
 G:-:d
-I:66:7:0
+I:66:7:50
 W:40:0:15:4000
 A:40/4
 P:0:1d1:0:0:0
@@ -2687,7 +2690,7 @@ F:EASY_KNOW
 
 N:354:Recall
 G:-:d
-I:66:3:0
+I:66:3:60
 W:30:0:15:4000
 A:30/4
 P:0:1d1:0:0:0
@@ -2695,7 +2698,7 @@ F:EASY_KNOW
 
 N:355:Illumination
 G:-:d
-I:66:4:0
+I:66:4:30
 W:20:0:15:1000
 A:20/1
 P:0:1d1:0:0:0
@@ -2703,7 +2706,7 @@ F:EASY_KNOW
 
 N:356:Light
 G:-:d
-I:66:15:0
+I:66:15:9
 W:10:0:15:500
 A:10/1
 P:0:1d1:0:0:0
@@ -2711,7 +2714,7 @@ F:EASY_KNOW
 
 N:357:Lightning Bolts
 G:-:d
-I:66:21:0
+I:66:21:11
 W:20:0:15:2000
 A:20/1
 P:0:1d1:0:0:0
@@ -2719,7 +2722,7 @@ F:EASY_KNOW
 
 N:358:Frost Bolts
 G:-:d
-I:66:23:0
+I:66:23:13
 W:25:0:15:2500
 A:25/1
 P:0:1d1:0:0:0
@@ -2727,7 +2730,7 @@ F:EASY_KNOW
 
 N:359:Fire Bolts
 G:-:d
-I:66:22:0
+I:66:22:15
 W:30:0:15:3000
 A:30/1
 P:0:1d1:0:0:0
@@ -2735,7 +2738,7 @@ F:EASY_KNOW
 
 N:360:Polymorph
 G:-:d
-I:66:19:0
+I:66:19:25
 W:35:0:15:1200
 A:35/1
 P:0:1d1:0:0:0
@@ -2743,7 +2746,7 @@ F:EASY_KNOW
 
 N:361:Slow Monster
 G:-:d
-I:66:17:0
+I:66:17:20
 W:30:0:15:1500
 A:30/1
 P:0:1d1:0:0:0
@@ -2751,7 +2754,7 @@ F:EASY_KNOW
 
 N:362:Sleep Monster
 G:-:d
-I:66:16:0
+I:66:16:18
 W:30:0:15:1500
 A:30/1
 P:0:1d1:0:0:0
@@ -2759,7 +2762,7 @@ F:EASY_KNOW
 
 N:363:Drain Life
 G:-:d
-I:66:18:0
+I:66:18:23
 W:75:0:15:3600
 A:75/4
 P:0:1d1:0:0:0
@@ -2767,7 +2770,7 @@ F:EASY_KNOW
 
 N:364:Teleport Other
 G:-:d
-I:66:13:0
+I:66:13:25
 W:45:0:15:1400
 A:45/2
 P:0:1d1:0:0:0
@@ -2775,7 +2778,7 @@ F:EASY_KNOW
 
 N:365:Disarming
 G:-:d
-I:66:14:0
+I:66:14:30
 W:35:0:15:2100
 A:35/1
 P:0:1d1:0:0:0
@@ -2783,7 +2786,7 @@ F:EASY_KNOW
 
 N:366:Lightning Balls
 G:-:d
-I:66:25:0
+I:66:25:23
 W:55:0:15:4000
 A:55/1
 P:0:1d1:0:0:0
@@ -2791,7 +2794,7 @@ F:EASY_KNOW
 
 N:367:Cold Balls
 G:-:d
-I:66:27:0
+I:66:27:25
 W:60:0:15:4500
 A:60/1
 P:0:1d1:0:0:0
@@ -2799,7 +2802,7 @@ F:EASY_KNOW
 
 N:368:Fire Balls
 G:-:d
-I:66:26:0
+I:66:26:30
 W:75:0:15:5000
 A:75/1
 P:0:1d1:0:0:0
@@ -2807,7 +2810,7 @@ F:EASY_KNOW
 
 N:369:Acid Balls
 G:-:d
-I:66:24:0
+I:66:24:27
 W:70:0:15:5500
 A:70/1
 P:0:1d1:0:0:0
@@ -2815,7 +2818,7 @@ F:EASY_KNOW
 
 N:370:Acid Bolts
 G:-:d
-I:66:20:0
+I:66:20:12
 W:40:0:15:3500
 A:40/1
 P:0:1d1:0:0:0
@@ -2823,7 +2826,7 @@ F:EASY_KNOW
 
 N:371:Enlightenment
 G:-:d
-I:66:5:0
+I:66:5:99
 W:65:0:15:10000
 A:65/4
 P:0:1d1:0:0:0
@@ -2831,7 +2834,7 @@ F:EASY_KNOW
 
 N:372:Perception
 G:-:d
-I:66:2:0
+I:66:2:10
 W:50:0:15:13000
 A:50/8
 P:0:1d1:0:0:0
@@ -2839,7 +2842,7 @@ F:EASY_KNOW
 
 N:373:Curing
 G:-:d
-I:66:8:0
+I:66:8:999
 W:65:0:15:15000
 A:65/8
 P:0:1d1:0:0:0
@@ -2847,7 +2850,7 @@ F:EASY_KNOW
 
 N:374:Healing
 G:-:d
-I:66:9:0
+I:66:9:999
 W:80:0:15:20000
 A:80/8
 P:0:1d1:0:0:0
@@ -2855,7 +2858,7 @@ F:EASY_KNOW
 
 N:375:Detection
 G:-:d
-I:66:6:0
+I:66:6:99
 W:30:0:15:5000
 A:30/8
 P:0:1d1:0:0:0
@@ -2863,7 +2866,7 @@ F:EASY_KNOW
 
 N:376:Restoration
 G:-:d
-I:66:10:0
+I:66:10:999
 W:80:0:15:25000
 A:80/16
 P:0:1d1:0:0:0
@@ -2871,7 +2874,7 @@ F:EASY_KNOW
 
 N:377:Speed
 G:-:d
-I:66:11:0
+I:66:11:99
 W:95:0:15:50000
 A:95/16
 P:0:1d1:0:0:0
@@ -3176,7 +3179,7 @@ W:100:0:200:300000
 A:100/64
 P:40:2d4:-3:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
-F:RES_CONFU | RES_DISEN | RES_SOUND | RES_SHARD | RES_BLIND | 
+F:RES_CONFU | RES_DISEN | RES_SOUND | RES_SHARD | RES_BLIND |
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3258,8 +3261,8 @@ G:":d
 I:40:13:0
 W:50:0:3:25000
 A:60/8
-F:TELEPATHY | SEARCH | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | 
+F:TELEPATHY | SEARCH |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
 F:HIDE_TYPE
 
 N:424:Resistance
@@ -3269,9 +3272,9 @@ W:60:0:3:20000
 A:60/8
 F:RES_FIRE | RES_ACID | RES_ELEC | RES_COLD | EASY_KNOW |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-# Note: It looks useless at its depth. In fact, it isn't: it allows the player 
+# Note: It looks useless at its depth. In fact, it isn't: it allows the player
 # to now wear a combination of armor and shield, neither of which has the basic
-# four resists, without having to find Colluin or Dor-Lomin first. To have this 
+# four resists, without having to find Colluin or Dor-Lomin first. To have this
 # power too early in the game would make it too easy.
 
 
@@ -3287,8 +3290,8 @@ G:":d
 I:40:18:0
 W:70:0:3:30000
 A:70/8
-F:WIS | CHR | SUST_WIS | SUST_CHR | LITE | 
-F:RES_DARK | RES_LITE | RES_FIRE | HOLD_LIFE | 
+F:WIS | CHR | SUST_WIS | SUST_CHR | LITE |
+F:RES_DARK | RES_LITE | RES_FIRE | HOLD_LIFE |
 F:HIDE_TYPE
 
 N:427:Weaponmastery
@@ -3297,7 +3300,7 @@ I:40:19:0
 W:70:0:3:30000
 P:0:0d0:0:0:0
 A:70/8
-F:STR | SUST_STR | SUST_CON | FREE_ACT | 
+F:STR | SUST_STR | SUST_CON | FREE_ACT |
 F:RES_FEAR | RES_DISEN | HIDE_TYPE
 
 N:428:Trickery
@@ -3305,7 +3308,7 @@ G:":d
 I:40:20:1
 W:70:0:3:30000
 A:70/8
-F:DEX | SUST_DEX | STEALTH | SPEED | SEARCH | INFRA | 
+F:DEX | SUST_DEX | STEALTH | SPEED | SEARCH | INFRA |
 F:RES_NEXUS | RES_POIS | HIDE_TYPE
 
 N:429:Infravision

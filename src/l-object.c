@@ -3184,7 +3184,8 @@ static int toluaI_object_make_object00(lua_State* tolua_S)
  !tolua_istype(tolua_S,1,tolua_tag(tolua_S,"object_type"),0) ||
  !tolua_istype(tolua_S,2,tolua_tag(tolua_S,"bool"),0) ||
  !tolua_istype(tolua_S,3,tolua_tag(tolua_S,"bool"),0) ||
- !tolua_isnoobj(tolua_S,4)
+ !tolua_istype(tolua_S,4,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,5)
  )
  goto tolua_lerror;
  else
@@ -3192,8 +3193,9 @@ static int toluaI_object_make_object00(lua_State* tolua_S)
   object_type* j_ptr = ((object_type*)  tolua_getusertype(tolua_S,1,0));
   bool good = ((bool)  tolua_getbool(tolua_S,2,0));
   bool great = ((bool)  tolua_getbool(tolua_S,3,0));
+  int chesttype = ((int)  tolua_getnumber(tolua_S,4,0));
  {
-  bool toluaI_ret = (bool)  make_object(j_ptr,good,great);
+  bool toluaI_ret = (bool)  make_object(j_ptr,good,great,chesttype);
  tolua_pushbool(tolua_S,(int)toluaI_ret);
  }
  }
@@ -3302,33 +3304,6 @@ static int toluaI_object_acquirement00(lua_State* tolua_S)
  return 0;
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'acquirement'.");
- return 0;
-}
-
-/* function: place_object */
-static int toluaI_object_place_object00(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,3,tolua_tag(tolua_S,"bool"),0) ||
- !tolua_istype(tolua_S,4,tolua_tag(tolua_S,"bool"),0) ||
- !tolua_isnoobj(tolua_S,5)
- )
- goto tolua_lerror;
- else
- {
-  int y = ((int)  tolua_getnumber(tolua_S,1,0));
-  int x = ((int)  tolua_getnumber(tolua_S,2,0));
-  bool good = ((bool)  tolua_getbool(tolua_S,3,0));
-  bool great = ((bool)  tolua_getbool(tolua_S,4,0));
- {
-  place_object(y,x,good,great);
- }
- }
- return 0;
-tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'place_object'.");
  return 0;
 }
 
@@ -4909,7 +4884,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"floor_carry",toluaI_object_floor_carry00);
  tolua_function(tolua_S,NULL,"drop_near",toluaI_object_drop_near00);
  tolua_function(tolua_S,NULL,"acquirement",toluaI_object_acquirement00);
- tolua_function(tolua_S,NULL,"place_object",toluaI_object_place_object00);
  tolua_function(tolua_S,NULL,"place_gold",toluaI_object_place_gold00);
  tolua_function(tolua_S,NULL,"pick_trap",toluaI_object_pick_trap00);
  tolua_function(tolua_S,NULL,"place_trap",toluaI_object_place_trap00);
@@ -5759,7 +5733,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"floor_carry");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"drop_near");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"acquirement");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"place_object");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"place_gold");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"pick_trap");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"place_trap");

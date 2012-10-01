@@ -113,7 +113,7 @@ static void flavor_assign_random(byte tval)
 
 		/* Select a flavor */
 		choice = rand_int(flavor_count);
-	
+
 		/* Find and store the flavor */
 		for (j = 0; j < z_info->flavor_max; j++)
 		{
@@ -732,7 +732,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-
 	/* See if the object is "aware" */
 	aware = (object_aware_p(o_ptr) ? TRUE : FALSE);
 
@@ -1325,7 +1324,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* No more details wanted */
 	if (mode < 2) goto object_desc_done;
 
-
 	/* Hack -- Wands and Staffs have charges */
 	if (known &&
 	    ((o_ptr->tval == TV_STAFF) ||
@@ -1334,6 +1332,14 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Dump " (N charges)" */
 		object_desc_chr_macro(t, ' ');
 		object_desc_chr_macro(t, p1);
+
+		/* Clear explaination for staffs. */
+		if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
+		{
+			object_desc_num_macro(t, o_ptr->number);
+			object_desc_str_macro(t, "x ");
+		}
+
 		object_desc_num_macro(t, o_ptr->pval);
 		object_desc_str_macro(t, " charge");
 		if (o_ptr->pval != 1)
@@ -1344,13 +1350,40 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Hack -- Rods have a "charging" indicator */
-	else if (known && (o_ptr->tval == TV_ROD))
+	if (known && (o_ptr->tval == TV_ROD))
 	{
-		/* Hack -- Dump " (charging)" if relevant */
-		if (o_ptr->pval)
+		/* Hack -- Dump " (# charging)" if relevant */
+		if (o_ptr->timeout >= 1)
 		{
-			object_desc_str_macro(t, " (charging)");
+
+			/* Stacks of rods display an exact count of charging rods. */
+			if (o_ptr->number > 1)
+			{
+
+				\
+				/* Paranoia. */
+				if (k_ptr->pval == 0) k_ptr->pval = 1;
+
+				/* Find out how many rods are charging, by dividing
+			 	 * current timeout by each rod's maximum timeout.
+			 	 * Ensure that any remainder is rounded up.  Display
+			 	 * very discharged stacks as merely fully discharged.
+			 	 */
+				power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+
+				if (power > o_ptr->number) power = o_ptr->number;
+
+				/* Display prettily. */
+				object_desc_str_macro(t, " (");
+				object_desc_num_macro(t, power);
+				object_desc_str_macro(t, " charging)");
+			}
+
+
+			/* "one Rod of Perception (1 charging)" would look tacky. */
+			if (o_ptr->number == 1)	object_desc_str_macro(t, " (charging)");
 		}
+
 	}
 
 	/* Hack -- Process Lanterns/Torches */
@@ -1456,8 +1489,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 
-	/* Indicate "charging" artifacts */
-	if (known && o_ptr->timeout)
+	/* Indicate "charging" objects, but not rods */
+	if (known && o_ptr->timeout && o_ptr->tval != TV_ROD)
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		object_desc_str_macro(t, " (charging)");

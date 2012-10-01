@@ -351,7 +351,7 @@ void do_cmd_use_staff(void)
 	int item, chance, lev;
 
 	bool ident;
-	
+
 	object_type *o_ptr;
 
 	bool use_charge;
@@ -438,7 +438,6 @@ void do_cmd_use_staff(void)
 
 	/* Use the staff */
 	use_charge = use_object(o_ptr, &ident);
-
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -564,10 +563,8 @@ void do_cmd_aim_wand(void)
 		return;
 	}
 
-
 	/* Aim the wand */
 	if (!use_object(o_ptr, &ident)) return;
-
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -591,33 +588,6 @@ void do_cmd_aim_wand(void)
 
 	/* Use a single charge */
 	o_ptr->pval--;
-
-	/* Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore the charges */
-		o_ptr->pval++;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your wand.");
-	}
 
 	/* Describe the charges in the pack */
 	if (item >= 0)
@@ -672,7 +642,6 @@ void do_cmd_zap_rod(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Mega-Hack -- refuse to zap a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
@@ -702,32 +671,6 @@ void do_cmd_zap_rod(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1) && (o_ptr->pval > 0))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore "charge" */
-		o_ptr->pval = 0;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your rod.");
-	}
 }
 
 

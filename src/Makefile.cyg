@@ -59,6 +59,7 @@ EXOBJS = \
 	variable.o \
 	wizard1.o \
 	wizard2.o \
+	squelch.o \
 	xtra1.o \
 	xtra2.o \
 	z-form.o \
@@ -292,6 +293,9 @@ wizard1.o: wizard1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 wizard2.o: wizard2.c $(INCS) script.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+squelch.o: squelch.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 x-spell.o: x-spell.c $(INCS)
