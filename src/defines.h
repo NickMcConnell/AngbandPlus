@@ -44,7 +44,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.3.4"
+#define VERSION_STRING	"0.3.4b"
 
 /*
  * Current version numbers
@@ -52,7 +52,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	3
 #define VERSION_PATCH	4
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	1
 
 /*
  * Maximum value storable in a "byte" (hard-coded)
@@ -3172,13 +3172,6 @@
  */
 #define modified_p(T) \
 	((T)->ident & (IDENT_MODIFIED))
-
-/*
- * Weight factor for weapon plusses
- */
-#define wgt_factor(T) \
-	((actual_weight((T)) > 300) ? 20 : \
-	((actual_weight((T)) ? 3 : max_item_plus[(actual_weight((T))/10)-1])))
 
 /*
  * Item stats including prefixes

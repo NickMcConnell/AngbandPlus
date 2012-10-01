@@ -14,7 +14,7 @@
 # superceeds the color in monster.txt. 
 #
 V:0.3.4
-#
+
 N:1:Farmer Maggot
 R:2:w
 I:110:35d10:40:10:3

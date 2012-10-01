@@ -2117,12 +2117,14 @@ void cleanup_angband(void)
 	free_info(&c_head);
 	free_info(&p_head);
 	free_info(&h_head);
-	free_info(&v_head);
+	free_info(&u_head);
 	free_info(&r_head);
+	free_info(&px_head);
 	free_info(&e_head);
 	free_info(&a_head);
 	free_info(&k_head);
 	free_info(&f_head);
+	free_info(&v_head);
 	free_info(&z_head);
 
 	/* Free the format() buffer */

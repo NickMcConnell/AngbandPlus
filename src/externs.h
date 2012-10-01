@@ -593,11 +593,8 @@ extern void reorder_pack(void);
 extern void display_spell_list(void);
 extern void display_koff(int k_idx, int pval);
 extern bool make_fake_artifact(object_type *o_ptr, int a_idx);
-extern int object_base_to_h(object_type *o_ptr);
-extern int object_base_to_d(object_type *o_ptr);
-extern int object_base_dd(object_type *o_ptr);
-extern int object_base_ds(object_type *o_ptr);
 extern void create_quest_item(int ny, int nx);
+extern byte wgt_factor(object_type *o_ptr);
 
 /* powers.c */
 extern info_entry power_info[POW_MAX];

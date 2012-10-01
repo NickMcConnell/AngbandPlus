@@ -136,10 +136,6 @@ struct feature_type
 
 	byte mimic;			/* Feature to mimic */
 
-	byte extra;			/* Extra byte (unused) */
-
-	s16b unused;		/* Extra bytes (unused) */
-
 	byte d_attr;		/* Default feature attribute */
 	char d_char;		/* Default feature character */
 
@@ -188,7 +184,6 @@ struct object_kind
 	byte chance[MAX_OBJ_ALLOC];	/* Allocation chance(s) */
 
 	byte level;					/* Level */
-	byte extra;					/* Something */
 
 	byte d_attr;				/* Default object attribute */
 	char d_char;				/* Default object character */
@@ -399,8 +394,6 @@ struct monster_race
 	byte speed;				/* Speed (normally 110) */
 
 	s32b mexp;				/* Exp value for kill */
-
-	s16b extra;				/* Unused (for now) */
 
 	byte freq_spell;		/* Other spell frequency */
 
@@ -642,8 +635,6 @@ struct alloc_entry
 	byte prob1;		/* Probability, pass 1 */
 	byte prob2;		/* Probability, pass 2 */
 	byte prob3;		/* Probability, pass 3 */
-
-	u16b total;		/* Unused for now */
 };
 
 /*
@@ -934,7 +925,6 @@ struct player_type
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
-	byte oops;			/* unused */
 
 	byte hitdie;		/* Hit dice (sides) */
 	u16b expfact;		/* Experience factor */
@@ -1078,7 +1068,6 @@ struct player_type
 
 	s16b run_cur_dir;		/* Direction we are running */
 	s16b run_old_dir;		/* Direction we came from */
-	bool run_unused;		/* Unused (padding field) */
 	bool run_open_area;		/* Looking for an open area */
 	bool run_break_right;	/* Looking for a break (right) */
 	bool run_break_left;	/* Looking for a break (left) */

@@ -1583,7 +1583,6 @@ errr parse_k_info(char *buf, header *head)
 
 		/* Save the values */
 		k_ptr->level = level;
-		k_ptr->extra = extra;
 		k_ptr->weight = wgt;
 		k_ptr->cost = cost;
 	}
@@ -2431,7 +2430,6 @@ errr parse_r_info(char *buf, header *head)
 		/* Save the values */
 		r_ptr->level = lev;
 		r_ptr->rarity = rar;
-		r_ptr->extra = pad;
 		r_ptr->mexp = exp;
 	}
 	

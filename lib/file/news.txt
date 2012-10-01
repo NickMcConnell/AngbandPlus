@@ -1,8 +1,8 @@
 
 
-                          ***********************
-                          **  EyAngband 0.3.4  **
-                          ***********************
+                          ************************
+                          **  EyAngband 0.3.4b  **
+                          ************************
                                By Eytan Zweig
 
             Based on Moria:  Copyright (c) 1985 Robert Alan Koeneke
@@ -17,5 +17,5 @@
        	EyAngband Home Page at "http://members.xoom.com/eytanz/eyangband"
 
         Angband Home Page at "http://thangorodrim.angband.org/"
-       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
+        Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
 

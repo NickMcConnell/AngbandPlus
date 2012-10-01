@@ -1,3 +1,17 @@
+Changes from 0.3.4 to 0.3.4b:
+
+## Bug fixes ##
+
+- Major bug preventing enchantment beyond +3 to all melee weapons.
+
+- Spectators had incorrect AC.
+
+- Some memory wasn't being properly freed when *_info.txt files were processed.
+
+- Some structs wasted memory on unused fields.
+
+- Numerous typos changed, and some in-game text improved.
+
 Changes from 0.3.3 to 0.3.4:
 
 - Compatible with 0.3.3, 0.3.2 or 0.3.1 savefiles, with the following exceptions:

@@ -5010,3 +5010,17 @@ void create_quest_item(int ny, int nx)
 	/* Drop the artifact from heaven */
 	drop_near(i_ptr, -1, ny, nx);
 }
+
+/*
+ * Weight factor for weapon plusses
+ */
+byte wgt_factor(object_type *o_ptr)
+{
+	int factor = actual_weight(o_ptr) / 10 - 1;
+
+	/* Boundary checking */
+	if (factor < 0) factor = 0;
+	if (factor > 29) factor = 29;
+
+	return max_item_plus[factor];
+}
