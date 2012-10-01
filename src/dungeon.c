@@ -95,7 +95,7 @@ static cptr value_check_aux2(object_type *o_ptr)
  *   Class 4 = Ranger  --> slow and light
  *   Class 5 = Paladin --> slow but heavy
  *   Class 6 = Illusionist --> slow and light -KMW-
- */
+*/
 static void sense_inventory(void)
 {
 	int i;
@@ -190,6 +190,16 @@ static void sense_inventory(void)
 			/* Done */
 			break;
 		}
+
+		case CLASS_DRUID:
+		{
+			/* Good (light) sensing */
+			if (0 != rand_int(10000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
 	}
 
 
@@ -329,7 +339,7 @@ static void regenhp(int percent)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -375,7 +385,7 @@ static void regenmana(int percent)
 		p_ptr->redraw |= (PR_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -434,7 +444,7 @@ static void regen_monsters(void)
  */
 static void process_world(void)
 {
-	int x, y, i, j;
+	int i, j;
 
 	int regen_amount;
 
@@ -501,22 +511,6 @@ static void process_world(void)
 			{
 				/* Message */
 				msg_print("The sun has risen.");
-
-				/* Hack -- Scan the town */
-				for (y = 0; y < DUNGEON_HGT; y++)
-				{
-					for (x = 0; x < DUNGEON_WID; x++)
-					{
-						/* Assume lit */
-						cave_info[y][x] |= (CAVE_GLOW);
-
-						/* Hack -- Memorize lit grids if allowed */
-						if (view_perma_grids) cave_info[y][x] |= (CAVE_MARK);
-
-						/* Hack -- Notice spot */
-						note_spot(y, x);
-					}
-				}
 			}
 
 			/* Night falls */
@@ -524,33 +518,10 @@ static void process_world(void)
 			{
 				/* Message */
 				msg_print("The sun has fallen.");
-
-				/* Hack -- Scan the town */
-				for (y = 0; y < DUNGEON_HGT; y++)
-				{
-					for (x = 0; x < DUNGEON_WID; x++)
-					{
-						/* Darken "boring" features */
-						if (cave_feat[y][x] <= FEAT_INVIS)
-						{
-							/* Forget the grid */
-							cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);
-
-							/* Hack -- Notice spot */
-							note_spot(y, x);
-						}
-					}
-				}
 			}
 
-			/* Update the monsters */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD);
+			/* Illuminate */
+			town_illuminate(dawn);
 		}
 	}
 
@@ -1150,11 +1121,13 @@ static void process_world(void)
 			if (p_ptr->depth)
 			{
 				msg_print("You feel yourself yanked upwards!");
+
+				/* New depth */
 				p_ptr->depth = 0;
 
-				/* if leave quest before complete - reset -KMW- */
+				/*if leave quest before complete - reset -KMW- */
 /*				for(i=0; i < MAX_QUESTS; i++) {
-					if ((p_ptr->rewards[i+QUEST_REWARD] == 1) && 
+					if ((p_ptr->rewards[i+QUEST_REWARD] == 1) &&
 					    (q_list[i].quest_type == 5) &&
 					    (p_ptr->inside_special == 2)) {
 						q_list[i].cur_num = 0;
@@ -1162,7 +1135,7 @@ static void process_world(void)
 					}
 				}
 */
-				p_ptr->inside_special = 0; /* -KMW- */
+ 				p_ptr->inside_special = 0; /* -KMW- */
 				p_ptr->leaving = TRUE;
 			}
 			else
@@ -1194,8 +1167,8 @@ static bool enter_wizard_mode(void)
 	if (!(p_ptr->noscore & 0x0002))
 	{
 		/* Mention effects */
-		msg_print("Wizard mode is for debugging and experimenting.");
-		msg_print("The game will not be scored if you enter wizard mode.");
+		msg_print("You are about to enter 'wizard' mode for the very first time!");
+		msg_print("This is a form of cheating, and your game will not be scored!");
 		msg_print(NULL);
 
 		/* Verify request */
@@ -1213,34 +1186,41 @@ static bool enter_wizard_mode(void)
 }
 
 
-#ifdef ALLOW_WIZARD
+
+#ifdef ALLOW_DEBUG
 
 /*
- * Verify use of "debug" commands
+ * Verify use of "debug" mode
  */
-static bool enter_debug_mode(void)
+static bool verify_debug_mode(void)
 {
+	static int verify = 1;
+
 	/* Ask first time */
-	if (!(p_ptr->noscore & 0x0008))
+	if (verify && verify_special)
 	{
 		/* Mention effects */
-		msg_print("The debug commands are for debugging and experimenting.");
-		msg_print("The game will not be scored if you use debug commands.");
+		msg_print("You are about to use the dangerous, unsupported, debug commands!");
+		msg_print("Your machine may crash, and your savefile may become corrupted!");
 		msg_print(NULL);
 
 		/* Verify request */
-		if (!get_check("Are you sure you want to use debug commands? "))
+		if (!get_check("Are you sure you want to use the debug commands? "))
 		{
 			return (FALSE);
 		}
-
-		/* Mark savefile */
-		p_ptr->noscore |= 0x0008;
 	}
 
-	/* Success */
+	/* Verified */
+	verify = 0;
+
+	/* Mark savefile */
+	p_ptr->noscore |= 0x0008;
+
+	/* Okay */
 	return (TRUE);
 }
+
 
 /*
  * Hack -- Declare the Debug Routines
@@ -1250,37 +1230,44 @@ extern void do_cmd_debug(void);
 #endif
 
 
+
 #ifdef ALLOW_BORG
 
 /*
- * Verify use of "borg" commands
+ * Verify use of "borg" mode
  */
-static bool enter_borg_mode(void)
+static bool verify_borg_mode(void)
 {
+	static int verify = 1;
+
 	/* Ask first time */
-	if (!(p_ptr->noscore & 0x0010))
+	if (verify && verify_special)
 	{
 		/* Mention effects */
-		msg_print("The borg commands are for debugging and experimenting.");
-		msg_print("The game will not be scored if you use borg commands.");
+		msg_print("You are about to use the dangerous, unsupported, borg commands!");
+		msg_print("Your machine may crash, and your savefile may become corrupted!");
 		msg_print(NULL);
 
 		/* Verify request */
-		if (!get_check("Are you sure you want to use borg commands? "))
+		if (!get_check("Are you sure you want to use the borg commands? "))
 		{
 			return (FALSE);
 		}
-
-		/* Mark savefile */
-		p_ptr->noscore |= 0x0010;
 	}
 
-	/* Success */
+	/* Verified */
+	verify = 0;
+
+	/* Mark savefile */
+	p_ptr->noscore |= 0x0010;
+
+	/* Okay */
 	return (TRUE);
 }
 
+
 /*
- * Hack -- Declare the Ben Borg
+ * Hack -- Declare the Borg Routines
  */
 extern void do_cmd_borg(void);
 
@@ -1291,32 +1278,26 @@ extern void do_cmd_borg(void);
 /*
  * Parse and execute the current command
  * Give "Warning" on illegal commands.
- *
- * XXX XXX XXX Make some "blocks"
  */
 static void process_command(void)
 {
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
-			/* Ignore */
+		/* Ignore */
 		case ESCAPE:
 		case ' ':
-		{
-			break;
-		}
 
-			/* Ignore return */
+		/* Ignore */
 		case '\r':
 		{
 			break;
 		}
 
 
+		/*** Cheating Commands ***/
 
-			/*** Wizard Commands ***/
-
-			/* Toggle Wizard Mode */
+		/* Toggle Wizard Mode */
 		case KTRL('W'):
 		{
 			if (p_ptr->wizard)
@@ -1340,16 +1321,12 @@ static void process_command(void)
 		}
 
 
-#ifdef ALLOW_WIZARD
+#ifdef ALLOW_DEBUG
 
-			/* Special "debug" commands */
+		/* Special "debug" commands */
 		case KTRL('A'):
 		{
-			/* Enter debug mode */
-			if (enter_debug_mode())
-			{
-				do_cmd_debug();
-			}
+			if (verify_debug_mode()) do_cmd_debug();
 			break;
 		}
 
@@ -1358,15 +1335,10 @@ static void process_command(void)
 
 #ifdef ALLOW_BORG
 
-			/* Special "borg" commands */
+		/* Special "borg" commands */
 		case KTRL('Z'):
 		{
-			/* Enter borg mode */
-			if (enter_borg_mode())
-			{
-				do_cmd_borg();
-			}
-
+			if (verify_borg_mode()) do_cmd_borg();
 			break;
 		}
 
@@ -1374,44 +1346,44 @@ static void process_command(void)
 
 
 
-			/*** Inventory Commands ***/
+		/*** Inventory Commands ***/
 
-			/* Wear/wield equipment */
+		/* Wear/wield equipment */
 		case 'w':
 		{
 			do_cmd_wield();
 			break;
 		}
 
-			/* Take off equipment */
+		/* Take off equipment */
 		case 't':
 		{
 			do_cmd_takeoff();
 			break;
 		}
 
-			/* Drop an item */
+		/* Drop an item */
 		case 'd':
 		{
 			do_cmd_drop();
 			break;
 		}
 
-			/* Destroy an item */
+		/* Destroy an item */
 		case 'k':
 		{
 			do_cmd_destroy();
 			break;
 		}
 
-			/* Equipment list */
+		/* Equipment list */
 		case 'e':
 		{
 			do_cmd_equip();
 			break;
 		}
 
-			/* Inventory list */
+		/* Inventory list */
 		case 'i':
 		{
 			do_cmd_inven();
@@ -1419,16 +1391,16 @@ static void process_command(void)
 		}
 
 
-			/*** Various commands ***/
+		/*** Various commands ***/
 
-			/* Identify an object */
+		/* Identify an object */
 		case 'I':
 		{
 			do_cmd_observe();
 			break;
 		}
 
-			/* Hack -- toggle windows */
+		/* Hack -- toggle windows */
 		case KTRL('E'):
 		{
 			toggle_inven_equip();
@@ -1436,30 +1408,30 @@ static void process_command(void)
 		}
 
 
-			/*** Standard "Movement" Commands ***/
+		/*** Standard "Movement" Commands ***/
 
-			/* Alter a grid */
+		/* Alter a grid */
 		case '+':
 		{
 			do_cmd_alter();
 			break;
 		}
 
-			/* Dig a tunnel */
+		/* Dig a tunnel */
 		case 'T':
 		{
 			do_cmd_tunnel();
 			break;
 		}
 
-			/* Walk */
+		/* Walk */
 		case ';':
 		{
 			do_cmd_walk();
 			break;
 		}
 
-			/* Jump */
+		/* Jump */
 		case '-':
 		{
 			do_cmd_jump();
@@ -1467,44 +1439,44 @@ static void process_command(void)
 		}
 
 
-			/*** Running, Resting, Searching, Staying */
+		/*** Running, Resting, Searching, Staying */
 
-			/* Begin Running -- Arg is Max Distance */
+		/* Begin Running -- Arg is Max Distance */
 		case '.':
 		{
 			do_cmd_run();
 			break;
 		}
 
-			/* Hold still */
+		/* Hold still */
 		case ',':
 		{
 			do_cmd_hold();
 			break;
 		}
 
-			/* Stay still */
+		/* Stay still */
 		case 'g':
 		{
 			do_cmd_stay();
 			break;
 		}
 
-			/* Rest -- Arg is time */
+		/* Rest -- Arg is time */
 		case 'R':
 		{
 			do_cmd_rest();
 			break;
 		}
 
-			/* Search for traps/doors */
+		/* Search for traps/doors */
 		case 's':
 		{
 			do_cmd_search();
 			break;
 		}
 
-			/* Toggle search mode */
+		/* Toggle search mode */
 		case 'S':
 		{
 			do_cmd_toggle_search();
@@ -1512,9 +1484,9 @@ static void process_command(void)
 		}
 
 
-			/*** Stairs and Doors and Chests and Traps ***/
+		/*** Stairs and Doors and Chests and Traps ***/
 
-			/* Enter store */
+		/* Enter store */
 		case '_':
 		{
 			do_cmd_store();
@@ -1535,49 +1507,49 @@ static void process_command(void)
 			break;
 		}
 
-			/* Go up staircase */
+		/* Go up staircase */
 		case '<':
 		{
 			do_cmd_go_up();
 			break;
 		}
 
-			/* Go down staircase */
+		/* Go down staircase */
 		case '>':
 		{
 			do_cmd_go_down();
 			break;
 		}
 
-			/* Open a door or chest */
+		/* Open a door or chest */
 		case 'o':
 		{
 			do_cmd_open();
 			break;
 		}
 
-			/* Close a door */
+		/* Close a door */
 		case 'c':
 		{
 			do_cmd_close();
 			break;
 		}
 
-			/* Jam a door with spikes */
+		/* Jam a door with spikes */
 		case 'j':
 		{
 			do_cmd_spike(FALSE);
 			break;
 		}
 
-			/* Bash a door */
+		/* Bash a door */
 		case 'B':
 		{
 			do_cmd_bash();
 			break;
 		}
 
-			/* Disarm a trap or chest */
+		/* Disarm a trap or chest */
 		case 'D':
 		{
 			do_cmd_disarm();
@@ -1585,24 +1557,23 @@ static void process_command(void)
 		}
 
 
-			/*** Magic and Prayers ***/
+		/*** Magic and Prayers ***/
 
-			/* Gain new spells/prayers - changed -KMW- */
+			/* Gain new spells/prayers */
 		case 'G':
 		{
-			msg_print("You must visit your superiors and be taught.");
-			msg_print(NULL);
+			do_cmd_study(TRUE);
 			break;
 		}
 
-			/* Browse a book */
+		/* Browse a book */
 		case 'b':
 		{
 			do_cmd_browse();
 			break;
 		}
 
-			/* Cast a spell */
+		/* Cast a spell */
 		case 'm':
 		{
 			if (p_ptr->inside_special != 1)  /* -KMW- */
@@ -1615,7 +1586,7 @@ static void process_command(void)
 			break;
 		}
 
-			/* Pray a prayer */
+		/* Pray a prayer */
 		case 'p':
 		{
 			if (p_ptr->inside_special != 1)  /* -KMW- */
@@ -1629,23 +1600,23 @@ static void process_command(void)
 		}
 
 
-			/*** Use various objects ***/
+		/*** Use various objects ***/
 
-			/* Inscribe an object */
+		/* Inscribe an object */
 		case '{':
 		{
 			do_cmd_inscribe();
 			break;
 		}
 
-			/* Uninscribe an object */
+		/* Uninscribe an object */
 		case '}':
 		{
 			do_cmd_uninscribe();
 			break;
 		}
 
-			/* Activate an artifact */
+		/* Activate an artifact */
 		case 'A':
 		{
 			if (p_ptr->inside_special != 1)  /* -KMW- */
@@ -1658,21 +1629,21 @@ static void process_command(void)
 			break;
 		}
 
-			/* Eat some food */
+		/* Eat some food */
 		case 'E':
 		{
 			do_cmd_eat_food();
 			break;
 		}
 
-			/* Fuel your lantern/torch */
+		/* Fuel your lantern/torch */
 		case 'F':
 		{
 			do_cmd_refill();
 			break;
 		}
 
-			/* Fire an item */
+		/* Fire an item */
 		case 'f':
 		{
 			if (p_ptr->inside_special != 1)  /* -KMW- */
@@ -1685,7 +1656,7 @@ static void process_command(void)
 			break;
 		}
 
-			/* Throw an item */
+		/* Throw an item */
 		case 'v':
 		{
 			if (p_ptr->inside_special != 1)  /* -KMW- */
@@ -1698,7 +1669,7 @@ static void process_command(void)
 			break;
 		}
 
-			/* Aim a wand */
+		/* Aim a wand */
 		case 'a':
 		{
 			if (p_ptr->inside_special != 1)  /* -KMW- */
@@ -1711,7 +1682,7 @@ static void process_command(void)
 			break;
 		}
 
-			/* Zap a rod */
+		/* Zap a rod */
 		case 'z':
 		{
 			if (p_ptr->inside_special != 1)  /* -KMW- */
@@ -1724,7 +1695,7 @@ static void process_command(void)
 			break;
 		}
 
-			/* Quaff a potion */
+		/* Quaff a potion */
 		case 'q':
 		{
 			if (p_ptr->inside_special != 1)  /* -KMW- */
@@ -1737,7 +1708,7 @@ static void process_command(void)
 			break;
 		}
 
-			/* Read a scroll */
+		/* Read a scroll */
 		case 'r':
 		{
 			if (p_ptr->inside_special != 1)  /* -KMW- */
@@ -1750,7 +1721,7 @@ static void process_command(void)
 			break;
 		}
 
-			/* Use a staff */
+		/* Use a staff */
 		case 'u':
 		{
 			if (p_ptr->inside_special != 1)  /* -KMW- */
@@ -1764,30 +1735,30 @@ static void process_command(void)
 		}
 
 
-			/*** Looking at Things (nearby or on map) ***/
+		/*** Looking at Things (nearby or on map) ***/
 
-			/* Full dungeon map */
+		/* Full dungeon map */
 		case 'M':
 		{
 			do_cmd_view_map();
 			break;
 		}
 
-			/* Locate player on map */
+		/* Locate player on map */
 		case 'L':
 		{
 			do_cmd_locate();
 			break;
 		}
 
-			/* Look around */
+		/* Look around */
 		case 'l':
 		{
 			do_cmd_look();
 			break;
 		}
 
-			/* Target monster or location */
+		/* Target monster or location */
 		case '*':
 		{
 			do_cmd_target();
@@ -1796,23 +1767,23 @@ static void process_command(void)
 
 
 
-			/*** Help and Such ***/
+		/*** Help and Such ***/
 
-			/* Help */
+		/* Help */
 		case '?':
 		{
 			do_cmd_help();
 			break;
 		}
 
-			/* Identify symbol */
+		/* Identify symbol */
 		case '/':
 		{
 			do_cmd_query_symbol();
 			break;
 		}
 
-			/* Character description */
+		/* Character description */
 		case 'C':
 		{
 			do_cmd_change_name();
@@ -1820,44 +1791,44 @@ static void process_command(void)
 		}
 
 
-			/*** System Commands ***/
+		/*** System Commands ***/
 
-			/* Hack -- User interface */
+		/* Hack -- User interface */
 		case '!':
 		{
 			(void)Term_user(0);
 			break;
 		}
 
-			/* Single line from a pref file */
+		/* Single line from a pref file */
 		case '"':
 		{
 			do_cmd_pref();
 			break;
 		}
 
-			/* Interact with macros */
+		/* Interact with macros */
 		case '@':
 		{
 			do_cmd_macros();
 			break;
 		}
 
-			/* Interact with visuals */
+		/* Interact with visuals */
 		case '%':
 		{
 			do_cmd_visuals();
 			break;
 		}
 
-			/* Interact with colors */
+		/* Interact with colors */
 		case '&':
 		{
 			do_cmd_colors();
 			break;
 		}
 
-			/* Interact with options */
+		/* Interact with options */
 		case '=':
 		{
 			do_cmd_options();
@@ -1866,37 +1837,37 @@ static void process_command(void)
 		}
 
 
-			/*** Misc Commands ***/
+		/*** Misc Commands ***/
 
-			/* Take notes */
+		/* Take notes */
 		case ':':
 		{
 			do_cmd_note();
 			break;
 		}
 
-			/* Version info */
+		/* Version info */
 		case 'V':
 		{
 			do_cmd_version();
 			break;
 		}
 
-			/* Repeat level feeling */
+		/* Repeat level feeling */
 		case KTRL('F'):
 		{
 			do_cmd_feeling();
 			break;
 		}
 
-			/* Show previous message */
+		/* Show previous message */
 		case KTRL('O'):
 		{
 			do_cmd_message_one();
 			break;
 		}
 
-			/* Show previous messages */
+		/* Show previous messages */
 		case KTRL('P'):
 		{
 			do_cmd_messages();
@@ -1910,7 +1881,7 @@ static void process_command(void)
 			break;
 		}
 
-			/* Redraw the screen */
+		/* Redraw the screen */
 		case KTRL('R'):
 		{
 			do_cmd_redraw();
@@ -1919,7 +1890,7 @@ static void process_command(void)
 
 #ifndef VERIFY_SAVEFILE
 
-			/* Hack -- Save and don't quit */
+		/* Hack -- Save and don't quit */
 		case KTRL('S'):
 		{
 			do_cmd_save_game();
@@ -1928,7 +1899,7 @@ static void process_command(void)
 
 #endif
 
-			/* Save and quit */
+		/* Save and quit */
 		case KTRL('X'):
 		{
 			/* Stop playing */
@@ -1940,14 +1911,14 @@ static void process_command(void)
 			break;
 		}
 
-			/* Quit (commit suicide) */
+		/* Quit (commit suicide) */
 		case 'Q':
 		{
 			do_cmd_suicide();
 			break;
 		}
 
-			/* Check knowledge */
+		/* Check knowledge */
 		case '~':
 		case '|':
 		{
@@ -1955,21 +1926,21 @@ static void process_command(void)
 			break;
 		}
 
-			/* Load "screen dump" */
+		/* Load "screen dump" */
 		case '(':
 		{
 			do_cmd_load_screen();
 			break;
 		}
 
-			/* Save "screen dump" */
+		/* Save "screen dump" */
 		case ')':
 		{
 			do_cmd_save_screen();
 			break;
 		}
 
-			/* Hack -- Unknown command */
+		/* Hack -- Unknown command */
 		default:
 		{
 			prt("Type '?' for help.", 0, 0);
@@ -2071,6 +2042,12 @@ static void process_player_aux(void)
  * every time we change any internal monster memory field, and
  * also reduces the number of times that the recall window must
  * be redrawn.
+ *
+ * Note that the code to check for user abort during repeated commands
+ * and running and resting can be disabled entirely with an option, and
+ * even if not disabled, it will never check during "special" resting
+ * (codes -1 and -2), and it will only check during every 16th player
+ * turn of "normal" resting.
  */
 static void process_player(void)
 {
@@ -2122,8 +2099,10 @@ static void process_player(void)
 	/* Handle "abort" */
 	if (!avoid_abort)
 	{
-		/* Check for "player abort" (semi-efficiently for resting) */
-		if (p_ptr->running || p_ptr->command_rep || (p_ptr->resting && !(p_ptr->resting & 0x0F)))
+		/* Check for "player abort" */
+		if (p_ptr->running ||
+		    p_ptr->command_rep ||
+		    (p_ptr->resting && !(p_ptr->resting & 0x0F)))
 		{
 			/* Do not wait */
 			inkey_scan = TRUE;
@@ -2441,6 +2420,7 @@ static void dungeon(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+
 	/* Hack -- enforce illegal panel */
 	p_ptr->wy = DUNGEON_HGT;
 	p_ptr->wx = DUNGEON_WID;
@@ -2459,7 +2439,7 @@ static void dungeon(void)
 
 
 	/* Cancel the target */
-	p_ptr->target_who = 0;
+	target_set_monster(0);
 
 	/* Cancel the health bar */
 	health_track(0);
@@ -2539,23 +2519,13 @@ static void dungeon(void)
 	msg_print(NULL);
 
 
-	/* Enter "xtra" mode */
-	character_xtra = TRUE;
+	/* Hack -- Increase "xtra" depth */
+	character_xtra++;
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	/* Clear */
+	Term_clear();
 
-	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2566,14 +2536,24 @@ static void dungeon(void)
 	/* Update stuff */
 	update_stuff();
 
-	/* Redraw stuff */
-	redraw_stuff();
 
-	/* Redraw stuff */
-	window_stuff();
+	/* Fully update the visuals (and monster distances) */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
 
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_DISTANCE);
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+
+	/* Redraw dungeon */
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MONSTER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
 
 	/* Update stuff */
 	update_stuff();
@@ -2581,8 +2561,13 @@ static void dungeon(void)
 	/* Redraw stuff */
 	redraw_stuff();
 
-	/* Leave "xtra" mode */
-	character_xtra = FALSE;
+	/* Redraw stuff */
+	window_stuff();
+
+
+	/* Hack -- Decrease "xtra" depth */
+	character_xtra--;
+
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2731,10 +2716,10 @@ static void process_some_user_pref_files(void)
 	/* Process the "user.prf" file */
 	(void)process_pref_file("user.prf");
 
-	/* Process the "PLAYER" file */
+	/* Process the "PLAYER.prf" file */
 	sprintf(buf, "%s.prf", op_ptr->base_name);
 
-	/* Process the "user.prf" file */
+	/* Process the "PLAYER.prf" file */
 	(void)process_pref_file(buf);
 }
 
@@ -2753,8 +2738,28 @@ static void process_some_user_pref_files(void)
  */
 void play_game(bool new_game)
 {
-	/* Hack -- Character is "icky" */
-	character_icky = TRUE;
+	/* Hack -- Increase "icky" depth */
+	character_icky++;
+
+
+	/* Verify main term */
+	if (!angband_term[0])
+	{
+		quit("main window does not exist");
+	}
+
+	/* Make sure main term is active */
+	Term_activate(angband_term[0]);
+
+	/* Verify minimum size */
+	if ((Term->hgt < 24) || (Term->wid < 80))
+	{
+		quit("main window is too small");
+	}
+
+	/* Forbid resizing */
+	Term->fixed_shape = TRUE;
+
 
 	/* Hack -- turn off the cursor */
 	(void)Term_set_cursor(0);
@@ -2780,8 +2785,6 @@ void play_game(bool new_game)
 	/* Process old character */
 	if (!new_game)
 	{
-		/* Process the player name */
-		process_player_name(FALSE);
 	}
 
 	/* Init RNG */
@@ -2812,7 +2815,7 @@ void play_game(bool new_game)
 		/* The dungeon is not ready */
 		character_dungeon = FALSE;
 
-		/* Start in town -KMW- */
+		/* Start in town-KMW- */
 		p_ptr->depth = 0;
 		p_ptr->inside_special = 0;
 
@@ -2827,6 +2830,18 @@ void play_game(bool new_game)
 
 		/* Hack -- enter the world */
 		turn = 1;
+	}
+
+	/* Normal machine (process player name) */
+	if (savefile[0])
+	{
+		process_player_name(FALSE);
+	}
+
+	/* Weird machine (process player name, pick savefile name) */
+	else
+	{
+		process_player_name(TRUE);
 	}
 
 	/* Flash a message */
@@ -2848,7 +2863,7 @@ void play_game(bool new_game)
 
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);
@@ -2873,8 +2888,6 @@ void play_game(bool new_game)
 	if (arg_force_original) rogue_like_commands = FALSE;
 	if (arg_force_roguelike) rogue_like_commands = TRUE;
 
-	/* Verify the keymap */
-	keymap_init();
 
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
@@ -2883,13 +2896,12 @@ void play_game(bool new_game)
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
 
-
 	/* Character is now "complete" */
 	character_generated = TRUE;
 
 
-	/* Hack -- Character is no longer "icky" */
-	character_icky = FALSE;
+	/* Hack -- Decrease "icky" depth */
+	character_icky--;
 
 
 	/* Start playing */
@@ -2903,6 +2915,7 @@ void play_game(bool new_game)
 	{
 		/* Process the level */
 		dungeon();
+
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2918,14 +2931,11 @@ void play_game(bool new_game)
 
 
 		/* Cancel the target */
-		p_ptr->target_who = 0;
+		target_set_monster(0);
 
 		/* Cancel the health bar */
 		health_track(0);
 
-
-		/* Forget the lite */
-		forget_lite();
 
 		/* Forget the view */
 		forget_view();
@@ -3022,5 +3032,3 @@ void play_game(bool new_game)
 	/* Quit */
 	quit(NULL);
 }
-
-

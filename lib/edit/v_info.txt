@@ -34,7 +34,6 @@ D:  %%....####....%%
 D:    %%%..##..%%%    
 D:       %%%%%%       
 
-
 N:2:Lesser vault (octagon)
 X:7:5:14:20
 D:   %%%%%%%%%%%%%%   
@@ -52,7 +51,6 @@ D: %%..#..,,,,..#..%%
 D:  %%.##########.%%  
 D:   %%%%%%%%%%%%%%   
 
-
 N:3:Lesser vault (octagon)
 X:7:5:12:20
 D:    %%%%%%%%%%%%    
@@ -67,7 +65,6 @@ D:%%...#,,#,,#,,#...%%
 D: %...###+##+###...% 
 D: %%%%..........%%%% 
 D:    %%%%%%%%%%%%    
-
 
 N:4:Lesser vault (square)
 X:7:5:12:20
@@ -84,7 +81,6 @@ D:%.################.%
 D:%*........&.......*%
 D:%%%%%%%%%%%%%%%%%%%%
 
-
 N:5:Lesser vault (diagonal)
 X:7:5:12:20
 D:%%%%%%%%%%%%%%%%%   
@@ -99,7 +95,6 @@ D:%%...##,,,,##,,,,##%
 D: %%...##,,,,##,,,,#%
 D:  %%...##,,,,##,,,,%
 D:   %%%%%%%%%%%%%%%%%
-
 
 N:6:Lesser vault (diagonal)
 X:7:5:12:20
@@ -116,7 +111,6 @@ D:%#,,,,##,,,,##...%%
 D:%,,,,##,,,,##...%%  
 D:%%%%%%%%%%%%%%%%%   
 
-
 N:7:Lesser vault (square)
 X:7:5:12:20
 D:%%%%%%%%%%%%%%%%%%%%
@@ -132,7 +126,6 @@ D:%^#..&......*....#^%
 D:%,################,%
 D:%%%%%%%%%%%%%%%%%%%%
 
-
 N:8:Elemental vault (round)
 X:7:5:12:20
 D:       %%%%%%       
@@ -147,7 +140,6 @@ D: %......V**V......%
 D:  %%....VVVV....%%  
 D:    %%%..VV..%%%    
 D:       %%%%%%       
-
 
 N:9:Elemental vault (octagon)
 X:7:5:14:20
@@ -680,9 +672,9 @@ D:       %%%%%%
 D:    %%%......%%%    
 D:  %%............%%  
 D: %......####......% 
-D:%......##TT##......%
-D:%.....##T99T##.....%
-D:%......##TT##......%
+D:%......##GG##......%
+D:%.....##G99G##.....%
+D:%......##GG##......%
 D:%.......####.......%
 D: %................% 
 D:  %%............%%  
@@ -692,17 +684,17 @@ D:       %%%%%%
 N:36:Lesser vault (lesser water temple)
 X:7:10:12:20
 D:    XXXXXXXXXXXX    
-D: XXXX...TTTT...XXXX 
-D: %.......TT.......% 
+D: XXXX...GGGG...XXXX 
+D: %.......GG.......% 
 D:%%................%%
 D:%...#..&....&..#...%
-D:%..###...ww...###..%
-D:%...#...wwww...#...%
-D:%........ww........%
+D:%..###...VV...###..%
+D:%...#...VVVV...#...%
+D:%........VV........%
 D:%%.....&....&.....%%
 D: %%%............%%% 
-D:   %%%%......%%%% 
-D:      %%%%%%%%    
+D:   %%%%......%%%%   
+D:      %%%%%%%%      
 
 
 ### Greater vaults (type 8) -- maximum size 66x44 ###
@@ -750,7 +742,6 @@ D:%X,#,#,#,#,#,#,#,#*@@*#,#,#,#,#,#,#,#,X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 N:52:Greater vault (butterfly)
 X:8:25:18:40
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -772,7 +763,6 @@ D:%X9*..&XX***++^^^^^^^^^^^^++***XX&..*9X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 N:53:Greater vault (chambers)
 X:8:25:15:40
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -791,53 +781,30 @@ D:%+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+%
 D:%&+..^..^..^..^..^..^..^..^..^..^..^.+&%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-N:54:Greater Elemental vault (butterfly)
-X:8:25:18:40
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%XXXXXWWWWXXXXXXXXXXXXXXXXXXXXXWWWWXXXX%
-D:%X*9..WWw***LLLLLLLLLLLLLLLL***wWWW.*9X%
-D:%X9..WWw,,,,,LLLLLLLLLLLLLL,,,,,wWW..*X%
-D:%X..WWw.....,.LLLLLLLLLLLL..&....wWW..X%
-D:%X.WWw..,.&....LLLLLLLLLL..,...&..wWW.X%
-D:%XWWw..*...&.^..LLLLLLLL..*....,..,wWWX%
-D:%wwwwwXXXXXXXXXXLLLLLLLLXXXXXXXXXXwwwww%
-D:%+....,.,.X&&&&***llll***&&&&X,.,.,...+%
-D:%+...,.,.,X&&&&***llll***&&&&X.,.,....+%
-D:%wwwwwXXXXXXXXXXLLLLLLLLXXXXXXXXXXwwwww%
-D:%XWWw..*....&...LLLLLLLL...*...&,..wWWX%
-D:%X.WWw..&.^....LLLLLLLLLL....&....wWW.X%
-D:%X..WWw....&..LLLLLLLLLLLL..,..*.wWW..X%
-D:%X*..WWw,,,,,LLLLLLLLLLLLLL,,,,,wWW..9X%
-D:%X9*..WWw***LLLLLLLLLLLLLLLL***wWW..*9X%
-D:%XXXXWWWWXXXXXXXXXXXXXXXXXXXXXXWWWWXXXX%
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 # This vault was originally from Quest Angband by Heino Vander Sanden
 # Modified to include treasure
-N:55:Greater Vault (five rooms)
+N:54:Greater Vault (five rooms)
 X:8:30:17:16
 D:%%%%%%%%%%%%%%%%
 D:%.............#%
 D:%.XXXXX.XX+XX..%
-D:%.XTTTX.X888X#.%
-D:%.X888X.XTTTX#.%
+D:%.XGGGX.X888X#.%
+D:%.X888X.XGGGX#.%
 D:%.XX+XX.XXXXX#.%
 D:%.....X+XXX....%
 D:%.###.X888X.###%
-D:%XXXXXXTTTX....%
-D:%XTTTXXXXXX.##.%
+D:%XXXXXXGGGX....%
+D:%XGGGXXXXXX.##.%
 D:%X888+......##.%
 D:%XXXXX.XX+XX##.%
 D:%......X888X##.%
-D:%.#####XTTTX##.%
+D:%.#####XGGGX##.%
 D:%.#####XXXXX##.%
 D:%..............%
 D:%%%%%%%%%%%%%%%%
 
-
 # This vault was originally from Zangband by Topi Ylinen
-N:56:Greater vault (castle)
+N:55:Greater vault (castle)
 X:8:35:27:27
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.........................%
@@ -868,26 +835,7 @@ D:%.........................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This vault was originally from Zangband by Topi Ylinen
-N:57:Greater vault (chambers)
-X:8:25:15:40
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%&+.^..^..^..^..^..^..^..^..^..^..^..+&%
-D:%+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+%
-D:%.X.&.^,X&^&^X****+^*^@^X.*.&..X..*.,X.%
-D:%^X.,.&^+^&^@X^^^^X@^*^*X....*^+.^...X^%
-D:%.X*..,.XXX+XXXX+XXXX+XXX.&.^..X..&,.X.%
-D:%^X..^.*X*..^&&@@*X,,,,,XXXX+XXX,....X^%
-D:%.XX+XXXXXXXXXXXXXX,*8*,X,,,,,,XXX+XXX.%
-D:%^X*&X.&,*.X,*&^*^X,,,,,X,,,,,,X....,X^%
-D:%.X&,+....*+,*&^*^XXXXXXXXXX+XXX.,...+.%
-D:%^X.,X.*.&.X,*&^*^+.,.&.^*.&^&^X.....X^%
-D:%.X^*X.,..,X,*&^*^X*.^*.,..&&&^X,..,.X.%
-D:%+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+%
-D:%&+..^..^..^..^..^..^..^..^..^..^..^.+&%
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-# This vault was originally from Zangband by Topi Ylinen
-N:58:Greater vault (greater castle)
+N:56:Greater vault (greater castle)
 X:8:40:25:51
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.................................................%
@@ -916,7 +864,7 @@ D:%.................................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This vault was originally from Zangband by Topi Ylinen
-N:59:Greater vault (university)
+N:57:Greater vault (university)
 X:8:30:29:38
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%....................................%
@@ -948,34 +896,8 @@ D:%.##################################.%
 D:%....................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 # This vault was originally from Zangband by Topi Ylinen
-N:60:Greater vault (nethack, large city)
-X:8:25:21:54
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%....................................................%
-D:%.##################################################.%
-D:%.#................................................#.%
-D:%.#.####################.########..#####.#########.#.%
-D:%.#.#^,,,,^#^****^#^,,^#.#^,,,,^#..#^^^#.#^,,,,,^#.#.%
-D:%.#.#^,,,,^#^****^#^,,^#.#^,,,,^#..+^**#.#^,,,,,^#.#.%
-D:%.#.#^,,,,^#^,,,,^#^^^^#.#^^^^^^#..#^^^#.#^,,,,,^#.#.%
-D:%.#.#^^^^^^#^^^^^^###+##.###+####..#####.#^^^^^^^#.#.%
-D:%.#.#+#########+###......................######+##.#.%
-D:%.#................................................#.%
-D:%.#.###+######+####......###+########..............#.%
-D:%.#.#^^^^^^#^^^^^^######.#^^^^^^^^^^#...###+#####..#.%
-D:%.#.#^,,,,^#^,,,,^#^^^^+.#^,,,,,,,,^#...#^^^^^^^#..#.%
-D:%.#.#^****^#^,,,,^#,,,^#.#^@999999@^#...#^,,,,,^#..#.%
-D:%.#.#^****^#^,,,,^#,,,^#.#^^^^^^^^^^#...#^,,,,,^#..#.%
-D:%.+.####################.############...#########..#.%
-D:%.#................................................#.%
-D:%.##################################################.%
-D:%....................................................%
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-# This vault was originally from Zangband by Topi Ylinen
-N:61:Greater vault (nethack mirror)
+N:58:Greater vault (nethack mirror)
 X:8:25:22:41
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.......................................%
@@ -1001,7 +923,7 @@ D:%.......................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This vault was originally from Zangband by Topi Ylinen
-N:62:Greater vault (nethack tomb)
+N:59:Greater vault (nethack tomb)
 X:8:25:13:57
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.......................................................%
@@ -1018,7 +940,7 @@ D:%.......................................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This vault was originally from Zangband by Topi Ylinen
-N:63:Greater vault (nethack spiral)
+N:60:Greater vault (nethack spiral)
 X:8:30:19:38
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.........XXXXXXXXX+XXXXXXXXX........%
@@ -1041,7 +963,7 @@ D:%.........XXXXXXXXXXXXXXXXXXX........%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This vault was originally from Zangband by Topi Ylinen
-N:64:Greater vault (nethack building)
+N:61:Greater vault (nethack building)
 X:8:30:16:41
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
@@ -1061,7 +983,7 @@ D:%...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This vault was originally from Zangband by Topi Ylinen
-N:65:Greater vault (der el bahri)
+N:62:Greater vault (der el bahri)
 X:8:35:28:45
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
@@ -1093,7 +1015,7 @@ D:%...........................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This vault was originally from Zangband by Topi Ylinen
-N:66:Greater vault (hypostyle of ramses III)
+N:63:Greater vault (hypostyle of ramses III)
 X:8:40:38:34
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
@@ -1135,7 +1057,7 @@ D:%................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This vault was originally from Zangband by Topi Ylinen
-N:67:Greater vault (Karnak, part I)
+N:64:Greater vault (Karnak, part I)
 X:8:35:24:44
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
@@ -1162,48 +1084,48 @@ D:%.XXXXXXXXXXXXXXXX+XXXXXXXXXXXXXXXXXXXXXXX.%
 D:%..........................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N:68:Greater vault (greater water temple)
+N:65:Greater vault (greater water temple)
 X:8:30:17:34
-D:        XXXXXXXXXXXXXXXXXX
-D:     XXXX....TTTTTTTT....XXXX
-D:  XXXXV.......8TTTT8.......VXXXX
-D: XX....VVV..............VVV....XX
+D:        XXXXXXXXXXXXXXXXXX        
+D:     XXXX....GGGGGGGG....XXXX     
+D:  XXXXV.......8GGGG8.......VXXXX  
+D: XX....VVV..............VVV....XX 
 D:XX........V............V........XX
 D:X..........VV...WW...VV..........X
 D:%............VWWWWWWV............%
 D:%....#.......WWWWWWWW.......#....%
-D:%...###..8..WWWWWWWWWW..8..###...%
+D:%...###..8..WWWWCCWWWW..8..###...%
 D:%....#.......WWWWWWWW.......#....%
 D:%............VWWWWWWV............%
 D:X..........VV...WW...VV..........X
 D:XX.......VV............VV.......XX
-D: XX....VV................VV....XX
-D:  XXXXV....................VXXXX
-D:     XXXX................XXXX
-D:        XXX%%%%%%%%%%%%XXX
+D: XX....VV................VV....XX 
+D:  XXXXV....................VXXXX  
+D:     XXXX................XXXX     
+D:        XXXXXXXXXXXXXXXXXX        
 
-N:69:Greater vault (circle of fire)
+N:66:Greater vault (circle of fire)
 X:8:30:17:34
-D:        XXX%%%%%%%%%%%%XXX
-D:     XXXX................XXXX
-D:  XXXX......................XXXX
-D: XX.............###............XX
+D:        XXX%%%%%%%%%%%%XXX        
+D:     XXXX................XXXX     
+D:  XXXX..........CCC.........XXXX  
+D: XX..........CCC###CCC.........XX 
 D:XX.....LLLK....#####...KLLL.....XX
 D:X.....LLLLL.....###....LLLLL.....X
-D:%.....KLLLT............TLLLK.....%
+D:%.....KLLLG............GLLLK.....%
 D:%..##............9...........##..%
-D:%.####..........9T9.........####.%
+D:%.####..........9G9.........####.%
 D:%..##............9...........##..%
-D:%.....KLLLT............TLLLK.....%
+D:%.....KLLLG............GLLLK.....%
 D:X.....LLLLL.....###....LLLLL.....X
 D:XX.....LLLK....#####...KLLL.....XX
-D: XX.............###............XX
-D:  XXXX......................XXXX
-D:     XXXX................XXXX
-D:        XXX%%%%%%%%%%%%XXX
+D: XX..........CCC###CCC.........XX 
+D:  XXXX..........CCC.........XXXX  
+D:     XXXX................XXXX     
+D:        XXX%%%%%%%%%%%%XXX        
 
 # This vault was originally from Zangband by Topi Ylinen
-N:70:Greater vault (mortuary temple of sety)
+N:67:Greater vault (mortuary temple of sety)
 X:8:35:25:34
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%................................%
@@ -1232,7 +1154,7 @@ D:%................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This vault was originally from Zangband by Topi Ylinen
-N:71:Greater vault (kom ombo)
+N:68:Greater vault (kom ombo)
 X:8:40:36:30
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.XXXXXXXXXXXXXXXXXXXXXXXXXX.%
@@ -1272,7 +1194,7 @@ D:%............................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # This vault was originally from Zangband by Topi Ylinen
-N:72:Lesser vault (belvoir keep)
+N:69:Lesser vault (belvoir keep)
 X:7:5:19:21
 D:%%%%%%%%%%%%%%%%%%%%%
 D:%...................%
@@ -1295,8 +1217,8 @@ D:%...................%
 D:%%%%%%%%%%%%%%%%%%%%%
 
 # Added from Jurriaan's Ang/64
-N:73:Treasure Room (small)
-X:9:50:11:23
+N:70:Treasure Room (small)
+X:8:50:11:23
 D:%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXX%
 D:%X.@.%.,.%.@.%.,.%.@.X%
@@ -1310,8 +1232,8 @@ D:%XXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%
 
 # Added from Jurriaan's Ang/64
-N:74:Treasure Room (Middle)
-X:10:10:12:35
+N:71:Treasure Room (Middle)
+X:7:10:12:35
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%X.~.%.~.%.~.%.~.%.~.%.~.%.~.%.~.X%
@@ -1326,14 +1248,14 @@ D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # Added from Jurriaan's Ang/64
-N:75:Treasure Room (Large)
-X:11:15:23:24
-D:       %%%%%%%%%%%
-D:       %XXXXXXXXX%
-D:       %X.,~~~,.X%
-D:       %X.,~~~,.X%
-D:       %X.,~~~,.X%
-D:       %X..@8@..X%
+N:72:Treasure Room (Large)
+X:8:15:23:25
+D:       %%%%%%%%%%%       
+D:       %XXXXXXXXX%       
+D:       %X.,~~~,.X%       
+D:       %X.,~~~,.X%       
+D:       %X.,~~~,.X%       
+D:       %X..@8@..X%       
 D:%%%%%%%%+^^^^^^^X%%%%%%%%
 D:%XXXXXXXX^^^^^^^XXXXXXXX%
 D:%X......^^%%%%%^^......X%
@@ -1344,47 +1266,24 @@ D:%X.~~~@.^%^9~9^%^.@~~~.X%
 D:%X.,,,..^%^.9.^%^. ,,,.X%
 D:%X......^^%%%%%^^......X%
 D:%XXXXXXXX^^^^^^^XXXXXXXX%
-D:%%%%%%%%X^^^^^^^X%%%%%%%
-D:       %X..@8@..+%
-D:       %X.,~~~,.X%
-D:       %X.,~~~,.X%
-D:       %X.,~~~,.X%
-D:       %XXXXXXXXX%
-D:       %%%%%%%%%%%
+D:%%%%%%%%X^^^^^^^X%%%%%%%%
+D:       %X..@8@..+%       
+D:       %X.,~~~,.X%       
+D:       %X.,~~~,.X%       
+D:       %X.,~~~,.X%       
+D:       %XXXXXXXXX%       
+D:       %%%%%%%%%%%       
 
 # Added the following vaults from Ivan's Kamband
-N:76:Vampire Mansion
-Y:298:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-X:9:5:19:34
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%................................%
-D:%.........XXXXXXXXXXXXXX.........%
-D:%..XXXXXXXX.9....9...9.XXXXXXXX..%
-D:%..X9.....X............X.....9X..%
-D:%..X......XXXXXXDDXXXXXX......X..%
-D:%..X......D............D......X..%
-D:%.XXXXXXXDXXXXXXXXXXXXXXDXXXXXXX.%
-D:%XX.....X.X.....T......X.X.....XX%
-D:%.D..9..D.D.9..TaT...9.D.D..9..D.%
-D:%XX.....X.X.....T......X.X.....XX%
-D:%.XXXXXXXDXXXXXXXXXXXXXXDXXXXXXX.%
-D:%..X......D............D......X..%
-D:%..X......XXXXXXDDXXXXXX......X..%
-D:%..X9.....X............X.....9X..%
-D:%..XXXXXXXX.9...9....9.XXXXXXXX..%
-D:%.........XXXXXXXXXXXXXX.........%
-D:%................................%
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-N:77:Dragon's Lair
+N:73:Dragon's Lair
 Y:380:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-X:9:7:20:32
+X:8:7:20:32
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%XXXXXXXXXXXXXXXXX.K....XXXXT.X%
-D:%XXXXXXXXXXXXX....K..9..XXXXT.X%
-D:%XXXXXXXXXX......KK.....XXXXT.X%
-D:%XXXXXXXX......KKLLK.....XXXT.X%
+D:%XXXXXXXXXXXXXXXXX.K....XXXXG.X%
+D:%XXXXXXXXXXXXX....K..9..XXXXG.X%
+D:%XXXXXXXXXX......KK.....XXXXG.X%
+D:%XXXXXXXX......KKLLK.....XXXG.X%
 D:%XXXXXXX..9..KK.KLLK.....XXX^.X%
 D:%XXXXXX.....K....KK.......X^^.X%
 D:%XX.........K.............X^^.X%
@@ -1393,22 +1292,22 @@ D:%.............K...........+^^.X%
 D:%XX..........KK...........X^^.X%
 D:%XXXXXX.....K..K.KK.......X^^.X%
 D:%XXXXXXX.KKK....KLLK.....XXX^.X%
-D:%XXXXXXXX.......KLLK.....XXXT.X%
-D:%XXXXXXXXXX......KKK....XXXXT.X%
-D:%XXXXXXXXXXXXX......K.9.XXXXT.X%
-D:%XXXXXXXXXXXXXXXXX...K..XXXXT.X%
+D:%XXXXXXXX.......KLLK.....XXXG.X%
+D:%XXXXXXXXXX......KKK....XXXXG.X%
+D:%XXXXXXXXXXXXX......K.9.XXXXG.X%
+D:%XXXXXXXXXXXXXXXXX...K..XXXXG.X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N:78:Orc Cave
+N:74:Orc Cave
 Y:96:98:120:126:178:0:0:0:0:0:0:0:0:0:0
-X:9:7:20:31
+X:8:7:20:31
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXVVVXX%
-D:%XXXXXXXXXaaXXXXXXXXXXXXVVTTVX%
-D:%XXXXXXaaaaaaXXXXXbbXXXVVTTVVX%
-D:%XXXXXXaaaaaaaXXbbbbXXXVTTVVXX%
+D:%XXXXXXXXXaaXXXXXXXXXXXXVVGGVX%
+D:%XXXXXXaaaaaaXXXXXbbXXXVVGGVVX%
+D:%XXXXXXaaaaaaaXXbbbbXXXVGGVVXX%
 D:%XXXXaaa....aaaXbb.bbXXVVVVXXX%
 D:%XXe.................V+XXXXXXX%
 D:%Xe............c.cc..VVXXXXXXX%
@@ -1424,15 +1323,15 @@ D:%XXXXXXXXXXXXXXXXXXabbbXXXXXXX%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N:79:Dread castle
+N:75:Dread castle
 Y:303:407:0:0:0:0:0:0:0:0:0:0:0:0:0
-X:9:5:19:34
+X:8:5:19:34
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.%
 D:%WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW%
 D:%WWWXXXWWWWWWWWWWWWWWWWWWWWXXXWWW%
 D:%WWXXaXXWWWWWWWWWWWWWWWWWWXXaXXWW%
-D:%WWXXTTXXXXXXXXXXXXXXXXXXXXTTXXWW%
+D:%WWXXGGXXXXXXXXXXXXXXXXXXXXGGXXWW%
 D:%WWWXXXD..................DXXXWWW%
 D:%WWWWX..XXXXXXXXXXXXXXXXXX..XWWWW%
 D:%WWWWX.XX..X...X..X...X..XX.XWWWW%
@@ -1440,16 +1339,16 @@ D:%WWWWX.D..aD..aD.bDa..Da..D.XWWWW%
 D:%WWWWX.XX..X...X..X...X..XX.XWWWW%
 D:%WWWWX..XXXXXXXXXXXXXXXXXX..XWWWW%
 D:%WWWXXXD..................DXXXWWW%
-D:%WWXXTTX..XXXXX....XXXXX..XTTXXWW%
+D:%WWXXGGX..XXXXX....XXXXX..XGGXXWW%
 D:%WWXXaXXXXXWWWXXDDXXWWWXXXXXaXXWW%
 D:%WWWXXXWWWWWWWWWWWWWWWWWWWWXXXWWW%
 D:%WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW%
 D:%.WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N:80:Troll den
+N:76:Troll den
 Y:214:278:279:293:309:0:0:0:0:0:0:0:0:0:0
-X:9:9:20:31
+X:8:9:20:31
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
@@ -1471,9 +1370,9 @@ D:%XXXXXXXXXXXXXXXXXXXXXXXeeddXX%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N:81:Volcano
+N:77:Volcano
 Y:209:220:252:349:0:0:0:0:0:0:0:0:0:0:0
-X:9:7:20:31
+X:8:7:20:31
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXbbaKKKKKKKKKKKKKKKKKKKKKabbXX
@@ -1495,8 +1394,8 @@ D:XXbbaKKKKKKKKKKKKKKKKKKKKKabbXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:82:Death spiral
-X:9:7:20:31
+N:78:Death spiral
+X:8:7:20:31
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%X999.XXXX....8.......XXXX999X%
@@ -1518,9 +1417,9 @@ D:%X999.XXXXXXXXX..8....XXXX999X%
 D:%XXXXXXXXXXXXXX.XXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N:83:Labyrinth
+N:79:Labyrinth
 Y:441:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-X:9:7:20:31
+X:8:7:20:31
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXX.XXXXXXXXXXXXXX%
 D:%X.X....8.......X.......8....X%
@@ -1543,7 +1442,7 @@ D:%XXXXXXXXXXXXXX.XXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-# Numbers 84 - 99 Unused
+# Numbers 80 - 99 Unused
 
 # Numbers 100 - reserved for quests - see q_info.txt
 

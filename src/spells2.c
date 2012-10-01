@@ -36,7 +36,7 @@ bool hp_player(int num)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 		/* Heal 0-4 */
 		if (num < 5)
@@ -144,7 +144,7 @@ bool do_dec_stat(int stat)
 	if (sust)
 	{
 		/* Message */
-		msg_format("You feel %s for a moment, but the feeling passes.",
+		msg_format("You feel very %s for a moment, but the feeling passes.",
 		           desc_stat_neg[stat]);
 
 		/* Notice effect */
@@ -200,7 +200,7 @@ bool do_inc_stat(int stat)
 	if (inc_stat(stat))
 	{
 		/* Message */
-		msg_format("Wow!  You feel very %s!", desc_stat_pos[stat]);
+		msg_format("You feel very %s!", desc_stat_pos[stat]);
 
 		/* Notice */
 		return (TRUE);
@@ -226,7 +226,7 @@ bool do_inc_stat(int stat)
  * Identify everything being carried.
  * Done by a potion of "self knowledge".
  */
-void identify_pack(int cost)
+void identify_pack(void)
 {
 	int i;
 
@@ -242,7 +242,15 @@ void identify_pack(int cost)
 		object_aware(o_ptr);
 		object_known(o_ptr);
 	}
-	p_ptr->au = p_ptr->au - cost;
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 }
 
 
@@ -383,9 +391,11 @@ bool restore_level(void)
  *
  * See also "identify_fully()".
  *
- * Use the "roff()" routines, perhaps.  XXX XXX
+ * Use the "roff()" routines, perhaps.  XXX XXX XXX
  *
- * Use the "show_file()" method, perhaps.  XXX XXX
+ * Use the "show_file()" method, perhaps.  XXX XXX XXX
+ *
+ * This function cannot display more than 20 lines.  XXX XXX XXX
  */
 void self_knowledge(void)
 {
@@ -840,8 +850,9 @@ void self_knowledge(void)
 	}
 
 
-	/* Save the screen */
-	Term_save();
+	/* Save screen */
+	screen_save();
+
 
 	/* Clear the screen */
 	Term_clear();
@@ -866,15 +877,19 @@ void self_knowledge(void)
 
 			/* Label the information */
 			prt("     Your Attributes:", 1, 0);
+
+			/* Reset */
+			k = 2;
 		}
 	}
 
 	/* Pause */
 	prt("[Press any key to continue]", k, 0);
-	inkey();
+	(void)inkey();
 
-	/* Restore the screen */
-	Term_load();
+
+	/* Load screen */
+	screen_load();
 }
 
 
@@ -938,7 +953,7 @@ bool lose_all_info(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Mega-Hack -- Forget the map */
 	wiz_dark();
@@ -1019,7 +1034,7 @@ bool detect_doors(void)
 			if (cave_feat[y][x] == FEAT_SECRET)
 			{
 				/* Pick a door XXX XXX XXX */
-				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+				cave_set_feat(y, x, FEAT_DOOR_HEAD);
 			}
 
 			/* Detect doors */
@@ -1292,8 +1307,8 @@ bool detect_objects_magic(void)
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_ILLUSION_BOOK) || /* -KMW- */
-		    (tv == TV_PRAYER_BOOK) || (tv == TV_NATURE_BOOK) ||
+		    (tv == TV_MAGIC_BOOK) || (tv ==TV_ILLUSION_BOOK) || /* -KMW- */
+		    (tv == TV_PRAYER_BOOK)|| (tv == TV_NATURE_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1547,7 +1562,7 @@ void stair_creation(void)
 	delete_object(py, px);
 
 	/* Create a staircase */
-	if (p_ptr->inside_special > 0) /* in arena or quest -KMW- */
+	if(p_ptr->inside_special > 0) /* in arena or quest -KMW- */
 		msg_print("There is no effect!");
 	else if (!p_ptr->depth)
 	{
@@ -1664,7 +1679,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	for (i=0; i<n; i++)
 	{
 		/* Hack -- Roll for pile resistance */
-		if (rand_int(prob) >= 100) continue;
+		if ((prob > 100) && (rand_int(prob) >= 100)) continue;
 
 		/* Enchant to hit */
 		if (eflag & (ENCH_TOHIT))
@@ -1766,7 +1781,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Success */
 	return (TRUE);
@@ -1888,7 +1903,7 @@ bool ident_spell(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -1964,7 +1979,7 @@ bool identify_fully(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2084,11 +2099,8 @@ bool recharge(int num)
 		/* Extract a recharge power */
 		i = (100 - lev + num) / 5;
 
-		/* Paranoia -- prevent crashes */
-		if (i < 1) i = 1;
-
 		/* Back-fire */
-		if (rand_int(i) == 0)
+		if ((i <= 1) || (rand_int(i) == 0))
 		{
 			/* Hack -- backfire */
 			msg_print("The recharge backfires, draining the rod further!");
@@ -2123,11 +2135,8 @@ bool recharge(int num)
 		/* Recharge power */
 		i = (num + 100 - lev - (10 * o_ptr->pval)) / 15;
 
-		/* Paranoia -- prevent crashes */
-		if (i < 1) i = 1;
-
 		/* Back-fire XXX XXX XXX */
-		if (rand_int(i) == 0)
+		if ((i <= 1) || (rand_int(i) == 0))
 		{
 			/* Dangerous Hack -- Destroy the item */
 			msg_print("There is a bright flash of light.");
@@ -2274,7 +2283,7 @@ bool turn_animals(void)
 
 
 /*
- * Dispel undead monsters
+* Dispel undead monsters
  */
 bool dispel_undead(int dam)
 {
@@ -2537,7 +2546,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 			cave_info[y][x] &= ~(CAVE_ROOM | CAVE_ICKY);
 
 			/* Lose light and knowledge */
-			cave_info[y][x] &= ~(CAVE_MARK | CAVE_GLOW);
+			cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);
 
 			/* Hack -- Notice player affect */
 			if (cave_m_idx[y][x] < 0)
@@ -2558,6 +2567,8 @@ void destroy_area(int y1, int x1, int r, bool full)
 			/* Destroy "valid" grids */
 			if (cave_valid_bold(y, x))
 			{
+				int feat = FEAT_FLOOR;
+
 				/* Delete objects */
 				delete_object(y, x);
 
@@ -2568,29 +2579,25 @@ void destroy_area(int y1, int x1, int r, bool full)
 				if (t < 20)
 				{
 					/* Create granite wall */
-					cave_feat[y][x] = FEAT_WALL_EXTRA;
+					feat = FEAT_WALL_EXTRA;
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-					cave_feat[y][x] = FEAT_QUARTZ;
+					feat = FEAT_QUARTZ;
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-					cave_feat[y][x] = FEAT_MAGMA;
+					feat = FEAT_MAGMA;
 				}
 
-				/* Floor */
-				else
-				{
-					/* Create floor */
-					cave_feat[y][x] = FEAT_FLOOR;
-				}
+				/* Change the feature */
+				cave_set_feat(y, x, feat);
 			}
 		}
 	}
@@ -2611,14 +2618,11 @@ void destroy_area(int y1, int x1, int r, bool full)
 	}
 
 
-	/* Mega-Hack -- Forget the view and lite */
-	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_MONSTERS);
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -2722,11 +2726,8 @@ void earthquake(int cy, int cx, int r)
 			/* Important -- Skip "quake" grids */
 			if (map[16+y-cy][16+x-cx]) continue;
 
-			/* Count "safe" grids */
-			sn++;
-
-			/* Randomize choice */
-			if (rand_int(sn) > 0) continue;
+			/* Count "safe" grids, apply the randomizer */
+			if ((++sn > 1) && (rand_int(sn) != 0)) continue;
 
 			/* Save the safe location */
 			sy = y; sx = x;
@@ -2747,7 +2748,8 @@ void earthquake(int cy, int cx, int r)
 			}
 			default:
 			{
-				msg_print("The cave quakes!  You are pummeled with debris!");
+				msg_print("The cave quakes!");
+				msg_print("You are pummeled with debris!");
 				break;
 			}
 		}
@@ -2843,11 +2845,8 @@ void earthquake(int cy, int cx, int r)
 							/* Important -- Skip "quake" grids */
 							if (map[16+y-cy][16+x-cx]) continue;
 
-							/* Count "safe" grids */
-							sn++;
-
-							/* Randomize choice */
-							if (rand_int(sn) > 0) continue;
+							/* Count "safe" grids, apply the randomizer */
+							if ((++sn > 1) && (rand_int(sn) != 0)) continue;
 
 							/* Save the safe grid */
 							sy = y;
@@ -2923,6 +2922,8 @@ void earthquake(int cy, int cx, int r)
 			/* Destroy location (if valid) */
 			if (cave_valid_bold(yy, xx))
 			{
+				int feat = FEAT_FLOOR;
+
 				bool floor = cave_floor_bold(yy, xx);
 
 				/* Delete objects */
@@ -2935,48 +2936,41 @@ void earthquake(int cy, int cx, int r)
 				if (t < 20)
 				{
 					/* Create granite wall */
-					cave_feat[yy][xx] = FEAT_WALL_EXTRA;
+					feat = FEAT_WALL_EXTRA;
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-					cave_feat[yy][xx] = FEAT_QUARTZ;
+					feat = FEAT_QUARTZ;
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-					cave_feat[yy][xx] = FEAT_MAGMA;
+					feat = FEAT_MAGMA;
 				}
 
-				/* Floor */
-				else
-				{
-					/* Create floor */
-					cave_feat[yy][xx] = FEAT_FLOOR;
-				}
+				/* Change the feature */
+				cave_set_feat(yy, xx, feat);
 			}
 		}
 	}
 
 
-	/* Mega-Hack -- Forget the view and lite */
-	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_DISTANCE);
-
-	/* Update the health bar */
-	p_ptr->redraw |= (PR_HEALTH);
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
+
+	/* Update the health bar */
+	p_ptr->redraw |= (PR_HEALTH);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
@@ -3164,27 +3158,21 @@ void flood(int cy, int cx, int r, int typ)
 
 				if (typ == 1) {
 					if (t < 100)
-						cave_feat[yy][xx] = FEAT_DEEP_WATER;
+						cave_set_feat(yy, xx, FEAT_DEEP_WATER);
 					else
-						cave_feat[yy][xx] = FEAT_SHAL_WATER;
+						cave_set_feat(yy, xx, FEAT_SHAL_WATER);
 				} else if (typ == 2)
-						cave_feat[yy][xx] = FEAT_TREES;
+						cave_set_feat(yy, xx, FEAT_TREES);
 			}
 		}
 	}
 
 
-	/* Mega-Hack -- Forget the view and lite */
-/*	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE); */
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_DISTANCE);
-
-	/* Update the health bar */
-	p_ptr->redraw |= (PR_HEALTH);
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -3240,7 +3228,7 @@ void fissure(int feat)
 			if (cave_feat[ty][tx] == FEAT_MORE) continue;
 
 			/* Clear previous contents, add proper vein type */
-			cave_feat[ty][tx] = feat;
+			cave_set_feat(ty, tx, feat);
 
 		}
 
@@ -3315,51 +3303,45 @@ void alter_terrain(int cy, int cx, int r, int typ)
 
 			if (typ == 1) {
 				if (cave_feat[yy][xx] == FEAT_DEEP_LAVA)
-					cave_feat[yy][xx] = FEAT_SHAL_LAVA;
+					cave_set_feat(yy, xx, FEAT_SHAL_LAVA);
 				else if (cave_feat[yy][xx] == FEAT_SHAL_LAVA)
-					cave_feat[yy][xx] = FEAT_FLOOR;
+					cave_set_feat(yy, xx, FEAT_FLOOR);
 			} else if (typ == 2) {
 				if (cave_feat[yy][xx] == FEAT_DEEP_WATER)
-					cave_feat[yy][xx] = FEAT_SHAL_WATER;
+					cave_set_feat(yy, xx, FEAT_SHAL_WATER);
 				else if (cave_feat[yy][xx] == FEAT_SHAL_WATER)
-					cave_feat[yy][xx] = FEAT_FLOOR;
+					cave_set_feat(yy, xx, FEAT_FLOOR);
 				else if (cave_feat[yy][xx] == FEAT_FOG)
-					cave_feat[yy][xx] = FEAT_FLOOR;
+					cave_set_feat(yy, xx, FEAT_FLOOR);
 			} else if (typ == 3) {
 				if ((cave_feat[yy][xx] != FEAT_MOUNTAIN) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_EXTRA) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_INNER) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_OUTER) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_SOLID))
-					cave_feat[yy][xx] = FEAT_FLOOR;
+					cave_set_feat(yy, xx, FEAT_FLOOR);
 			} else if (typ == 4) {
 				if ((cave_feat[yy][xx] == FEAT_FLOOR) ||
 				    (cave_feat[yy][xx] == FEAT_DEEP_WATER) ||
 				    (cave_feat[yy][xx] == FEAT_SHAL_WATER))
-					cave_feat[yy][xx] = FEAT_TREES;
+					cave_set_feat(yy, xx, FEAT_TREES);
 			} else if (typ == 5) {
 				if ((cave_feat[yy][xx] != FEAT_MOUNTAIN) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_EXTRA) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_INNER) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_OUTER) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_SOLID))
-					cave_feat[yy][xx] = FEAT_DEEP_LAVA;
+					cave_set_feat(yy, xx, FEAT_DEEP_LAVA);
 			}
 		}
 	}
 
 
-	/* Mega-Hack -- Forget the view and lite */
-/*	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE); */
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_DISTANCE);
-
-	/* Update the health bar */
-	p_ptr->redraw |= (PR_HEALTH);
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -3388,7 +3370,7 @@ static void cave_temp_room_lite(void)
 {
 	int i;
 
-	/* Clear them all */
+	/* Apply flag changes */
 	for (i = 0; i < temp_n; i++)
 	{
 		int y = temp_y[i];
@@ -3397,11 +3379,24 @@ static void cave_temp_room_lite(void)
 		/* No longer in the array */
 		cave_info[y][x] &= ~(CAVE_TEMP);
 
-		/* Update only non-CAVE_GLOW grids */
-		/* if (cave_info[y][x] & (CAVE_GLOW)) continue; */
-
 		/* Perma-Lite */
 		cave_info[y][x] |= (CAVE_GLOW);
+	}
+
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Update stuff */
+	update_stuff();
+
+	/* Process the grids */
+	for (i = 0; i < temp_n; i++)
+	{
+		int y = temp_y[i];
+		int x = temp_x[i];
+
+		/* Redraw the grid */
+		lite_spot(y, x);
 
 		/* Process affected monsters */
 		if (cave_m_idx[y][x] > 0)
@@ -3410,9 +3405,6 @@ static void cave_temp_room_lite(void)
 
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-			/* Update the monster */
-			update_mon(cave_m_idx[y][x], FALSE);
 
 			/* Stupid monsters rarely wake up */
 			if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
@@ -3439,12 +3431,6 @@ static void cave_temp_room_lite(void)
 				}
 			}
 		}
-
-		/* Note */
-		note_spot(y, x);
-
-		/* Redraw */
-		lite_spot(y, x);
 	}
 
 	/* None left */
@@ -3461,14 +3447,12 @@ static void cave_temp_room_lite(void)
  * In addition, some of these grids will be "unmarked".
  *
  * This routine is used (only) by "unlite_room()"
- *
- * Also, process all affected monsters
  */
 static void cave_temp_room_unlite(void)
 {
 	int i;
 
-	/* Clear them all */
+	/* Apply flag changes */
 	for (i = 0; i < temp_n; i++)
 	{
 		int y = temp_y[i];
@@ -3485,19 +3469,22 @@ static void cave_temp_room_unlite(void)
 		{
 			/* Forget the grid */
 			cave_info[y][x] &= ~(CAVE_MARK);
-
-			/* Notice */
-			note_spot(y, x);
 		}
+	}
 
-		/* Process affected monsters */
-		if (cave_m_idx[y][x] > 0)
-		{
-			/* Update the monster */
-			update_mon(cave_m_idx[y][x], FALSE);
-		}
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
-		/* Redraw */
+	/* Update stuff */
+	update_stuff();
+
+	/* Process the grids */
+	for (i = 0; i < temp_n; i++)
+	{
+		int y = temp_y[i];
+		int x = temp_x[i];
+
+		/* Redraw the grid */
 		lite_spot(y, x);
 	}
 
@@ -3687,8 +3674,9 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	if ((dir == 5) && target_okay())
 	{
 		flg &= ~(PROJECT_STOP);
-		tx = p_ptr->target_col;
+
 		ty = p_ptr->target_row;
+		tx = p_ptr->target_col;
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
@@ -3722,10 +3710,10 @@ bool imprision(int typ, int dir, int rad)
 		ty = p_ptr->target_row;
 	}
 
-	for (x = tx - rad;x <= tx + rad; x++) 
-		for (y = ty - rad; y <= ty + rad; y++) 
+	for (x = tx - rad;x <= tx + rad; x++)
+		for (y = ty - rad; y <= ty + rad; y++)
 			if (cave_empty_bold(y,x))  {
-				cave_feat[y][x] = typ;
+				cave_set_feat(y, x, typ);
 				cave_info[y][x] |= (CAVE_GLOW | CAVE_MARK);
 			}
 /*	Term_fresh(); */
@@ -3737,7 +3725,7 @@ bool imprision(int typ, int dir, int rad)
 
 
 /*
- * Hack -- apply a "projection()" in a direction (or at the target)
+* Hack -- apply a "projection()" in a direction (or at the target)
  */
 static bool project_hook(int typ, int dir, int dam, int flg)
 {
@@ -3756,8 +3744,8 @@ static bool project_hook(int typ, int dir, int dam, int flg)
 	/* Hack -- Use an actual "target" */
 	if ((dir == 5) && target_okay())
 	{
-		tx = p_ptr->target_col;
 		ty = p_ptr->target_row;
+		tx = p_ptr->target_col;
 	}
 
 	/* Analyze the "dir" and the "target", do NOT explode */
@@ -4020,4 +4008,3 @@ void summon_monster(int sumtype)
 	else
 		msg_print("You called, but no help came.");
 }
-

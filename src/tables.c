@@ -1029,7 +1029,7 @@ byte adj_con_mhp[] =
  *
  * This has been modified by GJW and -KMW- to balance spellcasters in melee combat
  *
- *    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
+*    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
  *    Mage    --> num = 4; mul = 3; div = 2* MAX(35, weapon_weight);
  *    Priest  --> num = 5; mul = 3; div = MAX(40, weapon_weight);
  *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
@@ -1198,11 +1198,18 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Luthien Starshine",		30000,	175, 110,  5, 11, RACE_HIGH_ELF},
 	},
 	{
+		/* Bookstore */
+		{ "Lo-Hak the Awful",		10000,	175, 108, 4, 12, RACE_HALF_TROLL},
+		{ "Histor the Goblin",		15000,	120, 105, 6,  16, RACE_HALF_ORC},
+		{ "Durwin the Blue",		25000,	120, 110, 7,  19, RACE_KOBOLD},
+		{ "Drago the Fair",			30000,	140, 105, 6,  12, RACE_ELF},
+	},
+	{
 		/* Black Market */
-		{ "Lo-Hak the Awful",		20000,	250, 150, 10,  5, RACE_HALF_TROLL},
-		{ "Histor the Goblin",		20000,	250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Durwin the Blue",		25000,	250, 150, 10,  5, RACE_KOBOLD},
-		{ "Drago the Fair",			30000,	250, 150, 10,  5, RACE_ELF},
+		{ "Elaen the Meek",		20000,	250, 150, 10,  5, RACE_ELF},
+		{ "Fen-Oek the Orc",		20000,	250, 150, 10,  5, RACE_HALF_ORC},
+		{ "Hokus the Seer",		25000,	250, 150, 10,  5, RACE_GNOME},
+		{ "Kenwig the Brave",	30000,	250, 150, 10,  5, RACE_KOBOLD},
 	},
 	{
 		/* Home */
@@ -2016,13 +2023,13 @@ player_magic magic_info[MAX_CLASS] =
 			{ 10, 15, 50,   4},
 			{ 15, 20, 70,  25},
 			{ 35, 60, 95, 115},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
+			{ 99,  0, 0,    0},
+			{ 99,  0, 0,    0},
 			{ 99,  0,  0,   0},
 
-			{ 8,  15, 50,  30},
-			{ 8,  15, 50,  30},
-			{ 8,  15, 50,  30},
+			{ 8, 15,  50,  30},
+			{ 8, 15,  50,  30},
+			{ 8, 15,  50,  30},
 			{ 16, 25, 75,  50},
 			{ 25, 40, 85,  70},
 			{ 99,  0,  0,   0},
@@ -2303,7 +2310,7 @@ player_magic magic_info[MAX_CLASS] =
 
 
 /*
-* Spells in each book (mage spells then priest spells
+ * Spells in each book (mage spells then priest spells
  * followed by illusionist and druid spells -KMW-)
  */
 u32b spell_flags[4][9][2] =
@@ -2343,7 +2350,7 @@ u32b spell_flags[4][9][2] =
 		{ 0x00000000, 0x03f00000 },
 		{ 0x00000000, 0x0000007e },
 		{ 0x00000000, 0x000fc000 },
-		{ 0x00000000, 0xfc000000 },
+		{ 0x00000000,0xfc000000 },
 		{ 0x00000000, 0x00003f80 }
 	},
 
@@ -2357,13 +2364,13 @@ u32b spell_flags[4][9][2] =
 		{ 0x00000000, 0x0000003f },
 		{ 0x00000000, 0x00000fc0 },
 		{ 0x00000000, 0x01fc0000 },
-		{ 0x00000000, 0x0003f000 }
+ 		{ 0x00000000, 0x0003f000 }
 	}
 };
 
 
 /*
-* Names of the spells (mage spells then priest spells
+ * Names of the spells (mage spells then priest spells
  * followed by illusionist & druid spells -KMW-)
  */
 cptr spell_names[4][64] =
@@ -2452,7 +2459,6 @@ cptr spell_names[4][64] =
 		"Life for Mana",
 		"Essence of Speed",
 		"Globe of Invulnerability"
-
 	},
 
 
@@ -2624,7 +2630,7 @@ cptr spell_names[4][64] =
 		"Invisibility",
 		"Shadow Monsters",
 		"Shadow Ball",
-		"Decoy",
+		"Life for Mana",
 		"Shadow Gate",
 		"Summon Shadows"
 	},
@@ -2977,8 +2983,8 @@ cptr window_flag_desc[32] =
 {
 	"Display inven/equip",
 	"Display equip/inven",
-	"Display player flags",
-	"Display player screen",
+	"Display player (basic)",
+	"Display player (extra)",
 	NULL,
 	NULL,
 	"Display messages",
@@ -3017,7 +3023,7 @@ cptr option_text[OPT_MAX] =
 {
 	"rogue_like_commands",		/* OPT_rogue_like_commands */
 	"quick_messages",			/* OPT_quick_messages */
-	"other_query_flag",			/* OPT_other_query_flag */
+	"floor_query_flag",			/* OPT_floor_query_flag */
 	"carry_query_flag",			/* OPT_carry_query_flag */
 	"use_old_target",			/* OPT_use_old_target */
 	"always_pickup",			/* OPT_always_pickup */
@@ -3030,7 +3036,7 @@ cptr option_text[OPT_MAX] =
 	"show_choices",				/* OPT_show_choices */
 	"show_details",				/* OPT_show_details */
 	"ring_bell",				/* OPT_ring_bell */
-	"inventory_colors",			/* OPT_inventory_colors */
+	"show_flavors",				/* OPT_flavors */
 	"run_ignore_stairs",		/* OPT_run_ignore_stairs */
 	"run_ignore_doors",			/* OPT_run_ignore_doors */
 	"run_cut_corners",			/* OPT_run_cut_corners */
@@ -3043,9 +3049,9 @@ cptr option_text[OPT_MAX] =
 	"disturb_other",			/* OPT_disturb_other */
 	"alert_hitpoint",			/* OPT_alert_hitpoint */
 	"alert_failure",			/* OPT_alert_failure */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"verify_destroy",			/* OPT_verify_destroy */
+	"verify_special",			/* OPT_verify_special */
+	"allow_quantity",			/* OPT_allow_quantity */
 	NULL,						/* xxx */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
@@ -3059,26 +3065,29 @@ cptr option_text[OPT_MAX] =
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	"flow_by_sound",			/* OPT_flow_by_sound */
 	"flow_by_smell",			/* OPT_flow_by_smell */
-	"track_follow",				/* OPT_track_follow */
-	"track_target",				/* OPT_track_target */
+	NULL,						/* xxx track_follow */
+	NULL,						/* xxx track_target */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
-	"view_reduce_view",			/* OPT_view_reduce_view */
+	"hidden_player",			/* OPT_hidden_player */
 	"avoid_abort",				/* OPT_avoid_abort */
 	"avoid_other",				/* OPT_avoid_other */
 	"flush_failure",			/* OPT_flush_failure */
 	"flush_disturb",			/* OPT_flush_disturb */
-	"flush_command",			/* OPT_flush_command */
+	NULL,						/* xxx flush_command */
 	"fresh_before",				/* OPT_fresh_before */
 	"fresh_after",				/* OPT_fresh_after */
-	"fresh_message",			/* OPT_fresh_message */
+	NULL,						/* xxx fresh_message */
 	"compress_savefile",		/* OPT_compress_savefile */
 	"hilite_player",			/* OPT_hilite_player */
 	"view_yellow_lite",			/* OPT_view_yellow_lite */
 	"view_bright_lite",			/* OPT_view_bright_lite */
 	"view_granite_lite",		/* OPT_view_granite_lite */
-	"view_special_lite"			/* OPT_view_special_lite */
+	"view_special_lite",		/* OPT_view_special_lite */
+	"show_inven_graph",			/* OPT_show_inven_graph */
+	"show_equip_graph",			/* OPT_show_equip_graph */
+	"show_store_graph"			/* OPT_show_store_graph */
 };
 
 
@@ -3089,7 +3098,7 @@ cptr option_desc[OPT_MAX] =
 {
 	"Rogue-like commands",						/* OPT_rogue_like_commands */
 	"Activate quick messages",					/* OPT_quick_messages */
-	"Prompt for floor item selection",			/* OPT_other_query_flag */
+	"Prompt for floor item selection",			/* OPT_floor_query_flag */
 	"Prompt before picking things up",			/* OPT_carry_query_flag */
 	"Use old target by default",				/* OPT_use_old_target */
 	"Pick things up by default",				/* OPT_always_pickup */
@@ -3097,12 +3106,12 @@ cptr option_desc[OPT_MAX] =
 	"Show dungeon level in feet",				/* OPT_depth_in_feet */
 	"Merge inscriptions when stacking",			/* OPT_stack_force_notes */
 	"Merge discounts when stacking",			/* OPT_stack_force_costs */
-	"Show labels in object listings",			/* OPT_show_labels */
-	"Show weights in object listings",			/* OPT_show_weights */
-	"Show choices in certain sub-windows",		/* OPT_show_choices */
-	"Show details in certain sub-windows",		/* OPT_show_details */
+	"Show labels in equipment listings",		/* OPT_show_labels */
+	"Show weights in all object listings",		/* OPT_show_weights */
+	"Show choices in inven/equip windows",		/* OPT_show_choices */
+	"Show details in monster descriptions",		/* OPT_show_details */
 	"Audible bell (on errors, etc)",			/* OPT_ring_bell */
-	"Use color for inventory listings",			/* OPT_inventory_colors */
+	"Show flavors in object descriptions",		/* OPT_show_flacors */
 	"When running, ignore stairs",				/* OPT_run_ignore_stairs */
 	"When running, ignore doors",				/* OPT_run_ignore_doors */
 	"When running, cut corners",				/* OPT_run_cut_corners */
@@ -3115,14 +3124,14 @@ cptr option_desc[OPT_MAX] =
 	"Disturb whenever various things happen",	/* OPT_disturb_other */
 	"Alert user to critical hitpoints",			/* OPT_alert_hitpoint */
 	"Alert user to various failures",			/* OPT_alert_failure */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Verify destruction of objects",			/* OPT_verify_destroy */
+	"Verify use of special commands",			/* OPT_verify_special */
+	"Allow quantity specification",				/* OPT_allow_quantity */
 	NULL,										/* xxx */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
-	"Allow objects to stack on floor (beta)",	/* OPT_testing_stack */
-	"Allow monsters to carry objects (beta)",	/* OPT_testing_carry */
+	"Allow objects to stack on floor",			/* OPT_testing_stack */
+	"Allow monsters to carry objects",			/* OPT_testing_carry */
 	"Expand the power of the look command",		/* OPT_expand_look */
 	"Expand the power of the list commands",	/* OPT_expand_list */
 	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
@@ -3131,38 +3140,41 @@ cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
-	"Monsters follow the player (broken)",		/* OPT_track_follow */
-	"Monsters target the player (broken)",		/* OPT_track_target */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
-	"Reduce view-radius in town",				/* OPT_view_reduce_view */
+	"Hide player symbol when running",			/* OPT_hidden_player */
 	"Avoid checking for user abort",			/* OPT_avoid_abort */
 	"Avoid processing special colors",			/* OPT_avoid_other */
 	"Flush input on various failures",			/* OPT_flush_failure */
 	"Flush input whenever disturbed",			/* OPT_flush_disturb */
-	"Flush input before every command",			/* OPT_flush_command */
+	NULL,										/* xxx */
 	"Flush output before every command",		/* OPT_fresh_before */
-	"Flush output after every command",			/* OPT_fresh_after */
-	"Flush output after every message",			/* OPT_fresh_message */
+	"Flush output after various things",		/* OPT_fresh_after */
+	NULL,										/* xxx */
 	"Compress messages in savefiles",			/* OPT_compress_savefile */
 	"Hilite the player with the cursor",		/* OPT_hilite_player */
-	"Use special colors for torch-lit grids",	/* OPT_view_yellow_lite */
-	"Use special colors for 'viewable' grids",	/* OPT_view_bright_lite */
-	"Use special colors for wall grids (slow)",	/* OPT_view_granite_lite */
-	"Use special colors for floor grids (slow)"	/* OPT_view_special_lite */
+	"Use special colors for torch lite",		/* OPT_view_yellow_lite */
+	"Use special colors for field of view",		/* OPT_view_bright_lite */
+	"Use special colors for wall grids",		/* OPT_view_granite_lite */
+	"Use special colors for floor grids",		/* OPT_view_special_lite */
+	"Show graphics in inventory list",			/* OPT_show_inven_graph */
+	"Show graphics in equipment list",			/* OPT_show_equip_graph */
+	"Show graphics in stores"					/* OPT_show_equip_graph */
 };
 
 
 /*
  * Options -- normal values
  * Changed these to Kangband defaults -KMW-
- */
+*/
 bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
 	TRUE,		/* OPT_quick_messages */
-	TRUE,		/* OPT_other_query_flag */
+	TRUE,		/* OPT_floor_query_flag */
 	FALSE,		/* OPT_carry_query_flag */
 	TRUE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
@@ -3175,7 +3187,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_show_choices */
 	TRUE,		/* OPT_show_details */
 	FALSE,		/* OPT_ring_bell */
-	TRUE,		/* OPT_inventory_colors */
+	TRUE,		/* OPT_show_flavors */
 	FALSE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
@@ -3188,9 +3200,9 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_other */
 	TRUE,		/* OPT_alert_hitpoint */
 	FALSE,		/* OPT_alert_failure */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_verify_destroy */
+	TRUE,		/* OPT_verify_special */
+	TRUE,		/* OPT_allow_quantity */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
@@ -3204,40 +3216,43 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
-	FALSE,		/* OPT_track_follow */
-	FALSE,		/* OPT_track_target */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
-	FALSE,		/* OPT_view_reduce_view */
+	FALSE,		/* OPT_hidden_player */
 	FALSE,		/* OPT_avoid_abort */
 	FALSE,		/* OPT_avoid_other */
 	TRUE,		/* OPT_flush_failure */
 	FALSE,		/* OPT_flush_disturb */
-	FALSE,		/* OPT_flush_command */
+	FALSE,		/* xxx */
 	TRUE,		/* OPT_fresh_before */
 	FALSE,		/* OPT_fresh_after */
-	FALSE,		/* OPT_fresh_message */
+	FALSE,		/* xxx */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
 	TRUE,		/* OPT_view_yellow_lite */
 	TRUE,		/* OPT_view_bright_lite */
 	TRUE,		/* OPT_view_granite_lite */
-	TRUE		/* OPT_view_special_lite */
+	TRUE,		/* OPT_view_special_lite */
+	FALSE,		/* OPT_show_inven_graph */
+	FALSE,		/* OPT_show_equip_graph */
+	FALSE		/* OPT_show_store_graph */
 };
 
 
 /*
  * Option screen interface
  */
-byte option_page[4][16] =
+byte option_page[4][19] =
 {
 	/*** User-Interface ***/
 
 	{
 		OPT_rogue_like_commands,
 		OPT_quick_messages,
-		OPT_other_query_flag,
+		OPT_floor_query_flag,
 		OPT_carry_query_flag,
 		OPT_use_old_target,
 		OPT_always_pickup,
@@ -3249,8 +3264,11 @@ byte option_page[4][16] =
 		OPT_show_weights,
 		OPT_show_choices,
 		OPT_show_details,
+		OPT_show_flavors,
 		OPT_ring_bell,
-		OPT_inventory_colors
+		OPT_show_inven_graph,
+		OPT_show_equip_graph,
+		OPT_show_store_graph
 	},
 
 	/*** Disturbance ***/
@@ -3268,6 +3286,9 @@ byte option_page[4][16] =
 		OPT_disturb_other,
 		OPT_alert_hitpoint,
 		OPT_alert_failure,
+		OPT_verify_destroy,
+		OPT_verify_special,
+		OPT_allow_quantity,
 		255,
 		255,
 		255,
@@ -3289,32 +3310,36 @@ byte option_page[4][16] =
 		OPT_dungeon_stair,
 		OPT_flow_by_sound,
 		OPT_flow_by_smell,
-		OPT_track_follow,
-		OPT_track_target,
 		OPT_smart_learn,
-		OPT_smart_cheat
+		OPT_smart_cheat,
+		255,
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Efficiency ***/
 
 	{
 		OPT_view_reduce_lite,
-		OPT_view_reduce_view,
+		OPT_hidden_player,
 		OPT_avoid_abort,
 		OPT_avoid_other,
 		OPT_flush_failure,
 		OPT_flush_disturb,
-		OPT_flush_command,
 		OPT_fresh_before,
 		OPT_fresh_after,
-		OPT_fresh_message,
 		OPT_compress_savefile,
 		OPT_hilite_player,
 		OPT_view_yellow_lite,
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
-		OPT_view_special_lite
+		OPT_view_special_lite,
+		255,
+		255,
+		255,
+		255,
+		255
 	}
 };
-
-

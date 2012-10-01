@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **  Kangband 2.8.2g  **   The Pits of Angband   **
+              **  Kangband 2.8.3j  **   The Pits of Angband   **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -11,9 +11,9 @@
                    Alex Cutler, Andy Astrand, Sean Marsh,
                  Geoff Hill, Charles Teague, Charles Swiger
 
-               Angband 2.8.2:  Copyright (c) 1997 Ben Harrison
+               Angband 2.8.3:  Copyright (c) 1997 Ben Harrison
 
-     Send comments, bug reports, and patches, to "wiglekm@fmmail.uc.edu"
+  Send comments, bug reports, and patches, to "Mark.Howson@nottingham.ac.uk"
         Visit the Angband Home Page at "http://www.phial.com/angband/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"

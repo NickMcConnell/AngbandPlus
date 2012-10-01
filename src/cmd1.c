@@ -14,6 +14,7 @@
 
 /*
  * Determine if the player "hits" a monster (normal combat).
+ *
  * Note -- Always miss 5%, always hit 5%, otherwise random.
  */
 bool test_hit_fire(int chance, int ac, int vis)
@@ -26,17 +27,14 @@ bool test_hit_fire(int chance, int ac, int vis)
 	/* Hack -- Instant miss or hit */
 	if (k < 10) return (k < 5);
 
-	/* Never hit */
-	if (chance <= 0) return (FALSE);
-
 	/* Invisible monsters are harder to hit */
-	if (!vis) chance = (chance + 1) / 2;
+	if (!vis) chance = chance / 2;
 
 	/* Power competes against armor */
-	if (rand_int(chance) < (ac * 3 / 4)) return (FALSE);
+	if ((chance > 0) && (rand_int(chance) >= (ac * 3 / 4))) return (TRUE);
 
-	/* Assume hit */
-	return (TRUE);
+	/* Assume miss */
+	return (FALSE);
 }
 
 
@@ -56,17 +54,14 @@ bool test_hit_norm(int chance, int ac, int vis)
 	/* Hack -- Instant miss or hit */
 	if (k < 10) return (k < 5);
 
-	/* Wimpy attack never hits */
-	if (chance <= 0) return (FALSE);
-
 	/* Penalize invisible targets */
-	if (!vis) chance = (chance + 1) / 2;
+	if (!vis) chance = chance / 2;
 
-	/* Power must defeat armor */
-	if (rand_int(chance) < (ac * 3 / 4)) return (FALSE);
+	/* Power competes against armor */
+	if ((chance > 0) && (rand_int(chance) >= (ac * 3 / 4))) return (TRUE);
 
-	/* Assume hit */
-	return (TRUE);
+	/* Assume miss */
+	return (FALSE);
 }
 
 
@@ -75,7 +70,7 @@ bool test_hit_norm(int chance, int ac, int vis)
  * Critical hits (from objects thrown by player)
  * Factor in item weight, total plusses, and player level.
  */
-s16b critical_shot(int weight, int plus, int dam)
+sint critical_shot(int weight, int plus, int dam)
 {
 	int i, k;
 
@@ -114,8 +109,8 @@ s16b critical_shot(int weight, int plus, int dam)
  *
  * Factor in weapon weight, total plusses, player level.
  * AND monster sleep status - Added by GJW	-KMW-
- */
-s16b critical_norm(int weight, int plus, int dam, monster_type *m_ptr)
+*/
+sint critical_norm(int weight, int plus, int dam, monster_type *m_ptr)
 {
 	int i, k;
 
@@ -124,7 +119,7 @@ s16b critical_norm(int weight, int plus, int dam, monster_type *m_ptr)
 
 	/* Chance */
 	/* Rogues always get critical hits against sleeping foes. From GJW -KMW- */
-	if ( (p_ptr->pclass == CLASS_ROGUE && m_ptr->csleep > 0) ||
+	if( (p_ptr->pclass == CLASS_ROGUE && m_ptr->csleep > 0) ||
 	     (randint(5000) <= i) )
 	{
 		k = weight + randint(650);
@@ -170,7 +165,7 @@ s16b critical_norm(int weight, int plus, int dam, monster_type *m_ptr)
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
  */
-s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
+sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
 	int mult = 1;
 
@@ -462,7 +457,7 @@ void search(void)
 					msg_print("You have found a secret door.");
 
 					/* Pick a door XXX XXX XXX */
-					cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+					cave_set_feat(y, x, FEAT_DOOR_HEAD);
 
 					/* Disturb */
 					disturb(0, 0);
@@ -553,7 +548,7 @@ void py_pickup(int pickup)
 			p_ptr->redraw |= (PR_GOLD);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
@@ -649,14 +644,11 @@ static int check_hit(int power)
 	/* Hack -- 5% hit, 5% miss */
 	if (k < 10) return (k < 5);
 
-	/* Paranoia -- No power */
-	if (power <= 0) return (FALSE);
-
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
 
 	/* Power competes against Armor */
-	if (randint(power) > ((ac * 3) / 4)) return (TRUE);
+	if ((power > 0) && (randint(power) >= (ac * 3 / 4))) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -1026,7 +1018,7 @@ void py_attack(int y, int x)
 			}
 			if (f1 & TR1_VORPAL)
 				vorpal_cut = TRUE;
-			
+
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
 			{
@@ -1037,8 +1029,8 @@ void py_attack(int y, int x)
 
 				if (vorpal_cut) {
 					int step_k = k;
-					
-					do { 
+
+					do {
 						k += step_k;
 						msg_print("Your blade cuts deep!");
 					} while (randint(2) == 1);
@@ -1086,7 +1078,7 @@ void py_attack(int y, int x)
 			}
 
 			/* Confusion attack */
-			if ((p_ptr->confusing) || (chaos_effect && randint(4) == 1))
+			if (p_ptr->confusing)
 			{
 				/* Cancel glowing hands */
 				p_ptr->confusing = FALSE;
@@ -1224,18 +1216,18 @@ void move_player(int dir, int do_pickup)
 		if ((p_ptr->total_weight < wt) || (p_ptr->levitate))
 			oktomove = TRUE;
 		else {
-			msg_print("You can't swim with that much weight.");
+			p_ptr->running = 0;
 			oktomove = FALSE;
 		}
 	}
 
 	else if (cave_feat[y][x] == FEAT_SHAL_LAVA)
 	{
-		if ((p_ptr->resist_fire) || (p_ptr->immune_fire) || 
+		if ((p_ptr->resist_fire) || (p_ptr->immune_fire) ||
 		    (p_ptr->oppose_fire) || (p_ptr->levitate))
 			oktomove = TRUE;
 		else {
-			msg_print("You aren't able to resist the heat!");
+			p_ptr->running = 0;
 			oktomove = FALSE;
 		}
 	}
@@ -1243,26 +1235,30 @@ void move_player(int dir, int do_pickup)
 	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && !p_ptr->levitate)
 	{
 		msg_print("You can't move through that!");
+		p_ptr->running = 0;
 		oktomove = FALSE;
 	}
 
-	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && p_ptr->levitate && 
-	    !((p_ptr->resist_fire) || (p_ptr->oppose_fire) || 
+	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && p_ptr->levitate &&
+	    !((p_ptr->resist_fire) || (p_ptr->oppose_fire) ||
 	    (p_ptr->immune_fire)))
 	{
 		msg_print("The heat is too intense to move over it.");
+		p_ptr->running = 0;
 		oktomove = FALSE;
 	}
 
-	else if ((cave_feat[y][x] == FEAT_DARK_PIT) && !p_ptr->levitate)
+	else if ((cave_feat[y][x] == FEAT_CHASM) && !p_ptr->levitate)
 	{
 		msg_print("You can't cross the chasm.");
+		p_ptr->running = 0;
 		oktomove = FALSE;
 	}
 
 	else if (cave_feat[y][x] == FEAT_MOUNTAIN)
 	{
 		msg_print("You can't move through that!");
+		p_ptr->running = 0;
 		oktomove = FALSE;
 	}
 
@@ -1271,6 +1267,14 @@ void move_player(int dir, int do_pickup)
 	{
 		oktomove = TRUE;
 	}
+
+	else if ((cave_feat[y][x] >= FEAT_BLDG_HEAD) &&
+		   (cave_feat[y][x] <= FEAT_BLDG_TAIL))
+		oktomove = TRUE;
+
+	else if ((cave_feat[y][x] == FEAT_TREES) &&
+		((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID)))
+		oktomove = TRUE;
 
 	/* Player can not walk through "walls" */
 	else if ((!cave_floor_bold(y, x)) &&
@@ -1336,6 +1340,10 @@ void move_player(int dir, int do_pickup)
 		sound(SOUND_HITWALL);
 	}
 
+	else if ((p_ptr->ghostly) && ((cave_feat[y][x] >= FEAT_PERM_EXTRA) &&
+	    (cave_feat[y][x] <= FEAT_PERM_SOLID)))
+		oktomove = FALSE;
+
 	/* Normal movement */
 	if (oktomove)
 	{
@@ -1372,7 +1380,6 @@ void move_player(int dir, int do_pickup)
 		{
 			/* Disturb */
 			disturb(0, 0);
-
 			/* Hack -- Enter store */
 			p_ptr->command_new = '_';
 		}
@@ -1389,7 +1396,7 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle quest areas -KMW- */
-		if (cave_feat[y][x] == FEAT_QUEST_ENTER) 
+		if (cave_feat[y][x] == FEAT_QUEST_ENTER)
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -1418,21 +1425,6 @@ void move_player(int dir, int do_pickup)
 			p_ptr->py = p_ptr->oldpy;
 			p_ptr->px = p_ptr->oldpx;
 		}
-
-		/* handle shallow water -KMW- */
-		if ((cave_feat[y][x] == FEAT_SHAL_WATER) & !p_ptr->levitate)
-			msg_print("You stride through the water.");
-
-		/* handle deep water -KMW- */
-		if ((cave_feat[y][x] == FEAT_DEEP_WATER) & !p_ptr->levitate)
-			msg_print("You swim through the water.");
-
-		/* handle shallow water -KMW- */
-		if ((cave_feat[y][x] == FEAT_SHAL_LAVA) && !p_ptr->levitate)
-			msg_print("You walk through the lava.");
-
-		if ((cave_feat[y][x] == FEAT_FOG) & !p_ptr->levitate)
-			msg_print("You walk through the fog.");
 
 		/* Discover invisible traps */
 		else if (cave_feat[y][x] == FEAT_INVIS)
@@ -1479,8 +1471,9 @@ static int see_wall(int dir, int y, int x)
 	/* Non-wall grids are not known walls */
 	if (cave_feat[y][x] < FEAT_SECRET) return (FALSE);
 
-	if ((cave_feat[y][x] >= FEAT_DEEP_WATER) &&
-	    (cave_feat[y][x] <= FEAT_FOG)) return (FALSE);
+	/* Don't treat grass and dirt as walls when running */
+	if ((cave_feat[y][x] >= FEAT_GRASS) &&
+	    (cave_feat[y][x] <= FEAT_DIRT)) return (FALSE);
 
 	/* Unknown walls are not known walls */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (FALSE);
@@ -1700,7 +1693,6 @@ static void run_init(int dir)
 	bool deepleft, deepright;
 	bool shortleft, shortright;
 
-
 	/* Save the direction */
 	p_ptr->run_cur_dir = dir;
 
@@ -1806,7 +1798,6 @@ static bool run_test(void)
 	int i, max, inv;
 	int option, option2;
 
-
 	/* No options yet */
 	option = 0;
 	option2 = 0;
@@ -1869,6 +1860,7 @@ static bool run_test(void)
 			/* Examine the terrain */
 			switch (cave_feat[row][col])
 			{
+
 				/* Floors */
 				case FEAT_FLOOR:
 
@@ -1896,13 +1888,15 @@ static bool run_test(void)
 				case FEAT_PERM_OUTER:
 				case FEAT_PERM_SOLID:
 				/* water, lava, & trees -KMW- */
-				case FEAT_DEEP_WATER:
+
 				case FEAT_SHAL_WATER:
+				case FEAT_DEEP_WATER:
+				case FEAT_GRASS:
 				case FEAT_DIRT:
 				case FEAT_DEEP_LAVA:
 				case FEAT_SHAL_LAVA:
 				case FEAT_FOG:
-				case FEAT_DARK_PIT:
+				case FEAT_CHASM:
 				case FEAT_TREES:
 				case FEAT_MOUNTAIN:
 				/* quest features -KMW- */
@@ -2021,7 +2015,8 @@ static bool run_test(void)
 			row = py + ddy[new_dir];
 			col = px + ddx[new_dir];
 
-			/* Unknown grid or non-wall XXX XXX XXX cave_floor_bold(row, col)) */
+			/* Unknown grid or non-wall */
+			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
 			    ((cave_feat[row][col] < FEAT_SECRET) ||
 			     ((cave_feat[row][col] > FEAT_DEEP_WATER) &&
@@ -2053,7 +2048,8 @@ static bool run_test(void)
 			row = py + ddy[new_dir];
 			col = px + ddx[new_dir];
 
-			/* Unknown grid or non-wall XXX XXX XXX cave_floor_bold(row, col)) */
+			/* Unknown grid or non-wall */
+			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
 			    ((cave_feat[row][col] < FEAT_SECRET) ||
 			     ((cave_feat[row][col] > FEAT_DEEP_WATER) &&
@@ -2212,4 +2208,3 @@ void run_step(int dir)
 	/* Move the player, using the "pickup" flag */
 	move_player(p_ptr->run_cur_dir, always_pickup);
 }
-

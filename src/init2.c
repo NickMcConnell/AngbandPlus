@@ -1629,13 +1629,13 @@ errr init_v_info(void)
 	if (fd >= 0)
 	{
 		/* Attempt to parse the "raw" file */
-		err = init_v_info_raw(fd); 
+		err = init_v_info_raw(fd);
 
 		/* Close it */
-		fd_close(fd); 
+		fd_close(fd);
 
 		/* Success */
-		if (!err) return (0); 
+		if (!err) return (0);
 
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'v_info.raw' file.");
@@ -1759,6 +1759,7 @@ errr init_v_info(void)
 		fd_close(fd);
 	}
 
+
 	/*** Kill the fake arrays ***/
 
 	/* Free the "v_info" array */
@@ -1801,6 +1802,61 @@ errr init_v_info(void)
 
 
 /*
+ * Initialize the plot_names array -KMW-
+ */
+errr init_p_info(int plotnum)
+{
+	errr err;
+	char tmp_str[80];
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	sprintf(tmp_str,"q_info%d.txt",plotnum);
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, tmp_str);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	sprintf(tmp_str,"Cannot open 'q_info%d.txt' file.",plotnum);
+
+	/* Parse it */
+	if (!fp) quit(tmp_str);
+
+	/* Parse the file */
+	err = init_p_info_txt(fp, buf, plotnum);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("plot error %d at line %d of 'q_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'q_info.txt' file.");
+	}
+	/* Success */
+	return (0);
+}
+
+
+/*
  * Initialize the "q_info" array -KMW-
  *
  * Note that we let each entry have a unique "name".
@@ -1825,7 +1881,7 @@ errr init_q_info(bool new_game)
 
 	/* Parse it */
 	sprintf(tmp_str,"Cannot open 'q_info%d.txt' file.",p_ptr->plot_num);
-	
+
 	/* Parse it */
 	if (!fp) quit(tmp_str);
 
@@ -2158,6 +2214,45 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_ILLUSION_BOOK, 1 },
 		{ TV_ILLUSION_BOOK, 2 },
 		{ TV_ILLUSION_BOOK, 3 }
+	},
+	{
+		/* Bookstore */
+
+		{ TV_MAGIC_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 1 },
+		{ TV_MAGIC_BOOK, 1 },
+		{ TV_MAGIC_BOOK, 2 },
+		{ TV_MAGIC_BOOK, 2 },
+		{ TV_MAGIC_BOOK, 3 },
+		{ TV_MAGIC_BOOK, 3 },
+
+		{ TV_PRAYER_BOOK, 0 },	/* added druid books -KMW- */
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 1 },
+		{ TV_PRAYER_BOOK, 1 },
+		{ TV_PRAYER_BOOK, 2 },
+		{ TV_PRAYER_BOOK, 2 },
+		{ TV_PRAYER_BOOK, 3 },
+		{ TV_PRAYER_BOOK, 3 },
+
+		{ TV_ILLUSION_BOOK, 0 },
+		{ TV_ILLUSION_BOOK, 0 },
+		{ TV_ILLUSION_BOOK, 1 },
+		{ TV_ILLUSION_BOOK, 1 },
+		{ TV_ILLUSION_BOOK, 2 },
+		{ TV_ILLUSION_BOOK, 2 },
+		{ TV_ILLUSION_BOOK, 3 },
+		{ TV_ILLUSION_BOOK, 3 },
+
+		{ TV_NATURE_BOOK, 0 },
+		{ TV_NATURE_BOOK, 0 },
+		{ TV_NATURE_BOOK, 1 },
+		{ TV_NATURE_BOOK, 1 },
+		{ TV_NATURE_BOOK, 2 },
+		{ TV_NATURE_BOOK, 2 },
+		{ TV_NATURE_BOOK, 3 },
+		{ TV_NATURE_BOOK, 3 }
 	}
 };
 
@@ -2174,32 +2269,74 @@ static errr init_other(void)
 
 	/*** Prepare the various "bizarre" arrays ***/
 
-	/* Macro variables */
-	C_MAKE(macro__pat, MACRO_MAX, cptr);
-	C_MAKE(macro__act, MACRO_MAX, cptr);
-	C_MAKE(macro__cmd, MACRO_MAX, bool);
+	/* Initialize the "macro" package */
+	(void)macro_init();
 
-	/* Macro action buffer */
-	C_MAKE(macro__buf, 1024, char);
+	/* Initialize the "quark" package */
+	(void)quark_init();
 
-	/* Quark variables */
-	C_MAKE(quark__str, QUARK_MAX, cptr);
-
-	/* Message variables */
-	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
-	C_MAKE(message__buf, MESSAGE_BUF, char);
-
-	/* Hack -- No messages yet */
-	message__tail = MESSAGE_BUF;
+	/* Initialize the "message" package */
+	(void)message_init();
 
 
-	/*** Prepare the Player inventory ***/
+	/*** Prepare grid arrays ***/
+
+	/* Array of grids */
+	C_MAKE(view_g, VIEW_MAX, u16b);
+
+	/* Array of grids */
+	C_MAKE(temp_g, TEMP_MAX, u16b);
+
+	/* Hack -- use some memory twice */
+	temp_y = ((byte*)(temp_g)) + 0;
+	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
+
+
+	/*** Prepare dungeon arrays ***/
+
+	/* Padded into array */
+	C_MAKE(cave_info, DUNGEON_HGT, byte_256);
+
+	/* Feature array */
+	C_MAKE(cave_feat, DUNGEON_HGT, byte_wid);
+
+	/* Entity arrays */
+	C_MAKE(cave_o_idx, DUNGEON_HGT, s16b_wid);
+	C_MAKE(cave_m_idx, DUNGEON_HGT, s16b_wid);
+
+	/* Flow arrays */
+	C_MAKE(cave_cost, DUNGEON_HGT, byte_wid);
+	C_MAKE(cave_when, DUNGEON_HGT, byte_wid);
+
+
+	/*** Prepare "vinfo" array ***/
+
+	/* Used by "update_view()" */
+	(void)vinfo_init();
+
+
+	/*** Prepare entity arrays ***/
+
+	/* Objects */
+	C_MAKE(o_list, MAX_O_IDX, object_type);
+
+	/* Monsters */
+	C_MAKE(m_list, MAX_M_IDX, monster_type);
+
+
+	/*** Prepare quest array ***/
+
+	/* Quests */
+	/* C_MAKE(q_list, MAX_Q_IDX, quest); */
+
+
+	/*** Prepare the inventory ***/
 
 	/* Allocate it */
 	C_MAKE(inventory, INVEN_TOTAL, object_type);
 
 
-	/*** Prepare the Stores ***/
+	/*** Prepare the stores ***/
 
 	/* Allocate the stores */
 	C_MAKE(store, MAX_STORES, store_type);
@@ -2217,7 +2354,7 @@ static errr init_other(void)
 		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
 
 		/* No table for the black market or home */
-		if ((i == 6) || (i == 7)) continue;
+		if ((i == 7) || (i == 8)) continue;
 
 		/* Assume full table */
 		st_ptr->table_size = STORE_CHOICES;
@@ -2584,6 +2721,7 @@ static void init_angband_aux(cptr why)
 void init_angband(void)
 {
 	int fd = -1;
+	int i;
 
 	int mode = 0644;
 
@@ -2703,13 +2841,10 @@ void init_angband(void)
 	note("[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
 
-	/* Initialize vault info */
-	/* note("[Initializing arrays... (vaults)]"); */
-	/* if (init_v_info()) quit("Cannot initialize vaults"); */
-
-	/* Initialize quest info -KMW- */
-	/* note("[Initializing arrays... (quests)]"); */
-	/* if (init_q_info()) quit("Cannot initialize quests"); */
+	/* Initialize plot info -KMW- */
+	note("[Initializing plotlist... (other)]");
+	for (i = 1; i <= MAX_PLOTS; i++)
+		if (init_p_info(i)) quit("Cannot initialize plots");
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");
@@ -2730,6 +2865,3 @@ void init_angband(void)
 	/* Done */
 	note("[Initialization complete]");
 }
-
-
-

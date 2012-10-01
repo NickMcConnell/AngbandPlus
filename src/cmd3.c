@@ -20,15 +20,12 @@
  */
 void do_cmd_inven(void)
 {
-	char out_val[160];
-
-
 	/* Note that we are in "inventory" mode */
 	p_ptr->command_wrk = FALSE;
 
 
-	/* Save the screen */
-	Term_save();
+	/* Save screen */
+	screen_save();
 
 	/* Hack -- show empty slots */
 	item_tester_full = TRUE;
@@ -39,28 +36,24 @@ void do_cmd_inven(void)
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
-	/* Build a prompt */
-	sprintf(out_val, "Inventory (carrying %d.%d pounds). Command: ",
-	        p_ptr->total_weight / 10, p_ptr->total_weight % 10);
+	/* Prompt for a command */
+	prt("(Inventory) Command: ", 0, 0);
 
-	/* Get a command */
-	prt(out_val, 0, 0);
-
-	/* Get a new command */
+	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
 
-	/* Restore the screen */
-	Term_load();
+	/* Load screen */
+	screen_load();
 
 
-	/* Process "Escape" */
+	/* Hack -- Process "Escape" */
 	if (p_ptr->command_new == ESCAPE)
 	{
 		/* Reset stuff */
 		p_ptr->command_new = 0;
 	}
 
-	/* Process normal keys */
+	/* Hack -- Process normal keys */
 	else
 	{
 		/* Hack -- Use "display" mode */
@@ -74,15 +67,12 @@ void do_cmd_inven(void)
  */
 void do_cmd_equip(void)
 {
-	char out_val[160];
-
-
 	/* Note that we are in "equipment" mode */
 	p_ptr->command_wrk = TRUE;
 
 
-	/* Save the screen */
-	Term_save();
+	/* Save screen */
+	screen_save();
 
 	/* Hack -- show empty slots */
 	item_tester_full = TRUE;
@@ -93,28 +83,24 @@ void do_cmd_equip(void)
 	/* Hack -- undo the hack above */
 	item_tester_full = FALSE;
 
-	/* Build a prompt */
-	sprintf(out_val, "Equipment (carrying %d.%d pounds). Command: ",
-	        p_ptr->total_weight / 10, p_ptr->total_weight % 10);
+	/* Prompt for a command */
+	prt("(Equipment) Command: ", 0, 0);
 
-	/* Get a command */
-	prt(out_val, 0, 0);
-
-	/* Get a new command */
+	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
 
-	/* Restore the screen */
-	Term_load();
+	/* Load screen */
+	screen_load();
 
 
-	/* Process "Escape" */
+	/* Hack -- Process "Escape" */
 	if (p_ptr->command_new == ESCAPE)
 	{
 		/* Reset stuff */
 		p_ptr->command_new = 0;
 	}
 
-	/* Process normal keys */
+	/* Hack -- Process normal keys */
 	else
 	{
 		/* Enter "display" mode */
@@ -142,6 +128,7 @@ static bool item_tester_hook_wear(object_type *o_ptr)
 void do_cmd_wield(void)
 {
 	int item, slot;
+	int i;
 
 	object_type *o_ptr;
 
@@ -273,6 +260,17 @@ void do_cmd_wield(void)
 		o_ptr->ident |= (IDENT_SENSE);
 	}
 
+	for (i = 0 ; i < MAX_QUESTS ; i++)
+	{
+		if ((q_list[i].quest_type == 3) &&
+			(q_list[i].k_idx == o_ptr->name1))
+		{
+			p_ptr->rewards[i+QUEST_REWARD] = 2;
+			msg_print("You completed your quest!");
+			msg_print(NULL);
+		}
+	}
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -283,7 +281,7 @@ void do_cmd_wield(void)
 	p_ptr->update |= (PU_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 }
 
 
@@ -342,7 +340,7 @@ void do_cmd_takeoff(void)
  */
 void do_cmd_drop(void)
 {
-	int item, amt = 1;
+	int item, amt;
 
 	object_type *o_ptr;
 
@@ -366,14 +364,13 @@ void do_cmd_drop(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Prompt for quantity (or use p_ptr->command_arg) */
-	if (o_ptr->number > 1)
-	{
-		amt = get_quantity(NULL, o_ptr->number);
-		if (amt <= 0) return; /* allow abort */
-	}
+	/* Get a quantity */
+	amt = get_quantity(NULL, o_ptr->number);
 
-	/* Cannot remove cursed items */
+	/* Allow user abort */
+	if (amt <= 0) return;
+
+	/* Hack -- Cannot remove cursed items */
 	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
 	{
 		/* Oops */
@@ -397,7 +394,7 @@ void do_cmd_drop(void)
  */
 void do_cmd_destroy(void)
 {
-	int item, amt = 1;
+	int item, amt;
 	int old_number;
 
 	object_type *o_ptr;
@@ -426,12 +423,11 @@ void do_cmd_destroy(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* prompt for quantity (or use p_ptr->command_arg) */
-	if (o_ptr->number > 1)
-	{
-		amt = get_quantity(NULL, o_ptr->number);
-		if (amt <= 0) return; /* allow abort */
-	}
+	/* Get a quantity */
+	amt = get_quantity(NULL, o_ptr->number);
+
+	/* Allow user abort */
+	if (amt <= 0) return;
 
 	/* Describe the object */
 	old_number = o_ptr->number;
@@ -439,9 +435,12 @@ void do_cmd_destroy(void)
 	object_desc(o_name, o_ptr, TRUE, 3);
 	o_ptr->number = old_number;
 
-	/* Verify destruction XXX XXX XXX */
-	sprintf(out_val, "Really destroy %s? ", o_name);
-	if (!get_check(out_val)) return;
+	/* Verify destruction */
+	if (verify_destroy)
+	{
+		sprintf(out_val, "Really destroy %s? ", o_name);
+		if (!get_check(out_val)) return;
+	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -608,7 +607,7 @@ void do_cmd_inscribe(void)
 
 	char o_name[80];
 
-	char out_val[80];
+	char tmp[81];
 
 	cptr q, s;
 
@@ -638,20 +637,20 @@ void do_cmd_inscribe(void)
 	msg_print(NULL);
 
 	/* Start with nothing */
-	strcpy(out_val, "");
+	strcpy(tmp, "");
 
 	/* Use old inscription */
 	if (o_ptr->note)
 	{
 		/* Start with the old inscription */
-		strcpy(out_val, quark_str(o_ptr->note));
+		strcpy(tmp, quark_str(o_ptr->note));
 	}
 
 	/* Get a new inscription (possibly empty) */
-	if (get_string("Inscription: ", out_val, 80))
+	if (get_string("Inscription: ", tmp, 80))
 	{
 		/* Save the inscription */
-		o_ptr->note = quark_add(out_val);
+		o_ptr->note = quark_add(tmp);
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);
@@ -897,7 +896,7 @@ void do_cmd_refill(void)
 void do_cmd_target(void)
 {
 	/* Target set */
-	if (target_set(TARGET_KILL))
+	if (target_set_interactive(TARGET_KILL))
 	{
 		msg_print("Target Selected.");
 	}
@@ -917,7 +916,7 @@ void do_cmd_target(void)
 void do_cmd_look(void)
 {
 	/* Look around */
-	if (target_set(TARGET_LOOK))
+	if (target_set_interactive(TARGET_LOOK))
 	{
 		msg_print("Target Selected.");
 	}
@@ -973,10 +972,10 @@ void do_cmd_locate(void)
 			if (!get_com(out_val, &command)) break;
 
 			/* Extract direction */
-			dir = keymap_dirs[command & 0x7F];
+			dir = target_dir(command);
 
 			/* Error */
-			if (!dir) bell();
+			if (!dir) bell("Illegal direction for locate!");
 		}
 
 		/* No direction */
@@ -1001,28 +1000,19 @@ void do_cmd_locate(void)
 			p_ptr->wy = y2;
 			p_ptr->wx = x2;
 
-			/* Update stuff */
-			p_ptr->update |= (PU_MONSTERS);
-
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD);
 
 			/* Handle stuff */
 			handle_stuff();
 		}
 	}
 
-	/* Recenter the map around the player */
-	verify_panel();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	/* Verify panel */
+	p_ptr->update |= (PU_PANEL);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1226,9 +1216,6 @@ static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 
 	u16b holder;
 
-	/* XXX XXX */
-	v = v ? v : 0;
-
 	/* Swap */
 	holder = who[a];
 	who[a] = who[b];
@@ -1294,7 +1281,7 @@ static void roff_top(int r_idx)
  *
  * The responses may be sorted in several ways, see below.
  *
- * Note that the player ghosts are ignored. XXX XXX XXX
+ * Note that the player ghosts are ignored, since they do not exist.
  */
 void do_cmd_query_symbol(void)
 {
@@ -1372,7 +1359,7 @@ void do_cmd_query_symbol(void)
 	if (!n) return;
 
 
-	/* Prompt XXX XXX XXX */
+	/* Prompt */
 	put_str("Recall details? (k/p/y/n): ", 0, 40);
 
 	/* Query */
@@ -1439,11 +1426,11 @@ void do_cmd_query_symbol(void)
 			/* Recall */
 			if (recall)
 			{
-				/* Save the screen */
-				Term_save();
+				/* Save screen */
+				screen_save();
 
 				/* Recall on screen */
-				screen_roff(who[i], 0);
+				screen_roff(who[i]);
 
 				/* Hack -- Complete the prompt (again) */
 				Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
@@ -1455,8 +1442,8 @@ void do_cmd_query_symbol(void)
 			/* Unrecall */
 			if (recall)
 			{
-				/* Restore */
-				Term_load();
+				/* Load screen */
+				screen_load();
 			}
 
 			/* Normal commands */
@@ -1622,7 +1609,7 @@ bool research_mon()
 
 				oldkills = r2_ptr->r_tkills;
 				oldwake = r2_ptr->r_wake;
-				screen_roff(who[i], 1);
+				screen_roff(who[i]);
 				r2_ptr->r_tkills = oldkills;
 				r2_ptr->r_wake = oldwake;
 				r2_ptr->r_sights = 1;
@@ -1680,5 +1667,3 @@ bool research_mon()
 	cheat_know = oldcheat;
 	return(notpicked);
 }
-
-

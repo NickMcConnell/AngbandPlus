@@ -1405,10 +1405,10 @@ void object_prep(object_type *o_ptr, int k_idx)
  * we simply round the results of division in such a way as to "average" the
  * correct floating point value.
  *
- * This function has been changed.  It uses "randnor()" to choose values from
- * a normal distribution, whose mean moves from zero towards the max as the
- * level increases, and whose standard deviation is equal to 1/4 of the max,
- * and whose values are forced to lie between zero and the max, inclusive.
+ * This function has been changed.  It uses "Rand_normal()" to choose values
+ * from a normal distribution, whose mean moves from zero towards the max as
+ * the level increases, and whose standard deviation is equal to 1/4 of the
+ * max, and whose values are forced to lie between zero and the max, inclusive.
  *
  * Since the "level" rarely passes 100 before Morgoth is dead, it is very
  * rare to get the "full" enchantment on an object, even a deep levels.
@@ -1467,7 +1467,7 @@ static s16b m_bonus(int max, int level)
 
 
 	/* Choose an "interesting" value */
-	value = randnor(bonus, stand);
+	value = Rand_normal(bonus, stand);
 
 	/* Enforce the minimum value */
 	if (value < 0) return (0);
@@ -1548,7 +1548,7 @@ static bool make_artifact_special(object_type *o_ptr)
 
 		if (a_ptr->flags3 & TR3_QUESTITEM) continue;
 
-		/* XXX XXX Enforce minimum "depth" (loosely) */
+		/* Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > p_ptr->depth)
 		{
 			/* Acquire the "out-of-depth factor" */
@@ -1559,12 +1559,12 @@ static bool make_artifact_special(object_type *o_ptr)
 		}
 
 		/* Artifact "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) return (0);
+		if (rand_int(a_ptr->rarity) != 0) continue;
 
 		/* Find the base object */
 		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
 
-		/* XXX XXX Enforce minimum "object" level (loosely) */
+		/* Enforce minimum "object" level (loosely) */
 		if (k_info[k_idx].level > object_level)
 		{
 			/* Acquire the "out-of-depth factor" */
@@ -2000,7 +2000,11 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				}
 
 				/* Hack -- Super-charge the damage dice */
-				while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0) o_ptr->dd++;
+				while ((o_ptr->dd * o_ptr->ds > 0) &&
+				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				{
+					o_ptr->dd++;
+				}
 
 				/* Hack -- Lower the damage dice */
 				if (o_ptr->dd > 9) o_ptr->dd = 9;
@@ -2142,7 +2146,11 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				}
 
 				/* Hack -- super-charge the damage dice */
-				while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0) o_ptr->dd++;
+				while ((o_ptr->dd * o_ptr->ds > 0) &&
+				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				{
+					o_ptr->dd++;
+				}
 
 				/* Hack -- restrict the damage dice */
 				if (o_ptr->dd > 9) o_ptr->dd = 9;
@@ -2406,13 +2414,13 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					}
 
 					case 6: case 7: case 8: case 9:
-					case 10: case 11: case 12: case 13:
+					case 10: case 11:
 					{
 						o_ptr->name2 = EGO_QUIET;
 						break;
 					}
 
-					case 14: case 15:
+					case 12: case 13: case 14: case 15:
 					{
 						o_ptr->name2 = EGO_LEVITATION;
 						break;
@@ -2716,6 +2724,27 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
+				case SV_RING_ATTACKS:
+				{
+					/* Stat bonus */
+					o_ptr->pval = 1 + m_bonus(2, level);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse pval */
+						o_ptr->pval = 0 - (o_ptr->pval);
+					}
+
+					break;
+				}
+
 				/* Ring of Speed! */
 				case SV_RING_SPEED:
 				{
@@ -2859,6 +2888,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 				/* Ring of Protection */
 				case SV_RING_PROTECTION:
+				case SV_RING_LORDLY:
 				{
 					/* Bonus to armor class */
 					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
@@ -3008,13 +3038,13 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			/* Hack -- Torches -- random fuel */
 			if (o_ptr->sval == SV_LITE_TORCH)
 			{
-				if (o_ptr->pval) o_ptr->pval = randint(o_ptr->pval);
+				if (o_ptr->pval > 0) o_ptr->pval = randint(o_ptr->pval);
 			}
 
 			/* Hack -- Lanterns -- random fuel */
 			if (o_ptr->sval == SV_LITE_LANTERN)
 			{
-				if (o_ptr->pval) o_ptr->pval = randint(o_ptr->pval);
+				if (o_ptr->pval > 0) o_ptr->pval = randint(o_ptr->pval);
 			}
 
 			break;
@@ -3111,23 +3141,23 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	power = 0;
 
 	/* Roll for "good" */
-	if (good || magik(f1))
+	if (good || (rand_int(100) < f1))
 	{
 		/* Assume "good" */
 		power = 1;
 
 		/* Roll for "great" */
-		if (great || magik(f2)) power = 2;
+		if (great || (rand_int(100) < f2)) power = 2;
 	}
 
 	/* Roll for "cursed" */
-	else if (magik(f1))
+	else if (rand_int(100) < f1)
 	{
 		/* Assume "cursed" */
 		power = -1;
 
 		/* Roll for "broken" */
-		if (magik(f2)) power = -2;
+		if (rand_int(100) < f2) power = -2;
 	}
 
 
@@ -3282,24 +3312,24 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		if (cursed_p(o_ptr) || broken_p(o_ptr))
 		{
 			/* Hack -- obtain bonuses */
-			if (e_ptr->max_to_h) o_ptr->to_h -= randint(e_ptr->max_to_h);
-			if (e_ptr->max_to_d) o_ptr->to_d -= randint(e_ptr->max_to_d);
-			if (e_ptr->max_to_a) o_ptr->to_a -= randint(e_ptr->max_to_a);
+			if (e_ptr->max_to_h > 0) o_ptr->to_h -= randint(e_ptr->max_to_h);
+			if (e_ptr->max_to_d > 0) o_ptr->to_d -= randint(e_ptr->max_to_d);
+			if (e_ptr->max_to_a > 0) o_ptr->to_a -= randint(e_ptr->max_to_a);
 
 			/* Hack -- obtain pval */
-			if (e_ptr->max_pval) o_ptr->pval -= randint(e_ptr->max_pval);
+			if (e_ptr->max_pval > 0) o_ptr->pval -= randint(e_ptr->max_pval);
 		}
 
 		/* Hack -- apply extra bonuses if needed */
 		else
 		{
 			/* Hack -- obtain bonuses */
-			if (e_ptr->max_to_h) o_ptr->to_h += randint(e_ptr->max_to_h);
-			if (e_ptr->max_to_d) o_ptr->to_d += randint(e_ptr->max_to_d);
-			if (e_ptr->max_to_a) o_ptr->to_a += randint(e_ptr->max_to_a);
+			if (e_ptr->max_to_h > 0) o_ptr->to_h += randint(e_ptr->max_to_h);
+			if (e_ptr->max_to_d > 0) o_ptr->to_d += randint(e_ptr->max_to_d);
+			if (e_ptr->max_to_a > 0) o_ptr->to_a += randint(e_ptr->max_to_a);
 
 			/* Hack -- obtain pval */
-			if (e_ptr->max_pval) o_ptr->pval += randint(e_ptr->max_pval);
+			if (e_ptr->max_pval > 0) o_ptr->pval += randint(e_ptr->max_pval);
 		}
 
 		/* Hack -- apply rating bonus */
@@ -3365,7 +3395,7 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		/* Ammo -- Arrows/Bolts are good unless damaged. From GJW -KMW- */
+		/* Ammo -- Arrows/Bolts are goodunless damaged. From GJW -KMW- */
 		case TV_BOLT:
 		case TV_ARROW:
 		{
@@ -3713,8 +3743,9 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			if (!los(y, x, ty, tx)) continue;
 
 			/* Require floor space (or shallow terrain) -KMW- */
-			if ((cave_feat[ty][tx] != FEAT_FLOOR) &&
+			if ((cave_feat[ty][tx] != FEAT_FLOOR)&&
 			    (cave_feat[ty][tx] != FEAT_SHAL_WATER) &&
+			    (cave_feat[ty][tx] != FEAT_GRASS) &&
 			    (cave_feat[ty][tx] != FEAT_DIRT) &&
 			    (cave_feat[ty][tx] != FEAT_FOG) &&
 			    (cave_feat[ty][tx] != FEAT_SHAL_LAVA)) continue;
@@ -3807,8 +3838,9 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		}
 
 		/* Require floor space or shallow terrain -KMW- */
-		if ((cave_feat[ty][tx] != FEAT_FLOOR) &&
+		if ((cave_feat[ty][tx] != FEAT_FLOOR)&&
 		    (cave_feat[ty][tx] != FEAT_SHAL_WATER) &&
+		    (cave_feat[ty][tx] != FEAT_GRASS) &&
 		    (cave_feat[ty][tx] != FEAT_DIRT) &&
 		    (cave_feat[ty][tx] != FEAT_FOG) &&
 		    (cave_feat[ty][tx] != FEAT_SHAL_LAVA)) continue;
@@ -3971,11 +4003,11 @@ void pick_trap(int y, int x)
 		feat = FEAT_TRAP_HEAD + rand_int(16);
 
 		/* Hack -- no trap doors on special levels */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->inside_special > 0))
+		if ((feat == FEAT_TRAP_HEAD) && (p_ptr->inside_special > 0))
 			continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->depth >= MAX_DEPTH-1))
+		if ((feat == FEAT_TRAP_HEAD) && (p_ptr->depth >= MAX_DEPTH-1))
 			continue;
 
 		/* Done */
@@ -4053,7 +4085,7 @@ void inven_item_describe(int item)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Print a message */
-	msg_format("You have %s.", o_name);
+	msg_format("You have %s (%c).", o_name, index_to_label(item));
 }
 
 
@@ -4152,7 +4184,7 @@ void inven_item_optimize(int item)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -4809,20 +4841,20 @@ s16b spell_chance(int spell)
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
-	/* Non mage/priest characters never get too good */
+	/* Non mage/priest characters never get better than 5 percent */
 	if ((p_ptr->pclass != 1) && (p_ptr->pclass != 2) &&
 		(p_ptr->pclass != 6) && (p_ptr->pclass != 7))
 	{
 		if (minfail < 5) minfail = 5;
 	}
 
-	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
+	/* Priest prayer penalty for "edged" weapons (before minfail) */
 	if (((p_ptr->pclass == 2) || (p_ptr->pclass == 7)) && (p_ptr->icky_wield)) chance += 25;
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
 
-	/* Stunning makes spells harder */
+	/* Stunning makes spells harder (after minfail) */
 	if (p_ptr->stun > 50) chance += 25;
 	else if (p_ptr->stun) chance += 15;
 
@@ -4897,7 +4929,7 @@ void spell_info(char *p, int spell)
 		{
 			case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
 			case 2: strcpy(p, " range 10"); break;
-			case 5: 
+			case 5:
 			{
 				if (p_ptr->lev < 15)
 					strcpy(p, " heal 4d10");
@@ -4916,7 +4948,7 @@ void spell_info(char *p, int spell)
 			case 26: sprintf(p, " dam %d", 30 + plev); break;
 			case 29: sprintf(p, " dur %d+d20", plev); break;
 			case 30: sprintf(p, " dam %d", 55 + plev); break;
-			case 39: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
+			case 39: sprintf(p, " dam%dd8", (6+((plev-5)/4))); break;
 			case 40: sprintf(p, " dam %dd3", 20 + plev/2); break;
 			case 41: sprintf(p, " dam %dd2", 40 + plev); break;
 			case 42: sprintf(p, " dam %dd3", 70 + plev); break;
@@ -5062,7 +5094,7 @@ void spell_info(char *p, int spell)
 			case 20: sprintf(p, " dur %d+d25", 3*plev); break;
 			case 21: sprintf(p, " dur %d+d24", 24); break;
 			case 27: strcpy(p, " heal 300"); break;
-			case 31: sprintf(p, " dam %dd8", 8+((plev-5)/4)); break;
+			case 31: sprintf(p, " dam %dd8", 8+((plev-5)/4));break;
 			case 37: strcpy(p, " dur 20+d20"); break;
 			case 43: sprintf(p, " dam %dd10", 35+(plev/2)); break;
 			case 45: sprintf(p, " dam %dd2", 60+plev); break;
@@ -5070,7 +5102,7 @@ void spell_info(char *p, int spell)
 			case 49: sprintf(p, " dam %dd10", 15+((plev-5)/3)); break;
 			case 57: strcpy(p, " range 10"); break;
 			case 58: sprintf(p, " range %d", plev * 8); break;
-			case 63: sprintf(p, " dam %dd3", 100+(plev*2)); break;
+ 			case 63: sprintf(p, " dam %dd3", 100+(plev*2)); break;
 		}
 	}
 }
@@ -5232,4 +5264,3 @@ void display_koff(int k_idx)
 		print_spells(spells, num, 2, 0);
 	}
 }
-

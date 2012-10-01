@@ -1,17 +1,14 @@
-# File: graf-xxx.prf
+## File: graf-xxx.prf
 
-#
-# This file defines special attr/char mappings for use in "graphics" mode
-#
-# See "lib/help/command.txt" and "src/files.c" for more information.
-#
-# This file is included by any platform which uses the "standard" Angband
-# bitmap file (a 32x32 collection of 8x8 bitmaps), including "pref-ami.prf",
-# "pref-mac.prf", "pref-win.prf", "pref-dos.prf", and "pref-x11.prf".
-#
-# Adapted from the file "graf-ami.prf", provided, along with the original
-# pixmap file itself, by Lars Haugseth <larshau@ifi.uio.no>.
-#
+##
+## This file defines special attr/char mappings for use in "graphics" mode
+##
+## See "lib/help/command.txt" and "src/files.c" for more information.
+##
+## This file is included by any platform which uses the "standard" Angband
+## bitmap file (a 32x32 collection of 8x8 bitmaps), including "pref-ami.prf",
+## "pref-mac.prf", and "pref-win.prf".
+##
 
 
 
@@ -306,19 +303,16 @@ S:0xFD:0x8B/0x81
 S:0xFE:0x8B/0x81
 S:0xFF:0x8B/0x81
 
-
-
 ##### Feature attr/char definitions #####
-
 
 # nothing
 F:0:0x81/0x80
 
 # open floor
-F:1:0x80/0x80
+F:1:0x80/0x81
 
 # open floor
-F:2:0x80/0x80
+F:2:0x80/0x81
 
 # glyph of warding
 F:3:0x8A/0x9C
@@ -353,11 +347,14 @@ F:12:0x81/0x95
 # Magic Shop
 F:13:0x81/0x96
 
+# Bookstore
+F:14:0x8a/0x83
+
 # Black Market
-F:14:0x81/0x97
+F:15:0x81/0x97
 
 # Home
-F:15:0x81/0x98
+F:16:0x81/0x98
 
 # trap door
 F:16:0x8A/0x9B
@@ -503,10 +500,97 @@ F:62:0x80/0x95
 # granite wall
 F:63:0x80/0x95
 
+# Library
+F:64:0x81/0x82
 
+# Castle
+F:65:0x81:0x83
 
-##### Object attr/char definitions #####
+# Arena
+F:66:0x81:0x85
 
+# Gambling House
+F:67:0x81:0x86
+
+# Inn
+F:68:0x81:0x88
+
+# Beastmaster
+F:69:0x82:0x88
+
+# Weaponsmaster
+F:70:0x82:0x89
+
+# Fighter's Hall
+F:74:0x81:0x8A
+
+# Tower of Sorcery
+F:75:0x81:0x82
+
+# Inner Temple
+F:76:0x8A:0x91
+
+# House of Thieves
+F:77:0x9B:0x91
+
+# Ranger's Tavern
+F:78:0x9B:0x9B
+
+# Order of Paladins
+F:79:0x9B:0x9C
+
+# Tower of Illusion
+F:80:0x82:0x8B
+
+# Grove of the Druids
+F:81:0x82:0x8A
+
+# grass
+F:103:0x81:0x99
+
+# a pool of deep water
+F:104:0x81:0x8D
+
+# stream of shallow water
+F:105:0x81:0x8F
+
+# a pool of deep lava
+F:106:0x81:0x8E
+
+# a stream of shallow lava
+F:107:0x81:0x90
+
+# chasm
+F:108:0x80/0x81
+
+# dirt
+F:109:0x82/0x8C
+
+# fog
+F:97:0x81/0x8C
+
+# trees
+F:96:0x81:0x84
+
+# a mountain chain
+F:100:0x81:0x9B
+
+# quest entrance
+F:112:0x81:0x9F
+
+# quest exit
+F:113:0x81:0x9D
+
+# guild quest entrance
+F:114:0x81/0x89
+
+# quest down level
+F:115:0x81:0x9F
+
+# quest up level
+F:116:0x81:0x9D
+
+### Object attr/char definitions
 
 # something
 K:0:0x01/0x20
@@ -1279,6 +1363,9 @@ K:266:0x86/0x86
 # Infra-vision
 K:267:0x86/0x85
 
+# Resistance
+K:268:0x86/0x85
+
 # Light
 K:269:0x86/0x8F
 
@@ -1696,6 +1783,12 @@ K:411:0x88/0x99
 # Power Dragon Scale Mail~
 K:412:0x89/0x82
 
+# & Dragon Helm~
+K:413:0x88/0x85
+
+# & Dragon Shield~
+K:414:0x88/0x93
+
 # Death
 K:415:0x86/0x88
 
@@ -1719,6 +1812,51 @@ K:421:0x86/0x87
 
 # *Enlightenment*
 K:422:0x86/0x88
+
+# [Illusions for Beginners]
+K:425:0x8A/0x80
+
+# [Tricks and Visions]
+K:426:0x8A/0x81
+
+# [Phantasms and Illusions]
+K:427:0x8A/0x82
+
+# [Shadows and Prisms]
+K:428:0x8A/0x83
+
+# [Serten's Immunities]
+K:429:0x8A/0x84
+
+# [ Knowledge of Kenault]
+K:430:0x8A/0x85
+
+# [Otiluke's Spheres]
+K:431:0x8A/0x86
+
+# [Boccob's Book of Shadows]
+K:432:0x8A/0x87
+
+# [Bigby's Handbook]
+K:433:0x8A/0x87
+
+# Blindness Resistance
+K:434:0x82/0x81
+
+# Lordly Protection
+K:435:0x82/0x81
+
+# Extra Attacks
+K:436:0x82/0x81
+
+# Fear Resistance
+K:437:0x82/0x81
+
+# Nether Resistance
+K:438:0x82/0x81
+
+# Confusion Resistance
+K:439:0x82/0x81
 
 # copper
 K:480:0x80/0x8B
@@ -1816,10 +1954,34 @@ K:510:0x82/0x86
 # & Ring~
 K:511:0x82/0x87
 
+# [Natures Handbook]
+K:512:0x8A/0x87
 
+# [Natural States]
+K:513:0x8A/0x87
 
-##### Monster attr/char definitions #####
+# [Wilderness Guide]
+K:514:0x8A/0x87
 
+# [Call of the Wild]
+K:515:0x8A/0x87
+
+# [Druidic Insights]
+K:516:0x8A/0x89
+
+# [Growth & Destruction]
+K:517:0x8A/0x89
+
+# [Nature's Wrath]
+K:518:0x8A/0x89
+
+# [Druidic Alterations]
+K:519:0x8A/0x89
+
+# [Commune with Nature]
+K:520:0x8A/0x89
+
+### Monster attr/char definitions
 
 # Player
 R:0:0x8C/0x80
@@ -3466,6 +3628,4 @@ R:546:0x9D/0x8A
 R:547:0x92/0x9E
 
 
-# Load the special player pictures
-%:xtra-xxx.prf
 

@@ -64,7 +64,7 @@ typedef struct
 
 
 /*
- * Item Spoilers by: benh@voicenet.com (Ben Harrison)
+ * Item Spoilers by Ben Harrison (benh@phial.com)
  */
 
 
@@ -111,7 +111,7 @@ static grouper group_item[] =
 
 	{ TV_ILLUSION_BOOK,	"Books (Illusionist)" }, /* -KMW- */
 	{ TV_NATURE_BOOK,	"Books (Druid)" }, /* -KMW- */
-	
+
 	{ TV_CHEST,		"Chests" },
 
 	{ TV_SPIKE,		"Various" },
@@ -2239,11 +2239,8 @@ void do_cmd_spoilers(void)
 	int i;
 
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
-	/* Save the screen */
-	Term_save();
+	/* Save screen */
+	screen_save();
 
 
 	/* Drop priv's */
@@ -2304,7 +2301,7 @@ void do_cmd_spoilers(void)
 		/* Oops */
 		else
 		{
-			bell();
+			bell("Illegal command for spoilers!");
 		}
 
 		/* Flush messages */
@@ -2316,11 +2313,8 @@ void do_cmd_spoilers(void)
 	safe_setuid_grab();
 
 
-	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	/* Load screen */
+	screen_load();
 }
 
 
@@ -2331,5 +2325,3 @@ static int i = 0;
 #endif
 
 #endif
-
-

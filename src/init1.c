@@ -540,10 +540,10 @@ errr init_v_info_txt(FILE *fp, char *buf, bool start)
 	if (start) {
 		/* Just before the first record */
 		error_idx = -1;
-	
+
 		/* Just before the first line */
 		error_line = -1;
-	
+
 		/* Prepare the "fake" stuff */
 		v_head->name_size = 0;
 		v_head->text_size = 0;
@@ -557,7 +557,7 @@ errr init_v_info_txt(FILE *fp, char *buf, bool start)
 
 		/* Skip comments and blank lines */
 		if (!buf[0] || (buf[0] == '#')) continue;
-		if ((buf[0] == 'Q') || (buf[0] == 'T')) continue;
+		if ((buf[0] == 'Q') || (buf[0] == 'T') || (buf[0] == 'P')) continue;
 
 		/* Verify correct "colon" format */
 		if (buf[1] != ':') return (1);
@@ -604,7 +604,6 @@ errr init_v_info_txt(FILE *fp, char *buf, bool start)
 
 			/* Get the index */
 			i = atoi(buf+2);
-
 			/* Verify information */
 			if (i <= error_idx) return (4);
 
@@ -687,10 +686,10 @@ errr init_v_info_txt(FILE *fp, char *buf, bool start)
 
 			/* Scan for the values */
 			if (10 != sscanf(buf+2,"%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-			    &v_ptr->kobjects[0], &v_ptr->kobjects[1], 
-			    &v_ptr->kobjects[2], &v_ptr->kobjects[3], 
-			    &v_ptr->kobjects[4], &v_ptr->kobjects[5], 
-			    &v_ptr->kobjects[6], &v_ptr->kobjects[7], 
+			    &v_ptr->kobjects[0], &v_ptr->kobjects[1],
+			    &v_ptr->kobjects[2], &v_ptr->kobjects[3],
+			    &v_ptr->kobjects[4], &v_ptr->kobjects[5],
+			    &v_ptr->kobjects[6], &v_ptr->kobjects[7],
 			    &v_ptr->kobjects[8], &v_ptr->kobjects[9])) return (1);
 
 			/* Next... */
@@ -703,10 +702,10 @@ errr init_v_info_txt(FILE *fp, char *buf, bool start)
 
 			/* Scan for the values */
 			if (10 != sscanf(buf+2,"%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-			    &v_ptr->eobjects[0], &v_ptr->eobjects[1], 
-			    &v_ptr->eobjects[2], &v_ptr->eobjects[3], 
-			    &v_ptr->eobjects[4], &v_ptr->eobjects[5], 
-			    &v_ptr->eobjects[6], &v_ptr->eobjects[7], 
+			    &v_ptr->eobjects[0], &v_ptr->eobjects[1],
+			    &v_ptr->eobjects[2], &v_ptr->eobjects[3],
+			    &v_ptr->eobjects[4], &v_ptr->eobjects[5],
+			    &v_ptr->eobjects[6], &v_ptr->eobjects[7],
 			    &v_ptr->eobjects[8], &v_ptr->eobjects[9])) return (1);
 
 			/* Next... */
@@ -946,13 +945,15 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			if (!buf[3]) return (1);
 			if (!buf[4]) return (1);
 
-			/* Extract the color */
+			/* Extract the attr */
 			tmp = color_char_to_attr(buf[4]);
+
+			/* Paranoia */
 			if (tmp < 0) return (1);
 
 			/* Save the values */
-			f_ptr->f_char = buf[2];
-			f_ptr->f_attr = tmp;
+			f_ptr->d_attr = tmp;
+			f_ptr->d_char = buf[2];
 
 			/* Next... */
 			continue;
@@ -979,6 +980,59 @@ errr init_f_info_txt(FILE *fp, char *buf)
 
 
 /*
+ * Initialize the plot_names array, by parsing an ascii "template" file
+ * -KMW-
+ */
+errr init_p_info_txt(FILE *fp, char *buf, int plotnum)
+{
+	char *s;
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+		/* If not a plot name, skip it */
+		if (buf[0] != 'P') continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+		/* Process 'P' for "Plot Name" */
+		if (buf[0] == 'P')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+1, ':');
+
+			/* Verify that colon */
+			if (!s) return (1);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Point at the "info" */
+			strcpy(plot_names[plotnum-1],s);
+
+			/* Next... */
+			break;
+		}
+	}
+
+	/* Success */
+	return (0);
+}
+
+
+/*
  * Initialize the "q_info" array, by parsing an ascii "template" file
  * -KMW-
  */
@@ -988,6 +1042,8 @@ errr init_q_info_txt(FILE *fp, char *buf, bool new_game)
 	int qidx;
 
 	char *s;
+	monster_race *r_ptr;
+	artifact_type *a_ptr;
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -1006,7 +1062,7 @@ errr init_q_info_txt(FILE *fp, char *buf, bool new_game)
 		/* Skip comments and blank lines */
 		if (!buf[0] || (buf[0] == '#')) continue;
 		if (buf[0] == 'V') continue;
-		if ((buf[0] == 'Y') || (buf[0] == 'X') ||
+		if ((buf[0] == 'Y') || (buf[0] == 'X') || (buf[0] == 'P') ||
 		    (buf[0] == 'D')) continue;
 
 		/* Verify correct "colon" format */
@@ -1087,6 +1143,13 @@ errr init_q_info_txt(FILE *fp, char *buf, bool new_game)
 			q_list[qidx].questx = qx;
 			q_list[qidx].revert = qrvt;
 			q_list[qidx].vaultused = vn;
+
+			r_ptr = &r_info[q_list[qidx].r_idx];
+			if (r_ptr->flags1 & (RF1_UNIQUE))
+				r_ptr->flags2 |= RF2_QUESTOR2;
+
+			a_ptr = &a_info[q_list[qidx].k_idx];
+			a_ptr->flags3 |= TR3_QUESTITEM;
 
 			continue;
 		}
@@ -1327,8 +1390,8 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			if (tmp < 0) return (1);
 
 			/* Save the values */
-			k_ptr->k_char = sym;
-			k_ptr->k_attr = tmp;
+			k_ptr->d_attr = tmp;
+			k_ptr->d_char = sym;
 
 			/* Next... */
 			continue;
@@ -2301,8 +2364,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			if (tmp < 0) return (1);
 
 			/* Save the values */
-			r_ptr->d_char = sym;
 			r_ptr->d_attr = tmp;
+			r_ptr->d_char = sym;
 
 			/* Next... */
 			continue;
@@ -2504,7 +2567,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");
 	strcpy(r_text + r_ptr->text, "It seems strangely familiar...");
 
-	/* Hack -- set the char/attr info */
+	/* Hack -- set the attr/char info */
 	r_ptr->d_attr = r_ptr->x_attr = TERM_WHITE;
 	r_ptr->d_char = r_ptr->x_char = 'G';
 
@@ -2537,4 +2600,3 @@ static int i = 0;
 #endif
 
 #endif	/* ALLOW_TEMPLATES */
-

@@ -1,5 +1,5 @@
-# File: q_info.txt
-# Plot: Miscellaneous
+# Specify plot name here:
+P:Various Troubles at Home (original)
 
 # This file is used to initialize the quests array (q_list), which is
 # used to handle all player quests in the Kangband game.
@@ -33,12 +33,12 @@ Q:6:0:0:0:5:0:0:28:137:49:1
 Y:36:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:10:15
 D:XXXXXXXXXXXXXXX
-D:XT...a....X..TX
-D:XT........D..TX
+D:XG...a....X..GX
+D:XG........D..GX
 D:X.........Xa..X
 D:XXXXX.....XXXXX
-D:XT..D.........X
-D:XTa.X.........X
+D:XG..D.........X
+D:XGa.X.........X
 D:XXXXX.........X
 D:X<P.D.........X
 D:XXXXXXXXXXXXXXX
@@ -151,7 +151,7 @@ T3:see the dire consequences! Hurry and eliminate at least 24 trolls
 T4:so the water can return to a normal state naturally.
 T5:Be prepared, rumor has it there approximately 20 water trolls
 T6:at the lake.
-Q:5:24:0:0:20:0:0:54:9:96:1
+Q:5:24:0:0:20:0:0:54:9:104:1
 Y:348:552:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:18:74
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -179,7 +179,7 @@ T2:mountains. They have been swooping down on farms and feeding
 T3:on our livestock.
 T5:Please eliminate this threat and kill all the dragons.
 T7:Scouts have reported that the dragons are of ALL ages.
-Q:6:0:0:0:25:0:0:5:150:110:1
+Q:6:0:0:0:25:0:0:5:150:100:1
 Y:131:387:402:444:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:10:31
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -205,23 +205,23 @@ Q:4:0:0:0:25:0:0:30:194:49:1
 Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:20:60
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X.....T....................................................X
+D:X.....G....................................................X
 D:X......................................&...............E...X
-D:X...........T....T.........................................X
-D:X...T......................................&...............X
+D:X...........G....G.........................................X
+D:X...G......................................&...............X
 D:X..........................................................X
-D:X.....&................T............9..........&...........X
+D:X.....&................G............9..........&...........X
 D:X..........................................................X
 D:X.........&..........................................&.....X
-D:X.........................T................................X
+D:X.........................G................................X
 D:X...9..........&............................9..............X
-D:X..............................T...........................X
+D:X..............................G...........................X
 D:X.......9..................................................X
 D:X...................&......................................X
-D:X...........9.......................T......................X
-D:X..............................................T...........X
+D:X...........9.......................G......................X
+D:X..............................................G...........X
 D:X...............9........&.................................X
-D:X.<P.....................................T............T....X
+D:X.<P.....................................G............G....X
 D:X..........................................................X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
@@ -278,7 +278,7 @@ T1:The volcano is acting up again.  But, we do not think
 T2:it is natural. Now, it is time to eliminate all creatures
 T3:that are making their home at the volcano. You must exterminate
 T4:them all if we are to avoid having lava ruin our crops!
-Q:6:0:0:0:30:0:0:57:189:98:1
+Q:6:0:0:0:30:0:0:57:189:106:1
 Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:18:70
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -314,14 +314,14 @@ X:99:0:52:127
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X XXXXXXXXXXXX                                                                                                                X
 D:X X..........X        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                                 X
-D:X X...dEd....X        XTXTXTXjXjXjX.X.X...X.X.XcXcX.XTXTX.+.X                                                                 X
+D:X X...dEd....X        XGXGXGXjXjXjX.X.X...X.X.XcXcX.XGXGX.+.X                                                                 X
 D:X X..........X        XDXDXDXDXDXDXDXDX...XDXDXDXDXDXDXDXDXXX      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX          X
-D:X XXXXXDXXXXXX        X...............D...D...............X        X.........aaa........XXXXX.......fff..........+TX          X
-D:X     X.X             XDXDXDXDXDXDXDXDX...XDXDXDXDXDXDXDXDX        X...............TT...XXXXX..TT................XXX          X
-D:X     X.X             XeXeXeXTXTXTX.X.X...X.XcXTXTXTX^X^X.X        XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
+D:X XXXXXDXXXXXX        X...............D...D...............X        X.........aaa........XXXXX.......fff..........+GX          X
+D:X     X.X             XDXDXDXDXDXDXDXDX...XDXDXDXDXDXDXDXDX        X...............GG...XXXXX..GG................XXX          X
+D:X     X.X             XeXeXeXGXGXGX.X.X...X.XcXGXGXGX^X^X.X        XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
 D:X     X.X             XXXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXX        XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
 D:X     X.X                XXX          X...X                        X.........ggg........XXXXX............gg......X            X
-D:X    XX.XX               X.XXXXXXXXXXXXDDDXXXXX                    X..........hh...TT...XXXXX..TT................X            X
+D:X    XX.XX               X.XXXXXXXXXXXXDDDXXXXX                    X..........hh...GG...XXXXX..GG................X            X
 D:X   XX...XX            XXXDXXXXXXXXX.........XX                    XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
 D:X  XX.....XX           X.D........D....bbb....X                    X.............................................X            X
 D:X XX.......XX          XXXDXXXXXXXX....bbb....X                    X............iii..............................X            X
@@ -339,12 +339,12 @@ D:X    XX.XX  XXXX         X.X   XX.......aaa.....XX                        XX..
 D:X     X.X                X.X  XX.................XX                     XXX............................XX            XXXXX    X
 D:X     X.X                X.X  X...................X                    XX...............................XX           Xj..X    X
 D:X     X.X                X.X  XXXX..XXXXXXX..XXXXXX                   XX.................................XX          X...X    X
-D:X     X.X                X.X     X..X     X..X                 XXXXXXXX...................Tccc............XX         XDXXX    X
-D:X     X.X                X.X     X..XXXXXXX..XXXXXXX           X.....D...................TTccc.............XXXXXXXXXXX.X      X
-D:X     X.X                X.X     X...........D.....X           X.....D..................TTTcdc.............D...........X      X
-D:X     X.X                X.X     X...........D.....X           X...XXXX.................TTTccc............XXXXXXXXXXXX.X      X
-D:X  XXXX.XXXX             X.X     XXXXXXXXXXXXXXXX..XXXXXXX     X...X  XX.................TT..............XX          X.X      X
-D:X  X.......X             X.X                    X........XXXXXXX...X   XX.................T.............XX           X.X      X
+D:X     X.X                X.X     X..X     X..X                 XXXXXXXX...................Gccc............XX         XDXXX    X
+D:X     X.X                X.X     X..XXXXXXX..XXXXXXX           X.....D...................GGccc.............XXXXXXXXXXX.X      X
+D:X     X.X                X.X     X...........D.....X           X.....D..................GGGcdc.............D...........X      X
+D:X     X.X                X.X     X...........D.....X           X...XXXX.................GGGccc............XXXXXXXXXXXX.X      X
+D:X  XXXX.XXXX             X.X     XXXXXXXXXXXXXXXX..XXXXXXX     X...X  XX.................GG..............XX          X.X      X
+D:X  X.......X             X.X                    X........XXXXXXX...X   XX.................G.............XX           X.X      X
 D:X  XXX...XXX             X.X                    X..................X    XX.............................XX            X.X      X
 D:X  X.......X             X.X                    X........XXXXXXX...X     XX...........................XX             X.X      X
 D:X  XXXX.XXXX             X.X                    XXXXXXXXXX     XXXXX      XXXXXXXXXXXXDDDDDXXXXXXXXXXXX              X.X      X
@@ -352,15 +352,15 @@ D:X     X.X                XDXXXXXXXXXXXXXXX                                    
 D:X     X.X                X...............XXXXXXXXXXX      XXXXXXXXXXXX               X.....X                         X.X      X
 D:X     X.X                X.....bb........D.........X      X..........X             XXX.....XX                        X.X      X
 D:X     X.X         XXXXX  X.....cc........XXXXXXXXDDXXXXXXXX....fff...XXXXX        XX...XXX..XXX                 XXXXXXDXX     X
-D:X     X.X         XghiX  XDXXXXXXXXXXXXXXX  X..........D.T.....fff....+.+%       XX....XXXj...XXXXXX          XXX...Dff.X     X
-D:X     X.X         X..XX XX.XX               X..eeeee...D.T.....fff....XXX%       X.............X...X          X.D...Xff.X     X
+D:X     X.X         XghiX  XDXXXXXXXXXXXXXXX  X..........D.G.....fff....+.+%       XX....XXXj...XXXXXX          XXX...Dff.X     X
+D:X     X.X         X..XX XX.XX               X..eeeee...D.G.....fff....XXX%       X.............X...X          X.D...Xff.X     X
 D:X  XXXX.XXX       XX+XXXX...X               X..eeeee...XXXX..........XX  % XXXXX XXXXXXXXXXXX..D...X          XXX...X...X     X
-D:X  X......X        XX.......X            XXXX.....T....XXXX..........X   % X...X     XX..j..D..XXXXXX           XXXXXXXDXX    X
-D:X  X.a.a.aX         X.......XXXXXX       X..D.......T..DTTXXXXXXXXXXXX   % XXXDXX    X......X..Xhhi.X                X...X    X
-D:X  X......X         X...T...DTTTjX       X..XXXXXXXXXXXXTTX              +  X...X    XXXXXXXX..X....X                X...X    X
-D:X  X......X         X.....T.XXXXXX       XXXX          XXXX              %  X.j.XXXXXX X....D..D....X         XXXXXXXXDXDXXXX X
-D:X  XXXDDXXXXXXXXXXXXXX+XXXXXX                                            %  X....X...X X..XXX..XXXXXXXXX      X..Te....X....X X
-D:X    X.................X                                                 %+%%....D...XXXXXX.D..D.....+.X      X..T.....X..P<X X
+D:X  X......X        XX.......X            XXXX.....G....XXXX..........X   % X...X     XX..j..D..XXXXXX           XXXXXXXDXX    X
+D:X  X.a.a.aX         X.......XXXXXX       X..D.......G..DGGXXXXXXXXXXXX   % XXXDXX    X......X..Xhhi.X                X...X    X
+D:X  X......X         X...G...DGGGjX       X..XXXXXXXXXXXXGGX              +  X...X    XXXXXXXX..X....X                X...X    X
+D:X  X......X         X.....G.XXXXXX       XXXX          XXXX              %  X.j.XXXXXX X....D..D....X         XXXXXXXXDXDXXXX X
+D:X  XXXDDXXXXXXXXXXXXXX+XXXXXX                                            %  X....X...X X..XXX..XXXXXXXXX      X..Ge....X....X X
+D:X    X.................X                                                 %+%%....D...XXXXXX.D..D.....+.X      X..G.....X..P<X X
 D:X    XXXXXXXXXXXXXXXXXXX                                                    XXXXXX..........X..X.....XXX      XXXXXXXXXXXXXXX X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 

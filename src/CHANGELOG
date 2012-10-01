@@ -1,0 +1,10 @@
+
+2.8.3j
+		Can now wield item from floor to complete a quest.
+		Screen not always refreshed in casino; fixed.
+		Roguelike commands wouldn't work in new buildings. Hopefully fixed.
+		Extra shopkeepers added (previously, Black Market and Bookstore had
+			the same owners (with the same greed levels...))
+		Fixed/added a few prototypes. Some functions called with too many
+			arguments, etc.
+		Few other minor alterations.

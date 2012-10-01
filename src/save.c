@@ -217,6 +217,7 @@ static errr wr_savefile(void)
 
 	u32b now;
 
+	byte tmp8u;
 	u16b tmp16u;
 
 	errr err;
@@ -329,7 +330,7 @@ static errr wr_savefile(void)
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
 
-	/* Hack -- Dump the quests -KMW- */
+	/* Hack -- Dump the quests-KMW- */
 	tmp16u = MAX_QUESTS;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
@@ -1181,6 +1182,12 @@ static void wr_extra(void)
 
 
 /*
+ * The cave grid flags that get saved in the savefile
+ */
+#define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_ROOM)
+
+
+/*
  * Write the current dungeon
  */
 static void wr_dungeon(void)
@@ -1219,8 +1226,8 @@ static void wr_dungeon(void)
 	{
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
-			/* Extract a byte */
-			tmp8u = cave_info[y][x];
+			/* Extract the important cave_info flags */
+			tmp8u = (cave_info[y][x] & (IMPORTANT_FLAGS));
 
 			/* If the run is broken, or too full, flush it */
 			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
@@ -1336,6 +1343,7 @@ static bool wr_savefile_new(void)
 
 	u32b now;
 
+	byte tmp8u;
 	u16b tmp16u;
 
 
@@ -1363,7 +1371,8 @@ static bool wr_savefile_new(void)
 	xor_byte = 0;
 	wr_byte(VERSION_PATCH);
 	xor_byte = 0;
-	wr_byte(VERSION_EXTRA);
+	tmp8u = rand_int(256);
+	wr_byte(tmp8u);
 
 
 	/* Reset the checksum */
@@ -1422,7 +1431,7 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
 
-	/* Hack -- Dump the quests -KMW- */
+	/* Hack -- Dump the quests-KMW- */
 	tmp16u = MAX_QUESTS;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
@@ -1601,6 +1610,9 @@ bool save_player(void)
 
 	char safe[1024];
 
+#ifdef AMIGA
+	amiga_write_user_name(op_ptr->full_name);
+#endif
 
 #ifdef SET_UID
 
@@ -1972,5 +1984,3 @@ bool load_player(void)
 	/* Oops */
 	return (FALSE);
 }
-
-

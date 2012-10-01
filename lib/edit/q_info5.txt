@@ -1,5 +1,5 @@
-# File: q_info2.txt
-# Plot: Kidnapped!
+# Specify plot name here:
+P:Kidnapped!
 
 # This file is used to initialize the quests array (q_list), which is
 # used to handle all player quests in the Kangband game.
@@ -7,7 +7,7 @@
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 
-# Q:questtype:nummon:curnum:maxnum:level:r_idx:k_idx:y:x:revert
+# Q:questtype:nummon:curnum:maxnum:level:r_idx:k_idx:y:x:revert:vaultused
 # Can have lines T1 through T9
 # -KMW-
 
@@ -21,7 +21,7 @@ T2:Since this particular clan takes delight in attacking villagers,
 T3:I need someone to eliminate them.  Prove your loyalty to my
 T4:throne and take care of this annoyance.  Scouts have reported
 T5:that their lair is north of the city.
-Q:6:0:0:0:5:0:0:5:19:103:1
+Q:6:0:0:0:5:0:0:2:23:103:1
 Y:24:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:10:15
 D:XXXXXXXXXXXXXXX
@@ -42,11 +42,11 @@ T3:band is led by a large kobold and intends on making a permanent
 T4:settlement.  Go and eliminate these threats once and for all.
 T5:Scouts report that the largest concentration of kobolds is south
 T6:of the city.
-Q:6:0:0:0:10:0:0:60:60:103:1
+Q:6:0:0:0:10:0:0:64:28:103:1
 Y:24:25:82:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:12:18
 D:XXXXXXXXXXXXXXXXXX
-D:XXXX.a........TTXX
+D:XXXX.a........GGXX
 D:XX........b.....XX
 D:X.....aa.....c...X
 D:X................X
@@ -63,12 +63,12 @@ T1:Yet another threat has moved into the area.  Could this have
 T2:anything to do with our attacks against Morgoth?  Snagas and 
 T3:Orcs have been spotted to the north-east and word is that they
 T4:have razed all settlements in their path.  We need your help.
-Q:6:0:0:0:10:0:0:3:88:103:1
+Q:6:0:0:0:10:0:0:3:90:103:1
 Y:96:120:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:17:38
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X.........................XTT.b....XXX
-D:X.........................XT.....a..XX
+D:X.........................XGG.b....XXX
+D:X.........................XG.....a..XX
 D:X.........................X..........X
 D:X............X............X...a...a..X
 D:X............X............XXXXXXDXXXXX
@@ -94,7 +94,7 @@ T6:under Morgoth's control.  You need to explore the cave for
 T7:the back exit.  Your knowledge may give us the clue we are
 T8:looking for. Be careful and stealthy - could be anything
 T9:in that cave.
-Q:4:0:0:0:10:0:0:59:185:110:1
+Q:4:0:0:0:10:0:0:59:185:100:1
 Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:24:69
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -132,7 +132,7 @@ T6:Excuse me but I am the King's regent. His majesty is in a state
 T7:of grief. There is hope for the princess. I have soldiers attacking
 T8:the back side of the mountain. I need you to clear out all monsters
 T9:in the south cave. With your distraction, we can rescue her! Hurry!
-Q:6:0:0:0:15:0:0:59:185:110:1
+Q:6:0:0:0:15:0:0:59:185:100:1
 Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:24:69
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -166,7 +166,7 @@ T2:only hope they believe her useful and keep her alive. The King has
 T3:not left his room since and we are worried over his health.
 T4:It is rumored that the dagger 'Sting' can be found in the far north
 T5:mountains. You may need that in the trials to come.
-Q:3:0:0:0:15:0:88:3:166:110:1
+Q:3:0:0:0:15:0:88:1:165:100:1
 Y:0:0:0:0:0:0:0:0:0:0:88:0:0:0:0
 X:99:0:18:55
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -238,7 +238,7 @@ T2:where the princess is being held! But, he will scratch our back when we
 T3:can remove the fleas from his. I need you to enter the south cave near
 T4:his home and kill all monsters that reside there.  Then, and only then,
 T5:will he tell us what he knows. We must take any chance we can get.
-Q:6:0:0:0:20:0:0:59:185:110:1
+Q:6:0:0:0:20:0:0:59:185:100:1
 Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:15:70
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -249,7 +249,7 @@ D:X....9........................XXX...........................XXXXXXXXXX
 D:XX...........................XXXXX.......................XXXXXXXXXXXXX
 D:XXX........................XXXXX......................XXXXXXXXXXXX...X
 D:XXXXXXXXXXXXDXXXXXXXXXXXXXXXXX....9...............9.....XXXXXXXX.....X
-D:X.<P.......................XX...........................XXXXXX....TTTX
+D:X.<P.......................XX...........................XXXXXX....GGGX
 D:X.........................XXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXX...........X
 D:X........................................................XXXXXXXXXXXXX
 D:X.........................................................XXXXXXXXXXXX
@@ -266,12 +266,12 @@ T5:not telling us this earlier!
 T7:I will send troops to the back, you attack and clear out the cave!
 T8:Attack swiftly but with caution, Shagrat is rarely alone. May the King
 T9:survive to see his daughter back.
-Q:6:0:0:0:25:0:0:59:185:110:1
+Q:6:0:0:0:25:0:0:59:185:100:1
 Y:227:96:98:120:178:206:226:0:0:0:0:0:0:0:0
 X:99:0:26:66
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..TTXXXXXXXXXXX
-D:XXX.fgfgfg.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...TXXXXXXXXXXX
+D:XXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..GGXXXXXXXXXXX
+D:XXX.fgfgfg.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...GXXXXXXXXXXX
 D:XXX.fffggg.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.fg.XXXXXXXXXXX
 D:XXXX.ega..XXXXXXXX................................D.g..XXXXXXXXXXX
 D:XXXXX....XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX
@@ -291,8 +291,8 @@ D:X<P..................XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXX.........XXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX..............D....bb...XXXXXXXX......TXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX....bb...%.............TXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX..............D....bb...XXXXXXXX......GXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX....bb...%.............GXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.........XXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
@@ -304,13 +304,13 @@ T4:Captain: There is a problem with the King. You should take a look.
 T5:Regent: Sorry about that. The King is so far gone that it will take
 T6:a miracle to save him. It is rumored that the Arkenstone of Thrain
 T7:can help heal those sick in the mind. If only you could find it...
-T8:Try the south-west.
-Q:3:0:0:0:30:0:3:60:60:103:1
+T8:Search the north-east mountains for the rumored cave.
+Q:3:0:0:0:30:0:3:6:185:100:1
 Y:0:0:0:0:0:0:0:0:0:0:3:0:0:0:0
 X:99:0:26:72
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..TTXXXXXXXXXXXXXXXXX
-D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...TXXXXXXXXXXXXXXXXX
+D:XXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..GGXXXXXXXXXXXXXXXXX
+D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...GXXXXXXXXXXXXXXXXX
 D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.99.......XXXXXXXXXXX
 D:XXXX......XXXXXXXX................................D..........XXXXXXXXXXX
 D:XXXXX......XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX..........XXXXXXXXXX
@@ -336,15 +336,15 @@ D:XXXXX..XXXXXXXXXXXXXXXXXXXXXXXXX............XXXXXXXXX........XXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
-N:111:Attack on Cthack Irigol
+N:111:Attack on Cirith Formen
 T1:King: You have done well. Not only have you saved my daughter but you have
 T2:saved me as well. I am forever in your debt. You will want for nothing as
 T3:long as this kingdom stands.
 T5:Now, I believe it is time for us to take the offensive. Time to take the
-T6:battle to Morgoth! We strike first at the north tower, Cthack Irigol!
+T6:battle to Morgoth! We strike first at the north tower, Cirith Formen!
 T7:Slay them all to bring that tower under our control. Our scouts report
 T8:that Morgoth's minions have not had a chance to establish a real foothold.
-Q:6:0:0:0:30:0:0:15:189:110:1
+Q:6:0:0:0:35:0:0:16:189:63:1
 Y:348:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:35:74
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -374,7 +374,7 @@ D:XXXX..................................................................XXXX
 D:XXXX..................................................................XXXX
 D:XXXX...........................XXXXXDXXXXXX...........................XXXX
 D:XXXX.............9.............X..........X...........................XXXX
-D:XXXX...........................XT..8..8..TX...........................XXXX
+D:XXXX...........................XG..8..8..GX...........................XXXX
 D:XXXX...........................XXXXXXXXXXXX...........................XXXX
 D:XXXXXXXXX.......................................................XXXXXXXXXX
 D:XXXXXXXXXXXXXXX...........................................XXXXXXXXXXXXXXXX
@@ -383,12 +383,12 @@ D:XXXXXXXXXXXXXXXXXXXXXXXXXXX...................XXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:112:Attack on Cthack Ungol
-T1:King: Now that the north tower has fallen, we will take Cthack Ungol, the
+N:112:Attack on Cirith Hyarmen
+T1:King: Now that the north tower has fallen, we will take Cirith Hyarmen, the
 T2:south tower!
 T4:Slay them all to bring that tower under our control and before Morgoth
 T5:has a chance to respond to the last attack.
-Q:6:0:0:0:30:0:0:19:189:110:1
+Q:6:0:0:0:40:0:0:18:189:63:1
 Y:348:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:35:74
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -398,7 +398,7 @@ D:XXXXXXXXXXXXXXXXXXXX.................................XXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXX...........................................XXXXXXXXXXXXXXXX
 D:XXXXXXXXX.......................................................XXXXXXXXXX
 D:XXXX...........................XXXXXDXXXXXX...........................XXXX
-D:XXXX.............9.............XT..9..8..TX..................9........XXXX
+D:XXXX.............9.............XG..9..8..GX..................9........XXXX
 D:XXXX...........................X..........X...........................XXXX
 D:XXXX...........................XXXXXXXXXXXX...........................XXXX
 D:XXXX..................................................................XXXX
@@ -431,18 +431,18 @@ N:113:Artifact Quest
 T1:King: Well done! Now that we have captured the Towers, we can prepare
 T2:a more final assault into the dungeon, with you leading the charge of course.
 T4:To better prepare us, find the artifact 'Bloodspike'.
-Q:3:0:0:0:35:0:114:3:166:110:1
+Q:3:0:0:0:35:0:114:30:185:100:1
 Y:0:0:0:0:0:0:0:0:0:0:114:0:0:0:0
 X:99:0:26:72
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..TTXXXXXXXXXXXXXXXXX
-D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...TXXXXXXXXXXXXXXXXX
+D:XXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..GGXXXXXXXXXXXXXXXXX
+D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...GXXXXXXXXXXXXXXXXX
 D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.99.......XXXXXXXXXXX
 D:XXXX......XXXXXXXX................................D..........XXXXXXXXXXX
 D:XXXXX......XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX..........XXXXXXXXXX
 D:XXXXXX......XXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX..........XXXXXXXXXX
-D:XXXXXX.............XXXXXXXXX...9....XXXXXX.XXXXXXXXXX.......TTXXXXXXXXXX
-D:XXXXXX.............XXXXXXXXX...8....XXXXXX.XXXXXXXXXXXX....1TXXXXXXXXXXX
+D:XXXXXX.............XXXXXXXXX...9....XXXXXX.XXXXXXXXXX.......GGXXXXXXXXXX
+D:XXXXXX.............XXXXXXXXX...8....XXXXXX.XXXXXXXXXXXX....1GXXXXXXXXXXX
 D:XXXXXXX...9........XXXXXXXXX........D......XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXX....9.......XXXXXXXXXXXX....XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXX.....9......XXXXXXX.XXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX

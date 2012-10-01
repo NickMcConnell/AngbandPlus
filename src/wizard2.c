@@ -12,7 +12,7 @@
 
 
 
-#ifdef ALLOW_WIZARD
+#ifdef ALLOW_DEBUG
 
 
 /*
@@ -20,8 +20,72 @@
  */
 static void do_cmd_wiz_hack_ben(void)
 {
+
+#ifdef MONSTER_FLOW
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int i, y, x;
+
+
+	for (i = 0; i < MONSTER_FLOW_DEPTH; ++i)
+	{
+		/* Update map */
+		for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
+		{
+			for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+			{
+				byte a = TERM_RED;
+
+				/* Display proper cost */
+				if (cave_cost[y][x] != i) continue;
+
+				/* Reliability in yellow */
+				if (cave_when[y][x] == cave_when[py][px])
+				{
+					a = TERM_YELLOW;
+				}
+
+				/* Display player/floors/walls */
+				if ((y == py) && (x == px))
+				{
+					print_rel('@', a, y, x);
+				}
+				else if (cave_floor_bold(y, x))
+				{
+					print_rel('*', a, y, x);
+				}
+				else
+				{
+					print_rel('#', a, y, x);
+				}
+			}
+		}
+
+		/* Prompt */
+		prt(format("Depth %d: ", i), 0, 0);
+
+		/* Get key */
+		if (inkey() == ESCAPE) break;
+
+		/* Redraw map */
+		prt_map();
+	}
+
+	/* Done */
+	prt("", 0, 0);
+
+	/* Redraw map */
+	prt_map();
+
+#else /* MONSTER_FLOW */
+
 	/* Oops */
-	msg_print("Oops.");
+	msg_print("Oops");
+
+#endif /* MONSTER_FLOW */
+
 }
 
 
@@ -58,10 +122,11 @@ static void prt_binary(u32b flags, int row, int col)
 static void do_cmd_wiz_bamf(void)
 {
 	/* Must have a target */
-	if (!p_ptr->target_who) return;
-
-	/* Teleport to the target */
-	teleport_player_to(p_ptr->target_row, p_ptr->target_col);
+	if (target_okay())
+	{
+		/* Teleport to the target */
+		teleport_player_to(p_ptr->target_row, p_ptr->target_col);
+	}
 }
 
 
@@ -248,8 +313,8 @@ static void wiz_display_item(object_type *o_ptr)
 	prt("AFFECT..........SLAY......BRAND.", 11, j);
 	prt("                ae      x qpaefc", 12, j); /* Added flag for poison -KMW- */
 	prt("siwdcc  ssidsa  nvudotgdd uoclio", 13, j); /* Added flag for venom -KMW- */
-	prt("tnieoh  trnipt  iinmrrnrr aiierl", 14, j);
-	prt("rtsxna..lcfgdk..mldncltgg.ksdced", 15, j);
+	prt("tnieoh  trnipt  iinmrrnrr a ierl", 14, j);
+	prt("rtsxna..lcfgdk..mldncltgg.k.dced", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
@@ -353,7 +418,7 @@ static void strip_name(char *buf, int k_idx)
 /*
  * Hack -- title for each column
  *
- * XXX XXX XXX This will not work with "EBCDIC", I would think.
+ * This will not work with "EBCDIC", I would think.  XXX XXX XXX
  */
 static char head[3] =
 { 'a', 'A', '0' };
@@ -580,7 +645,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -616,7 +681,7 @@ static void wiz_statistics(object_type *o_ptr)
 	cptr q = "Rolls: %ld, Matches: %ld, Better: %ld, Worse: %ld, Other: %ld";
 
 
-	/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
+	/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
 	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
 
 
@@ -699,7 +764,7 @@ static void wiz_statistics(object_type *o_ptr)
 			make_object(i_ptr, good, great);
 
 
-			/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
+			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
 			if (artifact_p(i_ptr)) a_info[i_ptr->name1].cur_num = 0;
 
 
@@ -831,11 +896,8 @@ static void do_cmd_wiz_play(void)
 	changed = FALSE;
 
 
-	/* Icky */
-	character_icky = TRUE;
-
-	/* Save the screen */
-	Term_save();
+	/* Save screen */
+	screen_save();
 
 
 	/* Get local object */
@@ -886,11 +948,8 @@ static void do_cmd_wiz_play(void)
 	}
 
 
-	/* Restore the screen */
-	Term_load();
-
-	/* Not Icky */
-	character_icky = FALSE;
+	/* Load screen */
+	screen_load();
 
 
 	/* Accept change */
@@ -909,7 +968,7 @@ static void do_cmd_wiz_play(void)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
 	/* Ignore change */
@@ -939,20 +998,14 @@ static void wiz_create_item(void)
 	int k_idx;
 
 
-	/* Icky */
-	character_icky = TRUE;
-
-	/* Save the screen */
-	Term_save();
+	/* Save screen */
+	screen_save();
 
 	/* Get object base type */
 	k_idx = wiz_create_itemtype();
 
-	/* Restore the screen */
-	Term_load();
-
-	/* Not Icky */
-	character_icky = FALSE;
+	/* Load screen */
+	screen_load();
 
 
 	/* Return if failed */
@@ -1026,7 +1079,6 @@ static void do_cmd_wiz_cure_all(void)
  */
 static void do_cmd_wiz_jump(void)
 {
-
 	/* Ask for level */
 	if (p_ptr->command_arg <= 0)
 	{
@@ -1136,7 +1188,7 @@ static void do_cmd_rerate(void)
 	p_ptr->redraw |= (PR_HP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1166,7 +1218,7 @@ static void do_cmd_wiz_summon(int num)
 /*
  * Summon a creature of the specified type
  *
- * XXX XXX XXX This function is rather dangerous
+ * This function is rather dangerous XXX XXX XXX
  */
 static void do_cmd_wiz_named(int r_idx, int slp)
 {
@@ -1251,6 +1303,87 @@ static void do_cmd_wiz_unhide(int d)
 }
 
 
+/*
+ * Query the dungeon
+ */
+static void do_cmd_wiz_query(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int y, x;
+
+	char cmd;
+
+	u16b mask = 0x00;
+
+
+	/* Get a "debug command" */
+	if (!get_com("Debug Command Query: ", &cmd)) return;
+
+	/* Extract a flag */
+	switch (cmd)
+	{
+		case '0': mask = (1 << 0); break;
+		case '1': mask = (1 << 1); break;
+		case '2': mask = (1 << 2); break;
+		case '3': mask = (1 << 3); break;
+		case '4': mask = (1 << 4); break;
+		case '5': mask = (1 << 5); break;
+		case '6': mask = (1 << 6); break;
+		case '7': mask = (1 << 7); break;
+
+		case 'm': mask |= (CAVE_MARK); break;
+		case 'g': mask |= (CAVE_GLOW); break;
+		case 'r': mask |= (CAVE_ROOM); break;
+		case 'i': mask |= (CAVE_ICKY); break;
+		case 's': mask |= (CAVE_SEEN); break;
+		case 'v': mask |= (CAVE_VIEW); break;
+		case 't': mask |= (CAVE_TEMP); break;
+		case 'w': mask |= (CAVE_WALL); break;
+	}
+
+	/* Scan map */
+	for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
+	{
+		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+		{
+			byte a = TERM_RED;
+
+			/* Given mask, show only those grids */
+			if (mask && !(cave_info[y][x] & mask)) continue;
+
+			/* Given no mask, show unknown grids */
+			if (!mask && (cave_info[y][x] & (CAVE_MARK))) continue;
+
+			/* Color */
+			if (cave_floor_bold(y, x)) a = TERM_YELLOW;
+
+			/* Display player/floors/walls */
+			if ((y == py) && (x == px))
+			{
+				print_rel('@', a, y, x);
+			}
+			else if (cave_floor_bold(y, x))
+			{
+				print_rel('*', a, y, x);
+			}
+			else
+			{
+				print_rel('#', a, y, x);
+			}
+		}
+	}
+
+	/* Get keypress */
+	msg_print("Press any key.");
+	msg_print(NULL);
+
+	/* Redraw map */
+	prt_map();
+}
+
+
 
 #ifdef ALLOW_SPOILERS
 
@@ -1272,19 +1405,22 @@ extern void do_cmd_debug(void);
 
 /*
  * Ask for and parse a "debug command"
+ *
  * The "p_ptr->command_arg" may have been set.
  */
 void do_cmd_debug(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-	int i2, i, x,y; /* -KMW- */
+
+	int i,y,x,i2;
 	char tmp_str[80];
+
 	char cmd;
 
 
 	/* Get a "debug command" */
-	(void)(get_com("Debug Command: ", &cmd));
+	if (!get_com("Debug Command: ", &cmd)) return;
 
 	/* Analyze the command */
 	switch (cmd)
@@ -1488,7 +1624,7 @@ void do_cmd_debug(void)
 		case 'v':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, TRUE, TRUE);
+			acquirement(py, px, p_ptr->command_arg,TRUE, TRUE);
 			break;
 		}
 
@@ -1538,6 +1674,13 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		/* Query the dungeon */
+		case '=':
+		{
+			do_cmd_wiz_query();
+			break;
+		}
+
 		/* Oops */
 		default:
 		{
@@ -1555,4 +1698,3 @@ static int i = 0;
 #endif
 
 #endif
-

@@ -102,10 +102,10 @@ static cptr desc_insult[] =
  */
 static cptr desc_moan[] =
 {
-	"seems sad about something.",
-	"asks if you have seen his dogs.",
+	"sneers at you.",
+	"asks if you stole his apples.",
 	"tells you to get off his land.",
-	"mumbles something about mushrooms."
+	"threatens you with his dogs."
 };
 
 
@@ -584,7 +584,7 @@ bool make_attack_normal(int m_idx)
 						p_ptr->redraw |= (PR_GOLD);
 
 						/* Window stuff */
-						p_ptr->window |= (PW_SPELL | PW_PLAYER);
+						p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 						/* Blink away */
 						blinked = TRUE;
@@ -1265,5 +1265,3 @@ bool make_attack_normal(int m_idx)
 	/* Assume we attacked */
 	return (TRUE);
 }
-
-

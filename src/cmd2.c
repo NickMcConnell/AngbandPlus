@@ -572,8 +572,8 @@ static bool do_cmd_open_aux(int y, int x)
 			/* Open the door */
 			cave_set_feat(y, x, FEAT_OPEN);
 
-			/* Update some things */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 			/* Sound */
 			sound(SOUND_OPENDOOR);
@@ -602,8 +602,8 @@ static bool do_cmd_open_aux(int y, int x)
 		/* Open the door */
 		cave_set_feat(y, x, FEAT_OPEN);
 
-		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		/* Sound */
 		sound(SOUND_OPENDOOR);
@@ -762,10 +762,10 @@ static bool do_cmd_close_aux(int y, int x)
 	else
 	{
 		/* Close the door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+		cave_set_feat(y, x, FEAT_DOOR_HEAD);
 
-		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		/* Sound */
 		sound(SOUND_SHUTDOOR);
@@ -903,8 +903,11 @@ static bool twall(int y, int x)
 	/* Remove the feature */
 	cave_set_feat(y, x, FEAT_FLOOR);
 
-	/* Update some things */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 	/* Result */
 	return (TRUE);
@@ -915,6 +918,8 @@ static bool twall(int y, int x)
  * Perform the basic "tunnel" command
  *
  * Assumes that no monster is blocking the destination
+ *
+ * Uses "twall" (above) to do all "terrain feature changing".
  *
  * Returns TRUE if repeated commands may continue
  */
@@ -939,7 +944,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 	/* water, lava, & trees -KMW- */
 	else if (((cave_feat[y][x] >= FEAT_DEEP_WATER) &&
-	    (cave_feat[y][x] <= FEAT_DARK_PIT)) ||
+	    (cave_feat[y][x] <= FEAT_CHASM)) ||
 	    (cave_feat[y][x] == FEAT_MOUNTAIN) ||
 	    ((cave_feat[y][x] >= FEAT_QUEST_ENTER) &&
 	    (cave_feat[y][x] <= FEAT_QUEST_EXIT)))
@@ -968,8 +973,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	}
 
 	/* Granite */
-	else if ((cave_feat[y][x] >= FEAT_WALL_EXTRA) &&
-	    (cave_feat[y][x] <= FEAT_WALL_SOLID))
+	else if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
 	{
 		/* Tunnel */
 		if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x))
@@ -987,18 +991,23 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	}
 
 	/* Quartz / Magma */
-	else if ((cave_feat[y][x] >= FEAT_MAGMA) &&
-	    (cave_feat[y][x] <= FEAT_QUARTZ_K))
+	else if (cave_feat[y][x] >= FEAT_MAGMA)
 	{
 		bool okay = FALSE;
 		bool gold = FALSE;
 		bool hard = FALSE;
 
 		/* Found gold */
-		if (cave_feat[y][x] >= FEAT_MAGMA_H) gold = TRUE;
+		if (cave_feat[y][x] >= FEAT_MAGMA_H)
+		{
+			gold = TRUE;
+		}
 
 		/* Extract "quartz" flag XXX XXX XXX */
-		if ((cave_feat[y][x] - FEAT_MAGMA) & 0x01) hard = TRUE;
+		if ((cave_feat[y][x] - FEAT_MAGMA) & 0x01)
+		{
+			hard = TRUE;
+		}
 
 		/* Quartz */
 		if (hard)
@@ -1118,13 +1127,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			msg_print("You tunnel into the door.");
 			more = TRUE;
 		}
-	}
-
-	/* Notice new floor grids */
-	if (!cave_floor_bold(y, x))
-	{
-		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
 	}
 
 	/* Result */
@@ -1496,9 +1498,8 @@ static bool do_cmd_bash_aux(int y, int x)
 		/* Sound */
 		sound(SOUND_OPENDOOR);
 
-		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE);
-		p_ptr->update |= (PU_DISTANCE);
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 	}
 
 	/* Saving throw against stun */
@@ -1619,7 +1620,7 @@ void do_cmd_bash(void)
  *
  * Attack monsters, tunnel through walls, disarm traps, open doors.
  *
- * This command must always take a turn, to prevent free detection
+ * This command must always take energy, to prevent free detection
  * of invisible monsters.
  *
  * The "semantics" of this command must be chosen before the player
@@ -1891,10 +1892,27 @@ static bool do_cmd_walk_test(int y, int x)
 	/* Hack -- walking obtains knowledge XXX XXX */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
 
+	else if (cave_feat[y][x] == FEAT_DEEP_WATER)
+	{
+		wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
+		if (!((p_ptr->total_weight < wt) || (p_ptr->levitate))) {
+			msg_print("You can't swim with that much weight.");
+			return (FALSE);
+		} else
+			return (TRUE);
+	}
+
+	else if ((cave_feat[y][x] >= FEAT_BLDG_HEAD) &&
+		   (cave_feat[y][x] <= FEAT_BLDG_TAIL))
+		return (TRUE);
+
+	else if ((cave_feat[y][x] == FEAT_TREES) &&
+		((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID)))
+		return (TRUE);
+
 	/* Require open space */
 	else if ((!cave_floor_bold(y, x)) &&
 	    (!p_ptr->ghostly) &&
-	    (cave_feat[y][x] != FEAT_DIRT) &&
 	    (cave_feat[y][x] != FEAT_FOG))
 	{
 		/* Rubble */
@@ -1918,7 +1936,7 @@ static bool do_cmd_walk_test(int y, int x)
 		}
 
 		/* Chasm -KMW- */
-		else if (cave_feat[y][x] == FEAT_DARK_PIT)
+		else if ((cave_feat[y][x] == FEAT_CHASM) && !p_ptr->levitate)
 		{
 			msg_print("The chasm can't be crossed.");
 		}
@@ -1936,7 +1954,7 @@ static bool do_cmd_walk_test(int y, int x)
 			return (TRUE);
 		}
 
-	/* Wall */
+		/* Wall */
 		else
 		{
 			/* Message */
@@ -1947,15 +1965,9 @@ static bool do_cmd_walk_test(int y, int x)
 		return (FALSE);
 	}
 
-	else if (cave_feat[y][x] == FEAT_DEEP_WATER)
-	{
-		wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
-		if (!((p_ptr->total_weight < wt) || (p_ptr->levitate))) {
-			msg_print("You can't swim with that much weight.");
-			return (FALSE);
-		} else
-			return (TRUE);
-	}
+	else if ((p_ptr->ghostly) && ((cave_feat[y][x] >= FEAT_PERM_EXTRA) &&
+	    (cave_feat[y][x] <= FEAT_PERM_SOLID)))
+		return (FALSE);
 
 	else /* Okay */
 		return (TRUE);
@@ -2051,6 +2063,7 @@ void do_cmd_run(void)
 
 	int y, x, dir;
 
+
 	/* Hack XXX XXX XXX */
 	if (p_ptr->confused)
 	{
@@ -2125,7 +2138,6 @@ static void do_cmd_hold_or_stay(int pickup)
 	{
 		/* Disturb */
 		disturb(0, 0);
-
 		/* Hack -- enter store */
 		p_ptr->command_new = '_';
 	}
@@ -2156,7 +2168,7 @@ static void do_cmd_hold_or_stay(int pickup)
 			msg_print("You accomplished your quest!");
 			msg_print(NULL);
 		}
-		
+
 		p_ptr->inside_special = 0;
 		p_ptr->depth = 0;
 		p_ptr->leaving = TRUE;
@@ -2234,6 +2246,9 @@ void do_cmd_rest(void)
 	/* Save the rest code */
 	p_ptr->resting = p_ptr->command_arg;
 
+	/* Cancel the arg */
+	p_ptr->command_arg = 0;
+
 	/* Cancel searching */
 	p_ptr->searching = FALSE;
 
@@ -2246,8 +2261,8 @@ void do_cmd_rest(void)
 	/* Handle stuff */
 	handle_stuff();
 
-	/* Refresh */
-	Term_fresh();
+	/* Refresh XXX XXX XXX */
+	if (fresh_before) Term_fresh();
 }
 
 
@@ -2333,10 +2348,9 @@ void do_cmd_fire(void)
 	int px = p_ptr->px;
 
 	int dir, item;
-	int j, y, x, ny, nx, ty, tx;
+	int i, j, y, x, ty, tx;
 	int tdam, tdis, thits, tmul;
 	int bonus, chance;
-	int cur_dis, visible;
 
 	object_type *o_ptr;
 	object_type *j_ptr;
@@ -2350,6 +2364,9 @@ void do_cmd_fire(void)
 	char missile_char;
 
 	char o_name[80];
+
+	int path_n = 0;
+	u16b path_g[256];
 
 	cptr q, s;
 
@@ -2446,7 +2463,7 @@ void do_cmd_fire(void)
 	/* Boost the damage */
 	tdam *= tmul;
 
-	/* Base range */
+	/* Base range XXX XXX */
 	tdis = 10 + 5 * tmul;
 
 
@@ -2469,52 +2486,44 @@ void do_cmd_fire(void)
 		ty = p_ptr->target_row;
 	}
 
+	/* Calculate the path */
+	path_n = project_path(path_g, tdis, py, px, ty, tx, 0);
+
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-
-	/* Travel until stopped */
-	for (cur_dis = 0; cur_dis <= tdis; )
+	/* Project along the path */
+	for (i = 0; i < path_n; ++i)
 	{
-		/* Hack -- Stop at the target */
-		if ((y == ty) && (x == tx)) break;
+		int ny = GRID_Y(path_g[i]);
+		int nx = GRID_X(path_g[i]);
 
-		/* Calculate the new location (see "project()") */
-		ny = y;
-		nx = x;
-		mmove2(&ny, &nx, py, px, ty, tx);
-
-		/* Stopped by walls/doors */
+		/* Hack -- Stop before hitting walls */
 		if (!cave_floor_bold(ny, nx)) break;
 
-		/* Advance the distance */
-		cur_dis++;
-
-		/* Save the new location */
+		/* Advance */
 		x = nx;
 		y = ny;
 
-
-		/* The player can see the (on screen) missile */
+		/* Only do visuals if the player can "see" the missile */
 		if (panel_contains(y, x) && player_can_see_bold(y, x))
 		{
-			/* Draw, Hilite, Fresh, Pause, Erase */
+			/* Visual effects */
 			print_rel(missile_char, missile_attr, y, x);
 			move_cursor_relative(y, x);
-			Term_fresh();
+			if (fresh_before) Term_fresh();
 			Term_xtra(TERM_XTRA_DELAY, msec);
 			lite_spot(y, x);
-			Term_fresh();
+			if (fresh_before) Term_fresh();
 		}
 
-		/* The player cannot see the missile */
+		/* Delay anyway for consistency */
 		else
 		{
 			/* Pause anyway, for consistancy */
 			Term_xtra(TERM_XTRA_DELAY, msec);
 		}
-
 
 		/* Handle monster */
 		if (cave_m_idx[y][x] > 0)
@@ -2522,14 +2531,15 @@ void do_cmd_fire(void)
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			/* Check the visibility */
-			visible = m_ptr->ml;
+			int chance2 = chance - distance(py, px, y, x);
+
+			int visible = m_ptr->ml;
 
 			/* Note the collision */
 			hit_body = TRUE;
 
-			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+			/* Did we hit it (penalize distance travelled) */
+			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -2654,10 +2664,9 @@ void do_cmd_throw(void)
 	int px = p_ptr->px;
 
 	int dir, item;
-	int j, y, x, ny, nx, ty, tx;
+	int i, j, y, x, ty, tx;
 	int chance, tdam, tdis;
 	int mul, div;
-	int cur_dis, visible;
 
 	object_type *o_ptr;
 
@@ -2670,6 +2679,9 @@ void do_cmd_throw(void)
 	char missile_char;
 
 	char o_name[80];
+
+	int path_n = 0;
+	u16b path_g[256];
 
 	cptr q, s;
 
@@ -2757,8 +2769,8 @@ void do_cmd_throw(void)
 	x = px;
 
 	/* Predict the "target" location */
-	tx = px + 99 * ddx[dir];
 	ty = py + 99 * ddy[dir];
+	tx = px + 99 * ddx[dir];
 
 	/* Check for "target request" */
 	if ((dir == 5) && target_okay())
@@ -2767,52 +2779,44 @@ void do_cmd_throw(void)
 		ty = p_ptr->target_row;
 	}
 
+	/* Calculate the path */
+	path_n = project_path(path_g, tdis, py, px, ty, tx, 0);
+
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-
-	/* Travel until stopped */
-	for (cur_dis = 0; cur_dis <= tdis; )
+	/* Project along the path */
+	for (i = 0; i < path_n; ++i)
 	{
-		/* Hack -- Stop at the target */
-		if ((y == ty) && (x == tx)) break;
+		int ny = GRID_Y(path_g[i]);
+		int nx = GRID_X(path_g[i]);
 
-		/* Calculate the new location (see "project()") */
-		ny = y;
-		nx = x;
-		mmove2(&ny, &nx, py, px, ty, tx);
-
-		/* Stopped by walls/doors */
+		/* Hack -- Stop before hitting walls */
 		if (!cave_floor_bold(ny, nx)) break;
 
-		/* Advance the distance */
-		cur_dis++;
-
-		/* Save the new location */
+		/* Advance */
 		x = nx;
 		y = ny;
 
-
-		/* The player can see the (on screen) missile */
+		/* Only do visuals if the player can "see" the missile */
 		if (panel_contains(y, x) && player_can_see_bold(y, x))
 		{
-			/* Draw, Hilite, Fresh, Pause, Erase */
+			/* Visual effects */
 			print_rel(missile_char, missile_attr, y, x);
 			move_cursor_relative(y, x);
-			Term_fresh();
+			if (fresh_before) Term_fresh();
 			Term_xtra(TERM_XTRA_DELAY, msec);
 			lite_spot(y, x);
-			Term_fresh();
+			if (fresh_before) Term_fresh();
 		}
 
-		/* The player cannot see the missile */
+		/* Delay anyway for consistency */
 		else
 		{
 			/* Pause anyway, for consistancy */
 			Term_xtra(TERM_XTRA_DELAY, msec);
 		}
-
 
 		/* Handle monster */
 		if (cave_m_idx[y][x] > 0)
@@ -2820,14 +2824,15 @@ void do_cmd_throw(void)
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			/* Check the visibility */
-			visible = m_ptr->ml;
+			int chance2 = chance - distance(py, px, y, x);
+
+			int visible = m_ptr->ml;
 
 			/* Note the collision */
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -2935,5 +2940,3 @@ void do_cmd_throw(void)
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);
 }
-
-

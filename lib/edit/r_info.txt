@@ -155,7 +155,7 @@ F:RAND_25 |
 F:ANIMAL
 D:A thin flea-ridden mutt, growling as you get close.
 
-N:4:Farmer Maggot
+N:4:Bill Ferney
 G:h:w
 I:110:35d10:40:10:3
 W:0:4:0:0
@@ -166,8 +166,8 @@ F:FORCE_MAXHP |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
-D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy 
-D:hobbit!
+D:His dogs attack people.  He won't let people near his apples.  He's not a
+D:nice hobbit!
 
 N:5:Blubbering idiot
 G:t:W
@@ -8563,5 +8563,120 @@ D:and more. His greed for gold led him to betray the Hidden Kingdom of Gondolin
 D:to Morgoth's forces. A mighty warrior himself, some of Morgoth's greatest
 D:servants answer to his call.
 
+# This monster created by -KMW-
+N:570:Sea slime
+G:,:b
+I:110:3d5:12:7:10
+W:1:1:0:2
+B:TOUCH:HURT:1d2
+F:RAND_50 | RAND_25 | 
+F:EMPTY_MIND | AQUATIC
+D:It is a smallish, slimy, icky creature.
 
-# 570 - 639 unused 
+N:571:Sea serpent
+G:d:b
+I:110:46d10:20:55:30
+W:37:1:0:1350
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:2d10
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_60 | DROP_90 | DROP_2D2 | 
+F:BASH_DOOR | AQUATIC | 
+F:EVIL | DRAGON |  NO_CONF | NO_SLEEP | SWIM
+S:1_IN_4 | 
+S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE
+D:A water-breathing sinuous form resembling a dragon.
+
+# Monsters created by jgb
+N:572:Town Guard
+G:p:u
+I:110:10d10:5:25:10
+W:20:50:0:200
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+F:MALE |
+F:FORCE_MAXHP |
+F:DROP_1D2 |
+F:OPEN_DOOR | BASH_DOOR
+D:Well trained and equipped, the members of the Town Guard are often the only
+D:force standing between a city and invading miscreants. Normally, they are 
+D:helpful, good people, ready to help the occasional lost child or stop the 
+D:somewhat more common street fights. However, when defending the town or 
+D:training in the dungeons of Morgoth, they are considerably less helpful. 
+D:Downright hostile, to be blunt. 
+
+N:573:Guard Captain
+G:p:o
+I:110:20d10:8:30:3
+W:30:5:0:300
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:1d4
+B:HIT:HURT:1d4
+F:MALE |
+F:FORCE_MAXHP |
+F:DROP_2D2 |
+F:OPEN_DOOR | BASH_DOOR
+D:More burly than the average Guardsman, the Guard Captain commands his troops 
+D:with maximum efficiency. Many captains train in the dungeons of Morgoth,
+D:gaining the skills they need to properly defend a city by slaying whelps like D:yourself.
+
+N:574:Royal Guard
+G:p:r
+I:120:30d10:10:40:1
+W:35:5:0:500
+B:HIT:HURT:5d4
+B:HIT:HURT:5d4
+F:MALE |
+F:FORCE_MAXHP |
+F:DROP_3D2 |
+F:OPEN_DOOR | BASH_DOOR
+D:The elite among guards, chosen to guard the King and his nobles. Dressed in 
+D:blood red armor and wielding massive swords with devastating efficiency, the 
+D:royal guardsman is a truly fearsome opponent. When not on duty guarding the 
+D:King, Royal Guardsmen often spend their time in Morgoth's dungeons and the 
+D:surrounding countryside, searching for the dangerous warriors of Morgoth, 
+D:hoping to slay them and collect the bounties on their heads.
+
+N:575:Eilinel the Entrapped
+G:p:D
+I:120:90d10:10:40:1
+W:42:10:0:3500
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:TOUCH:UN_POWER:3d3
+B:TOUCH:UN_BONUS:3d3
+F:UNIQUE |
+F:FORCE_MAXHP |
+F:DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_GOOD |
+F:SMART | OPEN_DOOR | BASH_DOOR |
+F:EVIL | UNDEAD | IM_COLD | IM_FIRE | NO_CONF | NO_SLEEP
+S:1_IN_2 |
+S:BLINK | TELE_TO | HEAL | S_MONSTER | BO_ACID | BO_MANA | CAUSE_3
+D:In life, she was the husband of Gorlim. In death, her shade was 
+D:entrapped by Morgoth and used to trick her husband into betraying 
+D:Barahir. Now she is totally entrapped by Morgoth's power, and uses
+D:her magic to do his bidding.
+
+N:576:Easterling
+G:p:R
+I:120:30d20:25:100:10
+W:38:5:0:800
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:EVIL | MALE | SMART |
+F:IM_FIRE | IM_COLD | IM_ELEC | NO_CONF | NO_SLEEP |
+F:DROP_2D2
+D:Easterlings are an evil warrior people, dressed in blood-red 
+D:armor and slaves to Morgoth. Once numerous, there constant 
+D:wars with other races at Morgoth's command has left only the 
+D:strongest of fighters behind.
+
+
+# 577 - 639 unused 
+
+

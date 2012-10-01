@@ -618,6 +618,17 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
+		case SV_POTION_RESISTANCE:
+		{
+			(void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
+			(void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);
+			(void)set_oppose_fire(p_ptr->oppose_fire + randint(50) + 50);
+			(void)set_oppose_cold(p_ptr->oppose_cold + randint(50) + 50);
+			(void)set_oppose_pois(p_ptr->oppose_pois + randint(50) + 50);
+			ident = TRUE;
+			break;
+		}
+
 		case SV_POTION_HEROISM:
 		{
 			if (hp_player(10)) ident = TRUE;
@@ -713,7 +724,7 @@ void do_cmd_quaff_potion(void)
 				p_ptr->csp_frac = 0;
 				msg_print("Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_SPELL | PW_PLAYER);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				ident = TRUE;
 			}
 			break;
@@ -829,7 +840,7 @@ void do_cmd_quaff_potion(void)
 			(void)detect_treasure();
 			(void)detect_objects_gold();
 			(void)detect_objects_normal();
-			identify_pack(0);
+			identify_pack();
 			self_knowledge();
 			ident = TRUE;
 			break;
@@ -955,7 +966,7 @@ static bool curse_armor(void)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
 	return (TRUE);
@@ -1019,7 +1030,7 @@ static bool curse_weapon(void)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
 	/* Notice */
@@ -1714,7 +1725,7 @@ void do_cmd_use_staff(void)
 				ident = TRUE;
 				msg_print("Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_SPELL | PW_PLAYER);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 			}
 			break;
 		}
@@ -3374,6 +3385,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
+
 			case ART_CUBRAGOL:
 			{
 				msg_print("Your crossbow glows deep red...");
@@ -3550,5 +3562,3 @@ void do_cmd_activate(void)
 	/* Mistake */
 	msg_print("Oops.  That object cannot be activated.");
 }
-
-

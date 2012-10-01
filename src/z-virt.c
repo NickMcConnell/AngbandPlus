@@ -183,5 +183,3 @@ errr string_free(cptr str)
 	/* Success */
 	return (0);
 }
-
-

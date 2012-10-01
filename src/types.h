@@ -41,6 +41,32 @@
 /**** Available Types ****/
 
 
+/*
+ * An array of 256 byte's
+ */
+typedef byte byte_256[256];
+
+/*
+ * An array of 256 s16b's
+ */
+typedef s16b s16b_256[256];
+
+
+/*
+ * An array of DUNGEON_WID byte's
+ */
+typedef byte byte_wid[DUNGEON_WID];
+
+/*
+ * An array of DUNGEON_WID s16b's
+ */
+typedef s16b s16b_wid[DUNGEON_WID];
+
+
+
+/**** Available Structs ****/
+
+
 typedef struct header header;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
@@ -62,6 +88,7 @@ typedef struct player_race player_race;
 typedef struct player_class player_class;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
+typedef struct building building; /* From Kamband -KMW- */
 
 
 
@@ -133,11 +160,13 @@ struct feature_type
 
 	s16b unused;		/* Extra bytes (unused) */
 
-	byte f_attr;		/* Object "attribute" */
-	char f_char;		/* Object "symbol" */
 
-	byte z_attr;		/* The desired attr for this feature */
-	char z_char;		/* The desired char for this feature */
+	byte d_attr;		/* Default feature attribute */
+	char d_char;		/* Default feature character */
+
+
+	byte x_attr;		/* Desired feature attribute */
+	char x_char;		/* Desired feature character */
 };
 
 
@@ -179,10 +208,6 @@ struct object_kind
 	byte extra;			/* Something */
 
 
-	byte k_attr;		/* Standard object attribute */
-	char k_char;		/* Standard object character */
-
-
 	byte d_attr;		/* Default object attribute */
 	char d_char;		/* Default object character */
 
@@ -191,7 +216,7 @@ struct object_kind
 	char x_char;		/* Desired object character */
 
 
-	bool has_flavor;	/* This object has a flavor */
+	byte flavor;		/* Special object flavor (or zero) */
 
 	bool easy_know;		/* This object is always known (if aware) */
 
@@ -397,11 +422,11 @@ struct vault_type
 	u16b name;			/* Name (offset) */
 	u16b text;			/* Text (offset) */
 
-	byte typ;				/* Vault type */
+	byte typ;			/* Vault type */
 
-	byte rat;				/* Vault rating */
+	byte rat;			/* Vault rating */
 
-	byte hgt;				/* Vault height */
+	byte hgt;			/* Vault height */
 	byte wid;			/* Vault width */
 
 	int mon1;			/* monster index 1 -KMW- */
@@ -596,11 +621,11 @@ struct alloc_entry
  * actually scan the dead unique list to see what quests are left.
  *
  * For the quest_type field, both types 1 and 2 use level, r_idx, cur_num
- * and max_num.  If the quest is a type 2 then the monsters can be killed 
- * on any level.  Type 3 designates an object and uses the k_idx field. 
- * Type 4 requires the player to find the exit, and 5 to kill all monsters on 
+ * and max_num.  If the quest is a type 2 then the monsters can be killed
+ * on any level.  Type 3 designates an object and uses the k_idx field.
+ * Type 4 requires the player to find the exit, and 5 to kill all monsters on
  * quest level.  -KMW-
- */
+*/
 struct quest
 {
 	s16b quest_type;
@@ -689,7 +714,7 @@ struct store_type
 
 /*
  * The "name" of spell 'N' is stored as spell_names[X][N],
-* where X is 0 for mage-spells, 1 for priest-spells,
+ * where X is 0 for mage-spells, 1 for priest-spells,
 * 2 for illusionist spells, and 3 for druid spells. -KMW-
  */
 struct magic_type
@@ -915,8 +940,8 @@ struct player_type
 	s16b shield;		/* Timed -- Shield Spell */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_s_invis;		/* Timed -- See Invisible */
-	s16b tim_invis;		/* Timed -- Invisibility -KMW- */
-	s16b tim_ghostly;		/* Timed -- walk through walls -KMW- */
+	s16b tim_invis;		/* Timed --Invisibility -KMW- */
+ 	s16b tim_ghostly;		/* Timed -- walk through walls -KMW- */
 	s16b tim_infra;		/* Timed -- Infra Vision */
 	s16b tim_sus_str;		/* Timed -- sustain strength -KMW- */
 	s16b tim_sus_int;		/* Timed -- sustain intelligence -KMW- */
@@ -987,6 +1012,7 @@ struct player_type
 	s16b inven_cnt;			/* Number of items in inventory */
 	s16b equip_cnt;			/* Number of items in equipment */
 
+	s16b target_set;		/* Target flag */
 	s16b target_who;		/* Target identity */
 	s16b target_row;		/* Target location */
 	s16b target_col;		/* Target location */
@@ -1142,3 +1168,23 @@ struct player_type
 };
 
 
+/*
+ * A structure to describe a building.
+ * From Kamband -KMW-
+ */
+
+struct building {
+  cptr name;			/* proprietor name */
+  cptr race;			/* proprietor race */
+  byte num_actions;		/* Max 6 */
+
+  cptr act_names[6];		/* action names */
+  s16b class_costs[6];		/* Costs for class members of building */
+  s16b other_costs[6];		/* Costs for nonguild members */
+  char letters[6];		/* action letters */
+  s16b actions[6];		/* action codes */
+  s16b action_restr[6];		/* action restrictions */
+
+  s16b g_class[MAX_CLASS];	/* which classes are part of guild */
+  s16b class;			/* main class for this building */
+};

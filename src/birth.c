@@ -73,9 +73,9 @@ struct hist_type
  *   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
  *   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
  *   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
- *   Kobols        --> 24 --> 25 --> 26 --> 27 --> 28 --> 29 --> 30
- * Note that the kobold race was added by GJW 	-KMW-
- *
+ *   Kobolds       --> 24 --> 25 --> 26 --> 27 --> 28 --> 29 --> 30
+ *   Note that the kobold race was added by GJW (-KMW-)
+*
  * XXX XXX XXX This table *must* be correct or drastic errors may occur!
  */
 static hist_type bg[] =
@@ -170,7 +170,7 @@ static hist_type bg[] =
 	{"Shaman.  ", 99, 23, 62, 65},
 	{"Clan Chief.  ", 100, 23, 62, 80},
 
-	/* The following group of descriptions were added by GJW for the kobolds	-KMW- */
+	/* The following descriptions were added by GJW for the kobolds -KMW- */
 	{"You are the runt of ", 20, 24, 25, 40},
 	{"You come from ", 80, 24, 25, 50},
 	{"You are the largest of ", 100, 24, 25, 55},
@@ -580,6 +580,7 @@ static void get_extra(void)
 	for (i = 0; i < MAX_REWARDS; i++)
 		p_ptr->rewards[i] = FALSE;
 
+	/* Initialize quest information -KMW- */
 	for (i = 0; i < MAX_MON_QUEST; i++)
 		p_ptr->cqmon[i] = FALSE;
 	for (i = 0; i < MAX_MON_QUEST; i++)
@@ -809,15 +810,15 @@ static void get_ahw(void)
 	/* Calculate the height/weight for males */
 	if (p_ptr->psex == SEX_MALE)
 	{
-		p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		p_ptr->wt = randnor(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+		p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+		p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
 	}
 
 	/* Calculate the height/weight for females */
 	else if (p_ptr->psex == SEX_FEMALE)
 	{
-		p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		p_ptr->wt = randnor(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+		p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+		p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
 	}
 }
 
@@ -860,14 +861,18 @@ static void get_money(void)
 /*
  * Display stat values, subset of "put_stats()"
  *
- * See 'display_player()' for basic method.
+ * See 'display_player()' for screen layout constraints.
  */
 static void birth_put_stats(void)
 {
+	int col;
 	int i, p;
 	byte attr;
 
 	char buf[80];
+
+
+	col = 42;
 
 
 	/* Put the stats (and percents) */
@@ -875,7 +880,7 @@ static void birth_put_stats(void)
 	{
 		/* Put the stat */
 		cnv_stat(stat_use[i], buf);
-		c_put_str(TERM_L_GREEN, buf, 2 + i, 66);
+		c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
 
 		/* Put the percent */
 		if (stat_match[i])
@@ -883,13 +888,13 @@ static void birth_put_stats(void)
 			p = 1000L * stat_match[i] / auto_round;
 			attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
 			sprintf(buf, "%3d.%d%%", p/10, p%10);
-			c_put_str(attr, buf, 2 + i, 73);
+			c_put_str(attr, buf, 3+i, col+13);
 		}
 
 		/* Never happened */
 		else
 		{
-			c_put_str(TERM_RED, "(NONE)", 2 + i, 73);
+			c_put_str(TERM_RED, "(NONE)", 3+i, col+13);
 		}
 	}
 }
@@ -997,7 +1002,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Rogue */
+		/* Rogue (now uses illusions -KMW-) */
 		{ TV_ILLUSION_BOOK, 0 },
 		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
@@ -1025,7 +1030,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Druid */
+		/* Druid -KMW- */
 		{ TV_NATURE_BOOK, 0 },
 		{ TV_HAFTED, SV_MACE },
 		{ TV_POTION, SV_POTION_HEALING }
@@ -1088,24 +1093,48 @@ static void player_outfit(void)
 }
 
 
+/* List plot names at birth -KMW-
+ */
+static void list_plotnames(void)
+{
+	int i,x,y;
+	char tmp_str[40];
+
+	x = 1;
+	y = 1;
+
+	for (i=1;i <= MAX_PLOTS; i++) {
+		if (i == (MAX_PLOTS/2 + 1))
+			y = 1;
+		if (i > MAX_PLOTS/2)
+			x = 41;
+		sprintf(tmp_str,"%2d) %s",i,plot_names[i-1]);
+		Term_putstr(x, y, -1, TERM_YELLOW,tmp_str);
+		y++;
+	}
+}
+
+
 /*
  * Helper function for 'player_birth()'
  *
  * The delay may be reduced, but is recommended to keep players
  * from continuously rolling up characters, which can be VERY
  * expensive CPU wise.  And it cuts down on player stupidity.
+ *
+ * See "display_player" for screen layout code.
  */
-static bool player_birth_aux()
+static bool player_birth_aux(void)
 {
 	int i, j, k, m, n, v;
+	char inp[80];
 
-	int mode = 0;
+	char tmp_str[80];
 
 	bool flag = FALSE;
 	bool prev = FALSE;
 
 	cptr str;
-	char inp[80];
 
 	char c;
 
@@ -1121,22 +1150,10 @@ static bool player_birth_aux()
 	bool autoroll = FALSE;
 
 
-	/*** Intro ***/
+	/*** Instructions ***/
 
 	/* Clear screen */
 	Term_clear();
-
-	/* Title everything */
-	put_str("Name        :", 2, 1);
-	put_str("Sex         :", 3, 1);
-	put_str("Race        :", 4, 1);
-	put_str("Class       :", 5, 1);
-
-	/* Dump the default name */
-	c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 15);
-
-
-	/*** Instructions ***/
 
 	/* Display some helpful information */
 	Term_putstr(5, 10, -1, TERM_WHITE,
@@ -1176,19 +1193,16 @@ static bool player_birth_aux()
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) c = 'a';
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
-		else bell();
+		else bell("Illegal sex!");
 	}
 
 	/* Set sex */
 	p_ptr->psex = k;
 	sp_ptr = &sex_info[p_ptr->psex];
-	str = sp_ptr->title;
-
-	/* Display */
-	c_put_str(TERM_L_BLUE, str, 3, 15);
 
 	/* Clean up */
 	clear_from(15);
@@ -1221,19 +1235,16 @@ static bool player_birth_aux()
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) c = 'a';
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
-		else bell();
+		else bell("Illegal race!");
 	}
 
 	/* Set race */
 	p_ptr->prace = k;
 	rp_ptr = &race_info[p_ptr->prace];
-	str = rp_ptr->title;
-
-	/* Display */
-	c_put_str(TERM_L_BLUE, str, 4, 15);
 
 	/* Clean up */
 	clear_from(15);
@@ -1274,27 +1285,24 @@ static bool player_birth_aux()
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) c = 'a';
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
-		else bell();
+		else bell("Illegal class!");
 	}
 
 	/* Set class */
 	p_ptr->pclass = k;
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &magic_info[p_ptr->pclass];
-	str = cp_ptr->title;
-
-	/* Display */
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
 
 	/* Clean up */
 	clear_from(15);
 
-	/*** Plots ***/
-
-	/* Extra info */
+	/* Plots -KMW- */
+	/* Need to list all the plot names at the top */
+	list_plotnames();
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Please pick the plot number you wish to play (1-10).");
 	Term_putstr(5, 16, -1, TERM_WHITE,
@@ -1303,16 +1311,23 @@ static bool player_birth_aux()
 	p_ptr->plot_num = 1;
 	sprintf(inp, "1");
 
-	/* Ask about plot number */
+	/* Ask about plot number -KMW- */
 	put_str("Enter plot number (1-10):  ", 20, 2);
 	/* Get a response (or escape) */
-	if (!askfor_aux(inp, 8))
+	if (!askfor_aux(inp, 8)) {
 		p_ptr->plot_num = randint(MAX_PLOTS);
-	else {
+		sprintf(tmp_str, "You have been assigned plot number %d.  Press any key to continue.",p_ptr->plot_num);
+		Term_putstr(5, 16, -1, TERM_YELLOW, tmp_str);
+		c = inkey();
+	} else {
 		if ((atoi(inp) >= 1) && (atoi(inp) <= 10)) {
 			p_ptr->plot_num = atoi(inp);
-		} else
+		} else {
 			p_ptr->plot_num = randint(MAX_PLOTS);
+			sprintf(tmp_str, "You have been assigned plot number %d.  Press any key to continue.",p_ptr->plot_num);
+			Term_putstr(5, 16, -1, TERM_YELLOW, tmp_str);
+			c = inkey();
+		}
 	}
 
 	/* Clear */
@@ -1337,7 +1352,7 @@ static bool player_birth_aux()
 		if (c == ESCAPE) break;
 		if ((c == 'y') || (c == 'n')) break;
 		if (c == '?') do_cmd_help();
-		else bell();
+		else bell("Illegal maximize flag!");
 	}
 
 	/* Set "maximize" mode */
@@ -1365,7 +1380,7 @@ static bool player_birth_aux()
 		if (c == ESCAPE) break;
 		if ((c == 'y') || (c == 'n')) break;
 		if (c == '?') do_cmd_help();
-		else bell();
+		else bell("Illegal preserve flag!");
 	}
 
 	/* Set "preserve" mode */
@@ -1395,7 +1410,7 @@ static bool player_birth_aux()
 		if (c == ESCAPE) break;
 		if ((c == 'y') || (c == 'n')) break;
 		if (c == '?') do_cmd_help();
-		else bell();
+		else bell("Illegal autoroller flag!");
 	}
 
 	/* Set "autoroll" */
@@ -1507,37 +1522,43 @@ static bool player_birth_aux()
 	/* Roll */
 	while (TRUE)
 	{
+		int col;
+
+		col = 42;
+
 		/* Feedback */
 		if (autoroll)
 		{
 			Term_clear();
 
-			put_str("Name        :", 2, 1);
-			put_str("Sex         :", 3, 1);
-			put_str("Race        :", 4, 1);
-			put_str("Class       :", 5, 1);
+			/* Label */
+			put_str(" Limit", 2, col+5);
 
-			c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 15);
-			c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 15);
-			c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 15);
-			c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
+			/* Label */
+			put_str("  Freq", 2, col+13);
 
-			/* Label stats */
-			put_str("STR:", 2 + A_STR, 61);
-			put_str("INT:", 2 + A_INT, 61);
-			put_str("WIS:", 2 + A_WIS, 61);
-			put_str("DEX:", 2 + A_DEX, 61);
-			put_str("CON:", 2 + A_CON, 61);
-			put_str("CHR:", 2 + A_CHR, 61);
+			/* Label */
+			put_str("  Roll", 2, col+24);
+
+			/* Put the minimal stats */
+			for (i = 0; i < 6; i++)
+			{
+				/* Label stats */
+				put_str(stat_names[i], 3+i, col);
+
+				/* Put the stat */
+				cnv_stat(stat_limit[i], buf);
+				c_put_str(TERM_L_BLUE, buf, 3+i, col+5);
+			}
 
 			/* Note when we started */
 			last_round = auto_round;
 
-			/* Indicate the state */
-			put_str("(Hit ESC to abort)", 11, 61);
-
 			/* Label count */
-			put_str("Round:", 9, 61);
+			put_str("Round:", 10, col+13);
+
+			/* Indicate the state */
+			put_str("(Hit ESC to stop)", 12, col+13);
 		}
 
 		/* Otherwise just get a character */
@@ -1590,7 +1611,7 @@ static bool player_birth_aux()
 				birth_put_stats();
 
 				/* Dump round */
-				put_str(format("%6ld", auto_round), 9, 73);
+				put_str(format("%10ld", auto_round), 10, col+20);
 
 				/* Make sure they see everything */
 				Term_fresh();
@@ -1611,9 +1632,6 @@ static bool player_birth_aux()
 
 
 		/*** Display ***/
-
-		/* Mode */
-		mode = 0;
 
 		/* Roll for base hitpoints */
 		get_extra();
@@ -1643,15 +1661,13 @@ static bool player_birth_aux()
 			p_ptr->csp = p_ptr->msp;
 
 			/* Display the player */
-			display_player(mode);
+			display_player(0);
 
 			/* Prepare a prompt (must squeeze everything in) */
 			Term_gotoxy(2, 23);
 			Term_addch(TERM_WHITE, b1);
 			Term_addstr(-1, TERM_WHITE, "'r' to reroll");
 			if (prev) Term_addstr(-1, TERM_WHITE, ", 'p' for prev");
-			if (mode) Term_addstr(-1, TERM_WHITE, ", 'h' for Misc.");
-			else Term_addstr(-1, TERM_WHITE, ", 'h' for History");
 			Term_addstr(-1, TERM_WHITE, ", or ESC to accept");
 			Term_addch(TERM_WHITE, b2);
 
@@ -1677,13 +1693,6 @@ static bool player_birth_aux()
 				continue;
 			}
 
-			/* Toggle the display */
-			if ((c == 'H') || (c == 'h'))
-			{
-				mode = ((mode != 0) ? 0 : 1);
-				continue;
-			}
-
 			/* Help */
 			if (c == '?')
 			{
@@ -1692,7 +1701,7 @@ static bool player_birth_aux()
 			}
 
 			/* Warning */
-			bell();
+			bell("Illegal autoroller command!");
 		}
 
 		/* Are we done? */
@@ -1711,8 +1720,11 @@ static bool player_birth_aux()
 
 	/*** Finish up ***/
 
-	/* Get a name, recolor it, prepare savefile */
+	/* Get a name, prepare savefile */
 	get_name();
+
+	/* Display the player */
+	display_player(0);
 
 	/* Prompt for it */
 	prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
@@ -1781,6 +1793,3 @@ void player_birth(void)
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
 }
-
-
-

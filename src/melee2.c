@@ -331,14 +331,14 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
  * the most natural. (Hopefully more efficient, too, but I dunno.)
  * Consider what this code does: for a given radius, this is the
  * order in which squares are checked:
- *  
+ *
  *     12345
  *     6   7
  *     8   9
  *     A   B
  *     CDEFG
  *
- * This means that squares are checked in a concentric 
+ * This means that squares are checked in a concentric
  * ``egg-shell'' pattern.
  *
  * Note one bug: a monster only looks within a round circle;
@@ -362,14 +362,14 @@ static void find_target_nearest(int sy, int sx, int range, int* ry, int* rx, boo
 	}
 
 	for (rad = 1; rad < range; rad++) {
-		if (sx-rad < 0 || sy-rad < 0 || 
+		if (sx-rad < 0 || sy-rad < 0 ||
 		    sx+rad >= DUNGEON_WID || sy+rad >= DUNGEON_HGT) {
 			return;
 		}
 
 		/* Top row */
 		for (j = sx-rad; j <= sx+rad; j++) {
-			if (cave_m_idx[sy-rad][j] > 0 && 
+			if (cave_m_idx[sy-rad][j] > 0 &&
 			    (m_list[cave_m_idx[sy-rad][j]].is_pet != petuse)) {
 				*ry = sy-rad;
 				*rx = j;
@@ -406,7 +406,7 @@ static void find_target_nearest(int sy, int sx, int range, int* ry, int* rx, boo
 
 
 /*
- * Cast a bolt at the player
+* Cast a bolt at the player
  * Stop if we hit a monster
  * Affect monsters and the player
  */
@@ -467,14 +467,6 @@ static void breath(int m_idx, int typ, int dam_hp)
  * Perhaps smart monsters should decline to use "bolt" spells if
  * there is a monster in the way, unless they wish to kill it.
  *
- * Note that, to allow the use of the "track_target" option at some
- * later time, certain non-optimal things are done in the code below,
- * including explicit checks against the "direct" variable, which is
- * currently always true by the time it is checked, but which should
- * really be set according to an explicit "projectable()" test, and
- * the use of generic "x,y" locations instead of the player location,
- * with those values being initialized with the player location.
- *
  * It will not be possible to "correctly" handle the case in which a
  * monster attempts to attack a location which is thought to contain
  * the player, but which in fact is nowhere near the player, since this
@@ -491,8 +483,7 @@ static void breath(int m_idx, int typ, int dam_hp)
  * Note that certain spell attacks do not use the "project()" function
  * but "simulate" it via the "direct" variable, which is always at least
  * as restrictive as the "project()" function.  This is necessary to
- * prevent "blindness" attacks and such from bending around walls, etc,
- * and to allow the use of the "track_target" option in the future.
+ * prevent "blindness" attacks and such from bending around walls.
  *
  * Note that this function attempts to optimize the use of spells for the
  * cases in which the monster has no spells, or has spells but cannot use
@@ -573,9 +564,9 @@ bool make_attack_spell(int m_idx)
 
 	/* if player is invisible and monster can't see invisible, no spell
 	    attack is made -KMW- */
-	if ((p_ptr->invisible) && 
+	if ((p_ptr->invisible) &&
 	    (!(r_ptr->flags3 & (RF3_UNDEAD))) &&
-	    (!(r_ptr->flags3 & (RF3_DEMON))) && 
+	    (!(r_ptr->flags3 & (RF3_DEMON))) &&
 	    (!(r_ptr->flags2 & (RF2_INVISIBLE))))
 		return FALSE;
 
@@ -598,9 +589,6 @@ bool make_attack_spell(int m_idx)
 
 	/* Only do spells occasionally */
 	if (rand_int(100) >= chance) return (FALSE);
-
-
-	/* XXX XXX XXX Handle "track_target" option (?) */
 
 
 	/* Hack -- require projectable player */
@@ -1159,7 +1147,7 @@ bool make_attack_spell(int m_idx)
 				p_ptr->redraw |= (PR_MANA);
 
 				/* Window stuff */
-				p_ptr->window |= (PW_SPELL | PW_PLAYER);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 				/* Heal the monster */
 				if (m_ptr->hp < m_ptr->maxhp)
@@ -2106,9 +2094,9 @@ static int mon_will_run(int m_idx)
 	if (m_ptr->is_friendly) return (FALSE);
 	if (m_ptr->is_pet) return (FALSE);
 
-	if ((p_ptr->invisible) && 
+	if ((p_ptr->invisible) &&
 	    (!(r_ptr->flags3 & (RF3_UNDEAD))) &&
-	    (!(r_ptr->flags3 & (RF3_DEMON))) && 
+	    (!(r_ptr->flags3 & (RF3_DEMON))) &&
 	    (!(r_ptr->flags2 & (RF2_INVISIBLE))))
 		return(FALSE);
 
@@ -2273,9 +2261,9 @@ static void get_moves(int m_idx, int mm[5])
 	} else if (m_ptr->is_friendly) {
 		py = m_ptr->fy;
 		px = m_ptr->fx;
-	} else if ((p_ptr->invisible) && 
+	} else if ((p_ptr->invisible) &&
 	    (!(r_ptr->flags3 & (RF3_UNDEAD))) &&
-	    (!(r_ptr->flags3 & (RF3_DEMON))) && 
+	    (!(r_ptr->flags3 & (RF3_DEMON))) &&
 	    (!(r_ptr->flags2 & (RF2_INVISIBLE)))) {
 		py = m_ptr->fy;
 		px = m_ptr->fx;
@@ -2935,25 +2923,25 @@ static void process_monster(int m_idx)
 			/* handle deep water -KMW- */
 			if ((cave_feat[ny][nx] == FEAT_DEEP_WATER) &&
 			    ((!(r_ptr->flags2 & (RF2_SWIM))) &&
-			    (!(r_ptr->flags2 & (RF2_PASS_WALL))) && 
+			    (!(r_ptr->flags2 & (RF2_PASS_WALL))) &&
 			    (!(r_ptr->flags2 & (RF2_FLY)))))
 				do_move = FALSE;
 
 			/* handle deep lava -KMW- */
 			else if ((cave_feat[ny][nx] == FEAT_DEEP_LAVA) &&
 			    ((!(r_ptr->flags2 & (RF2_DEEPLAVA))) &&
-			    (!(r_ptr->flags2 & (RF2_PASS_WALL))) && 
+			    (!(r_ptr->flags2 & (RF2_PASS_WALL))) &&
 			    (!(r_ptr->flags2 & (RF2_FLY)))))
 				do_move = FALSE;
 
 			/* handle shallow lava -KMW- */
 			else if ((cave_feat[ny][nx] == FEAT_SHAL_LAVA) &&
 			    ((!(r_ptr->flags3 & (RF3_IM_FIRE))) &&
-			    (!(r_ptr->flags2 & (RF2_PASS_WALL))) && 
+			    (!(r_ptr->flags2 & (RF2_PASS_WALL))) &&
 			    (!(r_ptr->flags2 & (RF2_FLY)))))
 				do_move = FALSE;
 
-			else if ((cave_feat[ny][nx] == FEAT_DARK_PIT) &&
+			else if ((cave_feat[ny][nx] == FEAT_CHASM) &&
 			    (!(r_ptr->flags2 & (RF2_FLY))))
 				do_move = FALSE;
 
@@ -2965,7 +2953,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Permanent wall. Adjusted -KMW- */
-		else if ((cave_feat[ny][nx] >= FEAT_PERM_EXTRA) &&
+		else if((cave_feat[ny][nx] >= FEAT_PERM_EXTRA) &&
 		    (cave_feat[ny][nx] <= FEAT_PERM_SOLID))
 		{
 			/* Nothing */
@@ -3394,8 +3382,11 @@ static void process_monster(int m_idx)
 	/* Notice changes in view */
 	if (do_view)
 	{
-		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+		/* Fully update the flow XXX XXX XXX */
+		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 	}
 
 
@@ -3600,6 +3591,3 @@ void process_monsters(void)
 
 	}
 }
-
-
-

@@ -31,7 +31,9 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	byte spells[64];
 
-	bool flag, redraw, okay, ask;
+	int ver;
+
+	bool flag, redraw, okay;
 	char choice;
 
 	magic_type *s_ptr;
@@ -81,6 +83,19 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 	/* No redraw yet */
 	redraw = FALSE;
 
+#if 0
+	/* Show the list */
+	if (redraw)
+	{
+		/* Save screen */
+		screen_save();
+
+		/* Display a list of spells */
+		print_spells(spells, num, 1, 20);
+	}
+
+#endif
+
 
 	/* Build a prompt (accept all spells) */
 	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
@@ -92,27 +107,27 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 		/* Request redraw */
 		if ((choice == ' ') || (choice == '*') || (choice == '?'))
 		{
+			/* Hide the list */
+			if (redraw)
+			{
+				/* Load screen */
+				screen_load();
+
+				/* Hide list */
+				redraw = FALSE;
+			}
+
 			/* Show the list */
-			if (!redraw)
+			else
 			{
 				/* Show list */
 				redraw = TRUE;
 
-				/* Save the screen */
-				Term_save();
+				/* Save screen */
+				screen_save();
 
 				/* Display a list of spells */
 				print_spells(spells, num, 1, 20);
-			}
-
-			/* Hide the list */
-			else
-			{
-				/* Hide list */
-				redraw = FALSE;
-
-				/* Restore the screen */
-				Term_load();
 			}
 
 			/* Ask again */
@@ -121,10 +136,10 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 
 		/* Note verify */
-		ask = (isupper(choice));
+		ver = (isupper(choice));
 
 		/* Lowercase */
-		if (ask) choice = tolower(choice);
+		choice = tolower(choice);
 
 		/* Extract request */
 		i = (islower(choice) ? A2I(choice) : -1);
@@ -132,7 +147,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 		/* Totally Illegal */
 		if ((i < 0) || (i >= num))
 		{
-			bell();
+			bell("Illegal spell choice!");
 			continue;
 		}
 
@@ -142,13 +157,13 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 		/* Require "okay" spells */
 		if (!spell_okay(spell, known))
 		{
-			bell();
+			bell("Illegal spell choice!");
 			msg_format("You may not %s that %s.", prompt, p);
 			continue;
 		}
 
 		/* Verify it */
-		if (ask)
+		if (ver)
 		{
 			char tmp_val[160];
 
@@ -170,7 +185,14 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 
 	/* Restore the screen */
-	if (redraw) Term_load();
+	if (redraw)
+	{
+		/* Load screen */
+		screen_load();
+
+		/* Hack -- forget redraw */
+		/* redraw = FALSE; */
+	}
 
 
 	/* Abort if needed */
@@ -278,23 +300,28 @@ void do_cmd_browse(void)
 	}
 
 
-	/* Save the screen */
-	Term_save();
+	/* Save screen */
+	screen_save();
 
 	/* Display the spells */
 	print_spells(spells, num, 1, 20);
 
-	/* Clear the top line */
-	prt("", 0, 0);
+	/* Prompt for a command */
+	put_str("(Browsing) Command: ", 0, 0);
 
-	/* Prompt user */
-	put_str("[Press any key to continue]", 0, 23);
+        /* Hack -- Get a new command */
+        p_ptr->command_new = inkey();
 
-	/* Wait for key */
-	(void)inkey();
+	/* Load screen */
+	screen_load();
 
-	/* Restore the screen */
-	Term_load();
+
+	/* Hack -- Process "Escape" */
+	if (p_ptr->command_new == ESCAPE)
+	{
+		/* Reset stuff */
+		p_ptr->command_new = 0;
+	}
 }
 
 
@@ -374,16 +401,16 @@ void do_cmd_study(bool in_bldg)
 	handle_stuff();
 
 
-	/* Mage & Illusionist -- Learn a selected spell */
-	if ((mp_ptr->spell_book == TV_MAGIC_BOOK) ||
+	/* Mage& Illusionist -- Learn a selected spell */
+	if((mp_ptr->spell_book == TV_MAGIC_BOOK) ||
 	    (mp_ptr->spell_book == TV_ILLUSION_BOOK))  /* added -KMW- */
 	{
 		/* Ask for a spell, allow cancel */
 		if (!get_spell(&spell, "study", sval, FALSE) && (spell == -1)) return;
 	}
 
-	/* Priest & Druid -- Learn a random prayer */
-	if ((mp_ptr->spell_book == TV_PRAYER_BOOK) ||
+	/* Priest& Druid -- Learn a random prayer */
+	if((mp_ptr->spell_book == TV_PRAYER_BOOK) ||
 	    (mp_ptr->spell_book == TV_NATURE_BOOK))
 	{
 		int k = 0;
@@ -401,11 +428,11 @@ void do_cmd_study(bool in_bldg)
 				/* Skip non "okay" prayers */
 				if (!spell_okay(spell, FALSE)) continue;
 
-				/* Hack -- Prepare the randomizer */
-				k++;
+				/* Apply the randomizer */
+				if ((++k > 1) && (rand_int(k) != 0)) continue;
 
-				/* Hack -- Apply the randomizer */
-				if (rand_int(k) == 0) gift = spell;
+				/* Track it */
+				gift = spell;
 			}
 		}
 
@@ -474,9 +501,10 @@ void do_cmd_study(bool in_bldg)
 }
 
 
+
 /*
- * Brand some ammunition.  Used by Cubragol and a mage spell.  The spell was
- * moved here from cmd6.c where it used to be for Cubragol only.  I've also
+* Brand some ammunition.  Used by Cubragol and a mage spell.  The spell was
+* moved here from cmd6.c where it used to be for Cubragol only.  I've also
  * expanded it to do either frost, fire or venom, at random. -GJW	-KMW-
  */
 void brand_ammo (int brand_type, int bolts_only)
@@ -609,7 +637,7 @@ static void fetch_item(int dir, int wgt)
 
 /* incremental sleep spell */
 /* -KMW- */
-static void do_sleep_monster()
+static void do_sleep_monster(void)
 {
 	int dir;
 
@@ -624,7 +652,7 @@ static void do_sleep_monster()
 
 /* incremental fear spell */
 /* -KMW- */
-static void do_fear_monster()
+static void do_fear_monster(void)
 {
 	int dir;
 
@@ -639,7 +667,7 @@ static void do_fear_monster()
 
 /* incremental cure wounds spell */
 /* -KMW- */
-static void do_cure_wounds()
+static void do_cure_wounds(void)
 {
 	if (p_ptr->lev < 15)
 		(void)hp_player(damroll(4, 10));
@@ -650,45 +678,6 @@ static void do_cure_wounds()
 		(void)hp_player(damroll(8, 10));
 		(void)set_stun(0);
 		(void)set_cut(0);
-	}
-}
-
-/*
- * Brand the current weapon
- * From GJW	-KMW-
- */
-static void brand_weapon(void)
-{
-	object_type *o_ptr;
-
-	o_ptr = &inventory[INVEN_WIELD];
-
-	/* you can never modify artifacts / ego-items */
-	/* you can never modify broken / cursed items */
-	if ((o_ptr->k_idx) &&
-	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
-	    (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
-	{
-		char *act = NULL;
-		char o_name[80];
-
-		if (rand_int(100) < 25)
-		{
-			act = "is covered in a fiery shield!";
-			o_ptr->name2 = EGO_BRAND_FIRE;
-		} 		else
-		{
-			act = "glows deep, icy blue!";
-			o_ptr->name2 = EGO_BRAND_COLD;
-		}
-
-		object_desc(o_name, o_ptr, FALSE, 0); 		msg_format("Your %s %s", o_name, act); 		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-	}
-
-	else
-	{
-		if (flush_failure) flush();
-		msg_print("The Branding failed.");
 	}
 }
 
@@ -714,7 +703,7 @@ void do_cmd_cast(void)
 
 
 	/* Require spell ability */
-	if ((mp_ptr->spell_book != TV_MAGIC_BOOK) &&
+	if((mp_ptr->spell_book != TV_MAGIC_BOOK) &&
 		 (mp_ptr->spell_book != TV_ILLUSION_BOOK)) /* Added -KMW- */
 	{
 		msg_print("You cannot cast spells!");
@@ -804,8 +793,8 @@ void do_cmd_cast(void)
 	else
 	{
 		/* Hack -- chance of "beam" instead of "bolt" */
-		beam = (((p_ptr->pclass == CLASS_MAGE) || /* Added Illusionist -KMW- */
-		    (p_ptr->pclass == CLASS_ILLUSIONIST)) ? plev : (plev / 2));
+		beam =(((p_ptr->pclass == CLASS_MAGE) || /* Added Illusionist -KMW- */
+ 		    (p_ptr->pclass == CLASS_ILLUSIONIST)) ? plev : (plev / 2));
 
 		/* Spells.  */
 		switch (spell)
@@ -855,7 +844,7 @@ void do_cmd_cast(void)
 			{
 				if (mp_ptr->spell_type == 2) {
 					/* fear -KMW- */
-					(void)do_fear_monster(dir, plev);
+					(void)do_fear_monster();
 					break;
 				} else { /* cure wounds */
 	 				(void)do_cure_wounds();
@@ -887,7 +876,7 @@ void do_cmd_cast(void)
 
 			case 9:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2) {
 					/* infravision */
 					if (p_ptr->tim_infra == 0)
 					set_tim_infra(p_ptr->tim_infra + 200 + randint(100));
@@ -901,7 +890,7 @@ void do_cmd_cast(void)
 
 			case 10:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2) {
 					/* sleep */
 					(void)do_sleep_monster();
 					break;
@@ -955,7 +944,7 @@ void do_cmd_cast(void)
 
 			case 15:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2) {
 					/* shadow door */
 					(void)door_creation();
 					break;
@@ -1061,7 +1050,7 @@ void do_cmd_cast(void)
 					p_ptr->tim_sus_wis = p_ptr->tim_sus_wis + 100;
 					msg_print("Your wisdom and intelligence cannot be changed!");
 					break;
-				} else { 
+				} else {
 					/* lower water */
 					alter_terrain(py,px,plev,2);
 					break;
@@ -1070,12 +1059,13 @@ void do_cmd_cast(void)
 
 			case 24:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2) {
 					/* true sight */
 					map_area();
 					break;
 				} else { /* fire bolt */
-					if (!get_aim_dir(&dir)) return;
+					if (!get_aim_dir(&dir)) return;
+
 					fire_bolt_or_beam(beam, GF_FIRE, dir,
 					    damroll(8+((plev-5)/4), 8));
 					break;
@@ -1107,7 +1097,7 @@ void do_cmd_cast(void)
 			{
 				if (mp_ptr->spell_type == 2) {
 					/* bolt of darkness */
-					if (!get_aim_dir(&dir)) return;
+					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_DARK, dir,
 					    damroll(8+((plev-5)/4), 8));
 					break;
@@ -1119,7 +1109,7 @@ void do_cmd_cast(void)
 
 			case 28:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2) {
 					/* shadowform */
 					(void)set_tim_ghost(p_ptr->tim_ghostly + plev + randint(24));
 					break;
@@ -1145,7 +1135,7 @@ void do_cmd_cast(void)
 
 			case 30:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2) {
 					/* prismatic wall */
 					warding_glyph();
 					break;
@@ -1249,7 +1239,7 @@ void do_cmd_cast(void)
 
 			case 37:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2) {
 					/* probing */
 					(void)probing();
 					break;
@@ -1393,12 +1383,12 @@ void do_cmd_cast(void)
 			{
 				if (mp_ptr->spell_type == 2) {
 					/* force blast */
-					if (!get_aim_dir(&dir)) return;
+					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FORCE, 5,
 					    300 + (plev * 2), 3);
 					break;
 				} else { /* mana storm */
-					if (!get_aim_dir(&dir)) return;
+					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_MANA, dir,
 					    300 + (plev * 2), 3);
 					break;
@@ -1630,7 +1620,7 @@ void do_cmd_cast(void)
 				p_ptr->csp += m;
 				take_hit(m,"spellcasting");
 				msg_print("You convert life into mana.");
-				break;
+				break;
 			}
 
 			case 62:
@@ -1728,7 +1718,53 @@ void do_cmd_cast(void)
 	p_ptr->redraw |= (PR_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+
+/*
+ * Brand the current weapon
+ */
+static void brand_weapon(void)
+{
+	object_type *o_ptr;
+
+	o_ptr = &inventory[INVEN_WIELD];
+
+	/* you can never modify artifacts / ego-items */
+	/* you can never modify broken / cursed items */
+	if ((o_ptr->k_idx) &&
+	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+	    (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
+	{
+		cptr act = NULL;
+
+		char o_name[80];
+
+		if (rand_int(100) < 25)
+		{
+			act = "is covered in a fiery shield!";
+			o_ptr->name2 = EGO_BRAND_FIRE;
+		}
+
+		else
+		{
+			act = "glows deep, icy blue!";
+			o_ptr->name2 = EGO_BRAND_COLD;
+		}
+
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		msg_format("Your %s %s", o_name, act);
+
+		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+	}
+
+	else
+	{
+		if (flush_failure) flush();
+		msg_print("The Branding failed.");
+	}
 }
 
 
@@ -1754,7 +1790,7 @@ void do_cmd_pray(void)
 
 
 	/* Must use prayer books */
-	if ((mp_ptr->spell_book != TV_PRAYER_BOOK) &&
+	if((mp_ptr->spell_book != TV_PRAYER_BOOK) &&
 	    (mp_ptr->spell_book != TV_NATURE_BOOK))
 	{
 		msg_print("Pray hard enough and your prayers may be answered.");
@@ -1908,13 +1944,13 @@ void do_cmd_pray(void)
 
 			case 8:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if(p_ptr->pclass == CLASS_DRUID) {
 					/* sleep */
 					(void)do_sleep_monster();
 					break;
 				} else { /* scare monster */
 					if (!get_aim_dir(&dir)) return;
-					(void)do_fear_monster(dir, plev);
+					(void)do_fear_monster();
 					break;
 				}
 			}
@@ -2070,7 +2106,7 @@ void do_cmd_pray(void)
 			{
 				if (p_ptr->pclass == CLASS_DRUID) {
 					/* fear */
-					(void)do_fear_monster(dir, plev);
+					(void)do_fear_monster();
 					break;
 				} else { /* prayer */
 					(void)set_blessed(p_ptr->blessed + randint(48) + 48);
@@ -2137,7 +2173,7 @@ void do_cmd_pray(void)
 			{
 				if (p_ptr->pclass == CLASS_DRUID) {
 					/* nexus bolt */
-					if (!get_aim_dir(&dir)) return;
+					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_NEXUS, dir,
 					    damroll(8+((plev-5)/4), 8));
 					break;
@@ -2205,7 +2241,7 @@ void do_cmd_pray(void)
 			{
 				if (p_ptr->pclass == CLASS_DRUID) {
 					/* fear */
-					(void)do_fear_monster(dir, plev);
+					(void)do_fear_monster();
 					break;
 				} else { /* cure wounds */
 	 				(void)do_cure_wounds();
@@ -2287,7 +2323,7 @@ void do_cmd_pray(void)
 
 			case 45:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if(p_ptr->pclass == CLASS_DRUID) {
 					/* tornado */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FORCE, dir,
@@ -2477,12 +2513,12 @@ void do_cmd_pray(void)
 			{
 				if (p_ptr->pclass == CLASS_DRUID) {
 					/* drown */
-					if (!get_aim_dir(&dir)) return;
+					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_WATER, dir,
 					    100 + (plev * 2), 3);
 					break;
 				} else { /* immolation */
-					if (!get_aim_dir(&dir)) return;
+					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FIRE, dir,
 					    100 + (plev * 2), 3);
 					break;
@@ -2555,6 +2591,5 @@ void do_cmd_pray(void)
 	p_ptr->redraw |= (PR_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 }
-

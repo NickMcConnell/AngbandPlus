@@ -249,7 +249,3 @@ void core(cptr str)
 	/* Be sure we exited */
 	quit("core() failed");
 }
-
-
-
-

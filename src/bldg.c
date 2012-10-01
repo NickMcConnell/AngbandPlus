@@ -2,14 +2,278 @@
 
 /*
  * Purpose: Building commands
- * Created by Ken Wigle for Kangband - a variant of Angband 2.8.2
+ * Created by Ken Wigle for Kangband - a variant of Angband 2.8.3
  * -KMW-
+ *
+ * Rewritten for Kangband 2.8.3i using Kamband's version of
+ * bldg.c as written by Ivan Tkatchev
+ *
+ * Note also that rewards for players have changed. You no longer need a
+ * reward to use any of the current menu choices. Timed rewards are not being
+ * used with the exception of thieves sharing gold. In place of this, costs
+ * for the players have been added though where bldg->class == p_ptr->pclass,
+ * the costs are less. In future, rewards will open up more choices.
+ * Rewards 0-10 are class rewards, 10-19 castle rewards, 20-29 time constraint
+ * rewards, 30-49 castle quests and 50-99 unused.
  */
 
 #include "angband.h"
 
+/* hack as in leave_store in store.c */
+static bool leave_bldg = FALSE;
+
+#define BACT_RESEARCH_ITEM	1
+#define BACT_TOWN_HISTORY	2
+#define BACT_RACE_LEGENDS	3
+#define BACT_GREET_KING		4
+#define BACT_KING_LEGENDS	5
+#define BACT_QUEST		6
+#define BACT_GOLD			7
+#define BACT_POSTER		8
+#define BACT_ARENA_RULES	9
+#define BACT_ARENA		10
+#define BACT_ARENA_LEGENDS	11
+#define BACT_IN_BETWEEN		12
+#define BACT_GAMBLE_RULES	13
+#define BACT_CRAPS		14
+#define BACT_SPIN_WHEEL		15
+#define BACT_DICE_SLOTS		16
+#define BACT_REST			17
+#define BACT_FOOD			18
+#define BACT_RUMORS		19
+#define BACT_RESEARCH_MONSTER	20
+#define BACT_COMPARE_WEAPONS	21
+#define BACT_LEGENDS		22
+#define BACT_ENCHANT_WEAPON	23
+#define BACT_ENCHANT_ARMOR	24
+#define BACT_RECHARGE		25
+#define BACT_IDENTS		26
+#define BACT_LEARN		27
+#define BACT_HEALING		28
+#define BACT_RESTORE		29
+#define BACT_ENCHANT_ARROWS	30
+#define BACT_ENCHANT_BOW	31
+#define BACT_GREET		32
+
+/*
+ * The Buildings. The values in this array are as follows: (see types.h)
+ *  1 proprietor name, proprietor race, number of actions
+ *  2 action names (with a maximum of 6 actions)
+ *  3 cost of action for member of class or guild
+ *  4 cost of action to other classes
+ *  5 letters of the action that the player presses in the game
+ *  6 code for the action which is then handled in this file
+ *  7 action restrictions: 0=all classes, 1=guild-classes, 2=only owner class
+ *  8 guild-definition, for each 1 in the class array, that class is in guild
+ *     The order of the array matches the class order with fighters first
+ *     followed by mage, priest, rogue, ranger, paladin, illus., druid
+ *  9 owner class for building.  This class can do all functions.  Ex: warrior
+ *     would be the owner class for the Fighter's Hall.  -1 = no owner class
+ */
+
+static building city[7] = {
+	{
+	"Astinus", "Human?", 3,
+	{ "Research item", "Town history", "Race legends" },
+	{ 2000, 0, 0 },
+	{ 2000, 0, 0 },
+	{ 'a', 'h', 'l' },
+	{ BACT_RESEARCH_ITEM, BACT_TOWN_HISTORY, BACT_RACE_LEGENDS },
+	{ 0, 0, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1},
+	-1
+	},
+
+	{
+	"Denegor", "Human", 3,
+	{ "Greet King", "Look at busts of Kings", "Request quest" },
+	{ 0, 0, 0 },
+	{ 0, 0, 0 },
+	{ 'g', 'l', 'q' },
+	{ BACT_GREET_KING, BACT_KING_LEGENDS, BACT_QUEST },
+	{ 0, 0, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1},
+	-1
+	},
+
+	{
+	"Arack", "Dwarf", 4,
+	{ "Read poster", "Arena rules", "Enter arena", "Look at plaque" },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 'p', 'r', 'a', 'l' },
+	{ BACT_POSTER, BACT_ARENA_RULES, BACT_ARENA, BACT_ARENA_LEGENDS },
+	{ 0, 0, 0, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1},
+	-1
+	},
+
+	{
+	"Materim", "Human", 5,
+	{ "In-Between", "Game rules", "Play craps", "Spin the wheel",
+	"Play dice slots" },
+	{ 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0 },
+	{ 'b', 'r', 'c', 's', 'd' },
+	{ BACT_IN_BETWEEN, BACT_GAMBLE_RULES, BACT_CRAPS, BACT_SPIN_WHEEL,
+	BACT_DICE_SLOTS },
+	{ 0, 0, 0, 0, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1},
+	-1
+	},
+
+	{
+	"Otick", "Human", 3,
+	{ "Rest for the night", "Buy food and drink", "Listen for rumors" },
+	{ 20, 1, 0 },
+	{ 20, 1, 0 },
+	{ 'r', 'f', 'u' },
+	{ BACT_REST, BACT_FOOD, BACT_RUMORS },
+	{ 0, 0, 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1},
+	-1
+	},
+
+	{
+	"Lorien", "Elf", 1,
+	{ "Research monster" },
+	{ 10000 },
+	{ 10000 },
+	{ 'r' },
+	{ BACT_RESEARCH_MONSTER },
+	{ 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1},
+	-1
+	},
+
+	{
+	"Suiyan", "Human", 1,
+	{ "Compare weapons" },
+	{ 1000 },
+	{ 1000 },
+	{ 'c' },
+	{ BACT_COMPARE_WEAPONS },
+	{ 0 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1},
+	-1
+	}
+};
+
+
+static building class_bldgs[8] = {
+	{
+	"Barak", "Human", 4,
+	{ "Greet Lord", "Look at plaque", "Enchant weapon", "Enchant armor" },
+	{ 0, 0, 200, 200 },
+	{ 0, 0, 1000, 1000 },
+	{ 'g', 'l', 'w', 'a' },
+	{ BACT_GREET, BACT_LEGENDS, BACT_ENCHANT_WEAPON, BACT_ENCHANT_ARMOR },
+	{ 2, 0, 0, 0 },
+	{ 1, 0, 0, 0, 0, 0, 0, 0},
+	CLASS_WARRIOR
+	},
+
+	{
+	"Irrident", "Human", 5,
+	{ "Greet Wizard", "Look at spires", "Recharge item",
+	"Identify posessions", "Learn spells" },
+	{ 0, 0, 200, 200, 0 },
+	{ 0, 0, 1000, 1000, 0 },
+	{ 'g', 'l', 'r', 'i', 'z' },
+	{ BACT_GREET, BACT_LEGENDS, BACT_RECHARGE, BACT_IDENTS, BACT_LEARN },
+	{ 2, 0, 0, 0, 1 },
+	{ 0, 1, 0, 0, 1, 0, 0, 0},
+	CLASS_MAGE
+	},
+
+	{
+	"Crysania", "Human", 5,
+	{ "Greet Priest", "Look at busts", "Healing prayer", "Restoration",
+	"Learn spells" },
+	{ 0, 0, 0, 200, 0 },
+	{ 0, 0, 1000, 1000, 0 },
+	{ 'g', 'l', 'h', 'r', 'z' },
+	{ BACT_GREET, BACT_LEGENDS, BACT_HEALING, BACT_RESTORE,
+	BACT_LEARN },
+	{ 2, 0, 0, 0, 1 },
+	{ 0, 0, 1, 0, 0, 1, 0, 0},
+	CLASS_PRIEST
+	},
+
+	{
+	"Lardbottom", "Hobbit", 6,
+	{ "Greet Master Thief", "Look at wall", "Get share of stolen gold",
+	"Rest for the night", "Identify possessions", "Learn spells" },
+	{ 0, 0, 0, 0, 100, 0 },
+	{ 0, 0, 0, 100, 2000, 0 },
+	{ 'g', 'l', 's', 'r', 'i', 'z' },
+	{ BACT_GREET, BACT_LEGENDS, BACT_GOLD, BACT_REST, BACT_IDENTS,
+	BACT_LEARN },
+	{ 2, 0, 2, 0, 0, 2 },
+	{ 0, 0, 0, 1, 0, 0, 0, 0},
+	CLASS_ROGUE
+	},
+
+	{
+	"Trallin", "Half-elf", 5,
+	{ "Greet Master Ranger", "Look at plaque", "Enchant arrows",
+	"Enchant bow", "Learn spells" },
+	{ 0, 0, 200, 200, 0 },
+	{ 0, 0, 1000, 1000, 0 },
+	{ 'g', 'l', 'a', 'b', 'z' },
+	{ BACT_GREET, BACT_LEGENDS, BACT_ENCHANT_ARROWS, BACT_ENCHANT_BOW,
+	BACT_LEARN },
+	{ 2, 0, 0, 0, 2 },
+	{ 0, 0, 0, 0, 1, 0, 0, 0},
+	CLASS_RANGER
+	},
+
+	{
+	"Langordathur", "Human", 5,
+	{ "Greet Warden", "Look at shrine", "Enchant armor", "See Healers",
+	"Learn spells" },
+	{ 0, 0, 200, 0, 0 },
+	{ 0, 0, 1000, 1000, 0 },
+	{ 'g', 'l', 'a', 'h', 'z' },
+	{ BACT_GREET, BACT_LEGENDS, BACT_ENCHANT_ARMOR, BACT_HEALING,
+	BACT_LEARN },
+	{ 2, 0, 0, 0, 2 },
+	{ 0, 0, 0, 0, 0, 1, 0, 0},
+	CLASS_PALADIN
+	},
+
+	{
+	"Itsukama", "Human", 5,
+	{ "Greet Shadow Lord", "Look at spires", "Recharge item",
+	"Identify possessions", "Learn spells" },
+	{ 0, 0, 200, 200, 0 },
+	{ 0, 0, 1000, 1000, 0 },
+	{ 'g', 'l', 'r', 'i', 'z' },
+	{ BACT_GREET, BACT_LEGENDS, BACT_RECHARGE, BACT_IDENTS, BACT_LEARN },
+	{ 2, 0, 0, 0, 1 },
+	{ 0, 0, 0, 1, 0, 0, 1, 0},
+	CLASS_ILLUSIONIST
+	},
+
+	{
+	"Dorrio", "Elf", 5,
+	{ "Greet Druid Lord", "Look at trees", "Healing prayer", "Restoration",
+	"Learn prayers" },
+	{ 0, 0, 0, 200, 0 },
+	{ 0, 0, 1000, 10000, 0 },
+	{ 'g', 'l', 'h', 'r', 'z' },
+	{ BACT_GREET, BACT_LEGENDS, BACT_HEALING, BACT_RESTORE, BACT_LEARN },
+	{ 2, 0, 0, 0, 2 },
+	{ 0, 0, 0, 0, 0, 0, 0, 1},
+	CLASS_DRUID
+	}
+};
+
+
+
 /* remember building location */
-static int building = 0;
+static int building_loc = 0;
+
 
 /*
  * Clear the building information
@@ -52,138 +316,89 @@ void put_reward(byte thetval, byte thesval, int dunlevel)
 
 
 /*
- * Displays building
+ * Display a building.
  */
-static void display_bldg(int bldg_num)
+
+static void show_building(building* bldg)
 {
+	char buff[20];
+	int i;
+	int action_color;
+	int j = bldg->num_actions;
+	char tmp_str[80];
+
 	Term_clear();
-	switch (bldg_num)
-	{
-		case 0:
-			put_str("Astinus (Human?)                        Library", 3, 10);
-			prt("You may:", 21, 0);
-			prt(" a) Research item (2000gp)     h) Town history",22,0);
-			prt(" l) Race legends               ESC) Exit building", 23, 0);
-			break;
-		case 1:
-			put_str("Denegor (Human)                         Castle", 3, 10);
-			prt("You may:", 21, 0);
-			prt(" g) Greet King                 l) Look at busts of Kings", 22, 0);
-			prt(" q) Request quest              ESC) Exit building", 23, 0);
-			break;
-		case 2:
-			put_str("Arach (Dwarf)                           Arena", 3, 10);
-			prt("You may:", 20, 0);
-			prt(" p) Read poster                r) Arena Rules", 21, 0);
-			prt(" a) Enter arena                l) Look at plaque", 22, 0);
-			prt(" ESC) Exit building", 23, 0);
-			break;
-		case 3:
-			put_str("Materim (Human)                         Gambling House", 3, 10);
-			prt("You may:", 20, 0);
-			prt(" b) In-Between                 r) Game rules", 21, 0);
-			prt(" c) Play craps                 s) Spin the wheel", 22, 0);
-			prt(" d) Play dice slots            ESC) Exit building", 23, 0);
-			break;
-		case 4:
-			put_str("Otina (Human)                           Inn", 3, 10);
-			prt("You may:", 20, 0);
-			prt(" r) Rest for the night (20gp)    f) Buy food and drink (1gp)", 21, 0);
-/*			prt(" u) Listen for rumors          ESC) Exit building", 22, 0);	*/
-			prt(" ESC) Exit building", 22, 0);
-			break;
-		case 5:
-			put_str("Logien (Human)                          Beastmaster", 3, 10);
-			prt("You may:", 20, 0);
-			prt(" r) Research Monster (1000gp)  ESC) Exit building", 21, 0);
-			prt(" ESC) Exit building", 22, 0);
-			break;
-		case 6:
-			put_str("Suiyan (Human)                          Weaponsmaster", 2, 10);
-			prt("You may:", 20, 0);
-			prt(" c) Compare Weapons (1000gp)   ESC) Exit building", 21, 0);
-			prt(" ESC) Exit building", 22, 0);
-			break;
-		case 10:
-			put_str("Jarraque (Human)                        Fighter's Hall", 3, 10);
-			prt("You may:", 20, 0);
-			prt(" g) Greet Lord                 l) Look at plaque", 21, 0);
-			if (p_ptr->pclass == CLASS_WARRIOR)
-				prt(" r) Repair weapon              a) Repair armor",22,0);
+	sprintf(tmp_str, "%s (%s) %35s", bldg->name, bldg->race,
+	    f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name);
+	prt(tmp_str, 2, 1);
+	prt("You may:", 19, 0);
+
+	for (i = 0; i < j; i++) {
+
+		action_color = TERM_WHITE;
+		if (bldg->action_restr[i] == 0)
+		{
+			if (((bldg->class == p_ptr->pclass) && (bldg->class_costs[i] == 0)) ||
+			    ((bldg->class != p_ptr->pclass) && (bldg->other_costs[i] == 0)))
+				buff[0] = '\0';
+			else if (bldg->class == p_ptr->pclass)
+			{
+				action_color = TERM_YELLOW;
+				sprintf(buff, "(%dgp)", bldg->class_costs[i]);
+			}
 			else
-				prt(" r) Repair weapon (1000gp)     a) Repair armor (1000gp)",22,0);
-			prt(" ESC) Exit building", 23, 0);
-			break;
-		case 11:
-			put_str("Irrident (Human)                        Tower of Sorcery",3, 10);
-			prt("You may:", 20, 0);
-			prt(" g) Greet Wizard Lord          l) Look at spires", 21, 0);
-			if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_ILLUSIONIST))
-				prt(" r) Recharge item              p) Identify possessions",22,0);
+			{
+				action_color = TERM_YELLOW;
+				sprintf(buff, "(%dgp)", bldg->other_costs[i]);
+			}
+		}
+		else if (bldg->action_restr[i] == 1)
+		{
+			if (!(bldg->g_class[p_ptr->pclass]))
+			{
+				strcpy(buff, "(closed)");
+				action_color = TERM_L_DARK;
+			}
+			else if (((bldg->class == p_ptr->pclass) && (bldg->class_costs[i] == 0)) ||
+			    ((bldg->class != p_ptr->pclass) && (bldg->other_costs[i] == 0)))
+				buff[0] = '\0';
+			else if (bldg->class == p_ptr->pclass)
+			{
+				action_color = TERM_YELLOW;
+				sprintf(buff, "(%dgp)", bldg->class_costs[i]);
+			}
 			else
-				prt(" r) Recharge item              p) Identify possessions (1000gp)",22,0);
-			prt(" z) Learn spells               ESC) Exit building", 23, 0);
-			break;
-		case 12:
-			put_str("Nimrod (Human)                          Inner Temple", 3, 10);
-			prt("You may:", 20, 0);
-			prt(" g) Greet Priest               l) Look at busts", 21, 0);
-			if (p_ptr->pclass == CLASS_PRIEST)
-				prt(" h) Healing prayer             r) Restoration",22,0);
+			{
+				action_color = TERM_YELLOW;
+				sprintf(buff, "(%dgp)", bldg->other_costs[i]);
+			}
+		}
+		else
+		{
+			if (p_ptr->pclass != bldg->class)
+			{
+				strcpy(buff, "(closed)");
+				action_color = TERM_L_DARK;
+			}
+			else if (bldg->class_costs[i] != 0)
+			{
+				action_color = TERM_YELLOW;
+				sprintf(buff, "(%dgp)", bldg->class_costs[i]);
+			}
 			else
-				prt(" h) Healing prayer (1000gp)    r) Restoration (1000gp)",22,0);
-			prt(" z) Learn prayers              ESC) Exit building", 23, 0);
-			break;
-		case 13:
-			put_str("Seldon (Human)                          House of Thieves",3, 10);
-			prt("You may:", 20, 0);
-			prt(" g) Greet Master Thief         l) Look at wall", 21, 0);
-			prt(" s) Get share of stolen gold   r) Rest for the night",22,0);
-			prt(" p) Identify possessions       ESC) Exit building", 23, 0);
-			break;
-		case 14:
-			put_str("Trallin (Human)                         Ranger's Tavern", 3, 10);
-			prt("You may:", 20, 0);
-			prt(" g) Greet High Ranger          l) Look at plaque", 21, 0);
-			if (p_ptr->pclass == CLASS_RANGER)
-				prt(" a) Sharpen arrows             b) Restring bow", 22,0);
-			else
-				prt(" a) Sharpen arrows (1000gp)    b) Restring bow (1000gp)", 22,0);
-			prt("ESC) Exit building", 23, 0);
-			break;
-		case 15:
-			put_str("Flaiton (Human)                         Order of Paladins",3, 10);
-			prt("You may:", 20, 0);
-			prt(" g) Greet Warder               l) Look at plaque", 21, 0);
-			if (p_ptr->pclass == CLASS_PALADIN)
-				prt(" a) Repair armor               h) See healers",22,0);
-			else
-				prt(" a) Repair armor (1000gp)      h) See healers (1000gp)",22,0);
-			prt(" ESC) Exit building", 23, 0);
-			break;
-		case 16:
-			put_str("Itsukama (Human)                        Tower of Illusion",3, 10);
-			prt("You may:", 20, 0);
-			prt(" g) Greet Shadow Lord          l) Look at spires", 21, 0);
-			if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_ILLUSIONIST))
-				prt(" r) Recharge item              p) Identify possessions",22,0);
-			else
-				prt(" r) Recharge item              p) Identify possessions (1000gp)",22,0);
-			prt(" z) Learn spells               ESC) Exit building", 23, 0);
-			break;
-		case 17:
-			put_str("Dorrio (Human)                          Grove of the Druids",3, 10);
-			prt("You may:", 20, 0);
-			prt(" g) Greet Druid Lord           l) Look at trees", 21, 0);
-			prt(" h) Healing prayer             r) Restoration",22,0);
-			prt(" z) Learn prayers              ESC) Exit building", 23, 0);
-			break;
+				buff[0] = '\0';
+		}
+
+		sprintf(tmp_str," %c) %s %s", bldg->letters[i], bldg->act_names[i], buff);
+		c_put_str(action_color, tmp_str, 19+(i/2), 35*(i%2));
 	}
+
+	prt(" ESC) Exit building", 23, 0);
 }
 
 
 /* reset timed flags */
-void reset_tim_flags()
+void reset_tim_flags(void)
 {
 	p_ptr->fast = 0;			/* Timed -- Fast */
 	p_ptr->slow = 0;			/* Timed -- Slow */
@@ -229,7 +444,7 @@ void reset_tim_flags()
 /*
  * arena commands
  */
-void arena_comm(char cmd)
+void arena_comm(int cmd)
 {
 	char tmp_str[80];
 	monster_race *r_ptr;
@@ -237,11 +452,12 @@ void arena_comm(char cmd)
 
 	switch(cmd)
 	{
-		case 'a':
-			if (p_ptr->arena_number == MAX_ARENA_MONS) {
+		case BACT_ARENA:
+			if (p_ptr->arena_number == MAX_ARENA_MONS)
+			{
 				clear_bldg(5,19);
 				prt("               Arena Victor!", 5, 0);
-				prt("Congratulations!  You have defeated all before you.", 7, 0); 
+				prt("Congratulations!  You have defeated all before you.", 7, 0);
 				prt("For that, receive the prize: 10,000 gold pieces", 8, 0);
 				prt("",10,0);
 				prt("", 11, 0);
@@ -249,24 +465,29 @@ void arena_comm(char cmd)
 				msg_print("Press the space bar to continue");
 				msg_print(NULL);
 				p_ptr->arena_number++;
-			} else if (p_ptr->arena_number > MAX_ARENA_MONS) {
+			}
+			else if (p_ptr->arena_number > MAX_ARENA_MONS)
+			{
 				msg_print("You enter the arena briefly and bask in your glory.");
 				msg_print(NULL);
-			} else {
+			}
+			else
+			{
 				p_ptr->leftbldg = TRUE;
 				p_ptr->inside_special = 1;
 				p_ptr->exit_bldg = FALSE;
 				reset_tim_flags();
 				p_ptr->leaving = TRUE;
+				leave_bldg = TRUE;
 			}
 			break;
-		case 'p':
-
-			if (p_ptr->arena_number == MAX_ARENA_MONS) 
+		case BACT_POSTER:
+			if (p_ptr->arena_number == MAX_ARENA_MONS)
 				msg_print("You are victorious. Enter the arena for the ceremony.");
 			else if (p_ptr->arena_number > MAX_ARENA_MONS)
 				msg_print("You have won against all foes.");
-			else {
+			else
+			{
 				r_ptr = &r_info[arena_monsters[p_ptr->arena_number]];
 				name = (r_name + r_ptr->name);
 				(void) sprintf(tmp_str,"Do I hear any challenges against: %s", name);
@@ -274,18 +495,17 @@ void arena_comm(char cmd)
 				msg_print(NULL);
 			}
 			break;
-		case 'r':
-			clear_bldg(5,19);
-			prt("               Rules of the Arena", 5, 0);
-			prt("The Arena is a contest pitting the best against each other.", 7, 0); 
-			prt("To ensure a good contest, note the following:", 8, 0);
-			prt(" 1) NO MAGIC - No potions, wands, staffs, etc.", 10, 0);
-			prt(" 1) NO THROWS- This is head-to-head.", 11, 0);
-			prt("If fortunate, you will face the Minotaur, most feared of all",13,0);
-			prt("in the arena.  Defeat him and claim the prize of 10,000 gold pieces.",14,0);
-			msg_print("Press the spacebar to continue");
-			msg_print(NULL);
-			clear_bldg(5,19);
+		case BACT_ARENA_RULES:
+
+			/* Save screen */
+			screen_save();
+
+			/* Peruse the arena help file */
+			(void)show_file("arena.txt", NULL, 0, 0);
+
+			/* Load screen */
+			screen_load();
+
 			break;
 	}
 }
@@ -294,7 +514,7 @@ void arena_comm(char cmd)
 /*
  * display fruit for dice slots
  */
-void display_fruit(int row, int col, int fruit)
+static void display_fruit(int row, int col, int fruit)
 {
 	switch(fruit) {
 		case 0: /* lemon */
@@ -370,7 +590,7 @@ void display_fruit(int row, int col, int fruit)
 /*
  * gamble_comm
  */
-void gamble_comm(char cmd)
+static bool gamble_comm(int cmd)
 {
 	int roll1, roll2, roll3, choice, odds, win;
 	s32b wager;
@@ -380,32 +600,20 @@ void gamble_comm(char cmd)
 	char out_val[160], tmp_str[80], again;
 	cptr p;
 
-	if (cmd == 'r') {
-		clear_bldg(5,19);
-		prt("               Gambling Rules", 5, 0);
-		prt("Between : Three 16-sided dice rolled; 2 black, 1 red. The red",7,0);
-		prt("       die must be between both black to win. If the red die.",8,0);
-		prt("       matches a black die, you lose. Pays 3 to 1",9,0);
-		prt("Craps: Two dice are rolled. On first roll, a 7 or 11 wins. A",10,0);
-		prt("       2,3 or 12 loses. Otherwise roll until the first roll",11,0);
-		prt("       is matched (win) or a 7 is rolled (loss). Pays 2 to 1",12,0);
-		prt("Wheel: Pick a number from 0-9. If the number shows on wheel",13, 0);
-		prt("       after it stops spinning, you win. Pays 10 to 1",14,0);
-		prt(" ",15,0);
-		msg_print("Press the spacebar to continue");
-		msg_print(NULL);
-		prt("Slots: Three dice rolled. Matches win gold. Numbers are:",7,0);
-		prt("       1=Lemon, 2=Orange, 3=Sword, 4=Shield, 5=Plum, 6=Cherry", 8, 0);
-		prt("       Payoffs are as follows:",9,0);
-		prt("       Cherry Cherry Lemon  2-1   Cherry Cherry Orange  3-1",10,0);
-		prt("       Cherry Cherry Sword  4-1   Cherry Cherry Shield  5-1",11,0);
-		prt("       Cherry Cherry Plum   6-1",12,0);
-		prt("       Lemon Lemon Lemon    4-1   Orange Orange Orange 16-1",13,0);
-		prt("       Sword Sword Sword    6-1   Shield Shield Shield 25-1",14,0);
-		prt("       Plum Plum Plum       9-1   Cherry Cherry Cherry 36-1",15,0);
-		msg_print("Press the spacebar to continue");
-		msg_print(NULL);
-	} else {
+	screen_save();
+
+	if (cmd == BACT_GAMBLE_RULES)
+	{
+
+		/* Peruse the gambling help file */
+		(void)show_file("gambling.txt", NULL, 0, 0);
+
+		/* Load screen */
+		screen_load();
+
+	}
+	else
+	{
 		clear_bldg(5,23);
 		if (p_ptr->lev < 10)
 			maxbet = (p_ptr->lev * 100);
@@ -416,18 +624,25 @@ void gamble_comm(char cmd)
 		get_string (tmp_str,out_val,32);
 		for (p=out_val;*p == ' '; p++);
 		wager = atol(p);
-		if (wager > maxbet) {
+		if (wager > maxbet)
+		{
 			sprintf(tmp_str,"I'll take $%ld of that. Keep the rest.", maxbet);
 			msg_print(tmp_str);
 			wager = maxbet;
-		} else if (wager < 1) {
+		}
+		else if (wager < 1)
+		{
 			msg_print("Ok, we'll start with $1.");
 			wager = 1;
 		}
-		if (wager > p_ptr->au) {
+		if (wager > p_ptr->au)
+		{
+			msg_print("Hey! You don't have the gold - get out of here!");
 			msg_print(NULL);
-			msg_print("Hey! You don't have the gold - wager is zip");
-			wager = 0;
+			/* Load screen */
+			screen_load();
+
+			return(FALSE);
 		}
 		msg_print(NULL);
 		win = FALSE;
@@ -437,15 +652,16 @@ void gamble_comm(char cmd)
 		prt(tmp_str,20,2);
 		(void) sprintf(tmp_str,"Current Wager:    %9ld",wager);
 		prt(tmp_str,21,2);
-		do {
+		do
+		{
 			switch(cmd) {
-			 case 'b': /* Game of In-Between */
-				prt("In Between",5,2);
-				odds = 4;
+			 case BACT_IN_BETWEEN: /* Game of In-Between */
+				c_put_str(TERM_GREEN, "In Between",5,2);
+				odds = 3;
 				win = FALSE;
-				roll1 = randint(16);
-				roll2 = randint(16);
-				choice = randint(16);
+				roll1 = randint(10);
+				roll2 = randint(10);
+				choice = randint(10);
 				(void) sprintf(tmp_str,"Black die: %d       Black Die: %d", roll1, roll2);
 				prt(tmp_str,8,3);
 				(void) sprintf(tmp_str,"Red die: %d", choice);
@@ -455,15 +671,15 @@ void gamble_comm(char cmd)
 					win = TRUE;
 				break;
 
-			case 'c':  /* Game of Craps */
-				prt("Craps",5,2);
+			case BACT_CRAPS:  /* Game of Craps */
+				c_put_str(TERM_GREEN, "Craps",5,2);
 				win = 3;
 				odds = 1;
 				roll1 = randint(6);
 				roll2 = randint(6);
 				roll3 = roll1 +  roll2;
 				choice = roll3;
-				(void) sprintf(tmp_str,"First roll: %d %d    Total: %d", roll1, 
+				(void) sprintf(tmp_str,"First roll: %d %d    Total: %d", roll1,
 				     roll2, roll3);
 				prt(tmp_str,7,5);
 				if ((roll3 == 7) || (roll3 == 11))
@@ -471,7 +687,8 @@ void gamble_comm(char cmd)
 				else if ((roll3 == 2) || (roll3 == 3) || (roll3 == 12))
 					win = FALSE;
 				else
-					do {
+					do
+					{
 						msg_print("Hit any key to roll again");
 						msg_print(NULL);
 						roll1 = randint(6);
@@ -487,20 +704,23 @@ void gamble_comm(char cmd)
 					} while ((win != TRUE) && (win != FALSE));
 				break;
 
-			case 's':  /* Spin the Wheel Game */
+			case BACT_SPIN_WHEEL:  /* Spin the Wheel Game */
 				win = FALSE;
 				odds = 10;
-				prt("Wheel",5,2);
+				c_put_str(TERM_GREEN,"Wheel",5,2);
 				prt("0  1  2  3  4  5  6  7  8  9",7,5);
 				prt("--------------------------------",8,3);
 				strcpy(out_val, "");
 				get_string ("Pick a number (1-9): ",out_val,32);
 				for (p=out_val;*p == ' '; p++);
 				choice = atol(p);
-				if (choice < 0) {
+				if (choice < 0)
+				{
 					msg_print("I'll put you down for 0.");
 					choice = 0;
-				} else if (choice > 9) {
+				}
+				else if (choice > 9)
+				{
 					msg_print("Ok, I'll put you down for 9.");
 					choice = 9;
 				}
@@ -515,12 +735,12 @@ void gamble_comm(char cmd)
 					win = TRUE;
 				break;
 
-			case 'd': /* The Dice Slots */
-				prt("Dice Slots",5,2);
+			case BACT_DICE_SLOTS: /* The Dice Slots */
+				c_put_str(TERM_GREEN,"Dice Slots",5,2);
 				win = FALSE;
-				roll1 = randint(6); 
-				roll2 = randint(6); 
-				choice = randint(6); 
+				roll1 = randint(6);
+				roll2 = randint(6);
+				choice = randint(6);
 				(void) sprintf(tmp_str, "%s %s %s", fruit[roll1-1], fruit[roll2-1],
 				     fruit[choice-1]);
 				prt(tmp_str,15,37);
@@ -529,7 +749,8 @@ void gamble_comm(char cmd)
 				display_fruit(8,3,roll1-1);
 				display_fruit(8,12,roll2-1);
 				display_fruit(8,21,choice-1);
-				if ((roll1 == roll2) && (roll2 == choice)) {
+				if ((roll1 == roll2) && (roll2 == choice))
+				{
 					win = TRUE;
 					if (roll1 == 1)
 						odds = 4;
@@ -537,19 +758,24 @@ void gamble_comm(char cmd)
 						odds = 6;
 					else
 						odds = roll1 * roll1;
-				} else if ((roll1 == 6) && (roll2 == 6)) {
+				}
+				else if ((roll1 == 6) && (roll2 == 6))
+				{
 					win = TRUE;
 					odds = choice + 1;
 				}
 				break;
 			}
 
-			if (win) {
+			if (win)
+			{
 				prt("YOU WON",16,37);
 				p_ptr->au = p_ptr->au + (odds * wager);
 				(void) sprintf(tmp_str,"Payoff: %d",odds);
 				prt(tmp_str,17,37);
-			} else {
+			}
+			else
+			{
 				prt("You Lost",16,37);
 				p_ptr->au = p_ptr->au - wager;
 				prt("", 17, 37);
@@ -559,65 +785,65 @@ void gamble_comm(char cmd)
 			prt("Again(Y/N)?",18,37);
 			move_cursor(18, 49);
 			again = inkey();
-			if (wager > p_ptr->au) {
-				msg_print("Hey! You don't have the gold - wager is zip");
+			if (wager > p_ptr->au)
+			{
+				msg_print("Hey! You don't have the gold - get out of here!");
 				msg_print(NULL);
-				wager = 0;
-				(void) sprintf(tmp_str,"Current Wager:    %9ld",wager);
-				prt(tmp_str,17,2);
+				/* Load screen */
+				screen_load();
+
+				return(FALSE);
+/*				(void) sprintf(tmp_str,"Current Wager:    %9ld",wager);
+				prt(tmp_str,17,2); */
 			}
 		} while ((again == 'y') || (again == 'Y'));
 
 		prt("",18,37);
-		if (p_ptr->au >= oldgold) 
+		if (p_ptr->au >= oldgold)
 			msg_print("You came out a winner! We'll win next time, I'm sure.");
 		else
 			msg_print("You lost gold! Haha, better head home.");
 		msg_print(NULL);
 	}
-	clear_bldg(5,23);
-	display_bldg(3);
+	screen_load();
+	return(TRUE);
 }
 
 
 /*
  * inn commands
+ * Note that resting for the night was a perfect way to avoid player
+ * ghosts in the town *if* you could only make it to the inn in time (-:
+ * Now that the ghosts are temporarily disabled in 2.8.X, this function
+ * will not be that useful.  I will keep it in the hopes the player
+ * ghost code does become a reality again. Does help to avoid filthy urchins.
+ * Resting at night is also a quick way to restock stores -KMW-
  */
-void inn_comm(char cmd,int cost)
+static bool inn_comm(int cmd)
 {
 	int n, dawnval;
 
-	switch(cmd) {
-		case 'f': /* Buy food & drink */
-			if (p_ptr->au < cost) {
-				msg_print("You have not the gold!");
-				msg_print(NULL);
-			} else {
-				msg_print("The barkeep gives you some gruel and a beer.");
-				msg_print(NULL);
-				p_ptr->au = p_ptr->au - cost;
-				(void) set_food(PY_FOOD_MAX-1);
-			}
+	switch(cmd)
+	{
+		case BACT_FOOD: /* Buy food & drink */
+			msg_print("The barkeep gives you some gruel and a beer.");
+			msg_print(NULL);
+			(void) set_food(PY_FOOD_MAX-1);
 			break;
 
-		/* Note that resting for the night was a perfect way to avoid player
-		ghosts in the town *if* you could only make it to the inn in time (-:
-		Now that the ghosts are temporarily disabled in 2.8.X, this function
-		will not be that useful.  I will keep it in the hopes the player
-		ghost code does become a reality again. Does help to avoid filthy urchins.
-		Resting at night is also a quick way to restock stores? -KMW- */
-		case 'r': /* Rest for the night */
+		case BACT_REST: /* Rest for the night */
 			dawnval = ((turn % (10L * TOWN_DAWN)));
 			if (dawnval > 50000) {  /* nighttime */
-				if (p_ptr->au < cost)
-					msg_print("You have not the gold!");
-				else if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0)){
+				if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
+				{
 					msg_print("You need a healer, not a room.");
 					msg_print(NULL);
 					msg_print("Sorry, but don't want anyone dying in here.");
-				} else {
+					return(FALSE);
+				}
+				else
+				{
 					turn = ((turn/50000)+1)*50000;
-					p_ptr->au = p_ptr->au - cost;
 					p_ptr->chp = p_ptr->mhp;
 					set_blind(0);
 					set_confused(0);
@@ -634,22 +860,26 @@ void inn_comm(char cmd,int cost)
 						store_maint(n);
 					}
 				}
-			} else { 
+			}
+			else
+			{
 				msg_print("The rooms are available only at night.");
 				msg_print(NULL);
+				return(FALSE);
 			}
 			break;
-		case 'u': /* Listen for rumors */
+		case BACT_RUMORS: /* Listen for rumors */
 			msg_print("Not Implemented Yet (sigh).");
 			break;
 	}
+	return(TRUE);
 }
 
 
 /*
  * share gold for thieves
  */
-void share_gold()
+static void share_gold(void)
 {
 	char tmp_str[80];
 	int i;
@@ -658,25 +888,21 @@ void share_gold()
 	(void) sprintf(tmp_str, "You collect %d gold pieces", i);
 	msg_print(tmp_str);
 	msg_print(NULL);
-	p_ptr->au += i; 
+	p_ptr->au += i;
 }
+
 
 /*
  * Display quest information
  */
-void get_questinfo(int questnum)
+static void get_questinfo(int questnum)
 {
 	int i, j, qidx;
 	vault_type *v_ptr;
-/*	char tmp_str[80]; */
 
 	i = 5;
 	j = 0;
 	qidx = questnum - QUEST_OFFSET1;
-
-/* 	sprintf(tmp_str,"quest debug, questnum: %d, qidx: %d",questnum,qidx);
-	msg_print(tmp_str);
-	msg_print(NULL); */
 
 	v_ptr = &v_info[qidx];
 
@@ -692,7 +918,7 @@ void get_questinfo(int questnum)
 	c_put_str(TERM_YELLOW,q_list[qidx].qtext8,15,0);
 	c_put_str(TERM_YELLOW,q_list[qidx].qtext9,16,0);
 
-	prt("Complete this quest and return for a reward.",18,0);
+	prt("Complete this quest and return for a reward.",17,0);
 
 	prt("Quest Information:",i,0);
 	msg_print(NULL);
@@ -706,12 +932,12 @@ void get_questinfo(int questnum)
  * When the person returns to the castle, they are given a gift and
  * the reward flag is set to 3 (for completion).  Currently, there are
  * ten castle quests and two "final quests".  There are five quests that
- * require the player to kill either x number of monsters or 
+ * require the player to kill either x number of monsters or
  * one particular monster.  The other five quests involve special levels
  * that have to be completed.  The last two quests are not castle quests but
  * rather the built-in quests of Sauron and Morgoth.
  */
-void castle_quest()
+static void castle_quest(void)
 {
 	int increment, i, j, j2, oldlevel;
 	char tmp_str[80];
@@ -723,38 +949,51 @@ void castle_quest()
 	qstatus = 0;
 	qidx = 0;
 	increment = ((p_ptr->lev) / 2);
-	clear_bldg(7,19);
-	if (increment < 1) {
+	clear_bldg(7,18);
+	if (increment < 1)
+	{
 		put_str("You are too green to go off on a quest!", 8, 0);
 		(void) sprintf(tmp_str,"Return when you have reached level %d.", 2);
 		put_str(tmp_str,10,0);
 		msg_print(NULL);
-	} else if ((increment >= 25) && (p_ptr->rewards[(QUEST_REWARD_TAIL - 1 - QUEST_DIFF)] == 3)) {
+	}
+	else if ((increment >= 25) && (p_ptr->rewards[(QUEST_REWARD_TAIL - 1 - QUEST_DIFF)] == 3))
+	{
 		put_str("You have completed all quests I have given and have",8,0);
 		put_str("vanquished the evil Morgoth!  We are in your debt.",9,0);
 		put_str("You have fulfilled your destiny!",12,0);
-	} else if (p_ptr->rewards[increment + 29] == 3) {
+	}
+	else if (p_ptr->rewards[increment + 29] == 3)
+	{
 		put_str("You fulfilled your last quest but you are not ready for another.",8,0);
 		sprintf(tmp_str,"Return when you have reached level %d", (increment*2)+2);
 		put_str(tmp_str,12,0);
 		msg_print(NULL);
-	} else { /* set last reward that hasn't been given to TRUE */
+	}
+	else /* set last reward that hasn't been given to TRUE */
+	{
 		increment = 0;
 
-		for (j2=QUEST_REWARD_HEAD;j2 < QUEST_REWARD_TAIL;j2++) {
+		for (j2=QUEST_REWARD_HEAD;j2 < QUEST_REWARD_TAIL;j2++)
+		{
 			increment = j2;
 			j = j2 - QUEST_DIFF;
-			if (p_ptr->rewards[j] == 0) {
+			if (p_ptr->rewards[j] == 0)
+			{
 				p_ptr->rewards[j] = 1;
 				qstatus = 0;
 				break;
-			} else if (p_ptr->rewards[j] == 1) {
+			}
+			else if (p_ptr->rewards[j] == 1)
+			{
 				put_str("You have not completed your current quest yet!",8,0);
 				put_str("Use CTRL-Q to check the status of your quest.",9,0);
 				put_str("Return when you have completed your quest.",12,0);
 				qstatus = 1;
 				break;
-			} else if (p_ptr->rewards[j] == 2) {
+			}
+			else if (p_ptr->rewards[j] == 2)
+			{
 				qstatus = 2;
 				for (i = 0; i < MAX_MON_QUEST; i++)
 					p_ptr->cqmon[i] = FALSE;
@@ -775,28 +1014,35 @@ void castle_quest()
 			case 0: /* need to assign quest */
 			{
 				qidx = increment - QUEST_OFFSET1;
-				if (q_list[qidx].quest_type == 2) {
-					q_list[qidx].r_idx = randint(50) + (40 * (increment - QUEST_OFFSET1));
+				if (q_list[qidx].quest_type == 2)
+				{
+					if (q_list[qidx].r_idx == 0)
+						q_list[qidx].r_idx = randint(50) + (40 * (increment - QUEST_OFFSET1));
 					r_ptr = &r_info[q_list[qidx].r_idx];
 					while ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-					  (r_ptr->rarity != 1)) {
+					  (r_ptr->rarity != 1))
+					{
 						q_list[qidx].r_idx = randint(50) + 100;
 						r_ptr = &r_info[q_list[qidx].r_idx];
 					}
-					if (randint(10) > 7)
-						q_list[qidx].max_num = 1;
-					else
-						q_list[qidx].max_num = randint(3) + 1;
+					if (q_list[qidx].max_num == 0)
+					{
+						if (randint(10) > 7)
+							q_list[qidx].max_num = 1;
+						else
+							q_list[qidx].max_num = randint(3) + 1;
+					}
 					q_list[qidx].cur_num = 0;
 					name = (r_name + r_ptr->name);
-					sprintf(tmp_str,"Your quest: kill %d %s", 
+					sprintf(tmp_str,"Your quest: kill %d %s",
 					    q_list[qidx].max_num, name);
 					msg_print(tmp_str);
 					msg_print(NULL);
-				} else {
+				}
+				else
+				{
 					get_questinfo(increment);
 					p_ptr->rewards[j] = 1;
-					wilderness_gen(1);
 				}
 				break;
 			}
@@ -810,13 +1056,10 @@ void castle_quest()
 			{
 				msg_print("A great gift awaits you outside!");
 				msg_print(NULL);
-				oldlevel = p_ptr->depth;
-				p_ptr->depth = 30;
-				if (j < ((QUEST_REWARD_HEAD + QUEST_REWARD_TAIL - 140)/2))
-					acquirement(p_ptr->py,p_ptr->px,1,0,1);
-				else
-					acquirement(p_ptr->py,p_ptr->px,1,1,1);
-				p_ptr->depth = oldlevel;
+				oldlevel = object_level;
+				object_level = p_ptr->lev * 2;
+				acquirement(p_ptr->py,p_ptr->px,1,1,1);
+				object_level = oldlevel;
 				break;
 			}
 		}
@@ -827,566 +1070,309 @@ void castle_quest()
 /*
  * Greet the lord of the castle
  */
-void castle_greet()
+static void castle_greet(void)
 {
 	int increment, j, oldlevel;
 	char tmp_str[80];
 
 	increment = ((p_ptr->lev - 1) / 5);
-	if (increment < 1) {
+	if (increment < 1)
+	{
 		(void) sprintf(tmp_str,"Ah, a young adventurer, return when: %s (Level %d)",
 		player_title[p_ptr->pclass][1], 6);
 		msg_print(tmp_str);
 		msg_print(NULL);
-	} else if ((increment >= 5) && (p_ptr->rewards[14])) {
+	}
+	else if ((increment >= 5) && (p_ptr->rewards[14]))
+	{
 		msg_print("Your greeting is returned with reverance and respect");
-	} else if (p_ptr->rewards[increment + 9]) {
+	}
+	else if (p_ptr->rewards[increment + 9])
+	{
 		(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
 		player_title[p_ptr->pclass][increment+1], ((increment*5)+6));
 		msg_print(tmp_str);
 		msg_print(NULL);
-	} else { /* set last reward that hasn't been given to TRUE */
-		for (j=10;j<20;j++) {
-			if (p_ptr->rewards[j] == 0) {
+	}
+	else
+	{ /* set last reward that hasn't been given to TRUE */
+		for (j=10;j<20;j++)
+		{
+			if (p_ptr->rewards[j] == 0)
+			{
 				p_ptr->rewards[j] = 1;
 				break;
 			}
 		}
 
-		if (j == 10) {
+		if (j == 10)
+		{
 			msg_print("Well done! Please take up residence in the house down the street.");
 			msg_print(NULL);
-		} else if (j == 11) {
+		}
+		else if (j == 11)
+		{
 			msg_print("Very good! The weaponsmaster will be able to help you now.");
 			msg_print(NULL);
-			wilderness_gen(1);
-		} else if (j == 12) {
+		}
+		else if (j == 12)
+		{
 			msg_print("You are proving yourself worthy. You may visit the Beastmaster.");
 			msg_print(NULL);
-			wilderness_gen(1);
-		} else if (j == 13) {
-			msg_print("You have earned a great deal of respect.");
+		}
+		else
+		{
+			msg_print("An excellent gift awaits you outside!");
 			msg_print(NULL);
-			msg_print("You have my permission to visit any building you wish.");
-			msg_print(NULL);
-		} else if (j >= 14) {
-			msg_print("A nice gift awaits you outside!");
-			msg_print(NULL);
-			oldlevel = p_ptr->depth;
-			p_ptr->depth = 20;
+			oldlevel = object_level;
+			object_level = p_ptr->lev * 4;
 			acquirement(p_ptr->py,p_ptr->px,1,0,1);
-			p_ptr->depth = oldlevel;
+			object_level = oldlevel;
 		}
 	}
+}
+
+
+/*
+ * greet_reward
+ */
+static void greet_reward(int gclass)
+{
+	int tval, sval;
+	int randitem = randint(5);
+
+	tval = 0;
+	sval = 0;
+
+	switch(gclass)
+	{
+		case CLASS_ROGUE:
+		case CLASS_WARRIOR:
+		case CLASS_PALADIN:
+		case CLASS_RANGER:
+			switch(randitem)
+			{
+				case 1:
+					tval = TV_BOW;
+					sval = SV_LONG_BOW;
+					break;
+				case 2:
+					tval = TV_BOOTS;
+					sval = SV_PAIR_OF_METAL_SHOD_BOOTS;
+					break;
+				case 3:
+					tval = TV_HARD_ARMOR;
+					sval = SV_MITHRIL_CHAIN_MAIL;
+					break;
+				case 4:
+					tval = TV_HELM;
+					sval = SV_STEEL_HELM;
+					break;
+				case 5:
+					tval = TV_SWORD;
+					sval = SV_BROAD_SWORD;
+					break;
+			}
+			break;
+
+		case CLASS_MAGE:
+		case CLASS_ILLUSIONIST:
+		case CLASS_DRUID:
+		case CLASS_PRIEST:
+			switch(randitem)
+			{
+				case 1:
+					tval = TV_ROD;
+					sval = 23 + randint(4);
+					break;
+				case 2:
+					tval = TV_RING;
+					sval = SV_RING_PROTECTION;
+					break;
+				case 3:
+					tval = TV_AMULET;
+					sval = SV_AMULET_THE_MAGI;
+					break;
+				case 4:
+					tval = TV_CLOAK;
+					sval = SV_SHADOW_CLOAK;
+					break;
+				case 5:
+					tval = TV_STAFF;
+					sval = SV_STAFF_POWER;
+					break;
+			}
+	}
+
+	put_reward(tval,sval,(p_ptr->lev*2));
 }
 
 
 /*
  * greet_char
  */
-void greet_char()
+static void greet_char(void)
 {
-	int increment, j, oldlevel;
+	int increment, j;
 	char tmp_str[80];
 
 	increment = (((p_ptr->lev - 1) / 5)/2);
 	if (p_ptr->lev == 50)
 		increment = 5;
-	if (increment < 1) {
+
+	if (increment < 1)
+	{
 		(void) sprintf(tmp_str,"You are young yet, return when: %s (Level %d)",
-		player_title[p_ptr->pclass][2], 11);
+		    player_title[p_ptr->pclass][2], 11);
 		msg_print(tmp_str);
 		msg_print(NULL);
-	} else if ((increment == 5) && (p_ptr->rewards[increment - 1]))
-		msg_print("Your greeting is returned with reverance and respect");
-	else if (p_ptr->rewards[increment - 1]) {
-		if (increment == 4) 
+	}
+	else if ((increment == 5) && (p_ptr->rewards[increment - 1]))
+	{
+		msg_print("Your greeting is returned with reverence and respect");
+	}
+	else if (p_ptr->rewards[increment - 1])
+	{
+		if (increment == 4)
+		{
 			(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
-			     player_title[p_ptr->pclass][9], 50);
+			    player_title[p_ptr->pclass][9], 50);
+		}
 		else
+		{
 			(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
-			     player_title[p_ptr->pclass][(increment+1) * 2], (((increment+1)*10)+1));
+			    player_title[p_ptr->pclass][(increment+1) * 2], (((increment+1)*10)+1));
 			msg_print(tmp_str);
 			msg_print(NULL);
-		} else {
-			for (j=0;j<10;j++) {
-				if (p_ptr->rewards[j] == FALSE) {
-					p_ptr->rewards[j] = TRUE;
-					break;
-				}
-			}
-			switch(building) {
-			case 10: /* Hall of Fighters Rewards */
-				if (j == 0) {
-					msg_print("You have done well. A gift awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_RING, SV_RING_STR, 10);
-				} else if (j == 1) { 
-					msg_print("You have done well. A gift awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_RING, SV_RING_CON, 20);
-				} else if (j == 2) { 
-					msg_print("Well done! A great gift awaits you outside!");
-					msg_print(NULL);
-					oldlevel = p_ptr->depth;
-					p_ptr->depth = 30;
-					acquirement(p_ptr->py,p_ptr->px,1,1,1);
-					p_ptr->depth = oldlevel;
-				} else if (j == 3) { 
-					msg_print("An excellent gift awaits you outside!");
-					msg_print(NULL);
-					put_reward(TV_DRAG_ARMOR, randint(5), 40);
-				} else if (j == 4) {
-					msg_print("Well done! Great items await you outside.");
-					msg_print(NULL);
-					oldlevel = p_ptr->depth;
-					p_ptr->depth = 40;
-					acquirement(p_ptr->py,p_ptr->px,3,1,1);
-					p_ptr->depth = oldlevel;
-				}
-				break;
-			case 11: /* Tower of Sorcery Rewards */
-				if (j == 0) {
-					msg_print("You're improving. You may request recharging.");
-					msg_print(NULL);
-				} else if (j == 1) {
-					msg_print("Impressive. You may partake of identifications.");
-					msg_print(NULL);
-				} else if (j == 2) { 
-					msg_print("Nice. A spellbook awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_MAGIC_BOOK, (randint(4)+3), 20);
-				} else if (j == 3) { 
-					msg_print("Excellent! A spellbook awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_MAGIC_BOOK, (randint(4)+3), 20);
-				} else if (j == 4) { 
-					msg_print("Please accept this rarest of spellbooks outside.");
-					msg_print(NULL);
-					put_reward(TV_MAGIC_BOOK, 8, 20);
-				}
-				break;
-			case 12: /* Inner Temple Rewards */
-				if (j == 0) {
-					msg_print("I'm pleased with you. Restoration is available.");
-					msg_print(NULL);
-				} else if (j == 1) {
-					msg_print("You have done well. A gift awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_POTION, SV_POTION_LIFE, 10);
-				} else if (j == 2) {
-					msg_print("Nice. A prayer book awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_PRAYER_BOOK, (randint(4)+3), 20);
-				} else if (j == 3) {
-					msg_print("Excellent! A prayer book awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_PRAYER_BOOK, (randint(4)+3), 20);
-				} else if (j == 4) {
-					msg_print("Please accept this rarest of prayer books.");
-					msg_print(NULL);
-					put_reward(TV_PRAYER_BOOK, 8, 20);
-				}
-				break;
-			case 13: /* House of Thieves Rewards */
-				if (j == 0) {
-					msg_print("Well done! You may take your share of gold.");
-					msg_print(NULL);
-				} else if (j == 1) {
-					msg_print("Good job! Now, we'll identify your possessions.");
-					msg_print(NULL);
-				} else if (j == 2) { 
-					msg_print("A great gift awaits you outside!");
-					msg_print(NULL);
-					oldlevel = p_ptr->depth;
-					p_ptr->depth = 30;
-					acquirement(p_ptr->py,p_ptr->px,1,1,1);
-					p_ptr->depth = oldlevel;
-				} else if (j == 3) { 
-					msg_print("A great gift awaits you outside!");
-					msg_print(NULL);
-					oldlevel = p_ptr->depth;
-					p_ptr->depth = 30;
-					acquirement(p_ptr->py,p_ptr->px,1,1,1);
-					p_ptr->depth = oldlevel;
-				} else if (j == 4) { 
-					msg_print("Well done! Great items await you outside.");
-					msg_print(NULL);
-					oldlevel = p_ptr->depth;
-					p_ptr->depth = 40;
-					acquirement(p_ptr->py,p_ptr->px,3,1,1);
-					p_ptr->depth = oldlevel;
-				}
-				break;
-			case 14: /* Ranger's Tavern Rewards */
-				if (j == 0) { 
-					msg_print("You have done well. A gift awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_RING, SV_RING_STR, 10);
-				} else if (j == 1) { 
-					msg_print("You have done well. A gift awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_RING, SV_RING_INT, 20);
-				} else if (j == 2) { 
-					msg_print("A great gift awaits you outside!");
-					msg_print(NULL);
-					oldlevel = p_ptr->depth;
-					p_ptr->depth = 30;
-					acquirement(p_ptr->py,p_ptr->px,1,1,1);
-					p_ptr->depth = oldlevel;
-				} else if (j == 3) { 
-					msg_print("An excellent gift awaits you outside!");
-					msg_print(NULL);
-					put_reward(TV_DRAG_ARMOR, randint(5), 40);
-				} else if (j == 4) { 
-					msg_print("Well done! Great items await you outside.");
-					msg_print(NULL);
-					oldlevel = p_ptr->depth;
-					p_ptr->depth = 40;
-					acquirement(p_ptr->py,p_ptr->px,3,1,1);
-					p_ptr->depth = oldlevel;
-				}
-				break;
-			case 15: /* Order of Paladins Rewards */
-				if (j == 0) {
-					msg_print("You have done well. A gift awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_RING, SV_RING_STR, 10);
-				} else if (j == 1) {
-					msg_print("You have done well. A gift awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_RING, SV_RING_CON, 20);
-				} else if (j == 2) {
-					msg_print("A great gift awaits you outside!");
-					msg_print(NULL);
-					oldlevel = p_ptr->depth;
-					p_ptr->depth = 30;
-					acquirement(p_ptr->py,p_ptr->px,1,1,1);
-					p_ptr->depth = oldlevel;
-				} else if (j == 3) { 
-					msg_print("An excellent gift awaits you outside!");
-					msg_print(NULL);
-					put_reward(TV_DRAG_ARMOR, randint(5), 40);
-				} else if (j == 4) { 
-					msg_print("Well done! Great items await you outside.");
-					msg_print(NULL);
-					oldlevel = p_ptr->depth;
-					p_ptr->depth = 40;
-					acquirement(p_ptr->py,p_ptr->px,3,1,1);
-					p_ptr->depth = oldlevel;
-				}
-				break;
-			case 16: /* Tower of Illusion Rewards */
-				if (j == 0) {
-					msg_print("You're improving. You may request recharging.");
-					msg_print(NULL);
-				} else if (j == 1) {
-					msg_print("Impressive. You may partake of identifications.");
-					msg_print(NULL);
-				} else if (j == 2) {
-					msg_print("Nice. An illusion book awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_ILLUSION_BOOK, (randint(4)+3), 20);
-				} else if (j == 3) {
-					msg_print("Excellent. An illusion book awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_ILLUSION_BOOK, (randint(4)+3), 20);
-				} else if (j == 4) {
-					msg_print("Please accept this rarest of illusion books.");
-					msg_print(NULL);
-					put_reward(TV_ILLUSION_BOOK, 8, 20);
-				}
-				break;
-			case 17: /* Druid Grove Rewards */
-				if (j == 0) {
-					msg_print("I'm pleased with you. Restoration is available.");
-					msg_print(NULL);
-				} else if (j == 1) {
-					msg_print("You have done well. A gift awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_POTION, SV_POTION_LIFE, 10);
-				} else if (j == 2) {
-					msg_print("Nice. A druid book awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_NATURE_BOOK, (randint(4)+3), 20);
-				} else if (j == 3) {
-					msg_print("Excellent! A druid book awaits you outside.");
-					msg_print(NULL);
-					put_reward(TV_NATURE_BOOK, (randint(4)+3), 20);
-				} else if (j == 4) {
-					msg_print("Please accept this rarest of druid books.");
-					msg_print(NULL);
-					put_reward(TV_NATURE_BOOK, 8, 20);
-				}
-				break;
-			default:
-				bell();
-				break;
 		}
 	}
+	else
+	{
+		for (j=0;j<10;j++)
+		{
+			if (p_ptr->rewards[j] == FALSE)
+			{
+				p_ptr->rewards[j] = TRUE;
+				break;
+			}
+		}
+		msg_print("Take this gift as a reward for your diligence");
+		msg_print(NULL);
+		greet_reward(p_ptr->pclass);
+	}
 }
-
 
 
 /*
- * Displaying town history
- * Will want this to simply list a file one page at a time, rather
- * than have the text contents right here.  Could also be in help
- * format where no command would be necessary.
+ * Displaying town history -KMW-
  */
-void town_history()
+static void town_history(void)
 {
-	clear_bldg(5,18);
-	prt("               Historical Town View", 5, 0);
-	prt("The town is composed of both stores and buildings. Stores:",7,0);
-	prt("   Magic Shop: get your wands and spellbooks here.",8,0);
-	prt("   Alchemist: for all sorts of bubbling potions and scrolls.",9,0);
-	prt("   Weaponsmith: they carry anything sharp and to the point.",10,0);
-	prt("   Armorer: to protect from the ravages of the dungeon.",11,0);
-	prt("   General Store: food, torches, the necessities.",12,0);
-	prt("   Temple Shop: prayerbooks and those items holy.",13,0);
-	prt("   Black Market: the prices are high, but item unique.",14,0);
-	prt("   Home: To store your precious treasures.",15,0);
-	prt("Make sure you go into the correct door on some buildings.",16,0);
-	msg_print("Press the spacebar to continue");
-	msg_print(NULL);
-	prt("General buildings with common themes:",7,0);
-	prt("Please greet those you meet in your specialty and otherwise.",8,0);
-	prt("  They may impart advice or reward diligent adventurers.",9,0);
-	prt("Take a look at spires, busts, etc. You may one day be honored.",10,0);
-	prt("",11,0);
-	prt("The Fighter's Hall, Order of Paladins, Ranger's Tavern, House",12,0);
-	prt("of Thieves, and Tower of Illusion are restricted to those involved.",13,0);
-	prt("The Tower of Sorcery is open for rogues and rangers to learn spells.",14,0);
-	prt("The Temple is open for paladins to learn spells.",15,0);
-	prt("  All players must be taught here. Only the masters have the knowledge.",16,0);
-	prt("",17,0);
-	msg_print("Press the spacebar to continue");
-	msg_print(NULL);
-	prt("Unique buildings that anyone can enter, if they dare:",7,0);
-	prt("  Arena: Try hand-to-hand combat but read the rules!",8,0);
-	prt("    Also, checking the poster first is always a good idea!",9,0);
-	prt("  Gambling House: Read the rules before paying. And, the games",10,0);
-	prt("    are not rigged, just naturally difficult.",11,0); 
-	prt("  Library: For information of all kinds.",12,0);
-	prt("  Inn: Resting will refresh, and those ghosts prowl at night...",13,0);
-	prt("    Rumors can be helpful or just plain silly.",14,0);
-	prt("",15,0);
-	prt("All buildings are made of stone and unlikely to move around.",16,0);
-	msg_print("Press the spacebar to continue");
-	msg_print(NULL);
-	clear_bldg(5,18);
+	/* Save screen */
+	screen_save();
+
+	/* Peruse the building help file */
+	(void)show_file("bldg.txt", NULL, 0, 0);
+
+	/* Load screen */
+	screen_load();
 }
 
 
-/* Take care of slay messages
- * -KMW-
+/*
+ * compare_weapon_aux2 -KMW-
  */
-void compare_weapon_aux(object_type *o_ptr, int numblows, int r, int c)
+static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, int mult, char attr[80], u32b f1, u32b f2, u32b f3, int color)
 {
 	char tmp_str[80];
+
+	c_put_str(color,attr,r,c);
+	sprintf(tmp_str,"Attack: %d-%d damage",
+	    mult*(numblows*(o_ptr->dd + o_ptr->to_d)),
+	    mult*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+	put_str(tmp_str,r,c+8);
+	r++;
+}
+
+
+/*
+ * compare_weapon_aux1 -KMW-
+ */
+static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
+{
 	u32b f1, f2, f3;
 
-	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-	/* Slay Animal */
-	if (f1 & (TR1_SLAY_ANIMAL))
-	{
-		c_put_str(TERM_YELLOW,"Animals:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    2*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    2*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+8);
-		r++;
-	}
-
-	/* Slay Evil */
-	if (f1 & (TR1_SLAY_EVIL))
-	{
-		c_put_str(TERM_YELLOW,"Evil:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    2*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    2*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+6);
-		r++;
-	}
-
-	/* Slay Undead */
-	if (f1 & (TR1_SLAY_UNDEAD))
-	{
-		c_put_str(TERM_YELLOW,"Undead:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+6);
-		r++;
-	}
-
-	/* Slay Demon */
-	if (f1 & (TR1_SLAY_DEMON))
-	{
-		c_put_str(TERM_YELLOW,"Demons:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+8);
-		r++;
-	}
-
-	/* Slay Orc */
-	if (f1 & (TR1_SLAY_ORC))
-	{
-		c_put_str(TERM_YELLOW,"Orcs:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+6);
-		r++;
-	}
-
-	/* Slay Troll */
-	if (f1 & (TR1_SLAY_TROLL))
-	{
-		c_put_str(TERM_YELLOW,"Trolls:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+8);
-		r++;
-	}
-
-	/* Slay Giant */
-	if (f1 & (TR1_SLAY_GIANT))
-	{
-		c_put_str(TERM_YELLOW,"Giants:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+8);
-		r++;
-	}
-
-	/* Slay Dragon  */
-	if (f1 & (TR1_SLAY_DRAGON))
-	{
-		c_put_str(TERM_YELLOW,"Dragons:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+9);
-		r++;
-	}
-
-	/* Execute Dragon */
-	if (f1 & (TR1_KILL_DRAGON))
-	{
-		c_put_str(TERM_YELLOW,"Dragons:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    5*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    5*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+9);
-		r++;
-	}
-
-
-	/* Brand (Acid) */
-	if (f1 & (TR1_BRAND_ACID))
-	{
-		c_put_str(TERM_RED,"Acid:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+6);
-		r++;
-	}
-
-	/* Brand (Elec) */
-	if (f1 & (TR1_BRAND_ELEC))
-	{
-		c_put_str(TERM_RED,"Elec:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+6);
-		r++;
-	}
-
-	/* Brand (Fire) */
-	if (f1 & (TR1_BRAND_FIRE))
-	{
-		c_put_str(TERM_RED,"Fire:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+6);
-		r++;
-	}
-
-	/* Brand (Cold) */
-	if (f1 & (TR1_BRAND_COLD))
-	{
-		c_put_str(TERM_RED,"Cold:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+6);
-		r++;
-	}
-
-	/* added poison brand by GJW 	-KMW- */
-	/* Brand (Poison) */
-	if (f1 & (TR1_BRAND_POIS))
-	{
-		c_put_str(TERM_RED,"Poison:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+8);
-		r++;
-	}
-
-	/* Force -KMW- */
-	if (f1 & (TR1_FORCE))
-	{
-		c_put_str(TERM_RED,"Force:",r,c);
-		sprintf(tmp_str,"Attack: %d-%d damage",
-		    4*(numblows*(o_ptr->dd + o_ptr->to_d)),
-		    4*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
-		put_str(tmp_str,r,c+7);
-		r++;
-	}
+	if (f1 & (TR1_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Animals:", f1, f2, f3, TERM_YELLOW);
+	if (f1 & (TR1_SLAY_EVIL)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Evil:", f1, f2, f3, TERM_YELLOW);
+	if (f1 & (TR1_SLAY_UNDEAD)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Undead:", f1, f2, f3, TERM_YELLOW);
+	if (f1 & (TR1_SLAY_DEMON)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Demons:", f1, f2, f3, TERM_YELLOW);
+	if (f1 & (TR1_SLAY_ORC)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Orcs:", f1, f2, f3, TERM_YELLOW);
+	if (f1 & (TR1_SLAY_TROLL)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Trolls:", f1, f2, f3, TERM_YELLOW);
+	if (f1 & (TR1_SLAY_GIANT)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Giants:", f1, f2, f3, TERM_YELLOW);
+	if (f1 & (TR1_SLAY_DRAGON)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Dragons:", f1, f2, f3, TERM_YELLOW);
+	if (f1 & (TR1_KILL_DRAGON)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 5, "Dragons:", f1, f2, f3, TERM_YELLOW);
+	if (f1 & (TR1_BRAND_ACID)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Acid:", f1, f2, f3, TERM_RED);
+	if (f1 & (TR1_BRAND_ELEC)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Elec:", f1, f2, f3, TERM_RED);
+	if (f1 & (TR1_BRAND_FIRE)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Fire:", f1, f2, f3, TERM_RED);
+	if (f1 & (TR1_BRAND_COLD)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Cold:", f1, f2, f3, TERM_RED);
+	if (f1 & (TR1_BRAND_POIS)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Poison:", f1, f2, f3, TERM_RED);
+	if (f1 & (TR1_FORCE)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Force:", f1, f2, f3, TERM_RED);
 }
 
 
 /*
- * compare_weapons
+ * list_weapon -KMW-
  */
-bool compare_weapons(void)
+static void list_weapon(object_type *o_ptr, int row, int col)
 {
-	int item, i;
-	object_type *o1_ptr, *o2_ptr, *orig_ptr, *o_ptr;
-	object_type *i_ptr;
-	object_type object_type_body;
-
-	char o1_name[80], o2_name[80];
+	char o_name[80];
 	char tmp_str[80];
+
+	object_desc(o_name, o_ptr, TRUE, 0);
+	c_put_str(TERM_YELLOW,o_name,row,col);
+	sprintf(tmp_str,"To Hit: %d   To Damage: %d",o_ptr->to_h, o_ptr->to_d);
+	put_str(tmp_str,row+1,col);
+	sprintf(tmp_str,"Dice: %d   Sides: %d",o_ptr->dd, o_ptr->ds);
+	put_str(tmp_str,row+2,col);
+	sprintf(tmp_str,"Number of Blows: %d", p_ptr->num_blow);
+	put_str(tmp_str,row+3,col);
+	c_put_str(TERM_YELLOW, "Possible Damage:",row+5,col);
+	sprintf(tmp_str,"One Strike: %d-%d damage",o_ptr->dd + o_ptr->to_d,
+	    (o_ptr->ds*o_ptr->dd) + o_ptr->to_d);
+	put_str(tmp_str,row+6,col+1);
+	sprintf(tmp_str,"One Attack: %d-%d damage",p_ptr->num_blow*(o_ptr->dd + o_ptr->to_d),
+	    p_ptr->num_blow*(o_ptr->ds*o_ptr->dd + o_ptr->to_d));
+	put_str(tmp_str,row+7,col+1);
+}
+
+
+/*
+ * compare_weapons -KMW-
+ */
+static bool compare_weapons(void)
+{
+	int item, item2, i;
+	object_type *o1_ptr, *o2_ptr, *orig_ptr;
+	object_type *i_ptr;
 	cptr q, s;
 
 	clear_bldg(6,18);
 
-	o1_ptr = NULL;
-	o2_ptr = NULL;
+	o1_ptr = NULL; o2_ptr = NULL; i_ptr = NULL;
+
 	/* Store copy of original wielded weapon in pack slot */
-	o_ptr = &inventory[INVEN_WIELD];
+	i_ptr = &inventory[INVEN_WIELD];
 	orig_ptr = &inventory[INVEN_PACK];
-	object_copy(orig_ptr, o_ptr);
-	
+	object_copy(orig_ptr, i_ptr);
+
 	i = 6;
 	/* Get an item */
 	q = "What is your first weapon? ";
 	s = "You have nothing to compare.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) {
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN)))
+	{
 		inven_item_increase(INVEN_PACK, -1);
 		inven_item_optimize(INVEN_PACK);
 		return(FALSE);
@@ -1394,102 +1380,66 @@ bool compare_weapons(void)
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
-	{
 		o1_ptr = &inventory[item];
-		object_desc(o1_name, o1_ptr, TRUE, 0);
-	}
+
 	if ((o1_ptr->tval < TV_BOW) || (o1_ptr->tval > TV_SWORD))
 	{
 		msg_print("Not a weapon! Try again.");
 		msg_print(NULL);
+		inven_item_increase(INVEN_PACK, -1);
+		inven_item_optimize(INVEN_PACK);
 		return(FALSE);
 	}
 
 	/* Get an item */
 	q = "What is your second weapon? ";
 	s = "You have nothing to compare.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) {
+	if (!get_item(&item2, q, s, (USE_EQUIP | USE_INVEN)))
+	{
 		inven_item_increase(INVEN_PACK, -1);
 		inven_item_optimize(INVEN_PACK);
 		return(FALSE);
 	}
 
-
 	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o2_ptr = &inventory[item];
-		object_desc(o2_name, o2_ptr, TRUE, 0);
-	}
+	if (item2 >= 0)
+		o2_ptr = &inventory[item2];
+
 	if ((o2_ptr->tval < TV_BOW) || (o2_ptr->tval > TV_SWORD))
 	{
 		msg_print("Not a weapon! Try again.");
 		msg_print(NULL);
+		inven_item_increase(INVEN_PACK, -1);
+		inven_item_optimize(INVEN_PACK);
 		return(FALSE);
 	}
 
 	put_str("Based on your current abilities, here is what your weapons will do", 4, 2);
 
-	i_ptr = &object_type_body;
+	i_ptr = &inventory[INVEN_WIELD];
 	object_copy(i_ptr, o1_ptr);
-	i_ptr->number = 1;
-	o1_ptr = &inventory[INVEN_WIELD];
-	object_copy(o1_ptr, i_ptr);
-	
 	calc_bonuses();
 
-	c_put_str(TERM_YELLOW,o1_name,i,2);
-	sprintf(tmp_str,"To Hit: %d   To Damage: %d",o1_ptr->to_h, o1_ptr->to_d);
-	put_str(tmp_str,i+1,2);
-	sprintf(tmp_str,"Dice: %d   Sides: %d",o1_ptr->dd, o1_ptr->ds);
-	put_str(tmp_str,i+2,2);
-	sprintf(tmp_str,"Number of Blows: %d", p_ptr->num_blow);
-	put_str(tmp_str,i+3,2);
-	c_put_str(TERM_YELLOW, "Possible Damage:",i+5,2);
-	sprintf(tmp_str,"One Strike: %d-%d damage",o1_ptr->dd + o1_ptr->to_d,
-	    (o1_ptr->ds*o1_ptr->dd) + o1_ptr->to_d);
-	put_str(tmp_str,i+6,3);
-	sprintf(tmp_str,"One Attack: %d-%d damage",p_ptr->num_blow*(o1_ptr->dd + o1_ptr->to_d),
-	    p_ptr->num_blow*(o1_ptr->ds*o1_ptr->dd + o1_ptr->to_d));
-	put_str(tmp_str,i+7,3);
-	compare_weapon_aux(o1_ptr,p_ptr->num_blow,i+8,2);
+	list_weapon(o1_ptr,i,2);
+	compare_weapon_aux1(o1_ptr, 2, i+8);
 
-	i_ptr = &object_type_body;
-	object_copy(i_ptr, o2_ptr);
-	i_ptr->number = 1;
-	o2_ptr = &inventory[INVEN_WIELD];
-	object_copy(o2_ptr, i_ptr);
-	
+	i_ptr = &inventory[INVEN_WIELD];
+	if (item2 == INVEN_WIELD)
+		object_copy(i_ptr, orig_ptr);
+	else
+		object_copy(i_ptr, o2_ptr);
 	calc_bonuses();
 
-	c_put_str(TERM_YELLOW,o2_name,i,40);
-	sprintf(tmp_str,"To Hit: %d   To Damage: %d",o2_ptr->to_h, o2_ptr->to_d);
-	put_str(tmp_str,i+1,40);
-	sprintf(tmp_str,"Dice: %d   Sides: %d",o2_ptr->dd, o2_ptr->ds);
-	put_str(tmp_str,i+2,40);
-	sprintf(tmp_str,"Number of Blows: %d", p_ptr->num_blow);
-	put_str(tmp_str,i+3,40);
-	c_put_str(TERM_YELLOW, "Possible Damage:",i+5,40);
-	sprintf(tmp_str,"One Strike: %d-%d damage",o2_ptr->dd + o2_ptr->to_d,
-	    (o2_ptr->ds*o2_ptr->dd) + o2_ptr->to_d);
-	put_str(tmp_str,i+6,41);
-	sprintf(tmp_str,"One Attack: %d-%d damage",p_ptr->num_blow*(o2_ptr->dd + o2_ptr->to_d),
-	    p_ptr->num_blow*(o2_ptr->ds*o2_ptr->dd + o2_ptr->to_d));
-	put_str(tmp_str,i+7,41);
-	compare_weapon_aux(o2_ptr,p_ptr->num_blow,i+8,40);
+	list_weapon(o2_ptr,i,40);
+	compare_weapon_aux1(o2_ptr, 40, i+8);
 
-
-	i_ptr = &object_type_body;
+	i_ptr = &inventory[INVEN_WIELD];
 	object_copy(i_ptr, orig_ptr);
-	i_ptr->number = 1;
-	o_ptr = &inventory[INVEN_WIELD];
-	object_copy(o_ptr, i_ptr);
-	
 	calc_bonuses();
 
 	inven_item_increase(INVEN_PACK, -1);
 	inven_item_optimize(INVEN_PACK);
-	
+
 	put_str("(Only highest damage applies per monster. Special damage not cumulative)",20,0);
 
 	return(TRUE);
@@ -1497,593 +1447,265 @@ bool compare_weapons(void)
 
 
 /*
- * sharpen arrows
+ * general all-purpose fixing routine for items from building personnel
+ * sharpen arrows, repair armor, repair weapon
+ * -KMW-
  */
-void sharpen_arrows(int cost)
+static bool fix_item(int istart, int iend, int ispecific, bool iac, int ireward, int bclass)
 {
-	int i,j,k, maxenchant;
+	int i, j, maxenchant;
 	object_type *o_ptr;
 	char out_val[80], tmp_str[80];
+	bool repaired;
 
 	clear_bldg(5,18);
-	k = 0;
+	repaired = FALSE;
 	maxenchant = (p_ptr->lev / 5);
-	sprintf(tmp_str,"  Based on your skill, we can enchant your arrows up to +%d", maxenchant);
+	sprintf(tmp_str,"  Based on your skill, we can improve up to +%d", maxenchant);
 	prt(tmp_str, 5, 0);
-	prt("                             Arrow Status", 7, 0);
+	prt("Status", 7, 30);
 	j = 9;
 
-	for (i = 0; i < INVEN_WIELD; i++) {
+	for (i = istart; i <= iend; i++)
+	{
 		o_ptr = &inventory[i];
-		if (o_ptr->tval == TV_ARROW) {
-			k = 1;
+		if (ispecific > 0)
+		{
+			if (o_ptr->tval != ispecific)
+				continue;
+		}
+
+		if (o_ptr->tval) {
 			object_desc(tmp_str, o_ptr, FALSE, 1);
-			if (o_ptr->name1) 
-				sprintf(out_val, "%-40s: In fine condition", tmp_str);
-			else if ((o_ptr->to_h < -3) || (o_ptr->to_d < -3))
-				sprintf(out_val, "%-40s: Beyond repair, buy new arrows", tmp_str);
-			else if ((o_ptr->to_h >= maxenchant) && (o_ptr->to_d >= maxenchant))
-				sprintf(out_val, "%-40s: In fine condition", tmp_str);
-			else  {
-				if (o_ptr->to_h < maxenchant)
+
+			if ((o_ptr->name1 && (o_ptr->ident & 0x08)))
+				sprintf(out_val, "%-40s: beyond our skills!", tmp_str);
+			else if (o_ptr->name1)
+				sprintf(out_val, "%-40s: in fine condition", tmp_str);
+			else
+			{
+				if ((iac) && (o_ptr->to_a <= -3))
+				{
+					sprintf(out_val, "%-40s: beyond repair, buy a new one", tmp_str);
+				}
+				else if ((iac) && (o_ptr->to_a < maxenchant))
+				{
+					o_ptr->to_a++;
+					sprintf(out_val, "%-40s: polished -> (%d)", tmp_str, o_ptr->to_a);
+					repaired = TRUE;
+				}
+				else if ((!iac) && ((o_ptr->to_h <= -3) || (o_ptr->to_d <= -3)))
+				{
+					sprintf(out_val, "%-40s: beyond repair, buy a new one", tmp_str);
+				}
+				else if ((!iac) && ((o_ptr->to_h  < maxenchant) &&
+					    (o_ptr->to_d < maxenchant)))
+				{
 					o_ptr->to_h++;
-				if (o_ptr->to_d < maxenchant)
 					o_ptr->to_d++;
-				sprintf(out_val, "%-40s: sharpened -> (%d,%d)", tmp_str,
-				     o_ptr->to_h, o_ptr->to_d);
+					sprintf(out_val, "%-40s: sharpened -> (%d,%d)", tmp_str,
+					    o_ptr->to_h, o_ptr->to_d);
+					repaired = TRUE;
+				}
+				else
+					sprintf(out_val, "%-40s: in fine condition", tmp_str);
 			}
 			prt(out_val,j++,0);
 		}
 	}
-	if (k == 0) {
-		msg_print("You were not carrying any arrows.");
+	if (!repaired)
+	{
+		msg_print("You don't have anything appropriate.");
 		msg_print(NULL);
-		clear_bldg(5,18);
-	} else {
-		if (cost == 0)
-			p_ptr->rewards[20] = TRUE;
+	}
+	else
+	{
+		if (bclass == p_ptr->pclass)
+			p_ptr->rewards[ireward] = TRUE;
 		msg_print("Press the spacebar to continue");
 		msg_print(NULL);
-		clear_bldg(5,18);
-		p_ptr->au = p_ptr->au - cost;
-	}
-}
-
-
-/*
- * restring bow
- */
-void restring_bow(int cost)
-{
-	object_type *o_ptr;
-	int maxenchant;
-	char out_val[80], tmp_str[80];
-
-	maxenchant = (p_ptr->lev / 5);
-	o_ptr = &inventory[INVEN_BOW];
-	if (o_ptr->tval != TV_BOW) {
-		msg_print("You aren't wielding a bow!");
-		msg_print(NULL);
-		return;
 	}
 	clear_bldg(5,18);
-	sprintf(tmp_str,"  Based on your skill, we can enchant your bow up to +%d", maxenchant);
-	prt(tmp_str, 5, 0);
-	prt("                             Bow Status", 7, 0);
-	object_desc(tmp_str, o_ptr, FALSE,1);
-	if ((o_ptr->name1 && (o_ptr->ident & 0x08)))
-		sprintf(out_val, "%-40s: Beyond our skills!", tmp_str);
-	else if (o_ptr->name1) 
-		sprintf(out_val, "%-40s: In fine condition", tmp_str);
-	else if ((o_ptr->to_h < -3) || (o_ptr->to_d < -3))
-		sprintf(out_val, "%-40s: Beyond repair, buy a new bow", tmp_str);
-	else if ((o_ptr->to_h >= maxenchant) && (o_ptr->to_d >= maxenchant))
-		sprintf(out_val, "%-40s: In fine condition", tmp_str);
-	else  {
-		if (o_ptr->to_h < maxenchant)
-			o_ptr->to_h++;
-		if (o_ptr->to_d < maxenchant)
-			o_ptr->to_d++;
-		sprintf(out_val, "%-40s: tightened -> (%d,%d)", tmp_str, o_ptr->to_h,
-		     o_ptr->to_d);
-	}
-	prt(out_val,9,0);  
-	if (cost == 0)
-		p_ptr->rewards[21] = TRUE;
-	p_ptr->au = p_ptr->au - cost;
-	msg_print("Press the spacebar to continue");
-	msg_print(NULL);
-	clear_bldg(5,18);
-}
-
-
-/*
- * repair wielded weapons
- */
-void repair_weapon(int cost)
-{
-	object_type *o_ptr;
-	char out_val[80], tmp_str[80];
-	int maxenchant;
-
-	maxenchant = (p_ptr->lev / 5);
-	sprintf(tmp_str,"  Based on your skill, we can enchant your weapon up to +%d", maxenchant);
-	prt(tmp_str, 5, 0);
-	prt("                             Weapon Status", 7, 0);
-	o_ptr = &inventory[INVEN_WIELD];
-
-	object_desc(tmp_str, o_ptr, FALSE,1);
-	if (o_ptr->tval) {
-		if ((o_ptr->name1 && (o_ptr->ident & 0x08)))
-			sprintf(out_val, "%-40s: Beyond our skills!", tmp_str);
-		else if (o_ptr->name1) 
-			sprintf(out_val, "%-40s: In fine condition", tmp_str);
-		else if ((o_ptr->to_h < -3) || (o_ptr->to_d < -3))
-			sprintf(out_val, "%-40s: Beyond repair, buy a new one", tmp_str);
-		else if ((o_ptr->to_h >= maxenchant) && (o_ptr->to_d >= maxenchant))
-			sprintf(out_val, "%-40s: In fine condition", tmp_str);
-		else  {
-			if (o_ptr->to_h < maxenchant)
-				o_ptr->to_h++;
-			if (o_ptr->to_d < maxenchant)
-				o_ptr->to_d++;
-			sprintf(out_val, "%-40s: sharpened -> (%d,%d)",
-			tmp_str, o_ptr->to_h, o_ptr->to_d);
-		}
-		prt(out_val,9,0);
-		if (cost == 0)
-			p_ptr->rewards[21] = TRUE;
-		p_ptr->au = p_ptr->au - cost;
-	} else {
-		prt("You are not wielding a weapon.",7,0);
-	}
-	msg_print("Press the spacebar to continue");
-	msg_print(NULL);
-	clear_bldg(5,18);
-}
-
-
-/*
- * repair all pieces of armor up one in ac, not exceeding zero
- */
-void repair_armor(int cost)
-{
-	int i,j, repaired, maxenchant;
-	object_type *o_ptr;
-	char out_val[80], tmp_str[80];
-
-	maxenchant = (p_ptr->lev / 5);
-	clear_bldg(5,18);
-	sprintf(tmp_str,"  Based on your skill, we can enchant armor up to +%d", maxenchant);
-	prt(tmp_str, 5, 0);
-
-	repaired = 0;
-	prt("                             Armor Status", 7, 0);
-	j = 9;
-
-	for (i = INVEN_BODY; i <= INVEN_FEET; i++) {
-		o_ptr = &inventory[i];
-		if (o_ptr->tval)  {
-			object_desc(tmp_str, o_ptr, FALSE,1);
-			if ((o_ptr->name1 && (o_ptr->ident & 0x08)))
-				sprintf(out_val, "%-40s: Beyond our skills!", tmp_str);
-			else if (o_ptr->name1)
-				sprintf(out_val, "%-40s: In fine condition", tmp_str);
-			else if (o_ptr->to_a < -3)
-				sprintf(out_val, "%-40s: Beyond repair, buy a new one", tmp_str);
-			else if (o_ptr->to_a >= maxenchant)
-				sprintf(out_val, "%-40s: In fine condition", tmp_str);
-			else {
-				o_ptr->to_a++;
-				sprintf(out_val, "%-40s: polished -> (%d)",
-				tmp_str, o_ptr->to_a);
-			}
-			prt(out_val,j++,0);
-			repaired = 1;
-		}
-	}
-	if (repaired == 0)
-		prt("You are not wearing any armor.",7,0);
-	else {
-		if (cost == 0)
-			p_ptr->rewards[20] = TRUE;
-		p_ptr->au = p_ptr->au - cost;
-	}
-	msg_print("Press the spacebar to continue");
-	msg_print(NULL);
-	clear_bldg(5,18);
+	return(repaired);
 }
 
 
 /*
  * Research Item
  */
-void research_item(int cost)
+static bool research_item(void)
 {
 	clear_bldg(5,18);
-	if (p_ptr->au < cost) {
-		msg_print("You have not the gold!");
-		msg_print(NULL);
-	} else {
-		if (identify_fully())
-			p_ptr->au = p_ptr->au - cost;
-	}
+	identify_fully();
+	return(TRUE);
 }
 
 
-/* hack as in leave_store in store.c */
-static bool leave_bldg = FALSE;
-
-
 /*
- * Entering a building
+ * Execute a building command
  */
-static void bldg_process_command(void)
+static void bldg_process_command(building *bldg, int i)
 {
 
-	switch (p_ptr->command_cmd)
+	int bact = bldg->actions[i];
+	int bcost;
+	bool paid = FALSE;
+
+	if (p_ptr->pclass == bldg->class)
+		bcost = bldg->class_costs[i];
+	else
+		bcost = bldg->other_costs[i];
+
+	/* action restrictions */
+	if (((bldg->action_restr[i] == 1) && (!(bldg->g_class[p_ptr->pclass]))) ||
+	    ((bldg->action_restr[i] == 2) && (p_ptr->pclass != bldg->class)))
 	{
-		case ESCAPE:
-		{
-			leave_bldg = TRUE;
-			p_ptr->inside_special = 0;
+		msg_print("You have no right to choose that!");
+		msg_print(NULL);
+		return;
+	}
+
+	/* check gold */
+	if (((bldg->class_costs[i] > p_ptr->au) && (p_ptr->pclass == bldg->class)) ||
+	    ((bldg->other_costs[i] > p_ptr->au) && (p_ptr->pclass != bldg->class)))
+	{
+		msg_print("You do not have the gold!");
+		msg_print(NULL);
+		return;
+	}
+
+	switch (bact)
+	{
+		case BACT_RESEARCH_ITEM:
+			paid = research_item();
 			break;
-		}
 
-		case 'a':
-		{
-			if (building == 0)
-				research_item(2000);
-			else if (building == 2) {
-				arena_comm(p_ptr->command_cmd);
-				if (p_ptr->inside_special) 
-					leave_bldg = TRUE; 
-			} else if (building == 14)
-				if (p_ptr->pclass != CLASS_RANGER) {
-					if (p_ptr->au >= 1000)
-						sharpen_arrows(1000);
-					else {
-						msg_print("You have not the gold");
-						msg_print(NULL);
-					}
-				} else if (!p_ptr->rewards[20])
-					sharpen_arrows(0);
-				else
-					msg_print("Return after you've spent time in the dungeon.");
-			else if ((building == 10) || (building == 15)) 
-				if ((p_ptr->pclass != CLASS_WARRIOR) &&
-				  (p_ptr->pclass != CLASS_PALADIN)) {
-					if (p_ptr->au >= 1000)
-						repair_armor(1000);
-					else {
-						msg_print("You have not the gold");
-						msg_print(NULL);
-					}
-				} else if (!p_ptr->rewards[20]) {
-					repair_armor(0);
-				} else
-					msg_print("Return after you've spent time in the dungeon.");
-			else
-				bell();
+		case BACT_TOWN_HISTORY:
+			town_history();
 			break;
-		}
 
-		case 'b':
-		{
-			if (building == 3)
-				gamble_comm(p_ptr->command_cmd);
-			else if (building == 14)
-				if (p_ptr->pclass != CLASS_RANGER) {
-					if (p_ptr->au >= 1000)
-						restring_bow(1000);
-					else {
-						msg_print("You have not the gold");
-						msg_print(NULL);
-					}
-				} else if (!p_ptr->rewards[21]) {
-					restring_bow(0);
-				} else
-					msg_print("Return after you've spent time in the dungeon.");
-			else
-				bell(); 
-				break;
-		}
-
-		case 'c':
-		{
-			if (building == 3)
-				gamble_comm(p_ptr->command_cmd);
-			else if (building == 6) {
-				if (p_ptr->au < 1000)
-					msg_print("You have not the gold!");
-				else if (compare_weapons())
-					p_ptr->au -= 1000;
-			} else
-				bell();
+		case BACT_RACE_LEGENDS:
+			race_legends();
 			break;
-		}
 
-		case 'd':
-		{
-			if (building == 3)
-				gamble_comm(p_ptr->command_cmd);
-			else
-				bell(); 
+		case BACT_GREET_KING:
+			castle_greet();
 			break;
-		}
 
-		case 'f':
-		{
-			if (building == 4)
-				inn_comm(p_ptr->command_cmd,1);
-			else
-				bell(); 
+		case BACT_QUEST:
+			castle_quest();
 			break;
-		}
 
-		case 'g':
-		{
-			if (building == 1)
-				castle_greet();
-			else if (building > 6) {
-				if ((building - 10) == p_ptr->pclass)
-					greet_char();
-				else {
-					msg_print("Only those of our class can do that here.");
-					msg_print(NULL);
+		case BACT_KING_LEGENDS:
+		case BACT_ARENA_LEGENDS:
+		case BACT_LEGENDS:
+			show_highclass(building_loc);
+			break;
+
+		case BACT_POSTER:
+		case BACT_ARENA_RULES:
+		case BACT_ARENA:
+			arena_comm(bact);
+			break;
+
+		case BACT_IN_BETWEEN:
+		case BACT_CRAPS:
+		case BACT_SPIN_WHEEL:
+		case BACT_DICE_SLOTS:
+		case BACT_GAMBLE_RULES:
+			gamble_comm(bact);
+			break;
+
+		case BACT_REST:
+		case BACT_RUMORS:
+		case BACT_FOOD:
+			paid = inn_comm(bact);
+			break;
+
+		case BACT_RESEARCH_MONSTER:
+			paid = research_mon();
+			break;
+
+		case BACT_COMPARE_WEAPONS:
+			paid = compare_weapons();
+			break;
+
+		case BACT_GREET:
+			greet_char();
+			break;
+
+		case BACT_ENCHANT_WEAPON:
+			paid = fix_item(INVEN_WIELD, INVEN_WIELD, 0, FALSE,21, bldg->class);
+			break;
+
+		case BACT_ENCHANT_ARMOR:
+			paid = fix_item(INVEN_BODY, INVEN_FEET, 0, TRUE,20, bldg->class);
+			break;
+
+		case BACT_RECHARGE: /* needs work */
+			if ((p_ptr->rewards[0]) && (!p_ptr->rewards[20]))
+				if (recharge(80))
+				{
+					p_ptr->rewards[20] = TRUE;
+					paid = TRUE;
 				}
-			} else
-				bell();
 			break;
-		}
 
-		case 'h':
-		{
-			if (building == 0)
-				town_history();
-			else if ((building == 12) || (building == 15) || (building == 17)) {
-				if ((p_ptr->pclass != CLASS_PRIEST) &&
-				   (p_ptr->pclass != CLASS_PALADIN) &&
-				   (p_ptr->pclass != CLASS_DRUID)) {
-					if (p_ptr->au >= 1000) {
-						hp_player(200);
-						p_ptr->au = p_ptr->au - 1000;
-						set_poisoned(0);
-						p_ptr->cut = 0;
-						p_ptr->stun = 0;
-						msg_print("You are once again healthy & vigorous!");
-						msg_print(NULL);
-					} else {
-						msg_print("You have not the gold");
-						msg_print(NULL);
-					}
-				} else if (!p_ptr->rewards[21]) {
-					if (p_ptr->pclass == CLASS_PALADIN)
-						hp_player(200);
-					else
-						hp_player(1200);
-					set_poisoned(0);
-					set_blind(0);
-					set_confused(0);
-					p_ptr->cut = 0;
-					p_ptr->stun = 0;
-					p_ptr->rewards[21] = TRUE;
-					msg_print("You are once again healthy & vigorous!");
-					msg_print(NULL);
-				} else
-					msg_print("Return after you've spent time in the dungeon.");
-			} else
-				bell();
+		case BACT_IDENTS: /* needs work */
+			identify_pack();
+			msg_print("Your posessions have been identified.");
+			msg_print(NULL);
+			paid = TRUE;
 			break;
-		}
 
-		case 'l':
-		{
-			if (building == 0)
-				race_legends();
-			else if ((building < 3) || (building > 6))
-				show_highclass(building); 
-			else 
-				bell(); 
+		case BACT_LEARN:
+			do_cmd_study(TRUE);
 			break;
-		}
 
-		case 'p':
-		{
-			if (building == 2)
-				arena_comm(p_ptr->command_cmd);
-			else if (building == 13) {
-				if ((p_ptr->rewards[1]) && (!p_ptr->rewards[21])) {
-					identify_pack(0);
-					msg_print("Your possessions have been identified");
-					p_ptr->rewards[21] = TRUE;
-				} else if (!p_ptr->rewards[1]) {
-					msg_print("You must get permission from the Master Thief");
-					msg_print(NULL);
-				} else
-					msg_print("Return after you've spent time in the dungeon.");
-			} else if ((building == 11) || (building == 16))
-				if ((p_ptr->pclass != CLASS_MAGE) &&
-				   (p_ptr->pclass != CLASS_ILLUSIONIST)) {
-					if (p_ptr->au >= 1000) {
-						identify_pack(1000);
-						msg_print("Your possessions have been identified");
-					} else {
-						msg_print("You have not the gold");
-						msg_print(NULL);
-					}
-				} else if ((p_ptr->rewards[1]) && (!p_ptr->rewards[21])) {
-					identify_pack(0);
-					msg_print("Your possessions have been identified");
-					p_ptr->rewards[21] = TRUE;
-				} else if (!p_ptr->rewards[1]) {
-					msg_print("You have not attained the status for that.");
-					msg_print(NULL);
-				} else
-					msg_print("Return after you've spent time in the dungeon.");
+		case BACT_HEALING: /* needs work */
+			hp_player(200);
+			set_poisoned(0);
+			set_blind(0);
+			set_confused(0);
+			set_cut(0);
+			set_stun(0);
+			paid = TRUE;
+			break;
+
+		case BACT_RESTORE: /* needs work */
+			if (do_res_stat(A_STR)) paid = TRUE;
+			if (do_res_stat(A_INT)) paid = TRUE;
+			if (do_res_stat(A_WIS)) paid = TRUE;
+			if (do_res_stat(A_DEX)) paid = TRUE;
+			if (do_res_stat(A_CON)) paid = TRUE;
+			if (do_res_stat(A_CHR)) paid = TRUE;
+			break;
+
+		case BACT_GOLD: /* set timed reward flag - hack */
+			if (!p_ptr->rewards[20])
+			{
+				share_gold();
+				p_ptr->rewards[20] = TRUE;
+			}
 			else
-				bell(); 
-			break;
-		}
-
-		case 'q': /* request quest */
-		{
-			if (building == 1) 
-				castle_quest();
-			else
-				bell();
-			break;
-		}
-
-		case 'r':
-		{
-			if (building == 3)
-				gamble_comm(p_ptr->command_cmd);
-			else if (building == 4)
-				inn_comm(p_ptr->command_cmd,20);
-			else if (building == 2)
-				arena_comm(p_ptr->command_cmd);
-			else if (building == 5) {
-				if (p_ptr->au < 1000)
-					msg_print("You have not the gold!");
-				else if (!research_mon())
-					p_ptr->au -= 1000;
-			} else if (building == 13)
-				inn_comm(p_ptr->command_cmd,0);
-			else if (building == 10)
-				if (p_ptr->pclass != CLASS_WARRIOR) {
-					if (p_ptr->au >= 1000)
-						repair_weapon(1000);
-					else {
-						msg_print("You have not the gold");
-						msg_print(NULL);
-					}
-				} else if (!p_ptr->rewards[21]) {
-					clear_bldg(5,18);
-					repair_weapon(0);
-				} else
-					msg_print("Return after you've spent time in the dungeon.");
-			else if (((building == 11) || (building == 16)) &&
-			     ((p_ptr->pclass == 1) || (p_ptr->pclass == 6)))
-				if ((p_ptr->rewards[0]) && (!p_ptr->rewards[20])) {
-					if (recharge(80))
-						p_ptr->rewards[20] = TRUE;
-				} else if (!p_ptr->rewards[0]) {
-					msg_print("You have not attained the status for that.");
-					msg_print(NULL);
-				} else
-					msg_print("Return after you've spent time in the dungeon.");
-			else if ((building == 11) || (building == 16)) {
-				msg_print("Only mages/illusionists can do that here.");
+			{
+				msg_print("You just had your daily allowance!");
 				msg_print(NULL);
-			} else if (((building == 12) && (p_ptr->pclass == CLASS_PRIEST)) ||
-			   ((building == 17) && (p_ptr->pclass == CLASS_DRUID)))
-				if ((p_ptr->rewards[0]) && (!p_ptr->rewards[20])) {
-					restore_level();
-					res_stat(A_STR);
-					res_stat(A_INT);
-					res_stat(A_WIS);
-					res_stat(A_DEX);
-					res_stat(A_CON);
-					res_stat(A_CHR);
-					p_ptr->rewards[20] = TRUE;
-					msg_print("All your stats are normal");
-					msg_print(NULL);
-				} else if (!p_ptr->rewards[0]) {
-					msg_print("You have not attained the status for that.");
-					msg_print(NULL);
-				} else
-					msg_print("Return after you've spent time in the dungeon.");
-			else if (building == 12) {
-				if (p_ptr->au >= 1000) {
-					restore_level();
-					res_stat(A_STR);
-					res_stat(A_INT);
-					res_stat(A_WIS);
-					res_stat(A_DEX);
-					res_stat(A_CON);
-					res_stat(A_CHR);
-					p_ptr->au = p_ptr->au - 1000;
-				} else {
-					msg_print("You have not the gold");
-					msg_print(NULL);
-				}
-			} else
-				bell(); 
-				break;
-		}
-
-		case 's':
-		{
-			if (building == 3)
-				gamble_comm(p_ptr->command_cmd);
-			else if (building == 13)
-				if ((p_ptr->rewards[0]) && (!p_ptr->rewards[20])) {
-					share_gold();
-					p_ptr->rewards[20] = TRUE;
-				} else if (!p_ptr->rewards[0]) {
-					msg_print("You must get permission from the Master Thief");
-					msg_print(NULL);
-				} else {
-					msg_print("Come back later! Gold doesn't grow on trees!");
-					msg_print(NULL);
-				}
-			else
-				bell(); 
+			}
 			break;
-		}
 
-		case 'u':
-		{
-			/* if (building == 4)
-				inn_comm(p_ptr->command_cmd,0);
-			else*/
-				bell();
+		case BACT_ENCHANT_ARROWS:
+			paid = fix_item(0, INVEN_WIELD, TV_ARROW, FALSE,20, bldg->class);
 			break;
-		}
 
-		case 'z':
-		{
-			if ((building == 11) || (building == 16) || (building == 12) || (building == 17)) 
-				do_cmd_study(TRUE); 
-			else
-				bell(); 
+		case BACT_ENCHANT_BOW:
+			paid = fix_item(INVEN_BOW, INVEN_BOW, TV_BOW, FALSE,21, bldg->class);
 			break;
-		}
+	}
 
-			/* Ignore return */
-		case '\r':
-		{
-			break;
-		}
-
-			/* Equipment list */
-		case 'e':
-		{
-			do_cmd_equip();
-			break;
-		}
-
-			/* Inventory list */
-		case 'i':
-		{
-			do_cmd_inven();
-			break;
-		}
-
-			/* Help */
-		case '?':
-		{
-			do_cmd_help();
-			break;
-		}
-
-			/* Hack -- Unknown command */
-		default:
-		{
-			bell();
-			break;
-		}
+	if (paid)
+	{
+		p_ptr->au -= bcost;
 	}
 }
 
@@ -2115,9 +1737,11 @@ void do_cmd_quest(void)
  */
 void do_cmd_bldg(void)
 {
-	int which;
+	int i,which;
+	bool validcmd;
 	int px=p_ptr->px;
 	int py=p_ptr->py;
+	building *bldg;
 
 	if (!((cave_feat[py][px] >= FEAT_BLDG_HEAD) &&
 	    (cave_feat[py][px] <= FEAT_BLDG_TAIL)))
@@ -2127,82 +1751,98 @@ void do_cmd_bldg(void)
 	}
 
 	which = (cave_feat[py][px] - FEAT_BLDG_HEAD);
-	building = which;
-	
-	if ((which == 2) && (p_ptr->inside_special) && (p_ptr->exit_bldg == FALSE)) {
-		prt("Gates are closed!  The monster awaits.",0,0);
+	building_loc = which;
+
+	if (which < 7)
+		bldg = &city[which];
+	else
+		bldg = &class_bldgs[which-10];
+
+	if ((which == 2) && (p_ptr->inside_special) && (p_ptr->exit_bldg == FALSE))
+	{
+		prt("The gates are closed.  The monster awaits!",0,0);
 		return;
-	} else if ((which == 2) && (p_ptr->inside_special == 1)) {
+	}
+	else if ((which == 2) && (p_ptr->inside_special == 1))
+	{
 		p_ptr->leaving = TRUE;
 		p_ptr->inside_special = 0;
-	} else if (which == 2) {
+	}
+	else if (which == 2)
+	{
 		p_ptr->oldpy = p_ptr->py;
 		p_ptr->oldpx = p_ptr->px;
 	}
 
-	if (p_ptr->rewards[13] == 0) {
-		if ((which == 10) && (p_ptr->pclass != CLASS_WARRIOR)) {
-			prt("Only fighters allowed inside.",0,0);
-			return;
-		} else if ((which == 11) && ((p_ptr->pclass != CLASS_MAGE)
-		      && (p_ptr->pclass != CLASS_RANGER))) {
-			prt("Only mages & rangers allowed inside.",0,0);
-			return;
-		} else if ((which == 12) && ((p_ptr->pclass != CLASS_PRIEST)
-		     && (p_ptr->pclass != CLASS_PALADIN))) {
-			prt("Only priests & paladins allowed inside.",0,0);
-			return;
-		} else if ((which == 14) && (p_ptr->pclass != CLASS_RANGER)) {
-			prt("Only rangers allowed inside.",0,0);
-			return;
-		} else if ((which == 15) && (p_ptr->pclass != CLASS_PALADIN)) {
-			prt("Only paladins allowed inside.",0,0);
-			return;
-		} else if ((which == 16) && ((p_ptr->pclass != CLASS_ILLUSIONIST)
-		      && (p_ptr->pclass != CLASS_ROGUE))) {
-			prt("Only illusionists and rogues allowed inside.",0,0);
-			return;
-		/* note that only thieves and druids can *see* their respective
-		   buildings.  Hence, no need to check. -KMW- */
-		}
-	}
-
-	forget_lite();
+	/* Forget the view */
 	forget_view();
 
-	character_icky = TRUE;
+	/* Hack -- Increase "icky" depth */
+	character_icky++;
+
 	p_ptr->command_arg = 0;
 	p_ptr->command_rep = 0;
 	p_ptr->command_new = 0;
 
-	display_bldg(which);
+	show_building(bldg);
 	leave_bldg = FALSE;
 
 	while (!leave_bldg)
 	{
+		validcmd = FALSE;
 		prt("",1,0);
-		request_command(2);
-		bldg_process_command();
-		character_icky = TRUE;
+		msg_flag = FALSE;
+		p_ptr->command_cmd = inkey();
+
+		if (p_ptr->command_cmd == ESCAPE)
+		{
+			leave_bldg = TRUE;
+			p_ptr->inside_special = 0;
+			break;
+		}
+
+		for (i = 0; i < bldg->num_actions; i++)
+		{
+			if (bldg->letters[i] == p_ptr->command_cmd)
+			{
+				validcmd = TRUE;
+				break;
+			}
+		}
+
+		if (validcmd)
+			bldg_process_command(bldg, i);
+		else
+		{
+			msg_print("Invalid command.");
+		}
+		/* Notice stuff */
+		notice_stuff();
+
+		/* Handle stuff */
+		handle_stuff();
 	}
 
 	/* have left building */
-	p_ptr->energy_use = 0;
-	character_icky = FALSE;
 	/* Hack -- Cancel automatic command */
 	p_ptr->command_new = 0;
+
 	/* Hack -- Cancel "see" mode */
 	p_ptr->command_see = FALSE;
 
 	/* Flush messages XXX XXX XXX */
 	msg_print(NULL);
 
+	wilderness_gen(1);
+
+	/* Hack -- Decrease "icky" depth */
+	character_icky--;
+
 	/* Clear the screen */
 	Term_clear();
 
-	/* Update everything */
-	p_ptr->update |= (PU_VIEW | PU_LITE);
-	p_ptr->update |= (PU_MONSTERS);
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 	/* Redraw entire screen */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA);
@@ -2213,4 +1853,3 @@ void do_cmd_bldg(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
-

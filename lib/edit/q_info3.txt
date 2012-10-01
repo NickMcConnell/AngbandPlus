@@ -1,5 +1,5 @@
-# File: q_info2.txt
-# Plot: The Haunting of Telamoor
+# Specify plot name here:
+P:The Haunting of Telamoor
 
 # This file is used to initialize the quests array (q_list), which is
 # used to handle all player quests in the Kangband game.
@@ -7,500 +7,655 @@
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 
-# Q:questtype:nummon:curnum:maxnum:level:r_idx:k_idx:y:x:revert
-# Can have lines T1 through T9
+# Q:questtype:nummon:curnum:maxnum:level:r_idx:k_idx:y:x:revert:vaultused
+# Can have text lines T1 through T9
 # -KMW-
 
 # Version stamp (required)
 
 V:2.8.3
 
-N:100:Kobold Problems
-T1:Kobolds have been appearing outside the city for some reason.
-T2:Since this particular clan takes delight in attacking villagers,
-T3:I need someone to eliminate them.  Prove your loyalty to my
-T4:throne and take care of this annoyance.  Scouts have reported
-T5:that their lair is north of the city.
-Q:6:0:0:0:5:0:0:5:19:103:1
-Y:24:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-X:99:0:10:15
-D:XXXXXXXXXXXXXXX
-D:X.............X
-D:X........a....X
-D:X....a........X
-D:X.............X
-D:X..........a..X
-D:X.............X
-D:X...........a.X
-D:X<P...........X
-D:XXXXXXXXXXXXXXX
+N:100:North Gatehouse
+T1:I need you to reclaim the lost city of Telamoor for me. It has been
+T2:abandoned for some time and we believe an evil presence has established
+T3:itself.  We only know fragments of what exists in the city and will
+T4:let you know what little we know.  You first task is to clear out
+T5:the north gatehouse. We will reclaim this city building by building,
+T6:your life permitting of course.
+Q:6:0:0:0:5:0:0:6:39:49:1
+Y:561:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:15:40
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX......:::::::X
+D:XXXXXXXXXXXXXXXXX...........a.....:::::X
+D:XXXXXXXX::...........................::X
+D:XXXXX::..............XX................X
+D:XX:::::.............XXXX...............X
+D:X....................XX................X
+D:X::::..................................X
+D:XXXX::...........................XX....X
+D:XXXX:::.........................XXXX...X
+D:XXXXXX:::::......................XX....X
+D:XXXXXXXXXX:::..........................X
+D:XXXXXXXXXXXX::::::.....................X
+D:XXXXXXXXXXXXXXXXXXXX::::::..........P<.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:101:More Kobolds
-T1:Even though you wiped out the kobold clan, more are appearing!
-T2:I do not like the idea of kobolds surrounding my city! This
-T3:band is led by a large kobold and intends on making a permanent
-T4:settlement.  Go and eliminate these threats once and for all.
-T5:Scouts report that the largest concentration of kobolds is south
-T6:of the city.
-Q:6:0:0:0:10:0:0:60:60:103:1
-Y:24:25:82:0:0:0:0:0:0:0:0:0:0:0:0
-X:99:0:12:18
-D:XXXXXXXXXXXXXXXXXX
-D:XXXX.a........TTXX
-D:XX........b.....XX
-D:X.....aa.....c...X
-D:X................X
-D:X.........b......X
-D:X................X
-D:X...........aa...X
-D:X................X
-D:X...............XX
-D:X<P............XXX
-D:XXXXXXXXXXXXXXXXXX
+N:101:South Gatehouse
+T1:Well done! Now, I need you to move to the South Gatehouse. The two buildings
+T2:served the same purpose so expect more of the same.
+Q:6:0:0:0:5:0:0:19:39:49:1
+Y:561:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:15:40
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX......:::::::X
+D:XXXXXXXXXXXX................a.......:::X
+D:XXXXXXXX::...........................::X
+D:XXXXX::..............XX................X
+D:XX::::..............XXXX...............X
+D:X....................XX................X
+D:X::::....a.............................X
+D:XXXX::.........XX................XX....X
+D:XXXX:::.......XXXX..............XXXX...X
+D:XXXXXX:::::....XX................XX;..:X
+D:XXXXXXXXXX:::.........................:X
+D:XXXXXXXXXXXX:::........................X
+D:XXXXXXXXXXXXXXX.....::::::..........P<.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:102:Orcs Spotted!
-T1:Yet another threat has moved into the area.  Could this have
-T2:anything to do with our attacks against Morgoth?  Snagas and 
-T3:Orcs have been spotted to the north-east and word is that they
-T4:have razed all settlements in their path.  We need your help.
-Q:6:0:0:0:10:0:0:3:88:103:1
-Y:96:120:0:0:0:0:0:0:0:0:0:0:0:0:0
+N:102:Food Storage
+T1:Great - both guardhouses are now cleared. The next building on
+T2:my list is the food storage house. There shouldn't be anything
+T3:of value there after all this time but we might as well clear out
+T4:any growth.
+Q:6:0:0:0:10:0:0:2:30:49:1
+Y:15:63:92:561:0:0:0:0:0:0:0:0:0:0:0
+K:224:248:394:0:0:0:0:0:0:0
+E:0:0:0:0:0:0:0:0:0:0
+X:99:0:15:38
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.............P<............:::::::::X
+D:X.............................:::::::X
+D:X...............................:::::X
+D:Xa................................:::X
+D:Xb............................X.....:X
+D:Xcc...........................X......X
+D:Xbca..........................X......X
+D:Xab..................................X
+D:Xa...................................X
+D:Xla.................XXX..............X
+D:Xll.................................aX
+D:Xklmm..................d............mX
+D:Xkllc.............................cmmX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:103:The Armory
+T1:There is a row of buildings on the south side that contained
+T2:various supplies for the castle. We know that the rightmost one
+T3:was the Armory. According to our records, there should be some
+T4:magical items left behind but then again, these are old records.
+T5:Clear the building of any inhabitants, living or nonliving.
+Q:6:0:0:0:10:0:0:20:30:49:1
+Y:561:164:0:0:0:0:0:0:0:0:0:0:0:0:0
+K:92:96:108:109:130:130:112:0:0:0
+E:0:0:0:0:0:16:9:0:0:0
 X:99:0:17:38
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X.........................XTT.b....XXX
-D:X.........................XT.....a..XX
-D:X.........................X..........X
-D:X............X............X...a...a..X
-D:X............X............XXXXXXDXXXXX
-D:X............X.......................X
-D:X............X.......................X
-D:X............X.......................X
-D:X.a......a...X.......................X
-D:X............X.................a.....X
-D:X............X.......................X
-D:X............X...a..a....a...........X
-D:X............X.......................X
-D:X............X.....a................XX
-D:X<P..........X.....................XXX
+D:X...................P<..............:X
+D:X....................................X
+D:X....................................X
+D:X....................................X
+D:X:..........:...............X........X
+D:X..........XXX.............:X:....b..X
+D:X....b......X...............:.....b..X
+D:X...bb............................b..X
+D:X....................................X
+D:X:...................................X
+D:X..........a.........................X
+D:X.........................a..........X
+D:X.....oo...mnm.........lll...k.k..:::X
+D:XXXXXXXXXXXXXXXXXX+XXXXXXXXXXXXXXXXXXX
+D:X.......p........^^^......q..........X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:103:Stealth Mission
-T1:I have my best people working on the problem facing us.
-T2:We need to know all we can about our enemies if we are
-T3:to defeat them.  I have a strong feeling all of this is
-T4:Morgoth's work.  If only I knew what he was planning!
-T5:We need you to go into the south cave which is known to be
-T6:under Morgoth's control.  You need to explore the cave for
-T7:the back exit.  Your knowledge may give us the clue we are
-T8:looking for. Be careful and stealthy - could be anything
-T9:in that cave.
-Q:4:0:0:0:10:0:0:59:185:110:1
-Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-X:99:0:24:69
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X.P.<...................%%..........................................X
-D:X...........%..........%%..................%.............9..........X
-D:X....................%%%................................%...........X
-D:X..................%%%..............................................X
-D:X........%........%...........%%...............%....................X
-D:X............................%%.....................................X
-D:X%%%%%%%%%%%%%%.............%%.........................%%%..........X
-D:X.............%%%%%%%......%%.........%.............%%%%............X
-D:X...................%%%.%%%%...........%...........%%...............X
-D:X........%............%%%...............%.....%%%%%%..........%.....X
-D:X............9...................%.......%%..%%.....................X
-D:X..........................................%%%......................X
-D:X................%.........................%%.......................X
-D:X............................%............%..........9..............X
-D:X.%......................................%.....................%....X
-D:X......%%%%%%%........%..........................%..................X
-D:X............%%.....................................................X
-D:X.............%%.............................%......................X
-D:X..............%%..........%........%...............................X
-D:X.....%.........%%....................%.................%...........X
-D:X................%%............................................%....X
-D:X...............E.%%................................................X
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+N:104:Weapons Storage
+T1:There is a row of buildings on the south side that contained
+T2:various supplies for the castle. We know that the middle one
+T3:was the weapons area. According to our records, there should be some
+T4:magical items left behind but then again, these are old records.
+T5:Clear the building of any inhabitants, living or nonliving.
+Q:6:0:0:0:10:0:0:20:23:49:1
+Y:561:164:167:0:0:0:0:0:0:0:0:0:0:0:0
+K:31:34:50:55:42:57:0:0:0:0
+E:0:0:0:0:70:66:0:0:0:0
+X:99:0:17:38
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X...................P<...............X
+D:X....................................X
+D:X....................................X
+D:X....................................X
+D:X:..........X...............:........X
+D:X::::......XXX.............:::.......X
+D:XXXX:::..bbb:...............::.......X
+D:X..XXX::.bbb.....................aa..X
+D:X....XX::..........cc............aa..X
+D:X:...^X+::...........................X
+D:X....^^XX::..........................X
+D:X....^^^XX::..........^^^^^^^^^^^^...X
+D:X..o.....XX::.......^..............::X
+D:X...p.....XX::......^..kklllmmnnn...:X
+D:X.........XXX::.....^................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:104:Rescue Strike
-T1:You have served me well.  But, it is all for naught...*cough*
-T2:We now know what he was planning *sniff*  He KIDNAPPED MY DAUGHTER!
-T3:My only daughter!! Arrrrghh... *sob*
-T4:I am lost without her. You might as well leave...
-T5:
-T6:Excuse me but I am the King's regent. His majesty is in a state
-T7:of grief. There is hope for the princess. I have soldiers attacking
-T8:the back side of the mountain. I need you to clear out all monsters
-T9:in the south cave. With your distraction, we can rescue her! Hurry!
-Q:6:0:0:0:15:0:0:59:185:110:1
-Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-X:99:0:24:69
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X.P.<...................%%..........................................X
-D:X...........%..........%%..................%.............9..........X
-D:X....................%%%................................%...........X
-D:X..................%%%..@...........................................X
-D:X........%........%...........%%...............%....................X
-D:X............................%%.....................................X
-D:X%%%%%%%%%%%%%%....@........%%.........................%%%..........X
-D:X.............%%%%%%%......%%.........%.............%%%%............X
-D:X...................%%%.%%%%...........%...........%%...............X
-D:X........%............%%%...............%.....%%%%%%..........%.....X
-D:X............9...................%.......%%..%%.....................X
-D:X..........................................%%%......................X
-D:X................%.........................%%.......................X
-D:X............................%............%..........9..............X
-D:X.%......................................%.....................%....X
-D:X......%%%%%%%........%..........................%..................X
-D:X............%%.....................................................X
-D:X.............%%.............................%......................X
-D:X..............%%..........%........%...............................X
-D:X.....%.........%%....................%.................%...........X
-D:X................%%............................................%....X
-D:X.................%%................................................X
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+N:105:Unknown Building
+T1:We don't know what the left most building in the row was used for.
+T2:You will have to check this one out - there does appear to be activity
+T3:there according to the castle wizard.
+Q:6:0:0:0:10:0:0:20:17:49:1
+Y:561:164:167:275:0:0:0:0:0:0:0:0:0:0:0
+K:211:218:219:209:257:263:0:0:0:0
+E:0:0:0:0:0:0:0:0:0:0
+X:99:0:17:38
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X...................P<...........::::X
+D:X...............................:::::X
+D:X..............................::::::X
+D:X...............................:::::X
+D:X:................................:::X
+D:X................................::::X
+D:X............................dd..::::X
+D:X.................................:::X
+D:X..a............................:::::X
+D:X:................................:::X
+D:X..............................::::::X
+D:X.....bbb.........cccc.........::::::X
+D:X.................................:::X
+D:X............mp.................:::::X
+D:X........kklmnopqo...........::::::::X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:105:Sting Quest
-T1:Regent: You did your part but they must have moved her.  We can
-T2:only hope they believe her useful and keep her alive. The King has
-T3:not left his room since and we are worried over his health.
-T4:It is rumored that the dagger 'Sting' can be found in the far north
-T5:mountains. You may need that in the trials to come.
-Q:3:0:0:0:15:0:88:3:166:110:1
-Y:0:0:0:0:0:0:0:0:0:0:88:0:0:0:0
-X:99:0:18:55
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXX..XX..XXXXX..XX....XXXXXXXXXXX..........VVWWWWWWWX
-D:XX...........X.............XXXXX@.......VVVVVVWWWWWWWWX
-D:XX..........................X........VVVVVVVVWWWWWWWWWX
-D:XXX.................................VVVVVVVVWWXXXXXWWWX
-D:XX.........9.....9................VVVVVVVVVWWWX.1.XWWWX
-D:XX...................................VVVVWWWWWX9.9XWWWX
-D:XX..................................VVVVVVVWWWX...XWWWX
-D:X...................................VVVVVVVWWWXXDXXWWWX
-D:X.....................................VVVVVVWWWWWWWWWWX
-D:XX....................................VVVVVVVVVWWWWVVVX
-D:XX......................................VVVVVVVVVVVVVVX
-D:XX.........................................VVVVVVVVVVVX
-D:XXX............................................VVVVVV.X
-D:XX.................X..................................X
-D:X<P.............XXXXX....XXX..........................X
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@..XXXX...XXXXX....XXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+N:106:Barracks
+T1:The next building will be the barracks. As you have noticed, there are
+T2:a lot of lost souls wandering the ruined buildings. Therefore, this could
+T3:be very dangerous as a lot of soldiers were quartered here.
+Q:6:0:0:0:10:0:0:7:29:49:1
+Y:561:164:167:275:326:0:0:0:0:0:0:0:0:0:0
+K:395:0:0:0:0:0:0:0:0:0
+E:0:0:0:0:0:0:0:0:0:0
+X:99:0:45:34
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.<P.................X...........X
+D:X....................X...........X
+D:X....................D.........a.X
+D:X....................X...........X
+D:X....................XXXXXXXXXXXXX
+D:X................................X
+D:X...............XX...............X
+D:X...............XX...............X
+D:XXXXXXXXXXXXX...XX...XXXXXXXXXXXXX
+D:Xe....X.........XX.........X...eeX
+D:Xa....X.........XX.........X....aX
+D:X.....X.........XX.........X.....X
+D:X.....X.........XX.........X.....X
+D:X...............XX...............X
+D:XXXXXXXXXXXXX...XX...XXXXXXXXXXXXX
+D:X.....X.........XX.........X.....X
+D:X.a...X.........XX.........X...a.X
+D:X.....X.........XX.........X.....X
+D:X.....X.........XX.........X.....X
+D:X...............XX...............X
+D:XXXXXXXXXXXXX...XX...XXXXXXXXXXXXX
+D:X.....X.........XX.........X.....X
+D:X.a...X.........XX.........X...a.X
+D:X.....X.........XX.........X.....X
+D:X.....X.........XX.........X.....X
+D:X...............XX...............X
+D:XXXXXXXXXXXXX...XX...XXXXXXXXXXXXX
+D:X.....X.........XX.........X.....X
+D:X..ac.X.........XX.........X..ac.X
+D:X.....X.........XX.........X.....X
+D:X.....X.........XX.........X.....X
+D:X...............XX...............X
+D:Xb..............XX...............X
+D:X...............XX...............X
+D:X...............XX...............X
+D:X...b..........................c.X
+D:X..............................c.X
+D:X................................X
+D:XXXXXXXXXXX............XXXXXXXXXXX
+D:Xc........D............D.........X
+D:X....a....XXXXXXXDXXXXXX.....a...X
+D:X....e....X............X.....d.cdX
+D:Xc........X....eddde...X......cdeX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:106:Ulfast
-T1:Regent:While we have been concentrating abroad, Ulfast
-T2:has been spotted terrorizing our people.
-T3:Find him and eliminate him! He could be in the town or
-T4:on the roads but he is here.
-T5:The King's health is still deteriorating.
-Q:1:0:0:1:0:211:0:0:0:0:0
+N:107:Strange Tower
+T1:There is a tower-like structure in the western part of Telamoor that
+T2:lately has been spewing smoke into the sky. Investigate and exterminate!
+Q:6:0:0:0:10:0:0:18:8:49:1
+Y:561:326:346:347:0:0:0:0:0:0:0:0:0:0:0
+K:0:0:0:0:0:0:0:0:0:0
+E:0:0:0:0:0:0:0:0:0:0
+X:99:0:25:76
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX.............................<P.................................:::XXXX
+D:XXX....................................................................:::XX
+D:X.......................................................................:::X
+D:X............................XXXXXXDXXXXXX................................:X
+D:X..........................XXX.....a.....XXX...............................X
+D:X........................XXX.XX.........XX.XXX.............................X
+D:X......................XXD....XX..XXX..XX....DXX...........................X
+D:X....................XXX...b...XXXX.XXXX...b...XXX.........................X
+D:X..................XXXX......XXXX.....XXXX......XXXX.......................X
+D:X..................X..XXXX..XXX.........XXX..XXXX..X.......................X
+D:X..................X.....XXXX....XXXXX....XXXX.....X.......................X
+D:X..................D..ca...XX....X...X....XX...ad..D.......................X
+D:X..................X.....XXXX....X...X....XXXX.....X.......................X
+D:X..................X..XXXX..XXX.........XXX..XXXX..X.......................X
+D:X..................XXXXX.....XXXX.....XXXX......XXXX.......................X
+D:X....................XXX...b...XXXX.XXXX...b...XXX.........................X
+D:X......................XXD....XX..XXX..XX....DXX...........................X
+D:X........................XXX.XX.........XX.XXX.............................X
+D:X..........................XXX.....a.....XXX...............................X
+D:X::::........................XXXXXXDXXXXXX.................................X
+D:XXX::::..................................................................XXX
+D:XXXXX::::..............................................................XXXXX
+D:XXXXXX::::.......................................:::::::::............XXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:107:The Sewer
-T1:Regent: We have finally discovered how these vile creatures are
-T2:getting so close to the town before begin spotted!  They are
-T3:using the sewers underneath our fair city!  I need you to enter
-T4:the sewers and find the exit, which in turn will seal off all the
-T5:outside openings.  The water level will simply rise a little.
-T7:We are still looking for clues on the princess' wherabouts and the
-T8:King's health is in jeopardy.
-Q:4:0:0:0:20:0:0:43:25:1:1
-Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-X:99:0:24:69
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X.P.<.............%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
-D:XVVVVVVVVVVVVVVVV.........%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
-D:X...............VVVVVVVVV.....................%%%%%%%%%%%%%%%%%%%%%%X
-D:X%%%%%%%%%%%%%%.........VVVVVVVVVVVVVVVVVVVVV...........WWWWW%%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%..V.%................VVVVVVVV...WWWWWWW%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.V.%%%%%%%%%%%%%%%%........VVVVWWWWWWW%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.V...........%%%%%%%%%%%%%9....WWWWWWW%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVV.%%%%%%%%%%%%%%%%%%WWWWW%%%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.......WWWWV.%%%%%%WWWWW%%%%%%%%%%%%%%%%W%%%X
-D:X%%%%%.V9%%%%%%%%%%%%%.........WWWWV9%%%%%%WWWWW%%%%%%%%%%%%..WWW.%%X
-D:X%%%%%.V.%%%%%%%%%%%%%.VVVVVVVVVVVVV.%%%%%%%WWWW%%%%%%%%%%%%9..WW.%%X
-D:X%%%%%.V.%%%%%%%%%%%%..V.............%%%%%%%.WW9%%%%%%%%%%%.......%%X
-D:X%%%%%%V%%%%%%%%%%%%%.VV.%%%%%%%%%%%%%%%%%%%%...%%%%%%%%%%%%.%%.%%%%X
-D:X%%%%%%V%%%%%%%%%%%...V..%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
-D:X%%%%%%V%%%%%%%%%%%.VVV.%%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
-D:X%%%%%%VVVVVVVVVVVVVV...............%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
-D:X%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVVVVV.................9%%%%%%%%%%.%%%%X
-D:X%%%%%%%%%%%%%%%%%%..V............VVVVVVVVVVVVVVVVVV.%%%%%%%%%%.%%%%X
-D:X%%%%%%%%%%E.%%%%%%%%V%%%%%%%%%%%..................V............%%%%X
-D:X%%%%%%%%%%..%%%%%%%%V%%%%%%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVV.....X
-D:X%%%%%%%%%%VVVVVVVVVVV%%%%%%%%%%%%%%%%%%%%%%%%%%%%............VVVVV.X
-D:X%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......X
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+N:108:Fountain Creature
+T1:Other adventurers besides yourself have attempted to enter some of the
+T2:ruins and have never returned. Rumor is that the fountain has grown so foul,
+T3:it destroys all who are near. I don't know what this means - check out the
+T4:fountain and try to discover what's going on.
+Q:6:0:0:0:10:0:0:13:15:49:1
+Y:571:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+K:0:0:0:0:0:0:0:0:0:0
+E:0:0:0:0:0:0:0:0:0:0
+X:99:0:19:37
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X...........;;;;;;;;;;;;;...........X
+D:X.........;;;VVVVVVVVVVV;;;.........X
+D:X.......;;;VVVVVVVVVVVVVVV;;;.......X
+D:X.....;;;VVVVVVVVXDXVVVVVVVV;;;.....X
+D:X...;;;VVVVVVVXXXXWXXXXVVVVVVV;;;...X
+D:X.;;;VVVVVVVXXXXWWWWWXXXXVVVVVVV;;;.X
+D:X.;VVVVVVVVXXXWWWa.WWWWXXXVVVVVVVV;.X
+D:X.;VVVVVVVXXWWWWWXXXWWWWWXXVVVVVVV;.X
+D:X.;VVVVVVVDWWWWWWXXXWWWWWWDVVVVVVV;.X
+D:X.;VVVVVVVXXWWWWWW.WWWWWWXXVVVVVVV;.X
+D:X.;VVVVVVVVXXXWWWWWWWWWXXXVVVVVVVV;.X
+D:X.;;;VVVVVVVXXXXWWWWWXXXXVVVVVVV;;;.X
+D:X...;;;VVVVVVVXXXXWXXXXVVVVVVV;;;...X
+D:X.....;;;VVVVVVVVXDXVVVVVVVV;;;.....X
+D:X.......;;;VVVVVVVVVVVVVVV;;;.......X
+D:X.........;;;VVVVVVVVVVV;;;.........X
+D:X...........;;;;;;;;;;;;;........P<.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:108:Another Clue
-T1:Regent: A hermit to the south of the mountain chain claims to know
-T2:where the princess is being held! But, he will scratch our back when we
-T3:can remove the fleas from his. I need you to enter the south cave near
-T4:his home and kill all monsters that reside there.  Then, and only then,
-T5:will he tell us what he knows. We must take any chance we can get.
-Q:6:0:0:0:20:0:0:59:185:110:1
-Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-X:99:0:15:70
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXX......XXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX.......................XX...............................XXXXXXX
-D:XXX............................X................................XXXXXX
-D:X....9........................XXX...........................XXXXXXXXXX
-D:XX...........................XXXXX.......................XXXXXXXXXXXXX
-D:XXX........................XXXXX......................XXXXXXXXXXXX...X
-D:XXXXXXXXXXXXDXXXXXXXXXXXXXXXXX....9...............9.....XXXXXXXX.....X
-D:X.<P.......................XX...........................XXXXXX....TTTX
-D:X.........................XXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXX...........X
-D:X........................................................XXXXXXXXXXXXX
-D:X.........................................................XXXXXXXXXXXX
-D:XXXXXXXXXXX.........XXXXXXXXXXXXXXXXXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXX.9............XXXXXXXXXXXXX..9.....XXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-N:109:Rescue Strike #2
-T1:Regent: The hermit has kept his word and told us that the princess is
-T2:being held captive by Shagrat in the southernmost tip of the mountain
-T3:chain. The hermit claims he even saw the princess last week and she was
-T4:healthy. If we don't find her alive, I will skin the hermit alive for
-T5:not telling us this earlier!
-T7:I will send troops to the back, you attack and clear out the cave!
-T8:Attack swiftly but with caution, Shagrat is rarely alone. May the King
-T9:survive to see his daughter back.
-Q:6:0:0:0:25:0:0:59:185:110:1
-Y:227:96:98:120:178:206:226:0:0:0:0:0:0:0:0
-X:99:0:26:66
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..TTXXXXXXXXXXX
-D:XXX.fgfgfg.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...TXXXXXXXXXXX
-D:XXX.fffggg.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.fg.XXXXXXXXXXX
-D:XXXX.ega..XXXXXXXX................................D.g..XXXXXXXXXXX
-D:XXXXX....XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXX..XXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXX..XXXXXXXXXX.XXXXXXXXX...eee..XXXXXX.XXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXX..D..........XXXXXXXXX...ddd..XXXXXX.XXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXX........D......XXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXX..............................XXXXXXXXXXXXXXXX......X
-D:XXXXXXXXXXXXX.XXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXXXXXXXXXXXX..cc..X
-D:XXXXXXXXXXXXX.XXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXXXXXXXXXXXX..bc..X
-D:XXXXXXXXXXXXX.XXXXXXXXXXXXXXXX.XXXXXXXXXXX.............D.........X
-D:X<P..................XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXX.........XXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX..............D....bb...XXXXXXXX......TXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX....bb...%.............TXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.........XXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+N:109:Keep Defense 1
+T1:Odds are that the two buildings in front of what was once the Keep were
+T2:for extra defenders.  We have no idea what the inside looks like. Clean
+T3:them out if you can.
+Q:6:0:0:0:10:0:0:11:12:49:1
+Y:561:326:347:369:0:0:0:0:0:0:0:0:0:0:0
+K:0:0:0:0:0:0:0:0:0:0
+E:0:0:0:0:0:0:0:0:0:0
+X:99:0:17:38
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.............X.....X.........X......X
+D:X.............X.....X.....aa..X..aa..X
+D:X......c......D.....D.....bb..D..bb..X
+D:X.............X.....X.........X......X
+D:X.............X.....X.........X......X
+D:X...XXXXXXXXXXX.....X.........X......X
+D:X.......d.....X.....X.........X......X
+D:X.............XXXXXXXXXXXDXXXXXXXXDXXX
+D:X.............X.....X................X
+D:X.............X.....X..............P<X
+D:XXXXXXXXXXX...X.....X................X
+D:X.............X.....X................X
+D:XGGG..........X.....X..............::X
+D:XGGG..........X..........::::::::::::X
+D:XGGG..........X.......:::::::::::::::X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
-N:110:King's Health
-T1:Regent: We have the princess back! Joy and Celebration! We must tell
-T2:the King right away, he will be so pleased.
-T4:Captain: There is a problem with the King. You should take a look.
-T5:Regent: Sorry about that. The King is so far gone that it will take
-T6:a miracle to save him. It is rumored that the Arkenstone of Thrain
-T7:can help heal those sick in the mind. If only you could find it...
-T8:Try the south-west.
-Q:3:0:0:0:30:0:3:60:60:103:1
-Y:0:0:0:0:0:0:0:0:0:0:3:0:0:0:0
-X:99:0:26:72
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..TTXXXXXXXXXXXXXXXXX
-D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...TXXXXXXXXXXXXXXXXX
-D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.99.......XXXXXXXXXXX
-D:XXXX......XXXXXXXX................................D..........XXXXXXXXXXX
-D:XXXXX......XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX..........XXXXXXXXXX
-D:XXXXXX......XXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX..........XXXXXXXXXX
-D:XXXXXX.............XXXXXXXXX...9....XXXXXX.XXXXXXXXXX.........XXXXXXXXXX
-D:XXXXXX.............XXXXXXXXX...8....XXXXXX.XXXXXXXXXXXX......XXXXXXXXXXX
-D:XXXXXXX...9........XXXXXXXXX........D......XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX....9.......XXXXXXXXXXXX....XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX.....9......XXXXXXX.XXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX............XXXXXX.X.XXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX..................XXX.XXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX............XXXXXXXXX...............XXXXXXXX........1.....XXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXXXX..........99..XXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXXXX..........99..XXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.............D.........XXXXXXX
-D:X<P..................XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX.XXX....XX.XXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXX..............XX.XXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXX
-D:XXXXX.......................XX.X............XXXXXXXXXXXXXX.XXXXXXXXXXXXX
-D:XXXXX.XXXXXXXX.........................9....XXXXXXXX.....XX.XXXXXXXXXXXX
-D:XXXXX.8XXXXXXXX.............XXXX........9.................XX.XXXXXXXXXXX
-D:XXXXX..XXXXXXXXXXXXXXXXXXXXXXXXX............XXXXXXXXX........XXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+N:110:Keep Defense 2
+T1:Odds are that the two buildings in front of what was once the Keep were
+T2:for extra defenders.  We have no idea what the inside looks like. Clean
+T3:them out if you can.
+Q:6:0:0:0:10:0:0:11:18:49:1
+Y:561:326:347:369:0:0:0:0:0:0:0:0:0:0:0
+K:0:0:0:0:0:0:0:0:0:0
+E:0:0:0:0:0:0:0:0:0:0
+X:99:0:17:38
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X......X.........X.....X.............X
+D:X......X....d....X.....X.......d.....X
+D:X......D.........D.....D.............X
+D:X......X.........X.....X.............X
+D:X......X.........X.....X.............X
+D:X......X.........X.....XXXXXXXXXXX...X
+D:X......X.........X.....X.............X
+D:XXXDXXXXXXXXDXXXXXXXXXXX.......d...GGX
+D:X................X.....X..........GGGX
+D:X................X.....X.........GGGGX
+D:X.<P.............X.....X...XXXXXXXXXXX
+D:X................X.....X.............X
+D:X................D.....X.............X
+D:X................X.....D.............X
+D:X................X.....:.............X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
-N:111:Attack on Cthack Irigol
-T1:King: You have done well. Not only have you saved my daughter but you have
-T2:saved me as well. I am forever in your debt. You will want for nothing as
-T3:long as this kingdom stands.
-T5:Now, I believe it is time for us to take the offensive. Time to take the
-T6:battle to Morgoth! We strike first at the north tower, Cthack Irigol!
-T7:Slay them all to bring that tower under our control. Our scouts report
-T8:that Morgoth's minions have not had a chance to establish a real foothold.
-Q:6:0:0:0:30:0:0:15:189:110:1
-Y:348:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+N:111:Mysterious Lake
+T1:There is now some strange activity in the east at the large lake. Could
+T2:this have anything to do with your work at the fountain?
+Q:6:0:0:0:35:0:0:15:141:104:1
+Y:571:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:35:74
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXX........<P.........XXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX.................................XXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXX...........................................XXXXXXXXXXXXXXXX
-D:XXXXXXXXX.......................................................XXXXXXXXXX
-D:XXXX..................................................................XXXX
-D:XXXX........................................................9.........XXXX
-D:XXXX...........................XXXXXDXXXXX............................XXXX
-D:XXXX..................XXXXXXXXXX.........XXXXXXXXXXX..................XXXX
-D:XXXX................XXX............................XXX................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX................X......9....................9....X................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX................X......9....................9....X................XXXX
-D:XXXX................XXX..............................X................XXXX
-D:XXXX..................XXXXXXXXXX..........XXXXXXXXXXXX................XXXX
-D:XXXX...........................XXXXXDXXXXXX...........................XXXX
-D:XXXX..................................................................XXXX
-D:XXXX..................................................................XXXX
-D:XXXX..................................................................XXXX
-D:XXXX...........................XXXXXDXXXXXX...........................XXXX
-D:XXXX.............9.............X..........X...........................XXXX
-D:XXXX...........................XT..8..8..TX...........................XXXX
-D:XXXX...........................XXXXXXXXXXXX...........................XXXX
-D:XXXXXXXXX.......................................................XXXXXXXXXX
-D:XXXXXXXXXXXXXXX...........................................XXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX.................................XXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXX...................XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXXX////WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXX
+D:XXXXXX////WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXX
+D:XXXX////WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXX
+D:XXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW//XXXX
+D:XXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW//XXXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW////XXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWaWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW///XXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXX
+D:XXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXX
+D:XXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXX
+D:XXXXWWWWWWWWWWWWWWaWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXX
+D:XXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXX
+D:XXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW//XXXX
+D:XXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXX
+D:XXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXX
+D:XXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXX
+D:XXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXX
+D:XXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXWWWWWWW///WWWWWW/<PXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:112:Attack on Cthack Ungol
-T1:King: Now that the north tower has fallen, we will take Cthack Ungol, the
-T2:south tower!
-T4:Slay them all to bring that tower under our control and before Morgoth
-T5:has a chance to respond to the last attack.
-Q:6:0:0:0:30:0:0:19:189:110:1
-Y:348:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+N:112:Strange Outpost
+T1:Thank you for clearing the lake. We still hear rumblings in the ground
+T2:near it but for now let us tackle the newly discovered outpost. I am
+T3:trying to find a way into the keep but the records are spotty.
+Q:6:0:0:0:40:0:0:31:31:49:1
+Y:561:326:347:369:377:378:0:0:0:0:0:0:0:0:0
+X:99:0:10:74
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXX..............................X.....................:::XXXXXXXXXXXXXXXX
+D:XXX...................ee.........X........................XXXXXXXXXXXXXXXX
+D:XXX::.................ff.........X.........aaaa............:XXXXXXXXXXXXXX
+D:XXX::............................X.........aaaa...............XXXXXXXXXXXX
+D:XXX::::..........................D...............................XXXXXXXXX
+D:XXXXX:::::............ff.........X.....................................XXX
+D:XXXXXX:::::...........ee.........X................................<P....XX
+D:XXXXX:::::::.....................X..........dd..........................XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:113:Strange Tower 2
+T1:That tower-like structure in the western part of Telamoor is now spilling
+T2:more smoke into the sky. Investigate and exterminate! There must be an inner
+T3:sanctum and a way inside. Search thoroughly and be careful! Get to the exit
+T4:in order to stop the fumes!
+Q:4:0:0:0:10:0:0:18:9:49:1
+Y:391:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+K:0:0:0:0:0:0:0:0:0:0
+E:0:0:0:0:0:0:0:0:0:0
+X:99:0:25:76
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX.............................<P.................................:::XXXX
+D:XXX....................................................................:::XX
+D:X.......................................................................:::X
+D:X............................XXXXXX.XXXXXX................................:X
+D:X..........................XXX...........XXX...............................X
+D:X........................XXX.XX.........XX.XXX.............................X
+D:X......................XX.....XX..X+X..XX.....XX...........................X
+D:X....................XXX.......XXXX.XXXX.......XXX.........................X
+D:X..................XXXX......XXXX.....XXXX......XXXX.......................X
+D:X..................X..XXXX..XXX.........XXX..XXXX..X.......................X
+D:X..................X.....XXXX....XXXXX....XXXX.....X.......................X
+D:X..........................XX^^^^XaEaX^^^^XX...............................X
+D:X..................X.....XXXX^^^^X...X^^^^XXXX.....X.......................X
+D:X..................X..XXXX..XXX.........XXX..XXXX..X.......................X
+D:X..................XXXXX.....XXXX.....XXXX......XXXX.......................X
+D:X....................XXX.......XXXX.XXXX.......XXX.........................X
+D:X......................XX.....XX..XXX..XX.....XX...........................X
+D:X........................XXX.XX.........XX.XXX.............................X
+D:X..........................XXX...........XXX...............................X
+D:X::::........................XXXXXX.XXXXXX.................................X
+D:XXX::::..................................................................XXX
+D:XXXXX::::..............................................................XXXXX
+D:XXXXXX::::.......................................:::::::::............XXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:114:The Graveyard
+T1:We still are trying to unlock the secrets of the Keep. While we are at it,
+T2:why don't you examine the graveyard off the west wall of Telamoor.
+Q:6:0:0:0:10:0:0:6:3:49:1
+Y:561:164:326:347:369:377:378:407:0:0:0:0:0:0:0
+K:0:0:0:0:0:0:0:0:0:0
+E:0:0:0:0:0:0:0:0:0:0
+X:99:0:45:34
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.<P.////////////////////////////X
+D:X///.////////////////////////////X
+D:X///..............///////////////X
+D:X////////////////.///////////////X
+D:X////////////////a///////////////X
+D:X//XX///:X///////a//////X:///:://X
+D:X////////////////a///////////////X
+D:X////////////////b///////////////X
+D:X//X:///::///////b//////::///:://X
+D:X////////////////b///////////////X
+D:X////////////////b///////////////X
+D:X//::///::///////g//////::///:://X
+D:X////////////////g///////////////X
+D:X////////////////c///////////////X
+D:X//::///::///////c//////X:///X://X
+D:X////////////////c///////////////X
+D:X////////////////c///////////////X
+D:X//:X///X:///////g//////:X///:://X
+D:X////////////////.///////////////X
+D:X////////////////.///////////////X
+D:X//::///X:///////.//////::///:X//X
+D:X////////////////.///////////////X
+D:X////////////////.///////////////X
+D:X//::///::///////.//////::///XX//X
+D:X////////////////.///////////////X
+D:X////////////////.///////////////X
+D:X//::///:X///////.//////X:///X://X
+D:X////////////////.///////////////X
+D:X////////////////.///////////////X
+D:X//XX///:X///////.//////XX///:://X
+D:X////////////////.///////////////X
+D:X////////////////.///////////////X
+D:X//XX///XX///////........////X://X
+D:X//////////////////////..////////X
+D:X///////////////XXXXXXDDDXXXXXX//X
+D:X//X:///:://////X.............X//X
+D:X///////////////X.............X//X
+D:X///////////////X.............X//X
+D:X//XX///XX//////X.............X//X
+D:X///////////////X..aa...hh....X//X
+D:X///////////////X..aa.........X//X
+D:X//XX///XX//////XXXXXXXXXXXXXXX//X
+D:X////////////////////////////////X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:115:Mysterious Lake Again
+T1:My scouts tell me that an island has formed in the lake. An island!? Please
+T2:get to this island and maybe the exit will help us understand.
+Q:4:0:0:0:35:0:0:15:141:104:1
+Y:571:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:35:74
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXX...................XXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX.................................XXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXX...........................................XXXXXXXXXXXXXXXX
-D:XXXXXXXXX.......................................................XXXXXXXXXX
-D:XXXX...........................XXXXXDXXXXXX...........................XXXX
-D:XXXX.............9.............XT..9..8..TX..................9........XXXX
-D:XXXX...........................X..........X...........................XXXX
-D:XXXX...........................XXXXXXXXXXXX...........................XXXX
-D:XXXX..................................................................XXXX
-D:XXXX..................................................................XXXX
-D:XXXX...........................XXXXXDXXXXX............................XXXX
-D:XXXX..................XXXXXXXXXX.........XXXXXXXXXXX..................XXXX
-D:XXXX................XXX............................XXX................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX................X......9....................9....X................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX.......9........X................................X................XXXX
-D:XXXX................X................................X................XXXX
-D:XXXX................X......9....................9....X................XXXX
-D:XXXX................XXX..............................X................XXXX
-D:XXXX..................XXXXXXXXXX..........XXXXXXXXXXXX................XXXX
-D:XXXX...........................XXXXXDXXXXXX...........................XXXX
-D:XXXX..................................................................XXXX
-D:XXXX........................................................9.........XXXX
-D:XXXX..................................................................XXXX
-D:XXXXXXXXX.......................................................XXXXXXXXXX
-D:XXXXXXXXXXXXXXX....................9......................XXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX.................................XXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXX........<P.........XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXXX////WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXX
+D:XXXXXX////WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXX
+D:XXXX////WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XWWWWWWWWWWWWWWWWWWWWWWWWWWaWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXX
+D:XXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW;;;;WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW//XXXX
+D:XXXXXXWWWWWWWWWWWWWWWWWWWWWWWWW;;.E;;WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW//XXXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWW;;....;;WWWWWWWWWWWWWWWWWWWWWWWWWWWWW////XXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWaWWWWW;;..;;WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW///XXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWW;;;;WWWWWWWaWWWWWWWWWWWWWWWWWWWWWWWXXXXXXX
+D:XXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXX
+D:XXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWaWWWWWWWWWWWWWWWWWWWWWWWWWWWXX
+D:XXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXX
+D:XXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW//XXXX
+D:XXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXX
+D:XXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXX
+D:XXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXX
+D:XXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXX
+D:XXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXWWWWWWW///WWWWWW/<PXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:113:Artifact Quest
-T1:King: Well done! Now that we have captured the Towers, we can prepare
-T2:a more final assault into the dungeon, with you leading the charge of course.
-T4:To better prepare us, find the artifact 'Bloodspike'.
-Q:3:0:0:0:35:0:114:3:166:110:1
-Y:0:0:0:0:0:0:0:0:0:0:114:0:0:0:0
-X:99:0:26:72
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..TTXXXXXXXXXXXXXXXXX
-D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...TXXXXXXXXXXXXXXXXX
-D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.99.......XXXXXXXXXXX
-D:XXXX......XXXXXXXX................................D..........XXXXXXXXXXX
-D:XXXXX......XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX..........XXXXXXXXXX
-D:XXXXXX......XXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX..........XXXXXXXXXX
-D:XXXXXX.............XXXXXXXXX...9....XXXXXX.XXXXXXXXXX.......TTXXXXXXXXXX
-D:XXXXXX.............XXXXXXXXX...8....XXXXXX.XXXXXXXXXXXX....1TXXXXXXXXXXX
-D:XXXXXXX...9........XXXXXXXXX........D......XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX....9.......XXXXXXXXXXXX....XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX.....9......XXXXXXX.XXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX............XXXXXX.X.XXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX..................XXX.XXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXX............XXXXXXXXX...............XXXXXXXX..............XXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXXXX..........99..XXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXXXX..........99..XXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.......................XXXXXXX
-D:X<P..................XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXX.XXX....XX.XXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXX..............XX.XXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXX
-D:XXXXX.......................XX.X............XXXXXXXXXXXXXX.XXXXXXXXXXXXX
-D:XXXXX.XXXXXXXX.........................9....XXXXXXXX.....XX.XXXXXXXXXXXX
-D:XXXXX.8XXXXXXXX.............XXXX........9.................XX.XXXXXXXXXXX
-D:XXXXX..XXXXXXXXXXXXXXXXXXXXXXXXX............XXXXXXXXX........XXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+N:116:The Keep
+T1:My scholars have found a way into the Keep based on the knowledge of the
+T2:lake and the architecture of Telamoor. Don't ask me how - I'm just the King.
+T3:With the knowledge they give you, you will be able to enter the Keep of
+T4:Telamoor. Be careful - noone has entered there in eons. Your quest is to
+T5:eliminate any spirits and whatever else may be in the Keep. Only then can we
+T6:reclaim Telamoor!
+Q:6:0:0:0:10:0:0:8:15:49:1
+Y:561:326:347:369:377:378:407:460:471:453:10:0:0:0:0
+K:0:0:0:0:0:0:0:0:0:0
+E:0:0:0:0:0:0:0:0:0:0
+X:99:0:50:87
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.....................................................................................X
+D:X.XXXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX......XXXXXXXXXXXXXXXX.X
+D:X.X....aaaaaaa....X.....X...XX............XXXX............XX..X......X......X.......X.X
+D:X.X..XXXXXXXXXXX..X.....X...XX.aX..........XX..........Xa.XX..X......X..i...D....h..X.X
+D:X.X...............X.....X...XX..aX.........j..........Xa..XX..X......X......X.......X.X
+D:X.X.....;;;;;.....X.....X....XX..........................XX.iiX......XXXXXXXX.......X.X
+D:X.X...;;;;;;;;;...X.....X.....XX...XXXX..........XXXX...XX^^..+......X..............X.X
+D:X.X.....;;;;;.....X.....X......XX..bbbb..........bbbb..XX1G^^.X......X.h.........h..X.X
+D:X.X...............X.....X.XXXXXXXXXXXXXX........XXXXXXXXXXXXXXX......X..............X.X
+D:X.XXXXXXXXDXXXXXXXX.....X.X...X........XX......XX.......X..GGGX......XXXXXXXXXDXXXXXX.X
+D:X.......................X.X...+.........XXXDDXXX........X..GGGX.......................X
+D:X.........c.............X.X...X.........................+..GGGX.......................X
+D:X.......................X.XXXXXXXXXXXXXXXXX..XXXX.......X..GGGX.......................X
+D:X................XXXXXXXXXXXXX..........XXXDDX..XXXXXXXXXXXXXXXXXXXXXX................X
+D:X................X........XX....XXXXXXX..XX..X...XXXXXXX.............X.......c........X
+D:X................X.......XX^^^^XXb....XX..+..X..XX....bXX............X................X
+D:X................X......XX^^^^XXa......XXXX..XXXX......aXX...........X................X
+D:X....d...........X......XGGGGXX...........D..D...........XX..........X................X
+D:X................X......XGGGGXX...........X..X...........XX..........X................X
+D:X................XXXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXX................X
+D:X.....a......................................................................d........X
+D:X.....................................................................................X
+D:X........................................acd..........................................X
+D:X.....................................................................................X
+D:X.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....X
+D:X.....X..X..X..X..X..X..X..X..X..X..X.............X..X..X.hX..X..X..X.hX..X..X..X.....X
+D:X.....X..h.....h.....h.....h........D.............D....h........................X.....X
+D:X.....X..X..X..X..X..X..X..X..X..X..X............ X..X..X..X..X.hX..X..X..X..X..X.....X
+D:X.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....X
+D:X.....................................................................................X
+D:X..............................gg....................gg...............................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDDDDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X////:///////////////////////////////////;..;/////////////////////////////////////////X
+D:X///:://///////////////////://///////////;..;////////////////////////::///////////////X
+D:X////////////////////////////////////////;..;/////////////////////////////////////////X
+D:X/////////;;;;;//////VWV//////;;;;;//////;ef;//////;;;;;///////VWV//////;;;;;/////////X
+D:X///////;;/////;;///VWWWV///;;/////;;////;..;////;;/////;;////VWWWV///;;/////;;///////X
+D:X/////;;///TTT///;;//VWV//;;///TTT///;;//;..;//;;///TTT///;;///VWV//;;///TTT///;;/////X
+D:X///;;///TTTTTTT///;;///;;///TTTTTTT///;;;..;;;///TTTTTTT///;;////;;///TTTTTTT///;;///X
+D:X//;///TTTTTTTTTTT///;/;///TTTTTTTTTTT///;..;///TTTTTTTTTTT///;;/;///TTTTTTTTTTT///;//X
+D:X/////TTTTTTTTTTTTT///;///TTTTTTTTTTTTT//;..;//TTTTTTTTTTTTT////;///TTTTTTTTTTTTT/////X
+D:X//;///TTTTTTTTTTT///;/;///TTTTTTTTTTT///;..;///TTTTTTTTTTT///;;/;///TTTTTTTTTTT///;//X
+D:X///;;///TTTTTTT///;;///;;///TTTTTTT///;;;..;;;///TTTTTTT///;;////;;///TTTTTTT///;;///X
+D:X/////;;///TTT///;;//VWV//;;///TTT///;;//;..;//;;///TTT///;;///VWV//;;///TTT///;;/////X
+D:X///////;;/////;;///VWWWV///;;/////;;////;..;////;;/////;;////VWWWV///;;/////;;///////X
+D:X///://///;;;;;//////VWV//////;;;;;//////;..;//////;;;;;///////VWV//////;;;;;//////://X
+D:X////////////////////////////////////:///;..;/////////////////////////////////////:://X
+D:X////////////////////////////////////////;P<;///////////////////////////////////////:/X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:114:Spies part 1
-T1:King: Morgoth has spies trying to discover all our plans.
-T2:Sangahyando has been spotted around town and I need you to take him
-T3:out before he unlocks any of our secrets!
-Q:1:0:0:1:0:273:0:0:0:0:0
 
-N:115:Spies part 2
-T1:King: Morgoth has spies trying to discover all our plans.
-T2:Angamaite has been spotted around town and I need you to take him
-T3:out before he unlocks any of our secrets! Those umbarites are a
-T4:venomous people.
-Q:1:0:0:1:0:274:0:0:0:0:0
-
-N:116:Castle Siege
-T1:King: Morgoth is getting desperate and launching attacks against
-T2:the castle! Lokkak the Ogre has been sent to attack us. Help us
-T3:defeat him!
-Q:1:0:0:1:0:297:0:0:0:0:0
-
-N:117:Castle Siege II
-T1:King: Morgoth has sent more creatures to attack us.  But, we
-T2:will never surrender!  Defeat the invaders!
-Q:1:0:0:1:0:343:0:0:0:0:0
+N:117:Final Mysterious Lake
+T1:You have done very well for us! Rest a while between quests... Actually,
+T2:go back to the lake with the isle. I think you will find a token of our
+T3:gratitude. Not to mention seeing the changes that have occurred since
+T4:you freed Telamoor. We will have more work for you later.
+Q:3:0:0:0:200:0:42:15:141:104:1
+Y:0:0:0:0:0:0:0:0:0:0:42:0:0:0:0
+X:99:0:35:74
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXXX////WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW/WWWWWWWWWWWWWWWWWXXXXXXXXXX
+D:XXXXXX////WWWWWWWWWWWWWWWWWWVVVVVVVVVVVVVWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXX
+D:XXXX////WWWWWWWWWWWWWWWWWWWVVVVVVVVVVVVVVVVWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XWWWWWWWWWWWWWWWWWWWWWWWWWVVVVVVVVVVVVVVVVVVWWWWWWW/WWWWWWWWWWWWWWWWWWXXXX
+D:XWWWWWWWWWWWWWWWWWWWWWWWWVVV//////////////VVVWWWWWWWWWWWWWWWWWWWWWWWWWWXXX
+D:XXWWWWWWWWWWWWWWWWWWWWWWWVVV//..........//VVVWWWWWWWWWWWWWWWWWWWWWWW//XXXX
+D:XXXXXXWWWWWWWWWWWWWWWWWWWVVV//....GG....//VVVWWWWWWWWWWWWWWWWWWWWWWW//XXXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWVVV//.....1....//VVVWWWWWWWWWWWWWWWWWWWWWW////XXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWVVV//..........//VVVWWWWWWW/WWWWWWWWWWWWWWW///XXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWVVV//..........//VVVWWWWWWWWWWWWWWWWWWWWWWXXXXXXX
+D:XXXWWWWWWWWWWW/WWWWWWWWWWVVV//////////////VVVWWWWWWWWWWWWWWWWWWWWWWWXXXXXX
+D:XXXXWWWWWWWWW/////WWWWWWWWVVVVVVVVVVVVVVVVVVWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XXXXWWWWWWWWWW/WWWWWWWWWWWWVVVVVVVVVVVVVVVVWWWWWWWWWWWWWW/WWWWWWWWWWWWWXXX
+D:XXXXXWWWWWWWWWWWWWWWWWWWWWWWVVVVVVVVVVVVVVWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXX
+D:XXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXX
+D:XXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXX
+D:XXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW/WWWWWWWWWWWXXXX
+D:XXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXX
+D:XXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW//XXXX
+D:XXXXXXXXXXXXXXWWWWWWWWW///WWWWWWWWWWWWWWW///WWWWWWWWWWWWWWWWWWWWWWWWXXXXXX
+D:XXXXXXXXXXXXXWWWWWWWW////WWWWWWWWWWWWWWWWWW///WWWWWWWWWWWWWWWWWWWWWXXXXXXX
+D:XXXXXXXXXWWWWWWWWWWWWW//WWWWWWWWWWWWWWWWWWWW///WWWWWWWWWWWWWWWWWWXXXXXXXXX
+D:XXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW/WWWWWWWWWWWWWWWWXXXXXXXXXXXX
+D:XXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXWWWWWWW///WWWWWW/<PXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:118:Sauron
-T1:King: Now, Morgoth is restricted to the caves he inhabits! But, we
-T2:would be foolish to assume that we are now safe. If not this generation,
-T3:Morgoth would strike back at the next. We need to end this threat and end
-T4:it permanently.
-T6:It is time to take the battle to Morgoth. But, before you can
-T7:reach him, you must find and kill Sauron.  Only after defeating
-T8:this powerful wizard, will the stairs leading to Morgoth's lair
-T9:be opened.
+T1:Can you kill Sauron the mighty Sorceror?
 Q:1:0:0:1:99:546:0:0:0:0:0
 
 N:119:Morgoth
-T1:Your final quest is the ultimate quest that has always been
-T2:required of you. There are no other goals for you to strive for.
-T3:You must enter Morgoth's dungeon, travel deep, and defeat this
-T4:source of all our problems. Be prepared, be patient, and good luck.
-T6:May the light shine on you.
+T1:Excellent! What strength and valor! Do the world a favor and take
+T2:out Morgoth. His presence is dampening our celebration of Telamoor.
+T3:Seriously, he was the cause of Telamoor's downfall in the first place.
 Q:1:0:0:1:100:547:0:0:0:0:0
 
