@@ -1,6 +1,23 @@
 PORTRALIS STATS GUIDE
 -----------------------
 
+
+
+
+
+
+
+NOTE: OUTDATED! THIS HAS *NOT* BEEN UPDATED YET FOR THE 0.5 VERSION.
+      SOME OF THE INFORMATION BELOW MIGHT BE INACCURATE.
+
+
+
+
+
+
+
+
+
 At the beginning of the game, all stats begins at 5. Some may be a
 little higher or lower depending on your race. Every time you gain
 a level, you will be awarded two stat points which you can use to

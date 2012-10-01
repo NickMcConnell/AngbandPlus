@@ -40,7 +40,7 @@ N:1:48:2:0:0:0
 I:Aria;
 T:Hello again... I hope my blade helped you in your adventures...;
 T:You are much more worthy of wielding it than I do...;
-A:Please, unseal the shrine's door. I shall defeat Shaugma.:0:0:0:1:15:0:0:0:0
+A:Please, unseal the shrine's door. I will defeat Shaugma.:0:0:0:1:15:0:0:0:0
 A:Farewell.:0:0:0:0:0:0:0:0:0
 %
 
@@ -151,8 +151,9 @@ T:You... you would do this? Thanks you... but the bandits are probably;
 T:far away now... They probably sold my sword or something. But if you;
 T:want to know... My sword is a short sword, however, it is much sharper;
 T:than a normal short sword, and also lighter and almost indestructible.;
-T:It is a short sword of superior quality... Also, the bandits fled to;
-T:the southwest, if this can help you...;
+T:It is a short sword of superior quality... I don't know, but maybe;
+T:they sold it to someone in the town of Fidac? That would make sense,;
+T:since they fled in direction of that town...;
 A:[CONTINUE]:0:0:0:1:11:0:0:0:0
 %
 
@@ -190,7 +191,7 @@ T:trough all this trouble to get it, you deserve to keep it. I am not;
 T:worthy of it... But I'm sure it will prove a useful treasure to you.;
 T:Take care of it... do not repeat my mistakes... do not become a;
 T:failure like me,,,;
-A:Please, unseal the shrine's door. I shall defeat Shaugma.:0:0:0:1:15:0:0:0:0
+A:Please, unseal the shrine's door. I will defeat Shaugma.:0:0:0:1:15:0:0:0:0
 A:I'll take care of it. Farewell.:0:0:0:0:0:0:0:0:0
 %
 
@@ -242,37 +243,37 @@ A:No, I don't have it.:0:0:0:1:25:0:0:0:0
 
 N:21:0:0:0:0:0
 I:Aria;
-T:... I took a decision. Even with Shaugma's death... even though I could;
-T:return to heaven... I will not. You did a lot for me... and now, it's;
-T:my turn to help you...;
+T:As a reward for helping me out, I will let you keep my sword, and also;
+T:enchant it with some of my divine power.;
 T:(She takes the sword in her hands. The blade starts glowing...);
 A:[CONTINUE]:0:0:0:1:22:0:0:0:0
 %
 
 N:22:0:0:0:0:0
 I:Aria;
-T:I shall now bind my soul to this blade. I will become one with the;
-T:sword's edge, and it will become a blessed blade of the heavens.;
-A:But... you'll die, won't you?:0:0:0:9:1212:23:0:49:1
+T:*The blade glows with a pure, white light. Once Aria is done enchanting;
+T:the blade, it's edge has become golden, and it emits a dim light.*;
+T: ;
+T:There. the sword now possesses holy power. May it serves you well,;
+T:<NAME>!;
+A:Thanks you very much, Aria.:0:0:0:9:1212:23:0:49:1
 %
 
 N:23:0:0:0:0:0
 I:Aria;
-T:...not really. Though my body will disappear, my soul will forever remain;
-T:inside the edge of the blade. Do not worry about me. I am not strong enough;
-T:to be a knight of the heavens. I am physically small and weak, and I;
-T:lack the courage to do what you did. Now... I will bind my soul...;
-T:(She holds the blade tight, and her body becomes a glowing light!);
+T:Now, it is time for me to go back to Heavens. Thanks you for helping;
+T:me out, I will never forget what you did for me! Farewell, <NAME>!;
 A:[CONTINUE]:0:0:0:3:3:4:24:0:0
 %
 
 N:24:0:0:0:0:0
 I: ;
-T:The light lasts for a minute... and when it stops, Aria is gone. The sword;
-T:falls on the ground. It's edge is now golden, it's hilt became silver,;
-T:and the sword is glowing with a white, holy light. Aria has bound herself;
-T:forever inside this blade, and it has become a powerful, heavenly sword,;
-T:which is now rightfully yours!;
+T:A glowing column of light surrounds Aria, as she flies up to the sky and;
+T:disappears in a blinding flash of light. She has returned to the Heavens,;
+T:thanks to your skill and bravery. Still, you can't help but wonder why did;
+T:the Heavens, who represent goodness, send a child on such a dangerous;
+T:mission. You are happy that Aria returned home, but somehow, you are worried;
+T:about her safety. You have a feeling that you might meet her again someday...;
 A:[END DIALOG]:0:0:0:5:2:0:0:0:0
 %
 
@@ -296,8 +297,11 @@ A:[CONTINUE]:0:0:0:1:27:0:0:0:0
 N:27:0:0:0:0:0
 I:Aria;
 T:Farewell, <NAME>... it's been good to know you. May the light be with you!;
-T:(A glowing column of light surrounds Aria, as she fly up in the sky and;
-T:disappear in a blinding flash of light. She has returned to heavens, thanks;
-T:to your skill and bravery.);
+T:*A glowing column of light surrounds Aria, as she fly up in the sky and;
+T:disappear in a blinding flash of light. She has returned to Heavens, thanks;
+T:to your skill and bravery. Still, you can't help but wonder why did Heavens,;
+T:who represents goodness, sent a child on such a dangerous mission. You are;
+T:happy that Aria returned home, but somehow, you are worried about;
+T:her safety. You have a feeling that you might meet her again someday...*;
 A:[END DIALOG]:0:0:0:5:2:0:0:0:0
 %

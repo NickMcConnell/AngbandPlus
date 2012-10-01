@@ -80,7 +80,7 @@ not appear, and you'll get bored. Just play, and rejoice if one shows up! :)
 
 RED: Cursed Item
 
-"Nightmares and misfortune sleep within..."
+"Misfortune: X" (where X may be any number)
 
 This is probably the ability you've noticed after identifying a red item.
 You probably also noticed that it is very powerful. Indeed, cursed items

@@ -990,32 +990,32 @@ void learn_ability()
                 	if (!(p_ptr->boss_abilities & BOSS_HALVE_DAMAGES)) c_put_str(TERM_L_DARK, abil, 2, 0);
                 	else c_put_str(TERM_WHITE, abil, 2, 0);
 
-			sprintf (abil, "2. Double Weapon Damages (all melee and ranged damages are doubled)");
+			sprintf (abil, "2. Double Weapon Damages (+100% damages to melee and ranged attacks)");
                 	if (!(p_ptr->boss_abilities & BOSS_DOUBLE_DAMAGES)) c_put_str(TERM_L_DARK, abil, 3, 0);
                 	else c_put_str(TERM_WHITE, abil, 3, 0);
 
-			sprintf (abil, "3. Double Magic Damages (all magic damages are doubled)");
+			sprintf (abil, "3. Double Magic Damages (+100% damages to magic attacks)");
                 	if (!(p_ptr->boss_abilities & BOSS_DOUBLE_MAGIC)) c_put_str(TERM_L_DARK, abil, 4, 0);
                 	else c_put_str(TERM_WHITE, abil, 4, 0);
 
-			sprintf (abil, "4. Crushing Blows (melee attacks may paralyze, confuse and reduce hit rate)");
+			/*sprintf (abil, "4. Crushing Blows (melee attacks may paralyze, confuse and reduce hit rate)");
                 	if (!(p_ptr->boss_abilities & BOSS_CURSED_HITS)) c_put_str(TERM_L_DARK, abil, 5, 0);
-                	else c_put_str(TERM_WHITE, abil, 5, 0);
+                	else c_put_str(TERM_WHITE, abil, 5, 0);*/
 
-			sprintf (abil, "5. Return 50% Melee Damages (return 50% of melee damages to enemies)");
+			sprintf (abil, "4. Return 50% Melee Damages (return 50% of melee damages to enemies)");
                 	if (!(p_ptr->boss_abilities & BOSS_RETURNING)) c_put_str(TERM_L_DARK, abil, 6, 0);
                 	else c_put_str(TERM_WHITE, abil, 6, 0);
 
-			sprintf (abil, "6. Return 50% Magic Damages (return 50% of magic damages to enemies)");
+			sprintf (abil, "5. Return 50% Magic Damages (return 50% of magic damages to enemies)");
                 	if (!(p_ptr->boss_abilities & BOSS_MAGIC_RETURNING)) c_put_str(TERM_L_DARK, abil, 7, 0);
                 	else c_put_str(TERM_WHITE, abil, 7, 0);
 
 			abp = p_ptr->abilities[(CLASS_MONSTER * 10) + 9] / 10;
-			if (abp > 6) abp = 6;
+			if (abp > 5) abp = 5;
 			if (p_ptr->boss_abilities & BOSS_HALVE_DAMAGES) abp -= 1;
 			if (p_ptr->boss_abilities & BOSS_DOUBLE_DAMAGES) abp -= 1;
 			if (p_ptr->boss_abilities & BOSS_DOUBLE_MAGIC) abp -= 1;
-			if (p_ptr->boss_abilities & BOSS_CURSED_HITS) abp -= 1;
+			/*if (p_ptr->boss_abilities & BOSS_CURSED_HITS) abp -= 1;*/
 			if (p_ptr->boss_abilities & BOSS_RETURNING) abp -= 1;
 			if (p_ptr->boss_abilities & BOSS_MAGIC_RETURNING) abp -= 1;
 
@@ -1050,15 +1050,15 @@ void learn_ability()
 					p_ptr->boss_abilities |= BOSS_DOUBLE_MAGIC;
 				}
 			}
-			if (choice == '4')
+			/*if (choice == '4')
 			{
 				if (abp > 0 && !(p_ptr->boss_abilities & BOSS_CURSED_HITS))
 				{
 					abp -= 1;
 					p_ptr->boss_abilities |= BOSS_CURSED_HITS;
 				}
-			}
-			if (choice == '5')
+			}*/
+			if (choice == '4')
 			{
 				if (abp > 0 && !(p_ptr->boss_abilities & BOSS_RETURNING))
 				{
@@ -1066,7 +1066,7 @@ void learn_ability()
 					p_ptr->boss_abilities |= BOSS_RETURNING;
 				}
 			}
-			if (choice == '6')
+			if (choice == '5')
 			{
 				if (abp > 0 && !(p_ptr->boss_abilities & BOSS_MAGIC_RETURNING))
 				{
@@ -1213,8 +1213,8 @@ void add_item_ability(object_type *o_ptr, bool crafting)
 
 			c_put_str(TERM_WHITE, "a) Stats bonus.", 6, 0);
 			c_put_str(TERM_WHITE, "b) Skills bonus.", 7, 0);
-			c_put_str(TERM_WHITE, "c) Attacks/Speed/Reflection.", 8, 0);
-			c_put_str(TERM_WHITE, "d) Life/Mana/Spells bonus.", 9, 0);
+			c_put_str(TERM_WHITE, "c) Attacks/Shots/Speed/Reflection.", 8, 0);
+			c_put_str(TERM_WHITE, "d) Mana/Spells bonus.", 9, 0);
 			c_put_str(TERM_WHITE, "e) Misc. Abilities.", 10, 0);
 
 			
@@ -1699,8 +1699,8 @@ void add_item_ability(object_type *o_ptr, bool crafting)
 
 			c_put_str(TERM_WHITE, "Choose which to increase.", 4, 0);
 
-			c_put_str(TERM_WHITE, "a) Attacks(10 pts/20 for 6th+):", 6, 0);
-			c_put_str(TERM_WHITE, "b) Shots(20 pts/40 for 4th+)  :", 7, 0);
+			c_put_str(TERM_WHITE, "a) Attacks(10 pts/20 for 3rd+):", 6, 0);
+			c_put_str(TERM_WHITE, "b) Shots(20 pts/40 for 2nd+)  :", 7, 0);
 			c_put_str(TERM_WHITE, "c) Speed(2 pts)               :", 8, 0);
 			c_put_str(TERM_WHITE, "d) Reflection(1 pt/3 points)  :", 9, 0);
 			
@@ -1723,7 +1723,7 @@ void add_item_ability(object_type *o_ptr, bool crafting)
 
 			if (c == 'a' || c == 'A')
 			{
-				if (o_ptr->extrablows >= 5)
+				if (o_ptr->extrablows >= 2)
 				{
 					if (o_ptr->tweakpoints >= 20)
 					{
@@ -1744,7 +1744,7 @@ void add_item_ability(object_type *o_ptr, bool crafting)
 			}
 			if (c == 'b' || c == 'B')
 			{
-				if (o_ptr->extrashots >= 3)
+				if (o_ptr->extrashots >= 1)
 				{
 					if (o_ptr->tweakpoints >= 40)
 					{
@@ -1800,16 +1800,16 @@ void add_item_ability(object_type *o_ptr, bool crafting)
 
 			c_put_str(TERM_WHITE, "Choose which to increase.", 4, 0);
 
-			c_put_str(TERM_WHITE, "a) Life(1 pt/5%)  :", 6, 0);
-			c_put_str(TERM_WHITE, "b) Mana(1 pt/5%)  :", 7, 0);
-			c_put_str(TERM_WHITE, "c) Spells(2 pt/1%):", 8, 0);
+			/*c_put_str(TERM_WHITE, "a) Life(1 pt/5%)  :", 6, 0);*/
+			c_put_str(TERM_WHITE, "a) Mana(1 pt/3%)  :", 6, 0);
+			c_put_str(TERM_WHITE, "b) Spells(1 pt/1%):", 7, 0);
 			
-			sprintf(tmp, "%d%%", o_ptr->lifebonus);
-			c_put_str(TERM_L_GREEN, tmp, 6, 20);
+			/*sprintf(tmp, "%d%%", o_ptr->lifebonus);
+			c_put_str(TERM_L_GREEN, tmp, 6, 20);*/
 			sprintf(tmp, "%d%%", o_ptr->manabonus);
-			c_put_str(TERM_L_GREEN, tmp, 7, 20);
+			c_put_str(TERM_L_GREEN, tmp, 6, 20);
 			sprintf(tmp, "%d%%", o_ptr->spellbonus);
-			c_put_str(TERM_L_GREEN, tmp, 8, 20);
+			c_put_str(TERM_L_GREEN, tmp, 7, 20);
 
 			sprintf(tmp, "%d", o_ptr->tweakpoints);
 			c_put_str(TERM_WHITE, "Bonus points: ", 18, 0);
@@ -1819,7 +1819,7 @@ void add_item_ability(object_type *o_ptr, bool crafting)
 
 			c = inkey();
 
-			if (c == 'a' || c == 'A')
+			/*if (c == 'a' || c == 'A')
 			{
 				if (o_ptr->tweakpoints >= 1)
 				{
@@ -1827,22 +1827,22 @@ void add_item_ability(object_type *o_ptr, bool crafting)
 					o_ptr->tweakpoints -= 1;
 					if (crafting && !(o_ptr->art_flags4 & (TR4_CRAFTED))) o_ptr->art_flags4 |= (TR4_CRAFTED);
 				}
-			}
-			if (c == 'b' || c == 'B')
+			}*/
+			if (c == 'a' || c == 'A')
 			{
 				if (o_ptr->tweakpoints >= 1)
 				{
-					o_ptr->manabonus += 5;
+					o_ptr->manabonus += 3;
 					o_ptr->tweakpoints -= 1;
 					if (crafting && !(o_ptr->art_flags4 & (TR4_CRAFTED))) o_ptr->art_flags4 |= (TR4_CRAFTED);
 				}
 			}
-			if (c == 'c' || c == 'C')
+			if (c == 'b' || c == 'B')
 			{
 				if (o_ptr->tweakpoints >= 2)
 				{
 					o_ptr->spellbonus += 1;
-					o_ptr->tweakpoints -= 2;
+					o_ptr->tweakpoints -= 1;
 					if (crafting && !(o_ptr->art_flags4 & (TR4_CRAFTED))) o_ptr->art_flags4 |= (TR4_CRAFTED);
 				}
 			}
@@ -2513,20 +2513,20 @@ void use_soul_power()
 	{
 		bool castsuccess = FALSE;
 		bool risky = FALSE;
-		int castpower = 5 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 7] / 10);
+		int castpower = 5;
 		if (p_ptr->stat_ind[A_WIS] >= r_ptr->spell[Power].cost) castsuccess = TRUE;
 		else
 		{
 			char riskych;
 			int caststrength = (p_ptr->stat_ind[A_WIS] - 5) * castpower;
 			if (caststrength < 0) caststrength = 0;
-			caststrength += ((caststrength * (p_ptr->abilities[(CLASS_PRIEST * 10) + 7] * 10)) / 100);
-			if (r_ptr->spell[Power].cost > ((caststrength * (3 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 7] / 20))) * 5))
+			
+			if (r_ptr->spell[Power].cost > ((caststrength * 3) * 5))
 			{
 				msg_print("This spell is too strong to even attempt.");
 				return;
 			}
-                        if (r_ptr->spell[Power].cost > (caststrength * (3 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 7] / 20)))) risky = TRUE;
+                        if (r_ptr->spell[Power].cost > (caststrength * 3)) risky = TRUE;
 			if (risky)
 			{
 				if (!get_com("Casting this spell could be dangerous. Proceed anyway? [y/n]", &riskych)) return;
@@ -2708,7 +2708,7 @@ bool is_alteration(int power)
 
 bool is_mysticism(int power)
 {
-	if (power == GF_OLD_HEAL || power == GF_HARM || power == GF_UNDEAD_SMITE || power == GF_DEMON_SMITE || power == GF_EVIL_SMITE || power == GF_GOOD_SMITE) return (TRUE);
+	if (power == GF_OLD_HEAL || power == GF_HARM || power == GF_DRAIN_LIFE || power == GF_UNDEAD_SMITE || power == GF_DEMON_SMITE || power == GF_EVIL_SMITE || power == GF_GOOD_SMITE) return (TRUE);
 	
 	return (FALSE);
 }
@@ -2744,8 +2744,8 @@ void do_cmd_cast(bool wisdom)
         magic_spells *spell_ptr;
 
 	/* This determines casting power */
-	if (wisdom) spellstat = (p_ptr->stat_ind[A_WIS] - 5);
-	else spellstat = (p_ptr->stat_ind[A_INT] - 5);
+	if (wisdom) spellstat = A_WIS;
+	else spellstat = A_INT;
 
 	/* No lower than 0 */
 	if (spellstat < 0) spellstat = 0;
@@ -2770,9 +2770,70 @@ void do_cmd_cast(bool wisdom)
                 spell_ptr = &magic_spell[i];
                 if (spell_ptr->created == TRUE)
                 {
-                        sprintf(spellstring, "%s   Cost: %ld", spell_ptr->name, spell_ptr->finalcost);        
-                        /* List the powers */
-                        strcpy(power_desc[num],spellstring);powers[num++]=i;
+			if (!(monk_synchro))
+			{
+                        	if (wisdom)
+				{
+					s32b wisdomcost;
+					s32b wispercent;
+					wisdomcost = spell_ptr->finalcost - p_ptr->stat_ind[A_WIS];
+					if (wisdomcost < 0) wisdomcost = 0;
+					if (p_ptr->stat_ind[A_WIS] >= wisdomcost) wispercent = 100;
+					else if (wisdomcost > (p_ptr->stat_ind[A_WIS] * 5)) wispercent = 0;
+					else
+					{
+						s32b proll = p_ptr->stat_ind[A_WIS];
+						s32b sroll = (spell_ptr->finalcost - p_ptr->stat_ind[A_WIS]);
+						int prollbonus = 0;
+
+						prollbonus = prollbonus + (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10);
+
+						proll = proll + multiply_divide(proll, prollbonus, 100);
+
+						wispercent = multiply_divide(100, proll, (proll + sroll));
+					}
+
+					sprintf(spellstring, "%s   Cost: %ld(%ld, %ld%%)", spell_ptr->name, spell_ptr->finalcost, wisdomcost, wispercent);
+				}
+				else sprintf(spellstring, "%s   Cost: %ld", spell_ptr->name, spell_ptr->finalcost);
+                        	/* List the powers */
+                        	strcpy(power_desc[num],spellstring);powers[num++]=i;
+			}
+			else
+			{
+				if (spell_ptr->finalcost <= (spell_ptr->finalcost - p_ptr->stat_ind[A_WIS]))
+				{
+					if (spell_ptr->effect[0] != 6 && spell_ptr->effect[1] != 6 && spell_ptr->effect[2] != 6 && spell_ptr->effect[3] != 6 && spell_ptr->effect[4] != 6)
+					{
+						if (wisdom)
+						{
+							s32b wisdomcost;
+							s32b wispercent;
+							wisdomcost = spell_ptr->finalcost - p_ptr->stat_ind[A_WIS];
+							if (wisdomcost < 0) wisdomcost = 0;
+							if (p_ptr->stat_ind[A_WIS] >= wisdomcost) wispercent = 100;
+							else if (wisdomcost > (p_ptr->stat_ind[A_WIS] * 5)) wispercent = 0;
+							else
+							{
+								s32b proll = p_ptr->stat_ind[A_WIS];
+								s32b sroll = (spell_ptr->finalcost - p_ptr->stat_ind[A_WIS]);
+								int prollbonus = 0;
+
+								prollbonus = prollbonus + (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10);
+
+								proll = proll + multiply_divide(proll, prollbonus, 100);
+
+								wispercent = multiply_divide(100, proll, (proll + sroll));
+							}
+
+							sprintf(spellstring, "%s   Cost: %ld(%ld, %ld%%)", spell_ptr->name, spell_ptr->finalcost, wisdomcost, wispercent);
+						}
+						else sprintf(spellstring, "%s   Cost: %ld", spell_ptr->name, spell_ptr->finalcost);
+                        			/* List the powers */
+                        			strcpy(power_desc[num],spellstring);powers[num++]=i;
+					}
+				}
+			}
                 }
         }
 
@@ -2919,7 +2980,7 @@ void do_cmd_cast(bool wisdom)
 	if (!flag) 
 	{
 		energy_use = 0;
-                return num;
+                return;
 	}
 
         spell_ptr = &magic_spell[Power];
@@ -2931,40 +2992,28 @@ void do_cmd_cast(bool wisdom)
 	if (wisdom)
 	{
 		bool castsuccess = FALSE;
-		bool risky = FALSE;
-		int castpower = 5 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 7] / 10);
-		if (p_ptr->stat_ind[A_WIS] >= finalcost) castsuccess = TRUE;
+
+		wisdom_casting = TRUE;
+
+		if (p_ptr->stat_ind[A_WIS] >= (finalcost - p_ptr->stat_ind[A_WIS])) castsuccess = TRUE;
 		else
 		{
-			char riskych;
-			int caststrength = (p_ptr->stat_ind[A_WIS] - 5) * castpower;
-			if (caststrength < 0) caststrength = 0;
-			caststrength += ((caststrength * (p_ptr->abilities[(CLASS_PRIEST * 10) + 7] * 10)) / 100);
-			if (finalcost > ((caststrength * (3 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 7] / 20))) * 5))
+			int proll = p_ptr->stat_ind[A_WIS];
+			int sroll = (finalcost - p_ptr->stat_ind[A_WIS]);
+			int prollbonus = 0;
+
+			if (sroll > (proll * 5))
 			{
-				msg_print("This spell is too strong to even attempt.");
+				msg_print("This spell is too strong to attempt casting.");
 				return;
 			}
-                        if (finalcost > (caststrength * (3 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 7] / 20)))) risky = TRUE;
-			if (risky)
-			{
-				if (!get_com("Casting this spell could be dangerous. Proceed anyway? [y/n]", &riskych)) return;
-				if (!(riskych == 'y' || riskych == 'Y')) return;
-			}
-			if (randint(caststrength) >= randint(finalcost)) castsuccess = TRUE;
-			else
-			{
-				msg_print("You failed to cast the spell...");
-				castsuccess = FALSE;
-				if (risky)
-				{
-					msg_print("Your spell has become out of control!");
-					msg_print("The spell backfires, and your head is hurt by a vicious trauma!");
-					take_hit(finalcost, "Failed Casting");
-					(void)set_confused(5);
-                                        dec_stat(A_WIS, 5, STAT_DEC_NORMAL);                              
-				}
-			}
+
+			prollbonus = prollbonus + (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10);
+
+			proll = proll + multiply_divide(proll, prollbonus, 100);
+
+			if (randint(proll) >= randint(sroll)) castsuccess = TRUE;
+			else msg_print("You have failed to cast the spell.");
 		}
 		if (!castsuccess)
 		{
@@ -2993,71 +3042,38 @@ void do_cmd_cast(bool wisdom)
                                 if (spell_ptr->shape[i] == 1)
                                 {
 					s32b dam;
-					s32b rodbonus = 0;
-					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
-					s32b alterbonus = (p_ptr->skill[23] * 5) + (p_ptr->skill[1]);
-					s32b mystbonus = (p_ptr->skill[24] * 20) + (p_ptr->skill[1] * 10);
+					int school = 0;
 
-					o_ptr = &inventory[INVEN_WIELD];
-					if (o_ptr->tval == TV_ROD)
-					{
-						rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-					}
-					o_ptr = &inventory[INVEN_WIELD+1];
-					if (o_ptr->tval == TV_ROD)
-					{
-						rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-					}
-					if (p_ptr->prace == RACE_MONSTER && unarmed())
-					{
-						o_ptr = &inventory[INVEN_ESSENCE];
-						if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-					}
-
-					if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] >= 10 && spell_ptr->type[i] == p_ptr->elemlord)
-					{
-						o_ptr = &inventory[INVEN_WIELD];
-						if (o_ptr->tval == TV_WEAPON)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						}
-						o_ptr = &inventory[INVEN_WIELD+1];
-						if (o_ptr->tval == TV_WEAPON)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						}
-					}
-
-					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					dam = ((spellpower + rodbonus) * spellstat);
 					if (is_elemental(spell_ptr->type[i]))
 					{
 						casting_elemental = TRUE;
-						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
-						dam += multiply_divide(dam, elembonus, 100);
+						school = 1;
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
 						casting_alteration = TRUE;
-						dam += multiply_divide(dam, alterbonus, 100);
+						school = 2;
 					}
 					if (is_mysticism(spell_ptr->type[i]))
 					{
 						casting_mysticism = TRUE;
-						dam += multiply_divide(dam, mystbonus, 100);
+						school = 3;
 					}
-					dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
+					if (is_divination(spell_ptr->type[i]))
+					{
+						casting_divination = TRUE;
+						school = 5;
+					}
+
                                         if (dir == 0)
 					{
 						if (!(get_aim_dir(&dir))) return;
 					}
-					ignore_spellcraft = TRUE;
-                                        fire_bolt(spell_ptr->type[i], dir, dam);
-					ignore_spellcraft = FALSE;
+					call_lua("spell_damages", "(ddd)", "d", spellpower, spellstat, school, &dam);
+					/*ignore_spellcraft = TRUE;*/
+					if (p_ptr->abilities[(CLASS_MAGE * 10) + 4] >= 1) fire_ball(spell_ptr->type[i], dir, dam, 0 + (p_ptr->abilities[(CLASS_MAGE * 10) + 4] / 5));
+                                        else fire_bolt(spell_ptr->type[i], dir, dam);
+					/*ignore_spellcraft = FALSE; */
 					casting_elemental = FALSE;
 					casting_alteration = FALSE;
 					casting_conjuration = FALSE;
@@ -3067,81 +3083,40 @@ void do_cmd_cast(bool wisdom)
                                 if (spell_ptr->shape[i] == 2)
                                 {
 					s32b dam;
-					s32b rodbonus = 0;
-					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
-					s32b alterbonus = (p_ptr->skill[23] * 5) + (p_ptr->skill[1]);
-					s32b mystbonus = (p_ptr->skill[24] * 20) + (p_ptr->skill[1] * 10);
+					int school = 0;
 					int rad;
-
-					o_ptr = &inventory[INVEN_WIELD];
-					if (o_ptr->tval == TV_ROD)
-					{
-						rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-					}
-					o_ptr = &inventory[INVEN_WIELD+1];
-					if (o_ptr->tval == TV_ROD)
-					{
-						rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-					}
-					if (p_ptr->prace == RACE_MONSTER && unarmed())
-					{
-						o_ptr = &inventory[INVEN_ESSENCE];
-						if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-					}
-
-					if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] >= 10 && spell_ptr->type[i] == p_ptr->elemlord)
-					{
-						o_ptr = &inventory[INVEN_WIELD];
-						if (o_ptr->tval == TV_WEAPON)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						}
-						o_ptr = &inventory[INVEN_WIELD+1];
-						if (o_ptr->tval == TV_WEAPON)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						}
-					}
-
-					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					dam = ((spellpower + rodbonus) * spellstat);
+					
 					rad = spell_ptr->radius[i];
+					rad += (p_ptr->abilities[(CLASS_MAGE * 10) + 4] / 5);
 					if (is_elemental(spell_ptr->type[i]))
 					{
 						casting_elemental = TRUE;
-						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
-						dam += multiply_divide(dam, elembonus, 100);
-						rad += ((p_ptr->skill[22] / 20) + (p_ptr->skill[1] / 30));
+						school = 1;
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
 						casting_alteration = TRUE;
-						dam += multiply_divide(dam, alterbonus, 100);
-						rad += ((p_ptr->skill[23] / 20) + (p_ptr->skill[1] / 30));
+						school = 2;
 					}
 					if (is_mysticism(spell_ptr->type[i]))
 					{
 						casting_mysticism = TRUE;
-						dam += multiply_divide(dam, mystbonus, 100);
-						rad += ((p_ptr->skill[24] / 20) + (p_ptr->skill[1] / 30));
+						school = 3;
 					}
 					if (is_divination(spell_ptr->type[i]))
 					{
 						casting_divination = TRUE;
-						rad += ((p_ptr->skill[26] / 20) + (p_ptr->skill[1] / 30));
+						school = 5;
 					}
-					dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
+					
                                         if (dir == 0)
 					{
 						if (!(get_aim_dir(&dir))) return;
 					}
-					ignore_spellcraft = TRUE;
+					call_lua("spell_damages", "(ddd)", "d", spellpower, spellstat, school, &dam);
+					/*ignore_spellcraft = TRUE;*/
                                         fire_ball(spell_ptr->type[i], dir, dam, rad);
-					ignore_spellcraft = FALSE;
+					/*ignore_spellcraft = FALSE;*/
 					casting_elemental = FALSE;
 					casting_alteration = FALSE;
 					casting_conjuration = FALSE;
@@ -3151,77 +3126,40 @@ void do_cmd_cast(bool wisdom)
                                 if (spell_ptr->shape[i] == 3)
                                 {
 					s32b dam;
-					s32b rodbonus = 0;
-					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
-					s32b alterbonus = (p_ptr->skill[23] * 5) + (p_ptr->skill[1]);
-					s32b mystbonus = (p_ptr->skill[24] * 20) + (p_ptr->skill[1] * 10);
+					int school = 0;
 					int rad;
-
-					o_ptr = &inventory[INVEN_WIELD];
-					if (o_ptr->tval == TV_ROD)
-					{
-						rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-					}
-					o_ptr = &inventory[INVEN_WIELD+1];
-					if (o_ptr->tval == TV_ROD)
-					{
-						rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-					}
-					if (p_ptr->prace == RACE_MONSTER && unarmed())
-					{
-						o_ptr = &inventory[INVEN_ESSENCE];
-						if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-					}
-
-					if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] >= 10 && spell_ptr->type[i] == p_ptr->elemlord)
-					{
-						o_ptr = &inventory[INVEN_WIELD];
-						if (o_ptr->tval == TV_WEAPON)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						}
-						o_ptr = &inventory[INVEN_WIELD+1];
-						if (o_ptr->tval == TV_WEAPON)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						}
-					}
-
-					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					dam = ((spellpower + rodbonus) * spellstat);
+					
 					rad = spell_ptr->radius[i];
+					rad += (p_ptr->abilities[(CLASS_MAGE * 10) + 4] / 5);
 					if (is_elemental(spell_ptr->type[i]))
 					{
 						casting_elemental = TRUE;
-						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
-						dam += multiply_divide(dam, elembonus, 100);
-						rad += ((p_ptr->skill[22] / 20) + (p_ptr->skill[1] / 30));
+						school = 1;
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
 						casting_alteration = TRUE;
-						dam += multiply_divide(dam, alterbonus, 100);
-						rad += ((p_ptr->skill[23] / 20) + (p_ptr->skill[1] / 30));
+						school = 2;
 					}
 					if (is_mysticism(spell_ptr->type[i]))
 					{
 						casting_mysticism = TRUE;
-						dam += multiply_divide(dam, mystbonus, 100);
-						rad += ((p_ptr->skill[24] / 20) + (p_ptr->skill[1] / 30));
+						school = 3;
 					}
 					if (is_divination(spell_ptr->type[i]))
 					{
 						casting_divination = TRUE;
-						rad += ((p_ptr->skill[26] / 20) + (p_ptr->skill[1] / 30));
+						school = 5;
 					}
-					dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
-					ignore_spellcraft = TRUE;
+					
+                                        if (dir == 0)
+					{
+						if (!(get_aim_dir(&dir))) return;
+					}
+					call_lua("spell_damages", "(ddd)", "d", spellpower, spellstat, school, &dam);
+					/*ignore_spellcraft = TRUE;*/
                                         attack_aura(spell_ptr->type[i], dam, rad);
-					ignore_spellcraft = FALSE;
+					/*ignore_spellcraft = FALSE;*/
 					casting_elemental = FALSE;
 					casting_alteration = FALSE;
 					casting_conjuration = FALSE;
@@ -3231,210 +3169,83 @@ void do_cmd_cast(bool wisdom)
                                 if (spell_ptr->shape[i] == 4)
                                 {
 					s32b dam;
-					s32b rodbonus = 0;
-					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
-					s32b alterbonus = (p_ptr->skill[23] * 5) + (p_ptr->skill[1]);
-					s32b mystbonus = (p_ptr->skill[24] * 20) + (p_ptr->skill[1] * 10);
-
-					o_ptr = &inventory[INVEN_WIELD];
-					if (o_ptr->tval == TV_ROD)
-					{
-						rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-					}
-					o_ptr = &inventory[INVEN_WIELD+1];
-					if (o_ptr->tval == TV_ROD)
-					{
-						rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-					}
-					if (p_ptr->prace == RACE_MONSTER && unarmed())
-					{
-						o_ptr = &inventory[INVEN_ESSENCE];
-						if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-					}
-
-					if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] >= 10 && spell_ptr->type[i] == p_ptr->elemlord)
-					{
-						o_ptr = &inventory[INVEN_WIELD];
-						if (o_ptr->tval == TV_WEAPON)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						}
-						o_ptr = &inventory[INVEN_WIELD+1];
-						if (o_ptr->tval == TV_WEAPON)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						}
-					}
-
-					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					dam = ((spellpower + rodbonus) * spellstat);
+					int school = 0;
+					int rad;
+					
+					rad = spell_ptr->radius[i];
 					if (is_elemental(spell_ptr->type[i]))
 					{
 						casting_elemental = TRUE;
-						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
-						dam += multiply_divide(dam, elembonus, 100);
+						school = 1;
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
 						casting_alteration = TRUE;
-						dam += multiply_divide(dam, alterbonus, 100);
+						school = 2;
 					}
 					if (is_mysticism(spell_ptr->type[i]))
 					{
 						casting_mysticism = TRUE;
-						dam += multiply_divide(dam, mystbonus, 100);
+						school = 3;
 					}
-					dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
+					if (is_divination(spell_ptr->type[i]))
+					{
+						casting_divination = TRUE;
+						school = 5;
+					}
+					
                                         if (dir == 0)
 					{
-						if (!(get_rep_dir(&dir))) return;
+						if (!(get_aim_dir(&dir))) return;
 					}
-					ignore_spellcraft = TRUE;
-                                        chain_attack(dir, spell_ptr->type[i], dam, spell_ptr->radius[i], 20);
-					ignore_spellcraft = FALSE;
+					call_lua("spell_damages", "(ddd)", "d", spellpower, spellstat, school, &dam);
+					/*ignore_spellcraft = TRUE;*/
+                                        chain_attack(dir, spell_ptr->type[i], dam, rad, 20);
+					/*ignore_spellcraft = FALSE;*/
 					casting_elemental = FALSE;
 					casting_alteration = FALSE;
 					casting_conjuration = FALSE;
 					casting_mysticism = FALSE;
 					casting_divination = FALSE;
                                 }
-                                if (spell_ptr->shape[i] == 5)
+				if (spell_ptr->shape[i] == 5)
                                 {
-                                        s32b dam = 0;
-					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
-					s32b alterbonus = (p_ptr->skill[23] * 5) + (p_ptr->skill[1]);
-					s32b mystbonus = (p_ptr->skill[24] * 20) + (p_ptr->skill[1] * 10);
-					object_type *o_ptr = &inventory[INVEN_WIELD];
+					s32b dam;
+					int school = 0;
 
-					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-                                        if (dir == 0)
-					{
-						if (!(get_rep_dir(&dir))) return;
-					}
-                                        if (o_ptr)
-                                        {
-						if (unarmed()) call_lua("monk_damages", "", "l", &dam);
-						else call_lua("weapon_damages", "", "l", &dam);
-                                        }
-                                        dam = dam / 10;
-                                        if (dam < 0) dam = 0;
-					dam = dam * spellpower;
 					if (is_elemental(spell_ptr->type[i]))
 					{
 						casting_elemental = TRUE;
-						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
-						dam += multiply_divide(dam, elembonus, 100);
+						school = 1;
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
 						casting_alteration = TRUE;
-						dam += multiply_divide(dam, alterbonus, 100);
+						school = 2;
 					}
 					if (is_mysticism(spell_ptr->type[i]))
 					{
 						casting_mysticism = TRUE;
-						dam += multiply_divide(dam, mystbonus, 100);
+						school = 3;
 					}
-					ignore_spellcraft = TRUE;
-                                        chain_attack(dir, spell_ptr->type[i], dam, spell_ptr->radius[i], 1);
-					ignore_spellcraft = FALSE;
+					if (is_divination(spell_ptr->type[i]))
+					{
+						casting_divination = TRUE;
+						school = 5;
+					}
+
+					call_lua("spell_damages", "(ddd)", "d", spellpower, spellstat, school, &dam);
+					/*ignore_spellcraft = TRUE;*/
+
+					/* Does not actually use lua, but this is a nice, easy-to-use function. */
+					lua_project(-2, 0, py, px, dam, spell_ptr->type[i], 1);
+
+					/*ignore_spellcraft = FALSE; */
 					casting_elemental = FALSE;
 					casting_alteration = FALSE;
 					casting_conjuration = FALSE;
 					casting_mysticism = FALSE;
 					casting_divination = FALSE;
-                                }
-				if (spell_ptr->shape[i] == 6)
-                                {
-                                        s32b dam = 0;
-					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
-					s32b alterbonus = (p_ptr->skill[23] * 5) + (p_ptr->skill[1]);
-					s32b mystbonus = (p_ptr->skill[24] * 20) + (p_ptr->skill[1] * 10);
-					object_type *o_ptr;
-					object_type *q_ptr = &inventory[INVEN_AMMO];
-					u32b f1, f2, f3, f4;
-
-					object_flags(q_ptr, &f1, &f2, &f3, &f4);
-
-					if ((inventory[INVEN_WIELD].tval == TV_RANGED || inventory[INVEN_WIELD+1].tval == TV_RANGED) && (inventory[INVEN_AMMO].tval == TV_AMMO && inventory[INVEN_AMMO].number > 0))
-					{
-
-						if (inventory[INVEN_WIELD].tval == TV_RANGED && inventory[INVEN_WIELD+1].tval == TV_RANGED) choose_current_weapon();
-						else if (inventory[INVEN_WIELD].tval == TV_RANGED) current_weapon = &inventory[INVEN_WIELD];
-						else current_weapon = &inventory[INVEN_WIELD+1];
-
-						if (inventory[INVEN_AMMO].itemtype != current_weapon->itemtype)
-						{
-							msg_print("You must have the proper type of ammos.");
-							return;
-						}
-
-						if (inventory[INVEN_AMMO].number < current_weapon->extra2 && current_weapon->itemskill != 19)
-						{
-							msg_print("Not enough ammos.");
-							return;
-						}
-						if (current_weapon->pval2 < current_weapon->extra2 && current_weapon->itemskill != 19)
-						{
-							msg_print("Your weapon needs to be reloaded.");
-							return;
-						}
-
-						elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-						alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-						mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-                                        	if (dir == 0)
-						{
-							if (!(get_aim_dir(&dir))) return;
-						}
-						
-						call_lua("ranged_damages", "", "l", &dam);
-
-                                        	dam = dam / 10;
-                                        	if (dam < 0) dam = 0;
-						dam = dam * spellpower;
-						if (is_elemental(spell_ptr->type[i]))
-						{
-							casting_elemental = TRUE;
-							if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
-							dam += multiply_divide(dam, elembonus, 100);
-						}
-						if (is_alteration(spell_ptr->type[i]))
-						{
-							casting_alteration = TRUE;
-							dam += multiply_divide(dam, alterbonus, 100);
-						}
-						if (is_mysticism(spell_ptr->type[i]))
-						{
-							casting_mysticism = TRUE;
-							dam += multiply_divide(dam, mystbonus, 100);
-						}
-						ignore_spellcraft = TRUE;
-						if (spell_ptr->radius[i] >= 1) fire_ball(spell_ptr->type[i], dir, dam, spell_ptr->radius[i]);
-						else fire_bolt(spell_ptr->type[i], dir, dam);
-						ignore_spellcraft = FALSE;
-						casting_elemental = FALSE;
-						casting_alteration = FALSE;
-						casting_conjuration = FALSE;
-						casting_mysticism = FALSE;
-						casting_divination = FALSE;
-
-						if (!(f4 & (TR4_RETURNING)) && !(p_ptr->skill[2] >= 70 && current_weapon->itemskill != 21))
-						{
-							inven_item_increase(INVEN_AMMO, -(current_weapon->extra2));
-							inven_item_describe(INVEN_AMMO);
-							inven_item_optimize(INVEN_AMMO);
-
-							if (current_weapon->itemskill != 19) current_weapon->pval2 -= current_weapon->extra2;
-						}
-					}
-					else return;
                                 }
                         }
                         /* Spell kind 2 = Fixed Attack spell */
@@ -3443,31 +3254,30 @@ void do_cmd_cast(bool wisdom)
                         {
                                 if (spell_ptr->shape[i] == 1)
                                 {
-					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
-					s32b alterbonus = (p_ptr->skill[23] * 5) + (p_ptr->skill[1]);
-					s32b mystbonus = (p_ptr->skill[24] * 20) + (p_ptr->skill[1] * 10);
-
-					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 					if (is_elemental(spell_ptr->type[i]))
 					{
 						casting_elemental = TRUE;
-						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
-						spellpower += multiply_divide(spellpower, elembonus, 100);
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
 						casting_alteration = TRUE;
-						spellpower += multiply_divide(spellpower, alterbonus, 100);
+					}
+					if (is_mysticism(spell_ptr->type[i]))
+					{
+						casting_mysticism = TRUE;
+					}
+					if (is_divination(spell_ptr->type[i]))
+					{
+						casting_divination = TRUE;
 					}
                                         if (dir == 0)
 					{
 						if (!(get_aim_dir(&dir))) return;
 					}
-					ignore_spellcraft = TRUE;
-                                        fire_bolt(spell_ptr->type[i], dir, spellpower);
-					ignore_spellcraft = FALSE;
+					/*ignore_spellcraft = TRUE;*/
+					if (p_ptr->abilities[(CLASS_MAGE * 10) + 4] >= 1) fire_ball(spell_ptr->type[i], dir, spellpower, 0 + (p_ptr->abilities[(CLASS_MAGE * 10) + 4] / 5));
+                                        else fire_bolt(spell_ptr->type[i], dir, spellpower);
+					/*ignore_spellcraft = FALSE;*/
 					casting_elemental = FALSE;
 					casting_alteration = FALSE;
 					casting_conjuration = FALSE;
@@ -3477,34 +3287,31 @@ void do_cmd_cast(bool wisdom)
                                 if (spell_ptr->shape[i] == 2)
                                 {
 					int rad;
-					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
-					s32b alterbonus = (p_ptr->skill[23] * 5) + (p_ptr->skill[1]);
-					s32b mystbonus = (p_ptr->skill[24] * 20) + (p_ptr->skill[1] * 10);
-
-					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 					rad = spell_ptr->radius[i];
+					rad += (p_ptr->abilities[(CLASS_MAGE * 10) + 4] / 5);
 					if (is_elemental(spell_ptr->type[i]))
 					{
 						casting_elemental = TRUE;
-						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
-						spellpower += multiply_divide(spellpower, elembonus, 100);
-						rad += ((p_ptr->skill[22] / 20) + (p_ptr->skill[1] / 30));
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
 						casting_alteration = TRUE;
-						spellpower += multiply_divide(spellpower, alterbonus, 100);
-						rad += ((p_ptr->skill[23] / 20) + (p_ptr->skill[1] / 30));
+					}
+					if (is_mysticism(spell_ptr->type[i]))
+					{
+						casting_mysticism = TRUE;
+					}
+					if (is_divination(spell_ptr->type[i]))
+					{
+						casting_divination = TRUE;
 					}
                                         if (dir == 0)
 					{
 						if (!(get_aim_dir(&dir))) return;
 					}
-					ignore_spellcraft = TRUE;
+					/*ignore_spellcraft = TRUE;*/
                                         fire_ball(spell_ptr->type[i], dir, spellpower, rad);
-					ignore_spellcraft = FALSE;
+					/*ignore_spellcraft = FALSE;*/
 					casting_elemental = FALSE;
 					casting_alteration = FALSE;
 					casting_conjuration = FALSE;
@@ -3514,30 +3321,31 @@ void do_cmd_cast(bool wisdom)
                                 if (spell_ptr->shape[i] == 3)
                                 {
 					int rad;
-					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
-					s32b alterbonus = (p_ptr->skill[23] * 5) + (p_ptr->skill[1]);
-					s32b mystbonus = (p_ptr->skill[24] * 20) + (p_ptr->skill[1] * 10);
-
-					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 					rad = spell_ptr->radius[i];
+					rad += (p_ptr->abilities[(CLASS_MAGE * 10) + 4] / 5);
 					if (is_elemental(spell_ptr->type[i]))
 					{
 						casting_elemental = TRUE;
-						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
-						spellpower += multiply_divide(spellpower, elembonus, 100);
-						rad += ((p_ptr->skill[22] / 20) + (p_ptr->skill[1] / 30));
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
 						casting_alteration = TRUE;
-						spellpower += multiply_divide(spellpower, alterbonus, 100);
-						rad += ((p_ptr->skill[23] / 20) + (p_ptr->skill[1] / 30));
 					}
-					ignore_spellcraft = TRUE;
+					if (is_mysticism(spell_ptr->type[i]))
+					{
+						casting_mysticism = TRUE;
+					}
+					if (is_divination(spell_ptr->type[i]))
+					{
+						casting_divination = TRUE;
+					}
+                                        if (dir == 0)
+					{
+						if (!(get_aim_dir(&dir))) return;
+					}
+					/*ignore_spellcraft = TRUE;*/
                                         attack_aura(spell_ptr->type[i], spellpower, rad);
-					ignore_spellcraft = FALSE;
+					/*ignore_spellcraft = FALSE;*/
 					casting_elemental = FALSE;
 					casting_alteration = FALSE;
 					casting_conjuration = FALSE;
@@ -3546,31 +3354,60 @@ void do_cmd_cast(bool wisdom)
                                 }
                                 if (spell_ptr->shape[i] == 4)
                                 {
-					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
-					s32b alterbonus = (p_ptr->skill[23] * 5) + (p_ptr->skill[1]);
-					s32b mystbonus = (p_ptr->skill[24] * 20) + (p_ptr->skill[1] * 10);
-
-					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
-					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 					if (is_elemental(spell_ptr->type[i]))
 					{
 						casting_elemental = TRUE;
-						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
-						spellpower += multiply_divide(spellpower, elembonus, 100);
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
 						casting_alteration = TRUE;
-						spellpower += multiply_divide(spellpower, alterbonus, 100);
+					}
+					if (is_mysticism(spell_ptr->type[i]))
+					{
+						casting_mysticism = TRUE;
+					}
+					if (is_divination(spell_ptr->type[i]))
+					{
+						casting_divination = TRUE;
 					}
                                         if (dir == 0)
 					{
-						if (!(get_rep_dir(&dir))) return;
+						if (!(get_aim_dir(&dir))) return;
 					}
-					ignore_spellcraft = TRUE;
+					/*ignore_spellcraft = TRUE;*/
                                         chain_attack(dir, spell_ptr->type[i], spellpower, spell_ptr->radius[i], 20);
-					ignore_spellcraft = FALSE;
+					/*ignore_spellcraft = FALSE;*/
+					casting_elemental = FALSE;
+					casting_alteration = FALSE;
+					casting_conjuration = FALSE;
+					casting_mysticism = FALSE;
+					casting_divination = FALSE;
+                                }
+				if (spell_ptr->shape[i] == 5)
+                                {
+					if (is_elemental(spell_ptr->type[i]))
+					{
+						casting_elemental = TRUE;
+					}
+					if (is_alteration(spell_ptr->type[i]))
+					{
+						casting_alteration = TRUE;
+					}
+					if (is_mysticism(spell_ptr->type[i]))
+					{
+						casting_mysticism = TRUE;
+					}
+					if (is_divination(spell_ptr->type[i]))
+					{
+						casting_divination = TRUE;
+					}
+                                        
+					/*ignore_spellcraft = TRUE;*/
+
+					/* Does not actually use lua, but this is a nice, easy-to-use function. */
+					lua_project(-2, 0, py, px, spellpower, spell_ptr->type[i], 1);
+
+					/*ignore_spellcraft = FALSE;*/
 					casting_elemental = FALSE;
 					casting_alteration = FALSE;
 					casting_conjuration = FALSE;
@@ -3582,7 +3419,6 @@ void do_cmd_cast(bool wisdom)
                         /* Raise speed by 10. Power is the duration. */
                         if (spell_ptr->effect[i] == 3)
                         {
-				if (is_alteration(spell_ptr->type[i])) spellpower += multiply_divide(spellpower, (p_ptr->skill[23] * 5), 100);
                                 (void)set_fast(spellpower);
                         }
                         /* Spell kind 4 = Stat Boost */
@@ -3590,7 +3426,6 @@ void do_cmd_cast(bool wisdom)
                         /* The Shape is the duration of the spell. */
                         if (spell_ptr->effect[i] == 4)
                         {
-				if (is_alteration(spell_ptr->type[i])) spellpower += multiply_divide(spellpower, (p_ptr->skill[23] * 5), 100);
                                 switch(spell_ptr->type[i])
                                 {
                                         case 1:
@@ -3683,7 +3518,6 @@ void do_cmd_cast(bool wisdom)
                         /* Doubles to_hit and AC. Power is the duration. */
                         if (spell_ptr->effect[i] == 5)
                         {
-				if (is_alteration(spell_ptr->type[i])) spellpower += multiply_divide(spellpower, (p_ptr->skill[23] * 5), 100);
                                 (void)set_blessed(spellpower);
                         }
                         /* Spell kind 6 = Healing */
@@ -3692,29 +3526,8 @@ void do_cmd_cast(bool wisdom)
                         if (spell_ptr->effect[i] == 6)
                         {
                                 s32b heal;
-				s32b rodbonus = 0;
-
-				o_ptr = &inventory[INVEN_WIELD];
-				if (o_ptr->tval == TV_ROD)
-				{
-					rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-					rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-				}
-				o_ptr = &inventory[INVEN_WIELD+1];
-				if (o_ptr->tval == TV_ROD)
-				{
-					rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-					rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-				}
-				if (p_ptr->prace == RACE_MONSTER && unarmed())
-				{
-					o_ptr = &inventory[INVEN_ESSENCE];
-					if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-				}
-
-                                heal = (spellstat * (spellpower + rodbonus));
-				heal += multiply_divide(heal, (p_ptr->skill[24] * 10), 100);
-				heal = heal + multiply_divide(heal, p_ptr->to_s, 100);
+					
+				call_lua("spell_damages", "(ddd)", "d", spellpower, spellstat, 3, &heal);
                                 msg_print("You feel better!");
                                 p_ptr->chp += heal;
                                 if (p_ptr->chp >= p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
@@ -3759,7 +3572,7 @@ void do_cmd_cast(bool wisdom)
                         /* Spell kind 12 = Restore Mana */
                         if (spell_ptr->effect[i] == 12)
                         {
-				if (wisdom) spellpower += multiply_divide(spellpower, (p_ptr->skill[24] * 10), 100);
+				/*if (wisdom) spellpower += multiply_divide(spellpower, (p_ptr->skill[24] * 10), 100);*/
                                 p_ptr->csp += spellpower;
                                 if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
                                 update_and_handle();
@@ -3805,64 +3618,22 @@ void do_cmd_cast(bool wisdom)
                                         case 1:
                                         {
                                                 s32b dam;
-						s32b rodbonus = 0;
-						s32b conjbonus = (p_ptr->skill[25] * 20) + (p_ptr->skill[1] * 10);
-						conjbonus += multiply_divide(conjbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
+						int rad = 0;
 
-						o_ptr = &inventory[INVEN_WIELD];
-						if (o_ptr->tval == TV_ROD)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-							rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-						}
-						o_ptr = &inventory[INVEN_WIELD+1];
-						if (o_ptr->tval == TV_ROD)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-							rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-						}
-						if (p_ptr->prace == RACE_MONSTER && unarmed())
-						{
-							o_ptr = &inventory[INVEN_ESSENCE];
-							if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						}
-
-                                                dam = (spellstat * (spellpower + rodbonus));
-						dam += multiply_divide(dam, conjbonus, 100);
-						dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
-                                                place_field(spell_ptr->type[i], spell_ptr->radius[i], px, py, dam);
+						if (spell_ptr->type[i] != FEAT_TREES && spell_ptr->type[i] != FEAT_WEBS) rad += (p_ptr->abilities[(CLASS_MAGE * 10) + 4] / 5);
+						call_lua("spell_damages", "(ddd)", "d", spellpower, spellstat, 4, &dam);
+                                                place_field(spell_ptr->type[i], spell_ptr->radius[i] + rad, px, py, dam);
                                                 update_and_handle();
                                                 break;
                                         }
                                         case 2:
                                         {
                                                 s32b dam;
-						s32b rodbonus = 0;
-						s32b conjbonus = (p_ptr->skill[25] * 20) + (p_ptr->skill[1] * 10);
+						int rad = 0;
                                                 int ii, ij;
-						conjbonus += multiply_divide(conjbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 
-						o_ptr = &inventory[INVEN_WIELD];
-						if (o_ptr->tval == TV_ROD)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-							rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-						}
-						o_ptr = &inventory[INVEN_WIELD+1];
-						if (o_ptr->tval == TV_ROD)
-						{
-							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-							rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-						}
-						if (p_ptr->prace == RACE_MONSTER && unarmed())
-						{
-							o_ptr = &inventory[INVEN_ESSENCE];
-							if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
-						}
-
-                                                dam = (spellstat * (spellpower + rodbonus));
-						dam += multiply_divide(dam, conjbonus, 100);
-						dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
+						if (spell_ptr->type[i] != FEAT_TREES && spell_ptr->type[i] != FEAT_WEBS) rad += (p_ptr->abilities[(CLASS_MAGE * 10) + 4] / 5);
+						call_lua("spell_damages", "(ddd)", "d", spellpower, spellstat, 4, &dam);
                                                 if (!tgt_pt(&ii,&ij)) return;
 						if ((ij != py && ii != px) && (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) || (!(cave[ij][ii].info & CAVE_MARK) && !(cave[ij][ii].info & CAVE_LITE))))
         					{
@@ -3876,7 +3647,7 @@ void do_cmd_cast(bool wisdom)
 							}
                                                 	else
 							{ 
-								place_field(spell_ptr->type[i], spell_ptr->radius[i], ii, ij, dam);
+								place_field(spell_ptr->type[i], spell_ptr->radius[i] + rad, ii, ij, dam);
                                                 		update_and_handle();
 							}
 						}
@@ -3922,7 +3693,6 @@ void do_cmd_cast(bool wisdom)
                         /* Spell kind 17 = Telepathy */
                         if (spell_ptr->effect[i] == 17)
                         {
-				spellpower += multiply_divide(spellpower, (p_ptr->skill[26] * 20), 100);
                                 (void)set_tim_esp(spellpower);
                         }
                         /* Spell kind 18 = Identify */
@@ -4068,6 +3838,7 @@ void do_cmd_cast(bool wisdom)
         }
 
         if (!wisdom) p_ptr->csp -= finalcost;
+	wisdom_casting = FALSE;
 
 	call_lua("player_after_magic", "", "");
         update_and_handle();
@@ -4107,6 +3878,22 @@ void spell_making()
         int amountslots = 12;
         int redpercent = 0;
 
+
+	int Slot = -1;
+        int num = 0, dir = 0, count;
+
+	int powers[36];
+	char power_desc[36][80];
+
+        bool flag, redraw;
+        int  ask;
+
+        char choice;
+	char out_val[160];
+
+
+
+
         /* Effect kinds... */
         /* 0. None         */
         /* 1. Attack spell */
@@ -4119,7 +3906,173 @@ void spell_making()
         char quantitystring[80];
         magic_spells *spell_ptr;
 
-        /* Save what's on screen */
+        if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 3] >= 1)
+        {
+                amountslots += (1 + (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 3] / 5));
+        }
+
+        /*sprintf(quantitystring, "Select a slot to put the spell (1 - %d): ", amountslots);*/
+
+	for (i = 1; i <= amountslots; i++)
+        {
+                char spellstring[80];
+                spell_ptr = &magic_spell[i];
+                sprintf(spellstring, "%s   Cost: %ld", spell_ptr->name, spell_ptr->finalcost);        
+                /* List the powers */
+                strcpy(power_desc[num],spellstring);powers[num++]=i;
+        }
+
+        if(!num) {msg_print("No spells available.");return 0;}
+
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+
+	/* Build a prompt (accept all spells) */
+	if (num <= 26)
+	{
+		/* Build a prompt (accept all spells) */
+                strnfmt(out_val, 78, "(Spells %c-%c, *=List, ESC=exit) Select a spell slot. ",
+			I2A(0), I2A(num - 1));
+	}
+	else
+	{
+                strnfmt(out_val, 78, "(Spells %c-%c, *=List, ESC=exit) Select a spell slot. ",
+			I2A(0), '0' + num - 27);
+	}
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		{
+			/* Show the list */
+			if (!redraw)
+			{
+				byte y = 1, x = 0;
+				int ctr = 0;
+				char dummy[80];
+
+				strcpy(dummy, "");
+
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save the screen */
+				Term_save();
+
+				prt ("", y++, x);
+
+                                while (ctr < num && ctr < 19)
+				{
+					sprintf(dummy, "%c) %s", I2A(ctr), power_desc[ctr]);
+					prt(dummy, y + ctr, x);
+					ctr++;
+				}
+				while (ctr < num)
+				{
+					if (ctr < 26)
+					{
+						sprintf(dummy, " %c) %s", I2A(ctr), power_desc[ctr]);
+					}
+					else
+					{
+						sprintf(dummy, " %c) %s", '0' + ctr - 26, power_desc[ctr]);
+					}
+                                        prt(dummy, y + ctr - 19, x + 40);
+					ctr++;
+				}
+                                if (ctr < 19)
+				{
+					prt ("", y + ctr, x);
+				}
+				else
+				{
+                                        prt ("", y + 19, x);
+				}
+			}
+
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				Term_load();
+			}
+
+			/* Redo asking */
+			continue;
+		}
+
+		if (choice == '\r' && num == 1)
+		{
+			choice = 'a';
+		}
+
+		if (isalpha(choice))
+		{
+			/* Note verify */
+			ask = (isupper(choice));
+
+			/* Lowercase */
+			if (ask) choice = tolower(choice);
+
+			/* Extract request */
+			i = (islower(choice) ? A2I(choice) : -1);
+		}
+		else
+		{
+			ask = FALSE; /* Can't uppercase digits */
+
+			i = choice - '0' + 26;
+		}
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell();
+			continue;
+		}
+
+		/* Save the spell index */
+		Slot = powers[i];
+
+		/* Verify it */
+		if (ask)
+		{
+			char tmp_val[160];
+
+			/* Prompt */
+			strnfmt(tmp_val, 78, "Select %s? ", power_desc[i]);
+
+			/* Belay that order */
+			if (!get_check(tmp_val)) continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+	/* Restore the screen */
+	if (redraw) Term_load();
+
+	/* Abort if needed */
+	if (!flag) 
+	{
+                return;
+	}
+
+
+        /*whichslot = get_quantity(quantitystring, amountslots);*/
+	whichslot = Slot;
+        spell_ptr = &magic_spell[whichslot];
+
+	/* Save what's on screen */
         Term_save();
 
 	/* Flush messages */
@@ -4136,15 +4089,7 @@ void spell_making()
         c_put_str(TERM_WHITE, "PORTRALIS SPELL CREATION", 0, 0);
         c_put_str(TERM_WHITE, "--------------------------", 1, 0);
 
-        if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 3] >= 1)
-        {
-                amountslots += (1 + (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 3] / 5));
-        }
 
-        sprintf(quantitystring, "Select a slot to put the spell (1 - %d): ", amountslots);
-
-        whichslot = get_quantity(quantitystring, amountslots);
-        spell_ptr = &magic_spell[whichslot];
 
         /* No final cost yet */
         spell_ptr->finalcost = 0;
@@ -4262,7 +4207,7 @@ void spell_making()
                                         {
                                                 efftype = GF_MISSILE;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 9;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Missile");
                                                 chosen = TRUE;
@@ -4275,7 +4220,7 @@ void spell_making()
                                         {
                                                 efftype = GF_FIRE;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Fire");
                                                 chosen = TRUE;
@@ -4288,7 +4233,7 @@ void spell_making()
                                         {
                                                 efftype = GF_COLD;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Cold");
                                                 chosen = TRUE;
@@ -4301,7 +4246,7 @@ void spell_making()
                                         {
                                                 efftype = GF_ELEC;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Electricity");
                                                 chosen = TRUE;
@@ -4314,7 +4259,7 @@ void spell_making()
                                         {
                                                 efftype = GF_ACID;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Acid");
                                                 chosen = TRUE;
@@ -4327,7 +4272,7 @@ void spell_making()
                                         {
                                                 efftype = GF_POIS;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Poison");
                                                 chosen = TRUE;
@@ -4340,7 +4285,7 @@ void spell_making()
                                         {
                                                 efftype = GF_LITE;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Light");
                                                 chosen = TRUE;
@@ -4353,7 +4298,7 @@ void spell_making()
                                         {
                                                 efftype = GF_DARK;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Darkness");
                                                 chosen = TRUE;
@@ -4366,7 +4311,7 @@ void spell_making()
                                         {
                                                 efftype = GF_PHYSICAL;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Physical");
                                                 chosen = TRUE;
@@ -4379,7 +4324,7 @@ void spell_making()
                                         {
                                                 efftype = GF_RADIO;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Radio");
                                                 chosen = TRUE;
@@ -4392,7 +4337,7 @@ void spell_making()
                                         {
                                                 efftype = GF_WATER;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Water");
                                                 chosen = TRUE;
@@ -4405,7 +4350,7 @@ void spell_making()
                                         {
                                                 efftype = GF_CHAOS;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Chaos");
                                                 chosen = TRUE;
@@ -4418,7 +4363,7 @@ void spell_making()
                                         {
                                                 efftype = GF_EARTH;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Earth");
                                                 chosen = TRUE;
@@ -4431,7 +4376,7 @@ void spell_making()
                                         {
                                                 efftype = GF_SOUND;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Sound");
                                                 chosen = TRUE;
@@ -4443,8 +4388,8 @@ void spell_making()
                                         else
                                         {
                                                 efftype = GF_WARP;
-                                                effbase = 40;
-                                                effcost = 1;
+                                                effbase = 0;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Warp");
                                                 chosen = TRUE;
@@ -4457,7 +4402,7 @@ void spell_making()
                                         {
                                                 efftype = GF_WIND;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Wind");
                                                 chosen = TRUE;
@@ -4470,7 +4415,7 @@ void spell_making()
                                         {
                                                 efftype = GF_MANA;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 sprintf(choseneffect, "Mana");
                                                 chosen = TRUE;
@@ -4480,7 +4425,7 @@ void spell_making()
                                 {
                                 	efftype = p_ptr->elemlord;
                                         effbase = 0;
-                                        effcost = 1;
+                                        effcost = 3;
                                         effkind = 1;
                                         sprintf(choseneffect, get_element_name(p_ptr->elemlord));
                                         chosen = TRUE;
@@ -4518,8 +4463,7 @@ void spell_making()
                                 else if (spelltype == 2) sprintf(tmp, "Ball         ");
                                 else if (spelltype == 3) sprintf(tmp, "Circle       ");
                                 else if (spelltype == 4) sprintf(tmp, "Chain        ");
-                                else if (spelltype == 5) sprintf(tmp, "Melee Attack ");
-				else if (spelltype == 6) sprintf(tmp, "Ranged Attack");
+				else if (spelltype == 5) sprintf(tmp, "Self         ");
                                 c_put_str(TERM_L_GREEN, tmp, 10, 6);
                                 c_put_str(TERM_WHITE, "Mana Cost:", 12, 0);
                                 if (spelltype != 5 && spelltype != 6) manacost = (effbase + ((effcost * power) / 2));
@@ -4544,6 +4488,13 @@ void spell_making()
                                         manacost *= 40;
                                         if (rad > 0) manacost *= rad;
                                 }
+				/* Magic Missiles cost reduction */
+				if (efftype == GF_MISSILE && p_ptr->abilities[(CLASS_MAGE * 10) + 2] >= 1)
+				{
+					redpercent = 6 + (p_ptr->abilities[(CLASS_MAGE * 10) + 2] * 3);
+					if (redpercent > 67) redpercent = 67;
+					manacost -= multiply_divide(manacost, redpercent, 100);
+				}
                                 if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 6] >= 1)
                                 {
                                         redpercent = p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 6];
@@ -4552,11 +4503,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 6] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Elemental spells! */
 				if (p_ptr->skill_base[22] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[22] >= 50) manacost = (manacost - (manacost / 3));
@@ -4590,7 +4537,7 @@ void spell_making()
                                 if (choice == 't' || choice == 'T')
                                 {
                                         spelltype += 1;
-                                        if (spelltype > 6) spelltype = 1;
+                                        if (spelltype > 4) spelltype = 1;
                                         if (spelltype == 1 && rad > 0) spelltype += 1;
                                         if (spelltype == 1) rad = 0;
                                         if (spelltype == 2 && rad == 0) spelltype += 1;
@@ -5094,6 +5041,7 @@ void spell_making()
                                 else if (spelltype == 2) sprintf(tmp, "Ball  ");
                                 else if (spelltype == 3) sprintf(tmp, "Circle");
                                 else if (spelltype == 4) sprintf(tmp, "Chain ");
+				else if (spelltype == 5) sprintf(tmp, "Self  ");
                                 c_put_str(TERM_L_GREEN, tmp, 10, 6);
                                 c_put_str(TERM_WHITE, "Mana Cost:", 12, 0);
                                 manacost = (effbase + ((effcost * power))) * (rad + 1);
@@ -5114,11 +5062,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 7] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Alteration spells! */
 				if (p_ptr->skill_base[23] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[23] >= 50) manacost = (manacost - (manacost / 3));
@@ -5182,7 +5126,7 @@ void spell_making()
 
                         while (readytocreate == FALSE)
                         {
-                                power = 0;
+                                power = 100;
                                 c_put_str(TERM_WHITE, "Radius:", 6, 0);
                                 sprintf(tmp, "%d          ", rad);
                                 c_put_str(TERM_L_GREEN, tmp, 6, 8);
@@ -5191,6 +5135,7 @@ void spell_making()
                                 else if (spelltype == 2) sprintf(tmp, "Ball  ");
                                 else if (spelltype == 3) sprintf(tmp, "Circle");
                                 else if (spelltype == 4) sprintf(tmp, "Chain ");
+				else if (spelltype == 5) sprintf(tmp, "Self  ");
                                 c_put_str(TERM_L_GREEN, tmp, 8, 6);
                                 c_put_str(TERM_WHITE, "Mana Cost:", 10, 0);
                                 manacost = (effbase + ((effcost * power))) * (rad + 1);
@@ -5211,11 +5156,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 7] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Alteration spells! */
 				if (p_ptr->skill_base[23] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[23] >= 50) manacost = (manacost - (manacost / 3));
@@ -5289,11 +5230,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 7] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Alteration spells! */
 				if (p_ptr->skill_base[23] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[23] >= 50) manacost = (manacost - (manacost / 3));
@@ -5358,11 +5295,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 7] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Alteration spells! */
 				if (p_ptr->skill_base[23] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[23] >= 50) manacost = (manacost - (manacost / 3));
@@ -5432,11 +5365,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 7] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Alteration spells! */
 				if (p_ptr->skill_base[23] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[23] >= 50) manacost = (manacost - (manacost / 3));
@@ -5524,11 +5453,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 7] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Alteration spells! */
 				if (p_ptr->skill_base[23] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[23] >= 50) manacost = (manacost - (manacost / 3));
@@ -5616,8 +5541,8 @@ void spell_making()
                         else c_put_str(TERM_L_DARK, "[2] Restore Status", 9, 0);
                         if (p_ptr->healing_effects & MYST_HARM) c_put_str(TERM_WHITE, "[3] Harm", 10, 0);
                         else c_put_str(TERM_L_DARK, "[3] Harm", 10, 0);                        
-                        if (p_ptr->healing_effects & MYST_HEAL_OTHERS) c_put_str(TERM_WHITE, "[4] Heal Others", 11, 0);
-                        else c_put_str(TERM_L_DARK, "[4] Heal Others", 11, 0);
+                        if (p_ptr->healing_effects & MYST_DRAIN_LIFE) c_put_str(TERM_WHITE, "[4] Drain Life", 11, 0);
+                        else c_put_str(TERM_L_DARK, "[4] Drain Life", 11, 0);
                         if (p_ptr->healing_effects & MYST_REVIVE_MONSTER) c_put_str(TERM_WHITE, "[5] Revive Monster", 12, 0);
                         else c_put_str(TERM_L_DARK, "[5] Revive Monster", 12, 0);
                         if (p_ptr->healing_effects & MYST_RESTORE_MANA) c_put_str(TERM_WHITE, "[6] Restore Mana", 13, 0);
@@ -5643,13 +5568,16 @@ void spell_making()
                                         if (!(p_ptr->healing_effects & MYST_HEAL)) msg_print("You haven't learned this effect yet.");
                                         else
                                         {
-                                                efftype = 0;
+                                                efftype = GF_OLD_HEAL;
                                                 effbase = 0;
-                                                effcost = 1;
-                                                effkind = 6;
-                                                interfacetype = 2;
+                                                effcost = 12;
+                                                effkind = 1;
+                                                interfacetype = 4;
                                                 sprintf(choseneffect, "Heal");
                                                 chosen = TRUE;
+
+						/* For the Heal effect, set the default target to Self. */
+						spelltype = 5;
                                         }
                                 }
                                 else if (choice == '1')
@@ -5687,7 +5615,7 @@ void spell_making()
                                         {
                                                 efftype = GF_HARM;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 3;
                                                 effkind = 1;
                                                 interfacetype = 4;
                                                 sprintf(choseneffect, "Harm");
@@ -5696,15 +5624,15 @@ void spell_making()
                                 }
                                 else if (choice == '4')
                                 {
-                                        if (!(p_ptr->healing_effects & MYST_HEAL_OTHERS)) msg_print("You haven't learned this effect yet.");
+                                        if (!(p_ptr->healing_effects & MYST_DRAIN_LIFE)) msg_print("You haven't learned this effect yet.");
                                         else
                                         {
-                                                efftype = GF_OLD_HEAL;
+                                                efftype = GF_DRAIN_LIFE;
                                                 effbase = 0;
-                                                effcost = 1;
+                                                effcost = 24;
                                                 effkind = 1;
                                                 interfacetype = 1;
-                                                sprintf(choseneffect, "Heal Others");
+                                                sprintf(choseneffect, "Drain Life");
                                                 chosen = TRUE;
                                         }
                                 }
@@ -5860,6 +5788,7 @@ void spell_making()
                                 else if (spelltype == 2) sprintf(tmp, "Ball  ");
                                 else if (spelltype == 3) sprintf(tmp, "Circle");
                                 else if (spelltype == 4) sprintf(tmp, "Chain ");
+				else if (spelltype == 5) sprintf(tmp, "Self  ");
                                 c_put_str(TERM_L_GREEN, tmp, 10, 6);
                                 c_put_str(TERM_WHITE, "Mana Cost:", 12, 0);
                                 manacost = (effbase + ((effcost * power) / 2)) * (rad + 1);
@@ -5872,23 +5801,19 @@ void spell_making()
                                                 manacost += (50 * rad);
                                         }                                        
                                 }
-                                if (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] >= 1)
-                                {
-                                        redpercent = p_ptr->abilities[(CLASS_PRIEST * 10) + 6];
-                                        if (redpercent > 75) redpercent = 75;
-                                        manacost -= ((manacost * redpercent) / 100);
-                                        manacost -= (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] * 3);
-                                        if (manacost < 0) manacost = 0;
-                                }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
-				/* Mastery of Healing spells! */
+                                
+				/* Mastery of Mysticism spells! */
 				if (p_ptr->skill_base[24] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[24] >= 50) manacost = (manacost - (manacost / 3));
 				else if (p_ptr->skill_base[24] >= 25) manacost = (manacost - (manacost / 4));
+
+				/* Priest's Mystical power. */
+				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1)
+				{
+
+					manacost = manacost - multiply_divide(p_ptr->stat_ind[A_WIS], p_ptr->abilities[(CLASS_PRIEST * 10) + 1] * 10, 100);
+					if (manacost < 0) manacost = 0;
+				}
 
                                 sprintf(tmp, "%ld          ", manacost);
                                 c_put_str(TERM_L_GREEN, tmp, 12, 11);
@@ -5954,23 +5879,19 @@ void spell_making()
                                 c_put_str(TERM_WHITE, "Mana Cost:", 8, 0);
                                 manacost = (effbase + ((effcost * power)));
                                 if (manacost > 10) manacost *= (manacost / 5);
-                                if (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] >= 1)
-                                {
-                                        redpercent = p_ptr->abilities[(CLASS_PRIEST * 10) + 6];
-                                        if (redpercent > 75) redpercent = 75;
-                                        manacost -= ((manacost * redpercent) / 100);
-                                        manacost -= (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] * 3);
-                                        if (manacost < 0) manacost = 0;
-                                }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
-				/* Mastery of Healing spells! */
+				
+				/* Mastery of Mysticism spells! */
 				if (p_ptr->skill_base[24] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[24] >= 50) manacost = (manacost - (manacost / 3));
 				else if (p_ptr->skill_base[24] >= 25) manacost = (manacost - (manacost / 4));
+
+				/* Priest's Mystical power. */
+				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1)
+				{
+
+					manacost = manacost - multiply_divide(p_ptr->stat_ind[A_WIS], p_ptr->abilities[(CLASS_PRIEST * 10) + 1] * 10, 100);
+					if (manacost < 0) manacost = 0;
+				}
 
                                 sprintf(tmp, "%ld          ", manacost);
                                 c_put_str(TERM_L_GREEN, tmp, 8, 11);
@@ -6015,23 +5936,19 @@ void spell_making()
                         {
                                 c_put_str(TERM_WHITE, "Mana Cost:", 12, 0);
                                 manacost = (effbase + ((effcost * power)));
-                                if (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] >= 1)
-                                {
-                                        redpercent = p_ptr->abilities[(CLASS_PRIEST * 10) + 6];
-                                        if (redpercent > 75) redpercent = 75;
-                                        manacost -= ((manacost * redpercent) / 100);
-                                        manacost -= (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] * 3);
-                                        if (manacost < 0) manacost = 0;
-                                }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
-				/* Mastery of Healing spells! */
+                                
+				/* Mastery of Mysticism spells! */
 				if (p_ptr->skill_base[24] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[24] >= 50) manacost = (manacost - (manacost / 3));
 				else if (p_ptr->skill_base[24] >= 25) manacost = (manacost - (manacost / 4));
+
+				/* Priest's Mystical power. */
+				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1)
+				{
+
+					manacost = manacost - multiply_divide(p_ptr->stat_ind[A_WIS], p_ptr->abilities[(CLASS_PRIEST * 10) + 1] * 10, 100);
+					if (manacost < 0) manacost = 0;
+				}
 
                                 sprintf(tmp, "%ld          ", manacost);
                                 c_put_str(TERM_L_GREEN, tmp, 12, 11);
@@ -6078,14 +5995,12 @@ void spell_making()
                                 else if (spelltype == 2) sprintf(tmp, "Ball         ");
                                 else if (spelltype == 3) sprintf(tmp, "Circle       ");
                                 else if (spelltype == 4) sprintf(tmp, "Chain        ");
-				else if (spelltype == 5) sprintf(tmp, "Melee Attack ");
-				else if (spelltype == 6) sprintf(tmp, "Ranged Attack");
+				else if (spelltype == 5) sprintf(tmp, "Self         ");
                                 c_put_str(TERM_L_GREEN, tmp, 10, 6);
                                 c_put_str(TERM_WHITE, "Mana Cost:", 12, 0);
                                 /* manacost = (effbase + ((effcost * power))) * (rad + 1);*/
 
-				if (spelltype != 5 && spelltype != 6) manacost = (effbase + ((effcost * power) / 2));
-                                else manacost = (effbase + (effcost * power)) * (power / 2);
+				manacost = (effbase + ((effcost * power) / 2));
                                 manacost += ((manacost * (power * 3)) / 100);
                                 manacost = manacost * (rad + 1);
 
@@ -6101,29 +6016,19 @@ void spell_making()
                                                 manacost += (50 * rad);
                                         }                                        
                                 }
-				if (spelltype == 5 || spelltype == 6)
-                                {
-                                        manacost *= 40;
-                                        if (rad > 0) manacost *= rad;
-                                }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] >= 1)
-                                {
-                                        redpercent = p_ptr->abilities[(CLASS_PRIEST * 10) + 6];
-                                        if (redpercent > 75) redpercent = 75;
-                                        manacost -= ((manacost * redpercent) / 100);
-                                        manacost -= (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] * 3);
-                                        if (manacost < 0) manacost = 0;
-                                }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
                                 
-				/* Mastery of Healing spells! */
+				/* Mastery of Mysticism spells! */
 				if (p_ptr->skill_base[24] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[24] >= 50) manacost = (manacost - (manacost / 3));
 				else if (p_ptr->skill_base[24] >= 25) manacost = (manacost - (manacost / 4));
+
+				/* Priest's Mystical power. */
+				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1)
+				{
+
+					manacost = manacost - multiply_divide(p_ptr->stat_ind[A_WIS], p_ptr->abilities[(CLASS_PRIEST * 10) + 1] * 10, 100);
+					if (manacost < 0) manacost = 0;
+				}
 
 				if (manacost < 0) manacost = 0;
 
@@ -6153,7 +6058,14 @@ void spell_making()
                                 if (choice == 't' || choice == 'T')
                                 {
                                         spelltype += 1;
-                                        if (spelltype > 6) spelltype = 1;
+					if (efftype == GF_OLD_HEAL)
+					{
+                                        	if (spelltype > 5) spelltype = 1;
+					}
+					else
+					{
+						if (spelltype > 4) spelltype = 1;
+					}
                                         if (spelltype == 1 && rad > 0) spelltype += 1;
                                         if (spelltype == 1) rad = 0;
                                         if (spelltype == 2 && rad == 0) spelltype += 1;
@@ -6206,23 +6118,19 @@ void spell_making()
                                                 manacost += (50 * rad);
                                         }                                        
                                 }
-                                if (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] >= 1)
-                                {
-                                        redpercent = p_ptr->abilities[(CLASS_PRIEST * 10) + 6];
-                                        if (redpercent > 75) redpercent = 75;
-                                        manacost -= ((manacost * redpercent) / 100);
-                                        manacost -= (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] * 3);
-                                        if (manacost < 0) manacost = 0;
-                                }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
-				/* Mastery of Healing spells! */
+                                
+				/* Mastery of Mysticism spells! */
 				if (p_ptr->skill_base[24] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[24] >= 50) manacost = (manacost - (manacost / 3));
 				else if (p_ptr->skill_base[24] >= 25) manacost = (manacost - (manacost / 4));
+
+				/* Priest's Mystical power. */
+				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1)
+				{
+
+					manacost = manacost - multiply_divide(p_ptr->stat_ind[A_WIS], p_ptr->abilities[(CLASS_PRIEST * 10) + 1] * 10, 100);
+					if (manacost < 0) manacost = 0;
+				}
 
                                 sprintf(tmp, "%ld          ", manacost);
                                 c_put_str(TERM_L_GREEN, tmp, 10, 11);
@@ -6353,7 +6261,7 @@ void spell_making()
                                         {
                                                 efftype = FEAT_FIRE_FIELD;
                                                 effbase = 0;
-                                                effcost = 2;
+                                                effcost = 6;
                                                 effkind = 15;
                                                 interfacetype = 3;
                                                 sprintf(choseneffect, "Fire Fields");
@@ -6367,7 +6275,7 @@ void spell_making()
                                         {
                                                 efftype = FEAT_COLD_FIELD;
                                                 effbase = 0;
-                                                effcost = 2;
+                                                effcost = 6;
                                                 effkind = 15;
                                                 interfacetype = 3;
                                                 sprintf(choseneffect, "Cold Fields");
@@ -6381,7 +6289,7 @@ void spell_making()
                                         {
                                                 efftype = FEAT_ELEC_FIELD;
                                                 effbase = 0;
-                                                effcost = 2;
+                                                effcost = 6;
                                                 effkind = 15;
                                                 interfacetype = 3;
                                                 sprintf(choseneffect, "Electric Fields");
@@ -6424,7 +6332,7 @@ void spell_making()
                                         {
                                                 efftype = FEAT_THORNED_VINES;
                                                 effbase = 0;
-                                                effcost = 2;
+                                                effcost = 6;
                                                 effkind = 15;
                                                 interfacetype = 3;
                                                 sprintf(choseneffect, "Thorned Vines");
@@ -6438,7 +6346,7 @@ void spell_making()
                                         {
                                                 efftype = FEAT_STORMS;
                                                 effbase = 0;
-                                                effcost = 2;
+                                                effcost = 6;
                                                 effkind = 15;
                                                 interfacetype = 3;
                                                 sprintf(choseneffect, "Storms");
@@ -6551,11 +6459,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 8] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Conjuration spells! */
 				if (p_ptr->skill_base[25] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[25] >= 50) manacost = (manacost - (manacost / 3));
@@ -6661,11 +6565,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 8] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Conjuration spells! */
 				if (p_ptr->skill_base[25] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[25] >= 50) manacost = (manacost - (manacost / 3));
@@ -6753,11 +6653,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 8] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Conjuration spells! */
 				if (p_ptr->skill_base[25] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[25] >= 50) manacost = (manacost - (manacost / 3));
@@ -6832,11 +6728,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 8] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Conjuration spells! */
 				if (p_ptr->skill_base[25] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[25] >= 50) manacost = (manacost - (manacost / 3));
@@ -6922,11 +6814,7 @@ void spell_making()
                                         manacost -= (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 8] * 3);
                                         if (manacost < 0) manacost = 0;
                                 }
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
+				
 				/* Mastery of Conjuration spells! */
 				if (p_ptr->skill_base[25] >= 100) manacost = (manacost / 2);
 				else if (p_ptr->skill_base[25] >= 50) manacost = (manacost - (manacost / 3));
@@ -7261,12 +7149,6 @@ void spell_making()
                                 c_put_str(TERM_WHITE, "Mana Cost:", 12, 0);
                                 manacost = (effbase + ((effcost * power)));
 
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
-
 				if (p_ptr->abilities[(CLASS_DIVINER * 10) + 6] >= 1)
                                 {
                                         redpercent = p_ptr->abilities[(CLASS_DIVINER * 10) + 6];
@@ -7322,12 +7204,6 @@ void spell_making()
                                 c_put_str(TERM_WHITE, "Mana Cost:", 8, 0);
                                 manacost = (effbase + ((effcost * power)));
                                 if (manacost > 10) manacost *= (manacost / 5);
-
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
 
 				if (p_ptr->abilities[(CLASS_DIVINER * 10) + 6] >= 1)
                                 {
@@ -7395,12 +7271,6 @@ void spell_making()
                                 c_put_str(TERM_WHITE, "Mana Cost:", 12, 0);
                                 manacost = (effbase + ((effcost * power))) * (rad + 1);
                                 if (spelltype == 2) manacost *= 2;
-
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
 
 				if (p_ptr->abilities[(CLASS_DIVINER * 10) + 6] >= 1)
                                 {
@@ -7490,12 +7360,6 @@ void spell_making()
                                         {
                                                 manacost += (50 * rad);
                                         }                                        
-                                }
-
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
                                 }
 
 				if (p_ptr->abilities[(CLASS_DIVINER * 10) + 6] >= 1)
@@ -7638,12 +7502,6 @@ void spell_making()
 					manacost += difference * 300;
 				}
 				manacost += ((manacost * (difference * 5)) / 100);
-
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
 
 				if (p_ptr->abilities[(CLASS_DIVINER * 10) + 6] >= 1)
                                 {
@@ -7794,12 +7652,6 @@ void spell_making()
 					if (manacost < (basemanacost / 2)) manacost = (basemanacost / 2);
 				}
 
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
-
 				if (p_ptr->abilities[(CLASS_DIVINER * 10) + 6] >= 1)
                                 {
                                         redpercent = p_ptr->abilities[(CLASS_DIVINER * 10) + 6];
@@ -7926,12 +7778,6 @@ void spell_making()
 					manacost += difference * 10;
 				}
 				manacost += ((manacost * (difference * 5)) / 100);
-
-				if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 1)
-                                {
-                                        manacost -= (p_ptr->stat_cur[A_WIS] * (p_ptr->abilities[(CLASS_PRIEST * 10)] * 10)) / 100;
-                                        if (manacost < 0) manacost = 0;
-                                }
 				
 				if (p_ptr->abilities[(CLASS_DIVINER * 10) + 6] >= 1)
                                 {
@@ -8078,6 +7924,7 @@ void spell_making()
 	}
 		
         Term_load();
+	update_and_handle();
 }
 
 /* Returns the mana cost of a specific creature */
@@ -8363,8 +8210,8 @@ void conjure_specific_item(char name[30], int dur, bool magic, bool special)
 }
 
 /* Activate an item. */
-/* Heavily based on soul power. */
-void activate_item(object_type *o_ptr, bool wisdom)
+/* Now calls Lua. */
+void activate_item(object_type *o_ptr)
 {
 	int                     Power = -1;
         int                     num = 0, dir = 0 , i, j;
@@ -8382,20 +8229,9 @@ void activate_item(object_type *o_ptr, bool wisdom)
 
 	char            out_val[160];
         int k,count;
-	int rad;
-	s32b rodbonus = 0;
-	s32b spellbonus = 0;
 	object_type *q_ptr;
 
-        int spellstat;
         cptr q, s;
-
-	/* This determines casting power */
-	if (wisdom) spellstat = (p_ptr->stat_ind[A_WIS] - 5);
-	else spellstat = (p_ptr->stat_ind[A_INT] - 5);
-
-	/* No lower than 1. */
-	if (spellstat < 1) spellstat = 1;
 
 	/* Is it charging? */
 	if (o_ptr->timeout >= 1)
@@ -8403,29 +8239,6 @@ void activate_item(object_type *o_ptr, bool wisdom)
                 msg_print("This items still needs to recharge.");
                 return;
         }
-
-	/* Rods bonus. */
-	q_ptr = &inventory[INVEN_WIELD];
-	if (q_ptr->tval == TV_ROD)
-	{
-		rodbonus += damroll(q_ptr->dd, q_ptr->ds);
-		rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-	}
-	q_ptr = &inventory[INVEN_WIELD+1];
-	if (q_ptr->tval == TV_ROD)
-	{
-		rodbonus += damroll(q_ptr->dd, q_ptr->ds);
-		rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-	}
-	if (p_ptr->prace == RACE_MONSTER && unarmed())
-	{
-		q_ptr = &inventory[INVEN_ESSENCE];
-		if (q_ptr->tval == TV_ESSENCE) rodbonus += damroll(q_ptr->dd, q_ptr->ds);
-	}
-
-	/* Because we use Rods as specialized skills for their powers, let's use a spellpower variable. */
-	if (o_ptr->tval == TV_ROD) spellbonus = (p_ptr->skill[17] * 20) + (p_ptr->skill[1] * 10);
-	else spellbonus = (p_ptr->skill[17] * 20) + (p_ptr->skill[1] * 10);
 
         /* List the powers */
 	for (i = 0; i < 20; i++)
@@ -8586,188 +8399,10 @@ void activate_item(object_type *o_ptr, bool wisdom)
                 return;
 	}
 
-	o_ptr->timeout = o_ptr->spell[Power].cost - (p_ptr->abilities[(CLASS_MAGE * 10) + 7] / 2);
+	o_ptr->timeout = o_ptr->spell[Power].cost;
 	if (o_ptr->timeout < 0) o_ptr->timeout = 0;
-        switch (o_ptr->spell[Power].type)
-	{
-		/* Bolt */
-		case 1:
-		{
-			dam = o_ptr->spell[Power].power;
-			if (o_ptr->spell[Power].special3 != 1)
-			{
-				dam += rodbonus;
-				dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MAGE * 10) + 7] * 50), 100);
-				if (o_ptr->tval == TV_ESSENCE) dam += multiply_divide(dam, p_ptr->abilities[(CLASS_MONSTER * 10) + 4] * 50, 100);
-				dam = dam * spellstat;
-				if (o_ptr->spell[Power].special1 == GF_MISSILE) spellbonus = spellbonus / 2;
-				dam += multiply_divide(dam, spellbonus, 100);
-				dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
-				if (o_ptr->tval == TV_ESSENCE && (p_ptr->boss_abilities & (BOSS_DOUBLE_MAGIC))) dam = dam * 2;
-			}
 
-			if(!get_aim_dir(&dir)) return;
-			if (o_ptr->tval == TV_ESSENCE) p_ptr->events[29017] = (p_ptr->abilities[(CLASS_MONSTER * 10) + 4] * 10);
-			ignore_spellcraft = TRUE;
-			fire_bolt(o_ptr->spell[Power].special1, dir, dam);
-			ignore_spellcraft = FALSE;
-			p_ptr->events[29017] = 0;
-			energy_use = 100;
-			break;
-		}
-		/* Ball */
-		case 2:
-		{
-			dam = o_ptr->spell[Power].power;
-			if (o_ptr->spell[Power].special3 != 1)
-			{
-				dam += rodbonus;
-				dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MAGE * 10) + 7] * 50), 100);
-				if (o_ptr->tval == TV_ESSENCE) dam += multiply_divide(dam, p_ptr->abilities[(CLASS_MONSTER * 10) + 4] * 50, 100);
-				dam = dam * spellstat;
-				if (o_ptr->spell[Power].special1 == GF_MISSILE) spellbonus = spellbonus / 2;
-				dam += multiply_divide(dam, spellbonus, 100);
-				dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
-				if (o_ptr->tval == TV_ESSENCE && (p_ptr->boss_abilities & (BOSS_DOUBLE_MAGIC))) dam = dam * 2;
-			}
-			
-			rad = o_ptr->spell[Power].special2;
-			if (o_ptr->tval == TV_ROD) rad += p_ptr->skill[17] / 20;
-			if(!get_aim_dir(&dir)) return;
-			if (o_ptr->tval == TV_ESSENCE) p_ptr->events[29017] = (p_ptr->abilities[(CLASS_MONSTER * 10) + 4] * 10);
-			ignore_spellcraft = TRUE;
-			fire_ball(o_ptr->spell[Power].special1, dir, dam, rad);
-			ignore_spellcraft = FALSE;
-			p_ptr->events[29017] = 0;
-			energy_use = 100;
-			break;
-		}
-		/* Heal */
-		case 3:
-		{
-			dam = o_ptr->spell[Power].power;
-			if (o_ptr->spell[Power].special3 != 1)
-			{
-				dam += rodbonus;
-				dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MAGE * 10) + 7] * 50), 100);
-				if (o_ptr->tval == TV_ESSENCE) dam += multiply_divide(dam, p_ptr->abilities[(CLASS_MONSTER * 10) + 4] * 50, 100);
-				dam = dam * spellstat;
-				dam += multiply_divide(dam, spellbonus, 100);
-				dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
-				if (o_ptr->tval == TV_ESSENCE && (p_ptr->boss_abilities & (BOSS_DOUBLE_MAGIC))) dam = dam * 2;
-			}
-			
-			p_ptr->chp += dam;
-			if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
-			msg_print("You are healed!");
-			update_and_handle();
-			energy_use = 100;
-			break;
-		}
-		/* Haste */
-		case 4:
-		{
-			dam = o_ptr->spell[Power].power;
-			if (o_ptr->spell[Power].special3 != 1)
-			{
-				dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MAGE * 10) + 7] * 50), 100);
-				if (o_ptr->tval == TV_ESSENCE) dam += multiply_divide(dam, p_ptr->abilities[(CLASS_MONSTER * 10) + 4] * 50, 100);
-			}
-			(void)set_fast(dam);
-			update_and_handle();
-			energy_use = 100;
-			break;
-		}
-		/* Boost */
-		case 5:
-		{
-			dam = o_ptr->spell[Power].power;
-			if (o_ptr->tval == TV_ESSENCE) dam += multiply_divide(dam, p_ptr->abilities[(CLASS_MONSTER * 10) + 4] * 10, 100);
-			if (o_ptr->spell[Power].special1 == 1 || o_ptr->spell[Power].special1 == 4)
-			{
-				p_ptr->str_boost = dam;
-                                (void)set_str_boost(20);
-			}
-			if (o_ptr->spell[Power].special1 == 2 || o_ptr->spell[Power].special1 == 9)
-			{
-				p_ptr->dex_boost = dam;
-                                (void)set_dex_boost(20);
-			}
-			if (o_ptr->spell[Power].special1 == 3 || o_ptr->spell[Power].special1 == 5)
-			{
-				p_ptr->int_boost = dam;
-                                (void)set_int_boost(20);
-				p_ptr->wis_boost = dam;
-                                (void)set_wis_boost(20);
-			}
-			if ((o_ptr->spell[Power].special1 == 6) || (o_ptr->spell[Power].special1 == 7) || (o_ptr->spell[Power].special1 == 8)) 
-			{
-				p_ptr->str_boost = dam;
-				p_ptr->dex_boost = dam;
-				p_ptr->int_boost = dam;
-				p_ptr->wis_boost = dam;
-				(void)set_str_boost(20);
-				(void)set_dex_boost(20);
-				(void)set_int_boost(20);
-				(void)set_wis_boost(20);
-			}
-			update_and_handle();
-			energy_use = 100;
-			break;
-		}
-
-		/* Summon Kind */
-		case 6:
-		{
-			int essenceboost = 0;
-
-			if (o_ptr->tval == TV_ESSENCE) essenceboost = p_ptr->abilities[(CLASS_MONSTER * 10) + 4];
-			for (j = 0; j < o_ptr->spell[Power].special1; j++)
-			{
-				summon_specific_kind(py, px, o_ptr->spell[Power].power + essenceboost, o_ptr->spell[Power].summchar, FALSE, TRUE, o_ptr->spell[Power].special2);
-			}
-			energy_use = 100;
-			break;
-		}
-
-		/* Summon Specific */
-		case 7:
-		{
-			for (j = 0; j < o_ptr->spell[Power].special1; j++)
-			{
-				summon_specific_ridx(py, px, o_ptr->spell[Power].power, FALSE, TRUE, o_ptr->spell[Power].special2);
-			}
-			energy_use = 100;
-			break;
-		}
-		/* Phase door */
-		case 8:
-		{
-			teleport_player(o_ptr->spell[Power].power);
-			energy_use = 100;
-			break;
-		}
-		/* Script. */
-		case 9:
-		{
-			call_lua("activate_spell_script", "(d)", "", o_ptr->spell[Power].power);
-			break;
-		}
-		/* Type change */
-		case 10:
-		{
-			o_ptr->extra1 = o_ptr->spell[Power].power;
-			msg_format("Damages type changed to %s!", get_element_name(o_ptr->spell[Power].power));
-			energy_use = 100;
-			break;
-		}
-		
-		default:
-		{
-			break;
-		}
-	}
-
+	call_lua("item_activation", "(Od)", "", o_ptr, Power);
 }
 
 /* Pick one of your spells, returns it's id. */
@@ -9222,8 +8857,7 @@ void use_monster_special_attack(s16b m_idx)
 
 		if (!(get_rep_dir(&dir))) return;
 
-		if (combatfeat) dam += multiply_divide(dam, p_ptr->abilities_monster_attacks[i] * 20, 100);
-		else dam *= (p_ptr->abilities_monster_attacks[i] + 1);
+		dam += multiply_divide(dam, p_ptr->abilities_monster_attacks[i] * 20, 100);
 
 		rad = 0 + (p_ptr->abilities_monster_attacks[i] / 10);
 
@@ -9313,8 +8947,8 @@ char *get_monster_attack_name_short(int m_idx, int num)
 	}
 	else
 	{
-		if (r_ptr->attack[num].type == 1) sprintf(extra, "(%s, %dd%d, Melee)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
-		else if (r_ptr->attack[num].type == 3) sprintf(extra, "(%s, %dd%d, Ranged)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
+		if (r_ptr->attack[num].type == 1) sprintf(extra, "(%s, %d(+%d/%d lev)d%d(+%d/%d lev), Melee)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].ddscale, r_ptr->attack[num].ddscalefactor, r_ptr->attack[num].dside, r_ptr->attack[num].dsscale, r_ptr->attack[num].dsscalefactor);
+		else if (r_ptr->attack[num].type == 3) sprintf(extra, "(%s, %d(+%d/%d lev)d%d(+%d/%d lev), Ranged)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].ddscale, r_ptr->attack[num].ddscalefactor, r_ptr->attack[num].dside, r_ptr->attack[num].dsscale, r_ptr->attack[num].dsscalefactor);
 		else sprintf(extra, "(Special attack)");
 	}
 
@@ -9792,8 +9426,8 @@ void browse_spells()
                 else c_put_str(TERM_L_DARK, "[2] Restore Status", 9, 0);
                 if (p_ptr->healing_effects & MYST_HARM) c_put_str(TERM_WHITE, "[3] Harm", 10, 0);
                 else c_put_str(TERM_L_DARK, "[3] Harm", 10, 0);                        
-                if (p_ptr->healing_effects & MYST_HEAL_OTHERS) c_put_str(TERM_WHITE, "[4] Heal Others", 11, 0);
-                else c_put_str(TERM_L_DARK, "[4] Heal Others", 11, 0);
+                if (p_ptr->healing_effects & MYST_DRAIN_LIFE) c_put_str(TERM_WHITE, "[4] Drain Life", 11, 0);
+                else c_put_str(TERM_L_DARK, "[4] Drain Life", 11, 0);
                 if (p_ptr->healing_effects & MYST_REVIVE_MONSTER) c_put_str(TERM_WHITE, "[5] Revive Monster", 12, 0);
                 else c_put_str(TERM_L_DARK, "[5] Revive Monster", 12, 0);
                 if (p_ptr->healing_effects & MYST_RESTORE_MANA) c_put_str(TERM_WHITE, "[6] Restore Mana", 13, 0);

@@ -1157,6 +1157,31 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Get the "player" attr */
 		a = r_ptr->x_attr;
 
+		/* Elemental Lord's Elemental Being can change the player's color. */
+		if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 9] >= 10)
+		{
+			if (p_ptr->elemlord == GF_FIRE) a = TERM_L_RED;
+			else if (p_ptr->elemlord == GF_COLD) a = TERM_WHITE;
+			else if (p_ptr->elemlord == GF_ELEC) a = TERM_BLUE;
+			else if (p_ptr->elemlord == GF_ACID) a = TERM_GREEN;
+			else if (p_ptr->elemlord == GF_POIS) a = TERM_L_GREEN;
+			else if (p_ptr->elemlord == GF_LITE) a = TERM_YELLOW;
+			else if (p_ptr->elemlord == GF_DARK) a = TERM_L_DARK;
+			else if (p_ptr->elemlord == GF_WARP) a = TERM_L_DARK;
+			else if (p_ptr->elemlord == GF_WIND) a = TERM_L_WHITE;
+			else if (p_ptr->elemlord == GF_EARTH) a = TERM_UMBER;
+			else if (p_ptr->elemlord == GF_WATER) a = TERM_L_BLUE;
+			else if (p_ptr->elemlord == GF_SOUND) a = TERM_ORANGE;
+			else if (p_ptr->elemlord == GF_RADIO) a = TERM_L_GREEN;
+			else if (p_ptr->elemlord == GF_FROSTFIRE) a = TERM_L_BLUE;
+			else if (p_ptr->elemlord == GF_ICE) a = TERM_L_BLUE;
+			else if (p_ptr->elemlord == GF_GREY) a = TERM_WHITE;
+			else if (p_ptr->elemlord == GF_TOXIC) a = TERM_L_GREEN;
+			else if (p_ptr->elemlord == GF_MUD) a = TERM_L_UMBER;
+			else if (p_ptr->elemlord == GF_CHAOS) a = randint(14) + 1;
+			else a = r_ptr->x_attr;
+		}
+
 		/* Monsters with Paragon Elder Monster may become elite/boss, in which case */
 		/* the elite/boss color should be used! */
 		if (p_ptr->abilities[(CLASS_MONSTER * 10) + 9] >= 20) a = 17;

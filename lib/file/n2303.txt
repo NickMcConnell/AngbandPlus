@@ -1,16 +1,21 @@
-Shadow of Misfortune(Passive)
+Cursed Evasion(Passive)
 
-Effect: When invisible through a special ability, gain a bonus to Dexterity,
-        and a chance to dodge any attacks based on Dexterity.
-Bonus to dexterity: 33% of Misfortune(minimum 5)
-Dodge power: (Misfortune / 5)% of Dexterity(minimum 5)
-Extra points: +33% of Misfortune to Dexterity.
-              +1 multiplier to Dodge power.
+Effect: Gives you another roll to dodge melee and ranged attacks.
+Power: 2% of normal dodge roll per Misfortune points.
+Extra points: +2% of normal dodge roll per Misfortune points.
+              With 3 or more points, also apply to Magic Defense rolls for the
+              purpose of avoiding spells.
 
-When invisible through a special ability, you will gain a passive chance to
-dodge any kind of attacks based solely on your Dexterity. Your Dexterity
-itself will also be greatly improved, with all associated benefits of having
-a high dexterity.
+Gives you a second roll for dodging melee and ranged attacks. It is equal to
+a certain percentage of your normal dodge roll, depending on how many points
+you place in the ability, and your Misfortune level. It takes the TOTAL dodge
+roll, meaning that any passive ability or any other bonus you normally have
+will be applied to this ability, and so with a few points, it will greatly
+improve your ability to dodge attacks.
+
+Should you place 3 points in this ability, the ability will apply to magic
+defense rolls for avoiding spells. It then uses that roll instead of the
+melee/ranged dodge roll, but otherwise works the same way.
 
 ABOUT NIGHTMARE ABILITIES:
 

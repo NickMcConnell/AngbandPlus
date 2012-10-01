@@ -33,7 +33,10 @@ N:4:0:0:0:0:0
 I:Letter;
 T:I am confident that you will be able to do this, <NAME>. Good luck,;
 T:and may the gods be with you!;
-A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+T:Oh, and one last thing... I have included a scroll of Teleportation.;
+T:It should help you espace this city. The monsters are too powerful;
+T:outside, but with this scroll, you should be able to get out quickly.;
+A:[CONTINUE]:0:0:0:3:603:0:5:0:0
 %
 
 N:5:0:0:0:0:0
@@ -41,6 +44,7 @@ I: ;
 T:The letter ends here. A small map has been drawn on the back of the letter.;
 T:It shows the location of Jindar at (48,41). You can hear the sound of battle;
 T:outside. It seems they are in great number, and you won't be able to fight;
-T:them. It looks like you have no choice but to flee to the north...;
+T:them. It looks like you have no choice but to go outside, use the scroll,;
+T:and flee to the north...;
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 %

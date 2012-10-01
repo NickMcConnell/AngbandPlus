@@ -2,25 +2,25 @@
 
 N:(number):(name)
 G:g:W
-I:(speed):(hit dice):(vision):(base AC):(disposition to attack):(event):(event value when killed):(dialog):(Fixed Level):(town num):(dungeon num):(required curse level)
+I:(speed):(hp%):(vision):(base AC):(disposition to attack):(event):(event value when killed):(dialog):(Fixed Level):(town num):(dungeon num):(curse level):(challenge rating from 1 to 10)
 W:(depth):(rarity):(weight):(exp. value)
-B:(Str):(Dex):(Mind):(Attack skill):(Magic Skill):(Blows)
+B:(Str%):(Dex%):(Mind%):(Attack skill%):(Ranged Skill%):(Magic Skill%):(Evasion Skill%):(Magic Defense skill%):(Attacks):(Shots):(Attacks Scale):(Attacks Scale Factor):(Shots Scale):(Shots Scale Factor)
 E:(weapon slots):(body slots):(arms slots):(finger slots):(heads slots):(legs slots)
 C:(counter type):(chance)
 T:(item tval):(item sval):(chance to drop):(magic)
 Z:(script before melee):(script after melee):(script before ranged):(script after ranged):(script before magic):(script after magic):(script before move):(script after move):(passive script):(script when taking damages):(script when dying):(script when spawning):(misc)
-A:(act):(name):type:dmg:element:special:special2
-A:(act):(name):type:dmg:element:special:special2
-A:(act):(name):type:dmg:element:special:special2
-A:(act):(name):type:dmg:element:special:special2
+A:(act):(name):type:dmg:element:special:special2:ddscale:ddscalefactor:dsscale:dsscalefactor
+A:(act):(name):type:dmg:element:special:special2:ddscale:ddscalefactor:dsscale:dsscalefactor
+A:(act):(name):type:dmg:element:special:special2:ddscale:ddscalefactor:dsscale:dsscalefactor
+A:(act):(name):type:dmg:element:special:special2:ddscale:ddscalefactor:dsscale:dsscalefactor
 R:(element):(amount)
 F:
-M:(chance to use magic):(num spells)
-S:(act):(name):type:power:special1:special2:special3:summchar:cost
-S:(act):(name):type:power:special1:special2:special3:summchar:cost
-S:(act):(name):type:power:special1:special2:special3:summchar:cost
-S:(act):(name):type:power:special1:special2:special3:summchar:cost
-S:(act):(name):type:power:special1:special2:special3:summchar:cost
+M:(chance to use magic):(num spells):(num spells scale):(num spells scale factor)
+S:(act):(name):type:power:special1:special2:special3:summchar:cost:scale:scalefactor
+S:(act):(name):type:power:special1:special2:special3:summchar:cost:scale:scalefactor
+S:(act):(name):type:power:special1:special2:special3:summchar:cost:scale:scalefactor
+S:(act):(name):type:power:special1:special2:special3:summchar:cost:scale:scalefactor
+S:(act):(name):type:power:special1:special2:special3:summchar:cost:scale:scalefactor
 D:
 
 Attack (name) can be set to ! if you don't want to give the attack a name.

@@ -1,6 +1,18 @@
 PORTRALIS SKILLS GUIDE
 -----------------------
 
+
+
+
+
+NOTE: THIS GUIDE HAS NOT BEEN FULLY UPDATED TO 0.5 YET. SOME INFORMATION
+MAY BE OUTDATED. A LOT, IN FACT.
+
+
+
+
+
+
 As your character grows in experience levels, he/she will be able to
 master a large number of skills, each providing it's own field of
 expertise. Each levels you gain will give you 2 skill points(more if
@@ -101,20 +113,6 @@ want to consider a more specialized skill instead.
 
 SPECIAL FEATS:
 
-- Enchanted Blood(Active, 10 points): A wizard using this ability can take
-out a portion of his or her own blood to recover some magical energy.
-
-Effects: You can use any amount of hp with this ability. You will gain in mana
-what you lose in hp.
-
-- Mana Shield(Active, 40 points): A sorcerer can use this ability to
-sacrifice his entire magical energy to surround himself with a shield of
-magical energy.
-
-Effects: By using this, you will lose all your mana, and you will gain
-some hp beyond your maximum hp. This can be very useful to take extra hits
-from enemies. Note that the effects will be gone if you gain a level.
-
 - Mystic Blood(Passive, 80 points): The most powerful sorcerers are said
 to have magical or divine blood running trough their veins. This blood is
 said to give them a natural advantage over all other magic users.
@@ -200,15 +198,6 @@ allowing him or her to immediatly throw another one right after.
 Effects: You will gain an extra shot. Note that this feat will only apply
 if you have no ranged weapons equipped.
 
-- Shattering throw(passive, 70 points): A warrior trained in the art of
-throwing can learn the ability to throw weapons with such as great
-impact that it will damage the target's armor.
-
-Effects: Enemies struck by thrown items will lose 50% of their defense.
-If you throw more than one item, the effect will still be applied. This
-can be very useful to make enemies easier to hit, and best of all,
-it's a free and passive ability!
-
 --------------------------------------------------------------------
 
 DEFENSE:
@@ -255,7 +244,8 @@ amazing leaps in the air!
 Effects: At first, this ability doesn't allow you to jump very far. However,
 for every 10 points in Agility, you will gain an extra radius for jumping.
 The more agile you are, the farther you can jump. Note that you can only
-jump on a visible grid.
+jump on a visible grid. Also, once you've jumped, you must wait for
+(3 + distance jumped) turns before using it again.
 
 - Quick Swap(Passive, 30 points): An agile warrior is quick to draw the right
 weapon in battle. This ability allow a trained warrior to change equipement
@@ -268,11 +258,8 @@ body armors.
 great reflexes and jumping abilities that they can sometime dodge a deadly
 magical attack that would be directed toward them.
 
-Effects: You gain a chance to avoid a magical attack. When an enemy casts
-a spell at you, it'll be a test of your Agility versus the monster's level
-and mind. It works just like the magic defense skill, except that you
-get only 1 "power" per Agility points, and if you fail, there is no
-damages reduction.
+Effects: Your Agility is added to your Magic Defense for the purpose of
+avoiding spells. (but not for damages mitigation)
 
 --------------------------------------------------------------------
 
@@ -283,7 +270,6 @@ sneak into a shop and steal stuff more easily.
 
 Effects: - Allow you to move without being noticed by monsters.
 	 - Improve your chances of avoiding enemies while invisible.
-         - Increase your odds at stealing from shops. 
 
 Stealth can be useful for moving without waking up sleeping enemies, or
 even avoiding woken enemies as well. Or, it can be useful to avoid
@@ -298,26 +284,12 @@ level and mind stat. Elites and bosses will have their power doubled,
 while Uniques will have their power multiplied by 5. You can never hide
 from the main quest bosses, or invisible enemies.
 
+Note that if you wear hard or dragon armor, your Stealth will be greatly
+lowered, by a percentage equal to the armor's weight * 3.
+
 SPECIAL FEATS:
 
-- Hide(Active, 10 points): A master of stealth can quickly hide nearby,
-either in shadows, or behind an object, allowing to temporarly escape the
-sight of an enemy.
-
-Effects: Your become invisible for 5 turns. It's a very short duration, but
-it can be useful if you are chased by a strong enemy.
-
-- Shadowblink(Active, 20 points): Stealth masters can learn the ability to make
-one with the shadow, and blink away to avoid enemies. The place where he or
-she reappears is unpredictable however.
-
-Effects: Allow you to phase away. This is similar to a phase door scroll, but it's
-completly free!
-
-- Backstab(Passive, 30 points): Stealthy thieves are known for backstabing
-their enemies. A high stealth will allow a thief to learn this clever art.
-
-Effects: Allow you to perform backstabs on sleeping enemies.
+- None.
 
 --------------------------------------------------------------------
 
@@ -1284,7 +1256,7 @@ Music has long been used to entertain, gather and communicate. However,
 some peoples went a step further, and have been able to use their
 songs to produce magical effects. Bard adventurers have been known
 to use songs and music to charm their enemies, support their comrades
-and even cause damages to their opponents. This skill allows you to
+and even cause damage to their opponents. This skill allows you to
 master this art to produce charisma-based magical effects.
 
 Effects: - Increases the power/success rate of songs.

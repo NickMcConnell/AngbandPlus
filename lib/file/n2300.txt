@@ -1,19 +1,17 @@
 Cursed Treasure Seeker(Passive)
 
-Effect: Improves quality of magic items based on your Misfortune.
-Bonus to magic item rank: 10% of Misfortune.
-Bonus chance to get levelables: +5% of Misfortune.
-Extra points: Bonus to magic item rank increases by 20%.
-              +(5% of Misfortune) to chance of finding levelables.
-              With 5 or more points, the Misfortune penality of raising the
-              chance to find "bad" magic items is completely negated, and you
-              won't actually get a chance to get "bad" magic items at all.
+Effect: Increases your chance of finding levelable items(and therefore special
+        items), and also give a small bonus to the magic item rank of all items
+        that you find.
+Bonus to magic items rank: 2%
+Bonus chance to get levelables: +2% per points of Misfortune.
+Extra points: Bonus to magic item rank: +2%
+              Bonus chance to get levelables: +2% per points of Misfortune.
 
 This passive ability will increase the quality of all magic items you find
 based on your Misfortune level, as well as raise the chance of getting
-levelable items as opposed to normal magic items. Furthermore, if you have
-five or more points in this ability, you will no longer have a chance to
-find badly rolled magic items, and that regardless of your Misfortune.
+levelable items as opposed to normal magic items. The higher your
+Misfortune, the greater the effect.
 
 ABOUT NIGHTMARE ABILITIES:
 

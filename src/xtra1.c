@@ -224,7 +224,7 @@ static void prt_ac(void)
 	char tmp[32];
 
 	put_str("AC ", ROW_AC, COL_AC);
-	sprintf(tmp, "%9ld", (long)(p_ptr->dis_ac + p_ptr->dis_to_a));
+	sprintf(tmp, "%9ld", (long)(p_ptr->dis_ac));
 
 	/* Actually use the same column as gold. */
 	c_put_str(TERM_L_GREEN, tmp, ROW_AC, COL_GOLD + 3);
@@ -677,6 +677,7 @@ static void health_redraw(void)
                 Term_erase(COL_INFO, ROW_MH, 12);
                 Term_erase(COL_INFO, ROW_MH + 1, 12);
 		Term_erase(COL_INFO, ROW_MH + 2, 12);
+		Term_erase(COL_INFO, ROW_MH + 3, 12);
 	}
 
 	/* Tracking an unseen monster */
@@ -686,6 +687,7 @@ static void health_redraw(void)
                 Term_putstr(COL_INFO, ROW_MH, 12, TERM_WHITE, "[          ]");
                 Term_erase(COL_INFO, ROW_MH + 1, 12);
 		Term_erase(COL_INFO, ROW_MH + 2, 12);
+		Term_erase(COL_INFO, ROW_MH + 3, 12);
 	}
 
 	/* Tracking a hallucinatory monster */
@@ -695,6 +697,7 @@ static void health_redraw(void)
                 Term_putstr(COL_INFO, ROW_MH, 12, TERM_WHITE, "[          ]");
                 Term_erase(COL_INFO, ROW_MH + 1, 12);
 		Term_erase(COL_INFO, ROW_MH + 2, 12);
+		Term_erase(COL_INFO, ROW_MH + 3, 12);
 	}
 
 	/* Tracking a dead monster (???) */
@@ -704,6 +707,7 @@ static void health_redraw(void)
                 Term_putstr(COL_INFO, ROW_MH, 12, TERM_WHITE, "[          ]");
                 Term_erase(COL_INFO, ROW_MH + 1, 12);
 		Term_erase(COL_INFO, ROW_MH + 2, 12);
+		Term_erase(COL_INFO, ROW_MH + 3, 12);
 	}
 
 	/* Tracking a visible monster */
@@ -711,7 +715,7 @@ static void health_redraw(void)
 	{
 		int len;
 		s32b pct;
-                char thehealth[20], thelevel[20], thelives[20];
+                char thehealth[20], thelevel[20], thelives[20], mcr[20];
 
 		monster_type *m_ptr = &m_list[health_who];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -779,13 +783,17 @@ static void health_redraw(void)
                 Term_putstr(COL_INFO + 1, ROW_MH, 12, attr, thelevel);
 		if (m_ptr->maxhp >= 100000000) sprintf(thehealth, "%ld", m_ptr->hp);
                 else sprintf(thehealth, "Hp: %ld", m_ptr->hp);
+
+		sprintf(mcr, "CR: %d", r_ptr->cr);
 		sprintf(thelives, "Lives: %ld", m_ptr->lives);
+
+		Term_putstr(COL_INFO, ROW_MH + 2, 12, attr, mcr);
                 /* Don't display the hp if it's a boss */
                 if (m_ptr->boss != 2 && !(r_ptr->flags1 & (RF1_QUESTOR)) && !(r_ptr->flags7 & (RF7_SECRET_BOSS)) && (r_ptr->cursed == 0))
 		{
 			Term_putstr(COL_INFO, ROW_MH + 1, 12, attr, thehealth);
-			if (m_ptr->lives > 0) Term_putstr(COL_INFO, ROW_MH + 2, 12, attr, thelives);
-			else Term_putstr(COL_INFO, ROW_MH + 2, 12, attr, "            ");
+			if (m_ptr->lives > 0) Term_putstr(COL_INFO, ROW_MH + 3, 12, attr, thelives);
+			else Term_putstr(COL_INFO, ROW_MH + 3, 12, attr, "            ");
 		}
 	}
 
@@ -2106,46 +2114,23 @@ void calc_equipment()
 		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
-		/* Defender's Heavy Armored Defense */
-		if ((o_ptr->tval == TV_HARD_ARMOR || o_ptr->tval == TV_DRAG_ARMOR) && (p_ptr->abilities[(CLASS_DEFENDER * 10)] >= 1))
-		{
-			s32b acbonus;
+		/* Modify the base armor class */
+		p_ptr->ac += o_ptr->ac;
 
-			acbonus = o_ptr->ac + multiply_divide(o_ptr->ac, p_ptr->abilities[(CLASS_DEFENDER * 10)] * 2, 100);
+		/* The base armor class is always known */
+		p_ptr->dis_ac += o_ptr->ac;
 
-			/* Modify the base armor class */
-			p_ptr->ac += acbonus + ((acbonus / 3) * p_ptr->skill[4]);
-
-			/* The base armor class is always known */
-			p_ptr->dis_ac += acbonus + ((acbonus / 3) * p_ptr->skill[4]);
-		}
-		else
-		{
-			/* Modify the base armor class */
-			p_ptr->ac += o_ptr->ac + ((o_ptr->ac / 3) * p_ptr->skill[4]);
-
-			/* The base armor class is always known */
-			p_ptr->dis_ac += o_ptr->ac + ((o_ptr->ac / 3) * p_ptr->skill[4]);
-		}
+		/* to_h and to_d */
+		p_ptr->to_h += o_ptr->to_h;
+		p_ptr->to_d += o_ptr->to_d;
+		p_ptr->dis_to_h += o_ptr->to_h;
+		p_ptr->dis_to_d += o_ptr->to_d;
 
 		/* Apply the bonuses to armor class */
 		p_ptr->to_a += o_ptr->to_a;
 
 		/* Apply the mental bonuses to armor class */
 		p_ptr->dis_to_a += o_ptr->to_a;
-
-		/* Do not apply shooter bonuses */
-		if (i != INVEN_BOW)
-		{
-			/* Apply the bonuses to hit/damage */
-			p_ptr->to_h += o_ptr->to_h;
-			p_ptr->to_d += o_ptr->to_d;
-
-			/* Apply the mental bonuses tp hit/damage, if known */
-			p_ptr->dis_to_h += o_ptr->to_h;
-			p_ptr->dis_to_d += o_ptr->to_d;
-		}
-
 	}
 
 }

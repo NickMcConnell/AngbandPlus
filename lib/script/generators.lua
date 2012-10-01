@@ -41,7 +41,6 @@ function generate_monster (r_idx, rank, mtype)
 
 	local monstertype
 	local statspoints
-	local skillpoints
 
 	local strchance
 	local dexchance
@@ -49,6 +48,10 @@ function generate_monster (r_idx, rank, mtype)
 	local attackchance
 	local rangedchance
 	local magicchance
+	local evasionchance
+	local mdefchance
+	local hpchance
+	local acchance
 
 	local friends = 0
 
@@ -608,225 +611,463 @@ function generate_monster (r_idx, rank, mtype)
 	-- 5. Melee/Ranged
 	-- 6. Ranged/Magic
 	-- 7+. Random
-	monstertype = lua_randint(10)
 
-	-- Depth and rarity.
+	-- Bosses will never be pure melee, as they tend to be the easiest enemies.
+	if (mtype == 1 or mtype == 2) then
+
+		monstertype = lua_randint(11) + 1
+	else
+
+		monstertype = lua_randint(12)
+	end
+
+	-- Depth, cr and rarity.
 	m_race(r_idx).level = rank
-	m_race(r_idx).rarity = 1
+
+	-- The CR depends on the rank.
+	if (mtype == 0) then
+		if (rank >= 75) then
+
+			local moncr
+
+			moncr = lua_randint(100)
+			if (moncr >= 100) then
+				m_race(r_idx).cr = 4
+				m_race(r_idx).rarity = 10
+			elseif (moncr >= 95) then
+				m_race(r_idx).cr = 3
+				m_race(r_idx).rarity = 5
+			elseif (moncr >= 80) then
+				m_race(r_idx).cr = 2
+				m_race(r_idx).rarity = 1
+			else
+				m_race(r_idx).cr = 1
+				m_race(r_idx).rarity = 1
+			end
+		elseif (rank >= 40) then
+
+			local moncr
+
+			moncr = lua_randint(100)
+			if (moncr >= 100) then
+				m_race(r_idx).cr = 3
+				m_race(r_idx).rarity = 10
+			elseif (moncr >= 90) then
+				m_race(r_idx).cr = 2
+				m_race(r_idx).rarity = 2
+			else
+				m_race(r_idx).cr = 1
+				m_race(r_idx).rarity = 1
+			end
+		elseif (rank >= 25) then
+
+			local moncr
+
+			moncr = lua_randint(100)
+			if (moncr >= 95) then
+				m_race(r_idx).cr = 2
+				m_race(r_idx).rarity = 3
+			else
+				m_race(r_idx).cr = 1
+				m_race(r_idx).rarity = 1
+			end
+		else
+			m_race(r_idx).cr = 1
+			m_race(r_idx).rarity = 1
+		end
+	elseif (mtype == 1 or mtype == 2) then
+
+		-- Rarity doesn't matter, but it's a boss, so let's make it rare!
+		m_race(r_idx).rarity = 10
+
+		if (rank < 25) then
+
+			m_race(r_idx).cr = 1
+		else
+			if (rank >= 125) then
+				m_race(r_idx).cr = 4
+			elseif (rank >= 75) then
+				m_race(r_idx).cr = 3
+			else
+				m_race(r_idx).cr = 2
+			end
+		end
+	elseif (mtype == 3) then
+
+		-- Townsfolk are always cr 1.
+		m_race(r_idx).cr = 1
+		m_race(r_idx).rarity = 1
+	else
+		-- Default.
+		m_race(r_idx).cr = 1
+		m_race(r_idx).rarity = 1
+	end
 
 	-- Assume not asleep and 20 vision.
 	m_race(r_idx).sleep = 0
 	m_race(r_idx).aaf = 20
 
-	-- Determine hp.
-	if (mtype == 0) then
+	-- Stats points applies to basic stats and also skills of monsters.
+	-- They will be randomly assigned to various attributes.
+	statspoints = (rank * 2) * m_race(r_idx).cr
 
-		m_race(r_idx).hdice = lua_randint(rank) + (rank / 2) + (rank / 10)
-		m_race(r_idx).hdice = m_race(r_idx).hdice + multiply_divide(m_race(r_idx).hdice, (rank * 4), 100)
-		if (m_race(r_idx).hdice < 1) then m_race(r_idx).hdice = 1 end
-
-		m_race(r_idx).hside = lua_randint(rank) + (rank / 2) + (rank / 10)
-		m_race(r_idx).hside = m_race(r_idx).hside + multiply_divide(m_race(r_idx).hside, (rank * 4), 100)
-		if (m_race(r_idx).hside < 1) then m_race(r_idx).hside = 1 end
-	else
-		m_race(r_idx).hdice = rank + (rank / 2) + (rank / 10)
-		m_race(r_idx).hdice = m_race(r_idx).hdice + multiply_divide(m_race(r_idx).hdice, (rank * 6), 100)
-		if (m_race(r_idx).hdice < 1) then m_race(r_idx).hdice = 1 end
-
-		m_race(r_idx).hside = rank + (rank / 2) + (rank / 10)
-		m_race(r_idx).hside = m_race(r_idx).hside + multiply_divide(m_race(r_idx).hside, (rank * 6), 100)
-		if (m_race(r_idx).hside < 1) then m_race(r_idx).hside = 1 end
-	end
-
-	-- Determine stats points and skill points.
-	-- They will be assigned to monster's stats and skills.
-	-- How they are spread is determined by the monster's type.
-	statspoints = multiply_divide(rank, (rank * 10), 100)
-	if (statspoints < 0) then statspoints = 1 end
+	-- Determine what archetype the monster is part of, and give stats accordingly.
 
 	-- Melee monsters.
 	if (monstertype == 1) then
 
-		strchance = 70
-		dexchance = 25
-		mindchance = 5
-		attackchance = 100
+		-- Basic stats.
+		if (rank < 30) then
+			m_race(r_idx).hp = 120
+			m_race(r_idx).ac = 120
+			m_race(r_idx).str = 120
+			m_race(r_idx).dex = 100
+			m_race(r_idx).mind = 75
+			m_race(r_idx).skill_attack = 120
+			m_race(r_idx).skill_ranged = 0
+			m_race(r_idx).skill_magic = 0
+			m_race(r_idx).skill_evasion = 100
+			m_race(r_idx).skill_mdef = 0
+		else
+			m_race(r_idx).hp = 120
+			m_race(r_idx).ac = 120
+			m_race(r_idx).str = 120
+			m_race(r_idx).dex = 100
+			m_race(r_idx).mind = 90
+			m_race(r_idx).skill_attack = 120
+			m_race(r_idx).skill_ranged = 0
+			m_race(r_idx).skill_magic = 0
+			m_race(r_idx).skill_evasion = 100
+			m_race(r_idx).skill_mdef = 50
+		end
+
+		strchance = 25
+		dexchance = 0
+		mindchance = 0
+		attackchance = 25
 		rangedchance = 0
 		magicchance = 0
+		evasionchance = 0
+		mdefchance = 0
+		hpchance = 25
+		acchance = 25
 
-		skillmult = rank * 3
-		if (skillmult > 100) then skillmult = 100 end
-		skillpoints = multiply_divide(rank / 3, skillmult, 100)
-		if (skillpoints <= 0) then skillpoints = 1 end
 	-- Ranged monsters.
 	elseif (monstertype == 2) then
 
-		strchance = 10
-		dexchance = 80
-		mindchance = 10
-		attackchance = 0
-		rangedchance = 100
-		magicchance = 0
+		-- Basic stats.
+		if (rank < 30) then
+			m_race(r_idx).hp = 75
+			m_race(r_idx).ac = 75
+			m_race(r_idx).str = 75
+			m_race(r_idx).dex = 120
+			m_race(r_idx).mind = 100
+			m_race(r_idx).skill_attack = 75
+			m_race(r_idx).skill_ranged = 120
+			m_race(r_idx).skill_magic = 0
+			m_race(r_idx).skill_evasion = 75
+			m_race(r_idx).skill_mdef = 50
+		else
+			m_race(r_idx).hp = 90
+			m_race(r_idx).ac = 90
+			m_race(r_idx).str = 90
+			m_race(r_idx).dex = 120
+			m_race(r_idx).mind = 100
+			m_race(r_idx).skill_attack = 80
+			m_race(r_idx).skill_ranged = 120
+			m_race(r_idx).skill_magic = 0
+			m_race(r_idx).skill_evasion = 90
+			m_race(r_idx).skill_mdef = 100
+		end
 
-		skillmult = rank * 3
-		if (skillmult > 100) then skillmult = 100 end
-		skillpoints = multiply_divide(rank / 3, skillmult, 100)
-		if (skillpoints <= 0) then skillpoints = 1 end
+		strchance = 0
+		dexchance = 25
+		mindchance = 0
+		attackchance = 0
+		rangedchance = 25
+		magicchance = 0
+		evasionchance = 10
+		mdefchance = 15
+		hpchance = 15
+		acchance = 10
 	-- Magic monsters.
 	elseif (monstertype == 3) then
 
-		strchance = 10
-		dexchance = 10
-		mindchance = 80
+		-- Basic stats.
+		if (rank < 30) then
+			m_race(r_idx).hp = 33
+			m_race(r_idx).ac = 33
+			m_race(r_idx).str = 33
+			m_race(r_idx).dex = 33
+			m_race(r_idx).mind = 120
+			m_race(r_idx).skill_attack = 0
+			m_race(r_idx).skill_ranged = 0
+			m_race(r_idx).skill_magic = 120
+			m_race(r_idx).skill_evasion = 33
+			m_race(r_idx).skill_mdef = 100
+		else
+			m_race(r_idx).hp = 50
+			m_race(r_idx).ac = 50
+			m_race(r_idx).str = 50
+			m_race(r_idx).dex = 50
+			m_race(r_idx).mind = 120
+			m_race(r_idx).skill_attack = 0
+			m_race(r_idx).skill_ranged = 0
+			m_race(r_idx).skill_magic = 120
+			m_race(r_idx).skill_evasion = 50
+			m_race(r_idx).skill_mdef = 120
+		end
+
+		strchance = 0
+		dexchance = 0
+		mindchance = 25
 		attackchance = 0
 		rangedchance = 0
-		magicchance = 100
-
-		skillmult = rank * 3
-		if (skillmult > 100) then skillmult = 100 end
-		skillpoints = multiply_divide(rank / 3, skillmult, 100)
-		if (skillpoints <= 0) then skillpoints = 1 end
+		magicchance = 25
+		evasionchance = 12
+		mdefchance = 25
+		hpchance = 13
+		acchance = 0
 	-- Melee/Magic
 	elseif (monstertype == 4) then
 
-		strchance = 40
-		dexchance = 20
-		mindchance = 40
-		attackchance = 50
-		rangedchance = 0
-		magicchance = 50
+		-- Basic stats.
+		if (rank < 30) then
+			m_race(r_idx).hp = 110
+			m_race(r_idx).ac = 100
+			m_race(r_idx).str = 110
+			m_race(r_idx).dex = 100
+			m_race(r_idx).mind = 110
+			m_race(r_idx).skill_attack = 110
+			m_race(r_idx).skill_ranged = 0
+			m_race(r_idx).skill_magic = 110
+			m_race(r_idx).skill_evasion = 100
+			m_race(r_idx).skill_mdef = 60
+		else
+			m_race(r_idx).hp = 110
+			m_race(r_idx).ac = 100
+			m_race(r_idx).str = 110
+			m_race(r_idx).dex = 100
+			m_race(r_idx).mind = 110
+			m_race(r_idx).skill_attack = 110
+			m_race(r_idx).skill_ranged = 0
+			m_race(r_idx).skill_magic = 110
+			m_race(r_idx).skill_evasion = 100
+			m_race(r_idx).skill_mdef = 110
+		end
 
-		skillmult = rank * 3
-		if (skillmult > 100) then skillmult = 100 end
-		skillpoints = multiply_divide(rank / 2, skillmult, 100)
-		if (skillpoints <= 0) then skillpoints = 1 end
+		strchance = 15
+		dexchance = 0
+		mindchance = 15
+		attackchance = 15
+		rangedchance = 0
+		magicchance = 15
+		evasionchance = 5
+		mdefchance = 15
+		hpchance = 15
+		acchance = 5
 	-- Melee/Ranged
 	elseif (monstertype == 5) then
 
-		strchance = 45
-		dexchance = 45
-		mindchance = 10
-		attackchance = 50
-		rangedchance = 50
-		magicchance = 0
+		-- Basic stats.
+		if (rank < 30) then
+			m_race(r_idx).hp = 110
+			m_race(r_idx).ac = 100
+			m_race(r_idx).str = 110
+			m_race(r_idx).dex = 110
+			m_race(r_idx).mind = 100
+			m_race(r_idx).skill_attack = 110
+			m_race(r_idx).skill_ranged = 110
+			m_race(r_idx).skill_magic = 0
+			m_race(r_idx).skill_evasion = 100
+			m_race(r_idx).skill_mdef = 0
+		else
+			m_race(r_idx).hp = 110
+			m_race(r_idx).ac = 100
+			m_race(r_idx).str = 110
+			m_race(r_idx).dex = 110
+			m_race(r_idx).mind = 100
+			m_race(r_idx).skill_attack = 110
+			m_race(r_idx).skill_ranged = 110
+			m_race(r_idx).skill_magic = 0
+			m_race(r_idx).skill_evasion = 100
+			m_race(r_idx).skill_mdef = 75
+		end
 
-		skillmult = rank * 3
-		if (skillmult > 100) then skillmult = 100 end
-		skillpoints = multiply_divide(rank / 2, skillmult, 100)
-		if (skillpoints <= 0) then skillpoints = 1 end
+		strchance = 15
+		dexchance = 15
+		mindchance = 0
+		attackchance = 15
+		rangedchance = 15
+		magicchance = 0
+		evasionchance = 0
+		mdefchance = 15
+		hpchance = 15
+		acchance = 10
 	-- Ranged/Magic
 	elseif (monstertype == 6) then
 
-		strchance = 10
-		dexchance = 45
-		mindchance = 45
-		attackchance = 0
-		rangedchance = 50
-		magicchance = 50
+		-- Basic stats.
+		if (rank < 30) then
+			m_race(r_idx).hp = 75
+			m_race(r_idx).ac = 75
+			m_race(r_idx).str = 75
+			m_race(r_idx).dex = 110
+			m_race(r_idx).mind = 110
+			m_race(r_idx).skill_attack = 50
+			m_race(r_idx).skill_ranged = 110
+			m_race(r_idx).skill_magic = 110
+			m_race(r_idx).skill_evasion = 75
+			m_race(r_idx).skill_mdef = 90
+		else
+			m_race(r_idx).hp = 90
+			m_race(r_idx).ac = 80
+			m_race(r_idx).str = 80
+			m_race(r_idx).dex = 110
+			m_race(r_idx).mind = 100
+			m_race(r_idx).skill_attack = 75
+			m_race(r_idx).skill_ranged = 110
+			m_race(r_idx).skill_magic = 110
+			m_race(r_idx).skill_evasion = 100
+			m_race(r_idx).skill_mdef = 110
+		end
 
-		skillmult = rank * 3
-		if (skillmult > 100) then skillmult = 100 end
-		skillpoints = multiply_divide(rank / 2, skillmult, 100)
-		if (skillpoints <= 0) then skillpoints = 1 end
+		strchance = 0
+		dexchance = 15
+		mindchance = 15
+		attackchance = 0
+		rangedchance = 15
+		magicchance = 15
+		evasionchance = 10
+		mdefchance = 15
+		hpchance = 15
+		acchance = 0
 	-- Random
 	else
 
-		strchance = 33
-		dexchance = 33
-		mindchance = 33
-		attackchance = 33
-		rangedchance = 33
-		magicchance = 33
+		-- Basic stats.
+		if (rank < 30) then
+			m_race(r_idx).hp = 100
+			m_race(r_idx).ac = 100
+			m_race(r_idx).str = 100
+			m_race(r_idx).dex = 100
+			m_race(r_idx).mind = 100
+			m_race(r_idx).skill_attack = 100
+			m_race(r_idx).skill_ranged = 100
+			m_race(r_idx).skill_magic = 100
+			m_race(r_idx).skill_evasion = 100
+			m_race(r_idx).skill_mdef = 50
+		else
+			m_race(r_idx).hp = 100
+			m_race(r_idx).ac = 100
+			m_race(r_idx).str = 100
+			m_race(r_idx).dex = 100
+			m_race(r_idx).mind = 100
+			m_race(r_idx).skill_attack = 100
+			m_race(r_idx).skill_ranged = 100
+			m_race(r_idx).skill_magic = 100
+			m_race(r_idx).skill_evasion = 100
+			m_race(r_idx).skill_mdef = 100
+		end
 
-		skillmult = rank * 3
-		if (skillmult > 100) then skillmult = 100 end
-		skillpoints = multiply_divide(rank, skillmult, 100)
-		if (skillpoints <= 0) then skillpoints = 1 end
+		strchance = 10
+		dexchance = 10
+		mindchance = 10
+		attackchance = 10
+		rangedchance = 10
+		magicchance = 10
+		evasionchance = 10
+		mdefchance = 10
+		hpchance = 10
+		acchance = 10
 	end
 
-	-- Basic stats.
-	m_race(r_idx).str = 5
-	m_race(r_idx).dex = 5
-	m_race(r_idx).mind = 5
-	m_race(r_idx).skill_attack = 0
-	m_race(r_idx).skill_ranged = 0
-	m_race(r_idx).skill_magic = 0
+	-- Dungeon bosses and flow bosses have more hp.
+	if (mtype == 1 or mtype == 2) then
 
-	-- Increase stats.
+		m_race(r_idx).hp = m_race(r_idx).hp + 50
+
+		if (m_race(r_idx).hp < 100) then m_race(r_idx).hp = 100 end
+	end
+
+	-- Townsfolks adjustments.
+	-- They have fixed and low stats, and no statspoints whatsoever.
+	if (mtype == 3) then
+
+		m_race(r_idx).hp = 10
+		m_race(r_idx).ac = 10
+		m_race(r_idx).str = 33
+		m_race(r_idx).dex = 33
+		m_race(r_idx).mind = 100
+		m_race(r_idx).skill_attack = 10
+		m_race(r_idx).skill_ranged = 0
+		m_race(r_idx).skill_magic = 0
+		m_race(r_idx).skill_evasion = 10
+		m_race(r_idx).skill_mdef = 0
+
+		statspoints = 0
+	end
+
+	-- Increase stats and/or skills.
 	i = 0
 	while (i < statspoints) do
 
-		local strpercent
-		local dexpercent
-		local mindpercent
-		local statspower
 		local roll
-
-		statspower = strchance + dexchance + mindchance
-
-		strpercent = multiply_divide(strchance, 100, statspower)
-		dexpercent = multiply_divide(dexchance, 100, statspower)
-		mindpercent = multiply_divide(mindchance, 100, statspower)
 
 		roll = lua_randint(100)
 
-		if (roll >= (100 - strpercent)) then
+		if (roll >= (100 - strchance)) then
 
 			m_race(r_idx).str = m_race(r_idx).str + 1
 
-		elseif (roll >= (100 - strpercent - dexpercent)) then
+		elseif (roll >= (100 - strchance - dexchance)) then
 
 			m_race(r_idx).dex = m_race(r_idx).dex + 1
-		else
+		elseif (roll >= (100 - strchance - dexchance - mindchance)) then
 
 			m_race(r_idx).mind = m_race(r_idx).mind + 1
-		end
-
-		i = i + 1
-
-	end
-	-- Increase skills.
-	i = 0
-	while (i < skillpoints) do
-
-		local attackpercent
-		local rangedpercent
-		local magicpercent
-		local skillspower
-		local roll
-
-		skillspower = attackchance + rangedchance + magicchance
-
-		attackpercent = multiply_divide(attackchance, 100, skillspower)
-		rangedpercent = multiply_divide(rangedchance, 100, skillspower)
-		magicpercent = multiply_divide(magicchance, 100, skillspower)
-
-		roll = lua_randint(100)
-
-		if (roll >= (100 - attackpercent)) then
+		elseif (roll >= (100 - strchance - dexchance - mindchance - attackchance)) then
 
 			m_race(r_idx).skill_attack = m_race(r_idx).skill_attack + 1
-
-		elseif (roll >= (100 - attackpercent - rangedpercent)) then
+		elseif (roll >= (100 - strchance - dexchance - mindchance - attackchance - rangedchance)) then
 
 			m_race(r_idx).skill_ranged = m_race(r_idx).skill_ranged + 1
-		else
+		elseif (roll >= (100 - strchance - dexchance - mindchance - attackchance - rangedchance - magicchance)) then
 
 			m_race(r_idx).skill_magic = m_race(r_idx).skill_magic + 1
+		elseif (roll >= (100 - strchance - dexchance - mindchance - attackchance - rangedchance - magicchance - evasionchance)) then
+
+			m_race(r_idx).skill_evasion = m_race(r_idx).skill_evasion + 1
+		elseif (roll >= (100 - strchance - dexchance - mindchance - attackchance - rangedchance - magicchance - evasionchance - mdefchance)) then
+
+			m_race(r_idx).skill_mdef = m_race(r_idx).skill_mdef + 1
+		elseif (roll >= (100 - strchance - dexchance - mindchance - attackchance - rangedchance - magicchance - evasionchance - mdefchance - hpchance)) then
+
+			m_race(r_idx).hp = m_race(r_idx).hp + 1
+		else
+
+			m_race(r_idx).ac = m_race(r_idx).ac + 1
 		end
 
 		i = i + 1
 
 	end
 
-	-- Base AC
-	m_race(r_idx).ac = (lua_randint(rank) + (rank / 2)) * rank
-	-- Dungeon bosses have a bit more.
-	if (mtype == 1 or mtype == 2) then m_race(r_idx).ac = m_race(r_idx).ac + multiply_divide(m_race(r_idx).ac, (rank * 2), 100) end
+	-- CR adjustments. Improves every single stats by 30 * CR.
+	m_race(r_idx).str = m_race(r_idx).str + ((m_race(r_idx).cr - 1) * 30)
+	m_race(r_idx).dex = m_race(r_idx).dex + ((m_race(r_idx).cr - 1) * 30)
+	m_race(r_idx).mind = m_race(r_idx).mind + ((m_race(r_idx).cr - 1) * 30)
+	m_race(r_idx).skill_attack = m_race(r_idx).skill_attack + ((m_race(r_idx).cr - 1) * 30)
+	m_race(r_idx).skill_ranged = m_race(r_idx).skill_ranged + ((m_race(r_idx).cr - 1) * 30)
+	m_race(r_idx).skill_magic = m_race(r_idx).skill_magic + ((m_race(r_idx).cr - 1) * 30)
+	m_race(r_idx).skill_evasion = m_race(r_idx).skill_evasion + ((m_race(r_idx).cr - 1) * 30)
+	m_race(r_idx).skill_mdef = m_race(r_idx).skill_mdef + ((m_race(r_idx).cr - 1) * 30)
+	m_race(r_idx).hp = m_race(r_idx).hp + ((m_race(r_idx).cr - 1) * 30)
+	m_race(r_idx).hp = m_race(r_idx).hp + ((m_race(r_idx).cr - 1) * 30)
 
 	-- Base Speed
 	speedbonus = 110 + (lua_randint(rank * 2) - 6)
-	if (speedbonus > 160) then speedbonus = 160 end
+	if (speedbonus > 180) then speedbonus = 180 end
 	if ((rank >= 10) and (speedbonus < 110)) then speedbonus = 110 end
 
 	-- We want dungeon bosses to be fairly fast, save for early ones.
@@ -834,33 +1075,75 @@ function generate_monster (r_idx, rank, mtype)
 
 	m_race(r_idx).speed = speedbonus
 
-	-- Attacks and spells.
+	-- Melee attacks, ranged attacks and spells.
+	-- We are talking about the number of attacks, shots and spells per rounds.
+
+	-- First, reset them.
+	m_race(r_idx).attacksscale = 0
+	m_race(r_idx).attacksscalefactor = 0
+	m_race(r_idx).shotsscale = 0
+	m_race(r_idx).shotsscalefactor = 0
+	m_race(r_idx).spellsscale = 0
+	m_race(r_idx).spellsscalefactor = 0
+
+	-- Melee attacks.
 	if (monstertype == 3) then m_race(r_idx).attacks = 0
 	elseif (monstertype == 2 or monstertype == 6) then m_race(r_idx).attacks = 1
 	else
 		if (rank >= 10) then	
-			m_race(r_idx).attacks = lua_randint(rank / 10) + lua_randint(2)
+			m_race(r_idx).attacks = lua_randint(rank / 20) + lua_randint(2)
+			m_race(r_idx).attacksscale = 1
+			m_race(r_idx).attacksscalefactor = 20
 		else
 			m_race(r_idx).attacks = lua_randint(2)
+			m_race(r_idx).attacksscale = 1
+			m_race(r_idx).attacksscalefactor = 20
 		end
 	end
 
+	-- Shots.
+	if (monstertype == 1 or monstertype == 3 or monstertype == 4) then m_race(r_idx).shots = 0
+	else
+		if (rank >= 20) then	
+			m_race(r_idx).shots =  1
+			m_race(r_idx).attacksscale = 1
+			m_race(r_idx).attacksscalefactor = 40
+		else
+			m_race(r_idx).shots = lua_randint(rank / 60) + 1
+			m_race(r_idx).shotsscale = 1
+			m_race(r_idx).shotsscalefactor = 25
+		end
+	end
+
+	-- Spells
 	if (monstertype == 1 or monstertype == 2 or monstertype == 5) then
 		m_race(r_idx).spells = 0
 		m_race(r_idx).spellchance = 0
 	elseif (not(monstertype == 3)) then
 
-		if (rank >= 40) then
-			m_race(r_idx).spells = lua_randint(rank / 40) + 1
+		if (rank >= 50) then
+			m_race(r_idx).spells = lua_randint(rank / 50) + 1
+			m_race(r_idx).spellsscale = 1
+			m_race(r_idx).spellsscalefactor = 30
 		else
 			m_race(r_idx).spells = 1
+			m_race(r_idx).spellsscale = 1
+			if (rank >= 30) then
+				m_race(r_idx).spellsscalefactor = 30
+			else
+				m_race(r_idx).spellsscalefactor = 40
+			end
 		end
 		m_race(r_idx).spellchance = lua_randint(40) + 10
 	else
-		if (rank >= 20) then
-			m_race(r_idx).spells = lua_randint(rank / 20) + 1
+		if (rank >= 30) then
+			m_race(r_idx).spells = lua_randint(rank / 30) + 1
+			m_race(r_idx).spellsscale = 1
+			m_race(r_idx).spellsscalefactor = 25
 		else
 			m_race(r_idx).spells = 1
+			m_race(r_idx).spellsscale = 1
+			m_race(r_idx).spellsscalefactor = 30
 		end
 		m_race(r_idx).spellchance = 100
 	end
@@ -1109,10 +1392,43 @@ function generate_monster (r_idx, rank, mtype)
 
 		-- Damages.
 		ddice = lua_randint(rank / 7) + 1
-		dside = lua_randint(rank / 5) + 3
+		dside = lua_randint(rank / 7) + 3
 
 		m_race(r_idx).attack[j+1].ddice = ddice
 		m_race(r_idx).attack[j+1].dside = dside
+
+		-- Attacks damage scaling.
+		if (rank >= 100) then
+
+			m_race(r_idx).attack[j+1].ddscale = 1
+			m_race(r_idx).attack[j+1].ddscalefactor = 11
+			m_race(r_idx).attack[j+1].dsscale = 1
+			m_race(r_idx).attack[j+1].dsscalefactor = 6
+		elseif (rank >= 60) then
+
+			m_race(r_idx).attack[j+1].ddscale = 1
+			m_race(r_idx).attack[j+1].ddscalefactor = 12
+			m_race(r_idx).attack[j+1].dsscale = 1
+			m_race(r_idx).attack[j+1].dsscalefactor = 7
+		elseif (rank >= 30) then
+
+			m_race(r_idx).attack[j+1].ddscale = 1
+			m_race(r_idx).attack[j+1].ddscalefactor = 13
+			m_race(r_idx).attack[j+1].dsscale = 1
+			m_race(r_idx).attack[j+1].dsscalefactor = 8
+		elseif (rank >= 15) then
+
+			m_race(r_idx).attack[j+1].ddscale = 1
+			m_race(r_idx).attack[j+1].ddscalefactor = 14
+			m_race(r_idx).attack[j+1].dsscale = 1
+			m_race(r_idx).attack[j+1].dsscalefactor = 9
+		else
+
+			m_race(r_idx).attack[j+1].ddscale = 1
+			m_race(r_idx).attack[j+1].ddscalefactor = 15
+			m_race(r_idx).attack[j+1].dsscale = 1
+			m_race(r_idx).attack[j+1].dsscalefactor = 10
+		end
 
 		-- Next attack.
 		j = j + 1
@@ -1149,7 +1465,7 @@ function generate_monster (r_idx, rank, mtype)
 			end
 
 			-- Power
-			power = lua_randint(rank / 2) + (rank / 4) + 5
+			power = lua_randint(rank / 2) + 3
 
 			-- Radius
 			if (stype == 2) then
@@ -1173,6 +1489,8 @@ function generate_monster (r_idx, rank, mtype)
 			m_race(r_idx).spell[j+1].special1 = element
 			m_race(r_idx).spell[j+1].special2 = rad
 			m_race(r_idx).spell[j+1].cost = cost
+			m_race(r_idx).spell[j+1].scale = 1
+			m_race(r_idx).spell[j+1].scalefactor = 3
 		end
 		-- 3. Summon Kind
 		if (stype == 3) then
@@ -1344,6 +1662,8 @@ function generate_monster (r_idx, rank, mtype)
 			m_race(r_idx).spell[j+1].special1 = num
 			m_race(r_idx).spell[j+1].special2 = duration
 			m_race(r_idx).spell[j+1].cost = cost
+			m_race(r_idx).spell[j+1].scale = 0
+			m_race(r_idx).spell[j+1].scalefactor = 0
 		end
 		-- 4. Summon Specific
 		if (stype == 4) then
@@ -1451,15 +1771,19 @@ function generate_monster (r_idx, rank, mtype)
 	end
 
 	-- Counters.
-	if (rank >= 30) then
+	if (rank >= 30 and m_race(r_idx).cr >= 2) then
 		m_race(r_idx).countertype = 19
 		m_race(r_idx).counterchance = 100
 	elseif (rank >= 10) then
 
 		local which
-		which = lua_randint(4)
+		which = lua_randint(3)
+
+		-- Dungeon bosses will always get one.
+		if (which == 3 and (mtype == 1 or mtype == 2)) then which = lua_randint(2) end
+
 		if (which == 1) then
-			m_race(r_idx).countertype = 3
+			m_race(r_idx).countertype = 2
 			m_race(r_idx).counterchance = 100
 		end
 		if (which == 2) then
@@ -1467,58 +1791,12 @@ function generate_monster (r_idx, rank, mtype)
 			m_race(r_idx).counterchance = 100
 		end
 		if (which == 3) then
-			m_race(r_idx).countertype = 18
-			m_race(r_idx).counterchance = 100
-		end
-		if (which == 4) then
-			m_race(r_idx).countertype = 19
-			m_race(r_idx).counterchance = 100
-		end
-	else
-		local which
-		which = lua_randint(6)
-		if (which == 1) then
-			m_race(r_idx).countertype = 1
-			m_race(r_idx).counterchance = 100
-		end
-		if (which == 2) then
-			m_race(r_idx).countertype = 2
-			m_race(r_idx).counterchance = 100
-		end
-		if (which == 3) then
-			m_race(r_idx).countertype = 16
-			m_race(r_idx).counterchance = 100
-		end
-		if (which >= 4) then
 			m_race(r_idx).countertype = 0
 			m_race(r_idx).counterchance = 0
 		end
-	end
-
-	-- Lives.
-	if (rank >= 20) then
-
-		local livesmult
-		local lives
-
-		lives = rank
-		livesmult = rank / 6
-
-		lives = multiply_divide(lives, livesmult, 100)
-
-		if (mtype == 1 or mtype == 2) then
-			local lmult2
-
-			lmult2 = lua_randint(100) + 100
-			m_race(r_idx).lives = multiply_divide(lives, lmult2, 100)
-		else
-			local lmult2
-
-			lmult2 = lua_randint(60) + 66
-			m_race(r_idx).lives = multiply_divide(lives, lmult2, 100)
-		end
 	else
-		m_race(r_idx).lives = 0
+		m_race(r_idx).countertype = 0
+		m_race(r_idx).counterchance = 0
 	end
 
 	-- Weight.
@@ -1735,7 +2013,8 @@ function generate_monster (r_idx, rank, mtype)
 
 	-- Roll for a possible special ability.
 	-- This won't happen at first, but then gradually will.
-	if (rank >= 40 and not(mtype == 3)) then
+	-- CR 2+ only.
+	if (rank >= 40 and m_race(r_idx).cr >= 2 and not(mtype == 3)) then
 
 		local abchance
 		local whichab
@@ -1790,7 +2069,7 @@ function generate_monster (r_idx, rank, mtype)
 		end
 
 		-- Give it a fixed level to ensure challenge.
-		m_race(r_idx).fixedlevel = rank + (rank / 2)
+		m_race(r_idx).fixedlevel = rank
 
 		-- Make sure we've never killed this monster.
 		m_race(r_idx).cur_num = 0
@@ -1818,6 +2097,9 @@ function generate_monster (r_idx, rank, mtype)
 		whichdialog = whichdialog + 29000
 
 		m_race(r_idx).extra2 = whichdialog
+
+		-- Townsfolk are always level 1.
+		m_race(r_idx).fixedlevel = 1
 	end
 	-- Skeleton Lords
 	if (mtype == 5) then
@@ -1839,9 +2121,8 @@ function generate_monster (r_idx, rank, mtype)
 	end
 
 	-- Experience value.
-	m_race(r_idx).mexp = rank * 10
-	if (mtype == 1 or mtype == 2 or mtype == 5) then m_race(r_idx).mexp = m_race(r_idx).mexp + multiply_divide(m_race(r_idx).mexp, (rank * 5), 100) end
-	if (friends == 1) then m_race(r_idx).mexp = (m_race(r_idx).mexp / 3) end
+	-- Always 100 for a random monster.
+	m_race(r_idx).mexp = 100
 
 	-- Clear body part.
 	m_race(r_idx).body_parts[BODY_WEAPON+1] = 0

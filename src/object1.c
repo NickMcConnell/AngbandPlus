@@ -2603,24 +2603,29 @@ bool identify_fully_aux(object_type *o_ptr)
 		info[i++] = "It has been blessed by the gods.";
 	}
 
+	if (f4 & (TR4_VALUE_50))
+	{
+		info[i++] = "It is only worth 50% of the normal value it should have.";
+	}
+
+	if (f4 & (TR4_VALUE_25))
+	{
+		info[i++] = "It is only worth 25% of the normal value it should have.";
+	}
+
         if (f4 & (TR4_NEVER_BLOW))
 	{
                 info[i++] = "It can't attack.";
 	}
 
+	if (f4 & (TR4_DEX_WEAPON))
+	{
+                info[i++] = "Dexterity is added to Strength for damage calculation.";
+	}
+
         if (f4 & (TR4_LEVELS))
         {
                 info[i++] = "It can gain experience levels. Use 'N' command to level up.";
-        }
-
-        if (f4 & (TR4_ONLY_MALE))
-        {
-                info[i++] = "It is only usable to males.";
-        }
-
-        if (f4 & (TR4_ONLY_FEMALE))
-        {
-                info[i++] = "It is only usable to females.";
         }
 
         if (f4 & (TR4_ALWAYS_HIT))
@@ -2684,10 +2689,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f3 & (TR3_IGNORE_COLD))
 	{
 		info[i++] = "It cannot be harmed by cold.";
-	}
-        if (f4 & (TR4_CLONE))
-	{
-                info[i++] = "It can clone monsters.";
 	}
         if (f4 & (TR4_ETERNAL))
         {
@@ -4961,6 +4962,11 @@ void py_pickup_floor(int pickup)
 void object_gain_level(object_type *o_ptr)
 {
         u32b f1, f2, f3, f4;
+	char buf[128];
+	int tweakamount = 0;
+
+	object_desc(buf, o_ptr, 1, 0);
+        msg_format("%s gains a level!", buf);
 
 	/* Extract some flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -4969,29 +4975,29 @@ void object_gain_level(object_type *o_ptr)
 	o_ptr->level += 1;
 
 	/* Upon every levels, augment to_h, to_d and to_d by 5%. */
-	if (((o_ptr->to_h * 5) / 100) > 1 && o_ptr->to_h > 0) o_ptr->to_h += ((o_ptr->to_h * 5) / 100);
-	else if (o_ptr->to_h > 0) o_ptr->to_h += 1;
-	if (((o_ptr->to_d * 5) / 100) > 1 && o_ptr->to_d > 0) o_ptr->to_d += ((o_ptr->to_d * 5) / 100);
-	else if (o_ptr->to_d > 0) o_ptr->to_d += 1;
-	if (((o_ptr->to_a * 5) / 100) > 1 && o_ptr->to_a > 0) o_ptr->to_a += ((o_ptr->to_a * 5) / 100);
-	else if (o_ptr->to_a > 0) o_ptr->to_a += 1;
-	if (((o_ptr->ac * 5) / 100) > 1 && o_ptr->ac > 0) o_ptr->ac += ((o_ptr->ac * 5) / 100);
-	else if (o_ptr->ac > 0) o_ptr->ac += 1;
-	if (multiply_divide(o_ptr->branddam, 5, 100) > 1 && o_ptr->branddam > 0) o_ptr->branddam += multiply_divide(o_ptr->branddam, 5, 100);
+	if (o_ptr->to_h > 0) o_ptr->to_h = o_ptr->to_h + ((o_ptr->level / 10) + 1);
+	if (o_ptr->to_d > 0) o_ptr->to_d = o_ptr->to_d + ((o_ptr->level / 10) + 1);
+
+	if (multiply_divide(o_ptr->branddam, 2, 100) > 1 && o_ptr->branddam > 0) o_ptr->branddam += multiply_divide(o_ptr->branddam, 2, 100);
 	else if (o_ptr->branddam > 0) o_ptr->branddam += 1;
 
 	/* Ranged weapons. */
-	if (o_ptr->tval == TV_RANGED && o_ptr->extra4 > 0) o_ptr->extra4 += multiply_divide(o_ptr->extra4, 2, 100);
+	/*if (o_ptr->tval == TV_RANGED && o_ptr->extra4 > 0) o_ptr->extra4 += multiply_divide(o_ptr->extra4, 1, 100);*/
 
 	/* Gain a bonus point. */
-	o_ptr->tweakpoints += 2;
+	tweakamount = 2;
+
+	/* Two-handed weapons gain more. */
+	if (f4 & (TR4_MUST2H)) tweakamount = tweakamount * 2;
+
+	o_ptr->tweakpoints += tweakamount;
 
 	/* Damages increase every 15 levels. */
-	if ((o_ptr->level % 15) == 0)
+	/*if ((o_ptr->level % 15) == 0)
 	{
 		o_ptr->dd += (o_ptr->dd / 4);
 		o_ptr->ds += (o_ptr->ds / 4);
-	}
+	}*/
 
 	/* Finally, reset the kills. */
 	o_ptr->kills = 0;

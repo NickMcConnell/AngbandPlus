@@ -46,13 +46,13 @@
 
 N:Underground;
 
-I:31:19:1:62:0:0:0
+I:31:19:1:52:0:0:0
 S:15:9
 
 T:enter_underground_twisted;
 
 // Queen Christina
-E:15:4:7:1373:0:90:0:0:0:0
+E:15:4:7:1373:0:50:0:0:0:0
 
 // Back to palace.
 E:15:10:4:520:55:4:0:0:0:0

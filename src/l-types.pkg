@@ -76,6 +76,10 @@ struct monster_attack
 	s16b element;
 	s16b special1;
 	s16b special2;
+	s16b ddscale;
+	s16b ddscalefactor;
+	s16b dsscale;
+	s16b dsscalefactor;
 };
 
 struct monster_spell
@@ -89,6 +93,8 @@ struct monster_spell
 	s16b special3;
 	char summchar;
 	s16b cost;
+	s16b scale;
+	s16b scalefactor;
 };
 
 struct magic_spells
@@ -336,6 +342,7 @@ struct monster_race
 
 	s16b hdice;
 	s16b hside;
+	s32b hp;
 
 	s32b ac;
 
@@ -421,6 +428,8 @@ struct monster_race
 	s32b skill_attack;
 	s32b skill_ranged;
 	s32b skill_magic;
+	s32b skill_evasion;
+	s32b skill_mdef;
 	
 	s16b countertype;
 	s16b counterchance;
@@ -430,6 +439,7 @@ struct monster_race
 	s16b spellchance;
 
 	s16b attacks;
+	s16b shots;
 	monster_attack attack[20];
 	s16b spells;
 	monster_spell spell[20];
@@ -446,6 +456,7 @@ struct monster_race
 	s16b dunnum;
 	s16b lives;
 	s16b cursed;
+	s16b cr;
 
 	s16b event_before_melee;
 	s16b event_after_melee;
@@ -460,6 +471,15 @@ struct monster_race
 	s16b event_death;
 	s16b event_spawn;
 	s16b event_misc;
+
+	s16b attacksscale;
+	s16b attacksscalefactor;
+	s16b shotsscale;
+	s16b shotsscalefactor;
+	s16b spellsscale;
+	s16b spellsscalefactor;
+	s16b livesscale;
+	s16b livesscalefactor;
 };
 
 struct vault_type
@@ -693,6 +713,8 @@ struct monster_type
 	s32b skill_attack;
 	s32b skill_ranged;
 	s32b skill_magic;
+	s32b skill_evasion;
+	s32b skill_mdef;
 	s32b mana;
 	s16b hasted;
 	s16b boosted;
@@ -700,6 +722,12 @@ struct monster_type
 	s16b lives;
 	s16b summoned;
 	bool no_experience;
+
+	s32b extra1;
+	s32b extra2;
+	s32b extra3;
+	s32b extra4;
+	s32b extra5;
 };
 
 struct alloc_entry

@@ -116,28 +116,28 @@ something you are more comfortable with.
             $   Creeping Coins      ,   Mushroom Patch
             a   Giant Ant           A   Angelic being
             b   Giant Bat           B   Bird
-            c   Giant Centipede     C   Canine
+            c   n/a                 C   Canine
             d   Dragon              D   Ancient Dragon
             e   Floating Eye        E   Elemental/Spirit
-            f   Feline              F   Dragon Fly
+            f   Feline              F   n/a
             g   Golem               G   Ghost
             h   Humanoids           H   Hybrid/Monstrous
-            i   Icky-Thing          I   Insect/Scorpion
+            i   n/a                 I   Insect/Scorpion
             j   Jelly               J   Snake
             k   Kobold              K   Killer Beetle
             l   Giant Louse         L   Lich
             m   Mold/Plant          M   Multi-Headed Hydra
-            n   Naga                N   ??????
-            o   Orc                 O   Ogre
+            n   Naga                N   n/a
+            o   Orc                 O   n/a
             p   Human               P   Giant Human(oid)
             q   Beast               Q   Quylthulg
             r   Rodent              R   Reptile/Amphibian
             s   Skeleton            S   Spider
-            t   Townsperson         T   Troll
+            t   Townsperson         T   n/a
             u   Minor demon         U   Major demon
             v   Lesser Vampire      V   Greater Vampire
             w   Worm or Worm Mass   W   Wight/Wraith
             x   Seafolk/fish        X   Xorn/Xaren
             y   Yeek                Y   Yeti
-            z   Zombie/Mummy        Z   Elemental Hound
+            z   Zombie/Mummy        Z   n/a
             *   Sphere/Ball         &   Devling

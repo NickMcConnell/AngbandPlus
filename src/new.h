@@ -83,11 +83,7 @@ extern void soul_bind();
 extern bool cave_lit(int y, int x);
 extern void stone_to_gold();
 extern void animate_knight();
-extern void mace_of_heaven();
-extern void set_spike_trap();
 extern void add_slay_brand(object_type *o_ptr);
-extern void set_gas_trap();
-extern void set_poison_trap();
 extern void ranger_entangle();
 extern void ranger_thorned_vines();
 extern void ranger_force_of_nature();
@@ -150,7 +146,6 @@ extern void screen_roff_boss(int r_idx, int remember, monster_type *m_ptr);
 extern void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr);
 
 /* monster2.c */
-extern void apply_monster_level_hp(monster_type *m_ptr);
 extern void get_boss_ability(monster_type *m_ptr, int number);
 extern bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm, int dur);
 extern s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool charm, int petlevel, s32b pethp, s32b petmaxhp, int dur);
@@ -164,7 +159,6 @@ extern bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool char
 extern s16b place_monster_animated(int y, int x, int r_idx, bool slp, bool charm, s32b basehp, s32b hit_bonus, int d_d, int d_s);
 extern bool summon_specific_kind(int y1, int x1, int lev, char kind, bool Group_ok, bool friendly, int dur);
 extern bool summon_specific_ridx(int y1, int x1, int ridx, bool Group_ok, bool friendly, int dur);
-extern void apply_monster_level_stats(monster_type *m_ptr);
 
 /* object1.c */
 extern char *get_item_type_name(object_type *o_ptr);
@@ -226,7 +220,7 @@ extern void calc_resistances(int mode);
 
 /* xtra2.c */
 extern void know_body_monster();
-extern void gain_exp_kill(s32b amount, monster_type *m_ptr);
+extern void gain_exp_kill(monster_type *m_ptr);
 extern bool set_str_boost(int v);
 extern bool set_int_boost(int v);
 extern bool set_wis_boost(int v);

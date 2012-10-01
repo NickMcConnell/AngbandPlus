@@ -177,14 +177,14 @@ A:97:100:51:0:50:0:57:58
 
 N:20:Cave Northeast of Ivhala
 D:an entrance to a deep cave
-W:30:45:1:507:0:14:160:0:0:0:0
+W:30:40:1:507:0:14:160:0:0:0:0
 L:88:100:1:0:1:0
 A:97:100:51:0:50:0:57:58
 F:PRINCIPAL
 
 N:21:Cave West of Ivhala
 D:an entrance to a deep cave
-W:40:50:1:510:0:14:160:0:0:0:0
+W:35:45:1:510:0:14:160:0:0:0:0
 L:88:100:1:0:1:0
 A:97:100:51:0:50:0:57:58
 F:PRINCIPAL
@@ -198,7 +198,7 @@ F:NO_GENERIC | SMALLEST | PRINCIPAL
 
 N:23:Secret Cave
 D:an entrance to a secret cave
-W:40:50:1:512:0:14:160:0:0:0:0
+W:35:45:1:512:0:14:160:0:0:0:0
 L:88:100:1:0:1:0
 A:97:100:51:0:50:0:57:58
 
@@ -210,20 +210,20 @@ A:56:70:51:15:50:15:57:58
 
 N:25:Graveyard Dungeon
 D:an entrance to a secret dungeon in the graveyard
-W:30:45:1:28:0:14:160:0:0:0:0
+W:30:35:1:28:0:14:160:0:0:0:0
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:UNDEAD
 
 N:26:Altered Tomb
 D:the entrance to Ophelia's Tomb
-W:30:45:1:31:0:14:160:0:0:0:0
+W:30:40:1:31:0:14:160:0:0:0:0
 L:1:100:1:0:1:0
 A:87:100:51:0:50:0:57:58
 
 N:27:Altered Tomb
 D:an entrance to Ophelia's Tomb
-W:30:45:1:32:0:14:160:0:0:0:0
+W:30:40:1:32:0:14:160:0:0:0:0
 L:86:90:85:10:1:0
 A:56:70:51:15:50:15:57:58
 F:DEMON
@@ -242,24 +242,37 @@ A:56:70:51:15:50:15:57:58
 
 N:30:Ivhala Palace Area, Left Wing
 D:an entrance to a dungeon
-W:50:55:1:518:0:14:160:0:0:0:0
+W:40:45:1:518:0:14:160:0:0:0:0
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:PRINCIPAL
 
 N:31:Ivhala Palace Area, Right Wing
 D:an entrance to a dungeon
-W:50:55:1:519:0:14:160:0:0:0:0
+W:40:45:1:519:0:14:160:0:0:0:0
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:PRINCIPAL
 
 N:32:Ivhalian Palace
 D:an entrance to the Ivhalian Palace
-W:50:60:1:520:0:14:160:0:0:0:0
+W:40:50:1:520:0:14:160:0:0:0:0
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:PRINCIPAL
+
+N:33:Ruins Cave
+D:an entrance to a cave
+W:30:35:1:134:0:14:160:0:0:0:0
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+
+N:34:Delviaz's Hideout
+D:an entrance to a cave
+W:37:42:1:138:0:14:160:0:0:0:0
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+F:UNDEAD
 
 
 # Dungeon #200 is the random dungeon. Do not use it!

@@ -1,0 +1,501 @@
+N:1:1145:1:0:0:0
+I:Nidem;
+T:<NAME>! It's good to see you again! What brings you here today?;
+A:I have a couple questions.:0:0:0:1:35:0:0:0:0
+A:Just passing by. See you later!:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1143:1:0:0:0
+I:Nidem;
+T:<NAME>! What news do you bring?;
+A:Delviaz is finally dead! [Tell him the story]:0:0:0:1:28:0:0:0:0
+%
+
+N:1:1142:1:0:0:0
+I:Nidem;
+T:Good day, <NAME>! Anything I can help you with?;
+A:Where did Delviaz go?:0:0:0:1:20:0:0:0:0
+A:How should I kill him?:0:0:0:1:21:0:0:0:0
+A:Tell me more about the Wyrmwraiths.:0:0:0:1:22:0:0:0:0
+A:Tell me more about Kysoroth.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1137:1:0:0:0
+I:Nidem;
+T:Good to see you again, <NAME>! As you can see, I've made it back safely.;
+T:I must say, these offices are much better than the ones in the slums,;
+T:and I've heard it's all thanks to you! But I'm afraid we have more;
+T:pressing matters to discuss... what happened to Delviaz?;
+A:I was unable to finish him off. [Tell him the story]:0:0:0:1:14:0:0:0:0
+%
+
+N:1:1130:2:0:0:0
+I:Nidem;
+T:Let's get out of here, and go to Jindar. I will follow you with the;
+T:survivors.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1130:1:0:0:0
+I:Nidem;
+T:Glad you came, <NAME>! As you can see, Denzar is now dead.;
+T:I was able to defeat him before you arrived, so I guess...you are too;
+T:late, so to speak! Hehehe!;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:1:1130:0:0:0:0
+I: ;
+T:You enter a room, and on the floor, you notice the body of two Kobolds.;
+T:Judging from the equipment they were wearing, you'd guess they were;
+T:some of the guild's leaders. However, none of them looks like a mage,;
+T:and so Nidem isn't one of them.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:Then you look in front of you. In a large room, two opponents are fighting;
+T:each others. The first one is a Devling in heavy armor, wielding a powerful;
+T:flaming lance. And the other one is a Kobold in mage's clothing. You can;
+T:sense a powerful magical energy inside of him. No doubt he is Nidem, and;
+T:although he is wounded, he is still alive. His Devling opponent must;
+T:be Denzar, and he too is severly wounded.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Denzar;
+T:*pant*...*pant*... all your poisonous magic won't stop me, Nidem!;
+T:I will impale you with my lance of flame, and you and your guild;
+T:will die!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Nidem;
+T:Bring it on, Denzar! I will avenge Kegam and Bulgum! It is YOUR guild;
+T:that will die! For we of the Stealthy Vipers serves the good of Jindar, while;
+T:you are nothing more than troublemakers who'd do anything to serve their;
+T:own interests!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Nidem;
+T:Begone!;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:Denzar charges toward Nidem at high speed, trying to impale him with his;
+T:lance of fire. Nidem retaliates by casting a powerful ball of poisonous;
+T:matter.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I: ;
+T:Denzar has almost reached Nidem, and is ready to give him the finishing;
+T:blow...but he is struck just in time by Nidem's spell. The poison is;
+T:taking it's toll, taking away the little that was left of Denzar's;
+T:health. Fatally sickened, he drops his weapon on the ground, and falls.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Denzar;
+T:*cough*...*cough*...ack...you...damned...Kobold... How can this be;
+T:happening?? I was about to finish you off, but you...you just...;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I: ;
+T:Denzar's eyes closes, and he is now dead. Nidem, exhausted by the combat;
+T:against the Dragon Lancers' leader, takes a moment to catch his breath,;
+T:and drinks a few healing potions. After healing some critical wounds,;
+T:he turns to you.;
+A:[CONTINUE]:0:0:0:1:10:0:0:1130:1
+%
+
+N:10:0:0:0:0:0
+I:Nidem;
+T:Ah! You must be <NAME>. Krind told me a lot about you. Come here, let's;
+T:have a chat.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Nidem;
+T:Just kidding. Thanks a lot for your help, and for fighting the Lancers;
+T:that were attacking us. I've heard about all that you've done for us,;
+T:and I am very grateful.;
+A:[CONTINUE]:0:0:0:1:12:0:0:1130:2
+%
+
+N:12:0:0:0:0:0
+I:Nidem;
+T:I feel sorry about Kegam and Bulgum...but at least, they fought off many;
+T:Devlings, so their death was not in vain. All things considered, the attack;
+T:wasn't as bad as I thought... I had a bad feeling that we were done for, but;
+T:things turned out better than expected!;
+A:[CONTINUE]:0:0:0:1:13:0:0:1128:1
+%
+
+N:13:0:0:0:0:0
+I:Nidem;
+T:Still, we must leave this place now. It is completely wrecked. Me and the;
+T:survivors must leave for Jindar, where's we'll stay with Krind and Nilgam.;
+T:So let's get moving! Head toward Jindar. I will follow you, with the other;
+T:survivors.;
+A:[END DIALOG]:0:0:0:0:0:0:0:1131:1
+%
+
+N:14:0:0:0:0:0
+I: ;
+T:Nidem looks slightly troubled when you mention the name of Kysoroth, the;
+T:Wyrmwraith. He thinks for a moment...;
+A:[CONTINUE]:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Nidem;
+T:These are bad news indeed, a Wyrmwraith can give much power to his servants.;
+T:But I believe not all is lost, and we can still stop Delviaz. From what;
+T:you are telling me, he seems to have become more or less like an undead;
+T:creature, in that he is able to stand up and reform his body when killed.;
+T:If that's the case, then there may be a way we can hurt him...;
+A:[CONTINUE]:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Nidem;
+T:Light is a well known weakness of undead creatures and even Devlings, but;
+T:due to the complexity of the power he has received, I fear this might not;
+T:be enough. What might work, however, is the undead smiting energy from;
+T:the magic school of Mysticism. Unlike light, this mystical energy will;
+T:strike the very fabric of Kysoroth's magic inside Delviaz's body, and;
+T:hopefully break it. Without Kysoroth's power, Delviaz won't be immortal;
+T:anymore, and you will be able to finish him off.;
+A:[CONTINUE]:0:0:0:3:42:4:17:0:0
+%
+
+N:17:0:0:0:0:0
+I:Nidem;
+T:<NAME>... let me offer you this gift. This is a powerful;
+T:Viper Crossbow we call 'Mystical Viper'. It is the most powerful;
+T:Viper Crossbow we've ever created, and in addition to the Viper Crossbow's;
+T:standard abilities, this one can turn bolts into mystical energy,;
+T:including the undead smiting energy that you'll need to finish off Delviaz.;
+A:Thanks you.:0:0:0:1:18:0:0:1141:1
+%
+
+N:18:0:0:0:0:0
+I:Nidem;
+T:In addition to that, I now promote you to the highest rank amongst the;
+T:Stealthy Vipers. It would normally be called 'Wraith'... but I don't;
+T:think it's very appropriate, considering our enemy. Nevertheless, you will;
+T:now have access to all special equipment we can make, including the;
+T:Viper Mail, of which only a few have been produced. As far as light armor;
+T:goes, this is probably the best you're going to find.;
+A:[CONTINUE]:0:0:0:1:19:0:0:1142:1
+%
+
+N:19:0:0:0:0:0
+I:Nidem;
+T:Now... surely you have more questions before you go on the hunt for Delviaz.;
+A:Where did Delviaz go?:0:0:0:1:20:0:0:0:0
+A:How should I kill him?:0:0:0:1:21:0:0:0:0
+A:Tell me more about the Wyrmwraiths.:0:0:0:1:22:0:0:0:0
+A:Tell me more about Kysoroth.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Nidem;
+T:By chance, our agents were able to find out where his hideout is! He didn't;
+T:reside in the Lancers headquarters, as it would have attracted too much;
+T:unwanted attention. But we were able to find him! His hideout can be found;
+T:at (52,48). It's the site of an old temple. Not sure who it is dedicated to,;
+T:but I'm willing to bet it's a temple of Kysoroth. If that's the;
+T:case, once inside, you can expect a lot of undead creatures, as this is;
+T:what Kysoroth loves the most.;
+A:How should I kill him?:0:0:0:1:21:0:0:0:0
+A:Tell me more about the Wyrmwraiths.:0:0:0:1:22:0:0:0:0
+A:Tell me more about Kysoroth.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Nidem;
+T:That's no sure bet, but I am confident that the mystical energy used to;
+T:smite undead creatures should work well. The crossbow we gave you can be used;
+T:to fire bolts made of this energy, but if you are talented in Mysticism;
+T:magic, you might be able to cast a Smite Undeads spell. That should work too.;
+T:Of course, this is only to finish him off. Feel free to use any kind of;
+T:attacks on him, but if you can use light-based attacks, this would have;
+T:the most effect, with both Devlings and undead creatures being vulnerable;
+T:to it.;
+A:Where did Delviaz go?:0:0:0:1:20:0:0:0:0
+A:Tell me more about the Wyrmwraiths.:0:0:0:1:22:0:0:0:0
+A:Tell me more about Kysoroth.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Nidem;
+T:Wyrmwraiths are a kind of undead dragons who exists in many planes at the;
+T:same time. Part of their being is a dead soul, and exists in the plane of;
+T:souls and spirits. Another part is physical, who is also caught in between;
+T:life and death, an undead body. They are also creatures of darkness, and;
+T:can make one with the darkness around them. Now, if that wasn't complex;
+T:enough, imagine this: they draw power from ALL of these planes and entities!;
+T:And all the the sources of power from their multiple existances creates;
+T:a frightening synergy which multiplies their power to unimaginable levels.;
+A:[CONTINUE]:0:0:0:1:23:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Nidem;
+T:And this is without taking in consideration their draconic energy. Wyrmwraiths;
+T:are all ancient dragons, and their draconic energy and strength adds up with;
+T:all their other sources of power. Can you simply imagine the power they might;
+T:possess? No, you can't. We mortals cannot comprehend that kind of power.;
+T:They exists in the planes of Hell, but they despise many of the Archfiends.;
+T:Both the forces of Good and the forces of Evil fought them, and there have;
+T:been very few victories on both sides. Wyrmwraiths can hardly be stopped;
+T:without a God's or Archfiend's intervention.;
+A:Where did Delviaz go?:0:0:0:1:20:0:0:0:0
+A:How should I kill him?:0:0:0:1:21:0:0:0:0
+A:Tell me more about Kysoroth.:0:0:0:1:24:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Nidem;
+T:Kysoroth is a powerful Wyrmwraith, and one of Kandril's generals. He is also;
+T:known as the "Death Plague", thanks to his ability to breath powerful, cursed;
+T:clouds of gas. Any living being that enters in contact with this gas will be;
+T:turned into an undead creature and become a slave of Kysoroth. And if you;
+T:wonder just how potent this gas is, know that even some of the mightiest;
+T:celestial champions, blessed by the gods and with the purest of heart,;
+T:were instantly turned into undead slaves. One breath is enough to turn an;
+T:entire legion of the holiest of warriors. Kysoroth is THAT powerful!;
+A:So, how can we fight him?:0:0:0:1:25:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Nidem;
+T:No mortals could ever have the power to fight him directly. But fear not,;
+T:he exists somewhere in the planes of Hell, and he cannot simply appear;
+T:in our world just like that. What we CAN do, however, is defeat his servants.;
+T:As long as we can stop his followers, the threat of Kysoroth will be kept;
+T:at bay.;
+A:You mentionned something about Kandril?:0:0:0:1:26:0:0:0:0
+A:Where did Delviaz go?:0:0:0:1:20:0:0:0:0
+A:How should I kill him?:0:0:0:1:21:0:0:0:0
+A:Tell me more about the Wyrmwraiths.:0:0:0:1:22:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I:Nidem;
+T:Yes... the King of the Wyrmwraiths. He is a complex being, and I'm afraid;
+T:I only have limited knowledge of him. All I know is that he is the strongest;
+T:of all the Wyrmwraiths and he has four generals to command his armies,;
+T:Kysoroth being one of them. He was created by the Archfiend Ryoon, but became;
+T:so powerful that he is no longer controlled by Ryoon, and even became one;
+T:of his sworn enemies. I'm afraid that's all I know. Maybe you will fine more;
+T:information during your journey.;
+A:How did you learn so much about wyrmwraiths and Kysoroth?:0:0:0:1:27:0:0:0:0
+A:Where did Delviaz go?:0:0:0:1:20:0:0:0:0
+A:How should I kill him?:0:0:0:1:21:0:0:0:0
+A:Tell me more about the Wyrmwraiths.:0:0:0:1:22:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I:Nidem;
+T:Well... I've spent many years living in underground dungeons, where all sort;
+T:of monsters lives. Frequent contact with all sort of creatures led me to;
+T:learn about a lot of things... many of which are dangerous secrets.;
+T:Don't worry, <NAME>! I don't plan on becoming a minion of Kysoroth;
+T:anytime soon!;
+A:Where did Delviaz go?:0:0:0:1:20:0:0:0:0
+A:How should I kill him?:0:0:0:1:21:0:0:0:0
+A:Tell me more about the Wyrmwraiths.:0:0:0:1:22:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I: ;
+T:Nidem smiles at you, very satisfied of hearing about the victory. The calm;
+T:wizard tries to contain his joy as best as he can, but then gives up,;
+T:and throws an ecstatic cheer at you!;
+A:[CONTINUE]:0:0:0:1:29:0:0:0:0
+%
+
+N:29:0:0:0:0:0
+I:Nidem;
+T:HURRAY!!!;
+T:YOU DID IT, <NAME>!!;
+T:With Delviaz and Denzar gone, the Dragon Lancers are no more! We are now the;
+T:best and most powerful mercenary guild in all Jindar!;
+T:Everyone! Let's all cheer and applaud our <heroheroine>, <NAME>!;
+A:[CONTINUE]:0:0:0:1:30:0:0:1145:1
+%
+
+N:30:0:0:0:0:0
+I: ;
+T:Nidem, Nilgam and other nearby Vipers applauds you, and cheer at you,;
+T:acclaiming you as their <heroheroine> and savior!;
+A:[CONTINUE]:0:0:0:3:43:4:31:0:0
+%
+
+N:31:0:0:0:0:0
+I:Nidem;
+T:<NAME>! As a reward for all your services, we present you this magical;
+T:cloak. We call it the Cloak of the Viper Champion. It is a Viper Cloak;
+T:that was enchanted with all of our strongest magical powers, and only a single;
+T:one has ever been made. We feel that since it is thanks to you that our;
+T:guild has prevailed, it is rightfully yours. Wear it proudly, <NAME>!;
+A:I will. Thanks you very much!:0:0:0:3:488:200000:32:0:0
+%
+
+N:32:0:0:0:0:0
+I:Nidem;
+T:And of course, you will be paid with gold for all your services. Accept these;
+T:200000 golds as your payment for your efforts. With this, surely you'll find;
+T:something good to buy in the Rare Items store that will help you in your;
+T:future adventures!;
+A:[CONTINUE]:0:0:0:1:33:0:0:0:0
+%
+
+N:33:0:0:0:0:0
+I:Nidem;
+T:As for us, with the headquarters gone, we have to think of new plans for;
+T:future recruitment, and try our best to restore the guild. It will take;
+T:a while, but now that the feud with the Lancers is ended, we will probably;
+T:be able to obtain official recognition by the Jindar authorities. If we;
+T:are recognised as an official, competent guild, we will gain all sort of;
+T:new contracts, and we'll be back in business in no time!;
+A:[CONTINUE]:0:0:0:1:34:0:0:0:0
+%
+
+N:34:0:0:0:0:0
+I:Nidem;
+T:Don't forget to pay us a visit once in a while. Who knows, maybe we'll need;
+T:your help again. And if you need anything, just let us know! Feel free to go;
+T:see Belgim whenever you need a new piece of equipment made for you.;
+T:Good luck in your adventures, <NAME>!;
+A:Before I go, I have some questions.:0:0:0:1:35:0:0:0:0
+A:Thanks you, Nidem. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:35:0:0:0:0:0
+I:Nidem;
+T:Sure, go ahead! What do you want to know?;
+A:I want to look for Kysoroth. Where should I begin?:0:0:0:1:42:0:0:0:0
+A:Tell me again about the Wyrmwraiths.:0:0:0:1:36:0:0:0:0
+A:Tell me again about Kysoroth.:0:0:0:1:38:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:36:0:0:0:0:0
+I:Nidem;
+T:Wyrmwraiths are a kind of undead dragons who exists in many planes at the;
+T:same time. Part of their being is a dead soul, and exists in the plane of;
+T:souls and spirits. Another part is physical, who is also caught in between;
+T:life and death, an undead body. They are also creatures of darkness, and;
+T:can make one with the darkness around them. Now, if that wasn't complex;
+T:enough, imagine this: they draw power from ALL of these planes and entities!;
+T:And all the the sources of power from their multiple existances creates;
+T:a frightening synergy which multiplies their power to unimaginable levels.;
+A:[CONTINUE]:0:0:0:1:37:0:0:0:0
+%
+
+N:37:0:0:0:0:0
+I:Nidem;
+T:And this is without taking in consideration their draconic energy. Wyrmwraiths;
+T:are all ancient dragons, and their draconic energy and strength adds up with;
+T:all their other sources of power. Can you simply imagine the power they might;
+T:possess? No, you can't. We mortals cannot comprehend that kind of power.;
+T:They exists in the planes of Hell, but they despise many of the Archfiends.;
+T:Both the forces of Good and the forces of Evil fought them, and there have;
+T:been very few victories on both sides. Wyrmwraiths can hardly be stopped;
+T:without a God's or Archfiend's intervention.;
+A:I want to look for Kysoroth. Where should I begin?:0:0:0:1:42:0:0:0:0
+A:Tell me again about Kysoroth.:0:0:0:1:38:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:38:0:0:0:0:0
+I:Nidem;
+T:Kysoroth is a powerful Wyrmwraith, and one of Kandril's generals. He is also;
+T:known as the "Death Plague", thanks to his ability to breath powerful, cursed;
+T:clouds of gas. Any living being that enters in contact with this gas will be;
+T:turned into an undead creature and become a slave of Kysoroth. And if you;
+T:wonder just how potent this gas is, know that even some of the mightiest;
+T:celestial champions, blessed by the gods and with the purest of heart,;
+T:were instantly turned into undead slaves. One breath is enough to turn an;
+T:entire legion of the holiest of warriors. Kysoroth is THAT powerful!;
+A:So, how can we fight him?:0:0:0:1:39:0:0:0:0
+%
+
+N:39:0:0:0:0:0
+I:Nidem;
+T:No mortals could ever have the power to fight him directly. But fear not,;
+T:he exists somewhere in the planes of Hell, and he cannot simply appear;
+T:in our world just like that. What we CAN do, however, is defeat his servants.;
+T:As long as we can stop his followers, the threat of Kysoroth will be kept;
+T:at bay.;
+A:You mentionned something about Kandril?:0:0:0:1:40:0:0:0:0
+A:I want to look for Kysoroth. Where should I begin?:0:0:0:1:42:0:0:0:0
+A:Tell me again about the Wyrmwraiths.:0:0:0:1:36:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:40:0:0:0:0:0
+I:Nidem;
+T:Yes... the King of the Wyrmwraiths. He is a complex being, and I'm afraid;
+T:I only have limited knowledge of him. All I know is that he is the strongest;
+T:of all the Wyrmwraiths and he has four generals to command his armies,;
+T:Kysoroth being one of them. He was created by the Archfiend Ryoon, but became;
+T:so powerful that he is no longer controlled by Ryoon, and even became one;
+T:of his sworn enemies. I'm afraid that's all I know. Maybe you will fine more;
+T:information during your journey.;
+A:How did you learn so much about wyrmwraiths and Kysoroth?:0:0:0:1:41:0:0:0:0
+A:I want to look for Kysoroth. Where should I begin?:0:0:0:1:42:0:0:0:0
+A:Tell me again about the Wyrmwraiths.:0:0:0:1:36:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:41:0:0:0:0:0
+I:Nidem;
+T:Well... I've spent many years living in underground dungeons, where all sort;
+T:of monsters lives. Frequent contact with all sort of creatures led me to;
+T:learn about a lot of things... many of which are dangerous secrets.;
+T:Don't worry, <NAME>! I don't plan on becoming a minion of Kysoroth;
+T:anytime soon!;
+A:I want to look for Kysoroth. Where should I begin?:0:0:0:1:42:0:0:0:0
+A:Tell me again about the Wyrmwraiths.:0:0:0:1:36:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:42:0:0:0:0:0
+I:Nidem;
+T:What?? Look for Kysoroth...as in, you want to destroy Kysoroth??;
+T:You'd better forget about this, <NAME>, it is not possible for a;
+T:mortal to even stare at a being like Kysoroth! With that said, the best;
+T:way you could hurt him is to defeat his followers and minions. For that,;
+T:you'll have to search for his various temples in Portralis. You've already;
+T:found one, but you'll need to figure out how to enter it, and then you'll;
+T:have to look for other temples as well. I'm afraid that's all I can tell;
+T:you. I do not know how to open the temples, nor where they are.;
+A:Tell me again about the Wyrmwraiths.:0:0:0:1:36:0:0:0:0
+A:Tell me again about Kysoroth.:0:0:0:1:38:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

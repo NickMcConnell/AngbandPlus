@@ -9,13 +9,12 @@ function make_item_magic (item, itemlevel, special)
 
 	local oldpval
 	local bonuslevel
-	local unusual
 	local i
 	local isspecial
 	local cursebadluck
-	local notred
 	local bluechance
 	local bluebonus
+	local to_bonus = 0
 
 	isspecial = 0
 	cursebadluck = 0
@@ -54,35 +53,20 @@ function make_item_magic (item, itemlevel, special)
 
 		local cursedbonus
 
-		cursedbonus = (p_ptr.cursed / 10) + multiply_divide((p_ptr.cursed / 10), p_ptr.abilities[(CLASS_NIGHT1 * 10) + 1] * 20, 100)
-		bluebonus = (p_ptr.cursed / 20) * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 1]
+		cursedbonus = multiply_divide(itemlevel, p_ptr.abilities[(CLASS_NIGHT1 * 10) + 1] * 2, 100)
+		bluebonus = (p_ptr.cursed * 2) * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 1]
 		itemlevel = itemlevel + cursedbonus
 	end
 
-	-- Cursed players may have more "unusually bad" items...
+	-- Cursed players have more chances of finding cursed items.
 	if (p_ptr.cursed > 0 and p_ptr.inside_quest == 0) then
 
-		cursebadluck = (p_ptr.cursed / 10)
+		cursebadluck = (p_ptr.cursed * 2)
 		if (cursebadluck > 70) then cursebadluck = 70 end
 	end
 
-	-- Most of the time, you get an item with a "bonus level" between itemlevel and (itemlevel * 2).
-	-- However, sometimes, you can get really GOOD stuff. :)
-	-- ....or really bad stuff. :(
-	bonuslevel = lua_randint(itemlevel) + itemlevel
-	unusual = lua_randint(100)
-	if (unusual >= 95) then bonuslevel = bonuslevel + lua_randint(bonuslevel)
-	elseif (unusual <= (5 + cursebadluck) and (forcecurse == 0)) then
-
-		-- Cursed Treasure Seeker may negates this.
-		if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 1] < 5) then
-
-			bonuslevel = bonuslevel / 4
-
-			-- It is crappy.
-			crappy = 1
-		end
-	end
+	-- Bonuslevel depends on the itemlevel variable, as well as the item's depth.
+	bonuslevel = ((itemlevel + kind(item).level) / 2)
 
 	-- bonuslevel cannot be 0.
 	if (bonuslevel <= 0) then bonuslevel = 1 end
@@ -90,18 +74,38 @@ function make_item_magic (item, itemlevel, special)
 	-- Item is magic.
 	give_object_flag4(item, TR4_ENCHANTED)
 
-	-- If bonuslevel is at least 40, 10% of being able to level up.
-	if ((bonuslevel >= 40 and lua_randint(100) <= (10 + bluebonus)) or (special) or (fate_item_modifier >= 3 and p_ptr.events[29007] == 1) or (p_ptr.events[29023] == 1)) then
+	-- A cursed item!
+	-- Already cursed players have more chances of finding cursed!
+	-- They won't be generated in towns. So black markets won't sell them.
+	-- Cursed will not become specials.
+	if (((bonuslevel >= 15 and lua_randint(100) <= (5 + cursebadluck)) and (isspecial == 0) and (magicitemscroll == 0) and (dun_level > 0)) or (forcecurse == 1) or (p_ptr.events[29024] == 1) or (opening_chest and opening_chest_type == 5)) then
+
+		item.cursed = 1
+
+		-- They are eternal.
+		-- This raises your chance that you will use them. Hehehe...
+		give_object_flag4(item, TR4_ETERNAL)
+
+		-- Boost bonuslevel by 50%.
+		bonuslevel = bonuslevel + multiply_divide(bonuslevel, 50, 100)
+
+		-- Bonuslevel is increased.
+		bonuslevel = bonuslevel + multiply_divide(bonuslevel, 33, 100)
+	end
+
+	-- If bonuslevel is at least 20, 10% of being able to level up.
+	if ((bonuslevel >= 20 and lua_randint(100) <= (10 + bluebonus)) or (special) or (fate_item_modifier >= 3 and p_ptr.events[29007] == 1) or (p_ptr.events[29023] == 1)) then
 
 		give_object_flag4(item, TR4_LEVELS)
 		item.level = 1
 		item.kills = 0
 		item.tweakpoints = 2
+		if (get_object_flag4(item, TR4_MUST2H)) then item.tweakpoints = item.tweakpoints * 2 end
 	end
 
 	-- If levelable, there is a tiny chance of it becoming special.
-	-- Bonuslevel must also be at least 80.
-	if ((get_object_flag4(item, TR4_LEVELS) and bonuslevel >= 80 and item.cursed == 0 and crappy == 0 and dun_level > 0 and lua_randint(500) <= 5) or (special) or (fate_item_modifier == 4 and p_ptr.events[29007] == 1) or (p_ptr.events[29025] == 1)) then
+	-- Bonuslevel must also be at least 40.
+	if ((get_object_flag4(item, TR4_LEVELS) and bonuslevel >= 40 and item.cursed == 0 and (magicitemscroll == 0) and dun_level > 0 and lua_randint(500) <= 5) or (special) or (fate_item_modifier == 4 and p_ptr.events[29007] == 1) or (p_ptr.events[29025] == 1)) then
 
 		local rndval
 		local rndval2
@@ -109,12 +113,10 @@ function make_item_magic (item, itemlevel, special)
 		local newname2
 		local randname
 
-		-- Reroll bonuslevel to max it.
-		bonuslevel = itemlevel * 2
-		bonuslevel = bonuslevel * 2
+		-- Boost bonuslevel
+		bonuslevel = bonuslevel * (itemlevel / 10)
 
 		item.name2 = 131
-		bonuslevel = bonuslevel * 3
 
 		-- Set the "special" to true.
 		isspecial = 1
@@ -170,415 +172,47 @@ function make_item_magic (item, itemlevel, special)
 		give_object_flag4(item, TR4_ETERNAL)
 	end
 
-	-- A cursed item!
-	-- Already cursed players have more chances of finding cursed!
-	-- They won't be generated in towns. So black markets won't sell them.
-	-- Specials will never become cursed.
-	-- And there is no such thing such as a "crappy" cursed item.
-	if (((bonuslevel >= 20 and lua_randint(100) <= (5 + cursebadluck)) and (isspecial == 0) and (magicitemscroll == 0) and (crappy == 0) and (dun_level > 0)) or (forcecurse == 1) or (p_ptr.events[29024] == 1) or (opening_chest and opening_chest_type == 5)) then
-
-		item.cursed = lua_randint(bonuslevel) + (itemlevel / 4)
-
-		if (forcecurse == 1 and item.cursed < itemlevel) then item.cursed = itemlevel end
-
-		-- They are eternal.
-		-- This raises your chance that you will use them. Hehehe...
-		give_object_flag4(item, TR4_ETERNAL)
-
-		-- Bonuslevel is increased slightly.
-		bonuslevel = bonuslevel + item.cursed
+	-- Give stats/skills and other bonus to item based on an archetype.
+	-- See item_archetypes.lua.
+	-- Two-handed weapons gains more!
+	if (get_object_flag4(item, TR4_MUST2H)) then
+		give_item_bonus(item, bonuslevel * 2)
+	else
+		give_item_bonus(item, bonuslevel)
 	end
-
-	-- Provide bonus up to bonuslevel.
-	i = 0
-
-	while (i < bonuslevel) do
-
-		local btype
-		local amt
-		local whichone
-		local misctype
-
-		whichone = 0
-
-		-- Roll for what type of bonus it will be.
-		btype = lua_randint(100)
-
-		-- A resistances bonus.
-		if (btype >= 80) then
-
-			-- Determine a random amount.
-			amt = lua_randint(bonuslevel - i)
-
-			amt = amt / 3
-
-			if (amt > 100) then amt = 100 end
-
-			-- Give resistances to elements 1 to 15.
-			whichone = lua_randint(15)
-			item.resistances[whichone+1] = item.resistances[whichone+1] + amt
-			if (item.resistances[whichone+1] > 100) then item.resistances[whichone+1] = 100 end
-
-			-- Increase i.
-			i = i + (amt * 1)
-
-		-- A stats bonus.
-		elseif (btype >= 60) then
-
-			-- Random amount.
-			amt = lua_randint(bonuslevel - i)
-
-			amt = amt / 5
-			if (amt <= 0) then amt = 1 end
-
-			-- Apply it to a random stat.
-			whichone = lua_randint(6)
-			item.statsbonus[whichone] = item.statsbonus[whichone] + amt
-
-			-- Increase i.
-			i = i + (amt * 10)
-
-		-- A skills bonus.
-		elseif (btype >= 40) then
-
-			-- Random amount.
-			amt = lua_randint(bonuslevel - i)
-
-			amt = amt / 5
-			if (amt <= 0) then amt = 1 end
-
-			-- Special items are always 'themed' with your character.
-			-- Some cursed items with high misfortune also benefits from this.
-			if ((isspecial == 1) or (item.cursed >= kind(item).level)) then
-
-				local a
-				local b
-				local c
-				local d
-
-				-- First check if we do have SOME skills.
-				-- We SHOULD...but just in case...
-				-- Also, we skip alchemy and crafting.
-				d = 0
-				for c = 1, 30 do
-
-					if (p_ptr.skill[c] > 0 and not(c == 11) and not(c == 12)) then d = 1 end
-				end
-
-				-- We have NO skills?? Oh well...just pick something random.
-				if (d == 0) then
-					while (whichone == 0 or whichone == 11 or whichone == 12) do
-						whichone = lua_randint(30)
-					end
-				else
-
-					a = 0
-					while (a == 0) do
-
-						b = lua_randint(30)
-						if (p_ptr.skill[b] > 0) then
-
-							whichone = b
-							a = 1
-						end
-					end
-				end
-			else
-
-				-- Apply it to a random skill.
-				while (whichone == 0 or whichone == 11 or whichone == 12) do
-					whichone = lua_randint(30)
-				end
-			end
-
-			-- phlinn's code snippet.
-			if (item.tval == TV_WEAPON or item.tval == TV_ROD or item.tval == TV_RANGED) then
-				if (whichone >= 13 and whichone <= 22) then 
-					whichone = item.itemskill + 1
-				end
-			end
-
-			item.skillsbonus[whichone] = item.skillsbonus[whichone] + amt
-
-			-- Increase i.
-			i = i + (amt * 10)
-
-		-- A misc bonus.
-		elseif (btype >= 20) then
-
-			-- What type of "misc" bonus do you get.
-			if (item.tval == TV_ROD or item.tval == TV_ARM_BAND) then misctype = lua_randint(6)
-			else misctype = lua_randint(5) end
-
-			-- The amount of "i" that it costs depends on the bonus you get.
-
-			-- Extra blows or extra shots.
-			if (misctype == 1) then
-
-				if (item.tval == TV_RANGED or item.tval == TV_THROWING) then
-
-					-- Random amount.
-					amt = lua_randint(bonuslevel - i)
-
-					amt = amt / 20
-					if (amt <= 0) then amt = 1 end
-
-					-- Apply it.
-					item.extrashots = item.extrashots + amt
-
-					-- Increase i.
-					i = i + (amt * 25)
-
-				else
-
-					-- Random amount.
-					amt = lua_randint(bonuslevel - i)
-
-					amt = amt / 10
-					if (amt <= 0) then amt = 1 end
-
-					-- Apply it.
-					item.extrablows = item.extrablows + amt
-
-					-- Increase i.
-					i = i + (amt * 14)
-				end
-			end
-
-			-- Speed bonus.
-			if (misctype == 2) then
-
-				-- Random amount.
-				amt = lua_randint(bonuslevel - i)
-
-				amt = amt / 6
-				if (amt <= 0) then amt = 1 end
-
-				-- Apply it.
-				item.speedbonus = item.speedbonus + amt
-
-				-- Increase i.
-				i = i + (amt * 10)
-			end
-
-			-- Life bonus.
-			if (misctype == 3) then
-
-				-- Random amount.
-				amt = lua_randint(bonuslevel - i)
-
-				-- Apply it.
-				item.lifebonus = item.lifebonus + amt
-
-				-- Increase i.
-				i = i + amt
-			end
-
-			-- Light
-			if (misctype == 4) then
-
-				-- Random amount.
-				amt = lua_randint(bonuslevel - i)
-
-				amt = amt / 5
-				if (amt <= 0) then amt = 1 end
-
-				-- Light NEVER exceeds 5.
-				if (amt > 5) then amt = 5 end
-				amt = amt - item.light
-
-				-- Apply it.
-				item.light = item.light + amt
-
-				-- Increase i.
-				i = i + amt
-			end
-
-			-- Reflection.
-			if (misctype == 5) then
-
-				-- Random amount.
-				amt = lua_randint(bonuslevel - i)
-
-				-- Apply it.
-				item.reflect = item.reflect + amt
-
-				-- Increase i.
-				i = i + amt
-			end
-
-			-- Mana bonus or extra shots.
-			if (misctype == 6) then
-
-				-- Random amount.
-				amt = lua_randint(bonuslevel - i)
-
-				-- Apply it.
-				item.manabonus = item.manabonus + amt
-
-				-- Increase i.
-				i = i + amt
-			end
-
-		-- Gain a flag.
-		else
-
-			-- Pick a flag
-			misctype = lua_randint(13)
-
-			-- Give the flag. i cost varies per flags.
-
-			-- Resist fear.
-			if (misctype == 1) then
-
-				give_object_flag2(item, TR2_RES_FEAR)
-				i = i + 5
-			end
-
-			-- Resist conf.
-			if (misctype == 2) then
-
-				give_object_flag2(item, TR2_RES_CONF)
-				i = i + 15
-			end
-
-			-- Resist blind.
-			if (misctype == 3) then
-
-				give_object_flag2(item, TR2_RES_BLIND)
-				i = i + 5
-			end
-
-			-- Hold life.
-			if (misctype == 4) then
-
-				give_object_flag2(item, TR2_HOLD_LIFE)
-				i = i + 10
-			end
-
-			-- Safety.
-			if (misctype == 5) then
-
-				give_object_flag4(item, TR4_SAFETY)
-				i = i + 15
-			end
-
-			-- Sustain Strength.
-			if (misctype == 6) then
-
-				give_object_flag2(item, TR2_SUST_STR)
-				i = i + 5
-			end
-
-			-- Sustain Intelligence.
-			if (misctype == 7) then
-
-				give_object_flag2(item, TR2_SUST_INT)
-				i = i + 5
-			end
-
-			-- Sustain Wisdom.
-			if (misctype == 8) then
-
-				give_object_flag2(item, TR2_SUST_WIS)
-				i = i + 5
-			end
-
-			-- Sustain Dexterity.
-			if (misctype == 9) then
-
-				give_object_flag2(item, TR2_SUST_DEX)
-				i = i + 5
-			end
-
-			-- Sustain Constitution.
-			if (misctype == 10) then
-
-				give_object_flag2(item, TR2_SUST_CON)
-				i = i + 5
-			end
-
-			-- Sustain Charisma.
-			if (misctype == 11) then
-
-				give_object_flag2(item, TR2_SUST_CHR)
-				i = i + 5
-			end
-
-			-- Telepathy.
-			if (misctype == 12) then
-
-				give_object_flag3(item, TR3_TELEPATHY)
-				i = i + 15
-			end
-
-			-- Regen.
-			if (misctype == 13) then
-
-				give_object_flag3(item, TR3_REGEN)
-				i = i + 10
-			end
-		end
-
-	end
+	
 
 	-- For damages/ac purposes, special items have normal bonus, albeit maxed.
-	if (isspecial == 1) then bonuslevel = bonuslevel / 3 end
+	-- if (isspecial == 1) then bonuslevel = bonuslevel / 3 end
 
 	-- Give some to_h and to_d. Can give some no matter the item's type.
-	if (isspecial == 1) then
-		item.to_h = item.to_h + bonuslevel
-		item.to_d = item.to_d + bonuslevel
+	-- Two-handed weapons gets more.
+	if (get_object_flag4(item, TR4_MUST2H)) then
+		to_bonus = bonuslevel * 4
 	else
-		item.to_h = item.to_h + lua_randint(bonuslevel)
-		item.to_d = item.to_d + lua_randint(bonuslevel)
+		to_bonus = bonuslevel * 2
 	end
 
-	if (isspecial == 1) then
+	while (to_bonus > 0) do
 
-		item.to_h = item.to_h + bonuslevel
-		item.to_d = item.to_d + bonuslevel
+		if (lua_randint(100) > 50) then
+			item.to_h = item.to_h + 1
+			to_bonus = to_bonus - 1
+		else
+			item.to_d = item.to_d + 1
+			to_bonus = to_bonus - 1
+		end
 	end
 
 	-- Some items gets bonus damages.
 	if (item.tval == TV_WEAPON or item.tval == TV_ROD or item.tval == TV_AMMO or item.tval == TV_THROWING) then
 
-		local y
-		local x
-		local percentincrease
+		local y = 0
 
-		if (isspecial == 1) then
+		y = lua_randint(bonuslevel / 2) + lua_randint(bonuslevel / 2)
 
-			item.dd = item.dd + (item.dd / 10) + 1
-			item.ds = item.ds + (item.ds / 10) + 1
-		end
-
-		x = 0
-		percentincrease = 0
-		if (isspecial == 1) then
-			y = bonuslevel * 2
-		else
-			y = lua_randint(bonuslevel * 2)
-		end
-
-		while (x <= y) do
-			if (x <= 20) then percentincrease = percentincrease + 1 end
-			if (x <= 15) then percentincrease = percentincrease + 1 end
-			if (x <= 10) then percentincrease = percentincrease + 1 end
-			if (x <= 5) then percentincrease = percentincrease + 1 end
-
-			x = x + 1
-		end
-		percentincrease = percentincrease + (y / 2)
-			
-		if (isspecial == 1) then
-			item.dd = item.dd + ((item.dd * percentincrease) / 100)
-			item.ds = item.ds + ((item.ds * percentincrease) / 100)
-		else
-			item.dd = item.dd + ((item.dd * lua_randint(percentincrease)) / 100)
-			item.ds = item.ds + ((item.ds * lua_randint(percentincrease)) / 100)
-		end
-
+		item.dd = item.dd + multiply_divide(item.dd, y, 100)
+		item.ds = item.ds + multiply_divide(item.ds, y, 100)
 	end
 
 	-- Weapons and gloves can gain brands.
@@ -594,18 +228,17 @@ function make_item_magic (item, itemlevel, special)
 			if (item.brandtype == 0) then item.brandtype = lua_randint(11) + 1 end
 
 			if (isspecial == 1) then
-				newdam = (bonuslevel * 50) + ((bonuslevel * 50) / 4)
+				newdam = (bonuslevel * 3) * ((bonuslevel * 10) / 4)
 			else
-				newdam = lua_randint((bonuslevel * 50)) + ((bonuslevel * 50) / 4)
+				newdam = lua_randint((bonuslevel * 3)) * ((bonuslevel * 10) / 4)
 			end
 			if (newdam > item.branddam) then item.branddam = newdam end
 		end
 
 		-- Special and Cursed weapons may gain a "type change" activation, if they don't already have something.
-		-- Specials always gain one, while cursed needs a high misfortune level.
 		-- Rods do not gain one, as they already have their magic activations.
 		-- Non-physical weapons will not get one either.
-		if (((isspecial == 1) or (item.cursed >= kind(item).level)) and (item.spell[1].type == 0) and not(item.tval == TV_ROD) and (item.extra1 == GF_PHYSICAL or item.extra1 == 0)) then
+		if (((isspecial == 1) or (item.cursed >= 1)) and (item.spell[1].type == 0) and not(item.tval == TV_ROD) and (item.extra1 == GF_PHYSICAL or item.extra1 == 0)) then
 
 			local typechange
 
@@ -670,44 +303,18 @@ function make_item_magic (item, itemlevel, special)
 		end
 	end
 
-	-- Anything that has base AC can get a bonus.
+	-- Anything that has base AC can get a bonus. (albeit a much smaller one than it was in 0.4)
 	if (item.ac > 0) then
 
 		local y
 		local x
-		local percentincrease
 
 		x = 0
-		percentincrease = 0
-		if (isspecial == 1) then
-			y = bonuslevel * 2
-		else
-			y = lua_randint(bonuslevel * 2)
-		end
 
-		while (x <= y) do
-			if (x <= 20) then percentincrease = percentincrease + 1 end
-			if (x <= 15) then percentincrease = percentincrease + 1 end
-			if (x <= 10) then percentincrease = percentincrease + 1 end
-			if (x <= 5) then percentincrease = percentincrease + 1 end
+		y = lua_randint(bonuslevel / 2) + (bonuslevel / 2)
 
-			x = x + 1
-		end
-		percentincrease = percentincrease + (y / 2)
-
-		if (isspecial == 1) then
-			item.ac = item.ac + ((item.ac * (percentincrease)) / 100)
-			item.to_a = item.to_a + (bonuslevel)
-		else
-			item.ac = item.ac + ((item.ac * lua_randint(percentincrease)) / 100)
-			item.to_a = item.to_a + lua_randint(bonuslevel)
-		end
-
-		if (isspecial == 1) then
-
-			item.ac = item.ac + (bonuslevel / 4)
-			item.to_a = item.to_a + bonuslevel
-		end
+		item.ac = item.ac + multiply_divide(item.ac, y, 100)
+		item.to_a = item.to_a + lua_randint(bonuslevel / 4) + (bonuslevel / 4)
 	end
 
 	-- Hey! Those red items are great!
@@ -720,46 +327,55 @@ function make_item_magic (item, itemlevel, special)
 		for c = 1, 6 do
 
 			if (item.statsbonus[c] > 0) then
-				item.statsbonus[c] = item.statsbonus[c] + multiply_divide(item.statsbonus[c], item.cursed, 100) + (item.cursed / 5) + 1
+				item.statsbonus[c] = item.statsbonus[c] + multiply_divide(item.statsbonus[c], 33, 100) + 5
 			end
 		end
-		for c = 1, 28 do
+		for c = 1, 30 do
 
 			if (item.skillsbonus[c] > 0) then
-				item.skillsbonus[c] = item.skillsbonus[c] + multiply_divide(item.skillsbonus[c], item.cursed, 100) + (item.cursed / 5) + 1
+				item.skillsbonus[c] = item.skillsbonus[c] + multiply_divide(item.skillsbonus[c], 33, 100) + 5
 			end
 		end
 
 		-- Same thing goes for the misc bonus, though a bit less.
-		if (item.extrablows > 0) then
-			item.extrablows = item.extrablows + multiply_divide(item.extrablows, item.cursed / 4, 100) + 1
-		end
-		if (item.extrashots > 0) then
-			item.extrashots = item.extrashots + multiply_divide(item.extrashots, item.cursed / 8, 100) + 1
-		end
 		if (item.speedbonus > 0) then
-			item.speedbonus = item.speedbonus + multiply_divide(item.speedbonus, item.cursed, 100) + 1
+			item.speedbonus = item.speedbonus + multiply_divide(item.speedbonus, 33, 100) + 1
 		end
 		if (item.reflect > 0) then
-			item.reflect = item.reflect + multiply_divide(item.reflect, item.cursed, 100) + item.cursed + 20
+			item.reflect = item.reflect + multiply_divide(item.reflect, 33, 100) + 20
 		end
 		if (item.light > 0) then
 			item.light = 5
 		end
 		if (item.lifebonus > 0) then
-			item.lifebonus = item.lifebonus + item.cursed + 10
+			item.lifebonus = item.lifebonus + multiply_divide(item.lifebonus, 33, 100) + 10
 		end
 		if (item.manabonus > 0) then
-			item.manabonus = item.manabonus + item.cursed + 10
+			item.manabonus = item.manabonus + multiply_divide(item.manabonus, 33, 100) + 10
 		end
 
 		-- All base values of stuff is raised!
-		if (item.dd > 0) then item.dd = item.dd + multiply_divide(item.dd, item.cursed, 100) + 1 end
-		if (item.ds > 0) then item.ds = item.ds + multiply_divide(item.ds, item.cursed, 100) + 1 end
-		if (item.ac > 0) then item.ac = item.ac + multiply_divide(item.ac, item.cursed, 100) end
-		if (item.to_h > 0) then item.to_h = item.to_h + multiply_divide(item.to_h, item.cursed + (item.cursed / 2), 100) + (item.cursed / 2) end
-		if (item.to_d > 0) then item.to_d = item.to_d + multiply_divide(item.to_d, item.cursed + (item.cursed / 2), 100) + (item.cursed / 2) end
-		if (item.to_a > 0) then item.to_a = item.to_a + multiply_divide(item.to_a, item.cursed + (item.cursed / 2), 100) + (item.cursed / 2) end
+		if (item.dd > 0) then
+
+			item.dd = item.dd + 1
+			item.dd = item.dd + multiply_divide(item.dd, 33, 100)
+		end
+		if (item.ds > 0) then
+
+			item.ds = item.ds + 1
+			item.ds = item.ds + multiply_divide(item.ds, 33, 100)
+		end
+		if (item.tval == TV_RANGED and item.extra4 > 0) then
+
+			item.extra4 = item.extra4 + multiply_divide(item.extra4, 33, 100)
+		end
+		if (item.ac > 0) then item.ac = item.ac + multiply_divide(item.ac, 20, 100) end
+		if (item.to_h > 0) then item.to_h = item.to_h + multiply_divide(item.to_h, 33, 100) end
+		if (item.to_d > 0) then item.to_d = item.to_d + multiply_divide(item.to_d, 33, 100) end
+		if (item.to_a > 0) then item.to_a = item.to_a + multiply_divide(item.to_a, 20, 100) end
+
+		-- Increase Misfortune level by 1 for every 100 bonus points.
+		item.cursed = item.cursed + (object_skill_points_value(item) / 100)
 
 	end
 
@@ -786,6 +402,7 @@ function zap_rod ()
 	local dam
 	local i
 	local j
+	local z
 
 	-- First, let's check if the player is wearing a rod
 	-- Any rods in any hands will do.
@@ -816,31 +433,37 @@ function zap_rod ()
 				j = 1
 			end
 
-			for r = i, j do 
+			for r = i, j do
 
-				-- Is the crystal charged?
-				if (inven(INVEN_TOOL).pval <= 0) then
+				local zaps
 
-					msg_print("This crystal has no charges left.")
-					return
-				else
-					local bonus
-					local rodbonus
+				zaps = 1 + (p_ptr.abilities[(CLASS_MAGE * 10) + 6] / 10)
 
-					rodbonus = damroll(inven(INVEN_WIELD + r).dd, inven(INVEN_WIELD + r).ds)
-					rodbonus = rodbonus + multiply_divide(rodbonus, p_ptr.skill[18] * 3, 100)
+				for z = 1, zaps do
 
-					bonus = (p_ptr.skill[18] * 20) + (p_ptr.skill[2] * 10)
-					dam = (inven(INVEN_TOOL).branddam + rodbonus) * (p_ptr.skill[18] + 1)
-					dam = dam + multiply_divide(dam, bonus, 100)
-					dam = dam + multiply_divide(dam, p_ptr.to_s, 100)
-					dir = lua_get_aim_dir()
-					ignore_spellcraft = TRUE
-					fire_ball(inven(INVEN_TOOL).brandtype, dir, dam, inven(INVEN_TOOL).brandrad)
-					ignore_spellcraft = FALSE
-					if (p_ptr.skill[18] < 15) then inven(INVEN_TOOL).pval = inven(INVEN_TOOL).pval - 1 end
-					update_and_handle()
-					energy_use = 100
+					-- Is the crystal charged?
+					if (inven(INVEN_TOOL).pval <= 0) then
+
+						msg_print("This crystal has no charges left.")
+						return
+					else
+						local spellstat
+
+						if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
+							spellstat = A_INT
+						else
+							spellstat = A_WIS
+						end
+
+						dam = spell_damages(inven(INVEN_TOOL).branddam, spellstat, 0)
+						dir = lua_get_aim_dir()
+						rod_zap = 1
+						fire_ball(inven(INVEN_TOOL).brandtype, dir, dam, inven(INVEN_TOOL).brandrad)
+						rod_zap = 0
+						if (p_ptr.skill[18] < 15) then inven(INVEN_TOOL).pval = inven(INVEN_TOOL).pval - 1 end
+						update_and_handle()
+						energy_use = 100
+					end
 				end
 			end
 		end
@@ -1526,7 +1149,7 @@ function prepare_rods_activations (rod, level)
 			end
 		else
 
-			rod.spell[1].power = (lua_randint(level) * 3) + (level / 4) + 5
+			rod.spell[1].power = lua_randint(level)
 
 			-- Staves receives more power.
 			if (get_object_flag4(rod, TR4_MUST2H)) then rod.spell[1].power = rod.spell[1].power * 2 end
@@ -1564,7 +1187,6 @@ function prepare_essence (essence, r_idx, level, mtype)
 	local bonus
 	local power
 	local statspower
-	local acpower
 	local skillspower
 	local difference
 	local res = 0
@@ -1573,34 +1195,30 @@ function prepare_essence (essence, r_idx, level, mtype)
 	local resfound = 0
 	local attfound = 0
 	local chosen = 0
+	local to_bonus = 0
 
 	-- Determine "bonus" points.
-	bonus = ((level + m_race(r_idx).level) / 2) + (level / 5)
+
+	bonus = ((level + m_race(r_idx).level) / 2)
+	bonus = bonus + multiply_divide(bonus, level, 100)
 
 	-- Special kind of enemies gives more bonus.
 	if (mtype == 4) then
-		bonus = bonus * 2
-		essence.cursed = m_race(r_idx).level
-	elseif (mtype == 3) then bonus = bonus + (bonus / 2)
-	elseif (mtype == 2) then bonus = bonus + (bonus / 3)
-	elseif (mtype == 1) then bonus = bonus + (bonus / 5)
+		essence.cursed = (lua_randint(bonus) / 20)
+		if (essence.cursed < 1) then essence.cursed = 1 end
+		bonus = bonus + multiply_divide(bonus, (essence.cursed * 33) + 1, 100)
+	elseif (mtype == 3 or mtype == 2) then bonus = bonus + multiply_divide(bonus, 25, 100)
+	elseif (mtype == 1) then bonus = bonus + multiply_divide(bonus, 15, 100)
 	end
 
 	-- The "power" of the stats.
-	statspower = m_race(r_idx).str + m_race(r_idx).dex + m_race(r_idx).mind + ((m_race(r_idx).hdice / 10) + (m_race(r_idx).hside / 10))
-
-	-- The "power" of base AC.
-	acpower = m_race(r_idx).ac / 20 + ((level + m_race(r_idx).level) / 2) + (level / 5)
+	statspower = m_race(r_idx).str + m_race(r_idx).dex + m_race(r_idx).mind + m_race(r_idx).hp + m_race(r_idx).ac
 
 	-- The "power" of skills.
-	skillspower = m_race(r_idx).skill_attack + m_race(r_idx).skill_ranged + m_race(r_idx).skill_magic
-	difference = (level - m_race(r_idx).level)
-	difference = difference * 2
-	if (difference < 0) then difference = 0 end
-	skillspower = skillspower + difference
+	skillspower = m_race(r_idx).skill_attack + m_race(r_idx).skill_ranged + m_race(r_idx).skill_magic + m_race(r_idx).skill_evasion + m_race(r_idx).skill_mdef
 
 	-- Total power
-	power = statspower + acpower + skillspower
+	power = statspower + skillspower
 
 	-- Roll for bonus.
 	while (bonus > 0) do
@@ -1616,12 +1234,14 @@ function prepare_essence (essence, r_idx, level, mtype)
 			local dexpercent
 			local mindpercent
 			local conpercent
+			local acpercent
 			local roll
 
 			strpercent = multiply_divide(m_race(r_idx).str, 100, statspower)
 			dexpercent = multiply_divide(m_race(r_idx).dex, 100, statspower)
 			mindpercent = multiply_divide(m_race(r_idx).mind, 100, statspower)
-			conpercent = multiply_divide(((m_race(r_idx).hdice / 10) + (m_race(r_idx).hside / 10)), 100, statspower)
+			conpercent = multiply_divide(m_race(r_idx).hp, 100, statspower)
+			acpercent = multiply_divide(m_race(r_idx).hp, 100, statspower)
 
 			roll = lua_randint(100)
 
@@ -1638,17 +1258,16 @@ function prepare_essence (essence, r_idx, level, mtype)
 				essence.statsbonus[A_INT+1] = essence.statsbonus[A_INT+1] + 1
 				essence.statsbonus[A_WIS+1] = essence.statsbonus[A_WIS+1] + 1
 				bonus = bonus - 1
-			else
+			elseif (roll >= (100 - strpercent - dexpercent - mindpercent - conpercent)) then
 
 				essence.statsbonus[A_CON+1] = essence.statsbonus[A_CON+1] + 1
 				bonus = bonus - 1
+			else
+
+				essence.ac = essence.ac + 3
+				bonus = bonus - 1
 			end
 
-		-- Base AC increase.
-		elseif (broll >= (power - statspower - acpower)) then
-
-			essence.ac = essence.ac + 5
-			bonus = bonus - 1
 		else
 			essence.tweakpoints = essence.tweakpoints + 1
 			bonus = bonus - 1
@@ -1691,6 +1310,10 @@ function prepare_essence (essence, r_idx, level, mtype)
 			essence.spell[essenceact+1].act = m_race(r_idx).spell[i].act
 			essence.spell[essenceact+1].type = m_race(r_idx).spell[i].type
 			essence.spell[essenceact+1].power = m_race(r_idx).spell[i].power
+			if (m_race(r_idx).spell[i].scalefactor > 0) then
+
+				 essence.spell[essenceact+1].power = essence.spell[essenceact+1].power + (m_race(r_idx).spell[i].scale * (level / m_race(r_idx).spell[i].scalefactor))
+			end
 			essence.spell[essenceact+1].special1 = m_race(r_idx).spell[i].special1
 			essence.spell[essenceact+1].special2 = m_race(r_idx).spell[i].special2
 			essence.spell[essenceact+1].special3 = m_race(r_idx).spell[i].special3
@@ -1721,14 +1344,13 @@ function prepare_essence (essence, r_idx, level, mtype)
 			local dambonus
 
 			-- Determine the damages bonus.
-			dambonus = ((level + m_race(r_idx).level) / 2) + (level / 5)
+			dambonus = ((level + m_race(r_idx).level) / 2)
 
 			-- Special kind of enemies gives more damages bonus.
 			if (mtype == 4) then
-				dambonus = dambonus * 2
-			elseif (mtype == 3) then dambonus = dambonus + (dambonus / 2)
-			elseif (mtype == 2) then dambonus = dambonus + (dambonus / 3)
-			elseif (mtype == 1) then dambonus = dambonus + (dambonus / 5)
+				dambonus = (essence.cursed * 33) + 1
+			elseif (mtype == 2 or mtype == 3) then dambonus = 25
+			elseif (mtype == 1) then dambonus = 15
 			end
 
 			pick = lua_randint(20)
@@ -1737,13 +1359,19 @@ function prepare_essence (essence, r_idx, level, mtype)
 
 				-- Get damages and element.
 				essence.dd = m_race(r_idx).attack[pick].ddice
+				if (m_race(r_idx).attack[pick].ddscalefactor > 0) then
+					essence.dd = essence.dd + (m_race(r_idx).attack[pick].ddscale * (level / m_race(r_idx).attack[pick].ddscalefactor))
+				end
 				essence.ds = m_race(r_idx).attack[pick].dside
+				if (m_race(r_idx).attack[pick].dsscalefactor > 0) then
+					essence.ds = essence.ds + (m_race(r_idx).attack[pick].dsscale * (level / m_race(r_idx).attack[pick].dsscalefactor))
+				end
 				if (m_race(r_idx).attack[pick].element == 0) then essence.extra1 = GF_PHYSICAL
 				else essence.extra1 = m_race(r_idx).attack[pick].element end
 
 				-- We might enhance the damages a bit.
-				essence.dd = essence.dd + multiply_divide(essence.dd, lua_randint(dambonus), 100)
-				essence.ds = essence.ds + multiply_divide(essence.ds, lua_randint(dambonus), 100)
+				essence.dd = essence.dd + multiply_divide(essence.dd, dambonus, 100)
+				essence.ds = essence.ds + multiply_divide(essence.ds, dambonus, 100)
 
 				chosen = 1
 			end
@@ -1754,20 +1382,19 @@ function prepare_essence (essence, r_idx, level, mtype)
 		essence.ds = 1
 		essence.extra1 = GF_PHYSICAL
 	end
-	
 
 	-- To_d and to_d
 	-- Determine "bonus" points.
-	bonus = (level + m_race(r_idx).level) / 2 + (level / 5)
+	bonus = lua_randint(((level + m_race(r_idx).level) / 2) / 2) + (((level + m_race(r_idx).level) / 2) / 2)
 
 	-- Special kind of enemies gives more bonus.
 	if (mtype == 4) then
-		bonus = bonus * 2
-		essence.cursed = m_race(r_idx).level
-	elseif (mtype == 3) then bonus = bonus + (bonus / 2)
-	elseif (mtype == 2) then bonus = bonus + (bonus / 3)
-	elseif (mtype == 1) then bonus = bonus + (bonus / 5)
+		to_bonus = essence.cursed * 33
+	elseif (mtype == 2 or mtype == 3) then to_bonus = 25
+	elseif (mtype == 1) then to_bonus = 15
 	end
+
+	bonus = bonus + multiply_divide(bonus, to_bonus, 100)
 
 	bonus = bonus * 2
 
@@ -1779,7 +1406,6 @@ function prepare_essence (essence, r_idx, level, mtype)
 		bonus = bonus - 1
 	end
 	
-
 	-- Unique and Nightmare essences are eternal.
 	if (mtype == 3 or mtype == 4) then
 
@@ -1787,7 +1413,7 @@ function prepare_essence (essence, r_idx, level, mtype)
 	end
 
 	-- Essences are treated as magical.
-	give_object_flag1(essence, TR1_ENCHANTED)
+	give_object_flag4(essence, TR4_ENCHANTED)
 end
 
 -- Return an object's value in terms of skill points.
@@ -1808,10 +1434,10 @@ function object_skill_points_value (item)
 
 		totalvalue = totalvalue + item.skillsbonus[i]
 	end
-	-- 1 point per 2 resistances
+	-- 1 point per 1 resistances
 	for i = 1, MAX_RESIST do
 
-		if (item.resistances[i] > 0) then totalvalue = totalvalue + (item.resistances[i] / 2) end
+		if (item.resistances[i] > 0) then totalvalue = totalvalue + item.resistances[i] end
 	end
 
 	-- 10 points for the first 5 blows, 20 for the others.
@@ -2029,346 +1655,425 @@ function mining_treasures (x, y, feat)
 	end
 end
 
--- Similar to "Divine Item".
--- There is a greater emphasis on base stats, like base AC and base damages.
+-- Enhance stolen items.
 function stolen_item_enhance (item)
 
 	local power
 	local i
 
+	power = p_ptr.abilities[(CLASS_ROGUE * 10) + 2] + p_ptr.abilities[(CLASS_ROGUE * 10) + 5]
+	if (power > 100) then power = 100 end
+
 	-- This condition is to check if we actually selected an item.
 	if (item) then
 
-		-- Check if the item is identified.
-		if (not(is_identified(item))) then
+		-- Improve the base AC, base damages, to_h, to_d, etc...
+		item.dd = item.dd + 1 + multiply_divide(item.dd, power * 2, 100)
+		item.ds = item.ds + 1 + multiply_divide(item.ds, power * 2, 100)
+		item.to_h = item.to_h + multiply_divide(item.to_h, power * 5, 100) + power
+		item.to_d = item.to_d + multiply_divide(item.to_d, power * 5, 100) + power
+
+		if (item.ac > 0) then
+			item.ac = item.ac + multiply_divide(item.ac, power * 2, 100)
+			item.to_a = item.to_a + power
+		end
 
-			-- "power" based on Diviner's ability.
-			power = lua_randint(p_ptr.abilities[(CLASS_ROGUE * 10) + 2] / 2) + (p_ptr.abilities[(CLASS_ROGUE * 10) + 2] / 2)
-			power = power * 4
+		if (item.tval == TV_RANGED and item.extra4 > 0) then
 
-			-- Power can never exceed half of your Stealth skill.
-			if (power > (p_ptr.skill[7] / 2)) then power = p_ptr.skill[7] / 2 end
+			item.extra4 = item.extra4 + multiply_divide(item.extra4, power, 100)
+		end
 
-			-- Give abilities.
-			-- Code is heavily based on objects.lua, "make_item_magic" function.
-			i = 0
-
-			-- Some items may skip that part.
-			if (not(divinable(item))) then i = power end
-
-			-- Artifacts gains no additional powers.
-			if (item.name1 > 0) then i = power end
-
-			while (i < power) do
-
-				local btype
-				local amt
-				local whichone
-				local misctype
-
-				-- Roll for what type of bonus it will be.
-				btype = lua_randint(100)
-
-				-- A resistances bonus.
-				if (btype >= 80) then
-
-					-- Determine a random amount.
-					amt = lua_randint(power - i)
-
-					amt = amt / 3
-
-					if (amt > 100) then amt = 100 end
-
-					-- Give resistances to elements 1 to 15.
-					whichone = lua_randint(15)
-					item.resistances[whichone+1] = item.resistances[whichone+1] + amt
-					if (item.resistances[whichone+1] > 100) then item.resistances[whichone+1] = 100 end
-
-					-- Increase i.
-					i = i + (amt * 1)
-
-				-- A stats bonus.
-				elseif (btype >= 60) then
-
-					-- Random amount.
-					amt = lua_randint(power - i)
-
-					amt = amt / 5
-					if (amt <= 0) then amt = 1 end
-
-					-- Apply it to a random stat.
-					whichone = lua_randint(6)
-					item.statsbonus[whichone] = item.statsbonus[whichone] + amt
-
-					-- Increase i.
-					i = i + (amt * 10)
-
-				-- A skills bonus.
-				elseif (btype >= 40) then
-
-					-- Random amount.
-					amt = lua_randint(power - i)
-
-					amt = amt / 5
-					if (amt <= 0) then amt = 1 end
-
-					-- Apply it to a random skill.
-					whichone = lua_randint(28)
-
-					-- phlinn's code snippet.
-					if (item.tval == TV_WEAPON or item.tval == TV_ROD or item.tval == TV_RANGED) then
-						if (whichone >= 13 and whichone <= 22) then 
-							whichone = item.itemskill + 1
-						end
-					end
-
-					item.skillsbonus[whichone] = item.skillsbonus[whichone] + amt
-
-					-- Increase i.
-					i = i + (amt * 10)
-
-				-- A misc bonus.
-				elseif (btype >= 20) then
-
-					-- What type of "misc" bonus do you get.
-					if (item.tval == TV_ROD or item.tval == TV_ARM_BAND) then misctype = lua_randint(6)
-					else misctype = lua_randint(5) end
-
-					-- The amount of "i" that it costs depends on the bonus you get.
-
-					-- Extra blows.
-					if (misctype == 1) then
-
-						-- Random amount.
-						amt = lua_randint(power - i)
-
-						amt = amt / 8
-						if (amt <= 0) then amt = 1 end
-
-						-- Apply it.
-						item.extrablows = item.extrablows + amt
-
-						-- Increase i.
-						i = i + (amt * 12)
-					end
-
-					-- Speed bonus.
-					if (misctype == 2) then
-
-						-- Random amount.
-						amt = lua_randint(power - i)
-
-						amt = amt / 6
-						if (amt <= 0) then amt = 1 end
-
-						-- Apply it.
-						item.speedbonus = item.speedbonus + amt
-
-						-- Increase i.
-						i = i + (amt * 10)
-					end
-
-					-- Life bonus.
-					if (misctype == 3) then
-
-						-- Random amount.
-						amt = lua_randint(power - i)
-
-						-- Apply it.
-						item.lifebonus = item.lifebonus + amt
-
-						-- Increase i.
-						i = i + amt
-					end
-
-					-- Light
-					if (misctype == 4) then
-
-						-- Random amount.
-						amt = lua_randint(power - i)
-
-						amt = amt / 5
-						if (amt <= 0) then amt = 1 end
-
-						-- Light NEVER exceeds 5.
-						if (amt > 5) then amt = 5 end
-						amt = amt - item.light
-
-						-- Apply it.
-						item.light = item.light + amt
-
-						-- Increase i.
-						i = i + amt
-					end
-
-					-- Reflection.
-					if (misctype == 5) then
-
-						-- Random amount.
-						amt = lua_randint(power - i)
-
-						-- Apply it.
-						item.reflect = item.reflect + amt
-
-						-- Increase i.
-						i = i + amt
-					end
-
-					-- Mana bonus.
-					if (misctype == 6) then
-
-						-- Random amount.
-						amt = lua_randint(power - i)
-
-						-- Apply it.
-						item.manabonus = item.manabonus + amt
-
-						-- Increase i.
-						i = i + amt
-					end
-
-				-- Gain a flag.
-				else
-
-					-- Pick a flag
-					if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then
-						misctype = lua_randint(15)
-					elseif (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 5) then
-						misctype = lua_randint(14)
-					else misctype = lua_randint(13) end
-
-					-- Give the flag. i cost varies per flags.
-
-					-- Resist fear.
-					if (misctype == 1 and not(get_object_flag2(item, TR2_RES_FEAR))) then
-
-						give_object_flag2(item, TR2_RES_FEAR)
-						i = i + 3
-					end
-
-					-- Resist conf.
-					if (misctype == 2 and not(get_object_flag2(item, TR2_RES_CONF))) then
-
-						give_object_flag2(item, TR2_RES_CONF)
-						i = i + 8
-					end
-
-					-- Resist blind.
-					if (misctype == 3 and not(get_object_flag2(item, TR2_RES_BLIND))) then
-
-						give_object_flag2(item, TR2_RES_BLIND)
-						i = i + 1
-					end
-
-					-- Hold life.
-					if (misctype == 4 and not(get_object_flag2(item, TR2_HOLD_LIFE))) then
-
-						give_object_flag2(item, TR2_HOLD_LIFE)
-						i = i + 5
-					end
-
-					-- Safety.
-					if (misctype == 5 and not(get_object_flag4(item, TR4_SAFETY))) then
-
-						give_object_flag4(item, TR4_SAFETY)
-						i = i + 8
-					end
-
-					-- Sustain Strength.
-					if (misctype == 6 and not(get_object_flag2(item, TR2_SUST_STR))) then
-
-						give_object_flag2(item, TR2_SUST_STR)
-						i = i + 2
-					end
-
-					-- Sustain Intelligence.
-					if (misctype == 7 and not(get_object_flag2(item, TR2_SUST_INT))) then
-
-						give_object_flag2(item, TR2_SUST_INT)
-						i = i + 2
-					end
-
-					-- Sustain Wisdom.
-					if (misctype == 8 and not(get_object_flag2(item, TR2_SUST_WIS))) then
-
-						give_object_flag2(item, TR2_SUST_WIS)
-						i = i + 2
-					end
-
-					-- Sustain Dexterity.
-					if (misctype == 9 and not(get_object_flag2(item, TR2_SUST_DEX))) then
-
-						give_object_flag2(item, TR2_SUST_DEX)
-						i = i + 2
-					end
-
-					-- Sustain Constitution.
-					if (misctype == 10 and not(get_object_flag2(item, TR2_SUST_CON))) then
-
-						give_object_flag2(item, TR2_SUST_CON)
-						i = i + 2
-					end
-
-					-- Sustain Charisma.
-					if (misctype == 11 and not(get_object_flag2(item, TR2_SUST_CHR))) then
-
-						give_object_flag2(item, TR2_SUST_CHR)
-						i = i + 2
-					end
-
-					-- Telepathy.
-					if (misctype == 12 and not(get_object_flag3(item, TR3_TELEPATHY))) then
-
-						give_object_flag3(item, TR3_TELEPATHY)
-						i = i + 8
-					end
-
-					-- Regen.
-					if (misctype == 13 and not(get_object_flag3(item, TR3_REGEN))) then
-
-						give_object_flag3(item, TR3_REGEN)
-						i = i + 5
-					end
-
-					-- Eternal.
-					if (misctype == 14 and not(get_object_flag4(item, TR4_ETERNAL))) then
-
-						give_object_flag4(item, TR4_ETERNAL)
-						i = i + 10
-					end
-
-					-- Levels.
-					if (misctype == 15 and not(get_object_flag4(item, TR4_LEVELS))) then
-
-						give_object_flag4(item, TR4_LEVELS)
-						item.level = 1
-						item.kills = 0
-						item.tweakpoints = item.tweakpoints + 2
-						i = i + 30
-					end
-				end
-
-			end
-
-			-- Improve the base AC, base damages, to_h, to_d, etc...
-			if (not(item.name1 > 0) and divinable(item)) then
-				item.dd = item.dd + ((item.dd * (power)) / 100)
-				item.ds = item.ds + ((item.ds * (power)) / 100)
-				item.ac = item.ac + ((item.ac * (power)) / 100)
-				item.to_h = item.to_h + lua_randint(power)
-				item.to_d = item.to_d + lua_randint(power)
-				item.to_a = item.to_a + lua_randint(power)
-
-				-- Give a flag to mark is as a magic item.
-				give_object_flag4(item, TR4_ENCHANTED)
-			end
-
-			-- Fully identify the item.
-			identify_fully_specific(item)
-		else
-			msg_print("This item is already identified.")
+		-- Give some bonus points.
+		item.tweakpoints = item.tweakpoints + (power / 2)
+
+		-- Give a flag to mark it as a magic item.
+		give_object_flag4(item, TR4_ENCHANTED)
+
+		-- Mark the item as "Stolen".
+		give_object_flag4(item, TR4_STOLEN)
+	end
+end
+
+-- Activate an item. This the activation's effect.
+function item_activation(item, power)
+
+	local spellstat
+	local bonus_abilities
+
+	bonus_abilities = p_ptr.abilities[(CLASS_MAGE * 10) + 8] + p_ptr.abilities[(CLASS_MONSTER * 10) + 5]
+
+	if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then spellstat = A_INT
+	else spellstat = A_WIS end
+
+	-- Type 1: Bolt.
+	if (item.spell[power+1].type == 1) then
+
+		local dam
+		local dir
+
+		dam = spell_damages(item.spell[power+1].power, spellstat, 0)
+		dir = lua_get_aim_dir()
+		item_activate = 1
+		if (item.tval == TV_ROD) then rod_activate = 1 end
+		fire_bolt(item.spell[power+1].special1, dir, dam)
+		item_activate = 0
+		rod_activate = 0
+	end
+
+	-- Type 2: Ball.
+	if (item.spell[power+1].type == 2) then
+
+		local dam
+		local dir
+		local rad
+
+		dam = spell_damages(item.spell[power+1].power, spellstat, 0)
+		rad = item.spell[power+1].special2
+		dir = lua_get_aim_dir()
+		item_activate = 1
+		if (item.tval == TV_ROD) then rod_activate = 1 end
+		fire_ball(item.spell[power+1].special1, dir, dam, rad)
+		item_activate = 0
+		rod_activate = 0
+	end
+
+	-- Type 3: Heal.
+	if (item.spell[power+1].type == 3) then
+
+		local dam
+		local dir
+		local rad
+		local bonus = 0
+
+		dam = spell_damages(item.spell[power+1].power, spellstat, 0)
+		if (item.tval == TV_ROD and p_ptr.abilities[(CLASS_MAGE * 10) + 6] >= 1) then
+
+			bonus = bonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 6] * 50)
+		end
+		if (p_ptr.abilities[(CLASS_MAGE * 10) + 8] >= 1) then
+
+			bonus = bonus + (bonus_abilities * 50)
+		end
+		dam = dam + multiply_divide(dam, bonus, 100)
+
+		lua_project(-2, 0, py, px, dam, GF_OLD_HEAL, 1)
+		msg_print("You are healed!")
+	end
+
+	-- Type 4: Haste.
+	if (item.spell[power+1].type == 4) then
+
+		local dam
+		dam = item.spell[power+1].power
+		set_fast(dam)
+	end
+
+	-- Type 5: Boost.
+	if (item.spell[power+1].type == 5) then
+
+		local dam
+		dam = item.spell[power+1].power
+
+		
+		if (item.spell[power+1].special1 == 1 or item.spell[power+1].special1 == 4) then
+
+			p_ptr.str_boost = dam
+                        set_str_boost(20)
+		end
+		if (item.spell[power+1].special1 == 2 or item.spell[power+1].special1 == 9) then
+
+			p_ptr.dex_boost = dam
+                        set_dex_boost(20)
+		end
+		if (item.spell[power+1].special1 == 3 or item.spell[power+1].special1 == 5) then
+
+			p_ptr.int_boost = dam
+                        set_int_boost(20)
+			p_ptr.wis_boost = dam
+                        set_wis_boost(20)
+		end
+		if ((item.spell[power+1].special1 == 6) or (item.spell[power+1].special1 == 7) or (item.spell[power+1].special1 == 8)) then
+
+			p_ptr.str_boost = dam
+			p_ptr.dex_boost = dam
+			p_ptr.int_boost = dam
+			p_ptr.wis_boost = dam
+			set_str_boost(20)
+			set_dex_boost(20)
+			set_int_boost(20)
+			set_wis_boost(20)
 		end
 	end
+
+	-- Type 6: Summon Kind.
+	if (item.spell[power+1].type == 6) then
+
+		local j
+
+		-- if (o_ptr->tval == TV_ESSENCE) essenceboost = p_ptr->abilities[(CLASS_MONSTER * 10) + 4];
+		for j = 0, item.spell[power+1].special1 do
+
+			summon_specific_kind(py, px, item.spell[power+1].power, item.spell[power+1].summchar, FALSE, TRUE, item.spell[power+1].special2)
+		end
+	end
+
+	-- Type 7: Summon Specific.
+	if (item.spell[power+1].type == 7) then
+
+		local j
+
+		-- if (o_ptr->tval == TV_ESSENCE) essenceboost = p_ptr->abilities[(CLASS_MONSTER * 10) + 4];
+		for j = 0, item.spell[power+1].special1 do
+		
+			summon_specific_ridx(py, px, item.spell[power+1].power, FALSE, TRUE, item.spell[power+1].special2)
+		end
+	end
+
+	-- Type 8: Teleport.
+	if (item.spell[power+1].type == 8) then
+
+		teleport_player(item.spell[power+1].power)
+	end
+
+	-- Type 9: Call script.
+	if (item.spell[power+1].type == 9) then
+
+		activate_spell_script(item.spell[power+1].power)
+	end
+
+	-- Type 10: Attack type change.
+	if (item.spell[power+1].type == 10) then
+
+		item.extra1 = item.spell[power+1].power
+		msg_print(string.format('Damages type changed to %s!', get_element_name(item.spell[power+1].power)))
+	end
+
+	update_and_handle()
+	energy_use = 100
+end
+
+-- Is the item a 'rogue' weapon?
+function is_rogue_weapon(weapon)
+
+	if (((weapon.tval == TV_DAGGER or weapon.tval == TV_SWORD) and weapon.weight <= 100) or (weapon.tval == TV_RANGED and not(get_object_flag4(weapon, TR4_MUST2H)))) then
+
+		return TRUE
+	end
+
+	-- Not a rogue weapon.
+	return FALSE
+end
+
+-- Is the item an alchemical item?
+function is_alchemy(item)
+
+	if (item.tval == TV_POTION or item.tval == TV_SCROLL or item.tval == TV_LICIALHYD or item.tval == TV_WAND or item.tval == TV_STAFF or item.tval == TV_BATERIE or item.tval == TV_CRYSTAL) then
+
+		return TRUE
+	end
+
+	-- Not an alchemical item.
+	return FALSE
+end
+
+-- Combine two items using crafting or alchemy.
+function combine_items ()
+
+	local item1
+	local item2
+	local item1idx
+	local item2idx
+	local i = 0
+	local recipe_item
+	local bonuslevel = 0
+	local basevaluesbonus = 0
+	local fullbonus = 0
+	local low_quality = 0
+	local crafted = 0
+
+	msg_print("Choose the first item.")
+	item1 = lua_get_item(0)
+
+	item1idx = inven(item1).k_idx
+	inven_item_increase(item1, -1)
+        inven_item_describe(item1)
+        inven_item_optimize(item1)
+
+	msg_print("Choose the second item.")
+	item2 = lua_get_item(0)
+
+	item2idx = inven(item2).k_idx
+	inven_item_increase(item2, -1)
+        inven_item_describe(item2)
+        inven_item_optimize(item2)
+
+	-- Look at all items, try to find a matching recipe.
+	for i = 1, max_k_idx do
+
+		recipe_item = lua_kind_index(i)
+
+		if (item1idx == recipe_item.recipe1 and item2idx == recipe_item.recipe2) or (item2idx == recipe_item.recipe1 and item1idx == recipe_item.recipe2) then
+
+			-- Make sure we've got enough Crafting or Alchemy skill.
+
+			-- Prepare the crafted item.
+			-- This will create a new object in the "crafted_item" global object.
+			prepare_crafted_item(recipe_item.tval, recipe_item.sval)
+
+			if (not(is_alchemy(crafted_item))) then
+
+				-- Bonus level.
+				-- Affected by the quality of the item.
+				-- Items of higher depth levels produces better items.
+				bonuslevel = (((p_ptr.skill[12] / 5) + (recipe_item.level)) / 2)
+
+				-- Bonus to base values.
+				basevaluesbonus = p_ptr.skill[12] / 10
+
+				-- If your skill is too low, do not get the full bonus.
+				fullbonus = (recipe_item.level * 5)
+
+				if (p_ptr.skill[12] < fullbonus) then
+
+					local percent
+					local total
+
+					total = p_ptr.skill[12] + fullbonus
+					percent = multiply_divide(p_ptr.skill[12], 100, total)
+
+					basevaluesbonus = 0
+
+					-- Apply this to the base values, and the bonuslevel.
+					crafted_item.dd = multiply_divide(crafted_item.dd, percent, 100)
+					crafted_item.ds = multiply_divide(crafted_item.ds, percent, 100)
+					crafted_item.ac = multiply_divide(crafted_item.ac, percent, 100)
+					if (crafted_item.tval == TV_RANGED) then crafted_item.extra4 = multiply_divide(crafted_item.extra4, percent, 100) end
+					bonuslevel = multiply_divide(bonuslevel, percent, 100)
+
+					-- Low quality.
+					low_quality = 1
+				end
+
+				-- If we have base values bonus, apply them.
+				if (basevaluesbonus > 0) then
+
+					crafted_item.dd = crafted_item.dd + multiply_divide(crafted_item.dd, basevaluesbonus, 100)
+					crafted_item.ds = crafted_item.ds + multiply_divide(crafted_item.ds, basevaluesbonus, 100)
+					crafted_item.ac = crafted_item.ac + multiply_divide(crafted_item.ac, basevaluesbonus, 100)
+					if (crafted_item.tval == TV_RANGED) then crafted_item.extra4 = crafted_item.extra4 + multiply_divide(crafted_item.extra4, basevaluesbonus, 100) end
+				end
+
+				-- to_h, to_d and to_a(if it has base AC)
+				crafted_item.to_d = crafted_item.to_d + bonuslevel
+				crafted_item.to_h = crafted_item.to_h + bonuslevel
+				if (crafted_item.ac > 0) then crafted_item.to_a = crafted_item.to_a + ((bonuslevel / 4) + (bonuslevel / 2)) end
+
+				-- Tweak points.
+				crafted_item.tweakpoints = bonuslevel
+
+				-- Crafted an item.
+				create_crafted_item()
+				crafted = 1
+
+				-- Break.
+				break
+			else
+
+				-- Alchemical item.
+				-- For potions, increase their base base power by 1 for every 3 points of Alchemy.
+				-- You also get an extra potion every 50 points.
+				if (crafted_item.tval == TV_POTION) then
+
+					crafted_item.branddam = crafted_item.branddam + (p_ptr.skill[11] / 3)
+					crafted_item.quantity = crafted_item.quantity + (p_ptr.skill[11] / 50)
+				end
+
+				-- The new potion cannot be decomposed.
+				crafted_item.extra5 = 1
+
+				-- Crafted an item.
+				create_crafted_item()
+				crafted = 1
+
+				break
+			end
+		end
+	end
+
+	-- Did we successfully create anything?
+	if (crafted == 1) then
+
+		if (low_quality == 1) then
+
+			msg_print("You've created a new item, but you weren't able to bring out it's full potential...")
+		else
+			msg_print("You've created a new item!")
+		end
+		update_and_handle()
+	else
+
+		msg_print("This combination didn't produce any results.")
+		update_and_handle()
+	end
+end
+
+-- Decompose an item.
+function decompose_item ()
+
+	local item
+	local itemkind
+	local rec1
+	local rec2
+
+	item = lua_get_item(0)
+
+	-- Cannot decompose self-made potions.
+	if (inven(item).tval == TV_POTION and inven(item).extra5 == 1) then
+
+		msg_print("You cannot decompose self-made potions.")
+		return
+	end
+
+	-- Cannot decompose crafted items.
+	if (get_object_flag4(inven(item), TR4_CRAFTED)) then
+
+		msg_print("You cannot decompose crafted items.")
+		return
+	end
+
+	-- Cannot decompose summoned items.
+	if (inven(item).timeout > 0) then
+
+		msg_print("You cannot decompose charging or summoned items.")
+		return
+	end
+
+	-- Cannot decompose artifacts.
+	if (inven(item).name1 > 0) then
+
+		msg_print("You cannot decompose artifacts.")
+		return
+	end
+
+	-- Cannot decompose ammos.
+	if (inven(item).tval == TV_AMMO) then
+
+		msg_print("You cannot decompose ammos.")
+		return
+	end
+
+	itemkind = lua_kind_index(item)
+
+	-- Need to have enough skill.
+	if (not(is_alchemy(inven(item))) and p_ptr.skill[12] < (itemkind.level * 10)) then
+
+		msg_print(string.format('You need at least %d Crafting to decompose this item.', (itemkind.level * 10)))
+		return
+	end
+
+	-- Decompose the item.
+	rec1 = itemkind.recipe1
+	rec2 = itemkind.recipe2
 end
 
 add_event_handler("make_item_magic", make_item_magic)
@@ -2383,3 +2088,7 @@ add_event_handler("prepare_essence", prepare_essence)
 add_event_handler("object_skill_points_value", object_skill_points_value)
 add_event_handler("mining_treasures", mining_treasures)
 add_event_handler("stolen_item_enhance", stolen_item_enhance)
+add_event_handler("item_activation", item_activation)
+add_event_handler("is_rogue_weapon", is_rogue_weapon)
+add_event_handler("is_alchemy", is_alchemy)
+add_event_handler("combine_items", combine_items)

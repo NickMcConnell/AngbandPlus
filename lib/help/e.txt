@@ -19,7 +19,7 @@ GNOMES FEATURES:
 - +25% to Intelligence.
 - +10% to Constitution.
 - +25% to Spellcraft skill.
-- +50% to Alchemy skill.
+- +25% to Alchemy skill.
 - +10% to Mining skill.
 
 GNOMES PENALITIES:

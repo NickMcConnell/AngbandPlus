@@ -428,6 +428,18 @@ void teleport_player(int dis)
 
 	bool look = TRUE;
 
+	if (p_ptr->abilities[(CLASS_MAGE * 10) + 8] >= 1 && dis <= (p_ptr->abilities[(CLASS_MAGE * 10) + 8] * 2))
+	{
+		char ch;
+
+		msg_print("Use Advanced Teleportation? [y/n]");
+		if (ch == 'y' || ch == 'Y')
+		{
+			call_lua("advanced_teleportation", "d", "", dis);
+			return;
+		}
+	}
+
 	if (p_ptr->inside_quest)
 	{
 		msg_print("You cannot teleport here.");
@@ -1051,85 +1063,6 @@ void take_hit(s32b damage, cptr hit_from)
 
         /* Protection item? */
         if (protection_check()) damage = damage / 2;
-
-        /* Great Guard Defender ability! */
-        if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 5] >= 1 && !(p_ptr->confused) && damage > 0)
-        {
-                int chance = p_ptr->guardconfuse;
-                s32b reduction = (p_ptr->abilities[(CLASS_DEFENDER * 10) + 5] * multiply_divide((p_ptr->dis_ac + p_ptr->dis_to_a), p_ptr->abilities[(CLASS_DEFENDER * 10) + 5] * 20, 100));
-                char ch;
-
-                msg_format("You are about to take %ld damages...", damage);
-                get_com("Guard? [y/n] ", &ch);
-                if (ch == 'y' || ch == 'Y')
-                {
-			damage = damage / p_ptr->abilities[(CLASS_DEFENDER * 10) + 5];
-                        damage -= reduction;
-                        if (damage < 0) damage = 0;
-
-                        msg_print("You guard the damages!");
-
-                        p_ptr->guardconfuse += 20;
-
-                        if (randint(100) <= chance)
-                        {
-                                msg_print("The impact daze your head...");
-                                (void)set_confused(3);
-                        }
-                        update_and_handle();
-                }
-        }
-        /* Soul Guard ability! */
-        if (p_ptr->abilities[(CLASS_SOUL_GUARDIAN * 10) + 8] >= 1)
-        {                
-                s32b reduction;
-                char ch;
-
-                msg_format("You are about to take %ld damages...", damage);
-                get_com("Use a soul to guard? [y/n] ", &ch);
-                if (ch == 'y' || ch == 'Y')
-                {
-                        monster_race *r_ptr;
-                        int item;
-                        object_type *o_ptr;
-
-                        cptr q, s;
-
-                        /* Restrict choices to monsters */
-                        item_tester_tval = TV_SOUL;
-
-                        /* Get an item */
-                        q = "Use which soul? ";
-                        s = "You have no souls!.";
-                        if (get_item(&item, q, s, (USE_INVEN)))
-			{
-
-                        	o_ptr = &inventory[item]; 
-
-                        	if (o_ptr->timeout >= 1)
-                        	{
-                                	msg_print("This soul still need to recharge.");
-                        	}
-                        	else
-                        	{
-                                	/* Get the monster */
-                                	r_ptr = &r_info[o_ptr->pval];
-
-                                	reduction = maxroll(r_ptr->hdice, r_ptr->hside);
-                                	reduction = reduction + ((reduction * (p_ptr->abilities[(CLASS_SOUL_GUARDIAN * 10) + 8] * 20)) / 100);
-
-					damage = damage / p_ptr->abilities[(CLASS_SOUL_GUARDIAN * 10) + 8];
-                                	damage -= reduction;
-                                	if (damage < 0) damage = 0;
-
-                                	msg_print("The soul guarded you!");
-                                	o_ptr->timeout = 60;
-
-                                	update_and_handle();
-                        	}
-                	}
-		}
-        }
 	
 	{
 		char total_damages[80];
@@ -3301,35 +3234,6 @@ bool project_m(int who, int r, int y, int x, s32b dam, int typ)
 	/* Get the monster name (BEFORE polymorphing) */
 	monster_desc(m_name, m_ptr, 0);
 
-	/* If the player used a ranged attack... */
-	if (monster_ranged)
-	{
-		int hit;
-		call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
-		if (hit == 1)
-		{
-			if ((r_ptr->countertype == 16 || r_ptr->countertype == 17 || r_ptr->countertype == 18 || r_ptr->countertype == 19 || r_ptr->countertype == 24) && randint(100) <= r_ptr->counterchance)
-			{
-				if (randint(m_ptr->dex) >= randint(p_ptr->stat_ind[A_DEX]))
-				{
-                                	msg_format("%s blocked your ammo!", m_name);
-					return (FALSE);
-				}
-			}
-			if ((r_ptr->countertype == 20 || r_ptr->countertype == 21 || r_ptr->countertype == 22 || r_ptr->countertype == 23) && randint(100) <= r_ptr->counterchance)
-			{
-                        	msg_format("%s blocked your ammo!", m_name);
-				return (FALSE);
-			}
-		}
-		else
-		{
-			msg_format("You miss %s.", m_name);
-			return (FALSE);
-		}
-	}
-
-
 	/* Some monsters get "destroyed" */
 	if ((r_ptr->flags3 & (RF3_DEMON)) ||
 	    (r_ptr->flags3 & (RF3_UNDEAD)) ||
@@ -3344,14 +3248,21 @@ bool project_m(int who, int r, int y, int x, s32b dam, int typ)
 	/* We call lua here. */
 	call_lua("element_hit_monster", "(dddl)", "l", who, c_ptr->m_idx, typ, dam, &dam);
 
+	/* Has the monster moved? */
+	if (m_ptr->fx != x || m_ptr->fy != y)
+	{
+		x = m_ptr->fx;
+		y = m_ptr->fy;
+		c_ptr = &cave[y][x];
+	}
+		
+
 	/* If damages are below or equal 0, return. */
 	if (dam <= 0) return (FALSE);
 
 	/* If another monster did the damage, hurt the monster by hand */
 	if (who)
 	{
-                /* Yeah, I know, the name of this one is stupid! :) */
-                int stupidvariable = 1;
 
 		/* Redraw (later) if needed */
 		if (health_who == c_ptr->m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -3389,47 +3300,10 @@ bool project_m(int who, int r, int y, int x, s32b dam, int typ)
 			}
 
 #ifdef PET_GAIN_EXP
-                if(stupidvariable == 1)
-                {
-		/* Maximum player level */
-		div = p_ptr->max_plv;
-
-		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
-
-		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
-
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
-		{
-			new_exp++;
-			p_ptr->exp_frac = new_exp_frac - 0x10000;
-		}
-		else
-		{
-			p_ptr->exp_frac = new_exp_frac;
-		}
-
-                /* 1.5.0, revised experience system... */
-                new_exp = new_exp / 10;
-
-                /* Friends are dead, no experience! */
-                if (is_pet(m_ptr))
-                {
-                        new_exp = 0;
-                }
-
-		if (p_ptr->inside_quest) new_exp = 0;
-
-		/* You killed something! Now, check if you should */
-                /* advance your class level... */
-		if (!((p_ptr->inside_quest || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE)))) add_class_kill(m_ptr);
 
 		/* Gain experience */
-                gain_exp_kill(new_exp, m_ptr);
-                }
+                gain_exp_kill(m_ptr);
+
 #endif
 
 			/* Generate treasure, etc */
@@ -3795,6 +3669,33 @@ bool project(int who, int rad, int y, int x, s32b dam, int typ, int flg)
 
 	/* Encoded "radius" info (see above) */
         byte gm[64];
+
+	/* Before we begin, let's apply "Weaken Elemental Attacks". */
+	if (who > 0 && p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] >= 1)
+	{
+		monster_type *m_ptr;
+		m_ptr = &m_list[who];
+
+		if (m_ptr->abilities & (WEAKENED_ELEMENTAL) && is_elemental(typ) && typ != GF_PHYSICAL)
+		{
+			int ppower;
+			int mpower;
+			int totpower;
+			int respercent;
+
+			ppower = p_ptr->skill[22] / 2;
+			ppower = ppower + multiply_divide(ppower, p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] * 10, 100);
+			if (monster_physical) mpower = m_ptr->str + m_ptr->skill_attack;
+			else if (monster_ranged) mpower = m_ptr->dex + m_ptr->skill_ranged;
+			else mpower = m_ptr->mind + m_ptr->skill_magic;
+
+			totpower = ppower + mpower;
+			respercent = multiply_divide(100, ppower, totpower);
+
+			dam = dam - multiply_divide(dam, respercent, 100);
+			if (typ == p_ptr->elemlord) dam = dam / 2;
+		}
+	}
 
 	/* Hack -- Jump to target */
 	if (flg & (PROJECT_JUMP))

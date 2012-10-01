@@ -1,122 +1,180 @@
 FORMULAS GUIDE
 ----------------
 
-Last Update: Portralis 0.3
+Last Update: Portralis 0.5
 
-This document explains how various things are calculated. This will
+This document explains how various values are calculated. This will
 help you build a better character out of these formulas. Note
 that these are basic formulas, and can be altered by items and
 abilities.
 
-MELEE WEAPONS/UNARMED ATTACKS/THROWN WEAPONS DAMAGES
+Most combat and damages formulas apply to both players and monsters.
 
-The damages for melee characters uses the following steps:
-1. Damages = base weapon damages roll
-2. (Base roll) * (Weapon Skill + 1)
-3. +to_d% to damages
-4. +Strength% to damages
+ROLLS
 
-So let's assume the character uses a Long Sword(2d5), with a swords
-skill of 50 and a strength of 30. He/she obtains a 10 on the weapon
-roll. With a skill of 50, damages becomes (10 * 50+1) = 510. Then,
-with Strength giving +5 to_d per points, this character gets
-+150 to_d. So that gives the character +150% to damages, so the
-500 damages becomes 1275. Then, with a strength of 30, the character
-receives an extra 30% damages, raising the damages to 1658. For 
-martial arts, the base damages is 1d3, and both the dice number and 
-sides increase by 1 for every 15 points in Martial Arts skill. So
-with 0 - 15 Martial Arts, the base roll is 1d3. At 15, it becomes
-2d4. At 30, it becomes 3d6 and so on.
+May of the formulas below uses the term "roll". A roll consists in
+a number randomly chosen between 1 and whatever maximum value the roll
+may have. So for example, if you have something like this:
 
-For throwing, the formula is the same, but the stat is the sum of
-your strength and dexterity, as both plays a role in determining
-the damages. So if your strength is 20, and your dexterity is 10,
-the total stat used is 30. As for hit bonus, the bonus of the item
-you throw is used instead of your equipped weapon's.
+Player's roll: (Fighting)
+Monster's roll: (Evasion)
 
-BOWS/CROSSBOWS/GUNS DAMAGES
+This means that both the player and the monster will roll a number between
+1 and the maximum value of either Fighting or Evasion. Whoever has the
+highest number wins the roll. In case of an equal roll, the one who initiated
+the action will have priority. For example, if the player attacks the monster,
+the monster tries to dodge, and the rolls are equal, the player will win and
+will hit the monster. Similarly, if the monster is the attacker, and the rolls
+are equal, the monster will hit the player.
 
-The damages are calculated using the following steps:
-1. Damages = base ammo damages roll
-2. (Base roll) * Launcher's percentile value
-3. (Base roll) * (Shooting Skill + 1)
-4. +(launcher's to_d + ammo's to_d + ((Dexterity - 5) * 5))% to damages
-5. +Dexterity% to damages
 
-ATTACK SPELLS
 
-(Spell's power * (casting stat - 5)) + 10% damages per spellcraft points.
+MELEE/THROWING DAMAGES
 
-This formula apply to all magic attack abilities as well. So a character
-using mana-casting and with 45 Intelligence, casting a spell that does 
-20 damages/stat with a spellcraft skill of 0 will do 800 damages. 
-With a spellcraft skill of 100, the character will do 8000 damages. 
-For standard mana/wisdom-based casting, your character will most likely
-choose the Elemental skill, which boost spells by 20% instead of 10%.
-In this case, you would do 16000 damages with an Elemental skill of 100!
+Damages = Base weapon/unarmed damages roll +
+          ((base weapon/unarmed damages roll) * (Strength-5))
 
-WISDOM-BASED CASTING SUCCESS RATE
+Unarmed damages starts at 1d3, and increases by 1d1 for every 40 points
+in Martial Arts, or 80 points in Fighting.
 
-A new feature in Portralis is to allow the use of wisdom to cast
-a spell. You can do this using the 'p' command. You will then select
-a spell as you normally would. The advantage to this is that the
-spell will cost no mana to cast, but the success rate is not always
-guaranteed. Here's how the success rate is determined:
+Note that when using two-handed melee weapons, the base roll is increased
+by 33%. The same bonus apply if you wield a weapon that can be held with
+either one or two hands with both hands.
 
-Wisdom >= spell's cost
+Passive bonus to damages are applied to the calculated Damages.
 
-If your wisdom is equal or higher than the spell's cost, you get
-automatic success.
+RANGED DAMAGES
 
-Wisdom < spell's cost
+Damages = Base ranged damages roll +
+          ((base ranged damages roll) * (Dexterity-5))
 
-A Casting Strength is determined, and will be rolled against the
-spell's cost.
+Passive bonus to damages are applied to the calculated Damages.
 
-Casting Strength = (Wisdom - 5) * 5
+SPELLS DAMAGES/HEALING POWER:
 
-Two random numbers will be returned. The first number is a random
-number between 1 and the Casting Strength. The second is a number
-between 1 and the spell's mana cost. If the first number is higher
-or equal, you win the roll, and the spell is cast. Otherwise,
-you fail casting the spell.
+Power = ((Spell's power) * (casting stat - 5))
 
-Spell's cost is more than three times the casting force:
+Where (casting stat) is either Intelligence or Wisdom(or even Charisma for
+the Music skill), depending on the situation.
 
-If you try to cast a very costly spell with a low casting strength,
-be aware that the spell becomes "risky". If you fail casting a risky
-spell, you will take damages equal to the spell's cost, you will
-be confused for 5 turns and your wisdom will be lowered by 5 points.
+Passive bonus to damages are applied to the calculated Power. Note that
+as of 0.5, to_d bonus is now added to magic damages.
 
-If you plan on using Wisdom-based spellcasting, don't forget that
-the Priest has the "Improved Wisdom Casting" ability!
+
+MELEE/RANGED DAMAGES MITIGATION:
+
+Reduction = 100 - (((Attacker's skill) / ((Attacker's skill) +
+            (Defender's AC))) * 100)
+
+So if you get attacked by a monster with an attack skill of 50, and your
+AC is 150, the reduction will be
+100 - ((50/200) * 100) = 100 - 25 = 75% damages reduction.
+
+On the other hand, if you get attacked by a monster with a skill of 300
+versus an AC of only 40, the reduction would be
+100 - ((300/340)*100) = 100 - 88 = 12% damages reduction.
+
+Therefore, having a high AC is very important, or you will end up taking
+much damages from enemy attacks.
+
+MAGIC DAMAGES MITIGATION:
+
+Reduction = 100 - (((Attacker's skill) / ((Attacker's skill) +
+            (Defender's mdef))) * 100)
+
+Essentially the same formula as the one for melee and ranged damages, but
+uses a different value.
+
+Enemy monsters have a "mdef" skill that is used for damages mitigation.
+
+For players, however, "mdef" is equal to your Magic Defense skill * 3.
+So if your Magic Defense skill is 30, your "mdef" will be 90 for the
+purpose of damages mitigation.
+
 
 BLOCKING CHANCES
 
-If you equip a shield, or a weapon with a base AC(or two of such items), 
-you have a chance to block incoming melee and ranged attacks.
-Your initial blocking power is equal to the sum of both items base AC multiplied
-by 3. Then, your strength and dexterity are added to this power. You will
-then have to win an opposed roll against the monster's strength and
-dexterity. If you win, you will block the attack. Note that some monsters
-have the ability to block your attacks as well, and the same formula
-is used, except that only strength and dexterity are used, no base
-blocking chance.
+You will be able to get a chance to block incoming melee and ranged
+attacks if you wield an items that has base AC. A shield has base
+AC and is the main piece of equipment that you will use to enable
+blocking. However, certain weapons also have base AC, and if you
+use one, you will get a chance to block.
 
-If you play as the Monster race, many monsters have natural countering
-abilities. They will use the same formula, but will be a second test
-applied after the initial blocking, if your monster can also use
-weapons and shields. If that's the case, you'll find that your ability
-to block will be much better, especially if you focus in the
-counter-improving ability of the Monster race!
+The roll to determine if you block an incoming attack:
 
-REFLECTING ITEMS
+Your roll: (Strength + Defense skill + shield/item's base AC) vs
 
-Some items gives you the ability to reflect monster spells. In order
-to determine if a spell will be reflected, each items you wear gives
-you a reflective power of 10/pval. Then, it's a contest between
-this power versus the monster's level + mind stat, with two numbers
-from 1 to (power) being rolled, and you win the contest if your
-number is higher. If you win, the spell is reflected back to the
-monster, and it will take the damages of it's spell, while you
-won't take any.
+Monster's roll: (Strength + Attack Skill)
+
+You will also receive a percentile bonus to your roll equal to the
+base AC bonus of the items that you wield(if you wield two shields,
+for example, the percentile is an addition of both shields' AC). If
+you win the roll, you block the attack and take no damages.
+
+
+To roll to determine whether a monster blocks your attacks:
+
+Monster's roll: (Strength + Attack Skill)
+Your roll: (Dexterity + Skills + to_h bonus)
+
+Note that not all monsters are capable of blocking attacks. Only those
+with the appropriate counters will be able to get a chance to block.
+
+
+WISDOM-BASED SPELLCASTING SUCCESS RATE:
+
+Wisdom spellcasting costs no mana, but the spells may fail. To determine
+whether or not you fail casting, it depends on the cost of the spell versus
+how much wisdom you have. Here's the three possible scenarios:
+
+Wisdom >= (Spell's cost - Wisdom): The spell has 100% success rate.
+
+Spell's cost > Wisdom: There is a roll between the spell's cost and your
+                       wisdom. The roll is:
+
+                       (Wisdom) vs (Spell's cost - Wisdom)
+
+                       If you win the roll, you can cast the spell. If not, you
+                       fail to cast the spell.
+
+Spell's cost - Wisdom > (Wisdom * 5): The spell is too powerful to attempt, and you
+                             cannot cast it.
+
+
+HITTING AND DODGING
+
+When you try hitting an enemy with a melee or ranged attack, the monster
+will attempt to dodge your attack. The roll is:
+
+Your roll: (Dexterity + Skill + to_h bonus)
+Monster's roll: (Dexterity + Evasion)
+
+"Skill" is the skill related to your attack(such as Fighting, Shooting or a
+specialized weapon skill). If you win the roll, you will hit the monster.
+Otherwise, it will dodge.
+
+When a monster attacks you with a melee or ranged attack, you will also
+attempt to dodge. The roll will be:
+
+Monster's roll: (Dexterity + Attack Skill)
+Your roll: (Dexterity + Agility)
+
+
+HITTING WITH MAGIC, AND STOPPING MAGIC ATTACKS
+
+The rolls for magic attacks are similar, except they are based on Magic Defense
+and MDef. The formulas to hit a monster with a spell is:
+
+Your roll: (Skill + to_h bonus)
+Monster's roll: (MDef)
+
+"Skill" is the skill related to your attack(such as Spellcraft, or a
+specialized spell skill). If you win the roll, you will the monster.
+Otherwise, it will stop the spell.
+
+When a monster attacks you with a magic attack, you will also
+attempt to stop the spell. The roll will be:
+
+Monster's roll: (Magic Skill)
+Your roll: (Magic Defense)
+

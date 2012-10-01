@@ -945,7 +945,7 @@ A:40/1:60/10
 P:0:3d7:0:0:0
 F:SHOW_MODS | RETURNING
 
-N:105:& Adamantium-bladed Boomerang~
+N:105:& Adamantite-bladed Boomerang~
 G:{:r
 I:15:5:0:64:82
 W:60:0:75:16000
@@ -1031,7 +1031,7 @@ P:0:7d7:0:0:0
 U:3:0:0:0:0:0:0:0:0:0:0:15:100:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE
 
-N:115:& Adamantium Plated Bullet~
+N:115:& Adamantite Plated Bullet~
 G:{:r
 I:16:5:0:199:82
 W:80:0:5:7500
@@ -1096,7 +1096,7 @@ P:0:2d4:0:0:0
 U:1:0:0:0:0:0:0:0:0:0:0:15:25:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE
 
-N:125:& Adamantium Tipped Arrow~
+N:125:& Adamantite Tipped Arrow~
 G:{:r
 I:16:12:0:197:82
 W:60:0:2:240
@@ -1161,7 +1161,7 @@ P:0:2d5:0:0:0
 U:2:0:0:0:0:0:0:0:0:0:0:15:25:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE
 
-N:135:& Adamantium Tipped Bolt~
+N:135:& Adamantite Tipped Bolt~
 G:{:r
 I:16:19:0:198:82
 W:60:0:4:320
@@ -1210,166 +1210,209 @@ G:}:U
 I:19:2:0:72:141
 W:10:0:40:200
 A:10/1:35/10
-U:1:19:0:0:0:0:0:0:0:0:0:16:1:99:200:0:0:0
+U:1:19:0:0:0:0:0:0:0:0:0:16:1:99:120:0:0:0
 F:SHOW_MODS | MUST2H
 
-N:143:& Elven Bow~
-G:}:U
-I:19:3:0:73:142
-W:22:0:30:1500
-A:22/1:50/10
-U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:300:0:0:0
-F:SHOW_MODS | MUST2H
+##### Light Crossbows #####
 
-N:144:& Hunter's Bow~
-G:}:U
-I:19:4:0:73:143
-W:40:0:30:3000
-A:40/1:75/10
-P:0:1d1:15:0:0
-T:3:2
-U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:400:0:0:0
-F:SHOW_MODS | MUST2H
-
-N:145:& Nimbrayan Elite Bow~
-G:}:U
-I:19:5:0:74:144
-W:60:0:30:20000
-A:60/2:80/1
-P:0:1d1:30:0:0
-T:3:5
-U:1:19:0:1:0:0:0:0:0:0:0:0:1:99:500:0:0:0
-F:SHOW_MODS | MUST2H | INDESTRUCTIBLE
-
-##### Crossbows #####
-
-N:147:& Light Crossbow~
+N:143:& Light Crossbow~
 G:}:s
-I:19:6:0:75:63
-W:15:0:110:250
-A:15/1:45/10
-U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:300:0:0:0
+I:19:3:0:75:63
+W:5:0:90:150
+A:5/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:100:0:0:0
 F:SHOW_MODS
 
-N:148:& Heavy Crossbow~
-G:}:s
-I:19:7:0:76:63
-W:30:0:200:1500
-A:30/1:60/10
-U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:500:0:0:0
-F:SHOW_MODS | MUST2H
+N:144:& Bronze Light Crossbow~
+G:}:g
+I:19:4:0:143:78
+W:15:0:120:400
+A:15/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:110:0:0:0
+F:SHOW_MODS
 
-N:149:& Masterwork Crossbow~
-G:}:s
-I:19:8:0:73:148
-W:45:0:200:10000
-A:45/1:75/10
-U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:700:0:0:0
-F:SHOW_MODS | MUST2H
+N:145:& Iron Light Crossbow~
+G:}:o
+I:19:5:0:143:79
+W:25:0:110:800
+A:25/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:120:0:0:0
+F:SHOW_MODS
 
-N:150:& Mighty Crossbow~
-G:}:y
-I:19:9:0:77:63
-W:75:0:200:50000
-A:75/2:90/1
-U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:1000:0:0:0
-F:SHOW_MODS | MUST2H | INDESTRUCTIBLE
+N:146:& Steel Light Crossbow~
+G:}:W
+I:19:6:0:143:80
+W:40:0:110:1500
+A:40/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:130:0:0:0
+F:SHOW_MODS
+
+N:147:& Mithril Light Crossbow~
+G:}:w
+I:19:7:0:143:81
+W:55:0:90:3000
+A:55/2:65/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:140:0:0:0
+F:SHOW_MODS
+
+N:148:& Adamantite Light Crossbow~
+G:}:r
+I:19:8:0:143:82
+W:70:0:120:8000
+A:70/2:85/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:150:0:0:0
+F:SHOW_MODS
+
+N:149:& Titanium Light Crossbow~
+G:}:D
+I:19:9:0:143:83
+W:100:0:110:30000
+A:100/3:120/2:140/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:160:0:0:0
+F:SHOW_MODS
+
+N:150:& Blue Steel Light Crossbow~
+G:}:b
+I:19:10:0:143:84
+W:140:0:90:120000
+A:140/5:170/3
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:170:0:0:0
+F:SHOW_MODS
+
+N:151:& Ice Light Crossbow~
+G:}:B
+I:19:11:0:143:1082
+W:45:0:110:5000
+A:45/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:135:0:0:0
+F:SHOW_MODS | ICE | ACTIVATE
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Cold:10:2:0:0:0:0:0
+S:Type change, Ice:10:23:0:0:0:0:0
 
 ##### Firearms -- Pistols #####
 
-# Yes, this one is worthless.
-N:152:& Crude Pistol~
-G:}:u
-I:19:10:0:11:11
-W:5:0:90:500
-A:5/2:10/1
-P:0:1d1:-10:-10:0
-U:3:21:0:0:0:0:0:0:0:0:0:0:1:1:100:0:0:0
-F:SHOW_MODS
-
 # The best you can buy in shops.
 # In the Rare Items shop that is.
-N:153:& Combat Revolver~
+N:152:& Combat Revolver~
 G:}:w
-I:19:11:0:11:79
+I:19:12:0:11:79
 W:15:0:100:5000
 A:15/2
-P:0:1d3:15:15:0
-U:3:21:0:0:0:0:0:0:0:0:0:0:1:3:300:0:0:0
+P:0:1d3:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:3:130:0:0:0
 F:SHOW_MODS
+D:As a new, recently invented type of weapon, Firearms are rare and very expensive. 
+D:This model is a rather crude pistol, with only a small bullet capacity of three. 
+D:Unfortunately, outside of Karingen, this is about the best people can get.
 
-N:154:& 6-Shots Peacemaker~
+N:153:& Peacemaker~
 G:}:W
-I:19:12:0:153:80
+I:19:13:0:152:80
 W:25:0:100:30000
 A:25/3:40/2
-P:0:1d6:30:40:0
-U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:500:0:0:0
+P:0:1d6:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:160:0:0:0
 F:SHOW_MODS
+D:One of the most reliable designs from Karingen, this gun is a big improvement 
+D:over the Combat Revolver, and outclasses it in both firepower and bullet capacity.
 
-N:155:& 12-Shots Karingen Special~
+N:154:& Mithril Handgun~
 G:}:W
-I:19:13:0:154:13
-W:50:0:110:100000
-A:50/5:90/10
-P:0:2d4:50:80:0
-U:3:21:0:0:0:0:0:0:0:0:0:0:1:12:800:0:0:0
+I:19:14:0:11:81
+W:40:0:90:50000
+A:40/3:60/2
+P:0:2d4:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:190:0:0:0
 F:SHOW_MODS
+D:Mithril is arguably one of the best metals to make a gun from. This design is bigger and more 
+D:complex than the Peacemaker, yet it is light and can easily be held in one hand. The better 
+D:design allows the bullets to be fire with more accuracy and velocity.
 
-# It shoots fire!
-# Very powerful, but requires reload every shots, and consumes
-# bullets rather quickly.
-N:156:& Twin-Cannon Dragon Handgun~
+N:155:& Blazer~
 G:}:R
-I:19:14:0:13:17
-W:40:0:130:75000
-A:40/4
-P:0:2d4:0:80:0
-U:3:21:0:0:0:0:0:0:0:0:0:1:2:2:1000:1:0:0
-F:SHOW_MODS
+I:19:15:0:153:684
+W:45:0:100:75000
+A:45/5:70/4
+P:0:1d6:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:190:0:0:0
+F:SHOW_MODS | ACTIVATE
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Fire:10:1:0:0:0:0:0
+D:Leave it to Gnome alchemists to improve an already powerful weapon. This is a 
+D:standard Peacemaker alchemically combined with a blaze potion. The result is 
+D:a beautiful red-colored revolver which fires even more powerful shots than 
+D:the standard peacemaker, and has the power to turn bullets into small balls 
+D:of fire if desired.
 
-# A mage's handgun!
-# Shoots Mana-type ammos!
-N:157:& 6-Shots Runed Arcana~
+N:156:& Cobra~
+G:}:G
+I:19:16:0:153:653
+W:45:0:100:75000
+A:45/5:70/4
+P:0:1d6:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:5:1:6:230:0:0:0
+F:SHOW_MODS
+D:The first 'Cobra' was created by Nugam, a Kobold alchemist from Karingen. While Kobolds 
+D:usually prefer crossbows and aren't as good as Gnomes and Humans with alchemy, Nugam 
+D:decided to break from the stereotype, and combine his race's knowledge of poisons with 
+D:the arts of gunsmithing and alchemy. The result is a strange conception. This is the 
+D:the alchemical combination of a Peacemaker and a strong Kobold poison. All bullets fired 
+D:by this green, enchanted Peacemaker are turned into a strong, poisonous matter.
+
+N:157:& Fine Mithril Handgun~
+G:}:W
+I:19:17:0:13:81
+W:60:0:90:90000
+A:60/3:90/2
+P:0:2d5:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:220:0:0:0
+F:SHOW_MODS
+D:A mithril handgun constructed with the finest parts and most polished ores. The design 
+D:is basically the same, but performs a lot better than the standard model.
+
+N:158:& Tweaked Mithril Handgun~
+G:}:W
+I:19:18:0:154:13
+W:60:0:90:90000
+A:60/3:90/2
+P:0:2d4:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:9:190:0:0:0
+F:SHOW_MODS
+D:A tweaked version of the standard mithril handgun, this model's cylinder has been enhanced 
+D:with greater ammo capacity, while preserving all of the original design's power.
+
+# Uncraftable.
+N:159:& Runed Arcana~
 G:}:g
-I:19:15:0:154:738
-W:60:0:100:250000
-A:60/5:100/10
-P:0:1d6:60:60:0
-U:3:21:0:0:0:0:30:0:0:0:0:16:1:6:700:0:0:0
-F:SHOW_MODS
+I:19:19:0
+W:60:0:100:200000
+A:60/10
+P:0:2d4:0:0:0
+U:3:21:0:0:0:0:30:0:20:0:0:16:1:6:200:0:0:0
+F:SHOW_MODS | ACTIVATE
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Mana:10:16:0:0:0:0:0
+S:Type change, Missile:10:17:0:0:0:0:0
+D:Powerful runes have been etched on this finely crafted revolver. It's origins are unknown, and 
+D:doesn't looks like any of Karingen's products. Bullets fired by this gun turn into pure magical 
+D:energy, but it can also be set to fire regular shots. It can also be used to empower spells, 
+D:making it a potent replacement of rods for mages.
 
-# These are getting dangerous.
-# Shoots missile-type shots.
-N:158:& 6-Shots Licial-Powered Revolver~
-G:}:B
-I:19:16:0:154:1185
-W:90:1:100:1000000
-A:90/5:120/10
-P:0:2d4:75:120:0
-U:3:21:0:1:0:0:0:0:0:0:0:17:1:6:1000:0:0:0
-F:SHOW_MODS
+# Crafting exclusive.
+N:160:& Perfect Mithril Handgun~
+G:}:W
+I:19:20:0:157:158
+W:75:0:90:200000
+P:0:2d5:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:9:220:0:0:0
+F:SHOW_MODS | SPECIAL_GENE
+D:By combining the power of the Fine Mithril Handgun and the enhanced ammo capacity of the 
+D:Tweaked Mithril Handgun, you've created a great design that has the strengths of both 
+D:the Fine and Tweaked versions of the Mithril Handgun.
 
-# Overpowered!
-N:159:& 12-Shots Licial-Powered Special~
-G:}:B
-I:19:17:0:155:1185
-W:120:1:100:5000000
-A:120/10:160/20
-P:0:2d5:100:200:0
-U:3:21:0:1:0:0:0:0:0:0:0:17:1:12:1200:0:0:0
-F:SHOW_MODS
+# To be continued. See 467.
 
-# Extremely Overpowered!
-# But you won't find it anytime soon. :)
-N:160:& Blue Steel Licial-Powered Special~
-G:}:b
-I:19:18:0:159:84
-W:160:2:100:10000000
-A:160/20
-P:0:2d5:200:300:0
-U:3:21:0:2:0:0:0:0:0:0:0:17:1:12:1500:0:0:0
-F:SHOW_MODS
 
 ##### Blunt Weapons #####
 ##### One-handed Hafted Weapons #####
@@ -1410,7 +1453,7 @@ P:0:4d5:0:0:0
 U:0:13:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | COULD2H
 
-N:165:& Adamantium Flail~
+N:165:& Adamantite Flail~
 G:\:r
 I:21:5:0:56:82
 W:60:0:190:7200
@@ -1475,7 +1518,7 @@ P:10:5d5:0:0:0
 U:0:13:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | MUST2H
 
-N:174:& Adamantium Quarterstaff~
+N:174:& Adamantite Quarterstaff~
 G:\:r
 I:21:11:0:57:82
 W:60:0:240:9600
@@ -1553,7 +1596,7 @@ P:0:2d6:0:0:0
 U:0:14:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | COULD2H
 
-N:185:& Adamantium Spear~
+N:185:& Adamantite Spear~
 G:/:r
 I:21:19:0:58:82
 W:60:0:100:8000
@@ -1618,7 +1661,7 @@ P:0:7d8:0:0:0
 U:0:14:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | MUST2H
 
-N:194:& Adamantium Halberd~
+N:194:& Adamantite Halberd~
 G:/:r
 I:21:26:0:59:82
 W:60:0:250:12000
@@ -1715,7 +1758,7 @@ P:0:4d5:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | COULD2H
 
-N:205:& Adamantium Long Sword~
+N:205:& Adamantite Long Sword~
 G:|:r
 I:21:33:0:67:82
 W:60:0:160:8000
@@ -1780,7 +1823,7 @@ P:0:6d8:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | MUST2H
 
-N:214:& Adamantium Claymore~
+N:214:& Adamantite Claymore~
 G:|:r
 I:21:40:0:68:82
 W:60:0:230:10400
@@ -1868,7 +1911,7 @@ K:29:5
 U:0:29:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | MUST2H
 
-N:225:& Adamantium Pickaxe~
+N:225:& Adamantite Pickaxe~
 G:/:r
 I:21:49:0:45:82
 W:60:0:260:9600
@@ -1903,65 +1946,65 @@ F:SHOW_MODS | INDESTRUCTIBLE | MUST2H
 N:231:& Bronze Dagger~
 G:|:g
 I:21:52:0:66:78
-W:0:0:18:35
+W:0:0:42:35
 A:0/1:20/10
 P:0:1d3:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:232:& Iron Dagger~
 G:|:o
 I:21:53:0:66:79
-W:10:0:12:105
+W:10:0:40:105
 A:10/1:30/10
 P:0:1d4:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:233:& Steel Dagger~
 G:|:W
 I:21:54:0:66:80
-W:20:0:11:350
+W:20:0:40:350
 A:20/1:45/10
-P:0:1d4:0:0:0
+P:0:2d3:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:234:& Mithril Dagger~
 G:|:w
 I:21:55:0:66:81
-W:40:0:10:1400
+W:40:0:38:1400
 A:40/1:60/10
-P:0:1d4:0:0:0
+P:0:2d4:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
-N:235:& Adamantium Dagger~
+N:235:& Adamantite Dagger~
 G:|:r
 I:21:56:0:66:82
-W:60:0:12:5600
+W:60:0:42:5600
 A:60/2:90/1:110/10
-P:0:1d6:0:0:0
+P:0:3d4:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 N:236:& Titanium Dagger~
 G:|:D
 I:21:57:0:66:83
-W:90:0:12:22400
+W:90:0:40:22400
 A:90/3:110/2:130/10
-P:0:1d6:0:0:0
+P:0:4d6:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 N:237:& Blue Steel Dagger~
 G:|:b
 I:21:58:0:66:84
-W:120:0:10:89600
+W:120:0:38:89600
 A:120/5:150/3:200/10
-P:0:2d4:0:0:0
+P:0:5d7:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 ##### Polearms #####
 ##### One-handed Axes #####
@@ -2002,7 +2045,7 @@ P:0:4d5:0:0:0
 U:0:16:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | COULD2H
 
-N:245:& Adamantium Battle Axe~
+N:245:& Adamantite Battle Axe~
 G:/:r
 I:21:63:0:60:82
 W:60:0:200:7200
@@ -2067,7 +2110,7 @@ P:0:6d9:0:0:0
 U:0:16:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | MUST2H
 
-N:254:& Adamantium Great Axe~
+N:254:& Adamantite Great Axe~
 G:/:r
 I:21:70:0:61:82
 W:60:0:250:9600
@@ -2134,7 +2177,7 @@ A:40/1:60/10
 P:8:1d2:0:0:0
 F:INDESTRUCTIBLE
 
-N:266:& Pair~ of Adamantium Boots
+N:266:& Pair~ of Adamantite Boots
 G:]:r
 I:30:6:0:82:262
 W:60:0:112:4800
@@ -2238,7 +2281,7 @@ P:8:1d1:0:0:0
 U:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:INDESTRUCTIBLE
 
-N:281:& Pair~ of Adamantium Gauntlets
+N:281:& Pair~ of Adamantite Gauntlets
 G:]:r
 I:31:6:0:82:277
 W:60:0:62:4800
@@ -2345,7 +2388,7 @@ A:40/1:60/10
 P:20:1d1:0:0:0
 F:INDESTRUCTIBLE
 
-N:297:& Adamantium Helm~
+N:297:& Adamantite Helm~
 G:]:r
 I:32:7:0:291:82
 W:60:0:88:4000
@@ -2431,7 +2474,7 @@ A:40/1:60/10
 P:20:1d1:0:0:0
 F:INDESTRUCTIBLE
 
-N:315:& Adamantium Shield~
+N:315:& Adamantite Shield~
 G:):r
 I:34:5:0:94:82
 W:60:0:150:8000
@@ -2680,7 +2723,7 @@ N:347:& FrostFire Drake Scales Robe~
 G:(:B
 I:36:13:0:335:343
 W:60:1:30:100000
-P:40:1d1:0:0:0
+P:30:1d1:0:0:0
 R:1:25
 R:2:25
 U:0:0:0:0:10:0:0:0:0:0:0:0:0:0:0:0:0:0
@@ -2694,7 +2737,7 @@ N:348:& Noxious Drake Scales Robe~
 G:(:G
 I:36:14:0:335:344
 W:60:1:30:100000
-P:40:1d1:0:0:0
+P:30:1d1:0:0:0
 R:4:25
 R:5:25
 U:0:0:0:0:10:0:0:0:0:0:0:0:0:0:0:0:0:0
@@ -2708,7 +2751,7 @@ N:349:& Sky Drake Scales Robe~
 G:(:w
 I:36:15:0:335:345
 W:60:1:30:100000
-P:40:1d1:0:0:0
+P:30:1d1:0:0:0
 R:3:25
 R:6:25
 U:0:0:0:0:10:0:0:0:0:0:0:0:0:0:0:0:0:0
@@ -2723,7 +2766,7 @@ N:350:& Death Drake Scales Robe~
 G:(:D
 I:36:16:0:335:346
 W:80:1:30:5000000
-P:200:1d1:0:0:0
+P:100:1d1:0:0:0
 R:1:50
 R:7:50
 U:0:0:0:0:10:0:0:0:0:0:0:0:0:0:0:0:0:0
@@ -2749,27 +2792,27 @@ A:40/1:60/10
 P:40:1d3:0:0:0
 F:INDESTRUCTIBLE
 
-N:353:& Adamantium Mail~
+N:353:& Adamantite Mail~
 G:[:r
 I:37:3:0:332:82
-W:55:0:250:19200
-A:55/2:75/1:90/10
+W:60:0:250:19200
+A:60/2:90/1:120/10
 P:50:1d4:0:0:0
 F:INDESTRUCTIBLE
 
 N:354:& Titanium Mail~
 G:[:D
 I:37:4:0:332:83
-W:75:0:240:76800
-A:75/3:90/2:110/10
+W:90:0:240:76800
+A:90/3:120/2:150/10
 P:60:2d3:0:0:0
 F:INDESTRUCTIBLE
 
 N:355:& Blue Steel Mail~
 G:[:b
 I:37:5:0:332:84
-W:100:0:160:307200
-A:100/4:130/2
+W:120:0:160:307200
+A:120/4:175/2
 P:80:2d4:0:0:0
 F:INDESTRUCTIBLE
 
@@ -2804,7 +2847,7 @@ G:[:s
 I:38:1:0:70:20
 W:50:0:200:50000
 A:50/3:80/1
-P:100:2d4:0:0:10
+P:50:2d4:0:0:10
 R:4:25
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2814,7 +2857,7 @@ G:[:b
 I:38:2:0:70:19
 W:50:0:200:50000
 A:50/3:80/1
-P:100:2d4:0:0:10
+P:50:2d4:0:0:10
 R:3:25
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2824,7 +2867,7 @@ G:[:w
 I:38:3:0:70:18
 W:50:0:200:50000
 A:50/3:80/1
-P:100:2d4:0:0:10
+P:50:2d4:0:0:10
 R:2:25
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2834,7 +2877,7 @@ G:[:r
 I:38:4:0:70:17
 W:50:0:200:50000
 A:50/3:80/1
-P:100:2d4:0:0:10
+P:50:2d4:0:0:10
 R:1:25
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2844,7 +2887,7 @@ G:[:g
 I:38:5:0:70:21
 W:50:0:200:50000
 A:50/3:80/1
-P:100:2d4:0:0:10
+P:50:2d4:0:0:10
 R:5:25
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2854,7 +2897,7 @@ G:[:y
 I:38:6:0:70:22
 W:50:0:200:50000
 A:50/3:80/1
-P:100:2d4:0:0:10
+P:50:2d4:0:0:10
 R:6:25
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2864,7 +2907,7 @@ G:[:v
 I:38:7:0:70:23
 W:75:1:200:200000
 A:75/6
-P:120:2d4:0:0:10
+P:75:2d4:0:0:10
 R:1:25
 R:2:25
 R:3:25
@@ -2881,7 +2924,7 @@ G:[:s
 I:38:20:0:71:27
 W:150:1:250:300000
 A:150/6:175/4
-P:300:2d4:0:0:10
+P:150:2d4:0:0:10
 R:4:33
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2891,7 +2934,7 @@ G:[:b
 I:38:21:0:71:26
 W:150:1:250:300000
 A:150/6:175/4
-P:300:2d4:0:0:10
+P:150:2d4:0:0:10
 R:3:33
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2901,7 +2944,7 @@ G:[:w
 I:38:22:0:71:25
 W:150:1:250:300000
 A:150/6:175/4
-P:300:2d4:0:0:10
+P:150:2d4:0:0:10
 R:2:33
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2911,7 +2954,7 @@ G:[:r
 I:38:23:0:71:24
 W:150:1:250:300000
 A:150/6:175/4
-P:300:2d4:0:0:10
+P:150:2d4:0:0:10
 R:1:33
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2921,7 +2964,7 @@ G:[:g
 I:38:24:0:71:28
 W:150:1:250:300000
 A:150/6:175/4
-P:300:2d4:0:0:10
+P:150:2d4:0:0:10
 R:5:33
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2931,7 +2974,7 @@ G:[:y
 I:38:25:0:71:29
 W:150:1:250:300000
 A:150/6:175/4
-P:300:2d4:0:0:10
+P:150:2d4:0:0:10
 R:6:33
 F:FLY
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2941,7 +2984,7 @@ G:[:v
 I:38:26:0:71:30
 W:200:2:250:5000000
 A:200/20
-P:500:2d4:0:0:10
+P:175:2d4:0:0:10
 R:1:33
 R:2:33
 R:3:33
@@ -2957,7 +3000,7 @@ G:[:B
 I:38:8:0:70:32
 W:60:0:200:60000
 A:60/4:90/2
-P:110:2d4:0:0:10
+P:75:2d4:0:0:10
 R:2:25
 R:23:50
 F:FLY | ICE
@@ -2968,7 +3011,7 @@ G:[:y
 I:38:27:0:71:33
 W:175:1:250:500000
 A:175/10:200/6
-P:350:2d4:0:0:10
+P:175:2d4:0:0:10
 R:2:33
 R:23:75
 F:FLY | ICE
@@ -3192,9 +3235,10 @@ F:IGNORE_FIRE | IGNORE_COLD
 N:411:& Steel Bracers
 G:):W
 I:41:1:0:97:80
-W:20:0:20:3000
+W:20:0:20:1500
 A:20/1:45/10
 P:0:1d1:0:0:0
+K:27:30
 F:FREE_ACT
 
 N:412:& Mithril Bracers
@@ -3203,40 +3247,63 @@ I:41:2:0:97:81
 W:40:0:20:3000
 A:40/1:60/10
 P:1:1d1:0:0:0
+K:27:40
 F:FREE_ACT
 
-N:413:& Adamantium Bracers
+N:413:& Adamantite Bracers
 G:):r
 I:41:3:0:97:82
-W:60:0:22:8000
+W:60:0:22:6000
 A:60/2:90/1:110/10
 P:2:1d1:0:0:0
+K:27:60
 F:FREE_ACT
 
 N:414:& Titanium Bracers
 G:):D
 I:41:4:5:97:83
-W:90:0:25:12000
+W:90:0:25:30000
 A:90/3:110/2
 P:3:1d1:0:0:5
+K:27:80
 F:FREE_ACT
 
 N:415:& Blue Steel Bracers
 G:):b
 I:41:5:3:97:84
-W:120:0:30:25000
+W:120:0:30:50000
 A:120/4:150/2
 P:4:1d1:0:0:10
+K:27:100
 F:FREE_ACT
 
 N:416:& Rune Bracers
 G:):v
 I:41:6:1
-W:40:0:20:100000
+W:40:0:20:30000
 A:40/2:60/1
 P:0:1d1:0:0:0
+K:27:50
 U:0:0:0:0:0:0:15:0:0:0:0:0:0:0:0:0:15:0
 F:FREE_ACT
+
+N:417:& Bronze Bracers
+G:):g
+I:41:7:0:97:78
+W:0:0:30:100
+A:0/1:20/10
+P:0:1d1:0:0:0
+K:27:10
+F:FREE_ACT | VALUE_25
+
+N:418:& Iron Bracers
+G:):o
+I:41:8:0:97:79
+W:10:0:20:300
+A:10/1:30/10
+P:0:1d1:0:0:0
+K:27:20
+F:FREE_ACT | VALUE_25
 
 ##### Rings #####
 
@@ -3580,10 +3647,10 @@ F:RES_BLIND | EASY_KNOW
 N:464:Lordly Protection
 G:=:d
 I:45:48:0:1056:71
-W:60:0:2:200000
+W:60:0:2:75000
 A:60/3:90/2
 R:15:10
-P:15:1d1:50:0:0
+P:20:1d1:0:0:0
 F:SAFETY | HOLD_LIFE | SUST_STR | SUST_INT | SUST_WIS
 F:SUST_CON | SUST_CHR | SUST_DEX
 F:SEE_INVIS
@@ -3615,6 +3682,153 @@ F:SPEED | HIDE_TYPE
 F:FLY | CLIMB
 F:IGNORE_ACID | IGNORE_ELEC
 F:IGNORE_FIRE | IGNORE_COLD
+
+### Firearms, Continued.
+
+N:467:& Adamantite Handgun~
+G:}:r
+I:19:21:0:13:82
+W:80:0:130:120000
+A:80/5:110/4
+P:0:3d4:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:250:0:0:0
+F:SHOW_MODS
+D:It takes quite a bit of skill in gunsmithing to make something that takes advantage of adamantite's 
+D:weight. This craft is a high tech gun that uses the gun's own weight to add velocity and power to the 
+D:bullets it fires. While very powerful, the cost and rarity of adamantite, as well as the skill required 
+D:to even craft the gun, means there is little hope for it to ever become commercially successful.
+
+N:468:& Titanium Handgun~
+G:}:D
+I:19:22:0:13:83
+W:110:0:100:300000
+A:110/10:140/7
+P:0:4d5:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:280:0:0:0
+F:SHOW_MODS
+D:Whoever created this gun must have been a powerful warrior and alchemist, as titanium is only found 
+D:in the most dangerous caves and dungeons. Titanium is so strong that it can resist the strongest 
+D:impacts and recoils, allowing for a complex design that takes advantage of it.
+
+# Crafting exclusive.
+N:469:& Blue Steel Handgun~
+G:}:b
+I:19:23:0:13:84
+W:140:0:90:1000000
+P:0:6d5:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:320:0:0:0
+F:SHOW_MODS | SPECIAL_GENE
+D:You have just crafted one of the finest weapons in the world, a gun that combines both mithril's 
+D:light weight and titanium's strength. No firearms have ever been made out of blue steel, so if you 
+D:could find a buyer, you could become very rich by selling this craft.
+
+# Rifles!
+N:470:& Hunting Rifle~
+G:}:w
+I:19:24:0:12:80
+W:25:0:180:10000
+A:25/2
+P:0:2d6:0:0:0
+U:4:21:0:0:0:0:0:0:0:0:0:0:1:1:200:0:0:0
+F:SHOW_MODS | MUST2H
+D:Rifles are very powerful and provide the highest raw firepower amongst ranged weapons. But firearms 
+D:being a new invention, they are costly to produce and difficult to obtain outside of Karingen. 
+D:This is a rather basic model of rifles, which is stronger than one-handed firearms, but have to reload 
+D:after every shots. Because of this drawback, many feels like this is more of an expensive and exotic 
+D:hunting weapon than a true combat weapon.
+
+N:471:& Assault Rifle~
+G:}:w
+I:19:25:0:470:12
+W:35:0:180:30000
+A:35/3:60/2
+P:0:2d6:0:0:0
+U:4:21:0:0:0:0:0:0:0:0:0:0:1:3:200:0:0:0
+F:SHOW_MODS | MUST2H
+D:When the Gnome tinkerers of Karingen started experimenting with rifles, they were very annoyed by the slow reload 
+D:rate, which in their opinion, made rifles a poor choice compared to one-handed firearms. So they tweaked the standard 
+D:Hunting Rifle, and enhanced it with additional ammo capacity. While still having inferior ammo capacity than 
+D:one-handed revolver, the Assault Rifle is a great improvement over the basic Hunting Rifle, and has quickly replaced 
+D:it as the standard for combat rifles in Karingen.
+
+N:472:& Mithril Rifle~
+G:}:W
+I:19:26:0:471:81
+W:55:0:150:75000
+A:55/4:80/3
+P:0:3d6:0:0:0
+U:4:21:0:0:0:0:0:0:0:0:0:0:1:3:250:0:0:0
+F:SHOW_MODS | MUST2H
+D:Mithril is one of the best metals for crafting firearms, as it allows a larger, more complex design, while still 
+D:making the weapon light enough to be wielded easily. The Mithril Rifle is an improved Assault Rifle, being slightly 
+D:larger and has a more complex design that allows rounds to be fired with more power and accuracy.
+
+N:473:& Double Cannon Rifle~
+G:}:w
+I:19:27:0:471:471
+W:55:0:200:75000
+A:55/4:80/3
+P:0:3d7:0:0:0
+U:4:21:0:0:0:0:0:0:0:0:0:0:2:2:400:0:0:0
+F:SHOW_MODS | MUST2H
+D:Some gunsmiths aren't concerned about ammo capacity and reloading and instead go for a single, 
+D:high powered shot. The Double Cannon Rifle takes an Assault Rifle and sacrifices it's enhanced ammo 
+D:capacity to add a second cannon. Firing two rounds at once, it is extremely powerful, but consumes 
+D:ammos very quickly and has to be reloaded after every shots.
+
+N:474:& High-Tech Rifle~
+G:}:g
+I:19:28:0:14:14
+W:75:0:180:200000
+A:75/5:100/4
+P:0:3d6:0:0:0
+U:4:21:0:0:0:0:0:0:0:0:0:0:1:4:300:0:0:0
+F:SHOW_MODS | MUST2H
+D:Dwarven craftsmanship and Gnomish alchemy. Engineers from both races worked together to produce one 
+D:of the most advanced known weapons. This High-Tech Rifle surpasses even the Mithril Rifle in terms 
+D:of firepower, and has a slightly enhanced ammo capacity. It would make the standard Assault Rifle 
+D:completely obsolete, if it weren't for it's very high cost, and the skill needed to craft it.
+
+N:475:& Adamantite Rifle~
+G:}:r
+I:19:29:0:474:82
+W:90:0:210:400000
+A:90/6:120/5
+P:0:5d7:0:0:0
+U:4:21:0:0:0:0:0:0:0:0:0:0:1:4:350:0:0:0
+F:SHOW_MODS | MUST2H
+D:The only drawback of the High-Tech Rifle is that it's recoil produces a big impact, and so it's power 
+D:had to be toned down. This is one of the very rare adamantite versions of the High-Tech Rifle, which 
+D:takes advantage of adamantite's superior strength to bring out the full potential of the 
+D:High-Tech Rifle without risking damaging it in the process.
+
+N:476:& Titanium Rifle~
+G:}:D
+I:19:30:0:474:83
+W:120:0:180:1000000
+A:120/10:160/7
+P:0:6d8:0:0:0
+U:4:21:0:0:0:0:0:0:0:0:0:0:1:4:400:0:0:0
+F:SHOW_MODS | MUST2H
+D:This may very well be the rarest and most powerful weapon ever designed(in terms of raw power). This 
+D:craft bears the marks of ancient dwarven craftsmanship, but very modern gnomish tinkering. Could an 
+D:ancient, centuries old dwarven master smith still be alive, and is the one who made this most fine 
+D:rifle? And this would mean that Karingen is in contact with such a powerful and ancient being? 
+D:Seems unlikely...but who knows?
+
+# Crafting exclusive.
+N:477:& Blue Steel Rifle~
+G:}:b
+I:19:31:0:474:84
+W:160:0:150:2000000
+P:0:8d8:0:0:0
+U:4:21:0:0:0:0:0:0:0:0:0:0:1:4:500:0:0:0
+F:SHOW_MODS | MUST2H | SPECIAL_GENE
+D:A blue steel version of the High-Tech Rifle is nothing but a myth, such a thing doesn't exist. 
+D:Or at least it didn't, until you created it! You are the first person to ever make a 
+D:Blue Steel Rifle, and so this craft is worth millions of gold. Who knows, maybe there is someone 
+D:who would pay a very high price for it...
+
 
 ##### Gold & Gems #####
 
@@ -3976,7 +4190,7 @@ P:0:1d1:0:0:0
 N:560:& Rod~
 G:-:g
 I:66:1:1
-W:10:0:30:300
+W:10:0:40:300
 A:10/1:30/2
 P:0:1d6:0:0:0
 U:0:17:0:0:0:0:10:0:5:0:0:0:0:0:0:0:0:0
@@ -3985,7 +4199,7 @@ F:ACTIVATE
 N:561:& Bronze-Plated Rod~
 G:-:g
 I:66:2:1:560:78
-W:20:0:30:1200
+W:20:0:40:1200
 A:20/1:45/2
 P:0:1d7:0:0:0
 U:0:17:0:0:0:0:15:0:8:0:0:0:0:0:0:0:0:0
@@ -3994,7 +4208,7 @@ F:ACTIVATE
 N:562:& Iron-Plated Rod~
 G:-:o
 I:66:3:1:560:79
-W:35:0:30:2500
+W:35:0:40:2500
 A:35/2:60/3
 P:0:1d8:0:0:0
 U:0:17:0:0:0:0:20:0:12:0:0:0:0:0:0:0:0:0
@@ -4003,7 +4217,7 @@ F:ACTIVATE
 N:563:& Steel-Plated Rod~
 G:-:W
 I:66:4:1:560:80
-W:45:0:30:3200
+W:45:0:40:3200
 A:45/2:75/3
 P:0:2d4:0:0:0
 U:0:17:0:0:0:0:25:0:15:0:0:0:0:0:0:0:0:0
@@ -4012,16 +4226,16 @@ F:ACTIVATE
 N:564:& Mithril-Plated Rod~
 G:-:w
 I:66:5:1:560:81
-W:60:0:30:10000
+W:60:0:40:10000
 A:60/2:80/3
 P:0:2d6:0:0:0
 U:0:17:0:0:0:0:30:0:20:0:0:0:0:0:0:0:0:0
 F:ACTIVATE
 
-N:565:& Adamantium-Plated Rod~
+N:565:& Adamantite-Plated Rod~
 G:-:r
 I:66:6:1:560:82
-W:90:0:30:30000
+W:90:0:40:30000
 A:90/2:120/5
 P:0:3d6:0:0:0
 U:0:17:0:0:0:0:40:0:25:0:0:0:0:0:0:0:0:0
@@ -4030,7 +4244,7 @@ F:ACTIVATE
 N:566:& Titanium-Plated Rod~
 G:-:D
 I:66:7:1:560:83
-W:120:0:30:100000
+W:120:0:40:100000
 A:120/3:150/10
 P:0:4d6:0:0:0
 U:0:17:0:0:0:0:50:0:30:0:0:0:0:0:0:0:0:0
@@ -4039,7 +4253,7 @@ F:ACTIVATE
 N:567:& Blue Steel-Plated Rod~
 G:-:b
 I:66:8:1:560:84
-W:150:0:30:250000
+W:150:0:40:250000
 A:150/5:200/10
 P:0:5d6:0:0:0
 U:0:17:0:0:0:0:75:0:40:0:0:0:0:0:0:0:0:0
@@ -4093,7 +4307,7 @@ P:5:4d6:0:0:0
 U:0:17:0:0:0:0:60:0:40:0:0:0:0:0:0:0:0:0
 F:ACTIVATE | MUST2H
 
-N:573:& Adamantium Staff~
+N:573:& Adamantite Staff~
 G:-:r
 I:66:15:1:568:82
 W:90:0:140:100000
@@ -4233,21 +4447,21 @@ A:30/1
 N:607:Magic Item
 G:?:w
 I:70:17:0
-W:50:0:5:30000
+W:50:0:5:15000
 A:50/1:80/1:120/1
 D:A scroll that will turn an item into a magic item of the same rank as your level.
 
 N:608:Object Eternality
 G:?:d
 I:70:18:0
-W:35:0:5:15000
+W:35:0:5:5000
 A:35/10:60/5:80/3:100/1
 D:A scroll that will make an item eternal. (you won't lose it when you die)
 
 N:609:Item Leveling
 G:?:w
 I:70:19:0
-W:60:0:5:75000
+W:60:0:5:50000
 A:60/5:90/3:150/1
 D:A scroll that will turn an item into a levelable item.
 
@@ -4410,21 +4624,21 @@ G:!:B
 I:71:3:0:647:721
 W:10:0:4:75
 A:10/1
-B:53:100:2
+B:53:60:2
 
 N:649:Cure Serious Wounds
 G:!:B
 I:71:4:0:648:721
 W:15:0:4:200
 A:15/1
-B:53:250:2
+B:53:90:2
 
 N:650:Cure Critical Wounds
 G:!:B
 I:71:5:0:649:721
 W:20:0:4:600
 A:20/1
-B:53:400:2
+B:53:120:2
 
 # Poison!
 N:651:Weak Poison
@@ -4439,27 +4653,27 @@ G:!:G
 I:71:7:0:651:722
 W:15:0:4:300
 A:15/1
-B:5:150:2
+B:5:60:2
 
 N:653:Strong Poison
 G:!:G
 I:71:8:0:652:723
 W:30:0:4:1000
 A:30/2:50/1
-B:5:450:2
+B:5:90:2
 
 N:654:Deadly Poison
 G:!:G
 I:71:9:0:653:21
 W:50:0:4:3000
 A:50/2:75/1
-B:5:700:2
+B:5:120:2
 
 N:655:*Deadly* Poison
 G:!:G
 I:71:10:0:654:28
 W:80:0:4:10000
-B:5:1500:3
+B:5:150:3
 F:SPECIAL_GENE
 
 # Curative potions!
@@ -4510,24 +4724,24 @@ G:!:w
 I:71:16:0:646:728
 W:5:0:4:120
 A:5/2:10/1
-B:65:5:2
+B:65:20:2
 F:MODERATE_POWER
 
-N:662:Heroism
-G:!:o
-I:71:17:0:646:729
-W:15:0:4:750
-A:15/2:25/1
-B:66:5:2
-F:MODERATE_POWER
+#N:662:Heroism
+#G:!:o
+#I:71:17:0:646:729
+#W:15:0:4:750
+#A:15/2:25/1
+#B:66:10:2
+#F:MODERATE_POWER
 
-N:663:*Heroism*
-G:!:o
-I:71:18:0:661:662
-W:30:0:4:1500
-A:30/2:50/1
-B:67:5:2
-F:MODERATE_POWER
+#N:663:*Heroism*
+#G:!:o
+#I:71:18:0:661:662
+#W:30:0:4:1500
+#A:30/2:50/1
+#B:67:10:2
+#F:MODERATE_POWER
 
 # Mana recovery potions.
 N:664:Lesser Mana Recovery
@@ -4565,27 +4779,27 @@ G:!:g
 I:71:23:0:667:731
 W:25:0:4:500
 A:25/1
-B:4:150:2
+B:4:60:2
 
 N:669:Strong Acid
 G:!:g
 I:71:24:0:668:732
 W:45:0:4:2000
 A:45/2:60/1
-B:4:450:2
+B:4:90:2
 
 N:670:Draconic Acid
 G:!:g
 I:71:25:0:669:20
 W:70:0:4:5000
 A:70/2:85/1
-B:4:700:2
+B:4:120:2
 
 N:671:Great Wyrm Acid
 G:!:g
 I:71:26:0:670:27
 W:100:0:4:20000
-B:4:1500:3
+B:4:150:3
 F:SPECIAL_GENE
 
 # Radioactive potions.
@@ -4602,28 +4816,28 @@ N:673:Mild Radiation
 G:!:r
 I:71:28:0:668:745
 W:30:0:4:750
-B:13:150:2
+B:13:60:2
 F:SPECIAL_GENE
 
 N:674:Strong Radiation
 G:!:r
 I:71:29:0:669:724
 W:50:0:4:4000
-B:13:450:2
+B:13:90:2
 F:SPECIAL_GENE
 
 N:675:Deadly Radiation
 G:!:r
 I:71:30:0:670:733
 W:80:0:4:10000
-B:13:700:2
+B:13:120:2
 F:SPECIAL_GENE
 
 N:676:*Deadly* Radiation
 G:!:r
 I:71:31:0:671:733
 W:110:0:4:30000
-B:13:1500:3
+B:13:150:3
 F:SPECIAL_GENE
 
 # Water
@@ -4639,27 +4853,27 @@ G:!:B
 I:71:33:0:677:677
 W:15:0:4:300
 A:15/1
-B:9:150:2
+B:9:60:2
 
 N:679:Strong Water
 G:!:B
 I:71:34:0:678:678
 W:30:0:4:1000
 A:30/2:50/1
-B:9:450:2
+B:9:90:2
 
 N:680:Whirlpool
 G:!:B
 I:71:35:0:679:735
 W:50:0:4:3000
 A:50/2:75/1
-B:9:700:2
+B:9:120:2
 
 N:681:Hurricane
 G:!:B
 I:71:36:0:680:736
 W:80:0:4:10000
-B:9:1500:3
+B:9:150:3
 F:SPECIAL_GENE
 
 # Fire potions.
@@ -4675,27 +4889,27 @@ G:!:R
 I:71:38:0:682:739
 W:15:0:4:300
 A:15/1
-B:1:150:2
+B:1:60:2
 
 N:684:Blaze
 G:!:R
 I:71:39:0:683:737
 W:30:0:4:1000
 A:30/2:50/1
-B:1:450:2
+B:1:90:2
 
 N:685:Immolation
 G:!:R
 I:71:40:0:684:17
 W:50:0:4:3000
 A:50/2:75/1
-B:1:700:2
+B:1:120:2
 
 N:686:Inferno
 G:!:R
 I:71:41:0:685:24
 W:80:0:4:10000
-B:1:1500:3
+B:1:150:3
 F:SPECIAL_GENE
 
 N:687:Pipe Bomb
@@ -4710,27 +4924,27 @@ G:!:b
 I:71:43:0:739:741
 W:15:0:2:300
 A:15/1
-B:15:150:2
+B:15:60:2
 
 N:689:Fragmentation Grenade
 G:!:b
 I:71:44:0:739:742
 W:30:0:5:1000
 A:30/2:50/1
-B:15:450:2
+B:15:90:2
 
 N:690:Satchel Charge
 G:!:b
 I:71:45:0:739:743
 W:50:0:20:3000
 A:50/2:75/1
-B:15:700:2
+B:15:120:2
 
 N:691:Bunker Buster
 G:!:b
 I:71:46:0:739:744
 W:80:0:40:10000
-B:15:1500:3
+B:15:150:3
 F:SPECIAL_GENE
 
 ## Alchemical components
@@ -4939,49 +5153,49 @@ P:0:1d1:0:0:0
 N:792:[Fire]
 G:?:R
 I:81:1:0
-W:10:0:30:1000
+W:5:0:30:400
 A:10/1
 P:0:1d1:0:0:0
 
 N:793:[Cold]
 G:?:R
 I:81:2:0
-W:10:0:30:1000
-A:10/1
+W:5:0:30:400
+A:5/1
 P:0:1d1:0:0:0
 
 N:794:[Electricity]
 G:?:R
 I:81:3:0
-W:10:0:30:1000
-A:10/1
+W:5:0:30:400
+A:5/1
 P:0:1d1:0:0:0
 
 N:795:[Acid]
 G:?:R
 I:81:4:0
-W:10:0:30:1000
-A:10/1
+W:5:0:30:400
+A:5/1
 P:0:1d1:0:0:0
 
 N:796:[Poison]
 G:?:R
 I:81:5:0
-W:10:0:30:1000
-A:10/1
+W:5:0:30:400
+A:5/1
 P:0:1d1:0:0:0
 
 N:797:[Light]
 G:?:R
 I:81:6:0
-W:45:0:30:20000
+W:45:0:30:10000
 A:45/2:70/1
 P:0:1d1:0:0:0
 
 N:798:[Darkness]
 G:?:R
 I:81:7:0
-W:12:0:30:1200
+W:12:0:30:800
 A:12/1
 P:0:1d1:0:0:0
 
@@ -5002,28 +5216,28 @@ P:0:1d1:0:0:0
 N:801:[Water]
 G:?:R
 I:81:13:0
-W:25:0:30:3000
+W:25:0:30:2000
 A:25/2:40/1
 P:0:1d1:0:0:0
 
 N:802:[Chaos]
 G:?:R
 I:81:14:0
-W:50:0:30:20000
+W:50:0:30:10000
 A:50/2:70/1
 P:0:1d1:0:0:0
 
 N:803:[Earth]
 G:?:R
 I:81:17:0
-W:50:0:30:22000
-A:50/2:70/1
+W:25:0:30:2000
+A:25/2:40/1
 P:0:1d1:0:0:0
 
 N:804:[Sound]
 G:?:R
 I:81:18:0
-W:50:0:30:22000
+W:50:0:30:10000
 A:50/2:70/1
 P:0:1d1:0:0:0
 
@@ -5037,7 +5251,7 @@ P:0:1d1:0:0:0
 N:806:[Wind]
 G:?:R
 I:81:23:0
-W:25:0:30:3000
+W:25:0:30:2000
 A:25/2:40/1
 P:0:1d1:0:0:0
 
@@ -5050,33 +5264,33 @@ P:0:1d1:0:0:0
 
 ##### Alteration Books #####
 
-N:821:[Reduce Hit Rate]
-G:?:v
-I:82:0:0
-W:15:0:30:2000
-A:15/1
-P:0:1d1:0:0:0
+#N:821:[Reduce Hit Rate]
+#G:?:v
+#I:82:0:0
+#W:15:0:30:2000
+#A:15/1
+#P:0:1d1:0:0:0
 
-N:822:[Reduce Defense]
-G:?:v
-I:82:1:0
-W:12:0:30:1500
-A:12/1
-P:0:1d1:0:0:0
+#N:822:[Reduce Defense]
+#G:?:v
+#I:82:1:0
+#W:12:0:30:1500
+#A:12/1
+#P:0:1d1:0:0:0
 
-N:823:[Reduce Speed]
-G:?:v
-I:82:2:0
-W:60:0:30:30000
-A:60/3:70/2:90/1
-P:0:1d1:0:0:0
+#N:823:[Reduce Speed]
+#G:?:v
+#I:82:2:0
+#W:60:0:30:30000
+#A:60/3:70/2:90/1
+#P:0:1d1:0:0:0
 
-N:824:[Reduce Level]
-G:?:v
-I:82:3:0
-W:25:0:30:5000
-A:25/1
-P:0:1d1:0:0:0
+#N:824:[Reduce Level]
+#G:?:v
+#I:82:3:0
+#W:25:0:30:5000
+#A:25/1
+#P:0:1d1:0:0:0
 
 N:825:[Life Blast]
 G:?:v
@@ -5116,8 +5330,8 @@ P:0:1d1:0:0:0
 N:830:[Demoralize]
 G:?:v
 I:82:9:0
-W:50:0:30:22000
-A:50/2:70/1
+W:20:0:30:2500
+A:20/2:40/1
 P:0:1d1:0:0:0
 
 N:831:[Retrograde]
@@ -5193,7 +5407,7 @@ P:0:1d1:0:0:0
 N:841:[Alter Position]
 G:?:v
 I:82:20:0
-W:30:0:30:9000
+W:30:0:30:2500
 A:30/2:45/1
 P:0:1d1:0:0:0
 
@@ -5207,28 +5421,28 @@ P:0:1d1:0:0:0
 N:843:[Physical Resistance]
 G:?:v
 I:82:22:0
-W:35:0:30:15000
+W:35:0:30:7500
 A:35/3:45/2:55/1
 P:0:1d1:0:0:0
 
 N:844:[Magic Resistance]
 G:?:v
 I:82:23:0
-W:35:0:30:15000
+W:35:0:30:7500
 A:35/3:45/2:55/1
 P:0:1d1:0:0:0
 
-N:845:[Stoneskin]
-G:?:v
-I:82:24:0
-W:15:0:30:2500
-A:15/1
-P:0:1d1:0:0:0
+#N:845:[Stoneskin]
+#G:?:v
+#I:82:24:0
+#W:15:0:30:2500
+#A:15/1
+#P:0:1d1:0:0:0
 
 N:846:[Paralyze]
 G:?:v
 I:82:25:0
-W:18:0:30:5000
+W:18:0:30:3500
 A:18/1
 P:0:1d1:0:0:0
 
@@ -5262,19 +5476,19 @@ W:20:0:30:3000
 A:20/1
 P:0:1d1:0:0:0
 
-N:865:[Heal Others]
+N:865:[Drain Life]
 G:?:B
 I:83:5:0
-W:5:0:30:700
-A:5/1
+W:30:0:30:10000
+A:30/2
 P:0:1d1:0:0:0
 
-N:866:[Revive Monster]
-G:?:B
-I:83:6:0
-W:45:0:30:15000
-A:45/2:60/1
-P:0:1d1:0:0:0
+#N:866:[Revive Monster]
+#G:?:B
+#I:83:6:0
+#W:45:0:30:15000
+#A:45/2:60/1
+#P:0:1d1:0:0:0
 
 N:867:[Restore Mana]
 G:?:B
@@ -5334,12 +5548,12 @@ W:45:0:30:15000
 A:45/1
 P:0:1d1:0:0:0
 
-N:876:[Webs]
-G:?:y
-I:84:5:0
-W:25:0:30:8000
-A:25/1:35/1
-P:0:1d1:0:0:0
+#N:876:[Webs]
+#G:?:y
+#I:84:5:0
+#W:25:0:30:8000
+#A:25/1:35/1
+#P:0:1d1:0:0:0
 
 N:877:[Grow Trees]
 G:?:y
@@ -5758,7 +5972,7 @@ W:0:0:90:30
 A:0/1:20/10
 P:0:1d5:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:943:& Iron Short Sword~
 G:|:o
@@ -5767,7 +5981,7 @@ W:10:0:70:90
 A:10/1:30/10
 P:0:1d7:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:944:& Steel Short Sword~
 G:|:W
@@ -5776,7 +5990,7 @@ W:20:0:70:350
 A:20/1:45/10
 P:0:1d9:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:945:& Mithril Short Sword~
 G:|:w
@@ -5785,16 +5999,16 @@ W:40:0:50:900
 A:40/1:60/10
 P:0:3d4:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
-N:946:& Adamantium Short Sword~
+N:946:& Adamantite Short Sword~
 G:|:r
 I:21:77:0:85:82
 W:60:0:90:4500
 A:60/2:90/1:110/10
 P:0:5d4:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 N:947:& Titanium Short Sword~
 G:|:D
@@ -5803,7 +6017,7 @@ W:90:0:70:23000
 A:90/3:110/2:130/10
 P:0:7d5:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 N:948:& Blue Steel Short Sword~
 G:|:b
@@ -5812,47 +6026,47 @@ W:120:0:50:60000
 A:120/5:150/3:200/10
 P:0:9d6:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 ##### Plate Mails
 
 N:949:& Steel Plate Mail~
 G:[:W
 I:37:6:0:334:80
-W:30:0:320:4000
-A:30/2:55/1
+W:40:0:320:4000
+A:40/2:60/1
 P:60:1d2:0:0:0
 
 N:950:& Mithril Plate Mail~
 G:[:w
 I:37:7:0:334:81
-W:40:0:210:12000
-A:40/2:65/1
-P:80:1d3:0:0:0
+W:55:0:210:12000
+A:55/2:75/1
+P:75:1d3:0:0:0
 F:INDESTRUCTIBLE
 
-N:951:& Adamantium Plate Mail~
+N:951:& Adamantite Plate Mail~
 G:[:r
 I:37:8:0:334:82
-W:70:0:380:35000
-A:70/2:90/1
-P:100:1d4:0:0:0
+W:80:0:380:35000
+A:80/2:100/1
+P:90:1d4:0:0:0
 F:INDESTRUCTIBLE
 
 N:952:& Titanium Plate Mail~
 G:[:D
 I:37:9:0:334:83
-W:100:0:320:120000
-A:100/3:120/2:150/1
-P:120:2d3:0:0:0
+W:110:0:320:120000
+A:110/3:140/2:180/1
+P:110:2d3:0:0:0
 F:INDESTRUCTIBLE
 
 N:953:& Blue Steel Plate Mail~
 G:[:b
 I:37:10:0:334:84
-W:130:0:210:750000
-A:130/4:160/2
-P:150:2d4:0:0:0
+W:140:0:210:750000
+A:140/4:200/2
+P:130:2d4:0:0:0
 F:INDESTRUCTIBLE
 
 ##### Full Plates
@@ -5860,40 +6074,40 @@ F:INDESTRUCTIBLE
 N:954:& Steel Full Plate~
 G:[:W
 I:37:11:0:949:80
-W:50:0:380:15000
-A:50/3:65/2
-P:120:2d2:0:0:0
+W:75:0:380:15000
+A:75/3:100/2
+P:90:2d2:0:0:0
 
 N:955:& Mithril Full Plate~
 G:[:w
 I:37:12:0:950:81
-W:70:0:260:50000
-A:70/4:90/3:100/2
-P:160:2d3:0:0:0
+W:90:0:260:50000
+A:90/4:120/3:150/2
+P:110:2d3:0:0:0
 F:INDESTRUCTIBLE
 
-N:956:& Adamantium Full Plate~
+N:956:& Adamantite Full Plate~
 G:[:r
 I:37:13:0:951:82
-W:100:0:450:250000
-A:100/4:130/3:160/2
-P:200:2d4:0:0:0
+W:120:0:450:250000
+A:120/4:150/3:180/2
+P:130:2d4:0:0:0
 F:INDESTRUCTIBLE
 
 N:957:& Titanium Full Plate~
 G:[:D
 I:37:14:0:952:83
-W:130:0:380:800000
-A:130/5:170/3
-P:240:3d3:0:0:0
+W:140:0:380:800000
+A:140/5:200/3
+P:150:3d3:0:0:0
 F:INDESTRUCTIBLE
 
 N:958:& Blue Steel Full Plate~
 G:[:b
 I:37:15:0:953:84
-W:160:0:260:2000000
-A:160/10
-P:300:3d4:0:0:0
+W:175:0:260:2000000
+A:175/10:250/6
+P:175:3d4:0:0:0
 F:INDESTRUCTIBLE
 
 ##### Bronze and Iron armors, which were forgotten for some reasons...
@@ -5915,30 +6129,30 @@ P:22:1d2:0:0:0
 N:961:& Bronze Plate Mail~
 G:[:g
 I:37:18:0:334:78
-W:15:0:380:1500
-A:15/2:30/1
+W:20:0:380:1500
+A:20/2:40/1
 P:40:1d2:0:0:0
 
 N:962:& Iron Plate Mail~
 G:[:o
 I:37:19:0:334:79
-W:20:0:320:2800
-A:20/2:35/1
+W:35:0:320:2800
+A:35/2:50/1
 P:50:1d2:0:0:0
 
 N:963:& Bronze Full Plate~
 G:[:g
 I:37:20:0:961:78
-W:35:0:450:7500
-A:35/3:45/2
-P:80:1d2:0:0:0
+W:40:0:450:7500
+A:40/3:60/2
+P:60:1d2:0:0:0
 
 N:964:& Iron Full Plate~
 G:[:o
 I:37:21:0:962:79
-W:42:0:380:10000
-A:42/3:50/2
-P:100:1d2:0:0:0
+W:55:0:380:10000
+A:55/3:80/2
+P:70:1d2:0:0:0
 
 ##### Pikes.
 
@@ -5978,7 +6192,7 @@ P:0:7d5:0:0:0
 U:0:14:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | MUST2H
 
-N:969:& Adamantium Pike~
+N:969:& Adamantite Pike~
 G:/:r
 I:21:84:0:65:82
 W:60:0:210:10000
@@ -6044,7 +6258,7 @@ P:0:4d4:0:0:0
 U:0:13:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE
 
-N:976:& Adamantium Mace~
+N:976:& Adamantite Mace~
 G:\:r
 I:21:91:0:55:82
 W:60:0:130:5500
@@ -6109,7 +6323,7 @@ P:0:7d8:0:0:0
 U:0:13:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | MUST2H
 
-N:983:& Adamantium Warhammer~
+N:983:& Adamantite Warhammer~
 G:\:r
 I:21:98:0:86:82
 W:60:0:400:8500
@@ -6174,7 +6388,7 @@ P:0:4d7:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | COULD2H
 
-N:990:& Adamantium Katana~
+N:990:& Adamantite Katana~
 G:|:r
 I:21:105:0:98:82
 W:60:0:170:10000
@@ -6239,7 +6453,7 @@ P:0:4d4:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE
 
-N:997:& Adamantium Scimitar~
+N:997:& Adamantite Scimitar~
 G:|:r
 I:21:112:0:99:82
 W:60:0:150:7500
@@ -6275,7 +6489,7 @@ W:0:0:100:60
 A:0/1:20/10
 P:1:1d7:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:1001:& Iron Rapier~
 G:|:o
@@ -6284,7 +6498,7 @@ W:10:0:80:180
 A:10/1:30/10
 P:1:1d8:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:1002:& Steel Rapier~
 G:|:W
@@ -6293,7 +6507,7 @@ W:20:0:80:600
 A:20/1:45/10
 P:1:2d6:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:1003:& Mithril Rapier~
 G:|:w
@@ -6302,16 +6516,16 @@ W:40:0:60:2200
 A:40/1:60/10
 P:2:4d4:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
-N:1004:& Adamantium Rapier~
+N:1004:& Adamantite Rapier~
 G:|:r
 I:21:119:0:87:82
 W:60:0:100:8500
 A:60/2:90/1:110/10
 P:1:5d5:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 N:1005:& Titanium Rapier~
 G:|:D
@@ -6320,7 +6534,7 @@ W:90:0:80:33000
 A:90/3:110/2:130/10
 P:1:6d8:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 N:1006:& Blue Steel Rapier~
 G:|:b
@@ -6329,7 +6543,7 @@ W:120:0:60:130000
 A:120/5:150/3:200/10
 P:3:9d8:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 ##### Hand Axes
 
@@ -6369,7 +6583,7 @@ P:0:2d5:0:0:0
 U:0:16:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE
 
-N:1011:& Adamantium Hand Axe~
+N:1011:& Adamantite Hand Axe~
 G:/:r
 I:21:126:0:88:82
 W:60:0:110:2000
@@ -6433,7 +6647,7 @@ P:0:10d2:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE
 
-N:1018:& Adamantium Saber~
+N:1018:& Adamantite Saber~
 G:|:r
 I:21:133:0:205:205
 W:60:0:160:16000
@@ -6497,7 +6711,7 @@ P:0:12d10:0:0:0
 U:4:0:0:0:0:0:0:0:0:0:0:15:100:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE
 
-N:1025:& Adamantium Plated Round~
+N:1025:& Adamantite Plated Round~
 G:{:r
 I:16:26:0:200:82
 W:120:0:10:22500
@@ -6524,83 +6738,70 @@ P:0:18d15:0:0:0
 U:4:0:0:0:0:0:0:0:0:0:0:15:100:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE
 
-# And here's some rifles to use those Rounds!
+### Heavy Crossbows.
 
-N:1028:& Rusty Rifle~
-G:}:u
-I:19:19:0:12:12
-W:10:0:180:600
-A:10/2
-P:0:1d6:-10:10:0
-U:4:21:0:0:0:0:0:0:0:0:0:0:1:1:400:0:0:0
+N:1028:& Heavy Crossbow~
+G:}:s
+I:19:32:0:76:63
+W:10:0:180:300
+A:10/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:130:0:0:0
 F:SHOW_MODS | MUST2H
 
-N:1029:& Twin-Cannon Battle Rifle~
-G:}:U
-I:19:20:0:12:80
-W:30:0:210:50000
-A:30/2
-P:0:2d6:20:50:0
-U:4:21:0:0:0:0:0:0:0:0:0:0:2:2:900:0:0:0
+N:1029:& Bronze Heavy Crossbow~
+G:}:g
+I:19:33:0:1028:78
+W:20:0:200:800
+A:20/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:160:0:0:0
 F:SHOW_MODS | MUST2H
 
-# Rifle version of the handgun.
-N:1030:& Twin-Cannon Dragon Rifle~
-G:}:R
-I:19:21:0:1029:17
-W:50:0:220:120000
-A:50/2:80/5
-P:0:2d6:0:100:0
-U:4:21:0:0:0:0:0:0:0:0:0:1:2:2:1500:1:0:0
+N:1030:& Iron Heavy Crossbow~
+G:}:o
+I:19:34:0:1028:79
+W:35:0:180:2000
+A:35/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:190:0:0:0
 F:SHOW_MODS | MUST2H
 
-# Reliable, accurate and deadly.
-N:1031:& Combat-Enhanced Sniper Rifle~
+N:1031:& Steel Heavy Crossbow~
+G:}:w
+I:19:35:0:1028:80
+W:45:0:180:4000
+A:45/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:220:0:0:0
+F:SHOW_MODS | MUST2H
+
+N:1032:& Mithril Heavy Crossbow~
 G:}:W
-I:19:22:0:14:14
-W:55:0:200:200000
-A:55/2:90/5
-P:0:2d6:300:80:0
-U:4:21:0:0:0:0:0:0:0:0:0:0:1:2:1200:0:0:0
+I:19:36:0:1028:81
+W:60:0:150:8000
+A:60/2:90/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:250:0:0:0
 F:SHOW_MODS | MUST2H
 
-# Smaller rifle.
-N:1032:& Gnomish Repeating Rifle~
-G:}:W
-I:19:23:0
-W:45:0:140:75000
-A:45/3
-P:0:2d4:100:70:0
-U:4:21:0:4:0:0:0:0:0:0:0:0:1:4:600:0:0:0
+N:1033:& Adamantite Heavy Crossbow~
+G:}:r
+I:19:37:0:1028:82
+W:80:0:200:12000
+A:80/2:110/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:280:0:0:0
 F:SHOW_MODS | MUST2H
 
-# Now we're getting deadly.
-N:1033:& Automatic Rifle~
+N:1034:& Titanium Heavy Crossbow~
 G:}:D
-I:19:24:0:1032:14
-W:100:1:220:1500000
-A:100/5:130/10
-P:0:2d6:100:100:0
-U:4:21:0:6:0:0:0:0:0:0:0:0:1:6:1200:0:0:0
+I:19:38:0:1028:83
+W:100:0:180:40000
+A:100/3:130/2
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:310:0:0:0
 F:SHOW_MODS | MUST2H
 
-# Extremely strong.
-N:1034:& Licial-Powered Sniper Rifle~
-G:}:B
-I:19:25:0:1031:1185
-W:150:1:200:10000000
-A:150/10:190/20
-P:0:2d6:1000:200:0
-U:4:21:0:0:0:0:0:0:0:0:0:17:1:2:2000:0:0:0
-F:SHOW_MODS | MUST2H
-
-N:1035:& Licial-Powered Automatic Rifle~
-G:}:B
-I:19:26:0:1033:1185
-W:200:2:220:30000000
-A:200/20
-P:0:2d6:200:200:0
-U:4:21:0:10:0:0:0:0:0:0:0:0:1:10:2000:0:0:0
+N:1035:& Blue Steel Heavy Crossbow~
+G:}:b
+I:19:39:0:1028:84
+W:130:0:180:130000
+A:130/5:160/3
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:340:0:0:0
 F:SHOW_MODS | MUST2H
 
 
@@ -6642,7 +6843,7 @@ P:0:2d4:0:0:0
 U:1:0:0:0:0:0:0:0:0:0:0:15:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | RETURNING
 
-N:1040:& Returning Adamantium Tipped Arrow~
+N:1040:& Returning Adamantite Tipped Arrow~
 G:{:r
 I:16:33:0
 W:100:0:2:240000
@@ -6705,7 +6906,7 @@ P:0:2d5:0:0:0
 U:2:0:0:0:0:0:0:0:0:0:0:15:0:0:0:0:0:0
 F:SHOW_MODS | INDESTRUCTIBLE | RETURNING
 
-N:1047:& Returning Adamantium Tipped Bolt~
+N:1047:& Returning Adamantite Tipped Bolt~
 G:{:r
 I:16:40:0
 W:100:0:4:320000
@@ -6854,65 +7055,65 @@ F:SPECIAL_GENE
 
 N:1066:& Bronze Long Bow~
 G:}:g
-I:19:31:0:78:31
+I:19:41:0:78:31
 W:20:0:130:1000
 A:20/2:40/1
 P:1:1d1:0:0:0
-U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:400:0:0:0
+U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:140:0:0:0
 F:SHOW_MODS | MUST2H
 
 N:1067:& Iron Long Bow~
 G:}:o
-I:19:32:0:79:31
+I:19:42:0:79:31
 W:35:0:120:2500
 A:35/2:50/1
 P:3:1d2:0:5:0
-U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:500:0:0:0
+U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:160:0:0:0
 F:SHOW_MODS | MUST2H
 
 N:1068:& Steel Long Bow~
 G:}:W
-I:19:33:0:80:31
+I:19:43:0:80:31
 W:50:0:120:6000
 A:50/3:75/2
 P:5:1d2:0:15:0
-U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:600:0:0:0
+U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:180:0:0:0
 F:SHOW_MODS | MUST2H
 
 N:1069:& Mithril Long Bow~
 G:}:w
-I:19:34:0:81:31
+I:19:44:0:81:31
 W:75:0:100:20000
 A:75/3:90/2
 P:7:1d2:0:30:0
-U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:700:0:0:0
+U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:200:0:0:0
 F:SHOW_MODS | MUST2H
 
 N:1070:& Adamantite Long Bow~
 G:}:r
-I:19:35:0:82:31
+I:19:45:0:82:31
 W:100:0:130:80000
 A:100/5:130/3
 P:10:1d3:0:50:0
-U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:800:0:0:0
+U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:220:0:0:0
 F:SHOW_MODS | MUST2H
 
 N:1071:& Titanium Long Bow~
 G:}:D
-I:19:36:0:83:31
+I:19:46:0:83:31
 W:130:0:120:250000
 A:130/5:150/3
 P:15:1d3:0:100:0
-U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:900:0:0:0
+U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:240:0:0:0
 F:SHOW_MODS | MUST2H
 
 N:1072:& Blue Steel Long Bow~
 G:}:b
-I:19:37:0:84:31
+I:19:47:0:84:31
 W:160:0:100:500000
 A:160/8:200/5
 P:20:1d4:0:150:0
-U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:1000:0:0:0
+U:1:19:0:0:0:0:0:0:0:0:0:0:1:99:260:0:0:0
 F:SHOW_MODS | MUST2H
 
 ### Extra Divination books
@@ -7058,16 +7259,26 @@ S:Type change, Physical:10:15:0:0:0:0:0
 S:Type change, Cold:10:2:0:0:0:0:0
 S:Type change, Ice:10:23:0:0:0:0:0
 
-# 1089 is unused.
+# For lack of a better place...
+N:1089:& Ice Heavy Crossbow~
+G:}:B
+I:19:40:0:1028:1082
+W:50:0:180:6000
+A:50/1
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:235:0:0:0
+F:SHOW_MODS | MUST2H | ICE | ACTIVATE
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Cold:10:2:0:0:0:0:0
+S:Type change, Ice:10:23:0:0:0:0:0
 
 N:1090:& Ice Dagger~
 G:|:B
 I:21:147:0:66:1082
-W:25:0:10:1800
+W:25:0:40:1800
 A:25/1:40/1
 P:0:1d4:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:23:0:0:0:0:0:0
-F:SHOW_MODS | ACTIVATE | ICE
+F:DEX_WEAPON | SHOW_MODS | ACTIVATE | ICE
 S:Type change, Physical:10:15:0:0:0:0:0
 S:Type change, Cold:10:2:0:0:0:0:0
 S:Type change, Ice:10:23:0:0:0:0:0
@@ -7115,7 +7326,7 @@ W:25:0:60:1800
 A:25/1:40/1
 P:0:2d6:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:23:0:0:0:0:0:0
-F:SHOW_MODS | ACTIVATE | ICE
+F:DEX_WEAPON | SHOW_MODS | ACTIVATE | ICE
 S:Type change, Physical:10:15:0:0:0:0:0
 S:Type change, Cold:10:2:0:0:0:0:0
 S:Type change, Ice:10:23:0:0:0:0:0
@@ -7187,7 +7398,7 @@ W:25:0:70:2000
 A:25/1:40/1
 P:1:3d5:0:0:0
 U:0:12:0:0:0:0:0:0:0:0:0:23:0:0:0:0:0:0
-F:SHOW_MODS | ACTIVATE | ICE
+F:DEX_WEAPON | SHOW_MODS | ACTIVATE | ICE
 S:Type change, Physical:10:15:0:0:0:0:0
 S:Type change, Cold:10:2:0:0:0:0:0
 S:Type change, Ice:10:23:0:0:0:0:0
@@ -7221,11 +7432,11 @@ S:Type change, Ice:10:23:0:0:0:0:0
 # That's right! A bow that ALWAYS shoots elemental arrows! :)
 N:1103:& Ice Long Bow~
 G:}:B
-I:19:38:0:1082:31
+I:19:49:0:1082:31
 W:60:0:120:30000
 A:60/3:80/2
 P:6:1d2:0:20:0
-U:1:19:0:0:0:0:0:0:0:0:0:23:1:99:700:0:0:0
+U:1:19:0:0:0:0:0:0:0:0:0:23:1:99:190:0:0:0
 F:SHOW_MODS | MUST2H | ACTIVATE | ICE
 S:Type change, Physical:10:15:0:0:0:0:0
 S:Type change, Cold:10:2:0:0:0:0:0
@@ -7330,9 +7541,9 @@ F:ICE
 N:1112:& Ice Plate Mail~
 G:[:B
 I:37:24:0:334:1082
-W:35:0:260:8000
-A:35/2:60/1
-P:70:1d2:0:0:0
+W:45:0:260:8000
+A:45/2:75/1
+P:65:1d2:0:0:0
 R:2:15
 R:23:10
 F:ICE
@@ -7340,9 +7551,9 @@ F:ICE
 N:1113:& Ice Full Plate~
 G:[:B
 I:37:25:0:1112:1082
-W:60:0:300:35000
-A:60/3:80/2
-P:140:2d2:0:0:0
+W:85:0:300:35000
+A:85/3:110/2
+P:100:2d2:0:0:0
 R:2:25
 R:23:15
 F:ICE
@@ -7394,6 +7605,7 @@ W:25:0:20:4000
 A:25/1:40/1
 P:0:1d1:0:0:0
 R:2:5
+K:27:35
 F:FREE_ACT | ICE
 
 N:1119:Ice
@@ -7445,38 +7657,38 @@ A:1/1
 N:1123:[Slow Rhythm]
 G:~:G
 I:90:2:2
-W:1:5:1:200
-A:1/1:5/1
+W:10:20:1:800
+A:10/1:15/1
 
 N:1124:[Accelerated Beat]
 G:~:G
 I:90:3:3
-W:10:20:1:750
-A:10/1:15/1
+W:25:50:1:1600
+A:25/1:35/1
 
 N:1125:[Fast Rhythm]
 G:~:G
 I:90:4:5
-W:25:40:1:2500
-A:25/1
+W:40:100:1:3200
+A:40/1
 
 N:1126:[Perfect Tempo]
 G:~:G
 I:90:5:6
-W:40:75:1:6000
-A:40/1
+W:60:175:1:6000
+A:60/1
 
 N:1127:[Sonic Speed Tempo]
 G:~:G
 I:90:6:8
-W:60:100:1:15000
-A:60/2:90/1
+W:80:250:1:15000
+A:80/2:100/1
 
 N:1128:[Light Speed Tempo]
 G:~:G
 I:90:7:10
-W:90:150:1:30000
-A:90/2:120/1
+W:100:400:1:30000
+A:100/2:120/1
 
 # Harmonies
 N:1129:[False Notes]
@@ -7494,50 +7706,50 @@ A:1/1:5/1
 N:1131:[Imperfect Harmony]
 G:~:G
 I:91:3:10
-W:5:10:1:400
-A:5/1
+W:15:20:1:800
+A:15/1
 
 N:1132:[Pleasant Harmony]
 G:~:G
-I:91:4:20
-W:10:20:1:1000
-A:10/1
+I:91:4:15
+W:25:40:1:1600
+A:25/1
 
 N:1133:[Synchronized Notes]
 G:~:G
-I:91:5:30
-W:15:30:1:2000
-A:15/2:25/1
+I:91:5:20
+W:35:60:1:3200
+A:35/2:50/1
 
 N:1134:[Charming Harmony]
 G:~:G
-I:91:6:50
-W:25:50:1:4000
-A:25/2:35/1
+I:91:6:30
+W:45:120:1:6000
+A:45/2:60/1
 
 N:1135:[Mystical Notes]
 G:~:G
-I:91:7:80
-W:40:80:1:8000
-A:40/2:60/1
+I:91:7:40
+W:60:200:1:10000
+A:60/2:80/1
 
 N:1136:[Perfect Synchronization]
 G:~:G
-I:91:8:120
-W:60:120:1:20000
-A:60/2:80/1
+I:91:8:50
+W:80:350:1:20000
+A:80/2:100/1
 
 N:1137:[Divine Harmony]
 G:~:G
-I:91:9:160
-W:80:160:1:50000
-A:80/2:100/1
+I:91:9:70
+W:100:500:1:50000
+A:100/2:120/1
 
 N:1138:[Forbidden Notes]
 G:~:G
-I:91:10:200
-W:100:200:1:100000
-A:100/5
+I:91:10:90
+W:140:1000:1:100000
+A:140/5
 
 # Melodies
 # These are the actual sound effects.
@@ -7761,7 +7973,7 @@ A:60/2:80/15
 P:0:6d9:0:0:0
 F:SHOW_MODS | RETURNING
 
-N:1196:& Adamantium Chakram~
+N:1196:& Adamantite Chakram~
 G:{:r
 I:15:13:0:62:82
 W:80:0:120:30000
@@ -7838,7 +8050,7 @@ I:21:137:0
 W:0:0:60:0
 P:0:2d7:10:10:0
 U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | SPECIAL_GENE | INDESTRUCTIBLE | ETERNAL
+F:DEX_WEAPON | SHOW_MODS | SPECIAL_GENE | INDESTRUCTIBLE | ETERNAL
 
 N:1206:& Fidac Ruins Key~
 G:~:w
@@ -7893,12 +8105,15 @@ F:EASY_KNOW | SPECIAL_GENE | ETERNAL
 # The 'Viper' set of items! :)
 N:1215:& Viper Crossbow~
 G:}:g
-I:19:27:0
+I:19:50:0
 W:30:0:90:0
-P:0:1d1:25:25:0
-U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:500:0:0:0
+P:0:1d1:0:0:0
+T:3:5
+K:20:5
+U:2:20:0:0:0:0:0:0:0:0:0:0:1:1:130:0:0:0
 F:SHOW_MODS | ACTIVATE | SPECIAL_GENE
-S:Viper Shot(regular shot, but poison damages):9:1:0:0:0:0:0
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Poison:10:5:0:0:0:0:0
 
 N:1216:& Pair~ of Viper Boots
 G:]:g
@@ -7906,31 +8121,35 @@ I:30:13:0
 W:40:0:20:0
 P:6:1d1:15:15:15
 R:5:25
-K:5:3
-K:6:3
-U:0:0:0:0:3:0:0:0:0:0:0:0:0:0:0:0:0:0
+K:5:10
+K:6:10
+U:0:0:0:0:5:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SPECIAL_GENE
 
 N:1217:& Viper Cloak~
 G:(:g
 I:35:8:1
-W:50:0:5:0
-P:3:1d1:20:20:10
+W:45:0:5:0
+P:4:1d1:20:20:10
 R:5:25
-T:3:5
-K:6:3
-U:0:0:0:0:0:0:0:0:0:5:0:0:0:0:0:0:0:0
+T:3:15
+K:6:15
+K:12:10
+K:20:10
+U:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:SPECIAL_GENE
 
 N:1218:& Viper Mail~
 G:[:g
-I:37:22:0
-W:20:0:220:0
-P:80:1d2:25:25:30
+I:36:18:0
+W:60:0:80:0
+P:30:1d2:40:40:30
 R:5:50
-T:3:5
-K:5:5
-K:6:5
+T:3:20
+K:5:20
+K:6:20
+K:12:20
+K:20:20
 F:SPECIAL_GENE
 
 N:1219:& Copper Daldumaar~
@@ -7958,12 +8177,12 @@ I:8:121:0
 W:2:0:5:0
 F:SPECIAL_GENE | ETERNAL
 
-N:1223:& 6-Shots Copper Revolver~
+N:1223:& Copper Revolver~
 G:}:u
-I:19:29:0
+I:19:51:0
 W:20:0:100:0
-P:0:1d4:20:20:0
-U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:300:0:0:0
+P:0:1d4:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:140:0:0:0
 F:SHOW_MODS | SPECIAL_GENE
 
 N:1224:& Copper Plated Bullet~
@@ -7993,12 +8212,12 @@ W:20:0:80:75
 P:20:1d1:0:0:0
 F:SPECIAL_GENE
 
-N:1228:& Fine 6-Shots Copper Revolver~
+N:1228:& Fine Copper Revolver~
 G:}:u
-I:19:30:0
+I:19:52:0
 W:25:0:100:30000
-P:0:1d4:30:30:0
-U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:400:0:0:0
+P:0:1d4:0:0:0
+U:3:21:0:0:0:0:0:0:0:0:0:0:1:6:150:0:0:0
 F:SHOW_MODS | ETERNAL | SPECIAL_GENE
 
 N:1229:& Precious Silverware~
@@ -8115,77 +8334,77 @@ P:0:1d1:0:0:0
 N:1244:& Bronze Main Gauche~
 G:|:g
 I:21:159:0:1243:78
-W:0:0:22:70
+W:0:0:52:70
 A:0/2:20/10
-P:1:1d3:0:0:0
+P:1:1d4:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:1245:& Iron Main Gauche~
 G:|:o
 I:21:160:0:1243:79
-W:10:0:15:210
+W:10:0:50:210
 A:10/2:30/10
-P:1:1d4:0:0:0
+P:1:1d5:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:1246:& Steel Main Gauche~
 G:|:W
 I:21:161:0:1243:80
-W:20:0:14:700
+W:20:0:50:700
 A:20/2:45/10
-P:1:1d4:0:0:0
+P:1:2d5:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS
+F:DEX_WEAPON | SHOW_MODS
 
 N:1247:& Mithril Main Gauche~
 G:|:w
 I:21:162:0:1243:81
-W:40:0:11:2800
+W:40:0:48:2800
 A:40/2:60/10
-P:2:1d4:0:0:0
+P:2:2d6:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
-N:1248:& Adamantium Main Gauche~
+N:1248:& Adamantite Main Gauche~
 G:|:r
 I:21:163:0:1243:82
-W:60:0:14:11200
+W:60:0:52:11200
 A:60/3:90/1:110/10
-P:1:1d6:0:0:0
+P:1:3d6:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 N:1249:& Titanium Main Gauche~
 G:|:D
 I:21:164:0:1243:83
-W:90:0:12:44800
+W:90:0:50:44800
 A:90/4:110/2:130/10
-P:1:1d6:0:0:0
+P:1:5d7:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 N:1250:& Blue Steel Main Gauche~
 G:|:b
 I:21:165:0:1243:84
-W:120:0:11:117200
+W:120:0:48:117200
 A:120/6:150/3:200/10
-P:3:2d4:0:0:0
+P:3:6d8:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOW_MODS | INDESTRUCTIBLE
+F:DEX_WEAPON | SHOW_MODS | INDESTRUCTIBLE
 
 N:1251:& Ice Main Gauche~
 G:|:B
 I:21:166:0:1243:1082
-W:25:0:12:3600
+W:25:0:50:3600
 A:25/2:40/1
-P:1:1d4:0:0:0
+P:1:2d5:0:0:0
 U:0:15:0:0:0:0:0:0:0:0:0:23:0:0:0:0:0:0
-F:SHOW_MODS | ACTIVATE | ICE
-S:Type change, Physical:9:3:0:0:0:0:0
-S:Type change, Cold:9:4:0:0:0:0:0
-S:Type change, Ice:9:5:0:0:0:0:0
+F:DEX_WEAPON | SHOW_MODS | ACTIVATE | ICE
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Cold:10:2:0:0:0:0:0
+S:Type change, Ice:10:23:0:0:0:0:0
 
 N:1252:& Rod of Spirit Trapping~
 G:-:g
@@ -8265,3 +8484,100 @@ P:0:1d1:0:0:0
 F:SPECIAL_GENE | ETERNAL
 D:A red stone with a rune engraved on it. You can sense some power inside of it, 
 D:but you cannot figure out what it's used for.
+
+# Short pickaxes.
+N:1262:& Short Pickaxe Handle~
+G:~:w
+I:11:65:0
+W:0:0:40:3
+A:0/3
+P:0:1d1:0:0:0
+
+N:1263:& Bronze Short Pickaxe~
+G:/:g
+I:21:167:0:1262:78
+W:0:0:190:70
+A:0/1:20/10
+P:0:2d4:0:0:0
+K:29:1
+U:0:29:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOW_MODS | COULD2H
+
+N:1264:& Iron Short Pickaxe~
+G:/:o
+I:21:168:0:1262:79
+W:10:0:160:170
+A:10/1:30/10
+P:0:2d5:0:0:0
+K:29:2
+U:0:29:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOW_MODS | COULD2H
+
+N:1265:& Steel Short Pickaxe~
+G:/:W
+I:21:169:0:1262:80
+W:20:0:160:550
+A:20/1:45/10
+P:0:3d5:0:0:0
+K:29:3
+U:0:29:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOW_MODS | COULD2H
+
+N:1266:& Mithril Short Pickaxe~
+G:/:w
+I:21:170:0:1262:81
+W:40:0:120:2000
+A:40/1:60/10
+P:0:4d5:0:0:0
+K:29:5
+U:0:29:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOW_MODS | INDESTRUCTIBLE | COULD2H
+
+N:1267:& Adamantite Short Pickaxe~
+G:/:r
+I:21:171:0:1262:82
+W:60:0:190:8800
+A:60/2:90/1:110/10
+P:0:6d5:0:0:0
+K:29:10
+U:0:29:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOW_MODS | INDESTRUCTIBLE | COULD2H
+
+N:1268:& Titanium Short Pickaxe~
+G:/:D
+I:21:172:0:1262:83
+W:90:0:160:36000
+A:90/3:110/2:130/10
+P:0:6d10:0:0:0
+K:29:15
+U:0:29:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOW_MODS | INDESTRUCTIBLE | COULD2H
+
+N:1269:& Blue Steel Short Pickaxe~
+G:/:b
+I:21:173:0:1262:84
+W:120:0:120:140000
+A:120/5:150/3:200/10
+P:0:9d10:0:0:0
+K:29:20
+U:0:29:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOW_MODS | INDESTRUCTIBLE | COULD2H
+
+# A unique weapon dropped by Zombie Denzar!
+N:1270:& Flaming Lance~
+G:/:w
+I:21:174:0
+W:40:0:170:5000
+P:0:5d10:0:0:0
+U:0:14:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOW_MODS | ACTIVATE | SPECIAL_GENE | ETERNAL | MUST2H
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Fire:10:1:0:0:0:0:0
+D:This is the lance that Denzar was wielding. It's a powerful, magical lance 
+D:that can change itself into a lance of fire.
+
+N:1271:Delviaz's Journal
+G:?:o
+I:8:138:0
+W:10:0:5:0
+F:SPECIAL_GENE

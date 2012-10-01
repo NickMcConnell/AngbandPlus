@@ -1,0 +1,40 @@
+N:1:0:0:0:0:0
+I: ;
+T:Denzar's animated corpse falls on the ground. He isn't completely dead yet,;
+T:and he seems to have regained some of his conscience. He begins to speak...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Denzar;
+T:...you...must be <NAME>. You must listen to me. Delviaz...;
+T:is a traitor. He used the feud between our guilds to collect dead bodies,;
+T:and practice necromancy. And now, he tricked me into leading an all out;
+T:assault against the Vipers. Your guild was more organised than ours, and so;
+T:we have lost the battle. But the casualties were heavy on both sides, and;
+T:that is exactly what Delviaz wanted.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Denzar;
+T:As you've probably seen, he has turned all the slain Kobolds and Devlings;
+T:into undead creatures. I do not know what his plans are, but it is now;
+T:clear to me that he never really cared about the Dragon Lancers, and he;
+T:had his own plans all along. Please, <NAME>... You must defeat him!;
+T:I know it's strange for a former enemy to ask something like this, but;
+T:right now, both the Stealthy Vipers and the remaining Dragon Lancers;
+T:will be destroyed if you let Delviaz accomplish his goals! This isn't;
+T:just about Kobolds and Devlings anymore... it's about saving Jindar;
+T:from a very dangerous and very powerful necromancer!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:Denzar closes his eyes, and the remaining necromantic energy in his undead;
+T:body is gone. He is now dead. Although this means that the Stealthy Vipers;
+T:have won the battle against the Dragon Lancers, the victory may be;
+T:short-lived if you do not defeat Delviaz.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

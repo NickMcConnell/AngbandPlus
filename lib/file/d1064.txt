@@ -1,0 +1,30 @@
+N:1:0:0:0:0:0
+I: ;
+T:As you are about to leave for the surface, the air suddently becomes very;
+T:cold... and everything is getting darker around you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:1132:1
+%
+
+N:2:0:0:0:0:0
+I:Nidem;
+T:This chilling darkness... I have a bad feeling about it. Something's going;
+T:on down there. Maybe we should return, and see what's going on?;
+A:You are still weak. You must leave for Jindar.:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Nidem;
+T:I guess you're right. But this darkness is unnatural. Something's happening;
+T:down there, and it can't be good for us. Will you go check it out?;
+A:Yes, I will. You return to Jindar.:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Nidem;
+T:I bet this is the work of this necromancer, Delviaz. He wasn't there;
+T:when the Lancers attacked. But now that our headquarters are full of dead;
+T:bodies, it has turned into a necromancer's heaven. Be careful down there...;
+T:he seems to have a different agenda than other Lancers, and seems far more;
+T:dangerous. Good luck!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

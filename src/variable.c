@@ -236,7 +236,7 @@ bool flavored_attacks;          /* Show silly messages when fighting */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool skip_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
-bool stupid_monsters;		/* Monsters use old AI */
+bool quest_scaling;
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
 bool disturb_pets;		/* Pets moving nearby disturb us */
@@ -364,6 +364,8 @@ bool casting_alteration;
 bool casting_conjuration;
 bool casting_mysticism;
 bool casting_divination;
+bool wisdom_casting;
+bool monk_synchro;
 bool monster_physical;
 bool monster_ranged;
 bool ranged_attack;
@@ -371,6 +373,7 @@ bool melee_attack;
 bool throw_attack;
 bool monster_died;
 bool ignore_spellcraft;
+bool dontwakeup;
 s32b damages_counter;
 bool damages_counter_player_damages;
 s16b damages_counter_duration;
@@ -378,6 +381,8 @@ bool stormshadow;
 bool enemy_immortality;
 bool mcounter;
 bool monster_counter_attack;
+bool force_nightmare;
+s16b force_nightmare_level;
 bool building_vault;
 char tmpluastring[80];
 bool red_roff;
@@ -1221,6 +1226,9 @@ int fate_item_modifier = 0;
 
 /* A global object to be used. */
 object_type global_object;
+
+/* Currently crafted item */
+object_type crafted_item;
 
 /* New option */
 bool very_fast_messages;

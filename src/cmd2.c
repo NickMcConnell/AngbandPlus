@@ -698,25 +698,25 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 	ppower = p_ptr->stat_ind[A_DEX] + p_ptr->stat_ind[A_INT];
 	cpower = (o_ptr->pval) * (o_ptr->sval - 1);
 
-	if (p_ptr->abilities[(CLASS_ROGUE * 10) + 4] > 0) ppower = ppower + multiply_divide(ppower, p_ptr->abilities[(CLASS_ROGUE * 10) + 4] * 50, 100);
+	if (p_ptr->abilities[(CLASS_ROGUE * 10) + 1] > 0) ppower = ppower + multiply_divide(ppower, p_ptr->abilities[(CLASS_ROGUE * 10) + 1] * 50, 100);
 
 	/* Magic chests and higher REQUIRES the Lockpicking ability. */
-	if (o_ptr->sval == 4 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] == 0)
+	if (o_ptr->sval == 4 && p_ptr->abilities[(CLASS_ROGUE * 10) + 1] == 0)
 	{
 		msg_print("You need at least 1 point in Lockpicking to unlock this chest.");
 		return (FALSE);
 	}
-	if (o_ptr->sval == 5 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] < 5)
+	if (o_ptr->sval == 5 && p_ptr->abilities[(CLASS_ROGUE * 10) + 1] < 5)
 	{
 		msg_print("You need at least 5 points in Lockpicking to unlock this chest.");
 		return (FALSE);
 	}
-	if (o_ptr->sval == 6 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] < 10)
+	if (o_ptr->sval == 6 && p_ptr->abilities[(CLASS_ROGUE * 10) + 1] < 10)
 	{
 		msg_print("You need at least 10 points in Lockpicking to unlock this chest.");
 		return (FALSE);
 	}
-	if (o_ptr->sval == 7 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] < 10)
+	if (o_ptr->sval == 7 && p_ptr->abilities[(CLASS_ROGUE * 10) + 1] < 10)
 	{
 		msg_print("You need at least 30 points in Lockpicking to unlock this chest.");
 		return (FALSE);
@@ -730,12 +730,12 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 	}
 
 	/* Guaranteed success rate? */
-	if (o_ptr->sval == 2 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 10) cpower = 0;
-	if (o_ptr->sval == 3 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 20) cpower = 0;
-	if (o_ptr->sval == 4 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 40) cpower = 0;
-	if (o_ptr->sval == 5 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 50) cpower = 0;
-	if (o_ptr->sval == 6 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 75) cpower = 0;
-	if (o_ptr->sval == 7 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 100) cpower = 0;
+	if (o_ptr->sval == 2 && p_ptr->abilities[(CLASS_ROGUE * 10) + 1] >= 10) cpower = 0;
+	if (o_ptr->sval == 3 && p_ptr->abilities[(CLASS_ROGUE * 10) + 1] >= 20) cpower = 0;
+	if (o_ptr->sval == 4 && p_ptr->abilities[(CLASS_ROGUE * 10) + 1] >= 40) cpower = 0;
+	if (o_ptr->sval == 5 && p_ptr->abilities[(CLASS_ROGUE * 10) + 1] >= 50) cpower = 0;
+	if (o_ptr->sval == 6 && p_ptr->abilities[(CLASS_ROGUE * 10) + 1] >= 75) cpower = 0;
+	if (o_ptr->sval == 7 && p_ptr->abilities[(CLASS_ROGUE * 10) + 1] >= 100) cpower = 0;
 
 	if (randint(ppower) >= randint(cpower))
 	{
@@ -3839,6 +3839,13 @@ void do_cmd_steal()
 
         int monst_list[23];
 
+	/* Cannot use in quest levels. */
+	if (p_ptr->inside_quest > 0)
+	{
+		msg_print("You cannot use this ability in quest levels.");
+		return;
+	}
+
         /* Only works on adjacent monsters */
         if (!get_rep_dir(&dir)) return;
         y = py + ddy[dir];
@@ -3923,8 +3930,9 @@ void do_cmd_steal()
 		int ppower;
 		int mpower;
 
-		ppower = p_ptr->abilities[(CLASS_ROGUE * 10) + 1] * (20 + multiply_divide(p_ptr->skill[6], 3, 100) + multiply_divide(p_ptr->stat_ind[A_DEX], 3, 100));
-		mpower = m_ptr->dex + m_ptr->level;
+		ppower = p_ptr->stat_ind[A_DEX] + p_ptr->skill[6];
+		ppower = ppower + multiply_divide(ppower, p_ptr->abilities[(CLASS_ROGUE * 10) + 1] * 10, 100);
+		mpower = m_ptr->dex + m_ptr->skill_evasion;
 
                 /* Failure check */
                 if (randint(ppower) < randint(mpower))
@@ -3955,7 +3963,7 @@ void do_cmd_steal()
                 if(o_list[item].tval == TV_GOLD)
                 {
                         /* Collect the gold */
-                        p_ptr->au += o_list[item].pval + multiply_divide(o_list[item].pval, p_ptr->abilities[(CLASS_ROGUE * 10) + 1] * 20, 100);
+                        p_ptr->au += o_list[item].pval * p_ptr->abilities[(CLASS_ROGUE * 10) + 1];
   
                         /* Redraw gold */
                         p_ptr->redraw |= (PR_GOLD);
@@ -3970,6 +3978,13 @@ void do_cmd_steal()
 			call_lua("stolen_item_enhance", "O", "", o_ptr);
 
                         inven_carry(o_ptr, FALSE);
+
+			/* Flight of the Guilty */
+			if (p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 1 && m_ptr->hp == m_ptr->maxhp && p_ptr->events[29052] == 0)
+			{
+				teleport_player(p_ptr->abilities[(CLASS_ROGUE * 10) + 4] * 2);
+				set_fast(p_ptr->abilities[(CLASS_ROGUE * 10) + 4]);
+			}
                 }
 
                 /* Delete it */
@@ -4056,6 +4071,18 @@ int digging_ability()
         object_type *o_ptr = &inventory[INVEN_TOOL];
 
         abil = p_ptr->stat_ind[A_STR];
+
+	/* Monks with Power through Spirit can get a bonus.*/
+	if (unarmed() && p_ptr->abilities[(CLASS_MONK * 10)] >= 1)
+	{
+		int wispercent;
+
+		wispercent = p_ptr->abilities[(CLASS_MONK * 10)] * 10;
+		if (wispercent > 100) wispercent = 100;
+
+		abil = abil + multiply_divide(p_ptr->stat_ind[A_WIS], wispercent, 100);
+	}
+
         /* Your digging ability is better if you have a good digger! */
         if (o_ptr->tval == TV_DIGGING) abil *= (o_ptr->pval + 2);
 
@@ -4650,85 +4677,18 @@ void use_hardcode_ability(int powernum)
                         energy_use = 100;
 			break;
 		}
-		case 16:
-		{
-			/* This determines casting power */
-			spellstat = (p_ptr->stat_ind[A_WIS] - 5);
-
-			/* No lower than 0. */
-			if (spellstat < 0) spellstat = 0;
-			msg_print("You heal yourself!");
-                        p_ptr->chp += ((10 + (p_ptr->abilities[(CLASS_PRIEST * 10)] / 2)) * spellstat);
-                        if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
-                        if (p_ptr->abilities[(CLASS_PRIEST * 10)] >= 15)
-                        {
-                                (void)set_cut(0);
-                                (void)set_poisoned(0);
-                        }
-                        update_and_handle();
-                        energy_use = 100;
-			break;
-		}
+		/* 16 is free! */
 		/* 17 is free! */
-		case 18:
-		{
-			mace_of_heaven();
-                        energy_use = 100;
-			break;
-		}
-		case 19:
-		{
-			msg_print("You offer your life as a sacrifice...");
-                        p_ptr->mhp -= p_ptr->mhp / 2;                        
-                        p_ptr->str_boost = ((p_ptr->stat_cur[A_STR] * (p_ptr->abilities[(CLASS_PRIEST * 10) + 4] * 5)) / 100);
-                        p_ptr->int_boost = ((p_ptr->stat_cur[A_INT] * (p_ptr->abilities[(CLASS_PRIEST * 10) + 4] * 5)) / 100);
-                        p_ptr->dex_boost = ((p_ptr->stat_cur[A_DEX] * (p_ptr->abilities[(CLASS_PRIEST * 10) + 4] * 5)) / 100);
-                        p_ptr->con_boost = ((p_ptr->stat_cur[A_CON] * (p_ptr->abilities[(CLASS_PRIEST * 10) + 4] * 5)) / 100);
-                        p_ptr->chr_boost = ((p_ptr->stat_cur[A_CHR] * (p_ptr->abilities[(CLASS_PRIEST * 10) + 4] * 5)) / 100);
-                        (void)set_str_boost(5 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 4]));
-                        (void)set_int_boost(5 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 4]));
-                        (void)set_dex_boost(5 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 4]));
-                        (void)set_con_boost(5 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 4]));
-                        (void)set_chr_boost(5 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 4]));
-                        update_and_handle();
-                        energy_use = 100;
-			break;
-		}
-		case 20:
-		{
-			msg_print("You feel empowered...");
-                        (void)set_fast((4 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 5])) / 2);
-                        (void)set_blessed(4 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 5]));
-                        p_ptr->pres = p_ptr->abilities[(CLASS_PRIEST * 10) + 5];
-			if (p_ptr->pres > 75) p_ptr->pres = 75;
-                        (void)set_pres(4 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 5]));
-                        energy_use = 100;
-			break;
-		}
-		case 21:
-		{
-			/* This determines casting power */
-			spellstat = (p_ptr->stat_ind[A_WIS] - 5);
-
-			/* No lower than 0. */
-			if (spellstat < 0) spellstat = 0;
-			if (!get_rep_dir(&dir)) return;
-                        chain_attack(dir, GF_MANA, (p_ptr->abilities[(CLASS_PRIEST * 10) + 6] * 20) * spellstat, 0, 1);
-                        energy_use = 100;
-			break;
-		}
-		case 22:
-		{
-			p_ptr->ac_boost = p_ptr->stat_ind[A_WIS] * p_ptr->abilities[(CLASS_PRIEST * 10) + 8];
-                        (void)set_ac_boost(p_ptr->abilities[(CLASS_PRIEST * 10) + 8] + 5);
-                        energy_use = 100;
-			break;
-		}
+		/* 18 is free! */
+		/* 19 is free! */
+		/* 20 is free! */
+		/* 21 is free! */
+		/* 22 is free! */
+		/* 23 is free! */
 		
 		case 24:
 		{
 			do_cmd_steal();
-                        energy_use = 100;
 			break;
 		}
 		case 25:
@@ -4737,24 +4697,7 @@ void use_hardcode_ability(int powernum)
                         energy_use = 100;
 			break;
 		}
-		case 26:
-		{
-			set_gas_trap();
-                        energy_use = 100;
-			break;
-		}
-		case 27:
-		{
-			set_poison_trap();
-                        energy_use = 100;
-			break;
-		}
-		case 28:
-		{
-			set_spike_trap();
-                        energy_use = 100;
-			break;
-		}
+		/* 26 to 28 are free. */
 		case 29:
 		{
 			ranger_entangle();
@@ -4840,13 +4783,7 @@ void use_hardcode_ability(int powernum)
                         energy_use = 100;
 			break;
 		}
-		case 41:
-		{
-			if (!get_aim_dir(&dir)) return;
-                        fire_ball(GF_RETROGRADE_DARKNESS, dir, 0, (p_ptr->abilities[(CLASS_PALADIN * 10) + 7] / 10));                        
-                        energy_use = 100;
-			break;
-		}
+		/* 41 is free! */
 		case 42:
 		{
 			paladin_shining_armor();
@@ -5051,68 +4988,6 @@ void use_hardcode_ability(int powernum)
 		case 60:
 		{
 			monstrous_wave();
-			break;
-		}
-		case 61:
-		{
-			s32b dam;
-                        int dis;
-			object_type *q_ptr = &inventory[INVEN_WIELD];
-			object_type *q2_ptr = &inventory[INVEN_WIELD+1];
-
-			/* This determines casting power */
-			spellstat = (p_ptr->stat_ind[A_STR] - 5);
-
-			/* Choose a shield. */
-			if (q_ptr->tval == TV_SHIELD && q2_ptr->tval == TV_SHIELD) choose_current_weapon();
-			else
-			{
-				if (q_ptr->tval == TV_SHIELD) current_weapon = &inventory[INVEN_WIELD];
-				else if (q2_ptr->tval == TV_SHIELD) current_weapon = &inventory[INVEN_WIELD+1];
-				else
-				{
-					msg_print("You must wield a shield.");
-					return;
-				}
-			}
-
-			/* No lower than 0. */
-			if (spellstat < 0) spellstat = 0;
-                        dam = ((current_weapon->ac * p_ptr->abilities[(CLASS_DEFENDER * 10) + 2]) * spellstat);
-			dam += multiply_divide(dam, p_ptr->dis_to_d, 100);
-			dam += multiply_divide(dam, p_ptr->stat_ind[A_STR], 100);
-                        dis = 2 + (p_ptr->abilities[(CLASS_DEFENDER * 10) + 2] / 20);
-                        if (!get_rep_dir(&dir)) return;
-                        smash(dir, dam, dis);
-                        energy_use = 100;
-			break;
-		}
-		case 63:
-		{
-			s32b dam;
-
-			object_type *q_ptr = &inventory[INVEN_WIELD];
-			object_type *q2_ptr = &inventory[INVEN_WIELD+1];
-
-			/* Choose a shield. */
-			if (q_ptr->tval == TV_SHIELD && q2_ptr->tval == TV_SHIELD) choose_current_weapon();
-			else
-			{
-				if (q_ptr->tval == TV_SHIELD) current_weapon = &inventory[INVEN_WIELD];
-				else if (q2_ptr->tval == TV_SHIELD) current_weapon = &inventory[INVEN_WIELD+1];
-				else
-				{
-					msg_print("You must wield a shield.");
-					return;
-				}
-			}
-
-                        dam = ((current_weapon->ac + current_weapon->to_a) * p_ptr->skill[3]) * p_ptr->abilities[(CLASS_DEFENDER * 10) + 8];
-			dam += multiply_divide(dam, p_ptr->dis_to_d, 100);
-			dam += multiply_divide(dam, p_ptr->stat_ind[A_STR], 100);
-                        if (!get_aim_dir(&dir)) return;
-                        fire_bolt(GF_PHYSICAL, dir, dam);
-                        energy_use = 100;
 			break;
 		}
 		
@@ -5971,27 +5846,15 @@ void do_cmd_turn_on_off_misc()
                 strcpy(power_desc[num], "Turn Off Song.");
                 num++;
         }
-	if (p_ptr->abilities[(CLASS_BARD * 10) + 7] > 0 && p_ptr->events[29042] == 1)
+	if (p_ptr->abilities[(CLASS_BARD * 10) + 8] > 0 && p_ptr->events[29042] == 1)
         {
                 powers[num] = 14;
-                strcpy(power_desc[num], "Turn Off War Songs.");
-                num++;
-        }
-	if (p_ptr->abilities[(CLASS_BARD * 10) + 7] > 0 && p_ptr->events[29042] == 0)
-        {
-                powers[num] = 14;
-                strcpy(power_desc[num], "Turn On War Songs.");
-                num++;
-        }
-	if (p_ptr->abilities[(CLASS_BARD * 10) + 8] > 0 && p_ptr->events[29043] == 1)
-        {
-                powers[num] = 15;
                 strcpy(power_desc[num], "Turn Off Enthralling Songs.");
                 num++;
         }
-	if (p_ptr->abilities[(CLASS_BARD * 10) + 8] > 0 && p_ptr->events[29043] == 0)
+	if (p_ptr->abilities[(CLASS_BARD * 10) + 8] > 0 && p_ptr->events[29042] == 0)
         {
-                powers[num] = 15;
+                powers[num] = 14;
                 strcpy(power_desc[num], "Turn On Enthralling Songs.");
                 num++;
         }
@@ -6005,6 +5868,18 @@ void do_cmd_turn_on_off_misc()
         {
                 powers[num] = 16;
                 strcpy(power_desc[num], "Turn On Counter Shot.");
+                num++;
+        }
+	if (p_ptr->abilities[(CLASS_ROGUE * 10) + 4] > 0 && p_ptr->events[29052] == 0)
+        {
+                powers[num] = 17;
+                strcpy(power_desc[num], "Turn Off Flight of the Guilty.");
+                num++;
+        }
+	if (p_ptr->abilities[(CLASS_ROGUE * 10) + 4] > 0 && p_ptr->events[29052] == 1)
+        {
+                powers[num] = 17;
+                strcpy(power_desc[num], "Turn On Flight of the Guilty.");
                 num++;
         }
 	
@@ -6206,6 +6081,19 @@ void do_cmd_turn_on_off_misc()
 	{
 		select_monster_melee();
 	}
+	if (Power == 10)
+	{
+		if (p_ptr->events[29027] == 1)
+		{
+			p_ptr->events[29027] = 0;
+			msg_print("Main essence unarmed bonus turned Off.");
+		}
+		else
+		{
+			p_ptr->events[29027] = 1;
+			msg_print("Main essence unarmed bonus turned On.");
+		}
+	}
 	if (Power == 11)
 	{
 		if (p_ptr->events[29030] == 1)
@@ -6241,24 +6129,11 @@ void do_cmd_turn_on_off_misc()
 		if (p_ptr->events[29042] == 1)
                 {
                         p_ptr->events[29042] = 0;
-                        msg_print("War Songs turned Off.");
-                }
-                else
-                {
-                        p_ptr->events[29042] = 1;
-                        msg_print("War Songs turned On.");
-                }
-	}
-	if (Power == 15)
-	{
-		if (p_ptr->events[29043] == 1)
-                {
-                        p_ptr->events[29043] = 0;
                         msg_print("Enthralling Songs turned Off.");
                 }
                 else
                 {
-                        p_ptr->events[29043] = 1;
+                        p_ptr->events[29042] = 1;
                         msg_print("Enthralling Songs turned On.");
                 }
 	}
@@ -6273,6 +6148,19 @@ void do_cmd_turn_on_off_misc()
                 {
                         p_ptr->events[29045] = 1;
                         msg_print("Counter Shot turned On.");
+                }
+	}
+	if (Power == 17)
+	{
+		if (p_ptr->events[29052] == 0)
+                {
+                        p_ptr->events[29052] = 1;
+                        msg_print("Flight of the Guilty turned Off.");
+                }
+                else
+                {
+                        p_ptr->events[29052] = 0;
+                        msg_print("Flight of the Guilty turned On.");
                 }
 	}
 

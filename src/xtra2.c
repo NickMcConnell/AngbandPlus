@@ -1510,9 +1510,6 @@ void gain_exp(s32b amount)
         /* Do not gain experience in town. */
         if (dun_level == 0) amount = 0;
 
-        /* New... */
-        amount = amount / 10;
-
 	/* Gain some experience */
 	p_ptr->exp += amount;
 
@@ -1853,9 +1850,9 @@ void monster_death(int m_idx)
 
                 q_ptr->pval = m_ptr->r_idx;
 		q_ptr->pval2 = -1;
-		q_ptr->pval3 = r_ptr->level;
+		q_ptr->pval3 = m_ptr->level;
 
-		q_ptr->cursed = r_ptr->level;
+		q_ptr->cursed = r_ptr->cursed;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1899,13 +1896,13 @@ void monster_death(int m_idx)
 		d_ptr = &d_info[dungeon_type];
 
 		call_lua("stat_points_per_levels", "", "d", &statamt);
-                p_ptr->statpoints += statamt * 2;
+                p_ptr->statpoints += statamt * r_ptr->cr;
                         
 		call_lua("skill_points_per_levels", "", "d", &skillamt);
-                p_ptr->skillpoints += skillamt * 2;
+                p_ptr->skillpoints += skillamt * r_ptr->cr;
 			
 		call_lua("ability_points_per_levels", "", "d", &apamt);
-                p_ptr->ability_points += apamt * 2;
+                p_ptr->ability_points += apamt * r_ptr->cr;
 
 		msg_print("Congratulations! You have completed a Secret Level! You gain power!");
 
@@ -2040,10 +2037,14 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 	if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 	/* Wake it up */
-	m_ptr->csleep = 0;
+	/* ...or not. */
+	if (!(dontwakeup)) m_ptr->csleep = 0;
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
+
+	/* Cancel CON_JOB */
+	if (dam > 0) m_ptr->abilities &= ~(CON_JOB);
 
 	/* Call a lua script. */
 	if (r_ptr->event_take_damages > 0)
@@ -2055,6 +2056,7 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 	if (m_ptr->hp < 0)
 	{
 		char m_name[80];
+		bool gainexp = TRUE;
 
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
@@ -2109,21 +2111,21 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 		}
                 
                 /* Maximum player level */
-                div = p_ptr->max_plv;
+                /* div = p_ptr->max_plv; */
 
                 /* You killed something! Now, check if you should */
                 /* advance your class level... */
-		if (!(((p_ptr->inside_quest != 0 && p_ptr->inside_quest != 9000) || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE)))) add_class_kill(m_ptr);
+		/*if (!(((p_ptr->inside_quest != 0 && p_ptr->inside_quest != 9000) || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE)))) add_class_kill(m_ptr); */
 
 		/* Give some experience for the kill */
-                new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+                /* new_exp = ((long)r_ptr->mexp * r_ptr->level) / div; */
 
 		/* Handle fractional experience */
-                new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-                                * 0x10000L / div) + p_ptr->exp_frac;
+                /*new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+                                * 0x10000L / div) + p_ptr->exp_frac;*/
 
 		/* Keep track of experience */
-                if (new_exp_frac >= 0x10000L)
+                /*if (new_exp_frac >= 0x10000L)
 		{
 			new_exp++;
 			p_ptr->exp_frac = new_exp_frac - 0x10000L;
@@ -2131,33 +2133,9 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 		else
 		{
 			p_ptr->exp_frac = new_exp_frac;
-                }
-                /* If the monster is a higher level than yours, gain 5% more experience */
-		/* per levels above you. */
-		/* If it's lower than you, it's 5% less experience per levels down you. */
-                if (m_ptr->level >= p_ptr->lev)
-		{
-			int expgain = (m_ptr->level - p_ptr->lev) * 5;
-			new_exp += ((new_exp * expgain) / 100);
-		}
-		else
-		{
-			int expgain = (p_ptr->lev - m_ptr->level) * 5;
-			if (expgain > 100) expgain = 100;
-			new_exp -= ((new_exp * expgain) / 100);
-		}
+                }*/
 
-
-                /* Elites/Bosses gives more experience... */
-                if (m_ptr->boss == 1) new_exp += new_exp / 2;
-                if (m_ptr->boss == 2) new_exp *= 3;
-
-                /* if ((p_ptr->lev - r_ptr->level) > 10) new_exp = new_exp / 10; */
-
-		/* Gain experience */
-
-                /* New experience system, new thing... */
-                new_exp = new_exp / 10;
+		/* Gain experience *
 
 		/* Killing guards/townsfolk will make you EVIL!! */
 		if (((r_ptr->flags7 & (RF7_TOWNSFOLK)) || (r_ptr->flags7 & (RF7_GUARD))) && m_ptr->angered_pet)
@@ -2167,15 +2145,11 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 			if (p_ptr->alignment > -5) p_ptr->alignment -= 1;
 		}
 
-		/* Do not gain experience in quests. */
-		/* if (p_ptr->inside_quest) new_exp = 0; */
-		if ((((p_ptr->inside_quest != 0 && p_ptr->inside_quest != 9000) || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE)))) new_exp = 0;
-
                 /* Do not gain any exp for killing friends! */
                 if (is_pet(m_ptr) || m_ptr->angered_pet == 1)
                 {
                         msg_print("No experience for killing a friend!");
-			new_exp = 0;
+			gainexp = FALSE;
 
 			/* Also, if we kill a townsfolk or a guard, guards gets angry! */
 			if ((r_ptr->flags7 & (RF7_TOWNSFOLK)) || (r_ptr->flags7 & (RF7_GUARD)))
@@ -2205,43 +2179,9 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 				}
 			}                       
                 }
-                else {
-                        gain_exp_kill(new_exp, m_ptr);
-                }
-
-                /*if(!note)*/
-                {
-			int x;
-                        object_type *o_ptr;
-                        object_kind *k_ptr;
-                        u32b f1, f2, f3, f4;
-                        char buf[128];
-
-			for (x = INVEN_WIELD; x < INVEN_TOTAL; x++)
-			{
-
-                        	/* Access the item */
-                        	o_ptr = &inventory[x];
-                        	k_ptr = &k_info[o_ptr->k_idx];
-                        	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
-                        	/* Can the item gain levels ? */
-                        	if((o_ptr->k_idx) && (f4 & TR4_LEVELS) && !(((p_ptr->inside_quest != 0 && p_ptr->inside_quest != 9000) || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE))))
-                        	{
-                                	/* Gain a kill, buy only if the enemy is equal or higher level */
-					/* than we are. The depth must also be higher than the weapon's level. */
-					if ((m_ptr->level >= p_ptr->lev) && (r_ptr->level >= o_ptr->level) && (o_ptr->level < p_ptr->lev)) o_ptr->kills += 1;
-                                	if((o_ptr->kills >= (o_ptr->level * 5)) && (o_ptr->level < 200))
-                                	{
-                                        	/* Get object name */
-                                        	object_desc(buf, o_ptr, 1, 0);
-                                        	msg_format("%s gains a level!", buf);
-
-                                        	/* What does it gains ? */
-                                        	object_gain_level(o_ptr);
-                                	}
-                        	}
-			}
+                if (gainexp)
+		{
+                        gain_exp_kill(m_ptr);
                 }
                 
 		/* Generate treasure */
@@ -2319,8 +2259,7 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
-		if (((percentage <= 10) && (rand_int(10) < percentage)) ||
-		    ((dam >= m_ptr->hp) && (rand_int(100) < 80)))
+		if ((percentage <= 10) && (rand_int(10) < percentage) && r_ptr->cr == 1)
 		{
 			/* Hack -- note fear */
 			(*fear) = TRUE;
@@ -4125,39 +4064,10 @@ void know_body_monster()
 /*
  * Gain experience for a kill
  */
-void gain_exp_kill(s32b amount, monster_type *m_ptr)
+void gain_exp_kill(monster_type *m_ptr)
 {
-        int minimumexp;
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-        /* Do not gain experience in town. */
-        if (dun_level == 0) amount = 0;
-
-        /* Calculate the minimal amount of experience... */
-        minimumexp = (1 + m_ptr->level) - p_ptr->lev;
-
-        /* The amount must be AT LEAST the minimum! */
-        if (amount < minimumexp) amount = minimumexp;
-        if (amount < 0) amount = 0;
-
-	if (((p_ptr->inside_quest != 0 && p_ptr->inside_quest != 9000) || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE))) amount = 0;
-
-	/* Gain some experience */
-	p_ptr->exp += amount;
-
-	/* Rogue's BMBH allows you to gain gold too! */
-	if (p_ptr->abilities[(CLASS_ROGUE * 10) + 9] >= 1) p_ptr->au += ((amount * 5) + multiply_divide((amount * 10), p_ptr->abilities[(CLASS_ROGUE * 10) + 9] * 20, 100));
-
-	/* Slowly recover from experience drainage */
-	if (p_ptr->exp < p_ptr->max_exp)
-	{
-        /* Gain max experience (20%) (was 10%) */
-        p_ptr->max_exp += amount / 5;
-	}
-
-	/* Check Experience */
-	check_experience();
-}  
+	call_lua("gain_exp_kills", "(M)", "", m_ptr);
+}
 
 /* New functions to check stats boosts! */
 /* Before calling those, the value of the */

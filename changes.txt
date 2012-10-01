@@ -1,4 +1,4 @@
-Portralis 0.4 build 002.
+Portralis 0.5 alpha 2.2.
 
 CHANGES
 ---------
@@ -6,37 +6,43 @@ CHANGES
 
 Gameplay:
 
-- Some changes were done to further improve the Rogue class:
-        * Stealhy Fighter now provides a bonus to damages based on Stealth.
-	* Thievery has been improved. (see the changes to Thievery and Divine Items below)
-	* Deadly Stalker no longer requires you to be "invisible through a special ability".
-          It was also bugged and has been fixed(see bugs fixed below).
-- Enemy counters have been nerfed. Now, your general skills and specialized skills will be
-  added to your rolls for counter bypassing. So if you attack with a sword, in addition to
-  your strength and dexterity, your Swords skill will also be added. Also, defensive skills
-  will now lower enemy rolls. Defense+Agility for melee and ranged, and Magic Defense for
-  magic. Finally, melee blocking from monsters have been greatly lowered, it used to be
-  strength+dexterity, which resulted in very, very high rolls. Now, it will use the average
-  of both stats, making the melee block rolls more on par with ranged and magic counters.
-- Thievery and Divine Items were pretty much identical. They have been changed, so that Thievery
-  has an emphasis on base damages and base AC, while Divine Items provides more general bonus,
-  which are more helpful to a caster. Both have received a general boost.
-- Teleporting monsters will no longer teleport when struck by brands or similar powers.
-- Hide's duration is now 10 + 10% of Stealth skill.
-- Hunters of Zekis are now a bit rarer, and can now drop magic items. It's the first "pack"
-  enemy that has magic items drops, but it's only fair, since they can be very, very painful
-  to fight.
+- Three classes are back: Priest, Bard and Elemental Lord. They have almost
+  been entirely redone, and they play out differently that they did in 0.4.
+  So be sure to try them out!
+- Music has been tweaked for 0.5. Overall, Charisma cost has been increased,
+  but the Bard class has plently of Charisma-enhancing abilities, so everything
+  should work out.
+- Charisma and stores discounts works differently. In the previous version,
+  it was a fixed reduction that could eventually reach 100%, and was applied
+  to everything, except high end items, like scrolls of instant leveling.
+  (in other words, it didn't apply to what you'd want charisma for...)
+  Now, the way it works is that it compares your Charisma to the item's depth
+  level to get a reduction. You need more Charisma to get a good discount on
+  high level items than you need for low level ones, but it can now work on
+  any items. The early game benefits of Charisma should now be much more
+  visible and significant. However, to get a significant discount on the
+  scroll of instant item leveling, you will need a LOT of Charisma, and you
+  probably won't have much choice but to use the Bardic Reputation ability
+  to help you out.
+- An old relic of 0.4 made Magic Blocking counters of enemies MUCH less
+  effective than Melee and Ranged blocking ones, because Magic Defense was
+  still lowering the chance of countering. This has been removed, so don't
+  be surprised if high level enemies blocks your spells more often!
 
-Content:
-
-- Not much of a content patch, but I did add a few artifacts ideas that Gando sent me a while
-  ago. That, and an artifact reward for beating the sealed stairway quest in Avemorsh.
 
 Bugs fixed:
 
-- Implemented Adelie's changes to the code to allow compilation under Linux and 64 bits OS.
-- Divine Items and Thievery should now properly work on instruments and thrown weapons.
-- Stealthy Fighter was checking if the player was NOT invisible to a monster! Meaning that
-  the higher your Stealth was, the more unlikely the ability was to occur!
-- Many of the Kensai's abilities were using calculations that would cause them to overflow
-  in damages, and thus cause no damages because the numbers becomes negative. This should now be fixed.
+- Fixed an issue with high level boss monsters that caused an infinite loop
+  and crashed the game. Happened frequently at dungeon levels 60+.
+
+Known bugs:
+
+- Unfortunately, the crashes issues for self-projections(potions, effect songs,
+  water, lava, etc...) are not completely fixed. I've still encountered a few
+  intermitently. Just when I thought I finally had a save with the crash,
+  attempts at debugging it have been futile. The crash goes away with irrelevant
+  changes to the code, like adding a debug message, and comes back when taken
+  out... for a while. Then they all went away. I wonder if it's some kind of
+  memory addressing issue, or something with the way the lua files are
+  processed... in any cases, this one remains a mystery. Feel free to post save
+  files that you have with the bug, and I'll take a look at them.

@@ -714,6 +714,8 @@ static void process_world(void)
         object_kind *k_ptr;
         u32b f1 = 0 , f2 = 0 , f3 = 0, f4 = 0;
 
+	/* Reset Defender's Great Guard counter. */
+	p_ptr->events[29050] = 0;
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -765,6 +767,9 @@ static void process_world(void)
 			is_autosave = FALSE;
 		}
 	}
+
+	/* Call the "world_passive" event. */
+	call_lua("world_passive", "", "");
 
 
 	/*** Handle the wilderness/town (sunshine) ***/
@@ -1017,7 +1022,7 @@ static void process_world(void)
 		}
 
                 else if (((cave[py][px].feat >= FEAT_ALTAR_HEAD) &&
-                   (cave[py][px].feat <= FEAT_ALTAR_TAIL)) || cave[py][px].feat == FEAT_SPIKE_TRAP || cave[py][px].feat == FEAT_GAS_TRAP || cave[py][px].feat == FEAT_POISON_TRAP || cave[py][px].feat == FEAT_VINE_FIELD || cave[py][px].feat == FEAT_THORNED_VINES || cave[py][px].feat == FEAT_STORMS || cave[py][px].feat == FEAT_DARK_MIST)
+                   (cave[py][px].feat <= FEAT_ALTAR_TAIL)) || cave[py][px].feat == FEAT_SANCTIFY || cave[py][px].feat == FEAT_VINE_FIELD || cave[py][px].feat == FEAT_THORNED_VINES || cave[py][px].feat == FEAT_STORMS || cave[py][px].feat == FEAT_DARK_MIST)
                 {
                         /* Do nothing */
                 }
@@ -1625,7 +1630,7 @@ static void process_world(void)
 
                                 m_ptr = &m_list[cave[my][mx].m_idx];
                                 m_ptr->level = o_ptr->pval3;
-                                apply_monster_level_hp(m_ptr);
+				call_lua("monster_stats", "(Mbbddd)", "", m_ptr, FALSE, FALSE, m_ptr->summoned, 2, 0);
                                 r_ptr = &r_info[m_ptr->r_idx];
                                 m_ptr->imprinted = TRUE;
                                 set_pet(m_ptr, TRUE);
@@ -2337,7 +2342,11 @@ static void process_command(void)
                         if (p_ptr->body_monster != 0)
 			{
 				int i;
+				int totspells = 0;
 				monster_race *r_ptr = &r_info[p_ptr->body_monster];
+
+				totspells = r_ptr->spells;
+				totspells += (r_ptr->spellsscale * (p_ptr->lev / r_ptr->spellsscalefactor));
 				for (i = 0; i < r_ptr->spells; i++)
 				{
                         		use_body_power(p_ptr->body_monster, FALSE);
@@ -4754,7 +4763,7 @@ int process_dialog(int dnum, FILE *fp)
 					case 5:
 					{
 						answers[i].valid = 0;
-						if (p_ptr->stat_ind[A_CHR] + (p_ptr->abilities[(CLASS_BARD * 10) + 6] * 5) >= answers[i].cparam1) answers[i].valid = 1;
+						if (p_ptr->stat_ind[A_CHR] + multiply_divide(p_ptr->stat_ind[A_CHR], p_ptr->abilities[(CLASS_BARD * 10) + 6] * 20, 100) >= answers[i].cparam1) answers[i].valid = 1;
 						break;
 					}
 				}

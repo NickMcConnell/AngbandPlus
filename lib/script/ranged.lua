@@ -191,8 +191,9 @@ function ranged_throw ()
 	local returning
 	local getitem
 
-	-- Throw twice if Throwing skill is 40+.
-	j = p_ptr.num_fire
+	-- Number of throws.
+	j = 1
+	j = j + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 2] / 10)
 
 	for i = 1, j do
 
@@ -318,11 +319,9 @@ function monster_ranged_attacks (which)
 
 		-- With no ranged weapons, we use a magic attack.
 		dam = damroll(m_race(p_ptr.body_monster).attack[which].ddice, m_race(p_ptr.body_monster).attack[which].dside)
-		dam = dam * (p_ptr.skill[3] + 1)
-		dam = dam + multiply_divide(dam, (p_ptr.stat_ind[A_DEX+1] - 5) * 5, 100)
-		dam = dam + multiply_divide(dam, p_ptr.stat_ind[A_DEX+1], 100)
+		dam = spell_damages(dam, A_DEX, 0)
 
-		dam = dam + (dam * p_ptr.abilities_monster_attacks[which])
+		dam = dam + multiply_divide(dam, p_ptr.abilities_monster_attacks[which] * 20, 100)
 		rad = m_race(p_ptr.body_monster).attack[which].special1 + (p_ptr.abilities_monster_attacks[which] / 10)
 
 		dir = lua_get_aim_dir()
@@ -538,6 +537,16 @@ function special_ranged_attacks (selement, maxshots, modifier, radbonus)
 					end
 				end
 
+				-- The Rogue's Slumber Shot ability can only be used with one-handed ranged weapons.
+				if (slumber_shot == 1) then
+
+					if (get_object_flag4(item, TR4_MUST2H)) then
+
+						msg_print("This ability can only be used with one-handed ranged weapons.")
+						break
+					end
+				end
+
 				-- Look if we have the proper ammos.
 				if (inven(INVEN_WIELD + weap).itemtype == inven(INVEN_AMMO).itemtype) then
 
@@ -690,50 +699,16 @@ function special_ranged_attacks (selement, maxshots, modifier, radbonus)
 
 end
 
-
+-- Formula for ranged damages.
 function ranged_damages ()
 
 	local k = 0
-	local tskill = 0
-	local xmight = 0
-	local craftbonus = 0
-	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
-	local stealthbonus
-	local i
 
-	craftbonus = p_ptr.skill[12]
-	if (craftbonus > craftmax) then craftbonus = craftmax end
+	-- Need something to shoot with.
+	if (not(current_weapon.tval == TV_RANGED)) then
 
-	if (not(get_object_flag4(current_weapon, TR4_CRAFTED))) then craftbonus = 0 end
-
-	tskill = p_ptr.skill[3] + craftbonus
-
-	-- Rogue's Stealthy Fighter ability.
-	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
-
-		local tmod
-
-		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
-		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
-		end
-
-		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
-
-		i = p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
-		if (i > 10) then i = 10 end
-		stealthbonus = multiply_divide(p_ptr.skill[7], i, 100)
-		if (stealthbonus > 10) then stealthbonus = 10 end
-		stealthbonus = stealthbonus * p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
-	end
-
-	if (current_weapon.tval == TV_RANGED) then
-
-		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
-	else
 		return 0
 	end
-
-	if (get_object_flag3(current_weapon, TR3_XTRA_MIGHT)) then xmight = 1 end
 
 	-- If no ammos, damages is 0.
 	if (inven(INVEN_AMMO).k_idx == 0) then
@@ -741,6 +716,7 @@ function ranged_damages ()
 	end
 
 	if (inven(INVEN_AMMO).disabled == 0) then
+
         	k = damroll(inven(INVEN_AMMO).dd, inven(INVEN_AMMO).ds)
 	else
 		k = 1
@@ -751,81 +727,15 @@ function ranged_damages ()
 		p_ptr.events[29017] = 0
 	end
 
-	-- Ranger's Forestry ability!
-        if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
+	if (current_weapon.disabled == 0) then
 
-                k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
-        end
-
-	if (current_weapon.disabled == 0) then k = multiply_divide(k, current_weapon.extra4, 100) end
-        k = k * (tskill + 1)
-
-	-- Stealthy Fighter
-	if (stealthbonus > 0) then
-
-		k = k + multiply_divide(k, stealthbonus, 100)
+		k = multiply_divide(k, current_weapon.extra4, 100)
 	end
 
-	-- Rogue Weapons Mastery.
-	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+	-- Multiply by dexterity.
+	if (p_ptr.stat_ind[A_DEX+1] > 5) then
 
-		if (current_weapon.tval == TV_RANGED) then
-
-			if (not(get_object_flag4(current_weapon, TR4_MUST2H))) then
-
-				k = k + multiply_divide(k, p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 10, 100)
-			end
-		end
-	end
-
-	if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(current_weapon, TR4_CRAFTED)) then
-
-		local dexbonus = (p_ptr.stat_ind[A_DEX+1] - 5)
-		local usedint = (p_ptr.stat_ind[A_INT+1] - 5)
-		if (usedint > (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)) then
-
-			usedint = (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)
-		end
-		if (usedint > dexbonus) then
-
-			k = k + multiply_divide(k, (inven(INVEN_AMMO).to_d + current_weapon.to_d + (usedint * 5)), 100)
-			k = k + multiply_divide(k, usedint, 100)
-		else
-
-			k = k + multiply_divide(k, (inven(INVEN_AMMO).to_d + current_weapon.to_d + (dexbonus * 5)), 100)
-			k = k + multiply_divide(k, dexbonus, 100)
-		end
-        else
-		k = k + multiply_divide(k, (inven(INVEN_AMMO).to_d + current_weapon.to_d + ((p_ptr.stat_ind[A_DEX+1] - 5) * 5)), 100)
-		k = k + multiply_divide(k, p_ptr.stat_ind[A_DEX+1], 100)
-	end
-
-	-- At high levels, crossbows hurts.
-	if (current_weapon.itemtype == 2 and p_ptr.skill_base[21] >= 60) then k = k * 2 end
-
-	-- Pistols Specialization.
-	if (current_weapon.itemtype == 3 and p_ptr.abilities[(CLASS_GUNNER * 10) + 7] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 10), 100)
-	end
-
-	-- Rifles Specialization.
-	if (current_weapon.itemtype == 4 and p_ptr.abilities[(CLASS_GUNNER * 10) + 8] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 10), 100)
-	end
-
-	-- Bard's War Songs ability.
-	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
-
-		local chrbonus
-
-		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
-		k = k + multiply_divide(k, chrbonus, 100)
-	end
-
-	-- Marksman's Accurate Shots.
-	if (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 10] > 0) then
-
-		k = k + multiply_divide(k, p_ptr.abilities[(CLASS_MARKSMAN * 10) + 10] * 10, 100)
+		k = k * (p_ptr.stat_ind[A_DEX+1] - 5)
 	end
 
 	return k;
@@ -835,46 +745,12 @@ end
 function max_ranged_damages ()
 
 	local k = 0
-	local tskill = 0
-	local xmight = 0
-	local craftbonus = 0
-	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
-	local stealthbonus
-	local i
 
-	craftbonus = p_ptr.skill[12]
-	if (craftbonus > craftmax) then craftbonus = craftmax end
+	-- Need something to shoot with.
+	if (not(current_weapon.tval == TV_RANGED)) then
 
-	if (not(get_object_flag4(current_weapon, TR4_CRAFTED))) then craftbonus = 0 end
-
-	tskill = p_ptr.skill[3] + craftbonus
-
-	-- Rogue's Stealthy Fighter ability.
-	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
-
-		local tmod
-
-		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
-		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
-		end
-
-		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
-
-		i = p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
-		if (i > 10) then i = 10 end
-		stealthbonus = multiply_divide(p_ptr.skill[7], i, 100)
-		if (stealthbonus > 10) then stealthbonus = 10 end
-		stealthbonus = stealthbonus * p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
-	end
-
-	if (current_weapon.tval == TV_RANGED) then
-
-		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
-	else
 		return 0
 	end
-
-	if (get_object_flag3(current_weapon, TR3_XTRA_MIGHT)) then xmight = 1 end
 
 	-- If no ammos, damages is 0.
 	if (inven(INVEN_AMMO).k_idx == 0) then
@@ -882,6 +758,7 @@ function max_ranged_damages ()
 	end
 
 	if (inven(INVEN_AMMO).disabled == 0) then
+
         	k = maxroll(inven(INVEN_AMMO).dd, inven(INVEN_AMMO).ds)
 	else
 		k = 1
@@ -892,81 +769,15 @@ function max_ranged_damages ()
 		p_ptr.events[29017] = 0
 	end
 
-	-- Ranger's Forestry ability!
-        if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
+	if (current_weapon.disabled == 0) then
 
-                k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
-        end
-
-	if (current_weapon.disabled == 0) then k = multiply_divide(k, current_weapon.extra4, 100) end
-        k = k * (tskill + 1)
-
-	-- Stealthy Fighter
-	if (stealthbonus > 0) then
-
-		k = k + multiply_divide(k, stealthbonus, 100)
+		k = multiply_divide(k, current_weapon.extra4, 100)
 	end
 
-	-- Rogue Weapons Mastery.
-	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+	-- Multiply by dexterity.
+	if (p_ptr.stat_ind[A_DEX+1] > 5) then
 
-		if (current_weapon.tval == TV_RANGED) then
-
-			if (not(get_object_flag4(current_weapon, TR4_MUST2H))) then
-
-				k = k + multiply_divide(k, p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 10, 100)
-			end
-		end
-	end
-
-        if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(current_weapon, TR4_CRAFTED)) then
-
-		local dexbonus = (p_ptr.stat_ind[A_DEX+1] - 5)
-		local usedint = (p_ptr.stat_ind[A_INT+1] - 5)
-		if (usedint > (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)) then
-
-			usedint = (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)
-		end
-		if (usedint > dexbonus) then
-
-			k = k + multiply_divide(k, (inven(INVEN_AMMO).to_d + current_weapon.to_d + (usedint * 5)), 100)
-			k = k + multiply_divide(k, usedint, 100)
-		else
-
-			k = k + multiply_divide(k, (inven(INVEN_AMMO).to_d + current_weapon.to_d + (dexbonus * 5)), 100)
-			k = k + multiply_divide(k, dexbonus, 100)
-		end
-        else
-		k = k + multiply_divide(k, (inven(INVEN_AMMO).to_d + current_weapon.to_d + ((p_ptr.stat_ind[A_DEX+1] - 5) * 5)), 100)
-		k = k + multiply_divide(k, p_ptr.stat_ind[A_DEX+1], 100)
-	end
-
-	-- At high levels, crossbows hurts.
-	if (current_weapon.itemtype == 2 and p_ptr.skill_base[21] >= 60) then k = k * 2 end
-
-	-- Pistols Specialization.
-	if (current_weapon.itemtype == 3 and p_ptr.abilities[(CLASS_GUNNER * 10) + 7] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 10), 100)
-	end
-
-	-- Rifles Specialization.
-	if (current_weapon.itemtype == 4 and p_ptr.abilities[(CLASS_GUNNER * 10) + 8] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 10), 100)
-	end
-
-	-- Bard's War Songs ability.
-	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
-
-		local chrbonus
-
-		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
-		k = k + multiply_divide(k, chrbonus, 100)
-	end
-
-	-- Marksman's Accurate Shots.
-	if (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 10] > 0) then
-
-		k = k + multiply_divide(k, p_ptr.abilities[(CLASS_MARKSMAN * 10) + 10] * 10, 100)
+		k = k * (p_ptr.stat_ind[A_DEX+1] - 5)
 	end
 
 	return k;
@@ -976,46 +787,12 @@ end
 function min_ranged_damages ()
 
 	local k = 0
-	local tskill = 0
-	local xmight = 0
-	local craftbonus = 0
-	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
-	local stealthbonus
-	local i
 
-	craftbonus = p_ptr.skill[12]
-	if (craftbonus > craftmax) then craftbonus = craftmax end
+	-- Need something to shoot with.
+	if (not(current_weapon.tval == TV_RANGED)) then
 
-	if (not(get_object_flag4(current_weapon, TR4_CRAFTED))) then craftbonus = 0 end
-
-	tskill = p_ptr.skill[3] + craftbonus
-
-	-- Rogue's Stealthy Fighter ability.
-	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
-
-		local tmod
-
-		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
-		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
-		end
-
-		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
-
-		i = p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
-		if (i > 10) then i = 10 end
-		stealthbonus = multiply_divide(p_ptr.skill[7], i, 100)
-		if (stealthbonus > 10) then stealthbonus = 10 end
-		stealthbonus = stealthbonus * p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
-	end
-
-	if (current_weapon.tval == TV_RANGED) then
-
-		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
-	else
 		return 0
 	end
-
-	if (get_object_flag3(current_weapon, TR3_XTRA_MIGHT)) then xmight = 1 end
 
 	-- If no ammos, damages is 0.
 	if (inven(INVEN_AMMO).k_idx == 0) then
@@ -1023,6 +800,7 @@ function min_ranged_damages ()
 	end
 
 	if (inven(INVEN_AMMO).disabled == 0) then
+
         	k = damroll(inven(INVEN_AMMO).dd, 1)
 	else
 		k = 1
@@ -1033,81 +811,15 @@ function min_ranged_damages ()
 		p_ptr.events[29017] = 0
 	end
 
-	-- Ranger's Forestry ability!
-        if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
+	if (current_weapon.disabled == 0) then
 
-                k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
-        end
-
-	if (current_weapon.disabled == 0) then k = multiply_divide(k, current_weapon.extra4, 100) end
-        k = k * (tskill + 1)
-
-	-- Stealthy Fighter
-	if (stealthbonus > 0) then
-
-		k = k + multiply_divide(k, stealthbonus, 100)
+		k = multiply_divide(k, current_weapon.extra4, 100)
 	end
 
-	-- Rogue Weapons Mastery.
-	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+	-- Multiply by dexterity.
+	if (p_ptr.stat_ind[A_DEX+1] > 5) then
 
-		if (current_weapon.tval == TV_RANGED) then
-
-			if (not(get_object_flag4(current_weapon, TR4_MUST2H))) then
-
-				k = k + multiply_divide(k, p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 10, 100)
-			end
-		end
-	end
-
-        if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(current_weapon, TR4_CRAFTED)) then
-
-		local dexbonus = (p_ptr.stat_ind[A_DEX+1] - 5)
-		local usedint = (p_ptr.stat_ind[A_INT+1] - 5)
-		if (usedint > (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)) then
-
-			usedint = (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)
-		end
-		if (usedint > dexbonus) then
-
-			k = k + multiply_divide(k, (inven(INVEN_AMMO).to_d + current_weapon.to_d + (usedint * 5)), 100)
-			k = k + multiply_divide(k, usedint, 100)
-		else
-
-			k = k + multiply_divide(k, (inven(INVEN_AMMO).to_d + current_weapon.to_d + (dexbonus * 5)), 100)
-			k = k + multiply_divide(k, dexbonus, 100)
-		end
-        else
-		k = k + multiply_divide(k, (inven(INVEN_AMMO).to_d + current_weapon.to_d + ((p_ptr.stat_ind[A_DEX+1] - 5) * 5)), 100)
-		k = k + multiply_divide(k, p_ptr.stat_ind[A_DEX+1], 100)
-	end
-
-	-- At high levels, crossbows hurts.
-	if (current_weapon.itemtype == 2 and p_ptr.skill_base[21] >= 60) then k = k * 2 end
-
-	-- Pistols Specialization.
-	if (current_weapon.itemtype == 3 and p_ptr.abilities[(CLASS_GUNNER * 10) + 7] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 10), 100)
-	end
-
-	-- Rifles Specialization.
-	if (current_weapon.itemtype == 4 and p_ptr.abilities[(CLASS_GUNNER * 10) + 8] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 10), 100)
-	end
-
-	-- Bard's War Songs ability.
-	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
-
-		local chrbonus
-
-		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
-		k = k + multiply_divide(k, chrbonus, 100)
-	end
-
-	-- Marksman's Accurate Shots.
-	if (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 10] > 0) then
-
-		k = k + multiply_divide(k, p_ptr.abilities[(CLASS_MARKSMAN * 10) + 10] * 10, 100)
+		k = k * (p_ptr.stat_ind[A_DEX+1] - 5)
 	end
 
 	return k;
@@ -1117,30 +829,17 @@ end
 function throw_damages ()
 
 	local k = 0
-	local tskill = 0
-	local xmight = 0
-
-	tskill = p_ptr.skill[3] + (p_ptr.skill[4] + (p_ptr.skill[4] / 2))
 
 	if (drop_ranged.disabled == 0) then
         	k = damroll(drop_ranged.dd, drop_ranged.ds)
 	else
 		k = 1
 	end
-        k = k * (tskill + 1)
-	k = k + multiply_divide(k, (((p_ptr.stat_ind[A_STR+1] * 5 + p_ptr.stat_ind[A_DEX+1] * 5)) + drop_ranged.to_d), 100)
-	k = k + multiply_divide(k, (p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1]), 100)
 
-	-- Power Throw feat.
-	if (p_ptr.skill_base[4] >= 25) then k = k + (k / 2) end
+	-- Multiply by strength.
+	if (p_ptr.stat_ind[A_STR+1] > 5) then
 
-	-- Bard's War Songs ability.
-	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
-
-		local chrbonus
-
-		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
-		k = k + multiply_divide(k, chrbonus, 100)
+		k = k * (p_ptr.stat_ind[A_STR+1] - 5)
 	end
 
 	return k;
@@ -1150,30 +849,17 @@ end
 function max_throw_damages ()
 
 	local k = 0
-	local tskill = 0
-	local xmight = 0
-
-	tskill = p_ptr.skill[3] + (p_ptr.skill[4] + (p_ptr.skill[4] / 2))
 
 	if (drop_ranged.disabled == 0) then
         	k = maxroll(drop_ranged.dd, drop_ranged.ds)
 	else
 		k = 1
 	end
-        k = k * (tskill + 1)
-        k = k + multiply_divide(k, (((p_ptr.stat_ind[A_STR+1] * 5 + p_ptr.stat_ind[A_DEX+1] * 5)) + drop_ranged.to_d), 100)
-	k = k + multiply_divide(k, (p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1]), 100)
 
-	-- Power Throw feat.
-	if (p_ptr.skill_base[4] >= 25) then k = k + (k / 2) end
+	-- Multiply by strength.
+	if (p_ptr.stat_ind[A_STR+1] > 5) then
 
-	-- Bard's War Songs ability.
-	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
-
-		local chrbonus
-
-		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
-		k = k + multiply_divide(k, chrbonus, 100)
+		k = k * (p_ptr.stat_ind[A_STR+1] - 5)
 	end
 
 	return k;
@@ -1183,30 +869,17 @@ end
 function min_throw_damages ()
 
 	local k = 0
-	local tskill = 0
-	local xmight = 0
-
-	tskill = p_ptr.skill[3] + (p_ptr.skill[4] + (p_ptr.skill[4] / 2))
 
 	if (drop_ranged.disabled == 0) then
         	k = damroll(drop_ranged.dd, 1)
 	else
 		k = 1
 	end
-        k = k * (tskill + 1)
-        k = k + multiply_divide(k, (((p_ptr.stat_ind[A_STR+1] * 5 + p_ptr.stat_ind[A_DEX+1] * 5)) + drop_ranged.to_d), 100)
-	k = k + multiply_divide(k, (p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1]), 100)
 
-	-- Power Throw feat.
-	if (p_ptr.skill_base[4] >= 25) then k = k + (k / 2) end
+	-- Multiply by strength.
+	if (p_ptr.stat_ind[A_STR+1] > 5) then
 
-	-- Bard's War Songs ability.
-	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
-
-		local chrbonus
-
-		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
-		k = k + multiply_divide(k, chrbonus, 100)
+		k = k * (p_ptr.stat_ind[A_STR+1] - 5)
 	end
 
 	return k;

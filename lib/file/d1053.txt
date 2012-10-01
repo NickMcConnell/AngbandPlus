@@ -114,7 +114,7 @@ A:[CONTINUE]:0:0:0:1:5:0:0:0:0
 N:5:0:0:0:0:0
 I:Geoffrey Harrington;
 T:So I have hired your guild to help me find the ones who are after my life.;
-T:I chose to hire your guild, because it's young, and I don't trust the older;
+T:I chose to hire your guild, because it's new, and I don't trust the older;
 T:ones. One of them is most likely the one who's after my life!;
 A:Do you have any ideas where I should start searching?:0:0:0:1:6:0:0:0:0
 %

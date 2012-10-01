@@ -62,7 +62,7 @@ N:8:0:0:0:0:0
 I:Gorath;
 T:...what you say makes sense. And I thought we were finally back to life...;
 T:Simon fooled us with false promises! Thanks you for putting an end to this;
-T:fake existance, <NAME>. I wouldn't want to "live" like this, and be;
+T:false existance, <NAME>. I wouldn't want to "live" like this, and be;
 T:condemned to eternal servitude to foul masters who can dispel us at anytime!;
 A:[CONTINUE]:0:0:0:1:9:0:0:0:0
 %

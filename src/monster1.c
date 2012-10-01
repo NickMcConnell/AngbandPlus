@@ -1016,7 +1016,7 @@ static void roff_aux(int r_idx, int remem)
 	roff("\n");
 
 	/* List of monster attacks */
-	roff("----- ATTACKS -----");
+	/*roff("----- ATTACKS -----");
         roff("\n");
 
 	for (m = 0; m < 20; m++)
@@ -1036,10 +1036,10 @@ static void roff_aux(int r_idx, int remem)
 		}
 	}
 
-	roff("\n");
+	roff("\n");*/
 
 	/* List of monster spells */
-	roff("----- SPELLS -----");
+	/*roff("----- SPELLS -----");
         roff("\n");
 
 	for (m = 0; m < 20; m++)
@@ -1055,7 +1055,7 @@ static void roff_aux(int r_idx, int remem)
 			}
 			roff("\n");
 		}
-	}
+	}*/
 
 	/* Cheat -- know everything */
 	if ((cheat_know) && (remem == 0))
@@ -1514,9 +1514,9 @@ void info_boss_abilities(monster_type *m_ptr)
                         c_roff(TERM_ORANGE, "Cursed with Lower Magic.");
                         roff("\n");
                 }
-                if (m_ptr->abilities & (CURSE_HALVE_HP))
+                if (m_ptr->abilities & (CON_JOB))
                 {
-                        c_roff(TERM_ORANGE, "Cursed with Life Blast.");
+                        c_roff(TERM_ORANGE, "Con Job.");
                         roff("\n");
                 }
                 if (m_ptr->abilities & (CURSE_LOCK))
@@ -1579,9 +1579,11 @@ void info_boss_abilities(monster_type *m_ptr)
                         c_roff(TERM_ORANGE, "Mutilated arms(can't attack).");
                         roff("\n");
                 }
-                if (m_ptr->abilities & (PSYCHIC_HITRATE))
+                if (m_ptr->seallight >= 1)
                 {
-                        c_roff(TERM_ORANGE, "Blinded by fearful illusions.");
+			char stuninfo[30];
+			sprintf(stuninfo, "Paralyzed (%d turns left)", m_ptr->seallight);
+                        c_roff(TERM_ORANGE, stuninfo);
                         roff("\n");
                 }
 		if (m_ptr->abilities & (TAUNTED))
@@ -1602,6 +1604,11 @@ void info_boss_abilities(monster_type *m_ptr)
                 if (m_ptr->abilities & (MORALE_BOOST))
                 {
                         c_roff(TERM_YELLOW, "Morale Boost.");
+                        roff("\n");
+                }
+		if (m_ptr->abilities & (WEAKENED_ELEMENTAL))
+                {
+                        c_roff(TERM_ORANGE, "Weakened Elemental attacks.");
                         roff("\n");
                 }
 
@@ -2527,7 +2534,7 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 	roff("\n");
 
 	/* List of monster attacks */
-	roff("----- ATTACKS -----");
+	/*roff("----- ATTACKS -----");
         roff("\n");
 
 	for (m = 0; m < 20; m++)
@@ -2547,10 +2554,10 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 		}
 	}
 
-	roff("\n");
+	roff("\n");*/
 
 	/* List of monster spells */
-	roff("----- SPELLS -----");
+	/*roff("----- SPELLS -----");
         roff("\n");
 
 	for (m = 0; m < 20; m++)
@@ -2567,7 +2574,7 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 			roff("\n");
 		}
 	}
-	roff("\n");
+	roff("\n");*/
 
 	/* Cheat -- know everything */
 	if ((cheat_know) && (remem == 0))
@@ -2629,9 +2636,9 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
                         c_roff(TERM_ORANGE, "Cursed with Lower Magic.");
                         roff("\n");
                 }
-                if (m_ptr->abilities & (CURSE_HALVE_HP))
+                if (m_ptr->abilities & (CON_JOB))
                 {
-                        c_roff(TERM_ORANGE, "Cursed with Life Blast.");
+                        c_roff(TERM_ORANGE, "Con Job.");
                         roff("\n");
                 }
                 if (m_ptr->abilities & (CURSE_LOCK))
@@ -2694,9 +2701,11 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
                         c_roff(TERM_ORANGE, "Mutilated arms(can't attack).");
                         roff("\n");
                 }
-                if (m_ptr->abilities & (PSYCHIC_HITRATE))
+                if (m_ptr->seallight >= 1)
                 {
-                        c_roff(TERM_ORANGE, "Blinded by fearful illusions.");
+			char stuninfo[30];
+			sprintf(stuninfo, "Paralyzed (%d turns left)", m_ptr->seallight);
+                        c_roff(TERM_ORANGE, stuninfo);
                         roff("\n");
                 }
 		if (m_ptr->abilities & (TAUNTED))
@@ -2719,7 +2728,11 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
                         c_roff(TERM_YELLOW, "Morale Boost.");
                         roff("\n");
                 }
-
+		if (m_ptr->abilities & (WEAKENED_ELEMENTAL))
+                {
+                        c_roff(TERM_ORANGE, "Weakened Elemental attacks.");
+                        roff("\n");
+                }
         }
 
 	red_roff = FALSE;

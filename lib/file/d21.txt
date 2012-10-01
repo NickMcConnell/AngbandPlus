@@ -97,7 +97,7 @@ I:Jordan Shade;
 T:If I understand, he wants his sword back... yet, he doesn't have the;
 T:guts to look for it by himself, so he sent you instead. Well... Such;
 T:a nice sword is priceless if you ask me... But if you really want;
-T:it, I can always sell it to you... for, let's say, 5000 golds?;
+T:it, I can always sell it back to you... for, let's say, 5000 golds?;
 T:I think it's a good price for such a valuable sword. So, are you going;
 T:to buy it?;
 A:Yes, I'll buy it. [Pay 5000 golds.]:0:0:0:8:5000:9:10:0:0

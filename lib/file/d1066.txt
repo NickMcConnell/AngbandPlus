@@ -1,0 +1,244 @@
+N:1:1144:2:0:0:0
+I: ;
+T:After taking considerable damage from all your attacks, the Monstrous Wraith's;
+T:body finally breaks, and crumbles on the floor. It's necromantic energy;
+T:starts fading away, and slowly, the creature's remains turns into dust.;
+A:[CONTINUE]:0:0:0:1:21:0:0:0:0
+%
+
+N:1:1144:1:0:0:0
+I: ;
+T:Once again, Delviaz's body falls on the ground. As he is about to reform,;
+T:however, the undead smiting energy you used on him is starting to take;
+T:effect! The powerful energy is completely disrupting Kysoroth's magic;
+T:inside his body!;
+A:[CONTINUE]:0:0:0:1:16:0:0:0:0
+%
+
+N:1:1142:1:0:0:0
+I: ;
+T:You encounter Delviaz once again. Looking around, you can see that he has;
+T:been trying to dig tunnels. He turns toward you, but this time, rather than;
+T:his usual, overconfident and arrogant self, he seems a little bit more;
+T:nervous. He may be starting to fear you.;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:1:1136:1:0:0:0
+I: ;
+T:Delviaz's body splatters on the ground, destroyed by your last attack.;
+T:However, the body begins to reform itself, and a short moment later,;
+T:Delviaz is back to life, standing in front of you with a grin on his;
+T:face.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Delviaz;
+T:Well, if it isn't my friend <NAME>! We finally meet face to face!;
+T:So! How did you like my undead servants? I am not surprised that they weren't;
+T:a match for you. Ever since that day when you defeated that Unholy Champion;
+T:that I had summoned, I knew you were far more powerful and threatening than;
+T:anyone else in the Stealthy Vipers. But don't worry, those undead kobolds and;
+T:devlings have already served their purpose!;
+A:Why are you even turning against your own kind? And your own guild?:0:0:0:1:2:0:0:0:0
+A:You are mad. I will kill you!:0:0:0:1:5:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Delviaz;
+T:Do you really think that I cared about the Dragon Lancers? I've helped them;
+T:organising attacks against the Stealthy Vipers, but that was only so that;
+T:a battle would be fought. I didn't care about who won or lost. All I cared;
+T:about was to secretly pick up the dead bodies, rip them of their soul, and;
+T:offer those souls to my real Master, who is far, far more powerful than;
+T:Denzar ever was.;
+A:Who is your Master?:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Delviaz;
+T:A being with a power that no mere mortal could ever comprehend. But enough;
+T:talk. How about I demonstrate the powers that have been granted to me?;
+T:I have absorbed the energy of all the kobolds and devlings who died, and;
+T:the energy of the dead has made me much more powerful! Combined with the;
+T:powers granted to me by my Master, I cannot be stopped!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Delviaz;
+T:Prepare to join my undead army, <NAME>!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Delviaz;
+T:Straight to the point, heh? Well, I can assure you that I am not mad,;
+T:everything I did was carefully planned! I have absorbed the energy;
+T:of the dead, and my Master has granted me great power! You cannot;
+T:stop me, <NAME>! Prepare to die!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Delviaz;
+T:Hehehe... what did you expect? I'm a Necromancer! Death won't take me;
+T:away... Death obeys my orders! I master and command Death! Hehehe...;
+T:Well, to tell you the truth, the real reason I'm not dead is the power;
+T:my Master gave me. Immortality, no less!;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Delviaz;
+T:Those "Dragon Lancers" called themselves that way because they thought they;
+T:were strong like dragons. But me, instead of pretending to be strong like;
+T:a dragon, I've decided to server a draconic Master, and be rewarded with;
+T:REAL power! But the dragon I serve is very special. I do not serve just;
+T:any kind of dragons, no, I serve a Wyrmwraith! The Wyrmwraith Kysoroth,;
+T:known as the "Death Plague" thanks to his ability to afflict entire armies;
+T:with an undeath curse with just a single breath! He is also one of;
+T:Kandril's Four Generals.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Delviaz;
+T:Kysoroth loves death and undeath. And I am more than happy to offer him the;
+T:souls of the dead in exchange for more necromantic powers! As you can see,;
+T:death cannot even take me away anymore! There is nothing you can do to stop;
+T:me, <NAME>! Kysoroth has made me immortal!;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Delviaz;
+T:I will now return to my personnal hideout, where I will create a large army;
+T:of undead creatures! And then I will destroy you and the Stealthy Vipers!;
+T:And maybe take over Jindar too!;
+A:You won't escape. [Attack]:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I: ;
+T:Delviaz doesn't even try to avoid your attack. He lets you wound him, but;
+T:the wounds closes themselves, and he is unharmed.;
+A:[CONTINUE 1]:1:1070:1:1:11:0:0:1138:1
+A:[CONTINUE 2]:1:1071:1:1:11:0:0:1139:1
+A:[CONTINUE 3]:1:1072:1:1:11:0:0:1140:1
+%
+
+N:11:0:0:0:0:0
+I:Delviaz;
+T:Hahaha! You are powerless, <NAME>! No mortal can defeat Kysoroth's;
+T:magic! I will now return to my hideout, and prepare my army. Good bye,;
+T:<NAME>!;
+A:[CONTINUE]:0:0:0:1:12:0:0:1137:1
+%
+
+N:12:0:0:0:0:0
+I: ;
+T:Delviaz teleports away, leaving you alone in this dark place. You have failed;
+T:to stop him, and it doesn't seem like he can be defeated by ordinary attacks.;
+T:You should now return to the Stealthy Vipers in Jindar. Nidem should have;
+T:arrived there, perhaps he will know what to do next...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Delviaz;
+T:Hmph. So, you've already found me. Damn it... I was hoping you'd take longer;
+T:to figure out where I am. Guess one of those Kobolds must have found me, huh?;
+T:Well, it doesn't matter! Even if you have discovered my hiding place, you;
+T:still cannot beat me! My immortal body will reform itself, and you will never;
+T:be able to finish me off! I will come back... over and over! Until I discover;
+T:a way to enter the inner chambers of this temple!;
+A:Don't worry. I came prepared. This time you will die for good!:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Delviaz;
+T:Prepared, huh? Do you know who's magic you're fighting? You are fighting;
+T:against the powers of Kysoroth! A Wyrmwraith! You simply CANNOT win!;
+A:Wrong. I'm not fighting Kysoroth. I'm fighting YOU! Delviaz the necromancer!:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Delviaz;
+T:well then, let's see how you fare this time! Maybe you were just lucky;
+T:last time! I will use all my power to get rid of you, and take my revenge!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Devliaz;
+T:Arrghh!! What's this??? What's happening to me?? This energy...it's...;
+T:preventing my body from reforming!!!;
+A:[CONTINUE]:0:0:0:1:17:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Devliaz;
+T:You...you will not get away with this, <NAME>! YOU WON'T GET AWAY;
+T:WITH THIS, YOU HEAR ME???;
+A:[CONTINUE]:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Devliaz;
+T:MASTER KYSOROTH! WITH THE LAST OF MY STRENGTH, I OFFER YOU MY SOUL!;
+T:TAKE IT! AND TEACH <NAME> THE PRICE OF MESSING WITH YOU!;
+A:[CONTINUE]:0:0:0:1:19:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I: ;
+T:Suddently, a dark energy starts covering Delviaz's broken body. His stare;
+T:becomes blank, and the body starts floating in the air. It begins to grow,;
+T:becoming much larger and taller, while the skin and flesh is melting away.;
+T:The bones becomes brownish, and transluscent, as if the body had;
+T:become wraith-like in nature. Blue, necromantic flames covers this undead;
+T:wraith.;
+A:[CONTINUE]:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I: ;
+T:The creature doesn't talk. While it may be using Delviaz's body, the soul;
+T:is completely under Kysoroth's control. But Delviaz's already powerful;
+T:energy has now been amplified tenfolds, thanks to Kysoroth's complete;
+T:control over this new, soulless body. The creature stares at you, and;
+T:starts channeling magical energy, preparing itself for battle...;
+A:[END DIALOG]:0:0:0:11:9:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I: ;
+T:However, even though you've won the battle, you still feel a strange chilling;
+T:sensation in your body. During the battle, you came in contact with;
+T:Kysoroth's energy several times. Even thought the contacts were brief,;
+T:and the energy had only a tiny fraction of Kysoroth's real power, it felt;
+T:like your life force was leaving your body, and your soul was being drained,;
+T:or even devoured. It's as if you were slowly turning into an undead, empty;
+T:shell of a walking corpse, and knowing Kysoroth's nature, that was probably;
+T:the case...;
+A:[CONTINUE]:0:0:0:1:22:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I: ;
+T:Nevertheless, this is a great victory for you and the Stealthy Vipers!;
+T:Delviaz has finally been defeated, and his evil plans have been stopped.;
+T:With him gone, all the leaders of the Dragon Lancers are now dead, and so;
+T:the guild is no more. The Stealthy Vipers are victorious, and Kobolds;
+T:have prevailed over Devlings!;
+A:[CONTINUE]:0:0:0:1:23:0:0:1143:1
+%
+
+N:23:0:0:0:0:0
+I: ;
+T:You should now return to Nidem to announce the death of Delviaz, and the;
+T:victory of the Stealthy Vipers!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

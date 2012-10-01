@@ -1272,13 +1272,6 @@ void do_cmd_activate(void)
 		return;
 	}
 
-	/* If not an egg, proceed to the new code! :) */
-	if (p_ptr->stat_ind[A_INT] >= p_ptr->stat_ind[A_WIS])
-	{
-		activate_item(o_ptr, FALSE);
-	}
-	else
-	{
-		activate_item(o_ptr, TRUE);
-	}
+	/* If not an egg, activate item. */
+	activate_item(o_ptr);
 }

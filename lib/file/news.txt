@@ -11,7 +11,7 @@
                              With gracious help from all testers
                              and members of the forum! :)
 
-                     Version: 0.4.0 build 002 (beta)
+                     Version: 0.5.0 alpha version 2.2
 
 
                      Questions/comments? Send them to:

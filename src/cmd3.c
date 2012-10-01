@@ -200,18 +200,6 @@ void do_cmd_wield(void)
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-        /* Sex only flags */
-        if ((f4 & (TR4_ONLY_FEMALE)) && (p_ptr->psex != SEX_FEMALE))
-        {
-                msg_print("Only females may use this!");
-                return;
-        }
-        if ((f4 & (TR4_ONLY_MALE)) && (p_ptr->psex != SEX_MALE))
-        {
-                msg_print("Only males may use this!");
-                return;
-        }
-
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 

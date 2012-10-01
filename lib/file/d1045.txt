@@ -15,6 +15,7 @@ A:You went too far. Now you die!:0:0:0:1:20:0:0:0:0
 N:1:1045:1:0:0:0
 I:Donoriel;
 T:You are no longer welcome in the Palace! Get out, or I call the guards!;
+A:I have found the basement! (lie):0:0:0:1:23:0:0:0:0
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 %
 
@@ -58,7 +59,7 @@ A:Good bye.:0:0:0:0:0:0:0:0:0
 N:3:0:0:0:0:0
 I:Donoriel;
 T:A vast collection of oddities my friend! Crystal balls, paintings,;
-T:magical wants, jewelry, and a wide assortment of unique items Never Seen;
+T:magical wands, jewelry, and a wide assortment of unique items Never Seen;
 T:before! For example, see this copper statuette? It's a Copper Daldumaar!;
 T:Golden Statuettes of Daldumaar are common in Nimbraya, but here in Jindar,;
 T:a gold statuette would be too expensive, and wouldn't mean anything to most;
@@ -106,7 +107,7 @@ T:His merchandise consists in a large assortment of weird stuff, including;
 T:odd crystal balls, paintings of various creatures, various flasks;
 T:containing fluorescent liquids, oddly crafted magic wands, and a wide;
 T:array of other, equally strange items. But there's a good chance that;
-T:most of that stuff is fake and useless.;
+T:most of this stuff is fake and useless.;
 A:[CONTINUE]:0:0:0:1:9:0:0:0:0
 %
 
@@ -157,8 +158,11 @@ A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
 
 N:14:0:0:0:0:0
 I:Donoriel;
-T:That's not what I meant!! That's it, <NAME>! You've wasted enough of my;
-T:time! You're no longer welcome here! Now leave, or I call the guards!;
+T:*He looks uncomfortable*;
+T:Err...no. I guess not. There is only one floor to the Palace. Arg, look now!;
+T:Your presence here is confusing my words! As you can see, there aren't any;
+T:secret stairways around here! Arg! That's it, <NAME>! You've wasted enough of;
+T:my time! You're no longer welcome here! Now leave, or I call the guards!;
 T:And don't ever come back!!;
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 %
@@ -248,4 +252,15 @@ N:22:0:0:0:0:0
 I: ;
 T:You should now return to Krind, and announce your victory!;
 A:[END DIALOG]:0:0:0:0:0:0:0:1039:0
+%
+
+N:23:0:0:0:0:0
+I:Donoriel;
+T:What?? You've found the stair behind the...;
+T:*He pauses a moment, and realizes that you are lying in order to confuse;
+T:him into revealing his secret.*;
+T:Arg!! There you go again, confusing me with lies and trickeries!;
+T:There is no basement here, got it?? I was just confused when I said that.;
+T:So begone! And never come back!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 %

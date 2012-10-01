@@ -53,8 +53,16 @@ function calc_body_bonus ()
                 	p_ptr.wraith_form = 20
         	end
 
-        	p_ptr.ac = p_ptr.ac + m_race(p_ptr.body_monster).ac + ((m_race(p_ptr.body_monster).ac * (p_ptr.lev * 5)) / 100)
-		p_ptr.dis_ac = p_ptr.dis_ac + m_race(p_ptr.body_monster).ac + ((m_race(p_ptr.body_monster).ac * (p_ptr.lev * 5)) / 100)
+        	p_ptr.ac = p_ptr.ac + (p_ptr.lev * 3)
+		p_ptr.ac = p_ptr.ac + (p_ptr.abilities[(CLASS_MONSTER * 10) + 6] * 5)
+		p_ptr.ac = multiply_divide(p_ptr.ac, m_race(p_ptr.body_monster).ac, 100)
+		p_ptr.dis_ac = p_ptr.dis_ac + (p_ptr.lev * 3)
+		p_ptr.dis_ac = p_ptr.dis_ac + multiply_divide(p_ptr.dis_ac, p_ptr.lev * 5, 100)
+		p_ptr.dis_ac = p_ptr.dis_ac + (p_ptr.abilities[(CLASS_MONSTER * 10) + 6] * 5)
+		p_ptr.dis_ac = multiply_divide(p_ptr.dis_ac, m_race(p_ptr.body_monster).ac, 100)
+
+		p_ptr.ac = p_ptr.ac + multiply_divide(p_ptr.ac, p_ptr.abilities[(CLASS_MONSTER * 10) + 6] * 25, 100)
+		p_ptr.dis_ac = p_ptr.dis_ac + multiply_divide(p_ptr.dis_ac, p_ptr.abilities[(CLASS_MONSTER * 10) + 6] * 25, 100)
         	p_ptr.pspeed = m_race(p_ptr.body_monster).speed
 
 		if(get_monster_flag7(p_ptr.body_monster, RF7_VERY_FAST)) then p_ptr.pspeed = p_ptr.pspeed + 50 end
@@ -72,7 +80,12 @@ function calc_body_bonus ()
         	if(get_monster_flag3(p_ptr.body_monster, RF3_NO_FEAR)) then p_ptr.resist_fear = TRUE end
         	if(get_monster_flag3(p_ptr.body_monster, RF3_NO_SLEEP)) then p_ptr.free_act = TRUE end
         	if(get_monster_flag3(p_ptr.body_monster, RF3_NO_CONF)) then p_ptr.resist_conf = TRUE end
-        	if(get_monster_flag7(p_ptr.body_monster, RF7_CAN_FLY)) then p_ptr.ffall = TRUE end
+        	if(get_monster_flag7(p_ptr.body_monster, RF7_CAN_FLY)) then
+
+			p_ptr.ffall = TRUE
+			p_ptr.fly = TRUE
+			p_ptr.climb = TRUE
+		end
 	end
 end
 
@@ -87,18 +100,19 @@ function calc_hitpoints ()
 
         -- You gain a little hp every levels...
         mhp = p_ptr.lev * 5;
-        -- You gain 25 hp per points of constitution as well.
-	-- Also, every points beyond 5 increase hp by 5%.
+        -- You gain 15 hp per points of constitution as well.
+	-- Also, every points beyond 5 increase hp by 3%.
         -- The first 4 constitutions points does not give you any bonuses.
 
-        mhp = mhp + ((p_ptr.stat_ind[A_CON+1] - 4) * 25)
+        mhp = mhp + ((p_ptr.stat_ind[A_CON+1] - 4) * 15)
+
+	-- Let's give at least 10 hp.
+	if (mhp < 10) then mhp = 10 end
+
 	if (p_ptr.stat_ind[A_CON+1] > 5) then
 
-		mhp = mhp + ((mhp * ((p_ptr.stat_ind[A_CON+1] - 5) * 5)) / 100)
+		mhp = mhp + multiply_divide(mhp, (p_ptr.stat_ind[A_CON+1] - 5) * 3, 100)
 	end
-
-        -- Monk's One With Body & Mind
-        mhp = mhp + (p_ptr.abilities[(CLASS_MONK * 10) + 7] * 15)
 
         -- Make sure we at least have 1 hp
         if (mhp < 1) then mhp = 1 end
@@ -116,38 +130,19 @@ function calc_hitpoints ()
                 i = i + 1
         end
 
-        -- Augment Hitpoint
-        mhp = mhp + ((mhp * hpmult) / 100)
+	-- Defender's Heavy Armor Mastery.
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] >= 1) then
 
-	-- Defender's Armored health
-        if (((inven(INVEN_BODY).tval == TV_HARD_ARMOR) or (inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) and p_ptr.abilities[(CLASS_DEFENDER * 10) + 7] >= 1) then
+		if (inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR) then
 
-		if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] >= 1) then
-
-			local newac
-
-			newac = inven(INVEN_BODY).ac + multiply_divide(inven(INVEN_BODY).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] * 2, 100)
-
-			mhp = mhp + ((newac * 3) * p_ptr.abilities[(CLASS_DEFENDER * 10) + 7])
-		else
-
-                	mhp = mhp + ((inven(INVEN_BODY).ac * 3) * p_ptr.abilities[(CLASS_DEFENDER * 10) + 7])
+			hpmult = hpmult + multiply_divide(inven(INVEN_BODY).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 1], 100)
 		end
-        end
-
-	-- Monsters gets more hp.
-	if (p_ptr.prace == RACE_MONSTER) then
-
-		mhp = mhp + (maxroll(m_race(p_ptr.body_monster).hdice, m_race(p_ptr.body_monster).hside) / 2)
 	end
 
-	mhp = mhp + multiply_divide(mhp, p_ptr.lev * 20, 100)
-
-	-- Warrior's Increased Life
-	if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 3] > 0) then
-
-		mhp = mhp + multiply_divide(mhp, p_ptr.abilities[(CLASS_WARRIOR * 10) + 3] * 10, 100)
-	end
+        -- Augment Hitpoint
+	mhp = mhp + multiply_divide(mhp, hpmult, 100)
+	
+	mhp = mhp + multiply_divide(mhp, p_ptr.lev * 10, 100)
 	
         i = 0;
 
@@ -181,7 +176,7 @@ function calc_mana ()
 	local cur_wgt
 	local max_wgt
 	local i
-	local manamult
+	local manamult = 0
 	local craftbonus
 	manamult = 0
 	craftbonus = 0
@@ -192,40 +187,11 @@ function calc_mana ()
         -- The first 5 intelligence points does not give you any bonuses.
         msp = msp + ((p_ptr.stat_ind[A_INT+1] - 5) * 10)
 
-        -- Mage's Mana Boost ability!
-        msp = msp + (p_ptr.abilities[(CLASS_MAGE * 10) + 1] * 20)
+        -- Mage's Wizardry.
+        manamult = manamult + (p_ptr.abilities[(CLASS_MAGE * 10) + 1] * 10)
 
-        -- Monk's One With Body & Mind
-        msp = msp + (p_ptr.abilities[(CLASS_MONK * 10) + 7] * 15)
-
-	-- Defender's Armored Spellcasting
-        if (((inven(INVEN_BODY).tval == TV_HARD_ARMOR) or (inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) and p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] >= 1) then
-
-		if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] >= 1) then
-
-			local newac
-
-			newac = inven(INVEN_BODY).ac + multiply_divide(inven(INVEN_BODY).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] * 2, 100)
-
-			msp = msp + (newac * p_ptr.abilities[(CLASS_DEFENDER * 10) + 2])
-		else
-
-                	msp = msp + (inven(INVEN_BODY).ac * p_ptr.abilities[(CLASS_DEFENDER * 10) + 2])
-		end
-        end
-
-	-- Elemental Lord's Element Weapon.
-	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4] >= 1) then
-
-		if (inven(INVEN_WIELD).tval == TV_WEAPON and inven(INVEN_WIELD).extra1 == p_ptr.elemlord) then
-
-			msp = msp + ((maxroll(inven(INVEN_WIELD).dd, inven(INVEN_WIELD).ds) * 3) * p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4])
-		end
-		if (inven(INVEN_WIELD+1).tval == TV_WEAPON and inven(INVEN_WIELD+1).extra1 == p_ptr.elemlord) then
-
-			msp = msp + ((maxroll(inven(INVEN_WIELD+1).dd, inven(INVEN_WIELD+1).ds) * 3) * p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4])
-		end
-	end
+	-- Elemental Lord's Elemental Being.
+	manamult = manamult + p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] * 2
 
         -- Spellcraft skill gives you more mana...
         if (p_ptr.skill_base[2] >= 80) then msp = msp + (msp / 4) end
@@ -236,7 +202,14 @@ function calc_mana ()
                 -- Mana multiplier
                 if (inven(i).k_idx > 0 and inven(i).disabled == 0) then
 
-                        manamult = manamult + inven(i).manabonus
+			-- Rods Mastery.
+			if (inven(i).tval == TV_ROD and p_ptr.abilities[(CLASS_MAGE * 10) + 6] >= 1) then
+
+				manamult = manamult + multiply_divide(inven(i).manabonus, p_ptr.abilities[(CLASS_MAGE * 10) + 6] * 20, 100)
+			else
+
+                        	manamult = manamult + inven(i).manabonus
+			end
                 end
 
 		-- Bonus for crafted items if you have the proper ability!
@@ -258,11 +231,8 @@ function calc_mana ()
 
 	msp = msp + craftbonus
 
-        -- Increased Mana ability...
-        manamult = manamult + (p_ptr.abilities[(CLASS_HIGH_MAGE * 10) + 1] * 10)
-
         -- Augment Mana
-        msp = msp + ((msp * manamult) / 100)
+	msp = msp + multiply_divide(msp, manamult, 100)
 
 	-- Armor causes encumbrance.
 	-- Each equipment parts adds up to a percentile penality based on weight.
@@ -276,26 +246,15 @@ function calc_mana ()
 	if (not(get_object_flag2(inven(INVEN_OUTER), TR2_FREE_ACT))) then cur_wgt = cur_wgt + (inven(INVEN_OUTER).weight / 10) end
 
 	-- Check the mana loss percentage...
-	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] <= 10) then
 
-		if (cur_wgt > 100) then cur_wgt = 100 end
-		if (cur_wgt < 0) then cur_wgt = 0 end
+	if (cur_wgt > 100) then cur_wgt = 100 end
+	if (cur_wgt < 0) then cur_wgt = 0 end
 
-		cur_wgt = cur_wgt - multiply_divide(cur_wgt, p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] * 10, 100)
-
-		-- Reduce mana by percentile amount.
-		msp = msp - multiply_divide(msp, cur_wgt, 100)
-	else
-		local manabonus
-		if (cur_wgt < 0) then cur_wgt = 0 end
-
-		manabonus = multiply_divide(cur_wgt, (p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] - 10) * 10, 100)
-
-		msp = msp + multiply_divide(msp, manabonus, 100)
-	end
+	-- Reduce mana by percentile amount.
+	msp = msp - multiply_divide(msp, cur_wgt, 100)
 
 	-- Wearing gloves is especially bad.
-	if (inven(INVEN_HANDS).k_idx > 0 and not(get_object_flag2(inven(INVEN_HANDS), TR2_FREE_ACT) or p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] >= 10)) then msp = (msp / 2) end
+	if (inven(INVEN_HANDS).k_idx > 0 and not(get_object_flag2(inven(INVEN_HANDS), TR2_FREE_ACT))) then msp = (msp / 2) end
 
         -- Check the mana...
         -- Probably will never reach this cap.
@@ -339,9 +298,13 @@ function calc_bonuses ()
 	local   extra_blows
 	local   extra_shots
 	local   intfight = 0
-	local   dambonus = 0
-	local   intbonus = 0
-	local   dexbonus = 0
+	local   str_bonus = 0
+	local   int_bonus = 0
+	local   wis_bonus = 0
+	local   dex_bonus = 0
+	local   con_bonus = 0
+	local   chr_bonus = 0
+	local   ac_bonus = 0
 
 	-- Save the old speed
 	old_speed = p_ptr.pspeed
@@ -468,13 +431,6 @@ function calc_bonuses ()
 	if (p_ptr.pclass == CLASS_MONK) then
 	  p_ptr.free_act = TRUE
 	end
-	if (p_ptr.pclass == CLASS_DEFENDER) then
-	  p_ptr.free_act = TRUE
-	  p_ptr.resist_fear = TRUE
-	  p_ptr.resist_conf = TRUE
-	  p_ptr.to_a = p_ptr.to_a + (p_ptr.lev * 2)
-          p_ptr.dis_to_a = p_ptr.dis_to_a + (p_ptr.lev * 2)
-	end
 	if (p_ptr.pclass == CLASS_JUSTICE_WARRIOR) then
 	  p_ptr.resistances[GF_LITE+1] = 50
 	  p_ptr.hold_life = TRUE
@@ -558,7 +514,7 @@ function calc_bonuses ()
 	  p_ptr.skill_bonus[17] = p_ptr.skill_bonus[17] + (p_ptr.skill_base[17] / 4)
 	  p_ptr.skill_bonus[5] = p_ptr.skill_bonus[5] + (p_ptr.skill_base[5] / 4)
 	  p_ptr.skill_bonus[30] = p_ptr.skill_bonus[30] + (p_ptr.skill_base[30] / 4)
-	  p_ptr.skill_bonus[12] = p_ptr.skill_bonus[12] + (p_ptr.skill_base[12] / 2)
+	  p_ptr.skill_bonus[12] = p_ptr.skill_bonus[12] + (p_ptr.skill_base[12] / 4)
 	  p_ptr.skill_bonus[6] = p_ptr.skill_bonus[6] - (p_ptr.skill_base[6] / 4)
 	  p_ptr.skill_bonus[2] = p_ptr.skill_bonus[2] - (p_ptr.skill_base[2] / 4)
 	  p_ptr.pspeed = p_ptr.pspeed - 1
@@ -568,7 +524,7 @@ function calc_bonuses ()
 	  p_ptr.stat_add[A_CON+1] = p_ptr.stat_add[A_CON+1] + (p_ptr.stat_cur[A_CON+1] / 10)
 	  p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] - (p_ptr.stat_cur[A_DEX+1] / 4)
 	  p_ptr.skill_bonus[2] = p_ptr.skill_bonus[2] + (p_ptr.skill_base[2] / 4)
-	  p_ptr.skill_bonus[11] = p_ptr.skill_bonus[11] + (p_ptr.skill_base[11] / 2)
+	  p_ptr.skill_bonus[11] = p_ptr.skill_bonus[11] + (p_ptr.skill_base[11] / 4)
 	  p_ptr.skill_bonus[6] = p_ptr.skill_bonus[6] - (p_ptr.skill_base[6] / 4)
 	  p_ptr.skill_bonus[30] = p_ptr.skill_bonus[30] + (p_ptr.skill_base[30] / 10)
 	end
@@ -619,27 +575,6 @@ function calc_bonuses ()
 	  p_ptr.resistances[GF_CHAOS+1] = p_ptr.resistances[GF_CHAOS+1] + 100
 	end
 	if (p_ptr.prace == RACE_MONSTER) then
-	  local strbonus
-	  local dexbonus
-	  local intbonus
-	  local martsbonus
-	  local spellbonus
-	  if (m_race(p_ptr.body_monster).body_parts[BODY_WEAPON+1] == 1) then
-	  	strbonus = (m_race(p_ptr.body_monster).str + ((m_race(p_ptr.body_monster).str * ((p_ptr.lev - 1) * 3)) / 100)) - 5
-	  	dexbonus = (m_race(p_ptr.body_monster).dex + ((m_race(p_ptr.body_monster).dex * ((p_ptr.lev - 1) * 3)) / 100)) - 5
-	  	intbonus = (m_race(p_ptr.body_monster).mind + ((m_race(p_ptr.body_monster).mind * ((p_ptr.lev - 1) * 3)) / 100)) - 5
-	  else
-	  	strbonus = (m_race(p_ptr.body_monster).str + ((m_race(p_ptr.body_monster).str * ((p_ptr.lev - 1) * 5)) / 100)) - 5
-	  	dexbonus = (m_race(p_ptr.body_monster).dex + ((m_race(p_ptr.body_monster).dex * ((p_ptr.lev - 1) * 5)) / 100)) - 5
-	  	intbonus = (m_race(p_ptr.body_monster).mind + ((m_race(p_ptr.body_monster).mind * ((p_ptr.lev - 1) * 5)) / 100)) - 5
-	  end
-	  if (strbonus < 0) then strbonus = 0 end
-	  if (dexbonus < 0) then dexbonus = 0 end
-	  if (intbonus < 0) then intbonus = 0 end
-	  p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + strbonus
-	  p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] + dexbonus
-	  p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + intbonus
-	  p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + intbonus
 	  if (get_monster_flag3(p_ptr.body_monster, RF3_NO_STUN) or get_monster_flag3(p_ptr.body_monster, RF3_NO_SLEEP)) then
 		p_ptr.paralyzed = 0
 		p_ptr.stun = 0
@@ -670,91 +605,9 @@ function calc_bonuses ()
 	end
 
         -- Stat boosting abilities
-        -- Warrior's Strength
-        if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 2] >= 1) then
-        
-                p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + multiply_divide(p_ptr.stat_cur[A_STR+1], p_ptr.abilities[(CLASS_WARRIOR * 10) + 2] * 10, 100)
-        end
-        -- Priest's Divine Blood
-        if (p_ptr.abilities[(CLASS_PRIEST * 10) + 3] >= 1) then
-        
-                p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + (((p_ptr.stat_cur[A_STR+1] * p_ptr.abilities[(CLASS_PRIEST * 10) + 3]) * 3) / 100)
-                p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + (((p_ptr.stat_cur[A_INT+1] * p_ptr.abilities[(CLASS_PRIEST * 10) + 3]) * 3) / 100)
-                p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + (((p_ptr.stat_cur[A_WIS+1] * p_ptr.abilities[(CLASS_PRIEST * 10) + 3]) * 3) / 100)
-                p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] + (((p_ptr.stat_cur[A_DEX+1] * p_ptr.abilities[(CLASS_PRIEST * 10) + 3]) * 3) / 100)
-                p_ptr.stat_add[A_CON+1] = p_ptr.stat_add[A_CON+1] + (((p_ptr.stat_cur[A_CON+1] * p_ptr.abilities[(CLASS_PRIEST * 10) + 3]) * 3) / 100)
-                p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + (((p_ptr.stat_cur[A_CHR+1] * p_ptr.abilities[(CLASS_PRIEST * 10) + 3]) * 3) / 100)
-        end
+	-- As of 0.5, each stats has it's own section.
 
-	-- Rogue's Thievery also boost Stealth.
-   	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 2] >= 1) then
-
-        	p_ptr.skill_bonus[7] = p_ptr.skill_bonus[7] + multiply_divide(p_ptr.skill_base[7], p_ptr.abilities[(CLASS_ROGUE * 10) + 2] * 5, 100)
-	end
-
-        -- Rogue's Swashbuckler
-        if (p_ptr.abilities[(CLASS_ROGUE * 10) + 4] >= 1) then
-
-                p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] + multiply_divide(p_ptr.stat_cur[A_DEX+1], p_ptr.abilities[(CLASS_ROGUE * 10) + 4] * 10, 100)
-        end
-        -- Ranger's Wilderness lore!
-        if (p_ptr.abilities[(CLASS_RANGER * 10) + 1] >= 1) then
-
-                p_ptr.see_infra = p_ptr.see_infra + ((p_ptr.abilities[(CLASS_RANGER * 10) + 1]))
-                if (p_ptr.abilities[(CLASS_RANGER * 10) + 1] >= 5) then p_ptr.telepathy = TRUE end
-        end
-        -- Monk's Wisdom
-        if (p_ptr.abilities[(CLASS_MONK * 10) + 5] >= 1) then
-
-                p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + (((p_ptr.stat_cur[A_WIS+1] * p_ptr.abilities[(CLASS_MONK * 10) + 5]) * 5) / 100)
-        end
-	-- Elemental Lord's Element Knight.
-	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] >= 1) then
-        
-                p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + multiply_divide(p_ptr.stat_cur[A_INT+1], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 33, 100)
-		p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_STR+1], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 33, 100)
-		p_ptr.skill_bonus[13] = p_ptr.skill_bonus[13] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
-		p_ptr.skill_bonus[14] = p_ptr.skill_bonus[14] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
-		p_ptr.skill_bonus[15] = p_ptr.skill_bonus[15] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
-		p_ptr.skill_bonus[16] = p_ptr.skill_bonus[16] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
-		p_ptr.skill_bonus[17] = p_ptr.skill_bonus[17] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
-		p_ptr.skill_bonus[23] = p_ptr.skill_bonus[23] + multiply_divide((p_ptr.skill_base[13] + p_ptr.skill_base[14] + p_ptr.skill_base[15] + p_ptr.skill_base[16] + p_ptr.skill_base[17]), p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
-        end
-        -- Monster Mage's Constitution
-        if (p_ptr.abilities[(CLASS_MONSTER_MAGE * 10) + 3] >= 1) then
-
-                p_ptr.stat_add[A_CON+1] = p_ptr.stat_add[A_CON+1] + (((p_ptr.stat_cur[A_CON+1] * p_ptr.abilities[(CLASS_MONSTER_MAGE * 10) + 3]) * 5) / 100)
-        end
-        -- Soul Guardian's Soul Guide
-        if (p_ptr.abilities[(CLASS_SOUL_GUARDIAN * 10) + 6] >= 1) then
-
-                p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + (((p_ptr.stat_cur[A_WIS+1] * p_ptr.abilities[(CLASS_SOUL_GUARDIAN * 10) + 6]) * 3) / 100)
-                p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + (((p_ptr.stat_cur[A_CHR+1] * p_ptr.abilities[(CLASS_SOUL_GUARDIAN * 10) + 6]) * 3) / 100)
-        end
-	-- Bard's Charming Demeanor
-        if (p_ptr.abilities[(CLASS_BARD * 10) + 4] >= 1) then
-
-                p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + (((p_ptr.stat_cur[A_CHR+1] * p_ptr.abilities[(CLASS_BARD * 10) + 4]) * 10) / 100)
-        end
-
-	-- Bard's Lore of the Bard
-        if (p_ptr.abilities[(CLASS_BARD * 10) + 6] >= 1) then
-
-                p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 6] * 10, 100)
-		p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + multiply_divide(p_ptr.stat_cur[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 6] * 10, 100)
-        end
-
-	-- Bard's Bardic Reputation
-        if (p_ptr.abilities[(CLASS_BARD * 10) + 7] >= 1) then
-
-		local align
-		if (p_ptr.alignment < 0) then align = (p_ptr.alignment * (-1))
-		else align = p_ptr.alignment end
-
-                p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + multiply_divide(p_ptr.stat_cur[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 7] * align, 100)
-        end
-
-	-- Monster!
+	-- Monsters can gain bonus to many stats.
 	if (p_ptr.abilities[(CLASS_MONSTER * 10) + 1] >= 1 or p_ptr.abilities[(CLASS_MONSTER * 10) + 2] >= 1) then
 
 		local greatgains
@@ -770,27 +623,230 @@ function calc_bonuses ()
 
 		totalgains = greatgains + smallgains
 
-		p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + multiply_divide(p_ptr.stat_cur[A_STR+1], totalgains, 100)
-		p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_INT+1], totalgains, 100)
-		p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + multiply_divide(p_ptr.stat_cur[A_WIS+1], totalgains, 100)
-		p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] + multiply_divide(p_ptr.stat_cur[A_DEX+1], totalgains, 100)
+		str_bonus = totalgains
+		int_bonus = totalgains
+		wis_bonus = totalgains
+		dex_bonus = totalgains
 	end
 
+	-- STRENGTH
+
+        -- Balanced Warrior
+        if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 3] >= 1) then
+
+		str_bonus = str_bonus + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 3] * 10)
+        end
+
+	-- Overwhelming Strength
+        if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] >= 1) then
+
+		str_bonus = str_bonus + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] * 20)
+        end
+
+	-- INTELLIGENCE
+
+	-- Wizardry.
+        if (p_ptr.abilities[(CLASS_MAGE * 10) + 1] >= 1) then
+
+		int_bonus = int_bonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 1] * 10)
+        end
+
+	-- WiSDOM
+
+	-- Perfect Union.
+        if (p_ptr.abilities[(CLASS_MONK * 10) + 10] >= 1) then
+
+		wis_bonus = wis_bonus + (p_ptr.abilities[(CLASS_MONK * 10) + 10] * 10)
+        end
+
+	-- DEXTERITY
+
+	-- Sharpshooter
+        if (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 8] >= 1) then
+
+		dex_bonus = dex_bonus + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 8] * 10)
+        end
+
+	-- CONSTITUTION
+
+	-- Balanced Warrior
+        if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 3] >= 1) then
+
+		con_bonus = con_bonus + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 3] * 10)
+        end
+
+	-- Ultra Defenses
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 9] >= 1) then
+
+		con_bonus = con_bonus + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 9] * 15)
+        end
+
+	-- CHARISMA
+
+	-- Inspire Courage.
+	if (p_ptr.abilities[(CLASS_BARD * 10) + 2] >= 1) then
+
+		chr_bonus = chr_bonus + (p_ptr.abilities[(CLASS_BARD * 10) + 2] * 5)
+	end
+
+	-- Charismatic Musician.
+	if (p_ptr.abilities[(CLASS_BARD * 10) + 6] >= 1) then
+
+		chr_bonus = chr_bonus + (p_ptr.abilities[(CLASS_BARD * 10) + 6] * 5)
+	end
+
+	-- Bardic Reputation.
+	if (p_ptr.abilities[(CLASS_BARD * 10) + 7] >= 1) then
+
+		chr_bonus = chr_bonus + (p_ptr.abilities[(CLASS_BARD * 10) + 7] * 10)
+	end
+
+	-- Bardic Grandeur.
+	if (p_ptr.abilities[(CLASS_BARD * 10) + 10] >= 1) then
+
+		chr_bonus = chr_bonus + (p_ptr.abilities[(CLASS_BARD * 10) + 10] * 10)
+	end
+
+	-- Monster Racial Champion.
 	if (p_ptr.abilities[(CLASS_MONSTER * 10) + 9] >= 1) then
 
 		local chrgains
 
 		chrgains = m_race(p_ptr.body_monster).level * p_ptr.abilities[(CLASS_MONSTER * 10) + 9]
 
-		p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + multiply_divide(p_ptr.stat_cur[A_CHR+1], chrgains, 100)
+		chr_bonus = chr_bonus + chrgains
 	end
 
-	-- Monster!
+	-- MULTIPLE STATS
+
+	-- Elemental Lord's Elemental Being.
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] >= 1) then
+
+		local allgains
+
+		allgains = p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] * 5
+
+		str_bonus = str_bonus + allgains
+		int_bonus = int_bonus + allgains
+		con_bonus = con_bonus + allgains
+	end
+
+
+	p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + multiply_divide(p_ptr.stat_cur[A_STR+1], str_bonus, 100)
+	p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_INT+1], int_bonus, 100)
+	p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + multiply_divide(p_ptr.stat_cur[A_WIS+1], wis_bonus, 100)
+	p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] + multiply_divide(p_ptr.stat_cur[A_DEX+1], dex_bonus, 100)
+	p_ptr.stat_add[A_CON+1] = p_ptr.stat_add[A_CON+1] + multiply_divide(p_ptr.stat_cur[A_CON+1], con_bonus, 100)
+	p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + multiply_divide(p_ptr.stat_cur[A_CHR+1], chr_bonus, 100)
+
+	-- SKILLS BONUS --
+	-- Improved Combat Feats.
+	if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 6] >= 1) then
+
+		p_ptr.skill_bonus[8] = p_ptr.skill_bonus[8] + multiply_divide(p_ptr.skill_base[8], p_ptr.abilities[(CLASS_WARRIOR * 10) + 6] * 50, 100)
+        end
+	-- Weapons Mastery.
+	if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] >= 1) then
+
+		p_ptr.skill_bonus[13] = p_ptr.skill_bonus[13] + multiply_divide(p_ptr.skill_base[13], p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] * 10, 100)
+		p_ptr.skill_bonus[14] = p_ptr.skill_bonus[14] + multiply_divide(p_ptr.skill_base[14], p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] * 10, 100)
+		p_ptr.skill_bonus[15] = p_ptr.skill_bonus[15] + multiply_divide(p_ptr.skill_base[15], p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] * 10, 100)
+		p_ptr.skill_bonus[16] = p_ptr.skill_bonus[16] + multiply_divide(p_ptr.skill_base[16], p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] * 10, 100)
+		p_ptr.skill_bonus[17] = p_ptr.skill_bonus[17] + multiply_divide(p_ptr.skill_base[17], p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] * 10, 100)
+		p_ptr.skill_bonus[30] = p_ptr.skill_bonus[30] + multiply_divide(p_ptr.skill_base[30], p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] * 10, 100)
+        end
+
+	-- Stealthy Fighter.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1 and not(inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
+
+		p_ptr.skill_bonus[7] = p_ptr.skill_bonus[7] + multiply_divide(p_ptr.skill_base[7], p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 5, 100)
+        end
+
+	-- Blessing of Protection.
+	if (p_ptr.abilities[(CLASS_PRIEST * 10) + 3] >= 1 and p_ptr.events[29054] == 1) then
+
+		p_ptr.skill_bonus[5] = p_ptr.skill_bonus[5] + multiply_divide(p_ptr.stat_ind[A_WIS+1], p_ptr.abilities[(CLASS_PRIEST * 10) + 3] * 3, 100)
+		p_ptr.skill_bonus[6] = p_ptr.skill_bonus[6] + multiply_divide(p_ptr.stat_ind[A_WIS+1], p_ptr.abilities[(CLASS_PRIEST * 10) + 3] * 3, 100)
+		p_ptr.skill_bonus[28] = p_ptr.skill_bonus[28] + multiply_divide(p_ptr.stat_ind[A_WIS+1], p_ptr.abilities[(CLASS_PRIEST * 10) + 3] * 3, 100)
+        end
+
+	-- Divine Intervention.
+	if (p_ptr.abilities[(CLASS_PRIEST * 10) + 9] >= 1 and p_ptr.events[29056] > 0) then
+
+		p_ptr.skill_bonus[5] = p_ptr.skill_bonus[5] + multiply_divide(p_ptr.stat_ind[A_WIS+1], 100 + (p_ptr.abilities[(CLASS_PRIEST * 10) + 9] * 20), 100)
+		p_ptr.skill_bonus[28] = p_ptr.skill_bonus[28] + multiply_divide(p_ptr.stat_ind[A_WIS+1], 100 + (p_ptr.abilities[(CLASS_PRIEST * 10) + 9] * 20), 100)
+        end
+
+	-- Inspire Courage
+	if (p_ptr.abilities[(CLASS_BARD * 10) + 2] >= 1) then
+
+		p_ptr.skill_bonus[1] = p_ptr.skill_bonus[1] + multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 2] * 3, 100)
+		p_ptr.skill_bonus[2] = p_ptr.skill_bonus[2] + multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 2] * 3, 100)
+		p_ptr.skill_bonus[3] = p_ptr.skill_bonus[3] + multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 2] * 3, 100)
+		p_ptr.skill_bonus[29] = p_ptr.skill_bonus[29] + multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 2] * 3, 100)
+        end
+
+	-- Charismatic Musician.
+	if (p_ptr.abilities[(CLASS_BARD * 10) + 6] >= 1) then
+
+		p_ptr.skill_bonus[29] = p_ptr.skill_bonus[29] + multiply_divide(p_ptr.skill_base[29], p_ptr.abilities[(CLASS_BARD * 10) + 6] * 10, 100)
+        end
+
+	-- Elemental Being.
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] >= 1) then
+
+		p_ptr.skill_bonus[23] = p_ptr.skill_bonus[23] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] * 5, 100)
+        end
+
+	-- Ultra Defenses.
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 9] >= 1) then
+
+		p_ptr.skill_bonus[5] = p_ptr.skill_bonus[5] + multiply_divide(p_ptr.skill_base[5], p_ptr.abilities[(CLASS_DEFENDER * 10) + 9] * 15, 100)
+		p_ptr.skill_bonus[28] = p_ptr.skill_bonus[28] + multiply_divide(p_ptr.skill_base[28], p_ptr.abilities[(CLASS_DEFENDER * 10) + 9] * 15, 100)
+        end
+
+
+	-- OTHER BONUS --
+
+	-- Lore of the Bard.
+	if (p_ptr.abilities[(CLASS_BARD * 10) + 3] >= 1) then
+
+		p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 3] * 10, 100)
+		p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + multiply_divide(p_ptr.stat_cur[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 3] * 10, 100)
+		p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + multiply_divide(p_ptr.stat_cur[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 3] * 10, 100)
+        end
+
+	-- Elemental Lord's Elemental Spellsword.
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] >= 1) then
+        
+                p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + multiply_divide(p_ptr.stat_cur[A_INT+1], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 20, 100)
+		p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_STR+1], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 20, 100)
+        end
+	-- Elemental Armor's resistance to chosen element.
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4] >= 1) then
+
+		p_ptr.resistances[p_ptr.elemlord+1] = p_ptr.resistances[p_ptr.elemlord+1] + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4] * 20)
+		if (p_ptr.resistances[p_ptr.elemlord+1] > 100) then p_ptr.resistances[p_ptr.elemlord+1] = 100 end
+	end
+	-- Elemental Being makes you immune to your chosen element. It also improves Physical resistance.
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] >= 1) then
+
+		local physresbonus
+
+		physresbonus = p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] * 2
+		if (physresbonus > 75) then physresbonus = 75 end
+
+		p_ptr.resistances[p_ptr.elemlord+1] = 100
+		p_ptr.resistances[GF_PHYSICAL+1] = p_ptr.resistances[GF_PHYSICAL+1] + physresbonus
+		if (p_ptr.resistances[GF_PHYSICAL+1] > 100) then p_ptr.resistances[GF_PHYSICAL+1] = 100 end
+	end
+
+	-- Paragon Elder Monster.
 	if (p_ptr.abilities[(CLASS_MONSTER * 10) + 10] >= 1) then
 
 		local statsgains
 
-		statsgains = 5 * p_ptr.abilities[(CLASS_MONSTER * 10) + 10]
+		statsgains = 10 * p_ptr.abilities[(CLASS_MONSTER * 10) + 10]
 
 		p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + multiply_divide(p_ptr.stat_cur[A_STR+1], statsgains, 100)
 		p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_INT+1], statsgains, 100)
@@ -820,12 +876,6 @@ function calc_bonuses ()
 	p_ptr.skill_bonus[27] = p_ptr.skill_bonus[27] + p_ptr.skill_base[27] / 2
    end
 
-   -- Monk's Martial Arts Mastery!
-   if (p_ptr.abilities[(CLASS_MONK * 10) + 10] >= 1) then
-
-           p_ptr.skill_bonus[19] = p_ptr.skill_bonus[19] + (p_ptr.abilities[(CLASS_MONK * 10) + 10] * 2)
-   end
-
    -- High Mage's Spell Mastery!
    if (p_ptr.abilities[(CLASS_HIGH_MAGE * 10) + 10] >= 1) then
 
@@ -835,16 +885,6 @@ function calc_bonuses ()
 	   p_ptr.skill_bonus[25] = p_ptr.skill_bonus[25] + (p_ptr.abilities[(CLASS_HIGH_MAGE * 10) + 10] * 2)
 	   p_ptr.skill_bonus[26] = p_ptr.skill_bonus[26] + (p_ptr.abilities[(CLASS_HIGH_MAGE * 10) + 10] * 2)
 	   p_ptr.skill_bonus[27] = p_ptr.skill_bonus[27] + (p_ptr.abilities[(CLASS_HIGH_MAGE * 10) + 10] * 2)
-   end
-   -- Monster Mage's Monstrous Leadership!
-   if (p_ptr.abilities[(CLASS_MONSTER_MAGE * 10) + 4] >= 1 and not(p_ptr.body_monster == 0)) then
-
-           p_ptr.skill_bonus[10] = p_ptr.skill_bonus[10] + (p_ptr.abilities[(CLASS_MONSTER_MAGE * 10) + 4] * 3)
-   end
-   -- Monster Mage's Monstrous Martial Arts!
-   if (p_ptr.abilities[(CLASS_MONSTER_MAGE * 10) + 5] >= 1 and not(p_ptr.body_monster == 0)) then
-
-           p_ptr.skill_bonus[19] = p_ptr.skill_bonus[19] + (p_ptr.abilities[(CLASS_MONSTER_MAGE * 10) + 5] * 2)
    end
 
    -- Paladin's Champion of Good
@@ -885,29 +925,6 @@ function calc_bonuses ()
 	end
    end
 
-   -- Fighter's Accuracy!
-   if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 6] >= 1) then
-
-   	p_ptr.to_h = p_ptr.to_h + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 6] * 5) * p_ptr.skill[1]
-        p_ptr.dis_to_h = p_ptr.dis_to_h + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 6] * 5) * p_ptr.skill[1]
-   end
-   -- Defender's Shield Mastery!
-   if ((p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] >= 1) and (shield_has())) then
-
-   	p_ptr.to_h = p_ptr.to_h + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] * 30)
-        p_ptr.dis_to_h = p_ptr.dis_to_h + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] * 30)
-        p_ptr.to_d = p_ptr.to_d + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] * 30)
-        p_ptr.dis_to_d = p_ptr.dis_to_d + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] * 30)
-
-	if (inven(INVEN_WIELD).tval == TV_SHIELD) then
-
-		p_ptr.skill_bonus[5] = p_ptr.skill_bonus[5] + ((inven(INVEN_WIELD).ac / 10) * p_ptr.abilities[(CLASS_DEFENDER * 10) + 4])
-	end
-	if (inven(INVEN_WIELD+1).tval == TV_SHIELD) then
-
-		p_ptr.skill_bonus[5] = p_ptr.skill_bonus[5] + ((inven(INVEN_WIELD+1).ac / 10) * p_ptr.abilities[(CLASS_DEFENDER * 10) + 4])
-	end
-   end
    -- Ranger's Forestry ability!
    if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
 
@@ -997,13 +1014,6 @@ function calc_bonuses ()
 		end
 	end
 
-	-- Defender's Defensive Evasion.
-   	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 5] >= 1) then
-
-		p_ptr.skill_bonus[6] = p_ptr.skill_bonus[6] + multiply_divide(p_ptr.skill_base[5], p_ptr.abilities[(CLASS_DEFENDER * 10) + 5] * 5, 100)
-		p_ptr.skill_bonus[28] = p_ptr.skill_bonus[28] + multiply_divide(p_ptr.skill_base[5], p_ptr.abilities[(CLASS_DEFENDER * 10) + 5] * 5, 100)
-   	end
-
 	-- Light Armored Nightmare!
    	if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 8] >= 1) then
 
@@ -1028,9 +1038,82 @@ function calc_bonuses ()
 		lua_update_monsters()
 	end
 
+	-- Monster race adjustments.
+	-- Percentile adjustments to stats. This applies after everything else.
+	if (p_ptr.prace == RACE_MONSTER) then
+
+		if (m_race(p_ptr.body_monster).str < 100) then
+			p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] - multiply_divide(p_ptr.stat_cur[A_STR+1], 100 - m_race(p_ptr.body_monster).str, 100)
+		else
+			p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + multiply_divide(p_ptr.stat_cur[A_STR+1], m_race(p_ptr.body_monster).str - 100, 100)
+		end
+
+		if (m_race(p_ptr.body_monster).dex < 100) then
+			p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] - multiply_divide(p_ptr.stat_cur[A_DEX+1], 100 - m_race(p_ptr.body_monster).dex, 100)
+		else
+			p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] + multiply_divide(p_ptr.stat_cur[A_DEX+1], m_race(p_ptr.body_monster).dex - 100, 100)
+		end
+
+		if (m_race(p_ptr.body_monster).mind < 100) then
+			p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] - multiply_divide(p_ptr.stat_cur[A_INT+1], 100 - m_race(p_ptr.body_monster).mind, 100)
+			p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] - multiply_divide(p_ptr.stat_cur[A_WIS+1], 100 - m_race(p_ptr.body_monster).mind, 100)
+		else
+			p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_INT+1], m_race(p_ptr.body_monster).mind - 100, 100)
+			p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + multiply_divide(p_ptr.stat_cur[A_WIS+1], m_race(p_ptr.body_monster).mind - 100, 100)
+		end
+
+		if (m_race(p_ptr.body_monster).hp < 100) then
+			p_ptr.stat_add[A_CON+1] = p_ptr.stat_add[A_CON+1] - multiply_divide(p_ptr.stat_cur[A_CON+1], 100 - m_race(p_ptr.body_monster).hp, 100)
+		else
+			p_ptr.stat_add[A_CON+1] = p_ptr.stat_add[A_CON+1] + multiply_divide(p_ptr.stat_cur[A_CON+1], m_race(p_ptr.body_monster).hp - 100, 100)
+		end
+	end
+
+
+
 	-- Scan the usable inventory
 	-- Was once a lua code, now an hard-coded function to increase performances.
 	calc_equipment()
+
+	-- We should have the base AC and to_a now.
+	-- Apply Defense skill here.
+
+	-- If wearing light or no armor, add a bonus for Martial Arts skill.
+	if (not(inven(INVEN_BODY).tval == TV_HARD_ARMOR) and not(inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
+		p_ptr.ac = p_ptr.ac + (p_ptr.skill[19] / 3)
+		p_ptr.dis_ac = p_ptr.dis_ac + (p_ptr.skill[19] / 3)
+	end
+
+	-- If wearing hard/dragon armor, get a bonus from Heavy Armor Mastery.
+	if ((inven(INVEN_BODY).tval == TV_HARD_ARMOR) or (inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
+
+		if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] >= 1) then
+
+			p_ptr.ac = p_ptr.ac + multiply_divide(inven(INVEN_BODY).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] * 3, 100)
+			p_ptr.dis_ac = p_ptr.dis_ac + multiply_divide(inven(INVEN_BODY).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] * 3, 100)
+		end
+	end
+
+	-- If wielding a shield, get a bonus from Heavy Armor Mastery.
+	if (inven(INVEN_WIELD).tval == TV_SHIELD) then
+
+		if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] >= 1) then
+
+			p_ptr.ac = p_ptr.ac + multiply_divide(inven(INVEN_WIELD).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] * 3, 100)
+			p_ptr.dis_ac = p_ptr.dis_ac + multiply_divide(inven(INVEN_WIELD).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] * 3, 100)
+		end
+	end
+	if (inven(INVEN_WIELD+1).tval == TV_SHIELD) then
+
+		if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] >= 1) then
+
+			p_ptr.ac = p_ptr.ac + multiply_divide(inven(INVEN_WIELD+1).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] * 3, 100)
+			p_ptr.dis_ac = p_ptr.dis_ac + multiply_divide(inven(INVEN_WIELD+1).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] * 3, 100)
+		end
+	end
+
+	p_ptr.ac = p_ptr.ac + multiply_divide(p_ptr.ac, p_ptr.skill[5] * 3, 100)
+	p_ptr.dis_ac = p_ptr.dis_ac + multiply_divide(p_ptr.dis_ac, p_ptr.skill[5] * 3, 100)
 
 	-- Kobolds bonus to one-handed swords.
 	if (p_ptr.prace == RACE_KOBOLD) then
@@ -1049,6 +1132,18 @@ function calc_bonuses ()
 	-- Actually give the skills a value!
 	calc_skills(2)
 
+	-- If wearing hard or dragon armor, stealth is penalised.
+	-- The penality is armor's weight * 3.
+	if (inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR) then
+
+		local armorweight
+
+		armorweight = (inven(INVEN_BODY).weight / 10) * 3
+		if (armorweight > 100) then armorweight = 100 end
+
+		p_ptr.skill[7] = multiply_divide(p_ptr.skill[7], armorweight, 100)
+	end
+
 	-- Kensai's Focus
    	if (p_ptr.abilities[(CLASS_KENSAI * 10) + 1] >= 1) then
 		local totalwis
@@ -1061,35 +1156,27 @@ function calc_bonuses ()
 		p_ptr.dis_to_d = p_ptr.dis_to_d + (totalwis * p_ptr.abilities[(CLASS_KENSAI * 10) + 1])
 
    	end
-
-	-- Defender's Armored Might
-   	if ((p_ptr.abilities[(CLASS_DEFENDER * 10) + 10] >= 1) and (inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
-
-		local newac
-		local strbonus
-
-		newac = inven(INVEN_BODY).ac + multiply_divide(inven(INVEN_BODY).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] * 2, 100)
-
-		strbonus = newac / 10
-		strbonus = strbonus * p_ptr.abilities[(CLASS_DEFENDER * 10) + 10]
-		p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + strbonus
-   	end
-
-	-- Rogue's Stealthy and Cunning.
-	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 9] >= 1) then
-
-		p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.skill[7], p_ptr.abilities[(CLASS_ROGUE * 10) + 9] * 5, 100)
-	end
-
-	-- Battle Skill Warrior's ability!
-        if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] >= 1) then
-
-                p_ptr.to_h = p_ptr.to_h + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 20)
-                p_ptr.dis_to_h = p_ptr.dis_to_h + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 20)
-        end
 	
 	-- Calculate stats
 	calc_stats(1)
+
+	-- Priest blessings.
+	if (p_ptr.events[29054] == 3) then
+
+		local wispercent
+		wispercent = 10 * p_ptr.abilities[(CLASS_PRIEST * 10) + 7]
+		if (wispercent > 100) then wispercent = 100 end
+
+		p_ptr.stat_ind[A_STR+1] = p_ptr.stat_ind[A_STR+1] + multiply_divide(p_ptr.stat_ind[A_WIS+1], wispercent, 100)
+	end
+	if (p_ptr.events[29054] == 4) then
+
+		local wispercent
+		wispercent = 10 * p_ptr.abilities[(CLASS_PRIEST * 10) + 8]
+		if (wispercent > 100) then wispercent = 100 end
+
+		p_ptr.stat_ind[A_DEX+1] = p_ptr.stat_ind[A_DEX+1] + multiply_divide(p_ptr.stat_ind[A_WIS+1], wispercent, 100)
+	end
 
 	-- Make sure we still have enough charisma for the song we currently sing.
 	if (p_ptr.events[29042] == 1) then
@@ -1118,68 +1205,7 @@ function calc_bonuses ()
 	-- Searching slows the player down
 	if (p_ptr.searching > 0) then p_ptr.pspeed = p_ptr.pspeed - 10 end
 
-	
-
-	-- Actual Modifier Bonuses (Un-inflate stat bonuses)
-        p_ptr.to_a = p_ptr.to_a + ((p_ptr.stat_ind[A_DEX+1] - 5) / 2)
-
-	-- Thanks you Sekira for fixing this part. :)
-	intbonus = 0
-	dexbonus = 0
-	dambonus = (p_ptr.stat_ind[A_STR+1] - 5) * 5
-	-- Enchanter's Intelligent Fighting.
-	if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and only_enchanted_weapons()) then
-
-		local usedint
-
-		usedint = (p_ptr.stat_ind[A_INT+1] - 5)
-		if (usedint > (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)) then
-
-			usedint = (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)
-		end
-		intbonus = (usedint * 5)
-	end
-	if (intbonus > dambonus) then
-		dambonus = intbonus
-	end
-	-- Ranger's Weapon Finesse.
-	if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1) then
-
-		local useddex
-
-
-		useddex = (p_ptr.stat_ind[A_DEX+1] - 5)
-		if (useddex > (p_ptr.abilities[(CLASS_RANGER * 10) + 7] * 5)) then
-
-			useddex = (p_ptr.abilities[(CLASS_RANGER * 10) + 7] * 5)
-		end
-		dexbonus = (useddex * 5)
-	end
-	if (dexbonus > dambonus) then
-		dambonus = dexbonus
-	end
-	p_ptr.to_d = p_ptr.to_d + dambonus
-	p_ptr.dis_to_d = p_ptr.dis_to_d + dambonus
-
-
-        p_ptr.to_h = p_ptr.to_h + ((p_ptr.stat_ind[A_DEX+1] - 5) * 10)
-        p_ptr.to_h = p_ptr.to_h + (p_ptr.stat_ind[A_STR+1] / 2)
-	p_ptr.to_h = p_ptr.to_h + 2
-	p_ptr.to_h = p_ptr.to_h + ((p_ptr.to_h * ((p_ptr.stat_ind[A_DEX+1] - 5) * 5)) / 100)
-
-	-- Displayed Modifier Bonuses (Un-inflate stat bonuses)
-        p_ptr.dis_to_a = p_ptr.dis_to_a + (p_ptr.stat_ind[A_DEX+1] - 5) / 2
-        p_ptr.dis_to_h = p_ptr.dis_to_h + (p_ptr.stat_ind[A_DEX+1] - 5) * 10
-        p_ptr.dis_to_h = p_ptr.dis_to_h + p_ptr.stat_ind[A_STR+1] / 2
-	p_ptr.dis_to_h = p_ptr.dis_to_h + 2
-	p_ptr.dis_to_h = p_ptr.dis_to_h + ((p_ptr.dis_to_h * ((p_ptr.stat_ind[A_DEX+1] - 5) * 5)) / 100)
-
-	-- More Battle Skill fun!
-        if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] >= 1) then
-
-                p_ptr.to_d = p_ptr.to_d + multiply_divide(p_ptr.to_h, p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 3, 100)
-                p_ptr.dis_to_d = p_ptr.dis_to_d + multiply_divide(p_ptr.dis_to_h, p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 3, 100)
-        end
+	-- Modifiers(to_h, to_d, to_a, etc...)
 
 	-- Temporary shield
 	if (p_ptr.shield > 0) then
@@ -1287,12 +1313,12 @@ function calc_bonuses ()
 		local avgwgt
 
 		avgwgt = ((inven(INVEN_WIELD).weight / 10) + (inven(INVEN_WIELD+1).weight / 10)) / 2
-		if (p_ptr.skill[9] < ((avgwgt) * 3)) then
+		if (p_ptr.skill[9] < ((avgwgt) * 4)) then
 
 			-- With enough skill, daggers no longer cause penalities.
 			if (not((inven(INVEN_WIELD).itemskill == 15 and inven(INVEN_WIELD+1).itemskill == 15) and (p_ptr.skill_base[16] >= 20))) then
 
-				hitpenality = (((avgwgt) * 3) - p_ptr.skill[9]) * 2
+				hitpenality = (((avgwgt) * 4) - p_ptr.skill[9]) * 2
 				if (hitpenality >= 0) then
 
 					if (hitpenality > 95) then hitpenality = 95 end
@@ -1301,7 +1327,7 @@ function calc_bonuses ()
 				end
 			end
 		else
-			hitbonus = (p_ptr.skill[9] - ((avgwgt) * 3)) * 2
+			hitbonus = (p_ptr.skill[9] - ((avgwgt) * 4))
 			if (hitbonus > 0) then
 
 				p_ptr.to_h = p_ptr.to_h + ((p_ptr.to_h * hitbonus) / 100)
@@ -1310,88 +1336,39 @@ function calc_bonuses ()
 		end
 	end
 
-        -- Defender's Heavy Armored Defense!
-        if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] >= 1 and (inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
-
-                p_ptr.to_a = p_ptr.to_a + ((inven(INVEN_BODY).ac * 5) * p_ptr.abilities[(CLASS_DEFENDER * 10) + 1])
-                p_ptr.dis_to_a = p_ptr.dis_to_a + ((inven(INVEN_BODY).ac * 5) * p_ptr.abilities[(CLASS_DEFENDER * 10) + 1])
-        end
-
         -- Bonus to_ac never go below 0
         if (p_ptr.to_a < 0) then p_ptr.to_a = 0 end
         if (p_ptr.dis_to_a < 0) then p_ptr.dis_to_a = 0 end
 
-	-- Fighter's Defensive Fighting
-        if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 2] >= 1) then
+	-------------------------
+	-- PASSIVE BONUS TO AC --
+	-------------------------
 
-                p_ptr.ac = p_ptr.ac + ((p_ptr.skill[1] * 3) * p_ptr.abilities[(CLASS_FIGHTER * 10) + 2])
-                p_ptr.dis_ac = p_ptr.dis_ac + ((p_ptr.skill[1] * 3) * p_ptr.abilities[(CLASS_FIGHTER * 10) + 2])
+	ac_bonus = ac_bonus + p_ptr.dis_to_a
+
+	-- Battle Skill.
+	if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] >= 1) then
+
+		ac_bonus = ac_bonus + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 5)
         end
 
-        -- Base AC bonus for the Unarmored Combat monk ability!
-        if (p_ptr.abilities[(CLASS_MONK * 10) + 1] >= 1 and (inven(INVEN_BODY).tval == 0 or inven(INVEN_BODY).tval == TV_SOFT_ARMOR)) then
-
-		-- Extra gains from Agility is an idea of Sekira!
-		p_ptr.ac = p_ptr.ac + (p_ptr.abilities[(CLASS_MONK * 10) + 1] * 4) + ((p_ptr.abilities[(CLASS_MONK * 10) + 1] * 4 * p_ptr.skill[6] * 10) / 100)
-		p_ptr.dis_ac = p_ptr.dis_ac + (p_ptr.abilities[(CLASS_MONK * 10) + 1] * 4) + ((p_ptr.abilities[(CLASS_MONK * 10) + 1] * 4 * p_ptr.skill[6] * 10) / 100)
-        end
-        -- Base AC bonus for the Monstrous Defense monster mage ability!
-        if (p_ptr.abilities[(CLASS_MONSTER_MAGE * 10) + 7] >= 1 and p_ptr.body_monster > 0) then
-
-                p_ptr.ac = p_ptr.ac + ((m_race(p_ptr.body_monster).ac * (p_ptr.abilities[(CLASS_MONSTER_MAGE * 10) + 7] * 10)) / 100)
-                p_ptr.dis_ac = p_ptr.dis_ac + ((m_race(p_ptr.body_monster).ac * (p_ptr.abilities[(CLASS_MONSTER_MAGE * 10) + 7] * 10)) / 100)
-        end
-
-	-- Monsters Improved Defense.
-        if (p_ptr.abilities[(CLASS_MONSTER * 10) + 6] >= 1 and p_ptr.body_monster > 0) then
-
-                p_ptr.ac = p_ptr.ac + ((m_race(p_ptr.body_monster).ac * (p_ptr.abilities[(CLASS_MONSTER * 10) + 6] * 25)) / 100)
-                p_ptr.dis_ac = p_ptr.dis_ac + ((m_race(p_ptr.body_monster).ac * (p_ptr.abilities[(CLASS_MONSTER * 10) + 6] * 25)) / 100)
-        end
-        
-	-- Base AC from Martial Arts skill
-	if (inven(INVEN_BODY).tval == 0 or inven(INVEN_BODY).tval == TV_SOFT_ARMOR) then
-
-		-- Extra gains from Agility is an idea from Sekira.
-		p_ptr.ac = p_ptr.ac + (p_ptr.skill[19] * 2) + ((p_ptr.skill[19] * 2 * p_ptr.skill[6] * 10) / 100)
-		p_ptr.dis_ac = p_ptr.dis_ac + (p_ptr.skill[19] * 2) + ((p_ptr.skill[19] * 2 * p_ptr.skill[6] * 10) / 100)
-        end
-
-	-- Hardiness Warrior's ability!
-        if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 6] >= 1) then
-
-                p_ptr.ac = p_ptr.ac + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 6] * (p_ptr.stat_ind[A_CON+1] * 5))
-                p_ptr.dis_ac = p_ptr.dis_ac + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 6] * (p_ptr.stat_ind[A_CON+1] * 5))
-        end
-
-
-        -- Agility armor class modifier
-        p_ptr.to_a = p_ptr.to_a + ((p_ptr.ac / 10) * p_ptr.skill[6])
-        p_ptr.dis_to_a = p_ptr.dis_to_a + ((p_ptr.ac / 10) * p_ptr.skill[6])
-        p_ptr.to_a = p_ptr.to_a + (p_ptr.skill[6] * 3)
-        p_ptr.dis_to_a = p_ptr.dis_to_a + (p_ptr.skill[6] * 3)
-
-	-- Fighter's Defensive Power Attack
-	if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 7] > 0 and (p_ptr.powerattack > 0)) then
-
-		p_ptr.to_a = p_ptr.to_a + ((p_ptr.ac + p_ptr.to_a) * p_ptr.abilities[(CLASS_FIGHTER * 10) + 7])
-		p_ptr.dis_to_a = p_ptr.dis_to_a + ((p_ptr.dis_ac + p_ptr.dis_to_a) * p_ptr.abilities[(CLASS_FIGHTER * 10) + 7])
-	end
-
-	-- Bardic Grandeur.
-        if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 10] >= 1) then
-
-		local chrbonus
-
-		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], 20, 100) * p_ptr.abilities[(CLASS_BARD * 10) + 10]
-
-                p_ptr.to_a = p_ptr.to_a + multiply_divide(p_ptr.to_a, chrbonus, 100)
-                p_ptr.dis_to_a = p_ptr.dis_to_a + multiply_divide(p_ptr.dis_to_a , chrbonus, 100)
-        end
+	p_ptr.ac = p_ptr.ac + multiply_divide(p_ptr.ac, ac_bonus, 100)
+	p_ptr.dis_ac = p_ptr.dis_ac + multiply_divide(p_ptr.dis_ac, ac_bonus, 100)
 
         -- Base AC never go below 0.
         if (p_ptr.ac < 0) then p_ptr.ac = 0 end
         if (p_ptr.dis_ac < 0) then p_ptr.dis_ac = 0 end
+
+	-------------------------
+	-------------------------
+	-------------------------
+
+	-- Monk's Ki Resilience is applied after all bonus.
+	if (p_ptr.abilities[(CLASS_MONK * 10) + 9] >= 1) then
+
+		p_ptr.ac = p_ptr.ac + multiply_divide(p_ptr.stat_ind[A_WIS+1], p_ptr.abilities[(CLASS_MONK * 10) + 9] * 10, 100)
+		p_ptr.dis_ac = p_ptr.dis_ac + multiply_divide(p_ptr.stat_ind[A_WIS+1], p_ptr.abilities[(CLASS_MONK * 10) + 9] * 10, 100)
+	end
 
         -- If your shooting skill is 40+, get 1 extra shot!
         if (p_ptr.skill_base[3] >= 40) then
@@ -1406,11 +1383,11 @@ function calc_bonuses ()
                 p_ptr.num_fire = p_ptr.num_fire + 1
         end
 
-	-- If your Bows skill is 50+, you get a shot every 50 points.
-	if (p_ptr.skill_base[20] >= 50) then
+	-- If your Bows skill is 100+, you get a shot every 100 points.
+	if (p_ptr.skill_base[20] >= 100) then
 
-                if (inven(INVEN_WIELD).tval == TV_RANGED and (inven(INVEN_WIELD).itemskill + 1) == 20) then p_ptr.num_fire = p_ptr.num_fire + (p_ptr.skill_base[20] / 50) end
-		if (inven(INVEN_WIELD+1).tval == TV_RANGED and (inven(INVEN_WIELD+1).itemskill + 1) == 20) then p_ptr.num_fire2 = p_ptr.num_fire2 + (p_ptr.skill_base[20] / 50) end
+                if (inven(INVEN_WIELD).tval == TV_RANGED and (inven(INVEN_WIELD).itemskill + 1) == 20) then p_ptr.num_fire = p_ptr.num_fire + (p_ptr.skill_base[20] / 100) end
+		if (inven(INVEN_WIELD+1).tval == TV_RANGED and (inven(INVEN_WIELD+1).itemskill + 1) == 20) then p_ptr.num_fire2 = p_ptr.num_fire2 + (p_ptr.skill_base[20] / 100) end
         end
 
 	-- Extra blows and extra shots bonus.
@@ -1424,6 +1401,17 @@ function calc_bonuses ()
 		if (m_race(p_ptr.body_monster).attacks >= 2) then
 
 			extra_blows = extra_blows + (m_race(p_ptr.body_monster).attacks - 1)
+			extra_blows = extra_blows + (m_race(p_ptr.body_monster).attacksscale * (p_ptr.lev / m_race(p_ptr.body_monster).attacksscalefactor))
+		end
+	end
+
+	-- Monsters can get some extra shots.
+	if (p_ptr.prace == RACE_MONSTER) then
+
+		if (m_race(p_ptr.body_monster).shots >= 2) then
+
+			extra_shots = extra_shots + (m_race(p_ptr.body_monster).shots - 1)
+			extra_shots = extra_shots + (m_race(p_ptr.body_monster).shotsscale * (p_ptr.lev / m_race(p_ptr.body_monster).shotsscalefactor))
 		end
 	end
 
@@ -1432,10 +1420,12 @@ function calc_bonuses ()
 
 	-- Normal weapons
 
-	-- Now include Sekira's "Weapon Katas", as well as a few fixed he did.
+	-- Now include Sekira's "Weapon Katas", as well as a few fixes he did.
 	if (inven(INVEN_WIELD).k_idx > 0) then
 
                 local avg
+		local i = 0
+		local j = 0
 
                 -- The average of strength and dexterity. Both of them
                 -- can give you extra blows equally, so...
@@ -1443,23 +1433,47 @@ function calc_bonuses ()
 
                 -- Calculate the blows
                 -- The average of str and dex divided by the weapon's weight
-                if (inven(INVEN_WIELD).weight < 10) then
-			p_ptr.num_blow = p_ptr.num_blow + (avg / 10)
-                else
-			p_ptr.num_blow = p_ptr.num_blow + (avg / inven(INVEN_WIELD).weight)
+		if (inven(INVEN_WIELD).weight < 10) then
+			j = 10
+		else
+			j = inven(INVEN_WIELD).weight
+		end
+
+		-- When dual wielding, the weapon's weight is treated two points higher.
+		if (inven(INVEN_WIELD+1).k_idx > 0 and two_weapon_wield() and p_ptr.dualwield == 1) then
+
+			j = j + 20
+		end
+
+		i = avg
+
+		while (i > 0) do
+
+                	--if (inven(INVEN_WIELD).weight < 10) then
+			--	p_ptr.num_blow = p_ptr.num_blow + (avg / 10)
+                	--else
+			--	p_ptr.num_blow = p_ptr.num_blow + (avg / inven(INVEN_WIELD).weight)
+			--end
+			i = i - j
+			if (i > 0) then
+
+				p_ptr.num_blow = p_ptr.num_blow + 1
+			end
+
+			j = j + 10
 		end
 
 		-- Add in the "bonus blows"
 		p_ptr.num_blow = p_ptr.num_blow + extra_blows
 
 		-- Add in bonus from Martial Arts (Weapon Kata)
-		if (not(shield_has()) and not(inven(INVEN_WIELD).tval == TV_RANGED) and not(inven(INVEN_WIELD+1).tval == TV_RANGED)) then
-			if (inven(INVEN_WIELD).weight < 100) then
-				p_ptr.num_blow = p_ptr.num_blow + (p_ptr.skill[19] / 10)
-			else
-				p_ptr.num_blow = p_ptr.num_blow + (p_ptr.skill[19] * 10 / inven(INVEN_WIELD).weight)
-			end
-		end
+		--if (not(shield_has()) and not(inven(INVEN_WIELD).tval == TV_RANGED) and not(inven(INVEN_WIELD+1).tval == TV_RANGED)) then
+		--	if (inven(INVEN_WIELD).weight < 100) then
+		--		p_ptr.num_blow = p_ptr.num_blow + (p_ptr.skill[19] / 10)
+		--	else
+		--		p_ptr.num_blow = p_ptr.num_blow + (p_ptr.skill[19] * 10 / inven(INVEN_WIELD).weight)
+		--	end
+		--end
 
 		-- Extra shots?
 		--p_ptr.num_fire = p_ptr.num_fire + inven(INVEN_WIELD).extrashots
@@ -1495,40 +1509,74 @@ function calc_bonuses ()
         elseif (unarmed()) then
 
                 local avg
+		local wisbonus = 0
+		local i = 0
+		local j = 0
+
+		-- Monk's Strength through Spirit.
+		if (p_ptr.abilities[(CLASS_MONK * 10) + 1] >= 1) then
+
+			local wbonus
+
+			wbonus = p_ptr.abilities[(CLASS_MONK * 10) + 1] * 10
+			if (wbonus > 100) then wbonus = 100 end
+
+			wisbonus = multiply_divide(p_ptr.stat_ind[A_WIS+1], wbonus, 100)
+        	end
 
                 -- The average of strength and dexterity. Both of them
                 -- can give you extra blows equally, so...
-                avg = (p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1]) / 2
+                avg = ((p_ptr.stat_ind[A_STR+1] + wisbonus) + p_ptr.stat_ind[A_DEX+1]) / 2
 
                 -- Calculate the blows
 		if (p_ptr.prace == RACE_MONSTER) then
-			p_ptr.num_blow = p_ptr.num_blow + (avg / 40)
-			p_ptr.num_blow2 = p_ptr.num_blow2 + (avg / 40)
+			i = avg
+			j = 40
+
+			while (i > 0) do
+
+				i = i - j
+				if (i > 0) then
+
+					p_ptr.num_blow = p_ptr.num_blow + 1
+					p_ptr.num_blow2 = p_ptr.num_blow2 + 1
+				end
+
+				j = j + 1
+			end
 		else
-                	p_ptr.num_blow = p_ptr.num_blow + (avg / 10)
-			p_ptr.num_blow2 = p_ptr.num_blow2 + (avg / 10)
+			if (not(inven(INVEN_BODY).tval == TV_HARD_ARMOR) and not(inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
+
+				i = avg
+				j = 10
+
+				while (i > 0) do
+
+					i = i - j
+					if (i > 0) then
+
+						p_ptr.num_blow = p_ptr.num_blow + 1
+						p_ptr.num_blow2 = p_ptr.num_blow2 + 1
+					end
+
+					j = j + 1
+				end
+			end
 		end
 
 		-- Add in the "bonus blows"
 		p_ptr.num_blow = p_ptr.num_blow + extra_blows
 		p_ptr.num_blow2 = p_ptr.num_blow2 + extra_blows
 
-		if (not(p_ptr.prace == RACE_MONSTER)) then
+		--if (not(p_ptr.prace == RACE_MONSTER)) then
                 	-- Add in some bonuses from the Martial Arts skill...
-                	p_ptr.num_blow = p_ptr.num_blow + (p_ptr.skill[19] / 10)
-			p_ptr.num_blow2 = p_ptr.num_blow2 + (p_ptr.skill[19] / 10)
+                --	p_ptr.num_blow = p_ptr.num_blow + (p_ptr.skill[19] / 10)
+		--	p_ptr.num_blow2 = p_ptr.num_blow2 + (p_ptr.skill[19] / 10)
 
 			-- Fighting skill can also help.
-			p_ptr.num_blow = p_ptr.num_blow + (p_ptr.skill[1] / 20)
-			p_ptr.num_blow2 = p_ptr.num_blow2 + (p_ptr.skill[1] / 20)
-		end
-
-		-- We can also gain blows from Unarmed Fighting ability!
-		if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] >= 1) then
-
-			p_ptr.num_blow = p_ptr.num_blow + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] / 3)
-			p_ptr.num_blow2 = p_ptr.num_blow2 + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] / 3)
-		end
+		--	p_ptr.num_blow = p_ptr.num_blow + (p_ptr.skill[1] / 20)
+		--	p_ptr.num_blow2 = p_ptr.num_blow2 + (p_ptr.skill[1] / 20)
+		--end
 
 		-- Require at least one blow
 		if (p_ptr.num_blow < 1) then p_ptr.num_blow = 1 end
@@ -1539,30 +1587,50 @@ function calc_bonuses ()
 	if (inven(INVEN_WIELD+1).k_idx > 0) then
 
                 local avg
+		local i = 0
+		local j = 0
 
 		-- The average of strength and dexterity. Both of them
                 -- can give you extra blows equally, so...
                 avg = (p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1]) * 5
 
                 -- Calculate the blows
-                -- The average of str and dex divided by the weapon's weight
-                if (inven(INVEN_WIELD+1).weight < 10) then
-			p_ptr.num_blow2 = p_ptr.num_blow2 + (avg / 10)
-                else
-			p_ptr.num_blow2 = p_ptr.num_blow2 + (avg / inven(INVEN_WIELD+1).weight)
+		if (inven(INVEN_WIELD+1).weight < 10) then
+			j = 10
+		else
+			j = inven(INVEN_WIELD+1).weight
+		end
+
+		-- When dual wielding, the weapon's weight is treated two points higher.
+		if (inven(INVEN_WIELD).k_idx > 0 and two_weapon_wield() and p_ptr.dualwield == 1) then
+
+			j = j + 20
+		end
+
+		i = avg
+
+		while (i > 0) do
+
+                	i = i - j
+			if (i > 0) then
+
+				p_ptr.num_blow2 = p_ptr.num_blow2 + 1
+			end
+
+			j = j + 10
 		end
 
 		-- Add in the "bonus blows"
 		p_ptr.num_blow2 = p_ptr.num_blow2 + extra_blows
 
 		-- Add in bonus from Martial Arts (Weapon Kata)
-		if (not(shield_has()) and not(inven(INVEN_WIELD).tval == TV_RANGED) and not(inven(INVEN_WIELD+1).tval == TV_RANGED)) then
-			if (inven(INVEN_WIELD+1).weight < 100) then
-				p_ptr.num_blow2 = p_ptr.num_blow2 + (p_ptr.skill[19] / 10)
-			else
-				p_ptr.num_blow2 = p_ptr.num_blow2 + (p_ptr.skill[19] * 10 / inven(INVEN_WIELD+1).weight)
-			end
-		end
+		--if (not(shield_has()) and not(inven(INVEN_WIELD).tval == TV_RANGED) and not(inven(INVEN_WIELD+1).tval == TV_RANGED)) then
+		--	if (inven(INVEN_WIELD+1).weight < 100) then
+		--		p_ptr.num_blow2 = p_ptr.num_blow2 + (p_ptr.skill[19] / 10)
+		--	else
+		--		p_ptr.num_blow2 = p_ptr.num_blow2 + (p_ptr.skill[19] * 10 / inven(INVEN_WIELD+1).weight)
+		--	end
+		--end
 
 		-- Extra shots?
 		--p_ptr.num_fire2 = p_ptr.num_fire2 + inven(INVEN_WIELD+1).extrashots
@@ -1609,42 +1677,21 @@ function calc_bonuses ()
 	-- Thanks to Sekira for patching this part! :)
 	if (not(shield_has()) and not(inven(INVEN_WIELD).tval == TV_RANGED) and not(inven(INVEN_WIELD+1).tval == TV_RANGED)) then
 
-		if (p_ptr.body_monster > 0) then
+		if (not(inven(INVEN_BODY).tval == TV_HARD_ARMOR) and not(inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
 
-
-			if (inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR) then
-
-				p_ptr.to_h = p_ptr.to_h + p_ptr.skill[19]
-				p_ptr.dis_to_h = p_ptr.dis_to_h + p_ptr.skill[19]
-				p_ptr.to_d = p_ptr.to_d + (2 * p_ptr.skill[19])
-				p_ptr.dis_to_d = p_ptr.dis_to_d + (2 * p_ptr.skill[19])
-
-			else
-
-				p_ptr.to_h = p_ptr.to_h + (2 * p_ptr.skill[19])
-				p_ptr.dis_to_h = p_ptr.dis_to_h + (2 * p_ptr.skill[19])
-				p_ptr.to_d = p_ptr.to_d + (5 * p_ptr.skill[19])
-				p_ptr.dis_to_d = p_ptr.dis_to_d + (5 * p_ptr.skill[19])
-
-			end
-
-
-		else
-
-			p_ptr.to_h = p_ptr.to_h + (2 * p_ptr.skill[19])
-			p_ptr.dis_to_h = p_ptr.dis_to_h + (2 * p_ptr.skill[19])
-			p_ptr.to_d = p_ptr.to_d + (5 * p_ptr.skill[19])
-			p_ptr.dis_to_d = p_ptr.dis_to_d + (5 * p_ptr.skill[19]) 
+			p_ptr.to_h = p_ptr.to_h + (p_ptr.skill[19] / 4)
+			p_ptr.dis_to_h = p_ptr.dis_to_h + (p_ptr.skill[19] / 4)
+			p_ptr.to_d = p_ptr.to_d + (p_ptr.skill[19] / 4)
+			p_ptr.dis_to_d = p_ptr.dis_to_d + (p_ptr.skill[19] / 4)
 		end
 	end
-        
-        -- Monk Speed!
-	-- The 'Monk' in question here is Sekira, who fixed this part of the code. :)
-	if (p_ptr.abilities[(CLASS_MONK * 10) + 8] >= 1) then
+
+	-- Perfect Union's speed bonus.
+	if (p_ptr.abilities[(CLASS_MONK * 10) + 10] >= 1) then
 
 		if (not(inven(INVEN_BODY).tval == TV_HARD_ARMOR) and not(inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
 
-			p_ptr.pspeed = p_ptr.pspeed + ((p_ptr.abilities[(CLASS_MONK * 10) + 8] / 2) + 1)
+			p_ptr.pspeed = p_ptr.pspeed + (p_ptr.abilities[(CLASS_MONK * 10) + 10])
 		end
 	end
 
@@ -1680,6 +1727,23 @@ function calc_bonuses ()
 	if ((not(p_ptr.pspeed == old_speed)) or (not(p_ptr.dis_to_a == old_dis_to_a)) or (not(p_ptr.dis_ac == old_dis_ac))) then
 		lua_update_stuff()
 	end
+
+	-- Display Mighty Defense.
+	if (p_ptr.events[29050] > 0) then
+
+		if (p_ptr.events[29050] == 1) then
+			c_put_str(TERM_L_GREEN, "MD: Melee  ", 15, 0)
+		elseif (p_ptr.events[29050] == 2) then
+			c_put_str(TERM_L_GREEN, "MD: Ranged ", 15, 0)
+		elseif (p_ptr.events[29050] == 3) then
+			c_put_str(TERM_L_GREEN, "MD: Magic  ", 15, 0)
+		else
+			c_put_str(TERM_L_GREEN, "MD: Summons", 15, 0)
+		end
+	else
+		c_put_str(TERM_L_GREEN, "           ", 15, 0);
+	end
+
 end
 
 -- Event handlers

@@ -16,7 +16,7 @@ function skill_points_per_levels ()
 
 	local amt
 
-	amt = 5
+	amt = 10
 
 	return (amt)
 end
@@ -64,8 +64,147 @@ function starting_stats ()
 
 	-- Start with some points to spend.
 	p_ptr.statpoints = 2
-	p_ptr.skillpoints = 5
+	p_ptr.skillpoints = 10
 	p_ptr.ability_points = 1
+end
+
+-- Gain experience(kills)
+-- The amount of experience is now based on the level of the monster that you kill,
+-- regardless of it's depth. Higher CR monsters are worth more experience. Individual
+-- monsters can have an experience modifier to be worth more or less experience
+-- than normal. Also, if you are several levels higher than the enemy, they will be
+-- worth much less experience.
+function gain_exp_kills (mon)
+
+	local amount
+	local i
+
+	-- Basic experience gain.
+	-- Basic gain equal to monster's level.
+	-- Each levels increases the gains by 20% as well.
+	-- Exponentially increases with CR.
+	amount = mon.level
+
+	-- If the monster is higher level than you, add a bonus.
+	if (mon.level > p_ptr.lev) then
+
+		amount = amount + (mon.level - p_ptr.lev)
+	end
+
+	amount = amount + multiply_divide(amount, amount * 20, 100)
+
+	-- Exponential increase with CR.
+	for i = 1, (m_race(mon.r_idx).cr-1) do
+
+		amount = amount * 3
+	end
+
+	-- Monster's experience modifier.
+	amount = multiply_divide(amount, m_race(mon.r_idx).mexp, 100)
+
+	-- Make sure we gain 1 experience if the monster is equal or higher level.
+	-- This shouldn't be an issue, except against monsters that are worht VERY LITTLE experience.
+	-- Beyond depth 1, this won't happen much.
+	if ((mon.level >= p_ptr.lev) and amount <= 0) then amount = 1 end
+
+	-- If the monster is lower level than you, reduce the experience worth of the monster.
+	-- It's based on how much levels it is lower than you, based on a percentile value.
+	if (p_ptr.lev > mon.level) then
+
+		local difference
+
+		-- How much higher you are in terms of level.
+		-- This gives a percentile value of this difference.
+		difference = multiply_divide((p_ptr.lev - mon.level), 100, mon.level)
+
+		-- The experience penalty is this difference * 2.
+		difference = difference * 2
+
+		-- So for example, if you are level 10 fighting a level 5 monster, you will not gain
+		-- any experience, since you are 100% higher than the monster.
+
+		-- If you are level 20 fighting a level 15 monster, your gains will be reduced by 66%.
+
+		-- The penalty can rise fairly quickly. From a level 100 player perspective:
+		-- MONSTER LEVEL     PENALTY
+		-- 95                10%
+		-- 90                22%
+		-- 85                34%
+		-- 80                50%
+		-- 75                66%
+		-- 70                84%
+                -- 67                98%
+		-- 66 or less        No experience gains.
+
+		-- If the difference is too high, no experience gains.
+		if (difference >= 100) then amount = 0
+		else
+
+			amount = amount - multiply_divide(amount, difference, 100)
+		end
+	end
+
+	-- No experience gains in town.
+	if (dun_level == 0) then amount = 0 end
+
+	-- Reduced experience in quest levels for non-unique monsters.
+	-- The exception is the final level of random dungeons(quest #9000).
+	if ((not(p_ptr.inside_quest == 0) and not(p_ptr.inside_quest == 9000)) and not(get_monster_flag1(mon.r_idx, RF1_UNIQUE))) then
+
+		-- For each kills of the monster, the gained experience is reduced by 5%.
+		if (m_race(mon.r_idx).r_tkills >= 20) then
+
+			amount = 0
+		else
+			amount = multiply_divide(amount, 100 - (m_race(mon.r_idx).r_tkills * 5), 100)
+		end
+	end
+
+	-- Worth at least 1 experience at level 1.
+	if (p_ptr.max_plv == 1 and amount < 1) then amount = 1 end
+
+	-- Might not be worth experience(summoned monsters, multiplied enemies, etc...)
+	if (mon.no_experience) then amount = 0 end
+
+	-- Gain experience, along with a class kill.
+	if (amount > 0) then
+
+		local x = 0
+
+		p_ptr.exp = p_ptr.exp + amount
+
+		-- Add a class kill.
+		if (p_ptr.class_kills[p_ptr.pclass+1] < 1000) then
+			p_ptr.class_kills[p_ptr.pclass+1] = p_ptr.class_kills[p_ptr.pclass+1] + 1
+		end
+
+		-- May gain class level.
+		gain_class_level()
+
+		-- Recover from experience draining.
+		if (p_ptr.exp < p_ptr.max_exp) then
+
+			p_ptr.max_exp = p_ptr.max_exp + (amount / 5)
+		end
+
+		-- Items may also gain a kill here, if the kill is worth any experience.
+		for x = INVEN_WIELD, INVEN_TOTAL do
+
+                        -- Can the item gain levels ?
+                        if (inven(x).tval > 0 and get_object_flag4(inven(x), TR4_LEVELS) and inven(x).level < p_ptr.lev) then
+
+				inven(x).kills = inven(x).kills + 1
+
+                                if((inven(x).kills >= (inven(x).level * 5)) and (inven(x).level < 200)) then
+
+                                        -- Gain level.
+                                        object_gain_level(inven(x))
+                                end
+                        end
+		end
+	end
+
+	check_experience()
 end
 
 -- Function called by dialog scripts.
@@ -81,7 +220,7 @@ function dialog_script (scriptid)
 		-- It is floor.
 		cave_set_feat(4, 62, FEAT_FLOOR)
 
-		place_monster_one_return(4, 62, 1342, FALSE, FALSE, 60, 0)
+		place_monster_one_return(4, 62, 1342, FALSE, FALSE, 35, 0)
 		update_and_handle()
 	end
 
@@ -101,7 +240,7 @@ function dialog_script (scriptid)
 			-- It is floor.
 			cave_set_feat(9, 15, FEAT_FLOOR)
 
-			place_monster_one_return(9, 15, 1347, FALSE, FALSE, 60, 0)
+			place_monster_one_return(9, 15, 1347, FALSE, FALSE, 40, 0)
 			update_and_handle()
 		else
 			-- Delete anything that's at 8,15.
@@ -110,7 +249,7 @@ function dialog_script (scriptid)
 			-- It is floor.
 			cave_set_feat(8, 15, FEAT_FLOOR)
 
-			place_monster_one_return(8, 15, 1347, FALSE, FALSE, 60, 0)
+			place_monster_one_return(8, 15, 1347, FALSE, FALSE, 40, 0)
 			update_and_handle()
 		end
 	end
@@ -532,82 +671,52 @@ function dialog_script (scriptid)
 		anihilate_monsters()
 	end
 
+	-- Delviaz appears in Wraith form. Based on Simon's code above.
+	if (scriptid == 9) then
+
+		-- It appears at 10,7 or 9,7 if the player is at 10,7.
+		-- Any monsters that stands in the way will be destroyed.
+
+		if (px == 10 and py == 7) then
+
+			-- Delete anything that's at 7,9.
+			delete_monster(7, 9)
+
+			-- It is floor.
+			cave_set_feat(7, 9, FEAT_FLOOR)
+
+			place_monster_one_return(7, 9, 1643, FALSE, FALSE, 45, 0)
+			update_and_handle()
+		else
+			-- Delete anything that's at 7,10.
+			delete_monster(7, 10)
+
+			-- It is floor.
+			cave_set_feat(7, 10, FEAT_FLOOR)
+
+			place_monster_one_return(7, 10, 1643, FALSE, FALSE, 45, 0)
+			update_and_handle()
+		end
+	end
+
 end
 
 -- Function called when using scripted spells/activations.
 function activate_spell_script (powernum)
 
-  -- Viper Crossbow activation.
+  -- Ally of Kobolds(Viper Cloak of the Viper Champion)
   if (powernum == 1) then
 
-  	local dam
-	local dir
-	local rad
-	local totalammos
-	local returning
-	local element
-	local shooting
+  	local i
+	msg_print("You project your influence over all Kobolds in the area!")
 
-	shooting = 1
-	dropshots = FALSE
-	dropnum = 0
-
-	-- The Viper Crossbow should be two-handed.
-	if (inven(INVEN_WIELD).tval == TV_RANGED and inven(INVEN_WIELD).sval == 27) then
-		current_weapon = inven(INVEN_WIELD)
-	else
-		current_weapon = inven(INVEN_WIELD+1)
+	-- m_max is the number of monsters on a given level.
+	for i = 1, (m_max - 1) do
+		if ((m_race(monster(i).r_idx).d_char == 107) and (m_race(monster(i).r_idx).cr == 1) and not(get_monster_flag1(monster(i).r_idx, RF1_UNIQUE)) and monster(i).level <= p_ptr.lev) then
+				
+			set_pet(monster(i), TRUE)
+		end
 	end
-
-	-- Make sure we have the proper type and number of ammos.
-	if (not(current_weapon.itemtype == inven(INVEN_AMMO).itemtype)) then
-		
-		msg_print("You must use the proper type of ammos.")
-		return
-	end
-
-	-- We need to choose a direction to attack.
-	dir = lua_get_aim_dir()
-
-	totalammos = current_weapon.extra2
-	drop_ranged = inven(INVEN_AMMO)
-	if (inven(INVEN_AMMO).number < totalammos) then
-
-		msg_print("You need more ammos!")
-		return
-	end
-
-	if (current_weapon.pval2 < totalammos) then
-
-		msg_print("This weapon needs to be reloaded!")
-		return
-	end
-
-	dam = ranged_damages()
-
-	-- Element is always Poison.
-	element = GF_POIS
-
-	-- Determine radius
-	-- Again, shooter has priority.
-	if (current_weapon.extra5 >= inven(INVEN_AMMO).extra3) then
-		rad = current_weapon.extra5
-	else
-		rad = inven(INVEN_AMMO).extra3
-	end
-
-	-- Shoot!
-	ranged_attack = TRUE
-	fire_ball(element, dir, dam, rad)
-	ranged_attack = FALSE
-
-	-- Shooter loses some ammos.
-	current_weapon.pval2 = current_weapon.pval2 - totalammos
-
-	-- Reduce ammos in inventory.
-	inven_item_increase(INVEN_AMMO, -totalammos)
-        inven_item_describe(INVEN_AMMO)
-        inven_item_optimize(INVEN_AMMO)
 
     	energy_use = 100
   end
@@ -629,31 +738,6 @@ function activate_spell_script (powernum)
 
 	chain_attack(dir, GF_FIRE, dam, 0, 30)
 
-	energy_use = 100
-  end
-
-  -- Ice items activations.
-  if (powernum == 3) then
-  	current_item.extra1 = GF_PHYSICAL
-	msg_print("You change the item's damages type to Physical!")
-	energy_use = 100
-  end
-
-  if (powernum == 4) then
-  	current_item.extra1 = GF_COLD
-	msg_print("You change the item's damages type to Cold!")
-	energy_use = 100
-  end
-
-  if (powernum == 5) then
-  	current_item.extra1 = GF_ICE
-	msg_print("You change the item's damages type to Ice!")
-	energy_use = 100
-  end
-
-  if (powernum == 6) then
-  	current_item.extra1 = GF_POIS
-	msg_print("You change the item's damages type to Poison!")
 	energy_use = 100
   end
 
@@ -715,17 +799,6 @@ function activate_spell_script (powernum)
 	fire_ball(element, dir, dam, rad)
 
     	energy_use = 100
-  end
-
-  if (powernum == 8) then
-  	current_item.extra1 = GF_FIRE
-	msg_print("You change the item's damages type to Fire!")
-	energy_use = 100
-  end
-  if (powernum == 9) then
-  	current_item.extra1 = GF_DARK
-	msg_print("You change the item's damages type to Darkness!")
-	energy_use = 100
   end
 
   if (powernum == 10) then
@@ -843,12 +916,12 @@ function flow_last_floor ()
 	-- For depths below 20, the Flow Boss is nothing too difficult.
 	-- For depths 20-39, it's more difficult.
 	-- For 40+....beware.
-	if (p_ptr.events[29034] < 20) then generate_monster(2098, p_ptr.events[29034], 2)
-	elseif (p_ptr.events[29034] < 40) then generate_monster(2098, p_ptr.events[29034] + (kind(global_object).level / 10) + 2, 2)
+	if (p_ptr.events[29034] <= 20) then generate_monster(2098, p_ptr.events[29034], 2)
+	elseif (p_ptr.events[29034] <= 40) then generate_monster(2098, p_ptr.events[29034] + (kind(global_object).level / 10) + 2, 2)
 	else generate_monster(2098, p_ptr.events[29034] + (kind(global_object).level / 4) + 5, 2) end
 
 	-- Place it!
-	place_monster_one_return(5, 15, 2098, FALSE, FALSE, p_ptr.events[29034] + (p_ptr.events[29034] / 2), 0)
+	place_monster_one_return(5, 15, 2098, FALSE, FALSE, p_ptr.events[29034], 0)
 
 	-- Enlight everything!
 	for y = 0, 20 do
@@ -1959,6 +2032,51 @@ function harrington_mansion_hostility ()
 	end
 end
 
+-- Used in Q135.txt
+function vipers_hq_first ()
+
+	if (p_ptr.events[1130] == 0) then
+
+		show_dialog(1062)
+		p_ptr.events[1130] = 1
+	end
+
+	if (p_ptr.events[1131] >= 1) then
+
+		cave_set_feat(17, 7, FEAT_FLOOR)
+		cave_set_feat(18, 6, FEAT_RUBBLE)
+		cave_set_feat(18, 8, FEAT_RUBBLE)
+	end
+end
+
+-- Used in Q134.txt
+function vipers_hq_second_part ()
+
+	if (p_ptr.events[1132] == 1) then
+
+		show_dialog(1064)
+		p_ptr.events[1132] = 2
+	end
+end
+
+-- Delviaz talk script.
+function delviaz_talk_1 ()
+
+	p_ptr.events[1134] = 1
+	if (p_ptr.events[1137] == 0) then
+
+		show_dialog(1066)
+	end
+end
+
+function delviaz_talk_2 ()
+
+	if (p_ptr.events[1145] == 0) then
+
+		show_dialog(1066)
+	end
+end
+
 -- Used in Q500.txt
 function barrack_to_entrance ()
 
@@ -2169,23 +2287,39 @@ function reality_twists_quazar (m_idx)
 
 	if (twist_result >= 66) then
 
-		show_dialog(1032)
-		p_ptr.exp = 0
-		p_ptr.lev = 1
-		check_experience()
-		update_and_handle()
+		if (not(p_ptr.hold_life)) then
+			show_dialog(1032)
+			p_ptr.exp = 0
+			p_ptr.lev = 1
+			check_experience()
+			update_and_handle()
+		else
+			msg_print("Quazar attacks your knowledge, but you are unaffected.")
+		end
 	elseif (twist_result >= 33) then
 
 		show_dialog(1033)
-		p_ptr.csp = 0
-		dec_stat(A_WIS, 3000, 2)
+		if (not(p_ptr.sustain_int)) then
+			dec_stat(A_INT, 3000, 2)
+		else
+			msg_print("Your Intelligence remains untouched.")
+		end
+		if (not(p_ptr.sustain_wis)) then
+			dec_stat(A_WIS, 3000, 2)
+		else
+			msg_print("Your Wisdom remains untouched.")
+		end
 		update_and_handle()
 	else
-		msg_print("Quazar teleports you around!")
-		p_ptr.inside_quest = 0
-		teleport_player(5)
-		p_ptr.inside_quest = 1013
-		update_and_handle()
+		if (lua_randint(100) > p_ptr.resistances[GF_WARP+1]) then
+			msg_print("Quazar teleports you around!")
+			p_ptr.inside_quest = 0
+			teleport_player(5)
+			p_ptr.inside_quest = 1013
+			update_and_handle()
+		else
+			msg_print("Quazar attempts to teleport you, but Warp resistance prevents it.")
+		end
 	end
 end
 
@@ -2304,13 +2438,14 @@ end
 function christina_sword_of_gaia (m_idx)
 
 	local dam
+	local ddice
+	local dside
 
-	dam = damroll(12, 11)
-	dam = dam * (monster(m_idx).skill_attack + 1)
-	dam = dam + multiply_divide(dam, (monster(m_idx).str - 5) * 5, 100)
-	dam = dam + multiply_divide(dam, monster(m_idx).str, 100)
+	ddice = 6 + (monster(m_idx).level / 12)
+	dside = 5 + (monster(m_idx).level / 7)
+	dam = monster_damages(monster(m_idx), ddice, dside, monster(m_idx).str)
 
-	msg_print("Christina executes her most powerful attack, Sword of Gaia!")
+	msg_print("Christina uses Sword of Gaia!")
 	lua_ball(m_idx, GF_EARTH, dam, 3)
 	update_and_handle()
 end
@@ -2319,11 +2454,12 @@ end
 function naga_princess_mystic_blade (m_idx)
 
 	local dam
+	local ddice
+	local dside
 
-	dam = damroll(6, 6)
-	dam = dam * (monster(m_idx).skill_attack + 1)
-	dam = dam + multiply_divide(dam, (monster(m_idx).str - 5) * 5, 100)
-	dam = dam + multiply_divide(dam, monster(m_idx).str, 100)
+	ddice = 6 + (monster(m_idx).level / 13)
+	dside = 6 + (monster(m_idx).level / 8)
+	dam = monster_damages(monster(m_idx), ddice, dside, monster(m_idx).str)
 
 	msg_print("The Naga Princess of Blades uses Mystic Blade!")
 	lua_bolt(m_idx, GF_HARM, dam)
@@ -2337,8 +2473,8 @@ function grey_wight_gaze (m_idx)
 	local mpower
 	local m_name = ""
 
-	ppower = (p_ptr.skill[28] * 10)
-	mpower = monster(m_idx).level + monster(m_idx).mind
+	ppower = p_ptr.skill[28]
+	mpower = monster(m_idx).skill_magic
 
 	if not (monster(m_idx).ml) then
 		m_name = "it"
@@ -2381,6 +2517,37 @@ function monster_teleport_to_player (m_idx)
 			teleport_to_player(m_idx)
 		end
 	end
+end
+
+-- Blaze. Place fire fields around the player.
+function immolating_blaze (m_idx)
+
+	local m_name = ""
+	local dam = 0
+	local power = 0
+	local rad = 0
+
+	if not (monster(m_idx).ml) then
+		m_name = "it"
+	elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+		m_name = m_race(monster(m_idx).r_idx).name_char
+	else
+		m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+	end
+
+	msg_print(string.format('%s cast Immolating Blaze!', m_name))
+
+	-- radius is 1, +1 every 30 levels.
+	rad = 1 + (monster(m_idx).level / 30)
+
+	-- Power is 10, +1 every 3 levels.
+	power = 10 + (monster(m_idx).level / 3)
+
+	dam = monster_spell_damages(monster(m_idx), power)
+	if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then dam = dam * 2 end
+
+	place_field_monsters(FEAT_FIRE_FIELD, rad, px, py, dam)
+	update_and_handle()
 end
 
 -- Used in Q25000.txt
@@ -2868,6 +3035,15 @@ end
 -- Try to keep each lines at 35 characters or lower.
 function get_misc_monster_info (r_idx, line)
 
+	-- Xythanos.
+	if (r_idx == 240) then
+
+		if (line == 1) then return "Can teleport to you before moving.  " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
 	-- Fire Giant.
 	if (r_idx == 264) then
 
@@ -3042,7 +3218,7 @@ function get_misc_monster_info (r_idx, line)
 	-- Lura
 	if (r_idx == 320) then
 
-		if (line == 1) then return "Can teleport before moving.         " end
+		if (line == 1) then return "Can teleport to you before moving.  " end
 		if (line == 2) then return "                                    " end
 		if (line == 3) then return "                                    " end
 		if (line == 4) then return "                                    " end
@@ -3069,7 +3245,7 @@ function get_misc_monster_info (r_idx, line)
 	-- Christina
 	if (r_idx == 1357 or r_idx == 1373) then
 
-		if (line == 1) then return "All damages taken are halved.       " end
+		if (line == 1) then return "All damage taken is halved.         " end
 		if (line == 2) then return "                                    " end
 		if (line == 3) then return "                                    " end
 		if (line == 4) then return "                                    " end
@@ -3079,15 +3255,6 @@ function get_misc_monster_info (r_idx, line)
 	if (r_idx == 1363) then
 
 		if (line == 1) then return "Phase when damaged(rad 10)          " end
-		if (line == 2) then return "                                    " end
-		if (line == 3) then return "                                    " end
-		if (line == 4) then return "                                    " end
-	end
-
-	-- Chaos Lord.
-	if (r_idx == 1365) then
-
-		if (line == 1) then return "Chaos Aura(Power 30, rad 3)         " end
 		if (line == 2) then return "                                    " end
 		if (line == 3) then return "                                    " end
 		if (line == 4) then return "                                    " end
@@ -3194,7 +3361,7 @@ function get_misc_monster_info (r_idx, line)
 			local rad
 			local element
 
-			basepower = m_race(monster(m_idx).r_idx).level / 2
+			basepower = m_race(monster(m_idx).r_idx).level / 3
 			if (basepower < 1) then basepower = 1 end
 			rad = (m_race(monster(m_idx).r_idx).level / 10) - 2
 			if (rad < 2) then rad = 2 end
@@ -3215,7 +3382,7 @@ function get_misc_monster_info (r_idx, line)
 			local rad
 			local ftype
 
-			basepower = m_race(monster(m_idx).r_idx).level / 2
+			basepower = m_race(monster(m_idx).r_idx).level / 3
 			if (basepower < 1) then basepower = 1 end
 			rad = (m_race(monster(m_idx).r_idx).level / 20) - 2
 			if (rad < 2) then rad = 2 end
@@ -3261,6 +3428,7 @@ add_event_handler("skill_points_per_levels", skill_points_per_levels)
 add_event_handler("stat_points_per_levels", stat_points_per_levels)
 add_event_handler("ability_points_per_levels", ability_points_per_levels)
 add_event_handler("starting_stats", starting_stats)
+add_event_handler("gain_exp_kills", gain_exp_kills)
 add_event_handler("dialog_script", dialog_script)
 add_event_handler("activate_spell_script", activate_spell_script)
 add_event_handler("sewers_exit_to_slums", sewers_exit_to_slums)
@@ -3275,6 +3443,10 @@ add_event_handler("donoriel_shop_first", donoriel_shop_first)
 add_event_handler("donoriel_to_basement", donoriel_to_basement)
 add_event_handler("basement_to_donoriel", basement_to_donoriel)
 add_event_handler("harrington_mansion_hostility", harrington_mansion_hostility)
+add_event_handler("vipers_hq_first", vipers_hq_first)
+add_event_handler("vipers_hq_second_part", vipers_hq_second_part)
+add_event_handler("delviaz_talk_1", delviaz_talk_1)
+add_event_handler("delviaz_talk_2", delviaz_talk_2)
 add_event_handler("entrance_to_barrack", entrance_to_barrack)
 add_event_handler("barrack_to_entrance", barrack_to_entrance)
 add_event_handler("enter_tunnels", enter_tunnels)
@@ -3306,6 +3478,7 @@ add_event_handler("ivhala_wight_first", ivhala_wight_first)
 add_event_handler("enter_underground_twisted", enter_underground_twisted)
 add_event_handler("grey_wight_first", grey_wight_first)
 add_event_handler("grey_wight_gaze", grey_wight_gaze)
+add_event_handler("immolating_blaze", immolating_blaze)
 add_event_handler("monster_teleport_to_player", monster_teleport_to_player)
 add_event_handler("balcia_third", balcia_third)
 add_event_handler("banshee_first", banshee_first)

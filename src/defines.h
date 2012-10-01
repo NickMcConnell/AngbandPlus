@@ -42,7 +42,7 @@
 /* Added for NewAngband(code from old Pern) */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 0
-#define FAKE_VER_MINOR 4
+#define FAKE_VER_MINOR 5
 #define FAKE_VER_PATCH 0
 
 #define ANGBAND_2_8_1
@@ -833,9 +833,7 @@
 #define FEAT_COLD_FIELD          222
 #define FEAT_ELEC_FIELD          223
 #define FEAT_WEBS                225
-#define FEAT_SPIKE_TRAP          226
-#define FEAT_GAS_TRAP            227
-#define FEAT_POISON_TRAP         228
+#define FEAT_SANCTIFY            226
 #define FEAT_VINE_FIELD          229
 #define FEAT_THORNED_VINES       230
 #define FEAT_STORMS              231
@@ -1591,6 +1589,7 @@
 /* #define GF_HOLY_ORB     13 */
 #define GF_CONFUSION    22
 #define GF_ICE          23
+#define GF_DRAIN_LIFE   30
 #define GF_KILL_WALL    40
 #define GF_KILL_DOOR    41
 #define GF_KILL_TRAP    42
@@ -1608,7 +1607,6 @@
 #define GF_OLD_DRAIN    58
 #define GF_AWAY_UNDEAD  61
 #define GF_AWAY_EVIL    62
-#define GF_TURN_UNDEAD  64
 #define GF_TURN_EVIL    65
 #define GF_TURN_ALL     66
 #define GF_DISP_UNDEAD  67
@@ -1674,7 +1672,6 @@
 #define GF_ANIMAL_EMPATHY 138
 #define GF_AURA_LIFE 139
 #define GF_SMITE_EVIL 140
-#define GF_RETROGRADE_DARKNESS 141
 #define GF_DOMINATE_MONSTER 142
 #define GF_SHATTER_EVIL 143
 #define GF_ANGELIC_VOICE 144
@@ -1906,19 +1903,19 @@
 
 #define TR4_NEVER_BLOW          0x00000001L     /* Weapon can't attack */
 #define TR4_ICE                 0x00000002L     /* Appears in Ice dungeons only. */
-/* Free slot! */
+#define TR4_DEX_WEAPON          0x00000004L     /* A melee weapon that can use dex for damage. */
 #define TR4_RECHARGE            0x00000008L     /* For artifact Wands and Staffs */
 #define TR4_FLY                 0x00000010L     /* This one and ONLY this one allow you to fly over trees */
 #define TR4_COULD2H             0x00000040L     /* Can wield it 2 Handed */
 #define TR4_MUST2H              0x00000080L     /* Must wield it 2 Handed */
 #define TR4_LEVELS              0x00000100L     /* Can gain exp/exp levels !! */
-#define TR4_CLONE               0x00000200L     /* Can clone monsters */
+#define TR4_STOLEN              0x00000200L     /* Has been stolen from a monster. */
 #define TR4_SPECIAL_GENE        0x00000400L     /* The object can only be generated in special conditions like quests, special dungeons, ... */
 #define TR4_CLIMB               0x00000800L     /* Allow climbing mountains */
 #define TR4_CRAFTED             0x00001000L     /* Item is enchanted through crafting. */
 #define TR4_MODERATE_POWER      0x00002000L     /* For potions. */
-#define TR4_ONLY_MALE           0x00004000L     /* Only usable to males */
-#define TR4_ONLY_FEMALE         0x00008000L     /* Only usable to females */
+#define TR4_VALUE_50            0x00004000L     /* Value is 50% of normal value. */
+#define TR4_VALUE_25            0x00008000L     /* Value is 25% of normal value. */
 #define TR4_ENHANCED            0x00010000L     /* Enhanced ranged weapon */
 #define TR4_CHARGEABLE          0x00080000L     /* Weapon is chargeable */
 #define TR4_INDESTRUCTIBLE      0x00100000L     /* Weapon is indestructible */
@@ -2987,7 +2984,7 @@ extern int PlayerUID;
 /* These aren't really 'abilities', but Curses flags */
 #define CURSE_LOWER_POWER    0x00000080L
 #define CURSE_LOWER_MAGIC    0x00000100L
-#define CURSE_HALVE_HP       0x00000200L /* Unused? */
+#define CON_JOB              0x00000200L
 #define CURSE_LOCK           0x00000400L
 #define CURSE_RETURNING      0x00000800L
 #define CURSE_SLOW_DOWN      0x00001000L
@@ -3009,6 +3006,7 @@ extern int PlayerUID;
 #define BOSS_MAGIC_RETURNING 0x10000000L
 #define TAUNTED              0x20000000L
 #define PIERCING_SPELLS      0x40000000L
+#define WEAKENED_ELEMENTAL   0x80000000L
 
 /* Constants for Called Shots! */
 #define CALLED_NONE 0 /* Probably won't be used */
@@ -3068,7 +3066,7 @@ extern int PlayerUID;
 #define MYST_RESTORE_STATS      0x00000002L
 #define MYST_RESTORE_STATUS     0x00000004L
 #define MYST_HARM               0x00000008L
-#define MYST_HEAL_OTHERS        0x00000010L
+#define MYST_DRAIN_LIFE         0x00000010L
 #define MYST_REVIVE_MONSTER     0x00000020L
 #define MYST_RESTORE_MANA       0x00000040L
 #define MYST_WAR_BLESSING       0x00000080L

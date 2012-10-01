@@ -3886,7 +3886,8 @@ bool banish_evil(int dist)
  */
 bool turn_undead(void)
 {
-	return (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
+	/* return (project_hack(GF_TURN_UNDEAD, p_ptr->lev));*/
+	return FALSE;
 }
 
 
@@ -5257,68 +5258,6 @@ bool fire_ball(int typ, int dir, s32b dam, int rad)
 		ty = target_row;
 	}
 
-	if (!ignore_spellcraft)
-	{
-        	if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
-        	{
-                	if (typ == GF_MISSILE)
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 5), 100);
-               		}
-                	else
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10), 100);
-                	}
-        	}
-        	rad += p_ptr->skill[1] / 30;
-        	dam += dambonus;
-	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-        return (project(0, (rad > 16)?16:rad, ty, tx, dam, typ, flg));
-}
-
-/*
- * Cast a druidistic ball spell
- * Stop if we hit a monster, act as a "ball"
- * Allow "target" mode to pass over monsters
- * Affect grids, objects, and monsters
- */
-bool fire_druid_ball(int typ, int dir, s32b dam, int rad)
-{
-        int tx, ty, x;
-
-        int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_MANA_PATH;
-        s32b dambonus = 0;
-
-	/* Use the given direction */
-	tx = px + 99 * ddx[dir];
-	ty = py + 99 * ddy[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		flg &= ~(PROJECT_STOP);
-		tx = target_col;
-		ty = target_row;
-	}
-	if (!ignore_spellcraft)
-	{
-        	if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
-        	{
-                	if (typ == GF_MISSILE)
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 5), 100);
-                	}
-                	else
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10), 100);
-                	}
-        	}
-        	rad += p_ptr->skill[1] / 30;
-        	dam += dambonus;
-	}
-
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
         return (project(0, (rad > 16)?16:rad, ty, tx, dam, typ, flg));
 }
@@ -5347,22 +5286,6 @@ bool fire_ball_beam(int typ, int dir, s32b dam, int rad)
 		flg &= ~(PROJECT_STOP);
 		tx = target_col;
 		ty = target_row;
-	}
-	if (!ignore_spellcraft)
-	{
-        	if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
-        	{
-                	if (typ == GF_MISSILE)
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 5), 100);
-                	}
-                	else
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10), 100);
-                	}
-        	}
-        	rad += p_ptr->skill[1] / 30;
-        	dam += dambonus;
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
@@ -5578,80 +5501,6 @@ bool fire_bolt(int typ, int dir, s32b dam)
         int x;
         s32b dambonus = 0;
 
-	if (!ignore_spellcraft)
-	{
-        	if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
-        	{
-                	if (typ == GF_MISSILE)
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 5), 100);
-                	}
-                	else
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10), 100);
-                	}
-        	}
-        	dam += dambonus;
-	}
-	return (project_hook(typ, dir, dam, flg));
-}
-
-/*
- * Cast a druidistic bolt spell
- * Stop if we hit a monster, as a "bolt"
- * Affect monsters (not grids or objects)
- */
-bool fire_druid_bolt(int typ, int dir, s32b dam)
-{
-        int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_MANA_PATH;
-        int x;
-        s32b dambonus = 0;
-
-	if (!ignore_spellcraft)
-	{
-        	if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
-        	{
-                	if (typ == GF_MISSILE)
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 5), 100);
-                	}
-                	else
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10), 100);
-                	}
-        	}
-        	dam += dambonus;
-	}
-	return (project_hook(typ, dir, dam, flg));
-}
-
-
-/*
- * Cast a druidistic beam spell
- * Pass through monsters, as a "beam"
- * Affect monsters (not grids or objects)
- */
-bool fire_druid_beam(int typ, int dir, s32b dam)
-{
-        int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_MANA_PATH;
-        int x;
-        s32b dambonus = 0;
-
-	if (!ignore_spellcraft)
-	{
-        	if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
-        	{
-                	if (typ == GF_MISSILE)
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 5), 100);
-                	}
-                	else
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10), 100);
-                	}
-        	}
-        	dam += dambonus;
-	}
 	return (project_hook(typ, dir, dam, flg));
 }
 
@@ -5666,21 +5515,6 @@ bool fire_beam(int typ, int dir, s32b dam)
         int x;
         s32b dambonus = 0;
 
-	if (!ignore_spellcraft)
-	{
-        	if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
-        	{
-                	if (typ == GF_MISSILE)
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 5), 100);
-                	}
-                	else
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10), 100);
-                	}
-        	}
-        	dam += dambonus;
-	}
 	return (project_hook(typ, dir, dam, flg));
 }
 
@@ -6298,21 +6132,6 @@ bool chain_attack(int dir, int typ, s32b dam, int rad, int range)
 
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
-	if (!ignore_spellcraft)
-	{
-        	if (!(melee_attack) && typ != GF_LIFE_BLAST)
-        	{
-                	if (typ == GF_MISSILE)
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 5), 100);
-                	}
-                	else
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10), 100);
-                	}
-        	}
-        	dam += dambonus;
-	}
 
         if (c_ptr->feat == 224)
         {
@@ -6457,21 +6276,6 @@ bool chain_attack_fields(int dir, int typ, s32b dam, int rad, int range, int fld
         s32b dambonus = 0;
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
-	if (!ignore_spellcraft)
-	{
-        	if (!(melee_attack) && typ != GF_LIFE_BLAST)
-        	{
-                	if (typ == GF_MISSILE)
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 5), 100);
-                	}
-                	else
-                	{
-				dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10), 100);
-                	}
-        	}
-        	dam += dambonus;
-	}
 
         if (c_ptr->feat == 224)
         {
@@ -9627,23 +9431,12 @@ bool aura_of_life()
         /* Heal yourself! */
 	heal = p_ptr->abilities[(CLASS_PALADIN * 10) + 2] * 3;
 	heal = heal * spellstat;
-	if (!ignore_spellcraft)
-	{
-		heal += multiply_divide(heal, (p_ptr->skill[1] * 10) + (p_ptr->skill[24] * 20), 100);
-	}
+	
         p_ptr->chp += heal;
         if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
 
         dam = (p_ptr->abilities[(CLASS_PALADIN * 10) + 2] * 20) * spellstat;
         rad = 3 + (p_ptr->abilities[(CLASS_PALADIN * 10) + 2] / 10);
-
-	if (!ignore_spellcraft)
-	{
-		dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10) + (p_ptr->skill[24] * 20), 100);
-
-        	rad += p_ptr->skill[1] / 30;
-        	dam += dambonus;
-	}
 
 	/* Hook into the "project()" function */
         (void)project(0, rad, py, px, dam, GF_AURA_LIFE, flg);

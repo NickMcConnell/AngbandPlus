@@ -236,6 +236,14 @@ bool call_lua(cptr hook, cptr fmt, cptr ret, ...)
 					*tmp = tolua_touserdata(L, -num_res + i, NULL);
 				break;
 			}
+			case 'M':
+			{
+				tolua_Error tolua_err;
+				object_type **tmp = va_arg(ap, monster_type**);
+				if (tolua_isusertype(L, -num_res + i, "monster_type", 0, &tolua_err))
+					*tmp = tolua_touserdata(L, -num_res + i, NULL);
+				break;
+			}
 		}
 	}
 
@@ -539,6 +547,11 @@ object_kind *lua_kind(object_type *o_ptr)
 object_type *lua_object(int oidx)
 {
 	return (&(o_list[oidx]));
+}
+
+object_kind *lua_kind_index(int k_idx)
+{
+	return (&(k_info[k_idx]));
 }
 
 dungeon_info_type *lua_dungeon(int which)
@@ -950,7 +963,7 @@ void give_monster_ability(monster_type *m_ptr, u32b flag)
 
 void remove_monster_ability(monster_type *m_ptr, u32b flag)
 {
-	m_ptr->abilities &= flag;
+	m_ptr->abilities &= ~(flag);
 }
 
 void give_object_flag1(object_type *o_ptr, u32b flag)
@@ -1223,4 +1236,19 @@ void lua_revive_in_town()
 			}
 		}
 	}
+}
+
+/* Check if a monster is alive or not. */
+bool is_alive(monster_type *m_ptr)
+{
+	bool res = FALSE;
+	if (m_ptr) res = TRUE;
+
+	return (res);
+}
+
+/* Use a scripted attack, spell, etc... */
+void lua_monster_script(int m_idx, cptr mscript)
+{
+	call_lua(mscript, "(d)", "", m_idx);
 }

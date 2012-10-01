@@ -1687,14 +1687,10 @@ void do_cmd_debug(void)
 		acquirement(py, px, command_arg, FALSE, TRUE);
 		break;
 
-		/* Hitpoint rerating */
+		/* Scan monster */
 		case 'h':
                 {
-                        int v, w, flg;
-
-                        flg = PROJECT_GRID | PROJECT_KILL;
-                        if (!tgt_pt(&v,&w)) return;
-                        project(0, 0, w, v, 20000000, GF_MANA, flg);
+                        scan_targetting();
 			break;
 		}
 

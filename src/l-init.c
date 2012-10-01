@@ -1,6 +1,6 @@
 /*
 ** Lua binding: init
-** Generated automatically by tolua 5.0a on 01/31/10 14:59:18.
+** Generated automatically by tolua 5.0a on 10/30/11 13:50:02.
 */
 
 #ifndef __cplusplus
@@ -4703,6 +4703,58 @@ static int tolua_init_object_gain_level00(lua_State* tolua_S)
 #endif
 }
 
+/* function: prepare_crafted_item */
+static int tolua_init_prepare_crafted_item00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) ||
+ !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+ !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  int tval = ((int)  tolua_tonumber(tolua_S,1,0));
+  int sval = ((int)  tolua_tonumber(tolua_S,2,0));
+ {
+  prepare_crafted_item(tval,sval);
+ }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'prepare_crafted_item'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: create_crafted_item */
+static int tolua_init_create_crafted_item00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  create_crafted_item();
+ }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'create_crafted_item'.",&tolua_err);
+ return 0;
+#endif
+}
+
 /* get function: summoner_monster */
 static int tolua_get_summoner_monster_ptr(lua_State* tolua_S)
 {
@@ -5522,32 +5574,6 @@ static int tolua_init_monster_drop_carried_objects00(lua_State* tolua_S)
 #endif
 }
 
-/* function: apply_monster_level_hp */
-static int tolua_init_apply_monster_level_hp00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
- tolua_Error tolua_err;
- if (
- !tolua_isusertype(tolua_S,1,"monster_type",0,&tolua_err) ||
- !tolua_isnoobj(tolua_S,2,&tolua_err)
- )
- goto tolua_lerror;
- else
-#endif
- {
-  monster_type* m_ptr = ((monster_type*)  tolua_tousertype(tolua_S,1,0));
- {
-  apply_monster_level_hp(m_ptr);
- }
- }
- return 0;
-#ifndef TOLUA_RELEASE
- tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'apply_monster_level_hp'.",&tolua_err);
- return 0;
-#endif
-}
-
 /* function: get_boss_ability */
 static int tolua_init_get_boss_ability00(lua_State* tolua_S)
 {
@@ -6054,32 +6080,6 @@ static int tolua_init_summon_specific_ridx00(lua_State* tolua_S)
 #endif
 }
 
-/* function: apply_monster_level_stats */
-static int tolua_init_apply_monster_level_stats00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
- tolua_Error tolua_err;
- if (
- !tolua_isusertype(tolua_S,1,"monster_type",0,&tolua_err) ||
- !tolua_isnoobj(tolua_S,2,&tolua_err)
- )
- goto tolua_lerror;
- else
-#endif
- {
-  monster_type* m_ptr = ((monster_type*)  tolua_tousertype(tolua_S,1,0));
- {
-  apply_monster_level_stats(m_ptr);
- }
- }
- return 0;
-#ifndef TOLUA_RELEASE
- tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'apply_monster_level_stats'.",&tolua_err);
- return 0;
-#endif
-}
-
 /* function: is_pet */
 static int tolua_init_is_pet00(lua_State* tolua_S)
 {
@@ -6282,6 +6282,33 @@ static int tolua_init_evolution_compare00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'evolution_compare'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: player_next_to_monster */
+static int tolua_init_player_next_to_monster00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isusertype(tolua_S,1,"monster_type",0,&tolua_err) ||
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  monster_type* m_ptr = ((monster_type*)  tolua_tousertype(tolua_S,1,0));
+ {
+  bool tolua_ret = (bool)  player_next_to_monster(m_ptr);
+ tolua_pushboolean(tolua_S,(bool)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'player_next_to_monster'.",&tolua_err);
  return 0;
 #endif
 }
@@ -6602,6 +6629,39 @@ static int tolua_init_make_ranged_attack00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'make_ranged_attack'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: clean_shot */
+static int tolua_init_clean_shot00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) ||
+ !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+ !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+ !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
+ !tolua_isnoobj(tolua_S,5,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  int y1 = ((int)  tolua_tonumber(tolua_S,1,0));
+  int x1 = ((int)  tolua_tonumber(tolua_S,2,0));
+  int y2 = ((int)  tolua_tonumber(tolua_S,3,0));
+  int x2 = ((int)  tolua_tonumber(tolua_S,4,0));
+ {
+  bool tolua_ret = (bool)  clean_shot(y1,x1,y2,x2);
+ tolua_pushboolean(tolua_S,(bool)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'clean_shot'.",&tolua_err);
  return 0;
 #endif
 }
@@ -10965,6 +11025,56 @@ static int tolua_init_tgt_pt00(lua_State* tolua_S)
 #endif
 }
 
+/* function: gain_class_level */
+static int tolua_init_gain_class_level00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  gain_class_level();
+ }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'gain_class_level'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: do_cmd_cast */
+static int tolua_init_do_cmd_cast00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isboolean(tolua_S,1,0,&tolua_err) ||
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  bool wisdom = ((bool)  tolua_toboolean(tolua_S,1,0));
+ {
+  do_cmd_cast(wisdom);
+ }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'do_cmd_cast'.",&tolua_err);
+ return 0;
+#endif
+}
+
 /* function: dagger_check */
 static int tolua_init_dagger_check00(lua_State* tolua_S)
 {
@@ -11022,17 +11132,15 @@ static int tolua_init_activate_item00(lua_State* tolua_S)
  tolua_Error tolua_err;
  if (
  !tolua_isusertype(tolua_S,1,"object_type",0,&tolua_err) ||
- !tolua_isboolean(tolua_S,2,0,&tolua_err) ||
- !tolua_isnoobj(tolua_S,3,&tolua_err)
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
  )
  goto tolua_lerror;
  else
 #endif
  {
   object_type* o_ptr = ((object_type*)  tolua_tousertype(tolua_S,1,0));
-  bool wisdom = ((bool)  tolua_toboolean(tolua_S,2,0));
  {
-  activate_item(o_ptr,wisdom);
+  activate_item(o_ptr);
  }
  }
  return 0;
@@ -11388,6 +11496,33 @@ static int tolua_init_quest_artifact_prep00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'quest_artifact_prep'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: lua_kind_index */
+static int tolua_init_lua_kind_index00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) ||
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  int k_idx = ((int)  tolua_tonumber(tolua_S,1,0));
+ {
+  object_kind* tolua_ret = (object_kind*)  lua_kind_index(k_idx);
+ tolua_pushusertype(tolua_S,(void*)tolua_ret,"object_kind");
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'lua_kind_index'.",&tolua_err);
  return 0;
 #endif
 }
@@ -13036,6 +13171,61 @@ static int tolua_init_lua_revive_in_town00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'lua_revive_in_town'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: is_alive */
+static int tolua_init_is_alive00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isusertype(tolua_S,1,"monster_type",0,&tolua_err) ||
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  monster_type* m_ptr = ((monster_type*)  tolua_tousertype(tolua_S,1,0));
+ {
+  bool tolua_ret = (bool)  is_alive(m_ptr);
+ tolua_pushboolean(tolua_S,(bool)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'is_alive'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: lua_monster_script */
+static int tolua_init_lua_monster_script00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) ||
+ !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+ !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  int m_idx = ((int)  tolua_tonumber(tolua_S,1,0));
+  cptr mscript = ((cptr)  tolua_tostring(tolua_S,2,0));
+ {
+  lua_monster_script(m_idx,mscript);
+ }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'lua_monster_script'.",&tolua_err);
  return 0;
 #endif
 }
@@ -15645,22 +15835,22 @@ static int tolua_set_plain_descriptions(lua_State* tolua_S)
  return 0;
 }
 
-/* get function: stupid_monsters */
-static int tolua_get_stupid_monsters(lua_State* tolua_S)
+/* get function: quest_scaling */
+static int tolua_get_quest_scaling(lua_State* tolua_S)
 {
- tolua_pushboolean(tolua_S,(bool)stupid_monsters);
+ tolua_pushboolean(tolua_S,(bool)quest_scaling);
  return 1;
 }
 
-/* set function: stupid_monsters */
-static int tolua_set_stupid_monsters(lua_State* tolua_S)
+/* set function: quest_scaling */
+static int tolua_set_quest_scaling(lua_State* tolua_S)
 {
 #ifndef TOLUA_RELEASE
  tolua_Error tolua_err;
  if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
-  stupid_monsters = ((bool)  tolua_toboolean(tolua_S,2,0));
+  quest_scaling = ((bool)  tolua_toboolean(tolua_S,2,0));
  return 0;
 }
 
@@ -17051,6 +17241,44 @@ static int tolua_set_casting_divination(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: wisdom_casting */
+static int tolua_get_wisdom_casting(lua_State* tolua_S)
+{
+ tolua_pushboolean(tolua_S,(bool)wisdom_casting);
+ return 1;
+}
+
+/* set function: wisdom_casting */
+static int tolua_set_wisdom_casting(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  wisdom_casting = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: monk_synchro */
+static int tolua_get_monk_synchro(lua_State* tolua_S)
+{
+ tolua_pushboolean(tolua_S,(bool)monk_synchro);
+ return 1;
+}
+
+/* set function: monk_synchro */
+static int tolua_set_monk_synchro(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  monk_synchro = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: monster_physical */
 static int tolua_get_monster_physical(lua_State* tolua_S)
 {
@@ -17184,6 +17412,25 @@ static int tolua_set_ignore_spellcraft(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: dontwakeup */
+static int tolua_get_dontwakeup(lua_State* tolua_S)
+{
+ tolua_pushboolean(tolua_S,(bool)dontwakeup);
+ return 1;
+}
+
+/* set function: dontwakeup */
+static int tolua_set_dontwakeup(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  dontwakeup = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: damages_counter */
 static int tolua_get_damages_counter(lua_State* tolua_S)
 {
@@ -17314,6 +17561,44 @@ static int tolua_set_monster_counter_attack(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
   monster_counter_attack = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: force_nightmare */
+static int tolua_get_force_nightmare(lua_State* tolua_S)
+{
+ tolua_pushboolean(tolua_S,(bool)force_nightmare);
+ return 1;
+}
+
+/* set function: force_nightmare */
+static int tolua_set_force_nightmare(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  force_nightmare = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: force_nightmare_level */
+static int tolua_get_force_nightmare_level(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)force_nightmare_level);
+ return 1;
+}
+
+/* set function: force_nightmare_level */
+static int tolua_set_force_nightmare_level(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  force_nightmare_level = ((s16b)  tolua_tonumber(tolua_S,2,0));
  return 0;
 }
 
@@ -20600,6 +20885,25 @@ static int tolua_set_global_object(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: crafted_item */
+static int tolua_get_crafted_item(lua_State* tolua_S)
+{
+ tolua_pushusertype(tolua_S,(void*)&crafted_item,"object_type");
+ return 1;
+}
+
+/* set function: crafted_item */
+static int tolua_set_crafted_item(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isusertype(tolua_S,2,"object_type",0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  crafted_item = *((object_type*)  tolua_tousertype(tolua_S,2,0));
+ return 0;
+}
+
 /* function: lua_cave */
 static int tolua_init_lua_cave00(lua_State* tolua_S)
 {
@@ -23716,6 +24020,7 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_constant(tolua_S,"GF_MUD",GF_MUD);
  tolua_constant(tolua_S,"GF_CONFUSION",GF_CONFUSION);
  tolua_constant(tolua_S,"GF_ICE",GF_ICE);
+ tolua_constant(tolua_S,"GF_DRAIN_LIFE",GF_DRAIN_LIFE);
  tolua_constant(tolua_S,"GF_KILL_WALL",GF_KILL_WALL);
  tolua_constant(tolua_S,"GF_KILL_DOOR",GF_KILL_DOOR);
  tolua_constant(tolua_S,"GF_KILL_TRAP",GF_KILL_TRAP);
@@ -23733,7 +24038,6 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_constant(tolua_S,"GF_OLD_DRAIN",GF_OLD_DRAIN);
  tolua_constant(tolua_S,"GF_AWAY_UNDEAD",GF_AWAY_UNDEAD);
  tolua_constant(tolua_S,"GF_AWAY_EVIL",GF_AWAY_EVIL);
- tolua_constant(tolua_S,"GF_TURN_UNDEAD",GF_TURN_UNDEAD);
  tolua_constant(tolua_S,"GF_TURN_EVIL",GF_TURN_EVIL);
  tolua_constant(tolua_S,"GF_TURN_ALL",GF_TURN_ALL);
  tolua_constant(tolua_S,"GF_DISP_UNDEAD",GF_DISP_UNDEAD);
@@ -23797,7 +24101,6 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_constant(tolua_S,"GF_ANIMAL_EMPATHY",GF_ANIMAL_EMPATHY);
  tolua_constant(tolua_S,"GF_AURA_LIFE",GF_AURA_LIFE);
  tolua_constant(tolua_S,"GF_SMITE_EVIL",GF_SMITE_EVIL);
- tolua_constant(tolua_S,"GF_RETROGRADE_DARKNESS",GF_RETROGRADE_DARKNESS);
  tolua_constant(tolua_S,"GF_DOMINATE_MONSTER",GF_DOMINATE_MONSTER);
  tolua_constant(tolua_S,"GF_SHATTER_EVIL",GF_SHATTER_EVIL);
  tolua_constant(tolua_S,"GF_ANGELIC_VOICE",GF_ANGELIC_VOICE);
@@ -23981,9 +24284,7 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_constant(tolua_S,"FEAT_COLD_FIELD",FEAT_COLD_FIELD);
  tolua_constant(tolua_S,"FEAT_ELEC_FIELD",FEAT_ELEC_FIELD);
  tolua_constant(tolua_S,"FEAT_WEBS",FEAT_WEBS);
- tolua_constant(tolua_S,"FEAT_SPIKE_TRAP",FEAT_SPIKE_TRAP);
- tolua_constant(tolua_S,"FEAT_GAS_TRAP",FEAT_GAS_TRAP);
- tolua_constant(tolua_S,"FEAT_POISON_TRAP",FEAT_POISON_TRAP);
+ tolua_constant(tolua_S,"FEAT_SANCTIFY",FEAT_SANCTIFY);
  tolua_constant(tolua_S,"FEAT_VINE_FIELD",FEAT_VINE_FIELD);
  tolua_constant(tolua_S,"FEAT_THORNED_VINES",FEAT_THORNED_VINES);
  tolua_constant(tolua_S,"FEAT_STORMS",FEAT_STORMS);
@@ -24272,18 +24573,19 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_constant(tolua_S,"TR3_NULL_MASK",TR3_NULL_MASK);
  tolua_constant(tolua_S,"TR4_NEVER_BLOW",TR4_NEVER_BLOW);
  tolua_constant(tolua_S,"TR4_ICE",TR4_ICE);
+ tolua_constant(tolua_S,"TR4_DEX_WEAPON",TR4_DEX_WEAPON);
  tolua_constant(tolua_S,"TR4_RECHARGE",TR4_RECHARGE);
  tolua_constant(tolua_S,"TR4_FLY",TR4_FLY);
  tolua_constant(tolua_S,"TR4_COULD2H",TR4_COULD2H);
  tolua_constant(tolua_S,"TR4_MUST2H",TR4_MUST2H);
  tolua_constant(tolua_S,"TR4_LEVELS",TR4_LEVELS);
- tolua_constant(tolua_S,"TR4_CLONE",TR4_CLONE);
+ tolua_constant(tolua_S,"TR4_STOLEN",TR4_STOLEN);
  tolua_constant(tolua_S,"TR4_SPECIAL_GENE",TR4_SPECIAL_GENE);
  tolua_constant(tolua_S,"TR4_CLIMB",TR4_CLIMB);
  tolua_constant(tolua_S,"TR4_CRAFTED",TR4_CRAFTED);
  tolua_constant(tolua_S,"TR4_MODERATE_POWER",TR4_MODERATE_POWER);
- tolua_constant(tolua_S,"TR4_ONLY_MALE",TR4_ONLY_MALE);
- tolua_constant(tolua_S,"TR4_ONLY_FEMALE",TR4_ONLY_FEMALE);
+ tolua_constant(tolua_S,"TR4_VALUE_50",TR4_VALUE_50);
+ tolua_constant(tolua_S,"TR4_VALUE_25",TR4_VALUE_25);
  tolua_constant(tolua_S,"TR4_ENHANCED",TR4_ENHANCED);
  tolua_constant(tolua_S,"TR4_CHARGEABLE",TR4_CHARGEABLE);
  tolua_constant(tolua_S,"TR4_INDESTRUCTIBLE",TR4_INDESTRUCTIBLE);
@@ -24308,7 +24610,7 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_constant(tolua_S,"BOSS_RETURNING",BOSS_RETURNING);
  tolua_constant(tolua_S,"CURSE_LOWER_POWER",CURSE_LOWER_POWER);
  tolua_constant(tolua_S,"CURSE_LOWER_MAGIC",CURSE_LOWER_MAGIC);
- tolua_constant(tolua_S,"CURSE_HALVE_HP",CURSE_HALVE_HP);
+ tolua_constant(tolua_S,"CON_JOB",CON_JOB);
  tolua_constant(tolua_S,"CURSE_LOCK",CURSE_LOCK);
  tolua_constant(tolua_S,"CURSE_RETURNING",CURSE_RETURNING);
  tolua_constant(tolua_S,"CURSE_SLOW_DOWN",CURSE_SLOW_DOWN);
@@ -24330,6 +24632,7 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_constant(tolua_S,"BOSS_MAGIC_RETURNING",BOSS_MAGIC_RETURNING);
  tolua_constant(tolua_S,"TAUNTED",TAUNTED);
  tolua_constant(tolua_S,"PIERCING_SPELLS",PIERCING_SPELLS);
+ tolua_constant(tolua_S,"WEAKENED_ELEMENTAL",WEAKENED_ELEMENTAL);
  tolua_constant(tolua_S,"FF1_NO_WALK",FF1_NO_WALK);
  tolua_constant(tolua_S,"FF1_NO_VISION",FF1_NO_VISION);
  tolua_constant(tolua_S,"FF1_CAN_LEVITATE",FF1_CAN_LEVITATE);
@@ -24553,6 +24856,8 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_function(tolua_S,"make_chest",tolua_init_make_chest00);
  tolua_function(tolua_S,"place_chest",tolua_init_place_chest00);
  tolua_function(tolua_S,"object_gain_level",tolua_init_object_gain_level00);
+ tolua_function(tolua_S,"prepare_crafted_item",tolua_init_prepare_crafted_item00);
+ tolua_function(tolua_S,"create_crafted_item",tolua_init_create_crafted_item00);
  tolua_variable(tolua_S,"summoner_monster",tolua_get_summoner_monster_ptr,tolua_set_summoner_monster_ptr);
  tolua_function(tolua_S,"get_wilderness_flag",tolua_init_get_wilderness_flag00);
  tolua_function(tolua_S,"delete_monster_idx",tolua_init_delete_monster_idx00);
@@ -24581,7 +24886,6 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_function(tolua_S,"place_monster_one_return",tolua_init_place_monster_one_return00);
  tolua_function(tolua_S,"player_place",tolua_init_player_place00);
  tolua_function(tolua_S,"monster_drop_carried_objects",tolua_init_monster_drop_carried_objects00);
- tolua_function(tolua_S,"apply_monster_level_hp",tolua_init_apply_monster_level_hp00);
  tolua_function(tolua_S,"get_boss_ability",tolua_init_get_boss_ability00);
  tolua_function(tolua_S,"place_monster_one_no_boss",tolua_init_place_monster_one_no_boss00);
  tolua_function(tolua_S,"place_monster_one_return_no_boss",tolua_init_place_monster_one_return_no_boss00);
@@ -24595,7 +24899,6 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_function(tolua_S,"place_monster_animated",tolua_init_place_monster_animated00);
  tolua_function(tolua_S,"summon_specific_kind",tolua_init_summon_specific_kind00);
  tolua_function(tolua_S,"summon_specific_ridx",tolua_init_summon_specific_ridx00);
- tolua_function(tolua_S,"apply_monster_level_stats",tolua_init_apply_monster_level_stats00);
  tolua_function(tolua_S,"is_pet",tolua_init_is_pet00);
  tolua_function(tolua_S,"set_pet",tolua_init_set_pet00);
  tolua_function(tolua_S,"boss_of_global_object",tolua_init_boss_of_global_object00);
@@ -24603,6 +24906,7 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_function(tolua_S,"summon_specific_rflag",tolua_init_summon_specific_rflag00);
  tolua_function(tolua_S,"get_race_kills",tolua_init_get_race_kills00);
  tolua_function(tolua_S,"evolution_compare",tolua_init_evolution_compare00);
+ tolua_function(tolua_S,"player_next_to_monster",tolua_init_player_next_to_monster00);
  tolua_function(tolua_S,"shield_has",tolua_init_shield_has00);
  tolua_function(tolua_S,"sword_has",tolua_init_sword_has00);
  tolua_function(tolua_S,"hafted_has",tolua_init_hafted_has00);
@@ -24615,6 +24919,7 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_function(tolua_S,"lua_bolt",tolua_init_lua_bolt00);
  tolua_function(tolua_S,"lua_ball",tolua_init_lua_ball00);
  tolua_function(tolua_S,"make_ranged_attack",tolua_init_make_ranged_attack00);
+ tolua_function(tolua_S,"clean_shot",tolua_init_clean_shot00);
  tolua_function(tolua_S,"poly_r_idx",tolua_init_poly_r_idx00);
  tolua_function(tolua_S,"get_pos_player",tolua_init_get_pos_player00);
  tolua_function(tolua_S,"teleport_to_player",tolua_init_teleport_to_player00);
@@ -24774,6 +25079,8 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_function(tolua_S,"set_powerattack",tolua_init_set_powerattack00);
  tolua_function(tolua_S,"mon_take_hit",tolua_init_mon_take_hit00);
  tolua_function(tolua_S,"tgt_pt",tolua_init_tgt_pt00);
+ tolua_function(tolua_S,"gain_class_level",tolua_init_gain_class_level00);
+ tolua_function(tolua_S,"do_cmd_cast",tolua_init_do_cmd_cast00);
  tolua_function(tolua_S,"dagger_check",tolua_init_dagger_check00);
  tolua_function(tolua_S,"axe_check",tolua_init_axe_check00);
  tolua_function(tolua_S,"activate_item",tolua_init_activate_item00);
@@ -24790,6 +25097,7 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_function(tolua_S,"generate_wilderness",tolua_init_generate_wilderness00);
  tolua_function(tolua_S,"generate_vault",tolua_init_generate_vault00);
  tolua_function(tolua_S,"quest_artifact_prep",tolua_init_quest_artifact_prep00);
+ tolua_function(tolua_S,"lua_kind_index",tolua_init_lua_kind_index00);
  tolua_function(tolua_S,"lua_update_monsters",tolua_init_lua_update_monsters00);
  tolua_function(tolua_S,"lua_update_stuff",tolua_init_lua_update_stuff00);
  tolua_function(tolua_S,"lua_get_aim_dir",tolua_init_lua_get_aim_dir00);
@@ -24849,6 +25157,8 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_function(tolua_S,"lua_get_object_desc",tolua_init_lua_get_object_desc00);
  tolua_function(tolua_S,"item_has_been_disabled_message",tolua_init_item_has_been_disabled_message00);
  tolua_function(tolua_S,"lua_revive_in_town",tolua_init_lua_revive_in_town00);
+ tolua_function(tolua_S,"is_alive",tolua_init_is_alive00);
+ tolua_function(tolua_S,"lua_monster_script",tolua_init_lua_monster_script00);
  tolua_array(tolua_S,"copyright",tolua_get_init_copyright,tolua_set_init_copyright);
  tolua_variable(tolua_S,"version_major",tolua_get_version_major,tolua_set_version_major);
  tolua_variable(tolua_S,"version_minor",tolua_get_version_minor,tolua_set_version_minor);
@@ -24985,7 +25295,7 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"view_special_lite",tolua_get_view_special_lite,tolua_set_view_special_lite);
  tolua_variable(tolua_S,"skip_mutations",tolua_get_skip_mutations,tolua_set_skip_mutations);
  tolua_variable(tolua_S,"plain_descriptions",tolua_get_plain_descriptions,tolua_set_plain_descriptions);
- tolua_variable(tolua_S,"stupid_monsters",tolua_get_stupid_monsters,tolua_set_stupid_monsters);
+ tolua_variable(tolua_S,"quest_scaling",tolua_get_quest_scaling,tolua_set_quest_scaling);
  tolua_variable(tolua_S,"auto_destroy",tolua_get_auto_destroy,tolua_set_auto_destroy);
  tolua_variable(tolua_S,"confirm_stairs",tolua_get_confirm_stairs,tolua_set_confirm_stairs);
  tolua_variable(tolua_S,"disturb_pets",tolua_get_disturb_pets,tolua_set_disturb_pets);
@@ -25059,6 +25369,8 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"casting_conjuration",tolua_get_casting_conjuration,tolua_set_casting_conjuration);
  tolua_variable(tolua_S,"casting_mysticism",tolua_get_casting_mysticism,tolua_set_casting_mysticism);
  tolua_variable(tolua_S,"casting_divination",tolua_get_casting_divination,tolua_set_casting_divination);
+ tolua_variable(tolua_S,"wisdom_casting",tolua_get_wisdom_casting,tolua_set_wisdom_casting);
+ tolua_variable(tolua_S,"monk_synchro",tolua_get_monk_synchro,tolua_set_monk_synchro);
  tolua_variable(tolua_S,"monster_physical",tolua_get_monster_physical,tolua_set_monster_physical);
  tolua_variable(tolua_S,"monster_ranged",tolua_get_monster_ranged,tolua_set_monster_ranged);
  tolua_variable(tolua_S,"ranged_attack",tolua_get_ranged_attack,tolua_set_ranged_attack);
@@ -25066,6 +25378,7 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"throw_attack",tolua_get_throw_attack,tolua_set_throw_attack);
  tolua_variable(tolua_S,"monster_died",tolua_get_monster_died,tolua_set_monster_died);
  tolua_variable(tolua_S,"ignore_spellcraft",tolua_get_ignore_spellcraft,tolua_set_ignore_spellcraft);
+ tolua_variable(tolua_S,"dontwakeup",tolua_get_dontwakeup,tolua_set_dontwakeup);
  tolua_variable(tolua_S,"damages_counter",tolua_get_damages_counter,tolua_set_damages_counter);
  tolua_variable(tolua_S,"damages_counter_player_damages",tolua_get_damages_counter_player_damages,tolua_set_damages_counter_player_damages);
  tolua_variable(tolua_S,"damages_counter_duration",tolua_get_damages_counter_duration,tolua_set_damages_counter_duration);
@@ -25073,6 +25386,8 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"enemy_immortality",tolua_get_enemy_immortality,tolua_set_enemy_immortality);
  tolua_variable(tolua_S,"mcounter",tolua_get_mcounter,tolua_set_mcounter);
  tolua_variable(tolua_S,"monster_counter_attack",tolua_get_monster_counter_attack,tolua_set_monster_counter_attack);
+ tolua_variable(tolua_S,"force_nightmare",tolua_get_force_nightmare,tolua_set_force_nightmare);
+ tolua_variable(tolua_S,"force_nightmare_level",tolua_get_force_nightmare_level,tolua_set_force_nightmare_level);
  tolua_variable(tolua_S,"building_vault",tolua_get_building_vault,tolua_set_building_vault);
  tolua_variable(tolua_S,"tmpluastring",tolua_get_tmpluastring,tolua_set_tmpluastring);
  tolua_variable(tolua_S,"red_roff",tolua_get_red_roff,tolua_set_red_roff);
@@ -25227,6 +25542,7 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"opening_chest_type",tolua_get_opening_chest_type,tolua_set_opening_chest_type);
  tolua_variable(tolua_S,"fate_item_modifier",tolua_get_fate_item_modifier,tolua_set_fate_item_modifier);
  tolua_variable(tolua_S,"global_object",tolua_get_global_object,tolua_set_global_object);
+ tolua_variable(tolua_S,"crafted_item",tolua_get_crafted_item,tolua_set_crafted_item);
  tolua_function(tolua_S,"cave",tolua_init_lua_cave00);
  tolua_function(tolua_S,"monster",tolua_init_lua_monster00);
  tolua_function(tolua_S,"m_race",tolua_init_lua_r_info00);

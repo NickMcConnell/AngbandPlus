@@ -114,6 +114,10 @@ struct monster_attack
 	s16b element;
 	s16b special1;
 	s16b special2;
+	s16b ddscale;
+	s16b ddscalefactor;
+	s16b dsscale;
+	s16b dsscalefactor;
 };
 
 /*
@@ -176,6 +180,8 @@ struct monster_spell
 	s16b special3;
 	char summchar;
 	s16b cost;
+	s16b scale;
+	s16b scalefactor;
 };
 
 /* A structure made for our spells! :) */
@@ -508,6 +514,7 @@ struct monster_race
 
 	s16b hdice;				/* Creatures hit dice count */
 	s16b hside;				/* Creatures hit dice sides */
+	s32b hp;				/* Hp */
 
 	s32b ac;				/* Armour Class */
 
@@ -597,6 +604,8 @@ struct monster_race
 	s32b skill_attack;
 	s32b skill_ranged;
 	s32b skill_magic;
+	s32b skill_evasion;
+	s32b skill_mdef;
 	
 	s16b countertype;
 	s16b counterchance;
@@ -606,6 +615,7 @@ struct monster_race
 	s16b spellchance; /* Chance to cast a spell. 0 = no spell */
 
 	s16b attacks; /* Number of attacks/turn */
+	s16b shots; /* Number of shots/turn */
 	monster_attack attack[20]; /* Up to twenty type of attacks */
 	s16b spells; /* Number of spells/turn */
 	monster_spell spell[20]; /* Up to twenty different spells */
@@ -622,6 +632,7 @@ struct monster_race
 	s16b dunnum; /* Which dungeon is associated with this monster! */
 	s16b lives; /* How many lives the monster have! */
 	s16b cursed; /* The 'cursed' level of the monster! */
+	s16b cr; /* Challenge rating. */
 
 	/* New parameters */
 	s16b event_before_melee;
@@ -637,6 +648,16 @@ struct monster_race
 	s16b event_death;
 	s16b event_spawn;
 	s16b event_misc;
+
+	/* Scaling factors */
+	s16b attacksscale;
+	s16b attacksscalefactor;
+	s16b shotsscale;
+	s16b shotsscalefactor;
+	s16b spellsscale;
+	s16b spellsscalefactor;
+	s16b livesscale;
+	s16b livesscalefactor;
 };
 
 
@@ -976,6 +997,8 @@ struct monster_type
 	s32b skill_attack;
 	s32b skill_ranged;
 	s32b skill_magic;
+	s32b skill_evasion;
+	s32b skill_mdef;
 	s32b mana;
 	s16b hasted;
 	s16b boosted;
@@ -983,6 +1006,13 @@ struct monster_type
 	s16b lives;
 	s16b summoned;
 	bool no_experience;
+
+	/* Some additional variables. */
+	s32b extra1;
+	s32b extra2;
+	s32b extra3;
+	s32b extra4;
+	s32b extra5;
 };
 
 

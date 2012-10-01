@@ -448,7 +448,7 @@ static int pick_random_ranged_monster(int level)
 
 	while (!chosen)
 	{
-		pickedrace = randint(max_r_idx);
+		pickedrace = randint(max_r_idx - 1);
 
 		r_ptr = &r_info[pickedrace];
 
@@ -492,7 +492,7 @@ static int pick_random_dragon(int level)
 	/* Choose a monster race */
 	chosen = FALSE;
 
-	/* Scan the minimum level for ranged enemies. */
+	/* Scan the minimum level for dragons. */
 	/* This means return the first enemy in the list. */
 	lowestlevel = 30000;
 	for (i = 0; i < max_r_idx; i++)
@@ -514,7 +514,7 @@ static int pick_random_dragon(int level)
 
 	while (!chosen)
 	{
-		pickedrace = randint(max_r_idx);
+		pickedrace = randint(max_r_idx - 1);
 
 		r_ptr = &r_info[pickedrace];
 
@@ -8936,7 +8936,7 @@ int generate_quest()
 				}
 			}
 		}
-
+		
 		/* All rooms have been generated. Now, to put something in them. */
 		for (i = 0; i < numgen; i++)
 		{
@@ -9081,7 +9081,7 @@ int generate_quest()
 					cave[rooms[i].centery][rooms[i].centerx+2].eventset = 0;
 					cave[rooms[i].centery][rooms[i].centerx+2].eventsetval = 0;
 				}
-				
+
 			}
 			else if (i != 0)
 			{
@@ -9198,9 +9198,15 @@ int generate_quest()
 										n = pick_random_ranged_monster(d_ptr->maxdepth);
 										if (n != 0)
 										{
+											monster_race *r_ptr = &r_info[n];
 											cave[spoty][spotx].event = 7;
 											cave[spoty][spotx].eventtype = n;
 											cave[spoty][spotx].eventextra = 0;
+
+											if (r_ptr->level > d_ptr->maxdepth)
+												cave[rooms[i].centery][rooms[i].centerx].eventextra2 = d_ptr->maxdepth + 1;
+											else
+												cave[rooms[i].centery][rooms[i].centerx].eventextra2 = 0;
 											cave[spoty][spotx].eventextra2 = 0;
 											cave[spoty][spotx].eventcond = 0;
 											cave[spoty][spotx].eventcondval = 0;
@@ -9238,17 +9244,24 @@ int generate_quest()
 					/* The dragon! */
 					/* It sleeps in the middle of the room. */
 					n = pick_random_dragon(d_ptr->maxdepth);
+
 					if (n != 0)
 					{
+						monster_race *r_ptr = &r_info[n];
 						cave[rooms[i].centery][rooms[i].centerx].event = 7;
 						cave[rooms[i].centery][rooms[i].centerx].eventtype = n;
 						cave[rooms[i].centery][rooms[i].centerx].eventextra = 1;
-						cave[rooms[i].centery][rooms[i].centerx].eventextra2 = 0;
+
+						if (r_ptr->level > d_ptr->maxdepth)
+							cave[rooms[i].centery][rooms[i].centerx].eventextra2 = d_ptr->maxdepth + 1;
+						else
+							cave[rooms[i].centery][rooms[i].centerx].eventextra2 = 0;
 						cave[rooms[i].centery][rooms[i].centerx].eventcond = 0;
 						cave[rooms[i].centery][rooms[i].centerx].eventcondval = 0;
 						cave[rooms[i].centery][rooms[i].centerx].eventset = 0;
 						cave[rooms[i].centery][rooms[i].centerx].eventsetval = 0;
 					}
+
 				}
 
 
@@ -10873,6 +10886,9 @@ void generate_vault(int vy, int vx, int num)
 					{
 						int oldobjectlevel = object_level;
 						object_level += cave[y][x].eventextra;
+
+						building_vault = TRUE;
+
 						if (cave[y][x].eventtype == 1) place_object_tval(y, x, cave[y][x].eventextra2, TRUE, FALSE);
 						else if (cave[y][x].eventtype == 2) place_object_tval(y, x, cave[y][x].eventextra2, TRUE, TRUE);
 						else if (cave[y][x].eventtype == 3)
@@ -10892,12 +10908,15 @@ void generate_vault(int vy, int vx, int num)
 						}
 						else place_object_tval(y, x, cave[y][x].eventextra2, FALSE, FALSE);
 						object_level = oldobjectlevel;
+						building_vault = FALSE;
 					}
 				}
 				else
 				{
 					int oldobjectlevel = object_level;
 					object_level += cave[y][x].eventextra;
+
+					building_vault = TRUE;
 					if (cave[y][x].eventtype == 1) place_object_tval(y, x, cave[y][x].eventextra2, TRUE, FALSE);
 					else if (cave[y][x].eventtype == 2) place_object_tval(y, x, cave[y][x].eventextra2, TRUE, TRUE);
 					else if (cave[y][x].eventtype == 3)
@@ -10917,6 +10936,7 @@ void generate_vault(int vy, int vx, int num)
 					}
 					else place_object_tval(y, x, cave[y][x].eventextra2, FALSE, FALSE);
 					object_level = oldobjectlevel;
+					building_vault = FALSE;
 				}	
 			}
 			/* Event 16 is a random Nightmare Horror!! */

@@ -1287,8 +1287,8 @@ option_type option_info[] =
         { &plain_descriptions,          TRUE, 5, 5, 1,
 	"plain_descriptions",           "Plain object descriptions" },
 
-	{ &stupid_monsters,             FALSE, 5, 5, 2,
-	"stupid_monsters",              "Monsters behave stupidly" },
+	{ &quest_scaling,               FALSE, 5, 5, 2,
+	"quest_scaling",                "Scale enemies in quests to match your level" },
 
         { &auto_destroy,                TRUE, 5, 5, 3,
 	"auto_destroy",                 "No query to destroy known worthless items" },

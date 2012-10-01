@@ -545,10 +545,17 @@ function after_player_move (x, y)
 					p_ptr.abilities_monster_spells[i] = 0
 				end
 				p_ptr.boss_abilities = 0
+				p_ptr.abilities_powers[1] = (CLASS_APPRENTICE * 10) + 1
+				p_ptr.abilities_powers[2] = (CLASS_APPRENTICE * 10) + 2
 			end
 
+			-- Certain "events" variables needs to be turned off.
+			p_ptr.events[29050] = 0
+			p_ptr.events[29051] = 0
+			p_ptr.events[29054] = 0
+
 			p_ptr.statpoints = p_ptr.lev * 2
-			p_ptr.skillpoints = p_ptr.lev * 5
+			p_ptr.skillpoints = p_ptr.lev * 10
 			p_ptr.ability_points = p_ptr.lev
 
 			p_ptr.statpoints = p_ptr.statpoints + (p_ptr.secretscleared * 4)
@@ -666,6 +673,14 @@ function player_after_floor (dnum)
 	local x
 	local y
 	local placed
+
+	-- Reset Great Guard's chance.
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 10] >= 1) then
+
+		p_ptr.events[29052] = 90 + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 10] * 10)
+	else
+		p_ptr.events[29052] = 0
+	end
 
 	-- If we're in the Flow, place some portals.
 	if (dnum == 201) then
@@ -795,14 +810,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		fdam = (10 * damstat)
-		fdam = fdam + multiply_divide(fdam, p_ptr.skill[2] * 10, 100)
-		fdam = fdam + multiply_divide(fdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		fdam = 10 + (p_ptr.lev / 3)
+		fdam = spell_damages(fdam, damstat, 0)
+		fdam = fdam + multiply_divide(fdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		place_field(FEAT_COLD_FIELD, 5, px, py, fdam)
 		update_and_handle()
@@ -816,14 +831,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		fdam = (15 * damstat)
-		fdam = fdam + multiply_divide(fdam, p_ptr.skill[2] * 10, 100)
-		fdam = fdam + multiply_divide(fdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		fdam = 15 + (p_ptr.lev / 3)
+		fdam = spell_damages(fdam, damstat, 0)
+		fdam = fdam + multiply_divide(fdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		place_field(FEAT_COLD_FIELD, 5, px, py, fdam)
 		update_and_handle()
@@ -838,14 +853,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		fdam = (20 * damstat)
-		fdam = fdam + multiply_divide(fdam, p_ptr.skill[2] * 10, 100)
-		fdam = fdam + multiply_divide(fdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		fdam = 20 + (p_ptr.lev / 3)
+		fdam = spell_damages(fdam, damstat, 0)
+		fdam = fdam + multiply_divide(fdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		place_field(FEAT_COLD_FIELD, 6, px, py, fdam)
 		update_and_handle()
@@ -858,9 +873,9 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
 		sdam = (40 * damstat)
@@ -930,9 +945,9 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
 		sdam = (50 * damstat)
@@ -970,14 +985,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (20 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 20 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_FIRE, sdam, 3)
@@ -993,14 +1008,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (20 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 20 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_COLD, sdam, 3)
@@ -1016,14 +1031,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (30 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 30 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_ELEMENTAL, sdam, 3)
@@ -1039,14 +1054,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (20 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 20 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_ACID, sdam, 3)
@@ -1062,14 +1077,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (20 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 20 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_WATER, sdam, 3)
@@ -1085,14 +1100,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (20 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 20 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_EARTH, sdam, 3)
@@ -1108,14 +1123,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (20 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 20 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_WIND, sdam, 3)
@@ -1131,14 +1146,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (20 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 20 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_FROSTFIRE, sdam, 3)
@@ -1154,14 +1169,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (20 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 20 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_MUD, sdam, 3)
@@ -1177,14 +1192,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		fdam = (30 * damstat)
-		fdam = fdam + multiply_divide(fdam, p_ptr.skill[2] * 10, 100)
-		fdam = fdam + multiply_divide(fdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		fdam = 30 + (p_ptr.lev / 3)
+		fdam = spell_damages(fdam, damstat, 0)
+		fdam = fdam + multiply_divide(fdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_FIRE, fdam, 5)
@@ -1212,14 +1227,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (30 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 30 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_FIRE, sdam, 3)
@@ -1235,14 +1250,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (30 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 30 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_WATER, sdam, 3)
@@ -1258,14 +1273,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (30 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 30 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_EARTH, sdam, 3)
@@ -1281,14 +1296,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (30 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 30 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_WIND, sdam, 3)
@@ -1304,14 +1319,14 @@ function player_events_code (eventcode)
 		local damstat
 
 		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
-			damstat = p_ptr.stat_ind[A_INT+1] - 5
+			damstat = A_INT
 		else
-			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+			damstat = A_WIS
 		end
 
-		sdam = (30 * damstat)
-		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
-		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+		sdam = 30 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
 
 		no_magic_return = TRUE
 		attack_aura(GF_CHAOS, sdam, 3)
@@ -1412,8 +1427,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local fdam
 
-		fdam = (10 * monster(m_idx).mind)
-		fdam = fdam + multiply_divide(fdam, monster(m_idx).skill_magic * 10, 100)
+		fdam = 10 + (monster(m_idx).level / 3)
+		fdam = monster_spell_damages(monster(m_idx), fdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
 
 		place_field_monsters(FEAT_COLD_FIELD, 5, monster(m_idx).fx, monster(m_idx).fy, fdam)
 		update_and_handle()
@@ -1425,8 +1441,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local fdam
 
-		fdam = (15 * monster(m_idx).mind)
-		fdam = fdam + multiply_divide(fdam, monster(m_idx).skill_magic * 10, 100)
+		fdam = 15 + (monster(m_idx).level / 3)
+		fdam = monster_spell_damages(monster(m_idx), fdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
 
 		place_field_monsters(FEAT_COLD_FIELD, 5, monster(m_idx).fx, monster(m_idx).fy, fdam)
 		update_and_handle()
@@ -1439,8 +1456,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local fdam
 
-		fdam = (20 * monster(m_idx).mind)
-		fdam = fdam + multiply_divide(fdam, monster(m_idx).skill_magic * 10, 100)
+		fdam = 20 + (monster(m_idx).level / 3)
+		fdam = monster_spell_damages(monster(m_idx), fdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
 
 		place_field_monsters(FEAT_COLD_FIELD, 6, monster(m_idx).fx, monster(m_idx).fy, fdam)
 		update_and_handle()
@@ -1451,8 +1469,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (40 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 40 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 5, monster(m_idx).fy, monster(m_idx).fx, sdam, 162, 2)
@@ -1485,8 +1504,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (50 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 50 + (monster(m_idx).level / 2)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 5, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_WARP, 2)
@@ -1529,8 +1549,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (20 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 20 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_FIRE, 2)
@@ -1544,8 +1565,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (20 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 20 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_COLD, 2)
@@ -1559,8 +1581,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (30 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 30 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_ELEMENTAL, 2)
@@ -1574,8 +1597,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (20 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 20 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_ACID, 2)
@@ -1589,8 +1613,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (20 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 20 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_WATER, 2)
@@ -1604,8 +1629,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (20 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 20 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_EARTH, 2)
@@ -1619,8 +1645,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (20 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 20 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_WIND, 2)
@@ -1634,8 +1661,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (20 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 20 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_FROSTFIRE, 2)
@@ -1649,8 +1677,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (20 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 20 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_MUD, 2)
@@ -1664,8 +1693,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local fdam
 
-		fdam = (30 * monster(m_idx).mind)
-		fdam = fdam + multiply_divide(fdam, monster(m_idx).skill_magic * 10, 100)
+		fdam = 30 + (monster(m_idx).level / 3)
+		fdam = monster_spell_damages(monster(m_idx), fdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 5, monster(m_idx).fy, monster(m_idx).fx, fdam, GF_FIRE, 2)
@@ -1690,8 +1720,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (30 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 30 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_FIRE, 2)
@@ -1705,8 +1736,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (30 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 30 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_WATER, 2)
@@ -1720,8 +1752,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (30 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 30 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_EARTH, 2)
@@ -1735,8 +1768,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (30 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 30 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_WIND, 2)
@@ -1750,8 +1784,9 @@ function monster_events_code (m_idx, eventcode)
 
 		local sdam
 
-		sdam = (30 * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 30 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_CHAOS, 2)
@@ -1839,11 +1874,9 @@ function monster_events_code (m_idx, eventcode)
 		local sdam
 		local lvl
 
-		if (p_ptr.max_plv < 30) then lvl = 30
-		else lvl = p_ptr.max_plv end
-
-		sdam = (lvl * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = 30 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_FIRE, 2)
@@ -1877,7 +1910,7 @@ function monster_events_code (m_idx, eventcode)
 		local rad
 		local element
 
-		basepower = m_race(monster(m_idx).r_idx).level / 2
+		basepower = m_race(monster(m_idx).r_idx).level / 3
 		if (basepower < 1) then basepower = 1 end
 		rad = (m_race(monster(m_idx).r_idx).level / 10) - 2
 		if (rad < 2) then rad = 2 end
@@ -1885,8 +1918,9 @@ function monster_events_code (m_idx, eventcode)
 
 		element = (m_race(monster(m_idx).r_idx).event_misc * (-1))
 
-		sdam = (basepower * monster(m_idx).mind)
-		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+		sdam = basepower + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
 
 		donthurtmonsters = 1
 		lua_project(m_idx, rad, monster(m_idx).fy, monster(m_idx).fx, sdam, element, 2)
@@ -1903,14 +1937,15 @@ function monster_events_code (m_idx, eventcode)
 		local rad
 		local ftype
 
-		basepower = m_race(monster(m_idx).r_idx).level / 2
+		basepower = m_race(monster(m_idx).r_idx).level / 3
 		if (basepower < 1) then basepower = 1 end
 		rad = (m_race(monster(m_idx).r_idx).level / 20) - 2
 		if (rad < 2) then rad = 2 end
 		if (rad > 10) then rad = 10 end
 
-		fdam = (basepower * monster(m_idx).mind)
-		fdam = fdam + multiply_divide(fdam, monster(m_idx).skill_magic * 10, 100)
+		fdam = basepower + (monster(m_idx).level / 3)
+		fdam = monster_spell_damages(monster(m_idx), fdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
 
 		if (m_race(monster(m_idx).r_idx).event_misc == -1) then ftype = FEAT_FIRE_FIELD end
 		if (m_race(monster(m_idx).r_idx).event_misc == -2) then ftype = FEAT_COLD_FIELD end
@@ -1968,31 +2003,6 @@ function monster_after_move (m_idx, eventcode)
 end
 
 function monster_passive (m_idx, eventcode)
-
-	-- Bardic reputation.
-	if (p_ptr.abilities[(CLASS_BARD * 10) + 7] > 0 and m_race(monster(m_idx).r_idx).cursed == 0 and monster(m_idx).monfear == 0 and not(is_pet(monster(m_idx))) and not(get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) and monster(m_idx).cdis <= 5) then
-
-		local racekills
-		local ppower
-		local mpower
-
-		-- This function is hard-coded for speed issues.
-		racekills = get_race_kills(m_race(monster(m_idx).r_idx).d_char)
-
-		if (racekills > 0 and not(get_monster_flag3(monster(m_idx).r_idx, RF3_NO_FEAR))) then
-
-			ppower = (racekills * 2)
-			if (ppower > 30) then ppower = 30 end
-			ppower = ppower * p_ptr.abilities[(CLASS_BARD * 10) + 7]
-			mpower = monster(m_idx).level + monster(m_idx).mind
-
-			if (lua_randint(ppower) >= lua_randint(mpower)) then
-
-				-- if (monster(m_idx).monfear == 0) then msg_print(string.format('%s becomes terrified!', m_race(monster(m_idx).r_idx).name_char)) end
-				monster(m_idx).monfear = (2 + racekills)
-			end
-		end
-	end
 
 	if (eventcode == 2501) then
 
@@ -2129,6 +2139,46 @@ function item_spawn (item, eventcode)
 	item_events_code(item, eventcode)
 end
 
+-- This function are for things that happens during a turn.
+-- Used for cooldowns, temporary effects, regeneration, etc...
+function world_passive ()
+
+	-- Various cooldowns for abilities.
+
+	-- Ki Restoration.
+	if (p_ptr.events[29048] > 0) then p_ptr.events[29048] = p_ptr.events[29048] - 1 end
+
+	-- Jump.
+	if (p_ptr.events[29049] > 0) then p_ptr.events[29049] = p_ptr.events[29049] - 1 end
+
+	-- Divine Intervention.
+	if (p_ptr.events[29055] > 0) then p_ptr.events[29055] = p_ptr.events[29055] - 1 end
+	if (p_ptr.events[29056] > 0) then p_ptr.events[29056] = p_ptr.events[29056] - 1 end
+
+	-- Blessed Blood's effect.
+	if (p_ptr.abilities[(CLASS_PRIEST * 10) + 6] >= 1) then
+
+		local power
+		power = spell_damages(1 + (p_ptr.abilities[(CLASS_PRIEST * 10) + 6] / 2), A_WIS, 0)
+		lua_project(-2, 0, py, px, power, GF_OLD_HEAL, 1)
+	end
+
+	-- Elemental Being's aura.
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] >= 1) then
+
+		local dam
+		dam = spell_damages(p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] * 4, A_INT, 0)
+
+		no_magic_return = TRUE
+		no_effect_allies = 1
+		no_elemental_damage = 1
+		attack_aura(p_ptr.elemlord, dam, 2 + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] / 10))
+		no_elemental_damage = 0
+		no_effect_allies = 0
+		no_magic_return = FALSE
+	end
+end
+
 add_event_handler("before_player_move", before_player_move)
 add_event_handler("after_player_move", after_player_move)
 add_event_handler("player_before_melee", player_before_melee)
@@ -2168,3 +2218,4 @@ add_event_handler("item_takeoff", item_takeoff)
 add_event_handler("item_summon", item_summon)
 add_event_handler("item_unsummon", item_unsummon)
 add_event_handler("item_spawn", item_spawn)
+add_event_handler("world_passive", world_passive)

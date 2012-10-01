@@ -927,7 +927,7 @@ N:220:permanent wall
 G:#:w
 F:NO_VISION | PERMANENT | SUPPORT_LIGHT
 
-# NEW: FIELDS! If monsters go trough, they eat damages!
+# Damage fields.
 N:221:fire field
 G:.:r
 F:FLOOR | SUPPORT_LIGHT
@@ -950,9 +950,9 @@ N:225:webs
 G:0:w
 F:FLOOR | SUPPORT_LIGHT
 
-# Spike Trap! Used by rogues! :)
-N:226:spike trap
-G:.:D
+# Sanctified Area.
+N:226:sanctified floor
+G:.:B
 F:FLOOR | SUPPORT_LIGHT
 
 # Gas Trap! Used by rogues! :)

@@ -1,6 +1,6 @@
 /*
 ** Lua binding: types
-** Generated automatically by tolua 5.0a on 01/31/10 14:59:19.
+** Generated automatically by tolua 5.0a on 10/30/11 13:50:02.
 */
 
 #ifndef __cplusplus
@@ -1172,6 +1172,106 @@ static int tolua_set_monster_attack_special2(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: ddscale of class  monster_attack */
+static int tolua_get_monster_attack_ddscale(lua_State* tolua_S)
+{
+  monster_attack* self = (monster_attack*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'ddscale'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->ddscale);
+ return 1;
+}
+
+/* set function: ddscale of class  monster_attack */
+static int tolua_set_monster_attack_ddscale(lua_State* tolua_S)
+{
+  monster_attack* self = (monster_attack*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'ddscale'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->ddscale = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: ddscalefactor of class  monster_attack */
+static int tolua_get_monster_attack_ddscalefactor(lua_State* tolua_S)
+{
+  monster_attack* self = (monster_attack*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'ddscalefactor'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->ddscalefactor);
+ return 1;
+}
+
+/* set function: ddscalefactor of class  monster_attack */
+static int tolua_set_monster_attack_ddscalefactor(lua_State* tolua_S)
+{
+  monster_attack* self = (monster_attack*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'ddscalefactor'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->ddscalefactor = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: dsscale of class  monster_attack */
+static int tolua_get_monster_attack_dsscale(lua_State* tolua_S)
+{
+  monster_attack* self = (monster_attack*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'dsscale'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->dsscale);
+ return 1;
+}
+
+/* set function: dsscale of class  monster_attack */
+static int tolua_set_monster_attack_dsscale(lua_State* tolua_S)
+{
+  monster_attack* self = (monster_attack*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'dsscale'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->dsscale = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: dsscalefactor of class  monster_attack */
+static int tolua_get_monster_attack_dsscalefactor(lua_State* tolua_S)
+{
+  monster_attack* self = (monster_attack*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'dsscalefactor'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->dsscalefactor);
+ return 1;
+}
+
+/* set function: dsscalefactor of class  monster_attack */
+static int tolua_set_monster_attack_dsscalefactor(lua_State* tolua_S)
+{
+  monster_attack* self = (monster_attack*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'dsscalefactor'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->dsscalefactor = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: name of class  monster_spell */
 static int tolua_get_monster_spell_name(lua_State* tolua_S)
 {
@@ -1394,6 +1494,56 @@ static int tolua_set_monster_spell_cost(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
   self->cost = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: scale of class  monster_spell */
+static int tolua_get_monster_spell_scale(lua_State* tolua_S)
+{
+  monster_spell* self = (monster_spell*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'scale'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->scale);
+ return 1;
+}
+
+/* set function: scale of class  monster_spell */
+static int tolua_set_monster_spell_scale(lua_State* tolua_S)
+{
+  monster_spell* self = (monster_spell*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'scale'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->scale = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: scalefactor of class  monster_spell */
+static int tolua_get_monster_spell_scalefactor(lua_State* tolua_S)
+{
+  monster_spell* self = (monster_spell*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'scalefactor'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->scalefactor);
+ return 1;
+}
+
+/* set function: scalefactor of class  monster_spell */
+static int tolua_set_monster_spell_scalefactor(lua_State* tolua_S)
+{
+  monster_spell* self = (monster_spell*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'scalefactor'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->scalefactor = ((s16b)  tolua_tonumber(tolua_S,2,0));
  return 0;
 }
 
@@ -6138,6 +6288,31 @@ static int tolua_set_monster_race_hside(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: hp of class  monster_race */
+static int tolua_get_monster_race_hp(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'hp'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->hp);
+ return 1;
+}
+
+/* set function: hp of class  monster_race */
+static int tolua_set_monster_race_hp(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'hp'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->hp = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: ac of class  monster_race */
 static int tolua_get_monster_race_ac(lua_State* tolua_S)
 {
@@ -7703,6 +7878,56 @@ static int tolua_set_monster_race_skill_magic(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: skill_evasion of class  monster_race */
+static int tolua_get_monster_race_skill_evasion(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'skill_evasion'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->skill_evasion);
+ return 1;
+}
+
+/* set function: skill_evasion of class  monster_race */
+static int tolua_set_monster_race_skill_evasion(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'skill_evasion'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->skill_evasion = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: skill_mdef of class  monster_race */
+static int tolua_get_monster_race_skill_mdef(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'skill_mdef'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->skill_mdef);
+ return 1;
+}
+
+/* set function: skill_mdef of class  monster_race */
+static int tolua_set_monster_race_skill_mdef(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'skill_mdef'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->skill_mdef = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: countertype of class  monster_race */
 static int tolua_get_monster_race_countertype(lua_State* tolua_S)
 {
@@ -7848,6 +8073,31 @@ static int tolua_set_monster_race_attacks(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
   self->attacks = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: shots of class  monster_race */
+static int tolua_get_monster_race_shots(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'shots'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->shots);
+ return 1;
+}
+
+/* set function: shots of class  monster_race */
+static int tolua_set_monster_race_shots(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'shots'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->shots = ((s16b)  tolua_tonumber(tolua_S,2,0));
  return 0;
 }
 
@@ -8272,6 +8522,31 @@ static int tolua_set_monster_race_cursed(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: cr of class  monster_race */
+static int tolua_get_monster_race_cr(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'cr'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->cr);
+ return 1;
+}
+
+/* set function: cr of class  monster_race */
+static int tolua_set_monster_race_cr(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'cr'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->cr = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: event_before_melee of class  monster_race */
 static int tolua_get_monster_race_event_before_melee(lua_State* tolua_S)
 {
@@ -8594,6 +8869,206 @@ static int tolua_set_monster_race_event_misc(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
   self->event_misc = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: attacksscale of class  monster_race */
+static int tolua_get_monster_race_attacksscale(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'attacksscale'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->attacksscale);
+ return 1;
+}
+
+/* set function: attacksscale of class  monster_race */
+static int tolua_set_monster_race_attacksscale(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'attacksscale'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->attacksscale = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: attacksscalefactor of class  monster_race */
+static int tolua_get_monster_race_attacksscalefactor(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'attacksscalefactor'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->attacksscalefactor);
+ return 1;
+}
+
+/* set function: attacksscalefactor of class  monster_race */
+static int tolua_set_monster_race_attacksscalefactor(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'attacksscalefactor'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->attacksscalefactor = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: shotsscale of class  monster_race */
+static int tolua_get_monster_race_shotsscale(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'shotsscale'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->shotsscale);
+ return 1;
+}
+
+/* set function: shotsscale of class  monster_race */
+static int tolua_set_monster_race_shotsscale(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'shotsscale'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->shotsscale = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: shotsscalefactor of class  monster_race */
+static int tolua_get_monster_race_shotsscalefactor(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'shotsscalefactor'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->shotsscalefactor);
+ return 1;
+}
+
+/* set function: shotsscalefactor of class  monster_race */
+static int tolua_set_monster_race_shotsscalefactor(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'shotsscalefactor'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->shotsscalefactor = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: spellsscale of class  monster_race */
+static int tolua_get_monster_race_spellsscale(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'spellsscale'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->spellsscale);
+ return 1;
+}
+
+/* set function: spellsscale of class  monster_race */
+static int tolua_set_monster_race_spellsscale(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'spellsscale'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->spellsscale = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: spellsscalefactor of class  monster_race */
+static int tolua_get_monster_race_spellsscalefactor(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'spellsscalefactor'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->spellsscalefactor);
+ return 1;
+}
+
+/* set function: spellsscalefactor of class  monster_race */
+static int tolua_set_monster_race_spellsscalefactor(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'spellsscalefactor'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->spellsscalefactor = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: livesscale of class  monster_race */
+static int tolua_get_monster_race_livesscale(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'livesscale'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->livesscale);
+ return 1;
+}
+
+/* set function: livesscale of class  monster_race */
+static int tolua_set_monster_race_livesscale(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'livesscale'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->livesscale = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: livesscalefactor of class  monster_race */
+static int tolua_get_monster_race_livesscalefactor(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'livesscalefactor'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->livesscalefactor);
+ return 1;
+}
+
+/* set function: livesscalefactor of class  monster_race */
+static int tolua_set_monster_race_livesscalefactor(lua_State* tolua_S)
+{
+  monster_race* self = (monster_race*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'livesscalefactor'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->livesscalefactor = ((s16b)  tolua_tonumber(tolua_S,2,0));
  return 0;
 }
 
@@ -12560,6 +13035,56 @@ static int tolua_set_monster_type_skill_magic(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: skill_evasion of class  monster_type */
+static int tolua_get_monster_type_skill_evasion(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'skill_evasion'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->skill_evasion);
+ return 1;
+}
+
+/* set function: skill_evasion of class  monster_type */
+static int tolua_set_monster_type_skill_evasion(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'skill_evasion'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->skill_evasion = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: skill_mdef of class  monster_type */
+static int tolua_get_monster_type_skill_mdef(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'skill_mdef'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->skill_mdef);
+ return 1;
+}
+
+/* set function: skill_mdef of class  monster_type */
+static int tolua_set_monster_type_skill_mdef(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'skill_mdef'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->skill_mdef = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: mana of class  monster_type */
 static int tolua_get_monster_type_mana(lua_State* tolua_S)
 {
@@ -12732,6 +13257,131 @@ static int tolua_set_monster_type_no_experience(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
   self->no_experience = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: extra1 of class  monster_type */
+static int tolua_get_monster_type_extra1(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'extra1'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->extra1);
+ return 1;
+}
+
+/* set function: extra1 of class  monster_type */
+static int tolua_set_monster_type_extra1(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'extra1'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->extra1 = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: extra2 of class  monster_type */
+static int tolua_get_monster_type_extra2(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'extra2'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->extra2);
+ return 1;
+}
+
+/* set function: extra2 of class  monster_type */
+static int tolua_set_monster_type_extra2(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'extra2'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->extra2 = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: extra3 of class  monster_type */
+static int tolua_get_monster_type_extra3(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'extra3'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->extra3);
+ return 1;
+}
+
+/* set function: extra3 of class  monster_type */
+static int tolua_set_monster_type_extra3(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'extra3'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->extra3 = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: extra4 of class  monster_type */
+static int tolua_get_monster_type_extra4(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'extra4'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->extra4);
+ return 1;
+}
+
+/* set function: extra4 of class  monster_type */
+static int tolua_set_monster_type_extra4(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'extra4'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->extra4 = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: extra5 of class  monster_type */
+static int tolua_get_monster_type_extra5(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'extra5'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->extra5);
+ return 1;
+}
+
+/* set function: extra5 of class  monster_type */
+static int tolua_set_monster_type_extra5(lua_State* tolua_S)
+{
+  monster_type* self = (monster_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'extra5'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->extra5 = ((s32b)  tolua_tonumber(tolua_S,2,0));
  return 0;
 }
 
@@ -23485,6 +24135,10 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"element",tolua_get_monster_attack_element,tolua_set_monster_attack_element);
  tolua_variable(tolua_S,"special1",tolua_get_monster_attack_special1,tolua_set_monster_attack_special1);
  tolua_variable(tolua_S,"special2",tolua_get_monster_attack_special2,tolua_set_monster_attack_special2);
+ tolua_variable(tolua_S,"ddscale",tolua_get_monster_attack_ddscale,tolua_set_monster_attack_ddscale);
+ tolua_variable(tolua_S,"ddscalefactor",tolua_get_monster_attack_ddscalefactor,tolua_set_monster_attack_ddscalefactor);
+ tolua_variable(tolua_S,"dsscale",tolua_get_monster_attack_dsscale,tolua_set_monster_attack_dsscale);
+ tolua_variable(tolua_S,"dsscalefactor",tolua_get_monster_attack_dsscalefactor,tolua_set_monster_attack_dsscalefactor);
  tolua_endmodule(tolua_S);
 #ifdef __cplusplus
  tolua_cclass(tolua_S,"monster_spell","monster_spell","",tolua_collect_monster_spell);
@@ -23501,6 +24155,8 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"special3",tolua_get_monster_spell_special3,tolua_set_monster_spell_special3);
  tolua_variable(tolua_S,"summchar",tolua_get_monster_spell_summchar,tolua_set_monster_spell_summchar);
  tolua_variable(tolua_S,"cost",tolua_get_monster_spell_cost,tolua_set_monster_spell_cost);
+ tolua_variable(tolua_S,"scale",tolua_get_monster_spell_scale,tolua_set_monster_spell_scale);
+ tolua_variable(tolua_S,"scalefactor",tolua_get_monster_spell_scalefactor,tolua_set_monster_spell_scalefactor);
  tolua_endmodule(tolua_S);
  tolua_cclass(tolua_S,"magic_spells","magic_spells","",NULL);
  tolua_beginmodule(tolua_S,"magic_spells");
@@ -23693,6 +24349,7 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"name_char",tolua_get_monster_race_name_char,tolua_set_monster_race_name_char);
  tolua_variable(tolua_S,"hdice",tolua_get_monster_race_hdice,tolua_set_monster_race_hdice);
  tolua_variable(tolua_S,"hside",tolua_get_monster_race_hside,tolua_set_monster_race_hside);
+ tolua_variable(tolua_S,"hp",tolua_get_monster_race_hp,tolua_set_monster_race_hp);
  tolua_variable(tolua_S,"ac",tolua_get_monster_race_ac,tolua_set_monster_race_ac);
  tolua_variable(tolua_S,"sleep",tolua_get_monster_race_sleep,tolua_set_monster_race_sleep);
  tolua_variable(tolua_S,"aaf",tolua_get_monster_race_aaf,tolua_set_monster_race_aaf);
@@ -23751,11 +24408,14 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"skill_attack",tolua_get_monster_race_skill_attack,tolua_set_monster_race_skill_attack);
  tolua_variable(tolua_S,"skill_ranged",tolua_get_monster_race_skill_ranged,tolua_set_monster_race_skill_ranged);
  tolua_variable(tolua_S,"skill_magic",tolua_get_monster_race_skill_magic,tolua_set_monster_race_skill_magic);
+ tolua_variable(tolua_S,"skill_evasion",tolua_get_monster_race_skill_evasion,tolua_set_monster_race_skill_evasion);
+ tolua_variable(tolua_S,"skill_mdef",tolua_get_monster_race_skill_mdef,tolua_set_monster_race_skill_mdef);
  tolua_variable(tolua_S,"countertype",tolua_get_monster_race_countertype,tolua_set_monster_race_countertype);
  tolua_variable(tolua_S,"counterchance",tolua_get_monster_race_counterchance,tolua_set_monster_race_counterchance);
  tolua_array(tolua_S,"resistances",tolua_get_types_monster_race_resistances,tolua_set_types_monster_race_resistances);
  tolua_variable(tolua_S,"spellchance",tolua_get_monster_race_spellchance,tolua_set_monster_race_spellchance);
  tolua_variable(tolua_S,"attacks",tolua_get_monster_race_attacks,tolua_set_monster_race_attacks);
+ tolua_variable(tolua_S,"shots",tolua_get_monster_race_shots,tolua_set_monster_race_shots);
  tolua_array(tolua_S,"attack",tolua_get_types_monster_race_attack,tolua_set_types_monster_race_attack);
  tolua_variable(tolua_S,"spells",tolua_get_monster_race_spells,tolua_set_monster_race_spells);
  tolua_array(tolua_S,"spell",tolua_get_types_monster_race_spell,tolua_set_types_monster_race_spell);
@@ -23771,6 +24431,7 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"dunnum",tolua_get_monster_race_dunnum,tolua_set_monster_race_dunnum);
  tolua_variable(tolua_S,"lives",tolua_get_monster_race_lives,tolua_set_monster_race_lives);
  tolua_variable(tolua_S,"cursed",tolua_get_monster_race_cursed,tolua_set_monster_race_cursed);
+ tolua_variable(tolua_S,"cr",tolua_get_monster_race_cr,tolua_set_monster_race_cr);
  tolua_variable(tolua_S,"event_before_melee",tolua_get_monster_race_event_before_melee,tolua_set_monster_race_event_before_melee);
  tolua_variable(tolua_S,"event_after_melee",tolua_get_monster_race_event_after_melee,tolua_set_monster_race_event_after_melee);
  tolua_variable(tolua_S,"event_before_ranged",tolua_get_monster_race_event_before_ranged,tolua_set_monster_race_event_before_ranged);
@@ -23784,6 +24445,14 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"event_death",tolua_get_monster_race_event_death,tolua_set_monster_race_event_death);
  tolua_variable(tolua_S,"event_spawn",tolua_get_monster_race_event_spawn,tolua_set_monster_race_event_spawn);
  tolua_variable(tolua_S,"event_misc",tolua_get_monster_race_event_misc,tolua_set_monster_race_event_misc);
+ tolua_variable(tolua_S,"attacksscale",tolua_get_monster_race_attacksscale,tolua_set_monster_race_attacksscale);
+ tolua_variable(tolua_S,"attacksscalefactor",tolua_get_monster_race_attacksscalefactor,tolua_set_monster_race_attacksscalefactor);
+ tolua_variable(tolua_S,"shotsscale",tolua_get_monster_race_shotsscale,tolua_set_monster_race_shotsscale);
+ tolua_variable(tolua_S,"shotsscalefactor",tolua_get_monster_race_shotsscalefactor,tolua_set_monster_race_shotsscalefactor);
+ tolua_variable(tolua_S,"spellsscale",tolua_get_monster_race_spellsscale,tolua_set_monster_race_spellsscale);
+ tolua_variable(tolua_S,"spellsscalefactor",tolua_get_monster_race_spellsscalefactor,tolua_set_monster_race_spellsscalefactor);
+ tolua_variable(tolua_S,"livesscale",tolua_get_monster_race_livesscale,tolua_set_monster_race_livesscale);
+ tolua_variable(tolua_S,"livesscalefactor",tolua_get_monster_race_livesscalefactor,tolua_set_monster_race_livesscalefactor);
  tolua_endmodule(tolua_S);
  tolua_cclass(tolua_S,"vault_type","vault_type","",NULL);
  tolua_beginmodule(tolua_S,"vault_type");
@@ -23952,6 +24621,8 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"skill_attack",tolua_get_monster_type_skill_attack,tolua_set_monster_type_skill_attack);
  tolua_variable(tolua_S,"skill_ranged",tolua_get_monster_type_skill_ranged,tolua_set_monster_type_skill_ranged);
  tolua_variable(tolua_S,"skill_magic",tolua_get_monster_type_skill_magic,tolua_set_monster_type_skill_magic);
+ tolua_variable(tolua_S,"skill_evasion",tolua_get_monster_type_skill_evasion,tolua_set_monster_type_skill_evasion);
+ tolua_variable(tolua_S,"skill_mdef",tolua_get_monster_type_skill_mdef,tolua_set_monster_type_skill_mdef);
  tolua_variable(tolua_S,"mana",tolua_get_monster_type_mana,tolua_set_monster_type_mana);
  tolua_variable(tolua_S,"hasted",tolua_get_monster_type_hasted,tolua_set_monster_type_hasted);
  tolua_variable(tolua_S,"boosted",tolua_get_monster_type_boosted,tolua_set_monster_type_boosted);
@@ -23959,6 +24630,11 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"lives",tolua_get_monster_type_lives,tolua_set_monster_type_lives);
  tolua_variable(tolua_S,"summoned",tolua_get_monster_type_summoned,tolua_set_monster_type_summoned);
  tolua_variable(tolua_S,"no_experience",tolua_get_monster_type_no_experience,tolua_set_monster_type_no_experience);
+ tolua_variable(tolua_S,"extra1",tolua_get_monster_type_extra1,tolua_set_monster_type_extra1);
+ tolua_variable(tolua_S,"extra2",tolua_get_monster_type_extra2,tolua_set_monster_type_extra2);
+ tolua_variable(tolua_S,"extra3",tolua_get_monster_type_extra3,tolua_set_monster_type_extra3);
+ tolua_variable(tolua_S,"extra4",tolua_get_monster_type_extra4,tolua_set_monster_type_extra4);
+ tolua_variable(tolua_S,"extra5",tolua_get_monster_type_extra5,tolua_set_monster_type_extra5);
  tolua_endmodule(tolua_S);
  tolua_cclass(tolua_S,"alloc_entry","alloc_entry","",NULL);
  tolua_beginmodule(tolua_S,"alloc_entry");

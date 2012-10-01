@@ -4,6 +4,32 @@ T:Argh...t...traitor!!;
 A:[END DIALOG]:0:0:0:10:1602:0:0:0:0
 %
 
+N:1:1145:1:0:0:0
+I:Nilgam;
+T:Thanks for your help, <NAME>, we couldn't have done it without you!;
+T:We will now work on restoring the guild, recruiting new members, and;
+T:hopefully get back in business soon! Feel free to drop by whenever;
+T:you feel like it. Who knows, maybe we'll have something for you;
+T:again in the future!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1142:1:0:0:0
+I:Nilgam;
+T:Our victory is near, and it's all thanks to you! Good luck in your;
+T:last battle! Send that foul Devling to Hell where he belongs!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1137:1:0:0:0
+I:Nilgam;
+T:Good to see you again, <NAME>! Thanks you for saving Nidem!;
+T:It's a shame that Kegam and Bulgum weren't as fortunate, but as long as;
+T:Nidem lives, we can continue to operate normally. You should speak;
+T:to him, I believe you and him have much to discuss...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
 N:1:1105:1:0:0:0
 I:Nilgam;
 T:Greetings, <NAME>! What brings you here today?;

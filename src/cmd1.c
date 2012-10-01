@@ -1064,13 +1064,6 @@ void py_attack(int y, int x, int max_blow)
 
 			}
 
-                        /* May it clone the monster ? */
-                        if ((f4 & TR4_CLONE) && magik(30))
-			{
-                                msg_format("Oh no ! Your weapon clones %^s!", m_name);
-                                multiply_monster(c_ptr->m_idx, FALSE, TRUE);
-			}
-
                         /* Penalty for could-2H when having a shield */
                         if ((f4 & TR4_COULD2H) && inventory[INVEN_ARM].k_idx)
                              k /= 2;
@@ -3409,7 +3402,7 @@ bool monster_hit_player(monster_type *m_ptr, int bonus)
 bool monster_hit_monster(monster_type *m_ptr, monster_type *t_ptr)
 {
 	int hit;
-	call_lua("monster_hit_monster", "(MM)", "d", m_ptr, t_ptr, &hit);
+	call_lua("monster_hit_monster", "(MMd)", "d", m_ptr, t_ptr, 0, &hit);
 
 	if (hit == 1) return (TRUE);
 

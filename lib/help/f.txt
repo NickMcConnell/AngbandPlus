@@ -37,5 +37,5 @@ KOBOLD FEATURES:
 - +25% to Dexterity.
 - +25% to Daggers, Crossbow, Agility, Stealth and Leadership skills.
 - +25% to Swords if they are one-handed.
-- +50% to Poison-based attacks and spells.
+- +25% to Poison-based attacks and spells.
 - +75% resistance to poison.

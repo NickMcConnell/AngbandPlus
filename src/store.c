@@ -397,6 +397,12 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	/* Shop is selling */
 	else
 	{
+		s32b itemdepth;
+		s32b totchr;
+		s32b totalpower;
+
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
 		/* Adjust for greed */
                 adjust = 100 + ((greed + factor) - 300); 
 
@@ -412,15 +418,23 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
                 /* Save the price */
                 oldprice = price;
 
-                /* Now, charisma reduces the price by 1%/points... */
-		if (price < 500000)
-		{
-                	for (x = 0; x < ((p_ptr->stat_ind[A_CHR] - 5) + (p_ptr->abilities[(CLASS_BARD * 10) + 6] * 2)); x++)
-                	{
-                        	price -= (price / 100);
-                	}
-		}
+		/* Reduce price based on Charisma. */
+		itemdepth = k_ptr->level * multiply_divide(k_ptr->level, 20, 100);
+		/* itemdepth should be at least 10. */
+		if (itemdepth < 10) itemdepth = 10;
 
+		totchr = p_ptr->stat_ind[A_CHR] - 5;
+		if (totchr < 0) totchr = 0;
+
+		if (totchr > 0)
+		{
+			/* Bardic Reputation */
+			totchr = totchr + multiply_divide(totchr, p_ptr->abilities[(CLASS_BARD * 10) + 6] * 20, 100);
+
+			totalpower = itemdepth + totchr;
+
+			price = price - multiply_divide(price, totchr, totalpower);
+                }
 	}
 
 	/* Compute the final price (with rounding) */
@@ -1269,7 +1283,7 @@ static void store_create(void)
                         level = 5 + p_ptr->lev + rand_int(15);
 
                         /* Limit the level to 39 */
-                        if (level > (39 + (p_ptr->abilities[(CLASS_ROGUE * 10) + 9] * 2))) level = (39 + (p_ptr->abilities[(CLASS_ROGUE * 10) + 9] * 2));
+                        if (level > 39) level = 39;
 
 			/* Random item (usually of given level) */
                         i = get_obj_num_store(level);
@@ -1323,7 +1337,7 @@ static void store_create(void)
                 /* Black Market gets better stuff. */
 		if (cur_store_num == 6)
 		{
-                        apply_magic(q_ptr, 20 + p_ptr->abilities[(CLASS_ROGUE * 10) + 9], TRUE, TRUE, FALSE, FALSE);
+                        apply_magic(q_ptr, 20, TRUE, TRUE, FALSE, FALSE);
                 }
 		else if (cur_store_num == 8)
 		{

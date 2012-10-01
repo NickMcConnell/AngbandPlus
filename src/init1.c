@@ -518,20 +518,20 @@ static cptr k_info_flags4[] =
 {
         "NEVER_BLOW",
         "ICE",
-        "XXXX",
+        "DEX_WEAPON",
         "RECHARGE",
         "FLY",
         "DG_CURSE",
         "COULD2H",
         "MUST2H",
         "LEVELS",
-        "CLONE",
+        "STOLEN",
         "SPECIAL_GENE",
         "CLIMB",
         "CRAFTED",
         "MODERATE_POWER",
-        "ONLY_MALE",
-        "ONLY_FEMALE",
+        "VALUE_50",
+        "VALUE_25",
         "ENHANCED",
         "XXXX",
         "XXXX",
@@ -2766,17 +2766,16 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
 		{
-			int spd, hp1, hp2, aaf, ac, slp;
-			int event, xtra1, xtra2, fixlev, townum, dunum, cursed;
+			int spd, hp, aaf, ac, slp;
+			int event, xtra1, xtra2, fixlev, townum, dunum, cursed, cr;
 
 			/* Scan for the other values */
-			if (13 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-				&spd, &hp1, &hp2, &aaf, &ac, &slp, &event, &xtra1, &xtra2, &fixlev, &townum, &dunum, &cursed)) return (1);
+			if (13 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+				&spd, &hp, &aaf, &ac, &slp, &event, &xtra1, &xtra2, &fixlev, &townum, &dunum, &cursed, &cr)) return (1);
 
 			/* Save the values */
 			r_ptr->speed = spd;
-			r_ptr->hdice = hp1;
-			r_ptr->hside = hp2;
+			r_ptr->hp = hp;
 			r_ptr->aaf = aaf;
 			r_ptr->ac = ac;
 			r_ptr->sleep = slp;
@@ -2787,6 +2786,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			r_ptr->townnum = townum;
 			r_ptr->dunnum = dunum;
 			r_ptr->cursed = cursed;
+			r_ptr->cr = cr;
 
 			/* Next... */
 			continue;
@@ -2838,11 +2838,12 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* NewAngband 1.8.0: 'B' has new functions! :) */
 		if (buf[0] == 'B')
 		{
-			int str, dex, mind, attack, ranged, magic, blows;
+			int str, dex, mind, attack, ranged, magic, evasion, mdef, blows, shots;
+			int ascale, ascalef, sscale, sscalef;
 
 			/* Scan for the values */
-			if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
-                                &str, &dex, &mind, &attack, &ranged, &magic, &blows)) return (1);
+			if (14 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                                &str, &dex, &mind, &attack, &ranged, &magic, &evasion, &mdef, &blows, &shots, &ascale, &ascalef, &sscale, &sscalef)) return (1);
 
 			/* Save the values */
 			r_ptr->str = str;
@@ -2851,7 +2852,14 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			r_ptr->skill_attack = attack;
 			r_ptr->skill_ranged = ranged;
 			r_ptr->skill_magic = magic;
+			r_ptr->skill_evasion = evasion;
+			r_ptr->skill_mdef = mdef;
 			r_ptr->attacks = blows;
+			r_ptr->shots = shots;
+			r_ptr->attacksscale = ascale;
+			r_ptr->attacksscalefactor = ascalef;
+			r_ptr->shotsscale = sscale;
+			r_ptr->shotsscalefactor = sscalef;
 
 			/* Next... */
 			continue;
@@ -2866,6 +2874,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			char tmp[80];
 			char c;
 			int atype, addice, adside, aelem, aspecial1, aspecial2;
+			int ddscale, ddscalefactor, dsscale, dsscalefactor;
 
 			/* Find the next empty attack */
 			for (i = 0; i < 20; i++) if (!r_ptr->attack[i].type) break;
@@ -2894,11 +2903,11 @@ errr init_r_info_txt(FILE *fp, char *buf)
 				pos = pos + 1;
 				c = buf[pos];
 			}
-			pos = pos + 1;
+			pos = pos + 1; 
 
 			/* Scan for the other values */
-                        if (6 != sscanf(buf+pos, "%d:%dd%d:%d:%d:%d",
-				&atype, &addice, &adside, &aelem, &aspecial1, &aspecial2)) return (1);
+                        if (10 != sscanf(buf+pos, "%d:%dd%d:%d:%d:%d:%d:%d:%d:%d",
+				&atype, &addice, &adside, &aelem, &aspecial1, &aspecial2, &ddscale, &ddscalefactor, &dsscale, &dsscalefactor)) return (1);
 
 			/* Save the values */
                         strcpy(r_ptr->attack[i].name, aname);
@@ -2909,6 +2918,10 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			r_ptr->attack[i].element = aelem;
 			r_ptr->attack[i].special1 = aspecial1;
 			r_ptr->attack[i].special2 = aspecial2;
+			r_ptr->attack[i].ddscale = ddscale;
+			r_ptr->attack[i].ddscalefactor = ddscalefactor;
+			r_ptr->attack[i].dsscale = dsscale;
+			r_ptr->attack[i].dsscalefactor = dsscalefactor;
 			
 
 			/* Next... */
@@ -2935,14 +2948,16 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* Lives! */
 		if (buf[0] == 'L')
 		{
-			int nlives;
+			int nlives, lscale, lscalef;
 
 			/* Scan for the values */
-			if (1 != sscanf(buf+2, "%d",
-                                &nlives)) return (1);
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+                                &nlives, &lscale, &lscalef)) return (1);
 
 			/* Save the values */
 			r_ptr->lives = nlives;
+			r_ptr->livesscale = lscale;
+			r_ptr->livesscalefactor = lscalef;
 
 			/* Next... */
 			continue;
@@ -3013,15 +3028,17 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		if (buf[0] == 'M')
 		{
 			int magicchance;
-			int nummagic;
+			int nummagic, spscale, spscalef;
 
 			/* Scan for the values */
-			if (2 != sscanf(buf+2, "%d:%d",
-                                &magicchance, &nummagic)) return (1);
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+                                &magicchance, &nummagic, &spscale, &spscalef)) return (1);
 
 			/* Save the values */
 			r_ptr->spellchance = magicchance;
 			r_ptr->spells = nummagic;
+			r_ptr->spellsscale = spscale;
+			r_ptr->spellsscalefactor = spscalef;
 
 			/* Next... */
 			continue;
@@ -3036,7 +3053,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			char tmp[80];
 			char summchar;
 			char c;
-			int stype, spower, sspecial1, sspecial2, sspecial3, scost;
+			int stype, spower, sspecial1, sspecial2, sspecial3, scost, scale, scalefactor;
 
 			/* Find the next empty spell */
 			for (i = 0; i < 20; i++) if (!r_ptr->spell[i].type) break;
@@ -3069,8 +3086,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 
 			/* Scan for the other values */
-			if (7 != sscanf(buf+pos, "%d:%d:%d:%d:%d:%c:%d",
-				&stype, &spower, &sspecial1, &sspecial2, &sspecial3, &summchar, &scost)) return (1);
+			if (9 != sscanf(buf+pos, "%d:%d:%d:%d:%d:%c:%d:%d:%d",
+				&stype, &spower, &sspecial1, &sspecial2, &sspecial3, &summchar, &scost, &scale, &scalefactor)) return (1);
 
 			/* Save the values */
                         strcpy(r_ptr->spell[i].name, sname);
@@ -3081,7 +3098,9 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			r_ptr->spell[i].special2 = sspecial2;
 			r_ptr->spell[i].special3 = sspecial3;
 			r_ptr->spell[i].summchar = summchar;
-			r_ptr->spell[i].cost = scost;		
+			r_ptr->spell[i].cost = scost;
+			r_ptr->spell[i].scale = scale;
+			r_ptr->spell[i].scalefactor = scalefactor;
 
 			/* Next... */
 			continue;

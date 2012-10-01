@@ -2801,9 +2801,6 @@ errr file_character(cptr name, bool full)
 	if (noscore)
 		fprintf(fff, "\n You have done something illegal.");
 
-	if (stupid_monsters)
-		fprintf(fff, "\n Your opponents are behaving stupidly.");
-
         {
                 char desc[80];
                 monster_race_desc(desc, p_ptr->body_monster);
@@ -3659,7 +3656,7 @@ void do_cmd_suicide(void)
 	else
 	{
 		/* Verify */
-		if (!get_check("Do you really want to quit? ")) return;
+		if (!get_check("Do you really want to commit suicide? ")) return;
 
 		if (!noscore)
 		{
@@ -3672,20 +3669,7 @@ void do_cmd_suicide(void)
 		}
 	}
 
-        /* Increase Death Count */
-        /*p_ptr->deathcount += 1;*/
-
-	/* Stop playing */
-	alive = FALSE;
-
-	/* Kill the player */
-	death = TRUE;
-
-	/* Leaving */
-	p_ptr->leaving = TRUE;
-
-	/* Cause of death */
-	(void)strcpy(died_from, "Quitting");
+        take_hit(p_ptr->chp + 1, "Suicide");
 }
 
 

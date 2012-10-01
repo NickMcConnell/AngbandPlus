@@ -352,46 +352,10 @@ static void mon_take_hit_mon(int m_idx, s32b dam, bool *fear, cptr note)
 			}
 
 #ifdef PET_GAIN_EXP
-                {
-		/* Maximum player level */
-		div = p_ptr->max_plv;
-
-		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
-
-		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
-
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
-		{
-			new_exp++;
-			p_ptr->exp_frac = new_exp_frac - 0x10000;
-		}
-		else
-		{
-			p_ptr->exp_frac = new_exp_frac;
-		}
-
-                /* New for 1.5.0...*/
-                new_exp = new_exp / 10;
-
-                /* Friends are worth no experience! */
-                if (is_pet(m_ptr))
-                {
-                        new_exp = 0;
-                }
-
-		if (p_ptr->inside_quest || too_weak(m_ptr) || (m_ptr->no_experience)) new_exp = 0;
-
-		/* You killed something! Now, check if you should */
-                /* advance your class level... */
-		if (!((p_ptr->inside_quest || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE)))) add_class_kill(m_ptr);
 
 		/* Gain experience */
-                gain_exp_kill(new_exp, m_ptr);
-                }
+                gain_exp_kill(m_ptr);
+
 #endif
 			
 			/* Generate treasure */
@@ -804,7 +768,7 @@ static bool summon_possible(int y1, int x1)
  * This is exactly like "projectable", but it will return FALSE if a monster
  * is in the way.
  */
-static bool clean_shot(int y1, int x1, int y2, int x2)
+bool clean_shot(int y1, int x1, int y2, int x2)
 {
 	int dist, y, x;
 	
@@ -1241,25 +1205,6 @@ static bool monst_spell_monst(int m_idx)
 
 	/* Locked monsters cannot cast spells! */
         if (m_ptr->abilities & (CURSE_LOCK)) return (FALSE);
-
-	/* Taunted monsters cast spells only 50% of the time. */
-        if (m_ptr->abilities & (TAUNTED))
-	{
-		int proll;
-		int mroll;
-		int chrbonus;
-
-		proll = (p_ptr->abilities[(CLASS_FIGHTER * 10) + 2] * 20);
-		mroll = m_ptr->level + m_ptr->mind;
-		chrbonus = (p_ptr->stat_ind[A_CHR] - 5) * 5;
-
-		if (chrbonus < 0) chrbonus = 0;
-		if (chrbonus > (proll * 2)) chrbonus = proll;
-
-		proll += chrbonus;
-
-		if (lua_randint(proll) >= lua_randint(mroll)) return (FALSE);
-	}
 	
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);
@@ -1592,258 +1537,17 @@ void curse_equipment_dg(int chance, int heavy_chance)
 }
 
  
-/*
- * Creatures can cast spells, shoot missiles, and breathe.
- *
- * Returns "TRUE" if a spell (or whatever) was (successfully) cast.
- *
- * XXX XXX XXX This function could use some work, but remember to
- * keep it as optimized as possible, while retaining generic code.
- *
- * Verify the various "blind-ness" checks in the code.
- *
- * XXX XXX XXX Note that several effects should really not be "seen"
- * if the player is blind.  See also "effects.c" for other "mistakes".
- *
- * Perhaps monsters should breathe at locations *near* the player,
- * since this would allow them to inflict "partial" damage.
- *
- * Perhaps smart monsters should decline to use "bolt" spells if
- * there is a monster in the way, unless they wish to kill it.
- *
- * Note that, to allow the use of the "track_target" option at some
- * later time, certain non-optimal things are done in the code below,
- * including explicit checks against the "direct" variable, which is
- * currently always true by the time it is checked, but which should
- * really be set according to an explicit "projectable()" test, and
- * the use of generic "x,y" locations instead of the player location,
- * with those values being initialized with the player location.
- *
- * It will not be possible to "correctly" handle the case in which a
- * monster attempts to attack a location which is thought to contain
- * the player, but which in fact is nowhere near the player, since this
- * might induce all sorts of messages about the attack itself, and about
- * the effects of the attack, which the player might or might not be in
- * a position to observe.  Thus, for simplicity, it is probably best to
- * only allow "faulty" attacks by a monster if one of the important grids
- * (probably the initial or final grid) is in fact in view of the player.
- * It may be necessary to actually prevent spell attacks except when the
- * monster actually has line of sight to the player.  Note that a monster
- * could be left in a bizarre situation after the player ducked behind a
- * pillar and then teleported away, for example.
- *
- * Note that certain spell attacks do not use the "project()" function
- * but "simulate" it via the "direct" variable, which is always at least
- * as restrictive as the "project()" function.  This is necessary to
- * prevent "blindness" attacks and such from bending around walls, etc,
- * and to allow the use of the "track_target" option in the future.
- *
- * Note that this function attempts to optimize the use of spells for the
- * cases in which the monster has no spells, or has spells but cannot use
- * them, or has spells but they will have no "useful" effect.  Note that
- * this function has been an efficiency bottleneck in the past.
- *
- * Note the special "MFLAG_NICE" flag, which prevents a monster from using
- * any spell attacks until the player has had a single chance to move.
- */
-
-/* Function updated for NewAngband 1.8.0! :) */
+/* Spells of enemy monsters. */
+/* Now entirely coded in lua. */
 bool make_attack_spell(int m_idx)
 {
-	int             k, chance, thrown_spell, rlev, failrate, i, j;
-	int		numspells, chosenspell;
-	byte            spell[96], num = 0;
-        u32b            f4, f5, f6;
-	monster_type    *m_ptr = &m_list[m_idx];
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-	char            m_name[80];
-	char            m_poss[80];
-	char            ddesc[80];
-	bool            no_inate = FALSE;
+	int casted = 0;
+	call_lua("monster_spell_attack", "(d)", "d", m_idx, &casted);
 
-	/* Target location */
-	int x = px;
-	int y = py;
+	/* Above function returned 0; monster couldn't or didn't cast. */
+	if (casted == 0) return (FALSE);
 
-	/* Summon count */
-	int count = 0;
-
-	/* Extract the blind-ness */
-	bool blind = (p_ptr->blind ? TRUE : FALSE);
-	 
-	/* Extract the "see-able-ness" */
-	bool seen = (!blind && m_ptr->ml);
-
-	/* Assume "normal" target */
-	bool normal = TRUE;
-
-	/* Assume "projectable" */
-	bool direct = TRUE;
-
-        /* Locked monsters cannot cast spells! */
-        if (m_ptr->abilities & (CURSE_LOCK)) return (FALSE);
-
-	/* Taunted monsters cast spells only 50% of the time. */
-        if ((m_ptr->abilities & (TAUNTED)) && randint(100) >= 50) return (FALSE);
-
-	/* Cannot cast spells when confused */
-	if (m_ptr->confused) return (FALSE);
-
-	/* Cannot cast spells when nice */
-	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
-	if (is_pet(m_ptr)) return (FALSE);
-
-	/* Hack -- Extract the spell probability */
-        chance = (r_ptr->spellchance);
-	 
-	/* Not allowed to cast spells */
-	if (!chance) return (FALSE);
-
-	/* We don't necessarely ALWAYS cast a spell. */
-        if (rand_int(100) >  chance) return (FALSE);
-
-	/* XXX XXX XXX Handle "track_target" option (?) */
-	 
-	 
-	/* Hack -- require projectable player */
-	if (normal)
-	{
-		/* Check range */
-		if (m_ptr->cdis > MAX_RANGE) return (FALSE);
-
-		/* Check path */
-		if (!projectable(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
-
-		if (!clean_shot(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
-
-		/* Is the player invisible? */
-		if (player_invis(m_ptr)) return (FALSE);
-	}
-
-	/* Extract the monster level */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
-
-	/* Stop if player is dead or gone */
-	if (!alive || death) return (FALSE);
- 
-	/* Stop if player is leaving */
-	if (p_ptr->leaving) return (FALSE);
-
-	/* Get the monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0x00);
-
-	/* Get the monster possessive ("his"/"her"/"its") */
-	monster_desc(m_poss, m_ptr, 0x22);
-	 
-	/* Hack -- Get the "died from" name */
-	monster_desc(ddesc, m_ptr, 0x88);
-
-	/* NewAngband 1.8.0 New monster spells system! :) */
-	/* Monsters can cast more than one spell... */
-	for (j = 0; j < r_ptr->spells; j++)
-	{
-	/* Leaving? Then return. */
-	if (p_ptr->leaving) return;
-
-	/* First, find the number of available spells */
-	i = 0;
-	numspells = 0;
-	while (i < 20 && r_ptr->spell[i].type > 0) 
-	{
-		numspells++;
-		i++;
-	}
-	
-	chosenspell = -1;
-	/* Enter AI code here */
-	
-	/* Monster is weak... */
-	/* Use an healing spell if possible! */
-	if (m_ptr->hp <= (m_ptr->maxhp / 4))
-	{
-		for(i = 0; i < numspells; i++)
-		{
-			if (r_ptr->spell[i].type == 3 && m_ptr->mana >= r_ptr->spell[i].cost)
-			{
-				chosenspell = i;
-			}
-		}
-	}
-	/* All right, then look for an haste spell */
-	if (m_ptr->hasted == 0 && chosenspell == -1)
-	{
-		for(i = 0; i < numspells; i++)
-		{
-			if (r_ptr->spell[i].type == 4 && m_ptr->mana >= r_ptr->spell[i].cost)
-			{
-				chosenspell = i;
-			}
-		}
-	}
-	/* If hasted and no need for healing, let's cast a boost! */
-	if (m_ptr->boosted == 0 && chosenspell == -1)
-	{
-		for(i = 0; i < numspells; i++)
-		{
-			if (r_ptr->spell[i].type == 5 && m_ptr->mana >= r_ptr->spell[i].cost)
-			{
-				chosenspell = i;
-			}
-		}
-	}
-	/* Otherwise, choose a spell that is not 3, 4 or 5(if any) */
-	/* Nothign to cast? Forget spellcasting then... */
-	if (chosenspell == -1)
-	{
-		bool cancast = FALSE;
-		/* First, check if we have ANY other spells */
-		for(i = 0; i < numspells; i++)
-		{
-			if (r_ptr->spell[i].type != 3 && r_ptr->spell[i].type != 4 && r_ptr->spell[i].type != 5)
-			{
-				if (m_ptr->mana >= r_ptr->spell[i].cost) cancast = TRUE;
-			}
-		}
-		/* Pick a random spell from available spells */
-		if (cancast)
-		{
-			int tmpspell;
-			while (chosenspell == -1)
-			{
-				tmpspell = randint(numspells) - 1;
-				if (r_ptr->spell[tmpspell].type != 3 && r_ptr->spell[tmpspell].type != 4 && r_ptr->spell[tmpspell].type != 5)
-				{
-					if (m_ptr->mana >= r_ptr->spell[tmpspell].cost) chosenspell = tmpspell;
-				}
-			}
-		}
-		else return (FALSE);
-	}
-
-	monster_cast_spell(m_idx, m_ptr, chosenspell);
-	
-
-        /* Deactivate the HACK */
-        summoner_monster = NULL;
-	
-	/* Remember what the monster did to us */
-	if (seen)
-	{
-		r_ptr->r_spells[chosenspell] = 1;
-		
-	}
-	
-	update_and_handle();
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
-	
-	/* Always take note of monsters that kill you */
-	if (death && (r_ptr->r_deaths < MAX_SHORT))
-	{
-		r_ptr->r_deaths++;
-	}
-
-	}
-	/* A spell was cast */
+	/* Assume we attacked */
 	return (TRUE);
 }
 
@@ -2303,7 +2007,7 @@ static bool get_moves(int m_idx, int *mm)
 	y = m_ptr->fy - y2;
 	x = m_ptr->fx - x2;
 	
-	if (!stupid_monsters && !is_pet(m_ptr))
+	if (!is_pet(m_ptr))
 	{
 	/*
 	 * Animal packs try to get the player out of corridors
@@ -2374,7 +2078,7 @@ static bool get_moves(int m_idx, int *mm)
 	}
 	
 	/* Apply fear if possible and necessary */
-	if ((stupid_monsters) || (is_pet(m_ptr)))
+	if (is_pet(m_ptr))
 	{
 		if (mon_will_run(m_idx))
 		{
@@ -2405,13 +2109,8 @@ static bool get_moves(int m_idx, int *mm)
 		}
 	}
 	
-	
-	if (!stupid_monsters)
-	{
-		/* Check for no move */
-		if (!x && !y) return (FALSE);
-	}
-	
+	/* Check for no move */
+	if (!x && !y) return (FALSE);
 	
 	/* Extract the "absolute distances" */
 	ax = ABS(x);
@@ -2719,16 +2418,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
-					if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosen].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosen].dside, 100));
-					else damage = damroll(r_ptr->attack[chosen].ddice, r_ptr->attack[chosen].dside);
-					if (is_pet(m_ptr)) damage *= ((m_ptr->skill_attack + p_ptr->skill[9]) + 1);
-					else damage *= (m_ptr->skill_attack + 1);
-					if (is_pet(m_ptr))
-					{
-						damage += multiply_divide(damage, ((m_ptr->str - 5) + (p_ptr->stat_ind[A_CHR] - 5)) * 5, 100);
-					}
-					else damage += multiply_divide(damage, (m_ptr->str - 5) * 5, 100);
-					damage += multiply_divide(damage, m_ptr->str, 100);
+					call_lua("monster_damages", "(Mddd)", "d", m_ptr, r_ptr->attack[chosen].ddice, r_ptr->attack[chosen].dside, 0, &damage);
 					/* Bosses may get higher damages! */
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
@@ -2764,15 +2454,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
-					damage = damroll(m_ptr->animdam_d, m_ptr->animdam_s);
-					if (is_pet(m_ptr)) damage *= ((m_ptr->skill_attack + p_ptr->skill[9]) + 1);
-					else damage *= (m_ptr->skill_attack + 1);
-					if (is_pet(m_ptr))
-					{
-						damage += multiply_divide(damage, ((m_ptr->str - 5) + (p_ptr->stat_ind[A_CHR] - 5)) * 5, 100);
-					}
-					else damage += multiply_divide(damage, (m_ptr->str - 5) * 5, 100);
-					damage += multiply_divide(damage, m_ptr->str, 100);
+					call_lua("monster_damages", "(Mddd)", "d", m_ptr, r_ptr->attack[chosen].ddice, r_ptr->attack[chosen].dside, 0, &damage);
 					/* Bosses may get higher damages! */
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
@@ -2851,14 +2533,21 @@ bool player_invis(monster_type * m_ptr)
 	int mpower;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-        ppower = p_ptr->invis + (p_ptr->skill[6] * 3);
-	mpower = m_ptr->level + m_ptr->mind;
+        ppower = p_ptr->invis + (p_ptr->skill[6]);
+	mpower = (m_ptr->level) + (m_ptr->mind);
+	mpower = mpower * r_ptr->cr;
 
-	/* Stealth doesn't work against Questors and Invisible enemies. */
-	if ((r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->flags2 & RF2_INVISIBLE)) return (FALSE);
+	/* Stealth doesn't work against Uniques and Invisible enemies. */
+	if ((r_ptr->flags2 & RF2_INVISIBLE) || (r_ptr->flags1 & RF1_UNIQUE)) return (FALSE);
+
+	/* If the monster has already been hurt, then the monster is aware. */
+	if (m_ptr->hp < m_ptr->maxhp) return (FALSE);
 
 	/* Your friends knows where you are! */
 	if (is_pet(m_ptr)) return (FALSE);
+
+	/* As long as CON_JOB is there, the monster won't notice you. */
+	if (m_ptr->abilities & (CON_JOB)) return (TRUE);
 
 	/* Don't bother rolling if power is 0. */
 	if (ppower == 0) return (FALSE);
@@ -2959,12 +2648,103 @@ static void process_monster(int m_idx, bool is_friend)
 		}
         }
 
+	/* CON_JOB may fade. */
+	if (m_ptr->abilities & (CON_JOB))
+	{
+		int breakchance = 0;
+		int ppower = 0;
+		int mpower = 0;
+
+		if (r_ptr->cr > 1) breakchance = 100;
+		else breakchance = 25;
+
+		if (randint(100) <= breakchance)
+		{
+
+			ppower = p_ptr->stat_ind[A_CHR] + p_ptr->skill[6];
+			mpower = m_ptr->mind;
+
+			ppower = ppower + multiply_divide(ppower, p_ptr->abilities[(CLASS_ROGUE * 10) + 9] * 10, 100);
+
+			if (randint(mpower) >= randint(ppower))
+			{
+
+				char m_name[80];
+					
+				/* Acquire the monster name */
+				monster_desc(m_name, m_ptr, 0);
+
+				msg_format("%^s sees through your tricks!", m_name);
+				m_ptr->abilities &= ~(CON_JOB);
+			}
+		}
+	}
+
         /* If the monster is sealed by Sealing Light, don't do anything */
         if (m_ptr->seallight > 0)
         {
                 m_ptr->seallight -= 1;
                 return;
         }
+
+	/* If the monster is an undead, demon, elemental or celestial, and in a sanctified zone, */
+	/* get a chance to not act. */
+	if (cave[m_ptr->fy][m_ptr->fx].feat == FEAT_SANCTIFY)
+	{
+		if (((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_DEMON) || (r_ptr->d_char == 'E') || (r_ptr->d_char = 'A')) && !is_pet(m_ptr))
+		{
+			int ppower = 0;
+			int mpower = 0;
+
+			ppower = p_ptr->stat_ind[A_WIS];
+			ppower = ppower + multiply_divide(ppower, p_ptr->abilities[(CLASS_PRIEST * 10) + 3] * 10, 100);
+			mpower = m_ptr->mind;
+
+			if (randint(mpower) < randint(ppower))
+			{
+				/* Don't act. */
+				return;
+			}
+		}
+	}
+
+	/* Bardic Grandeur can prevent monsters from acting. */
+	if (p_ptr->abilities[(CLASS_BARD * 10) + 9] >= 1)
+	{
+		/* Monster is in range. */
+		if (m_ptr->cdis <= MAX_RANGE && !(is_pet(m_ptr)))
+		{
+
+			/* Check path */
+			if (projectable(m_ptr->fy, m_ptr->fx, py, px))
+			{
+				int ppower = 0;
+				int mpower = 0;
+				int powerpercent = 0;
+
+				powerpercent = p_ptr->abilities[(CLASS_BARD * 10) + 9] * 10;
+				if (powerpercent > 100) powerpercent = 100;
+
+				ppower = (p_ptr->stat_ind[A_CHR] + p_ptr->skill[28]);
+				ppower = multiply_divide(ppower, powerpercent, 100);
+				ppower = ppower + multiply_divide(ppower, p_ptr->abilities[(CLASS_BARD * 10) + 9] * 5, 100);
+
+				mpower = (m_ptr->mind + m_ptr->skill_mdef) * r_ptr->cr;
+
+				if (randint(ppower) >= randint(mpower))
+				{
+					/*char m_name[80];*/
+					
+					/* Acquire the monster name */
+					/*monster_desc(m_name, m_ptr, 0);*/
+					
+					/* Dump a message */
+					/*msg_format("%^s is fascinated by your performance!", m_name);*/
+					return;
+				}
+			}
+		}
+	}
 
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
@@ -3106,6 +2886,31 @@ static void process_monster(int m_idx, bool is_friend)
 				
 				/* Dump a message */
 				msg_format("%^s is no longer confused.", m_name);
+			}
+		}
+	}
+
+	/* Taunt may wear off on elites/bosses/uniques, high CR enemies. */
+	if (m_ptr->abilities & (TAUNTED))
+	{
+		if (r_ptr->flags1 & RF1_UNIQUE || m_ptr->boss >= 1 || r_ptr->cursed >= 1 || r_ptr->cr >= 2)
+		{
+			int proll;
+			int mroll;
+
+			proll = p_ptr->skill[0] + p_ptr->stat_ind[A_CHR];
+			mroll = m_ptr->level + m_ptr->mind;
+
+			proll = proll + multiply_divide(proll, p_ptr->abilities[(CLASS_FIGHTER * 10) + 2] * 10, 100);
+
+			if (r_ptr->cr >= 2) mroll = mroll * (r_ptr->cr - 1);
+
+			if (randint(mroll) >= randint(proll))
+			{
+				char m_name[80];
+				monster_desc(m_name, m_ptr, 0);
+				msg_format("%^s is no longer taunted.", m_name);
+				m_ptr->abilities &= ~(TAUNTED);
 			}
 		}
 	}
@@ -3322,16 +3127,8 @@ static void process_monster(int m_idx, bool is_friend)
 	/* Normal movement */
 	else
 	{
-		if (stupid_monsters)
-		{
-			/* Logical moves */
-			get_moves(m_idx, mm);
-		}
-		else
-		{
-			/* Logical moves, may do nothing */
-			if (!get_moves(m_idx, mm)) return;
-		}
+		/* Logical moves, may do nothing */
+		if (!get_moves(m_idx, mm)) return;
 	}
 	
 	/* Assume nothing */
@@ -3427,8 +3224,8 @@ static void process_monster(int m_idx, bool is_friend)
 				int ppower;
 				int mpower;
 
-				ppower = p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS] + (p_ptr->skill[25] * 3) + p_ptr->skill[1];
-				mpower = m_ptr->level + m_ptr->str;
+				ppower = p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS] + (p_ptr->skill[25] + (p_ptr->skill[25] / 2)) + p_ptr->skill[1];
+				mpower = m_ptr->str + m_ptr->skill_attack;
 
 				if (randint(mpower) >= randint(ppower))
 				{
@@ -3523,64 +3320,23 @@ static void process_monster(int m_idx, bool is_friend)
 					update_and_handle();
 				}
 		}
-                else if ((cave[ny][nx].feat == FEAT_SPIKE_TRAP) && cave[ny][nx].owner != 1)
+                else if ((cave[ny][nx].feat == FEAT_SANCTIFY) && cave[ny][nx].owner != 1)
 		{
-                                /* Cross the field... */
-                                do_move = TRUE;
+			/* This only affects undeads, demons, elementals and hostile celestials.*/
+			if (((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_DEMON) || (r_ptr->d_char == 'E') || (r_ptr->d_char = 'A')) && !is_pet(m_ptr))
+			{
+				/* CR1 enemies will not enter unless they are already in a sancified zone. */
+				if (r_ptr->cr == 1)
+				{
+					if (cave[m_ptr->fy][m_ptr->fx].feat == FEAT_SANCTIFY) do_move = TRUE;
+					else do_move = FALSE;
+				}
+				else do_move = TRUE;
+                        }
+			else do_move = TRUE;
 
-                                /* Notice there is a field... */
-                                field_dam = TRUE;
-
-                                /* Check the field type... */
-                                fieldtype = GF_PHYSICAL;
-
-                                /* How much damages will the monster take? */
-                                field_dam_amount = c_ptr->field_damage;
-
-                                /* The trap triggered, it disappear. */
-                                cave[ny][nx].feat = FEAT_FLOOR;
-
-                                update_and_handle();
+                        update_and_handle();
 		}
-                else if ((cave[ny][nx].feat == FEAT_GAS_TRAP) && cave[ny][nx].owner != 1)
-		{
-                                /* Cross the field... */
-                                do_move = TRUE;
-
-                                /* Notice there is a field... */
-                                field_dam = TRUE;
-
-                                /* Check the field type... */
-                                fieldtype = GF_SLEEP_GAS;
-
-                                /* How much damages will the monster take? */
-                                field_dam_amount = c_ptr->field_damage;
-
-                                /* The trap triggered, it disappear. */
-                                cave[ny][nx].feat = FEAT_FLOOR;
-
-                                update_and_handle();
-		}
-                else if ((cave[ny][nx].feat == FEAT_POISON_TRAP) && cave[ny][nx].owner != 1)
-		{
-                                /* Cross the field... */
-                                do_move = TRUE;
-
-                                /* Notice there is a field... */
-                                field_dam = TRUE;
-
-                                /* Check the field type... */
-                                fieldtype = GF_POIS;
-
-                                /* How much damages will the monster take? */
-                                field_dam_amount = c_ptr->field_damage;
-
-                                /* The trap triggered, it disappear. */
-                                cave[ny][nx].feat = FEAT_FLOOR;
-
-                                update_and_handle();
-		}
-
                 else if ((cave[ny][nx].feat == FEAT_WEBS) && cave[ny][nx].owner != 1)
 		{
                                 /* Can slow down enemies. */
@@ -3914,7 +3670,8 @@ static void process_monster(int m_idx, bool is_friend)
 		}
 
 		/* The player is in the way.  Attack him. */
-		if (do_move && (ny == py) && (nx == px))
+		/*if (do_move && (ny == py) && (nx == px))*/
+		if ((ny == py) && (nx == px))
 		{
 			/* Do the attack */
                         (void)make_attack_normal(m_idx, 1);
@@ -4098,8 +3855,7 @@ static void process_monster(int m_idx, bool is_friend)
                                 no_magic_return = TRUE;
                                 nevermiss = TRUE;
 				casting_conjuration = TRUE;
-                                if (fieldtype == GF_SLEEP_GAS) corpse_explode(field_dam_amount, m_ptr->fx, m_ptr->fy, 3 + (p_ptr->abilities[(CLASS_ROGUE * 10) + 6] / 20), fieldtype);
-                                else corpse_explode(field_dam_amount, m_ptr->fx, m_ptr->fy, 0, fieldtype);
+                                corpse_explode(field_dam_amount, m_ptr->fx, m_ptr->fy, 0, fieldtype);
 				casting_conjuration = FALSE;
                                 no_magic_return = FALSE;
                                 nevermiss = FALSE;
@@ -4932,10 +4688,7 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 			if (r_ptr->spell[spellnum].special3 == 1) dam = r_ptr->spell[spellnum].power;
 			else
 			{
-				if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100) * mindstat;
-				else dam = (r_ptr->spell[spellnum].power * mindstat);
-				dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
-				dam = dam + dambonus;
+				call_lua("monster_spell_damages", "(Md)", "d", m_ptr, r_ptr->spell[spellnum].power, &dam);
 				if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
 				if (is_pet(m_ptr))
 				{
@@ -4954,10 +4707,7 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 			if (r_ptr->spell[spellnum].special3 == 1) dam = r_ptr->spell[spellnum].power;
 			else
 			{
-				if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100) * mindstat;
-				else dam = (r_ptr->spell[spellnum].power * mindstat);
-				dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
-				dam = dam + dambonus;
+				call_lua("monster_spell_damages", "(Md)", "d", m_ptr, r_ptr->spell[spellnum].power, &dam);
 				if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
 				if (is_pet(m_ptr))
 				{
@@ -4974,10 +4724,7 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 		case 3:
 		{
 			msg_format("%^s %s %s!", m_name, r_ptr->spell[spellnum].act, r_ptr->spell[spellnum].name);
-			if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100) * mindstat;
-			else dam = (r_ptr->spell[spellnum].power * mindstat);
-			dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
-			dam = dam + dambonus;
+			call_lua("monster_spell_damages", "(Md)", "d", m_ptr, r_ptr->spell[spellnum].power, &dam);
 			if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
 			m_ptr->hp += dam;
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
@@ -5104,474 +4851,13 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 /* Similar to make_attack_spell, but for ranged attacks! */
 bool make_ranged_attack(int m_idx)
 {
-	int             k, chance, thrown_spell, rlev, failrate, i, j;
-	int		numspells, chosenattack;
-	byte            spell[96], num = 0;
-        u32b            f4, f5, f6;
-	monster_type    *m_ptr = &m_list[m_idx];
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-	object_type	*o_ptr;
-	char            m_name[80];
-	char            m_poss[80];
-	char            ddesc[80];
-	int		ranged[20]; /* Attacks that are ranged. */
-	bool            no_inate = FALSE;
-	bool		found_ranged = FALSE;
-	bool 		visible = FALSE;
-	bool 		obvious = FALSE;
-	bool 		nothurt = FALSE;
-	u32b f1, f2, f3;
-	s32b damage;
-	int flg;
-	bool scaled = FALSE;
-	int scaledlevel;
+	int attacked = 0;
+	call_lua("monster_ranged_attack", "(d)", "d", m_idx, &attacked);
 
-	/* Target location */
-	int x = px;
-	int y = py;
+	/* Above function returned 0; monster couldn't or didn't attack. */
+	if (attacked == 0) return (FALSE);
 
-	/* Summon count */
-	int count = 0;
-
-	/* Extract the blind-ness */
-	bool blind = (p_ptr->blind ? TRUE : FALSE);
-	 
-	/* Extract the "see-able-ness" */
-	bool seen = (!blind && m_ptr->ml);
-
-	/* Assume "normal" target */
-	bool normal = TRUE;
-
-	/* Assume "projectable" */
-	bool direct = TRUE;
-
-	monster_counter_attack = FALSE;
-
-	o_ptr = &inventory[INVEN_WIELD];
-
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
-	/* Scaled? */
-	if (r_ptr->flags7 & (RF7_SCALED))
-	{
-		scaled = TRUE;
-		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
-		else scaledlevel = r_ptr->level;
-	}
-
-	/* Cannot shoot when confused */
-	if (m_ptr->confused) return (FALSE);
-
-	/* Cannot shoot when friendly */
-	if (is_pet(m_ptr)) return (FALSE);	 
-	 
-	/* Hack -- require projectable player */
-	if (normal)
-	{
-		/* Check range */
-		if (m_ptr->cdis > MAX_RANGE) return (FALSE);
-
-		/* Check path */
-		if (!projectable(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
-
-		if (!clean_shot(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
-
-		/* Player is invisible? */
-		if (player_invis(m_ptr)) return (FALSE);
-	}
-
-	/* Extract the monster level */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
-
-	/* Stop if player is dead or gone */
-	if (!alive || death) return (FALSE);
- 
-	/* Stop if player is leaving */
-	if (p_ptr->leaving) return (FALSE);
-
-	/* Get the monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0x00);
-
-	/* Get the monster possessive ("his"/"her"/"its") */
-	monster_desc(m_poss, m_ptr, 0x22);
-	 
-	/* Hack -- Get the "died from" name */
-	monster_desc(ddesc, m_ptr, 0x88);
-
-	/* Reset ranged count. */
-	for (j = 0; j < 20; j++) ranged[j] = 0;
-
-	/* Scan the various attacks. Try to find some type "3" attacks. */
-	i = 1;
-	for (j = 0; j < 20; j++)
-	{
-		if (r_ptr->attack[j].type == 3 || r_ptr->attack[j].type == 1000)
-		{ 
-			ranged[(i-1)] = j;
-			i++;
-			found_ranged = TRUE;
-		}
-	}
-	
-	/* If no ranged attacks were found, return. */
-	if (!(found_ranged)) return (FALSE);
-
-	/* Leaving? Then return. */
-	if (p_ptr->leaving) return;
-
-	/* Pick a random ranged attack! */
-	chosenattack = (randint(i) - 1);
-
-	if (r_ptr->attack[chosenattack].type == 1000)
-	{
-		/* Call a lua script. */
-		if (r_ptr->event_before_ranged > 0)
-		{
-			call_lua("monster_before_ranged", "(dd)", "", m_idx, r_ptr->event_before_ranged);
-		}
-
-		call_lua(r_ptr->attack[chosenattack].name, "(d)", "", m_idx);
-
-		/* Call a lua script. */
-		if (r_ptr->event_after_ranged > 0)
-		{
-			call_lua("monster_after_ranged", "(dd)", "", m_idx, r_ptr->event_after_ranged);
-		}
-
-		/* Counter Shot ability. */
-		if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1 && !(monster_counter_attack))
-		{
-			p_ptr->events[29046] = m_idx;
-			call_lua("use_ability", "(d)", "", 120);
-			p_ptr->events[29046] = 0;
-		}
-		return;
-	}
-
-	/* Now... shoot the poor player! */
-	/* Special1 is the radius... */
-	if (r_ptr->attack[chosenattack].special1 == 0)
-	{
-		/* We don't ALWAYS fire... */
-		if (randint(100) <= r_ptr->attack[chosenattack].special2 || (mcounter))
-		{
-			if (mcounter) monster_counter_attack = TRUE;
-			/* Call a lua script. */
-			if (r_ptr->event_before_ranged > 0)
-			{
-				call_lua("monster_before_ranged", "(dd)", "", m_idx, r_ptr->event_before_ranged);
-			}
-
-			if (monster_hit_player(m_ptr, 0))
-			{
-				if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosenattack].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosenattack].dside, 100));
-				else damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
-				damage *= (m_ptr->skill_ranged + 1);
-				damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
-				damage += multiply_divide(damage, m_ptr->dex, 100);
-
-				/* Bosses may get higher damages! */
-				if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
-                        	if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
-                        	else if (m_ptr->abilities & (CURSE_LOWER_POWER)) damage -= damage / 4;
-
-				if (strstr(r_ptr->attack[chosenattack].name, "!")) msg_format("%^s %s you!", m_name, r_ptr->attack[chosenattack].act);
-				else msg_format("%^s %s %s!", m_name, r_ptr->attack[chosenattack].act, r_ptr->attack[chosenattack].name);
-
-                        	/* Resistances...and it apply AFTER the Damages Curse! :) */
-				if (r_ptr->attack[chosenattack].element == GF_MISSILE)
-				{
-					if (p_ptr->pres_dur > 0)
-                        		{
-                                		s32b damagepercent;
-						damagepercent = multiply_divide(damage, p_ptr->pres, 100);
-                                		damage -= damagepercent; 
-                        		}
-					if (p_ptr->mres_dur > 0)
-                        		{
-                                		s32b damagepercent;
-                                		damagepercent = multiply_divide(damage, p_ptr->mres, 100);
-                                		damage -= damagepercent; 
-                        		}
-				}
-				else if (r_ptr->attack[chosenattack].element != GF_PHYSICAL)
-				{
-                        		if (p_ptr->mres_dur > 0)
-                        		{
-                                		s32b damagepercent;
-                                		damagepercent = multiply_divide(damage, p_ptr->mres, 100);
-                                		damage -= damagepercent; 
-                        		}
-				}
-				else
-				{
-					if (p_ptr->pres_dur > 0)
-                        		{
-                                		s32b damagepercent;
-                                		damagepercent = multiply_divide(damage, p_ptr->pres, 100);
-                                		damage -= damagepercent; 
-                        		}
-				}
-
-                        	/* Attempt to block the attack. */
-                        	{
-                                	int blockchance = 0;
-					int x;
-
-					/* Try to block with each of your weapons. */
-					for (x = 0; x < 2; x++)
-					{
-						o_ptr = &inventory[INVEN_WIELD + x];
-						blockchance = 0;
-
-                                		if (o_ptr->tval != 0)
-                                		{
-                                        		/* Basic block chance is equal to item's base AC */
-                                        		blockchance = o_ptr->ac;
-
-							/* Swords skill allows you to parry with a sword. */
-							if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 12 && p_ptr->skill[12] >= 10) blockchance += 10;
-
-							/* Polearm skill allows you to parry with a spear. */
-							if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 14 && p_ptr->skill[14] >= 25) blockchance += 20;
-
-							/* If AC is 0, cannot block with this item. */
-							if (blockchance > 0)
-							{
-                                        			/* Then, it's increased by dexterity and item's to_a */
-                                        			blockchance += (p_ptr->stat_ind[A_DEX] + o_ptr->to_a);
-
-								/* But is reduced by monster's dex. */
-								blockchance -= m_ptr->dex;
-
-                                        			/* Defender is the master of shields! */
-                                        			if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 5);
-							}
-                                		}
-                                		else if (unarmed() && p_ptr->skill[18] >= 40 && x == 0 && !heavy_armor())
-						{
-							/* If unarmed, and not wearing heavy armor, you may get a block chance. */
-							/* Gloves are used as the "shield". */
-							object_type *g_ptr;
-							g_ptr = &inventory[INVEN_HANDS];
-							blockchance += 10 + p_ptr->stat_ind[A_DEX];
-							if (g_ptr)
-							{
-								blockchance += g_ptr->ac;
-								blockchance += g_ptr->to_a;
-							}
-						}
-						
-                                		/* Maximum blocking chance is 75% */
-                                		if (blockchance > 75) blockchance = 75;
-
-                                		/* Now, try to block */
-                                		if (randint(100) < blockchance)
-						{
-							msg_print("You block!");
-							nothurt = TRUE;
-						}
-					}
-                        	}
-
-				if (!nothurt)
-				{
-					flg = PROJECT_JUMP | PROJECT_GRID | PROJECT_KILL;
-                			no_magic_return = TRUE;
-					monster_ranged = TRUE;
-                			arrow(m_idx, r_ptr->attack[chosenattack].element, damage);
-					monster_ranged = FALSE;
-                			no_magic_return = FALSE;
-				}
-			}
-			else msg_format("%^s %s at you, but miss.", m_name, r_ptr->attack[chosenattack].act);
-
-			/* Call a lua script. */
-			if (r_ptr->event_after_ranged > 0)
-			{
-				call_lua("monster_after_ranged", "(dd)", "", m_idx, r_ptr->event_after_ranged);
-			}
-
-			/* Counter Shot ability. */
-			if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1 && !(monster_counter_attack))
-			{
-				p_ptr->events[29046] = m_idx;
-				call_lua("use_ability", "(d)", "", 120);
-				p_ptr->events[29046] = 0;
-			}
-		}
-		else return (FALSE);
-	}
-	else
-	{
-		/* We don't ALWAYS fire... */
-		if (randint(100) <= r_ptr->attack[chosenattack].special2)
-		{
-			/* Call a lua script. */
-			if (r_ptr->event_before_ranged > 0)
-			{
-				call_lua("monster_before_ranged", "(dd)", "", m_idx, r_ptr->event_before_ranged);
-			}
-
-			if (monster_hit_player(m_ptr, 0))
-			{
-				if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosenattack].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosenattack].dside, 100));
-				else damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
-				damage *= (m_ptr->skill_ranged + 1);
-				damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
-				damage += multiply_divide(damage, m_ptr->dex, 100);
-				/* Bosses may get higher damages! */
-				if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
-                        	if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
-                        	else if (m_ptr->abilities & (CURSE_LOWER_POWER)) damage -= damage / 4;
-
-				if (strstr(r_ptr->attack[chosenattack].name, "!")) msg_format("%^s %s you!", m_name, r_ptr->attack[chosenattack].act);
-				else msg_format("%^s %s %s!", m_name, r_ptr->attack[chosenattack].act, r_ptr->attack[chosenattack].name);
-
-                        	/* Resistances...and it apply AFTER the Damages Curse! :) */
-				if (r_ptr->attack[chosenattack].element == GF_MISSILE)
-				{
-					if (p_ptr->pres_dur > 0)
-                        		{
-                                		s32b damagepercent;
-                                		damagepercent = multiply_divide(damage, p_ptr->pres, 100);
-                                		damage -= damagepercent; 
-                        		}
-					if (p_ptr->mres_dur > 0)
-                        		{
-                                		s32b damagepercent;
-                                		damagepercent = multiply_divide(damage, p_ptr->mres, 100);
-                                		damage -= damagepercent; 
-                        		}
-				}
-				else if (r_ptr->attack[chosenattack].element != GF_PHYSICAL)
-				{
-                        		if (p_ptr->mres_dur > 0)
-                        		{
-                                		s32b damagepercent;
-                                		damagepercent = multiply_divide(damage, p_ptr->mres, 100);
-                                		damage -= damagepercent; 
-                        		}
-				}
-				else
-				{
-					if (p_ptr->pres_dur > 0)
-                        		{
-                                		s32b damagepercent;
-                                		damagepercent = multiply_divide(damage, p_ptr->pres, 100);
-                                		damage -= damagepercent; 
-                        		}
-				}
-
-                        	/* Attempt to block the attack. */
-                        	{
-                                	int blockchance = 0;
-					int x;
-
-					/* Try to block with each of your weapons. */
-					for (x = 0; x < 2; x++)
-					{
-						o_ptr = &inventory[INVEN_WIELD + x];
-						blockchance = 0;
-
-                                		if (o_ptr->tval != 0)
-                                		{
-                                        		/* Basic block chance is equal to item's base AC */
-                                        		blockchance = o_ptr->ac;
-
-							/* Swords skill allows you to parry with a sword. */
-							if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 12 && p_ptr->skill[12] >= 10) blockchance += 10;
-
-							/* Polearm skill allows you to parry with a spear. */
-							if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 14 && p_ptr->skill[14] >= 25) blockchance += 20;
-
-							/* If AC is 0, cannot block with this item. */
-							if (blockchance > 0)
-							{
-                                        			/* Then, it's increased by dexterity and item's to_a */
-                                        			blockchance += (p_ptr->stat_ind[A_DEX] + o_ptr->to_a);
-
-								/* But is reduced by monster's dex. */
-								blockchance -= m_ptr->dex;
-
-                                        			/* Defender is the master of shields! */
-                                        			if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 5);
-							}
-                                		}
-                                		else if (unarmed() && p_ptr->skill[18] >= 40 && x == 0 && !heavy_armor())
-						{
-							/* If unarmed, and not wearing heavy armor, you may get a block chance. */
-							/* Gloves are used as the "shield". */
-							object_type *g_ptr;
-							g_ptr = &inventory[INVEN_HANDS];
-							blockchance += 10 + p_ptr->stat_ind[A_DEX];
-							if (g_ptr)
-							{
-								blockchance += g_ptr->ac;
-								blockchance += g_ptr->to_a;
-							}
-						}
-						
-                                		/* Maximum blocking chance is 75% */
-                                		if (blockchance > 75) blockchance = 75;
-
-                                		/* Now, try to block */
-                                		if (randint(100) < blockchance)
-						{
-							msg_print("You block!");
-							nothurt = TRUE;
-						}
-					}
-                        	}
-
-				if (!nothurt)
-				{
-					flg = PROJECT_JUMP | PROJECT_GRID | PROJECT_KILL;
-                			no_magic_return = TRUE;
-					monster_ranged = TRUE;
-                			canon(m_idx, r_ptr->attack[chosenattack].element, damage, r_ptr->attack[chosenattack].special1);
-					monster_ranged = FALSE;
-                			no_magic_return = FALSE;
-				}
-			}
-			else msg_format("%^s %s at you, but miss.", m_name, r_ptr->attack[chosenattack].act);
-
-			/* Call a lua script. */
-			if (r_ptr->event_after_ranged > 0)
-			{
-				call_lua("monster_after_ranged", "(dd)", "", m_idx, r_ptr->event_after_ranged);
-			}
-
-			/* Counter Shot ability. */
-			if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1 && !(monster_counter_attack))
-			{
-				p_ptr->events[29046] = m_idx;
-				call_lua("use_ability", "(d)", "", 120);
-				p_ptr->events[29046] = 0;
-			}
-		}
-		else return (FALSE);
-	}
-
-        /* Deactivate the HACK */
-        summoner_monster = NULL;
-	
-	/* Remember what the monster did to us */
-	if (seen)
-	{
-		r_ptr->r_blows[chosenattack] = 1;	
-	}
-	
-	update_and_handle();
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
-	
-	/* Always take note of monsters that kill you */
-	if (death && (r_ptr->r_deaths < MAX_SHORT))
-	{
-		r_ptr->r_deaths++;
-	}
-
-	/* A missile was shot */
+	/* Assume we attacked */
 	return (TRUE);
 }
 
@@ -5750,11 +5036,7 @@ bool make_ranged_attack_monst(int m_idx)
 
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
-					if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosenattack].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosenattack].dside, 100));
-					else damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
-					damage *= (m_ptr->skill_ranged + 1);
-					damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
-					damage += multiply_divide(damage, m_ptr->dex, 100);
+					call_lua("monster_damages", "(Mddd)", "d", m_ptr, r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside, 1, &damage);
 					/* Bosses may get higher damages! */
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
@@ -5794,11 +5076,7 @@ bool make_ranged_attack_monst(int m_idx)
 
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
-					if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosenattack].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosenattack].dside, 100));
-					else damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
-					damage *= (m_ptr->skill_ranged + 1);
-					damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
-					damage += multiply_divide(damage, m_ptr->dex, 100);
+					call_lua("monster_damages", "(Mddd)", "d", m_ptr, r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside, 1, &damage);
 					/* Bosses may get higher damages! */
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;

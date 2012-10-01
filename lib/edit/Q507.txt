@@ -46,19 +46,19 @@
 
 N:Bottom Floor;
 
-I:31:21:0:46:0:0:0
+I:31:21:0:41:0:0:0
 S:15:17
 
 // Quest exit.
 E:15:5:5:111:14:0:0:0:0:0
 
 // Simon.
-E:15:9:7:1346:0:60:1515:1:0:0
+E:15:9:7:1346:0:33:1515:1:0:0
 
 // Simon, fused with licialhyd.
 // Will only appear once he fused, and then if you either died,
 // or ran away.
-E:15:8:7:1347:0:60:1516:1:0:0
+E:15:8:7:1347:0:40:1516:1:0:0
 
 E:29:3:3:1:999:0:1528:0:0:0
 E:29:1:4:515:29:2:0:0:0:0

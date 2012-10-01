@@ -31,10 +31,10 @@ V:2.8.1
 # Bronze Dagger 'Bee Sting'. Can be found randomly in the dungeon.
 N:1:'Bee Sting'
 I:21:52:1
-W:1:1:10:200
+W:1:1:40:200
 P:0:1d3:10:10:0
 B:5:50:0
-F:LEVELS | ETERNAL
+F:LEVELS | DEX_WEAPON | ETERNAL
 U:0:15:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:A very small dagger, coated with venom and enchanted with magical speed.
 
@@ -42,7 +42,7 @@ D:A very small dagger, coated with venom and enchanted with magical speed.
 N:2:of Dalunia
 I:21:89:5
 W:30:45:120:60000
-P:0:6d8:60:60:0
+P:0:6d8:30:30:0
 B:11:700:0
 R:6:10
 R:9:10
@@ -50,32 +50,34 @@ R:11:50
 T:0:5
 T:4:5
 U:0:13:0:0:0:50:0:0:0:0:0:0:0:0:0:0:0:0
-F:SLAY_UNDEAD | LEVELS | SPECIAL_GENE | ETERNAL
+F:LEVELS | SPECIAL_GENE | ETERNAL
 D:A steel mace blessed with the power of the goddess of earth, Dalunia. 
 D:Earth shall empower the wielder of this weapon, and the wrath of Dalunia 
 D:shall strike evil with the wrath of the earth.
 
-# Masterwork Short Sword 'Aria's Soul'
-N:3:'Aria's Soul'
+# Masterwork Short Sword 'Aria's Light'
+N:3:'Aria's Light'
 I:21:137:3
-W:25:40:40:50000
-P:0:3d7:40:40:0
+W:25:40:60:50000
+P:0:3d7:30:30:0
 B:6:500:0
 R:6:25
-T:2:3
-T:5:3
-U:0:12:3:0:0:0:0:0:0:0:5:0:0:0:0:0:0:0
-F:ACTIVATE | SLAY_DEMON | SLAY_UNDEAD | LEVELS | SPECIAL_GENE | ETERNAL
+T:2:10
+T:5:10
+U:0:12:0:0:0:0:0:0:0:0:5:0:0:0:0:0:0:0
+F:ACTIVATE | DEX_WEAPON | LEVELS | SPECIAL_GENE | ETERNAL
 S:Glowing Bolt:1:50:6:0:0:0:0
-D:After you defeated the demon Shaugma, Aria binded her own soul to this blade, 
-D:imbuing it with the power of holy light. The blade that was once a sword 
-D:of superior quality is now a divinely fine edge of the heavens.
+S:Type change, Light:10:6:0:0:0:0:0
+S:Type change, Physical:10:15:0:0:0:0:0
+D:After you defeated the demon Shaugma, Aria enchanted the mastwerwork 
+D:short sword, and it became a powerful, holy, golden-bladed sword 
+D:imbued with pure light.
 
 # Steel Shield 'Red Guard'
 N:4:'Red Guard'
 I:34:3:3
 W:10:10:120:3000
-P:10:1d3:0:0:30
+P:15:1d3:0:0:30
 R:1:100
 R:2:-100
 F:ACTIVATE | ETERNAL
@@ -87,7 +89,7 @@ D:wearer susceptible to cold.
 N:5:'Blue Guard'
 I:34:3:3
 W:10:10:120:3000
-P:10:1d3:0:0:30
+P:15:1d3:0:0:30
 R:1:-100
 R:2:100
 F:ACTIVATE | ETERNAL
@@ -180,31 +182,31 @@ D:wise. The magical licialhyd on it also makes it much easier to
 D:channel a lot of magical energy.
 
 # Iron Long Sword 'Orcbane'
-N:12:'Orcbane'
-I:21:30:2
-W:8:10:130:10000
-P:0:3d8:15:15:0
-T:0:2
-T:4:2
-U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SLAY_ORC | LEVELS | ETERNAL
-D:A relic from ages ago, this old sword was once used by a hero during 
-D:the wars against the orcs, and was especially enchanted to slay them 
-D:easily. Because it has not been used for centuries, this sword's 
-D:power has started to fade, but if it was to be used again, it would 
-D:be possible to return this sword to it's former glory.
+#N:12:'Orcbane'
+#I:21:30:2
+#W:8:10:130:10000
+#P:0:3d8:15:15:0
+#T:0:2
+#T:4:2
+#U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+#F:SLAY_ORC | LEVELS | ETERNAL
+#D:A relic from ages ago, this old sword was once used by a hero during 
+#D:the wars against the orcs, and was especially enchanted to slay them 
+#D:easily. Because it has not been used for centuries, this sword's 
+#D:power has started to fade, but if it was to be used again, it would 
+#D:be possible to return this sword to it's former glory.
 
-# Adamantium Gauntlets 'Fists of the Titan'
+# Adamantite Gauntlets 'Fists of the Titan'
 N:13:'Fists of the Titan'
 I:31:6:10
 W:50:60:62:100000
-P:30:1d2:200:200:100
+P:30:1d2:50:50:100
 B:11:1000:2
 R:11:25
 T:0:10
 F:LEVELS | ETERNAL | ACTIVATE
 U:0:0:8:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-S:Sandstorm:2:100:11:3:0:0:10
+S:Sandstorm:2:50:11:3:0:0:5
 D:These magical gauntlets of steel allow their wearer to deliver powerful 
 D:earth shaking punches, as well as providing great strength. 
 D:These gloves are the dream of every martial artists.
@@ -213,11 +215,12 @@ D:These gloves are the dream of every martial artists.
 N:14:'Hands of Ki'
 I:31:3:3
 W:20:30:50:30000
-P:15:1d2:20:20:10
+P:15:1d2:25:25:10
 B:17:1500:0
 R:15:10
-T:0:3
-T:3:3
+T:0:10
+T:2:10
+K:18:20
 F:ETERNAL | SPECIAL_GENE
 D:After defeating the Restless Monk, and making him realize he had forgotten 
 D:his secret technique, he claimed you've taught him a valuable lesson. 
@@ -226,13 +229,13 @@ D:To show his gratitude, he gave you this pair of enchanted steel gauntlets.
 # Ice Dagger 'Ice Shard'.
 N:15:'Ice Shard'
 I:21:147:2
-W:5:5:10:2000
+W:5:5:40:2000
 P:0:1d5:15:15:0
 B:2:500:0
 R:2:25
 T:3:2
 U:0:15:0:0:0:0:0:0:0:0:0:23:0:0:0:0:0:0
-F:ETERNAL | ACTIVATE
+F:ETERNAL | DEX_WEAPON | ACTIVATE
 S:Type change, Physical:10:15:0:0:0:0:0
 S:Type change, Cold:10:2:0:0:0:0:0
 S:Type change, Ice:10:23:0:0:0:0:0
@@ -305,7 +308,7 @@ D:ability to parry blows and projectiles.
 N:20:of Stability
 I:37:6:5
 W:35:15:320:40000
-P:120:1d2:50:50:80
+P:70:1d2:40:40:40
 R:14:33
 T:4:15
 F:RES_CONF | RES_FEAR | HOLD_LIFE | RES_BLIND | SAFETY | LEVELS | ETERNAL
@@ -333,7 +336,7 @@ D:at your enemies, and will also make you as fast as the wind!
 N:22:of the Skull Legion
 I:34:8:5
 W:35:50:80:75000
-P:30:1d1:25:25:40
+P:30:1d1:40:40:40
 R:7:25
 K:9:5
 F:SPECIAL_GENE | ETERNAL | LEVELS | ACTIVATE
@@ -393,7 +396,7 @@ D:A magical cloak that can enhance it's wearer's skill with Alteration magic.
 N:26:'Mirror of steel'
 I:34:3:0
 W:15:10:120:10000
-P:30:1d1:25:25:50
+P:20:1d1:25:25:50
 K:27:5
 U:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:50:0
 F:ETERNAL
@@ -432,11 +435,11 @@ D:raging flames.
 N:29:'Solar Beam'
 I:19:33:0
 W:50:10:120:100000
-P:10:1d2:125:125:0
+P:10:1d2:50:50:0
 R:6:25
 T:3:20
 K:19:20
-U:1:19:0:0:0:0:0:0:0:0:5:6:1:99:7:0:0:0
+U:1:19:0:0:0:0:0:0:0:0:5:6:1:99:200:0:0:0
 F:ETERNAL | ACTIVATE | LEVELS
 S:Glowing Comet(Light, rad 10, consumes no ammos. Dam x2.):9:7:0:0:0:0:20
 D:A golden, glowing bow that contains pure Light elemental essence inside of it. 
@@ -447,7 +450,7 @@ D:creatures of the dark.
 N:30:'Volcanic Digger'
 I:21:48:0
 W:40:20:170:100000
-P:0:10d13:100:100:0
+P:0:10d13:40:40:0
 B:1:50000:0
 R:1:50
 T:0:15
@@ -468,7 +471,7 @@ D:whereabouts, however, remains unknown.
 N:31:of Unhealth
 I:93:9:0
 W:10:5:15:2500
-P:0:3d8:30:30:0
+P:0:3d8:15:15:0
 K:28:10
 U:0:0:0:0:0:0:0:0:0:0:0:53:5:0:0:0:0:0
 F:ETERNAL
@@ -498,12 +501,12 @@ D:have anything to do with alchemy.
 N:33:'Blood Blade'
 I:21:104:0
 W:45:30:80:300000
-P:20:15d25:150:150:0
+P:20:8d14:60:60:0
 T:0:20
 T:3:20
 K:5:20
 K:12:30
-U:0:12:5:0:20:0:0:0:0:0:0:0:0:0:0:0:0:120
+U:0:12:5:0:20:0:0:0:0:0:0:0:0:0:0:0:0:5
 F:LEVELS | ETERNAL | COULD2H | SPECIAL_GENE | ACTIVATE
 S:Type change, Physical:10:15:0:0:0:0:0
 S:Type change, Fire:10:1:0:0:0:0:0
@@ -570,7 +573,7 @@ D:very deadly.
 N:37:of Golden Truth 'Shan's Blessing'
 I:40:38:0
 W:60:30:2:200000
-P:20:1d1:100:100:0
+P:20:1d1:60:60:0
 R:2:25
 R:6:25
 T:0:20
@@ -597,7 +600,7 @@ D:Balcia.
 N:38:of the Gin'Whal
 I:21:63:0
 W:75:50:150:500000
-P:10:12d10:125:125:0
+P:10:12d10:75:75:0
 R:1:50
 R:10:50
 T:0:30
@@ -620,6 +623,9 @@ I:45:61:0
 W:20:10:2:10000
 P:0:1d1:25:25:0
 R:9:100
+T:1:10
+T:2:10
+T:5:10
 U:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:ETERNAL | ACTIVATE
 S:Summon Water Elementals:7:196:5:20:0:0:200
@@ -634,7 +640,7 @@ N:40:'Footpad's Boots'
 I:30:2:0
 W:50:40:5:75000
 P:10:1d1:40:40:30
-K:6:100
+K:6:40
 F:ETERNAL | LEVELS | ACTIVATE
 U:0:0:0:0:10:0:0:0:0:0:0:0:0:0:0:0:0:0
 S:Hide(10 turns invisibility):9:15:0:0:0:0:10
@@ -666,6 +672,50 @@ D:and learned to play it. It is said that the tree Goddess still lives somewhere
 D:wilderness and calls out to her lost tribe of worshipers. If you listen closely to the drums 
 D:you can hear a faint echoing female voice. The drums themselves are unprepossessing being 
 D:little more than wood and skin bound by twine.
+
+# Given to you during Stealthy Vipers questline.
+N:42:'Mystical Viper'
+I:19:50:0
+W:50:30:90:150000
+P:0:1d1:60:60:0
+T:3:30
+K:20:30
+U:2:20:0:0:0:0:0:0:0:0:0:15:1:1:140:0:0:0
+F:ETERNAL | ACTIVATE | LEVELS | SPECIAL_GENE
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Poison:10:5:0:0:0:0:0
+S:Type change, Harm:10:162:0:0:0:0:0
+S:Type change, Smite Undeads:10:163:0:0:0:0:0
+S:Type change, Smite Demons:10:164:0:0:0:0:0
+D:This powerful Viper Crossbow has mystical energy inside of it that allows any 
+D:bolts fired by it to turn into pure energy. In addition, it's original powers 
+D:can still be used, and a powerful enchantment has been placed on it, making 
+D:this the best and most powerful Viper Crossbow ever made.
+
+# Viper Cloak of the Viper Champion
+N:43:of the Viper Champion
+I:35:8:0
+W:50:70:5:200000
+P:10:1d1:60:60:15
+R:4:25
+R:5:100
+R:13:25
+T:3:40
+T:5:20
+K:6:40
+K:9:20
+K:12:30
+K:20:30
+U:0:0:1:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:ACTIVATE | SUST_DEX | FREE_ACT | SPECIAL_GENE | ETERNAL | LEVELS
+S:Summon Stealthy Vipers (Num 5, Dur 20):7:1602:5:20:0:0:20
+S:Summon Kobolds (Num 5, Dur 20, Depth 40):6:40:5:20:0:k:20
+S:Ally of Kobolds (CR1 Kobolds with a level <= than your becomes friendly.):9:1:0:0:0:0:20
+D:This is the magical cloak that Cedric was wearing. It has the power 
+D:to devour the light that strikes it, thus giving it's wearer a 
+D:good protection against light. The cloak itself is also made of 
+D:very resistant material, and provides good protection, as well 
+D:as enhancing the life force and appearence of the wearer.
 
 # The template for artifacts corpses
 

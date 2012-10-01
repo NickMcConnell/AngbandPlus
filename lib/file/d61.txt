@@ -1,0 +1,68 @@
+N:1:0:0:0:0:0
+I:Cultist;
+T:Oh, mighty Kysoroth... deliver us from that cursed flesh, and grant;
+T:us eternal life!;
+A:Kysoroth?:0:0:0:1:2:0:0:0:0
+A:Who are you?:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Cultist;
+T:Life is but a curse... Only in death can one become truly enlighted!;
+T:Oh mighty Wyrmwraith! Grant us your divine wisdom!;
+A:Huh, hello? I'm talking to you!:0:0:0:1:3:0:0:0:0
+A:Wyrmwraith? What are you talking about?:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Cultist;
+T:<CLASS>... do you enjoy your state of living flesh?;
+A:Actually, I'm here looking for a Devling. Seen any?:1:1142:1:1:8:0:0:0:0
+A:Yes, I do.:0:0:0:1:4:0:0:0:0
+A:I do feel a bit weak...:0:0:0:1:6:0:0:0:0
+A:I don't have time to waste with fanatics!:0:0:0:1:7:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Cultist;
+T:I see...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I: ;
+T:He doesn't say anything else. He closes his eyes, and starts praying...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Cultist;
+T:*smile*;
+T:In that case, Kysoroth can help you. The Ghostfather will also pretend;
+T:to be your ally, but do not be fooled! The Ghostfather will lie to you.;
+T:Deceive you. Only Kysoroth's words speaks the truth!;
+A:I'm searching for a Devling. Seen any?:1:1142:1:1:8:0:0:0:0
+A:Huh... thanks... I guess?:0:0:0:1:5:0:0:0:0
+A:I have no idea what you're talking about. Good day.:0:0:0:1:5:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Cultist;
+T:At the moment, you are confortable in your flesh. But one day, your flesh;
+T:will become old. Your skin wrinkled. Your muscles will become weak.;
+T:But when that time comes, remember that Kysoroth will be there, waiting;
+T:for you. He will deliver you from your cursed flesh!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Cultist;
+T:A Devling? Ah, yes! Yes, a devout Devling came here not long ago. We know;
+T:he is a devout follower of Kysoroth, as he was able to unlock the door of the;
+T:old building just southeast, which is normally magically sealed. They say;
+T:that it's an entrance to some underground tunnels which leads to inside that;
+T:old temple's inner chambers. Nobody knows for sure if there are any inner;
+T:chambers to begin with, but I'm sure you will check that out. What wouldn't;
+T:one do to get closer to Kysoroth, hmmm?;
+A:Thanks...:0:0:0:1:5:0:0:0:0
+%

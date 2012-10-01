@@ -9,9 +9,7 @@ A:Good bye.:0:0:0:0:0:0:0:0:0
 
 N:1:0:0:0:0:0
 I:Tom;
-T:Teehehe... I see you found my little trick! I guess it was a little too;
-T:obvious. I'll try to hide the switch better next time I setup a mechanism;
-T:like that! Anyway, who are you, and what's your name?;
+T:Hey there! Who are you, and what's your name?;
 A:My name is <NAME>. I am a <CLASS>.:0:0:0:1:2:0:0:1099:1
 %
 
@@ -80,7 +78,7 @@ T:Thanks you, <NAME>. All right, I'll tell you what I've found. As you've;
 T:probably guessed, the mansion is full of treasures! Lots of expensive;
 T:furniture, and apparently a valuable family heirloom hidden somewhere;
 T:in a treasure room guarded by an elite warrior Harrington hired.;
-T:But that's not that's not the only thing hidden in the mansion. There's;
+T:But that's not the only thing hidden in the mansion. There's;
 T:also a secret basement!;
 A:[CONTINUE]:0:0:0:1:11:0:0:1095:3
 %

@@ -974,9 +974,8 @@ s32b flag_cost(object_type * o_ptr, int plusses)
         if (f3 & TR3_FEATHER) total += 125;
         if (f4 & TR4_FLY) total += 1000;
         if (f4 & TR4_NEVER_BLOW) total -= 1500;
-        if (f4 & TR4_CLONE) total -= 1000;
-        if (f4 & TR4_LEVELS) total += 50000;
-        if (f4 & TR4_CHARGEABLE) total += 30000;
+        if (f4 & TR4_LEVELS) total += 5000;
+        if (f4 & TR4_CHARGEABLE) total += 3000;
 	if (f4 & TR4_ENCHANTED) total += 10;
 	if (f4 & TR4_ETERNAL) total += 3000;
 
@@ -1060,7 +1059,7 @@ s32b object_value_real(object_type *o_ptr)
 	/* Calculate value based on the bonus. */
 
 	/* Resistances. */
-	/* 10 golds per resistances. */
+	/* 100 golds per resistances. */
 	for (i = 0; i < MAX_RESIST; i++)
 	{
 		value += o_ptr->resistances[i] * 100;
@@ -1069,27 +1068,30 @@ s32b object_value_real(object_type *o_ptr)
 	/* 50 golds per stats bonus. */
 	for (i = 0; i < 6; i++)
 	{
-		value += o_ptr->statsbonus[i] * 300;
+		value += o_ptr->statsbonus[i] * 100;
 	}
 
 	/* Skills bonus. */
 	/* 50 golds per skills bonus. */
 	for (i = 0; i < SKILL_MAX; i++)
 	{
-		value += o_ptr->skillsbonus[i] * 300;
+		value += o_ptr->skillsbonus[i] * 100;
 	}
 
 	/* Other bonus. */
-	value += o_ptr->extrablows * 1000;
-	value += o_ptr->extrashots * 5000;
-	value += o_ptr->speedbonus * 750;
-	value += o_ptr->lifebonus * 20;
+	value += o_ptr->extrablows * 5000;
+	value += o_ptr->extrashots * 10000;
+	value += o_ptr->speedbonus * 200;
+	value += o_ptr->lifebonus * 50;
 	value += o_ptr->manabonus * 30;
-	value += o_ptr->infravision * 30;
-	value += o_ptr->spellbonus * 100;
+	value += o_ptr->infravision * 5;
+	value += o_ptr->spellbonus * 50;
 	value += o_ptr->invisibility * 1000;
-	value += o_ptr->light * 10;
-	value += o_ptr->reflect * 30;
+	value += o_ptr->light * 5;
+	value += o_ptr->reflect * 20;
+	value += o_ptr->to_h * 10;
+	value += o_ptr->to_d * 10;
+	value += o_ptr->to_a * 10;
 
 	if (o_ptr->branddam > 3) value += o_ptr->branddam / 3;
 
@@ -1131,6 +1133,15 @@ s32b object_value_real(object_type *o_ptr)
 
 			break;
 		}
+	}
+
+	if (f4 & (TR4_VALUE_50))
+	{
+		value = value / 2;
+	}
+	if (f4 & (TR4_VALUE_25))
+	{
+		value = value / 4;
 	}
 
 
@@ -5270,7 +5281,7 @@ bool make_object_tval(object_type *j_ptr, int tval, bool good, bool great)
 	}
 
 	/* An item may be afflicted by a curse(but not always). */
-	if (p_ptr->cursed >= 4) cursechance = p_ptr->cursed / 4;
+	if (p_ptr->cursed >= 1) cursechance = p_ptr->cursed;
 	else cursechance = 0;
 
 	if (cursechance > 75) cursechance = 75;
@@ -5295,7 +5306,7 @@ bool make_object_tval(object_type *j_ptr, int tval, bool good, bool great)
 		if (good)
 		{
 			/* Activate restriction */
-			get_obj_num_hook = kind_is_good;
+			if (!(building_vault)) get_obj_num_hook = kind_is_good;
 
 			/* Prepare allocation table */
 			get_obj_num_prep();
@@ -5504,9 +5515,9 @@ bool make_chest(object_type *j_ptr)
 	/* Steel and higher always have high item levels. */
 	/* Iron can be high or a bit lower than the dungeon level, but it tends to be good overall. */
 	/* Wooden ranged from "ok" to trash. But they are never locked. */
-	if (chesttype >= CHEST_MAGIC) j_ptr->pval = multiply_divide(dun_level, 120, 100) + randint(dun_level / 2) + (dun_level / 10);
-	else if (chesttype >= CHEST_STEEL) j_ptr->pval = multiply_divide(dun_level, 110, 100) + randint(dun_level / 2);
-	else if (chesttype >= CHEST_IRON) j_ptr->pval = multiply_divide(dun_level, 75, 100) + randint(dun_level / 2);
+	if (chesttype >= CHEST_MAGIC) j_ptr->pval = multiply_divide(dun_level, 100, 100) + randint(dun_level / 2) + (dun_level / 5);
+	else if (chesttype >= CHEST_STEEL) j_ptr->pval = multiply_divide(dun_level, 80, 100) + randint(dun_level / 2) + (dun_level / 10);
+	else if (chesttype >= CHEST_IRON) j_ptr->pval = multiply_divide(dun_level, 60, 100) + randint(dun_level / 2);
 	else j_ptr->pval = randint(dun_level);
 	
 	/* Success */
@@ -5573,4 +5584,33 @@ void place_chest(int y, int x)
 		/* Redraw */
 		lite_spot(y, x);
 	}
+}
+
+void prepare_crafted_item(int tval, int sval)
+{
+	object_type	*q_ptr;
+
+	/* Get local object */
+        q_ptr = &crafted_item;
+
+        object_prep(q_ptr, lookup_kind(tval, sval));
+	q_ptr->tval = tval;
+	q_ptr->sval = sval;
+        q_ptr->number = 1;
+        object_aware(q_ptr);
+        object_known(q_ptr);
+
+	q_ptr->ident |= (IDENT_MENTAL);
+        q_ptr->ident |= (IDENT_BROKEN);
+}
+
+void create_crafted_item()
+{
+	object_type	*q_ptr;
+
+        q_ptr = &crafted_item;
+        object_aware(q_ptr);
+        object_known(q_ptr);
+
+	(void)inven_carry(q_ptr, FALSE);
 }

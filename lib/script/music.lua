@@ -90,15 +90,11 @@ function compose_song ()
 	local totalcost
 
 	local discost
-	local reduction
 	local song
 	local songname
 	local songtype
 	local ch
 	local typech
-
-	-- Charisma cost reduction.
-	reduction = p_ptr.skill_base[29] / 2
 
 	-- First, get a melody.
 	msg_print("Choose a melody.")
@@ -140,10 +136,10 @@ function compose_song ()
 	-- Total cost.
 	-- This is the required charisma for the song.
 	totalcost = melody.pval2 + harmony.pval2 + rhythm.pval2
-	discost = totalcost - reduction
+	discost = totalcost
 	if (discost < 0) then discost = 0 end
 
-	msg_print(string.format('You will need %d charisma for this song. Compose it? [y/n]', discost))
+	msg_print(string.format('You will need %d charisma to sing this song. Compose it? [y/n]', discost))
 	ch = inkey()
 
 	if (ch == 89 or ch == 121) then
@@ -154,7 +150,7 @@ function compose_song ()
 		songname = tmpluastring
 
 		-- Pick a slot for the song.
-		song = pick_song(reduction)
+		song = pick_song(0)
 
 		music_song[song+1].name = songname
 		music_song[song+1].type = songtype
@@ -204,40 +200,15 @@ function execute_song (num)
 	-- Music skill and Charisma enhance songs in different ways, depending on the type of song.
 	-- Effects from songs are considered magical.
 
-	-- Duration (Summon monsters)
-	if (music_song[num+1].element == GF_DURATION) then
+	-- Unless it's healing, effect songs scales less.
+	if (music_song[num+1].type == 3 and not(music_song[num+1].element == GF_OLD_HEAL)) then
 
-		stat = p_ptr.stat_ind[A_CHR+1] - 5
-		bonus = (stat * 3) + (p_ptr.skill[29] * 3) + (p_ptr.skill[2])
-		dam = music_song[num+1].power + (instrumentbonus / 5)
-		dam = dam + multiply_divide(dam, bonus, 100)
-	elseif (music_song[num+1].element == GF_OLD_HEAL and music_song[num+1].type == 3) then
-		bonus = (p_ptr.skill[29] * 2)
-		stat = p_ptr.stat_ind[A_CHR+1] - 5
-		if (stat <= 0) then stat = 0 end
-		dam = ((music_song[num+1].power + instrumentbonus) * (stat))
-		dam = dam + multiply_divide(dam, bonus, 100)
-		dam = dam + multiply_divide(dam, p_ptr.to_s, 100)
-	elseif (music_song[num+1].element > 30) then
-		bonus = (p_ptr.skill[29])
-		stat = p_ptr.stat_ind[A_CHR+1] - 5
-		if (stat <= 0) then stat = 0 end
-		bonus = bonus + multiply_divide(bonus, stat, 100)
-		dam = music_song[num+1].power + (instrumentbonus / 5)
-		dam = dam + multiply_divide(dam, bonus, 100)
+		dam = music_song[num+1].power
+
+		-- Effects Songs mastery.
+		dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_BARD * 10) + 8] * 20, 100)
 	else
-		bonus = (p_ptr.skill[29] * 20) + (p_ptr.skill[2] * 10)
-		stat = p_ptr.stat_ind[A_CHR+1] - 5
-		if (stat <= 0) then stat = 0 end
-		dam = ((music_song[num+1].power + instrumentbonus) * (stat))
-		dam = dam + multiply_divide(dam, bonus, 100)
-		dam = dam + multiply_divide(dam, p_ptr.to_s, 100)
-
-		-- Improved Songs Bard ability.
-		if (p_ptr.abilities[(CLASS_BARD * 10) + 1] > 0) then
-
-			dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_BARD * 10) + 1] * 10, 100)
-		end
+		dam = spell_damages((music_song[num+1].power + instrumentbonus), A_CHR, 0)
 	end
 
 	-- No negative damages.
@@ -254,9 +225,14 @@ function execute_song (num)
 		else no_effect_hostile = 1 end
 	end
 
-	ignore_spellcraft = TRUE
-	lua_project(mode, music_song[num+1].radius + (p_ptr.abilities[(CLASS_BARD * 10) + 1] / 10), py, px, dam, music_song[num+1].element, 1)
-	ignore_spellcraft = FALSE
+	-- Healing songs only do 2% of their power.
+	if (music_song[num+1].element == GF_OLD_HEAL and mode == -2) then
+
+		dam = multiply_divide(dam, 2, 100)
+		--dam = dam / 10
+	end
+
+	lua_project(mode, music_song[num+1].radius + (p_ptr.abilities[(CLASS_BARD * 10) + 1] / 5), py, px, dam, music_song[num+1].element, 1)
 
 	no_effect_allies = 0
 	no_effect_hostile = 0

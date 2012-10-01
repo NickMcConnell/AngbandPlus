@@ -40,7 +40,7 @@ T:47:46:4:0
 // Lake
 T:52:45:5:0
 
-// Avemorsh clan
+// Avemorsh' Tomb.
 T:44:45:6:0
 
 // Clan: The Fallens
@@ -78,6 +78,12 @@ T:48:36:17:1
 
 // Ophelia's Tomb.
 T:48:35:18:1
+
+// Vipers HQ.
+T:44:44:23:0
+
+// Delviaz's Hideout
+T:52:48:24:0
 
 // JINDAR
 // *THE* biggest city in Portralis!
@@ -178,11 +184,11 @@ D:WWWWWWWW...,wwwwwww,,,,,,MMMMMMM,,,,,,,,,,,.,,.....,,,,,,,,,,,,,,MMMMMMMMMMMMM
 D:WWWWWWW,...,wwwwwwww,,,,,,MMMMM,,,,,,,,,,,,,,,.....,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 D:WWWWWWW,,,,,,wwwwwww,,,,,,,MMM,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 D:WWWWWW,,,,,,,,wwwwwww,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMM
-D:WWWWW,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,,,,,,T,,,,,,.,,,,,,,,,,.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+D:WWWWW,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,,,,,,T.,,,,,.,,,,,,,,,,.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 D:WWWWW,,,,,,,,,,,,wwwwwwwwwww,,,,,T,,,,,,,,TT.,,,,,,,.,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 D:WWWWW,,,,,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,TTT,,.,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMM..MMM...MMMMMMMMMMMMM
 D:WWWWW,,,,,,,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,,,,,.,,,,,T,,,,,,,,MMMMMMMMMMMMMMMMMMMMM...MMMMMMMMMMMMM
-D:WWWWW,,,,,,,,,,,,,,,,wwwwwwwwwwww,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWW,,,,,,,,,,,,,,,,wwwwwwwwwwww,,,,,,,,,,,,,,,,,,,.,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
 D:WWWWW,,,,,,,,,,,,,,,wwwwTTTwwwwwww,,,,,,,,,,,,.,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMW
 D:WWWWW,,,,,,,,,,,,wwwwwwTTTTTTTwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
 D:WWWWW,,,,,,,,,,,wwwwwwTTTTTTTTTwwwwwwwwwwwwwwwww.wwwwwwwwwwwwwwMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW

@@ -50,6 +50,8 @@ T:With your current rank, you can get the following items. Which one;
 T:would you like?;
 A:I'd like a Viper Crossbow.:0:0:0:3:1215:0:11:0:0
 A:I'd like a pair of Viper Boots.:1:1069:1:3:1216:0:11:0:0
+A:I'd like a Viper Cloak.:1:1127:1:3:1217:0:11:0:0
+A:I'd like a Viper Mail.:1:1141:1:3:1218:0:11:0:0
 A:Nevermind.:0:0:0:1:5:0:0:0:0
 %
 
@@ -68,7 +70,7 @@ T:list. Which one do you want to know about?;
 A:What is the Viper Crossbow?:0:0:0:1:7:0:0:0:0
 A:What is the Viper Boots?:0:0:0:1:8:0:0:0:0
 A:What is the Viper Cloak?:0:0:0:1:9:0:0:0:0
-A:What is the Viper Bow-Pistol?:0:0:0:1:10:0:0:0:0
+A:What is the Viper Mail?:0:0:0:1:10:0:0:0:0
 A:Nevermind.:0:0:0:1:5:0:0:0:0
 %
 
@@ -92,7 +94,7 @@ A:Nevermind.:0:0:0:1:5:0:0:0:0
 N:8:0:0:0:0:0
 I:Belgim;
 T:The Viper Boots are green leather boots, but they protect as much as;
-T:Iron Boots, thanks to their unique design. They will protect you against;
+T:Steel Boots, thanks to their unique design. They will protect you against;
 T:poison, will enhance your speed, agility and make you more stealthy.;
 T:Finally they will also improve your melee combat aptitudes. Not bad for;
 T:a pair of boots, huh? They're available to all the Stalker-Rank members and;
@@ -108,9 +110,9 @@ N:9:0:0:0:0:0
 I:Belgim;
 T:The Viper Cloak is a dark green cloak that not only provides good;
 T:protection for a cloak, but it will also enhance your dexterity and;
-T:make you stealthier. But it's greatest power is that it will make you;
-T:unseen by your enemies, so avoiding them while wearing this cloak will;
-T:be much easier! This item is available to Shadow-Rank members.;
+T:make you stealthier. We also enchanted it so that it will enhance your;
+T:accuracy with swords and crossbows. This makes it great when combined;
+T:with our Viper Crossbows!;
 A:What is the Viper Crossbow?:0:0:0:1:7:0:0:0:0
 A:What is the Viper Boots?:0:0:0:1:8:0:0:0:0
 A:What is the Viper Mail?:0:0:0:1:10:0:0:0:0
@@ -121,11 +123,14 @@ N:10:0:0:0:0:0
 I:Belgim;
 T:The Viper Mail is the best armor in the world, no kidding! Not even;
 T:the best Ivhalian Dwarven Smith could make something like that! In;
-T:appearence, it's a greenish suit of chain mail, made from fine steel.;
-T:But it gives an unequalled amount of protection, and improves it's;
-T:wearer's dexterity, agility and stealth. This fine piece of armor is;
-T:only available to Wraith-Rank members though, as it's the most difficult;
-T:piece of equipment to produce. But it's definitly worth it!;
+T:appearence, it's a greenish suit of chain mail, made from fine mithril.;
+T:That's already good, but it carries a powerful enchantment that makes;
+T:it extremely light. Combined with mithril's already light weight, this makes;
+T:the mail so light that it can be considered a light armor rather than heavy;
+T:armor. Add to that the fact that it improves your dexterity, stealth, agility,;
+T:and ability to fight with swords and crossbows, and you have the very best;
+T:of our craft. However, only the rare Wraith-rank members can have it.;
+T:We only have the materials to craft a few...;
 A:What is the Viper Crossbow?:0:0:0:1:7:0:0:0:0
 A:What is the Viper Boots?:0:0:0:1:8:0:0:0:0
 A:What is the Viper Cloak?:0:0:0:1:9:0:0:0:0

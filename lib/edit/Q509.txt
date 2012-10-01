@@ -52,7 +52,7 @@ S:15:9
 T:enter_underground;
 
 // Queen Christina
-E:15:4:7:1357:0:70:0:0:0:0
+E:15:4:7:1357:0:40:0:0:0:0
 
 // Back to palace.
 E:15:10:4:508:55:4:0:0:0:0

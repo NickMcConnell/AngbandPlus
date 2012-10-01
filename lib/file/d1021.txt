@@ -150,38 +150,33 @@ A:[CONTINUE]:0:0:0:1:12:0:0:0:0
 
 N:12:0:0:0:0:0
 I:Navarius;
-T:Have you ever heard of the 'Avemorsh' clan? Contrary to the popular;
-T:belief that orcs were dumb and savage warriors, they instead believe;
-T:that they were an advanced race of intelligent beings, and that they;
+T:Have you ever heard of the name 'Avemorsh'? Contrary to the popular;
+T:belief that orcs were dumb and savage warriors, many instead believe;
+T:that they were a race of powerful, intelligent beings, and that they;
 T:were brought down as the result of jaleousy from other races.;
-T:Avemorsh is an ancient orcish word which means 'supreme'... They named;
-T:their clan as a tribute to the fallen orcs...;
+T:Avemorsh is an ancient orcish word which means 'supreme'... It was;
+T:the name given to the legendary warlord that ruled over all orcs.;
+T:Avemorsh was one of the most powerful beings to ever exist in;
+T:Portralis. Though he is long gone, a tomb in his name still exists.;
 A:[CONTINUE]:0:0:0:1:13:0:0:0:0
 %
 
 N:13:0:0:0:0:0
 I:Navarius;
-T:Believing the orcs are destined to return to Portralis one day, they;
-T:performed various rituals and arcanes to try to revive the orcs...without;
-T:any success. So they looked for greater powers, and have fallen;
-T:into demon worshipping. Now, they perform various rituals, and with;
-T:each rituals, a part of their sanity is taken. They are driven more;
-T:and more into insanity by the demons of Hell... The demons may have sent;
-T:orc-like demons to trick the clan into thinking they actually succeeded,;
-T:while this is actually a trick to lure the clan closer to the will of;
-T:their dark masters...;
+T:My theory is that the tomb has now been taken over by demon worshippers,;
+T:and they are now summoning orc-like demons to do their biddings. Maybe;
+T:they want to revive old fears of orcs coming back to life, and threaten;
+T:to summon more if we don't do what they want.;
 A:[CONTINUE]:0:0:0:1:14:0:0:0:0
 %
 
 N:14:0:0:0:0:0
 I:Navarius;
-T:Now summoned into our plane, these orc-like demons are mercilessly;
-T:attacking innocents civilians... Yes, Avemorsh could very well be behind;
-T:this attack. Therefore, it is imperative that you go to their lair,;
-T:and find out more about this. By chance, agents of the Temple have;
-T:located several demon worshippers, including Avemorsh, so we know;
-T:where you can find their lair. It is hidden in a small forest south-west;
-T:of Jindar... around coordinates (44,45) on your map...;
+T:The tomb is hidden in a small forest south-west of Jindar... around;
+T:coordinates (44,45) on your map. It is straight to the south of some;
+T:ancient ruins, where an orcish town once was. Feel free to explore the;
+T:ruins if you feel like it, but I believe the tomb is where you are;
+T:the most likely to find demon worshippers.;
 A:[CONTINUE]:0:0:0:1:15:0:0:1007:1
 %
 
@@ -190,7 +185,7 @@ I:Navarius;
 T:You have to go there, my friend, and try to find out more about this.;
 T:Try to speak with their leader and get information, but beware, as they;
 T:may not want to hear you, in which case you might have to fight them.;
-T:Finally, their clan is located deep within an underground cave, so;
+T:Finally, the tomb is located deep inside an underground cave, so;
 T:there might be other dangers lurking in these caves... In any case,;
 T:good luck <NAME>, and may the Creator watch over you!;
 A:I have some questions first...:0:0:0:1:16:0:0:0:0
@@ -200,17 +195,17 @@ A:I'll be going then.:0:0:0:0:0:0:0:0:0
 N:16:0:0:0:0:0
 I:Navarius;
 T:Yes? Please ask.;
-A:Where is Avemorsh again?:0:0:0:1:17:0:0:0:0
-A:How did you learn about Avemorsh?:0:0:0:1:18:0:0:0:0
+A:Where is Avemorsh's tomb again?:0:0:0:1:17:0:0:0:0
+A:How did you learn about demon worshippers in Avemorsh's tomb?:0:0:0:1:18:0:0:0:0
 A:I'll be going then.:0:0:0:0:0:0:0:0:0
 %
 
 N:17:0:0:0:0:0
 I:Navarius;
 T:It's in a small forest south-west of Jindar. Around coordinates (44,45);
-T:on the map... Beware, as it is located deep in an underground cave.;
+T:on the map. Beware, as it is located deep in an underground cave.;
 T:There may be other dangers on the way...;
-A:How did you learn about Avemorsh?:0:0:0:1:18:0:0:0:0
+A:How did you learn about demon worshippers in Avemorsh's tomb?:0:0:0:1:18:0:0:0:0
 A:I'll be going then.:0:0:0:0:0:0:0:0:0
 %
 
@@ -221,10 +216,10 @@ T:organization. However, there also other groups that opposes us. Therefore,;
 T:we have agents working for the Temple who go outside the city, and look;
 T:for opposing cults and orders. They usually do not directly attack;
 T:these cults, but report as much information as they can. We know of many;
-T:such clans, including Avemorsh. When they become a threat, we inform;
-T:the king, so that he can take actions against them.;
+T:such cults. When they become a threat, we inform the king, so that he can;
+T:take action against them.;
 A:What other clans do you know about?:0:0:0:1:19:0:0:0:0
-A:Where is Avemorsh again?:0:0:0:1:17:0:0:0:0
+A:Where is Avemorsh's tomb again?:0:0:0:1:17:0:0:0:0
 A:I'll be going then.:0:0:0:0:0:0:0:0:0
 %
 
@@ -240,7 +235,7 @@ T:and elementals to our plane, claiming that they will bring 'purification';
 T:to the world... Both are evil and dangerous fanatics. Be aware that the;
 T:Children is a merfolk clan, so it's very dangerous.;
 A:Where are these clans located?:0:0:0:1:20:0:0:0:0
-A:Where is Avemorsh again?:0:0:0:1:17:0:0:0:0
+A:Where is Avemorsh's tomb again?:0:0:0:1:17:0:0:0:0
 A:I'll be going then.:0:0:0:0:0:0:0:0:0
 %
 

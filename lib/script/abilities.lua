@@ -121,20 +121,143 @@ function use_ability (powernum)
     	energy_use = 100;
   end
 
-  -- War Cry
+  -- Used to be War Cry.
+  -- Now is Charge. ;)
   if (powernum == 3) then
 
-	local duration
-	local rad
-        duration = p_ptr.abilities[(CLASS_WARRIOR * 10) + 7] + 4
-	rad = 5 + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 7] / 10)
-	nevermiss = TRUE
-	no_magic_return = TRUE
-        attack_aura(GF_WARCRY, duration, rad)
-	no_magic_return = FALSE
-	nevermiss = FALSE
+	local original_x = 0
+	local original_y = 0
+	local movex = 0
+	local movey = 0
+	local oldx = 0
+	local oldy = 0
+	local newx = 0
+	local newy = 0
+	local dir = 0
+	local i = 0
+	local dam = 0
+	local charging = TRUE
+	local distance = 0
+	local e_use = 100
+	local dtype = 0
+
+	current_weapon = inven(INVEN_WIELD)
+
+	if (current_weapon.tval == 0) then
+
+                msg_print("You must use a weapon in your main hand!")
+                return
+        end
+
+	dtype = current_weapon.extra1
+	if (dtype == 0) then dtype = GF_PHYSICAL end
+
+	-- Save the starting position.
+	original_x = px
+	original_y = py
+
+	-- Choose direction.
+	dir = lua_get_rep_dir()
+
+	-- Cannot self-charge.
+	if (dir == 5) then return end
+
+	-- X direction to move.
+	if (dir == 1 or dir == 4 or dir == 7) then movex = -1
+	elseif (dir == 2 or dir == 8) then movex = 0
+	else movex = 1
+	end
+
+	-- Y direction to move.
+	if (dir == 7 or dir == 8 or dir == 9) then movey = -1
+	elseif (dir == 4 or dir == 6) then movey = 0
+	else movey = 1
+	end
+
+	-- Start moving until we find something solid.
+	oldx = original_x
+	oldy = original_y
+	while (charging) do
+
+		newx = oldx + movex
+		newy = oldy + movey
+
+		-- Check for obstacles.
+		if (not(lua_cave_empty_bold(newy,newx))) then
+
+			teleport_player_to(oldy,oldx)
+			charging = FALSE
+
+			-- If it's a monster, do various things.
+			if (cave(newy, newx).m_idx > 0) then
+
+				local dbonus = 0
+
+				dam = weapon_damages()
+
+				-- Distance provides various bonus.
+				if (distance >= 1) then
+
+					dbonus = p_ptr.abilities[(CLASS_FIGHTER * 10) + 7] * 20
+				end
+
+				if (distance >= 3 and p_ptr.pspeed > 110) then
+
+					dbonus = dbonus + (p_ptr.pspeed - 110)
+				end
+
+				if (distance >= 5) then
+
+					dbonus = p_ptr.abilities[(CLASS_FIGHTER * 10) + 7] * 20
+				end
+
+				if (distance >= 7) then
+
+					charge_hit_bonus = 1
+				end
+
+				if (distance >= 10) then
+
+					dbonus = p_ptr.abilities[(CLASS_FIGHTER * 10) + 7] * 20
+                                        charge_stun = 1
+				end
+
+				if (distance >= 15) then
+
+					dbonus = p_ptr.abilities[(CLASS_FIGHTER * 10) + 7] * 20
+				end
+
+				if (distance >= 20) then
+
+					dbonus = p_ptr.abilities[(CLASS_FIGHTER * 10) + 7] * 20
+				end
+
+				dam = dam + multiply_divide(dam, dbonus, 100)
+
+				melee_attack = TRUE
+				no_magic_return = TRUE
+    				lua_project(0, 0, newy, newx, dam, dtype, 2)
+				no_magic_return = FALSE
+				melee_attack = FALSE
+				charge_hit_bonus = 0
+				charge_stun = 0
+			else
+
+				-- We hit a wall. Not good.
+				msg_print("You crash into a wall!")
+				e_use = e_use * (distance + 1)
+			end
+		else
+
+			-- Move on.
+			distance = distance + 1
+			oldx = newx
+			oldy = newy
+		end
+	end
+
         update_and_handle()
-	energy_use = 100
+	energy_use = e_use
   end
 
   -- Leaping Spin
@@ -144,6 +267,13 @@ function use_ability (powernum)
 	local x
 	local y
 	local dtype
+
+	-- It shares a cooldown with Jump.
+	--if (p_ptr.events[29049] > 0) then
+
+		--msg_print(string.format('You must wait %d turns before using this ability again.', p_ptr.events[29049]))
+		--return
+	--end
 
 	-- If used trough combat feats, we already selected a weapon.
 	if (not(combatfeat)) then choose_current_weapon() end
@@ -156,7 +286,7 @@ function use_ability (powernum)
         
 	-- Damages.
 	dam = weapon_damages()
-	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_WARRIOR * 10) + 9]) * 20), 100)
+	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_WARRIOR * 10) + 9]) * 40), 100)
         if (dam < 0) then dam = 0 end
 
 	dtype = current_weapon.extra1
@@ -183,10 +313,13 @@ function use_ability (powernum)
                         if (get_cave_info_flag(y, x, CAVE_LITE)) then
 				-- Move the player, then use attack_aura to attack everything
 				-- around the player!
+				--if (distance(y,x,py,px) > 0) then
+					--p_ptr.events[29049] = 3 + distance(y,x,py,px)
+				--end
 				teleport_player_to(y,x)
 				melee_attack = TRUE
 				no_magic_return = TRUE
-				attack_aura(dtype, dam, 1)
+				attack_aura(dtype, dam, 1 + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 9] / 20))
 				no_magic_return = FALSE
 				melee_attack = FALSE
                         else
@@ -196,10 +329,13 @@ function use_ability (powernum)
                 else
 			-- Move the player, then use attack_aura to attack everything
 			-- around the player!
+			--if (distance(y,x,py,px) > 0) then
+				--p_ptr.events[29049] = 3 + distance(y,x,py,px)
+			--end
 			teleport_player_to(y,x)
 			melee_attack = TRUE
 			no_magic_return = TRUE
-			attack_aura(dtype, dam, 1)
+			attack_aura(dtype, dam, 1 + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 9] / 20))
 			no_magic_return = FALSE
 			melee_attack = FALSE
 		end
@@ -218,7 +354,14 @@ function use_ability (powernum)
 
 	nevermiss = TRUE
 	no_magic_return = TRUE
-	attack_aura(GF_TAUNT, 100, rad)
+	if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 3] >= 10) then
+
+		local dir
+		dir = lua_get_aim_dir()
+        	fire_ball(GF_TAUNT, dir, 100, rad)
+	else
+		attack_aura(GF_TAUNT, 100, rad)
+	end
 	no_magic_return = FALSE
 	nevermiss = FALSE
         update_and_handle()
@@ -229,119 +372,35 @@ function use_ability (powernum)
   if (powernum == 6) then
 
 	local dir
-	local dir_x
-	local dir_y
-	local tgt_x
-	local tgt_y
-	local dam
-	local rad
 
-	-- Get the direction.
+	if (not(unarmed())) then
+
+                msg_print("You must be unarmed to use this ability.")
+                return
+        end
+
+	-- We need to choose a direction to attack. If used as combat feat,
+	-- this won't be asked.
 	dir = lua_get_rep_dir()
 
-	-- Determine the coordinates where we will look for a monster.
-	if (dir == 1) then
-		dir_x = px - 1
-		dir_y = py + 1
-	end
-	if (dir == 2) then
-		dir_x = px
-		dir_y = py + 1
-	end
-	if (dir == 3) then
-		dir_x = px + 1
-		dir_y = py + 1
-	end
-	if (dir == 4) then
-		dir_x = px - 1
-		dir_y = py
-	end
-	if (dir == 5) then
-		dir_x = px
-		dir_y = py
-	end
-	if (dir == 6) then
-		dir_x = px + 1
-		dir_y = py
-	end
-	if (dir == 7) then
-		dir_x = px - 1
-		dir_y = py - 1
-	end
-	if (dir == 8) then
-		dir_x = px
-		dir_y = py - 1
-	end
-	if (dir == 9) then
-		dir_x = px + 1
-		dir_y = py - 1
-	end
+	melee_attack = TRUE
+	no_magic_return = TRUE
+	nevermiss = TRUE
+    	chain_attack(dir, GF_THROW, 100, 0, 1)
+	nevermiss = TRUE
+	no_magic_return = FALSE
+	melee_attack = FALSE
 
-	-- Damages
-	dam = monk_damages()
-	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_FIGHTER * 10) + 8]) * 20), 100)
-
-	-- The radius of the throw.
-	rad = 3 + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 8] / 10)
-
-	-- Actually throw the monster
-
-	-- First, we must check if there's a monster on the grid we're targetting.
-	if (cave(dir_y, dir_x).m_idx == 0) then
-	
-		msg_print("No monster here.")
-		-- Does take a turn.
-		energy_use = 100
-		return
-	end
-
-	-- Can we lift the monster?
-	if (((p_ptr.abilities[(CLASS_FIGHTER * 10) + 8] * 2000)+2000) >= m_race(monster(cave(dir_y, dir_x).m_idx).r_idx).weight) then
-
-		-- Then, we must successfully grab the monster.
-		-- It's a regular player_hit_monster test.
-		if (player_hit_monster(monster(cave(dir_y, dir_x).m_idx), 0)) then
-
-			-- We grab the monster. Throw it!
-			msg_print("You grab the monster!")
-			lua_tgt_pt()
-			tgt_x = global_x
-			tgt_y = global_y
-			if((lua_cave_empty_bold(tgt_y,tgt_x)) and (distance(tgt_y,tgt_x,py,px) <= rad)) then
-
-				-- This ones moves the monster, and uses (x,y) as the coordinates, not (y,x).
-				move_monster_spot(cave(dir_y, dir_x).m_idx, tgt_x, tgt_y)
-				update_and_handle()
-				msg_print("You throw the monster!")
-				nevermiss = TRUE
-				fire_ball_specific_grid(dam, tgt_x, tgt_y, 0, GF_PHYSICAL)
-				nevermiss = FALSE
-			else
-				-- If we point an invalid location, we throw it on the ground!
-				-- So we still do damages.
-				msg_print("You can't throw the monster there!")
-				msg_print("You throw it on the ground!")
-				fire_ball_specific_grid(dam, dir_x, dir_y, 0, GF_PHYSICAL)
-			end
-
-		else
-			msg_print("You miss the monster.")
-		end
-
-	else
-		msg_print("This monster is too heavy!")
-	end
-
-	-- It takes a turn.
-	energy_use = 100
+    	energy_use = 100;
 
   end
 
-  -- Extreme Strike
+  -- All-In-One Strike
   if (powernum == 7) then
 
 	local dam
 	local dir
+	local dtype
 
 	if (p_ptr.powerattack <= 0) then
 
@@ -351,249 +410,163 @@ function use_ability (powernum)
 
 	if (not(combatfeat)) then choose_current_weapon() end
 
-	-- If we don't use a weapon, for this ability, we can use unarmed damages.
 	if (current_weapon.tval == 0) then
 
-                dam = monk_damages()
-		dam = dam * p_ptr.abilities[(CLASS_FIGHTER * 10) + 9]
-        else
-		dam = weapon_damages()
-		dam = dam * p_ptr.abilities[(CLASS_FIGHTER * 10) + 9]
-	end
+                msg_print("You must use a weapon!")
+                return
+        end
+
+	dtype = current_weapon.extra1
+	if (dtype == 0) then dtype = GF_PHYSICAL end
+
+	dam = weapon_damages()
+	dam = dam * p_ptr.num_blow
+	dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_FIGHTER * 10) + 9] * 20, 100)
+        if (dam < 0) then dam = 0 end
 	
 	-- Get direction.
 	dir = lua_get_rep_dir()
 
-	-- We use the hard_kick function. It does damages, and sends the enemy away.
-	-- As you probably guessed, it was first made for the Hard Kick ability, but can
-	-- be used anywhere. A real time saver! :) Otherwise, you're in for quite a few
-	-- lines of code. ;)
-	-- hard_kick(dir, dam, distance the enemy will be moved by)
 	melee_attack = TRUE
 	no_magic_return = TRUE
-	hard_kick(dir, dam, 5 + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 9] / 5))
+	chain_attack(dir, dtype, dam, 0, 1)
 	no_magic_return = FALSE
 	melee_attack = FALSE
 
     	energy_use = 100;
   end
 
-  -- Force Field
+  -- Ki Restoration
   if (powernum == 8) then
-	p_ptr.pres = 25 + (p_ptr.abilities[(CLASS_MAGE * 10) + 2])
-        p_ptr.mres = 25 + (p_ptr.abilities[(CLASS_MAGE * 10) + 2])
-	if (p_ptr.pres > 75) then p_ptr.pres = 75 end
-	if (p_ptr.mres > 75) then p_ptr.mres = 75 end
-        set_pres((10 + (p_ptr.abilities[(CLASS_MAGE * 10) + 2] * 2)))
-        set_mres((10 + (p_ptr.abilities[(CLASS_MAGE * 10) + 2] * 2)))
-        energy_use = 100
+
+	if (p_ptr.events[29048] > 0) then
+
+		msg_print(string.format('This ability is still charging. (%d turns left)', p_ptr.events[29048]))
+	else
+
+		local power
+		local heal
+
+		power = multiply_divide(p_ptr.skill[19], p_ptr.abilities[(CLASS_MONK * 10) + 5] * 10, 100)
+		heal = spell_damages(power, A_WIS, 0)
+
+		msg_print("Your inner energy heals you!")
+		lua_project(-2, 0, py, px, heal, GF_OLD_HEAL, 1)
+		p_ptr.events[29048] = 5
+        	energy_use = 100
+	end
   end
 
   -- Magic Missile
   if (powernum == 9) then
 	local dam
 	local dir
-	local spellstat
-	local rodbonus
-	local rad
-
-	-- This determines casting power
-	-- Remember! In Lua, you must use the stat's constant +1, hence A_INT+1.
-	spellstat = (p_ptr.stat_ind[A_INT+1] - 5)
-
-	-- No lower than 0.
-	if (spellstat < 0) then spellstat = 0 end
-
-	-- Bonus from rods.
-	rodbonus = 0
-	if (inven(INVEN_WIELD).tval == TV_ROD) then
-
-		rodbonus = rodbonus + damroll(inven(INVEN_WIELD).dd, inven(INVEN_WIELD).ds)
-		rodbonus = rodbonus + multiply_divide(rodbonus, p_ptr.skill[18] * 3, 100)
-	end
-	if (inven(INVEN_WIELD+1).tval == TV_ROD) then
-
-		rodbonus = rodbonus + damroll(inven(INVEN_WIELD+1).dd, inven(INVEN_WIELD+1).ds)
-		rodbonus = rodbonus + multiply_divide(rodbonus, p_ptr.skill[18] * 3, 100)
-	end
-
-        dam = (p_ptr.abilities[(CLASS_MAGE * 10) + 3] * 15) + rodbonus
-	dam = dam * spellstat
-	dam = dam + multiply_divide(dam, p_ptr.to_s, 100)
-
-	rad = 0 + (p_ptr.abilities[(CLASS_MAGE * 10) + 3] / 10)
-
-	-- This is different from lua_get_rep_dir(). This one allow you to set
-	-- the monster as a target.
-	dir = lua_get_aim_dir()
-
-	-- Use a bolt spell against an ememy.
-        fire_ball(GF_MISSILE, dir, dam, rad)
-
-        update_and_handle()
-        energy_use = 100
-  end
-
-  -- Slow Down
-  if (powernum == 10) then
-	local dir
-	dir = lua_get_aim_dir()
-        fire_ball(GF_SLOW_DOWN, dir, 100, 2 + (p_ptr.abilities[(CLASS_MAGE * 10) + 5] / 20))
-        energy_use = 100
-  end
-
-  -- Mirror Images
-  if (powernum == 11) then
+	local num
 	local i
-        msg_print("You create illusions of yourself!")
 
-	for i = 1, ((p_ptr.abilities[(CLASS_MAGE * 10) + 6]) + 5) do
+        dam = spell_damages(p_ptr.abilities[(CLASS_MAGE * 10) + 3] * 3, A_INT, 1)
 
-		-- Summon a specific monster. In this case, the Mirror Image is 1077. Could be anything.
-		-- y1 and x1 are just the "center", and monsters will randomly appear around this
-		-- point. Syntax for the command:
-		-- summon_specific_ridx(int y1, int x1, int ridx, bool Group_ok, bool friendly, int dur)
-		-- Group_ok is used in case the monster has the FRIENDS flag, and this can appear in groups.
-		-- If false, the monster will appear alone, ignoring the FRIENDS flag.
+	num = 1 + (p_ptr.abilities[(CLASS_MAGE * 10) + 3] / 10)
 
-		summon_specific_ridx(py, px, 1077, FALSE, TRUE, (p_ptr.abilities[(CLASS_MAGE * 10) + 6] + 10))
+	for i = 1, num do
+
+		dir = lua_get_aim_dir()
+
+		casting_elemental = TRUE
+		fire_bolt(GF_MISSILE, dir, dam)
+		casting_elemental = FALSE
+
+        	update_and_handle()
 	end
 
         energy_use = 100
   end
 
-  -- Damages Curse
-  if (powernum == 12) then
-	local dir
-	dir = lua_get_aim_dir()
-        fire_ball(GF_DAMAGES_CURSE, dir, 100, 2 + (p_ptr.abilities[(CLASS_MAGE * 10) + 7] / 20))
-        energy_use = 100
-  end
-
-  -- Elemental Lord's Piercing Spells
-  if (powernum == 13) then
-
-	local dir
-	local rad
-
-	-- This is different from lua_get_rep_dir(). This one allow you to set
-	-- the monster as a target.
-	dir = lua_get_aim_dir()
-
-	rad = 2 + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 5] / 10)
-
-	-- Use a ball spell against an ememy.
-	fire_ball(GF_VULNERABILITY, dir, 100, rad)
-
-        update_and_handle()
-        energy_use = 100
-  end
-
-  -- Turn Undeads
-  if (powernum == 15) then
-
+  -- Drain Mana
+  if (powernum == 10) then
 	local dam
 	local dir
 	local spellstat
-	local rodbonus
-	local rad
 
-	-- This determines casting power
-	spellstat = (p_ptr.stat_ind[A_WIS+1] - 5)
-
-	-- No lower than 0.
+	spellstat = (p_ptr.stat_ind[A_INT+1] - 5)
 	if (spellstat < 0) then spellstat = 0 end
 
-	-- Bonus from rods.
-	rodbonus = 0
-	if (inven(INVEN_WIELD).tval == TV_ROD) then
+	dam = spell_damages(p_ptr.abilities[(CLASS_MAGE * 10) + 5], spellstat, 0)
 
-		rodbonus = rodbonus + damroll(inven(INVEN_WIELD).dd, inven(INVEN_WIELD).ds)
-		rodbonus = rodbonus + multiply_divide(rodbonus, p_ptr.skill[18] * 3, 100)
-	end
-	if (inven(INVEN_WIELD+1).tval == TV_ROD) then
-
-		rodbonus = rodbonus + damroll(inven(INVEN_WIELD+1).dd, inven(INVEN_WIELD+1).ds)
-		rodbonus = rodbonus + multiply_divide(rodbonus, p_ptr.skill[18] * 3, 100)
-	end
-
-        dam = (p_ptr.abilities[(CLASS_PRIEST * 10) + 2] * 40) + rodbonus
-	dam = dam * spellstat
-	dam = dam + multiply_divide(dam, p_ptr.to_s, 100)
-
-	no_magic_return = TRUE
-        attack_aura(GF_TURN_UNDEAD, dam, 10)
-	no_magic_return = FALSE
-        update_and_handle()
+	dir = lua_get_aim_dir()
+        fire_ball(GF_DRAIN_MANA, dir, dam, 0 + (p_ptr.abilities[(CLASS_MAGE * 10) + 5] / 5))
         energy_use = 100
   end
 
-  -- Blessed Meditation
-  if (powernum == 16) then
-
-	local wisbonus
-
-	wisbonus = 0
-
-	-- We actually set an event variable here.
-	-- Represents the times we used it.
-	if (p_ptr.wis_boost_dur == 0) then p_ptr.events[29013] = 0 end
-
-	p_ptr.events[29013] = p_ptr.events[29013] + 1
-	if (p_ptr.events[29013] > 5) then p_ptr.events[29013] = 5 end
-
-	wisbonus = ((p_ptr.stat_cur[A_WIS+1] * (p_ptr.abilities[(CLASS_PRIEST * 10) + 4] * 5)) / 100) * p_ptr.events[29013]
-
-	p_ptr.wis_boost = wisbonus
-        set_wis_boost(2 + (p_ptr.abilities[(CLASS_PRIEST * 10) + 4] / 3))
-
-        update_and_handle()
-        energy_use = 100
-  end
-
-  -- Light of Life
-  if (powernum == 17) then
-
-	local dam
-        dam = (p_ptr.chp * p_ptr.abilities[(CLASS_PRIEST * 10) + 10])
-	ignore_spellcraft = TRUE
-        attack_aura(GF_LITE, dam, 5 + (p_ptr.abilities[(CLASS_PRIEST * 10) + 10] / 30))
-	ignore_spellcraft = FALSE
-        update_and_handle()
-        energy_use = 100
-  end
-
-  -- Retrograde Darkness.
-  if (powernum == 18) then
-
-	local dir
-	dir = lua_get_aim_dir()        
-        fire_ball(GF_RETROGRADE_DARKNESS, dir, 100, (p_ptr.abilities[(CLASS_PRIEST * 10) + 9] / 10))
-        update_and_handle()
-        energy_use = 100
-  end
-
-  -- Dark Prayer.
-  if (powernum == 19) then
-
-	if (p_ptr.alignment < 1) then
-        	p_ptr.wis_boost = ((p_ptr.stat_cur[A_WIS+1] * (p_ptr.abilities[(CLASS_PRIEST * 10) + 5] * 20)) / 100)
-        	set_wis_boost(2 + (p_ptr.abilities[(CLASS_PRIEST * 10) + 5] / 3))
-		dec_stat(A_WIS, 5, 2)
-        	update_and_handle()
-        	energy_use = 100
-	else
-		msg_print("Because of your good alignment, the prayer was unanswered.")
-	end
-  end
-
-  -- Finishing Blow
-  if (powernum == 26) then
+  -- Spin Kick
+  if (powernum == 11) then
 
         local dam
 	local dtype
 
-        -- If used trough combat feats, we already selected a weapon.
+        if (not(unarmed())) then
+
+                msg_print("You must be unarmed to use this ability.")
+                return
+        end
+        
+	-- Damages.
+	dam = monk_damages()
+	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_MONK * 10) + 2]) * 20), 100)
+        if (dam < 0) then dam = 0 end
+
+	dtype = inven(INVEN_HANDS).extra1
+	if (dtype == 0) then dtype = GF_PHYSICAL end
+
+	-- The function "attack_aura" projects an attack around the player.
+	-- Here, we project Physical over a radius of 1.
+	melee_attack = TRUE
+	no_magic_return = TRUE
+	attack_aura(dtype, dam, 1)
+	no_magic_return = FALSE
+	melee_attack = FALSE
+
+	-- The attack takes a turn.
+	-- Every 100 pts of "energy_use", an extra turn is taken.
+	energy_use = 100
+  end
+
+  -- Ki Punch
+  if (powernum == 12) then
+
+	local dam
+	local dir
+
+	if (not(unarmed())) then
+
+                msg_print("You must be unarmed to use this ability.")
+                return
+        end
+
+	-- We need to choose a direction to attack. If used as combat feat,
+	-- this won't be asked.
+	dir = lua_get_rep_dir()
+
+	dam = monk_damages()
+	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_MONK * 10) + 3]) * 20), 100)
+
+	melee_attack = TRUE
+	no_magic_return = TRUE
+    	chain_attack(dir, GF_MISSILE, dam, 0, 1)
+	no_magic_return = FALSE
+	melee_attack = FALSE
+
+    	energy_use = 100;
+  end
+
+  -- Sneak Attack.
+  if (powernum == 13) then
+
+	local dam
+	local dtype
+	local dir
+
+	-- If used trough combat feats, we already selected a weapon.
 	if (not(combatfeat)) then choose_current_weapon() end
 
         if (current_weapon.tval == 0) then
@@ -602,78 +575,405 @@ function use_ability (powernum)
                 return
         end
 
-        dam = weapon_damages()
+	dir = lua_get_rep_dir()
+        
+	-- Damage.
+	dam = weapon_damages()
 
-        dir = lua_get_rep_dir()
+	-- Sneak Attack bonus damage per points can be either 30% or 10%.
+	-- Whether the roll is successful is coded in combat.lua, in the combat feats portion.
+	if (potential_sneak_attack == 1) then
+
+		dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_ROGUE * 10) + 6]) * 30), 100)
+		sneak_attack = 1
+	else
+
+		dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_ROGUE * 10) + 6]) * 10), 100)
+	end
+
+        if (dam < 0) then dam = 0 end
 
 	dtype = current_weapon.extra1
 	if (dtype == 0) then dtype = GF_PHYSICAL end
 
 	melee_attack = TRUE
 	no_magic_return = TRUE
-	finishingblow = 1
-        chain_attack(dir, dtype, dam, 0, 1)
-	finishingblow = 0
-	melee_attack = FALSE
+	chain_attack(dir, dtype, dam, 0, 1)
+	sneak_attack = 0
 	no_magic_return = FALSE
+	melee_attack = FALSE
 
+	-- The attack takes a turn.
+	-- Every 100 pts of "energy_use", an extra turn is taken.
 	energy_use = 100
   end
 
-  -- Animal Empathy
-  if (powernum == 30) then
+  -- Paralyzing Strike
+  if (powernum == 14) then
 
-	attack_aura(GF_ANIMAL_EMPATHY, 100, (p_ptr.abilities[(CLASS_RANGER * 10) + 4] / 10) + 5)
+	local dam
+	local dir
+	local dtype
+
+	if (not(unarmed())) then
+
+                msg_print("You must be unarmed to use this ability.")
+                return
+        end
+
+	-- We need to choose a direction to attack. If used as combat feat,
+	-- this won't be asked.
+	dir = lua_get_rep_dir()
+
+	dam = monk_damages()
+	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_MONK * 10) + 8]) * 10), 100)
+
+	dtype = inven(INVEN_HANDS).extra1
+	if (dtype == 0) then dtype = GF_PHYSICAL end
+
+	melee_attack = TRUE
+	no_magic_return = TRUE
+	paralyzing_strike = 1
+    	chain_attack(dir, dtype, dam, 0, 1)
+	paralyzing_strike = 0
+	no_magic_return = FALSE
+	melee_attack = FALSE
+
+    	energy_use = 100;
+  end
+
+  -- Art of Poisoning.
+  if (powernum == 15) then
+
+	local item
+
+	item = lua_get_item(0)
+
+	if (item.tval == TV_WEAPON or item.tval == TV_ROD or item.tval == TV_AMMO) then
+
+		item.extra1 = GF_POIS
+		msg_print("The weapon's damage type has been changed to Poison!")
+	else
+
+		msg_print("You can only use this on a weapon or ammo.")
+	end
+
         update_and_handle()
         energy_use = 100
   end
 
-  -- Divine Strength
-  if (powernum == 36) then
+  -- Slumber Shot
+  if (powernum == 16) then
 
-	p_ptr.str_boost = multiply_divide(p_ptr.stat_ind[A_STR+1], p_ptr.abilities[(CLASS_PALADIN * 10) + 1] * 10, 100)
-        set_str_boost(4 + p_ptr.abilities[(CLASS_PALADIN * 10) + 1])
+	slumber_shot = 1
+	special_ranged_attacks(0, 1 + (p_ptr.abilities[(CLASS_ROGUE * 10) + 8] / 10), p_ptr.abilities[(CLASS_ROGUE * 10) + 8] * 10, 0)
+	slumber_shot = 0
+	dontwakeup = FALSE
 	energy_use = 100
   end
 
-  -- Holy Bolts
-  if (powernum == 37) then
+  -- Mighty Defenses
+  -- Here we have Melee, Ranged and Magic.
+  if (powernum == 17) then
 
-  	local dam
-        local dir
-	local num
-	local i
-
-        -- If used trough combat feats, we already selected a weapon.
-	if (not(combatfeat)) then choose_current_weapon() end
-
-        if (current_weapon.tval == 0) then
-
-                msg_print("You must use a weapon!")
-                return
-        end
-
-	num = (p_ptr.abilities[(CLASS_PALADIN * 10) + 2] / 10) + 1
-
-	for weap = 1, num do
-
-		dam = weapon_damages()
-		dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_PALADIN * 10) + 2]) * 10), 100)
-        	if (dam < 0) then dam = 0 end
-
-		dir = lua_get_aim_dir()
-
-        	fire_bolt(GF_LITE, dir, dam)
-
-        	update_and_handle()
+	msg_print("You prepare a mighty defense against melee attacks!")
+	p_ptr.events[29050] = 1
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 3] < 5) then
+		energy_use = 100
 	end
-
-        energy_use = 100
-
+	update_and_handle()
   end
 
-  -- Evil Slayer
-  if (powernum == 38) then
+  if (powernum == 18) then
+
+	msg_print("You prepare a mighty defense against ranged attacks!")
+	p_ptr.events[29050] = 2
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] < 5) then
+		energy_use = 100
+	end
+	update_and_handle()
+  end
+
+  if (powernum == 19) then
+
+	msg_print("You prepare a mighty defense against magic attacks!")
+	p_ptr.events[29050] = 3
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 5] < 5) then
+		energy_use = 100
+	end
+	update_and_handle()
+  end
+
+  if (powernum == 20) then
+
+	msg_print("You prepare a mighty defense against summoned creatures and summoners!")
+	p_ptr.events[29050] = 4
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 8] < 5) then
+		energy_use = 100
+	end
+	update_and_handle()
+  end
+
+  -- Con Job
+  if (powernum == 21) then
+
+	local rad
+
+	rad = 5 + (p_ptr.abilities[(CLASS_ROGUE * 10) + 10] / 5)
+
+	nevermiss = TRUE
+	no_magic_return = TRUE
+	attack_aura(GF_CON_JOB, 100, rad)
+	no_magic_return = FALSE
+	nevermiss = FALSE
+        update_and_handle()
+	energy_use = 100
+  end
+
+  -- Inner Elemental Energy
+  if (powernum == 22) then
+
+	local dir
+	local rad
+
+	-- This is different from lua_get_rep_dir(). This one allow you to set
+	-- the monster as a target.
+	dir = lua_get_aim_dir()
+
+	rad = 2
+
+	-- Use a ball spell against an ememy.
+	no_magic_return = TRUE
+	nevermiss = TRUE
+	fire_ball(GF_VULNERABILITY, dir, 100, rad)
+	nevermiss = FALSE
+	no_magic_return = FALSE
+
+        update_and_handle()
+        energy_use = 100
+  end
+
+  -- Blessing of Protection.
+  if (powernum == 23) then
+
+	msg_print("You are blessed with Blessing of Protection!")
+
+	p_ptr.events[29054] = 1
+
+        update_and_handle()
+        energy_use = 100
+  end
+
+  -- Sanctified Area.
+  if (powernum == 24) then
+
+	local rad
+	local x
+	local y
+
+	rad = 1 + (p_ptr.abilities[(CLASS_PRIEST * 10) + 4] / 5)
+
+        if (not(lua_tgt_pt())) then return end
+	x = global_x
+	y = global_y
+
+	-- Most functions here use a (y,x) format, instead of (x,y).
+	-- This is important, because if you use (x,y), it might crash.
+        if (not(get_cave_info_flag(y, x, CAVE_MARK))) then
+
+        	if (get_cave_info_flag(y, x, CAVE_LITE)) then
+
+			place_field(FEAT_SANCTIFY, rad, x, y, 100)
+			msg_print("You create a holy ward on the floor!")
+			energy_use = 100
+                else
+			msg_print("Invalid grid selection.")
+		end
+
+        else
+		place_field(FEAT_SANCTIFY, rad, x, y, 100)
+		msg_print("You create a holy ward on the floor!")
+		energy_use = 100
+	end
+
+        update_and_handle()
+  end
+
+  -- Blessing of Protection.
+  if (powernum == 25) then
+
+	msg_print("You are blessed with Blessing of Faithful Strike!")
+
+	p_ptr.events[29054] = 2
+
+        update_and_handle()
+        energy_use = 100
+  end
+
+  -- Blessing of Might.
+  if (powernum == 26) then
+
+	msg_print("You are blessed with Blessing of Might!")
+
+	p_ptr.events[29054] = 3
+
+        update_and_handle()
+        energy_use = 100
+  end
+
+  -- Blessing of Dexterity.
+  if (powernum == 27) then
+
+	msg_print("You are blessed with Blessing of Dexterity!")
+
+	p_ptr.events[29054] = 4
+
+        update_and_handle()
+        energy_use = 100
+  end
+
+  -- Ki Restoration
+  if (powernum == 28) then
+
+	if (p_ptr.events[29055] > 0) then
+
+		msg_print(string.format('This ability is still charging. (%d turns left)', p_ptr.events[29055]))
+	else
+
+		local power
+		local heal
+
+		power = 100 * p_ptr.abilities[(CLASS_PRIEST * 10) + 9]
+		heal = spell_damages(power, A_WIS, 0)
+
+		msg_print("A powerful force heals and protects you!")
+		lua_project(-2, 0, py, px, heal, GF_OLD_HEAL, 1)
+		p_ptr.events[29055] = 100
+		p_ptr.events[29056] = 3
+        	energy_use = 100
+	end
+  end
+
+  -- Remove Curse.
+  if (powernum == 29) then
+
+	local item
+
+	item = lua_get_item(0)
+
+	if (inven(item).cursed <= 0) then
+
+		msg_print("This item is not cursed.")
+	else
+
+		if (inven(item).cursed > (1 + (p_ptr.abilities[(CLASS_PRIEST * 10) + 10] / 10))) then
+
+			msg_print("Your power is too weak to remove this curse.")
+		else
+
+			local ppower
+			local ipower
+			local proll
+			local iroll
+			local bonuspercent
+			local sbreak = FALSE
+
+			ppower = p_ptr.stat_ind[A_WIS+1] + multiply_divide(p_ptr.stat_ind[A_WIS+1], p_ptr.abilities[(CLASS_PRIEST * 10) + 10] * 10, 100)
+			ipower = (kind(inven(item)).level + object_skill_points_value(inven(item))) * inven(item).cursed
+
+			proll = lua_randint(ppower)
+			iroll = lua_randint(ipower)
+			bonuspercent = multiply_divide(proll, 100, (proll + iroll))
+
+			if (bonuspercent < 10) then
+
+				msg_print("You have failed to uncurse the item.")
+				msg_print("You feel an incredibly evil power...")
+				force_nightmare = TRUE
+				force_nightmare_level = 1 + (inven(item).cursed * 3)
+				while (not(sbreak)) do
+
+					sbreak = summon_specific(py, px, kind(inven(item)).level, 0, 0)
+				end
+				force_nightmare_level = 0
+				force_nightmare = FALSE
+				update_and_handle()
+				energy_use = 100
+			else
+
+				local i = 0
+				local ddbonus
+				local dsbonus
+				local acbonus
+
+				msg_print("You remove the curse from the item!")
+				inven(item).cursed = 0
+
+				for i = 1, 6 do
+
+					if (inven(item).statsbonus[i] > 0) then
+						inven(item).statsbonus[i] = multiply_divide(inven(item).statsbonus[i], bonuspercent, 100)
+					end
+				end
+				for i = 1, 30 do
+
+					if (inven(item).skillsbonus[i] > 0) then
+						inven(item).skillsbonus[i] = multiply_divide(inven(item).skillsbonus[i], bonuspercent, 100)
+					end
+				end
+				for i = 1, MAX_RESIST do
+
+					if (inven(item).resistances[i] > 0) then
+						inven(item).resistances[i] = multiply_divide(inven(item).resistances[i], bonuspercent, 100)
+					end
+				end
+
+				if (inven(item).speedbonus > 0) then
+					inven(item).speedbonus = multiply_divide(inven(item).speedbonus, bonuspercent, 100)
+				end
+				if (inven(item).reflect > 0) then
+					inven(item).reflect = multiply_divide(inven(item).reflect, bonuspercent, 100)
+				end
+				if (inven(item).lifebonus > 0) then
+					inven(item).lifebonus = multiply_divide(inven(item).lifebonus, bonuspercent, 100)
+				end
+				if (inven(item).manabonus > 0) then
+					inven(item).manabonus = multiply_divide(inven(item).manabonus, bonuspercent, 100)
+				end
+				if (inven(item).extrablows > 0) then
+					inven(item).extrablows = multiply_divide(inven(item).extrablows, bonuspercent, 100)
+				end
+				if (inven(item).extrashots > 0) then
+					inven(item).extrashots = multiply_divide(inven(item).extrashots, bonuspercent, 100)
+				end
+
+				ddbonus = inven(item).dd - kind(inven(item)).dd
+				dsbonus = inven(item).ds - kind(inven(item)).ds
+				acbonus = inven(item).ac - kind(inven(item)).ac
+
+				ddbonus = multiply_divide(ddbonus, bonuspercent, 100)
+				dsbonus = multiply_divide(dsbonus, bonuspercent, 100)
+				acbonus = multiply_divide(acbonus, bonuspercent, 100)
+
+				inven(item).dd = kind(inven(item)).dd + ddbonus
+				inven(item).ds = kind(inven(item)).ds + dsbonus
+				inven(item).ac = kind(inven(item)).ac + acbonus
+
+				inven(item).to_h = multiply_divide(inven(item).to_h, bonuspercent, 100)
+				inven(item).to_d = multiply_divide(inven(item).to_d, bonuspercent, 100)
+				inven(item).to_a = multiply_divide(inven(item).to_a, bonuspercent, 100)
+
+				update_and_handle()
+				energy_use = 100
+			end
+
+			do_cmd_save_game(void)
+		end
+	end
+  end
+
+  -- Elemental Strike
+  if (powernum == 30) then
 
 	local dam
 	local dir
@@ -692,64 +992,106 @@ function use_ability (powernum)
 	dir = lua_get_rep_dir()
 
 	dam = weapon_damages()
+	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 3]) * 30), 100)
 
-	dtype = current_weapon.extra1
-	if (dtype == 0) then dtype = GF_PHYSICAL end
+	dtype = p_ptr.elemlord
 
 	-- We use a radius 0, range 1 chain attack.
 	melee_attack = TRUE
 	no_magic_return = TRUE
-	evil_slayer = 1
     	chain_attack(dir, dtype, dam, 0, 1)
-	evil_slayer = 0
 	no_magic_return = FALSE
 	melee_attack = FALSE
 
     	energy_use = 100;
   end
 
-  -- Element Strike
-  if (powernum == 53) then
+  -- Elemental Mana Burn
+  if (powernum == 31) then
 
-	local dam
-	local dir
-	local dtype
-	local rad
+	local x
+	local y
+	local ppower = 0
+	local mpower = 0
+	local rollpercent = 0
+	local m_name
 
-	if (not(combatfeat)) then choose_current_weapon() end
+        if (not(lua_tgt_pt())) then return end
+	x = global_x
+	y = global_y
 
-	if (current_weapon.tval == 0) then
+	-- Check if we have a monster.
+	if (cave(y, x).m_idx == 0) then
 
-                msg_print("You must use a weapon!")
-                return
-        end
+		msg_print("No monster here.")
+		return
+	end
 
-	-- We need to choose a direction to attack. If used as combat feat,
-	-- this won't be asked.
-	dir = lua_get_rep_dir()
+	-- Monster must be in line of sight.
+	if (not(projectable(monster(cave(y, x).m_idx).fy, monster(cave(y, x).m_idx).fx, py, px))) then
 
-	dam = weapon_damages()
-	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 2]) * 15), 100)
+		msg_print("Monster must be in line of sight.")
+		return
+	end
 
-	dtype = p_ptr.elemlord
+	-- Check if the monster has resistance to chosen element.
+	if (m_race(monster(cave(y, x).m_idx).r_idx).resistances[p_ptr.elemlord+1] <= 0) then
 
-	rad = p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 2] / 10
+		msg_print("This monster has no resistance to your chosen element.")
+		return
+	end
 
-	-- We use a radius 0, range 1 chain attack.
-	-- The "nevermiss" global variable is set to true. This way, the attack
-	-- will never miss. Once the attack is executed, the variable is set to
-	-- false again.
-	no_magic_return = TRUE
-	ignore_spellcraft = TRUE
-    	chain_attack(dir, dtype, dam, rad, 1)
-	ignore_spellcraft = FALSE
-	no_magic_return = FALSE
+	-- Check if the monster has mana.
+	if (monster(cave(y, x).m_idx).mana <= 0) then
 
-    	energy_use = 100;
+		msg_print("This monster has no more mana.")
+		return
+	end
+
+	-- All right, we're done validating. Proceed with the actual ability!
+	m_name = m_race(monster(cave(y, x).m_idx).r_idx).name_char
+
+	rollpercent = p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 5] * 10
+	if (rollpercent > 100) then rollpercent = 100 end
+
+	ppower = p_ptr.stat_ind[A_INT+1] + p_ptr.skill[23]
+	ppower = multiply_divide(ppower, rollpercent, 100)
+	ppower = ppower + multiply_divide(ppower, p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 5] * 10, 100)
+	ppower = multiply_divide(ppower, m_race(monster(cave(y, x).m_idx).r_idx).resistances[p_ptr.elemlord+1], 100)
+	mpower = monster(cave(y, x).m_idx).mind + monster(cave(y, x).m_idx).skill_mdef
+
+	if (lua_randint(ppower) >= lua_randint(mpower)) then
+
+		msg_print(string.format('You burn the mana of %s!', m_name))
+		monster(cave(y, x).m_idx).mana = 0
+	else
+		msg_print(string.format('%s resists.', m_name))
+	end
+
+        update_and_handle()
+	energy_use = 100
   end
 
-  -- Wave of Element
-  if (powernum == 57) then
+  -- Weaken Elemental Attacks.
+  if (powernum == 32) then
+
+	local rad
+	local dir
+
+	rad = 2 + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 6] / 5)
+
+	nevermiss = TRUE
+	no_magic_return = TRUE
+	dir = lua_get_aim_dir()
+        fire_ball(GF_WEAKEN_ELEMENTAL, dir, 100, rad)
+	no_magic_return = FALSE
+	nevermiss = FALSE
+        update_and_handle()
+	energy_use = 100
+  end
+
+  -- Elemental Wave.
+  if (powernum == 33) then
 
   	local dam
         local dir
@@ -767,19 +1109,245 @@ function use_ability (powernum)
 	dir = lua_get_rep_dir()
 
 	dam = weapon_damages()
-	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 8]) * 10), 100)
+	dam = dam + multiply_divide(dam, (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 7] * 10), 100)
         if (dam < 0) then dam = 0 end
 
-	rad = 0 + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 8] / 20)
-
-	no_magic_return = TRUE
-	ignore_spellcraft = TRUE
+	rad = 0 + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 7] / 10)
 	chain_attack(dir, p_ptr.elemlord, dam, rad, 30)
-	ignore_spellcraft = FALSE
-	no_magic_return = FALSE
-
 	energy_use = 100
+  end
 
+  -- Elemental Strike
+  if (powernum == 34) then
+
+	local dam
+	local dir
+	local dtype
+	local rad
+
+	if (not(combatfeat)) then choose_current_weapon() end
+
+	if (current_weapon.tval == 0) then
+
+                msg_print("You must use a weapon!")
+                return
+        end
+
+	rad = 2 + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 8] / 10)
+
+	-- We need to choose a direction to attack. If used as combat feat,
+	-- this won't be asked.
+	dir = lua_get_rep_dir()
+
+	dam = weapon_damages()
+	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 8]) * 10), 100)
+
+	dtype = p_ptr.elemlord
+
+	-- We use a radius 0, range 1 chain attack.
+	melee_attack = TRUE
+	no_magic_return = TRUE
+    	chain_attack(dir, dtype, dam, rad, 1)
+	no_magic_return = FALSE
+	melee_attack = FALSE
+
+    	energy_use = 100;
+  end
+
+  -- Weaken Elemental Being.
+  if (powernum == 35) then
+
+	local x
+	local y
+	local ppower = 0
+	local mpower = 0
+	local rollpercent = 0
+	local m_name
+
+        if (not(lua_tgt_pt())) then return end
+	x = global_x
+	y = global_y
+
+	-- Check if we have a monster.
+	if (cave(y, x).m_idx == 0) then
+
+		msg_print("No monster here.")
+		return
+	end
+
+	-- Monster must be in line of sight.
+	if (not(projectable(monster(cave(y, x).m_idx).fy, monster(cave(y, x).m_idx).fx, py, px))) then
+
+		msg_print("Monster must be in line of sight.")
+		return
+	end
+
+	-- Check if the monster has resistance to chosen element.
+	if (m_race(monster(cave(y, x).m_idx).r_idx).resistances[p_ptr.elemlord+1] <= 0) then
+
+		msg_print("This monster has no resistance to your chosen element.")
+		return
+	end
+
+	-- All right, we're done validating. Proceed with the actual ability!
+	m_name = m_race(monster(cave(y, x).m_idx).r_idx).name_char
+
+	rollpercent = p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 9] * 10
+	if (rollpercent > 100) then rollpercent = 100 end
+
+	ppower = p_ptr.stat_ind[A_INT+1] + p_ptr.skill[23]
+	ppower = multiply_divide(ppower, rollpercent, 100)
+	ppower = ppower + multiply_divide(ppower, p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 9] * 10, 100)
+	ppower = multiply_divide(ppower, m_race(monster(cave(y, x).m_idx).r_idx).resistances[p_ptr.elemlord+1], 100)
+	mpower = monster(cave(y, x).m_idx).mind + monster(cave(y, x).m_idx).skill_mdef
+
+	if (lua_randint(ppower) >= lua_randint(mpower)) then
+
+		local drainpercent
+		local strdrain
+		local dexdrain
+		local minddrain
+
+		drainpercent = 25 + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 9] / 5)
+
+		msg_print(string.format('You weaken and drain the attributes of %s!', m_name))
+		strdrain = multiply_divide(monster(cave(y, x).m_idx).str, drainpercent, 100)
+		dexdrain = multiply_divide(monster(cave(y, x).m_idx).dex, drainpercent, 100)
+		minddrain = multiply_divide(monster(cave(y, x).m_idx).mind, drainpercent, 100)
+
+		monster(cave(y, x).m_idx).str = monster(cave(y, x).m_idx).str - multiply_divide(monster(cave(y, x).m_idx).str, drainpercent, 100)
+		monster(cave(y, x).m_idx).dex = monster(cave(y, x).m_idx).dex - multiply_divide(monster(cave(y, x).m_idx).dex, drainpercent, 100)
+		monster(cave(y, x).m_idx).mind = monster(cave(y, x).m_idx).mind - multiply_divide(monster(cave(y, x).m_idx).mind, drainpercent, 100)
+		monster(cave(y, x).m_idx).skill_attack = monster(cave(y, x).m_idx).skill_attack - multiply_divide(monster(cave(y, x).m_idx).skill_attack, drainpercent, 100)
+		monster(cave(y, x).m_idx).skill_ranged = monster(cave(y, x).m_idx).skill_ranged - multiply_divide(monster(cave(y, x).m_idx).skill_ranged, drainpercent, 100)
+		monster(cave(y, x).m_idx).skill_magic = monster(cave(y, x).m_idx).skill_magic - multiply_divide(monster(cave(y, x).m_idx).skill_magic, drainpercent, 100)
+		monster(cave(y, x).m_idx).skill_evasion = monster(cave(y, x).m_idx).skill_evasion - multiply_divide(monster(cave(y, x).m_idx).skill_evasion, drainpercent, 100)
+		monster(cave(y, x).m_idx).skill_mdef = monster(cave(y, x).m_idx).skill_mdef - multiply_divide(monster(cave(y, x).m_idx).skill_mdef, drainpercent, 100)
+		monster(cave(y, x).m_idx).defense = monster(cave(y, x).m_idx).defense - multiply_divide(monster(cave(y, x).m_idx).defense, drainpercent, 100)
+
+		p_ptr.str_boost = strdrain
+		p_ptr.dex_boost = dexdrain
+		p_ptr.int_boost = minddrain
+		set_str_boost(5 + p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 9])
+		set_dex_boost(5 + p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 9])
+		set_int_boost(5 + p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 9])
+	else
+		msg_print(string.format('%s resists.', m_name))
+	end
+
+        update_and_handle()
+	energy_use = 100
+  end
+
+  -- Inspire Courage
+  if (powernum == 36) then
+
+	local rad
+	rad = 10
+	nevermiss = TRUE
+	no_magic_return = TRUE
+        attack_aura(GF_INSPIRE_COURAGE, 100, rad)
+	no_magic_return = FALSE
+	nevermiss = FALSE
+        update_and_handle()
+	energy_use = 100
+  end
+
+  -- Stunning Note
+  if (powernum == 37) then
+
+	local dam
+	local dir
+	local rad
+
+	if (not(inven(INVEN_TOOL).tval == TV_INSTRUMENT)) then
+
+		msg_print("You must have an instrument equipped.")
+		return
+	end
+
+	dir = lua_get_aim_dir()
+
+	dam = damroll(inven(INVEN_TOOL).dd, inven(INVEN_TOOL).ds)
+	dam = spell_damages(dam, A_CHR, 0)
+	dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_BARD * 10) + 4] * 10, 100)
+
+	rad = 2 + (p_ptr.abilities[(CLASS_BARD * 10) + 4] / 10)
+
+	-- Use a ball spell against an ememy.
+	music = 1
+	stunning_note = 1
+	fire_ball(GF_SOUND, dir, dam, rad)
+	stunning_note = 0
+	music = 0
+
+        update_and_handle()
+        energy_use = 100
+  end
+
+  -- Sotto Voce
+  if (powernum == 38) then
+
+	local i
+	local ch
+
+	-- Does not work in quest levels.
+	if (p_ptr.inside_quest > 0 or dun_level == 0) then
+
+		msg_print("This ability cannot be used here.")
+		return
+	end
+
+	msg_print("Choose: [1] Teleport Allies, [2] Teleport Enemies.")
+	ch = inkey()
+
+	if (ch == 49) then
+
+		-- Go through every monsters on the level.
+		for i = 1, m_max do
+
+			-- Check distance.
+			if ((is_pet(monster(i))) and (monster(i).cdis <= (p_ptr.abilities[(CLASS_BARD * 10) + 5] * 20))) then
+
+				teleport_to_player(i)
+			end
+		end
+	elseif (ch == 50) then
+
+		local proll
+		local mroll
+
+		proll = p_ptr.stat_ind[A_CHR+1] + p_ptr.skill[29]
+		proll = proll + multiply_divide(proll, p_ptr.abilities[(CLASS_BARD * 10) + 5] * 10, 100)
+
+		-- Go through every monsters on the level.
+		for i = 1, m_max do
+
+			local m_name
+
+			m_name = m_race(monster(i).r_idx).name_char
+
+			-- Check distance.
+			if (not(is_pet(monster(i))) and (monster(i).cdis <= 10)) then
+
+				mroll = monster(i).mind + monster(i).skill_mdef
+
+				if (lua_randint(proll) >= lua_randint(mroll)) then
+
+					msg_print(string.format('%s disappears!', m_name))
+					teleport_away(i, 100)
+				else
+					msg_print(string.format('%s resists.', m_name))
+				end
+			end
+		end
+
+		update_and_handle()
+		energy_use = 100
+	else
+		msg_print("Invalid choice.")
+		return
+	end
   end
 
   -- Dominate Monsters.
@@ -1941,43 +2509,6 @@ function use_ability (powernum)
 	msg_print("You composed a new song!")
   end
 
-  -- Inspire Courage
-  if (powernum == 115) then
-
-	local rad
-	rad = 5 + (p_ptr.abilities[(CLASS_BARD * 10) + 3] / 10)
-	nevermiss = TRUE
-	no_magic_return = TRUE
-        attack_aura(GF_INSPIRE_COURAGE, 100, rad)
-	no_magic_return = FALSE
-	nevermiss = FALSE
-        update_and_handle()
-	energy_use = 100
-  end
-
-  -- Sotto Voce
-  if (powernum == 116) then
-
-	local i
-
-	-- Does not work in quest levels.
-	if (p_ptr.inside_quest > 0 or dun_level == 0) then
-
-		msg_print("This ability cannot be used here.")
-		return
-	end
-
-	-- Go through every monsters on the level.
-	for i = 1, m_max do
-
-		-- Check distance.
-		if ((is_pet(monster(i))) and (monster(i).cdis <= (p_ptr.abilities[(CLASS_BARD * 10) + 5] * 20))) then
-
-			teleport_to_player(i)
-		end
-	end
-  end
-
   -- Power Shot
   if (powernum == 117) then
 
@@ -2055,7 +2586,7 @@ function use_ability (powernum)
 
 		item.to_h = item.to_h + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] * 3)
 		item.to_d = item.to_d + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] * 3)
-		item.extra4 = item.extra4 + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] * 10)
+		item.extra4 = item.extra4 + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] * 5)
 		item.extra3 = item.extra3 + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] / 5)
 		item.extrashots = item.extrashots + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] / 10)
 
@@ -2078,7 +2609,7 @@ function use_ability (powernum)
 
 		item.to_h = item.to_h + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] * 5)
 		item.to_d = item.to_d + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] * 5)
-		item.extra4 = item.extra4 + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] * 20)
+		item.extra4 = item.extra4 + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] * 10)
 
 		if (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 7] >= 10) then
 
@@ -2112,14 +2643,6 @@ function use_ability (powernum)
 	energy_use = 100
   end
 
-  -- Aim
-  if (powernum == 124) then
-
-	p_ptr.dex_boost = multiply_divide(p_ptr.stat_ind[A_DEX+1], p_ptr.abilities[(CLASS_MARKSMAN * 10) + 8] * 10, 100)
-        set_dex_boost(4 + p_ptr.abilities[(CLASS_MARKSMAN * 10) + 8])
-	energy_use = 100
-  end
-
   -- Piercing Shot
   if (powernum == 125) then
 
@@ -2138,18 +2661,7 @@ function use_ability (powernum)
 	pdur = 3 + p_ptr.abilities[(CLASS_FIGHTER * 10) + 10]
 
 	p_ptr.powerlevel = 1
-	p_ptr.str_boost = p_ptr.stat_cur[A_STR+1]
-	if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 7] >= 1) then
-
-		p_ptr.pres = 15 + p_ptr.abilities[(CLASS_FIGHTER * 10) + 7]
-		p_ptr.mres = 15 + p_ptr.abilities[(CLASS_FIGHTER * 10) + 7]
-		if (p_ptr.pres > 75) then p_ptr.pres = 75 end
-		if (p_ptr.mres > 75) then p_ptr.mres = 75 end
-		set_pres(pdur)
-		set_mres(pdur)
-	end
 	set_powerattack(pdur)
-	set_str_boost(pdur)
         energy_use = 200
   end
 
@@ -2160,18 +2672,7 @@ function use_ability (powernum)
 	pdur = 4 + p_ptr.abilities[(CLASS_FIGHTER * 10) + 10]
 
 	p_ptr.powerlevel = 2
-	p_ptr.str_boost = p_ptr.stat_cur[A_STR+1] * 5
-	if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 7] >= 1) then
-
-		p_ptr.pres = 15 + p_ptr.abilities[(CLASS_FIGHTER * 10) + 7]
-		p_ptr.mres = 15 + p_ptr.abilities[(CLASS_FIGHTER * 10) + 7]
-		if (p_ptr.pres > 75) then p_ptr.pres = 75 end
-		if (p_ptr.mres > 75) then p_ptr.mres = 75 end
-		set_pres(pdur)
-		set_mres(pdur)
-	end
 	set_powerattack(pdur)
-	set_str_boost(pdur)
         energy_use = 300
   end
 
@@ -2182,18 +2683,7 @@ function use_ability (powernum)
 	pdur = 5 + p_ptr.abilities[(CLASS_FIGHTER * 10) + 10]
 
 	p_ptr.powerlevel = 3
-	p_ptr.str_boost = p_ptr.stat_cur[A_STR+1] * 9
-	if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 7] >= 1) then
-
-		p_ptr.pres = 15 + p_ptr.abilities[(CLASS_FIGHTER * 10) + 7]
-		p_ptr.mres = 15 + p_ptr.abilities[(CLASS_FIGHTER * 10) + 7]
-		if (p_ptr.pres > 75) then p_ptr.pres = 75 end
-		if (p_ptr.mres > 75) then p_ptr.mres = 75 end
-		set_pres(pdur)
-		set_mres(pdur)
-	end
 	set_powerattack(pdur)
-	set_str_boost(pdur)
         energy_use = 400
   end
 
@@ -2202,6 +2692,13 @@ function use_ability (powernum)
 
 	local x
 	local y
+
+	-- It shares a cooldown with Jump.
+	--if (p_ptr.events[29049] > 0) then
+
+		--msg_print(string.format('You must wait %d turns before using this ability again.', p_ptr.events[29049]))
+		--return
+	--end
 
 	-- Actually jump!
 	-- We use a special function that returns x and y coordinates in global
@@ -2223,18 +2720,29 @@ function use_ability (powernum)
 
                         if (get_cave_info_flag(y, x, CAVE_LITE)) then
 
+				--if (distance(y,x,py,px) > 0) then
+					--p_ptr.events[29049] = 3 + distance(y,x,py,px)
+				--end
 				teleport_player_to(y,x)
                         else
 				msg_print("You can't jump there...")
 			end
 
                 else
-
+			--if (distance(y,x,py,px) > 0) then
+				--p_ptr.events[29049] = 3 + distance(y,x,py,px)
+			--end
 			teleport_player_to(y,x)
 		end
         end
 
 	-- Take a turn.
+	energy_use = 100
+  end
+
+  if (powernum == 1013) then
+
+	combine_items()
 	energy_use = 100
   end
 
@@ -2438,6 +2946,7 @@ function use_scripted_spell (which)
 		local x
 		local y
 		local dam
+		local bonus
 
 		msg_print("Point a monster.")
 		if (not(lua_tgt_pt())) then return end
@@ -2451,9 +2960,10 @@ function use_scripted_spell (which)
 			return
 		end
 
-		ppower = p_ptr.stat_ind[A_INT+1] + p_ptr.stat_ind[A_WIS+1]
-		ppower = ppower + (p_ptr.abilities[(CLASS_MONSTER * 10) + 3] * 10) + (p_ptr.abilities_monster_spells[which] * 20)
-		mpower = monster(cave(y, x).m_idx).level + monster(cave(y, x).m_idx).mind
+		ppower = p_ptr.stat_ind[A_INT+1] + p_ptr.stat_ind[A_WIS+1] + p_ptr.skill[2]
+		bonus = (p_ptr.abilities[(CLASS_MONSTER * 10) + 3] * 10) + (p_ptr.abilities_monster_spells[which] * 20)
+		ppower = ppower + multiply_divide(ppower, bonus, 100)
+		mpower = monster(cave(y, x).m_idx).mind + monster(cave(y, x).m_idx).skill_mdef
 
 		if (lua_randint(ppower) >= lua_randint(mpower)) then
 			dam = m_race(monster(cave(y, x).m_idx).r_idx).level + monster(cave(y, x).m_idx).level
@@ -2489,6 +2999,144 @@ function use_scripted_spell (which)
 
 end
 
+-- The Advanced Teleportation Mage ability.
+-- The call for this function is hard-coded in the teleport_player function.
+function advanced_teleportation (dis)
+
+	local power
+	local x = 0
+	local y = 0
+
+	power = p_ptr.abilities[(CLASS_MAGE * 10) + 9] * 2
+
+	-- Should not happen, since the call wouldn't have been made.
+	-- But adding it just in case, if something else calls the function.
+	if (dis > power) then
+
+		msg_print("You cannot Advance Teleport that far yet.")
+		return
+	end
+
+	-- This is very similar to the 'Jump' feat.
+	msg_print(string.format('Max distance: %d', dis))
+        if (not(lua_tgt_pt())) then return end
+	x = global_x
+	y = global_y
+
+	-- Did we select a monster?
+	if (cave(y, x).m_idx > 0) then
+
+		local ppower
+		local mpower
+
+		ppower = p_ptr.stat_ind[A_INT+1] + p_ptr.stat_ind[A_WIS+1] + p_ptr.skill[2] + (p_ptr.skill[24] + (p_ptr.skill[24] / 2))
+		ppower = ppower + multiply_divide(ppower, p_ptr.abilities[(CLASS_MAGE * 10) + 9] * 10, 100)
+		mpower = monster(cave(y, x).m_idx).mind + monster(cave(y, x).m_idx).skill_mdef
+
+		if (lua_randint(ppower) >= lua_randint(mpower)) then
+
+			local oldpy
+			local oldpx
+
+			oldpx = px
+			oldpy = py
+
+			msg_print("You exchange positions!")
+			px = monster(cave(y, x).m_idx).fx
+			py = monster(cave(y, x).m_idx).fy
+
+			monster(cave(y, x).m_idx).fx = oldpx
+			monster(cave(y, x).m_idx).fy = oldpy
+
+			update_and_handle()
+		else
+
+			msg_print(string.format('%s resists.', m_race(monster(cave(y, x).m_idx).r_idx).name_char))
+		end
+	else
+        	if (not(lua_cave_empty_bold(y,x)) or (distance(y,x,py,px) > dis)) then
+
+              		msg_print("You cannot teleport at that location.")
+
+        	else
+
+                	if (not(get_cave_info_flag(y, x, CAVE_MARK))) then
+
+                        	if (get_cave_info_flag(y, x, CAVE_LITE)) then
+
+					teleport_player_to(y,x)
+                        	else
+					msg_print("You can't jump there...")
+				end
+
+                	else
+
+				teleport_player_to(y,x)
+			end
+        	end
+	end
+end
+
+function throw_monster (m_idx)
+
+	local dam
+	local rad
+	local tgt_x
+	local tgt_y
+
+	-- Damages
+	dam = monk_damages()
+	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_MONK * 10) + 4]) * 10), 100)
+
+	-- The radius of the throw.
+	rad = 3 + (p_ptr.abilities[(CLASS_MONK * 10) + 4] / 5)
+
+	-- Can we lift the monster?
+	if (((p_ptr.abilities[(CLASS_MONK * 10) + 4] * 500)+1500) >= m_race(monster(m_idx).r_idx).weight) then
+
+		-- Then, we must successfully grab the monster.
+		-- It's a regular player_hit_monster test.
+		if (player_hit_monster(monster(m_idx), p_ptr.skill[1] + multiply_divide(p_ptr.skill[19], 150, 100)) == 1) then
+
+			-- We grab the monster. Throw it!
+			msg_print("You grab the monster!")
+			lua_tgt_pt()
+			tgt_x = global_x
+			tgt_y = global_y
+			if((lua_cave_empty_bold(tgt_y,tgt_x)) and (distance(tgt_y,tgt_x,py,px) <= rad)) then
+
+				-- This ones moves the monster, and uses (x,y) as the coordinates, not (y,x).
+				move_monster_spot(m_idx, tgt_x, tgt_y)
+				update_and_handle()
+				msg_print("You throw the monster!")
+				melee_attack = TRUE
+				nevermiss = TRUE
+				fire_ball_specific_grid(dam, tgt_x, tgt_y, 0, GF_PHYSICAL)
+				nevermiss = FALSE
+				melee_attack = FALSE
+			else
+				-- If we point an invalid location, we throw it on the ground!
+				-- So we still do damages.
+				msg_print("You cannot throw the monster there...")
+				msg_print("You throw it on the ground!")
+				melee_attack = TRUE
+				nevermiss = TRUE
+				fire_ball_specific_grid(dam, monster(m_idx).fx, monster(m_idx).fy, 0, GF_PHYSICAL)
+				nevermiss = FALSE
+				melee_attack = FALSE
+			end
+
+		else
+			msg_print("You failed to grab the monster.")
+		end
+
+	else
+		msg_print("This monster is too heavy to throw.")
+	end
+end
+
 add_event_handler("use_ability", use_ability)
 add_event_handler("use_scripted_spell", use_scripted_spell)
 add_event_handler("get_scripted_spell_name", get_scripted_spell_name)
+add_event_handler("advanced_teleportation", advanced_teleportation)
+add_event_handler("throw_monster", throw_monster)

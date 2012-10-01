@@ -187,7 +187,7 @@ extern bool view_granite_lite;
 extern bool view_special_lite;
 extern bool skip_mutations;     /* Skip mutations screen in 'C'haracter display */
 extern bool plain_descriptions;
-extern bool stupid_monsters;
+extern bool quest_scaling;
 extern bool auto_destroy;
 extern bool confirm_stairs;
 extern bool disturb_pets;
@@ -256,6 +256,8 @@ extern bool casting_alteration;
 extern bool casting_conjuration;
 extern bool casting_mysticism;
 extern bool casting_divination;
+extern bool wisdom_casting;
+extern bool monk_synchro;
 extern bool monster_physical;
 extern bool monster_ranged;
 extern bool ranged_attack;
@@ -263,6 +265,7 @@ extern bool melee_attack;
 extern bool throw_attack;
 extern bool monster_died;
 extern bool ignore_spellcraft;
+extern bool dontwakeup;
 extern s32b damages_counter;
 extern bool damages_counter_player_damages;
 extern s16b damages_counter_duration;
@@ -270,6 +273,8 @@ extern bool stormshadow;
 extern bool enemy_immortality;
 extern bool mcounter;
 extern bool monster_counter_attack;
+extern bool force_nightmare;
+extern s16b force_nightmare_level;
 extern bool building_vault;
 extern char tmpluastring[80];
 extern bool red_roff;
@@ -451,6 +456,7 @@ extern bool combatfeat;
 extern bool center_player;
 extern int fate_item_modifier;
 extern object_type global_object;
+extern object_type crafted_item;
 extern bool very_fast_messages;
 extern int opening_chest_type;
 
@@ -682,7 +688,7 @@ extern u32b fake_text_size;
 
 /* learn.c */
 extern void do_cmd_cast(bool wisdom);
-extern void activate_item(object_type *o_ptr, bool wisdom);
+extern void activate_item(object_type *o_ptr);
 extern int pick_spell();
 extern s16b fate_monsters(int mode);
 extern s16b fate_items(int mode);
@@ -721,6 +727,7 @@ extern void curse_equipment_dg(int chance, int heavy_chance);
 extern bool player_invis(monster_type * m_ptr);
 extern void lua_bolt(int m_idx, int typ, s32b dam_hp);
 extern void lua_ball(int m_idx, int typ, s32b dam_hp, int rad);
+extern bool clean_shot(int y1, int x1, int y2, int x2);
 
 /* monster1.c */
 extern void screen_roff(int r_idx, int remember);
@@ -762,6 +769,7 @@ extern void boss_of_global_object(int r_idx);
 extern int get_mon_num_rflag(int lev, u32b rflag);
 extern bool summon_specific_rflag(int y1, int x1, int lev, u32b rflag, bool Group_ok, bool friendly, int dur);
 extern int get_race_kills(char mr);
+extern bool player_next_to_monster(monster_type *m_ptr);
 
 /* monster3.c */
 extern bool monster_dungeon(int r_idx);
@@ -870,6 +878,8 @@ extern void drop_global_object(int x, int y);
 extern void drop_object_specific(int y, int x, int tval, int sval, int num, int magic);
 extern bool make_chest(object_type *j_ptr);
 extern void place_chest(int y, int x);
+void prepare_crafted_item(int tval, int sval);
+extern void create_crafted_item();
 
 /* object3.c */
 bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item);
@@ -981,9 +991,6 @@ extern bool fire_ball_beam(int typ, int dir, s32b dam, int rad);
 extern bool fire_ball(int typ, int dir, s32b dam, int rad);
 extern bool fire_bolt(int typ, int dir, s32b dam);
 extern bool fire_beam(int typ, int dir, s32b dam);
-extern bool fire_druid_ball(int typ, int dir, s32b dam, int rad);
-extern bool fire_druid_bolt(int typ, int dir, s32b dam);
-extern bool fire_druid_beam(int typ, int dir, s32b dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, s32b dam);
 extern bool lite_line(int dir);
 extern bool drain_life(int dir, s32b dam);
@@ -1294,6 +1301,7 @@ extern monster_type *lua_monster(int m_idx);
 extern monster_race *lua_r_info(int r_idx);
 extern object_type *lua_inven(int slot);
 extern object_kind *lua_kind(object_type *o_ptr);
+extern object_kind *lua_kind_index(int k_idx);
 extern object_type *lua_object(int oidx);
 extern dungeon_info_type *lua_dungeon(int which);
 extern bool get_monster_flag1(int r_idx, u32b flag);
@@ -1371,6 +1379,8 @@ extern void lua_create_object_inven(int tval, int sval, int number);
 extern char *lua_get_object_desc(int slot);
 extern void item_has_been_disabled_message(int slot);
 extern void lua_revive_in_town();
+extern bool is_alive(monster_type *m_ptr);
+extern void lua_monster_script(int m_idx, cptr mscript);
 
 
 /* Skills names, and number of skills available. */

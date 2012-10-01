@@ -713,6 +713,8 @@ static void wr_monster(monster_type *m_ptr)
 	wr_s32b(m_ptr->skill_attack);
 	wr_s32b(m_ptr->skill_ranged);
 	wr_s32b(m_ptr->skill_magic);
+	wr_s32b(m_ptr->skill_evasion);
+	wr_s32b(m_ptr->skill_mdef);
 	wr_s32b(m_ptr->mana);
         wr_s16b(m_ptr->hasted);
         wr_s16b(m_ptr->boosted);
@@ -720,6 +722,11 @@ static void wr_monster(monster_type *m_ptr)
 	wr_s16b(m_ptr->lives);
 	wr_s16b(m_ptr->summoned);
 	wr_byte(m_ptr->no_experience);
+	wr_s32b(m_ptr->extra1);
+	wr_s32b(m_ptr->extra2);
+	wr_s32b(m_ptr->extra3);
+	wr_s32b(m_ptr->extra4);
+	wr_s32b(m_ptr->extra5);
 }
 
 
@@ -3046,8 +3053,7 @@ void wr_random_boss()
 	/*wr_u32b(r_ptr->text);*/
 	wr_string(r_ptr->name_char);
 
-	wr_byte(r_ptr->hdice);
-	wr_byte(r_ptr->hside);
+	wr_byte(r_ptr->hp);
 
 	wr_s16b(r_ptr->ac);
 
@@ -3134,6 +3140,8 @@ void wr_random_boss()
 	wr_s16b(r_ptr->skill_attack);
 	wr_s16b(r_ptr->skill_ranged);
 	wr_s16b(r_ptr->skill_magic);
+	wr_s16b(r_ptr->skill_evasion);
+	wr_s16b(r_ptr->skill_mdef);
 	
 	wr_s16b(r_ptr->countertype);
 	wr_s16b(r_ptr->counterchance);
@@ -3146,6 +3154,7 @@ void wr_random_boss()
 	wr_s16b(r_ptr->spellchance);
 
 	wr_s16b(r_ptr->attacks);
+	wr_s16b(r_ptr->shots);
 	for (i = 0; i < 20; i++)
 	{
 		monster_attack *att_ptr = &r_ptr->attack[i];
@@ -3158,6 +3167,10 @@ void wr_random_boss()
 		wr_s16b(att_ptr->element);
 		wr_s16b(att_ptr->special1);
 		wr_s16b(att_ptr->special2);
+		wr_s16b(att_ptr->ddscale);
+		wr_s16b(att_ptr->ddscalefactor);
+		wr_s16b(att_ptr->dsscale);
+		wr_s16b(att_ptr->dsscalefactor);
 	}
 	wr_s16b(r_ptr->spells);
 	for (i = 0; i < 20; i++)
@@ -3172,6 +3185,8 @@ void wr_random_boss()
 		wr_s16b(sp_ptr->special3);
 		wr_byte(sp_ptr->summchar);
 		wr_s16b(sp_ptr->cost);
+		wr_s16b(sp_ptr->scale);
+		wr_s16b(sp_ptr->scalefactor);
 	}
 	
 	wr_s16b(r_ptr->treasuretval);
@@ -3185,6 +3200,31 @@ void wr_random_boss()
 	wr_s16b(r_ptr->townnum);
 	wr_s16b(r_ptr->dunnum);
 	wr_s16b(r_ptr->lives);
+	wr_s16b(r_ptr->cursed);
+	wr_s16b(r_ptr->cr);
+
+	wr_s16b(r_ptr->event_before_melee);
+	wr_s16b(r_ptr->event_after_melee);
+	wr_s16b(r_ptr->event_before_ranged);
+	wr_s16b(r_ptr->event_after_ranged);
+	wr_s16b(r_ptr->event_before_magic);
+	wr_s16b(r_ptr->event_after_magic);
+	wr_s16b(r_ptr->event_before_move);
+	wr_s16b(r_ptr->event_after_move);
+	wr_s16b(r_ptr->event_passive);
+	wr_s16b(r_ptr->event_take_damages);
+	wr_s16b(r_ptr->event_death);
+	wr_s16b(r_ptr->event_spawn);
+	wr_s16b(r_ptr->event_misc);
+
+	wr_s16b(r_ptr->attacksscale);
+	wr_s16b(r_ptr->attacksscalefactor);
+	wr_s16b(r_ptr->shotsscale);
+	wr_s16b(r_ptr->shotsscalefactor);
+	wr_s16b(r_ptr->spellsscale);
+	wr_s16b(r_ptr->spellsscalefactor);
+	wr_s16b(r_ptr->livesscale);
+	wr_s16b(r_ptr->livesscalefactor);
 }
 
 /* Save random monsters. */
@@ -3202,8 +3242,7 @@ void wr_random_monsters()
 		/*wr_u32b(r_ptr->text);*/
 		wr_string(r_ptr->name_char);
 
-		wr_byte(r_ptr->hdice);
-		wr_byte(r_ptr->hside);
+		wr_byte(r_ptr->hp);
 
 		wr_s16b(r_ptr->ac);
 
@@ -3290,6 +3329,8 @@ void wr_random_monsters()
 		wr_s16b(r_ptr->skill_attack);
 		wr_s16b(r_ptr->skill_ranged);
 		wr_s16b(r_ptr->skill_magic);
+		wr_s16b(r_ptr->skill_evasion);
+		wr_s16b(r_ptr->skill_mdef);
 	
 		wr_s16b(r_ptr->countertype);
 		wr_s16b(r_ptr->counterchance);
@@ -3302,6 +3343,7 @@ void wr_random_monsters()
 		wr_s16b(r_ptr->spellchance);
 
 		wr_s16b(r_ptr->attacks);
+		wr_s16b(r_ptr->shots);
 		for (i = 0; i < 20; i++)
 		{
 			monster_attack *att_ptr = &r_ptr->attack[i];
@@ -3314,6 +3356,10 @@ void wr_random_monsters()
 			wr_s16b(att_ptr->element);
 			wr_s16b(att_ptr->special1);
 			wr_s16b(att_ptr->special2);
+			wr_s16b(att_ptr->ddscale);
+			wr_s16b(att_ptr->ddscalefactor);
+			wr_s16b(att_ptr->dsscale);
+			wr_s16b(att_ptr->dsscalefactor);
 		}
 		wr_s16b(r_ptr->spells);
 		for (i = 0; i < 20; i++)
@@ -3328,6 +3374,8 @@ void wr_random_monsters()
 			wr_s16b(sp_ptr->special3);
 			wr_byte(sp_ptr->summchar);
 			wr_s16b(sp_ptr->cost);
+			wr_s16b(sp_ptr->scale);
+			wr_s16b(sp_ptr->scalefactor);
 		}
 	
 		wr_s16b(r_ptr->treasuretval);
@@ -3341,6 +3389,31 @@ void wr_random_monsters()
 		wr_s16b(r_ptr->townnum);
 		wr_s16b(r_ptr->dunnum);
 		wr_s16b(r_ptr->lives);
+		wr_s16b(r_ptr->cursed);
+		wr_s16b(r_ptr->cr);
+
+		wr_s16b(r_ptr->event_before_melee);
+		wr_s16b(r_ptr->event_after_melee);
+		wr_s16b(r_ptr->event_before_ranged);
+		wr_s16b(r_ptr->event_after_ranged);
+		wr_s16b(r_ptr->event_before_magic);
+		wr_s16b(r_ptr->event_after_magic);
+		wr_s16b(r_ptr->event_before_move);
+		wr_s16b(r_ptr->event_after_move);
+		wr_s16b(r_ptr->event_passive);
+		wr_s16b(r_ptr->event_take_damages);
+		wr_s16b(r_ptr->event_death);
+		wr_s16b(r_ptr->event_spawn);
+		wr_s16b(r_ptr->event_misc);
+
+		wr_s16b(r_ptr->attacksscale);
+		wr_s16b(r_ptr->attacksscalefactor);
+		wr_s16b(r_ptr->shotsscale);
+		wr_s16b(r_ptr->shotsscalefactor);
+		wr_s16b(r_ptr->spellsscale);
+		wr_s16b(r_ptr->spellsscalefactor);
+		wr_s16b(r_ptr->livesscale);
+		wr_s16b(r_ptr->livesscalefactor);
 	}
 }
 

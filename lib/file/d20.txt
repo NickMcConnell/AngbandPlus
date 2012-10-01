@@ -2,6 +2,7 @@ N:1:43:5:0:0:0
 I:Walmus;
 T:Oh, it's you again! Thanks you for bringing back my sword! I hope;
 T:you like your new ring! Again, Walmus thanks you for what you've done!;
+A:Actually, I want the sword back.:0:0:0:1:12:0:0:0:0
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 %
 
@@ -144,4 +145,85 @@ T:Now, Walmus can once again protect Fidac from the evil creatures!;
 T:The townsfolks shall no longer fear the dangerous white worm masses;
 T:and fruit bats, for Walmus can now fight them!;
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Walmus;
+T:W...what? But Walmus gave you the ring already! We had an honorable, fair;
+T:trade, didn't we?;
+A:The sword is worth more than your useless ring.:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Walmus;
+T:But you agreed to trade the ring for the sword. The trade is completed.;
+T:You just had to keep the sword when you had it! Now Walmus has it, and;
+T:Walmus will keep it.;
+A:[Take the sword from him.]:0:0:0:3:1205:0:14:0:0
+A:Fine. Keep the sword then. Sorry about that.:0:0:0:0:0:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I: ;
+T:You effortlessly grab the sword from Walmus' belt. Some people saw you;
+T:stealing the blade, but nobody seems to care. It seems that this;
+T:pathetic gnome "warrior" is getting no love around here.;
+A:[CONTINUE]:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Walmus;
+T:You took my balde!! Thief! You dishonorable <CLASS>! We had a fair;
+T:deal, and you dishonored it! Thief! Bandit! Scoundrel! Walmus is very,;
+T:very angry now!;
+A:[CONTINUE]:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Walmus;
+T:*He starts yelling.*;
+T:LOOK EVERYONE! THIS <CLASS> HERE IS A THIEF!! THIS <CLASS>;
+T:STOLE THE SWORD OF WALMUS!!;
+A:[CONTINUE]:0:0:0:1:17:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Innkeeper;
+T:Good for <himher>. Since there's nothing you can do about it, perhaps;
+T:you can stop yelling, and leave my inn.; 
+A:[CONTINUE]:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Walmus;
+T:What?? But <heshe> stole my sword! Walmus' precious sword!!;
+A:[CONTINUE]:0:0:0:1:19:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I: ;
+T:Everyone seems annoyed by the gnome's presence. People starts shouting insults;
+T:and calling him all sort of names. Shocked, Walmus looks down, and realises;
+T:that he is too weak to do anything about it. He starts crying...;
+A:[CONTINUE]:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Walmus;
+T:*snif*...all right. You win. I admit it... Walmus is no great warrior.;
+T:Walmus is weak, and even after years of training, never got past the;
+T:basics of melee combat. Walmus hoped the sword would make a difference...;
+T:*snif*...allow him to win some battles. To earn some fame. But I guess;
+T:Walmus only earned insults. You keep the sword... Walmus cannot take it;
+T:back from you. Walmus will leave, and never return...;
+A:[CONTINUE]:0:0:0:1:21:0:0:129:1
+%
+
+N:21:0:0:0:0:0
+I: ;
+T:Walmus leaves the inn as everyone is laughing at him. You have earned the;
+T:sword back, which is worth a great deal more than the ring he gave you.;
+T:Perhaps you will find someone who will be willing to pay a good price for;
+T:it, or you can just keep it for yourself and use it as a melee weapon.;
+A:[END DIALOG]:0:0:0:9:1203:0:0:0:0
 %

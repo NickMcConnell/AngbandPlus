@@ -389,8 +389,8 @@ void do_cmd_study(void)
                                 p_ptr->healing_effects |= MYST_WAR_BLESSING;
                                 break;
                         case 5:
-                                msg_print("You learned the effect of Heal Others!");
-                                p_ptr->healing_effects |= MYST_HEAL_OTHERS;
+                                msg_print("You learned the effect of Drain Life!");
+                                p_ptr->healing_effects |= MYST_DRAIN_LIFE;
                                 break;
                         case 6:
                                 msg_print("You learned the effect of Revive Monster!");
@@ -586,36 +586,16 @@ int use_body_power(int r_idx, bool only_number)
 	char            out_val[160];
         monster_race    *r_ptr = &r_info[r_idx];
 	object_type *q_ptr;
-        int rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+
         int x=px,y=py,k,count;
 	int rad;
 	s32b dam;
-	s32b rodbonus = 0;
+	int realpower = 0;
 
 	int spellstat;
 
-	if (p_ptr->stat_ind[A_INT] >= p_ptr->stat_ind[A_WIS]) spellstat = (p_ptr->stat_ind[A_INT] - 5);
-	else spellstat = (p_ptr->stat_ind[A_WIS] - 5);
-	if (spellstat < 0) spellstat = 0;
-
-	/* Rods bonus. */
-	q_ptr = &inventory[INVEN_WIELD];
-	if (q_ptr->tval == TV_ROD)
-	{
-		rodbonus += damroll(q_ptr->dd, q_ptr->ds);
-		rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-	}
-	q_ptr = &inventory[INVEN_WIELD+1];
-	if (q_ptr->tval == TV_ROD)
-	{
-		rodbonus += damroll(q_ptr->dd, q_ptr->ds);
-		rodbonus += multiply_divide(rodbonus, p_ptr->skill[17] * 3, 100);
-	}
-	if (p_ptr->prace == RACE_MONSTER && unarmed())
-	{
-		q_ptr = &inventory[INVEN_ESSENCE];
-		if (q_ptr->tval == TV_ESSENCE) rodbonus += damroll(q_ptr->dd, q_ptr->ds);
-	}
+	if (p_ptr->stat_ind[A_INT] >= p_ptr->stat_ind[A_WIS]) spellstat = A_INT;
+	else spellstat = A_WIS;
 
         /* List the powers */
 	i = 0;
@@ -868,22 +848,22 @@ int use_body_power(int r_idx, bool only_number)
 			if (r_ptr->spell[i].special3 == 1)
 			{
 				dam = r_ptr->spell[Power].power;
-				ignore_spellcraft = TRUE;
 			}
 			else
 			{
-				dam = (r_ptr->spell[Power].power + rodbonus) * spellstat;
-				dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MONSTER_MAGE * 10) + 1] * 50), 100);
-				dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MONSTER * 10) + 2] * 50) + (p_ptr->abilities_monster_spells[Power] * 100), 100);
-				dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
-				if (p_ptr->boss_abilities & (BOSS_DOUBLE_MAGIC)) dam = dam * 2;
+				realpower = r_ptr->spell[Power].power;
+				if (r_ptr->spell[Power].scalefactor > 0)
+				{
+					realpower += (r_ptr->spell[Power].scale * (p_ptr->lev / r_ptr->spell[Power].scalefactor));
+				}
+				call_lua("spell_damages", "(ddd)", "d", realpower, spellstat, 0, &dam);
+				dam = dam + multiply_divide(dam, p_ptr->abilities_monster_spells[Power] * 20, 100);
 			}
 			
 			if(!get_aim_dir(&dir)) return;
 			p_ptr->events[29017] = (p_ptr->abilities[(CLASS_MONSTER * 10) + 2] * 10) + (p_ptr->abilities_monster_spells[Power] * 20);
 			fire_bolt(r_ptr->spell[Power].special1, dir, dam);
 			p_ptr->events[29017] = 0;
-			ignore_spellcraft = FALSE;
 			break;
 		}
 		/* Ball */
@@ -892,15 +872,16 @@ int use_body_power(int r_idx, bool only_number)
 			if (r_ptr->spell[i].special3 == 1)
 			{
 				dam = r_ptr->spell[Power].power;
-				ignore_spellcraft = TRUE;
 			}
 			else
 			{
-				dam = (r_ptr->spell[Power].power + rodbonus) * spellstat;
-				dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MONSTER_MAGE * 10) + 1] * 50), 100);
-				dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MONSTER * 10) + 2] * 50) + (p_ptr->abilities_monster_spells[Power] * 100), 100);
-				dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
-				if (p_ptr->boss_abilities & (BOSS_DOUBLE_MAGIC)) dam = dam * 2;
+				realpower = r_ptr->spell[Power].power;
+				if (r_ptr->spell[Power].scalefactor > 0)
+				{
+					realpower += (r_ptr->spell[Power].scale * (p_ptr->lev / r_ptr->spell[Power].scalefactor));
+				}
+				call_lua("spell_damages", "(ddd)", "d", realpower, spellstat, 0, &dam);
+				dam = dam + multiply_divide(dam, p_ptr->abilities_monster_spells[Power] * 20, 100);
 			}
 			
 			rad = r_ptr->spell[Power].special2 + (p_ptr->abilities_monster_spells[Power] / 10);
@@ -908,19 +889,24 @@ int use_body_power(int r_idx, bool only_number)
 			p_ptr->events[29017] = (p_ptr->abilities[(CLASS_MONSTER * 10) + 2] * 10) + (p_ptr->abilities_monster_spells[Power] * 20);
 			fire_ball(r_ptr->spell[Power].special1, dir, dam, rad);
 			p_ptr->events[29017] = 0;
-			ignore_spellcraft = FALSE;
 			break;
 		}
 		/* Heal */
 		case 3:
 		{
-			dam = (r_ptr->spell[Power].power + rodbonus) * spellstat;
-			dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MONSTER_MAGE * 10) + 1] * 50), 100);
-			dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MONSTER * 10) + 2] * 50) + (p_ptr->abilities_monster_spells[Power] * 100), 100);
-			dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
-			if (p_ptr->boss_abilities & (BOSS_DOUBLE_MAGIC)) dam = dam * 2;
-			p_ptr->chp += dam;
-			if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
+			int totalmult = 0;
+			realpower = r_ptr->spell[Power].power;
+			if (r_ptr->spell[Power].scalefactor > 0)
+			{
+				realpower += (r_ptr->spell[Power].scale * (p_ptr->lev / r_ptr->spell[Power].scalefactor));
+			}
+			call_lua("spell_damages", "(ddd)", "d", realpower, spellstat, 0, &dam);
+
+			totalmult = p_ptr->abilities[(CLASS_MONSTER * 10) + 2] * 10;
+			if (p_ptr->boss_abilities & (BOSS_DOUBLE_MAGIC)) totalmult += 100;
+			dam = dam + multiply_divide(dam, totalmult, 100);
+
+			lua_project(-2, 0, py, px, dam, GF_OLD_HEAL, 1);
 			msg_print("You are healed!");
 			update_and_handle();
 			break;
@@ -973,9 +959,14 @@ int use_body_power(int r_idx, bool only_number)
 		/* Summon Kind */
 		case 6:
 		{
+			realpower = r_ptr->spell[Power].power;
+			if (r_ptr->spell[Power].scalefactor > 0)
+			{
+				realpower += (r_ptr->spell[Power].scale * (p_ptr->lev / r_ptr->spell[Power].scalefactor));
+			}
 			for (j = 0; j < (r_ptr->spell[Power].special1 + (p_ptr->abilities_monster_spells[Power] / 5)); j++)
 			{
-				summon_specific_kind(py, px, r_ptr->spell[Power].power + p_ptr->abilities[(CLASS_MONSTER * 10) + 2] + (p_ptr->abilities_monster_spells[Power] * 2), r_ptr->spell[Power].summchar, FALSE, TRUE, r_ptr->spell[Power].special2 + p_ptr->abilities[(CLASS_MONSTER * 10) + 2] + (p_ptr->abilities_monster_spells[Power] * 2));
+				summon_specific_kind(py, px, realpower + p_ptr->abilities[(CLASS_MONSTER * 10) + 2] + (p_ptr->abilities_monster_spells[Power] * 2), r_ptr->spell[Power].summchar, FALSE, TRUE, r_ptr->spell[Power].special2 + p_ptr->abilities[(CLASS_MONSTER * 10) + 2] + (p_ptr->abilities_monster_spells[Power] * 2));
 			}
 			break;
 		}
@@ -1079,7 +1070,7 @@ void special_weapon_charge()
                         }
                         if (amber_power == 2)
                         {
-                                if (!(f4 & (TR4_LEVELS)) && !(f1 & (TR1_ENCHANTED)) && (o_ptr->tval != TV_ESSENCE)) add_item_ability(o_ptr, TRUE);
+                                if (!(f4 & (TR4_LEVELS)) && !(f4 & (TR4_ENCHANTED)) && (o_ptr->tval != TV_ESSENCE)) add_item_ability(o_ptr, TRUE);
                                 else add_item_ability(o_ptr, FALSE);
                         }
                 }
@@ -1497,7 +1488,7 @@ void do_cmd_unevolve_monster(monster_type *m_ptr)
                 }
                 msg_print("The monster became a lesser specie of it's kind!");
                 m_ptr->r_idx = chosenbody;
-                apply_monster_level_hp(m_ptr);
+		call_lua("monster_stats", "(Mbbddd)", "", m_ptr, FALSE, FALSE, m_ptr->summoned, 0, 0);
                 lite_spot(y, x);
                 update_and_handle();
 }
@@ -1728,7 +1719,7 @@ void do_cmd_evolve_monster(monster_type *m_ptr)
                 msg_print("The monster evolve into a stronger kind!");
                 m_ptr->r_idx = chosenbody;
                 lite_spot(m_ptr->fy, m_ptr->fx);
-                apply_monster_level_hp(m_ptr);
+                call_lua("monster_stats", "(Mbbddd)", "", m_ptr, FALSE, FALSE, m_ptr->summoned, 0, 0);
                 update_and_handle();
 }
 
@@ -2248,110 +2239,6 @@ void animate_knight()
         update_and_handle();
 }
 
-/* Priest ability Mace Of Heaven! :) */
-void mace_of_heaven()
-{
-        object_type     forge;
-        object_type     *q_ptr;
-        object_type     *o_ptr;
-	int slot;
-	char ch;
-
-	get_com("Summon in which slot? (1 or 2) ", &ch);
-	if (ch == '1') slot = INVEN_WIELD;
-	else slot = INVEN_WIELD+1;
-
-	if (one_weapon_wield())
-	{
-		if (inventory[INVEN_WIELD].k_idx)
-		{
-			u32b f1, f2, f3, f4;
-			object_type *n_ptr = &inventory[INVEN_WIELD];
-			object_flags(n_ptr, &f1, &f2, &f3, &f4);
-			if (f4 & (TR4_MUST2H))
-			{
-				inven_takeoff(INVEN_WIELD, 255, FALSE);
-				slot = INVEN_WIELD;
-			}
-		}
-		else if (inventory[INVEN_WIELD+1].k_idx)
-		{ 
-			u32b f1, f2, f3, f4;
-			object_type *n_ptr = &inventory[INVEN_WIELD+1];
-			object_flags(n_ptr, &f1, &f2, &f3, &f4);
-			if (f4 & (TR4_MUST2H))
-			{
-				inven_takeoff(INVEN_WIELD+1, 255, FALSE);
-				slot = INVEN_WIELD;
-			}
-		}
-	}
-	o_ptr = &inventory[slot];
-
-        if (o_ptr->timeout > 0)
-        {
-                msg_print("You can only summon one weapon at time!");
-                return;
-        }
-        if (o_ptr->tval > 0) inven_takeoff(slot, 255, FALSE);
-
-        /* Get local object */
-        q_ptr = &forge;
-        
-        object_prep(q_ptr, lookup_kind(TV_WEAPON, 14));
-        q_ptr->number = 1;
-        object_aware(q_ptr);
-        object_known(q_ptr);
-
-        /* Store the monster's info in the soul! */
-        q_ptr->dd += (p_ptr->abilities[(CLASS_PRIEST * 10) + 3] / 4);
-        q_ptr->ds += (p_ptr->abilities[(CLASS_PRIEST * 10) + 3] / 4);
-        q_ptr->to_h = p_ptr->lev;
-        q_ptr->to_d = p_ptr->lev;
-        q_ptr->timeout = 10 + ((p_ptr->abilities[(CLASS_PRIEST * 10) + 3] - 1) * 2);
-	q_ptr->brandtype = GF_LITE;
-	q_ptr->branddam = p_ptr->abilities[(CLASS_PRIEST * 10) + 3] * 100;
-	q_ptr->brandrad = 0;        
-
-        msg_print("A glowing, holy mace appear in your hand!");
-        object_copy(&inventory[slot], q_ptr);
-        total_weight += q_ptr->weight;
-        update_and_handle();
-}
-
-/* Spike Trap! */
-void set_spike_trap()
-{
-        int item;
-        s32b trapdam;
-        object_type             *o_ptr;
-        cptr q, s;
-	int spellstat;
-
-	spellstat = (p_ptr->stat_ind[A_DEX] - 5);
-	if (spellstat < 0) spellstat = 0;
-
-        /* Restrict choices to weapons */
-        item_tester_hook = item_tester_hook_weapon_polearm;
-
-        /* Get an item */
-        q = "Use which polearm? ";
-        s = "You have no polearms!";
-        if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
-
-        /* Get the item */
-        o_ptr = &inventory[item];
-
-        trapdam = ((maxroll(o_ptr->dd, o_ptr->ds) * 10) * p_ptr->abilities[(CLASS_ROGUE * 10) + 8]) * spellstat;
-
-        place_field(FEAT_SPIKE_TRAP, 0, px, py, trapdam);
-        msg_print("You set a Spike Trap!");
-
-        inven_item_increase(item, -1);
-        inven_item_describe(item);
-        inven_item_optimize(item);
-}
-
 void add_slay_brand(object_type *o_ptr)
 {
 	int                     Power = -1;
@@ -2570,61 +2457,6 @@ void add_slay_brand(object_type *o_ptr)
                         break;
         }
         }
-}
-
-/* Gas Trap! */
-void set_gas_trap()
-{
-        if (p_ptr->au >= 500)
-        {
-                place_field(FEAT_GAS_TRAP, 0, px, py, 0);
-                msg_print("You set a Gas Trap!");
-                p_ptr->au -= 500;
-                update_and_handle();
-        }
-        else msg_print("You need at least 500 golds!");
-}
-
-/* Poison Trap! */
-void set_poison_trap()
-{
-        int item;
-        s32b trapdam;
-        object_type             *o_ptr;
-        cptr q, s;
-        u32b f1, f2, f3, f4;
-	int spellstat;
-
-	spellstat = (p_ptr->stat_ind[A_DEX] - 5);
-	if (spellstat < 0) spellstat = 0;
-
-        /* Restrict choices to weapons */
-        item_tester_hook = item_tester_hook_weapon;
-
-        /* Get an item */
-        q = "Use which weapon? ";
-        s = "You have no weapons!";
-        if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
-
-        /* Get the item */
-        o_ptr = &inventory[item];
-
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
-        if (o_ptr->brandtype == GF_POIS)
-        {
-		trapdam = o_ptr->branddam;
-		trapdam += multiply_divide(trapdam, (p_ptr->abilities[(CLASS_ROGUE * 10) + 7] * 33), 100);
-		trapdam = (trapdam * spellstat);
-
-                place_field(FEAT_POISON_TRAP, 0, px, py, trapdam);
-                msg_print("You set a Poison Trap!");
-
-                inven_item_increase(item, -1);
-                inven_item_describe(item);
-                inven_item_optimize(item);
-        }
-        else msg_print("The weapon must be poison-branded!");
 }
 
 void ranger_entangle()
@@ -3570,9 +3402,9 @@ void decompose_item()
 	}
 
         k_ptr = &k_info[o_ptr->k_idx];
-	if (!is_alchemy(o_ptr) && (p_ptr->skill[11] < (k_ptr->level * 3)))
+	if (!is_alchemy(o_ptr) && (p_ptr->skill[11] < (k_ptr->level * 10)))
 	{
-		msg_format("You need a Crafting skill of at least %d to decompose this item.", (k_ptr->level * 3));
+		msg_format("You need a Crafting skill of at least %d to decompose this item.", (k_ptr->level * 10));
 		return;
 	}
 
@@ -4015,6 +3847,7 @@ bool make_item_levelable()
 	o_ptr->tweakpoints = 2;
 	o_ptr->kills = 0;
 	o_ptr->level = 1;
+	if (f4 & (TR4_MUST2H)) o_ptr->tweakpoints = o_ptr->tweakpoints * 2;
         msg_print("This object can now gain levels!");
 
 	return (TRUE);

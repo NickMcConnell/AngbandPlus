@@ -43,11 +43,20 @@ EVENTS AND WHAT THEY MEAN:
 29035-29039: Random townsfolks conversations.
 29040: Current song.
 29041: 1. Singing. 0. No singing.
-29042: 1. War Songs On.  0. War Songs Off.
-29043: 1. Enthrall Songs On.  0. Enthrall Songs Off.
+29042: Enthralling Songs.
+*29043 unused*
 29044: 1. Using a throwing weapon with 'f'.
 29045: 0. Counter Shot off. 1. Counter Shot On.
 29046: Target of the Counter Shot ability.
+29047: "Ki Restoration" cooldown.
+29048: Jump cooldown.
+29049: Mighty Defense active. 0. No Mighty Defense. 1. Melee 2. Ranged 3. Magic 4. Summons
+29050: Great Guard. 0. Inactive. 1. Active.
+29051: Great Guard chance.
+29052: Flight of the guilty. 0. Turned ON. 1. Turned OFF.
+29053: Blessings. 1. Protection 2. F. Strike 3. Might. 4. Dexterity.
+29054: "Divine Intervention" cooldown.
+29055: "Divine Intervention" skills bonus.
 
 29998: Revive marker.
 29999: Limbo first.
@@ -150,6 +159,9 @@ EVENTS AND WHAT THEY MEAN:
 127. 1. Keep rod.
 128. 1. Rogoth is gone.
 
+-- Back in Fidac...now possible to get sword back from Walmus.
+129. Walmus gone forever.
+
 -- Jindar --
 1000. Rolf's state. 0: never spoke. 1: Talked your way inside palace. 2. Let you enter.
 Also used by the palace doors. They can be unlocked by speaking with the king,
@@ -251,6 +263,26 @@ have started the main quest.
 1110. A note...
 1111. Namira's reward.
 1112-1125. Jindar palace treasures!
+1126. Kobold quest #7: Save the Headquarters!
+1127. Promoted to Shadow!
+1128. Nidem rescued.
+1129. Vipers HQ first.
+1130. Nidem first.
+1131. Leaving the HQ.
+1132. Vipers HQ quest, Part 2 started.  1. Started, monsters appear. 2. First checkpoint, Denzar slain.
+1133. Part 3.
+1134. Kegam dead.
+1135. Bulgum dead.
+1136. Delviaz.
+1137. Nidem has arrived in Jindar.
+1138. Nidem location 1.
+1139. Nidem location 2.
+1140. Nidem location 3.
+1141. Wraith rank promotion.
+1142. Kobold final quest: Defeat Delviaz!
+1143. Delviaz defeated completely.
+1144. Delviaz forms. 1. Form 1 defeated.  2. Form 2 defeated.
+1145. Stealthy Vipers questline completed!
 
 -- Chapter 2: Ivhala!
 1500. Locked palace doors.

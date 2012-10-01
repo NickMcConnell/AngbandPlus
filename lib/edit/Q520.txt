@@ -46,7 +46,7 @@
 
 N:Ivhalian Palace;
 
-I:111:41:1:61:0:0:0
+I:111:41:1:51:0:0:0
 S:55:38
 
 // Locked doors.

@@ -142,6 +142,7 @@ typedef int errr;
 #define GF_MUD          21
 #define GF_CONFUSION    22
 #define GF_ICE          23
+#define GF_DRAIN_LIFE   30
 #define GF_KILL_WALL    40
 #define GF_KILL_DOOR    41
 #define GF_KILL_TRAP    42
@@ -159,7 +160,6 @@ typedef int errr;
 #define GF_OLD_DRAIN    58
 #define GF_AWAY_UNDEAD  61
 #define GF_AWAY_EVIL    62
-#define GF_TURN_UNDEAD  64
 #define GF_TURN_EVIL    65
 #define GF_TURN_ALL     66
 #define GF_DISP_UNDEAD  67
@@ -224,7 +224,6 @@ typedef int errr;
 #define GF_ANIMAL_EMPATHY 138
 #define GF_AURA_LIFE 139
 #define GF_SMITE_EVIL 140
-#define GF_RETROGRADE_DARKNESS 141
 #define GF_DOMINATE_MONSTER 142
 #define GF_SHATTER_EVIL 143
 #define GF_ANGELIC_VOICE 144
@@ -416,9 +415,7 @@ typedef int errr;
 #define FEAT_COLD_FIELD          222
 #define FEAT_ELEC_FIELD          223
 #define FEAT_WEBS                225
-#define FEAT_SPIKE_TRAP          226
-#define FEAT_GAS_TRAP            227
-#define FEAT_POISON_TRAP         228
+#define FEAT_SANCTIFY            226
 #define FEAT_VINE_FIELD          229
 #define FEAT_THORNED_VINES       230
 #define FEAT_STORMS              231
@@ -724,18 +721,19 @@ typedef int errr;
 
 #define TR4_NEVER_BLOW          0x00000001L     /* Weapon can't attack */
 #define TR4_ICE                 0x00000002L
+#define TR4_DEX_WEAPON          0x00000004L
 #define TR4_RECHARGE            0x00000008L     /* For artifact Wands and Staffs */
 #define TR4_FLY                 0x00000010L     /* This one and ONLY this one allow you to fly over trees */
 #define TR4_COULD2H             0x00000040L     /* Can wield it 2 Handed */
 #define TR4_MUST2H              0x00000080L     /* Must wield it 2 Handed */
 #define TR4_LEVELS              0x00000100L     /* Can gain exp/exp levels !! */
-#define TR4_CLONE               0x00000200L     /* Can clone monsters */
+#define TR4_STOLEN              0x00000200L     /* Has been stolen from a monster. */
 #define TR4_SPECIAL_GENE        0x00000400L     /* The object can only be generated in special conditions like quests, special dungeons, ... */
 #define TR4_CLIMB               0x00000800L     /* Allow climbing mountains */
 #define TR4_CRAFTED             0x00001000L     /* Crafted item */
 #define TR4_MODERATE_POWER      0x00002000L
-#define TR4_ONLY_MALE           0x00004000L     /* Only usable to males */
-#define TR4_ONLY_FEMALE         0x00008000L
+#define TR4_VALUE_50            0x00004000L
+#define TR4_VALUE_25            0x00008000L
 #define TR4_ENHANCED            0x00010000L
 #define TR4_CHARGEABLE          0x00080000L
 #define TR4_INDESTRUCTIBLE      0x00100000L
@@ -761,7 +759,7 @@ typedef int errr;
 #define BOSS_RETURNING       0x00000040L
 #define CURSE_LOWER_POWER    0x00000080L
 #define CURSE_LOWER_MAGIC    0x00000100L
-#define CURSE_HALVE_HP       0x00000200L
+#define CON_JOB              0x00000200L
 #define CURSE_LOCK           0x00000400L
 #define CURSE_RETURNING      0x00000800L
 #define CURSE_SLOW_DOWN      0x00001000L
@@ -783,6 +781,7 @@ typedef int errr;
 #define BOSS_MAGIC_RETURNING 0x10000000L
 #define TAUNTED              0x20000000L
 #define PIERCING_SPELLS      0x40000000L
+#define WEAKENED_ELEMENTAL   0x80000000L
 
 #define FF1_NO_WALK             0x00000001L
 #define FF1_NO_VISION           0x00000002L
@@ -1037,6 +1036,8 @@ extern void drop_object_specific(int y, int x, int tval, int sval, int num, int 
 extern bool make_chest(object_type *j_ptr);
 extern void place_chest(int y, int x);
 extern void object_gain_level(object_type *o_ptr);
+extern void prepare_crafted_item(int tval, int sval);
+extern void create_crafted_item();
 
 /* monster2.c */
 extern monster_type *summoner_monster;
@@ -1067,7 +1068,6 @@ extern bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int
 extern s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int monlevel, int dur);
 extern s16b player_place(int y, int x);
 extern void monster_drop_carried_objects(monster_type *m_ptr);
-extern void apply_monster_level_hp(monster_type *m_ptr);
 extern void get_boss_ability(monster_type *m_ptr, int number);
 extern bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm, int dur);
 extern s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool charm, int petlevel, s32b pethp, s32b petmaxhp, int dur);
@@ -1081,7 +1081,6 @@ extern bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool char
 extern s16b place_monster_animated(int y, int x, int r_idx, bool slp, bool charm, s32b basehp, s32b hit_bonus, int d_d, int d_s);
 extern bool summon_specific_kind(int y1, int x1, int lev, char kind, bool Group_ok, bool friendly, int dur);
 extern bool summon_specific_ridx(int y1, int x1, int ridx, bool Group_ok, bool friendly, int dur);
-extern void apply_monster_level_stats(monster_type *m_ptr);
 extern bool is_pet(monster_type *m_ptr);
 extern void set_pet(monster_type *m_ptr, bool pet);
 extern void boss_of_global_object(int r_idx);
@@ -1089,6 +1088,7 @@ extern int get_mon_num_rflag(int lev, u32b rflag);
 extern bool summon_specific_rflag(int y1, int x1, int lev, u32b rflag, bool Group_ok, bool friendly, int dur);
 extern int get_race_kills(char mr);
 extern void evolution_compare(int r_idx, bool compare, bool recall);
+extern bool player_next_to_monster(monster_type *m_ptr);
 
 /* melee1.c */
 extern bool shield_has();
@@ -1105,6 +1105,7 @@ extern bool player_invis(monster_type * m_ptr);
 extern void lua_bolt(int m_idx, int typ, s32b dam_hp);
 extern void lua_ball(int m_idx, int typ, s32b dam_hp, int rad);
 extern bool make_ranged_attack(int m_idx);
+extern bool clean_shot(int y1, int x1, int y2, int x2);
 
 /* spells1.c */
 extern s16b poly_r_idx(int r_idx);
@@ -1274,11 +1275,13 @@ extern void calc_cursed();
 extern bool set_powerattack(int v);
 extern bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note);
 extern bool tgt_pt(int *x,int *y);
+extern void gain_class_level();
 
 /* learn.c */
+extern void do_cmd_cast(bool wisdom);
 extern bool dagger_check();
 extern bool axe_check();
-extern void activate_item(object_type *o_ptr, bool wisdom);
+extern void activate_item(object_type *o_ptr);
 extern int pick_spell();
 extern s16b fate_monsters(int mode);
 extern s16b fate_items(int mode);
@@ -1296,6 +1299,7 @@ extern void generate_vault(int vy, int vx, int num);
 extern void quest_artifact_prep(int a_idx, int x, int y);
 
 /* script.c */
+extern object_kind *lua_kind_index(int k_idx);
 extern void lua_update_monsters();
 extern void lua_update_stuff();
 extern int lua_get_aim_dir();
@@ -1355,6 +1359,8 @@ extern void lua_create_object_inven(int tval, int sval, int number);
 extern char *lua_get_object_desc(int slot);
 extern void item_has_been_disabled_message(int slot);
 extern void lua_revive_in_town();
+extern bool is_alive(monster_type *m_ptr);
+extern void lua_monster_script(int m_idx, cptr mscript);
 
 /* Various variables */
 extern cptr copyright[5];
@@ -1493,7 +1499,7 @@ extern bool view_granite_lite;
 extern bool view_special_lite;
 extern bool skip_mutations;
 extern bool plain_descriptions;
-extern bool stupid_monsters;
+extern bool quest_scaling;
 extern bool auto_destroy;
 extern bool confirm_stairs;
 extern bool disturb_pets;
@@ -1567,6 +1573,8 @@ extern bool casting_alteration;
 extern bool casting_conjuration;
 extern bool casting_mysticism;
 extern bool casting_divination;
+extern bool wisdom_casting;
+extern bool monk_synchro;
 extern bool monster_physical;
 extern bool monster_ranged;
 extern bool ranged_attack;
@@ -1574,6 +1582,7 @@ extern bool melee_attack;
 extern bool throw_attack;
 extern bool monster_died;
 extern bool ignore_spellcraft;
+extern bool dontwakeup;
 extern s32b damages_counter;
 extern bool damages_counter_player_damages;
 extern s16b damages_counter_duration;
@@ -1581,6 +1590,8 @@ extern bool stormshadow;
 extern bool enemy_immortality;
 extern bool mcounter;
 extern bool monster_counter_attack;
+extern bool force_nightmare;
+extern s16b force_nightmare_level;
 extern bool building_vault;
 extern char tmpluastring[80];
 extern bool red_roff;
@@ -1735,6 +1746,7 @@ extern bool very_fast_messages;
 extern int opening_chest_type;
 extern int fate_item_modifier;
 extern object_type global_object;
+extern object_type crafted_item;
 extern cave_type *lua_cave @ cave(int y, int x);
 extern monster_type *lua_monster @ monster(int m_idx);
 extern monster_race *lua_r_info @ m_race(int r_idx);

@@ -13,11 +13,41 @@ A:You know, there's another person I want to kill... *evil grin*:0:0:0:5:-1:44:0
 A:[LEAVE]:0:0:0:0:0:0:0:0:0
 %
 
+N:1:1145:1:0:0:0
+I:Krind;
+T:<NAME>! I've heard all about your victory! Thanks for everything;
+T:you did for us! You're welcome to stay here as long as you like, and;
+T:if you need any new pieces of equipment made, go see Belgim, and he'll;
+T:gladly help you!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1142:1:0:0:0
+I:Krind;
+T:It looks like the final battle draws near! If you need any equipment,;
+T:go see Belgim. All of our items are now available to you!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1137:1:0:0:0
+I:Krind;
+T:<NAME>! Good to see you! Nidem came back, and is waiting for you in our;
+T:new guild offices. You should go talk to him there.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1126:1:0:0:0
+I:Krind;
+T:Need anything, <NAME>? You must hurry, and save our headquarters!;
+A:I have some questions.:0:0:0:1:72:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
 N:1:1108:1:0:0:0
 I:Krind;
-T:I know you completed the quest, but the next one isn't ready yet.;
-T:Come back in the next beta.;
-A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+T:Welcome back, <NAME>! You have returned, but the agents didn't come back;
+T:yet. Were you able to rescue them?;
+A:[Describe what happened in the Lancers HQ]:0:0:0:1:68:0:0:0:0
 %
 
 N:1:1106:1:0:0:0
@@ -42,7 +72,7 @@ A:[CONTINUE]:0:0:0:1:62:0:0:0:0
 
 N:1:1069:1:0:0:0
 I:Krind;
-T:Good day, <NAME>. What's bringing you here?;
+T:Good day, <NAME>. What brings you here?;
 A:Did you figure out where that Lancer is hiding?:0:0:0:1:61:0:0:0:0
 A:I have some questions.:0:0:0:1:54:0:0:0:0
 A:Nothing yet. I'll be leaving now.:0:0:0:0:0:0:0:0:0
@@ -846,4 +876,139 @@ T:mission. Surely they'll want to meet you after this one, because they'll;
 T:want as much information as possible on the Lancers Headquarters.;
 A:Can you remind me where they are located?:0:0:0:1:66:0:0:0:0
 A:I'll do that then.:0:0:0:0:0:0:0:0:0
+%
+
+N:68:0:0:0:0:0
+I:Krind;
+T:This...this is nonsense! You mean not only the agents, but a considerable;
+T:number of our Viper Mercenaries were turned into undead beings? And now;
+T:they are moving toward our Headquarters?? No...this doesn't make any;
+T:sense at all! The Dragon Lancers aren't as organised as we are. Our members;
+T:are more talented, and more powerful than they are, and we have more;
+T:resources at our disposal! How can they be winning this battle??;
+A:[CONTINUE]:0:0:0:1:69:0:0:0:0
+%
+
+N:69:0:0:0:0:0
+I:Krind;
+T:But right now, we have to save our headquarters. It's there that the tribal;
+T:kobolds we recruit from the dungeons are educated, civilised, and trained;
+T:as Viper Mercenaries. If we lose them, we won't be able to keep recruiting;
+T:new kobold members in our ranks, meaning our guild will die. You have to;
+T:go there, and save our leaders, and fight any Lancers! You will not be alone,;
+T:of course. I will send a team of our best members to help you.;
+A:[CONTINUE]:0:0:0:1:70:0:0:1126:1
+%
+
+N:70:0:0:0:0:0
+I:Krind;
+T:You will find our headquarters at (44,44), the site of an old, ruined orcish;
+T:town, straight north of the tomb of Avemorsh. To think we used to be their;
+T:slaves in the past, and now we have our headquarters in their own town.;
+T:Ironic, isn't it? But the irony won't last if the Lancers wins. Anyway,
+T:once you arrive, look for trees, and search in the dirt around them.;
+T:You will find a secret switch that will open the way to our headquarters.;
+T:Find it, and save everyone!;
+A:[CONTINUE]:0:0:0:1:71:0:0:1127:1
+%
+
+N:71:0:0:0:0:0
+I:Krind;
+T:And before you go, I am officially promoting you to the rank of Viper Shadow.;
+T:It is a great honor, for there are only a few worthy enough to earn this;
+T:title. I will let Belgim know about your promotion, so you'll have access;
+T:to more powerful equipment. Better outfit yourself properly before you go;
+T:I wish you good luck, <NAME>! Our guild's future is in your hands!;
+A:I have some questions before I go.:0:0:0:1:72:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:72:0:0:0:0:0
+I:Krind;
+T:Yes?;
+A:Can you remind me where are our headquarters?:0:0:0:1:73:0:0:0:0
+A:Aren't our leaders strong enough to defend the Headquarters?:0:0:0:1:74:0:0:0:0
+A:You mentionned the tomb of Avemorsh. Tell me more about it.:0:0:0:1:75:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:73:0:0:0:0:0
+I:Krind;
+T:Of course. It's at (44,44). In the ruins, you will come across some trees.;
+T:Search in the dirt around them, and you will find a secret switch. It will;
+T:reveal the way to our headquarters.;
+A:Aren't our leaders strong enough to defend the Headquarters?:0:0:0:1:74:0:0:0:0
+A:You mentionned the tomb of Avemorsh. Tell me more about it.:0:0:0:1:75:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:74:0:0:0:0:0
+I:Krind;
+T:Normally, I would think so. However, I am not sure anymore. Our great leader,;
+T:Nidem, is a powerful wizard who's mastery of Poison-based magic is almost;
+T:unrivaled amongst our kind. However, against Devliaz's undeads, Poison isn't;
+T:very effective. Hopefully he has other magic spells that can defeat them,;
+T:because otherwise, he might be no match for Delviaz's minions. Curse that;
+T:devling necromancer... At first, our spies never reported anything about;
+T:a necromancer amongst their ranks. This is a very bad turn of events for us.;
+A:Tell me more about Nidem.:0:0:0:1:76:0:0:0:0
+A:Can you remind me where are our headquarters?:0:0:0:1:73:0:0:0:0
+A:You mentionned the tomb of Avemorsh. Tell me more about it.:0:0:0:1:75:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:75:0:0:0:0:0
+I:Krind;
+T:It's the tomb of the mighty orc warlord Avemorsh, also known as the Gin'Whal,;
+T:and was the most powerful orc in all Portralis. And historically, he was one;
+T:of the greatest warriors ever known. Or at least you'd think he would be;
+T:well known, but despite being such a powerful being, it seems like he is;
+T:mostly forgotten today. In fact, the most popular belief today is that the;
+T:orcs were a race of savage barbarians who lusted for blood and carnage.;
+T:The truth was very different. However, it doesn't change the fact that;
+T:kobolds were once the slaves of the orcs. So mighty warrior or not, I have;
+T:no love for Avemorsh.;
+A:Aren't our leaders strong enough to defend the Headquarters?:0:0:0:1:74:0:0:0:0
+A:You mentionned the tomb of Avemorsh. Tell me more about it.:0:0:0:1:75:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:76:0:0:0:0:0
+I:Krind;
+T:Nidem was once a kobold shaman from one of the many tribes found in the;
+T:underground caves. Unlike most kobolds, however, Nidem was very curious,;
+T:and one day, he came out of the underground, and visited the surface world.;
+T:He eventually discovered the civilised world, and how much better it was;
+T:than living in an underground tribe. And so he decided that he would do;
+T:his best to integrate the society.;
+A:[CONTINUE]:0:0:0:1:77:0:0:0:0
+%
+
+N:77:0:0:0:0:0
+I:Krind;
+T:Of course, things didn't go so well. Peoples were, and still are, afraid;
+T:of kobolds. No one wanted him around, and so he was forced to live in;
+T:Jindar's slums. But he did not give up. He learned the common language;
+T:spoken in Jindar, while getting his hands of spellbooks to further;
+T:improve his magical knowledge. After years of hard work, he became an;
+T:educated, powerful wizard. He decided it was time to prove that the;
+T:kobolds were capable of living in a civilized world. And so he founded;
+T:the Stealthy Vipers. He knew that since most kobolds were skilled;
+T:in the use of poisons and weapons, a mercenary guild would be the;
+T:best way to start.;
+A:[CONTINUE]:0:0:0:1:78:0:0:0:0
+%
+
+N:78:0:0:0:0:0
+I:Krind;
+T:And that's how the Stealthy Vipers came to be. While we have this place;
+T:here in the slums, and the one you've gained for us, the big headquarters;
+T:remains in an underground cave. It is the best place to recruit kobolds;
+T:from wild tribes, and train them properly. If we lose our headquarters,;
+T:and if Nidem dies, recruiting new kobold members might become impossible.;
+T:We MUST save our headquarters and Nidem, <NAME>! we are counting;
+T:on you!;
+A:Can you remind me where are our headquarters?:0:0:0:1:73:0:0:0:0
+A:You mentionned the tomb of Avemorsh. Tell me more about it.:0:0:0:1:75:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
 %

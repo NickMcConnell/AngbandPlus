@@ -2409,9 +2409,12 @@ void no_more_items(void)
 		/* As of Portralis 0.4, also skip items worht 1000 golds or less. */
                 if (!(f4 & (TR4_ETERNAL)) && object_value_real(o_ptr) > 1000)
                 {
-                        /* object_wipe(&inventory[i]); */
-                        inven_item_increase(i, -(o_ptr->number));
-                        inven_item_optimize(i);
+			if ((f4 & (TR4_STOLEN)) && object_value_real(o_ptr) > (1000 + (p_ptr->abilities[(CLASS_ROGUE * 10) + 1] * 500)))
+			{
+                        	/* object_wipe(&inventory[i]); */
+                        	inven_item_increase(i, -(o_ptr->number));
+                        	inven_item_optimize(i);
+			}
                 }
 	}
         p_ptr->au = 0;
