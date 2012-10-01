@@ -2016,7 +2016,7 @@ static void spoil_obj_desc(cptr fname)
 /*
  * The artifacts categorized by type
  */
-static grouper group_artifact[18] =
+static grouper group_artifact[19] =
 {
 	{ TV_SWORD,		"Edged Weapons" },
 	{ TV_POLEARM,	"Polearms" },
@@ -2038,6 +2038,7 @@ static grouper group_artifact[18] =
 	{ TV_AMULET,	"Amulets" },
 	{ TV_RING,		"Rings" },
 	{ TV_MAGIC_BOOK,"Spellbooks"},
+	{ TV_MUSIC,		"Instruments"},
 
 	{ 0, NULL }
 };

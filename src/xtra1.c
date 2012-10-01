@@ -186,6 +186,7 @@ static void prt_hp(void)
 	char tmp[32];
 
 	byte color, offset;
+	byte old_attr = r_info[0].x_attr;
 
 	put_str("HP  ", ROW_HP, COL_HP);
 	sprintf(tmp, "%4d", p_ptr->chp);
@@ -213,6 +214,33 @@ static void prt_hp(void)
 	sprintf(tmp, "/%d", p_ptr->mhp);
 	c_put_str(TERM_L_GREEN, tmp, ROW_HP, COL_HP + 4 + offset);
 
+	/* Hack - only change the colour if in character mode */
+	if (r_info[0].x_char != '@') return;
+
+	/* Only change colour if asked */
+	if (!view_player_color)
+	{
+		/* Normal colour is white */
+		color = TERM_WHITE;
+	}
+	else
+	{
+		/* Normal colour is white */
+		if (color == TERM_L_GREEN) color = TERM_WHITE;
+
+		/* Orange is better than yellow */
+		if (color == TERM_YELLOW) color = TERM_ORANGE;
+	}
+
+	/* Redraw the player ? */
+	if (old_attr != color)
+	{
+		/* Change the player color */
+		r_info[0].x_attr = color;
+
+		/* Show the change */
+		if (character_dungeon) lite_spot(p_ptr->py, p_ptr->px);
+	}
 }
 
 /*

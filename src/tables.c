@@ -1961,7 +1961,8 @@ option_type options[OPT_NORMAL] =
 	{"display_recharge_msg","Display messages upon recharge",			TRUE },
 	{"inscribe_unique",		"Auto-inscribe unique drops",				FALSE},
 	{"spellbook_menu",		"Alternate spellbook interface",			FALSE},
-	{"trap_under_object",	"Traps are hidden by objects",				TRUE }
+	{"trap_under_object",	"Traps are hidden by objects",				TRUE },
+	{"view_player_color",	"Use special colors for the player",		TRUE }
 };
 
 option_type options_birth[OPT_BIRTH] =
@@ -2048,8 +2049,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
 		OPT_view_monster_lite,
+		OPT_view_player_color,
 		OPT_trap_under_object,
-		255,
 		255,
 		255
 	},

@@ -651,6 +651,7 @@ static cptr object_group_text[] =
 	"Helms/Crowns",
 	"Boots",
 	"Spellbooks",
+	"Music Instruments",
 	NULL
 };
 
@@ -684,6 +685,7 @@ static byte object_group_tval[] =
 	TV_HEADGEAR,
 	TV_BOOTS,
 	TV_MAGIC_BOOK,
+	TV_MUSIC,
 	0
 };
 

@@ -3247,6 +3247,15 @@ void do_cmd_throw(void)
 					}
 				}
 			}
+			else
+			{
+				char m_name[80];
+
+				/* Get the monster name (or "it") */
+				monster_desc(m_name, m_ptr, 0);
+
+				message_format(MSG_MISS, m_ptr->r_idx, "Your miss %s.", m_name);
+			}
 
 			/* Stop looking */
 			break;

@@ -229,6 +229,7 @@ static void grant_reward(byte reward_level, byte type)
 		s32b price_threshold = ((p_ptr->au * (10 + p_ptr->fame)) / 100);
 		int force_item = rand_int(p_ptr->fame);
 		int x_fame;
+		int value;
 
 		/* Boundary check */
 		if (price_threshold < p_ptr->au) 
@@ -251,13 +252,19 @@ static void grant_reward(byte reward_level, byte type)
 			/* It is identified */
 			object_known(i_ptr);
 
+			/* What is it worth? */
+			value = object_value(i_ptr);
+
+			/* Never give a totally worthless reward */
+			if (value <= 0) continue;
+
 			/* Sometimes give inappropriate rewards */
 			if (i > p_ptr->fame) force_item = rand_int(p_ptr->fame);
 
 			if (force_item < 2) break;
 
 			/* Relatively expensive items are always appropriate */
-			if ((i_ptr->number * object_value(i_ptr)) > price_threshold) break;
+			if ((i_ptr->number * value) > price_threshold) break;
 
 			/* Check for appropriateness */
 			if (i_ptr->tval == TV_MAGIC_BOOK)

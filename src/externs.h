@@ -869,7 +869,7 @@ extern u32b render_xml_file(char *file, bool clear, bool help_text, bool persist
 #endif 
 
 #ifdef SET_UID
-# ifndef HAS_USLEEP
+# ifndef HAVE_USLEEP
 /* util.c */
 extern int usleep(huge usecs);
 # endif

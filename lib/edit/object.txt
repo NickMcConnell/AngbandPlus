@@ -4087,7 +4087,7 @@ F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
 
 ##### Priest Books #####
 
-N:435:[Beginners Handbook]
+N:435:[Beginner's Handbook]
 G:?:G
 I:90:10:0
 W:5:0:30:25

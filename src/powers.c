@@ -474,7 +474,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			/* Recalculate max. hitpoints */
 			update_stuff();
 
-			hp_player(5000);
+			heal_player(100, 250);
 			*obvious = TRUE;
 			break;
 		}

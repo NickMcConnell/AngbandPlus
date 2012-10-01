@@ -3058,7 +3058,7 @@
  *
  * These values are hard-coded by savefiles (and various pieces of code).
  */
-#define OPT_NORMAL					61 /* Regular options */
+#define OPT_NORMAL					62 /* Regular options */
 #define OPT_BIRTH					18 /* Birth/adult options */
 #define OPT_CHEAT					9  /* Cheat/score options */
 #define OPT_SQUELCH					2  /* Squelch options */
@@ -3129,6 +3129,7 @@
 #define OPT_inscribe_unique			58
 #define OPT_spellbook_menu			59
 #define OPT_trap_under_object		60
+#define OPT_view_player_color		61
 
 /*
  * Option indexes (birth and adult)
@@ -3234,6 +3235,7 @@
 #define inscribe_unique			op_ptr->opt[OPT_inscribe_unique]
 #define spellbook_menu			op_ptr->opt[OPT_spellbook_menu]
 #define trap_under_object		op_ptr->opt[OPT_trap_under_object]
+#define view_player_color		op_ptr->opt[OPT_view_player_color]
 #define birth_point_based		op_ptr->opt_birth[OPT_birth_point_based]
 #define birth_auto_roller		op_ptr->opt_birth[OPT_birth_auto_roller]
 #define birth_preserve			op_ptr->opt_birth[OPT_birth_preserve]

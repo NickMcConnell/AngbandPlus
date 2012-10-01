@@ -981,7 +981,7 @@ void acid_dam(int dam, cptr kb_str)
 	take_hit(dam, kb_str);
 
 	/* Damage armor/inventory */
-	inven_damage(dam, set_acid_destroy, FALSE, "melted");
+	inven_damage(dam, set_acid_destroy, FALSE, "dissolved");
 }
 
 /*
@@ -1677,7 +1677,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				if (hates_acid(o_ptr))
 				{
 					do_kill = TRUE;
-					note_kill = (plural ? " melt!" : " melts!");
+					note_kill = (plural ? " dissolve!" : " dissolves!");
 					if (ignores_damage_p(o_ptr, RS_ACD, SL_BRAND_ACID)) ignore = TRUE;
 				}
 				break;

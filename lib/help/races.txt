@@ -199,7 +199,7 @@ are listed in the following table.
            Vargr       +1   +1   +1   +1   +1    0      11         +70%
            Kyrrus       0   +1   +2   -2    0   -1       9         +20%
            Angel        *    *    *    *    *    *       9         +90%
-           Demon        *    *    *    *    *    *      10        +120%
+           Demon        *    *    *    *    *    *      10         +90%
 
            *see below           
 
@@ -261,7 +261,7 @@ Balrog          50   +3   +2   -3   +1   +4   -9      Plasma Ball
 
 Resistances and inherent abilties (cumulative):
 
-Lemure     - None.
+Lemure     - Taint.
 Quasit     - Bravery.
 Imp        - None.
 Tengu      - No Blindness.

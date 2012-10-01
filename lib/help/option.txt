@@ -91,29 +91,29 @@ Open/Disarm/Close without direction    [easy_direction]
 
 ***** <easy_alter>
 Open/Disarm doors/traps on movement.    [easy_alter]
-     Moving into a closed door will attempt once to open it, and moving 
-     into a trap will attempt once to disarm it. If the player ever wishes
-     to leave a known teleport trap as a guaranteed escape route, this 
-     option must therefore be off.
+    Moving into a closed door will attempt once to open it, and moving 
+    into a trap will attempt once to disarm it. If the player ever wishes
+    to leave a known teleport trap as a guaranteed escape route, this 
+    option must therefore be off.
 
 ***** <easy_floor>
 Display floor stacks in a list    [easy_floor]
-     When moving into a stack, if this option is *off*, the character will 
-     attempt to pick up items from the stack, from top to bottom, until the 
-     stack is gone or the inventory is full. This option allows the player
-     to interact with other items than the one at the top of the stack.
+    When moving into a stack, if this option is *off*, the character will 
+    attempt to pick up items from the stack, from top to bottom, until the 
+    stack is gone or the inventory is full. This option allows the player
+    to interact with other items than the one at the top of the stack.
 
 ***** <verify_leave_quest>
 Verify before descending from quest level [verify_leave_quest]
-     Asks for confirmation when you try to leave a quest level using down 
-     stairs (thereby risking quest failure).
+    Asks for confirmation when you try to leave a quest level using down 
+    stairs (thereby risking quest failure).
 
 ***** <spellbook_menu>
 Alternate spellbook interface [spellbook_menu1]
-     Allows you to choose between the two methods of spell power selection.
-     If the option is off, you get the menu if you type a lower-case letter
-     for the spell: maaa, and the top level spell if you type a captial 
-     letter: maA. 
+    Allows you to choose between the two methods of spell power selection.
+    If the option is off, you get the menu if you type a lower-case letter
+    for the spell: maaa, and the top level spell if you type a captial 
+    letter: maA. 
 
 === Option Set 2 -- Display ===
 
@@ -153,7 +153,7 @@ Display inscriptions in messages       [display_insc_msg]
 
 ***** <show_piles>
 Show stacks using special attr/char    [show_piles]
-     Stacks of items on the floor are shown using the "&" symbol.
+    Stacks of items on the floor are shown using the "&" symbol.
 
 ***** <hilite_player>
 Hilite the player with the cursor    [hilite_player]
@@ -216,6 +216,11 @@ Traps are hidden by objects    [trap_under_object]
     If this option is turned on, and a trap and an object share a square, then
     the object will hide the trap. If it is off, the trap will hide the object.
 
+***** <view_player_color>
+Use special colors for the player    [view_player_color]
+    If this option is turned on, the player symbol (@) will change colors 
+    to represent the player's health status.
+
 === Option Set 3 -- Distrubance options ===
 
 These options affect what conditions will be handled automatically by the game 
@@ -270,11 +275,6 @@ Display messages upon recharge       [display_recharge_msg]
     If this is turned on, you will get messages whenever an artifact, rod
 	or talisman recharges.
 
-***** <alert_failure>
-Alert user to various failures    [alert_failure]
-    Produce a "bell" noise, and flush all pending input, when various
-    "failures" occur, as described above.
-
 ***** <auto_more>
 Automatically clear -more- prompts    [auto_more]
     The game does not wait for a keypress when it comes to a -more-
@@ -304,9 +304,9 @@ Expand the power of the list commands    [expand_list]
 
 ***** <center_player>
 Center map continuously (very slow)    [center_player]
-     The map always centres on the player with this option on. With it off, it
-     is divided into 25 sections, with coordinates (0,0) to (4,4), and will 
-     show one section at a time.
+    The map always centres on the player with this option on. With it off, it
+    is divided into 25 sections, with coordinates (0,0) to (4,4), and will 
+    show one section at a time.
 
 ***** <view_perma_grids>
 Map remembers all perma-lit grids    [view_perma_grids]
@@ -434,11 +434,11 @@ Compress messages in savefiles    [compress_savefile]
 
 ***** <run_avoid_center>
 Avoid centering while running    [run_avoid_center]
-     The map does not centre on the player if the player moves with the "run" 
-     command, only when the running finishes.
+    The map does not centre on the player if the player moves with the "run" 
+    command, only when the running finishes.
 
 ***** <scroll_target>
 Scroll map while targetting    [scroll_target]
-     This allows the player to target monsters which are off-screen from the 
-     player's point of view, as the view will scroll to show the whereabouts of 
-     all monsters in line of sight so the player can target them.
+    This allows the player to target monsters which are off-screen from the 
+    player's point of view, as the view will scroll to show the whereabouts of 
+    all monsters in line of sight so the player can target them.

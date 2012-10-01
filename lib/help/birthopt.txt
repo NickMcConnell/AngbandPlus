@@ -131,11 +131,11 @@ always use basic AI to determine spell choices).
 
 ***** <birth_smart_packs>
 Monsters act smarter in groups    [birth_smart_packs]
-     "group" monsters will use tactics that groups of monsters might 
-     reasonably employ - such as hiding out of sight around a corner, 
-     trying to draw the character out into the middle of a room so they 
-     can surround him and all attack at once, rather than chasing one
-     by one down a corridor.
+    "group" monsters will use tactics that groups of monsters might 
+    reasonably employ - such as hiding out of sight around a corner, 
+    trying to draw the character out into the middle of a room so they 
+    can surround him and all attack at once, rather than chasing one
+    by one down a corridor.
 
 ***** <birth_smart_cheat>
 Monsters exploit players weaknesses    [birth_smart_cheat]
