@@ -110,6 +110,7 @@ static void roff_aux(int r_idx)
 	bool sin = FALSE;
 
 	int m, n, r;
+	int div;
 
 	cptr p, q;
 
@@ -211,7 +212,6 @@ static void roff_aux(int r_idx)
 	if (r_ptr->flags1 & (RF1_FEMALE)) msex = 2;
 	else if (r_ptr->flags1 & (RF1_MALE)) msex = 1;
 
-
 	/* Obtain a copy of the "known" flags */
 	flags1 = (r_ptr->flags1 & l_ptr->r_flags1);
 	flags2 = (r_ptr->flags2 & l_ptr->r_flags2);
@@ -219,7 +219,6 @@ static void roff_aux(int r_idx)
 	flags4 = (r_ptr->flags4 & l_ptr->r_flags4);
 	flags5 = (r_ptr->flags5 & l_ptr->r_flags5);
 	flags6 = (r_ptr->flags6 & l_ptr->r_flags6);
-
 
 	/* Assume some "obvious" flags */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) flags1 |= (RF1_UNIQUE);
@@ -268,8 +267,10 @@ static void roff_aux(int r_idx)
 		if (l_ptr->r_deaths)
 		{
 			/* Killed ancestors */
-			roff(format("%^s has slain %d of your ancestors",
+			roff(format("%^s has slain ",
 			            wd_he[msex], l_ptr->r_deaths));
+			c_roff(TERM_L_GREEN,format("%d ",l_ptr->r_deaths));
+			roff("of your ancestors");
 
 			/* But we've also killed it */
 			if (dead)
@@ -297,21 +298,24 @@ static void roff_aux(int r_idx)
 	else if (l_ptr->r_deaths)
 	{
 		/* Dead ancestors */
-		roff(format("%d of your ancestors %s been killed by this creature, ",
-		            l_ptr->r_deaths, plural(l_ptr->r_deaths, "has", "have")));
+		c_roff(TERM_L_GREEN,format("%d ",l_ptr->r_deaths));
+		roff(format("of your ancestors %s been killed by this creature, ",
+		            plural(l_ptr->r_deaths, "has", "have")));
 
 		/* Some kills this life */
 		if (l_ptr->r_pkills)
 		{
-			roff(format("and you have exterminated at least %d of the creatures.  ",
-			            l_ptr->r_pkills));
+			roff("and you have exterminated at least ");
+			c_roff(TERM_L_GREEN,format("%d ",l_ptr->r_pkills));
+			roff("of the creatures.  ");
 		}
 
 		/* Some kills past lives */
 		else if (l_ptr->r_tkills)
 		{
-			roff(format("and %s have exterminated at least %d of the creatures.  ",
-			            "your ancestors", l_ptr->r_tkills));
+			roff("and your ancestors have exterminated at least ");
+			c_roff(TERM_L_GREEN,format("%d ",l_ptr->r_tkills));
+			roff("of the creatures.  ");
 		}
 
 		/* No kills */
@@ -328,15 +332,17 @@ static void roff_aux(int r_idx)
 		/* Killed some this life */
 		if (l_ptr->r_pkills)
 		{
-			roff(format("You have killed at least %d of these creatures.  ",
-			            l_ptr->r_pkills));
+			roff("You have killed at least ");
+			c_roff(TERM_L_GREEN,format("%d ",l_ptr->r_pkills));
+			roff("of these creatures.  ");
 		}
 
 		/* Killed some last life */
 		else if (l_ptr->r_tkills)
 		{
-			roff(format("Your ancestors have killed at least %d of these creatures.  ",
-			            l_ptr->r_tkills));
+			roff("Your ancestors have killed at least ");
+			c_roff(TERM_L_GREEN,format("%d ",l_ptr->r_tkills));
+			roff("of these creatures.  ");
 		}
 
 		/* Killed none */
@@ -375,30 +381,6 @@ static void roff_aux(int r_idx)
 			pos += r_head->info_size;
 			pos += r_head->name_size;
 
-#if 0
-
-			/* Maximal length */
-			len = r_head->text_size - r_ptr->text;
-
-			/* Actual length */
-			for (i = r_idx+1; i < z_info->r_max; i++)
-			{
-				/* Actual length */
-				if (r_info[i].text > r_ptr->text)
-				{
-					/* Extract length */
-					len = r_info[i].text - r_ptr->text;
-
-					/* Done */
-					break;
-				}
-			}
-
-			/* Maximal length */
-			if (len > 2048) len = 2048;
-
-#endif
-
 			/* Seek */
 			fd_seek(fd, pos);
 
@@ -435,13 +417,20 @@ static void roff_aux(int r_idx)
 	{
 		if (depth_in_feet)
 		{
-			roff(format("%^s is normally found at depths of %d feet",
-			            wd_he[msex], r_ptr->level * 50));
+			roff(format("%^s is normally found at depths of ",
+			            wd_he[msex]));
+			/* ~ different if it's out of depth or not */
+			c_roff((byte)((r_ptr->level > p_ptr->max_depth) ? TERM_L_RED : TERM_L_GREEN),
+			        format("%d ", r_ptr->level * 50));
+			roff("feet");
 		}
 		else
 		{
-			roff(format("%^s is normally found on dungeon level %d",
-			            wd_he[msex], r_ptr->level));
+			roff(format("%^s is normally found on dungeon level ",
+			            wd_he[msex]));
+			/* ~ different if it's out of depth or not */
+			c_roff((byte)((r_ptr->level > p_ptr->max_depth) ? TERM_L_RED : TERM_L_GREEN),
+			        format("%d", r_ptr->level));
 		}
 		old = TRUE;
 	}
@@ -554,16 +543,25 @@ static void roff_aux(int r_idx)
 		else roff(" creature");
 
 		/* calculate the integer exp part */
-		i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
+		div = p_ptr->lev;
+
+		/* Hack - angels get less exp for killing non-evil creatures */
+		/* and demons get less for killing evil creatures */
+		if  (!(r_ptr->flags1 & (RF1_UNIQUE)) && 
+			(((rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags3 & (RF3_EVIL))) ||
+			((rp_ptr->special==RACE_SPECIAL_DEMON) && (r_ptr->flags3 & (RF3_EVIL))))) div *=3;
+
+		i = (long)r_ptr->mexp * r_ptr->level / div;
 
 		/* calculate the fractional exp part scaled by 100, */
 		/* must use long arithmetic to avoid overflow  */
-		j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
-			  (long)1000 / p_ptr->lev + 5) / 10);
+		j = ((((long)r_ptr->mexp * r_ptr->level % div) *
+			  (long)1000 / div + 5) / 10);
 
 		/* Mention the experience */
-		roff(format(" is worth %ld.%02ld point%s",
-			        (long)i, (long)j,
+		roff(" is worth ");
+		c_roff(TERM_L_GREEN,format("%ld.%02ld ", (long)i, (long)j));
+		roff(format("point%s",
 			        (((i == 1) && (j == 0)) ? "" : "s")));
 
 		/* Take account of annoying English */
@@ -741,7 +739,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_S_SPIDER))		vp[vn++] = "summon spiders";
 	if (flags6 & (RF6_S_HOUND))		vp[vn++] = "summon hounds";
 	if (flags6 & (RF6_S_HYDRA))		vp[vn++] = "summon hydras";
-	if (flags6 & (RF6_S_ANGEL))		vp[vn++] = "summon an angel";
+	if (flags6 & (RF6_S_HORROR))		vp[vn++] = "summon a nameless horror";
 	if (flags6 & (RF6_S_DEMON))		vp[vn++] = "summon a demon";
 	if (flags6 & (RF6_S_UNDEAD))		vp[vn++] = "summon an undead";
 	if (flags6 & (RF6_S_DRAGON))		vp[vn++] = "summon a dragon";
@@ -799,14 +797,20 @@ static void roff_aux(int r_idx)
 		/* Describe the spell frequency */
 		if (m > 100)
 		{
-			roff(format("; 1 time in %d", 100 / n));
+			roff("; ");
+			c_roff(TERM_L_GREEN,"1");
+			roff(" time in ");
+			c_roff(TERM_L_GREEN,format("%d", 100 / n));
 		}
 
 		/* Guess at the frequency */
 		else if (m)
 		{
 			n = ((n + 9) / 10) * 10;
-			roff(format("; about 1 time in %d", 100 / n));
+			roff("; about ");
+			c_roff(TERM_L_GREEN,"1");
+			roff(" time in ");
+			c_roff(TERM_L_GREEN,format("%d", 100 / n));
 		}
 
 		/* End this sentence */
@@ -818,21 +822,23 @@ static void roff_aux(int r_idx)
 	if (know_armour(r_idx))
 	{
 		/* Armor */
-		roff(format("%^s has an armor rating of %d",
-		            wd_he[msex], r_ptr->ac));
+		roff(format("%^s has an armor rating of ",wd_he[msex]));
+		c_roff (TERM_L_GREEN,format("%d", r_ptr->ac));
 
 		/* Maximized hitpoints */
 		if (flags1 & (RF1_FORCE_MAXHP))
 		{
-			roff(format(" and a life rating of %d.  ",
-			            r_ptr->hdice * r_ptr->hside));
+			roff(" and a life rating of ");
+			c_roff(TERM_L_GREEN,format("%d",r_ptr->hdice * r_ptr->hside));
+			roff(".  ");
 		}
 
 		/* Variable hitpoints */
 		else
 		{
-			roff(format(" and a life rating of %dd%d.  ",
-			            r_ptr->hdice, r_ptr->hside));
+			roff(" and a life rating of ");
+			c_roff(TERM_L_GREEN,format("%dd%d",r_ptr->hdice, r_ptr->hside));
+			roff(".  ");
 		}
 	}
 
@@ -840,6 +846,7 @@ static void roff_aux(int r_idx)
 
 	/* Collect special abilities. */
 	vn = 0;
+    if (flags2 & (RF2_HAS_LITE))  vp[vn++] = "illuminate the dungeon";
 	if (flags2 & (RF2_OPEN_DOOR)) vp[vn++] = "open doors";
 	if (flags2 & (RF2_BASH_DOOR)) vp[vn++] = "bash down doors";
 	if (flags2 & (RF2_PASS_WALL)) vp[vn++] = "pass through walls";
@@ -888,6 +895,11 @@ static void roff_aux(int r_idx)
 	if (flags2 & (RF2_WEIRD_MIND))
 	{
 		roff(format("%^s is rarely detected by telepathy.  ", wd_he[msex]));
+	}
+	/* -TM- */
+	if (flags2 & (RF2_SEE_INVIS))
+	{
+		roff(format("%^s can see invisible enemies.  ", wd_he[msex]));
 	}
 	if (flags2 & (RF2_MULTIPLY))
 	{
@@ -1073,8 +1085,10 @@ static void roff_aux(int r_idx)
 			act = "is ever vigilant for";
 		}
 
-		roff(format("%^s %s intruders, which %s may notice from %d feet.  ",
-		            wd_he[msex], act, wd_he[msex], 10 * r_ptr->aaf));
+		roff(format("%^s %s intruders, which %s may notice from ",wd_he[msex], act, wd_he[msex]));
+		c_roff(TERM_L_GREEN,format("%d",10 * r_ptr->aaf));
+	    roff(" feet.  ");
+		             
 	}
 
 
@@ -1209,7 +1223,7 @@ static void roff_aux(int r_idx)
 			case RBM_CLAW:	p = "claw"; break;
 			case RBM_BITE:	p = "bite"; break;
 			case RBM_STING:	p = "sting"; break;
-			case RBM_XXX1:	break;
+			case RBM_KISS:	p = "kiss"; break;
 			case RBM_BUTT:	p = "butt"; break;
 			case RBM_CRUSH:	p = "crush"; break;
 			case RBM_ENGULF:	p = "engulf"; break;
@@ -1300,7 +1314,7 @@ static void roff_aux(int r_idx)
 			{
 				/* Display the damage */
 				roff(" with damage");
-				roff(format(" %dd%d", d1, d2));
+				c_roff(TERM_L_GREEN,format(" %dd%d", d1, d2));
 			}
 		}
 

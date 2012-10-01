@@ -84,14 +84,18 @@ typedef struct quest quest;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct magic_type magic_type;
+typedef struct alchemy_info alchemy_info;
+typedef struct spell_book spell_book;
 typedef struct player_magic player_magic;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
+typedef struct player_race_special player_race_special;
+typedef player_race_special *ptr_player_race_special;
 typedef struct player_class player_class;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
-
+typedef struct start_item start_item;
 
 
 /**** Available structs ****/
@@ -169,10 +173,14 @@ struct maxima
 	u16b h_max;		/* Max size for "h_info[]" */
 
 	u16b b_max;		/* Max size per element of "b_info[]" */
-	u16b unused;	/* Unused */
+	u16b c_max; 	/* Max size for "c_info[]" */
 
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "m_list[]" */
+
+#ifdef CUSTOM_QUESTS
+	u16b q_max;		/* Max size for "q_info[]" */
+#endif
 };
 
 
@@ -254,6 +262,9 @@ struct object_kind
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
+
+	bool squelch;		/* squelch item if known            */
+	bool everseen;		/* Used to despoilify squelch menus */
 };
 
 
@@ -404,7 +415,6 @@ struct monster_race
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
-
 	byte level;				/* Level of creature */
 	byte rarity;			/* Rarity of creature */
 
@@ -420,6 +430,8 @@ struct monster_race
 	byte max_num;			/* Maximum population allowed per level */
 
 	byte cur_num;			/* Monster population on current level */
+
+	byte total_visible;     /* Amount of this race that are visible */
 };
 
 
@@ -640,6 +652,7 @@ struct alloc_entry
  * the concept of quest monsters to specific unique monsters, and to
  * actually scan the dead unique list to see what quests are left.
  */
+#ifndef CUSTOM_QUESTS
 struct quest
 {
 	byte level;		/* Dungeon level */
@@ -648,7 +661,20 @@ struct quest
 	int cur_num;	/* Number killed (unused) */
 	int max_num;	/* Number required (unused) */
 };
+#else
+struct quest
+{
+	u32b name;		/* Name (offset) */
+	u32b text;		/* Text (offset) */
 
+	byte level;		/* Dungeon level */
+	byte old_level;	/* Dungeon level */
+	s16b r_idx;		/* Monster race */
+
+	s16b cur_num;	/* Number killed */
+	s16b max_num;	/* Number required */
+};
+#endif
 
 
 
@@ -712,6 +738,8 @@ struct store_type
  */
 struct magic_type
 {
+	byte index;			/* The internal spell index. */
+	cptr sname;			/* The name of the spell in the spellbook */
 	byte slevel;		/* Required level (to learn) */
 	byte smana;			/* Required mana (to cast) */
 	byte sfail;			/* Minimum chance of failure */
@@ -720,25 +748,26 @@ struct magic_type
 
 
 /*
- * Information about the player's "magic"
- *
- * Note that a player with a "spell_book" of "zero" is illiterate.
+ * Alchemy Information
  */
-struct player_magic
+struct alchemy_info
 {
-	byte spell_book;		/* Tval of spell books (if any) */
-	s16b spell_xtra;		/* Something for later */
-
-	s16b spell_stat;		/* Stat for spells (if any)  */
-	s16b spell_type;		/* Spell type (mage/priest) */
-
-	s16b spell_first;		/* Level of first spell */
-	s16b spell_weight;		/* Weight that hurts spells */
-
-	magic_type info[64];	/* The available spells */
+	byte sval1;
+	bool known1;
+	byte sval2;
+	bool known2;
 };
 
+/* 
+ * Information about a spell book's contents
+ */
 
+struct spell_book
+{
+	byte flags;		/* Spellbook Flags */
+
+	magic_type contents[MAX_BOOK_SPELLS];
+};
 
 /*
  * Player sex info
@@ -761,14 +790,7 @@ struct player_race
 
 	s16b r_adj[A_MAX];	/* Racial stat bonuses */
 
-	s16b r_dis;			/* disarming */
-	s16b r_dev;			/* magic devices */
-	s16b r_sav;			/* saving throw */
-	s16b r_stl;			/* stealth */
-	s16b r_srh;			/* search ability */
-	s16b r_fos;			/* search frequency */
-	s16b r_thn;			/* combat (normal) */
-	s16b r_thb;			/* combat (shooting) */
+	s16b r_skill[SK_MAX];	/* Skills */
 
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
@@ -792,6 +814,8 @@ struct player_race
 
 	s16b hist;			/* Starting history index */
 
+	byte special;		/* Race special abilities index */
+
 	u32b flags1;		/* Racial Flags, set 1 */
 	u32b flags2;		/* Racial Flags, set 2 */
 	u32b flags3;		/* Racial Flags, set 3 */
@@ -799,34 +823,65 @@ struct player_race
 
 
 /*
+ * Player race special info
+ */
+struct player_race_special
+{
+	cptr name;			/* name */
+	s16b r_adj[A_MAX];	/* Racial stat bonuses */
+
+	s16b r_skill[SK_MAX];	/* Skills */
+
+	u32b flags1;		/* Racial Flags, set 1 */
+	u32b flags2;		/* Racial Flags, set 2 */
+	u32b flags3;		/* Racial Flags, set 3 */
+
+	u16b power;		/* Special power for that level */
+
+};
+
+/*
+ * Starting equipment entry 
+ */
+
+struct start_item
+{
+	byte tval;	/* Item's Tval */
+	byte sval;	/* Item's Sval */
+	byte min;	/* Minimum starting amount */
+	byte max;	/* Maximum starting amount */
+};
+
+/*
  * Player class info
  */
 struct player_class
 {
-	cptr title;			/* Type of class */
+	u32b name;								/* Name (offset) */
 
-	s16b c_adj[A_MAX];	/* Class stat modifier */
+	u32b title[10];							/* Titles - offset */
 
-	s16b c_dis;			/* class disarming */
-	s16b c_dev;			/* class magic devices */
-	s16b c_sav;			/* class saving throws */
-	s16b c_stl;			/* class stealth */
-	s16b c_srh;			/* class searching ability */
-	s16b c_fos;			/* class searching frequency */
-	s16b c_thn;			/* class to hit (normal) */
-	s16b c_thb;			/* class to hit (bows) */
+	s16b c_adj[A_MAX];						/* Class stat modifier */
 
-	s16b x_dis;			/* extra disarming */
-	s16b x_dev;			/* extra magic devices */
-	s16b x_sav;			/* extra saving throws */
-	s16b x_stl;			/* extra stealth */
-	s16b x_srh;			/* extra searching ability */
-	s16b x_fos;			/* extra searching frequency */
-	s16b x_thn;			/* extra to hit (normal) */
-	s16b x_thb;			/* extra to hit (bows) */
+	s16b c_skill[SK_MAX];					/* Class skills */
+	s16b x_skill[SK_MAX];					/* Skill extra points */
 
-	s16b c_mhp;			/* Class hit-dice adjustment */
-	s16b c_exp;			/* Class experience factor */
+	s16b c_mhp;								/* Class hit-dice adjustment */
+	s16b c_exp;								/* Class experience factor */
+
+	u32b flags;								/* Class Flags */
+
+	u16b max_attacks;						/* Maximum possible attacks */
+	u16b min_weight;						/* Minimum weapon weight for calculations */
+	u16b att_multiply;						/* Multiplier for attack calculations */
+
+	s16b spell_stat1;						/* First stat for spells (if any)  */
+	s16b spell_stat2;						/* Second stat for spells (if any)  */
+	s16b spell_weight;						/* Weight that hurts spells */
+	bool spell_book[SV_MAX_BOOKS];			/* The list of legal books */
+	s16b spell_handicap[SV_MAX_BOOKS];		/* Spell handicap per realm */
+
+	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
 };
 
 
@@ -885,7 +940,7 @@ struct player_type
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
-	byte oops;			/* Unused */
+	byte oops;			/* unused */
 
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
@@ -933,19 +988,24 @@ struct player_type
 	s16b stun;			/* Timed -- Stun */
 
 	s16b protevil;		/* Timed -- Protection */
-	s16b invuln;		/* Timed -- Invulnerable */
+	s16b resilient;		/* Timed -- Resilience */
+	s16b absorb;		/* Timed -- Absorb next hit */
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
 	s16b blessed;		/* Timed -- Blessed */
-	s16b tim_invis;		/* Timed -- See Invisible */
+	s16b tim_see_invis;	/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
+	s16b tim_invis;		/* Timed -- Invisiblity */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
+	s16b oppose_all;	/* Timed -- all resistances */
+
+	s16b racial_power;	/* Timed -- Racial power recharge */
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -956,19 +1016,16 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
-	u32b spell_learned1;	/* Spell flags */
-	u32b spell_learned2;	/* Spell flags */
-	u32b spell_worked1;		/* Spell flags */
-	u32b spell_worked2;		/* Spell flags */
-	u32b spell_forgotten1;	/* Spell flags */
-	u32b spell_forgotten2;	/* Spell flags */
+	u16b spell_learned[SV_MAX_BOOKS];	/* Spell flags */
+	u16b spell_worked[SV_MAX_BOOKS];	/* Spell flags */
+	u16b spell_forgotten[SV_MAX_BOOKS];/* Spell flags */
 
-	byte spell_order[64];	/* Spell order */
+	byte spell_order[SV_MAX_BOOKS * MAX_BOOK_SPELLS][2];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
 	char died_from[80];		/* Cause of death */
-	char history[4][60];	/* Initial history */
+	char history[5][55];	/* Initial history */
 
 	u16b total_winner;		/* Total winner */
 	u16b panic_save;		/* Panic save */
@@ -1104,6 +1161,7 @@ struct player_type
 	bool see_inv;		/* See invisible */
 	bool free_act;		/* Free action */
 	bool hold_life;		/* Hold life */
+	bool invis;			/* Invisible */
 
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
@@ -1126,16 +1184,7 @@ struct player_type
 
 	s16b see_infra;		/* Infravision range */
 
-	s16b skill_dis;		/* Skill: Disarming */
-	s16b skill_dev;		/* Skill: Magic Devices */
-	s16b skill_sav;		/* Skill: Saving throw */
-	s16b skill_stl;		/* Skill: Stealth factor */
-	s16b skill_srh;		/* Skill: Searching ability */
-	s16b skill_fos;		/* Skill: Searching frequency */
-	s16b skill_thn;		/* Skill: To hit (normal) */
-	s16b skill_thb;		/* Skill: To hit (shooting) */
-	s16b skill_tht;		/* Skill: To hit (throwing) */
-	s16b skill_dig;		/* Skill: Digging */
+	s16b skill[SK_MAX];	/* Skills */
 
 	u32b noise;			/* Derived from stealth */
 

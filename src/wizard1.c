@@ -100,14 +100,14 @@ static grouper group_item[] =
 
 	{ TV_SCROLL,	"Scrolls" },
 	{ TV_POTION,	"Potions" },
+	{ TV_POWDER,	"Powders" },
 	{ TV_FOOD,		"Food" },
 
 	{ TV_ROD,		"Rods" },
 	{ TV_WAND,		"Wands" },
 	{ TV_STAFF,		"Staffs" },
 
-	{ TV_MAGIC_BOOK,	"Books (Mage)" },
-	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_MAGIC_BOOK,	"Spellbooks" },
 
 	{ TV_CHEST,		"Chests" },
 
@@ -116,7 +116,6 @@ static grouper group_item[] =
 	{ TV_FLASK,		  NULL },
 	{ TV_JUNK,		  NULL },
 	{ TV_BOTTLE,	  NULL },
-	{ TV_SKELETON,	  NULL },
 
 	{ 0, "" }
 };
@@ -558,6 +557,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_REGEN,              "Regeneration" },
 	{ TR3_TELEPATHY,          "ESP" },
 	{ TR3_SEE_INVIS,          "See Invisible" },
+	{ TR3_INVIS,              "Invisibility" },
 	{ TR3_FREE_ACT,           "Free Action" },
 	{ TR3_HOLD_LIFE,          "Hold Life" },
 	{ TR3_BLESSED,            "Blessed Blade" },
@@ -1312,8 +1312,8 @@ static void spoil_mon_desc(cptr fname)
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
 
-	/* Scan the monsters (except the ghost) */
-	for (i = 1; i < z_info->r_max - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1555,7 +1555,7 @@ static void spoil_mon_info(cptr fname)
 	ang_sort(who, &why, count);
 
 	/*
-	 * List all monsters in order (except the ghost).
+	 * List all monsters in order
 	 */
 	for (n = 0; n < count; n++)
 	{
@@ -1847,7 +1847,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
 		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
 		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";
-		if (flags6 & (RF6_S_ANGEL))           vp[vn++] = "summon an angel";
+		if (flags6 & (RF6_S_HORROR))           vp[vn++] = "summon a nameless horror";
 		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
 		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "summon a dragon";
@@ -1888,6 +1888,7 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect special abilities. */
 		vn = 0;
+        if (flags2 & (RF2_HAS_LITE))  vp[vn++] = "illuminate the dungeon";
 		if (flags2 & (RF2_OPEN_DOOR)) vp[vn++] = "open doors";
 		if (flags2 & (RF2_BASH_DOOR)) vp[vn++] = "bash down doors";
 		if (flags2 & (RF2_PASS_WALL)) vp[vn++] = "pass through walls";
@@ -1930,6 +1931,11 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(wd_che[msex]);
 			spoil_out(" is rarely detected by telepathy.  ");
 		}
+		if (flags2 & (RF2_SEE_INVIS))
+		{
+			spoil_out(wd_che[msex]);
+			spoil_out(" can see invisible enemies.  ");
+		}		
 		if (flags2 & (RF2_MULTIPLY))
 		{
 			spoil_out(wd_che[msex]);
@@ -2133,7 +2139,7 @@ static void spoil_mon_info(cptr fname)
 				case RBM_CLAW:	p = "claw"; break;
 				case RBM_BITE:	p = "bite"; break;
 				case RBM_STING:	p = "sting"; break;
-				case RBM_XXX1:	break;
+				case RBM_KISS:	p = "kiss"; break;
 				case RBM_BUTT:	p = "butt"; break;
 				case RBM_CRUSH:	p = "crush"; break;
 				case RBM_ENGULF:	p = "engulf"; break;

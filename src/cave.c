@@ -637,6 +637,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Hack -- Assume that "new" means "Adam Bolt Tiles" */
 	bool graf_new = (use_graphics && streq(ANGBAND_GRAF, "new"));
 
+	bool sq_flag = FALSE;
+
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
 
@@ -881,14 +883,27 @@ void map_info(int y, int x, byte *ap, char *cp)
 				break;
 			}
 
-			/* Normal attr */
-			a = object_attr(o_ptr);
+			
+			sq_flag = ((k_info[o_ptr->k_idx].squelch) & (k_info[o_ptr->k_idx].aware));
 
-			/* Normal char */
-			c = object_char(o_ptr);
+			if (!sq_flag) 
+			{
+				/* Normal attr */
+				a = object_attr(o_ptr);
+			  
+				/* Normal char */
+				c = object_char(o_ptr);
+			} 
+			else 
+			{
+				/* Special squelch character HACK */
+				a = TERM_RED;  
+				/* Symbol of floor */
+				c = f_info[FEAT_FLOOR].x_char;  
+			}
 
 			/* First marked object */
-			if (!show_piles) break;
+			if (!show_piles || sq_flag) break;
 
 			/* Special stack symbol */
 			if (++floor_num > 1)
@@ -2624,9 +2639,11 @@ void update_view(void)
 
 	int pg = GRID(py,px);
 
-	int i, g, o2;
+	int i, j, g, o2;
 
-	int radius;
+    int fy,fx,k;
+
+    int radius;
 
 	int fast_view_n = view_n;
 	u16b *fast_view_g = view_g;
@@ -2637,7 +2654,6 @@ void update_view(void)
 	byte *fast_cave_info = &cave_info[0][0];
 
 	byte info;
-
 
 	/*** Step 0 -- Begin ***/
 
@@ -2679,8 +2695,53 @@ void update_view(void)
 	/* Handle real light */
 	if (radius > 0) ++radius;
 
+	if (view_monster_lite)
+    {
 
-	/*** Step 1 -- player grid ***/
+	    /*** Step 1A -- monster lites ***/
+
+		/* Scan monster list and add monster lites */
+		for ( k = 1; k < z_info->m_max; k++)
+		{
+			/* Check the k'th monster */
+			monster_type *m_ptr = &m_list[k];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+			/* Skip dead monsters */
+			if (!m_ptr->r_idx) continue;
+
+			/* Access the location */
+			fx = m_ptr->fx;
+			fy = m_ptr->fy;
+
+			/* Carrying lite */
+			if (r_ptr->flags2 & (RF2_HAS_LITE))
+			{
+				for (i = -1; i <= 1; i++)
+				{
+					for (j = -1; j <= 1; j++)
+					{
+						if (los(py,px,fy+i,fx+j))
+						{
+							g = GRID(fy+i,fx+j);
+							info = fast_cave_info[g];
+
+							info |= (CAVE_VIEW);  
+							info |= (CAVE_SEEN);
+
+							/* Save cave info */
+							fast_cave_info[g] = info;
+
+							/* Save in array */
+							fast_view_g[fast_view_n++] = g;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/*** Step 1b -- player grid ***/
 
 	/* Player grid */
 	g = pg;
@@ -3943,6 +4004,7 @@ void disturb(int stop_search, int unused_flag)
 
 
 
+#ifndef CUSTOM_QUESTS
 /*
  * Hack -- Check if a level is a "quest" level
  */
@@ -3964,7 +4026,27 @@ bool is_quest(int level)
 	return (FALSE);
 }
 
+#else
 
+/*
+ * Hack -- Check if a level is a "quest" level
+ */
+bool is_quest(int level)
+{
+	int i;
 
+	/* Town is never a quest */
+	if (!level) return (FALSE);
 
+	/* Check quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		/* Check for quest */
+		if (q_info[i].level == level) return (TRUE);
+	}
 
+	/* Nope */
+	return (FALSE);
+}
+
+#endif

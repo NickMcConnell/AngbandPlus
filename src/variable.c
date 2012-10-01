@@ -71,7 +71,7 @@ s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
 
 u32b seed_randart;		/* Hack -- consistent random artifacts */
-
+u32b seed_alchemy;		/* Hack -- consistent alchemy tables */
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
 
@@ -473,7 +473,7 @@ cptr keymap_act[KEYMAP_MODES][256];
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
-player_magic *mp_ptr;
+ptr_player_race_special rsp_ptr[10];
 
 /*
  * The player other record (static)
@@ -550,6 +550,13 @@ monster_race *r_info;
 char *r_name;
 char *r_text;
 
+/*
+ * The player class arrays
+ */
+header *c_head;
+player_class *c_info;
+char *c_name;
+char *c_text;
 
 /*
  * The player race arrays
@@ -579,6 +586,15 @@ char *b_name;
 header *g_head;
 byte *g_info;
 
+#ifdef CUSTOM_QUESTS
+/*
+ * The quest arrays
+ */
+header *q_head;
+quest *q_info;
+char *q_name;
+char *q_text;
+#endif
 
 /*
  * Hack -- The special Angband "System Suffix"

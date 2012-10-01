@@ -723,6 +723,16 @@ bool make_attack_spell(int m_idx)
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);
 
+	/* -TM- Rarely cast spells at invisible opponent if they can't see invisible */
+	if (!(r_ptr->flags2 & (RF2_SEE_INVIS)) && (p_ptr->invis))
+	{
+		/* Chance of seeing player depends on stealth */
+		if (randint(p_ptr->skill[SK_STL] * 5) + 1 > 10)
+		{
+			return (FALSE);
+		}
+	}
+
 	/* Cannot cast spells when nice */
 	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
 
@@ -1389,7 +1399,7 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s gazes deep into your eyes.", m_name);
 			}
 
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1418,7 +1428,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_format("%^s looks deep into your eyes.", m_name);
 			}
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1450,7 +1460,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses.", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1468,7 +1478,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses horribly.", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1486,7 +1496,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles loudly.", m_name);
 			else msg_format("%^s points at you, incanting terribly!", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1504,7 +1514,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s screams the word 'DIE!'", m_name);
 			else msg_format("%^s points at you, screaming the word DIE!", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1650,7 +1660,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You refuse to be frightened.");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You refuse to be frightened.");
 			}
@@ -1673,7 +1683,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1696,7 +1706,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}
@@ -1718,7 +1728,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1741,7 +1751,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_format("You resist the effects!");
 			}
@@ -1923,7 +1933,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -1970,7 +1980,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			msg_format("%^s tries to blank your mind.", m_name);
 
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
@@ -2133,10 +2143,10 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons an angel!", m_name);
+			else msg_format("%^s magically summons a nameless horror!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_ANGEL);
+				count += summon_specific(y, x, rlev, SUMMON_HORROR);
 			}
 			if (blind && count)
 			{
@@ -3575,6 +3585,20 @@ static void process_monster(int m_idx)
 	/* Reset */
 	stagger = FALSE;
 
+	/* -TM- Make monsters move stupidly if they can't see invisible */
+	if (!(r_ptr->flags2 & (RF2_SEE_INVIS)) && (p_ptr->invis))
+	{
+		/* Chance of seeing player depends on stealth */
+		if (randint(p_ptr->skill[SK_STL] * 5)+1 > 10)
+		{
+			stagger = TRUE;
+		}
+	}
+	else if ((r_ptr->flags2 & (RF2_SEE_INVIS)) && (p_ptr->invis) && (m_ptr->ml))
+		l_ptr->r_flags2 |= (RF2_SEE_INVIS);
+
+
+
 	/* Confused */
 	if (m_ptr->confused)
 	{
@@ -3737,12 +3761,6 @@ static void process_monster(int m_idx)
 					/* Door power */
 					k = ((cave_feat[ny][nx] - FEAT_DOOR_HEAD) & 0x07);
 
-#if 0
-					/* XXX XXX XXX Old test (pval 10 to 20) */
-					if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
-					    40 * (m_ptr->hp - 10 - o_ptr->pval));
-#endif /* 0 */
-
 					/* Try to unlock it XXX XXX XXX */
 					if (rand_int(m_ptr->hp / 10) > k)
 					{
@@ -3762,12 +3780,6 @@ static void process_monster(int m_idx)
 
 				/* Door power */
 				k = ((cave_feat[ny][nx] - FEAT_DOOR_HEAD) & 0x07);
-
-#if 0
-				/* XXX XXX XXX Old test (pval 10 to 20) */
-				if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
-				    40 * (m_ptr->hp - 10 - o_ptr->pval));
-#endif /* 0 */
 
 				/* Attempt to Bash XXX XXX XXX */
 				if (rand_int(m_ptr->hp / 10) > k)
@@ -3914,8 +3926,6 @@ static void process_monster(int m_idx)
 
 				/* Monster pushed past another monster */
 				did_move_body = TRUE;
-
-				/* XXX XXX XXX Message */
 			}
 		}
 
@@ -3941,6 +3951,8 @@ static void process_monster(int m_idx)
 				disturb(0, 0);
 			}
 
+			/* If he carries a light, update lights */
+			if ((view_monster_lite) && (r_ptr->flags2 & (RF2_HAS_LITE)))	do_view = TRUE;
 
 			/* Scan all objects in the grid */
 			for (this_o_idx = cave_o_idx[ny][nx]; this_o_idx; this_o_idx = next_o_idx)
@@ -4124,8 +4136,6 @@ static void process_monster(int m_idx)
 			/* Dump a message */
 			msg_format("%^s turns to fight!", m_name);
 		}
-
-		/* XXX XXX XXX Actually do something now (?) */
 	}
 }
 

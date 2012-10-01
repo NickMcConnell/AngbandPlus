@@ -53,10 +53,6 @@
  */
 
 
-
-
-
-
 /*
  * Eat some food (from the pack or floor)
  */
@@ -268,6 +264,11 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
+		case SV_FOOD_RESTORE_DEX:
+		{
+			if (do_res_stat(A_DEX)) ident = TRUE;
+			break;
+		}
 		case SV_FOOD_RESTORING:
 		{
 			if (do_res_stat(A_STR)) ident = TRUE;
@@ -278,7 +279,6 @@ void do_cmd_eat_food(void)
 			if (do_res_stat(A_CHR)) ident = TRUE;
 			break;
 		}
-
 
 		case SV_FOOD_RATION:
 		case SV_FOOD_BISCUIT:
@@ -303,6 +303,16 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_PINT_OF_WINE:
 		{
 			msg_print("That tastes good.");
+			ident = TRUE;
+			break;
+		}
+
+		case SV_FOOD_PINT_OF_NECTAR:
+		{
+			msg_print("That tastes good.");
+			(void)set_poisoned(0);
+			(void)set_afraid(0);
+			(void)hp_player(damroll(2, 4));
 			ident = TRUE;
 			break;
 		}
@@ -355,9 +365,11 @@ void do_cmd_eat_food(void)
  */
 void do_cmd_quaff_potion(void)
 {
-	int item, ident, lev;
+	int item, ident, lev, time;
 
 	object_type *o_ptr;
+
+	char line[80];
 
 	cptr q, s;
 
@@ -385,7 +397,6 @@ void do_cmd_quaff_potion(void)
 
 	/* Sound */
 	sound(MSG_QUAFF);
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -551,6 +562,44 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
+		case SV_POTION_RISK:
+		{
+			if (rand_int(100)<=49) 
+			{
+				msg_print("You took one risk too many.");
+				take_hit(5000, "a potion of Risk");
+				ident = TRUE;
+				break;
+			}
+			else
+			{
+				msg_print("Great risks bring great rewards - ");
+				hp_player(damroll(4, 8));
+				(void)do_inc_stat(A_STR);
+				(void)do_inc_stat(A_INT);
+				(void)do_inc_stat(A_WIS);
+				(void)do_inc_stat(A_DEX);
+				(void)do_inc_stat(A_CON);
+				(void)do_inc_stat(A_CHR);
+				wiz_lite();
+				ident = TRUE;
+			break;
+			}
+		}
+
+
+		case SV_POTION_DEFORM:
+		{
+			msg_print("You feel your flesh twist and contort");
+			scramble_stats(3);
+			ident=TRUE;
+			p_ptr->ht+=(rand_int(11)-5);
+			p_ptr->wt+=(rand_int(21)-10);
+			if (p_ptr->ht<20) p_ptr->ht=20;
+			if (p_ptr->ht<20) p_ptr->ht=20;
+			break;
+		}
+
 		case SV_POTION_INFRAVISION:
 		{
 			if (set_tim_infra(p_ptr->tim_infra + 100 + randint(100)))
@@ -562,7 +611,16 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DETECT_INVIS:
 		{
-			if (set_tim_invis(p_ptr->tim_invis + 12 + randint(12)))
+			if (set_tim_see_invis(p_ptr->tim_see_invis + 12 + randint(12)))
+			{
+				ident = TRUE;
+			}
+			break;
+		}
+
+		case SV_POTION_INVISIBILITY:
+		{
+			if (set_tim_invis(p_ptr->tim_invis + 10 + randint(10)))
 			{
 				ident = TRUE;
 			}
@@ -856,8 +914,30 @@ void do_cmd_quaff_potion(void)
 			}
 			break;
 		}
-	}
 
+		case SV_POTION_RESISTANCE:
+		{
+			time = randint(20) + 20;
+			if (set_oppose_acid(p_ptr->oppose_acid + time)) ident = TRUE;
+			if (set_oppose_elec(p_ptr->oppose_elec + time)) ident = TRUE;
+			if (set_oppose_fire(p_ptr->oppose_fire + time)) ident = TRUE;
+			if (set_oppose_cold(p_ptr->oppose_cold + time)) ident = TRUE;
+			break;
+		}
+
+		case SV_POTION_STAR_RESISTANCE:
+		{
+			if (set_oppose_all(randint(15) + 10)) ident = TRUE;
+			break;
+		}
+
+		case SV_POTION_SATISFY_HUNGER:
+		{
+			if (set_food(PY_FOOD_MAX - 1)) ident = TRUE;
+			break;
+		}
+
+	}
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -866,11 +946,23 @@ void do_cmd_quaff_potion(void)
 	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
+	if ((ident) && (!object_aware_p(o_ptr)))
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
+		
+	/* Check if the alchemicl formula is learnt */
+	if (!((potion_alch[o_ptr->sval].known1) && (potion_alch[o_ptr->sval].known2)) &&
+		(rand_int(100) <= p_ptr->skill[SK_ALC] - 40))
+	{
+		msg_print("You have gained alchemical knowledge!");
+		if (!(potion_alch[o_ptr->sval].known1)) potion_alch[o_ptr->sval].known1 = TRUE;
+		else potion_alch[o_ptr->sval].known2 = TRUE;
+		alchemy_describe(line, o_ptr->sval);
+		msg_format("%s", line);
+	}
+		
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -1154,6 +1246,18 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
+		case SV_SCROLL_SUMMON_DRAGON:
+		{
+			for (k = 0; k < randint(3); k++)
+			{
+				if (summon_specific(py, px, p_ptr->depth, SUMMON_DRAGON))
+				{
+					ident = TRUE;
+				}
+			}
+			break;
+		}
+
 		case SV_SCROLL_TRAP_CREATION:
 		{
 			if (trap_creation()) ident = TRUE;
@@ -1184,6 +1288,15 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_WORD_OF_RECALL:
 		{
 			set_recall();
+			ident = TRUE;
+			break;
+		}
+
+		case SV_SCROLL_ALTER_REALITY:
+		{
+			msg_print("The world changes!");
+			/* Leaving */
+			p_ptr->leaving = TRUE;
 			ident = TRUE;
 			break;
 		}
@@ -1261,6 +1374,15 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
+		case SV_SCROLL_ELEMENTAL_BRAND:
+		{
+			/* Hack - choose random brand */
+			k = rand_int(4);
+			if (!brand_weapon(0,EGO_BRAND_ACID+k,TRUE)) used_up = FALSE;
+			ident = TRUE;
+			break;
+		}
+
 		case SV_SCROLL_LIGHT:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
@@ -1306,9 +1428,9 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_SATISFY_HUNGER:
+		case SV_SCROLL_ABSORB_HIT:
 		{
-			if (set_food(PY_FOOD_MAX - 1)) ident = TRUE;
+			if (set_absorb(p_ptr->absorb + randint(20) + 25)) ident = TRUE;
 			break;
 		}
 
@@ -1470,7 +1592,7 @@ void do_cmd_use_staff(void)
 	cptr q, s;
 
 
-	/* Restrict choices to wands */
+	/* Restrict choices to staves */
 	item_tester_tval = TV_STAFF;
 
 	/* Get an item */
@@ -1509,7 +1631,7 @@ void do_cmd_use_staff(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skill[SK_DEV];
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -1615,7 +1737,7 @@ void do_cmd_use_staff(void)
 			{
 				msg_print("The end of the staff glows brightly...");
 			}
-			for (k = 0; k < 8; k++) lite_line(ddd[k]);
+			for (k = 0; k < 8; k++) lite_line(ddd[k],damroll(6,8));
 			ident = TRUE;
 			break;
 		}
@@ -1810,36 +1932,8 @@ void do_cmd_use_staff(void)
 	/* Hack -- some uses are "free" */
 	if (!use_charge) return;
 
-
 	/* Use a single charge */
 	o_ptr->pval--;
-
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore the charges */
-		o_ptr->pval++;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your staff.");
-	}
 
 	/* Describe charges in the pack */
 	if (item >= 0)
@@ -1927,7 +2021,7 @@ void do_cmd_aim_wand(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skill[SK_DEV];
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -2017,7 +2111,7 @@ void do_cmd_aim_wand(void)
 		case SV_WAND_LITE:
 		{
 			msg_print("A line of blue shimmering light appears.");
-			lite_line(dir);
+			lite_line(dir,damroll(6,8));
 			ident = TRUE;
 			break;
 		}
@@ -2260,9 +2354,10 @@ void do_cmd_aim_wand(void)
 
 
 /*
- * Activate (zap) a Rod
- *
- * Unstack fully charged rods as needed.
+ * Activate (zap) a Rod.    Rods may be fully identified through use 
+ * (although it's not easy).  Rods now use timeouts to determine charging 
+ * status, and pvals have become the cost of zapping a rod (how long it 
+ * takes between zaps).  Pvals are defined for each rod in k_info. -LM-
  *
  * Hack -- rods of perception/genocide can be "cancelled"
  * All rods can be cancelled at the "Direction?" prompt
@@ -2270,6 +2365,7 @@ void do_cmd_aim_wand(void)
 void do_cmd_zap_rod(void)
 {
 	int item, ident, chance, dir, lev;
+	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
 
@@ -2299,22 +2395,12 @@ void do_cmd_zap_rod(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
-	/* Mega-Hack -- refuse to zap a pile from the ground */
-	if ((item < 0) && (o_ptr->number > 1))
-	{
-		msg_print("You must first pick up the rods.");
-		return;
-	}
-
-
 	/* Get a direction (unless KNOWN not to need it) */
 	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
 	{
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir)) return;
 	}
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -2326,7 +2412,7 @@ void do_cmd_zap_rod(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skill[SK_DEV];
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -2348,18 +2434,25 @@ void do_cmd_zap_rod(void)
 		return;
 	}
 
-	/* Still charging */
-	if (o_ptr->pval)
+	/* A single rod is still charging */
+	if ((o_ptr->number == 1) && (o_ptr->timeout))
 	{
 		if (flush_failure) flush();
 		msg_print("The rod is still charging.");
 		return;
 	}
+	/* A stack of rods lacks enough energy. */
+	else if ((o_ptr->number > 1) && (o_ptr->timeout > o_ptr->pval - k_info[o_ptr->k_idx].pval))
+	{
+		if (flush_failure) flush();
+		msg_print("The rods are all still charging.");
+		return;
+	}
 
+	o_ptr->timeout += k_info[o_ptr->k_idx].pval;
 
 	/* Sound */
 	sound(MSG_ZAP);
-
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
@@ -2367,7 +2460,6 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
-			o_ptr->pval = 50;
 			break;
 		}
 
@@ -2375,7 +2467,6 @@ void do_cmd_zap_rod(void)
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
-			o_ptr->pval = 70;
 			break;
 		}
 
@@ -2383,7 +2474,6 @@ void do_cmd_zap_rod(void)
 		{
 			ident = TRUE;
 			if (!ident_spell()) use_charge = FALSE;
-			o_ptr->pval = 10;
 			break;
 		}
 
@@ -2391,14 +2481,12 @@ void do_cmd_zap_rod(void)
 		{
 			set_recall();
 			ident = TRUE;
-			o_ptr->pval = 60;
 			break;
 		}
 
 		case SV_ROD_ILLUMINATION:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -2406,7 +2494,6 @@ void do_cmd_zap_rod(void)
 		{
 			map_area();
 			ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -2414,7 +2501,6 @@ void do_cmd_zap_rod(void)
 		{
 			detect_all();
 			ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -2422,7 +2508,6 @@ void do_cmd_zap_rod(void)
 		{
 			probing();
 			ident = TRUE;
-			o_ptr->pval = 50;
 			break;
 		}
 
@@ -2433,7 +2518,6 @@ void do_cmd_zap_rod(void)
 			if (set_confused(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2442,7 +2526,6 @@ void do_cmd_zap_rod(void)
 			if (hp_player(500)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2455,7 +2538,6 @@ void do_cmd_zap_rod(void)
 			if (do_res_stat(A_DEX)) ident = TRUE;
 			if (do_res_stat(A_CON)) ident = TRUE;
 			if (do_res_stat(A_CHR)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2469,58 +2551,50 @@ void do_cmd_zap_rod(void)
 			{
 				(void)set_fast(p_ptr->fast + 5);
 			}
-			o_ptr->pval = 99;
 			break;
 		}
 
 		case SV_ROD_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
 		case SV_ROD_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
 		case SV_ROD_LITE:
 		{
 			msg_print("A line of blue shimmering light appears.");
-			lite_line(dir);
+			lite_line(dir,damroll(6,8));
 			ident = TRUE;
-			o_ptr->pval = 9;
 			break;
 		}
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir)) ident = TRUE;
-			o_ptr->pval = 18;
 			break;
 		}
 
 		case SV_ROD_SLOW_MONSTER:
 		{
 			if (slow_monster(dir)) ident = TRUE;
-			o_ptr->pval = 20;
 			break;
 		}
 
 		case SV_ROD_DRAIN_LIFE:
 		{
 			if (drain_life(dir, 75)) ident = TRUE;
-			o_ptr->pval = 23;
 			break;
 		}
 
 		case SV_ROD_POLYMORPH:
 		{
 			if (poly_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
@@ -2528,7 +2602,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
 			ident = TRUE;
-			o_ptr->pval = 12;
 			break;
 		}
 
@@ -2536,7 +2609,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
 			ident = TRUE;
-			o_ptr->pval = 11;
 			break;
 		}
 
@@ -2544,7 +2616,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
 			ident = TRUE;
-			o_ptr->pval = 15;
 			break;
 		}
 
@@ -2552,7 +2623,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
 			ident = TRUE;
-			o_ptr->pval = 13;
 			break;
 		}
 
@@ -2560,7 +2630,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_ACID, dir, 60, 2);
 			ident = TRUE;
-			o_ptr->pval = 27;
 			break;
 		}
 
@@ -2568,7 +2637,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_ELEC, dir, 32, 2);
 			ident = TRUE;
-			o_ptr->pval = 23;
 			break;
 		}
 
@@ -2576,7 +2644,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_FIRE, dir, 72, 2);
 			ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -2584,11 +2651,9 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_COLD, dir, 48, 2);
 			ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 	}
-
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2609,37 +2674,10 @@ void do_cmd_zap_rod(void)
 	/* Hack -- deal with cancelled zap */
 	if (!use_charge)
 	{
-		o_ptr->pval = 0;
+		o_ptr->timeout += k_info[o_ptr->k_idx].pval;
 		return;
 	}
 
-
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore "charge" */
-		o_ptr->pval = 0;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your rod.");
-	}
 }
 
 
@@ -2731,67 +2769,6 @@ static void ring_of_power(int dir)
 	}
 }
 
-
-/*
- * Enchant some (non-magical) bolts
- */
-static bool brand_bolts(void)
-{
-	int item;
-	object_type *o_ptr;
-	cptr q, s;
-
-
-	/* Restrict choices to bolts */
-	item_tester_tval = TV_BOLT;
-
-	/* Get an item */
-	q = "Enchant which bolts? ";
-	s = "You have no bolts to brand.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/*
-	 * Don't enchant artifacts, ego-items, cursed or broken items
-	 */
-	if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
-	    cursed_p(o_ptr) || broken_p(o_ptr))
-	{
-		/* Flush */
-		if (flush_failure) flush();
-
-		/* Fail */
-		msg_print("The fiery enchantment failed.");
-
-		/* Notice */
-		return (TRUE);
-	}
-
-	/* Message */
-	msg_print("Your bolts are covered in a fiery aura!");
-
-	/* Ego-item */
-	o_ptr->name2 = EGO_FLAME;
-
-	/* Enchant */
-	enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-
-	/* Notice */
-	return (TRUE);
-}
-
-
 /*
  * Activate a wielded object.  Wielded objects never stack.
  * And even if they did, activatable objects never stack.
@@ -2842,7 +2819,7 @@ void do_cmd_activate(void)
 	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skill[SK_DEV];
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -3277,7 +3254,7 @@ void do_cmd_activate(void)
 			case ACT_FIREBRAND:
 			{
 				msg_format("Your %s glows deep red...", o_name);
-				(void)brand_bolts();
+				(void)brand_weapon(TV_BOLT,EGO_FLAME,TRUE);
 				break;
 			}
 		}
@@ -3400,6 +3377,19 @@ void do_cmd_activate(void)
 				break;
 			}
 
+			case SV_DRAGON_ETHEREAL:
+			{
+				chance = rand_int(3);
+				msg_format("You breathe %s.",
+				           ((chance == 1) ? "light" :
+				            ((chance == 2) ? "darknesst" : "confusion")));
+				fire_ball((chance == 1) ? GF_LITE :
+				           ((chance == 2) ? GF_DARK : GF_CONFUSION),
+				          dir, 250, 2);
+				o_ptr->timeout = rand_int(300) + 300;
+				break;
+			}
+
 			case SV_DRAGON_BALANCE:
 			{
 				chance = rand_int(4);
@@ -3446,4 +3436,160 @@ void do_cmd_activate(void)
 	msg_print("Oops.  That object cannot be activated.");
 }
 
+void do_cmd_mix(void)
+{
+	int item1, item2, k_idx;
+	int i1, i2, sv;
+	int chance, roll;
 
+	bool found = FALSE;
+
+	cptr q, s, r;
+	object_kind *k_ptr;
+	object_type object_type_body;
+	object_type *o_ptr1, *o_ptr2, *to_ptr;
+
+	/* Get an item */
+	q = "Mix which potion? ";
+	s = "You don't have enough potions to mix.";
+	r = "With which potion? ";
+	item_tester_tval = TV_POTION;
+	if (!get_item(&item1, q, s, (USE_INVEN | USE_FLOOR))) return;
+	item_tester_tval = TV_POTION;
+	if (!get_item(&item2, r, s, (USE_INVEN | USE_FLOOR))) return;
+
+	if (item1 >= 0)
+	{
+		o_ptr1 = &inventory[item1];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr1 = &o_list[0 - item1];
+	}
+
+	if (item2 >= 0)
+	{
+		o_ptr2= &inventory[item2];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr2 = &o_list[0 - item2];
+	}
+
+	if (o_ptr1->sval==o_ptr2->sval)
+	{
+		msg_print("You must mix two different potions!");
+		return;
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+	
+	/* Extract the tval/sval codes */
+	for (sv = 1; sv < SV_MAX_POTIONS; sv++)
+	{
+		if (((potion_alch[sv].sval1 == o_ptr1->sval) && (potion_alch[sv].sval2 == o_ptr2->sval))
+			|| ((potion_alch[sv].sval2 == o_ptr1->sval) && (potion_alch[sv].sval1 == o_ptr2->sval)))
+			found = TRUE;
+	
+		if (found) break;
+	}
+
+	if (found)
+	{
+		/* Look for it */
+		for (k_idx = 1; k_idx < z_info->k_max; k_idx++)
+		{
+			k_ptr = &k_info[k_idx];
+			/* Found a match */
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == sv)) break;
+		}
+		
+		if (k_idx == z_info->k_max) found = FALSE;
+	}
+	
+	if (found)
+	{
+		/*** Create new potion ****/
+
+		/* Get local object */
+		to_ptr = &object_type_body;
+
+		/* Wipe the object */
+		object_wipe(to_ptr);
+	
+		/* Prepare the ojbect */
+		object_prep(to_ptr, k_idx);
+
+		/*** Skill check ***/
+
+		chance = 25+(p_ptr->skill[SK_ALC])-((k_ptr->cost)/250);
+
+		/* Always 5% chance of success or failure*/
+
+		if (chance < 5) chance = 5;
+
+		if (chance > 95) chance = 95;
+	}
+	/* If there's no potion, always fail */
+	else chance = 0;
+
+	roll = rand_int(100);	
+
+	if (roll < chance)
+	{
+		drop_near(to_ptr, -1, p_ptr->py, p_ptr->px); /* drop the object */
+		potion_alch[sv].known1 = TRUE;
+		potion_alch[sv].known2 = TRUE;
+	}
+
+	else if ((roll < chance+30) && (roll < 99)) msg_print("You have wasted the potions.");
+	else 
+	{
+		msg_print("The potions explode in your hands!");
+		take_hit(damroll(4,8)+(k_ptr->cost)/800, "carelessly mixing potions");
+	}
+
+	/* Hack - make sure the potions are destroyed in order */
+
+	i1= (item1>item2) ? item1 : item2;
+	i2= (item1>item2) ? item2 : item1;
+
+	/* Destroy a potion in the pack */
+	if (i1 >= 0)
+	{
+		inven_item_increase(i1, -1);
+		inven_item_describe(i1);
+		inven_item_optimize(i1); 
+	}
+
+	/* Destroy a potion on the floor */
+	else
+	{
+		floor_item_increase(0 - i1, -1);
+		floor_item_describe(0 - i1);
+		floor_item_optimize(0 - i1);
+	}
+
+	/* Destroy a potion in the pack */
+	if (i2 >= 0)
+	{
+		inven_item_increase(i2, -1);
+		inven_item_describe(i2);
+		inven_item_optimize(i2);
+	}
+
+	/* Destroy a potion on the floor */
+	else
+	{
+		floor_item_increase(0 - i2, -1);
+		floor_item_describe(0 - i2);
+		floor_item_optimize(0 - i2);
+	}
+
+
+}

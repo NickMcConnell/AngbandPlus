@@ -373,6 +373,9 @@ void compact_objects(int size)
 			/* Saving throw */
 			chance = 90;
 
+			/* Squelched items get compacted */
+			if ((k_ptr->aware) && (k_ptr->squelch)) chance = 0;
+
 			/* Hack -- only compact artifacts in emergencies */
 			if (artifact_p(o_ptr) && (cnt < 1000)) chance = 100;
 
@@ -752,8 +755,18 @@ void object_known(object_type *o_ptr)
  */
 void object_aware(object_type *o_ptr)
 {
+	int x, y;
+	bool flag = k_info[o_ptr->k_idx].aware;
+
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
+
+	/* If newly aware and squelched, must rearrange stacks */
+	if (!flag && (k_info[o_ptr->k_idx].squelch))
+		for(x=0; x<DUNGEON_WID; x++)
+			for(y=0; y<DUNGEON_HGT; y++)
+				rearrange_stack(y, x);
+
 }
 
 
@@ -791,6 +804,9 @@ static s32b object_value_base(object_type *o_ptr)
 
 		/* Un-aware Scrolls */
 		case TV_SCROLL: return (20L);
+
+		/* Un-aware Powders */
+		case TV_POWDER: return (25L);
 
 		/* Un-aware Staffs */
 		case TV_STAFF: return (70L);
@@ -1043,6 +1059,58 @@ static s32b object_value_real(object_type *o_ptr)
 
 
 /*
+ * Distribute charges of rods or wands.
+ *
+ * o_ptr = source item
+ * q_ptr = target item, must be of the same type as o_ptr
+ * amt   = number of items that are transfered
+ */
+void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt)
+{
+	/*
+	 * Hack -- If rods are dropped, the total maximum timeout or
+	 * charges need to be allocated between the two stacks.  If all the items
+	 * are being dropped, it makes for a neater message to leave the original
+	 * stack's pval alone. -LM-
+	 */
+	if (o_ptr->tval == TV_ROD)
+	{
+		q_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+		if (amt < o_ptr->number)
+			o_ptr->pval -= q_ptr->pval;
+
+		/* Hack -- Rods also need to have their timeouts distributed.  The
+		 * dropped stack will accept all time remaining to charge up to its
+		 * maximum.
+		 */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			if (q_ptr->pval > o_ptr->timeout)
+				q_ptr->timeout = o_ptr->timeout;
+			else
+				q_ptr->timeout = q_ptr->pval;
+
+			if (amt < o_ptr->number)
+				o_ptr->timeout -= q_ptr->timeout;
+		}
+	}
+}
+
+
+void reduce_charges(object_type *o_ptr, int amt)
+{
+	/*
+	 * Hack -- If rods are destroyed, the total maximum timeout or
+	 * charges of the stack needs to be reduced, unless all the items are
+	 * being destroyed. -LM-
+	 */
+	if ((o_ptr->tval == TV_ROD) && (amt < o_ptr->number))
+	{
+		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
+	}
+}
+
+/*
  * Return the price of an item including plusses (and charges).
  *
  * This function returns the "value" of the given item (qty one).
@@ -1139,6 +1207,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		/* Food and Potions and Scrolls */
 		case TV_FOOD:
 		case TV_POTION:
+		case TV_POWDER:
 		case TV_SCROLL:
 		{
 			/* Assume okay */
@@ -1152,16 +1221,16 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			/* Require knowledge */
 			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
 
-			/* Fall through */
-		}
-
-		/* Staffs and Wands and Rods */
-		case TV_ROD:
-		{
 			/* Require identical charges */
 			if (o_ptr->pval != j_ptr->pval) return (0);
 
-			/* Probably okay */
+			/* Fall through */
+		}
+
+		/* Rods */
+		case TV_ROD:
+		{
+			/* Asssume okay. -LM- */
 			break;
 		}
 
@@ -1340,6 +1409,14 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	/* Mega-Hack -- Blend "discounts" */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
+
+	/* Hack -- if rods are stacking, add the pvals (maximum timeouts) and current timeouts together. -LM- */
+	if (o_ptr->tval == TV_ROD)
+	{
+		o_ptr->pval += j_ptr->pval;
+		o_ptr->timeout += j_ptr->timeout;
+	}
+
 }
 
 
@@ -1498,7 +1575,6 @@ static s16b m_bonus(int max, int level)
 
 	/* Hack -- simulate floating point computations */
 	if (rand_int(4) < extra) stand++;
-
 
 	/* Choose an "interesting" value */
 	value = Rand_normal(bonus, stand);
@@ -2093,11 +2169,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Strength, Constitution, Dexterity, Intelligence */
+				/* Strength, Constitution, Dexterity*/
 				case SV_RING_STR:
 				case SV_RING_CON:
 				case SV_RING_DEX:
-				case SV_RING_INT:
 				{
 					/* Stat bonus */
 					o_ptr->pval = 1 + m_bonus(5, level);
@@ -2114,6 +2189,15 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
+
+					break;
+				}
+
+				/* Greatness */
+				case SV_RING_GREATNESS:
+				{
+					/* Stat bonus */
+					o_ptr->pval = 1 + m_bonus(1, level);
 
 					break;
 				}
@@ -2177,15 +2261,17 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_FLAMES:
 				case SV_RING_ACID:
 				case SV_RING_ICE:
+				case SV_RING_LIGHTNING:
 				{
 					/* Bonus to armor class */
-					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
+					o_ptr->to_a = randint(3) + m_bonus(10, level);
 					break;
 				}
 
-				/* Weakness, Stupidity */
+				/* Weakness, Stupidity, slowness */
 				case SV_RING_WEAKNESS:
 				case SV_RING_STUPIDITY:
+				case SV_RING_SLOWNESS:
 				{
 					/* Broken */
 					o_ptr->ident |= (IDENT_BROKEN);
@@ -2199,7 +2285,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* WOE, Stupidity */
+				/* WOE */
 				case SV_RING_WOE:
 				{
 					/* Broken */
@@ -2314,8 +2400,9 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Amulet of wisdom/charisma */
+				/* Amulet of wisdom/intelligence/charisma */
 				case SV_AMULET_WISDOM:
+				case SV_AMULET_INTELLIGENCE:
 				case SV_AMULET_CHARISMA:
 				{
 					o_ptr->pval = 1 + m_bonus(5, level);
@@ -2414,7 +2501,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			}
 
 			/* Hack -- Lanterns -- random fuel */
-			if (o_ptr->sval == SV_LITE_LANTERN)
+			if ((o_ptr->sval == SV_LITE_LANTERN) || (o_ptr->sval == SV_LITE_LANTERN_SEE))
 			{
 				if (o_ptr->pval > 0) o_ptr->pval = randint(o_ptr->pval);
 			}
@@ -2780,27 +2867,28 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		/* Books -- High level books are good */
+		/* Books -- Books with the good flag are good */
 		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
 		{
-			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
+			if (books[k_ptr->sval].flags & SBF_GOOD) return (TRUE);
 			return (FALSE);
 		}
 
-		/* Rings -- Rings of Speed are good */
+		/* Rings -- Rings of Speed and greatness are good */
 		case TV_RING:
 		{
-			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
+			if ((k_ptr->sval == SV_RING_SPEED) || (k_ptr->sval == SV_RING_GREATNESS)) return (TRUE);
 			return (FALSE);
 		}
 
 		/* Amulets -- Amulets of the Magi are good */
 		case TV_AMULET:
 		{
-			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
+			if ((k_ptr->sval == SV_AMULET_THE_MAGI) || (k_ptr->sval == SV_AMULET_INVISIBILITY)) 
+				return (TRUE);
 			return (FALSE);
 		}
+
 	}
 
 	/* Assume not good */
@@ -2828,7 +2916,6 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 
 	/* Base level for the object */
 	base = (good ? (object_level + 10) : object_level);
-
 
 	/* Generate a special artifact, or a normal object */
 	if ((rand_int(prob) != 0) || !make_artifact_special(j_ptr))
@@ -2900,7 +2987,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 /*
  * XXX XXX XXX Do not use these hard-coded values.
  */
-#define OBJ_GOLD_LIST	480	/* First "gold" entry */
+#define OBJ_GOLD_LIST	550	/* First "gold" entry */
 #define MAX_GOLD	18	/* Number of "gold" entries */
 
 /*
@@ -2913,7 +3000,6 @@ bool make_gold(object_type *j_ptr)
 	int i;
 
 	s32b base;
-
 
 	/* Hack -- Pick a Treasure variety */
 	i = ((randint(object_level + 2) + 2) / 2) - 1;
@@ -3005,6 +3091,9 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 		/* Link the floor to the object */
 		cave_o_idx[y][x] = o_idx;
 
+		/* Rearrange to refelct squelching */
+		rearrange_stack(y, x);
+
 		/* Notice */
 		note_spot(y, x);
 
@@ -3062,7 +3151,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
+		if (j_ptr->tval != TV_POWDER) msg_format("The %s disappear%s.",
 		           o_name, (plural ? "" : "s"));
 
 		/* Debug */
@@ -3471,6 +3560,97 @@ void place_random_door(int y, int x)
 
 
 /*
+ * Describe an alchemical formula (place string in buf)
+ */
+void alchemy_describe(char *buf, int sval)
+{
+	int k;
+	char o_name1[80];
+	char o_name2[80];
+	char o_name3[80];
+
+	object_kind *k_ptr;
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	/* Look for it */
+	for (k = 1; k < z_info->k_max; k++)
+	{
+		k_ptr = &k_info[k];
+
+		/* Found a match */
+		if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == sval)) break;
+	}
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Create fake object */
+	object_prep(i_ptr, k);
+
+	/* Describe the object */
+	if (k_ptr->aware) strcpy (o_name1,(k_name + k_ptr->name));
+	else object_desc(o_name1, i_ptr, FALSE, 0);
+
+	/* Look for first component */
+	if (potion_alch[sval].known1)
+	{
+		for (k = 1; k < z_info->k_max; k++)
+		{
+			k_ptr = &k_info[k];
+			/* Found a match */
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[sval].sval1)) break;
+		}
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Create fake object */
+		object_prep(i_ptr, k);
+
+		/* Describe the object */
+		if (k_ptr->aware) strcpy (o_name2,(k_name + k_ptr->name));
+		else object_desc(o_name2, i_ptr, FALSE, 0);
+	}
+	else
+	{
+		strcpy (o_name2,"????");
+	}
+
+	/* Look for first component */
+	if (potion_alch[sval].known2)
+	{
+	/* Look for second component */
+		for (k = 1; k < z_info->k_max; k++)
+		{
+			k_ptr = &k_info[k];
+			/* Found a match */
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[sval].sval2)) break;
+		}
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Create fake object */
+		object_prep(i_ptr, k);
+
+		/* Describe the object */
+		if (k_ptr->aware) strcpy (o_name3,(k_name + k_ptr->name));
+		else object_desc(o_name3, i_ptr, FALSE, 0);
+	}
+	else
+	{
+		strcpy (o_name3,"????");
+	}
+
+	/* Print a message */
+	sprintf(buf, "%s = %s + %s", o_name1, o_name2, o_name3);
+
+	buf[79] = '\0';
+
+}
+
+/*
  * Describe the charges on an item in the inventory.
  */
 void inven_item_charges(int item)
@@ -3514,7 +3694,6 @@ void inven_item_describe(int item)
 	/* Print a message */
 	msg_format("You have %s (%c).", o_name, index_to_label(item));
 }
-
 
 /*
  * Increase the "number" of an item in the inventory
@@ -3824,10 +4003,8 @@ s16b inven_carry(object_type *o_ptr)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == mp_ptr->spell_book) &&
-			    (j_ptr->tval != mp_ptr->spell_book)) break;
-			if ((j_ptr->tval == mp_ptr->spell_book) &&
-			    (o_ptr->tval != mp_ptr->spell_book)) continue;
+			if ((item_tester_hook_spellbooks(o_ptr)) && (!item_tester_hook_spellbooks(j_ptr))) break;
+			if ((item_tester_hook_spellbooks(j_ptr)) && (!item_tester_hook_spellbooks(o_ptr))) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -4059,6 +4236,9 @@ void inven_drop(int item, int amt)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
+	/* Distribute charges of wands or rods */
+	distribute_charges(o_ptr, i_ptr, amt);
+
 	/* Modify quantity */
 	i_ptr->number = amt;
 
@@ -4194,10 +4374,8 @@ void reorder_pack(void)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == mp_ptr->spell_book) &&
-			    (j_ptr->tval != mp_ptr->spell_book)) break;
-			if ((j_ptr->tval == mp_ptr->spell_book) &&
-			    (o_ptr->tval != mp_ptr->spell_book)) continue;
+			if ((item_tester_hook_spellbooks(o_ptr)) && (!item_tester_hook_spellbooks(j_ptr))) break;
+			if ((item_tester_hook_spellbooks(j_ptr)) && (!item_tester_hook_spellbooks(o_ptr))) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -4275,296 +4453,10 @@ void reorder_pack(void)
 }
 
 
-
-/*
- * Returns chance of failure for a spell
- */
-s16b spell_chance(int spell)
-{
-	int chance, minfail;
-
-	magic_type *s_ptr;
-
-
-	/* Paranoia -- must be literate */
-	if (!mp_ptr->spell_book) return (100);
-
-	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
-
-	/* Extract the base spell failure rate */
-	chance = s_ptr->sfail;
-
-	/* Reduce failure rate by "effective" level adjustment */
-	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
-
-	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
-
-	/* Not enough mana to cast */
-	if (s_ptr->smana > p_ptr->csp)
-	{
-		chance += 5 * (s_ptr->smana - p_ptr->csp);
-	}
-
-	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
-
-	/* Non mage/priest characters never get better than 5 percent */
-	if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_PRIEST))
-	{
-		if (minfail < 5) minfail = 5;
-	}
-
-	/* Priest prayer penalty for "edged" weapons (before minfail) */
-	if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
-	{
-		chance += 25;
-	}
-
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder (after minfail) */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
-
-	/* Return the chance */
-	return (chance);
-}
-
-
-
-/*
- * Determine if a spell is "okay" for the player to cast or study
- * The spell must be legible, not forgotten, and also, to cast,
- * it must be known, and to study, it must not be known.
- */
-bool spell_okay(int spell, bool known)
-{
-	magic_type *s_ptr;
-
-	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
-
-	/* Spell is illegal */
-	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
-
-	/* Spell is forgotten */
-	if ((spell < 32) ?
-	    (p_ptr->spell_forgotten1 & (1L << spell)) :
-	    (p_ptr->spell_forgotten2 & (1L << (spell - 32))))
-	{
-		/* Never okay */
-		return (FALSE);
-	}
-
-	/* Spell is learned */
-	if ((spell < 32) ?
-	    (p_ptr->spell_learned1 & (1L << spell)) :
-	    (p_ptr->spell_learned2 & (1L << (spell - 32))))
-	{
-		/* Okay to cast, not to study */
-		return (known);
-	}
-
-	/* Okay to study, not to cast */
-	return (!known);
-}
-
-
-
-/*
- * Extra information on a spell		-DRS-
- *
- * We can use up to 14 characters of the buffer 'p'
- *
- * The strings in this function were extracted from the code in the
- * functions "do_cmd_cast()" and "do_cmd_pray()" and may be dated.
- */
-void spell_info(char *p, int spell)
-{
-	/* Default */
-	strcpy(p, "");
-
-	/* Mage spells */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
-	{
-		int plev = p_ptr->lev;
-
-		/* Analyze the spell */
-		switch (spell)
-		{
-			case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
-			case 2: strcpy(p, " range 10"); break;
-			case 5: strcpy(p, " heal 2d8"); break;
-			case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-			case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-			case 14: sprintf(p, " range %d", plev * 10); break;
-			case 15: strcpy(p, " dam 6d8"); break;
-			case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-			case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-			case 26: sprintf(p, " dam %d", 30 + plev); break;
-			case 29: sprintf(p, " dur %d+d20", plev); break;
-			case 30: sprintf(p, " dam %d", 55 + plev); break;
-			case 38: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-			case 39: sprintf(p, " dam %d", 40 + plev/2); break;
-			case 40: sprintf(p, " dam %d", 40 + plev); break;
-			case 41: sprintf(p, " dam %d", 70 + plev); break;
-			case 42: sprintf(p, " dam %d", 65 + plev); break;
-			case 43: sprintf(p, " dam %d", 300 + plev*2); break;
-			case 49: strcpy(p, " dur 20+d20"); break;
-			case 50: strcpy(p, " dur 20+d20"); break;
-			case 51: strcpy(p, " dur 20+d20"); break;
-			case 52: strcpy(p, " dur 20+d20"); break;
-			case 53: strcpy(p, " dur 20+d20"); break;
-			case 54: strcpy(p, " dur 25+d25"); break;
-			case 55: strcpy(p, " dur 30+d20"); break;
-			case 56: strcpy(p, " dur 25+d25"); break;
-			case 57: sprintf(p, " dur %d+d25", 30+plev); break;
-			case 58: strcpy(p, " dur 6+d8"); break;
-		}
-	}
-
-	/* Priest spells */
-	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
-	{
-		int plev = p_ptr->lev;
-
-		/* See below */
-		int orb = (plev / ((p_ptr->pclass == 2) ? 2 : 4));
-
-		/* Analyze the spell */
-		switch (spell)
-		{
-			case 1: strcpy(p, " heal 2d10"); break;
-			case 2: strcpy(p, " dur 12+d12"); break;
-			case 9: sprintf(p, " range %d", 3*plev); break;
-			case 10: strcpy(p, " heal 4d10"); break;
-			case 11: strcpy(p, " dur 24+d24"); break;
-			case 15: strcpy(p, " dur 10+d10"); break;
-			case 17: sprintf(p, " %d+3d6", plev + orb); break;
-			case 18: strcpy(p, " heal 6d10"); break;
-			case 19: strcpy(p, " dur 24+d24"); break;
-			case 20: sprintf(p, " dur %d+d25", 3*plev); break;
-			case 23: strcpy(p, " heal 8d10"); break;
-			case 25: strcpy(p, " dur 48+d48"); break;
-			case 26: sprintf(p, " dam d%d", 3*plev); break;
-			case 27: strcpy(p, " heal 300"); break;
-			case 28: sprintf(p, " dam d%d", 3*plev); break;
-			case 30: strcpy(p, " heal 1000"); break;
-			case 36: strcpy(p, " heal 4d10"); break;
-			case 37: strcpy(p, " heal 8d10"); break;
-			case 38: strcpy(p, " heal 2000"); break;
-			case 41: sprintf(p, " dam d%d", 4*plev); break;
-			case 42: sprintf(p, " dam d%d", 4*plev); break;
-			case 45: strcpy(p, " dam 200"); break;
-			case 52: strcpy(p, " range 10"); break;
-			case 53: sprintf(p, " range %d", 8*plev); break;
-		}
-	}
-}
-
-
-/*
- * Print a list of spells (for browsing or casting or viewing).
- */
-void print_spells(byte *spells, int num, int y, int x)
-{
-	int i, spell;
-
-	magic_type *s_ptr;
-
-	cptr comment;
-
-	char info[80];
-
-	char out_val[160];
-
-	byte line_attr;
-
-	/* Title the list */
-	prt("", y, x);
-	put_str("Name", y, x + 5);
-	put_str("Lv Mana Fail Info", y, x + 35);
-
-	/* Dump the spells */
-	for (i = 0; i < num; i++)
-	{
-		/* Get the spell index */
-		spell = spells[i];
-
-		/* Get the spell info */
-		s_ptr = &mp_ptr->info[spell];
-
-		/* Skip illegible spells */
-		if (s_ptr->slevel >= 99)
-		{
-			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
-			c_prt(TERM_L_DARK, out_val, y + i + 1, x);
-			continue;
-		}
-
-		/* Get extra info */
-		spell_info(info, spell);
-
-		/* Use that info */
-		comment = info;
-
-		/* Assume spell is known and tried */
-		line_attr = TERM_WHITE;
-
-		/* Analyze the spell */
-		if ((spell < 32) ?
-		    ((p_ptr->spell_forgotten1 & (1L << spell))) :
-		    ((p_ptr->spell_forgotten2 & (1L << (spell - 32)))))
-		{
-			comment = " forgotten";
-			line_attr = TERM_YELLOW;
-		}
-		else if (!((spell < 32) ?
-		           (p_ptr->spell_learned1 & (1L << spell)) :
-		           (p_ptr->spell_learned2 & (1L << (spell - 32)))))
-		{
-			if (s_ptr->slevel <= p_ptr->lev)
-			{
-				comment = " unknown";
-				line_attr = TERM_L_BLUE;
-			}
-			else
-			{
-				comment = " difficult";
-				line_attr = TERM_RED;
-			}
-		}
-		else if (!((spell < 32) ?
-		           (p_ptr->spell_worked1 & (1L << spell)) :
-		           (p_ptr->spell_worked2 & (1L << (spell - 32)))))
-		{
-			comment = " untried";
-			line_attr = TERM_L_GREEN;
-		}
-
-		/* Dump the spell --(-- */
-		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
-		        I2A(i), spell_names[mp_ptr->spell_type][spell],
-		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
-		c_prt(line_attr, out_val, y + i + 1, x);
-	}
-
-	/* Clear the bottom line */
-	prt("", y + i + 1, x);
-}
-
-
-
 /*
  * Hack -- display an object kind in the current window
  *
- * Include list of usable spells for readible books
+ * Include list of usable spells for readable books
  */
 void display_koff(int k_idx)
 {
@@ -4605,38 +4497,15 @@ void display_koff(int k_idx)
 
 
 	/* Warriors are illiterate */
-	if (!mp_ptr->spell_book) return;
+	if (!literate()) return;
 
 	/* Display spells in readible books */
-	if (i_ptr->tval == mp_ptr->spell_book)
+	if (cp_ptr->spell_book[i_ptr->sval])
 	{
-		int sval;
-
-		int spell;
-		int num = 0;
-
-		byte spells[64];
-
-
-		/* Get the item's sval */
-		sval = i_ptr->sval;
-
-		/* Extract spells */
-		for (spell = 0; spell < 64; spell++)
-		{
-			/* Check for this spell */
-			if ((spell < 32) ?
-			    (spell_flags[mp_ptr->spell_type][sval][0] & (1L << spell)) :
-			    (spell_flags[mp_ptr->spell_type][sval][1] & (1L << (spell - 32))))
-			{
-				/* Collect this spell */
-				spells[num++] = spell;
-			}
-		}
-
 		/* Print spells */
-		print_spells(spells, num, 2, 0);
+		print_spells(i_ptr->sval, 1, 14);
 	}
 }
+
 
 

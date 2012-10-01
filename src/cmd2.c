@@ -358,7 +358,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		flag = FALSE;
 
 		/* Get the "disarm" factor */
-		i = p_ptr->skill_dis;
+		i = p_ptr->skill[SK_DIS];
 
 		/* Penalize some conditions */
 		if (p_ptr->blind || no_lite()) i = i / 10;
@@ -420,7 +420,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 
 
 	/* Get the "disarm" factor */
-	i = p_ptr->skill_dis;
+	i = p_ptr->skill[SK_DIS];
 
 	/* Penalize some conditions */
 	if (p_ptr->blind || no_lite()) i = i / 10;
@@ -642,7 +642,7 @@ static bool do_cmd_open_aux(int y, int x)
 	else if (cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01)
 	{
 		/* Disarm factor */
-		i = p_ptr->skill_dis;
+		i = p_ptr->skill[SK_DIS];
 
 		/* Penalize some conditions */
 		if (p_ptr->blind || no_lite()) i = i / 10;
@@ -1067,7 +1067,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
 	{
 		/* Tunnel */
-		if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x))
+		if ((p_ptr->skill[SK_DIG] > 40 + rand_int(1600)) && twall(y, x))
 		{
 			msg_print("You have finished the tunnel.");
 		}
@@ -1103,13 +1103,13 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		/* Quartz */
 		if (hard)
 		{
-			okay = (p_ptr->skill_dig > 20 + rand_int(800));
+			okay = (p_ptr->skill[SK_DIG] > 20 + rand_int(800));
 		}
 
 		/* Magma */
 		else
 		{
-			okay = (p_ptr->skill_dig > 10 + rand_int(400));
+			okay = (p_ptr->skill[SK_DIG] > 10 + rand_int(400));
 		}
 
 		/* Success */
@@ -1154,7 +1154,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else if (cave_feat[y][x] == FEAT_RUBBLE)
 	{
 		/* Remove the rubble */
-		if ((p_ptr->skill_dig > rand_int(200)) && twall(y, x))
+		if ((p_ptr->skill[SK_DIG] > rand_int(200)) && twall(y, x))
 		{
 			/* Message */
 			msg_print("You have removed the rubble.");
@@ -1185,7 +1185,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else if (cave_feat[y][x] >= FEAT_SECRET)
 	{
 		/* Tunnel */
-		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x))
+		if ((p_ptr->skill[SK_DIG] > 30 + rand_int(1200)) && twall(y, x))
 		{
 			msg_print("You have finished the tunnel.");
 		}
@@ -1206,7 +1206,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else
 	{
 		/* Tunnel */
-		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x))
+		if ((p_ptr->skill[SK_DIG] > 30 + rand_int(1200)) && twall(y, x))
 		{
 			msg_print("You have finished the tunnel.");
 		}
@@ -1355,7 +1355,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 	name = (f_name + f_info[cave_feat[y][x]].name);
 
 	/* Get the "disarm" factor */
-	i = p_ptr->skill_dis;
+	i = p_ptr->skill[SK_DIS];
 
 	/* Penalize some conditions */
 	if (p_ptr->blind || no_lite()) i = i / 10;
@@ -2008,12 +2008,8 @@ static bool do_cmd_walk_test(int y, int x)
 		else if (cave_feat[y][x] < FEAT_SECRET)
 		{
 
-#ifdef ALLOW_EASY_ALTER
-
 			/* Hack -- Handle "easy_alter" */
 			if (easy_alter) return (TRUE);
-
-#endif /* ALLOW_EASY_ALTER */
 
 			/* Message */
 			msg_print("There is a door in the way!");
@@ -2178,7 +2174,7 @@ static void do_cmd_hold_or_stay(int pickup)
 	p_ptr->energy_use = 100;
 
 	/* Spontaneous Searching */
-	if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos)))
+	if ((p_ptr->skill[SK_FOS] >= 50) || (0 == rand_int(50 - p_ptr->skill[SK_FOS])))
 	{
 		search();
 	}
@@ -2314,6 +2310,7 @@ static int breakage_chance(object_type *o_ptr)
 		/* Always break */
 		case TV_FLASK:
 		case TV_POTION:
+		case TV_POWDER:
 		case TV_BOTTLE:
 		case TV_FOOD:
 		case TV_JUNK:
@@ -2324,7 +2321,6 @@ static int breakage_chance(object_type *o_ptr)
 		/* Often break */
 		case TV_LITE:
 		case TV_SCROLL:
-		case TV_SKELETON:
 		{
 			return (50);
 		}
@@ -2488,7 +2484,7 @@ void do_cmd_fire(void)
 
 	/* Actually "fire" the object */
 	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
-	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
+	chance = (p_ptr->skill[SK_THB] + (bonus * BTH_PLUS_ADJ));
 
 	/* Assume a base multiplier */
 	tmul = p_ptr->ammo_mult;
@@ -2695,6 +2691,7 @@ void do_cmd_throw(void)
 	object_type object_type_body;
 
 	bool hit_body = FALSE;
+	bool aware;
 
 	byte missile_attr;
 	char missile_char;
@@ -2735,24 +2732,11 @@ void do_cmd_throw(void)
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
 
+	/* Distribute the charges of rods between the stacks */
+	distribute_charges(o_ptr, i_ptr, 1);
+
 	/* Single object */
 	i_ptr->number = 1;
-
-	/* Reduce and describe inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
-
 
 	/* Description */
 	object_desc(o_name, i_ptr, FALSE, 3);
@@ -2760,7 +2744,6 @@ void do_cmd_throw(void)
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
-
 
 	/* Extract a "distance multiplier" */
 	mul = 10;
@@ -2778,12 +2761,10 @@ void do_cmd_throw(void)
 	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;
 
 	/* Chance of hitting */
-	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
-
+	chance = (p_ptr->skill[SK_THT] + (p_ptr->to_h * BTH_PLUS_ADJ));
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
-
 
 	/* Start at the player */
 	y = py;
@@ -2802,7 +2783,6 @@ void do_cmd_throw(void)
 
 	/* Calculate the path */
 	path_n = project_path(path_g, tdis, py, px, ty, tx, 0);
-
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -2896,43 +2876,112 @@ void do_cmd_throw(void)
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 				}
 
-				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
 
-				/* No negative damage */
-				if (tdam < 0) tdam = 0;
-
-				/* Complex message */
-				if (p_ptr->wizard)
+				if	(i_ptr->tval == TV_POWDER)
 				{
-					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
+					aware = FALSE;
+					switch (i_ptr->sval)
+					{
+						case SV_POWDER_SLEEP:
+						{
+							if (sleep_monster(dir)) aware=TRUE;
+							break;
+						}
+						case SV_POWDER_CONFUSE:
+						{
+							if (confuse_monster(dir, 12)) aware=TRUE;
+							break;
+						}
+						case SV_POWDER_STARTLE:
+						{
+							if (fear_monster(dir, 12)) aware=TRUE;
+							break;
+						}
+						case SV_POWDER_FLASH:
+						{
+							msg_print("The powder bursts in a bright flash of light.");
+							(void)fire_bolt_or_beam(0, GF_LITE_WEAK, dir, damroll(4 , 8));
+							aware=TRUE;
+							break;
+						}
+						case SV_POWDER_FIRE:
+						{
+							msg_print("The powder bursts in a firey explosion.");
+							(void)fire_bolt_or_beam(0, GF_FIRE,	dir, damroll(6 , 8));
+							aware=TRUE;
+							break;
+						}
+						case SV_POWDER_FREEZE:
+						{
+							msg_print("The powder bursts into an icy mist.");
+							(void)fire_bolt_or_beam(0, GF_ICE,	dir, damroll(6 , 8));
+							aware=TRUE;
+							break;
+						}
+						case SV_POWDER_HASTE:
+						{
+							if (speed_monster(dir)) aware=TRUE;
+							break;
+						}
+						case SV_POWDER_HEAL:
+						{
+							if (heal_monster(dir)) aware=TRUE;
+							break;
+						}
+						case SV_POWDER_SLOW:
+						{
+							if (slow_monster(dir)) aware=TRUE;
+							break;
+						}
+					}
+					if ((!object_aware_p(i_ptr)) && aware)
+					{
+						object_aware(i_ptr);
+					}
+
 				}
 
-				/* Hit the monster, check for death */
-				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
-				{
-					/* Dead monster */
-				}
-
-				/* No death */
 				else
 				{
-					/* Message */
-					message_pain(cave_m_idx[y][x], tdam);
+					/* Apply special damage XXX XXX XXX */
+					tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
+					tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
 
-					/* Take note */
-					if (fear && m_ptr->ml)
+					/* No negative damage */
+					if (tdam < 0) tdam = 0;
+
+					/* Complex message */
+					if (p_ptr->wizard)
 					{
-						char m_name[80];
+						msg_format("You do %d (out of %d) damage.",
+								   tdam, m_ptr->hp);
+					}
 
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0);
+					/* Hit the monster, check for death */
+					if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
+					{
+						/* Dead monster */
+					}
 
+					/* No death */
+					else
+					{
 						/* Message */
-						message_format(MSG_FLEE, m_ptr->r_idx,
-						               "%^s flees in terror!", m_name);
+						message_pain(cave_m_idx[y][x], tdam);
+
+						/* Take note */
+						if (fear && m_ptr->ml)
+						{
+							char m_name[80];
+
+							/* Get the monster name (or "it") */
+							monster_desc(m_name, m_ptr, 0);
+
+							/* Message */
+							message_format(MSG_FLEE, m_ptr->r_idx,
+										   "%^s flees in terror!", m_name);
+						}
+					
 					}
 				}
 			}
@@ -2940,6 +2989,21 @@ void do_cmd_throw(void)
 			/* Stop looking */
 			break;
 		}
+	}
+
+	/* Reduce and describe inventory */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Reduce and describe floor item */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_optimize(0 - item);
 	}
 
 	/* Chance of breakage (during attacks) */

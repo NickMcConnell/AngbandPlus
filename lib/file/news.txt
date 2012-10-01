@@ -1,23 +1,21 @@
 
 
-              **************************************************
-              **   Angband 2.9.1   **   The Pits of Angband   **
-              **************************************************
+          ***********************************************************
+          **  EyAngband 0.1.2   **   Please don't feed the Balrog  **
+          ***********************************************************
+                               By Eytan Zweig
 
-           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
-               and Umoria:   Copyright (c) 1989 James E. Wilson
+            Based on Moria:  Copyright (c) 1985 Robert Alan Koeneke
+                    Umoria:  Copyright (c) 1989 James E. Wilson
+       Angband 2.0 - 2.6.2:  Alex Cutler, Andy Astrand, Sean Marsh,
+                             Geoff Hill, Charles Teague, Charles Swiger
+     Angband 2.7.0 - 2.8.5:  Ben Harrison
+             Angband 2.9.1:  Robert Ruehlmann
 
-                       Angband 2.0 - 2.4 - 2.6.2 by:
-                   Alex Cutler, Andy Astrand, Sean Marsh,
-                 Geoff Hill, Charles Teague, Charles Swiger
+	
+        Send comments, bug reports, and patches, to "eytanzw@yahoo.com"
+       	EyAngband Home Page at "http://members.xoom.com/eytanz/eyangband"
 
-                   Angband 2.7.0 - 2.8.5 by Ben Harrison
-
-                     Angband 2.9.1 by Robert Ruehlmann
-
-        Send comments, bug reports, and patches, to "rr9@angband.org"
-       Visit the Angband Home Page at "http://thangorodrim.angband.org/"
-      Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
-    Read the online help files, especially "general.txt" and "version.txt"
-   Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
+        Angband Home Page at "http://thangorodrim.angband.org/"
+       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
 

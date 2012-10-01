@@ -390,12 +390,12 @@ static tval_desc tvals[] =
 	{ TV_AMULET,            "Amulet"               },
 	{ TV_LITE,              "Lite"                 },
 	{ TV_POTION,            "Potion"               },
+	{ TV_POWDER,            "Powder"               },
 	{ TV_SCROLL,            "Scroll"               },
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
-	{ TV_PRAYER_BOOK,       "Priest Book"          },
-	{ TV_MAGIC_BOOK,        "Magic Book"           },
+	{ TV_MAGIC_BOOK,        "Spellbook"		       },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -436,11 +436,9 @@ static void strip_name(char *buf, int k_idx)
  *
  * This will not work with "EBCDIC", I would think.  XXX XXX XXX
  *
- * The third column head overlaps the first after 17 items are
- * listed.  XXX XXX XXX
  */
 static char head[3] =
-{ 'a', 'A', '0' };
+{ 'a', 'A', '-' };
 
 
 /*
@@ -484,7 +482,7 @@ static int wiz_create_itemtype(void)
 	num = -1;
 	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
 	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
+	if ((ch >= head[2]) && (ch < head[2] + 20)) num = ch - head[2] + 40;
 
 	/* Bail out if choice is illegal */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -500,7 +498,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 57) && (i < z_info->k_max); i++)
+	for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -536,7 +534,7 @@ static int wiz_create_itemtype(void)
 	num = -1;
 	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
 	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
+	if ((ch >= head[2]) && (ch < head[2] + 20)) num = ch - head[2] + 40;
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -1024,7 +1022,6 @@ static void wiz_create_item(void)
 	/* Load screen */
 	screen_load();
 
-
 	/* Return if failed */
 	if (!k_idx) return;
 
@@ -1293,7 +1290,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 
 	/* Paranoia */
 	if (!r_idx) return;
-	if (r_idx >= z_info->r_max-1) return;
+	if (r_idx >= z_info->r_max) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)

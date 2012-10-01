@@ -301,7 +301,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 /*
  * We store the current "store number" here so everyone can access it
  */
-static int store_num = 7;
+static int store_num = (MAX_STORES - 1);
 
 /*
  * We store the current "store page" here so everyone can access it
@@ -444,6 +444,7 @@ static void mass_produce(object_type *o_ptr)
 		}
 
 		case TV_POTION:
+		case TV_POWDER:
 		case TV_SCROLL:
 		{
 			if (cost <= 60L) size += mass_roll(3, 5);
@@ -452,7 +453,6 @@ static void mass_produce(object_type *o_ptr)
 		}
 
 		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -773,7 +773,6 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_PRAYER_BOOK:
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
@@ -798,6 +797,7 @@ static bool store_will_buy(object_type *o_ptr)
 			{
 				case TV_SCROLL:
 				case TV_POTION:
+				case TV_POWDER:
 				break;
 				default:
 				return (FALSE);
@@ -811,7 +811,6 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_MAGIC_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -819,6 +818,21 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_ROD:
 				case TV_SCROLL:
 				case TV_POTION:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Book Shop */
+		case STORE_BOOK:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_MAGIC_BOOK:
+				case TV_SCROLL:
 				break;
 				default:
 				return (FALSE);
@@ -882,12 +896,6 @@ static int home_carry(object_type *o_ptr)
 	{
 		/* Get that object */
 		j_ptr = &st_ptr->stock[slot];
-
-		/* Hack -- readable books always come first */
-		if ((o_ptr->tval == mp_ptr->spell_book) &&
-		    (j_ptr->tval != mp_ptr->spell_book)) break;
-		if ((j_ptr->tval == mp_ptr->spell_book) &&
-		    (o_ptr->tval != mp_ptr->spell_book)) continue;
 
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;
@@ -1174,7 +1182,7 @@ static void store_create(void)
 		if (store_num == STORE_B_MARKET)
 		{
 			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+			level = ((p_ptr->max_depth<95) ? p_ptr->max_depth + rand_int(10) : 95 + rand_int(10));
 
 			/* Random object kind (usually of given level) */
 			k_idx = get_obj_num(level);
@@ -1207,7 +1215,7 @@ static void store_create(void)
 		if (i_ptr->tval == TV_LITE)
 		{
 			if (i_ptr->sval == SV_LITE_TORCH) i_ptr->pval = FUEL_TORCH / 2;
-			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->pval = FUEL_LAMP / 2;
+			if ((i_ptr->sval == SV_LITE_LANTERN) || (i_ptr->sval == SV_LITE_LANTERN_SEE)) i_ptr->pval = FUEL_LAMP / 2;
 		}
 
 
@@ -1324,7 +1332,6 @@ static void display_entry(int item)
 	/* Must be on current "page" to get displayed */
 	if (!((item >= store_top) && (item < store_top + 12))) return;
 
-
 	/* Get the object */
 	o_ptr = &st_ptr->stock[item];
 
@@ -1350,7 +1357,12 @@ static void display_entry(int item)
 		o_name[maxwid] = '\0';
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].x_attr;
+			else attr = TERM_L_DARK;
+		}
 
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
@@ -1381,7 +1393,12 @@ static void display_entry(int item)
 		o_name[maxwid] = '\0';
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].x_attr;
+			else attr = TERM_L_DARK;
+		}
 
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
@@ -3451,7 +3468,6 @@ void store_shuffle(int which)
 	/* Ignore home */
 	if (which == STORE_HOME) return;
 
-
 	/* Save the store index */
 	store_num = which;
 
@@ -3504,7 +3520,6 @@ void store_maint(int which)
 
 	/* Ignore home */
 	if (which == STORE_HOME) return;
-
 
 	/* Save the store index */
 	store_num = which;

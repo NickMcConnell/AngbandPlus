@@ -11,604 +11,6 @@
 #include "angband.h"
 
 
-#ifdef FUTURE_SAVEFILES
-
-/*
- * XXX XXX XXX Ignore this for now...
- *
- * The basic format of Angband 2.8.0 (and later) savefiles is simple.
- *
- * The savefile itself is a "header" (4 bytes) plus a series of "blocks",
- * plus, perhaps, some form of "footer" at the end.
- *
- * The "header" contains information about the "version" of the savefile.
- * Conveniently, pre-2.8.0 savefiles also use a 4 byte header, though the
- * interpretation of the "sf_extra" byte is very different.  Unfortunately,
- * savefiles from Angband 2.5.X reverse the sf_major and sf_minor fields,
- * and must be handled specially, until we decide to start ignoring them.
- *
- * Each "block" is a "type" (2 bytes), plus a "size" (2 bytes), plus "data",
- * plus a "check" (2 bytes), plus a "stamp" (2 bytes).  The format of the
- * "check" and "stamp" bytes is still being contemplated, but it would be
- * nice for one to be a simple byte-checksum, and the other to be a complex
- * additive checksum of some kind.  Both should be zero if the block is empty.
- *
- * Standard types:
- *   TYPE_BIRTH --> creation info
- *   TYPE_OPTIONS --> option settings
- *   TYPE_MESSAGES --> message recall
- *   TYPE_PLAYER --> player information
- *   TYPE_SPELLS --> spell information
- *   TYPE_INVEN --> player inven/equip
- *   TYPE_STORES --> store information
- *   TYPE_RACES --> monster race data
- *   TYPE_KINDS --> object kind data
- *   TYPE_UNIQUES --> unique info
- *   TYPE_ARTIFACTS --> artifact info
- *   TYPE_QUESTS --> quest info
- *
- * Dungeon information:
- *   TYPE_DUNGEON --> dungeon info
- *   TYPE_FEATURES --> dungeon features
- *   TYPE_OBJECTS --> dungeon objects
- *   TYPE_MONSTERS --> dungeon monsters
- *
- * Conversions:
- *   Break old "races" into normals/uniques
- *   Extract info about the "unique" monsters
- *
- * Question:
- *   Should there be a single "block" for info about all the stores, or one
- *   "block" for each store?  Or one "block", which contains "sub-blocks" of
- *   some kind?  Should we dump every "sub-block", or just the "useful" ones?
- *
- * Question:
- *   Should the normals/uniques be broken for 2.8.0, or should 2.8.0 simply
- *   be a "fixed point" into which older savefiles are converted, and then
- *   future versions could ignore older savefiles, and the "conversions"
- *   would be much simpler.
- */
-
-
-/*
- * XXX XXX XXX
- */
-#define TYPE_OPTIONS 17362
-
-
-/*
- * Hack -- current savefile
- */
-static int data_fd = -1;
-
-
-/*
- * Hack -- current block type
- */
-static u16b data_type;
-
-/*
- * Hack -- current block size
- */
-static u16b data_size;
-
-/*
- * Hack -- pointer to the data buffer
- */
-static byte *data_head;
-
-/*
- * Hack -- pointer into the data buffer
- */
-static byte *data_next;
-
-
-
-/*
- * Hack -- write the current "block" to the savefile
- */
-static errr wr_block(void)
-{
-	errr err;
-
-	byte fake[4];
-
-	/* Save the type and size */
-	fake[0] = (byte)(data_type);
-	fake[1] = (byte)(data_type >> 8);
-	fake[2] = (byte)(data_size);
-	fake[3] = (byte)(data_size >> 8);
-
-	/* Dump the head */
-	err = fd_write(data_fd, (char*)&fake, 4);
-
-	/* Dump the actual data */
-	err = fd_write(data_fd, (char*)data_head, data_size);
-
-	/* XXX XXX XXX */
-	fake[0] = 0;
-	fake[1] = 0;
-	fake[2] = 0;
-	fake[3] = 0;
-
-	/* Dump the tail */
-	err = fd_write(data_fd, (char*)&fake, 4);
-
-	/* Hack -- reset */
-	data_next = data_head;
-
-	/* Wipe the data block */
-	C_WIPE(data_head, 65535, byte);
-
-	/* Success */
-	return (0);
-}
-
-
-
-/*
- * Hack -- add data to the current block
- */
-static void put_byte(byte v)
-{
-	*data_next++ = v;
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_char(char v)
-{
-	put_byte((byte)(v));
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_u16b(u16b v)
-{
-	*data_next++ = (byte)(v);
-	*data_next++ = (byte)(v >> 8);
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_s16b(s16b v)
-{
-	put_u16b((u16b)(v));
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_u32b(u32b v)
-{
-	*data_next++ = (byte)(v);
-	*data_next++ = (byte)(v >> 8);
-	*data_next++ = (byte)(v >> 16);
-	*data_next++ = (byte)(v >> 24);
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_s32b(s32b v)
-{
-	put_u32b((u32b)(v));
-}
-
-/*
- * Hack -- add data to the current block
- */
-static void put_string(char *str)
-{
-	while ((*data_next++ = *str++) != '\0');
-}
-
-
-
-/*
- * Write a savefile for Angband 2.8.0
- */
-static errr wr_savefile(void)
-{
-	int i;
-
-	u32b now;
-
-	byte tmp8u;
-	u16b tmp16u;
-
-	errr err;
-
-	byte fake[4];
-
-
-	/*** Hack -- extract some data ***/
-
-	/* Hack -- Get the current time */
-	now = time((time_t*)(NULL));
-
-	/* Note the operating system */
-	sf_xtra = 0L;
-
-	/* Note when the file was saved */
-	sf_when = now;
-
-	/* Note the number of saves */
-	sf_saves++;
-
-
-	/*** Actually write the file ***/
-
-	/* Open the file XXX XXX XXX */
-	data_fd = -1;
-
-	/* Dump the version */
-	fake[0] = (byte)(VERSION_MAJOR);
-	fake[1] = (byte)(VERSION_MINOR);
-	fake[2] = (byte)(VERSION_PATCH);
-	fake[3] = (byte)(VERSION_EXTRA);
-
-	/* Dump the data */
-	err = fd_write(data_fd, (char*)&fake, 4);
-
-
-	/* Make array XXX XXX XXX */
-	C_MAKE(data_head, 65535, byte);
-
-	/* Hack -- reset */
-	data_next = data_head;
-
-
-#if 0
-	/* Operating system */
-	wr_u32b(sf_xtra);
-
-	/* Time file last saved */
-	wr_u32b(sf_when);
-
-	/* Number of past lives */
-	wr_u16b(sf_lives);
-
-	/* Number of times saved */
-	wr_u16b(sf_saves);
-
-	/* XXX XXX XXX */
-
-	/* Set the type */
-	data_type = TYPE_BASIC;
-
-	/* Set the "options" size */
-	data_size = (data_next - data_head);
-
-	/* Write the block */
-	wr_block();
-#endif
-
-
-	/* Dump the "options" */
-	put_options();
-
-	/* Set the type */
-	data_type = TYPE_OPTIONS;
-
-	/* Set the "options" size */
-	data_size = (data_next - data_head);
-
-	/* Write the block */
-	wr_block();
-
-	/* XXX XXX XXX */
-
-#if 0
-
-	/* Dump the "messages" */
-
-	/* Dump the number of "messages" */
-	tmp16u = message_num();
-	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
-	wr_u16b(tmp16u);
-
-	/* Dump the messages and types (oldest first!) */
-	for (i = tmp16u - 1; i >= 0; i--)
-	{
-		wr_string(message_str(i));
-		wr_u16b(message_type(i));
-	}
-
-	/* Dump the monster lore */
-	tmp16u = z_info->r_max;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_lore(i);
-
-
-	/* Dump the object memory */
-	tmp16u = z_info->k_max;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_xtra(i);
-
-
-	/* Hack -- Dump the quests */
-	tmp16u = MAX_Q_IDX;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		wr_byte(q_list[i].level);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
-	}
-
-	/* Hack -- Dump the artifacts */
-	tmp16u = z_info->a_max;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->cur_num);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
-	}
-
-
-
-	/* Write the "extra" information */
-	wr_extra();
-
-
-	/* Dump the "player hp" entries */
-	tmp16u = PY_MAX_LEVEL;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		wr_s16b(player_hp[i]);
-	}
-
-
-	/* Write spell data */
-	wr_u32b(spell_learned1);
-	wr_u32b(spell_learned2);
-	wr_u32b(spell_worked1);
-	wr_u32b(spell_worked2);
-	wr_u32b(spell_forgotten1);
-	wr_u32b(spell_forgotten2);
-
-	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
-	{
-		wr_byte(spell_order[i]);
-	}
-
-
-	/* Write the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Dump index */
-		wr_u16b(i);
-
-		/* Dump object */
-		wr_item(o_ptr);
-	}
-
-	/* Add a sentinel */
-	wr_u16b(0xFFFF);
-
-
-	/* Note the stores */
-	tmp16u = MAX_STORES;
-	wr_u16b(tmp16u);
-
-	/* Dump the stores */
-	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
-
-
-	/* Player is not dead, write the dungeon */
-	if (!p_ptr->is_dead)
-	{
-		/* Dump the dungeon */
-		wr_dungeon();
-
-		/* Dump the ghost */
-		wr_ghost();
-	}
-
-#endif
-
-	/* Dump the "final" marker XXX XXX XXX */
-	/* Type zero, Size zero, Contents zero, etc */
-
-
-	/* XXX XXX XXX Check for errors */
-
-
-	/* Kill array XXX XXX XXX */
-	C_KILL(data_head, 65535, byte);
-
-
-	/* Success */
-	return (0);
-}
-
-
-
-
-
-/*
- * Hack -- read the next "block" from the savefile
- */
-static errr rd_block(void)
-{
-	errr err;
-
-	byte fake[4];
-
-	/* Read the head data */
-	err = fd_read(data_fd, (char*)&fake, 4);
-
-	/* Extract the type and size */
-	data_type = (fake[0] | ((u16b)fake[1] << 8));
-	data_size = (fake[2] | ((u16b)fake[3] << 8));
-
-	/* Wipe the data block */
-	C_WIPE(data_head, 65535, byte);
-
-	/* Read the actual data */
-	err = fd_read(data_fd, (char*)data_head, data_size);
-
-	/* Read the tail data */
-	err = fd_read(data_fd, (char*)&fake, 4);
-
-	/* XXX XXX XXX Verify */
-
-	/* Hack -- reset */
-	data_next = data_head;
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- get data from the current block
- */
-static void get_byte(byte *ip)
-{
-	byte d1;
-	d1 = (*data_next++);
-	(*ip) = (d1);
-}
-
-/*
- * Hack -- get data from the current block
- */
-static void get_char(char *ip)
-{
-	get_byte((byte*)ip);
-}
-
-/*
- * Hack -- get data from the current block
- */
-static void get_u16b(u16b *ip)
-{
-	u16b d0, d1;
-	d0 = (*data_next++);
-	d1 = (*data_next++);
-	(*ip) = (d0 | (d1 << 8));
-}
-
-/*
- * Hack -- get data from the current block
- */
-static void get_s16b(s16b *ip)
-{
-	get_u16b((u16b*)ip);
-}
-
-/*
- * Hack -- get data from the current block
- */
-static void get_u32b(u32b *ip)
-{
-	u32b d0, d1, d2, d3;
-	d0 = (*data_next++);
-	d1 = (*data_next++);
-	d2 = (*data_next++);
-	d3 = (*data_next++);
-	(*ip) = (d0 | (d1 << 8) | (d2 << 16) | (d3 << 24));
-}
-
-/*
- * Hack -- get data from the current block
- */
-static void get_s32b(s32b *ip)
-{
-	get_u32b((u32b*)ip);
-}
-
-
-
-/*
- * Read a savefile for Angband 2.8.0
- */
-static errr rd_savefile(void)
-{
-	bool done = FALSE;
-
-	byte fake[4];
-
-
-	/* Open the savefile */
-	data_fd = fd_open(savefile, O_RDONLY);
-
-	/* No file */
-	if (data_fd < 0) return (1);
-
-	/* Strip the first four bytes (see below) */
-	if (fd_read(data_fd, (char*)(fake), 4)) return (1);
-
-
-	/* Make array XXX XXX XXX */
-	C_MAKE(data_head, 65535, byte);
-
-	/* Hack -- reset */
-	data_next = data_head;
-
-
-	/* Read blocks */
-	while (!done)
-	{
-		/* Read the block */
-		if (rd_block()) break;
-
-		/* Analyze the type */
-		switch (data_type)
-		{
-			/* Done XXX XXX XXX */
-			case 0:
-			{
-				done = TRUE;
-				break;
-			}
-
-			/* Grab the options */
-			case TYPE_OPTIONS:
-			{
-				if (get_options()) err = -1;
-				break;
-			}
-		}
-
-		/* XXX XXX XXX verify "data_next" */
-		if (data_next - data_head > data_size) break;
-	}
-
-
-	/* XXX XXX XXX Check for errors */
-
-
-	/* Kill array XXX XXX XXX */
-	C_KILL(data_head, 65535, byte);
-
-
-	/* Success */
-	return (0);
-}
-
-
-#endif /* FUTURE_SAVEFILES */
-
-
-
-
 /*
  * Some "local" parameters, used to help write savefiles
  */
@@ -619,7 +21,6 @@ static byte	xor_byte;	/* Simple encryption */
 
 static u32b	v_stamp = 0L;	/* A simple "checksum" on the actual values */
 static u32b	x_stamp = 0L;	/* A simple "checksum" on the encoded bytes */
-
 
 
 /*
@@ -681,7 +82,6 @@ static void wr_string(cptr str)
  * These functions write info in larger logical records
  */
 
-
 /*
  * Write an "item" record
  */
@@ -702,7 +102,7 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
 
-	wr_byte(o_ptr->name1);
+	wr_byte(o_ptr->name1); 
 	wr_byte(o_ptr->name2);
 
 	wr_s16b(o_ptr->timeout);
@@ -760,7 +160,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->monfear);
 	wr_byte(0);
 }
-
+	
 
 /*
  * Write a "lore" record
@@ -806,7 +206,6 @@ static void wr_lore(int r_idx)
 	wr_u32b(l_ptr->r_flags5);
 	wr_u32b(l_ptr->r_flags6);
 
-
 	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
 
@@ -820,7 +219,7 @@ static void wr_lore(int r_idx)
 /*
  * Write an "xtra" record
  */
-static void wr_xtra(int k_idx)
+static void wr_item_memory(int k_idx)
 {
 	byte tmp8u = 0;
 
@@ -828,6 +227,8 @@ static void wr_xtra(int k_idx)
 
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
+	if (k_ptr->squelch) tmp8u |= 0x04;
+	if ((k_ptr->everseen) || (k_ptr->aware)) tmp8u |= 0x08;
 
 	wr_byte(tmp8u);
 }
@@ -953,7 +354,6 @@ static void wr_options(void)
 	/* Dump the masks */
 	for (i = 0; i < 8; i++) wr_u32b(mask[i]);
 
-
 	/*** Window options ***/
 
 	/* Reset */
@@ -1078,33 +478,40 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->poisoned);
 	wr_s16b(p_ptr->image);
 	wr_s16b(p_ptr->protevil);
-	wr_s16b(p_ptr->invuln);
+	wr_s16b(p_ptr->resilient);
+	wr_s16b(p_ptr->absorb);
 	wr_s16b(p_ptr->hero);
 	wr_s16b(p_ptr->shero);
 	wr_s16b(p_ptr->shield);
 	wr_s16b(p_ptr->blessed);
-	wr_s16b(p_ptr->tim_invis);
+	wr_s16b(p_ptr->tim_see_invis);
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
+	wr_s16b(p_ptr->tim_invis);
 	wr_s16b(p_ptr->oppose_fire);
 	wr_s16b(p_ptr->oppose_cold);
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->oppose_all);
+	wr_s16b(p_ptr->racial_power);
 
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
-	wr_byte(0);	/* oops */
+	wr_byte(0);	/* oops */	
 	wr_byte(p_ptr->searching);
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
 	wr_byte(0);
 
-	/* Future use */
-	for (i = 0; i < 10; i++) wr_u32b(0L);
+	/* Squelch bytes */
+	for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
+	wr_byte(auto_destroy);
 
+ 	/* Future use */
+	for (i = 0; i < 15; i++) wr_byte(0);
 
 	/* Random artifact version */
 	wr_u32b(RANDART_VERSION);
@@ -1112,23 +519,20 @@ static void wr_extra(void)
 	/* Random artifact seed */
 	wr_u32b(seed_randart);
 
-
 	/* Ignore some flags */
 	wr_u32b(0L);	/* oops */
 	wr_u32b(0L);	/* oops */
 	wr_u32b(0L);	/* oops */
 
-
 	/* Write the "object seeds" */
 	wr_u32b(seed_flavor);
+	wr_u32b(seed_alchemy);
 	wr_u32b(seed_town);
-
 
 	/* Special stuff */
 	wr_u16b(p_ptr->panic_save);
 	wr_u16b(p_ptr->total_winner);
 	wr_u16b(p_ptr->noscore);
-
 
 	/* Write death */
 	wr_byte(p_ptr->is_dead);
@@ -1302,15 +706,11 @@ static void wr_dungeon(void)
 static bool wr_savefile_new(void)
 {
 	int i;
-
 	u32b now;
-
-	u16b tmp16u;
-
+	u16b tmp16u1, tmp16u2;
 
 	/* Guess at the current time */
 	now = time((time_t *)0);
-
 
 	/* Note the operating system */
 	sf_xtra = 0L;
@@ -1320,7 +720,6 @@ static bool wr_savefile_new(void)
 
 	/* Note the number of saves */
 	sf_saves++;
-
 
 	/*** Actually write the file ***/
 
@@ -1334,15 +733,12 @@ static bool wr_savefile_new(void)
 	xor_byte = 0;
 	wr_byte(VERSION_EXTRA);
 
-
 	/* Reset the checksum */
 	v_stamp = 0L;
 	x_stamp = 0L;
 
-
 	/* Operating system */
 	wr_u32b(sf_xtra);
-
 
 	/* Time file last saved */
 	wr_u32b(sf_when);
@@ -1353,60 +749,74 @@ static bool wr_savefile_new(void)
 	/* Number of times saved */
 	wr_u16b(sf_saves);
 
-
 	/* Space */
 	wr_u32b(0L);
 	wr_u32b(0L);
 
-
 	/* Write the RNG state */
 	wr_randomizer();
-
 
 	/* Write the boolean "options" */
 	wr_options();
 
-
 	/* Dump the number of "messages" */
-	tmp16u = message_num();
-	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
-	wr_u16b(tmp16u);
+	tmp16u1 = message_num();
+	if (compress_savefile && (tmp16u1 > 40)) tmp16u1 = 40;
+	wr_u16b(tmp16u1);
 
 	/* Dump the messages (oldest first!) */
-	for (i = tmp16u - 1; i >= 0; i--)
+	for (i = tmp16u1 - 1; i >= 0; i--)
 	{
 		wr_string(message_str((s16b)i));
 		wr_u16b(message_type((s16b)i));
 	}
 
-
 	/* Dump the monster lore */
-	tmp16u = z_info->r_max;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_lore(i);
-
+	tmp16u1 = z_info->r_max;
+	wr_u16b(tmp16u1);
+	for (i = 0; i < tmp16u1; i++) wr_lore(i);
 
 	/* Dump the object memory */
-	tmp16u = z_info->k_max;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_xtra(i);
+	tmp16u1 = z_info->k_max;
+	wr_u16b(tmp16u1);
+	for (i = 0; i < tmp16u1; i++) wr_item_memory(i);
 
+	/* Dump the alchemy info */
+	tmp16u1 = SV_MAX_POTIONS;
+	wr_u16b(tmp16u1);
+	for (i = 0; i < tmp16u1; i++)
+	{
+		wr_byte(potion_alch[i].known1);
+		wr_byte(potion_alch[i].known2);
+	}
 
+#ifdef CUSTOM_QUESTS
 	/* Hack -- Dump the quests */
-	tmp16u = MAX_Q_IDX;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
+	tmp16u1 = z_info->q_max;
+	wr_u16b(tmp16u1);
+	for (i = 0; i < tmp16u1; i++)
+	{
+		wr_byte(q_info[i].level);
+		wr_s16b(q_info[i].cur_num);
+		wr_byte(0);
+	}
+#else
+	/* Dump the quests */
+	tmp16u1 = MAX_Q_IDX;
+	wr_u16b(tmp16u1);
+	for (i = 0; i < tmp16u1; i++)
 	{
 		wr_byte(q_list[i].level);
 		wr_byte(0);
 		wr_byte(0);
 		wr_byte(0);
 	}
+#endif
 
 	/* Hack -- Dump the artifacts */
-	tmp16u = z_info->a_max;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
+	tmp16u1 = z_info->a_max;
+	wr_u16b(tmp16u1);
+	for (i = 0; i < tmp16u1; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 		wr_byte(a_ptr->cur_num);
@@ -1415,35 +825,36 @@ static bool wr_savefile_new(void)
 		wr_byte(0);
 	}
 
-
-
 	/* Write the "extra" information */
 	wr_extra();
 
-
 	/* Dump the "player hp" entries */
-	tmp16u = PY_MAX_LEVEL;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
+	tmp16u1 = PY_MAX_LEVEL;
+	wr_u16b(tmp16u1);
+	for (i = 0; i < tmp16u1; i++)
 	{
 		wr_s16b(p_ptr->player_hp[i]);
 	}
 
-
 	/* Write spell data */
-	wr_u32b(p_ptr->spell_learned1);
-	wr_u32b(p_ptr->spell_learned2);
-	wr_u32b(p_ptr->spell_worked1);
-	wr_u32b(p_ptr->spell_worked2);
-	wr_u32b(p_ptr->spell_forgotten1);
-	wr_u32b(p_ptr->spell_forgotten2);
+	tmp16u1 = SV_MAX_BOOKS;
+	tmp16u2 = MAX_BOOK_SPELLS;
 
-	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
+	wr_u16b(tmp16u1);
+	wr_u16b(tmp16u2);
+
+	for (i =0; i < tmp16u1; i++)
 	{
-		wr_byte(p_ptr->spell_order[i]);
+		wr_u16b(p_ptr->spell_learned[i]);
+		wr_u16b(p_ptr->spell_worked[i]);
+		wr_u16b(p_ptr->spell_forgotten[i]);
+		/* Dump the ordered spells */
 	}
-
+	for (i = 0; i < (tmp16u1 * tmp16u2); i++)
+	{
+		wr_byte(p_ptr->spell_order[i][0]);
+		wr_byte(p_ptr->spell_order[i][1]);
+	}
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1463,14 +874,12 @@ static bool wr_savefile_new(void)
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);
 
-
 	/* Note the stores */
-	tmp16u = MAX_STORES;
-	wr_u16b(tmp16u);
+	tmp16u1 = MAX_STORES;
+	wr_u16b(tmp16u1);
 
 	/* Dump the stores */
-	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
-
+	for (i = 0; i < tmp16u1; i++) wr_store(&store[i]);
 
 	/* Player is not dead, write the dungeon */
 	if (!p_ptr->is_dead)
@@ -1482,13 +891,11 @@ static bool wr_savefile_new(void)
 		wr_ghost();
 	}
 
-
 	/* Write the "value check-sum" */
 	wr_u32b(v_stamp);
 
 	/* Write the "encoded checksum" */
 	wr_u32b(x_stamp);
-
 
 	/* Error in save */
 	if (ferror(fff) || (fflush(fff) == EOF)) return FALSE;
@@ -1511,14 +918,11 @@ static bool save_player_aux(char *name)
 
 	int mode = 0644;
 
-
 	/* No file yet */
 	fff = NULL;
 
-
 	/* File type is "SAVE" */
 	FILE_TYPE(FILE_TYPE_SAVE);
-
 
 	/* Create the savefile */
 	fd = fd_make(name, mode);
@@ -1545,7 +949,6 @@ static bool save_player_aux(char *name)
 		/* Remove "broken" files */
 		if (!ok) fd_kill(name);
 	}
-
 
 	/* Failure */
 	if (!ok) return (FALSE);
@@ -1579,7 +982,6 @@ bool save_player(void)
 # endif
 
 #endif
-
 
 	/* New savefile */
 	strcpy(safe, savefile);
@@ -1660,15 +1062,6 @@ bool save_player(void)
 
 /*
  * Attempt to Load a "savefile"
- *
- * Version 2.7.0 introduced a slightly different "savefile" format from
- * older versions, requiring a completely different parsing method.
- *
- * Note that savefiles from 2.7.0 - 2.7.2 are completely obsolete.
- *
- * Pre-2.8.0 savefiles lose some data, see "load2.c" for info.
- *
- * Pre-2.7.0 savefiles lose a lot of things, see "load1.c" for info.
  *
  * On multi-user systems, you may only "read" a savefile if you will be
  * allowed to "write" it later, this prevents painful situations in which
@@ -1809,49 +1202,10 @@ bool load_player(void)
 		sf_patch = vvv[2];
 		sf_extra = vvv[3];
 
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
-
 		/* Clear screen */
 		Term_clear();
 
-		/* Parse "ancient" savefiles */
-		if (sf_major < 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "old" savefiles */
-		else if ((sf_major == 2) && (sf_minor < 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "new" savefiles */
-		else if (sf_major == 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_new();
-		}
-
-		/* Parse "future" savefiles */
-		else
-		{
-			/* Error XXX XXX XXX */
-			err = -1;
-		}
+		err = rd_savefile_new();
 
 		/* Message (below) */
 		if (err) what = "Cannot parse savefile";
@@ -1880,6 +1234,7 @@ bool load_player(void)
 
 			/* Oops */
 			err = -1;
+
 		}
 	}
 #endif
@@ -1939,7 +1294,6 @@ bool load_player(void)
 		return (TRUE);
 	}
 
-
 #ifdef VERIFY_SAVEFILE
 
 	/* Verify savefile usage */
@@ -1956,7 +1310,6 @@ bool load_player(void)
 	}
 
 #endif
-
 
 	/* Message */
 	msg_format("Error (%s) reading %d.%d.%d savefile.",

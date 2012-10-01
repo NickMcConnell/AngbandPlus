@@ -95,18 +95,15 @@ Audible bell (on errors, etc)    [ring_bell]
 
 === Option Set 2 -- Disturbance ===
 
-Run past stairs    [find_ignore_stairs]
+Run past stairs    [run_ignore_stairs]
     Ignore stairs when running.
 
-Run through open doors    [find_ignore_doors]
+Run through open doors    [run_ignore_doors]
     Ignore open doors when running.
 
-Run past known corners    [find_cut]
+Run past known corners    [run_cut_corners]
     Cut sharply around "known" corners when running.  This will result in
     "faster" running, but may cause you to run into a "lurking" monster.
-
-Run into potential corners    [find_examine]
-    Fully explore "potential corners" in hallways.
 
 Disturb whenever any monster moves    [disturb_move]
     Disturb the player when any monster moves, appears, or disappears.
@@ -148,6 +145,11 @@ Alert user to various failures    [alert_failure]
 Verify destruction of objects    [verify_destroy]
     Prompt for verification of the "destroy" command.
 
+Verify destruction of objects    [verify_destroy_junk]
+    If destroy verification is on, prompt for verification when destroying 
+    worthless objects. If this is off, then only "good" objects will 
+    require verification.
+
 Verify use of special commands    [verify_special]
     Prompt for verification of the "special" commands (borg and debug).
 
@@ -165,30 +167,13 @@ Auto-haggle in stores    [auto_haggle]
     actual price that you pay for an item, as opposed to the price
     that the shop-keeper will suggest.
 
-Auto-scum for good levels    [auto_scum]
-    This is a hack but allows you to force the generation of "good" levels
-    in the dungeon.  This option may be extremely slow on some machines,
-    especially deep in the dungeon.  The minimum "goodness" of the level
-    is based on the dungeon level, so the deeper you go, the better the
-    level will be.  A lot of people consider this option to be cheating.
-
-Allow objects to stack on floor (beta)    [testing_stack]
-    Allow multiple objects to occupy the same floor grid.  Any commands
-    which can affect objects on the floor will affect the object on the
-    top of the stack, unless the "other_query_flag" option is being used.
-
-Allow monsters to carry objects (beta)    [testing_carry]
-    Allow monsters which pick up (or steal) objects to carry them around,
-    dropping them when they are killed (but taking them with them when
-    they are "destroyed" or "teleported away").
-
 Expand the power of the look command    [expand_look]
     Expand the "look" command to allow the user to "look" at grids which
     are not actually in view of the player, allowing the examination of
     objects/monsters which have only been detected by spells, or sensed
     via telepathy.
 
-Expand the power of the list commands    [expand_wrap]
+Expand the power of the list commands    [expand_list]
     Expand the "listing" commands so that they "wrap" at the "edges" of
     the appropriate list.  This allows the "look" and "target" commands
     to "cycle" through all appropriate grids forever, and the "identify
@@ -234,6 +219,19 @@ Monsters chase recent locations (v.slow)    [flow_by_smell]
     Allow monsters to take advantage of "old" trails that you may have left
     in the dungeon.  This has no effect unless "flow_by_sound" is also set.
 
+Monsters behave more intelligently     [smart_monsters]
+     Monsters have a certain amount of intelligence and will use it - 
+     teleporting away when low on hit points, using their more powerful
+     spells in preference to the less powerful spells, etc. Not all 
+     monsters are, of course, intelligent.
+
+Monsters act smarter in groups    [smart_packs]
+     "group" monsters will use tactics that groups of monsters might 
+     reasonably employ - such as hiding out of sight around a corner, 
+     trying to draw the character out into the middle of a room so they 
+     can surround him and all attack at once, rather than chasing one
+     by one down a corridor.
+
 Monsters learn from their mistakes    [smart_learn]
     Allow monsters to learn what spell attacks you are resistant to,
     and to use this information to choose the best attacks.
@@ -242,6 +240,25 @@ Monsters exploit players weaknesses    [smart_cheat]
     Allow monsters to know what spell attacks you are resistant to,
     and to use this information to choose the best attacks.
 
+Open/Disarm/Close without direction    [easy_open]
+    If there is only one closed door next to the character, the game will 
+    not bother asking for a direction when the player asks to "o"pen 
+    something. The same applies for "c"losing doors and "D"isarming traps.
+
+Open/Disarm doors/traps on movement.    [easy_alter]
+     Moving into a closed door will attempt once to open it, and moving 
+     into a trap will attempt once to disarm it. If the player ever wishes
+     to leave a known teleport trap as a guaranteed escape route, this 
+     option must therefore be off.
+
+Display floor stacks in a list    [easy_floor]
+     When moving into a stack, if this option is *off*, the character will 
+     attempt to pick up items from the stack, from top to bottom, until the 
+     stack is gone or the inventory is full. This option allows the player
+     to interact with other items than the one at the top of the stack.
+
+Show stacks using special attr/char    [show_piles]
+     Stacks of items on the floor are shown using the "&" symbol.
 
 === Option Set 4 -- Efficiency ===
 
@@ -354,6 +371,89 @@ Use special colors for floor grids (slow)    [view_special_lite]
     the speed of the game.  This option may not work well if the attr/char
     codes for walls/veins have been changed, or if "graphics" are being used.
 
+Allow monsters to have light radius    [view_monster_lite]
+    This option allows certain monsters to produce their own light radius,
+    which potentially can slow down the game on slower machines. If this 
+    option is off, the relevant monsters will be visible even in darkness
+    but will not light up the squares around them.
+
+Center map continuously (very slow)    [center_player]
+     The map always centres on the player with this option on. With it off, it
+     is divided into 25 sections, with coordinates (0,0) to (4,4), and will 
+     show one section at a time.
+
+Avoid centering while running    [run_avoid_center]
+     The map does not centre on the player if the player moves with the "run" 
+     command, only when the running finishes.
+
+Scroll map while targetting    [scroll_target]
+     This allows the player to target monsters which are off-screen from the 
+     player's point of view, as the view will scroll to show the whereabouts of 
+     all monsters in line of sight so the player can target them.
+
+=== Option Set 5 -- Birth options ===
+
+These options are special in that they only take effect if modified before the
+beginning of the game. Once the character is created, the birth options are set
+and modifications will only affect the next character.
+
+Birth: Allow purchase of stats using points [birth_point_based]
+    Allows the player to determine exactly what stats the character will start with,
+    but will lead to creation of weaker characters than by other methods.
+
+Allow specification of minimal stats    [birth_auto_roller]
+    This allows the player to set minimum stats (within reason) and ask 
+    the game to keep on rolling until a character with the desired stats
+    is generated. Using this method can lead to better characters than
+    point-based creation, but totally random rolling can create even
+    better ones (though rarely).
+    
+Preserve artifacts on leaving level    [birth_preserve]
+    If preserve mode is "off", you can get a level feeling that you *NEVER*
+    get with preserve mode "on": a "special" feeling. This means that there 
+    is an artifact, a pit or a vault on the level: and while a pit or vault
+    may not necessarily cause a special feeling, an artifact CERTAINLY will.
+    This is principally of use in finding out which levels are *not* 
+    "special", i.e. which ones can be left in a hurry without worrying 
+    about leaving something behind - if it's not "special", there is no 
+    artifact unless a monster has dropped one when you killed it. This is 
+    particularly important because, with preserve mode off, no artifact can
+    be generated more than once in the game. If it's on a level and you miss
+    it, it's gone forever. With preserve mode "on", if you miss an artifact, 
+    it can turn up later provided you didn't pick it up and identify it 
+    the first time (in which case there is no excuse for losing it.) But 
+    you don't get the "special" feeling. 
+
+Restrict the use of stairs/recall    [birth_ironman]
+    This option, not recommended for non-advanced players, prevents the 
+    generation of up staircases, and makes the scroll and effect of Word 
+    of Recall not function: and teleport-level always goes down, as does 
+    the spell of stair-creation, except on the quest levels of Sauron and 
+    Morgoth.
+
+Restrict the use of stores/home    [birth_no_stores]
+    The stores are all closed. The home is someone else's, and locked. You 
+    can keep nothing but what you carry with you, and get nothing but what 
+    you find in the dungeon. No selling items, or buying potions of 
+    restore stat... Not recommended for new players, or indeed for 
+    sane players.
+
+Restrict the creation of artifacts    [birth_no_artifacts]
+    No artifacts will be created. Ever. Just *how* masochistic are you?
+
+Randomize some of the artifacts    [birth_rand_artifacts]
+    A different set of artifacts will be created, in place of the standard 
+    ones from a_info.txt/a_info.raw. This is intended primarily for people
+    who have played enough to know what most of the standard artifacts do
+    and have got bored with them. 
+
+Generate better (harder) levels    [birth_autoscum]
+    Allows you to force the generation of "good" levels in the dungeon.  
+    This option may be extremely slow on some machines, especially deep in
+    the dungeon.  The minimum "goodness" of the level is based on the 
+    dungeon level, so the deeper you go, the better the level will be. 
+    Note that better levels also include tougher monsters so this makes the
+    game both more challanging and more rewarding.
 
 === Cheating Options ===
 
@@ -375,6 +475,8 @@ Know complete monster info    [cheat_know]
 Allow player to avoid death    [cheat_live]
     Cheaters never win.  But they can cheat death.
 
+No autosave. [cheat_no_autosave]
+    Cheaters never win.  But they don't have to save if you don't want to.
 
 === Window flags ===
 
@@ -391,19 +493,23 @@ Display inven/equip
 Display equip/inven
     Display the player equipment (and sometimes the inventory).
 
-Display player flags
-    Display a special description of the character, including some of the
-    "flags" which pertain to a character, broken down by equipment item.
-
-Display player screen
+Display player (basic)
     Display a brief description of the character, including a breakdown
     of the current player "skills" (including attacks/shots per round).
 
-Display player flags
+Display player (extra)
     Display a brief description of the character, including a breakdown
     of the contributions of each equipment item to various resistances
     and stats.
 
+Display visible monsters
+    Displays a color-coded list of all monsters in LOS. "Unknown" (no similar
+    monster has been killed) monsters are grey, "known" monsters are violet
+    if out-of-depth or white otherwise. Uniques are always light red. Note
+    that using this display makes the game somewhat easier, and makes monsters
+    that are disguised as objects/floors somewhat pointless, so use it at
+    your own discretion.
+    
 Display messages
     Display the most recently generated "messages".
 
@@ -430,7 +536,7 @@ Display borg status
     This window flag is currently used only by the Borg.
 
 
-=== Left Over Information ===
+=== Additional Information ===
 
 The "hitpoint_warn" value, if non-zero, is the percentage of maximal hitpoints
 at which the player is warned that he may die.  It is also used as the cut-off
@@ -440,15 +546,4 @@ The "delay_factor" value, if non-zero, will slow down the visual effects used
 for missile, bolt, beam, and ball attacks.  The actual time delay is equal to
 "delay_factor" cubed, in milliseconds.
 
-The "preserve" flag (specified when a character is created) cancels all level
-feelings of the "special" variety, but allows "missed" artifacts to be "saved"
-by wandering monsters and found again at a later time.  This only works for
-non-identified artifacts.  The character description screen shows the value
-of this flag.
-
-The "maximize" flag (specified when a character is created) causes the "race"
-and "class" stat bonuses to be applied as "equipment" bonuses.  This usually
-makes the character harder at the beginning of the game, but easier later on,
-since the stats are no longer limited to a "natural" value of "18/100".  The
-character description screen shows the value of this flag.
 

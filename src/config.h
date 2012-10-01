@@ -199,13 +199,6 @@
  */
 #define ALLOW_MACROS
 
-
-/*
- * OPTION: Allow characteres to be "auto-rolled"
- */
-#define ALLOW_AUTOROLLER
-
-
 /*
  * OPTION: Allow monsters to "flee" when hit hard
  */
@@ -223,14 +216,6 @@
  * It should be usually be defined anyway to allow easy "updating".
  */
 #define ALLOW_TEMPLATES
-
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-#define ALLOW_OLD_SAVEFILES
-
 
 /*
  * OPTION: Allow repeating of last command.
@@ -357,6 +342,7 @@
 /*
  * OPTION: Gamma correct colours (with X11)
  */
+
 #define SUPPORT_GAMMA
 
 
@@ -388,6 +374,12 @@
 
 
 /*
+ * OPTION: Allow the use of q_info.txt to modify quests. If this is turned off,
+ * you must place a QUESTOR tag in r_info.txt quest uniques.
+ */
+#define CUSTOM_QUESTS
+
+/*
  * OPTION: Allow the use of "sound" in various places.
  */
 #define USE_SOUND
@@ -395,8 +387,7 @@
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-#define USE_GRAPHICS
-
+/*#define USE_GRAPHICS */
 
 /*
  * OPTION: Hack -- Macintosh stuff
@@ -492,7 +483,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER	"eytanzw@yahoo.com"
 
 
 /*

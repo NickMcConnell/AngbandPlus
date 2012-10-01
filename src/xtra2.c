@@ -681,9 +681,9 @@ bool set_protevil(int v)
 
 
 /*
- * Set "p_ptr->invuln", notice observable changes
+ * Set "p_ptr->resilent", notice observable changes
  */
-bool set_invuln(int v)
+bool set_resilient(int v)
 {
 	bool notice = FALSE;
 
@@ -693,9 +693,9 @@ bool set_invuln(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->invuln)
+		if (!p_ptr->resilient)
 		{
-			msg_print("You feel invulnerable!");
+			msg_print("You feel resilient!");
 			notice = TRUE;
 		}
 	}
@@ -703,7 +703,7 @@ bool set_invuln(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->invuln)
+		if (p_ptr->resilient)
 		{
 			msg_print("You feel vulnerable once more.");
 			notice = TRUE;
@@ -711,7 +711,7 @@ bool set_invuln(int v)
 	}
 
 	/* Use the value */
-	p_ptr->invuln = v;
+	p_ptr->resilient = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -731,12 +731,9 @@ bool set_invuln(int v)
 
 
 /*
- * Set "p_ptr->tim_invis", notice observable changes
- *
- * Note the use of "PU_MONSTERS", which is needed because
- * "p_ptr->tim_image" affects monster visibility.
+ * Set "p_ptr->absorb", notice observable changes
  */
-bool set_tim_invis(int v)
+bool set_absorb(int v)
 {
 	bool notice = FALSE;
 
@@ -746,7 +743,56 @@ bool set_tim_invis(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->tim_invis)
+		if (!p_ptr->absorb)
+		{
+			msg_print("An aura of magical light emenates from your body!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->absorb)
+		{
+			msg_print("Your aura has abated.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->absorb = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_see_invis", notice observable changes
+ *
+ * Note the use of "PU_MONSTERS", which is needed because
+ * "p_ptr->tim_see_invis" affects monster visibility.
+ */
+bool set_tim_see_invis(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_see_invis)
 		{
 			msg_print("Your eyes feel very sensitive!");
 			notice = TRUE;
@@ -756,7 +802,7 @@ bool set_tim_invis(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_invis)
+		if (p_ptr->tim_see_invis)
 		{
 			msg_print("Your eyes feel less sensitive.");
 			notice = TRUE;
@@ -764,7 +810,7 @@ bool set_tim_invis(int v)
 	}
 
 	/* Use the value */
-	p_ptr->tim_invis = v;
+	p_ptr->tim_see_invis = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -785,6 +831,33 @@ bool set_tim_invis(int v)
 	return (TRUE);
 }
 
+/*
+ * Set "p_ptr->temp_invis", notice observable changes
+ * (Temporary invisibility)
+ */
+bool set_tim_invis(int v)
+{
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Use the value */
+	p_ptr->tim_invis = v;
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters XXX */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Set "p_ptr->tim_infra", notice observable changes
@@ -1062,6 +1135,52 @@ bool set_oppose_pois(int v)
 
 	/* Use the value */
 	p_ptr->oppose_pois = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->oppose_all", notice observable changes
+ */
+bool set_oppose_all(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_all)
+		{
+			msg_print("You feel resistant to everything!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_all)
+		{
+			msg_print("You feel less resistant to everything.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_all = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1643,6 +1762,39 @@ bool set_food(int v)
 }
 
 
+/*
+ * Apply level raise bonuses for special levels
+ */
+
+static void special_level(void)
+{
+	cptr s, t;
+
+	if (rp_ptr->special == RACE_SPECIAL_DEMON)
+	{
+		p_ptr->ht += 2;
+		p_ptr->wt += 4;
+	}
+	s=rsp_ptr[p_ptr->lev/5]->name;
+	if (is_a_vowel(*s)) t="an";
+	else t="a";
+	if (strcmp(s,rsp_ptr[(p_ptr->lev-1)/5]->name))
+	{
+		msg_format("A wave of %s passes through your body",
+			((rp_ptr->special == RACE_SPECIAL_DEMON) ? "great evil":"holiness"));
+		msg_format("You have grown into %s %s!",t,s);
+	}
+	if (rsp_ptr[(p_ptr->lev)/5]->power != rsp_ptr[(p_ptr->lev-1)/5]->power)
+	{
+		if (!rsp_ptr[(p_ptr->lev-1)/5]->power) msg_print("You gain a racial power!");
+		else msg_print("Your racial power has changed!");
+		p_ptr->racial_power = 0;
+	}
+	
+
+	p_ptr->redraw |= (PR_STATS | PR_MISC);
+	return;
+}
 
 
 
@@ -1686,7 +1838,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1705,6 +1857,8 @@ void check_experience(void)
 		p_ptr->lev++;
 
 		/* Save the highest level */
+		if ((rp_ptr->special) && (p_ptr->lev > p_ptr->max_lev)) special_level();
+
 		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
 
 		/* Message */
@@ -1714,7 +1868,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1820,6 +1974,11 @@ void monster_death(int m_idx)
 	int number = 0;
 	int total = 0;
 
+#ifdef CUSTOM_QUESTS
+	int completed = 0;
+	int level_total = 0;
+#endif
+
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &m_list[m_idx];
@@ -1844,6 +2003,8 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
+	/* Update monster list window */
+	p_ptr->window |= (PW_M_LIST);
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1974,6 +2135,56 @@ void monster_death(int m_idx)
 	}
 
 
+#ifdef CUSTOM_QUESTS
+
+	/* Only process dungeon kills */
+	if (!p_ptr->depth) return;
+
+	/* Reset counters */
+	completed = 0;
+	level_total = 0;
+
+	/* Count incomplete quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		quest *q_ptr = &q_info[i];
+
+		/* Quest level? */
+		if (q_ptr->level == p_ptr->depth)
+		{
+			/* One on the level */
+			level_total++;
+
+			/* Require "Quest Monsters" */
+			if (q_ptr->r_idx == m_ptr->r_idx)
+			{
+				/* Mark kills */
+				q_ptr->cur_num++;
+
+				/* Completed quest? */
+				if (q_ptr->cur_num == q_ptr->max_num)
+				{
+					/* Mark complete */
+					q_ptr->level = 0;
+
+					/* One complete */
+					completed++;
+				}
+			}
+		}
+
+		/* Count incomplete quests */
+		if (q_ptr->level) total++;
+	}
+
+	/* Require a quest level */
+	if (!level_total) return;
+
+	/* Require all quests on this level to be completed */
+	if (completed != level_total) return;
+
+#else /*CUSTOM_QUESTS*/
+
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
 
@@ -1988,6 +2199,7 @@ void monster_death(int m_idx)
 		if (q_list[i].level) total++;
 	}
 
+#endif /*CUSTOM_QUESTS*/
 
 	/* Need some stairs */
 	if (total)
@@ -2073,7 +2285,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	s32b div, new_exp, new_exp_frac;
 
-
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
@@ -2122,6 +2333,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Maximum player level */
 		div = p_ptr->max_lev;
 
+		/* Angels and Demons get less exp for good and evil non-uniques respectively */
+		if  (!(r_ptr->flags1 & (RF1_UNIQUE)) && 
+			(((rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags3 & (RF3_EVIL))))) div *=3;
+		
 		/* Give some experience for the kill */
 		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
 
@@ -2142,7 +2357,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Gain experience */
 		gain_exp(new_exp);
-
+		
 		/* Generate treasure */
 		monster_death(m_idx);
 

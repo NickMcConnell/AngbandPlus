@@ -972,6 +972,10 @@ void update_mon(int m_idx, bool full)
 				}
 			}
 
+	        /* Use "lite carriers" */
+		    if ((r_ptr->flags2 & (RF2_HAS_LITE)) &&
+				!(r_ptr->flags2 & (RF2_INVISIBLE))) easy=flag=TRUE;
+
 			/* Use "illumination" */
 			if (player_can_see_bold(fy, fx))
 			{
@@ -1023,11 +1027,18 @@ void update_mon(int m_idx, bool full)
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
+			/* Update monster list window */
+			p_ptr->window |= (PW_M_LIST);
+
 			/* Hack -- Count "fresh" sightings */
 			if (l_ptr->r_sights < MAX_SHORT) l_ptr->r_sights++;
 
 			/* Disturb on appearance */
 			if (disturb_move) disturb(1, 0);
+
+			/* Player knows if it has light */
+			if (r_ptr->flags2 & RF2_HAS_LITE) l_ptr->r_flags2 |= RF2_HAS_LITE;
+
 		}
 	}
 
@@ -1045,6 +1056,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+
+			/* Update monster list window */
+			p_ptr->window |= (PW_M_LIST);
 
 			/* Disturb on disappearance */
 			if (disturb_move) disturb(1, 0);
@@ -1080,7 +1094,6 @@ void update_mon(int m_idx, bool full)
 		}
 	}
 }
-
 
 
 
@@ -1774,59 +1787,6 @@ bool place_monster(int y, int x, bool slp, bool grp)
 
 
 
-/*
- * XXX XXX XXX Player Ghosts are such a hack, they have been completely
- * removed until Angband 2.8.0, in which there will actually be a small
- * number of "unique" monsters which will serve as the "player ghosts".
- * Each will have a place holder for the "name" of a deceased player,
- * which will be extracted from a "bone" file, or replaced with a
- * "default" name if a real name is not available.  Each ghost will
- * appear exactly once and will not induce a special feeling.
- *
- * Possible methods:
- *   (s) 1 Skeleton
- *   (z) 1 Zombie
- *   (M) 1 Mummy
- *   (G) 1 Polterguiest, 1 Spirit, 1 Ghost, 1 Shadow, 1 Phantom
- *   (W) 1 Wraith
- *   (V) 1 Vampire, 1 Vampire Lord
- *   (L) 1 Lich
- *
- * Possible change: Lose 1 ghost, Add "Master Lich"
- *
- * Possible change: Lose 2 ghosts, Add "Wraith", Add "Master Lich"
- *
- * Possible change: Lose 4 ghosts, lose 1 vampire lord
- *
- * Note that ghosts should never sleep, should be very attentive, should
- * have maximal hitpoints, drop only good (or great) items, should be
- * cold blooded, evil, undead, immune to poison, sleep, confusion, fear.
- *
- * Base monsters:
- *   Skeleton
- *   Zombie
- *   Mummy
- *   Poltergeist
- *   Spirit
- *   Ghost
- *   Vampire
- *   Wraith
- *   Vampire Lord
- *   Shadow
- *   Phantom
- *   Lich
- *
- * This routine will simply extract ghost names from files, and
- * attempt to allocate a player ghost somewhere in the dungeon,
- * note that normal allocation may also attempt to place ghosts,
- * so we must work with some form of default names.
- *
- * XXX XXX XXX
- */
-
-
-
-
 
 /*
  * Attempt to allocate a random monster in the dungeon.
@@ -1919,9 +1879,9 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-		case SUMMON_ANGEL:
+		case SUMMON_HORROR:
 		{
-			okay = ((r_ptr->d_char == 'A') &&
+			okay = ((r_ptr->d_char == 'N') &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}

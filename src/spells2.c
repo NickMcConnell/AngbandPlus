@@ -11,9 +11,6 @@
 #include "angband.h"
 
 
-
-
-
 /*
  * Increase players hit points, notice effects
  */
@@ -489,9 +486,13 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are protected by a mystic shield.";
 	}
-	if (p_ptr->invuln)
+	if (p_ptr->resilient)
 	{
-		info[i++] = "You are temporarily invulnerable.";
+		info[i++] = "You are temporarily resilient.";
+	}
+	if (p_ptr->absorb)
+	{
+		info[i++] = "You are set to absorb the next attack.";
 	}
 	if (p_ptr->confusing)
 	{
@@ -546,7 +547,10 @@ void self_knowledge(void)
 	{
 		info[i++] = "You have a firm hold on your life force.";
 	}
-
+	if (p_ptr->invis)
+	{
+		info[i++] = "You are invisible.";
+	}
 	if (p_ptr->immune_acid)
 	{
 		info[i++] = "You are completely immune to acid.";
@@ -1284,7 +1288,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
+		    (tv == TV_MAGIC_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1586,6 +1590,61 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 
 
 /*
+ * Hook to brand "weapon" (same as before but no bows or digging weapons)
+ */
+static bool item_tester_hook_brand(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+/*
+ * Hook for arrows and bolts
+ */
+static bool item_tester_hook_arrow(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_BOLT:
+		case TV_ARROW:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+/*
+ * Hook to choose spellbooks
+ */
+bool item_tester_hook_spellbooks(object_type *o_ptr)
+{
+	return ((o_ptr->tval == TV_MAGIC_BOOK) && (cp_ptr->spell_book[o_ptr->sval])) ;
+}
+
+/*
+ * Hook to choose spellbooks
+ */
+bool item_tester_hook_mysticbooks(object_type *o_ptr)
+{
+	return ((o_ptr->tval == TV_MAGIC_BOOK) && (cp_ptr->spell_book[o_ptr->sval])
+		&& (books[o_ptr->sval].flags & SBF_MYSTIC));
+}
+
+/*
  * Hook to specify "armour"
  */
 static bool item_tester_hook_armour(object_type *o_ptr)
@@ -1655,7 +1714,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
-
 
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
@@ -1845,6 +1903,141 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	return (TRUE);
 }
 
+/*
+ * Brand the current weapon
+ */
+bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
+{
+	int item;
+	object_type *o_ptr;
+	cptr act, s, q;
+	char o_name[80];
+	bool ammo;
+
+	if (weapon_type) 
+	{
+		/* Hack - choosing arrows also gives you bolts */
+		if (weapon_type == TV_ARROW) item_tester_hook = item_tester_hook_arrow;
+		else item_tester_tval = weapon_type;
+	}
+	else item_tester_hook = item_tester_hook_brand;
+
+	/* Get an item */
+	q = "Brand which weapon? ";
+	s = "You have no weapon to brand.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return (FALSE);
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	ammo = ((o_ptr->tval == TV_SHOT) || (o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_BOLT));
+
+    /*
+	 * Don't enchant artifacts, ego-items, cursed or broken items, or piles of anything except
+	 * arrows, bolts, and shots
+	 */
+	if (artifact_p(o_ptr) || ego_item_p(o_ptr) || cursed_p(o_ptr) || broken_p(o_ptr) ||
+		((o_ptr->number > 1) && !(ammo)))
+	{
+		/* Flush */
+		if (flush_failure) flush();
+	
+		/* Fail */
+		msg_print("The branding failed.");
+
+		/* Notice */
+		return (TRUE);
+	}
+
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+	switch (brand_type)
+	{
+		case EGO_BRAND_FIRE:
+		case EGO_FLAME:
+		{
+			/* Make sure you don't give an inappropriate brand */
+			if (ammo) brand_type = EGO_FLAME;
+			else brand_type = EGO_BRAND_FIRE;
+			if (o_ptr->number > 1) act = "are covered in a fiery aura!";
+			else act = "is covered in a fiery aura!";
+			break;
+		}
+		case EGO_BRAND_COLD:
+		case EGO_FROST:
+		{
+			/* Make sure you don't give an inappropriate brand */
+			if (ammo) brand_type = EGO_FROST;
+			else brand_type = EGO_BRAND_COLD;
+			if (o_ptr->number > 1) act = "glow deep, icy blue!";
+			else act = "glows deep, icy blue!";
+			break;
+		}
+		case EGO_BRAND_ACID:
+		case EGO_AMMO_ACID:
+		{
+			/* Make sure you don't give an inappropriate brand */
+			if (ammo) brand_type = EGO_AMMO_ACID;
+			else brand_type = EGO_BRAND_ACID;
+			if (o_ptr->number > 1) act = "are covered in an acidic sheen!";
+			else act = "is covered in an acidic sheen!";
+			break;
+		}
+		case EGO_BRAND_ELEC:
+		case EGO_AMMO_ELEC:
+		{
+			/* Make sure you don't give an inappropriate brand */
+			if (ammo) brand_type = EGO_AMMO_ELEC;
+			else brand_type = EGO_BRAND_ELEC;
+			if (o_ptr->number > 1) act = "emit a halo of electrical sparks!";
+			else act = "emits a halo of electrical sparks!";
+			break;
+		}
+		case EGO_SLAY_EVIL:
+		case EGO_HURT_EVIL:
+		{
+			/* Make sure you don't give an inappropriate brand */
+			if (ammo) brand_type = EGO_HURT_EVIL;
+			else brand_type = EGO_SLAY_EVIL;
+			if (o_ptr->number > 1) act = "are covered in a holy aura!";
+			else (act = "is covered in a holy aura!"); 
+			break;
+		}
+		case EGO_SLAY_ANIMAL:
+		case EGO_HURT_ANIMAL:
+		{
+			/* Make sure you don't give an inappropriate brand */
+			if (ammo) brand_type = EGO_HURT_ANIMAL;
+			else brand_type = EGO_SLAY_ANIMAL;
+			if (o_ptr->number > 1) act = "are prepared for the hunt!";
+			else (act = "is prepared for the hunt!"); 
+			break;
+		}
+		case EGO_WOUNDING:
+		{
+			/* Make sure you don't give an inappropriate brand */
+			if (ammo) brand_type = EGO_WOUNDING;
+			else brand_type = 0;
+			if (o_ptr->number > 1) act = "grow sleeker and deadlier!";
+			else (act = "grows sleeker and deadlier!"); 
+			break;
+		}
+	}
+	o_ptr->name2 = brand_type;
+	msg_format("Your %s %s", o_name, act);
+
+	if (add_plus) enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+
+	return (TRUE);
+}
 
 /*
  * Identify an object in the inventory (or on the floor)
@@ -1854,6 +2047,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 bool ident_spell(void)
 {
 	int item;
+	int squelch=0;
 
 	object_type *o_ptr;
 
@@ -1890,6 +2084,9 @@ bool ident_spell(void)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Squelch it? */
+	if (item<INVEN_WIELD) squelch=squelch_itemp(o_ptr, 0, 1);
+
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -1907,14 +2104,18 @@ bool ident_spell(void)
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+		msg_format("In your pack: %s (%c).  %s", o_name, index_to_label(item), 
+			((squelch==1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
 	}
 	else
 	{
-		msg_format("On the ground: %s.",
-		           o_name);
+		msg_format("On the ground: %s.  %s", o_name, ((squelch==1) ? "(Squelched)" :
+			((squelch==-1) ? "(Squelch Failed)" : "")));
+		
 	}
+
+	/* Now squelch it if needed */
+	do_squelch_item(squelch, item, o_ptr);
 
 	/* Something happened */
 	return (TRUE);
@@ -1929,7 +2130,9 @@ bool ident_spell(void)
  */
 bool identify_fully(void)
 {
+	int i;
 	int item;
+	int squelch=0;
 
 	object_type *o_ptr;
 
@@ -1963,6 +2166,22 @@ bool identify_fully(void)
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
+	/* Learn all alchemical info if potion */
+	if (o_ptr->tval == TV_POTION)
+	{
+		potion_alch[o_ptr->sval].known1=TRUE;
+		potion_alch[o_ptr->sval].known2=TRUE;
+
+		for (i = 0; i < SV_MAX_POTIONS; i++)
+		{
+			if (potion_alch[i].sval1 == o_ptr->sval) potion_alch[i].known1 = TRUE;
+			if (potion_alch[i].sval2 == o_ptr->sval) potion_alch[i].known2 = TRUE;
+		}
+	}
+
+	/* Squelch it? */
+	if (item<INVEN_WIELD) squelch=squelch_itemp(o_ptr, 0, 1);
+
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
 
@@ -1989,17 +2208,26 @@ bool identify_fully(void)
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
-	}
-	else
+		msg_format("In your pack: %s (%c).  %s", o_name, index_to_label(item),
+			((squelch==1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
+ 	}
+ 	else
+ 	{
+		msg_format("On the ground: %s.  %s", o_name,
+		   ((squelch==1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
+		
+ 	}
+ 
+	/* Now squelch it if needed */
+	if (squelch==1) 
 	{
-		msg_format("On the ground: %s.",
-		           o_name);
+		do_squelch_item(squelch, item, o_ptr);
+	} 
+	else 
+	{
+		/* Describe it fully */
+		identify_fully_aux(o_ptr);
 	}
-
-	/* Describe it fully */
-	identify_fully_aux(o_ptr);
 
 	/* Success */
 	return (TRUE);
@@ -2057,6 +2285,7 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
 bool recharge(int num)
 {
 	int i, t, item, lev;
+	int recharge_strength, recharge_amount;
 
 	object_type *o_ptr;
 
@@ -2090,36 +2319,31 @@ bool recharge(int num)
 	/* Recharge a rod */
 	if (o_ptr->tval == TV_ROD)
 	{
-		/* Extract a recharge power */
-		i = (100 - lev + num) / 5;
+		/* Extract a recharge strength by comparing object level to power. */
+		recharge_strength = ((num > lev) ? (num - lev) : 0) / 5;
+
 
 		/* Back-fire */
-		if ((i <= 1) || (rand_int(i) == 0))
+		if (rand_int(recharge_strength) == 0)
 		{
 			/* Hack -- backfire */
 			msg_print("The recharge backfires, draining the rod further!");
 
 			/* Hack -- decharge the rod */
-			if (o_ptr->pval < 10000) o_ptr->pval = (o_ptr->pval + 100) * 2;
+			if (o_ptr->timeout < 10000) o_ptr->timeout = (o_ptr->timeout + 100) * 2;
 		}
 
 		/* Recharge */
 		else
 		{
-			/* Rechange amount */
-			t = (num * damroll(2, 4));
+			/* Recharge amount */
+			recharge_amount = (num * damroll(3, 2));
 
 			/* Recharge by that amount */
-			if (o_ptr->pval > t)
-			{
-				o_ptr->pval -= t;
-			}
-
-			/* Fully recharged */
+			if (o_ptr->timeout > recharge_amount)
+				o_ptr->timeout -= recharge_amount;
 			else
-			{
-				o_ptr->pval = 0;
-			}
+				o_ptr->timeout = 0;
 		}
 	}
 
@@ -2281,6 +2505,14 @@ bool dispel_undead(int dam)
 bool dispel_evil(int dam)
 {
 	return (project_hack(GF_DISP_EVIL, dam));
+}
+
+/*
+ * Dispel non-evil monsters
+ */
+bool dispel_non_evil(int dam)
+{
+	return (project_hack(GF_DISP_NON_EVIL, dam));
 }
 
 /*
@@ -3357,10 +3589,10 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
  * Some of the old functions
  */
 
-bool lite_line(int dir)
+bool lite_line(int dir, int dam)
 {
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
-	return (project_hook(GF_LITE_WEAK, dir, damroll(6, 8), flg));
+	return (project_hook(GF_LITE_WEAK, dir, dam, flg));
 }
 
 bool drain_life(int dir, int dam)

@@ -163,6 +163,20 @@ void do_cmd_wield(void)
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
+	/* Ask for ring to replace */
+	if ((o_ptr->tval == TV_RING) &&
+		inventory[INVEN_LEFT].k_idx &&
+		inventory[INVEN_RIGHT].k_idx)
+	{
+		/* Restrict the choices */
+		item_tester_tval = TV_RING;
+	
+		/* Choose a ring from the equipment only */
+		q = "Replace which ring? ";
+		s = "Oops.";
+		if (!get_item(&slot, q, s, USE_EQUIP)) return;
+	}
+
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
 	{
@@ -428,7 +442,7 @@ void do_cmd_destroy(void)
 	o_ptr->number = old_number;
 
 	/* Verify destruction */
-	if (verify_destroy)
+	if (verify_destroy && (verify_destroy_junk || (object_value(o_ptr) >= 1)))
 	{
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
@@ -440,23 +454,33 @@ void do_cmd_destroy(void)
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{
-		int feel = INSCRIP_SPECIAL;
-
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_TERRIBLE;
-
 		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Sense the object if allowed, don't sense ID'ed stuff */
-		if ((o_ptr->discount == 0) && !object_known_p(o_ptr))
-			o_ptr->discount = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
+		if (!object_known_p(o_ptr)) switch (o_ptr->discount)
+		{
+			case 0:
+			case INSCRIP_NULL:
+			case INSCRIP_UNCURSED:
+			case INSCRIP_INDESTRUCT:
+			{
+				o_ptr->discount = INSCRIP_INDESTRUCT;
+				break;
+			}
+			case INSCRIP_TERRIBLE:
+			case INSCRIP_CURSED:
+			{
+				o_ptr->discount = INSCRIP_TERRIBLE;
+				break;
+			}
+			case INSCRIP_GOOD:
+			case INSCRIP_SPECIAL:
+			{
+				o_ptr->discount = INSCRIP_SPECIAL;
+				break;
+			}
+		}
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);
@@ -470,6 +494,9 @@ void do_cmd_destroy(void)
 
 	/* Message */
 	msg_format("You destroy %s.", o_name);
+
+	/* Reduce the charges of rods */
+	reduce_charges(o_ptr, amt);
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
@@ -659,7 +686,8 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 
 	/* Non-empty lanterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN) &&
+	    ((o_ptr->sval == SV_LITE_LANTERN) ||
+	    (o_ptr->sval == SV_LITE_LANTERN_SEE)) &&
 	    (o_ptr->pval > 0))
 	{
 		return (TRUE);
@@ -724,7 +752,7 @@ static void do_cmd_refill_lamp(void)
 	}
 
 	/* Use fuel from a lantern */
-	if (o_ptr->sval == SV_LITE_LANTERN)
+	if ((o_ptr->sval == SV_LITE_LANTERN) || (o_ptr->sval == SV_LITE_LANTERN_SEE))
 	{
 		/* No more fuel */
 		o_ptr->pval = 0;
@@ -877,7 +905,8 @@ void do_cmd_refill(void)
 	}
 
 	/* It's a lamp */
-	else if (o_ptr->sval == SV_LITE_LANTERN)
+	else if ((o_ptr->sval == SV_LITE_LANTERN) || (o_ptr->sval == SV_LITE_LANTERN_SEE) ||
+		(o_ptr->sval == SV_LITE_CHERADENINE))
 	{
 		do_cmd_refill_lamp();
 	}
@@ -1058,7 +1087,7 @@ static cptr ident_info[] =
 	"':An open door",
 	"(:Soft armor",
 	"):A shield",
-	"*:A vein with treasure",
+	"*:A vein with treasure (or Throwing powder)",
 	"+:A closed door",
 	",:Food (or mushroom patch)",
 	"-:A wand (or rod)",
@@ -1081,12 +1110,12 @@ static cptr ident_info[] =
 	">:A down staircase",
 	"?:A scroll",
 	"@:You",
-	"A:Angel",
+	/*"A:unused",*/
 	"B:Bird",
 	"C:Canine",
 	"D:Ancient Dragon/Wyrm",
 	"E:Elemental",
-	"F:Dragon Fly",
+	"F:Fly",
 	"G:Ghost",
 	"H:Hybrid",
 	"I:Insect",
@@ -1094,7 +1123,7 @@ static cptr ident_info[] =
 	"K:Killer Beetle",
 	"L:Lich",
 	"M:Multi-Headed Reptile",
-	/* "N:unused", */
+	"N:Nameless Horror",
 	"O:Ogre",
 	"P:Giant Humanoid",
 	"Q:Quylthulg (Pulsing Flesh Mound)",
@@ -1360,7 +1389,7 @@ void do_cmd_query_symbol(void)
 	C_MAKE(who, z_info->r_max, u16b);
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < z_info->r_max - 1; i++)
+	for (n = 0, i = 1; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 		monster_lore *l_ptr = &l_list[i];

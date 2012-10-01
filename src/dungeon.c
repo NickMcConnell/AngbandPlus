@@ -88,9 +88,9 @@ static int value_check_aux2(object_type *o_ptr)
  *   Class 0 = Warrior --> fast and heavy
  *   Class 1 = Mage    --> slow and light
  *   Class 2 = Priest  --> fast but light
- *   Class 3 = Rogue   --> okay and heavy
- *   Class 4 = Ranger  --> slow and light
- *   Class 5 = Paladin --> slow but heavy
+ *   Class 3 = Ranger  --> slow and light
+ *   Class 4 = Paladin --> slow but heavy
+ *   Class 5 = Mystic  --> slow and light
  */
 static void sense_inventory(void)
 {
@@ -113,72 +113,59 @@ static void sense_inventory(void)
 	if (p_ptr->confused) return;
 
 	/* Analyze the class */
-	switch (p_ptr->pclass)
+	switch (cp_ptr->flags & CF_PSEUDO_ID_MASK)
 	{
-		case CLASS_WARRIOR:
+		case CF_PSEUDO_ID1:
 		{
-			/* Good sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_MAGE:
-		{
-			/* Very bad (light) sensing */
+			/* Very slow (light) sensing */
 			if (0 != rand_int(240000L / (plev + 5))) return;
 
 			/* Done */
 			break;
 		}
 
-		case CLASS_PRIEST:
+		case CF_PSEUDO_ID2:
 		{
-			/* Good (light) sensing */
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_ROGUE:
-		{
-			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_RANGER:
-		{
-			/* Very bad (light) sensing */
+			/* Slow (light) sensing */
 			if (0 != rand_int(120000L / (plev + 5))) return;
 
 			/* Done */
 			break;
 		}
 
-		case CLASS_PALADIN:
+		case CF_PSEUDO_ID3:
 		{
-			/* Bad sensing */
+			/* Slow sensing */
 			if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
 
 			/* Done */
 			break;
 		}
+
+		case CF_PSEUDO_ID4:
+		{
+			/* Fast (light) sensing */
+			if (0 != rand_int(10000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
+		case CF_PSEUDO_ID5:
+		{
+			/* Fast sensing */
+			if (0 != rand_int(9000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
+		default : return;
+
 	}
 
+	/* Heavy sensing */
+	if (cp_ptr->flags & CF_PSEUDO_ID_HEAVY) heavy=TRUE;
 
 	/*** Sense everything ***/
 
@@ -186,6 +173,8 @@ static void sense_inventory(void)
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		bool okay = FALSE;
+
+		int squelch=0;
 
 		o_ptr = &inventory[i];
 
@@ -221,8 +210,8 @@ static void sense_inventory(void)
 		/* Skip non-sense machines */
 		if (!okay) continue;
 
-		/* It already has a discount or special inscription */
-		if (o_ptr->discount > 0) continue;
+		/* It already has a discount or special inscription, except "indestructible" */
+		if ((o_ptr->discount > 0) && !(o_ptr->discount == INSCRIP_INDESTRUCT)) continue;
 
 		/* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
@@ -234,11 +223,18 @@ static void sense_inventory(void)
 		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
 
 		/* Check for a feeling */
-		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+		feel = ((heavy || (o_ptr->discount == INSCRIP_INDESTRUCT)) ? value_check_aux1(o_ptr) 
+			: value_check_aux2(o_ptr));
 
 		/* Skip non-feelings */
 		if (!feel) continue;
 
+		/* Squelch it? */
+		if (i < INVEN_WIELD) 
+		{
+			squelch = squelch_itemp(o_ptr, feel, 0);
+		}
+		
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
 
@@ -248,10 +244,12 @@ static void sense_inventory(void)
 		/* Message (equipment) */
 		if (i >= INVEN_WIELD)
 		{
-			msg_format("You feel the %s (%c) you are %s %s %s...",
-			           o_name, index_to_label(i), describe_use(i),
-			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL]);
+			msg_format("You feel the %s (%c) in your pack %s %s...  %s",
+						o_name, index_to_label(i), describe_use(i),
+						((o_ptr->number == 1) ? "is" : "are"),
+						inscrip_text[feel - INSCRIP_NULL],
+						((squelch==1) ? "(Squelched)" :
+						((squelch==-1) ? "(Squelch Failed)" : "")));
 		}
 
 		/* Message (inventory) */
@@ -269,6 +267,8 @@ static void sense_inventory(void)
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 
+		/* Squelch it if necessary */
+		do_squelch_item(squelch, i, o_ptr);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -427,17 +427,15 @@ static void regen_monsters(void)
  */
 static void process_world(void)
 {
-	int i, j;
+	int i, j, temp;
 
 	int regen_amount;
 
 	object_type *o_ptr;
-
-
+	object_kind *k_ptr;
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
-
 
 	/*** Check the Time and Load ***/
 
@@ -726,7 +724,13 @@ static void process_world(void)
 		(void)set_blind(p_ptr->blind - 1);
 	}
 
-	/* Times see-invisible */
+	/* Timed see-invisible */
+	if (p_ptr->tim_see_invis)
+	{
+		(void)set_tim_see_invis(p_ptr->tim_see_invis - 1);
+	}
+
+	/* Timed invisibility */
 	if (p_ptr->tim_invis)
 	{
 		(void)set_tim_invis(p_ptr->tim_invis - 1);
@@ -768,6 +772,12 @@ static void process_world(void)
 		(void)set_slow(p_ptr->slow - 1);
 	}
 
+	/* Absorb Hit */
+	if (p_ptr->absorb)
+	{
+		(void)set_absorb(p_ptr->absorb - 1);
+	}
+
 	/* Protection from evil */
 	if (p_ptr->protevil)
 	{
@@ -775,9 +785,9 @@ static void process_world(void)
 	}
 
 	/* Invulnerability */
-	if (p_ptr->invuln)
+	if (p_ptr->resilient)
 	{
-		(void)set_invuln(p_ptr->invuln - 1);
+		(void)set_resilient(p_ptr->resilient - 1);
 	}
 
 	/* Heroism */
@@ -834,6 +844,20 @@ static void process_world(void)
 		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
 	}
 
+	/* Oppose All */
+	if (p_ptr->oppose_all)
+	{
+		(void)set_oppose_all(p_ptr->oppose_all - 1);
+	}
+
+	
+	/*** Racial Power ***/
+
+	/* Racial power recharge */
+	if (p_ptr->racial_power)
+	{
+		p_ptr->racial_power = (p_ptr->racial_power - 1);
+	}
 
 	/*** Poison and Stun and Cut ***/
 
@@ -878,7 +902,7 @@ static void process_world(void)
 	if (o_ptr->tval == TV_LITE)
 	{
 		/* Hack -- Use some fuel (except on artifacts) */
-		if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+		if ((o_ptr->pval > 0) && (!artifact_p(o_ptr) || (o_ptr->sval == SV_LITE_CHERADENINE)))
 		{
 			/* Decrease life-span */
 			o_ptr->pval--;
@@ -957,22 +981,32 @@ static void process_world(void)
 		p_ptr->window |= (PW_EQUIP);
 	}
 
-	/* Recharge rods */
+	/* Recharge rods.  Rods now use timeout to control charging status, 
+	 * and each charging rod in a stack decreases the stack's timeout by 
+	 * one per turn. -LM-
+	 */
 	for (j = 0, i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
+		k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Examine all charging rods */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
+		/* Examine all charging rods or stacks of charging rods. */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
-			/* Charge it */
-			o_ptr->pval--;
+			/* Determine how many rods are charging. */
+			temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+			if (temp > o_ptr->number) temp = o_ptr->number;
 
-			/* Notice changes */
-			if (!(o_ptr->pval)) j++;
+			/* Decrease timeout by that number. */
+			o_ptr->timeout -= temp;
+
+			/* Boundary control. */
+			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
+
+			j++;
 		}
 	}
 
@@ -1001,8 +1035,15 @@ static void process_world(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Recharge rods on the ground */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval)) o_ptr->pval--;
+		/* Recharge rods on the ground.  No messages. */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			/* Charge it */
+			o_ptr->timeout -= o_ptr->number;
+
+			/* Boundary control. */
+			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
+		}
 	}
 
 
@@ -1242,7 +1283,6 @@ static void process_command(void)
 #endif
 
 
-
 		/*** Inventory Commands ***/
 
 		/* Wear/wield equipment */
@@ -1458,18 +1498,19 @@ static void process_command(void)
 
 		/* Cast a spell */
 		case 'm':
-		{
-			do_cmd_cast();
-			break;
-		}
-
-		/* Pray a prayer */
 		case 'p':
 		{
-			do_cmd_pray();
+			do_cmd_cast_or_pray();
 			break;
 		}
 
+
+		/* Use a racial power */
+		case 'U':
+		{
+			do_cmd_use_racial();
+			break;
+		}
 
 		/*** Use various objects ***/
 
@@ -1557,6 +1598,12 @@ static void process_command(void)
 			break;
 		}
 
+		/* Mix potions */
+		case 'x':
+		{
+			do_cmd_mix();
+			break;
+		}
 
 		/*** Looking at Things (nearby or on map) ***/
 
@@ -1936,7 +1983,7 @@ static void process_player(void)
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff (if needed) */
-		if (p_ptr->update) update_stuff();
+		update_stuff();
 
 		/* Redraw stuff (if needed) */
 		if (p_ptr->redraw) redraw_stuff();
@@ -1988,7 +2035,7 @@ static void process_player(void)
 			if (p_ptr->notice) notice_stuff();
 
 			/* Update stuff (if needed) */
-			if (p_ptr->update) update_stuff();
+			update_stuff();
 
 			/* Redraw stuff (if needed) */
 			if (p_ptr->redraw) redraw_stuff();
@@ -2344,7 +2391,6 @@ static void dungeon(void)
 	/* Update stuff */
 	update_stuff();
 
-
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
 
@@ -2469,7 +2515,7 @@ static void dungeon(void)
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
-		if (p_ptr->update) update_stuff();
+		update_stuff();
 
 		/* Redraw stuff */
 		if (p_ptr->redraw) redraw_stuff();
@@ -2494,7 +2540,7 @@ static void dungeon(void)
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
-		if (p_ptr->update) update_stuff();
+		update_stuff();
 
 		/* Redraw stuff */
 		if (p_ptr->redraw) redraw_stuff();
@@ -2511,7 +2557,6 @@ static void dungeon(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
-
 		/* Process the world */
 		process_world();
 
@@ -2519,7 +2564,7 @@ static void dungeon(void)
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
-		if (p_ptr->update) update_stuff();
+		update_stuff();
 
 		/* Redraw stuff */
 		if (p_ptr->redraw) redraw_stuff();
@@ -2535,7 +2580,6 @@ static void dungeon(void)
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
-
 
 		/* Count game turns */
 		turn++;
@@ -2704,6 +2748,9 @@ void play_game(bool new_game)
 		/* Hack -- seed for flavors */
 		seed_flavor = rand_int(0x10000000);
 
+		/* Hack -- seed for alchemy */
+		seed_alchemy = rand_int(0x10000000);
+
 		/* Hack -- seed for town layout */
 		seed_town = rand_int(0x10000000);
 
@@ -2757,6 +2804,9 @@ void play_game(bool new_game)
 	/* Flavor the objects */
 	flavor_init();
 
+	/* Generate alchemy tables */
+	alchemy_init();
+
 	/* Reset visuals */
 	reset_visuals(TRUE);
 
@@ -2805,6 +2855,10 @@ void play_game(bool new_game)
 	/* Process */
 	while (TRUE)
 	{
+
+		/* Update monster list window */
+		p_ptr->window |= (PW_M_LIST);
+	
 		/* Process the level */
 		dungeon();
 
@@ -2813,7 +2867,7 @@ void play_game(bool new_game)
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
-		if (p_ptr->update) update_stuff();
+		update_stuff();
 
 		/* Redraw stuff */
 		if (p_ptr->redraw) redraw_stuff();

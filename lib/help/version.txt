@@ -1,12 +1,13 @@
 === Version Information ===
 
-This file was last updated for Angband 2.9.0.
+This file was last updated for EyAngband 0.1.2.
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
-the Official Angband Home Page ("http://thangorodrim.angband.org") for the
-most up to date information about Angband.
+the EyAngband home page (httP://members.xoom.com/eytanzw/eyangband) and the
+Official Angband Home Page ("http://thangorodrim.angband.org") for the
+most up to date information about EyAngband and Angband in general.
 
-Angband 2.9.0 has an incredibly complex history, and is the result of a
+EyAngband 0.1.2 has an incredibly complex history, and is the result of a
 lot of work by a lot of people, all of whom have contributed their time
 and energy for free, being rewarded only by the pleasure of keeping alive
 one of the best freeware games available anywhere.
@@ -106,14 +107,16 @@ occupied by his work.  He released a beta version of Angband 2.8.5,
 introducing many new features, but couldn't give as much attention to
 maintaining the game as he wanted to.
 
-So in March 2000, I (Robert Ruehlmann) offered to take over Angband and
+So in March 2000, Robert Ruehlmann offered to take over Angband and
 started to fix the remaining bugs in the Angband 2.8.5 beta.  The
-resulting version has now been released as Angband 2.9.0.
+resulting version has now been released as Angband 2.9.0, which was
+soon followed by Angband 2.9.1. 
 
-The Official Angband Home Page ("http://thangorodrim.angband.org/") serves
-not only as the most up to date description of Angband, but also lists
-changes made between versions, and changes planned for upcoming versions,
-and lists various email addresses and web sites related to Angband.
+At that time, I (Eytan Zweig), having just finished teaching myself some
+basic C skills, decided that the best way to improve them while doing
+something productive is to develop my own varient. Early changes have
+consisted mainly of interface fixes, but with later versions came 
+several gameplay changes and more are planned for the future.
 
 === Some of the changes between Angband 2.6.1 and Angband 2.7.8 ===
 

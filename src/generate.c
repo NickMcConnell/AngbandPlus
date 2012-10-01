@@ -1467,6 +1467,23 @@ static void build_type4(int y0, int x0)
 
 
 /*
+ * Helper function for "monster nest (rodent)"
+ */
+static bool vault_aux_rodent(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Require icky thing, jelly, mold, or mushroom */
+	if (!strchr("r", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
  * Helper function for "monster nest (jelly)"
  */
 static bool vault_aux_jelly(int r_idx)
@@ -1635,7 +1652,8 @@ static bool vault_aux_demon(int r_idx)
  * "appropriate" non-unique monsters for the nest.
  *
  * Currently, a monster nest is one of
- *   a nest of "jelly" monsters   (Dungeon level 5 and deeper)
+ *   a nest of "rodent" monsters  (Dungeon level 5 and deeper)
+ *   a nest of "jelly" monsters   (Dungeon level 10 and deeper)
  *   a nest of "animal" monsters  (Dungeon level 30 and deeper)
  *   a nest of "undead" monsters  (Dungeon level 50 and deeper)
  *
@@ -1692,8 +1710,18 @@ static void build_type5(int y0, int x0)
 	/* Hack -- Choose a nest type */
 	tmp = randint(p_ptr->depth);
 
+	/* Monster nest (rodent) */
+	if (tmp < 10)
+	{
+		/* Describe */
+		name = "rodent";
+
+		/* Restrict to rodent */
+		get_mon_num_hook = vault_aux_rodent;
+	}
+
 	/* Monster nest (jelly) */
-	if (tmp < 30)
+	else if (tmp < 30)
 	{
 		/* Describe */
 		name = "jelly";
@@ -1866,7 +1894,6 @@ static void build_type6(int y0, int x0)
 
 	/* Open the inner room with a secret door */
 	generate_hole(y1-1, x1-1, y2+1, x2+1, FEAT_SECRET);
-
 
 	/* Choose a pit type */
 	tmp = randint(p_ptr->depth);
@@ -2901,10 +2928,10 @@ static void cave_gen(void)
 				/* Type 7 -- Lesser vault (15%) */
 				if ((k < 25) && room_build(by, bx, 7)) continue;
 
-				/* Type 6 -- Monster pit (15%) */
-				if ((k < 40) && room_build(by, bx, 6)) continue;
+				/* Type 6 -- Monster pit (14%) */
+				if ((k < 39) && room_build(by, bx, 6)) continue;
 
-				/* Type 5 -- Monster nest (10%) */
+				/* Type 5 -- Monster nest (11%) */
 				if ((k < 50) && room_build(by, bx, 5)) continue;
 			}
 
@@ -3053,6 +3080,7 @@ static void cave_gen(void)
 		(void)alloc_monster(0, TRUE);
 	}
 
+#ifndef CUSTOM_QUESTS
 	/* Ensure quest monsters */
 	if (is_quest(p_ptr->depth))
 	{
@@ -3082,7 +3110,41 @@ static void cave_gen(void)
 			}
 		}
 	}
+#else /*CUSTOM_QUESTS*/
+	/* Ensure quest monsters */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		quest *q_ptr = &q_info[i];
 
+		/* Quest levels */
+		if (q_ptr->level == p_ptr->depth)
+		{
+			monster_race *r_ptr = &r_info[q_ptr->r_idx];
+			s16b num_questors;
+
+			/* A certain number of questors */
+			num_questors = q_ptr->max_num - q_ptr->cur_num;
+
+			/* Ensure quest monsters */
+			while (r_ptr->cur_num < num_questors)
+			{
+				int y, x;
+
+				/* Pick a location */
+				while (1)
+				{
+					y = rand_int(DUNGEON_HGT);
+					x = rand_int(DUNGEON_WID);
+
+					if (cave_naked_bold(y, x)) break;
+				}
+
+				/* Place the questor */
+				place_monster_aux(y, x, q_ptr->r_idx, TRUE, TRUE);
+			}
+		}
+	}
+#endif /*CUSTOM_QUESTS*/
 
 	/* Put some objects in rooms */
 	alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ROOM, 3));
@@ -3124,13 +3186,13 @@ static void build_store(int n, int yy, int xx)
 
 	/* Find the "center" of the store */
 	y0 = qy + yy * 9 + 6;
-	x0 = qx + xx * 14 + 12;
+	x0 = qx + xx * 11 + 11;
 
 	/* Determine the store boundaries */
-	y1 = y0 - randint((yy == 0) ? 3 : 2);
-	y2 = y0 + randint((yy == 1) ? 3 : 2);
-	x1 = x0 - randint(5);
-	x2 = x0 + randint(5);
+	y1 = y0 - (1 + randint((yy == 0) ? 2 : 1));
+	y2 = y0 + (1 + randint((yy == 1) ? 2 : 1));
+	x1 = x0 - (1 + randint(3));
+	x2 = x0 + (1 + randint(3));
 
 	/* Build an invulnerable rectangular building */
 	for (y = y1; y <= y2; y++)
@@ -3241,7 +3303,8 @@ static void town_gen_hack(void)
 			rooms[k] = rooms[--n];
 		}
 	}
-
+	/* Hack -- Build the 9th store.  Taken from Zangband -LM- */
+	build_store(rooms[0], rand_int(2), 4);
 
 	/* Place the stairs */
 	while (TRUE)
@@ -3409,9 +3472,8 @@ void generate_cave(void)
 			}
 		}
 
-
 		/* Mega-Hack -- no player yet */
-		p_ptr->px = p_ptr->py = 0;
+		p_ptr->px = p_ptr->py = 0; 
 
 
 		/* Hack -- illegal panel */
@@ -3489,7 +3551,7 @@ void generate_cave(void)
 		}
 
 		/* Mega-Hack -- "auto-scum" */
-		if (auto_scum && (num < 100))
+		if (adult_autoscum && (num < 100))
 		{
 			/* Require "goodness" */
 			if ((feeling > 9) ||
@@ -3513,7 +3575,6 @@ void generate_cave(void)
 
 		/* Accept */
 		if (okay) break;
-
 
 		/* Message */
 		if (why) msg_format("Generation restarted (%s)", why);

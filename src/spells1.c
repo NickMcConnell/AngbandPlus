@@ -420,18 +420,14 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 }
 
 
-
-
 /*
  * Decreases players hit points and sets death flag if necessary
- *
- * Invulnerability needs to be changed into a "shield" XXX XXX XXX
  *
  * Hack -- this function allows the user to save (or quit) the game
  * when he dies, since the "You die." message is shown before setting
  * the player to "dead".
  */
-void take_hit(int dam, cptr kb_str)
+static void take_hit_aux(int dam, cptr kb_str)
 {
 	int old_chp = p_ptr->chp;
 
@@ -443,11 +439,11 @@ void take_hit(int dam, cptr kb_str)
 
 
 	/* Disturb */
-	disturb(1, 0);
+    disturb(1, 0);
 
-	/* Mega-Hack -- Apply "invulnerability" */
-	if (p_ptr->invuln && (dam < 9000)) return;
-
+	/* Mega-Hack -- Apply "resilence"*/
+	if (p_ptr->resilient) dam /= 3;
+	
 	/* Hurt the player */
 	p_ptr->chp -= dam;
 
@@ -495,8 +491,19 @@ void take_hit(int dam, cptr kb_str)
 	}
 }
 
-
-
+/*
+ * Hack Apply the actual hit and check for absorbance.
+ */
+void take_hit(int damage, cptr ddesc)
+{
+	if (!p_ptr->absorb) take_hit_aux(damage, ddesc);
+	else 
+	{
+		set_absorb(p_ptr->absorb-(damage+1));
+		hp_player(damage);
+		msg_format("you have absorbed %d damage.", damage);
+	}
+}
 
 
 /*
@@ -542,7 +549,6 @@ static bool hates_acid(object_type *o_ptr)
 		}
 
 		/* Junk is useless */
-		case TV_SKELETON:
 		case TV_BOTTLE:
 		case TV_JUNK:
 		{
@@ -598,7 +604,6 @@ static bool hates_fire(object_type *o_ptr)
 
 		/* Books */
 		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
 		{
 			return (TRUE);
 		}
@@ -1242,7 +1247,6 @@ bool apply_disenchant(int mode)
  */
 static void apply_nexus(monster_type *m_ptr)
 {
-	int max1, cur1, max2, cur2, ii, jj;
 
 	switch (randint(7))
 	{
@@ -1260,7 +1264,7 @@ static void apply_nexus(monster_type *m_ptr)
 
 		case 6:
 		{
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 				break;
@@ -1273,7 +1277,7 @@ static void apply_nexus(monster_type *m_ptr)
 
 		case 7:
 		{
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (rand_int(100) < p_ptr->skill[SK_SAV])
 			{
 				msg_print("You resist the effects!");
 				break;
@@ -1281,28 +1285,36 @@ static void apply_nexus(monster_type *m_ptr)
 
 			msg_print("Your body starts to scramble...");
 
-			/* Pick a pair of stats */
-			ii = rand_int(6);
-			for (jj = ii; jj == ii; jj = rand_int(6)) /* loop */;
-
-			max1 = p_ptr->stat_max[ii];
-			cur1 = p_ptr->stat_cur[ii];
-			max2 = p_ptr->stat_max[jj];
-			cur2 = p_ptr->stat_cur[jj];
-
-			p_ptr->stat_max[ii] = max2;
-			p_ptr->stat_cur[ii] = cur2;
-			p_ptr->stat_max[jj] = max1;
-			p_ptr->stat_cur[jj] = cur1;
-
-			p_ptr->update |= (PU_BONUS);
-
+			scramble_stats(1); /*scramble a pair of stats */
 			break;
 		}
 	}
 }
 
+/*
+ * Mix stats
+ */
+void scramble_stats(int times)
 
+{
+	int max1, cur1, max2, cur2, ii, jj, xx;
+
+	for (xx=0;xx<times;xx++)
+	{
+	    /* Pick a pair of stats */
+		ii = rand_int(6);
+		for (jj = ii; jj == ii; jj = rand_int(6)) /* loop */;
+		max1 = p_ptr->stat_max[ii];
+		cur1 = p_ptr->stat_cur[ii];
+		max2 = p_ptr->stat_max[jj];
+		cur2 = p_ptr->stat_cur[jj];
+		p_ptr->stat_max[ii] = max2;
+		p_ptr->stat_cur[ii] = cur2;
+		p_ptr->stat_max[jj] = max1;
+		p_ptr->stat_cur[jj] = cur1;
+	}
+	p_ptr->update |= (PU_BONUS);
+}
 
 
 
@@ -2884,6 +2896,36 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Dispel non-evil */
+		case GF_DISP_NON_EVIL:
+		{
+			/* Only affect non-evil */
+			if (!(r_ptr->flags3 & (RF3_EVIL)))
+			{
+				/* Learn about type */
+				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
+
 
 		/* Dispel monster */
 		case GF_DISP_ALL:
@@ -4133,8 +4175,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 
 	/* Update stuff if needed */
-	if (p_ptr->update) update_stuff();
-
+		update_stuff();
 
 	/* Check objects */
 	if (flg & (PROJECT_ITEM))
@@ -4231,5 +4272,42 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	return (notice);
 }
 
+
+/*
+ * Controlled teleportation.  -LM-
+ * Idea from PsiAngband, through Zangband.
+ * Copied from Oangband
+ */
+void dimen_door(void)
+{
+	int ny;
+	int nx;
+	bool okay;
+	bool old_expand_look = expand_look;
+
+	expand_look = TRUE;
+	okay = target_set_interactive(TARGET_LOOK | TARGET_GRID);
+	expand_look = old_expand_look;
+	if (!okay) return;
+
+	/* grab the target coords. */
+	ny = p_ptr->target_row;
+	nx = p_ptr->target_col;
+
+	/* Test for empty floor, forbid vaults or too large a
+	 * distance, and insure that this spell is never certain.
+	 */
+	if (!cave_empty_bold(ny,nx) || (cave_info[ny][nx] & CAVE_ICKY) ||
+		(distance(ny,nx,p_ptr->py,p_ptr->px) > 20) || 
+		(rand_int(p_ptr->lev) == 0))
+	{
+		msg_print("You fail to exit the astral plane correctly!");
+		p_ptr->energy -= 50;
+		teleport_player(15);
+	}
+
+	/* Controlled teleport. */
+	else teleport_player_to(ny,nx);
+}
 
 

@@ -394,7 +394,7 @@ void search(void)
 
 
 	/* Start with base search ability */
-	chance = p_ptr->skill_srh;
+	chance = p_ptr->skill[SK_SRH];
 
 	/* Penalize various conditions */
 	if (p_ptr->blind || no_lite()) chance = chance / 10;
@@ -559,6 +559,8 @@ void py_pickup(int pickup)
 
 #endif /* ALLOW_EASY_FLOOR */
 
+	/* Automatically destroy squelched items in pile if necessary */
+	if (auto_destroy==1) do_squelch_pile(py, px);
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -574,6 +576,13 @@ void py_pickup(int pickup)
 
 		/* Hack -- disturb */
 		disturb(0, 0);
+
+		/* End loop if squelched stuff reached */
+		if (k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware)
+		{
+	        next_o_idx = 0;
+			continue;
+		}
 
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
@@ -1124,7 +1133,7 @@ void py_attack(int y, int x)
 
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h + o_ptr->to_h;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+	chance = (p_ptr->skill[SK_THN] + (bonus * BTH_PLUS_ADJ));
 
 
 	/* Attack once for each legal blow */
@@ -1241,6 +1250,8 @@ void move_player(int dir, int jumping)
 
 	int y, x;
 
+	/* Permit the player to move? */
+	bool can_move = FALSE;
 
 	/* Find the result of moving */
 	y = py + ddy[dir];
@@ -1354,8 +1365,8 @@ void move_player(int dir, int jumping)
 
 
 		/* Spontaneous Searching */
-		if ((p_ptr->skill_fos >= 50) ||
-		    (0 == rand_int(50 - p_ptr->skill_fos)))
+		if ((p_ptr->skill[SK_FOS] >= 50) ||
+		    (0 == rand_int(50 - p_ptr->skill[SK_FOS])))
 		{
 			search();
 		}
@@ -1538,7 +1549,7 @@ static int see_nothing(int dir, int y, int x)
  *
  * Moving one grid in some direction places you adjacent to three
  * or five new grids (for straight and diagonal moves respectively)
- * to which you were not previously adjacent (marked as '!').
+ * to which you were not previously adjacent (marked as /).
  *
  *   ...!              ...
  *   .o@!  (normal)    .o.!  (diagonal)
@@ -2030,7 +2041,7 @@ static bool run_test(void)
 		}
 
 		/* Two options, examining corners */
-		else if (run_use_corners && !run_cut_corners)
+		else if (!run_cut_corners)
 		{
 			/* Primary option */
 			p_ptr->run_cur_dir = option;
@@ -2053,8 +2064,7 @@ static bool run_test(void)
 			{
 				/* Can not see anything ahead and in the direction we */
 				/* are turning, assume that it is a potential corner. */
-				if (run_use_corners &&
-				    see_nothing(option, row, col) &&
+				if (see_nothing(option, row, col) &&
 				    see_nothing(option2, row, col))
 				{
 					p_ptr->run_cur_dir = option;

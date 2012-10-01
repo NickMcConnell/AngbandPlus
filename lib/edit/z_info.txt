@@ -11,38 +11,44 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:0.1.2
 
 
 # Maximum number of feature types
-M:F:64
+M:F:80
 
 # Maximum number of object kinds
-M:K:512
+M:K:587
 
 # Maximum number of artifacts
-M:A:128
+M:A:134
+
+# Maximum number of classes
+M:C:6
 
 # Maximum number of ego-item types
 M:E:128
 
 # Maximum number of monster races
-M:R:549
+M:R:641
 
 # Maximum number of vaults
 M:V:35
 
 # Maximum number of player races
-M:P:10
+M:P:12
 
 # Maximum number of player history lines
-M:H:128
+M:H:134
 
 # Maximum number of owners per store
 M:B:4
 
+# Maximum number of quests - changing this will invalidate old savefiles
+M:Q:4
+
 # Maximum number of objects
-M:O:256
+M:O:512
 
 # Maximum number of monsters
 M:M:512

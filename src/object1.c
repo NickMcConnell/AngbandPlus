@@ -14,15 +14,15 @@
 /*
  * Max sizes of the following arrays.
  */
-#define MAX_ROCKS      42       /* Used with rings (min 38) */
-#define MAX_AMULETS    16       /* Used with amulets (min 13) */
-#define MAX_WOODS      32       /* Used with staffs (min 30) */
-#define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     60       /* Used with potions (min 60) */
-#define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     50       /* Used with scrolls (min 48) */
-#define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
-
+#define MAX_ROCKS      42				/* Used with rings (min 38) */
+#define MAX_AMULETS    17				/* Used with amulets (min 14) */
+#define MAX_WOODS      32				/* Used with staffs (min 30) */
+#define MAX_METALS     32				/* Used with wands/rods (min 29/28) */
+#define MAX_COLORS     SV_MAX_POTIONS	/* Used with potions (min 64) */
+#define MAX_SHROOM     21				/* Used with mushrooms (min 21) */
+#define MAX_TITLES     50				/* Used with scrolls (min 50) */
+#define MAX_SYLLABLES 158				/* Used with scrolls (see below) */
+#define MAX_POWDERS		9				/* Used with powders (min 9) */
 
 /*
  * Rings (adjectives and colors).
@@ -54,6 +54,7 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_YELLOW, TERM_L_GREEN
 };
 
+alchemy_info potion_alch[SV_MAX_POTIONS];
 
 /*
  * Amulets (adjectives and colors).
@@ -64,7 +65,7 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper"
+	"Copper", "Platinum"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -72,7 +73,7 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_UMBER
+	TERM_L_UMBER, TERM_SLATE
 };
 
 
@@ -151,6 +152,7 @@ static cptr food_adj[MAX_SHROOM] =
 	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
 	"Grey", "Light Blue", "Light Green", "Violet", "Red",
 	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
+	"Orange"
 };
 
 static byte food_col[MAX_SHROOM] =
@@ -158,7 +160,8 @@ static byte food_col[MAX_SHROOM] =
 	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
 	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
 	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
-	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
+	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
+	TERM_ORANGE
 };
 
 
@@ -171,7 +174,7 @@ static byte food_col[MAX_SHROOM] =
 
 static cptr potion_adj[MAX_COLORS] =
 {
-	"Clear", "Light Brown", "Icky Green", "xxx",
+	"Clear", "Light Brown", "Ickey Green", "xxx",
 	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
 	"Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
 	"Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
@@ -180,10 +183,12 @@ static cptr potion_adj[MAX_COLORS] =
 	"Metallic Green", "Metallic Purple", "Misty", "Orange", "Orange Speckled",
 	"Pink", "Pink Speckled", "Puce", "Purple", "Purple Speckled",
 	"Red", "Red Speckled", "Silver Speckled", "Smoky", "Tangerine",
-	"Violet", "Vermilion", "White", "Yellow", "Violet Speckled",
+	"Violet", "Vermilion", "White", "Yellow", "Violet Speckled", 
 	"Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
-	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold"
+	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold", "Foaming",
+	"Lavender", "Violet Speckled", "Luminescent"
 };
+
 
 static byte potion_col[MAX_COLORS] =
 {
@@ -198,9 +203,21 @@ static byte potion_col[MAX_COLORS] =
 	TERM_RED, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_ORANGE,
 	TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
 	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW
+	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW, TERM_WHITE, TERM_L_GREEN,
+	TERM_VIOLET, TERM_YELLOW
 };
 
+static cptr powder_adj[MAX_POWDERS] =
+{
+	"Red", "Yellow", "Blue", "Green", "Violet", "Pink", "Grey", 
+	"Light Brown", "Dark Brown"
+};
+
+static byte powder_col[MAX_POWDERS] =
+{
+	TERM_RED, TERM_YELLOW, TERM_BLUE, TERM_GREEN, TERM_VIOLET, TERM_L_RED, TERM_SLATE,
+	TERM_L_UMBER, TERM_UMBER
+};
 
 /*
  * Syllables for scrolls (must be 1-4 letters each).
@@ -288,6 +305,11 @@ static bool object_flavor(int k_idx)
 			return (0xD0 + scroll_col[k_ptr->sval]);
 		}
 
+		case TV_POWDER:
+		{
+			return (0x30 + powder_col[k_ptr->sval]);
+		}
+
 		case TV_POTION:
 		{
 			return (0xE0 + potion_col[k_ptr->sval]);
@@ -325,7 +347,6 @@ static bool object_easy_know(int i)
 	{
 		/* Spellbooks */
 		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
 		{
 			return (TRUE);
 		}
@@ -334,8 +355,8 @@ static bool object_easy_know(int i)
 		case TV_FLASK:
 		case TV_JUNK:
 		case TV_BOTTLE:
-		case TV_SKELETON:
 		case TV_SPIKE:
+		case TV_POWDER:
 		{
 			return (TRUE);
 		}
@@ -374,11 +395,11 @@ static bool object_easy_know(int i)
  * Rings, Amulets, Staffs, Wands, Rods, Food, Potions, Scrolls.
  *
  * The first 4 entries for potions are fixed (Water, Apple Juice,
- * Slime Mold Juice, Unused Potion).
+ * Slime Mold Juice, Unused Potion). 
  *
- * Scroll titles are always between 6 and 14 letters long.  This is
- * ensured because every title is composed of whole words, where every
- * word is from 1 to 8 letters long (one or two syllables of 1 to 4
+ * The scroll titles are always between 6 and 14 letters long.  
+ * This is ensured because every title is composed of whole words, where 
+ * every word is from 1 to 8 letters long (one or two syllables of 1 to 4
  * letters each), and that no scroll is finished until it attempts to
  * grow beyond 15 letters.  The first time this can happen is when the
  * current title has 6 letters and the new word has 8 letters, which
@@ -501,6 +522,18 @@ void flavor_init(void)
 		potion_col[j] = temp_col;
 	}
 
+	/* Powders */
+	for (i = 0; i < MAX_POWDERS; i++)
+	{
+		j = rand_int(MAX_POWDERS);
+		temp_adj = powder_adj[i];
+		powder_adj[i] = powder_adj[j];
+		powder_adj[j] = temp_adj;
+		temp_col = powder_col[i];
+		powder_col[i] = powder_col[j];
+		powder_col[j] = temp_col;
+	}
+
 	/* Scrolls (random titles, always white) */
 	for (i = 0; i < MAX_TITLES; i++)
 	{
@@ -606,6 +639,96 @@ void flavor_init(void)
 extern void init_translate_visuals(void);
 #endif /* ALLOW_BORG_GRAPHICS */
 
+/* 
+ * Create Alchemy lists 
+ */
+
+void alchemy_init(void)
+{
+	int i, j, sv1, sv2;
+	bool okay;
+
+	bool legal[SV_MAX_POTIONS];
+
+	object_kind *k_ptr;
+
+	/* Hack -- Use the "simple" RNG */
+	Rand_quick = TRUE;
+
+	/* Hack -- Induce consistant flavors */
+	Rand_value = seed_alchemy;
+
+	/* Build list of legal potions */
+	for (i = 0; i < SV_MAX_POTIONS; i++)
+	{
+		legal[i]=FALSE;
+
+		for (j = 1; j < z_info->k_max; j++)
+		{
+			k_ptr = &k_info[j];
+			/* Found a match */
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == i)) legal[i]=TRUE;
+		}
+	}
+
+	for (i = 0; i < SV_MAX_POTIONS; i++)
+	{
+
+		okay = FALSE;
+
+		while (!okay)
+		{
+			sv1 = (byte)rand_int(SV_MAX_POTIONS);
+			sv2 = (byte)rand_int(SV_MAX_POTIONS);
+
+			okay = TRUE;
+
+			/* Neither can be the resulting potion */
+			if ((sv1 == i) || (sv2 == i)) okay = FALSE;
+			
+			if (okay == FALSE) continue;
+
+			/* Must be legal potions */
+			okay = legal[sv1];
+
+			if (okay == FALSE) continue;
+
+			okay = legal[sv2];
+
+			if (okay == FALSE) continue;
+			
+			/* Same combination mustn't exist */
+
+			for (j = 0; j < i; j++)
+			{
+				if (((sv1 == potion_alch[j].sval1) && (sv2 == potion_alch[j].sval2)) ||
+					((sv1 == potion_alch[j].sval2) && (sv2 == potion_alch[j].sval1))) okay = FALSE; 
+			}
+						
+			if (okay == FALSE) continue;
+
+			/* Can't mix with yourself */
+			if (sv1 == sv2) okay = FALSE;
+
+		}
+
+		if (legal[i])
+		{
+			potion_alch[i].sval1 = sv1;
+			potion_alch[i].sval2 = sv2;
+		}
+		else
+		{	
+			potion_alch[i].sval1 = i;
+			potion_alch[i].sval2 = i;
+		}
+
+	}
+
+	/* Hack -- Use the "complex" RNG */
+	Rand_quick = FALSE;
+
+}
 
 /*
  * Reset the "visual" lists
@@ -1073,7 +1196,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	switch (o_ptr->tval)
 	{
 		/* Some objects are easy to describe */
-		case TV_SKELETON:
 		case TV_BOTTLE:
 		case TV_JUNK:
 		case TV_SPIKE:
@@ -1207,6 +1329,17 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
+		/* Powders */
+		case TV_POWDER:
+		{
+			/* Color the object */
+			modstr = powder_adj[o_ptr->sval];
+			if (aware) append_name = TRUE;
+			basenm = (flavor ? "& # Powder vial~" : "& Powder vial~");
+
+			break;
+		}
+
 		/* Food */
 		case TV_FOOD:
 		{
@@ -1225,15 +1358,33 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_MAGIC_BOOK:
 		{
 			modstr = basenm;
-			basenm = "& Book~ of Magic Spells #";
-			break;
-		}
+			switch (books[o_ptr->sval].flags & SBF_TYPE_MASK)
+			{
+				case SBF_MAGIC:
+				{
+					basenm = "& Book~ of Magic Spells #";
+					break;
+				}
+	
+				case SBF_PRAYER:
+				{
+					basenm = "& Holy Book~ of Prayers #";
+					break;
+				}
 
-		/* Prayer Books */
-		case TV_PRAYER_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Holy Book~ of Prayers #";
+				case SBF_MYSTIC:
+				{
+					basenm = "& Book~ of Mystic Teachings #";
+					break;
+				}
+		
+				case SBF_CODEX:
+				case SBF_NECRONOM:
+				{
+					basenm = "& Ancient tome";
+					break;
+				}
+			}
 			break;
 		}
 
@@ -1629,7 +1780,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if (mode < 2) goto object_desc_done;
 
 
-	/* Hack -- Wands and Staffs have charges */
+	/* Hack -- Wands and Staffs have charges.  Make certain how many charges 
+	 * a stack of staffs really has is clear. -LM-
+	 */
 	if (known &&
 	    ((o_ptr->tval == TV_STAFF) ||
 	     (o_ptr->tval == TV_WAND)))
@@ -1637,22 +1790,56 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Dump " (N charges)" */
 		object_desc_chr_macro(t, ' ');
 		object_desc_chr_macro(t, p1);
+
+		/* Clear explaination for staffs. */
+		if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1)) 
+		{
+			object_desc_num_macro(t, o_ptr->number);
+			object_desc_str_macro(t, "x ");
+		}
 		object_desc_num_macro(t, o_ptr->pval);
 		object_desc_str_macro(t, " charge");
 		if (o_ptr->pval != 1)
 		{
 			object_desc_chr_macro(t, 's');
 		}
+
 		object_desc_chr_macro(t, p2);
 	}
 
-	/* Hack -- Rods have a "charging" indicator */
+	/* Hack -- Rods have a "charging" indicator.  Now that stacks of rods may 
+	 * be in any state of charge or discharge, this now includes a number. -LM-
+	 */
 	else if (known && (o_ptr->tval == TV_ROD))
 	{
-		/* Hack -- Dump " (charging)" if relevant */
-		if (o_ptr->pval)
+		/* Hack -- Dump " (# charging)" if relevant */
+		if (o_ptr->timeout)
 		{
-			object_desc_str_macro(t, " (charging)");
+			/* Stacks of rods display an exact count of charging rods. */
+			if (o_ptr->number > 1)
+			{
+				/* Paranoia. */
+				if (k_ptr->pval == 0) k_ptr->pval = 1;
+
+				/* Find out how many rods are charging, by dividing 
+				 * current timeout by each rod's maximum timeout.  
+				 * Ensure that any remainder is rounded up.  Display 
+			 	 * very discharged stacks as merely fully discharged.
+			 	 */
+				power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+				if (power > o_ptr->number) power = o_ptr->number;
+
+				/* Display prettily. */
+				object_desc_str_macro(t, " (");
+				object_desc_num_macro(t, power);
+				object_desc_str_macro(t, " charging)");
+			}
+
+			/* "one Rod of Perception (1 charging)" would look tacky. */
+			else
+			{
+				object_desc_str_macro(t, " (charging)");
+			}
 		}
 	}
 
@@ -1665,6 +1852,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		object_desc_str_macro(t, " turns of light)");
 	}
 
+	else if ((o_ptr->tval == TV_LITE) && (o_ptr->pval > 0) && (o_ptr->sval == SV_LITE_CHERADENINE))
+	{
+		/* Hack -- Turns of light for the great lamp of Cheradenine */
+		object_desc_str_macro(t, " (burning bright)");
+	}
 
 	/* Dump "pval" flags for wearable items */
 	if (known && (f1 & (TR1_PVAL_MASK)))
@@ -1760,7 +1952,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Indicate "charging" artifacts */
-	if (known && o_ptr->timeout)
+	if (known && o_ptr->timeout && !(o_ptr->tval == TV_ROD))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		object_desc_str_macro(t, " (charging)");
@@ -2113,9 +2305,19 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		if (artifact_p(o_ptr))
 		{
-			info[i++] = "It provides light (radius 3) forever.";
+			if (o_ptr->sval == SV_LITE_BEACON)
+			{
+				info[i++] = "It provides light (radius 4) forever.";
+			}
+			else if (o_ptr->sval == SV_LITE_CHERADENINE)
+			{
+				info[i++] = "It provides light (radius 3) forever, and greater light (radius 4) when fueled.";
+			}
+
+			else info[i++] = "It provides light (radius 3) forever.";
+
 		}
-		else if (o_ptr->sval == SV_LITE_LANTERN)
+		else if ((o_ptr->sval == SV_LITE_LANTERN) || (o_ptr->sval == SV_LITE_LANTERN_SEE))
 		{
 			info[i++] = "It provides light (radius 2) when fueled.";
 		}
@@ -2392,6 +2594,11 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 		info[i++] = "It allows you to see invisible monsters.";
 	}
 
+	if (f3 & (TR3_INVIS))
+	{
+		info[i++] = "It renders you completely invisible.";
+	}
+
 	if (f3 & (TR3_FREE_ACT))
 	{
 		info[i++] = "It provides immunity to paralysis.";
@@ -2492,17 +2699,15 @@ bool identify_fully_aux(object_type *o_ptr)
 	int i, j, k;
 	cptr info[128];
 
-
 	/* Fill the list of descriptions */
+
 	i = identify_fully_aux2(o_ptr, OBJECT_FLAGS_KNOWN, info, 128);
 
 	/* No special effects */
 	if (!i) return (FALSE);
-
-
+	
 	/* Save screen */
 	screen_save();
-
 
 	/* Erase the screen */
 	Term_clear();
@@ -2937,7 +3142,12 @@ void display_inven(void)
 		n = strlen(o_name);
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].x_attr;
+			else attr = TERM_L_DARK;
+		}
 
 		/* Display the entry itself */
 		Term_putstr(3, i, n, attr, o_name);
@@ -3103,7 +3313,12 @@ void show_inven(void)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) out_color[k] = k_info[o_ptr->k_idx].x_attr;
+			else out_color[k] = TERM_L_DARK;
+		}
 
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);

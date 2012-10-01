@@ -8,6 +8,8 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
+/* Large pieces of the code have been copied from Oangband by Leon Marrik */
+
 #include "angband.h"
 
 
@@ -135,7 +137,7 @@ byte adj_mag_mana[] =
 	15	/* 18/170-18/179 */,
 	16	/* 18/180-18/189 */,
 	16	/* 18/190-18/199 */,
-	16	/* 18/200-18/209 */,
+	16  /* 18/200-18/209 */,
 	16	/* 18/210-18/219 */,
 	16	/* 18/220+ */
 };
@@ -324,6 +326,51 @@ byte adj_int_dev[] =
 	20	/* 18/220+ */
 };
 
+
+/*
+ * Stat Table (INT) -- alchemy
+ */
+byte adj_int_alc[] =
+{
+	0	/* 3 */,
+	0	/* 4 */,
+	0	/* 5 */,
+	0	/* 6 */,
+	0	/* 7 */,
+	0	/* 8 */,
+	0	/* 9 */,
+	0	/* 10 */,
+	0	/* 11 */,
+	0	/* 12 */,
+	0	/* 13 */,
+	0	/* 14 */,
+	0	/* 15 */,
+	1	/* 16 */,
+	1	/* 17 */,
+	2	/* 18/00-18/09 */,
+	2	/* 18/10-18/19 */,
+	3	/* 18/20-18/29 */,
+	3	/* 18/30-18/39 */,
+	4	/* 18/40-18/49 */,
+	4	/* 18/50-18/59 */,
+	5	/* 18/60-18/69 */,
+	5	/* 18/70-18/79 */,
+	6	/* 18/80-18/89 */,
+	6	/* 18/90-18/99 */,
+	7	/* 18/100-18/109 */,
+	7	/* 18/110-18/119 */,
+	8	/* 18/120-18/129 */,
+	8	/* 18/130-18/139 */,
+	9	/* 18/140-18/149 */,
+	9	/* 18/150-18/159 */,
+	10	/* 18/160-18/169 */,
+	10	/* 18/170-18/179 */,
+	11	/* 18/180-18/189 */,
+	13	/* 18/190-18/199 */,
+	13	/* 18/200-18/209 */,
+	15	/* 18/210-18/219 */,
+	17	/* 18/220+ */
+};
 
 /*
  * Stat Table (WIS) -- Saving throw
@@ -1029,7 +1076,6 @@ byte adj_con_mhp[] =
  *    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
  *    Mage    --> num = 4; mul = 2; div = MAX(40, weapon_weight);
  *    Priest  --> num = 5; mul = 3; div = MAX(35, weapon_weight);
- *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
  *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
  *    Paladin --> num = 5; mul = 4; div = MAX(30, weapon_weight);
  *
@@ -1182,12 +1228,6 @@ byte extract_energy[200] =
 	/* Fast */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
 };
 
-
-
-
-
-
-
 /*
  * Base experience levels, may be adjusted up for race and/or class
  */
@@ -1265,836 +1305,381 @@ player_sex sex_info[MAX_SEXES] =
 	}
 };
 
-
-/*
- * Player Classes
- *
- *	Title,
- *	{STR,INT,WIS,DEX,CON,CHR},
- *	c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
- *	x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
- *	HD, Exp
- */
-player_class class_info[MAX_CLASS] =
+player_race_special race_special_info[2][11] =
+/* Title, stat bonuses, skill bonuses, flag1, flag2, flag3, extra */
 {
-	{
-		"Warrior",
-		{ 5, -2, -2, 2, 2, -1},
-		25, 18, 18, 1,  14, 2, 70, 55,
-		10, 7,  10, 0,  0,  0,  45, 45,
-		9,  0
+/* Angels and Demons - each line is a 5-level bracket. Extra is the index of racial ability */
+	{ /*Angel*/
+		{ "Cherub",		{0,0,0,0,0,0}	,{0, 0, 0,0,0,0, 0,0,0,0,0},0,0x00000000L,0x00000000,1},
+		{ "Seraph",		{1,0,1,0,2,0}	,{0, 1, 1,0,0,0, 1,0,0,0,0},0,0x00000004L,0x00000004,2},
+		{ "Deva",		{3,1,2,0,4,1}	,{0, 3, 3,0,0,0, 4,0,0,0,0},0,0x00200004L,0x00000006,3},
+		{ "Deva",		{3,1,2,0,4,1}	,{0, 3, 3,0,0,0, 4,0,0,0,0},0,0x00200004L,0x00000006,3},
+		{ "Planetar",	{3,1,2,0,4,2}	,{0, 6, 7,0,0,0, 8,1,0,0,0},0,0x00600024L,0x00000026,3},
+		{ "Planetar",	{3,1,2,0,4,2}	,{0, 6, 7,0,0,0, 8,1,0,0,0},0,0x00600024L,0x00000026,3},
+		{ "Archon",		{4,2,3,0,5,3}	,{0, 9,11,0,0,0,12,3,0,0,0},0,0x03EC0024L,0x00000066,4},
+		{ "Archon",		{4,2,3,0,5,3}	,{0, 9,11,0,0,0,12,3,0,0,0},0,0x03EC0024L,0x00000066,4},
+		{ "Solar",		{5,3,4,0,6,4}	,{0,12,16,0,0,0,16,5,0,0,0},0,0x03EF0026L,0x0000006F,5},
+		{ "Solar",		{5,3,4,0,6,4}	,{0,12,16,0,0,0,16,5,0,0,0},0,0x03EF0026L,0x0000006F,5},
+		{ "Archangel",	{6,3,4,0,7,5}	,{0,16,22,0,0,0,24,9,0,0,0},0,0x43EF0026L,0x000040EF,5}
 	},
-
-	{
-		"Mage",
-		{-5, 3, 0, 1, -2, 1},
-		30, 36, 30, 2,  16, 20, 34, 20,
-		7,  13, 9,  0,  0,  0,  15, 15,
-		0, 30
-	},
-
-	{
-		"Priest",
-		{-1, -3, 3, -1, 0, 2},
-		25, 30, 32, 2,  16, 8, 48, 35,
-		7,  10, 12, 0,  0,  0, 20, 20,
-		2, 20
-	},
-
-	{
-		"Rogue",
-		{ 2, 1, -2, 3, 1, -1},
-		45, 32, 28, 5, 32, 24, 60, 66,
-		15, 10, 10, 0,  0,  0, 40, 30,
-		6, 25
-	},
-
-	{
-		"Ranger",
-		{ 2, 2, 0, 1, 1, 1},
-		30, 32, 28, 3,  24, 16, 56, 72,
-		8,  10, 10, 0,  0,  0,  30, 45,
-		4, 30
-	},
-
-	{
-		"Paladin",
-		{ 3, -3, 1, 0, 2, 2},
-		20, 24, 25, 1,  12, 2, 68, 40,
-		7,  10, 11, 0,  0,  0,  35, 30,
-		6, 35
-	}
+	{ /*Demon*/
+		{ "Lemure",		{0,0,0,0, 0, 0}	,{0, 0, 0,	0,0,0, 0, 0, 0,0,0},0,0x00000000L,0x00000000,0},
+		{ "Quasit",		{2,0,0,2, 2, 0}	,{0, 0, 0,	0,0,0, 1, 1, 1,0,0},0,0x00200000L,0x00000000,0},
+		{ "Imp",		{3,2,0,3, 3,-1}	,{0, 2, 0,	0,0,0, 2, 1, 1,0,0},0,0x00240000L,0x00000000,0},
+		{ "Tengu",		{4,4,1,4, 3,-1}	,{0, 4, 1, -1,0,0, 4, 2, 1,0,0},0,0x01240000L,0x00000002,6},
+		{ "Bodak",      {4,4,1,4, 4,-1}	,{0, 6, 3, -2,0,0, 8, 4, 2,0,0},0,0x01A40001L,0x00000022,7},
+		{ "Vrock",      {4,4,2,4, 5,-2}	,{0, 8, 5, -4,0,0,12, 6, 4,0,0},0,0x03A50001L,0x00000022,7},
+		{ "Hezrou",		{5,4,2,4, 6,-2}	,{0,10, 7, -5,0,0,16, 8, 6,0,0},0,0x03A70011L,0x00000022,7},
+		{ "Glabrezu",   {6,5,3,4, 7,-2}	,{0,13, 9, -7,0,0,20,10, 8,0,0},0,0x23A70011L,0x00000022,8},
+		{ "Nalfeshnee", {7,6,3,4, 8,-3}	,{0,16,11, -8,0,0,24,12,10,0,0},0,0x23A70011L,0x0000002A,8},
+		{ "Pit Fiend",	{8,6,4,4, 9,-3}	,{0,19,13, -9,0,0,26,14,12,0,0},0,0x63A70011L,0x0000402A,8},
+		{ "Balrog",		{9,7,4,5,10,-4}	,{0,22,15,-10,0,0,30,16,12,0,0},0,0x63A74011L,0x0000402A,9}
+	}	
 };
 
-
-
-
-
-
-/*
- * Hack -- the spell information table.
- *
- *   Class Name
- *
- *   Spell Book
- *   Spell Xtra
- *
- *   Spell Stat,
- *   Spell Type,
- *
- *   Spell Level,
- *   Spell Encumbrance,
- *
- *   Array of { Lev, Mana, Fail, Exp/Lev }
- */
-player_magic magic_info[MAX_CLASS] =
+spell_book books[SV_MAX_BOOKS] = 
 {
-	{
-		/*** Warrior ***/
-
-		0,
-		0,
-
-		A_STR,
-		0,
-
-		99,
-		0,
-
-		{
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0}
-		}
-	},
-
-	{
-		/*** Mage ***/
-
-		TV_MAGIC_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		1,
-		300,
-
-		{
-			{  1,  1, 22,   4},
-			{  1,  1, 23,   4},
-			{  1,  2, 24,   4},
-			{  1,  2, 26,   4},
-			{ 99,  0,  0,   0},
-			{  3,  3, 25,   3},
-			{ 99,  0,  0,   0},
-			{  3,  3, 25,   1},
-			{  3,  3, 27,   3},
-
-			{  3,  4, 30,   1},
-			{  5,  4, 30,   4},
-			{  5,  5, 30,   6},
-			{  5,  5, 30,   4},
-			{  5,  5, 35,   4},
-			{  7,  6, 35,   5},
-			{  7,  6, 30,   5},
-			{  7,  6, 40,   6},
-			{  9,  7, 44,   8},
-
-			{  9,  7, 45,   8},
-			{  9,  7, 75,   9},
-			{  9,  7, 45,   8},
-			{ 11,  7, 45,   9},
-			{ 11,  7, 75,   6},
-			{ 13,  7, 50,   6},
-			{ 15,  9, 50,   6},
-			{ 17,  9, 50,   7},
-
-			{ 19, 12, 55,   8},
-			{ 21, 12, 90,   8},
-			{ 23, 12, 60,   8},
-			{ 25, 12, 65,  10},
-			{ 29, 18, 65,  12},
-			{ 33, 21, 80,  15},
-			{ 37, 25, 95,  21},
-
-			{  7,  7, 20,  28},
-			{  9, 12, 40,  44},
-			{ 15, 17, 60,  29},
-			{ 20, 18, 60,  24},
-			{ 25, 25, 75,  19},
-
-			{ 10,  6, 50,  12},
-			{ 12,  9, 60,  16},
-			{ 20, 15, 70,  20},
-			{ 27, 25, 75,  29},
-			{ 35, 35, 85,  34},
-			{ 42, 45, 95, 200},
-
-			{ 5,  5,  50,   8},
-			{ 10, 10, 70,  40},
-			{ 25, 30, 95, 160},
-			{ 30, 50, 70,  40},
-			{ 40, 75, 80, 100},
-
-			{  4,  5, 50,  20},
-			{  4,  5, 50,  20},
-			{  4,  5, 50,  20},
-			{  8, 10, 75,  40},
-			{ 15, 20, 85,  60},
-
-			{  5,  5, 50,  80},
-			{ 10, 12, 75, 120},
-			{ 15, 20, 80, 200},
-			{ 22, 30, 50, 250},	/* 350 */
-			{ 45, 70, 75, 250},	/* 450 */
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0}
-		}
-	},
-
-	{
-		/*** Priest ***/
-
-		TV_PRAYER_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-		1,
-		350,
-
-		{
-			{  1,  1, 10,   4},
-			{  1,  2, 15,   4},
-			{  1,  2, 20,   4},
-			{  1,  2, 25,   4},
-			{  3,  2, 25,   1},
-			{  3,  3, 27,   2},
-			{  3,  3, 27,   2},
-			{  3,  3, 28,   4},
-
-			{  5,  4, 29,   3},
-			{  5,  4, 30,   4},
-			{  5,  4, 32,   4},
-			{  5,  5, 34,   4},
-			{  7,  5, 36,   3},
-			{  7,  5, 38,   4},
-			{  7,  6, 38,   5},
-			{  7,  7, 38,   5},
-
-			{  9,  6, 38,   4},
-			{  9,  7, 38,   4},
-			{  9,  7, 40,   4},
-			{ 11,  8, 42,   4},
-			{ 11,  8, 42,   4},
-			{ 11,  9, 55,   5},
-			{ 13, 10, 45,   4},
-			{ 13, 11, 45,   4},
-			{ 15, 12, 50,   5},
-
-			{ 15, 14, 50,   5},
-			{ 17, 14, 55,   7},
-			{ 21, 16, 60,   7},
-			{ 25, 20, 70,  12},
-			{ 33, 55, 90,  15},
-			{ 39, 32, 95,  20},
-
-			{  3,  3, 50,   2},
-			{ 10, 10, 80,  20},
-			{ 20, 20, 80,  20},
-			{ 25, 10, 80, 150},
-			{ 35, 50, 80, 230},
-
-			{ 15,  5, 50,  25},
-			{ 17,  7, 60,  45},
-			{ 30, 50, 80, 130},
-			{ 35, 70, 90, 230},
-			{ 35, 70, 90, 250},	/* 350 */
-
-			{ 15,  7, 70,  25},
-			{ 20, 10, 75,  60},
-			{ 25, 25, 80, 250},
-			{ 35, 35, 80, 115},
-			{ 45, 60, 75, 250},	/* 350 */
-
-			{  5,  6, 50,  40},
-			{ 15, 20, 80,  25},
-			{ 25, 40, 80, 160},
-			{ 35, 50, 80, 230},
-			{ 37, 60, 85, 250},	/* 325 */
-			{ 45, 95, 85, 250},	/* 530 */
-
-			{  3,  3, 50,   6},
-			{ 10, 10, 50,   8},
-			{ 20, 20, 80,  16},
-			{ 30, 40, 75, 133},
-			{ 35, 50, 75,  11},
-			{ 40, 60, 75, 250},	/* 300 */
-
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0}
-		}
-	},
-
-	{
-		/*** Rogue ***/
-
-		TV_MAGIC_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		5,
-		350,
-
-		{
-			{ 99,  0,  0,   0},
-			{  5,  1, 50,   1},
-			{  7,  2, 55,   1},
-			{  9,  3, 60,   1},
-			{ 10,  3, 60,   1},
-			{ 11,  4, 65,   1},
-			{ 12,  4, 65,   1},
-			{ 13,  5, 70,   1},
-			{ 99,  0,  0,   0},
-
-			{ 15,  6, 75,   1},
-			{ 99,  0,  0,   0},
-			{ 17,  7, 80,   1},
-			{ 19,  8, 85,   1},
-			{ 21,  9, 90,   1},
-			{ 22,  9, 50,   1},
-			{ 23, 10, 95,   1},
-			{ 99,  0,  0,   0},
-			{ 24, 11, 70,   1},
-
-			{ 25, 12, 95,   1},
-			{ 27, 15, 99,   1},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 28, 18, 50,   2},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 30, 20, 99,   6},
-			{ 99,  0,  0,   0},
-			{ 32, 25, 70,   6},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{  7,  7, 20,  25},
-			{  9, 12, 40,  45},
-			{ 15, 17, 60,  30},
-			{ 99,  0,  0,   0},
-			{ 30, 35, 75,  15},
-
-			{ 13, 16, 50,  10},
-			{ 18, 20, 60,  10},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{  5,  5, 50,  10},
-			{ 10, 10, 70,  40},
-			{ 35, 40, 95, 100},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 10, 12, 50,  40},
-			{ 10, 12, 50,  40},
-			{ 10, 12, 50,  40},
-			{ 15, 20, 75,  60},
-			{ 25, 30, 85,  80},
-
-			{ 10, 11, 50,  40},
-			{ 15, 20, 75,  80},
-			{ 20, 25, 80, 160},
-			{ 26, 30, 50, 250},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0}
-		}
-	},
-
-	{
-		/*** Ranger ***/
-
-		TV_MAGIC_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		3,
-		400,
-
-		{
-			{  3,  1, 30,   1},
-			{  3,  2, 35,   2},
-			{  3,  2, 35,   2},
-			{  5,  3, 35,   1},
-			{ 99,  0,  0,   0},
-			{  5,  3, 40,   1},
-			{ 99,  0,  0,   0},
-			{  5,  4, 45,   2},
-			{  7,  5, 40,   3},
-
-			{  7,  6, 40,   2},
-			{  9,  7, 40,   3},
-			{  9,  8, 45,   3},
-			{ 11,  8, 40,   3},
-			{ 11,  9, 45,   3},
-			{ 13, 10, 45,   3},
-			{ 13, 11, 55,   4},
-			{ 15, 12, 50,   4},
-			{ 15, 13, 50,   4},
-
-			{ 17, 17, 55,   3},
-			{ 17, 17, 90,   4},
-			{ 21, 17, 55,   3},
-			{ 21, 19, 60,   3},
-			{ 23, 25, 90,   3},
-			{ 23, 20, 60,   3},
-			{ 25, 20, 60,   3},
-			{ 25, 21, 65,   3},
-
-			{ 27, 21, 65,   3},
-			{ 29, 23, 95,   3},
-			{ 31, 25, 70,   3},
-			{ 33, 25, 75,   4},
-			{ 35, 25, 80,   5},
-			{ 37, 30, 95,  10},
-			{ 99,  0,  0,   0},
-
-			{ 8,  17, 20,  25},
-			{ 19, 22, 40,  21},
-			{ 25, 27, 60,  17},
-			{ 30, 28, 60,  16},
-			{ 35, 35, 75,  13},
-
-			{ 20, 16, 50,   6},
-			{ 22, 19, 60,   9},
-			{ 30, 25, 70,  13},
-			{ 33, 35, 75,  25},
-			{ 35, 45, 85,  35},
-			{ 99,  0, 0,    0},
-
-			{ 10, 15, 50,   4},
-			{ 15, 20, 70,  25},
-			{ 35, 60, 95, 115},
-			{ 99,  0, 0,    0},
-			{ 99,  0, 0,    0},
-
-			{ 8, 15,  50,  30},
-			{ 8, 15,  50,  30},
-			{ 8, 15,  50,  30},
-			{ 16, 25, 75,  50},
-			{ 25, 40, 85,  70},
-
-			{ 10, 15, 50,  40},
-			{ 15, 20, 75,  80},
-			{ 25, 30, 80, 125},
-			{ 32, 50, 50, 250},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0}
-		}
-	},
-
-	{
-		/*** Paladin ***/
-
-		TV_PRAYER_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-		1,
-		400,
-
-		{
-			{  1,  1, 30,   4},
-			{  2,  2, 35,   4},
-			{  3,  3, 35,   4},
-			{  5,  3, 35,   4},
-			{  5,  4, 35,   4},
-			{  7,  5, 40,   3},
-			{  7,  5, 40,   3},
-			{  9,  7, 40,   3},
-			{  9,  7, 40,   3},
-			{  9,  8, 40,   3},
-			{ 11,  9, 40,   3},
-			{ 11, 10, 45,   3},
-			{ 11, 10, 45,   3},
-			{ 13, 10, 45,   3},
-			{ 13, 11, 45,   4},
-			{ 15, 13, 45,   4},
-			{ 15, 15, 50,   4},
-			{ 17, 15, 50,   4},
-			{ 17, 15, 50,   4},
-			{ 19, 15, 50,   4},
-			{ 19, 15, 50,   4},
-			{ 21, 17, 50,   3},
-			{ 23, 17, 50,   3},
-			{ 25, 20, 50,   3},
-			{ 27, 21, 50,   3},
-			{ 29, 22, 50,   3},
-			{ 31, 24, 60,   3},
-			{ 33, 28, 60,   3},
-			{ 35, 32, 70,   4},
-			{ 37, 70, 90,   5},
-			{ 39, 38, 95,  10},
-
-			{ 5,  5,  50,   1},
-			{ 15, 15, 80,  12},
-			{ 25, 25, 80,  16},
-			{ 30, 15, 80, 135},
-			{ 37, 55, 80, 215},
-
-			{ 17, 15, 50,  25},
-			{ 23, 25, 60,  35},
-			{ 35, 60, 80, 115},
-			{ 40, 80, 90, 200},
-			{ 40, 80, 90, 250},	/* 300 */
-
-			{ 20, 13, 70,  20},
-			{ 30, 20, 75,  40},
-			{ 30, 35, 80, 200},
-			{ 40, 40, 80, 100},
-			{ 47, 70, 75, 250},	/* 350 */
-
-			{ 10, 16, 50,  20},
-			{ 25, 30, 80,  15},
-			{ 30, 50, 80, 130},
-			{ 40, 70, 80, 200},
-			{ 42, 80, 85, 250},	/* 285 */
-			{ 47, 95, 85, 250},	/* 500 */
-
-			{  7,  7, 50,   2},
-			{ 20, 20, 50,   4},
-			{ 25, 25, 80,  12},
-			{ 35, 50, 75, 115},
-			{ 40, 60, 75,  10},
-			{ 45, 70, 75, 250},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0}
-		}
-	}
-};
-
-
-/*
- * Spells in each book (mage spells then priest spells)
- */
-u32b spell_flags[2][9][2] =
-{
-	{
-		/*** Mage spell books ***/
-		{ 0x000001ff, 0x00000000 },
-		{ 0x0003fe00, 0x00000000 },
-		{ 0x03fc0000, 0x00000000 },
-		{ 0xfc000000, 0x00000001 },
-		{ 0x00000000, 0x003e0000 },
-		{ 0x00000000, 0x0000003e },
-		{ 0x00000000, 0x0001f000 },
-		{ 0x00000000, 0x07c00000 },
-		{ 0x00000000, 0x00000fc0 }
-	},
-
-	{
-		/*** Priest spell books ***/
-		{ 0x000000ff, 0x00000000 },
-		{ 0x0000ff00, 0x00000000 },
-		{ 0x01ff0000, 0x00000000 },
-		{ 0x7e000000, 0x00000000 },
-		{ 0x00000000, 0x03f00000 },
-		{ 0x80000000, 0x0000000f },
-		{ 0x00000000, 0x000001f0 },
-		{ 0x00000000, 0x000fc000 },
-		{ 0x00000000, 0x00003e00 }
-	}
-};
-
-
-/*
- * Names of the spells (mage spells then priest spells)
- */
-cptr spell_names[2][64] =
-{
-	/*** Mage Spells ***/
-
 	{
 		/* Magic for Beginners (sval 0) */
-		"Magic Missile",
-		"Detect Monsters",
-		"Phase Door",
-		"Light Area",
-		"Treasure Detection",
-		"Cure Light Wounds",
-		"Object Detection",
-		"Find Hidden Traps/Doors",
-		"Stinking Cloud",
-
-		/* Conjurings and Tricks (sval 1) */
-		"Confuse Monster",
-		"Lightning Bolt",
-		"Trap/Door Destruction",
-		"Sleep I",
-		"Cure Poison",
-		"Teleport Self",
-		"Spear of Light",
-		"Frost Bolt",
-		"Turn Stone to Mud",
-
-		/* Incantations and Illusions (sval 2) */
-		"Satisfy Hunger",
-		"Recharge Item I",
-		"Sleep II",
-		"Polymorph Other",
-		"Identify",
-		"Sleep III",
-		"Fire Bolt",
-		"Slow Monster",
-
-		/* Sorcery and Evocations (sval 3) */
-		"Frost Ball",
-		"Recharge Item II",
-		"Teleport Other",
-		"Haste Self",
-		"Fire Ball",
-		"Word of Destruction",
-		"Genocide",
-
-		/* Mordenkainen's Escapes (sval 5) */
-		"Door Creation",
-		"Stair Creation",
-		"Teleport Level",
-		"Earthquake",
-		"Word of Recall",
-
-		/* Raal's Tome of Destruction (sval 8) */
-		"Acid Bolt",
-		"Cloud Kill",
-		"Acid Ball",
-		"Ice Storm",
-		"Meteor Swarm",
-		"Mana Storm",
-
-		/* Kelek's Grimoire of Power (sval 6) */
-		"Detect Evil",
-		"Detect Enchantment",
-		"Recharge Item III",
-		"Genocide",
-		"Mass Genocide",
-
-		/* Resistance of Scarabtarices (sval 4) */
-		"Resist Fire",
-		"Resist Cold",
-		"Resist Acid",
-		"Resist Poison",
-		"Resistance",
-
-		/* Tenser's transformations... (sval 7) */
-		"Heroism",
-		"Shield",
-		"Berserker",
-		"Essence of Speed",
-		"Globe of Invulnerability",
-
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
+		SBF_MAGIC,
+		{
+			{   1, "Magic Missile",				 1,  1, 22,   4},
+			{   2, "Phase Door",  				 1,  1, 24,   4},	
+			{   3, "Light Area",				 1,  2, 26,   4},	
+			{   4, "Detect Monsters",			 2,  2, 23,   4},
+			{   5, "Stinking Cloud",			 3,  3, 27,   3},  
+			{   6, "Confuse Monster",			 3,  3, 30,   1},
+			{   7, "Find Hidden Traps/Doors",	 4,  3, 25,   1},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
 	},
-
-
-	/*** Priest Spells ***/
-
 	{
-		/* Beginners Handbook (sval 0) */
-		"Detect Evil",
-		"Cure Light Wounds",
-		"Bless",
-		"Remove Fear",
-		"Call Light",
-		"Find Traps",
-		"Detect Doors/Stairs",
-		"Slow Poison",
-
-		/* Words of Wisdom (sval 1) */
-		"Scare Monster",
-		"Portal",
-		"Cure Serious Wounds",
-		"Chant",
-		"Sanctuary",
-		"Satisfy Hunger",
-		"Remove Curse",
-		"Resist Heat and Cold",
-
-		/* Chants and Blessings (sval 2) */
-		"Neutralize Poison",
-		"Orb of Draining",
-		"Cure Critical Wounds",
-		"Sense Invisible",
-		"Protection from Evil",
-		"Earthquake",
-		"Sense Surroundings",
-		"Cure Mortal Wounds",
-		"Turn Undead",
-
-		/* Exorcism and Dispelling (sval 3) */
-		"Prayer",
-		"Dispel Undead",
-		"Heal",
-		"Dispel Evil",
-		"Glyph of Warding",
-		"Holy Word",
-
-		/* Godly Insights... (sval 5) */
-		"Detect Monsters",
-		"Detection",
-		"Perception",
-		"Probing",
-		"Clairvoyance",
-
-		/* Purifications and Healing (sval 6) */
-		"Cure Serious Wounds",
-		"Cure Mortal Wounds",
-		"Healing",
-		"Restoration",
-		"Remembrance",
-
-		/* Wrath of God (sval 8) */
-		"Dispel Undead",
-		"Dispel Evil",
-		"Banishment",
-		"Word of Destruction",
-		"Annihilation",
-
-		/* Holy Infusions (sval 7) */
-		"Unbarring Ways",
-		"Recharging",
-		"Dispel Curse",
-		"Enchant Weapon",
-		"Enchant Armour",
-		"Elemental Brand",
-
-		/* Ethereal openings (sval 4) */
-		"Blink",
-		"Teleport Self",
-		"Teleport Other",
-		"Teleport Level",
-		"Word of Recall",
-		"Alter Reality",
-
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
+		/* Conjurings and Tricks (sval 1) */
+		SBF_MAGIC,
+		{
+			{   8, "Absorb hit",				 4,  3, 25,   3},	
+			{   9, "Lightning Bolt",			 4,  4, 30,   4},
+			{  10, "Trap/Door Destruction",		 5,  5, 30,   6},
+			{  11, "Sleep Monster",				 5,  5, 30,   4},
+			{  12, "Frost Bolt",				 6,  5, 40,   6},
+			{  13, "Teleport Self",				 7,  6, 35,   5},
+			{  14, "Spear of Light",			 8,  7, 30,   5},
+			{  15, "Turn Stone to Mud",			 9,  7, 44,   8},
+			{  16, "Sleep All",					 9,  7, 45,   8},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+			/* Incantations and Illusions (sval 2) */
+		SBF_MAGIC,
+		{
+			{  17, "Satisfy Hunger",			 9,  7, 45,   8},
+			{  18, "Lesser Recharge Item",		 9,  7, 75,   9},
+			{  19, "Acid Bolt",					10,  7, 50,  12},	
+			{  20, "Identify",					11,  7, 75,   6},
+			{  21, "Door Creation",				11,  7, 20,  28},	
+			{  22, "Detect Enchantment",		12,	 7,	40,  10},
+			{  23, "Fire Bolt",					14,  9, 50,   6},	
+			{  24, "Slow Monster",				16,  9, 50,   7},	
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{		
+			/* Sorcery and Evocations (sval 3) */
+		SBF_MAGIC,
+		{
+			{  25, "Frost Ball",				17, 12, 55,   8},	
+			{  26, "Recharge Item",				20, 12, 90,   8},	
+			{  27, "Teleport Other",			23, 12, 60,   8},	
+			{  28, "Fire Ball",					25, 18, 65,  12},	
+			{  29, "Haste Self",				29, 12, 65,  10},	
+			{  30, "Word of Destruction",		33, 21, 80,  15},	
+			{  31, "Genocide",					42, 25, 95,  21},	
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+			/* Resistance of Scarabtarices (sval 4) */
+		(SBF_MAGIC | SBF_GOOD),
+		{
+			{  32, "Resist Fire",				 4,  5, 50,  20},
+			{  33, "Resist Cold",				 4,  5, 50,  20},
+			{  34, "Resist Acid & Electricity",	 4,  5, 50,  20},
+			{  35, "Resist Poison",				 8, 10, 75,  40},
+			{  36, "Resistance",				15, 20, 85,  60},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+			/* Mordenkainen's Escapes (sval 5) */
+		(SBF_MAGIC | SBF_GOOD),
+		{
+			{  37, "Stair Creation",			 9, 12, 40,  20},	
+			{  38, "Teleport Level",			15, 17, 60,  29},	
+			{  39, "Dimension Door",			15, 25, 70,  30},	
+			{  40, "Earthquake",				20, 18, 60,  24},	
+			{  41, "Word of Recall",			25, 25, 75,  19},   
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Kelek's Grimoire of Power (sval 6) */
+		(SBF_MAGIC | SBF_GOOD),
+		{
+			{  42, "Detect Evil",				 5,  5, 50,   8},	
+			{  43, "Polymorph Other",			11,  7, 45,   9},
+			{  44, "Greater Recharge Item",		25, 30, 95, 160},	
+			{  31, "Genocide",					30, 50, 70,  40},	
+			{  45, "Mass Genocide",				40, 75, 80, 100},	
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Tenser's transformations... (sval 7) */
+		(SBF_MAGIC | SBF_GOOD),
+		{
+			{  46, "Heroism",					 5,  5, 50,  80},
+			{  47, "Shield",					10, 12, 75, 120},	
+			{  48, "Temporary Invisibility",	22, 25,	60,  50},
+			{  49, "Essence of Speed",			26, 30, 50, 250},	
+			{  50, "Globe of Resilience",		46, 70, 75, 250},	
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Raal's Tome of Destruction (sval 8) */
+		(SBF_MAGIC | SBF_GOOD),
+		{
+			{  51, "Mana Bolt",					10,  4, 50,  12},	
+			{  52, "Cloud Kill",				12,  9, 60,  16},	
+			{  53, "Acid Ball",					20, 13, 70,  20},	
+			{  54, "Ice Storm",					35, 32, 85,  34},	
+			{  55, "Meteor Swarm",				27, 20, 75,  29},	
+			{  56, "Mana Storm",				42, 45, 95, 200},	
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* The Lore of the Hunter*/
+		(SBF_MAGIC | SBF_GOOD),
+		{
+			{ 110, "Hunter's Arrows & Bolts",  18, 25, 60,	 6},
+			{ 111, "Enchant Arrows & Bolts",   28, 15, 70,   2},	
+			{  29, "Haste Self",			   33, 12, 90,  10},	
+			{ 112, "Elemental Arrows & Bolts", 43, 40, 80,  10},	
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Novice's Handbook (sval 10) */
+		SBF_PRAYER,
+		{
+			{  42, "Detect Evil",				 1,  1, 10,   4}, 
+			{  57, "Cure Light Wounds",			 1,  2, 15,   4}, 
+			{  58, "Bless",						 1,  2, 20,   4}, 
+			{  59, "Remove Fear",				 1,  2, 25,   4}, 
+			{   3, "Call Light",				 3,  2, 25,   1}, 
+			{  60, "Find Traps",				 3,  3, 27,   2}, 
+			{  61, "Detect Doors/Stairs",		 3,  3, 27,   2}, 
+			{  62, "Slow Poison",				 3,  3, 28,   4}, 
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Words of Wisdom (sval 11) */
+		SBF_PRAYER,
+		{
+			{  63, "Scare Monster",				 5,  4, 29,   3},
+			{  64, "Portal",					 5,  4, 30,   4},
+			{  65, "Cure Serious Wounds",		 5,  4, 32,   4},
+			{  66, "Chant",						 5,  5, 34,   4},
+			{  67, "Sanctuary",					 7,  5, 36,   3},
+			{  17, "Satisfy Hunger",			 7,  5, 38,   4},
+			{  68, "Remove Curse",				 7,  6, 38,   5},
+			{  69, "Resist Heat and Cold",		 7,  7, 38,   5},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Chants and Blessings (sval 12) */
+		SBF_PRAYER,
+		{
+			{  70, "Neutralize Poison",			 9,  6, 38,   4}, 
+			{  71, "Orb of Draining",			 9,  7, 38,   4}, 
+			{  72, "Cure Critical Wounds",		 9,  7, 40,   4}, 
+			{  73, "Sense Invisible",			11,  8, 42,   4}, 
+			{  74, "Protection from Evil",		11,  8, 42,   4}, 
+			{  40, "Earthquake",				11,  9, 55,   5}, 
+			{  75, "Sense Surroundings",		13, 10, 45,   4}, 
+			{  76, "Cure Mortal Wounds",		13, 11, 45,   4}, 
+			{  77, "Turn Undead",				15, 12, 50,   5}, 
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+ 		/* Exorcism and Dispelling (sval 13) */
+		SBF_PRAYER,
+		{
+			{  78, "Prayer",					15, 14, 50,   5}, 
+			{  79, "Dispel Undead",				17, 14, 55,   7}, 
+			{  80, "Heal",						21, 16, 60,   7}, 
+			{  81, "Dispel Evil",				25, 20, 70,  12}, 
+			{  82, "Glyph of Warding",			33, 55, 90,  15}, 
+			{  83, "Holy Word",					39, 32, 95,  20}, 
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Ethereal openings (sval 14) */
+		(SBF_PRAYER | SBF_GOOD),
+		{
+			{   2, "Blink",						 3,  3, 50,   6}, 
+			{  84, "Teleport Self",				10, 10, 50,   8}, 
+			{  27, "Teleport Other",			20, 20, 80,  16}, 
+			{  38, "Teleport Level",			30, 40, 75, 133}, 
+			{  41, "Word of Recall",			35, 50, 75,  11}, 
+			{  85, "Alter Reality",				40, 60, 75, 250}, 
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Godly Insights (sval 15) */
+		(SBF_PRAYER | SBF_GOOD),
+		{
+			{   4, "Detect Monsters",			 3,  3, 50,   2}, 
+			{  86, "Detection",					10,  8, 80,  20}, 
+			{  20, "Perception",				20, 20, 80,  20}, 
+			{  87, "Probing",					25, 20, 80, 150}, 
+			{  88, "Clairvoyance",				35, 50, 80, 230}, 
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Purifications and Healing (sval 16) */
+		(SBF_PRAYER | SBF_GOOD),
+		{
+			{  89, "Cure Serious Wounds",		15,  5, 50,  25}, 
+			{  76, "Cure Mortal Wounds",		17,  7, 60,  45}, 
+			{  90, "Healing",					30, 50, 80, 130}, 
+			{  91, "Restoration",				35, 70, 90, 230}, 
+			{  92, "Remembrance",				35, 70, 90, 250}, 
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Holy Infusions (sval 17) */
+		(SBF_PRAYER | SBF_GOOD),
+		{
+			{  10, "Unbarring Ways",			 5,  6, 50,  40}, 
+			{  93, "Recharging",				15, 20, 80,  25}, 
+			{  94, "Dispel Curse",				25, 40, 80, 160}, 
+			{  95, "Enchant Weapon",			35, 50, 80, 230}, 
+			{  96, "Enchant Armour",			37, 60, 85, 250}, 
+			{  97, "Sanctify Shots",			45, 95, 85, 250}, 
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* Wrath of God (sval 18) */
+		(SBF_PRAYER | SBF_GOOD),
+		{
+			{  98, "Dispel Undead",				15,  7, 70,  25}, 
+			{  99, "Dispel Evil",				20, 10, 75,  60}, 
+			{ 100, "Banishment",				25, 25, 80, 250}, 
+			{  30, "Word of Destruction",		35, 35, 80, 115}, 
+			{ 101, "Annihilation",				45, 60, 75, 250}, 
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		0,
+		{
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* The Seven steps to transcendence (sval 20) */
+		(SBF_MYSTIC | SBF_GOOD),
+		{
+			{ 106, "Clarity of Mind",			 5,  5, 10,   4},
+			{  39, "Mastery of Space",			10, 25, 60,   8}, 
+			{ 107, "Power over Elements",		15, 30, 70,  16}, 
+			{  86, "Purity of vision",			20, 35, 80,  32},
+			{ 108, "Control of the Body",		30, 40, 90,  64}, 
+			{ 109, "One with the world",		40, 45,100, 128}, 
+			{  50, "Mind over Matter",			50, 50,110, 250}, 
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* The Teachings of the Ninth Master (sval 21) */
+		(SBF_MYSTIC | SBF_GOOD),
+		{
+			{  43, "Change Other",				 5, 10, 45,  10},
+			{  51, "Mana Bolt",					10,  5, 50,  15},	
+			{  48, "Vanish from Sight",			20, 20,	60,  50},
+			{ 100, "Banish Enemies",			25, 30, 80, 200}, 
+			{  80, "Heal",						30, 20, 60,  20}, 
+			{  49, "Essence of Speed",			35, 60, 50, 200},	
+			{  85, "Alter Reality",				40, 80, 75, 200}, 
+			{  82, "Glyph of Warding",			45, 60, 90,  20}, 
+			{  55, "Meteor Swarm",				50, 25, 75,  50},	
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+		/* The Codex of Ultimate Wisdom (sval 22) */
+		(SBF_CODEX | SBF_GOOD | SBF_ARTIFACT),
+		{
+			{  20, "Perception",				 1, 20, 50,   1}, 
+			{ 102, "Self Knowledge",			45, 90,102,   2}, 
+			{ 103, "Revelation",				50,100,107,   5},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
+		}
+	},
+	{
+			/* The Necronomicon (sval 23) */
+		(SBF_NECRONOM | SBF_GOOD | SBF_ARTIFACT),
+		{
+			{ 104, "Wave of Evil",			    25, 15,132,   4}, 
+			{ 105, "Ray of Evil",               40, 50,117,   5}, 
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+		}
 	}
 };
-
 
 
 /*
@@ -2173,107 +1758,6 @@ byte chest_traps[64] =
 };
 
 
-
-
-
-
-
-
-/*
- * Class titles for the player.
- *
- * The player gets a new title every five levels, so each class
- * needs only ten titles total.
- */
-cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
-{
-	/* Warrior */
-	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Hero",
-		"Baron",
-		"Duke",
-		"Lord",
-	},
-
-	/* Mage */
-	{
-		"Novice",
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Mage Lord",
-	},
-
-	/* Priest */
-	{
-		"Believer",
-		"Acolyte",
-		"Adept",
-		"Curate",
-		"Canon",
-		"Lama",
-		"Patriarch",
-		"Priest",
-		"High Priest",
-		"Priest Lord",
-	},
-
-	/* Rogues */
-	{
-		"Vagabond",
-		"Cutpurse",
-		"Robber",
-		"Burglar",
-		"Filcher",
-		"Sharper",
-		"Low Thief",
-		"High Thief",
-		"Master Thief",
-		"Assassin",
-	},
-
-	/* Rangers */
-	{
-		"Runner",
-		"Strider",
-		"Scout",
-		"Courser",
-		"Tracker",
-		"Guide",
-		"Pathfinder",
-		"Low Ranger",
-		"High Ranger",
-		"Ranger Lord",
-	},
-
-	/* Paladins */
-	{
-		"Gallant",
-		"Keeper",
-		"Protector",
-		"Defender",
-		"Warder",
-		"Knight",
-		"Guardian",
-		"Low Paladin",
-		"High Paladin",
-		"Paladin Lord",
-	}
-};
-
-
-
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
  */
@@ -2329,7 +1813,7 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display player (basic)",
 	"Display player (extra)",
-	NULL,
+	"Display visible monsters",
 	NULL,
 	"Display messages",
 	"Display overhead view",
@@ -2384,7 +1868,7 @@ cptr option_text[OPT_MAX] =
 	"run_ignore_stairs",		/* OPT_run_ignore_stairs */
 	"run_ignore_doors",			/* OPT_run_ignore_doors */
 	"run_cut_corners",			/* OPT_run_cut_corners */
-	"run_use_corners",			/* OPT_run_use_corners */
+	NULL,						/* xxx */
 	"disturb_move",				/* OPT_disturb_move */
 	"disturb_near",				/* OPT_disturb_near */
 	"disturb_panel",			/* OPT_disturb_panel */
@@ -2395,7 +1879,7 @@ cptr option_text[OPT_MAX] =
 	"alert_failure",			/* OPT_alert_failure */
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
-	"allow_quantity",			/* OPT_allow_quantity */
+	"verify_destroy_junk",		/* OPT_verify_destroy_junk */
 	NULL,						/* xxx */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
@@ -2439,7 +1923,7 @@ cptr option_text[OPT_MAX] =
 	"auto_more",				/* OPT_auto_more */
 	"smart_monsters",			/* OPT_smart_monsters */
 	"smart_packs",				/* OPT_smart_packs */
-	NULL,						/* xxx */
+	"view_monster_lite",		/* OPT_view_monster_lite */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2495,13 +1979,13 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	"birth_point_based",		/* OPT_birth_point_based */
 	"birth_auto_roller",		/* OPT_birth_auto_roller */
-	"birth_maximize",			/* OPT_birth_maximize */
+	NULL,						/* xxx */
 	"birth_preserve",			/* OPT_birth_preserve */
 	"birth_ironman",			/* OPT_birth_ironman */
 	"birth_no_stores",			/* OPT_birth_no_stores */
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
-	NULL,						/* xxx */
+	"birth_autoscum",			/* OPT_birth_autoscum */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2531,7 +2015,7 @@ cptr option_text[OPT_MAX] =
 	"cheat_xtra",				/* OPT_cheat_xtra */
 	"cheat_know",				/* OPT_cheat_know */
 	"cheat_live",				/* OPT_cheat_live */
-	NULL,						/* xxx */
+	"cheat_no_autosave",		/* OPT_cheat_no_autosave */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2559,13 +2043,13 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	"adult_point_based",		/* OPT_adult_point_based */
 	"adult_auto_roller",		/* OPT_adult_auto_roller */
-	"adult_maximize",			/* OPT_adult_maximize */
+	NULL,						/* xxx */
 	"adult_preserve",			/* OPT_adult_preserve */
 	"adult_ironman",			/* OPT_adult_ironman */
 	"adult_no_stores",			/* OPT_adult_no_stores */
 	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
-	NULL,						/* xxx */
+	"adult_autoscum",			/* OPT_adult_autoscum */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2595,7 +2079,7 @@ cptr option_text[OPT_MAX] =
 	"score_xtra",				/* OPT_score_xtra */
 	"score_know",				/* OPT_score_know */
 	"score_live",				/* OPT_score_live */
-	NULL,						/* xxx */
+	"score_no_autosave",		/* OPT_cheat_no_autosave */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2648,7 +2132,7 @@ cptr option_desc[OPT_MAX] =
 	"When running, ignore stairs",				/* OPT_run_ignore_stairs */
 	"When running, ignore doors",				/* OPT_run_ignore_doors */
 	"When running, cut corners",				/* OPT_run_cut_corners */
-	"When running, use corners",				/* OPT_run_use_corners */
+	NULL,										/* xxx run_use_corners */
 	"Disturb whenever any monster moves",		/* OPT_disturb_move */
 	"Disturb whenever viewable monster moves",	/* OPT_disturb_near */
 	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
@@ -2659,7 +2143,7 @@ cptr option_desc[OPT_MAX] =
 	"Alert user to various failures",			/* OPT_alert_failure */
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
-	"Allow quantity specification",				/* OPT_allow_quantity */
+	"Verify destruction of worthless items",	/* OPT_verify_destroy_junk */
 	NULL,										/* xxx */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
@@ -2703,7 +2187,7 @@ cptr option_desc[OPT_MAX] =
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
 	"Monsters behave more intelligently",		/* OPT_smart_monsters */
 	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
-	NULL,										/* xxx */
+	"Allow monsters to have light radius",		/* OPT_view_monster_lite */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2759,13 +2243,13 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	"Birth: Allow purchase of stats using points",	/* OPT_birth_point_based */
 	"Birth: Allow specification of minimal stats",	/* OPT_birth_auto_roller */
-	"Birth: Maximize effect of race/class bonuses",	/* OPT_birth_maximize */
+	NULL,										/* xxx */
 	"Birth: Preserve artifacts when leaving level",	/* OPT_birth_preserve */
 	"Birth: Restrict the use of stairs/recall",	/* OPT_birth_ironman */
 	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
 	"Birth: Randomize some of the artifacts",	/* OPT_birth_rand_artifacts */
-	NULL,										/* xxx */
+	"Birth: Generate better (harder) levels",	/* OPT_birth_autoscum */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2795,7 +2279,7 @@ cptr option_desc[OPT_MAX] =
 	"Cheat: Peek into something else",			/* OPT_cheat_xtra */
 	"Cheat: Know complete monster info",		/* OPT_cheat_know */
 	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
-	NULL,										/* xxx */
+	"Cheat: No automatic saves",    			/* OPT_cheat_no_autosave */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2823,13 +2307,13 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	"Adult: Allow purchase of stats using points",	/* OPT_adult_point_based */
 	"Adult: Allow specification of minimal stats",	/* OPT_adult_auto_roller */
-	"Adult: Maximize effect of race/class bonuses",	/* OPT_adult_maximize */
+	NULL,										/* xxx */
 	"Adult: Preserve artifacts when leaving level",	/* OPT_adult_preserve */
 	"Adult: Restrict the use of stairs/recall",	/* OPT_adult_ironman */
 	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
 	"Adult: Randomize some of the artifacts",	/* OPT_adult_rand_artifacts */
-	NULL,										/* xxx */
+	"Adult: Generate better (harder) levels",	/* OPT_adult_autoscum */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2859,7 +2343,7 @@ cptr option_desc[OPT_MAX] =
 	"Score: Peek into something else",			/* OPT_score_xtra */
 	"Score: Know complete monster info",		/* OPT_score_know */
 	"Score: Allow player to avoid death",		/* OPT_score_live */
-	NULL,										/* xxx */
+	"Score: No automatic saves",    			/* OPT_cheat_no_autosave */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2901,8 +2385,8 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_always_pickup */
 	FALSE,		/* OPT_always_repeat */
 	FALSE,		/* OPT_depth_in_feet */
-	FALSE,		/* OPT_stack_force_notes */
-	FALSE,		/* OPT_stack_force_costs */
+	TRUE,		/* OPT_stack_force_notes */
+	TRUE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
 	TRUE,		/* OPT_show_weights */
 	TRUE,		/* OPT_show_choices */
@@ -2912,7 +2396,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
-	TRUE,		/* OPT_run_use_corners */
+	FALSE,		/* xxx */
 	TRUE,		/* OPT_disturb_move */
 	TRUE,		/* OPT_disturb_near */
 	TRUE,		/* OPT_disturb_panel */
@@ -2923,7 +2407,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_alert_failure */
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
-	TRUE,		/* OPT_allow_quantity */
+	FALSE,		/* OPT_verify_destroy_junk */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
@@ -2937,8 +2421,8 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
-	FALSE,		/* xxx track_follow */
-	FALSE,		/* xxx track_target */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
@@ -2953,10 +2437,10 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
-	FALSE,		/* OPT_view_yellow_lite */
-	FALSE,		/* OPT_view_bright_lite */
+	TRUE,		/* OPT_view_yellow_lite */
+	TRUE,		/* OPT_view_bright_lite */
 	FALSE,		/* OPT_view_granite_lite */
-	FALSE,		/* OPT_view_special_lite */
+	TRUE,		/* OPT_view_special_lite */
 	FALSE,		/* OPT_easy_open */
 	FALSE,		/* OPT_easy_alter */
 	FALSE,		/* OPT_easy_floor */
@@ -2967,7 +2451,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_auto_more */
 	FALSE,		/* OPT_smart_monsters */
 	FALSE,		/* OPT_smart_packs */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_view_monster_lite */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3023,13 +2507,13 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_birth_point_based */
 	FALSE,		/* OPT_birth_auto_roller */
-	TRUE,		/* OPT_birth_maximize */
+	FALSE,		/* xxx */
 	TRUE,		/* OPT_birth_preserve */
 	FALSE,		/* OPT_birth_ironman */
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_autoscum */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3059,7 +2543,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_cheat_xtra */
 	FALSE,		/* OPT_cheat_know */
 	FALSE,		/* OPT_cheat_live */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_cheat_no_autosave */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3087,13 +2571,13 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_adult_point_based */
 	FALSE,		/* OPT_adult_auto_roller */
-	TRUE,		/* OPT_adult_maximize */
+	FALSE,		/* xxx */
 	TRUE,		/* OPT_adult_preserve */
 	FALSE,		/* OPT_adult_ironman */
 	FALSE,		/* OPT_adult_no_stores */
 	FALSE,		/* OPT_adult_no_artifacts */
 	FALSE,		/* OPT_adult_rand_artifacts */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_autoscum */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3123,7 +2607,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_score_xtra */
 	FALSE,		/* OPT_score_know */
 	FALSE,		/* OPT_score_live */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_score_no_autosave */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3190,7 +2674,6 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_run_ignore_stairs,
 		OPT_run_ignore_doors,
 		OPT_run_cut_corners,
-		OPT_run_use_corners,
 		OPT_disturb_move,
 		OPT_disturb_near,
 		OPT_disturb_panel,
@@ -3200,9 +2683,10 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_alert_hitpoint,
 		OPT_alert_failure,
 		OPT_verify_destroy,
+		OPT_verify_destroy_junk,
 		OPT_verify_special,
-		OPT_allow_quantity,
 		OPT_auto_more,
+		255,
 		255,
 		255,
 		255,
@@ -3213,7 +2697,6 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 
 	{
 		OPT_auto_haggle,
-		OPT_auto_scum,
 		OPT_expand_look,
 		OPT_expand_list,
 		OPT_view_perma_grids,
@@ -3230,6 +2713,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_alter,
 		OPT_easy_floor,
 		OPT_show_piles,
+		255,
 		255,
 		255
 	},
@@ -3251,10 +2735,10 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
+		OPT_view_monster_lite,
  		OPT_center_player,
  		OPT_run_avoid_center,
 		OPT_scroll_target,
-		255,
 		255,
 		255,
 	},
@@ -3264,12 +2748,12 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_birth_point_based,
 		OPT_birth_auto_roller,
-		OPT_birth_maximize,
 		OPT_birth_preserve,
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
+		OPT_birth_autoscum,
 		255,
 		255,
 		255,
@@ -3293,7 +2777,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_xtra,
 		OPT_cheat_know,
 		OPT_cheat_live,
-		255,
+		OPT_cheat_no_autosave,
 		255,
 		255,
 		255,
@@ -3322,6 +2806,7 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"good",
 	"excellent",
 	"special",
-	"uncursed"
+	"uncursed",
+	"indestructible"
 };
 

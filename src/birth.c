@@ -30,7 +30,7 @@ struct birther
 
 	s16b stat[6];
 
-	char history[4][60];
+	char history[5][55];
 };
 
 
@@ -72,7 +72,7 @@ static void save_prev_data(void)
 	}
 
 	/* Save the history */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 5; i++)
 	{
 		strcpy(prev.history[i], p_ptr->history[i]);
 	}
@@ -105,7 +105,7 @@ static void load_prev_data(void)
 	}
 
 	/* Save the history */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 5; i++)
 	{
 		strcpy(temp.history[i], p_ptr->history[i]);
 	}
@@ -128,7 +128,7 @@ static void load_prev_data(void)
 	}
 
 	/* Load the history */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 5; i++)
 	{
 		strcpy(p_ptr->history[i], prev.history[i]);
 	}
@@ -150,67 +150,11 @@ static void load_prev_data(void)
 	}
 
 	/* Save the history */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 5; i++)
 	{
 		strcpy(prev.history[i], temp.history[i]);
 	}
 }
-
-
-
-
-/*
- * Adjust a stat by an amount.
- *
- * This just uses "modify_stat_value()" unless "maximize" mode is false,
- * and a positive bonus is being applied, in which case, a special hack
- * is used, with the "auto_roll" flag affecting the result.
- *
- * The "auto_roll" flag selects "maximal" changes for use with the
- * auto-roller initialization code.  Otherwise, if "maximize" mode
- * is being used, the changes are fixed.  Otherwise, semi-random
- * changes will occur, with larger changes at lower values.
- */
-static int adjust_stat(int value, int amount, int auto_roll)
-{
-	/* Negative amounts or maximize mode */
-	if ((amount < 0) || adult_maximize)
-	{
-		return (modify_stat_value(value, amount));
-	}
-
-	/* Special hack */
-	else
-	{
-		int i;
-
-		/* Apply reward */
-		for (i = 0; i < amount; i++)
-		{
-			if (value < 18)
-			{
-				value++;
-			}
-			else if (value < 18+70)
-			{
-				value += ((auto_roll ? 15 : randint(15)) + 5);
-			}
-			else if (value < 18+90)
-			{
-				value += ((auto_roll ? 6 : randint(6)) + 2);
-			}
-			else if (value < 18+100)
-			{
-				value++;
-			}
-		}
-	}
-
-	/* Return the result */
-	return (value);
-}
-
-
 
 
 /*
@@ -221,8 +165,6 @@ static int adjust_stat(int value, int amount, int auto_roll)
 static void get_stats(void)
 {
 	int i, j;
-
-	int bonus;
 
 	int dice[18];
 
@@ -253,28 +195,15 @@ static void get_stats(void)
 		/* Save that value */
 		p_ptr->stat_max[i] = j;
 
-		/* Obtain a "bonus" for "race" and "class" */
-		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+		/* Start fully healed */
+		p_ptr->stat_cur[i] = p_ptr->stat_max[i];
 
-		/* Variable stat maxes */
-		if (adult_maximize)
-		{
-			/* Start fully healed */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
-
-			/* Efficiency -- Apply the racial/class bonuses */
-			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], bonus);
-		}
-
-		/* Fixed stat maxes */
-		else
-		{
-			/* Apply the bonus to the stat (somewhat randomly) */
-			stat_use[i] = adjust_stat(p_ptr->stat_max[i], bonus, FALSE);
-
-			/* Save the resulting stat maximum */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
-		}
+		/* Apply the class bonus */
+		stat_use[i] = modify_stat_value(p_ptr->stat_max[i], cp_ptr->c_adj[i]);
+		
+		/* Save the resulting stat maximum */
+		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
+	
 	}
 }
 
@@ -346,7 +275,7 @@ static void get_history(void)
 
 
 	/* Clear the previous history strings */
-	for (i = 0; i < 4; i++) p_ptr->history[i][0] = '\0';
+	for (i = 0; i < 5; i++) p_ptr->history[i][0] = '\0';
 
 
 	/* Clear the history text */
@@ -411,7 +340,7 @@ static void get_history(void)
 		n = strlen(s);
 
 		/* All done */
-		if (n < 60)
+		if (n < 55)
 		{
 			/* Save one line of history */
 			strcpy(p_ptr->history[i++], s);
@@ -421,7 +350,7 @@ static void get_history(void)
 		}
 
 		/* Find a reasonable break-point */
-		for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
+		for (n = 55; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
 
 		/* Save next location */
 		t = s + n;
@@ -522,6 +451,7 @@ static void player_wipe(void)
 	}
 
 
+#ifndef CUSTOM_QUESTS
 	/* Start with no quests */
 	for (i = 0; i < MAX_Q_IDX; i++)
 	{
@@ -533,7 +463,16 @@ static void player_wipe(void)
 
 	/* Add a second quest */
 	q_list[1].level = 100;
+#else
+	/* Start with some quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		quest *q_ptr = &q_info[i];
 
+		/* Reset level */
+		q_ptr->level = q_ptr->old_level;
+	}
+#endif
 
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)
@@ -567,72 +506,16 @@ static void player_wipe(void)
 		l_ptr->r_pkills = 0;
 	}
 
-
-	/* Hack -- no ghosts */
-	r_info[z_info->r_max-1].max_num = 0;
-
-
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
-
 	/* None of the spells have been learned yet */
-	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
-}
-
-
-
-
-/*
- * Each player starts out with a few items, given as tval/sval pairs.
- * In addition, he always has some food and a few torches.
- */
-
-static byte player_init[MAX_CLASS][3][2] =
-{
+	for (i = 0;i < (SV_MAX_BOOKS * MAX_BOOK_SPELLS); i++)
 	{
-		/* Warrior */
-		{ TV_POTION, SV_POTION_BESERK_STRENGTH },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
-	},
-
-	{
-		/* Mage */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
-	},
-
-	{
-		/* Priest */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_HEALING }
-	},
-
-	{
-		/* Rogue */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
-	},
-
-	{
-		/* Ranger */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_BOW, SV_LONG_BOW }
-	},
-
-	{
-		/* Paladin */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
+		p_ptr->spell_order[i][0] = 99;
+		p_ptr->spell_order[i][1] = 99;
 	}
-};
-
+}
 
 
 /*
@@ -642,11 +525,11 @@ static byte player_init[MAX_CLASS][3][2] =
  */
 static void player_outfit(void)
 {
-	int i, tv, sv;
+	int i, j, q;
 
 	object_type *i_ptr;
 	object_type object_type_body;
-
+	start_item *e_ptr;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -671,20 +554,25 @@ static void player_outfit(void)
 	(void)inven_carry(i_ptr);
 
 	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < MAX_START_ITEMS; i++)
 	{
-		/* Look up standard equipment */
-		tv = player_init[p_ptr->pclass][i][0];
-		sv = player_init[p_ptr->pclass][i][1];
-
+		/* Access the item */
+		e_ptr = &cp_ptr->start_items[i];
+		
 		/* Get local object */
 		i_ptr = &object_type_body;
 
-		/* Hack -- Give the player an object */
-		object_prep(i_ptr, lookup_kind(tv, sv));
-		object_aware(i_ptr);
-		object_known(i_ptr);
-		(void)inven_carry(i_ptr);
+		/* Hack
+		-- Give the player an object */
+		if (e_ptr->tval > 0)
+		{
+			object_prep(i_ptr, lookup_kind(e_ptr->tval, e_ptr->sval));
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			q = rand_int(e_ptr->max - e_ptr->min) + e_ptr->min;
+			if (q < 0) q = 0;
+			for (j=0; j < q; j++) (void)inven_carry(i_ptr);
+		}
 	}
 }
 
@@ -697,7 +585,7 @@ static void player_outfit(void)
  */
 static bool player_birth_aux_1(void)
 {
-	int k, n, i;
+	int k, n, i, j;
 
 	cptr str;
 
@@ -784,7 +672,7 @@ static bool player_birth_aux_1(void)
 	/* Dump races */
 	for (n = 0; n < z_info->p_max; n++)
 	{
-		/* Analyze */
+		/* Analyze ] */
 		p_ptr->prace = n;
 		rp_ptr = &p_info[p_ptr->prace];
 		str = p_name + rp_ptr->name;
@@ -814,6 +702,8 @@ static bool player_birth_aux_1(void)
 	/* Set race */
 	p_ptr->prace = k;
 	rp_ptr = &p_info[p_ptr->prace];
+	for (j = 0; j < 11; j++)
+		rsp_ptr[j] = &race_special_info[(rp_ptr->special)-1][j];
 
 	/* Race */
 	put_str("Race", 4, 1);
@@ -832,21 +722,21 @@ static bool player_birth_aux_1(void)
 	            "Any entries with a (*) should only be used by advanced players.");
 
 	/* Dump classes */
-	for (n = 0; n < MAX_CLASS; n++)
+	for (n = 0; n < z_info->c_max; n++)
 	{
 		cptr mod = "";
 
 		/* Analyze */
 		p_ptr->pclass = n;
-		cp_ptr = &class_info[p_ptr->pclass];
-		mp_ptr = &magic_info[p_ptr->pclass];
-		str = cp_ptr->title;
+		cp_ptr = &c_info[p_ptr->pclass];
+
+		str = c_name + cp_ptr->name;
 
 		/* Verify legality */
 		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
 
 		/* Display */
-		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
+		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod); 
 		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
 	}
 
@@ -861,7 +751,7 @@ static bool player_birth_aux_1(void)
 		if (ch == 'S') return (FALSE);
 		k = (islower(ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
-		if (ch == '*') k = rand_int(MAX_CLASS);
+		if (ch == '*') k = rand_int(z_info->c_max);
 		if ((k >= 0) && (k < n)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal class!");
@@ -869,12 +759,11 @@ static bool player_birth_aux_1(void)
 
 	/* Set class */
 	p_ptr->pclass = k;
-	cp_ptr = &class_info[p_ptr->pclass];
-	mp_ptr = &magic_info[p_ptr->pclass];
+	cp_ptr = &c_info[p_ptr->pclass];
 
 	/* Class */
 	put_str("Class", 5, 1);
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 8);
+	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 8);
 
 	/* Clean up */
 	clear_from(15);
@@ -991,24 +880,8 @@ static bool player_birth_aux_2(void)
 		/* Process stats */
 		for (i = 0; i < A_MAX; i++)
 		{
-			/* Variable stat maxes */
-			if (adult_maximize)
-			{
-				/* Reset stats */
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
-
-			}
-
-			/* Fixed stat maxes */
-			else
-			{
-				/* Obtain a "bonus" for "race" and "class" */
-				int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-				/* Apply the racial/class bonuses */
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
-					modify_stat_value(stats[i], bonus);
-			}
+			p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
+					modify_stat_value(stats[i], cp_ptr->c_adj[i]);
 
 			/* Total cost */
 			cost += birth_stat_costs[stats[i] - 10];
@@ -1118,7 +991,7 @@ static bool player_birth_aux_2(void)
  */
 static bool player_birth_aux_3(void)
 {
-	int i, j, m, v;
+	int i, m, v;
 
 	bool flag;
 	bool prev = FALSE;
@@ -1130,8 +1003,6 @@ static bool player_birth_aux_3(void)
 
 	char buf[80];
 
-
-#ifdef ALLOW_AUTOROLLER
 
 	s16b stat_limit[6];
 
@@ -1171,11 +1042,8 @@ static bool player_birth_aux_3(void)
 			/* Reset the "success" counter */
 			stat_match[i] = 0;
 
-			/* Race/Class bonus */
-			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-			/* Obtain the "maximal" stat */
-			m = adjust_stat(17, j, TRUE);
+			/* Calculate race bonus */
+			m = modify_stat_value(17, rp_ptr->r_adj[i]+cp_ptr->c_adj[i]);
 
 			/* Save the maximum */
 			mval[i] = m;
@@ -1235,16 +1103,14 @@ static bool player_birth_aux_3(void)
 				if (v <= mval[i]) break;
 			}
 
-			/* Save the minimum stat */
-			stat_limit[i] = (v > 0) ? v : 0;
+			/* Save the minimum stat - the stat as selected minus the race bonus*/
+			stat_limit[i] = (v > 0) ? modify_stat_value(v, -(rp_ptr->r_adj[i])) : 0;
 		}
 	}
 
-#endif /* ALLOW_AUTOROLLER */
 
 	/* Clean up */
 	clear_from(10);
-
 
 	/*** Generate ***/
 

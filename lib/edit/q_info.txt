@@ -1,0 +1,29 @@
+# File: q_info.txt
+
+
+# This file is used to initialize the "lib/data/q_info.raw" file, which is
+# used to initialize the "quest" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/q_info.raw" file.
+
+# Note that changes to this file will only be relevent to new characters - old
+# savefiles will either be broken (if the number of quests changes), or will still
+# use the old quest information.
+
+# Format:
+# N:<quest index>:<quest name>
+# W:<level>:<monster>:<number>
+
+
+# Version stamp (required)
+
+V:0.1.2
+
+N:0:Sauron
+W:99:638:1
+
+N:1:Morgoth
+W:100:639:1
+

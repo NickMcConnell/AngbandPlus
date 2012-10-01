@@ -406,9 +406,14 @@ int main(int argc, char *argv[])
 			case 'U':
 			{
 				if (!argv[i][2]) goto usage;
-				strcpy(op_ptr->full_name, &argv[i][2]);
-				break;
-			}
+
+				/* Get the savefile name */
+				strncpy(op_ptr->full_name, &argv[i][2], 32);
+
+				/* Make sure it's terminated */
+				op_ptr->full_name[31] = '\0';
+
+ 			}
 
 			case 'm':
 			case 'M':

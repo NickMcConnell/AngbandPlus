@@ -188,12 +188,13 @@ bool make_attack_normal(int m_idx)
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
 
-
+        /* Extract visibility from carrying lite */
+        if (r_ptr->flags2 & RF2_HAS_LITE) visible = TRUE;
 
 		/* Extract the attack "power" */
 		switch (effect)
 		{
-			case RBE_HURT: power = 60; break;
+			case RBE_HURT:		power = 60; break;
 			case RBE_POISON:	power =  5; break;
 			case RBE_UN_BONUS:	power = 20; break;
 			case RBE_UN_POWER:	power = 15; break;
@@ -304,9 +305,9 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX1:
+				case RBM_KISS:
 				{
-					act = "XXX1's you.";
+					act = "kisses you.";
 					break;
 				}
 
@@ -862,7 +863,7 @@ bool make_attack_normal(int m_idx)
 						msg_print("You stand your ground!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+					else if (rand_int(100) < p_ptr->skill[SK_SAV])
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -895,7 +896,7 @@ bool make_attack_normal(int m_idx)
 						msg_print("You are unaffected!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+					else if (rand_int(100) < p_ptr->skill[SK_SAV])
 					{
 						msg_print("You resist the effects!");
 						obvious = TRUE;
@@ -1211,7 +1212,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_CLAW:
 				case RBM_BITE:
 				case RBM_STING:
-				case RBM_XXX1:
+				case RBM_KISS:
 				case RBM_BUTT:
 				case RBM_CRUSH:
 				case RBM_ENGULF:

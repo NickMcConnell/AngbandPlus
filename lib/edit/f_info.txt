@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:0.1.2
 
 
 # 0x00 --> <darkness>
@@ -80,308 +80,311 @@ G:<:w
 N:7:down staircase
 G:>:w
 
-# 0x08 --> shop -- general store (perm)
+# 0x10 --> shop -- general store (perm)
 
-N:8:General Store
+N:16:General Store
 G:1:U
 
-# 0x09 --> shop -- armoury (perm)
+# 0x11 --> shop -- armoury (perm)
 
-N:9:Armoury
+N:17:Armoury
 G:2:s
 
-# 0x0A --> shop -- weapon shop (perm)
+# 0x12 --> shop -- weapon shop (perm)
 
-N:10:Weapon Smiths
+N:18:Weapon Smiths
 G:3:w
 
-# 0x0B --> shop -- temple (perm)
+# 0x13 --> shop -- temple (perm)
 
-N:11:Temple
+N:19:Temple
 G:4:g
 
-# 0x0C --> shop -- alchemist (perm)
+# 0x14 --> shop -- alchemist (perm)
 
-N:12:Alchemy Shop
+N:20:Alchemy Shop
 G:5:b
 
-# 0x0D --> shop -- magic shop (perm)
+# 0x15 --> shop -- magic shop (perm)
 
-N:13:Magic Shop
+N:21:Magic Shop
 G:6:r
 
-# 0x0E --> shop -- black market (perm)
+# 0x16 --> shop -- black market (perm)
 
-N:14:Black Market
+N:22:Black Market
 G:7:D
 
-# 0x0F --> shop -- home (perm)
+# 0x17 --> shop -- home (perm)
 
-N:15:Home
+N:23:Home
 G:8:y
 
-# 0x10 --> visible trap -- trap door
+# 0x18 --> shop -- bookstore (perm)
 
-N:16:trap door
+N:24:Book Shop
+G:9:o
+
+# 0x20 --> visible trap -- trap door
+
+N:32:trap door
 G:^:w
 
-# 0x11 --> visible trap -- open pit
+# 0x21 --> visible trap -- open pit
 
-N:17:pit
+N:33:pit
 G:^:s
 
-# 0x12 --> visible trap -- spiked pit
+# 0x22 --> visible trap -- spiked pit
 
-N:18:pit
+N:34:pit
 G:^:s
 
-# 0x13 --> visible trap -- poison pit
+# 0x23 --> visible trap -- poison pit
 
-N:19:pit
+N:35:pit
 G:^:s
 
-# 0x14 --> visible trap -- rune -- summon
+# 0x24 --> visible trap -- rune -- summon
 
-N:20:strange rune
+N:36:strange rune
 G:^:o
 
-# 0x15 --> visible trap -- rune -- teleport
+# 0x25 --> visible trap -- rune -- teleport
 
-N:21:strange rune
+N:37:strange rune
 G:^:o
 
-# 0x16 --> visible trap -- spot -- fire
+# 0x26 --> visible trap -- spot -- fire
 
-N:22:discolored spot
+N:38:discolored spot
 G:^:u
 
-# 0x17 --> visible trap -- spot -- acid
+# 0x27 --> visible trap -- spot -- acid
 
-N:23:discolored spot
+N:39:discolored spot
 G:^:u
 
-# 0x18 --> visible trap -- dart -- slow
+# 0x28 --> visible trap -- dart -- slow
 
-N:24:dart trap
+N:40:dart trap
 G:^:r
 
-# 0x19 --> visible trap -- dart -- lose str
+# 0x29 --> visible trap -- dart -- lose str
 
-N:25:dart trap
+N:41:dart trap
 G:^:r
 
-# 0x1A --> visible trap -- dart -- lose dex
+# 0x2A --> visible trap -- dart -- lose dex
 
-N:26:dart trap
+N:42:dart trap
 G:^:r
 
-# 0x1B --> visible trap -- dart -- lose con
+# 0x2B --> visible trap -- dart -- lose con
 
-N:27:dart trap
+N:43:dart trap
 G:^:r
 
-# 0x1C --> visible trap -- gas -- blind
+# 0x2C --> visible trap -- gas -- blind
 
-N:28:gas trap
+N:44:gas trap
 G:^:g
 
-# 0x1D --> visible trap -- gas -- confuse
+# 0x2D --> visible trap -- gas -- confuse
 
-N:29:gas trap
+N:45:gas trap
 G:^:g
 
-# 0x1E --> visible trap -- gas -- poison
+# 0x2E --> visible trap -- gas -- poison
 
-N:30:gas trap
+N:46:gas trap
 G:^:g
 
-# 0x1F --> visible trap -- gas -- sleep
+# 0x2F --> visible trap -- gas -- sleep
 
-N:31:gas trap
+N:47:gas trap
 G:^:g
 
-# 0x2x --> locked door (power 0)
+# 0x3x --> locked door (power 0)
 
-N:32:door
+N:48:door
 G:+:U
-M:32
 
-# 0x2x --> locked door (power 1)
+# 0x3x --> locked door (power 1)
 
-N:33:locked door
+N:49:locked door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> locked door (power 2)
+# 0x3x --> locked door (power 2)
 
-N:34:locked door
+N:50:locked door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> locked door (power 3)
+# 0x3x --> locked door (power 3)
 
-N:35:locked door
+N:51:locked door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> locked door (power 4)
+# 0x3x --> locked door (power 4)
 
-N:36:locked door
+N:52:locked door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> locked door (power 5)
+# 0x3x --> locked door (power 5)
 
-N:37:locked door
+N:53:locked door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> locked door (power 6)
+# 0x3x --> locked door (power 6)
 
-N:38:locked door
+N:54:locked door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> locked door (power 7)
+# 0x3x --> locked door (power 7)
 
-N:39:locked door
+N:55:locked door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> jammed door (power 0)
+# 0x3x --> jammed door (power 0)
 
-N:40:jammed door
+N:56:jammed door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> jammed door (power 1)
+# 0x3x --> jammed door (power 1)
 
-N:41:jammed door
+N:57:jammed door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> jammed door (power 2)
+# 0x3x --> jammed door (power 2)
 
-N:42:jammed door
+N:58:jammed door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> jammed door (power 3)
+# 0x3x --> jammed door (power 3)
 
-N:43:jammed door
+N:59:jammed door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> jammed door (power 4)
+# 0x3x --> jammed door (power 4)
 
-N:44:jammed door
+N:60:jammed door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> jammed door (power 5)
+# 0x3x --> jammed door (power 5)
 
-N:45:jammed door
+N:61:jammed door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> jammed door (power 6)
+# 0x3x --> jammed door (power 6)
 
-N:46:jammed door
+N:62:jammed door
 G:+:U
-M:32
+M:48
 
-# 0x2x --> jammed door (power 7)
+# 0x3x --> jammed door (power 7)
 
-N:47:jammed door
+N:63:jammed door
 G:+:U
-M:32
+M:48
 
-# 0x30 --> secret door
+# 0x40 --> secret door
 
-N:48:secret door
+N:64:secret door
 G:#:w
-M:56
+M:72
 
-# 0x31 --> pile of rubble
+# 0x41 --> pile of rubble
 
-N:49:pile of rubble
+N:65:pile of rubble
 G:::w
 
-# 0x32 --> magma vein
+# 0x42 --> magma vein
 
-N:50:magma vein
+N:66:magma vein
 G:%:s
 
-# 0x33 --> quartz vein
+# 0x43 --> quartz vein
 
-N:51:quartz vein
+N:67:quartz vein
 G:%:w
 
-# 0x34 --> magma vein + treasure
+# 0x44 --> magma vein + treasure
 
-N:52:magma vein
+N:68:magma vein
 G:%:s
-M:50
+M:66
 
-# 0x35 --> quartz vein + treasure
+# 0x45 --> quartz vein + treasure
 
-N:53:quartz vein
+N:69:quartz vein
 G:%:w
-M:51
+M:67
 
-# 0x36 --> magma vein + known treasure
+# 0x46 --> magma vein + known treasure
 
-N:54:magma vein with treasure
+N:70:magma vein with treasure
 G:*:o
 
-# 0x37 --> quartz vein + known treasure
+# 0x47 --> quartz vein + known treasure
 
-N:55:quartz vein with treasure
+N:71:quartz vein with treasure
 G:*:o
 
-# 0x38 --> granite wall -- basic
+# 0x48 --> granite wall -- basic
 
-N:56:granite wall
+N:72:granite wall
 G:#:w
 
-# 0x39 --> granite wall -- inner
+# 0x49 --> granite wall -- inner
 
-N:57:granite wall
+N:73:granite wall
 G:#:w
-M:56
+M:72
 
-# 0x3A --> granite wall -- outer
+# 0x4A --> granite wall -- outer
 
-N:58:granite wall
+N:74:granite wall
 G:#:w
-M:56
+M:72
 
-# 0x3B --> granite wall -- solid
+# 0x4B --> granite wall -- solid
 
-N:59:granite wall
+N:75:granite wall
 G:#:w
-M:56
+M:72
 
-# 0x3C --> permanent wall -- basic (perm)
+# 0x4C --> permanent wall -- basic (perm)
 
-N:60:permanent wall
+N:76:permanent wall
 G:#:w
 
-# 0x3D --> permanent wall -- inner (perm)
+# 0x4D --> permanent wall -- inner (perm)
 
-N:61:permanent wall
+N:77:permanent wall
 G:#:w
-M:60
+M:76
 
-# 0x3E --> permanent wall -- outer (perm)
+# 0x4E --> permanent wall -- outer (perm)
 
-N:62:permanent wall
+N:78:permanent wall
 G:#:w
-M:60
+M:76
 
-# 0x3F --> permanent wall -- solid (perm)
+# 0x4F --> permanent wall -- solid (perm)
 
-N:63:permanent wall
+N:79:permanent wall
 G:#:w
-M:60
-
+M:76

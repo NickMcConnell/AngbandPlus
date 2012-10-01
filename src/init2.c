@@ -7,7 +7,7 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
- */
+ */ 
 
 #include "angband.h"
 
@@ -2192,6 +2192,244 @@ static errr init_p_info(void)
 }
 
 
+/*
+ * Initialize the "p_info" array, by parsing a binary "image" file
+ */
+static errr init_c_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != c_head->v_major) ||
+	    (test.v_minor != c_head->v_minor) ||
+	    (test.v_patch != c_head->v_patch) ||
+	    (test.v_extra != c_head->v_extra) ||
+	    (test.info_num != c_head->info_num) ||
+	    (test.info_len != c_head->info_len) ||
+	    (test.head_size != c_head->head_size) ||
+	    (test.info_size != c_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*c_head) = test;
+
+
+	/* Allocate the "c_info" array */
+	C_MAKE(c_info, c_head->info_num, player_class);
+
+	/* Read the "c_info" array */
+	fd_read(fd, (char*)(c_info), c_head->info_size);
+
+
+	/* Allocate the "c_name" array */
+	C_MAKE(c_name, c_head->name_size, char);
+
+	/* Read the "c_name" array */
+	fd_read(fd, (char*)(c_name), c_head->name_size);
+
+	/* Allocate the "c_text" array */
+	C_MAKE(c_text, c_head->text_size, char);
+
+	/* Read the "c_text" array */
+	fd_read(fd, (char*)(c_text), c_head->text_size);
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "c_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_c_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(c_head, header);
+
+	/* Save the "version" */
+	c_head->v_major = VERSION_MAJOR;
+	c_head->v_minor = VERSION_MINOR;
+	c_head->v_patch = VERSION_PATCH;
+	c_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	c_head->info_num = z_info->c_max;
+	c_head->info_len = sizeof(player_class);
+
+	/* Save the size of "c_head" and "c_info" */
+	c_head->head_size = sizeof(header);
+	c_head->info_size = c_head->info_num * c_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "c_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "c_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_c_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "c_info" array */
+	C_MAKE(c_info, c_head->info_num, player_class);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(c_name, z_info->fake_name_size, char);
+	C_MAKE(c_text, z_info->fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "c_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'c_info.txt' file.");
+
+	/* Parse the file */
+	err = init_c_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'c_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'c_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "c_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(c_head), c_head->head_size);
+
+		/* Dump the "c_info" array */
+		fd_write(fd, (char*)(c_info), c_head->info_size);
+
+		/* Dump the "c_name" array */
+		fd_write(fd, (char*)(c_name), c_head->name_size);
+
+		/* Dump the "c_text" array */
+		fd_write(fd, (char*)(c_text), c_head->text_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "c_info" array */
+	C_KILL(c_info, c_head->info_num, player_class);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(c_name, z_info->fake_name_size, char);
+	C_KILL(c_text, z_info->fake_text_size, char);
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "c_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 'c_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_c_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'c_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
 
 /*
  * Initialize the "h_info" array, by parsing a binary "image" file
@@ -2859,7 +3097,254 @@ static errr init_g_info(void)
 	return (0);
 }
 
+#ifdef CUSTOM_QUESTS
+/*
+ * Initialize the "q_info" array, by parsing a binary "image" file
+ */
+static errr init_q_info_raw(int fd)
+{
+	header test;
 
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != q_head->v_major) ||
+	    (test.v_minor != q_head->v_minor) ||
+	    (test.v_patch != q_head->v_patch) ||
+	    (test.v_extra != q_head->v_extra) ||
+	    (test.info_num != q_head->info_num) ||
+	    (test.info_len != q_head->info_len) ||
+	    (test.head_size != q_head->head_size) ||
+	    (test.info_size != q_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*q_head) = test;
+
+
+	/* Allocate the "q_info" array */
+	C_MAKE(q_info, q_head->info_num, quest);
+
+	/* Read the "q_info" array */
+	fd_read(fd, (char*)(q_info), q_head->info_size);
+
+
+	/* Allocate the "q_name" array */
+	C_MAKE(q_name, q_head->name_size, char);
+
+	/* Read the "q_name" array */
+	fd_read(fd, (char*)(q_name), q_head->name_size);
+
+
+#ifndef DELAY_LOAD_Q_TEXT
+
+	/* Allocate the "q_text" array */
+	C_MAKE(q_text, q_head->text_size, char);
+
+	/* Read the "q_text" array */
+	fd_read(fd, (char*)(q_text), q_head->text_size);
+
+#endif
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "q_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_q_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(q_head, header);
+
+	/* Save the "version" */
+	q_head->v_major = VERSION_MAJOR;
+	q_head->v_minor = VERSION_MINOR;
+	q_head->v_patch = VERSION_PATCH;
+	q_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	q_head->info_num = z_info->q_max;
+	q_head->info_len = sizeof(feature_type);
+
+	/* Save the size of "q_head" and "q_info" */
+	q_head->head_size = sizeof(header);
+	q_head->info_size = q_head->info_num * q_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "q_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "q_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_q_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "q_info" array */
+	C_MAKE(q_info, q_head->info_num, quest);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(q_name, z_info->fake_name_size, char);
+	C_MAKE(q_text, z_info->fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "q_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'q_info.txt' file.");
+
+	/* Parse the file */
+	err = init_q_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'q_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'q_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "q_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(q_head), q_head->head_size);
+
+		/* Dump the "q_info" array */
+		fd_write(fd, (char*)(q_info), q_head->info_size);
+
+		/* Dump the "q_name" array */
+		fd_write(fd, (char*)(q_name), q_head->name_size);
+
+		/* Dump the "q_text" array */
+		fd_write(fd, (char*)(q_text), q_head->text_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "q_info" array */
+	C_KILL(q_info, q_head->info_num, quest);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(q_name, z_info->fake_name_size, char);
+	C_KILL(q_text, z_info->fake_text_size, char);
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "q_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot load 'q_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_q_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'q_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+#endif CUSTOM_QUESTS
 
 
 /*** Initialize others ***/
@@ -2869,7 +3354,7 @@ static errr init_g_info(void)
 /*
  * Hack -- Objects sold in the stores -- by tval/sval pair.
  */
-static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
+static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 {
 	{
 		/* General Store */
@@ -2914,9 +3399,9 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	{
 		/* Armoury */
 
+		{ TV_BOOTS, SV_PAIR_OF_LEATHER_SANDALS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
@@ -2994,81 +3479,83 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	{
 		/* Temple */
 
-		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_QUARTERSTAFF },
 		{ TV_HAFTED, SV_MACE },
 		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_BALL_AND_CHAIN },
 		{ TV_HAFTED, SV_WAR_HAMMER },
-		{ TV_HAFTED, SV_LUCERN_HAMMER },
+		{ TV_HAFTED, SV_WAR_HAMMER },
 		{ TV_HAFTED, SV_MORNING_STAR },
+		{ TV_HAFTED, SV_FLAIL },
+		{ TV_HAFTED, SV_FLAIL },
 
-		{ TV_HAFTED, SV_FLAIL },
-		{ TV_HAFTED, SV_FLAIL },
+		{ TV_HAFTED, SV_WOODEN_CLUB },
 		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
+		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_BLESSING },
 		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
-		{ TV_POTION, SV_POTION_BOLDNESS },
-		{ TV_POTION, SV_POTION_HEROISM },
+		{ TV_SCROLL, SV_SCROLL_RECHARGING },
+		{ TV_SCROLL, SV_SCROLL_RECHARGING },
 
+		{ TV_SCROLL, SV_SCROLL_LIGHT },
+		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
+		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
+		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
+		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_CURE_LIGHT },
 
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 3 }
+		{ TV_POTION, SV_POTION_CURE_SERIOUS },
+		{ TV_POTION, SV_POTION_CURE_SERIOUS },
+		{ TV_POTION, SV_POTION_CURE_CRITICAL },
+		{ TV_POTION, SV_POTION_CURE_CRITICAL },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_RESTORE_EXP }
 	},
+
 
 	{
 		/* Alchemy shop */
 
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_LIGHT },
+		{ TV_POTION, SV_POTION_CURE_POISON },
+		{ TV_POTION, SV_POTION_SLOW_POISON },
+		{ TV_POTION, SV_POTION_CURE_POISON },
+		{ TV_POTION, SV_POTION_SLOW_POISON },
+		{ TV_POTION, SV_POTION_HEROISM },
+		{ TV_POTION, SV_POTION_SATISFY_HUNGER },
+		{ TV_POTION, SV_POTION_BOLDNESS },
+		{ TV_POTION, SV_POTION_BOLDNESS },
 
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
-		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_DETECT_GOLD },
-		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
-		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
-
-		{ TV_SCROLL, SV_SCROLL_DETECT_DOOR },
-		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
-		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-
-		{ TV_POTION, SV_POTION_RESIST_HEAT },
-		{ TV_POTION, SV_POTION_RESIST_COLD },
+		{ TV_POTION, SV_POTION_RES_STR },
 		{ TV_POTION, SV_POTION_RES_STR },
 		{ TV_POTION, SV_POTION_RES_INT },
+		{ TV_POTION, SV_POTION_RES_INT },
+		{ TV_POTION, SV_POTION_RES_WIS },
 		{ TV_POTION, SV_POTION_RES_WIS },
 		{ TV_POTION, SV_POTION_RES_DEX },
+		{ TV_POTION, SV_POTION_RES_DEX },
+
 		{ TV_POTION, SV_POTION_RES_CON },
-		{ TV_POTION, SV_POTION_RES_CHR }
+		{ TV_POTION, SV_POTION_RES_CON },
+		{ TV_POTION, SV_POTION_RES_CHR },
+		{ TV_POTION, SV_POTION_RES_CHR },
+		{ TV_POTION, SV_POTION_RESIST_HEAT },
+		{ TV_POTION, SV_POTION_RESIST_COLD },
+		{ TV_POTION, SV_POTION_RESIST_HEAT },
+		{ TV_POTION, SV_POTION_RESIST_COLD },
+
+		{ TV_POWDER, SV_POWDER_FLASH},
+		{ TV_POWDER, SV_POWDER_FLASH},
+		{ TV_POWDER, SV_POWDER_FLASH},
+		{ TV_POWDER, SV_POWDER_STARTLE},
+		{ TV_POWDER, SV_POWDER_STARTLE},
+		{ TV_POWDER, SV_POWDER_SLEEP},
+		{ TV_POWDER, SV_POWDER_SLEEP},
+		{ TV_POWDER, SV_POWDER_CONFUSE},
+
 	},
 
 	{
@@ -3076,39 +3563,91 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 
 		{ TV_RING, SV_RING_SEARCHING },
 		{ TV_RING, SV_RING_FEATHER_FALL },
+		{ TV_RING, SV_RING_FEATHER_FALL },
 		{ TV_RING, SV_RING_PROTECTION },
+		{ TV_RING, SV_RING_RESIST_FIRE_COLD },
+		{ TV_RING, SV_RING_RESIST_ACID_ELEC },
 		{ TV_AMULET, SV_AMULET_CHARISMA },
 		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
+
 		{ TV_AMULET, SV_AMULET_RESIST_ACID },
 		{ TV_WAND, SV_WAND_SLOW_MONSTER },
 		{ TV_WAND, SV_WAND_CONFUSE_MONSTER },
-
 		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
 		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
 		{ TV_WAND, SV_WAND_STINKING_CLOUD },
-		{ TV_WAND, SV_WAND_WONDER },
-		{ TV_STAFF, SV_STAFF_LITE },
-		{ TV_STAFF, SV_STAFF_MAPPING },
+		{ TV_WAND, SV_WAND_STONE_TO_MUD },
+		{ TV_WAND, SV_WAND_STONE_TO_MUD },
+
+		{ TV_WAND, SV_WAND_STINKING_CLOUD },
+		{ TV_WAND, SV_WAND_POLYMORPH },
 		{ TV_STAFF, SV_STAFF_DETECT_TRAP },
 		{ TV_STAFF, SV_STAFF_DETECT_DOOR },
-
 		{ TV_STAFF, SV_STAFF_DETECT_GOLD },
 		{ TV_STAFF, SV_STAFF_DETECT_ITEM },
 		{ TV_STAFF, SV_STAFF_DETECT_INVIS },
 		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
 
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 3 }
+		{ TV_STAFF, SV_STAFF_TELEPORTATION },
+		{ TV_STAFF, SV_STAFF_TELEPORTATION },
+		{ TV_STAFF, SV_STAFF_IDENTIFY },
+		{ TV_STAFF, SV_STAFF_IDENTIFY },
+		{ TV_STAFF, SV_STAFF_LITE },
+		{ TV_STAFF, SV_STAFF_MAPPING },
+		{ TV_STAFF, SV_ROD_DETECT_TRAP },
+		{ TV_STAFF, SV_ROD_DETECT_DOOR }
+
+	},
+
+	{
+
+		{ 0, 0 },
+	},
+
+	{
+
+		{ 0, 0 },
+	},
+
+	{
+		/* Bookstore */
+
+		{ TV_MAGIC_BOOK, SV_BOOK_MAGE1 },
+		{ TV_MAGIC_BOOK, SV_BOOK_MAGE1 },
+		{ TV_MAGIC_BOOK, SV_BOOK_MAGE1 },
+		{ TV_MAGIC_BOOK, SV_BOOK_MAGE2 },
+		{ TV_MAGIC_BOOK, SV_BOOK_MAGE2 },
+		{ TV_MAGIC_BOOK, SV_BOOK_MAGE3 },
+		{ TV_MAGIC_BOOK, SV_BOOK_MAGE3 },
+		{ TV_MAGIC_BOOK, SV_BOOK_MAGE4 },
+
+		{ TV_MAGIC_BOOK, SV_BOOK_PRIEST1 },
+		{ TV_MAGIC_BOOK, SV_BOOK_PRIEST1 },
+		{ TV_MAGIC_BOOK, SV_BOOK_PRIEST1 },
+		{ TV_MAGIC_BOOK, SV_BOOK_PRIEST2 },
+		{ TV_MAGIC_BOOK, SV_BOOK_PRIEST2 },
+		{ TV_MAGIC_BOOK, SV_BOOK_PRIEST3 },
+		{ TV_MAGIC_BOOK, SV_BOOK_PRIEST3 },
+		{ TV_MAGIC_BOOK, SV_BOOK_PRIEST4 },
+
+		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
+		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
+		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
+		{ TV_SCROLL, SV_SCROLL_MAPPING },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+
+		{ TV_SCROLL, SV_SCROLL_DETECT_GOLD },
+		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
+		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
+		{ TV_SCROLL, SV_SCROLL_DETECT_DOOR },
+		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
+		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR }
+
 	}
 };
 
@@ -3187,11 +3726,12 @@ static errr init_other(void)
 	C_MAKE(l_list, z_info->r_max, monster_lore);
 
 
+#ifndef CUSTOM_QUESTS
 	/*** Prepare quest array ***/
 
 	/* Quests */
 	C_MAKE(q_list, MAX_Q_IDX, quest);
-
+#endif
 
 	/*** Prepare the inventory ***/
 
@@ -3295,6 +3835,9 @@ static errr init_alloc(void)
 
 	ego_item_type *e_ptr;
 
+#ifdef CUSTOM_QUESTS
+	quest *q_ptr;
+#endif
 	alloc_entry *table;
 
 	s16b num[MAX_DEPTH];
@@ -3551,6 +4094,30 @@ static errr init_alloc(void)
 		}
 	}
 
+#ifdef CUSTOM_QUESTS
+	/*** Initialize quest monsters ***/
+
+	/* Scan the quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		/* Get the i'th quest */
+		q_ptr = &q_info[i];
+
+		/* Skip non-quests */
+		if (q_ptr->level)
+		{
+			/* Get the quest monster */
+			r_ptr = &r_info[q_ptr->r_idx];
+
+			/* Skip non-uniques */
+			if (r_ptr->flags1 & (RF1_UNIQUE))
+			{
+				/* Hack -- Set flag */
+				r_ptr->flags1 |= (RF1_QUESTOR);
+			}
+		}
+	}
+#endif
 
 	/* Success */
 	return (0);
@@ -3780,6 +4347,10 @@ void init_angband(void)
 	note("[Initializing arrays... (races)]");
 	if (init_p_info()) quit("Cannot initialize races");
 
+	/* Initialize class info */
+	note("[Initializing arrays... (class)]");
+	if (init_c_info()) quit("Cannot initialize classes");
+
 	/* Initialize owner info */
 	note("[Initializing arrays... (owners)]");
 	if (init_b_info()) quit("Cannot initialize owners");
@@ -3787,6 +4358,12 @@ void init_angband(void)
 	/* Initialize price info */
 	note("[Initializing arrays... (prices)]");
 	if (init_g_info()) quit("Cannot initialize prices");
+
+#ifdef CUSTOM_QUESTS
+	/* Initialize quest info */
+	note("[Initializing arrays... (quests)]");
+	if (init_q_info()) quit("Cannot initialize quests");
+#endif
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");

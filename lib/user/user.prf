@@ -75,6 +75,11 @@
 ?:[EQU $CLASS High-Elf]
 %:High-Elf.prf
 
+?:[EQU $CLASS Angel]
+%:Angel.prf
+
+?:[EQU $CLASS Demon]
+%:Demon.prf
 
 ##### Class Specific Subfiles #####
 
@@ -87,15 +92,14 @@
 ?:[EQU $CLASS Priest]
 %:Priest.prf
 
-?:[EQU $CLASS Rogue]
-%:Rogue.prf
-
 ?:[EQU $CLASS Ranger]
 %:Ranger.prf
 
 ?:[EQU $CLASS Paladin]
 %:Paladin.prf
 
+?:[EQU $CLASS Mystic]
+%:Mystic.prf
 
 ?:1
 

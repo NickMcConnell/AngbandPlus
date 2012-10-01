@@ -1176,7 +1176,9 @@ static void load_sound_prefs(void)
  */
 static int new_palette(void)
 {
+#ifdef USE_GRAPHICS
 	HPALETTE hBmPal;
+#endif
 	HPALETTE hNewPal;
 	HDC hdc;
 	int i, nEntries;
@@ -3203,7 +3205,7 @@ static void process_menus(WORD wCmd)
 #ifdef ZANGBAND
 				do_cmd_save_game(FALSE);
 #else /* ZANGBAND */
-				do_cmd_save_game();
+				if (!cheat_no_autosave) do_cmd_save_game();
 #endif /* ZANGBAND */
 			}
 			quit(NULL);
@@ -3736,7 +3738,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 #ifdef ZANGBAND
 				do_cmd_save_game(FALSE);
 #else /* ZANGBAND */
-				do_cmd_save_game();
+				if (!cheat_no_autosave) do_cmd_save_game();
 #endif /* ZANGBAND */
 			}
 			quit(NULL);

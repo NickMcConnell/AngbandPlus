@@ -210,6 +210,13 @@ C:1:X
 A:^V
 C:1:'
 
+# Use racial powers
+A:U
+C:1:O
+
+# Mix potions
+A:x
+C:1:$
 
 # Message colors
 %:message.prf

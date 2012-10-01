@@ -38,7 +38,7 @@ something you are more comfortable with.
   '   A broken door                   6   Entrance to Magic Shop
   <   A staircase up                  7   Entrance to the Black Market
   >   A staircase down                8   Entrance to your Home
-
+                                      9   Entrance to the Bookshop
 
                    Features that block line of sight
 
@@ -59,13 +59,13 @@ something you are more comfortable with.
   "   An amulet                       [   Hard armour
   $   Gold or gems                    ]   Misc. armour
   ~   Lites, Tools, Chests, etc       )   A shield
-  ~   Junk, Sticks, Skeletons, etc    &   (unused)
+  ~   Junk, Sticks, Skeletons, etc    *   A vial of powder
  
  
                              Monsters
  
             $   Creeping Coins      ,   Mushroom Patch
-            a   Giant Ant           A   Angelic being
+            a   Giant Ant           A   (Unused)
             b   Giant Bat           B   Bird
             c   Giant Centipede     C   Canine
             d   Dragon              D   Ancient Dragon
@@ -78,7 +78,7 @@ something you are more comfortable with.
             k   Kobold              K   Killer Beetle
             l   Giant Louse         L   Lich
             m   Mold                M   Multi-Headed Hydra
-            n   Naga                N   (unused)
+            n   Naga                N   Nameless Horror
             o   Orc                 O   Ogre
             p   Human               P   Giant Human(oid)
             q   Quadroped           Q   Quylthulg
@@ -132,7 +132,7 @@ a plus or minus sign to give a positive or negative increment on your
 previous offer.  But be warned that the owners can easily be insulted, and
 may even throw you out for a while if you insult them too often.  To enter
 a store, simply move onto the entrance, which is represented by a number
-from 1 to 8.
+from 1 to 9.
 
 If you consistently bargain well in a store, that is, you reach the final
 offer much more often than not, then the store owner will eventually
@@ -188,25 +188,29 @@ The Weaponsmith's Shop ("3")
 
 The Temple ("4")
      The Temple deals in healing and restoration potions, as well as bless
-     scrolls, word of recall scrolls, some approved priestly weapons, as
-     well as prayer books.
+     scrolls, and approved priestly weapons.
 
 The Alchemy shop ("5")
-     The Alchemy Shop deals in all types of potions and scrolls.
+     The Alchemy Shop deals in all types of potions and throwing powders.
 
 The Magic User's Shop ("6")
      The Magic User's Shop deals in all sorts of rings, wands, amulets, and
-     staves, as well as magic user books.
+     staves.
 
 The Black Market ("7")
      The Black Market will sell and buy anything at extortionate prices.
-     However it occasionally has VERY good items in it. The shopkeepers are
-     not known for their tolerance...
+     However it occasionally has VERY good items in it. The black market
+     tends to offer better wares to more accomplished adventurers, as 
+     these are more likely to have the gold to afford them. The shopkeepers
+     are not known for their tolerance...
 
 Your Home ("8")
      This is your house where  you  can  store  objects  that you 
      cannot carry on your travels, or will need at a  later date.
 
+The Bookshop ("9")
+     The bookshop sells spellbooks for both mages and priests, and holds a
+     large variety of scrolls for every adventurer's needs. 
 
 === Within The Dungeon ===
 
@@ -414,9 +418,6 @@ like normal floors.
 Creatures in the dungeon will generally know and use these secret doors, and
 can often be counted on to leave them open behind them when they pass
 through.
-
-For historical reasons, secret doors are never locked.
-
 
 === Winning The Game ===
 

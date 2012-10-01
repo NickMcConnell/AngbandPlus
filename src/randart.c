@@ -144,6 +144,7 @@ static const char *names_list =
 "brithiach\n"
 "brithombar\n"
 "brithon\n"
+"brutus\n"
 "cabed\n"
 "calacirya\n"
 "calaquendi\n"
@@ -162,6 +163,7 @@ static const char *names_list =
 "celebros\n"
 "celegorm\n"
 "celon\n"
+"cheradenine\n"
 "cirdan\n"
 "cirith\n"
 "cirth\n"
@@ -496,6 +498,7 @@ static const char *names_list =
 "olorin\n"
 "olvar\n"
 "olwe\n"
+"om\n"
 "ondolinde\n"
 "orfalch\n"
 "ormal\n"
@@ -790,10 +793,24 @@ static int init_names(void)
 		names[i] = my_strdup(buf);
 	}
 
-	/* Special cases -- keep these three names separate. */
+	/* Special cases -- keep these names separate. */
+	free(names[ART_CODEX - 1]);
+	free(names[ART_NECRONOMICON - 1]);
 	free(names[ART_POWER - 1]);
 	free(names[ART_GROND - 1]);
 	free(names[ART_MORGOTH - 1]);
+
+	if ((names[ART_CODEX - 1] = my_strdup("[The Codex of Ultimate Wisdom]")) == NULL)
+	{
+		msg_format("Memory allocation error");
+		return 1;
+	}
+
+	if ((names[ART_NECRONOMICON - 1] = my_strdup("[The Necronomicon]")) == NULL)
+	{
+		msg_format("Memory allocation error");
+		return 1;
+	}
 
 	if ((names[ART_POWER - 1] = my_strdup("of Power (The One Ring)")) == NULL)
 	{
@@ -1003,6 +1020,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 			p += 20;
 			break;
 		}
+		
 	}
 
 	/* Other abilities are evaluated independent of the object type. */
@@ -1064,6 +1082,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 	if (immunities > 3) p += 20000;		/* inhibit */
 	if (a_ptr->flags3 & TR3_FREE_ACT) p += 8;
 	if (a_ptr->flags3 & TR3_HOLD_LIFE) p += 10;
+	if (a_ptr->flags3 & TR3_INVIS) p += 20;
 	if (a_ptr->flags2 & TR2_RES_ACID) p += 6;
 	if (a_ptr->flags2 & TR2_RES_ELEC) p += 6;
 	if (a_ptr->flags2 & TR2_RES_FIRE) p += 6;
@@ -1167,6 +1186,7 @@ static void choose_item(int a_idx)
 		if (r2 < 6) sval = SV_WHIP;
 		else if (r2 < 12) sval = SV_MACE;
 		else if (r2 < 20) sval = SV_WAR_HAMMER;
+		else if (r2 < 24) sval = SV_WOODEN_CLUB;
 		else if (r2 < 30) sval = SV_QUARTERSTAFF;
 		else if (r2 < 34) sval = SV_LUCERN_HAMMER;
 		else if (r2 < 38) sval = SV_MORNING_STAR;
@@ -1198,7 +1218,12 @@ static void choose_item(int a_idx)
 		else if (r2 < 60) sval = SV_KATANA;
 		else if (r2 < 90) sval = SV_TWO_HANDED_SWORD;
 		else if (r2 < 120) sval = SV_EXECUTIONERS_SWORD;
-		else sval = SV_BLADE_OF_CHAOS;
+		else 
+		{
+			r2 = (short)rand_int(2);
+			if (r2 == 0) sval = SV_BLADE_OF_CHAOS;
+			else sval = SV_BLADE_OF_STABILITY;
+		}
 	}
 	else if (r < 42)
 	{
@@ -1229,7 +1254,8 @@ static void choose_item(int a_idx)
 		/* Soft stuff. */
 		if (r2 < 0) sval = SV_FILTHY_RAG;
 		else if (r2 < 5) sval = SV_ROBE;
-		else if (r2 < 10) sval = SV_SOFT_LEATHER_ARMOR;
+		else if (r2 < 8) sval = SV_SOFT_LEATHER_ARMOR;
+		else if (r2 < 11) sval = SV_WIZARD_ROBE;
 		else if (r2 < 15) sval = SV_SOFT_STUDDED_LEATHER;
 		else if (r2 < 20) sval = SV_HARD_LEATHER_ARMOR;
 		else if (r2 < 30) sval = SV_HARD_STUDDED_LEATHER;
@@ -1256,8 +1282,9 @@ static void choose_item(int a_idx)
 		/* Make shoes. */
 		tval = TV_BOOTS;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 9) sval = SV_PAIR_OF_SOFT_LEATHER_BOOTS;
-		else if (r2 < 15) sval = SV_PAIR_OF_HARD_LEATHER_BOOTS;
+		if (r2<3) sval = SV_PAIR_OF_LEATHER_SANDALS;
+		else if (r2 < 10) sval = SV_PAIR_OF_SOFT_LEATHER_BOOTS;
+		else if (r2 < 16) sval = SV_PAIR_OF_HARD_LEATHER_BOOTS;
 		else sval = SV_PAIR_OF_METAL_SHOD_BOOTS;
 	}
 	else if (r < 78)
@@ -1277,7 +1304,8 @@ static void choose_item(int a_idx)
 
 		if (r2 < 9) sval = SV_HARD_LEATHER_CAP;
 		else if (r2 < 20) sval = SV_METAL_CAP;
-		else if (r2 < 40) sval = SV_IRON_HELM;
+		else if (r2 < 30) sval = SV_IRON_HELM;
+		else if (r2 < 40) sval = SV_KNIGHTS_HELM;
 		else if (r2 < 50) sval = SV_STEEL_HELM;
 
 		else if (r2 < 60) sval = SV_IRON_CROWN;
@@ -1293,6 +1321,7 @@ static void choose_item(int a_idx)
 		else if (r2 < 20) sval = SV_SMALL_METAL_SHIELD;
 		else if (r2 < 40) sval = SV_LARGE_LEATHER_SHIELD;
 		else if (r2 < 60) sval = SV_LARGE_METAL_SHIELD;
+		else if (r2 < 80) sval = SV_KITE_SHIELD;
 		else sval = SV_SHIELD_OF_DEFLECTION;
 	}
 	else
@@ -1300,7 +1329,8 @@ static void choose_item(int a_idx)
 		/* Make a cloak. */
 		tval = TV_CLOAK;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 90) sval = SV_CLOAK;
+		if (r2 < 80) sval = SV_CLOAK;
+		else if (r2 < 100) sval = SV_ELVEN_CLOAK;
 		else sval = SV_SHADOW_CLOAK;
 	}
 
@@ -1635,7 +1665,7 @@ static void add_ability(artifact_type *a_ptr)
 	}
 	else			/* Pick something universally useful. */
 	{
-		r = rand_int(43);
+		r = rand_int(44);
 		switch (r)
 		{
 			case 0:
@@ -1791,9 +1821,12 @@ static void add_ability(artifact_type *a_ptr)
 				if (rand_int(3) == 0)
 					a_ptr->flags3 |= TR3_TELEPATHY;
 				break;
-			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
-
-			case 42:
+			case 41:
+				if (rand_int(3) == 0)
+					a_ptr->flags3 |= TR3_INVIS;
+				break;
+			case 42: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
+			case 43:
 				a_ptr->flags3 |= TR3_REGEN; break;
 		}
 	}
@@ -1836,7 +1869,7 @@ static void do_curse(artifact_type *a_ptr)
 
 
 /*
- * Note the three special cases (One Ring, Grond, Morgoth).
+ * Note the special cases (One Ring, Grond, Morgoth, Spellbooks).
  */
 static int scramble_artifact(int a_idx)
 {
@@ -1849,9 +1882,10 @@ static int scramble_artifact(int a_idx)
 	bool aggravate_me = FALSE;
 
 	/* Special cases -- don't randomize these! */
-	if ((a_idx == ART_POWER) ||
-	    (a_idx == ART_GROND) ||
-	    (a_idx == ART_MORGOTH))
+	if ((a_idx == ART_POWER)   ||
+	    (a_idx == ART_GROND)   ||
+	    (a_idx == ART_MORGOTH) ||
+		(a_ptr->tval == TV_MAGIC_BOOK))
 		return 0;
 
 	/* Skip unused artifacts, too! */

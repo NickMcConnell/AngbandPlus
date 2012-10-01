@@ -1,0 +1,194 @@
+# File: c_info.txt
+
+# This file is used to initialize the "lib/data/p_info.raw" file, which is
+# used to initialize the "class" information for the EyAngband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# Format:
+# N:class number:class name
+# S:str:int:wis:dex:con:chr
+# C:dis:dev:sav:stl:srh:fos:thn:thb:tht:dig:alc 
+# X:dis:dev:sav:stl:srh:fos:thn:thb:tht:dig:alc
+# I:hitdie:expbase:attackmax:minweight:multiplier:spellstat1:spellstat2:disturbweight
+# B:sval:handicap
+# E:tval:sval:min:max - starting equipment, up to 4 entries per class
+# T:class titles - there must be exactly 10 of these per class
+# F:class flags 
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'S' Is the stat modifiers for the class, applied during class creation.
+
+# 'C' and 'X' are the skill lines - 'C' represents the basic class skill, and 'X' 
+# is the amount of skill gained every 10 levels.
+
+# 'I' is class info. Hitdie and Expbase are modified according to race. Attackmax is the 
+# maximum amount of attacks acheivable by a member of this class. Minweight and multiplier
+# determine that calculation of attack number; minweight determines the lowest possible 
+# weight the class can get benifits for (if your minweight is 10 then a weapon that weighs
+# 4 is the same as a weapon that weighs 10). The higher the multiplier is, the more attacks
+# you are likely to get. The two spellstats are  the index number of the stats (0 = STR,
+# 1 = INT, 2 = WIS, 3 = DEX, 4 = CON, 5 = CHR) used for mana and fail rate calculations -
+# the actual figure used is the average of the two stats, use the same stat twice if 
+# only one stat has effect. Disturbweight is the maximum weight the character can wear
+# without losing mana.
+
+# 'B' is for spell book allowances. You must list the sval of the book, and its handicap.
+
+# 'E' lines are for equipment - you can have 0-4 of these lines. Tval and Sval determine
+# which object will be generated, and min and max determine the possible quantity of the 
+# item with which the character shall begin.
+
+# 'T' lines determine the class titles - the number of lines does not make a difference 
+# but there must be exactly 10 titles in all divided between them. The titles are seperated
+# by the '|' symbol.
+
+# 'F' is for flags. As many F: lines may be used as are needed to specify all the flags
+# and flags are separated by the '|' symbol. The current possible flags are:
+#
+# PSEUDO_IDn - Where n is a value between 1 to 5. The higher n is, the faster the pseudo 
+# id.
+# PSEDUO_ID_HEAVY - If a class has this flag it gets the "heavy" (more detailed) pseudo ID.
+# EXTRA_SHOT - The character shall gain extra shots at higher levels.
+# RES_FEAR_30 - The character shall gain resist fear at level 30.
+# NO_GLOVE - Spellcasting skills are reduced by wearing gloves.
+# BLESS_WEAPON - The character's spellcasting skill is reduced by using non-hafted, 
+# non-blessed weapons. Also, the character will get a more powerful orb of destruction.
+# CHOOSE_SPELLS - Allows the character to choose which spell to learn.
+# ZERO_FAIL - The character can reach a 0% fail rate for spells. Without this, fail rate
+# is determined by the relevant realm's handicap.
+# BEAM - The character's bolt spells have a higher chance of beaming.
+# POWER - The character's spells will be more powerful.
+# EXTRA_MANA - The character gets 1.5 times as much mana as without this flag.
+# EXTRA_SPELL - The character gains spells faster.
+# MYSTIC_CAST - Allows the character to cast spells from the mystic spellbooks even 
+# when blinded or confused.
+
+# Version stamp (required)
+
+V:0.1.2
+
+N:0:Warrior
+S:5:-2:-2:2:2:-1
+C:25:18:18:1:14:2:70:55:65:0:26
+X:10:7:10:0:0:0:45:45:45:0:5
+I:9:0:6:30:5:0:0:0
+E:75:33:1:1
+E:23:16:1:1
+E:37:4:1:1
+T:Rookie|Soldier|Mercenary|Veteran|Swordsman
+T:Champion|Hero|Baron|Duke|Lord
+F:RES_FEAR_30|PSEUDO_ID5|PSEUDO_ID_HEAVY
+
+N:1:Mage
+S:-5:3:0:1:-2:1
+C:30:36:30:2:16:20:34:20:20:0:45
+X:7:13:9:0:0:0:15:15:15:0:10
+I:0:30:4:40:2:1:1:250
+B:0:1
+B:1:1
+B:2:1
+B:3:1
+B:4:1
+B:5:1
+B:6:1
+B:7:1
+B:8:1
+B:22:1
+B:23:1
+E:90:0:1:1
+E:23:4:1:1
+E:70:11:1:1
+T:Novice|Apprentice|Trickster|Illusionist|Spellbinder
+T:Evoker|Conjurer|Warlock|Sorcerer|Mage-Lord
+F:NO_GLOVE|ZERO_FAIL|BEAM|PSEUDO_ID1|CHOOSE_SPELLS
+
+N:2:Priest
+S:-1:-3:3:-1:0:2
+C:25:30:32:2:16:8:48:35:35:0:30
+X:7:10:12:0:0:0:20:20:20:0:7
+I:2:20:5:35:3:2:2:350
+B:10:1
+B:11:1
+B:12:1
+B:13:1
+B:14:1
+B:15:1
+B:16:1
+B:17:1
+B:18:1
+B:22:1
+B:23:1
+E:90:10:1:1
+E:21:5:1:1
+E:75:37:1:1
+T:Believer|Acolyte|Adept|Curate|Canon
+T:Lama|Patriarch|Priest|High-Priest|Archpriest
+F:BLESS_WEAPON|ZERO_FAIL|PSEUDO_ID4
+
+N:3:Ranger
+S:2:2:0:1:1:1
+C:30:32:28:3:24:16:56:72:72:0:35
+X:8:10:10:0:0:0:30:45:45:0:8
+I:4:30:5:35:4:1:1:300
+B:0:3
+B:1:3
+B:2:3
+B:4:3
+B:5:3
+B:9:3
+E:90:0:1:1
+E:23:16:1:1
+E:19:13:1:1
+E:17:1:8:12
+T:Runner|Strider|Scout|Courser|Tracker
+T:Guide|Pathfinder|Low-Ranger|High-Ranger|Ranger-Lord
+F:EXTRA_SHOT|PSEUDO_ID2|CHOOSE_SPELLS
+
+N:4:Paladin
+S:3:-3:1:0:2:2
+C:20:24:25:1:12:2:68:40:40:0:19
+X:7:10:11:0:0:0:35:30:30:0:5
+I:6:35:5:30:4:2:5:400
+B:10:5
+B:11:5
+B:12:5
+B:13:5
+B:14:5
+B:15:5
+B:16:5
+B:17:5
+B:18:5
+E:34:3:1:1
+E:23:16:1:1
+E:70:37:1:1
+T:Gallant|Keeper|Protector|Defender|Warder
+T:Knight|Guardian|Low-Paladin|High-Paladin|Paladin-Lord
+F:PSEUDO_ID3|PSEUDO_ID_HEAVY
+
+N:5:Mystic
+S:-6:4:4:0:0:0
+C:25:23:35:3:15:10:10:20:65:0:30
+X:6:4:10:0:0:0:4:10:25:0:5
+I:1:30:4:50:2:1:2:200
+B:0:1
+B:1:1
+B:2:1
+B:3:1
+B:10:1
+B:11:1
+B:12:1
+B:20:1
+B:21:1
+B:22:1
+B:23:1
+E:90:0:1:1
+E:90:10:1:1
+E:76:4:1:1
+T:Aspirant|Initiate|Mystic|Grand-Mystic|Seer
+T:Guru|Enlightened|Master|Grand-Master|Transcendent
+F:NO_GLOVE|ZERO_FAIL|POWER|PSEUDO_ID1
+F:EXTRA_MANA|EXTRA_SPELL|MYSTIC_CAST|CHOOSE_SPELLS

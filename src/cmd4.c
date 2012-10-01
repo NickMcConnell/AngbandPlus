@@ -44,7 +44,6 @@ void do_cmd_redraw(void)
 	/* Combine and Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-
 	/* Update torch */
 	p_ptr->update |= (PU_TORCH);
 
@@ -850,7 +849,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("EyAngband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -860,19 +859,23 @@ void do_cmd_options(void)
 		prt("(5) Birth Options", 8, 5);
 		prt("(6) Cheat Options", 9, 5);
 
-		/* Window flags */
-		prt("(W) Window flags", 11, 5);
-
-		/* Load and Append */
-		prt("(L) Load a user pref file", 13, 5);
-		prt("(A) Append options to a file", 14, 5);
+		/* Squelch menus */
+		prt("(I) Item Squelch Menus", 11, 5);
 
 		/* Special choices */
-		prt("(D) Base Delay Factor", 16, 5);
-		prt("(H) Hitpoint Warning", 17, 5);
+		prt("(D) Base Delay Factor", 12, 5);
+		prt("(H) Hitpoint Warning", 13, 5);
+
+		/* Window flags */
+		prt("(W) Window flags", 15, 5);
+
+		/* Load and Append */
+		prt("(L) Load a user pref file", 17, 5);
+		prt("(A) Append options to a file", 18, 5);
+
 
 		/* Prompt */
-		prt("Command: ", 19, 0);
+		prt("Command: ", 20, 0);
 
 		/* Get command */
 		ch = inkey();
@@ -920,6 +923,12 @@ void do_cmd_options(void)
 		else if ((ch == 'W') || (ch == 'w'))
 		{
 			do_cmd_options_win();
+		}
+
+		/* Squelching menus */
+		else if ((ch == 'I') || (ch == 'i'))
+		{
+	        do_cmd_squelch();
 		}
 
 		/* Load a user pref file */
@@ -2368,7 +2377,7 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing Angband %d.%d.%d.  Type '?' for more info.",
+	msg_format("You are playing EyAngband %d.%d.%d.  Type '?' for more info.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 }
 
@@ -2399,6 +2408,10 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
+#ifdef CUSTOM_QUESTS
+	int i;
+#endif
+
 	/* Verify the feeling */
 	if (feeling > 10) feeling = 10;
 
@@ -2411,6 +2424,42 @@ void do_cmd_feeling(void)
 
 	/* Display the feeling */
 	msg_print(do_cmd_feeling_text[feeling]);
+
+#ifdef CUSTOM_QUESTS
+	/* Check quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		quest *q_ptr = &q_info[i];
+
+		/* Check for quest */
+		if (q_ptr->level == p_ptr->depth)
+		{
+			monster_race *r_ptr = &r_info[q_ptr->r_idx];
+
+			/* Unique quest monster */
+			if (r_ptr->flags1 & (RF1_UNIQUE))
+			{
+				msg_format("You feel an intense desire to kill %s.",
+				           (r_name + r_ptr->name));
+			}
+
+			/* Multiple quest monsters */
+			else if ((q_ptr->max_num - q_ptr->cur_num) > 1)
+			{
+				msg_format("You feel an intense desire to kill %d %ss.",
+				           (q_ptr->max_num - q_ptr->cur_num),
+				           (r_name + r_ptr->name));
+			}
+
+			/* One quest monster */
+			else
+			{
+				msg_format("You feel an intense desire to kill a %s.",
+				           (r_name + r_ptr->name));
+			}
+		}
+	}
+#endif /*CUSTOM_QUESTS*/
 }
 
 
@@ -2766,8 +2815,6 @@ static void do_cmd_knowledge_artifacts(void)
 
 /*
  * Display known uniques
- *
- * Note that the player ghosts are ignored.  XXX XXX XXX
  */
 static void do_cmd_knowledge_uniques(void)
 {
@@ -2897,20 +2944,57 @@ static void do_cmd_knowledge_objects(void)
 
 
 /*
+ * Display known alchemical combinations
+ */
+static void do_cmd_knowledge_alchemy(void)
+{
+	int i;
+
+	FILE *fff;
+
+	char line[80];
+	char file_name[1024];
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+	/* Scan the alchemy info */
+	for (i = 0; i < SV_MAX_POTIONS; i++)
+	{
+		if ((potion_alch[i].known1) || (potion_alch[i].known2))
+		{
+			alchemy_describe(line, i);
+			
+			/* Print a message */
+			fprintf(fff, " %s\n", line);
+		}
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Known Alchemical Combinations", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+/*
  * Interact with "knowledge"
  */
 void do_cmd_knowledge(void)
 {
 	char ch;
 
-
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-
 	/* Save screen */
 	screen_save();
-
 
 	/* Interact until done */
 	while (1)
@@ -2925,9 +3009,10 @@ void do_cmd_knowledge(void)
 		prt("(1) Display known artifacts", 4, 5);
 		prt("(2) Display known uniques", 5, 5);
 		prt("(3) Display known objects", 6, 5);
+		prt("(4) Display known alchemical combinations", 7, 5);
 
 		/* Prompt */
-		prt("Command: ", 8, 0);
+		prt("Command: ", 9, 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -2954,6 +3039,13 @@ void do_cmd_knowledge(void)
 		{
 			/* Spawn */
 			do_cmd_knowledge_objects();
+		}
+
+		/* Alchemy */
+		else if (ch == '4')
+		{
+			/* Spawn */
+			do_cmd_knowledge_alchemy();
 		}
 
 		/* Unknown option */

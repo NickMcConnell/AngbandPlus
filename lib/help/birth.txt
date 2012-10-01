@@ -36,38 +36,40 @@ which will be mentioned as they come up.
 Each character has a few secondary attributes, height, weight, social class,
 and background history, which are randomly determined, but which are affected
 by the sex and race of the character.  In general, these attributes are only
-used to provide "flavor" to the character, to assist in the roll playing, but
+used to provide "flavor" to the character, to assist in the role playing, but
 they do have a few minor effects on the game.  For example, background history
-affects social class, which affects the amount of money the character will
-start with.
+affects social class, which affects the starting money. (Not a lot, in the case
+of some races: for instance, Half-Trolls are always going to be the scum of 
+society, even if their father was the Clan Chief.) 
 
 Each character also has six primary "stats", strength, intelligence, wisdom,
 dexterity, constitution, and charisma, which modify the abilities of the
 character in a variety of ways.  Every stat has a numerical value, ranging
 from a minimum of 3, up to a normal maximum of 18, and even higher, into
-the "percentile" range, represented as "18/01" through "18/100".  Actually,
-every stat can be raised even above 18/100 by magical means, up to a pure
-maximum of 18/220, which is represented as "18/***".  Traditionally, a
-percentile stat such as "18/50" has been though of as representing a value
-part way between 18 and 19, and this is one way to think of them.  However,
-often, the best way to view the "bonus" values after the "18/" is as "tenth"
-points, since it often takes the same magic to raise a stat from, say, 4 to 5,
-or 16 to 17, as it does from, say, 18/40 to 18/50.  The important thing to
-remember is that almost all internal calculations "ignore" the final digit
-of any "bonus", so that, for example, "18/40" and "18/49" are always have
-the same effects.  During character generation, each stat is rolled out as
-a number from 8 to 17, with a normal distribution, and is then immediately
-modified based on the race and class of the character.
+the "percentile" range, represented as "18/01" through "18/100": this is the
+maximum that can be achieved intrinsically, for any given stat. If the 
+character is started with the option of "maximize effect of race/class 
+bonuses" (from the Birth Options menu, and this is set as "on" by default), 
+the maximum figure of 18/100 is further adjusted by the adjustments for 
+race and class - for instance, a Half-Troll Warrior will max out at 18/190 
+strength, but only 18/40 intelligence, whereas a Hobbit Mage will be able 
+to reach 18/150 intelligence but only 18/30 strength. Equipment may add 
+bonuses or penalties to this, and raise the player's stats beyond the normal
+intrinsic limits: the stats may go as high as they like, with the right choice
+of equipment, but the effects of having higher stats largely stop at 18/200.
 
 Each character also has several primary "skills", disarming, magic devices,
 saving throws, stealth, searching ability, searching frequency, fighting skill,
-and shooting skill, which are derived from the character's race, class, level,
-stats, and current equipment.  These skills have rather obvious effects, but
-will be described more completely below.
+shooting skill, throwing skill, digging skill, and alchemy skill, which are
+derived from the character's race, class, level, stats, and current equipment.
+These skills have rather obvious effects, but will be described more 
+completely below.
 
 Each character may have one or more "racially intrinsic skills", based on
-the race of the character.  These may include special resistances, or even
-abilities such as infravision.
+the race of the character.  These may include special resistances, or 
+abilities such as infravision. Some races may even get special racial abilities
+which they can activate during the game using the 'U' command. For these races,
+the racial abilities and intrinsic skills often change with the character level.
 
 Each character has experience, which increases as the character becomes more
 experienced, and a level, which is based on experience, and also on race and
@@ -85,13 +87,19 @@ in the town, and which can be obtained not only from selling items to the
 shops, but also by taking it from dead monsters and by finding it hidden in
 the dungeon.  Each character starts out with some gold, the amount of which
 is based on the characters social class (higher is better), charisma (higher
-is better), sex (female characters start with more gold), and other stats
-(less powerful characters start with more gold).  Each character also starts
-out with a few useful items, which may be kept, or sold to a shop-keeper for
-more gold.
+is better), and other stats (less powerful characters start with more gold).  
+Each character also starts out with a few useful items, which may be kept, 
+or sold to a shop-keeper for more gold. However, especially valuable items
+will never sell for the full price, as each shopkeeper has a maximum that 
+he is prepared to pay for any item. The more generous shopkeepers may buy 
+your items for up to 30,000 gold pieces: but some are really stingy, and 
+will pay no more than 5,000.
 
 Each character has an armor class, representing how well the character can
-avoid damage.  The armor class is affected by dexterity and the equipment.
+avoid damage.  The armor class is affected by dexterity and the equipment. 
+Armor class on equipment is always denoted in [square brackets], usually as 
+a figure of [X,+Y] where X is the intrinsic AC of the armor in question, and 
+Y is the magical bonus to armor class provided by that item.
 
 Each character has hit points, representing how much damage the character can
 sustain before he dies.  The maximum number of hit points is derived from your
@@ -99,19 +107,20 @@ race, class, level, and constitution, and you can never have more hit points
 than the maximum.  Hit points may be regained by resting, or by a variety of
 magical means.
 
-Each character has spell points, or mana, which represents how many spells
-(or prayers) a character can cast (or pray).  The maximum number of spell
-points is derived from your class, level, and intelligence (for spells) or
-wisdom (for prayers), and you can never have more spell points than the
+Magic-using characters have spell points, or mana, which represents how many
+Spells (or prayers) a character can cast (or pray).  The maximum number of 
+Spell points is derived from your class, level, and intelligence (for spells) 
+or wisdom (for prayers), and you can never have more spell points than the
 maximum.  Spell points may be regained by resting, or by magical means.
+Warriors never have any spell points.
 
 
 === Races ===
 
-There are ten different races that you can choose from in Angband.  Some
-races are restricted as to what profession they may be, and each race has
-its own adjustments to a character's stats and abilities. Most races also
-have intrinsic abilities.
+There are twlelve different races that you can choose from in EyAngband.
+Some races are restricted as to what profession they may be, and each race 
+Has its own adjustments to a character's stats and abilities. Most races
+Also have intrinsic abilities.
  
           Human
                The human is the base character.  All other races are com-
@@ -123,74 +132,75 @@ have intrinsic abilities.
           Half-Elf
                Half-elves tend to be smarter and faster than a  human,  but
                not as strong.  Half-elves are slightly better at searching,
-               disarming, saving throws, stealth, bows, and magic, but they
-               are not as good at hand weapons.  Half-elves may choose any
-               class and do not receive any intrinsic abilities.
+               disarming, saving throws, stealth, bows, throwing, and magic,
+               but they are not as good at hand weapons.  Half-elves may 
+               choose any class and do not receive any intrinsic abilities.
  
           Elf
                Elves are better magicians then humans, but not as good at
                fighting.  They tend to be smarter and faster than either
                humans or half-elves and also have better wisdom.  Elves
                are better at searching, disarming, perception, stealth, bows,
-               and magic, but they are not as good at hand weapons.  Elves
-               may choose any class except Paladin.  They resist light
-               effects intrinsically.
+               and magic, but they are not as good at hand weapons or digging.
+               Elves may choose any class except Paladin. They are resistant
+               to attacks involving bright light.
+
  
           Hobbits
-               Hobbits, or Halflings, are very good at bows, throwing,  and
-               have good saving throws.  They also are very good at search-
-               ing, disarming, perception, and stealth; so they make excel-
-               lent rogues, but prefer to be called burglars.  They will be
+               Hobbits, or Halflings, are very good at bows, throwing, and 
+               have good saving throws.  They also are very good at searching,
+               alchemy, disarming, perception, and stealth.  They will be
                much weaker than humans, and no good at melee fighting.
                Halflings have fair infravision, so they can detect warm
                creatures at a distance.  Hobbits can choose between being a
-               warrior, mage, or rogue.  They have their dexterity sustained.
+               warrior, mage, or ranger.  They have their dexterity sustained.
  
           Gnome
                Gnomes are smaller than dwarves but larger than halflings.
                They, like  the halflings, live in the earth in burrow-like
                homes.  Gnomes make excellent mages, and have very good saving
                throws.  They are good at searching, disarming, perception,
-               and stealth.  They have lower strength than humans so they
-               are not very good at fighting with hand weapons.  Gnomes have
+               alchemy, digging, and stealth.  They have lower strength than
+               humans so they are not very good at fighting with hand weapons,
+               but are quite capable of using ranged attacks.  Gnomes have
                fair infra-vision, so they can detect warm-blooded creatures
                at a distance.  A gnome may choose between being a warrior,
-               mage, priest, or rogue.  Gnomes are intrinsically protected
-               against paralysis and some slowing effects.
+               mage, or priest.  Gnomes are intrinsically protected against
+               paralysis and some slowing effects.
  
           Dwarf
                Dwarves are the headstrong miners and fighters of legend.
                Since dungeons are the natural home of a dwarf, they are
-               excellent choices for a warrior or priest.  Dwarves tend to
-               be stronger and tougher but slower and less intelligent than
-               humans.  Because they are so headstrong and are somewhat wise,
-               they resist spells which are cast on them.  Dwarves also have
-               very good infra-vision because they live underground.  They
-               do have one big drawback, though.  Dwarves are loudmouthed and
-               proud, singing in loud voices, arguing with themselves for no
-               good reason, screaming out challenges at imagined foes.  In
-               other words, dwarves have a miserable stealth.  They can never
-               be blinded. 
+               excellent choices for a warrior, paladin, priest or mystic.
+               Dwarves tend to be stronger and tougher but slower and less
+               intelligent than humans.  Because they are so headstrong and 
+               are somewhat wise, they resist spells which are cast on them. 
+               Dwarves also have very good infra-vision because they live
+               Underground, and are quite adept with a shovel. They do have
+               one big drawback, though.  Dwarves are loudmouthed and proud,
+               singing in loud voices, arguing with themselves for no good
+               reason, screaming out challenges at imagined foes.  In other
+               words, dwarves have a miserable stealth.  They can never be
+               blinded. 
  
           Half-Orc
                Half-Orcs make excellent warriors and decent priests, but
                are terrible at magic.  They are as bad as dwarves at stealth,
                and horrible at searching, disarming, and perception.
                Half-Orcs are, let's face it, ugly.  They tend to pay more for
-               goods in town.  Half-Orcs do make good warriors and rogues,
-               for the simple reason that Half-Orcs tend to have great
-               constitutions and lots of hit points.  Because of their
-               preference to living underground to on the surface, half-orcs
-               resist darkness attacks.
+               goods in town.  Half-Orcs do make good warriors, for the 
+               simple reason that Half-Orcs tend to have great constitutions
+               and lots of hit points.  Because of their preference to living
+               underground to on the surface, half-orcs resist darkness attacks.
  
           Half-Troll
                Half-Trolls are incredibly strong, and have more hit points
                than any other character race.  They are also very stupid and
                slow.  They will make great warriors and iffy priests.  They
-               are bad at searching, disarming, perception, and stealth.
-               They are so ugly that a Half-Orc grimaces in their presence.
-               They also happen to be fun to run...  Half-trolls always have
-               their strength sustained.
+               are bad at searching, disarming, perception, and stealth, but
+               decent at digging. They are so ugly that a Half-Orc grimaces in
+               their presence. They also happen to be fun to run...  Half-trolls
+               always have their strength sustained.
  
           Dunadan
                Dunedain are a race of hardy men from the West.  This elder
@@ -200,24 +210,55 @@ have intrinsic abilities.
                play all classes.  Their constitution cannot be reduced.
  
           High-Elf
-               High-elves are a race of immortal beings dating from the
-               beginning of time.  Levels are even harder for them to gain 
-               than to Dunedain.  They are masters of all skills, and are
-               strong and intelligent, although their wisdom is sometimes
-               suspect.  They can play all classes except Paladin, and very
-               well at that.  High-elves begin their lives able to see the
-               unseen, and resist light effects just like regular elves.
+               High-Elves are descended from those among the Elves who heard 
+               and answered the call from the gods at the very beginning of 
+               time, before the sun and moon were made, and lived in the 
+               Blessed Realm for many thousands of years before returning to 
+               mortal lands. Because of this, they are far superior in terms 
+               of abilities when compared to their lesser Elven kindred, and 
+               are able to be priests as well as all the other classes that 
+               normal Elves can be. They can also see into the invisible
+               world of ghosts and wraiths. However, they find new experience
+               even harder to come by than Dunedain: and their wisdom is 
+               still a little suspect. And like normal Elves, they resist
+               attacks involving bright light.
  
- 
-=== Classes (outdated) ===
- 
- 
-          Once a race has been chosen, you will need to pick a class.  Some
-          classes  will  not be available to certain races, for instance, a
-          Half-Troll cannot become a Paladin.  For the first few adventures
-          it  is  suggested that you run a warrior or rogue.  Spell casting
-          generally requires a more experienced  player  that  is  familiar
-          with survival techniques.
+          Angel
+               Angels come from heaven to spread the causes of good, by any
+               means necessary. While they start out as being rather weak and
+               fragile, as they gain experience they are awarded new abilities
+               and they eventually become powerful in all regards. Angels
+               possess special racial abilities. Belonging to a higher plane,
+               the experiences of this world do not leave a strong impression
+               and them and they gain levels slowly. In addition, killing non-
+               evil creatures may sometimes be necessary for their survival,
+               but it goes against the basic fibre of their being and doing
+               so provides them with only minimal experience rewards. Angels
+               can play all classes.
+
+          Demons
+               Demons are the evil spawn of hell. Chaotic and unpredictable,
+               some demons realize that the quickest path to promotion is by
+               destroying all their rivals, and thus temporarily join the side
+               of good in cleaning the dungeons of Angband. They are the weakest
+               of the races at their creation, but their abilities grow with
+               their levels and they eventually gain immense power. From a
+               certain level, Demons possess special racial abilities. Low level
+               demons are quite stealthy, but as they grow more powerful their
+               stealth rapidly decreases. Death and mayhem being commonplace to
+               them, they gain levels slowly. They can play warriors, mages and
+               rangers.
+
+=== Classes ===
+  
+          Once a race has been chosen, you will need to pick a class. Some
+          races will recommend against choosing certain classes: for 
+          example, a Half-Troll would usually not become a Paladin. It is 
+          still possible to choose these classes but that will probably 
+          result in a far tougher challenge. For the first few adventures
+          it is suggested that you run a warrior. Spell casting generally
+          requires a more experienced player that is familiar with survival
+          techniques.
  
           Warrior
                A Warrior is a hack-and-slash character, who solves most  of
@@ -235,9 +276,9 @@ have intrinsic abilities.
                to use in addition to his spells.  He can master the  higher
                level  magical  devices far easier than anyone else, and has
                the best saving throw to resist effects of  spells  cast  at
-               him.  Intelligence  and   Dexterity  are  his primary stats.
-               There is no rule that says  a  mage  cannot  become  a  good
-               fighter, but spells are his true realm.
+               him.  Intelligence is his primary stat, and determines his 
+               spellcasting ability. There is no rule that says a mage 
+               cannot become a good fighter, but spells are his true realm.
  
           Priest
                A Priest is a character of holy devotion.  They explore  the
@@ -249,23 +290,8 @@ have intrinsic abilities.
                ices, preferring to call them instruments of  god,  but  are
                not  as good as a mage in their use.  Priests have good sav-
                ing throws,  and  make  decent  fighters,  preferring  blunt
-               weapons  over  edged  ones.  Wisdom  and  Charisma  are  the
-               priest's primary stats.
- 
-          Rogue
-               A Rogue is a character that prefers to live by his  cunning,
-               but  is capable of fighting his way out of a tight spot.  He
-               is the master of traps and locks, no device being impossible
-               for  him  to  overcome.  A rogue has a high stealth allowing
-               him to sneak around many creatures without having to  fight,
-               or sneak up and get the first blow.  A rogue's perception is
-               higher than any other class, and many times he will notice a
-               trap  or  secret  door  before having to search.  A rogue is
-               better than warriors or paladins with magical  devices,  but
-               still  can  not  rely on their performance.  Rogues can also
-               learn a few spells, but not the  powerful  offensive  spells
-               magi  can use.  A rogue's primary stats are Intelligence and
-               Dexterity.
+               weapons  over  edged  ones.  Wisdom  is the priest's primary
+               stat, determining spellcasting ability.
  
           Ranger
                A Ranger is a warrior/mage.  He is a good fighter,  and  the
@@ -276,21 +302,35 @@ have intrinsic abilities.
                experience  is  required for him to advance.  A ranger has a
                good stealth, good perception, good searching, a good saving
                throw,  and is good with magical devices.  His primary stats
-               are Intelligence and Dexterity.
+               are Intelligence (which determines his spellcasting ability)
+               and Dexterity.
  
           Paladin
                A Paladin is a warrior/priest.  He is a very  good  fighter,
                second  only to the warrior class, but not very good at mis-
                sile weapons.  He receives prayers at a slower pace then the
-               priest,  but  can even  receive the most  powerful  prayers.
+               priest,  but  can receive even the  most  powerful  prayers.
                Because a paladin is  really  a  dual  class  character,  it
                requires  more  experience  to advance him.  A paladin lacks
                much in the way of abilities.  He is poor at  stealth,  per-
                ception,  searching,  and  magical devices.  He has a decent
                saving throw due to his divine alliance.  His primary  stats
-               are Strength and Charisma.
+               are Wisom and Charisma, which combine to determine his magic
+               ability, and Strength which he uses for melee.
  
 
+          Mystic
+               A Mystic learns both the holy prayers of priests and the 
+               magic of mages. While he is the weakest fighter among all the 
+               classes, he gains spells the quickest, and has the most mana.
+               A mystic relies almost only on his spells, and is not very 
+               good at activating magical items. He is, however, moderatly
+               skilled at throwing weapons at his enemies from afar. There 
+               are said to be rare spellbooks in the dungeon that teach the
+               mystic discplines that lie beyond the scope of other classes.
+               His primary stats are Wisdom and Intelligence, which combine
+               to determine his spellcasting power.
+ 
 === Stats ===
 
           Strength
@@ -343,7 +383,7 @@ have intrinsic abilities.
                also mean more starting money for the character.
  
 
-=== Abilities (outdated) ===
+=== Abilities  ===
 
           Characters possess some different abilities which can  help  them
           to survive.  The starting abilities of a character are based upon
@@ -360,13 +400,19 @@ have intrinsic abilities.
                acter.
  
           Shooting Ability
-               Using  ranged  missile  weapons  (and  throwing  objects) is
-               included  in this skill.  Different stats apply to different
-               weapons, but this ability may modify the distance an  object
-               is  thrown/fired, the amount of damage done, and the ability
-               to hit a creature.  This skill increases with the  level  of
-               the character.
+               Using  ranged projectile weapons is included  in this skill.
+               Different stats apply to different weapons, but this ability 
+               may modify the distance an  object is fired, the amount of 
+               damage done, and the ability  to hit a creature.  This skill
+               increases with the  level  of the character.
  
+          Throwing Ability
+               This skill determines the use of those ranged weapons that 
+               are thrown rather than shot. This ability may modify the
+               distance an object is thrown, the amount of damage done, and
+               the ability  to hit a creature.  This skill increases with
+               the level of the character.
+
           Saving Throws
                A Saving Throw is the ability of a character to  resist  the
                effects  of  a spell cast on him by another person/creature.
@@ -413,27 +459,35 @@ have intrinsic abilities.
                is  based  entirely  upon  race  and  class,  and will never
                improve unless magically enhanced.
 
+          Digging
+               Digging is a tedious art, but characters with a higher skill
+               may do it much faster than others. This skill is never affected
+               by class or level, only by strength, equipment, and race. 
+
+          Alchemy
+               Mixing potions is a hazardous art, and without a high alchemy
+               Skill it is likely to cause accidental explosions or no effect
+               At all.
+
+ === Recommended combinations of Race and Class ===
+
+		          Warrior   Mage    Priest  Ranger   Paladin  Mystic
+
+          Human         Yes      Yes      Yes     Yes      Yes       Yes
+          Half-Elf      Yes      Yes      Yes     Yes      Yes       Yes  
+          Elf           Yes      Yes      Yes     Yes      No        Yes
+          Hobbit        Yes      Yes      No      No       No        No
+          Gnome         Yes      Yes      Yes     No       No        No
+          Dwarf         Yes      No       Yes     No       Yes       Yes
+          Half-Orc      Yes      No       Yes     No       No        No
+          Half-Troll    Yes      No       Yes     No       No        No
+          Dunadan       Yes      Yes      Yes     Yes      Yes       Yes
+          High-Elf      Yes      Yes      Yes     Yes      No        No
+          Angel         Yes      Yes      Yes     Yes      Yes       Yes
+          Demon         Yes      Yes      No      Yes      No        No
 
 
-=== Combinations of Race and Class (not enforced) ===
-
-                      Warrior   Mage    Priest    Rogue   Ranger   Paladin
-
-          Human         Yes      Yes      Yes      Yes      Yes      Yes
-          Half-Elf      Yes      Yes      Yes      Yes      Yes      Yes
-          Elf           Yes      Yes      Yes      Yes      Yes      No
-          Hobbit        Yes      Yes      No       Yes      No       No
-          Gnome         Yes      Yes      Yes      Yes      No       No
-          Dwarf         Yes      No       Yes      No       No       No
-          Half-Orc      Yes      No       Yes      Yes      No       No
-          Half-Troll    Yes      No       Yes      No       No       No
-          Dunadan       Yes      Yes      Yes      Yes      Yes      Yes
-          High-Elf      Yes      Yes      Yes      Yes      Yes      No 
-
-
-
-=== Miscellaneous (outdated) ===
-
+=== Miscellaneous ===
 
           Infra-vision
                Infra-vision is the ability to see heat sources. Since  most
@@ -447,13 +501,13 @@ have intrinsic abilities.
                ability.  Human can gain infra-vision only if it is magically
                enhanced.
  
- 
-=== Stat Bonus Tables (outdated) ===
+=== Stat Bonus Tables ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
  
                        STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
+
            Human        0    0    0    0    0    0      10          +0%
            Half-Elf    -1   +1    0   +1   -1   +1       9         +10%
            Elf         -1   +2   +1   +1   -2   +1       8         +20%
@@ -464,41 +518,75 @@ are listed in the following table.
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
            Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
            High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
+           Angel        *    *    *    *    *    *       8         +90%
+           Demon        *    *    *    *    *    *       9         +90%
+		*see below           
 
                          STR     INT     WIS     DEX     CON     CHR
+
            Warrior       +5      -2      -2      +2      +2      -1
            Mage          -5      +3       0      +1      -2      +1
            Priest        -1      -3      +3      -1       0      +2
-           Rogue         +2      +1      -2      +3      +1      -1
            Ranger        +2      +2       0      +1      +1      +1
            Paladin       +3      -3      +1       0      +2      +2
- 
- 
- 
-=== Ability Tables (outdated) ===
+           Mystic        -6      +4      +4       0       0       0
 
- 
-                      Disarm Search Stealth Percep Fight Bows Save Infra
- 
-           Human         5      5      5       5     5     5    5  None
-           Half-Elf      6      7      7       6     4     6    6  20 feet
-           Elf           8      9      7       7     3     9    7  30 feet
-           Hobbit       10     10     10      10     1    10   10  40 feet
-           Gnome         9      7      9       9     2     8    9  40 feet
-           Dwarf         6      8      3       5     9     5    8  50 feet
-           Half-Orc      3      5      3       2     8     3    3  30 feet
-           Half-Troll    1      1      1       1    10     1    1  30 feet
-           Dunadan       9      8      7       8     7     8    7  None
-           High-Elf      9      8      8       9     7    10   10  40 feet
- 
 
-                             Save  Stea-        Magic                 Extra
-                  Fight Bows Throw  lth  Disarm Device Percep Search Exp/lev
- 
-          Warrior  10     6    3     2      4      3      2      2       +0%
-          Mage      2     1   10     5      6     10      8      5      +30%
-          Priest    4     3    6     5      3      8      4      4      +20%
-          Rogue     8     9    7    10     10      6     10     10      +25%
-          Ranger    6    10    8     7      6      7      6      6      +30%
-          Paladin   9     5    4     2      2      4      2      2      +35%
+=== Angel Progression chart ===
+
+             LEVEL   STR  INT  WIS  DEX  CON  CHR     ABILITY
+
+Cherub        1- 4   -3    0   +1    0   -4   +1      Detect Evil
+Seraph        5- 9   -2    0   +2    0   -2   +1      Call Light 
+Deva         10-19    0   +1   +3    0    0   +2      Spear of Light
+Planetar     20-29    0   +1   +3    0    0   +3      Spear of Light
+Archon       30-39   +1   +2   +4    0   +1   +4      Orb of Draining
+Solar        40-49   +2   +3   +5    0   +2   +5      Prot. from Evil
+Archangel       50   +3   +3   +5    0   +3   +6      Prot. from Evil
+
+Resistances and inherent abilties (cumulative):
+Cherub    - None.
+Seraph    - Permanent Light (radius 1), Sustain Wisdom.
+Deva      - Resist Fear, Feather Falling.
+Plaentar  - Resist Light, See Invisible, Sustain Charisma.
+Archon    - Resist Fire, Cold, Darkness, Blinding & Confusion,
+            Free Action.
+Solar     - Resist Acid & Electricity, Regeneration, Slow digestion, 
+            Sustain Intelligence.
+Archangel - Resist chaos, Hold Life, Aggravate Monsters.
+
+
+=== Demon Progression chart ===
+             LEVEL   STR  INT  WIS  DEX  CON  CHR     ABILITY
+
+Lemure        1- 4   -4   -4   -6   -4   -4   -6      
+Quasit        5- 9   -2   -4   -6   -2   -2   -6      
+Imp          10-14   -1   -2   -6   -1   -1   -7        
+Tengu        15-19    0    0   -5    0   -1   -7      Blink
+Bodak        20-24    0    0   -5    0    0   -7      Fire Bolt
+Vrock        25-29    0    0   -4    0   +1   -8      Fire Bolt
+Hezrou       30-34   +1    0   -4    0   +2   -8      Fire Bolt
+Glabrezu     35-39   +2   +1   -3    0   +3   -8      Fire Ball
+Nalfeshnee   40-44   +3   +2   -3    0   +4   -9      Fire Ball
+Pit Fiend    45-49   +4   +2   -2    0   +5   -9      Fire Ball
+Balrog          50   +5   +3   -2   +1   +6  -10      Plasma Ball
+
+Resistances and inherent abilties (cumulative):
+
+Lemure     - None.
+Quasit     - Resist Fear.
+Imp        - Resist Fire.
+Tengu      - Resist Blindness, Feather Falling.
+Bodak      - Resist Darkness, See invisible, 
+             Sustain strength.
+Vrock      - Resist Acid.
+Hezrou     - Resist Electricity, Sustain Constituion.
+Glabrezu   - Resist Nether.
+Nalfeshnee - Regeneration, Slow Digestion. 
+Pit Fiend  - Resist Chaos, Aggravate Monsters.
+Balrog     - Immune to Fire.
+
+
+
+
 
