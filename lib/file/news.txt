@@ -1,0 +1,21 @@
+
+
+              **************************************************
+              **    Psiband 1.2.0    **    Psionic Angband    **
+              **************************************************
+
+           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
+               and Umoria:   Copyright (c) 1989 James E. Wilson
+
+                    Angband 2.7.0 - 2.8.5 by Ben Harrison
+                   Angband 2.9.0-2.9.1 by Robert Ruehlmann
+
+                     Psiband 1.0.0-1.0.7b by Aram Harrow
+             Psiband 1.2.0 by Matthias Kurzke and Jonathan Ellis
+
+      Send Psiband-specific comments and bug reports to "mawende@gmx.net"
+    General Angband comments, bug reports and patches, to "rr9@angband.org"
+
+       Visit the Angband Home Page at "http://thangorodrim.angband.org/"
+      Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
+

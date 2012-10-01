@@ -1,0 +1,228 @@
+Changes in Angband 2.9.1v2:
+-Fixed a bug that allowed the player to gain info about unidentified
+ items.
+-Changed the default color definition of "light red" so that it doesn't
+ look so similiar to "red".
+-The gamma-correction code in the Windows version now works correctly.
+
+Changes in Angband 2.9.1:
+-Added color coded messages and more sound events.
+-Allowed the modification of the various *_info.txt limits without
+ recompiling.
+-The lib/data/*_info.raw files will be automatically rebuild when the
+ lib/edit/*_info.txt files are changed.
+-The monster spoilers and the list of known uniques sort the monsters now.
+-Made player races, player history, shop owners, and race-dependent price
+ adjustments customizable (Prfnoff).
+-Moved the monster recall information out of the monster race array making
+ room for a lot more monsters (Prfnoff).
+-Random item abilities of *identified* items are now displayed in
+ character dumps (Prfnoff).
+-Identify and *identify* spells only affect unidentified items now.
+-Added a "create artifact" wizard command.
+-Added optional, case-insensitive searches (can be toggled with the '!'
+ key).
+-Added an "examine/look at item" command to the stores.
+-The "examine item" command now shows all known properties of an item,
+ even if it is not *identified*.
+-Made artifact activations configurable in a_info.txt (Arcum Dagsson).
+-The last 15 messages are now added to the character dump (Prfnoff).
+-Reduced the number of option settings printed in character dumps.
+-Empty slots in the players inventory or home are no longer printed
+ in character dumps.
+-Added a character death menu (Prfnoff and Ed Cogburn).
+-Added the ego-item generation patch (Matthias Kurzke).
+-The date in the high-scores is now saved with four digit years.
+-The "brand bolts" activation of "Cubragol" now allows the user to select
+ which bolts to brand.
+-Added 21 new vaults (Chris Weisinger).
+-The Resistance spell sets the duration for all temporary resistances to
+ the same value now.
+-Fixed a bug that generated wrong item indices for the home in char-dumps.
+-The temple will now buy identified blessed blades.
+-Fixed a bug that allowed monsters to sometimes get double moves, even
+ if the player is faster.
+-Object and message recall are now correctly refreshed.
+-Fixed the wizard mode flag display.
+-The alter command ('+' and easy_open option) no longer tries to bash down
+ doors.
+-Fixed a bug that caused the effect of aggravate monsters scrolls to skip
+ one monster.
+-Fixed a bug in the easy-floor option that sometimes displayed wrong
+ labels.
+-Prices for identified armor with hit, damage, or armor penalities were
+ wrong.
+-Fixed a bug that allowed the player to recall into rubble.
+-Screen-dumps are now correctly loaded.
+-Fixed a bug in the random artifact generation that sometimes caused random
+ artifacts to change.
+-Fixed a bug that erased pseudo-id in shops even if the item was not sold.
+-Fixed a wrong message when the player gets killed by poisonous food.
+-Random artifact diggers are now in the spoilers.
+-Fixed a bug that messed up objects on the floor when modifying them in
+ debug mode.
+-The score-penalities are now correctly reset when starting a new
+ character.
+-Moved some sound-events so that they are played before the associated
+ message is printed.
+-Opening doors is now properly repeated when the easy_alter option is on.
+-Modified the monster AI for fleeing monsters a bit.
+-Fixed a bug that could cause crashes with very long object descriptions.
+-One highscore entry was sometimes not displayed when the current character
+ was part of the highscore list.
+-Dumping the options appends to the file now instead of overwriting it.
+-Modified the spell-tiles assignments for the 8x8 graphics.
+-The 16x16 tile for the Monadic Deva is now correctly displayed.
+-The 8x8 tiles for hobbit players are no longer displayed as human
+ warriors.
+-Fixed some bugs in the lighting code for 16x16 tiles.
+-Saving a character dump prints now a success (or failure) message.
+-Trying to destroy an already identified artifact no longer adds the
+ {special} inscription.
+-Small modification to the docs.
+-Added documentation for the *_info.txt file format.
+-Class and race specific *.prf files are now loaded automatically.
+-Added Ben's code-cleanups and his rewrite of the "panel" and "overhead
+ map" code.
+-Added a workaround for a bug in the optimizer of the GCC compiler.
+-Removed several compiler warnings.
+-Replaced the makefile.emx with the correct version.
+-Added a makefile for cygwin.
+-Fixed some problems when compiling Angband without the MONSTER_FLOW and/or
+ MONSTER_AI options.
+-Removed a bug that caused a wrong error message to be displayed when the
+ mask.bmp file in the Windows version was missing.
+-Added the IBM pseudo-graphics font.
+-Updated the pref files for Acorn and Mac.
+-Added Mark Howson's main-ami.c and Musus Umbra's main-acn.c with several
+ other Acorn support files.
+-Added newer main-mac.c and graf-mac.prf files that support 16x16 tiles
+ with transparency.
+-Closing the main-window of the Win32 version while it's minimized now
+ works correctly.
+-The Windows version now supports multiple samples per sound event.
+-Added a graphical map to the Windows version.
+-Added the newest X11 modules by Ben Harrison and Steven Fuerst.
+-The Windows version now lists the current character in the score display.
+-Turned on the compile time option that allows players to put an
+ .angband.prf file in their home directory.
+-Added gamma correction to the Windows version.
+
+Changes in Angband 2.9.0:
+- Chaos resistance no longer automatically grants confusion resistance.
+  All normal items and standard artifacts with chaos resistance now
+  provide confusion resistance as well.
+- Two-handed swords appear earlier now.
+- Added an optional point-based character generator.
+- Added randomized character generation.
+- Moved the questions about the autoroller, maximize, and preserve mode
+  to a new option screen.
+- Added an option to display piles of items with a special symbol
+- Allowed secret doors to be looked or stuck
+- Items with an '=g' inscription will be automatically picked up
+- Added options to automatically select the direction when opening
+  doors/chests and disarming traps.
+- Added an option to display piles of items on the floor as lists.
+- Arrows break less often now.
+- Refilling a latern from another latern leaves an empty latern now.
+  Empty laterns are no longer displayed as choice for refilling.
+- Added random artifacts.  Note that importing characters created with
+  older versions of the random artifacts generator is not supported.
+- Scrolling while targetting.
+- Improved monster AI.
+- Increased the maximum number of vaults to 64.
+- Very high or low speed modifiers no longer cause problems.
+- Entry into debug, wizard, or borg mode is only confirmed once per
+  character, not once per session.
+- The debug command 'e' now allows current and maximum experience to be
+  altered.
+- Boldor, Gabriel, Khamul, Murazor, Tselukas, Draebor, Hoarmurath,
+  Thuringwethil, Omarax, Qlzqqlzuup, and Feagwath can now summon similar
+  monsters.
+- Master quylthulg, Emperor Quylthulg, Qlzqqlzuup, Murazor, Pazuzu,
+  Lungorthin, Gothmog, Sauron, and Morgoth can now summon greater demons.
+- Ancalagon the Black can now breath fire.
+- Objects carried by monsters are now loaded properly.
+- A command to repeat the last command has been added ('n' in original,
+  ''' in roguelike keyset).
+- At character creation, some extra difficulty options are
+  available (no artifacts, no stores, no up stairs/recall).
+- The "special" inscriptions ("cursed", "worthless", "good", ...) are
+  now handled outside the normal inscription system, and so neither
+  overwrite, nor are overwritten by, normal inscriptions.
+- Made destroyed levels rarer.
+- The quest monsters (Sauron and Morgoth) are now always generated on
+  levels 99 and 100.
+- Fixed a bug in the "know complete monster info" cheat option.
+- The spell-list now uses color.
+- The disarm traps spell will now work on the locks of doors, revealing
+  secret doors and unlocking locked doors.
+- The 'detect doors' spell can now detect locked and jammed doors.
+- Monsters crushed by an earthquake spell are now killed.
+- Fixed a bug that could cause problems when entering illegal values
+  while haggling with a shopkeeper.
+- Support for Adam Bolt's tiles.
+- Support for transparency and lighting effects.
+- Added class and race dependent player graphics.
+- Cleaned up the new code introduced in the 2.8.5 beta version.
+- Fixed the bug with opening a door you are standing on with the easy_open
+  patch.
+- Random artifacts with chaos resist can now get confusion resist too.
+- Fixed a bug that added a discount to a cursed item when wielding it.
+- The fear resistance of level 30+ warriors is now correctly displayed.
+
+Compilation changes:
+- Added a compile.txt file with compile guides for various systems and
+  compilers.
+- Added a makefile for the free Borland C++ 5.5 compiler.
+- Removed lots of compiler warnings.
+- Fixed a problem when compiling Angband on newer (glibc-based) Linux
+  systems.
+- Added a compile-time option to allow players to put an .angband.prf
+  file in their home directory and have it read on systems where
+  Angband is running set-[ug]id.  Default is off.
+- Added support for compiling a Linux SVGALIB version with graphics.
+- Added support for the use of the 8x8 and 16x16 tiles in the X11
+  version.
+
+Windows specific changes:
+- You can select between the "old" tiles, the new tiles, and ASCII mode.
+- The Windows version no longer requires changes to angband.ini when
+  installing.  The angband.ini file will be created when you first start
+  the program, so it doesn't need to be present in the binary archive.
+  That also allows easy updates to newer versions, since the settings
+  in the angband.ini are not overwritten when installing a new version
+  over an old one.
+- The windows can be resized and the (graphical) tiles will adjust
+  automatically to the new size.
+- Added the "Show scores" command to the menu.
+- Fixed a bug that created all files as "read-only" (causing the game to
+  fail when saving the game).
+- Fixed a bug that caused all numbers to be registered twice by the game,
+  leading to "double-steps".
+- Fixed a bug that didn't free the used bitmaps correctly when closing
+  the game.
+
+DOS-specific changes:
+- Graphics, sounds, and music options
+  You can switch the graphics/music/sound options from the user menu
+  (press ! to get there).  The volume of the sound and the music can be
+  adjusted from 0 (min) to 255 (max).  All changes to the screen-resolution
+  and the selection between the old and the new graphical tiles will be
+  active after you restart Angband.
+- Terminal windows
+  The windows can be activated from the "Angband options screen"
+  (press the '=' key to get there) in the "Window flags" menu.
+  Just toggle the display you want for "Term-1" and "Term-2".
+- Added a stone-background to the terminals.
+- Midi jukebox
+  DOS-Angband automatically plays midi-files from the "lib/xtra/music"
+  folder in your Angband-directory.
+- Sound Events
+  DOS-Angband will play samples from the "lib/xtra/sound" folder to the
+  corresponding Angband-event. You can configure the available samples in
+  the "lib/xtra/sound/sound.cfg" file.  Multiple sounds per event are
+  supported.
+- "Classic mode": If you want the old display, just start Angband with the
+  '-mibm' option ('Angband.exe -mibm').
+

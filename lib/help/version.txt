@@ -1,0 +1,170 @@
+=== Version Information ===
+
+This file was last updated for Psiband 1.2.0.
+
+Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
+the Official Angband Home Page ("http://thangorodrim.angband.org") for the
+most up to date information about Angband.
+
+Angband (most recent version 2.9.2: Psiband 1.2.0 is based on version 2.9.1)
+has an incredibly complex history, and is the result of a lot of work by a 
+lot of people, all of whom have contributed their time and energy for free, 
+being rewarded only by the pleasure of keeping alive one of the best 
+freeware games available anywhere.
+
+Psiband 1.2.0 is a variant of Angband: specifically, one which incorporates
+the AD&D concept of psionics. Psionics were an optional addition to AD&D 1st 
+Edition: having been removed originally in the 2nd Edition, they were later 
+reinstated in the form we know today, with a separate Psionicist class with
+six major discplines to choose between. It was this form that Aram Harrow 
+first tried to merge with standard Angband. 
+
+Early attempts were somewhat buggy (as always), and the game suffered from 
+a lack of playtesting: in particular, when psionic monsters were introduced 
+in Psiband 1.0.6, nobody thought to test out how non-psionicists would fare 
+against monster psionics. An attempt to merge the variant with another 
+variant, ZAngband, failed: the fact that ZAngband already had a serviceable
+"Mindcrafter" class which ran on somewhat different principles but was 
+essentially psychic in nature meant that people carried on simply playing 
+Mindcrafters. Nevertheless, there were many good ideas for features and 
+gameplay that were worth saving for future versions.
+
+Psiband 1.0.7 fixed some of the worst bugs with Psiband 1.0.6, and at least
+made the game playable with non-psionicists against monster psionics. It was 
+shortly after this point that I (Jonathan Ellis) became interested in the 
+variant, and started playing it.  This was also about the time I became 
+interested in hacking the info.txt files of standard Angband, so naturally 
+I applied some of the results to Psiband as well. The result was the expanded
+list of psionic monsters, including Master Psionicists, Master Illithids, and
+Ilsenine, the Illithid God-Brain: and the first Psiband winner was posted - 
+"Tar-Palantir the Wise", now immortalised in the game, just as is "Fundin 
+Bluecloak", the name of the first recorded Angband winner many years ago, or 
+"Evil Iggy" in Moria. A further bugfix version, called "1.0.7b", fixed 
+three of the outstanding bugs - making monster AI optional rather than 
+compulsory, and finally got Metapsionics working as it should do, and making 
+Mind Wrack work properly for both player and monsters.
+
+At this point, Aram Harrow found his time taken up much more with Real Life 
+(TM) and was unable to devote much of his time to Psiband, so agreed to look
+for a new maintainer. I volunteered to take care of the info.txt and help 
+files myself, and the place of chief coder was taken by Matthias Kurzke:
+this was shortly after the release of Angband 2.9.0, followed by Matthias's 
+own ego-item patch which made ego-items more customizable. The original idea 
+was to produce the first variant with 2.9.0 code and this ego-item patch as 
+a base. However, that went by the wayside when the patch in question was 
+adopted into vanilla itself, for 2.9.1, and then it was revealed that the 
+code cleanup and update to 2.9.1 standards would take a lot longer than 
+previously thought...
+
+Since then, a lot of discussion has taken place. Code has been re-written. 
+Bugs have been fixed, re-created, fixed again, until everyone is sick of it.
+Two of the features formerly present in the game (Shadowform and Domination)
+have been removed, but others added. Info.txt files have been tweaked and 
+had new creatures, items, artifacts and vaults added. And if somebody asks 
+who was responsible for a particularly nice idea, nobody's sure any more:
+technically he's the coder and I'm the textfile person, but some of the ideas 
+that have had to be hard-coded were mine in concept, and some of the new 
+artifacts (particularly), monsters and items were Matthias's in design, as 
+were most of the new artifact activations... Technically, the new version 
+should be called Psiband 1.1.0, but as that would lead to confusion with 
+the Psiband/ZAngband "PZiband" hybrid which is version 1.1.0, we've decided
+to bump the version number up to 1.2.0 instead.
+
+=== Previous Versions (outdated) ===
+
+
+                          VMS Moria Version 4.8
+Version 0.1  : 03/25/83
+Version 1.0  : 05/01/84
+Version 2.0  : 07/10/84
+Version 3.0  : 11/20/84
+Version 4.0  : 01/20/85
+
+Modules :
+     V1.0  Dungeon Generator      - RAK
+           Character Generator    - RAK & JWT
+           Moria Module           - RAK
+           Miscellaneous          - RAK & JWT
+     V2.0  Town Level & Misc      - RAK
+     V3.0  Internal Help & Misc   - RAK
+     V4.0  Source Release Version - RAK
+
+Robert Alan Koeneke               Jimmey Wayne Todd Jr.
+Student/University of Oklahoma    Student/University of Oklahoma
+
+
+
+
+
+                        UMoria Version 5.2 (formerly UNIX Moria)
+Version 4.83 :  5/14/87
+Version 4.85 : 10/26/87
+Version 4.87 :  5/27/88
+Version 5.0  :  11/2/89
+Version 5.2  :   5/9/90
+
+James E. Wilson, U.C. Berkeley
+                 wilson@ernie.Berkeley.EDU
+                 ...!ucbvax!ucbernie!wilson
+
+Other contributors:
+D. G. Kneller         - MSDOS Moria port
+Christopher J. Stuart - recall, options, inventory, and running code
+Curtis McCauley       - Macintosh Moria port
+Stephen A. Jacobs     - Atari ST Moria port
+William Setzer        - object naming code
+David J. Grabiner     - numerous bug reports, and consistency checking
+Dan Bernstein         - UNIX hangup signal fix, many bug fixes
+and many others...
+
+
+Moria/UMoria Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+  This software may be copied and distributed for educational, research, and
+  not for profit purposes provided that this copyright and statement are
+  included in all such copies.
+
+Umoria Version 5.2, patch level 1
+
+Angband Version 2.0   Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, 
+                      Charles Teague.
+
+Angband Version 2.4   : 05/09/93
+
+Angband Version 2.5.0-2.6.2  : 1993-94 Charles Swiger
+
+Angband Version 2.7.0-2.8.5  : 1995-99 Ben Harrison
+
+Angband Version 2.9.0-2.9.1  : 2000-01 Robert Ruehlmann
+
+Angband Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+
+This software may be copied and distributed for educational, research,
+and not for profit purposes provided that this copyright and statement
+are included in all such copies.  Other copyrights may also apply.
+
+Psiband Version 1.0.0-1.0.7b : 1996-1999 Aram Harrow
+
+Psiband Version 1.2.0        : 2001, by Matthias Kurzke and Jonathan Ellis.
+
+All changes made by Ben Harrison and Robert Ruehlmann to Angband are also 
+available under the GNU GENERAL PUBLIC LICENSE.  Note that this doesn't 
+influence the current distribution, since parts of the source are still 
+only available under the old Moria/Angband license.  Until all parts of
+Angband are distributed under the GPL the only valid license remains
+the original Moria/Angband license.
+
+All changes made by Jonathan Ellis and Matthias Kurzke, whether in design or 
+in execution, are also under the GNU GPL. If anyone can dig out Aram Harrow 
+to get him to also sign to the GPL, so much the better, but his current 
+whereabouts is unknown.
+
+
+=== Contributors (incomplete) ===
+
+Peter Berger, "Prfnoff", Arcum Dagsson, Ed Cogburn, Matthias Kurzke,
+Ben Harrison, Steven Fuerst, Julian Lighton, Andrew Hill, Werner Baer,
+Tom Morton, "Cyric the Mad", Chris Kern, Tim Baker, Jurriaan Kalkman,
+Alexander Wilkins, Mauro Scarpa, John I'anson-Holton, "facade", Aram Harrow,
+Dennis van Es, Kenneth A. Strom, Wei-Hwa Huang, Nikodemus, Timo Pietilä,
+Greg Wooledge, Keldon Jones, Shayne Steele, Dr. Andrew White, Musus Umbra,
+Jonathan Ellis.

@@ -1,0 +1,118 @@
+this changelog is not really totally accurate, esp. at the beginning (some of
+it got lost...)
+
+
+Changes to Psionic Angband 1.2.0:
+
+LITE weapons slay (x3) HURT_LITE monsters.
+Poison branded weapons
+Amulet of Pseudo ID
+and complete remaking of pseudo-id in general
+renaming to DISEN and DR_CHARGE
+new RBEs:
+DR_MANA, DR_LIFE, HALU
+new pseudo ID system
+BOULDER attack more or less nicked from OAngband...
+Level 3 psionic foci are "good".
+
+
+Changes necessary:
+better use of monster status flags
+monster AI flags
+make regeneration nicer, esp. wrt force walls / intensify / draining stuff
+make ego lights possible / nonartifact lights with pval?
+maybe remake precognition (again...sigh...)
+write some vaults that actually USE the new ~$\| symbols...
+target_pt and the telekinesis code should be nicer
+
+
+Changes made:
+
+0918: used JLEs info files
+0918: and fixed a bug (DRAIN_CHARGE without "S")
+0918: set_mental_barrier
+0918: set_awareness. Check if turning off awareness works the way it should
+0918: it works now, but the duration of awareness needs to be checked.
+0918: as opposed to the original psiband, there is no awareness high. (yet).
+0918: what about the "adrenaline crash"? it is still there and a bit tougher than before...
+0918: set_adrenaline is there.
+0918: and set_biofeedback
+0918: added JLE's psionicist titles to tables.c
+0918: added a potion of adrenaline and more potion colors.
+0919: really have to think about psionic spells now... which spells? ask JLE?
+0919: apart from that, other set_xxx's are missing still... and durations/costs 
+0919: need to be remade.
+0923: moved dimension_door() to spells2.c and slightly changed it... an artifact
+0923: activation "DIM_DOOR" should be coded soon...
+0923: set_prob_travel added. It can't fail anymore (useless IMHO).
+0923: psionicist recall is like everybody else's;
+0923: and ANY form of recall is prohibited by t/s anchor.
+1011: fixed a bug with radius 0 balls at the player
+1018: changed duration of menatl barrier to 10 + d(A(lev/2))
+1018: changed duration of time control to (20+)d(A(lev/4)). Removed the penalty.
+1018: set_ts_anchor; duration shortened a LOT
+1019: removed the message for Light Control.
+1019: removed shadowform spell for now...
+1019! have to remove all instances of shadowform.
+1019! receptacle needs right handling of empty staffs/wands; also should depend on level of staff
+1019! of course give less mana than recharging again with empower would need...
+1019: removed awareness high
+1019: set_precognition; duration much shorter now.
+1019: inertial barrier remade. Same way -> shorter dur, no penalties.
+1019: removed the genocide activation bug.
+1019: added defines and code skeleton for 15 new activations
+1020: awareness duration shortened a lot
+1020: codes for the new activations added
+1020: they should be codable in the info.txt files now.
+1021: made "deeper" pits more probable at deeper depths (more demon/dragon pits, less orcs)
+1021: This doesn't affect "nests" right now.
+1025! a "inhibit_psi" flag for some objects, i.e. helms
+0122: sustain wis/int and res_confu no longer help against psi1 damage
+0122: but psi1 can't induce confusion through RES_CONF anymore
+0122: fixed a bug that could (rarely) let a PSI attack become a PSI2 attack
+0122: new psi1/psi2/psi3 resists/side effects formula
+0122: updated the spell infos for the remade durations
+0122: this also changed the durations a bit (for cosmetic reasons... 'Intensify' is to blame)
+0126: only telepathy increases/reduces damage, but WIS/INT boosts don't (the player can'r even make a decision on them...)
+0126: being afraid or stunned is bad for psi resistance... (for afraid, there is a saving throw)
+0126! but the new psionic monster attacks need rebalancing...
+0215: added code support for the KILL_DEMON and KILL_UNDEAD flags
+0215: completely destroyed savefile compatibility by reordering the resist flags
+0215: this has the advantage that it will be much easier to have additional resists (like PSI)
+0215:  appear as "random high resists"
+0215: but removed force, gravity, and inertia resistance
+0215: coded BERSERKER and STARLIGHT activations
+0215: precognition doesn't reveal object informations. (only monsters)
+0215: hope the rest with intensify bug is smashed now
+0215: made the "I crush your head" message a little less ugly
+0215: coded the inhibit_psi flag to totally prohibit psionics by the player.
+0215: complete healing is now in psychometabolism 3
+0215: and instead of shadowform, there's now code skeleton for telekinesis
+0215: light control is in psychometabolism
+0215: detonate is now correctly displayed as a level 3 power
+0215: domination replaced by psychic wave
+0215: a first version of telekinesis works (but could be nicer)
+0215: added two more amulets
+0215: used JLEs new info files and corrected two minor typos in a_info.txt
+0216: made inhibit_psi give a 25% mana reduction and a flat 20% minfail.
+0216: updated the *ID* info for the new flags
+0216: Self Knowledge now displays time infos and infos about psi durations
+0216: inhibit_psi now has a message similar to "You do not feel comfortable with your weapon".
+0216! The autospoiler generation isn't updated yet (low priority...)
+0216: wizard mode flags display updated
+0216: sorted the spells. adding new ones should be easier, too, now. (as long as it's only one per discipline)
+0216: smashed a bug with end force walls power ("U" in original; nothing yet in rogue-like, maybe "[")
+0216! next version: remake target_pt (esp. wrt (y,x) variables)
+0216: updated the birth.txt file
+0216: added the 'U' command to the help files, but only VERY briefly
+0216: wrote two vaults as examples for the new symbols
+0217: smashed a bug in empathy (stupid me!)
+0217: updated graphics config file for old tiles
+0217:  some are missing, of course... but at least the old angband tiles can be used :-)
+0217: corrected a couple of bugs in the spell infos
+0217: fixed a bad bug in the load/save code wrt force walls
+0218: made some high-level spells harder to cast (balefire and *ultrablast* never reach 0%)
+0218: fixed a bug that caused intensified spells to be cast at normal failrates even if the
+0218:  intensified version cost too much mana
+0218: changed the monster precog messages a bit
+0218: changed the roguelike  keyset for the 'U' command to 'O' (as in Zangband)
