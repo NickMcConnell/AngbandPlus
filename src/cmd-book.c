@@ -1425,7 +1425,7 @@ static bool sub_spell_menu(int book, int spell, int *ss, int from, int to)
 		i = (islower(choice) ? A2I(choice) : -1);
 
 		/* Totally Illegal */
-		if ((i < 0) || (i > to - from) || (sub_spell_list[i + 1].lev > p_ptr->lev))
+		if ((i < 0) || (i > to - from) || (i > max))
 		{
 			bell("Illegal spell power choice!");
 			continue;

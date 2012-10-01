@@ -12,7 +12,7 @@
 
 # Version stamp (required)
 
-V:0.4.2
+V:0.4.3
 
 # General Store
 N:0:0:Squeek the Sly
@@ -79,8 +79,8 @@ N:5:0:Ariel the Sorceress
 I:1:20000:200:110:7:8
 N:5:1:Buggerby the Great
 I:3:20000:215:113:6:10
-N:5:2:Drizzt the Dark
-I:1:25000:210:106:6:9
+N:5:2:Nicodemus the Arcane
+I:10:25000:210:106:6:9
 N:5:3:Inglorian the Mage
 I:0:30000:200:110:7:10
 N:5:4:Luthien Starshine

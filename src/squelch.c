@@ -702,8 +702,7 @@ bool squelch_itemp(object_type *o_ptr)
 }
 
 /*
- * This performs the squelch, actually removing the item from the 
- * game.The return value is never actually used.
+ * This adds the "squelch" inscription to the item.
  */
 void do_squelch_item(object_type *o_ptr)
 {
@@ -712,7 +711,7 @@ void do_squelch_item(object_type *o_ptr)
 	o_ptr->note = quark_add("squelch");
 
 	/* We should destroy some items */
-	if (auto_squelch) p_ptr->update |= PU_SQUELCH;
+	if (auto_squelch) p_ptr->notice |= PN_SQUELCH;
 }
 
 /*
@@ -801,8 +800,15 @@ void destroy_squelched_items(void)
 	item_tester_hook = NULL;	  
 
 	/* message */
-	if (count > 0) message_format(MSG_SUCCEED, 0, "%d item%s squelched.",
-		count, ((count > 1) ? "s" : ""));
+	if (count > 0) 
+	{
+		message_format(MSG_SUCCEED, 0, "%d item%s squelched.",
+			count, ((count > 1) ? "s" : ""));
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	}
+
 	else message(MSG_FAIL, 0, "No squelched items to destroy.");
 
 	return;

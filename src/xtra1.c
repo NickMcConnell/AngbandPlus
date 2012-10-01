@@ -2844,6 +2844,12 @@ void notice_stuff(void)
 	/* Notice stuff */
 	if (!p_ptr->notice) return;
 
+	/* Squelch items */
+	if (p_ptr->notice & (PN_SQUELCH))
+	{
+		p_ptr->notice &= ~(PN_SQUELCH);
+		if (auto_squelch) destroy_squelched_items();
+	}
 
 	/* Combine the pack */
 	if (p_ptr->notice & (PN_COMBINE))
@@ -2896,12 +2902,6 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_SPELLS);
 		calc_spells();
-	}
-
-	if (p_ptr->update & (PU_SQUELCH))
-	{
-		p_ptr->update &= ~(PU_SQUELCH);
-		if (auto_squelch) destroy_squelched_items();
 	}
 
 	/* Character is not ready yet, no screen updates */

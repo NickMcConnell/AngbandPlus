@@ -744,6 +744,8 @@ static void py_pickup(int pickup)
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[p_ptr->py][p_ptr->px]; this_o_idx; this_o_idx = next_o_idx)
 	{
+		heavy = FALSE;
+
 		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 

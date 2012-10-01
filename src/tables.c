@@ -1699,8 +1699,8 @@ spell_book books[SV_BOOK_MAX] =
 		/* The Teachings of the Ninth Master (sval 21) */
 		(SBF_MYSTIC | SBF_GOOD),
 		{
-			{ POW_POLY_MONSTER,		"Change Other",				 5, 10, 45 },
-			{ POW_BOLT_MANA,		"Mana Bolt",				10,  5, 50 },
+			{ POW_ABSORB_HIT,		"Absorb Hit",				 5,  5, 30 },
+			{ POW_BOLT_MANA_X,		"Mana Bolt",				10, -5, 50 },
 			{ POW_INVIS_2,			"Vanish from Sight",		20, 20, 60 },
 			{ POW_BANISH,			"Banish Enemies",			25, 30, 80 },
 			{ POW_HEAL_4,			"Heal",						30, 20, 60 },

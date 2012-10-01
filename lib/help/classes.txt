@@ -133,7 +133,7 @@ Rattikin   Yes    Yes  Yes     Yes      Yes    No     No      No    No
 Felpurr    Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
 Ursa       Yes    No   No      No       No     Yes    Yes     No    No
 Vargr      Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
-Nilbog     Yes    Yes  No      No       No     No     No      No    No
+Kyrrus     No     No   Yes     No       No     Yes    Yes     Yes   No
 Angel      Yes    No   Yes     Yes      Yes    Yes    Yes     Yes   Yes
 Demon      Yes    Yes  Yes     Yes      Yes    No     No      No    No
 

@@ -1,3 +1,83 @@
+Changes from 0.4.2 to 0.4.3:
+
+- 0.4.1/b and 0.4.2 savefiles are compatible, but:
+  - Room descriptions may be screwed up (not the actual rooms, just the 
+    descriptions).
+
+- 0.4.0/b/c/d savefiles are compatible, with the following exceptions:
+  - Spellcasters will have to re-learn all their spells.
+  - Spellcasters who use mage books will have their books replaced by the new
+    ones; this means they'll have a different spell selection.
+  - Room descriptions may be screwed up (not the actual rooms, just the 
+    descriptions).
+
+## Gameplay changed ##
+
+- Added "vortex nests" similar to the ones found in ZceAngband.
+
+- Themed rooms will now contain more monsters.
+
+- Now, when healing, you get informed of the exact number of HP healed instead
+  of a general message.
+
+- Added wizard command to summon a unique according to u_idx.
+
+- More variety in chest traps.
+
+- Added Pav's patch that stops you from using recharging talismans/rods.
+
+# Spells #
+
+- Mystics lose polymorph other, and regain absorb hit in a dungeon spellbook.
+
+- Mystic's mana bolt now has sub-levels identical to the mage mana bolt.
+
+# Races #
+
+- The Nilbog race has been replaced with the Kyrrus, a mountain-goat race.
+
+- Age ranges for all races fixed.
+
+- Histories for fellpurr modified slightly.
+
+- Vargr experience penalty reduced.
+
+- Felpurr experience penalty slightly increased.
+
+# Items #
+
+- Added Kyrral weapons.
+
+# Monsters #
+
+- Several monsters now have elemental vulnerabilities.
+
+- Several monster resistances changed.
+
+- Monsters that have elemental resistance (to the four basic elements), now
+  resist a lot more damge (1/18 damage instead of 1/9 damage).
+
+## Bug fixes ##
+
+- Corrected bug which would cause too-deep room types to appear.
+
+- Corrected bug which allowed overcasting spells.
+
+- Corrected bug which could occasionally make the wrong item disappear if you 
+  have autosquelch on and read a (previously unidentified) scroll of identify.
+
+- Corrected bug which prevented the appearance of some uniques, including
+  Fang & Grip and the Astral Zephyr Hounds.
+
+- Bug with DSMs getting wrong activations fixed.
+
+- Bug with (heavy) display on wrong items in pile fixed. (Thanks Riivo Magii 
+  and Pav Lucistnik)
+
+- Uniques based on regular monsters now have their escorts working correctly.
+
+- Oberon, the Faery King, is no longer undead.
+
 Changes from 0.4.1b to 0.4.2:
 
 - 0.4.1/b savefiles are compatible, with the following exception:

@@ -1,4 +1,4 @@
-/* File: defines.h */
+ /* File: defines.h */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -44,14 +44,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.4.2"
+#define VERSION_STRING	"0.4.3"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	4
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 #define VERSION_EXTRA	0
 
 /*
@@ -215,18 +215,20 @@
 #define ROOM_NEST_RODENT	2
 #define ROOM_NEST_JELLY		3
 #define ROOM_NEST_TREASURE	4
-#define ROOM_NEST_ANIMAL	5
-#define ROOM_NEST_HORROR	6
-#define ROOM_NEST_UNDEAD	7
-#define ROOM_PIT_ORC		8
-#define ROOM_PIT_TROLL		9
-#define ROOM_PIT_PERSON		10
-#define ROOM_PIT_GIANT		11
-#define ROOM_PIT_DRAGON		12
-#define ROOM_PIT_DEMON		13
-#define ROOM_LESSER_VAULT	14
-#define ROOM_GREATER_VAULT	15
-#define ROOM_QUEST_VAULT	16
+#define ROOM_NEST_VORTEX	5
+#define ROOM_NEST_ANIMAL	6
+#define ROOM_NEST_HORROR	7
+#define ROOM_NEST_UNDEAD	8
+#define ROOM_PIT_ORC		9
+#define ROOM_PIT_TROLL		10
+#define ROOM_PIT_PERSON		11
+#define ROOM_PIT_GIANT		12
+#define ROOM_PIT_DRAGON		13
+#define ROOM_PIT_DEMON		14
+#define ROOM_LESSER_VAULT	15
+#define ROOM_GREATER_VAULT	16
+#define ROOM_QUEST_VAULT	17
+
 		
 /*
  * Store index definitions (see "store.c", etc)
@@ -929,6 +931,13 @@
 #define WG_CHEST_SUMMON		36
 #define WG_CHEST_SHRIEK		37
 #define WG_CHEST_CURSE		38
+#define WG_CHEST_DISEN		39
+#define WG_CHEST_LOSE_STR	40
+#define WG_CHEST_LOSE_DEX	41
+#define WG_CHEST_LOSE_CON	42
+#define WG_CHEST_CONF		43
+#define WG_CHEST_PARALYZE	44
+#define WG_CHEST_HALLUC		45
 
 /*** Artifact indexes (see "lib/edit/artifact.txt") ***/
 
@@ -2115,6 +2124,8 @@
  */
 #define PN_COMBINE		0x00000001L	/* Combine the pack */
 #define PN_REORDER		0x00000002L	/* Reorder the pack */
+/* xxx */
+#define PN_SQUELCH		0x00000100L /* Squelch items */
 /* xxx (many) */
 
 /*
@@ -2126,8 +2137,6 @@
 #define PU_HP			0x00000010L	/* Calculate chp and mhp */
 #define PU_MANA			0x00000020L	/* Calculate csp and msp */
 #define PU_SPELLS		0x00000040L	/* Calculate spells */
-/* xxx */
-#define PU_SQUELCH		0x00000100L /* Squelch items */
 /* xxx (many) */
 #define PU_FORGET_VIEW	0x00010000L	/* Forget field of view */
 #define PU_UPDATE_VIEW	0x00020000L	/* Update field of view */

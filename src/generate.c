@@ -790,10 +790,8 @@ static void vault_monsters(int y1, int x1, int num)
 		/* Try nine locations */
 		for (i = 0; i < 9; i++)
 		{
-			int d = 1;
-
 			/* Pick a nearby location */
-			scatter(&y, &x, y1, x1, d);
+			scatter(&y, &x, y1, x1, 1);
 
 			/* Require "empty" floor grids */
 			if (!cave_empty_bold(y, x)) continue;
@@ -803,7 +801,7 @@ static void vault_monsters(int y1, int x1, int num)
 			(void)place_monster(y, x, TRUE, TRUE);
 			monster_level = p_ptr->depth;
 
-			if (++k>=num) break;
+			if (++k >= num) break;
 		}
 	}
 }
@@ -1058,7 +1056,7 @@ static void get_room_info(int y, int x)
 		/* If not allowed on this level, drop to maximum result */
 		if (p_ptr->depth < d_info[i].level)
 		{
-			while ((chart != d_info[i].chart) || (100 > d_info[i].roll)) i++;
+			while ((chart != d_info[i].chart) || (ROOM_DESC_CHANCE > d_info[i].roll)) i++;
 		}
 
 		/* Save index */
@@ -1076,8 +1074,8 @@ static void get_room_info(int y, int x)
 			/* Prepare allocation table */
 			get_mon_num_prep();
 
-			/* Place the monster */
-			vault_monsters(y,x,1);
+			/* Place several monsters */
+			vault_monsters(y, x, randint(2) + 2);
 
 			get_mon_num_hook = NULL;
 
@@ -1118,10 +1116,8 @@ static void get_room_info(int y, int x)
 			/* Try nine locations */
 			for (ii = 0; ii < 9; ii++)
 			{
-				int d = 3;
-
 				/* Pick a nearby location */
-				scatter(&y1, &x1, y, x, d);
+				scatter(&y1, &x1, y, x, 3);
 
 				/* Require "empty" grid */
 				if (!cave_naked_bold(y1, x1)) continue;
@@ -1215,7 +1211,7 @@ static void build_type1(int y0, int x0)
 	}
 
 	/* Pretty description and maybe more monsters/objects/traps */
-	get_room_info(y0,x0);
+	get_room_info(y0, x0);
 }
 
 /*
@@ -1262,7 +1258,7 @@ static void build_type2(int y0, int x0)
 	generate_fill(y1b, x1b, y2b, x2b, FEAT_FLOOR);
 
 	/* Pretty description and maybe more monsters/objects/traps */
-	get_room_info(y0,x0);
+	get_room_info(y0, x0);
 }
 
 /*
@@ -1412,7 +1408,7 @@ static void build_type3(int y0, int x0)
 	}
 
 	/* Pretty description and maybe more monsters/objects/traps */
-	get_room_info(y0,x0);
+	get_room_info(y0, x0);
 }
 
 /*
@@ -1681,6 +1677,23 @@ static bool vault_aux_jelly(int r_idx)
 }
 
 /*
+ * Helper function for "monster nest (jelly)"
+ */
+static bool vault_aux_vortex(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Require icky thing, jelly, mold, or mushroom */
+	if (!strchr("v", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
  * Helper function for "monster nest (rodent)"
  */
 static bool vault_aux_treasure(int r_idx)
@@ -1878,6 +1891,7 @@ static bool vault_aux_demon(int r_idx)
  *   a nest of "rodent" monsters  (Dungeon level 5 and deeper)
  *   a nest of "jelly" monsters   (Dungeon level 10 and deeper)
  *   a nest of "treasure" monsters(Dungeon level 15 and deeper)
+ *   a nest of "vortex" monsters  (Dungeon level 25 and deeper)
  *   a nest of "animal" monsters  (Dungeon level 30 and deeper)
  *   a nest of "horror" monsters  (Dungeon level 45 and deeper)
  *   a nest of "undead" monsters  (Dungeon level 65 and deeper)
@@ -1964,7 +1978,7 @@ static void build_type5(int y0, int x0)
 	}
 
 	/* Monster nest (treasure) */
-	else if (tmp < 30)
+	else if (tmp < 25)
 	{
 		/* Describe */
 		name = "treasure";
@@ -1976,6 +1990,21 @@ static void build_type5(int y0, int x0)
 		rating_bonus = 25 - p_ptr->depth;
 
 		room_info[dun->cent_n+1].type = ROOM_NEST_TREASURE;
+	}
+
+	/* Monster nest (vortex) */
+	else if (tmp < 30)
+	{
+		/* Describe */
+		name = "vortex";
+
+		/* Restrict to jelly */
+		get_mon_num_hook = vault_aux_vortex;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 30 - p_ptr->depth;
+
+		room_info[dun->cent_n+1].type = ROOM_NEST_VORTEX;
 	}
 
 	/* Monster nest (animal) */

@@ -50,8 +50,9 @@ void do_cmd_wiz_help(void)
 	c_put_str(TERM_BLUE,"========",4,24);
 	put_str("(#)s = Summon monsters",6,24);
 	put_str("#n   = Summon named mon.",7,24);
-	put_str("(#)u = Unhide monsters",8,24);
-	put_str("(#)z = Zap monsters",9,24);
+	put_str("#N   = Summon named unq.",8,24);
+	put_str("(#)u = Unhide monsters",9,24);
+	put_str("(#)z = Zap monsters",10,24);
 
 	c_put_str(TERM_BLUE,"Dungeon Commands",12,24);
 	c_put_str(TERM_BLUE,"================",13,24);
@@ -1514,7 +1515,7 @@ static void do_cmd_wiz_summon(int num)
  *
  * This function is rather dangerous XXX XXX XXX
  */
-static void do_cmd_wiz_named(int r_idx, bool slp)
+static void do_cmd_wiz_named(int r_idx)
 {
 	int i, x, y;
 
@@ -1525,16 +1526,43 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
 	{
-		int d = 1;
-
 		/* Pick a location */
-		scatter(&y, &x, p_ptr->py, p_ptr->px, d);
+		scatter(&y, &x, p_ptr->py, p_ptr->px, 1);
 
 		/* Require empty grids */
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE, 0)) break;
+		if (place_monster_aux(y, x, r_idx, TRUE, TRUE, 0)) break;
+	}
+}
+
+/*
+ * Summon a creature of the specified type
+ *
+ * This function is rather dangerous XXX XXX XXX
+ */
+static void do_cmd_wiz_named_unique(int u_idx)
+{
+	int i, r_idx, x, y;
+
+	/* Paranoia */
+	if (!u_idx) return;
+	if (u_idx >= z_info->u_max) return;
+
+	r_idx = u_info[u_idx].r_idx;
+
+	/* Try 10 times */
+	for (i = 0; i < 10; i++)
+	{
+		/* Pick a location */
+		scatter(&y, &x, p_ptr->py, p_ptr->px, 1);
+
+		/* Require empty grids */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Place it (allow groups) */
+		if (place_monster_aux(y, x, r_idx, TRUE, TRUE, PLACE_UNIQ)) break;
 	}
 }
 
@@ -2663,7 +2691,14 @@ void do_cmd_debug(void)
 		/* Summon Named Monster */
 		case 'n':
 		{
-			do_cmd_wiz_named(p_ptr->command_arg, TRUE);
+			do_cmd_wiz_named(p_ptr->command_arg);
+			break;
+		}
+
+		/* Summon Named Unique */
+		case 'N':
+		{
+			do_cmd_wiz_named_unique(p_ptr->command_arg);
 			break;
 		}
 

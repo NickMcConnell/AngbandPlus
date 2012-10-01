@@ -18,7 +18,7 @@
 
 # Version stamp (required)
 
-V:0.4.2
+V:0.4.3
 
 N:0:<None>
 G:^:D
@@ -249,5 +249,47 @@ F:CHEST | DISARM | PLAYER | DETECT
 N:38: (curse)
 G:~:s
 W:15:1
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT
+
+N:39: (disenchantment)
+G:~:s
+W:50:3
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT
+
+N:40: (weakness dart)
+G:~:s
+W:0:1
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT
+
+N:41: (clumsiness dart)
+G:~:s
+W:0:1
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT
+
+N:42: (sickliness dart)
+G:~:s
+W:0:1
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT
+
+N:43: (confusion)
+G:~:s
+W:0:2
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT
+
+N:44: (paralyze)
+G:~:s
+W:3:2
+X:65:0:0
+F:CHEST | DISARM | PLAYER | DETECT
+
+N:45: (hallucination)
+G:~:s
+W:5:1
 X:65:0:0
 F:CHEST | DISARM | PLAYER | DETECT

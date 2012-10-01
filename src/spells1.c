@@ -75,8 +75,8 @@ static s16b poly_r_idx(int r_idx, int power)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (r_idx);
 
 	/* Allowable range of "levels" for resulting monster */
-	lev1 = r_ptr->level - ((randint(20)/randint(9))+1) - (power / 10);
-	lev2 = r_ptr->level + ((randint(20)/randint(9))+1) - ((power - 3) / 7);
+	lev1 = r_ptr->level - ((randint(20) / randint(9)) + 1) - (power / 10);
+	lev2 = r_ptr->level + ((randint(20) / randint(9)) + 1) - ((power - 3) / 7);
 
 	/* Pick a (possibly new) non-unique race */
 	for (i = 0; i < 1000; i++)
@@ -2003,7 +2003,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_RES_ACID)) 
 			{
 				note = " resists a lot.";
-				dam /= 9;
+				dam /= 18;
 				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_ACID, FALSE);
 			}
 			else if (r_ptr->flags2 & (RF2_HURT_ACID))
@@ -2022,7 +2022,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_RES_ELEC)) 
 			{
 				note = " resists a lot.";
-				dam /= 9;
+				dam /= 18;
 				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_ELEC, FALSE);
 			}
 			else if (r_ptr->flags2 & (RF2_HURT_ELEC))
@@ -2042,7 +2042,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_RES_FIRE)) 
 			{
 				note = " resists a lot.";
-				dam /= 9;
+				dam /= 18;
 				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_FIRE, FALSE);
 			}
 			else if (r_ptr->flags2 & (RF2_HURT_FIRE))
@@ -2061,7 +2061,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_RES_COLD)) 
 			{
 				note = " resists a lot.";
-				dam /= 9;
+				dam /= 18;
 				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_COLD, FALSE);
 			}
 			else if (r_ptr->flags2 & (RF2_HURT_COLD))

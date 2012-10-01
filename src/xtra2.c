@@ -164,10 +164,8 @@ static void build_quest_stairs(int y, int x)
 	/* Stagger around */
 	while (!cave_valid_bold(y, x))
 	{
-		int d = 1;
-
 		/* Pick a location */
-		scatter(&ny, &nx, y, x, d);
+		scatter(&ny, &nx, y, x, 1);
 
 		/* Stagger */
 		y = ny; x = nx;
@@ -791,6 +789,13 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 		{
 			strcpy(name, "money pit");
 			strcpy(text_visible, "This room seems to have been designed to keep intruders out. Or perhaps it was meant to keep the treasure in?");
+			return;
+		}
+		case (ROOM_NEST_VORTEX):
+		{
+			strcpy(name, "vortex rift");
+			strcpy(text_visible, "You feel a surge of elemental energies as you enter this room. ");
+			strcat(text_visible, "The boundaries between the planes have been stretched thin here.");  
 			return;
 		}
 		case (ROOM_NEST_ANIMAL):

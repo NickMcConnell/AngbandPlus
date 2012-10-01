@@ -21,15 +21,15 @@ bool hp_player(int num)
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
-		/* Gain hitpoints */
-		p_ptr->chp += num;
+		int actual;
 
-		/* Enforce maximum */
-		if (p_ptr->chp >= p_ptr->mhp)
-		{
-			p_ptr->chp = p_ptr->mhp;
-			p_ptr->chp_frac = 0;
-		}
+		/* Enforce Maximum */
+		if ((p_ptr->mhp - p_ptr->chp) < num) actual = p_ptr->mhp - p_ptr->chp;
+		else actual = num;
+
+		/* Gain hitpoints */
+		p_ptr->chp += actual;
+		p_ptr->chp_frac = 0;
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
@@ -37,29 +37,7 @@ bool hp_player(int num)
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
-		/* Heal 0-4 */
-		if (num < 5)
-		{
-			message(MSG_EFFECT, 0, "You feel a little better.");
-		}
-
-		/* Heal 5-14 */
-		else if (num < 15)
-		{
-			message(MSG_EFFECT, 0, "You feel better.");
-		}
-
-		/* Heal 15-34 */
-		else if (num < 35)
-		{
-			message(MSG_EFFECT, 0, "You feel much better.");
-		}
-
-		/* Heal 35+ */
-		else
-		{
-			message(MSG_EFFECT, 0, "You feel very good.");
-		}
+		message_format(MSG_EFFECT, 0, "You regain %d hp.", actual);
 
 		/* Notice */
 		return (TRUE);

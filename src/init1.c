@@ -1838,7 +1838,7 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 /*
  * Grab one activation from a textual string
  */
-static errr grab_one_activation(byte *act, cptr what)
+static errr grab_one_activation(u16b *act, cptr what)
 {
 	int i;
 
@@ -2028,7 +2028,7 @@ errr parse_k_info(char *buf, header *head)
 	/* Process 'U' for "Activation" */
 	else if (buf[0] == 'U')
 	{
-		byte act = 0;
+		u16b act = 0;
 
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -2419,7 +2419,7 @@ errr parse_a_info(char *buf, header *head)
 	else if (buf[0] == 'U')
 	{
 		int time, rand;
-		byte act = 0;
+		u16b act = 0;
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);

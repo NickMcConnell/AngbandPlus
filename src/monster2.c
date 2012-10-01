@@ -450,7 +450,7 @@ s16b get_mon_num(int level)
 		{
 			bool quest = FALSE;
 
-			if (r_ptr->cur_unique != 1) continue;
+			if (r_ptr->cur_unique <= 0) continue;
 			
 			for (j = 0; j < z_info->q_max; j++)
 			{
@@ -1426,8 +1426,11 @@ static byte get_attr_mimic(char r_char)
  *
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
+ *
+ * Megahack - returns 0 if nothing was placed, -1 if a non-unique was 
+ * placed, and 1 if a unique was placed.
  */
-static bool place_monster_one(int y, int x, int r_idx, bool slp, byte mode)
+static int place_monster_one(int y, int x, int r_idx, bool slp, byte mode)
 {
 	int i, j, l;
 	int u_idx = 0;
@@ -1444,16 +1447,16 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, byte mode)
 	bool unique = FALSE;
 
 	/* Paranoia */
-	if (!in_bounds(y, x)) return (FALSE);
+	if (!in_bounds(y, x)) return (0);
 
 	/* Require empty space */
-	if (!cave_empty_bold(y, x)) return (FALSE);
+	if (!cave_empty_bold(y, x)) return (0);
 
 	/* no creation on glyph of warding */
-	if (!cave_empty_bold(y, x)) return (FALSE);
+	if (!cave_empty_bold(y, x)) return (0);
 
 	/* Paranoia */
-	if (!r_idx) return (FALSE);
+	if (!r_idx) return (0);
 
 	/* Race */
 	r_ptr = &r_info[r_idx];
@@ -1461,7 +1464,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, byte mode)
 	force_unique = ((r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE);
 
 	/* Paranoia */
-	if (!r_ptr->name) return (FALSE);
+	if (!r_ptr->name) return (0);
 
 	/* Try to place a unique */
 	if ((r_ptr->cur_unique) && (mode != PLACE_NO_U))
@@ -1484,7 +1487,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, byte mode)
 			}
 
 			/* Paranoia */
-			if (u_idx == z_info->u_max) return (FALSE);
+			if (u_idx == z_info->u_max) return (0);
 
 			/* We're making a unique */
 			unique = TRUE;
@@ -1533,7 +1536,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, byte mode)
 		}
 	}
 	/* No uniques left */
-	else if (force_unique) return FALSE;
+	else if (force_unique) return 0;
 
 	/* Handle uniques in quests*/
 	if (unique)
@@ -1543,7 +1546,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, byte mode)
 			if ((q_info[j].r_idx == r_idx) && (q_info[j].active_level != 0) &&
 				(q_info[j].active_level != p_ptr->depth)) 
 			{
-				return (FALSE);
+				return (0);
 			}
 		}
 	}
@@ -1702,10 +1705,10 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, byte mode)
 	repair_mflag_born = TRUE;
 
 	/* Place the monster in the dungeon */
-	if (!monster_place(y, x, n_ptr)) return (FALSE);
+	if (!monster_place(y, x, n_ptr)) return (0);
 
 	/* Success */
-	return (TRUE);
+	return (unique ? 1 : -1);
 }
 
 /*
@@ -1801,14 +1804,16 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool big, byt
 /*
  * Hack -- help pick an escort type
  */
-static int place_monster_idx = 0;
+static int place_escort_idx = 0;
+static int place_escort_lev = 0;
+static bool	place_escort_same = FALSE; 
 
 /*
  * Hack -- help pick an escort type
  */
-static bool place_monster_okay(int r_idx)
+static bool place_escort_okay(int r_idx)
 {
-	monster_race *r_ptr = &r_info[place_monster_idx];
+	monster_race *r_ptr = &r_info[place_escort_idx];
 
 	monster_race *z_ptr = &r_info[r_idx];
 
@@ -1816,13 +1821,13 @@ static bool place_monster_okay(int r_idx)
 	if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
 
 	/* Skip more advanced monsters */
-	if (z_ptr->level > r_ptr->level) return (FALSE);
+	if (z_ptr->level > place_escort_lev) return (FALSE);
 
 	/* Skip unique monsters */
 	if (z_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Paranoia -- Skip identical monsters */
-	if (place_monster_idx == r_idx) return (FALSE);
+	if (!place_escort_same && (place_escort_idx == r_idx)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1833,12 +1838,12 @@ static bool place_monster_okay(int r_idx)
  */
 static bool place_companion_okay(int r_idx)
 {
-	monster_race *r_ptr = &r_info[place_monster_idx];
+	monster_race *r_ptr = &r_info[place_escort_idx];
 
 	monster_race *z_ptr = &r_info[r_idx];
 
 	/* Skip more advanced monsters */
-	if (z_ptr->level != r_ptr->level) return (FALSE);
+	if (z_ptr->level != place_escort_lev) return (FALSE);
 
 	/* Require unique monsters */
 	if (!z_ptr->cur_unique) return (FALSE);
@@ -1875,13 +1880,16 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, byte mode)
 {
 	int i;
 	u32b f1;
+	bool unique;
 
 	monster_race *r_ptr = &r_info[r_idx];
-
-	bool unique = ((r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE);
+	monster_unique *u_ptr;
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(y, x, r_idx, slp, mode)) return (FALSE);
+	i = place_monster_one(y, x, r_idx, slp, mode);
+	if (!i) return (FALSE);
+
+	unique = (i > 0 ? TRUE : FALSE);
 
 	/* Require the "group" flag */
 	if (!grp) return (TRUE);
@@ -1889,8 +1897,6 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, byte mode)
 	/* Get all flags for uniques */
 	if (unique)
 	{
-		monster_unique *u_ptr;
-
 		for (i = 1; i < z_info->u_max ; i++)
 		{
 			u_ptr = &u_info[i];
@@ -1902,7 +1908,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, byte mode)
 		if (i == z_info->u_max) return (TRUE);
 
 		/* Flags */
-		f1 = (u_ptr->flags1 | r_ptr->flags1);
+		f1 = (u_ptr->flags1);
 
 	}
 	else f1 = r_ptr->flags1;
@@ -1913,16 +1919,17 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, byte mode)
 		/* Try to place a "companions" (several times) */
 		for (i = 0; i < 10; i++)
 		{
-			int nx, ny, z, d = 3;
+			int nx, ny, z;
 
 			/* Pick a location */
-			scatter(&ny, &nx, y, x, d);
+			scatter(&ny, &nx, y, x, 3);
 
 			/* Require empty grids */
 			if (!cave_empty_bold(ny, nx)) continue;
 
 			/* Set the escort index */
-			place_monster_idx = r_idx;
+			place_escort_idx = r_idx;
+			place_escort_lev = r_ptr->level;
 
 			/* Set the escort hook */
 			get_mon_num_hook = place_companion_okay;
@@ -1964,25 +1971,35 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, byte mode)
 		/* Try to place several "escorts" */
 		for (i = 0; i < 50; i++)
 		{
-			int nx, ny, z, d = 3;
+			int nx, ny, z;
 
 			/* Pick a location */
-			scatter(&ny, &nx, y, x, d);
+			scatter(&ny, &nx, y, x, 3);
 
 			/* Require empty grids */
 			if (!cave_empty_bold(ny, nx)) continue;
 
 			/* Set the escort index */
-			place_monster_idx = r_idx;
+			place_escort_idx = r_idx;
+			if (unique)
+			{
+				place_escort_lev = u_ptr->level;
+				place_escort_same = TRUE;
+			}
+			else
+			{
+				place_escort_lev = r_ptr->level;
+				place_escort_same = FALSE;
+			}
 
 			/* Set the escort hook */
-			get_mon_num_hook = place_monster_okay;
+			get_mon_num_hook = place_escort_okay;
 
 			/* Prepare allocation table */
 			get_mon_num_prep();
 
 			/* Pick a random race */
-			z = get_mon_num(r_ptr->level);
+			z = get_mon_num(place_escort_lev);
 
 			/* Remove restriction */
 			get_mon_num_hook = NULL;
@@ -2302,10 +2319,8 @@ bool multiply_monster(int m_idx)
 	/* Try up to 18 times */
 	for (i = 0; i < 18; i++)
 	{
-		int d = 1;
-
 		/* Pick a location */
-		scatter(&y, &x, m_ptr->fy, m_ptr->fx, d);
+		scatter(&y, &x, m_ptr->fy, m_ptr->fx, 1);
 
 		/* Require an "empty" floor grid */
 		if (!cave_empty_bold(y, x)) continue;

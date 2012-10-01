@@ -8,7 +8,7 @@
 
 # Version stamp (required)
 
-V:0.4.2
+V:0.4.3
 
 # Maximum number of feature types
 M:F:42
@@ -35,13 +35,13 @@ M:C:9
 M:E:144
 
 # Maximum number of weapon prefix types
-M:X:24
+M:X:25
 
 # Maximum number of armor prefix types
 M:Y:9
 
 # Maximum number of trap widgets
-M:W:39
+M:W:46
 
 # Maximum number of monster races
 M:R:668
@@ -59,7 +59,7 @@ M:V:38
 M:P:13
 
 # Maximum number of player history lines
-M:H:217
+M:H:227
 
 # Maximum number of owners per store
 M:B:5

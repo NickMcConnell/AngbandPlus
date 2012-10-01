@@ -2516,6 +2516,7 @@ void list_object(object_type *o_ptr, int mode)
 			}
 
 			text_out(format("%s", buf));
+
 			if ((i > 0) && (j > 0)) 
 			{
 				text_out(", recharging every ");

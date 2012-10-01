@@ -2,7 +2,7 @@
 #
 #This file is currently in transition. Documentation will return in a future version.
 
-V:0.4.2
+V:0.4.3
 
 N:0:<player>
 G:@:w
@@ -301,7 +301,7 @@ I:110:2d6:18:14:10
 W:2:1:0:4
 B:HIT:HURT:1d5
 F:SMART | DROP_60 | FAERY | OPEN_DOOR | TAKE_ITEM | NO_SLEEP | RES_CONF | 
-F:WEIRD_MIND | PICK_LOCK
+F:WEIRD_MIND | PICK_LOCK | HURT_ACID
 D:A small, humanoid faery, the brownie looks at distate at those who disturb
 D: its self-appointed tasks.
 
@@ -376,7 +376,7 @@ G:R:o
 I:110:4d6:8:20:80
 W:2:1:0:15
 B:BITE:FIRE:1d3
-F:ANIMAL | HAS_LITE | RAND_25 | RES_FIRE
+F:ANIMAL | HAS_LITE | RAND_25 | RES_FIRE | HURT_COLD
 D:A small black and orange lizard.
 
 N:44:blubbering icky thing
@@ -480,7 +480,7 @@ I:110:12d8:2:1:99
 W:3:1:0:35
 B:TOUCH:COLD:1d6
 F:COLD_BLOOD | EMPTY_MIND | HURT_LITE | NEVER_MOVE | NO_BLIND | NO_CUT |
-F:NO_FEAR | NO_SLEEP | PLANT | RES_COLD | RES_CONF | STUPID
+F:NO_FEAR | NO_SLEEP | PLANT | RES_COLD | RES_CONF | STUPID | HURT_FIRE
 D:It's a large pile of pulsing blue jelly.
 
 N:55:snaga
@@ -570,7 +570,7 @@ G:I:o
 I:120:1d1:5:1:60
 W:3:2:0:5
 B:CRAWL:DISEASE:1d1
-F:ANIMAL | HURT_LITE | MULTIPLY | RAND_25 | RAND_50 | STUPID |
+F:ANIMAL | HURT_LITE | MULTIPLY | RAND_25 | RAND_50 | STUPID | HURT_ELEC |
 F:WEIRD_MIND
 D:A cockroach the size of your hand.
 
@@ -619,8 +619,9 @@ I:130:1d5:15:25:5
 W:3:4:0:13
 B:TOUCH:CONFUSE
 F:SMART | FAERY | EVASIVE | RAND_50 | RAND_25 | WEIRD_MIND | NO_CUT | NO_SLEEP |
-F:RES_CONF | REGENERATE | DROP_60 | ONLY_GOLD | NEVER_FAIL | FRIENDS | NO_TRAP 
-S:1_IN_5 | BLINK | HEAL | BLINK_TO | SCARE
+F:RES_CONF | REGENERATE | DROP_60 | ONLY_GOLD | NEVER_FAIL | FRIENDS | NO_TRAP |
+F:HURT_ACID | HURT_ELEC
+S:1_IN_5 | BLINK | HEAL | BLINK_TO | SCARE 
 D:A mischievous faery, that delights in practical jokes. It zooms around you
 D: on tiny gossamer wings.
 
@@ -692,7 +693,7 @@ I:100:5d8:7:12:10
 W:4:1:0:18
 B:CRAWL:COLD:1d4
 F:ANIMAL | COLD_BLOOD | HURT_LITE | MULTIPLY | NO_FEAR | RAND_25 |
-F:RAND_50 | RES_COLD | STUPID | WEIRD_MIND
+F:RAND_50 | RES_COLD | STUPID | WEIRD_MIND | HURT_FIRE
 D:It is a large mass of blue worms, leaving a trail of frosty slime behind
 D: them.
 
@@ -702,7 +703,7 @@ I:110:3d4:8:16:80
 W:4:1:0:23
 B:CRAWL:COLD:1d4
 F:DROP_60 | EMPTY_MIND | NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP | PLANT |
-F:RAND_25 | RAND_50 | RES_COLD | RES_CONF | STUPID
+F:RAND_25 | RAND_50 | RES_COLD | RES_CONF | STUPID | HURT_FIRE
 D:It's blue and it's oozing.
 
 N:79:cave lizard
@@ -822,7 +823,7 @@ I:100:5d7:7:12:10
 W:5:1:0:25
 B:CRAWL:FIRE:1d6
 F:ANIMAL | BASH_DOOR | EMPTY_MIND | HURT_LITE | MULTIPLY | NO_FEAR |
-F:RAND_25 | RAND_50 | RES_FIRE | STUPID
+F:RAND_25 | RAND_50 | RES_FIRE | HURT_COLD | STUPID
 D:It is a large mass of worms, leaving a trail of burning slime in its path.
 
 N:92:grey icky thing
@@ -1116,7 +1117,7 @@ I:120:2d1:6:5:55
 W:7:2:0:14
 B:CRAWL:DISEASE:2d1
 F:ANIMAL | HURT_LITE | MULTIPLY | RAND_25 | RAND_50 | STUPID |
-F:WEIRD_MIND
+F:WEIRD_MIND | HURT_ELEC
 D:A cockroach the size of your head.
 
 N:123:night lizard
@@ -1186,7 +1187,7 @@ B:BITE:HURT:1d8
 B:CLAW:HURT:1d5
 B:CLAW:HURT:1d5
 F:ANIMAL | EVASIVE | FRIENDS | RAND_50 | SMART | FAERY | WEIRD_MIND | NO_SLEEP |
-F:RES_CONF | NEVER_FAIL  | NO_TRAP 
+F:RES_CONF | NEVER_FAIL  | NO_TRAP | HURT_ELEC
 S:1_IN_8 | BLINK | BLINK_TO | CONF
 D:At first glance a normal cat, there is something about it that seems a bit weird...
 
@@ -1210,7 +1211,7 @@ G:R:y
 I:110:5d7:6:35:1
 W:8:1:0:250
 B:BITE:FIRE:3d6
-F:ANIMAL | FORCE_SLEEP | HAS_LITE | RAND_25 | RES_FIRE 
+F:ANIMAL | FORCE_SLEEP | HAS_LITE | RAND_25 | RES_FIRE | HURT_COLD
 S:1_IN_9 | BR_FIRE
 D:A large black and yellow lizard.  You'd better run away!
 
@@ -1385,7 +1386,7 @@ W:9:2:0:270
 B:BITE:HURT:1d4
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
-F:BASH_DOOR | OPEN_DOOR | RES_COLD
+F:BASH_DOOR | OPEN_DOOR | RES_COLD | HURT_FIRE
 D:A man-sized white figure covered in shaggy fur.
 
 N:150:bloodshot icky thing
@@ -1605,7 +1606,7 @@ B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 F:COLD_BLOOD | EMPTY_MIND | EVIL | FORCE_MAXHP | NEVER_MOVE | ATTR_MIMIC |
 F:NO_BLIND | NO_CALM | NO_CUT | NO_FEAR | NO_SLEEP | RES_COLD | RES_CONF |
-F:RES_ELEC | RES_FIRE | RES_POIS | STUPID | DROP_90 | DROP_MIMIC
+F:RES_ELEC | RES_FIRE | RES_POIS | STUPID | DROP_90 | DROP_MIMIC | HURT_ACID
 D:A bloodthirsty blade lurking for prey. Beware!
 
 N:172:Puck
@@ -1661,7 +1662,7 @@ I:120:3d1:7:10:50
 W:11:2:0:44
 B:CRAWL:DISEASE:2d2
 F:ANIMAL | HURT_LITE | MULTIPLY | RAND_25 | RAND_50 | STUPID |
-F:WEIRD_MIND
+F:WEIRD_MIND | HURT_ELEC
 D:A cockroach the size of a small dog.
 
 N:178:Orange icky thing
@@ -1864,7 +1865,7 @@ W:12:3:0:800
 B:BITE:HURT:3d4
 B:CLAW:HURT:2d3
 B:CLAW:HURT:2d3
-F:BASH_DOOR | OPEN_DOOR | RES_COLD
+F:BASH_DOOR | OPEN_DOOR | RES_COLD 
 D:A larger variety of the yeti, this creature is much larger than a 
 D: human.
 
@@ -2011,7 +2012,7 @@ W:13:3:0:675
 B:BITE:HURT:1d4
 B:CLAW:HURT:2d3
 B:CLAW:HURT:2d3
-F:BASH_DOOR | FRIENDS | MANY | HURT_LITE | OPEN_DOOR | RAND_25 |
+F:BASH_DOOR | FRIENDS | MANY | HURT_LITE | OPEN_DOOR | RAND_25 | HURT_FIRE |
 F:RES_COLD | STUPID
 D:A slender, bipedal creature about 5 feet in height, it's head is large
 D: compared to its body and its arms are long.
@@ -2085,7 +2086,7 @@ B:BITE:HURT:1d6
 B:HIT:HURT:1d4
 B:HIT:HURT:1d4
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | MALE |
-F:OPEN_DOOR | REGENERATE
+F:OPEN_DOOR | REGENERATE | HURT_FIRE | HURT_ACID
 D:He is green skinned and ugly.
 
 N:219:zombified ogre
@@ -2158,7 +2159,7 @@ W:15:1:0:950
 B:BITE:COLD:1d6
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
-F:BASH_DOOR | FORCE_SLEEP | FRIENDS | MANY | RES_COLD | ANIMAL 
+F:BASH_DOOR | FORCE_SLEEP | FRIENDS | MANY | RES_COLD | ANIMAL | HURT_FIRE
 S:1_IN_10 | BR_COLD
 D:A hound as tall as a man, this creature appears to be composed of angular
 D: planes of ice.  Cold radiates from it and freezes your breath in the air.
@@ -2292,7 +2293,8 @@ W:16:1:0:1000
 B:BITE:FIRE:2d5
 B:CLAW:HURT:2d3
 B:CLAW:HURT:2d3
-F:BASH_DOOR | FORCE_SLEEP | FRIENDS | MANY | HAS_LITE | RES_FIRE | ANIMAL
+F:BASH_DOOR | FORCE_SLEEP | FRIENDS | MANY | HAS_LITE | RES_FIRE | ANIMAL |
+F:HURT_COLD
 S:1_IN_10 | BR_FIRE
 D:Flames lick at its feet and its tongue is a blade of fire.  You can feel a
 D: furnace heat radiating from the creature.
@@ -2367,7 +2369,7 @@ B:GAZE:CONFUSE
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | EVIL | HURT_ROCK | KILL_WALL | 
-F:NO_SLEEP | RES_CONF | RES_POIS
+F:NO_SLEEP | RES_CONF | RES_POIS | HURT_ELEC
 D:This bizarre creature has glaring eyes and large mandibles capable of
 D: slicing through rock.
 
@@ -2457,7 +2459,7 @@ B:CLAW:COLD:2d3
 B:CLAW:COLD:2d3
 F:BASH_DOOR | COLD_BLOOD | DROP_90 | EVIL | NO_BLIND | NO_CUT | NO_FEAR |
 F:NO_SLEEP | ONLY_ITEM | OPEN_DOOR | RES_COLD | RES_CONF | RES_POIS |
-F:UNDEAD
+F:UNDEAD | HURT_FIRE
 D:It is a skeleton covered in frost.
 
 N:255:earth spirit
@@ -2539,7 +2541,8 @@ W:18:1:0:1350
 B:HIT:FIRE:2d6
 B:HIT:FIRE:2d6
 F:BASH_DOOR | EMPTY_MIND | HAS_LITE | NO_BLIND | NO_CUT | NO_FEAR |
-F:NO_SLEEP | RAND_25 | RES_CONF | RES_FIRE | RES_POIS | NO_TRAP 
+F:NO_SLEEP | RAND_25 | RES_CONF | RES_FIRE | RES_POIS | NO_TRAP |
+F:HURT_COLD
 D:A whirlwind of sentient flame.
 
 N:263:shambling mound
@@ -2618,7 +2621,7 @@ W:18:3:0:1080
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
 B:HIT:POISON:3d4
-F:COLD_BLOOD | EMPTY_MIND | FORCE_SLEEP | NEVER_MOVE | NO_BLIND |
+F:COLD_BLOOD | EMPTY_MIND | FORCE_SLEEP | NEVER_MOVE | NO_BLIND | HURT_COLD |
 F:NO_FEAR | NO_SLEEP | RES_CONF | ATTR_MIMIC | DROP_60 | DROP_MIMIC
 S:1_IN_6 | BLIND | BO_COLD | CAUSE_2 | CONF | SCARE
 D:A strange creature that disguises itself as a discarded potion to lure
@@ -2632,7 +2635,7 @@ I:110:17d8:2:16:70
 W:19:1:0:650
 B:TOUCH:FIRE:4d4
 F:EMPTY_MIND | NEVER_MOVE | NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP |
-F:PLANT | RES_CONF | RES_FIRE | RES_POIS | STUPID
+F:PLANT | RES_CONF | RES_FIRE | RES_POIS | STUPID | HURT_COLD
 D:It is a strange red growth on the dungeon floor; it seems to burn with
 D: flame.
 
@@ -2816,7 +2819,7 @@ G:v:w
 I:110:8d9:100:30:0
 W:21:1:0:2000
 B:ENGULF:COLD:3d3
-F:BASH_DOOR | EMPTY_MIND | FORCE_SLEEP | NO_BLIND | NO_CALM | NO_CUT |
+F:BASH_DOOR | EMPTY_MIND | FORCE_SLEEP | NO_BLIND | NO_CALM | NO_CUT | HURT_FIRE |
 F:NO_FEAR | NO_SLEEP | WIDE_BREATH | RAND_50 | RES_COLD | RES_CONF | NO_TRAP 
 S:1_IN_6 | BR_COLD
 D:A twisting whirlpool of frost.
@@ -2827,7 +2830,8 @@ I:110:8d9:100:30:0
 W:21:1:0:2100
 B:ENGULF:FIRE:3d3
 F:BASH_DOOR | EMPTY_MIND | FORCE_SLEEP | HAS_LITE | NO_BLIND | NO_CALM | NO_TRAP |
-F:NO_CUT | NO_FEAR | NO_SLEEP | WIDE_BREATH | RAND_50 | RES_CONF | RES_FIRE
+F:NO_CUT | NO_FEAR | NO_SLEEP | WIDE_BREATH | RAND_50 | RES_CONF | RES_FIRE |
+F:HURT_COLD
 S:1_IN_6 | BR_FIRE
 D:A whirling maelstrom of fire.
 
@@ -2863,7 +2867,7 @@ B:HIT:HURT:2d3
 B:HIT:POISON:3d4
 B:HIT:POISON:3d4
 F:COLD_BLOOD | EMPTY_MIND | FORCE_SLEEP | NEVER_MOVE | NO_BLIND |
-F:NO_FEAR | NO_SLEEP | RES_CONF | DROP_60 | DROP_MIMIC
+F:NO_FEAR | NO_SLEEP | RES_CONF | DROP_60 | DROP_MIMIC | HURT_FIRE | HURT_ACID |
 S:1_IN_5 | BLIND | BO_FIRE | CAUSE_2 | CONF | SCARE | S_MONSTER
 D:A strange creature that disguises itself as a discarded scroll to lure
 D: unsuspecting adventurers within reach of its venomous claws.
@@ -2906,7 +2910,7 @@ B:BITE:HURT:3d4
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | HURT_ROCK |
-F:MALE | OPEN_DOOR | REGENERATE 
+F:MALE | OPEN_DOOR | REGENERATE | HURT_ACID
 D:He is a giant troll with scabrous black skin.
 
 N:297:energy vortex
@@ -3018,7 +3022,7 @@ I:120:5d3:7:15:45
 W:23:3:0:140
 B:CRAWL:HURT:1d5
 F:ANIMAL | HURT_LITE | MULTIPLY | NO_FEAR | RAND_25 | RAND_50 | RES_POIS |
-F:STUPID | WEIRD_MIND | RES_DARK | RES_DISEASE
+F:STUPID | WEIRD_MIND | RES_DARK | RES_DISEASE | HURT_ELEC
 S:1_IN_6 | BR_DARK
 D:Part insect, part shadow - you're not sure which part you like less.
 
@@ -3045,7 +3049,7 @@ G:S:r
 I:110:14d8:14:50:20
 W:24:1:0:1900
 B:BITE:FIRE:3d6
-F:ANIMAL | BASH_DOOR | RAND_25 | RES_FIRE | WEIRD_MIND
+F:ANIMAL | BASH_DOOR | RAND_25 | RES_FIRE | HURT_COLD | WEIRD_MIND
 D:It is smoking and burning with great heat.
 
 N:311:mummy servant
@@ -3054,7 +3058,7 @@ I:100:15d9:20:28:75
 W:24:1:0:2400
 B:HIT:DISEASE:2d3
 B:TOUCH:ROT:2d3
-F:BASH_DOOR | COLD_BLOOD | DROP_90 | EMPTY_MIND | EVIL | 
+F:BASH_DOOR | COLD_BLOOD | DROP_90 | EMPTY_MIND | EVIL | HURT_FIRE |
 F:NO_BLIND | NO_FEAR | NO_SLEEP | OPEN_DOOR | RES_COLD | RES_CONF |
 F:RES_POIS | UNDEAD
 D:This lesser mummy was created to do menial tasks after death.
@@ -3081,7 +3085,7 @@ B:BITE:COLD:2d6
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | MALE |
-F:OPEN_DOOR | REGENERATE | RES_COLD
+F:OPEN_DOOR | REGENERATE | RES_COLD | HURT_FIRE | HURT_ACID
 D:He is a white troll with powerfully clawed hands.
 
 N:314:werebear
@@ -3159,8 +3163,8 @@ W:25:1:0:3600
 B:BITE:HURT:1d6
 B:CLAW:POISON:3d3
 B:CLAW:POISON:3d3
-F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | OPEN_DOOR |
-F:REGENERATE
+F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | OPEN_DOOR | RES_POIS |
+F:REGENERATE | HURT_ACID
 D:A powerful troll form.  Venom drips from its needlelike claws.
 
 N:322:hill giant
@@ -3186,7 +3190,7 @@ G:S:R
 I:110:15d8:14:50:20
 W:25:1:0:1900
 B:BITE:FIRE:3d6
-F:ANIMAL | BASH_DOOR | RAND_25 | RES_FIRE | WEIRD_MIND
+F:ANIMAL | BASH_DOOR | RAND_25 | RES_FIRE | HURT_COLD | WEIRD_MIND
 D:It is smoking and burning with great heat.
 
 N:325:cave ogre
@@ -3395,7 +3399,7 @@ I:110:12d8:14:45:30
 W:27:1:0:2200
 B:BITE:HURT:3d4
 B:SPIT:FIRE:4d5
-F:ANIMAL | BASH_DOOR | RES_FIRE | WEIRD_MIND
+F:ANIMAL | BASH_DOOR | RES_FIRE | HURT_COLD | WEIRD_MIND
 D:It is a giant beetle wreathed in flames.
 
 N:345:killer fire beetle
@@ -3404,7 +3408,7 @@ I:110:12d8:14:45:30
 W:27:1:0:2300
 B:BITE:HURT:3d4
 B:SPIT:FIRE:4d5
-F:ANIMAL | BASH_DOOR | HAS_LITE | RES_FIRE | WEIRD_MIND
+F:ANIMAL | BASH_DOOR | HAS_LITE | RES_FIRE | HURT_COLD | WEIRD_MIND
 D:It is a giant beetle wreathed in flames.
 
 N:346:vampire
@@ -3482,7 +3486,7 @@ I:110:30d15:20:50:50
 W:28:1:0:5000
 B:HIT:COLD:5d8
 B:HIT:COLD:5d8
-F:BASH_DOOR | DROP_60 | EVIL | HUMANOID | OPEN_DOOR | RES_COLD
+F:BASH_DOOR | DROP_60 | EVIL | HUMANOID | OPEN_DOOR | RES_COLD | HURT_FIRE
 D:A twelve foot tall giant covered in furs.
 
 N:353:^mage
@@ -3528,7 +3532,7 @@ B:BITE:DISEASE:2d7
 B:HIT:HURT:2d4
 B:HIT:HURT:2d4
 F:BASH_DOOR | DROP_90 | EVIL | HURT_LITE | MALE | OPEN_DOOR | REGENERATE |
-F:RES_POIS | WEIRD_MIND
+F:RES_POIS | WEIRD_MIND | HURT_ACID
 D:Once a normal troll, he has become even more horridly deformed by
 D: a magical disease.
 
@@ -3566,7 +3570,7 @@ B:HIT:ELEC:4d8
 B:HIT:ELEC:4d8
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | FORCE_SLEEP | HAS_LITE |
 F:NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP | RES_CONF | RES_ELEC |
-F:RES_POIS
+F:RES_POIS | HURT_ACID
 S:1_IN_3 | BO_ELEC
 D:A man-shaped form of living lightning, sparks and shocks crackle all over
 D: this madly capering figure, as it leaps and whirls around and about you.
@@ -3627,7 +3631,7 @@ W:29:2:0:7500
 B:BITE:HURT:3d4
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
-F:BASH_DOOR | DROP_90 | EVIL | FORCE_MAXHP | FORCE_SLEEP | HUMANOID |
+F:BASH_DOOR | DROP_90 | EVIL | FORCE_MAXHP | FORCE_SLEEP | HUMANOID | HURT_ACID |
 F:HURT_LITE | MALE | NO_SLEEP | OPEN_DOOR | REGENERATE | RES_CONF | PRIEST
 S:1_IN_5 | BLINK | CAUSE_1 | DARKNESS | MISSILE | SCARE
 D:A troll who is so bright he knows how to read.
@@ -3664,7 +3668,7 @@ B:HIT:POISON:3d4
 B:HIT:POISON:3d4
 B:HIT:POISON:3d4
 B:HIT:POISON:3d4
-F:COLD_BLOOD | EMPTY_MIND | FORCE_SLEEP | NEVER_MOVE | NO_BLIND |
+F:COLD_BLOOD | EMPTY_MIND | FORCE_SLEEP | NEVER_MOVE | NO_BLIND | HURT_ELEC |
 F:NO_FEAR | NO_SLEEP | RES_CONF | ATTR_MIMIC | DROP_90 | DROP_MIMIC
 S:1_IN_4 | BLIND | BO_ACID | BO_COLD | BO_ELEC | BO_FIRE | CAUSE_2 |
 S:CONF | FORGET | SCARE | S_MONSTER
@@ -3724,7 +3728,7 @@ B:BITE:HURT:1d8
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | MALE |
-F:OPEN_DOOR | REGENERATE | RES_POIS
+F:OPEN_DOOR | REGENERATE | RES_POIS | HURT_ACID
 D:He is a vicious monster, feared for his ferocity.
 
 N:375:grave wight
@@ -3747,7 +3751,7 @@ W:30:1:0:7500
 B:HIT:FIRE:6d8
 B:HIT:FIRE:6d8
 F:BASH_DOOR | DROP_60 | EVIL | HAS_LITE | HUMANOID | HUMANOID |
-F:OPEN_DOOR | RES_FIRE
+F:OPEN_DOOR | RES_FIRE | HURT_COLD
 D:A glowing fourteen foot tall giant.  Flames drip from its red skin.
 
 N:377:manticore
@@ -3836,7 +3840,7 @@ B:BITE:HURT:2d8
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
 F:BASH_DOOR | DRAGON | DROP_2D2 | DROP_60 | DROP_90 | EVIL | FORCE_MAXHP |
-F:FORCE_SLEEP | OPEN_DOOR | RES_FIRE
+F:FORCE_SLEEP | OPEN_DOOR | RES_FIRE 
 S:1_IN_10 | BR_FIRE | SCARE
 D:It has a form that legends are made of.  Its still-tender scales are a
 D: deepest red hue.  Heat radiates from its form.
@@ -3896,8 +3900,8 @@ I:120:5d3:7:20:45
 W:30:3:0:240
 B:CRAWL:HURT:1d5
 F:ANIMAL | ATTR_MULTI | CHAOTIC | HURT_LITE | MULTIPLY | NO_FEAR |
-F:RAND_25 | RAND_50 | RES_CONF | STUPID | WEIRD_MIND | RES_CHAO
-F:RES_DISEASE
+F:RAND_25 | RAND_50 | RES_CONF | STUPID | WEIRD_MIND | RES_CHAO |
+F:RES_DISEASE | HURT_ELEC
 S:1_IN_6 | BR_CHAO
 D:An insect made of chaotic substance, changing shape as it scurries along.
 
@@ -3910,7 +3914,7 @@ B:HIT:HURT:3d3
 B:HIT:HURT:3d3
 B:HIT:HURT:3d3
 F:COLD_BLOOD | EMPTY_MIND | FORCE_MAXHP | FRIENDS | NO_CUT | NO_FEAR |
-F:NO_SLEEP | RES_CONF | RES_POIS
+F:NO_SLEEP | RES_CONF | RES_POIS | RES_COLD | HURT_ELEC
 S:1_IN_9 | ARROW_1 | ARROW_3
 D:A human-shaped contraption made of gears and metal scrapes, it makes a 
 D: clanking sound as it approaches you.
@@ -3988,7 +3992,7 @@ W:31:1:0:5000
 B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
 F:ANIMAL | BASH_DOOR | FORCE_MAXHP | FRIENDS | KILL_BODY | RES_FIRE |
-F:WEIRD_MIND
+F:WEIRD_MIND | HURT_COLD
 D:A giant ant covered in shaggy fur.  Its powerful jaws glow with heat.
 
 N:396:greater Carrion Crawler
@@ -4059,7 +4063,7 @@ W:32:1:0:6000
 B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
 F:ANIMAL | BASH_DOOR | FORCE_MAXHP | FRIENDS | HAS_LITE | KILL_BODY |
-F:RES_FIRE | WEIRD_MIND
+F:RES_FIRE | WEIRD_MIND | HURT_COLD
 D:A giant ant covered in shaggy fur.  Its powerful jaws glow with heat.
 
 N:402:skeleton ettin
@@ -4186,7 +4190,7 @@ B:BITE:HURT:2d3
 B:HIT:HURT:1d12
 B:HIT:HURT:1d12
 F:BASH_DOOR | DROP_60 | EVIL | FORCE_MAXHP | FRIENDS | HUMANOID |
-F:OPEN_DOOR | REGENERATE | RES_POIS | SMART
+F:OPEN_DOOR | REGENERATE | RES_POIS | SMART | HURT_ACID
 D:It is a massive intelligent troll with needle sharp fangs.
 
 N:413:earth elemental
@@ -4320,7 +4324,7 @@ B:HIT:FIRE:4d6
 B:HIT:FIRE:4d6
 F:BASH_DOOR | EMPTY_MIND | FORCE_SLEEP | HAS_LITE | KILL_BODY |
 F:KILL_ITEM | NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP | NEVER_FAIL |
-F:RAND_25 | RES_CONF | RES_FIRE | RES_POIS | NO_TRAP 
+F:RAND_25 | RES_CONF | RES_FIRE | RES_POIS | NO_TRAP | HURT_COLD
 S:1_IN_6 | BO_FIRE
 D:It is a towering inferno of flames.
 
@@ -4484,7 +4488,7 @@ B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
 F:ANIMAL | BASH_DOOR | EVIL | FORCE_MAXHP | FORCE_SLEEP | MOVE_BODY |
-F:RAND_25 | RES_FIRE
+F:RAND_25 | RES_FIRE | HURT_COLD
 S:1_IN_5 | BR_FIRE
 D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
 
@@ -4670,7 +4674,7 @@ B:BITE:COLD:1d3
 B:BITE:COLD:1d3
 B:HIT:HURT:4d6
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | EVIL | FORCE_SLEEP | KILL_BODY |
-F:KILL_ITEM | NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP | NEVER_FAIL |
+F:KILL_ITEM | NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP | NEVER_FAIL | HURT_FIRE |
 F:RES_COLD | RES_CONF | RES_ELEC | RES_POIS | RES_WATER | NO_TRAP 
 S:1_IN_5 | BA_COLD | BO_ICEE
 D:It is a towering glacier of ice.
@@ -4852,7 +4856,7 @@ W:37:1:0:30000
 B:ENGULF:FIRE:8d8
 F:BASH_DOOR | EMPTY_MIND | FORCE_SLEEP | NO_BLIND | NO_CALM | NO_CUT |
 F:NO_FEAR | NO_SLEEP | WIDE_BREATH | RAND_25 | RAND_50 | RES_CONF |
-F:RES_FIRE | RES_PLAS | NO_TRAP 
+F:RES_FIRE | RES_PLAS | NO_TRAP | HURT_COLD
 S:1_IN_6 | BR_PLAS
 D:A whirlpool of intense flame, charring the stones at your feet.
 
@@ -4877,7 +4881,7 @@ B:HIT:FIRE:3d7
 B:HIT:HURT:4d6
 F:EMPTY_MIND | EVIL | FORCE_SLEEP | KILL_BODY | KILL_ITEM | NO_BLIND |
 F:NO_CUT | NO_FEAR | NO_SLEEP | PASS_WALL | NEVER_FAIL | RES_CONF |
-F:RES_ELEC | RES_FIRE | RES_POIS | NO_TRAP 
+F:RES_ELEC | RES_FIRE | RES_POIS | NO_TRAP | HURT_COLD
 S:1_IN_7 | BA_FIRE | BO_PLAS
 D:It is a towering glowing form of molten hate.
 
@@ -4890,7 +4894,7 @@ B:BITE:HURT:3d4
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_MAXHP | HUMANOID | NO_SLEEP |
-F:OPEN_DOOR | REGENERATE | RES_CONF | RES_POIS | TAKE_ITEM
+F:OPEN_DOOR | REGENERATE | RES_CONF | RES_POIS | TAKE_ITEM | HURT_ACID
 D:A massive two-headed troll, larger and stronger than many men together.
 D: Fortunately, ettins are solitary creatures.
 
@@ -5089,7 +5093,7 @@ B:BITE:HURT:3d4
 B:BITE:HURT:3d4
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
-F:BASH_DOOR | DROP_2D2 | ESCORTS | EVIL | FORCE_MAXHP | HUMANOID |
+F:BASH_DOOR | DROP_2D2 | ESCORTS | EVIL | FORCE_MAXHP | HUMANOID | HURT_ACID |
 F:NO_SLEEP | ONLY_ITEM | OPEN_DOOR | REGENERATE | RES_CONF | RES_POIS
 D:This troll's great strength and size have won it the place of chieftain of
 D: its tribe.
@@ -5143,7 +5147,7 @@ B:HIT:DISEASE:2d6
 B:TOUCH:ROT:2d4
 F:BASH_DOOR | COLD_BLOOD | DROP_1D2 | EMPTY_MIND | EVIL | FORCE_MAXHP | NO_BLIND | 
 F:NO_FEAR | NO_SLEEP | OPEN_DOOR | RES_COLD | RES_CONF | RES_DISEASE | RES_POIS | 
-F:UNDEAD | SMART
+F:UNDEAD | SMART | HURT_FIRE
 D:An ancient human form encased in mouldy wrappings, forever guarding
 D: treasures long lost.
 
@@ -5802,7 +5806,7 @@ B:HIT:DISEASE:2d8
 B:HIT:DISEASE:2d8
 B:TOUCH:ROT:2d5
 F:BASH_DOOR | COLD_BLOOD | DROP_1D2 | EMPTY_MIND | EVIL | FORCE_MAXHP |
-F:NO_BLIND | NO_FEAR | NO_SLEEP | OPEN_DOOR | RES_COLD |
+F:NO_BLIND | NO_FEAR | NO_SLEEP | OPEN_DOOR | RES_COLD | HURT_FIRE | 
 F:RES_CONF | RES_DISEASE | RES_POIS | UNDEAD | SMART
 S:1_IN_4 | BLIND | CAUSE_3 | HEAL | SCARE | S_KIN 
 D:The wrappings on this mummy are well maintained, and are decorated with
@@ -5878,7 +5882,8 @@ W:45:3:0:15000
 B:STING:FIRE:3d12
 B:STING:FIRE:3d12
 B:STING:FIRE:3d12
-F:RAND_25 | WEIRD_MIND | BASH_DOOR | FRIENDS | ANIMAL | RES_POIS | RES_FIRE | EVIL
+F:RAND_25 | WEIRD_MIND | BASH_DOOR | FRIENDS | ANIMAL | RES_POIS | RES_FIRE | EVIL |
+F:HURT_COLD
 S:1_IN_6 | BR_FIRE
 D:A monstrous centipede coated with fire and with flaming tentacles around its
 D: head.
@@ -5939,7 +5944,7 @@ B:BITE:HURT:2d12
 B:CLAW:HURT:2d12
 B:CLAW:HURT:2d12
 F:BASH_DOOR | FORCE_SLEEP | FRIENDS | MANY | NO_SLEEP | OPEN_DOOR |
-F:RES_CONF | RES_FIRE | ANIMAL | RES_PLAS
+F:RES_CONF | RES_FIRE | ANIMAL | RES_PLAS | HURT_COLD
 S:1_IN_5 | BR_PLAS
 D:The very air warps as pure elemental energy stalks towards you in the
 D: shape of a giant hound.  Your hair stands on end and your palms itch as
@@ -6483,7 +6488,7 @@ B:GAZE:CONFUSE
 B:HIT:HURT:5d10
 B:HIT:HURT:5d10
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | EVIL | HURT_ROCK |
-F:KILL_WALL | NO_FEAR | NO_SLEEP | RES_CONF | RES_POIS
+F:KILL_WALL | NO_FEAR | NO_SLEEP | RES_CONF | RES_POIS | HURT_ELEC
 S:1_IN_10 | S_KIN
 D:Far larger than the variety found in the upper levels, walls hold no
 D: barrier to this creature.
@@ -6634,7 +6639,7 @@ F:BASH_DOOR | COLD_BLOOD | DROP_2D2 | DROP_60 | DROP_GOOD | EVIL |
 F:FORCE_MAXHP | HURT_LITE | NO_BLIND | NO_CALM | NO_CUT | NO_FEAR |
 F:NO_SLEEP | OPEN_DOOR | REGENERATE | RES_ACID | RES_COLD | RES_DARK |
 F:RES_DISEASE | RES_POIS | SEE_INVIS | SMART | UNDEAD | WEIRD_MIND | 
-F:NO_TRAP | PICK_LOCK
+F:NO_TRAP | PICK_LOCK | HURT_ELEC
 S:1_IN_6 | BLIND | BO_NETH | BRAIN_SMASH | DRAIN_MANA | FORGET | SCARE
 D:Twelve feet tall, its face hidden by its hood, its rotting, scabbed hands
 D: outstretched, it advances, sensing its way blindly towards you.
@@ -6851,7 +6856,7 @@ B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
 F:ANIMAL | BASH_DOOR | EVIL | FORCE_MAXHP | FORCE_SLEEP | FRIENDS |
-F:MOVE_BODY | RAND_25 | RES_ACID | RES_FIRE | RES_PLAS 
+F:MOVE_BODY | RAND_25 | RES_ACID | RES_FIRE | RES_PLAS | HURT_COLD
 S:1_IN_5 | BR_FIRE
 D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
 
@@ -6987,7 +6992,7 @@ B:CLAW:COLD:6d8
 B:HIT:PARALYZE:5d5
 F:BASH_DOOR | DEMON | DROP_4D2 | DROP_GOOD | EVIL | FORCE_MAXHP |
 F:FORCE_SLEEP | NO_SLEEP | ONLY_ITEM | OPEN_DOOR | WIDE_BREATH | REGENERATE |
-F:RES_COLD | RES_CONF | RES_COLD | RES_SHAR
+F:RES_COLD | RES_CONF | RES_COLD | RES_SHAR | HURT_FIRE
 S:1_IN_6 | BA_COLD | BO_ICEE | BR_COLD | BR_SHAR | HOLD | SCARE | SLOW |
 S:S_HI_DEMON
 D:This demon from the ice planes is a truly terrifying sight. It has an

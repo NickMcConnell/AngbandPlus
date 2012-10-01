@@ -814,9 +814,10 @@ void hit_trap(int y, int x)
 			break;
 		}
 
+		case WG_CHEST_DISEN:
 		case WG_SPOT_DISEN:
 		{
-			message(MSG_TRAP, t_ptr->w_idx, "You wander into a field of unmagic!");
+			message(MSG_TRAP, t_ptr->w_idx, "You feel a sudden surge of unmagic!");
 			apply_disenchant();
 			break;
 		}
@@ -837,6 +838,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
+		case WG_CHEST_LOSE_STR:
 		case WG_DART_LOSE_STR:
 		{
 			if (check_hit(125))
@@ -853,6 +855,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
+		case WG_CHEST_LOSE_DEX:
 		case WG_DART_LOSE_DEX:
 		{
 			if (check_hit(125))
@@ -869,6 +872,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
+		case WG_CHEST_LOSE_CON:
 		case WG_DART_LOSE_CON:
 		{
 			if (check_hit(125))
@@ -895,6 +899,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
+		case WG_CHEST_CONF:
 		case WG_GAS_CONF:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are surrounded by a gas of scintillating colors!");
@@ -916,6 +921,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
+		case WG_CHEST_PARALYZE:
 		case WG_GAS_SLEEP:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are surrounded by a strange white mist!");
@@ -926,6 +932,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
+		case WG_CHEST_HALLUC:
 		case WG_GAS_HALLUC:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You are surrounded by a strange multi-hued mist!");

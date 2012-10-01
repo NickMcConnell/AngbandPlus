@@ -13,7 +13,7 @@
 # index pointing to the entry in monster.txt that the unique is based on, and a colour that
 # superceeds the color in monster.txt. 
 
-V:0.4.2
+V:0.4.3
 
 N:1:Farmer Maggot
 R:2:w
@@ -629,7 +629,7 @@ B:HIT:FIRE:4d6
 B:HIT:FIRE:4d6
 F:BASH_DOOR | EMPTY_MIND | EVIL | FORCE_MAXHP | FORCE_SLEEP | HAS_LITE |
 F:KILL_BODY | KILL_ITEM | NO_BLIND | NO_SLEEP | NEVER_FAIL | RAND_25 |
-F:RES_CONF | RES_FIRE | RES_POIS | NO_CUT | NO_TRAP
+F:RES_CONF | RES_FIRE | RES_POIS | NO_CUT | NO_TRAP | HURT_COLD
 S:1_IN_4 | BA_FIRE | BO_PLAS
 D:A towering fire elemental, Vargo burns everything beyond recognition.
 
@@ -1000,8 +1000,9 @@ B:BITE:FIRE:12d6
 B:BITE:FIRE:12d6
 F:BASH_DOOR | DROP_3D2 | DROP_4D2 | FORCE_MAXHP | FORCE_SLEEP |
 F:KILL_BODY | NO_CALM | NO_SLEEP | ONLY_GOLD | OPEN_DOOR | WIDE_BREATH |
-F:RES_CONF | RES_FIRE | RES_POIS | SMART  | NO_TRAP
-S:1_IN_3 | BA_FIRE | BA_POIS | BO_FIRE | BO_PLAS | BR_FIRE | BR_POIS |
+F:RES_CONF | RES_COLD | RES_ELEC | RES_ACID | HURT_FIRE | RES_POIS | SMART | 
+F:NO_TRAP
+S:1_IN_3 | BA_FIRE | BA_POIS | BO_FIRE | BO_PLAS | BR_FIRE | BR_ELEC |
 S:SCARE | S_HYDRA
 D:A massive legendary hydra.  It has twelve powerful heads.  Its many eyes
 D: stare at you as clouds of smoke and poisonous vapour rise from its
@@ -1122,7 +1123,7 @@ B:TOUCH:LOSE_INT:4d4
 F:BASH_DOOR | COLD_BLOOD | DROP_2D2 | DROP_3D2 | DROP_GOOD | EVIL |
 F:FORCE_MAXHP | FORCE_SLEEP | HURT_LITE | MALE | MOVE_BODY | NO_BLIND |
 F:NO_CALM | NO_SLEEP | ONLY_ITEM | OPEN_DOOR | RES_COLD | RES_CONF | PICK_LOCK
-F:RES_POIS | SEE_INVIS | SMART | UNDEAD | NO_CUT | INVISIBLE | FAERY |
+F:RES_POIS | SEE_INVIS | SMART | NO_CUT | INVISIBLE | FAERY |
 F:REGENERATE | TAKE_ITEM | NEVER_FAIL | PASS_WALL | ESCORTS | MANY | NO_TRAP
 S:1_IN_3 | S_FAERY | S_ANIMALS | SCARE | TELE_LEVEL | BRAIN_SMASH | FORGET |
 S:CAUSE_4 | HEAL | HASTE | BLIND | BO_COLD | TPORT | CONF | BLINK | BLINK_TO |
@@ -1330,7 +1331,7 @@ B:BUTT:HURT:12d10
 F:ANIMAL | BASH_DOOR | DROP_4D2 | DROP_GOOD | FORCE_MAXHP | FORCE_SLEEP |
 F:KILL_BODY | KILL_ITEM | NO_CALM | NO_CUT | NO_STUN | WIDE_BREATH |
 F:REGENERATE | RES_ACID | RES_COLD | RES_CONF | RES_DARK | RES_DISEASE |
-F:RES_FIRE | RES_GRAV | RES_INER | STUPID  | RES_SOUN 
+F:RES_FIRE | RES_GRAV | RES_INER | STUPID  | RES_SOUN | HURT_ELEC
 S:1_IN_6 | BR_SOUN
 D:A gargantuan beast, crushing all in its path as it moves towards you. Its
 D: powerful bellow can be heard for miles.

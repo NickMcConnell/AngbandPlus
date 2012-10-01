@@ -1159,7 +1159,7 @@ struct player_type
 
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
-	u16b chp_frac;		/* Cur hit frac (times 2^16) */
+	u16b chp_frac;		/* Cur hit frac (times 2^16) */ 
 
 	s16b msp;			/* Max mana pts */
 	s16b csp;			/* Cur mana pts */

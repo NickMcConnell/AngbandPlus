@@ -1711,6 +1711,29 @@ void do_cmd_aim_wand(void)
 }
 
 /*
+ * Hook to determine if rechargeable object (rod, talisman) is ready for use
+ */
+bool item_tester_hook_recharged(object_type *o_ptr)
+{
+	/* Talisman */
+	if (o_ptr->tval == TV_TALISMAN || o_ptr->tval == TV_ROD)
+	{
+		/* is charging */
+		if (o_ptr->number == 1)
+		{
+			if (!o_ptr->timeout) return (TRUE);
+		}
+		else if (o_ptr->number > 1)
+		{
+			if (o_ptr->timeout <= o_ptr->pval - k_info[o_ptr->k_idx].pval) return (TRUE);
+		}
+	}
+
+	/* Assume not */
+	return (FALSE);
+}
+
+/*
  * Activate (zap) a Rod.    Rods may be fully identified through use 
  * (although it's not easy).  Rods now use timeouts to determine charging 
  * status, and pvals have become the cost of zapping a rod (how long it 
@@ -1761,21 +1784,6 @@ static void do_cmd_zap_rod_aux(int item)
 		return;
 	}
 
-	/* A single rod is still charging */
-	if ((o_ptr->number == 1) && (o_ptr->timeout))
-	{
-		if (flush_failure) flush();
-		message(MSG_FAIL, 0, "The rod is still charging.");
-		return;
-	}
-	/* A stack of rods lacks enough energy. */
-	else if ((o_ptr->number > 1) && (o_ptr->timeout > o_ptr->pval - k_info[o_ptr->k_idx].pval))
-	{
-		if (flush_failure) flush();
-		message(MSG_FAIL, 0, "The rods are all still charging.");
-		return;
-	}
-
 	o_ptr->timeout += k_info[o_ptr->k_idx].pval;
 
 	/* Sound */
@@ -1821,9 +1829,12 @@ void do_cmd_zap_rod(void)
 	/* Restrict choices to rods */
 	item_tester_tval = TV_ROD;
 
+	/* Don't offer charging rods */
+	item_tester_hook = item_tester_hook_recharged;
+
 	/* Get an item */
 	q = "Zap which rod? ";
-	s = "You have no rod to zap.";
+	s = "You have no charged rod to zap.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Zap the rod */
@@ -1873,22 +1884,6 @@ static void do_cmd_invoke_talisman_aux(int item)
 		return;
 	}
 
-	/* A single talisman is still charging */
-	if ((o_ptr->number == 1) && (o_ptr->timeout))
-	{
-		if (flush_failure) flush();
-		message(MSG_FAIL, 0, "The talisman is still charging.");
-		return;
-	}
-
-	/* A stack of talismans lacks enough energy. */
-	else if ((o_ptr->number > 1) && (o_ptr->timeout > o_ptr->pval - k_info[o_ptr->k_idx].pval))
-	{
-		if (flush_failure) flush();
-		message(MSG_FAIL, 0, "The talismans are all still charging.");
-		return;
-	}
-
 	o_ptr->timeout += k_info[o_ptr->k_idx].pval;
 
 	/* Partial success */
@@ -1928,12 +1923,15 @@ void do_cmd_invoke_talisman(void)
 	int item;
 	cptr q, s;
 
-	/* Restrict choices to rods */
-	item_tester_tval = TV_TALISMAN;
+	/* Restrict choices to talismans */
+ 	item_tester_tval = TV_TALISMAN;
+
+	/* Don't offer charging talismans */
+	item_tester_hook = item_tester_hook_recharged;
 
 	/* Get an item */
 	q = "Invoke which talisman? ";
-	s = "You have no talisman to invoke.";
+	s = "You have no charged talisman to invoke.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Invoke the talisman */

@@ -42,16 +42,16 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
 
 ***** <Gnome>
           Gnome
-               Gnomes are smaller than dwarves but larger than halflings.
-               They, like  the halflings, live in the earth in burrow-like
-               homes.  Gnomes make excellent mages, and have very good saving
-               throws.  They are good at searching, disarming, perception,
-               alchemy, digging, and stealth.  They have lower strength than
-               humans so they are not very good at fighting with hand weapons,
-               but are quite capable of using ranged attacks.  Gnomes have
-               fair infra-vision, so they can detect warm-blooded creatures
-               at a distance.  Gnomes are intrinsically protected against
-               paralysis and some slowing effects.
+               While they share similar underground habitats, gnomes are 
+               smaller than dwarves, and possess a different temprament. 
+               Their studious natures make them excellent mages, and they 
+               have very good saving throws.  They are also good at searching, 
+               disarming, perception, alchemy, digging, and stealth.  They 
+               have lower strength than humans so they are not very good at 
+               fighting with hand weapons, but are quite capable of using 
+               ranged attacks.  Gnomes have fair infra-vision, and are 
+               intrinsically protected against paralysis and some slowing
+               effects.
 
 ***** <Grippli>
           Grippli
@@ -120,20 +120,19 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                naturally suspicious of races that live underground. Vargr's 
                constitution is inherently sustained.
 
-***** <Nilbog>
-          Nilbog
-               The nilbog (sing. and plural) are a race shrouded in mystery. 
-               They are slightly shorter than humans and totally hairless. No 
-               one knowns whence they come from or why; even they themselves 
-               have no memory of their past. They accept this calmly, confident
-               that when the time will come for the purpose of their existance
-               to be known they, shall be up to the task. They are creatures of
-               unmagic, and disrupt the magic around them. This provides them 
-               with innate protection from mana based attacks, but they are 
-               barred from most classes as spellcasting is incredibly difficult
-               to them and magical weapons and armor that they weild will 
-               quickly lose its power.
- 
+***** <Kyrrus>
+          Kyrrus
+               A rare sight out of their native mountains, the Kyrri are a 
+               deeply religious race of mountain goats. Their society is 
+               arranged around secluded monasteries where the holy and magical.
+               arts are studied. Only very few of the Kyrri choose a life 
+               away from these institutions, but those that do are known for
+               their ability as mages, mystics and priests. While the Kyrri
+               tend to prefer magical arts over physical prowess, there are 
+               those among them who choose to combine might with religous 
+               faith and become paladins. Well educated and wise, their 
+               wisdom is naturally sustained against attacks.
+
 ***** <Angel>
           Angel
                Angels come from heaven to spread the causes of good, by any
@@ -176,7 +175,7 @@ Rattikin   Yes    Yes  Yes     Yes      Yes    No     No      No    No
 Felpurr    Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
 Ursa       Yes    No   No      No       No     Yes    Yes     No    No
 Vargr      Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
-Nilbog     Yes    Yes  No      No       No     No     No      No    No
+Kyrrus     No     No   Yes     No       No     Yes    Yes     Yes   No
 Angel      Yes    No   Yes     Yes      Yes    Yes    Yes     Yes   Yes
 Demon      Yes    Yes  Yes     Yes      Yes    No     No      No    No
 
@@ -195,10 +194,10 @@ are listed in the following table.
            Grippli     -3   +1   +1   +2   +1    0       7         +10%
            Lizardman   +1   -2   -1    0   +1   -3      11         +20%
            Rattikin    -2   +1   -1   +3   -1   -2       7         +10%
-           Felpurr     -2   +1    0   +1   -1    0      10         +20%
+           Felpurr     -2   +1    0   +1   -1    0      10         +25%
            Ursa        +3   -3    0   -2   +2   -2      12         +25%
-           Vargr       +1   +1   +1   +1   +1    0      11         +80%
-           Nilbog      +1   +1   +1   +2   +2    0      10         +20%
+           Vargr       +1   +1   +1   +1   +1    0      11         +70%
+           Kyrrus       0   +1   +2   -2    0   -1       9         +20%
            Angel        *    *    *    *    *    *       9         +90%
            Demon        *    *    *    *    *    *      10        +120%
 
@@ -213,13 +212,13 @@ Human   10  10  10  10  10  20  20  10  10  20  10  10  10  10  10  -   -   -
 Elf     5   15  5   15  5   25  25  50  -   15  10  10  10  5   10  -   4   -
 Dwarf   15  15  15  15  10  25  25  -   20  5   5   10  10  10  5   -   -   -
 Gnome   10  10  10  10  10  10  10  -   20  10  5   10  -   5   5   4   -   4
-Grip.   20   5  10  5   66  30  25  10  5   10  10  10  10  10  10  -   -   -
+Grip.   20  5   10  5   66  30  25  10  5   10  10  10  10  10  10  -   -   -
 Lizard. 15  10  10  10  20  66  20  -   10  10  5   5   10  5   5   -   -   -
 Rat.    10  10  5   10  10  35  66  5   25  5   10  5   10  10  5   -   -   -
-Fel.     5   5  15  15  10  10  10  15  15  15  10  10  10  10  10  -   -   -
+Fel.    5   5   15  15  10  10  10  15  15  15  10  10  10  10  10  -   -   -
 Ursa    10  10  25  50  10  15  15  10  10  5   10  10  5   10  10  -   -   -
 Vargr   15  15  15  15  15  25  25  15  15  15  5   15  15  15  10  -   -   -
-Nilbog  10  10  10  10  10  20  20  10  10  20  10  10  10  10  10  5   -   66 
+Kyruss  -   -   -   30  -   8   12  15  15  25  10   5  10  10  -   10  10  10
 Angel   40  40  40  30  35  35  35 100  20  35  35  35  20  35  -   7   7   7
 Demon   35  35 100  35  30  35  35  -   50  30  30  30  30  30  30  7   -   7
 
